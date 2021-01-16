@@ -1,0 +1,159 @@
+# get coordinate subset by a shapefile
+# Using https://www.r-bloggers.com/2014/07/clipping-spatial-data-in-r/
+# 
+
+library(sp)  # vector data
+library(raster)  # raster data
+library(rgdal)  # input/output, projections
+library(rgeos)  # geometry ops
+library(spdep)  # spatial dependence
+library(broom)
+library(ggplot2)
+library(mapview)
+library(leafsync)
+
+# TODO:
+# rm extra libraries
+# 1) create work dir
+# Prerequisite: have in the work dir
+#   a) csv file with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND
+#   b) shapefile
+# 2) read shapefile
+# 3) read csv and convert to sprf (or get from db)
+# 4) subtract
+# 5) write csv
+#   a) mapview
+# 
+
+create_work_dir <- function() {
+  # main_dir_win <- "$HOME" # "%HOMEDRIVE%%HOMEPATH%" 
+  main_dir <- "~"
+  sub_dir <- "coord_subset"
+  full_path_to_new_dir <- file.path(main_dir, sub_dir)
+  dir.create(full_path_to_new_dir)
+  setwd(full_path_to_new_dir)
+  full_path_to_new_dir
+}
+
+read_file_names <- function(){
+  coord_file_name <- readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): " )
+  shapefile_path <- readline(prompt = "Shapefile dir name: " )
+  shapefile_name_full <- readline(prompt = "Shapefile name (no extension): " ) 
+  shapefile_name <- tools::file_path_sans_ext(shapefile_name_full)
+  coord_file_name <- as.character(coord_file_name)
+  shapefile_path <- as.character(shapefile_path)
+  shapefile_name <- as.character(shapefile_name)
+  
+  c(coord_file_name, shapefile_path, shapefile_name)
+}
+
+read_shapefile <- function(file_names) {
+  shapefile_file_path <- file_names[2]
+  shapefile_file_name <- file_names[3]
+  
+  readOGR( 
+    dsn = shapefile_file_path,
+    layer = shapefile_file_name # Do not need ".shp" file extension
+  )
+}
+
+get_csv_data <- function(file_names) {
+  read.csv(file_names[1]) %>%
+    dplyr::select(starts_with("GIS")) -> lat_lon_data_all
+  
+  cbind(stack(lat_lon_data_all[1:2]), stack(lat_lon_data_all[3:4])) -> res1
+  
+  colnames(res1) <- c("lat", "i1", "lon", "i2")
+  
+  res2 <- dplyr::select(res1, !starts_with("i"))
+  
+  # remove NAs
+  res2[complete.cases(res2),] 
+  
+}
+
+lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
+  lat_lon_crs <- "+init=epsg:4326"
+  coordinates(lat_lon_data) <- ~ lon + lat
+  proj4string(lat_lon_data) <- lat_lon_crs
+  #     lat     lon
+  # 38.40167 -73.45000
+
+  shapefile_crs <- CRS(proj4string(shapefile_data))
+  
+  lat_lon_data <- spTransform(lat_lon_data, shapefile_crs) 
+  #        lon     lat
+  # 1 -8176417 4636324
+  
+  proj4string(lat_lon_data) <- shapefile_crs
+  proj4string(shapefile_data) <- shapefile_crs
+  
+  lat_lon_data_short <- lat_lon_data[shapefile_data,]
+  
+  # transform back
+  lat_lon_data_short_origCRS <- spTransform(lat_lon_data_short, CRS(lat_lon_crs))
+  
+  write.csv(coordinates(lat_lon_data_short_origCRS), file = "lat_lon_data_subset.csv")
+  
+  return(list(lat_lon_data, lat_lon_data_short_origCRS))
+}
+
+view_maps <- function(shapefile_data, lat_lon_data_list) {
+  
+  lat_lon_data <- lat_lon_data_list[[1]]
+  lat_lon_data_short_origCRS <- lat_lon_data_list[[2]]
+  
+  m_all <- mapview(c(shapefile_data, lat_lon_data), color = "red")
+  m_subset <- mapview(c(shapefile_data, lat_lon_data_short_origCRS), color = "red")
+  latticeView(m_all, m_subset) # not synced
+}
+
+# ---------
+
+my_test <- function() {
+  # original_test_mode <- getOption('my_package.test_mode')
+  # options('my_package.test_mode' = TRUE)
+  
+  full_path_to_new_dir <- create_work_dir()
+  # file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name)
+  file_names <- c("export.csv", "Massachusetts_Restricted_Area_20150605", "Massachusetts_Restricted_Area_20150605")
+  
+  shapefile_data <- read_shapefile(file_names)
+  lat_lon_data <- get_csv_data(file_names)
+  
+  lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data) 
+  
+  view_maps(shapefile_data, lat_lon_data_list)
+    
+  # options("my_package.test_mode" = NULL)
+  
+  # TODO: add to the file_names code:
+  # if(getOption('my_package.test_mode', FALSE)) {
+    # This happens in test mode
+    # my_value <- 5
+  # } else {
+    # normal processing
+    # my_value <- readline('please write value: ')
+  # }
+
+  # out <- list(shapefile_data, lat_lon_data)
+  # return(out)
+
+  # > shapefile_data <- rres2[[1]]
+  # > class(shapefile_data)
+  # [1] "SpatialPolygonsDataFrame"
+  # > lat_lon_data <- rres2[[2]]
+  
+}
+
+# __main__
+
+subset_coords <- function() {
+  full_path_to_new_dir <- create_work_dir()
+  file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name)
+  shapefile_data <- read_shapefile(file_names)
+  lat_lon_data <- get_csv_data(file_names)
+  lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data) 
+  
+  view_maps(shapefile_data, lat_lon_data_list)
+}
