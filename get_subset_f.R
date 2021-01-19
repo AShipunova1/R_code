@@ -103,15 +103,14 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
 
   lat_lon_data <- lat_lon_data_list[[1]]
   lat_lon_data_short_origCRS <- lat_lon_data_list[[2]]
+
   m1 <- mapview(shapefile_data)
   m2 <- mapview(lat_lon_data, color = "red")
-  m_long <- m1 + m2
   m3 <- mapview(lat_lon_data_short_origCRS, color = "red")
+
+  m_all <- m1 + m2
   m_subset <- m1 + m3
-  latticeView(m_long, m_subset) # not synced
-  # m_all <- mapview(list(shapefile_data, lat_lon_data), color = "red")
-  # m_subset <- mapview(list(shapefile_data, lat_lon_data_short_origCRS), color = "red")
-  # latticeView(m_all, m_subset) # not synced
+  latticeView(m_all, m_subset) # not synced
 }
 
 # ---------
