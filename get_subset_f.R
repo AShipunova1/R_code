@@ -121,7 +121,8 @@ my_test <- function() {
 
   full_path_to_new_dir <- create_work_dir()
   # file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name)
-  file_names <- c("export.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
+  # file_names <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
+  file_names <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)")
 
   shapefile_data <- read_shapefile(file_names)
   lat_lon_data <- get_csv_data(file_names)
