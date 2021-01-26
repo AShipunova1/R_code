@@ -74,12 +74,14 @@ clean_data <- function(lat_lon_data_all) {
   res2[complete.cases(res2),]
 }
 
-get_data_from_db <- function() {
-  dbGetQuery(con_nova, 'select distinct GIS_LATHBEG,
+get_data_from_db <- function(table_name) {
+  q <- paste('select distinct GIS_LATHBEG,
     GIS_LATHEND,
     GIS_LONHBEG,
-    GIS_LONHEND
-             from request_inc_all')
+    GIS_LONHEND 
+             FROM ', table_name, "'", sep="")
+
+  lat_lon_data_all <- dbGetQuery(con_nova, q)
   lat_lon_data_all
 }
 
@@ -136,6 +138,7 @@ my_test <- function() {
 
   shapefile_data <- read_shapefile(file_names)
   #lat_lon_data_all <- get_csv_data(file_names)
+  table_name = "request_inc_all"
   lat_lon_data_all <- get_data_from_db(table_name)
   lat_lon_data <- clean_data(lat_lon_data_all)
 
