@@ -193,13 +193,10 @@ my_test <- function() {
 
 # __main__
 
-subset_coords <- function(file_names = list()) {
+subset_coords <- function(file_names = NULL) {
   full_path_to_new_dir <- create_work_dir()
-  if (length(file_names) < 3) {
-    file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
-    
-  }
-
+  if(is.null(filenames)) filenames <- read_file_names()
+  
   shapefile_data <- read_shapefile(file_names)
   lat_lon_data_all <- get_csv_data(file_names)
 
