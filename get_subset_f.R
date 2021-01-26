@@ -73,6 +73,15 @@ get_csv_data <- function(file_names) {
 
 }
 
+get_data_from_db <- function() {
+  lat_lon_data_all <- dbGetQuery(con_nova, 'select distinct GIS_LATHBEG,
+    GIS_LATHEND,
+    GIS_LONHBEG,
+    GIS_LONHEND
+             from request_inc_all')
+  lat_lon_data_all
+}
+
 lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   lat_lon_crs <- "+init=epsg:4326"
   coordinates(lat_lon_data) <- ~ lon + lat
