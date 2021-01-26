@@ -111,9 +111,10 @@ lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   return(list(lat_lon_data, lat_lon_data_short_origCRS))
 }
 
-write_result_to_csv <- function(filenames = list("lat_lon_data.csv")) {
+write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = list("lat_lon_data.csv")) {
   out_file_name <- tools::file_path_sans_ext(filenames[1])
-  out_file_name = paste(out_file_name, "subset.csv", collapse = "_")
+  out_file_name = paste(out_file_name, "subset.csv", collapse = "", sep = "_")
+
   write.csv(coordinates(lat_lon_data_short_origCRS), file = out_fil)
 }
 
