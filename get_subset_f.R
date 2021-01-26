@@ -155,7 +155,12 @@ write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL
   
   new_table_name <- dbQuoteIdentifier(ANSI(), new_table_name)
   res_df <- as.data.frame(lat_lon_data_short_origCRS)
-  dbWriteTable(con_nova, new_table_name, res_df) #, overwrite = T
+  colnames(res_df) <- toupper(colnames(res_df))
+  field_types <- c(
+    LON = "NUMBER",
+    LAT = "NUMBER"
+  )
+  dbWriteTable(con_nova, new_table_name, res_df, field.types = field_types) #, overwrite = T
   
 }
 
