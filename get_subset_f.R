@@ -40,12 +40,14 @@ read_file_names <- function(){
   coord_file_name <- readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): " )
   shapefile_path <- readline(prompt = "Shapefile dir name: " )
   shapefile_name_full <- readline(prompt = "Shapefile name (no extension): " )
+  out_file_name <- readline(prompt = "Output file name: " )
+  
   shapefile_name <- tools::file_path_sans_ext(shapefile_name_full)
   coord_file_name <- as.character(coord_file_name)
   shapefile_path <- as.character(shapefile_path)
   shapefile_name <- as.character(shapefile_name)
 
-  c(coord_file_name, shapefile_path, shapefile_name)
+  c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
 }
 
 read_shapefile <- function(file_names) {
@@ -112,7 +114,15 @@ lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
 }
 
 write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = list("lat_lon_data.csv")) {
-  out_file_name <- tools::file_path_sans_ext(filenames[1])
+  if (length(filenames) == 3) {
+    out_file_name <- tools::file_path_sans_ext(filenames[1])
+  }
+  else if (length(filenames) == 4) {
+    out_file_name <- tools::file_path_sans_ext(filenames[4])
+  }
+  else {
+    stop("Please run again and provide correct file names")
+  }
   out_file_name = paste(out_file_name, "subset.csv", collapse = "", sep = "_")
 
   write.csv(coordinates(lat_lon_data_short_origCRS), file = out_file_name)
@@ -139,9 +149,10 @@ my_test <- function() {
   # options('my_package.test_mode' = TRUE)
 
   full_path_to_new_dir <- create_work_dir()
-  # file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name)
+  file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
+  
   # file_names <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
-  file_names <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)")
+  # file_names <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "fancy_name.csv")
 
   shapefile_data <- read_shapefile(file_names)
   #lat_lon_data_all <- get_csv_data(file_names)
@@ -184,4 +195,23 @@ subset_coords <- function() {
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
 
   view_maps(shapefile_data, lat_lon_data_list)
+}
+
+subset_coorde_from_db <- function() {
+  full_path_to_new_dir <- create_work_dir()
+  file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name)
+  # file_names <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
+  # file_names <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)")
+  
+  shapefile_data <- read_shapefile(file_names)
+  table_name <- readline(prompt = "Input table name: " )
+  # table_name = "request_inc_all"
+  where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 04 AND 06"
+  lat_lon_data_all <- get_data_from_db(table_name, where_part)
+  lat_lon_data <- clean_data(lat_lon_data_all)
+  
+  lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
+  
+  view_maps(shapefile_data, lat_lon_data_list)
+  write_result_to_csv(lat_lon_data_list[2], file_names)
 }
