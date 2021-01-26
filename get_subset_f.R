@@ -149,10 +149,12 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
 
 write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL)  {
   if(is.null(new_table_name)) new_table_name <- "lat_lon_data_result"
-
+  print(paste("new_table_name = ", new_table_name))
+  
   new_table_name <- dbQuoteIdentifier(ANSI(), new_table_name)
   res_df <- as.data.frame(lat_lon_data_short_origCRS)
   dbWriteTable(con_nova, new_table_name, res_df) #, overwrite = T
+  
 }
 
 # ---------
