@@ -84,7 +84,7 @@ get_data_from_db <- function(table_name, where_part = "") {
     GIS_LONHBEG,
     GIS_LONHEND 
              FROM ", table_name, where_part, sep = " ")
-
+  print(q)
   #lat_lon_data_all <- 
   dbGetQuery(con_nova, q)
 }
@@ -192,7 +192,7 @@ my_test <- function() {
 }
 
 # __main__
-
+# file_names = c(coord_file_name, shapefile_path, shapefile_name)
 subset_coords <- function(file_names = NULL) {
   full_path_to_new_dir <- create_work_dir()
   if(is.null(filenames)) filenames <- read_file_names()
@@ -206,19 +206,17 @@ subset_coords <- function(file_names = NULL) {
   
   view_maps(shapefile_data, lat_lon_data_list)
   write_result_to_csv(lat_lon_data_list[2], file_names)
-  
 }
-subset_coorde_from_db <- function() {
+
+subset_coords_from_db <- function(file_names = NULL) {
   full_path_to_new_dir <- create_work_dir()
-  file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name)
-  # file_names <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
-  # file_names <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)")
+  if(is.null(filenames)) filenames <- read_file_names()
   
   shapefile_data <- read_shapefile(file_names)
   table_name <- readline(prompt = "Input table name: " )
   # table_name = "request_inc_all"
-  where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 04 AND 06"
-  lat_lon_data_all <- get_data_from_db(table_name, where_part)
+  where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
+  lat_lon_data_all <- get_data_from_db(table_name, where_part)  
   lat_lon_data <- clean_data(lat_lon_data_all)
   
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
@@ -226,3 +224,4 @@ subset_coorde_from_db <- function() {
   view_maps(shapefile_data, lat_lon_data_list)
   write_result_to_csv(lat_lon_data_list[2], file_names)
 }
+
