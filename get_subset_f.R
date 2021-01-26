@@ -216,7 +216,7 @@ subset_coords <- function(file_names = NULL) {
   write_result_to_csv(lat_lon_data_list[2], file_names)
 }
 
-subset_coords_from_db <- function(file_names = NULL, table_name = NULL, where_part = NULL) {
+subset_coords_from_db <- function(file_names = NULL, table_name = NULL, where_part = NULL, new_out_table_name = NULL) {
   full_path_to_new_dir <- create_work_dir()
   if(is.null(filenames)) filenames <- read_file_names()
   
@@ -226,6 +226,7 @@ subset_coords_from_db <- function(file_names = NULL, table_name = NULL, where_pa
   # table_name = "request_inc_all"
   
   if(is.null(where_part)) where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
+  
   lat_lon_data_all <- get_data_from_db(table_name, where_part)  
   lat_lon_data <- clean_data(lat_lon_data_all)
   
@@ -233,6 +234,9 @@ subset_coords_from_db <- function(file_names = NULL, table_name = NULL, where_pa
   
   view_maps(shapefile_data, lat_lon_data_list)
   write_result_to_csv(lat_lon_data_list[2], file_names)
-  write_result_to_db(lat_lon_data_list[2])
+
+  if(is.null(new_out_table_name)) new_out_table_name <- readline(prompt = "Output new table name: " )
+  
+  write_result_to_db(lat_lon_data_list[2], new_out_table_name)
 }
 
