@@ -74,14 +74,14 @@ clean_data <- function(lat_lon_data_all) {
   res2[complete.cases(res2),]
 }
 
-get_data_from_db <- function(table_name) {
+get_data_from_db <- function(table_name, where_part = "") {
   # table_name <- "REQUEST_INC_ALL"
   
   q <-  paste("select distinct GIS_LATHBEG,
     GIS_LATHEND,
     GIS_LONHBEG,
     GIS_LONHEND 
-             FROM ", table_name, " WHERE month BETWEEN 04 AND 06")
+             FROM ", table_name, where_part, sep = " ")
 
   #lat_lon_data_all <- 
   dbGetQuery(con_nova, q)
@@ -115,7 +115,7 @@ write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = list("la
   out_file_name <- tools::file_path_sans_ext(filenames[1])
   out_file_name = paste(out_file_name, "subset.csv", collapse = "", sep = "_")
 
-  write.csv(coordinates(lat_lon_data_short_origCRS), file = out_fil)
+  write.csv(coordinates(lat_lon_data_short_origCRS), file = out_file_name)
 }
 
 view_maps <- function(shapefile_data, lat_lon_data_list) {
@@ -146,13 +146,13 @@ my_test <- function() {
   shapefile_data <- read_shapefile(file_names)
   #lat_lon_data_all <- get_csv_data(file_names)
   table_name = "request_inc_all"
-  lat_lon_data_all <- get_data_from_db(table_name)
+  lat_lon_data_all <- get_data_from_db(table_name, " WHERE month BETWEEN 04 AND 06")
   lat_lon_data <- clean_data(lat_lon_data_all)
 
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
-
+  
   view_maps(shapefile_data, lat_lon_data_list)
-
+  write_result_to_csv(lat_lon_data_list[2], file_names)
   # options("my_package.test_mode" = NULL)
 
   # TODO: add to the file_names code:
