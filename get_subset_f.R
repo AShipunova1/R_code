@@ -75,32 +75,16 @@ clean_data <- function(lat_lon_data_all) {
 }
 
 get_data_from_db <- function(table_name) {
-  # airport <- dbSendQuery(con, "SELECT * FROM airports WHERE faa = ?")
-  # Use dbBind() to execute the query with specific values, then dbFetch() to get the results:
-  #   
-  #   dbBind(airport, list("GPT"))
-  # dbFetch(airport)
+  # table_name <- "REQUEST_INC_ALL"
   
-  q0 <- "select distinct GIS_LATHBEG,
-    GIS_LATHEND,
-    GIS_LONHBEG,
-    GIS_LONHEND 
-             FROM ?" #"ASHIPUNOVA.REQUEST_INC_ALL"
-
-  q1 <-  paste("select distinct GIS_LATHBEG,
+  q <-  paste("select distinct GIS_LATHBEG,
     GIS_LATHEND,
     GIS_LONHBEG,
     GIS_LONHEND 
              FROM ", table_name)
-  # table_name <- "REQUEST_INC_ALL"
-  lat_lon_data_all <- DBI::dbSendQuery(con_nova, q)
-  DBI::dbBind(lat_lon_data_all, list(table_name), schema = "ASHIPUNOVA")
-  DBI::dbFetch(lat_lon_data_all)
-  #lat_lon_data_all <- dbGetQuery(con_nova, q)
-  #DBI::sqlInterpolate(con, ., row2 = 0, row1 = 1) %>%
-  #  DBI::dbGetQuery(con, .)
 
-  
+  #lat_lon_data_all <- 
+  dbGetQuery(con_nova, q)
 }
 
 lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
