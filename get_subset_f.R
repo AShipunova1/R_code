@@ -187,16 +187,24 @@ my_test <- function() {
 
 # __main__
 
-subset_coords <- function() {
+subset_coords <- function(file_names = list()) {
   full_path_to_new_dir <- create_work_dir()
-  file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name)
+  if (length(file_names) < 3) {
+    file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
+    
+  }
+
   shapefile_data <- read_shapefile(file_names)
-  lat_lon_data <- get_csv_data(file_names)
+  lat_lon_data_all <- get_csv_data(file_names)
+
+  lat_lon_data <- clean_data(lat_lon_data_all)
+  
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
-
+  
   view_maps(shapefile_data, lat_lon_data_list)
+  write_result_to_csv(lat_lon_data_list[2], file_names)
+  
 }
-
 subset_coorde_from_db <- function() {
   full_path_to_new_dir <- create_work_dir()
   file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name)
