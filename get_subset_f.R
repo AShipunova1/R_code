@@ -149,6 +149,8 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
 
 write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL)  {
   if(is.null(new_table_name)) new_table_name <- "lat_lon_data_result"
+  new_table_name <- toupper(new_table_name)
+  
   print(paste("new_table_name = ", new_table_name))
   
   new_table_name <- dbQuoteIdentifier(ANSI(), new_table_name)
