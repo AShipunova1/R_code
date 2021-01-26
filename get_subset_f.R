@@ -157,8 +157,8 @@ write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL
   res_df <- as.data.frame(lat_lon_data_short_origCRS)
   colnames(res_df) <- toupper(colnames(res_df))
   field_types <- c(
-    LON = "NUMBER",
-    LAT = "NUMBER"
+    LON = "NUMBER(8,6)",
+    LAT = "NUMBER(8,6)"
   )
   dbWriteTable(con_nova, new_table_name, res_df, field.types = field_types) #, overwrite = T
   
