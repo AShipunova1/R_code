@@ -113,15 +113,20 @@ lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   return(list(lat_lon_data, lat_lon_data_short_origCRS))
 }
 
-write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = list("lat_lon_data.csv")) {
-  if (length(filenames) == 3) {
-    out_file_name <- tools::file_path_sans_ext(filenames[1])
-  }
-  else if (length(filenames) == 4) {
+write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = NULL)  {
+  if(is.null(filenames)) filenames <- list("lat_lon_data.csv")
+  
+  out_file_name_exists <- length(filenames) == 4 &&
+    (nchar(filenames[[4]]) > 0)
+  
+  if (out_file_name_exists) {
     out_file_name <- tools::file_path_sans_ext(filenames[4])
   }
+  else if(nchar(filenames[[1]]) > 0) {
+    out_file_name <- tools::file_path_sans_ext(filenames[1])
+  }
   else {
-    stop("Please run again and provide correct file names")
+    stop("Please provide correct file names without qoutes")
   }
   out_file_name = paste(out_file_name, "subset.csv", collapse = "", sep = "_")
 
@@ -149,11 +154,12 @@ my_test <- function() {
   # options('my_package.test_mode' = TRUE)
 
   full_path_to_new_dir <- create_work_dir()
-  file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
+  # file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
   
   # file_names <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
   # file_names <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "fancy_name.csv")
-
+  file_names <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)", "")
+  
   shapefile_data <- read_shapefile(file_names)
   #lat_lon_data_all <- get_csv_data(file_names)
   table_name = "request_inc_all"
