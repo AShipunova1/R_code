@@ -152,7 +152,7 @@ write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL
 
   new_table_name <- dbQuoteIdentifier(ANSI(), new_table_name)
   res_df <- as.data.frame(lat_lon_data_short_origCRS)
-  dbWriteTable(con_nova, new_table_name, res_df, overwrite = T)
+  dbWriteTable(con_nova, new_table_name, res_df) #, overwrite = T
 }
 
 # ---------
@@ -216,14 +216,16 @@ subset_coords <- function(file_names = NULL) {
   write_result_to_csv(lat_lon_data_list[2], file_names)
 }
 
-subset_coords_from_db <- function(file_names = NULL) {
+subset_coords_from_db <- function(file_names = NULL, table_name = NULL, where_part = NULL) {
   full_path_to_new_dir <- create_work_dir()
   if(is.null(filenames)) filenames <- read_file_names()
   
   shapefile_data <- read_shapefile(file_names)
-  table_name <- readline(prompt = "Input table name: " )
+  
+  if(is.null(table_name)) table_name <- readline(prompt = "Input table name: " )
   # table_name = "request_inc_all"
-  where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
+  
+  if(is.null(where_part)) where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
   lat_lon_data_all <- get_data_from_db(table_name, where_part)  
   lat_lon_data <- clean_data(lat_lon_data_all)
   
