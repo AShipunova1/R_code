@@ -81,7 +81,7 @@ get_data_from_db <- function(table_name) {
     GIS_LATHEND,
     GIS_LONHBEG,
     GIS_LONHEND 
-             FROM ", table_name)
+             FROM ", table_name, " WHERE month BETWEEN 04 AND 06")
 
   #lat_lon_data_all <- 
   dbGetQuery(con_nova, q)
@@ -108,9 +108,13 @@ lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   # transform back
   lat_lon_data_short_origCRS <- spTransform(lat_lon_data_short, CRS(lat_lon_crs))
 
-  write.csv(coordinates(lat_lon_data_short_origCRS), file = "lat_lon_data_subset.csv")
-
   return(list(lat_lon_data, lat_lon_data_short_origCRS))
+}
+
+write_result_to_csv <- function(filenames = list("lat_lon_data.csv")) {
+  out_file_name <- tools::file_path_sans_ext(filenames[1])
+  out_file_name = paste(out_file_name, "subset.csv", collapse = "_")
+  write.csv(coordinates(lat_lon_data_short_origCRS), file = out_fil)
 }
 
 view_maps <- function(shapefile_data, lat_lon_data_list) {
