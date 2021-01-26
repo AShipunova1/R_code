@@ -81,16 +81,25 @@ get_data_from_db <- function(table_name) {
   #   dbBind(airport, list("GPT"))
   # dbFetch(airport)
   
-  q <- "select distinct GIS_LATHBEG,
+  q0 <- "select distinct GIS_LATHBEG,
     GIS_LATHEND,
     GIS_LONHBEG,
     GIS_LONHEND 
              FROM ?" #"ASHIPUNOVA.REQUEST_INC_ALL"
 
+  q1 <-  paste("select distinct GIS_LATHBEG,
+    GIS_LATHEND,
+    GIS_LONHBEG,
+    GIS_LONHEND 
+             FROM ", table_name)
+  # table_name <- "REQUEST_INC_ALL"
   lat_lon_data_all <- DBI::dbSendQuery(con_nova, q)
-  DBI::dbBind(lat_lon_data_all, list(table_name))
+  DBI::dbBind(lat_lon_data_all, list(table_name), schema = "ASHIPUNOVA")
   DBI::dbFetch(lat_lon_data_all)
   #lat_lon_data_all <- dbGetQuery(con_nova, q)
+  #DBI::sqlInterpolate(con, ., row2 = 0, row1 = 1) %>%
+  #  DBI::dbGetQuery(con, .)
+
   
 }
 
