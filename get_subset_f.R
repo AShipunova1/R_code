@@ -60,8 +60,10 @@ read_shapefile <- function(file_names) {
 
 get_csv_data <- function(file_names) {
   read.csv(file_names[1]) %>%
-    dplyr::select(starts_with("GIS")) -> lat_lon_data_all
+    dplyr::select(starts_with("GIS"))
+}
 
+clean_data <- function(lat_lon_data_all) {
   cbind(stack(lat_lon_data_all[1:2]), stack(lat_lon_data_all[3:4])) -> res1
 
   colnames(res1) <- c("lat", "i1", "lon", "i2")
@@ -70,11 +72,10 @@ get_csv_data <- function(file_names) {
 
   # remove NAs
   res2[complete.cases(res2),]
-
 }
 
 get_data_from_db <- function() {
-  lat_lon_data_all <- dbGetQuery(con_nova, 'select distinct GIS_LATHBEG,
+  dbGetQuery(con_nova, 'select distinct GIS_LATHBEG,
     GIS_LATHEND,
     GIS_LONHBEG,
     GIS_LONHEND
@@ -134,7 +135,9 @@ my_test <- function() {
   file_names <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)")
 
   shapefile_data <- read_shapefile(file_names)
-  lat_lon_data <- get_csv_data(file_names)
+  #lat_lon_data_all <- get_csv_data(file_names)
+  lat_lon_data_all <- get_data_from_db(table_name)
+  lat_lon_data <- clean_data(lat_lon_data_all)
 
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
 
