@@ -36,7 +36,7 @@ create_work_dir <- function() {
   full_path_to_new_dir
 }
 
-read_file_names <- function(){
+read_filenames <- function(){
   coord_file_name <- readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): " )
   shapefile_path <- readline(prompt = "Shapefile dir name: " )
   shapefile_name_full <- readline(prompt = "Shapefile name (no extension): " )
@@ -50,9 +50,9 @@ read_file_names <- function(){
   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
 }
 
-read_shapefile <- function(file_names) {
-  shapefile_file_path <- file_names[2]
-  shapefile_file_name <- file_names[3]
+read_shapefile <- function(filenames) {
+  shapefile_file_path <- filenames[2]
+  shapefile_file_name <- filenames[3]
 
   readOGR(
     dsn = shapefile_file_path,
@@ -60,8 +60,8 @@ read_shapefile <- function(file_names) {
   )
 }
 
-get_csv_data <- function(file_names) {
-  read.csv(file_names[1]) %>%
+get_csv_data <- function(filenames) {
+  read.csv(filenames[1]) %>%
     dplyr::select(starts_with("GIS"))
 }
 
@@ -171,14 +171,14 @@ my_test <- function() {
   # options('my_package.test_mode' = TRUE)
 
   full_path_to_new_dir <- create_work_dir()
-  # file_names <- read_file_names() #   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
+  # filenames <- read_filenames() #   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
   
-  # file_names <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
-  # file_names <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "fancy_name.csv")
-  file_names <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)", "")
+  # filenames <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
+  # filenames <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "fancy_name.csv")
+  filenames <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)", "")
   
-  shapefile_data <- read_shapefile(file_names)
-  #lat_lon_data_all <- get_csv_data(file_names)
+  shapefile_data <- read_shapefile(filenames)
+  #lat_lon_data_all <- get_csv_data(filenames)
   table_name = "request_inc_all"
   lat_lon_data_all <- get_data_from_db(table_name, " WHERE month BETWEEN 04 AND 06")
   lat_lon_data <- clean_data(lat_lon_data_all)
@@ -186,10 +186,10 @@ my_test <- function() {
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
   
   view_maps(shapefile_data, lat_lon_data_list)
-  write_result_to_csv(lat_lon_data_list[2], file_names)
+  write_result_to_csv(lat_lon_data_list[2], filenames)
   # options("my_package.test_mode" = NULL)
 
-  # TODO: add to the file_names code:
+  # TODO: add to the filenames code:
   # if(getOption('my_package.test_mode', FALSE)) {
     # This happens in test mode
     # my_value <- 5
@@ -209,27 +209,27 @@ my_test <- function() {
 }
 
 # __main__
-# file_names = c(coord_file_name, shapefile_path, shapefile_name)
-subset_coords <- function(file_names = NULL) {
+# filenames = c(coord_file_name, shapefile_path, shapefile_name)
+subset_coords <- function(filenames = NULL) {
   full_path_to_new_dir <- create_work_dir()
-  if(is.null(filenames)) filenames <- read_file_names()
+  if(is.null(filenames)) filenames <- read_filenames()
   
-  shapefile_data <- read_shapefile(file_names)
-  lat_lon_data_all <- get_csv_data(file_names)
+  shapefile_data <- read_shapefile(filenames)
+  lat_lon_data_all <- get_csv_data(filenames)
 
   lat_lon_data <- clean_data(lat_lon_data_all)
   
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
   
   view_maps(shapefile_data, lat_lon_data_list)
-  write_result_to_csv(lat_lon_data_list[2], file_names)
+  write_result_to_csv(lat_lon_data_list[2], filenames)
 }
 
-subset_coords_from_db <- function(file_names = NULL, table_name = NULL, where_part = NULL, new_out_table_name = NULL) {
+subset_coords_from_db <- function(filenames = NULL, table_name = NULL, where_part = NULL, new_out_table_name = NULL) {
   full_path_to_new_dir <- create_work_dir()
-  if(is.null(filenames)) filenames <- read_file_names()
+  if(is.null(filenames)) filenames <- read_filenames()
   
-  shapefile_data <- read_shapefile(file_names)
+  shapefile_data <- read_shapefile(filenames)
   
   if(is.null(table_name)) table_name <- readline(prompt = "Input table name: " )
   # table_name = "request_inc_all"
@@ -242,10 +242,44 @@ subset_coords_from_db <- function(file_names = NULL, table_name = NULL, where_pa
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
   
   view_maps(shapefile_data, lat_lon_data_list)
-  write_result_to_csv(lat_lon_data_list[2], file_names)
+  write_result_to_csv(lat_lon_data_list[2], filenames)
 
   if(is.null(new_out_table_name)) new_out_table_name <- readline(prompt = "Output new table name: " )
   
   write_result_to_db(lat_lon_data_list[2], new_out_table_name)
+}
+
+subset_coords_both <- function(filenames = NULL, table_name = NULL, where_part = NULL, new_out_table_name = NULL, use_db = FALSE) {
+  full_path_to_new_dir <- create_work_dir()
+  if(is.null(filenames)) filenames <- read_filenames()
+  
+  shapefile_data <- read_shapefile(filenames)
+  
+  if (use_db == TRUE) {
+    
+      if(is.null(table_name)) table_name <- readline(prompt = "Input table name: " )
+      # table_name = "request_inc_all"
+      
+      if(is.null(where_part)) where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
+      
+      lat_lon_data_all <- get_data_from_db(table_name, where_part)  
+  }
+  
+  else { # use csv file
+    lat_lon_data_all <- get_csv_data(filenames)
+  }
+  
+  lat_lon_data <- clean_data(lat_lon_data_all)
+  
+  lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
+  
+  view_maps(shapefile_data, lat_lon_data_list)
+  write_result_to_csv(lat_lon_data_list[2], filenames)
+  
+  if (use_db == TRUE) {
+    if(is.null(new_out_table_name)) new_out_table_name <- readline(prompt = "Output new table name: " )
+  
+    write_result_to_db(lat_lon_data_list[2], new_out_table_name)
+  }
 }
 
