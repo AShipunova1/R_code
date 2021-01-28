@@ -148,8 +148,10 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
   m_subset
   latticeView(m_all, m_subset) # not synced
   
-  filename="m_subset.png"
-  mapshot(m_subset, file = filename)
+  filename="~/R_code/m_subset.png"
+  # "c:\Users\anna.shipunova\Documents\R_code\get_subset_f.R"
+  # file.exists("~/R_code/get_subset_f.R")
+  mapshot(m_subset, file = filename, selfcontained = FALSE)
   
 }
 
