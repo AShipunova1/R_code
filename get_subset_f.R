@@ -144,6 +144,8 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
 
   m_all <- m1 + m2
   m_subset <- m1 + m3
+  m_all
+  m_subset
   latticeView(m_all, m_subset) # not synced
 }
 
@@ -210,52 +212,14 @@ my_test <- function() {
 
 # __main__
 # filenames = c(coord_file_name, shapefile_path, shapefile_name)
-subset_coords <- function(filenames = NULL) {
-  full_path_to_new_dir <- create_work_dir()
-  if(is.null(filenames)) filenames <- read_filenames()
-  
-  shapefile_data <- read_shapefile(filenames)
-  lat_lon_data_all <- get_csv_data(filenames)
 
-  lat_lon_data <- clean_data(lat_lon_data_all)
-  
-  lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
-  
-  view_maps(shapefile_data, lat_lon_data_list)
-  write_result_to_csv(lat_lon_data_list[2], filenames)
-}
-
-subset_coords_from_db <- function(filenames = NULL, table_name = NULL, where_part = NULL, new_out_table_name = NULL) {
+subset_coords <- function(filenames = NULL, table_name = NULL, where_part = NULL, new_out_table_name = NULL, in_from_db = FALSE, out_to_db = FALSE) {
   full_path_to_new_dir <- create_work_dir()
   if(is.null(filenames)) filenames <- read_filenames()
   
   shapefile_data <- read_shapefile(filenames)
   
-  if(is.null(table_name)) table_name <- readline(prompt = "Input table name: " )
-  # table_name = "request_inc_all"
-  
-  if(is.null(where_part)) where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
-  
-  lat_lon_data_all <- get_data_from_db(table_name, where_part)  
-  lat_lon_data <- clean_data(lat_lon_data_all)
-  
-  lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
-  
-  view_maps(shapefile_data, lat_lon_data_list)
-  write_result_to_csv(lat_lon_data_list[2], filenames)
-
-  if(is.null(new_out_table_name)) new_out_table_name <- readline(prompt = "Output new table name: " )
-  
-  write_result_to_db(lat_lon_data_list[2], new_out_table_name)
-}
-
-subset_coords_both <- function(filenames = NULL, table_name = NULL, where_part = NULL, new_out_table_name = NULL, use_db = FALSE) {
-  full_path_to_new_dir <- create_work_dir()
-  if(is.null(filenames)) filenames <- read_filenames()
-  
-  shapefile_data <- read_shapefile(filenames)
-  
-  if (use_db == TRUE) {
+  if (in_from_db == TRUE) {
     
       if(is.null(table_name)) table_name <- readline(prompt = "Input table name: " )
       # table_name = "request_inc_all"
@@ -276,10 +240,11 @@ subset_coords_both <- function(filenames = NULL, table_name = NULL, where_part =
   view_maps(shapefile_data, lat_lon_data_list)
   write_result_to_csv(lat_lon_data_list[2], filenames)
   
-  if (use_db == TRUE) {
+  if (out_to_db) {
     if(is.null(new_out_table_name)) new_out_table_name <- readline(prompt = "Output new table name: " )
   
     write_result_to_db(lat_lon_data_list[2], new_out_table_name)
+    print(paste("new_out_table_name: ", new_out_table_name))
   }
 }
 
