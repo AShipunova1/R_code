@@ -153,8 +153,7 @@ write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL
   if(is.null(new_table_name)) new_table_name <- "lat_lon_data_result"
   new_table_name <- toupper(new_table_name)
   
-  print(paste("new_table_name = ", new_table_name))
-  
+
   new_table_name <- dbQuoteIdentifier(ANSI(), new_table_name)
   res_df <- as.data.frame(lat_lon_data_short_origCRS)
   colnames(res_df) <- toupper(colnames(res_df))
@@ -213,7 +212,7 @@ my_test <- function() {
 # __main__
 # filenames = c(coord_file_name, shapefile_path, shapefile_name)
 
-subset_coords <- function(filenames = NULL, table_name = NULL, where_part = NULL, new_out_table_name = NULL, in_from_db = FALSE, out_to_db = FALSE) {
+subset_coords <- function(filenames = NULL, input_table_name = NULL, where_part = NULL, new_out_table_name = NULL, in_from_db = FALSE, out_to_db = FALSE) {
   full_path_to_new_dir <- create_work_dir()
   if(is.null(filenames)) filenames <- read_filenames()
   
@@ -221,12 +220,12 @@ subset_coords <- function(filenames = NULL, table_name = NULL, where_part = NULL
   
   if (in_from_db == TRUE) {
     
-      if(is.null(table_name)) table_name <- readline(prompt = "Input table name: " )
-      # table_name = "request_inc_all"
+      if(is.null(input_table_name)) input_table_name <- readline(prompt = "Input table name: " )
+      # input_table_name = "request_inc_all"
       
       if(is.null(where_part)) where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
       
-      lat_lon_data_all <- get_data_from_db(table_name, where_part)  
+      lat_lon_data_all <- get_data_from_db(input_table_name, where_part)  
   }
   
   else { # use csv file
