@@ -147,6 +147,10 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
   m_all
   m_subset
   latticeView(m_all, m_subset) # not synced
+  
+  filename="m_subset.png"
+  mapshot(m_subset, file = filename)
+  
 }
 
 write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL)  {
