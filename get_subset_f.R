@@ -151,7 +151,7 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
   filename="~/R_code/m_subset.png"
   # "c:\Users\anna.shipunova\Documents\R_code\get_subset_f.R"
   # file.exists("~/R_code/get_subset_f.R")
-  mapshot(m_subset, file = filename)
+  mapshot(m_subset, file = filename, selfcontained = FALSE)
   
 }
 
