@@ -238,7 +238,6 @@ my_test <- function() {
 }
 
 # __main__
-# filenames = c(coord_file_name, shapefile_path, shapefile_name)
 
 subset_coords <- function(coord_file_name = NULL, shapefile_path = NULL, shapefile_name = NULL, out_file_name = NULL, input_table_name = NULL, where_part = NULL, new_out_table_name = NULL, in_from_db = FALSE, out_to_db = FALSE) {
   full_path_to_new_dir <- create_work_dir()
