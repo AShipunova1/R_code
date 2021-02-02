@@ -57,14 +57,14 @@ read_filenames <- function(filenames){
       shapefile_path <- readline(prompt = "Shapefile dir name: " )
     }
     else if(empty_idx == 3) {
-      shapefile_name_full <- readline(prompt = "Shapefile name (no extension): " )
+      shapefile_name <- readline(prompt = "Shapefile name (no extension): " )
     }
     else if(empty_idx == 4) {
       out_file_name <- readline(prompt = "Output file name: " )
     }
   }
     
-  shapefile_name <- tools::file_path_sans_ext(shapefile_name_full)
+  shapefile_name <- tools::file_path_sans_ext(shapefile_name)
   coord_file_name <- as.character(coord_file_name)
   shapefile_path <- as.character(shapefile_path)
   shapefile_name <- as.character(shapefile_name)
