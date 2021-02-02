@@ -39,27 +39,66 @@ create_work_dir <- function() {
 }
 
 read_filenames <- function(filenames) {
-  readline_list <-
-    list(
-      readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): "),
-      readline(prompt = "Shapefile dir name: "),
-      readline(prompt = "Shapefile name (no extension): "),
-      readline(prompt = "Output file name: ")
-    )
+  var_names <- list("coord_file_name", "shapefile_path", "shapefile_name_full", "out_file_name")
+  # 
+  # readline_list0 <-
+  #   list(
+  #     readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): "),
+  #     readline(prompt = "Shapefile dir name: "),
+  #     readline(prompt = "Shapefile name (no extension): "),
+  #     readline(prompt = "Output file name: ")
+  #   )
+  
+  # create.fun <- function(index, pos_name) { return (function() funs[[index]](pos_name))}
+  # create.fun("coord_file_name", 1) -> coord_file_name
+  # create.fun("shapefile_path", 1) -> shapefile_path
+  # create.fun("shapefile_name_full", 1) -> shapefile_name_full
+  # 
+  # create.fun("out_file_name", 1) -> out_file_name
+  
+  # readline_list <- list(
+  #   coord_file_name <-
+  #     readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): "),
+  #   shapefile_path <-
+  #     readline(prompt = "Shapefile dir name: "),
+  #   shapefile_name_full <-
+  #     readline(prompt = "Shapefile name (no extension): "),
+  #   out_file_name <-
+  #     readline(prompt = "Output file name: ")
+  # )
   
   for (i in 1:length(filenames)) {
     print(i)
+    empty_idx <- 0
+    if (is.null(filenames[[i]])) {
+      empty_idx <- i
+    }
+    case_when(
+
+      empty_idx == 1 ~ coord_file_name <-
+        readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): "),
+      empty_idx == 2 ~ shapefile_path <- readline(prompt = "Shapefile dir name: "),
+      empty_idx == 3 ~ shapefile_name_full <-
+        readline(prompt = "Shapefile name (no extension): "),
+      empty_idx == 4 ~ out_file_name <- readline(prompt = "Output file name: ")
+      
+      # TRUE ~ as.character(x)
+    )
     
-  }
+    # if (is.null(filenames[[i]])) {
+    #   readline_list[[i]]
+    # }
+    
+  # }
   
-  if (list.any(is.null(filenames))) {
-    coord_file_name <-
-      readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): ")
-    shapefile_path <- readline(prompt = "Shapefile dir name: ")
-    shapefile_name_full <-
-      readline(prompt = "Shapefile name (no extension): ")
-    out_file_name <- readline(prompt = "Output file name: ")
-  }
+  # if (list.any(is.null(filenames))) {
+  #   coord_file_name <-
+  #     readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): ")
+  #   shapefile_path <- readline(prompt = "Shapefile dir name: ")
+  #   shapefile_name_full <-
+  #     readline(prompt = "Shapefile name (no extension): ")
+  #   out_file_name <- readline(prompt = "Output file name: ")
+  # }
   
   shapefile_name <- tools::file_path_sans_ext(shapefile_name_full)
   coord_file_name <- as.character(coord_file_name)
