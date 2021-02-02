@@ -12,6 +12,7 @@ library(broom)
 # library(ggplot2)
 library(mapview)
 library(leafsync)
+library(rlist)
 
 # TODO:
 # rm extra libraries
@@ -34,22 +35,41 @@ create_work_dir <- function() {
   dir.create(full_path_to_new_dir)
   setwd(full_path_to_new_dir)
   full_path_to_new_dir
+  
 }
 
-read_filenames <- function(filenames){
-  if(is.null(filenames)) {
-    coord_file_name <- readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): " )
-    shapefile_path <- readline(prompt = "Shapefile dir name: " )
-    shapefile_name_full <- readline(prompt = "Shapefile name (no extension): " )
-    out_file_name <- readline(prompt = "Output file name: " )
+read_filenames <- function(filenames) {
+  readline_list <-
+    list(
+      readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): "),
+      readline(prompt = "Shapefile dir name: "),
+      readline(prompt = "Shapefile name (no extension): "),
+      readline(prompt = "Output file name: ")
+    )
+  
+  for (i in 1:length(filenames)) {
+    print(i)
+    
+  }
+  
+  if (list.any(is.null(filenames))) {
+    coord_file_name <-
+      readline(prompt = "CSV file name (with GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND): ")
+    shapefile_path <- readline(prompt = "Shapefile dir name: ")
+    shapefile_name_full <-
+      readline(prompt = "Shapefile name (no extension): ")
+    out_file_name <- readline(prompt = "Output file name: ")
   }
   
   shapefile_name <- tools::file_path_sans_ext(shapefile_name_full)
   coord_file_name <- as.character(coord_file_name)
   shapefile_path <- as.character(shapefile_path)
   shapefile_name <- as.character(shapefile_name)
-
-  c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
+  
+  c(coord_file_name,
+    shapefile_path,
+    shapefile_name,
+    out_file_name)
 }
 
 read_shapefile <- function(filenames) {
@@ -222,8 +242,8 @@ my_test <- function() {
 
 subset_coords <- function(coord_file_name = NULL, shapefile_path = NULL, shapefile_name = NULL, out_file_name = NULL, input_table_name = NULL, where_part = NULL, new_out_table_name = NULL, in_from_db = FALSE, out_to_db = FALSE) {
   full_path_to_new_dir <- create_work_dir()
-  inp_filenames = c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
-  filenames <- read_filenames(inp_filenames)
+  inp_filenames = list(coord_file_name, shapefile_path, shapefile_name, out_file_name)
+  filenames <- read_filenames(inp_filenames)               
   shapefile_data <- read_shapefile(filenames)
   
   if (in_from_db == TRUE) {
