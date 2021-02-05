@@ -1,7 +1,8 @@
-# get coordinate subset by a shapefile
+ # get coordinate subset by a shapefile
 # Using https://www.r-bloggers.com/2014/07/clipping-spatial-data-in-r/
 #
 
+# library(odbc)
 library(sp)  # vector data
 library(dplyr)
 # library(raster)  # raster data
@@ -98,9 +99,17 @@ clean_data <- function(lat_lon_data_all) {
   res2[complete.cases(res2),]
 }
 
+clean_where_part <- function(where_part) {
+  where_begin = tolower("where ")
+  if (where_part != "" && !(startsWith(where_part, where_begin))) {
+    where_part = paste(where_begin, where_part, sep = " ")
+  }
+}
+
 get_data_from_db <- function(table_name, where_part = "") {
   # table_name <- "REQUEST_INC_ALL"
-  
+  where_part <- clean_where_part(where_part)
+  print(where_part)
   q <-  paste("select distinct GIS_LATHBEG,
     GIS_LATHEND,
     GIS_LONHBEG,
