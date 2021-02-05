@@ -5,3 +5,4 @@ history2.r
 .Rhistory
 .RData
 *.png
+.vscode/launch.json
