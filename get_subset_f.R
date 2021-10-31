@@ -1,4 +1,4 @@
- # get coordinate subset by a shapefile
+# get coordinate subset by a shapefile
 # Using https://www.r-bloggers.com/2014/07/clipping-spatial-data-in-r/
 #
 
@@ -64,7 +64,7 @@ read_filenames <- function(filenames){
       out_file_name <- readline(prompt = "Output file name: " )
     }
   }
-    
+  
   shapefile_name <- tools::file_path_sans_ext(shapefile_name)
   coord_file_name <- as.character(coord_file_name)
   shapefile_path <- as.character(shapefile_path)
@@ -143,6 +143,51 @@ stack_lat_lon_mid <- function(lat_lon_mid_data) {
   res2[complete.cases(res2),]
 }
 
+try_catch_intersection <- function(lat_lon_data, shapefile_data) {
+  shapefilename = ""
+  tryCatch(
+    {
+      # Just to highlight: if you want to use more than one 
+      # R expression in the "try" part then you'll have to 
+      # use curly brackets.
+      # 'tryCatch()' will return the last evaluated expression 
+      # in case the "try" part was completed successfully
+      message("This is the 'try' part")
+      lat_lon_data[shapefile_data,]
+      # The return value is the actual value 
+      # that will be returned in case there is no condition 
+      # (e.g. warning or error). 
+      # You don't need to state the return value via `return()` as code 
+      # in the "try" part is not wrapped inside a function (unlike that
+      # for the condition handlers for warnings and error below)
+    },
+    error = function(cond) {
+      message(paste("No trips inside the shapefile area ", shapefilename))
+      message("Here's the original error message:")
+      message(cond)
+      # Choose a return value in case of error
+      return(NA)
+    },
+    warning = function(cond) {
+      message(paste("Coordinates caused a warning:", shapefilename))
+      message("Here's the original warning message:")
+      message(cond)
+      # Choose a return value in case of warning
+      return(NULL)
+    },
+    finally = {
+      # NOTE:
+      # Here goes everything that should be executed at the end,
+      # regardless of success or error.
+      # If you want more than one expression to be executed, then you 
+      # need to wrap them in curly brackets ({...}); otherwise you could
+      # just have written 'finally=<expression>' 
+      message(paste("Processed coords:", shapefilename))
+      # message("Some other message at the end")
+    }
+  )
+}
+
 lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   lat_lon_crs <- "+init=epsg:4326"
   coordinates(lat_lon_data) <- ~ lon + lat
@@ -159,12 +204,18 @@ lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   proj4string(lat_lon_data) <- shapefile_crs
   proj4string(shapefile_data) <- shapefile_crs
 
-  lat_lon_data_short <- lat_lon_data[shapefile_data,]
-
+  lat_lon_data_short <- try_catch_intersection(lat_lon_data, shapefile_data)
+  # lat_lon_data_short <- lat_lon_data[shapefile_data,]
+  
+  if (exists("lat_lon_data_short@coords")) {
+    # nrow(lat_lon_data_short)
+  
   # transform back
   lat_lon_data_short_origCRS <- spTransform(lat_lon_data_short, CRS(lat_lon_crs))
 
   return(list(lat_lon_data, lat_lon_data_short_origCRS))
+  }
+  else return(NULL)
 }
 
 write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = NULL)  {
@@ -212,7 +263,7 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
 write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL)  {
   if(is.null(new_table_name)) new_table_name <- "lat_lon_data_result"
   new_table_name <- toupper(new_table_name)
-
+  
   new_table_name <- dbQuoteIdentifier(ANSI(), new_table_name)
   res_df <- as.data.frame(lat_lon_data_short_origCRS)
   colnames(res_df) <- toupper(colnames(res_df))
@@ -235,7 +286,7 @@ my_test <- function() {
   
 
   # filenames <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "fancy_name.csv")
-  # filenames <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)", "")
+  filenames <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)", "")
   
   shapefile_data <- read_shapefile(filenames)
   #lat_lon_data_all <- get_csv_data(filenames)
@@ -248,51 +299,7 @@ my_test <- function() {
   # lat_lon_data <- stack_lat_lon_mid(lat_lon_mid_data)
   #
   
-  # lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
-  
-  lat_lon_data_list <- tryCatch(
-    {
-      # Just to highlight: if you want to use more than one 
-      # R expression in the "try" part then you'll have to 
-      # use curly brackets.
-      # 'tryCatch()' will return the last evaluated expression 
-      # in case the "try" part was completed successfully
-      
-      message("This is the 'try' part")
-      
-      lat_lon_data_to_spf(lat_lon_data, shapefile_data)
-      # The return value is the actual value 
-      # that will be returned in case there is no condition 
-      # (e.g. warning or error). 
-      # You don't need to state the return value via `return()` as code 
-      # in the "try" part is not wrapped inside a function (unlike that
-      # for the condition handlers for warnings and error below)
-    },
-    error=function(cond) {
-      message(paste("No trips inside the shapefile area: ", filenames[2]))
-      message("Here's the original error message:")
-      message(cond)
-      # Choose a return value in case of error
-      return(NA)
-    },
-    warning=function(cond) {
-      message(paste("Coordinates caused a warning:", filenames[2]))
-      message("Here's the original warning message:")
-      message(cond)
-      # Choose a return value in case of warning
-      return(NULL)
-    },
-    finally={
-      # NOTE:
-      # Here goes everything that should be executed at the end,
-      # regardless of success or error.
-      # If you want more than one expression to be executed, then you 
-      # need to wrap them in curly brackets ({...}); otherwise you could
-      # just have written 'finally=<expression>' 
-      message(paste("Processed coords:", filenames[2]))
-      message("Some other message at the end")
-    }
-  )    
+  lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
   
   view_maps(shapefile_data, lat_lon_data_list)
   write_result_to_csv(lat_lon_data_list[2], filenames)
@@ -300,16 +307,16 @@ my_test <- function() {
 
   # TODO: add to the filenames code:
   # if(getOption('my_package.test_mode', FALSE)) {
-    # This happens in test mode
-    # my_value <- 5
+  # This happens in test mode
+  # my_value <- 5
   # } else {
-    # normal processing
-    # my_value <- readline('please write value: ')
+  # normal processing
+  # my_value <- readline('please write value: ')
   # }
 
   # out <- list(shapefile_data, lat_lon_data)
   # return(out)
-
+  
   # > shapefile_data <- rres2[[1]]
   # > class(shapefile_data)
   # [1] "SpatialPolygonsDataFrame"
@@ -327,12 +334,12 @@ subset_coords <- function(coord_file_name = NULL, shapefile_path = NULL, shapefi
   
   if (in_from_db == TRUE) {
     
-      if(is.null(input_table_name)) input_table_name <- readline(prompt = "Input table name: " )
-      # input_table_name = "request_inc_all"
-      
-      if(is.null(where_part)) where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
-      
-      lat_lon_data_all <- get_data_from_db(input_table_name, where_part)  
+    if(is.null(input_table_name)) input_table_name <- readline(prompt = "Input table name: " )
+    # input_table_name = "request_inc_all"
+    
+    if(is.null(where_part)) where_part <- readline(prompt = "WHERE clause (can be empty): " ) # " WHERE month BETWEEN 02 AND 04"
+    
+    lat_lon_data_all <- get_data_from_db(input_table_name, where_part)
   }
   
   else { # use csv file
@@ -348,7 +355,7 @@ subset_coords <- function(coord_file_name = NULL, shapefile_path = NULL, shapefi
   
   if (out_to_db) {
     if(is.null(new_out_table_name)) new_out_table_name <- readline(prompt = "Output new table name: " )
-  
+
     write_result_to_db(lat_lon_data_list[2], new_out_table_name)
     print(paste("new_out_table_name: ", new_out_table_name))
   }
