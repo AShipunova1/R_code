@@ -213,7 +213,6 @@ write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL
   if(is.null(new_table_name)) new_table_name <- "lat_lon_data_result"
   new_table_name <- toupper(new_table_name)
   
-
   new_table_name <- dbQuoteIdentifier(ANSI(), new_table_name)
   res_df <- as.data.frame(lat_lon_data_short_origCRS)
   colnames(res_df) <- toupper(colnames(res_df))
@@ -234,15 +233,20 @@ my_test <- function() {
   full_path_to_new_dir <- create_work_dir()
   # filenames <- read_filenames() #   c(coord_file_name, shapefile_path, shapefile_name, out_file_name)
   
-  # filenames <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)")
+
   # filenames <- c("export_gsc.csv", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "Great_South_Channel_Restricted_Trap_Pot_Area_(20150605)", "fancy_name.csv")
-  filenames <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)", "")
+  # filenames <- c("export_mass_restr.csv", "Massachusetts_Restricted_Area_(20150605)", "Massachusetts_Restricted_Area_(20150605)", "")
   
   shapefile_data <- read_shapefile(filenames)
   #lat_lon_data_all <- get_csv_data(filenames)
-  table_name = "request_inc_all"
+  table_name = "ALL_INC15_20"
   lat_lon_data_all <- get_data_from_db(table_name, " WHERE month BETWEEN 04 AND 06")
+  # no mid points:
   lat_lon_data <- clean_data(lat_lon_data_all)
+  # with mid points:
+  # lat_lon_mid_data <- add_middle_point(lat_lon_data_all)
+  # lat_lon_data <- stack_lat_lon_mid(lat_lon_mid_data)
+  #
 
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
   
