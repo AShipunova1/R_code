@@ -212,7 +212,7 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
 write_result_to_db <- function(lat_lon_data_short_origCRS, new_table_name = NULL)  {
   if(is.null(new_table_name)) new_table_name <- "lat_lon_data_result"
   new_table_name <- toupper(new_table_name)
-  
+
   new_table_name <- dbQuoteIdentifier(ANSI(), new_table_name)
   res_df <- as.data.frame(lat_lon_data_short_origCRS)
   colnames(res_df) <- toupper(colnames(res_df))
@@ -247,7 +247,7 @@ my_test <- function() {
   # lat_lon_mid_data <- add_middle_point(lat_lon_data_all)
   # lat_lon_data <- stack_lat_lon_mid(lat_lon_mid_data)
   #
-
+  
   # lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
   
   lat_lon_data_list <- tryCatch(
