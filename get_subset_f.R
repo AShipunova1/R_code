@@ -122,6 +122,27 @@ get_data_from_db <- function(table_name, where_part = "") {
   dbGetQuery(con_nova, q)
 }
 
+add_middle_point <- function(lat_lon_data_all) {
+  lat_lon_data_all %>% rowwise(.) %>% 
+    mutate(midpoint_lat = sum(GIS_LATHBEG, GIS_LATHEND)/2,
+           midpoint_long = sum(GIS_LONHBEG, GIS_LONHEND)/2) %>%
+    as.data.frame(.) -> lat_lon_mid_data 
+  lat_lon_mid_data
+}
+
+stack_lat_lon_mid <- function(lat_lon_mid_data) {
+  cols_lat <- c(1:2,5)
+  cols_lon <- c(3:4,6)
+  
+  res1 <- cbind(stack(lat_lon_mid_data[cols_lat]), stack(lat_lon_mid_data[cols_lon]))
+  colnames(res1) <- c("lat", "i1", "lon", "i2")
+  
+  res2 <- dplyr::select(res1, !starts_with("i"))
+  
+  # remove NAs
+  res2[complete.cases(res2),]
+}
+
 lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   lat_lon_crs <- "+init=epsg:4326"
   coordinates(lat_lon_data) <- ~ lon + lat
