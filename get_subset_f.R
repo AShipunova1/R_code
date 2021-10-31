@@ -194,7 +194,7 @@ view_maps <- function(shapefile_data, lat_lon_data_list) {
 
   m1 <- mapview(shapefile_data)
   m2 <- mapview(lat_lon_data, color = "red")
-  m3 <- mapview(lat_lon_data_short_origCRS, color = "red")
+  m3 <- mapview(lat_lon_data_short_origCRS, color = "yellow", cex = .1)
 
   m_all <- m1 + m2
   m_subset <- m1 + m3
