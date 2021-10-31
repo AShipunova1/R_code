@@ -100,10 +100,12 @@ clean_data <- function(lat_lon_data_all) {
 }
 
 clean_where_part <- function(where_part) {
-  where_begin = tolower("where ")
-  if (where_part != "" && !(startsWith(where_part, where_begin))) {
+  where_begin = tolower("where")
+  no_where = !startsWith(tolower(trimws(where_part)), where_begin)
+  if (where_part != "" && no_where) {
     where_part = paste(where_begin, where_part, sep = " ")
   }
+  return(where_part)
 }
 
 get_data_from_db <- function(table_name, where_part = "") {
