@@ -207,7 +207,7 @@ lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   lat_lon_data_short <- try_catch_intersection(lat_lon_data, shapefile_data)
   # lat_lon_data_short <- lat_lon_data[shapefile_data,]
   
-  if (exists("lat_lon_data_short@coords")) {
+  if (nrow(lat_lon_data_short@coords) > 0) {
     # nrow(lat_lon_data_short)
   
   # transform back
