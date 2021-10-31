@@ -355,14 +355,17 @@ subset_coords <- function(coord_file_name = NULL, shapefile_path = NULL, shapefi
   
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
   
-  view_maps(shapefile_data, lat_lon_data_list)
-  write_result_to_csv(lat_lon_data_list[2], filenames)
-  
-  if (out_to_db) {
-    if(is.null(new_out_table_name)) new_out_table_name <- readline(prompt = "Output new table name: " )
+  if (is.null(lat_lon_data_list)) {
+    print(paste("No trips inside the shapefile area", filenames[2]))
+  } else {
+    # view_maps(shapefile_data, lat_lon_data_list)
+    write_result_to_csv(lat_lon_data_list[2], filenames)
 
-    write_result_to_db(lat_lon_data_list[2], new_out_table_name)
-    print(paste("new_out_table_name: ", new_out_table_name))
+    if (out_to_db) {
+      if (is.null(new_out_table_name)) new_out_table_name <- readline(prompt = "Output new table name: ")
+
+      write_result_to_db(lat_lon_data_list[2], new_out_table_name)
+      print(paste("new_out_table_name: ", new_out_table_name))
+    }
   }
 }
-
