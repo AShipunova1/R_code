@@ -301,7 +301,13 @@ my_test <- function() {
   
   lat_lon_data_list <- lat_lon_data_to_spf(lat_lon_data, shapefile_data)
   
-  # view_maps(shapefile_data, lat_lon_data_list)
+  if (!is.null(lat_lon_data_list)) {
+    # view_maps(shapefile_data, lat_lon_data_list)
+    write_result_to_csv(lat_lon_data_list[2], filenames)
+  } else {
+    print(paste("No trips inside the shapefile area", filenames[2]))
+  }
+
   # options("my_package.test_mode" = NULL)
 
   # TODO: add to the filenames code:
