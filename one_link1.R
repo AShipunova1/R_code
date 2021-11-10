@@ -77,6 +77,7 @@ show_dots <- function(lat_lon) {
   lat_lon %>%
     leaflet() %>%
     addTiles() %>%
+    addPolylines(data = lat_lon, lng = ~longitude, lat = ~latitude, group = ~haulnum) %>%
     addMarkers(
       label = paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
       labelOptions = labelOptions(noHide = T),
@@ -88,6 +89,7 @@ show_dots <- function(lat_lon) {
 link1 <- '000201706M93025'
 export1 <- get_hdata_from_db(link1)
 colnames(export1) <- c("haulnum", "latitude", "longitude")
+export1 <- export1[complete.cases(export1), ]
 
 # or
 # export1 <- read.csv("C:/Users/anna.shipunova/work_dir/today/temp/1.csv")
