@@ -43,8 +43,10 @@ show_dots <- function(lat_lon) {
 }
 
 # __main__
-table_name = "OBHAU"
-where_part = "link1 = '000201906R30009'"
+table_name <- "OBHAU"
+where_part <- "link1 = '000201805Q47012'"
 export1 <- get_data_from_db(table_name, where_part)
+# or
+# export1 <- read.csv("C:/Users/anna.shipunova/work_dir/today/temp/1.csv")
 dots1 <- clean_data(export1)
 show_dots(dots1)
