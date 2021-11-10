@@ -94,4 +94,5 @@ export1 <- export1[complete.cases(export1), ]
 # or
 # export1 <- read.csv("C:/Users/anna.shipunova/work_dir/today/temp/1.csv")
 # dots1 <- clean_dat_w_hnum(export1)
+
 show_dots(export1)
