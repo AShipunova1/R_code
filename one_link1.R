@@ -109,6 +109,22 @@ add_point <- function(new_coords) {
   show_dots(qq)
 }
 
+from_paper <- function(list_coords) {
+#   list_coords <- list(c("1l_beg",41.02167, -72.55667),
+# c("1l_end",40.98667, -72.63333),
+# c("2l_beg",40.98833, -72.64167),
+# c("2l_end",41.02333, -72.55167))
+
+de2 <- do.call(rbind, list_coords)
+de3 <- as.data.frame(de2)
+
+names(de3) <- c("haulnum", "latitude", "longitude")
+num_columns <- c("latitude", "longitude")
+de3[, num_columns] <- lapply(num_columns, function(x) as.numeric(de3[[x]]))
+show_dots(de3)
+de3
+}
+
 run_all <- function(link1) {
   export1 <- get_hdata_from_db(link1)
   colnames(export1) <- c("haulnum", "latitude", "longitude")
