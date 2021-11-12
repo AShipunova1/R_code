@@ -85,14 +85,43 @@ show_dots <- function(lat_lon) {
     )
 }
 
+new_coords_rows <- function(de1){
+#  de1 <- list(c("set_123_beg", 40.71833, -73.95167),
+#              c("set_456_beg", 40.735, -73.90167))
+  
+  de2 <- do.call(rbind, de1)
+  de3 <- as.data.frame(de2)
+  
+  names(de3) <- c("haulnum", "latitude", "longitude")
+  num_columns <- c("latitude", "longitude")
+  de3[, num_columns] <- lapply(num_columns, function(x) as.numeric(de3[[x]]))
+ 
+  # newdf <- rbind(export1, de3)
+
+  de3 
+}
+
+add_point <- function(new_coords) {
+  #new_coords <- c("port", 36.829797, -75.967353)
+  qq <- rbind(export1, new_coords)
+  num_columns <- c("latitude", "longitude")
+  qq[, num_columns] <- lapply(num_columns, function(x) as.numeric(qq[[x]]))
+  show_dots(qq)
+}
+
+run_all <- function(link1) {
+  export1 <- get_hdata_from_db(link1)
+  colnames(export1) <- c("haulnum", "latitude", "longitude")
+  export1 <- export1[complete.cases(export1), ]
+  rownames(export1) <- export1$haulnum
+  # or
+  # export1 <- read.csv("C:/Users/anna.shipunova/work_dir/today/temp/1.csv")
+  # dots1 <- clean_dat_w_hnum(export1)
+  
+  show_dots(export1)
+  export1
+}
+
 # __main__
-link1 <- '000201706M93025'
-export1 <- get_hdata_from_db(link1)
-colnames(export1) <- c("haulnum", "latitude", "longitude")
-export1 <- export1[complete.cases(export1), ]
-
-# or
-# export1 <- read.csv("C:/Users/anna.shipunova/work_dir/today/temp/1.csv")
-# dots1 <- clean_dat_w_hnum(export1)
-
-show_dots(export1)
+link1 <- '010201711N54059'
+export1 <- run_all(link1)
