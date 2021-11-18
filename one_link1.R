@@ -141,3 +141,4 @@ run_all <- function(link1) {
 # __main__
 link1 <- '010201711N54059'
 export1 <- run_all(link1)
+show_dots(export1)
