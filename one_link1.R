@@ -85,6 +85,17 @@ show_dots <- function(lat_lon) {
     )
 }
 
+show_dots_only <- function(lat_lon) {
+  lat_lon %>%
+    leaflet() %>%
+    addTiles() %>%
+    addMarkers(
+      label = paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
+      labelOptions = labelOptions(noHide = T),
+      clusterOptions = markerClusterOptions()
+    )
+}
+
 new_coords_rows <- function(de1){
 #  de1 <- list(c("set_123_beg", 40.71833, -73.95167),
 #              c("set_456_beg", 40.735, -73.90167))
