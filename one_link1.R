@@ -90,7 +90,8 @@ show_dots_only <- function(lat_lon) {
     leaflet() %>%
     addTiles() %>%
     addMarkers(
-      label = paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
+      label = lat_lon$haulnum,
+        # paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
       labelOptions = labelOptions(noHide = T),
       clusterOptions = markerClusterOptions()
     )
