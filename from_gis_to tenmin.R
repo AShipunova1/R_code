@@ -168,7 +168,8 @@ example_short <- function() {
   leafIcons <- get_leaf_icons(full_df)
   leaflet(data = full_df) %>%
     addTiles() %>%
-    addMarkers(~lon, ~lat, icon = leafIcons)
+    addMarkers(~lon, ~lat, icon = leafIcons) -> m
+  m %>% addGraticule(interval = 1/60*10, style = list(color = "#FF0000", weight = 1))
 }
 
 example_db <- function() {
