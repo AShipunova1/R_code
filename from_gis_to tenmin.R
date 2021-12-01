@@ -144,6 +144,22 @@ get_leaf_icons <- function(lat_lon_data) {
   leafIcons
 }
 
+create_map <- function(data_df) {
+  leaflet(data_df) %>%
+    addTiles() %>%
+    addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~ as.character(coord_name))
+
+  leafIcons <- get_leaf_icons(data_df)
+  leaflet(data = data_df) %>%
+    addTiles() %>%
+    addMarkers(~lon, ~lat,
+      icon = leafIcons,
+      label = paste(data_df$coord_name, round(data_df$lat, 3), round(data_df$lon, 3), sep = "_"),
+      labelOptions = labelOptions(noHide = T),
+    ) -> m
+  m %>% addGraticule(interval = 1 / 60 * 10, style = list(color = "#FF0000", weight = 1))
+}
+
 example_short <- function() {
   de1 <- list(
     c("230201202L170080004", 42.46667, -70.54000),
@@ -161,15 +177,17 @@ example_short <- function() {
   tm_c <- get_ten_min_coords(small_df)
 
   full_df <- rbind(small_df, tm_c)
-  leaflet(full_df) %>%
-    addTiles() %>%
-    addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~ as.character(coord_name))
 
-  leafIcons <- get_leaf_icons(full_df)
-  leaflet(data = full_df) %>%
-    addTiles() %>%
-    addMarkers(~lon, ~lat, icon = leafIcons) -> m
-  m %>% addGraticule(interval = 1/60*10, style = list(color = "#FF0000", weight = 1))
+  create_map(full_df)
+  # leaflet(full_df) %>%
+  #   addTiles() %>%
+  #   addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~ as.character(coord_name))
+
+  # leafIcons <- get_leaf_icons(full_df)
+  # leaflet(data = full_df) %>%
+  #   addTiles() %>%
+  #   addMarkers(~lon, ~lat, icon = leafIcons) -> m
+  # m %>% addGraticule(interval = 1/60*10, style = list(color = "#FF0000", weight = 1))
 }
 
 example_db <- function() {
