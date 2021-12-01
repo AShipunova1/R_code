@@ -88,7 +88,7 @@ get_link3_from_db <- function(table_name) {
 
 get_ten_min_coords <- function(db_data) {
   db_data <- db_data[complete.cases(db_data), ]
-  
+
   ten_min_coords <- data.frame(NA, NA, NA)
   names(ten_min_coords) <- c("coord_name", "lat", "lon")
 
@@ -144,18 +144,42 @@ get_leaf_icons <- function(lat_lon_data) {
   leafIcons
 }
 
+example_short <- function() {
+  de1 <- list(
+    c("230201202L170080004", 42.46667, -70.54000),
+    c("230201205F850220002", 40.85000, -70.38667),
+    c("230201205J240060008", 42.36333, -70.25167),
+    c("230201205J400170007", 42.34000, -70.25167),
+    c("230201205L430060004", 41.05500, -71.44000),
+    c("230201407M650090002", 42.80500, -70.25000)
+  )
+  de2 <- do.call(rbind, de1)
+  small_df <- as.data.frame(de2)
+  tm_c <- get_ten_min_coords(small_df)
+  names(small_df) <- c("coord_name", "lat", "lon")
+
+  full_df <- rbind(small_df, tm_c)
+  leaflet(full_df) %>%
+    addTiles() %>%
+    addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~ as.character(coord_name))
+
+  leafIcons <- get_leaf_icons(full_df)
+  leaflet(data = full_df) %>%
+    addTiles() %>%
+    addMarkers(~lon, ~lat, icon = leafIcons)
+}
+
+example_db <- function() {
+  table_name <- "MA_STATE_STURGEON"
+  all_link3 <- get_link3_from_db(table_name)
+}
 
 # main
 # gis_lat <- 41.790278
 # gis_lon <- -69.844444
 # link3 <- '000201001H620020003'
-# table_name <- "MA_STATE_STURGEON"
-# all_link3 <- get_link3_from_db(table_name)
 
-# tm_c <- get_ten_min_coords(small_df)
-# names(small_df) <- c("coord_name", "lat", "lon")
 
-# full_df <- rbind(small_df, tm_c)
 
 # icons <- awesomeIcons(
 #   icon = 'ios-close',
@@ -163,10 +187,3 @@ get_leaf_icons <- function(lat_lon_data) {
 #   library = 'ion',
 #   markerColor = getColor(full_df)
 # )
-
-# leaflet(full_df) %>% addTiles() %>%
-#   addAwesomeMarkers(~lon, ~lat, icon=icons, label=~as.character(coord_name))
-
-# leafIcons <- get_leaf_icons(full_df)
-# leaflet(data = full_df) %>% addTiles() %>%
-#   addMarkers(~lon, ~lat, icon = leafIcons)
