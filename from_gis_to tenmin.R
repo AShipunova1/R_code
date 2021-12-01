@@ -86,17 +86,30 @@ get_link3_from_db <- function(table_name) {
   dbGetQuery(con_nova, q)
 }
 
+get_ten_min_coords <- function(db_data) {
+  ten_min_coords <- data.frame(NA, NA, NA)
+  names(ten_min_coords) <- c("link3_ten_min", "lat_ten_min", "lon_ten_min")
+
+  for (i in 1:nrow(db_data)) {
+    l_row <- db_data[i, ]
+    link3 <- l_row[1]
+    gis_lat <- l_row[2]
+    gis_lon <- l_row[3]
+
+    ten_min_lat <- get_lat_ten_min(as.numeric(gis_lat))
+    ten_min_lon <- get_lon_ten_min(as.numeric(gis_lon))
+    temp_df <- data.frame(paste(link3, "ten_min", sep = "_"), ten_min_lat, ten_min_lon)
+
+    ten_min_coords[nrow(ten_min_coords) + 1, ] <- temp_df
+  }
+}
+
+
 # main
 # gis_lat <- 41.790278
 # gis_lon <- -69.844444
 # link3 <- '000201001H620020003'
 table_name <- "MA_STATE_STURGEON"
-all_link3 <- get_link3_from_db(table_name)
+# all_link3 <- get_link3_from_db(table_name)
 
-for (row in all_link3) {
-  link3 <- all_link3[1, 1]
-  gis_lat <- all_link3[1, 2]
-  gis_lon <- all_link3[1, 3]
-
-  get_lat_ten_min
-}
+# get_ten_min_coords()
