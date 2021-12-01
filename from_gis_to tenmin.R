@@ -1,7 +1,3 @@
-gis_lat <- 41.790278
-gis_lon <- -69.844444
-link3 <- '000201001H620020003'
-
 get_degree <- function(gis_coord) {
   floor(abs(gis_coord))
 }
@@ -21,7 +17,7 @@ convert_to_decimal_degree <- function(dm_num) {
   degree + dd  
 }
 
-get_hdata_from_db <- function(link3) {
+get_gis_h_data_from_db <- function(all_link3) {
   q <- paste("SELECT DISTINCT
     TO_NUMBER(haulnum) || '_beg' as haulnum,
     gis_lathbeg,
@@ -29,7 +25,7 @@ get_hdata_from_db <- function(link3) {
 FROM
     obhau
 WHERE
-    link3 = '", link3, "'
+    link3 in (", all_link3, ")
 union
 SELECT DISTINCT
     TO_NUMBER(haulnum)  || '_end' as haulnum,
@@ -38,7 +34,7 @@ SELECT DISTINCT
 FROM
     obhau
 WHERE
-    link3 = '", link3, "' 
+link3 in (", all_link3, ")
 UNION
 SELECT DISTINCT
     TO_NUMBER(haulnum) || '_beg' as haulnum,
@@ -47,7 +43,7 @@ SELECT DISTINCT
 FROM
     asmhau
 WHERE
-    link3 = '", link3, "'
+    link3 in (", all_link3, ")
 union
 SELECT DISTINCT
     TO_NUMBER(haulnum)  || '_end' as haulnum,
@@ -56,7 +52,7 @@ SELECT DISTINCT
 FROM
     asmhau
 WHERE
-    link3 = '", link3, "'", sep = ""
+    link3 in (", all_link3, ")", sep = ""
 )
   
   print(q)
@@ -78,3 +74,21 @@ get_lon_ten_min <- function(gis_lon) {
     res * -1
   }
 }
+
+get_link3_from_db <- function(table_name) {
+  q <- paste("SELECT DISTINCT
+    link3 from ", table_name, sep = "")
+  print(q)
+  dbGetQuery(con_nova, q)    
+}
+
+# main
+# gis_lat <- 41.790278
+# gis_lon <- -69.844444
+# link3 <- '000201001H620020003'
+table_name = 'MA_STATE_STURGEON'
+all_link3 <- get_link3_from_db(table_name)
+# for (link3 in all_link3) {
+  gis_h_db_data <- get_gis_h_data_from_db(all_link3)
+
+# }
