@@ -87,6 +87,8 @@ get_link3_from_db <- function(table_name) {
 }
 
 get_ten_min_coords <- function(db_data) {
+  db_data <- db_data[complete.cases(db_data), ]
+  
   ten_min_coords <- data.frame(NA, NA, NA)
   names(ten_min_coords) <- c("coord_name", "lat", "lon")
 
@@ -147,13 +149,13 @@ get_leaf_icons <- function(lat_lon_data) {
 # gis_lat <- 41.790278
 # gis_lon <- -69.844444
 # link3 <- '000201001H620020003'
-table_name <- "MA_STATE_STURGEON"
+# table_name <- "MA_STATE_STURGEON"
 # all_link3 <- get_link3_from_db(table_name)
 
-tm_c <- get_ten_min_coords(small_df)
-names(small_df) <- c("coord_name", "lat", "lon")
+# tm_c <- get_ten_min_coords(small_df)
+# names(small_df) <- c("coord_name", "lat", "lon")
 
-full_df <- rbind(small_df, tm_c)
+# full_df <- rbind(small_df, tm_c)
 
 # icons <- awesomeIcons(
 #   icon = 'ios-close',
@@ -165,6 +167,6 @@ full_df <- rbind(small_df, tm_c)
 # leaflet(full_df) %>% addTiles() %>%
 #   addAwesomeMarkers(~lon, ~lat, icon=icons, label=~as.character(coord_name))
 
-leafIcons <- get_leaf_icons(full_df)
-leaflet(data = full_df) %>% addTiles() %>%
-  addMarkers(~lon, ~lat, icon = leafIcons)
+# leafIcons <- get_leaf_icons(full_df)
+# leaflet(data = full_df) %>% addTiles() %>%
+#   addMarkers(~lon, ~lat, icon = leafIcons)
