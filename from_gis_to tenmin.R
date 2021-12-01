@@ -155,8 +155,10 @@ example_short <- function() {
   )
   de2 <- do.call(rbind, de1)
   small_df <- as.data.frame(de2)
-  tm_c <- get_ten_min_coords(small_df)
   names(small_df) <- c("coord_name", "lat", "lon")
+  num_columns <- c("lat", "lon")
+  small_df[, num_columns] <- lapply(num_columns, function(x) as.numeric(small_df[[x]]))
+  tm_c <- get_ten_min_coords(small_df)
 
   full_df <- rbind(small_df, tm_c)
   leaflet(full_df) %>%
