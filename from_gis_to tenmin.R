@@ -1,3 +1,6 @@
+library("tidyverse")
+library("leaflet")
+
 get_degree <- function(gis_coord) {
   floor(abs(gis_coord))
 }
@@ -14,7 +17,7 @@ convert_to_ten_min <- function(num) {
 convert_to_decimal_degree <- function(dm_num) {
   degree <- as.numeric(substr(as.character(dm_num), 1, 2))
   dd <- as.numeric(substr(as.character(dm_num), 3, 4)) / 60
-  degree + dd  
+  degree + dd
 }
 
 get_gis_h_data_from_db <- function(all_link3) {
@@ -52,9 +55,8 @@ SELECT DISTINCT
 FROM
     asmhau
 WHERE
-    link3 in (", all_link3, ")", sep = ""
-)
-  
+    link3 in (", all_link3, ")", sep = "")
+
   print(q)
   dbGetQuery(con_nova, q)
 }
@@ -64,7 +66,7 @@ get_lat_ten_min <- function(gis_lat) {
   deg <- get_degree(gis_lat)
   num <- get_minute(gis_lat)
   ten_min_num <- convert_to_ten_min(num)
-  dm_num <- paste(deg, ten_min_num, sep = '')
+  dm_num <- paste(deg, ten_min_num, sep = "")
   convert_to_decimal_degree(dm_num)
 }
 
@@ -77,19 +79,24 @@ get_lon_ten_min <- function(gis_lon) {
 
 get_link3_from_db <- function(table_name) {
   q <- paste("SELECT DISTINCT
-    link3 from ", table_name, sep = "")
+    link3,
+    gis_lathbeg,
+    gis_lonhbeg from ", table_name, sep = "")
   print(q)
-  dbGetQuery(con_nova, q)    
+  dbGetQuery(con_nova, q)
 }
 
 # main
 # gis_lat <- 41.790278
 # gis_lon <- -69.844444
 # link3 <- '000201001H620020003'
-table_name = 'MA_STATE_STURGEON'
+table_name <- "MA_STATE_STURGEON"
 all_link3 <- get_link3_from_db(table_name)
-# for (link3 in all_link3) {
-all_link3_l <- paste("'", paste(all_link3, collapse = "', '"), "'", sep = "")
-gis_h_db_data <- get_gis_h_data_from_db(all_link3_l)
 
-# }
+for (row in all_link3) {
+  link3 <- all_link3[1, 1]
+  gis_lat <- all_link3[1, 2]
+  gis_lon <- all_link3[1, 3]
+
+  get_lat_ten_min
+}
