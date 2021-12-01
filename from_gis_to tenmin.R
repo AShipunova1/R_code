@@ -88,7 +88,7 @@ get_link3_from_db <- function(table_name) {
 
 get_ten_min_coords <- function(db_data) {
   ten_min_coords <- data.frame(NA, NA, NA)
-  names(ten_min_coords) <- c("link3_ten_min", "lat_ten_min", "lon_ten_min")
+  names(ten_min_coords) <- c("ten_min", "lat_ten_min", "lon_ten_min")
 
   for (i in 1:nrow(db_data)) {
     l_row <- db_data[i, ]
@@ -98,11 +98,15 @@ get_ten_min_coords <- function(db_data) {
 
     ten_min_lat <- get_lat_ten_min(as.numeric(gis_lat))
     ten_min_lon <- get_lon_ten_min(as.numeric(gis_lon))
-    temp_df <- data.frame(paste(link3, "ten_min", sep = "_"), ten_min_lat, ten_min_lon)
+    temp_df <- data.frame("ten_min", ten_min_lat, ten_min_lon)
 
     ten_min_coords[nrow(ten_min_coords) + 1, ] <- temp_df
   }
+  res <- ten_min_coords[complete.cases(ten_min_coords), ]
+  distinct(res)
 }
+
+#clean_ten_min_res <- ten_min_res
 
 
 # main
