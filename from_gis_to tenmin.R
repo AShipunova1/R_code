@@ -88,7 +88,7 @@ get_link3_from_db <- function(table_name) {
 
 get_ten_min_coords <- function(db_data) {
   ten_min_coords <- data.frame(NA, NA, NA)
-  names(ten_min_coords) <- c("ten_min", "lat_ten_min", "lon_ten_min")
+  names(ten_min_coords) <- c("coord_name", "lat", "lon")
 
   for (i in 1:nrow(db_data)) {
     l_row <- db_data[i, ]
@@ -106,7 +106,26 @@ get_ten_min_coords <- function(db_data) {
   distinct(res)
 }
 
-#clean_ten_min_res <- ten_min_res
+show_dots_only <- function(lat_lon) {
+  lat_lon %>%
+    leaflet() %>%
+    addTiles() %>%
+    addMarkers(
+      label = lat_lon$haulnum,
+      # paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
+      labelOptions = labelOptions(noHide = T),
+      clusterOptions = markerClusterOptions()
+    )
+}
+
+getColor <- function(lat_lon_data) {
+  sapply(lat_lon_data$coord_name, function(coord_name) {
+    if(coord_name == "ten_min") {
+      "green"
+    } else {
+      "red"
+    } })
+}
 
 
 # main
@@ -116,4 +135,18 @@ get_ten_min_coords <- function(db_data) {
 table_name <- "MA_STATE_STURGEON"
 # all_link3 <- get_link3_from_db(table_name)
 
-# get_ten_min_coords()
+# tm_c <- get_ten_min_coords(small_df)
+# names(small_df) <- c("coord_name", "lat", "lon")
+
+# full_df <- rbind(small_df, tm_c)
+
+# icons <- awesomeIcons(
+#   icon = 'ios-close',
+#   iconColor = 'black',
+#   library = 'ion',
+#   markerColor = getColor(full_df)
+# )
+
+# leaflet(full_df) %>% addTiles() %>%
+#   addAwesomeMarkers(~lon, ~lat, icon=icons, label=~as.character(coord_name))
+ 
