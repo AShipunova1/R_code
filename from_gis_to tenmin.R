@@ -89,6 +89,7 @@ get_link3_from_db <- function(table_name) {
 table_name = 'MA_STATE_STURGEON'
 all_link3 <- get_link3_from_db(table_name)
 # for (link3 in all_link3) {
-  gis_h_db_data <- get_gis_h_data_from_db(all_link3)
+all_link3_l <- paste("'", paste(all_link3, collapse = "', '"), "'", sep = "")
+gis_h_db_data <- get_gis_h_data_from_db(all_link3_l)
 
 # }
