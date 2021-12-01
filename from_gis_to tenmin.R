@@ -1,5 +1,6 @@
 gis_lat <- 41.790278
 gis_lon <- -69.844444
+link3 <- '000201001H620020003'
 
 get_degree <- function(gis_coord) {
   floor(abs(gis_coord))
@@ -20,7 +21,7 @@ convert_to_decimal_degree <- function(dm_num) {
   degree + dd  
 }
 
-get_hdata_from_db <- function(link1) {
+get_hdata_from_db <- function(link3) {
   q <- paste("SELECT DISTINCT
     TO_NUMBER(haulnum) || '_beg' as haulnum,
     gis_lathbeg,
@@ -37,8 +38,8 @@ SELECT DISTINCT
 FROM
     obhau
 WHERE
-    link3 = '", link3, "'", sep = "",
-"UNION
+    link3 = '", link3, "' 
+UNION
 SELECT DISTINCT
     TO_NUMBER(haulnum) || '_beg' as haulnum,
     gis_lathbeg,
