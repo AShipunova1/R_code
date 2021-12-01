@@ -11,7 +11,6 @@ clean_where_part <- function(where_part) {
 }
 
 get_hdata_from_db <- function(link1) {
-  
   q <- paste("SELECT DISTINCT
     TO_NUMBER(haulnum) || '_beg' as haulnum,
     gis_lathbeg,
@@ -30,7 +29,7 @@ FROM
 WHERE
     link1 = '", link1, "'", sep = "")
 
-  # q <- paste("select distinct 
+  # q <- paste("select distinct
   # haulnum,
   # GIS_LATHBEG,
   #   GIS_LATHEND,
@@ -91,30 +90,30 @@ show_dots_only <- function(lat_lon) {
     addTiles() %>%
     addMarkers(
       label = lat_lon$haulnum,
-        # paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
+      # paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
       labelOptions = labelOptions(noHide = T),
       clusterOptions = markerClusterOptions()
     )
 }
 
-new_coords_rows <- function(de1){
-#  de1 <- list(c("set_123_beg", 40.71833, -73.95167),
-#              c("set_456_beg", 40.735, -73.90167))
-  
+new_coords_rows <- function(de1) {
+  #  de1 <- list(c("set_123_beg", 40.71833, -73.95167),
+  #              c("set_456_beg", 40.735, -73.90167))
+
   de2 <- do.call(rbind, de1)
   de3 <- as.data.frame(de2)
-  
+
   names(de3) <- c("haulnum", "latitude", "longitude")
   num_columns <- c("latitude", "longitude")
   de3[, num_columns] <- lapply(num_columns, function(x) as.numeric(de3[[x]]))
- 
+
   # newdf <- rbind(export1, de3)
 
-  de3 
+  de3
 }
 
 add_point <- function(new_coords) {
-  #new_coords <- c("port", 36.829797, -75.967353)
+  # new_coords <- c("port", 36.829797, -75.967353)
   qq <- rbind(export1, new_coords)
   num_columns <- c("latitude", "longitude")
   qq[, num_columns] <- lapply(num_columns, function(x) as.numeric(qq[[x]]))
@@ -122,19 +121,19 @@ add_point <- function(new_coords) {
 }
 
 from_paper <- function(list_coords) {
-#   list_coords <- list(c("1l_beg",41.02167, -72.55667),
-# c("1l_end",40.98667, -72.63333),
-# c("2l_beg",40.98833, -72.64167),
-# c("2l_end",41.02333, -72.55167))
+  #   list_coords <- list(c("1l_beg",41.02167, -72.55667),
+  # c("1l_end",40.98667, -72.63333),
+  # c("2l_beg",40.98833, -72.64167),
+  # c("2l_end",41.02333, -72.55167))
 
-de2 <- do.call(rbind, list_coords)
-de3 <- as.data.frame(de2)
+  de2 <- do.call(rbind, list_coords)
+  de3 <- as.data.frame(de2)
 
-names(de3) <- c("haulnum", "latitude", "longitude")
-num_columns <- c("latitude", "longitude")
-de3[, num_columns] <- lapply(num_columns, function(x) as.numeric(de3[[x]]))
-show_dots(de3)
-de3
+  names(de3) <- c("haulnum", "latitude", "longitude")
+  num_columns <- c("latitude", "longitude")
+  de3[, num_columns] <- lapply(num_columns, function(x) as.numeric(de3[[x]]))
+  show_dots(de3)
+  de3
 }
 
 run_all <- function(link1) {
@@ -145,12 +144,12 @@ run_all <- function(link1) {
   # or
   # export1 <- read.csv("C:/Users/anna.shipunova/work_dir/today/temp/1.csv")
   # dots1 <- clean_dat_w_hnum(export1)
-  
+
   show_dots(export1)
   export1
 }
 
 # __main__
-link1 <- '010201711N54059'
+link1 <- "010201711N54059"
 export1 <- run_all(link1)
 show_dots(export1)
