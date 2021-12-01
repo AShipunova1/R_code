@@ -120,11 +120,26 @@ show_dots_only <- function(lat_lon) {
 
 getColor <- function(lat_lon_data) {
   sapply(lat_lon_data$coord_name, function(coord_name) {
-    if(coord_name == "ten_min") {
+    if (coord_name == "ten_min") {
       "green"
     } else {
       "red"
-    } })
+    }
+  })
+}
+get_leaf_icons <- function(lat_lon_data) {
+  leafIcons <- icons(
+    iconUrl = ifelse(lat_lon_data$coord_name == "ten_min",
+      "https://leafletjs.com/examples/custom-icons/leaf-green.png",
+      "https://leafletjs.com/examples/custom-icons/leaf-red.png"
+    ),
+    iconWidth = 38, iconHeight = 95,
+    iconAnchorX = 22, iconAnchorY = 94,
+    shadowUrl = "https://leafletjs.com/examples/custom-icons/leaf-shadow.png",
+    shadowWidth = 50, shadowHeight = 64,
+    shadowAnchorX = 4, shadowAnchorY = 62
+  )
+  leafIcons
 }
 
 
@@ -135,10 +150,10 @@ getColor <- function(lat_lon_data) {
 table_name <- "MA_STATE_STURGEON"
 # all_link3 <- get_link3_from_db(table_name)
 
-# tm_c <- get_ten_min_coords(small_df)
-# names(small_df) <- c("coord_name", "lat", "lon")
+tm_c <- get_ten_min_coords(small_df)
+names(small_df) <- c("coord_name", "lat", "lon")
 
-# full_df <- rbind(small_df, tm_c)
+full_df <- rbind(small_df, tm_c)
 
 # icons <- awesomeIcons(
 #   icon = 'ios-close',
@@ -149,4 +164,7 @@ table_name <- "MA_STATE_STURGEON"
 
 # leaflet(full_df) %>% addTiles() %>%
 #   addAwesomeMarkers(~lon, ~lat, icon=icons, label=~as.character(coord_name))
- 
+
+leafIcons <- get_leaf_icons(full_df)
+leaflet(data = full_df) %>% addTiles() %>%
+  addMarkers(~lon, ~lat, icon = leafIcons)
