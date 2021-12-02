@@ -95,7 +95,7 @@ get_ten_min_coords <- function(db_data) {
 
   for (i in 1:nrow(db_data)) {
     l_row <- db_data[i, ]
-    link3 <- l_row[1]
+    # link3 <- l_row[1]
     gis_lat <- l_row[2]
     gis_lon <- l_row[3]
 
@@ -157,7 +157,7 @@ create_map <- function(data_df) {
     addMarkers(~lon, ~lat,
       icon = leafIcons,
       label = paste(data_df$coord_name, round(data_df$lat, 3), round(data_df$lon, 3), sep = "_"),
-      labelOptions = labelOptions(noHide = T),
+      #labelOptions = labelOptions(noHide = T),
     ) -> m
   m %>% addGraticule(interval = 1 / 60 * 10, style = list(color = "#FF0000", weight = 1))
 }
@@ -179,27 +179,23 @@ example_short <- function() {
   tm_c <- get_ten_min_coords(small_df)
 
   full_df <- rbind(small_df, tm_c)
-
   create_map(full_df)
-  # leaflet(full_df) %>%
-  #   addTiles() %>%
-  #   addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~ as.character(coord_name))
-
-  # leafIcons <- get_leaf_icons(full_df)
-  # leaflet(data = full_df) %>%
-  #   addTiles() %>%
-  #   addMarkers(~lon, ~lat, icon = leafIcons) -> m
-  # m %>% addGraticule(interval = 1/60*10, style = list(color = "#FF0000", weight = 1))
 }
 
 example_db <- function() {
   table_name <- "MA_STATE_STURGEON"
   all_link3 <- get_link3_from_db(table_name)
+  names(all_link3) <- c("coord_name", "lat", "lon")
+  tm_c <- get_ten_min_coords(all_link3)
+
+  full_df <- rbind(all_link3, tm_c)
+
+  create_map(full_df)
 }
 
 # main
-gis_lat <- 41.0790278
-gis_lon <- -69.0844444
+# gis_lat <- 41.0790278
+# gis_lon <- -69.0844444
 # link3 <- '000201001H620020003'
 
 
