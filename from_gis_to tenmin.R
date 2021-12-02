@@ -147,9 +147,9 @@ get_leaf_icons <- function(lat_lon_data) {
 }
 
 create_map <- function(data_df) {
-  leaflet(data_df) %>%
-    addTiles() %>%
-    addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~ as.character(coord_name))
+  # leaflet(data_df) %>%
+  #   addTiles() %>%
+  #   addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~ as.character(coord_name))
 
   leafIcons <- get_leaf_icons(data_df)
   leaflet(data = data_df) %>%
