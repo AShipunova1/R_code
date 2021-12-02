@@ -1,17 +1,20 @@
 library("tidyverse")
 library("leaflet")
+library(stringi)
 
 get_degree <- function(gis_coord) {
   floor(abs(gis_coord))
 }
 
 get_minute <- function(gis_coord) {
-  dd <- abs(gis_coord) - floor(abs(gis_coord))
-  floor(dd * 60)
+  dd <- abs(gis_coord) %% 1
+  minute <- floor(dd * 60)
+  stri_pad_left(minute, 2, 0)
+  
 }
 
-convert_to_ten_min <- function(num) {
-  as.numeric(substr(as.character(num), 1, 1)) * 10
+convert_to_ten_min <- function(minute) {
+  stri_pad_left(minute, 2, 0)
 }
 
 convert_to_decimal_degree <- function(dm_num) {
@@ -64,8 +67,8 @@ WHERE
 
 get_lat_ten_min <- function(gis_lat) {
   deg <- get_degree(gis_lat)
-  num <- get_minute(gis_lat)
-  ten_min_num <- convert_to_ten_min(num)
+  minute <- get_minute(gis_lat)
+  ten_min_num <- convert_to_ten_min(minute)
   dm_num <- paste(deg, ten_min_num, sep = "")
   convert_to_decimal_degree(dm_num)
 }
@@ -129,6 +132,7 @@ getColor <- function(lat_lon_data) {
     }
   })
 }
+
 get_leaf_icons <- function(lat_lon_data) {
   leafIcons <- icons(
     iconUrl = ifelse(lat_lon_data$coord_name == "ten_min",
@@ -196,8 +200,8 @@ example_db <- function() {
 }
 
 # main
-# gis_lat <- 41.790278
-# gis_lon <- -69.844444
+gis_lat <- 41.0790278
+gis_lon <- -69.0844444
 # link3 <- '000201001H620020003'
 
 
