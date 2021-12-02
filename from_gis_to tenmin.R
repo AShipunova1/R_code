@@ -146,11 +146,30 @@ get_leaf_icons <- function(lat_lon_data) {
   leafIcons
 }
 
-create_map <- function(data_df) {
-  # leaflet(data_df) %>%
-  #   addTiles() %>%
-  #   addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~ as.character(coord_name))
+create_map_w_circles <- function(data_df) {
+leaflet(data_df) %>% addTiles() %>%
+  addCircleMarkers(
+    radius = ~ifelse(coord_name == "ten_min", 6, 10),
+    # color = ~pal(type),
+    stroke = FALSE, fillOpacity = 0.5
+  )
 
+}
+
+create_map_w_drop_markers <- function(data_df) {
+  icons <- awesomeIcons(
+    icon = 'ios-close',
+    iconColor = 'black',
+    library = 'ion',
+    markerColor = getColor(data_df)
+  )
+
+  leaflet(data_df) %>%
+    addTiles() %>%
+    addAwesomeMarkers(~lon, ~lat, icon = icons, label = ~as.character(coord_name))
+}
+
+create_map <- function(data_df) {
   leafIcons <- get_leaf_icons(data_df)
   leaflet(data = data_df) %>%
     addTiles() %>%
@@ -179,7 +198,8 @@ example_short <- function() {
   tm_c <- get_ten_min_coords(small_df)
 
   full_df <- rbind(small_df, tm_c)
-  create_map(full_df)
+  create_map_w_circles(full_df)
+  #create_map(full_df)
 }
 
 example_db <- function() {
@@ -197,12 +217,3 @@ example_db <- function() {
 # gis_lat <- 41.0790278
 # gis_lon <- -69.0844444
 # link3 <- '000201001H620020003'
-
-
-
-# icons <- awesomeIcons(
-#   icon = 'ios-close',
-#   iconColor = 'black',
-#   library = 'ion',
-#   markerColor = getColor(full_df)
-# )
