@@ -9,12 +9,10 @@ get_degree <- function(gis_coord) {
 get_minute <- function(gis_coord) {
   dd <- abs(gis_coord) %% 1
   minute <- floor(dd * 60)
-  stri_pad_left(minute, 2, 0)
-  
 }
 
 convert_to_ten_min <- function(minute) {
-  stri_pad_left(minute, 2, 0)
+  floor(minute/10) * 10
 }
 
 convert_to_decimal_degree <- function(dm_num) {
@@ -69,7 +67,7 @@ get_lat_ten_min <- function(gis_lat) {
   deg <- get_degree(gis_lat)
   minute <- get_minute(gis_lat)
   ten_min_num <- convert_to_ten_min(minute)
-  dm_num <- paste(deg, ten_min_num, sep = "")
+  dm_num <- paste(deg, stri_pad_left(ten_min_num, 2, 0), sep = "")
   convert_to_decimal_degree(dm_num)
 }
 
