@@ -148,12 +148,13 @@ get_leaf_icons <- function(lat_lon_data) {
 
 create_map_w_circles <- function(data_df) {
 leaflet(data_df) %>% addTiles() %>%
-  addCircleMarkers(
-    radius = ~ifelse(coord_name == "ten_min", 6, 10),
-    # color = ~pal(type),
-    stroke = FALSE, fillOpacity = 0.5
-  )
-
+  addCircleMarkers(~lon, ~lat,
+    radius = ~ifelse(coord_name == "ten_min", 7, 4),
+    color = ~ifelse(coord_name == "ten_min", "green", "red"),
+    stroke = FALSE, fillOpacity = 0.5,
+    label = paste(data_df$coord_name, round(data_df$lat, 3), round(data_df$lon, 3), sep = "_")
+  ) -> m
+  m %>% addGraticule(interval = 1 / 60 * 10, style = list(color = "#FF0000", weight = 1))
 }
 
 create_map_w_drop_markers <- function(data_df) {
@@ -210,7 +211,8 @@ example_db <- function() {
 
   full_df <- rbind(all_link3, tm_c)
 
-  create_map(full_df)
+  # create_map(full_df)
+  create_map_w_circles(full_df)
 }
 
 # main
