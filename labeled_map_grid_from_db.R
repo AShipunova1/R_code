@@ -24,8 +24,9 @@ make_map2 <- function(db_data1, db_data2) {
     full_df <- rbind(db_data1, db_data2)
     leaflet(full_df) %>% addTiles() %>%
     addCircleMarkers(~lon, ~lat,
-        radius = ~ ifelse(coord_name == "coords2", 4, 4),
-        color = ~ ifelse(coord_name == "coords2", "green", "red"),
+        # radius = ~ ifelse(grepl("\\w*c2", coord_name), 4, 4),
+        radius = 4,
+        color = ~ ifelse(grepl("\\w*c2", coord_name), "green", "red"),
         stroke = FALSE, fillOpacity = 0.5,
         label = paste(full_df$coord_name, round(full_df$lat, 3), round(full_df$lon, 3), sep = "_")
     ) -> m
