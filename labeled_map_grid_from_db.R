@@ -21,13 +21,14 @@ make_map1 <- function(db_data) {
 }
 
 make_map2 <- function(db_data1, db_data2) {
-        leaflet(db_data) %>% addTiles() %>%
-        addCircleMarkers(~lon, ~lat,
-            radius = ~ ifelse(coord_name == "coords2", 4, 4),
-            color = ~ ifelse(coord_name == "coords2", "green", "red"),
-            stroke = FALSE, fillOpacity = 0.5,
-            label = paste(db_data$coord_name, round(db_data$lat, 3), round(db_data$lon, 3), sep = "_")
-        ) -> m
+    full_df <- rbind(db_data1, db_data2)
+    leaflet(full_df) %>% addTiles() %>%
+    addCircleMarkers(~lon, ~lat,
+        radius = ~ ifelse(coord_name == "coords2", 4, 4),
+        color = ~ ifelse(coord_name == "coords2", "green", "red"),
+        stroke = FALSE, fillOpacity = 0.5,
+        label = paste(full_df$coord_name, round(full_df$lat, 3), round(full_df$lon, 3), sep = "_")
+    ) -> m
     m %>%
         addSimpleGraticule(interval = 1)
 }
