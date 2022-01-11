@@ -1,5 +1,6 @@
 library("tidyverse")
 library("leaflet")
+library(gtools)
 
 clean_where_part <- function(where_part) {
   where_begin <- tolower("where")
@@ -77,7 +78,7 @@ show_dots <- function(lat_lon) {
     leaflet() %>%
     addTiles() %>%
     addPolylines(data = lat_lon, lng = ~longitude, lat = ~latitude, group = ~haulnum) %>%
-    addMarkers(
+    addMarkers(~longitude, ~latitude,
       label = paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
       labelOptions = labelOptions(noHide = T),
       clusterOptions = markerClusterOptions()
@@ -88,7 +89,7 @@ show_dots_only <- function(lat_lon) {
   lat_lon %>%
     leaflet() %>%
     addTiles() %>%
-    addMarkers(
+    addMarkers(~longitude, ~latitude,
       label = lat_lon$haulnum,
       # paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
       labelOptions = labelOptions(noHide = T),
@@ -144,7 +145,8 @@ run_all <- function(link1) {
   # or
   # export1 <- read.csv("C:/Users/anna.shipunova/work_dir/today/temp/1.csv")
   # dots1 <- clean_dat_w_hnum(export1)
-
+  export1 <- export1[mixedsort(as.character(export1$haulnum)),]
+  
   show_dots(export1)
   export1
 }
