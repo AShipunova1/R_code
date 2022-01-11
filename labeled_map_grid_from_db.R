@@ -35,6 +35,20 @@ make_map2 <- function(db_data1, db_data2) {
     m
 }
 
+show_map2_w_rect -> function(ready_map){
+  ready_map %>%
+  addRectangles(
+    lng1=-70, lat1=35,
+    lng2=-78, lat2=42,
+    fillColor = "transparent") %>%
+    addRectangles(
+      lng1=-66, lat1=40,
+      lng2=-70, lat2=42.5,
+      fillColor = "transparent",
+      color = "yellow") %>% 
+    addSimpleGraticule(interval = 1)
+}
+
 run_example <- function() {
     q1 <- paste("SELECT DISTINCT
     link3 || '_beg_c1',
