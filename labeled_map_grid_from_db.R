@@ -32,6 +32,7 @@ make_map2 <- function(db_data1, db_data2) {
     ) -> m
     m %>%
         addSimpleGraticule(interval = 1)
+    m
 }
 
 run_example <- function() {
@@ -87,5 +88,6 @@ WHERE
     db_data2 <- dbGetQuery(con_nova, q2)
     dat1 <- prepare_data(db_data1)
     dat2 <- prepare_data(db_data2)
-    make_map2(dat1, dat2)
+    m <- make_map2(dat1, dat2)
+    m
 }
