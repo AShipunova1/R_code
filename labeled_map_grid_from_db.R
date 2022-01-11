@@ -4,6 +4,7 @@ prepare_data <- function(db_data) {
     db_data <- db_data[complete.cases(db_data), ]
     num_columns <- c("lat", "lon")
     db_data[, num_columns] <- lapply(num_columns, function(x) as.numeric(db_data[[x]]))
+    db_data
 }
 
 make_map1 <- function(db_data) {
