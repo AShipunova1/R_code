@@ -37,52 +37,52 @@ make_map2 <- function(db_data1, db_data2) {
 
 run_example <- function() {
     q1 <- paste("SELECT DISTINCT
-    'coords1',
+    link3 || '_beg_c1',
     lat_beg,
     lon_beg
 FROM
     sea_turtle_bycatch_geom
 WHERE
     ( lat_beg BETWEEN 35 AND 42
-      AND lon_beg BETWEEN - 80 AND - 70 )
+      AND lon_beg BETWEEN -80 AND -70 )
     OR ( lat_end BETWEEN 35 AND 42
-         AND lon_end BETWEEN - 80 AND - 70 )
+         AND lon_end BETWEEN -80 AND -70 )
 UNION
 SELECT DISTINCT
-    'coords1',
+    link3 || '_end_c1',
     lat_end,
     lon_end
 FROM
     sea_turtle_bycatch_geom
 WHERE
     ( lat_beg BETWEEN 35 AND 42
-      AND lon_beg BETWEEN - 80 AND - 70 )
+      AND lon_beg BETWEEN -80 AND -70 )
     OR ( lat_end BETWEEN 35 AND 42
-         AND lon_end BETWEEN - 80 AND - 70 )")
+         AND lon_end BETWEEN -80 AND -70 )")
 
 q2 <- paste("SELECT DISTINCT
-    'coords2',
+    link3 || '_beg_c2',
     lat_beg,
     lon_beg
 FROM
     sea_turtle_bycatch_geom
 WHERE
     ( lat_beg BETWEEN 40 AND 42.5
-      AND lon_beg BETWEEN - 70 AND - 66 )
+      AND lon_beg BETWEEN -70 AND -66 )
     OR ( lat_end BETWEEN 40 AND 42.5
-         AND lon_end BETWEEN - 70 AND - 66 )
+         AND lon_end BETWEEN -70 AND -66 )
 UNION
 SELECT DISTINCT
-    'coords2',
+    link3 || '_end_c2',
     lat_end,
     lon_end
 FROM
     sea_turtle_bycatch_geom
 WHERE
     ( lat_beg BETWEEN 40 AND 42.5
-      AND lon_beg BETWEEN - 70 AND - 66 )
+      AND lon_beg BETWEEN -70 AND -66 )
     OR ( lat_end BETWEEN 40 AND 42.5
-         AND lon_end BETWEEN - 70 AND - 66 )")
+         AND lon_end BETWEEN -70 AND -66 )")
 
     db_data1 <- dbGetQuery(con_nova, q1)
     db_data2 <- dbGetQuery(con_nova, q2)
