@@ -26,20 +26,26 @@ clean_coord <- function(str_val) {
   res
 }
 
-convert_to_decimal_degree <- function(dm_num){
+convert_to_decimal_degree <- function(dm_num) {
   deg_min_sec <- str_split(db_num, "\\.", simplify = TRUE)
- 
+
   degree <- as.numeric(deg_min_sec[1, 1])
   min <- as.numeric(deg_min_sec[1, 2])
-  sec <- as.numeric(deg_min_sec[1, 3])
-
-  gis_coord <- degree + min / 60 + sec / 3600
+  tryCatch(
+    {
+      sec <- as.numeric(deg_min_sec[1, 3])
+    },
+    error = function(e) {
+      sec <- 0
+    }
+  )
+  gis_coord <- degree + (min / 60) + (sec / 3600)
   gis_coord
 }
 
 convert_all_to_decimal_degree <- function(all_coords) {
   gis_coords <- data.frame(NA, NA, NA, NA, NA)
-  names(gis_coords) <- c("port_name", "ddmm_lat", "ddmm_lon", "lon", "lat")
+  names(gis_coords) <- c("port_name", "ddmm_lat", "ddmm_lon", "gis_lat", "gis_lon")
   for (i in 1:nrow(all_coords)) {
     l_row <- all_coords[i, ]
     ddmm_lat <- convert_to_decimal_degree(l_row[2])
