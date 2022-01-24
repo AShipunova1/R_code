@@ -62,10 +62,12 @@ convert_all_to_decimal_degree <- function(all_coords) {
   gis_coords
 }
 
-insert_all_into_db <- function(res) {
+insert_all_into_db <- function(result) {
+  #create or truncate the table first
   table_name <- "port_coord_gis"
   col_names <- paste("port_name", "ddmm_lat", "ddmm_lon", "gis_lat", "gis_lon", sep = ", ")
   my_q_str <- paste("INSERT INTO", table_name, "(", col_names, ") VALUES (%s)", sep = " ")
   sqls <- sprintf(my_q_str, 
                 apply(result, 1, function(i) paste("'", i, "'", sep = "", collapse=",")))
+  lapply(sqls, function(s) dbExecute(con_nova, s))
 }
