@@ -1,3 +1,7 @@
+#rr <- main(q)
+#insert_all_into_db(rr)
+library(stringr)
+
 main <- function(q) {
   #q <-"select * from port_coord"
   db_data <- dbGetQuery(con_nova, q)
