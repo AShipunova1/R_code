@@ -3,6 +3,8 @@ main <- function(q) {
   all_coords <- get_all_clean_coords(db_data)
   all_coords <- all_coords[complete.cases(all_coords), ]
   res <- convert_all_to_decimal_degree(all_coords)
+  res <- res[complete.cases(res), ]
+  
 }
 
 get_all_clean_coords <- function(db_data) {
@@ -27,7 +29,7 @@ clean_coord <- function(str_val) {
 }
 
 convert_to_decimal_degree <- function(dm_num) {
-  deg_min_sec <- str_split(db_num, "\\.", simplify = TRUE)
+  deg_min_sec <- str_split(dm_num, "\\.", simplify = TRUE)
 
   degree <- as.numeric(deg_min_sec[1, 1])
   min <- as.numeric(deg_min_sec[1, 2])
@@ -50,7 +52,7 @@ convert_all_to_decimal_degree <- function(all_coords) {
     l_row <- all_coords[i, ]
     ddmm_lat <- convert_to_decimal_degree(l_row[2])
     ddmm_lon <- convert_to_decimal_degree(l_row[3])
-    temp_df <- data.frame(l_row[1], ddmm_lat, ddmm_lon, l_row[2], l_row[3])
+    temp_df <- data.frame(l_row[1], l_row[2], l_row[3], round(ddmm_lat, digits = 6), round(ddmm_lon, digits = 6))
     gis_coords[nrow(gis_coords) + 1, ] <- temp_df
   }
   gis_coords
