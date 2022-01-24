@@ -1,10 +1,10 @@
 main <- function(q) {
+  #q <-"select * from port_coord"
   db_data <- dbGetQuery(con_nova, q)
   all_coords <- get_all_clean_coords(db_data)
   all_coords <- all_coords[complete.cases(all_coords), ]
   res <- convert_all_to_decimal_degree(all_coords)
   res <- res[complete.cases(res), ]
-  
 }
 
 get_all_clean_coords <- function(db_data) {
@@ -56,4 +56,12 @@ convert_all_to_decimal_degree <- function(all_coords) {
     gis_coords[nrow(gis_coords) + 1, ] <- temp_df
   }
   gis_coords
+}
+
+insert_all_into_db <- function(res) {
+  table_name <- "port_coord_gis"
+  col_names <- paste("port_name", "ddmm_lat", "ddmm_lon", "gis_lat", "gis_lon", sep = ", ")
+  my_q_str <- paste("INSERT INTO", table_name, "(", col_names, ") VALUES (%s)", sep = " ")
+  sqls <- sprintf(my_q_str, 
+                apply(result, 1, function(i) paste("'", i, "'", sep = "", collapse=",")))
 }
