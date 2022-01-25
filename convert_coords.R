@@ -2,6 +2,7 @@
 #rr <- main(q)
 #insert_all_into_db(rr)
 library(stringr)
+library(NISTunits)
 
 main <- function(q) {
   db_data <- dbGetQuery(con_nova, q)
@@ -67,19 +68,26 @@ insert_all_into_db <- function(result) {
   table_name <- "port_coord_gis"
   col_names <- paste("port_name", "ddmm_lat", "ddmm_lon", "gis_lat", "gis_lon", sep = ", ")
   my_q_str <- paste("INSERT INTO", table_name, "(", col_names, ") VALUES (%s)", sep = " ")
-  sqls <- sprintf(my_q_str, 
+  sqls <- sprintf(my_q_str,
                 apply(result, 1, function(i) paste("'", i, "'", sep = "", collapse=",")))
   lapply(sqls, function(s) dbExecute(con_nova, s))
 }
 
 get_distance <- function(lat1, lat2, lon1, lon2){
-  rm = 3963.0 # miles
-  rk = 6371e3 #metres
-  f1 = lat1 * pi/180
-  f2 = lat2 * pi/180
-  d1 = (lat2 - lat1) * pi/180
-  d2 = (lon2 - lon1) * pi/180
-  a = sin(d1/2) * sin(d1/2) + cos(f1) * cos(f2) * sin(d2/2) * sin(d2/2)
-  c = 2 * atan2(sqrt(2), sqrt(1-a))
-  d = rm * c
+  rm <- 3963.0 # miles
+  rk <- 6371 #metres
+    # convert decimal degrees to radians
+  lon1r <- NISTdegTOradian(lon1)
+  lat1r <- NISTdegTOradian(lat1)
+  lon2r <- NISTdegTOradian(lon2)
+  lat2r <- NISTdegTOradian(lat2)
+
+  # haversine formula
+  dlon <- lon2r - lon1r
+  dlat <- lat2r - lat1r
+
+  a <- sin(dlat/2)**2 + cos(lat1r) * cos(lat2r) * sin(dlon/2)**2
+  c <- 2 * asin(sqrt(a))
+  d_mi <- rm * c
+  d_me <- rk * c
 }
