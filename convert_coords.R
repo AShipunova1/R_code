@@ -1,9 +1,9 @@
+#q <-"select * from port_coord"
 #rr <- main(q)
 #insert_all_into_db(rr)
 library(stringr)
 
 main <- function(q) {
-  #q <-"select * from port_coord"
   db_data <- dbGetQuery(con_nova, q)
   all_coords <- get_all_clean_coords(db_data)
   all_coords <- all_coords[complete.cases(all_coords), ]
@@ -70,4 +70,16 @@ insert_all_into_db <- function(result) {
   sqls <- sprintf(my_q_str, 
                 apply(result, 1, function(i) paste("'", i, "'", sep = "", collapse=",")))
   lapply(sqls, function(s) dbExecute(con_nova, s))
+}
+
+get_distance <- function(lat1, lat2, lon1, lon2){
+  rm = 3963.0 # miles
+  rk = 6371e3 #metres
+  f1 = lat1 * pi/180
+  f2 = lat2 * pi/180
+  d1 = (lat2 - lat1) * pi/180
+  d2 = (lon2 - lon1) * pi/180
+  a = sin(d1/2) * sin(d1/2) + cos(f1) * cos(f2) * sin(d2/2) * sin(d2/2)
+  c = 2 * atan2(sqrt(2), sqrt(1-a))
+  d = rm * c
 }
