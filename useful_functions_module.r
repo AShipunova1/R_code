@@ -27,12 +27,23 @@ cleen_weeks <- function(my_df) {
   return(my_df)
 }
 
-join_all_csvs <- function(csvs) {
-  csvs_clean1 <- lapply(csvs, clean_headers)
-  for (i in seq_along(csvs_clean1)){
-    csvs_clean1[[i]]$vesselofficialnumber <-
-      trimws(csvs_clean1[[i]]$vesselofficialnumber)
+trim_all_vessel_ids <- function(csvs_clean) {
+  for (i in seq_along(csvs_clean)){
+    id_name <- grep("vessel.*number", names(csvs_clean[[i]]), value = TRUE)
+    # id_name
+    trimmed_ids <- lapply(csvs_clean[[i]][id_name], trimws)
+
+    csvs_clean[[i]] %<>% mutate(vesselofficialnumber = unlist(trimmed_ids))
   }
+  return(csvs_clean)
+}
+
+join_all_csvs <- function(csvs) {
+  csvs_clean0 <- lapply(csvs, clean_headers)
+
+  csvs_clean1 <- trim_all_vessel_ids(csvs_clean0)
+
+  print(csvs_clean1)
 
   corresp <- rbind(csvs_clean1[[1]], csvs_clean1[[2]])
   compl <- rbind(csvs_clean1[[3]], csvs_clean1[[4]])
