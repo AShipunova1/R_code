@@ -3,8 +3,8 @@
 # How to use:
 # source("~/GitHub/R_code/start_module.R")
 # my_paths <- set_work_dir()
-# csv_names_list = list("report1".csv", "report2.csv")
-# xls_names_list = list("report1a".xls", "report2a.xls")
+# csv_names_list = list("report1.csv", "report2.csv")
+# xls_names_list = list("report1a.xls", "report2a.xls")
 # csv_content_1 <- load_csv_names(my_paths, csv_names_list)[[1]]
 # xls_content_1 <- load_xls_names(my_paths, xls_names_list)[[1]]
 
