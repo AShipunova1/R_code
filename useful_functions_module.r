@@ -12,6 +12,7 @@
 #   all_data_df_cleen <- change_classes(all_data_df)
 # }
 
+source("~/GitHub/R_code/start_module.R")
 # functions to clean FHIER compliance and correspondense reports
 cleen_weeks <- function(my_df) {
   my_df %>%
