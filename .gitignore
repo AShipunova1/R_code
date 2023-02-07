@@ -6,3 +6,4 @@ history2.r
 .RData
 *.png
 .vscode/launch.json
+*.html
