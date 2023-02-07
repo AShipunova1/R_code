@@ -1,0 +1,98 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+scatter plot of not compl
+get list of not compliant
+
+```{r}
+  all_data_df_cleen %>%
+    group_by(vesselofficialnumber) %>%
+    summarise(not_compl = any(compliant == "NO")) %>%
+    filter(not_compl) %>% 
+    select(vesselofficialnumber) ->
+    not_compl_vsl_22_23
+```
+
+```{r}
+glimpse(not_compl_vsl_22_23)
+```
+  
+  
+  get data about not compl
+```{r}
+  all_data_df_cleen %>%
+    filter(vesselofficialnumber %in% not_compl_vsl_22_23$vesselofficialnumber) %>%
+    #  group_by(vesselofficialnumber) %>%
+    select(vesselofficialnumber,
+           compliant,
+           week_num,
+           year) ->
+    not_compl_vsl_22_23_data
+
+glimpse(not_compl_vsl_22_23_data)
+```  
+
+add a column
+```{r}
+not_compl_vsl_22_23_data %<>%
+  mutate(year_week = paste0(year, "_", week_num))
+
+glimpse(not_compl_vsl_22_23_data)
+```
+
+Group by count of multiple columns and get total counts
+```{r}
+not_compl_vsl_22_23_data_yes_no_cnts <- not_compl_vsl_22_23_data %>% 
+  group_by(vesselofficialnumber, compliant) %>% 
+  summarise(total_count=n(), .groups = 'drop') %>%
+  as.data.frame()
+
+glimpse(not_compl_vsl_22_23_data_yes_no_cnts)
+```
+
+not compliant only
+```{r}
+not_compl_vsl_22_23_data_yes_no_cnts %>% filter(compliant == "NO") %>%
+  select(vesselofficialnumber, total_count) %>%
+  arrange(total_count) ->
+  not_compl_vsl_22_23_data_yes_no_cnts_only 
+
+glimpse(not_compl_vsl_22_23_data_yes_no_cnts_only)
+
+```
+
+add total_counts to each vessel
+```{r}
+not_compl_vsl_22_23_data_w_cnts <- 
+  merge(not_compl_vsl_22_23_data, not_compl_vsl_22_23_data_yes_no_cnts_only, all=T)
+
+glimpse(not_compl_vsl_22_23_data_w_cnts)
+```  
+
+unique
+```{r}
+not_compl_vsl_22_23_data_w_cnts_1 <- not_compl_vsl_22_23_data_w_cnts %>% 
+#    select(vesselofficialnumber, compliant, year_week, total_count, week_num, year) %>%
+    unique()
+
+glimpse(not_compl_vsl_22_23_data_w_cnts_1)
+```
+
+plot
+```{r}
+not_compl_vsl_22_23_data_w_cnts_1 %>% 
+  mutate(order = fct_reorder(as.factor(week_num), year)) %>% 
+  ggplot(aes(x = order,
+             y = reorder(vesselofficialnumber, 
+                         as.integer(factor(total_count)), FUN = min), 
+             colour = compliant, 
+             size = 1)) + 
+  labs(title = "Compliant by year/date",
+       x ="Year_week", y = "Vessel official number") +
+  theme(axis.text.x = element_text(angle = 90),
+        axis.text.y = element_blank()) +
+  geom_point()
+
+```
