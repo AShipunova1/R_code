@@ -11,7 +11,12 @@
 #   csvs_clean1 <- clean_all_csvs(csv_contents)
 #   all_data_df <- join_all_csvs(csvs_clean1)
 #   all_data_df_cleen <- change_classes(all_data_df)
+#   return(list(my_paths, all_data_df_cleen))
 # }
+
+# temp_var <- main()
+# my_paths <- temp_var[[1]]
+# all_data_df_cleen <- temp_var[[2]]
 
 source("~/GitHub/R_code/start_module.R")
 # functions to clean FHIER compliance and correspondense reports
