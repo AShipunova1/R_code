@@ -43,7 +43,7 @@ join_all_csvs <- function(csvs) {
 
   csvs_clean1 <- trim_all_vessel_ids(csvs_clean0)
 
-  print(csvs_clean1)
+  str(csvs_clean1) %>% print()
 
   corresp <- rbind(csvs_clean1[[1]], csvs_clean1[[2]])
   compl <- rbind(csvs_clean1[[3]], csvs_clean1[[4]])
