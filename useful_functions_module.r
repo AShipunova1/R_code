@@ -8,7 +8,8 @@
 #                         "Compliance2022.csv",
 #                         "Compliance2023.csv")
 #   csv_contents <- load_csv_names(my_paths, csv_names_list)
-#   all_data_df <- join_all_csvs(csv_contents)
+#   csvs_clean1 <- clean_all_csvs(csv_contents)
+#   all_data_df <- join_all_csvs(csvs_clean1)
 #   all_data_df_cleen <- change_classes(all_data_df)
 # }
 
@@ -36,21 +37,38 @@ trim_all_vessel_ids <- function(csvs_clean) {
     csvs_clean[[i]] %<>% mutate(vesselofficialnumber = unlist(trimmed_ids))
   }
   return(csvs_clean)
+  # gives incorrect output:
+#   chr [1:6262] "c(\"VA9236AV\", \"VA7344AW\", \"VA6784AD\", \"VA3571BF\", \"VA1460CJ\", \"VA1267CJ\", \"VA0830CF\", \"TX9645BW\"| __truncated__ ...
+
 }
 
-join_all_csvs <- function(csvs) {
+trim_all_vessel_ids_simple <- function(csvs_clean) {
+    for (i in seq_along(csvs_clean)){
+    csvs_clean[[i]]$vesselofficialnumber <-
+      trimws(csvs_clean[[i]]$vesselofficialnumber)
+  }
+  return(csvs_clean)
+}
+
+clean_all_csvs <- function(csvs) {
   csvs_clean0 <- lapply(csvs, clean_headers)
 
-  csvs_clean1 <- trim_all_vessel_ids(csvs_clean0)
+  csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0)
 
-  str(csvs_clean1) %>% print()
+  # str(csvs_clean1) %>% print()
 
+  return(csvs_clean1)
+}
+
+
+join_all_csvs <- function(csvs_clean1) {
   corresp <- rbind(csvs_clean1[[1]], csvs_clean1[[2]])
   compl <- rbind(csvs_clean1[[3]], csvs_clean1[[4]])
 
   compl %>%
     full_join(corresp,
-              by = c("vesselofficialnumber")) ->
+              by = c("vesselofficialnumber"),
+              multiple = "all") ->
     data_join_all
 
   return(data_join_all)
