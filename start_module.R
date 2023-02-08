@@ -59,7 +59,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_num = 1) {
 clean_headers <- function(my_df) {
   colnames(my_df) %<>%
     str_replace_all("\\s", "_") %<>%
-    str_replace_all("\\.", "_") %<>%
+    str_replace_all("\\.", "") %<>%
     tolower()
   return(my_df)
 }
