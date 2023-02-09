@@ -65,10 +65,28 @@ clean_all_csvs <- function(csvs) {
   return(csvs_clean1)
 }
 
+join_same_kind_csvs <- function(csvs_list_2_plus) {
+  return(bind_rows(csvs_list_2_plus))
+}
 
-join_all_csvs <- function(csvs_clean1) {
-  corresp <- rbind(csvs_clean1[[1]], csvs_clean1[[2]])
-  compl <- rbind(csvs_clean1[[3]], csvs_clean1[[4]])
+join_all_csvs <- function(corresp_arr, compl_arr) {
+  # dim(corresp_arr) %>% print()
+  corresp <- corresp_arr
+  if (!is.data.frame(corresp_arr)) {
+    corresp <- join_same_kind_csvs(corresp_arr)
+  }
+
+  # dim(corresp) %>% print()
+  # dim(compl_arr) %>% print()
+
+  compl <- compl_arr
+  if (!is.data.frame(compl_arr)) {
+    compl <- join_same_kind_csvs(compl_arr)
+  }
+
+  dim(compl) %>% print()
+  # corresp <- join_same_kind_csvs(csvs_clean1[[1]], csvs_clean1[[2]])
+  # compl <- rbind(csvs_clean1[[3]], csvs_clean1[[4]])
 
   compl %>%
     full_join(corresp,
