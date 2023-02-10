@@ -1,5 +1,5 @@
 # useful functions
-# usage:
+# usage example:
 # main <- function() {
 #   source("~/GitHub/R_code/start_module.R")
 #   my_paths <- set_work_dir()
@@ -84,7 +84,7 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
     compl <- join_same_kind_csvs(compl_arr)
   }
 
-  dim(compl) %>% print()
+  # dim(compl) %>% print()
   # corresp <- join_same_kind_csvs(csvs_clean1[[1]], csvs_clean1[[2]])
   # compl <- rbind(csvs_clean1[[3]], csvs_clean1[[4]])
 
