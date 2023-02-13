@@ -64,8 +64,18 @@ get_2_plus_contacts <- function(corresp_contact_cnts_clean) {
 }
 corr_w_cnts_2_plus_contact <- get_2_plus_contacts(corresp_contact_cnts_clean)
 
-corr__2_plus_contacts__not_all_voicemails_ids <- function(corr_w_cnts_2_plus_contact) {
-  corr_w_cnts_2_plus_contact %>% 
+filter_only <- function(corr_w_cnts_2_plus_contact){
+  corr_w_cnts_2_plus_contact %>%
+  filter(tolower(calltype) == "outgoing" &
+           tolower(contactreason) == "compliance" &
+           (tolower(voicemail) != "yes")
+  )
+}
+
+corr_w_cnts_2_plus_contact_out_compl_only <- filter_only(corr_w_cnts_2_plus_contact)
+
+corr__2_plus_contacts__not_all_voicemails_ids <- function(corr_w_cnts_2_plus_contact_out_compl_only) {
+  corr_w_cnts_2_plus_contact_out_compl_only %>% 
     group_by(vesselofficialnumber) %>%
     reframe(all_vm = all(voicemail == "YES")) %>% 
     filter(!all_vm) %>% 
@@ -75,14 +85,14 @@ corr__2_plus_contacts__not_all_voicemails_ids <- function(corr_w_cnts_2_plus_con
   
   return(not_all_vm_ids)
 }
-corr_not_all_vm_ids <- corr__2_plus_contacts__not_all_voicemails_ids(corr_w_cnts_2_plus_contact)
 
-str(corr_w_cnts_2_plus_contact)
+corr_not_all_vm_ids <- corr__2_plus_contacts__not_all_voicemails_ids(corr_w_cnts_2_plus_contact_out_compl_only)
 
-get_first_2_out_contactdates <- function(corr_w_cnts_2_plus_contact) {
-  corr_w_cnts_2_plus_contact %>%
-    filter(vesselofficialnumber %in% corr_not_all_vm_ids$vesselofficialnumber &
-      tolower(calltype) == "outgoing") %>%
+# corr_w_cnts_2_plus_contact_out_compl_only %>% select(contactreason) %>% unique()
+
+get_first_2_out_contactdates <- function(corr_w_cnts_2_plus_contact_out_compl_only) {
+  corr_w_cnts_2_plus_contact_out_compl_only %>%
+    filter(vesselofficialnumber %in% corr_not_all_vm_ids$vesselofficialnumber) %>%
     select(vesselofficialnumber, contactdate) %>%
     group_by(vesselofficialnumber) %>%
     arrange(vesselofficialnumber, contactdate) %>%
@@ -90,27 +100,64 @@ get_first_2_out_contactdates <- function(corr_w_cnts_2_plus_contact) {
     ungroup() %>% return()
 }
 
-first_2_out_contactdates <- get_first_2_out_contactdates(corr_w_cnts_2_plus_contact)
-
-str(first_2_out_contactdates)
-
-get_2_first_dates_w_info <- function(corr_w_cnts_2_plus_contact) {
-  first2_dates_filter <- get_first_2_out_contactdates(corr_w_cnts_2_plus_contact)
-  corr_w_cnts_2_plus_contact %>%
+get_2_first_dates_w_info <- function(corr_w_cnts_2_plus_contact_out_compl_only) {
+  first2_dates_filter <- get_first_2_out_contactdates(corr_w_cnts_2_plus_contact_out_compl_only)
+  
+  corr_w_cnts_2_plus_contact_out_compl_only %>%
     filter(paste0(vesselofficialnumber, contactdate) %in%
              paste0(first2_dates_filter$vesselofficialnumber, first2_dates_filter$contactdate)) %>% 
     return()
 }
 
-corr_w_cnts_2_plus_contact_first_2_dates <- get_2_first_dates_w_info(corr_w_cnts_2_plus_contact)
-dim(corr_w_cnts_2_plus_contact_first_2_dates)
+corr_w_cnts_2_plus_contact_first_2_dates <- get_2_first_dates_w_info (corr_w_cnts_2_plus_contact_out_compl_only)
+str(corr_w_cnts_2_plus_contact_first_2_dates)
 
-#---- old part ----
+## ---- compare with the existing spreadsheet ----
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\SEFHIER vessels--non-reporting after contact - SA no reports.csv"
+
+corr_w_cnts_2_plus_contact_first_2_dates_ids <-
+  corr_w_cnts_2_plus_contact_first_2_dates %>%
+  select(vesselofficialnumber) %>% unique()
+
+upload_data_from_the_egr_spreadsheet <- function(add_path_egr, my_paths) {
+  csv_names_list = list(file.path(add_path_egr, "sa_egr_given.csv"))
+  given_egr_csv_arr <- load_csv_names(my_paths, csv_names_list)
+  given_egr_csv <- clean_headers(given_egr_csv_arr[[1]])
+  
+  return(given_egr_csv)
+}
+
+given_egr_csv <- upload_data_from_the_egr_spreadsheet(add_path_egr, my_paths)
+
+date_format_use_names_as_variable <- function(given_egr_csv,   date_col_names = c("x1stcontact", "x2ndcontact")) {
+  
+  given_egr_csv %>%
+    mutate_at(date_col_names, as.POSIXct, format = "%m/%d/%Y") ->
+    given_egr_csv_clean
+  
+  return(given_egr_csv_clean)
+}
+
+given_egr_csv_clean <- date_format_use_names_as_variable(given_egr_csv)
+# names(given_egr_csv_clean)[1:4]
+prepare_given_ids_for_comparison <- function(given_egr_csv_clean) {
+  given_egr_csv_vessels <- 
+    given_egr_csv_clean %>%
+    rename(vesselofficialnumber = vesselid) 
+  # names(given_egr_csv_vessels)[1:4]
+  
+  # remove wrong row
+  given_egr_csv_vessels %<>%
+    filter(vesselofficialnumber != "Vessel ID")
+  
+  return(given_egr_csv_vessels)
+}
+given_egr_csv_vessels <- prepare_given_ids_for_comparison(given_egr_csv_clean)
 
 ## ----Venn diagram----
 
 myCol <- brewer.pal(8, "Pastel2")[c(1, 2)]
-venn_plot_cat0 <- list(egr__not_all_vm__outgoing__no_reports__reason_compl_ids$vesselofficialnumber, given_egr_csv_vessels$vesselofficialnumber)
+venn_plot_cat <- list(unique(corr_w_cnts_2_plus_contact_out_compl_only$vesselofficialnumber), given_egr_csv_vessels$vesselofficialnumber)
 
 venn_to_file <- function(venn_plot_cat0, my_paths, myCol) {
   # to a file
@@ -144,40 +191,13 @@ venn_to_show_in_r <- function(venn_plot_cat0) {
   grid.draw(venn.plot);
 }
 
-venn_to_show_in_r(venn_plot_cat0)
+venn_to_show_in_r(venn_plot_cat)
 
+##---- output to csv ----
+# str(corr_w_cnts_2_plus_contact_first_2_dates)
+write.csv(corr_w_cnts_2_plus_contact_first_2_dates, file.path(my_paths$outputs, "info_for_2_first_dates_corr_only.csv"), row.names = FALSE)
 
-add_other_info <- function(egr_w_cnts_2_plus_contact, no_reports_not_all_vm_ids) {
-  egr_w_cnts_2_plus_contact %>% 
-      filter((vesselofficialnumber %in% no_reports_not_all_vm_ids$vesselofficialnumber) & 
-               contactreason == "Compliance" &
-               calltype == "Outgoing"
-      ) %>%
-    select(vesselofficialnumber, contactdate, followup, loggroup, calltype, voicemail, contacttype, contactreason, contactrecipientname, contactphonenumber, contactemailaddress, contactcomments, srfhuser, createdon, followupnbr, contact_freq) ->
-    egr__not_all_vm__outgoing__no_reports__reason_compl
-  
-  return(egr__not_all_vm__outgoing__no_reports__reason_compl)
-}
-
-egr__not_all_vm__outgoing__no_reports__reason_compl <- add_other_info(egr_w_cnts_2_plus_contact, no_reports_not_all_vm_ids)
-  
-
-# TODO
-# from all egr with 2 contacts: get ids for
-# 1) just 1 call
-# 2) 2 calls no emails
-# 3) not calls
-# 4) voicemails only
-
-options(dplyr.summarise.inform = F)
-
-count_by_column_list <- function(my_df, group_by_list) {
-  my_df %>%
-    arrange(vesselofficialnumber, contactdate) %>%
-    group_by_at(group_by_list) %>%
-    # summarise(my_freq = n()) %>%
-    return()
-}
+#---- old part ----
 
 ## ---- 1) just 1 call ----
 group_by_list = c("vesselofficialnumber", "voicemail", "contacttype")
@@ -257,87 +277,6 @@ test_output1 <- function(egr_w_cnts_2_plus_contact, first2_dates) {
 
   # write.csv(all_info_for_2_first_dates, file.path(my_paths$outputs, "info_for_2_first_dates.csv"), row.names = FALSE)
 }
-
-## ---- compare with the existing spreadsheet ----
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\SEFHIER vessels--non-reporting after contact - SA no reports.csv"
-
-egr__not_all_vm__outgoing__no_reports__reason_compl_ids <-
-  egr__not_all_vm__outgoing__no_reports__reason_compl %>%
-  select(vesselofficialnumber) %>% unique()
-
-upload_data_from_the_egr_spreadsheet <- function(add_path_egr, my_paths) {
-  csv_names_list = list(file.path(add_path_egr, "sa_egr_given.csv"))
-  given_egr_csv_arr <- load_csv_names(my_paths, csv_names_list)
-  given_egr_csv <- clean_headers(given_egr_csv_arr[[1]])
-  
-  return(given_egr_csv)
-}
-
-given_egr_csv <- upload_data_from_the_egr_spreadsheet(add_path_egr, my_paths)
-
-date_format_use_names_as_variable <- function(given_egr_csv,   date_col_names = c("x1stcontact", "x2ndcontact")) {
-  
-  given_egr_csv %>%
-    mutate_at(date_col_names, as.POSIXct, format = "%m/%d/%Y") ->
-    given_egr_csv_clean
-  
-  return(given_egr_csv_clean)
-}
-
-given_egr_csv_clean <- date_format_use_names_as_variable(given_egr_csv)
-# names(given_egr_csv_clean)[1:4]
-prepare_given_ids_for_comparison <- function(given_egr_csv_clean) {
-  given_egr_csv_vessels <- 
-    given_egr_csv_clean %>%
-    rename(vesselofficialnumber = vesselid) 
-  # names(given_egr_csv_vessels)[1:4]
-  
-  # remove wrong row
-  given_egr_csv_vessels %<>%
-    filter(vesselofficialnumber != "Vessel ID")
-  
-  return(given_egr_csv_vessels)
-}
-given_egr_csv_vessels <- prepare_given_ids_for_comparison(given_egr_csv_clean)
-
-## ----Venn diagram----
-
-myCol <- brewer.pal(8, "Pastel2")[c(1, 2)]
-venn_plot_cat0 <- list(egr__not_all_vm__outgoing__no_reports__reason_compl_ids$vesselofficialnumber, given_egr_csv_vessels$vesselofficialnumber)
-
-venn_to_file <- function(venn_plot_cat0, my_paths, myCol) {
-  # to a file
-  venn.diagram(venn_plot_cat0
-               , category.names = c("Script result", "From the manual spreadsheet")
-               , filename = file.path(my_paths$outputs, "venn2.png")
-               , output = T
-               , fill = myCol)
-}
-# venn_to_file(venn_plot_cat0, my_paths, myCol)
-
-venn_to_show_in_r <- function(venn_plot_cat0) {
-  venn_plot_cat1 <- sapply(venn_plot_cat0, length)
-  venn_plot_cat_w_intersect <- list(venn_plot_cat1[[1]],
-                                    venn_plot_cat1[[2]],
-                                    length(intersect(venn_plot_cat0[[1]], venn_plot_cat0[[2]])))
-  
-  grid.newpage();
-  
-  venn.plot <- draw.pairwise.venn(venn_plot_cat_w_intersect[[1]],
-                                  venn_plot_cat_w_intersect[[2]],
-                                  venn_plot_cat_w_intersect[[3]],
-                                  c("Script result", "G. spreadsheet"),
-                                  fill = c("#AFEEEE", "#FFE4B5"),
-                                  ext.pos = (180),
-                                  cat.pos = c(-45, 15)
-                                  , cat.dist = rep(0.035, 2)
-                                  # , cat.dist = rep(0.025, 2)
-  );
-  grid.newpage();
-  grid.draw(venn.plot);
-}
-
-venn_to_show_in_r(venn_plot_cat0)
 
 # ## ----prepare_data_for_clean_first_two_contacts ----
 get_not_vm_outgoing_ids <- function(egr_w_cnts_2_plus_contact) {
