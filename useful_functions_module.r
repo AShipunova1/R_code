@@ -118,3 +118,10 @@ change_to_dates <- function(my_df, field_name, date_format) {
     return()
 }
 
+count_by_column_list <- function(my_df, group_by_list) {
+  my_df %>%
+    arrange(vesselofficialnumber, contactdate) %>%
+    group_by_at(group_by_list) %>%
+    summarise(my_freq = n()) %>%
+    return()
+}
