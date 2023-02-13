@@ -131,7 +131,7 @@ egr_ids__outgoing__not_all_voicemails__no_reports__2_plus_contacts__voicemails %
 ## ----get 2 first contacts----
 names_short_list1 <- c("vesselofficialnumber", "compliant", "contactdate", "calltype", "voicemail", "contacttype", "contactreason", "contactrecipientname", "contactphonenumber", "contactemailaddress", "contactcomments", "contact_freq")
 
-first_2_out_contactdates0 <- function(egr_w_cnts_2_plus_contact) {
+first_2_out_contactdates <- function(egr_w_cnts_2_plus_contact) {
   egr_w_cnts_2_plus_contact %>%
     filter(tolower(calltype) == "outgoing") %>% 
     select(vesselofficialnumber, contactdate) %>%
@@ -141,7 +141,7 @@ first_2_out_contactdates0 <- function(egr_w_cnts_2_plus_contact) {
     ungroup() %>% return()
 }
 
-first2_dates <- first_2_out_contactdates0(egr_w_cnts_2_plus_contact)
+first2_dates <- first_2_out_contactdates(egr_w_cnts_2_plus_contact)
 
 test_first_2 <- function(first2_dates, egr_w_cnts_2_plus_contact) {
   str(first2_dates)
@@ -255,76 +255,87 @@ venn_to_show_in_r <- function(venn_plot_cat0) {
 venn_to_show_in_r(venn_plot_cat0)
 
 # ## ----prepare_data_for_clean_first_two_contacts ----
-# get_not_vm_outgoing_ids <- function(egr_w_cnts) {
-#     egr_w_cnts %>% 
-#       filter(calltype == "Outgoing") %>%
-#       group_by(vesselofficialnumber) %>%
-#       reframe(
-#         no_reports = (xcaptainreports == 0 & xnegativereports == 0),
-#         all_vm = all(voicemail == "YES")) %>% 
-#       filter(no_reports & !all_vm) %>% 
-#       select(vesselofficialnumber) %>%
-#       unique() ->
-#       no_reports_not_all_vm_ids
-#     
-#     return(no_reports_not_all_vm_ids)
-# }
-# 
-# not_vm_outgoing_ids <- get_not_vm_outgoing_ids(egr_w_cnts)
-# 
+get_not_vm_outgoing_ids <- function(egr_w_cnts_2_plus_contact) {
+  egr_w_cnts_2_plus_contact %>%
+      filter(calltype == "Outgoing") %>%
+      group_by(vesselofficialnumber) %>%
+      reframe(
+        no_reports = (xcaptainreports == 0 & xnegativereports == 0),
+        all_vm = all(voicemail == "YES")) %>%
+      filter(no_reports & !all_vm) %>%
+      select(vesselofficialnumber) %>%
+      unique() ->
+      no_reports_not_all_vm_ids
+
+    return(no_reports_not_all_vm_ids)
+}
+
+not_vm_outgoing_ids <- get_not_vm_outgoing_ids(egr_w_cnts_2_plus_contact)
+
 # str(not_vm_outgoing_ids)
-# 
-# filter_egr_w_cnts <- function(egr_w_cnts) {
-#   egr_w_cnts %>%
-#     filter(tolower(calltype) == tolower("Outgoing") &
-#              tolower(contactreason) == tolower("Compliance") &
-#              tolower(voicemail) == tolower("no")) %>%
-#     # 'data.frame':	86361 obs. of  38 variables
-#     filter(vesselofficialnumber %in% not_vm_outgoing_ids$vesselofficialnumber) %>%
-#     # 'data.frame':	81649 obs. of  38 variables:
-#     return()
-# }
-# 
-# test_data1 <- filter_egr_w_cnts(egr_w_cnts)
+
+filter_egr_w_cnts <- function(egr_w_cnts_2_plus_contact) {
+  egr_w_cnts_2_plus_contact %>%
+    filter(tolower(calltype) == tolower("Outgoing") &
+             tolower(contactreason) == tolower("Compliance") &
+             tolower(voicemail) == tolower("no")) %>%
+    filter(vesselofficialnumber %in% not_vm_outgoing_ids$vesselofficialnumber) %>%
+    return()
+}
+
+test_data1 <- filter_egr_w_cnts(egr_w_cnts_2_plus_contact)
 # str(test_data1)
 # 
 # # write.csv(all_info_for_2_first_dates, file.path(my_paths$outputs, "info_for_2_first_dates.csv"), row.names = FALSE)
 # 
-# get_2_first_dates_w_info <- function(test_data1) {
-#   first2_dates_filter <- first_2_out_contactdates(test_data1)
-#   # dim(first2_dates_filter)
-#   # 2975    2
-#   test_data1 %>%
-#     filter(paste0(vesselofficialnumber, contactdate) %in% 
-#              paste0(first2_dates_filter$vesselofficialnumber, first2_dates_filter$contactdate)) %>% 
-#     unique() %>%
-#     return()
-# }
-# # dim(test_data1)
-# # [1] 81649    38
-# # voicemail no
-# # [1] 40989    38
-# 
-# res_output <- get_2_first_dates_w_info(test_data1)
-# dim(res_output)
-# # [1] 35920    38
-# # voicemail no
-# # [1] 24215    38
-# 
-# test_res_output <- function(res_output, test_data1) {
-#   t1 <- res_output %>% select(vesselofficialnumber) %>% unique() %>% str()
-#   t2 <- first_2_out_contactdates(test_data1) %>% select(vesselofficialnumber) %>% unique() %>% str()
-#   identical(t1, t2) %>% print()
-#   # TRUE
-# }
-# 
-# res_output %>% filter(vesselofficialnumber == "236246") %>% arrange(contactdate) %>% unique()
-# # 6
-# # TODO
-# # why contact_freq 60
-# # rm week data before?
-# 
-# write.csv(res_output, file.path(my_paths$outputs, "info_for_2_first_dates.csv"), row.names = FALSE)
-# 
-# # TODO
-# # filter out "no answer"
+get_2_first_dates_w_info <- function(test_data1) {
+  first2_dates_filter <- first_2_out_contactdates(test_data1)
+  test_data1 %>%
+    filter(paste0(vesselofficialnumber, contactdate) %in%
+             paste0(first2_dates_filter$vesselofficialnumber, first2_dates_filter$contactdate)) %>%
+    unique() %>%
+    return()
+}
+res_output <- get_2_first_dates_w_info(test_data1)
+
+test_res_output <- function(res_output, test_data1) {
+  t1 <- res_output %>% select(vesselofficialnumber) %>% unique() %>% str()
+  t2 <- first_2_out_contactdates(test_data1) %>% select(vesselofficialnumber) %>% unique() %>% str()
+  identical(t1, t2) %>% print()
+  # TRUE
+}
+
+write.csv(res_output, file.path(my_paths$outputs, "info_for_2_first_dates.csv"), row.names = FALSE)
+
+# TODO
+# filter out "no answer"
+
+#----Redo with no week info----
+no_week_names <- c("vesselofficialnumber", "name", "permitgroup", "permitgroupexpiration", "xgompermitteddeclarations", "xcaptainreports", "xnegativereports", "xcomplianceerrors", "compliant", "setpermitsonhold", "overridden", "overridedate", "overrideby", "contactedwithin48hours", "submittedpowerdown", "primary", "contactdate", "followup", "loggroup", "calltype", "voicemail", "contacttype", "contactreason", "contactrecipientname", "contactphonenumber", "contactemailaddress", "contactcomments", "srfhuser", "createdon", "followupnbr", "srhsvessel", "contact_freq")
+
+filter_egr_w_cnts_no_week <- function(egr_w_cnts_2_plus_contact) {
+  
+  egr_w_cnts_2_plus_contact %>% 
+    select(all_of(no_week_names)) %>%
+    filter(tolower(calltype) == tolower("Outgoing") &
+             tolower(contactreason) == tolower("Compliance") &
+             tolower(voicemail) == tolower("no")) %>%
+    filter(vesselofficialnumber %in% not_vm_outgoing_ids$vesselofficialnumber) %>%
+    return()
+}
+
+egr_w_cnts_no_week <- filter_egr_w_cnts_no_week(egr_w_cnts_2_plus_contact)
+
+get_2_first_dates_w_info <- function(test_data1) {
+  first2_dates_filter <- first_2_out_contactdates(test_data1)
+  test_data1 %>%
+    filter(paste0(vesselofficialnumber, contactdate) %in%
+             paste0(first2_dates_filter$vesselofficialnumber, first2_dates_filter$contactdate)) %>%
+    unique() %>%
+    return()
+}
+res_output <- get_2_first_dates_w_info(test_data1)
+
+
+write.csv(res_output, file.path(my_paths$outputs, "info_for_2_first_dates_no_week.csv"), row.names = FALSE)
+
