@@ -1,5 +1,8 @@
 # download the compliance details and filter out those South Atlantic vessels that have never reported, and then check that short list against # of calls/emails (need at least 2, and if never spoken too/responded then they'd need a certified letter from OLE)
 
+source("~/GitHub/R_code/start_module.r")
+source("~/GitHub/R_code/useful_functions_module.r")
+
 library(VennDiagram)
 library(RColorBrewer)
 
@@ -17,26 +20,42 @@ add_count_contacts <- function(all_data_df_cleen) {
   return(egr_w_cnts)
 }
 
-main <- function() {
-  source("~/GitHub/R_code/start_module.r")
-  source("~/GitHub/R_code/useful_functions_module.r")
+get_compl_and_corresp_data <- function() {
   my_paths <- set_work_dir()
   csv_names_list = list(file.path(add_path_corresp,  "Correspondence21_23.csv"), 
                         file.path(add_path_egr, "egr2022.csv"),
                         file.path(add_path_egr, "egr2023.csv"))
   csv_contents_egr <- load_csv_names(my_paths, csv_names_list)
   csvs_clean1 <- clean_all_csvs(csv_contents_egr)
+  
   corresp_arr <- csvs_clean1[[1]]
-  compl_arr <- list(csvs_clean1[[2]], csvs_clean1[[3]])
   corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
-  all_data_df <- join_all_csvs(corresp_arr_contact_cnts, compl_arr)
-  all_data_df_cleen <- change_classes(all_data_df)
-  return(list(my_paths, all_data_df_cleen))
+  corresp_arr_contact_cnts %>% 
+    change_to_dates("createdon", "%m/%d/%Y %H:%M") %>%
+    change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
+    corresp_arr_contact_cnts_clean
+    
+  compl_arr <- list(csvs_clean1[[2]], csvs_clean1[[3]])
+  compl <- compl_arr
+  if (!is.data.frame(compl_arr)) {
+    compl <- join_same_kind_csvs(compl_arr)
+  }
+  
+  compl %>% 
+    cleen_weeks() %>%
+    change_to_dates("permitgroupexpiration", "%m/%d/%Y") ->
+    compl_clean
+  
+  
+  # all_data_df <- join_all_csvs(corresp_arr_contact_cnts, compl_arr)
+  # all_data_df_cleen <- change_classes(all_data_df)
+  return(list(my_paths, compl_clean, corresp_arr_contact_cnts_clean))
 }
 
-temp_var <- main()
+temp_var <- get_compl_and_corresp_data()
 my_paths <- temp_var[[1]]
-all_data_df_cleen <- temp_var[[2]]
+compl_clean <- temp_var[[2]]
+corresp_arr_contact_cnts_clean <- temp_var[[3]]
 
 get_2_plus_contacts <- function(all_data_df_cleen) {
   all_data_df_cleen %>%
@@ -326,16 +345,7 @@ filter_egr_w_cnts_no_week <- function(egr_w_cnts_2_plus_contact) {
 
 egr_w_cnts_no_week <- filter_egr_w_cnts_no_week(egr_w_cnts_2_plus_contact)
 
-get_2_first_dates_w_info <- function(test_data1) {
-  first2_dates_filter <- first_2_out_contactdates(test_data1)
-  test_data1 %>%
-    filter(paste0(vesselofficialnumber, contactdate) %in%
-             paste0(first2_dates_filter$vesselofficialnumber, first2_dates_filter$contactdate)) %>%
-    unique() %>%
-    return()
-}
-res_output <- get_2_first_dates_w_info(test_data1)
+res_output2 <- get_2_first_dates_w_info(egr_w_cnts_no_week)
 
-
-write.csv(res_output, file.path(my_paths$outputs, "info_for_2_first_dates_no_week.csv"), row.names = FALSE)
+write.csv(res_output2, file.path(my_paths$outputs, "info_for_2_first_dates_no_week.csv"), row.names = FALSE)
 
