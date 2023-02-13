@@ -3,7 +3,7 @@
 # main <- function() {
 #   source("~/GitHub/R_code/start_module.R")
 #   my_paths <- set_work_dir()
-#   csv_names_list = list("Correspondence2022.csv", 
+#   csv_names_list = list("Correspondence2022.csv",
 #                         "Correspondence2023.csv",
 #                         "Compliance2022.csv",
 #                         "Compliance2023.csv")
@@ -97,18 +97,24 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
   return(data_join_all)
 }
 
-change_classes <- function(my_csv_df) {
-  all_data_df_cleen <-
-    my_csv_df %>%
-    cleen_weeks() %>%
-    mutate(permitgroupexpiration =
-             as.Date(permitgroupexpiration, "%m/%d/%Y")) %>%
-    mutate(createdon = as.POSIXct(createdon, format = "%m/%d/%Y %H:%M")) %>%
-    mutate(contactdate = as.POSIXct(contactdate,
-                                    format = "%m/%d/%Y %I:%M %p",
-                                    tz = "America/New_York"))
+# change_classes <- function(my_csv_df) {
+#   all_data_df_cleen <-
+#     my_csv_df %>%
+#     cleen_weeks() %>%
+#     mutate(permitgroupexpiration =
+#              as.Date(permitgroupexpiration, "%m/%d/%Y")) %>%
+#     mutate(createdon = as.POSIXct(createdon, format = "%m/%d/%Y %H:%M")) %>%
+#     mutate(contactdate = as.POSIXct(contactdate,
+#                                     format = "%m/%d/%Y %I:%M %p",
+#                                     tz = "America/New_York"))
 
-  return(all_data_df_cleen)
+#   return(all_data_df_cleen)
+# }
 
+change_to_dates <- function(my_df, field_name, date_format) {
+  my_df %>%
+    mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+    format = date_format)) %>%
+    return()
 }
 
