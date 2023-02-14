@@ -60,20 +60,7 @@ cleen_weeks <- function(my_df) {
   return(my_df)
 }
 
-trim_all_vessel_ids <- function(csvs_clean) {
-  for (i in seq_along(csvs_clean)){
-    id_name <- grep("vessel.*number", names(csvs_clean[[i]]), value = TRUE)
-    # id_name
-    trimmed_ids <- lapply(csvs_clean[[i]][id_name], trimws)
-
-    csvs_clean[[i]] %<>% mutate(vesselofficialnumber = unlist(trimmed_ids))
-  }
-  return(csvs_clean)
-  # gives incorrect output:
-#   chr [1:6262] "c(\"VA9236AV\", \"VA7344AW\", \"VA6784AD\", \"VA3571BF\", \"VA1460CJ\", \"VA1267CJ\", \"VA0830CF\", \"TX9645BW\"| __truncated__ ...
-
-}
-
+# trim vesselofficialnumber, just in case
 trim_all_vessel_ids_simple <- function(csvs_clean) {
     for (i in seq_along(csvs_clean)){
     csvs_clean[[i]]$vesselofficialnumber <-
@@ -82,13 +69,12 @@ trim_all_vessel_ids_simple <- function(csvs_clean) {
   return(csvs_clean)
 }
 
+# cleaning, regularly done for csvs downloaded from PFIER
 clean_all_csvs <- function(csvs) {
+  # unify headers
   csvs_clean0 <- lapply(csvs, clean_headers)
-
+  # trim vesselofficialnumber, just in case
   csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0)
-
-  # str(csvs_clean1) %>% print()
-
   return(csvs_clean1)
 }
 
@@ -96,48 +82,26 @@ join_same_kind_csvs <- function(csvs_list_2_plus) {
   return(bind_rows(csvs_list_2_plus))
 }
 
+# Combine correspondence and compliance information into one dataframe by "vesselofficialnumber" only. Not by time!
 join_all_csvs <- function(corresp_arr, compl_arr) {
-  # dim(corresp_arr) %>% print()
   corresp <- corresp_arr
   if (!is.data.frame(corresp_arr)) {
     corresp <- join_same_kind_csvs(corresp_arr)
   }
-
-  # dim(corresp) %>% print()
-  # dim(compl_arr) %>% print()
 
   compl <- compl_arr
   if (!is.data.frame(compl_arr)) {
     compl <- join_same_kind_csvs(compl_arr)
   }
 
-  # dim(compl) %>% print()
-  # corresp <- join_same_kind_csvs(csvs_clean1[[1]], csvs_clean1[[2]])
-  # compl <- rbind(csvs_clean1[[3]], csvs_clean1[[4]])
-
   compl %>%
     full_join(corresp,
               by = c("vesselofficialnumber"),
-              multiple = "all") ->
-    data_join_all
-
-  return(data_join_all)
+              multiple = "all") %>%
+    return()
 }
 
-# change_classes <- function(my_csv_df) {
-#   all_data_df_cleen <-
-#     my_csv_df %>%
-#     cleen_weeks() %>%
-#     mutate(permitgroupexpiration =
-#              as.Date(permitgroupexpiration, "%m/%d/%Y")) %>%
-#     mutate(createdon = as.POSIXct(createdon, format = "%m/%d/%Y %H:%M")) %>%
-#     mutate(contactdate = as.POSIXct(contactdate,
-#                                     format = "%m/%d/%Y %I:%M %p",
-#                                     tz = "America/New_York"))
-
-#   return(all_data_df_cleen)
-# }
-
+# Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 change_to_dates <- function(my_df, field_name, date_format) {
   my_df %>%
     mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
@@ -145,6 +109,7 @@ change_to_dates <- function(my_df, field_name, date_format) {
     return()
 }
 
+# Get frequencies for each column in the list
 # E.g. group_by_arr <- c("vesselofficialnumber", "contacttype")
 count_by_column_list <- function(my_df, group_by_list) {
   my_df %>%
@@ -154,9 +119,12 @@ count_by_column_list <- function(my_df, group_by_list) {
     return()
 }
 
-add_count_contacts <- function(all_data_df_cleen) {
-  all_data_df_cleen %>%
+# Use for contacts in the setup function before combining with compliant dataframes
+add_count_contacts <- function(all_data_df_clean) {
+  all_data_df_clean %>%
+    # add a new column with a "yes" if there is a contactdate (and a "no" if not)
     mutate(was_contacted = if_else(is.na(contactdate), "no", "yes")) %>%
+    # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
     add_count(vesselofficialnumber, was_contacted, name = "contact_freq") %>%
     return()
 }
