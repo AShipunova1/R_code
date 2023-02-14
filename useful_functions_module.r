@@ -1,22 +1,49 @@
 # useful functions
 # usage example:
-# main <- function() {
-#   source("~/GitHub/R_code/start_module.R")
+# get_compl_and_corresp_data <- function() {
 #   my_paths <- set_work_dir()
-#   csv_names_list = list("Correspondence2022.csv",
-#                         "Correspondence2023.csv",
-#                         "Compliance2022.csv",
-#                         "Compliance2023.csv")
-#   csv_contents <- load_csv_names(my_paths, csv_names_list)
-#   csvs_clean1 <- clean_all_csvs(csv_contents)
-#   all_data_df <- join_all_csvs(csvs_clean1)
-#   all_data_df_cleen <- change_classes(all_data_df)
-#   return(list(my_paths, all_data_df_cleen))
+#   csv_names_list = list(file.path(add_path_corresp,  "Correspondence21_23.csv"),
+#                         file.path(add_path_compl, "FHIER_Compliance_22.csv"),
+#                         file.path(add_path_compl, "FHIER_Compliance_23.csv"))
+#   # Load all csv files to data frames
+#   csv_contents_egr <- load_csv_names(my_paths, csv_names_list)
+
+#   # unify headers and trim vessel official numbers across all the dfs
+#   csvs_clean1 <- clean_all_csvs(csv_contents_egr)
+
+#   # For correspondence only:
+#   corresp_arr <- csvs_clean1[[1]]
+#   # add a column with contact frequency per vessel official number
+#   corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
+#   # change all dates classes from char to POSIXct
+#   corresp_arr_contact_cnts %>%
+#     change_to_dates("createdon", "%m/%d/%Y %H:%M") %>%
+#     change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
+#     corresp_arr_contact_cnts_clean
+
+#   # For compliance info only:
+#   compl_arr <- list(csvs_clean1[[2]], csvs_clean1[[3]])
+#   # combine all compliance data frames into one
+#   compl <- compl_arr
+#   if (!is.data.frame(compl_arr)) {
+#     compl <- join_same_kind_csvs(compl_arr)
+#   }
+
+#   compl %>%
+#     # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
+#     clean_weeks() %>%
+#     # change dates classes from char to POSIXct
+#     change_to_dates("permitgroupexpiration", "%m/%d/%Y") ->
+#     compl_clean
+
+#   return(list(my_paths, compl_clean, corresp_arr_contact_cnts_clean))
 # }
 
-# temp_var <- main()
+# # get csv data into variables
+# temp_var <- get_compl_and_corresp_data()
 # my_paths <- temp_var[[1]]
-# all_data_df_cleen <- temp_var[[2]]
+# compl_clean <- temp_var[[2]]
+# corresp_contact_cnts_clean <- temp_var[[3]]
 
 source("~/GitHub/R_code/start_module.R")
 # functions to clean FHIER compliance and correspondense reports
