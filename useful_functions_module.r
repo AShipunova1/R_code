@@ -46,8 +46,10 @@
 # corresp_contact_cnts_clean <- temp_var[[3]]
 
 source("~/GitHub/R_code/start_module.R")
-# functions to clean FHIER compliance and correspondense reports
-cleen_weeks <- function(my_df) {
+## ---- functions to clean FHIER compliance and correspondense reports ----
+
+# split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
+clean_weeks <- function(my_df) {
   my_df %>%
     separate_wider_delim(week, ":", names = c("week_num", "week_rest")) %>%
     separate_wider_delim(week_rest, " - ", names = c("week_start", "week_end")) ->
