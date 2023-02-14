@@ -1,5 +1,11 @@
 # download the compliance details and filter out those South Atlantic vessels that have never reported, and then check that short list against # of calls/emails (need at least 2, and if never spoken too/responded then they'd need a certified letter from OLE)
+# From Leeanne:
+# You can download that report from the FHIER compliance report. Within that report you can refine the search parameters like the 2022 year and for "Has Error" at the top, select "No report". The "no report" error will limit the report to Atlantic/South Atlantic vessels that are non-compliant for no reports. You will have to specifically filter out the vessels that are egregious.
+# 
+# An egregious violator, in the past, is considered as a vessel that has not reported at all (either all 52 weeks out of the year or since permit issue if they were issued new permits throughout the year) but has been contacted (called/emailed) at least twice since the program began Jan 4, 2021. 
+# 
 
+# Get common functions
 source("~/GitHub/R_code/start_module.r")
 source("~/GitHub/R_code/useful_functions_module.r")
 
@@ -7,36 +13,37 @@ library(VennDiagram)
 library(RColorBrewer)
 
 # ----set up----
+# add my additional folder names
 add_path_egr <- "egr_violators"
 add_path_corresp <- "Correspondence"
 add_path_compl <- "FHIER Compliance"
 
-# Use before combining with compliant info
-add_count_contacts <- function(all_data_df_cleen) {
-  all_data_df_cleen %>%
-    mutate(was_contacted = if_else(is.na(contactdate), "no", "yes")) %>% 
-    add_count(vesselofficialnumber, was_contacted, name = "contact_freq") ->
-    egr_w_cnts
-  return(egr_w_cnts)
-}
-
 get_compl_and_corresp_data <- function() {
-  my_paths <- set_work_dir()
   csv_names_list = list(file.path(add_path_corresp,  "Correspondence21_23.csv"), 
                         file.path(add_path_egr, "egr2022.csv"),
                         file.path(add_path_egr, "egr2023.csv"))
+  # read all csv files
   csv_contents_egr <- load_csv_names(my_paths, csv_names_list)
+  
+  # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents_egr)
   
+  # specific correspondence manipulations
   corresp_arr <- csvs_clean1[[1]]
+  # add a new column with a "yes" if there is a contactdate (and a "no" if not),
+  # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
   corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
+  # change classes from char to POSIXct
   corresp_arr_contact_cnts %>% 
     change_to_dates("createdon", "%m/%d/%Y %H:%M") %>%
     change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
     corresp_arr_contact_cnts_clean
     
+  # specific compliance manipulations
   compl_arr <- list(csvs_clean1[[2]], csvs_clean1[[3]])
+  # combine 2 separate dataframes for 2022 and 2023 into one
   compl <- compl_arr
+  # if it is one df already, do nothing
   if (!is.data.frame(compl_arr)) {
     compl <- join_same_kind_csvs(compl_arr)
   }
@@ -53,9 +60,9 @@ get_compl_and_corresp_data <- function() {
 }
 
 temp_var <- get_compl_and_corresp_data()
-my_paths <- temp_var[[1]]
-compl_clean <- temp_var[[2]]
-corresp_contact_cnts_clean <- temp_var[[3]]
+my_paths <- set_work_dir()
+compl_clean <- temp_var[[1]]
+corresp_contact_cnts_clean <- temp_var[[2]]
 
 get_2_plus_contacts <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
