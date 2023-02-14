@@ -126,3 +126,10 @@ count_by_column_list <- function(my_df, group_by_list) {
     summarise(my_freq = n()) %>%
     return()
 }
+
+add_count_contacts <- function(all_data_df_cleen) {
+  all_data_df_cleen %>%
+    mutate(was_contacted = if_else(is.na(contactdate), "no", "yes")) %>%
+    add_count(vesselofficialnumber, was_contacted, name = "contact_freq") %>%
+    return()
+}
