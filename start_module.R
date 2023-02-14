@@ -35,8 +35,10 @@ set_work_dir <- function() {
 
 load_csv_names <- function(my_paths, csv_names_list) {
   my_inputs <- my_paths$inputs
+  # add input directory path in front of each file name.
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, x))
 
+  # read all csv files
   contents <- sapply(myfiles, read.csv, header = TRUE, simplify = FALSE)
 
   return(contents)
