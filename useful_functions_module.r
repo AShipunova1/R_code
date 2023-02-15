@@ -112,11 +112,11 @@ change_to_dates <- function(my_df, field_name, date_format) {
 }
 
 # Get frequencies for each column in the list
-# E.g. group_by_arr <- c("vesselofficialnumber", "contacttype")
+# E.g. group_by_list <- c("vesselofficialnumber", "contacttype")
 count_by_column_list <- function(my_df, group_by_list) {
   my_df %>%
     arrange(vesselofficialnumber) %>%
-    group_by_at(group_by_arr) %>%
+    group_by_at(group_by_list) %>%
     summarise(my_freq = n()) %>%
     return()
 }
