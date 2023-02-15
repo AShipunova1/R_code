@@ -1,3 +1,4 @@
+# nolint: commented_code_linter
 # useful functions
 # usage example:
 # get_compl_and_corresp_data <- function() {
