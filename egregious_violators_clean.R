@@ -140,9 +140,10 @@ get_2_first_dates_w_info <- function(corr_w_cnts_2_plus_contact_out_compl_only) 
 }
 corr_w_cnts_2_plus_contact_first_2_dates <- get_2_first_dates_w_info (corr_w_cnts_2_plus_contact_out_compl_only)
 # str(corr_w_cnts_2_plus_contact_first_2_dates)
-# 'data.frame':	2646 obs. of  19 variables:
+# 'data.frame':	2646 obs. of  19 variables
   
-## ---- compare with the existing spreadsheet ----
+## ---- Compare vessels from the existing spreadsheet with the results of this script ----
+
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\SEFHIER vessels--non-reporting after contact - SA no reports.csv"
 
 # corr_w_cnts_2_plus_contact_first_2_dates_ids <-
@@ -162,7 +163,7 @@ upload_data_from_the_egr_spreadsheet <- function(add_path_egr, my_paths) {
 }
 given_egr_csv <- upload_data_from_the_egr_spreadsheet(add_path_egr, my_paths)
 
-# change classes to as.POSIXct
+# change classes to POSIXct
 date_format_use_names_as_variable <- function(given_egr_csv,   date_col_names = c("x1stcontact", "x2ndcontact")) {
   given_egr_csv %>%
     mutate_at(date_col_names, as.POSIXct, format = "%m/%d/%Y") %>%
@@ -194,8 +195,9 @@ script_result_ids <- unique(corr_w_cnts_2_plus_contact_out_compl_only$vesseloffi
 spreadsheet_ids <- unique(given_egr_csv_vessels$vesselofficialnumber)
 
 script_only_ids <- setdiff(script_result_ids, spreadsheet_ids)
-str(script_only_ids)
+# str(script_only_ids)
 # 2536
+# see for example egregious_violators/Correspondence for 977129.csv"
 intersect(script_result_ids, spreadsheet_ids) %>% str() 
 # 299
 
@@ -226,13 +228,11 @@ have_info <- correspondence_info_about__spreadsheet_only_ids %>% select(vesselof
 # str(have_info)
 
 # get ids for wich there is no info in the correspondence csv
-# and look them up in PHIER one by one, see "my_outputs/spreadsheet_only_ids.csv"
+# and look them up in PHIER one by one, see "egregious_violators/spreadsheet_only_ids_info.xlsx"
 setdiff(spreadsheet_only_ids, have_info$vesselofficialnumber) %>%
   write.csv(file.path(my_paths$outputs, "spreadsheet_only_ids_no_info.csv"), row.names = FALSE)
   
 ## ----Venn diagram----
-# Compare vessels from the existing spreadsheet with the results of this script
-
 # add custom colors
 myCol <- brewer.pal(8, "Pastel2")[c(1, 2)]
 # use vesselofficialnumber from both sets
