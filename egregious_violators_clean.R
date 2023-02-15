@@ -334,10 +334,21 @@ count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, c("vesselofficia
   # glimpse()
   # Rows: 2,032
   # percent voicemails of all contacts
-  mutate(percent_vms = scales::label_percent()(my_freq / contact_freq)) %>%
-  glimpse()
+  mutate(percent_vm = scales::label_percent()(my_freq / contact_freq)) %>%
+  head()
 
 
 # TODO
 # filter out "no answer" & "wrong number"
+
+grep("no answer", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
+# 163
+# head()
+
+grep("wrong number", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
+# 14
+
+grep("number.*not in service", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
+# 33
+
 
