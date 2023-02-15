@@ -17,6 +17,9 @@ library(stringr)
 library(magrittr)
 library(readxl)  # reading in .xlsx
 
+# Do not show warnings about groups
+options(dplyr.summarise.inform = FALSE)
+
 set_work_dir <- function() {
   setwd("~/")
   base_dir <- getwd()
