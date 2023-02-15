@@ -75,9 +75,8 @@ corresp_contact_cnts_clean <- temp_var[[2]]
 filter_only <- function(corresp_contact_cnts_clean){
   corresp_contact_cnts_clean %>%
     filter(tolower(calltype) == "outgoing" &
-             tolower(contactreason) == "compliance" 
-           # &
-             # (tolower(voicemail) != "yes")
+             tolower(contactreason) == "compliance" &
+             (tolower(voicemail) != "yes")
     )
 }
 corr_w_cnts_contact_out_compl_only <- filter_only(corresp_contact_cnts_clean)
@@ -139,10 +138,8 @@ get_2_first_dates_w_info <- function(corr_w_cnts_2_plus_contact_out_compl_only) 
     return()
 }
 corr_w_cnts_2_plus_contact_first_2_dates <- get_2_first_dates_w_info (corr_w_cnts_2_plus_contact_out_compl_only)
-str(corr_w_cnts_2_plus_contact_first_2_dates)
+# str(corr_w_cnts_2_plus_contact_first_2_dates)
 # 'data.frame':	2646 obs. of  19 variables:
-# without removing voicemails
-# 'data.frame':	5671 obs. of  19 variables:
   
 ## ---- compare with the existing spreadsheet ----
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\SEFHIER vessels--non-reporting after contact - SA no reports.csv"
