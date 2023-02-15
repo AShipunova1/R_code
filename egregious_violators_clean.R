@@ -202,11 +202,9 @@ intersect(script_result_ids, spreadsheet_ids) %>% str()
 # 299
 
 ## ---- check ids which are only in the spreadsheet, but not in the script results ----
-
 spreadsheet_only_ids <- setdiff(spreadsheet_ids, script_result_ids)
 str(spreadsheet_only_ids)
 ## 30
-# names(spreadsheet_only_ids) <- "vesselofficialnumber"
 # write.csv(spreadsheet_only_ids, file.path(my_paths$outputs, "spreadsheet_only_ids.csv"), row.names = FALSE)
 
 # str(spreadsheet_only_ids)
@@ -214,12 +212,12 @@ get_correspondence_info_about__spreadsheet_only_ids <- function(spreadsheet_only
   corresp_contact_cnts_clean %>%
     filter(vesselofficialnumber %in% spreadsheet_only_ids) %>% 
     return()
-    # str()
-    # 'data.frame':	18 obs. of  19 variables
 }
 correspondence_info_about__spreadsheet_only_ids <- get_correspondence_info_about__spreadsheet_only_ids(spreadsheet_only_ids, corresp_contact_cnts_clean)
+# str(correspondence_info_about__spreadsheet_only_ids)
+# 'data.frame':	18 obs. of  19 variables
 
-write.csv(correspondence_info_about__spreadsheet_only_ids, file.path(my_paths$outputs, "correspondence_info_about__spreadsheet_only_ids.csv"), row.names = FALSE)
+# write.csv(correspondence_info_about__spreadsheet_only_ids, file.path(my_paths$outputs, "correspondence_info_about__spreadsheet_only_ids.csv"), row.names = FALSE)
 
 dim(correspondence_info_about__spreadsheet_only_ids)
 # only 18, why not 30?
@@ -288,7 +286,7 @@ venn_to_show_in_r(venn_plot_cat)
   
 write.csv(corr_w_cnts_2_plus_contact_first_2_dates, file.path(my_paths$outputs, "info_for_2_first_dates_corr_only.csv"), row.names = FALSE)
 
-# ---- Get more info ----
+## ---- Get more info ----
 
 ## ---- 1) just 1 call ----
 group_by_list = c("vesselofficialnumber", "voicemail", "contacttype", "contact_freq")
@@ -319,7 +317,7 @@ count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, group_by_list) %
   { . ->> corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only} %>% # save into a var 
   glimpse()
 
-## not calls but what?
+## What if not "calls"?
 # ungroup(corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only) %>%
 #   select(contacttype) %>%
 #   unique() 
@@ -330,12 +328,16 @@ count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, group_by_list) %
 ## [1] 228   5
 
 ## ---- 4) voicemails only ----
-count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, c("vesselofficialnumber", "voicemail")) %>%
+count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, c("vesselofficialnumber", "voicemail", "contact_freq")) %>%
   filter(tolower(voicemail) == "yes") %>%
   { . ->> egr_ids__outgoing__not_all_voicemails__no_reports__2_plus_contacts__voicemails} %>% # save into a var
-  glimpse()
+  # glimpse()
   # Rows: 2,032
+  # percent voicemails of all contacts
+  mutate(percent_vms = scales::label_percent()(my_freq / contact_freq)) %>%
+  glimpse()
+
 
 # TODO
-# filter out "no answer"
+# filter out "no answer" & "wrong number"
 
