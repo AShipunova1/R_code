@@ -75,8 +75,9 @@ corresp_contact_cnts_clean <- temp_var[[2]]
 filter_only <- function(corresp_contact_cnts_clean){
   corresp_contact_cnts_clean %>%
     filter(tolower(calltype) == "outgoing" &
-             tolower(contactreason) == "compliance" &
-             (tolower(voicemail) != "yes")
+             tolower(contactreason) == "compliance"
+           # &
+             # (tolower(voicemail) != "yes")
     )
 }
 corr_w_cnts_contact_out_compl_only <- filter_only(corresp_contact_cnts_clean)
@@ -168,19 +169,19 @@ date_format_use_names_as_variable <- function(given_egr_csv,   date_col_names = 
     return()
 }
 given_egr_csv_clean <- date_format_use_names_as_variable(given_egr_csv)
-# names(given_egr_csv_clean)[1:4]
+# names(given_egr_csv_clean)[1:3]
+# [1]   "senttoole" "vesselid"              "vesselname"
 
 prepare_given_ids_for_comparison <- function(given_egr_csv_clean) {
   # rename "vesselid" to "vesselofficialnumber"
     given_egr_csv_vessels <- 
     given_egr_csv_clean %>%
     rename(vesselofficialnumber = vesselid) 
-  # names(given_egr_csv_vessels)[1:3]
-  # [1] "senttoole"     "vesselid"      "vesselname"
-  
-  # remove the wrong row from the downloaded info
+
+  # remove the wrong rows from the downloaded info
+    wrong_ids <- c("", "Anything after 9/17/2021 goes below the black line", "Vessel ID")
   given_egr_csv_vessels %<>%
-    filter(vesselofficialnumber != "Vessel ID")
+    filter(! vesselofficialnumber %in% wrong_ids)
   
   return(given_egr_csv_vessels)
 }
@@ -188,14 +189,54 @@ given_egr_csv_vessels <- prepare_given_ids_for_comparison(given_egr_csv_clean)
 # names(given_egr_csv_vessels)[1:3]
 # [1] "senttoole"            "vesselofficialnumber" "vesselname"          
 
+## ---- check the difference between ids which are only in the spreadsheet, or in the script results ----
+script_result_ids <- unique(corr_w_cnts_2_plus_contact_out_compl_only$vesselofficialnumber)
+spreadsheet_ids <- unique(given_egr_csv_vessels$vesselofficialnumber)
 
+script_only_ids <- setdiff(script_result_ids, spreadsheet_ids)
+str(script_only_ids)
+# 2536
+intersect(script_result_ids, spreadsheet_ids) %>% str() 
+# 299
+
+## ---- check ids which are only in the spreadsheet, but not in the script results ----
+
+spreadsheet_only_ids <- setdiff(spreadsheet_ids, script_result_ids)
+str(spreadsheet_only_ids)
+## 30
+# names(spreadsheet_only_ids) <- "vesselofficialnumber"
+# write.csv(spreadsheet_only_ids, file.path(my_paths$outputs, "spreadsheet_only_ids.csv"), row.names = FALSE)
+
+# str(spreadsheet_only_ids)
+get_correspondence_info_about__spreadsheet_only_ids <- function(spreadsheet_only_ids, corresp_contact_cnts_clean) {
+  corresp_contact_cnts_clean %>%
+    filter(vesselofficialnumber %in% spreadsheet_only_ids) %>% 
+    return()
+    # str()
+    # 'data.frame':	18 obs. of  19 variables
+}
+correspondence_info_about__spreadsheet_only_ids <- get_correspondence_info_about__spreadsheet_only_ids(spreadsheet_only_ids, corresp_contact_cnts_clean)
+
+write.csv(correspondence_info_about__spreadsheet_only_ids, file.path(my_paths$outputs, "correspondence_info_about__spreadsheet_only_ids.csv"), row.names = FALSE)
+
+dim(correspondence_info_about__spreadsheet_only_ids)
+# only 18, why not 30?
+# get ids only
+have_info <- correspondence_info_about__spreadsheet_only_ids %>% select(vesselofficialnumber)
+# str(have_info)
+
+# get ids for wich there is no info in the correspondence csv
+# and look them up in PHIER one by one, see "my_outputs/spreadsheet_only_ids.csv"
+setdiff(spreadsheet_only_ids, have_info$vesselofficialnumber) %>%
+  write.csv(file.path(my_paths$outputs, "spreadsheet_only_ids_no_info.csv"), row.names = FALSE)
+  
 ## ----Venn diagram----
 # Compare vessels from the existing spreadsheet with the results of this script
 
 # add custom colors
 myCol <- brewer.pal(8, "Pastel2")[c(1, 2)]
 # use vesselofficialnumber from both sets
-venn_plot_cat <- list(unique(corr_w_cnts_2_plus_contact_out_compl_only$vesselofficialnumber), given_egr_csv_vessels$vesselofficialnumber)
+venn_plot_cat <- list(script_result_ids, spreadsheet_ids)
 
 # use this function to write the diagram directly to a file
 venn_to_file <- function(venn_plot_cat, my_paths, myCol) {
@@ -206,7 +247,7 @@ venn_to_file <- function(venn_plot_cat, my_paths, myCol) {
                , fill = myCol)
 }
 # uncomment to use
-# venn_to_file(venn_plot_cat0, my_paths, myCol)
+# venn_to_file(venn_plot_cat, my_paths, myCol)
 
 # show the diagram in RStudio
 venn_to_show_in_r <- function(venn_plot_cat) {
@@ -230,12 +271,13 @@ venn_to_show_in_r <- function(venn_plot_cat) {
                                   , cat.pos = c(-45, 15)
                                   , cat.dist = rep(0.035, 2)
   );
-  # clean the plot panel again just in case
-  grid.newpage();
   # show the plot
   grid.draw(venn.plot);
 }
-# run and show the Venn diagram comparing this script result with the existing spreadsheet, to see how many are in common. If they are only in the script result it is because the spreadsheet is made manually when people run across the problem.
+# clean the plot panel again just in case
+grid.newpage();
+
+# run and show the Venn diagram comparing this script result with the existing spreadsheet, to see how many are in common. If they are only in the script result it is because the spreadsheet is made manually when people run across the problem and haven't caught them yet.
 # Those only in the spreadsheet but not in the script result are from 2021 or are already taken care of.
 venn_to_show_in_r(venn_plot_cat)
 
