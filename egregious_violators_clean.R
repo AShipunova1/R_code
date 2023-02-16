@@ -2,15 +2,43 @@
 # From Leeanne:
 # You can download that report from the FHIER compliance report. Within that report you can refine the search parameters like the 2022 year and for "Has Error" at the top, select "No report". The "no report" error will limit the report to Atlantic/South Atlantic vessels that are non-compliant for no reports. You will have to specifically filter out the vessels that are egregious.
 # An egregious violator, in the past, is considered as a vessel that has not reported at all (either all 52 weeks out of the year or since permit issue if they were issued new permits throughout the year) but has been contacted (called/emailed) at least twice since the program began Jan 4, 2021. 
+# *) pull all, filter "no report" in R instead of "has error"
 # Workflow:
 # get compliance report with "no report"
 # get correspondence report
 # upload to R
 # add correspondence counts
+# keep only specific entries (not a voicemail) (no filter by a reason) bc they should already know about the program from any kind of communication
+# 12 months of compliance errors (no reports) for one vessel (or since permit issue if they were issued new permits throughout the year)
+# # GOM PermittedDeclarations	# CaptainReports	# NegativeReports	# ComplianceErrors
+# # 0	0	0	1
+# *) remove outgoing filter
 # choose the ones with 2+
-# keep only specific entries (outgoing, not a voicemail, reason == compliance)
+# (who needs a certify letter or an investigation)
 # group by id and sort by contact date within each group
 # get the first 2 entries for each id
+# contacttype: other == email for now
+# ! only SA permits, exclude those with Gulf permits
+# Gulf of Mexico (Gulf) federal for-hire permits: 
+#   Charter/Headboat for Reef fish permit (RCG)
+#   Historical Captain Charter/Headboat for Reef fish permit (HRCG)
+#   Charter/Headboat for Coastal Migratory Pelagic fish permit (CHG) 
+#   Historical Captain Charter/Headboat for Coastal Migratory Pelagic fish (HCHG) permit 
+# South Atlantic/Atlantic (South Atlantic) federal for-hire permits: 
+#   South Atlantic Charter/Headboat for Coastal Migratory Pelagic fish (CHS) permit
+#   Atlantic Charter/Headboat for Dolphin/wahoo (CDW) permit
+#   South Atlantic Charter/Headboat for Snapper-grouper fish (SC) permit
+## Output:
+# For the egregious output files, we'll need the following columns:
+# Vessel name
+# vessel ID
+# Permit type(s) list
+# Permit expirations, in order of types, as list
+# Owner name
+# owner address
+# owner phone #
+# list of non-compliant weeks
+# list of contact dates and contact type in parentheses 
 
 # Get common functions
 source("~/GitHub/R_code/start_module.r")
@@ -81,14 +109,33 @@ filter_only <- function(corresp_contact_cnts_clean){
     )
 }
 corr_w_cnts_contact_out_compl_only <- filter_only(corresp_contact_cnts_clean)
+# View(corr_w_cnts_contact_out_compl_only)
+# corr_w_cnts_contact_out_compl_only %>%
+#   filter(vesselofficialnumber == "1000042") %>% 
+#   arrange(contactdate) %>% 
+#   select(contactcomments) %>%
+#   print()
 
-# keep only correspondence with 2 or more contacts
+# Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the inofrmation and received a confirmation) with a direct communication.
+# to investigation (to NEIS)
+
+
+# who needs an email
+# at least 2 correspondences & no direct contact
+# keep only 2 or more correspondence with no direct contact, check manually?
 get_2_plus_contacts <- function(corr_w_cnts_contact_out_compl_only) {
   corr_w_cnts_contact_out_compl_only %>%
     filter(contact_freq > 1) %>%
     return()
 }
 corr_w_cnts_2_plus_contact_out_compl_only <- get_2_plus_contacts(corresp_contact_cnts_clean)
+# View(corr_w_cnts_2_plus_contact_out_compl_only)
+
+# TODO
+# who needs a certify letter
+# called twice w no direct communications &
+# sent an email w. no answer &
+# those with no contact information
 
 ## ---- get the first 2 contacts ----
 # get ids and the first two dates for each, 
@@ -98,7 +145,8 @@ corr_w_cnts_2_plus_contact_out_compl_only <- get_2_plus_contacts(corresp_contact
 # get unique ids (vessel official numbers) for correspondence 
 #   with at least 2 contacts, 
 #   having not all voicemails,
-#   outgoing, reason == compliance contacts
+# TODO remove  outgoing, 
+# TODO remove reason == compliance contacts
 corr__2_plus_contacts__not_all_voicemails_ids <- function(corr_w_cnts_2_plus_contact_out_compl_only) {
   corr_w_cnts_2_plus_contact_out_compl_only %>% 
     group_by(vesselofficialnumber) %>%
@@ -345,6 +393,7 @@ count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, c("vesselofficia
 grep("no answer", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
 # 163
 # head()
+# need an email
 
 grep("wrong number", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
 # 14
