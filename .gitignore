@@ -8,3 +8,4 @@ history2.r
 .vscode/launch.json
 *.html
 .Rproj.user
+connect.r
