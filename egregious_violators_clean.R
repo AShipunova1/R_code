@@ -98,6 +98,7 @@ temp_var <- get_compl_and_corresp_data()
 compl_clean <- temp_var[[1]]
 corresp_contact_cnts_clean <- temp_var[[2]]
 
+# don't use
 # keep only specific entries (outgoing, reason == compliance contacts)
 filter_only <- function(corresp_contact_cnts_clean){
   corresp_contact_cnts_clean %>%
@@ -107,17 +108,34 @@ filter_only <- function(corresp_contact_cnts_clean){
              # (tolower(voicemail) != "yes")
     )
 }
-corr_w_cnts_contact_out_compl_only <- filter_only(corresp_contact_cnts_clean)
+# corr_w_cnts_contact_out_compl_only <- filter_only(corresp_contact_cnts_clean)
 # View(corr_w_cnts_contact_out_compl_only)
-# corr_w_cnts_contact_out_compl_only %>%
-#   filter(vesselofficialnumber == "1000042") %>% 
-#   arrange(contactdate) %>% 
-#   select(contactcomments) %>%
-#   print()
 
 # Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the inofrmation and received a confirmation) with a direct communication.
 # to investigation (to NEIS)
+filter_direct_communication <- function(corresp_contact_cnts_clean){
+  corresp_contact_cnts_clean %>%
+    filter((contact_freq > 0 &
+             tolower(contacttype) == "call" &
+              tolower(voicemail) ==  "no") |
+             # Rows: 18,083
+             # Columns: 19
+             
+             (contact_freq > 1 
+              # check if there are both out and in
+              # &
+                # calltype 
+              # 
+                (tolower(contacttype) == "call") | (tolower(contacttype) == "other"))
+    ) %>% return()
+}
+had_direct_contact <- filter_direct_communication(corresp_contact_cnts_clean)
+had_direct_contact %>% dim()
+# # Rows: 19,307
+# [1] 19116    19
 
+count_by_column_list(had_direct_contact, c("vesselofficialnumber", "contacttype", "calltype", "contact_freq")) %>% str()
+  
 
 # who needs an email
 # at least 2 correspondences & no direct contact
