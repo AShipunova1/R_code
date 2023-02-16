@@ -41,8 +41,7 @@
 # list of contact dates and contact type in parentheses 
 
 # Get common functions
-source("~/GitHub/R_code/start_module.r")
-source("~/GitHub/R_code/useful_functions_module.r")
+source("~/R_code_github/useful_functions_module.r")
 
 library(VennDiagram)
 library(RColorBrewer)
