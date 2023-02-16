@@ -7,3 +7,4 @@ history2.r
 *.png
 .vscode/launch.json
 *.html
+.Rproj.user

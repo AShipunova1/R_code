@@ -340,6 +340,7 @@ count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, c("vesselofficia
 
 # TODO
 # filter out "no answer" & "wrong number"
+# ?? Should not be in the egregious violators if there was no 2 direct communications?
 
 grep("no answer", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
 # 163
