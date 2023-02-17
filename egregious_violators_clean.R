@@ -116,7 +116,8 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
     # search comments for indicators that there was no direct contact
     mutate(direct_contact = case_when(grepl("no answer", contactcomments, ignore.case = TRUE) ~ "no",
                                     grepl("wrong number", contactcomments, ignore.case = TRUE) ~ "no",
-                                    grepl("number.*not in service", contactcomments, ignore.case = TRUE) ~ "no"
+                                    grepl("number.*not in service", contactcomments, ignore.case = TRUE) ~ "no",
+                                    .default = "yes"
                                     )
          ) %>% 
     return()
