@@ -185,6 +185,7 @@ change_to_dates <- function(my_df, field_name, date_format) {
 add_count_contacts <- function(all_data_df_clean) {
   all_data_df_clean %>%
     # add a new column with a "yes" if there is a contactdate (and a "no" if not)
+    # TODO: as.factor
     mutate(was_contacted = if_else(is.na(contactdate), "no", "yes")) %>%
     # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
     add_count(vesselofficialnumber, was_contacted, name = "contact_freq") %>%
