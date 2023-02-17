@@ -132,6 +132,31 @@ glimpse(corresp_contact_cnts_clean_direct_c)
 
 # Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication.
 # to investigation (to NEIS)
+
+# corresp_contact_cnts_clean_direct_c %>%
+#   select(calltype) %>% unique()
+
+separate_in_and_out_contacts <- function(my_df) {
+  my_df <- corresp_contact_cnts_clean_direct_c
+  df_in_ids <- subset(my_df, tolower(calltype) %in% c("incoming")) %>%
+    select(vesselofficialnumber) %>% unique()
+  
+  df_out_ids <- subset(my_df, tolower(calltype) %in% c("outgoing")) %>%
+    select(vesselofficialnumber) %>% unique()
+  
+}
+str(df_in_ids)
+# 2052
+str(df_out_ids)
+# 3321 
+corresp_contact_cnts_clean_direct_c %>%
+  filter((vesselofficialnumber %in% df_in_ids$vesselofficialnumber) & 
+           (vesselofficialnumber %in% df_out_ids$vesselofficialnumber)) %>%
+  select(vesselofficialnumber) %>%
+  unique() %>%
+  str()
+# 1921 
+
 filter_direct_communication <- function(corresp_contact_cnts_clean_direct_c){
   # create filters
   # 1)
@@ -139,6 +164,18 @@ filter_direct_communication <- function(corresp_contact_cnts_clean_direct_c){
                                 tolower(contacttype) == "call" &
                                 is.na(direct_contact) &
                                 tolower(voicemail) ==  "no")
+  emails_filter <- quo(contact_freq > 1 &
+                                (tolower(contacttype) == "email") | 
+                                  (tolower(contacttype) == "other")
+                                )
+  answered_emails_filter <- quo()
+  
+    # check if there are both out and in
+    # &
+    # calltype 
+    # 
+
+  
   
   # 2) 
   corresp_contact_cnts_clean_direct_c %>%
@@ -149,13 +186,7 @@ filter_direct_communication <- function(corresp_contact_cnts_clean_direct_c){
   # 13034    
            
              
-             (contact_freq > 1 
-              # check if there are both out and in
-              # &
-                # calltype 
-              # 
-                (tolower(contacttype) == "call") | (tolower(contacttype) == "other"))
-    # ) %>% return()
+     # ) %>% return()
 }
 had_direct_contact <- filter_direct_communication(corresp_contact_cnts_clean)
 had_direct_contact %>% dim()
