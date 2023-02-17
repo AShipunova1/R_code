@@ -47,19 +47,18 @@ library(RColorBrewer)
 # ----set up----
 # add my additional folder names
 my_paths <- set_work_dir()
-add_path_egr <- "egr_violators"
 add_path_corresp <- "Correspondence"
 add_path_compl <- "FHIER Compliance"
 
 get_compl_and_corresp_data <- function() {
   csv_names_list = list(file.path(add_path_corresp,  "Correspondence21_23.csv"), 
-                        file.path(add_path_egr, "egr2022.csv"),
-                        file.path(add_path_egr, "egr2023.csv"))
+                        file.path(add_path_compl, "FHIER_Compliance_22.csv"),
+                        file.path(add_path_compl, "FHIER_Compliance_23.csv"))
   # read all csv files
-  csv_contents_egr <- load_csv_names(my_paths, csv_names_list)
+  csv_contents <- load_csv_names(my_paths, csv_names_list)
   
   # unify headers, trim vesselofficialnumber, just in case
-  csvs_clean1 <- clean_all_csvs(csv_contents_egr)
+  csvs_clean1 <- clean_all_csvs(csv_contents)
   
   # specific correspondence manipulations
   corresp_arr <- csvs_clean1[[1]]
@@ -106,7 +105,19 @@ corresp_contact_cnts_clean0 <- temp_var[[2]]
 compl_clean_sa <- compl_clean %>%
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
-# TODO add filter for egr here, use all compliance data
+## ---- filter for egr here, use all compliance data ----
+filter_egregious <- quo(xgompermitteddeclarations == 0 &
+                          xcaptainreports == 0 &
+                          xnegativereports == 0 &
+                          xcomplianceerrors > 0
+                        )
+
+compl_clean_sa %>%
+  filter(!!filter_egregious) 
+# %>%
+  # count_uniq_by_column()
+  # return()
+  
 
 ## ---- Correspondence ----
 ## ---- remove 999999 ----
@@ -213,8 +224,8 @@ compl_clean_sa %>%
   data_join_all
 
 data_overview(data_join_all)
-# vesselofficialnumber       3603
-
+# egr   vesselofficialnumber       3603
+# compl vesselofficialnumber       3662
 
 ## ---- draft ----
 
