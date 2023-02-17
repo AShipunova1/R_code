@@ -111,13 +111,12 @@ filter_egregious <- quo(xgompermitteddeclarations == 0 &
                           xnegativereports == 0 &
                           xcomplianceerrors > 0
                         )
-
-compl_clean_sa %>%
-  filter(!!filter_egregious) 
+compl_clean_sa_egr <-
+  compl_clean_sa %>%
+    filter(!!filter_egregious) 
 # %>%
   # count_uniq_by_column()
   # return()
-  
 
 ## ---- Correspondence ----
 ## ---- remove 999999 ----
@@ -217,15 +216,98 @@ to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct
 # View(to_investigation_to_NEIS)
 # apply(to_investigation_to_NEIS, 2, function(x) length(unique(x))) %>% as.data.frame()
 
-compl_clean_sa %>%
-  full_join(to_investigation_to_NEIS,
+compl_clean_sa_egr %>%
+  inner_join(to_investigation_to_NEIS,
             by = c("vesselofficialnumber"),
             multiple = "all") ->
-  data_join_all
+  data_join_all_egr_corr
+# Warning message:
+# In inner_join(., to_investigation_to_NEIS, by = c("vesselofficialnumber")) :
+#   Each row in `x` is expected to match at most 1 row in `y`.
+# ℹ Row 1 of `x` matches multiple rows.
+# ℹ If multiple matches are expected, set `multiple = "all"` to silence this warning.
 
-data_overview(data_join_all)
-# egr   vesselofficialnumber       3603
-# compl vesselofficialnumber       3662
+# check
+# count_uniq_by_column(compl_clean_sa_egr) %>% head()
+# count_uniq_by_column(data_join_all_egr_corr) %>% head()
+# str(data_join_all_egr_corr)
+
+# output needed investigation
+# Vessel name
+# vessel ID
+# Permit type(s) list
+# Permit expirations, in order of types, as list
+# Owner name
+# owner address
+# owner phone #
+# list of non-compliant weeks
+# list of contact dates and contact type in parentheses 
+names_out_arr <- c("vesselofficialnumber",
+                   "name",
+                   "permitgroup",
+                   "permitgroupexpiration",
+                   "contactrecipientname",
+                   "contactphonenumber",
+                   "contactemailaddress",
+                   "list_of_non_compliant_weeks",
+                   "list_of_contact_dates_and_contact_type"
+)
+
+data_join_all_egr_corr %>%
+  # filter()
+  # list of non-compliant weeks
+  select(vesselofficialnumber, week_num) %>%
+  arrange(vesselofficialnumber, week_num) %>%
+  unique() %>%
+  group_by(vesselofficialnumber) %>% 
+  summarise(weeks = paste(week_num, collapse=", ")) ->
+  weeks_per_id
+
+data_join_all_egr_corr %>%
+  # list of contact dates
+  select(vesselofficialnumber, contactdate) %>%
+  arrange(vesselofficialnumber, contactdate) %>%
+  unique() %>%
+  group_by(vesselofficialnumber) %>% 
+  summarise(contactdates = paste(contactdate, collapse=", ")) ->
+  contactdates_per_id
+head(contactdates_per_id)
+
+data_join_all_egr_corr %>%
+  # list of contact dates and contact type in parentheses 
+  mutate(date__contacttype = paste(contactdate, contacttype, sep = " ")) %>% 
+  select(vesselofficialnumber, date__contacttype) %>%
+  arrange(vesselofficialnumber, date__contacttype) %>%
+  unique() %>%
+  group_by(vesselofficialnumber) %>% 
+  summarise(contactdates = paste(date__contacttype, collapse=", ")) ->
+date__contacttype_per_id
+dim(date__contacttype_per_id)
+
+data_join_all_egr_corr %>%
+  select("vesselofficialnumber", "week_num") %>%
+  arrange("vesselofficialnumber", "week_num") %>%
+  unique() %>%
+  count(vesselofficialnumber) %>% 
+  filter(n > 51) %>%
+  str()
+# 'data.frame':	79 obs. of  2 variables:
+
+data_join_all_egr_corr %>%
+  select("vesselofficialnumber", "week") %>%
+  arrange("vesselofficialnumber", "week") %>%
+  unique() %>%
+  count(vesselofficialnumber) %>% 
+  filter(n > 51) %>%
+  str()
+# 'data.frame':	110 obs. of  2 variables:
+  
+  
+# names(data_join_all_egr_corr) %>% 
+weeks_per_id %>%
+  inner_join(date__contacttype_per_id,
+             by = c("vesselofficialnumber")) %>% head()
+# data_join_all_egr_corr %>%
 
 ## ---- draft ----
 
