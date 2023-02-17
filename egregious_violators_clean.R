@@ -206,7 +206,14 @@ to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct
 # View(to_investigation_to_NEIS)
 # apply(to_investigation_to_NEIS, 2, function(x) length(unique(x))) %>% as.data.frame()
 
+compl_clean_sa %>%
+  full_join(to_investigation_to_NEIS,
+            by = c("vesselofficialnumber"),
+            multiple = "all") ->
+  data_join_all
 
+data_overview(data_join_all)
+# vesselofficialnumber       3603
 
 
 ## ---- draft ----
