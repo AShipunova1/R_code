@@ -159,16 +159,20 @@ get_one_calltype_only_ids <- function(my_df, calltypes = c("incoming")) {
 }
 
 ## ---- get 2 plus emails ----
-# save a filter
-emails_filter <- quo(contact_freq > 1 &
-                       (tolower(contacttype) == "email") | 
-                       (tolower(contacttype) == "other")
-)
+get_not_calls_only <- function(corresp_contact_cnts_clean_direct_cnt) {
+  # save a filter
+  emails_filter <- quo(contact_freq > 1 &
+                         (tolower(contacttype) == "email") | 
+                         (tolower(contacttype) == "other")
+  )
 
-my_df <- 
   corresp_contact_cnts_clean_direct_cnt %>%
-  filter(!!emails_filter) %>%
-  { . ->> emails_1_plus } %>% glimpse()
+    filter(!!emails_filter) %>%
+    return()
+}
+emails <- get_not_calls_only(corresp_contact_cnts_clean_direct_cnt)
+# glimpse(emails)
+# 1,250
 
 df_out_ids <- get_one_calltype_only_ids(my_df, "outgoing")
 # from filtered
