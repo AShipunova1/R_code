@@ -128,53 +128,65 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   # str()
   # 836 
 }
-corresp_contact_cnts_clean_direct_c <- add_a_direct_contact_column(corresp_contact_cnts_clean)
-glimpse(corresp_contact_cnts_clean_direct_c)
+corresp_contact_cnts_clean_direct_cnt <- add_a_direct_contact_column(corresp_contact_cnts_clean)
+glimpse(corresp_contact_cnts_clean_direct_cnt)
 
-# Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication.
+## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
 # to investigation (to NEIS)
 
+## ---- 1) 1 call with a direct communication ----
+# save the long filter
+answered_1_plus_filter <- quo(contact_freq > 0 &
+                                tolower(contacttype) == "call" &
+                                is.na(direct_contact) &
+                                tolower(voicemail) ==  "no")
+# use the filter
+corresp_contact_cnts_clean_direct_cnt %>%
+  filter(!!answered_1_plus_filter) %>%
+  # save to a varibale
+  { . ->> answered_call_1_plus } %>% 
+  glimpse()
+
+## ---- 2) in and out emails ----
 # corresp_contact_cnts_clean_direct_c %>%
 #   select(calltype) %>% unique()
 
-separate_by_calltype <- function(my_df, calltype = c("incoming")) {
-  my_df <- corresp_contact_cnts_clean_direct_c
-  df_in_ids <- subset(my_df, tolower(calltype) %in% calltype) %>%
-    select(vesselofficialnumber) %>% unique()
-  
-  df_out_ids <- subset(my_df, tolower(calltype) %in% c("outgoing")) %>%
-    select(vesselofficialnumber) %>% unique()
-  
+get_one_calltype_only_ids <- function(my_df, calltypes = c("incoming")) {
+  subset(my_df, tolower(calltype) %in% calltypes) %>%
+    select(vesselofficialnumber) %>% 
+    unique() %>%
+    return()
 }
-# ----
-df %>% 
-  separate_rows(ID, sep = ";") %>%
-  mutate(ID_P = ifelse(grepl("^P", ID), ID, NA),
-         ID_C = ifelse(grepl("^C", ID), ID, NA), 
-         ID_F = ifelse(grepl("^F", ID), ID, NA)) %>%
-  select(-ID) %>%
-  pivot_longer(-name, names_to = "ID", 
-               values_to = "values",
-               values_drop_na = TRUE) %>%  head()
-  pivot_wider(names_from = ID,
-              values_from = values,
-              values_fn = list, 
-              values_fill = list(values = NA)
-              ) %>%  head()
-# ----
 
+## ---- get 2 plus emails ----
+# save a filter
+emails_filter <- quo(contact_freq > 1 &
+                       (tolower(contacttype) == "email") | 
+                       (tolower(contacttype) == "other")
+)
 
+my_df <- 
+  corresp_contact_cnts_clean_direct_cnt %>%
+  filter(!!emails_filter) %>%
+  { . ->> emails_1_plus } %>% glimpse()
+
+df_out_ids <- get_one_calltype_only_ids(my_df, "outgoing")
+# from filtered
+glimpse(df_out_ids)
+# 666
+df_in_ids <- get_one_calltype_only_ids(my_df)
+glimpse(df_in_ids)
+# 234
+
+# from all
 str(df_in_ids)
 # 2052
 str(df_out_ids)
 # 3321 
-corresp_contact_cnts_clean_direct_c %>%
-  filter((vesselofficialnumber %in% df_in_ids$vesselofficialnumber) & 
-           (vesselofficialnumber %in% df_out_ids$vesselofficialnumber)) %>%
-  select(vesselofficialnumber) %>%
-  unique() %>%
-  str()
-# 1921 
+
+in_both <- intersect(df_in_ids, df_out_ids)
+glimpse(in_both)
+# 148
 
 have_both_in_and_out_contacts <- function(my_df) {
   
