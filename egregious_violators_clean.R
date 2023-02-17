@@ -157,6 +157,30 @@ calls_with_direct_communication <- (corresp_contact_cnts_clean_direct_cnt)
 #   select(calltype) %>% unique()
 
 ## ---- get 2 plus emails ----
+emails_filter <- quo(contact_freq > 1 &
+                       ((tolower(contacttype) == "email") | 
+                          (tolower(contacttype) == "other")))
+
+corresp_contact_cnts_clean_direct_cnt %>%
+  filter(!!emails_filter &
+           tolower(calltype) == "incoming") %>% 
+  select(vesselofficialnumber) %>%
+  unique() -> incoming_2_plus_emails
+# %>%
+#   glimpse()
+# 232  
+
+corresp_contact_cnts_clean_direct_cnt %>%
+  filter(!!emails_filter &
+           tolower(calltype) == "outgoing") %>% 
+  select(vesselofficialnumber) %>%
+  unique() -> outgoing_2_plus_emails
+  # glimpse()
+# 624
+
+both_in_n_out_2_plus_emails <- intersect(incoming_2_plus_emails, outgoing_2_plus_emails)
+# 148
+
 ## ----- separate by calltype -----
 get_one_calltype_only_ids <- function(my_df, calltypes = c("incoming")) {
   subset(my_df, tolower(calltype) %in% calltypes) %>%
