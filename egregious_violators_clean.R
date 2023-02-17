@@ -159,42 +159,31 @@ get_one_calltype_only_ids <- function(my_df, calltypes = c("incoming")) {
 }
 
 ## ---- get 2 plus emails ----
-get_not_calls_only <- function(corresp_contact_cnts_clean_direct_cnt) {
+# get_not_calls_only <- function(my_df) {
   # save a filter
   emails_filter <- quo(contact_freq > 1 &
                          (tolower(contacttype) == "email") | 
                          (tolower(contacttype) == "other")
   )
 
-  corresp_contact_cnts_clean_direct_cnt %>%
-    filter(!!emails_filter) %>%
-    return()
-}
-emails <- get_not_calls_only(corresp_contact_cnts_clean_direct_cnt)
-# glimpse(emails)
-# 1,250
+  # corresp_contact_cnts_clean_direct_cnt %>%
+    # filter(!!emails_filter) -> 
+    # orresp_contact_cnts_clean_direct_cnt_emails
+  # %>%
+    # return()
+# }
 
-df_out_ids <- get_one_calltype_only_ids(my_df, "outgoing")
-# from filtered
-glimpse(df_out_ids)
-# 666
-df_in_ids <- get_one_calltype_only_ids(my_df)
-glimpse(df_in_ids)
-# 234
-
-# from all
-str(df_in_ids)
-# 2052
-str(df_out_ids)
-# 3321 
-
-in_both <- intersect(df_in_ids, df_out_ids)
-glimpse(in_both)
-# 148
-
-have_both_in_and_out_contacts <- function(my_df) {
+# get_emails_both_in_n_out(corresp_contact_cnts_clean_direct_cnt) {
+  # emails <- get_not_calls_only(corresp_contact_cnts_clean_direct_cnt)
+  # glimpse(emails)
+  # 1,250
   
+get_both_in_n_out_ids <- function(my_df = corresp_contact_cnts_clean_direct_cnt) {
+  df_out_ids <- get_one_calltype_only_ids(my_df, "outgoing")
+  df_in_ids <- get_one_calltype_only_ids(my_df)
 }
+
+both_in_n_out_ids <- get_both_in_n_out_ids(corresp_contact_cnts_clean_direct_cnt)
 
 filter_direct_communication <- function(corresp_contact_cnts_clean_direct_c){
   # create filters
