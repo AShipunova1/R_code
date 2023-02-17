@@ -149,7 +149,7 @@ get_calls_with_direct_communication <- function(corresp_contact_cnts_clean_direc
     # { . ->> answered_call_1_plus } %>% 
     # glimpse()
 }
-calls_with_direct_communication <- (corresp_contact_cnts_clean_direct_cnt)
+calls_with_direct_communication <- get_calls_with_direct_communication(corresp_contact_cnts_clean_direct_cnt)
 # dim(calls_with_direct_communication)
 
 ## ---- 2) in and out emails ----
@@ -180,50 +180,19 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean_direct_cnt) {
   
   both_in_n_out_2_plus_email_ids <- intersect(incoming_2_plus_emails, outgoing_2_plus_emails)
   # 148
-  return(both_in_n_out_2_plus_email_ids)
+  
+  corresp_contact_cnts_clean_direct_cnt %>%
+    filter(vesselofficialnumber %in% both_in_n_out_2_plus_email_ids$vesselofficialnumber) %>%
+    return()
 }
-both_in_n_out_2_plus_email_ids <- get_both_in_n_out_emails(corresp_contact_cnts_clean_direct_cnt)
-# str(both_in_n_out_2_plus_email_ids)
 
-# draft
-filter_direct_communication <- function(corresp_contact_cnts_clean_direct_c){
-  # create filters
-  # 1)
-  answered_1_plus_filter <- quo(contact_freq > 0 &
-                                tolower(contacttype) == "call" &
-                                is.na(direct_contact) &
-                                tolower(voicemail) ==  "no")
-  emails_filter <- quo(contact_freq > 1 &
-                                (tolower(contacttype) == "email") | 
-                                  (tolower(contacttype) == "other")
-                                )
-  answered_emails_filter <- quo()
-  
-    # check if there are both out and in
-    # &
-    # calltype 
-    # 
+both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_clean_direct_cnt)
 
-  
-  
-  # 2) 
-  corresp_contact_cnts_clean_direct_c %>%
-    filter(!!answered_1_plus_filter) %>%
-    { . ->> answered_call_1_plus } %>% glimpse
-  
-  # answered_call_1_plus %>% filter(is.na(direct_contact)) %>% dim() 
-  # 13034    
-           
-             
-     # ) %>% return()
-}
-# had_direct_contact <- filter_direct_communication(corresp_contact_cnts_clean)
-# had_direct_contact %>% dim()
-# # Rows: 19,307
-# [1] 19116    19
+str(both_in_n_out_2_plus_emails)
+group_by_arr <- c("vesselofficialnumber", "calltype")
+count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 
-# count_by_column_list(had_direct_contact, c("vesselofficialnumber", "contacttype", "calltype", "contact_freq")) %>% str()
-  
+## ---- draft ----
 
 # who needs an email
 # at least 2 correspondences & no direct contact
@@ -442,13 +411,13 @@ write.csv(corr_w_cnts_2_plus_contact_first_2_dates, file.path(my_paths$outputs, 
 ## ---- Get more info ----
 
 ## ---- 1) just 1 call ----
-group_by_list = c("vesselofficialnumber", "voicemail", "contacttype", "contact_freq")
+group_by_arr = c("vesselofficialnumber", "voicemail", "contacttype", "contact_freq")
 
 # see what there
-# count_by_column_list(corr_w_cnts_contact_out_compl_only, group_by_list) %>% glimpse()
+# count_by_column_arr(corr_w_cnts_contact_out_compl_only, group_by_arr) %>% glimpse()
 
 # get vessel ids with exactly one call (no voicemail)
-count_by_column_list(corr_w_cnts_contact_out_compl_only, group_by_list) %>%
+count_by_column_arr(corr_w_cnts_contact_out_compl_only, group_by_arr) %>%
 # corr_w_cnts_contact_out_compl_only %>%
   filter(contact_freq == 1 & contacttype == "Call") %>%
   # save into a var
@@ -457,7 +426,7 @@ count_by_column_list(corr_w_cnts_contact_out_compl_only, group_by_list) %>%
 ## Rows: 162
   
 ## ---- 2) 2 calls no emails ----
-count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, group_by_list) %>%
+count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
   filter(contact_freq > 1 &
            contacttype == "Call") %>%
   { . ->> corr_w_cnts_2_plus_contact_out_compl_only__not_voicemail__calls_only__2_plus_call} %>% # save into a var
@@ -465,7 +434,7 @@ count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, group_by_list) %
 ## [1] 1680    5
 
 ## ----3) no calls ----
-count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, group_by_list) %>%
+count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
   filter(contacttype != "Call") %>%
   { . ->> corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only} %>% # save into a var 
   glimpse()
@@ -481,7 +450,7 @@ count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, group_by_list) %
 ## [1] 228   5
 
 ## ---- 4) voicemails only ----
-count_by_column_list(corr_w_cnts_2_plus_contact_out_compl_only, c("vesselofficialnumber", "voicemail", "contact_freq")) %>%
+count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, c("vesselofficialnumber", "voicemail", "contact_freq")) %>%
   filter(tolower(voicemail) == "yes") %>%
   { . ->> egr_ids__outgoing__not_all_voicemails__no_reports__2_plus_contacts__voicemails} %>% # save into a var
   # glimpse()

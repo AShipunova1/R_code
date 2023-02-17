@@ -181,16 +181,6 @@ change_to_dates <- function(my_df, field_name, date_format) {
     return()
 }
 
-# Get frequencies for each column in the list
-# E.g. group_by_list <- c("vesselofficialnumber", "contacttype")
-count_by_column_list <- function(my_df, group_by_list) {
-  my_df %>%
-    arrange(vesselofficialnumber) %>%
-    group_by_at(group_by_list) %>%
-    summarise(my_freq = n()) %>%
-    return()
-}
-
 # Use for contacts in the setup function before combining with compliant dataframes
 add_count_contacts <- function(all_data_df_clean) {
   all_data_df_clean %>%
@@ -201,13 +191,15 @@ add_count_contacts <- function(all_data_df_clean) {
     return()
 }
 
+# Get frequencies for each column in the list
 # usage:
-# group_by_list <- c("vesselofficialnumber", "contacttype")
-# count_by_column_list(my_df, group_by_list)
-count_by_column_list <- function(my_df, group_by_list) {
+# group_by_arr <- c("vesselofficialnumber", "contacttype")
+# count_by_column_arr(my_df, group_by_arr)
+count_by_column_arr <- function(my_df, group_by_arr) {
   my_df %>%
     arrange(vesselofficialnumber) %>%
-    group_by_at(group_by_list) %>%
+    group_by_at(group_by_arr) %>%
     summarise(my_freq = n()) %>%
     return()
 }
+
