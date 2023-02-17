@@ -111,13 +111,32 @@ filter_only <- function(corresp_contact_cnts_clean){
 # corr_w_cnts_contact_out_compl_only <- filter_only(corresp_contact_cnts_clean)
 # View(corr_w_cnts_contact_out_compl_only)
 
-# Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the inofrmation and received a confirmation) with a direct communication.
+add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
+  corresp_contact_cnts_clean %>%
+    mutate(direct_contact = case_when(grepl("no answer", contactcomments, ignore.case = TRUE) ~ "no",
+                                    grepl("wrong number", contactcomments, ignore.case = TRUE) ~ "no",
+                                    grepl("number.*not in service", contactcomments, ignore.case = TRUE) ~ "no"
+                                    )
+         ) %>% 
+    return()
+  
+  # filter(direct_contact == "no") %>%
+  # select(vesselofficialnumber) %>% 
+  # unique() %>%
+  # str()
+  # 836 
+}
+
+# Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication.
 # to investigation (to NEIS)
 filter_direct_communication <- function(corresp_contact_cnts_clean){
+  # 1) 1+ call, answered
   corresp_contact_cnts_clean %>%
-    filter((contact_freq > 0 &
+    filter(contact_freq > 0 &
              tolower(contacttype) == "call" &
-              tolower(voicemail) ==  "no") |
+              tolower(voicemail) ==  "no") %>%
+    { . ->> answered_call_1_plus } %>% glimpse
+           
              # Rows: 18,083
              # Columns: 19
              
