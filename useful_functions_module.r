@@ -200,3 +200,14 @@ add_count_contacts <- function(all_data_df_clean) {
     add_count(vesselofficialnumber, was_contacted, name = "contact_freq") %>%
     return()
 }
+
+# usage:
+# group_by_list <- c("vesselofficialnumber", "contacttype")
+# count_by_column_list(my_df, group_by_list)
+count_by_column_list <- function(my_df, group_by_list) {
+  my_df %>%
+    arrange(vesselofficialnumber) %>%
+    group_by_at(group_by_list) %>%
+    summarise(my_freq = n()) %>%
+    return()
+}
