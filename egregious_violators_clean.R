@@ -8,16 +8,6 @@
 # get correspondence report
 # upload to R
 # add correspondence counts
-# keep only specific entries (not a voicemail) (no filter by a reason) bc they should already know about the program from any kind of communication
-# 12 months of compliance errors (no reports) for one vessel (or since permit issue if they were issued new permits throughout the year)
-# # GOM PermittedDeclarations	# CaptainReports	# NegativeReports	# ComplianceErrors
-# # 0	0	0	1
-# *) remove outgoing filter
-# choose the ones with 2+
-# (who needs a certify letter or an investigation)
-# group by id and sort by contact date within each group
-# get the first 2 entries for each id
-# contacttype: other == email for now
 # ! only SA permits, exclude those with Gulf permits
 # Gulf of Mexico (Gulf) federal for-hire permits: 
 #   Charter/Headboat for Reef fish permit (RCG)
@@ -28,6 +18,14 @@
 #   South Atlantic Charter/Headboat for Coastal Migratory Pelagic fish (CHS) permit
 #   Atlantic Charter/Headboat for Dolphin/wahoo (CDW) permit
 #   South Atlantic Charter/Headboat for Snapper-grouper fish (SC) permit
+# keep only specific entries (not a voicemail) (no filter by a reason) bc they should already know about the program from any kind of communication
+# 12 months of compliance errors (no reports) for one vessel (or since permit issue if they were issued new permits throughout the year)
+# # GOM PermittedDeclarations	# CaptainReports	# NegativeReports	# ComplianceErrors
+# # 0	0	0	1
+# choose the ones with 2+
+# group by id and sort by contact date within each group
+# get the first 2 entries for each id
+# contacttype: other == email for now
 ## Output:
 # For the egregious output files, we'll need the following columns:
 # Vessel name
@@ -98,29 +96,9 @@ temp_var <- get_compl_and_corresp_data()
 compl_clean <- temp_var[[1]]
 corresp_contact_cnts_clean <- temp_var[[2]]
 
-corresp_overview_uniq_cnts <- apply(corresp_contact_cnts_clean, 2, function(x) length(unique(x)))
-write.csv(corresp_overview_uniq_cnts, file.path(my_paths$outputs, "corresp_overview_uniq_cnts.csv"), row.names = TRUE)
-
 # corresp_contact_cnts_clean %>% summary()
-corresp_overview_uniq_cnts_s <- sapply(corresp_contact_cnts_clean, function(x) length(unique(x)))
-
-identical(corresp_overview_uniq_cnts, corresp_overview_uniq_cnts_s)
-# T
-
-as.data.frame(corresp_overview_uniq_cnts)
-
-# don't use
-# keep only specific entries (outgoing, reason == compliance contacts)
-filter_only <- function(corresp_contact_cnts_clean){
-  corresp_contact_cnts_clean %>%
-    filter(tolower(calltype) == "outgoing" &
-             tolower(contactreason) == "compliance"
-           # &
-             # (tolower(voicemail) != "yes")
-    )
-}
-# corr_w_cnts_contact_out_compl_only <- filter_only(corresp_contact_cnts_clean)
-# View(corr_w_cnts_contact_out_compl_only)
+# corresp_overview_uniq_cnts <- sapply(corresp_contact_cnts_clean, function(x) length(unique(x)))
+# as.data.frame(corresp_overview_uniq_cnts)
 
 add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
