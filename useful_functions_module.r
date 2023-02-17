@@ -212,5 +212,5 @@ data_overview <- function(my_df) {
 }
 
 count_uniq_by_column <- function(my_df) {
-  sapply(my_df, function(x) length(unique(x))) %>% as.data.frame() %>% print()
+  sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
 }
