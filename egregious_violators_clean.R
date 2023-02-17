@@ -94,7 +94,16 @@ get_compl_and_corresp_data <- function() {
 ## ---- get csv data into variables ----
 temp_var <- get_compl_and_corresp_data()
 compl_clean <- temp_var[[1]]
-corresp_contact_cnts_clean <- temp_var[[2]]
+corresp_contact_cnts_clean0 <- temp_var[[2]]
+
+# remove 999999
+corresp_contact_cnts_clean0 %>%
+  filter(!grepl("99999", vesselofficialnumber)) %>% 
+  select(vesselofficialnumber) %>% unique() %>% 
+  filter(vesselofficialnumber == "999999")
+dplyr::filter(df, !grepl("RTB",TrackingPixel))
+
+vesselofficialnumber 
 
 # corresp_contact_cnts_clean %>% summary()
 # corresp_overview_uniq_cnts <- sapply(corresp_contact_cnts_clean, function(x) length(unique(x)))
@@ -118,7 +127,7 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   # 836 
 }
 corresp_contact_cnts_clean_direct_cnt <- add_a_direct_contact_column(corresp_contact_cnts_clean)
-# glimpse(corresp_contact_cnts_clean_direct_cnt)
+glimpse(corresp_contact_cnts_clean_direct_cnt)
 
 ## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
 # to investigation (to NEIS)
