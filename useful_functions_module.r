@@ -207,5 +207,10 @@ count_by_column_arr <- function(my_df, group_by_arr) {
 data_overview <- function(my_df) {
   summary(my_df) %>% print()
   print("Count unique values in each column:")
-  sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
+  count_uniq_by_column(my_df)
+  # sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
+}
+
+count_uniq_by_column <- function(my_df) {
+  sapply(my_df, function(x) length(unique(x))) %>% as.data.frame() %>% print()
 }
