@@ -103,11 +103,23 @@ corresp_contact_cnts_clean0 %>%
   filter(vesselofficialnumber == "999999")
 dplyr::filter(df, !grepl("RTB",TrackingPixel))
 
-vesselofficialnumber 
+## ---- Compliance ----
+## ---- only SA permits, exclude those with Gulf permits ----
+# data_overview(compl_clean)
+# names(compl_clean)
 
-# corresp_contact_cnts_clean %>% summary()
-# corresp_overview_uniq_cnts <- sapply(corresp_contact_cnts_clean, function(x) length(unique(x)))
-# as.data.frame(corresp_overview_uniq_cnts)
+compl_clean_sa <- compl_clean %>%
+  filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+
+# TODO add filter for egr here, use all compliance data
+
+## ---- Correspondence ----
+## ---- remove 999999 ----
+corresp_contact_cnts_clean <-
+  corresp_contact_cnts_clean0 %>%
+    filter(!grepl("^99999", vesselofficialnumber))
+
+data_overview(corresp_contact_cnts_clean)
 
 add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
@@ -127,7 +139,7 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   # 836 
 }
 corresp_contact_cnts_clean_direct_cnt <- add_a_direct_contact_column(corresp_contact_cnts_clean)
-glimpse(corresp_contact_cnts_clean_direct_cnt)
+# glimpse(corresp_contact_cnts_clean_direct_cnt)
 
 ## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
 # to investigation (to NEIS)
@@ -149,6 +161,7 @@ get_calls_with_direct_communication <- function(corresp_contact_cnts_clean_direc
 }
 calls_with_direct_communication <- get_calls_with_direct_communication(corresp_contact_cnts_clean_direct_cnt)
 # dim(calls_with_direct_communication)
+# str(calls_with_direct_communication)
 
 ## ---- 2) in and out emails ----
 # corresp_contact_cnts_clean_direct_c %>%
@@ -192,10 +205,14 @@ both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_cle
 # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 
 to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
-str(to_investigation_to_NEIS)
-View(calls_with_direct_communication)
 
-apply(Testdata, 2, function(x) length(unique(x)))
+# ---- look at the to_investigation_to_NEIS ----
+# str(to_investigation_to_NEIS)
+# View(to_investigation_to_NEIS)
+# apply(to_investigation_to_NEIS, 2, function(x) length(unique(x))) %>% as.data.frame()
+
+
+
 
 ## ---- draft ----
 
