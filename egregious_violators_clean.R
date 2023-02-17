@@ -136,15 +136,33 @@ glimpse(corresp_contact_cnts_clean_direct_c)
 # corresp_contact_cnts_clean_direct_c %>%
 #   select(calltype) %>% unique()
 
-separate_in_and_out_contacts <- function(my_df) {
+separate_by_calltype <- function(my_df, calltype = c("incoming")) {
   my_df <- corresp_contact_cnts_clean_direct_c
-  df_in_ids <- subset(my_df, tolower(calltype) %in% c("incoming")) %>%
+  df_in_ids <- subset(my_df, tolower(calltype) %in% calltype) %>%
     select(vesselofficialnumber) %>% unique()
   
   df_out_ids <- subset(my_df, tolower(calltype) %in% c("outgoing")) %>%
     select(vesselofficialnumber) %>% unique()
   
 }
+# ----
+df %>% 
+  separate_rows(ID, sep = ";") %>%
+  mutate(ID_P = ifelse(grepl("^P", ID), ID, NA),
+         ID_C = ifelse(grepl("^C", ID), ID, NA), 
+         ID_F = ifelse(grepl("^F", ID), ID, NA)) %>%
+  select(-ID) %>%
+  pivot_longer(-name, names_to = "ID", 
+               values_to = "values",
+               values_drop_na = TRUE) %>%  head()
+  pivot_wider(names_from = ID,
+              values_from = values,
+              values_fn = list, 
+              values_fill = list(values = NA)
+              ) %>%  head()
+# ----
+
+
 str(df_in_ids)
 # 2052
 str(df_out_ids)
@@ -156,6 +174,10 @@ corresp_contact_cnts_clean_direct_c %>%
   unique() %>%
   str()
 # 1921 
+
+have_both_in_and_out_contacts <- function(my_df) {
+  
+}
 
 filter_direct_communication <- function(corresp_contact_cnts_clean_direct_c){
   # create filters
