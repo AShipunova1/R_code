@@ -156,78 +156,34 @@ calls_with_direct_communication <- (corresp_contact_cnts_clean_direct_cnt)
 # corresp_contact_cnts_clean_direct_c %>%
 #   select(calltype) %>% unique()
 
-## ---- get 2 plus emails ----
-emails_filter <- quo(contact_freq > 1 &
-                       ((tolower(contacttype) == "email") | 
-                          (tolower(contacttype) == "other")))
-
-corresp_contact_cnts_clean_direct_cnt %>%
-  filter(!!emails_filter &
-           tolower(calltype) == "incoming") %>% 
-  select(vesselofficialnumber) %>%
-  unique() -> incoming_2_plus_emails
-# %>%
-#   glimpse()
-# 232  
-
-corresp_contact_cnts_clean_direct_cnt %>%
-  filter(!!emails_filter &
-           tolower(calltype) == "outgoing") %>% 
-  select(vesselofficialnumber) %>%
-  unique() -> outgoing_2_plus_emails
-  # glimpse()
-# 624
-
-both_in_n_out_2_plus_emails <- intersect(incoming_2_plus_emails, outgoing_2_plus_emails)
-# 148
-
-## ----- separate by calltype -----
-get_one_calltype_only_ids <- function(my_df, calltypes = c("incoming")) {
-  subset(my_df, tolower(calltype) %in% calltypes) %>%
-    select(vesselofficialnumber) %>% 
-    unique() %>%
-    return()
-}
-
-get_both_in_n_out_ids <- function(my_df = corresp_contact_cnts_clean_direct_cnt) {
-  df_out_ids <- get_one_calltype_only_ids(my_df, "outgoing")
-  df_in_ids <- get_one_calltype_only_ids(my_df)
-}
-
-both_in_n_out_ids <- get_both_in_n_out_ids(corresp_contact_cnts_clean_direct_cnt)
-# glimpse(both_in_n_out_ids)
-
-# add_counts
-# group_by_arr <- c("vesselofficialnumber", "contacttype")
-# count_by_column_list(my_df, group_by_list)
-
-get_not_calls_only <- function(my_df) {
-  # save a filter
+get_both_in_n_out_emails <- function(corresp_contact_cnts_clean_direct_cnt) {
   emails_filter <- quo(contact_freq > 1 &
                          ((tolower(contacttype) == "email") | 
-                            (tolower(contacttype) == "other")) &
-                         vesselofficialnumber %in% both_in_n_out_ids$vesselofficialnumber
-  )
-  group_by_list <- c("vesselofficialnumber")
-  corresp_contact_cnts_clean_direct_cnt %>%
-    filter(!!emails_filter) %>% 
-    count_by_column_list(group_by_list) %>%
-    filter(my_freq > 1) %>%
-    str()
-  # 214
-  # 'data.frame':	1022 obs. of  20 variables:
-    
-  # ->
-    # corresp_contact_cnts_clean_direct_cnt_emails
-  # %>%
-    # return()
-}
-
-# get_emails_both_in_n_out(corresp_contact_cnts_clean_direct_cnt) {
-  # emails <- get_not_calls_only(corresp_contact_cnts_clean_direct_cnt)
-  # glimpse(emails)
-  # 1,250
+                            (tolower(contacttype) == "other")))
   
+  corresp_contact_cnts_clean_direct_cnt %>%
+    filter(!!emails_filter &
+             tolower(calltype) == "incoming") %>% 
+    select(vesselofficialnumber) %>%
+    unique() -> incoming_2_plus_emails
+  # %>%
+  #   glimpse()
+  # 232  
+  
+  corresp_contact_cnts_clean_direct_cnt %>%
+    filter(!!emails_filter &
+             tolower(calltype) == "outgoing") %>% 
+    select(vesselofficialnumber) %>%
+    unique() -> outgoing_2_plus_emails
+    # glimpse()
+  # 624
+  
+  both_in_n_out_2_plus_email_ids <- intersect(incoming_2_plus_emails, outgoing_2_plus_emails)
+  # 148
+  return(both_in_n_out_2_plus_email_ids)
+}
+both_in_n_out_2_plus_email_ids <- get_both_in_n_out_emails(corresp_contact_cnts_clean_direct_cnt)
+# str(both_in_n_out_2_plus_email_ids)
 
 # draft
 filter_direct_communication <- function(corresp_contact_cnts_clean_direct_c){
