@@ -96,12 +96,7 @@ temp_var <- get_compl_and_corresp_data()
 compl_clean <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
 
-# remove 999999
-corresp_contact_cnts_clean0 %>%
-  filter(!grepl("99999", vesselofficialnumber)) %>% 
-  select(vesselofficialnumber) %>% unique() %>% 
-  filter(vesselofficialnumber == "999999")
-dplyr::filter(df, !grepl("RTB",TrackingPixel))
+# write.csv(filter(corresp_contact_cnts_clean0, vesselofficialnumber == "132038"), file.path(my_paths$outputs, "132038_info.csv"), row.names = FALSE)
 
 ## ---- Compliance ----
 ## ---- only SA permits, exclude those with Gulf permits ----
