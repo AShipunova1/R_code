@@ -98,6 +98,17 @@ temp_var <- get_compl_and_corresp_data()
 compl_clean <- temp_var[[1]]
 corresp_contact_cnts_clean <- temp_var[[2]]
 
+corresp_overview_uniq_cnts <- apply(corresp_contact_cnts_clean, 2, function(x) length(unique(x)))
+write.csv(corresp_overview_uniq_cnts, file.path(my_paths$outputs, "corresp_overview_uniq_cnts.csv"), row.names = TRUE)
+
+# corresp_contact_cnts_clean %>% summary()
+corresp_overview_uniq_cnts_s <- sapply(corresp_contact_cnts_clean, function(x) length(unique(x)))
+
+identical(corresp_overview_uniq_cnts, corresp_overview_uniq_cnts_s)
+# T
+
+as.data.frame(corresp_overview_uniq_cnts)
+
 # don't use
 # keep only specific entries (outgoing, reason == compliance contacts)
 filter_only <- function(corresp_contact_cnts_clean){
@@ -188,9 +199,16 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean_direct_cnt) {
 
 both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_clean_direct_cnt)
 
-str(both_in_n_out_2_plus_emails)
-group_by_arr <- c("vesselofficialnumber", "calltype")
-count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
+# check
+# str(both_in_n_out_2_plus_emails)
+# group_by_arr <- c("vesselofficialnumber", "calltype")
+# count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
+
+to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
+str(to_investigation_to_NEIS)
+View(calls_with_direct_communication)
+
+apply(Testdata, 2, function(x) length(unique(x)))
 
 ## ---- draft ----
 
