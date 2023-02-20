@@ -221,7 +221,7 @@ compl_clean_sa_egr %>%
   inner_join(to_investigation_to_NEIS,
              by = c("vesselofficialnumber"),
              multiple = "all") ->
-  data_join_all_egr_corr
+  compl_corr_to_investigation
 # Warning message:
 # In inner_join(., to_investigation_to_NEIS, by = c("vesselofficialnumber")) :
 #   Each row in `x` is expected to match at most 1 row in `y`.
@@ -230,8 +230,8 @@ compl_clean_sa_egr %>%
 
 # check
 # count_uniq_by_column(compl_clean_sa_egr) %>% head()
-# count_uniq_by_column(data_join_all_egr_corr) %>% head()
-# str(data_join_all_egr_corr)
+# count_uniq_by_column(compl_corr_to_investigation) %>% head()
+# str(compl_corr_to_investigation)
 
 
 ## ---- output needed investigation ----
@@ -239,9 +239,9 @@ compl_clean_sa_egr %>%
 # 2) remove duplicated columns
 
 ## ---- 1) create additional columns ----
-# a) list of non-compliant weeks
-get_num_of_non_compliant_weeks <- function(data_join_all_egr_corr){
-  data_join_all_egr_corr %>%
+## ----- a) list of non-compliant weeks -----
+get_num_of_non_compliant_weeks <- function(compl_corr_to_investigation){
+  compl_corr_to_investigation %>%
     select("vesselofficialnumber", "week") %>%
     arrange("vesselofficialnumber", "week") %>%
     unique() %>%
@@ -250,48 +250,37 @@ get_num_of_non_compliant_weeks <- function(data_join_all_egr_corr){
     return()
 }
 
-id_n_weeks <- get_num_of_non_compliant_weeks(data_join_all_egr_corr)
+id_n_weeks <- get_num_of_non_compliant_weeks(compl_corr_to_investigation)
 glimpse(id_n_weeks)
-# Rows: 110
-# vesselofficialnumber 
-# n
-
-  str()
 # 'data.frame':	110 obs. of  2 variables
 # vesselofficialnumber: ...
 # n                   : int  58 55
 
+## ----- b) list of contact dates and contact type in parentheses  -----
 
-
-data_join_all_egr_corr %>%
-  # list of contact dates
-  select(vesselofficialnumber, contactdate) %>%
-  arrange(vesselofficialnumber, contactdate) %>%
-  unique() %>%
-  group_by(vesselofficialnumber) %>% 
-  summarise(contactdates = paste(contactdate, collapse=", ")) ->
-  contactdates_per_id
-head(contactdates_per_id)
-
-data_join_all_egr_corr %>%
-  # list of contact dates and contact type in parentheses 
+get_date_contacttype <- function(compl_corr_to_investigation) {
+compl_corr_to_investigation %>%
   mutate(date__contacttype = paste(contactdate, contacttype, sep = " ")) %>% 
   select(vesselofficialnumber, date__contacttype) %>%
   arrange(vesselofficialnumber, date__contacttype) %>%
   unique() %>%
   group_by(vesselofficialnumber) %>% 
-  summarise(date__contacttypes = paste(date__contacttype, collapse=", ")) ->
-  date__contacttype_per_id
-dim(date__contacttype_per_id)
+  summarise(date__contacttypes = paste(date__contacttype, collapse=", ")) %>%
+    return()
+}
 
+date__contacttype_per_id <- get_date_contacttype(compl_corr_to_investigation)
+str(date__contacttype_per_id)
+# [1] 1361    2
 
-# names(data_join_all_egr_corr) %>% 
+names(compl_corr_to_investigation)
 weeks_per_id %>%
   inner_join(date__contacttype_per_id,
              by = c("vesselofficialnumber")) %>% glimpse()
-# data_join_all_egr_corr %>%
+compl_corr_to_investigation
 
-# list of contact dates and contact type in parentheses 
+## ---- 2) remove duplicated columns ----
+
 
 
 names_out_arr <- c("vesselofficialnumber",
