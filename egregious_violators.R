@@ -273,15 +273,44 @@ date__contacttype_per_id <- get_date_contacttype(compl_corr_to_investigation)
 str(date__contacttype_per_id)
 # [1] 1361    2
 
-names(compl_corr_to_investigation)
-weeks_per_id %>%
-  inner_join(date__contacttype_per_id,
-             by = c("vesselofficialnumber")) %>% glimpse()
-compl_corr_to_investigation
-
 ## ---- 2) remove duplicated columns ----
 
+# names(compl_corr_to_investigation)
+# weeks_per_id %>%
+#   inner_join(date__contacttype_per_id,
+#              by = c("vesselofficialnumber")) %>% glimpse()
+# compl_corr_to_investigation
+# 
 
+# group_by(First_Name,Last_Name, Street) %>%
+# summarise_all(concat_unique())
+
+compl_corr_to_investigation %>%
+  select("vesselofficialnumber",
+         "name",
+         "permitgroup",
+         "permitgroupexpiration",
+         "contactrecipientname",
+         "contactphonenumber",
+         "contactemailaddress") %>% 
+  group_by(vesselofficialnumber) %>%
+  summarise_all(concat_unique()) %>% str()
+  
+  
+compl_corr_to_investigation %>%
+  select("vesselofficialnumber",
+         "name",
+         "permitgroup",
+         "name",
+         "permitgroup",
+         "permitgroupexpiration",
+         "contactrecipientname",
+         "contactphonenumber",
+         "contactemailaddress"
+         ) %>%
+        
+  group_by(vesselofficialnumber) %>%
+  summarise_all(concat_unique) %>% str()
 
 names_out_arr <- c("vesselofficialnumber",
                    "name",
