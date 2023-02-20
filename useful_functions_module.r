@@ -217,8 +217,11 @@ count_uniq_by_column <- function(my_df) {
 
 # from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
-concat_unique <- function(x){paste0(unique(x[!is.na(x)]), collapse= ", ")}
 
-# usage:
-# group_by(First_Name,Last_Name, Street) %>%
-  # summarise_all(concat_unique())
+# concat_unique <- function(x){paste0(unique(x[!is.na(x)]), collapse= ", ")}
+# combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my_df, group_by_arr) {
+#   my_df %>%
+#     group_by_at(group_by_arr) %>%
+#     summarise_all(concat_unique(.)) %>%
+#     return()
+# }

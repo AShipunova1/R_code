@@ -294,9 +294,19 @@ compl_corr_to_investigation %>%
          "contactphonenumber",
          "contactemailaddress") %>% 
   group_by(vesselofficialnumber) %>%
-  summarise_all(concat_unique()) %>% str()
+  summarise_all(concat_unique(.)) %>% str()
   
-  
+
+concat_unique <- function(x){paste0(unique(x[!is.na(x)]), collapse= ", ")}
+combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my_df, group_by_arr) {
+  my_df %>%
+    group_by_at(group_by_arr) %>%
+    summarise_all(concat_unique(.)) %>%
+    return()
+}
+
+
+group_by_arr <- c("vesselofficialnumber")
 compl_corr_to_investigation %>%
   select("vesselofficialnumber",
          "name",
@@ -307,11 +317,33 @@ compl_corr_to_investigation %>%
          "contactrecipientname",
          "contactphonenumber",
          "contactemailaddress"
-         ) %>%
-        
-  group_by(vesselofficialnumber) %>%
-  summarise_all(concat_unique) %>% str()
+  ) %>% 
+  group_by_at(group_by_arr) %>%
+  summarise_all(concat_unique(.)) %>% str()
+  
 
+combine_rows_based_on_multiple_columns_and_keep_all_unique_values(compl_corr_to_investigation, c("vesselofficialnumber")) %>% str()
+
+combine_rows <- function(compl_corr_to_investigation) {  
+  compl_corr_to_investigation %>%
+    select("vesselofficialnumber",
+           "name",
+           "permitgroup",
+           "name",
+           "permitgroup",
+           "permitgroupexpiration",
+           "contactrecipientname",
+           "contactphonenumber",
+           "contactemailaddress"
+           ) %>%
+          
+    group_by(vesselofficialnumber) %>%
+    summarise_all(concat_unique) %>% 
+    return()
+}
+compl_corr_to_investigation_short <- combine_rows(compl_corr_to_investigation)
+
+## ---- combine output ----
 names_out_arr <- c("vesselofficialnumber",
                    "name",
                    "permitgroup",
@@ -322,6 +354,11 @@ names_out_arr <- c("vesselofficialnumber",
                    "list_of_non_compliant_weeks",
                    "list_of_contact_dates_and_contact_type"
 )
+
+compl_corr_to_investigation_short %>%
+  inner_join(calls_with_direct_communication,
+             by = c("vesselofficialnumber")) ->
+  compl_corr_to_investigation
 
 
 ## ---- draft ----
