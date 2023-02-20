@@ -294,32 +294,7 @@ compl_corr_to_investigation %>%
          "contactphonenumber",
          "contactemailaddress") %>% 
   group_by(vesselofficialnumber) %>%
-  summarise_all(concat_unique(.)) %>% str()
-  
-
-concat_unique <- function(x){paste0(unique(x[!is.na(x)]), collapse= ", ")}
-combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my_df, group_by_arr) {
-  my_df %>%
-    group_by_at(group_by_arr) %>%
-    summarise_all(concat_unique(.)) %>%
-    return()
-}
-
-
-group_by_arr <- c("vesselofficialnumber")
-compl_corr_to_investigation %>%
-  select("vesselofficialnumber",
-         "name",
-         "permitgroup",
-         "name",
-         "permitgroup",
-         "permitgroupexpiration",
-         "contactrecipientname",
-         "contactphonenumber",
-         "contactemailaddress"
-  ) %>% 
-  group_by_at(group_by_arr) %>%
-  summarise_all(concat_unique(.)) %>% str()
+  summarise_all(concat_unique) %>% str()
   
 
 combine_rows_based_on_multiple_columns_and_keep_all_unique_values(compl_corr_to_investigation, c("vesselofficialnumber")) %>% str()
