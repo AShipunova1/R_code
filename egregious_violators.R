@@ -256,6 +256,12 @@ glimpse(id_n_weeks)
 # vesselofficialnumber: ...
 # n                   : int  58 55
 
+compl_corr_to_investigation_w_non_compliant_weeks <- 
+  compl_corr_to_investigation %>%
+  filter(vesselofficialnumber %in% id_n_weeks$vesselofficialnumber)
+
+# str(compl_corr_to_investigation_w_non_compliant_weeks)
+
 ## ----- b) list of contact dates and contact type in parentheses  -----
 
 get_date_contacttype <- function(compl_corr_to_investigation) {
@@ -273,62 +279,43 @@ date__contacttype_per_id <- get_date_contacttype(compl_corr_to_investigation)
 str(date__contacttype_per_id)
 # [1] 1361    2
 
+## ---- combine output ----
+compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
+  compl_corr_to_investigation_w_non_compliant_weeks %>%
+  inner_join(date__contacttype_per_id,
+             by = c("vesselofficialnumber"))
+  
+# str(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
+
 ## ---- 2) remove duplicated columns ----
 
 # names(compl_corr_to_investigation)
-# weeks_per_id %>%
-#   inner_join(date__contacttype_per_id,
-#              by = c("vesselofficialnumber")) %>% glimpse()
-# compl_corr_to_investigation
-# 
 
-# group_by(First_Name,Last_Name, Street) %>%
-# summarise_all(concat_unique())
-
-compl_corr_to_investigation %>%
+compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
   select("vesselofficialnumber",
          "name",
          "permitgroup",
          "permitgroupexpiration",
          "contactrecipientname",
          "contactphonenumber",
-         "contactemailaddress") %>% 
-  group_by(vesselofficialnumber) %>%
-  summarise_all(concat_unique) %>% str()
-  
+         "contactemailaddress", 
+         "week_start",
+         "date__contacttypes") %>% 
+  combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c("vesselofficialnumber")) ->
+  compl_corr_to_investigation_short
 
-combine_rows_based_on_multiple_columns_and_keep_all_unique_values(compl_corr_to_investigation, c("vesselofficialnumber")) %>% str()
+View(compl_corr_to_investigation_short)
 
-combine_rows <- function(compl_corr_to_investigation) {  
-  compl_corr_to_investigation %>%
-    select("vesselofficialnumber",
-           "name",
-           "permitgroup",
-           "name",
-           "permitgroup",
-           "permitgroupexpiration",
-           "contactrecipientname",
-           "contactphonenumber",
-           "contactemailaddress"
-           ) %>%
-          
-    group_by(vesselofficialnumber) %>%
-    summarise_all(concat_unique) %>% 
-    return()
-}
-compl_corr_to_investigation_short <- combine_rows(compl_corr_to_investigation)
-
-## ---- combine output ----
-names_out_arr <- c("vesselofficialnumber",
-                   "name",
-                   "permitgroup",
-                   "permitgroupexpiration",
-                   "contactrecipientname",
-                   "contactphonenumber",
-                   "contactemailaddress",
-                   "list_of_non_compliant_weeks",
-                   "list_of_contact_dates_and_contact_type"
-)
+# names_out_arr <- c("vesselofficialnumber",
+#                    "name",
+#                    "permitgroup",
+#                    "permitgroupexpiration",
+#                    "contactrecipientname",
+#                    "contactphonenumber",
+#                    "contactemailaddress",
+#                    "list_of_non_compliant_weeks",
+#                    "list_of_contact_dates_and_contact_type"
+# )
 
 compl_corr_to_investigation_short %>%
   inner_join(calls_with_direct_communication,
