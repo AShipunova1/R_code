@@ -239,46 +239,29 @@ compl_clean_sa_egr %>%
 # 2) remove duplicated columns
 
 ## ---- 1) create additional columns ----
-# list of non-compliant weeks
-# list of contact dates and contact type in parentheses 
-get_list_of_non_compliant_weeks <- function(data_join_all_egr_corr){
-  data_join_all_egr_corr %>% 
-  select(vesselofficialnumber, week_num) %>%
-    arrange(vesselofficialnumber, week_num) %>%
+# a) list of non-compliant weeks
+get_num_of_non_compliant_weeks <- function(data_join_all_egr_corr){
+  data_join_all_egr_corr %>%
+    select("vesselofficialnumber", "week") %>%
+    arrange("vesselofficialnumber", "week") %>%
     unique() %>%
-    group_by(vesselofficialnumber) %>% 
-    summarise(weeks_per_id = paste(week_num, collapse=", ")) %>%
+    count(vesselofficialnumber) %>% 
+    filter(n > 51) %>%
     return()
 }
 
-weeks_per_id <- get_list_of_non_compliant_weeks(data_join_all_egr_corr)
-glimpse(weeks_per_id)
-# Rows: 1,361
+id_n_weeks <- get_num_of_non_compliant_weeks(data_join_all_egr_corr)
+glimpse(id_n_weeks)
+# Rows: 110
 # vesselofficialnumber 
-# weeks_per_id
+# n
+
+  str()
+# 'data.frame':	110 obs. of  2 variables
+# vesselofficialnumber: ...
+# n                   : int  58 55
 
 
-
-
-# Vessel name
-# vessel ID
-# Permit type(s) list
-# Permit expirations, in order of types, as list
-# Owner name
-# owner address
-# owner phone #
-# list of non-compliant weeks
-# list of contact dates and contact type in parentheses 
-names_out_arr <- c("vesselofficialnumber",
-                   "name",
-                   "permitgroup",
-                   "permitgroupexpiration",
-                   "contactrecipientname",
-                   "contactphonenumber",
-                   "contactemailaddress",
-                   "list_of_non_compliant_weeks",
-                   "list_of_contact_dates_and_contact_type"
-)
 
 data_join_all_egr_corr %>%
   # list of contact dates
@@ -298,34 +281,30 @@ data_join_all_egr_corr %>%
   unique() %>%
   group_by(vesselofficialnumber) %>% 
   summarise(date__contacttypes = paste(date__contacttype, collapse=", ")) ->
-date__contacttype_per_id
+  date__contacttype_per_id
 dim(date__contacttype_per_id)
 
-# 52 weeks, add years
-# data_join_all_egr_corr %>%
-#   select("vesselofficialnumber", "week_num") %>%
-#   arrange("vesselofficialnumber", "week_num") %>%
-#   unique() %>%
-#   count(vesselofficialnumber) %>% 
-#   filter(n > 51) %>%
-#   str()
-# 'data.frame':	79 obs. of  2 variables:
 
-data_join_all_egr_corr %>%
-  select("vesselofficialnumber", "week") %>%
-  arrange("vesselofficialnumber", "week") %>%
-  unique() %>%
-  count(vesselofficialnumber) %>% 
-  filter(n > 51) %>%
-  str()
-# 'data.frame':	110 obs. of  2 variables:
-  
-  
 # names(data_join_all_egr_corr) %>% 
 weeks_per_id %>%
   inner_join(date__contacttype_per_id,
              by = c("vesselofficialnumber")) %>% glimpse()
 # data_join_all_egr_corr %>%
+
+# list of contact dates and contact type in parentheses 
+
+
+names_out_arr <- c("vesselofficialnumber",
+                   "name",
+                   "permitgroup",
+                   "permitgroupexpiration",
+                   "contactrecipientname",
+                   "contactphonenumber",
+                   "contactemailaddress",
+                   "list_of_non_compliant_weeks",
+                   "list_of_contact_dates_and_contact_type"
+)
+
 
 ## ---- draft ----
 
