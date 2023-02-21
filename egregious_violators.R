@@ -177,12 +177,29 @@ corresp_contact_cnts_clean <-
 
 # data_overview(corresp_contact_cnts_clean)
 
+## ---- direct_contact ----
+## ---- 1) all are voicemails ----
+get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
+  corresp_contact_cnts_clean %>%
+    group_by(vesselofficialnumber) %>%
+    reframe(all_vm = all(tolower(voicemail) == "yes")) %>%
+    filter(all_vm) %>% 
+    select(vesselofficialnumber) %>%
+    unique() %>%
+    return()
+}
+
+all_vm_ids <- get_all_voicemails_id(corresp_contact_cnts_clean)
+str(all_vm_ids)
+# 277
+
 add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
     # search comments for indicators that there was no direct contact
     mutate(direct_contact = case_when(grepl("no answer", contactcomments, ignore.case = TRUE) ~ "no",
                                     grepl("wrong number", contactcomments, ignore.case = TRUE) ~ "no",
                                     grepl("number.*not in service", contactcomments, ignore.case = TRUE) ~ "no",
+                                    vesselofficialnumber %in% all_vm_ids$vesselofficialnumber ~ "no",
                                     .default = "yes"
                                     )
          ) %>% 
@@ -195,7 +212,7 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   # 836 
 }
 corresp_contact_cnts_clean_direct_cnt <- add_a_direct_contact_column(corresp_contact_cnts_clean)
-# glimpse(corresp_contact_cnts_clean_direct_cnt)
+glimpse(corresp_contact_cnts_clean_direct_cnt)
 
 ## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
 # to investigation (to NEIS)
@@ -253,9 +270,9 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
 both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_clean)
 
 # check
-# data_overview(corresp_contact_cnts_clean)
+# data_overview(corresp_contact_cnts_clean) %>% head()
 # vesselofficialnumber  3450
-# data_overview(both_in_n_out_2_plus_emails)
+# data_overview(both_in_n_out_2_plus_emails)  %>% head()
 # vesselofficialnumber  147
 
 # group_by_arr <- c("vesselofficialnumber", "calltype")
@@ -264,7 +281,7 @@ both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_cle
 to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
 
 # ---- look at the to_investigation_to_NEIS ----
-data_overview(to_investigation_to_NEIS)
+# data_overview(to_investigation_to_NEIS)
 # vesselofficialnumber  3070
 
 # dim(to_investigation_to_NEIS)
@@ -446,20 +463,20 @@ corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
 # sent an email w. no answer &
 # those with no contact information
 
-## ---- 1) all are voicemails ----
-get_all_voicemails_id <- function(corr_2_plus_contact) {
-  corr_2_plus_contact %>%
-    group_by(vesselofficialnumber) %>%
-    reframe(all_vm = all(tolower(voicemail) == "yes")) %>%
-    filter(all_vm) %>% 
-    select(vesselofficialnumber) %>%
-    unique() %>%
-    return()
-}
-
-all_vm_ids <- get_all_voicemails_id(corr_2_plus_contact)
-# str(all_vm_ids)
-# 86
+# ## ---- 1) all are voicemails ----
+# get_all_voicemails_id <- function(corr_2_plus_contact) {
+#   corr_2_plus_contact %>%
+#     group_by(vesselofficialnumber) %>%
+#     reframe(all_vm = all(tolower(voicemail) == "yes")) %>%
+#     filter(all_vm) %>% 
+#     select(vesselofficialnumber) %>%
+#     unique() %>%
+#     return()
+# }
+# 
+# all_vm_ids <- get_all_voicemails_id(corr_2_plus_contact)
+# # str(all_vm_ids)
+# # 86
 
 get_all_not_direct_contact_id <- function(corr_2_plus_contact) {
   corr_2_plus_contact %>%
@@ -506,6 +523,10 @@ str(email_s_needed_to_csv_short_sorted)
 # this script results
 
 write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted.csv"), row.names = FALSE)
+
+# TODO:
+# done add all vm to "not direct contact"
+# all contacts outgoing for email needed
 
 ## ---- Get more info ----
 
