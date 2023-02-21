@@ -478,29 +478,6 @@ write.csv(corr_w_cnts_2_plus_contact_first_2_dates, file.path(my_paths$outputs, 
 
 ## ---- Get more info ----
 
-## ---- 1) just 1 call ----
-group_by_arr = c("vesselofficialnumber", "voicemail", "contacttype", "contact_freq")
-
-# see what there
-# count_by_column_arr(corr_w_cnts_contact_out_compl_only, group_by_arr) %>% glimpse()
-
-# get vessel ids with exactly one call (no voicemail)
-count_by_column_arr(corr_w_cnts_contact_out_compl_only, group_by_arr) %>%
-# corr_w_cnts_contact_out_compl_only %>%
-  filter(contact_freq == 1 & contacttype == "Call") %>%
-  # save into a var
-  { . ->> egr_ids__outgoing__not_all_voicemails__no_reports__1_call } %>% 
-  glimpse()
-## Rows: 162
-  
-## ---- 2) 2 calls no emails ----
-count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
-  filter(contact_freq > 1 &
-           contacttype == "Call") %>%
-  { . ->> corr_w_cnts_2_plus_contact_out_compl_only__not_voicemail__calls_only__2_plus_call} %>% # save into a var
-  dim()
-## [1] 1680    5
-
 ## ----3) no calls ----
 count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
   filter(contacttype != "Call") %>%
@@ -517,30 +494,5 @@ count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
 # dim(corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only)
 ## [1] 228   5
 
-## ---- 4) voicemails only ----
-count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, c("vesselofficialnumber", "voicemail", "contact_freq")) %>%
-  filter(tolower(voicemail) == "yes") %>%
-  { . ->> egr_ids__outgoing__not_all_voicemails__no_reports__2_plus_contacts__voicemails} %>% # save into a var
-  # glimpse()
-  # Rows: 2,032
-  # percent voicemails of all contacts
-  mutate(percent_vm = scales::label_percent()(my_freq / contact_freq)) %>%
-  head()
-
-
-# TODO
-# filter out "no answer" & "wrong number"
-# ?? Should not be in the egregious violators if there was no 2 direct communications?
-
-grep("no answer", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
-# 163
-# head()
-# need an email
-
-grep("wrong number", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
-# 14
-
-grep("number.*not in service", corr_w_cnts_2_plus_contact_out_compl_only$contactcomments, value = T) %>% glimpse()
-# 33
 
 
