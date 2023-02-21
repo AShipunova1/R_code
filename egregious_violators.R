@@ -136,7 +136,6 @@ get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl){
     filter(n > 51) %>%
     return()
 }
-
 id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
 # glimpse(id_52_plus_weeks)
 # 'data.frame':	154 obs. of  2 variables
@@ -149,6 +148,26 @@ compl_w_non_compliant_weeks <-
   filter(vesselofficialnumber %in% id_52_plus_weeks$vesselofficialnumber)
 
 # data_overview(compl_w_non_compliant_weeks)
+
+get_all_weeks_not_compliance_id <- function(corr_df) {
+  corr_df %>% 
+    group_by(vesselofficialnumber) %>%
+    reframe(all_weeks_non_compl = all(tolower(compliant) == "no")) %>% 
+    filter(all_weeks_non_compl) %>% 
+    select(vesselofficialnumber) %>%
+    unique() %>%
+    return()
+}
+all_weeks_not_compliance_id <- get_all_weeks_not_compliance_id(compl_clean_sa_non_compl)
+str(all_weeks_not_compliance_id)
+# 586
+
+intersect(id_52_plus_weeks$vesselofficialnumber, all_weeks_not_compliance_id$vesselofficialnumber) %>% str()
+# 23
+
+setdiff(id_52_plus_weeks$vesselofficialnumber, all_weeks_not_compliance_id$vesselofficialnumber)
+
+setdiff(all_weeks_not_compliance_id$vesselofficialnumber, id_52_plus_weeks$vesselofficialnumber)
 
 ## ---- Preparing Correspondence ----
 ## ---- remove 999999 ----
@@ -427,8 +446,22 @@ corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
 # sent an email w. no answer &
 # those with no contact information
 
+corr_2_plus_contact %>%
+  filter(direct_contact == "no" |
+           all(tolower(voicemail == "yes")) |
+           is.na(contactphonenumber) |
+           contactphonenumber == ""
+           ) %>% str()
 
-
+all_voicemails_id <- function(corr_2_plus_contact) {
+  corr_2_plus_contact %>% 
+    group_by(vesselofficialnumber) %>%
+    reframe(all_vm = all(voicemail == "YES")) %>% 
+    filter(all_vm) %>% 
+    select(vesselofficialnumber) %>%
+    unique() %>%
+    return()
+}
 
 ## ---- get the first 2 contacts ----
 # get ids and the first two dates for each, 
@@ -439,7 +472,7 @@ corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
 #   with at least 2 contacts, 
 #   having not all voicemails,
 # TODO remove  outgoing, 
-# TODO remove reason == compliance contacts
+# removed reason == compliance contacts
 corr__2_plus_contacts__not_all_voicemails_ids <- function(corr_w_cnts_2_plus_contact_out_compl_only) {
   corr_w_cnts_2_plus_contact_out_compl_only %>% 
     group_by(vesselofficialnumber) %>%
