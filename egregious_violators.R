@@ -446,28 +446,31 @@ corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
 # sent an email w. no answer &
 # those with no contact information
 
-corr_2_plus_contact %>%
-  filter(direct_contact == "no" |
-           all(tolower(voicemail == "yes")) |
-           is.na(contactphonenumber) |
-           contactphonenumber == ""
-           ) %>% str()
-
-all_voicemails_id <- function(corr_2_plus_contact) {
-  corr_2_plus_contact %>% 
+## ---- 1) all are voicemails ----
+get_all_voicemails_id <- function(corr_2_plus_contact) {
+  corr_2_plus_contact %>%
     group_by(vesselofficialnumber) %>%
-    reframe(all_vm = all(voicemail == "YES")) %>% 
+    reframe(all_vm = all(tolower(voicemail) == "yes")) %>%
     filter(all_vm) %>% 
     select(vesselofficialnumber) %>%
     unique() %>%
     return()
 }
 
-## ---- get the first 2 contacts ----
-# get ids and the first two dates for each, 
-# and then add all the information for them
+corr_2_plus_contact_all_vm_ids <- get_all_voicemails_id(corr_2_plus_contact)
+str(corr_2_plus_contact_all_vm_ids)
+# 86
 
-# use the filter to
+# filter for email:
+corr_2_plus_contact %>%
+  filter(direct_contact == "no" |
+           is.na(contactphonenumber) |
+           contactphonenumber == "" |
+           vesselofficialnumber %in% corr_2_plus_contact_all_vm_ids$vesselofficialnumber
+  ) %>%
+  str()
+# 'data.frame':	1524 obs. of  20 variables:
+  
 # get unique ids (vessel official numbers) for correspondence 
 #   with at least 2 contacts, 
 #   having not all voicemails,
