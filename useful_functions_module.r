@@ -225,3 +225,12 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my
     summarise_all(concat_unique) %>%
     return()
 }
+
+concat_unique_sorted <- function(x){paste0(unique(sort(x[!is.na(x)])), collapse= ", ")}
+
+combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
+  my_df %>%
+    group_by_at(group_by_arr) %>%
+    summarise_all(concat_unique_sorted) %>%
+    return()
+}

@@ -457,28 +457,59 @@ get_all_voicemails_id <- function(corr_2_plus_contact) {
     return()
 }
 
-corr_2_plus_contact_all_vm_ids <- get_all_voicemails_id(corr_2_plus_contact)
-str(corr_2_plus_contact_all_vm_ids)
+all_vm_ids <- get_all_voicemails_id(corr_2_plus_contact)
+# str(all_vm_ids)
 # 86
 
-# filter for email:
-corr_2_plus_contact %>%
+get_all_not_direct_contact_id <- function(corr_2_plus_contact) {
+  corr_2_plus_contact %>%
+    group_by(vesselofficialnumber) %>%
+    reframe(all_dc = all(tolower(direct_contact) == "no")) %>%
+    filter(all_dc) %>% 
+    select(vesselofficialnumber) %>%
+    unique() %>%
+    return()
+}
+all_not_direct_contact_id <- get_all_not_direct_contact_id(corr_2_plus_contact)
+str(all_not_direct_contact_id)
+# $ vesselofficialnumber: chr [1:4] "945896" "991667" "FL6531ND" "NC-9578 WS"
+
+# filter for "email's needed":
+email_s_needed <- corr_2_plus_contact %>%
   filter(direct_contact == "no" |
            is.na(contactphonenumber) |
            contactphonenumber == "" |
-           vesselofficialnumber %in% corr_2_plus_contact_all_vm_ids$vesselofficialnumber
-  ) %>%
-  str()
-# 'data.frame':	1524 obs. of  20 variables:
+           vesselofficialnumber %in% all_vm_ids$vesselofficialnumber
+  ) 
+# vesselofficialnumber  940
 
-##---- output to csv ----
-# this script results so far
+# all no direct contact
+email_s_needed_short <- corr_2_plus_contact %>%
+  filter(is.na(contactphonenumber) |
+           contactphonenumber == "" |
+           vesselofficialnumber %in% all_vm_ids$vesselofficialnumber |
+           vesselofficialnumber %in% all_not_direct_contact_id$vesselofficialnumber
+         
+  ) 
+# %>%
+# data_overview(email_s_needed_short)
+# vesselofficialnumber 170
+  
+# email_s_needed_to_csv <- combine_rows_based_on_multiple_columns_and_keep_all_unique_values(email_s_needed, c("vesselofficialnumber"))
 
-write.csv(corr_w_cnts_2_plus_contact_first_2_dates, file.path(my_paths$outputs, "info_for_2_first_dates_corr_only.csv"), row.names = FALSE)
+# sorted:
+email_s_needed_to_csv_short_sorted <-
+combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values(email_s_needed_short, c("vesselofficialnumber"))
+
+str(email_s_needed_to_csv_short_sorted)
+## ---- output to csv ----
+# this script results
+
+write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted.csv"), row.names = FALSE)
 
 ## ---- Get more info ----
 
-## ----3) no calls ----
+## ---- no calls ----
 count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
   filter(contacttype != "Call") %>%
   { . ->> corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only} %>% # save into a var 
