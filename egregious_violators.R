@@ -406,22 +406,29 @@ in_results_only <- setdiff(tolower(compl_corr_to_investigation_short$vesseloffic
 str(in_results_only)
 # 62
 
-# who needs an email
+## ---- who needs an email ----
 # at least 2 correspondences & no direct contact
 # keep only 2 or more correspondence with no direct contact, check manually?
-get_2_plus_contacts <- function(corr_w_cnts_contact_out_compl_only) {
-  corr_w_cnts_contact_out_compl_only %>%
+compliance_clean <- compl_w_non_compliant_weeks
+glimpse(compliance_clean)
+corresp_clean <- corresp_contact_cnts_clean_direct_cnt
+glimpse(corresp_clean)
+
+get_2_plus_contacts <- function(corresp_clean) {
+  corresp_clean %>%
     filter(contact_freq > 1) %>%
     return()
 }
-corr_w_cnts_2_plus_contact_out_compl_only <- get_2_plus_contacts(corresp_contact_cnts_clean)
-# View(corr_w_cnts_2_plus_contact_out_compl_only)
+corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
+
 
 # TODO
-# who needs a certify letter
 # called twice w no direct communications &
 # sent an email w. no answer &
 # those with no contact information
+
+
+
 
 ## ---- get the first 2 contacts ----
 # get ids and the first two dates for each, 
