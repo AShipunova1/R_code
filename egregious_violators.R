@@ -3,6 +3,7 @@
 # You can download that report from the FHIER compliance report. Within that report you can refine the search parameters like the 2022 year and for "Has Error" at the top, select "No report". The "no report" error will limit the report to Atlantic/South Atlantic vessels that are non-compliant for no reports. You will have to specifically filter out the vessels that are egregious.
 # An egregious violator, in the past, is considered as a vessel that has not reported at all (either all 52 weeks out of the year or since permit issue if they were issued new permits throughout the year) but has been contacted (called/emailed) at least twice since the program began Jan 4, 2021. 
 # *) pull all, filter "no report" in R instead of "has error"
+# TODO: compare with the given
 # Workflow:
 # get compliance report with "no report"
 # get correspondence report
@@ -102,6 +103,7 @@ corresp_contact_cnts_clean0 <- temp_var[[2]]
 # data_overview(compl_clean)
 # names(compl_clean)
 
+## ---- remove GOM permits ----
 compl_clean_sa <- compl_clean %>%
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
@@ -145,6 +147,7 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
 }
 corresp_contact_cnts_clean_direct_cnt <- add_a_direct_contact_column(corresp_contact_cnts_clean)
 # glimpse(corresp_contact_cnts_clean_direct_cnt)
+# TODO check no direct contact check for emails
 
 ## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
 # to investigation (to NEIS)
@@ -172,12 +175,12 @@ calls_with_direct_communication <- get_calls_with_direct_communication(corresp_c
 # corresp_contact_cnts_clean_direct_c %>%
 #   select(calltype) %>% unique()
 
-get_both_in_n_out_emails <- function(corresp_contact_cnts_clean_direct_cnt) {
+get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
   emails_filter <- quo(contact_freq > 1 &
                          ((tolower(contacttype) == "email") | 
                             (tolower(contacttype) == "other")))
   
-  corresp_contact_cnts_clean_direct_cnt %>%
+  corresp_contact_cnts_clean %>%
     filter(!!emails_filter &
              tolower(calltype) == "incoming") %>% 
     select(vesselofficialnumber) %>%
@@ -186,7 +189,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean_direct_cnt) {
   #   glimpse()
   # 232  
   
-  corresp_contact_cnts_clean_direct_cnt %>%
+  corresp_contact_cnts_clean %>%
     filter(!!emails_filter &
              tolower(calltype) == "outgoing") %>% 
     select(vesselofficialnumber) %>%
@@ -202,7 +205,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean_direct_cnt) {
     return()
 }
 
-both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_clean_direct_cnt)
+both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_clean)
 
 # check
 str(both_in_n_out_2_plus_emails)
@@ -212,9 +215,11 @@ count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
 
 # ---- look at the to_investigation_to_NEIS ----
+# dim(to_investigation_to_NEIS)
 # str(to_investigation_to_NEIS)
 # View(to_investigation_to_NEIS)
 # apply(to_investigation_to_NEIS, 2, function(x) length(unique(x))) %>% as.data.frame()
+# vesselofficialnumber  3070
 
 ## ---- Combine compliance information with filtered correspondence info ----
 compl_clean_sa_egr %>%
@@ -232,7 +237,13 @@ compl_clean_sa_egr %>%
 # count_uniq_by_column(compl_clean_sa_egr) %>% head()
 # count_uniq_by_column(compl_corr_to_investigation) %>% head()
 # str(compl_corr_to_investigation)
+# vesselofficialnumber  1361
 
+# TODO not join but filter, check
+compl_corr_to_investigation2 <- compl_clean_sa_egr %>%
+  filter(vesselofficialnumber %in% to_investigation_to_NEIS$vesselofficialnumber)
+# count_uniq_by_column(compl_corr_to_investigation2)
+# vesselofficialnumber      1361
 
 ## ---- output needed investigation ----
 # 1) create additional columns
@@ -250,11 +261,17 @@ get_num_of_non_compliant_weeks <- function(compl_corr_to_investigation){
     return()
 }
 
+# TODO download from PIMS??
+
 id_n_weeks <- get_num_of_non_compliant_weeks(compl_corr_to_investigation)
 glimpse(id_n_weeks)
 # 'data.frame':	110 obs. of  2 variables
 # vesselofficialnumber: ...
 # n                   : int  58 55
+
+id_n_weeks2 <- get_num_of_non_compliant_weeks(compl_corr_to_investigation2)
+glimpse(id_n_weeks2)
+# 110
 
 compl_corr_to_investigation_w_non_compliant_weeks <- 
   compl_corr_to_investigation %>%
@@ -304,7 +321,7 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c("vesselofficialnumber")) ->
   compl_corr_to_investigation_short
 
-View(compl_corr_to_investigation_short)
+# dim(compl_corr_to_investigation_short)
 
 # names_out_arr <- c("vesselofficialnumber",
 #                    "name",
@@ -317,13 +334,39 @@ View(compl_corr_to_investigation_short)
 #                    "list_of_contact_dates_and_contact_type"
 # )
 
-compl_corr_to_investigation_short %>%
-  inner_join(calls_with_direct_communication,
-             by = c("vesselofficialnumber")) ->
-  compl_corr_to_investigation
+# compl_corr_to_investigation_short %>%
+  # inner_join(calls_with_direct_communication,
+             # by = c("vesselofficialnumber")) ->
+  # compl_corr_to_investigation
 
+vessels_to_remove <- c("639564", 
+"659046", 
+"923218", 
+"924651", 
+"946409", 
+"FL5569FG", 
+"FL8090RU", 
+"FL9024NH", 
+"FL9259SW", 
+"FL9683MD", 
+"MD9128BD", 
+"NJ3548GR")
+
+compl_corr_to_investigation_short1_ids <- setdiff(compl_corr_to_investigation_short$vesselofficialnumber, vessels_to_remove)
+
+str(compl_corr_to_investigation_short1_ids)
+
+compl_corr_to_investigation_short1 <- 
+  compl_corr_to_investigation_short %>%
+  filter(vesselofficialnumber %in% compl_corr_to_investigation_short1_ids)
+
+# str(compl_corr_to_investigation_short1)
+write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "compl_corr_to_investigation_short1.csv"), row.names = FALSE)
 
 ## ---- draft ----
+
+intersect(spreadsheet_ids, compl_corr_to_investigation_short$vesselofficialnumber) %>% str()
+# 48
 
 # who needs an email
 # at least 2 correspondences & no direct contact
@@ -407,6 +450,7 @@ corr_w_cnts_2_plus_contact_first_2_dates <- get_2_first_dates_w_info (corr_w_cnt
 
 # download https://docs.google.com/spreadsheets/d/1xwk4RfqROs2ybmjcO3UnwyqSBRcSwDiGr4qKZ4JtLbs/edit#gid=0
 # and upload into R
+add_path_egr <- "egr_violators"
 upload_data_from_the_egr_spreadsheet <- function(add_path_egr, my_paths) {
   csv_names_list = list(file.path(add_path_egr, "sa_egr_given.csv"))
   given_egr_csv_arr <- load_csv_names(my_paths, csv_names_list)
