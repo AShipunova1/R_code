@@ -5,11 +5,12 @@
 # *) pull all, filter "no report" in R instead of "has error"
 # TODO: compare with the given
 # Workflow:
-# get compliance report with "no report"
-# get correspondence report
+
+# get compliance report for 2022-2023
+# get correspondence report for all years
 # upload to R
 # add correspondence counts
-# ! only SA permits, exclude those with Gulf permits
+# only SA permits, exclude those with Gulf permits
 # Gulf of Mexico (Gulf) federal for-hire permits: 
 #   Charter/Headboat for Reef fish permit (RCG)
 #   Historical Captain Charter/Headboat for Reef fish permit (HRCG)
@@ -23,10 +24,14 @@
 # 12 months of compliance errors (no reports) for one vessel (or since permit issue if they were issued new permits throughout the year)
 # # GOM PermittedDeclarations	# CaptainReports	# NegativeReports	# ComplianceErrors
 # # 0	0	0	1
-# choose the ones with 2+
-# group by id and sort by contact date within each group
-# get the first 2 entries for each id
 # contacttype: other == email for now
+
+# Filters:
+# 1) SA permits only
+#  & > 51 week with no reports
+#  & (a direct contact call | 
+#     emails in and out)
+
 ## Output:
 # For the egregious output files, we'll need the following columns:
 # Vessel name
@@ -98,7 +103,7 @@ corresp_contact_cnts_clean0 <- temp_var[[2]]
 
 # write.csv(filter(corresp_contact_cnts_clean0, vesselofficialnumber == "132038"), file.path(my_paths$outputs, "132038_info.csv"), row.names = FALSE)
 
-## ---- Compliance ----
+## ---- Preparing compliance info ----
 ## ---- only SA permits, exclude those with Gulf permits ----
 # data_overview(compl_clean)
 # names(compl_clean)
@@ -113,20 +118,45 @@ filter_egregious <- quo(xgompermitteddeclarations == 0 &
                           xnegativereports == 0 &
                           xcomplianceerrors > 0
                         )
-compl_clean_sa_egr <-
+compl_clean_sa_non_compl <-
   compl_clean_sa %>%
     filter(!!filter_egregious) 
-# %>%
-  # count_uniq_by_column()
-  # return()
 
-## ---- Correspondence ----
+# compl_clean_sa_non_compl %>%
+  # count_uniq_by_column()
+# vesselofficialnumber      1878
+
+## ----- get only those with 51+ weeks of non compliance -----
+get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl){
+  compl_clean_sa_non_compl %>%
+    select("vesselofficialnumber", "week") %>%
+    arrange("vesselofficialnumber", "week") %>%
+    unique() %>%
+    count(vesselofficialnumber) %>% 
+    filter(n > 51) %>%
+    return()
+}
+
+id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
+# glimpse(id_52_plus_weeks)
+# 'data.frame':	154 obs. of  2 variables
+# vesselofficialnumber: ...
+# n                   : int  58 55
+
+# cleaned data to combine with the correspondence info
+compl_w_non_compliant_weeks <- 
+  compl_clean_sa_non_compl %>%
+  filter(vesselofficialnumber %in% id_52_plus_weeks$vesselofficialnumber)
+
+# data_overview(compl_w_non_compliant_weeks)
+
+## ---- Preparing Correspondence ----
 ## ---- remove 999999 ----
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 %>%
     filter(!grepl("^99999", vesselofficialnumber))
 
-data_overview(corresp_contact_cnts_clean)
+# data_overview(corresp_contact_cnts_clean)
 
 add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
@@ -147,7 +177,6 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
 }
 corresp_contact_cnts_clean_direct_cnt <- add_a_direct_contact_column(corresp_contact_cnts_clean)
 # glimpse(corresp_contact_cnts_clean_direct_cnt)
-# TODO check no direct contact check for emails
 
 ## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
 # to investigation (to NEIS)
@@ -172,9 +201,6 @@ calls_with_direct_communication <- get_calls_with_direct_communication(corresp_c
 # str(calls_with_direct_communication)
 
 ## ---- 2) in and out emails ----
-# corresp_contact_cnts_clean_direct_c %>%
-#   select(calltype) %>% unique()
-
 get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
   emails_filter <- quo(contact_freq > 1 &
                          ((tolower(contacttype) == "email") | 
@@ -208,13 +234,20 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
 both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_clean)
 
 # check
-str(both_in_n_out_2_plus_emails)
-group_by_arr <- c("vesselofficialnumber", "calltype")
-count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
+# data_overview(corresp_contact_cnts_clean)
+# vesselofficialnumber  3450
+# data_overview(both_in_n_out_2_plus_emails)
+# vesselofficialnumber  147
+
+# group_by_arr <- c("vesselofficialnumber", "calltype")
+# count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 
 to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
 
 # ---- look at the to_investigation_to_NEIS ----
+data_overview(to_investigation_to_NEIS)
+# vesselofficialnumber  3070
+
 # dim(to_investigation_to_NEIS)
 # str(to_investigation_to_NEIS)
 # View(to_investigation_to_NEIS)
@@ -222,62 +255,27 @@ to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct
 # vesselofficialnumber  3070
 
 ## ---- Combine compliance information with filtered correspondence info ----
-compl_clean_sa_egr %>%
+compl_w_non_compliant_weeks %>%
   inner_join(to_investigation_to_NEIS,
              by = c("vesselofficialnumber"),
              multiple = "all") ->
   compl_corr_to_investigation
-# Warning message:
-# In inner_join(., to_investigation_to_NEIS, by = c("vesselofficialnumber")) :
-#   Each row in `x` is expected to match at most 1 row in `y`.
-# ℹ Row 1 of `x` matches multiple rows.
-# ℹ If multiple matches are expected, set `multiple = "all"` to silence this warning.
 
-# check
-# count_uniq_by_column(compl_clean_sa_egr) %>% head()
+## check
+# count_uniq_by_column(compl_clean_sa_non_compl) %>% head()
 # count_uniq_by_column(compl_corr_to_investigation) %>% head()
-# str(compl_corr_to_investigation)
-# vesselofficialnumber  1361
 
-# TODO not join but filter, check
-compl_corr_to_investigation2 <- compl_clean_sa_egr %>%
+# not join but filter, check
+compl_corr_to_investigation2 <- compl_w_non_compliant_weeks %>%
   filter(vesselofficialnumber %in% to_investigation_to_NEIS$vesselofficialnumber)
-# count_uniq_by_column(compl_corr_to_investigation2)
-# vesselofficialnumber      1361
+count_uniq_by_column(compl_corr_to_investigation2) %>% head()
+# vesselofficialnumber      110
 
 ## ---- output needed investigation ----
 # 1) create additional columns
 # 2) remove duplicated columns
 
 ## ---- 1) create additional columns ----
-## ----- a) list of non-compliant weeks -----
-get_num_of_non_compliant_weeks <- function(compl_corr_to_investigation){
-  compl_corr_to_investigation %>%
-    select("vesselofficialnumber", "week") %>%
-    arrange("vesselofficialnumber", "week") %>%
-    unique() %>%
-    count(vesselofficialnumber) %>% 
-    filter(n > 51) %>%
-    return()
-}
-
-# TODO download from PIMS??
-
-id_n_weeks <- get_num_of_non_compliant_weeks(compl_corr_to_investigation)
-glimpse(id_n_weeks)
-# 'data.frame':	110 obs. of  2 variables
-# vesselofficialnumber: ...
-# n                   : int  58 55
-
-id_n_weeks2 <- get_num_of_non_compliant_weeks(compl_corr_to_investigation2)
-glimpse(id_n_weeks2)
-# 110
-
-compl_corr_to_investigation_w_non_compliant_weeks <- 
-  compl_corr_to_investigation %>%
-  filter(vesselofficialnumber %in% id_n_weeks$vesselofficialnumber)
-
-# str(compl_corr_to_investigation_w_non_compliant_weeks)
 
 ## ----- b) list of contact dates and contact type in parentheses  -----
 
