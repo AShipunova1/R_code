@@ -526,7 +526,9 @@ write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email
 
 # TODO:
 # done add all vm to "not direct contact"
-# all contacts outgoing for email needed
+# -- for email needed --
+# all contacts outgoing
+
 
 ## ---- Get more info ----
 
