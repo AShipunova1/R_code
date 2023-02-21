@@ -264,12 +264,7 @@ compl_w_non_compliant_weeks %>%
 ## check
 # count_uniq_by_column(compl_clean_sa_non_compl) %>% head()
 # count_uniq_by_column(compl_corr_to_investigation) %>% head()
-
-# not join but filter, check
-compl_corr_to_investigation2 <- compl_w_non_compliant_weeks %>%
-  filter(vesselofficialnumber %in% to_investigation_to_NEIS$vesselofficialnumber)
-count_uniq_by_column(compl_corr_to_investigation2) %>% head()
-# vesselofficialnumber      110
+# 110
 
 ## ---- output needed investigation ----
 # 1) create additional columns
@@ -277,7 +272,7 @@ count_uniq_by_column(compl_corr_to_investigation2) %>% head()
 
 ## ---- 1) create additional columns ----
 
-## ----- b) list of contact dates and contact type in parentheses  -----
+## ----- list of contact dates and contact type in parentheses  -----
 
 get_date_contacttype <- function(compl_corr_to_investigation) {
 compl_corr_to_investigation %>%
@@ -292,11 +287,11 @@ compl_corr_to_investigation %>%
 
 date__contacttype_per_id <- get_date_contacttype(compl_corr_to_investigation)
 str(date__contacttype_per_id)
-# [1] 1361    2
+# [1] 110    2
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
-  compl_corr_to_investigation_w_non_compliant_weeks %>%
+  compl_corr_to_investigation %>%
   inner_join(date__contacttype_per_id,
              by = c("vesselofficialnumber"))
   
@@ -319,7 +314,7 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c("vesselofficialnumber")) ->
   compl_corr_to_investigation_short
 
-# dim(compl_corr_to_investigation_short)
+dim(compl_corr_to_investigation_short)
 
 # names_out_arr <- c("vesselofficialnumber",
 #                    "name",
@@ -331,11 +326,6 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
 #                    "list_of_non_compliant_weeks",
 #                    "list_of_contact_dates_and_contact_type"
 # )
-
-# compl_corr_to_investigation_short %>%
-  # inner_join(calls_with_direct_communication,
-             # by = c("vesselofficialnumber")) ->
-  # compl_corr_to_investigation
 
 vessels_to_remove <- c("639564", 
 "659046", 
@@ -358,13 +348,63 @@ compl_corr_to_investigation_short1 <-
   compl_corr_to_investigation_short %>%
   filter(vesselofficialnumber %in% compl_corr_to_investigation_short1_ids)
 
-# str(compl_corr_to_investigation_short1)
-write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "compl_corr_to_investigation_short1.csv"), row.names = FALSE)
+# data_overview(compl_corr_to_investigation_short1)
+write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "egregious_violators_for_investigation.csv1"), row.names = FALSE)
 
 ## ---- draft ----
 
-intersect(spreadsheet_ids, compl_corr_to_investigation_short$vesselofficialnumber) %>% str()
+omars_names <- c("1052994", 
+                 "1069364", 
+                 "1098501", 
+                 "1114138", 
+                 "517614", 
+                 "529768", 
+                 "581401", 
+                 "605367", 
+                 "639564", 
+                 "929266", 
+                 "946409", 
+                 "964983", 
+                 "971427", 
+                 "FL1431JU", 
+                 "FL1767LJ", 
+                 "FL1845GB", 
+                 "FL2014PB", 
+                 "FL3253NR", 
+                 "FL3589PP", 
+                 "FL4589RZ", 
+                 "FL5036PH", 
+                 "FL5554DL", 
+                 "FL6444MJ", 
+                 "FL6516KH", 
+                 "FL7037LR", 
+                 "FL7217FP", 
+                 "FL8090RU", 
+                 "FL8777RF", 
+                 "FL9584PX", 
+                 "FL9728HE", 
+                 "NC0410DD", 
+                 "NC0913EE", 
+                 "NC7015DR")
+
+compl_corr_to_investigation_short_ids2 <- setdiff(tolower(compl_corr_to_investigation_short1$vesselofficialnumber), tolower(omars_names))
+
+str(compl_corr_to_investigation_short_ids2)
+# 102
+
+intersect(tolower(compl_corr_to_investigation_short1$vesselofficialnumber), tolower(omars_names))
+
+in_given <- intersect(spreadsheet_ids, compl_corr_to_investigation_short$vesselofficialnumber)
+# %>% str()
 # 48
+
+in_given_only <- setdiff(tolower(spreadsheet_ids), tolower(compl_corr_to_investigation_short$vesselofficialnumber))
+str(in_given_only)
+# 281
+
+in_results_only <- setdiff(tolower(compl_corr_to_investigation_short$vesselofficialnumber), tolower(spreadsheet_ids))
+str(in_results_only)
+# 62
 
 # who needs an email
 # at least 2 correspondences & no direct contact
