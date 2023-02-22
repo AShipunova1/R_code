@@ -20,51 +20,13 @@ csvs_clean <- lapply(csv_contents, clean_headers)
 dim(csvs_clean[[1]])
 
 date_fields <- c("entrydate", "updatedate", "de", "dc")
-# csvs_clean %>% 
-#   for (i in seq_along(csvs_clean)){
-#     csvs_clean[[i]]$vesselofficialnumber <-
-#       trimws(csvs_clean[[i]]$vesselofficialnumber)
-#   }
-
-# data_overview(csvs_clean[[1]])
 date_format = "%m/%d/%Y"
-
-# csvs_clean[[1]] %>%
-#   # change_to_dates(date_fields[1], date_format) %>%
-#   # change_to_dates("updatedate", date_format) ->
-#   change_to_dates("entrydate", date_format) %>%
-#   change_to_dates("updatedate", date_format) %>%
-#   change_to_dates("de", date_format) %>%
-#   change_to_dates("dc", date_format) ->
-#   safis_clean
-
-# data_overview(safis_clean)
-# gdf %>% mutate(across(v1:v2, ~ .x + n))
-
-
-change_fields_arr_to_dates(csvs_clean[[1]], date_fields, date_format) %>%
-  str()
-
-fun1 <- function(x, date_format) {
-  out <- as.POSIXct(x,
-             format = date_format)
-  # as.POSIXct(pull(csvs_clean[[1]][x]),
-  #   format = date_format) %>% str()
-  out
-}
-
-csvs_clean[[1]] %>%
-  mutate(across(date_fields, fun1, date_format)) %>% str()
-# as.POSIXct(pull(my_df[field_name]),
-# format = date_format))
+safis_clean <- 
+  change_fields_arr_to_dates(csvs_clean[[1]], date_fields, date_format)
   
-
-csvs_clean[[1]] %>%
-  change_to_dates(date_fields, date_format) %>% str()
-
 data_overview(safis_clean)
 # vesselid         130666
-data_overview(safis_clean)
+
 
 # df1 %>%
 #   group_by_(.dots = names(df1)[3:6]) %>%
