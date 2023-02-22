@@ -52,12 +52,14 @@ library(RColorBrewer)
 
 # ----set up----
 # add my additional folder names
+# TODO use temp_var <- get_compl_and_corresp_data(my_paths)
+ # from util
 my_paths <- set_work_dir()
 add_path_corresp <- "Correspondence"
 add_path_compl <- "FHIER Compliance"
 
 get_compl_and_corresp_data <- function() {
-  csv_names_list = list(file.path(add_path_corresp,  "Correspondence21_23.csv"), 
+  csv_names_list = list(file.path(add_path_corresp,  "Correspondence.csv"), 
                         file.path(add_path_compl, "FHIER_Compliance_22.csv"),
                         file.path(add_path_compl, "FHIER_Compliance_23.csv"))
   # read all csv files
