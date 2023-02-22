@@ -181,6 +181,20 @@ change_to_dates <- function(my_df, field_name, date_format) {
     return()
 }
 
+aux_fun_for_dates <- function(x, date_format) {
+  out <- as.POSIXct(x,
+                    format = date_format)
+  out
+}
+
+change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
+  my_df %>%
+    mutate(across(field_names_arr, aux_fun_for_dates, date_format)) %>% 
+  
+    # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+                                        # format = date_format)) %>%
+    return()
+}
 # Use for contacts in the setup function before combining with compliant dataframes
 add_count_contacts <- function(all_data_df_clean) {
   all_data_df_clean %>%

@@ -42,7 +42,10 @@ date_format = "%m/%d/%Y"
 # gdf %>% mutate(across(v1:v2, ~ .x + n))
 
 
-fun1 <- function(x) {
+change_fields_arr_to_dates(csvs_clean[[1]], date_fields, date_format) %>%
+  str()
+
+fun1 <- function(x, date_format) {
   out <- as.POSIXct(x,
              format = date_format)
   # as.POSIXct(pull(csvs_clean[[1]][x]),
@@ -51,7 +54,7 @@ fun1 <- function(x) {
 }
 
 csvs_clean[[1]] %>%
-  mutate(across(date_fields, fun1)) %>% str()
+  mutate(across(date_fields, fun1, date_format)) %>% str()
 # as.POSIXct(pull(my_df[field_name]),
 # format = date_format))
   
