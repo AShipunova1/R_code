@@ -97,10 +97,9 @@ corresp_clean %>%
   select(vesselofficialnumber) %>% unique()
 
 # slow
-# TODO add munbers to the output
+# TODO add numbers to the output
 foo <- function(x, output = "myfile.txt", num) {
   # browser()
-  
   pair <- paste(x[[1]],
                 x[[2]], sep = "|")
   
@@ -109,35 +108,22 @@ foo <- function(x, output = "myfile.txt", num) {
     select(vesselofficialnumber) %>% 
     # select(vesselofficialnumber, contact_freq) %>% 
     unique() 
-  # %>%
-    # lapply(write, file = output, append = TRUE)
   
   in_compl <- compl_clean %>% 
     filter(grepl(pair, vesselofficialnumber)) %>%
     select(vesselofficialnumber) %>% 
     unique() 
-  # %>%
-    # lapply(write, file = output, append = TRUE)
+
   if (nrow(in_corr) > 2 | nrow(in_compl) > 2) {
     # browser()
     print(pair)
   }
   else if (!identical(in_corr, in_compl)) {
     my_out <- paste0(num <- num + 1, "\n")
-    # write(num, file = output, append = TRUE)
     my_out <- paste0(my_out, pair, "\n")
-    # write(pair, file = output, append = TRUE)
     my_out <- paste0(my_out, "correspondence", "\n")
-    # write("correspondence", file = output, append = TRUE)
-    # browser()
-    
     my_out <- paste0(my_out, paste(in_corr), "\n")
-      # lapply(in_corr, function(x) paste0(my_out, x)) %>%
-    # lapply(in_corr, paste0, my_out)
-    # lapply(in_corr, write, file = output, append = TRUE)
     my_out <- paste0(my_out, "compliance", "\n")
-    # write("compliance", file = output, append = TRUE)
-    # lapply(in_compl, write, file = output, append = TRUE)
     my_out <- paste0(my_out, paste(in_compl), "\n")
     my_out <- paste0(my_out, "\n")
     
@@ -146,6 +132,83 @@ foo <- function(x, output = "myfile.txt", num) {
   
 }
 
+make_df_double_ids <- function(x, output = "myfile.txt", num) {
+  # browser()
+  pair <- paste(x[[1]],
+                x[[2]], sep = "|")
+  
+  in_corr <- corresp_clean %>% 
+    filter(grepl(pair, vesselofficialnumber)) %>%
+    select(vesselofficialnumber) %>% 
+    # select(vesselofficialnumber, contact_freq) %>% 
+    unique() 
+  
+  in_compl <- compl_clean %>% 
+    filter(grepl(pair, vesselofficialnumber)) %>%
+    select(vesselofficialnumber) %>% 
+    unique() 
+  
+  my_out_df <- data.frame(c(), c(), c())  
+  
+  if (nrow(in_corr) > 2 | nrow(in_compl) > 2) {
+    # browser()
+    print(pair)
+  }
+  else if (!identical(in_corr, in_compl)) {
+    pair <- pair
+    correspondence <- paste(in_corr)
+    compliance <- paste(in_compl)
+    # browser()
+    my_out_df[1] <- data.frame(pair, correspondence, compliance)
+    # write(my_out, file = output, append = TRUE)
+  }
+  
+}
+
 num = 0
-apply(used_doube_pairs_u, 1, foo, output = 'outputfile.txt', num)
+apply(used_doube_pairs_u, 1, make_df_double_ids, output = 'outputfile.txt', num)
+
+# ====
+# Defining an empty dataframe
+
+df_out = data.frame("pair", "correspondence", "compliance")
+# names(df_out) <- c("pair", "correspondence", "compliance")
+
+for (i in 1:nrow(used_doube_pairs_u)) {
+  # browser()
+  pair <- paste(used_doube_pairs_u[i, ][1],
+                used_doube_pairs_u[i, ][2], sep = "|")
+  
+  in_corr <- corresp_clean %>% 
+    filter(grepl(pair, vesselofficialnumber)) %>%
+    select(vesselofficialnumber) %>% 
+    # select(vesselofficialnumber, contact_freq) %>% 
+    unique() 
+  
+  in_compl <- compl_clean %>% 
+    filter(grepl(pair, vesselofficialnumber)) %>%
+    select(vesselofficialnumber) %>% 
+    unique() 
+  
+  if (nrow(in_corr) > 2 | nrow(in_compl) > 2) {
+    # browser()
+    print(pair)
+  }
+  else if (!identical(in_corr, in_compl)) {
+    pair <- pair
+    correspondence <- paste(in_corr)
+    compliance <- paste(in_compl)
+    # browser()
+    output <- c(pair, correspondence, compliance)
+    # Using rbind() to append the output of one iteration to the dataframe
+    df_out <- rbind(df_out, output)
+  }
+}
+
+# naming the columns
+# names(df_out) <- c("pair", "correspondence", "compliance")
+
+glimpse(df_out)
+
+write.csv(df_out, file = "output.csv")
 
