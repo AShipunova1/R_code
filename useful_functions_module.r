@@ -234,3 +234,56 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- func
     summarise_all(concat_unique_sorted) %>%
     return()
 }
+
+## usage:
+# my_paths <- set_work_dir()
+# 
+## get csv data into variables
+# temp_var <- get_compl_and_corresp_data(my_paths)
+# compl_clean <- temp_var[[1]]
+# corresp_clean <- temp_var[[2]]
+get_compl_and_corresp_data <- function(my_paths) {
+  # add my additional folder names
+  add_path_corresp <- "Correspondence"
+  add_path_compl <- "FHIER Compliance"
+  
+  csv_names_list = list(file.path(add_path_corresp,  "Correspondence21_23.csv"), 
+                        file.path(add_path_compl, "FHIER_Compliance_22.csv"),
+                        file.path(add_path_compl, "FHIER_Compliance_23.csv"))
+  # read all csv files
+  csv_contents <- load_csv_names(my_paths, csv_names_list)
+  
+  # unify headers, trim vesselofficialnumber, just in case
+  csvs_clean1 <- clean_all_csvs(csv_contents)
+  
+  # specific correspondence manipulations
+  corresp_arr <- csvs_clean1[[1]]
+  # add a new column with a "yes" if there is a contactdate (and a "no" if not),
+  # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
+  corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
+  # change classes from char to POSIXct
+  corresp_arr_contact_cnts %>% 
+    change_to_dates("createdon", "%m/%d/%Y %H:%M") %>%
+    change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
+    corresp_arr_contact_cnts_clean
+  
+  # specific compliance manipulations
+  compl_arr <- list(csvs_clean1[[2]], csvs_clean1[[3]])
+  # combine 2 separate dataframes for 2022 and 2023 into one
+  compl <- compl_arr
+  # if it is one df already, do nothing
+  if (!is.data.frame(compl_arr)) {
+    compl <- join_same_kind_csvs(compl_arr)
+  }
+  
+  compl %>% 
+    # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
+    clean_weeks() %>%
+    # change dates classes from char to POSIXct 
+    change_to_dates("permitgroupexpiration", "%m/%d/%Y") ->
+    compl_clean
+  
+  return(list(compl_clean, corresp_arr_contact_cnts_clean))
+}
+
+  
