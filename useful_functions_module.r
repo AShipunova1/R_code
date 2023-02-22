@@ -261,7 +261,7 @@ get_compl_and_corresp_data <- function(my_paths) {
   add_path_corresp <- "Correspondence"
   add_path_compl <- "FHIER Compliance"
   
-  csv_names_list = list(file.path(add_path_corresp,  "Correspondence21_23.csv"), 
+  csv_names_list = list(file.path(add_path_corresp,  "Correspondence.csv"), 
                         file.path(add_path_compl, "FHIER_Compliance_22.csv"),
                         file.path(add_path_compl, "FHIER_Compliance_23.csv"))
   # read all csv files
