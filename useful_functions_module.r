@@ -89,7 +89,7 @@ load_csv_names <- function(my_paths, csv_names_list) {
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, x))
   
   # read all csv files
-  contents <- sapply(myfiles, read.csv, header = TRUE, simplify = FALSE)
+  contents <- sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = FALSE)
   
   return(contents)
 }
