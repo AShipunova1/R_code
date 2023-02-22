@@ -34,17 +34,26 @@ date_format = "%m/%d/%Y"
 safis_clean <- 
   change_fields_arr_to_dates(csvs_clean, date_fields, date_format)
   
-data_overview(safis_clean)
+# data_overview(safis_clean)
 
-safis_clean %>%
-  filter(coastguard != statereg) %>% 
-  select(coastguard, statereg) %>%
-  unique() %>% dim()
+double_names_pairs <- 
+  safis_clean %>%
+    filter(coastguard != statereg) %>% 
+    select(coastguard, statereg) %>% 
+    unique()
+# > dim(double_names_pairs)
+# [1] 141670      2
+# > dim(unique(double_names_pairs))
+# [1] 138507      2
+
+# %>%
+  # unique() %>% dim()
 # 16 ==
 # 130649 !=
 
 ## ---- find FHIER correspondence and compliance data using both ----
 ## ----- get csv data into variables -----
-# temp_var <- get_compl_and_corresp_data(my_paths)
-# compl_clean <- temp_var[[1]]
-# corresp_clean <- temp_var[[2]]
+temp_var <- get_compl_and_corresp_data(my_paths)
+compl_clean <- temp_var[[1]]
+corresp_clean <- temp_var[[2]]
+
