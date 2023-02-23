@@ -261,6 +261,7 @@ csv_names_list_22_23 = c("Correspondence.csv",
                          "FHIER_Compliance_22.csv",
                          "FHIER_Compliance_23.csv")
 
+# add my additional folder names to each filename
 prepare_csv_names <- function(filenames) {
   add_path_corresp <- "Correspondence"
   add_path_compl <- "FHIER Compliance"
@@ -274,21 +275,12 @@ prepare_csv_names <- function(filenames) {
               .default = ""
     )
   } )
-
   paste(my_list) %>% as.list() %>% return()
-  
 }
 
-
 get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23) {
+
   # add my additional folder names
-  # add_path_corresp <- "Correspondence"
-  # add_path_compl <- "FHIER Compliance"
-  
-  # csv_names_list = list(file.path(add_path_corresp,  "Correspondence.csv"), 
-                        # file.path(add_path_compl, "FHIER_Compliance_22.csv"),
-                        # file.path(add_path_compl, "FHIER_Compliance_23.csv"))
-  
   csv_names_list <- prepare_csv_names(filenames)
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
