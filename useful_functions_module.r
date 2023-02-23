@@ -288,7 +288,7 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
   
-  # specific correspondence manipulations
+  # ---- specific correspondence manipulations ----
   corresp_arr <- csvs_clean1[[1]]
   # add a new column with a "yes" if there is a contactdate (and a "no" if not),
   # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
@@ -299,7 +299,6 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
     change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
     corresp_arr_contact_cnts_clean
   
-  # specific compliance manipulations
   ## ---- specific compliance manipulations ----
   # browser()
   compl_arr <- csvs_clean1[2:length(csvs_clean1)]
@@ -321,4 +320,3 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
   return(list(compl_clean, corresp_arr_contact_cnts_clean))
 }
 
-  
