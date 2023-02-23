@@ -9,6 +9,24 @@ library(data.table)
 ## ---- set up ----
 my_paths <- set_work_dir()
 
+csv_names_list_22_23 = c("Correspondence.csv", 
+                         "FHIER_Compliance_22.csv",
+                         "FHIER_Compliance_23.csv")
+add_path_corresp <- "Correspondence"
+add_path_compl <- "FHIER Compliance"
+my_list <- sapply(csv_names_list_22_23, function(x) {
+  browser()
+  if (startsWith(tolower(x), "correspond")) {
+    file.path(add_path_corresp,  x)      
+  }
+  else if (startsWith(tolower(x), "fhier_compliance")) {
+    file.path(add_path_compl,  x)      
+  }
+} )
+
+res2 <- do.call(rbind, my_list)
+
+
 ## ---- get safis data ----
 add_csv_path = "other"
 csv_names_list = list("all_vessels_safis.csv")
