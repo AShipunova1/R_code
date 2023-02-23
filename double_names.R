@@ -36,13 +36,13 @@ read_csv_w_eofs <- function(my_paths, csv_names_list) {
     my_inputs <- my_paths$inputs
     # add input directory path in front of each file name.
     myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))
-    
+
     # read all csv files
     contents <- sapply(myfiles, fread, header = TRUE)
     # convert the first one into a data frame
     # TODO change this function to deal with multiple files
-    contents[, 1] %>% 
-      as.data.frame() %>% 
+    contents[, 1] %>%
+      as.data.frame() %>%
       return()
 }
 
@@ -53,28 +53,32 @@ csvs_clean <- clean_headers(csv_contents)
 ## ---- convert dates ----
 date_fields <- c("entrydate", "updatedate", "de", "dc")
 date_format = "%m/%d/%Y"
-safis_clean <- 
+safis_clean <-
   change_fields_arr_to_dates(csvs_clean, date_fields, date_format)
-  
+
 # data_overview(safis_clean)
 
-double_names_pairs <- 
+double_names_pairs <-
   safis_clean %>%
-    filter(coastguard != statereg) %>% 
-    select(coastguard, statereg) %>% 
+    filter(coastguard != statereg) %>%
+    select(coastguard, statereg) %>%
     unique()
 # dim(double_names_pairs)
 # [1] 138507      2
 
 ## ---- find FHIER correspondence and compliance data using both ----
 ## ----- get csv data into variables -----
-temp_var <- get_compl_and_corresp_data(my_paths)
+csv_names_list_21_23 = c("Correspondence.csv",
+                         "FHIER_Compliance_21.csv",
+                         "FHIER_Compliance_22.csv",
+                         "FHIER_Compliance_23.csv")
+temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_21_23)
 compl_clean <- temp_var[[1]]
 corresp_clean <- temp_var[[2]]
 
 used_doube_pairs <- double_names_pairs %>%
   filter(coastguard %in% compl_clean$vesselofficialnumber &
-           statereg != "-") 
+           statereg != "-")
 # 97
 
 used_doube_pairs <- double_names_pairs %>%
@@ -108,20 +112,20 @@ for (i in 1:nrow(used_double_pairs_u)) {
   # combine each pair in a string
   pair <- paste(used_double_pairs_u[i, ][1],
                 used_double_pairs_u[i, ][2], sep = "|")
-  
+
   # find any in correspondence
-  in_corr <- corresp_clean %>% 
+  in_corr <- corresp_clean %>%
     filter(grepl(pair, vesselofficialnumber)) %>%
-    select(vesselofficialnumber) %>% 
-    # select(vesselofficialnumber, contact_freq) %>% 
-    unique() 
-  
+    select(vesselofficialnumber) %>%
+    # select(vesselofficialnumber, contact_freq) %>%
+    unique()
+
   # find any in compliance
-  in_compl <- compl_clean %>% 
+  in_compl <- compl_clean %>%
     filter(grepl(pair, vesselofficialnumber)) %>%
-    select(vesselofficialnumber) %>% 
-    unique() 
-  
+    select(vesselofficialnumber) %>%
+    unique()
+
   # 2 combinations are too general, e.g. "0"
   if (nrow(in_corr) > 2 | nrow(in_compl) > 2) {
     # browser()
@@ -141,9 +145,9 @@ for (i in 1:nrow(used_double_pairs_u)) {
 # naming the columns
 names(df_out) <- c("pair", "correspondence", "compliance")
 
-# glimpse(df_out)
+glimpse(df_out)
 
-write.csv(df_out, file = "output.csv", row.names = F)
+# write.csv(df_out, file = "output.csv", row.names = F)
 
 # compl_clean %>% 
   # filter(grepl("1200643|AL3272AW", toupper(vesselofficialnumber))) %>%
