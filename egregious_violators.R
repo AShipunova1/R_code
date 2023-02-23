@@ -432,15 +432,15 @@ str(compl_corr_to_investigation_short_ids2)
 
 intersect(tolower(compl_corr_to_investigation_short1$vesselofficialnumber), tolower(omars_names))
 
-in_given <- intersect(spreadsheet_ids, compl_corr_to_investigation_short$vesselofficialnumber)
+# in_given <- intersect(spreadsheet_ids, compl_corr_to_investigation_short$vesselofficialnumber)
 # %>% str()
 # 48
 
-in_given_only <- setdiff(tolower(spreadsheet_ids), tolower(compl_corr_to_investigation_short$vesselofficialnumber))
+# in_given_only <- setdiff(tolower(spreadsheet_ids), tolower(compl_corr_to_investigation_short$vesselofficialnumber))
 str(in_given_only)
 # 281
 
-in_results_only <- setdiff(tolower(compl_corr_to_investigation_short$vesselofficialnumber), tolower(spreadsheet_ids))
+# in_results_only <- setdiff(tolower(compl_corr_to_investigation_short$vesselofficialnumber), tolower(spreadsheet_ids))
 str(in_results_only)
 # 62
 
