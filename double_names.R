@@ -9,30 +9,6 @@ library(data.table)
 ## ---- set up ----
 my_paths <- set_work_dir()
 
-csv_names_list_22_23 = c("Correspondence.csv", 
-                         "FHIER_Compliance_22.csv",
-                         "FHIER_Compliance_23.csv")
-# ---- experiment ----
-# csv_names_list_22_23 = c("Correspondence.csv",
-#                          "FHIER_Compliance_22.csv",
-#                          "FHIER_Compliance_23.csv")
-# add_path_corresp <- "Correspondence"
-# add_path_compl <- "FHIER Compliance"
-# 
-# my_list <- sapply(csv_names_list_22_23, function(x) {
-#   # browser()
-#   case_when(startsWith(tolower(x), "correspond") ~ 
-#               file.path(add_path_corresp,  x),
-#             startsWith(tolower(x), "fhier_compliance") ~ 
-#               file.path(add_path_compl,  x),
-#             .default = ""
-#             )
-# } )
-# 
-# my_list
-# paste(my_list) %>% as.list()
-
-
 ## ---- get safis data ----
 add_csv_path = "other"
 csv_names_list = list("all_vessels_safis.csv")
@@ -115,26 +91,25 @@ df_out <- tibble(pair = character(),
 # loop over pairs
 for (i in 1:nrow(used_double_pairs_u)) {
   # browser()
-  # combine each pair in a string
+  # combine each pair in a string for search
   pair <- paste(used_double_pairs_u[i, ][1],
                 used_double_pairs_u[i, ][2], sep = "|")
 
-  # find any in correspondence
+  # look up in correspondence
   in_corr <- corresp_clean %>%
     filter(grepl(pair, vesselofficialnumber)) %>%
     select(vesselofficialnumber) %>%
     # select(vesselofficialnumber, contact_freq) %>%
     unique()
 
-  # find any in compliance
+  # look up in compliance
   in_compl <- compl_clean %>%
     filter(grepl(pair, vesselofficialnumber)) %>%
     select(vesselofficialnumber) %>%
     unique()
 
-  # 2 combinations are too general, e.g. "0"
+  # 2 combinations are too general
   if (nrow(in_corr) > 2 | nrow(in_compl) > 2) {
-    # browser()
     print(pair)
   }
   else if (!identical(in_corr, in_compl)) {
@@ -155,7 +130,3 @@ glimpse(df_out)
 
 # write.csv(df_out, file = "output.csv", row.names = F)
 
-# compl_clean %>% 
-  # filter(grepl("1200643|AL3272AW", toupper(vesselofficialnumber))) %>%
-  # select(vesselofficialnumber) %>% 
-  # unique() 
