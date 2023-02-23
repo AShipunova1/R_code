@@ -256,14 +256,40 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- func
 # temp_var <- get_compl_and_corresp_data(my_paths)
 # compl_clean <- temp_var[[1]]
 # corresp_clean <- temp_var[[2]]
-get_compl_and_corresp_data <- function(my_paths) {
-  # add my additional folder names
+
+csv_names_list_22_23 = c("Correspondence.csv",
+                         "FHIER_Compliance_22.csv",
+                         "FHIER_Compliance_23.csv")
+
+prepare_csv_names <- function(filenames) {
   add_path_corresp <- "Correspondence"
   add_path_compl <- "FHIER Compliance"
+
+  my_list <- sapply(filenames, function(x) {
+    # browser()
+    case_when(startsWith(tolower(x), "correspond") ~ 
+                file.path(add_path_corresp,  x),
+              startsWith(tolower(x), "fhier_compliance") ~ 
+                file.path(add_path_compl,  x),
+              .default = ""
+    )
+  } )
+
+  paste(my_list) %>% as.list() %>% return()
   
-  csv_names_list = list(file.path(add_path_corresp,  "Correspondence.csv"), 
-                        file.path(add_path_compl, "FHIER_Compliance_22.csv"),
-                        file.path(add_path_compl, "FHIER_Compliance_23.csv"))
+}
+
+
+get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23) {
+  # add my additional folder names
+  # add_path_corresp <- "Correspondence"
+  # add_path_compl <- "FHIER Compliance"
+  
+  # csv_names_list = list(file.path(add_path_corresp,  "Correspondence.csv"), 
+                        # file.path(add_path_compl, "FHIER_Compliance_22.csv"),
+                        # file.path(add_path_compl, "FHIER_Compliance_23.csv"))
+  
+  csv_names_list <- prepare_csv_names(filenames)
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
   
