@@ -300,11 +300,14 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
     corresp_arr_contact_cnts_clean
   
   # specific compliance manipulations
-  compl_arr <- list(csvs_clean1[[2]], csvs_clean1[[3]])
-  # combine 2 separate dataframes for 2022 and 2023 into one
-  compl <- compl_arr
+  ## ---- specific compliance manipulations ----
+  # browser()
+  compl_arr <- csvs_clean1[2:length(csvs_clean1)]
+  
   # if it is one df already, do nothing
-  if (!is.data.frame(compl_arr)) {
+  compl <- compl_arr
+  # else combine separate dataframes for all years into one
+  if (!length(compl_arr) == 1) {
     compl <- join_same_kind_csvs(compl_arr)
   }
   
