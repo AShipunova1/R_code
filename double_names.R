@@ -1,6 +1,8 @@
 # Find vessels that have more than one vessel ID associated with them over time
-# extensive list of pairs from safis
+# extensive list of pairs from safis/safis management system
 # find pairs which are different in compliance vs. correspondence
+# download compliance for each year from FHIER/reports/FHIER COMPLIANCE REPORT
+# download correspondence from FHIER/Correspondence
 
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
@@ -19,7 +21,7 @@ read_csv_w_eofs <- function(my_paths, csv_names_list) {
     # add input directory path in front of each file name.
     myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))
 
-    # read all csv files
+    # read csv files
     contents <- sapply(myfiles, fread, header = TRUE)
     # convert the first one into a data frame
     # TODO change this function to deal with multiple files
@@ -108,7 +110,7 @@ for (i in 1:nrow(used_double_pairs_u)) {
     select(vesselofficialnumber) %>%
     unique()
 
-  # 2 combinations are too general
+  # some combinations are too general
   if (nrow(in_corr) > 2 | nrow(in_compl) > 2) {
     print(pair)
   }
@@ -126,7 +128,7 @@ for (i in 1:nrow(used_double_pairs_u)) {
 # naming the columns
 names(df_out) <- c("pair", "correspondence", "compliance")
 
-glimpse(df_out)
+# glimpse(df_out)
 
-# write.csv(df_out, file = "output.csv", row.names = F)
+# write.csv(df_out, file = "double_ids_check.csv", row.names = F)
 
