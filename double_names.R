@@ -51,7 +51,7 @@ double_names_pairs <-
 # [1] 138507      2
 
 ## ---- find FHIER correspondence and compliance data using both ----
-## ----- get csv data into variables -----
+## ----- get compliance and correspondence csv data into variables -----
 csv_names_list_21_23 = c("Correspondence.csv",
                          "FHIER_Compliance_21.csv",
                          "FHIER_Compliance_22.csv",

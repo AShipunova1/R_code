@@ -277,7 +277,7 @@ both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_cle
 # data_overview(both_in_n_out_2_plus_emails)  %>% head()
 # vesselofficialnumber  147
 
-# group_by_arr <- c("vesselofficialnumber", "calltype")
+group_by_arr <- c("vesselofficialnumber", "calltype")
 # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 
 to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
@@ -437,11 +437,11 @@ intersect(tolower(compl_corr_to_investigation_short1$vesselofficialnumber), tolo
 # 48
 
 # in_given_only <- setdiff(tolower(spreadsheet_ids), tolower(compl_corr_to_investigation_short$vesselofficialnumber))
-str(in_given_only)
+# str(in_given_only)
 # 281
 
 # in_results_only <- setdiff(tolower(compl_corr_to_investigation_short$vesselofficialnumber), tolower(spreadsheet_ids))
-str(in_results_only)
+# str(in_results_only)
 # 62
 
 ## ---- who needs an email ----
@@ -535,10 +535,10 @@ write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email
 ## ---- Get more info ----
 
 ## ---- no calls ----
-count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
-  filter(contacttype != "Call") %>%
-  { . ->> corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only} %>% # save into a var 
-  glimpse()
+# count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
+  # filter(contacttype != "Call") %>%
+  # { . ->> corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only} %>% # save into a var 
+  # glimpse()
 
 ## What if not "calls"?
 # ungroup(corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only) %>%
