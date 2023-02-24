@@ -189,7 +189,7 @@ aux_fun_for_dates <- function(x, date_format) {
 
 change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
   my_df %>%
-    mutate(across(field_names_arr, aux_fun_for_dates, date_format)) %>% 
+    mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>% 
   
     # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
                                         # format = date_format)) %>%
