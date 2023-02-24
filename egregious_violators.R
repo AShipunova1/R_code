@@ -6,7 +6,7 @@
 # TODO: compare with the given
 # Workflow:
 
-# get compliance report for 2022-2023
+# get compliance report for 2022-2023 (Reports/FHIER COMPLIANCE REPORT)
 # get correspondence report for all years
 # upload to R
 # add correspondence counts
@@ -31,6 +31,7 @@
 #  & > 51 week with no reports
 #  & (a direct contact call | 
 #     emails in and out)
+# TODO: add "have permit less than 52 weeks, but no reports"
 
 ## Output:
 # For the egregious output files, we'll need the following columns:
@@ -196,22 +197,32 @@ str(all_vm_ids)
 # 277
 
 add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
+  browser()
+  # 'data.frame':	18988 obs. of  19 variables:
+    
   corresp_contact_cnts_clean %>%
+    # filter(calltype == "Outgoing") %>%
     # search comments for indicators that there was no direct contact
     mutate(direct_contact = case_when(grepl("no answer", contactcomments, ignore.case = TRUE) ~ "no",
                                     grepl("wrong number", contactcomments, ignore.case = TRUE) ~ "no",
-                                    grepl("number.*not in service", contactcomments, ignore.case = TRUE) ~ "no",
+                                    grepl("not in service", contactcomments, ignore.case = TRUE) ~ "no",
+                                    grepl("number.+is incorrect", contactcomments, ignore.case = TRUE) ~ "no",
+                                    grepl("the incorrect number", contactcomments, ignore.case = TRUE) ~ "no",
+                                    grepl("incorrect phone number", contactcomments, ignore.case = TRUE) ~ "no",
+                                    grepl("call could not be completed as dialed", contactcomments, ignore.case = TRUE) ~ "no",
                                     vesselofficialnumber %in% all_vm_ids$vesselofficialnumber ~ "no",
                                     .default = "yes"
                                     )
          ) %>% 
     return()
-  
+
   # filter(direct_contact == "no") %>%
-  # select(vesselofficialnumber) %>% 
+  # select(vesselofficialnumber) %>%
   # unique() %>%
   # str()
-  # 836 
+  # 'data.frame':	1126 obs. of  1 variable:
+  # 'data.frame':	1138 obs. of  1 variable:
+    
 }
 corresp_contact_cnts_clean_direct_cnt <- add_a_direct_contact_column(corresp_contact_cnts_clean)
 glimpse(corresp_contact_cnts_clean_direct_cnt)
@@ -244,6 +255,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
                          ((tolower(contacttype) == "email") | 
                             (tolower(contacttype) == "other")))
   
+  # use emails_filter for incoming
   corresp_contact_cnts_clean %>%
     filter(!!emails_filter &
              tolower(calltype) == "incoming") %>% 
@@ -253,6 +265,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
   #   glimpse()
   # 232  
   
+  # use emails_filter for outgoing
   corresp_contact_cnts_clean %>%
     filter(!!emails_filter &
              tolower(calltype) == "outgoing") %>% 
