@@ -130,10 +130,25 @@ all_weeks_not_compliance_id <- get_all_weeks_not_compliance_id(compl_clean_sa)
 intersect(id_52_plus_weeks$vesselofficialnumber, all_weeks_not_compliance_id$vesselofficialnumber) %>% str()
 # 19
 
+# 52+ weeks are not compliant, but some other weeks are
+setdiff(id_52_plus_weeks$vesselofficialnumber, all_weeks_not_compliance_id$vesselofficialnumber) %>% str()
+# 137
 
-setdiff(id_52_plus_weeks$vesselofficialnumber, all_weeks_not_compliance_id$vesselofficialnumber)
+# all weeks are not compliant, but there are fewer than 52 weeks for 2022-2023
+setdiff(all_weeks_not_compliance_id$vesselofficialnumber, id_52_plus_weeks$vesselofficialnumber) %>%
+{ . ->> fewer_52_all_non_compl22_23_ids} %>% # save into a var 
+  str()
+# 324
 
-setdiff(all_weeks_not_compliance_id$vesselofficialnumber, id_52_plus_weeks$vesselofficialnumber)
+group_by_arr <- c("vesselofficialnumber", "compliant")
+compl_clean_sa %>%
+  filter(vesselofficialnumber %in% fewer_52_all_non_compl22_23_ids) %>%
+  select(vesselofficialnumber, compliant, week) %>%
+  count_by_column_arr(group_by_arr) %>%
+  { . ->> fewer_52_all_non_compl22_23} %>% # save into a var 
+  head()
+
+# write.csv(fewer_52_all_non_compl22_23, file.path(my_paths$outputs, "fewer_52_all_non_compl22_23.csv"), row.names = FALSE)
 
 ## ---- Preparing Correspondence ----
 ## ---- remove 999999 ----
