@@ -57,10 +57,8 @@
 
 #---
 
-library(dplyr)
 #install.packages("tidyverse")
 library(tidyverse)
-library(stringr)
 library(magrittr)
 library(readxl)  # reading in .xlsx
 
@@ -320,3 +318,17 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
   return(list(compl_clean, corresp_arr_contact_cnts_clean))
 }
 
+# read csv file with EOF within quoted strings
+read_csv_w_eofs <- function(my_paths, csv_names_list) {
+  my_inputs <- my_paths$inputs
+  # add input directory path in front of each file name.
+  myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))
+  
+  # read csv files
+  contents <- sapply(myfiles, fread, header = TRUE)
+  # convert the first one into a data frame
+  # TODO change this function to deal with multiple files
+  contents[, 1] %>%
+    as.data.frame() %>%
+    return()
+}
