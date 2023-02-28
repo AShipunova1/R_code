@@ -349,102 +349,35 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
 
 # dim(compl_corr_to_investigation_short)
 
-# names_out_arr <- c("vesselofficialnumber",
-#                    "name",
-#                    "permitgroup",
-#                    "permitgroupexpiration",
-#                    "contactrecipientname",
-#                    "contactphonenumber",
-#                    "contactemailaddress",
-#                    "list_of_non_compliant_weeks",
-#                    "list_of_contact_dates_and_contact_type"
-# )
+## ---- 3) remove vessels already in the know list ----
+vessels_to_remove <- read.csv(file.path(my_paths$inputs, "vessels_to_remove.csv"))
+names(vessels_to_remove) = "vesselofficialnumber"
 
-vessels_to_remove <- c("639564", 
-"659046", 
-"923218", 
-"924651", 
-"946409", 
-"FL5569FG", 
-"FL8090RU", 
-"FL9024NH", 
-"FL9259SW", 
-"FL9683MD", 
-"MD9128BD", 
-"NJ3548GR")
+# remove these vessels
+compl_corr_to_investigation_short1 <-
+  compl_corr_to_investigation_short %>% 
+  filter(!vesselofficialnumber %in% vessels_to_remove$vesselofficialnumber)
 
-compl_corr_to_investigation_short1_ids <- setdiff(compl_corr_to_investigation_short$vesselofficialnumber, vessels_to_remove)
-
-# str(compl_corr_to_investigation_short1_ids)
-
-compl_corr_to_investigation_short1 <- 
-  compl_corr_to_investigation_short %>%
-  filter(vesselofficialnumber %in% compl_corr_to_investigation_short1_ids)
+## check
+# length(unique(compl_corr_to_investigation_short$vesselofficialnumber))
+# 107
+# length(unique(compl_corr_to_investigation_short1$vesselofficialnumber))
+# 102
 
 # data_overview(compl_corr_to_investigation_short1)
 write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "egregious_violators_for_investigation.csv"), row.names = FALSE)
 
-## ---- draft ----
-
-omars_names <- c("1052994", 
-                 "1069364", 
-                 "1098501", 
-                 "1114138", 
-                 "517614", 
-                 "529768", 
-                 "581401", 
-                 "605367", 
-                 "639564", 
-                 "929266", 
-                 "946409", 
-                 "964983", 
-                 "971427", 
-                 "FL1431JU", 
-                 "FL1767LJ", 
-                 "FL1845GB", 
-                 "FL2014PB", 
-                 "FL3253NR", 
-                 "FL3589PP", 
-                 "FL4589RZ", 
-                 "FL5036PH", 
-                 "FL5554DL", 
-                 "FL6444MJ", 
-                 "FL6516KH", 
-                 "FL7037LR", 
-                 "FL7217FP", 
-                 "FL8090RU", 
-                 "FL8777RF", 
-                 "FL9584PX", 
-                 "FL9728HE", 
-                 "NC0410DD", 
-                 "NC0913EE", 
-                 "NC7015DR")
-
-compl_corr_to_investigation_short_ids2 <- setdiff(tolower(compl_corr_to_investigation_short1$vesselofficialnumber), tolower(omars_names))
-
-str(compl_corr_to_investigation_short_ids2)
-# 101
-
-intersect(tolower(compl_corr_to_investigation_short1$vesselofficialnumber), tolower(omars_names))
-
-# in_given <- intersect(spreadsheet_ids, compl_corr_to_investigation_short$vesselofficialnumber) %>% str()
-# 48
-
-# in_given_only <- setdiff(tolower(spreadsheet_ids), tolower(compl_corr_to_investigation_short$vesselofficialnumber))
-# str(in_given_only)
-# 281
-
-# in_results_only <- setdiff(tolower(compl_corr_to_investigation_short$vesselofficialnumber), tolower(spreadsheet_ids))
-# str(in_results_only)
-# 62
-
 ## ---- who needs an email ----
 # at least 2 correspondences & no direct contact
 # keep only 2 or more correspondence with no direct contact, check manually?
+
+# rename for short
 compliance_clean <- compl_w_non_compliant_weeks
-glimpse(compliance_clean)
+# glimpse(compliance_clean)
+
+# correspondence with contact frequency and direct_contact column
 corresp_clean <- corresp_contact_cnts_clean_direct_cnt
-glimpse(corresp_clean)
+# glimpse(corresp_clean)
 
 get_2_plus_contacts <- function(corresp_clean) {
   corresp_clean %>%
@@ -453,26 +386,10 @@ get_2_plus_contacts <- function(corresp_clean) {
 }
 corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
 
-
 # TODO
 # called twice w no direct communications &
 # sent an email w. no answer &
 # those with no contact information
-
-# ## ---- 1) all are voicemails ----
-# get_all_voicemails_id <- function(corr_2_plus_contact) {
-#   corr_2_plus_contact %>%
-#     group_by(vesselofficialnumber) %>%
-#     reframe(all_vm = all(tolower(voicemail) == "yes")) %>%
-#     filter(all_vm) %>% 
-#     select(vesselofficialnumber) %>%
-#     unique() %>%
-#     return()
-# }
-# 
-# all_vm_ids <- get_all_voicemails_id(corr_2_plus_contact)
-# # str(all_vm_ids)
-# # 86
 
 get_all_not_direct_contact_id <- function(corr_2_plus_contact) {
   corr_2_plus_contact %>%
