@@ -376,7 +376,7 @@ compl_corr_to_investigation_short1 <-
 # 102
 
 # data_overview(compl_corr_to_investigation_short1)
-write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "egregious_violators_for_investigation.csv"), row.names = FALSE)
+# write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "egregious_violators_for_investigation.csv"), row.names = FALSE)
 
 ## ---- who needs an email ----
 # at least 2 correspondences & no direct contact
@@ -401,46 +401,37 @@ corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
 # called twice w no direct communications &
 # sent an email w. no answer &
 # those with no contact information
+# TODO?
+# -- for email needed --
+# all contacts outgoing
 
 get_all_not_direct_contact_id <- function(corr_2_plus_contact) {
   corr_2_plus_contact %>%
     group_by(vesselofficialnumber) %>%
+    # add a new column all_dc with TRUE if all are not direct contacts
     reframe(all_dc = all(tolower(direct_contact) == "no")) %>%
+    # keep these only
     filter(all_dc) %>% 
     select(vesselofficialnumber) %>%
     unique() %>%
     return()
 }
 all_not_direct_contact_id <- get_all_not_direct_contact_id(corr_2_plus_contact)
-str(all_not_direct_contact_id)
+# str(all_not_direct_contact_id)
 # 93
 
-# filter for "email's needed":
-email_s_needed <- corr_2_plus_contact %>%
-  filter(direct_contact == "no" |
-           is.na(contactphonenumber) |
-           contactphonenumber == "" |
-           vesselofficialnumber %in% all_vm_ids$vesselofficialnumber
-  ) 
-dim(email_s_needed)
-# vesselofficialnumber  940
-# 1609
-
-# all no direct contact
+# filter for "email's needed"
+# no direct contact or no phone number or all are voicemails
 email_s_needed_short <- corr_2_plus_contact %>%
   filter(is.na(contactphonenumber) |
-           contactphonenumber == "" |
-           vesselofficialnumber %in% all_vm_ids$vesselofficialnumber |
-           vesselofficialnumber %in% all_not_direct_contact_id$vesselofficialnumber
-         
-  ) 
-# %>%
-data_overview(email_s_needed_short) %>% head(1)
-# vesselofficialnumber 170
-# 176
-  
-# email_s_needed_to_csv <- combine_rows_based_on_multiple_columns_and_keep_all_unique_values(email_s_needed, c("vesselofficialnumber"))
+         contactphonenumber == "" |
+         vesselofficialnumber %in% all_vm_ids$vesselofficialnumber |
+         vesselofficialnumber %in% all_not_direct_contact_id$vesselofficialnumber
+         ) 
 
+data_overview(email_s_needed_short) %>% head(1)
+# vesselofficialnumber 176
+  
 # sorted:
 email_s_needed_to_csv_short_sorted <-
 combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values(email_s_needed_short, c("vesselofficialnumber"))
@@ -450,31 +441,21 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values(email_s
 ## ---- output to csv ----
 # this script results
 
-write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted.csv"), row.names = FALSE)
+# write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted.csv"), row.names = FALSE)
 
-# TODO:
-# done add all vm to "not direct contact"
-# -- for email needed --
-# all contacts outgoing
+## ---- find if not compliant and no correspondence ----
+not_compliant_51_plus_weeks_and_no_correspondence <-
+  setdiff(id_52_plus_weeks$vesselofficialnumber, corresp_contact_cnts_clean$vesselofficialnumber)
 
+str(not_compliant_51_plus_weeks_and_no_correspondence)
+# 15
 
-## ---- Get more info ----
+# write.csv(not_compliant_51_plus_weeks_and_no_correspondence, file.path(my_paths$outputs, "not_compliant__no_calls", "not_compliant_51_plus_weeks_and_no_correspondence.csv"), row.names = FALSE)
 
-## ---- no calls ----
-# count_by_column_arr(corr_w_cnts_2_plus_contact_out_compl_only, group_by_arr) %>%
-  # filter(contacttype != "Call") %>%
-  # { . ->> corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only} %>% # save into a var 
-  # glimpse()
-
-## What if not "calls"?
-# ungroup(corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only) %>%
-#   select(contacttype) %>%
-#   unique() 
-# 1 Other      
-# 2 Email
-
-# dim(corr_w_cnts_2_plus_contact_out_compl_only__not_calls_only)
-## [1] 228   5
-
-
+# To use as a filter in FHIER/Correspondence
+cat(not_compliant_51_plus_weeks_and_no_correspondence, 
+    sep = ', ', 
+    file = file.path(my_paths$outputs, 
+                     "not_compliant__no_calls",
+                     "not_compliant_51_plus_weeks_and_no_correspondence.txt"))
 
