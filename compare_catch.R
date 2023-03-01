@@ -63,5 +63,30 @@ permit_info <-
     select(vesselofficialnumber, permitgroup) %>% unique()
 
 str(permit_info)
-# 'data.frame':	1861 obs. of  2 variables:
-  
+# 'data.frame':	1861 obs. of  2 variables
+
+# separate gulf and sa permits
+permit_info %<>%
+  mutate(sa_permits_only = case_when(
+    !grepl("RCG|HRCG|CHG|HCHG", permitgroup, ignore.case = TRUE) ~ "yes",
+    .default = "no")
+  ) %>%
+  mutate(sa_permits_only = as.factor(sa_permits_only))
+
+str(permit_info)
+# sa_permits_only     : Factor w/ 2 levels "no","yes"
+
+## ---- Have only SA permits, exclude those with Gulf permits ----
+vessels_sa <- permit_info %>%
+  filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+
+## ---- Have both or only Gulf permits ----
+vessels_gom <- permit_info %>%
+  filter(grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+
+setdiff(vessels_sa, vessels_gom) %>% str()
+# 1017
+setdiff(vessels_gom, vessels_sa) %>% str()
+# 844
+intersect(vessels_gom, vessels_sa) %>% str()
+# 0
