@@ -34,32 +34,28 @@ col_types <- cols(
   TAG_PREFIX = col_character()
 )
 
-df <- 
+safis_catch <- 
   list.files(path = file.path(my_paths$inputs, "compare_catch/SAFIS CATCHES EXTENDED_2022"), 
              pattern = "*.csv",
-             full.names = T)  %>%
-  # lapply(\(x) mutate(x, across(TAG_NBR, as.integer()))) %>%
-  # type_convert(data)
+             full.names = TRUE)  %>%
   map_df(~read_csv(.x, 
                    # col_types, 
                    show_col_types = FALSE) %>% 
            mutate(across(.fns = as.character))) %>%
-  type_convert()
-  # map_dfr(~fread(.)) across(everything()
-problems(df)
-str(df)
-# A tibble: 327,397 × 59
-tbl <-
-  list.files(path = file.path(my_paths$inputs, "compare_catch/SAFIS CATCHES EXTENDED_2022"), pattern = "*.csv") %>%
-  map_df(~read_csv(.))
+  type_convert() %>%
+  unique()
 
-csv_names_list <- c("compare_catch/FHIER_all_logbook_data.csv",
+str(safis_catch)
+# A tibble: 327,397 × 59
+
+csv_names_list <- c(
+  # "compare_catch/FHIER_all_logbook_data.csv",
                 "compare_catch/mrip_estim_catch_2022_2022/species_list.csv",
                 "compare_catch/mrip_estim_catch_2022_2022/mrip_estim_catch_year_2022_2022.csv")
 temp_var <- load_csv_names(my_paths, csv_names_list)
-logbooks <- temp_var[[1]]
-mrip_species_list <- temp_var[[2]]
-mrip_estimate <- temp_var[[3]]
+# logbooks <- temp_var[[1]]
+mrip_species_list <- temp_var[[1]]
+mrip_estimate <- temp_var[[2]]
 
 # str(logbooks)
 # str(mrip_estimate)
@@ -84,30 +80,46 @@ compl_clean <- temp_var[[1]]
 compl_ids <-
   compl_clean %>% select(vesselofficialnumber) %>% unique()
 
-logbooks_ids <-
-  logbooks  %>% select(VESSEL_OFFICIAL_NBR) %>% unique()
+# logbooks_ids <-
+  # logbooks  %>% select(VESSEL_OFFICIAL_NBR) %>% unique()
+
+safis_catch_ids <-
+  safis_catch %>% select(VESSEL_OFFICIAL_NBR) %>% unique()
+
+# setdiff(safis_catch_ids, logbooks_ids) %>% str()
+# 64
+# setdiff(logbooks_ids, safis_catch_ids) %>% str()
+# 78
 
 # check if there is permit info in logbooks
 # permit_names <- grep("permit", names(logbooks), value = T, ignore.case = T)
 #
 # logbooks %>% select(as.factor(permit_names)) %>% unique() %>% str()
 
-dim(logbooks_ids)
+# dim(logbooks_ids)
+# 1854
+# dim(safis_catch_ids)
+# 1840
+
 setdiff(logbooks_ids$VESSEL_OFFICIAL_NBR, compl_ids$vesselofficialnumber) %>%
   cat(sep = ', ')
   # str()
 # 6
+# setdiff(safis_catch_ids$VESSEL_OFFICIAL_NBR, compl_ids$vesselofficialnumber) %>% str()
+# 37
+
 # TODO get permit types for these 6
 
 ## ---- get the permit info ----
 
 permit_info <-
   compl_clean %>% 
-  filter(vesselofficialnumber %in% logbooks_ids$VESSEL_OFFICIAL_NBR) %>%
+  filter(vesselofficialnumber %in% safis_catch_ids$VESSEL_OFFICIAL_NBR) %>%
     select(vesselofficialnumber, permitgroup) %>% unique()
 
 # str(permit_info)
-# 'data.frame':	1861 obs. of  2 variables
+# 'data.frame':	1861 obs. of  2 variables logbooks_ids
+# 'data.frame':	1815 obs. of  2 variables for safis_catch_ids
 
 ## ---- separate gulf and sa permits ----
 permit_info %<>%
@@ -123,30 +135,32 @@ permit_info %<>%
 
 ## ---- ID the breath of species caught in all logbooks (2022+). Do this by region (gulf vs s atl vessels) ----
 
-# str(logbooks)
+names(safis_catch)
 
 species_vsl <-
   # combine logbook and permit info
-  inner_join(logbooks, 
+  inner_join(safis_catch, 
              permit_info, 
              by = c("VESSEL_OFFICIAL_NBR" = "vesselofficialnumber"),
              multiple = "all") %>% 
     # select columns to use
     select(VESSEL_OFFICIAL_NBR,
-           CATCH_SPECIES_ITIS,
+           SPECIES_ITIS,
+           # CATCH_SPECIES_ITIS, for logbooks
            REPORTED_QUANTITY,
            permitgroup,
            sa_permits_only
            ) 
-# str(species_vsl)
+str(species_vsl)
 
 species_by_permit <-
   species_vsl %>%
-    select(sa_permits_only, CATCH_SPECIES_ITIS) %>% unique() %>%
+    select(sa_permits_only, SPECIES_ITIS) %>% unique() %>%
     tibble::rowid_to_column() %>%
-    spread(key = sa_permits_only, value = CATCH_SPECIES_ITIS) 
-# str(species_by_permit)
-# 'data.frame':	751 obs. of  3 variables:
+    spread(key = sa_permits_only, value = SPECIES_ITIS) 
+str(species_by_permit)
+# 'data.frame':	751 obs. of  3 variables for logbooks
+# 755
 # $ rowid: int  1 2 3 4 5 6 7 8 9 10 ...
 # $ no   : chr  "..." NA NA NA
 # $ yes  : chr  NA ...
@@ -171,33 +185,44 @@ setdiff(species_by_permit$no, species_by_permit$yes) %>% length()
 # catch_field_names <- c("CATCH_SPECIES_ITIS", "COMMON_NAME", "REPORTED_QUANTITY", "UNIT_MEASURE", "DISPOSITION_CODE", "DISPOSITION_NAME", "MARKET_CATEGORY_CODE", "MARKET_CATEGORY_NAME", "GRADE_CODE", "GRADE_NAME", "CATCH_SOURCE", "CATCH_SOURCE_NAME", "CATCH_DE", "CATCH_UE", "CATCH_DC", "CATCH_UC")
 
 # The total caught (numbers) for each unique species
-logbooks %>%
-  select(all_of(catch_field_names)) %>% str()
+# logbooks %>%
+  # select(all_of(catch_field_names)) %>% str()
 
 quantity_by_species <-
-  logbooks %>%
-  select(CATCH_SPECIES_ITIS, REPORTED_QUANTITY) %>% 
-  group_by(CATCH_SPECIES_ITIS) %>% 
+  safis_catch %>%
+  select(SPECIES_ITIS, REPORTED_QUANTITY) %>% 
+  group_by(SPECIES_ITIS) %>% 
 # CATCH_SPECIES_ITIS: int [1:467] 
   summarise(sum(REPORTED_QUANTITY))
-# head(quantity_by_species, 10)
+head(quantity_by_species, 10)
 
 ## ---- The total caught (numbers) for each unique species by permit type ----
 quantity_by_species_and_permit <-
   species_vsl %>%
-  select(sa_permits_only, CATCH_SPECIES_ITIS, REPORTED_QUANTITY) %>% 
-  group_by(CATCH_SPECIES_ITIS, sa_permits_only) %>% 
-  # CATCH_SPECIES_ITIS: int [1:467] 
+  select(sa_permits_only, SPECIES_ITIS, REPORTED_QUANTITY) %>% 
+  group_by(SPECIES_ITIS, sa_permits_only) %>% 
+  # CATCH_SPECIES_ITIS: int [1:467] for logbooks
   summarise(sum(REPORTED_QUANTITY))
-# head(quantity_by_species, 10)
+head(quantity_by_species, 10)
 
-# test
+## test
 # quantity_by_species_and_permit %>% head(10)
+# quantity_by_species_and_permit[6:7,]
+# for logbooks
 # quantity_by_species_and_permit[9:10,]
 
-# species_vsl_sorted <- 
+species_vsl_sorted <-
+  species_vsl %>% arrange(SPECIES_ITIS)
+# for logbooks
   # species_vsl %>% arrange(CATCH_SPECIES_ITIS)
+# grep("...", species_vsl_sorted$SPECIES_ITIS)
+# [1]    150    151    152    153    154    155    156 327377 327378 327379 327380
+# species_vsl_sorted[150:156,]
+
+# for logbooks
 # species_vsl_sorted[205:217,]
+
+# TODO why? species_vsl_sorted[327377:327380,]
 
 ## ---- MRIP data ----
 # landing	Total Harvest (A+B1)	The total number of fish removed from the fishery resource.  May be obtained by summing catch types A (CLAIM) and B1 (HARVEST).
@@ -231,6 +256,27 @@ mrip_estimate %>%
 # ? where to get scientific names by id
 str(mrip_species_list)
 
-grep("scientific", names(logbooks), ignore.case = T, value = T)
+# grep("scientific", names(logbooks), ignore.case = T, value = T)
 # 0
-"scientific_name"
+# grep("scientific", names(safis_catch), ignore.case = T, value = T)
+# SCIENTIFIC_NAME
+# grep("scientific", names(mrip_species_list), ignore.case = T, value = T)
+# SCIENTIFIC_NAME
+
+species_info <- 
+  mrip_species_list %>%
+  inner_join(safis_catch,
+  by = "SCIENTIFIC_NAME",
+  multiple = "all")
+
+# View(species_info)
+species_info %>%
+  select(SCIENTIFIC_NAME, SPECIES_ITIS, sp_code) %>% unique() %>% str()
+# 385
+
+# mrip_species_list$sp_code %>% unique() %>% str()
+# 1775
+# safis_catch$SPECIES_ITIS %>% unique() %>% str()
+# 477
+# logbooks$CATCH_SPECIES_ITIS %>% unique() %>% str()
+# 467
