@@ -245,12 +245,16 @@ species_vsl_sorted <-
 # YEAR
 # 1 2022
 options(scipen=999)
-mrip_estimate %>%
-  select(SP_CODE, SUB_REG, LANDING, TOT_CAT) %>%
-  filter(SUB_REG %in% c(6, 7)) %>% 
-  group_by(SP_CODE, SUB_REG) %>% 
-  summarise(sum(TOT_CAT)) %>% head(2)
+
+mrip_estimate_catch <-
+  mrip_estimate %>%
+    select(SP_CODE, SUB_REG, LANDING, TOT_CAT) %>%
+    filter(SUB_REG %in% c(6, 7)) %>% 
+    group_by(SP_CODE, SUB_REG) %>% 
+    summarise(mrip_total_catch = sum(TOT_CAT))
+# %>% head(2)
 # gropd_df [298 × 3]
+# fields: SP_CODE SUB_REG total_catch
 
 ## get the same ids for species between  FHIER and MRIP
 # ? where to get scientific names by id
@@ -263,15 +267,19 @@ str(mrip_species_list)
 # grep("scientific", names(mrip_species_list), ignore.case = T, value = T)
 # SCIENTIFIC_NAME
 
-species_info <- 
+## ---- add common species identifier to safis_catch ----
+safis_catch_w_mrip <- 
   mrip_species_list %>%
   inner_join(safis_catch,
   by = "SCIENTIFIC_NAME",
   multiple = "all")
 
 # View(species_info)
-species_info %>%
-  select(SCIENTIFIC_NAME, SPECIES_ITIS, sp_code) %>% unique() %>% str()
+# names(safis_catch_w_mrip)
+# rename sp_code to upper case for compartability with mrip
+colnames(safis_catch_w_mrip)[colnames(safis_catch_w_mrip) == 'sp_code'] <- toupper('sp_code')
+safis_catch_w_mrip %>%
+  select(SCIENTIFIC_NAME, SPECIES_ITIS, SP_CODE) %>% unique() %>% str()
 # 385
 
 # mrip_species_list$sp_code %>% unique() %>% str()
@@ -280,3 +288,40 @@ species_info %>%
 # 477
 # logbooks$CATCH_SPECIES_ITIS %>% unique() %>% str()
 # 467
+
+safis_catch_w_mrip %>% str()
+
+species_vsl <-
+  # combine logbook and permit info
+  inner_join(safis_catch_w_mrip, 
+             permit_info, 
+             by = c("VESSEL_OFFICIAL_NBR" = "vesselofficialnumber"),
+             multiple = "all") %>% 
+  # select columns to use
+  select(VESSEL_OFFICIAL_NBR,
+         SPECIES_ITIS,
+         SP_CODE,
+         # CATCH_SPECIES_ITIS, for logbooks
+         REPORTED_QUANTITY,
+         permitgroup,
+         sa_permits_only
+  ) 
+str(safis_catch_w_mrip)
+
+quantity_by_species_and_permit_1 <-
+  species_vsl %>%
+  select(sa_permits_only, SP_CODE, SPECIES_ITIS, REPORTED_QUANTITY) %>% 
+  group_by(SP_CODE, sa_permits_only) %>% 
+  summarise(safis_total_catch = sum(REPORTED_QUANTITY))
+# head(quantity_by_species_and_permit_1, 10)
+
+# compare with mrip
+# mrip_estimate_catch
+head(quantity_by_species_and_permit_1, 3)
+head(mrip_estimate_catch, 3)
+
+mrip_and_safis <-
+  inner_join(quantity_by_species_and_permit_1,
+           mrip_estimate_catch,
+           by = "SP_CODE"
+           )
