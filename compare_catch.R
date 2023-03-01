@@ -90,43 +90,52 @@ species_vsl <-
              multiple = "all") %>% 
     # select columns to use
     select(VESSEL_OFFICIAL_NBR,
-           EFFORT_TARGET_SPECIES_LIST,
+           CATCH_SPECIES_ITIS,
            EFFORT_TARGET_COMMON_NAMES,
            permitgroup,
            sa_permits_only
            ) 
   # %>% str()
 
-species_vsl %>%
-  group_by(sa_permits_only) %>%
-  reframe(EFFORT_TARGET_SPECIES_LIST, n()) %>% unique() %>% str()
-
-gr <- c("sa_permits_only")
-species_vsl %>%
-  select(sa_permits_only, EFFORT_TARGET_SPECIES_LIST) %>% unique() %>% 
-  combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values(gr) %>% unique() %>% str()
-
 species_by_permit <-
   species_vsl %>%
-    select(sa_permits_only, EFFORT_TARGET_SPECIES_LIST) %>% unique() %>%
+    select(sa_permits_only, CATCH_SPECIES_ITIS) %>% unique() %>%
     tibble::rowid_to_column() %>%
-    spread(key = sa_permits_only, value = EFFORT_TARGET_SPECIES_LIST) 
-# %>% head()
-# 'data.frame':	2177 obs. of  3 variables:
+    spread(key = sa_permits_only, value = CATCH_SPECIES_ITIS) 
+# str(species_by_permit)
+# 'data.frame':	751 obs. of  3 variables:
 # $ rowid: int  1 2 3 4 5 6 7 8 9 10 ...
 # $ no   : chr  "..." NA NA NA
 # $ yes  : chr  NA ...
 
-# species_vsl$EFFORT_TARGET_SPECIES_LIST %>% unique() %>% length()
-# 1890
+# species_vsl$CATCH_SPECIES_ITIS %>% unique() %>% length()
+# 467
 
-species_by_permit$yes %>% unique() %>% length()
-species_by_permit$no %>% unique() %>% length()
-
+# species_by_permit$yes %>% unique() %>% length()
+# 396
+# species_by_permit$no %>% unique() %>% length()
+# 355
 intersect(species_by_permit$yes, species_by_permit$no) %>% length()
-# 287
+# 284
 setdiff(species_by_permit$yes, species_by_permit$no) %>% length()
-# 1298
+# 112
 setdiff(species_by_permit$no, species_by_permit$yes) %>% length()
-# 305
+# 71
+
+## ---- catch info ----
+# grep("REPORTED_QUANTITY", names(logbooks))
+names(logbooks)[101:length(names(logbooks))] %>% cat(sep = '", "')
+catch_field_names <- c("CATCH_SPECIES_ITIS", "COMMON_NAME", "REPORTED_QUANTITY", "UNIT_MEASURE", "DISPOSITION_CODE", "DISPOSITION_NAME", "MARKET_CATEGORY_CODE", "MARKET_CATEGORY_NAME", "GRADE_CODE", "GRADE_NAME", "CATCH_SOURCE", "CATCH_SOURCE_NAME", "CATCH_DE", "CATCH_UE", "CATCH_DC", "CATCH_UC")
+
+# The total caught (numbers) for each unique species
+logbooks %>%
+  select(all_of(catch_field_names)) %>% str()
+
+quantity_by_species <-
+  logbooks %>%
+  select(CATCH_SPECIES_ITIS, REPORTED_QUANTITY) %>% 
+  group_by(CATCH_SPECIES_ITIS) %>% 
+# CATCH_SPECIES_ITIS: int [1:467] 
+  summarise(sum(REPORTED_QUANTITY))
+head(quantity_by_species, 10)
 
