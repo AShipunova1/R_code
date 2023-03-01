@@ -75,7 +75,7 @@ set_work_dir <- function() {
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
   # dir.create(full_path_to_out_dir)
   setwd(file.path(base_dir, main_r_dir))
-  
+
   my_paths <- list("inputs" = full_path_to_in_dir,
                    "outputs" = full_path_to_out_dir)
   return(my_paths)
@@ -85,24 +85,24 @@ load_csv_names <- function(my_paths, csv_names_list) {
   my_inputs <- my_paths$inputs
   # add input directory path in front of each file name.
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, x))
-  
+
   # read all csv files
   contents <- sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = FALSE)
-  
+
   return(contents)
 }
 
 load_xls_names <- function(my_paths, xls_names_list, sheet_num = 1) {
   my_inputs <- my_paths$inputs
-  
+
   myfiles <- sapply(xls_names_list, function(x) file.path(my_inputs, x))
-  
+
   # xls_content_1 <- read_excel(paste(my_paths$inputs,
   # xsl_names_list[[1]],
   # sep = "/"), 1)  # nolint: commented_code_linter.
-  
+
   contents <- sapply(myfiles, read_excel, sheet_num)
-  
+
   return(contents)
 }
 
@@ -187,8 +187,8 @@ aux_fun_for_dates <- function(x, date_format) {
 
 change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
   my_df %>%
-    mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>% 
-  
+    mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+
     # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
                                         # format = date_format)) %>%
     return()
@@ -249,7 +249,7 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- func
 
 ## usage:
 # my_paths <- set_work_dir()
-# 
+#
 ## get csv data into variables
 # temp_var <- get_compl_and_corresp_data(my_paths)
 # compl_clean <- temp_var[[1]]
@@ -266,9 +266,9 @@ prepare_csv_names <- function(filenames) {
 
   my_list <- sapply(filenames, function(x) {
     # browser()
-    case_when(startsWith(tolower(x), "correspond") ~ 
+    case_when(startsWith(tolower(x), "correspond") ~
                 file.path(add_path_corresp,  x),
-              startsWith(tolower(x), "fhier_compliance") ~ 
+              startsWith(tolower(x), "fhier_compliance") ~
                 file.path(add_path_compl,  x),
               .default = ""
     )
@@ -282,39 +282,39 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
   csv_names_list <- prepare_csv_names(filenames)
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
-  
+
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
-  
+
   # ---- specific correspondence manipulations ----
   corresp_arr <- csvs_clean1[[1]]
   # add a new column with a "yes" if there is a contactdate (and a "no" if not),
   # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
   corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
   # change classes from char to POSIXct
-  corresp_arr_contact_cnts %>% 
+  corresp_arr_contact_cnts %>%
     change_to_dates("createdon", "%m/%d/%Y %H:%M") %>%
     change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
     corresp_arr_contact_cnts_clean
-  
+
   ## ---- specific compliance manipulations ----
   # browser()
   compl_arr <- csvs_clean1[2:length(csvs_clean1)]
-  
+
   # if it is one df already, do nothing
   compl <- compl_arr
   # else combine separate dataframes for all years into one
   if (!length(compl_arr) == 1) {
     compl <- join_same_kind_csvs(compl_arr)
   }
-  
-  compl %>% 
+
+  compl %>%
     # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
     clean_weeks() %>%
-    # change dates classes from char to POSIXct 
+    # change dates classes from char to POSIXct
     change_to_dates("permitgroupexpiration", "%m/%d/%Y") ->
     compl_clean
-  
+
   return(list(compl_clean, corresp_arr_contact_cnts_clean))
 }
 
@@ -323,7 +323,7 @@ read_csv_w_eofs <- function(my_paths, csv_names_list) {
   my_inputs <- my_paths$inputs
   # add input directory path in front of each file name.
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))
-  
+
   # read csv files
   contents <- sapply(myfiles, fread, header = TRUE)
   # convert the first one into a data frame
@@ -331,4 +331,12 @@ read_csv_w_eofs <- function(my_paths, csv_names_list) {
   contents[, 1] %>%
     as.data.frame() %>%
     return()
+}
+
+# To use as a filter in FHIER
+cat_filter_for_fhier <- function(my_characters) {
+  cat(my_characters,
+      sep = ', ',
+      file = file.path(my_paths$outputs,
+                       "cat_out.txt"))
 }
