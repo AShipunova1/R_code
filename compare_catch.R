@@ -12,6 +12,47 @@ source("~/R_code_github/useful_functions_module.r")
 ## ---- set up ----
 my_paths <- set_work_dir()
 
+# download Reports / SAFIS Catches Extended for each month, one year is too slow
+# library(data.table)
+
+col_types <- cols(
+  .default = col_character(),
+  TRIP_ID = col_double(),
+  EFFORT_SEQ = col_double(),
+  CATCH_SEQ = col_double(),
+  REPORTED_QUANTITY = col_double(),
+  LANDED_POUNDS = col_character(),
+  LIVE_POUNDS = col_character(),
+  PERMIT_ID = col_character(),
+  PRICE = col_character(),
+  ANYTHING_CAUGHT_FLAG = col_logical(),
+  CARRED_BY = col_character(),
+  PRIMARY_ALLOCATION_QTY = col_character(),
+  DATE_SOLD = col_character(),
+  LANDING_SEQ = col_character(),
+  SUPPLIER_EFFCAT_ID = col_character(),
+  TAG_PREFIX = col_character()
+)
+
+df <- 
+  list.files(path = file.path(my_paths$inputs, "compare_catch/SAFIS CATCHES EXTENDED_2022"), 
+             pattern = "*.csv",
+             full.names = T)  %>%
+  # lapply(\(x) mutate(x, across(TAG_NBR, as.integer()))) %>%
+  # type_convert(data)
+  map_df(~read_csv(.x, 
+                   # col_types, 
+                   show_col_types = FALSE) %>% 
+           mutate(across(.fns = as.character))) %>%
+  type_convert()
+  # map_dfr(~fread(.)) across(everything()
+problems(df)
+str(df)
+# A tibble: 327,397 × 59
+tbl <-
+  list.files(path = file.path(my_paths$inputs, "compare_catch/SAFIS CATCHES EXTENDED_2022"), pattern = "*.csv") %>%
+  map_df(~read_csv(.))
+
 csv_names_list <- c("compare_catch/FHIER_all_logbook_data.csv",
                 "compare_catch/mrip_estim_catch_2022_2022/species_list.csv",
                 "compare_catch/mrip_estim_catch_2022_2022/mrip_estim_catch_year_2022_2022.csv")
