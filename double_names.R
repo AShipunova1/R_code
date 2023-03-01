@@ -52,10 +52,9 @@ double_names_pairs <-
 
 ## ---- find FHIER correspondence and compliance data using both ----
 ## ----- get compliance and correspondence csv data into variables -----
-csv_names_list_21_23 = c("Correspondence.csv",
-                         "FHIER_Compliance_21.csv",
-                         "FHIER_Compliance_22.csv",
-                         "FHIER_Compliance_23.csv")
+csv_names_list_21_23 = c("Correspondence__2_24_23.csv",
+                         "FHIER_Compliance_22__2_24_23.csv",
+                         "FHIER_Compliance_23__2_24_23.csv")
 temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_21_23)
 compl_clean <- temp_var[[1]]
 corresp_clean <- temp_var[[2]]
