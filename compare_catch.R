@@ -13,13 +13,15 @@ source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 csv_names_list <- c("compare_catch/FHIER_all_logbook_data.csv",
-                "compare_catch/mrip_estim_catch_2022_2022/species_list.csv")
+                "compare_catch/mrip_estim_catch_2022_2022/species_list.csv",
+                "compare_catch/mrip_estim_catch_2022_2022/mrip_estim_catch_year_2022_2022.csv")
 temp_var <- load_csv_names(my_paths, csv_names_list)
 logbooks <- temp_var[[1]]
-mrip_estimate <- temp_var[[2]]
+mrip_species_list <- temp_var[[2]]
+mrip_estimate <- temp_var[[3]]
 
-str(logbooks)
-str(mrip_estimate)
+# str(logbooks)
+# str(mrip_estimate)
 
 # ---- the breath of species caught in all logbooks (2022+) ----
 # ?? Do this by region (gulf vs s atl vessels).
@@ -80,7 +82,7 @@ permit_info %<>%
 
 ## ---- ID the breath of species caught in all logbooks (2022+). Do this by region (gulf vs s atl vessels) ----
 
-str(logbooks)
+# str(logbooks)
 
 species_vsl <-
   # combine logbook and permit info
@@ -91,11 +93,11 @@ species_vsl <-
     # select columns to use
     select(VESSEL_OFFICIAL_NBR,
            CATCH_SPECIES_ITIS,
-           EFFORT_TARGET_COMMON_NAMES,
+           REPORTED_QUANTITY,
            permitgroup,
            sa_permits_only
            ) 
-  # %>% str()
+# str(species_vsl)
 
 species_by_permit <-
   species_vsl %>%
@@ -124,8 +126,8 @@ setdiff(species_by_permit$no, species_by_permit$yes) %>% length()
 
 ## ---- catch info ----
 # grep("REPORTED_QUANTITY", names(logbooks))
-names(logbooks)[101:length(names(logbooks))] %>% cat(sep = '", "')
-catch_field_names <- c("CATCH_SPECIES_ITIS", "COMMON_NAME", "REPORTED_QUANTITY", "UNIT_MEASURE", "DISPOSITION_CODE", "DISPOSITION_NAME", "MARKET_CATEGORY_CODE", "MARKET_CATEGORY_NAME", "GRADE_CODE", "GRADE_NAME", "CATCH_SOURCE", "CATCH_SOURCE_NAME", "CATCH_DE", "CATCH_UE", "CATCH_DC", "CATCH_UC")
+# names(logbooks)[101:length(names(logbooks))] %>% cat(sep = '", "')
+# catch_field_names <- c("CATCH_SPECIES_ITIS", "COMMON_NAME", "REPORTED_QUANTITY", "UNIT_MEASURE", "DISPOSITION_CODE", "DISPOSITION_NAME", "MARKET_CATEGORY_CODE", "MARKET_CATEGORY_NAME", "GRADE_CODE", "GRADE_NAME", "CATCH_SOURCE", "CATCH_SOURCE_NAME", "CATCH_DE", "CATCH_UE", "CATCH_DC", "CATCH_UC")
 
 # The total caught (numbers) for each unique species
 logbooks %>%
@@ -137,5 +139,57 @@ quantity_by_species <-
   group_by(CATCH_SPECIES_ITIS) %>% 
 # CATCH_SPECIES_ITIS: int [1:467] 
   summarise(sum(REPORTED_QUANTITY))
-head(quantity_by_species, 10)
+# head(quantity_by_species, 10)
 
+## ---- The total caught (numbers) for each unique species by permit type ----
+quantity_by_species_and_permit <-
+  species_vsl %>%
+  select(sa_permits_only, CATCH_SPECIES_ITIS, REPORTED_QUANTITY) %>% 
+  group_by(CATCH_SPECIES_ITIS, sa_permits_only) %>% 
+  # CATCH_SPECIES_ITIS: int [1:467] 
+  summarise(sum(REPORTED_QUANTITY))
+# head(quantity_by_species, 10)
+
+# test
+# quantity_by_species_and_permit %>% head(10)
+# quantity_by_species_and_permit[9:10,]
+
+# species_vsl_sorted <- 
+  # species_vsl %>% arrange(CATCH_SPECIES_ITIS)
+# species_vsl_sorted[205:217,]
+
+## ---- MRIP data ----
+# landing	Total Harvest (A+B1)	The total number of fish removed from the fishery resource.  May be obtained by summing catch types A (CLAIM) and B1 (HARVEST).
+# tot_cat	Total Catch (A+B1+B2)	The number of fish caught but not necessarily brought ashore.  May be obtained by summing catch types A (CLAIM), B1 (HARVEST), and B2 (RELEASE).
+
+# sp_code	Species Code	Species code of fish
+# sub_reg	Region	" Subregion code for region of trip
+# 4   = North Atlantic (ME; NH; MA; RI; CT) 
+# 5   = Mid-Atlantic (NY; NJ; DE; MD; VA) 
+# 6   = South Atlantic (NC; SC; GA; EFL) 
+# 7   = Gulf of Mexico (WFL; AL; MS; LA) 
+# 8   = West Pacific (HI) 
+# 11 = U. S. Caribbean (Puerto Rico and Virgin Islands"
+# ? We need 6 & 7
+
+# year
+
+# mrip_estimate %>%
+#   select(YEAR) %>% unique()
+# YEAR
+# 1 2022
+options(scipen=999)
+mrip_estimate %>%
+  select(SP_CODE, SUB_REG, LANDING, TOT_CAT) %>%
+  filter(SUB_REG %in% c(6, 7)) %>% 
+  group_by(SP_CODE, SUB_REG) %>% 
+  summarise(sum(TOT_CAT)) %>% head(2)
+# gropd_df [298 × 3]
+
+## get the same ids for species between  FHIER and MRIP
+# ? where to get scientific names by id
+str(mrip_species_list)
+
+grep("scientific", names(logbooks), ignore.case = T, value = T)
+# 0
+"scientific_name"
