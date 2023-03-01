@@ -32,11 +32,11 @@ csv_names_list_21_23 = c("Correspondence__2_24_23.csv",
                          "FHIER_Compliance_23__02_24_23.csv",
                          "FHIER_Compliance_21__03_01_23.csv")
 
-## ---- get csv data into variables ----
+## ---- get compliance csv data into variables ----
 temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_21_23)
 compl_clean <- temp_var[[1]]
 
-## check if all the vessels from the logbooks are in compl_clean
+## ---- check if all the vessels from the logbooks are in compl_clean ----
 
 compl_ids <-
   compl_clean %>% select(vesselofficialnumber) %>% unique()
@@ -54,6 +54,7 @@ setdiff(logbooks_ids$VESSEL_OFFICIAL_NBR, compl_ids$vesselofficialnumber) %>%
   cat(sep = ', ')
   # str()
 # 6
+# TODO get permit types for these 6
 
 ## ---- get the permit info ----
 
@@ -62,10 +63,10 @@ permit_info <-
   filter(vesselofficialnumber %in% logbooks_ids$VESSEL_OFFICIAL_NBR) %>%
     select(vesselofficialnumber, permitgroup) %>% unique()
 
-str(permit_info)
+# str(permit_info)
 # 'data.frame':	1861 obs. of  2 variables
 
-# separate gulf and sa permits
+## ---- separate gulf and sa permits ----
 permit_info %<>%
   mutate(sa_permits_only = case_when(
     !grepl("RCG|HRCG|CHG|HCHG", permitgroup, ignore.case = TRUE) ~ "yes",
@@ -73,20 +74,59 @@ permit_info %<>%
   ) %>%
   mutate(sa_permits_only = as.factor(sa_permits_only))
 
-str(permit_info)
+# str(permit_info)
+# 'data.frame':	1861 obs. of  3 variables
 # sa_permits_only     : Factor w/ 2 levels "no","yes"
 
-## ---- Have only SA permits, exclude those with Gulf permits ----
-vessels_sa <- permit_info %>%
-  filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+## ---- ID the breath of species caught in all logbooks (2022+). Do this by region (gulf vs s atl vessels) ----
 
-## ---- Have both or only Gulf permits ----
-vessels_gom <- permit_info %>%
-  filter(grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+str(logbooks)
 
-setdiff(vessels_sa, vessels_gom) %>% str()
-# 1017
-setdiff(vessels_gom, vessels_sa) %>% str()
-# 844
-intersect(vessels_gom, vessels_sa) %>% str()
-# 0
+species_vsl <-
+  # combine logbook and permit info
+  inner_join(logbooks, 
+             permit_info, 
+             by = c("VESSEL_OFFICIAL_NBR" = "vesselofficialnumber"),
+             multiple = "all") %>% 
+    # select columns to use
+    select(VESSEL_OFFICIAL_NBR,
+           EFFORT_TARGET_SPECIES_LIST,
+           EFFORT_TARGET_COMMON_NAMES,
+           permitgroup,
+           sa_permits_only
+           ) 
+  # %>% str()
+
+species_vsl %>%
+  group_by(sa_permits_only) %>%
+  reframe(EFFORT_TARGET_SPECIES_LIST, n()) %>% unique() %>% str()
+
+gr <- c("sa_permits_only")
+species_vsl %>%
+  select(sa_permits_only, EFFORT_TARGET_SPECIES_LIST) %>% unique() %>% 
+  combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values(gr) %>% unique() %>% str()
+
+species_by_permit <-
+  species_vsl %>%
+    select(sa_permits_only, EFFORT_TARGET_SPECIES_LIST) %>% unique() %>%
+    tibble::rowid_to_column() %>%
+    spread(key = sa_permits_only, value = EFFORT_TARGET_SPECIES_LIST) 
+# %>% head()
+# 'data.frame':	2177 obs. of  3 variables:
+# $ rowid: int  1 2 3 4 5 6 7 8 9 10 ...
+# $ no   : chr  "..." NA NA NA
+# $ yes  : chr  NA ...
+
+# species_vsl$EFFORT_TARGET_SPECIES_LIST %>% unique() %>% length()
+# 1890
+
+species_by_permit$yes %>% unique() %>% length()
+species_by_permit$no %>% unique() %>% length()
+
+intersect(species_by_permit$yes, species_by_permit$no) %>% length()
+# 287
+setdiff(species_by_permit$yes, species_by_permit$no) %>% length()
+# 1298
+setdiff(species_by_permit$no, species_by_permit$yes) %>% length()
+# 305
+
