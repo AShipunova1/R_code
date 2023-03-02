@@ -60,13 +60,12 @@ load_mrip_data <- function() {
   mrip_estimate_gom <- temp_var[[3]]
   
   mrip_estimate <- rbind(mrip_estimate_sa, mrip_estimate_gom)
-  return(mrip_estimate)
+  output <- list(mrip_species_list, mrip_estimate)
+  return(output)
 }
-
-mrip_estimate <- load_mrip_data()
-
-# str(logbooks)
-# str(mrip_estimate)
+mrip_temp <- load_mrip_data()
+mrip_species_list <- mrip_temp[[1]]
+mrip_estimate <- mrip_temp[[2]]
 
 # ---- 3) Auxilary ----
 get_permit_type_from_compiance <- function() {
