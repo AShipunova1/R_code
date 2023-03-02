@@ -89,29 +89,10 @@ clean_weeks <- function(my_df) {
 
 # trim vesselofficialnumber, just in case
 trim_all_vessel_ids_simple <- function(csvs_clean) {
-  start_time <- Sys.time()
-  a <- map(csvs_clean,
-         ~ .x %>% 
-           mutate_at(vars(vesselofficialnumber), 
-                       ~ trimws(.)))
-    
-    
-    
-  end_time <- Sys.time()
-  print(end_time - start_time)
-  # Time difference of 0.1908052 secs
-    
-  start_time <- Sys.time()
   for (i in seq_along(csvs_clean)){
     csvs_clean[[i]]$vesselofficialnumber <-
       trimws(csvs_clean[[i]]$vesselofficialnumber)
   }
-  end_time <- Sys.time()
-  print(end_time - start_time)
-  # Time difference of 0.01825404 secs
-  # browser()
-  print(identical(csvs_clean, a))
-  # TRUE
   return(csvs_clean)
 }
 
@@ -170,6 +151,7 @@ change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
                                         # format = date_format)) %>%
     return()
 }
+
 # Use for contacts in the setup function before combining with compliant dataframes
 add_count_contacts <- function(all_data_df_clean) {
   all_data_df_clean %>%
@@ -208,6 +190,7 @@ count_uniq_by_column <- function(my_df) {
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
 
 concat_unique <- function(x){paste0(unique(x[!is.na(x)]), collapse= ", ")}
+
 combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my_df, group_by_arr) {
   my_df %>%
     group_by_at(group_by_arr) %>%
