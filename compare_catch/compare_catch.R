@@ -25,51 +25,10 @@ source("~/R_code_github/compare_catch/get_data.R")
 # ---- Then the total caught (numbers) for each unique species. ----
 # ?? species ids are different in MRIP in SEFHIER, need a scientific name to connect
 
-## ---- check if all the vessels from the logbooks are in compl_clean ----
-compl_ids <-
-  compl_clean %>% select(vesselofficialnumber) %>% unique()
 
-safis_catch_ids <-
-  safis_catch %>% select(VESSEL_OFFICIAL_NBR) %>% unique()
-
-# setdiff(safis_catch_ids$VESSEL_OFFICIAL_NBR, compl_ids$vesselofficialnumber) %>% str()
-# 241 TODO: get permit type info
-# intersect(compl_ids$vesselofficialnumber, safis_catch_ids$VESSEL_OFFICIAL_NBR) %>% str()
-# 1599
-
-# dim(compl_ids)
-# 3640
-# 2850 (newer 2023 file)
-# dim(safis_catch_ids)
-# 1840
-
-# setdiff(logbooks_ids$VESSEL_OFFICIAL_NBR, compl_ids$vesselofficialnumber) %>%
-#   cat(sep = ', ')
-  # str()
-# 6
-
-## ---- get the permit info ----
-
-permit_info <-
-  compl_clean %>% 
-  filter(vesselofficialnumber %in% safis_catch_ids$VESSEL_OFFICIAL_NBR) %>%
-    select(vesselofficialnumber, permitgroup) %>% unique()
-
-# str(permit_info)
-# 'data.frame':	1861 obs. of  2 variables logbooks_ids
-# 'data.frame':	1815 obs. of  2 variables for safis_catch_ids
-
-## ---- separate gulf and sa permits ----
-permit_info %<>%
-  mutate(sa_permits_only = case_when(
-    !grepl("RCG|HRCG|CHG|HCHG", permitgroup, ignore.case = TRUE) ~ "yes",
-    .default = "no")
-  ) %>%
-  mutate(sa_permits_only = as.factor(sa_permits_only))
-
-# str(permit_info)
-# 'data.frame':	1861 obs. of  3 variables
-# sa_permits_only     : Factor w/ 2 levels "no","yes"
+fhier_species_count_by_disposition_ids <-
+  fhier_species_count_by_disposition %>% 
+  select(vesselofficialnumber) %>% unique()
 
 ## ---- ID the breath of species caught in all logbooks (2022+). Do this by region (gulf vs s atl vessels) ----
 
