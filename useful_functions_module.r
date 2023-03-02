@@ -1,51 +1,5 @@
 # nolint: commented_code_linter
 # useful functions
-# usage example:
-# get_compl_and_corresp_data <- function() {
-#   my_paths <- set_work_dir()
-#   csv_names_list = list(file.path(add_path_corresp,  "Correspondence21_23.csv"),
-#                         file.path(add_path_compl, "FHIER_Compliance_22.csv"),
-#                         file.path(add_path_compl, "FHIER_Compliance_23.csv"))
-#   # Load all csv files to data frames
-#   csv_contents_egr <- load_csv_names(my_paths, csv_names_list)
-
-#   # unify headers and trim vessel official numbers across all the dfs
-#   csvs_clean1 <- clean_all_csvs(csv_contents_egr)
-
-#   # For correspondence only:
-#   corresp_arr <- csvs_clean1[[1]]
-#   # add a column with contact frequency per vessel official number
-#   corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
-#   # change all dates classes from char to POSIXct
-#   corresp_arr_contact_cnts %>%
-#     change_to_dates("createdon", "%m/%d/%Y %H:%M") %>%
-#     change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
-#     corresp_arr_contact_cnts_clean
-
-#   # For compliance info only:
-#   compl_arr <- list(csvs_clean1[[2]], csvs_clean1[[3]])
-#   # combine all compliance data frames into one
-#   compl <- compl_arr
-#   if (!is.data.frame(compl_arr)) {
-#     compl <- join_same_kind_csvs(compl_arr)
-#   }
-
-#   compl %>%
-#     # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
-#     clean_weeks() %>%
-#     # change dates classes from char to POSIXct
-#     change_to_dates("permitgroupexpiration", "%m/%d/%Y") ->
-#     compl_clean
-
-#   return(list(my_paths, compl_clean, corresp_arr_contact_cnts_clean))
-# }
-
-# # get csv data into variables
-# temp_var <- get_compl_and_corresp_data()
-# my_paths <- temp_var[[1]]
-# compl_clean <- temp_var[[2]]
-# corresp_contact_cnts_clean <- temp_var[[3]]
-
 
 ##--- start functions ---
 # How to use:
@@ -54,6 +8,11 @@
 # xls_names_list = list("report1a.xls", "report2a.xls")
 # csv_content_1 <- load_csv_names(my_paths, csv_names_list)[[1]]
 # xls_content_1 <- load_xls_names(my_paths, xls_names_list)[[1]]
+
+## get csv data into variables
+# temp_var <- get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23)
+# compl_clean <- temp_var[[1]]
+# corresp_contact_cnts_clean <- temp_var[[2]]
 
 #---
 
@@ -73,7 +32,7 @@ set_work_dir <- function() {
   full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
   out_dir <- "my_outputs"
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-  # dir.create(full_path_to_out_dir)
+  
   setwd(file.path(base_dir, main_r_dir))
 
   my_paths <- list("inputs" = full_path_to_in_dir,
@@ -95,12 +54,10 @@ load_csv_names <- function(my_paths, csv_names_list) {
 load_xls_names <- function(my_paths, xls_names_list, sheet_num = 1) {
   my_inputs <- my_paths$inputs
 
+  # add input directory path in front of each file name.
   myfiles <- sapply(xls_names_list, function(x) file.path(my_inputs, x))
-
-  # xls_content_1 <- read_excel(paste(my_paths$inputs,
-  # xsl_names_list[[1]],
-  # sep = "/"), 1)  # nolint: commented_code_linter.
-
+  
+  # read all files
   contents <- sapply(myfiles, read_excel, sheet_num)
 
   return(contents)
@@ -132,12 +89,32 @@ clean_weeks <- function(my_df) {
 
 # trim vesselofficialnumber, just in case
 trim_all_vessel_ids_simple <- function(csvs_clean) {
-    for (i in seq_along(csvs_clean)){
+  start_time <- Sys.time()
+  a <- map(csvs_clean,
+         ~ .x %>% 
+           mutate_at(vars(vesselofficialnumber), 
+                       ~ trimws(.)))
+    
+    
+    
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  # Time difference of 0.1908052 secs
+    
+  start_time <- Sys.time()
+  for (i in seq_along(csvs_clean)){
     csvs_clean[[i]]$vesselofficialnumber <-
       trimws(csvs_clean[[i]]$vesselofficialnumber)
   }
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  # Time difference of 0.01825404 secs
+  # browser()
+  print(identical(csvs_clean, a))
+  # TRUE
   return(csvs_clean)
 }
+
 
 # cleaning, regularly done for csvs downloaded from PFIER
 clean_all_csvs <- function(csvs) {
