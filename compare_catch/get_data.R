@@ -35,14 +35,16 @@ load_safis_catch < function() {
 
 # 2) MRIP
 load_mrip_data <- function() {
-  mrip_dir_path <- "compare_catch/MRIP data/"
-  mrip_csv_names_list <- c(
-    "/mrip_aux/species_list.csv", # identical for all areas
-    "/mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv",
-    "/mrip_GOM/mrip_estim_catch_year_2022_2022_gom.csv"
+  mrip_dir_path <- "compare_catch/MRIP data"
+  mrip_csv_names_list_raw <- c(
+    "mrip_aux/species_list.csv", # identical for all areas
+    "mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv",
+    "mrip_GOM/mrip_estim_catch_year_2022_2022_gom.csv"
       )
-  a <- mrip_csv_names_list %>%
-    map_chr(file.path(mrip_dir_path, x))
+  # add prefix to each file name
+  mrip_csv_names_list <- 
+      map_chr(mrip_csv_names_list_raw, ~file.path(mrip_dir_path, .x))
+  
   temp_var <- load_csv_names(my_paths, mrip_csv_names_list)
   mrip_species_list <- temp_var[[1]]
   mrip_estimate_sa <- temp_var[[2]]
