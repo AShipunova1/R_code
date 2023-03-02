@@ -116,14 +116,14 @@ fhier_species_count_by_disposition_sp <-
          REPORTEDQUANTITY,
          DISPOSITION
   ) 
-str(fhier_species_count_by_disposition_sp)
+# str(fhier_species_count_by_disposition_sp)
 # 'data.frame':	291346 obs. of  6 variables:
   
 quantity_by_species_and_permit_1 <-
-  species_vsl %>%
-  select(sa_permits_only, SP_CODE, SPECIES_ITIS, REPORTED_QUANTITY) %>% 
-  group_by(SP_CODE, sa_permits_only) %>% 
-  summarise(safis_total_catch = sum(REPORTED_QUANTITY))
+  fhier_species_count_by_disposition_sp %>%
+  select(PERMITREGION, SP_CODE, SPECIES_ITIS, REPORTEDQUANTITY) %>% 
+  group_by(SP_CODE, PERMITREGION) %>% 
+  summarise(safis_total_catch = sum(REPORTEDQUANTITY))
 # head(quantity_by_species_and_permit_1, 10)
 
 ## ---- MRIP data ----
@@ -138,9 +138,7 @@ head(mrip_estimate_catch, 2)
 # gropd_df [298 × 3]
 # fields: SP_CODE SUB_REG total_catch
 
-## get the same ids for species between  FHIER and MRIP
-# ? where to get scientific names by id
-str(mrip_species_list)
+# str(mrip_species_list)
 
 # grep("scientific", names(logbooks), ignore.case = T, value = T)
 # 0
@@ -151,13 +149,70 @@ str(mrip_species_list)
 
 ## ---- compare with mrip ----
 # mrip_estimate_catch
+head(fhier_species_count_by_disposition_sp, 3)
 head(quantity_by_species_and_permit_1, 3)
 head(mrip_estimate_catch, 3)
 
-mrip_and_safis <-
+mrip_estimate_catch %>%
+  filter(SP_CODE == "1000000000")
+# 1 1000000000       6         1652894.
+# 2 1000000000       7         3042903.
+
+fhier_species_count_by_disposition_sp %>%
+  filter(SP_CODE == "1000000000")
+
+# compare sp_code with mrip
+species_in_fhier <-
+  fhier_species_count_by_disposition_sp %>%
+    select(SP_CODE) %>% unique()
+str(species_in_fhier)
+374
+
+species_in_mrip <-
+  mrip_estimate %>%
+  select(SP_CODE) %>% unique()
+str(species_in_mrip)
+# 348
+
+# in both
+intersect(species_in_fhier, species_in_mrip) %>% str()
+# 229
+# in FHIER only
+setdiff(species_in_fhier, species_in_mrip) %>% str()
+# 145
+# in MRIP only
+setdiff(species_in_mrip, species_in_fhier) %>% str()
+# 119
+
+mrip_estimate_catch_1 <-
+  mrip_estimate_catch %>%
+    mutate(PERMITREGION = 
+           case_when(SUB_REG == "6" ~ "SA",
+                     SUB_REG == "7" ~ "GOM"
+                    )
+           ) %>%
+  select(-SUB_REG)
+
+str(mrip_estimate_catch_1)
+
+mrip_and_fhier <-
   inner_join(quantity_by_species_and_permit_1,
-           mrip_estimate_catch,
-           by = "SP_CODE"
+             mrip_estimate_catch_1,
+           by = c("SP_CODE", "PERMITREGION")
            )
 
-head(mrip_and_safis, 3)
+head(mrip_and_fhier, 3)
+mrip_and_fhier %>%
+  filter(mrip_total_catch <= safis_total_catch) %>% str()
+# 18 
+
+plot(mrip_and_fhier$mrip_total_catch, 
+     # type="o", 
+     col="blue", ylim=c(0, 100000))
+
+# Graph trucks with red dashed line and square points
+lines(mrip_and_fhier$safis_total_catch, 
+      # type="o", 
+      pch = 22, 
+      # lty = 2, 
+      col="red")
