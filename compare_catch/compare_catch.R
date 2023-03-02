@@ -50,42 +50,20 @@ quantity_by_species_and_permit <-
   summarise(sum(reportedquantity))
 # head(quantity_by_species_and_permit, 10)
 
-## test
+## ---- test ----
 # quantity_by_species_and_permit %>% head(10)
 # quantity_by_species_and_permit_sorted <-
 #   quantity_by_species_and_permit %>% arrange(speciesitis)
 # grep("...", quantity_by_species_and_permit_sorted$speciesitis)
 # quantity_by_species_and_permit_sorted[8:9,]
 
-## ---- MRIP data ----
-
-mrip_estimate_catch <-
-  mrip_estimate %>%
-    select(SP_CODE, SUB_REG, LANDING, TOT_CAT) %>%
-    filter(SUB_REG %in% c(6, 7)) %>% 
-    group_by(SP_CODE, SUB_REG) %>% 
-    summarise(mrip_total_catch = sum(TOT_CAT))
-head(mrip_estimate_catch, 2)
-# gropd_df [298 × 3]
-# fields: SP_CODE SUB_REG total_catch
-
-## get the same ids for species between  FHIER and MRIP
-# ? where to get scientific names by id
-str(mrip_species_list)
-
-# grep("scientific", names(logbooks), ignore.case = T, value = T)
-# 0
-# grep("scientific", names(safis_catch), ignore.case = T, value = T)
-# SCIENTIFIC_NAME
-# grep("scientific", names(mrip_species_list), ignore.case = T, value = T)
-# SCIENTIFIC_NAME
-
 ## ---- add common species identifier to safis_catch ----
+str(mrip_species_list)
 safis_catch_w_mrip <- 
   mrip_species_list %>%
-  inner_join(safis_catch,
-  by = "SCIENTIFIC_NAME",
-  multiple = "all")
+  inner_join(scientific_names,
+             by = "SCIENTIFIC_NAME",
+             multiple = "all")
 
 # View(species_info)
 # names(safis_catch_w_mrip)
@@ -128,7 +106,30 @@ quantity_by_species_and_permit_1 <-
   summarise(safis_total_catch = sum(REPORTED_QUANTITY))
 # head(quantity_by_species_and_permit_1, 10)
 
-# compare with mrip
+## ---- MRIP data ----
+
+mrip_estimate_catch <-
+  mrip_estimate %>%
+    select(SP_CODE, SUB_REG, LANDING, TOT_CAT) %>%
+    filter(SUB_REG %in% c(6, 7)) %>% 
+    group_by(SP_CODE, SUB_REG) %>% 
+    summarise(mrip_total_catch = sum(TOT_CAT))
+head(mrip_estimate_catch, 2)
+# gropd_df [298 × 3]
+# fields: SP_CODE SUB_REG total_catch
+
+## get the same ids for species between  FHIER and MRIP
+# ? where to get scientific names by id
+str(mrip_species_list)
+
+# grep("scientific", names(logbooks), ignore.case = T, value = T)
+# 0
+# grep("scientific", names(safis_catch), ignore.case = T, value = T)
+# SCIENTIFIC_NAME
+# grep("scientific", names(mrip_species_list), ignore.case = T, value = T)
+# SCIENTIFIC_NAME
+
+## ---- compare with mrip ----
 # mrip_estimate_catch
 head(quantity_by_species_and_permit_1, 3)
 head(mrip_estimate_catch, 3)
