@@ -7,7 +7,7 @@
 # csv_names_list = list("report1.csv", "report2.csv")
 # xls_names_list = list("report1a.xls", "report2a.xls")
 # csv_content_1 <- load_csv_names(my_paths, csv_names_list)[[1]]
-# xls_content_1 <- load_xls_names(my_paths, xls_names_list)[[1]]
+# xls_content_1 <- load_xls_names(my_paths, xls_names_list, sheet_num = 2)[[1]]
 
 ## get csv data into variables
 # temp_var <- get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23)
@@ -51,15 +51,26 @@ load_csv_names <- function(my_paths, csv_names_list) {
   return(contents)
 }
 
-load_xls_names <- function(my_paths, xls_names_list, sheet_num = 1) {
+load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   my_inputs <- my_paths$inputs
 
   # add input directory path in front of each file name.
   myfiles <- sapply(xls_names_list, function(x) file.path(my_inputs, x))
-  
+  # browser()
   # read all files
-  contents <- sapply(myfiles, read_excel, sheet_num)
-
+  print("sapply:")
+  start_time <- Sys.time()
+  contents <- sapply(myfiles, read_excel, sheet = sheet_n, .name_repair = "universal") %>%
+    as.data.frame()
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  print("map:")
+  start_time <- Sys.time()
+  contents_m <- map_df(myfiles, 
+         ~read_excel(.x, sheet = sheet_n, .name_repair = "universal"))
+  end_time <- Sys.time()
+  print(end_time - start_time)
   return(contents)
 }
 
@@ -190,7 +201,6 @@ count_uniq_by_column <- function(my_df) {
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
 
 concat_unique <- function(x){paste0(unique(x[!is.na(x)]), collapse= ", ")}
-
 combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my_df, group_by_arr) {
   my_df %>%
     group_by_at(group_by_arr) %>%
