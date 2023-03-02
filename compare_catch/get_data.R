@@ -14,10 +14,18 @@
 # ---- 1) SEFHIER data ----
 
 load_species_count_by_disposition <- function() {
+  species_count_csv_names_list_22 = c("compare_catch/SEFHIER data/Catch by Disposition Detail (Unit Measure = CN Only).csv")
+  species_count_contents <- load_csv_names(my_paths, species_count_csv_names_list_22)
   
+  species_count <- clean_all_csvs(species_count_contents)
+  
+  return(species_count[[1]])
 }
+fhier_species_count_by_disposition <- load_species_count_by_disposition()
+# str(fhier_species_count_by_disposition)
+# 'data.frame':	316171 obs. of  9 variables:
 
-load_safis_catch < function() {
+load_safis_catch <- function() {
   # download Reports / SAFIS Catches Extended for each month, one year is too slow
   safis_catch <- 
     list.files(path = file.path(my_paths$inputs, "compare_catch/SAFIS CATCHES EXTENDED_2022"), 
@@ -31,9 +39,10 @@ load_safis_catch < function() {
   
   # str(safis_catch)
   # A tibble: 327,397 × 59
+  return(safis_catch)
 }
 
-# 2) MRIP
+# ---- 2) MRIP ----
 load_mrip_data <- function() {
   mrip_dir_path <- "compare_catch/MRIP data"
   mrip_csv_names_list_raw <- c(
@@ -51,22 +60,28 @@ load_mrip_data <- function() {
   mrip_estimate_gom <- temp_var[[3]]
   
   mrip_estimate <- rbind(mrip_estimate_sa, mrip_estimate_gom)
+  return(mrip_estimate)
 }
+
+mrip_estimate <- load_mrip_data()
 
 # str(logbooks)
 # str(mrip_estimate)
 
-# 3) Auxilary
-## ---- to get permit type info use compliance reports for now ----
-# use all years, to get more vessel ids with permit info
-compliance_csv_names_list_21_23 = c(
-  "FHIER_Compliance_23__03_01_23.csv",
-  "FHIER_Compliance_22__02_24_23.csv",
-  "FHIER_Compliance_21__03_01_23.csv")
-full_file_names <- prepare_csv_names(compliance_csv_names_list_21_23)
-csv_contents <- load_csv_names(my_paths, full_file_names)
-
-# unify headers, trim vesselofficialnumber, just in case
-csvs_clean1 <- clean_all_csvs(csv_contents)
-compl_clean <- csvs_clean1[[1]]
-# str(compl_clean)
+# ---- 3) Auxilary ----
+get_permit_type_from_compiance <- function() {
+  # to get permit type info use compliance reports for now
+  # use all years, to get more vessel ids with permit info
+  compliance_csv_names_list_21_23 = c(
+    "FHIER_Compliance_23__03_01_23.csv",
+    "FHIER_Compliance_22__02_24_23.csv",
+    "FHIER_Compliance_21__03_01_23.csv")
+  full_file_names <- prepare_csv_names(compliance_csv_names_list_21_23)
+  csv_contents <- load_csv_names(my_paths, full_file_names)
+  
+  # unify headers, trim vesselofficialnumber, just in case
+  csvs_clean1 <- clean_all_csvs(csv_contents)
+  compl_clean <- csvs_clean1[[1]]
+  return(compl_clean)
+}
+compl_clean <- get_permit_type_from_compiance()
