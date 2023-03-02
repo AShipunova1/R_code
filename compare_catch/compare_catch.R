@@ -57,34 +57,44 @@ quantity_by_species_and_permit <-
 # grep("...", quantity_by_species_and_permit_sorted$speciesitis)
 # quantity_by_species_and_permit_sorted[8:9,]
 
-## ---- add common species identifier to safis_catch ----
-str(mrip_species_list)
-safis_catch_w_mrip <- 
-  mrip_species_list %>%
-  inner_join(scientific_names,
+## ---- add common species identifier to FHIER data ----
+
+scientific_names_w_mrip <- 
+  inner_join(mrip_species_list,
+             scientific_names,
              by = "SCIENTIFIC_NAME",
              multiple = "all")
-
-# View(species_info)
-# names(safis_catch_w_mrip)
+  
 # rename sp_code to upper case for compartability with mrip
-colnames(safis_catch_w_mrip)[colnames(safis_catch_w_mrip) == 'sp_code'] <- toupper('sp_code')
-safis_catch_w_mrip %>%
-  select(SCIENTIFIC_NAME, SPECIES_ITIS, SP_CODE) %>% unique() %>% str()
-# 385
+scientific_names_w_mrip %<>% 
+  rename(SP_CODE = sp_code)
 
+# names(scientific_names_w_mrip)
+# use: SPECIES_ITIS, SP_CODE
+
+## ---- test ----
+# itis vs. mrip sp_code 
+# scientific_names_w_mrip %>%
+  # select(SCIENTIFIC_NAME, SPECIES_ITIS, SP_CODE) %>% unique() %>% str()
+# 511
+
+# total species in mrip
 # mrip_species_list$sp_code %>% unique() %>% str()
 # 1775
-# safis_catch$SPECIES_ITIS %>% unique() %>% str()
-# 477
+
+# total species in fhier species list
+# scientific_names$SPECIES_ITIS %>% unique() %>% str()
+# 736
+
+# total species in the logbook file
 # logbooks$CATCH_SPECIES_ITIS %>% unique() %>% str()
 # 467
 
-safis_catch_w_mrip %>% str()
+scientific_names_w_mrip %>% str()
 
 species_vsl <-
   # combine logbook and permit info
-  inner_join(safis_catch_w_mrip, 
+  inner_join(scientific_names_w_mrip, 
              permit_info, 
              by = c("VESSEL_OFFICIAL_NBR" = "vesselofficialnumber"),
              multiple = "all") %>% 
@@ -97,7 +107,7 @@ species_vsl <-
          permitgroup,
          sa_permits_only
   ) 
-str(safis_catch_w_mrip)
+str(scientific_names_w_mrip)
 
 quantity_by_species_and_permit_1 <-
   species_vsl %>%
