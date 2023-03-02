@@ -84,4 +84,13 @@ get_permit_type_from_compiance <- function() {
   compl_clean <- csvs_clean1[[1]]
   return(compl_clean)
 }
-compl_clean <- get_permit_type_from_compiance()
+# compl_clean <- get_permit_type_from_compiance()
+
+get_scientific_names <- function() {
+  scientific_names_xls_names_list = c("compare_catch/SEFHIER data/SEFHIER_species.xlsx")
+  scientific_names_xls_content <- load_xls_names(my_paths,
+                                                 scientific_names_xls_names_list,
+                                                 sheet_n = "Species Only")
+  return(scientific_names_xls_content)
+}
+scientific_names <- get_scientific_names()
