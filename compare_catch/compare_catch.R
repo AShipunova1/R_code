@@ -30,40 +30,34 @@ source("~/R_code_github/compare_catch/get_data.R")
 
 ## ---- catch info ----
 ## ---- The total caught (numbers) for each unique species ----
+# names(fhier_species_count_by_disposition)
+# [1] "tripid"               "permitregion"         "vesselofficialnumber"
+# [4] "vesselname"           "tripstartdate"        "speciesitis"         
+# [7] "name"                 "reportedquantity"     "disposition" 
 
 quantity_by_species <-
-  safis_catch %>%
-  select(SPECIES_ITIS, REPORTED_QUANTITY) %>% 
-  group_by(SPECIES_ITIS) %>% 
-# CATCH_SPECIES_ITIS: int [1:467] # for logbooks
-  summarise(sum(REPORTED_QUANTITY))
+  fhier_species_count_by_disposition %>%
+  select(speciesitis, reportedquantity) %>% 
+  group_by(speciesitis) %>% 
+  summarise(sum(reportedquantity))
 # head(quantity_by_species, 10)
 
 ## ---- The total caught (numbers) for each unique species by permit type ----
 quantity_by_species_and_permit <-
-  species_vsl %>%
-  select(sa_permits_only, SPECIES_ITIS, REPORTED_QUANTITY) %>% 
-  group_by(SPECIES_ITIS, sa_permits_only) %>% 
-  # CATCH_SPECIES_ITIS: int [1:467] for logbooks
-  summarise(sum(REPORTED_QUANTITY))
+  fhier_species_count_by_disposition %>%
+  select(permitregion, speciesitis, reportedquantity) %>% 
+  group_by(speciesitis, permitregion) %>% 
+  summarise(sum(reportedquantity))
 # head(quantity_by_species_and_permit, 10)
 
 ## test
 # quantity_by_species_and_permit %>% head(10)
-# quantity_by_species_and_permit[6:7,]
-# for logbooks
-# quantity_by_species_and_permit[9:10,]
-
-# species_vsl_sorted <-
-  # species_vsl %>% arrange(SPECIES_ITIS)
-# grep("...", species_vsl_sorted$SPECIES_ITIS)
-# species_vsl_sorted[146:152,]
-
-# for logbooks
-# species_vsl_sorted[205:217,]
+# quantity_by_species_and_permit_sorted <-
+#   quantity_by_species_and_permit %>% arrange(speciesitis)
+# grep("...", quantity_by_species_and_permit_sorted$speciesitis)
+# quantity_by_species_and_permit_sorted[8:9,]
 
 ## ---- MRIP data ----
-
 
 mrip_estimate_catch <-
   mrip_estimate %>%
