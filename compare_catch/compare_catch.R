@@ -92,23 +92,33 @@ scientific_names_w_mrip %<>%
 
 scientific_names_w_mrip %>% str()
 
-species_vsl <-
-  # combine logbook and permit info
+## ---- add sp_code to FHIER data ---- 
+fhier_species_count_by_disposition %<>%
+  mutate(speciesitis = as.character(speciesitis))
+
+# str(fhier_species_count_by_disposition)
+fhier_species_count_by_disposition_sp_all <-
   inner_join(scientific_names_w_mrip, 
-             permit_info, 
-             by = c("VESSEL_OFFICIAL_NBR" = "vesselofficialnumber"),
-             multiple = "all") %>% 
-  # select columns to use
-  select(VESSEL_OFFICIAL_NBR,
+             fhier_species_count_by_disposition, 
+             by = c("SPECIES_ITIS" = "speciesitis"),
+             multiple = "all")
+
+# make all field names capital
+names(fhier_species_count_by_disposition_sp_all) <- toupper(names(fhier_species_count_by_disposition_sp_all))
+
+## ---- select columns to use ----
+fhier_species_count_by_disposition_sp <- 
+  fhier_species_count_by_disposition_sp_all %>%
+    select(VESSELOFFICIALNUMBER,
          SPECIES_ITIS,
          SP_CODE,
-         # CATCH_SPECIES_ITIS, for logbooks
-         REPORTED_QUANTITY,
-         permitgroup,
-         sa_permits_only
+         PERMITREGION,
+         REPORTEDQUANTITY,
+         DISPOSITION
   ) 
-str(scientific_names_w_mrip)
-
+str(fhier_species_count_by_disposition_sp)
+# 'data.frame':	291346 obs. of  6 variables:
+  
 quantity_by_species_and_permit_1 <-
   species_vsl %>%
   select(sa_permits_only, SP_CODE, SPECIES_ITIS, REPORTED_QUANTITY) %>% 
