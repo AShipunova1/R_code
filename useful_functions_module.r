@@ -56,21 +56,15 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
 
   # add input directory path in front of each file name.
   myfiles <- sapply(xls_names_list, function(x) file.path(my_inputs, x))
-  # browser()
-  # read all files
-  print("sapply:")
-  start_time <- Sys.time()
-  contents <- sapply(myfiles, read_excel, sheet = sheet_n, .name_repair = "universal") %>%
-    as.data.frame()
-  end_time <- Sys.time()
-  print(end_time - start_time)
   
-  print("map:")
-  start_time <- Sys.time()
-  contents_m <- map_df(myfiles, 
+  # browser()
+  # print("map:")
+  # start_time <- Sys.time()
+  ## read all files
+  contents <- map_df(myfiles, 
          ~read_excel(.x, sheet = sheet_n, .name_repair = "universal"))
-  end_time <- Sys.time()
-  print(end_time - start_time)
+  # end_time <- Sys.time()
+  # print(end_time - start_time)
   return(contents)
 }
 
