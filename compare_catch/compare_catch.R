@@ -1,6 +1,6 @@
 # Compare catch in survey vs logbook
 # see read.me
-
+# all data for 2022
 
 ## ---- Workflow ----
 ## 1) logbooks data
@@ -17,41 +17,16 @@
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
+# turn off the scientific notation
 options(scipen=999)
 source("~/R_code_github/compare_catch/get_data.R")
 
-# ---- the breath of species caught in all logbooks (2022+) ----
-# ?? (where is the permit info) Do this by region (gulf vs s atl vessels).
+# ---- the breath of species caught in SEFIHIER (2022) ----
+# ?? (where is the permit info) Do this by region (gulf vs s atl vessels). Or by landing?
 # ---- Then the total caught (numbers) for each unique species. ----
 # ?? species ids are different in MRIP in SEFHIER, need a scientific name to connect
 
-
-fhier_species_count_by_disposition_ids <-
-  fhier_species_count_by_disposition %>% 
-  select(vesselofficialnumber) %>% unique()
-
-## ---- ID the breath of species caught in all logbooks (2022+). Do this by region (gulf vs s atl vessels) ----
-
-# names(safis_catch)
-
-species_vsl <-
-  # combine logbook and permit info
-  inner_join(safis_catch, 
-             permit_info, 
-             by = c("VESSEL_OFFICIAL_NBR" = "vesselofficialnumber"),
-             multiple = "all") %>% 
-    # select columns to use
-    select(VESSEL_OFFICIAL_NBR,
-           SPECIES_ITIS,
-           # CATCH_SPECIES_ITIS, for logbooks
-           REPORTED_QUANTITY,
-           permitgroup,
-           sa_permits_only
-           ) 
-str(species_vsl)
-
-# species_vsl$SPECIES_ITIS %>% unique() %>% length()
-# 471
+## ---- ID the breath of species caught in all SEFHIER data. Do this by region (gulf vs s atl vessels) ----
 
 ## ---- catch info ----
 ## ---- The total caught (numbers) for each unique species ----
@@ -88,28 +63,7 @@ quantity_by_species_and_permit <-
 # species_vsl_sorted[205:217,]
 
 ## ---- MRIP data ----
-## ---- fields ----
-# landing	Total Harvest (A+B1)	The total number of fish removed from the fishery resource.  May be obtained by summing catch types A (CLAIM) and B1 (HARVEST).
-# tot_cat	Total Catch (A+B1+B2)	The number of fish caught but not necessarily brought ashore.  May be obtained by summing catch types A (CLAIM), B1 (HARVEST), and B2 (RELEASE).
 
-# sp_code	Species Code	Species code of fish
-# sub_reg	Region	" Subregion code for region of trip
-# 4   = North Atlantic (ME; NH; MA; RI; CT) 
-# 5   = Mid-Atlantic (NY; NJ; DE; MD; VA) 
-# 6   = South Atlantic (NC; SC; GA; EFL) 
-# 7   = Gulf of Mexico (WFL; AL; MS; LA) 
-# 8   = West Pacific (HI) 
-# 11 = U. S. Caribbean (Puerto Rico and Virgin Islands"
-# ? We need 6 & 7
-
-# check
-# mrip_estimate %>%
-#   select(YEAR) %>% unique()
-# YEAR
-# 1 2022
-
-# turn off the scientific notation
-options(scipen=999)
 
 mrip_estimate_catch <-
   mrip_estimate %>%
