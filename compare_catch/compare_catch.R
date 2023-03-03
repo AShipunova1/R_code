@@ -248,7 +248,7 @@ mrip_and_fhier %>%
   filter(mrip_cnt < 20000) %>%
   boxplot()
 
-## ---- plot catch by species (2) ----
+## ---- plot catch by species (3) ----
 my_colors <- c("MRIP" = "blue", "FHIER" = "red")
 
 MIN_SP_CODE <- 8000000000
@@ -294,4 +294,17 @@ counts_plot <-
 counts_plot
 # Warning messages:
 #   1: Removed 305 rows containing missing values (`geom_point()`). 
-# 2: Removed 154 rows containing missing values (`geom_point()`). 
+# 2: Removed 154 rows containing missing values (`geom_point()`).
+
+## ---- plot catch by species (4) ----
+mrip_and_fhier_uni <-
+  mrip_and_fhier %>%
+    arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>% 
+    mutate(cnt_index = (mrip_estimate_catch_by_species - fhier_quantity_by_species) / 
+             (mrip_estimate_catch_by_species + fhier_quantity_by_species)
+           # * 2
+             )
+plot(mrip_and_fhier_uni$cnt_index,
+     mrip_and_fhier_uni$SP_CODE
+     , ylim = c(8800000000, max(mrip_and_fhier_uni$SP_CODE))
+     )
