@@ -1,38 +1,12 @@
 # Compare catch in survey vs logbook
 # see read.me
-# all data for 2022
-
-## ---- Workflow ----
-## 1) logbooks data
-### add permitgroup, scientific name (to use for MSP_CODE)
-### separate gulf and sa permits
-## 2) MRIP data
-### download for region 6 & 7 (GoM by state, SA by state) from https://www.st.nmfs.noaa.gov/SASStoredProcess/do?#
-### use SP_CODE, SUB_REG, AREA_X, TOT_CAT
-### combine AREA_X by SUB_REG (sum(TOT_CAT) for each SUB_REG)
-## 3) For (1) and (2) get total caught (numbers) for each unique species by permit type or region
-# compare counts
 
 ## ---- set up ----
-
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 # turn off the scientific notation
 options(scipen=999)
 source("~/R_code_github/compare_catch/get_data.R")
-
-# ---- rename all field names to upper case for comparability ----
-data_list_names <- list("fhier_species_count_by_disposition", "mrip_species_list", 
-                        "mrip_estimate_6_7", "scientific_names")
-
-for(d_name in data_list_names) {
-  # get an object (df) by its name
-  tmp0 <- get(d_name)
-  # change field names to upper case
-  tmp1 <- rename_with(tmp0, toupper)
-  # assign newly renamed df back to the same df name
-  assign(d_name, tmp1)
-}
 
 # ---- the breath of species caught in SEFIHIER (2022) ----
 # ?? (where is the permit info) Do this by region (gulf vs s atl vessels). Or by landing?
@@ -40,35 +14,6 @@ for(d_name in data_list_names) {
 # ?? species ids are different in MRIP in SEFHIER, need a scientific name to connect
 
 ## ---- ID the breath of species caught in all SEFHIER data. Do this by region (gulf vs s atl vessels) ----
-
-## ---- catch info ----
-## ---- The total caught (numbers) for each unique species ----
-# names(fhier_species_count_by_disposition)
-# [1] "tripid"               "permitregion"         "vesselofficialnumber"
-# [4] "vesselname"           "tripstartdate"        "speciesitis"         
-# [7] "name"                 "reportedquantity"     "disposition" 
-
-quantity_by_species <-
-  fhier_species_count_by_disposition %>%
-  select(speciesitis, reportedquantity) %>% 
-  group_by(speciesitis) %>% 
-  summarise(sum(reportedquantity))
-# head(quantity_by_species, 10)
-
-## ---- The total caught (numbers) for each unique species by permit type ----
-quantity_by_species_and_permit <-
-  fhier_species_count_by_disposition %>%
-  select(permitregion, speciesitis, reportedquantity) %>% 
-  group_by(speciesitis, permitregion) %>% 
-  summarise(sum(reportedquantity))
-# head(quantity_by_species_and_permit, 10)
-
-## ---- test ----
-# quantity_by_species_and_permit %>% head(10)
-# quantity_by_species_and_permit_sorted <-
-#   quantity_by_species_and_permit %>% arrange(speciesitis)
-# grep("...", quantity_by_species_and_permit_sorted$speciesitis)
-# quantity_by_species_and_permit_sorted[8:9,]
 
 ## ---- add common species identifier to FHIER data ----
 
