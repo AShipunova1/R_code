@@ -1,4 +1,19 @@
 # Compare catch in survey vs logbook
+# all data for 2022
+
+## ---- Workflow ----
+## 1) FHIER data
+### need permitgroup or landing info, scientific name (to use for SP_CODE)
+### add SP_CODE
+### separate gulf and sa permits or fishing place
+
+## 2) MRIP data
+### download for region 6 & 7 (GoM by state, SA by state) from https://www.st.nmfs.noaa.gov/SASStoredProcess/do?#
+### use SP_CODE, SUB_REG, AREA_X?, TOT_CAT
+### combine AREA_X by SUB_REG (sum(TOT_CAT) for each SUB_REG)
+
+## 3) For (1) and (2) get total caught (numbers) for each unique species by permit type or region
+# compare counts
 
 # we will need to start looking at catch in comparison to the validation survey and to what MRIP is reporting. I think the 3 of us can start working on this together, but for now - Anna if you can create some code to pull catch by species. So, you'd need to ID the breath of species caught in all logbooks (2022+). Do this by region (gulf vs s atl vessels). Then the total caught (numbers) for each unique species. THen we will move to comparing it to the Validation survey data and MRIP. I have validation survey data outputs, that I have not touched yet - no idea the format. I don't know how to get MRIP estimates, but we can figure it out together.
 
