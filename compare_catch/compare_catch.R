@@ -26,14 +26,14 @@ scientific_names_w_mrip <-
 # names(scientific_names_w_mrip)
 # use: SPECIES_ITIS, SP_CODE
 
-## ---- test ----
-# itis vs. mrip sp_code 
+## ---- test itis vs. mrip sp_code  ----
+
 # scientific_names_w_mrip %>%
-  # select(SCIENTIFIC_NAME, SPECIES_ITIS, SP_CODE) %>% unique() %>% str()
+#   select(SCIENTIFIC_NAME, SPECIES_ITIS, SP_CODE) %>% unique() %>% str()
 # 511
 
 # total species in mrip
-# mrip_species_list$sp_code %>% unique() %>% str()
+# mrip_species_list$SP_CODE %>% unique() %>% str()
 # 1775
 
 # total species in fhier species list
@@ -44,26 +44,25 @@ scientific_names_w_mrip <-
 # logbooks$CATCH_SPECIES_ITIS %>% unique() %>% str()
 # 467
 
-scientific_names_w_mrip %>% str()
+sp_code__species_itis <- 
+  scientific_names_w_mrip %>% 
+  select(SP_CODE, SPECIES_ITIS) 
 
 ## ---- add sp_code to FHIER data ---- 
+# convert fhier_species_count_by_disposition$SPECIESITIS to char
 fhier_species_count_by_disposition %<>%
-  mutate(speciesitis = as.character(speciesitis))
+  mutate(SPECIESITIS = as.character(SPECIESITIS))
 
-# str(fhier_species_count_by_disposition)
 fhier_species_count_by_disposition_sp_all <-
-  inner_join(scientific_names_w_mrip, 
+  inner_join(sp_code__species_itis, 
              fhier_species_count_by_disposition, 
-             by = c("SPECIES_ITIS" = "speciesitis"),
+             by = c("SPECIES_ITIS" = "SPECIESITIS"),
              multiple = "all")
-
-# make all field names capital
-names(fhier_species_count_by_disposition_sp_all) <- toupper(names(fhier_species_count_by_disposition_sp_all))
 
 ## ---- select columns to use ----
 fhier_species_count_by_disposition_sp <- 
   fhier_species_count_by_disposition_sp_all %>%
-    select(VESSELOFFICIALNUMBER,
+  select(VESSELOFFICIALNUMBER,
          SPECIES_ITIS,
          SP_CODE,
          PERMITREGION,
@@ -72,13 +71,44 @@ fhier_species_count_by_disposition_sp <-
   ) 
 # str(fhier_species_count_by_disposition_sp)
 # 'data.frame':	291346 obs. of  6 variables:
-  
-quantity_by_species_and_permit_1 <-
+
+## ---- FHIER: count catch by species and permit ----
+FHIER_quantity_by_species_and_permit_1 <-
   fhier_species_count_by_disposition_sp %>%
-  select(PERMITREGION, SP_CODE, SPECIES_ITIS, REPORTEDQUANTITY) %>% 
+  select(PERMITREGION, SP_CODE, REPORTEDQUANTITY) %>% 
   group_by(SP_CODE, PERMITREGION) %>% 
   summarise(safis_total_catch = sum(REPORTEDQUANTITY))
-# head(quantity_by_species_and_permit_1, 10)
+# head(FHIER_quantity_by_species_and_permit_1, 10)
+
+## ---- catch info ----
+## ---- The total caught (numbers) for each unique species ----
+# names(fhier_species_count_by_disposition)
+# [1] "tripid"               "permitregion"         "vesselofficialnumber"
+# [4] "vesselname"           "tripstartdate"        "speciesitis"         
+# [7] "name"                 "reportedquantity"     "disposition" 
+
+quantity_by_species <-
+  fhier_species_count_by_disposition %>%
+  select(SPECIESITIS, REPORTEDQUANTITY) %>% 
+  group_by(SPECIESITIS) %>% 
+  summarise(sum(REPORTEDQUANTITY))
+# head(quantity_by_species, 10)
+
+## ---- The total caught (numbers) for each unique species by permit type ----
+quantity_by_species_and_permit <-
+  fhier_species_count_by_disposition %>%
+  select(PERMITREGION, SPECIESITIS, REPORTEDQUANTITY) %>% 
+  group_by(SPECIESITIS, PERMITREGION) %>% 
+  summarise(sum(REPORTEDQUANTITY))
+# head(quantity_by_species_and_permit, 10)
+
+## ---- test ----
+# quantity_by_species_and_permit %>% head(10)
+# quantity_by_species_and_permit_sorted <-
+#   quantity_by_species_and_permit %>% arrange(speciesitis)
+# grep("...", quantity_by_species_and_permit_sorted$speciesitis)
+# quantity_by_species_and_permit_sorted[8:9,]
+
 
 ## ---- MRIP data ----
 # use sub_reg 6 & 7 for now (SA & GOM)
