@@ -47,8 +47,9 @@ load_mrip_data <- function() {
   mrip_dir_path <- "compare_catch/MRIP data"
   mrip_csv_names_list_raw <- c(
     "mrip_aux/species_list.csv", # identical for all areas
-    "mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv",
-    "mrip_GOM/mrip_estim_catch_year_2022_2022_gom.csv"
+    "mrip_US/mrip_catch_year_2022_preliminary.csv"
+    # "mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv",
+    # "mrip_GOM/mrip_estim_catch_year_2022_2022_gom.csv"
       )
   # add prefix to each file name
   mrip_csv_names_list <- 
@@ -56,16 +57,19 @@ load_mrip_data <- function() {
   
   temp_var <- load_csv_names(my_paths, mrip_csv_names_list)
   mrip_species_list <- temp_var[[1]]
-  mrip_estimate_sa <- temp_var[[2]]
-  mrip_estimate_gom <- temp_var[[3]]
+  mrip_estimate_usa <- temp_var[[2]]
+  # mrip_estimate_sa <- temp_var[[2]]
+  # mrip_estimate_gom <- temp_var[[3]]
   
-  mrip_estimate <- rbind(mrip_estimate_sa, mrip_estimate_gom)
-  output <- list(mrip_species_list, mrip_estimate)
+  # mrip_estimate <- rbind(mrip_estimate_sa, mrip_estimate_gom)
+  output <- list(mrip_species_list, mrip_estimate_usa)
   return(output)
 }
 mrip_temp <- load_mrip_data()
 mrip_species_list <- mrip_temp[[1]]
-mrip_estimate <- mrip_temp[[2]]
+mrip_estimate_all <- mrip_temp[[2]]
+mrip_estimate_6_7 <-
+  mrip_estimate_all %>% filter(sub_reg %in% c(6, 7))
 
 # ---- 3) Auxilary ----
 get_permit_type_from_compiance <- function() {
