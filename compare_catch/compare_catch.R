@@ -20,24 +20,19 @@ my_paths <- set_work_dir()
 # turn off the scientific notation
 options(scipen=999)
 source("~/R_code_github/compare_catch/get_data.R")
-# rename all field names to upper case for comparability
 
-fhier_species_count_by_disposition %<>% 
-  rename_with(toupper)
+# ---- rename all field names to upper case for comparability ----
+data_list_names <- list("fhier_species_count_by_disposition", "mrip_species_list", 
+                        "mrip_estimate_6_7", "scientific_names")
 
-data_list <- list(fhier_species_count_by_disposition, mrip_species_list, 
-               mrip_estimate_6_7, scientific_names)
-
-data_list %>% map_df(~str(.x))
-  # map2_df(dfnames,~mutate(.x,name=.y))
-# map_df(data_list, ~names(.x)) 
-# purrr::map(data_list, ~ .x %>% str(.))
-             
-             # rename_all(~ toupper(.)))
-
-data_renamed <- map_df(data_list, 
-       ~ rename_with(., toupper))
-str(data_renamed)
+for(d_name in data_list_names) {
+  # get an object (df) by its name
+  tmp0 <- get(d_name)
+  # change field names to upper case
+  tmp1 <- rename_with(tmp0, toupper)
+  # assign newly renamed df back to the same df name
+  assign(d_name, tmp1)
+}
 
 # ---- the breath of species caught in SEFIHIER (2022) ----
 # ?? (where is the permit info) Do this by region (gulf vs s atl vessels). Or by landing?
