@@ -97,3 +97,16 @@ get_scientific_names <- function() {
   return(scientific_names_xls_content)
 }
 scientific_names <- get_scientific_names()
+
+# ---- rename all field names to upper case for comparability ----
+data_list_names <- list("fhier_species_count_by_disposition", "mrip_species_list", "mrip_estimate_6_7", "scientific_names")
+
+for(d_name in data_list_names) {
+  # get an object (df) by its name
+  tmp0 <- get(d_name)
+  # change field names to upper case
+  tmp1 <- rename_with(tmp0, toupper)
+  # assign newly renamed df back to the same df name
+  assign(d_name, tmp1)
+}
+# names(fhier_species_count_by_disposition)
