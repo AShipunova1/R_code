@@ -171,23 +171,26 @@ mrip_estimate_catch_1 <-
 
 str(mrip_estimate_catch_1)
 
+## ---- combine mrip and fhier catch results by species
 mrip_and_fhier <-
-  inner_join(quantity_by_species_and_permit_1,
-             mrip_estimate_catch_1,
-           by = c("SP_CODE", "PERMITREGION")
+  full_join(fhier_quantity_by_species,
+            mrip_estimate_catch_by_species,
+           by = c("SP_CODE")
            )
 
 head(mrip_and_fhier, 3)
-mrip_and_fhier %>%
-  filter(mrip_total_catch <= safis_total_catch) %>% str()
-# 18 
 
-plot(mrip_and_fhier$mrip_total_catch, 
+
+mrip_and_fhier %>%
+  filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
+# 15 
+
+plot(mrip_and_fhier$mrip_estimate_catch_by_species, 
      # type="o", 
      col="blue", ylim=c(0, 100000))
 
 # Graph trucks with red dashed line and square points
-lines(mrip_and_fhier$safis_total_catch, 
+lines(mrip_and_fhier$fhier_quantity_by_species, 
       # type="o", 
       pch = 22, 
       # lty = 2, 
