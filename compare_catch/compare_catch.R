@@ -20,6 +20,24 @@ my_paths <- set_work_dir()
 # turn off the scientific notation
 options(scipen=999)
 source("~/R_code_github/compare_catch/get_data.R")
+# rename all field names to upper case for comparability
+
+fhier_species_count_by_disposition %<>% 
+  rename_with(toupper)
+
+data_list <- list(fhier_species_count_by_disposition, mrip_species_list, 
+               mrip_estimate_6_7, scientific_names)
+
+data_list %>% map_df(~str(.x))
+  # map2_df(dfnames,~mutate(.x,name=.y))
+# map_df(data_list, ~names(.x)) 
+# purrr::map(data_list, ~ .x %>% str(.))
+             
+             # rename_all(~ toupper(.)))
+
+data_renamed <- map_df(data_list, 
+       ~ rename_with(., toupper))
+str(data_renamed)
 
 # ---- the breath of species caught in SEFIHIER (2022) ----
 # ?? (where is the permit info) Do this by region (gulf vs s atl vessels). Or by landing?
@@ -64,10 +82,6 @@ scientific_names_w_mrip <-
              scientific_names,
              by = "SCIENTIFIC_NAME",
              multiple = "all")
-  
-# rename sp_code to upper case for compartability with mrip
-scientific_names_w_mrip %<>% 
-  rename(SP_CODE = sp_code)
 
 # names(scientific_names_w_mrip)
 # use: SPECIES_ITIS, SP_CODE
@@ -127,6 +141,8 @@ quantity_by_species_and_permit_1 <-
 # head(quantity_by_species_and_permit_1, 10)
 
 ## ---- MRIP data ----
+# use sub_reg 6 & 7 for now (SA & GOM)
+mrip_estimate <- mrip_estimate_6_7
 
 mrip_estimate_catch <-
   mrip_estimate %>%
