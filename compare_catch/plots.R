@@ -191,28 +191,52 @@ counts_plot_ind_10
 
 
 ## ---- Grouped barchart ----
-# reformat to a long format to have fhier and mrip data side by side
-# mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE))
-long_mrip_and_fhier_short_values <- 
+long_mrip_and_fhier_short_values_m10 <- 
   mrip_and_fhier_short_values %>% 
+# MRIP count ~ 10 times bigger
+    mutate(mrip_estimate_catch_by_species_by_10 = 
+           mrip_estimate_catch_by_species / 10) %>%
+  rename(c("MRIP" = "mrip_estimate_catch_by_species_by_10",
+           "FHIER" = "fhier_quantity_by_species")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
   pivot_longer(
-    cols = c(mrip_estimate_catch_by_species,
-             fhier_quantity_by_species), 
+    cols = c(MRIP,
+             FHIER), 
     names_to = "AGENCY",
     values_to = "CATCH_CNT"
   ) %>%
+  # use only the new columns
   select(SP_CODE, AGENCY, CATCH_CNT) %>%
+  # remove lines where one or another agency doesn't have counts for this species
   drop_na() %>%
   unique()
 
-head(long_mrip_and_fhier_short_values[1:4,])
+head(long_mrip_and_fhier_short_values_m10[1:4,])
 
 long_mrip_and_fhier_short_values[18:21,]
+dim(long_mrip_and_fhier_short_values_m10)
+max_cnt
+max_cnt <- length(long_mrip_and_fhier_short_values_m10$CATCH_CNT)
+
+dim(long_mrip_and_fhier_short_values_m10[(max_cnt - max_cnt/8):max_cnt,])
+81
+(max_cnt - max_cnt/8)
+560
+start_from <- as.integer(max_cnt - max_cnt/5)
 # Grouped
-ggplot(long_mrip_and_fhier_short_values[18:33,], 
+# ggplot(long_mrip_and_fhier_short_values[18:33,], 
+ggplot(long_mrip_and_fhier_short_values_m10[start_from:max_cnt,], 
        aes(fill = AGENCY,
            y = CATCH_CNT, 
-           x = SP_CODE)) + 
+           x = reorder(SP_CODE,
+                     as.integer(factor(CATCH_CNT)), FUN = min),
+             # SP_CODE
+           )
+       ) + 
+  labs(title = "catch by species",
+       x = "species code sorted by catch count", 
+       y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
+  ) +
   theme(
     axis.text.x = element_blank()
   ) +
