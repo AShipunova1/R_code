@@ -33,6 +33,14 @@
 # 11 = U. S. Caribbean (Puerto Rico and Virgin Islands"
 # ? We need 6 & 7
 
+# area_x	Fishing Area	" Collapsed area of fishing 
+# 1 = Ocean <= 3 mi (all but WFL) 
+# 2 = Ocean > 3 mi (all but WFL) 
+# 3 = Ocean <= 10 mi (WFL only) 
+# 4 = Ocean > 10 mi (WFL only) 
+# 5 = Inland"	CHAR
+
+
 ## ---- check MRIP year----
 # mrip_estimate %>%
 #   select(YEAR) %>% unique()
