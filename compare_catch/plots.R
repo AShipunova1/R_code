@@ -120,5 +120,36 @@ mrip_and_fhier_uni <-
   )
 plot(mrip_and_fhier_uni$cnt_index,
      mrip_and_fhier_uni$SP_CODE
-     , ylim = c(8800000000, max(mrip_and_fhier_uni$SP_CODE))
+     , ylim = c(MIN_SP_CODE, max(mrip_and_fhier_uni$SP_CODE))
 )
+
+# mutate(order = fct_reorder(as.factor(week_num), year)) %>% 
+# ggplot(aes(x = order,
+           # y = reorder(vesselofficialnumber, 
+                       # as.integer(factor(total_count)), FUN = min),
+
+## ---- index plot with ggplot ----
+counts_plot_ind <-
+  mrip_and_fhier_uni %>%
+    mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE)) %>%
+  # str()
+  ggplot(aes(x = cnt_index,
+             y = order
+  ),
+  # size = 2,
+  # alpha = 0.1
+  ) +
+  labs(title = "catch by species",
+       x = "count index", 
+       # x = "common_name", 
+       y = "species code"
+  ) +
+  theme(
+    # axis.text.x = element_text(angle = 45)
+        # ,
+    axis.text.y = element_blank()
+  ) +
+  geom_point(colour = "blue")
+
+counts_plot_ind
+
