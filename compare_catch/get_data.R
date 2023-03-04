@@ -106,8 +106,15 @@ get_scientific_names <- function() {
 scientific_names <- get_scientific_names()
 
 # ---- rename all field names to upper case for comparability ----
-data_list <- list(fhier_species_count_by_disposition, mrip_species_list, mrip_estimate, scientific_names)
-# str(data_list)
-data_list <- lapply(data_list, function (x) dplyr::rename_with(x, toupper))
-data_list <- lapply(data_list, function(x) {colnames(x) <- toupper(colnames(x)); x})
+data_list_names <- list("fhier_species_count_by_disposition", "mrip_species_list", "mrip_estimate", "scientific_names")
 
+for(d_name in data_list_names) {
+  # get an object (df) by its name
+  tmp0 <- get(d_name)
+  # change field names to upper case
+  tmp1 <- rename_with(tmp0, toupper)
+  # assign newly renamed df back to the same df name
+  assign(d_name, tmp1)
+}
+# names(fhier_species_count_by_disposition)
+str(mrip_species_list)
