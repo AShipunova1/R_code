@@ -110,7 +110,7 @@ counts_plot
 #   1: Removed 305 rows containing missing values (`geom_point()`). 
 # 2: Removed 154 rows containing missing values (`geom_point()`).
 
-## ---- plot catch by species (4) ----
+## ---- plot catch by species by an index (4) ----
 mrip_and_fhier_uni <-
   mrip_and_fhier %>%
   arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>% 
@@ -133,23 +133,89 @@ counts_plot_ind <-
   mrip_and_fhier_uni %>%
     mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE)) %>%
   # str()
-  ggplot(aes(x = cnt_index,
-             y = order
+  ggplot(aes(x = order,
+             y = cnt_index
   ),
   # size = 2,
   # alpha = 0.1
   ) +
   labs(title = "catch by species",
-       x = "count index", 
+       y = "count index", 
        # x = "common_name", 
-       y = "species code"
+       x = "species"
   ) +
   theme(
     # axis.text.x = element_text(angle = 45)
         # ,
-    axis.text.y = element_blank()
+    axis.text.x = element_blank()
   ) +
   geom_point(colour = "blue")
 
 counts_plot_ind
 
+# (10 - 1) / (10 + 1)
+
+
+## ---- index plot / 10 with ggplot ----
+mrip_and_fhier_uni_10 <-
+  mrip_and_fhier %>%
+  mutate(mrip_estimate_catch_by_species = mrip_estimate_catch_by_species / 10) %>%
+  arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>% 
+  mutate(cnt_index = (mrip_estimate_catch_by_species - fhier_quantity_by_species) / 
+           (mrip_estimate_catch_by_species + fhier_quantity_by_species)
+         # * 2
+  )
+counts_plot_ind_10 <-
+  mrip_and_fhier_uni_10 %>%
+  mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE)) %>%
+  # str()
+  ggplot(aes(x = order,
+             y = cnt_index
+  ),
+  # size = 2,
+  # alpha = 0.1
+  ) +
+  labs(title = "catch by species",
+       y = "count index", 
+       # x = "common_name", 
+       x = "species"
+  ) +
+  theme(
+    # axis.text.x = element_text(angle = 45)
+    # ,
+    axis.text.x = element_blank()
+  ) +
+  geom_point(colour = "blue")
+
+counts_plot_ind_10
+
+
+## ---- Grouped barchart ----
+# reformat to a long format to have fhier and mrip data side by side
+# mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE))
+long_mrip_and_fhier_short_values <- 
+  mrip_and_fhier_short_values %>% 
+  pivot_longer(
+    cols = c(mrip_estimate_catch_by_species,
+             fhier_quantity_by_species), 
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>%
+  select(SP_CODE, AGENCY, CATCH_CNT) %>%
+  drop_na() %>%
+  unique()
+
+head(long_mrip_and_fhier_short_values[1:4,])
+
+long_mrip_and_fhier_short_values[18:21,]
+# Grouped
+ggplot(long_mrip_and_fhier_short_values[18:33,], 
+       aes(fill = AGENCY,
+           y = CATCH_CNT, 
+           x = SP_CODE)) + 
+  theme(
+    axis.text.x = element_blank()
+  ) +
+  geom_bar(position = "dodge", stat = "identity")
+
+str(mrip_and_fhier_short_values)
