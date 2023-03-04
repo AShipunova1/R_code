@@ -68,8 +68,15 @@ load_mrip_data <- function() {
 mrip_temp <- load_mrip_data()
 mrip_species_list <- mrip_temp[[1]]
 mrip_estimate_all <- mrip_temp[[2]]
-mrip_estimate_6_7 <-
-  mrip_estimate_all %>% filter(sub_reg %in% c(6, 7))
+
+# use sub_reg 6 & 7 for now (SA & GOM)
+# And federal waters only
+mrip_estimate <-
+  mrip_estimate_all %>% 
+  filter(sub_reg %in% c(6, 7)) %>%
+# ? WFL 10?
+  filter(area_x %in% c(2, 3, 4))
+
 
 # ---- 3) Auxilary ----
 get_permit_type_from_compiance <- function() {
@@ -99,6 +106,8 @@ get_scientific_names <- function() {
 scientific_names <- get_scientific_names()
 
 # ---- rename all field names to upper case for comparability ----
-data_list <- list(fhier_species_count_by_disposition, mrip_species_list, mrip_estimate_6_7, scientific_names)
+data_list <- list(fhier_species_count_by_disposition, mrip_species_list, mrip_estimate, scientific_names)
+# str(data_list)
+data_list <- lapply(data_list, function (x) dplyr::rename_with(x, toupper))
+data_list <- lapply(data_list, function(x) {colnames(x) <- toupper(colnames(x)); x})
 
-lapply(data_list, function(x) names(x) <- toupper(names(x)))
