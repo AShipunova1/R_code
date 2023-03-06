@@ -246,9 +246,15 @@ str(mrip_and_fhier_short_values)
 
 ## ---- plot max (5)  ----
 n_most_frequent_fhier_15 <- get_n_most_frequent_fhier(15)
-to_plot <- inner_join(mrip_and_fhier_short_values, 
+xx <- merge(mrip_and_fhier,
+            n_most_frequent_fhier_15,
+            by = c("SP_CODE", "fhier_quantity_by_species")) %>%
+  str()
+
+to_plot <- inner_join(mrip_and_fhier,
                       n_most_frequent_fhier_15,
-                      by = c("SP_CODE", "fhier_quantity_by_species")) %>%
-  select(COMMON_NAME.x, fhier_quantity_by_species, mrip_and_fhier_short_values)
-to_plot
+                      by = c("SP_CODE", "fhier_quantity_by_species")) %>%  
+  select(COMMON_NAME.x, fhier_quantity_by_species, mrip_estimate_catch_by_species)
+
+to_plot %>% head(2)
 
