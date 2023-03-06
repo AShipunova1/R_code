@@ -125,13 +125,13 @@ plot(mrip_and_fhier_uni$cnt_index,
 
 # mutate(order = fct_reorder(as.factor(week_num), year)) %>% 
 # ggplot(aes(x = order,
-           # y = reorder(vesselofficialnumber, 
-                       # as.integer(factor(total_count)), FUN = min),
+# y = reorder(vesselofficialnumber, 
+# as.integer(factor(total_count)), FUN = min),
 
 ## ---- index plot with ggplot ----
 counts_plot_ind <-
   mrip_and_fhier_uni %>%
-    mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE)) %>%
+  mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE)) %>%
   # str()
   ggplot(aes(x = order,
              y = cnt_index
@@ -146,7 +146,7 @@ counts_plot_ind <-
   ) +
   theme(
     # axis.text.x = element_text(angle = 45)
-        # ,
+    # ,
     axis.text.x = element_blank()
   ) +
   geom_point(colour = "blue")
@@ -193,8 +193,8 @@ counts_plot_ind_10
 ## ---- Grouped barchart ----
 long_mrip_and_fhier_short_values_m10 <- 
   mrip_and_fhier_short_values %>% 
-# MRIP count ~ 10 times bigger
-    mutate(mrip_estimate_catch_by_species_by_10 = 
+  # MRIP count ~ 10 times bigger
+  mutate(mrip_estimate_catch_by_species_by_10 = 
            mrip_estimate_catch_by_species / 10) %>%
   rename(c("MRIP" = "mrip_estimate_catch_by_species_by_10",
            "FHIER" = "fhier_quantity_by_species")) %>%
@@ -229,10 +229,10 @@ ggplot(long_mrip_and_fhier_short_values_m10[start_from:max_cnt,],
        aes(fill = AGENCY,
            y = CATCH_CNT, 
            x = reorder(SP_CODE,
-                     as.integer(factor(CATCH_CNT)), FUN = min),
-             # SP_CODE
-           )
-       ) + 
+                       as.integer(factor(CATCH_CNT)), FUN = min),
+           # SP_CODE
+       )
+) + 
   labs(title = "catch by species",
        x = "species code sorted by catch count", 
        y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
@@ -243,3 +243,12 @@ ggplot(long_mrip_and_fhier_short_values_m10[start_from:max_cnt,],
   geom_bar(position = "dodge", stat = "identity")
 
 str(mrip_and_fhier_short_values)
+
+## ---- plot max (5)  ----
+n_most_frequent_fhier_15 <- get_n_most_frequent_fhier(15)
+to_plot <- inner_join(mrip_and_fhier_short_values, 
+                      n_most_frequent_fhier_15,
+                      by = c("SP_CODE", "fhier_quantity_by_species")) %>%
+  select(COMMON_NAME.x, fhier_quantity_by_species, mrip_and_fhier_short_values)
+to_plot
+
