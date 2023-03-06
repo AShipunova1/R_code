@@ -272,77 +272,84 @@ to_plot_10 %>% head(2)
 
 ## ---- separately ----
 theme1 <- theme(
-  axis.text.x = element_text(angle = 45),
+  axis.text.x = element_text(
+    angle = 45
+    # , hjust = 0.7
+    , vjust = 0.5
+    ),
   plot.title = element_text(hjust = 0.5),
   axis.text = element_text(size = 10)
+  # ,
+  # axis.text.y = element_blank()
 )
-  
+
+fhier_to_ten <-
+  factor(to_plot_10$fhier_quantity_by_species) %>%
+  as.numeric()
+
 fhier_top_only_plot <-
   to_plot_10 %>%
   select(COMMON_NAME.x, fhier_quantity_by_species) %>%
-  ggplot(aes(y = fhier_quantity_by_species ,
-             x = reorder(COMMON_NAME.x,
-                         as.integer(factor(fhier_quantity_by_species)),
+  ggplot(aes(x = fhier_quantity_by_species ,
+             y = reorder(COMMON_NAME.x,
+                         fhier_to_ten,
                          FUN = min
              )
   )
   ) +
-  labs(title = "FHIER",
-       x = "Common names",
-       y = "FHIER counts"
+  labs(title = "FHIER counts"
+       , x = ""
+       , y = ""
+       # x = "Common names",
+       # y = "FHIER counts"
   ) +
   theme1 +
   geom_point()
 
 fhier_top_only_plot
 
-# x <- factor(c("1", ""))
-# x[x == ""] <- NA
-# as.numeric(as.character(x))
-# 
-fhier_to_ten <-
-  factor(to_plot_10$fhier_quantity_by_species) %>%
-  as.numeric()
-#   mutate()
-#   
-#   
-#   as.integer(factor(to_plot$fhier_quantity_by_species))
-# mrip_to_ten <- as.integer(factor(to_plot$mrip_estimate_catch_by_species))
-
 mrip_top_only_plot <- 
   to_plot_10 %>%
   select(COMMON_NAME.x, mrip_estimate_catch_by_species) %>%
-  ggplot(aes(y = mrip_estimate_catch_by_species,
-             x = reorder(COMMON_NAME.x,
+  ggplot(aes(x = mrip_estimate_catch_by_species,
+             y = reorder(COMMON_NAME.x,
                          fhier_to_ten,
                          FUN = min
                          )
              )
          ) +
-  labs(title = "MRIP",
-       x = "Common names",
-       y = "MRIP estimate"
+  labs(title = "MRIP estimate"
+       , x = ""
+       , y = ""
+       
+       # ,
+       # x = "Common names"
+       # ,
+       # y = "MRIP estimate"
   ) +
   theme1 +
   geom_point()
+
 mrip_top_only_plot
 
-max_fhier = max(to_plot$fhier_quantity_by_species)
+max_fhier = max(to_plot_10$fhier_quantity_by_species)
 # 460094
 
-mrip_top_only_plot <-
+mrip_top_only_plot_l <-
   mrip_top_only_plot +
-  geom_hline(yintercept = max_fhier, color = "red") +
+  geom_vline(xintercept = max_fhier, color = "red") +
   annotate("text", 
-           x = 9, 
-           y = (max_fhier + 1000000), 
+           y = 3, 
+           x = (max_fhier + 1500000), 
            label = "Max FHIER count",
-           color = "red")
+           color = "red",
+           size = 6,
+           vjust = 0.2)
 
 super_title = "The top 10 most abundant FHIER species"
 
 grid.arrange(fhier_top_only_plot, 
-             mrip_top_only_plot, 
+             mrip_top_only_plot_l, 
              top = super_title, 
              ncol = 2)
 
