@@ -19,6 +19,14 @@
 
 # All logbook data can be downloaded using FHIER (sometimes lags out), ROracle or SQL developer. I actually just pulled the logbook data yesterday, with ROracle, for a data request. I just put it in the google folder here (https://drive.google.com/drive/folders/1iBSiEt30DkTrzzijOb6IuZwQ1r5zvqhs), where I created some new code for the economist who requested an analysis. It's a big file, so it may not show up in there until later today or tomorrow.
 
+## ---- MRIP data ----
+# “2022 should be in there minus TX and some LA Bio files”
+# ignore the MRIP fes- that is just for effort data, and we’re not there yet
+# She said grab MRIP fes data
+# That is the charter for-hire survey
+# Jessica is wondering if when you pulled from MRIP is there a way, or did you, just select the charter catch and not the full recreational catch
+# Charter vs private recreational
+
 ## ---- MRIP fields ----
 # landing	Total Harvest (A+B1)	The total number of fish removed from the fishery resource.  May be obtained by summing catch types A (CLAIM) and B1 (HARVEST).
 # tot_cat	Total Catch (A+B1+B2)	The number of fish caught but not necessarily brought ashore.  May be obtained by summing catch types A (CLAIM), B1 (HARVEST), and B2 (RELEASE).
@@ -33,7 +41,7 @@
 # 11 = U. S. Caribbean (Puerto Rico and Virgin Islands"
 # ? We need 6 & 7
 
-# Do not use
+# Use all
 # area_x	Fishing Area	" Collapsed area of fishing 
 # 1 = Ocean <= 3 mi (all but WFL) 
 # 2 = Ocean > 3 mi (all but WFL) 
@@ -41,6 +49,20 @@
 # 4 = Ocean > 10 mi (WFL only) 
 # 5 = Inland"	CHAR
 
+# ===
+# "O:\Fishery Data\ACL Data\MRIP Based Rec Data(CHTS)\MRIPACLspec_rec81_22wv6_01mar2\ACL request_rec documentation_MRIP_01Mar23.docx"
+
+# mode_fx	MRFSS/MRIP only; collapsed fishing mode code (1=man-made, 2=beach/bank, 3=shore, 4=headboat, 5=charter boat, 6=headboat/charter boat, 7=private/rental boat)
+
+# new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
+# ? to use  mode_fx = 5, 6, new_mode = 3, 5
+# or agg_moden		aggregation of mode estimates; ‘For-Hire’ or ‘Private’
+
+# ab1			type A + type B1 catch estimate (number of fish killed or kept)
+
+# species		Southeast Region Headboat Survey species code
+
+# itis_code		IT IS species code 
 
 ## ---- check MRIP year----
 # mrip_estimate %>%
