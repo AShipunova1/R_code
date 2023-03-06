@@ -274,13 +274,10 @@ to_plot_10 %>% head(2)
 theme1 <- theme(
   axis.text.x = element_text(
     angle = 45
-    # , hjust = 0.7
     , vjust = 0.5
     ),
   plot.title = element_text(hjust = 0.5),
   axis.text = element_text(size = 10)
-  # ,
-  # axis.text.y = element_blank()
 )
 
 fhier_to_ten <-
@@ -300,8 +297,6 @@ fhier_top_only_plot <-
   labs(title = "FHIER counts"
        , x = ""
        , y = ""
-       # x = "Common names",
-       # y = "FHIER counts"
   ) +
   theme1 +
   geom_point()
@@ -321,11 +316,6 @@ mrip_top_only_plot <-
   labs(title = "MRIP estimate"
        , x = ""
        , y = ""
-       
-       # ,
-       # x = "Common names"
-       # ,
-       # y = "MRIP estimate"
   ) +
   theme1 +
   geom_point()
@@ -345,22 +335,9 @@ mrip_top_only_plot_l <-
                 y = 2, 
                 label = "Max FHIER count"
                 ), 
-            # hjust = -0.5,
             color = "red", 
             angle=90)
 
-# geom_text(aes(x=2004, label="\nPAFTA", y=9), colour="red", angle=90) +
-  
-  # geom_vline(xintercept = max_fhier, color = "red") +
-  # geom_text(aes(v_line, 4, label = v_line, hjust = - 1))
-  # annotate("text", 
-  #          y = 1,
-  #          x = (max_fhier + 1500000), 
-  #          label = "Max FHIER count",
-  #          color = "red"
-  #            , size = 5
-  #          # , hjust = 0.5
-  #          )
 
 super_title = "The top 10 most abundant FHIER species"
 
@@ -371,9 +348,9 @@ grid.arrange(fhier_top_only_plot,
 
 ## ---- convert to long form ----
 # TODO: combine with get_long_mrip_and_fhier_short_values_n
-get_long_form <- function(to_plot) {
+get_long_form <- function(to_plot_10) {
   long_to_plot <-
-  to_plot %>%
+    to_plot_10 %>%
     rename(c("COMMON_NAME" = "COMMON_NAME.x",
              "MRIP" = "mrip_estimate_catch_by_species",
              "FHIER" = "fhier_quantity_by_species")) %>%
@@ -399,19 +376,22 @@ to_plot_long <- get_long_form(to_plot)
 plot_most_frequent <-
   ggplot(to_plot_long,
          aes(fill = AGENCY,
-             y = CATCH_CNT,
-             x = reorder(COMMON_NAME,
+             x = CATCH_CNT,
+             y = reorder(COMMON_NAME,
                          as.integer(factor(CATCH_CNT)), FUN = min)
          )
   ) +
   labs(title = "catch by species",
-       x = "species sorted by FHIER catch count",
-       y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
+       y = "species sorted by FHIER catch count",
+       x = "quantity by species"
   ) +
-  theme(
-    axis.text.x = element_text(angle = 45),
-    plot.title = element_text(hjust = 0.5)
-  ) +
+  # theme(
+    # axis.text.x = element_text(angle = 45),
+    # plot.title = element_text(hjust = 0.5)
+  # ) +
   geom_bar(position = "dodge", stat = "identity")
 
 plot_most_frequent
+
+write.csv(to_plot_10, file = r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\compare_catch\top_10_both.csv)")
+> 
