@@ -191,25 +191,35 @@ counts_plot_ind_10
 
 
 ## ---- Grouped barchart ----
-long_mrip_and_fhier_short_values_m10 <- 
-  mrip_and_fhier_short_values %>% 
-  # MRIP count ~ 10 times bigger
-  mutate(mrip_estimate_catch_by_species_by_10 = 
-           mrip_estimate_catch_by_species / 10) %>%
-  rename(c("MRIP" = "mrip_estimate_catch_by_species_by_10",
-           "FHIER" = "fhier_quantity_by_species")) %>%
-  # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(
-    cols = c(MRIP,
-             FHIER), 
-    names_to = "AGENCY",
-    values_to = "CATCH_CNT"
-  ) %>%
-  # use only the new columns
-  select(SP_CODE, AGENCY, CATCH_CNT) %>%
-  # remove lines where one or another agency doesn't have counts for this species
-  drop_na() %>%
-  unique()
+
+get_long_mrip_and_fhier_short_values_n <- function(mrip_and_fhier_short_values, n = NA) {
+  if(is.na(n)) n = 10
+  long_mrip_and_fhier_short_values <-
+    mrip_and_fhier_short_values %>%
+    # MRIP count ~ 10 times bigger
+    mutate(mrip_estimate_catch_by_species_by_n =
+             mrip_estimate_catch_by_species / n) %>%
+    rename(c("MRIP" = "mrip_estimate_catch_by_species_by_n",
+             "FHIER" = "fhier_quantity_by_species")) %>%
+    # reformat to a long format to have fhier and mrip data side by side
+    pivot_longer(
+      cols = c(MRIP,
+               FHIER),
+      names_to = "AGENCY",
+      values_to = "CATCH_CNT"
+    ) %>%
+    # use only the new columns
+    select(SP_CODE, AGENCY, CATCH_CNT) %>%
+    # remove lines where one or another agency doesn't have counts for this species
+    drop_na() %>%
+    unique()
+}
+
+long_mrip_and_fhier_short_values <- get_long_mrip_and_fhier_short_values_n(mrip_and_fhier_short_values, 1)
+
+head(long_mrip_and_fhier_short_values[1:4,])
+
+long_mrip_and_fhier_short_values_m10 <- get_long_mrip_and_fhier_short_values_n(mrip_and_fhier_short_values)
 
 head(long_mrip_and_fhier_short_values_m10[1:4,])
 
