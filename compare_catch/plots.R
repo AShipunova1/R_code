@@ -1,3 +1,5 @@
+library(gridExtra)
+
 ## ---- plot catch by species (1) ----
 # Graph mrip
 plot(mrip_and_fhier$SP_CODE, mrip_and_fhier$mrip_estimate_catch_by_species,
@@ -268,3 +270,112 @@ to_plot <- inner_join(mrip_and_fhier,
 
 to_plot %>% head(2)
 
+## ---- separately ----
+theme1 <- theme(
+  axis.text.x = element_text(angle = 45),
+  plot.title = element_text(hjust = 0.5),
+  axis.text = element_text(size = 0.5)
+)
+  
+
+fhier_top_only_plot <-
+  to_plot %>%
+  select(COMMON_NAME.x, fhier_quantity_by_species) %>%
+  ggplot(aes(y = fhier_quantity_by_species ,
+             x = reorder(COMMON_NAME.x,
+                         as.integer(factor(fhier_quantity_by_species )),
+                         FUN = min
+             )
+  )
+  ) +
+  labs(title = "FHIER",
+       x = "Common names",
+       y = "FHIER counts"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  geom_point()
+
+mrip_top_only_plot <- 
+  to_plot %>%
+  select(COMMON_NAME.x, mrip_estimate_catch_by_species) %>%
+  ggplot(aes(y = mrip_estimate_catch_by_species ,
+             x = reorder(COMMON_NAME.x,
+                         as.integer(factor(mrip_estimate_catch_by_species )),
+                         FUN = min
+                         )
+             )
+         ) +
+  labs(title = "MRIP",
+       x = "Common names",
+       y = "MRIP estimate"
+  ) +
+  geom_point()
+
+max_fhier = max(to_plot$fhier_quantity_by_species)
+# 460094
+
+mrip_top_only_plot <-
+  mrip_top_only_plot +
+  geom_hline(yintercept = max_fhier, color = "red") +
+  annotate("text", 
+           x = 9, 
+           y = (max_fhier + 1000000), 
+           label = "Max FHIER count",
+           color = "red")
+
+super_title = "The top 10 most abundant FHIER species"
+
+grid.arrange(fhier_top_only_plot, 
+             mrip_top_only_plot, 
+             top = super_title, 
+             ncol = 2)
+
+## ---- convert to long form ----
+# TODO: combine with get_long_mrip_and_fhier_short_values_n
+get_long_form <- function(to_plot) {
+  long_to_plot <-
+  to_plot %>%
+    rename(c("COMMON_NAME" = "COMMON_NAME.x",
+             "MRIP" = "mrip_estimate_catch_by_species",
+             "FHIER" = "fhier_quantity_by_species")) %>%
+    # reformat to a long format to have fhier and mrip data side by side
+    pivot_longer(
+      cols = c(MRIP,
+               FHIER),
+      names_to = "AGENCY",
+      values_to = "CATCH_CNT"
+    ) %>%
+    # use only the new columns
+    select(COMMON_NAME, AGENCY, CATCH_CNT) %>%
+    # remove lines where one or another agency doesn't have counts for this species
+    drop_na() %>%
+    unique()
+  
+  return(long_to_plot)
+}
+
+## ---- both together ---- 
+to_plot_long <- get_long_form(to_plot)
+
+plot_most_frequent <-
+  ggplot(to_plot_long,
+         aes(fill = AGENCY,
+             y = CATCH_CNT,
+             x = reorder(COMMON_NAME,
+                         as.integer(factor(CATCH_CNT)), FUN = min)
+         )
+  ) +
+  labs(title = "catch by species",
+       x = "species sorted by FHIER catch count",
+       y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  geom_bar(position = "dodge", stat = "identity")
+
+plot_most_frequent
