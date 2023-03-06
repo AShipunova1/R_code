@@ -67,21 +67,22 @@ load_mrip_data <- function() {
 }
 mrip_temp <- load_mrip_data()
 mrip_species_list <- mrip_temp[[1]]
-mrip_estimate_all <- mrip_temp[[2]]
+mrip_estimate <- mrip_temp[[2]]
 
 # use sub_reg 6 & 7 for now (SA & GOM)
 # And federal waters only
-mrip_estimate <-
-  mrip_estimate_all %>% 
-  filter(sub_reg %in% c(6, 7)) %>%
+# mrip_estimate <-
+#   mrip_estimate_all %>% 
+#   filter(sub_reg %in% c(6, 7))
+# %>%
 # ? WFL 10?
-  filter(area_x %in% c(2, 3, 4))
+  # filter(area_x %in% c(2, 3, 4))
 
 
 # ---- 3) Auxilary ----
 get_permit_type_from_compiance <- function() {
   # to get permit type info use compliance reports for now
-  # use all years, to get more vessel ids with permit info
+  # use all years, to get more vessel ids wihttp://127.0.0.1:15607/graphics/6d3879ae-f56a-451e-ab55-36d42ea6b820.pngth permit info
   compliance_csv_names_list_21_23 = c(
     "FHIER_Compliance_23__03_01_23.csv",
     "FHIER_Compliance_22__02_24_23.csv",
