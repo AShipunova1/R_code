@@ -335,16 +335,32 @@ mrip_top_only_plot
 max_fhier = max(to_plot_10$fhier_quantity_by_species)
 # 460094
 
+# Position of vertical line
+
 mrip_top_only_plot_l <-
   mrip_top_only_plot +
-  geom_vline(xintercept = max_fhier, color = "red") +
-  annotate("text", 
-           y = 3, 
-           x = (max_fhier + 1500000), 
-           label = "Max FHIER count",
-           color = "red",
-           size = 6,
-           vjust = 0.2)
+  geom_vline(aes(xintercept = max_fhier), 
+             color = "red") +
+  geom_text(aes(x = (max_fhier - 1500000), 
+                y = 2, 
+                label = "Max FHIER count"
+                ), 
+            # hjust = -0.5,
+            color = "red", 
+            angle=90)
+
+# geom_text(aes(x=2004, label="\nPAFTA", y=9), colour="red", angle=90) +
+  
+  # geom_vline(xintercept = max_fhier, color = "red") +
+  # geom_text(aes(v_line, 4, label = v_line, hjust = - 1))
+  # annotate("text", 
+  #          y = 1,
+  #          x = (max_fhier + 1500000), 
+  #          label = "Max FHIER count",
+  #          color = "red"
+  #            , size = 5
+  #          # , hjust = 0.5
+  #          )
 
 super_title = "The top 10 most abundant FHIER species"
 
