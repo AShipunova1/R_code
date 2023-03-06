@@ -218,5 +218,7 @@ fhier_quantity_by_species %>%
     return()
 }
   
-head(scientific_names_w_mrip)
+n_most_frequent_fhier <- get_n_most_frequent_fhier(10)
+head(n_most_frequent_fhier)
+
 
