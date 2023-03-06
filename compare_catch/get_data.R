@@ -10,6 +10,8 @@
 
 # MRIP
 # https://www.st.nmfs.noaa.gov/SASStoredProcess/do?#
+# or
+
 
 # ---- 1) SEFHIER data ----
 
@@ -35,6 +37,7 @@ load_safis_catch <- function() {
                      show_col_types = FALSE) %>% 
              mutate(across(.fns = as.character))) %>%
     type_convert() %>%
+    rename_with(toupper) %>%
     unique()
   
   # str(safis_catch)
@@ -47,7 +50,8 @@ load_mrip_data <- function() {
   mrip_dir_path <- "compare_catch/MRIP data"
   mrip_csv_names_list_raw <- c(
     "mrip_aux/species_list.csv", # identical for all areas
-    "mrip_US/mrip_catch_year_2022_preliminary.csv"
+    r"(mrip_US\mripaclspec_rec81_22wv6_01mar23.csv)"
+    # "mrip_US/mrip_catch_year_2022_preliminary.csv"
     # "mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv",
     # "mrip_GOM/mrip_estim_catch_year_2022_2022_gom.csv"
       )
@@ -57,7 +61,8 @@ load_mrip_data <- function() {
   
   temp_var <- load_csv_names(my_paths, mrip_csv_names_list)
   mrip_species_list <- temp_var[[1]]
-  mrip_estimate_usa <- temp_var[[2]]
+  mrip_estimate_usa <- temp_var[[2]] %>%
+    rename_with(toupper)
   # mrip_estimate_sa <- temp_var[[2]]
   # mrip_estimate_gom <- temp_var[[3]]
   
@@ -69,6 +74,24 @@ mrip_temp <- load_mrip_data()
 mrip_species_list <- mrip_temp[[1]]
 mrip_estimate <- mrip_temp[[2]]
 
+## ---- specificly for "O:\Fishery Data\ACL Data\MRIP Based Rec Data(CHTS)\MRIPACLspec_rec81_22wv6_01mar2\" ----
+# str(mrip_estimate)
+mrip_estimate_2022 <-
+  mrip_estimate %>%
+  filter(YEAR == "2022")
+
+# dim(mrip_estimate)
+# [1] 352127 67
+# dim(mrip_estimate_2022)
+# [1] 9546   67
+# names(mrip_estimate)
+mrip_estimate <-
+  mrip_estimate_2022 %>%
+    filter(SUB_REG %in% c(6, 7)) %>%
+    filter(AGG_MODEN == "For-Hire")
+
+## ---- specificly for mrip_catch_year_2022_preliminary.csv and/or
+# mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv
 # use sub_reg 6 & 7 for now (SA & GOM)
 # And federal waters only
 # mrip_estimate <-
