@@ -5,7 +5,7 @@
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 # turn off the scientific notation
-options(scipen = 999)
+options(scipen=999)
 source("~/R_code_github/compare_catch/get_data.R")
 
 # ---- the breath of species caught in SEFIHIER (2022) ----
@@ -16,7 +16,7 @@ source("~/R_code_github/compare_catch/get_data.R")
 ## ---- ID the breath of species caught in all SEFHIER data. Do this by region (gulf vs s atl vessels) ----
 
 ## ---- add common species identifier to FHIER data ----
-
+# names(mrip_species_list)
 scientific_names_w_mrip <- 
   inner_join(mrip_species_list,
              scientific_names,
@@ -26,32 +26,14 @@ scientific_names_w_mrip <-
 # names(scientific_names_w_mrip)
 # use: SPECIES_ITIS, SP_CODE
 
-## ---- what kind of species are no in both ----
-scientific_names_w_mrip_all <- 
-  full_join(mrip_species_list,
-             scientific_names,
-             by = "SCIENTIFIC_NAME",
-             multiple = "all")
-
-str(scientific_names_w_mrip_all)
-scientific_names_w_mrip_all %>%
-  filter(is.na(SPECIES_ITIS)) %>% 
-  select(COMMON_NAME.x)
-  
-scientific_names_w_mrip_all %>%
-  filter(is.na(COMMON_NAME.x)) %>% 
-  select(COMMON_NAME.y)
-
-
 ## ---- test itis vs. mrip sp_code  ----
-
 
 # scientific_names_w_mrip %>%
 #   select(SCIENTIFIC_NAME, SPECIES_ITIS, SP_CODE) %>% unique() %>% str()
 # 511
 
 # total species in mrip
-# mrip_species_list$SP_CODE %>% unique() %>% View()
+# mrip_species_list$SP_CODE %>% unique() %>% str()
 # 1775
 
 # total species in fhier species list
@@ -116,16 +98,16 @@ mrip_estimate %<>%
   mutate(TOT_CAT = TOT_CAT %>% 
            str_replace_all(",", "") %>% 
            as.integer()
-  )
+         )
 
 ## ---- MRIP: count catch by species and region ----
 # str(mrip_estimate)
 mrip_estimate_catch_by_species_and_region <-
   mrip_estimate %>%
-  select(SP_CODE, SUB_REG, LANDING, TOT_CAT) %>%
-  group_by(SP_CODE, SUB_REG) %>% 
-  summarise(mrip_estimate_catch_by_species_and_region = sum(TOT_CAT))
-# head(mrip_estimate_catch_by_species_and_region, 4)
+    select(SP_CODE, SUB_REG, LANDING, TOT_CAT) %>%
+    group_by(SP_CODE, SUB_REG) %>% 
+    summarise(mrip_estimate_catch_by_species_and_region = sum(TOT_CAT))
+head(mrip_estimate_catch_by_species_and_region, 2)
 
 ## ---- MRIP: count catch by species only ----
 mrip_estimate_catch_by_species <-
@@ -197,28 +179,11 @@ mrip_and_fhier <-
   )
 
 head(mrip_and_fhier, 3)
-dim(mrip_and_fhier)
 
 mrip_and_fhier %>%
   filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
 # 15 
 
-# source("~/R_code_github/compare_catch/plots.R")
+source("~/R_code_github/compare_catch/plots.R")
 
-## ---- get MRIP counts for federal waters only ----
-## ---- most n frequent FHIER species ----
-
-# str(fhier_quantity_by_species)
-
-get_n_most_frequent_fhier <- function(n) {
-fhier_quantity_by_species %>%
-  arrange(desc(fhier_quantity_by_species)) %>%
-  inner_join(scientific_names_w_mrip, by = "SP_CODE") %>%
-  head(n) %>%
-    return()
-}
-  
-n_most_frequent_fhier <- get_n_most_frequent_fhier(10)
-head(n_most_frequent_fhier)
-
-
+## ---- get MRIP counts for federal waters only
