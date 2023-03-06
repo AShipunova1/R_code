@@ -257,33 +257,32 @@ ggplot(long_mrip_and_fhier_short_values_m10[start_from:max_cnt,],
 str(mrip_and_fhier_short_values)
 
 ## ---- plot max (5)  ----
-n_most_frequent_fhier_15 <- get_n_most_frequent_fhier(15)
-xx <- merge(mrip_and_fhier,
-            n_most_frequent_fhier_15,
-            by = c("SP_CODE", "fhier_quantity_by_species")) %>%
-  str()
+n_most_frequent_fhier_10 <- get_n_most_frequent_fhier(10)
+# xx <- merge(mrip_and_fhier,
+#             n_most_frequent_fhier_15,
+#             by = c("SP_CODE", "fhier_quantity_by_species")) %>%
+#   str()
 
-to_plot <- inner_join(mrip_and_fhier,
-                      n_most_frequent_fhier_15,
+to_plot_10 <- right_join(mrip_and_fhier,
+                        n_most_frequent_fhier_10,
                       by = c("SP_CODE", "fhier_quantity_by_species")) %>%  
   select(COMMON_NAME.x, fhier_quantity_by_species, mrip_estimate_catch_by_species)
 
-to_plot %>% head(2)
+to_plot_10 %>% head(2)
 
 ## ---- separately ----
 theme1 <- theme(
   axis.text.x = element_text(angle = 45),
   plot.title = element_text(hjust = 0.5),
-  axis.text = element_text(size = 0.5)
+  axis.text = element_text(size = 10)
 )
   
-
 fhier_top_only_plot <-
-  to_plot %>%
+  to_plot_10 %>%
   select(COMMON_NAME.x, fhier_quantity_by_species) %>%
   ggplot(aes(y = fhier_quantity_by_species ,
              x = reorder(COMMON_NAME.x,
-                         as.integer(factor(fhier_quantity_by_species )),
+                         as.integer(factor(fhier_quantity_by_species)),
                          FUN = min
              )
   )
@@ -292,18 +291,30 @@ fhier_top_only_plot <-
        x = "Common names",
        y = "FHIER counts"
   ) +
-  theme(
-    axis.text.x = element_text(angle = 45),
-    plot.title = element_text(hjust = 0.5)
-  ) +
+  theme1 +
   geom_point()
 
+fhier_top_only_plot
+
+# x <- factor(c("1", ""))
+# x[x == ""] <- NA
+# as.numeric(as.character(x))
+# 
+fhier_to_ten <-
+  factor(to_plot_10$fhier_quantity_by_species) %>%
+  as.numeric()
+#   mutate()
+#   
+#   
+#   as.integer(factor(to_plot$fhier_quantity_by_species))
+# mrip_to_ten <- as.integer(factor(to_plot$mrip_estimate_catch_by_species))
+
 mrip_top_only_plot <- 
-  to_plot %>%
+  to_plot_10 %>%
   select(COMMON_NAME.x, mrip_estimate_catch_by_species) %>%
-  ggplot(aes(y = mrip_estimate_catch_by_species ,
+  ggplot(aes(y = mrip_estimate_catch_by_species,
              x = reorder(COMMON_NAME.x,
-                         as.integer(factor(mrip_estimate_catch_by_species )),
+                         fhier_to_ten,
                          FUN = min
                          )
              )
@@ -312,7 +323,9 @@ mrip_top_only_plot <-
        x = "Common names",
        y = "MRIP estimate"
   ) +
+  theme1 +
   geom_point()
+mrip_top_only_plot
 
 max_fhier = max(to_plot$fhier_quantity_by_species)
 # 460094
