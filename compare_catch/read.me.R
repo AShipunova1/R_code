@@ -2,15 +2,15 @@
 # all data for 2022
 
 ## ---- Workflow ----
-## 1) FHIER data
+## 1) FHIER data FHIER / Reports / Species Count by Disposition
+# or from logbooks
 ### need permitgroup or landing info, scientific name (to use for SP_CODE)
 ### add SP_CODE
 ### separate gulf and sa permits or fishing place
 
 ## 2) MRIP data
 ### download for region 6 & 7 (GoM by state, SA by state) from https://www.st.nmfs.noaa.gov/SASStoredProcess/do?#
-### use SP_CODE, SUB_REG, AREA_X?, TOT_CAT
-### combine AREA_X by SUB_REG (sum(TOT_CAT) for each SUB_REG)
+### use SP_CODE, SUB_REG, TOT_CAT
 
 ## 3) For (1) and (2) get total caught (numbers) for each unique species by permit type or region
 # compare counts
@@ -33,6 +33,7 @@
 # 11 = U. S. Caribbean (Puerto Rico and Virgin Islands"
 # ? We need 6 & 7
 
+# Do not use
 # area_x	Fishing Area	" Collapsed area of fishing 
 # 1 = Ocean <= 3 mi (all but WFL) 
 # 2 = Ocean > 3 mi (all but WFL) 
