@@ -133,20 +133,6 @@ survey_data_df_w_fnames_split_clean %>%
 
 
 ## ---- read sas files into a list of tibbles ----
-survey_data_list <-
-  sas_file_list %>%
-  map(~poss_read_sas(.x))
-
-
-survey_data_list11 <-
-  sas_file_list %>%
-  map(poss_read_sas) %>%
-# name the df as its file
-    setNames(sas_file_list_short_names)
-
-identical(survey_data_list11, survey_data_list1)           
-str(survey_data_list) %>% head()
-
 # use sas_file_list_short_names as names for the list of dfs
 sas_file_list_short_names <-
   list.files(path = file.path(extract_to_dir), 
@@ -154,15 +140,14 @@ sas_file_list_short_names <-
              recursive = TRUE,
              full.names = FALSE)
 
-names(survey_data_list) <- sas_file_list_short_names
+survey_data_list <-
+  sas_file_list %>%
+  map(poss_read_sas) %>%
+# name the df as its file
+    setNames(sas_file_list_short_names)
 
-## ---- check names and dates inside ----
-# names(survey_data_list)[[4]]
-# survey_data_list[[4]] %>% select(YEAR, MONTH) %>% unique()
-# 
-# names(survey_data_list)[[19]]
-# survey_data_list[[19]] %>% 
-#   select(YEAR, WAVE) %>% unique()
+str(survey_data_list) %>% head()
+
 
 ## ---- there are 4 types of files ----
 survey_data_list %>%
@@ -174,6 +159,20 @@ str(all_sas_names)
 
 ## ---- read sas files by category into a list of tibbles ----
 file_categories <- c("ref", "aga", "i1", "i2", "i3")
+
+read_by_category <-
+  map(file_categories,
+    ~list.files(path = file.path(extract_to_dir), 
+                   pattern = paste0(., "*"),
+                   recursive = TRUE,
+                   full.names = TRUE) %>%
+      map(~poss_read_sas(.x))
+    # %>%
+    #   setNames(sas_file_list_short_names)
+    #
+    )
+
+View(read_to_category)
 
 myDB <- do.call("rbind", lapply(sas_file_list, function(x) {
   dat <- read.csv(x, header=TRUE)
