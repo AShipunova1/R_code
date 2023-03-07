@@ -173,6 +173,7 @@ file_lists_by_cat <-
 #   sas_file_list %>%
 #   map(poss_read_sas) %>%
 
+# each file in its df
 read_by_category <-
   file_lists_by_cat %>%
   map(function(x) {
@@ -186,15 +187,12 @@ read_by_category <-
 str(read_by_category)
 View(read_by_category)
 
-read_by_category_df <-
+# each category in a df
+read_by_category_df1 <-
   file_lists_by_cat %>%
-  map(function(x) {
-    x %>% 
-      map_df(poss_read_sas)
-  }
-  )
+  map(~map_df(.x, poss_read_sas))
 
-View(read_by_category_df)
+View(read_by_category_df1)
 
 
 sas_file_list_ref <-
