@@ -97,7 +97,7 @@ split_df_by_file_type <- function() {
         ) %>%
     return()
 }
-# survey_data_df_w_fnames_split <- split_df_by_file_type()
+survey_data_df_w_fnames_split <- split_df_by_file_type()
 
 ## ---- remove fileds with all NAs ----
 not_all_na <- function(x) any(!is.na(x))
@@ -107,11 +107,12 @@ remove_all_na_fileds <- function() {
     map(. %>% select(where(not_all_na))) %>%
     return()
 }
-survey_data_df_w_fnames_split <- remove_all_na_fileds()
+survey_data_df_w_fnames_split_clean <- remove_all_na_fileds()
 # survey_data_df_w_fnames_split[[1]] %>% str()
 # tibble [766 × 75] (S3: tbl_df/tbl/data.frame)
 
 # data_overview(survey_data_df_w_fnames_split[[1]])
+
 ## ---- write the survey df to a csv ----
 # data_overview(survey_data_df)
 
@@ -119,6 +120,23 @@ otput_csv_file <- file.path(my_paths$inputs,
                             r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)") 
 write.csv(survey_data_df, 
           file = otput_csv_file, row.names = F)
+
+output <- map(input, ~paste0('test-', .)) %>% 
+  setNames(input)
+
+
+map(names(survey_data_df_w_fnames_split_clean), ~paste0('test-', .))
+
+survey_data_df_w_fnames_split_clean %>%
+  # Apply a function to each element of a vector, and its index
+  purrr::imap(~write.csv(.x, 
+                         # paste0(.y, '.csv'), 
+                         file.path(my_paths$inputs, 
+                                   "logbooks_compare",
+                                   paste0(.y, ".csv")
+                                   ),
+                         row.names = FALSE))
+
 
 ## ---- read sas files into a list of tibbles ----
 survey_data_list <-
