@@ -141,9 +141,10 @@ survey_data_list <-
 survey_data_list11 <-
   sas_file_list %>%
   map(poss_read_sas) %>%
-  setNames(sas_file_list_short_names)
+# name the df as its file
+    setNames(sas_file_list_short_names)
 
-           
+identical(survey_data_list11, survey_data_list1)           
 str(survey_data_list) %>% head()
 
 # use sas_file_list_short_names as names for the list of dfs
