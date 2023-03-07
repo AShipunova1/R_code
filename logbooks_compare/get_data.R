@@ -121,16 +121,10 @@ otput_csv_file <- file.path(my_paths$inputs,
 write.csv(survey_data_df, 
           file = otput_csv_file, row.names = F)
 
-output <- map(input, ~paste0('test-', .)) %>% 
-  setNames(input)
-
-
-map(names(survey_data_df_w_fnames_split_clean), ~paste0('test-', .))
-
+## ---- write the list of survey dfs into csvs ----
 survey_data_df_w_fnames_split_clean %>%
   # Apply a function to each element of a vector, and its index
   purrr::imap(~write.csv(.x, 
-                         # paste0(.y, '.csv'), 
                          file.path(my_paths$inputs, 
                                    "logbooks_compare",
                                    paste0(.y, ".csv")
@@ -142,8 +136,15 @@ survey_data_df_w_fnames_split_clean %>%
 survey_data_list <-
   sas_file_list %>%
   map(~poss_read_sas(.x))
+
+
+survey_data_list11 <-
+  sas_file_list %>%
+  map(poss_read_sas) %>%
+  setNames(sas_file_list_short_names)
+
            
-# str(survey_data_list) %>% head()
+str(survey_data_list) %>% head()
 
 # use sas_file_list_short_names as names for the list of dfs
 sas_file_list_short_names <-
