@@ -3,24 +3,17 @@
 # see read.me.R
 # Survey data:
 # https://drive.google.com/drive/folders/1D1ksBarjJzvbmqWa5cEE-k0s6ZJi0VAM
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\logbooks_compare\survey\May 2022-20230307T132845Z-001.zip"
+# "my_inputs\logbooks_compare\survey\May 2022-20230307T132845Z-001.zip"
 
 # detach("package:haven", unload = TRUE)
 # install.packages("haven")
 library(haven)
 
-# install.packages("sas7bdat")
-library(sas7bdat)
-
 my_add_path <- "logbooks_compare"
 
 ## ---- get survey data for 2022 May-Dec ----
 
-#    read_sas(unz("examp;e.zip", "'targetfilename.sas7bdat'"))
-# read.sas7bdat
-# haven::read_sas is faster
-
-## ---- extract survey data ----
+## ---- 1) extract survey data from zip ----
 extract_to_dir <- file.path(my_paths$inputs, my_add_path, "survey_05_to_12_2022")
 
 extract_zipped_survey_data <- function() {
@@ -28,7 +21,7 @@ extract_zipped_survey_data <- function() {
   list.files(path = file.path(my_paths$inputs, my_add_path, "survey"), 
              pattern = "*zip",
              full.names = TRUE) %>%
-    # unzip all of them
+  # unzip all of them
     map(~unzip(.x, 
                # to see what's in the archive without extracting
                # list = T,
@@ -39,35 +32,64 @@ extract_zipped_survey_data <- function() {
 # extract_zipped_survey_data()
 
 ## ---- read survey data from SAS format ----
-# read all sas files in all subdirectories
-sas_file_list <- 
+# read all sas files in all sub directories
+sas_file_list <-
   list.files(path = file.path(extract_to_dir), 
            pattern = "*.sas7bdat",
-           recursive = T,
+           recursive = TRUE,
            full.names = TRUE)
 
-# str(sas_file_list)
-# 40
+str(sas_file_list)
+# 45
 
-# posslm1 = possibly(.f = lm, otherwise = "Error")
-# When I use posslm1() in my model fitting loop, you can see that loop now finishes. Model b contains the string “Error” instead of a model.
-# 
-# map(dat_split, ~posslm1(y ~ x, data = .x) )
+sas_file_list_short_names <-
+  list.files(path = file.path(extract_to_dir), 
+             pattern = "*.sas7bdat",
+             recursive = TRUE,
+             full.names = FALSE)
 
-poss_read_sas = possibly(.f = haven::read_sas, otherwise = "Error")
-# poss_read_sas7 = possibly(.f = read.sas7bdat, otherwise = "Error")
-# 
-# poss_read_sas7(sas_file_list[2]) %>% str()
+# Instead of stopping the loop if there is an error, the cycle keeps going printing an error
+poss_read_sas = possibly(
+  # what function is used
+  # .f = haven::read_sas,
+  ~ haven::read_sas(.x, .name_repair = "universal"),
+  # what to do if an error occurs
+  otherwise = "Error")
 
-survey_data <-
+# loop through all files from the list and run the function on each one
+survey_data_df <-
   sas_file_list %>%
-    map(~poss_read_sas(.x,
-                       .name_repair = "universal"))
+  # use "_df" to combine all into one df
+    map_df(~poss_read_sas(.x
+                          # ,
+                       # Make the names unique and syntactic
+                       # .name_repair = "universal"
+                       ) %>% 
+             # convert all columns to char to use in bind
+             mutate(across(.fns = as.character))) %>%
+  # guess and change each column type
+  type_convert()
 
-  #          mutate(across(.fns = as.character))) %>%
-  # type_convert() %>%
-  # rename_with(toupper) %>%
-  # unique()
+str(survey_data_df) %>% head()
+
+# read sas files into a list of tibbles
+survey_data_list <-
+  sas_file_list %>%
+  map(~poss_read_sas(.x))
+           
+str(survey_data_list) %>% head()
+
+# sas_file_list_short_names
+print_labels(survey_data)
+  
+head(survey_data[[4]])
+
+survey_data %>%
+  map(~names(.x)) %>%
+  unique() ->
+  all_sas_names
+str(all_sas_names)
+# 4
 
 # ===
 ## ---- get logbooks from FHIER ----
