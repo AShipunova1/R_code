@@ -82,7 +82,28 @@ add_file_names_to_the_df <- function() {
 survey_data_df_w_fnames <- add_file_names_to_the_df()
 str(survey_data_df_w_fnames)
 
+survey_data_df_w_fnames_split <-
+  split(survey_data_df_w_fnames, 
+        f = survey_data_df_w_fnames$FILE_NAME)
 
+survey_data_df_w_fnames_split <-
+  split(survey_data_df_w_fnames,
+        f = substr(survey_data_df_w_fnames$FILE_NAME,
+                   start = 1, stop = 3)
+        )
+
+not_all_na <- function(x) any(!is.na(x))
+# not_any_na <- function(x) all(!is.na(x))
+# all_na <- function(x) all(is.na(x))
+
+survey_data_df_w_fnames_split1 <-
+  survey_data_df_w_fnames_split %>%
+  map(. %>% select(where(not_all_na)))
+
+survey_data_df_w_fnames_split[[1]] %>% str()
+# tibble [766 × 75] (S3: tbl_df/tbl/data.frame)
+
+str(survey_data_df_w_fnames_split)
 ## ---- write the survey df to a csv ----
 # data_overview(survey_data_df)
 
