@@ -169,16 +169,15 @@ file_lists_by_cat <-
   ) %>%
   setNames(file_categories)
 
-survey_data_list <-
-  sas_file_list %>%
-  map(poss_read_sas) %>%
-  # name the df as its file
-  setNames(sas_file_list_short_names)
-
+# survey_data_list <-
+#   sas_file_list %>%
+#   map(poss_read_sas) %>%
+#   # name the df as its file
+  # setNames(sas_file_list_short_names)
 
 read_by_category <-
   file_lists_by_cat %>%
-      map(poss_read_sas)
+  map(. %>% map(poss_read_sas))
     # ) %>%
   # %>%
   setNames(file_names)
