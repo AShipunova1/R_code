@@ -76,6 +76,17 @@ clean_headers <- function(my_df) {
   return(my_df)
 }
 
+# to use in a function, 
+# e.g. read_csv(name_repair = fix_names)
+fix_names <- function(x) {
+  x %>%
+    str_replace_all("\\s+", "_") %>%
+    str_replace_all("\\.", "_") %>%
+    str_replace_all("\\W", "_") %>%
+    toupper()
+}
+
+
 ## ---- functions to clean FHIER compliance and correspondense reports ----
 
 # split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end

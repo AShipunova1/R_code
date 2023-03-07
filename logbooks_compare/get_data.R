@@ -3,7 +3,7 @@
 # see read.me.R
 # Survey data:
 # https://drive.google.com/drive/folders/1D1ksBarjJzvbmqWa5cEE-k0s6ZJi0VAM
-# "my_inputs\logbooks_compare\survey\May 2022-20230307T132845Z-001.zip"
+# "my_inputs\logbooks_compare\survey_zip\May 2022-20230307T132845Z-001.zip"
 
 # detach("package:haven", unload = TRUE)
 # install.packages("haven")
@@ -18,7 +18,7 @@ extract_to_dir <- file.path(my_paths$inputs, my_add_path, "survey_05_to_12_2022"
 
 extract_zipped_survey_data <- function() {
   # get a list of zip archive file names 
-  list.files(path = file.path(my_paths$inputs, my_add_path, "survey"), 
+  list.files(path = file.path(my_paths$inputs, my_add_path, "survey_zip"), 
              pattern = "*zip",
              full.names = TRUE) %>%
   # unzip all of them
@@ -52,7 +52,9 @@ sas_file_list_short_names <-
 poss_read_sas = possibly(
   # what function is used
   # .f = haven::read_sas,
-  ~ haven::read_sas(.x, .name_repair = "universal"),
+  ~ haven::read_sas(.x,
+                    # Make the names unique and syntactic
+                    .name_repair = fix_names),
   # what to do if an error occurs
   otherwise = "Error")
 
@@ -60,17 +62,14 @@ poss_read_sas = possibly(
 survey_data_df <-
   sas_file_list %>%
   # use "_df" to combine all into one df
-    map_df(~poss_read_sas(.x
-                          # ,
-                       # Make the names unique and syntactic
-                       # .name_repair = "universal"
-                       ) %>% 
+    map_df(~poss_read_sas(.x) %>% 
              # convert all columns to char to use in bind
              mutate(across(.fns = as.character))) %>%
-  # guess and change each column type
-  type_convert()
+  # Re-convert character columns
+  # guess integer types for whole numbers
+  type_convert(guess_integer = TRUE)
 
-str(survey_data_df) %>% head()
+survey_data_df %>% head()
 
 # read sas files into a list of tibbles
 survey_data_list <-
@@ -90,29 +89,27 @@ names(survey_data_list) <- sas_file_list_short_names
 # survey_data_list[[19]] %>% 
 #   select(YEAR, WAVE) %>% unique()
 
-survey_data %>%
+# there are 4 types of files
+survey_data_list %>%
   map(~names(.x)) %>%
   unique() ->
   all_sas_names
 str(all_sas_names)
 # 4
 
+data_overview(survey_data_df)
+
+otput_csv_file <- file.path(my_paths$inputs, 
+                            r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)") 
+write.csv(survey_data_df, 
+          file = otput_csv_file, row.names = F)
 # ===
+
 ## ---- get logbooks from FHIER ----
-# all logbooks, by month
 
 fhier_logbooks_path_add <- "logbooks_from_fhier"
 
-fix_names <- function(x) {
-  # gsub("\\s+", "_", x)
-  x %>%
-  str_replace_all("\\s+", "_") %>%
-    str_replace_all("\\.", "_") %>%
-    str_replace_all("\\W", "_") %>%
-    toupper()
-}
-# make.names(c("v and b", "a_and_b"), unique = TRUE)
-
+# all logbooks, by month, not all fields
 load_all_fhier_logbooks <- function() {
   fhier_logbooks <- 
     list.files(path = file.path(my_paths$inputs,
@@ -130,9 +127,9 @@ load_all_fhier_logbooks <- function() {
   return(fhier_logbooks)
 }
 
-fhier_logbooks <- load_all_fhier_logbooks()
+# fhier_logbooks <- load_all_fhier_logbooks()
 
-data_overview(fhier_logbooks)
+# data_overview(fhier_logbooks)
 
 ## get "logbooks_from_fhier\FHIER_all_logbook_data.csv"
 # is it different from "All logbooks" downloaded from FHIER?
