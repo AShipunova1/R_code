@@ -79,10 +79,16 @@ survey_data_list <-
            
 str(survey_data_list) %>% head()
 
-# sas_file_list_short_names
-print_labels(survey_data)
-  
-head(survey_data[[4]])
+# use sas_file_list_short_names as names for the list of dfs
+names(survey_data_list) <- sas_file_list_short_names
+
+## ---- check names and data inside ----
+# names(survey_data_list)[[4]]
+# survey_data_list[[4]] %>% select(YEAR, MONTH) %>% unique()
+# 
+# names(survey_data_list)[[19]]
+# survey_data_list[[19]] %>% 
+#   select(YEAR, WAVE) %>% unique()
 
 survey_data %>%
   map(~names(.x)) %>%
