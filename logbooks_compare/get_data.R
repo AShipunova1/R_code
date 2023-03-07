@@ -177,13 +177,20 @@ file_lists_by_cat <-
 
 read_by_category <-
   file_lists_by_cat %>%
-  map(. %>% map(poss_read_sas))
-    # ) %>%
+  map(function(x) {
+    x %>% map(poss_read_sas) %>%
+      # setNames(basename(x)) #works
+      setNames(tools::file_path_sans_ext(basename(x)))
+    # fileName <- tools::file_path_sans_ext(basename(x))
+    # fileName
+  }
+)
   # %>%
-  setNames(file_names)
-  setNames(file_categories)
+setNames(sas_file_list_short_names)
+setNames(file_categories)
 
-View(read_by_category[[1]])
+str(read_by_category)
+View(read_by_category)
 
 myDB <- do.call("rbind", lapply(sas_file_list, function(x) {
   dat <- read.csv(x, header=TRUE)
