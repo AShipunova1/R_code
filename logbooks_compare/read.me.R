@@ -15,3 +15,19 @@
 # For 1, I don't know of a specific standard documented approach to follow in this specific situation (but there may be some out there).  In general, I would suggest starting with the unweighted data, generating simple summary count information for domains of interest for both datasets.  Then look at distributions of variables of interest (catch by species and type, others).  I would also look at some data quality measures - range and logic checks, item nonresponse or missingness, digit bias checks, others.  Then I would move on to looking specifically at the differences in catch.  I would suggest calculating the differences as ratios at the trip level as you indicated, then plotting the distributions of those ratios for domains of interest, looking into any patterns and potentially drilling down into the underlying data.  At some point these ratios will need to be calculated using weighted estimation that takes into account the survey design.  That will be necessary to produce unbiased catch estimates, but it needn't be done right away as part of a preliminary descriptive analysis.
 # 
 # These are just my initial thoughts and certainly aren't exhaustive or definitive in terms of what can or should be done.  Hopefully, they can help to get started, and others may have different ideas to share on how to approach things.
+
+# ===
+# from Greg
+# I've provided 4 datasets here with some brief explanation below.
+# 
+# A_SEFHIER_2021_042022.xls - this is the assignment level data.  It basically gives you the sample draw with the results of how many intercepts were collected and what times the samplers were on site collecting intercepts.  It also gives you the assignment level comments that they collected.  I was forced to send this to you in an Excel format because I realized that there were some commas used in a few of the comments and that broke the delimiting process.  I don't believe this dataset is going to be essential in your analyses but something worth sending in case there are questions.
+# 
+# I1_SEFHIER_2021_042022.csv - this is the intercept level data minus the fish.  Variable names are fairly self-explanatory.  Many of these variables should match the original design Jessica came up with but I haven't confirmed that recently.  Other staff were tasked with the database development here.
+# 
+# I2_SEFHIER_2021_042022.csv - this is just the discard catch
+# I3_SEFHIER_2021_042022.csv - this is just the harvested catch
+# 
+# 
+# In all cases you can link the catch back to the specific intercept by using the ID_CODE variable.  ID_CODE is constructed by concatenating the following variables together into a unique identifier:  ASSIGNMENT NUMBER,SAMPLER ID, YEAR, MONTH, DAY, INTERCEPT NUMBER.  For example if my sampler id was 0012 and I collected intercepts today the ID_CODES would be 1001220220511001, 002, 003, and so on depending on how many intercepts I collected that day.  If a sampler completed an assignment but no intercepts were collected there will be no data in the i1,i2, and i3 datasets and there will just be a record of the completed assignment in the A data. 
+# 
+# This is based on MRIP data conventions and it can be a bit confusing to new users.  When you have time to start looking at this let me know if you have questions.  I can assist with any of this.
