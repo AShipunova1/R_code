@@ -8,24 +8,34 @@
 library(haven)
 
 my_add_path <- "logbooks_compare"
-# get survey data for 2022 May-Dec
+
+## ---- get survey data for 2022 May-Dec ----
 
 #    read_sas(unz("examp;e.zip", "'targetfilename.sas7bdat'"))
 # read.sas7bdat
 # haven::read_sas is faster
 
 ## ---- extract survey data ----
-
 extract_to_dir <- file.path(my_paths$inputs, my_add_path, "survey_05_to_12_2022")
 
+# get a list of zip archive file names 
 list.files(path = file.path(my_paths$inputs, my_add_path, "survey"), 
            pattern = "*zip",
            full.names = TRUE) %>%
+  # unzip all of them
   map(~unzip(.x, 
-                # list = T,
-                # files = "*csv",
-                exdir = extract_to_dir)) %>% head()
+             # to see what's in the archive without extracting
+             # list = T,
+             exdir = extract_to_dir))
 
+## ---- read survey data from SAS format ----
+# read all sas files in all subdirectories
+list.files(path = file.path(extract_to_dir), 
+           pattern = "*.sas7bdat",
+           recursive = T,
+           full.names = TRUE) %>% 
+  map_df(~haven::read_sas(.x,
+                          .name_repair = "universal")) %>% str()
   #   ~read_csv(.x,
   #                  show_col_types = FALSE) %>% 
   #          mutate(across(.fns = as.character))) %>%
