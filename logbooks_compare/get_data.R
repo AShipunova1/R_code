@@ -1,0 +1,34 @@
+# get data for logbooks comparison
+
+# see read.me.R
+# Survey data:
+# https://drive.google.com/drive/folders/1D1ksBarjJzvbmqWa5cEE-k0s6ZJi0VAM
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\logbooks_compare\survey\May 2022-20230307T132845Z-001.zip"
+
+library(haven)
+
+my_add_path <- "logbooks_compare"
+# get survey data for 2022 May-Dec
+
+#    read_sas(unz("examp;e.zip", "'targetfilename.sas7bdat'"))
+# read.sas7bdat
+# haven::read_sas is faster
+
+## ---- extract survey data ----
+
+extract_to_dir <- file.path(my_paths$inputs, my_add_path, "survey_05_to_12_2022")
+
+list.files(path = file.path(my_paths$inputs, my_add_path, "survey"), 
+           pattern = "*zip",
+           full.names = TRUE) %>%
+  map(~unzip(.x, 
+                # list = T,
+                # files = "*csv",
+                exdir = extract_to_dir)) %>% head()
+
+  #   ~read_csv(.x,
+  #                  show_col_types = FALSE) %>% 
+  #          mutate(across(.fns = as.character))) %>%
+  # type_convert() %>%
+  # rename_with(toupper) %>%
+  # unique()
