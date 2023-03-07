@@ -66,7 +66,7 @@ survey_data_df <-
 # survey_data_df %>% head()
 
 # ---- add file_names to the df ----
-survey_data_df_w_fnames <-
+add_file_names_to_the_df <- function() {
   sas_file_list %>%
   # use "_df" to combine all into one df
   map_df(~poss_read_sas(.x) %>% 
@@ -78,7 +78,8 @@ survey_data_df_w_fnames <-
   # Re-convert character columns
   # guess integer types for whole numbers
   type_convert(guess_integer = TRUE)
-
+}
+survey_data_df_w_fnames <- add_file_names_to_the_df()
 str(survey_data_df_w_fnames)
 
 
