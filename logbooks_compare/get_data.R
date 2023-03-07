@@ -99,20 +99,38 @@ str(all_sas_names)
 
 # ===
 ## ---- get logbooks from FHIER ----
-load_safis_catch <- function() {
-  # download Reports / SAFIS Catches Extended for each month, one year is too slow
-  safis_catch <- 
-    list.files(path = file.path(my_paths$inputs, "compare_catch/SAFIS CATCHES EXTENDED_2022"), 
+# all logbooks, by month
+
+fhier_logbooks_path_add <- "logbooks_from_fhier"
+
+fix_names <- function(x) {
+  # gsub("\\s+", "_", x)
+  x %>%
+  str_replace_all("\\s+", "_") %>%
+    str_replace_all("\\.", "_") %>%
+    str_replace_all("\\W", "_") %>%
+    toupper()
+}
+# make.names(c("v and b", "a_and_b"), unique = TRUE)
+
+load_all_fhier_logbooks <- function() {
+  fhier_logbooks <- 
+    list.files(path = file.path(my_paths$inputs,
+                                fhier_logbooks_path_add), 
                pattern = "*.csv",
                full.names = TRUE)  %>%
     map_df(~read_csv(.x,
+                     name_repair = fix_names,
                      show_col_types = FALSE) %>% 
              mutate(across(.fns = as.character))) %>%
-    type_convert() %>%
-    rename_with(toupper) %>%
-    unique()
+    # Re-convert character columns
+    # guess integer types for whole numbers
+    type_convert(guess_integer = TRUE)
   
-  # str(safis_catch)
-  # A tibble: 327,397 × 59
-  return(safis_catch)
+  return(fhier_logbooks)
 }
+
+fhier_logbooks <- load_all_fhier_logbooks()
+
+data_overview(fhier_logbooks)
+
