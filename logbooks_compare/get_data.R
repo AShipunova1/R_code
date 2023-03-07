@@ -172,31 +172,30 @@ file_lists_by_cat <-
 # survey_data_list <-
 #   sas_file_list %>%
 #   map(poss_read_sas) %>%
-#   # name the df as its file
-  # setNames(sas_file_list_short_names)
 
 read_by_category <-
   file_lists_by_cat %>%
   map(function(x) {
-    x %>% map(poss_read_sas) %>%
-      # setNames(basename(x)) #works
+    x %>% 
+      map(poss_read_sas) %>%
+      ## name the df as its file
       setNames(tools::file_path_sans_ext(basename(x)))
-    # fileName <- tools::file_path_sans_ext(basename(x))
-    # fileName
   }
 )
-  # %>%
-setNames(sas_file_list_short_names)
-setNames(file_categories)
 
 str(read_by_category)
 View(read_by_category)
 
-myDB <- do.call("rbind", lapply(sas_file_list, function(x) {
-  dat <- read.csv(x, header=TRUE)
-  dat$fileName <- tools::file_path_sans_ext(basename(x))
-  dat
-}))
+read_by_category_df <-
+  file_lists_by_cat %>%
+  map(function(x) {
+    x %>% 
+      map_df(poss_read_sas)
+  }
+  )
+
+View(read_by_category_df)
+
 
 sas_file_list_ref <-
   list.files(path = file.path(extract_to_dir), 
