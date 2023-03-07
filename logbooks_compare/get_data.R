@@ -18,23 +18,31 @@ my_add_path <- "logbooks_compare"
 ## ---- extract survey data ----
 extract_to_dir <- file.path(my_paths$inputs, my_add_path, "survey_05_to_12_2022")
 
-# get a list of zip archive file names 
-list.files(path = file.path(my_paths$inputs, my_add_path, "survey"), 
-           pattern = "*zip",
-           full.names = TRUE) %>%
-  # unzip all of them
-  map(~unzip(.x, 
-             # to see what's in the archive without extracting
-             # list = T,
-             exdir = extract_to_dir))
+extract_zipped_survey_data <- function() {
+  # get a list of zip archive file names 
+  list.files(path = file.path(my_paths$inputs, my_add_path, "survey"), 
+             pattern = "*zip",
+             full.names = TRUE) %>%
+    # unzip all of them
+    map(~unzip(.x, 
+               # to see what's in the archive without extracting
+               # list = T,
+               exdir = extract_to_dir))
+
+}
+# Use once
+# extract_zipped_survey_data()
 
 ## ---- read survey data from SAS format ----
 # read all sas files in all subdirectories
-list.files(path = file.path(extract_to_dir), 
+sas_file_list <- 
+  list.files(path = file.path(extract_to_dir), 
            pattern = "*.sas7bdat",
            recursive = T,
-           full.names = TRUE) %>% 
-  map_df(~haven::read_sas(.x,
+           full.names = TRUE)
+
+
+  map(~haven::read_sas(.x,
                           .name_repair = "universal")) %>% str()
   #   ~read_csv(.x,
   #                  show_col_types = FALSE) %>% 
