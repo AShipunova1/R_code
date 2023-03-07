@@ -79,31 +79,39 @@ add_file_names_to_the_df <- function() {
   # guess integer types for whole numbers
   type_convert(guess_integer = TRUE)
 }
-survey_data_df_w_fnames <- add_file_names_to_the_df()
-str(survey_data_df_w_fnames)
+# survey_data_df_w_fnames <- add_file_names_to_the_df()
+# str(survey_data_df_w_fnames)
 
-survey_data_df_w_fnames_split <-
-  split(survey_data_df_w_fnames, 
-        f = survey_data_df_w_fnames$FILE_NAME)
+# ---- separate df into separate dfs by file type ----
 
-survey_data_df_w_fnames_split <-
-  split(survey_data_df_w_fnames,
-        f = substr(survey_data_df_w_fnames$FILE_NAME,
+split_df_by_file_name <- function() {
+  survey_data_df_w_fnames %>%
+    split(f = survey_data_df_w_fnames$FILE_NAME) %>%
+    return()
+}
+
+split_df_by_file_type <- function() {
+  survey_data_df_w_fnames %>%
+    split(f = substr(survey_data_df_w_fnames$FILE_NAME,
                    start = 1, stop = 3)
-        )
+        ) %>%
+    return()
+}
+# survey_data_df_w_fnames_split <- split_df_by_file_type()
 
+## ---- remove fileds with all NAs ----
 not_all_na <- function(x) any(!is.na(x))
-# not_any_na <- function(x) all(!is.na(x))
-# all_na <- function(x) all(is.na(x))
 
-survey_data_df_w_fnames_split1 <-
+remove_all_na_fileds <- function() {
   survey_data_df_w_fnames_split %>%
-  map(. %>% select(where(not_all_na)))
-
-survey_data_df_w_fnames_split[[1]] %>% str()
+    map(. %>% select(where(not_all_na))) %>%
+    return()
+}
+survey_data_df_w_fnames_split <- remove_all_na_fileds()
+# survey_data_df_w_fnames_split[[1]] %>% str()
 # tibble [766 × 75] (S3: tbl_df/tbl/data.frame)
 
-str(survey_data_df_w_fnames_split)
+# data_overview(survey_data_df_w_fnames_split[[1]])
 ## ---- write the survey df to a csv ----
 # data_overview(survey_data_df)
 
