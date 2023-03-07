@@ -42,12 +42,6 @@ sas_file_list <-
 str(sas_file_list)
 # 45
 
-sas_file_list_short_names <-
-  list.files(path = file.path(extract_to_dir), 
-             pattern = "*.sas7bdat",
-             recursive = TRUE,
-             full.names = FALSE)
-
 # Instead of stopping the loop if there is an error, the cycle keeps going printing an error
 poss_read_sas = possibly(
   # what function is used
@@ -69,19 +63,33 @@ survey_data_df <-
   # guess integer types for whole numbers
   type_convert(guess_integer = TRUE)
 
-survey_data_df %>% head()
+# survey_data_df %>% head()
 
-# read sas files into a list of tibbles
+## ---- write the survey df to a csv ----
+# data_overview(survey_data_df)
+
+otput_csv_file <- file.path(my_paths$inputs, 
+                            r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)") 
+write.csv(survey_data_df, 
+          file = otput_csv_file, row.names = F)
+
+## ---- read sas files into a list of tibbles ----
 survey_data_list <-
   sas_file_list %>%
   map(~poss_read_sas(.x))
            
-str(survey_data_list) %>% head()
+# str(survey_data_list) %>% head()
 
 # use sas_file_list_short_names as names for the list of dfs
+sas_file_list_short_names <-
+  list.files(path = file.path(extract_to_dir), 
+             pattern = "*.sas7bdat",
+             recursive = TRUE,
+             full.names = FALSE)
+
 names(survey_data_list) <- sas_file_list_short_names
 
-## ---- check names and data inside ----
+## ---- check names and dates inside ----
 # names(survey_data_list)[[4]]
 # survey_data_list[[4]] %>% select(YEAR, MONTH) %>% unique()
 # 
@@ -89,7 +97,7 @@ names(survey_data_list) <- sas_file_list_short_names
 # survey_data_list[[19]] %>% 
 #   select(YEAR, WAVE) %>% unique()
 
-# there are 4 types of files
+## ---- there are 4 types of files ----
 survey_data_list %>%
   map(~names(.x)) %>%
   unique() ->
@@ -97,12 +105,6 @@ survey_data_list %>%
 str(all_sas_names)
 # 4
 
-data_overview(survey_data_df)
-
-otput_csv_file <- file.path(my_paths$inputs, 
-                            r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)") 
-write.csv(survey_data_df, 
-          file = otput_csv_file, row.names = F)
 # ===
 
 ## ---- get logbooks from FHIER ----
