@@ -158,21 +158,33 @@ str(all_sas_names)
 # 4
 
 ## ---- read sas files by category into a list of tibbles ----
-file_categories <- c("ref", "aga", "i1", "i2", "i3")
+file_categories <- list("ref", "aga", "i1_", "i2_", "i3_")
+
+file_lists_by_cat <- 
+  map(file_categories,
+      ~list.files(path = file.path(extract_to_dir), 
+                  pattern = paste0(., "*"),
+                  recursive = TRUE,
+                  full.names = TRUE)
+  ) %>%
+  setNames(file_categories)
+
+survey_data_list <-
+  sas_file_list %>%
+  map(poss_read_sas) %>%
+  # name the df as its file
+  setNames(sas_file_list_short_names)
+
 
 read_by_category <-
-  map(file_categories,
-    ~list.files(path = file.path(extract_to_dir), 
-                   pattern = paste0(., "*"),
-                   recursive = TRUE,
-                   full.names = TRUE) %>%
-      map(~poss_read_sas(.x))
-    # %>%
-    #   setNames(sas_file_list_short_names)
-    #
-    )
+  file_lists_by_cat %>%
+      map(poss_read_sas)
+    # ) %>%
+  # %>%
+  setNames(file_names)
+  setNames(file_categories)
 
-View(read_to_category)
+View(read_by_category[[1]])
 
 myDB <- do.call("rbind", lapply(sas_file_list, function(x) {
   dat <- read.csv(x, header=TRUE)
