@@ -65,6 +65,23 @@ survey_data_df <-
 
 # survey_data_df %>% head()
 
+# ---- add file_names to the df ----
+survey_data_df_w_fnames <-
+  sas_file_list %>%
+  # use "_df" to combine all into one df
+  map_df(~poss_read_sas(.x) %>% 
+           # convert all columns to char to use in bind
+           mutate(across(.fns = as.character)) %>%
+           # add file name
+           mutate(FILE_NAME = tools::file_path_sans_ext(basename(.x)))
+  ) %>%
+  # Re-convert character columns
+  # guess integer types for whole numbers
+  type_convert(guess_integer = TRUE)
+
+str(survey_data_df_w_fnames)
+
+
 ## ---- write the survey df to a csv ----
 # data_overview(survey_data_df)
 
@@ -105,9 +122,29 @@ survey_data_list %>%
 str(all_sas_names)
 # 4
 
+## ---- read sas files by category into a list of tibbles ----
+file_categories <- c("ref", "aga", "i1", "i2", "i3")
+
+myDB <- do.call("rbind", lapply(sas_file_list, function(x) {
+  dat <- read.csv(x, header=TRUE)
+  dat$fileName <- tools::file_path_sans_ext(basename(x))
+  dat
+}))
+
+sas_file_list_ref <-
+  list.files(path = file.path(extract_to_dir), 
+             pattern = "ref*",
+             recursive = TRUE,
+             full.names = TRUE)
+
+survey_data_list_cat <-
+  sas_file_list %>%
+  
+  map(~poss_read_sas(.x))
+
 # ===
 
-## ---- get logbooks from FHIER ----
+## ---- get logbooks from FHIER - not enough fields ----
 
 fhier_logbooks_path_add <- "logbooks_from_fhier"
 
