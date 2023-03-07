@@ -134,3 +134,21 @@ fhier_logbooks <- load_all_fhier_logbooks()
 
 data_overview(fhier_logbooks)
 
+## get "logbooks_from_fhier\FHIER_all_logbook_data.csv"
+# is it different from "All logbooks" downloaded from FHIER?
+
+fhier_all_logbook_data_csv <-
+  file.path(my_paths$inputs,
+            fhier_logbooks_path_add,
+            "FHIER_all_logbook_data.csv"
+            ) %>%
+    read_csv(name_repair = fix_names,
+           show_col_types = FALSE) %>%
+    # mutate(across(.fns = as.character))
+# %>%
+    # Re-convert character columns
+    # guess integer types for whole numbers
+    type_convert(guess_integer = TRUE)
+
+# problems(fhier_all_logbook_data_csv)
+data_overview(fhier_all_logbook_data_csv)
