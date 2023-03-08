@@ -23,6 +23,8 @@ library(readxl)  # reading in .xlsx
 
 # Do not show warnings about groups
 options(dplyr.summarise.inform = FALSE)
+# Turn off the scientific notation
+options(scipen = 999)
 
 set_work_dir <- function() {
   setwd("~/")
