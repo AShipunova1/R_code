@@ -28,20 +28,20 @@ options(scipen = 999)
 
 # Use my function in case we want to change the case in all functions
 my_headers_case_function <- tolower
-  
+
 set_work_dir <- function() {
   setwd("~/")
   base_dir <- getwd()
   main_r_dir <- "R_files_local"
-  
+
   in_dir <- "my_inputs"
   full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
   out_dir <- "my_outputs"
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-  
+
   git_r_dir <- "R_code_github"
   full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-  
+
   setwd(file.path(base_dir, main_r_dir))
 
   my_paths <- list("inputs" = full_path_to_in_dir,
@@ -54,24 +54,33 @@ load_csv_names <- function(my_paths, csv_names_list) {
   my_inputs <- my_paths$inputs
   # add input directory path in front of each file name.
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, x))
-
+  browser()
+  time_for_appl <<- benchmark(replications=rep(10, 3),
+            lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
+            sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = FALSE)
+            # ,
+            # columns = c('test', 'elapsed')
+            )
+  
+  
   # read all csv files
-  contents <- sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = FALSE)
+  contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
 
   return(contents)
 }
+
 
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   my_inputs <- my_paths$inputs
 
   # add input directory path in front of each file name.
   myfiles <- sapply(xls_names_list, function(x) file.path(my_inputs, x))
-  
+
   # browser()
   # print("map:")
   # start_time <- Sys.time()
   ## read all files
-  contents <- map_df(myfiles, 
+  contents <- map_df(myfiles,
          ~read_excel(.x, sheet = sheet_n, .name_repair = "universal"))
   # end_time <- Sys.time()
   # print(end_time - start_time)
@@ -86,7 +95,7 @@ clean_headers <- function(my_df) {
   return(my_df)
 }
 
-# to use in a function, 
+# to use in a function,
 # e.g. read_csv(name_repair = fix_names)
 fix_names <- function(x) {
   x %>%
@@ -269,10 +278,10 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
   csv_names_list <- prepare_csv_names(filenames)
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
-  
+
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
-  
+
   # ---- specific correspondence manipulations ----
   corresp_arr <- csvs_clean1[[1]]
   # add a new column with a "yes" if there is a contactdate (and a "no" if not),
