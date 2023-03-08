@@ -91,7 +91,7 @@ clean_headers <- function(my_df) {
 fix_names <- function(x) {
   x %>%
     str_replace_all("\\s+", "_") %>%
-    str_replace_all("\\.", "_") %>%
+    str_replace_all("\\.", "") %>%
     str_replace_all("\\W", "_") %>%
     my_headers_case_function()
 }
