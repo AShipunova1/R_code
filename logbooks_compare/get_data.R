@@ -57,16 +57,20 @@ poss_read_sas = possibly(
 #   f()
 # }
 
+# todo: test
 poss_read_sas1 <- function(x) {
-  f = possibly(function() haven::read_sas(x, .name_repair = fix_names), otherwise = x)
+  f = possibly(function() haven::read_sas(x, .name_repair = fix_names), 
+               otherwise = x)
+               # otherwise = paste("Error in : ", x))
   f()
 }
 
+str(sas_file_list)
 # loop through all files from the list and run the function on each one
 survey_data_df <-
   sas_file_list %>%
   # use "_df" to combine all into one df
-    map_df(~poss_read_sas1(.x) %>% 
+    map_df(~poss_read_sas(.x) %>% 
              # convert all columns to char to use in bind
              mutate(across(.fns = as.character))) %>%
   # Re-convert character columns
