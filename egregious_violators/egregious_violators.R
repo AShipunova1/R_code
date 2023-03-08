@@ -1,49 +1,4 @@
-# download the compliance details and filter out those South Atlantic vessels that have never reported, and then check that short list against # of calls/emails (need at least 2, and if never spoken too/responded then they'd need a certified letter from OLE)
-# From Leeanne:
-# You can download that report from the FHIER compliance report. Within that report you can refine the search parameters like the 2022 year and for "Has Error" at the top, select "No report". The "no report" error will limit the report to Atlantic/South Atlantic vessels that are non-compliant for no reports. You will have to specifically filter out the vessels that are egregious.
-# An egregious violator, in the past, is considered as a vessel that has not reported at all (either all 52 weeks out of the year or since permit issue if they were issued new permits throughout the year) but has been contacted (called/emailed) at least twice since the program began Jan 4, 2021. 
-# *) pull all, filter "no report" in R instead of "has error"
-# TODO: compare with the given
-# Workflow:
-
-# get compliance report for 2022-2023 (Reports/FHIER COMPLIANCE REPORT)
-# get correspondence report for all years
-# upload to R
-# add correspondence counts
-# only SA permits, exclude those with Gulf permits
-# Gulf of Mexico (Gulf) federal for-hire permits: 
-#   Charter/Headboat for Reef fish permit (RCG)
-#   Historical Captain Charter/Headboat for Reef fish permit (HRCG)
-#   Charter/Headboat for Coastal Migratory Pelagic fish permit (CHG) 
-#   Historical Captain Charter/Headboat for Coastal Migratory Pelagic fish (HCHG) permit 
-# South Atlantic/Atlantic (South Atlantic) federal for-hire permits: 
-#   South Atlantic Charter/Headboat for Coastal Migratory Pelagic fish (CHS) permit
-#   Atlantic Charter/Headboat for Dolphin/wahoo (CDW) permit
-#   South Atlantic Charter/Headboat for Snapper-grouper fish (SC) permit
-# keep only specific entries (not a voicemail) (no filter by a reason) bc they should already know about the program from any kind of communication
-# 12 months of compliance errors (no reports) for one vessel (or since permit issue if they were issued new permits throughout the year)
-# # GOM PermittedDeclarations	# CaptainReports	# NegativeReports	# ComplianceErrors
-# # 0	0	0	1
-# contacttype: other == email for now
-
-# Filters:
-# 1) SA permits only
-#  & > 51 week with no reports
-#  & (a direct contact call | 
-#     emails in and out)
-# TODO: add "have permit less than 52 weeks, but no reports"
-
-## Output:
-# For the egregious output files, we'll need the following columns:
-# Vessel name
-# vessel ID
-# Permit type(s) list
-# Permit expirations, in order of types, as list
-# Owner name
-# owner address
-# owner phone #
-# list of non-compliant weeks
-# list of contact dates and contact type in parentheses 
+# see read.me
 
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
@@ -53,15 +8,9 @@ source("~/R_code_github/useful_functions_module.r")
 
 # ----set up----
 my_paths <- set_work_dir()
+curren_project_path <- file.path(my_paths$git_r, "egregious_violators")
 
-csv_names_list_22_23 = c("Correspondence__2_24_23.csv",
-                         "FHIER_Compliance_22__02_24_23.csv",
-                         "FHIER_Compliance_23__02_24_23.csv")
-
-## ---- get csv data into variables ----
-temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_22_23)
-compl_clean <- temp_var[[1]]
-corresp_contact_cnts_clean0 <- temp_var[[2]]
+source(file.path(curren_project_path, "get_data.R"))
 
 ## ---- Preparing compliance info ----
 
