@@ -113,15 +113,16 @@ clean_weeks <- function(my_df) {
   return(my_df)
 }
 
-# trim vesselofficialnumber, just in case
-trim_all_vessel_ids_simple <- function(csvs_clean) {
-  for (i in seq_along(csvs_clean)){
-    csvs_clean[[i]]$vesselofficialnumber <-
-      trimws(csvs_clean[[i]]$vesselofficialnumber)
+# trim vesselofficialnumber, there are 273 w spaces in Feb 2023
+trim_all_vessel_ids_simple <- function(csvs_clean_ws) {
+  csvs_clean <- lapply(csvs_clean_ws, function(x) {
+    # browser()
+    x$vesselofficialnumber <- trimws(x$vesselofficialnumber)
+    x
   }
+  )
   return(csvs_clean)
 }
-
 
 # cleaning, regularly done for csvs downloaded from PFIER
 clean_all_csvs <- function(csvs) {
