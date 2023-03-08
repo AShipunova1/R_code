@@ -129,6 +129,7 @@ clean_all_csvs <- function(csvs) {
   # unify headers
   csvs_clean0 <- lapply(csvs, clean_headers)
   # trim vesselofficialnumber, just in case
+# browser()
   csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0)
   return(csvs_clean1)
 }
@@ -181,6 +182,7 @@ change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
 
 # Use for contacts in the setup function before combining with compliant dataframes
 add_count_contacts <- function(all_data_df_clean) {
+  # browser()
   all_data_df_clean %>%
     # add a new column with a "yes" if there is a contactdate (and a "no" if not)
     # TODO: as.factor
@@ -251,7 +253,6 @@ prepare_csv_names <- function(filenames) {
   add_path_compl <- "FHIER Compliance"
 
   my_list <- sapply(filenames, function(x) {
-    # browser()
     case_when(startsWith(my_headers_case_function(x), "correspond") ~
                 file.path(add_path_corresp,  x),
               startsWith(my_headers_case_function(x), "fhier_compliance") ~
@@ -263,15 +264,15 @@ prepare_csv_names <- function(filenames) {
 }
 
 get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23) {
-
+  # browser()
   # add my additional folder names
   csv_names_list <- prepare_csv_names(filenames)
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
-
+  
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
-
+  
   # ---- specific correspondence manipulations ----
   corresp_arr <- csvs_clean1[[1]]
   # add a new column with a "yes" if there is a contactdate (and a "no" if not),
