@@ -54,18 +54,17 @@ set_work_dir <- function() {
 load_csv_names <- function(my_paths, csv_names_list) {
   my_inputs <- my_paths$inputs
 # add input directory path in front of each file name.
-  myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, x))
+  myfiles <- lapply(csv_names_list, function(x) file.path(my_inputs, x))
   # read all csv files
   contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
   return(contents)
 }
 
-
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   my_inputs <- my_paths$inputs
 
   # add input directory path in front of each file name.
-  myfiles <- sapply(xls_names_list, function(x) file.path(my_inputs, x))
+  myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
   # browser()
   # print("map:")
