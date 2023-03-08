@@ -55,10 +55,13 @@ load_csv_names <- function(my_paths, csv_names_list) {
   my_inputs <- my_paths$inputs
 # add input directory path in front of each file name.
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, x))
-  
+  browser()
   # read all csv files
-  contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
-
+  contents <- lapply(myfiles, 
+                     read.csv, 
+                     skipNul = TRUE, 
+                     header = TRUE, 
+                     col.names = fix_names)
   return(contents)
 }
 

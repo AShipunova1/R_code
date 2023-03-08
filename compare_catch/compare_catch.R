@@ -4,8 +4,7 @@
 ## ---- set up ----
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-# turn off the scientific notation
-options(scipen=999)
+
 source("~/R_code_github/compare_catch/get_data.R")
 
 # ---- the breath of species caught in SEFIHIER (2022) ----
@@ -81,6 +80,25 @@ fhier_quantity_by_species <-
   group_by(SP_CODE) %>% 
   summarise(fhier_quantity_by_species = sum(REPORTEDQUANTITY))
 # head(fhier_quantity_by_species, 10)
+
+# names(scientific_names_w_mrip)
+# COMMON_NAME.x
+fhier_species_count_by_disposition_sp_com_names <-
+  fhier_quantity_by_species %>%
+    merge(scientific_names_w_mrip, by = "SP_CODE")
+  
+# red snapper, greater amberjack, gag, and gray triggerfish
+fhier_species_count_by_disposition_sp_com_names %>%
+  filter(grepl("red snapper", tolower(COMMON_NAME.x)))
+
+fhier_species_count_by_disposition_sp_com_names %>%
+  filter(grepl("greater amberjack", tolower(COMMON_NAME.x)))
+
+fhier_species_count_by_disposition_sp_com_names %>%
+  filter(grepl("gag", tolower(COMMON_NAME.x)))
+
+fhier_species_count_by_disposition_sp_com_names %>%
+  filter(grepl("gray triggerfish", tolower(COMMON_NAME.x)))
 
 ## ---- FHIER: count catch by species and permit ----
 fhier_quantity_by_species_and_permit <-
