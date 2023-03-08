@@ -26,10 +26,14 @@ options(dplyr.summarise.inform = FALSE)
 # Turn off the scientific notation
 options(scipen = 999)
 
+# Use my function in case we want to change the case in all functions
+my_headers_case_function <- tolower
+  
 set_work_dir <- function() {
   setwd("~/")
   base_dir <- getwd()
   main_r_dir <- "R_files_local"
+  
   in_dir <- "my_inputs"
   full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
   out_dir <- "my_outputs"
@@ -74,7 +78,7 @@ clean_headers <- function(my_df) {
   colnames(my_df) %<>%
     str_replace_all("\\s", "_") %<>%
     str_replace_all("\\.", "") %<>%
-    toupper()
+    my_headers_case_function()
   return(my_df)
 }
 
@@ -85,7 +89,7 @@ fix_names <- function(x) {
     str_replace_all("\\s+", "_") %>%
     str_replace_all("\\.", "_") %>%
     str_replace_all("\\W", "_") %>%
-    toupper()
+    my_headers_case_function()
 }
 
 
@@ -243,9 +247,9 @@ prepare_csv_names <- function(filenames) {
 
   my_list <- sapply(filenames, function(x) {
     # browser()
-    case_when(startsWith(tolower(x), "correspond") ~
+    case_when(startsWith(my_headers_case_function(x), "correspond") ~
                 file.path(add_path_corresp,  x),
-              startsWith(tolower(x), "fhier_compliance") ~
+              startsWith(my_headers_case_function(x), "fhier_compliance") ~
                 file.path(add_path_compl,  x),
               .default = ""
     )
