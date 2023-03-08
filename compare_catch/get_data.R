@@ -66,7 +66,22 @@ load_mrip_data <- function() {
   
   mrip_species_list <- load_csv_names(my_paths, mrip_csv_names_list)
   
-  mrip_estimate_usa <- load_xls_names(my_paths, mrip_xls_names_list, sheet_n = "mripaclspec_rec81_22wv6_01mar23")
+  mrip_estimate_usa <- 
+    load_xls_names(my_paths, mrip_xls_names_list,
+                   sheet_n = "mripaclspec_rec81_22wv6_01mar23") %>%
+    # guess integer types for whole numbers
+    type_convert(guess_integer = TRUE)
+
+  # ---
+  # map_df(~read_csv(.x,
+  #                  name_repair = fix_names,
+  #                  show_col_types = FALSE) %>% 
+  #          mutate(across(.fns = as.character))) %>%
+  #   # Re-convert character columns
+  #   # guess integer types for whole numbers
+  #   type_convert(guess_integer = TRUE)
+  # 
+  # ---
   
   # mrip_estimate_sa <- temp_var[[2]]
   # mrip_estimate_gom <- temp_var[[3]]
@@ -75,12 +90,13 @@ load_mrip_data <- function() {
   output <- list(mrip_species_list, mrip_estimate_usa)
   return(output)
 }
+# TODO: benchmark, too slow
 mrip_temp <- load_mrip_data()
 
 mrip_species_list <- mrip_temp[[1]]
 mrip_estimate <- mrip_temp[[2]]
 
-data_overview(mrip_estimate)
+# data_overview(mrip_estimate)
 
 ## ---- specifically for "O:\Fishery Data\ACL Data\"
 # "FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01Mar23\" and 
@@ -88,18 +104,26 @@ data_overview(mrip_estimate)
 # str(mrip_estimate)
 mrip_estimate_2022 <-
   mrip_estimate %>%
-  filter(YEAR == "2022")
+  filter(year == "2022")
 
 dim(mrip_estimate)
-# [1] 352127 67
+# [1] 347379 67
 dim(mrip_estimate_2022)
-# [1] 9546   67
+# [1] 8332   67
 # names(mrip_estimate)
 mrip_estimate <-
   mrip_estimate_2022 %>%
-    filter(SUB_REG %in% c(6, 7)) %>%
-    filter(AGG_MODEN == "For-Hire")
+    filter(sub_reg %in% c(6, 7)) %>%
+# dim(mrip_estimate)
+# [1] 7479   67
+  filter(new_moden == "Cbt")
+# dim(mrip_estimate)
+# [1] 1442   67
 
+# grep("mode", names(mrip_estimate), value = T)
+# [1] "new_mode"  "new_moden" "mode_fx"   "agg_moden"
+
+# mrip_estimate %>% select(new_moden) %>% unique()
 ## ---- specifically for mrip_catch_year_2022_preliminary.csv and/or
 # mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv
 # use sub_reg 6 & 7 for now (SA & GOM)
@@ -110,7 +134,6 @@ mrip_estimate <-
 # %>%
 # ? WFL 10?
   # filter(area_x %in% c(2, 3, 4))
-
 
 # ---- 3) Auxilary ----
 get_permit_type_from_compiance <- function() {
