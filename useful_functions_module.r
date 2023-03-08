@@ -54,10 +54,10 @@ load_csv_names <- function(my_paths, csv_names_list) {
   my_inputs <- my_paths$inputs
   # add input directory path in front of each file name.
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, x))
-  browser()
+  # browser()
   time_for_appl <<- benchmark(replications=rep(10, 3),
             lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
-            sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = FALSE)
+            sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
             # ,
             # columns = c('test', 'elapsed')
             )
