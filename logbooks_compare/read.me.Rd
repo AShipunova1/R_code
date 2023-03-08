@@ -1,4 +1,7 @@
-# Compare catch in survey vs logbook
+\name{read me}
+\alias{read me}
+
+\title{Compare catch in survey vs logbook}
 # all data for 2022
 
 ## ---- Workflow ----
@@ -83,3 +86,4 @@ Below is what I had in mind to discuss at the meeting today but feel free to edi
 If I can get the same data for SEFHIER then we can start comparisons.
 
 Mike
+
