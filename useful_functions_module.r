@@ -39,10 +39,14 @@ set_work_dir <- function() {
   out_dir <- "my_outputs"
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
   
+  git_r_dir <- "R_code_github"
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+  
   setwd(file.path(base_dir, main_r_dir))
 
   my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir)
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
   return(my_paths)
 }
 
