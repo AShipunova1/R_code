@@ -41,6 +41,7 @@ get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl){
     unique() %>%
     # add a column with counts
     count(vesselofficialnumber) %>% 
+    # keep only with count > 51
     filter(n > 51) %>%
     return()
 }
