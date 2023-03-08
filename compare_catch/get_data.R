@@ -1,4 +1,4 @@
-# get data
+# get data for compare catch
 
 # see read.me.R
 # SEFHIER data
@@ -132,6 +132,7 @@ scientific_names <- get_scientific_names()
 # ---- rename all field names to upper case for comparability ----
 data_list_names <- list("fhier_species_count_by_disposition", "mrip_species_list", "mrip_estimate", "scientific_names")
 
+# TODO: benchmark with map()
 for(d_name in data_list_names) {
   # get an object (df) by its name
   tmp0 <- get(d_name)
