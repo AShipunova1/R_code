@@ -20,6 +20,7 @@
 library(tidyverse)
 library(magrittr)
 library(readxl)  # reading in .xlsx
+library(rbenchmark)
 
 # Do not show warnings about groups
 options(dplyr.summarise.inform = FALSE)
@@ -52,16 +53,8 @@ set_work_dir <- function() {
 
 load_csv_names <- function(my_paths, csv_names_list) {
   my_inputs <- my_paths$inputs
-  # add input directory path in front of each file name.
+# add input directory path in front of each file name.
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, x))
-  # browser()
-  time_for_appl <<- benchmark(replications=rep(10, 3),
-            lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
-            sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
-            # ,
-            # columns = c('test', 'elapsed')
-            )
-  
   
   # read all csv files
   contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
@@ -217,11 +210,11 @@ data_overview <- function(my_df) {
   summary(my_df) %>% print()
   cat("\nCount unique values in each column:")
   count_uniq_by_column(my_df)
-  # sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
 }
 
 count_uniq_by_column <- function(my_df) {
-  sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
+  sapply(my_df, function(x) length(unique(x))) %>% 
+    as.data.frame()
 }
 
 # from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
@@ -336,3 +329,36 @@ cat_filter_for_fhier <- function(my_characters) {
       file = file.path(my_paths$outputs,
                        "cat_out.txt"))
 }
+
+# 
+# benchmarking to insert inside a function
+# browser()
+# time_for_appl <<- benchmark(replications=rep(10, 3),
+                            # lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
+                            # sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
+                            # ,
+                            # columns = c('test', 'elapsed', 'relative')
+# )
+
+# write.csv(time_for_appl, "time_for_appl.csv")
+
+# or
+# browser()
+# sappl_exp <- function(){
+#   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
+# }
+# 
+# map_exp <- function(){
+#   my_fun <- function(x) length(unique(x))
+#   map_df(my_df, my_fun)
+# }
+# 
+# time_for_appl <<- benchmark(replications=rep(10^7, 3),
+#                             exp1,
+#                             exp2,
+#                             columns = c('test', 'elapsed', 'relative')
+# )
+# 
+# map_df(my_df, function(x) length(unique(x)))
+# to compare:
+# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
