@@ -292,7 +292,7 @@ to_plot_10 <- right_join(mrip_and_fhier_w_names,
 to_plot_10 %>% head(2)
 
 ## ---- separately ----
-theme1 <- theme(
+theme_sep <- theme(
   axis.text.x = element_text(
     angle = 45
     , vjust = 0.5
@@ -301,89 +301,91 @@ theme1 <- theme(
   axis.text = element_text(size = 10)
 )
 
-fhier_to_ten <-
-  factor(to_plot_10$fhier_quantity_by_species) %>%
-  as.numeric()
-
-fhier_top_only_plot <-
-  to_plot_10 %>%
-  select(common_name, fhier_quantity_by_species) %>%
-  ggplot(aes(x = fhier_quantity_by_species ,
-             y = reorder(common_name,
-                         fhier_to_ten,
-                         FUN = min
-             )
-  )
-  ) +
-  labs(title = "FHIER counts"
-       , x = ""
-       , y = ""
-  ) +
-  theme1 +
-  geom_point()
-
-fhier_top_only_plot
-
-mrip_top_only_plot <- 
-  to_plot_10 %>%
-  select(common_name, mrip_estimate_catch_by_species) %>%
-  ggplot(aes(x = mrip_estimate_catch_by_species,
-             y = reorder(common_name,
-                         fhier_to_ten,
-                         FUN = min
-                         )
-             )
-         ) +
-  labs(title = "MRIP estimate"
-       , x = ""
-       , y = ""
-  ) +
-  theme1 +
-  geom_point()
-
-mrip_top_only_plot
-
-max_fhier = max(to_plot_10$fhier_quantity_by_species)
-# 460094
-min_fhier = min(to_plot_10$fhier_quantity_by_species)
-# 100786
-
-# Position of vertical line
-
-mrip_top_only_plot_l <-
-  mrip_top_only_plot +
-  annotate("rect", 
-           xmin = min_fhier, xmax = max_fhier, 
-           ymin = 0, ymax = 11,
-           color = "red",
-           fill='red',
-           alpha = .2) +
-  geom_vline(aes(xintercept = max_fhier), 
-             color = "red") +
-  geom_text(aes(x = (max_fhier - (1.8 * min_fhier)), 
-                y = 0.5, 
-                label = "FHIER counts"
-            
-                ), 
-            color = "red",
-            size = 3
-            )
-
+plot_top_10_sep <- function() {
+  fhier_to_ten <-
+    factor(to_plot_10$fhier_quantity_by_species) %>%
+    as.numeric()
+  
+  fhier_top_only_plot <-
+    to_plot_10 %>%
+    select(common_name, fhier_quantity_by_species) %>%
+    ggplot(aes(x = fhier_quantity_by_species ,
+               y = reorder(common_name,
+                           fhier_to_ten,
+                           FUN = min
+               )
+    )
+    ) +
+    labs(title = "FHIER counts"
+         , x = ""
+         , y = ""
+    ) +
+    theme_sep +
+    geom_point()
+  
+  # fhier_top_only_plot
+  
+  mrip_top_only_plot <- 
+    to_plot_10 %>%
+    select(common_name, mrip_estimate_catch_by_species) %>%
+    ggplot(aes(x = mrip_estimate_catch_by_species,
+               y = reorder(common_name,
+                           fhier_to_ten,
+                           FUN = min
+               )
+    )
+    ) +
+    labs(title = "MRIP estimate"
+         , x = ""
+         , y = ""
+    ) +
+    theme_sep +
+    geom_point()
+  
+  # mrip_top_only_plot
+  
+  max_fhier = max(to_plot_10$fhier_quantity_by_species)
+  # 460094
+  min_fhier = min(to_plot_10$fhier_quantity_by_species)
+  # 100786
+  
+  # Position of vertical line/area
+  mrip_top_only_plot_l <-
+    mrip_top_only_plot +
+    annotate("rect", 
+             xmin = min_fhier, xmax = max_fhier, 
+             ymin = 0, ymax = 11,
+             color = "red",
+             fill='red',
+             alpha = .2) +
+    geom_vline(aes(xintercept = max_fhier), 
+               color = "red") +
+    geom_text(aes(x = (max_fhier - (1.8 * min_fhier)), 
+                  y = 0.5, 
+                  label = "FHIER counts"
+    ), 
+    color = "red",
+    size = 3
+    )
+  
   # geom_text(aes(x = (max_fhier + 1), 
   #               y = 2, 
   #               label = "Max FHIER count"
   #               ), 
   #           color = "red", 
   #           angle=90)
+  
+  
+  super_title = "The top 10 most abundant FHIER species"
+  
+  grid.arrange(fhier_top_only_plot, 
+               mrip_top_only_plot_l, 
+               top = super_title, 
+               ncol = 2)
+  
+}
 
-
-super_title = "The top 10 most abundant FHIER species"
-
-grid.arrange(fhier_top_only_plot, 
-             mrip_top_only_plot_l, 
-             top = super_title, 
-             ncol = 2)
-
+plot_top_10_sep
 
 ## ---- 50 species ----
 n_most_frequent_fhier_50 <- get_n_most_frequent_fhier(50)
