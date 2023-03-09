@@ -122,10 +122,17 @@ clean_weeks <- function(my_df) {
 }
 
 # trim vesselofficialnumber, there are 273 w spaces in Feb 2023
-trim_all_vessel_ids_simple <- function(csvs_clean_ws) {
+trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
+  # browser()
+  # if(is.na(col_name_to_trim)) col_name_to_trim = "vesselofficialnumber"
   csvs_clean <- lapply(csvs_clean_ws, function(x) {
-    # browser()
-    x$vesselofficialnumber <- trimws(x$vesselofficialnumber)
+    if(is.na(col_name_to_trim)) {
+    col_name_to_trim <- grep("vessel.*official.*number", 
+                             tolower(names(x)),
+                             value = T)
+    }
+    x[col_name_to_trim] <- trimws(x[col_name_to_trim])
+    # x$vesselofficialnumber <- trimws(x$vesselofficialnumber)
     x
   }
   )
