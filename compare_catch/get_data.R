@@ -12,12 +12,17 @@
 # https://www.st.nmfs.noaa.gov/SASStoredProcess/do?#
 # or
 # "O:\Fishery Data\ACL Data\FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01Mar23\MRIP_FES_rec81_22wv6_01Mar23w2014to2021LACreel.xlsx"
+# 2022 only: local mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel_2022.xlsx
 
 # ---- 1) SEFHIER data ----
 
 load_species_count_by_disposition <- function() {
   species_count_csv_names_list_22 = c("compare_catch/SEFHIER data/Catch by Disposition Detail (Unit Measure = CN Only).csv")
   species_count_contents <- load_csv_names(my_paths, species_count_csv_names_list_22)
+  
+  # vessel_id_field_name <- grep("vessel.*official.*number", 
+  #                                                      tolower(names(x)),
+  #                                                      value = T)
   
   species_count <- clean_all_csvs(species_count_contents)
   
@@ -53,6 +58,7 @@ load_mrip_data <- function() {
   )
   # a file recommended by Mike
   mrip_xls_names_list_raw <- c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
+  # mrip_xls_names_list_raw <- c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel_2022.xlsx)")
   
     # r"(mrip_US\mripaclspec_rec81_22wv6_01mar23.csv)"
     # "mrip_US/mrip_catch_year_2022_preliminary.csv"
@@ -63,14 +69,15 @@ load_mrip_data <- function() {
   mrip_csv_names_list <- 
       map_chr(mrip_csv_names_list_raw, ~file.path(mrip_dir_path, .x))
   mrip_xls_names_list <- map_chr(mrip_xls_names_list_raw, ~file.path(mrip_dir_path, .x))
-  
+# browser()  
   mrip_species_list <- load_csv_names(my_paths, mrip_csv_names_list)
   
   mrip_estimate_usa <- 
     load_xls_names(my_paths, mrip_xls_names_list,
-                   sheet_n = "mripaclspec_rec81_22wv6_01mar23") %>%
+                   sheet_n = "mripaclspec_rec81_22wv6_01mar23") 
+  # %>%
     # guess integer types for whole numbers
-    type_convert(guess_integer = TRUE)
+    # type_convert(guess_integer = TRUE)
 
   # ---
   # map_df(~read_csv(.x,
