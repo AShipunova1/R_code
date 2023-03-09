@@ -178,7 +178,6 @@ str(fhier_quantity_by_species)
 get_n_most_frequent_fhier <- function(n) {
   fhier_quantity_by_species %>%
     arrange(desc(fhier_quantity_by_species)) %>%
-    inner_join(scientific_names_w_mrip, by = "species_itis") %>%
     head(n) %>%
     return()
 }
