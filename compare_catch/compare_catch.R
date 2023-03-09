@@ -14,52 +14,6 @@ source("~/R_code_github/compare_catch/get_data.R")
 
 ## ---- ID the breath of species caught in all SEFHIER data. Do this by region (gulf vs s atl vessels) ----
 
-## ---- add common species identifier to FHIER data ----
-# names(mrip_species_list)
-scientific_names_w_mrip <- 
-  inner_join(mrip_species_list,
-             scientific_names,
-             by = "SCIENTIFIC_NAME",
-             multiple = "all")
-
-# names(scientific_names_w_mrip)
-# use: SPECIES_ITIS, SP_CODE
-
-## ---- test itis vs. mrip sp_code  ----
-
-# scientific_names_w_mrip %>%
-#   select(SCIENTIFIC_NAME, SPECIES_ITIS, SP_CODE) %>% unique() %>% str()
-# 511
-
-# total species in mrip
-# mrip_species_list$SP_CODE %>% unique() %>% str()
-# 1775
-
-# total species in fhier species list
-# scientific_names$SPECIES_ITIS %>% unique() %>% str()
-# 736
-
-# total species in the logbook file
-# logbooks$CATCH_SPECIES_ITIS %>% unique() %>% str()
-# 467
-
-str(scientific_names_w_mrip)
-
-sp_code__species_itis <- 
-  scientific_names_w_mrip %>% 
-  select(SP_CODE, SPECIES_ITIS) 
-
-## ---- add sp_code to FHIER data ---- 
-# convert fhier_species_count_by_disposition$SPECIESITIS to char
-fhier_species_count_by_disposition %<>%
-  mutate(SPECIESITIS = as.character(SPECIESITIS))
-
-fhier_species_count_by_disposition_sp_all <-
-  inner_join(sp_code__species_itis, 
-             fhier_species_count_by_disposition, 
-             by = c("SPECIES_ITIS" = "SPECIESITIS"),
-             multiple = "all")
-
 ## ---- select columns to use ----
 fhier_species_count_by_disposition_sp <- 
   fhier_species_count_by_disposition_sp_all %>%
