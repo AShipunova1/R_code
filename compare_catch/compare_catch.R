@@ -14,58 +14,62 @@ source("~/R_code_github/compare_catch/get_data.R")
 
 ## ---- ID the breath of species caught in all SEFHIER data. Do this by region (gulf vs s atl vessels) ----
 
-## ---- select columns to use ----
-fhier_species_count_by_disposition_sp <- 
-  fhier_species_count_by_disposition_sp_all %>%
-  select(VESSELOFFICIALNUMBER,
-         SPECIES_ITIS,
-         SP_CODE,
-         PERMITREGION,
-         REPORTEDQUANTITY,
-         DISPOSITION
-  ) 
-# str(fhier_species_count_by_disposition_sp)
-# 'data.frame':	291346 obs. of  6 variables:
+# names(fhier_species_count_by_disposition)
+# str(fhier_species_count_by_disposition)
+# 'data.frame':	316171  obs. of  6 variables:
 
 ## ---- FHIER: count catch by species ----
 fhier_quantity_by_species <-
-  fhier_species_count_by_disposition_sp %>%
-  select(SP_CODE, REPORTEDQUANTITY) %>% 
-  group_by(SP_CODE) %>% 
-  summarise(fhier_quantity_by_species = sum(REPORTEDQUANTITY))
-# head(fhier_quantity_by_species, 10)
+  fhier_species_count_by_disposition %>%
+  select(speciesitis, reportedquantity) %>% 
+  group_by(speciesitis) %>% 
+  summarise(fhier_quantity_by_species = sum(reportedquantity))
+head(fhier_quantity_by_species, 10)
 
-# names(scientific_names_w_mrip)
-# COMMON_NAME.x
-fhier_species_count_by_disposition_sp_com_names <-
-  fhier_quantity_by_species %>%
-    merge(scientific_names_w_mrip, by = "SP_CODE")
+## ---- add common names ----
+
+# change both columns to character
+fhier_quantity_by_species <-
+  mutate(fhier_quantity_by_species, speciesitis = as.character(speciesitis))
+scientific_names <-
+  mutate(scientific_names, species_itis = as.character(species_itis))
+
+# names(scientific_names)
+# common_name
+fhier_species_count_by_disposition_com_names <-
+    inner_join(fhier_quantity_by_species,
+          scientific_names, 
+          by = c("speciesitis" = "species_itis")
+          )
+
+# str(fhier_species_count_by_disposition_com_names)
   
 # red snapper, greater amberjack, gag, and gray triggerfish
-fhier_species_count_by_disposition_sp_com_names %>%
-  filter(grepl("red snapper", tolower(COMMON_NAME.x)))
+fhier_species_count_by_disposition_com_names %>%
+  filter(grepl("snapper.*red", tolower(common_name)))
 
-fhier_species_count_by_disposition_sp_com_names %>%
-  filter(grepl("greater amberjack", tolower(COMMON_NAME.x)))
+fhier_species_count_by_disposition_com_names %>%
+  filter(grepl("amberjack.*greater", tolower(common_name)))
 
-fhier_species_count_by_disposition_sp_com_names %>%
-  filter(grepl("gag", tolower(COMMON_NAME.x)))
+fhier_species_count_by_disposition_com_names %>%
+  filter(grepl("gag", tolower(common_name)))
 
-fhier_species_count_by_disposition_sp_com_names %>%
-  filter(grepl("gray triggerfish", tolower(COMMON_NAME.x)))
+fhier_species_count_by_disposition_com_names %>%
+  filter(grepl("triggerfish.*gray", tolower(common_name)))
 
 ## ---- FHIER: count catch by species and permit ----
 fhier_quantity_by_species_and_permit <-
-  fhier_species_count_by_disposition_sp %>%
-  select(PERMITREGION, SP_CODE, REPORTEDQUANTITY) %>% 
-  group_by(SP_CODE, PERMITREGION) %>% 
-  summarise(fhier_quantity_by_species_and_permit = sum(REPORTEDQUANTITY))
+  fhier_species_count_by_disposition %>%
+  select(permitregion, speciesitis, reportedquantity) %>% 
+  group_by(speciesitis, permitregion) %>% 
+  summarise(fhier_quantity_by_species_and_permit = sum(reportedquantity))
 # head(fhier_quantity_by_species_and_permit, 10)
 
 ## ---- MRIP data ----
 
 ## ---- convert TOT_CAT to integers ----
 # TOT_CAT : chr  "1,111,111" "11,111"
+glimpse(mrip_estimate)
 mrip_estimate %<>%
   mutate(TOT_CAT = TOT_CAT %>% 
            str_replace_all(",", "") %>% 
@@ -76,41 +80,41 @@ mrip_estimate %<>%
 # str(mrip_estimate)
 mrip_estimate_catch_by_species_and_region <-
   mrip_estimate %>%
-    select(SP_CODE, SUB_REG, LANDING, TOT_CAT) %>%
-    group_by(SP_CODE, SUB_REG) %>% 
+    select(speciesitis, SUB_REG, LANDING, TOT_CAT) %>%
+    group_by(speciesitis, SUB_REG) %>% 
     summarise(mrip_estimate_catch_by_species_and_region = sum(TOT_CAT))
 head(mrip_estimate_catch_by_species_and_region, 2)
 
 ## ---- MRIP: count catch by species only ----
 mrip_estimate_catch_by_species <-
   mrip_estimate %>%
-  select(SP_CODE, TOT_CAT) %>% 
-  group_by(SP_CODE) %>% 
+  select(speciesitis, TOT_CAT) %>% 
+  group_by(speciesitis) %>% 
   summarise(mrip_estimate_catch_by_species = sum(TOT_CAT))
 head(mrip_estimate_catch_by_species, 2)
 
 ## ---- compare with mrip ----
 # mrip_estimate_catch
-head(fhier_species_count_by_disposition_sp, 3)
+head(fhier_species_count_by_disposition, 3)
 head(fhier_quantity_by_species, 3)
 head(mrip_estimate_catch_by_species, 3)
 
 # compare species in fhier with mrip
 species_used_in_fhier <-
-  fhier_species_count_by_disposition_sp %>%
-  select(SP_CODE) %>% unique()
+  fhier_species_count_by_disposition %>%
+  select(speciesitis) %>% unique()
 str(species_used_in_fhier)
 # 374
 
 species_in_fhier_sp_list <-
-  sp_code__species_itis %>%
-  select(SP_CODE) %>% unique()
+  speciesitis__species_itis %>%
+  select(speciesitis) %>% unique()
 str(species_in_fhier_sp_list)
 # 511
 
 species_in_mrip <-
   mrip_estimate %>%
-  select(SP_CODE) %>% unique()
+  select(speciesitis) %>% unique()
 str(species_in_mrip)
 # 348
 
@@ -147,7 +151,7 @@ intersect(species_in_fhier_sp_list, species_in_mrip) %>% str()
 mrip_and_fhier <-
   full_join(fhier_quantity_by_species,
             mrip_estimate_catch_by_species,
-            by = c("SP_CODE")
+            by = c("speciesitis")
   )
 
 head(mrip_and_fhier, 3)
