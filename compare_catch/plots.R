@@ -387,43 +387,54 @@ to_plot_long <-
     arrange(fhier_quantity_by_species) %>%
     get_long_form()
 
-to_plot_long_s <-
-  to_plot_long %>%
-  mutate(index = as.numeric(substr(COMMON_NAME, 2, nchar(as.character(COMMON_NAME))))
-         # ,
-         # COMMON_NAME = factor(COMMON_NAME, levels=((to_plot_long %>% arrange(index))$COMMON_NAME))
-         )
 sorted_com_names <- to_plot_long$COMMON_NAME
 sorted_com_names_u <- to_plot_long$COMMON_NAME %>% unique()
 
-# mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), species_itis )) %>%
-  #   # str()
 #   ggplot(aes(x = order,
 #              y = cnt_index
   
 # works          
-to_plot_long %>%
-  mutate(order = fct_reorder(as.factor(order(sorted_com_names)),
-                             COMMON_NAME)
-           )
-           # fct_reorder(as.factor(CATCH_CNT), as.factor(order(sorted_com_names)))) %>%
-  
-           # fct_reorder(as.factor(order(sorted_com_names),
-                             # COMMON_NAME)))
-# ?fct_reorder
+# to_plot_long_s <-
+#   to_plot_long %>%
+#   mutate(my_order = fct_reorder(as.factor(order(sorted_com_names)),
+#                              COMMON_NAME)
+#            )
+
+to_plot_long_s <-
+  to_plot_long %>%
+  mutate(index = as.factor(order(sorted_com_names)))
+# ,
+         # COMMON_NAME1 = factor(COMMON_NAME, levels = ((
+           # to_plot_long %>% arrange(index)
+         # )$COMMON_NAME))
+         # )
+
+mutate(index = as.numeric(substr(Questions, 2, nchar(
+  as.character(Questions)
+))),
+Questions = factor(Questions, levels = ((
+  colMeansDf %>% arrange(index)
+)$Questions)))
 
 # ggplot(iris, aes(fct_reorder(Species, Sepal.Width), Sepal.Width))
+
+# mutate(order = fct_reorder(as.factor(week_num), year)) %>%
+# ggplot(aes(x = order,
   
-order(sorted_com_names)
+# order(sorted_com_names)
+
 ## ---- both together ---- 
 str(to_plot_long)
 to_plot_long$CATCH_CNT
 
 plot_most_frequent <-
-  ggplot(to_plot_long,
+  ggplot(to_plot_long_s,
          aes(fill = AGENCY,
              x = CATCH_CNT,
-             y = COMMON_NAME
+             y = reorder(COMMON_NAME,
+               as.integer(index))
+             # y = my_order
+             # y = COMMON_NAME
              # y = reorder(COMMON_NAME,
                          # factor(sorted_com_names))
          )
