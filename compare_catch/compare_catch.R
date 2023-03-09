@@ -17,7 +17,8 @@ source("~/R_code_github/compare_catch/get_data.R")
 # names(fhier_species_count_by_disposition)
 # str(fhier_species_count_by_disposition)
 # 'data.frame':	316171  obs. of  6 variables:
-
+# fhier_species_count_by_disposition %>%
+  # select(disposition) %>% unique()
 ## ---- FHIER: count catch by species ----
 fhier_quantity_by_species <-
   fhier_species_count_by_disposition %>%
@@ -30,7 +31,7 @@ head(fhier_quantity_by_species, 10)
 
 # change both columns to character
 fhier_quantity_by_species <-
-  mutate(fhier_quantity_by_species, speciesitis = as.character(speciesitis))
+  mutate(fhier_quantity_by_species, species_itis = as.character(species_itis))
 scientific_names <-
   mutate(scientific_names, species_itis = as.character(species_itis))
 
@@ -39,10 +40,10 @@ scientific_names <-
 fhier_species_count_by_disposition_com_names <-
     inner_join(fhier_quantity_by_species,
           scientific_names, 
-          by = c("speciesitis" = "species_itis")
+          by = "species_itis"
           )
 
-# str(fhier_species_count_by_disposition_com_names)
+str(fhier_species_count_by_disposition_com_names)
   
 # red snapper, greater amberjack, gag, and gray triggerfish
 fhier_species_count_by_disposition_com_names %>%
@@ -57,93 +58,94 @@ fhier_species_count_by_disposition_com_names %>%
 fhier_species_count_by_disposition_com_names %>%
   filter(grepl("triggerfish.*gray", tolower(common_name)))
 
+names(fhier_species_count_by_disposition)
 ## ---- FHIER: count catch by species and permit ----
 fhier_quantity_by_species_and_permit <-
   fhier_species_count_by_disposition %>%
-  select(permitregion, speciesitis, reportedquantity) %>% 
-  group_by(speciesitis, permitregion) %>% 
-  summarise(fhier_quantity_by_species_and_permit = sum(as.intege(reportedquantity)))
+  select(permit_region, species_itis, reported_quantity) %>% 
+  group_by(species_itis, permit_region) %>% 
+  summarise(fhier_quantity_by_species_and_permit = sum(as.integer(reported_quantity)))
 # head(fhier_quantity_by_species_and_permit, 10)
 
 ## ---- MRIP data ----
 
-## ---- convert TOT_CAT to integers ----
-# TOT_CAT : chr  "1,111,111" "11,111"
-glimpse(mrip_estimate)
+## ---- convert ab1 to integers ----
+names(mrip_estimate)
 mrip_estimate %<>%
-  mutate(TOT_CAT = TOT_CAT %>% 
-           str_replace_all(",", "") %>% 
-           as.integer()
-         )
+  mutate(ab1 = as.integer(ab1))
 
 ## ---- MRIP: count catch by species and region ----
 # str(mrip_estimate)
 mrip_estimate_catch_by_species_and_region <-
   mrip_estimate %>%
-    select(speciesitis, SUB_REG, LANDING, TOT_CAT) %>%
-    group_by(speciesitis, SUB_REG) %>% 
-    summarise(mrip_estimate_catch_by_species_and_region = sum(TOT_CAT))
-head(mrip_estimate_catch_by_species_and_region, 2)
+    select(itis_code, sub_reg, ab1) %>%
+    group_by(itis_code, sub_reg) %>% 
+    summarise(mrip_estimate_catch_by_species_and_region = sum(ab1))
+# head(mrip_estimate_catch_by_species_and_region, 20)
 
 ## ---- MRIP: count catch by species only ----
 mrip_estimate_catch_by_species <-
   mrip_estimate %>%
-  select(speciesitis, TOT_CAT) %>% 
-  group_by(speciesitis) %>% 
-  summarise(mrip_estimate_catch_by_species = sum(TOT_CAT))
-head(mrip_estimate_catch_by_species, 2)
+  select(itis_code, ab1) %>% 
+  group_by(itis_code) %>% 
+  summarise(mrip_estimate_catch_by_species = sum(ab1))
+# head(mrip_estimate_catch_by_species, 2)
 
-## ---- compare with mrip ----
+## ---- compare fhier with mrip ----
 # mrip_estimate_catch
 head(fhier_species_count_by_disposition, 3)
 head(fhier_quantity_by_species, 3)
 head(mrip_estimate_catch_by_species, 3)
 
-# compare species in fhier with mrip
+## ---- compare species in fhier with mrip ----
+
+sp_itis_fhier <-
+  grep("itis", tolower(names(fhier_species_count_by_disposition)), value = TRUE)
+
 species_used_in_fhier <-
   fhier_species_count_by_disposition %>%
-  select(speciesitis) %>% unique()
-str(species_used_in_fhier)
-# 374
+  select(all_of(sp_itis_fhier)) %>% 
+  unique() %>%
+  set_names(sp_itis_mrip <- "itis")
 
-species_in_fhier_sp_list <-
-  speciesitis__species_itis %>%
-  select(speciesitis) %>% unique()
-str(species_in_fhier_sp_list)
-# 511
+str(species_used_in_fhier)
+# 458
+
+sp_itis_mrip <-
+  grep("itis", tolower(names(mrip_estimate)), value = TRUE)
 
 species_in_mrip <-
   mrip_estimate %>%
-  select(speciesitis) %>% unique()
+  # select(sp_code) %>% unique()
+  select(all_of(sp_itis_mrip)) %>% 
+  unique() %>%
+  set_names(sp_itis_mrip <- "itis")
 str(species_in_mrip)
-# 348
+# 76 itis_code
 
 # in FHIER with catch info only
 setdiff(species_used_in_fhier, species_in_mrip) %>% str()
 # 145
+# 386
 # in MRIP only
 setdiff(species_in_mrip, species_used_in_fhier) %>% str()
 # 119
+# 4
+
 # in both
 intersect(species_used_in_fhier, species_in_mrip) %>% str()
 # 229
-
-# in FHIER species list only
-setdiff(species_in_fhier_sp_list, species_in_mrip) %>% str()
-# 255
-# both in FHIER species list and MRIP
-intersect(species_in_fhier_sp_list, species_in_mrip) %>% str()
-# 256
+# 72
 
 ## ---- if use by region/landing ----
 # mrip_estimate_catch_1 <-
 #   mrip_estimate_catch %>%
-#     mutate(PERMITREGION = 
-#            case_when(SUB_REG == "6" ~ "SA",
-#                      SUB_REG == "7" ~ "GOM"
+#     mutate(permit_region = 
+#            case_when(sub_reg == "6" ~ "SA",
+#                      sub_reg == "7" ~ "GOM"
 #                     )
 #            ) %>%
-#   select(-SUB_REG)
+#   select(-sub_reg)
 
 # str(mrip_estimate_catch_1)
 
@@ -151,14 +153,20 @@ intersect(species_in_fhier_sp_list, species_in_mrip) %>% str()
 mrip_and_fhier <-
   full_join(fhier_quantity_by_species,
             mrip_estimate_catch_by_species,
-            by = c("speciesitis")
+            by = c("species_itis" = "itis_code")
   )
 
 head(mrip_and_fhier, 3)
 
+# fhier quantity is grater than mrip's
 mrip_and_fhier %>%
   filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
 # 15 
+
+# combine mrip with fhier with common names
+fhier_species_count_by_disposition_com_names
+
+fhier_species_count_by_disposition_com_names
 
 source("~/R_code_github/compare_catch/plots.R")
 
