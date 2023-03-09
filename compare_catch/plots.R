@@ -381,49 +381,40 @@ get_long_form <- function(to_plot_10) {
   return(long_to_plot)
 }
 
-## ---- order by fhie counts ----
-to_plot_long <- get_long_form(to_plot_10)
-
-
-# x[order(match(x,y))]
-sort_by_fhier_ind <- order(sort(to_plot_10$fhier_quantity_by_species)) %>%
-  rep(each = 2)
-
-sort_by_fhier <- sort(to_plot_10$fhier_quantity_by_species) %>%
-  rep(each = 2)
-
-sort_by_fhier_ind1 <- order(sort(to_plot_10$fhier_quantity_by_species))
-
-sort_by_fhier1 <- sort(to_plot_10$fhier_quantity_by_species)
-
-common_name_order <- to_plot_long$COMMON_NAME[sort_by_fhier_ind]
-common_name_order1 <- to_plot_long$COMMON_NAME[sort_by_fhier_ind1]
-
-sort_by_fhier1i <- sort(as.integer(to_plot_10$fhier_quantity_by_species))
-# works:
-to_plot_long1 <- 
+## ---- order by fhier counts ----
+to_plot_long <- 
   to_plot_10 %>%
     arrange(fhier_quantity_by_species) %>%
     get_long_form()
 
-dim(to_plot_long)
-glimpse(long_to_plot_1)
-long_to_plot_1 <-
+to_plot_long_s <-
   to_plot_long %>%
-  arrange(sort_by_fhier)
-  # to_plot_long[order(match(vector1,vector2))]
-# df$bb <- ordered(df$bb, levels=c( "cc","aa","dd","bb","ff","ee"))
-ordered(to_plot_long$COMMON_NAME, levels = common_name_order)
+  mutate(index = as.numeric(substr(COMMON_NAME, 2, nchar(as.character(COMMON_NAME))))
+         # ,
+         # COMMON_NAME = factor(COMMON_NAME, levels=((to_plot_long %>% arrange(index))$COMMON_NAME))
+         )
+sorted_com_names <- to_plot_long$COMMON_NAME
+sorted_com_names_u <- to_plot_long$COMMON_NAME %>% unique()
 
-
+# mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), species_itis )) %>%
+  #   # str()
+#   ggplot(aes(x = order,
+#              y = cnt_index
   
-  # to_plot_long %>%
-  # arrange(sort_by_fhier, .by_group = TRUE)
+# works          
+to_plot_long %>%
+  mutate(order = fct_reorder(as.factor(order(sorted_com_names)),
+                             COMMON_NAME)
+           )
+           # fct_reorder(as.factor(CATCH_CNT), as.factor(order(sorted_com_names)))) %>%
+  
+           # fct_reorder(as.factor(order(sorted_com_names),
+                             # COMMON_NAME)))
+# ?fct_reorder
 
-# long_to_plot_1 <- order(match(long_to_plot$COMMON_NAME, sort(to_plot_10$fhier_quantity_by_species)))
-# arrange(desc(CATCH_CNT), .by_group = TRUE) %>%
-
-
+# ggplot(iris, aes(fct_reorder(Species, Sepal.Width), Sepal.Width))
+  
+order(sorted_com_names)
 ## ---- both together ---- 
 str(to_plot_long)
 to_plot_long$CATCH_CNT
@@ -434,7 +425,7 @@ plot_most_frequent <-
              x = CATCH_CNT,
              y = COMMON_NAME
              # y = reorder(COMMON_NAME,
-             #             as.integer(factor(CATCH_CNT)), FUN = min)
+                         # factor(sorted_com_names))
          )
   ) +
   labs(title = "catch by species",
