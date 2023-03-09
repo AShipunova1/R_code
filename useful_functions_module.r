@@ -140,12 +140,12 @@ trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
 }
 
 # cleaning, regularly done for csvs downloaded from PFIER
-clean_all_csvs <- function(csvs) {
+clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
   # unify headers
   csvs_clean0 <- lapply(csvs, clean_headers)
   # trim vesselofficialnumber, just in case
 # browser()
-  csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0)
+  csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
   return(csvs_clean1)
 }
 
@@ -278,15 +278,15 @@ prepare_csv_names <- function(filenames) {
   paste(my_list) %>% as.list() %>% return()
 }
 
-get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23) {
+get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) {
   # browser()
   # add my additional folder names
   csv_names_list <- prepare_csv_names(filenames)
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
-
+# browser()
   # unify headers, trim vesselofficialnumber, just in case
-  csvs_clean1 <- clean_all_csvs(csv_contents)
+  csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
 
   # ---- specific correspondence manipulations ----
   corresp_arr <- csvs_clean1[[1]]
