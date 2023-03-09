@@ -400,21 +400,27 @@ sorted_com_names_u <- to_plot_long$COMMON_NAME %>% unique()
 #                              COMMON_NAME)
 #            )
 
-to_plot_long_s <-
-  to_plot_long %>%
-  mutate(index = as.factor(order(sorted_com_names)))
+# works
+# to_plot_long_s <-
+#   to_plot_long %>%
+#   mutate(index = as.factor(CATCH_CNT),
+#          ind2 = as.factor(COMMON_NAME)
+#          )
+
+# Questions = factor(Questions, levels=((colMeansDf %>% arrange(index))$Questions)))
+
 # ,
          # COMMON_NAME1 = factor(COMMON_NAME, levels = ((
            # to_plot_long %>% arrange(index)
          # )$COMMON_NAME))
          # )
 
-mutate(index = as.numeric(substr(Questions, 2, nchar(
-  as.character(Questions)
-))),
-Questions = factor(Questions, levels = ((
-  colMeansDf %>% arrange(index)
-)$Questions)))
+# mutate(index = as.numeric(substr(Questions, 2, nchar(
+#   as.character(Questions)
+# ))),
+# Questions = factor(Questions, levels = ((
+#   colMeansDf %>% arrange(index)
+# )$Questions)))
 
 # ggplot(iris, aes(fct_reorder(Species, Sepal.Width), Sepal.Width))
 
@@ -431,8 +437,7 @@ plot_most_frequent <-
   ggplot(to_plot_long_s,
          aes(fill = AGENCY,
              x = CATCH_CNT,
-             y = reorder(COMMON_NAME,
-               as.integer(index))
+             y = ind2
              # y = my_order
              # y = COMMON_NAME
              # y = reorder(COMMON_NAME,
