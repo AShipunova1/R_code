@@ -21,9 +21,9 @@ source("~/R_code_github/compare_catch/get_data.R")
 ## ---- FHIER: count catch by species ----
 fhier_quantity_by_species <-
   fhier_species_count_by_disposition %>%
-  select(speciesitis, reportedquantity) %>% 
-  group_by(speciesitis) %>% 
-  summarise(fhier_quantity_by_species = sum(reportedquantity))
+  select(species_itis, reported_quantity) %>% 
+  group_by(species_itis) %>% 
+  summarise(fhier_quantity_by_species = sum(as.integer(reported_quantity)))
 head(fhier_quantity_by_species, 10)
 
 ## ---- add common names ----
@@ -62,7 +62,7 @@ fhier_quantity_by_species_and_permit <-
   fhier_species_count_by_disposition %>%
   select(permitregion, speciesitis, reportedquantity) %>% 
   group_by(speciesitis, permitregion) %>% 
-  summarise(fhier_quantity_by_species_and_permit = sum(reportedquantity))
+  summarise(fhier_quantity_by_species_and_permit = sum(as.intege(reportedquantity)))
 # head(fhier_quantity_by_species_and_permit, 10)
 
 ## ---- MRIP data ----
