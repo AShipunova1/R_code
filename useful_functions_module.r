@@ -56,7 +56,9 @@ load_csv_names <- function(my_paths, csv_names_list) {
 # add input directory path in front of each file name.
   myfiles <- lapply(csv_names_list, function(x) file.path(my_inputs, x))
   # read all csv files
-  contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
+  # contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
+  contents <- lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
+  
   return(contents)
 }
 
@@ -71,7 +73,8 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # start_time <- Sys.time()
   ## read all files
   contents <- map_df(myfiles,
-         ~read_excel(.x, sheet = sheet_n, .name_repair = fix_names ))
+         ~read_excel(.x, sheet = sheet_n, .name_repair = fix_names, col_types = "character" )) %>%
+    type_convert(guess_integer = TRUE)
   # end_time <- Sys.time()
   # print(end_time - start_time)
   return(contents)
