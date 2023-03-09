@@ -73,8 +73,14 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # start_time <- Sys.time()
   ## read all files
   contents <- map_df(myfiles,
-         ~read_excel(.x, sheet = sheet_n, .name_repair = fix_names, col_types = "character" )) %>%
-    type_convert(guess_integer = TRUE)
+         ~read_excel(.x, 
+                     sheet = sheet_n, 
+                     .name_repair = fix_names,
+                     guess_max = 21474836,
+                     col_types = "text"))
+  # %>%
+  # , col_types = "character" 
+  #   type_convert(guess_integer = TRUE)
   # end_time <- Sys.time()
   # print(end_time - start_time)
   return(contents)
