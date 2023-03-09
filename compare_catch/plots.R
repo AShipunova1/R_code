@@ -375,14 +375,56 @@ get_long_form <- function(to_plot_10) {
     # use only the new columns
     select(COMMON_NAME, AGENCY, CATCH_CNT) %>%
     # remove lines where one or another agency doesn't have counts for this species
-    drop_na() %>%
+    # drop_na() %>%
     unique()
 
   return(long_to_plot)
 }
 
-## ---- both together ---- 
+## ---- order by fhie counts ----
 to_plot_long <- get_long_form(to_plot_10)
+
+
+# x[order(match(x,y))]
+sort_by_fhier_ind <- order(sort(to_plot_10$fhier_quantity_by_species)) %>%
+  rep(each = 2)
+
+sort_by_fhier <- sort(to_plot_10$fhier_quantity_by_species) %>%
+  rep(each = 2)
+
+sort_by_fhier_ind1 <- order(sort(to_plot_10$fhier_quantity_by_species))
+
+sort_by_fhier1 <- sort(to_plot_10$fhier_quantity_by_species)
+
+common_name_order <- to_plot_long$COMMON_NAME[sort_by_fhier_ind]
+common_name_order1 <- to_plot_long$COMMON_NAME[sort_by_fhier_ind1]
+
+sort_by_fhier1i <- sort(as.integer(to_plot_10$fhier_quantity_by_species))
+# works:
+to_plot_long1 <- 
+  to_plot_10 %>%
+    arrange(fhier_quantity_by_species) %>%
+    get_long_form()
+
+dim(to_plot_long)
+glimpse(long_to_plot_1)
+long_to_plot_1 <-
+  to_plot_long %>%
+  arrange(sort_by_fhier)
+  # to_plot_long[order(match(vector1,vector2))]
+# df$bb <- ordered(df$bb, levels=c( "cc","aa","dd","bb","ff","ee"))
+ordered(to_plot_long$COMMON_NAME, levels = common_name_order)
+
+
+  
+  # to_plot_long %>%
+  # arrange(sort_by_fhier, .by_group = TRUE)
+
+# long_to_plot_1 <- order(match(long_to_plot$COMMON_NAME, sort(to_plot_10$fhier_quantity_by_species)))
+# arrange(desc(CATCH_CNT), .by_group = TRUE) %>%
+
+
+## ---- both together ---- 
 str(to_plot_long)
 to_plot_long$CATCH_CNT
 
