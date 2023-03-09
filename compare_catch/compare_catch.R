@@ -170,4 +170,15 @@ fhier_species_count_by_disposition_com_names
 
 source("~/R_code_github/compare_catch/plots.R")
 
-## ---- get MRIP counts for federal waters only
+
+## ---- most n frequent FHIER species ----
+
+str(fhier_quantity_by_species)
+
+get_n_most_frequent_fhier <- function(n) {
+  fhier_quantity_by_species %>%
+    arrange(desc(fhier_quantity_by_species)) %>%
+    inner_join(scientific_names_w_mrip, by = "species_itis") %>%
+    head(n) %>%
+    return()
+}
