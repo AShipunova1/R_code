@@ -1,25 +1,29 @@
 library(gridExtra)
 
+names(mrip_and_fhier)
 ## ---- plot catch by species (1) ----
+str(mrip_and_fhier$species_itis)
+str(mrip_and_fhier$mrip_estimate_catch_by_species)
 # Graph mrip
-plot(mrip_and_fhier$SP_CODE, mrip_and_fhier$mrip_estimate_catch_by_species,
+plot(mrip_and_fhier$species_itis, mrip_and_fhier$mrip_estimate_catch_by_species,
      col="blue",
      pch = 17
-     , xlim = c(8800000000, max(mrip_and_fhier$SP_CODE))
+     , xlim = c(1000, 948946)
+                # max(mrip_and_fhier$species_itis))
      , ylim = c(0, 100000) #20000
 )
-
+max(mrip_and_fhier$species_itis)
 # add fhier
-points(mrip_and_fhier$SP_CODE,
+points(mrip_and_fhier$species_itis,
        mrip_and_fhier$fhier_quantity_by_species,
        pch = 19,
        cex = .6,
        col="red")
 
 ## ---- add common names ----
-mrip_and_fhier_w_names <- inner_join(scientific_names_w_mrip,
+mrip_and_fhier_w_names <- inner_join(fhier_species_count_by_disposition_com_names,
                                      mrip_and_fhier,
-                                     by = "SP_CODE"
+                                     by = c("species_itis", "fhier_quantity_by_species")
 )
 
 ## ---- data overview ----
@@ -29,6 +33,7 @@ mrip_and_fhier_w_names %>%
 # 100000: 125
 # 10000 : 182
 # 1000  : 221
+# new 47
 
 # Only few FHIER species have counts > 100000
 mrip_and_fhier_w_names %>%
@@ -36,30 +41,32 @@ mrip_and_fhier_w_names %>%
 # 100000: 10
 # 10000 : 35
 # 1000  : 97
-
+# new: 114
+glimpse(mrip_and_fhier_w_names)
 mrip_and_fhier_w_common_names <-
   mrip_and_fhier_w_names %>%
   select(fhier_quantity_by_species,
          mrip_estimate_catch_by_species,
-         COMMON_NAME.x,
-         SP_CODE)
+         common_name,
+         species_itis)
 
 data_overview(mrip_and_fhier)
 
 # look at common names for the biggest catch
 mrip_and_fhier_w_names %>%
   filter(fhier_quantity_by_species > 100000) %>%
-  select(COMMON_NAME.x,
+  select(common_name,
          # COMMON_NAME.y,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species
   )
 
 ## ---- plot catch by species (2) ----
+# str(mrip_and_fhier)
 mrip_and_fhier %>%
   rename("fhier_cnt" = "fhier_quantity_by_species",
          "mrip_cnt" = "mrip_estimate_catch_by_species") %>%
-  select(-SP_CODE) %>%
+  select(-species_itis ) %>%
   # filter(mrip_cnt < 10000000) %>%
   filter(mrip_cnt < 20000) %>%
   boxplot()
@@ -67,20 +74,20 @@ mrip_and_fhier %>%
 ## ---- plot catch by species (3) ----
 my_colors <- c("MRIP" = "blue", "FHIER" = "red")
 
-MIN_SP_CODE <- 8000000000
+MIN_species_itis  <- 100
 MAX_QUANTITY_BY_SPECIES <- 200000
 mrip_and_fhier_short_values <-
   # mrip_and_fhier_w_names %>%
   mrip_and_fhier %>%
-  mutate(SP_CODE = ifelse(SP_CODE >= MIN_SP_CODE, SP_CODE, NA)) %>%
+  mutate(species_itis  = ifelse(species_itis  >= MIN_species_itis , species_itis , NA)) %>%
   mutate(fhier_quantity_by_species_short = ifelse(fhier_quantity_by_species <= MAX_QUANTITY_BY_SPECIES, fhier_quantity_by_species, NA)) %>%
   mutate(mrip_estimate_catch_by_species_short = ifelse(mrip_estimate_catch_by_species <= MAX_QUANTITY_BY_SPECIES, mrip_estimate_catch_by_species, NA))
-# mutate(order = fct_reorder(as.factor(SP_CODE), COMMON_NAME.x)) %>%
+# mutate(order = fct_reorder(as.factor(species_itis ), common_name)) %>%
 str(mrip_and_fhier_short_values)
 
 counts_plot <-
   mrip_and_fhier_short_values %>%
-  ggplot(aes(x = SP_CODE,
+  ggplot(aes(x = species_itis ,
              # order,
              y = fhier_quantity_by_species_short,
              colour = "FHIER"
@@ -88,7 +95,7 @@ counts_plot <-
   size = 2,
   alpha = 0.1
   ) +
-  geom_point(aes(x = SP_CODE,
+  geom_point(aes(x = species_itis ,
                  # order,
                  y = mrip_estimate_catch_by_species_short,
                  colour = "MRIP"
@@ -109,8 +116,8 @@ counts_plot <-
 
 counts_plot
 # Warning messages:
-#   1: Removed 305 rows containing missing values (`geom_point()`).
-# 2: Removed 154 rows containing missing values (`geom_point()`).
+# 1: Removed 393 rows containing missing values (`geom_point()`). 
+# 2: Removed 7 rows containing missing values (`geom_point()`). 
 
 ## ---- plot catch by species by an index (4) ----
 mrip_and_fhier_uni <-
@@ -121,8 +128,8 @@ mrip_and_fhier_uni <-
          # * 2
   )
 plot(mrip_and_fhier_uni$cnt_index,
-     mrip_and_fhier_uni$SP_CODE
-     , ylim = c(MIN_SP_CODE, max(mrip_and_fhier_uni$SP_CODE))
+     mrip_and_fhier_uni$species_itis 
+     # , ylim = c(MIN_species_itis , max(mrip_and_fhier_uni$species_itis ))
 )
 
 # mutate(order = fct_reorder(as.factor(week_num), year)) %>%
@@ -133,7 +140,7 @@ plot(mrip_and_fhier_uni$cnt_index,
 ## ---- index plot with ggplot ----
 counts_plot_ind <-
   mrip_and_fhier_uni %>%
-  mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE)) %>%
+  mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), species_itis )) %>%
   # str()
   ggplot(aes(x = order,
              y = cnt_index
@@ -169,7 +176,7 @@ mrip_and_fhier_uni_10 <-
   )
 counts_plot_ind_10 <-
   mrip_and_fhier_uni_10 %>%
-  mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), SP_CODE)) %>%
+  mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species), species_itis )) %>%
   # str()
   ggplot(aes(x = order,
              y = cnt_index
@@ -189,8 +196,7 @@ counts_plot_ind_10 <-
   ) +
   geom_point(colour = "blue")
 
-counts_plot_ind_10
-
+# counts_plot_ind_10
 
 ## ---- Grouped barchart ----
 
@@ -211,7 +217,7 @@ get_long_mrip_and_fhier_short_values_n <- function(mrip_and_fhier_short_values, 
       values_to = "CATCH_CNT"
     ) %>%
     # use only the new columns
-    select(SP_CODE, AGENCY, CATCH_CNT) %>%
+    select(species_itis , AGENCY, CATCH_CNT) %>%
     # remove lines where one or another agency doesn't have counts for this species
     drop_na() %>%
     unique()
@@ -237,12 +243,15 @@ dim(long_mrip_and_fhier_short_values_m10[as.integer(max_cnt - max_cnt/8):max_cnt
 start_from <- as.integer(max_cnt - max_cnt/5)
 # Grouped
 # ggplot(long_mrip_and_fhier_short_values[18:33,],
-ggplot(long_mrip_and_fhier_short_values_m10[start_from:max_cnt,],
+# ggplot(long_mrip_and_fhier_short_values_m10[start_from:max_cnt,],
+
+long_mrip_and_fhier_short_values_1 <- get_long_mrip_and_fhier_short_values_n(mrip_and_fhier_short_values)
+ggplot(long_mrip_and_fhier_short_values_1,
        aes(fill = AGENCY,
            y = CATCH_CNT,
-           x = reorder(SP_CODE,
+           x = reorder(species_itis ,
                        as.integer(factor(CATCH_CNT)), FUN = min),
-           # SP_CODE
+           # species_itis 
        )
 ) +
   labs(title = "catch by species",
@@ -260,13 +269,13 @@ str(mrip_and_fhier_short_values)
 n_most_frequent_fhier_10 <- get_n_most_frequent_fhier(10)
 # xx <- merge(mrip_and_fhier,
 #             n_most_frequent_fhier_15,
-#             by = c("SP_CODE", "fhier_quantity_by_species")) %>%
+#             by = c("species_itis ", "fhier_quantity_by_species")) %>%
 #   str()
 
 to_plot_10 <- right_join(mrip_and_fhier,
                         n_most_frequent_fhier_10,
-                      by = c("SP_CODE", "fhier_quantity_by_species")) %>%  
-  select(COMMON_NAME.x, fhier_quantity_by_species, mrip_estimate_catch_by_species)
+                      by = c("species_itis ", "fhier_quantity_by_species")) %>%  
+  select(common_name, fhier_quantity_by_species, mrip_estimate_catch_by_species)
 
 to_plot_10 %>% head(2)
 
@@ -286,9 +295,9 @@ fhier_to_ten <-
 
 fhier_top_only_plot <-
   to_plot_10 %>%
-  select(COMMON_NAME.x, fhier_quantity_by_species) %>%
+  select(common_name, fhier_quantity_by_species) %>%
   ggplot(aes(x = fhier_quantity_by_species ,
-             y = reorder(COMMON_NAME.x,
+             y = reorder(common_name,
                          fhier_to_ten,
                          FUN = min
              )
@@ -305,9 +314,9 @@ fhier_top_only_plot
 
 mrip_top_only_plot <- 
   to_plot_10 %>%
-  select(COMMON_NAME.x, mrip_estimate_catch_by_species) %>%
+  select(common_name, mrip_estimate_catch_by_species) %>%
   ggplot(aes(x = mrip_estimate_catch_by_species,
-             y = reorder(COMMON_NAME.x,
+             y = reorder(common_name,
                          fhier_to_ten,
                          FUN = min
                          )
@@ -351,7 +360,7 @@ grid.arrange(fhier_top_only_plot,
 get_long_form <- function(to_plot_10) {
   long_to_plot <-
     to_plot_10 %>%
-    rename(c("COMMON_NAME" = "COMMON_NAME.x",
+    rename(c("COMMON_NAME" = "common_name",
              "MRIP" = "mrip_estimate_catch_by_species",
              "FHIER" = "fhier_quantity_by_species")) %>%
     # reformat to a long format to have fhier and mrip data side by side
