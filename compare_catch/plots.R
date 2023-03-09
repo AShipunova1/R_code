@@ -74,12 +74,19 @@ mrip_and_fhier %>%
 ## ---- plot catch by species (3) ----
 my_colors <- c("MRIP" = "blue", "FHIER" = "red")
 
-MIN_species_itis  <- 100
-MAX_QUANTITY_BY_SPECIES <- 200000
+sort(mrip_and_fhier$species_itis) %>% head()
+# MIN_species_itis <- 100
+  # min(as.integer(mrip_and_fhier$species_itis), na.rm = TRUE)
+# use fhier_quantity_by_species
+MAX_QUANTITY_BY_SPECIES <- 
+  max(as.integer(mrip_and_fhier$fhier_quantity_by_species), na.rm = TRUE)
+# 460094
+# max(as.integer(mrip_and_fhier$mrip_estimate_catch_by_species), na.rm = TRUE)
+# 893605
 mrip_and_fhier_short_values <-
   # mrip_and_fhier_w_names %>%
   mrip_and_fhier %>%
-  mutate(species_itis  = ifelse(species_itis  >= MIN_species_itis , species_itis , NA)) %>%
+  # mutate(species_itis  = ifelse(species_itis  >= MIN_species_itis , species_itis , NA)) %>%
   mutate(fhier_quantity_by_species_short = ifelse(fhier_quantity_by_species <= MAX_QUANTITY_BY_SPECIES, fhier_quantity_by_species, NA)) %>%
   mutate(mrip_estimate_catch_by_species_short = ifelse(mrip_estimate_catch_by_species <= MAX_QUANTITY_BY_SPECIES, mrip_estimate_catch_by_species, NA))
 # mutate(order = fct_reorder(as.factor(species_itis ), common_name)) %>%
@@ -87,29 +94,32 @@ str(mrip_and_fhier_short_values)
 
 counts_plot <-
   mrip_and_fhier_short_values %>%
-  ggplot(aes(x = species_itis ,
+  ggplot(aes(x = species_itis,
              # order,
              y = fhier_quantity_by_species_short,
              colour = "FHIER"
   ),
-  size = 2,
-  alpha = 0.1
+  size = 1
+  # ,
+  # alpha = 0.1
   ) +
-  geom_point(aes(x = species_itis ,
+  geom_point(aes(x = species_itis,
                  # order,
                  y = mrip_estimate_catch_by_species_short,
                  colour = "MRIP"
   ),
-  size = 1
+  size = 2,
+  alpha = 0.5
   ) +
   labs(title = "catch by species",
        x = "species code",
        # x = "common_name",
        y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
   ) +
-  theme(axis.text.x = element_text(angle = 45)
+  theme(
+    # axis.text.x = element_text(angle = 45)
         # ,
-        # axis.text.y = element_blank()
+        axis.text.x = element_blank()
   ) +
   scale_colour_manual(values = my_colors) +
   geom_point()
@@ -374,8 +384,6 @@ get_long_form <- function(to_plot_10) {
     ) %>%
     # use only the new columns
     select(COMMON_NAME, AGENCY, CATCH_CNT) %>%
-    # remove lines where one or another agency doesn't have counts for this species
-    # drop_na() %>%
     unique()
 
   return(long_to_plot)
@@ -387,89 +395,37 @@ to_plot_long <-
     arrange(fhier_quantity_by_species) %>%
     get_long_form()
 
-sorted_com_names <- to_plot_long$COMMON_NAME
-sorted_com_names_u <- to_plot_long$COMMON_NAME %>% unique()
-
-#   ggplot(aes(x = order,
-#              y = cnt_index
-  
-# works          
-# to_plot_long_s <-
-#   to_plot_long %>%
-#   mutate(my_order = fct_reorder(as.factor(order(sorted_com_names)),
-#                              COMMON_NAME)
-#            )
-
-# works
-# to_plot_long_s <-
-#   to_plot_long %>%
-#   mutate(index = as.factor(CATCH_CNT),
-#          ind2 = as.factor(COMMON_NAME)
-#          )
-
+# keep the common_name order by fhier counts in the plot
 to_plot_long_s <-
   to_plot_long %>%
-  mutate(ind2 = as.factor(COMMON_NAME),
-         COMMON_NAME = factor(COMMON_NAME, levels = unique(ind2)))
-# %>% 
-  
-  # mutate(index = as.factor(CATCH_CNT),
-         # ind2 = as.factor(COMMON_NAME),
-         
-         # COMMON_NAME = (COMMON_NAME, ind2)
-                              # levels = ((to_plot_long %>% arrange(ind2))$COMMON_NAME
-                                                     )
-                              )
-         )
+  mutate(c_n_index = as.factor(COMMON_NAME),
+         COMMON_NAME = factor(COMMON_NAME, levels = unique(c_n_index)))
 
-# Questions = factor(Questions, levels=((colMeansDf %>% arrange(index))$Questions)))
-
-# ,
-         # COMMON_NAME1 = factor(COMMON_NAME, levels = ((
-           # to_plot_long %>% arrange(index)
-         # )$COMMON_NAME))
-         # )
-
-# mutate(index = as.numeric(substr(Questions, 2, nchar(
-#   as.character(Questions)
-# ))),
-# Questions = factor(Questions, levels = ((
-#   colMeansDf %>% arrange(index)
-# )$Questions)))
-
-# ggplot(iris, aes(fct_reorder(Species, Sepal.Width), Sepal.Width))
-
-# mutate(order = fct_reorder(as.factor(week_num), year)) %>%
-# ggplot(aes(x = order,
-  
-# order(sorted_com_names)
+# > str(to_plot_long_s$ind2)
+# Factor w/ 10 levels "BASS, BLACK SEA",..: 5 5 3 3 4 4 9 9 6 6 ...
+# > str(to_plot_long_s$COMMON_NAME)
+# Factor w/ 10 levels "SNAPPER, GRAY",..: 1 1 2 2 3 3 4 4 5 5 ...
 
 ## ---- both together ---- 
-str(to_plot_long)
-to_plot_long$CATCH_CNT
+# str(to_plot_long)
+# to_plot_long$CATCH_CNT
 
 plot_most_frequent <-
   ggplot(to_plot_long_s,
          aes(fill = AGENCY,
              x = CATCH_CNT,
-             # y = ind2
-             # y = my_order
              y = COMMON_NAME
-             # y = reorder(COMMON_NAME,
-                         # factor(sorted_com_names))
          )
   ) +
   labs(title = "catch by species",
        y = "species sorted by FHIER catch count",
        x = "quantity by species"
   ) +
-  # theme(
-    # axis.text.x = element_text(angle = 45),
-    # plot.title = element_text(hjust = 0.5)
-  # ) +
   geom_bar(position = "dodge", stat = "identity")
 
 plot_most_frequent
+
+# ggsave(filename = "plot_10_most_frequent_both.png")
 
 write.csv(to_plot_10, file = r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\compare_catch\top_10_both.csv)")
 > 
