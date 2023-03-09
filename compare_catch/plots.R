@@ -384,6 +384,178 @@ grid.arrange(fhier_top_only_plot,
              top = super_title, 
              ncol = 2)
 
+
+## ---- 50 species ----
+n_most_frequent_fhier_50 <- get_n_most_frequent_fhier(50)
+to_plot_50 <- right_join(mrip_and_fhier_w_names,
+                         n_most_frequent_fhier_50,
+                         by = c("species_itis", "fhier_quantity_by_species")) %>%  
+  select(common_name, fhier_quantity_by_species, mrip_estimate_catch_by_species)
+
+fhier_to_50 <-
+  factor(to_plot_50$fhier_quantity_by_species) %>%
+  as.numeric()
+
+fhier_top_50_only_plot <-
+  to_plot_50 %>%
+  select(common_name, fhier_quantity_by_species) %>%
+  ggplot(aes(x = fhier_quantity_by_species,
+             y = reorder(common_name,
+                         fhier_to_50,
+                         FUN = min
+             )
+  )
+  ) +
+  labs(title = "FHIER counts"
+       , x = ""
+       , y = ""
+  ) +
+  theme1 +
+  theme(axis.text = element_text(size = 3)) +
+  geom_point()
+
+fhier_top_50_only_plot
+
+mrip_top_50_only_plot <- 
+  to_plot_50 %>%
+  select(common_name, mrip_estimate_catch_by_species) %>%
+  ggplot(aes(x = mrip_estimate_catch_by_species,
+             y = reorder(common_name,
+                         fhier_to_50,
+                         FUN = min
+             )
+  )
+  ) +
+  labs(title = "MRIP estimate"
+       , x = ""
+       , y = ""
+  ) +
+  theme1 +
+  theme(axis.text = element_text(size = 3)) +
+  geom_point()
+
+mrip_top_50_only_plot
+
+max_fhier = max(to_plot_50$fhier_quantity_by_species)
+# 460094
+min_fhier = min(to_plot_50$fhier_quantity_by_species)
+# 5914
+
+# Position of vertical area
+
+mrip_top_50_only_plot_a <-
+  mrip_top_50_only_plot +
+  annotate("rect", 
+           xmin = min_fhier, xmax = max_fhier, 
+           ymin = 0, ymax = 51,
+           color = "red",
+           fill='red',
+           alpha = .2) +
+  geom_text(aes(x = 0.5 * mean(max_fhier),
+                  # (max_fhier - (3 * min_fhier)), 
+                y = 1.5, 
+                label = "FHIER counts"
+  ), 
+  color = "red",
+  size = 5
+  )
+
+super_title = "The top 50 most abundant FHIER species"
+
+grid.arrange(fhier_top_50_only_plot, 
+             mrip_top_50_only_plot_a, 
+             top = super_title, 
+             ncol = 2)
+
+
+## ---- 50 fhier species by those in MRIP only
+plot_fhier_50_species_by_those_in_MRIP_only <- function() {
+  # n_most_frequent_fhier_50 <- get_n_most_frequent_fhier(50)
+  to_plot_50_m <- inner_join(mrip_and_fhier_w_names,
+                             n_most_frequent_fhier_50,
+                             by = c("species_itis", "fhier_quantity_by_species")) %>%  
+    select(common_name, fhier_quantity_by_species, mrip_estimate_catch_by_species)
+  
+  # str(to_plot_50_m)
+  # 49
+  fhier_to_50_m <-
+    factor(to_plot_50_m$fhier_quantity_by_species) %>%
+    as.numeric()
+  
+  fhier_top_50_m_only_plot <-
+    to_plot_50_m %>%
+    select(common_name, fhier_quantity_by_species) %>%
+    ggplot(aes(x = fhier_quantity_by_species,
+               y = reorder(common_name,
+                           fhier_to_50_m,
+                           FUN = min
+               )
+    )
+    ) +
+    labs(title = "FHIER counts"
+         , x = ""
+         , y = ""
+    ) +
+    theme1 +
+    theme(axis.text = element_text(size = 3)) +
+    geom_point()
+  
+  fhier_top_50_m_only_plot
+  
+  mrip_top_50_m_only_plot <- 
+    to_plot_50_m %>%
+    select(common_name, mrip_estimate_catch_by_species) %>%
+    ggplot(aes(x = mrip_estimate_catch_by_species,
+               y = reorder(common_name,
+                           fhier_to_50_m,
+                           FUN = min
+               )
+    )
+    ) +
+    labs(title = "MRIP estimate"
+         , x = ""
+         , y = ""
+    ) +
+    theme1 +
+    theme(axis.text = element_text(size = 3)) +
+    geom_point()
+  
+  mrip_top_50_m_only_plot
+  
+  max_fhier = max(to_plot_50_m$fhier_quantity_by_species)
+  # 460094
+  min_fhier = min(to_plot_50_m$fhier_quantity_by_species)
+  # 5914
+  
+  # Position of vertical area
+  
+  mrip_top_50_m_only_plot_a <-
+    mrip_top_50_m_only_plot +
+    annotate("rect", 
+             xmin = min_fhier, xmax = max_fhier, 
+             ymin = 0, ymax = 51,
+             color = "red",
+             fill='red',
+             alpha = .2) +
+    geom_text(aes(x = 0.5 * mean(max_fhier),
+                  # (max_fhier - (3 * min_fhier)), 
+                  y = 1.5, 
+                  label = "FHIER counts"
+    ), 
+    color = "red",
+    size = 5
+    )
+  
+  super_title = "The top 50_m most abundant FHIER species"
+  
+  grid.arrange(fhier_top_50_m_only_plot, 
+               mrip_top_50_m_only_plot_a, 
+               top = super_title, 
+               ncol = 2)
+}
+
+plot_fhier_50_species_by_those_in_MRIP_only()
+
 ## ---- convert to long form ----
 # TODO: combine with get_long_mrip_and_fhier_short_values_n
 get_long_form <- function(to_plot_10) {
