@@ -272,9 +272,11 @@ n_most_frequent_fhier_10 <- get_n_most_frequent_fhier(10)
 #             by = c("species_itis ", "fhier_quantity_by_species")) %>%
 #   str()
 
-to_plot_10 <- right_join(mrip_and_fhier,
+names(n_most_frequent_fhier_10)
+names(mrip_and_fhier_w_names)
+to_plot_10 <- right_join(mrip_and_fhier_w_names,
                         n_most_frequent_fhier_10,
-                      by = c("species_itis ", "fhier_quantity_by_species")) %>%  
+                      by = c("species_itis", "fhier_quantity_by_species")) %>%  
   select(common_name, fhier_quantity_by_species, mrip_estimate_catch_by_species)
 
 to_plot_10 %>% head(2)
@@ -340,7 +342,7 @@ mrip_top_only_plot_l <-
   mrip_top_only_plot +
   geom_vline(aes(xintercept = max_fhier), 
              color = "red") +
-  geom_text(aes(x = (max_fhier - 1500000), 
+  geom_text(aes(x = (max_fhier), 
                 y = 2, 
                 label = "Max FHIER count"
                 ), 
@@ -375,19 +377,22 @@ get_long_form <- function(to_plot_10) {
     # remove lines where one or another agency doesn't have counts for this species
     drop_na() %>%
     unique()
-  
+
   return(long_to_plot)
 }
 
 ## ---- both together ---- 
-to_plot_long <- get_long_form(to_plot)
+to_plot_long <- get_long_form(to_plot_10)
+str(to_plot_long)
+to_plot_long$CATCH_CNT
 
 plot_most_frequent <-
   ggplot(to_plot_long,
          aes(fill = AGENCY,
              x = CATCH_CNT,
-             y = reorder(COMMON_NAME,
-                         as.integer(factor(CATCH_CNT)), FUN = min)
+             y = COMMON_NAME
+             # y = reorder(COMMON_NAME,
+             #             as.integer(factor(CATCH_CNT)), FUN = min)
          )
   ) +
   labs(title = "catch by species",
