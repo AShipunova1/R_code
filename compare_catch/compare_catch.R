@@ -199,6 +199,7 @@ logbooks_content_short_2022 <-
            disposition_code,
            disposition_name,
            end_port_state,
+           end_port_name,
            latitude,
            longitude,
            notif_end_port,
@@ -251,5 +252,9 @@ fhier_quantity_by_species_and_state <-
 head(fhier_quantity_by_species_and_state)
 
 ## --- shapefiles ----
-# read
-# bavaria <- read_sf("bavaria.shp")
+
+# get 10 most ab
+# get coordinates
+# add ab
+# add to map
+
