@@ -27,14 +27,14 @@ library(leafsync)
 #   a) mapview
 #
 
-read_shapefile <- function(filename) {
-  shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
-  
-  x <- readOGR(shapefile_file_name)
-  return(x)
-}
-sa_shp <- read_shapefile("osa_n_gom/SA_EEZ_off_states.shp")
-gom_shp <- read_shapefile("osa_n_gom/ReefFish_EFH_GOM.shp")
+# read_shapefile <- function(filename) {
+#   shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
+#   
+#   x <- readOGR(shapefile_file_name)
+#   return(x)
+# }
+# sa_shp <- read_shapefile("osa_n_gom/SA_EEZ_off_states.shp")
+# gom_shp <- read_shapefile("osa_n_gom/ReefFish_EFH_GOM.shp")
 # projargs: chr "+proj=longlat +datum=NAD83 +no_defs"
 
 stack_lat_lon_mid <- function(lat_lon_mid_data) {
@@ -143,6 +143,11 @@ write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = NULL) {
 
   write.csv(coordinates(lat_lon_data_short_origCRS), file = out_file_name)
 }
+
+m1 <- mapview(sa_shp)
+m2 <- mapview(gom_shp)
+m3 <- m1 + m2
+m3
 
 view_maps <- function(shapefile_data, lat_lon_data_list) {
   lat_lon_data <- lat_lon_data_list[[1]]
