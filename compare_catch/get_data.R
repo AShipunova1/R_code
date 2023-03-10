@@ -28,7 +28,7 @@ load_species_count_by_disposition <- function() {
   
   return(species_count[[1]])
 }
-fhier_species_count_by_disposition <- load_species_count_by_disposition()
+# fhier_species_count_by_disposition <- load_species_count_by_disposition()
 # str(fhier_species_count_by_disposition)
 # 'data.frame':	316171 obs. of  9 variables:
 
@@ -49,6 +49,22 @@ load_safis_catch <- function() {
   # A tibble: 327,397 × 59
   return(safis_catch)
 }
+
+load_all_logbooks <- function() {
+  # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\logbooks_from_fhier\FHIER_all_logbook_data.csv"
+  species_count_csv_names_list_lb = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
+  fhier_all_logbook_data <- load_csv_names(my_paths, species_count_csv_names_list_lb)
+  # browser()
+  # clean_all_csvs(csv_contents, vessel_id_field_name = "vessel_official_number")
+  logbooks_content <- 
+    clean_all_csvs(fhier_all_logbook_data,
+                   vessel_id_field_name = "vessel_official_nbr")
+  
+  return(logbooks_content[[1]])
+}
+# TODO: slow, benchmark
+logbooks_content <- load_all_logbooks()
+str(logbooks_content)
 
 # ---- 2) MRIP ----
 load_mrip_data <- function() {

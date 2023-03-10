@@ -168,9 +168,6 @@ fhier_species_count_by_disposition_com_names
 
 fhier_species_count_by_disposition_com_names
 
-source("~/R_code_github/compare_catch/plots.R")
-
-
 ## ---- most n frequent FHIER species ----
 
 str(fhier_quantity_by_species)
@@ -181,3 +178,78 @@ get_n_most_frequent_fhier <- function(n) {
     head(n) %>%
     return()
 }
+
+source("~/R_code_github/compare_catch/plots.R")
+
+## ---- logbooks_content ----
+itis_field_name <- grep("itis", names(logbooks_content), value = T)
+# catch_species_itis
+vessel_id_field_name <- grep("vessel.*official", names(logbooks_content), value = T)
+# vessel_official_nbr
+# logbooks_content$end_port_state %>% unique()
+# [1] "FL" "NC" "SC" "AL" "MS" "TX" "GA" "VA" "MD" "LA" "DE" "RI" "NJ" "MA" "NY"
+# [16] "CT" "ME"
+
+# get landing by coordinates
+logbooks_content_short_2022 <-
+  logbooks_content %>%
+    select(area_code,
+           catch_species_itis,
+           common_name,
+           disposition_code,
+           disposition_name,
+           end_port_state,
+           latitude,
+           longitude,
+           notif_end_port,
+           notif_end_port_state,
+           reported_quantity,
+           sub_area_code,
+           trip_end_date,
+           trip_end_time,
+           trip_start_date,
+           trip_start_time,
+           trip_type,
+           trip_type_name
+           ) %>% 
+    change_to_dates("trip_start_date", "%Y-%m-%d %H:%M:%S") %>% 
+    filter(format(trip_start_date, format = "%Y") == "2022") %>%
+    change_to_dates("trip_end_date", "%Y-%m-%d %H:%M:%S") %>%
+    mutate(reported_quantity = as.integer(reported_quantity))
+
+# rm(logbooks_content)
+# gc()
+
+# ?
+logbooks_content_short_2022 %>%
+  filter((disposition_name %in% c("RELEASED ALIVE", "DEAD DISCARD", "NO CATCH", "UNDER SIZE LIMIT"))) %>% dim()
+# ! 194188     
+# released 125888
+  # unique()
+
+## ---- add counts ----
+# all
+fhier_quantity_by_species <-
+  logbooks_content_short_2022 %>%
+  select(catch_species_itis, common_name, reported_quantity) %>% 
+  mutate(reported_quantity = as.integer(reported_quantity)) %>%
+  group_by(catch_species_itis, common_name) %>% 
+  summarise(fhier_quantity_by_species = sum(reported_quantity)) %>%
+  mutate(fhier_quantity_by_species = as.integer(fhier_quantity_by_species)) %>%
+  arrange(desc(fhier_quantity_by_species))
+
+
+head(fhier_quantity_by_species)
+
+# by_species_and_state
+fhier_quantity_by_species_and_state <-
+  logbooks_content_short_2022 %>%
+  select(catch_species_itis, common_name, end_port_state, reported_quantity) %>% 
+  group_by(catch_species_itis, common_name, end_port_state) %>% 
+  summarise(fhier_quantity_by_species_and_state = sum(as.integer(reported_quantity)))
+
+head(fhier_quantity_by_species_and_state)
+
+## --- shapefiles ----
+# read
+# bavaria <- read_sf("bavaria.shp")
