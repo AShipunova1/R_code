@@ -3,10 +3,10 @@
 #
 
 # library(odbc)
-library(sp) # vector data
-library(dplyr)
+# library(sp) # vector data
+# library(dplyr)
 # library(raster)  # raster data
-library(rgdal) # input/output, projections
+# library(rgdal) # input/output, projections
 # library(rgeos)  # geometry ops
 # library(spdep)  # spatial dependence
 library(broom)
