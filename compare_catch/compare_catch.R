@@ -20,12 +20,16 @@ source("~/R_code_github/compare_catch/get_data.R")
 # fhier_species_count_by_disposition %>%
   # select(disposition) %>% unique()
 ## ---- FHIER: count catch by species ----
-fhier_quantity_by_species <-
-  fhier_species_count_by_disposition %>%
-  select(species_itis, reported_quantity) %>% 
-  group_by(species_itis) %>% 
-  summarise(fhier_quantity_by_species = sum(as.integer(reported_quantity)))
-head(fhier_quantity_by_species, 10)
+# TODO: separate functions
+from_count_by_disposition <- function() {
+  fhier_quantity_by_species <-
+    fhier_species_count_by_disposition %>%
+    select(species_itis, reported_quantity) %>%
+    group_by(species_itis) %>%
+    summarise(fhier_quantity_by_species = sum(as.integer(reported_quantity)))
+
+
+# head(fhier_quantity_by_species, 10)
 
 ## ---- add common names ----
 
@@ -66,6 +70,7 @@ fhier_quantity_by_species_and_permit <-
   group_by(species_itis, permit_region) %>% 
   summarise(fhier_quantity_by_species_and_permit = sum(as.integer(reported_quantity)))
 # head(fhier_quantity_by_species_and_permit, 10)
+} # end of work with count by disposition file
 
 ## ---- MRIP data ----
 
@@ -93,17 +98,18 @@ mrip_estimate_catch_by_species <-
 
 ## ---- compare fhier with mrip ----
 # mrip_estimate_catch
-head(fhier_species_count_by_disposition, 3)
-head(fhier_quantity_by_species, 3)
+# head(fhier_species_count_by_disposition, 3)
+# head(fhier_quantity_by_species, 3)
 head(mrip_estimate_catch_by_species, 3)
 
 ## ---- compare species in fhier with mrip ----
 
+compare_species_in_fhier_with_mrip <- function(fhier_species_count) {
 sp_itis_fhier <-
-  grep("itis", tolower(names(fhier_species_count_by_disposition)), value = TRUE)
+  grep("itis", tolower(names(fhier_species_count)), value = TRUE)
 
 species_used_in_fhier <-
-  fhier_species_count_by_disposition %>%
+  fhier_species_count %>%
   select(all_of(sp_itis_fhier)) %>% 
   unique() %>%
   set_names(sp_itis_mrip <- "itis")
@@ -136,6 +142,7 @@ setdiff(species_in_mrip, species_used_in_fhier) %>% str()
 intersect(species_used_in_fhier, species_in_mrip) %>% str()
 # 229
 # 72
+}
 
 ## ---- if use by region/landing ----
 # mrip_estimate_catch_1 <-
@@ -150,6 +157,7 @@ intersect(species_used_in_fhier, species_in_mrip) %>% str()
 # str(mrip_estimate_catch_1)
 
 ## ---- combine mrip and fhier catch results by species
+combine_mrip_and_fhier_catch_results_by_species <- function() {
 mrip_and_fhier <-
   full_join(fhier_quantity_by_species,
             mrip_estimate_catch_by_species,
@@ -165,21 +173,21 @@ mrip_and_fhier %>%
 
 # combine mrip with fhier with common names
 fhier_species_count_by_disposition_com_names
-
-fhier_species_count_by_disposition_com_names
+}
 
 ## ---- most n frequent FHIER species ----
 
-str(fhier_quantity_by_species)
+# str(fhier_quantity_by_species)
 
-get_n_most_frequent_fhier <- function(n) {
-  fhier_quantity_by_species %>%
+get_n_most_frequent_fhier <- function(n, df_name = NA) {
+  if (not(is.data.frame(df_name))) {df_name <- fhier_quantity_by_species}
+  df_name %>%
     arrange(desc(fhier_quantity_by_species)) %>%
     head(n) %>%
     return()
 }
 
-source("~/R_code_github/compare_catch/plots.R")
+# source("~/R_code_github/compare_catch/plots.R")
 
 ## ---- logbooks_content ----
 itis_field_name <- grep("itis", names(logbooks_content), value = T)
@@ -251,10 +259,118 @@ fhier_quantity_by_species_and_state <-
 
 head(fhier_quantity_by_species_and_state)
 
+# by species and port
+fhier_quantity_by_species_and_port <-
+  logbooks_content_short_2022 %>%
+  select(catch_species_itis, common_name, end_port_name, end_port_state,  reported_quantity) %>% 
+  group_by(catch_species_itis, common_name, end_port_name, end_port_state) %>% 
+  summarise(fhier_quantity_by_species_and_state = sum(as.integer(reported_quantity)))
+
+tail(fhier_quantity_by_species_and_port)
+# [1] 12057     5
+
 ## --- shapefiles ----
 
 # get 10 most ab
 # get coordinates
 # add ab
 # add to map
+
+most_frequent_fhier10 <- get_n_most_frequent_fhier(10, fhier_quantity_by_species)
+glimpse(most_frequent_fhier10)
+
+get_info_for_most_frq <- function() {
+  logbooks_content_short_2022 %>%
+    inner_join(most_frequent_fhier10, by = c("catch_species_itis", "common_name")) %>%
+    select(catch_species_itis, common_name, end_port_name, end_port_state,  reported_quantity, latitude, longitude) %>%
+    return()
+}
+
+most_frequent_fhier10_w_info <- get_info_for_most_frq()
+str(most_frequent_fhier10_w_info)
+grep("\\.y", names(most_frequent_fhier10_w_info), value = T)
+
+# lat_lng <- function(la_lng_points) {
+#   latitude <- 0
+#   longitude <- 0
+#   n <- points.length
+#   
+#   for (point in la_lng_points) {
+#     latitude = latitude + point.latitude
+#     longitude = longitude + point.longitude
+#   }
+#   
+#   (latitude / n, longitude / n)
+#   return 
+# }
+
+# ---- example from https://gis.stackexchange.com/questions/64392/finding-clusters-of-points-based-distance-rule-using-r ----
+# ?require
+require(sp)
+require(rgdal)
+
+
+# Create example data and transform into projected coordinate system
+# x <- c(-1.482156, -1.482318, -1.482129, -1.482880, -1.485735, -1.485770, -1.485913, -1.484275, -1.485866)
+# y <- c(54.90083, 54.90078, 54.90077, 54.90011, 54.89936, 54.89935, 54.89935, 54.89879, 54.89902)
+
+# ---- my_lat lon ----
+names(most_frequent_fhier10_w_info)
+lat_lon_cnts <-
+  most_frequent_fhier10_w_info %>% 
+  mutate(latitude = as.double(latitude) %>% round(digits = 2)) %>% 
+  mutate(longitude = as.double(longitude) %>% round(digits = 2)) %>%
+  filter(abs(latitude) >= 0 & abs(longitude) >= 0) %>%
+  # select(latitude, longitude) %>% 
+# [1] 30831     2
+  # unique()
+# %>%
+  # dim()
+# [1] 3609    2
+  group_by(common_name, latitude, longitude) %>%
+  summarise(fhier_quantity_by_sp_geo = sum(as.integer(reported_quantity)))
+# dim(lat_lon_cnts)
+# 59929     
+
+x <- lat_lon_cnts$latitude
+# x <- as.double(drop_na(as.numeric(most_frequent_fhier10_w_info$latitude)))
+str(x)
+y <- lat_lon_cnts$longitude
+xy <- SpatialPointsDataFrame(matrix(c(x, y), ncol = 2),
+                             data.frame(ID=seq(1:length(x))),
+                             proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+
+xy <- spTransform(xy, CRS("+init=epsg:4326 +datum=WGS84"))
+
+# round(x, digits = 0)
+# here
+chc <- hclust(dist(data.frame(rownames = rownames(xy@data),
+                              x = coordinates(xy)[,1],
+                              y = coordinates(xy)[,2])), 
+              method = "complete")
+
+str(chc)
+dist_tr <- 40  # Distance threshold         
+# Distance with a 40m threshold
+chc.d40 <- cutree(chc, h = d)
+# chc.d40 <- cutree(chc, k = 500) 
+
+# Join results to meuse sp points
+xy@data <- data.frame(xy@data, Clust=chc.d40)
+
+# Plot results
+plot(xy, col=factor(xy@data$Clust), pch=19)
+box(col="black")
+title(main="Clustering")
+legend("topleft", legend=paste("Cluster", 1:4,sep=""),
+       col=palette()[1:4], pch=rep(19,4), bg="white")
+
+## --- round up coords ----
+# install.packages("geosphere")
+# install.packages(geosphere,distMeeus,distm)
+library(geosphere)
+# round(x, digits = 0)
+distance <- lat_lon_cnts %>%
+  select(latitude, longitude) %>%
+  distm()
 
