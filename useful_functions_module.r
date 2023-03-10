@@ -131,6 +131,7 @@ trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
                              tolower(names(x)),
                              value = T)
     }
+    # browser()
     x[col_name_to_trim] <- trimws(x[col_name_to_trim])
     # x$vesselofficialnumber <- trimws(x$vesselofficialnumber)
     x
