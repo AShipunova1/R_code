@@ -5,7 +5,7 @@
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
-source("~/R_code_github/compare_catch/get_data.R")
+# source("~/R_code_github/compare_catch/get_data.R")
 
 # ---- the breath of species caught in SEFIHIER (2022) ----
 # ?? (where is the permit info) Do this by region (gulf vs s atl vessels). Or by landing?
@@ -308,6 +308,8 @@ grep("\\.y", names(most_frequent_fhier10_w_info), value = T)
 # ?require
 require(sp)
 require(rgdal)
+library(leaflet)
+library(gtools)
 
 
 # Create example data and transform into projected coordinate system
@@ -315,6 +317,75 @@ require(rgdal)
 # y <- c(54.90083, 54.90078, 54.90077, 54.90011, 54.89936, 54.89935, 54.89935, 54.89879, 54.89902)
 
 # ---- my_lat lon ----
+## ---- make coord_table ----
+# GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND
+
+# str(lat_lon_cnts)
+# str(most_frequent_fhier10_w_info)
+
+lat_lon_cnts_w_info <-
+  most_frequent_fhier10_w_info %>% 
+  mutate(latitude = as.double(latitude) %>% 
+           round(digits = 2)) %>% 
+  mutate(longitude = as.double(longitude) %>% 
+           round(digits = 2)) %>% 
+  filter(abs(latitude) >= 0 & abs(longitude) >= 0) %>%
+  # to all positive
+  mutate(latitude = abs(latitude)) %>%
+  # to all negative
+  mutate(longitude = (abs(longitude) * -1)) %>%
+  # data_overview()
+  group_by(common_name, latitude, longitude) %>%
+  summarise(fhier_quantity_by_sp_geo = sum(as.integer(reported_quantity)))
+# latitude     
+# Min.   :-87.30  
+# Max.   : 90.00    
+
+#     longitude      
+# Min.   :-105.14  
+# Max.   : 137.59  
+
+lat_lon_cnts_w_info %>%
+  filter(abs(longitude) < 80) %>%
+  select(common_name, latitude, longitude) %>% unique %>% dim()
+# 6693
+
+lat_lon_cnts_w_info %>%
+  filter(abs(latitude) < 10) %>% unique %>% dim()
+# 623
+
+dim(lat_lon_cnts_w_info)
+# 58871
+
+clean_geo_data <- function(lat_lon_cnts_w_info) {
+  # cbind(stack(lat_lon_data_all[1:2]), stack(lat_lon_data_all[3:4])) -> res1
+  # browser()
+  res2 <- 
+    lat_lon_cnts_w_info %>%
+    ungroup() %>%
+    select(latitude, longitude)
+  
+  colnames(res2) <- c("lat", "lon")
+  # remove NAs
+  clean_lat_lon <- res2[complete.cases(res2), ]
+  return(clean_lat_lon)
+}
+
+lat_lon_data <- clean_geo_data(lat_lon_cnts_w_info)
+lat_lon_short20 <-
+  lat_lon_cnts_w_info %>%
+  ungroup %>% 
+  select(common_name, latitude, longitude) %>% unique() %>% tail(20)
+
+# lat_lon_short_20000 <-
+#   lat_lon_cnts_w_info %>%
+#   ungroup %>% 
+#   select(common_name, latitude, longitude) %>% unique() %>% tail(20000)
+
+# str(lat_lon_short_20000)
+
+clean_lat_lon_data20 <- clean_geo_data(lat_lon_short20)
+
 names(most_frequent_fhier10_w_info)
 lat_lon_cnts <-
   most_frequent_fhier10_w_info %>% 
@@ -332,6 +403,7 @@ lat_lon_cnts <-
 # dim(lat_lon_cnts)
 # 59929     
 
+plot_xy < function() {
 x <- lat_lon_cnts$latitude
 # x <- as.double(drop_na(as.numeric(most_frequent_fhier10_w_info$latitude)))
 str(x)
@@ -364,6 +436,7 @@ box(col="black")
 title(main="Clustering")
 legend("topleft", legend=paste("Cluster", 1:4,sep=""),
        col=palette()[1:4], pch=rep(19,4), bg="white")
+}
 
 ## --- round up coords ----
 # install.packages("geosphere")

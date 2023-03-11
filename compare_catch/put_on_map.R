@@ -139,15 +139,18 @@ write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = NULL) {
   write.csv(coordinates(lat_lon_data_short_origCRS), file = out_file_name)
 }
 
-m_s <- mapview(sa_shp)
-m_g <- mapview(gom_shp)
-m_s_g <- m_s + m_g
-m_s_g
-m_ll <- mapview(lat_lon_data, color = "red")
-m_ll
-m_f <- m_s_g + m_ll
-m_f
-str(lat_lon_data)
+show_dots <- function(lat_lon) {
+  lat_lon %>%
+    leaflet() %>%
+    addTiles() %>%
+    addPolylines(data = lat_lon, lng = ~longitude, lat = ~latitude, group = ~common_name) %>%
+    addMarkers(~longitude, ~latitude,
+               label = "common_name",
+               # label = paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
+               labelOptions = labelOptions(noHide = T),
+               clusterOptions = markerClusterOptions()
+    )
+}
 
 view_maps <- function(shapefile_data, lat_lon_data_list) {
   lat_lon_data <- lat_lon_data_list[[1]]
@@ -285,3 +288,56 @@ subset_coords <- function(coord_file_name = NULL, shapefile_path = NULL, shapefi
     }
   }
 }
+
+# test
+library(sf)
+library(mapview)
+library(leaflet)
+library(leafem)
+# points <- tribble(~name, ~lat, ~lon,
+                  # 'Point A',     -38.119151, 145.401893,
+                  # 'Point B',     -38.127870, 145.685598)
+
+points <- lat_lon_short20
+points_sf <- st_as_sf(points, coords = c("longitude", "latitude"), crs = 4326)
+
+leaflet(points_sf) %>%
+  addTiles() %>%
+  addLabelOnlyMarkers(label = ~common_name, 
+                      labelOptions = labelOptions(noHide = T,
+                                                  direction = 'top',
+                                                  textOnly = T))
+
+map_labels_20 <- mapview(points_sf) %>%
+  addStaticLabels(label = points$common_name,
+                  noHide = TRUE,
+                  direction = 'top',
+                  textOnly = TRUE,
+                  textsize = "20px")
+
+# res11 <- show_dots(lat_lon_short20)
+# str(res11)
+m_20_w_names <- m_s_g %>%
+  addStaticLabels(label = points$common_name,
+                  noHide = TRUE,
+                  direction = 'top',
+                  textOnly = TRUE,
+                  textsize = "20px")
+
+mll1 <- mapview(lat_lon_data, color = "red")
+m_all1 <- mll1 + m_s_g %>%
+  addStaticLabels(label = points$common_name,
+                  noHide = TRUE,
+                  direction = 'top',
+                  textOnly = TRUE,
+                  textsize = "20px")
+
+m_s <- mapview(sa_shp)
+m_g <- mapview(gom_shp)
+m_s_g <- m_s + m_g
+m_s_g
+m_ll <- mapview(lat_lon_data, color = "red")
+m_ll
+m_f <- m_s_g + m_ll
+m_f
+str(lat_lon_data)
