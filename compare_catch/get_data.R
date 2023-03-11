@@ -268,6 +268,7 @@ dim(lat_lon_cnts_w_info)
 
 clean_geo_data <- function(lat_lon_cnts_w_info) {
   # cbind(stack(lat_lon_data_all[1:2]), stack(lat_lon_data_all[3:4])) -> res1
+  # browser()
   res2 <- 
     lat_lon_cnts_w_info %>%
     ungroup() %>%
@@ -280,5 +281,9 @@ clean_geo_data <- function(lat_lon_cnts_w_info) {
 }
 
 lat_lon_data <- clean_geo_data(lat_lon_cnts_w_info)
-tail(lat_lon_data)
+lat_lon_short20 <-
+  lat_lon_cnts_w_info %>%
+  ungroup %>% 
+  select(latitude, longitude) %>% unique() %>% tail(20)
 
+clean_lat_lon_data20 <- clean_geo_data(lat_lon_short20)

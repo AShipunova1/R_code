@@ -88,6 +88,7 @@ try_catch_intersection <- function(lat_lon_data, shapefile_data) {
 }
 
 # works
+lat_lon_data <- clean_lat_lon_data20
 lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   lat_lon_crs <- "+init=epsg:4326"
   coordinates(lat_lon_data) <- ~ lon + lat
@@ -104,22 +105,22 @@ lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   proj4string(lat_lon_data) <- shapefile_crs
   proj4string(shapefile_data) <- shapefile_crs
 
-  lat_lon_data_list <- NULL
+  # lat_lon_data_list <- NULL
   # lat_lon_data_short <- try_catch_intersection(lat_lon_data, shapefile_data)
-  lat_lon_data_short <- lat_lon_data[shapefile_data, ]
+  # lat_lon_data_short <- lat_lon_data[shapefile_data, ]
 
-  if (nrow(lat_lon_data_short@coords) > 0) {
+  # if (nrow(lat_lon_data_short@coords) > 0) {
     # nrow(lat_lon_data_short)
 
     # transform back
-    lat_lon_data_short_origCRS <- spTransform(lat_lon_data_short, CRS(lat_lon_crs))
+    # lat_lon_data_short_origCRS <- spTransform(lat_lon_data_short, CRS(lat_lon_crs))
 
-    lat_lon_data_list <- list(lat_lon_data, lat_lon_data_short_origCRS)
-  }
-  return(lat_lon_data_list)
+    # lat_lon_data_list <- list(lat_lon_data, lat_lon_data_short_origCRS)
+  # }
+  return(lat_lon_data)
 }
 
-str(lat_lon_data_list)
+# str(lat_lon_data_list)
 write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = NULL) {
   if (is.null(filenames)) filenames <- list("lat_lon_data.csv")
 
@@ -138,13 +139,15 @@ write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = NULL) {
   write.csv(coordinates(lat_lon_data_short_origCRS), file = out_file_name)
 }
 
-m1 <- mapview(sa_shp)
-m2 <- mapview(gom_shp)
-m3 <- m1 + m2
-m3
-m_ll <- mapview(xy, color = "red")
-m_f <- m3 + m_ll
-str(xy)
+m_s <- mapview(sa_shp)
+m_g <- mapview(gom_shp)
+m_s_g <- m_s + m_g
+m_s_g
+m_ll <- mapview(lat_lon_data, color = "red")
+m_ll
+m_f <- m_s_g + m_ll
+m_f
+str(lat_lon_data)
 
 view_maps <- function(shapefile_data, lat_lon_data_list) {
   lat_lon_data <- lat_lon_data_list[[1]]
