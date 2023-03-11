@@ -5,7 +5,7 @@
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
-# source("~/R_code_github/compare_catch/get_data.R")
+source("~/R_code_github/compare_catch/get_data.R")
 
 # ---- the breath of species caught in SEFIHIER (2022) ----
 # ?? (where is the permit info) Do this by region (gulf vs s atl vessels). Or by landing?
@@ -329,7 +329,7 @@ lat_lon_cnts_w_info <-
            round(digits = 2)) %>% 
   mutate(longitude = as.double(longitude) %>% 
            round(digits = 2)) %>% 
-  filter(abs(latitude) >= 0 & abs(longitude) >= 0) %>%
+  # filter(abs(latitude) >= 0 & abs(longitude) >= 0) %>%
   # to all positive
   mutate(latitude = abs(latitude)) %>%
   # to all negative
@@ -337,6 +337,7 @@ lat_lon_cnts_w_info <-
   # data_overview()
   group_by(common_name, latitude, longitude) %>%
   summarise(fhier_quantity_by_sp_geo = sum(as.integer(reported_quantity)))
+
 # latitude     
 # Min.   :-87.30  
 # Max.   : 90.00    
@@ -345,10 +346,25 @@ lat_lon_cnts_w_info <-
 # Min.   :-105.14  
 # Max.   : 137.59  
 
+lat_lon_cnts_w_info %>% data_overview()
+# latitude
+# Min.   : 0.16
+# Max.   :90.00 
+#     longitude      
+# Min.   :-137.59
+# Max.   :  -0.32
+
 lat_lon_cnts_w_info %>%
   filter(abs(longitude) < 80) %>%
   select(common_name, latitude, longitude) %>% unique %>% dim()
 # 6693
+
+lat_lon_cnts_w_info %>%
+  filter(abs(longitude) > abs(latitude)) %>%
+  select(common_name, latitude, longitude) %>% unique %>% dim()
+# 58192     
+dim(lat_lon_cnts_w_info)
+# 58880     
 
 lat_lon_cnts_w_info %>%
   filter(abs(latitude) < 10) %>% unique %>% dim()
@@ -364,18 +380,22 @@ clean_geo_data <- function(lat_lon_cnts_w_info) {
     lat_lon_cnts_w_info %>%
     ungroup() %>%
     select(latitude, longitude)
-  
-  colnames(res2) <- c("lat", "lon")
+
+  # colnames(res2) <- c("lat", "lon")
   # remove NAs
   clean_lat_lon <- res2[complete.cases(res2), ]
   return(clean_lat_lon)
 }
 
-lat_lon_data <- clean_geo_data(lat_lon_cnts_w_info)
+# lat_lon_data <- clean_geo_data(lat_lon_cnts_w_info)
+# str(lat_lon_data)
 lat_lon_short20 <-
   lat_lon_cnts_w_info %>%
   ungroup %>% 
   select(common_name, latitude, longitude) %>% unique() %>% tail(20)
+
+str(lat_lon_cnts_w_info)
+# gropd_df [58,871 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
 
 # lat_lon_cnts_w_info %>%
 #   ungroup() %>%
@@ -384,6 +404,7 @@ lat_lon_short20 <-
 lat_lon_short_grey_snap <-
   lat_lon_cnts_w_info %>%
   ungroup %>% 
+  filter(abs(longitude) > abs(latitude)) %>%
   filter(common_name == "SNAPPER, GRAY") %>%
   select(fhier_quantity_by_sp_geo, latitude, longitude) %>% unique() %>%
   # dim()
@@ -461,3 +482,5 @@ distance <- lat_lon_cnts %>%
   select(latitude, longitude) %>%
   distm()
 
+## ---- convert coords ----
+# Decimal Degrees = degrees + (minutes/60) + (seconds/3600)
