@@ -225,3 +225,60 @@ read_port_coords <- function(){
   }
 }
 port_coords <- read_port_coords()
+
+## ---- make coord_table ----
+# GIS_LATHBEG, GIS_LATHEND, GIS_LONHBEG, GIS_LONHEND
+
+str(lat_lon_cnts)
+str(most_frequent_fhier10_w_info)
+
+lat_lon_cnts_w_info <-
+  most_frequent_fhier10_w_info %>% 
+  mutate(latitude = as.double(latitude) %>% 
+           round(digits = 2)) %>% 
+  mutate(longitude = as.double(longitude) %>% 
+           round(digits = 2)) %>% 
+  filter(abs(latitude) >= 0 & abs(longitude) >= 0) %>%
+  # to all positive
+  mutate(latitude = abs(latitude)) %>%
+    # to all negative
+  mutate(longitude = (abs(longitude) * -1)) %>%
+  # data_overview()
+    group_by(common_name, latitude, longitude) %>%
+    summarise(fhier_quantity_by_sp_geo = sum(as.integer(reported_quantity)))
+    # latitude     
+    # Min.   :-87.30  
+    # Max.   : 90.00    
+    
+#     longitude      
+    # Min.   :-105.14  
+    # Max.   : 137.59  
+
+lat_lon_cnts_w_info %>%
+  filter(abs(longitude) < 80) %>%
+select(common_name, latitude, longitude) %>% unique %>% dim()
+# 6693
+
+lat_lon_cnts_w_info %>%
+  filter(abs(latitude) < 10) %>% unique %>% dim()
+# 623
+
+dim(lat_lon_cnts_w_info)
+# 58871
+
+clean_geo_data <- function(lat_lon_cnts_w_info) {
+  # cbind(stack(lat_lon_data_all[1:2]), stack(lat_lon_data_all[3:4])) -> res1
+  res2 <- 
+    lat_lon_cnts_w_info %>%
+    ungroup() %>%
+    select(latitude, longitude)
+    
+  colnames(res2) <- c("lat", "lon")
+  # remove NAs
+  clean_lat_lon <- res2[complete.cases(res2), ]
+  return(clean_lat_lon)
+}
+
+lat_lon_data <- clean_geo_data(lat_lon_cnts_w_info)
+tail(lat_lon_data)
+
