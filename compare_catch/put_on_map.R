@@ -1,16 +1,8 @@
-# get coordinate subset by a shapefile
+# put coordinates on a shapefile
 # Using https://www.r-bloggers.com/2014/07/clipping-spatial-data-in-r/
 #
 
-# library(odbc)
-# library(sp) # vector data
-# library(dplyr)
-# library(raster)  # raster data
-# library(rgdal) # input/output, projections
-# library(rgeos)  # geometry ops
-# library(spdep)  # spatial dependence
 library(broom)
-# library(ggplot2)
 library(mapview)
 library(leafsync)
 
@@ -95,13 +87,14 @@ try_catch_intersection <- function(lat_lon_data, shapefile_data) {
   )
 }
 
+# works
 lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   lat_lon_crs <- "+init=epsg:4326"
   coordinates(lat_lon_data) <- ~ lon + lat
   proj4string(lat_lon_data) <- lat_lon_crs
   #     lat     lon
   # 38.40167 -73.45000
-
+  shapefile_data <- sa_shp
   shapefile_crs <- CRS(proj4string(shapefile_data))
 
   lat_lon_data <- spTransform(lat_lon_data, shapefile_crs)
@@ -126,6 +119,7 @@ lat_lon_data_to_spf <- function(lat_lon_data, shapefile_data) {
   return(lat_lon_data_list)
 }
 
+str(lat_lon_data_list)
 write_result_to_csv <- function(lat_lon_data_short_origCRS, filenames = NULL) {
   if (is.null(filenames)) filenames <- list("lat_lon_data.csv")
 
@@ -148,6 +142,9 @@ m1 <- mapview(sa_shp)
 m2 <- mapview(gom_shp)
 m3 <- m1 + m2
 m3
+m_ll <- mapview(xy, color = "red")
+m_f <- m3 + m_ll
+str(xy)
 
 view_maps <- function(shapefile_data, lat_lon_data_list) {
   lat_lon_data <- lat_lon_data_list[[1]]
