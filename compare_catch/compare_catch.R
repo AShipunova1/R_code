@@ -377,6 +377,20 @@ lat_lon_short20 <-
   ungroup %>% 
   select(common_name, latitude, longitude) %>% unique() %>% tail(20)
 
+# lat_lon_cnts_w_info %>%
+#   ungroup() %>%
+#   select(common_name) %>% unique() %>% head()
+
+lat_lon_short_grey_snap <-
+  lat_lon_cnts_w_info %>%
+  ungroup %>% 
+  filter(common_name == "SNAPPER, GRAY") %>%
+  select(fhier_quantity_by_sp_geo, latitude, longitude) %>% unique() %>%
+  # dim()
+# 6525
+tail(20)
+
+
 # lat_lon_short_20000 <-
 #   lat_lon_cnts_w_info %>%
 #   ungroup %>% 

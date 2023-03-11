@@ -6,6 +6,10 @@ library(broom)
 library(mapview)
 library(leafsync)
 
+library(sf)
+library(leaflet)
+library(leafem)
+
 # TODO:
 # rm extra libraries
 # 1) create work dir
@@ -289,27 +293,52 @@ subset_coords <- function(coord_file_name = NULL, shapefile_path = NULL, shapefi
   }
 }
 
-# test
-library(sf)
-library(mapview)
-library(leaflet)
-library(leafem)
+## ---- com_name and counts test ----
+
+lat_lon_data_to_spf_only <- function(lat_lon_data, shapefile_data) {
+  lat_lon_crs <- "+init=epsg:4326"
+  coordinates(lat_lon_data) <- ~ longitude + latitude
+  proj4string(lat_lon_data) <- lat_lon_crs
+  #     lat     lon
+  # 38.40167 -73.45000
+  # change
+  # shapefile_data <- sa_shp
+  shapefile_crs <- CRS(proj4string(shapefile_data))
+  
+  lat_lon_data <- spTransform(lat_lon_data, shapefile_crs)
+  #        lon     lat
+  # 1 -8176417 4636324
+  
+  proj4string(lat_lon_data) <- shapefile_crs
+  proj4string(shapefile_data) <- shapefile_crs
+  
+  return(lat_lon_data)
+}
+
 # points <- tribble(~name, ~lat, ~lon,
                   # 'Point A',     -38.119151, 145.401893,
                   # 'Point B',     -38.127870, 145.685598)
 
-points <- lat_lon_short20
-points_sf <- st_as_sf(points, coords = c("longitude", "latitude"), crs = 4326)
 
-leaflet(points_sf) %>%
-  addTiles() %>%
-  addLabelOnlyMarkers(label = ~common_name, 
-                      labelOptions = labelOptions(noHide = T,
-                                                  direction = 'top',
-                                                  textOnly = T))
+## ---- convert to map obj ----
+# reversed lat and lon?
+points <- lat_lon_short_grey_snap
+points_sf <- 
+  st_as_sf(points, 
+           coords = c("latitude", "longitude"),
+           crs = 4326)
 
-map_labels_20 <- mapview(points_sf) %>%
-  addStaticLabels(label = points$common_name,
+# leaflet(points_sf) %>%
+#   addTiles() %>%
+#   addLabelOnlyMarkers(label = ~common_name, 
+#                       labelOptions = labelOptions(noHide = T,
+#                                                   direction = 'top',
+#                                                   textOnly = T))
+
+lat_lon_short_grey_snap_sf <- lat_lon_data_to_spf_only(lat_lon_short_grey_snap, sa_shp)
+  
+map_labels_20 <- mapview(lat_lon_short_grey_snap_sf) + m_s_g %>%
+  addStaticLabels(label = lat_lon_short_grey_snap$fhier_quantity_by_sp_geo,
                   noHide = TRUE,
                   direction = 'top',
                   textOnly = TRUE,
@@ -324,7 +353,7 @@ m_20_w_names <- m_s_g %>%
                   textOnly = TRUE,
                   textsize = "20px")
 
-mll1 <- mapview(lat_lon_data, color = "red")
+mll1 <- mapview(lat_lon_short_grey_snap_sf)
 m_all1 <- mll1 + m_s_g %>%
   addStaticLabels(label = points$common_name,
                   noHide = TRUE,
