@@ -96,6 +96,7 @@ mrip_estimate_catch_by_species <-
   summarise(mrip_estimate_catch_by_species = sum(ab1))
 # head(mrip_estimate_catch_by_species, 2)
 
+grep("lon", names(mrip_estimate), value = T)
 ## ---- MRIP: count catch by species and state ----
 mrip_estimate_catch_by_species_and_state <-
   mrip_estimate %>%
@@ -533,4 +534,36 @@ mrip_fhier_by_state <-
              by = c("new_sta" = "state_abb",
                     "itis_code" = "catch_species_itis"),
              multiple = "all")
+
+## ---- get real coordinates ----
+names(most_frequent_fhier10_w_info)
+
+most_frequent_fhier10_w_info_lat_lon <-
+  most_frequent_fhier10_w_info %>% 
+  mutate(latitude = as.numeric(latitude)) %>%
+  # mutate(lat1 = trunc(latitude) + ((latitude - trunc(latitude)) / 60) ) %>% 
+  mutate(longitude = as.numeric(longitude)) %>%
+  filter(abs(latitude) >= 60 & abs(longitude) >= 20) %>%
+  mutate(latitude = abs(latitude)) %>%
+  # to all negative
+  mutate(longitude = (abs(longitude) * -1))
+
+# tibble [147 × 5] (S3: tbl_df/tbl/data.frame)
+# data_overview(most_frequent_fhier10_w_info_lat_lon)
+
+lat_lon_cnts <-
+  most_frequent_fhier10_w_info_lat_lon %>%
+  group_by(catch_species_itis, common_name, latitude, longitude) %>%
+  summarise(fhier_quantity_by_sp_geo = sum(as.integer(reported_quantity))) %>%
+  ungroup()
+
+data_overview(lat_lon_cnts)
+# before cleaning:
+# reported_quantity    latitude        longitude      
+# Min.   :   0.00   Min.   :-87.30   Min.   :-105.14  
+# 1st Qu.:   3.00   1st Qu.: 26.96   1st Qu.: -85.98  
+# Median :   8.00   Median : 29.00   Median : -82.47  
+# Mean   :  12.89   Mean   : 28.84   Mean   : -50.69  
+# 3rd Qu.:  15.00   3rd Qu.: 30.12   3rd Qu.: -78.38  
+# Max.   :1000.00   Max.   : 90.00   Max.   : 137.59  
 
