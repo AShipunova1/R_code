@@ -233,7 +233,12 @@ head(states_coords_raw)
 # add state abbreviations
 # state.name[grep("FL", state.abb)]
 
-str(as.data.frame(state_tbl))
-state_tbl <- setNames(state.abb, tolower(state.name))
-inner_join(states_coords_raw, state_tbl, by = )
-head(most_frequent_fhier10_w_info_state_cnts)
+# str(data.frame(as.list(state_tbl)))
+str(states_coords_raw)
+state_tbl <- data.frame(state.abb, tolower(state.name))
+names(state_tbl) = c("state_abb", "state_name")
+  # setNames(state.abb, tolower(state.name))
+
+# str(state_tbl)
+# str(states_coords_raw)
+

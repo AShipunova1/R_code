@@ -376,5 +376,58 @@ str(lat_lon_data)
 ## ---- states_coords_raw to map ----
 states_coords_raw_sf <- 
   lat_lon_data_to_spf_only(states_coords_raw, sa_shp)
+mapview(states_coords_raw, zcol = "state_name", xcol = "latitude", ycol = "longitude")
 
 mll1 <- mapview(states_coords_raw_sf)
+
+data_overview(states_coords_raw)
+## ---- my_data with mapview ---- 
+
+m_my_states <- mapview(most_frequent_fhier10_w_info_state_cnts_abbr, 
+        zcol = "state_name", 
+        xcol = "latitude", 
+        ycol = "longitude")
+
+## add to shapefiles
+most_frequent_fhier10_w_info_state_cnts_abbr_geo <- 
+  st_as_sf(most_frequent_fhier10_w_info_state_cnts_abbr,
+           coords = c("longitude", "latitude"),
+           crs = 4326)
+
+str(most_frequent_fhier10_w_info_state_cnts_abbr)
+m_my_states_geo <- mapview(most_frequent_fhier10_w_info_state_cnts_abbr_geo, 
+                       zcol = "state_name")
+all3 <- m_my_states_geo + m_s + m_g
+
+most_frequent_fhier10_w_info_state_cnts_abbr_list <-
+  most_frequent_fhier10_w_info_state_cnts_abbr %>%
+  mutate(name_cnts = paste(common_name, fhier_quantity_by_sp_n_state10)) %>%
+  split(most_frequent_fhier10_w_info_state_cnts_abbr, 
+        f = most_frequent_fhier10_w_info_state_cnts_abbr$common_name)
+
+str(most_frequent_fhier10_w_info_state_cnts_abbr_list)
+
+                    
+zcol = paste("state_name",                                                      "fhier_quantity_by_sp_n_state10")
+
+all3 <- m_state_geo + m_s + m_g
+
+                   # %>%
+  mapview(most_frequent_fhier10_w_info_state_cnts_abbr_geo, 
+          zcol = "state_name")
+all3 <- m_my_states_geo + m_s + m_g
+str(map_list)
+# ===
+most_frequent_fhier10_w_info_state_cnts_abbr_list
+map_list <- lapply(most_frequent_fhier10_w_info_state_cnts_abbr_list,
+                   function(x) {x_sf = st_as_sf(x,
+                                                coords = c("longitude", "latitude"),
+                                                crs = 4326)
+                   # browser()
+                   mapview(x_sf,
+                           zcol = "name_cnts"
+                   )
+                   }
+)
+map_list[[1]] + m_s + m_g
+all_maps <- Reduce("+", map_list) + m_s + m_g

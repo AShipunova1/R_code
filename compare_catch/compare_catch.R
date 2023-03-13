@@ -96,6 +96,14 @@ mrip_estimate_catch_by_species <-
   summarise(mrip_estimate_catch_by_species = sum(ab1))
 # head(mrip_estimate_catch_by_species, 2)
 
+## ---- MRIP: count catch by species and state ----
+mrip_estimate_catch_by_species_and_state <-
+  mrip_estimate %>%
+  select(itis_code, new_sta, new_com, ab1) %>% 
+  group_by(itis_code, new_com, new_sta) %>% 
+  summarise(mrip_estimate_catch_by_species = sum(as.integer(ab1)))
+
+str(mrip_estimate)
 ## ---- compare fhier with mrip ----
 # mrip_estimate_catch
 # head(fhier_species_count_by_disposition, 3)
@@ -492,13 +500,33 @@ distance <- lat_lon_cnts %>%
 
 most_frequent_fhier10_w_info_state_cnts <-
 most_frequent_fhier10_w_info %>%
-  select(common_name, end_port_state, reported_quantity) %>%
-  group_by(common_name, end_port_state) %>%
+  select(catch_species_itis, common_name, end_port_state, reported_quantity) %>%
+  group_by(catch_species_itis, common_name, end_port_state) %>%
   summarise(fhier_quantity_by_sp_n_state10 = sum(as.integer(reported_quantity)))
 # %>% str()
 # gropd_df [86 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
-# end_port_state
-state.abb[grep("New Jersey", state.name)]
-head(most_frequent_fhier10_w_info_state_cnts)
-most_frequent_fhier10_w_info_state_cnts %>%
-  inner_join(end_port_state)
+
+## ---- add state coords ----
+most_frequent_fhier10_w_info_state_cnts_abbr <-
+  states_coords_raw %>%
+  mutate(state_name = tolower(state_name)) %>%
+  inner_join(state_tbl, 
+             by = "state_name") %>%
+  inner_join(most_frequent_fhier10_w_info_state_cnts, 
+             by = c("state_abb" = "end_port_state"),
+             multiple = "all")
+
+# head(most_frequent_fhier10_w_info_state_cnts_abbr)
+# most_frequent_fhier10_w_info_state_cnts_abbr %>%
+  # select(state_name) %>% unique()
+# 15
+# names(most_frequent_fhier10_w_info_state_cnts_abbr)
+## ---- same for MRIP ----
+names(mrip_estimate_catch_by_species_and_state)
+mrip_estimate_catch_by_species_and_state %>%
+  # inner_join(state_tbl, 
+  #            by = "state_name") %>%
+  inner_join(most_frequent_fhier10_w_info_state_cnts_abbr, 
+             by = c("new_sta" = "state_abb",
+                    "itis_code" = "catch_species_itis"),
+             multiple = "all") %>% head()
