@@ -94,3 +94,14 @@ map_list <- lapply(mrip_fhier_by_state_split_itis,
 )
 head(map_list)
 
+## ---- FHIER: fish coords lat_lon_cnts to map ----
+lat_lon_cnts_rename <-
+  lat_lon_cnts %>%
+  mutate(name_cnts = paste(latitude, longitude, fhier_quantity_by_sp_geo)) %>%
+  mutate(CATCH_CNT = fhier_quantity_by_sp_geo)
+
+fhier_lat_lon_split_itis <-
+  split(lat_lon_cnts_rename,
+        f = lat_lon_cnts_rename$catch_species_itis)
+
+a_map <- to_map(fhier_lat_lon_split_itis[[5]])
