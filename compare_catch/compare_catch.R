@@ -484,3 +484,21 @@ distance <- lat_lon_cnts %>%
 
 ## ---- convert coords ----
 # Decimal Degrees = degrees + (minutes/60) + (seconds/3600)
+
+## ---- counts by state for the top 10 ----
+# fhier_quantity_by_species_and_state <-
+#   logbooks_content_short_2022 %>%
+# str(most_frequent_fhier10_w_info)  
+
+most_frequent_fhier10_w_info_state_cnts <-
+most_frequent_fhier10_w_info %>%
+  select(common_name, end_port_state, reported_quantity) %>%
+  group_by(common_name, end_port_state) %>%
+  summarise(fhier_quantity_by_sp_n_state10 = sum(as.integer(reported_quantity)))
+# %>% str()
+# gropd_df [86 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
+# end_port_state
+state.abb[grep("New Jersey", state.name)]
+head(most_frequent_fhier10_w_info_state_cnts)
+most_frequent_fhier10_w_info_state_cnts %>%
+  mutate(state_name = )

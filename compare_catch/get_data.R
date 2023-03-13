@@ -238,7 +238,8 @@ str(states_coords_raw1)
   as.data.frame()
 str(states_coords_raw1)
 
-states_coords_raw %>%
+states_coords_raw_clean <-
+  states_coords_raw %>%
   mutate(across(.cols = c(2:5),
                 .fns = ~str_replace_all(., "(\\d+)\\D(\\d+)\\D+", "\\1|\\2"))) %>%
   mutate(across(.cols = c(2:5), 
@@ -250,8 +251,24 @@ states_coords_raw %>%
                   # str_replace_all("[[:punct:]]", "") %>%
                   # str_replace_all("[^\\x00-\\x7F]", "") %>%
                   str_replace_all("(\\d+)[^0-9|]+(\\d+)", "\\1\\2")  %>%
-                  str_replace_all("^N\\D", ""))) %>%
-  head()
+                  str_replace_all("^N\\D", "")))
+# %>%
+  # head()
 
 # utf8ToInt("O")
 # 79
+head(states_coords_raw_clean)
+
+# convert to decimal degrees
+states_coords_raw_clean %>%
+  separate_wider_delim(c(2),
+                       names = c("west_deg", "west_min"),
+                       delim  = "|") %>%
+  separate_wider_delim(East,
+                       names = c("east_deg", "east_min"),
+                       delim  = "|") %>%
+  head()
+  mutate(across())
+  # %>%
+  # head()
+  
