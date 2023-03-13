@@ -446,7 +446,7 @@ mrip_fhier_by_state_long <-
     names_to = "AGENCY",
     values_to = "CATCH_CNT"
   ) %>% 
-  mutate(name_cnts = paste(AGENCY, CATCH_CNT)) %>%
+  mutate(name_cnts = paste(new_sta, AGENCY, CATCH_CNT)) %>%
   ungroup()
 
 mrip_fhier_by_state_long %>% head()
@@ -456,15 +456,17 @@ mrip_fhier_by_state_split <-
         list(mrip_fhier_by_state_long$AGENCY,
              mrip_fhier_by_state_long$itis_code))
 
-# mrip_fhier_by_state_split <-
-#   split(mrip_fhier_by_state_long,
-#         f = mrip_fhier_by_state_long$AGENCY)
+mrip_fhier_by_state_split_itis <-
+  split(mrip_fhier_by_state_long,
+        f = mrip_fhier_by_state_long$itis_code)
 
-str(mrip_fhier_by_state_split[[1]])
+str(mrip_fhier_by_state_split_itis[[1]])
 
 to_map <- function(mrip_fhier_by_state_df,
-                   jitter_factor = NA,
-                   my_color = viridisLite::viridis) {
+                   jitter_factor = NA
+                   # ,
+                   # my_color = "green"
+                     ) {
   # browser()
   if(is.na(jitter_factor)) jitter_factor = 0
   
@@ -479,15 +481,32 @@ to_map <- function(mrip_fhier_by_state_df,
   mapview(x_sf,
           zcol = "name_cnts",
           cex = "CATCH_CNT",
-          alpha = 0.4,
-          color = my_color)
+          alpha = 0.3,
+          col.regions = viridisLite::turbo
+          # ,
+          # col.regions = my_color
+          )
 }
 
-first_sp_map <- to_map(mrip_fhier_by_state_split[[1]], my_color = viridisLite::turbo)
-scnd_sp_map <- to_map(mrip_fhier_by_state_split[[2]], jitter_factor = 10)
+# mapview objects have a @map slot where the leaflet map is stored, hence you can simply do:
+#   
+#   m@map %>%addMarkers(~Longitude, ~Latitude, label=~Name, labelOptions=labelOptions(noHide=T),data=rawdata)
+
+
+first_sp_map <- to_map(mrip_fhier_by_state_split_itis[[1]],
+                       jitter_factor = 1)
+# scnd_sp_map <- to_map(mrip_fhier_by_state_split[[2]])
 # to_map(first_sp, 10) + 
 # to_map(scnd_sp) + m_s + m_g + to_map(first_sp, 10)
-first_sp_map + scnd_sp_map
+first_sp_map
+# %>% 
+#   addTiles() %>% addLegend(
+#     position = "bottomright",
+#     colors = rgb(t(col2rgb(palette())) / 255),
+#     labels = palette(), opacity = 1,
+#     title = "An Obvious Legend"
+#   )
+
 
 # nc = st_read(system.file("gpkg/nc.gpkg", package="sf"))
 # pts = st_centroid(st_geometry(nc))
@@ -496,3 +515,20 @@ first_sp_map + scnd_sp_map
 # plot(st_geometry(nc))
 # plot(st_jitter(st_geometry(nc), factor = .01), add = TRUE, col = '#ff8888')
 # str(nc)
+
+to_sp <- function(mrip_fhier_by_state_df) {
+  # browser()
+  x_sf <-
+    mrip_fhier_by_state_df %>%
+    st_as_sf(coords = c("longitude",
+                        "latitude"),
+             crs = 4326)
+}
+
+first_sp <- to_sp(mrip_fhier_by_state_split[[1]])
+scnd_sp <- to_sp(mrip_fhier_by_state_split[[2]])
+# to_map(first_sp, 10) + 
+# to_map(scnd_sp) + m_s + m_g + to_map(first_sp, 10)
+# first_sp_map + scnd_sp_map
+# m_s + m_g + 
+first_sp_map + scnd_sp
