@@ -523,10 +523,10 @@ most_frequent_fhier10_w_info_state_cnts_abbr <-
 # names(most_frequent_fhier10_w_info_state_cnts_abbr)
 ## ---- same for MRIP ----
 names(mrip_estimate_catch_by_species_and_state)
-mrip_estimate_catch_by_species_and_state %>%
-  # inner_join(state_tbl, 
-  #            by = "state_name") %>%
+
+mrip_fhier_by_state <-
+  mrip_estimate_catch_by_species_and_state %>%
   inner_join(most_frequent_fhier10_w_info_state_cnts_abbr, 
              by = c("new_sta" = "state_abb",
                     "itis_code" = "catch_species_itis"),
-             multiple = "all") %>% head()
+             multiple = "all")

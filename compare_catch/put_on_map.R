@@ -326,7 +326,7 @@ points <- ungroup(lat_lon_short_grey_snap)
 str(points)
 points_sf <- 
   st_as_sf(points, 
-           coords = c("latitude", "longitude"),
+           coords = c("longitude", "latitude"),
            crs = 4326)
 
 # leaflet(points_sf) %>%
@@ -389,6 +389,7 @@ m_my_states <- mapview(most_frequent_fhier10_w_info_state_cnts_abbr,
         ycol = "longitude")
 
 ## add to shapefiles
+# works
 most_frequent_fhier10_w_info_state_cnts_abbr_geo <- 
   st_as_sf(most_frequent_fhier10_w_info_state_cnts_abbr,
            coords = c("longitude", "latitude"),
@@ -399,6 +400,7 @@ m_my_states_geo <- mapview(most_frequent_fhier10_w_info_state_cnts_abbr_geo,
                        zcol = "state_name")
 all3 <- m_my_states_geo + m_s + m_g
 
+## ---- split by com name ----
 most_frequent_fhier10_w_info_state_cnts_abbr_list <-
   most_frequent_fhier10_w_info_state_cnts_abbr %>%
   mutate(name_cnts = paste(common_name, fhier_quantity_by_sp_n_state10)) %>%
@@ -407,18 +409,17 @@ most_frequent_fhier10_w_info_state_cnts_abbr_list <-
 
 str(most_frequent_fhier10_w_info_state_cnts_abbr_list)
 
-                    
-zcol = paste("state_name",                                                      "fhier_quantity_by_sp_n_state10")
+# zcol = paste("state_name",                                                      "fhier_quantity_by_sp_n_state10")
 
 all3 <- m_state_geo + m_s + m_g
 
-                   # %>%
-  mapview(most_frequent_fhier10_w_info_state_cnts_abbr_geo, 
-          zcol = "state_name")
-all3 <- m_my_states_geo + m_s + m_g
-str(map_list)
-# ===
-most_frequent_fhier10_w_info_state_cnts_abbr_list
+#                    # %>%
+#   mapview(most_frequent_fhier10_w_info_state_cnts_abbr_geo, 
+#           zcol = "state_name")
+# all3 <- m_my_states_geo + m_s + m_g
+# str(map_list)
+## ==== map each ====
+
 map_list <- lapply(most_frequent_fhier10_w_info_state_cnts_abbr_list,
                    function(x) {x_sf = st_as_sf(x,
                                                 coords = c("longitude", "latitude"),
@@ -431,3 +432,42 @@ map_list <- lapply(most_frequent_fhier10_w_info_state_cnts_abbr_list,
 )
 map_list[[1]] + m_s + m_g
 all_maps <- Reduce("+", map_list) + m_s + m_g
+
+## ---- map mrip_fhier_by_state by common name ----
+names(mrip_fhier_by_state)
+mrip_fhier_by_state_long <-
+  mrip_fhier_by_state %>%
+  rename(c("MRIP" = "mrip_estimate_catch_by_species",
+           "FHIER" = "fhier_quantity_by_sp_n_state10")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
+  pivot_longer(
+    cols = c(MRIP,
+             FHIER),
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>% 
+  mutate(name_cnts = paste(AGENCY, CATCH_CNT)) %>%
+  ungroup()
+
+mrip_fhier_by_state_long %>% head()
+
+mrip_fhier_by_state_list <-
+  split(mrip_fhier_by_state_long,
+        f = mrip_fhier_by_state_long$itis_code)
+
+str(mrip_fhier_by_state_list[[1]])
+
+mrip_fhier_map_list <- lapply(mrip_fhier_by_state_list,
+                   function(x) {x_sf = st_as_sf(x,
+                                                coords = c("longitude",
+                                                           "latitude"),
+                                                crs = 4326)
+                   # browser()
+                   mapview(x_sf,
+                           zcol = "name_cnts",
+                           cex = 
+                   )
+                   }
+)
+
+mrip_fhier_map_list[[1]] + m_s + m_g

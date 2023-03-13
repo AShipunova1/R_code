@@ -227,7 +227,7 @@ get_long_mrip_and_fhier_short_values_n <- function(mrip_and_fhier_short_values, 
       values_to = "CATCH_CNT"
     ) %>%
     # use only the new columns
-    select(species_itis , AGENCY, CATCH_CNT) %>%
+    select(species_itis, AGENCY, CATCH_CNT) %>%
     # remove lines where one or another agency doesn't have counts for this species
     drop_na() %>%
     unique()
