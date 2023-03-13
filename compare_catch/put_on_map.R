@@ -488,11 +488,6 @@ to_map <- function(mrip_fhier_by_state_df,
           )
 }
 
-# mapview objects have a @map slot where the leaflet map is stored, hence you can simply do:
-#   
-#   m@map %>%addMarkers(~Longitude, ~Latitude, label=~Name, labelOptions=labelOptions(noHide=T),data=rawdata)
-
-
 first_sp_map <- to_map(mrip_fhier_by_state_split_itis[[1]],
                        jitter_factor = 1)
 # scnd_sp_map <- to_map(mrip_fhier_by_state_split[[2]])
@@ -506,6 +501,10 @@ first_sp_map
 #     labels = palette(), opacity = 1,
 #     title = "An Obvious Legend"
 #   )
+
+# mapview objects have a @map slot where the leaflet map is stored, hence you can simply do:
+#   
+#   m@map %>%addMarkers(~Longitude, ~Latitude, label=~Name, labelOptions=labelOptions(noHide=T),data=rawdata)
 
 
 # nc = st_read(system.file("gpkg/nc.gpkg", package="sf"))
@@ -525,10 +524,13 @@ to_sp <- function(mrip_fhier_by_state_df) {
              crs = 4326)
 }
 
-first_sp <- to_sp(mrip_fhier_by_state_split[[1]])
-scnd_sp <- to_sp(mrip_fhier_by_state_split[[2]])
-# to_map(first_sp, 10) + 
-# to_map(scnd_sp) + m_s + m_g + to_map(first_sp, 10)
-# first_sp_map + scnd_sp_map
 # m_s + m_g + 
-first_sp_map + scnd_sp
+first_sp_map@map %>%
+    addTiles() %>% addLegend(
+      position = "bottomright",
+      colors = rgb(t(col2rgb(palette())) / 255),
+      labels = palette(),
+      opacity = 1,
+      title = "An Obvious Legend"
+    )
+  
