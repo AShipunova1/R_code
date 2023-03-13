@@ -9,6 +9,6 @@ csv_contents <- load_csv_names(my_paths, csv_names_list)
 # unify headers, trim vesselofficialnumber, just in case
 csvs_clean1 <- clean_all_csvs(csv_contents)
 str(csvs_clean1)
-temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_22_23)
-compl_clean <- temp_var[[1]]
-corresp_contact_cnts_clean0 <- temp_var[[2]]
+# browser()
+compl_clean <- compliance_cleaning(csvs_clean1)
+
