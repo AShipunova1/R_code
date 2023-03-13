@@ -482,18 +482,21 @@ to_map <- function(mrip_fhier_by_state_df,
           zcol = "name_cnts",
           cex = "CATCH_CNT",
           alpha = 0.3,
-          col.regions = viridisLite::turbo
-          # ,
-          # col.regions = my_color
+          col.regions = viridisLite::turbo,
+          # legend = FALSE
+          legend = TRUE,
+          layer.name = mrip_fhier_by_state_df$common_name[1]
           )
 }
+
+# mrip_fhier_by_state_split_itis[[1]]$common_name[1]
 
 first_sp_map <- to_map(mrip_fhier_by_state_split_itis[[1]],
                        jitter_factor = 1)
 # scnd_sp_map <- to_map(mrip_fhier_by_state_split[[2]])
 # to_map(first_sp, 10) + 
 # to_map(scnd_sp) + m_s + m_g + to_map(first_sp, 10)
-first_sp_map
+first_sp_map + m_s + m_g
 # %>% 
 #   addTiles() %>% addLegend(
 #     position = "bottomright",
@@ -523,14 +526,18 @@ to_sp <- function(mrip_fhier_by_state_df) {
                         "latitude"),
              crs = 4326)
 }
-
+str(first_sp_map)
 # m_s + m_g + 
 first_sp_map@map %>%
     addTiles() %>% addLegend(
-      position = "bottomright",
-      colors = rgb(t(col2rgb(palette())) / 255),
-      labels = palette(),
+      position = "topright",
+      colors = as.factor(mrip_fhier_by_state_split_itis[[1]]$CATCH_CNT),
+      labels = mrip_fhier_by_state_split_itis[[1]]$name_cnts,
       opacity = 1,
-      title = "An Obvious Legend"
+      title = map_title$common_name
     )
   
+map_title <-
+mrip_fhier_by_state_split_itis[[1]] %>% 
+  select(common_name) %>%
+  unique()
