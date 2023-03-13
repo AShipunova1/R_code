@@ -90,10 +90,6 @@ m_g <- mapview(gom_shp,
 
 map1 <- first_sp_map + m_s + m_g
 
-# doesn't work'
-mapviewOptions(fgb = FALSE)
-filename_png <- file.path(my_paths$outputs, "map1.png")
-mapshot2(map1, file = filename_png, selfcontained = F)
 file.exists(filename_png)
 
 # works
@@ -101,10 +97,9 @@ filename_html <- file.path(my_paths$outputs, "map1.html")
 mapshot(map1, url = filename_html)
 # getwd()
 
-
-mapshot(map1, file = filename_png,
-        remove_controls = c("homeButton", "layersControl"))
-
+library(webshot)
+filename_png <- file.path(my_paths$outputs, "map1.png")
+webshot(map1, file = filename_png)
 
 # map_title <-
 #   mrip_fhier_by_state_split_itis[[1]] %>% 
@@ -120,3 +115,20 @@ mapshot(map1, file = filename_png,
 #       title = map_title$common_name
 #     )
   
+mapviewOptions(fgb = FALSE) # getting mime type error with fgb = TRUE
+# m <- mapview(breweries)
+mapview::mapshot2(map1, file = filename_png)
+file.exists(filename_png)
+
+# mapshot(map1, file = filename_png,  useragent = 'Mozilla/5.0 (compatible; MSIE 10.6; Windows NT 6.1; Trident/5.0; InfoPath.2; SLCC1; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET CLR 2.0.50727) 3gpp-gba UNTRUSTED/1.0')
+# 
+# tmap_save(map1, filename_html)
+# webshot2::webshot(filename_html)
+
+# detach("package:mapview", unload=TRUE)
+# detach("package:tibble", unload=TRUE)
+# detach("package:sf", unload=TRUE)
+# detach("package:leaflet", unload=TRUE)
+# 
+# remotes::install_github("r-spatial/mapview")
+
