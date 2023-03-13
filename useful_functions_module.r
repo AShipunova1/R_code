@@ -290,6 +290,15 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
   csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
 
   # ---- specific correspondence manipulations ----
+  corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
+  
+  ## ---- specific compliance manipulations ----
+  compl_clean <- compliance_cleaning(csvs_clean1)
+  return(list(compl_clean, corresp_arr_contact_cnts_clean))
+}
+
+# ---- specific correspondence manipulations ----
+corresp_cleaning <- function(csvs_clean1){
   corresp_arr <- csvs_clean1[[1]]
   # add a new column with a "yes" if there is a contactdate (and a "no" if not),
   # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
@@ -299,26 +308,28 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
     change_to_dates("createdon", "%m/%d/%Y %H:%M") %>%
     change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
     corresp_arr_contact_cnts_clean
+  
+  return(corresp_arr_contact_cnts_clean)
+}
 
-  ## ---- specific compliance manipulations ----
+## ---- specific compliance manipulations ----
+compliance_cleaning <- function(csvs_clean1){
   # browser()
   compl_arr <- csvs_clean1[2:length(csvs_clean1)]
-
+  
   # if it is one df already, do nothing
   compl <- compl_arr
   # else combine separate dataframes for all years into one
   if (!length(compl_arr) == 1) {
     compl <- join_same_kind_csvs(compl_arr)
   }
-
+  
   compl %>%
     # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
     clean_weeks() %>%
     # change dates classes from char to POSIXct
-    change_to_dates("permitgroupexpiration", "%m/%d/%Y") ->
-    compl_clean
-
-  return(list(compl_clean, corresp_arr_contact_cnts_clean))
+    change_to_dates("permitgroupexpiration", "%m/%d/%Y") %>%
+    return()
 }
 
 # read csv file with EOF within quoted strings
