@@ -128,23 +128,18 @@ file.exists(filename_png)
 # map_list[[1]] + m_s + m_g
 # all_maps <- Reduce("+", map_list) + m_s + m_g
 
-mapview::mapshot2(map1, file = filename_png)
-first_sp_map <- to_map(mrip_fhier_by_state_split_itis[[1]],
-                       jitter_factor = 1)
-
-first_sp_map <- to_map(mrip_fhier_by_state_split_itis[[1]],
-                       jitter_factor = 1)
-
 map_list <- lapply(mrip_fhier_by_state_split_itis,
                    function(x) {
                      fish = str_replace(x$common_name[1],
                                         "\\W+", "_")
-                     filename = file.path(my_paths$outputs,
+                     filename_png = file.path(my_paths$outputs,
                                          r"(compare_catch\maps)",
                                          paste0(fish,
                                                 ".png"
                                          )
                      )
+                     a_map <- to_map(x, jitter_factor = 1)
+                     mapview::mapshot2(a_map, file = filename_png)
                    }
 )
 head(map_list)
