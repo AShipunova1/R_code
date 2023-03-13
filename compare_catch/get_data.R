@@ -229,12 +229,13 @@ port_coords <- read_port_coords()
 ## ---- get state coords ----
 # https://www.latlong.net/category/states-236-14.html
 states_coords_raw <- read_csv(file.path(my_paths$inputs, "states_decimal_deg.csv"))
-head(states_coords_raw)
-# add state abbreviations
+# head(states_coords_raw)
+
+## ---- add state abbreviations ----
 # state.name[grep("FL", state.abb)]
 
 # str(data.frame(as.list(state_tbl)))
-str(states_coords_raw)
+# str(states_coords_raw)
 state_tbl <- data.frame(state.abb, tolower(state.name))
 names(state_tbl) = c("state_abb", "state_name")
   # setNames(state.abb, tolower(state.name))
