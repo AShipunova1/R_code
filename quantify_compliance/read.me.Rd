@@ -11,10 +11,3 @@ so, perhaps looking at the proportion of reports submitted vs flags... speaking 
 
 it would be the same compliance report we used in the egregious code
 
-some will be easy to map (e.g. "food, personal use"  - those would be "catch"; "released alive" = released)
-oh, actually those definitions tell you the odd ones. e.g. "other" does = discard (so released)
-
-some will be easy to map (e.g. "food, personal use"  - those would be "catch"; "released alive" = released)
-oh, actually those definitions tell you the odd ones. e.g. "other" does = discard (so released)
-so, maybe you can just map them yourself, without discussion, using that website. Let me know if you are unsure of any though
-
