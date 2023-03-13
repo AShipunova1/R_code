@@ -484,11 +484,14 @@ legend("topleft", legend=paste("Cluster", 1:4,sep=""),
 ## --- round up coords ----
 # install.packages("geosphere")
 # install.packages(geosphere,distMeeus,distm)
-library(geosphere)
-# round(x, digits = 0)
-distance <- lat_lon_cnts %>%
-  select(latitude, longitude) %>%
-  distm()
+# library(geosphere)
+# # round(x, digits = 0)
+# distance <- lat_lon_cnts %>%
+#   select(latitude, longitude) %>%
+#   distm()
+# Error in .pointsToMatrix(x) : latitude < -90
+# In addition: Warning message:
+#   In .pointsToMatrix(x) : NAs introduced by coercion
 
 ## ---- convert coords ----
 # Decimal Degrees = degrees + (minutes/60) + (seconds/3600)
@@ -530,3 +533,4 @@ mrip_fhier_by_state <-
              by = c("new_sta" = "state_abb",
                     "itis_code" = "catch_species_itis"),
              multiple = "all")
+
