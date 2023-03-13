@@ -101,9 +101,9 @@ fix_names <- function(x) {
     str_replace_all("\\s+", "_") %>%
     str_replace_all("\\.", "") %>%
     str_replace_all("\\W", "_") %>%
+    str_replace_all("#", "_") %>%
     my_headers_case_function()
 }
-
 
 ## ---- functions to clean FHIER compliance and correspondense reports ----
 
@@ -122,30 +122,26 @@ clean_weeks <- function(my_df) {
 }
 
 # trim vesselofficialnumber, there are 273 w spaces in Feb 2023
-trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
-  # browser()
-  # if(is.na(col_name_to_trim)) col_name_to_trim = "vesselofficialnumber"
-  csvs_clean <- lapply(csvs_clean_ws, function(x) {
-    if(is.na(col_name_to_trim)) {
-    col_name_to_trim <- grep("vessel.*official.*number", 
-                             tolower(names(x)),
-                             value = T)
-    }
-    # browser()
-    x[col_name_to_trim] <- trimws(x[col_name_to_trim])
-    # x$vesselofficialnumber <- trimws(x$vesselofficialnumber)
-    x
+trim_all_vessel_ids_simple <-
+  function(csvs_clean_ws, col_name_to_trim = NA) {
+    csvs_clean <- lapply(csvs_clean_ws, function(x) {
+      if (is.na(col_name_to_trim)) {
+        col_name_to_trim <- grep("vessel.*official.*number",
+                                 tolower(names(x)),
+                                 value = T)
+      }
+      x %>%
+        mutate(vessel_official_number = trimws(vessel_official_number)) %>% return()
+    })
+    return(csvs_clean)
   }
-  )
-  return(csvs_clean)
-}
 
 # cleaning, regularly done for csvs downloaded from PFIER
 clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
   # unify headers
   csvs_clean0 <- lapply(csvs, clean_headers)
   # trim vesselofficialnumber, just in case
-# browser()
+  # browser()
   csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
   return(csvs_clean1)
 }
