@@ -1,34 +1,16 @@
 # put coordinates on a shapefile
 # Using https://www.r-bloggers.com/2014/07/clipping-spatial-data-in-r/
 #
+# remotes::install_github("r-spatial/mapview")
 
 library(broom)
 library(mapview)
 library(leafsync)
 
 library(sf)
-library(leaflet)
+# library(leaflet)
 library(leafem)
-# 
-#   # filename <- "~/R_code/m_subset.png"
-#   # # "c:\Users\anna.shipunova\Documents\R_code\get_subset_f.R"
-#   # # file.exists("~/R_code/get_subset_f.R")
-#   # mapshot(m_subset, file = filename, selfcontained = FALSE)
-# 
-# ## ==== map each ====
-# 
-# map_list <- lapply(most_frequent_fhier10_w_info_state_cnts_abbr_list,
-#                    function(x) {x_sf = st_as_sf(x,
-#                                                 coords = c("longitude", "latitude"),
-#                                                 crs = 4326)
-#                    # browser()
-#                    mapview(x_sf,
-#                            zcol = "name_cnts"
-#                    )
-#                    }
-# )
-# map_list[[1]] + m_s + m_g
-# all_maps <- Reduce("+", map_list) + m_s + m_g
+
 
 ## ---- map mrip_fhier_by_state by common name ----
 # names(mrip_fhier_by_state)
@@ -115,7 +97,7 @@ webshot(map1, file = filename_png)
 #       title = map_title$common_name
 #     )
   
-mapviewOptions(fgb = FALSE) # getting mime type error with fgb = TRUE
+# mapviewOptions(fgb = FALSE) # getting mime type error with fgb = TRUE
 # m <- mapview(breweries)
 mapview::mapshot2(map1, file = filename_png)
 file.exists(filename_png)
@@ -130,5 +112,40 @@ file.exists(filename_png)
 # detach("package:sf", unload=TRUE)
 # detach("package:leaflet", unload=TRUE)
 # 
-# remotes::install_github("r-spatial/mapview")
+
+## ==== map each ====
+#
+# map_list <- lapply(most_frequent_fhier10_w_info_state_cnts_abbr_list,
+#                    function(x) {x_sf = st_as_sf(x,
+#                                                 coords = c("longitude", "latitude"),
+#                                                 crs = 4326)
+#                    # browser()
+#                    mapview(x_sf,
+#                            zcol = "name_cnts"
+#                    )
+#                    }
+# )
+# map_list[[1]] + m_s + m_g
+# all_maps <- Reduce("+", map_list) + m_s + m_g
+
+mapview::mapshot2(map1, file = filename_png)
+first_sp_map <- to_map(mrip_fhier_by_state_split_itis[[1]],
+                       jitter_factor = 1)
+
+first_sp_map <- to_map(mrip_fhier_by_state_split_itis[[1]],
+                       jitter_factor = 1)
+
+map_list <- lapply(mrip_fhier_by_state_split_itis,
+                   function(x) {
+                     fish = str_replace(x$common_name[1],
+                                        "\\W+", "_")
+                     filename = file.path(my_paths$outputs,
+                                         r"(compare_catch\maps)",
+                                         paste0(fish,
+                                                ".png"
+                                         )
+                     )
+                   }
+)
+head(map_list)
 
