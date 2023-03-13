@@ -451,23 +451,48 @@ mrip_fhier_by_state_long <-
 
 mrip_fhier_by_state_long %>% head()
 
-mrip_fhier_by_state_list <-
+mrip_fhier_by_state_split <-
   split(mrip_fhier_by_state_long,
-        f = mrip_fhier_by_state_long$itis_code)
+        list(mrip_fhier_by_state_long$AGENCY,
+             mrip_fhier_by_state_long$itis_code))
 
-str(mrip_fhier_by_state_list[[1]])
+# mrip_fhier_by_state_split <-
+#   split(mrip_fhier_by_state_long,
+#         f = mrip_fhier_by_state_long$AGENCY)
 
-mrip_fhier_map_list <- lapply(mrip_fhier_by_state_list,
-                   function(x) {x_sf = st_as_sf(x,
-                                                coords = c("longitude",
-                                                           "latitude"),
-                                                crs = 4326)
-                   # browser()
-                   mapview(x_sf,
-                           zcol = "name_cnts",
-                           cex = 
-                   )
-                   }
-)
+str(mrip_fhier_by_state_split[[1]])
 
-mrip_fhier_map_list[[1]] + m_s + m_g
+to_map <- function(mrip_fhier_by_state_df,
+                   jitter_factor = NA,
+                   my_color = viridisLite::viridis) {
+  # browser()
+  if(is.na(jitter_factor)) jitter_factor = 0
+  
+  x_sf <-
+    mrip_fhier_by_state_df %>%
+    mutate(latitude = jitter(latitude, factor = jitter_factor)) %>%
+    mutate(longitude = jitter(longitude, factor = jitter_factor)) %>%
+    st_as_sf(coords = c("longitude",
+                        "latitude"),
+             crs = 4326)
+  # browser()
+  mapview(x_sf,
+          zcol = "name_cnts",
+          cex = "CATCH_CNT",
+          alpha = 0.4,
+          color = my_color)
+}
+
+first_sp_map <- to_map(mrip_fhier_by_state_split[[1]], my_color = viridisLite::turbo)
+scnd_sp_map <- to_map(mrip_fhier_by_state_split[[2]], jitter_factor = 10)
+# to_map(first_sp, 10) + 
+# to_map(scnd_sp) + m_s + m_g + to_map(first_sp, 10)
+first_sp_map + scnd_sp_map
+
+# nc = st_read(system.file("gpkg/nc.gpkg", package="sf"))
+# pts = st_centroid(st_geometry(nc))
+# plot(pts)
+# plot(st_jitter(pts, .05), add = TRUE, col = 'red')
+# plot(st_geometry(nc))
+# plot(st_jitter(st_geometry(nc), factor = .01), add = TRUE, col = '#ff8888')
+# str(nc)
