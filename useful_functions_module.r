@@ -293,7 +293,9 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
   corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
   
   ## ---- specific compliance manipulations ----
-  compl_clean <- compliance_cleaning(csvs_clean1)
+  compl_arr <- csvs_clean1[2:length(csvs_clean1)]
+  
+  compl_clean <- compliance_cleaning(compl_arr)
   return(list(compl_clean, corresp_arr_contact_cnts_clean))
 }
 
@@ -313,10 +315,7 @@ corresp_cleaning <- function(csvs_clean1){
 }
 
 ## ---- specific compliance manipulations ----
-compliance_cleaning <- function(csvs_clean1){
-  # browser()
-  compl_arr <- csvs_clean1[2:length(csvs_clean1)]
-  
+compliance_cleaning <- function(compl_arr){
   # if it is one df already, do nothing
   compl <- compl_arr
   # else combine separate dataframes for all years into one
@@ -324,11 +323,15 @@ compliance_cleaning <- function(csvs_clean1){
     compl <- join_same_kind_csvs(compl_arr)
   }
   
+  permitgroupexpiration <- grep("permit.*group.*expiration", 
+                           tolower(names(compl)),
+                           value = T)
+  
   compl %>%
     # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
     clean_weeks() %>%
     # change dates classes from char to POSIXct
-    change_to_dates("permitgroupexpiration", "%m/%d/%Y") %>%
+    change_to_dates(permitgroupexpiration, "%m/%d/%Y") %>%
     return()
 }
 
