@@ -501,4 +501,4 @@ most_frequent_fhier10_w_info %>%
 state.abb[grep("New Jersey", state.name)]
 head(most_frequent_fhier10_w_info_state_cnts)
 most_frequent_fhier10_w_info_state_cnts %>%
-  mutate(state_name = )
+  inner_join(end_port_state)

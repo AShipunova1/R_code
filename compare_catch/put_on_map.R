@@ -322,7 +322,8 @@ lat_lon_data_to_spf_only <- function(lat_lon_data, shapefile_data) {
 
 ## ---- convert to map obj ----
 # reversed lat and lon?
-points <- lat_lon_short_grey_snap
+points <- ungroup(lat_lon_short_grey_snap)
+str(points)
 points_sf <- 
   st_as_sf(points, 
            coords = c("latitude", "longitude"),
@@ -370,3 +371,10 @@ m_ll
 m_f <- m_s_g + m_ll
 m_f
 str(lat_lon_data)
+
+# ===
+## ---- states_coords_raw to map ----
+states_coords_raw_sf <- 
+  lat_lon_data_to_spf_only(states_coords_raw, sa_shp)
+
+mll1 <- mapview(states_coords_raw_sf)

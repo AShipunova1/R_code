@@ -227,48 +227,13 @@ read_port_coords <- function(){
 port_coords <- read_port_coords()
 
 ## ---- get state coords ----
-states_coords_raw <- read_csv(file.path(my_paths$inputs, "states_coords.csv"))
+# https://www.latlong.net/category/states-236-14.html
+states_coords_raw <- read_csv(file.path(my_paths$inputs, "states_decimal_deg.csv"))
 head(states_coords_raw)
-head(states_coords_raw$West)
-states_coords_raw1 <- states_coords_raw1 %>%
-  mutate_all(~gsub("[[:punct:]]", "", .))
+# add state abbreviations
+# state.name[grep("FL", state.abb)]
 
-str(states_coords_raw1)
-  # iconv(states_coords_raw, from = "UTF-8", to = "ASCII", sub = "") %>%
-  as.data.frame()
-str(states_coords_raw1)
-
-states_coords_raw_clean <-
-  states_coords_raw %>%
-  mutate(across(.cols = c(2:5),
-                .fns = ~str_replace_all(., "(\\d+)\\D(\\d+)\\D+", "\\1|\\2"))) %>%
-  mutate(across(.cols = c(2:5), 
-                .fns = ~str_replace_all(., "^W ", "-") %>%
-                  str_replace_all("^E ", "")  %>%
-                  # str_replace_all("[^0-9A-Z|-]", "")  %>% N3O0|5 3O�0|5
-                  # str_replace_all("(\\d+)[^|]+(\\d+)", "\\1\\2")  %>%
-                  # str_replace_all("^N\\D(\\d+)[^|]+(\\d+)", "\\1\\2")  %>%
-                  # str_replace_all("[[:punct:]]", "") %>%
-                  # str_replace_all("[^\\x00-\\x7F]", "") %>%
-                  str_replace_all("(\\d+)[^0-9|]+(\\d+)", "\\1\\2")  %>%
-                  str_replace_all("^N\\D", "")))
-# %>%
-  # head()
-
-# utf8ToInt("O")
-# 79
-head(states_coords_raw_clean)
-
-# convert to decimal degrees
-states_coords_raw_clean %>%
-  separate_wider_delim(c(2),
-                       names = c("west_deg", "west_min"),
-                       delim  = "|") %>%
-  separate_wider_delim(East,
-                       names = c("east_deg", "east_min"),
-                       delim  = "|") %>%
-  head()
-  mutate(across())
-  # %>%
-  # head()
-  
+str(as.data.frame(state_tbl))
+state_tbl <- setNames(state.abb, tolower(state.name))
+inner_join(states_coords_raw, state_tbl, by = )
+head(most_frequent_fhier10_w_info_state_cnts)
