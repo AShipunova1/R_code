@@ -243,3 +243,5 @@ names(state_tbl) = c("state_abb", "state_name")
 # str(state_tbl)
 # str(states_coords_raw)
 
+## ---- ports coordinates from SERO ----
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\View Landing Locations.xlsx"
