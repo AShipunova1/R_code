@@ -3,6 +3,16 @@
 
 \title{egregious_violators}
 
+1) If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication.
+# to investigation (to NEIS)
+
+2) need an email:
+# no direct contact or no phone number or all are voicemails
+#TODO: and exclude if they had an email and if they had at least one phone call!
+
+3) find if not compliant and no correspondence
+
+
 # download the compliance details and filter out those South Atlantic vessels that have never reported, and then check that short list against # of calls/emails (need at least 2, and if never spoken too/responded then they'd need a certified letter from OLE)
 # From Leeanne:
 # You can download that report from the FHIER compliance report. Within that report you can refine the search parameters like the 2022 year and for "Has Error" at the top, select "No report". The "no report" error will limit the report to Atlantic/South Atlantic vessels that are non-compliant for no reports. You will have to specifically filter out the vessels that are egregious.
