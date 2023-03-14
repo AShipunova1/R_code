@@ -19,6 +19,7 @@ source("~/R_code_github/compare_catch/get_data.R")
 # 'data.frame':	316171  obs. of  6 variables:
 # fhier_species_count_by_disposition %>%
   # select(disposition) %>% unique()
+
 ## ---- FHIER: count catch by species ----
 # TODO: separate functions
 from_count_by_disposition <- function() {
@@ -33,18 +34,19 @@ from_count_by_disposition <- function() {
 
 ## ---- add common names ----
 
-# change both columns to character
+# change both columns to numeric
 fhier_quantity_by_species <-
-  mutate(fhier_quantity_by_species, species_itis = as.character(species_itis))
+  mutate(fhier_quantity_by_species, species_itis = as.numeric(species_itis))
 scientific_names <-
-  mutate(scientific_names, species_itis = as.character(species_itis))
+  mutate(scientific_names, species_itis = as.numeric(species_itis))
 
-# names(scientific_names)
+names(scientific_names)
 # common_name
+names(fhier_quantity_by_species)
 fhier_species_count_by_disposition_com_names <-
     inner_join(fhier_quantity_by_species,
           scientific_names, 
-          by = "species_itis"
+          by = c("catch_species_itis" = "species_itis")
           )
 
 str(fhier_species_count_by_disposition_com_names)
@@ -63,6 +65,7 @@ fhier_species_count_by_disposition_com_names %>%
   filter(grepl("triggerfish.*gray", tolower(common_name)))
 
 names(fhier_species_count_by_disposition)
+
 ## ---- FHIER: count catch by species and permit ----
 fhier_quantity_by_species_and_permit <-
   fhier_species_count_by_disposition %>%
@@ -75,7 +78,7 @@ fhier_quantity_by_species_and_permit <-
 ## ---- MRIP data ----
 
 ## ---- convert ab1 to integers ----
-names(mrip_estimate)
+# names(mrip_estimate)
 mrip_estimate %<>%
   mutate(ab1 = as.integer(ab1))
 
@@ -104,19 +107,21 @@ mrip_estimate_catch_by_species_and_state <-
   group_by(itis_code, new_com, new_sta) %>% 
   summarise(mrip_estimate_catch_by_species = sum(as.integer(ab1)))
 
-str(mrip_estimate)
+# str(mrip_estimate)
 ## ---- compare fhier with mrip ----
 # mrip_estimate_catch
 # head(fhier_species_count_by_disposition, 3)
 # head(fhier_quantity_by_species, 3)
 head(mrip_estimate_catch_by_species, 3)
 
-## ---- compare species in fhier with mrip ----
-
-compare_species_in_fhier_with_mrip <- function(fhier_species_count) {
+## ---- column names ----
 sp_itis_fhier <-
   grep("itis", tolower(names(fhier_species_count)), value = TRUE)
+sp_itis_mrip <-
+  grep("itis", tolower(names(mrip_estimate)), value = TRUE)
 
+## ---- compare species in fhier with mrip ----
+compare_species_in_fhier_with_mrip <- function(fhier_species_count) {
 species_used_in_fhier <-
   fhier_species_count %>%
   select(all_of(sp_itis_fhier)) %>% 
@@ -125,9 +130,6 @@ species_used_in_fhier <-
 
 str(species_used_in_fhier)
 # 458
-
-sp_itis_mrip <-
-  grep("itis", tolower(names(mrip_estimate)), value = TRUE)
 
 species_in_mrip <-
   mrip_estimate %>%
@@ -167,22 +169,26 @@ intersect(species_used_in_fhier, species_in_mrip) %>% str()
 
 ## ---- combine mrip and fhier catch results by species
 combine_mrip_and_fhier_catch_results_by_species <- function() {
-mrip_and_fhier <-
-  full_join(fhier_quantity_by_species,
-            mrip_estimate_catch_by_species,
-            by = c("species_itis" = "itis_code")
-  )
-
-head(mrip_and_fhier, 3)
-
-# fhier quantity is grater than mrip's
-mrip_and_fhier %>%
-  filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
-# 15 
-
-# combine mrip with fhier with common names
-fhier_species_count_by_disposition_com_names
+  mrip_and_fhier <-
+    full_join(
+      fhier_quantity_by_species,
+      mrip_estimate_catch_by_species,
+      by = c("catch_species_itis" = "itis_code")
+    )
+  
+  # head(mrip_and_fhier, 3)
+  
+  # fhier quantity is grater than mrip's
+  mrip_and_fhier %>%
+    filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
+  # 15
+  
+  # combine mrip with fhier with common names
+  # fhier_species_count_by_disposition_com_names
+  
+  return(mrip_and_fhier)
 }
+mrip_and_fhier <- combine_mrip_and_fhier_catch_results_by_species()
 
 ## ---- most n frequent FHIER species ----
 
@@ -200,6 +206,7 @@ get_n_most_frequent_fhier <- function(n, df_name = NA) {
 
 ## ---- logbooks_content ----
 itis_field_name <- grep("itis", names(logbooks_content), value = T)
+
 # catch_species_itis
 vessel_id_field_name <- grep("vessel.*official", names(logbooks_content), value = T)
 # vessel_official_nbr
@@ -447,39 +454,50 @@ lat_lon_cnts <-
 # dim(lat_lon_cnts)
 # 59929     
 
-plot_xy < function() {
-x <- lat_lon_cnts$latitude
-# x <- as.double(drop_na(as.numeric(most_frequent_fhier10_w_info$latitude)))
-str(x)
-y <- lat_lon_cnts$longitude
-xy <- SpatialPointsDataFrame(matrix(c(x, y), ncol = 2),
-                             data.frame(ID=seq(1:length(x))),
-                             proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84"))
-
-xy <- spTransform(xy, CRS("+init=epsg:4326 +datum=WGS84"))
-
-# round(x, digits = 0)
-# here
-chc <- hclust(dist(data.frame(rownames = rownames(xy@data),
-                              x = coordinates(xy)[,1],
-                              y = coordinates(xy)[,2])), 
-              method = "complete")
-
-str(chc)
-dist_tr <- 40  # Distance threshold         
-# Distance with a 40m threshold
-chc.d40 <- cutree(chc, h = d)
-# chc.d40 <- cutree(chc, k = 500) 
-
-# Join results to meuse sp points
-xy@data <- data.frame(xy@data, Clust=chc.d40)
-
-# Plot results
-plot(xy, col=factor(xy@data$Clust), pch=19)
-box(col="black")
-title(main="Clustering")
-legend("topleft", legend=paste("Cluster", 1:4,sep=""),
-       col=palette()[1:4], pch=rep(19,4), bg="white")
+plot_xy <- function() {
+  x <- lat_lon_cnts$latitude
+  # x <- as.double(drop_na(as.numeric(most_frequent_fhier10_w_info$latitude)))
+  str(x)
+  y <- lat_lon_cnts$longitude
+  xy <- SpatialPointsDataFrame(
+    matrix(c(x, y), ncol = 2),
+    data.frame(ID = seq(1:length(x))),
+    proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")
+  )
+  
+  xy <- spTransform(xy, CRS("+init=epsg:4326 +datum=WGS84"))
+  
+  # round(x, digits = 0)
+  # here
+  chc <- hclust(dist(
+    data.frame(
+      rownames = rownames(xy@data),
+      x = coordinates(xy)[, 1],
+      y = coordinates(xy)[, 2]
+    )
+  ),
+  method = "complete")
+  
+  str(chc)
+  dist_tr <- 40  # Distance threshold
+  # Distance with a 40m threshold
+  chc.d40 <- cutree(chc, h = d)
+  # chc.d40 <- cutree(chc, k = 500)
+  
+  # Join results to meuse sp points
+  xy@data <- data.frame(xy@data, Clust = chc.d40)
+  
+  # Plot results
+  plot(xy, col = factor(xy@data$Clust), pch = 19)
+  box(col = "black")
+  title(main = "Clustering")
+  legend(
+    "topleft",
+    legend = paste("Cluster", 1:4, sep = ""),
+    col = palette()[1:4],
+    pch = rep(19, 4),
+    bg = "white"
+  )
 }
 
 ## --- round up coords ----
