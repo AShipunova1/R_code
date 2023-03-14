@@ -370,8 +370,9 @@ all_not_direct_contact_id <- get_all_not_direct_contact_id(corr_2_plus_contact)
 # str(all_not_direct_contact_id)
 # 93
 
-# filter for "email's needed"
+## ---- filter for "email's needed" ----
 # no direct contact or no phone number or all are voicemails
+#TODO: and exclude if they had an email and if they had at least one phone call!
 email_s_needed_short <- corr_2_plus_contact %>%
   filter(is.na(contactphonenumber) |
          contactphonenumber == "" |
