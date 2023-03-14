@@ -1,29 +1,39 @@
 library(gridExtra)
 
 names(mrip_and_fhier)
+mrip_and_fhier_itis_field_name <-
+  grep("itis", tolower(names(mrip_and_fhier)), value = TRUE)
+
 ## ---- plot catch by species (1) ----
-str(mrip_and_fhier$species_itis)
+str(mrip_and_fhier[mrip_and_fhier_itis_field_name])
+
+# catch_species_itis: chr
 str(mrip_and_fhier$mrip_estimate_catch_by_species)
+temp_df <- data.frame(mrip_and_fhier[mrip_and_fhier_itis_field_name], mrip_and_fhier$mrip_estimate_catch_by_species)
 # Graph mrip
-plot(mrip_and_fhier$species_itis, mrip_and_fhier$mrip_estimate_catch_by_species,
+plot(temp_df,
      col="blue",
      pch = 17
      , xlim = c(1000, 948946)
-                # max(mrip_and_fhier$species_itis))
+                # max(mrip_and_fhier[mrip_and_fhier_itis_field_name]))
      , ylim = c(0, 100000) #20000
 )
-max(mrip_and_fhier$species_itis)
+max(mrip_and_fhier[mrip_and_fhier_itis_field_name])
+# NA?
 # add fhier
-points(mrip_and_fhier$species_itis,
+length(unlist(mrip_and_fhier[mrip_and_fhier_itis_field_name]))
+length(mrip_and_fhier$fhier_quantity_by_species)
+points(unlist(mrip_and_fhier[mrip_and_fhier_itis_field_name]),
        mrip_and_fhier$fhier_quantity_by_species,
        pch = 19,
        cex = .6,
        col="red")
 
 ## ---- add common names ----
+names(mrip_and_fhier)
 mrip_and_fhier_w_names <- inner_join(fhier_species_count_by_disposition_com_names,
                                      mrip_and_fhier,
-                                     by = c("species_itis", "fhier_quantity_by_species")
+                                     by = c(mrip_and_fhier_itis_field_name, "fhier_quantity_by_species")
 )
 
 ## ---- data overview ----
@@ -74,9 +84,9 @@ mrip_and_fhier %>%
 ## ---- plot catch by species (3) ----
 my_colors <- c("MRIP" = "blue", "FHIER" = "red")
 
-sort(mrip_and_fhier$species_itis) %>% head()
+sort(unlist(mrip_and_fhier[mrip_and_fhier_itis_field_name])) %>% head()
 # MIN_species_itis <- 100
-  # min(as.integer(mrip_and_fhier$species_itis), na.rm = TRUE)
+  # min(as.integer(mrip_and_fhier[mrip_and_fhier_itis_field_name]), na.rm = TRUE)
 # use fhier_quantity_by_species
 MAX_QUANTITY_BY_SPECIES <- 
   max(as.integer(mrip_and_fhier$fhier_quantity_by_species), na.rm = TRUE)
@@ -138,8 +148,8 @@ mrip_and_fhier_uni <-
          # * 2
   )
 plot(mrip_and_fhier_uni$cnt_index,
-     mrip_and_fhier_uni$species_itis 
-     # , ylim = c(MIN_species_itis , max(mrip_and_fhier_uni$species_itis ))
+     unlist(mrip_and_fhier_uni[species_itis])
+     # , ylim = c(MIN_species_itis , max(mrip_and_fhier_uni[species_itis] ))
 )
 
 # mutate(order = fct_reorder(as.factor(week_num), year)) %>%
@@ -282,12 +292,15 @@ n_most_frequent_fhier_10 <- get_n_most_frequent_fhier(10)
 #             by = c("species_itis ", "fhier_quantity_by_species")) %>%
 #   str()
 
-names(n_most_frequent_fhier_10)
+str(n_most_frequent_fhier_10)
+# mrip_and_fhier_w_names %<>%
+#   mutate(species_itis = as.character(species_itis))
+
 names(mrip_and_fhier_w_names)
 to_plot_10 <- right_join(mrip_and_fhier_w_names,
                         n_most_frequent_fhier_10,
-                      by = c("species_itis", "fhier_quantity_by_species")) %>%  
-  select(common_name, fhier_quantity_by_species, mrip_estimate_catch_by_species)
+                      by = c(mrip_and_fhier_itis_field_name, "fhier_quantity_by_species")) %>%  
+  select(common_name.x, fhier_quantity_by_species, mrip_estimate_catch_by_species)
 
 to_plot_10 %>% head(2)
 
@@ -301,11 +314,12 @@ theme_sep <- theme(
   axis.text = element_text(size = 10)
 )
 
+fhier_to_ten <-
+  factor(to_plot_10$fhier_quantity_by_species) %>%
+  as.numeric()
+
 plot_top_10_sep <- function() {
-  fhier_to_ten <-
-    factor(to_plot_10$fhier_quantity_by_species) %>%
-    as.numeric()
-  
+
   fhier_top_only_plot <-
     to_plot_10 %>%
     select(common_name, fhier_quantity_by_species) %>%
@@ -474,11 +488,12 @@ plot_fhier_50_most_ab_species <- function() {
 plot_fhier_50_most_ab_species
 
 ## ---- convert to long form ----
+names(to_plot_10)
 # TODO: combine with get_long_mrip_and_fhier_short_values_n
 get_long_form <- function(to_plot_10) {
   long_to_plot <-
     to_plot_10 %>%
-    rename(c("COMMON_NAME" = "common_name",
+    rename(c("COMMON_NAME" = "common_name.x",
              "MRIP" = "mrip_estimate_catch_by_species",
              "FHIER" = "fhier_quantity_by_species")) %>%
     # reformat to a long format to have fhier and mrip data side by side
@@ -534,4 +549,98 @@ plot_most_frequent
 # ggsave(filename = "plot_10_most_frequent_both.png")
 
 write.csv(to_plot_10, file = r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\compare_catch\top_10_both.csv)")
-> 
+
+# ==== fhier and mrip top plot together ====
+
+plot_10_most_frequent_both <-
+  to_plot_10 %>%
+  select(common_name.x,
+         fhier_quantity_by_species,
+         mrip_estimate_catch_by_species) %>%
+  ggplot(aes(
+    x = fhier_quantity_by_species,
+    y = reorder(common_name.x,
+                fhier_to_ten,
+                FUN = min),
+    color = "FHIER"
+  )) +
+  labs(title = "FHIER counts"
+       , x = ""
+       , y = "") +
+  theme_sep +
+  geom_point() +
+  geom_point(aes(
+    x = mrip_estimate_catch_by_species,
+    y = reorder(common_name.x,
+                fhier_to_ten,
+                FUN = min),
+    color = "MRIP"
+  )) +
+  labs(title = "Top 10 species by FHIER compare with MRIP"
+       , x = "counts"
+       , y = "") +
+  scale_color_manual(values = my_colors)
+# +
+  # theme_sep +
+  # geom_point()
+
+plot_10_most_frequent_both
+
+## ---- top 50 both ----
+## ---- 50 species ----
+# plot_fhier_50_most_ab_species <- function() {
+  n_most_frequent_fhier_50 <- get_n_most_frequent_fhier(50)
+  to_plot_50 <- right_join(mrip_and_fhier_w_names,
+                           n_most_frequent_fhier_50,
+                           by = c(mrip_and_fhier_itis_field_name, "fhier_quantity_by_species")) %>%  
+                           # by = c("species_itis", "fhier_quantity_by_species")) %>%
+    select(common_name.x, fhier_quantity_by_species, mrip_estimate_catch_by_species)
+  
+  fhier_to_50 <-
+    factor(to_plot_50$fhier_quantity_by_species) %>%
+    as.numeric()
+  
+  top_50_both_plot <-
+    to_plot_50 %>%
+    select(common_name.x, fhier_quantity_by_species, mrip_estimate_catch_by_species) %>%
+    ggplot(aes(x = fhier_quantity_by_species,
+               y = reorder(common_name.x,
+                           fhier_to_50,
+                           FUN = min
+               ),
+               color = "FHIER"
+    )
+    ) +
+    labs(title = "FHIER counts"
+         , x = ""
+         , y = ""
+    ) +
+    theme_sep +
+    theme(axis.text = element_text(size = 3)) +
+    geom_point() +
+  # top_50_both_plot
+    geom_point(aes(x = mrip_estimate_catch_by_species,
+               y = reorder(common_name.x,
+                           fhier_to_50,
+                           FUN = min
+               ),
+               color = "MRIP"
+    )
+    ) +
+    labs(title = "The top 50 most abundant FHIER species"
+         , x = "counts"
+         , y = "") +
+    scale_color_manual(values = my_colors) +
+    theme_sep +
+    theme(axis.text = element_text(size = 3)) +
+    geom_point()
+  
+  
+  top_50_both_plot
+  # Removed 21 rows containing missing values (`geom_point()`). 
+  
+  max_fhier = max(to_plot_50$fhier_quantity_by_species)
+  # 460094
+  min_fhier = min(to_plot_50$fhier_quantity_by_species)
+  # 5914
+  
