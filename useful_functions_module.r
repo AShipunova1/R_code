@@ -389,11 +389,14 @@ cat_filter_for_fhier <- function(my_characters) {
 # time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
 
 connect_to_secpr <- function() {
-    con = dbConnect(dbDriver("Oracle"),
-                    username = keyring::key_list("SECPR")[1, 2],
-                    password = keyring::key_get("SECPR",
-                                                keyring::key_list("SECPR")[1, 2]),
-                    dbname = "SECPR"
-                    )
-    return(con)
+  # usage: con <- connect_to_secpr()
+  my_username <- keyring::key_list("SECPR")[1, 2]
+  con = dbConnect(
+    dbDriver("Oracle"),
+    username = my_username,
+    password = keyring::key_get("SECPR",
+                                my_username),
+    dbname = "SECPR"
+  )
+  return(con)
 }
