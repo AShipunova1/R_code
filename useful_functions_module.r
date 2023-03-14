@@ -132,6 +132,8 @@ trim_all_vessel_ids_simple <-
                                  value = T)
       }
       x %>%
+        mutate(vessel_official_number = trimws(col_name_to_trim)) %>%
+        return()
     })
     return(csvs_clean)
   }
