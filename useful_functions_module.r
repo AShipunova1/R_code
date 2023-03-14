@@ -387,3 +387,13 @@ cat_filter_for_fhier <- function(my_characters) {
 # map_df(my_df, function(x) length(unique(x)))
 # to compare:
 # time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+
+connect_to_secpr <- function() {
+    con = dbConnect(dbDriver("Oracle"),
+                    username = keyring::key_list("SECPR")[1, 2],
+                    password = keyring::key_get("SECPR",
+                                                keyring::key_list("SECPR")[1, 2]),
+                    dbname = "SECPR"
+                    )
+    return(con)
+}
