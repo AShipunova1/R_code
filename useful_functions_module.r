@@ -96,10 +96,13 @@ clean_headers <- function(my_df) {
 # e.g. read_csv(name_repair = fix_names)
 fix_names <- function(x) {
   x %>%
+    # remove dots
     str_replace_all("\\.", "") %>%
+    # all not letters and numbers to underscores
     str_replace_all("[^A-z0-9]", "_") %>%
-    # str_replace_all("\\s+", "_") %>%
-    # str_replace_all("#", "_") %>%
+    # letters only in the beginning
+    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
+    # tolower
     my_headers_case_function()
 }
 
