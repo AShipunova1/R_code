@@ -88,9 +88,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
 
 clean_headers <- function(my_df) {
   colnames(my_df) %<>%
-    str_replace_all("\\s", "_") %<>%
-    str_replace_all("\\.", "") %<>%
-    my_headers_case_function()
+    fix_names()
   return(my_df)
 }
 
@@ -98,10 +96,10 @@ clean_headers <- function(my_df) {
 # e.g. read_csv(name_repair = fix_names)
 fix_names <- function(x) {
   x %>%
-    str_replace_all("\\s+", "_") %>%
     str_replace_all("\\.", "") %>%
-    str_replace_all("\\W", "_") %>%
-    str_replace_all("#", "_") %>%
+    str_replace_all("[^A-z0-9]", "_") %>%
+    # str_replace_all("\\s+", "_") %>%
+    # str_replace_all("#", "_") %>%
     my_headers_case_function()
 }
 
