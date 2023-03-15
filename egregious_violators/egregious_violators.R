@@ -26,12 +26,19 @@ captainreports_field_name <- find_col_name(compl_clean_sa, ".*captain", "reports
 negativereports_field_name <- find_col_name(compl_clean_sa, ".*negative", "reports.*")[1]
 complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*compliance", "errors.*")[1]
 
-filter_egregious <- quo(gom_declarations_field_name == 0 &
-                          captainreports_field_name == 0 &
-                          negativereports_field_name == 0 &
-                          complianceerrors_field_name > 0
+filter_egregious <- quo(!!sym(gom_declarations_field_name) == 0 &
+                          !!sym(captainreports_field_name) == 0 &
+                          !!sym(negativereports_field_name) == 0 &
+                          !!sym(complianceerrors_field_name) > 0
                         )
-
+# 36965    
+# test
+filter_egregious <- quo(gom_permitteddeclarations__ == 0 &
+                          captainreports__ == 0 &
+                          negativereports__ == 0 &
+                          complianceerrors__ > 0
+)
+# 36965    
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
     filter(!!filter_egregious) 
@@ -41,7 +48,7 @@ compl_clean_sa_non_compl <-
 # vesselofficialnumber 1785
 
 ## ---- get vessel field name ----
-vessel_id_field_name <- find_col_name(compl_clean_sa_non_compl, "vessel", "number")[1]
+vessel_id_field_name <- sym(find_col_name(compl_clean_sa_non_compl, "vessel", "number")[1])
 
 ## ----- get only those with 51+ weeks of non compliance -----
 get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl, vessel_id_field_name){

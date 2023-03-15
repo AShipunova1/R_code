@@ -131,20 +131,10 @@ trim_all_vessel_ids_simple <-
                                  tolower(names(x)),
                                  value = T)
       }
-      browser()
-      str(x)
-      # x$vessel_official_number <- unlist(trimws(x[col_name_to_trim]))
+      col_name_to_trim_s <- sym(col_name_to_trim)
+      # browser()
       x %>%
-        mutate(vessel_official_number11 = trimws({{col_name_to_trim}})) %>% str()
-      
-      my_symbol <- sym(col_name_to_trim)
-      
-      
-      mutate(x, vessel_official_number14 = paste0(!!my_symbol, "@##")) %>%
-        str()
-      
-        # mutate(vessel_official_number = trimws(col_name_to_trim)) 
-      
+        mutate(col_name_to_trim = trimws(!!col_name_to_trim_s)) %>%
         return()
     })
     return(csvs_clean)
@@ -210,16 +200,15 @@ change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
 add_count_contacts <- function(all_data_df_clean) {
   # browser()
   contactdate_field_name <- find_col_name(all_data_df_clean, "contact", "date")[1]
-  # vessel_id_field_name <- find_col_name(all_data_df_clean, "vessel", "number")[1]
+  vessel_id_field_name <- find_col_name(all_data_df_clean, "vessel", "number")[1]
+  
   # browser()
   all_data_df_clean %>%
     # add a new column with a "yes" if there is a contactdate (and a "no" if not)
     # TODO: as.factor
     mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
     # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
-    # doesn't wotk, needs a real column name
-    # add_count(cat(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
-    add_count(vessel_official_number, was_contacted, name = "contact_freq") %>%
+    add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
     return()
 }
 
