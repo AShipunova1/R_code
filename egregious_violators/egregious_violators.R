@@ -305,11 +305,10 @@ dim(compl_corr_to_investigation)
 ## ---- 1) create additional columns ----
 
 ## ----- list of contact dates and contact type in parentheses  -----
+contactdate_field_name <- find_col_name(compl_corr_to_investigation, "contact", "date")[1]
+contacttype_field_name <- find_col_name(compl_corr_to_investigation, "contact", "type")[1]
 
 get_date_contacttype <- function(compl_corr_to_investigation) {
-  contactdate_field_name <- find_col_name(compl_corr_to_investigation, "contact", "date")[1]
-  contacttype_field_name <- find_col_name(compl_corr_to_investigation, "contact", "type")[1]
-  
   compl_corr_to_investigation %>%
     # add a new column date__contacttype with contactdate and contacttype
     mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) %>%
@@ -339,34 +338,41 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
 
 ## ---- 2) remove duplicated columns ----
 
+contactphonenumber_field_name <- find_col_name(compl_corr_to_investigation, ".*contact", "number.*")[1]
+
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
   select(vessel_id_field_name,
          "name",
          "permitgroup",
          "permitgroupexpiration",
          "contactrecipientname",
-         "contactphonenumber",
+         contactphonenumber_field_name,
          "contactemailaddress", 
          "week_start",
-         "date__contacttypes") %>% 
-  combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c(vessel_id_field_name)) ->
+         "date__contacttypes") %>%
+  combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c(as.character(vessel_id_field_name))) ->
   compl_corr_to_investigation_short
 
 # dim(compl_corr_to_investigation_short)
+# [1] 107   9
 
 ## ---- 3) remove vessels already in the know list ----
 vessels_to_remove <- read.csv(file.path(my_paths$inputs, "vessels_to_remove.csv"))
-names(vessels_to_remove) = vessel_id_field_name
+names(vessels_to_remove) = as.character(vessel_id_field_name)
 
 # remove these vessels
 compl_corr_to_investigation_short1 <-
-  compl_corr_to_investigation_short %>% 
-  filter(!vesselofficialnumber %in% vessels_to_remove[vessel_id_field_name])
+  compl_corr_to_investigation_short %>%
+  filter(!(!!vessel_id_field_name %in%
+             vessels_to_remove[[vessel_id_field_name]]
+           )
+         )
+# dim(compl_corr_to_investigation_short1)
+# 102
 
 ## check
-# length(unique(compl_corr_to_investigation_short[vessel_id_field_name]))
+# length(unique(compl_corr_to_investigation_short[[vessel_id_field_name]]))
 # 107
-# length(unique(compl_corr_to_investigation_short1[vessel_id_field_name]))
 # 102
 
 # data_overview(compl_corr_to_investigation_short1)
