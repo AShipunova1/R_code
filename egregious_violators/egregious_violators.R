@@ -78,7 +78,7 @@ dim(compl_w_non_compliant_weeks0)
 
 compl_w_non_compliant_weeks1 <- 
   compl_clean_sa_non_compl %>%
-  filter(!!vessel_id_field_name %in% id_52_plus_weeks[[(as.name(vessel_id_field_name))]])
+  filter(!!vessel_id_field_name %in% id_52_plus_weeks[[vessel_id_field_name]])
 dim(compl_w_non_compliant_weeks1)
 # [1] 8941   22
 # id_52_plus_weeks[vessel_id_field_name][,1]
