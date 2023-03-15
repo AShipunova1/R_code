@@ -21,6 +21,7 @@ library(tidyverse)
 library(magrittr)
 library(readxl)  # reading in .xlsx
 library(rbenchmark)
+library(ROracle)
 
 # Do not show warnings about groups
 options(dplyr.summarise.inform = FALSE)
@@ -399,7 +400,8 @@ cat_filter_for_fhier <- function(my_characters) {
 # time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
 
 connect_to_secpr <- function() {
-  # usage: con <- connect_to_secpr()
+  # usage: 
+  # con <- connect_to_secpr()
   my_username <- keyring::key_list("SECPR")[1, 2]
   con = dbConnect(
     dbDriver("Oracle"),
