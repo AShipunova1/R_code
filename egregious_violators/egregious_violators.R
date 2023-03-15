@@ -78,30 +78,9 @@ compl_w_non_compliant_weeks <-
 compliant_field_name <- find_col_name(compl_clean_sa, ".*comp", "liant.*")[1]
 
 get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
-  browser()
-  
   compl_clean_sa %>% 
     group_by(!!vessel_id_field_name) %>% 
-    # group_by(!!vessel_id_field_name, compliant_) %>% 
-    # summarise(my_freq = n()) %>% str()
-    # add a new column with TRUE if all weeks are non compliant and FALSE otherwise
-    # reframe(all_weeks_non_compl = all(tolower(compliant_) == "no")) %>%
-    # arrange(desc(all_weeks_non_compl)) %>% str()
-  # T
-  
-  # tibble [2,223 × 2] (S3: tbl_df/tbl/data.frame)
-  # 1020057
     reframe(all_weeks_non_compl = all(tolower(!!sym(compliant_field_name)) == "no")) %>% 
-    arrange(desc(all_weeks_non_compl)) %>% str()
-    # reframe(all_weeks_non_compl = all({.data[[compliant_field_name]]} == "no")) %>% 
-  mutate(all_weeks_non_compl = all(tolower(!!sym(compliant_field_name)) == "no")) %>%
-    # arrange(desc(all_weeks_non_compl)) %>% str()
-    ungroup() %>%
-    select(all_weeks_non_compl) %>% 
-    arrange(desc(all_weeks_non_compl)) %>% str()
-    
-  # [1] 2223    2
-  
     # leave only those with all weeks are non compliant
     filter(all_weeks_non_compl) %>% 
     select(!!vessel_id_field_name) %>%
@@ -109,7 +88,7 @@ get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
     return()
 }
 all_weeks_not_compliance_id <- get_all_weeks_not_compliance_id(compl_clean_sa)
-str(all_weeks_not_compliance_id)
+# str(all_weeks_not_compliance_id)
 # 343
 
 # all 52+ weeks are non compliant
