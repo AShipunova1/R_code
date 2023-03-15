@@ -47,7 +47,7 @@ compl_clean_sa_non_compl <-
   # count_uniq_by_column() %>% head(1)
 # vesselofficialnumber 1785
 
-## ---- get vessel field name ----
+## ---- get compliance vessel field name ----
 vessel_id_field_name <- sym(find_col_name(compl_clean_sa_non_compl, "vessel", "number")[1])
 
 ## ----- get only those with 51+ weeks of non compliance -----
@@ -118,11 +118,12 @@ compl_clean_sa %>%
 # write.csv(fewer_52_all_non_compl22_23, file.path(my_paths$outputs, "fewer_52_all_non_compl22_23.csv"), row.names = FALSE)
 
 ## ---- Preparing Correspondence ----
+vessel_id_corr_field_name <- sym(find_col_name(corresp_contact_cnts_clean0, "vessel", "number")[1])
 
 ## ---- remove 999999 ----
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 %>%
-    filter(!grepl("^99999", vesselofficialnumber))
+    filter(!grepl("^99999", !!vessel_id_corr_field_name))
 
 # data_overview(corresp_contact_cnts_clean)
 
@@ -130,13 +131,13 @@ corresp_contact_cnts_clean <-
 ## ---- 1) all are voicemails ----
 get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
-    group_by(vesselofficialnumber) %>%
+    group_by(!!vessel_id_corr_field_name) %>%
     # add a new logical column all_vm with a TRUE if all entries for voicemail column for this vessel are yeses
     reframe(all_vm = all(tolower(voicemail) == "yes")) %>%
     # keep a row only if all_vm == TRUE
     filter(all_vm) %>% 
     # keep only one column
-    select(vesselofficialnumber) %>%
+    select(all_of(vessel_id_corr_field_name)) %>%
     unique() %>%
     return()
 }
