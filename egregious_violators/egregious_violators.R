@@ -105,13 +105,9 @@ setdiff(all_weeks_not_compliance_id[vessel_id_field_name], id_52_plus_weeks[vess
   str()
 # 324
 
-# identical(compl_clean_sa %>% select(!!sym(vessel_id_field_name)), compl_clean_sa %>% select(vessel_official_number))
-# T
 group_by_arr <- c(as.character(vessel_id_field_name), as.character(compliant_field_name))
-# group_by_arr <- c(vessel_id_field_name, compliant_field_name)
 
 compl_clean_sa %>%
-  # filter(vesselofficialnumber %in% fewer_52_all_non_compl22_23_ids)
     filter(!!vessel_id_field_name %in%
              fewer_52_all_non_compl22_23_ids[[vessel_id_field_name]]) %>%
   select(!!vessel_id_field_name, !!compliant_field_name, week) %>%
