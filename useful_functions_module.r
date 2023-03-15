@@ -197,12 +197,17 @@ change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
 # Use for contacts in the setup function before combining with compliant dataframes
 add_count_contacts <- function(all_data_df_clean) {
   # browser()
+  contactdate_field_name <- find_col_name(all_data_df_clean, "contact", "date")[1]
+  # vessel_id_field_name <- find_col_name(all_data_df_clean, "vessel", "number")[1]
+  # browser()
   all_data_df_clean %>%
     # add a new column with a "yes" if there is a contactdate (and a "no" if not)
     # TODO: as.factor
-    mutate(was_contacted = if_else(is.na(contactdate), "no", "yes")) %>%
+    mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
     # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
-    add_count(vesselofficialnumber, was_contacted, name = "contact_freq") %>%
+    # doesn't wotk, needs a real column name
+    # add_count(cat(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
+    add_count(vessel_official_number, was_contacted, name = "contact_freq") %>%
     return()
 }
 
@@ -302,11 +307,14 @@ corresp_cleaning <- function(csvs_clean1){
   corresp_arr <- csvs_clean1[[1]]
   # add a new column with a "yes" if there is a contactdate (and a "no" if not),
   # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
+  # browser()
   corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
+  createdon_field_name <- find_col_name(corresp_arr, "created", "on")[1]
+  contactdate_field_name <- find_col_name(corresp_arr, "contact", "date")[1]
   # change classes from char to POSIXct
   corresp_arr_contact_cnts %>%
-    change_to_dates("createdon", "%m/%d/%Y %H:%M") %>%
-    change_to_dates("contactdate", "%m/%d/%Y %I:%M %p") ->
+    change_to_dates(createdon_field_name, "%m/%d/%Y %H:%M") %>%
+    change_to_dates(contactdate_field_name, "%m/%d/%Y %I:%M %p") ->
     corresp_arr_contact_cnts_clean
   
   return(corresp_arr_contact_cnts_clean)
@@ -400,4 +408,13 @@ connect_to_secpr <- function() {
     dbname = "SECPR"
   )
   return(con)
+}
+
+# usage: complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*xcompliance", "errors.*")[1]
+# TODO what if two names?
+find_col_name <- function(mydf, start_part, end_part) {
+  to_search <- paste0(start_part, ".*", end_part)
+  grep(to_search,
+       tolower(names(mydf)),
+       value = T)
 }

@@ -20,11 +20,24 @@ compl_clean_sa <- compl_clean %>%
 
 ## ---- filter for egregious here, use all compliance data ----
 # Get all entries with no reports and more than 1 compliance error
-filter_egregious <- quo(xgompermitteddeclarations == 0 &
-                          xcaptainreports == 0 &
-                          xnegativereports == 0 &
-                          xcomplianceerrors > 0
+names(compl_clean_sa)
+gom_declarations_field_name <- find_col_name(compl_clean_sa, ".*gom", "declarations.*")[1]
+captainreports_field_name <- find_col_name(compl_clean_sa, ".*captain", "reports.*")[1]
+negativereports_field_name <- find_col_name(compl_clean_sa, ".*negative", "reports.*")[1]
+complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*compliance", "errors.*")[1]
+
+filter_egregious <- quo(gom_declarations_field_name == 0 &
+                          captainreports_field_name == 0 &
+                          negativereports_field_name == 0 &
+                          complianceerrors_field_name > 0
                         )
+
+filter_egregious <- quo(gom_permitteddeclarations__ == 0 &
+                          captainreports__ == 0 &
+                          negativereports__ == 0 &
+                          complianceerrors__ > 0
+)
+
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
     filter(!!filter_egregious) 
@@ -267,6 +280,8 @@ compl_w_non_compliant_weeks %>%
 ## ----- list of contact dates and contact type in parentheses  -----
 
 get_date_contacttype <- function(compl_corr_to_investigation) {
+  contactdate_field_name <- find_col_name(compl_corr_to_investigation, "contact", "date")
+  contacttype_field_name <- find_col_name(compl_corr_to_investigation, "contact", "type")
   compl_corr_to_investigation %>%
     # add a new column date__contacttype with contactdate and contacttype
     mutate(date__contacttype = paste(contactdate, contacttype, sep = " ")) %>% 
@@ -329,84 +344,7 @@ compl_corr_to_investigation_short1 <-
 # write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "egregious_violators_for_investigation.csv"), row.names = FALSE)
 
 ## ---- who needs an email ----
-# at least 2 correspondences & no direct contact
-# keep only 2 or more correspondence with no direct contact, check manually?
+source(file.path(curren_project_path, "need_an_email.R"))
 
-# rename for short
-compliance_clean <- compl_w_non_compliant_weeks
-# glimpse(compliance_clean)
-
-# correspondence with contact frequency and direct_contact column
-corresp_clean <- corresp_contact_cnts_clean_direct_cnt
-# glimpse(corresp_clean)
-
-get_2_plus_contacts <- function(corresp_clean) {
-  corresp_clean %>%
-    filter(contact_freq > 1) %>%
-    return()
-}
-corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
-
-# TODO
-# called twice w no direct communications &
-# sent an email w. no answer &
-# those with no contact information
-# TODO?
-# -- for email needed --
-# all contacts outgoing
-
-get_all_not_direct_contact_id <- function(corr_2_plus_contact) {
-  corr_2_plus_contact %>%
-    group_by(vesselofficialnumber) %>%
-    # add a new column all_dc with TRUE if all are not direct contacts
-    reframe(all_dc = all(tolower(direct_contact) == "no")) %>%
-    # keep these only
-    filter(all_dc) %>% 
-    select(vesselofficialnumber) %>%
-    unique() %>%
-    return()
-}
-all_not_direct_contact_id <- get_all_not_direct_contact_id(corr_2_plus_contact)
-# str(all_not_direct_contact_id)
-# 93
-
-## ---- filter for "email's needed" ----
-# no direct contact or no phone number or all are voicemails
-#TODO: and exclude if they had an email and if they had at least one phone call!
-email_s_needed_short <- corr_2_plus_contact %>%
-  filter(is.na(contactphonenumber) |
-         contactphonenumber == "" |
-         vesselofficialnumber %in% all_vm_ids$vesselofficialnumber |
-         vesselofficialnumber %in% all_not_direct_contact_id$vesselofficialnumber
-         ) 
-
-data_overview(email_s_needed_short) %>% head(1)
-# vesselofficialnumber 176
-  
-# sorted:
-email_s_needed_to_csv_short_sorted <-
-combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values(email_s_needed_short, c("vesselofficialnumber"))
-
-# str(email_s_needed_to_csv_short_sorted)
-
-## ---- output to csv ----
-# this script results
-
-# write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted.csv"), row.names = FALSE)
-
-## ---- find if not compliant and no correspondence ----
-not_compliant_51_plus_weeks_and_no_correspondence <-
-  setdiff(id_52_plus_weeks$vesselofficialnumber, corresp_contact_cnts_clean$vesselofficialnumber)
-
-str(not_compliant_51_plus_weeks_and_no_correspondence)
-# 15
-
-# write.csv(not_compliant_51_plus_weeks_and_no_correspondence, file.path(my_paths$outputs, "not_compliant__no_calls", "not_compliant_51_plus_weeks_and_no_correspondence.csv"), row.names = FALSE)
-
-# To use as a filter in FHIER/Correspondence
-cat(not_compliant_51_plus_weeks_and_no_correspondence, 
-    sep = ', ', 
-    file = file.path(my_paths$outputs, 
-                     "not_compliant__no_calls",
-                     "not_compliant_51_plus_weeks_and_no_correspondence.txt"))
-
+## ---- no correspondence ----
+source(file.path(curren_project_path, "not_compliant_51_plus_weeks_and_no_correspondence.R"))
