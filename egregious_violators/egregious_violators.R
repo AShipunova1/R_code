@@ -143,8 +143,10 @@ get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
 }
 
 all_vm_ids <- get_all_voicemails_id(corresp_contact_cnts_clean)
-str(all_vm_ids)
+# str(all_vm_ids)
 # 284
+
+contactcomments_field_name <- sym(find_col_name(corresp_contact_cnts_clean, ".*contact", "comments.*")[1])
 
 add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   # browser()
@@ -152,14 +154,14 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
     # create a new column "direct_contact" with a "yes" or "no"
     # search comments for indicators that there was no direct contact
-    mutate(direct_contact = case_when(grepl("no answer", contactcomments, ignore.case = TRUE) ~ "no",
-                                    grepl("wrong number", contactcomments, ignore.case = TRUE) ~ "no",
-                                    grepl("not in service", contactcomments, ignore.case = TRUE) ~ "no",
-                                    grepl("number.+is incorrect", contactcomments, ignore.case = TRUE) ~ "no",
-                                    grepl("the incorrect number", contactcomments, ignore.case = TRUE) ~ "no",
-                                    grepl("incorrect phone number", contactcomments, ignore.case = TRUE) ~ "no",
-                                    grepl("call could not be completed as dialed", contactcomments, ignore.case = TRUE) ~ "no",
-                                    vesselofficialnumber %in% all_vm_ids[vessel_id_field_name] ~ "no",
+    mutate(direct_contact = case_when(grepl("no answer", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+                                    grepl("wrong number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+                                    grepl("not in service", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+                                    grepl("number.+is incorrect", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+                                    grepl("the incorrect number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+                                    grepl("incorrect phone number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+                                    grepl("call could not be completed as dialed", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+                                    !!vessel_id_corr_field_name %in% all_vm_ids[vessel_id_corr_field_name] ~ "no",
                                     .default = "yes"
                                     )
          ) %>% 
@@ -195,6 +197,7 @@ get_calls_with_direct_communication <- function(corresp_contact_cnts_clean_direc
 }
 calls_with_direct_communication <- get_calls_with_direct_communication(corresp_contact_cnts_clean_direct_cnt)
 # dim(calls_with_direct_communication)
+# [1] 12584    23
 # str(calls_with_direct_communication)
 
 ## ---- 2) in and out emails ----
@@ -210,27 +213,30 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
     corresp_contact_cnts_clean %>%
     filter(!!emails_filter &
              tolower(calltype) == "incoming") %>% 
-    select(vesselofficialnumber) %>%
+    select(vessel_id_corr_field_name) %>%
     unique()
-  # 232  
+  # 259  
   
   # use emails_filter for outgoing
   outgoing_2_plus_emails <-
     corresp_contact_cnts_clean %>%
     filter(!!emails_filter &
              tolower(calltype) == "outgoing") %>% 
-    select(vesselofficialnumber) %>%
+    select(vessel_id_corr_field_name) %>%
     unique()
-    # glimpse()
+  # %>%
+  #   glimpse()
   # 624
+  # 712
   
   # get ids wihch are in both in and out lists
   both_in_n_out_2_plus_email_ids <- intersect(incoming_2_plus_emails, outgoing_2_plus_emails)
   # 148
+  # 173
   
   # keep correspondence information only for those
   corresp_contact_cnts_clean_direct_cnt %>%
-    filter(vesselofficialnumber %in% both_in_n_out_2_plus_email_ids[vessel_id_field_name]) %>%
+    filter(!!vessel_id_corr_field_name %in% both_in_n_out_2_plus_email_ids[[vessel_id_corr_field_name]]) %>%
     return()
 }
 
@@ -244,7 +250,7 @@ both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_cle
 # vesselofficialnumber  147
 # 173
 
-# group_by_arr <- c(vessel_id_field_name, "calltype")
+# group_by_arr <- c(as.character(vessel_id_corr_field_name), "calltype")
 # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 
 to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
@@ -255,21 +261,36 @@ to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct
 # 3170
 
 # dim(to_investigation_to_NEIS)
+# [1] 14401    23
 # str(to_investigation_to_NEIS)
 # View(to_investigation_to_NEIS)
 # count unique values in each column
-# apply(to_investigation_to_NEIS, 2, function(x) length(unique(x))) %>% 
+# apply(to_investigation_to_NEIS, 2, function(x) length(unique(x))) %>%
 #   as.data.frame() %>% head(1)
 # vesselofficialnumber  3070
 # 3170
 
 ## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
+# n1 <- as.name(vessel_id_field_name)
+
 compl_w_non_compliant_weeks %>%
   inner_join(to_investigation_to_NEIS,
-             by = c(vessel_id_field_name),
+             # works
+             # by = c(vessel_official_number = as.character(vessel_id_corr_field_name)),
+               by = c(vessel_official_number = as.character(vessel_id_corr_field_name)),
+             # by = c(vessel_id_field_name = vessel_id_corr_field_name),
+             # by = c("vessel_official_number" = "vesselofficial_number"),
+             # by = setNames(nm = c(as.character(vessel_id_corr_field_name), 
+             #                      as.character(vessel_id_field_name))),
              multiple = "all") ->
   compl_corr_to_investigation
 
+dim(compl_corr_to_investigation)
+# [1] 16081    44
+
+# names(compl_w_non_compliant_weeks) vessel_official_number
+# names(to_investigation_to_NEIS) vesselofficial_number
+# by = setNames(y_name, x_name)
 ## check
 # count_uniq_by_column(compl_clean_sa_non_compl) %>% head(1)
 # count_uniq_by_column(compl_corr_to_investigation) %>% head(1)
@@ -286,17 +307,18 @@ compl_w_non_compliant_weeks %>%
 ## ----- list of contact dates and contact type in parentheses  -----
 
 get_date_contacttype <- function(compl_corr_to_investigation) {
-  contactdate_field_name <- find_col_name(compl_corr_to_investigation, "contact", "date")
-  contacttype_field_name <- find_col_name(compl_corr_to_investigation, "contact", "type")
+  contactdate_field_name <- find_col_name(compl_corr_to_investigation, "contact", "date")[1]
+  contacttype_field_name <- find_col_name(compl_corr_to_investigation, "contact", "type")[1]
+  
   compl_corr_to_investigation %>%
     # add a new column date__contacttype with contactdate and contacttype
-    mutate(date__contacttype = paste(contactdate, contacttype, sep = " ")) %>% 
+    mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) %>%
     # use 2 columns only
-    select(vesselofficialnumber, date__contacttype) %>%
+    select(!!vessel_id_field_name, date__contacttype) %>%
     # sort
-    arrange(vesselofficialnumber, date__contacttype) %>%
+    arrange(!!vessel_id_field_name, date__contacttype) %>%
     unique() %>%
-    group_by(vesselofficialnumber) %>% 
+    group_by(!!vessel_id_field_name) %>%
     # for each vessel id combine all date__contacttypes separated by comma in one cell
     summarise(date__contacttypes = paste(date__contacttype, collapse=", ")) %>% 
     return()
@@ -305,12 +327,13 @@ get_date_contacttype <- function(compl_corr_to_investigation) {
 date__contacttype_per_id <- get_date_contacttype(compl_corr_to_investigation)
 str(date__contacttype_per_id)
 # [1] 110    2
+# 107
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation %>%
   inner_join(date__contacttype_per_id,
-             by = c(vessel_id_field_name))
+             by = c(as.character(vessel_id_field_name)))
   
 # str(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
 
