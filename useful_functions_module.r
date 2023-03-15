@@ -131,8 +131,20 @@ trim_all_vessel_ids_simple <-
                                  tolower(names(x)),
                                  value = T)
       }
+      browser()
+      str(x)
+      # x$vessel_official_number <- unlist(trimws(x[col_name_to_trim]))
       x %>%
-        mutate(vessel_official_number = trimws(col_name_to_trim)) %>%
+        mutate(vessel_official_number11 = trimws({{col_name_to_trim}})) %>% str()
+      
+      my_symbol <- sym(col_name_to_trim)
+      
+      
+      mutate(x, vessel_official_number14 = paste0(!!my_symbol, "@##")) %>%
+        str()
+      
+        # mutate(vessel_official_number = trimws(col_name_to_trim)) 
+      
         return()
     })
     return(csvs_clean)

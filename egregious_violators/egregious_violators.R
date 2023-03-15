@@ -32,12 +32,6 @@ filter_egregious <- quo(gom_declarations_field_name == 0 &
                           complianceerrors_field_name > 0
                         )
 
-filter_egregious <- quo(gom_permitteddeclarations__ == 0 &
-                          captainreports__ == 0 &
-                          negativereports__ == 0 &
-                          complianceerrors__ > 0
-)
-
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
     filter(!!filter_egregious) 
@@ -46,14 +40,17 @@ compl_clean_sa_non_compl <-
   # count_uniq_by_column() %>% head(1)
 # vesselofficialnumber 1785
 
+## ---- get vessel field name ----
+vessel_id_field_name <- find_col_name(compl_clean_sa_non_compl, "vessel", "number")[1]
+
 ## ----- get only those with 51+ weeks of non compliance -----
-get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl){
+get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl, vessel_id_field_name){
   compl_clean_sa_non_compl %>%
-    select("vesselofficialnumber", "week") %>%
-    arrange("vesselofficialnumber", "week") %>%
-    unique() %>%
+    select(vessel_id_field_name, week) %>%
+    arrange(vessel_id_field_name, week) %>%
+    unique() %>% str()
     # add a column with counts
-    count(vesselofficialnumber) %>% 
+    count(vessel_id_field_name) %>% 
     # keep only with count > 51
     filter(n > 51) %>%
     return()
@@ -67,7 +64,7 @@ id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
 # Get compliance information for only vessels which have more than 52 "NO REPORT".
 compl_w_non_compliant_weeks <- 
   compl_clean_sa_non_compl %>%
-  filter(vesselofficialnumber %in% id_52_plus_weeks$vesselofficialnumber)
+  filter(vessel_id_field_name %in% id_52_plus_weeks[vessel_id_field_name])
 
 # data_overview(compl_w_non_compliant_weeks)
 # data_overview(compl_clean_sa_non_compl)
@@ -75,12 +72,12 @@ compl_w_non_compliant_weeks <-
 ## ---- Check vesselofficialnumbers for "all weeks are non-compliant" ----
 get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
   compl_clean_sa %>% 
-    group_by(vesselofficialnumber) %>%
+    group_by(vessel_id_field_name) %>%
     # add a new column with TRUE if all weeks are non compliant and FALSE otherwise
     reframe(all_weeks_non_compl = all(tolower(compliant) == "no")) %>% 
     # leave only those with all weeks are non compliant
     filter(all_weeks_non_compl) %>% 
-    select(vesselofficialnumber) %>%
+    select(vessel_id_field_name) %>%
     unique() %>% 
     return()
 }
@@ -89,20 +86,20 @@ all_weeks_not_compliance_id <- get_all_weeks_not_compliance_id(compl_clean_sa)
 # 343
 
 # all 52+ weeks are non compliant
-intersect(id_52_plus_weeks$vesselofficialnumber, all_weeks_not_compliance_id$vesselofficialnumber) %>% str()
+intersect(id_52_plus_weeks[vessel_id_field_name], all_weeks_not_compliance_id[vessel_id_field_name]) %>% str()
 # 19
 
 # 52+ weeks are not compliant, but some other weeks are compliant
-setdiff(id_52_plus_weeks$vesselofficialnumber, all_weeks_not_compliance_id$vesselofficialnumber) %>% str()
+setdiff(id_52_plus_weeks[vessel_id_field_name], all_weeks_not_compliance_id[vessel_id_field_name]) %>% str()
 # 137
 
 # all weeks are not compliant, but there are fewer than 52 weeks for 2022-2023
-setdiff(all_weeks_not_compliance_id$vesselofficialnumber, id_52_plus_weeks$vesselofficialnumber) %>%
+setdiff(all_weeks_not_compliance_id[vessel_id_field_name], id_52_plus_weeks[vessel_id_field_name]) %>%
 { . ->> fewer_52_all_non_compl22_23_ids} %>% # save into a var 
   str()
 # 324
 
-group_by_arr <- c("vesselofficialnumber", "compliant")
+group_by_arr <- c(vessel_id_field_name, "compliant")
 compl_clean_sa %>%
   filter(vesselofficialnumber %in% fewer_52_all_non_compl22_23_ids) %>%
   select(vesselofficialnumber, compliant, week) %>%
@@ -153,7 +150,7 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
                                     grepl("the incorrect number", contactcomments, ignore.case = TRUE) ~ "no",
                                     grepl("incorrect phone number", contactcomments, ignore.case = TRUE) ~ "no",
                                     grepl("call could not be completed as dialed", contactcomments, ignore.case = TRUE) ~ "no",
-                                    vesselofficialnumber %in% all_vm_ids$vesselofficialnumber ~ "no",
+                                    vesselofficialnumber %in% all_vm_ids[vessel_id_field_name] ~ "no",
                                     .default = "yes"
                                     )
          ) %>% 
@@ -224,7 +221,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
   
   # keep correspondence information only for those
   corresp_contact_cnts_clean_direct_cnt %>%
-    filter(vesselofficialnumber %in% both_in_n_out_2_plus_email_ids$vesselofficialnumber) %>%
+    filter(vesselofficialnumber %in% both_in_n_out_2_plus_email_ids[vessel_id_field_name]) %>%
     return()
 }
 
@@ -238,7 +235,7 @@ both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_cle
 # vesselofficialnumber  147
 # 173
 
-# group_by_arr <- c("vesselofficialnumber", "calltype")
+# group_by_arr <- c(vessel_id_field_name, "calltype")
 # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 
 to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
@@ -260,7 +257,7 @@ to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct
 ## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
 compl_w_non_compliant_weeks %>%
   inner_join(to_investigation_to_NEIS,
-             by = c("vesselofficialnumber"),
+             by = c(vessel_id_field_name),
              multiple = "all") ->
   compl_corr_to_investigation
 
@@ -304,14 +301,14 @@ str(date__contacttype_per_id)
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation %>%
   inner_join(date__contacttype_per_id,
-             by = c("vesselofficialnumber"))
+             by = c(vessel_id_field_name))
   
 # str(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
 
 ## ---- 2) remove duplicated columns ----
 
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
-  select("vesselofficialnumber",
+  select(vessel_id_field_name,
          "name",
          "permitgroup",
          "permitgroupexpiration",
@@ -320,24 +317,24 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
          "contactemailaddress", 
          "week_start",
          "date__contacttypes") %>% 
-  combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c("vesselofficialnumber")) ->
+  combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c(vessel_id_field_name)) ->
   compl_corr_to_investigation_short
 
 # dim(compl_corr_to_investigation_short)
 
 ## ---- 3) remove vessels already in the know list ----
 vessels_to_remove <- read.csv(file.path(my_paths$inputs, "vessels_to_remove.csv"))
-names(vessels_to_remove) = "vesselofficialnumber"
+names(vessels_to_remove) = vessel_id_field_name
 
 # remove these vessels
 compl_corr_to_investigation_short1 <-
   compl_corr_to_investigation_short %>% 
-  filter(!vesselofficialnumber %in% vessels_to_remove$vesselofficialnumber)
+  filter(!vesselofficialnumber %in% vessels_to_remove[vessel_id_field_name])
 
 ## check
-# length(unique(compl_corr_to_investigation_short$vesselofficialnumber))
+# length(unique(compl_corr_to_investigation_short[vessel_id_field_name]))
 # 107
-# length(unique(compl_corr_to_investigation_short1$vesselofficialnumber))
+# length(unique(compl_corr_to_investigation_short1[vessel_id_field_name]))
 # 102
 
 # data_overview(compl_corr_to_investigation_short1)
