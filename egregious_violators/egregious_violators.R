@@ -69,12 +69,17 @@ id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl, ves
 # n                   : int  58 55
 
 # Get compliance information for only vessels which have more than 52 "NO REPORT".
+list1 <- compl_clean_sa_non_compl[vessel_id_field_name]
+list2 <- id_52_plus_weeks[vessel_id_field_name]
 compl_w_non_compliant_weeks <- 
-  compl_clean_sa_non_compl %>%
-  filter(vessel_id_field_name %in% id_52_plus_weeks[vessel_id_field_name])
+  intersect(list1, list2)
+
+# grep("1021417", compl_clean_sa_non_compl$vessel_official_number, value = T)
 
 # data_overview(compl_w_non_compliant_weeks)
 # data_overview(compl_clean_sa_non_compl)
+# str(compl_clean_sa_non_compl)
+# tibble [36,965 × 22] (S3: tbl_df/tbl/data.frame)
 
 ## ---- Check vesselofficialnumbers for "all weeks are non-compliant" ----
 get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
@@ -84,7 +89,7 @@ get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
     reframe(all_weeks_non_compl = all(tolower(compliant) == "no")) %>% 
     # leave only those with all weeks are non compliant
     filter(all_weeks_non_compl) %>% 
-    select(vessel_id_field_name) %>%
+    select(!!vessel_id_field_name) %>%
     unique() %>% 
     return()
 }
