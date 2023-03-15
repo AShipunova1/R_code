@@ -68,24 +68,27 @@ id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl, ves
 # vesselofficialnumber: ...
 # n                   : int  58 55
 
-get_num_of_non_compliant_weeks2 <- function(compl_clean_sa_non_compl, vessel_id_field_name){
+# ---- Get compliance information for only vessels which have more than 52 "NO REPORT". ----
+# test
+compl_w_non_compliant_weeks0 <- 
   compl_clean_sa_non_compl %>%
-    select(vessel_official_number, week) %>%
-    arrange(vessel_official_number, week) %>%
-    unique() %>%
-    # add a column with counts
-    count(vessel_official_number) %>% 
-    # keep only with count > 51
-    filter(n > 51) %>%
-    return()
-}
-id_52_plus_weeks2 <- get_num_of_non_compliant_weeks2(compl_clean_sa_non_compl, vessel_id_field_name)
+  filter(vessel_official_number %in% id_52_plus_weeks$vessel_official_number)
+dim(compl_w_non_compliant_weeks0)
+# [1] 8941   22
 
-identical(id_52_plus_weeks2, id_52_plus_weeks)
-# T
-# Get compliance information for only vessels which have more than 52 "NO REPORT".
+compl_w_non_compliant_weeks1 <- 
+  compl_clean_sa_non_compl %>%
+  filter(!!vessel_id_field_name %in% id_52_plus_weeks[[(as.name(vessel_id_field_name))]])
+dim(compl_w_non_compliant_weeks1)
+# [1] 8941   22
+# id_52_plus_weeks[vessel_id_field_name][,1]
+
+id_52_plus_weeks$vessel_official_number %>% head
+
+(!!as.name(vessel_id_field_name))
+
 list1 <- compl_clean_sa_non_compl[vessel_id_field_name]
-list2 <- id_52_plus_weeks[vessel_id_field_name]
+list2 <- id_52_plus_weeks[vessel_id_field_name][,1]
 compl_w_non_compliant_weeks_ids <- 
   intersect(list1, list2)
 
