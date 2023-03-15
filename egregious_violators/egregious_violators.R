@@ -53,16 +53,16 @@ vessel_id_field_name <- sym(find_col_name(compl_clean_sa_non_compl, "vessel", "n
 ## ----- get only those with 51+ weeks of non compliance -----
 get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl, vessel_id_field_name){
   compl_clean_sa_non_compl %>%
-    select(vessel_id_field_name, week) %>%
-    arrange(vessel_id_field_name, week) %>%
-    unique() %>% str()
+    select(!!vessel_id_field_name, week) %>%
+    arrange(!!vessel_id_field_name, week) %>%
+    unique() %>%
     # add a column with counts
-    count(vessel_id_field_name) %>% 
+    count(!!vessel_id_field_name) %>% 
     # keep only with count > 51
     filter(n > 51) %>%
     return()
 }
-id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
+id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl, vessel_id_field_name)
 # glimpse(id_52_plus_weeks)
 # 'data.frame':	156 obs. of  2 variables
 # vesselofficialnumber: ...
