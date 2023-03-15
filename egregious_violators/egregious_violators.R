@@ -75,7 +75,7 @@ compl_w_non_compliant_weeks <-
 # dim(compl_w_non_compliant_weeks)
 
 ## ---- Check vesselofficialnumbers for "all weeks are non-compliant" ----
-compliant_field_name <- find_col_name(compl_clean_sa, ".*comp", "liant.*")[1]
+compliant_field_name <- as.name(find_col_name(compl_clean_sa, ".*comp", "liant.*")[1])
 
 get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
   compl_clean_sa %>% 
@@ -105,10 +105,27 @@ setdiff(all_weeks_not_compliance_id[vessel_id_field_name], id_52_plus_weeks[vess
   str()
 # 324
 
-group_by_arr <- c(vessel_id_field_name, "compliant")
+# identical(compl_clean_sa %>% select(!!sym(vessel_id_field_name)), compl_clean_sa %>% select(vessel_official_number))
+# T
+group_by_arr <- c(vessel_id_field_name, compliant_field_name)
+
+# identical(compl_clean_sa %>% filter(!!sym(vessel_id_field_name)), compl_clean_sa %>% filter(vessel_official_number))
+# Caused by error:
+#   ! `..1` must be a logical vector, not a character vector.
+# Run `rlang::last_error()` to see where the error occurred.
+x1 <- intersect(compl_clean_sa[vessel_id_field_name], fewer_52_all_non_compl22_23_ids)
+dim(x1)
+# print(intersect(compl_clean_sa, fewer_52_all_non_compl22_23_ids), 10)
+
 compl_clean_sa %>%
-  filter(vesselofficialnumber %in% fewer_52_all_non_compl22_23_ids) %>%
-  select(vesselofficialnumber, compliant, week) %>%
+  # filter(!!as.name(vessel_id_field_name) %in% fewer_52_all_non_compl22_23_ids) %>%
+    filter(!!vessel_id_field_name %in% fewer_52_all_non_compl22_23_ids[[vessel_id_field_name]]) %>%
+#   intersect(compl_clean_sa[vessel_id_field_name], fewer_52_all_non_compl22_23_ids) %>% dim()
+# [1] 324   1
+  # filter(vessel_official_number %in% fewer_52_all_non_compl22_23_ids$vessel_official_number) %>%
+# dim()
+# 8329
+  select(!!vessel_id_field_name, !!compliant_field_name, week) %>%
   count_by_column_arr(group_by_arr) %>%
   { . ->> fewer_52_all_non_compl22_23} %>% # save into a var 
   head()
