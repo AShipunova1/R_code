@@ -218,7 +218,7 @@ add_count_contacts <- function(all_data_df_clean) {
 # count_by_column_arr(my_df, group_by_arr)
 count_by_column_arr <- function(my_df, group_by_arr) {
   my_df %>%
-    arrange(vesselofficialnumber) %>%
+    arrange(group_by_arr[1]) %>%
     group_by_at(group_by_arr) %>%
     summarise(my_freq = n()) %>%
     return()
