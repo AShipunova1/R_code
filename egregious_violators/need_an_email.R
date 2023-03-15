@@ -6,6 +6,15 @@
 corresp_clean <- corresp_contact_cnts_clean_direct_cnt
 # glimpse(corresp_clean)
 
+con <- connect_to_secpr()
+
+get_permit_expirations_by_vessel <- function() {
+  permit_info <- dbGetQuery(con,
+             "select * from SRH	V_COMP_SRFH_TRIP_AFTER_PMT")
+  dbDisconnect(con)
+  
+}
+
 get_2_plus_contacts <- function(corresp_clean) {
   corresp_clean %>%
     filter(contact_freq > 1) %>%
