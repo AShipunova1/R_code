@@ -98,12 +98,15 @@ compl_clean_w_permit_exp <-
 
 email_s_needed_to_csv_short_sorted_w_permit_info <-
   email_s_needed_to_csv_short_sorted %>%
-  inner_join(compl_clean_w_permit_exp,
+  left_join(compl_clean_w_permit_exp,
             by = "vessel_official_number",
             multiple = "all")
 
 str(email_s_needed_to_csv_short_sorted_w_permit_info)
+# inner_join
 # tibble [80 × 26] (S3: tbl_df/tbl/data.frame)
+# left_join (14 are not in compliance)
+# tibble [94 × 26] (S3: tbl_df/tbl/data.frame)
 
 intersect(email_s_needed_to_csv_short_sorted_w_permit_info$vessel_official_number, 
           compl_clean_w_permit_exp$vessel_official_number) %>% length()
@@ -120,8 +123,14 @@ setdiff(email_s_needed_to_csv_short_sorted$vessel_official_number,
 
 # grep("FL9599SN", compl_clean$vessel_official_number)
 
+View(email_s_needed_to_csv_short_sorted_w_permit_info)
+# TODO: grep, setdiff and delete not "vessel_official_number"
+email_s_needed_to_csv_short_sorted_w_permit_info1 <-
+  email_s_needed_to_csv_short_sorted_w_permit_info %>%
+  select(-vesselofficial_number)
 
+names(email_s_needed_to_csv_short_sorted_w_permit_info1)
 ## ---- output to csv ----
 # this script results
 
-# write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted.csv"), row.names = FALSE)
+# write.csv(email_s_needed_to_csv_short_sorted_w_permit_info1, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted_w_permit_info1.csv"), row.names = FALSE)
