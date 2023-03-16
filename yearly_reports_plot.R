@@ -127,21 +127,23 @@ longFormat_GOM$year <-
 longFormat_SA$year <-
   factor(longFormat_SA$year, levels = unique(longFormat_SA$year))
 
-
+# To keep the same order of types across all plots
+# 1) Desired order
 type_order <- c("Logbooks",
                 "Declarations",
                 "No Fishing Reports")
 
-#Now Plot - call ggplot
+## ---- Now Plot - call ggplot ----
 plot_bars <- function(my_data, title) {
-  browser()
+  # To keep the same order of types across all plots
+  # 2) get current types
   my_type_order <- intersect(my_data$Type, type_order)
+  # 3) add column with our order as factor and then use this column in aes/fill
   my_data %<>%
   mutate(type_reordered = factor(Type, levels = my_type_order
                                  )
          )
-  # my_data$Type <- lapply(my_data$Type, factor, levels = my_type_order)
-  # str(my_data)
+  
   my_plot <-
     ggplot(my_data, aes(x = year,
                         y = Counts,
