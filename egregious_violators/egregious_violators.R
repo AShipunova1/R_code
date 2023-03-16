@@ -12,18 +12,8 @@ curren_project_path <- file.path(my_paths$git_r, "egregious_violators")
 
 source(file.path(curren_project_path, "get_data.R"))
 
-# ## ---- unify vessel_id name ----
-# vessel_id_compl_field_name <- sym(find_col_name(compl_clean, "vessel", "number")[1])
-# 
-# vessel_id_corr_field_name <- sym(find_col_name(corresp_contact_cnts_clean0, "vessel", "number")[1])
-# 
-# str(corresp_contact_cnts_clean0)
-# compl_clean %<>%
-#   rename("vessel_official_number" = !!vessel_id_compl_field_name)
-# corresp_contact_cnts_clean0 %<>%
-#   rename("vessel_official_number" = !!vessel_id_corr_field_name)
-
-
+# identical(corresp_contact_cnts_clean0$vesselofficial_number, corresp_contact_cnts_clean0$vessel_official_number)
+# T
 ## ---- Preparing compliance info ----
 
 ## ---- Have only SA permits, exclude those with Gulf permits ----
@@ -31,13 +21,14 @@ compl_clean_sa <- compl_clean %>%
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 ## ---- filter for egregious here, use all compliance data ----
-# Get all entries with no reports and more than 1 compliance error
-names(compl_clean_sa)
+
+# put col names to variables
 gom_declarations_field_name <- find_col_name(compl_clean_sa, ".*gom", "declarations.*")[1]
 captainreports_field_name <- find_col_name(compl_clean_sa, ".*captain", "reports.*")[1]
 negativereports_field_name <- find_col_name(compl_clean_sa, ".*negative", "reports.*")[1]
 complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*compliance", "errors.*")[1]
 
+# Get all entries with no reports and more than 1 compliance error
 filter_egregious <- quo(!!sym(gom_declarations_field_name) == 0 &
                           !!sym(captainreports_field_name) == 0 &
                           !!sym(negativereports_field_name) == 0 &
@@ -45,36 +36,33 @@ filter_egregious <- quo(!!sym(gom_declarations_field_name) == 0 &
                         )
 # 36965    
 # test
-filter_egregious <- quo(gom_permitteddeclarations__ == 0 &
-                          captainreports__ == 0 &
-                          negativereports__ == 0 &
-                          complianceerrors__ > 0
-)
+# filter_egregious1 <- quo(gom_permitteddeclarations__ == 0 &
+                          # captainreports__ == 0 &
+                          # negativereports__ == 0 &
+                          # complianceerrors__ > 0
+# )
 # 36965    
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
     filter(!!filter_egregious) 
 
 # compl_clean_sa_non_compl %>%
-  # count_uniq_by_column() %>% head(1)
+#   count_uniq_by_column() %>% head(1)
 # vesselofficialnumber 1785
 
-## ---- get compliance vessel field name ----
-vessel_id_field_name <- sym(find_col_name(compl_clean_sa_non_compl, "vessel", "number")[1])
-
 ## ----- get only those with 51+ weeks of non compliance -----
-get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl, vessel_id_field_name){
+get_num_of_non_compliant_weeks <- function(compl_clean_sa_non_compl){
   compl_clean_sa_non_compl %>%
-    select(!!vessel_id_field_name, week) %>%
-    arrange(!!vessel_id_field_name, week) %>%
+    select(vessel_official_number, week) %>%
+    arrange(vessel_official_number, week) %>%
     unique() %>%
     # add a column with counts
-    count(!!vessel_id_field_name) %>% 
+    count(vessel_official_number) %>% 
     # keep only with count > 51
     filter(n > 51) %>%
     return()
 }
-id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl, vessel_id_field_name)
+id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
 # glimpse(id_52_plus_weeks)
 # 'data.frame':	156 obs. of  2 variables
 # vesselofficialnumber: ...
@@ -83,19 +71,20 @@ id_52_plus_weeks <- get_num_of_non_compliant_weeks(compl_clean_sa_non_compl, ves
 # ---- Get compliance information for only vessels which have more than 52 "NO REPORT". ----
 compl_w_non_compliant_weeks <- 
   compl_clean_sa_non_compl %>%
-  filter(!!vessel_id_field_name %in% id_52_plus_weeks[[vessel_id_field_name]])
+  filter(vessel_official_number %in% id_52_plus_weeks$vessel_official_number)
 # dim(compl_w_non_compliant_weeks)
+# [1] 8941   21
 
 ## ---- Check vesselofficialnumbers for "all weeks are non-compliant" ----
 compliant_field_name <- as.name(find_col_name(compl_clean_sa, ".*comp", "liant.*")[1])
 
 get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
   compl_clean_sa %>% 
-    group_by(!!vessel_id_field_name) %>% 
+    group_by(vessel_official_number) %>% 
     reframe(all_weeks_non_compl = all(tolower(!!sym(compliant_field_name)) == "no")) %>% 
     # leave only those with all weeks are non compliant
     filter(all_weeks_non_compl) %>% 
-    select(!!vessel_id_field_name) %>%
+    select(vessel_official_number) %>%
     unique() %>% 
     return()
 }
@@ -104,28 +93,31 @@ all_weeks_not_compliance_id <- get_all_weeks_not_compliance_id(compl_clean_sa)
 # 343
 
 # all 52+ weeks are non compliant
-intersect(id_52_plus_weeks[vessel_id_field_name], all_weeks_not_compliance_id[vessel_id_field_name]) %>% str()
+intersect(id_52_plus_weeks$vessel_official_number, all_weeks_not_compliance_id$vessel_official_number) %>% str()
 # 19
 
 # 52+ weeks are not compliant, but some other weeks are compliant
-setdiff(id_52_plus_weeks[vessel_id_field_name], all_weeks_not_compliance_id[vessel_id_field_name]) %>% str()
+setdiff(id_52_plus_weeks$vessel_official_number, all_weeks_not_compliance_id$vessel_official_number) %>% str()
 # 137
 
 # all weeks are not compliant, but there are fewer than 52 weeks for 2022-2023
-setdiff(all_weeks_not_compliance_id[vessel_id_field_name], id_52_plus_weeks[vessel_id_field_name]) %>%
+setdiff(all_weeks_not_compliance_id$vessel_official_number, id_52_plus_weeks$vessel_official_number) %>%
 { . ->> fewer_52_all_non_compl22_23_ids} %>% # save into a var 
   str()
 # 324
 
-group_by_arr <- c(as.character(vessel_id_field_name), as.character(compliant_field_name))
+group_by_arr <- c("vessel_official_number", as.character(compliant_field_name))
 
 compl_clean_sa %>%
-    filter(!!vessel_id_field_name %in%
-             fewer_52_all_non_compl22_23_ids[[vessel_id_field_name]]) %>%
-  select(!!vessel_id_field_name, !!compliant_field_name, week) %>%
+    filter(vessel_official_number %in%
+             fewer_52_all_non_compl22_23_ids) %>%
+  select(vessel_official_number, !!compliant_field_name, week) %>%
   count_by_column_arr(group_by_arr) %>%
   { . ->> fewer_52_all_non_compl22_23} %>% # save into a var 
   head()
+
+# dim(fewer_52_all_non_compl22_23)
+# [1] 324   3
 
 # write.csv(fewer_52_all_non_compl22_23, file.path(my_paths$outputs, "fewer_52_all_non_compl22_23.csv"), row.names = FALSE)
 
@@ -134,21 +126,21 @@ compl_clean_sa %>%
 ## ---- remove 999999 ----
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 %>%
-    filter(!grepl("^99999", !!vessel_id_corr_field_name))
+    filter(!grepl("^99999", vessel_official_number))
 
-# data_overview(corresp_contact_cnts_clean)
+data_overview(corresp_contact_cnts_clean)
 
 ## ---- direct_contact ----
 ## ---- 1) all are voicemails ----
 get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
-    group_by(!!vessel_id_corr_field_name) %>%
+    group_by(vessel_official_number) %>%
     # add a new logical column all_vm with a TRUE if all entries for voicemail column for this vessel are yeses
     reframe(all_vm = all(tolower(voicemail) == "yes")) %>%
     # keep a row only if all_vm == TRUE
     filter(all_vm) %>% 
     # keep only one column
-    select(all_of(vessel_id_corr_field_name)) %>%
+    select("vessel_official_number") %>%
     unique() %>%
     return()
 }
@@ -157,11 +149,10 @@ all_vm_ids <- get_all_voicemails_id(corresp_contact_cnts_clean)
 # str(all_vm_ids)
 # 284
 
+# field_name into a var
 contactcomments_field_name <- sym(find_col_name(corresp_contact_cnts_clean, ".*contact", "comments.*")[1])
 
 add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
-  # browser()
-  
   corresp_contact_cnts_clean %>%
     # create a new column "direct_contact" with a "yes" or "no"
     # search comments for indicators that there was no direct contact
@@ -172,7 +163,7 @@ add_a_direct_contact_column <- function(corresp_contact_cnts_clean) {
                                     grepl("the incorrect number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
                                     grepl("incorrect phone number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
                                     grepl("call could not be completed as dialed", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
-                                    !!vessel_id_corr_field_name %in% all_vm_ids[vessel_id_corr_field_name] ~ "no",
+                                    vessel_official_number %in% all_vm_ids$vessel_official_number ~ "no",
                                     .default = "yes"
                                     )
          ) %>% 
@@ -207,13 +198,12 @@ get_calls_with_direct_communication <- function(corresp_contact_cnts_clean_direc
     return()
 }
 calls_with_direct_communication <- get_calls_with_direct_communication(corresp_contact_cnts_clean_direct_cnt)
-# dim(calls_with_direct_communication)
+dim(calls_with_direct_communication)
 # [1] 12584    23
 # str(calls_with_direct_communication)
 
 ## ---- 2) in and out emails ----
 get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
-
   # save a filter: more than 1 email
   emails_filter <- quo(contact_freq > 1 &
                          ((tolower(contacttype) == "email") | 
@@ -224,7 +214,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
     corresp_contact_cnts_clean %>%
     filter(!!emails_filter &
              tolower(calltype) == "incoming") %>% 
-    select(vessel_id_corr_field_name) %>%
+    select(vessel_official_number) %>%
     unique()
   # 259  
   
@@ -233,7 +223,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
     corresp_contact_cnts_clean %>%
     filter(!!emails_filter &
              tolower(calltype) == "outgoing") %>% 
-    select(vessel_id_corr_field_name) %>%
+    select(vessel_official_number) %>%
     unique()
   # %>%
   #   glimpse()
@@ -247,7 +237,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
   
   # keep correspondence information only for those
   corresp_contact_cnts_clean_direct_cnt %>%
-    filter(!!vessel_id_corr_field_name %in% both_in_n_out_2_plus_email_ids[[vessel_id_corr_field_name]]) %>%
+    filter(vessel_official_number %in% both_in_n_out_2_plus_email_ids$vessel_official_number) %>%
     return()
 }
 
@@ -261,7 +251,7 @@ both_in_n_out_2_plus_emails <- get_both_in_n_out_emails(corresp_contact_cnts_cle
 # vesselofficialnumber  147
 # 173
 
-# group_by_arr <- c(as.character(vessel_id_corr_field_name), "calltype")
+# group_by_arr <- c("vessel_official_number", "calltype")
 # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 
 to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct_communication)
@@ -282,28 +272,20 @@ to_investigation_to_NEIS <- rbind(both_in_n_out_2_plus_emails, calls_with_direct
 # 3170
 
 ## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
-# n1 <- as.name(vessel_id_field_name)
 
 compl_w_non_compliant_weeks %>%
   inner_join(to_investigation_to_NEIS,
-             # works
-             # by = c(vessel_official_number = as.character(vessel_id_corr_field_name)),
-               by = c(vessel_official_number = as.character(vessel_id_corr_field_name)),
-             # by = c(vessel_id_field_name = vessel_id_corr_field_name),
-             # by = c("vessel_official_number" = "vesselofficial_number"),
-             # by = setNames(nm = c(as.character(vessel_id_corr_field_name), 
-             #                      as.character(vessel_id_field_name))),
+             by = c("vessel_official_number"),
              multiple = "all") ->
   compl_corr_to_investigation
 
-dim(compl_corr_to_investigation)
+# dim(compl_corr_to_investigation)
 # [1] 16081    44
 
-# names(compl_w_non_compliant_weeks) vessel_official_number
-# names(to_investigation_to_NEIS) vesselofficial_number
-# by = setNames(y_name, x_name)
+
 ## check
 # count_uniq_by_column(compl_clean_sa_non_compl) %>% head(1)
+# 1785
 # count_uniq_by_column(compl_corr_to_investigation) %>% head(1)
 # 110
 # 107
@@ -316,6 +298,8 @@ dim(compl_corr_to_investigation)
 ## ---- 1) create additional columns ----
 
 ## ----- list of contact dates and contact type in parentheses  -----
+
+# put nammes int vars
 contactdate_field_name <- find_col_name(compl_corr_to_investigation, "contact", "date")[1]
 contacttype_field_name <- find_col_name(compl_corr_to_investigation, "contact", "type")[1]
 
@@ -324,18 +308,18 @@ get_date_contacttype <- function(compl_corr_to_investigation) {
     # add a new column date__contacttype with contactdate and contacttype
     mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) %>%
     # use 2 columns only
-    select(!!vessel_id_field_name, date__contacttype) %>%
+    select(vessel_official_number, date__contacttype) %>%
     # sort
-    arrange(!!vessel_id_field_name, date__contacttype) %>%
+    arrange(vessel_official_number, date__contacttype) %>%
     unique() %>%
-    group_by(!!vessel_id_field_name) %>%
+    group_by(vessel_official_number) %>%
     # for each vessel id combine all date__contacttypes separated by comma in one cell
     summarise(date__contacttypes = paste(date__contacttype, collapse=", ")) %>% 
     return()
 }
 
 date__contacttype_per_id <- get_date_contacttype(compl_corr_to_investigation)
-str(date__contacttype_per_id)
+# dim(date__contacttype_per_id)
 # [1] 110    2
 # 107
 
@@ -374,15 +358,15 @@ names(vessels_to_remove) = as.character(vessel_id_field_name)
 # remove these vessels
 compl_corr_to_investigation_short1 <-
   compl_corr_to_investigation_short %>%
-  filter(!(!!vessel_id_field_name %in%
-             vessels_to_remove[[vessel_id_field_name]]
+  filter(!(vessel_official_number %in%
+             vessels_to_remove$vessel_official_number
            )
          )
 # dim(compl_corr_to_investigation_short1)
 # 102
 
 ## check
-# length(unique(compl_corr_to_investigation_short[[vessel_id_field_name]]))
+# length(unique(compl_corr_to_investigation_short$vessel_official_number))
 # 107
 # 102
 
