@@ -327,7 +327,8 @@ date__contacttype_per_id <- get_date_contacttype(compl_corr_to_investigation)
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation %>%
   inner_join(date__contacttype_per_id,
-             by = c(as.character(vessel_id_field_name)))
+             by = "vessel_official_number"
+             )
   
 # str(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
 
@@ -336,16 +337,16 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
 contactphonenumber_field_name <- find_col_name(compl_corr_to_investigation, ".*contact", "number.*")[1]
 
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
-  select(vessel_id_field_name,
+  select("vessel_official_number",
          "name",
          "permitgroup",
          "permitgroupexpiration",
          "contactrecipientname",
-         contactphonenumber_field_name,
+         !!contactphonenumber_field_name,
          "contactemailaddress", 
          "week_start",
          "date__contacttypes") %>%
-  combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c(as.character(vessel_id_field_name))) ->
+  combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number") ->
   compl_corr_to_investigation_short
 
 # dim(compl_corr_to_investigation_short)
@@ -353,7 +354,7 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
 
 ## ---- 3) remove vessels already in the know list ----
 vessels_to_remove <- read.csv(file.path(my_paths$inputs, "vessels_to_remove.csv"))
-names(vessels_to_remove) = as.character(vessel_id_field_name)
+names(vessels_to_remove) = "vessel_official_number"
 
 # remove these vessels
 compl_corr_to_investigation_short1 <-
