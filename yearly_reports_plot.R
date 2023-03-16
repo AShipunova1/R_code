@@ -127,6 +127,18 @@ longFormat_GOM$year <-
 longFormat_SA$year <-
   factor(longFormat_SA$year, levels = unique(longFormat_SA$year))
 
+# ---- theme with transparent background ----
+theme_transparent <- theme(
+  legend.background = element_rect(fill = "transparent"),
+  legend.title = element_blank(),
+  #no legend background color or title
+  legend.box.background = element_rect(fill = "transparent", colour = NA),
+  #no fill color
+  legend.key = element_rect(fill = "transparent"),
+  #no fill color
+  legend.spacing = unit(-1, "lines")
+)
+
 # To keep the same order of types across all plots
 # 1) Desired order
 type_order <- c("Logbooks",
@@ -165,16 +177,7 @@ plot_bars <- function(my_data, title) {
       axis.line = element_line(color = "black")
     ) +
     #legend position and formatting
-    theme(
-      legend.background = element_rect(fill = "transparent"),
-      legend.title = element_blank(),
-      #no legend background color or title
-      legend.box.background = element_rect(fill = "transparent", colour = NA),
-      #no fill color
-      legend.key = element_rect(fill = "transparent"),
-      #no fill color
-      legend.spacing = unit(-1, "lines")
-    ) +
+    theme_transparent +
     #plot title
     ggtitle(paste(title, "by year", sep = " "))  +
     theme(plot.title = element_text(hjust = 0.5, vjust = 2.12))
@@ -197,28 +200,39 @@ sa_pl <- plot_bars(longFormat_SA, "South Atlantic")
 
 ## ---- compare logbooks number by year between GOM and SA ----
 
-longFormat_logbooks <-
+Format_logbooks <-
   cnts_csv %>%
-  select(`Permit Group`, Logbooks) %>%
-  mutate(Year = gsub("^(.+) (\\d+)", "\\2", `Permit Group`
-                               )
-         ) %>%
-  mutate(`Permit Group` = gsub("^(.+) (\\d+)", "\\1", `Permit Group`
-                               )
-         )
-  pivot_longer(
-    cols = c(Logbooks,
-             Declarations),
-    names_to = "Type",
-    values_to = "Counts"
-  ) %>%
-  select(-`No Fishing Reports`)
+  select(`Permit Group`, Logbooks)
+# %>%
+  # mutate(Year = gsub("^(.+) (\\d+)", "\\2", `Permit Group`
+  #                              )
+  #        ) %>%
+  # mutate(`Permit Group` = gsub("^(.+) (\\d+)", "\\1", `Permit Group`
+  #                              )
+  #        ) %>%
+  # pivot_longer(
+  #   cols = c(Logbooks),
+  #   names_to = "Permit Group",
+  #   values_to = "Counts"
+  # ) %>%
+  # select(-`No Fishing Reports`)
 
-# leave year only in Permit Group colomn and rename it
-longFormat_GOM$year <-
-  gsub("^.+ (\\d+)", "\\1", longFormat_GOM$`Permit Group`)
 
-# remove the column
-longFormat_GOM %<>%
-  select(-`Permit Group`)
-
+logb_pl <- ggplot(Format_logbooks,
+                  aes(x = `Permit Group`,
+                      y = Logbooks
+                      ),
+                  fill = "green") +
+  geom_col(position = 'dodge') +
+  # add counts on top of each bar
+  geom_text(aes(label = Logbooks),
+            position = position_dodge(width = 0.9),
+            vjust = -0.25) +
+  theme_transparent +
+  theme(
+    axis.text.x = element_text(angle = 45,
+                               vjust = -0.01)
+  )
+  
+  
+logb_pl
