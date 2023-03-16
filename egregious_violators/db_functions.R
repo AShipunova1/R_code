@@ -1,9 +1,38 @@
 get_fields <- function() {
   con <- connect_to_secpr()
   
-  permit_fields <- paste("select * from
+  permit_fields <- "select * from
              SAFIS.PERMITS@secapxdv_dblk
-    FETCH NEXT 1 ROWS ONLY")
+    FETCH NEXT 1 ROWS ONLY"
+  
+  permit_info <- dbGetQuery(con,
+                            permit_fields)
+  
+  # transpose and write
+  t_permit_info <- t(permit_info)
+  str(t_permit_info)
+  # write.csv(t_permit_info,
+  # file.path(my_paths$inputs, "permit.csv"))
+  
+  my_out_xls <-
+    file.path(my_paths, "../Documents/db", "fields.xlsx")
+  
+  # add to an existing excel
+  write.xlsx(
+    as.data.frame(t_permit_info),
+    file = my_out_xls,
+    sheetName = "permits",
+    rowNames = TRUE,
+    colNames = TRUE
+    # ,
+    # append = TRUE
+  )
+  
+  write.xlsx(t_permit_info,
+             my_out_xls,
+             sheetName = "permits",
+             append = TRUE)
+  
   
   mv_safis_trip_download_fields <- dbGetQuery(con,
                                               "select * from
@@ -60,8 +89,6 @@ get_permit_expirations_by_vessel <- function() {
     vessel_ids_not_in_compl_str,
     ")"
   )
-  
-  
   
   permit_info <- dbGetQuery(con,
                             permit_info_query1)
