@@ -2,15 +2,20 @@
 # at least 2 correspondences & no direct contact
 # keep only 2 or more correspondence with no direct contact, check manually?
 
+compliance_clean <- compl_w_non_compliant_weeks
+glimpse(compliance_clean)
+
 # correspondence with contact frequency and direct_contact column
 corresp_clean <- corresp_contact_cnts_clean_direct_cnt
-# glimpse(corresp_clean)
+glimpse(corresp_clean)
 
 con <- connect_to_secpr()
 
 get_permit_expirations_by_vessel <- function() {
   permit_info <- dbGetQuery(con,
-             "select * from SRH	V_COMP_SRFH_TRIP_AFTER_PMT")
+             "select * from
+             srh.mv_safis_trip_download@secapxdv_dblk
+             WHERE trip_start_date >= '01-JAN-2022'")
   dbDisconnect(con)
   
 }
@@ -66,8 +71,26 @@ data_overview(email_s_needed_short) %>% head(1)
 email_s_needed_to_csv_short_sorted <-
   combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values(email_s_needed_short, c(as.character(vessel_id_corr_field_name)))
 
+names(email_s_needed_to_csv_short_sorted)
+
+## ---- separate expired permits ----
 str(email_s_needed_to_csv_short_sorted)
 
+email_s_needed_to_csv_short_sorted %>%
+  left_join(compliance_clean,
+            by = c("vesselofficial_number" = "vessel_official_number"
+             # by = c(vesselofficial_number = as.character(vessel_id_field_name)
+             ),
+            multiple = "all"
+  ) %>%
+  mutate(permit_expired = case_when(permitgroupexpiration > Sys.Date() ~ "no",
+                                    .default = "yes"
+                                    )
+  ) %>%
+  select(permit_expired, permitgroup, permitgroupexpiration, names(email_s_needed_to_csv_short_sorted)) %>%
+  str()
+
+# names(email_s_needed_to_csv_short_sorted)
 ## ---- output to csv ----
 # this script results
 
