@@ -12,6 +12,18 @@ curren_project_path <- file.path(my_paths$git_r, "egregious_violators")
 
 source(file.path(curren_project_path, "get_data.R"))
 
+# ## ---- unify vessel_id name ----
+# vessel_id_compl_field_name <- sym(find_col_name(compl_clean, "vessel", "number")[1])
+# 
+# vessel_id_corr_field_name <- sym(find_col_name(corresp_contact_cnts_clean0, "vessel", "number")[1])
+# 
+# str(corresp_contact_cnts_clean0)
+# compl_clean %<>%
+#   rename("vessel_official_number" = !!vessel_id_compl_field_name)
+# corresp_contact_cnts_clean0 %<>%
+#   rename("vessel_official_number" = !!vessel_id_corr_field_name)
+
+
 ## ---- Preparing compliance info ----
 
 ## ---- Have only SA permits, exclude those with Gulf permits ----
@@ -118,7 +130,6 @@ compl_clean_sa %>%
 # write.csv(fewer_52_all_non_compl22_23, file.path(my_paths$outputs, "fewer_52_all_non_compl22_23.csv"), row.names = FALSE)
 
 ## ---- Preparing Correspondence ----
-vessel_id_corr_field_name <- sym(find_col_name(corresp_contact_cnts_clean0, "vessel", "number")[1])
 
 ## ---- remove 999999 ----
 corresp_contact_cnts_clean <-
