@@ -2,8 +2,8 @@
 # at least 2 correspondences & no direct contact
 # keep only 2 or more correspondence with no direct contact, check manually?
 
-compliance_clean <- compl_w_non_compliant_weeks
-glimpse(compliance_clean)
+# compliance_clean <- compl_w_non_compliant_weeks
+# glimpse(compliance_clean)
 
 # correspondence with contact frequency and direct_contact column
 corresp_clean <- corresp_contact_cnts_clean_direct_cnt
@@ -79,8 +79,8 @@ names(email_s_needed_to_csv_short_sorted)
 ## ---- separate expired permits ----
 # str(email_s_needed_to_csv_short_sorted)
 
-compliance_clean_w_permit_exp <-
-  compliance_clean %>%
+compl_clean_w_permit_exp <-
+  compl_clean %>%
   mutate(permit_expired = case_when(permitgroupexpiration > Sys.Date() ~ "no",
                                     .default = "yes")) %>%
   select(vessel_official_number,
@@ -88,19 +88,39 @@ compliance_clean_w_permit_exp <-
          permitgroup,
          permitgroupexpiration) %>%
   unique()
+# dim(compl_clean_w_permit_exp)
+# [1] 3757    4
+
 # dim(compliance_clean_w_permit_exp)
 # [1] 8941    4
 # unique()
 # [1] 157   4
 
-head(email_s_needed_to_csv_short_sorted)
 email_s_needed_to_csv_short_sorted_w_permit_info <-
   email_s_needed_to_csv_short_sorted %>%
-  left_join(compliance_clean,
+  inner_join(compl_clean_w_permit_exp,
             by = "vessel_official_number",
-            multiple = "all") %>%
-  
-  str(email_s_needed_to_csv_short_sorted_w_permit_info)
+            multiple = "all")
+
+str(email_s_needed_to_csv_short_sorted_w_permit_info)
+# tibble [80 × 26] (S3: tbl_df/tbl/data.frame)
+
+intersect(email_s_needed_to_csv_short_sorted_w_permit_info$vessel_official_number, 
+          compl_clean_w_permit_exp$vessel_official_number) %>% length()
+# 79
+
+intersect(email_s_needed_to_csv_short_sorted$vessel_official_number, 
+          compl_clean_w_permit_exp$vessel_official_number)
+# 79
+
+setdiff(email_s_needed_to_csv_short_sorted$vessel_official_number,
+        compl_clean_w_permit_exp$vessel_official_number)
+# 14
+# Not in compliance info!
+
+# grep("FL9599SN", compl_clean$vessel_official_number)
+
+
 ## ---- output to csv ----
 # this script results
 
