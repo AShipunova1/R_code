@@ -135,7 +135,8 @@ trim_all_vessel_ids_simple <-
       col_name_to_trim_s <- sym(col_name_to_trim)
       # browser()
       x %>%
-        mutate(col_name_to_trim = trimws(!!col_name_to_trim_s)) %>%
+        mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+        # mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
         return()
     })
     return(csvs_clean)
