@@ -74,25 +74,31 @@ email_s_needed_to_csv_short_sorted <-
 names(email_s_needed_to_csv_short_sorted)
 
 ## ---- separate expired permits ----
-str(email_s_needed_to_csv_short_sorted)
+# str(email_s_needed_to_csv_short_sorted)
 
-email_s_needed_to_csv_short_sorted %>%
-  left_join(compliance_clean,
-            by = c("vesselofficial_number" = "vessel_official_number"
-             # by = c(vesselofficial_number = as.character(vessel_id_field_name)
-             ),
-            multiple = "all"
-  ) %>%
+compliance_clean_w_permit_exp <-
+  compliance_clean %>%
   mutate(permit_expired = case_when(permitgroupexpiration > Sys.Date() ~ "no",
-                                    .default = "yes"
-                                    )
-  ) %>%
-  select(permit_expired, permitgroup, permitgroupexpiration, names(email_s_needed_to_csv_short_sorted)) %>%
-  str()
+                                    .default = "yes")) %>%
+  select(vessel_official_number,
+         permit_expired,
+         permitgroup,
+         permitgroupexpiration) %>%
+  unique()
+# dim(compliance_clean_w_permit_exp)
+# [1] 8941    4
+# unique()
+# [1] 157   4
 
-# names(email_s_needed_to_csv_short_sorted)
+head(email_s_needed_to_csv_short_sorted)
+email_s_needed_to_csv_short_sorted_w_permit_info <-
+  email_s_needed_to_csv_short_sorted %>%
+  left_join(compliance_clean,
+            by = "vessel_official_number",
+            multiple = "all") %>%
+  
+  str(email_s_needed_to_csv_short_sorted_w_permit_info)
 ## ---- output to csv ----
 # this script results
 
 # write.csv(email_s_needed_to_csv_short_sorted, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted.csv"), row.names = FALSE)
-
