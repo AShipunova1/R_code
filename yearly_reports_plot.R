@@ -194,3 +194,31 @@ plot_bars <- function(my_data, title) {
 # str(longFormat_GOM)
 gulf_pl <- plot_bars(longFormat_GOM, "Gulf")
 sa_pl <- plot_bars(longFormat_SA, "South Atlantic")
+
+## ---- compare logbooks number by year between GOM and SA ----
+
+longFormat_logbooks <-
+  cnts_csv %>%
+  select(`Permit Group`, Logbooks) %>%
+  mutate(Year = gsub("^(.+) (\\d+)", "\\2", `Permit Group`
+                               )
+         ) %>%
+  mutate(`Permit Group` = gsub("^(.+) (\\d+)", "\\1", `Permit Group`
+                               )
+         )
+  pivot_longer(
+    cols = c(Logbooks,
+             Declarations),
+    names_to = "Type",
+    values_to = "Counts"
+  ) %>%
+  select(-`No Fishing Reports`)
+
+# leave year only in Permit Group colomn and rename it
+longFormat_GOM$year <-
+  gsub("^.+ (\\d+)", "\\1", longFormat_GOM$`Permit Group`)
+
+# remove the column
+longFormat_GOM %<>%
+  select(-`Permit Group`)
+
