@@ -7,19 +7,8 @@
 
 # correspondence with contact frequency and direct_contact column
 corresp_clean <- corresp_contact_cnts_clean_direct_cnt
-glimpse(corresp_clean)
+# glimpse(corresp_clean)
 
-get_permit_expirations_by_vessel <- function() {
-  con <- connect_to_secpr()
-  permit_info <- dbGetQuery(
-    con,
-    "select * from
-             srh.mv_safis_trip_download@secapxdv_dblk
-             WHERE trip_start_date >= '01-JAN-2022'"
-  )
-  dbDisconnect(con)
-  
-}
 
 get_2_plus_contacts <- function(corresp_clean) {
   corresp_clean %>%
@@ -108,22 +97,28 @@ str(email_s_needed_to_csv_short_sorted_w_permit_info)
 # left_join (14 are not in compliance)
 # tibble [94 × 26] (S3: tbl_df/tbl/data.frame)
 
-intersect(email_s_needed_to_csv_short_sorted_w_permit_info$vessel_official_number, 
-          compl_clean_w_permit_exp$vessel_official_number) %>% length()
+intersect(
+  email_s_needed_to_csv_short_sorted_w_permit_info$vessel_official_number,
+  compl_clean_w_permit_exp$vessel_official_number
+) %>% length()
 # 79
 
-intersect(email_s_needed_to_csv_short_sorted$vessel_official_number, 
-          compl_clean_w_permit_exp$vessel_official_number)
+intersect(
+  email_s_needed_to_csv_short_sorted$vessel_official_number,
+  compl_clean_w_permit_exp$vessel_official_number
+)
 # 79
 
-setdiff(email_s_needed_to_csv_short_sorted$vessel_official_number,
-        compl_clean_w_permit_exp$vessel_official_number)
+setdiff(
+  email_s_needed_to_csv_short_sorted$vessel_official_number,
+  compl_clean_w_permit_exp$vessel_official_number
+)
 # 14
 # Not in compliance info!
 
 # grep("FL9599SN", compl_clean$vessel_official_number)
 
-View(email_s_needed_to_csv_short_sorted_w_permit_info)
+# View(email_s_needed_to_csv_short_sorted_w_permit_info)
 # TODO: grep, setdiff and delete not "vessel_official_number"
 email_s_needed_to_csv_short_sorted_w_permit_info1 <-
   email_s_needed_to_csv_short_sorted_w_permit_info %>%
