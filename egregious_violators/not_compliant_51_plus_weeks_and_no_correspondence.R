@@ -1,6 +1,6 @@
 ## ---- find if not compliant and no correspondence ----
 not_compliant_51_plus_weeks_and_no_correspondence <-
-  setdiff(id_52_plus_weeks$vesselofficialnumber, corresp_contact_cnts_clean$vesselofficialnumber)
+  setdiff(id_52_plus_weeks$vessel_official_number, corresp_contact_cnts_clean$vessel_official_number)
 
 str(not_compliant_51_plus_weeks_and_no_correspondence)
 # 15
