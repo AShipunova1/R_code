@@ -8,16 +8,22 @@ source("~/R_code_github/useful_functions_module.r")
 
 # ----set up----
 my_paths <- set_work_dir()
-curren_project_path <- file.path(my_paths$git_r, "egregious_violators")
+current_project_path <- file.path(my_paths$git_r, "egregious_violators")
 
-source(file.path(curren_project_path, "get_data.R"))
+source(file.path(current_project_path, "get_data.R"))
 
 # identical(corresp_contact_cnts_clean0$vesselofficial_number, corresp_contact_cnts_clean0$vessel_official_number)
 # T
 ## ---- Preparing compliance info ----
 
+## ---- add permit_expired column ----
+compl_clean_w_permit_exp <-
+  compl_clean %>%
+  mutate(permit_expired = case_when(permitgroupexpiration > Sys.Date() ~ "no",
+                                    .default = "yes"))
+
 ## ---- Have only SA permits, exclude those with Gulf permits ----
-compl_clean_sa <- compl_clean %>%
+compl_clean_sa <- compl_clean_w_permit_exp %>%
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 ## ---- filter for egregious here, use all compliance data ----
@@ -116,7 +122,7 @@ compl_clean_sa %>%
   { . ->> fewer_52_all_non_compl22_23} %>% # save into a var 
   head()
 
-# dim(fewer_52_all_non_compl22_23)
+# str(fewer_52_all_non_compl22_23)
 # [1] 324   3
 
 # write.csv(fewer_52_all_non_compl22_23, file.path(my_paths$outputs, "fewer_52_all_non_compl22_23.csv"), row.names = FALSE)
@@ -282,7 +288,6 @@ compl_w_non_compliant_weeks %>%
 # dim(compl_corr_to_investigation)
 # [1] 16081    44
 
-
 ## check
 # count_uniq_by_column(compl_clean_sa_non_compl) %>% head(1)
 # 1785
@@ -336,9 +341,11 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
 
 contactphonenumber_field_name <- find_col_name(compl_corr_to_investigation, ".*contact", "number.*")[1]
 
+# names(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
   select("vessel_official_number",
          "name",
+         "permit_expired",
          "permitgroup",
          "permitgroupexpiration",
          "contactrecipientname",
@@ -375,7 +382,10 @@ compl_corr_to_investigation_short1 <-
 # write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "egregious_violators_for_investigation.csv"), row.names = FALSE)
 
 ## ---- who needs an email ----
-source(file.path(curren_project_path, "need_an_email.R"))
+source(file.path(current_project_path, "need_an_email.R"))
 
 ## ---- no correspondence ----
-source(file.path(curren_project_path, "not_compliant_51_plus_weeks_and_no_correspondence.R"))
+source(file.path(current_project_path, "not_compliant_51_plus_weeks_and_no_correspondence.R"))
+
+
+## ---- correspondence, no compliance information ----
