@@ -1,16 +1,12 @@
 # This code reads in report counts and creates a bar chart by year
+## ---- general set up ----
+# load required packages and usefule functions
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
-#general set up:
-#load required packages
-library(ggplot2)
-library(tidyr) #analysis of dataframes
-library(dplyr) #analysis of dataframes
-library(reshape2) #to melt data for ggplot
-library(readxl)  # reading in .xlsx
-library(gridExtra) # to plot multiple ggplots side by side
-library(RColorBrewer)
+# library(reshape2) #to melt data for ggplot
+# library(gridExtra) # to plot multiple ggplots side by side
+# library(RColorBrewer)
 library(stringi)
 
 #set input and output directory - where do you keep the data and analysis folder on your computer?
@@ -22,25 +18,28 @@ csv_file_path <-
 Output <-
   file.path(my_paths$outputs, "annual_plots")
 
-#read in data
+## ---- read in data ----
 cnts_csv <- read_csv(csv_file_path)
 # str(cnts_csv)
 
-#restructure for plotting
+## ---- restructure for plotting ----
 longFormat_GOM <-
   cnts_csv %>%
   # get GOM rows
   filter(stringi::stri_startswith_fixed(`Permit Group`, "GOM")) %>%
-  pivot_longer(cols = c(Logbooks,
-                        Declarations),
-               names_to = "Type",
-               values_to = "Counts") %>%
+  pivot_longer(
+    cols = c(Logbooks,
+             Declarations),
+    names_to = "Type",
+    values_to = "Counts"
+  ) %>%
   select(-`No Fishing Reports`)
 
-# leave a year only
+# leave year only in Permit Group colomn and rename it
 longFormat_GOM$year <-
   gsub("^.+ (\\d+)", "\\1", longFormat_GOM$`Permit Group`)
 
+# remove the column
 longFormat_GOM %<>%
   select(-`Permit Group`)
 
@@ -48,10 +47,12 @@ longFormat_GOM %<>%
 longFormat_SA <-
   cnts_csv %>%
   filter(stringi::stri_startswith_fixed(`Permit Group`, "SA")) %>%
-  pivot_longer(cols = c(Logbooks,
-                        `No Fishing Reports`),
-               names_to = "Type",
-               values_to = "Counts") %>%
+  pivot_longer(
+    cols = c(Logbooks,
+             `No Fishing Reports`),
+    names_to = "Type",
+    values_to = "Counts"
+  ) %>%
   select(-Declarations)
 
 longFormat_SA$year <-
@@ -60,49 +61,99 @@ longFormat_SA$year <-
 longFormat_SA %<>%
   select(-`Permit Group`)
 
-#Create a custom color scale
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+## ---- Create a custom color scale and keep the same color for Logbooks in both plots ----
+
+## ---- choose a palette ----
+
+cbPalette <-
+  c(
+    "#999999",
+             "#E69F00",
+             "#56B4E9",
+             "#009E73",
+             "#F0E442",
+             "#0072B2",
+             "#D55E00",
+             "#CC79A7"
+  )
 
 # The palette with black:
-cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbbPalette <-
+  c(
+    "#000000",
+             "#E69F00",
+             "#56B4E9",
+             "#009E73",
+             "#F0E442",
+             "#0072B2",
+             "#D55E00",
+             "#CC79A7"
+  )
 
-# To use for fills, add
-scale_fill_manual(values=cbPalette)
+## ---- choose colors ----
 
-my_colors <- c("Logbooks" = "blue", "No Fishing Reports" = "red", )
+my_colors0 <-
+  c(
+    "Logbooks" = cbPalette[3],
+    "No Fishing Reports" = cbPalette[7],
+    "Declarations" = cbPalette[8]
+  )
 
-colors_GOM <- length(unique(longFormat_GOM$Type))  #2
-myColors <- brewer.pal(colors_GOM, "Accent")  #I need 2 unique colors
-names(myColors) <-
-  unique(longFormat_GOM$Type)  #define names of the 8 colors based on Type
-colScale <-
-  scale_colour_manual(name = "Type", values = myColors) #create variable to store colors for plot
+# or
+my_colors1 <- rainbow(length(cnts_csv))
+names(my_colors1) <- names(cnts_csv)
 
-# lock in factor level order (use unique when levels are present more than once in a varaible - like in year here)
+# or
+set1_palette <- RColorBrewer::brewer.pal(9, "Set1")
+# set1_palette
+# Uncomment to see colors
+# "#E41A1C" "#377EB8" "#4DAF4A" "#984EA3" "#FF7F00" "#FFFF33" "#A65628" "#F781BF" "#999999"
+
+my_colors2 <-
+  c(
+    "Logbooks" = set1_palette[3],
+    "No Fishing Reports" = set1_palette[1],
+    "Declarations" = set1_palette[8]
+  )
+
+my_colors <- my_colors2
+# str(my_colors)
+# should be "Named chr"
+
+## ---- lock in factor level order (use unique when levels are present more than once in a varaible - like in year here) ----
 longFormat_GOM$year <-
   factor(longFormat_GOM$year, levels = unique(longFormat_GOM$year))
 
 longFormat_SA$year <-
   factor(longFormat_SA$year, levels = unique(longFormat_SA$year))
 
+
+type_order <- c("Logbooks",
+                "Declarations",
+                "No Fishing Reports")
+
 #Now Plot - call ggplot
 plot_bars <- function(my_data, title) {
+  browser()
+  my_type_order <- intersect(my_data$Type, type_order)
+  my_data %<>%
+  mutate(type_reordered = factor(Type, levels = my_type_order
+                                 )
+         )
+  # my_data$Type <- lapply(my_data$Type, factor, levels = my_type_order)
+  # str(my_data)
   my_plot <-
-  ggplot(my_data, aes(x = year,
-                      y = Counts,
-                      fill = Type,
-                      )
-         ) +
-    # scale_fill_brewer(palette = "Accent") +
+    ggplot(my_data, aes(x = year,
+                        y = Counts,
+                        fill = type_reordered)) +
+    #call color variable - defines color by report type
+    scale_fill_manual(values = my_colors) +
     #use geom_col bc stat = identity is default (vs geom_bar)
     geom_col(position = 'dodge') +
     # add counts on top of each bar
-    geom_text(aes(label = Counts), 
+    geom_text(aes(label = Counts),
               position = position_dodge(width = 0.9),
-              vjust = -0.25
-              ) +
-    # colScale +
-    # colScale +  #call color variable - defines color by unique species
+              vjust = -0.25) +
     #Plot Formatting:
     #remove background grey color and grid, add horizontal grid lines from y axis labels
     theme(
