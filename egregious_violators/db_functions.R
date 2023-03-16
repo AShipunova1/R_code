@@ -83,20 +83,24 @@ get_permit_expirations_by_vessel <- function() {
   
   permit_info_query <- paste(
     "select * from
-             srh.mv_safis_trip_download@secapxdv_dblk
+             srh.mv_sero_fh_permits_his@Secapxdv_Dblk
              WHERE
-    VESSEL_OFFICIAL_NBR in (",
+    vessel_id in (",
     vessel_ids_not_in_compl_str,
     ")"
   )
   
   permit_info <- dbGetQuery(con,
-                            permit_info_query1)
+                            permit_info_query)
   
+  permit_info %>% select(VESSEL_ID) %>% unique() %>% str()
+  # 11
   
-  
-  names(permit_info)
+  setdiff(vessel_ids_not_in_compl, permit_info$VESSEL_ID)
+  # missing "NC-9578 WS" "NC0676EK"  
   
   dbDisconnect(con)
   
 }
+
+# TODO: use the query result instead of compliance for permit expiration info in email needed
