@@ -90,11 +90,12 @@ email_s_needed_to_csv_short_sorted_w_permit_info <-
             by = "vessel_official_number",
             multiple = "all")
 
-str(email_s_needed_to_csv_short_sorted_w_permit_info)
+# str(email_s_needed_to_csv_short_sorted_w_permit_info)
 # inner_join
 # tibble [80 × 26] (S3: tbl_df/tbl/data.frame)
 # left_join (14 are not in compliance)
 # tibble [94 × 26] (S3: tbl_df/tbl/data.frame)
+# View(email_s_needed_to_csv_short_sorted_w_permit_info)
 
 intersect(
   email_s_needed_to_csv_short_sorted_w_permit_info$vessel_official_number,
