@@ -31,7 +31,7 @@ load_species_count_by_disposition <- function() {
   
   return(species_count[[1]])
 }
-# fhier_species_count_by_disposition <- load_species_count_by_disposition()
+fhier_species_count_by_disposition <- load_species_count_by_disposition()
 # str(fhier_species_count_by_disposition)
 # 'data.frame':	316171 obs. of  9 variables:
 
@@ -177,7 +177,7 @@ get_permit_type_from_compiance <- function() {
   compl_clean <- csvs_clean1[[1]]
   return(compl_clean)
 }
-# compl_clean <- get_permit_type_from_compiance()
+compl_clean <- get_permit_type_from_compiance()
 
 get_scientific_names <- function() {
   scientific_names_xls_names_list = c("compare_catch/SEFHIER data/SEFHIER_species.xlsx")
@@ -245,3 +245,5 @@ names(state_tbl) = c("state_abb", "state_name")
 
 ## ---- ports coordinates from SERO ----
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\View Landing Locations.xlsx"
+ports_coords_raw <- read_csv(file.path(my_paths$inputs, "View_Landing_Locations.csv"))
+str(ports_coords_raw)
