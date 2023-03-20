@@ -142,7 +142,7 @@ group_by_arr <-
 compl_clean_sa %>%
   filter(vessel_official_number %in%
            fewer_52_all_non_compl22_23_ids) %>%
-  select(vessel_official_number,!!compliant_field_name, week) %>%
+  select(vessel_official_number, !!compliant_field_name, week) %>%
   count_by_column_arr(group_by_arr) %>%
   {
     . ->> fewer_52_all_non_compl22_23
@@ -325,6 +325,7 @@ to_investigation_to_NEIS <-
 # vesselofficialnumber  3070
 # 3170
 
+# names(to_investigation_to_NEIS)
 # dim(to_investigation_to_NEIS)
 # [1] 14401    23
 # str(to_investigation_to_NEIS)
@@ -347,6 +348,7 @@ compl_w_non_compliant_weeks %>%
 
 # dim(compl_corr_to_investigation)
 # [1] 16081    44
+str(compl_corr_to_investigation)
 
 ## check
 # count_uniq_by_column(compl_clean_sa_non_compl) %>% head(1)
@@ -412,16 +414,19 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
     "permit_expired",
     "permitgroup",
     "permitgroupexpiration",
-    "contactrecipientname",!!contactphonenumber_field_name,
+    "contactrecipientname",
+    !!contactphonenumber_field_name,
     "contactemailaddress",
     "week_start",
-    "date__contacttypes"
+    "date__contacttypes",
+    "permit_expired"
   ) %>%
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number") ->
   compl_corr_to_investigation_short
 
 # dim(compl_corr_to_investigation_short)
 # [1] 107   9
+# str(compl_corr_to_investigation_short)
 
 ## ---- 3) remove vessels already in the know list ----
 vessels_to_remove <-
