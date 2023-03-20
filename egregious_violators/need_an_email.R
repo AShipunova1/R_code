@@ -9,7 +9,6 @@
 corresp_clean <- corresp_contact_cnts_clean_direct_cnt
 # glimpse(corresp_clean)
 
-
 get_2_plus_contacts <- function(corresp_clean) {
   corresp_clean %>%
     filter(contact_freq > 1) %>%

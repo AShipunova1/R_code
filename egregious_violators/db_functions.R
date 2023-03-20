@@ -100,7 +100,6 @@ get_permit_expirations_by_vessel <- function() {
   # missing "NC-9578 WS" "NC0676EK"  
   
   dbDisconnect(con)
-  
 }
 
 # TODO: use the query result instead of compliance for permit expiration info in email needed

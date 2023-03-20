@@ -193,9 +193,9 @@ add_a_direct_contact_column <-
       # search comments for indicators that there was no direct contact
       mutate(
         direct_contact = case_when(
-          grepl("no answer",!!contactcomments_field_name, ignore.case = TRUE) ~ "no",
-          grepl("wrong number",!!contactcomments_field_name, ignore.case = TRUE) ~ "no",
-          grepl("not in service",!!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+          grepl("no answer", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+          grepl("wrong number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
+          grepl("not in service", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
           grepl(
             "number.+is incorrect",
             !!contactcomments_field_name,
