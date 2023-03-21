@@ -74,29 +74,29 @@ compl_clean_sa_vs_gom_plus_dual__months <-
   )
 
 
-by_y_month_w_start <-
-  compl_clean_sa_vs_gom_plus_dual__months %>%
-  group_by(permit,
-           compliant_,
-           year_month_w_start) %>%
-  summarise(n = n())
-
-str(by_y_month_w_start)
+# by_y_month_w_start <-
+#   compl_clean_sa_vs_gom_plus_dual__months %>%
+#   group_by(permit,
+#            compliant_,
+#            year_month_w_start) %>%
+#   summarise(n = n())
+# 
+# str(by_y_month_w_start)
 # gropd_df [240 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
 
-by_y_month_w_end <-
-  compl_clean_sa_vs_gom_plus_dual__months %>%
-  group_by(permit,
-           compliant_,
-           year_month_w_end) %>%
-  summarise(n = n())
-str(by_y_month_w_end)
+# by_y_month_w_end <-
+#   compl_clean_sa_vs_gom_plus_dual__months %>%
+#   group_by(permit,
+#            compliant_,
+#            year_month_w_end) %>%
+#   summarise(n = n())
+# str(by_y_month_w_end)
 
-month_w_start <-
-  compl_clean_sa_vs_gom_plus_dual__months %>%
-  group_by(permit,
-           compliant_,
-           month_w_start)
+# month_w_start <-
+#   compl_clean_sa_vs_gom_plus_dual__months %>%
+#   group_by(permit,
+#            compliant_,
+#            month_w_start)
   
 by_month_w_start <-
   compl_clean_sa_vs_gom_plus_dual__months %>%
@@ -110,9 +110,21 @@ str(by_month_w_start)
 by_month_w_end <-
   compl_clean_sa_vs_gom_plus_dual__months %>%
   group_by(permit,
-           compliant_,
            month_w_end) %>%
-  summarise(n = n())
+  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
+              (sum(tolower(compliant_) == "no"))
+  )
+str(by_month_w_end)
+setdiff(by_month_w_start$compl_by_not, by_month_w_end$compl_by_not)
+# 24
+setdiff(by_month_w_end$compl_by_not, by_month_w_start$compl_by_not)
+
+# by_month_w_end <-
+#   compl_clean_sa_vs_gom_plus_dual__months %>%
+#   group_by(permit,
+#            compliant_,
+#            month_w_end) %>%
+#   summarise(n = n())
 
 # setdiff(by_month_w_start$n, by_month_w_end$n)
 ## ---- compliance info ----
