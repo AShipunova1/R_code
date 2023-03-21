@@ -417,19 +417,20 @@ head(gom_w_start_compl_weekly)
   
 gom_w_start_compl_monthly <-
   gom_w_start_compl %>%
-  select(compliant, year_month) %>%
   count(year_month, compliant)
-
-# str(gom_w_start_compl_weekly)
 
 ## ---- quarter ----
 
-gom_w_start_compl_quarterly1 <-
+gom_w_start_compl_quarterly <-
   gom_w_start_compl %>%
-  # select(compliant, year_quarter) %>%
   count(year_quarter, compliant)
 
-# identical(gom_w_start_compl_quarterly1, gom_w_start_compl_quarterly)
+## ---- year ----
+
+gom_w_start_compl_yearly <-
+  gom_w_start_compl %>%
+  count(year, compliant)
+
 ## ---- individual plots  ----
 ## ---- gom_week ----
 gom_week <-
@@ -478,3 +479,26 @@ gom_quarter + geom_bar(position = "dodge", stat = "identity") +
   theme(
     axis.text.x = element_text(angle = 45)
   )
+
+gom_plot <- function(gom_w_start_compl, time_period) {
+  browser()
+  counts_by_period <-
+    count(gom_w_start_compl, !!sym(time_period), compliant)
+  
+  gom_p <-
+    counts_by_period %>%
+    ggplot(aes(x = !!sym(time_period),
+               y = n,
+               fill = compliant)
+    )
+  
+  gom_p + geom_bar(position = "dodge", stat = "identity") +
+    labs(title = paste0("GOM compliants per ", time_period),
+         y = "YES and NO counts",
+         x = time_period) +
+    theme(
+      axis.text.x = element_text(angle = 45)
+    )
+}
+gom_plot(gom_w_start_compl, "week_start")
+  
