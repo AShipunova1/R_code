@@ -31,7 +31,8 @@ compl_clean_sa_vs_gom <-
   compl_clean %>%
   mutate(permit =
            case_when(
-             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",!grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
+             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
+             !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
              .default = "both"
            ))
 
@@ -465,7 +466,7 @@ gom_quarter + geom_bar(position = "dodge", stat = "identity") +
 gom_plot <- function(gom_w_start_compl, time_period) {
   # browser()
   counts_by_period <-
-    count(gom_w_start_compl,!!sym(time_period), compliant)
+    count(gom_w_start_compl, !!sym(time_period), compliant)
   
   gom_p <-
     counts_by_period %>%
@@ -498,7 +499,7 @@ sa_only_w_start_compl <-
 
 sa_only_plot <- function(sa_only_w_start_compl, time_period) {
   counts_by_period <-
-    count(sa_only_w_start_compl,!!sym(time_period), compliant)
+    count(sa_only_w_start_compl, !!sym(time_period), compliant)
   
   sa_only_p <-
     counts_by_period %>%
@@ -592,5 +593,25 @@ cowplot::plot_grid(title,
                    p_grid,
                    legend,
                    ncol = 1,
-                   rel_heights = c(0.1, 1, 0.2)
-                   )
+                   rel_heights = c(0.1, 1, 0.2))
+# ===
+legend <-
+  cowplot::get_legend(plots_sa_list[[1]] + theme(legend.position = "right"))
+
+p_no_legend <-
+  lapply(plots_sa_list, function(x)
+    x + theme(legend.position = "none"))
+
+# grid.arrange(p_no_legend, legend)
+# Error in gList(...) : only 'grobs' allowed in "gList"
+
+grid.arrange(
+  plots_sa_list[[1]] + theme(legend.position = 'hidden'),
+  plots_sa_list[[2]] + theme(legend.position = 'hidden'),
+  plots_sa_list[[3]] + theme(legend.position = 'hidden'),
+  plots_sa_list[[4]] + theme(legend.position = 'hidden'),
+  nrow = 2,
+  top = "SA_only compliants",
+  left = "YES and NO counts",
+  right = legend
+)
