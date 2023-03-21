@@ -279,7 +279,7 @@ prepare_csv_names <- function(filenames) {
                 file.path(add_path_corresp,  x),
               startsWith(my_headers_case_function(x), "fhier_compliance") ~
                 file.path(add_path_compl,  x),
-              .default = ""
+              .default = file.path(add_path_compl,  x)
     )
   } )
   paste(my_list) %>% as.list() %>% return()
