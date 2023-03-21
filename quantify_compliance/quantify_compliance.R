@@ -114,6 +114,7 @@ by_month_w_end <-
   summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
               (sum(tolower(compliant_) == "no"))
   )
+
 str(by_month_w_end)
 setdiff(by_month_w_start$compl_by_not, by_month_w_end$compl_by_not)
 # 24
@@ -127,6 +128,9 @@ setdiff(by_month_w_end$compl_by_not, by_month_w_start$compl_by_not)
 #   summarise(n = n())
 
 # setdiff(by_month_w_start$n, by_month_w_end$n)
+
+# by quater
+
 ## ---- compliance info ----
 compl_clean_sa_vs_gom_counts_w_err <-
   compl_clean_sa_vs_gom %>%
@@ -184,3 +188,7 @@ write.csv(
 # yes
 # dim()
 # [1] 1276    7
+
+## ---- plot ----
+c <- ggplot(df, aes(factor(date)))
+c + geom_bar()
