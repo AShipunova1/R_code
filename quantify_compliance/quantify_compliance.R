@@ -1,4 +1,5 @@
 library(zoo)
+library(gridExtra)
 
 ## ---- set up ----
 source("~/R_code_github/useful_functions_module.r")
@@ -392,7 +393,7 @@ p6 + geom_bar(position = "dodge", stat = "identity") +
 
 ## ---- show the proportion compliant and the proportion non compliant? And show Gulf on a separate plot than SA ----
 
-## ---- Gulf ----
+## ==== Gulf ====
 gom_w_start_compl <-
   compl_clean_sa_vs_gom_plus_dual %>%
   filter(permit == "gom") %>%
@@ -506,3 +507,68 @@ p_gom_per_month <- gom_plot(gom_w_start_compl, "year_month")
 p_gom_per_quarter <- gom_plot(gom_w_start_compl, "year_quarter")
 p_gom_per_year <- gom_plot(gom_w_start_compl, "year")
 
+## ==== SA only ====
+sa_only_w_start_compl <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  filter(permit == "sa_only") %>%
+  select(compliant_, week_start, year_month, year_quarter, year) %>%
+  pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+
+sa_only_plot <- function(sa_only_w_start_compl, time_period) {
+  counts_by_period <-
+    count(sa_only_w_start_compl, !!sym(time_period), compliant)
+  
+  sa_only_p <-
+    counts_by_period %>%
+    ggplot(aes(x = !!sym(time_period),
+               y = n,
+               fill = compliant)
+    )
+  
+  sa_only_p + geom_bar(position = "dodge", stat = "identity") +
+    labs(title = paste0("sa_only compliants per ", time_period),
+         y = "YES and NO counts",
+         x = time_period) +
+    theme(
+      axis.text.x = element_text(angle = 45)
+    ) %>%
+    return()
+}
+p_sa_only_per_week <- sa_only_plot(sa_only_w_start_compl, "week_start")
+p_sa_only_per_month <- sa_only_plot(sa_only_w_start_compl, "year_month")
+p_sa_only_per_quarter <- sa_only_plot(sa_only_w_start_compl, "year_quarter")
+p_sa_only_per_year <- sa_only_plot(sa_only_w_start_compl, "year")
+
+
+p_sa_only_per_quarter +
+  geom_text(aes(label = n),
+            position = position_dodge2(width = 1.3),
+            # position = position_dodge(width = 0.9),
+            vjust = -0.25
+  )
+
+p_sa_only_per_year +
+  geom_text(aes(label = n),
+            # position = position_dodge2(width = 1.3),
+            position = position_dodge(width = 0.9),
+            vjust = -0.25
+  )
+
+grid.arrange(p_sa_only_per_week, 
+             p_sa_only_per_month,
+             p_sa_only_per_quarter +
+               geom_text(aes(label = n),
+                         position = position_dodge2(width = 1.3),
+                         # position = position_dodge(width = 0.9),
+                         vjust = -0.25
+               ),
+             p_sa_only_per_year +
+               geom_text(aes(label = n),
+                         # position = position_dodge2(width = 1.3),
+                         position = position_dodge(width = 0.9),
+                         vjust = -0.25
+               ),
+             nrow = 2,
+             top="top label", bottom="bottom\nlabel", 
+             left="left label", right="right label"
+             )
