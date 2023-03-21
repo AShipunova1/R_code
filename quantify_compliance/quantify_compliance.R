@@ -53,85 +53,122 @@ by_week <-
            compliant_,
            week) %>%
   summarise(n = n())
+str(by_week)
+# gropd_df [240 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
 
-compl_clean_sa_vs_gom_plus_dual$year_month_w_start <-
-  floor_date(compl_clean_sa_vs_gom_plus_dual$week_start  # Create year-month column
-             )
-             
-compl_clean_sa_vs_gom_plus_dual %<>%
-  mutate(year_month_w_end = floor_date(week_end)
-         )
+# with both
+# gropd_df [360 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
 
-str(compl_clean_sa_vs_gom_plus_dual)             
-             
-             by_4_weeks <-
-               compl_clean_sa_vs_gom_plus_dual %>%
-               group_by(permit,
-                        compliant_,
-                        week) %>%
-               summarise(n = n())
-             
-             str(by_week)
-             # gropd_df [240 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
-             
-             # with both
-             # gropd_df [360 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
-             
-             ## ---- compliance info ----
-             compl_clean_sa_vs_gom_counts_w_err <-
-               compl_clean_sa_vs_gom %>%
-               group_by(
-                 permit,
-                 captainreports__,
-                 negativereports__,
-                 gom_permitteddeclarations__,
-                 compliant_,
-                 complianceerrors__
-               ) %>%
-               summarise(n = n())
-             # %>%
-             # summarise(complianceerrors = sum(as.integer(complianceerrors__))) %>%
-             # mutate(freq = n / sum(n)) %>%
-             # mutate(freq = (captainreports__ + negativereports__) / sa_only)
-             # mutate(per =  100 *count/sum(count)) %>%
-             str()
-             # gropd_df [831 × 6] (S3: grouped_df/tbl_df/tbl/data.frame)
-             
-             # xgompermitteddeclarations vs. xcomplianceerrors
-             # logbook but no logbook
-             # filter_egregious <- quo(xgompermitteddeclarations == 0 &
-             #                           xcaptainreports == 0 &
-             #                           xnegativereports == 0 &
-             #                           xcomplianceerrors > 0
+# compl_clean_sa_vs_gom_plus_dual$year_month_w_start <-
+  # floor_date(compl_clean_sa_vs_gom_plus_dual$week_start  # Create year-month column
              # )
-             # compl_clean_sa_non_compl <-
-             #   compl_clean_sa %>%
-             #   filter(!!filter_egregious)
-             
-             # compl_clean_sa_vs_gom_counts %>% head()
-             # compl_clean_sa_vs_gom_counts %>% tail()
-             
-             # dim(compl_clean_sa_vs_gom_counts_w_err)
-             # [1] 1654    7
-             
-             compl_clean_sa_vs_gom_counts_w_err_not_coml <-
-               compl_clean_sa_vs_gom_counts_w_err %>%
-               filter(tolower(compliant_) == "no")
-             
-             write.csv(
-               compl_clean_sa_vs_gom_counts_w_err_not_coml,
-               file.path(
-                 my_paths$outputs,
-                 "compl_clean_sa_vs_gom_counts_w_err_not_coml.csv"
-               ),
-               row.names = FALSE
-             )
-             
-             # dim()
-             # [1] 378   7
-             
-             
-             # yes
-             # dim()
-             # [1] 1276    7
-             
+  
+## ---- by month ----
+compl_clean_sa_vs_gom_plus_dual__months <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  mutate(
+    month_w_start = format(week_start, "%m"),
+    month_w_end = format(week_end, "%m"),
+    year_month_w_start = floor_date(week_start),
+    year_month_w_end = floor_date(week_end)
+  )
+
+
+by_y_month_w_start <-
+  compl_clean_sa_vs_gom_plus_dual__months %>%
+  group_by(permit,
+           compliant_,
+           year_month_w_start) %>%
+  summarise(n = n())
+
+str(by_y_month_w_start)
+# gropd_df [240 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
+
+by_y_month_w_end <-
+  compl_clean_sa_vs_gom_plus_dual__months %>%
+  group_by(permit,
+           compliant_,
+           year_month_w_end) %>%
+  summarise(n = n())
+str(by_y_month_w_end)
+
+month_w_start <-
+  compl_clean_sa_vs_gom_plus_dual__months %>%
+  group_by(permit,
+           compliant_,
+           month_w_start)
+  
+by_month_w_start <-
+  compl_clean_sa_vs_gom_plus_dual__months %>%
+  group_by(permit,
+           month_w_start) %>%
+  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
+              (sum(tolower(compliant_) == "no"))
+            )
+str(by_month_w_start)
+
+by_month_w_end <-
+  compl_clean_sa_vs_gom_plus_dual__months %>%
+  group_by(permit,
+           compliant_,
+           month_w_end) %>%
+  summarise(n = n())
+
+# setdiff(by_month_w_start$n, by_month_w_end$n)
+## ---- compliance info ----
+compl_clean_sa_vs_gom_counts_w_err <-
+  compl_clean_sa_vs_gom %>%
+  group_by(
+    permit,
+    captainreports__,
+    negativereports__,
+    gom_permitteddeclarations__,
+    compliant_,
+    complianceerrors__
+  ) %>%
+  summarise(n = n())
+# %>%
+# summarise(complianceerrors = sum(as.integer(complianceerrors__))) %>%
+# mutate(freq = n / sum(n)) %>%
+# mutate(freq = (captainreports__ + negativereports__) / sa_only)
+# mutate(per =  100 *count/sum(count)) %>%
+str()
+# gropd_df [831 × 6] (S3: grouped_df/tbl_df/tbl/data.frame)
+
+# xgompermitteddeclarations vs. xcomplianceerrors
+# logbook but no logbook
+# filter_egregious <- quo(xgompermitteddeclarations == 0 &
+#                           xcaptainreports == 0 &
+#                           xnegativereports == 0 &
+#                           xcomplianceerrors > 0
+# )
+# compl_clean_sa_non_compl <-
+#   compl_clean_sa %>%
+#   filter(!!filter_egregious)
+
+# compl_clean_sa_vs_gom_counts %>% head()
+# compl_clean_sa_vs_gom_counts %>% tail()
+
+# dim(compl_clean_sa_vs_gom_counts_w_err)
+# [1] 1654    7
+
+compl_clean_sa_vs_gom_counts_w_err_not_coml <-
+  compl_clean_sa_vs_gom_counts_w_err %>%
+  filter(tolower(compliant_) == "no")
+
+write.csv(
+  compl_clean_sa_vs_gom_counts_w_err_not_coml,
+  file.path(
+    my_paths$outputs,
+    "compl_clean_sa_vs_gom_counts_w_err_not_coml.csv"
+  ),
+  row.names = FALSE
+)
+
+# dim()
+# [1] 378   7
+
+
+# yes
+# dim()
+# [1] 1276    7
