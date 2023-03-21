@@ -1,5 +1,6 @@
 library(zoo)
 library(gridExtra)
+library(cowplot)
 
 ## ---- set up ----
 source("~/R_code_github/useful_functions_module.r")
@@ -30,8 +31,7 @@ compl_clean_sa_vs_gom <-
   compl_clean %>%
   mutate(permit =
            case_when(
-             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
-             !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
+             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",!grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
              .default = "both"
            ))
 
@@ -293,9 +293,7 @@ p3 + geom_point() +
   labs(title = "SUM(YES) / SUM(NO) for 'Compliant' per month",
        y = "Numbers for SA are *10 for comparison",
        x = "Month_Year") +
-  theme(
-    axis.text.x = element_text(angle = 45)
-  )
+  theme(axis.text.x = element_text(angle = 45))
 
 # by year
 
@@ -317,30 +315,27 @@ p4 + geom_bar(position = "dodge", stat = "identity") +
   labs(title = "Per year",
        y = "SUM(YES) / SUM(NO) for 'Compliant'",
        x = "Year") +
-  theme(
-    axis.text.x = element_text(angle = 45)
-  ) + 
+  theme(axis.text.x = element_text(angle = 45)) +
   geom_text(aes(label = round(compl_by_not, 2)),
-                position = position_dodge(width = 0.9),
-                vjust = -0.25
-  )
+            position = position_dodge(width = 0.9),
+            vjust = -0.25)
 
 #per week
 # have to exclude the week starts 2023-02-20 (the last in this data)
 # bc 1053/1
 tail(compl_clean_sa_vs_gom_plus_dual__weeks)
 compl_clean_sa_vs_gom_plus_dual %>%
-  filter(week_start > "2023-02-19") %>% 
+  filter(week_start > "2023-02-19") %>%
   select(permit, compliant_, week_start, week) %>%
   group_by(permit,
            week_start) %>%
   summarise(sum(tolower(compliant_) == "yes"))
-  # summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
-              # (sum(tolower(compliant_) == "no"))) %>%
+# summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
+# (sum(tolower(compliant_) == "no"))) %>%
 
-  # head()
-  # compl_clean_sa_vs_gom_plus_dual__weeks %>% head()
-  
+# head()
+# compl_clean_sa_vs_gom_plus_dual__weeks %>% head()
+
 p5 <-
   compl_clean_sa_vs_gom_plus_dual__weeks %>%
   filter(week_start < "2023-02-20") %>%
@@ -350,16 +345,13 @@ p5 <-
   ggplot(aes(x = week_start,
              # y = compl_by_not,
              y = sa_multiple_10,
-             color = permit)
-         )
+             color = permit))
 
 p5 + geom_point() +
   labs(title = "SUM(YES) / SUM(NO) for 'Compliant' per week",
        y = "Numbers for SA are *10 for comparison",
        x = "week start") +
-  theme(
-    axis.text.x = element_text(angle = 45)
-  )
+  theme(axis.text.x = element_text(angle = 45))
 
 # plot by quarter
 
@@ -371,8 +363,7 @@ p6 <-
   ggplot(aes(x = year_quarter,
              # y = compl_by_not,
              y = sa_multiple_10,
-             fill = permit)
-  )
+             fill = permit))
 
 p6 + geom_bar(position = "dodge", stat = "identity") +
   labs(title = "SUM(YES) / SUM(NO) for 'Compliant' per quarter",
@@ -383,13 +374,12 @@ p6 + geom_bar(position = "dodge", stat = "identity") +
   #      x = "Quarter") +
   # theme(
   #   axis.text.x = element_text(angle = 45)
-  # ) 
-# + 
+  # )
+  # +
   # compl_by_not
   geom_text(aes(label = round(sa_multiple_10, 2)),
             position = position_dodge2(width = 1.3),
-            vjust = -0.25
-  )
+            vjust = -0.25)
 
 ## ---- show the proportion compliant and the proportion non compliant? And show Gulf on a separate plot than SA ----
 
@@ -408,14 +398,14 @@ gom_w_start_compl_weekly <-
 
 head(gom_w_start_compl_weekly)
 # [1] 120   3
-# [1] "week_start" "val"        "n"         
+# [1] "week_start" "val"        "n"
 
 #   spread(val, n)
 # tibble [60 × 3] (S3: tbl_df/tbl/data.frame)
-# "week_start" "NO"         "YES"  
-  
+# "week_start" "NO"         "YES"
+
 ## ---- month ----
-  
+
 gom_w_start_compl_monthly <-
   gom_w_start_compl %>%
   count(year_month, compliant)
@@ -438,68 +428,60 @@ gom_week <-
   gom_w_start_compl_weekly %>%
   ggplot(aes(x = week_start,
              y = n,
-             fill = compliant)
-  )
+             fill = compliant))
 
 gom_week + geom_bar(position = "dodge", stat = "identity") +
   labs(title = "GOM compliants per week",
        y = "YES and NO counts",
        x = "week") +
-  theme(
-    axis.text.x = element_text(angle = 45)
-  )
+  theme(axis.text.x = element_text(angle = 45))
 
 ## ---- gom_month ----
 gom_month <-
   gom_w_start_compl_monthly %>%
   ggplot(aes(x = year_month,
              y = n,
-             fill = compliant)
-  )
+             fill = compliant))
 
 gom_month + geom_bar(position = "dodge", stat = "identity") +
   labs(title = "GOM compliants per month",
        y = "YES and NO counts",
        x = "year_month") +
-  theme(
-    axis.text.x = element_text(angle = 45)
-  )
+  theme(axis.text.x = element_text(angle = 45))
 
 ## ---- gom_quarter ----
 gom_quarter <-
   gom_w_start_compl_quarterly %>%
   ggplot(aes(x = year_quarter,
              y = n,
-             fill = compliant)
-  )
+             fill = compliant))
 
 gom_quarter + geom_bar(position = "dodge", stat = "identity") +
   labs(title = "GOM compliants per quarter",
        y = "YES and NO counts",
        x = "year_quarter") +
-  theme(
-    axis.text.x = element_text(angle = 45)
-  )
+  theme(axis.text.x = element_text(angle = 45))
 
 gom_plot <- function(gom_w_start_compl, time_period) {
   # browser()
   counts_by_period <-
-    count(gom_w_start_compl, !!sym(time_period), compliant)
+    count(gom_w_start_compl,!!sym(time_period), compliant)
   
   gom_p <-
     counts_by_period %>%
-    ggplot(aes(x = !!sym(time_period),
-               y = n,
-               fill = compliant)
-    )
+    ggplot(aes(
+      x = !!sym(time_period),
+      y = n,
+      fill = compliant
+    ))
   
   gom_p + geom_bar(position = "dodge", stat = "identity") +
-    labs(title = paste0("GOM compliants per ", time_period),
-         y = "YES and NO counts",
-         x = time_period) +
-    theme(
-      axis.text.x = element_text(angle = 45)
-    ) %>%
+    labs(
+      title = paste0("GOM compliants per ", time_period),
+      y = "YES and NO counts",
+      x = time_period
+    ) +
+    theme(axis.text.x = element_text(angle = 45)) %>%
     return()
 }
 p_gom_per_week <- gom_plot(gom_w_start_compl, "week_start")
@@ -516,59 +498,99 @@ sa_only_w_start_compl <-
 
 sa_only_plot <- function(sa_only_w_start_compl, time_period) {
   counts_by_period <-
-    count(sa_only_w_start_compl, !!sym(time_period), compliant)
+    count(sa_only_w_start_compl,!!sym(time_period), compliant)
   
   sa_only_p <-
     counts_by_period %>%
-    ggplot(aes(x = !!sym(time_period),
-               y = n,
-               fill = compliant)
-    )
+    ggplot(aes(
+      x = !!sym(time_period),
+      y = n,
+      fill = compliant
+    ))
   
   sa_only_p + geom_bar(position = "dodge", stat = "identity") +
-    labs(title = paste0("sa_only compliants per ", time_period),
-         y = "YES and NO counts",
+    labs(title = paste0("per ", time_period),
+         y = "",
          x = time_period) +
-    theme(
-      axis.text.x = element_text(angle = 45)
-    ) %>%
+    #
+    # labs(title = paste0("sa_only compliants per ", time_period),
+    #      y = "YES and NO counts",
+    #      x = time_period) +
+    theme(axis.text.x = element_text(angle = 45)) %>%
     return()
 }
-p_sa_only_per_week <- sa_only_plot(sa_only_w_start_compl, "week_start")
-p_sa_only_per_month <- sa_only_plot(sa_only_w_start_compl, "year_month")
-p_sa_only_per_quarter <- sa_only_plot(sa_only_w_start_compl, "year_quarter")
+p_sa_only_per_week <-
+  sa_only_plot(sa_only_w_start_compl, "week_start")
+p_sa_only_per_month <-
+  sa_only_plot(sa_only_w_start_compl, "year_month")
+p_sa_only_per_quarter <-
+  sa_only_plot(sa_only_w_start_compl, "year_quarter")
 p_sa_only_per_year <- sa_only_plot(sa_only_w_start_compl, "year")
-
 
 p_sa_only_per_quarter +
   geom_text(aes(label = n),
             position = position_dodge2(width = 1.3),
             # position = position_dodge(width = 0.9),
-            vjust = -0.25
-  )
+            vjust = -0.25)
 
 p_sa_only_per_year +
   geom_text(aes(label = n),
             # position = position_dodge2(width = 1.3),
             position = position_dodge(width = 0.9),
-            vjust = -0.25
-  )
+            vjust = -0.25)
 
-grid.arrange(p_sa_only_per_week, 
-             p_sa_only_per_month,
-             p_sa_only_per_quarter +
-               geom_text(aes(label = n),
-                         position = position_dodge2(width = 1.3),
-                         # position = position_dodge(width = 0.9),
-                         vjust = -0.25
-               ),
-             p_sa_only_per_year +
-               geom_text(aes(label = n),
-                         # position = position_dodge2(width = 1.3),
-                         position = position_dodge(width = 0.9),
-                         vjust = -0.25
-               ),
-             nrow = 2,
-             top="top label", bottom="bottom\nlabel", 
-             left="left label", right="right label"
-             )
+grid.arrange(
+  p_sa_only_per_week,
+  p_sa_only_per_month,
+  p_sa_only_per_quarter +
+    geom_text(
+      aes(label = n),
+      position = position_dodge2(width = 1.3),
+      vjust = -0.25
+    ),
+  p_sa_only_per_year +
+    geom_text(
+      aes(label = n),
+      position = position_dodge(width = 0.9),
+      vjust = -0.25
+    ),
+  nrow = 2,
+  top = "SA_only compliants",
+  left = "YES and NO counts",
+  right = "right label"
+)
+
+plots_sa_list <- list(
+  p_sa_only_per_week,
+  p_sa_only_per_month,
+  p_sa_only_per_quarter +
+    geom_text(
+      aes(label = n),
+      position = position_dodge2(width = 1.3),
+      vjust = -0.25
+    ),
+  p_sa_only_per_year +
+    geom_text(
+      aes(label = n),
+      position = position_dodge(width = 0.9),
+      vjust = -0.25
+    )
+)
+
+legend <-
+  cowplot::get_legend(plots_sa_list[[1]] + theme(legend.position = "right"))
+
+p_no_legend <-
+  lapply(plots_sa_list, function(x)
+    x + theme(legend.position = "none"))
+
+title <-
+  cowplot::ggdraw() + cowplot::draw_label("SA_only compliants", fontface = "bold")
+
+p_grid <- cowplot::plot_grid(plotlist = p_no_legend, ncol = 2)
+cowplot::plot_grid(title,
+                   p_grid,
+                   legend,
+                   ncol = 1,
+                   rel_heights = c(0.1, 1, 0.2)
+                   )
