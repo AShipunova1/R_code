@@ -51,9 +51,15 @@ to_map <- function(mrip_fhier_by_state_df,
           cex = "CATCH_CNT",
           alpha = 0.3,
           col.regions = viridisLite::turbo,
-          legend = TRUE,
+          legend = FALSE,
           layer.name = mrip_fhier_by_state_df$common_name[1]
-          )
+          ) %>%
+  addStaticLabels(label = mrip_fhier_by_state_df$name_cnts,
+                  # noHide = TRUE,
+                  direction = 'top',
+                  # textOnly = TRUE,
+                  textsize = "10px")
+  
 }
 
 first_sp_map <- to_map(mrip_fhier_by_state_split_itis[[1]],
@@ -65,34 +71,32 @@ m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
 
-map1 <- first_sp_map + m_s + m_g
+# map1 <- first_sp_map + m_s + m_g
 
 ## ---- safe into files ----
 # works
 filename_html <- file.path(my_paths$outputs, "map1.html")
-mapshot(map1, url = filename_html)
+# mapshot(map1, url = filename_html)
 # getwd()
 
-mapview::mapshot2(map1, file = filename_png)
-file.exists(filename_png)
+# mapview::mapshot2(map1, file = filename_png)
+# file.exists(filename_png)
 
 ## ==== map each ====
-
-map_list <- lapply(mrip_fhier_by_state_split_itis,
-                   function(x) {
-                     fish = str_replace(x$common_name[1],
-                                        "\\W+", "_")
-                     filename_png = file.path(my_paths$outputs,
-                                         r"(compare_catch\maps)",
-                                         paste0(fish,
-                                                ".png"
-                                         )
-                     )
-                     a_map <- to_map(x, jitter_factor = 1)
-                     mapview::mapshot2(a_map, file = filename_png)
-                   }
-)
-head(map_list)
+all_10_png <- function(mrip_fhier_by_state_split_itis) {
+  map_list <- lapply(mrip_fhier_by_state_split_itis,
+                     function(x) {
+                       fish = str_replace(x$common_name[1],
+                                          "\\W+", "_")
+                       filename_png = file.path(my_paths$outputs,
+                                                r"(compare_catch\maps)",
+                                                paste0(fish,
+                                                       ".png"))
+                       a_map <- to_map(x, jitter_factor = 1)
+                       mapview::mapshot2(a_map, file = filename_png)
+                     })
+  head(map_list)
+}
 
 ## ---- FHIER: fish coords lat_lon_cnts to map ----
 lat_lon_cnts_rename <-
