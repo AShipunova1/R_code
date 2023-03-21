@@ -46,7 +46,11 @@ compl_clean_sa_vs_gom_plus_dual <-
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              # !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
              .default = "gom"
-           ))
+           )) %>%
+  # add month
+  mutate(year_month = as.yearmon(week_start)) %>%
+  # add quarter
+  mutate(year_quarter = as.yearqtr(week_start))
 
 ## ---- compliance numbers by permit group and time period ----
 by_week <-
@@ -254,7 +258,7 @@ compl_clean_sa_vs_gom_plus_dual_q <-
   summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
               (sum(tolower(compliant_) == "no")))
 
-## ---- plot ----
+## ---- plots for proportion ----
 names(by_month_w_start)
 p1 <-
   ggplot(by_month_w_start,
@@ -386,3 +390,91 @@ p6 + geom_bar(position = "dodge", stat = "identity") +
             vjust = -0.25
   )
 
+## ---- show the proportion compliant and the proportion non compliant? And show Gulf on a separate plot than SA ----
+
+## ---- Gulf ----
+gom_w_start_compl <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  filter(permit == "gom") %>%
+  select(compliant_, week_start, year_month, year_quarter, year) %>%
+  # gather(key, val, compliant_)
+  pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+head(gom_w_start_compl)
+
+## ---- week ----
+gom_w_start_compl_weekly <-
+  count(gom_w_start_compl, week_start, compliant)
+
+head(gom_w_start_compl_weekly)
+# [1] 120   3
+# [1] "week_start" "val"        "n"         
+
+#   spread(val, n)
+# tibble [60 × 3] (S3: tbl_df/tbl/data.frame)
+# "week_start" "NO"         "YES"  
+  
+## ---- month ----
+  
+gom_w_start_compl_monthly <-
+  gom_w_start_compl %>%
+  select(compliant, year_month) %>%
+  count(year_month, compliant)
+
+# str(gom_w_start_compl_weekly)
+
+## ---- quarter ----
+
+gom_w_start_compl_quarterly1 <-
+  gom_w_start_compl %>%
+  # select(compliant, year_quarter) %>%
+  count(year_quarter, compliant)
+
+# identical(gom_w_start_compl_quarterly1, gom_w_start_compl_quarterly)
+## ---- individual plots  ----
+## ---- gom_week ----
+gom_week <-
+  gom_w_start_compl_weekly %>%
+  ggplot(aes(x = week_start,
+             y = n,
+             fill = compliant)
+  )
+
+gom_week + geom_bar(position = "dodge", stat = "identity") +
+  labs(title = "GOM compliants per week",
+       y = "YES and NO counts",
+       x = "week") +
+  theme(
+    axis.text.x = element_text(angle = 45)
+  )
+
+## ---- gom_month ----
+gom_month <-
+  gom_w_start_compl_monthly %>%
+  ggplot(aes(x = year_month,
+             y = n,
+             fill = compliant)
+  )
+
+gom_month + geom_bar(position = "dodge", stat = "identity") +
+  labs(title = "GOM compliants per month",
+       y = "YES and NO counts",
+       x = "year_month") +
+  theme(
+    axis.text.x = element_text(angle = 45)
+  )
+
+## ---- gom_quarter ----
+gom_quarter <-
+  gom_w_start_compl_quarterly %>%
+  ggplot(aes(x = year_quarter,
+             y = n,
+             fill = compliant)
+  )
+
+gom_quarter + geom_bar(position = "dodge", stat = "identity") +
+  labs(title = "GOM compliants per quarter",
+       y = "YES and NO counts",
+       x = "year_quarter") +
+  theme(
+    axis.text.x = element_text(angle = 45)
+  )
