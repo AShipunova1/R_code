@@ -19,6 +19,54 @@ source("~/R_code_github/compare_catch/get_data.R")
 # 'data.frame':	316171  obs. of  6 variables:
 # fhier_species_count_by_disposition %>%
   # select(disposition) %>% unique()
+## ---- logbooks_content ----
+itis_field_name <- grep("itis", names(logbooks_content), value = T)
+
+# catch_species_itis
+vessel_id_field_name <- grep("vessel.*official", names(logbooks_content), value = T)
+# vessel_official_nbr
+# logbooks_content$end_port_state %>% unique()
+# [1] "FL" "NC" "SC" "AL" "MS" "TX" "GA" "VA" "MD" "LA" "DE" "RI" "NJ" "MA" "NY"
+# [16] "CT" "ME"
+
+# get landing by coordinates
+logbooks_content_short_2022 <-
+  logbooks_content %>%
+  select(area_code,
+         catch_species_itis,
+         common_name,
+         disposition_code,
+         disposition_name,
+         end_port_state,
+         end_port_name,
+         latitude,
+         longitude,
+         notif_end_port,
+         notif_end_port_state,
+         reported_quantity,
+         sub_area_code,
+         trip_end_date,
+         trip_end_time,
+         trip_start_date,
+         trip_start_time,
+         trip_type,
+         trip_type_name
+  ) %>% 
+  change_to_dates("trip_start_date", "%Y-%m-%d %H:%M:%S") %>% 
+  filter(format(trip_start_date, format = "%Y") == "2022") %>%
+  change_to_dates("trip_end_date", "%Y-%m-%d %H:%M:%S") %>%
+  mutate(reported_quantity = as.integer(reported_quantity))
+
+# rm(logbooks_content)
+# gc()
+
+# ?
+logbooks_content_short_2022 %>%
+  filter((disposition_name %in% c("RELEASED ALIVE", "DEAD DISCARD", "NO CATCH", "UNDER SIZE LIMIT"))) %>% dim()
+# ! 194188     
+# released 125888
+# unique()
+
 
 ## ---- FHIER: count catch by species ----
 # TODO: separate functions
@@ -116,7 +164,7 @@ head(mrip_estimate_catch_by_species, 3)
 
 ## ---- column names ----
 sp_itis_fhier <-
-  grep("itis", tolower(names(fhier_species_count)), value = TRUE)
+  grep("itis", tolower(names(fhier_species_count_by_disposition)), value = TRUE)
 sp_itis_mrip <-
   grep("itis", tolower(names(mrip_estimate)), value = TRUE)
 
@@ -167,29 +215,6 @@ intersect(species_used_in_fhier, species_in_mrip) %>% str()
 
 # str(mrip_estimate_catch_1)
 
-## ---- combine mrip and fhier catch results by species
-combine_mrip_and_fhier_catch_results_by_species <- function() {
-  mrip_and_fhier <-
-    full_join(
-      fhier_quantity_by_species,
-      mrip_estimate_catch_by_species,
-      by = c("catch_species_itis" = "itis_code")
-    )
-  
-  # head(mrip_and_fhier, 3)
-  
-  # fhier quantity is grater than mrip's
-  mrip_and_fhier %>%
-    filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
-  # 15
-  
-  # combine mrip with fhier with common names
-  # fhier_species_count_by_disposition_com_names
-  
-  return(mrip_and_fhier)
-}
-mrip_and_fhier <- combine_mrip_and_fhier_catch_results_by_species()
-
 ## ---- most n frequent FHIER species ----
 
 # str(fhier_quantity_by_species)
@@ -204,53 +229,6 @@ get_n_most_frequent_fhier <- function(n, df_name = NA) {
 
 # source("~/R_code_github/compare_catch/plots.R")
 
-## ---- logbooks_content ----
-itis_field_name <- grep("itis", names(logbooks_content), value = T)
-
-# catch_species_itis
-vessel_id_field_name <- grep("vessel.*official", names(logbooks_content), value = T)
-# vessel_official_nbr
-# logbooks_content$end_port_state %>% unique()
-# [1] "FL" "NC" "SC" "AL" "MS" "TX" "GA" "VA" "MD" "LA" "DE" "RI" "NJ" "MA" "NY"
-# [16] "CT" "ME"
-
-# get landing by coordinates
-logbooks_content_short_2022 <-
-  logbooks_content %>%
-    select(area_code,
-           catch_species_itis,
-           common_name,
-           disposition_code,
-           disposition_name,
-           end_port_state,
-           end_port_name,
-           latitude,
-           longitude,
-           notif_end_port,
-           notif_end_port_state,
-           reported_quantity,
-           sub_area_code,
-           trip_end_date,
-           trip_end_time,
-           trip_start_date,
-           trip_start_time,
-           trip_type,
-           trip_type_name
-           ) %>% 
-    change_to_dates("trip_start_date", "%Y-%m-%d %H:%M:%S") %>% 
-    filter(format(trip_start_date, format = "%Y") == "2022") %>%
-    change_to_dates("trip_end_date", "%Y-%m-%d %H:%M:%S") %>%
-    mutate(reported_quantity = as.integer(reported_quantity))
-
-# rm(logbooks_content)
-# gc()
-
-# ?
-logbooks_content_short_2022 %>%
-  filter((disposition_name %in% c("RELEASED ALIVE", "DEAD DISCARD", "NO CATCH", "UNDER SIZE LIMIT"))) %>% dim()
-# ! 194188     
-# released 125888
-  # unique()
 
 ## ---- add counts ----
 # all
@@ -284,6 +262,30 @@ fhier_quantity_by_species_and_port <-
 
 tail(fhier_quantity_by_species_and_port)
 # [1] 12057     5
+
+
+## ---- combine mrip and fhier catch results by species
+combine_mrip_and_fhier_catch_results_by_species <- function() {
+  mrip_and_fhier <-
+    full_join(
+      fhier_quantity_by_species,
+      mrip_estimate_catch_by_species,
+      by = c("catch_species_itis" = "itis_code")
+    )
+  
+  # head(mrip_and_fhier, 3)
+  
+  # fhier quantity is grater than mrip's
+  mrip_and_fhier %>%
+    filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
+  # 15
+  
+  # combine mrip with fhier with common names
+  # fhier_species_count_by_disposition_com_names
+  
+  return(mrip_and_fhier)
+}
+mrip_and_fhier <- combine_mrip_and_fhier_catch_results_by_species()
 
 ## --- shapefiles ----
 
