@@ -481,7 +481,7 @@ gom_quarter + geom_bar(position = "dodge", stat = "identity") +
   )
 
 gom_plot <- function(gom_w_start_compl, time_period) {
-  browser()
+  # browser()
   counts_by_period <-
     count(gom_w_start_compl, !!sym(time_period), compliant)
   
@@ -498,7 +498,11 @@ gom_plot <- function(gom_w_start_compl, time_period) {
          x = time_period) +
     theme(
       axis.text.x = element_text(angle = 45)
-    )
+    ) %>%
+    return()
 }
-gom_plot(gom_w_start_compl, "week_start")
-  
+p_gom_per_week <- gom_plot(gom_w_start_compl, "week_start")
+p_gom_per_month <- gom_plot(gom_w_start_compl, "year_month")
+p_gom_per_quarter <- gom_plot(gom_w_start_compl, "year_quarter")
+p_gom_per_year <- gom_plot(gom_w_start_compl, "year")
+
