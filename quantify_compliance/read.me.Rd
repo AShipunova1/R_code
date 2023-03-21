@@ -20,3 +20,5 @@ so, perhaps looking at the proportion of reports submitted vs flags... speaking 
 
 it would be the same compliance report we used in the egregious code
 
+03/21/2023
+I would just stick with the weekly, then aggregate compliance weeks into 4 week chunks (we'll call those ~ months), then into annual.
