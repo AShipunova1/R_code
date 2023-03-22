@@ -15,3 +15,9 @@ connect.r
 quantify_compliance/quantify_compliance_cache/html/__packages
 *.RData
 *.rdx
+*.woff
+*.js
+quantify_compliance/quantify_compliance_files/libs/bootstrap/bootstrap-icons.css
+quantify_compliance/quantify_compliance_files/libs/bootstrap/bootstrap.min.css
+quantify_compliance/quantify_compliance_files/libs/quarto-html/quarto-syntax-highlighting.css
+quantify_compliance/quantify_compliance_files/libs/quarto-html/tippy.css
