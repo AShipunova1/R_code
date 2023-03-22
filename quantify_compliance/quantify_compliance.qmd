@@ -188,6 +188,7 @@ sa_per_week <-
 #### test one random week
 
 ##### data:
+
 ```{r}
 #| classes: test
 
@@ -197,6 +198,7 @@ sa_compl_clean_sa_vs_gom_plus_dual_short %>%
 ```
 
 ##### % from the function result:
+
 ```{r function result}
 #| classes: test
 sa_per_week %>%
@@ -206,6 +208,7 @@ sa_per_week %>%
 percent_yes = **58.2**
 
 ##### step by step:
+
 ```{r step by step}
 #| classes: test
 sa_compl_clean_sa_vs_gom_plus_dual_short %>%
@@ -345,7 +348,10 @@ grid.arrange(
   sa_per_month_p + theme(legend.position = 'hidden'),
   sa_per_year_p + theme(legend.position = 'hidden') +
     # add % on top of the bars
-    geom_text(aes(label = round(percent, 2)),
+    geom_text(aes(label =
+                    paste0(round(percent, 2), "%")
+                    # round(percent, 2)
+                  ),
               position = position_dodge(width = 0.9),
               vjust = -0.25),
   legend,
@@ -366,7 +372,10 @@ grid.arrange(
   gom_per_month_p + theme(legend.position = 'hidden'),
   gom_per_year_p + theme(legend.position = 'hidden') + 
     # add numbers
-    geom_text(aes(label = round(percent, 2)),
+    geom_text(aes(label = 
+                    paste0(round(percent, 2), "%")
+                    # round(percent, 2)
+                  ),
               position = position_dodge(width = 0.9),
               vjust = -0.25),
   legend,
