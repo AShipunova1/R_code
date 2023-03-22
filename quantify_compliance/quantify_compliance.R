@@ -634,17 +634,18 @@ sa_per_week <-
 
 ## ---- plots for percentage ----
 
-sa_per_year_long <-
-  sa_per_year %>%
-  pivot_longer(starts_with("percent"),
-               names_to = "key",
-               values_to = "percent")
+# sa_per_year_long <-
+#   sa_per_year %>%
+#   pivot_longer(starts_with("percent"),
+#                names_to = "key",
+#                values_to = "percent")
 
-my_df <- sa_per_year_long
-time_period <- "year"
+# my_df <- sa_per_year_long
+# time_period <- "year"
 my_region <- c("Gulf and dual", "South Atlantic")
-sa_plot <- function(my_df, time_period, region) {
-  sa_p <-
+
+percent_plot <- function(my_df, time_period, region) {
+  percent_p <-
     my_df %>%
     pivot_longer(starts_with("percent"),
                  names_to = "key",
@@ -664,81 +665,40 @@ sa_plot <- function(my_df, time_period, region) {
   my_x_lab <- case_when(
     time_period == "year" ~ "year",
     time_period == "year_month" ~ "month",
-    time_period == "week_start" ~ "Week"
+    time_period == "week_start" ~ "week"
   )
-  sa_p + geom_bar(position = "dodge", stat = "identity") +
+  percent_p + geom_bar(position = "dodge", stat = "identity") +
     labs(
-      title = paste0(my_title, " compliance ",  region, " permitted"),
+      title = paste0(my_title, " compliance"),
+      # title = paste0(my_title, " compliance ",  region, " permitted"),
       y = "",
       x = my_x_lab
     ) +
-    theme(axis.text.x = element_text(angle = 45)) %>%
+    theme(axis.text.x = element_text(angle = 45)) +
+    ylim(0, 100) %>%
     return()
 }
-sa_plot(sa_per_year_long, "year", my_region[[2]])
-sa_plot(sa_per_year_long, "year", my_region[[2]])
+sa_per_year_p <- percent_plot(sa_per_year, "year", my_region[[2]])
+sa_per_month_p <- percent_plot(sa_per_month, "year_month", my_region[[2]])
+sa_per_week_p <- percent_plot(sa_per_week, "week_start", my_region[[2]])
 
-# ---
-
-
-gom_plot <- function(gom_w_start_compl, time_period) {
-  counts_by_period <-
-    count(gom_w_start_compl, !!sym(time_period), compliant)
-  
-  gom_p <-
-    counts_by_period %>%
-    ggplot(aes(
-      x = !!sym(time_period),
-      y = n,
-      fill = compliant
-    ))
-  
-  gom_p + geom_bar(position = "dodge", stat = "identity") +
-    labs(title = paste0("per ", time_period),
-         y = "",
-         x = time_period) +
-    #
-    # labs(title = paste0("gom compliants per ", time_period),
-    #      y = "YES and NO counts",
-    #      x = time_period) +
-    theme(axis.text.x = element_text(angle = 45)) %>%
-    return()
-}
-p_gom_per_week <-
-  gom_plot(gom_w_start_compl, "week_start")
-p_gom_per_month <-
-  gom_plot(gom_w_start_compl, "year_month")
-p_gom_per_quarter <-
-  gom_plot(gom_w_start_compl, "year_quarter")
-p_gom_per_year <- gom_plot(gom_w_start_compl, "year")
-
-plots_gom_list <- list(
-  p_gom_per_week,
-  p_gom_per_month,
-  p_gom_per_quarter +
-    geom_text(
-      aes(label = n),
-      position = position_dodge2(width = 1.3),
-      vjust = -0.25
-    ),
-  p_gom_per_year +
-    geom_text(
-      aes(label = n),
-      position = position_dodge(width = 0.9),
-      vjust = -0.25
-    )
-)
+gom_per_year_p <- percent_plot(gom_per_year, "year", my_region[[1]])
+gom_per_month_p <- percent_plot(gom_per_month, "year_month", my_region[[1]])
+gom_per_week_p <- percent_plot(gom_per_week, "week_start", my_region[[1]])
 
 legend <-
-  cowplot::get_legend(plots_gom_list[[1]] + theme(legend.position = "right"))
+  cowplot::get_legend(gom_per_week_p + theme(legend.position = "right"))
 
+region <- my_region[[2]]
 grid.arrange(
-  plots_gom_list[[1]] + theme(legend.position = 'hidden'),
-  plots_gom_list[[2]] + theme(legend.position = 'hidden'),
-  plots_gom_list[[3]] + theme(legend.position = 'hidden'),
-  plots_gom_list[[4]] + theme(legend.position = 'hidden'),
+  sa_per_week_p + theme(legend.position = 'hidden'),
+  sa_per_month_p + theme(legend.position = 'hidden'),
+  sa_per_year_p + theme(legend.position = 'hidden'),
+  legend,
   nrow = 2,
-  top = "gom compliants",
-  left = "YES and NO counts",
-  right = legend
+  top = paste0(region, " permitted"),
+  left = "YES and NO percentage"
+  # ,
+  # right = legend
 )
+
