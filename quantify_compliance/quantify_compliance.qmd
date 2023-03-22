@@ -350,7 +350,6 @@ grid.arrange(
     # add % on top of the bars
     geom_text(aes(label =
                     paste0(round(percent, 2), "%")
-                    # round(percent, 2)
                   ),
               position = position_dodge(width = 0.9),
               vjust = -0.25),
@@ -371,10 +370,9 @@ grid.arrange(
   gom_per_week_p + theme(legend.position = 'hidden'),
   gom_per_month_p + theme(legend.position = 'hidden'),
   gom_per_year_p + theme(legend.position = 'hidden') + 
-    # add numbers
+    # add % on top of the bars
     geom_text(aes(label = 
                     paste0(round(percent, 2), "%")
-                    # round(percent, 2)
                   ),
               position = position_dodge(width = 0.9),
               vjust = -0.25),
