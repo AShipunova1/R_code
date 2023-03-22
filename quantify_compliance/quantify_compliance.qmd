@@ -6,6 +6,7 @@ output:
 format:
   html:
     css: styles.css
+    code-overflow: wrap
 ---
 
 ## Set up
@@ -25,12 +26,6 @@ my_paths <- set_work_dir()
 root.dir <- my_paths
 source("~/R_code_github/quantify_compliance/get_data.R")
 
-```
-
-```{css, echo=FALSE}
-.test {
-  color: lightblue;
-}
 ```
 
 ```{r, cache=TRUE}
@@ -190,15 +185,18 @@ sa_per_week <-
   percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "week_start")
 ```
 
-#### test one week
+#### test one random week
 
-##### from the function result:
+##### data:
 ```{r}
 #| classes: test
-head(sa_compl_clean_sa_vs_gom_plus_dual_short)
+
+sa_compl_clean_sa_vs_gom_plus_dual_short %>%
+  filter(week_start == "2022-12-26") %>%
+  glimpse()
 ```
 
-
+##### % from the function result:
 ```{r function result}
 #| classes: test
 sa_per_week %>%
@@ -311,7 +309,7 @@ percent_plot <- function(my_df,
       labels = c("% non-compliant", "% compliant")) +
     # rotate x labels
     theme(axis.text.x = element_text(angle = 45)) +
-    # make Y axes go to 100
+    # make Y axis go to 100
     ylim(0, 100) %>%
     return()
 }
@@ -346,7 +344,7 @@ grid.arrange(
   sa_per_week_p + theme(legend.position = 'hidden'),
   sa_per_month_p + theme(legend.position = 'hidden'),
   sa_per_year_p + theme(legend.position = 'hidden') +
-    # add numbers
+    # add % on top of the bars
     geom_text(aes(label = round(percent, 2)),
               position = position_dodge(width = 0.9),
               vjust = -0.25),
