@@ -644,6 +644,10 @@ sa_per_week <-
 # time_period <- "year"
 my_region <- c("Gulf and dual", "South Atlantic")
 
+my_colors <- c("red", "blue")
+
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
 percent_plot <- function(my_df, time_period, region) {
   percent_p <-
     my_df %>%
@@ -667,6 +671,7 @@ percent_plot <- function(my_df, time_period, region) {
     time_period == "year_month" ~ "month",
     time_period == "week_start" ~ "week"
   )
+  
   percent_p + geom_bar(position = "dodge", stat = "identity") +
     labs(
       title = paste0(my_title, " compliance"),
@@ -674,6 +679,10 @@ percent_plot <- function(my_df, time_period, region) {
       y = "",
       x = my_x_lab
     ) +
+    # scale_fill_manual(values = cbbPalette) +
+    scale_fill_manual(values = my_colors,
+                      name = "Colors",
+                      labels = c("% non-compliant", "% compliant")) +
     theme(axis.text.x = element_text(angle = 45)) +
     ylim(0, 100) %>%
     return()
@@ -690,10 +699,24 @@ legend <-
   cowplot::get_legend(gom_per_week_p + theme(legend.position = "right"))
 
 region <- my_region[[2]]
+# sa_all <-
 grid.arrange(
   sa_per_week_p + theme(legend.position = 'hidden'),
   sa_per_month_p + theme(legend.position = 'hidden'),
   sa_per_year_p + theme(legend.position = 'hidden'),
+  legend,
+  nrow = 2,
+  top = paste0(region, " permitted"),
+  left = "YES and NO percentage"
+  # ,
+  # right = legend
+)
+
+region <- my_region[[1]]
+grid.arrange(
+  gom_per_week_p + theme(legend.position = 'hidden'),
+  gom_per_month_p + theme(legend.position = 'hidden'),
+  gom_per_year_p + theme(legend.position = 'hidden'),
   legend,
   nrow = 2,
   top = paste0(region, " permitted"),
