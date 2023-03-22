@@ -528,39 +528,6 @@ p_sa_only_per_quarter <-
   sa_only_plot(sa_only_w_start_compl, "year_quarter")
 p_sa_only_per_year <- sa_only_plot(sa_only_w_start_compl, "year")
 
-p_sa_only_per_quarter +
-  geom_text(aes(label = n),
-            position = position_dodge2(width = 1.3),
-            # position = position_dodge(width = 0.9),
-            vjust = -0.25)
-
-p_sa_only_per_year +
-  geom_text(aes(label = n),
-            # position = position_dodge2(width = 1.3),
-            position = position_dodge(width = 0.9),
-            vjust = -0.25)
-
-grid.arrange(
-  p_sa_only_per_week,
-  p_sa_only_per_month,
-  p_sa_only_per_quarter +
-    geom_text(
-      aes(label = n),
-      position = position_dodge2(width = 1.3),
-      vjust = -0.25
-    ),
-  p_sa_only_per_year +
-    geom_text(
-      aes(label = n),
-      position = position_dodge(width = 0.9),
-      vjust = -0.25
-    ),
-  nrow = 2,
-  top = "SA_only compliants",
-  left = "YES and NO counts",
-  right = "right label"
-)
-
 plots_sa_list <- list(
   p_sa_only_per_week,
   p_sa_only_per_month,
@@ -581,30 +548,6 @@ plots_sa_list <- list(
 legend <-
   cowplot::get_legend(plots_sa_list[[1]] + theme(legend.position = "right"))
 
-p_no_legend <-
-  lapply(plots_sa_list, function(x)
-    x + theme(legend.position = "none"))
-
-title <-
-  cowplot::ggdraw() + cowplot::draw_label("SA_only compliants", fontface = "bold")
-
-p_grid <- cowplot::plot_grid(plotlist = p_no_legend, ncol = 2)
-cowplot::plot_grid(title,
-                   p_grid,
-                   legend,
-                   ncol = 1,
-                   rel_heights = c(0.1, 1, 0.2))
-# ===
-legend <-
-  cowplot::get_legend(plots_sa_list[[1]] + theme(legend.position = "right"))
-
-p_no_legend <-
-  lapply(plots_sa_list, function(x)
-    x + theme(legend.position = "none"))
-
-# grid.arrange(p_no_legend, legend)
-# Error in gList(...) : only 'grobs' allowed in "gList"
-
 grid.arrange(
   plots_sa_list[[1]] + theme(legend.position = 'hidden'),
   plots_sa_list[[2]] + theme(legend.position = 'hidden'),
@@ -612,6 +555,75 @@ grid.arrange(
   plots_sa_list[[4]] + theme(legend.position = 'hidden'),
   nrow = 2,
   top = "SA_only compliants",
+  left = "YES and NO counts",
+  right = legend
+)
+
+## ---- GOM plots together ----
+gom_w_start_compl <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  filter(permit == "gom") %>%
+  select(compliant_, week_start, year_month, year_quarter, year) %>%
+  pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+
+gom_plot <- function(gom_w_start_compl, time_period) {
+  counts_by_period <-
+    count(gom_w_start_compl, !!sym(time_period), compliant)
+  
+  gom_p <-
+    counts_by_period %>%
+    ggplot(aes(
+      x = !!sym(time_period),
+      y = n,
+      fill = compliant
+    ))
+  
+  gom_p + geom_bar(position = "dodge", stat = "identity") +
+    labs(title = paste0("per ", time_period),
+         y = "",
+         x = time_period) +
+    #
+    # labs(title = paste0("gom compliants per ", time_period),
+    #      y = "YES and NO counts",
+    #      x = time_period) +
+    theme(axis.text.x = element_text(angle = 45)) %>%
+    return()
+}
+p_gom_per_week <-
+  gom_plot(gom_w_start_compl, "week_start")
+p_gom_per_month <-
+  gom_plot(gom_w_start_compl, "year_month")
+p_gom_per_quarter <-
+  gom_plot(gom_w_start_compl, "year_quarter")
+p_gom_per_year <- gom_plot(gom_w_start_compl, "year")
+
+plots_gom_list <- list(
+  p_gom_per_week,
+  p_gom_per_month,
+  p_gom_per_quarter +
+    geom_text(
+      aes(label = n),
+      position = position_dodge2(width = 1.3),
+      vjust = -0.25
+    ),
+  p_gom_per_year +
+    geom_text(
+      aes(label = n),
+      position = position_dodge(width = 0.9),
+      vjust = -0.25
+    )
+)
+
+legend <-
+  cowplot::get_legend(plots_gom_list[[1]] + theme(legend.position = "right"))
+
+grid.arrange(
+  plots_gom_list[[1]] + theme(legend.position = 'hidden'),
+  plots_gom_list[[2]] + theme(legend.position = 'hidden'),
+  plots_gom_list[[3]] + theme(legend.position = 'hidden'),
+  plots_gom_list[[4]] + theme(legend.position = 'hidden'),
+  nrow = 2,
+  top = "gom compliants",
   left = "YES and NO counts",
   right = legend
 )
