@@ -13,20 +13,14 @@ source("~/R_code_github/quantify_compliance/get_data.R")
 # Rows: 167,607
 # Columns: 21
 
-## ---- Have only SA permits, exclude those with Gulf permits ----
-# get list of all permitgroups
-all_permit_groups <- select(compl_clean, permitgroup) %>%
-  unique() %>%
-  paste(collapes = ",")
+## ---- Separate SA and GOM permits ----
+## ---- get list of all permitgroups ----
+# https://www.fisheries.noaa.gov/southeast/recreational-fishing/frequently-asked-questions-southeast-hire-integrated-electronic#general-program-requirements
 
-all_permit_groups %>%
-  str_replace_all('\\"', "") %>%
-  cat(sep = ', ',
-      file = file.path(my_paths$outputs,
-                       "permitgroups.txt"))
+# GOM: RCG, HRCG, CHG, HCHG
+# SA:  CDW, CHS, SC
 
-
-# separate into 3 groups
+## ---- separate into 3 groups ----
 compl_clean_sa_vs_gom <-
   compl_clean %>%
   mutate(permit =
@@ -36,19 +30,22 @@ compl_clean_sa_vs_gom <-
              .default = "both"
            ))
 
-names(compl_clean_sa_vs_gom)
+# names(compl_clean_sa_vs_gom)
 # dim(compl_clean_sa_vs_gom)
 # [1] 167607     22
 
-# ---- gulf + dual ----
-compl_clean_sa_vs_gom_plus_dual <-
+## ---- gulf + dual ----
+compl_clean_sa_vs_gom_plus_dual_0 <-
   compl_clean %>%
   mutate(permit =
            case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
-             # !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
              .default = "gom"
-           )) %>%
+           ))
+
+## ---- add columns for month and quarter ----
+compl_clean_sa_vs_gom_plus_dual <-
+  compl_clean_sa_vs_gom_plus_dual_0 %>%
   # add month
   mutate(year_month = as.yearmon(week_start)) %>%
   # add quarter
@@ -81,31 +78,6 @@ compl_clean_sa_vs_gom_plus_dual__months <-
     year_month_w_end = floor_date(week_end)
   )
 
-
-# by_y_month_w_start <-
-#   compl_clean_sa_vs_gom_plus_dual__months %>%
-#   group_by(permit,
-#            compliant_,
-#            year_month_w_start) %>%
-#   summarise(n = n())
-#
-# str(by_y_month_w_start)
-# gropd_df [240 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
-
-# by_y_month_w_end <-
-#   compl_clean_sa_vs_gom_plus_dual__months %>%
-#   group_by(permit,
-#            compliant_,
-#            year_month_w_end) %>%
-#   summarise(n = n())
-# str(by_y_month_w_end)
-
-# month_w_start <-
-#   compl_clean_sa_vs_gom_plus_dual__months %>%
-#   group_by(permit,
-#            compliant_,
-#            month_w_start)
-
 by_month_w_start <-
   compl_clean_sa_vs_gom_plus_dual__months %>%
   group_by(permit,
@@ -126,124 +98,7 @@ setdiff(by_month_w_start$compl_by_not, by_month_w_end$compl_by_not)
 # 24
 setdiff(by_month_w_end$compl_by_not, by_month_w_start$compl_by_not)
 
-# by_month_w_end <-
-#   compl_clean_sa_vs_gom_plus_dual__months %>%
-#   group_by(permit,
-#            compliant_,
-#            month_w_end) %>%
-#   summarise(n = n())
-
-# setdiff(by_month_w_start$n, by_month_w_end$n)
-
-## ---- compliance info ----
-compl_clean_sa_vs_gom_counts_w_err <-
-  compl_clean_sa_vs_gom %>%
-  group_by(
-    permit,
-    captainreports__,
-    negativereports__,
-    gom_permitteddeclarations__,
-    compliant_,
-    complianceerrors__
-  ) %>%
-  summarise(n = n())
-# %>%
-# summarise(complianceerrors = sum(as.integer(complianceerrors__))) %>%
-# mutate(freq = n / sum(n)) %>%
-# mutate(freq = (captainreports__ + negativereports__) / sa_only)
-# mutate(per =  100 *count/sum(count)) %>%
-str()
-# gropd_df [831 × 6] (S3: grouped_df/tbl_df/tbl/data.frame)
-
-# xgompermitteddeclarations vs. xcomplianceerrors
-# logbook but no logbook
-# filter_egregious <- quo(xgompermitteddeclarations == 0 &
-#                           xcaptainreports == 0 &
-#                           xnegativereports == 0 &
-#                           xcomplianceerrors > 0
-# )
-# compl_clean_sa_non_compl <-
-#   compl_clean_sa %>%
-#   filter(!!filter_egregious)
-
-# compl_clean_sa_vs_gom_counts %>% head()
-# compl_clean_sa_vs_gom_counts %>% tail()
-
-# dim(compl_clean_sa_vs_gom_counts_w_err)
-# [1] 1654    7
-
-compl_clean_sa_vs_gom_counts_w_err_not_coml <-
-  compl_clean_sa_vs_gom_counts_w_err %>%
-  filter(tolower(compliant_) == "no")
-
-write.csv(
-  compl_clean_sa_vs_gom_counts_w_err_not_coml,
-  file.path(
-    my_paths$outputs,
-    "compl_clean_sa_vs_gom_counts_w_err_not_coml.csv"
-  ),
-  row.names = FALSE
-)
-
-# dim()
-# [1] 378   7
-
-
-# yes
-# dim()
-# [1] 1276    7
-
-## ---- using ts() ----
-select(compl_clean_sa_vs_gom_plus_dual, year) %>% unique()
-# 22, 23
-monthly <-
-  ts(
-    compl_clean_sa_vs_gom_plus_dual$week_start,
-    start = c(2022, 1),
-    frequency = 12
-  )
-str(monthly)
-
-quarterly <- aggregate(monthly, nfrequency = 4)
-str(quarterly)
-
-compl_clean_sa_vs_gom_plus_dual_ts <-
-  compl_clean_sa_vs_gom_plus_dual %>%
-  mutate(
-    monthly = ts(week_start, start = c(2022, 1), frequency = 12),
-    qarterly = ts(week_start, start = c(2022, 1), frequency = 4)
-  )
-
-str(compl_clean_sa_vs_gom_plus_dual_ts)
-
-compl_clean_sa_vs_gom_plus_dual_ts %>%
-  group_by(permit,
-           monthly) %>%
-  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
-              (sum(tolower(compliant_) == "no")))
-
-# using zoo
-compl_clean_sa_vs_gom_plus_dual_y_m <-
-  compl_clean_sa_vs_gom_plus_dual %>%
-  mutate(year_month = as.yearmon(week_start)) %>%
-  group_by(permit,
-           year_month) %>%
-  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
-              (sum(tolower(compliant_) == "no")))
-
-# A tibble: 28 × 3
-
-# zoo(rnorm(5))
-
-# by year
-compl_clean_sa_vs_gom_plus_dual_y <-
-  compl_clean_sa_vs_gom_plus_dual %>%
-  group_by(permit,
-           year) %>%
-  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
-              (sum(tolower(compliant_) == "no")))
-
-# the proportion by week
+## ---- the proportion by week ----
 compl_clean_sa_vs_gom_plus_dual__weeks <-
   compl_clean_sa_vs_gom_plus_dual %>%
   group_by(permit,
@@ -251,7 +106,7 @@ compl_clean_sa_vs_gom_plus_dual__weeks <-
   summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
               (sum(tolower(compliant_) == "no")))
 
-# the proportion by quarter
+## ---- the proportion by quarter ----
 compl_clean_sa_vs_gom_plus_dual_q <-
   compl_clean_sa_vs_gom_plus_dual %>%
   mutate(year_quarter = as.yearqtr(week_start)) %>%
@@ -260,7 +115,7 @@ compl_clean_sa_vs_gom_plus_dual_q <-
   summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
               (sum(tolower(compliant_) == "no")))
 
-## ---- plots for proportion ----
+## ---- plots for proportions ----
 names(by_month_w_start)
 p1 <-
   ggplot(by_month_w_start,
@@ -268,7 +123,7 @@ p1 <-
              y = compl_by_not, color = permit))
 p1 + geom_point()
 
-# sa * 10
+# sa * 10 for visibility
 by_month_w_start_10 <-
   by_month_w_start %>%
   mutate(sa_multiple_10 = if_else(startsWith(permit,  'sa'), compl_by_not * 10, compl_by_not))
@@ -321,7 +176,7 @@ p4 + geom_bar(position = "dodge", stat = "identity") +
             position = position_dodge(width = 0.9),
             vjust = -0.25)
 
-#per week
+# per week
 # have to exclude the week starts 2023-02-20 (the last in this data)
 # bc 1053/1
 tail(compl_clean_sa_vs_gom_plus_dual__weeks)
@@ -627,3 +482,94 @@ grid.arrange(
   left = "YES and NO counts",
   right = legend
 )
+
+## ---- percentage ----
+# It’s unclear what each figure is showing. What does “per week start” or “per year month" mean? Can we make the titles, “weekly compliance Gulf and dual permitted”, “monthly compliance Gulf and dual permitted”, “annual compliance Gulf and dual permitted”, and then the same for SA. So 6 total figures. 
+
+# Oh, and show it not as a number but a proportion. So, if we were looking at Gulf weekly compliance and it was 50 compliant vessels and 50 non-compliant, then the figures would be showing bars for 50% compliant and 50% non compliant. (50/100*100= 50%)
+
+# Ok. We don’t want to sum the entries though. We just need to know vessel level compliance, weekly, monthly and annually.  How many vessels by gulf and SA. The file you have lists the compliance by vessel and permit type, so you’ll just need to analyze it that way. We can discuss Thursday, if it’s confusing. 
+
+## ==== Prepare compliance info ====
+compl_clean_sa_vs_gom_plus_dual_short <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  select(vessel_official_number, compliant_, permit, week_start, year_month, year_quarter, year)
+
+# pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+
+gom_compl_clean_sa_vs_gom_plus_dual_short <-
+  filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "gom") 
+sa_compl_clean_sa_vs_gom_plus_dual_short <-
+  filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "sa_only")
+
+## ---- GOM + dual ----
+gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+  group_by(vessel_official_number, compliant_, week_start) %>%
+  summarise(n = n()) %>% 
+  summarise(by_week = sum(n)) %>% 
+  head()
+
+gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+  filter(week_start == "2022-12-26") %>%
+  # select(vessel_official_number) %>% unique() %>%
+  # Rows: 1,114
+  count(compliant_) %>%
+# count(gom_w_start_compl, week_start, compliant)
+    glimpse()
+# 1067 + 47 : 100
+# 1067      : b
+
+# (1067 * 100) / (1067 + 47)
+# [1] 95.78097
+
+# gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+#   add_count(vessel_official_number, name = 'count') %>%
+#   group_by(vessel_official_number) %>% 
+#   mutate(percent_yes = 100 * mean(compliant_), 
+#          percent_no = 100 - percent_yes) %>%  head()
+  # ungroup
+  
+percent <- function(x, y) {
+  # y : 100%
+  # x : b%
+  return(x*100/y)
+}
+
+gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+  summarize(count = n(),
+            percent_yes = percent(sum(compliant_ == "YES"), count),
+            percent_no = percent(sum(compliant_ == "NO"), count)) %>% head()
+  
+gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+  group_by(week_start) %>%
+  summarize(count = n(),
+            percent_yes = percent(sum(compliant_ == "YES"), count),
+            percent_no = percent(sum(compliant_ == "NO"), count)) %>% 
+  filter(week_start == "2022-12-26") %>%
+  head()
+# week_start count percent_yes percent_no
+# <date>     <int>       <dbl>      <dbl>
+# 2022-12-26  1114        95.8       4.22
+
+gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+  group_by(year_month) %>%
+  summarize(count = n(),
+            percent_yes = percent(sum(compliant_ == "YES"), count),
+            percent_no = percent(sum(compliant_ == "NO"), count)) %>% head()
+
+gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+  group_by(year) %>%
+  summarize(count = n(),
+            percent_yes = percent(sum(compliant_ == "YES"), count),
+            percent_no = percent(sum(compliant_ == "NO"), count)) %>% head()
+
+
+## ---- SA only ----
+sa_only_w_start_compl <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  filter(permit == "sa_only") %>%
+  select(vessel_official_number, compliant_, week_start, year_month, year_quarter, year) %>% str()
+  # pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+
+# filter(permit == "gom") %>%
+  
