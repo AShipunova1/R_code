@@ -617,7 +617,8 @@ sa_per_year_long <-
 
 my_df <- sa_per_year_long
 time_period <- "year"
-sa_plot <- function(my_df, time_period) {
+my_region <- c("Gulf and dual", "South Atlantic")
+sa_plot <- function(my_df, time_period, region) {
   sa_p <-
     my_df %>%
     ggplot(aes(
@@ -626,19 +627,23 @@ sa_plot <- function(my_df, time_period) {
       fill = percent
     ))
   
-  # monthly compliance Gulf and dual permitted”, “annual compliance Gulf and dual permitted”,
+  my_title <- case_when(time_period == "year" ~ "Annual",
+                        time_period == "year_month" ~ "Monthly",
+                        time_period == "week_start" ~ "Weekly"
+                        )
+  
+  my_x_lab <- case_when(time_period == "year" ~ "year",
+                        time_period == "year_month" ~ "month",
+                        time_period == "week_start" ~ "Week"
+  )
   sa_p + geom_bar(position = "dodge", stat = "identity") +
-    labs(title = paste0("per ", time_period),
+    labs(title = paste0(my_title, " compliance ",  region, " permitted"),
          y = "",
-         x = time_period) +
-    #
-    # labs(title = paste0("gom compliants per ", time_period),
-    #      y = "YES and NO counts",
-    #      x = time_period) +
+         x = my_x_lab) +
     theme(axis.text.x = element_text(angle = 45)) %>%
     return()
 }
-
+sa_plot(sa_per_year_long, "year", my_region[[2]])
 
 # ---
 
