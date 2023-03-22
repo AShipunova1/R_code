@@ -502,6 +502,12 @@ gom_compl_clean_sa_vs_gom_plus_dual_short <-
 sa_compl_clean_sa_vs_gom_plus_dual_short <-
   filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "sa_only")
 
+percent <- function(x, y) {
+  # y : 100%
+  # x : b%
+  return(x*100/y)
+}
+
 ## ---- GOM + dual ----
 gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(vessel_official_number, compliant_, week_start) %>%
@@ -529,12 +535,6 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
 #          percent_no = 100 - percent_yes) %>%  head()
   # ungroup
   
-percent <- function(x, y) {
-  # y : 100%
-  # x : b%
-  return(x*100/y)
-}
-
 gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   summarize(count = n(),
             percent_yes = percent(sum(compliant_ == "YES"), count),
@@ -551,25 +551,53 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
 # <date>     <int>       <dbl>      <dbl>
 # 2022-12-26  1114        95.8       4.22
 
-gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+
+gom_per_week <- 
+  gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+  group_by(week_start) %>%
+  summarize(count = n(),
+            percent_yes = percent(sum(compliant_ == "YES"), count),
+            percent_no = percent(sum(compliant_ == "NO"), count))
+  
+# str(gom_per_week)
+# tibble [60 × 4] (S3: tbl_df/tbl/data.frame)
+
+gom_per_month <- 
+  gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(year_month) %>%
   summarize(count = n(),
             percent_yes = percent(sum(compliant_ == "YES"), count),
-            percent_no = percent(sum(compliant_ == "NO"), count)) %>% head()
+            percent_no = percent(sum(compliant_ == "NO"), count))
 
-gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+str(gom_per_month)
+
+gom_per_year <-
+  gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(year) %>%
   summarize(count = n(),
             percent_yes = percent(sum(compliant_ == "YES"), count),
-            percent_no = percent(sum(compliant_ == "NO"), count)) %>% head()
+            percent_no = percent(sum(compliant_ == "NO"), count))
 
+gom_per_year
+# 96.9/3.15 = 30.7619 = (sum(yes) / sum(no))
 
 ## ---- SA only ----
-sa_only_w_start_compl <-
-  compl_clean_sa_vs_gom_plus_dual %>%
-  filter(permit == "sa_only") %>%
-  select(vessel_official_number, compliant_, week_start, year_month, year_quarter, year) %>% str()
-  # pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+percent_by_time_period <- function(my_df, time_period_field_name) {
+  my_df %>%
+    group_by(!!sym(time_period_field_name)) %>%
+    summarize(count = n(),
+              percent_yes = percent(sum(compliant_ == "YES"), count),
+              percent_no = percent(sum(compliant_ == "NO"), count)) %>%
+    return()
+}
 
-# filter(permit == "gom") %>%
-  
+percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year")
+
+sa_per_year <-
+  sa_compl_clean_sa_vs_gom_plus_dual_short %>%
+  group_by(year) %>%
+  summarize(count = n(),
+            percent_yes = percent(sum(compliant_ == "YES"), count),
+            percent_no = percent(sum(compliant_ == "NO"), count))
+# 60.8       / 39.2 = (sum(yes) / sum(no))
+# 53.1/46.9 = (sum(yes) / sum(no))
