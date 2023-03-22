@@ -11,3 +11,7 @@ history2.r
 connect.r
 *.xls
 *.Rproj
+*.rdb
+quantify_compliance/quantify_compliance_cache/html/__packages
+*.RData
+*.rdx
