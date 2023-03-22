@@ -6,7 +6,7 @@ output:
 ---
 
 ## Set up
-```{r not cache setup, echo=FALSE}
+```{r no cache setup, include=FALSE}
 # additional libraries
 library(zoo)
 library(gridExtra)
@@ -15,7 +15,7 @@ library(cowplot)
 source("~/R_code_github/useful_functions_module.r")
 ```
 
-```{r setup, cache=TRUE, echo=FALSE}
+```{r setup, cache=TRUE, include=FALSE}
 # knitr::opts_chunk$set(tidy=TRUE)
 my_paths <- set_work_dir()
 root.dir <- my_paths
@@ -119,6 +119,17 @@ my_percent <- function(x, y) {
 
 ```
 
+#### an auxilary function to get time period field name from df names
+```{r time period field name fun}
+
+get_time_period_col_name <- function(my_df) {
+  my_df %>%
+    select(-count, -starts_with("percent")) %>%
+    names() %>%
+    return()
+}
+  
+```
 #### function percent_by_time_period
 ```{r percent_by_time_period fun}
 percent_by_time_period <- function(my_df, time_period_field_name) {
@@ -211,9 +222,7 @@ percent_plot <- function(my_df,
                          region #SA vs. GOM + dual, see my_regions
                          ) {
   # get the current time period field name
-  time_period <- my_df %>%
-    select(-count, -starts_with("percent")) %>%
-    names() 
+  time_period <- get_time_period_col_name(my_df)
   
   # make a plot
   percent_p <-
@@ -246,6 +255,7 @@ percent_plot <- function(my_df,
     time_period == "week_start" ~ "week"
   )
   
+  # improve the plot view
   percent_p + 
     # side by side bars
     geom_bar(position = "dodge", stat = "identity") +
