@@ -716,7 +716,10 @@ region <- my_region[[1]]
 grid.arrange(
   gom_per_week_p + theme(legend.position = 'hidden'),
   gom_per_month_p + theme(legend.position = 'hidden'),
-  gom_per_year_p + theme(legend.position = 'hidden'),
+  gom_per_year_p + theme(legend.position = 'hidden') + 
+    geom_text(aes(label = round(percent, 2)),
+              position = position_dodge(width = 0.9),
+              vjust = -0.25),
   legend,
   nrow = 2,
   top = paste0(region, " permitted"),
