@@ -105,6 +105,138 @@ my_percent <- function(x, y) {
 
 ```
 
+### plots for percentage
+```{r plots for percentage}
+
+my_regions <- c("Gulf and dual", "South Atlantic")
+
+my_colors <- c("red", "blue")
+
+percent_plot <- function(my_df, time_period, region) {
+  percent_p <-
+    my_df %>%
+    pivot_longer(starts_with("percent"),
+                 names_to = "key",
+                 values_to = "percent") %>%
+    ggplot(aes(
+      x = !!sym(time_period),
+      y = percent,
+      fill = key
+    ))
+  
+  my_title <- case_when(
+    time_period == "year" ~ "Annual",
+    time_period == "year_month" ~ "Monthly",
+    time_period == "week_start" ~ "Weekly"
+  )
+  
+  my_x_lab <- case_when(
+    time_period == "year" ~ "year",
+    time_period == "year_month" ~ "month",
+    time_period == "week_start" ~ "week"
+  )
+  
+  percent_p + geom_bar(position = "dodge", stat = "identity") +
+    labs(
+      title = paste0(my_title, " compliance"),
+      # title = paste0(my_title, " compliance ",  region, " permitted"),
+      y = "",
+      x = my_x_lab
+    ) +
+    # scale_fill_manual(values = cbbPalette) +
+    scale_fill_manual(values = my_colors,
+                      name = "Colors",
+                      labels = c("% non-compliant", "% compliant")) +
+    theme(axis.text.x = element_text(angle = 45)) +
+    ylim(0, 100) %>%
+    return()
+}
+sa_per_year_p <- percent_plot(sa_per_year, "year", my_regions[[2]])
+sa_per_month_p <- percent_plot(sa_per_month, "year_month", my_regions[[2]])
+sa_per_week_p <- percent_plot(sa_per_week, "week_start", my_regions[[2]])
+
+gom_per_year_p <- percent_plot(gom_per_year, "year", my_regions[[1]])
+gom_per_month_p <- percent_plot(gom_per_month, "year_month", my_regions[[1]])
+gom_per_week_p <- percent_plot(gom_per_week, "week_start", my_regions[[1]])
+
+legend <-
+  cowplot::get_legend(gom_per_week_p + theme(legend.position = "right"))
+
+region <- my_regions[[2]]
+# sa_all <-
+grid.arrange(
+  sa_per_week_p + theme(legend.position = 'hidden'),
+  sa_per_month_p + theme(legend.position = 'hidden'),
+  sa_per_year_p + theme(legend.position = 'hidden'),
+  legend,
+  nrow = 2,
+  top = paste0(region, " permitted"),
+  left = "YES and NO percentage"
+  # ,
+  # right = legend
+)
+
+region <- my_regions[[1]]
+grid.arrange(
+  gom_per_week_p + theme(legend.position = 'hidden'),
+  gom_per_month_p + theme(legend.position = 'hidden'),
+  gom_per_year_p + theme(legend.position = 'hidden') + 
+    geom_text(aes(label = round(percent, 2)),
+              position = position_dodge(width = 0.9),
+              vjust = -0.25),
+  legend,
+  nrow = 2,
+  top = paste0(region, " permitted"),
+  left = "YES and NO percentage"
+  # ,
+  # right = legend
+)
+
+sa_per_year
+```
+
+```{r compliance numbers by permit group and time period}
+by_week <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  group_by(permit,
+           compliant_,
+           week) %>%
+  summarise(n = n())
+str(by_week)
+# gropd_df [240 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
+
+```
+```{r by month}
+compl_clean_sa_vs_gom_plus_dual__months <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  mutate(
+    month_w_start = format(week_start, "%m"),
+    month_w_end = format(week_end, "%m"),
+    year_month_w_start = floor_date(week_start),
+    year_month_w_end = floor_date(week_end)
+  )
+
+by_month_w_start <-
+  compl_clean_sa_vs_gom_plus_dual__months %>%
+  group_by(permit,
+           month_w_start) %>%
+  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
+              (sum(tolower(compliant_) == "no")))
+str(by_month_w_start)
+
+by_month_w_end <-
+  compl_clean_sa_vs_gom_plus_dual__months %>%
+  group_by(permit,
+           month_w_end) %>%
+  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
+              (sum(tolower(compliant_) == "no")))
+
+str(by_month_w_end)
+setdiff(by_month_w_start$compl_by_not, by_month_w_end$compl_by_not)
+# 24
+setdiff(by_month_w_end$compl_by_not, by_month_w_start$compl_by_not)
+
+```
 ```{r GOM + dual}
 gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(vessel_official_number, compliant_, week_start) %>%
@@ -226,146 +358,5 @@ sa_per_week <-
 
 # my_percent(953, (684+953))
 # 58.21625
-
-```
-```{r plots for percentage}
-
-# sa_per_year_long <-
-#   sa_per_year %>%
-#   pivot_longer(starts_with("percent"),
-#                names_to = "key",
-#                values_to = "percent")
-
-# my_df <- sa_per_year_long
-# time_period <- "year"
-my_region <- c("Gulf and dual", "South Atlantic")
-
-my_colors <- c("red", "blue")
-
-cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
-percent_plot <- function(my_df, time_period, region) {
-  percent_p <-
-    my_df %>%
-    pivot_longer(starts_with("percent"),
-                 names_to = "key",
-                 values_to = "percent") %>%
-    ggplot(aes(
-      x = !!sym(time_period),
-      y = percent,
-      fill = key
-    ))
-  
-  my_title <- case_when(
-    time_period == "year" ~ "Annual",
-    time_period == "year_month" ~ "Monthly",
-    time_period == "week_start" ~ "Weekly"
-  )
-  
-  my_x_lab <- case_when(
-    time_period == "year" ~ "year",
-    time_period == "year_month" ~ "month",
-    time_period == "week_start" ~ "week"
-  )
-  
-  percent_p + geom_bar(position = "dodge", stat = "identity") +
-    labs(
-      title = paste0(my_title, " compliance"),
-      # title = paste0(my_title, " compliance ",  region, " permitted"),
-      y = "",
-      x = my_x_lab
-    ) +
-    # scale_fill_manual(values = cbbPalette) +
-    scale_fill_manual(values = my_colors,
-                      name = "Colors",
-                      labels = c("% non-compliant", "% compliant")) +
-    theme(axis.text.x = element_text(angle = 45)) +
-    ylim(0, 100) %>%
-    return()
-}
-sa_per_year_p <- percent_plot(sa_per_year, "year", my_region[[2]])
-sa_per_month_p <- percent_plot(sa_per_month, "year_month", my_region[[2]])
-sa_per_week_p <- percent_plot(sa_per_week, "week_start", my_region[[2]])
-
-gom_per_year_p <- percent_plot(gom_per_year, "year", my_region[[1]])
-gom_per_month_p <- percent_plot(gom_per_month, "year_month", my_region[[1]])
-gom_per_week_p <- percent_plot(gom_per_week, "week_start", my_region[[1]])
-
-legend <-
-  cowplot::get_legend(gom_per_week_p + theme(legend.position = "right"))
-
-region <- my_region[[2]]
-# sa_all <-
-grid.arrange(
-  sa_per_week_p + theme(legend.position = 'hidden'),
-  sa_per_month_p + theme(legend.position = 'hidden'),
-  sa_per_year_p + theme(legend.position = 'hidden'),
-  legend,
-  nrow = 2,
-  top = paste0(region, " permitted"),
-  left = "YES and NO percentage"
-  # ,
-  # right = legend
-)
-
-region <- my_region[[1]]
-grid.arrange(
-  gom_per_week_p + theme(legend.position = 'hidden'),
-  gom_per_month_p + theme(legend.position = 'hidden'),
-  gom_per_year_p + theme(legend.position = 'hidden') + 
-    geom_text(aes(label = round(percent, 2)),
-              position = position_dodge(width = 0.9),
-              vjust = -0.25),
-  legend,
-  nrow = 2,
-  top = paste0(region, " permitted"),
-  left = "YES and NO percentage"
-  # ,
-  # right = legend
-)
-
-sa_per_year
-```
-
-```{r compliance numbers by permit group and time period}
-by_week <-
-  compl_clean_sa_vs_gom_plus_dual %>%
-  group_by(permit,
-           compliant_,
-           week) %>%
-  summarise(n = n())
-str(by_week)
-# gropd_df [240 × 4] (S3: grouped_df/tbl_df/tbl/data.frame)
-
-```
-```{r by month}
-compl_clean_sa_vs_gom_plus_dual__months <-
-  compl_clean_sa_vs_gom_plus_dual %>%
-  mutate(
-    month_w_start = format(week_start, "%m"),
-    month_w_end = format(week_end, "%m"),
-    year_month_w_start = floor_date(week_start),
-    year_month_w_end = floor_date(week_end)
-  )
-
-by_month_w_start <-
-  compl_clean_sa_vs_gom_plus_dual__months %>%
-  group_by(permit,
-           month_w_start) %>%
-  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
-              (sum(tolower(compliant_) == "no")))
-str(by_month_w_start)
-
-by_month_w_end <-
-  compl_clean_sa_vs_gom_plus_dual__months %>%
-  group_by(permit,
-           month_w_end) %>%
-  summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
-              (sum(tolower(compliant_) == "no")))
-
-str(by_month_w_end)
-setdiff(by_month_w_start$compl_by_not, by_month_w_end$compl_by_not)
-# 24
-setdiff(by_month_w_end$compl_by_not, by_month_w_start$compl_by_not)
 
 ```
