@@ -1,4 +1,4 @@
-```{r }
+```{r additional libraries}
 library(zoo)
 library(gridExtra)
 library(cowplot)
@@ -13,7 +13,7 @@ source("~/R_code_github/quantify_compliance/get_data.R")
 
 ```
 ```{r looking at the proportion of reports submitted vs flag }
-# glimpse(compl_clean)
+glimpse(compl_clean)
 # Rows: 167,607
 # Columns: 21
 
@@ -27,22 +27,7 @@ source("~/R_code_github/quantify_compliance/get_data.R")
 # SA:  CDW, CHS, SC
 
 ```
-```{r separate into 3 groups }
-compl_clean_sa_vs_gom <-
-  compl_clean %>%
-  mutate(permit =
-           case_when(
-             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
-             !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
-             .default = "both"
-           ))
-
-# names(compl_clean_sa_vs_gom)
-# dim(compl_clean_sa_vs_gom)
-# [1] 167607     22
-
-```
-```{r gulf + dual }
+```{r separate into 2 groups: SA vs GOM + dual}
 compl_clean_sa_vs_gom_plus_dual_0 <-
   compl_clean %>%
   mutate(permit =
@@ -51,6 +36,7 @@ compl_clean_sa_vs_gom_plus_dual_0 <-
              .default = "gom"
            ))
 
+head(compl_clean_sa_vs_gom_plus_dual_0)
 ```
 ```{r add columns for month and quarter }
 compl_clean_sa_vs_gom_plus_dual <-
@@ -59,8 +45,15 @@ compl_clean_sa_vs_gom_plus_dual <-
   mutate(year_month = as.yearmon(week_start)) %>%
   # add quarter
   mutate(year_quarter = as.yearqtr(week_start))
-
 ```
+```{r}
+names(compl_clean_sa_vs_gom_plus_dual) %>% length()
+```
+```
+```{r}
+head(compl_clean_sa_vs_gom_plus_dual[20,1])
+```
+
 ```{r compliance numbers by permit group and time period }
 by_week <-
   compl_clean_sa_vs_gom_plus_dual %>%
