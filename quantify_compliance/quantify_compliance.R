@@ -591,6 +591,13 @@ percent_by_time_period <- function(my_df, time_period_field_name) {
     return()
 }
 
+sa_compl_clean_sa_vs_gom_plus_dual_short %>%
+  group_by(year) -> t1
+  table(t1$compliant_) %>%
+  prop.table()
+
+prop.table(table(sa_compl_clean_sa_vs_gom_plus_dual_short$compliant_))
+
 sa_per_year <- percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year")
 
 sa_per_month <- percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year_month")
