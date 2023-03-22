@@ -611,6 +611,11 @@ percent_by_time_period <- function(my_df, time_period_field_name) {
     return()
 }
 
+compl_clean_sa_vs_gom_plus_dual %>%
+  filter(permit == "sa_only") %>%
+  select(vessel_official_number, compliant_, week, year) %>%
+  arrange(vessel_official_number, year, week) %>%
+  tail()
 sa_per_year <-
   percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year")
 
@@ -728,3 +733,54 @@ grid.arrange(
   # right = legend
 )
 
+# with a function
+
+#### save the legend separately
+
+```{r legend}
+my_legend <-
+  cowplot::get_legend(gom_per_week_p)
+```
+
+#### combine plots
+
+```{r combine plots}
+arrange_plots <- function(plot_arr, region, legend) {
+  plot_arr_hide_leg <-
+    lapply(plot_arr, function(x)
+      x + theme(legend.position = 'hidden'))
+  
+  grid.arrange(
+    grobs = plot_arr_hide_leg,
+    # add % on top of the bars
+    geom_text(
+      aes(label =
+            paste0(round(percent, 2), "%")),
+      position = position_dodge(width = 0.9),
+      vjust = -0.25
+    ),
+    legend,
+    nrow = 2,
+    top = paste0(region, " permitted"),
+    left = "YES and NO percentage"
+  )
+}
+```
+##### SA
+```{r sa}
+
+# SA
+sa_region <- my_regions[[2]]
+sa_plot_arr <- list(sa_per_week_p, sa_per_month_p, sa_per_year_p)
+
+arrange_plots(sa_plot_arr, sa_region, my_legend)
+
+```
+
+##### GOM + dual
+```{r GOM + dual}
+gom_region <- my_regions[[1]]
+gom_plot_arr <- list(gom_per_week_p, gom_per_month_p, gom_per_year_p)
+
+arrange_plots(gom_plot_arr, gom_region, my_legend)
+```
