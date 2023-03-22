@@ -484,35 +484,43 @@ grid.arrange(
 )
 
 ## ---- percentage ----
-# It’s unclear what each figure is showing. What does “per week start” or “per year month" mean? Can we make the titles, “weekly compliance Gulf and dual permitted”, “monthly compliance Gulf and dual permitted”, “annual compliance Gulf and dual permitted”, and then the same for SA. So 6 total figures. 
+# It’s unclear what each figure is showing. What does “per week start” or “per year month" mean? Can we make the titles, “weekly compliance Gulf and dual permitted”, “monthly compliance Gulf and dual permitted”, “annual compliance Gulf and dual permitted”, and then the same for SA. So 6 total figures.
 
 # Oh, and show it not as a number but a proportion. So, if we were looking at Gulf weekly compliance and it was 50 compliant vessels and 50 non-compliant, then the figures would be showing bars for 50% compliant and 50% non compliant. (50/100*100= 50%)
 
-# Ok. We don’t want to sum the entries though. We just need to know vessel level compliance, weekly, monthly and annually.  How many vessels by gulf and SA. The file you have lists the compliance by vessel and permit type, so you’ll just need to analyze it that way. We can discuss Thursday, if it’s confusing. 
+# Ok. We don’t want to sum the entries though. We just need to know vessel level compliance, weekly, monthly and annually.  How many vessels by gulf and SA. The file you have lists the compliance by vessel and permit type, so you’ll just need to analyze it that way. We can discuss Thursday, if it’s confusing.
 
 ## ==== Prepare compliance info ====
 compl_clean_sa_vs_gom_plus_dual_short <-
   compl_clean_sa_vs_gom_plus_dual %>%
-  select(vessel_official_number, compliant_, permit, week_start, year_month, year_quarter, year)
+  select(
+    vessel_official_number,
+    compliant_,
+    permit,
+    week_start,
+    year_month,
+    year_quarter,
+    year
+  )
 
 # pivot_longer("compliant_", names_to = "key", values_to = "compliant")
 
 gom_compl_clean_sa_vs_gom_plus_dual_short <-
-  filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "gom") 
+  filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "gom")
 sa_compl_clean_sa_vs_gom_plus_dual_short <-
   filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "sa_only")
 
 my_percent <- function(x, y) {
   # y : 100%
   # x : b%
-  return(x*100/y)
+  return(x * 100 / y)
 }
 
 ## ---- GOM + dual ----
 gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(vessel_official_number, compliant_, week_start) %>%
-  summarise(n = n()) %>% 
-  summarise(by_week = sum(n)) %>% 
+  summarise(n = n()) %>%
+  summarise(by_week = sum(n)) %>%
   head()
 
 gom_compl_clean_sa_vs_gom_plus_dual_short %>%
@@ -520,8 +528,8 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   # select(vessel_official_number) %>% unique() %>%
   # Rows: 1,114
   count(compliant_) %>%
-# count(gom_w_start_compl, week_start, compliant)
-    glimpse()
+  # count(gom_w_start_compl, week_start, compliant)
+  glimpse()
 # 1067 + 47 : 100
 # 1067      : b
 
@@ -530,21 +538,25 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
 
 # gom_compl_clean_sa_vs_gom_plus_dual_short %>%
 #   add_count(vessel_official_number, name = 'count') %>%
-#   group_by(vessel_official_number) %>% 
-#   mutate(percent_yes = 100 * mean(compliant_), 
+#   group_by(vessel_official_number) %>%
+#   mutate(percent_yes = 100 * mean(compliant_),
 #          percent_no = 100 - percent_yes) %>%  head()
-  # ungroup
-  
+# ungroup
+
 gom_compl_clean_sa_vs_gom_plus_dual_short %>%
-  summarize(count = n(),
-            percent_yes = my_percent(sum(compliant_ == "YES"), count),
-            percent_no = my_percent(sum(compliant_ == "NO"), count)) %>% head()
-  
+  summarize(
+    count = n(),
+    percent_yes = my_percent(sum(compliant_ == "YES"), count),
+    percent_no = my_percent(sum(compliant_ == "NO"), count)
+  ) %>% head()
+
 gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(week_start) %>%
-  summarize(count = n(),
-            percent_yes = my_percent(sum(compliant_ == "YES"), count),
-            percent_no = my_percent(sum(compliant_ == "NO"), count)) %>% 
+  summarize(
+    count = n(),
+    percent_yes = my_percent(sum(compliant_ == "YES"), count),
+    percent_no = my_percent(sum(compliant_ == "NO"), count)
+  ) %>%
   filter(week_start == "2022-12-26") %>%
   head()
 # week_start count percent_yes percent_no
@@ -552,31 +564,37 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
 # 2022-12-26  1114        95.8       4.22
 
 
-gom_per_week <- 
+gom_per_week <-
   gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(week_start) %>%
-  summarize(count = n(),
-            percent_yes = my_percent(sum(compliant_ == "YES"), count),
-            percent_no = my_percent(sum(compliant_ == "NO"), count))
-  
+  summarize(
+    count = n(),
+    percent_yes = my_percent(sum(compliant_ == "YES"), count),
+    percent_no = my_percent(sum(compliant_ == "NO"), count)
+  )
+
 # str(gom_per_week)
 # tibble [60 × 4] (S3: tbl_df/tbl/data.frame)
 
-gom_per_month <- 
+gom_per_month <-
   gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(year_month) %>%
-  summarize(count = n(),
-            percent_yes = my_percent(sum(compliant_ == "YES"), count),
-            percent_no = my_percent(sum(compliant_ == "NO"), count))
+  summarize(
+    count = n(),
+    percent_yes = my_percent(sum(compliant_ == "YES"), count),
+    percent_no = my_percent(sum(compliant_ == "NO"), count)
+  )
 
 str(gom_per_month)
 
 gom_per_year <-
   gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   group_by(year) %>%
-  summarize(count = n(),
-            percent_yes = my_percent(sum(compliant_ == "YES"), count),
-            percent_no = my_percent(sum(compliant_ == "NO"), count))
+  summarize(
+    count = n(),
+    percent_yes = my_percent(sum(compliant_ == "YES"), count),
+    percent_no = my_percent(sum(compliant_ == "NO"), count)
+  )
 
 gom_per_year
 # 96.9/3.15 = 30.7619 = (sum(yes) / sum(no))
@@ -585,33 +603,31 @@ gom_per_year
 percent_by_time_period <- function(my_df, time_period_field_name) {
   my_df %>%
     group_by(!!sym(time_period_field_name)) %>%
-    summarize(count = n(),
-              percent_yes = my_percent(sum(compliant_ == "YES"), count),
-              percent_no = my_percent(sum(compliant_ == "NO"), count)) %>%
+    summarize(
+      count = n(),
+      percent_yes = my_percent(sum(compliant_ == "YES"), count),
+      percent_no = my_percent(sum(compliant_ == "NO"), count)
+    ) %>%
     return()
 }
 
-sa_compl_clean_sa_vs_gom_plus_dual_short %>%
-  group_by(year) -> t1
-  table(t1$compliant_) %>%
-  prop.table()
+sa_per_year <-
+  percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year")
 
-prop.table(table(sa_compl_clean_sa_vs_gom_plus_dual_short$compliant_))
+sa_per_month <-
+  percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year_month")
 
-sa_per_year <- percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year")
-
-sa_per_month <- percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year_month")
-
-sa_per_week <- percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "week_start")
+sa_per_week <-
+  percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "week_start")
 
 # test
 # sa_per_week %>%
-  # filter(week_start == "2022-12-26")
+# filter(week_start == "2022-12-26")
 
 # sa_compl_clean_sa_vs_gom_plus_dual_short %>%
-  # filter(week_start == "2022-12-26") %>%
-  # group_by(compliant_, week_start) %>%
-  # summarise(n = n())
+# filter(week_start == "2022-12-26") %>%
+# group_by(compliant_, week_start) %>%
+# summarise(n = n())
 
 # my_percent(953, (684+953))
 # 58.21625
@@ -620,7 +636,9 @@ sa_per_week <- percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, 
 
 sa_per_year_long <-
   sa_per_year %>%
-  pivot_longer(starts_with("percent"), names_to = "key", values_to = "percent")
+  pivot_longer(starts_with("percent"),
+               names_to = "key",
+               values_to = "percent")
 
 my_df <- sa_per_year_long
 time_period <- "year"
@@ -628,28 +646,36 @@ my_region <- c("Gulf and dual", "South Atlantic")
 sa_plot <- function(my_df, time_period, region) {
   sa_p <-
     my_df %>%
+    pivot_longer(starts_with("percent"),
+                 names_to = "key",
+                 values_to = "percent") %>%
     ggplot(aes(
       x = !!sym(time_period),
-      y = key,
-      fill = percent
+      y = percent,
+      fill = key
     ))
   
-  my_title <- case_when(time_period == "year" ~ "Annual",
-                        time_period == "year_month" ~ "Monthly",
-                        time_period == "week_start" ~ "Weekly"
-                        )
+  my_title <- case_when(
+    time_period == "year" ~ "Annual",
+    time_period == "year_month" ~ "Monthly",
+    time_period == "week_start" ~ "Weekly"
+  )
   
-  my_x_lab <- case_when(time_period == "year" ~ "year",
-                        time_period == "year_month" ~ "month",
-                        time_period == "week_start" ~ "Week"
+  my_x_lab <- case_when(
+    time_period == "year" ~ "year",
+    time_period == "year_month" ~ "month",
+    time_period == "week_start" ~ "Week"
   )
   sa_p + geom_bar(position = "dodge", stat = "identity") +
-    labs(title = paste0(my_title, " compliance ",  region, " permitted"),
-         y = "",
-         x = my_x_lab) +
+    labs(
+      title = paste0(my_title, " compliance ",  region, " permitted"),
+      y = "",
+      x = my_x_lab
+    ) +
     theme(axis.text.x = element_text(angle = 45)) %>%
     return()
 }
+sa_plot(sa_per_year_long, "year", my_region[[2]])
 sa_plot(sa_per_year_long, "year", my_region[[2]])
 
 # ---
