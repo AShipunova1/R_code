@@ -1,6 +1,6 @@
 ---
-title: "Test"
-date: 2019-03-11
+title: "Looking at the proportion of compliant and non-compliant vessels per different time periods and permit groups"
+date: 2023-03-22
 output: 
   html_document
 ---
@@ -34,6 +34,7 @@ glimpse(compl_clean)
 https://www.fisheries.noaa.gov/southeast/recreational-fishing/frequently-asked-questions-southeast-hire-integrated-electronic#general-program-requirements
 
 GOM: RCG, HRCG, CHG, HCHG
+
 SA:  CDW, CHS, SC
 
 ### add a column for our permit groups
@@ -49,7 +50,7 @@ compl_clean_sa_vs_gom_plus_dual_0 <-
 glimpse(compl_clean_sa_vs_gom_plus_dual_0)
 ```
 
-### add columns for month and quarter
+## add columns for month and quarter
 ```{r add columns for month and quarter}
 compl_clean_sa_vs_gom_plus_dual <-
   compl_clean_sa_vs_gom_plus_dual_0 %>%
@@ -271,13 +272,13 @@ percent_plot <- function(my_df,
 
 #### create individual plots
 ```{r create individual plots}
-sa_per_year_p <- percent_plot(sa_per_year, "year", my_regions[[2]])
-sa_per_month_p <- percent_plot(sa_per_month, "year_month", my_regions[[2]])
-sa_per_week_p <- percent_plot(sa_per_week, "week_start", my_regions[[2]])
+sa_per_year_p <- percent_plot(sa_per_year, my_regions[[2]])
+sa_per_month_p <- percent_plot(sa_per_month, my_regions[[2]])
+sa_per_week_p <- percent_plot(sa_per_week, my_regions[[2]])
 
-gom_per_year_p <- percent_plot(gom_per_year, "year", my_regions[[1]])
-gom_per_month_p <- percent_plot(gom_per_month, "year_month", my_regions[[1]])
-gom_per_week_p <- percent_plot(gom_per_week, "week_start", my_regions[[1]])
+gom_per_year_p <- percent_plot(gom_per_year, my_regions[[1]])
+gom_per_month_p <- percent_plot(gom_per_month, my_regions[[1]])
+gom_per_week_p <- percent_plot(gom_per_week, my_regions[[1]])
 ```
 
 #### save the legend separately
