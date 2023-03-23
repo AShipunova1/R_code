@@ -218,7 +218,8 @@ percent_by_month %>%
   labs(title = "Monthly ompliance for '1000042'",
        x ="month", y = "compliance percent")
   
-one_vessel_plot <- function() {
+# one_vessel_plot <- function() {
+month_p <-
   percent_by_month %>% 
     filter(permit == "gom") %>%
     pivot_longer(starts_with("month_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
@@ -231,10 +232,59 @@ one_vessel_plot <- function() {
     )) +
     geom_bar(stat = "identity") +
     theme(axis.text.x = element_text(angle = 45)) +
-    labs(title = "Monthly ompliance for '1000042'",
+    labs(title = "Monthly compliance for '1000042'",
          x ="month", y = "compliance percent")
   
-}
+# }
+
+# by quarter ----
+quarter_p <-
+  percent_by_quarter %>% 
+  filter(permit == "gom") %>%
+  pivot_longer(starts_with("quarter_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  filter(vessel_official_number == "1000042") %>%
+  # head(100) %>%
+  ggplot(aes(
+    x = year_quarter,
+    y = compliance_percent,
+    fill = yes_or_no
+  )) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(title = "Quarterly compliance for '1000042'",
+       x ="quarter", y = "compliance percent")
+
+year_p <-
+  percent_by_year %>% 
+  filter(permit == "gom") %>%
+  pivot_longer(starts_with("year_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  filter(vessel_official_number == "1000042") %>%
+  # head(100) %>%
+  ggplot(aes(
+    x = year,
+    y = compliance_percent,
+    fill = yes_or_no
+  )) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(title = "Annualy compliance for '1000042'",
+       x ="year", y = "compliance percent")
+
+# arrange ----
+legend <-
+  cowplot::get_legend(month_p + theme(legend.position = "right"))
+
+grid.arrange(
+  month_p + theme(legend.position = 'hidden'),
+  quarter_p + theme(legend.position = 'hidden'),
+  year_p + theme(legend.position = 'hidden'),
+  legend,
+  nrow = 2
+  # top = "compliance for '1000042'",
+  # left = "YES and NO percent",
+  # right = legend
+)
+
 
 ## plot 2 ----
 head(percent_by_quarter)
