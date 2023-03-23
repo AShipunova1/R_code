@@ -216,7 +216,7 @@ year_p <-
   )) +
   geom_bar(stat = "identity") +
   theme(axis.text.x = element_text(angle = 45)) +
-  labs(title = "Annualy compliance for '1000042'",
+  labs(title = "Annually compliance for '1000042'",
        x ="year", y = "compliance percent")
 
 # arrange ----
