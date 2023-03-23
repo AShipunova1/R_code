@@ -101,6 +101,7 @@ my_title <- function(time_period) {
   case_when(
     time_period == "year" ~ "Annual",
     time_period == "year_month" ~ "Monthly",
+    time_period == "year_quarter" ~ "Quarterly",
     time_period == "week_start" ~ "Weekly"
   )
   return()
@@ -111,10 +112,23 @@ my_x_lab <- function(time_period) {
   case_when(
     time_period == "year" ~ "year",
     time_period == "year_month" ~ "month",
+    time_period == "year_quarter" ~ "quarter",
     time_period == "week_start" ~ "week"
   )
   return()
 }
+cat(names(compl_clean_sa_vs_gom_plus_dual_q_t))
+
+time_period_fields <- c("year", "year_quarter", "year_month", "year")
+get_time_period_col_name <- function(my_df) {
+  time_period_field <- intersect(colnames(my_df), time_period_fields)
+  my_df %>%
+    select(one_of(time_period_fields)) %>%
+    colnames() %>%
+    return()
+}
+
+
 ```
 
 ### Total counts
@@ -142,23 +156,42 @@ count_compliant_yes <- function(time_period_name) {
 }
 compl_clean_sa_vs_gom_plus_dual_q <- count_compliant_yes("year_quarter")
 head(compl_clean_sa_vs_gom_plus_dual_q)
+```
 
-## percent by quarter
-compl_clean_sa_vs_gom_plus_dual_q_t <-
-  full_join(compl_clean_sa_vs_gom_plus_dual_all_q,
-            compl_clean_sa_vs_gom_plus_dual_q,
-            by = c("vessel_official_number", "year_quarter", "permit"))
+### join counts
+```{r join counts}
+join_counts <- function(df_all_cnt, df_yes_cnt){
+  full_join(df_all_cnt, df_yes_cnt
+            # ,
+            # by = c("vessel_official_number", "year_quarter", "permit")
+            ) %>%
+      replace(is.na(.), 0) %>%
+    return()
+}
+
+compl_clean_sa_vs_gom_plus_dual_q_t <- join_counts(compl_clean_sa_vs_gom_plus_dual_all_q,
+            compl_clean_sa_vs_gom_plus_dual_q)
 
 str(compl_clean_sa_vs_gom_plus_dual_q_t)
 
-percent_by_quarter <-
-  compl_clean_sa_vs_gom_plus_dual_q_t %>%
-  replace(is.na(.), 0) %>%
-  group_by(vessel_official_number, permit, year_quarter) %>%
-  summarise(quarter_percent_yes = compliant_yes * 100 / total_count_q,
-            quarter_percent_no = 100 - quarter_percent_yes)
+```
 
-head(percent_by_quarter)
+### percent by time period
+```{r percent by time period}
+
+percent_by_time_period <- function(joined_df) {
+  browser()
+  time_period_name <- get_time_period_col_name(joined_df)
+  joined_df %>%
+    group_by(vessel_official_number, permit, !!sym(time_period_name)) %>%
+    summarise(percent_yes = compliant_yes * 100 / total_count,
+              percent_no = 100 - percent_yes)
+}
+
+percent_by_quarter <- percent_by_time_period(compl_clean_sa_vs_gom_plus_dual_q_t)
+
+time_period <- get_time_period_col_name(my_df)
+  head(compl_clean_sa_vs_gom_plus_dual_q_t)
 ```
 
 
