@@ -246,6 +246,11 @@ quarter_p <- plot_by_time(percent_by_quarter, "1000042", "gom", "year_quarter")
 month_p <- plot_by_time(percent_by_month, "1000042", "gom", "year_month")
 year_p <- plot_by_time(percent_by_year, "1000042", "gom", "year")
 
+# 1023972
+quarter_1023972p <- plot_by_time(percent_by_quarter, "1023972", "gom", "year_quarter")
+month_1023972p <- plot_by_time(percent_by_month, "1023972", "gom", "year_month")
+year_1023972p <- plot_by_time(percent_by_year, "1023972", "gom", "year")
+
 ```
 ### arrange plots
 ```{r arrange}
@@ -264,5 +269,22 @@ grid.arrange(
   # right = legend
 )
 
+```
+
+```{r 1023972}
+
+legend <-
+  cowplot::get_legend(quarter_1023972p + theme(legend.position = "right"))
+
+grid.arrange(
+  month_1023972p + theme(legend.position = 'hidden'),
+  quarter_1023972p + theme(legend.position = 'hidden'),
+  year_1023972p + theme(legend.position = 'hidden'),
+  legend,
+  nrow = 2
+  # top = "compliance for '1000042'",
+  # left = "YES and NO percent",
+  # right = legend
+)
 ```
 
