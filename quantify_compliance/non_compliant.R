@@ -118,27 +118,97 @@ gom_non_compl %>%
 # vessel_official_number 493
 # compliant_               2
 
-gom_non_compl %>%
+# summarise_each(funs(n_distinct(.)))
+
+gom_sum_rep_by_month <-
+  gom_non_compl %>%
   # select(vessel_official_number, year_month) %>%
   group_by(vessel_official_number, year_month) %>%
   summarise(sum_report_cnts = sum(report_cnts),
-            is_compl = 
-            ) %>% head()
+            across(compliant_, ~list(sort(unique(.x))))) %>%
+  as.data.frame()
+# %>%
+#   head()
 
+head(gom_sum_rep_by_month)
+  # is_compl = list(sort(unique(compliant_)))
+  # ) %>%
+  # as.data.frame() %>%
+  # mutate(non_compl = length(is_compl)
+  #        mutate(non_compl = length(is_compl)
+  #               # mutate(non_compl = ifelse(length(is_compl) > 1 | tolower(is_compl) == "no",
+  #               #                           "non_compl", "yes")
+data_overview(gom_sum_rep_by_month)
+# 6196            
+# vessel_official_number 493
+# year_month              14
+# sum_report_cnts         96
+# is_compl                 3
+# ---
 # 1000042                    2?
 # Groups:   vessel_official_number [493]
-
-compl_clean_sa_vs_gom_plus_dual_non_compl_rep %>%
+# ---
+gom_sum_rep_by_month %>%
   filter(vessel_official_number == "1000042") %>%
-  glimpse()
-#   dim()
-# 2299    6
+  head()
+  # dim()
+# 14 4
 
 compl_clean_sa_vs_gom_plus_dual %>%
   filter(vessel_official_number == "1000042") %>%
   glimpse()
 #   dim()
 
+gom_sum_rep_by_month_c <-
+  gom_sum_rep_by_month %>%
+  mutate(is_compl = ifelse(
+    compliant_ == "YES",
+    "compl", "non_compl"
+    )
+  )
+
+# vessel_official_number year_month sum_report_cnts compliant_  is_compl
+# 1                      Jan 2022               0        YES     compl
+# 1                      Feb 2022               0        YES     compl
+# 1                      Mar 2022              25        YES     compl
+# 1                      Apr 2022              39    NO, YES non_compl
+gom_non_compl_total_report_cnts_by_month <-
+  gom_sum_rep_by_month_c %>%
+  filter(is_compl == "non_compl") %>%
+  group_by(year_month) %>%
+  summarise(total_report_cnts = sum(sum_report_cnts))
+# %>%
+#   head()
+# year_month total_report_cnts
+# <yearmon>              <int>
+# Jan 2022                 331
+# Feb 2022                 795
+# Mar 2022                 990
+# Apr 2022                1119
+
+gom_total_report_cnts_by_month <-
+  gom_sum_rep_by_month_c %>%
+  group_by(year_month, is_compl) %>%
+  summarise(total_report_cnts = sum(sum_report_cnts))
+
+head(gom_total_report_cnts_by_month)
+head(gom_sum_rep_by_month_c)
+
+gom_sum_rep_by_month_c %>%
+  select(year_month, is_compl, vessel_official_number) %>%
+  group_by(year_month, is_compl) %>%
+  summarise(num_vessel = n()
+            # ,
+    # total_report_cnts = sum(sum_report_cnts)
+    ) %>%
+  head()
+
+# 358+47 = 405
+
+gom_sum_rep_by_month_c %>%
+  filter(year_month == "Jan 2022") %>%
+  select(vessel_official_number) %>% dim()
+  # 405
 ## ---- SA ----
 sa_non_compl <-
   short_non_compl %>%
