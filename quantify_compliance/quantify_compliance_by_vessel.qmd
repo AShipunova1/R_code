@@ -1,0 +1,211 @@
+---
+title: "compliance plots by vessel"
+format: html
+date: 2023-03-23
+output:
+  html_document
+format:
+  html:
+    css: styles.css
+    code-overflow: wrap
+---
+
+## Set up
+
+```{r no cache setup, include=FALSE}
+# additional libraries
+library(zoo)
+library(gridExtra)
+library(cowplot)
+
+source("~/R_code_github/useful_functions_module.r")
+```
+
+```{r setup, cache=TRUE, include=FALSE}
+# knitr::opts_chunk$set(tidy=TRUE)
+my_paths <- set_work_dir()
+root.dir <- my_paths
+source("~/R_code_github/quantify_compliance/get_data.R")
+
+```
+
+```{r, cache=TRUE}
+glimpse(compl_clean)
+# Rows: 167,607
+# Columns: 21
+
+```
+
+## Separate SA and GOM permits
+
+#### get list of all permitgroups
+
+https://www.fisheries.noaa.gov/southeast/recreational-fishing/frequently-asked-questions-southeast-hire-integrated-electronic#general-program-requirements
+
+GOM: RCG, HRCG, CHG, HCHG
+
+SA: CDW, CHS, SC
+
+### add a column for our permit groups
+
+```{r separate into 2 groups: SA vs GOM + dual}
+compl_clean_sa_vs_gom_plus_dual_0 <-
+  compl_clean %>%
+  mutate(permit =
+           case_when(
+             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
+             .default = "gom"
+           ))
+
+glimpse(compl_clean_sa_vs_gom_plus_dual_0)
+```
+
+## add columns for month and quarter
+```{r add columns for month and quarter}
+compl_clean_sa_vs_gom_plus_dual <-
+  compl_clean_sa_vs_gom_plus_dual_0 %>%
+  # add month
+  mutate(year_month = as.yearmon(week_start)) %>%
+  # add quarter
+  mutate(year_quarter = as.yearqtr(week_start))
+
+```
+
+## by vessel
+```{r}
+#| tidy: true
+compl_clean_sa_vs_gom_plus_dual_short <-
+  compl_clean_sa_vs_gom_plus_dual %>% 
+  select(permit, compliant_, vessel_official_number, week_start, year_month, year_quarter, year)
+
+glimpse(compl_clean_sa_vs_gom_plus_dual_short)
+
+```
+
+
+
+### view fewer columns of original data
+
+```{r view fewer columns}
+
+compl_clean_sa_vs_gom_plus_dual %>%
+  select(vessel_official_number, compliant_, week, permit, year_month, year) %>%
+  # arrange(year, week, permit, vessel_official_number) %>%
+  head()
+
+```
+
+### aux functions
+```{r aux functions}
+my_title <- function(time_period) {
+  case_when(
+    time_period == "year" ~ "Annual",
+    time_period == "year_month" ~ "Monthly",
+    time_period == "week_start" ~ "Weekly"
+  )
+  return()
+}
+  
+  # rename column names for x labels
+my_x_lab <- function(time_period) {
+  case_when(
+    time_period == "year" ~ "year",
+    time_period == "year_month" ~ "month",
+    time_period == "week_start" ~ "week"
+  )
+  return()
+}
+```
+
+### Total counts
+```{r total counts}
+
+total_counts <- function(time_period_name) {
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
+  summarise(total_count = n()) %>%
+  as.data.frame()
+}
+compl_clean_sa_vs_gom_plus_dual_all_q <- total_counts("year_quarter")
+
+head(compl_clean_sa_vs_gom_plus_dual_all_q)
+```
+
+### count_compliant_yes
+```{r compliant_yes}
+count_compliant_yes <- function(time_period_name) {
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  filter(tolower(compliant_) == "yes") %>%
+  group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
+  summarise(compliant_yes = n()) %>%
+  as.data.frame()
+}
+compl_clean_sa_vs_gom_plus_dual_q <- count_compliant_yes("year_quarter")
+head(compl_clean_sa_vs_gom_plus_dual_q)
+
+## percent by quarter
+compl_clean_sa_vs_gom_plus_dual_q_t <-
+  full_join(compl_clean_sa_vs_gom_plus_dual_all_q,
+            compl_clean_sa_vs_gom_plus_dual_q,
+            by = c("vessel_official_number", "year_quarter", "permit"))
+
+str(compl_clean_sa_vs_gom_plus_dual_q_t)
+
+percent_by_quarter <-
+  compl_clean_sa_vs_gom_plus_dual_q_t %>%
+  replace(is.na(.), 0) %>%
+  group_by(vessel_official_number, permit, year_quarter) %>%
+  summarise(quarter_percent_yes = compliant_yes * 100 / total_count_q,
+            quarter_percent_no = 100 - quarter_percent_yes)
+
+head(percent_by_quarter)
+```
+
+
+
+#### combine SA plots
+
+```{r combine plots SA}
+
+# SA
+region <- my_regions[[2]]
+grid.arrange(
+  sa_per_week_p + theme(legend.position = 'hidden'),
+  sa_per_month_p + theme(legend.position = 'hidden'),
+  sa_per_year_p + theme(legend.position = 'hidden') +
+    # add % on top of the bars
+    geom_text(aes(label =
+                    paste0(round(percent, 2), "%")
+                  ),
+              position = position_dodge(width = 0.9),
+              vjust = -0.25),
+  legend,
+  nrow = 2,
+  top = paste0(region, " permitted"),
+  left = "YES and NO percentage"
+)
+```
+
+#### combine GOM + dual plots
+
+```{r combine plots GOM + dual}
+
+# GOM + dual
+region <- my_regions[[1]]
+grid.arrange(
+  gom_per_week_p + theme(legend.position = 'hidden'),
+  gom_per_month_p + theme(legend.position = 'hidden'),
+  gom_per_year_p + theme(legend.position = 'hidden') + 
+    # add % on top of the bars
+    geom_text(aes(label = 
+                    paste0(round(percent, 2), "%")
+                  ),
+              position = position_dodge(width = 0.9),
+              vjust = -0.25),
+  legend,
+  nrow = 2,
+  top = paste0(region, " permitted"),
+  left = "YES and NO percentage"
+)
+
+```

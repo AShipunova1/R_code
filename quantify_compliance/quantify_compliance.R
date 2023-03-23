@@ -51,6 +51,235 @@ compl_clean_sa_vs_gom_plus_dual <-
   # add quarter
   mutate(year_quarter = as.yearqtr(week_start))
 
+## ---- by vessel ----
+compl_clean_sa_vs_gom_plus_dual_short <-
+  compl_clean_sa_vs_gom_plus_dual %>% 
+  select(permit, compliant_, vessel_official_number, week_start, year_month, year_quarter, year)
+  
+## by year ----
+## ---- total counts ----
+
+compl_clean_sa_vs_gom_plus_dual_all <-
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  group_by(vessel_official_number, permit, year) %>% 
+  summarise(total_count = n()) %>%
+  as.data.frame()
+
+head(compl_clean_sa_vs_gom_plus_dual_all)
+
+compl_clean_sa_vs_gom_plus_dual_y <-
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  filter(tolower(compliant_) == "yes") %>%
+  group_by(vessel_official_number, permit, year) %>% 
+  summarise(compliant_yes = n()) %>%
+  as.data.frame()
+
+head(compl_clean_sa_vs_gom_plus_dual_y)
+
+compl_clean_sa_vs_gom_plus_dual_y_t <-
+full_join(compl_clean_sa_vs_gom_plus_dual_all,
+          compl_clean_sa_vs_gom_plus_dual_y,
+          by = c("vessel_official_number", "year", "permit"))
+
+str(compl_clean_sa_vs_gom_plus_dual_y_t)
+# 'data.frame':	6472 obs. of  4 variables:
+
+## percent by year ----
+percent_by_year <-
+  compl_clean_sa_vs_gom_plus_dual_y_t %>%
+  replace(is.na(.), 0) %>%
+  group_by(vessel_official_number, permit, year) %>%
+  summarise(year_percent_yes = compliant_yes * 100 / total_count,
+            year_percent_no = 100 - year_percent_yes)
+
+
+## by month ----
+
+## ---- total counts ----
+compl_clean_sa_vs_gom_plus_dual_all_m <-
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  group_by(vessel_official_number, permit, year_month) %>% 
+  summarise(total_count_m = n()) %>%
+  as.data.frame()
+
+head(compl_clean_sa_vs_gom_plus_dual_all_m)
+
+compl_clean_sa_vs_gom_plus_dual_m <-
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  filter(tolower(compliant_) == "yes") %>%
+  group_by(vessel_official_number, permit, year_month) %>% 
+  summarise(compliant_yes = n()) %>%
+  as.data.frame()
+
+head(compl_clean_sa_vs_gom_plus_dual_m)
+
+## percent by month
+compl_clean_sa_vs_gom_plus_dual_m_t <-
+  full_join(compl_clean_sa_vs_gom_plus_dual_all_m,
+            compl_clean_sa_vs_gom_plus_dual_m,
+            by = c("vessel_official_number", "year_month", "permit"))
+
+str(compl_clean_sa_vs_gom_plus_dual_m_t)
+
+percent_by_month <-
+  compl_clean_sa_vs_gom_plus_dual_m_t %>%
+  replace(is.na(.), 0) %>%
+  group_by(vessel_official_number, permit, year_month) %>%
+  summarise(month_percent_yes = compliant_yes * 100 / total_count_m,
+            month_percent_no = 100 - month_percent_yes)
+
+head(percent_by_month)
+
+## ---- by quarter ----
+
+## ---- total counts ----
+compl_clean_sa_vs_gom_plus_dual_all_q <-
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  group_by(vessel_official_number, permit, year_quarter) %>% 
+  summarise(total_count_q = n()) %>%
+  as.data.frame()
+
+head(compl_clean_sa_vs_gom_plus_dual_all_q)
+
+compl_clean_sa_vs_gom_plus_dual_q <-
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  filter(tolower(compliant_) == "yes") %>%
+  group_by(vessel_official_number, permit, year_quarter) %>% 
+  summarise(compliant_yes = n()) %>%
+  as.data.frame()
+
+head(compl_clean_sa_vs_gom_plus_dual_q)
+
+## percent by quarter
+compl_clean_sa_vs_gom_plus_dual_q_t <-
+  full_join(compl_clean_sa_vs_gom_plus_dual_all_q,
+            compl_clean_sa_vs_gom_plus_dual_q,
+            by = c("vessel_official_number", "year_quarter", "permit"))
+
+str(compl_clean_sa_vs_gom_plus_dual_q_t)
+
+percent_by_quarter <-
+  compl_clean_sa_vs_gom_plus_dual_q_t %>%
+  replace(is.na(.), 0) %>%
+  group_by(vessel_official_number, permit, year_quarter) %>%
+  summarise(quarter_percent_yes = compliant_yes * 100 / total_count_q,
+            quarter_percent_no = 100 - quarter_percent_yes)
+
+head(percent_by_quarter)
+
+## plots bt vessel ----
+## gom ----
+percent_by_quarter %>% 
+  filter(permit == "gom") %>%
+  pivot_longer(starts_with("quarter"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  filter(vessel_official_number == "1000042") %>%
+  # head(100) %>%
+  ggplot(aes(
+    x = year_quarter,
+    y = compliance_percent,
+    fill = yes_or_no
+  )) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45))
+# +
+#   geom_text(aes(label = vessel_official_number),
+#             position = position_dodge(width = 0.9),
+#             vjust = -0.25)
+  
+#   ylim(0, 100)
+
+head(percent_by_year)
+percent_by_year %>% 
+  filter(permit == "gom") %>%
+  pivot_longer(starts_with("year_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  filter(vessel_official_number == "1000042") %>%
+  # head(100) %>%
+  ggplot(aes(
+    x = year,
+    y = compliance_percent,
+    fill = yes_or_no
+  )) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45))
+
+head(percent_by_month)
+percent_by_month %>% 
+  filter(permit == "gom") %>%
+  pivot_longer(starts_with("month_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  filter(vessel_official_number == "1000042") %>%
+  # head(100) %>%
+  ggplot(aes(
+    x = year_month,
+    y = compliance_percent,
+    fill = yes_or_no
+  )) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(title = "Monthly ompliance for '1000042'",
+       x ="month", y = "compliance percent")
+  
+one_vessel_plot <- function() {
+  percent_by_month %>% 
+    filter(permit == "gom") %>%
+    pivot_longer(starts_with("month_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+    filter(vessel_official_number == "1000042") %>%
+    # head(100) %>%
+    ggplot(aes(
+      x = year_month,
+      y = compliance_percent,
+      fill = yes_or_no
+    )) +
+    geom_bar(stat = "identity") +
+    theme(axis.text.x = element_text(angle = 45)) +
+    labs(title = "Monthly ompliance for '1000042'",
+         x ="month", y = "compliance percent")
+  
+}
+
+## plot 2 ----
+head(percent_by_quarter)
+percent_by_quarter %>% 
+  filter(permit == "gom") %>%
+  head(100) %>%
+  ggplot(aes(x = year_quarter,
+             y = reorder(vessel_official_number, 
+                         as.integer(factor(quarter_percent_yes)), FUN = min), 
+             fill = quarter_percent_yes)
+         ) + 
+  labs(title = "Compliance by quarter",
+       x ="quarter", y = "Vessel official number") +
+  theme(axis.text.x = element_text(angle = 45),
+        axis.text.y = element_blank()) +
+  geom_bar(stat = "identity")
+
+
+## plot 3 ----
+head(percent_by_quarter)
+
+percent_by_quarter %>% 
+  filter(permit == "gom") %>%
+  pivot_longer(starts_with("quarter"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  head(100) %>%
+  ggplot(aes(x = year_quarter,
+             y = reorder(vessel_official_number, 
+                         as.integer(factor(compliance_percent)),
+                         FUN = min), 
+             fill = yes_or_no)
+         ) + 
+  labs(title = "Compliance by quarter",
+       x ="quarter", y = "vessel official number") +
+  theme(axis.text.x = element_text(angle = 45)
+        # ,
+        # axis.text.y = element_blank()
+        ) +
+  geom_bar(stat = "identity")
+
+
+
+## ==== old ====
+
+
+
 ## ---- compliance numbers by permit group and time period ----
 by_week <-
   compl_clean_sa_vs_gom_plus_dual %>%
@@ -737,14 +966,14 @@ grid.arrange(
 
 #### save the legend separately
 
-```{r legend}
+# ```{r legend}
 my_legend <-
   cowplot::get_legend(gom_per_week_p)
-```
+# ```
 
 #### combine plots
 
-```{r combine plots}
+# ```{r combine plots}
 arrange_plots <- function(plot_arr, region, legend) {
   plot_arr_hide_leg <-
     lapply(plot_arr, function(x)
@@ -765,9 +994,9 @@ arrange_plots <- function(plot_arr, region, legend) {
     left = "YES and NO percentage"
   )
 }
-```
+# ```
 ##### SA
-```{r sa}
+# ```{r sa}
 
 # SA
 sa_region <- my_regions[[2]]
@@ -775,12 +1004,12 @@ sa_plot_arr <- list(sa_per_week_p, sa_per_month_p, sa_per_year_p)
 
 arrange_plots(sa_plot_arr, sa_region, my_legend)
 
-```
+# ```
 
 ##### GOM + dual
-```{r GOM + dual}
+# ```{r GOM + dual}
 gom_region <- my_regions[[1]]
 gom_plot_arr <- list(gom_per_week_p, gom_per_month_p, gom_per_year_p)
 
 arrange_plots(gom_plot_arr, gom_region, my_legend)
-```
+# ```
