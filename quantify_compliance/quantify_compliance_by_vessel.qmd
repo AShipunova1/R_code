@@ -1,6 +1,5 @@
 ---
 title: "compliance plots by vessel"
-format: html
 date: 2023-03-23
 output:
   html_document
@@ -103,7 +102,7 @@ my_title <- function(time_period) {
     time_period == "year_month" ~ "Monthly",
     time_period == "year_quarter" ~ "Quarterly",
     time_period == "week_start" ~ "Weekly"
-  )
+  ) %>%
   return()
 }
   
@@ -114,7 +113,7 @@ my_x_lab <- function(time_period) {
     time_period == "year_month" ~ "month",
     time_period == "year_quarter" ~ "quarter",
     time_period == "week_start" ~ "week"
-  )
+  ) %>%
   return()
 }
 # cat(names(compl_clean_sa_vs_gom_plus_dual_q_t))
@@ -200,8 +199,8 @@ percent_by_time_period <- function(joined_df) {
 
 percent_by_quarter <- percent_by_time_period(compl_clean_sa_vs_gom_plus_dual_q_t)
 
-time_period <- get_time_period_col_name(my_df)
-  head(compl_clean_sa_vs_gom_plus_dual_q_t)
+# time_period <- get_time_period_col_name(my_df)
+head(compl_clean_sa_vs_gom_plus_dual_q_t)
   
   head(percent_by_quarter)
 
@@ -211,25 +210,36 @@ percent_by_year <- percent_by_time_period(compl_clean_sa_vs_gom_plus_dual_y_t)
 ```
 #### make plots
 ```{r make plots}
-plot_by_time <- function(my_df, vessel_id, permit_gr, time_period_name) {
-  # browser()
-  my_df %>% 
-  filter(permit == permit_gr) %>%
-  pivot_longer(starts_with("percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
-  filter(vessel_official_number == vessel_id) %>%
-  # head(100) %>%
-  ggplot(aes(
-    x = !!sym(time_period_name),
-    y = compliance_percent,
-    fill = yes_or_no
-  )) +
-  geom_bar(stat = "identity") +
-  theme(axis.text.x = element_text(angle = 45)) +
+plot_by_time <-
+  function(my_df,
+           vessel_id,
+           permit_gr,
+           time_period_name) {
+    # browser()
+    time_period_lab <- my_x_lab(time_period_name)
+    time_period_title <- my_title(time_period_name)
+    my_df %>%
+      filter(permit == permit_gr) %>%
+      pivot_longer(starts_with("percent"),
+                   names_to = "yes_or_no",
+                   values_to = "compliance_percent") %>%
+      filter(vessel_official_number == vessel_id) %>%
+      # head(100) %>%
+      ggplot(aes(
+        x = !!sym(time_period_name),
+        y = compliance_percent,
+        fill = yes_or_no
+      )) +
+      geom_bar(stat = "identity") +
+      theme(axis.text.x = element_text(angle = 45)) +
+      
+      labs(title = paste0(time_period_title, " compliance for ", vessel_id),
+      # labs(
+      #   title = paste0("compliance for ", vessel_id),
+        x = time_period_lab,
+        y = "compliance percent"
+      )
     
-  # labs(title = paste0("compliance for ", vessel_id, " by ", time_period_name),
-    labs(title = paste0("compliance for ", vessel_id),
-      x ="quarter", y = "compliance percent")
-
 }
 head(percent_by_quarter)
 quarter_p <- plot_by_time(percent_by_quarter, "1000042", "gom", "year_quarter")
