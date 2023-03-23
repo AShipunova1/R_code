@@ -176,7 +176,8 @@ gom_non_compl_total_report_cnts_by_month <-
   gom_sum_rep_by_month_c %>%
   filter(is_compl == "non_compl") %>%
   group_by(year_month) %>%
-  summarise(total_report_cnts = sum(sum_report_cnts))
+  summarise(total_report_cnts = sum(sum_report_cnts)) %>%
+  as.data.frame()
 # %>%
 #   head()
 # year_month total_report_cnts
@@ -189,19 +190,19 @@ gom_non_compl_total_report_cnts_by_month <-
 gom_total_report_cnts_by_month <-
   gom_sum_rep_by_month_c %>%
   group_by(year_month, is_compl) %>%
-  summarise(total_report_cnts = sum(sum_report_cnts))
+  summarise(total_report_cnts = sum(sum_report_cnts)) %>%
+  as.data.frame()
 
 head(gom_total_report_cnts_by_month)
 head(gom_sum_rep_by_month_c)
 
-gom_sum_rep_by_month_c %>%
+count_vessel_ids_per_month_compl <-
+  gom_sum_rep_by_month_c %>%
   select(year_month, is_compl, vessel_official_number) %>%
   group_by(year_month, is_compl) %>%
   summarise(num_vessel = n()
-            # ,
-    # total_report_cnts = sum(sum_report_cnts)
     ) %>%
-  head()
+  as.data.frame()
 
 # 358+47 = 405
 
@@ -209,6 +210,93 @@ gom_sum_rep_by_month_c %>%
   filter(year_month == "Jan 2022") %>%
   select(vessel_official_number) %>% dim()
   # 405
+
+head(count_vessel_ids_per_month_compl)
+head(gom_sum_rep_by_month_c)
+
+gom_vsl_report_cnts <-
+  inner_join(count_vessel_ids_per_month_compl,
+           gom_total_report_cnts_by_month)
+# Joining with `by = join_by(year_month, is_compl)`
+
+head(gom_vsl_report_cnts)
+
+## percent ----
+
+gom_vsl_report_cnts_total <-
+  gom_vsl_report_cnts %>%
+  group_by(year_month) %>%
+  summarise(total_vsl = sum(num_vessel),
+            total_rep = sum(total_report_cnts)) %>%
+  as.data.frame()
+
+gom_all_cnts <-
+  inner_join(gom_vsl_report_cnts,
+           gom_vsl_report_cnts_total)
+# Joining with `by = join_by(year_month)`
+
+gom_all_cnts_to_plot <-
+  gom_all_cnts %>%
+  group_by(year_month, is_compl) %>%
+  summarise(percent_reports = total_report_cnts * 100 / total_rep,
+            percent_vsl = num_vessel * 100 / total_vsl
+            ) %>% 
+  filter(is_compl == "non_compl") %>%
+  select(-is_compl)
+
+head(gom_all_cnts_to_plot)
+## plot gom ----
+## plot non compl
+gom_vsl_report_cnts %>%
+  filter(is_compl == "non_compl") %>%
+  ggplot(aes(
+    x = year_month
+    )) +
+  geom_line(aes(y = num_vessel, color = "num_vessel")) +
+  geom_line(aes(y = total_report_cnts, color = "total_report_cnts")) +
+  labs(title = "Monthly report counts for non_compliant vessels",
+       x ="month", y = "report counts")
+
+gom_vsl_report_cnts %>%
+  filter(is_compl == "compl") %>%
+  ggplot(aes(
+    x = year_month
+  )) +
+  geom_line(aes(y = num_vessel, color = "num_vessel")) +
+  geom_line(aes(y = total_report_cnts, color = "total_report_cnts")) +
+  labs(title = "Monthly report counts for compliant vessels",
+       x ="month", y = "report counts")
+
+## --- 
+gom_all_cnts_to_plot %>%
+  ggplot(aes(
+    x = year_month
+  )) +
+  geom_line(aes(y = percent_reports , color = "percent of total reports")) +
+  geom_line(aes(y = percent_vsl, color = "percent of reporting vessels")) +
+  labs(title = "Monthly report counts for non-compliant vessels, percent of total",
+       x ="month", y = "percentage")
+
+gom_all_cnts_to_plot %>%
+  ggplot(aes(
+    x = year_month
+  )) +
+  geom_point(aes(y = percent_reports, color = "percent of total reports")) +
+  geom_point(aes(y = percent_vsl, color = "percent of reporting vessels")) +
+  geom_line(aes(y = percent_reports)) +
+  geom_line(aes(y = percent_vsl), color = "red") +
+  labs(title = "Monthly report counts for non-compliant vessels, percent of total",
+       x ="month", y = "percentage") +
+  geom_text(aes(y = percent_reports,
+                label =
+                  paste0(round(percent_reports, 2), "%")
+                ),
+  color = "blue",
+  position = position_dodge(width = 0.9),
+  vjust = -0.25,
+  size = 3)
+
+
 ## ---- SA ----
 sa_non_compl <-
   short_non_compl %>%
