@@ -198,7 +198,14 @@ sa_compl_clean_sa_vs_gom_plus_dual_short %>%
 ```
 
 ##### % from the function result:
+GOM + dual
+```{r function result GOM}
+#| classes: test
+gom_per_week %>%
+ filter(week_start == "2022-12-26")
+```
 
+SA
 ```{r function result}
 #| classes: test
 sa_per_week %>%
@@ -219,7 +226,7 @@ sa_compl_clean_sa_vs_gom_plus_dual_short %>%
 
 no + yes = 684 + 953 = 1637 (100%)
 
-"yes" \* 100 / 1637 = `r my_percent(953, (684 + 953))`
+"yes" \* 100 / 1637 = `r my_percent(953, (684 + 953))`%
 
 percent "YES" vessels (= compliant vessels):
 
