@@ -125,4 +125,7 @@ monthly_count_density_plots <-
 
 # iris %>% group_by(Species) %>% do(plots=ggplot(data=.) +
 # aes(x=Petal.Width, y=Petal.Length) + geom_point() + ggtitle(unique(.$Species)))
+grid.arrange(grobs = monthly_count_density_plots, 
+             # top = super_title, 
+             ncol = 3)
 
