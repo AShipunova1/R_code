@@ -53,8 +53,8 @@ density_plot <- function(my_df, time_period) {
     ) +
     labs(
       title = paste0(
-        "Report counts for 1 ",
-        time_period,
+        "Report counts for ",
+        unique(time_period),
         " for GOM non-compliant vessels"
       ),
       x = "Report counts"
@@ -90,13 +90,39 @@ compl_clean_sa_vs_gom_plus_dual_rep_cnt_gom_non_compl <-
          tolower(compliant_) == "no") %>%
   select(report_cnts, vessel_official_number, year_month)
 
-compl_clean_sa_vs_gom_plus_dual_rep_cnt_gom_non_compl %>%
+monthly_count_density_plots <-
+  compl_clean_sa_vs_gom_plus_dual_rep_cnt_gom_non_compl %>%
   group_by(year_month) %>%
-  group_map(# ~ head(.x, 2L))
-    ~ quantile(.x$report_cnts)
-    # function(x) {
-    #   x
-    #   # m <- x$year_month
-    #   # density_plot(m)
-    # }
-    )
+  group_map(.f = ~ density_plot(.x,
+                                .x$year_month),
+            .keep = TRUE)
+
+
+
+# group_map(
+#   .f = ~ ggplot(.x, aes(x = report_cnts)) +
+#     geom_histogram(binwidth = .5,
+#                    colour = "black",
+#                    fill = "white") +
+#     # geom_density() +
+#     geom_vline(
+#       aes(xintercept = mean(report_cnts, na.rm = T)),
+#       # Ignore NA values for mean
+#       color = "red",
+#       linetype = "dashed",
+#       linewidth = 1
+#     )
+#
+# )
+# ~ head(.x, 2L))
+# ~ quantile(.x$report_cnts)
+# function(x) {
+#   x
+#   # m <- x$year_month
+#   # density_plot(m)
+# }
+
+
+# iris %>% group_by(Species) %>% do(plots=ggplot(data=.) +
+# aes(x=Petal.Width, y=Petal.Length) + geom_point() + ggtitle(unique(.$Species)))
+
