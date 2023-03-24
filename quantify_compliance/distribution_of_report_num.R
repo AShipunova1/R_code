@@ -1,5 +1,14 @@
-# !Different amo8nt of vessels per period
+library(grid)
+# !Different amount of vessels per period
+# Use "expected counts" for SA
+
+# Michelle:
+# I like the visualization approach. So this is showing # of vessels with # of missing reports? I'd like to consider more as a proportion of how many they have missing vs how many they have done correctly. So, if we look at a month of non-compliant vessels for the GOM, if 65 vessels are missing 1 report (1) is that a missing declaration or logbook?, (2) how many did they submit correctly (e.g. this month in question maybe they are missing 1 logbook, but they submitted 20. So, 1/20 = 5% missing). That is a vessel level, so then perhaps take the average of all for the month, and then the year, by region, and plot it that way. Does that make sense? The main question is to see how usable the data is, i.e., if they are submitting most of the reports then its still good data. So we need to determine that.
+#
+# Also, if 65 vessels had 0 reports submitted how many reports should they have submitted? What does the 0 mean for a GOM vessel, when a GOM vessel doesn't need to submit reports?
+
 source(r"(~\R_code_github\quantify_compliance\quantify_compliance_start.R)")
+
 ## ---- count reports ----
 str(compl_clean_sa_vs_gom_plus_dual)
 compl_clean_sa_vs_gom_plus_dual_rep_cnt <-
@@ -13,44 +22,16 @@ compl_clean_sa_vs_gom_plus_dual_rep_cnt <-
   )
 str(compl_clean_sa_vs_gom_plus_dual_rep_cnt)
 
-## --- check by week ----
-id_reports_one_week <-
-  compl_clean_sa_vs_gom_plus_dual_rep_cnt %>%
-  filter(week_start == "2022-12-26",
-         permit == "gom",
-         tolower(compliant_) == "no") %>%
-  # glimpse()
-  # Rows: 47
-  select(report_cnts, vessel_official_number)
-# %>%
-glimpse(id_reports_one_week)
-
-# vessel_id_order = reorder(vessel_official_number,
-# as.integer(factor(report_cnts)), FUN = min)
-
-# mutate(order = fct_reorder(as.factor(week_num), year)) %>%
-
-# id_reports %>%
-#   mutate(vessel_id_order = reorder(vessel_official_number,
-#                                    as.integer(factor(report_cnts)), FUN = min
-#                                    )
-
-# id_reports_one_week <- transform(id_reports_one_week,
-#                                  report_cnts = reorder(report_cnts, -value)
-#                                  )
-
 density_plot <- function(my_df, time_period) {
-  # browser()
   # put mean line text to the right of the line
   vline_text_x = mean(my_df$report_cnts, na.rm = T) + 0.7
   # put mean line text on top and a little bit lower
-  vline_text_y = (my_df %>% count(report_cnts) %>% max()) * 3/4
-    # max(my_df$report_cnts)
+  vline_text_y = (my_df %>% count(report_cnts) %>% max()) * 3 / 4
+  
   ggplot(my_df, aes(x = report_cnts)) +
     geom_histogram(binwidth = .5,
                    colour = "black",
                    fill = "white") +
-    # geom_density() +
     geom_vline(
       aes(xintercept = mean(report_cnts, na.rm = T)),
       # Ignore NA values for mean
@@ -61,39 +42,47 @@ density_plot <- function(my_df, time_period) {
     annotate(
       "text",
       x = vline_text_x,
-      # y = 20,
       y = vline_text_y,
+      # mean of reports_cnts, rounded to 2 decimals
       label = round(mean(my_df$report_cnts, na.rm = T), 2),
       color = "red",
       angle = 90
     )  +
-    labs(title =
-           # paste0(
-           # "Report counts for ",
-           unique(time_period),
-         # " for GOM non-compliant vessels"
-         # )
-         # ,
-         x = "",
-         y = "",
-         size = 3
-         # x = "Report counts"
-         #      x ="Year_week", y = "Vessel official number"
-         
-         )
+    labs(
+      title = unique(time_period),
+      # no x and y labels
+      x = "",
+      y = "",
+      size = 3
+    )
 }
 
-density_plot(id_reports_one_week, "week")
+## ---- GOM + dual ----
 
+## --- check by week ----
+id_reports_one_week <-
+  compl_clean_sa_vs_gom_plus_dual_rep_cnt %>%
+  filter(week_start == "2022-12-26",
+         permit == "gom",
+         tolower(compliant_) == "no") %>%
+  # glimpse()
+  # Rows: 47
+  select(report_cnts, vessel_official_number)
+
+glimpse(id_reports_one_week)
+
+density_plot(id_reports_one_week, "Week of 2022-12-26")
+
+### check numbers ----
 head(id_reports_one_week)
-id_reports_one_week %>% count(report_cnts)
+id_reports_one_week %>% count(report_cnts) %>% head(2)
 # 0 : 23
 # 1: 3
 id_reports_one_week %>%
   filter(report_cnts == 0) %>% dim()
 # [1] 23  2
 
-# data_overview(id_reports_one_week)
+summary(id_reports_one_week)
 # Mean   : 3.809
 
 ## --- check by month ----
@@ -102,12 +91,10 @@ id_reports_one_month <-
   filter(year_month == "Feb 2022",
          permit == "gom",
          tolower(compliant_) == "no") %>%
-  # glimpse()
-  # Rows: 47
   select(report_cnts, vessel_official_number)
 
-# glimpse(id_reports_one_month)
-# data_overview(id_reports_one_month)
+glimpse(id_reports_one_month)
+summary(id_reports_one_month)
 # Mean   : 2.445
 
 id_reports_one_month %>% count(report_cnts)
@@ -119,9 +106,11 @@ id_reports_one_month %>% count(report_cnts)
 
 id_reports_one_month %>%
   filter(report_cnts == 0) %>% dim()
-# 65  
-density_plot(id_reports_one_month, "month")
+# 65
 
+density_plot(id_reports_one_month, "Feb 2022")
+
+## ---- GOM: plot all months ====
 compl_clean_sa_vs_gom_plus_dual_rep_cnt_gom_non_compl <-
   compl_clean_sa_vs_gom_plus_dual_rep_cnt %>%
   filter(permit == "gom",
@@ -147,3 +136,156 @@ grid.arrange(
 )
 
 ##  SA ----
+### --- check by month ----
+sa_id_reports_one_month <-
+  compl_clean_sa_vs_gom_plus_dual_rep_cnt %>%
+  filter(year_month == "Feb 2022",
+         permit == "sa_only",
+         tolower(compliant_) == "no") %>%
+  # glimpse()
+  select(report_cnts, vessel_official_number, week_start)
+
+glimpse(sa_id_reports_one_month)
+summary(sa_id_reports_one_month)
+# Mean   : 0.9171
+# Max.   :15.0000
+
+sa_id_reports_one_month %>% count(report_cnts)
+# 1           0  2098
+# 2           1   148
+# 3           2     1
+# ...
+# 13          14    9
+# 14          15    1
+
+sa_id_reports_one_month %>%
+  filter(report_cnts == 0) %>% dim()
+# 2098
+
+density_plot(sa_id_reports_one_month, "Feb 2022")
+
+### get num of weeks == min of reports expected
+num_of_weeks <- function(my_df) {
+  my_df %>% select(week_start) %>% unique() %>% count() %>% return()
+}
+
+### SA plot all months ----
+compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl <-
+  compl_clean_sa_vs_gom_plus_dual_rep_cnt %>%
+  filter(permit == "sa_only",
+         tolower(compliant_) == "no") %>%
+  select(report_cnts, vessel_official_number, year_month, week_start)
+
+# compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl %>%
+# group_by(year_month) %>%
+
+my_colors = c('Mean' = 'red',
+              'Num of weeks' = 'deepskyblue')
+
+sa_density_plot <- function(my_df) {
+  expected_min_amount_of_reports <- num_of_weeks(my_df)[[1]]
+  # put mean line text to the right of the line
+  vline2_text_x = expected_min_amount_of_reports + 0.7
+  # put mean line text on top and a little bit lower
+  vline2_text_y = (my_df %>% count(report_cnts) %>% max()) * 3 / 4
+  new_plot <-
+    density_plot(my_df,
+                 my_df$year_month) +
+    geom_vline(
+      aes(xintercept = expected_min_amount_of_reports),
+      color = my_colors['Num of weeks'],
+      # linetype = "dashed",
+      linewidth = 1
+    ) +
+    annotate(
+      "text",
+      x = vline2_text_x,
+      y = vline2_text_y,
+      # mean of reports_cnts, rounded to 2 decimals
+      label = round(expected_min_amount_of_reports),
+      color = my_colors['Num of weeks'],
+      angle = 90
+    )
+  
+  return(new_plot)
+}
+
+monthly_count_density_plots <-
+  compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl %>%
+  group_by(year_month) %>%
+  group_map(.f = ~ sa_density_plot(.x),
+            # keep year_month (the grouping variable)
+            .keep = TRUE)
+
+## make a legend
+legend_data = data.frame(
+  x1 = rep(0, 2),
+  y1 = rep(0, 2),
+  ll = c('Mean', 'Num of weeks')
+)
+
+legend_plot <-
+  ggplot(data = legend_data, aes(x1, y1, colour = ll)) +
+  geom_text(dat = legend_data,
+            aes(label = ll),
+            hjust = 0
+            # ,
+            # colour = "red"
+              ) +
+  scale_color_manual(
+    name = 'Lines',
+    breaks = c('Mean', 'Num of weeks'),
+    values = my_colors
+  )
+
+legend_plot
+
+my_legend <-
+  cowplot::get_legend(legend_plot)
+                      # + theme(legend.position = "right"))
+
+# +
+#   theme(
+#     legend.title = "Lines"
+#   )
+# legend.key.size = unit(15, "pt"),
+# legend.title = element_blank(),
+# legend.margin = margin(l = 0),
+# legend.text = element_text(size = 12)
+# ) +
+# scale_colour_manual(values = rep("#00000000", 4))
+
+my_legend
+
+# my_legend <-
+#   cowplot::get_legend(monthly_count_density_plots[[1]] + theme(legend.position = "bottom"))
+
+# monthly_count_density_plots[[1]]
+
+super_title = "Monthly report counts for SA non-compliant vessels"
+
+# s<- lapply(monthly_count_density_plots, grobTree)
+# str(monthly_count_density_plots[[1]])
+
+# combined_grob <-
+  # gList(lapply(monthly_count_density_plots, grobTree),
+        # grobTree(my_legend))
+
+# tt <-grid.arrange(arrangeGrob(p6, p7, p8, p9, legend,
+#                               nrow = 2, #
+#                               left = textGrob("Mammalian species richness", rot = 90, vjust = 1, 
+#                                               gp = gpar(fontsize = 12))))
+
+class(monthly_count_density_plots)
+class(my_legend)
+grid.arrange(
+  # grobs = monthly_count_density_plots,
+  grobs = monthly_count_density_plots,
+  # my_legend,
+  right = my_legend,
+  top = super_title,
+  left = "Amount of report counts",
+  bottom = "Report counts",
+  ncol = 4
+)
+# grid.arrange(grobTree(P1), grobTree(P2), grobTree(P3), grobTree(P4), ncol=2)
