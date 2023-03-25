@@ -1,0 +1,14 @@
+vessel_official_number, year, week, gom_permitteddeclarations__, captainreports__, negativereports__, complianceerrors__, compliant_, week_start, permit, year_month, year_quarter
+
+"vessel_official_number",
+"year",
+"week",
+"gom_permitteddeclarations__",
+"logb",
+"negativereports",
+"err",
+"compl",
+"week_of",
+"permit",
+"year_month",
+"year_quarter"
