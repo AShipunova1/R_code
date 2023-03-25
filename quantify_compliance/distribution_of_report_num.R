@@ -1,4 +1,3 @@
-library(grid)
 # !Different amount of vessels per period
 # Use "expected counts" for SA
 
@@ -10,18 +9,19 @@ library(grid)
 # 03/24/2023
 # > What does the 0 mean for a GOM vessel, when a GOM vessel doesn't need to submit reports?
 # Just that, there were 0 reports and the vessel marked as non_compliant
-# that seems odd. We should probably look into why this is happening for a Gulf vessel. But low priority since the Gulf program is now set aside. 
+# that seems odd. We should probably look into why this is happening for a Gulf vessel. But low priority since the Gulf program is now set aside.
 # >  if 65 vessels had 0 reports submitted how many reports should they have submitted?
 #   There is no "expected" amount for GOM, right?
-#   correct. In the GOM, they are only required to declare IF they move on water (or they submitted a logbook), and only submit a logbook IF they declared they intended to fish.  
+#   correct. In the GOM, they are only required to declare IF they move on water (or they submitted a logbook), and only submit a logbook IF they declared they intended to fish.
 # For SA, they need either a no fishing report weekly (due Tuesday following the fishing week, which is Mon-Sun) or they need a logbook for every fishing trip (so at least 1 per week if no fishing report is submitted)
 # > So this is showing # of vessels with # of missing reports?
 # # of vessels with # of submitted reports for non_compliant vessels only
-# that would be for Gulf then? For SA they are non-compliant if no reports were submitted 
-# 
+# that would be for Gulf then? For SA they are non-compliant if no reports were submitted
+#
 # One more thing to consider, each month will have a slightly different number of vessels, should we take it into account?
-#   no, that is expected due to fluctuations in permit statuses. We just need to look at this month by month, and annually - to address the data usability concern. 
+#   no, that is expected due to fluctuations in permit statuses. We just need to look at this month by month, and annually - to address the data usability concern.
 
+library(grid)
 source(r"(~\R_code_github\quantify_compliance\quantify_compliance_start.R)")
 
 ## ---- count reports ----
@@ -234,11 +234,12 @@ monthly_count_density_plots <-
 
 super_title = "Monthly report counts for SA non-compliant vessels"
 
-grid.arrange(grobs = monthly_count_density_plots,
-             top = super_title,
-             left = "Amount of report counts",
-             bottom = "Report counts",
-             ncol = 4
+grid.arrange(
+  grobs = monthly_count_density_plots,
+  top = super_title,
+  left = "Amount of report counts",
+  bottom = "Report counts",
+  ncol = 4
 )
 # ===
 
@@ -255,10 +256,7 @@ legend_plot <-
   ggplot(data = legend_data, aes(x1, y1, colour = ll)) +
   geom_text(dat = legend_data,
             aes(label = ll),
-            hjust = 0
-            # ,
-            # colour = "red"
-              ) +
+            hjust = 0) +
   scale_color_manual(
     name = 'Lines',
     breaks = c('Mean', 'Num of weeks'),
@@ -269,7 +267,7 @@ legend_plot
 
 my_legend <-
   cowplot::get_legend(legend_plot)
-                      # + theme(legend.position = "right"))
+# + theme(legend.position = "right"))
 
 # +
 #   theme(
@@ -296,8 +294,7 @@ super_title = "Monthly report counts for SA non-compliant vessels"
 
 combined_grob <-
   append(monthly_count_density_plots,
-  my_legend
-  )
+         my_legend)
 
 # str(combined_grob[15])
 # g1 <- arrangeGrob(grobs = gs, layout_matrix = t(lay))
@@ -305,37 +302,41 @@ combined_grob <-
 # grid.arrange(g1, g2, ncol=2)
 
 # combined_grob <-
-  # gList(lapply(monthly_count_density_plots, grobTree),
-        # grobTree(my_legend))
+# gList(lapply(monthly_count_density_plots, grobTree),
+# grobTree(my_legend))
 
 # tt <-grid.arrange(arrangeGrob(p6, p7, p8, p9, legend,
 #                               nrow = 2, #
-#                               left = textGrob("Mammalian species richness", rot = 90, vjust = 1, 
+#                               left = textGrob("Mammalian species richness", rot = 90, vjust = 1,
 #                                               gp = gpar(fontsize = 12))))
 
 # my_layout_matrix = cbind(c(1,1,1), c(2,3,4))
-my_layout_matrix = cbind(c(1,1,1,1), c(2,3,4,5))
+my_layout_matrix = cbind(c(1, 1, 1, 1), c(2, 3, 4, 5))
 
 class(monthly_count_density_plots)
 class(my_legend)
 
-lay <- rbind(c(1,1,1,1),
-             c(1,1,1,1),
-             c(1,1,1,1))
+lay <- rbind(c(1, 1, 1, 1),
+             c(1, 1, 1, 1),
+             c(1, 1, 1, 1))
 
 # g1 <- arrangeGrob(grobs = gs, layout_matrix = lay)
-g1 <- arrangeGrob(grobs = monthly_count_density_plots, layout_matrix = lay)
+g1 <-
+  arrangeGrob(grobs = monthly_count_density_plots, layout_matrix = lay)
 g2 <- my_legend
 
 # save it
-monthly_count_density_plots_orig <- monthly_count_density_plots
+monthly_count_density_plots_orig <-
+  monthly_count_density_plots
 
 my_grobs = lapply(monthly_count_density_plots, ggplotGrob)
 
 my_grobs_plus <- addGrob(my_grobs, my_legend)
 my_treeGrob <- grobTree(my_grobs, my_legend)
 
-grid.arrange(my_grobs, my_legend,
+grid.arrange(
+  my_grobs,
+  my_legend,
   # grobs = monthly_count_density_plots,
   # grobs = arrangeGrob(my_legend, monthly_count_density_plots),
   # grobs = combined_grob,
