@@ -38,35 +38,29 @@ setNames(permit_dfs, c("gom", "sa"))
 
 str(permit_dfs)
 
-# gom_compl_clean_sa_vs_gom_plus_dual_short <-
-#   compl_clean_sa_vs_gom_plus_dual_short %>%
-#   filter(permit == "gom")
-#
-# identical(permit_dfs[[1]], gom_compl_clean_sa_vs_gom_plus_dual_short)
-# T
+# View(permit_dfs$gom)
 
-View(gom_compl_clean_sa_vs_gom_plus_dual_short)
-
-gom_compl_clean_sa_vs_gom_plus_dual_short %>% filter(tolower(compliant_) == "no", complianceerrors__ == 0)
+permit_dfs$gom %>% filter(tolower(compliant_) == "no", complianceerrors__ == 0)
 # 0
 
-gom_compl_clean_sa_vs_gom_plus_dual_short %>% filter(tolower(compliant_) == "no", complianceerrors__ > 0)
+permit_dfs$gom %>% filter(tolower(compliant_) == "no", complianceerrors__ > 0)
 # A tibble: 2,299 × 12
 
 (1)
-gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+permit_dfs$gom %>%
   filter(compliant_ == "YES", complianceerrors__ > 0)
 # A tibble: 7,732 × 12
 # TX6700JU   decl:5       logb:5       err:5       compl:YES      week_of:2022-12-26
 
 # (4)
-gom_compl_clean_sa_vs_gom_plus_dual_short %>%
-  filter(tolower(compliant_) == "no",!(gom_permitteddeclarations__ == captainreports__))
+permit_dfs$gom %>%
+  filter(tolower(compliant_) == "no",
+         !(gom_permitteddeclarations__ == captainreports__))
 # A tibble: 995 × 12
 # FL4915LT   decl:4       logb:3       err:3       compl:NO      week_of:2022-12-26
 
 # (3)
-gom_compl_clean_sa_vs_gom_plus_dual_short %>%
+permit_dfs$gom %>%
   filter(tolower(compliant_) == "no",
          gom_permitteddeclarations__ == captainreports__)
 
@@ -110,7 +104,7 @@ sa_1 <-
 # complianceerrors__
 # A tibble: 1,408 × 12
 
-print_line(sa_1[1,])
+print_line(sa_1[1, ])
 # MC7540US, logb: 0, negativereports: 0, err: 0, compl: YES, week_of: 12/26/2022
 
 sa_2 <-
@@ -121,27 +115,28 @@ sa_2 <-
     complianceerrors__ > 0
   )
 sa_2
-print_line(sa_2[1,])
+print_line(sa_2[1, ])
 # FL1125AX, logb: 1, negativereports: 0, err: 1, compl: YES, week_of: 2022-09-19
 
 sa_3 <-
   permit_dfs$sa %>%
   filter(tolower(compliant_) == "no",
-         (captainreports__ + negativereports__) > 0,)
+         (captainreports__ + negativereports__) > 0,
+  )
 # complianceerrors__ == 0
 head(sa_3)
-print_line(sa_3[4,])
+print_line(sa_3[4, ])
 # FL8074DA, logb: 0, negativereports: 7, err: 1, compl: NO, week_of: 2022-12-26
 
 
 sa_4 <-
   permit_dfs$sa %>%
   filter(tolower(compliant_) == "no",
-         (captainreports__) > 0,)
+         (captainreports__) > 0, )
 # complianceerrors__ == 0
 sa_4
 # 2 940476      2022  45: …       0       2       0 1       NO      2022-11-07 sa_on… Nov 20…
-print_line(sa_4[2,])
+print_line(sa_4[2, ])
 # 940476, logb: 2, negativereports: 0, err: 1, compl: NO, week_of: 2022-11-07
 
 ## ---- GOM what's missing ----
@@ -167,12 +162,72 @@ non_compl_gom <-
 gom_id_reports_one_week <-
   non_compl_gom %>%
   filter(week_start == "2022-12-26") %>%
-  glimpse()
-# Rows: 47
-select(gom_permitteddeclarations__,
-       captainreports__,
-       vessel_official_number)
+  # glimpse()
+  # Rows: 47
+  select(gom_permitteddeclarations__,
+         captainreports__,
+         vessel_official_number,
+         compliant_)
 
-glimpse(id_reports_one_week)
+glimpse(gom_id_reports_one_week)
 
-density_plot(id_reports_one_week, "Week of 2022-12-26")
+gom_id_reports_one_week_longer <-
+  gom_id_reports_one_week %>%
+  rename(decl = gom_permitteddeclarations__,
+         logb = captainreports__) %>%
+  pivot_longer(cols = c(decl,
+                        logb),
+               names_to = "report_type",
+               values_to = "report_count") %>% 
+  mutate(id_compl = paste(vessel_official_number, compliant_, sep = "_"))
+# %>%
+#   select(-c(vessel_official_number, compliant_))
+# %>%
+#   glimpse()
+
+gom_plot_1week <- 
+  ggplot(gom_id_reports_one_week_longer,
+       aes(x = vessel_official_number, y = report_count, fill = report_type
+           )
+       ) + 
+  geom_bar(stat = "identity")
+
+adds <-
+  theme(axis.text.x = element_blank(),
+        # axis.text.y = element_text(angle = 45)
+        )
+
+my_labs <- 
+labs(title = "1 Week",
+     x ="Vessel official number", y = "report count official number")
+  
+gom_plot_1week + adds + my_labs
+# === logb - decl ===
+
+gom_id_reports_one_week_l_d <-
+  gom_id_reports_one_week %>%
+  rename(decl = gom_permitteddeclarations__,
+         logb = captainreports__) %>%
+  mutate(logb_decl = as.numeric(logb) - as.numeric(decl))
+
+
+# compl_clean_sa_vs_gom_plus_dual_short %>%
+#   filter(vessel_official_number == "VA7344AW",
+#          week_start == "2022-12-26"
+#   )
+
+gom_id_reports_one_week_l_d %>% head()
+
+gom_plot_1week_ld <- 
+  ggplot(gom_id_reports_one_week_l_d,
+         aes(x = vessel_official_number, y = logb_decl, fill = compliant_
+         )
+  ) + 
+  geom_bar(stat = "identity")
+
+gom_plot_1week_ld +
+  labs(title = "1 Week",
+       x ="Vessel official number", y = "# logbook - # decl") + adds
+  
+
+
