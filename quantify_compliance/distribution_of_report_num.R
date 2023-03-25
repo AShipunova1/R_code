@@ -267,6 +267,16 @@ super_title = "Monthly report counts for SA non-compliant vessels"
 # s<- lapply(monthly_count_density_plots, grobTree)
 # str(monthly_count_density_plots[[1]])
 
+combined_grob <-
+  append(monthly_count_density_plots,
+  my_legend
+  )
+
+# str(combined_grob[15])
+# g1 <- arrangeGrob(grobs = gs, layout_matrix = t(lay))
+# g2 <- arrangeGrob(grobs = gs, layout_matrix = lay)
+# grid.arrange(g1, g2, ncol=2)
+
 # combined_grob <-
   # gList(lapply(monthly_count_density_plots, grobTree),
         # grobTree(my_legend))
@@ -276,13 +286,34 @@ super_title = "Monthly report counts for SA non-compliant vessels"
 #                               left = textGrob("Mammalian species richness", rot = 90, vjust = 1, 
 #                                               gp = gpar(fontsize = 12))))
 
+# my_layout_matrix = cbind(c(1,1,1), c(2,3,4))
+my_layout_matrix = cbind(c(1,1,1,1), c(2,3,4,5))
+
 class(monthly_count_density_plots)
 class(my_legend)
-grid.arrange(
+
+lay <- rbind(c(1,1,1,1),
+             c(1,1,1,1),
+             c(1,1,1,1))
+
+# g1 <- arrangeGrob(grobs = gs, layout_matrix = lay)
+g1 <- arrangeGrob(grobs = monthly_count_density_plots, layout_matrix = lay)
+g2 <- my_legend
+
+# save it
+monthly_count_density_plots_orig <- monthly_count_density_plots
+
+my_grobs = lapply(monthly_count_density_plots, ggplotGrob)
+
+my_grobs_plus <- addGrob(my_grobs, my_legend)
+my_treeGrob <- grobTree(my_grobs, my_legend)
+
+grid.arrange(my_grobs, my_legend,
   # grobs = monthly_count_density_plots,
-  grobs = monthly_count_density_plots,
+  # grobs = arrangeGrob(my_legend, monthly_count_density_plots),
+  # grobs = combined_grob,
   # my_legend,
-  right = my_legend,
+  # right = my_legend,
   top = super_title,
   left = "Amount of report counts",
   bottom = "Report counts",
