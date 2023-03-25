@@ -7,6 +7,21 @@ library(grid)
 #
 # Also, if 65 vessels had 0 reports submitted how many reports should they have submitted? What does the 0 mean for a GOM vessel, when a GOM vessel doesn't need to submit reports?
 
+# 03/24/2023
+# > What does the 0 mean for a GOM vessel, when a GOM vessel doesn't need to submit reports?
+# Just that, there were 0 reports and the vessel marked as non_compliant
+# that seems odd. We should probably look into why this is happening for a Gulf vessel. But low priority since the Gulf program is now set aside. 
+# >  if 65 vessels had 0 reports submitted how many reports should they have submitted?
+#   There is no "expected" amount for GOM, right?
+#   correct. In the GOM, they are only required to declare IF they move on water (or they submitted a logbook), and only submit a logbook IF they declared they intended to fish.  
+# For SA, they need either a no fishing report weekly (due Tuesday following the fishing week, which is Mon-Sun) or they need a logbook for every fishing trip (so at least 1 per week if no fishing report is submitted)
+# > So this is showing # of vessels with # of missing reports?
+# # of vessels with # of submitted reports for non_compliant vessels only
+# that would be for Gulf then? For SA they are non-compliant if no reports were submitted 
+# 
+# One more thing to consider, each month will have a slightly different number of vessels, should we take it into account?
+#   no, that is expected due to fluctuations in permit statuses. We just need to look at this month by month, and annually - to address the data usability concern. 
+
 source(r"(~\R_code_github\quantify_compliance\quantify_compliance_start.R)")
 
 ## ---- count reports ----
@@ -217,7 +232,19 @@ monthly_count_density_plots <-
             # keep year_month (the grouping variable)
             .keep = TRUE)
 
-## make a legend
+super_title = "Monthly report counts for SA non-compliant vessels"
+
+grid.arrange(grobs = monthly_count_density_plots,
+             top = super_title,
+             left = "Amount of report counts",
+             bottom = "Report counts",
+             ncol = 4
+)
+# ===
+
+
+## ---- this part doesn't work ----
+### ---- make a legend ----
 legend_data = data.frame(
   x1 = rep(0, 2),
   y1 = rep(0, 2),
