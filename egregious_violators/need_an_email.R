@@ -125,7 +125,15 @@ email_s_needed_to_csv_short_sorted_w_permit_info1 <-
   select(-vesselofficial_number)
 
 names(email_s_needed_to_csv_short_sorted_w_permit_info1)
+glimpse(email_s_needed_to_csv_short_sorted_w_permit_info1)
+
+email_s_needed_to_csv_not_expired <-
+email_s_needed_to_csv_short_sorted_w_permit_info1 %>%
+  filter(!permit_expired == "yes")
 ## ---- output to csv ----
 # this script results
 
 # write.csv(email_s_needed_to_csv_short_sorted_w_permit_info1, file.path(my_paths$outputs, "email_s_needed_to_csv_short_sorted_w_permit_info1.csv"), row.names = FALSE)
+
+
+# write.csv(email_s_needed_to_csv_not_expired, file.path(my_paths$outputs, "email_s_needed_to_csv_not_expired.csv"), row.names = FALSE)
