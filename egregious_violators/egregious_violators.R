@@ -63,6 +63,8 @@ compl_clean_sa_non_compl <-
 # vesselofficialnumber 1785
 
 ## ----- get only those with 51+ weeks of non compliance -----
+# number_of_weeks_for_non_compliancy = 51
+number_of_weeks_for_non_compliancy = 26
 get_num_of_non_compliant_weeks <-
   function(compl_clean_sa_non_compl) {
     compl_clean_sa_non_compl %>%
@@ -72,7 +74,7 @@ get_num_of_non_compliant_weeks <-
       # add a column with counts
       count(vessel_official_number) %>%
       # keep only with count > 51
-      filter(n > 51) %>%
+      filter(n > number_of_weeks_for_non_compliancy) %>%
       return()
   }
 id_52_plus_weeks <-
@@ -116,13 +118,14 @@ intersect(
   all_weeks_not_compliance_id$vessel_official_number
 ) %>% str()
 # 19
-
+# 27: 168
 # 52+ weeks are not compliant, but some other weeks are compliant
 setdiff(
   id_52_plus_weeks$vessel_official_number,
   all_weeks_not_compliance_id$vessel_official_number
 ) %>% str()
 # 137
+# 27: 452
 
 # all weeks are not compliant, but there are fewer than 52 weeks for 2022-2023
 setdiff(
@@ -134,6 +137,7 @@ setdiff(
   } %>% # save into a var
   str()
 # 324
+# 27: 175
 
 group_by_arr <-
   c("vessel_official_number",
@@ -151,6 +155,7 @@ compl_clean_sa %>%
 
 # str(fewer_52_all_non_compl22_23)
 # [1] 324   3
+# 27: gropd_df [175 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
 
 # write.csv(fewer_52_all_non_compl22_23, file.path(my_paths$outputs, "fewer_52_all_non_compl22_23.csv"), row.names = FALSE)
 
@@ -353,9 +358,10 @@ str(compl_corr_to_investigation)
 ## check
 # count_uniq_by_column(compl_clean_sa_non_compl) %>% head(1)
 # 1785
-# count_uniq_by_column(compl_corr_to_investigation) %>% head(1)
+count_uniq_by_column(compl_corr_to_investigation) %>% head(1)
 # 110
 # 107
+# 27: 435
 
 ## ---- output needed investigation ----
 # 1) create additional columns
@@ -372,18 +378,24 @@ contactdate_field_name <-
 contacttype_field_name <-
   find_col_name(compl_corr_to_investigation, "contact", "type")[1]
 
+# write.csv(compl_corr_to_investigation, file.path(my_paths$outputs, "more_than_27_compl_corr_to_investigation_22_23__03_27_2023.csv"), row.names = FALSE)
+# 435 unique ids
+
 get_date_contacttype <- function(compl_corr_to_investigation) {
   compl_corr_to_investigation %>%
     # add a new column date__contacttype with contactdate and contacttype
     mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) %>%
     # use 2 columns only
     select(vessel_official_number, date__contacttype) %>%
+    # [1] 49903     2
     # sort
     arrange(vessel_official_number, date__contacttype) %>%
     unique() %>%
     group_by(vessel_official_number) %>%
+    # [1] 1125    2
     # for each vessel id combine all date__contacttypes separated by comma in one cell
     summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
+    # [1] 435   2
     return()
 }
 
@@ -392,6 +404,7 @@ date__contacttype_per_id <-
 # dim(date__contacttype_per_id)
 # [1] 110    2
 # 107
+# 27: [1] 435   2
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
@@ -424,8 +437,9 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number") ->
   compl_corr_to_investigation_short
 
-# dim(compl_corr_to_investigation_short)
+dim(compl_corr_to_investigation_short)
 # [1] 107   9
+# 27: [1] 435  10
 # str(compl_corr_to_investigation_short)
 
 ## ---- 3) remove vessels already in the know list ----
@@ -442,14 +456,18 @@ compl_corr_to_investigation_short1 <-
   ))
 # dim(compl_corr_to_investigation_short1)
 # 102
+# 27: 426  10
 
 ## check
 # length(unique(compl_corr_to_investigation_short$vessel_official_number))
 # 107
 # 102
+# 27: 435
 
-# data_overview(compl_corr_to_investigation_short1)
-# write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "egregious_violators_for_investigation.csv"), row.names = FALSE)
+data_overview(compl_corr_to_investigation_short1)
+# vessel_official_number 426
+
+# write.csv(compl_corr_to_investigation_short1, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_pus_weeks_03_27_2023.csv"), row.names = FALSE)
 
 ## ---- who needs an email ----
 source(file.path(current_project_path, "need_an_email.R"))
