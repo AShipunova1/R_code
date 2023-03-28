@@ -160,7 +160,7 @@ fhier_logbooks_content_waves %>%
   unique() %>%
   arrange(end_month_num)
 
-# ---- county ----
+# ---- FL county to region ----
 fl_counties <- list(
   "SA" = c(
     "Brevard",
@@ -202,39 +202,61 @@ fl_counties <- list(
   )
 )
 
-str(fl_counties)
-fhier_logbooks_content_waves %>%
+# str(fl_counties)
+fhier_logbooks_content_waves_fl_county <-
+  fhier_logbooks_content_waves %>%
   # select(end_port_state, end_port_county)
-  mutate(
-    end_port_region = case_when(
-      tolower(end_port_county) %in% tolower(fl_counties$SA) ~ "sa",
-      tolower(end_port_county) %in% tolower(fl_counties$GOM) ~ "gom",
-      .default = end_port_county
-    )
-  ) %>% glimpse()
-# end_port_county  
-# fhier_logbooks_content_waves
-
-fhier_logbooks_content_waves %>%
-  filter(end_port_state == "FL") %>%
-  select(end_port_county) %>% 
-  arrange(end_port_county) %>%
-  distinct() %>%
-  # 37
   mutate(
     end_port_region = case_when(
       fix_names(end_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
       fix_names(end_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
       .default = end_port_county
     )
-  ) %>% 
-  # filter(is.na(end_port_region)) %>%
-  # glimpse()
-# Rows: 14
+  )
+
+# ---- test ----
+fhier_logbooks_content_waves_fl_county %>%
+  filter(end_port_state == "FL") %>%
+  arrange(end_port_county) %>%
+  distinct() %>%
+  # 37
   select(end_port_region) %>%
-  filter(!(end_port_region %in% c("sa", "gom"))) %>%
-  glimpse()
+  filter(!(end_port_region %in% c("sa", "gom"))) %>% unique()
+  
 # NOT-SPECIFIED
+
+## ---- States to GOM or SA ----
+
+states_sa <- data.frame(state_name = c("Delaware",
+               "District of Columbia",
+               # "Florida",
+               "Georgia",
+               "Maryland",
+               "North Carolina",
+               "South Carolina",
+               "Virginia",
+               "West Virginia")
+               )
+
+# get abbreviations ----
+
+sa_state_abb <-
+  state_tbl %>%
+  filter(state_name %in% tolower(states_sa$state_name)) %>%
+  select(state_abb)
+
+fhier_logbooks_content_waves_fl_county %>% 
+  # select(end_port_state) %>% head()
+  mutate(
+    end_port_region1 = case_when(
+      fix_names(end_port_state) %in% fix_names("Florida") ~ end_port_region,
+      fix_names(end_port_state) %in% intersect(tolower(states_sa$state_name), state_tbl$state_name) ~ "sa",
+      .default = "gom"
+    )
+  ) %>%
+  select(end_port_state, end_port_region, end_port_region1) %>%
+unique() %>%
+    glimpse()
 
 
 # ---- fhier_quantity_by_species_permit_state_region_waves ----
