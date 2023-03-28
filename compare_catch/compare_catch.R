@@ -145,13 +145,14 @@ fhier_logbooks_content %>%
   mutate(start_month = as.yearmon(trip_start_date)) %>%
   mutate(start_month_num = month(trip_start_date)) %>% 
   # s = (df['month'] - 1) // 2 + 1
-  mutate(start_wave  = (start_month_num - 1) / (2 + 1)
+  mutate(start_wave  = floor((start_month_num +1 ) / 2)
          ) %>%
   # select(trip_start_date, start_month, start_month_num, start_wave) %>%
   select(start_month, start_month_num, start_wave) %>%
   unique() %>%
-  arrange(start_month_num) %>%
-  tail()
+  arrange(start_month_num)
+# %>%
+  # tail()
 # r<-as.data.frame(dfd %>%
                    # mutate(month = format(Date, "%m"), year = format(Date, "%Y")) %>%
                    # group_by(Group,mon) %>%
