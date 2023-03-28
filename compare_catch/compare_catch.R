@@ -2,6 +2,8 @@
 # see read.me
 
 ## ---- set up ----
+library(zoo)
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -122,6 +124,56 @@ fhier_quantity_by_species_and_permit <-
   summarise(fhier_quantity_by_species_and_permit = sum(as.integer(reported_quantity)))
 # head(fhier_quantity_by_species_and_permit, 10)
 } # end of work with count by disposition file
+
+## ---- FHIER: count catch by species and permit ----
+str(logbooks_content)
+
+## - get coords ----
+# end_port_name
+# end_port
+grep("sp", names(logbooks_content), value = T)
+grep("com", names(logbooks_content), value = T)
+grep("reg", names(logbooks_content), value = T)
+# end_port_county?
+fhier_logbooks_content <-
+logbooks_content  %>%
+  change_to_dates("trip_start_date", "%Y-%m-%d")
+
+## ---- wave ----
+# I have dfd$mon<-as.yearmon(dfd$Date) then
+fhier_logbooks_content %>%
+  mutate(start_month = as.yearmon(trip_start_date)) %>%
+  mutate(start_month_num = month(trip_start_date)) %>% 
+  # s = (df['month'] - 1) // 2 + 1
+  mutate(start_wave  = (start_month_num - 1) / (2 + 1)
+         ) %>%
+  # select(trip_start_date, start_month, start_month_num, start_wave) %>%
+  select(start_month, start_month_num, start_wave) %>%
+  unique() %>%
+  arrange(start_month_num) %>%
+  tail()
+# r<-as.data.frame(dfd %>%
+                   # mutate(month = format(Date, "%m"), year = format(Date, "%Y")) %>%
+                   # group_by(Group,mon) %>%
+                   # summarise(total = mean(Score), total1 = mean(Score2))) 
+
+# mutate(yearhalf = as.integer(6/7)+1) %>%
+  
+fhier_quantity_by_species_permit_state_region_waves <-
+  logbooks_content %>%
+  select(catch_species_itis, common_name, end_port_state, wave, ab1) %>% 
+  
+  select(permit_region, species_itis, reported_quantity) %>% 
+  group_by(species_itis, permit_region) %>% 
+  summarise(fhier_quantity_by_species_and_permit = sum(as.integer(reported_quantity)))
+
+mrip_estimate_catch_by_species_state_region_waves <-
+  mrip_estimate %>%
+  select(itis_code, new_com, new_sta, sub_reg, wave, ab1) %>% 
+  group_by(itis_code, new_com, new_sta, sub_reg, wave) %>% 
+  summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1))) %>%
+  as.data.frame()
+
 
 ## ---- MRIP data ----
 
