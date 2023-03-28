@@ -208,6 +208,22 @@ mrip_estimate_catch_by_species_and_state <-
   summarise(mrip_estimate_catch_by_species = sum(as.integer(ab1)))
 
 # str(mrip_estimate)
+
+
+## ---- MRIP: by state, region, waves ----
+# select(mrip_estimate, sub_reg) %>% unique()
+# 6,7
+
+mrip_estimate_catch_by_species_state_region_waves <-
+  mrip_estimate %>%
+  select(itis_code, new_com, new_sta, sub_reg, wave, ab1) %>% 
+  group_by(itis_code, new_com, new_sta, sub_reg, wave) %>% 
+  summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1))) %>%
+  as.data.frame()
+
+# str(mrip_estimate_catch_by_species_state_region_waves)
+# 'data.frame':	878 obs. of  6 variables:
+  
 ## ---- compare fhier with mrip ----
 # mrip_estimate_catch
 # head(fhier_species_count_by_disposition, 3)
