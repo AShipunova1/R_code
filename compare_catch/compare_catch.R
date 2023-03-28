@@ -207,7 +207,7 @@ fhier_logbooks_content_waves_fl_county <-
   fhier_logbooks_content_waves %>%
   # select(end_port_state, end_port_county)
   mutate(
-    end_port_region = case_when(
+    end_port_fl_reg = case_when(
       fix_names(end_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
       fix_names(end_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
       .default = end_port_county
@@ -220,8 +220,8 @@ fhier_logbooks_content_waves_fl_county %>%
   arrange(end_port_county) %>%
   distinct() %>%
   # 37
-  select(end_port_region) %>%
-  filter(!(end_port_region %in% c("sa", "gom"))) %>% unique()
+  select(end_port_fl_reg) %>%
+  filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
 
 # NOT-SPECIFIED
 
@@ -248,22 +248,24 @@ sa_state_abb <-
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   select(state_abb)
 
-fhier_logbooks_content_waves_fl_county %>%
+fhier_logbooks_content_waves__sa_gom <-
+  fhier_logbooks_content_waves_fl_county %>%
   # select(end_port_state) %>% head()
-  mutate(end_port_region1 = case_when(
+  mutate(end_port_sa_gom = case_when(
     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
     .default = "gom"
   )) %>%
-  mutate(end_port_region1 = ifelse(
+  mutate(end_port_sa_gom = ifelse(
     tolower(end_port_state) == "fl",
-    end_port_region,
-    end_port_region1
-  )) %>%
-  # fix_names(end_port_state) %in% fix_names("Florida") ~ end_port_region,
-  select(end_port_state, end_port_region, end_port_region1) %>%
-  unique() %>%
-  glimpse()
+    end_port_fl_reg,
+    end_port_sa_gom
+  ))
+# %>%
+  # select(end_port_state, end_port_fl_reg, end_port_sa_gom) %>%
+  # unique() %>%
+  # glimpse()
 
+glimpse(fhier_logbooks_content_waves__sa_gom)
 
 # ---- fhier_quantity_by_species_permit_state_region_waves ----
 glimpse(fhier_logbooks_content_waves)
