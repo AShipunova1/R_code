@@ -145,40 +145,109 @@ fhier_logbooks_content <-
   change_to_dates("trip_start_date", "%Y-%m-%d")
 
 ## ---- wave ----
-# I have dfd$mon<-as.yearmon(dfd$Date) then
-fhier_logbooks_content %>%
-  mutate(start_month = as.yearmon(trip_start_date)) %>%
-  mutate(start_month_num = month(trip_start_date)) %>%
-  
-  mutate(start_wave  = floor((start_month_num + 1) / 2)) %>%
-  # select(trip_start_date, start_month, start_month_num, start_wave) %>%
-  select(start_month, start_month_num, start_wave) %>%
-  unique() %>%
-  arrange(start_month_num)
-# %>%
-# tail()
-# r<-as.data.frame(dfd %>%
-# mutate(month = format(Date, "%m"), year = format(Date, "%Y")) %>%
-# group_by(Group,mon) %>%
-# summarise(total = mean(Score), total1 = mean(Score2)))
 
-# mutate(yearhalf = as.integer(6/7)+1) %>%
+fhier_logbooks_content_waves <-
+  fhier_logbooks_content %>%
+  mutate(end_month = as.yearmon(trip_end_date)) %>%
+  mutate(end_year = 
+           year(trip_end_date)) %>%
+  mutate(end_month_num = month(trip_end_date)) %>%
+  mutate(end_wave  = floor((end_month_num + 1) / 2))
+
+# test ====
+fhier_logbooks_content_waves %>%
+  select(end_month, end_year, end_month_num, end_wave) %>%
+  unique() %>%
+  arrange(end_month_num)
+
+# ---- county ----
+fl_counties <- list(
+  "SA" = c(
+    "Brevard",
+    "Broward",
+    "Duval",
+    "Flagler",
+    "Indian River",
+    "Martin",
+    "Miami-Dade",
+    "Nassau",
+    "Palm Beach",
+    "St. Johns",
+    "St. Lucie",
+    "Volusia"
+  ),
+  "GOM" = c(
+    "Bay",
+    "Charlotte",
+    "Citrus",
+    "Collier",
+    "Dixie",
+    "Escambia",
+    "Franklin",
+    "Gulf",
+    "Hernando",
+    "Hillsborough",
+    "Lee",
+    "Levy",
+    "Manatee",
+    "Monroe",
+    "Okaloosa",
+    "Pasco",
+    "Pinellas",
+    "Santa Rosa",
+    "Sarasota",
+    "Taylor",
+    "Wakulla",
+    "Walton"
+  )
+)
+
+str(fl_counties)
+fhier_logbooks_content_waves %>%
+  # select(end_port_state, end_port_county)
+  mutate(
+    end_port_region = case_when(
+      tolower(end_port_county) %in% tolower(fl_counties$SA) ~ "sa",
+      tolower(end_port_county) %in% tolower(fl_counties$GOM) ~ "gom",
+      .default = end_port_county
+    )
+  ) %>% glimpse()
+# end_port_county  
+# fhier_logbooks_content_waves
+
+fhier_logbooks_content_waves %>%
+  filter(end_port_state == "FL") %>%
+  select(end_port_county) %>% 
+  arrange(end_port_county) %>%
+  distinct() %>%
+  # 37
+  mutate(
+    end_port_region = case_when(
+      fix_names(end_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
+      fix_names(end_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
+      .default = end_port_county
+    )
+  ) %>% 
+  # filter(is.na(end_port_region)) %>%
+  # glimpse()
+# Rows: 14
+  select(end_port_region) %>%
+  filter(!(end_port_region %in% c("sa", "gom"))) %>%
+  glimpse()
+# NOT-SPECIFIED
+
+
+# ---- fhier_quantity_by_species_permit_state_region_waves ----
+glimpse(fhier_logbooks_content_waves)
 
 fhier_quantity_by_species_permit_state_region_waves <-
-  logbooks_content %>%
-  select(catch_species_itis, common_name, end_port_state, wave, ab1) %>%
-  
-  select(permit_region, species_itis, reported_quantity) %>%
-  group_by(species_itis, permit_region) %>%
-  summarise(fhier_quantity_by_species_and_permit = sum(as.integer(reported_quantity)))
-
-mrip_estimate_catch_by_species_state_region_waves <-
-  mrip_estimate %>%
-  select(itis_code, new_com, new_sta, sub_reg, wave, ab1) %>%
-  group_by(itis_code, new_com, new_sta, sub_reg, wave) %>%
-  summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1))) %>%
+  fhier_logbooks_content_waves %>%
+  select(catch_species_itis, common_name, end_port_state, end_wave, end_year, reported_quantity) %>%
+  group_by(catch_species_itis, common_name, end_port_state, end_wave, end_year) %>%
+  summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity))) %>%
   as.data.frame()
 
+glimpse(fhier_quantity_by_species_permit_state_region_waves)
 
 ## ---- MRIP data ----
 
@@ -204,7 +273,8 @@ mrip_estimate_catch_by_species <-
   summarise(mrip_estimate_catch_by_species = sum(ab1))
 # head(mrip_estimate_catch_by_species, 2)
 
-grep("lon", names(mrip_estimate), value = T)
+# grep("lon", names(mrip_estimate), value = T)
+# 0
 ## ---- MRIP: count catch by species and state ----
 mrip_estimate_catch_by_species_and_state <-
   mrip_estimate %>%
@@ -215,14 +285,15 @@ mrip_estimate_catch_by_species_and_state <-
 # str(mrip_estimate)
 
 
-## ---- MRIP: by state, region, waves ----
+## ---- MRIP: by species, state, region, waves ----
 # select(mrip_estimate, sub_reg) %>% unique()
 # 6,7
 
+glimpse(mrip_estimate)
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate %>%
-  select(itis_code, new_com, new_sta, sub_reg, wave, ab1) %>%
-  group_by(itis_code, new_com, new_sta, sub_reg, wave) %>%
+  select(itis_code, new_com, new_sta, sub_reg, year, wave, ab1) %>%
+  group_by(itis_code, new_com, new_sta, sub_reg, year, wave) %>%
   summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1))) %>%
   as.data.frame()
 
