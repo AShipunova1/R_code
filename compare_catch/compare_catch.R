@@ -149,7 +149,7 @@ fhier_logbooks_content <-
 fhier_logbooks_content_waves <-
   fhier_logbooks_content %>%
   mutate(end_month = as.yearmon(trip_end_date)) %>%
-  mutate(end_year = 
+  mutate(end_year =
            year(trip_end_date)) %>%
   mutate(end_month_num = month(trip_end_date)) %>%
   mutate(end_wave  = floor((end_month_num + 1) / 2))
@@ -222,21 +222,24 @@ fhier_logbooks_content_waves_fl_county %>%
   # 37
   select(end_port_region) %>%
   filter(!(end_port_region %in% c("sa", "gom"))) %>% unique()
-  
+
 # NOT-SPECIFIED
 
 ## ---- States to GOM or SA ----
 
-states_sa <- data.frame(state_name = c("Delaware",
-               "District of Columbia",
-               # "Florida",
-               "Georgia",
-               "Maryland",
-               "North Carolina",
-               "South Carolina",
-               "Virginia",
-               "West Virginia")
-               )
+states_sa <- data.frame(
+  state_name = c(
+    "Delaware",
+    "District of Columbia",
+    # "Florida",
+    "Georgia",
+    "Maryland",
+    "North Carolina",
+    "South Carolina",
+    "Virginia",
+    "West Virginia"
+  )
+)
 
 # get abbreviations ----
 
@@ -245,18 +248,21 @@ sa_state_abb <-
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   select(state_abb)
 
-fhier_logbooks_content_waves_fl_county %>% 
+fhier_logbooks_content_waves_fl_county %>%
   # select(end_port_state) %>% head()
-  mutate(
-    end_port_region1 = case_when(
-      fix_names(end_port_state) %in% fix_names("Florida") ~ end_port_region,
-      fix_names(end_port_state) %in% intersect(tolower(states_sa$state_name), state_tbl$state_name) ~ "sa",
-      .default = "gom"
-    )
-  ) %>%
+  mutate(end_port_region1 = case_when(
+    fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
+    .default = "gom"
+  )) %>%
+  mutate(end_port_region1 = ifelse(
+    tolower(end_port_state) == "fl",
+    end_port_region,
+    end_port_region1
+  )) %>%
+  # fix_names(end_port_state) %in% fix_names("Florida") ~ end_port_region,
   select(end_port_state, end_port_region, end_port_region1) %>%
-unique() %>%
-    glimpse()
+  unique() %>%
+  glimpse()
 
 
 # ---- fhier_quantity_by_species_permit_state_region_waves ----
@@ -264,8 +270,19 @@ glimpse(fhier_logbooks_content_waves)
 
 fhier_quantity_by_species_permit_state_region_waves <-
   fhier_logbooks_content_waves %>%
-  select(catch_species_itis, common_name, end_port_state, end_wave, end_year, reported_quantity) %>%
-  group_by(catch_species_itis, common_name, end_port_state, end_wave, end_year) %>%
+  select(
+    catch_species_itis,
+    common_name,
+    end_port_state,
+    end_wave,
+    end_year,
+    reported_quantity
+  ) %>%
+  group_by(catch_species_itis,
+           common_name,
+           end_port_state,
+           end_wave,
+           end_year) %>%
   summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity))) %>%
   as.data.frame()
 
@@ -590,7 +607,7 @@ clean_geo_data <- function(lat_lon_cnts_w_info) {
   
   # colnames(res2) <- c("lat", "lon")
   # remove NAs
-  clean_lat_lon <- res2[complete.cases(res2),]
+  clean_lat_lon <- res2[complete.cases(res2), ]
   return(clean_lat_lon)
 }
 
