@@ -644,3 +644,32 @@ plot_10_most_frequent_both
   min_fhier = min(to_plot_50$fhier_quantity_by_species)
   # 5914
   
+# ==== mrip_estimate_catch_by_species_state_region_waves ====
+  # str(mrip_estimate_catch_by_species_state_region_waves )
+
+mrip_estimate_catch_by_species_state_region_waves %>%
+    mutate(x_col = paste(new_com, sub_reg, wave, sep = "_")) %>% plot()
+    # mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_4), itis_cod)
+    #        ) %>%
+    # str()
+    ggplot(aes(x = x_col,
+               y = mrip_estimate_catch_by_4
+    ),
+    # size = 2,
+    # alpha = 0.1
+    ) +
+    labs(title = "MRIP only by species, sub_reg, wave",
+         y = "counts",
+         x = "com name, sub_reg, wave"
+    ) +
+    theme(
+      # axis.text.x = element_text(angle = 45)
+      # ,
+      axis.text.x = element_blank()
+    ) +
+    geom_point(colour = "blue")
+  
+  counts_plot_ind
+  
+  # (10 - 1) / (10 + 1)
+  
