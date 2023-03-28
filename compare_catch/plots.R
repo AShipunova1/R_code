@@ -647,9 +647,9 @@ plot_10_most_frequent_both
 # ==== mrip_estimate_catch_by_species_state_region_waves ====
   # str(mrip_estimate_catch_by_species_state_region_waves )
 
-mrip_estimate_catch_by_species_state_region_waves %>%
-    mutate(x_col = paste(new_com, sub_reg, wave, sep = "_")) %>% plot()
-    # mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_4), itis_cod)
+mrip_estimate_catch_by_species_state_region_waves %>% plot()
+    mutate(x_col = paste(new_com, sub_reg, wave, sep = "_")) %>% 
+      # mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_4), itis_cod)
     #        ) %>%
     # str()
     ggplot(aes(x = x_col,

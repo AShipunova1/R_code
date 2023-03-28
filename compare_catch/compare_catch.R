@@ -144,6 +144,55 @@ fhier_logbooks_content <-
   logbooks_content  %>%
   change_to_dates("trip_start_date", "%Y-%m-%d")
 
+## ---- fix typos ----
+w_dates1 <-
+fhier_logbooks_content %>%
+  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01", notif_trip_end_date, 0)) %>% select(trip_end_date1) %>% unique()
+
+# ?as.Date.POSIXlt  
+
+year(fhier_logbooks_content$trip_end_date1) %>% head()
+w_dates1  
+  
+# w_dates1$trip_end_date1[2] %>% typeof()
+# as.Date
+# lapply(w_dates1$trip_end_date1[2:4], as.Date.POSIXlt)
+as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S") %>% year() %>% typeof()
+
+qq <-as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
+year(qq) <- as.integer("2022")
+qq
+
+# %>%
+#   unique()
+# 2 1992-10-16 01:00:00
+# 3 2022-03-02 00:00:00
+# 4 2022-08-17 01:00:00
+
+w_dates1[2,1] %>% as.Date.POSIXlt() %>% typeof()
+
+fhier_logbooks_content %>%
+  mutate(trip_end_date = ifelse(trip_end_date < "2020-01-01", notif_trip_end_date, trip_end_date)) %>% 
+  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01", 
+                                year(trip_end_date) <- "2022",
+                                trip_end_date
+                                )
+         )%>% 
+  select(trip_end_date1) %>% unique()
+
+
+# notif_trip_end_date
+# select(end_year, end_month, trip_end_date) %>% unique() %>% 
+# dim()
+# 3
+# head()
+#   1     1995 Oct 1995  1995-10-16 01:00:00
+# 2     2018 Jun 2018  2018-06-04 01:00:00
+# 3     1969 Aug 1969  1969-08-17 01:00:00
+
+
+
+
 ## ---- wave ----
 
 fhier_logbooks_content_waves <-
@@ -248,6 +297,7 @@ sa_state_abb <-
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   select(state_abb)
 
+# --- add sa/gom to states
 fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
   # select(end_port_state) %>% head()
@@ -259,37 +309,73 @@ fhier_logbooks_content_waves__sa_gom <-
     tolower(end_port_state) == "fl",
     end_port_fl_reg,
     end_port_sa_gom
-  ))
+  )) %>%
+  select(-end_port_fl_reg)
 # %>%
   # select(end_port_state, end_port_fl_reg, end_port_sa_gom) %>%
   # unique() %>%
   # glimpse()
 
 glimpse(fhier_logbooks_content_waves__sa_gom)
+# glimpse(mrip_estimate_catch_by_species_state_region_waves)
+# %>% plot()
+# itis_code"                "new_com"                 
+# [3] "new_sta"                  "sub_reg"                 
+# [5] "year"                     "wave"                    
+# [7] "mrip_estimate_catch_by_4"
 
 # ---- fhier_quantity_by_species_permit_state_region_waves ----
-glimpse(fhier_logbooks_content_waves)
+glimpse(fhier_logbooks_content_waves__sa_gom)
+
+fhier_logbooks_content_waves__sa_gom %>%
+  filter(end_year < 2020) %>% 
+  # glimpse()
+# Rows: 17
+  select(vessel_official_number, trip_id, submit_method, trip_start_date, trip_end_date) %>% unique()
+
+fhier_logbooks_content_waves__sa_gom %>%
+  filter(trip_id == "1000015908") %>% 
+  select(notif_trip_end_date) %>%
+  # notif_trip_end_date <chr> "2022-03-02 00:00:00"
+  # select(-`1`) %>%
+  unique() %>% glimpse()
+# notif_trip_end_date
+# select(end_year, end_month, trip_end_date) %>% unique() %>% 
+  # dim()
+# 3
+  # head()
+#   1     1995 Oct 1995  1995-10-16 01:00:00
+# 2     2018 Jun 2018  2018-06-04 01:00:00
+# 3     1969 Aug 1969  1969-08-17 01:00:00
+
+## ---- fix typos ----
+fhier_logbooks_content_waves__sa_gom %>%
+  mutate()
 
 fhier_quantity_by_species_permit_state_region_waves <-
-  fhier_logbooks_content_waves %>%
+  fhier_logbooks_content_waves__sa_gom %>%
   select(
     catch_species_itis,
     common_name,
     end_port_state,
-    end_wave,
+    end_port_sa_gom,
     end_year,
+    end_wave,
     reported_quantity
-  ) %>%
-  group_by(catch_species_itis,
+  ) %>% 
+  group_by(
+           catch_species_itis,
            common_name,
            end_port_state,
-           end_wave,
-           end_year) %>%
+           end_port_sa_gom,
+           end_year,
+           end_wave
+           ) %>%
   summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity))) %>%
   as.data.frame()
 
-glimpse(fhier_quantity_by_species_permit_state_region_waves)
 
+plot(fhier_quantity_by_species_permit_state_region_waves)
 ## ---- MRIP data ----
 
 ## ---- convert ab1 to integers ----
@@ -330,7 +416,7 @@ mrip_estimate_catch_by_species_and_state <-
 # select(mrip_estimate, sub_reg) %>% unique()
 # 6,7
 
-glimpse(mrip_estimate)
+# glimpse(mrip_estimate)
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate %>%
   select(itis_code, new_com, new_sta, sub_reg, year, wave, ab1) %>%
@@ -664,51 +750,51 @@ lat_lon_cnts <-
 # dim(lat_lon_cnts)
 # 59929
 
-plot_xy <- function() {
-  x <- lat_lon_cnts$latitude
-  # x <- as.double(drop_na(as.numeric(most_frequent_fhier10_w_info$latitude)))
-  str(x)
-  y <- lat_lon_cnts$longitude
-  xy <- SpatialPointsDataFrame(
-    matrix(c(x, y), ncol = 2),
-    data.frame(ID = seq(1:length(x))),
-    proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")
-  )
-  
-  xy <- spTransform(xy, CRS("+init=epsg:4326 +datum=WGS84"))
-  
-  # round(x, digits = 0)
-  # here
-  chc <- hclust(dist(
-    data.frame(
-      rownames = rownames(xy@data),
-      x = coordinates(xy)[, 1],
-      y = coordinates(xy)[, 2]
-    )
-  ),
-  method = "complete")
-  
-  str(chc)
-  dist_tr <- 40  # Distance threshold
-  # Distance with a 40m threshold
-  chc.d40 <- cutree(chc, h = d)
-  # chc.d40 <- cutree(chc, k = 500)
-  
-  # Join results to meuse sp points
-  xy@data <- data.frame(xy@data, Clust = chc.d40)
-  
-  # Plot results
-  plot(xy, col = factor(xy@data$Clust), pch = 19)
-  box(col = "black")
-  title(main = "Clustering")
-  legend(
-    "topleft",
-    legend = paste("Cluster", 1:4, sep = ""),
-    col = palette()[1:4],
-    pch = rep(19, 4),
-    bg = "white"
-  )
-}
+# plot_xy <- function() {
+#   x <- lat_lon_cnts$latitude
+#   # x <- as.double(drop_na(as.numeric(most_frequent_fhier10_w_info$latitude)))
+#   str(x)
+#   y <- lat_lon_cnts$longitude
+#   xy <- SpatialPointsDataFrame(
+#     matrix(c(x, y), ncol = 2),
+#     data.frame(ID = seq(1:length(x))),
+#     proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")
+#   )
+#   
+#   xy <- spTransform(xy, CRS("+init=epsg:4326 +datum=WGS84"))
+#   
+#   # round(x, digits = 0)
+#   # here
+#   chc <- hclust(dist(
+#     data.frame(
+#       rownames = rownames(xy@data),
+#       x = coordinates(xy)[, 1],
+#       y = coordinates(xy)[, 2]
+#     )
+#   ),
+#   method = "complete")
+#   
+#   str(chc)
+#   dist_tr <- 40  # Distance threshold
+#   # Distance with a 40m threshold
+#   chc.d40 <- cutree(chc, h = d)
+#   # chc.d40 <- cutree(chc, k = 500)
+#   
+#   # Join results to meuse sp points
+#   xy@data <- data.frame(xy@data, Clust = chc.d40)
+#   
+#   # Plot results
+#   plot(xy, col = factor(xy@data$Clust), pch = 19)
+#   box(col = "black")
+#   title(main = "Clustering")
+#   legend(
+#     "topleft",
+#     legend = paste("Cluster", 1:4, sep = ""),
+#     col = palette()[1:4],
+#     pch = rep(19, 4),
+#     bg = "white"
+#   )
+# }
 
 ## --- round up coords ----
 # install.packages("geosphere")
