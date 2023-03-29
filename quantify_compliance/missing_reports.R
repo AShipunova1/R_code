@@ -104,6 +104,8 @@ sa_1 <-
 # complianceerrors__
 # A tibble: 1,408 × 12
 
+sa_1 %>% head()
+write_csv(sa_1, "sa_compliant_no_reports.csv")
 print_line(sa_1[1, ])
 # MC7540US, logb: 0, negativereports: 0, err: 0, compl: YES, week_of: 12/26/2022
 
