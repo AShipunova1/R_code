@@ -27,8 +27,3 @@ err_desc <-
   change_to_dates(err_desc_clean_headers_csv_content,
                   "last_updated",
                   "%m/%d/%Y %I:%M:%S %p")
-# 03/22/2023 04:56:11 PM
-# "%m/%d/%Y %I:%M %p"
-as.POSIXct("03/22/2023 04:56:11 PM", format = "%m/%d/%Y %I:%M:%S %p")
-
-View(err_desc_clean_headers_csv_content)
