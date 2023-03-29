@@ -1,20 +1,24 @@
 source(r"(~\R_code_github\quantify_compliance\quantify_compliance_start.R)")
 
-compl_clean_sa_vs_gom_plus_dual_short <-
+View(compl_clean_sa_vs_gom_plus_dual)
+compl_clean_short <-
   compl_clean_sa_vs_gom_plus_dual %>%
   select(
-    vessel_official_number,
-    year,
-    week,
-    gom_permitteddeclarations__,
     captainreports__,
-    negativereports__,
     complianceerrors__,
     compliant_,
-    week_start,
+    gom_permitteddeclarations__,
+    negativereports__,
+    overridden_,
     permit,
+    permitgroup,
+    permitgroupexpiration,
+    vessel_official_number,
+    week_end,
+    week_num,
+    week_start,
     year_month,
-    year_quarter
+    year_quarter,
   )
 
 # filter(permit == "sa_only")
