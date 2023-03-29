@@ -1,27 +1,27 @@
 # "To Be Compliant (for data before week 9 of 2023)"
 # Leeanne:
-# For GOM: 
+# For GOM:
 #   1) Incorrect as there does not need to be an equal number of total declarations and logbooks for compliance. Non-fishing intended, recreational declarations can be submitted and these do not require a logbook. But specifically, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant.
 # 2) Trip negative reports are not required for GOM-only permitted vessels
-# 
+#
 # SA:
 #   1) There should be at least one logbook or 7 DNFs filed for that week. If Michelle could confirm this - It is technically compliant only if DNFs are submitted for all 7 days within the week
 # 2) DNFs can be submitted up to 30 days in advance. So too much is 31 or more days in advance
-# 
+#
 # Dual permits:
 #   Correct that before week 9 of 2023, dual permitted vessels had followed GOM reqs.
-# 
+#
 # And correct for noncompliant + overridden are compliant
 
 # Michelle
-# to respond to Leeanne - technically they need a DNF for each day of the week, but I think we import those as a weekly DNF report (for compliance tracking in FHIER purposes). This could easily be confirmed in FHIER though - just pick a compliant SA vessel, and see if there is a DNF for each day of a given week, or just 1 for the week. 
+# to respond to Leeanne - technically they need a DNF for each day of the week, but I think we import those as a weekly DNF report (for compliance tracking in FHIER purposes). This could easily be confirmed in FHIER though - just pick a compliant SA vessel, and see if there is a DNF for each day of a given week, or just 1 for the week.
 
 compl_clean_short_sa_vs_gom %>%
   filter(permit == "sa_only") %>%
   filter(tolower(compliant_) == "yes") %>% glimpse()
 # negativereports__ == 7
-         
-  
+
+
 # ---- def ----
 # GOM:
 # 1) There should be a declaration for every logbook (the number of fishing intended charter declarations would need to be equal to logbooks to be compliant)
@@ -128,12 +128,12 @@ compl_clean_short_sa_vs_gom %>%
   filter(permit == "sa_only") %>%
   filter(tolower(compliant_) == "no",
          (captainreports__) > 0,
-        tolower(overridden_) == "no") %>% View()
+         tolower(overridden_) == "no") %>% View()
 # 1 Feb 2023
 # ==== check if the same vessel can be sa_only in one week and gom or dual the other ====
 
 sa_only_vessel_id <-
-compl_clean_short_sa_vs_gom %>%
+  compl_clean_short_sa_vs_gom %>%
   filter(permit == "sa_only") %>%
   select(vessel_official_number) %>%
   unique()
@@ -152,13 +152,13 @@ intersect(sa_only_vessel_id, gom_or_dual_vessel_id) %>% glimpse()
 ### SA compliant & no reports:
 # Leeanne Delrosario - NOAA Affiliate
 # to me, Chris, Michelle
-# 
+#
 # Hey Anna, Chris and I finished taking a look at that report you sent over. Majority of those vessels had week 8 of 2023 as the listed week that was compliant when no reports were submitted for the SA vessels. If the report was run on 2/24/23 (during week 8), then it makes sense that those vessels are marked compliant with no reports as the deadline to submit reports for that week had not passed yet (the following Tuesday after the reporting week ends).
-# 
-# 
-# After filtering out week 8, the rest of the vessels with compliant weeks for no reports were dual Gulf/SA permit holders and it is correct that they would be compliant even with no reports submitted. 
-# 
-# 
+#
+#
+# After filtering out week 8, the rest of the vessels with compliant weeks for no reports were dual Gulf/SA permit holders and it is correct that they would be compliant even with no reports submitted.
+#
+#
 
 # === different permits in the report and the dashboard ====
 # (!) has a gom permit in the "vessel dashboard" and
@@ -167,13 +167,48 @@ sa_compliant__no_reports <-
   compl_clean_short_sa_vs_gom %>%
   filter(permit == "sa_only") %>%
   filter(tolower(compliant_) == "yes",
-       (captainreports__ + negativereports__) == 0) %>%
+         (captainreports__ + negativereports__) == 0) %>%
   # 1408
-    filter(!(week_start >= "2023-02-20"))
+  filter(!(week_start >= "2023-02-20"))
 # 246
 
 permit_names_list = r"(other\Permits_2023-03-29_1611_active_eff_after2020.csv)"
 
-active_permits_from_pims <-
+active_permits_from_pims_raw <-
   load_csv_names(my_paths, permit_names_list)
-View(active_permits_from_pims)
+# View(active_permits_from_pims[[1]])
+head(active_permits_from_pims_raw[[1]])
+
+active_permits_from_pims_temp1 <-
+  active_permits_from_pims_raw[[1]] %>%
+  clean_headers %>%
+  separate_wider_delim(permit__, "-", names = c("permit_code", "permit_num")) %>%
+  separate_wider_regex(
+    cols = vessel_or_dealer,
+    patterns = c(
+      vessel_official_number = "[A-Za-z0-9]+", 
+      " */* ", 
+      vessel_name = "[A-Za-z0-9]+"
+    ),
+    too_few = "align_start"
+  )
+
+active_permits_from_pims_temp1 %>%
+  # select(ends_with("_date")) %>%
+  mutate(across(ends_with("_date"),
+                ~ as.POSIXct(.,
+                             format = "%m/%d/%y")
+                )
+  ) %>%
+
+  #               ~replace(.,
+  # mutate(across(ends_with("_date"), change_to_dates("%m/%d/%y")))
+  # map_at(ends_with("_date"), change_to_dates(., "%m/%d/%y")) %>%
+  glimpse()
+
+# split(mrip_fhier_by_state_long,
+# f = mrip_fhier_by_state_long$itis_code)
+active_permits_from_pims_temp2 <-
+  splt
+split(active_permits_from_pims_temp1, f = active_permits_from_pims_temp1$permit__, "-") %>%
+  glimpse()
