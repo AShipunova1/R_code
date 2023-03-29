@@ -182,33 +182,22 @@ head(active_permits_from_pims_raw[[1]])
 active_permits_from_pims_temp1 <-
   active_permits_from_pims_raw[[1]] %>%
   clean_headers %>%
-  separate_wider_delim(permit__, "-", names = c("permit_code", "permit_num")) %>%
+  separate_wider_delim(permit__, "-",
+                       names = c("permit_code", "permit_num")) %>%
   separate_wider_regex(
     cols = vessel_or_dealer,
     patterns = c(
-      vessel_official_number = "[A-Za-z0-9]+", 
-      " */* ", 
+      vessel_official_number = "[A-Za-z0-9]+",
+      " */* ",
       vessel_name = "[A-Za-z0-9]+"
     ),
     too_few = "align_start"
   )
 
-active_permits_from_pims_temp1 %>%
-  # select(ends_with("_date")) %>%
+active_permits_from_pims <-
+  active_permits_from_pims_temp1 %>%
   mutate(across(ends_with("_date"),
                 ~ as.POSIXct(.,
-                             format = "%m/%d/%y")
-                )
-  ) %>%
-
-  #               ~replace(.,
-  # mutate(across(ends_with("_date"), change_to_dates("%m/%d/%y")))
-  # map_at(ends_with("_date"), change_to_dates(., "%m/%d/%y")) %>%
-  glimpse()
-
-# split(mrip_fhier_by_state_long,
-# f = mrip_fhier_by_state_long$itis_code)
-active_permits_from_pims_temp2 <-
-  splt
-split(active_permits_from_pims_temp1, f = active_permits_from_pims_temp1$permit__, "-") %>%
-  glimpse()
+                             format = "%m/%d/%y")))
+# %>%
+# glimpse()
