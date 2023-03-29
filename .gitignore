@@ -21,3 +21,4 @@ bootstrap.min.css
 quarto-syntax-highlighting.css
 tippy.css
 __packages
+quantify_compliance/SA_non_compliant_and_has_logbooks.csv

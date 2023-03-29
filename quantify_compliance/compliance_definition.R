@@ -60,3 +60,20 @@ compl_clean_short_sa_vs_gom %>%
   filter(permit == "gom_only" &
            !grepl("G", permitgroup)) %>% head()
 # 0
+# === different permits in the report and the dashboard ====
+# (!) has a gom permit in the "vessel dashboard" and
+# no gom repots in the "permitgroup" column of the FHIER compliance report
+sa_compliant__no_reports <-
+  compl_clean_short_sa_vs_gom %>%
+  filter(permit == "sa_only") %>%
+  filter(tolower(compliant_) == "yes",
+       (captainreports__ + negativereports__) == 0) %>%
+  # 1408
+    filter(!(week_start >= "2023-02-20"))
+# 246
+
+permit_names_list = r"(other\Permits_2023-03-29_1611_active_eff_after2020.csv)"
+
+active_permits_from_pims <-
+  load_csv_names(my_paths, permit_names_list)
+View(active_permits_from_pims)
