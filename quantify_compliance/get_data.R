@@ -44,10 +44,10 @@ active_permits_from_pims_temp1 <-
 # separate columns
 active_permits_from_pims_temp2 <-
   active_permits_from_pims_temp1 %>%
-  separate_wider_delim(permit__, "-",
+  separate_wider_delim(permit__,
+                       "-",
                        names = c("permit_code", "permit_num"),
-                       too_many = "merge"
-  ) %>%
+                       too_many = "merge") %>%
   separate_wider_regex(
     cols = vessel_or_dealer,
     patterns = c(
@@ -58,46 +58,22 @@ active_permits_from_pims_temp2 <-
     too_few = "align_start"
   )
 
-active_permits_from_pims_temp2 %>%
-  select(status_date) %>%
-  arrange(desc(status_date)) %>% unique() %>% head()
-# correct dates
+# correct dates format
 
-# active_permits_from_pims <-
-#   active_permits_from_pims_temp2 %>%
-#   mutate(across(ends_with("_date"),
-#                 ~ as.POSIXct(.,
-#                              format = "%m/%d/%y")))
-
-active_permits_from_pims_temp2 %>%
-  select(status_date) %>%
-  arrange(desc(status_date)) %>% unique() %>% tail()
-
+# get a list of field names ends with "_date"
 ends_with_date_fields <-
   grep("_date", names(active_permits_from_pims_temp2), value = TRUE)
 
-# change_fields_arr_to_dates(active_permits_from_pims_temp2, ends_with_date_fields, "%m/%d/%y")
-
-active_permits_from_pims_temp3a <-
-  active_permits_from_pims_temp2 %>%
-  change_to_dates("status_date", "%m/%d/%Y")
-# correct
-
-active_permits_from_pims_temp3b <-
-  map(ends_with_date_fields,
-         function(x) {
-           active_permits_from_pims_temp2[[x]] <-
-             as.Date(active_permits_from_pims_temp2[[x]], "%m/%d/%Y")
-         })
-# wrong format
-
+# convert to date
 active_permits_from_pims <-
-  # my_df %>%
-  # mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
-change_fields_arr_to_dates(active_permits_from_pims_temp2, ends_with_date_fields, "%m/%d/%Y")
+  change_fields_arr_to_dates(active_permits_from_pims_temp2,
+                             ends_with_date_fields,
+                             "%m/%d/%Y")
 
+# test
 active_permits_from_pims %>%
   select(status_date) %>%
   arrange(desc(status_date)) %>% unique() %>% head()
 # correct
-View(active_permits_from_pims)
+str(active_permits_from_pims)
+
