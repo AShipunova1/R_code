@@ -99,8 +99,8 @@ compl_clean_short <-
   )
 
 # error descriptions ====
-err_desc$enabled_
-View(err_desc)
+# err_desc$enabled_
+# View(err_desc)
 
 err_desc_used <-
   err_desc %>%
@@ -110,9 +110,9 @@ err_desc_used <-
     .default = "NO"
   ))
 
-err_desc_used %>%
-  filter(grepl("check", enabled_, ignore.case = TRUE)) %>%
-  arrange(overridable_) %>% View()
+# err_desc_used %>%
+  # filter(grepl("check", enabled_, ignore.case = TRUE)) %>%
+  # arrange(overridable_) %>% View()
 
 # === separate by permit ====
 
@@ -186,8 +186,10 @@ sa_compliant__no_reports <-
 str(sa_only_vessel_id)
 str(active_permits_from_pims)
 
+g_permits_from_sa_only <-
 inner_join(active_permits_from_pims, sa_only_vessel_id) %>%
   filter(grepl("g", tolower(permit_code))) %>%
   select(vessel_official_number, permit_code, ends_with("date")) %>%
-  arrange(expiration_date) %>% View()
+  arrange(expiration_date)
+# %>% View()
   # filter(expiration_date > "2021-01-01")
