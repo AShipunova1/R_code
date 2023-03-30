@@ -347,7 +347,7 @@ fhier_catch_by_species_state_region_waves <-
   ) %>%
   summarise(fhier_catch_by_4 = sum(as.integer(reported_quantity))) %>%
   as.data.frame()
-plot(fhier_catch_by_species_state_region_waves)
+# plot(fhier_catch_by_species_state_region_waves)
 
 glimpse(mrip_estimate_catch_by_species_state_region_waves)
 # itis_code"                    "new_com"
@@ -938,3 +938,69 @@ wave_data_names_m <- c("species_itis",
 
 names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
 names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
+
+mrip_estimate_catch_by_species_state_region_waves1 <-
+  mrip_estimate_catch_by_species_state_region_waves %>%
+  mutate(year = as.double(year)) %>%
+  mutate(wave = as.double(wave))
+
+fhier_mrip_catch_by_species_state_region_waves <-
+  inner_join(fhier_catch_by_species_state_region_waves,
+             mrip_estimate_catch_by_species_state_region_waves1,
+             by = join_by(species_itis, state, year, wave),
+             multiple = "all"
+             )
+# Joining with `by = join_by(species_itis, common_name, state, sa_gom, year, wave)`
+
+View(fhier_mrip_catch_by_species_state_region_waves)
+
+# ---- Prepare data for ploting ----
+
+View(mrip_estimate_catch_by_species_state_region_waves)
+mrip_estimate_catch_by_species_state_region_waves <-
+  mrip_estimate_catch_by_species_state_region_waves1 %>%
+  mutate(sa_gom = case_when(sa_gom == 6 ~ "sa",
+                            sa_gom == 7 ~ "gom",
+                            .default = sa_gom))
+
+head(fhier_catch_by_species_state_region_waves)
+fhier_mrip_catch_by_species_state_region_waves <-
+  right_join(fhier_catch_by_species_state_region_waves,
+             mrip_estimate_catch_by_species_state_region_waves,
+             by = join_by(species_itis, state, sa_gom, year, wave)
+  )
+# Joining with `by = join_by(species_itis, common_name, state, sa_gom, year, wave)`
+
+View(fhier_mrip_catch_by_species_state_region_waves)
+# 878
+
+
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp <-
+  fhier_mrip_catch_by_species_state_region_waves %>%
+  select(
+    species_itis,
+    state,
+    sa_gom,
+    year,
+    wave,
+    common_name.x,
+    fhier_catch_by_4,
+    mrip_estimate_catch_by_4
+  ) %>%
+  mutate(year_wave = paste(year, wave, sep = "_")) %>%
+  group_split(sa_gom) %>%
+  set_names(fhier_mrip_catch_by_species_state_region_waves$sa_gom %>%
+              unique %>%
+              sort)
+  
+View(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp)
+
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_list <-
+  map(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp,
+      .f = list(. %>% dplyr::select(-one_of("species_itis", "year", "wave", "sa_gom")
+                                    )
+                )
+  )
+
+glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp)
+
