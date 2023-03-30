@@ -233,8 +233,8 @@ combined_permits <-
 
 gom_permits_from_sa_only_short2 <-
   gom_permits_from_sa_only %>%
-  select(vessel_official_number, ends_with("_date")) %>%
-  mutate(across(ends_with("_date"), .fns = as.character))
+  select(vessel_official_number, c("effective_date", "expiration_date")) %>%
+  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
 
 # Dot notation
 # --- combine dates ---
@@ -247,13 +247,28 @@ combined_effective_date <-
             
   )
 
-gom_permits_from_sa_only %>%
+combined_permit_dates <-
   inner_join(combined_permits,
-             by = "vessel_official_number") %>%
-  inner_join(combined_effective_date,
-             by = "vessel_official_number") %>%
-  View()
+           combined_effective_date,
+             by = "vessel_official_number")
 
 
-# group_by(vessel_official_number)
-View(gom_permits_from_sa_only)
+# ---
+gom_permits_from_sa_only_short <-
+  gom_permits_from_sa_only %>%
+  select(vessel_official_number, permit_code, effective_date, expiration_date) %>%
+  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
+
+# str(gom_permits_from_sa_only_short)
+
+combined_permit_date <-
+  aggregate(. ~ vessel_official_number,
+            data = gom_permits_from_sa_only_short,
+            paste, sep = ","
+  )
+
+# view(combined_permit_date)
+
+# str(combined_permit_date)
+
+# write_csv(combined_permit_date, "gom_permits_from_sa_only_short.csv")
