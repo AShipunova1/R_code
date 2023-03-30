@@ -228,7 +228,7 @@ port_coords <- read_port_coords()
 
 ## ---- get state coords ----
 # https://www.latlong.net/category/states-236-14.html
-states_coords_raw <- read_csv(file.path(my_paths$inputs, "states_decimal_deg.csv"))
+# states_coords_raw <- read_csv(file.path(my_paths$inputs, "states_decimal_deg.csv"))
 # head(states_coords_raw)
 
 ## ---- add state abbreviations ----
@@ -245,5 +245,6 @@ names(state_tbl) = c("state_abb", "state_name")
 
 ## ---- ports coordinates from SERO ----
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\View Landing Locations.xlsx"
-ports_coords_raw <- read_csv(file.path(my_paths$inputs, "View_Landing_Locations.csv"))
-str(ports_coords_raw)
+# ports_coords_raw <- read_csv(file.path(my_paths$inputs, "View_Landing_Locations.csv"))
+# str(ports_coords_raw)
+
