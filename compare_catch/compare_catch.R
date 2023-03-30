@@ -167,25 +167,40 @@ date_1992
 date_fixed <-
   fhier_logbooks_content %>%
   mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01",
-                                 notif_trip_end_date, trip_end_date)) %>%
-  mutate(trip_end_date2 = temp_f(trip_end_date1)
+                                 notif_trip_end_date,
+                                 trip_end_date)) %>%
+  mutate(trip_end_date2 = ifelse(grepl("1992", date_fixed$trip_end_date1),
+                                 "2022-10-16 01:00:00",
+                                 trip_end_date1
+                                 )
          )
+# mutate(address = ifelse(address == '',work_address,address))
 
-str(unique(date_fixed$trip_end_date2))
-setdiff(unique(date_fixed$trip_end_date1), 
-        unique(date_fixed$trip_end_date2), 
-)
+# date_fixed_short <-
+  date_fixed %>%
+  select(starts_with("trip_end_date")) %>%
+  filter(grepl("1992", date_fixed$trip_end_date1))
+
+t1 <- date_fixed$trip_end_date1
+t2 <- date_fixed$trip_end_date2
+View(date_fixed_short)
+
+grep("1992", date_fixed$trip_end_date2, value = T)
+difft1_2 <-
+  setdiff(t1, t2) %>% unique()
+
+setdiff(list(date_fixed$trip_end_date1), 
+        list(date_fixed$trip_end_date2), 
+  ) %>% unique()
+
 temp_f <- function(val) {
-  if(trip_end_date1 < "2022-01-01") {
   browser()
   date_1992 <- as.Date(val, "%Y-%m-%d %H:%M:%S")
   year(date_1992) <- as.integer("2022")
   
   return(date_1992)
-  }
-  else
-    return(trip_end_date1)
-}  
+}
+   
 # df %>% group_by(digit) %>% mutate(isOdd = IsItOdd(digit))
 # 
 # date_1992 <- as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
