@@ -146,34 +146,37 @@ fhier_logbooks_content <-
 
 ## ---- fix typos ----
 w_dates1 <-
-fhier_logbooks_content %>%
-  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01", notif_trip_end_date, 0)) %>% 
+  fhier_logbooks_content %>%
+  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01", notif_trip_end_date, 0)) %>%
   select(trip_end_date1) %>% unique()
 
-# ?as.Date.POSIXlt  
+# ?as.Date.POSIXlt
 
 year(fhier_logbooks_content$trip_end_date1) %>% head()
-w_dates1  
-  
+w_dates1
+
 # w_dates1$trip_end_date1[2] %>% typeof()
 # as.Date
 # lapply(w_dates1$trip_end_date1[2:4], as.Date.POSIXlt)
 as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S") %>% year() %>% typeof()
 
-date_1992 <- as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
+date_1992 <-
+  as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
 year(date_1992) <- as.integer("2022")
 date_1992
 
 fhier_logbooks_content_date_fixed <-
   fhier_logbooks_content %>%
-  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01",
-                                 notif_trip_end_date,
-                                 trip_end_date)) %>%
-  mutate(trip_end_date2 = ifelse(grepl("1992", date_fixed$trip_end_date1),
-                                 "2022-10-16 01:00:00",
-                                 trip_end_date1
-                                 )
-         )
+  mutate(trip_end_date1 = ifelse(
+    trip_end_date < "2020-01-01",
+    notif_trip_end_date,
+    trip_end_date
+  )) %>%
+  mutate(trip_end_date2 = ifelse(
+    grepl("1992", date_fixed$trip_end_date1),
+    "2022-10-16 01:00:00",
+    trip_end_date1
+  ))
 
 fhier_logbooks_content_date_fixed %>%
   select(starts_with("trip_end_date")) %>%
@@ -184,7 +187,7 @@ fhier_logbooks_content_date_fixed %>%
 # 2022-08-17 01:00:00
 
 # notif_trip_end_date
-# select(end_year, end_month, trip_end_date) %>% unique() %>% 
+# select(end_year, end_month, trip_end_date) %>% unique() %>%
 # dim()
 # 3
 # head()
@@ -196,10 +199,10 @@ fhier_logbooks_content_date_fixed %>%
 
 fhier_logbooks_content_waves <-
   fhier_logbooks_content_date_fixed %>%
-  mutate(end_month = as.yearmon(trip_end_date)) %>%
+  mutate(end_month = as.yearmon(trip_end_date2)) %>%
   mutate(end_year =
-           year(trip_end_date)) %>%
-  mutate(end_month_num = month(trip_end_date)) %>%
+           year(trip_end_date2)) %>%
+  mutate(end_month_num = month(trip_end_date2)) %>%
   mutate(end_wave  = floor((end_month_num + 1) / 2))
 
 # test ====
@@ -317,41 +320,62 @@ fhier_logbooks_content_waves__sa_gom %>%
   unique() %>%
   glimpse()
 
-glimpse(fhier_logbooks_content_waves__sa_gom)
-glimpse(mrip_estimate_catch_by_species_state_region_waves)
-# %>% plot()
-# itis_code"                "new_com"                 
-# [3] "new_sta"                  "sub_reg"                 
-# [5] "year"                     "wave"                    
-# [7] "mrip_estimate_catch_by_4"
+# names(fhier_logbooks_content_waves__sa_gom) %>% cat()
+
 
 # ---- fhier_quantity_by_species_permit_state_region_waves ----
 glimpse(fhier_logbooks_content_waves__sa_gom)
 
-fhier_logbooks_content_waves__sa_gom %>%
-  filter(end_year < 2020) %>% 
-  # glimpse()
-# Rows: 17
-  select(vessel_official_number, trip_id, submit_method, trip_start_date, trip_end_date) %>% unique()
+fhier_catch_by_species_state_region_waves <-
+  fhier_logbooks_content_waves__sa_gom %>%
+  select(
+    catch_species_itis,
+    common_name,
+    end_port_state,
+    end_port_sa_gom,
+    end_year,
+    end_wave,
+    reported_quantity
+  ) %>%
+  group_by(
+    catch_species_itis,
+    common_name,
+    end_port_state,
+    end_port_sa_gom,
+    end_year,
+    end_wave
+  ) %>%
+  summarise(fhier_catch_by_4 = sum(as.integer(reported_quantity))) %>%
+  as.data.frame()
+plot(fhier_catch_by_species_state_region_waves)
 
-fhier_logbooks_content_waves__sa_gom %>%
-  filter(trip_id == "1000015908") %>% 
-  select(notif_trip_end_date) %>%
-  # notif_trip_end_date <chr> "2022-03-02 00:00:00"
-  # select(-`1`) %>%
-  unique() %>% glimpse()
+glimpse(mrip_estimate_catch_by_species_state_region_waves)
+# itis_code"                    "new_com"
+# [3] "new_sta"                  "sub_reg"
+# [5] "year"                     "wave"
+# [7] "mrip_estimate_catch_by_4"
+
+# ---
+# fhier_logbooks_content_waves__sa_gom %>%
+# filter(end_year < 2020) %>%
+# glimpse()
+# Rows: 17
+# select(vessel_official_number, trip_id, submit_method, trip_start_date, trip_end_date) %>% unique()
+
+# fhier_logbooks_content_waves__sa_gom %>%
+# filter(trip_id == "1000015908") %>%
+# select(notif_trip_end_date) %>%
+# notif_trip_end_date <chr> "2022-03-02 00:00:00"
+# select(-`1`) %>%
+# unique() %>% glimpse()
 # notif_trip_end_date
-# select(end_year, end_month, trip_end_date) %>% unique() %>% 
-  # dim()
+# select(end_year, end_month, trip_end_date) %>% unique() %>%
+# dim()
 # 3
-  # head()
+# head()
 #   1     1995 Oct 1995  1995-10-16 01:00:00
 # 2     2018 Jun 2018  2018-06-04 01:00:00
 # 3     1969 Aug 1969  1969-08-17 01:00:00
-
-## ---- fix typos ----
-fhier_logbooks_content_waves__sa_gom %>%
-  mutate()
 
 fhier_quantity_by_species_permit_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom %>%
@@ -363,20 +387,19 @@ fhier_quantity_by_species_permit_state_region_waves <-
     end_year,
     end_wave,
     reported_quantity
-  ) %>% 
+  ) %>%
   group_by(
-           catch_species_itis,
-           common_name,
-           end_port_state,
-           end_port_sa_gom,
-           end_year,
-           end_wave
-           ) %>%
+    catch_species_itis,
+    common_name,
+    end_port_state,
+    end_port_sa_gom,
+    end_year,
+    end_wave
+  ) %>%
   summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity))) %>%
   as.data.frame()
 
 
-# plot(fhier_quantity_by_species_permit_state_region_waves)
 ## ---- MRIP data ----
 
 ## ---- convert ab1 to integers ----
@@ -696,7 +719,7 @@ clean_geo_data <- function(lat_lon_cnts_w_info) {
   
   # colnames(res2) <- c("lat", "lon")
   # remove NAs
-  clean_lat_lon <- res2[complete.cases(res2), ]
+  clean_lat_lon <- res2[complete.cases(res2),]
   return(clean_lat_lon)
 }
 
@@ -761,9 +784,9 @@ lat_lon_cnts <-
 #     data.frame(ID = seq(1:length(x))),
 #     proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")
 #   )
-#   
+#
 #   xy <- spTransform(xy, CRS("+init=epsg:4326 +datum=WGS84"))
-#   
+#
 #   # round(x, digits = 0)
 #   # here
 #   chc <- hclust(dist(
@@ -774,16 +797,16 @@ lat_lon_cnts <-
 #     )
 #   ),
 #   method = "complete")
-#   
+#
 #   str(chc)
 #   dist_tr <- 40  # Distance threshold
 #   # Distance with a 40m threshold
 #   chc.d40 <- cutree(chc, h = d)
 #   # chc.d40 <- cutree(chc, k = 500)
-#   
+#
 #   # Join results to meuse sp points
 #   xy@data <- data.frame(xy@data, Clust = chc.d40)
-#   
+#
 #   # Plot results
 #   plot(xy, col = factor(xy@data$Clust), pch = 19)
 #   box(col = "black")
@@ -825,26 +848,28 @@ most_frequent_fhier10_w_info_state_cnts <-
          reported_quantity) %>%
   group_by(catch_species_itis, common_name, end_port_state) %>%
   summarise(fhier_quantity_by_sp_n_state10 = sum(as.integer(reported_quantity)))
+
 # %>% str()
 # gropd_df [86 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
 
-## ---- add state coords ----
-most_frequent_fhier10_w_info_state_cnts_abbr <-
-  states_coords_raw %>%
-  mutate(state_name = tolower(state_name)) %>%
-  inner_join(state_tbl,
-             by = "state_name") %>%
-  inner_join(
-    most_frequent_fhier10_w_info_state_cnts,
-    by = c("state_abb" = "end_port_state"),
-    multiple = "all"
-  )
+# ## ---- add state coords ----
+# most_frequent_fhier10_w_info_state_cnts_abbr <-
+#   states_coords_raw %>%
+#   mutate(state_name = tolower(state_name)) %>%
+#   inner_join(state_tbl,
+#              by = "state_name") %>%
+#   inner_join(
+#     most_frequent_fhier10_w_info_state_cnts,
+#     by = c("state_abb" = "end_port_state"),
+#     multiple = "all"
+#   )
+#
+# # head(most_frequent_fhier10_w_info_state_cnts_abbr)
+# # most_frequent_fhier10_w_info_state_cnts_abbr %>%
+# # select(state_name) %>% unique()
+# # 15
+# # names(most_frequent_fhier10_w_info_state_cnts_abbr)
 
-# head(most_frequent_fhier10_w_info_state_cnts_abbr)
-# most_frequent_fhier10_w_info_state_cnts_abbr %>%
-# select(state_name) %>% unique()
-# 15
-# names(most_frequent_fhier10_w_info_state_cnts_abbr)
 ## ---- same for MRIP ----
 names(mrip_estimate_catch_by_species_and_state)
 
@@ -888,3 +913,28 @@ data_overview(lat_lon_cnts)
 # Mean   :  12.89   Mean   : 28.84   Mean   : -50.69
 # 3rd Qu.:  15.00   3rd Qu.: 30.12   3rd Qu.: -78.38
 # Max.   :1000.00   Max.   : 90.00   Max.   : 137.59
+
+# ==== combine wave date for fhier and mrip join()
+# names(fhier_catch_by_species_state_region_waves) %>% cat()
+
+wave_data_names_f <- c("species_itis",
+                     "common_name",
+                     "state",
+                     "sa_gom",
+                     "year",
+                     "wave",
+                     "fhier_catch_by_4"
+                    )
+
+wave_data_names_m <- c("species_itis",
+                     "common_name",
+                     "state",
+                     "sa_gom",
+                     "year",
+                     "wave",
+                     "mrip_estimate_catch_by_4"
+)
+
+
+names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
+names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
