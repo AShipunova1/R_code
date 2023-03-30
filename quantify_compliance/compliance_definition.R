@@ -1,10 +1,10 @@
 # "To Be Compliant (for data before week 9 of 2023)"
-# 
+#
 # Leeanne:
 # GOM:
 #   I'd take out rule 2. Having a logbook submitted for a recreational or non-fishing intended charter declaration isn't required but wouldn't make them non-compliant if they did submit it by accident.
-# 
-# SA: 
+#
+# SA:
 # After checking FHIER, I've actually seen vessels marked compliant for having only 1 DNF submitted. Sorry for the confusion! So I'd just edit the # of DNFs in your latest definition to 1
 # ---
 # For GOM:
@@ -111,8 +111,8 @@ err_desc_used <-
   ))
 
 # err_desc_used %>%
-  # filter(grepl("check", enabled_, ignore.case = TRUE)) %>%
-  # arrange(overridable_) %>% View()
+# filter(grepl("check", enabled_, ignore.case = TRUE)) %>%
+# arrange(overridable_) %>% View()
 
 # === separate by permit ====
 
@@ -187,9 +187,100 @@ str(sa_only_vessel_id)
 str(active_permits_from_pims)
 
 g_permits_from_sa_only <-
-inner_join(active_permits_from_pims, sa_only_vessel_id) %>%
+  inner_join(active_permits_from_pims, sa_only_vessel_id) %>%
   filter(grepl("g", tolower(permit_code))) %>%
-  select(vessel_official_number, permit_code, ends_with("date")) %>%
+  select(vessel_official_number, permit_code, type, ends_with("date")) %>%
   arrange(expiration_date)
 # %>% View()
-  # filter(expiration_date > "2021-01-01")
+# filter(expiration_date > "2021-01-01")
+
+g_permits_types <-
+  active_permits_from_pims %>% filter(grepl("g", tolower(permit_code))) %>%
+  select(permit_code, type) %>% unique()
+# 14
+
+View(g_permits_types)
+
+g_permits_from_sa_only %>%
+  select(permit_code, type) %>%
+  arrange(type) %>%
+  unique()
+# GOM
+# CHG: Gulf Charter/headboat For Coastal Migratory Pelagic Fish
+# RCG: Gulf Charter/headboat For Reef Fish
+##? SPGM: Gulf Of Mexico Shrimp
+##? GRRS: Gulf Royal Red Shrimp Endorsement
+
+gom_permits_from_sa_only <-
+  g_permits_from_sa_only %>%
+  filter(permit_code %in% c("CHG", "RCG")) %>%
+  # 24
+  filter(effective_date < "2023-02-23") %>%
+  # 12
+  arrange(effective_date)
+  # filter(year(effective_date) == 2022)
+  # 7
+
+gom_permits_from_sa_only_short1 <-
+  gom_permits_from_sa_only %>%
+  select(vessel_official_number, permit_code)
+
+combined_permits <-
+  aggregate(. ~ vessel_official_number,
+            data = gom_permits_from_sa_only_short1,
+            paste, sep = ","
+  )
+
+gom_permits_from_sa_only_short2 <-
+  gom_permits_from_sa_only %>%
+  select(vessel_official_number, effective_date) %>%
+  mutate(effective_date = as.character(effective_date))
+
+# as.Date(paste0(period,"01"), "%Y%m%d")
+# Dot notation
+# --- combine dates ---
+str(gom_permits_from_sa_only_short2)
+my_fun <- function(inp){
+  as.Date(paste(inp, sep = ","), "%Y%m%d")
+  # as.Date(, "%Y%m%d")paste(inp, sep = ",") %>%
+    # aux_fun_for_dates(x, date_format)
+    # as.Date(, "%Y%m%d")
+}
+
+# combined_effective_date <-
+  aggregate(. ~ vessel_official_number,
+            data = gom_permits_from_sa_only_short2,
+            paste, sep = ","
+            
+  )
+x = 1666324800
+
+lubridate::ymd(c("1666324800"))
+sprintf("%10d", 1666324800) 
+as.integer(as.POSIXct(as.Date("2022-05-02")))
+
+
+date_format = ""
+
+  as.POSIXct(x,
+             format = date_format)
+View(combined_permits) 
+
+# format dates
+combined_permits %>%
+  mutate(effective_date_x = effective_date, function(x) {
+    browser()
+    ymd(x)
+    }
+  )
+  
+  
+gom_permits_from_sa_only %>%
+  # select 
+  inner_join(combined_permits,
+             by = "vessel_official_number") %>%
+  View()
+
+
+# group_by(vessel_official_number)
+View(gom_permits_from_sa_only)
