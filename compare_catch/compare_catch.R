@@ -147,7 +147,8 @@ fhier_logbooks_content <-
 ## ---- fix typos ----
 w_dates1 <-
 fhier_logbooks_content %>%
-  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01", notif_trip_end_date, 0)) %>% select(trip_end_date1) %>% unique()
+  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01", notif_trip_end_date, 0)) %>% 
+  select(trip_end_date1) %>% unique()
 
 # ?as.Date.POSIXlt  
 
@@ -159,9 +160,37 @@ w_dates1
 # lapply(w_dates1$trip_end_date1[2:4], as.Date.POSIXlt)
 as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S") %>% year() %>% typeof()
 
-qq <-as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
-year(qq) <- as.integer("2022")
-qq
+date_1992 <- as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
+year(date_1992) <- as.integer("2022")
+date_1992
+
+date_fixed <-
+  fhier_logbooks_content %>%
+  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01",
+                                 notif_trip_end_date, trip_end_date)) %>%
+  mutate(trip_end_date2 = temp_f(trip_end_date1)
+         )
+
+str(unique(date_fixed$trip_end_date2))
+setdiff(unique(date_fixed$trip_end_date1), 
+        unique(date_fixed$trip_end_date2), 
+)
+temp_f <- function(val) {
+  if(trip_end_date1 < "2022-01-01") {
+  browser()
+  date_1992 <- as.Date(val, "%Y-%m-%d %H:%M:%S")
+  year(date_1992) <- as.integer("2022")
+  
+  return(date_1992)
+  }
+  else
+    return(trip_end_date1)
+}  
+# df %>% group_by(digit) %>% mutate(isOdd = IsItOdd(digit))
+# 
+# date_1992 <- as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
+# year(date_1992) <- as.integer("2022")
+
 
 # %>%
 #   unique()
