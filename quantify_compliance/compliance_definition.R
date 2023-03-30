@@ -233,51 +233,24 @@ combined_permits <-
 
 gom_permits_from_sa_only_short2 <-
   gom_permits_from_sa_only %>%
-  select(vessel_official_number, effective_date) %>%
-  mutate(effective_date = as.character(effective_date))
+  select(vessel_official_number, ends_with("_date")) %>%
+  mutate(across(ends_with("_date"), .fns = as.character))
 
-# as.Date(paste0(period,"01"), "%Y%m%d")
 # Dot notation
 # --- combine dates ---
-str(gom_permits_from_sa_only_short2)
-my_fun <- function(inp){
-  as.Date(paste(inp, sep = ","), "%Y%m%d")
-  # as.Date(, "%Y%m%d")paste(inp, sep = ",") %>%
-    # aux_fun_for_dates(x, date_format)
-    # as.Date(, "%Y%m%d")
-}
+head(gom_permits_from_sa_only_short2)
 
-# combined_effective_date <-
+combined_effective_date <-
   aggregate(. ~ vessel_official_number,
             data = gom_permits_from_sa_only_short2,
             paste, sep = ","
             
   )
-x = 1666324800
 
-lubridate::ymd(c("1666324800"))
-sprintf("%10d", 1666324800) 
-as.integer(as.POSIXct(as.Date("2022-05-02")))
-
-
-date_format = ""
-
-  as.POSIXct(x,
-             format = date_format)
-View(combined_permits) 
-
-# format dates
-combined_permits %>%
-  mutate(effective_date_x = effective_date, function(x) {
-    browser()
-    ymd(x)
-    }
-  )
-  
-  
 gom_permits_from_sa_only %>%
-  # select 
   inner_join(combined_permits,
+             by = "vessel_official_number") %>%
+  inner_join(combined_effective_date,
              by = "vessel_official_number") %>%
   View()
 
