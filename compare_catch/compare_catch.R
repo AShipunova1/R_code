@@ -164,7 +164,7 @@ date_1992 <- as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
 year(date_1992) <- as.integer("2022")
 date_1992
 
-date_fixed <-
+fhier_logbooks_content_date_fixed <-
   fhier_logbooks_content %>%
   mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01",
                                  notif_trip_end_date,
@@ -174,73 +174,28 @@ date_fixed <-
                                  trip_end_date1
                                  )
          )
-# mutate(address = ifelse(address == '',work_address,address))
 
-# date_fixed_short <-
-  date_fixed %>%
+fhier_logbooks_content_date_fixed %>%
   select(starts_with("trip_end_date")) %>%
   filter(grepl("1992", date_fixed$trip_end_date1))
 
-t1 <- date_fixed$trip_end_date1
-t2 <- date_fixed$trip_end_date2
-View(date_fixed_short)
-
-grep("1992", date_fixed$trip_end_date2, value = T)
-difft1_2 <-
-  setdiff(t1, t2) %>% unique()
-
-setdiff(list(date_fixed$trip_end_date1), 
-        list(date_fixed$trip_end_date2), 
-  ) %>% unique()
-
-temp_f <- function(val) {
-  browser()
-  date_1992 <- as.Date(val, "%Y-%m-%d %H:%M:%S")
-  year(date_1992) <- as.integer("2022")
-  
-  return(date_1992)
-}
-   
-# df %>% group_by(digit) %>% mutate(isOdd = IsItOdd(digit))
-# 
-# date_1992 <- as.Date(w_dates1$trip_end_date1[2], "%Y-%m-%d %H:%M:%S")
-# year(date_1992) <- as.integer("2022")
-
-
-# %>%
-#   unique()
-# 2 1992-10-16 01:00:00
-# 3 2022-03-02 00:00:00
-# 4 2022-08-17 01:00:00
-
-w_dates1[2,1] %>% as.Date.POSIXlt() %>% typeof()
-
-fhier_logbooks_content %>%
-  mutate(trip_end_date = ifelse(trip_end_date < "2020-01-01", notif_trip_end_date, trip_end_date)) %>% 
-  mutate(trip_end_date1 = ifelse(trip_end_date < "2020-01-01", 
-                                year(trip_end_date) <- "2022",
-                                trip_end_date
-                                )
-         )%>% 
-  select(trip_end_date1) %>% unique()
-
+# 1992-10-16 01:00:00
+# 2022-03-02 00:00:00
+# 2022-08-17 01:00:00
 
 # notif_trip_end_date
 # select(end_year, end_month, trip_end_date) %>% unique() %>% 
 # dim()
 # 3
 # head()
-#   1     1995 Oct 1995  1995-10-16 01:00:00
+# 1     1995 Oct 1995  1995-10-16 01:00:00
 # 2     2018 Jun 2018  2018-06-04 01:00:00
 # 3     1969 Aug 1969  1969-08-17 01:00:00
-
-
-
 
 ## ---- wave ----
 
 fhier_logbooks_content_waves <-
-  fhier_logbooks_content %>%
+  fhier_logbooks_content_date_fixed %>%
   mutate(end_month = as.yearmon(trip_end_date)) %>%
   mutate(end_year =
            year(trip_end_date)) %>%
@@ -355,13 +310,15 @@ fhier_logbooks_content_waves__sa_gom <-
     end_port_sa_gom
   )) %>%
   select(-end_port_fl_reg)
-# %>%
-  # select(end_port_state, end_port_fl_reg, end_port_sa_gom) %>%
-  # unique() %>%
-  # glimpse()
+
+# test
+fhier_logbooks_content_waves__sa_gom %>%
+  select(end_port_state, end_port_sa_gom) %>%
+  unique() %>%
+  glimpse()
 
 glimpse(fhier_logbooks_content_waves__sa_gom)
-# glimpse(mrip_estimate_catch_by_species_state_region_waves)
+glimpse(mrip_estimate_catch_by_species_state_region_waves)
 # %>% plot()
 # itis_code"                "new_com"                 
 # [3] "new_sta"                  "sub_reg"                 
@@ -419,7 +376,7 @@ fhier_quantity_by_species_permit_state_region_waves <-
   as.data.frame()
 
 
-plot(fhier_quantity_by_species_permit_state_region_waves)
+# plot(fhier_quantity_by_species_permit_state_region_waves)
 ## ---- MRIP data ----
 
 ## ---- convert ab1 to integers ----
