@@ -27,3 +27,56 @@ err_desc <-
   change_to_dates(err_desc_clean_headers_csv_content,
                   "last_updated",
                   "%m/%d/%Y %I:%M:%S %p")
+
+## ---- get permit data from PIMS ----
+permit_names_list = r"(other\Permits_2023-03-29_1611_active.csv)"
+
+active_permits_from_pims_raw <-
+  load_csv_names(my_paths, permit_names_list)
+# View(active_permits_from_pims[[1]])
+head(active_permits_from_pims_raw[[1]])
+
+# clean_headers
+active_permits_from_pims_temp1 <-
+  active_permits_from_pims_raw[[1]] %>%
+  clean_headers
+
+# separate columns
+active_permits_from_pims_temp2 <-
+  active_permits_from_pims_temp1 %>%
+  separate_wider_delim(permit__, "-",
+                       names = c("permit_code", "permit_num"),
+                       too_many = "merge"
+  ) %>%
+  separate_wider_regex(
+    cols = vessel_or_dealer,
+    patterns = c(
+      vessel_official_number = "[A-Za-z0-9]+",
+      " */* ",
+      vessel_name = "[A-Za-z0-9]+"
+    ),
+    too_few = "align_start"
+  )
+
+active_permits_from_pims_temp2 %>%
+  select(status_date) %>%
+  arrange(desc(status_date)) %>% unique() %>% head()
+# correct dates
+
+active_permits_from_pims <-
+  active_permits_from_pims_temp2 %>%
+  mutate(across(ends_with("_date"),
+                ~ as.POSIXct(.,
+                             format = "%m/%d/%y")))
+
+active_permits_from_pims_temp2 %>%
+  select(status_date) %>%
+  arrange(desc(status_date)) %>% unique() %>% head()
+# only 2020??
+
+
+
+active_permits_from_pims %>%
+  select(status_date) %>%
+  arrange(desc(status_date)) %>% unique() %>% head()
+View(active_permits_from_pims)
