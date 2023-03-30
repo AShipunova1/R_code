@@ -272,3 +272,60 @@ combined_permit_date <-
 # str(combined_permit_date)
 
 # write_csv(combined_permit_date, "gom_permits_from_sa_only_short.csv")
+
+# --- repeat for all dates ----
+gom_permits_from_sa_only_all <-
+  g_permits_from_sa_only %>%
+  filter(permit_code %in% c("CHG", "RCG")) %>%
+  arrange(effective_date)
+
+gom_permits_from_sa_only_short_all <-
+  gom_permits_from_sa_only_all %>%
+  select(vessel_official_number, permit_code, effective_date, expiration_date) %>%
+  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
+
+# str(gom_permits_from_sa_only_short)
+
+combined_permit_date_all_l <-
+  aggregate(. ~ vessel_official_number,
+            data = gom_permits_from_sa_only_short,
+            paste, sep = ","
+  )
+
+
+do.call(data.frame, aggregate(. ~ vessel_official_number,
+                              data = gom_permits_from_sa_only_short,
+                              paste, sep = ","
+                              )
+        )
+
+names(combined_permit_date_all_l) %>% cat()
+combined_permit_date_all <-
+  data.frame(combined_permit_date_all_l$vessel_official_number,
+             permit_code = combined_permit_date_all_l$permit_code,
+             effective_date = combined_permit_date_all_l$effective_date,
+             expiration_date = combined_permit_date_all_l$expiration_date
+    )
+
+
+view(combined_permit_date_all)
+
+typeof(combined_permit_date_all)
+
+# write_csv(combined_permit_date_all, "gom_permits_from_sa_only_all.csv")
+
+typeof(combined_permit_date_all)
+cat(as.data.frame(combined_permit_date_all), file = "gom_permits_from_sa_only_all_c.csv")
+
+# ---
+str(combined_permit_date_all_l)
+# 'data.frame':	13 obs. of  4 variables:
+# $ permit_code           :List of 13
+# pivot_wider(df, names_from = x, values_from = z, values_fn = mean)
+
+tidyr::pivot_wider(combined_permit_date_all_l,
+                   names_from = vessel_official_number, values_from = permit_code)
+# ---
+names(gom_permits_from_sa_only_short_all) %>% cat
+gom_permits_from_sa_only_short_all %>%
+  combine_rows_based_on_multiple_columns_and_keep_all_unique_values(c("vessel_official_number"))
