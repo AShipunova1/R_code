@@ -172,32 +172,15 @@ sa_compliant__no_reports <-
   filter(!(week_start >= "2023-02-20"))
 # 246
 
-permit_names_list = r"(other\Permits_2023-03-29_1611_active_eff_after2020.csv)"
 
-active_permits_from_pims_raw <-
-  load_csv_names(my_paths, permit_names_list)
-# View(active_permits_from_pims[[1]])
-head(active_permits_from_pims_raw[[1]])
-
-active_permits_from_pims_temp1 <-
-  active_permits_from_pims_raw[[1]] %>%
-  clean_headers %>%
-  separate_wider_delim(permit__, "-",
-                       names = c("permit_code", "permit_num")) %>%
-  separate_wider_regex(
-    cols = vessel_or_dealer,
-    patterns = c(
-      vessel_official_number = "[A-Za-z0-9]+",
-      " */* ",
-      vessel_name = "[A-Za-z0-9]+"
-    ),
-    too_few = "align_start"
-  )
-
-active_permits_from_pims <-
-  active_permits_from_pims_temp1 %>%
-  mutate(across(ends_with("_date"),
-                ~ as.POSIXct(.,
-                             format = "%m/%d/%y")))
 # %>%
 # glimpse()
+# ---- compare permits in pims anf fhier compliance ----
+str(sa_only_vessel_id)
+str(active_permits_from_pims)
+
+inner_join(active_permits_from_pims, sa_only_vessel_id) %>%
+  filter(grepl("g", tolower(permit_code))) %>%
+  select(vessel_official_number, permit_code, ends_with("date")) %>%
+  arrange(expiration_date) %>% View()
+  # filter(expiration_date > "2021-01-01")
