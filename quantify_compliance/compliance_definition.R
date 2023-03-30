@@ -1,5 +1,12 @@
 # "To Be Compliant (for data before week 9 of 2023)"
+# 
 # Leeanne:
+# GOM:
+#   I'd take out rule 2. Having a logbook submitted for a recreational or non-fishing intended charter declaration isn't required but wouldn't make them non-compliant if they did submit it by accident.
+# 
+# SA: 
+# After checking FHIER, I've actually seen vessels marked compliant for having only 1 DNF submitted. Sorry for the confusion! So I'd just edit the # of DNFs in your latest definition to 1
+# ---
 # For GOM:
 #   1) Incorrect as there does not need to be an equal number of total declarations and logbooks for compliance. Non-fishing intended, recreational declarations can be submitted and these do not require a logbook. But specifically, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant.
 # 2) Trip negative reports are not required for GOM-only permitted vessels
