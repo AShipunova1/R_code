@@ -431,3 +431,24 @@ vexists <- function(...) {
   vars <- as.character(substitute(...()))
   sapply(vars, exists)
 }
+
+# make a separate legend for grid.arrange
+legend_for_grid_arrange <- function(legend_plot) {
+  # legend_plot <-
+  #   ggplot(data = legend_data, aes(x1, y1, colour = ll)) +
+  #   geom_text(dat = legend_data,
+  #             aes(label = ll),
+  #             hjust = 0) +
+  #   scale_color_manual(
+  #     name = 'Lines',
+  #     breaks = c('Mean', 'Num of weeks'),
+  #     values = my_colors
+  #   )
+  # 
+  # legend_plot
+  
+  my_legend <-
+    cowplot::get_legend(legend_plot)
+  
+  return(my_legend)
+}
