@@ -424,3 +424,10 @@ find_col_name <- function(mydf, start_part, end_part) {
        tolower(names(mydf)),
        value = T)
 }
+
+# https://stackoverflow.com/questions/23986140/how-to-call-exists-without-quotation-marks
+# usage: vexists(con_psql, bogus_variable_name)
+vexists <- function(...) {
+  vars <- as.character(substitute(...()))
+  sapply(vars, exists)
+}
