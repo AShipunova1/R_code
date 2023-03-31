@@ -682,4 +682,74 @@ fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom %>% plot()
 
 # === GOM ====
 
+fhier_mrip_gom_to_plot <-
+  fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom %>%
+  rename(c("MRIP" = "mrip_estimate_catch_by_4",
+         "FHIER" = "fhier_catch_by_4")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
+  pivot_longer(
+    cols = c(MRIP,
+             FHIER),
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>%
+  # use only the new columns
+  select(year_wave, common_name.x, species_itis, AGENCY, CATCH_CNT) %>%
+  # remove lines where one or another agency doesn't have counts for this species
+  drop_na()
 
+glimpse(fhier_mrip_gom_to_plot)
+# ---
+fhier_catch_by_species_region <-
+  fhier_catch_by_species_state_region_waves %>%
+  select(species_itis, common_name, sa_gom, fhier_catch_by_4) %>%
+  group_by(species_itis, common_name, sa_gom) %>%
+  summarise(fhier_catch_by_region = sum(fhier_catch_by_4)) %>%
+  as.data.frame() %>%
+  # arrange(species_itis)
+  arrange(desc(fhier_catch_by_region))
+
+glimpse(fhier_catch_by_species_region)
+# Rows: 766
+# Columns: 4
+
+# fhier_catch_by_species_region %>%
+#   select(sa_gom) %>% unique()
+# 1             gom
+# 3              sa
+# 141 NOT-SPECIFIED
+nn1 <- c("gom", "sa", "NOT-SPECIFIED")
+sort(nn1)
+order(nn1)
+
+xg <- split(fhier_catch_by_species_region, as.factor(fhier_catch_by_species_region$sa_gom))
+
+
+xg1 <- fhier_catch_by_species_region %>%
+  split(as.factor(fhier_catch_by_species_region$sa_gom))
+
+View(xg1)
+
+
+fhier_catch_by_species_region_list <-
+  fhier_catch_by_species_region %>%
+  split(as.factor(fhier_catch_by_species_region$sa_gom))
+  
+View(fhier_catch_by_species_region_list)
+
+n_most_frequent_fhier_10_list <- 
+  fhier_catch_by_species_region_list %>%
+  map(function(x) {
+    get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = x)
+  }
+  )
+
+View(n_most_frequent_fhier_10_list)
+  # get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = fhier_catch_by_species_region_list$gom)
+
+n_most_frequent_fhier_10_gom <- get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = fhier_catch_by_species_region_list$gom)
+
+n_most_frequent_fhier_10_gom <- get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = fhier_catch_by_species_region_list$gom)
+
+
+head(n_most_frequent_fhier_10)
