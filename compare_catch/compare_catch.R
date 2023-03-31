@@ -999,20 +999,19 @@ fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp <-
     fhier_catch_by_4,
     mrip_estimate_catch_by_4
   ) %>%
-  mutate(year_wave = paste(year, wave, sep = "_")) %>%
-  group_split(sa_gom) %>%
-  set_names(fhier_mrip_catch_by_species_state_region_waves$sa_gom %>%
-              unique %>%
-              sort)
-  
-View(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp)
+  #  combine year_wave
+    mutate(year_wave = paste(year, wave, sep = "_")) %>%
+  # split sa_gom column into 2
+    split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom))
+
+# View(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp)
 
 fhier_mrip_catch_by_species_state_region_waves_sa_gom_list <-
   map(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp,
-      .f = list(. %>% dplyr::select(-one_of("species_itis", "year", "wave", "sa_gom")
+      .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
                                     )
                 )
   )
 
-glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list)
+# glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list)
 
