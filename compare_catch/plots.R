@@ -743,8 +743,10 @@ map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp
 # lapply(fhier_mrip_gom_to_plot$common_name.x, function(x)(plot_vy_spp(x))
 # )
 
-plot_vy_spp <- function(com_name) {
+plot_vy_spp <- function(com_name, no_legend = TRUE) {
   # browser()
+
+one_plot <-
   fhier_mrip_gom_to_plot %>%
     filter(common_name.x == !!com_name) %>%
   ggplot(
@@ -752,20 +754,33 @@ plot_vy_spp <- function(com_name) {
              y = CATCH_CNT,
              fill = AGENCY)
   ) +
+    scale_fill_manual(values = c("MRIP" = "deepskyblue", "FHIER" = "red")) +
     geom_col(position = "dodge") +
     labs(title = com_name,
+         x = "",
+         y = ""
          # x = "species code",
          # x = "common_name",
          # y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
-    )
-}
+    ) + 
+  theme(axis.text.x = element_text(angle = 45))
 
-plot_vy_spp("BASS, BLACK SEA")
+  if(no_legend) {
+    one_plot <- one_plot +
+      theme(legend.position = "none")
+  }
+  return(one_plot)
+}
 
 plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp)
 
-super_title = "The top 10 most abundant FHIER species"
+super_title = "The top 9 most abundant FHIER species by waves"
 
+plot_w_legend <- plot_vy_spp("BASS, BLACK SEA", FALSE)
+my_legend <- legend_for_grid_arrange(plot_w_legend)
 grid.arrange(grobs = plots10, 
-             top = super_title, 
+             top = super_title,
+             left = my_legend,
              ncol = 3)
+
+# why numbers for fhier bass are low?
