@@ -520,7 +520,7 @@ compare_species_in_fhier_with_mrip <-
 
 # str(fhier_quantity_by_species_df)
 
-get_n_most_frequent_fhier <- function(n, quantity_field_name, df_name = NA) {
+get_n_most_frequent_fhier <- function(n, quantity_field_name = quantity_field_name, df_name = NA) {
   if (not(is.data.frame(df_name))) {
     df_name <- fhier_quantity_by_species_df
   }
@@ -864,23 +864,23 @@ most_frequent_fhier10_w_info_state_cnts <-
 # %>% str()
 # gropd_df [86 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
 
-# ## ---- add state coords ----
-# most_frequent_fhier10_w_info_state_cnts_abbr <-
-#   states_coords_raw %>%
-#   mutate(state_name = tolower(state_name)) %>%
-#   inner_join(state_tbl,
-#              by = "state_name") %>%
-#   inner_join(
-#     most_frequent_fhier10_w_info_state_cnts,
-#     by = c("state_abb" = "end_port_state"),
-#     multiple = "all"
-#   )
-#
-# # head(most_frequent_fhier10_w_info_state_cnts_abbr)
-# # most_frequent_fhier10_w_info_state_cnts_abbr %>%
-# # select(state_name) %>% unique()
-# # 15
-# # names(most_frequent_fhier10_w_info_state_cnts_abbr)
+## ---- add state coords ----
+most_frequent_fhier10_w_info_state_cnts_abbr <-
+  states_coords_raw %>%
+  mutate(state_name = tolower(state_name)) %>%
+  inner_join(state_tbl,
+             by = "state_name") %>%
+  inner_join(
+    most_frequent_fhier10_w_info_state_cnts,
+    by = c("state_abb" = "end_port_state"),
+    multiple = "all"
+  )
+
+# head(most_frequent_fhier10_w_info_state_cnts_abbr)
+# most_frequent_fhier10_w_info_state_cnts_abbr %>%
+# select(state_name) %>% unique()
+# 15
+# names(most_frequent_fhier10_w_info_state_cnts_abbr)
 
 ## ---- same for MRIP ----
 names(mrip_estimate_catch_by_species_and_state)
@@ -964,11 +964,11 @@ fhier_mrip_catch_by_species_state_region_waves <-
              )
 # Joining with `by = join_by(species_itis, common_name, state, sa_gom, year, wave)`
 
-View(fhier_mrip_catch_by_species_state_region_waves)
+# View(fhier_mrip_catch_by_species_state_region_waves)
 
 # ---- Prepare data for ploting ----
 
-View(mrip_estimate_catch_by_species_state_region_waves)
+# View(mrip_estimate_catch_by_species_state_region_waves)
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate_catch_by_species_state_region_waves1 %>%
   mutate(sa_gom = case_when(sa_gom == 6 ~ "sa",
@@ -983,7 +983,7 @@ fhier_mrip_catch_by_species_state_region_waves <-
   )
 # Joining with `by = join_by(species_itis, common_name, state, sa_gom, year, wave)`
 
-View(fhier_mrip_catch_by_species_state_region_waves)
+# View(fhier_mrip_catch_by_species_state_region_waves)
 # 878
 
 
