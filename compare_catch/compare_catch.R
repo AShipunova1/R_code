@@ -305,18 +305,25 @@ sa_state_abb <-
   select(state_abb)
 
 # --- add sa/gom to states
-fhier_logbooks_content_waves__sa_gom <-
+# fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
-  # select(end_port_state) %>% head()
+  # select(end_port_state) %>% unique()
+  # 17
   mutate(end_port_sa_gom = case_when(
     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
     .default = "gom"
   )) %>%
-  mutate(end_port_sa_gom = ifelse(
+  mutate(end_port_sa_gom11 = ifelse(
     tolower(end_port_state) == "fl",
     end_port_fl_reg,
     end_port_sa_gom
   )) %>%
+    # select(starts_with("end_port_sa_")) %>% unique()
+    filter(end_port_sa_gom11 == "NOT-SPECIFIED") %>%
+    select(starts_with("end_port")) %>% unique() %>%
+    select(end_port_name, end_port_county, end_port_state)
+    # FLORIDA(STATE) NOT-SPECIFIED   FL            
+    # View()
   select(-end_port_fl_reg)
 
 # test
@@ -404,6 +411,13 @@ fhier_quantity_by_species_permit_state_region_waves <-
   summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity))) %>%
   as.data.frame()
 
+## ---- non specified region in FHIER ----
+# 1             gom
+# 3              sa
+# 141 NOT-SPECIFIED
+
+fhier_catch_by_species_region %>%
+  filter(sa_gom == "NOT-SPECIFIED")
 
 ## ---- MRIP data ----
 
