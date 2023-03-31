@@ -524,12 +524,12 @@ get_n_most_frequent_fhier <- function(n, quantity_field_name, df_name = NA) {
   if (not(is.data.frame(df_name))) {
     df_name <- fhier_quantity_by_species_df
   }
+  # if the field name had no quotes
   tryCatch(
     quantity_field <- sym(as.character(substitute(quantity_field_name))),
-    error = function (e) { print("HHHERE!")
+    error = function (e) { print("My message:")
       print(e)
       })
-  # if(skip_to_next) { next }     
   
   df_name %>%
     arrange(desc(!!quantity_field)) %>%
