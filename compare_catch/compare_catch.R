@@ -77,29 +77,29 @@ logbooks_content_short_2022 %>%
 ## ---- FHIER: count catch by species ----
 # TODO: separate functions
 from_count_by_disposition <- function() {
-  fhier_quantity_by_species <-
+  fhier_quantity_by_species_df <-
     fhier_species_count_by_disposition %>%
     select(species_itis, reported_quantity) %>%
     group_by(species_itis) %>%
     summarise(fhier_quantity_by_species = sum(as.integer(reported_quantity)))
   
   
-  # head(fhier_quantity_by_species, 10)
+  # head(fhier_quantity_by_species_df, 10)
   
   ## ---- add common names ----
   
   # change both columns to numeric
-  fhier_quantity_by_species <-
-    mutate(fhier_quantity_by_species, species_itis = as.numeric(species_itis))
+  fhier_quantity_by_species_df <-
+    mutate(fhier_quantity_by_species_df, species_itis = as.numeric(species_itis))
   scientific_names <-
     mutate(scientific_names, species_itis = as.numeric(species_itis))
   
   names(scientific_names)
   # common_name
-  names(fhier_quantity_by_species)
+  names(fhier_quantity_by_species_df)
   fhier_species_count_by_disposition_com_names <-
     inner_join(
-      fhier_quantity_by_species,
+      fhier_quantity_by_species_df,
       scientific_names,
       by = c("catch_species_itis" = "species_itis")
     )
@@ -165,22 +165,27 @@ date_1992 <-
 year(date_1992) <- as.integer("2022")
 date_1992
 
-fhier_logbooks_content_date_fixed <-
+fhier_logbooks_content_date_fixed_tmp <-
   fhier_logbooks_content %>%
   mutate(trip_end_date1 = ifelse(
     trip_end_date < "2020-01-01",
     notif_trip_end_date,
     trip_end_date
-  )) %>%
+  ))
+
+# grep("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1, value = T)
+
+fhier_logbooks_content_date_fixed <-
+  fhier_logbooks_content_date_fixed_tmp %>%
   mutate(trip_end_date2 = ifelse(
-    grepl("1992", date_fixed$trip_end_date1),
+    grepl("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1),
     "2022-10-16 01:00:00",
     trip_end_date1
   ))
 
 fhier_logbooks_content_date_fixed %>%
   select(starts_with("trip_end_date")) %>%
-  filter(grepl("1992", date_fixed$trip_end_date1))
+  filter(grepl("1992", fhier_logbooks_content_date_fixed$trip_end_date1))
 
 # 1992-10-16 01:00:00
 # 2022-03-02 00:00:00
@@ -349,7 +354,7 @@ fhier_catch_by_species_state_region_waves <-
   as.data.frame()
 # plot(fhier_catch_by_species_state_region_waves)
 
-glimpse(mrip_estimate_catch_by_species_state_region_waves)
+# glimpse(mrip_estimate_catch_by_species_state_region_waves)
 # itis_code"                    "new_com"
 # [3] "new_sta"                  "sub_reg"
 # [5] "year"                     "wave"
@@ -513,14 +518,22 @@ compare_species_in_fhier_with_mrip <-
 
 ## ---- most n frequent FHIER species ----
 
-# str(fhier_quantity_by_species)
+# str(fhier_quantity_by_species_df)
 
-get_n_most_frequent_fhier <- function(n, df_name = NA) {
+get_n_most_frequent_fhier <- function(n, quantity_field_name, df_name = NA) {
+  browser()
   if (not(is.data.frame(df_name))) {
-    df_name <- fhier_quantity_by_species
+    df_name <- fhier_quantity_by_species_df
   }
+  tryCatch(
+    quantity_field <- sym(as.character(substitute(quantity_field_name))),
+    error = function (e) { print("HHHERE!")
+      print(e)
+      })
+  # if(skip_to_next) { next }     
+  
   df_name %>%
-    arrange(desc(fhier_quantity_by_species)) %>%
+    arrange(desc(!!quantity_field)) %>%
     head(n) %>%
     return()
 }
@@ -530,7 +543,7 @@ get_n_most_frequent_fhier <- function(n, df_name = NA) {
 
 ## ---- add counts ----
 # all
-fhier_quantity_by_species <-
+fhier_quantity_by_species_df <-
   logbooks_content_short_2022 %>%
   select(catch_species_itis, common_name, reported_quantity) %>%
   mutate(reported_quantity = as.integer(reported_quantity)) %>%
@@ -540,7 +553,7 @@ fhier_quantity_by_species <-
   arrange(desc(fhier_quantity_by_species))
 
 
-head(fhier_quantity_by_species)
+head(fhier_quantity_by_species_df)
 
 # by_species_and_state
 fhier_quantity_by_species_and_state <-
@@ -576,7 +589,7 @@ tail(fhier_quantity_by_species_and_port)
 combine_mrip_and_fhier_catch_results_by_species <- function() {
   mrip_and_fhier <-
     full_join(
-      fhier_quantity_by_species,
+      fhier_quantity_by_species_df,
       mrip_estimate_catch_by_species,
       by = c("catch_species_itis" = "itis_code")
     )
@@ -603,7 +616,7 @@ mrip_and_fhier <- combine_mrip_and_fhier_catch_results_by_species()
 # add to map
 
 most_frequent_fhier10 <-
-  get_n_most_frequent_fhier(10, fhier_quantity_by_species)
+  get_n_most_frequent_fhier(10, fhier_quantity_by_species, fhier_quantity_by_species_df)
 glimpse(most_frequent_fhier10)
 
 get_info_for_most_frq <- function() {
