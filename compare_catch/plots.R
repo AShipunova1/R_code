@@ -706,8 +706,16 @@ View(n_most_frequent_fhier_10_list)
 
 # === GOM ====
 
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f <-
+  inner_join(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom,
+  n_most_frequent_fhier_10_list$gom)
+# Joining with `by = join_by(species_itis)`
+
+glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f)
+# 93
+
 fhier_mrip_gom_to_plot <-
-  fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom %>%
+  fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f %>%
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
          "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
@@ -723,48 +731,41 @@ fhier_mrip_gom_to_plot <-
   drop_na()
 
 glimpse(fhier_mrip_gom_to_plot)
-# ---
-fhier_catch_by_species_region <-
-  fhier_catch_by_species_state_region_waves %>%
-  select(species_itis, common_name, sa_gom, fhier_catch_by_4) %>%
-  group_by(species_itis, common_name, sa_gom) %>%
-  summarise(fhier_catch_by_region = sum(fhier_catch_by_4)) %>%
-  as.data.frame() %>%
-  # arrange(species_itis)
-  arrange(desc(fhier_catch_by_region))
+# Rows: 186
 
-glimpse(fhier_catch_by_species_region)
-# Rows: 766
-# Columns: 4
+plot(fhier_mrip_gom_to_plot)
 
-# fhier_catch_by_species_region %>%
-#   select(sa_gom) %>% unique()
-# 1             gom
-# 3              sa
-# 141 NOT-SPECIFIED
+unique(fhier_mrip_gom_to_plot$common_name.x)
 
-View(xg1)
+map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp
+    )
 
+# lapply(fhier_mrip_gom_to_plot$common_name.x, function(x)(plot_vy_spp(x))
+# )
 
-fhier_catch_by_species_region_list <-
-  fhier_catch_by_species_region %>%
-  split(as.factor(fhier_catch_by_species_region$sa_gom))
-  
-View(fhier_catch_by_species_region_list)
+plot_vy_spp <- function(com_name) {
+  # browser()
+  fhier_mrip_gom_to_plot %>%
+    filter(common_name.x == !!com_name) %>%
+  ggplot(
+         aes(x = year_wave,
+             y = CATCH_CNT,
+             fill = AGENCY)
+  ) +
+    geom_col(position = "dodge") +
+    labs(title = com_name,
+         # x = "species code",
+         # x = "common_name",
+         # y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
+    )
+}
 
-n_most_frequent_fhier_10_list <- 
-  fhier_catch_by_species_region_list %>%
-  map(function(x) {
-    get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = x)
-  }
-  )
+plot_vy_spp("BASS, BLACK SEA")
 
-View(n_most_frequent_fhier_10_list)
-  # get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = fhier_catch_by_species_region_list$gom)
+plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp)
 
-n_most_frequent_fhier_10_gom <- get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = fhier_catch_by_species_region_list$gom)
+super_title = "The top 10 most abundant FHIER species"
 
-n_most_frequent_fhier_10_gom <- get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = fhier_catch_by_species_region_list$gom)
-
-
-head(n_most_frequent_fhier_10)
+grid.arrange(grobs = plots10, 
+             top = super_title, 
+             ncol = 3)
