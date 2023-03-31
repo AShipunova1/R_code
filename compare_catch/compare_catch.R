@@ -521,7 +521,6 @@ compare_species_in_fhier_with_mrip <-
 # str(fhier_quantity_by_species_df)
 
 get_n_most_frequent_fhier <- function(n, quantity_field_name, df_name = NA) {
-  browser()
   if (not(is.data.frame(df_name))) {
     df_name <- fhier_quantity_by_species_df
   }
@@ -616,7 +615,7 @@ mrip_and_fhier <- combine_mrip_and_fhier_catch_results_by_species()
 # add to map
 
 most_frequent_fhier10 <-
-  get_n_most_frequent_fhier(10, fhier_quantity_by_species, fhier_quantity_by_species_df)
+  get_n_most_frequent_fhier(10, "fhier_quantity_by_species", fhier_quantity_by_species_df)
 glimpse(most_frequent_fhier10)
 
 get_info_for_most_frq <- function() {
