@@ -669,15 +669,17 @@ mrip_estimate_catch_by_species_state_region_waves %>% plot()
     ) +
     geom_point(colour = "blue")
   
-  counts_plot_ind
+counts_plot_ind
   
-  # (10 - 1) / (10 + 1)
+# (10 - 1) / (10 + 1)
 
-# === plot by state_region_waves etc ====
+# === plot by state_region_waves ====
 glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list)
-# === GOM ====
 
 fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$sa %>% plot()
   
 fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom %>% plot()
-  
+
+# === GOM ====
+
+
