@@ -718,15 +718,6 @@ glimpse(fhier_catch_by_species_region)
 # 1             gom
 # 3              sa
 # 141 NOT-SPECIFIED
-nn1 <- c("gom", "sa", "NOT-SPECIFIED")
-sort(nn1)
-order(nn1)
-
-xg <- split(fhier_catch_by_species_region, as.factor(fhier_catch_by_species_region$sa_gom))
-
-
-xg1 <- fhier_catch_by_species_region %>%
-  split(as.factor(fhier_catch_by_species_region$sa_gom))
 
 View(xg1)
 
