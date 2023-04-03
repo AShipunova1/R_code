@@ -428,7 +428,7 @@ plot_vy_spp <- function(com_name, my_df, no_legend = TRUE) {
     ) + 
    theme(
      axis.text.x = element_text(angle = 45),
-     plot.title = element_text(size = 10),
+     plot.title = element_text(size = 9),
      legend.title = element_text(size = 8),
      legend.text = element_text(size = 8)
    )

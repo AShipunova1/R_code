@@ -757,6 +757,34 @@ grid.arrange(grobs = plots10,
              ncol = 3)
 
 # === new ===
+## GOM plots ----
+#### pivot_longer fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom ---- 
+fhier_mrip_gom_to_plot <-
+  fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+  rename(c("MRIP" = "mrip_estimate_catch_by_4",
+           "FHIER" = "fhier_catch_by_4")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
+  pivot_longer(
+    cols = c(MRIP,
+             FHIER),
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>%
+  # use only the new columns
+  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  # remove lines where one or another agency doesn't have counts for this species
+  drop_na()
+
+glimpse(fhier_mrip_gom_to_plot)
+
+
+### simple plot GOM ----
+plot(fhier_mrip_gom_to_plot)
+
+
+### 10 gom plots ----
+# plot_vy_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot) ----
+
 plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
                function(x) {plot_vy_spp(x, fhier_mrip_gom_to_plot)}
 )
@@ -772,3 +800,47 @@ grid.arrange(grobs = plots10,
              top = super_title,
              left = my_legend,
              ncol = 3)
+
+
+## SA plots ----
+
+#### pivot_longer fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa ----
+fhier_mrip_sa_to_plot <-
+  fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
+  rename(c("MRIP" = "mrip_estimate_catch_by_4",
+           "FHIER" = "fhier_catch_by_4")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
+  pivot_longer(
+    cols = c(MRIP,
+             FHIER),
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>%
+  # use only the new columns
+  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  # remove lines where one or another agency doesn't have counts for this species
+  drop_na()
+
+glimpse(fhier_mrip_sa_to_plot)
+### simple plot SA
+plot(fhier_mrip_sa_to_plot)
+
+### 10 sa plots ----
+# plot_vy_spp("BASS, BLACK SEA", fhier_mrip_sa_to_plot)
+
+plots10 <- map(unique(fhier_mrip_sa_to_plot$common_name),
+               function(x) {plot_vy_spp(x, fhier_mrip_sa_to_plot)}
+)
+
+
+super_title = "SA: The top 9 most abundant FHIER species by waves"
+
+# separate a legend
+plot_w_legend <- plot_vy_spp("BASS, BLACK SEA", fhier_mrip_sa_to_plot, FALSE)
+my_legend <- legend_for_grid_arrange(plot_w_legend)
+
+grid.arrange(grobs = plots10, 
+             top = super_title,
+             left = my_legend,
+             ncol = 3)
+
