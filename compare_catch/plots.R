@@ -711,10 +711,7 @@ glimpse(fhier_mrip_gom_to_plot)
 
 plot(fhier_mrip_gom_to_plot)
 
-unique(fhier_mrip_gom_to_plot$common_name.x)
-
-map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp
-    )
+unique(fhier_mrip_gom_to_plot$common_name)
 
 # lapply(fhier_mrip_gom_to_plot$common_name.x, function(x)(plot_vy_spp(x))
 # )
@@ -759,3 +756,19 @@ grid.arrange(grobs = plots10,
              left = my_legend,
              ncol = 3)
 
+# === new ===
+plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
+               function(x) {plot_vy_spp(x, fhier_mrip_gom_to_plot)}
+)
+
+
+super_title = "GOM: The top 9 most abundant FHIER species by waves"
+
+# separate a legend
+plot_w_legend <- plot_vy_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot, FALSE)
+my_legend <- legend_for_grid_arrange(plot_w_legend)
+
+grid.arrange(grobs = plots10, 
+             top = super_title,
+             left = my_legend,
+             ncol = 3)
