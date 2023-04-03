@@ -234,7 +234,7 @@ fhier_logbooks_content_waves__sa_gom %>%
 ```{r fhier_quantity_by_species_permit_state_region_waves }
 glimpse(fhier_logbooks_content_waves__sa_gom)
 
-fhier_quantity_by_species_permit_state_region_waves <-
+fhier_catch_by_species_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom %>%
   select(
     catch_species_itis,
@@ -256,6 +256,14 @@ fhier_quantity_by_species_permit_state_region_waves <-
   summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity))) %>%
   as.data.frame()
 # plot(fhier_catch_by_species_state_region_waves)
+
+fhier_logbooks_content_waves__sa_gom %>% filter(common_name == "BASS, BLACK SEA") %>% group_by(catch_species_itis, end_port_sa_gom) %>% summarise(bass_cnt = sum(reported_quantity))
+# A tibble: 2 × 3
+# Groups:   catch_species_itis [1]
+#   catch_species_itis end_port_sa_gom     ff
+#   <chr>              <chr>            <int>
+# 1 167687             gom              75900
+# 2 167687             sa              194054
 
 ```
 
@@ -290,8 +298,19 @@ mrip_estimate_catch_by_species_state_region_waves <-
   summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1))) %>%
   as.data.frame()
 
-# str(mrip_estimate_catch_by_species_state_region_waves)
-# 'data.frame':	878 obs. of  6 variables:
+str(mrip_estimate_catch_by_species_state_region_waves)
+# 'data.frame':	878 obs. of  6 variables
+
+mrip_estimate_catch_by_species_state_region_waves %>%
+  filter(new_com == "black sea bass") %>%
+  group_by(itis_code, sub_reg) %>%
+  summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4))
+
+# itis_code sub_reg bass_mrip_cnt
+# <chr>     <chr>           <int>
+# 167687    6               18828
+# 167687    7                6708
+
 
 ```
 
@@ -310,7 +329,7 @@ sp_itis_mrip <-
 ### most n frequent FHIER species
 ```{r most n frequent FHIER species }
 
-get_n_most_frequent_fhier <- function(n, quantity_field_name = quantity_field_name, df_name = NA) {
+get_n_most_frequent_fhier <- function(df_name = NA, n = n, quantity_field_name = quantity_field_name) {
   # a default df
   if (not(is.data.frame(df_name))) {
     df_name <- fhier_quantity_by_species_df
@@ -416,7 +435,7 @@ fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp <-
 
 # View(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp)
 
-# remove extra columns
+# remove extra columns in each df
 fhier_mrip_catch_by_species_state_region_waves_sa_gom_list <-
   map(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp,
       .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
@@ -428,8 +447,35 @@ fhier_mrip_catch_by_species_state_region_waves_sa_gom_list <-
 
 ```
 
+## get 10 most frequent spp. by region
+```{r get 10 most frequent spp. by region}
+
+n_most_frequent_fhier_10_list <- 
+  fhier_mrip_catch_by_species_state_region_waves_sa_gom_list %>%
+  # for each region
+  map(function(x) {x %>%
+      select(species_itis, fhier_catch_by_4) %>%
+      group_by(species_itis) %>%
+      summarise(fhier_catch_by_spp = sum(fhier_catch_by_4)) %>%
+      arrange(desc(fhier_catch_by_spp)) %>%
+      head(10)
+    
+})
+n_most_frequent_fhier_10_list$gom %>% head()
+
+```
+
+
 ## why numbers for fhier bass are low?
 ```{r why numbers for fhier bass are low?}
+a1 <-
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom %>%
+  filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
+
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f <-
+  full_join(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom,
+  n_most_frequent_fhier_10_list$gom)
+# Joining with `by = join_by(species_itis)`
 
 View(fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f)
 glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f)
