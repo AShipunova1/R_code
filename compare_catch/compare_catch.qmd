@@ -325,35 +325,9 @@ sp_itis_mrip <-
 
 ```
 
-
-### most n frequent FHIER species
-```{r most n frequent FHIER species }
-
-get_n_most_frequent_fhier <- function(df_name = NA, n = n, quantity_field_name = quantity_field_name) {
-  # a default df
-  if (not(is.data.frame(df_name))) {
-    df_name <- fhier_quantity_by_species_df
-  }
-  # if the field name had no quotes - add them
-  tryCatch(
-    quantity_field <- sym(as.character(substitute(quantity_field_name))),
-    error = function (e) { print("My message:")
-      print(e)
-      })
-  
-  # sort in descending order and get n first
-  df_name %>%
-    arrange(desc(!!quantity_field)) %>%
-    head(n) %>%
-    return()
-}
-
-# source("~/R_code_github/compare_catch/plots.R")
-
-```
-
 ## combine wave data for fhier and mrip
-```{r combine wave data for fhier and mrip}
+#### rename fields
+```{r rename fields}
 
 wave_data_names_common <- c("species_itis",
                      "common_name",
@@ -368,21 +342,66 @@ wave_data_names_m <- c(wave_data_names_common, c("mrip_estimate_catch_by_4"))
 
 names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
 names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
+```
 
+#### change columns type
+```{r change clmn type}
 mrip_estimate_catch_by_species_state_region_waves1 <-
   mrip_estimate_catch_by_species_state_region_waves %>%
   mutate(year = as.double(year)) %>%
   mutate(wave = as.double(wave))
+```
 
+#### change sa_gom mrip to char
+```{r}
+mrip_estimate_catch_by_species_state_region_waves2 <-
+  mrip_estimate_catch_by_species_state_region_waves1 %>%
+  mutate(sa_gom = case_when(sa_gom == "6" ~ "sa",
+                            sa_gom == "7" ~ "gom",
+                            .default = sa_gom))
+
+```
+
+#### join FHIER and MRIP data
+```{r join FHIER and MRIP data}
 fhier_mrip_catch_by_species_state_region_waves <-
-  inner_join(fhier_catch_by_species_state_region_waves,
-             mrip_estimate_catch_by_species_state_region_waves1,
-             by = join_by(species_itis, state, year, wave),
-             multiple = "all"
+  full_join(fhier_catch_by_species_state_region_waves,
+             mrip_estimate_catch_by_species_state_region_waves2,
+             # specify fields to exclude "common_name"
+             by = join_by(species_itis, state, sa_gom, year, wave)
              )
 # Joining with `by = join_by(species_itis, common_name, state, sa_gom, year, wave)`
 
-# View(fhier_mrip_catch_by_species_state_region_waves)
+fhier_mrip_catch_by_species_state_region_waves %>%
+  filter(species_itis == "167687") 
+
+```
+
+##### test numbers MRIP
+```{r test numbers MRIP}
+
+mrip_estimate_catch_by_species_state_region_waves %>%
+  filter(species_itis == "167687") %>%
+  group_by(species_itis, sa_gom) %>%
+  summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4))
+```
+
+##### test numbers FHIER
+```{r test numbers FHIER}
+
+fhier_catch_by_species_state_region_waves %>%
+  filter(species_itis == "167687") %>%
+  group_by(species_itis, sa_gom) %>%
+  summarise(bass_fhier_cnt = sum(fhier_catch_by_4))
+```
+
+```{r test numbers in the join}
+fhier_mrip_catch_by_species_state_region_waves %>%
+  filter(species_itis == "167687") %>%
+  group_by(species_itis, sa_gom) %>%
+  summarise(bass_fhier_cnt = sum(fhier_catch_by_4),
+            bass_mrip_cnt = sum(mrip_estimate_catch_by_4))
+# wrong, no mrip cnts?!
 
 ```
 
