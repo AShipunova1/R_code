@@ -680,35 +680,11 @@ fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$sa %>% plot()
   
 fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom %>% plot()
 
-# --- get 10 most frequent spp. by region
-# fhier_catch_by_species_region %>%
-#   select(sa_gom) %>% unique()
-# 1             gom
-# 3              sa
-# 141 NOT-SPECIFIED
-
-# a df per region
-fhier_catch_by_species_region_list <-
-  fhier_catch_by_species_region %>%
-  split(as.factor(fhier_catch_by_species_region$sa_gom))
-
-# View(fhier_catch_by_species_region_list)
-
-n_most_frequent_fhier_10_list <- 
-  fhier_catch_by_species_region_list %>%
-  # for each region
-  map(function(x) {
-    get_n_most_frequent_fhier(10, fhier_catch_by_region, df_name = x)
-  }
-  )
-
-View(n_most_frequent_fhier_10_list)
-
 # === GOM ====
 
-fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f <-
-  inner_join(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom,
-  n_most_frequent_fhier_10_list$gom)
+# fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f <-
+#   inner_join(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list$gom,
+#   n_most_frequent_fhier_10_list$gom)
 # Joining with `by = join_by(species_itis)`
 
 glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f)
