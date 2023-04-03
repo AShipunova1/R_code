@@ -23,16 +23,17 @@ source("~/R_code_github/compare_catch/get_data.R")
 # select(disposition) %>% unique()
 ## ---- logbooks_content ----
 itis_field_name <- grep("itis", names(logbooks_content), value = T)
-
 # catch_species_itis
+
 vessel_id_field_name <-
   grep("vessel.*official", names(logbooks_content), value = T)
 # vessel_official_nbr
+
 # logbooks_content$end_port_state %>% unique()
 # [1] "FL" "NC" "SC" "AL" "MS" "TX" "GA" "VA" "MD" "LA" "DE" "RI" "NJ" "MA" "NY"
 # [16] "CT" "ME"
 
-# get landing by coordinates
+# ---- clean logbooks_content ----
 logbooks_content_short_2022 <-
   logbooks_content %>%
   select(
@@ -72,7 +73,6 @@ logbooks_content_short_2022 %>%
 # ! 194188
 # released 125888
 # unique()
-
 
 ## ---- FHIER: count catch by species ----
 # TODO: separate functions
@@ -1021,4 +1021,18 @@ fhier_mrip_catch_by_species_state_region_waves_sa_gom_list <-
   )
 
 # glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list)
+
+# ==== catch numbers ====
+# why numbers for fhier bass are low?
+View(fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f)
+glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f)
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f %>%
+  filter(common_name.x == "BASS, BLACK SEA") %>%
+  group_by(sa_gom) %>% str()
+  summarise(catch_sum = sum(fhier_quantity_by_4))
+
+fhier_quantity_by_species_permit_state_region_waves %>%
+  filter(common_name == "BASS, BLACK SEA" & end_year == "2022") %>%
+  group_by(end_port_sa_gom) %>%
+  summarise(catch_sum = sum(fhier_quantity_by_4 ))
 
