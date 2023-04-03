@@ -494,3 +494,23 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
 # numbers OK
 ```
 
+#### fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom
+```{r }
+fhier_mrip_gom_to_plot <-
+  fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+  rename(c("MRIP" = "mrip_estimate_catch_by_4",
+           "FHIER" = "fhier_catch_by_4")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
+  pivot_longer(
+    cols = c(MRIP,
+             FHIER),
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>%
+  # use only the new columns
+  select(year_wave, species_itis, AGENCY, CATCH_CNT) %>%
+  # remove lines where one or another agency doesn't have counts for this species
+  drop_na()
+
+```
+
