@@ -1,0 +1,463 @@
+---
+title: "compare_catch"
+date: 2023-04-03
+output:
+  html_document
+format:
+  html:
+    css: styles.css
+    code-overflow: wrap
+---
+
+Compare catch in survey vs logbook
+see read.me
+
+```{r no cache setup, include=FALSE}
+#| echo: false
+library(zoo)
+
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+```
+
+```{r setup, cache=TRUE, include=FALSE}
+#| echo: false
+
+source("~/R_code_github/compare_catch/get_data.R")
+
+```
+
+## FHIER data
+
+## get field names
+```{r logbooks_content }
+itis_field_name <- grep("itis", names(logbooks_content), value = T)
+# catch_species_itis
+
+vessel_id_field_name <-
+  grep("vessel.*official", names(logbooks_content), value = T)
+# vessel_official_nbr
+
+```
+
+### clean logbooks_content
+```{r clean logbooks_content }
+logbooks_content_short_2022 <-
+  logbooks_content %>%
+  select(
+    area_code,
+    catch_species_itis,
+    common_name,
+    disposition_code,
+    disposition_name,
+    end_port_state,
+    end_port_name,
+    latitude,
+    longitude,
+    notif_end_port,
+    notif_end_port_state,
+    reported_quantity,
+    sub_area_code,
+    trip_end_date,
+    trip_end_time,
+    trip_start_date,
+    trip_start_time,
+    trip_type,
+    trip_type_name
+  ) %>%
+  change_to_dates("trip_start_date", "%Y-%m-%d %H:%M:%S") %>%
+  filter(format(trip_start_date, format = "%Y") == "2022") %>%
+  change_to_dates("trip_end_date", "%Y-%m-%d %H:%M:%S") %>%
+  mutate(reported_quantity = as.integer(reported_quantity))
+
+# rm(logbooks_content)
+# gc()
+
+```
+
+```{r fix typos }
+
+fhier_logbooks_content_date_fixed_tmp <-
+  fhier_logbooks_content %>%
+  mutate(trip_end_date1 = ifelse(
+    trip_end_date < "2020-01-01",
+    notif_trip_end_date,
+    trip_end_date
+  ))
+
+# grep("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1, value = T)
+
+fhier_logbooks_content_date_fixed <-
+  fhier_logbooks_content_date_fixed_tmp %>%
+  mutate(trip_end_date2 = ifelse(
+    grepl("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1),
+    "2022-10-16 01:00:00",
+    trip_end_date1
+  ))
+
+```
+
+### Add waves
+```{r wave }
+
+fhier_logbooks_content_waves <-
+  fhier_logbooks_content_date_fixed %>%
+  mutate(end_month = as.yearmon(trip_end_date2)) %>%
+  mutate(end_year =
+           year(trip_end_date2)) %>%
+  mutate(end_month_num = month(trip_end_date2)) %>%
+  mutate(end_wave  = floor((end_month_num + 1) / 2))
+
+```
+
+#### test fhier_logbooks_content_waves
+```{r test fhier_logbooks_content_waves}
+
+fhier_logbooks_content_waves %>%
+  select(end_month, end_year, end_month_num, end_wave) %>%
+  unique() %>%
+  arrange(end_month_num)
+
+```
+
+### FL county to region
+```{r FL county to region }
+fl_counties <- list(
+  "SA" = c(
+    "Brevard",
+    "Broward",
+    "Duval",
+    "Flagler",
+    "Indian River",
+    "Martin",
+    "Miami-Dade",
+    "Nassau",
+    "Palm Beach",
+    "St. Johns",
+    "St. Lucie",
+    "Volusia"
+  ),
+  "GOM" = c(
+    "Bay",
+    "Charlotte",
+    "Citrus",
+    "Collier",
+    "Dixie",
+    "Escambia",
+    "Franklin",
+    "Gulf",
+    "Hernando",
+    "Hillsborough",
+    "Lee",
+    "Levy",
+    "Manatee",
+    "Monroe",
+    "Okaloosa",
+    "Pasco",
+    "Pinellas",
+    "Santa Rosa",
+    "Sarasota",
+    "Taylor",
+    "Wakulla",
+    "Walton"
+  )
+)
+
+# str(fl_counties)
+fhier_logbooks_content_waves_fl_county <-
+  fhier_logbooks_content_waves %>%
+  mutate(
+    end_port_fl_reg = case_when(
+      fix_names(end_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
+      fix_names(end_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
+      .default = end_port_county
+    )
+  )
+
+```
+
+#### test fhier_logbooks_content_waves_fl_county
+```{r test fhier_logbooks_content_waves_fl_county }
+fhier_logbooks_content_waves_fl_county %>%
+  filter(end_port_state == "FL") %>%
+  arrange(end_port_county) %>%
+  distinct() %>%
+  # 37
+  select(end_port_fl_reg) %>%
+  filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
+
+# NOT-SPECIFIED
+
+```
+
+### States to GOM or SA
+```{r States to GOM or SA }
+
+states_sa <- data.frame(
+  state_name = c(
+    "Delaware",
+    "District of Columbia",
+    # "Florida",
+    "Georgia",
+    "Maryland",
+    "North Carolina",
+    "South Carolina",
+    "Virginia",
+    "West Virginia"
+  )
+)
+
+```
+
+
+#### get abbreviations
+```{r get abbreviations}
+sa_state_abb <-
+  state_tbl %>%
+  filter(state_name %in% tolower(states_sa$state_name)) %>%
+  select(state_abb)
+```
+
+#### add sa/gom to states
+```{r add sa/gom to states}
+
+fhier_logbooks_content_waves__sa_gom <-
+  fhier_logbooks_content_waves_fl_county %>%
+  mutate(end_port_sa_gom = case_when(
+    fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
+    .default = "gom"
+  )) %>%
+  mutate(end_port_sa_gom = ifelse(
+    tolower(end_port_state) == "fl",
+    end_port_fl_reg,
+    end_port_sa_gom
+  )) %>%
+  select(-end_port_fl_reg)
+```
+
+#### test fhier_logbooks_content_waves__sa_gom
+```{r test fhier_logbooks_content_waves__sa_gom}
+
+fhier_logbooks_content_waves__sa_gom %>%
+  select(end_port_state, end_port_sa_gom) %>%
+  unique() %>%
+  glimpse()
+
+# names(fhier_logbooks_content_waves__sa_gom) %>% cat()
+
+```
+
+### fhier_quantity_by_species_permit_state_region_waves
+```{r fhier_quantity_by_species_permit_state_region_waves }
+glimpse(fhier_logbooks_content_waves__sa_gom)
+
+fhier_quantity_by_species_permit_state_region_waves <-
+  fhier_logbooks_content_waves__sa_gom %>%
+  select(
+    catch_species_itis,
+    common_name,
+    end_port_state,
+    end_port_sa_gom,
+    end_year,
+    end_wave,
+    reported_quantity
+  ) %>%
+  group_by(
+    catch_species_itis,
+    common_name,
+    end_port_state,
+    end_port_sa_gom,
+    end_year,
+    end_wave
+  ) %>%
+  summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity))) %>%
+  as.data.frame()
+# plot(fhier_catch_by_species_state_region_waves)
+
+```
+
+### non specified region in FHIER
+```{r non specified region in FHIER }
+# gom
+# sa
+# NOT-SPECIFIED
+
+# fhier_catch_by_species_region %>%
+#   filter(sa_gom == "NOT-SPECIFIED")
+
+```
+
+## MRIP data
+
+### convert ab1 to integers
+```{r convert ab1 to integers }
+# names(mrip_estimate)
+mrip_estimate %<>%
+  mutate(ab1 = as.integer(ab1))
+
+```
+
+### mrip_estimate_catch_by_species_state_region_waves
+```{r mrip_estimate_catch_by_species_state_region_waves}
+# glimpse(mrip_estimate)
+mrip_estimate_catch_by_species_state_region_waves <-
+  mrip_estimate %>%
+  select(itis_code, new_com, new_sta, sub_reg, year, wave, ab1) %>%
+  group_by(itis_code, new_com, new_sta, sub_reg, year, wave) %>%
+  summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1))) %>%
+  as.data.frame()
+
+# str(mrip_estimate_catch_by_species_state_region_waves)
+# 'data.frame':	878 obs. of  6 variables:
+
+```
+
+## compare fhier with mrip
+
+#### column names
+```{r column names }
+sp_itis_fhier <-
+  grep("itis", tolower(names(fhier_species_count_by_disposition)), value = TRUE)
+sp_itis_mrip <-
+  grep("itis", tolower(names(mrip_estimate)), value = TRUE)
+
+```
+
+
+### most n frequent FHIER species
+```{r most n frequent FHIER species }
+
+get_n_most_frequent_fhier <- function(n, quantity_field_name = quantity_field_name, df_name = NA) {
+  # a default df
+  if (not(is.data.frame(df_name))) {
+    df_name <- fhier_quantity_by_species_df
+  }
+  # if the field name had no quotes - add them
+  tryCatch(
+    quantity_field <- sym(as.character(substitute(quantity_field_name))),
+    error = function (e) { print("My message:")
+      print(e)
+      })
+  
+  # sort in descending order and get n first
+  df_name %>%
+    arrange(desc(!!quantity_field)) %>%
+    head(n) %>%
+    return()
+}
+
+# source("~/R_code_github/compare_catch/plots.R")
+
+```
+
+## combine wave data for fhier and mrip
+```{r combine wave data for fhier and mrip}
+
+wave_data_names_common <- c("species_itis",
+                     "common_name",
+                     "state",
+                     "sa_gom",
+                     "year",
+                     "wave"
+                    ) 
+
+wave_data_names_f <- c(wave_data_names_common, c("fhier_catch_by_4"))
+wave_data_names_m <- c(wave_data_names_common, c("mrip_estimate_catch_by_4"))
+
+names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
+names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
+
+mrip_estimate_catch_by_species_state_region_waves1 <-
+  mrip_estimate_catch_by_species_state_region_waves %>%
+  mutate(year = as.double(year)) %>%
+  mutate(wave = as.double(wave))
+
+fhier_mrip_catch_by_species_state_region_waves <-
+  inner_join(fhier_catch_by_species_state_region_waves,
+             mrip_estimate_catch_by_species_state_region_waves1,
+             by = join_by(species_itis, state, year, wave),
+             multiple = "all"
+             )
+# Joining with `by = join_by(species_itis, common_name, state, sa_gom, year, wave)`
+
+# View(fhier_mrip_catch_by_species_state_region_waves)
+
+```
+
+## Prepare data for ploting
+```{r Prepare data for ploting }
+
+# View(mrip_estimate_catch_by_species_state_region_waves)
+mrip_estimate_catch_by_species_state_region_waves <-
+  mrip_estimate_catch_by_species_state_region_waves1 %>%
+  mutate(sa_gom = case_when(sa_gom == 6 ~ "sa",
+                            sa_gom == 7 ~ "gom",
+                            .default = sa_gom))
+
+# head(fhier_catch_by_species_state_region_waves)
+## join by specieas that are in MRIP, bc that list is shorter
+fhier_mrip_catch_by_species_state_region_waves <-
+  right_join(fhier_catch_by_species_state_region_waves,
+             mrip_estimate_catch_by_species_state_region_waves,
+             # has to specify fields here, bc otherwise it will use the "common_name" field too, which is different in the 2 sets
+             by = join_by(species_itis, state, sa_gom, year, wave)
+  )
+# Joining with `by = join_by(species_itis, common_name, state, sa_gom, year, wave)`
+
+# View(fhier_mrip_catch_by_species_state_region_waves)
+# 878
+
+```
+
+
+#### choose fewer columns, combine year_wave, split by sa_gom column into 2
+
+```{r choose fewer columns}
+
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp <-
+  fhier_mrip_catch_by_species_state_region_waves %>%
+  select(
+    species_itis,
+    state,
+    sa_gom,
+    year,
+    wave,
+    common_name.x,
+    fhier_catch_by_4,
+    mrip_estimate_catch_by_4
+  ) %>%
+  #  combine year_wave
+    mutate(year_wave = paste(year, wave, sep = "_")) %>%
+  # split by sa_gom column into 2
+    split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom))
+
+# View(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp)
+
+# remove extra columns
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_list <-
+  map(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list_tmp,
+      .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
+                                    )
+                )
+  )
+
+# glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_list)
+
+```
+
+## why numbers for fhier bass are low?
+```{r why numbers for fhier bass are low?}
+
+View(fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f)
+glimpse(fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f)
+fhier_mrip_catch_by_species_state_region_waves_sa_gom_top_10f %>%
+  filter(common_name.x == "BASS, BLACK SEA") %>%
+  group_by(sa_gom) %>% str()
+  summarise(catch_sum = sum(fhier_quantity_by_4))
+
+fhier_quantity_by_species_permit_state_region_waves %>%
+  filter(common_name == "BASS, BLACK SEA" & end_year == "2022") %>%
+  group_by(end_port_sa_gom) %>%
+  summarise(catch_sum = sum(fhier_quantity_by_4 ))
+```
+
