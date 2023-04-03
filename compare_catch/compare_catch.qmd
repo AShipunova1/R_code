@@ -42,39 +42,22 @@ vessel_id_field_name <-
 
 ### clean logbooks_content
 ```{r clean logbooks_content }
-logbooks_content_short_2022 <-
-  logbooks_content %>%
-  select(
-    area_code,
-    catch_species_itis,
-    common_name,
-    disposition_code,
-    disposition_name,
-    end_port_state,
-    end_port_name,
-    latitude,
-    longitude,
-    notif_end_port,
-    notif_end_port_state,
-    reported_quantity,
-    sub_area_code,
-    trip_end_date,
-    trip_end_time,
-    trip_start_date,
-    trip_start_time,
-    trip_type,
-    trip_type_name
-  ) %>%
-  change_to_dates("trip_start_date", "%Y-%m-%d %H:%M:%S") %>%
-  filter(format(trip_start_date, format = "%Y") == "2022") %>%
-  change_to_dates("trip_end_date", "%Y-%m-%d %H:%M:%S") %>%
+
+fhier_logbooks_content <-
+  logbooks_content  %>%
+  mutate(trip_start_date_time = paste(substr(trip_start_date, 1, 10), trip_start_time)) %>%
+  mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
+  change_to_dates("trip_start_date_time", "%Y-%m-%d %H%M") %>%
+  change_to_dates("trip_end_date_time", "%Y-%m-%d %H%M") %>%
   mutate(reported_quantity = as.integer(reported_quantity))
 
 # rm(logbooks_content)
 # gc()
+fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
 
 ```
 
+#### fix typos
 ```{r fix typos }
 
 fhier_logbooks_content_date_fixed_tmp <-
