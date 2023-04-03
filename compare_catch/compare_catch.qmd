@@ -456,12 +456,12 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
 ```
 
 ```{r add top ten info}
-fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom <-
+fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
 # Rows: 217
 
-fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa <-
+fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
   filter(species_itis %in% n_most_frequent_fhier_10_list$sa$species_itis)
 
@@ -471,22 +471,22 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa <-
 ```
 
 ```{r test numbers in the list}
-fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa %>%
+fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
-fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom %>%
+fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
-fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa %>%
+fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
-fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom %>%
+fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
