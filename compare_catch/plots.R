@@ -783,4 +783,3 @@ grid.arrange(grobs = plots10,
              left = my_legend,
              ncol = 3)
 
-# why numbers for fhier bass are low?

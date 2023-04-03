@@ -67,7 +67,7 @@ load_all_logbooks <- function() {
 }
 # TODO: slow, benchmark
 logbooks_content <- load_all_logbooks()
-str(logbooks_content)
+# str(logbooks_content)
 
 # ---- 2) MRIP ----
 load_mrip_data <- function() {
