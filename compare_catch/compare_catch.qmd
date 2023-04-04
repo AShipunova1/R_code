@@ -303,22 +303,33 @@ mrip_estimate %<>%
 
 ```
 
-### mrip_estimate_catch_by_species_state_region_waves
-```{r mrip_estimate_catch_by_species_state_region_waves}
-# glimpse(mrip_estimate)
+### MRIP estimate catch by species state region waves
+```{r mrip estimate catch by species state region waves}
+
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate %>%
+  # select the relevan columns only
   select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
+  # group by all except the counts
   group_by(itis_code, new_sta, sub_reg, year, wave) %>%
+  # save the sum of "ab1" for each group in "mrip_estimate_catch_by_4"
+  # remove NAs
   summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
   as.data.frame()
 
-str(mrip_estimate_catch_by_species_state_region_waves)
+glimpse(mrip_estimate_catch_by_species_state_region_waves)
 # 'data.frame':	878 obs. of  6 variables
 
 ```
 
-## compare fhier with mrip
+#### change columns type
+```{r change clmn type}
+# "year" and "wave" to numbers
+mrip_estimate_catch_by_species_state_region_waves1 <-
+  mrip_estimate_catch_by_species_state_region_waves %>%
+  mutate(year = as.double(year)) %>%
+  mutate(wave = as.double(wave))
+```
 
 #### column names
 ```{r column names }
@@ -326,8 +337,18 @@ sp_itis_fhier <-
   grep("itis", tolower(names(fhier_species_count_by_disposition)), value = TRUE)
 sp_itis_mrip <-
   grep("itis", tolower(names(mrip_estimate)), value = TRUE)
+#### change sa_gom mrip to char
+```{r change sa_gom mrip to char}
+mrip_estimate_catch_by_species_state_region_waves2 <-
+  mrip_estimate_catch_by_species_state_region_waves1 %>%
+  # change a 6 to "sa" and a 7 "gom", leave everything else in place
+  mutate(sa_gom = case_when(sa_gom == "6" ~ "sa",
+                            sa_gom == "7" ~ "gom",
+                            .default = sa_gom))
 
 ```
+
+## Compare FHIER with MRIP
 
 ## combine wave data for fhier and mrip
 #### rename fields
@@ -345,24 +366,6 @@ wave_data_names_m <- c(wave_data_names_common, c("mrip_estimate_catch_by_4"))
 
 names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
 names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
-```
-
-#### change columns type
-```{r change clmn type}
-mrip_estimate_catch_by_species_state_region_waves1 <-
-  mrip_estimate_catch_by_species_state_region_waves %>%
-  mutate(year = as.double(year)) %>%
-  mutate(wave = as.double(wave))
-```
-
-#### change sa_gom mrip to char
-```{r change sa_gom mrip to char}
-mrip_estimate_catch_by_species_state_region_waves2 <-
-  mrip_estimate_catch_by_species_state_region_waves1 %>%
-  mutate(sa_gom = case_when(sa_gom == "6" ~ "sa",
-                            sa_gom == "7" ~ "gom",
-                            .default = sa_gom))
-
 ```
 
 #### join FHIER and MRIP data
