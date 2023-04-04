@@ -574,19 +574,30 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot)
 
 ```
 
+#### test numbers in the list
 ```{r test numbers in the list}
+
+# For each region sum counts for one species,
+# should be the same as before
+
+# GOM
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
+# SA
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
 ```
+
 ```{r add top ten info}
+
+# keep only entries for spp. in the top ten list,
+# separately for each region
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
@@ -603,21 +614,29 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 <-
 
 ### test numbers in the list by sa_gom
 ```{r test numbers in the list by sa_gom}
+
+# For the top 10, for each region sum separately MRIP and FHIER counts for one species,
+# should be the same as before
+
+# SA, FHIER counts
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
+# GOM, FHIER counts
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
+# SA, MRIP counts
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
+# GOM, MRIP counts
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
@@ -631,6 +650,7 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
 ```{r pivot_longer}
 fhier_mrip_gom_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+  # change to shorter column names
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
@@ -650,24 +670,32 @@ glimpse(fhier_mrip_gom_to_plot)
 
 ### simple plot GOM
 ```{r gom simple plot}
+# an overview plot
 plot(fhier_mrip_gom_to_plot)
 
 ```
-### 10 gom plots
+### 10 GOM plots
 ```{r 10 gom plots}
 # plot_by_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot)
 
+           # for each common name from the top 10
 plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_gom_to_plot)}
                )
 
-
+# Title for all plots together
 super_title = "GOM: The top 9 most abundant FHIER species by waves"
 
 # separate a legend
-plot_w_legend <- plot_by_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot, FALSE)
+plot_w_legend <- plot_by_spp("BASS, BLACK SEA",
+                             fhier_mrip_gom_to_plot,
+                             # keep the legend
+                             FALSE)
+# use an aux function to pull out the legend
 my_legend <- legend_for_grid_arrange(plot_w_legend)
 
+# combine all plots
 grid.arrange(grobs = plots10,
              top = super_title,
              left = my_legend,
@@ -681,6 +709,7 @@ grid.arrange(grobs = plots10,
 ```{r sa pivot_longer}
 fhier_mrip_sa_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
+  # rename to shorter column names
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
@@ -699,18 +728,21 @@ glimpse(fhier_mrip_sa_to_plot)
 ```
 ### simple plot SA
 ```{r sa simple plot}
+# An overview plot
 plot(fhier_mrip_sa_to_plot)
 
 ```
+
 ### 10 sa plots
 ```{r 10 sa plots}
-# plot_by_spp("BASS, BLACK SEA", fhier_mrip_sa_to_plot)
 
+           # for each common name from the top 10
 plots10 <- map(unique(fhier_mrip_sa_to_plot$common_name),
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_sa_to_plot)}
                )
 
-
+# The following code is the same as before, with "SA" instead of "GOM"
 super_title = "SA: The top 9 most abundant FHIER species by waves"
 
 # separate a legend
