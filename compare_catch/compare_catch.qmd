@@ -1,28 +1,31 @@
 ---
 title: "compare_catch"
 date: 2023-04-03
-output:
-  html_document
 format:
   html:
+    toc: true
     css: styles.css
     code-overflow: wrap
+    code-fold: true
+    code-summary: "Show the code"
+    code-line-numbers: true
 ---
 
 Compare catch in survey vs logbook
 see read.me
 
 ```{r no cache setup, include=FALSE}
-#| echo: false
+##| echo: false
 library(zoo)
 library(gridExtra)
 
+# include auxilary functions
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 ```
 
 ```{r setup, cache=TRUE, include=FALSE}
-#| echo: false
+##| echo: false
 
 source("~/R_code_github/compare_catch/get_data.R")
 
@@ -30,11 +33,14 @@ source("~/R_code_github/compare_catch/get_data.R")
 
 ## FHIER data
 
-## get field names
+## get field names into variables
 ```{r logbooks_content }
+# There are different formats in different available files.
+# Find a column name with "itis" in it
 itis_field_name <- grep("itis", names(logbooks_content), value = T)
 # catch_species_itis
 
+# Same for "vessel.*official"
 vessel_id_field_name <-
   grep("vessel.*official", names(logbooks_content), value = T)
 # vessel_official_nbr
@@ -46,14 +52,20 @@ vessel_id_field_name <-
 
 fhier_logbooks_content <-
   logbooks_content  %>%
-  mutate(trip_start_date_time = paste(substr(trip_start_date, 1, 10), trip_start_time)) %>%
+  # create a new column
+  mutate(trip_start_date_time =
+    # trip start: combine a date without time, a space and a time
+    paste(substr(trip_start_date, 1, 10),
+    trip_start_time)) %>%
+  # Same for the trip end
   mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
+  # change the new column types to a date
   change_to_dates("trip_start_date_time", "%Y-%m-%d %H%M") %>%
   change_to_dates("trip_end_date_time", "%Y-%m-%d %H%M") %>%
+  # change the column type to a number
   mutate(reported_quantity = as.integer(reported_quantity))
 
-# rm(logbooks_content)
-# gc()
+# view
 fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
 
 ```
@@ -63,19 +75,22 @@ fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
 
 fhier_logbooks_content_date_fixed_tmp <-
   fhier_logbooks_content %>%
+  # if a "trip_end_date" is before 2020 - use "notif_trip_end_date" column instead
   mutate(trip_end_date1 = ifelse(
     trip_end_date < "2020-01-01",
     notif_trip_end_date,
     trip_end_date
   ))
 
-# grep("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1, value = T)
-
 fhier_logbooks_content_date_fixed <-
   fhier_logbooks_content_date_fixed_tmp %>%
+  # manually change the wrong value
   mutate(trip_end_date2 = ifelse(
+    # find it
     grepl("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1),
+    # change it
     "2022-10-16 01:00:00",
+    # don't change anything else
     trip_end_date1
   ))
 
@@ -92,9 +107,12 @@ fhier_logbooks_content_date_fixed %<>%
 
 fhier_logbooks_content_waves <-
   fhier_logbooks_content_date_fixed %>%
+  # add a new column with a trip end Month
   mutate(end_month = as.yearmon(trip_end_date2)) %>%
+  # add a new column with a trip end Year
   mutate(end_year =
            year(trip_end_date2)) %>%
+  # add a new column with a number for each trip end Month
   mutate(end_month_num = month(trip_end_date2)) %>%
   mutate(end_wave  = floor((end_month_num + 1) / 2))
 
@@ -320,7 +338,7 @@ wave_data_names_common <- c("species_itis",
                      "sa_gom",
                      "year",
                      "wave"
-                    ) 
+                    )
 
 wave_data_names_f <- c(wave_data_names_common, c("fhier_catch_by_4"))
 wave_data_names_m <- c(wave_data_names_common, c("mrip_estimate_catch_by_4"))
@@ -425,14 +443,14 @@ plot_vy_spp <- function(com_name, my_df, no_legend = TRUE) {
          # x = "species code",
          # x = "common_name",
          # y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
-    ) + 
+    ) +
    theme(
      axis.text.x = element_text(angle = 45),
      plot.title = element_text(size = 9),
      legend.title = element_text(size = 8),
      legend.text = element_text(size = 8)
    )
- 
+
   if(no_legend) {
     one_plot <- one_plot +
       theme(legend.position = "none")
@@ -466,7 +484,7 @@ fhier_mrip_catch_by_species_state_region_waves_tmp2 <-
   inner_join(fhier_mrip_catch_by_species_state_region_waves_tmp1,
            fhier_common_names,
            by = join_by(species_itis))
-           
+
 ```
 
 #### split by sa_gom column
@@ -490,7 +508,7 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot)
 ## get 10 most frequent spp. by region
 ```{r get 10 most frequent spp. by region}
 
-n_most_frequent_fhier_10_list <- 
+n_most_frequent_fhier_10_list <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot %>%
   # for each region
   map(function(x) {x %>%
@@ -499,7 +517,7 @@ n_most_frequent_fhier_10_list <-
       summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
       arrange(desc(fhier_catch_by_spp)) %>%
       head(10)
-    
+
 })
 n_most_frequent_fhier_10_list$gom %>% head()
 n_most_frequent_fhier_10_list$sa %>% head()
@@ -592,7 +610,7 @@ plot(fhier_mrip_gom_to_plot)
 plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
                function(x) {plot_vy_spp(x, fhier_mrip_gom_to_plot)}
                )
-               
+
 
 super_title = "GOM: The top 9 most abundant FHIER species by waves"
 
@@ -600,7 +618,7 @@ super_title = "GOM: The top 9 most abundant FHIER species by waves"
 plot_w_legend <- plot_vy_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot, FALSE)
 my_legend <- legend_for_grid_arrange(plot_w_legend)
 
-grid.arrange(grobs = plots10, 
+grid.arrange(grobs = plots10,
              top = super_title,
              left = my_legend,
              ncol = 3)
@@ -641,7 +659,7 @@ plot(fhier_mrip_sa_to_plot)
 plots10 <- map(unique(fhier_mrip_sa_to_plot$common_name),
                function(x) {plot_vy_spp(x, fhier_mrip_sa_to_plot)}
                )
-               
+
 
 super_title = "SA: The top 9 most abundant FHIER species by waves"
 
@@ -649,7 +667,7 @@ super_title = "SA: The top 9 most abundant FHIER species by waves"
 plot_w_legend <- plot_vy_spp("BASS, BLACK SEA", fhier_mrip_sa_to_plot, FALSE)
 my_legend <- legend_for_grid_arrange(plot_w_legend)
 
-grid.arrange(grobs = plots10, 
+grid.arrange(grobs = plots10,
              top = super_title,
              left = my_legend,
              ncol = 3)
