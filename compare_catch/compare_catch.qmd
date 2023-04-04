@@ -114,6 +114,7 @@ fhier_logbooks_content_waves <-
            year(trip_end_date2)) %>%
   # add a new column with a number for each trip end Month
   mutate(end_month_num = month(trip_end_date2)) %>%
+  # add a new column with a Wave
   mutate(end_wave  = floor((end_month_num + 1) / 2))
 
 ```
@@ -121,15 +122,19 @@ fhier_logbooks_content_waves <-
 #### test fhier_logbooks_content_waves
 ```{r test fhier_logbooks_content_waves}
 
+# show the new columns
 fhier_logbooks_content_waves %>%
   select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
+  # sort by end_month_num
   arrange(end_month_num)
 
 ```
 
 ### FL county to region
 ```{r FL county to region }
+
+# Florida counties by region (from the Internet)
 fl_counties <- list(
   "SA" = c(
     "Brevard",
@@ -171,13 +176,15 @@ fl_counties <- list(
   )
 )
 
-# str(fl_counties)
 fhier_logbooks_content_waves_fl_county <-
   fhier_logbooks_content_waves %>%
+  # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
   mutate(
     end_port_fl_reg = case_when(
+      # check in the list
       fix_names(end_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
       fix_names(end_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
+      # if not on the list - keep it
       .default = end_port_county
     )
   )
@@ -187,11 +194,14 @@ fhier_logbooks_content_waves_fl_county <-
 #### test fhier_logbooks_content_waves_fl_county
 ```{r test fhier_logbooks_content_waves_fl_county }
 fhier_logbooks_content_waves_fl_county %>%
+  # get FL only
   filter(end_port_state == "FL") %>%
+  # sort by county
   arrange(end_port_county) %>%
   distinct() %>%
-  # 37
+  # 37 counties
   select(end_port_fl_reg) %>%
+  # what else is in the new column beside sa and gom
   filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
 
 # NOT-SPECIFIED
@@ -201,11 +211,12 @@ fhier_logbooks_content_waves_fl_county %>%
 ### States to GOM or SA
 ```{r States to GOM or SA }
 
+# list of states in the South Atlantic region (from the Internet)
 states_sa <- data.frame(
   state_name = c(
     "Delaware",
     "District of Columbia",
-    # "Florida",
+    # "Florida", # exclude, we have it separated by county
     "Georgia",
     "Maryland",
     "North Carolina",
@@ -221,8 +232,11 @@ states_sa <- data.frame(
 #### get abbreviations
 ```{r get abbreviations}
 sa_state_abb <-
+  # a default R table
   state_tbl %>%
+  # get only these in our list
   filter(state_name %in% tolower(states_sa$state_name)) %>%
+  # get abbreviations
   select(state_abb)
 ```
 
@@ -231,15 +245,22 @@ sa_state_abb <-
 
 fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
+  # add a new column "end_port_sa_gom" with sa or gom for each state
+  # use fix_name aux function to unify state names (lower case, no spaces etc.)
   mutate(end_port_sa_gom = case_when(
+    # if a name is in our SA list - "sa", otherwise - "gom"
     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
     .default = "gom"
   )) %>%
+  # go through the new column again
+  # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
+  # otherwise don't change
   mutate(end_port_sa_gom = ifelse(
     tolower(end_port_state) == "fl",
     end_port_fl_reg,
     end_port_sa_gom
   )) %>%
+  # remove this column, we don't need it anymore
   select(-end_port_fl_reg)
 ```
 
@@ -247,20 +268,22 @@ fhier_logbooks_content_waves__sa_gom <-
 ```{r test fhier_logbooks_content_waves__sa_gom}
 
 fhier_logbooks_content_waves__sa_gom %>%
+  # look at states and regions
   select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
   glimpse()
 
-# names(fhier_logbooks_content_waves__sa_gom) %>% cat()
-
 ```
 
-### fhier_quantity_by_species_permit_state_region_waves
-```{r fhier_quantity_by_species_permit_state_region_waves }
+### fhier quantity by species state region waves
+```{r see fhier_logbooks_content_waves__sa_gom }
 glimpse(fhier_logbooks_content_waves__sa_gom)
+```
 
-fhier_catch_by_species_state_region_waves <-
+```{r fhier quantity by species state region waves }
+fhier_catch_by_species_state_region_waves <-  
   fhier_logbooks_content_waves__sa_gom %>%
+  # select only relevant columns
   select(
     catch_species_itis,
     end_port_state,
@@ -269,6 +292,7 @@ fhier_catch_by_species_state_region_waves <-
     end_wave,
     reported_quantity
   ) %>%
+  # group by all of them but "reported_quantity"
   group_by(
     catch_species_itis,
     end_port_state,
@@ -276,9 +300,10 @@ fhier_catch_by_species_state_region_waves <-
     end_year,
     end_wave
   ) %>%
+  # save a sum of reported_quantity in each group in fhier_quantity_by_4
+  # remove NAs
   summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity), na.rm = TRUE)) %>%
   as.data.frame()
-# plot(fhier_catch_by_species_state_region_waves)
 
 ```
 
@@ -288,8 +313,8 @@ fhier_catch_by_species_state_region_waves <-
 # sa
 # NOT-SPECIFIED
 
-# fhier_catch_by_species_region %>%
-#   filter(sa_gom == "NOT-SPECIFIED")
+fhier_catch_by_species_region %>%
+  filter(sa_gom == "NOT-SPECIFIED")
 
 ```
 
@@ -297,7 +322,6 @@ fhier_catch_by_species_state_region_waves <-
 
 ### convert ab1 to integers
 ```{r convert ab1 to integers }
-# names(mrip_estimate)
 mrip_estimate %<>%
   mutate(ab1 = as.integer(ab1))
 
