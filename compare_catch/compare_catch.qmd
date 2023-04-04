@@ -331,12 +331,6 @@ mrip_estimate_catch_by_species_state_region_waves1 <-
   mutate(wave = as.double(wave))
 ```
 
-#### column names
-```{r column names }
-sp_itis_fhier <-
-  grep("itis", tolower(names(fhier_species_count_by_disposition)), value = TRUE)
-sp_itis_mrip <-
-  grep("itis", tolower(names(mrip_estimate)), value = TRUE)
 #### change sa_gom mrip to char
 ```{r change sa_gom mrip to char}
 mrip_estimate_catch_by_species_state_region_waves2 <-
