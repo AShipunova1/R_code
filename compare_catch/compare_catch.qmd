@@ -318,6 +318,29 @@ fhier_catch_by_species_region %>%
 
 ```
 
+## get 10 most frequent spp. by region
+```{r get 10 most frequent spp. by region}
+
+# Look at the top most frequent FHIER spp. for each region
+n_most_frequent_fhier_10_list <-
+  fhier_catch_by_species_state_region_waves %>%
+  # repeat for each region (SA and GOM)
+  map(function(x) {x %>%
+      # select ITIS and counts
+      select(species_itis, fhier_catch_by_4) %>%
+      group_by(species_itis) %>%
+      # add a new column with a sum of counts for each spp.
+      summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
+      # sort in the discending order
+      arrange(desc(fhier_catch_by_spp)) %>%
+      # get the top 10
+      head(10)
+})
+n_most_frequent_fhier_10_list$gom %>% head()
+n_most_frequent_fhier_10_list$sa %>% head()
+
+```
+
 ## MRIP data
 
 ### convert ab1 to integers
@@ -460,34 +483,40 @@ names(fhier_common_names) <- c("species_itis", "common_name")
 ## one plot function
 ```{r one plot function}
 
-# A function to make a plot 
+# A function to make a plot by spp.
 plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
   # browser()
 
  one_plot <-
   my_df %>%
+    # only the com name from the parameters
     filter(common_name == !!com_name) %>%
   ggplot(
          aes(x = year_wave,
              y = CATCH_CNT,
+            # color by the agency and
+            # make a legend if no_legend is FALSE
              fill = AGENCY)
   ) +
+    # manually cange default colours
     scale_fill_manual(values = c("MRIP" = "deepskyblue", "FHIER" = "red")) +
+    # columns are side by side (not stacked)
     geom_col(position = "dodge") +
     labs(title = com_name,
+        # remove x and y axes titles
          x = "",
          y = ""
-         # x = "species code",
-         # x = "common_name",
-         # y = paste0("quantity by species if < ", MAX_QUANTITY_BY_SPECIES)
     ) +
    theme(
-     axis.text.x = element_text(angle = 45),
-     plot.title = element_text(size = 9),
-     legend.title = element_text(size = 8),
-     legend.text = element_text(size = 8)
+    # turn x text
+      axis.text.x = element_text(angle = 45),
+    # change text size
+      plot.title = element_text(size = 9),
+      legend.title = element_text(size = 8),
+      legend.text = element_text(size = 8)
    )
 
+  # By default the "no_legend" parameter is TRUE
   if(no_legend) {
     one_plot <- one_plot +
       theme(legend.position = "none")
@@ -510,6 +539,7 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves)
 #### combine year_wave
 ```{r combine year_wave}
 
+# make a new column "year_wave"
 fhier_mrip_catch_by_species_state_region_waves_tmp1 <-
   mutate(fhier_mrip_catch_by_species_state_region_waves,
          year_wave = paste(year, wave, sep = "_"))
@@ -517,16 +547,18 @@ fhier_mrip_catch_by_species_state_region_waves_tmp1 <-
 ```
 #### add common_names
 ```{r add common_names}
+
+# Add the fhier_common_names we made earlier
 fhier_mrip_catch_by_species_state_region_waves_tmp2 <-
   inner_join(fhier_mrip_catch_by_species_state_region_waves_tmp1,
            fhier_common_names,
            by = join_by(species_itis))
-
 ```
 
 #### split by sa_gom column
 ```{r split by sa_gom column}
 
+# Make separate data frames
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot <-
   fhier_mrip_catch_by_species_state_region_waves_tmp2 %>%
   # split by sa_gom column
@@ -542,25 +574,6 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot)
 
 ```
 
-## get 10 most frequent spp. by region
-```{r get 10 most frequent spp. by region}
-
-n_most_frequent_fhier_10_list <-
-  fhier_mrip_catch_by_species_state_region_waves_list_for_plot %>%
-  # for each region
-  map(function(x) {x %>%
-      select(species_itis, fhier_catch_by_4) %>%
-      group_by(species_itis) %>%
-      summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
-      arrange(desc(fhier_catch_by_spp)) %>%
-      head(10)
-
-})
-n_most_frequent_fhier_10_list$gom %>% head()
-n_most_frequent_fhier_10_list$sa %>% head()
-
-
-```
 ```{r test numbers in the list}
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(species_itis == "167687") %>%
