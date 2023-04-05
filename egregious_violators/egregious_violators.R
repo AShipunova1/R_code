@@ -20,15 +20,17 @@ source(file.path(current_project_path, "get_data.R"))
 ## ---- add permit_expired column ----
 compl_clean_w_permit_exp <-
   compl_clean %>%
+  # if permit group expiration is more than a month from today than "no"
   mutate(permit_expired = case_when(permitgroupexpiration > (Sys.Date() + 30) ~ "no",
                                     .default = "yes"))
 
-## ---- add permit_expired column ----
-# View(compl_clean_w_permit_exp)
+## ---- add year_month column ----
 compl_clean_w_permit_exp_last6m <-
   compl_clean_w_permit_exp %>%
   mutate(year_month = as.yearmon(week_start)) %>%
+  # keep entries for the last 6 month
   filter(year_month > "Sep 2022")
+
 # dim(compl_clean_w_permit_exp)  
 # 185538     
 # dim(compl_clean_w_permit_exp_last6m)
@@ -51,21 +53,18 @@ negativereports_field_name <-
 complianceerrors_field_name <-
   find_col_name(compl_clean_sa, ".*compliance", "errors.*")[1]
 
-# Get all entries with no reports and more than 1 compliance error
+# test: Get all entries with no reports and more than 1 compliance error ----
+# create a filter
 filter_egregious <- quo(
+  # use variables with column names we saved in the previous step
   !!sym(gom_declarations_field_name) == 0 &
     !!sym(captainreports_field_name) == 0 &
     !!sym(negativereports_field_name) == 0 &
     !!sym(complianceerrors_field_name) > 0
 )
 # 36965
-# test
-# filter_egregious1 <- quo(gom_permitteddeclarations__ == 0 &
-# captainreports__ == 0 &
-# negativereports__ == 0 &
-# complianceerrors__ > 0
-# )
-# 36965
+
+# use the filter 
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
   filter(!!filter_egregious)
@@ -80,7 +79,9 @@ number_of_weeks_for_non_compliancy = 26
 get_num_of_non_compliant_weeks <-
   function(compl_clean_sa_non_compl) {
     compl_clean_sa_non_compl %>%
+      # use only 2 columns
       select(vessel_official_number, week) %>%
+      # sort
       arrange(vessel_official_number, week) %>%
       unique() %>%
       # add a column with counts
@@ -89,17 +90,18 @@ get_num_of_non_compliant_weeks <-
       filter(n > number_of_weeks_for_non_compliancy) %>%
       return()
   }
-id_52_plus_weeks <-
+id_n_plus_weeks <-
   get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
-# glimpse(id_52_plus_weeks)
+
+# glimpse(id_n_plus_weeks)
 # 'data.frame':	156 obs. of  2 variables
 # vesselofficialnumber: ...
 # n                   : int  58 55
 
-# ---- Get compliance information for only vessels which have more than 52 "NO REPORT". ----
+# ---- Get compliance information for only vessels which have more than n "NO REPORT". ----
 compl_w_non_compliant_weeks <-
   compl_clean_sa_non_compl %>%
-  filter(vessel_official_number %in% id_52_plus_weeks$vessel_official_number)
+  filter(vessel_official_number %in% id_n_plus_weeks$vessel_official_number)
 # dim(compl_w_non_compliant_weeks)
 # [1] 8941   21
 
@@ -127,26 +129,26 @@ all_weeks_not_compliance_id <-
 
 # all weeks are non compliant
 intersect(
-  id_52_plus_weeks$vessel_official_number,
+  id_n_plus_weeks$vessel_official_number,
   all_weeks_not_compliance_id$vessel_official_number
 ) %>% str()
 # 19
 # 27: 185
-# 52+ weeks are not compliant, but some other weeks are compliant
+# n+ weeks are not compliant, but some other weeks are compliant
 setdiff(
-  id_52_plus_weeks$vessel_official_number,
+  id_n_plus_weeks$vessel_official_number,
   all_weeks_not_compliance_id$vessel_official_number
 ) %>% str()
 # 137
 # 27: 392
 
-# all weeks are not compliant, but there are fewer than 52 weeks for 2022-2023
+# all weeks are not compliant, but there are fewer than n weeks for 2022-2023
 setdiff(
   all_weeks_not_compliance_id$vessel_official_number,
-  id_52_plus_weeks$vessel_official_number
+  id_n_plus_weeks$vessel_official_number
 ) %>%
   {
-    . ->> fewer_52_all_non_compl22_23_ids
+    . ->> fewer_n_all_non_compl22_23_ids
   } %>% # save into a var
   str()
 # 324
@@ -158,15 +160,15 @@ group_by_arr <-
 
 compl_clean_sa %>%
   filter(vessel_official_number %in%
-           fewer_52_all_non_compl22_23_ids) %>%
+           fewer_n_all_non_compl22_23_ids) %>%
   select(vessel_official_number, !!compliant_field_name, week) %>%
   count_by_column_arr(group_by_arr) %>%
   {
-    . ->> fewer_52_all_non_compl22_23
+    . ->> fewer_n_all_non_compl22_23
   } %>% # save into a var
   head()
 
-# str(fewer_52_all_non_compl22_23)
+# str(fewer_n_all_non_compl22_23)
 # [1] 324   3
 # 27: gropd_df [170 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
 
