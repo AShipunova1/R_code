@@ -74,7 +74,7 @@ compl_clean_sa_non_compl <-
 #   count_uniq_by_column() %>% head(1)
 # vesselofficialnumber 1785
 
-## ----- get only those with 51+ weeks of non compliance -----
+## ----- get only those with n+ weeks of non compliance -----
 # number_of_weeks_for_non_compliancy = 51
 number_of_weeks_for_non_compliancy = 26
 get_num_of_non_compliant_weeks <-
