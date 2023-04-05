@@ -3,7 +3,7 @@
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
 
-# library(VennDiagram)
+library(zoo)
 # library(RColorBrewer)
 
 # ----set up----
@@ -23,8 +23,20 @@ compl_clean_w_permit_exp <-
   mutate(permit_expired = case_when(permitgroupexpiration > (Sys.Date() + 30) ~ "no",
                                     .default = "yes"))
 
+## ---- add permit_expired column ----
+# View(compl_clean_w_permit_exp)
+compl_clean_w_permit_exp_last6m <-
+  compl_clean_w_permit_exp %>%
+  mutate(year_month = as.yearmon(week_start)) %>%
+  filter(year_month > "Sep 2022")
+# dim(compl_clean_w_permit_exp)  
+# 185538     
+# dim(compl_clean_w_permit_exp_last6m)
+# [1] 74809    23
+
 ## ---- Have only SA permits, exclude those with Gulf permits ----
-compl_clean_sa <- compl_clean_w_permit_exp %>%
+compl_clean_sa <- 
+  compl_clean_w_permit_exp_last6m %>%
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 ## ---- filter for egregious here, use all compliance data ----
@@ -369,7 +381,7 @@ inner_join(
 
 dim(compl_corr_to_investigation)
 # [1] 16081    44
-# 27: 40181??
+# 27: 11151
 
 str(compl_corr_to_investigation)
 # compl_corr_to_investigation %>%
@@ -384,7 +396,7 @@ count_uniq_by_column(compl_clean_sa_non_compl) %>% head(1)
 count_uniq_by_column(compl_corr_to_investigation) %>% head(1)
 # 110
 # 107
-# 27: 381
+# 27: 177
 
 ## ---- output needed investigation ----
 # 1) create additional columns
@@ -427,7 +439,7 @@ date__contacttype_per_id <-
 dim(date__contacttype_per_id)
 # [1] 110    2
 # 107
-# 27: 381
+# 27: 177
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
@@ -462,7 +474,7 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
 
 dim(compl_corr_to_investigation_short)
 # [1] 107   9
-# 27: [1] 381  10
+# 27: [1] 177  10
 str(compl_corr_to_investigation_short)
 
 ## ---- 3) remove vessels already in the know list ----
@@ -482,49 +494,38 @@ compl_corr_to_investigation_short1 <-
   ))
 dim(compl_corr_to_investigation_short1)
 # 102
-# 27: 339
+# 27: 164
 
 ## check
-length(unique(compl_corr_to_investigation_short$vessel_official_number))
+length(unique(compl_corr_to_investigation_short1$vessel_official_number))
 # 107
 # 102
-# 27: 381
+# 27: 164
 
-data_overview(compl_corr_to_investigation_short1)
-# vessel_official_number 339
+data_overview(compl_corr_to_investigation_short1) %>% head(1)
+# vessel_official_number 164
 
 compl_corr_to_investigation_short_output <-
 compl_corr_to_investigation_short1 %>%
   filter(permit_expired == "no")
 
 dim(compl_corr_to_investigation_short_output)
-# [1] 194  10
+# [1] 146  10
 
-View(compl_corr_to_investigation_short_output)
-# test compl_corr_to_investigation_short_output weeeks ----
+# View(compl_corr_to_investigation_short_output)
+# test compl_corr_to_investigation_short_output non compliant weeks number ----
 week_start_1 <-
   compl_corr_to_investigation_short_output %>%
   select(week_start) %>%
-  mutate(id = row_number()) %>%
-  separate_rows(week_start, sep = ',') %>%
-  # separate(variables, c('question', 'time'), sep = ':') %>%
-  group_by(id) %>%
-  mutate(rnum = row_number()) %>%
-  ungroup %>% 
-  mutate(week_start = trimws(week_start)) %>%
-  pivot_wider(names_from = week_start, values_from = rnum, names_prefix = 'pos_') %>%
-  select(-id)
-head(week_start_1)
-# Rows: 194
-# Columns: 66
+  # count commas
+  mutate(week_amount = str_count(week_start, ",") + 1) %>%
+  filter(week_amount < 27)
+  
+dim(week_start_1)[[1]] == 0
+# TRUE
 
-week_start_1_cnts <- as.data.frame(colSums(!is.na(week_start_1)))
-
-View(week_start_1_cnts)
-
-# separate(week_start, into = , sep = ",")
-
-write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_pus_weeks_04_05_2023.csv"), row.names = FALSE)
+# output ----
+write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_plus_weeks_04_05_2023.csv"), row.names = FALSE)
 
 ## ---- who needs an email ----
 source(file.path(current_project_path, "need_an_email.R"))
