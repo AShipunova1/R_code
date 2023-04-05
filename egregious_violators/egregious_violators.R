@@ -500,6 +500,7 @@ compl_corr_to_investigation_short1 %>%
 dim(compl_corr_to_investigation_short_output)
 # [1] 194  10
 
+View(compl_corr_to_investigation_short_output)
 # test compl_corr_to_investigation_short_output weeeks ----
 week_start_1 <-
   compl_corr_to_investigation_short_output %>%
@@ -513,13 +514,15 @@ week_start_1 <-
   mutate(week_start = trimws(week_start)) %>%
   pivot_wider(names_from = week_start, values_from = rnum, names_prefix = 'pos_') %>%
   select(-id)
-  glimpse(week_start_1)
+head(week_start_1)
 # Rows: 194
 # Columns: 66
 
-week_start_1[]
-  
-  # separate(week_start, into = , sep = ",")
+week_start_1_cnts <- as.data.frame(colSums(!is.na(week_start_1)))
+
+View(week_start_1_cnts)
+
+# separate(week_start, into = , sep = ",")
 
 write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_pus_weeks_04_05_2023.csv"), row.names = FALSE)
 
