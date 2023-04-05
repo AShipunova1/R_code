@@ -21,7 +21,7 @@ library(tidyverse)
 library(magrittr)
 library(readxl)  # reading in .xlsx
 library(rbenchmark)
-library(ROracle)
+# library(ROracle)
 
 # Do not show warnings about groups
 options(dplyr.summarise.inform = FALSE)
