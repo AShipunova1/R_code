@@ -428,9 +428,18 @@ fhier_mrip_catch_by_species_state_region_waves <-
 fhier_mrip_catch_by_species_state_region_waves %>%
   filter(species_itis == "167687") %>% head(20)
 
-fhier_mrip_catch_by_species_state_region_waves %>% filter(complete.cases(.)) %>% str()
+dim(fhier_mrip_catch_by_species_state_region_waves)
+# [1] 5728    7
+
+# fhier_mrip_catch_by_species_state_region_waves %>% filter(complete.cases(.)) %>% str()
 # 'data.frame':	786 obs. of  7 variables:
 # x %>% tidyr::drop_na(DC3:DC9)
+fhier_mrip_catch_by_species_state_region_waves %>% 
+  tidyr::drop_na(mrip_estimate_catch_by_4,
+                 # 878 obs. of  7 variables
+                 fhier_catch_by_4) %>% str()
+# 786 obs. of  7 variables
+
 
 ```
 
