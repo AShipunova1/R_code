@@ -307,6 +307,18 @@ fhier_catch_by_species_state_region_waves <-
 
 ```
 
+##### test numbers
+```{r test numbers}
+
+fhier_catch_by_species_state_region_waves %>%
+  # get the same species
+  filter(catch_species_itis == "167687") %>%
+  # group by region
+  group_by(catch_species_itis, end_port_sa_gom) %>%
+  # sum the FHIER catch
+  summarise(bass_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE))
+```
+
 ## get 10 most frequent spp. by region
 ```{r get 10 most frequent spp. by region}
 
