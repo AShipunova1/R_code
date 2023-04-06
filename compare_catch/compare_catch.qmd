@@ -1,18 +1,21 @@
 ---
-  title: "compare_catch"
-date: 2023-04-05
+title: "Compare catch in MRIP survey vs. FHIER logbooks"
+subtitle:  "(see read.me)"
+date: today
+project:
+  lib-dir: ..
 format:
   html:
-  toc: true
-css: styles.css
-code-overflow: wrap
-code-fold: true
-code-summary: "Show the code"
-code-line-numbers: true
+    toc: true
+    # toc-depth: 2
+    css: styles.css
+    code-overflow: wrap
+    code-fold: true
+    code-summary: "Show the code"
+    code-line-numbers: true
 ---
-  
-  Compare catch in survey vs logbook
-see read.me
+
+
 
 ```{r no cache setup, include=FALSE}
 ##| echo: false
@@ -33,7 +36,7 @@ source("~/R_code_github/compare_catch/get_data.R")
 
 ## FHIER data
 
-## get field names into variables
+### Get field names into variables
 ```{r logbooks_content }
 # There are different formats in different available files.
 # Find a column name with "itis" in it
@@ -47,16 +50,16 @@ vessel_id_field_name <-
 
 ```
 
-### clean logbooks_content
+### Clean logbooks_content
 ```{r clean logbooks_content }
 
 fhier_logbooks_content <-
   logbooks_content  %>%
   # create a new column
   mutate(trip_start_date_time =
-           # trip start: combine a date without time, a space and a time
-           paste(substr(trip_start_date, 1, 10),
-                 trip_start_time)) %>%
+    # trip start: combine a date without time, a space and a time
+    paste(substr(trip_start_date, 1, 10),
+    trip_start_time)) %>%
   # Same for the trip end
   mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
   # change the new column types to a date
@@ -70,7 +73,7 @@ fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
 
 ```
 
-#### fix typos
+#### Fix typos
 ```{r fix typos }
 
 fhier_logbooks_content_date_fixed_tmp <-
@@ -96,7 +99,7 @@ fhier_logbooks_content_date_fixed <-
 
 ```
 
-#### use only 2022 data
+#### Use only 2022 data
 ```{r use only 2022 data}
 fhier_logbooks_content_date_fixed %<>%
   filter(year(trip_end_date) == "2022")
@@ -119,8 +122,9 @@ fhier_logbooks_content_waves <-
 
 ```
 
-#### test fhier_logbooks_content_waves
+#### Test fhier_logbooks_content_waves
 ```{r test fhier_logbooks_content_waves}
+#| classes: test
 
 # show the new columns
 fhier_logbooks_content_waves %>%
@@ -191,8 +195,9 @@ fhier_logbooks_content_waves_fl_county <-
 
 ```
 
-#### test fhier_logbooks_content_waves_fl_county
-```{r test fhier_logbooks_content_waves_fl_county }
+#### Not GOM or SA fhier_logbooks_content_waves_fl_county
+```{r Not GOM or SA fhier_logbooks_content_waves_fl_county }
+
 fhier_logbooks_content_waves_fl_county %>%
   # get FL only
   filter(end_port_state == "FL") %>%
@@ -229,7 +234,7 @@ states_sa <- data.frame(
 ```
 
 
-#### get abbreviations
+#### Get state abbreviations
 ```{r get abbreviations}
 sa_state_abb <-
   # a default R table
@@ -240,7 +245,7 @@ sa_state_abb <-
   select(state_abb)
 ```
 
-#### add sa/gom to states
+#### Add sa/gom to states
 ```{r add sa/gom to states}
 
 fhier_logbooks_content_waves__sa_gom <-
@@ -264,9 +269,9 @@ fhier_logbooks_content_waves__sa_gom <-
   select(-end_port_fl_reg)
 ```
 
-#### test fhier_logbooks_content_waves__sa_gom
+#### Test fhier_logbooks_content_waves__sa_gom
 ```{r test fhier_logbooks_content_waves__sa_gom}
-
+#| classes: test
 fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   select(end_port_state, end_port_sa_gom) %>%
@@ -275,7 +280,7 @@ fhier_logbooks_content_waves__sa_gom %>%
 
 ```
 
-### fhier quantity by species state region waves
+### FHIER quantity by species state region waves
 ```{r see fhier_logbooks_content_waves__sa_gom }
 glimpse(fhier_logbooks_content_waves__sa_gom)
 ```
@@ -307,8 +312,9 @@ fhier_catch_by_species_state_region_waves <-
 
 ```
 
-##### test numbers
+##### Test numbers
 ```{r test numbers}
+#| classes: test
 
 fhier_catch_by_species_state_region_waves %>%
   # get the same species
@@ -319,36 +325,9 @@ fhier_catch_by_species_state_region_waves %>%
   summarise(bass_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE))
 ```
 
-## get 10 most frequent spp. by region
-```{r get 10 most frequent spp. by region}
-
-fhier_catch_by_species_state_region_waves_list <-
-  fhier_catch_by_species_state_region_waves %>%
-  # split by sa/gom
-  split(as.factor(fhier_catch_by_species_state_region_waves$end_port_sa_gom))
-# Look at the top most frequent FHIER spp. for each region
-n_most_frequent_fhier_10_list <-
-  fhier_catch_by_species_state_region_waves_list %>%
-  # repeat for each region (SA and GOM)
-  map(function(x) {x %>%
-      # select ITIS and counts
-      select(catch_species_itis, fhier_quantity_by_4) %>%
-      group_by(catch_species_itis) %>%
-      # add a new column with a sum of counts for each spp.
-      summarise(fhier_catch_by_spp = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-      # sort in the discending order
-      arrange(desc(fhier_catch_by_spp)) %>%
-      # get the top 10
-      head(10)
-  })
-n_most_frequent_fhier_10_list$gom %>% head()
-n_most_frequent_fhier_10_list$sa %>% head()
-
-```
-
 ## MRIP data
 
-### convert ab1 to integers
+### Convert ab1 to integers
 ```{r convert ab1 to integers }
 mrip_estimate %<>%
   mutate(ab1 = as.integer(ab1))
@@ -374,7 +353,7 @@ glimpse(mrip_estimate_catch_by_species_state_region_waves)
 
 ```
 
-#### change columns type
+#### Change columns type
 ```{r change clmn type}
 # "year" and "wave" to numbers
 mrip_estimate_catch_by_species_state_region_waves1 <-
@@ -383,7 +362,7 @@ mrip_estimate_catch_by_species_state_region_waves1 <-
   mutate(wave = as.double(wave))
 ```
 
-#### change sa_gom mrip to char
+#### Change sa_gom MRIP to char
 ```{r change sa_gom mrip to char}
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate_catch_by_species_state_region_waves1 %>%
@@ -391,8 +370,8 @@ mrip_estimate_catch_by_species_state_region_waves <-
   mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
                             sub_reg == "7" ~ "gom",
                             .default = sub_reg),
-         # put the new column after sub_reg (by default at the end)
-         .after = sub_reg) %>%
+                            # put the new column after sub_reg (by default at the end)
+                            .after = sub_reg) %>%
   # drop sub_reg
   select(-sub_reg)
 
@@ -400,17 +379,17 @@ mrip_estimate_catch_by_species_state_region_waves <-
 
 # Compare FHIER with MRIP
 
-## combine wave data for fhier and mrip
-#### rename fields
+## Combine wave data for fhier and mrip
+#### Rename fields
 ```{r rename fields}
 
 # common field names
 wave_data_names_common <- c("species_itis",
-                            "state",
-                            "sa_gom",
-                            "year",
-                            "wave"
-)
+                     "state",
+                     "sa_gom",
+                     "year",
+                     "wave"
+                    )
 
 # to be sure columns are in the same order
 names(mrip_estimate_catch_by_species_state_region_waves)
@@ -431,17 +410,17 @@ wave_data_names_m <- c(wave_data_names_common, c("mrip_estimate_catch_by_4"))
 names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
 names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
 
-identical(names(fhier_catch_by_species_state_region_waves)[1:5],
-          names(mrip_estimate_catch_by_species_state_region_waves)[1:5])
+# identical(names(fhier_catch_by_species_state_region_waves)[1:5],
+          # names(mrip_estimate_catch_by_species_state_region_waves)[1:5])
 ```
 
 #### Join FHIER and MRIP data
 ```{r join FHIER and MRIP data}
 fhier_mrip_catch_by_species_state_region_waves <-
   full_join(fhier_catch_by_species_state_region_waves,
-            mrip_estimate_catch_by_species_state_region_waves,
-            by = join_by(species_itis, state, sa_gom, year, wave)
-  )
+             mrip_estimate_catch_by_species_state_region_waves,
+              by = join_by(species_itis, state, sa_gom, year, wave)
+             )
 # default Joining with `by = join_by(species_itis, state, sa_gom, year, wave)`
 # final$S1 <- dplyr::coalesce(final[[" S1 .x"]],  final[[" S1 .y"]])
 
@@ -449,11 +428,15 @@ fhier_mrip_catch_by_species_state_region_waves <-
 fhier_mrip_catch_by_species_state_region_waves %>%
   filter(species_itis == "167687") %>% head(20)
 
+fhier_mrip_catch_by_species_state_region_waves %>% filter(complete.cases(.)) %>% str()
+# 'data.frame':	786 obs. of  7 variables:
+# x %>% tidyr::drop_na(DC3:DC9)
+
 ```
 
-##### test numbers MRIP
+##### Test numbers MRIP
 ```{r test numbers MRIP}
-
+#| classes: test
 mrip_estimate_catch_by_species_state_region_waves %>%
   # get one species
   filter(species_itis == "167687") %>%
@@ -463,8 +446,9 @@ mrip_estimate_catch_by_species_state_region_waves %>%
   summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 ```
 
-##### test numbers FHIER
+##### Test numbers FHIER
 ```{r test numbers FHIER}
+#| classes: test
 
 fhier_catch_by_species_state_region_waves %>%
   # get the same species
@@ -474,8 +458,9 @@ fhier_catch_by_species_state_region_waves %>%
   # sum the FHIER catch
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 ```
-#### test numbers in the join
+#### Test numbers in the join
 ```{r test numbers in the join}
+#| classes: test
 
 # compare the above numbers with those in the join, they should be the same
 fhier_mrip_catch_by_species_state_region_waves %>%
@@ -490,7 +475,7 @@ fhier_mrip_catch_by_species_state_region_waves %>%
 
 ```
 
-## make a FHIER common_name df
+## Make a FHIER common_name df
 ```{r make a common_name df}
 
 # select common names and itis in a separate data frame
@@ -505,42 +490,77 @@ names(fhier_common_names) <- c("species_itis", "common_name")
 
 ```
 
-## one plot function
+## Get 10 most frequent spp. by region
+```{r get 10 most frequent spp. by region}
+fhier_mrip_catch_by_species_state_region_waves_list <-
+  fhier_mrip_catch_by_species_state_region_waves %>%
+  # split by sa/gom
+    split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom))
+
+# Look at the top most frequent FHIER spp. for each region
+n_most_frequent_fhier_10_list <-
+  fhier_mrip_catch_by_species_state_region_waves_list %>%
+  # repeat for each region (SA and GOM)
+  map(function(x) {x %>%
+      # select ITIS and counts
+      select(species_itis, fhier_catch_by_4) %>%
+      group_by(species_itis) %>%
+      # add a new column with a sum of counts for each spp.
+      summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
+      # sort in the discending order
+      arrange(desc(fhier_catch_by_spp)) %>%
+      # get the top 10
+      head(10)
+})
+```
+
+#### 10 most frequent spp. GOM
+```{r 10 most frequent spp. GOM}
+n_most_frequent_fhier_10_list$gom %>% head()
+```
+
+#### 10 most frequent spp. SA
+```{r 10 most frequent spp. SA}
+n_most_frequent_fhier_10_list$sa %>% head()
+
+```
+
+## One plot function
 ```{r one plot function}
 
 # A function to make a plot by spp.
 plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
   # browser()
-  
-  one_plot <-
-    my_df %>%
+
+ one_plot <-
+  my_df %>%
     # only the com name from the parameters
     filter(common_name == !!com_name) %>%
-    ggplot(
-      aes(x = year_wave,
-          y = CATCH_CNT,
-          # color by the agency and
-          # make a legend if no_legend is FALSE
-          fill = AGENCY)
-    ) +
+  ggplot(
+         aes(x = year_wave,
+             y = CATCH_CNT,
+            # color by the agency and
+            # make a legend if no_legend is FALSE
+             fill = AGENCY)
+  ) +
     # manually cange default colours
     scale_fill_manual(values = c("MRIP" = "deepskyblue", "FHIER" = "red")) +
     # columns are side by side (not stacked)
     geom_col(position = "dodge") +
     labs(title = com_name,
-         # remove x and y axes titles
+        # remove x and y axes titles
          x = "",
          y = ""
     ) +
-    theme(
-      # turn x text
+   theme(
+    # turn x text
       axis.text.x = element_text(angle = 45),
-      # change text size
+    # change text size
       plot.title = element_text(size = 9),
       legend.title = element_text(size = 8),
       legend.text = element_text(size = 8)
-    )
-  
+   )
+
   # By default the "no_legend" parameter is TRUE
   if(no_legend) {
     one_plot <- one_plot +
@@ -552,7 +572,8 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
 ```
 
 ## Prepare data for ploting
-```{r Prepare data for ploting }
+#### glimpse(fhier_mrip_catch_by_species_state_region_waves)
+```{r glimpse(fhier_mrip_catch_by_species_state_region_waves) }
 
 glimpse(fhier_mrip_catch_by_species_state_region_waves)
 # Rows: 6,327
@@ -562,7 +583,7 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves)
 
 ```
 
-#### combine year_wave
+#### Combine year and wave
 ```{r combine year_wave}
 
 # make a new column "year_wave"
@@ -571,37 +592,39 @@ fhier_mrip_catch_by_species_state_region_waves_tmp1 <-
          year_wave = paste(year, wave, sep = "_"))
 
 ```
-#### add common_names
+#### Add common_names
 ```{r add common_names}
 
 # Add the fhier_common_names we made earlier
 fhier_mrip_catch_by_species_state_region_waves_tmp2 <-
   inner_join(fhier_mrip_catch_by_species_state_region_waves_tmp1,
-             fhier_common_names,
-             by = join_by(species_itis))
+           fhier_common_names,
+           by = join_by(species_itis))
 ```
 
-#### split by sa_gom column
+#### Split by sa_gom column
 ```{r split by sa_gom column}
+#| warning: false
 
 # Make separate data frames
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot <-
   fhier_mrip_catch_by_species_state_region_waves_tmp2 %>%
   # split by sa_gom column
-  split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom)) %>%
+    split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom)) %>%
   # remove extra columns in each df
-  map(
-    .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
-    )
-    )
+    map(
+      .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
+                                    )
+                )
   )
 
 glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot)
 
 ```
 
-#### test numbers in the list
+#### Test numbers in the list
 ```{r test numbers in the list}
+#| classes: test
 
 # For each region sum counts for one species,
 # should be the same as before
@@ -619,21 +642,21 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
   summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
 ```
-
+### Add top ten info back
 ```{r add top ten info}
 
 # keep only entries for spp. in the top ten list,
 # separately for each region
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis %in% n_most_frequent_fhier_10_list$gom$catch_species_itis)
+  filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
 # Rows: 217
 # str(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10)
 # ?'data.frame':	196 obs. of  6 variables
 
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis %in% n_most_frequent_fhier_10_list$sa$catch_species_itis)
+  filter(species_itis %in% n_most_frequent_fhier_10_list$sa$species_itis)
 
 glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10)
 # Rows: 300
@@ -641,8 +664,9 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10)
 
 ```
 
-### test numbers in the list by sa_gom
+### Test numbers in the list by sa_gom
 ```{r test numbers in the list by sa_gom}
+#| classes: test
 
 # For the top 10, for each region sum separately MRIP and FHIER counts for one species,
 # should be the same as before
@@ -675,7 +699,7 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
 ```
 
 ## GOM plots
-#### pivot_longer fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom
+#### Pivot_longer fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom
 ```{r pivot_longer}
 fhier_mrip_gom_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
@@ -697,22 +721,22 @@ fhier_mrip_gom_to_plot <-
 glimpse(fhier_mrip_gom_to_plot)
 ```
 
-### simple plot GOM
+### Simple plot GOM
 ```{r gom simple plot}
 
 # an overview plot
 plot(fhier_mrip_gom_to_plot)
 
 ```
-### 10 GOM plots
+### GOM plots for top spp.
 ```{r 10 gom plots}
 # plot_by_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot)
 
-# for each common name from the top 10
+           # for each common name from the top 10
 plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
-               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_gom_to_plot)}
-)
+               )
 
 # Title for all plots together
 super_title = "GOM: The top 9 most abundant FHIER species by waves"
@@ -735,7 +759,7 @@ grid.arrange(grobs = plots10,
 
 ## SA plots
 
-#### pivot_longer fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa
+#### Pivot_longer fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa
 ```{r sa pivot_longer}
 fhier_mrip_sa_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
@@ -756,21 +780,21 @@ fhier_mrip_sa_to_plot <-
 
 glimpse(fhier_mrip_sa_to_plot)
 ```
-### simple plot SA
+### Simple plot SA
 ```{r sa simple plot}
 # An overview plot
 plot(fhier_mrip_sa_to_plot)
 
 ```
 
-### 10 sa plots
+### SA plots for top spp.
 ```{r 10 sa plots}
 
-# for each common name from the top 10
+           # for each common name from the top 10
 plots10 <- map(unique(fhier_mrip_sa_to_plot$common_name),
-               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_sa_to_plot)}
-)
+               )
 
 # The following code is the same as before, with "SA" instead of "GOM"
 super_title = "SA: The top 9 most abundant FHIER species by waves"
