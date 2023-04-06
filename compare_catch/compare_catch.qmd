@@ -428,19 +428,6 @@ fhier_mrip_catch_by_species_state_region_waves <-
 fhier_mrip_catch_by_species_state_region_waves %>%
   filter(species_itis == "167687") %>% head(20)
 
-dim(fhier_mrip_catch_by_species_state_region_waves)
-# [1] 5728    7
-
-# fhier_mrip_catch_by_species_state_region_waves %>% filter(complete.cases(.)) %>% str()
-# 'data.frame':	786 obs. of  7 variables:
-# x %>% tidyr::drop_na(DC3:DC9)
-fhier_mrip_catch_by_species_state_region_waves %>% 
-  tidyr::drop_na(mrip_estimate_catch_by_4,
-                 # 878 obs. of  7 variables
-                 fhier_catch_by_4) %>% str()
-# 786 obs. of  7 variables
-
-
 ```
 
 ##### Test numbers MRIP
@@ -810,6 +797,262 @@ super_title = "SA: The top 9 most abundant FHIER species by waves"
 
 # separate a legend
 plot_w_legend <- plot_by_spp("BASS, BLACK SEA", fhier_mrip_sa_to_plot, FALSE)
+my_legend <- legend_for_grid_arrange(plot_w_legend)
+
+grid.arrange(grobs = plots10,
+             top = super_title,
+             left = my_legend,
+             ncol = 3)
+
+```
+
+## Not NA only
+#### Overview
+```{r Overview}
+dim(fhier_mrip_catch_by_species_state_region_waves)
+# [1] 5728    7
+
+fhier_mrip_catch_by_species_state_region_waves_no_na <-
+fhier_mrip_catch_by_species_state_region_waves %>%
+  filter(complete.cases(.))
+# 'data.frame':	786 obs. of  7 variables:
+
+fhier_mrip_catch_by_species_state_region_waves %>% 
+  tidyr::drop_na(mrip_estimate_catch_by_4,
+                 # 878 obs. of  7 variables
+                 fhier_catch_by_4) %>% str()
+# 786 obs. of  7 variables
+
+
+```
+
+### split
+```{r no NA get 10 most frequent spp. by region}
+fhier_mrip_catch_by_species_state_region_waves_no_na_list <-
+  fhier_mrip_catch_by_species_state_region_waves_no_na %>%
+  # split by sa/gom
+    split(as.factor(fhier_mrip_catch_by_species_state_region_waves_no_na$sa_gom))
+
+```
+
+## No NAs Get 10 most frequent spp. by region
+```{r get 10 most frequent spp. by region}
+
+# Look at the top most frequent FHIER spp. for each region
+n_most_frequent_fhier_10_list_no_na <-
+  fhier_mrip_catch_by_species_state_region_waves_no_na_list %>%
+  # repeat for each region (SA and GOM)
+  map(function(x) {x %>%
+      # select ITIS and counts
+      select(species_itis, fhier_catch_by_4) %>%
+      group_by(species_itis) %>%
+      # add a new column with a sum of counts for each spp.
+      summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
+      # sort in the discending order
+      arrange(desc(fhier_catch_by_spp)) %>%
+      # get the top 10
+      head(10)
+})
+```
+
+## No NAs: Get 10 most frequent spp. by region
+
+#### No NAs 10 most frequent spp. GOM
+```{r No NAs 10 most frequent spp. GOM}
+n_most_frequent_fhier_10_list_no_na$gom %>% head()
+```
+
+#### No NAs 10 most frequent spp. SA
+```{r No NAs 10 most frequent spp. SA}
+n_most_frequent_fhier_10_list_no_na$sa %>% head()
+
+```
+### Combine year and wave
+```{r combine year_wave}
+# Use fhier_mrip_catch_by_species_state_region_waves_no_na again
+# make a new column "year_wave"
+fhier_mrip_catch_by_species_state_region_waves_no_na_tmp1 <-
+  mutate(fhier_mrip_catch_by_species_state_region_waves_no_na,
+         year_wave = paste(year, wave, sep = "_"))
+
+```
+
+#### Add common_names
+```{r add common_names}
+
+# Add the fhier_common_names we made earlier
+fhier_mrip_catch_by_species_state_region_waves_no_na_tmp2 <-
+  inner_join(fhier_mrip_catch_by_species_state_region_waves_no_na_tmp1,
+           fhier_common_names,
+           by = join_by(species_itis))
+```
+
+#### No NAs Split by sa_gom column
+```{r No NAs split by sa_gom column}
+#| warning: false
+
+# Make separate data frames
+fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot <-
+  fhier_mrip_catch_by_species_state_region_waves_no_na_tmp2 %>%
+  # split by sa_gom column
+    split(as.factor(fhier_mrip_catch_by_species_state_region_waves_no_na$sa_gom)) %>%
+  # remove extra columns in each df
+    map(
+      .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
+                                    )
+                )
+  )
+
+glimpse(fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot)
+
+```
+
+#### No NAs Test numbers in the list
+```{r No NAs test numbers in the list}
+#| classes: test
+
+# For each region sum counts for one species,
+# should be the same as before
+
+# GOM
+fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$gom %>%
+  filter(species_itis == "167687") %>%
+  group_by(species_itis) %>%
+  summarise(bass_gom_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE),
+            bass_gom_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)
+            )
+
+# SA
+fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$sa %>%
+  filter(species_itis == "167687") %>%
+  group_by(species_itis) %>%
+  summarise(bass_sa_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE),
+            bass_sa_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)
+            )
+```
+### No NAs Add top ten info back
+```{r No NAs add top ten info}
+
+# keep only entries for spp. in the top ten list,
+# separately for each region
+fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot_gom10 <-
+  fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$gom %>%
+  filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
+# str(fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot_gom10)
+# 93 obs. of  6 variables
+
+fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot_sa10 <-
+  fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$sa %>%
+  filter(species_itis %in% n_most_frequent_fhier_10_list$sa$species_itis)
+
+glimpse(fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot_sa10)
+# Rows: 110
+
+```
+
+## No NAs No NAs GOM plots
+#### No NAs Pivot_longer
+```{r No NAs pivot_longer}
+fhier_mrip_gom__no_na_to_plot <-
+  fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot_gom10 %>%
+  # change to shorter column names
+  rename(c("MRIP" = "mrip_estimate_catch_by_4",
+           "FHIER" = "fhier_catch_by_4")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
+  pivot_longer(
+    cols = c(MRIP,
+             FHIER),
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>%
+  # use only the new columns
+  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  # remove lines where one or another agency doesn't have counts for this species
+  drop_na()
+
+glimpse(fhier_mrip_gom__no_na_to_plot)
+```
+
+### No NAs Simple plot GOM
+```{r No NAs gom simple plot}
+
+# an overview plot
+plot(fhier_mrip_gom__no_na_to_plot)
+
+```
+### No NAs GOM plots for top spp.
+```{r No NAs 10 gom plots}
+# plot_by_spp("BASS, BLACK SEA", fhier_mrip_gom__no_na_to_plot)
+
+           # for each common name from the top 10
+plots10 <- map(unique(fhier_mrip_gom__no_na_to_plot$common_name),
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+               function(x) {plot_by_spp(x, fhier_mrip_gom__no_na_to_plot)}
+               )
+
+# Title for all plots together
+super_title = "GOM: The top 10 most abundant FHIER species by waves, no NAs"
+
+# separate a legend
+plot_w_legend <- plot_by_spp("BASS, BLACK SEA",
+                             fhier_mrip_gom__no_na_to_plot,
+                             # keep the legend
+                             FALSE)
+# use an aux function to pull out the legend
+my_legend <- legend_for_grid_arrange(plot_w_legend)
+
+# combine all plots
+grid.arrange(grobs = plots10,
+             top = super_title,
+             left = my_legend,
+             ncol = 3)
+
+```
+
+## No NAs SA plots
+
+#### No NAs Pivot_longer fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot_sa
+```{r No NAs sa pivot_longer}
+fhier_mrip_sa__no_na_to_plot <-
+  fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot_sa10 %>%
+  # rename to shorter column names
+  rename(c("MRIP" = "mrip_estimate_catch_by_4",
+           "FHIER" = "fhier_catch_by_4")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
+  pivot_longer(
+    cols = c(MRIP,
+             FHIER),
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>%
+  # use only the new columns
+  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  # remove lines where one or another agency doesn't have counts for this species
+  drop_na()
+
+glimpse(fhier_mrip_sa__no_na_to_plot)
+```
+### No NAs Simple plot SA
+```{r No NAs sa simple plot}
+# An overview plot
+plot(fhier_mrip_sa__no_na_to_plot)
+
+```
+
+### No NAs SA plots for top spp.
+```{r No NAs 10 sa plots}
+
+           # for each common name from the top 10
+plots10 <- map(unique(fhier_mrip_sa__no_na_to_plot$common_name),
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+               function(x) {plot_by_spp(x, fhier_mrip_sa__no_na_to_plot)}
+               )
+
+# The following code is the same as before, with "SA" instead of "GOM"
+super_title = "SA: The top 10 most abundant FHIER species by waves, no NAs"
+
+# separate a legend
+plot_w_legend <- plot_by_spp("BASS, BLACK SEA", fhier_mrip_sa__no_na_to_plot, FALSE)
 my_legend <- legend_for_grid_arrange(plot_w_legend)
 
 grid.arrange(grobs = plots10,
