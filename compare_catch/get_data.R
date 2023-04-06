@@ -1,5 +1,5 @@
-library(sp) # vector data
-library(rgdal) # input/output, projections
+# library(sp) # vector data
+# library(rgdal) # input/output, projections
 
 # get data for compare catch
 
@@ -208,30 +208,30 @@ rename_all_field_names <- function() {
 # names(fhier_species_count_by_disposition)
 # str(mrip_species_list)
 
-## ---- get geographical data ----
-read_shapefile <- function(filename) {
-  shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
-  
-  x <- readOGR(shapefile_file_name)
-  return(x)
-}
-sa_shp <- read_shapefile("osa_n_gom/SA_EEZ_off_states.shp")
-gom_shp <- read_shapefile("osa_n_gom/ReefFish_EFH_GOM.shp")
-
-read_port_coords <- function(){
-  port_coords_file_name <- file.path(my_paths$inputs, 
-                                     "ports.csv")
-  if(file.exists(port_coords_file_name)) {
-    read_csv(port_coords_file_name,
-                     show_col_types = FALSE) %>% 
-             mutate(across(.fns = as.character))
-  }
-}
-port_coords <- read_port_coords()
-
+# ## ---- get geographical data ----
+# read_shapefile <- function(filename) {
+#   shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
+#   
+#   x <- readOGR(shapefile_file_name)
+#   return(x)
+# }
+# sa_shp <- read_shapefile("osa_n_gom/SA_EEZ_off_states.shp")
+# gom_shp <- read_shapefile("osa_n_gom/ReefFish_EFH_GOM.shp")
+# 
+# read_port_coords <- function(){
+#   port_coords_file_name <- file.path(my_paths$inputs, 
+#                                      "ports.csv")
+#   if(file.exists(port_coords_file_name)) {
+#     read_csv(port_coords_file_name,
+#                      show_col_types = FALSE) %>% 
+#              mutate(across(.fns = as.character))
+#   }
+# }
+# port_coords <- read_port_coords()
+# 
 ## ---- get state coords ----
 # https://www.latlong.net/category/states-236-14.html
-states_coords_raw <- read_csv(file.path(my_paths$inputs, "coordinates", "states_decimal_deg.csv"))
+# states_coords_raw <- read_csv(file.path(my_paths$inputs, "coordinates", "states_decimal_deg.csv"))
 # head(states_coords_raw)
 
 ## ---- add state abbreviations ----
