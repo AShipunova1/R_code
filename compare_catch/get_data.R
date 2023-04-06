@@ -196,7 +196,7 @@ data_list_names <- list("fhier_species_count_by_disposition", "mrip_species_list
 
 rename_all_field_names <- function() {
 # TODO: benchmark with map()
-  for(d_name in data_list_names) {
+  for (d_name in data_list_names) {
     # get an object (df) by its name
     tmp0 <- get(d_name)
     # change field names to upper case
