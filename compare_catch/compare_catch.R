@@ -529,6 +529,9 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
          x = "",
          y = ""
     ) +
+   scale_x_continuous(n.breaks = 6) +
+   # blank theme from ggplot
+   theme_bw() +
    my_theme
 
   # By default the "no_legend" parameter is TRUE
@@ -758,7 +761,7 @@ plot(fhier_mrip_gom_to_plot)
 
 # plot_by_spp("MACKEREL, SPANISH", fhier_mrip_gom_to_plot)
 
-           # for each common name from the top 10
+### GOM plots for each common name from the top 10 ----
 plots10_gom <- map(unique(fhier_mrip_gom_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_gom_to_plot)}
@@ -1005,18 +1008,23 @@ ind_mackerel_king_fhier <- gom_ind_plots[[7]]
 ind_snapper_red_mrip <- gom_ind_plots[[10]]
 
 my_legend_gom_flat <-
-  legend_for_grid_arrange(plot_w_legend_gom
-                          + guides(
-                            fill =
-                              guide_legend(
-                                nrow = 1,
-                                title = NULL,
-                                hjust = 1,
-                                direction = "horizontal",
-                                keyheight = 0.5
-                              )
-                          )
-                           + theme_low)
+  legend_for_grid_arrange(
+    plot_w_legend_gom
+    + theme(
+      legend.box.spacing = margin(0),
+      legend.spacing = margin(0, 0, 0, 0),
+    )
+    + guides(
+      fill =
+        guide_legend(
+          nrow = 1,
+          title = NULL,
+          hjust = 1,
+          direction = "horizontal",
+          keyheight = 0.5
+        )
+    )
+  )
 
 grid.newpage()
 p1 <- 
