@@ -906,6 +906,13 @@ calculate_cnt_index <- function(my_df) {
 ### GOM index ----
 fhier_mrip_gom_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10)
 
+glimpse(fhier_mrip_gom_ind)
+fhier_mrip_gom_ind %>%
+  mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
+  select(wave) %>% unique()
+
+# strsplit("2022_1", "_")[[1]][[2]]
+
 ### GOM index plots ----
 # plot(fhier_mrip_gom_ind)
 
