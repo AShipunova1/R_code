@@ -2,7 +2,7 @@
 library(zoo)
 library(gridExtra)
 
-# include auxilary functions
+# include auxilary functions ----
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -10,8 +10,9 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/compare_catch/get_data.R")
 
-## FHIER
+## prepare FHIER data ----
 
+## get column names vars ----
 # There are different formats in different available files.
 # Find a column name with "itis" in it
 itis_field_name <- grep("itis", names(logbooks_content), value = T)
@@ -80,7 +81,7 @@ fhier_logbooks_content_waves <-
 
 #| classes: test
 
-# show the new columns
+# test: show the new columns ----
 fhier_logbooks_content_waves %>%
   select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
@@ -142,6 +143,7 @@ fhier_logbooks_content_waves_fl_county <-
     )
   )
 
+## test: check regions ----
 fhier_logbooks_content_waves_fl_county %>%
   # get FL only
   filter(end_port_state == "FL") %>%
@@ -155,6 +157,7 @@ fhier_logbooks_content_waves_fl_county %>%
 
 # NOT-SPECIFIED
 
+## states to regions ----
 # list of states in the South Atlantic region (from the Internet)
 states_sa <- data.frame(
   state_name = c(
@@ -199,6 +202,7 @@ fhier_logbooks_content_waves__sa_gom <-
   select(-end_port_fl_reg)
 
 #| classes: test
+## test: states and regions ----
 fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   select(end_port_state, end_port_sa_gom) %>%
@@ -207,7 +211,7 @@ fhier_logbooks_content_waves__sa_gom %>%
 
 glimpse(fhier_logbooks_content_waves__sa_gom)
 
-# combine dolphin and dolphinfish for FHIER data
+## combine dolphin and dolphinfish for FHIER data ----
 fhier_logbooks_content_waves__sa_gom_dolph <-
   fhier_logbooks_content_waves__sa_gom %>%
   rename(common_name_orig = common_name) %>%
@@ -219,7 +223,8 @@ fhier_logbooks_content_waves__sa_gom_dolph <-
   )
 
 glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
-# see
+
+### test: dolphins ----
 fhier_logbooks_content_waves__sa_gom_dolph %>%
   filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
   select(common_name_orig, common_name) %>% unique()
@@ -252,6 +257,7 @@ fhier_catch_by_species_state_region_waves <-
   as.data.frame()
 
 #| classes: test
+### test: cnts for 1 sp. ----
 test_species_itis <-
   fhier_logbooks_content %>%
   filter(tolower(common_name) == "mackerel, spanish") %>%
@@ -267,7 +273,8 @@ fhier_test_cnts <-
   # group by region
   group_by(catch_species_itis, end_port_sa_gom) %>%
   # sum the FHIER catch
-  summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE))
+  summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
+  as.data.frame()
 
 ## MRIP ----
 
@@ -352,11 +359,11 @@ fhier_catch_by_species_state_region_waves %<>%
             function(x) wave_data_names_common[1:5])
 # %>% head(100) %>% tail(2)
 
-## test
+### test: rename fields ----
 identical(names(fhier_catch_by_species_state_region_waves)[1:5],
           names(mrip_estimate_catch_by_species_state_region_waves)[1:5])
 
-##  
+## Join Fhier and MRIP ---- 
 fhier_mrip_catch_by_species_state_region_waves <-
   full_join(fhier_catch_by_species_state_region_waves,
              mrip_estimate_catch_by_species_state_region_waves,
@@ -365,55 +372,47 @@ fhier_mrip_catch_by_species_state_region_waves <-
 # default Joining with `by = join_by(species_itis, state, sa_gom, year, wave)`
 # final$S1 <- dplyr::coalesce(final[[" S1 .x"]],  final[[" S1 .y"]])
 
+### test join ---- 
 # look at the first 20 entries for mackerel spanish
 fhier_mrip_catch_by_species_state_region_waves %>%
   filter(species_itis == test_species_itis) %>% head(20)
 
 #| classes: test
-mrip_cnts_sa_gom_mackerel <-
+### test one sp in MRIP ----
+# fhier_test_cnts
+
+### make a test mrip one sp. var
+mrip_test_cnts <-
   mrip_estimate_catch_by_species_state_region_waves %>%
   # get one species
   filter(species_itis == test_species_itis) %>%
   # group by region
   group_by(species_itis, sa_gom) %>%
   # sum the MRIP catch
-  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
-
-mrip_cnts_sa_gom_mackerel
-
-#| classes: test
-
-fhier_cnts_sa_gom_mackerel <-
-  fhier_catch_by_species_state_region_waves %>%
-  # get the same species
-  filter(species_itis == test_species_itis) %>%
-  # group by region
-  group_by(species_itis, sa_gom) %>%
-  # sum the FHIER catch
-  summarise(mackerel_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
-
-fhier_cnts_sa_gom_mackerel
+  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
+  as.data.frame()
 
 #| classes: test
-
-# compare the above numbers with those in the join, they should be the same
-fhier_join_cnts_sa_gom_mackerel <- 
-  fhier_mrip_catch_by_species_state_region_waves %>%
+#### compare the saved numbers with those in the join, they should be the same ----
+# names(fhier_mrip_catch_by_species_state_region_waves)
+fhier_mrip_catch_by_species_state_region_waves %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis, sa_gom) %>%
-  summarise(mackerel_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
+  summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
+  use_series(mackerel_fhier_cnt) %>% 
+  identical(fhier_test_cnts$mackerel_fhier_cnt)
 
-identical(fhier_cnts_sa_gom_mackerel, fhier_join_cnts_sa_gom_mackerel)
+# mrip_test_cnts
+# fhier_test_cnts
 
-mrip_join_cnts_sa_gom_mackerel <-
-  fhier_mrip_catch_by_species_state_region_waves %>%
+fhier_mrip_catch_by_species_state_region_waves %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis, sa_gom) %>%
-  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
+  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
+  use_series(mackerel_mrip_cnt) %>%
+  identical(mrip_test_cnts$mackerel_mrip_cnt)
 
-identical(mrip_cnts_sa_gom_mackerel, mrip_join_cnts_sa_gom_mackerel)
-
-# select common names and itis in a separate data frame
+## save common names and itis in a separate data frame ----
 fhier_common_names <-
   fhier_logbooks_content %>%
   # names()
