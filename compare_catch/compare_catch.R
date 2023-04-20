@@ -482,11 +482,12 @@ glimpse(gom_top_spp)
   
 ## A function to make a plot by spp. ----
 
-my_theme45 <- theme(
+my_theme <- theme(
   # turn x text
-  axis.text.x = element_text(angle = 45
-                             # low it down
-                             , vjust = 0.5),
+  axis.text.x = element_text(# angle = 45
+    # low it down
+    # ,
+    vjust = 0.5),
   
   # + opts(axis.title.x = theme_text(vjust=-0.5))
   # change text size
@@ -518,7 +519,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
          x = "",
          y = ""
     ) +
-   my_theme45
+   my_theme
 
   # By default the "no_legend" parameter is TRUE
   if (no_legend) {
@@ -838,7 +839,6 @@ textii <- function(d,
 # assignInNamespace("textii", textii, "gridExtra")
 # grid.table(z, core.just = "left")
 
-
 ## footnote explanation ----
 footnote = textGrob(
   "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts). Hence if the bars are > 0 then FHIER counts > MRIP estmates and vice versa.
@@ -852,6 +852,16 @@ The smaller the bar is the closer the MRIP estmates are to the FHIER counts.",
 # text, x = 0.01, y = 0.99, 
 # hjust = 0, vjust = 1, gp = gpar(fontsize = 8)
 
+## an aux function to use only a wave
+use_wave <- function(my_df) {
+  my_df %>%
+    separate_wider_delim(year_wave,
+                         delim = "_",
+                         names = c("year", "wave")) %>%
+    select(-year) %>%
+    return()
+}
+
 ## plot_ind function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
 
@@ -860,7 +870,7 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   one_ind_plot <-
     my_df %>%
     filter(common_name == com_n) %>%
-    ggplot(aes(x = year_wave,
+    ggplot(aes(x = wave,
                y = cnt_index,
                fill = as.factor(cnt_index)
                )
@@ -871,7 +881,7 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
     scale_fill_manual(values = mypalette) +
     # scale_fill_viridis_c() +
     theme_bw() +
-    my_theme45 +
+    my_theme +
         labs(title = com_n,
         # remove x and y axes titles
          x = "",
@@ -906,21 +916,23 @@ calculate_cnt_index <- function(my_df) {
 ### GOM index ----
 fhier_mrip_gom_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10)
 
-glimpse(fhier_mrip_gom_ind)
-fhier_mrip_gom_ind %>%
-  mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
-  select(wave) %>% unique()
-
-fhier_mrip_gom_ind %>%
-  separate_wider_delim(
-    year_wave,
-    "_",
-    cols_remove = F,
-    names = c("year", "wave")
-  ) %>%
-  select(-year) %>%
-  select(year_wave, wave) %>% unique()
-
+# glimpse(fhier_mrip_gom_ind)
+# fhier_mrip_gom_ind %>%
+#   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
+#   select(wave) %>% unique()
+# 
+# fhier_mrip_gom_ind <-
+#   fhier_mrip_gom_ind %>%
+#   separate_wider_delim(
+#     year_wave,
+#     "_",
+#     # cols_remove = F,
+#     names = c("year", "wave")
+#   ) %>%
+#   select(-year)
+# # %>%
+#   # select(year_wave, wave) %>% unique()
+# 
 # strsplit("2022_1", "_")[[1]][[2]]
 
 ### GOM index plots ----
@@ -934,15 +946,18 @@ mypalette = viridis(q_colors_gom, option = "D")
 names(mypalette) <- gom_all_cnt_indexes
 mypalette
 
-one_plot <- plot_ind(fhier_mrip_gom_ind, "MACKEREL, SPANISH", mypalette)
+# use_wave(fhier_mrip_gom_ind) %>% glimpse()
+
+one_plot <- plot_ind(use_wave(fhier_mrip_gom_ind), "MACKEREL, SPANISH", mypalette)
 
 gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_ind(fhier_mrip_gom_ind, x, mypalette)}
+               function(x) {plot_ind(use_wave(fhier_mrip_gom_ind), x, mypalette)}
                )
 
-super_title = "GOM counts ratio, 2022"
+super_title = "GOM counts ratio by wave. Year 2022"
 
+grid.newpage()
 grid.arrange(grobs = gom_ind_plots,
              top = super_title,
              bottom = footnote,
@@ -967,10 +982,10 @@ mypalette
 
 sa_ind_plots <- map(unique(fhier_mrip_sa_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_ind(fhier_mrip_sa_ind, x, mypalette)}
+               function(x) {plot_ind(use_wave(fhier_mrip_sa_ind), x, mypalette)}
                )
 
-super_title = "SA counts ratio, 2022"
+super_title = "SA Counts Ratio by Wave 2022"
 
 grid.newpage()
 grid.arrange(grobs = sa_ind_plots,
