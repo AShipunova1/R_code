@@ -792,6 +792,7 @@ grid.arrange(grobs = plots10,
 
 ## plot_ind function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
+
 plot_ind <- function(my_df, com_n, no_legend = TRUE) {
   # browser()
   one_ind_plot <-
@@ -806,11 +807,6 @@ plot_ind <- function(my_df, com_n, no_legend = TRUE) {
       # geom_bar(fill = cnt_index, stat = 'identity') + 
     geom_col() +
     scale_fill_viridis_c() +
-      # geom_hex() + coord_fixed() +
-  # scale_fill_viridis() + 
-# 
-#     scale_fill_viridis(limits = c(-1, 1)) +
-    # geom_point() +
     theme_bw() +
     my_theme45 +
         labs(title = com_n,
@@ -849,6 +845,26 @@ fhier_mrip_gom_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_regi
 
 ### GOM index plots ----
 # plot(fhier_mrip_gom_ind)
+names(fhier_mrip_gom_ind)
+gom_all_cnt_indexes <-
+  fhier_mrip_gom_ind %>%
+  ungroup() %>%
+  select(cnt_index) %>%
+  unique() %>%
+  arrange(cnt_index)
+
+dim(gom_all_cnt_indexes)
+head(gom_all_cnt_indexes)
+
+ss <- sort(unique(fhier_mrip_gom_ind$cnt_index))
+str(ss)
+
+identical(ss, sort(gom_all_cnt_inexes$cnt_index))
+
+mypalette <- rainbow()
+names(mypalette) <- sort(unique(fhier_mrip_gom_ind$cnt_index))
+mypalette
+
 
 one_plot <- plot_ind(fhier_mrip_gom_ind, "MACKEREL, SPANISH")
 
