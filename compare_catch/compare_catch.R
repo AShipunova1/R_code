@@ -480,6 +480,16 @@ gom_top_spp <-
 
 glimpse(gom_top_spp)
   
+## an aux function to use only a wave from year_wave
+use_wave <- function(my_df) {
+  my_df %>%
+    separate_wider_delim(year_wave,
+                         delim = "_",
+                         names = c("year", "wave")) %>%
+    select(-year) %>%
+    return()
+}
+
 ## A function to make a plot by spp. ----
 
 my_theme <- theme(
@@ -504,7 +514,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
     # only the com name from the parameters
     filter(common_name == !!com_name) %>%
   ggplot(
-         aes(x = year_wave,
+         aes(x = wave,
              y = CATCH_CNT,
             # color by the agency and
             # make a legend if no_legend is FALSE
@@ -554,7 +564,7 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot <-
     split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom)) %>%
   # remove extra columns in each df
     map(
-      .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
+      .f = list(. %>% dplyr::select(-one_of("year", "sa_gom")
                                     )
                 )
   )
@@ -698,7 +708,7 @@ fhier_mrip_to_plot_format <- function(my_df) {
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  select(wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
     return()
 }
 
@@ -728,11 +738,11 @@ glimpse(fhier_mrip_gom_to_plot_0)
 ## test: compare drop_na and 0 ----
 all.equal(
   fhier_mrip_gom_to_plot_0 %>%
-    arrange(species_itis, year_wave, AGENCY) %>%
+    arrange(species_itis, wave, AGENCY) %>%
     slice(1:300)
   ,
   fhier_mrip_gom_to_plot %>%
-    arrange(species_itis, year_wave, AGENCY) %>%
+    arrange(species_itis, wave, AGENCY) %>%
     slice(1:300)
   )
 
@@ -756,7 +766,7 @@ plots10_gom <- map(unique(fhier_mrip_gom_to_plot$common_name),
 
 
 # Title for all plots together
-super_title = "GOM: species counts by waves"
+super_title = "GOM: species counts by waves 2022"
 
 # separate a legend
 plot_w_legend_gom <- plot_by_spp("MACKEREL, SPANISH",
@@ -846,23 +856,11 @@ footnote = textGrob(
   "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts). Hence if the bars are > 0 then FHIER counts < MRIP estmates and vice versa.
 The smaller the bar is the closer the MRIP estmates are to the FHIER counts.",
   gp = gpar(fontface = 3, fontsize = 10),
-  # just left
+  # justify left
   hjust = 0,
   x = 0.01, y = 0.99,
   vjust = 1
 )
-# text, x = 0.01, y = 0.99, 
-# hjust = 0, vjust = 1, gp = gpar(fontsize = 8)
-
-## an aux function to use only a wave
-use_wave <- function(my_df) {
-  my_df %>%
-    separate_wider_delim(year_wave,
-                         delim = "_",
-                         names = c("year", "wave")) %>%
-    select(-year) %>%
-    return()
-}
 
 ## plot_ind function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
@@ -1017,7 +1015,8 @@ my_legend_gom_flat <-
                                 direction = "horizontal",
                                 keyheight = 0.5
                               )
-                          ))
+                          )
+                           + theme_low)
 
 grid.newpage()
 p1 <- 
@@ -1042,6 +1041,12 @@ my_legend_gom_vert <-
                               )
                           ))
 
+theme_low <- theme(
+  legend.box.spacing = margin(0),
+  legend.spacing = margin(0, 0, 0, 0),
+  legend.title = element_blank()
+)
+
 grid.arrange(
   arrangeGrob(
     ind_grouper_red_eq,
@@ -1052,7 +1057,7 @@ grid.arrange(
   "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts)",
   # gp = gpar(fontface = 3, fontsize = 10)
   # ,
-  # just left
+  # justify left
   hjust = 0,
   x = 0.01, y = 1.1,
   vjust = 1
@@ -1066,7 +1071,3 @@ grid.arrange(
   ncol = 2
 )
 
-# plots <- align_plots(p1, p2a, p3, align = 'v', axis = 'l')
-
-
-  
