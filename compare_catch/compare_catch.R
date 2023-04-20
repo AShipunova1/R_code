@@ -799,11 +799,14 @@ fhier_mrip_gom_ind <-
     # x = fct_rev(fct_reorder(common_name,
   #                                  !!sym(count_field_name),
   #                                  .fun = max)),
-   mutate(order = fct_reorder(common_name,
+   mutate(common_name_order = fct_reorder(common_name,
                   (mrip_estimate_catch_by_4 + fhier_quantity_by_4),
                   )
-          )
+          ) %>%
+  mutate(date_order = order(year_wave)
+  )
 
+fhier_mrip_gom_ind %>% select(year_wave, date_order) %>% head()
 # plot
 map(unique(fhier_mrip_gom_ind$common_name),
     function(com_n) {
