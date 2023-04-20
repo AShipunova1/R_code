@@ -660,6 +660,7 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
 
 ## GOM plots ----
 
+### using drop_na ----
 fhier_mrip_gom_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   # change to shorter column names
@@ -678,6 +679,44 @@ fhier_mrip_gom_to_plot <-
   drop_na()
 
 glimpse(fhier_mrip_gom_to_plot)
+
+###  NA to 0 ---- 
+fhier_mrip_gom_to_plot_0 <-
+  fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+  # change to shorter column names
+  rename(c("MRIP" = "mrip_estimate_catch_by_4",
+           "FHIER" = "fhier_quantity_by_4")) %>%
+  # reformat to a long format to have fhier and mrip data side by side
+  pivot_longer(
+    cols = c(MRIP,
+             FHIER),
+    names_to = "AGENCY",
+    values_to = "CATCH_CNT"
+  ) %>%
+  # use only the new columns
+  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  # change NAs to 0 where one or another agency doesn't have counts for this species
+  mutate_all(~replace_na(., 0))
+
+glimpse(fhier_mrip_gom_to_plot_0)
+
+## test: compare drop_na and 0 ----
+all.equal(
+  fhier_mrip_gom_to_plot_0 %>%
+    arrange(species_itis, year_wave, AGENCY) %>%
+    slice(1:300)
+  ,
+  fhier_mrip_gom_to_plot %>%
+    arrange(species_itis, year_wave, AGENCY) %>%
+    slice(1:300)
+  )
+
+# [1] "Attributes: < Component “row.names”: Numeric: lengths (476, 358) differ >" # [5] "Component “CATCH_CNT”: Mean relative difference: 2.276243"
+
+mean(fhier_mrip_gom_to_plot$CATCH_CNT)
+# [1] 5605.33
+mean(fhier_mrip_gom_to_plot_0$CATCH_CNT)
+# [1] 4215.773
 
 # an overview plot
 plot(fhier_mrip_gom_to_plot)
