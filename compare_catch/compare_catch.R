@@ -1014,7 +1014,8 @@ my_legend_gom_flat <-
                                 nrow = 1,
                                 title = NULL,
                                 hjust = 1,
-                                direction = "horizontal"
+                                direction = "horizontal",
+                                keyheight = 0.5
                               )
                           ))
 
@@ -1046,13 +1047,22 @@ grid.arrange(
     ind_grouper_red_eq,
     ind_mackerel_king_fhier,
     ind_snapper_red_mrip,
-    top = "Ratio"
+    top = "Ratio",
+    bottom = textGrob(
+  "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts)",
+  # gp = gpar(fontface = 3, fontsize = 10)
+  # ,
+  # just left
+  hjust = 0,
+  x = 0.01, y = 1.1,
+  vjust = 1
+)
   ),
   arrangeGrob(plots10_gom[[1]],
               plots10_gom[[9]],
               plots10_gom[[8]],
               top = "Catch Counts",
-              right = my_legend_gom),
+              bottom = my_legend_gom_flat),
   ncol = 2
 )
 
