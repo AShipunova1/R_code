@@ -540,41 +540,35 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot)
 ### test: For each region sum counts for one species, ----
 # should be the same as before
 
-# GOM fhier test ----
+#### GOM fhier test ----
 # names(fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom)
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-  use_series(mackerel_fhier_cnt) %>% head()
-  # identical(
+  use_series(mackerel_fhier_cnt) %>%
+  identical(
     fhier_test_cnts %>%
               filter(sa_gom == "gom") %>%
-              select(mackerel_fhier_cnt) %>% head()
+              select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
-            # )
+            )
 
-to_compare_gom <-
-  fhier_cnts_sa_gom_mackerel %>%
-  filter(sa_gom == "gom")
-  
-identical(gom_fhier_test$mackerel_fhier_cnt, to_compare_gom$mackerel_fhier_cnt)
+#### SA sa_mrip test
 
-# SA test
-sa_mrip_test <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
-  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
+  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
+      use_series(mackerel_mrip_cnt) %>%
+  identical(
+    mrip_test_cnts %>%
+              filter(sa_gom == "sa") %>%
+              select(mackerel_mrip_cnt) %>%
+              use_series(mackerel_mrip_cnt)
+            )
 
-to_compare_sa_mrip <-
-  mrip_cnts_sa_gom_mackerel %>%
-  filter(sa_gom == "sa")
-  
-identical(sa_mrip_test$mackerel_mrip_cnt, to_compare_sa_mrip$mackerel_mrip_cnt)
-
-# keep only entries for spp. in the top ten list,
-# separately for each region
+## keep only entries for spp. in the top ten list, separately for each region ----
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(species_itis %in% gom_top_spp$species_itis)
@@ -599,23 +593,24 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10)
 
 #| classes: test
 
-# For the top 10, for each region sum separately MRIP and FHIER counts for one species,
+#### test: For the top 10, for each region sum separately MRIP and FHIER counts for one species, ----
 # should be the same as before
 
-# SA, FHIER counts
+#### test SA, FHIER counts
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
-  identical(to_compare_sa_fhier$mackerel_fhier_cnt)
+  identical(
+    fhier_test_cnts %>%
+              filter(sa_gom == "sa") %>%
+              select(mackerel_fhier_cnt) %>%
+              use_series(mackerel_fhier_cnt)
+            )
 
 # GOM, FHIER counts
-
-to_compare_gom_fhier <-
-  fhier_cnts_sa_gom_mackerel %>%
-  filter(sa_gom == "gom")
 
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   filter(species_itis == test_species_itis) %>%
@@ -623,30 +618,43 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
-  identical(to_compare_gom_fhier$mackerel_fhier_cnt)
-# ??
+  identical(
+    fhier_test_cnts %>%
+              filter(sa_gom == "gom") %>%
+              select(mackerel_fhier_cnt) %>%
+              use_series(mackerel_fhier_cnt)
+            )
+
 
 # SA, MRIP counts
-to_compare_sa_fhier <-
-  fhier_cnts_sa_gom_mackerel %>%
-  filter(sa_gom == "sa")
-
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
-  select(mackerel_mrip_cnt) %>% head()
+  select(mackerel_mrip_cnt) %>%
   use_series(mackerel_mrip_cnt) %>% 
-  identical(to_compare_sa_mrip$mackerel_mrip_cnt)
+  identical(
+    mrip_test_cnts %>%
+              filter(sa_gom == "sa") %>%
+              select(mackerel_mrip_cnt) %>%
+              use_series(mackerel_mrip_cnt)
+            )
 
 # GOM, MRIP counts
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == test_species_itis) %>% head()
-# 0
+  filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
-  summarise(mackerel_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
+  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
+    select(mackerel_mrip_cnt) %>%
+  use_series(mackerel_mrip_cnt) %>%
+  identical(
+    mrip_test_cnts %>%
+              filter(sa_gom == "gom") %>%
+              select(mackerel_mrip_cnt) %>%
+              use_series(mackerel_mrip_cnt)
+            )
 
-# numbers OK
+# numbers are OK
 
 fhier_mrip_gom_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
