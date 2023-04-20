@@ -793,6 +793,9 @@ grid.arrange(grobs = plots10,
 ## plot_ind function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
 
+q_colors =  15 # for no particular reason
+v_colors =  viridis(q_colors, option = "D")
+
 plot_ind <- function(my_df, com_n, no_legend = TRUE) {
   # browser()
   one_ind_plot <-
@@ -800,13 +803,14 @@ plot_ind <- function(my_df, com_n, no_legend = TRUE) {
     filter(common_name == com_n) %>%
     ggplot(aes(x = year_wave,
                y = cnt_index,
-               fill = cnt_index
+               fill = as.factor(cnt_index)
                )
            ) +
     # geom_col(fill = "deepskyblue") +
       # geom_bar(fill = cnt_index, stat = 'identity') + 
     geom_col() +
-    scale_fill_viridis_c() +
+    scale_fill_manual(values = mypalette) +
+    # scale_fill_viridis_c() +
     theme_bw() +
     my_theme45 +
         labs(title = com_n,
@@ -845,28 +849,14 @@ fhier_mrip_gom_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_regi
 
 ### GOM index plots ----
 # plot(fhier_mrip_gom_ind)
-names(fhier_mrip_gom_ind)
-gom_all_cnt_indexes <-
-  fhier_mrip_gom_ind %>%
-  ungroup() %>%
-  select(cnt_index) %>%
-  unique() %>%
-  arrange(cnt_index)
 
-dim(gom_all_cnt_indexes)
-head(gom_all_cnt_indexes)
+gom_all_cnt_indexes <- sort(unique(fhier_mrip_gom_ind$cnt_index))
 
-ss <- sort(unique(fhier_mrip_gom_ind$cnt_index))
-str(ss)
+mypalette <- rainbow(length(gom_all_cnt_indexes))
+names(mypalette) <- gom_all_cnt_indexes
+# mypalette
 
-identical(ss, sort(gom_all_cnt_inexes$cnt_index))
-
-mypalette <- rainbow()
-names(mypalette) <- sort(unique(fhier_mrip_gom_ind$cnt_index))
-mypalette
-
-
-one_plot <- plot_ind(fhier_mrip_gom_ind, "MACKEREL, SPANISH")
+# one_plot <- plot_ind(fhier_mrip_gom_ind, "MACKEREL, SPANISH")
 
 gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
@@ -887,6 +877,11 @@ fhier_mrip_sa_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_regio
 
 ### SA index plots ----
 # plot(fhier_mrip_sa_ind)
+
+mypalette <- rainbow(length(fhier_mrip_sa_ind$cnt_index))
+names(mypalette) <- fhier_mrip_sa_ind$cnt_index
+mypalette
+# mypalette %>% unique()
 
 sa_ind_plots <- map(unique(fhier_mrip_sa_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
