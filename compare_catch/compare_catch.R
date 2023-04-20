@@ -790,3 +790,12 @@ grid.arrange(grobs = plots10,
              ncol = 3)
 
 # source("~/R_code_github/compare_catch_no_na.R")
+
+## the same count scale, use a MRIP/FHIER count ratio ----
+
+fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+  mutate_all(~replace_na(., 0)) %>%
+  group_by(species_itis, state, year_wave, common_name
+) %>%
+  mutate(m_f_ratio = round(mrip_estimate_catch_by_4 /fhier_quantity_by_4, 2)
+) %>% head()
