@@ -856,9 +856,7 @@ fhier_mrip_gom_ind1 %>%
 ggplot(
          aes(x = year_wave,
              y = cnt_index,
-            # color by the agency and
-            # make a legend if no_legend is FALSE
-             # fill = AGENCY
-            )
+             fill = cnt_index
+            ),
   ) +
     geom_col(position = "dodge")
