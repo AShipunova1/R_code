@@ -171,6 +171,33 @@ val_param_id_vec <-
   select(val_param_id) %>% unique()
 View()
 
+sql_text_in <- "SELECT
+    *
+FROM
+  srh.val_param@secapxdv_dblk
+WHERE
+  val_param_id in "
+
+my_param_df <- val_param_id_vec$val_param_id
+
+
+my_val_sql_text <- "SELECT
+    VAL_PARAM_ID, VAL_PARAM_YR, IS_ENABLED, VAL_PARAM_TABLE
+FROM
+  srh.val_param@secapxdv_dblk
+WHERE
+  val_param_id in "
+
+my_val_sql <- make_sql_parameters(my_param_df, my_val_sql_text)
+my_val_res <- DBI::dbGetQuery(con, my_val_sql)
+View(my_val_res)
+# all 2021
+
+val_param_id_vec1 <-
+  db_dat_od1 %>%
+  # filter(not_in_fhier == "DB") %>%
+  select(val_param_id) %>% unique()
+str(val_param_id_vec1)
 
 ## === test db_n_fhier_data_ok ====
 # db_n_fhier_data_ok %>% filter(!(vessel_name.x == vessel_name.y)) %>%
