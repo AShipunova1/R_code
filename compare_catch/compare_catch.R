@@ -1,6 +1,7 @@
 ##| echo: false
 library(zoo)
 library(gridExtra)
+library(grid)
 # install.packages("viridis")
 library(viridis)
 
@@ -170,18 +171,6 @@ fhier_logbooks_content_waves_fl_county %>%
   # filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
 
 # NOT-SPECIFIED
-
-fhier_logbooks_content_waves_fl_county %>%
-  filter(state_name == 'FLORIDA') %>%
-  filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>%
-  select(-c(`1`)) %>%
-  # filter(!all(is.na(.))) %>%
-#   Rows: 112
-# Columns: 159
-  # filter(complete.cases(.)) %>%
-  # Rows: 0
-  # unique() %>% glimpse()
-  write.csv(file = "fhier_logbooks_no_fl_county.csv", row.names = F)
 
 ## states to regions ----
 # list of states in the South Atlantic region (from the Internet)
@@ -494,13 +483,17 @@ glimpse(gom_top_spp)
 ## A function to make a plot by spp. ----
 
 my_theme45 <- theme(
-    # turn x text
-      axis.text.x = element_text(angle = 45),
-    # change text size
-      plot.title = element_text(size = 9),
-      legend.title = element_text(size = 8),
-      legend.text = element_text(size = 8)
-   )
+  # turn x text
+  axis.text.x = element_text(angle = 45
+                             # low it down
+                             , vjust = 0.5),
+  
+  # + opts(axis.title.x = theme_text(vjust=-0.5))
+  # change text size
+  plot.title = element_text(size = 9),
+  legend.title = element_text(size = 8),
+  legend.text = element_text(size = 8)
+)
 
 plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
   # browser()
@@ -816,6 +809,15 @@ grid.arrange(grobs = plots10,
 ## Count Index: use a MRIP/FHIER count ratio ----
 # keep ymax the same across plots
 
+## footnote explanation ----
+footnote = textGrob(
+    "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts). Hence if the bars are > 0 then FHIER counts > MRIP estmates and vice versa.
+    The smaller the bar is the closer the MRIP estmates to the FHIER counts.",
+    gp = gpar(fontface = 3, fontsize = 9),
+    hjust = 1,
+    x = 1
+  )
+
 ## plot_ind function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
 
@@ -888,12 +890,11 @@ gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
                function(x) {plot_ind(fhier_mrip_gom_ind, x, mypalette)}
                )
 
-super_title = "GOM counts ratio:
-(mrip_cnts - fhier_cnts) /
-(mrip_cnts + fhier_cnts)"
+super_title = "GOM counts ratio"
 
 grid.arrange(grobs = gom_ind_plots,
              top = super_title,
+             bottom = footnote,
              # left = my_legend,
              ncol = 3)
 
@@ -918,13 +919,12 @@ sa_ind_plots <- map(unique(fhier_mrip_sa_ind$common_name),
                function(x) {plot_ind(fhier_mrip_sa_ind, x, mypalette)}
                )
 
-super_title = "SA counts ratio:
-(mrip_cnts - fhier_cnts) /
-(mrip_cnts + fhier_cnts)"
+super_title = "SA counts ratio"
 
 grid.arrange(grobs = sa_ind_plots,
              top = super_title,
              # left = my_legend,
+             bottom = footnote,
              ncol = 3)
 
 
