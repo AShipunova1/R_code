@@ -498,17 +498,9 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
          y = ""
     ) +
    my_theme45
-   # theme(
-   #  # turn x text
-   #    axis.text.x = element_text(angle = 45),
-   #  # change text size
-   #    plot.title = element_text(size = 9),
-   #    legend.title = element_text(size = 8),
-   #    legend.text = element_text(size = 8)
-   # )
 
   # By default the "no_legend" parameter is TRUE
-  if(no_legend) {
+  if (no_legend) {
     one_plot <- one_plot +
       theme(legend.position = "none")
   }
@@ -827,6 +819,22 @@ fhier_mrip_gom_ind <-
 # fhier_mrip_gom_ind %>% select(year_wave, date_order, dates_index) %>% head()
 
 ## temp: 1 sp.
+fhier_mrip_gom_ind1 <-
+  fhier_mrip_gom_ind %>%
+  as.data.frame() %>%
+  filter(common_name == "MACKEREL, SPANISH")
+# %>%
+  # select(year_wave, cnt_index)
+# %>%
+#   summary()
+  # plot()
+  
+  # as.data.frame() %>%
+  # arrange(year_wave)
+
+plot(fhier_mrip_gom_ind1$year_wave,
+     fhier_mrip_gom_ind1$cnt_index)
+
 # length(fhier_mrip_gom_ind1$year_wave)
 fhier_mrip_gom_ind1 %>%
   ggplot(aes(x = year_wave,
@@ -846,34 +854,48 @@ ggplot(
 
 plot(fhier_mrip_gom_ind)
 
+## plot_ind <- function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
-plot_ind <- function(my_df, com_n) {
-  my_df %>%
+plot_ind <- function(my_df, com_n, no_legend = TRUE) {
+  one_ind_plot <-
+    my_df %>%
     filter(common_name == com_n) %>%
     ggplot(aes(x = year_wave,
                y = cnt_index,
-               color = cnt_index),) +
+               color = cnt_index), ) +
     geom_point() +
+    my_theme45 +
+        labs(title = com_n,
+        # remove x and y axes titles
+         x = "",
+         y = ""
+    ) +
     ylim(-1, 1)
+  
+  # if (no_legend) {
+  #   one_ind_plot <- one_ind_plot +
+  #     theme(legend.position = "none")
+  # }
+  return(one_ind_plot)
 }
 
-gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
-    function(com_n) {
-      # head(x)
-      # plot_by_spp(x, fhier_mrip_gom_to_plot)
-      fhier_mrip_gom_ind %>%
-        filter(common_name == com_n) %>%
-        ggplot(
-         aes(x = year_wave,
-             y = cnt_index,
-             color = cnt_index
-            ),
-  ) +
-    # geom_col(position = "dodge")
-  geom_point() +
-        my_theme45 +
-        ylim(-1, 1)
-            })
+# gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
+#     function(com_n) {
+#       # head(x)
+#       # plot_by_spp(x, fhier_mrip_gom_to_plot)
+#       fhier_mrip_gom_ind %>%
+#         filter(common_name == com_n) %>%
+#         ggplot(
+#          aes(x = year_wave,
+#              y = cnt_index,
+#              color = cnt_index
+#             ),
+#   ) +
+#     # geom_col(position = "dodge")
+#   geom_point() +
+#         my_theme45 +
+#         ylim(-1, 1)
+#             })
 
 # str(gom_ind_plots[[1]])
 # library('grid')
@@ -885,24 +907,16 @@ gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
 #   size = "last"
 # ))
 
+gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
+              # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
+               function(x) {plot_ind(fhier_mrip_gom_ind, x)}
+               )
+
+super_title = "GOM: (mrip_cnts - fhier_cnts) /
+      (mrip_cnts + fhier_cnts)"
 grid.arrange(grobs = gom_ind_plots,
-             # top = super_title,
+             top = super_title,
              # left = my_legend,
              ncol = 3)
 
-fhier_mrip_gom_ind1 <-
-  fhier_mrip_gom_ind %>%
-  as.data.frame() %>%
-  filter(common_name == "MACKEREL, SPANISH")
-# %>%
-  # select(year_wave, cnt_index)
-# %>%
-#   summary()
-  # plot()
-  
-  # as.data.frame() %>%
-  # arrange(year_wave)
-
-plot(fhier_mrip_gom_ind1$year_wave,
-     fhier_mrip_gom_ind1$cnt_index)
 
