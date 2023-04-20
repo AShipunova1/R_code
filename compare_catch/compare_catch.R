@@ -759,12 +759,12 @@ plots10_gom <- map(unique(fhier_mrip_gom_to_plot$common_name),
 super_title = "GOM: species counts by waves"
 
 # separate a legend
-plot_w_legend <- plot_by_spp("MACKEREL, SPANISH",
+plot_w_legend_gom <- plot_by_spp("MACKEREL, SPANISH",
                              fhier_mrip_gom_to_plot,
                              # keep the legend
                              FALSE)
 # use an aux function to pull out the legend
-my_legend_gom <- legend_for_grid_arrange(plot_w_legend)
+my_legend_gom <- legend_for_grid_arrange(plot_w_legend_gom)
 
 # clean the plate
 grid.newpage()
@@ -843,7 +843,7 @@ textii <- function(d,
 
 ## footnote explanation ----
 footnote = textGrob(
-  "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts). Hence if the bars are > 0 then FHIER counts > MRIP estmates and vice versa.
+  "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts). Hence if the bars are > 0 then FHIER counts < MRIP estmates and vice versa.
 The smaller the bar is the closer the MRIP estmates are to the FHIER counts.",
   gp = gpar(fontface = 3, fontsize = 10),
   # just left
@@ -1006,6 +1006,10 @@ ind_grouper_red_eq <- gom_ind_plots[[5]]
 ind_mackerel_king_fhier <- gom_ind_plots[[7]]
 ind_snapper_red_mrip <- gom_ind_plots[[10]]
 
+my_legend_gom_flat <-
+  legend_for_grid_arrange(plot_w_legend_gom
+                          + guides(fill = guide_legend(nrow = 1)))
+
 grid.newpage()
 grid.arrange(ind_grouper_red_eq,
              plots10_gom[[1]],
@@ -1013,7 +1017,7 @@ grid.arrange(ind_grouper_red_eq,
              plots10_gom[[9]],
              ind_snapper_red_mrip,
              plots10_gom[[8]],
-             bottom = my_legend_gom
+             bottom = my_legend_gom_flat
   # grobs = sa_ind_plots,
              # top = super_title,
              # left = my_legend,
