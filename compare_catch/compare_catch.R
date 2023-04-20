@@ -11,6 +11,8 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/compare_catch/get_data.R")
 
+## FHIER
+
 # There are different formats in different available files.
 # Find a column name with "itis" in it
 itis_field_name <- grep("itis", names(logbooks_content), value = T)
@@ -20,6 +22,8 @@ itis_field_name <- grep("itis", names(logbooks_content), value = T)
 vessel_id_field_name <-
   grep("vessel.*official", names(logbooks_content), value = T)
 # vessel_official_nbr
+
+## Fix dates ----
 
 fhier_logbooks_content <-
   logbooks_content  %>%
@@ -84,7 +88,7 @@ fhier_logbooks_content_waves %>%
   # sort by end_month_num
   arrange(end_month_num)
 
-# Florida counties by region (from the Internet)
+# Florida counties by region (from the Internet) ----
 fl_counties <- list(
   "SA" = c(
     "Brevard",
@@ -207,47 +211,28 @@ glimpse(fhier_logbooks_content_waves__sa_gom)
 # combine dolphin and dolphinfish for FHIER data
 fhier_logbooks_content_waves__sa_gom_dolph <-
   fhier_logbooks_content_waves__sa_gom %>%
-  mutate(is_dolph = if_else(
-    tolower(common_name) %in% c("dolphin", "dolphinfish"),
+  rename(common_name_orig = common_name) %>%
+  mutate(common_name = if_else(
+    tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
     "DOLPHIN",
-    common_name
+    common_name_orig
     )
   )
 
-fhier_logbooks_content_waves__sa_gom_dolph %>%
-  filter(grepl("dolphin", common_name, ignore.case = TRUE)) %>%
-  # filter(tolower(common_name) %in% c("dolphin", "dolphinfish")) %>%
-  select(common_name, is_dolph) %>%
-  unique()
-
-fhier_logbooks_content_waves__sa_gom_dolph %>%
-  rename(common_name_orig = common_name,
-         is_dolph = common_name)
-
 glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
-# filter(tolower(common_name) %in% c("dolphin", "dolphinfish")) %>%
-  # mutate(dolph_cnts = case_when(grepl("dolphin", common_name, ignore.case = TRUE) ~ sum()
-  #   common_name starts_with() )
-  #          )
-  # head()
-
+# see
+fhier_logbooks_content_waves__sa_gom_dolph %>%
+  filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
+  select(common_name_orig, common_name) %>% unique()
 # ---
 
-# select common names and itis in a separate data frame
-fhier_common_names <-
-  fhier_logbooks_content %>%
-  # names()
-  select(catch_species_itis, common_name) %>%
-  unique()
-
-# add column names
-names(fhier_common_names) <- c("species_itis", "common_name")
+## calculate catch ----
 
 fhier_catch_by_species_state_region_waves <-  
-  fhier_logbooks_content_waves__sa_gom_dolph %>%
+  fhier_logbooks_content_waves__sa_gom %>%
   # select only relevant columns
   select(
-    is_dolph,
+    catch_species_itis,
     end_port_state,
     end_port_sa_gom,
     end_year,
@@ -256,7 +241,7 @@ fhier_catch_by_species_state_region_waves <-
   ) %>%
   # group by all of them but "reported_quantity"
   group_by(
-    is_dolph,
+    catch_species_itis,
     end_port_state,
     end_port_sa_gom,
     end_year,
@@ -267,28 +252,17 @@ fhier_catch_by_species_state_region_waves <-
   summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity), na.rm = TRUE)) %>%
   as.data.frame()
 
-# str(fhier_catch_by_species_state_region_waves)
-# str(fhier_common_names)
-
-# add itis_codes back
-fhier_catch_by_species_state_region_waves <-
-  inner_join(fhier_catch_by_species_state_region_waves,
-             fhier_common_names,
-             join_by(is_dolph == common_name),
-             relationship = "many-to-many"
-             )
-
 #| classes: test
 
 fhier_catch_by_species_state_region_waves %>%
   # get the same species
-  filter(is_dolph == "SNAPPER, RED") %>%
+  filter(catch_species_itis == "167687") %>%
   # group by region
-  group_by(is_dolph, end_port_sa_gom) %>%
+  group_by(catch_species_itis, end_port_sa_gom) %>%
   # sum the FHIER catch
-  summarise(snapper_r_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE))
+  summarise(bass_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE))
 
-## MRIP data
+## MRIP ----
 
 mrip_estimate %<>%
   mutate(ab1 = as.integer(ab1))
@@ -324,57 +298,37 @@ mrip_estimate_catch_by_species_state_region_waves <-
   # drop sub_reg
   select(-sub_reg)
 
-# str(mrip_estimate_catch_by_species_state_region_waves)
+# common field names
+wave_data_names_common <- c("species_itis",
+                     "state",
+                     "sa_gom",
+                     "year",
+                     "wave"
+                    )
 
-mrip_estimate_catch_by_species_state_region_waves_ren <-
-  mrip_estimate_catch_by_species_state_region_waves %>%
-  rename(species_itis = itis_code,
-         state = new_sta
-         )
-# names(fhier_catch_by_species_state_region_waves) %>% cat()
+# to be sure columns are in the same order
+names(mrip_estimate_catch_by_species_state_region_waves)
 
-fhier_catch_by_species_state_region_waves %<>%
-  rename(
-    state = end_port_state,
-    sa_gom = end_port_sa_gom,
-    year = end_year,
-    wave = end_wave,
-    fhier_catch_by_4 = fhier_quantity_by_4
-  )
+# mrip_names <- c("itis_code",
+#                 "new_sta",
+#                 "sa_gom",
+#                 "year",
+#                 "wave",
+#                 "mrip_estimate_catch_by_4"
+# )
 
-# # common field names
-# wave_data_names_common <- c("species_itis",
-#                      "state",
-#                      "sa_gom",
-#                      "year",
-#                      "wave"
-#                     )
-# 
-# # to be sure columns are in the same order
-# names(mrip_estimate_catch_by_species_state_region_waves)
-# 
-# # mrip_names <- c("itis_code",
-# #                 "new_sta",
-# #                 "sa_gom",
-# #                 "year",
-# #                 "wave",
-# #                 "mrip_estimate_catch_by_4"
-# # )
-# 
-# # specific names
-# wave_data_names_f <- c(wave_data_names_common, c("fhier_catch_by_4"))
-# wave_data_names_m <- c(wave_data_names_common, c("mrip_estimate_catch_by_4"))
-# 
-# # change names
-# names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
-# names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
-# 
+# specific names
+wave_data_names_f <- c(wave_data_names_common, c("fhier_catch_by_4"))
+wave_data_names_m <- c(wave_data_names_common, c("mrip_estimate_catch_by_4"))
+
+# change names
+names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
+names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
+
 # identical(names(fhier_catch_by_species_state_region_waves)[1:5],
           # names(mrip_estimate_catch_by_species_state_region_waves)[1:5])
 
 # View(mrip_estimate_catch_by_species_state_region_waves)
-
-str(fhier_catch_by_species_state_region_waves)
 
 fhier_mrip_catch_by_species_state_region_waves <-
   full_join(fhier_catch_by_species_state_region_waves,
@@ -384,59 +338,68 @@ fhier_mrip_catch_by_species_state_region_waves <-
 # default Joining with `by = join_by(species_itis, state, sa_gom, year, wave)`
 # final$S1 <- dplyr::coalesce(final[[" S1 .x"]],  final[[" S1 .y"]])
 
-# look at the first 20 entries for snapper_r
+# look at the first 20 entries for Black see bass
 fhier_mrip_catch_by_species_state_region_waves %>%
-  filter(species_itis == "168853") %>% head(20)
+  filter(species_itis == "167687") %>% head(20)
 
 #| classes: test
-mrip_cnts_sa_gom_snapper_r <-
+mrip_cnts_sa_gom_bass <-
   mrip_estimate_catch_by_species_state_region_waves %>%
   # get one species
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   # group by region
   group_by(species_itis, sa_gom) %>%
   # sum the MRIP catch
-  summarise(snapper_r_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
+  summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
-mrip_cnts_sa_gom_snapper_r
+mrip_cnts_sa_gom_bass
 
 #| classes: test
 
-fhier_cnts_sa_gom_snapper_r <-
+fhier_cnts_sa_gom_bass <-
   fhier_catch_by_species_state_region_waves %>%
-  # arrange(desc(fhier_catch_by_4)) %>% head()
   # get the same species
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   # group by region
   group_by(species_itis, sa_gom) %>%
   # sum the FHIER catch
-  summarise(snapper_r_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
+  summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
-fhier_cnts_sa_gom_snapper_r
+fhier_cnts_sa_gom_bass
 
 #| classes: test
 
 # compare the above numbers with those in the join, they should be the same
-fhier_join_cnts_sa_gom_snapper_r <- 
+fhier_join_cnts_sa_gom_bass <- 
   fhier_mrip_catch_by_species_state_region_waves %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis, sa_gom) %>%
-  summarise(snapper_r_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
+  summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
-identical(fhier_cnts_sa_gom_snapper_r, fhier_join_cnts_sa_gom_snapper_r)
+identical(fhier_cnts_sa_gom_bass, fhier_join_cnts_sa_gom_bass)
 
-mrip_join_cnts_sa_gom_snapper_r <-
+mrip_join_cnts_sa_gom_bass <-
   fhier_mrip_catch_by_species_state_region_waves %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis, sa_gom) %>%
-  summarise(snapper_r_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
+  summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
-identical(mrip_cnts_sa_gom_snapper_r, mrip_join_cnts_sa_gom_snapper_r)
+identical(mrip_cnts_sa_gom_bass, mrip_join_cnts_sa_gom_bass)
 
-# grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
+# select common names and itis in a separate data frame
+fhier_common_names <-
+  fhier_logbooks_content %>%
+  # names()
+  select(catch_species_itis, common_name) %>%
+  unique()
+
+# add column names
+names(fhier_common_names) <- c("species_itis", "common_name")
+
+grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
 
 sa_top <- c(
-"SNAPPER, RED",
+"BASS, BLACK SEA",
 "DOLPHIN",
 "DOLPHINFISH",
 "GROUPER, BLACK",
@@ -473,13 +436,8 @@ gom_top_spp <-
   fhier_common_names %>%
   filter(common_name %in% gom_top)
 
-# View(gom_top_spp)
+View(gom_top_spp)
   
-# intersect(sa_top_spp$common_name, gom_top_spp$common_name)
-fhier_common_names %>%
-  filter(common_name == "SNAPPER, RED")
-# 168853
-
 # A function to make a plot by spp.
 plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
   # browser()
@@ -487,7 +445,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
  one_plot <-
   my_df %>%
     # only the com name from the parameters
-    filter(is_dolph == !!com_name) %>%
+    filter(common_name == !!com_name) %>%
   ggplot(
          aes(x = year_wave,
              y = CATCH_CNT,
@@ -561,28 +519,28 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot)
 # GOM fhier test
 gom_fhier_test <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
-  summarise(snapper_r_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
+  summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
 to_compare_gom <-
-  fhier_cnts_sa_gom_snapper_r %>%
+  fhier_cnts_sa_gom_bass %>%
   filter(sa_gom == "gom")
   
-identical(gom_fhier_test$snapper_r_fhier_cnt, to_compare_gom$snapper_r_fhier_cnt)
+identical(gom_fhier_test$bass_fhier_cnt, to_compare_gom$bass_fhier_cnt)
 
 # SA test
 sa_mrip_test <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
-  summarise(snapper_r_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
+  summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
 to_compare_sa_mrip <-
-  mrip_cnts_sa_gom_snapper_r %>%
+  mrip_cnts_sa_gom_bass %>%
   filter(sa_gom == "sa")
   
-identical(sa_mrip_test$snapper_r_mrip_cnt, to_compare_sa_mrip$snapper_r_mrip_cnt)
+identical(sa_mrip_test$bass_mrip_cnt, to_compare_sa_mrip$bass_mrip_cnt)
 
 # keep only entries for spp. in the top ten list,
 # separately for each region
@@ -595,9 +553,6 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 <-
 # str(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10)
 # ?'data.frame':	196 obs. of  6 variables
 # 'data.frame':	238 obs. of  6 variables (new list)
-
-fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(common_name == "DOLPHIN") %>% head()
 
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
@@ -618,60 +573,54 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10)
 
 # SA, FHIER counts
 to_compare_sa_fhier <-
-  fhier_cnts_sa_gom_snapper_r %>%
+  fhier_cnts_sa_gom_bass %>%
   filter(sa_gom == "sa")
 
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
-  summarise(snapper_r_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
-  select(snapper_r_fhier_cnt) %>%
-  use_series(snapper_r_fhier_cnt) %>%
-  identical(to_compare_sa_fhier$snapper_r_fhier_cnt)
+  summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
+  select(bass_fhier_cnt) %>%
+  use_series(bass_fhier_cnt) %>%
+  identical(to_compare_sa_fhier$bass_fhier_cnt)
 
 # GOM, FHIER counts
 
 to_compare_gom_fhier <-
-  fhier_cnts_sa_gom_snapper_r %>%
+  fhier_cnts_sa_gom_bass %>%
   filter(sa_gom == "gom")
 
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
-  summarise(snapper_r_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
-  select(snapper_r_fhier_cnt) %>%
-  use_series(snapper_r_fhier_cnt) %>%
-  identical(to_compare_gom_fhier$snapper_r_fhier_cnt)
+  summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
+  select(bass_fhier_cnt) %>%
+  use_series(bass_fhier_cnt) %>%
+  identical(to_compare_gom_fhier$bass_fhier_cnt)
+# ??
 
 # SA, MRIP counts
 to_compare_sa_fhier <-
-  fhier_cnts_sa_gom_snapper_r %>%
+  fhier_cnts_sa_gom_bass %>%
   filter(sa_gom == "sa")
 
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
-  summarise(snapper_r_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
-  select(snapper_r_mrip_cnt) %>%
-  use_series(snapper_r_mrip_cnt) %>% 
-  identical(to_compare_sa_mrip$snapper_r_mrip_cnt)
+  summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
+  select(bass_mrip_cnt) %>%
+  use_series(bass_mrip_cnt) %>% 
+  identical(to_compare_sa_mrip$bass_mrip_cnt)
 
 # GOM, MRIP counts
-to_compare_gom_mrip <-
-  mrip_cnts_sa_gom_snapper_r %>%
-  filter(sa_gom == "gom")
-
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>% head()
+# 0
   group_by(species_itis) %>%
-  summarise(snapper_r_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
-  select(snapper_r_mrip_cnt) %>%
-  use_series(snapper_r_mrip_cnt) %>% 
-  identical(to_compare_gom_mrip$snapper_r_mrip_cnt)
+  summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
 # numbers OK
 
-# GOM plots ----
 fhier_mrip_gom_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   # change to shorter column names
@@ -685,7 +634,7 @@ fhier_mrip_gom_to_plot <-
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(year_wave, species_itis, is_dolph, AGENCY, CATCH_CNT) %>%
+  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -694,17 +643,17 @@ glimpse(fhier_mrip_gom_to_plot)
 # an overview plot
 plot(fhier_mrip_gom_to_plot)
 
-# plot_by_spp("SNAPPER, RED", fhier_mrip_gom_to_plot)
+# plot_by_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot)
 
            # for each common name from the top 10
-plots10 <- map(unique(fhier_mrip_gom_to_plot$is_dolph),
+plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_gom_to_plot)}
                )
 
 
 # Title for all plots together
-super_title = "GOM: species cnt by waves"
+super_title = "GOM: 10 species by waves"
 
 # separate a legend
 plot_w_legend <- plot_by_spp("MACKEREL, SPANISH",
@@ -720,8 +669,6 @@ grid.arrange(grobs = plots10,
              left = my_legend,
              ncol = 3)
 
-# SA plots ----
-
 fhier_mrip_sa_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   # rename to shorter column names
@@ -735,27 +682,26 @@ fhier_mrip_sa_to_plot <-
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(year_wave, species_itis, is_dolph, AGENCY, CATCH_CNT) %>%
+  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
 glimpse(fhier_mrip_sa_to_plot)
 
-
 # An overview plot
 plot(fhier_mrip_sa_to_plot)
 
            # for each common name from the top 10
-plots10 <- map(unique(fhier_mrip_sa_to_plot$is_dolph),
+plots10 <- map(unique(fhier_mrip_sa_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_sa_to_plot)}
                )
 
 # The following code is the same as before, with "SA" instead of "GOM"
-super_title = "SA: species cnt by waves, dolphin spp. together"
+super_title = "SA: species by waves"
 
 # separate a legend
-plot_w_legend <- plot_by_spp("SNAPPER, RED", fhier_mrip_sa_to_plot, FALSE)
+plot_w_legend <- plot_by_spp("BASS, BLACK SEA", fhier_mrip_sa_to_plot, FALSE)
 my_legend <- legend_for_grid_arrange(plot_w_legend)
 
 grid.arrange(grobs = plots10,
@@ -763,7 +709,6 @@ grid.arrange(grobs = plots10,
              left = my_legend,
              ncol = 3)
 
-## no NAs ----
 dim(fhier_mrip_catch_by_species_state_region_waves)
 # [1] 5728    7
 
@@ -859,18 +804,18 @@ tmp1 %>%
 
 # GOM
 fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$gom %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
-  summarise(snapper_r_gom_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE),
-            snapper_r_gom_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)
+  summarise(bass_gom_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE),
+            bass_gom_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)
             )
 
 # SA
 fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$sa %>%
-  filter(species_itis == "168853") %>%
+  filter(species_itis == "167687") %>%
   group_by(species_itis) %>%
-  summarise(snapper_r_sa_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE),
-            snapper_r_sa_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)
+  summarise(bass_sa_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE),
+            bass_sa_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)
             )
 
 # keep only entries for spp. in the top ten list,
@@ -914,7 +859,7 @@ glimpse(fhier_mrip_gom__no_na_to_plot)
 # an overview plot
 plot(fhier_mrip_gom__no_na_to_plot)
 
-# plot_by_spp("SNAPPER, RED", fhier_mrip_gom__no_na_to_plot)
+# plot_by_spp("BASS, BLACK SEA", fhier_mrip_gom__no_na_to_plot)
 # fhier_mrip_gom__no_na_to_plot %>%
 #   select(common_name) %>% unique()
 # 10
@@ -929,7 +874,7 @@ plots10 <- map(unique(fhier_mrip_gom__no_na_to_plot$common_name),
 super_title = "GOM: The top 10 most abundant FHIER species by waves, no NAs"
 
 # separate a legend
-plot_w_legend <- plot_by_spp("SNAPPER, RED",
+plot_w_legend <- plot_by_spp("BASS, BLACK SEA",
                              fhier_mrip_gom__no_na_to_plot,
                              # keep the legend
                              FALSE)
@@ -941,8 +886,6 @@ grid.arrange(grobs = plots10,
              top = super_title,
              left = my_legend,
              ncol = 3)
-
-## SA plots no na ----
 
 fhier_mrip_sa__no_na_to_plot <-
   fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot_sa10 %>%
@@ -957,7 +900,7 @@ fhier_mrip_sa__no_na_to_plot <-
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(year_wave, species_itis, is_dolphin, AGENCY, CATCH_CNT) %>%
+  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -970,7 +913,7 @@ glimpse(fhier_mrip_sa__no_na_to_plot)
 plot(fhier_mrip_sa__no_na_to_plot)
 
            # for each common name from the top 10
-plots10 <- map(unique(fhier_mrip_sa__no_na_to_plot$is_dolphin),
+plots10 <- map(unique(fhier_mrip_sa__no_na_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_sa__no_na_to_plot)}
                )
@@ -979,7 +922,7 @@ plots10 <- map(unique(fhier_mrip_sa__no_na_to_plot$is_dolphin),
 super_title = "SA: The top 10 most abundant FHIER species by waves, no NAs"
 
 # separate a legend
-plot_w_legend <- plot_by_spp("SNAPPER, RED", fhier_mrip_sa__no_na_to_plot, FALSE)
+plot_w_legend <- plot_by_spp("BASS, BLACK SEA", fhier_mrip_sa__no_na_to_plot, FALSE)
 my_legend <- legend_for_grid_arrange(plot_w_legend)
 
 grid.arrange(grobs = plots10,
