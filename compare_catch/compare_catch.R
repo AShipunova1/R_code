@@ -313,12 +313,13 @@ mrip_estimate_catch_by_species_state_region_waves <-
   select(-sub_reg)
 
 ### make a test mrip one sp. var ----
+# names(mrip_estimate_catch_by_species_state_region_waves)
 mrip_test_cnts <-
   mrip_estimate_catch_by_species_state_region_waves %>%
   # get one species
-  filter(species_itis == test_species_itis) %>%
+  filter(itis_code == test_species_itis) %>%
   # group by region
-  group_by(species_itis, sa_gom) %>%
+  group_by(itis_code, sa_gom) %>%
   # sum the MRIP catch
   summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
@@ -658,10 +659,6 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
 
 # numbers are OK
 
-## GOM plots ----
-
-### using drop_na ----
-
 ### convert to a long format for plotting
 fhier_mrip_to_plot_format <- function(my_df) {
   my_df %>%
@@ -679,6 +676,11 @@ fhier_mrip_to_plot_format <- function(my_df) {
   select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
     return()
 }
+
+
+## GOM plots ----
+
+### using drop_na ----
 
 fhier_mrip_gom_to_plot <- fhier_mrip_to_plot_format(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10) %>%
   # remove lines where one or another agency doesn't have counts for this species
@@ -781,9 +783,55 @@ grid.arrange(grobs = plots10,
 
 ## the same count scale, use a MRIP/FHIER count ratio ----
 
-fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  mutate_all(~replace_na(., 0)) %>%
-  group_by(species_itis, state, year_wave, common_name
-) %>%
-  mutate(m_f_ratio = round(mrip_estimate_catch_by_4 /fhier_quantity_by_4, 2)
-) %>% head()
+fhier_mrip_gom_ind <-
+  fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+  select(-c(state, species_itis)) %>%
+  mutate_all( ~ replace_na(., 0)) %>%
+  group_by(year_wave, common_name) %>%
+  mutate(cnt_index = (mrip_estimate_catch_by_4 - fhier_quantity_by_4) /
+               (mrip_estimate_catch_by_4 + fhier_quantity_by_4)
+             # * 2
+           ) %>%
+  mutate(cnt_index = round(cnt_index, 2)
+           ) %>%
+  # head()
+  # mutate(m_f_ratio = round(mrip_estimate_catch_by_4 / fhier_quantity_by_4, 2)) 
+    # x = fct_rev(fct_reorder(common_name,
+  #                                  !!sym(count_field_name),
+  #                                  .fun = max)),
+   mutate(order = fct_reorder(common_name,
+                  (mrip_estimate_catch_by_4 + fhier_quantity_by_4),
+                  )
+          )
+
+# plot
+map(unique(fhier_mrip_gom_ind$common_name),
+    function(com_n) {
+      # head(x)
+      # plot_by_spp(x, fhier_mrip_gom_to_plot)
+      fhier_mrip_gom_ind %>%
+        filter(common_name == com_n) %>%
+        ggplot(aes(x = year_wave,
+                   y = cnt_index,
+                   color = cnt_index) +
+                 geom_point())
+    }
+)
+
+fhier_mrip_gom_ind1 <-
+  fhier_mrip_gom_ind %>%
+  # as.data.frame() %>%
+  filter(common_name == "MACKEREL, SPANISH") %>% 
+  select(common_name, year_wave, cnt_index) %>%
+  # plot()
+  as.data.frame() %>%
+  arrange(year_wave)
+
+plot(fhier_mrip_gom_ind1$year_wave, fhier_mrip_gom_ind1$cnt_index)
+
+# convert year_wave to a num
+# length(fhier_mrip_gom_ind1$year_wave)
+  ggplot(aes(x = year_wave,
+             y = cnt_index) +
+           geom_line())
+
