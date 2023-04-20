@@ -87,7 +87,7 @@ dat1 %>%
   summarise(n = n())
 # A tibble: 720 × 2
 
-# === From PENDING ===
+# === From db PENDING ====
 # to compare with FHIER
 
 dat_pending = dbGetQuery(
@@ -106,6 +106,8 @@ WHERE
 )
 
 str(dat_pending)
+
+## clean up ====
 dat_pending_date <-
   dat_pending %>%
   clean_headers() %>%
@@ -114,9 +116,10 @@ dat_pending_date <-
     arr_year_month = as.yearmon(arrival_date),
     overridden = case_when(ovr_flag == 1 ~ "overridden",
                            ovr_flag == 0 ~ "pending",
-                           .default = "unknown")
+                           .default = "unknown"),
+    vessel_name = trimws(vessel_name),
+    official_number = trimws(official_number)
   )
-
 
 # pending by year ====
 dat_pending_date %>%
@@ -143,10 +146,13 @@ db_pending_by_year_month <-
   select(trip_report_id, arr_year_month) %>%
   group_by(arr_year_month) %>%
   summarise(n = n())
+
+View(db_pending_by_year_month)
 # A tibble: 17 × 2
 
 # todo: add comments
-dat_pending_date %>%
+dat_pending_date_by_ym <-
+  dat_pending_date %>%
   select(trip_report_id, overridden, arr_year_month) %>%
   # add_count(trip_report_id, sort = TRUE)
   group_by(overridden, arr_year_month) %>%
@@ -156,6 +162,8 @@ dat_pending_date %>%
   # NAs to 0
   mutate(pending = coalesce(pending, 0)) %>%
   mutate(total = sum(overridden + pending))
+
+View(db_pending_by_year_month)
 
 # test ----
 data_overview(dat_pending_date)
@@ -187,7 +195,8 @@ dat_pending_date_od_apr <-
 # %>%
 
 write_csv(dat_pending_date_od_apr, "~/dat_pending_date_od_apr.csv")
-# === FHIER ====
+
+# === From FHIER ====
 
 f_name_y <-
   r"(~\R_files_local\my_inputs\validation_errors\Errors assigned to Others and-or Unassigned21_y.csv)"
@@ -197,7 +206,7 @@ f_name_n <-
 
 from_fhier <-
   c(f_name_y, f_name_n) %>%
-  map_df(~ read_csv(.x, col_types = cols(.default = "c")))
+  map_df( ~ read_csv(.x, col_types = cols(.default = "c")))
 
 # dim(from_fhier_y)
 # [1] 4697   18
@@ -217,6 +226,7 @@ from_fhier %>% data_overview()
 # VesselOfficialNumber  982
 
 
+## clean up from FHIER ====
 date_format = "%m/%d/%Y"
 from_fhier_data <-
   from_fhier %>%
@@ -232,7 +242,9 @@ from_fhier_data <-
       tolower(overridden) == "y" ~ "overridden",
       tolower(overridden) == "n" ~ "pending",
       .default = "unknown"
-    )
+    ),
+    vessel_name = trimws(vessel_name),
+    vesselofficialnumber = trimws(vesselofficialnumber)
   )
 
 from_fhier_data_22 <-
@@ -245,10 +257,10 @@ from_fhier_data_22 <-
 # 1 2022-01-01 00:00:00
 
 # ==== combine db and fhier ===
-# dat_pending_data <-
-#   dat_pending_date %>%
-#   mutate(trip_report_id = as.character(trip_report_id),
-#          trip_length = as.character(trip_length))
+dat_pending_data <-
+  dat_pending_date %>%
+  mutate(trip_report_id = as.character(trip_report_id),
+         trip_length = as.character(trip_length))
 #
 # db_n_fhier_data_0 <-
 #   left_join(dat_pending_data, from_fhier_data,
@@ -348,12 +360,15 @@ db_n_fhier_data_ok <-
       res_msg == message,
       trip_length == trip_length,
       arr_year == arr_year,
-      arr_year_month == arr_year_month
+      arr_year_month == arr_year_month,
+      vessel_name == vessel_name
+      # ,
+      # official_number == vesselofficialnumber
     )
   )
 
 dim(db_n_fhier_data_ok)
-# [1] 47569    57
+# [1] 47569    55
 
 # ---
 # dim(unique(dat_pending_data))
@@ -557,13 +572,13 @@ qmarks <- paste(rep("?", length(vec)), collapse = ",")
 # params = "380798"
 # )
 
-get_val_year_sql <- "
-    SELECT
-    *
-FROM
-  srh.val_param@secapxdv_dblk
-WHERE
-val_param_id in (?val_param_id_list)"
+# get_val_year_sql <- "
+#     SELECT
+#     *
+# FROM
+#   srh.val_param@secapxdv_dblk
+# WHERE
+# val_param_id in (?val_param_id_list)"
 #
 # get_val_year_sql_val <- sqlInterpolate(con,
 #                                        get_val_year_sql
@@ -572,13 +587,13 @@ val_param_id in (?val_param_id_list)"
 # print(dbGetQuery(con, query))
 
 
-DBI::dbGetQuery(con, "select 1 from dual where 1 in (1,2)")
+# DBI::dbGetQuery(con, "select 1 from dual where 1 in (1,2)")
 
 # airport <- dbSendQuery(con, "SELECT 1 FROM dual WHERE 1 = ?")
 
-sql <- "select 1 from dual where 1 in (?num1, ?num2)"
+# sql <- "select 1 from dual where 1 in (?num1, ?num2)"
 # "SELECT * FROM X WHERE name = ?name"
-sqlInterpolate(ANSI(), sql, num1 = 1, num2 = 2)
+# sqlInterpolate(ANSI(), sql, num1 = 1, num2 = 2)
 
 # sql1 <- "select 1 from dual where 1 in (?my_list)"
 # my_list = c(1,2)
@@ -592,11 +607,11 @@ sqlInterpolate(ANSI(), sql, num1 = 1, num2 = 2)
 # ---
 # a <- letters[1:10]
 # b <- 11:20
-a <- 1:2
-sql_txt_a <- paste0("select 1 from dual where 1 in (",
-                    paste0("?parameter", seq_along(a),
-                           collapse = ",\n  "),
-                    ")")
+# a <- 1:2
+# sql_txt_a <- paste0("select 1 from dual where 1 in (",
+# paste0("?parameter", seq_along(a),
+# collapse = ",\n  "),
+# ")")
 
 # paste0(
 # "?my_list)",
@@ -604,22 +619,22 @@ sql_txt_a <- paste0("select 1 from dual where 1 in (",
 # "(?parameter", seq_along(a), ", ?actualVal", seq_along(b), ")",
 # collapse = ",\n  "
 
-cat(sql_txt_a)
+# cat(sql_txt_a)
 
 # sql_params <- append(
 #   setNames(as.list(a), paste0("parameter", seq_along(a))),
 #   setNames(as.list(b), paste0("actualVal", seq_along(b)))
 # )
-sql_params <-
-  setNames(as.list(a), paste0("parameter", seq_along(a)))
-str(sql_params)
-
-sql <- sqlInterpolate(ANSI(),
-                      sql = sql_txt_a,
-                      .dots = sql_params)
-
-DBI::dbExecute(con, sql)
-
+# sql_params <-
+#   setNames(as.list(a), paste0("parameter", seq_along(a)))
+# str(sql_params)
+#
+# sql <- sqlInterpolate(ANSI(),
+#                       sql = sql_txt_a,
+#                       .dots = sql_params)
+#
+# DBI::dbExecute(con, sql)
+#
 # sql_text_temp <- paste0("
 #     SELECT
 #     *
@@ -675,20 +690,20 @@ val_param_id_vec1 <-
 str(val_param_id_vec1)
 
 # ---
-DBI::dbGetQuery(con, "select 1 from dual where 1 in ('?','?')", params = list(1, 2))
-
-sql <- "SELECT ?value from dual"
-query <- sqlInterpolate(con, sql, value = 3)
-print(dbGetQuery(con, query))
+# DBI::dbGetQuery(con, "select 1 from dual where 1 in ('?','?')", params = list(1, 2))
 #
-# 1 1
-DBI::dbGetQuery(con, "select 1 from dual where 1 in (?,?)", params = list(2, 3))
-
-
-dbGetQuery(con,
-           "SELECT COUNT(*) FROM mtcars WHERE cyl = ?",
-           params = list(1:8))
-
+# sql <- "SELECT ?value from dual"
+# query <- sqlInterpolate(con, sql, value = 3)
+# print(dbGetQuery(con, query))
+# #
+# # 1 1
+# DBI::dbGetQuery(con, "select 1 from dual where 1 in (?,?)", params = list(2, 3))
+#
+#
+# dbGetQuery(con,
+#            "SELECT COUNT(*) FROM mtcars WHERE cyl = ?",
+#            params = list(1:8))
+#
 # params = as.list(vec))
 # val_param_id IN (?,381044,380797,383782,380799,401206,623412,630838,381040)"),
 # params = list(380798))
@@ -708,24 +723,49 @@ from_fhier_data %>%
 # 3 2023       295
 
 # todo: add comments
-from_fhier_data %>%
-  select(edittrip, overridden, arr_year_month) %>%
-  # add_count(trip_report_id, sort = TRUE)
+## FHIER by year and month ----
+from_fhier_data_by_ym <- 
+  from_fhier_data_22 %>%
+  select(edit_trip, overridden, arr_year_month) %>%
+  mutate(overridden = case_when(overridden == "N" ~ "pending",
+                                overridden == "Y" ~ "overridden")) %>%
   group_by(overridden, arr_year_month) %>%
-  summarise(n = n()) %>% View()
-pivot_wider(names_from = overridden, values_from = n) %>% View()
-# A tibble: 21 × 2
-# NAs to 0
-mutate(pending = coalesce(pending, 0)) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = overridden, values_from = n) %>%   # A tibble: 21 × 3
+  # NAs to 0
+  mutate(pending = coalesce(pending, 0)) %>%
   mutate(total = sum(overridden + pending))
+# %>% View()
 
-# === test db_n_fhier_data_all ====
+## compare by year_month
+all.equal(dat_pending_date_by_ym, from_fhier_data_by_ym)
+View(dat_pending_date_by_ym)
+View(from_fhier_data_by_ym)
+
+both_ym <-
+  left_join(dat_pending_date_by_ym,
+            from_fhier_data_by_ym,
+            by = join_by(arr_year_month))
+
+View(both_ym)
+
+# === test db_n_fhier_data_ok ====
+# db_n_fhier_data_ok %>% filter(!(vessel_name.x == vessel_name.y)) %>% 
+#   select(trip_report_id, vessel_id, vessel_name.x, vessel_name.y, vesselofficialnumber, official_number) %>% str()
+# 'data.frame':	124 obs. of  57 variables:
+
+grep("x", names(db_n_fhier_data_ok), value = T)
+# "overridden.x"
+
 db_n_fhier_data_all_od <-
-  db_n_fhier_data_all %>%
-  filter(vesselofficialnumber == 'FL4673SY') %>%
+  db_n_fhier_data_ok %>%
+  filter(official_number == 'FL4673SY') %>%
   # select(arrival) %>% unique() %>%
   arrange(arrival)
-# %>% str()
+
+dim(db_n_fhier_data_all_od)
+# [1] 91 55
+# 'data.frame':	43 obs. of  55 variables:
 
 db_n_fhier_data_all_od %>%
   View()
