@@ -206,7 +206,7 @@ f_name_n <-
 
 from_fhier <-
   c(f_name_y, f_name_n) %>%
-  map_df( ~ read_csv(.x, col_types = cols(.default = "c")))
+  map_df(~ read_csv(.x, col_types = cols(.default = "c")))
 
 # dim(from_fhier_y)
 # [1] 4697   18
@@ -250,6 +250,14 @@ from_fhier_data <-
 from_fhier_data_22 <-
   from_fhier_data %>%
   filter(arr_year_month >= "Jan 2022")
+
+data_overview(from_fhier_data_22)
+# grep("ass", names(from_fhier_data_22), value = T)
+# singleassignment     
+
+from_fhier_data_22 %>%
+  select(singleassignment) %>% unique() %>% View()
+# Validation trip Assignment
 
 # dim(from_fhier_data_22)
 # [1] 4184   21
@@ -382,7 +390,7 @@ dim(db_n_fhier_data_ok)
 # dim(from_fhier_data)
 # [1] 5050   21
 
-# --- full join ----
+# --- full join
 # db_n_fhier_data_all <-
 #   full_join(
 #     unique(dat_pending_data),
@@ -724,7 +732,7 @@ from_fhier_data %>%
 
 # todo: add comments
 ## FHIER by year and month ----
-from_fhier_data_by_ym <- 
+from_fhier_data_by_ym <-
   from_fhier_data_22 %>%
   select(edit_trip, overridden, arr_year_month) %>%
   mutate(overridden = case_when(overridden == "N" ~ "pending",
@@ -750,7 +758,7 @@ both_ym <-
 View(both_ym)
 
 # === test db_n_fhier_data_ok ====
-# db_n_fhier_data_ok %>% filter(!(vessel_name.x == vessel_name.y)) %>% 
+# db_n_fhier_data_ok %>% filter(!(vessel_name.x == vessel_name.y)) %>%
 #   select(trip_report_id, vessel_id, vessel_name.x, vessel_name.y, vesselofficialnumber, official_number) %>% str()
 # 'data.frame':	124 obs. of  57 variables:
 
@@ -769,3 +777,69 @@ dim(db_n_fhier_data_all_od)
 
 db_n_fhier_data_all_od %>%
   View()
+
+# === Diff between DB and FHIER ====
+# Nov 2022
+# 1006
+# 0
+# 1006
+# 78
+# 1
+# 79
+
+both_ym %>% filter(arr_year_month == "Nov 2022")
+# arr_year_month overridden.x pending.x total.x overridden.y pending.y total.y
+# 1 Nov 2022               1006         0    1006           78         1      79
+
+View(db_n_fhier_data_ok)
+dim(db_n_fhier_data_ok)
+data_overview(db_n_fhier_data_ok)
+# rows 47596      
+# val_tr_res_id  45961      
+
+db_n_fhier_data_ok_short1 <-
+  db_n_fhier_data_ok %>%
+  select(
+    val_param_yr,
+    val_param_name,
+    res_msg,
+    ovr_flag,
+    asg_info,
+    val_is_ovr,
+    is_enabled,
+    arr_year_month
+  )
+dim(db_n_fhier_data_ok_short1)
+# [1] 47596    8
+
+db_n_fhier_data_ok_short1 %>%
+  # data_overview()
+  filter(is_enabled == 1) %>%
+  select(asg_info) %>% unique() %>% arrange(asg_info)
+
+### check assignments ----
+View(db_n_fhier_data_ok_short1)
+
+db_n_fhier_data_ok_short1 %>%
+  mutate(assignment = case_when(
+    startsWith(asg_info, 'System: Error fixed on') ~ 'System: Error fixed',
+    .default = asg_info
+  )) %>%
+  select(assignment) %>%
+  unique() %>%
+  arrange(assignment) 
+#           assignment
+# 1       ALICIA BRETON
+# 2          CHRIS ISOM
+# 3    KENDALL BRANCART
+# 4  LEEANNE DELROSARIO
+# 5        SABRINA COBB
+# 6     SHANNON STOTLER
+# 7 System: Error fixed
+# 8          Unassigned
+
+
+db_n_fhier_data_ok %>%
+filter(asg_info == "Unassigned" & arr_year_month > "Jan 2022") %>% View()
+%>% dim()
+# [1] 4824   56
