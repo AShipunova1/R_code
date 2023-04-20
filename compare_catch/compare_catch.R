@@ -1,6 +1,8 @@
 ##| echo: false
 library(zoo)
 library(gridExtra)
+# install.packages("viridis")
+library(viridis)
 
 # include auxilary functions ----
 source("~/R_code_github/useful_functions_module.r")
@@ -791,15 +793,25 @@ grid.arrange(grobs = plots10,
 ## plot_ind function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
 plot_ind <- function(my_df, com_n, no_legend = TRUE) {
+  # browser()
   one_ind_plot <-
     my_df %>%
     filter(common_name == com_n) %>%
     ggplot(aes(x = year_wave,
-               y = cnt_index
+               y = cnt_index,
+               fill = cnt_index
                )
            ) +
-    geom_col(fill = "deepskyblue") +
+    # geom_col(fill = "deepskyblue") +
+      # geom_bar(fill = cnt_index, stat = 'identity') + 
+    geom_col() +
+    scale_fill_viridis_c() +
+      # geom_hex() + coord_fixed() +
+  # scale_fill_viridis() + 
+# 
+#     scale_fill_viridis(limits = c(-1, 1)) +
     # geom_point() +
+    theme_bw() +
     my_theme45 +
         labs(title = com_n,
         # remove x and y axes titles
@@ -837,6 +849,8 @@ fhier_mrip_gom_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_regi
 
 ### GOM index plots ----
 # plot(fhier_mrip_gom_ind)
+
+one_plot <- plot_ind(fhier_mrip_gom_ind, "MACKEREL, SPANISH")
 
 gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
