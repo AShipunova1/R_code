@@ -833,36 +833,10 @@ calculate_cnt_index <- function(my_df) {
 }
 
 ### GOM index ----
-fhier_mrip_gom_ind1 <- calculate_cnt_index(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10)
+fhier_mrip_gom_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10)
 
-all.equal(fhier_mrip_gom_ind, fhier_mrip_gom_ind1)
-fhier_mrip_gom_ind <-
-  fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  select(-c(state, species_itis)) %>%
-  mutate_all(~ replace_na(., 0)) %>%
-  group_by(year_wave, common_name) %>%
-  # aggregate counts by states
-  summarise(fhier_cnts = sum(fhier_quantity_by_4),
-            mrip_cnts = sum(mrip_estimate_catch_by_4 )) %>%
-  mutate(
-    cnt_index = (mrip_cnts - fhier_cnts) /
-      (mrip_cnts + fhier_cnts)
-  ) %>%
-  mutate(cnt_index = round(cnt_index, 2))
-# %>%
-  # mutate(common_name_order = fct_reorder(
-  #   common_name,
-  #   (mrip_cnts + fhier_cnts),
-  # )) %>%
-  # mutate(dates_index = as.factor(year_wave),
-  #   year_wave = factor(year_wave, levels = unique(dates_index))
-  # )
-
-# fhier_mrip_gom_ind %>% select(year_wave, date_order, dates_index) %>% head()
-
-
+### GOM index plots ----
 # plot(fhier_mrip_gom_ind)
-
 
 gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
@@ -878,5 +852,24 @@ grid.arrange(grobs = gom_ind_plots,
              # left = my_legend,
              ncol = 3)
 
-## SA index ---- 
+### SA index ----
+fhier_mrip_sa_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10)
+
+### SA index plots ----
+# plot(fhier_mrip_sa_ind)
+
+sa_ind_plots <- map(unique(fhier_mrip_sa_ind$common_name),
+              # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
+               function(x) {plot_ind(fhier_mrip_sa_ind, x)}
+               )
+
+super_title = "SA counts ratio:
+(mrip_cnts - fhier_cnts) /
+(mrip_cnts + fhier_cnts)"
+
+grid.arrange(grobs = sa_ind_plots,
+             top = super_title,
+             # left = my_legend,
+             ncol = 3)
+
 
