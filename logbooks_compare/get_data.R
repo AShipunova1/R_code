@@ -93,8 +93,8 @@ add_file_names_to_the_df <- function() {
   # guess integer types for whole numbers
   type_convert(guess_integer = TRUE)
 }
-# survey_data_df_w_fnames <- add_file_names_to_the_df()
-# str(survey_data_df_w_fnames)
+survey_data_df_w_fnames <- add_file_names_to_the_df()
+str(survey_data_df_w_fnames)
 
 # ---- separate df into separate dfs by file type ----
 
@@ -122,12 +122,12 @@ remove_all_na_fileds <- function() {
     return()
 }
 survey_data_df_w_fnames_split_clean <- remove_all_na_fileds()
-# survey_data_df_w_fnames_split[[1]] %>% str()
+survey_data_df_w_fnames_split[[1]] %>% str()
 # tibble [766 × 75] (S3: tbl_df/tbl/data.frame)
 
-# data_overview(survey_data_df_w_fnames_split[[1]])
+data_overview(survey_data_df_w_fnames_split[[1]])
 
-## ---- write the survey df to a csv ----
+# ---- write the survey df to a csv ----
 # data_overview(survey_data_df)
 
 otput_csv_file <- file.path(my_paths$inputs, 
@@ -244,7 +244,7 @@ load_all_fhier_logbooks <- function() {
   return(fhier_logbooks)
 }
 
-# fhier_logbooks <- load_all_fhier_logbooks()
+fhier_logbooks <- load_all_fhier_logbooks()
 
 # data_overview(fhier_logbooks)
 
@@ -265,4 +265,4 @@ fhier_all_logbook_data_csv <-
     type_convert(guess_integer = TRUE)
 
 # problems(fhier_all_logbook_data_csv)
-data_overview(fhier_all_logbook_data_csv)
+# data_overview(fhier_all_logbook_data_csv)

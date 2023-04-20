@@ -509,43 +509,57 @@ names(fhier_common_names) <- c("species_itis", "common_name")
 
 ```
 
-## Get 10 most frequent spp. by region
-
-```{r get 10 most frequent spp. by region}
-fhier_mrip_catch_by_species_state_region_waves_list <-
-  fhier_mrip_catch_by_species_state_region_waves %>%
-  # split by sa/gom
-    split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom))
-
-# Look at the top most frequent FHIER spp. for each region
-n_most_frequent_fhier_10_list <-
-  fhier_mrip_catch_by_species_state_region_waves_list %>%
-  # repeat for each region (SA and GOM)
-  map(function(x) {x %>%
-      # select ITIS and counts
-      select(species_itis, fhier_catch_by_4) %>%
-      group_by(species_itis) %>%
-      # add a new column with a sum of counts for each spp.
-      summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
-      # sort in the discending order
-      arrange(desc(fhier_catch_by_spp)) %>%
-      # get the top 10
-      head(10)
-})
+## list of 10 spp
+```{r list of 10 spp sa}
+sa_10 <- c(
+"GROUPER, RED",
+"SNAPPER, RED",
+"TRIGGERFISH, GRAY",
+"GROUPER, SCAMP",
+"BASS, BLACK SEA",
+"MACKEREL, SPANISH",
+"TILEFISH",
+"TILEFISH, BLUE",
+"GROUPER, GAG",
+"DOLPHIN MAHI")
 ```
 
-#### 10 most frequent spp. GOM
+```{r top 10 sa counts}
+sa_10_spp <-
+  fhier_common_names %>%
+  filter(common_name %in% sa_10)
 
-```{r 10 most frequent spp. GOM}
-n_most_frequent_fhier_10_list$gom %>% head()
-```
-
-#### 10 most frequent spp. SA
-
-```{r 10 most frequent spp. SA}
-n_most_frequent_fhier_10_list$sa %>% head()
+View(sa_10_spp)
+# intersect(sa_10, fhier_common_names$common_name)
 
 ```
+
+
+```{r list of 10 spp gom}
+gom_10 <- c(
+"GROUPER, RED",
+"SNAPPER, RED",
+"TRIGGERFISH, GRAY",
+"GROUPER, SCAMP",
+"SNAPPER, GRAY",
+"MACKEREL, SPANISH",
+"MACKEREL, KING",
+"COBIA",
+"AMBERJACK, GREATER",
+"GROUPER, GAG",
+"TILEFISHES")
+```
+
+
+```{r list of 10 spp gom cnts}
+gom_10_spp <-
+  fhier_common_names %>%
+  filter(common_name %in% gom_10)
+
+View(gom_10_spp)
+  
+```
+
 
 ## One plot function
 
@@ -681,18 +695,23 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
 # separately for each region
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
+  filter(species_itis %in% gom_10_spp$species_itis)
+# 231  
+# filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
 # Rows: 217
 # str(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10)
 # ?'data.frame':	196 obs. of  6 variables
 
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis %in% n_most_frequent_fhier_10_list$sa$species_itis)
+  filter(species_itis %in% sa_10_spp$species_itis)
+  # filter(species_itis %in% n_most_frequent_fhier_10_list$sa$species_itis)
 
 glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10)
 # Rows: 300
 # Rows: 274
+# 173
+
 
 ```
 

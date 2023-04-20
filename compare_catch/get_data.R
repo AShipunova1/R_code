@@ -91,6 +91,8 @@ load_mrip_data <- function() {
 # browser()  
   mrip_species_list <- load_csv_names(my_paths, mrip_csv_names_list)
   
+  # str(mrip_species_list)
+  
   mrip_estimate_usa <- 
     load_xls_names(my_paths, mrip_xls_names_list,
                    sheet_n = "mripaclspec_rec81_22wv6_01mar23") 
@@ -207,6 +209,8 @@ rename_all_field_names <- function() {
 }
 # names(fhier_species_count_by_disposition)
 # str(mrip_species_list)
+# grep("Tile", mrip_species_list$common_name,
+# ignore.case = T, value = T)
 
 # ## ---- get geographical data ----
 # read_shapefile <- function(filename) {
