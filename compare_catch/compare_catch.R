@@ -1008,20 +1008,55 @@ ind_snapper_red_mrip <- gom_ind_plots[[10]]
 
 my_legend_gom_flat <-
   legend_for_grid_arrange(plot_w_legend_gom
-                          + guides(fill = guide_legend(nrow = 1)))
+                          + guides(
+                            fill =
+                              guide_legend(
+                                nrow = 1,
+                                title = NULL,
+                                hjust = 1,
+                                direction = "horizontal"
+                              )
+                          ))
 
 grid.newpage()
-grid.arrange(ind_grouper_red_eq,
+p1 <- 
+  grid.arrange(ind_grouper_red_eq,
              plots10_gom[[1]],
              ind_mackerel_king_fhier,
              plots10_gom[[9]],
              ind_snapper_red_mrip,
              plots10_gom[[8]],
              bottom = my_legend_gom_flat
-  # grobs = sa_ind_plots,
-             # top = super_title,
-             # left = my_legend,
-             # bottom = footnote,
-             # , padding = unit(1, "line")
-             # ncol = 3
              )
+
+my_legend_gom_vert <-
+  legend_for_grid_arrange(plot_w_legend_gom
+                          + guides(
+                            fill =
+                              guide_legend(
+                                ncol = 1,
+                                title = NULL,
+                                # hjust = 1,
+                                direction = "vertical"
+                              )
+                          ))
+
+grid.arrange(
+  arrangeGrob(
+    ind_grouper_red_eq,
+    ind_mackerel_king_fhier,
+    ind_snapper_red_mrip,
+    top = "Ratio"
+  ),
+  arrangeGrob(plots10_gom[[1]],
+              plots10_gom[[9]],
+              plots10_gom[[8]],
+              top = "Catch Counts",
+              right = my_legend_gom),
+  ncol = 2
+)
+
+# plots <- align_plots(p1, p2a, p3, align = 'v', axis = 'l')
+
+
+  
