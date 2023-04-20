@@ -169,7 +169,7 @@ val_param_id_vec <-
   db_dat_od1 %>%
   filter(not_in_fhier == "DB") %>%
   select(val_param_id) %>% unique()
-View()
+glimpse()
 
 sql_text_in <- "SELECT
     *
@@ -218,5 +218,5 @@ dim(db_n_fhier_data_all_od)
 # 'data.frame':	43 obs. of  55 variables:
 
 db_n_fhier_data_all_od %>%
-  View()
+  glimpse()
 
