@@ -911,6 +911,16 @@ fhier_mrip_gom_ind %>%
   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
   select(wave) %>% unique()
 
+fhier_mrip_gom_ind %>%
+  separate_wider_delim(
+    year_wave,
+    "_",
+    cols_remove = F,
+    names = c("year", "wave")
+  ) %>%
+  select(-year) %>%
+  select(year_wave, wave) %>% unique()
+
 # strsplit("2022_1", "_")[[1]][[2]]
 
 ### GOM index plots ----
