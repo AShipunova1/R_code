@@ -1,127 +1,8 @@
-# SELECT
-#   *
-# FROM
-#   srh.v_val_addtl_fields_ori@secapxdv_dblk
-#   where departure_date >= '01-JAN-2022'
-# ;
-
 source("~/R_code_github/useful_functions_module.r")
-library(ROracle)
-library(zoo)
-# un <- "rotest"
-# pw <- "rotest"
-# drv <- dbDriver("Oracle")
-# con <- dbConnect(drv, un, pw, dbname = "SECPR")
-# dbGetQuery(con,"select * from employees")
-# dbDisconnect(con)
+source("~/R_code_github/validation_errors_get_data.r")
 
-con = dbConnect(
-  dbDriver("Oracle"),
-  username = keyring::key_list("SECPR")[1, 2],
-  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
-  dbname = "SECPR"
-)
-
-dat2022 = dbGetQuery(
-  con,
-  "SELECT
-  *
-FROM
-  srh.v_val_addtl_fields_ori@secapxdv_dblk
-  where departure_date >= '01-JAN-2022'
-"
-)
-
-dat2022 %>% data_overview()
-
-dat1 <-
-  dat2022 %>%
-  clean_headers() %>%
-  mutate(
-    arr_year = format(arrival_date, format = "%Y"),
-    arr_year_month = as.yearmon(arrival_date)
-  )
-
-# by year
-dat1 %>%
-  select(trip_report_id, arr_year) %>%
-  group_by(arr_year) %>%
-  summarise(n = n())
-
-# arr_year     n
-#   <chr>    <int>
-# 1 2022      1341
-
-# dat1 %>%
-#   select(trip_report_id, arr_year) %>%
-#   add_count(trip_report_id) %>% head()
-
-# by month
-dat1 %>%
-  select(trip_report_id, arr_year_month) %>%
-  group_by(arr_year_month) %>%
-  summarise(n = n())
-
-# A tibble: 12 × 2
-#    arr_year_month     n
-#    <yearmon>      <int>
-#  1 Jan 2022          35
-#  2 Feb 2022          98
-#  3 Mar 2022         189
-#  4 Apr 2022          73
-#  5 May 2022          75
-#  6 Jun 2022         101
-#  7 Jul 2022         117
-#  8 Aug 2022         412
-#  9 Sep 2022          76
-# 10 Oct 2022          63
-# 11 Nov 2022          35
-# 12 Dec 2022          67
-
-
-# arrival_date, ovr_flag, trip_report_id, val_param_name
-
-dat1 %>%
-  select(trip_report_id, arrival_date) %>%
-  group_by(arrival_date) %>%
-  summarise(n = n())
-# A tibble: 720 × 2
-
-# === From db PENDING ====
-# to compare with FHIER
-
-dat_pending = dbGetQuery(
-  con,
-  "SELECT
-  *
-FROM
-       srh.v_val_srfh_pending@secapxdv_dblk.sfsc.noaa.gov
-  JOIN srh.val_param@secapxdv_dblk USING (
-  VAL_PARAM_ID,
-VAL_PARAM_TABLE,
-VAL_PARAM_NAME
-  )
-WHERE
-  departure_date >= '01-JAN-2022'"
-)
-
-str(dat_pending)
-
-## clean up ====
-dat_pending_date <-
-  dat_pending %>%
-  clean_headers() %>%
-  mutate(
-    arr_year = format(arrival_date, format = "%Y"),
-    arr_year_month = as.yearmon(arrival_date),
-    overridden = case_when(ovr_flag == 1 ~ "overridden",
-                           ovr_flag == 0 ~ "pending",
-                           .default = "unknown"),
-    vessel_name = trimws(vessel_name),
-    official_number = trimws(official_number)
-  )
-
-# pending by year ====
+## From DB ====
+### From db by year ====
 dat_pending_date %>%
   select(trip_report_id, arr_year) %>%
   group_by(arr_year) %>%
@@ -140,7 +21,7 @@ dat_pending_date %>%
   group_by(overridden, arr_year) %>%
   summarise(n = n())
 
-# pending by year_month ----
+### From db by year_month ====
 db_pending_by_year_month <-
   dat_pending_date %>%
   select(trip_report_id, arr_year_month) %>%
@@ -165,11 +46,10 @@ dat_pending_date_by_ym <-
 
 View(db_pending_by_year_month)
 
-# test ----
+### test one vessel ----
 data_overview(dat_pending_date)
 dat_pending_date$val_param_yr %>% unique()
 # [1] 2021
-
 
 dat_pending_date_od_all <-
   dat_pending_date %>%
@@ -194,70 +74,11 @@ dat_pending_date_od_apr <-
   arrange(arrival_date)
 # %>%
 
-write_csv(dat_pending_date_od_apr, "~/dat_pending_date_od_apr.csv")
+# write_csv(dat_pending_date_od_apr, "~/dat_pending_date_od_apr.csv")
 
-# === From FHIER ====
-
-f_name_y <-
-  r"(~\R_files_local\my_inputs\validation_errors\Errors assigned to Others and-or Unassigned21_y.csv)"
-
-f_name_n <-
-  r"(~\R_files_local\my_inputs\validation_errors\Errors assigned to Others and-or Unassigned21_n.csv)"
-
-from_fhier <-
-  c(f_name_y, f_name_n) %>%
-  map_df(~ read_csv(.x, col_types = cols(.default = "c")))
-
-# dim(from_fhier_y)
-# [1] 4697   18
-# dim(from_fhier_n)
-# [1] 353  18
-dim(from_fhier)
-# 5050
-
-# View(from_fhier)
-
-from_fhier %>% clean_headers() %>% glimpse()
-# Arrival, Edit.Trip, Overridden
-# arrival, edit_trip, overridden
-
-from_fhier %>% data_overview()
-# Edit Trip            4949
-# VesselOfficialNumber  982
-
-
-## clean up from FHIER ====
-date_format = "%m/%d/%Y"
-from_fhier_data <-
-  from_fhier %>%
-  clean_headers() %>%
-  mutate(
-    arrival = as.POSIXct(arrival,
-                         format = date_format),
-    departure = as.POSIXct(departure,
-                           format = date_format),
-    arr_year = format(arrival, format = "%Y"),
-    arr_year_month = as.yearmon(arrival),
-    overridden1 = case_when(
-      tolower(overridden) == "y" ~ "overridden",
-      tolower(overridden) == "n" ~ "pending",
-      .default = "unknown"
-    ),
-    vessel_name = trimws(vessel_name),
-    vesselofficialnumber = trimws(vesselofficialnumber)
-  )
-
-from_fhier_data_22 <-
-  from_fhier_data %>%
-  filter(arr_year_month >= "Jan 2022")
+## From FHIER ====
 
 data_overview(from_fhier_data_22)
-# grep("ass", names(from_fhier_data_22), value = T)
-# singleassignment     
-
-from_fhier_data_22 %>%
-  select(singleassignment) %>% unique() %>% View()
-# Validation trip Assignment
 
 # dim(from_fhier_data_22)
 # [1] 4184   21
@@ -818,6 +639,13 @@ db_n_fhier_data_ok_short1 %>%
   select(asg_info) %>% unique() %>% arrange(asg_info)
 
 ### check assignments ----
+# grep("ass", names(from_fhier_data_22), value = T)
+# singleassignment     
+from_fhier_data_22 %>%
+  select(singleassignment) %>% unique() %>% View()
+# Validation trip Assignment
+
+
 View(db_n_fhier_data_ok_short1)
 
 db_n_fhier_data_ok_short1 %>%
