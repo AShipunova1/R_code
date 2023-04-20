@@ -1010,10 +1010,10 @@ ind_snapper_red_mrip <- gom_ind_plots[[10]]
 my_legend_gom_flat <-
   legend_for_grid_arrange(
     plot_w_legend_gom
-    + theme(
-      legend.box.spacing = margin(0),
-      legend.spacing = margin(0, 0, 0, 0),
-    )
+    # + theme(
+    #   legend.box.spacing = margin(0),
+    #   legend.spacing = margin(0, 0, 0, 0),
+    # )
     + guides(
       fill =
         guide_legend(
