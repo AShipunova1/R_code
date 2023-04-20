@@ -785,9 +785,10 @@ grid.arrange(grobs = plots10,
 
 # source("~/R_code_github/compare_catch_no_na.R")
 
-## use a MRIP/FHIER count ratio ----
+## Count Index: use a MRIP/FHIER count ratio ----
 # keep ymax the same across plots
 
+### GOM 
 fhier_mrip_gom_ind <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   select(-c(state, species_itis)) %>%
@@ -800,59 +801,20 @@ fhier_mrip_gom_ind <-
     cnt_index = (mrip_cnts - fhier_cnts) /
       (mrip_cnts + fhier_cnts)
   ) %>%
-  mutate(cnt_index = round(cnt_index, 2)) %>%
-  # head()
-  # mutate(m_f_ratio = round(mrip_estimate_catch_by_4 / fhier_quantity_by_4, 2))
-  # x = fct_rev(fct_reorder(common_name,
-  #                                  !!sym(count_field_name),
-  #                                  .fun = max)),
-  mutate(common_name_order = fct_reorder(
-    common_name,
-    (mrip_cnts + fhier_cnts),
-  )) %>%
-  # mutate(date_order = order(year_wave)
+  mutate(cnt_index = round(cnt_index, 2))
+# %>%
+  # mutate(common_name_order = fct_reorder(
+  #   common_name,
+  #   (mrip_cnts + fhier_cnts),
+  # )) %>%
+  # mutate(dates_index = as.factor(year_wave),
+  #   year_wave = factor(year_wave, levels = unique(dates_index))
   # )
-  mutate(dates_index = as.factor(year_wave),
-    year_wave = factor(year_wave, levels = unique(dates_index))
-  )
 
 # fhier_mrip_gom_ind %>% select(year_wave, date_order, dates_index) %>% head()
 
-## temp: 1 sp.
-fhier_mrip_gom_ind1 <-
-  fhier_mrip_gom_ind %>%
-  as.data.frame() %>%
-  filter(common_name == "MACKEREL, SPANISH")
-# %>%
-  # select(year_wave, cnt_index)
-# %>%
-#   summary()
-  # plot()
-  
-  # as.data.frame() %>%
-  # arrange(year_wave)
 
-plot(fhier_mrip_gom_ind1$year_wave,
-     fhier_mrip_gom_ind1$cnt_index)
-
-# length(fhier_mrip_gom_ind1$year_wave)
-fhier_mrip_gom_ind1 %>%
-  ggplot(aes(x = year_wave,
-           y = cnt_index) +
-         geom_point())
-
-str(fhier_mrip_gom_ind1)
-fhier_mrip_gom_ind1 %>%
-ggplot(
-         aes(x = year_wave,
-             y = cnt_index,
-             color = cnt_index
-            ),
-  ) +
-    # geom_col(position = "dodge")
-  geom_point()
-
-plot(fhier_mrip_gom_ind)
+# plot(fhier_mrip_gom_ind)
 
 ## plot_ind <- function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
@@ -878,34 +840,6 @@ plot_ind <- function(my_df, com_n, no_legend = TRUE) {
   # }
   return(one_ind_plot)
 }
-
-# gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
-#     function(com_n) {
-#       # head(x)
-#       # plot_by_spp(x, fhier_mrip_gom_to_plot)
-#       fhier_mrip_gom_ind %>%
-#         filter(common_name == com_n) %>%
-#         ggplot(
-#          aes(x = year_wave,
-#              y = cnt_index,
-#              color = cnt_index
-#             ),
-#   ) +
-#     # geom_col(position = "dodge")
-#   geom_point() +
-#         my_theme45 +
-#         ylim(-1, 1)
-#             })
-
-# str(gom_ind_plots[[1]])
-# library('grid')
-
-# grid.newpage()
-# grid.draw(cbind(
-#   ggplotGrob(gom_ind_plots[[1]]),
-#   ggplotGrob(gom_ind_plots[[2]]),
-#   size = "last"
-# ))
 
 gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
