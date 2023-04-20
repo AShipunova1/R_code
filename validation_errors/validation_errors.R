@@ -96,7 +96,7 @@ dat_pending = dbGetQuery(
   *
 FROM
        srh.v_val_srfh_pending@secapxdv_dblk.sfsc.noaa.gov
-  JOIN srh.val_param@secapxdv_dblk USING ( 
+  JOIN srh.val_param@secapxdv_dblk USING (
   VAL_PARAM_ID,
 VAL_PARAM_TABLE,
 VAL_PARAM_NAME
@@ -170,11 +170,11 @@ dat_pending_date_od_all <-
 # 73
 
 dat_pending_date_od_all %>%
-  select(arr_year, is_enabled) %>% 
+  select(arr_year, is_enabled) %>%
   # unique()
-#   2022          1
-#   2023          1
-  group_by(arr_year) %>% 
+  #   2022          1
+  #   2023          1
+  group_by(arr_year) %>%
   summarise(n = n())
 # 1 2022        78
 # 2 2023        13
@@ -197,7 +197,7 @@ f_name_n <-
 
 from_fhier <-
   c(f_name_y, f_name_n) %>%
-  map_df( ~ read_csv(.x, col_types = cols(.default = "c")))
+  map_df(~ read_csv(.x, col_types = cols(.default = "c")))
 
 # dim(from_fhier_y)
 # [1] 4697   18
@@ -249,7 +249,7 @@ from_fhier_data_22 <-
 #   dat_pending_date %>%
 #   mutate(trip_report_id = as.character(trip_report_id),
 #          trip_length = as.character(trip_length))
-# 
+#
 # db_n_fhier_data_0 <-
 #   left_join(dat_pending_data, from_fhier_data,
 #           by = join_by(trip_report_id == edit_trip))
@@ -260,27 +260,27 @@ from_fhier_data_22 <-
 # db_mult <- dat_pending_data[44,]  %>% select(trip_report_id)
 # # ℹ Row 4736 of `y` matches multiple rows in `x`.
 # fh_mult <- from_fhier_data[4736,] %>% select(edit_trip)
-# # 65334545 
-# 
+# # 65334545
+#
 # identical(fh_mult$edit_trip, db_mult$trip_report_id)
 # # TRUE
 # fh_mult1 <- from_fhier_data %>%
-#   filter(edit_trip == db_mult$trip_report_id) 
-# 
+#   filter(edit_trip == db_mult$trip_report_id)
+#
 # View(fh_mult1)
-# 
+#
 # all.equal(fh_mult1[1,], fh_mult1[2,])
-# # [1] "Component “res_message”: 1 string mismatch"     
-# # [2] "Component “message”: 1 string mismatch"         
+# # [1] "Component “res_message”: 1 string mismatch"
+# # [2] "Component “message”: 1 string mismatch"
 # # [3] "Component “overridecomments”: 1 string mismatch"
 # # [4] "Component “singleassignment”: 1 string mismatch"
-# 
+#
 # db_mult1 <- dat_pending_data %>%
-#   filter(trip_report_id == fh_mult$edit_trip) 
-# 
+#   filter(trip_report_id == fh_mult$edit_trip)
+#
 # View(db_mult1)
 # all.equal(db_mult1[1,], db_mult1[2,])
-# 
+#
 # # ---
 # db_n_fhier_data <-
 #   left_join(
@@ -290,25 +290,25 @@ from_fhier_data_22 <-
 #   )
 # # ℹ Row 34599 of `x` matches multiple rows in `y`.
 # # ℹ Row 5050 of `y` matches multiple rows in `x`.
-# 
+#
 # dat_pending_data_mult1 <-
 #   dat_pending_data %>%
 #   # [34599,] %>% View()
 #   filter(trip_report_id == from_fhier_data[5050, ]$edit_trip &
-#            res_msg == from_fhier_data[5050, ]$message) 
-# 
+#            res_msg == from_fhier_data[5050, ]$message)
+#
 # all.equal(dat_pending_data_mult1[1,], dat_pending_data_mult1[2,])
-# # [2] "Component “trip_length”: Mean relative difference: 0.5"            
+# # [2] "Component “trip_length”: Mean relative difference: 0.5"
 # from_fhier_data_mult1 <-
 #   from_fhier_data %>%
 #   filter(edit_trip == dat_pending_data[34599, ]$trip_report_id &
-#            message == dat_pending_data[34599, ]$res_msg) 
-# 
+#            message == dat_pending_data[34599, ]$res_msg)
+#
 # View(from_fhier_data_mult1)
 # all.equal(from_fhier_data_mult1[1,], from_fhier_data_mult1[2,])
 # row.names(from_fhier_data_mult1[1,])
 # # T
-# 
+#
 # db_n_fhier_data_3 <-
 #   left_join(
 #     dat_pending_data,
@@ -319,22 +319,22 @@ from_fhier_data_22 <-
 #       trip_length == trip_length
 #     )
 #   )
-# 
+#
 # dat_pending_data_mult2 <-
 #   dat_pending_data %>%
 #   # [34599,] %>% View()
 #   filter(trip_report_id == from_fhier_data[5046, ]$edit_trip &
-#            res_msg == from_fhier_data[5046, ]$message) 
-# 
+#            res_msg == from_fhier_data[5046, ]$message)
+#
 # # View(dat_pending_data_mult2)
 # all.equal(dat_pending_data_mult2[1,], dat_pending_data_mult2[2,])
 # # [1] "Attributes: < Component “row.names”: Mean relative difference: 1 >"
 # # duplicate
-# 
+#
 # from_fhier_data_mult2 <-
 #   from_fhier_data %>%
 #   filter(edit_trip == dat_pending_data[34599, ]$trip_report_id &
-#            message == dat_pending_data[34599, ]$res_msg) 
+#            message == dat_pending_data[34599, ]$res_msg)
 # dim(from_fhier_data_mult2)
 
 # ---- left join ----
@@ -368,23 +368,23 @@ dim(db_n_fhier_data_ok)
 # [1] 5050   21
 
 # --- full join ----
-db_n_fhier_data_all <-
-  full_join(
-    unique(dat_pending_data),
-    unique(from_fhier_data),
-    by = join_by(
-      trip_report_id == edit_trip,
-      res_msg == message,
-      trip_length == trip_length,
-      arr_year == arr_year,
-      arr_year_month == arr_year_month
-      # ,
-      # vessel_name == vessel_name
-    )
-  )
-
-dim(db_n_fhier_data_all)
-glimpse(db_n_fhier_data_all)
+# db_n_fhier_data_all <-
+#   full_join(
+#     unique(dat_pending_data),
+#     unique(from_fhier_data),
+#     by = join_by(
+#       trip_report_id == edit_trip,
+#       res_msg == message,
+#       trip_length == trip_length,
+#       arr_year == arr_year,
+#       arr_year_month == arr_year_month
+#       # ,
+#       # vessel_name == vessel_name
+#     )
+#   )
+#
+# dim(db_n_fhier_data_all)
+# glimpse(db_n_fhier_data_all)
 # full_join 48468    57
 
 # ==== from FHIER test ====
@@ -564,7 +564,7 @@ FROM
   srh.val_param@secapxdv_dblk
 WHERE
 val_param_id in (?val_param_id_list)"
-# 
+#
 # get_val_year_sql_val <- sqlInterpolate(con,
 #                                        get_val_year_sql
 #                                        ,
@@ -594,15 +594,15 @@ sqlInterpolate(ANSI(), sql, num1 = 1, num2 = 2)
 # b <- 11:20
 a <- 1:2
 sql_txt_a <- paste0("select 1 from dual where 1 in (",
-                  paste0("?parameter", seq_along(a),
-                             collapse = ",\n  "
-), ")")
+                    paste0("?parameter", seq_along(a),
+                           collapse = ",\n  "),
+                    ")")
 
-  # paste0(
-  # "?my_list)", 
-  # ,
-    # "(?parameter", seq_along(a), ", ?actualVal", seq_along(b), ")", 
-    # collapse = ",\n  "
+# paste0(
+# "?my_list)",
+# ,
+# "(?parameter", seq_along(a), ", ?actualVal", seq_along(b), ")",
+# collapse = ",\n  "
 
 cat(sql_txt_a)
 
@@ -610,15 +610,13 @@ cat(sql_txt_a)
 #   setNames(as.list(a), paste0("parameter", seq_along(a))),
 #   setNames(as.list(b), paste0("actualVal", seq_along(b)))
 # )
-sql_params <- 
+sql_params <-
   setNames(as.list(a), paste0("parameter", seq_along(a)))
 str(sql_params)
 
-sql <- sqlInterpolate(
-  ANSI(),
-  sql = sql_txt_a,
-  .dots = sql_params
-)
+sql <- sqlInterpolate(ANSI(),
+                      sql = sql_txt_a,
+                      .dots = sql_params)
 
 DBI::dbExecute(con, sql)
 
@@ -641,10 +639,9 @@ my_param_df <- val_param_id_vec$val_param_id
 
 make_sql_parameters <- function(my_param_df, sql_text) {
   param_list <- paste0("(",
-    paste0("?parameter", seq_along(my_param_df),
-           collapse = ",\n  "),
-    ")"
-  )
+                       paste0("?parameter", seq_along(my_param_df),
+                              collapse = ",\n  "),
+                       ")")
   sql_text <- paste0(sql_text_in, param_list)
   cat(sql_text)
   
@@ -655,8 +652,8 @@ make_sql_parameters <- function(my_param_df, sql_text) {
   sql <- sqlInterpolate(ANSI(),
                         sql = sql_text,
                         .dots = sql_params)
-
-  return(sql)  
+  
+  return(sql)
 }
 
 my_val_sql_text <- "SELECT
@@ -688,11 +685,9 @@ print(dbGetQuery(con, query))
 DBI::dbGetQuery(con, "select 1 from dual where 1 in (?,?)", params = list(2, 3))
 
 
-dbGetQuery(
-  con,
-  "SELECT COUNT(*) FROM mtcars WHERE cyl = ?",
-  params = list(1:8)
-)
+dbGetQuery(con,
+           "SELECT COUNT(*) FROM mtcars WHERE cyl = ?",
+           params = list(1:8))
 
 # params = as.list(vec))
 # val_param_id IN (?,381044,380797,383782,380799,401206,623412,630838,381040)"),
@@ -729,7 +724,7 @@ db_n_fhier_data_all_od <-
   db_n_fhier_data_all %>%
   filter(vesselofficialnumber == 'FL4673SY') %>%
   # select(arrival) %>% unique() %>%
-  arrange(arrival) 
+  arrange(arrival)
 # %>% str()
 
 db_n_fhier_data_all_od %>%
