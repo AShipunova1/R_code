@@ -372,19 +372,19 @@ qmarks <- paste(rep("?", length(vec)), collapse = ",")
 
 # val_param_id IN ('?','?','?','?','?','?','?','?','?')"),
 # VAL_PARAM_ID, VAL_PARAM_YR, IS_ENABLED, VAL_PARAM_TABLE
-val_param_id_res <- dbGetQuery(
-  con,
-  paste(
-    "
-    SELECT
-    *
-FROM
-  srh.val_param@secapxdv_dblk
-WHERE
-val_param_id = ?"
-  ),
-params = "380798"
-)
+# val_param_id_res <- dbGetQuery(
+#   con,
+#   paste(
+#     "
+#     SELECT
+#     *
+# FROM
+#   srh.val_param@secapxdv_dblk
+# WHERE
+# val_param_id = ?"
+#   ),
+# params = "380798"
+# )
 
 get_val_year_sql <- "
     SELECT
@@ -393,40 +393,39 @@ FROM
   srh.val_param@secapxdv_dblk
 WHERE
 val_param_id in (?val_param_id_list)"
-
-get_val_year_sql_val <- sqlInterpolate(con,
-                                       get_val_year_sql
-                                       ,
-                                       val_param_id_list = as.list(val_param_id_vec$val_param_id))
-print(dbGetQuery(con, query))
+# 
+# get_val_year_sql_val <- sqlInterpolate(con,
+#                                        get_val_year_sql
+#                                        ,
+#                                        val_param_id_list = as.list(val_param_id_vec$val_param_id))
+# print(dbGetQuery(con, query))
 
 
 DBI::dbGetQuery(con, "select 1 from dual where 1 in (1,2)")
 
-airport <- dbSendQuery(con, "SELECT 1 FROM dual WHERE 1 = ?")
+# airport <- dbSendQuery(con, "SELECT 1 FROM dual WHERE 1 = ?")
 
 sql <- "select 1 from dual where 1 in (?num1, ?num2)"
 # "SELECT * FROM X WHERE name = ?name"
 sqlInterpolate(ANSI(), sql, num1 = 1, num2 = 2)
 
-sql1 <- "select 1 from dual where 1 in (?my_list)"
-my_list = c(1,2)
-sqlInterpolate(ANSI(), sql1, .dots = my_list)
-sql <- sqlInterpolate(
-  conn = conn,
-  sql = sql_txt,
-  .dots = sql_params
-)
+# sql1 <- "select 1 from dual where 1 in (?my_list)"
+# my_list = c(1,2)
+# sqlInterpolate(ANSI(), sql1, .dots = my_list)
+# sql <- sqlInterpolate(
+#   conn = conn,
+#   sql = sql_txt,
+#   .dots = sql_params
+# )
 
 # ---
 # a <- letters[1:10]
 # b <- 11:20
 a <- 1:2
-sql_txt <- paste0("select 1 from dual where 1 in (",
+sql_txt_a <- paste0("select 1 from dual where 1 in (",
                   paste0("?parameter", seq_along(a),
                              collapse = ",\n  "
 ), ")")
-
 
   # paste0(
   # "?my_list)", 
@@ -434,7 +433,7 @@ sql_txt <- paste0("select 1 from dual where 1 in (",
     # "(?parameter", seq_along(a), ", ?actualVal", seq_along(b), ")", 
     # collapse = ",\n  "
 
-cat(sql_txt)
+cat(sql_txt_a)
 
 # sql_params <- append(
 #   setNames(as.list(a), paste0("parameter", seq_along(a))),
@@ -446,10 +445,66 @@ str(sql_params)
 
 sql <- sqlInterpolate(
   ANSI(),
-  sql = sql_txt,
+  sql = sql_txt_a,
   .dots = sql_params
 )
 
+DBI::dbExecute(con, sql)
+
+# sql_text_temp <- paste0("
+#     SELECT
+#     *
+# FROM
+#   srh.val_param@secapxdv_dblk
+# WHERE
+#   val_param_id in (", param_list, ")")
+
+sql_text_in <- "SELECT
+    *
+FROM
+  srh.val_param@secapxdv_dblk
+WHERE
+  val_param_id in "
+
+my_param_df <- val_param_id_vec$val_param_id
+
+make_sql_parameters <- function(my_param_df, sql_text) {
+  param_list <- paste0("(",
+    paste0("?parameter", seq_along(my_param_df),
+           collapse = ",\n  "),
+    ")"
+  )
+  sql_text <- paste0(sql_text_in, param_list)
+  cat(sql_text)
+  
+  sql_params <-
+    setNames(as.list(my_param_df), paste0("parameter", seq_along(my_param_df)))
+  str(sql_params)
+  
+  sql <- sqlInterpolate(ANSI(),
+                        sql = sql_text,
+                        .dots = sql_params)
+
+  return(sql)  
+}
+
+my_val_sql_text <- "SELECT
+    VAL_PARAM_ID, VAL_PARAM_YR, IS_ENABLED, VAL_PARAM_TABLE
+FROM
+  srh.val_param@secapxdv_dblk
+WHERE
+  val_param_id in "
+
+my_val_sql <- make_sql_parameters(my_param_df, my_val_sql_text)
+my_val_res <- DBI::dbGetQuery(con, my_val_sql)
+View(my_val_res)
+# all 2021
+
+val_param_id_vec1 <-
+  db_dat_od1 %>%
+  # filter(not_in_fhier == "DB") %>%
+  select(val_param_id) %>% unique()
+str(val_param_id_vec1)
 
 # ---
 DBI::dbGetQuery(con, "select 1 from dual where 1 in ('?','?')", params = list(1, 2))
