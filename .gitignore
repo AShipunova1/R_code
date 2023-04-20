@@ -16,6 +16,7 @@ quantify_compliance/quantify_compliance_cache/html/__packages
 *.rdx
 *.woff
 *.js
+*.csv
 bootstrap-icons.css
 bootstrap.min.css
 quarto-syntax-highlighting.css
