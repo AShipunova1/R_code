@@ -749,7 +749,7 @@ plot(fhier_mrip_gom_to_plot)
 # plot_by_spp("MACKEREL, SPANISH", fhier_mrip_gom_to_plot)
 
            # for each common name from the top 10
-plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
+plots10_gom <- map(unique(fhier_mrip_gom_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_gom_to_plot)}
                )
@@ -764,12 +764,14 @@ plot_w_legend <- plot_by_spp("MACKEREL, SPANISH",
                              # keep the legend
                              FALSE)
 # use an aux function to pull out the legend
-my_legend <- legend_for_grid_arrange(plot_w_legend)
+my_legend_gom <- legend_for_grid_arrange(plot_w_legend)
 
+# clean the plate
+grid.newpage()
 # combine all plots
-grid.arrange(grobs = plots10,
+grid.arrange(grobs = plots10_gom,
              top = super_title,
-             left = my_legend,
+             left = my_legend_gom,
              ncol = 3)
 
 ## SA plots ----
@@ -955,8 +957,9 @@ gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
                function(x) {plot_ind(use_wave(fhier_mrip_gom_ind), x, mypalette)}
                )
 
-super_title = "GOM counts ratio by wave. Year 2022"
+super_title = "GOM Counts Ratio by Wave 2022"
 
+#### draw gom plots ----
 grid.newpage()
 grid.arrange(grobs = gom_ind_plots,
              top = super_title,
@@ -987,6 +990,7 @@ sa_ind_plots <- map(unique(fhier_mrip_sa_ind$common_name),
 
 super_title = "SA Counts Ratio by Wave 2022"
 
+#### draw SA plots ----
 grid.newpage()
 grid.arrange(grobs = sa_ind_plots,
              top = super_title,
@@ -994,3 +998,26 @@ grid.arrange(grobs = sa_ind_plots,
              bottom = footnote,
              # , padding = unit(1, "line")
              ncol = 3)
+
+
+## show both types of plot together
+
+ind_grouper_red_eq <- gom_ind_plots[[5]]
+ind_mackerel_king_fhier <- gom_ind_plots[[7]]
+ind_snapper_red_mrip <- gom_ind_plots[[10]]
+
+grid.newpage()
+grid.arrange(ind_grouper_red_eq,
+             plots10_gom[[1]],
+             ind_mackerel_king_fhier,
+             plots10_gom[[9]],
+             ind_snapper_red_mrip,
+             plots10_gom[[8]],
+             bottom = my_legend_gom
+  # grobs = sa_ind_plots,
+             # top = super_title,
+             # left = my_legend,
+             # bottom = footnote,
+             # , padding = unit(1, "line")
+             # ncol = 3
+             )
