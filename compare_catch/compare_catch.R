@@ -305,6 +305,7 @@ mrip_estimate_catch_by_species_state_region_waves <-
   # drop sub_reg
   select(-sub_reg)
 
+## rename fields ----
 
 # common field names
 wave_data_names_common <- c("species_itis",
@@ -325,19 +326,37 @@ names(mrip_estimate_catch_by_species_state_region_waves)
 #                 "mrip_estimate_catch_by_4"
 # )
 
-# specific names
-wave_data_names_f <- c(wave_data_names_common, c("fhier_catch_by_4"))
-wave_data_names_m <- c(wave_data_names_common, c("mrip_estimate_catch_by_4"))
+mrip_names <- c("itis_code",
+                "new_sta",
+                "sa_gom",
+                "year",
+                "wave",
+                "mrip_estimate_catch_by_4"
+)
 
-# change names
-names(fhier_catch_by_species_state_region_waves) <- wave_data_names_f
-names(mrip_estimate_catch_by_species_state_region_waves) <- wave_data_names_m
 
-# identical(names(fhier_catch_by_species_state_region_waves)[1:5],
-          # names(mrip_estimate_catch_by_species_state_region_waves)[1:5])
+mrip_estimate_catch_by_species_state_region_waves %<>%
+  rename_at(vars(mrip_names[1:2]), function(x) wave_data_names_common[1:2])
 
-# View(mrip_estimate_catch_by_species_state_region_waves)
+# names(fhier_catch_by_species_state_region_waves) %>% cat()
+fhier_names <- c(
+  "catch_species_itis",
+  "end_port_state",
+  "end_port_sa_gom",
+  "end_year",
+  "end_wave",
+  "fhier_quantity_by_4")
+  
+fhier_catch_by_species_state_region_waves %<>%
+  rename_at(vars(fhier_names[1:5]),
+            function(x) wave_data_names_common[1:5])
+# %>% head(100) %>% tail(2)
 
+## test
+identical(names(fhier_catch_by_species_state_region_waves)[1:5],
+          names(mrip_estimate_catch_by_species_state_region_waves)[1:5])
+
+##  
 fhier_mrip_catch_by_species_state_region_waves <-
   full_join(fhier_catch_by_species_state_region_waves,
              mrip_estimate_catch_by_species_state_region_waves,
