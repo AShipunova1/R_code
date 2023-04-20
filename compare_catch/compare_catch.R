@@ -816,17 +816,37 @@ fhier_mrip_gom_ind <-
 # fhier_mrip_gom_ind %>% select(year_wave, date_order, dates_index) %>% head()
 
 plot(fhier_mrip_gom_ind)
-map(unique(fhier_mrip_gom_ind$common_name),
+gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
     function(com_n) {
       # head(x)
       # plot_by_spp(x, fhier_mrip_gom_to_plot)
       fhier_mrip_gom_ind %>%
         filter(common_name == com_n) %>%
-        ggplot(aes(x = year_wave,
-                   y = cnt_index,
-                   color = cnt_index) +
-                 geom_point())
-    })
+        ggplot(
+         aes(x = year_wave,
+             y = cnt_index,
+             color = cnt_index
+            ),
+  ) +
+    # geom_col(position = "dodge")
+  geom_point() +
+        ylim(-1, 1)
+            })
+
+# str(gom_ind_plots[[1]])
+# library('grid')
+
+# grid.newpage()
+# grid.draw(cbind(
+#   ggplotGrob(gom_ind_plots[[1]]),
+#   ggplotGrob(gom_ind_plots[[2]]),
+#   size = "last"
+# ))
+
+grid.arrange(grobs = gom_ind_plots,
+             # top = super_title,
+             # left = my_legend,
+             ncol = 3)
 
 fhier_mrip_gom_ind1 <-
   fhier_mrip_gom_ind %>%
@@ -856,7 +876,8 @@ fhier_mrip_gom_ind1 %>%
 ggplot(
          aes(x = year_wave,
              y = cnt_index,
-             fill = cnt_index
+             color = cnt_index
             ),
   ) +
-    geom_col(position = "dodge")
+    # geom_col(position = "dodge")
+  geom_point()
