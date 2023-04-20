@@ -793,10 +793,7 @@ grid.arrange(grobs = plots10,
 ## plot_ind function ----
 # map(unique(fhier_mrip_gom_ind$common_name)
 
-q_colors =  15 # for no particular reason
-v_colors =  viridis(q_colors, option = "D")
-
-plot_ind <- function(my_df, com_n, no_legend = TRUE) {
+plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   # browser()
   one_ind_plot <-
     my_df %>%
@@ -852,15 +849,17 @@ fhier_mrip_gom_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_regi
 
 gom_all_cnt_indexes <- sort(unique(fhier_mrip_gom_ind$cnt_index))
 
-mypalette <- rainbow(length(gom_all_cnt_indexes))
+q_colors_gom = length(gom_all_cnt_indexes)
+mypalette = viridis(q_colors_gom, option = "D")
+# mypalette <- rainbow(length(gom_all_cnt_indexes))
 names(mypalette) <- gom_all_cnt_indexes
-# mypalette
+mypalette
 
-# one_plot <- plot_ind(fhier_mrip_gom_ind, "MACKEREL, SPANISH")
+one_plot <- plot_ind(fhier_mrip_gom_ind, "MACKEREL, SPANISH", mypalette)
 
 gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_ind(fhier_mrip_gom_ind, x)}
+               function(x) {plot_ind(fhier_mrip_gom_ind, x, mypalette)}
                )
 
 super_title = "GOM counts ratio:
@@ -878,14 +877,19 @@ fhier_mrip_sa_ind <- calculate_cnt_index(fhier_mrip_catch_by_species_state_regio
 ### SA index plots ----
 # plot(fhier_mrip_sa_ind)
 
-mypalette <- rainbow(length(fhier_mrip_sa_ind$cnt_index))
-names(mypalette) <- fhier_mrip_sa_ind$cnt_index
+sa_all_cnt_indexes <- sort(unique(fhier_mrip_sa_ind$cnt_index))
+q_colors_sa = length(sa_all_cnt_indexes)
+mypalette = viridis(q_colors_sa, option = "D")
+# mypalette <- rainbow(length(gom_all_cnt_indexes))
+# names(mypalette) <- gom_all_cnt_indexes
+# mypalette <- rainbow(length(fhier_mrip_sa_ind$cnt_index))
+names(mypalette) <- sa_all_cnt_indexes
 mypalette
 # mypalette %>% unique()
 
 sa_ind_plots <- map(unique(fhier_mrip_sa_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_ind(fhier_mrip_sa_ind, x)}
+               function(x) {plot_ind(fhier_mrip_sa_ind, x, mypalette)}
                )
 
 super_title = "SA counts ratio:
