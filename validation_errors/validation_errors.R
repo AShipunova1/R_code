@@ -245,97 +245,99 @@ from_fhier_data_22 <-
 # 1 2022-01-01 00:00:00
 
 # ==== combine db and fhier ===
-dat_pending_data <-
-  dat_pending_date %>%
-  mutate(trip_report_id = as.character(trip_report_id),
-         trip_length = as.character(trip_length))
+# dat_pending_data <-
+#   dat_pending_date %>%
+#   mutate(trip_report_id = as.character(trip_report_id),
+#          trip_length = as.character(trip_length))
+# 
+# db_n_fhier_data_0 <-
+#   left_join(dat_pending_data, from_fhier_data,
+#           by = join_by(trip_report_id == edit_trip))
+# grep("trip", names(dat_pending_data), value = T)
+# grep("trip", names(from_fhier_data), value = T)
+# #   Detected an unexpected many-to-many relationship between `x` and `y`.
+# # ℹ Row 44 of `x` matches multiple rows in `y`.
+# db_mult <- dat_pending_data[44,]  %>% select(trip_report_id)
+# # ℹ Row 4736 of `y` matches multiple rows in `x`.
+# fh_mult <- from_fhier_data[4736,] %>% select(edit_trip)
+# # 65334545 
+# 
+# identical(fh_mult$edit_trip, db_mult$trip_report_id)
+# # TRUE
+# fh_mult1 <- from_fhier_data %>%
+#   filter(edit_trip == db_mult$trip_report_id) 
+# 
+# View(fh_mult1)
+# 
+# all.equal(fh_mult1[1,], fh_mult1[2,])
+# # [1] "Component “res_message”: 1 string mismatch"     
+# # [2] "Component “message”: 1 string mismatch"         
+# # [3] "Component “overridecomments”: 1 string mismatch"
+# # [4] "Component “singleassignment”: 1 string mismatch"
+# 
+# db_mult1 <- dat_pending_data %>%
+#   filter(trip_report_id == fh_mult$edit_trip) 
+# 
+# View(db_mult1)
+# all.equal(db_mult1[1,], db_mult1[2,])
+# 
+# # ---
+# db_n_fhier_data <-
+#   left_join(
+#     dat_pending_data,
+#     from_fhier_data,
+#     by = join_by(trip_report_id == edit_trip, res_msg == message)
+#   )
+# # ℹ Row 34599 of `x` matches multiple rows in `y`.
+# # ℹ Row 5050 of `y` matches multiple rows in `x`.
+# 
+# dat_pending_data_mult1 <-
+#   dat_pending_data %>%
+#   # [34599,] %>% View()
+#   filter(trip_report_id == from_fhier_data[5050, ]$edit_trip &
+#            res_msg == from_fhier_data[5050, ]$message) 
+# 
+# all.equal(dat_pending_data_mult1[1,], dat_pending_data_mult1[2,])
+# # [2] "Component “trip_length”: Mean relative difference: 0.5"            
+# from_fhier_data_mult1 <-
+#   from_fhier_data %>%
+#   filter(edit_trip == dat_pending_data[34599, ]$trip_report_id &
+#            message == dat_pending_data[34599, ]$res_msg) 
+# 
+# View(from_fhier_data_mult1)
+# all.equal(from_fhier_data_mult1[1,], from_fhier_data_mult1[2,])
+# row.names(from_fhier_data_mult1[1,])
+# # T
+# 
+# db_n_fhier_data_3 <-
+#   left_join(
+#     dat_pending_data,
+#     from_fhier_data,
+#     by = join_by(
+#       trip_report_id == edit_trip,
+#       res_msg == message,
+#       trip_length == trip_length
+#     )
+#   )
+# 
+# dat_pending_data_mult2 <-
+#   dat_pending_data %>%
+#   # [34599,] %>% View()
+#   filter(trip_report_id == from_fhier_data[5046, ]$edit_trip &
+#            res_msg == from_fhier_data[5046, ]$message) 
+# 
+# # View(dat_pending_data_mult2)
+# all.equal(dat_pending_data_mult2[1,], dat_pending_data_mult2[2,])
+# # [1] "Attributes: < Component “row.names”: Mean relative difference: 1 >"
+# # duplicate
+# 
+# from_fhier_data_mult2 <-
+#   from_fhier_data %>%
+#   filter(edit_trip == dat_pending_data[34599, ]$trip_report_id &
+#            message == dat_pending_data[34599, ]$res_msg) 
+# dim(from_fhier_data_mult2)
 
-db_n_fhier_data_0 <-
-  left_join(dat_pending_data, from_fhier_data,
-          by = join_by(trip_report_id == edit_trip))
-grep("trip", names(dat_pending_data), value = T)
-grep("trip", names(from_fhier_data), value = T)
-#   Detected an unexpected many-to-many relationship between `x` and `y`.
-# ℹ Row 44 of `x` matches multiple rows in `y`.
-db_mult <- dat_pending_data[44,]  %>% select(trip_report_id)
-# ℹ Row 4736 of `y` matches multiple rows in `x`.
-fh_mult <- from_fhier_data[4736,] %>% select(edit_trip)
-# 65334545 
-
-identical(fh_mult$edit_trip, db_mult$trip_report_id)
-# TRUE
-fh_mult1 <- from_fhier_data %>%
-  filter(edit_trip == db_mult$trip_report_id) 
-
-View(fh_mult1)
-
-all.equal(fh_mult1[1,], fh_mult1[2,])
-# [1] "Component “res_message”: 1 string mismatch"     
-# [2] "Component “message”: 1 string mismatch"         
-# [3] "Component “overridecomments”: 1 string mismatch"
-# [4] "Component “singleassignment”: 1 string mismatch"
-
-db_mult1 <- dat_pending_data %>%
-  filter(trip_report_id == fh_mult$edit_trip) 
-
-View(db_mult1)
-all.equal(db_mult1[1,], db_mult1[2,])
-
-# ---
-db_n_fhier_data <-
-  left_join(
-    dat_pending_data,
-    from_fhier_data,
-    by = join_by(trip_report_id == edit_trip, res_msg == message)
-  )
-# ℹ Row 34599 of `x` matches multiple rows in `y`.
-# ℹ Row 5050 of `y` matches multiple rows in `x`.
-
-dat_pending_data_mult1 <-
-  dat_pending_data %>%
-  # [34599,] %>% View()
-  filter(trip_report_id == from_fhier_data[5050, ]$edit_trip &
-           res_msg == from_fhier_data[5050, ]$message) 
-
-all.equal(dat_pending_data_mult1[1,], dat_pending_data_mult1[2,])
-# [2] "Component “trip_length”: Mean relative difference: 0.5"            
-from_fhier_data_mult1 <-
-  from_fhier_data %>%
-  filter(edit_trip == dat_pending_data[34599, ]$trip_report_id &
-           message == dat_pending_data[34599, ]$res_msg) 
-
-View(from_fhier_data_mult1)
-all.equal(from_fhier_data_mult1[1,], from_fhier_data_mult1[2,])
-row.names(from_fhier_data_mult1[1,])
-# T
-
-db_n_fhier_data_3 <-
-  left_join(
-    dat_pending_data,
-    from_fhier_data,
-    by = join_by(
-      trip_report_id == edit_trip,
-      res_msg == message,
-      trip_length == trip_length
-    )
-  )
-
-dat_pending_data_mult2 <-
-  dat_pending_data %>%
-  # [34599,] %>% View()
-  filter(trip_report_id == from_fhier_data[5046, ]$edit_trip &
-           res_msg == from_fhier_data[5046, ]$message) 
-
-# View(dat_pending_data_mult2)
-all.equal(dat_pending_data_mult2[1,], dat_pending_data_mult2[2,])
-# [1] "Attributes: < Component “row.names”: Mean relative difference: 1 >"
-# duplicate
-
-from_fhier_data_mult2 <-
-  from_fhier_data %>%
-  filter(edit_trip == dat_pending_data[34599, ]$trip_report_id &
-           message == dat_pending_data[34599, ]$res_msg) 
-dim(from_fhier_data_mult2)
+# ---- left join ----
 
 db_n_fhier_data_ok <-
   left_join(
@@ -344,19 +346,28 @@ db_n_fhier_data_ok <-
     by = join_by(
       trip_report_id == edit_trip,
       res_msg == message,
-      trip_length == trip_length
+      trip_length == trip_length,
+      arr_year == arr_year,
+      arr_year_month == arr_year_month
     )
   )
 
 dim(db_n_fhier_data_ok)
+# [1] 47569    57
 
 # ---
-# dim(dat_pending_data)
+# dim(unique(dat_pending_data))
+# [1] 47569    41
+# not unique
 # [1] 48440    41
+# dim(from_fhier_data_22)
+# [1] 4184   21
+# dim(unique(from_fhier_data_22))
+# [1] 4183   21
 # dim(from_fhier_data)
 # [1] 5050   21
 
-grep("x", names(db_n_fhier_data_all), value = T)
+# --- full join ----
 db_n_fhier_data_all <-
   full_join(
     unique(dat_pending_data),
