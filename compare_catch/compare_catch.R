@@ -788,7 +788,54 @@ grid.arrange(grobs = plots10,
 ## Count Index: use a MRIP/FHIER count ratio ----
 # keep ymax the same across plots
 
-### GOM 
+## plot_ind function ----
+# map(unique(fhier_mrip_gom_ind$common_name)
+plot_ind <- function(my_df, com_n, no_legend = TRUE) {
+  one_ind_plot <-
+    my_df %>%
+    filter(common_name == com_n) %>%
+    ggplot(aes(x = year_wave,
+               y = cnt_index
+               )
+           ) +
+    geom_col(fill = "deepskyblue") +
+    # geom_point() +
+    my_theme45 +
+        labs(title = com_n,
+        # remove x and y axes titles
+         x = "",
+         y = ""
+    ) +
+    ylim(-1, 1)
+  
+  if (no_legend) {
+    one_ind_plot <- one_ind_plot +
+      theme(legend.position = "none")
+  }
+  return(one_ind_plot)
+}
+
+## calculate_cnt_index function ----
+calculate_cnt_index <- function(my_df) {
+  my_df %>%
+    select(-c(state, species_itis)) %>%
+    mutate_all( ~ replace_na(., 0)) %>%
+    group_by(year_wave, common_name) %>%
+    # aggregate counts by states
+    summarise(
+      fhier_cnts = sum(fhier_quantity_by_4),
+      mrip_cnts = sum(mrip_estimate_catch_by_4)
+    ) %>%
+    mutate(cnt_index = (mrip_cnts - fhier_cnts) /
+             (mrip_cnts + fhier_cnts)) %>%
+    mutate(cnt_index = round(cnt_index, 2)) %>%
+    return()
+}
+
+### GOM index ----
+fhier_mrip_gom_ind1 <- calculate_cnt_index(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10)
+
+all.equal(fhier_mrip_gom_ind, fhier_mrip_gom_ind1)
 fhier_mrip_gom_ind <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   select(-c(state, species_itis)) %>%
@@ -816,41 +863,20 @@ fhier_mrip_gom_ind <-
 
 # plot(fhier_mrip_gom_ind)
 
-## plot_ind <- function ----
-# map(unique(fhier_mrip_gom_ind$common_name)
-plot_ind <- function(my_df, com_n, no_legend = TRUE) {
-  one_ind_plot <-
-    my_df %>%
-    filter(common_name == com_n) %>%
-    ggplot(aes(x = year_wave,
-               y = cnt_index,
-               color = cnt_index), ) +
-    geom_point() +
-    my_theme45 +
-        labs(title = com_n,
-        # remove x and y axes titles
-         x = "",
-         y = ""
-    ) +
-    ylim(-1, 1)
-  
-  # if (no_legend) {
-  #   one_ind_plot <- one_ind_plot +
-  #     theme(legend.position = "none")
-  # }
-  return(one_ind_plot)
-}
 
 gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_ind(fhier_mrip_gom_ind, x)}
                )
 
-super_title = "GOM: (mrip_cnts - fhier_cnts) /
-      (mrip_cnts + fhier_cnts)"
+super_title = "GOM counts ratio:
+(mrip_cnts - fhier_cnts) /
+(mrip_cnts + fhier_cnts)"
+
 grid.arrange(grobs = gom_ind_plots,
              top = super_title,
              # left = my_legend,
              ncol = 3)
 
+## SA index ---- 
 
