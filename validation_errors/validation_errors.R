@@ -46,19 +46,24 @@ View(db_pending_by_year_month)
 by_year_month_wide <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    # add_count(trip_report_id, sort = TRUE)
     group_by(overridden, arr_year_month) %>%
     summarise(n = n()) %>%
     # A tibble: 23 × 3
+    # ungroup() %>%
     pivot_wider(names_from = overridden, values_from = n) %>%
     # NAs to 0
-    mutate(pending = coalesce(pending, 0)) %>%
-    mutate(total = sum(overridden + pending)) %>%
+      mutate(pending = coalesce(pending, 0),
+         overridden = coalesce(overridden, 0)) %>%
+    arrange(arr_year_month) %>%
+    # tail()
+    mutate(total = overridden + pending) %>%
     return()
 }
 
-dat_pending_date_by_ym <- by_year_month_wide(dat_pending_date, c("trip_report_id", "overridden", "arr_year_month"))
-View(dat_pending_date_by_ym)
+dat_pending_date_by_ym1 <- by_year_month_wide(dat_pending_date, c("trip_report_id", "overridden", "arr_year_month"))
+
+all.equal(dat_pending_date_by_ym, dat_pending_date_by_ym1)
+View(dat_pending_date_by_ym1)
 
 ### Repeat for Unassigned only ====
 data_overview(dat_pending_date)
@@ -72,6 +77,24 @@ by_year(dat_pending_data_unas, c("trip_report_id", "arr_year"))
 db_unas_by_year_month_wide <-
   by_year_month_wide(dat_pending_data_unas, c("trip_report_id", "overridden", "arr_year_month"))
 
+View(db_unas_by_year_month_wide)
+fields_to_select_list <- c("trip_report_id", "overridden", "arr_year_month")
+
+dat_pending_data_unas %>%
+  select(all_of(fields_to_select_list)) %>%
+  group_by(overridden, arr_year_month) %>%
+  summarise(n = n()) %>%
+  # A tibble: 23 × 3
+  # ungroup() %>%
+  pivot_wider(names_from = overridden, values_from = n) %>%
+  # NAs to 0
+  mutate(pending = coalesce(pending, 0),
+         overridden = coalesce(overridden, 0)) %>%
+  arrange(arr_year_month) %>%
+  mutate(total = overridden + pending) %>% tail()
+  
+
+View(db_unas_by_year_month_wide)
 
 ### Repeat for Unassigned & System error ====
 
@@ -118,7 +141,7 @@ from_fhier_data_by_ym_22 <-
   pivot_wider(names_from = overridden, values_from = n) %>%   # A tibble: 21 × 3
   # NAs to 0
   mutate(pending = coalesce(pending, 0)) %>%
-  mutate(total = sum(overridden + pending))
+  mutate(total = overridden + pending)
 # %>% glimpse()
 
 ## Join db and fhier data ----
@@ -158,26 +181,6 @@ dim(db_n_fhier_data_ok)
 # [1] 4183   21
 # dim(from_fhier_data)
 # [1] 5050   21
-
-### Repeat for db unassigned ====
-db_unas_f_ym <-
-  inner_join(db_unas_by_year_month_wide,
-             from_fhier_data_by_ym_22,
-             by = join_by(arr_year_month))
-
-# names(db_unas_f_ym) %>% paste0(sep = "', '", collapse = "") %>% cat()
-
-setnames(db_unas_f_ym, old = c('arr_year_month', 'overridden.x', 'pending.x', 'total.x', 'overridden.y', 'pending.y', 'total.y'), 
-         new = c('arr_year_month', 'overridden_db', 'pending_db', 'total_db', 'overridden_fhier', 'pending_fhier', 'total_fhier'))
-View(db_unas_f_ym)
-
-### Repeat for Unassigned & System error ====
-db_unas_sys_err_f_ym <-
-  inner_join(db_unas_sys_err_by_year_month_wide,
-             from_fhier_data_by_ym_22,
-             by = join_by(arr_year_month))
-
-View(db_unas_sys_err_f_ym)
 
 ## Query parameterization ====
 
@@ -278,3 +281,116 @@ filter(asg_info == "Unassigned" & arr_year_month > "Jan 2022") %>% glimpse()
 # [1] 4824   56
 
 source("~/R_code_github/validation_errors/validation_errors_one_vsl.r")
+
+### Repeat for db unassigned ====
+db_unas_f_ym <-
+  inner_join(db_unas_by_year_month_wide,
+             from_fhier_data_by_ym_22,
+             by = join_by(arr_year_month))
+
+# names(db_unas_f_ym) %>% paste0(sep = "', '", collapse = "") %>% cat()
+
+setnames(db_unas_f_ym, old = c('arr_year_month', 'overridden.x', 'pending.x', 'total.x', 'overridden.y', 'pending.y', 'total.y'), 
+         new = c('arr_year_month', 'overridden_db', 'pending_db', 'total_db', 'overridden_fhier', 'pending_fhier', 'total_fhier'))
+# View(db_unas_f_ym)
+
+### Repeat for db unassigned and "is_enabled" ====
+dat_pending_data_unas_en <- dat_pending_data_unas %>%
+  filter(is_enabled == 1)
+
+setdiff(dat_pending_data_unas, dat_pending_data_unas_en)
+# 1
+
+db_unas_enabled_by_year_month_wide <-
+  by_year_month_wide(dat_pending_data_unas_en, c("trip_report_id", "overridden", "arr_year_month"))
+
+View(db_unas_enabled_by_year_month_wide)
+
+db_unas_en_f_ym <-
+  inner_join(db_unas_enabled_by_year_month_wide,
+             from_fhier_data_by_ym_22,
+             by = join_by(arr_year_month)) %>%
+  arrange(arr_year_month)
+
+# names(db_unas_f_ym) %>% paste0(sep = "', '", collapse = "") %>% cat()
+
+setnames(db_unas_en_f_ym, old = c('arr_year_month', 'overridden.x', 'pending.x', 'total.x', 'overridden.y', 'pending.y', 'total.y'), 
+         new = c('arr_year_month', 'overridden_db', 'pending_db', 'total_db', 'overridden_fhier', 'pending_fhier', 'total_fhier'))
+View(db_unas_en_f_ym)
+
+### Repeat for Unassigned & System error ====
+db_unas_sys_err_f_ym <-
+  inner_join(db_unas_sys_err_by_year_month_wide,
+             from_fhier_data_by_ym_22,
+             by = join_by(arr_year_month))
+
+View(db_unas_sys_err_f_ym)
+
+# TODO: repeat for captain_name
+
+### Split by assignment and validation error ====
+
+#### Split from DB ====
+dat_pending_data_22 <- dat_pending_date %>%
+  filter(departure_date >= "2022-01-01") %>%
+  mutate(trip_report_id = as.character(trip_report_id),
+         trip_length = as.character(trip_length))
+
+names(dat_pending_data_22)
+
+glimpse(dat_pending_data_22)
+
+db_by_y_m_asg_param_overr <-
+  dat_pending_data_22 %>%
+  select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
+  group_by(arr_year_month, asg_info, val_param_name, overridden) %>%
+  summarise(n = n()) %>% 
+  ungroup() 
+# %>%
+#   str()
+# tibble [3,931 × 5] (S3: tbl_df/tbl/data.frame)
+
+db_by_y_m_param_overr <-
+  dat_pending_data_22 %>%
+  select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
+  group_by(arr_year_month, val_param_name, overridden) %>%
+  summarise(n = n()) %>% 
+  ungroup()
+# %>%
+  # str()
+# tibble [254 × 4] (S3: tbl_df/tbl/data.frame)
+
+#### Split from both ====
+# View(from_fhier_data_22)
+
+db_n_fhier_data_22_ok <-
+  full_join(
+    unique(dat_pending_data_22),
+    unique(from_fhier_data_22),
+    by = join_by(
+      trip_report_id == edit_trip,
+      res_msg == message,
+      trip_length == trip_length,
+      arr_year == arr_year,
+      arr_year_month == arr_year_month,
+      vessel_name == vessel_name,
+      official_number == vesselofficialnumber,
+      overridden == overridden1
+    )
+  )
+
+glimpse(db_n_fhier_data_22_ok)
+# Rows: 47,724
+# Columns: 55
+
+fields_to_select_list = c("trip_report_id",
+                          "val_param_name",
+                          # "captain_name",
+                          # "asg_info",
+                          "arr_year_month")
+# group_by(across(variables))
+# by_year_month(db_n_fhier_data_22_ok, fields_to_select_list)
+    select(all_of(fields_to_select_list)) %>%
+    group_by(arr_year_month) %>%
+    summarise(n = n()) %>%
+    return()
