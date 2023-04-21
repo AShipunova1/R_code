@@ -587,9 +587,58 @@ db_apr_22 <- dat_pending_date %>%
 write_csv(
   db_apr_22,
   file.path(
-    my_paths$inputs,
+    my_paths$outputs,
     "validation_errors",
-    "db_apr_22.xlsx"
+    "db_apr_22.csv"
     # ,
     # sheetName = "db_apr_22"
   ))
+
+fh_apr_22 <- from_fhier_data_22 %>%
+  filter(arr_year_month == "Apr 2022")
+
+write_csv(
+  fh_apr_22,
+  file.path(
+    my_paths$outputs,
+    "validation_errors",
+    "fh_apr_22.csv"
+    # ,
+    # sheetName = "db_apr_22"
+  ))
+# === db
+# asg_info
+# trip_report_id
+# val_param_name
+# grep("enab", names(dat_pending_date), value = T)
+
+dat_pending_date %>%
+  filter(arr_year_month >= "Jan 2022" &
+           is_enabled == 1) %>%
+  select(trip_report_id,
+         val_param_name,
+         asg_info,
+         overridden,
+         arr_year_month) %>%
+  write_csv(file.path(my_paths$outputs,
+                      "validation_errors",
+                      "db_22.csv"))
+
+# fhier
+from_fhier_data_22 %>%
+  filter(arr_year_month >= "Jan 2022") %>%
+  mutate(message_no_d = str_replace_all(message, "\\d+", "")) %>%
+  mutate(message_no_d = str_replace_all(message_no_d, "-", "")) %>%
+  mutate(
+    message_no_d = str_replace_all(
+      message_no_d,
+      "Start time inconsistency with trip start time.+",
+      "Start time inconsistency with trip start time"
+    )
+  ) %>%
+  # select(message_no_d) %>% unique() %>% View()
+  mutate(message_no_d = str_replace(message_no_d, "Trip.+no catch", "Trips with no catch")) %>%
+  select(edit_trip, message_no_d, overridden1, arr_year_month) %>%
+  write_csv(file.path(my_paths$outputs,
+                      "validation_errors",
+                      "fh_22.csv"))
