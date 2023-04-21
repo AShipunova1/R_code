@@ -169,7 +169,7 @@ val_param_id_vec <-
   db_dat_od1 %>%
   filter(not_in_fhier == "DB") %>%
   select(val_param_id) %>% unique()
-glimpse()
+glimpse(val_param_id_vec)
 
 sql_text_in <- "SELECT
     *
