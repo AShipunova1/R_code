@@ -429,17 +429,16 @@ fields_to_select_list3 = (c(
   "overridden",
   "overridden.y",
   "overrideuser",
-  # "captain_name",
-  # "asg_info",
+  "captain_name",
+  "asg_info",
   "arr_year_month"
 ))
 
 # group_by(across(variables))
 # names(db_n_fhier_data_22_ok) %>% as.data.frame() %>% View()
 # grep("overr", names(db_n_fhier_data_22_ok), value = T)
-# db_n_fhier_data_22_ok_cnts <-
-
-db_n_fhier_data_22_ok %>%
+db_n_fhier_data_22_ok_cnts <-
+  db_n_fhier_data_22_ok %>%
   select(trip_report_id, all_of(fields_to_select_list3)) %>%
   arrange(arr_year_month) %>%
   group_by(across(all_of(fields_to_select_list3))) %>%
@@ -454,6 +453,7 @@ db_n_fhier_data_22_ok %>%
 # ) %>%
   # group_by(arr_year_month) %>%
   summarise(n = n()) %>%
-  arrange(arr_year_month) %>%
-  View()
+  arrange(arr_year_month) 
+# %>%
+  View(db_n_fhier_data_22_ok_cnts)
   # tail()
