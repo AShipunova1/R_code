@@ -506,3 +506,59 @@ from_fhier_data_22_s %>%
 grepl("Invalid", message, ignore.case = TRUE)
 # 0
   ) %>% str()
+
+### repeat diff with fewer param names ====
+# 1 Unusual End Port
+# 2 Warning for Depth information = 0
+# 3 Invalid Start and/or End Date
+# 4 Unusual Gear for Vessel    
+
+dat_pending_data_unas_param <- dat_pending_data_22_s %>%
+  filter(
+    asg_info == "Unassigned" &
+      !val_param_name %in% c(
+        "Unusual End Port",
+        "Warning for Depth information = 0",
+        "Invalid Start and/or End Date",
+        "Unusual Gear for Vessel"
+      )
+  )
+
+by_year(dat_pending_data_unas_param,
+        c("trip_report_id", "arr_year"))
+
+db_unas_param_err_by_year_month_wide <-
+  by_year_month_wide(
+    dat_pending_data_unas_param,
+    c("trip_report_id", "overridden", "arr_year_month")
+  )
+
+db_unas_param_f_ym <-
+  inner_join(db_unas_param_err_by_year_month_wide,
+             from_fhier_data_by_ym_22,
+             by = join_by(arr_year_month))
+
+setnames(
+  db_unas_param_f_ym,
+  old = c(
+    'arr_year_month',
+    'overridden.x',
+    'pending.x',
+    'total.x',
+    'overridden.y',
+    'pending.y',
+    'total.y'
+  ),
+  new = c(
+    'arr_year_month',
+    'overridden_db',
+    'pending_db',
+    'total_db',
+    'overridden_fhier',
+    'pending_fhier',
+    'total_fhier'
+  )
+)
+View(db_unas_param_f_ym)
+
+# ===
