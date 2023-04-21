@@ -74,21 +74,18 @@ db_unas_by_year_month_wide <-
 
 
 ### Repeat for Unassigned & System error ====
-data_overview(dat_pending_date)
 
-dat_pending_data_unas <- dat_pending_date %>%
+dat_pending_data_unas_sys_err <- dat_pending_date %>%
   filter(departure_date >= "2022-01-01" &
-           asg_info == "Unassigned")
+           (asg_info == "Unassigned" |
+              startsWith(asg_info, 'System: Error fixed on')))
 
-by_year(dat_pending_data_unas, c("trip_report_id", "arr_year"))
+by_year(dat_pending_data_unas_sys_err, c("trip_report_id", "arr_year"))
 
-db_unas_by_year_month_wide <-
-  by_year_month_wide(dat_pending_data_unas, c("trip_report_id", "overridden", "arr_year_month"))
-
-
+db_unas_sys_err_by_year_month_wide <-
+  by_year_month_wide(dat_pending_data_unas_sys_err, c("trip_report_id", "overridden", "arr_year_month"))
 
 ## From FHIER ====
-
 data_overview(from_fhier_data_22)
 
 # dim(from_fhier_data_22)
@@ -111,7 +108,7 @@ from_fhier_data %>%
 # todo: add comments
 ### FHIER by year and month ----
 
-from_fhier_data_by_ym <-
+from_fhier_data_by_ym_22 <-
   from_fhier_data_22 %>%
   select(edit_trip, overridden, arr_year_month) %>%
   mutate(overridden = case_when(overridden == "N" ~ "pending",
@@ -163,16 +160,24 @@ dim(db_n_fhier_data_ok)
 # [1] 5050   21
 
 ### Repeat for db unassigned ====
-db_f_ym <-
+db_unas_f_ym <-
   inner_join(db_unas_by_year_month_wide,
-             from_fhier_data_by_ym,
+             from_fhier_data_by_ym_22,
              by = join_by(arr_year_month))
 
-# names(db_f_ym) %>% paste0(sep = "', '", collapse = "") %>% cat()
+# names(db_unas_f_ym) %>% paste0(sep = "', '", collapse = "") %>% cat()
 
-setnames(db_f_ym, old = c('arr_year_month', 'overridden.x', 'pending.x', 'total.x', 'overridden.y', 'pending.y', 'total.y'), 
+setnames(db_unas_f_ym, old = c('arr_year_month', 'overridden.x', 'pending.x', 'total.x', 'overridden.y', 'pending.y', 'total.y'), 
          new = c('arr_year_month', 'overridden_db', 'pending_db', 'total_db', 'overridden_fhier', 'pending_fhier', 'total_fhier'))
-View(db_f_ym)
+View(db_unas_f_ym)
+
+### Repeat for Unassigned & System error ====
+db_unas_sys_err_f_ym <-
+  inner_join(db_unas_sys_err_by_year_month_wide,
+             from_fhier_data_by_ym_22,
+             by = join_by(arr_year_month))
+
+View(db_unas_sys_err_f_ym)
 
 ## Query parameterization ====
 
@@ -196,13 +201,13 @@ make_sql_parameters <- function(my_param_df, sql_text) {
 }
 
 ## Compare by year_month ====
-all.equal(dat_pending_date_by_ym, from_fhier_data_by_ym)
+all.equal(dat_pending_date_by_ym, from_fhier_data_by_ym_22)
 View(dat_pending_date_by_ym)
-View(from_fhier_data_by_ym)
+View(from_fhier_data_by_ym_22)
 
 both_ym <-
   left_join(dat_pending_date_by_ym,
-            from_fhier_data_by_ym,
+            from_fhier_data_by_ym_22,
             by = join_by(arr_year_month))
 
 View(both_ym)
