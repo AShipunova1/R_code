@@ -3,7 +3,18 @@ source("~/R_code_github/validation_errors/validation_errors_get_data.r")
 
 ## From DB ====
 ### From db by year ====
-dat_pending_date %>%
+by_year <- function(my_df, fields_to_select_list) {
+  my_df %>%
+    select(all_of(fields_to_select_list)) %>%
+    group_by(arr_year) %>%
+    summarise(n = n()) %>%
+    return()
+}
+
+identical(a1, a2)
+# T
+a1 <- by_year(dat_pending_date, c("trip_report_id", "arr_year"))
+a2 <- dat_pending_date %>%
   select(trip_report_id, arr_year) %>%
   group_by(arr_year) %>%
   summarise(n = n())
@@ -45,6 +56,14 @@ dat_pending_date_by_ym <-
   mutate(total = sum(overridden + pending))
 
 View(db_pending_by_year_month)
+
+### Repeat for uassigned only ====
+data_overview(dat_pending_date)
+
+dat_pending_data_unas <- dat_pending_date %>%
+  filter(departure_date >= "2022-01-01" &
+           asg_info == "Unassigned")
+
 
 ## From FHIER ====
 
