@@ -144,7 +144,7 @@ intersect(db_not_in_fhier_od_day_all$arr_date_only,
           not_in_fhier_od_day$arr_date_only) %>% str()
 33
 
-View(dat_pending_date_od_all)
+# View(dat_pending_date_od_all)
 
 not_in_fhier_od_day %<>%
   mutate(not_in_fhier = "DB")
@@ -153,7 +153,7 @@ db_dat_od1 <-
   left_join(db_not_in_fhier_od_day_all,
             not_in_fhier_od_day,
             by = join_by(arr_date_only))
-View(db_dat_od1)
+# View(db_dat_od1)
 
 db_dat_od1 %<>%
   mutate(db_dat_od1, not_in_fhier = replace_na(not_in_fhier, 'F'))
@@ -190,7 +190,7 @@ WHERE
 
 my_val_sql <- make_sql_parameters(my_param_df, my_val_sql_text)
 my_val_res <- DBI::dbGetQuery(con, my_val_sql)
-View(my_val_res)
+# View(my_val_res)
 # all 2021
 
 val_param_id_vec1 <-
