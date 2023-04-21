@@ -1,3 +1,5 @@
+library(data.table)
+
 source("~/R_code_github/useful_functions_module.r")
 source("~/R_code_github/validation_errors/validation_errors_get_data.r")
 
@@ -55,31 +57,34 @@ by_year_month_wide <- function(my_df, fields_to_select_list) {
     return()
 }
 
-c1 <- by_year_month_wide(dat_pending_date, c("trip_report_id", "overridden", "arr_year_month"))
-# todo: add comments
-dat_pending_date_by_ym <-
-  dat_pending_date %>%
-  select(trip_report_id, overridden, arr_year_month) %>%
-  # add_count(trip_report_id, sort = TRUE)
-  group_by(overridden, arr_year_month) %>%
-  summarise(n = n()) %>%
-  # A tibble: 23 × 3
-  pivot_wider(names_from = overridden, values_from = n) %>%
-  # NAs to 0
-  mutate(pending = coalesce(pending, 0)) %>%
-  mutate(total = sum(overridden + pending))
-
-all.equal(dat_pending_date_by_ym, c1)
-# T
+dat_pending_date_by_ym <- by_year_month_wide(dat_pending_date, c("trip_report_id", "overridden", "arr_year_month"))
 View(dat_pending_date_by_ym)
 
-
-### Repeat for uassigned only ====
+### Repeat for Unassigned only ====
 data_overview(dat_pending_date)
 
 dat_pending_data_unas <- dat_pending_date %>%
   filter(departure_date >= "2022-01-01" &
            asg_info == "Unassigned")
+
+by_year(dat_pending_data_unas, c("trip_report_id", "arr_year"))
+
+db_unas_by_year_month_wide <-
+  by_year_month_wide(dat_pending_data_unas, c("trip_report_id", "overridden", "arr_year_month"))
+
+
+### Repeat for Unassigned & System error ====
+data_overview(dat_pending_date)
+
+dat_pending_data_unas <- dat_pending_date %>%
+  filter(departure_date >= "2022-01-01" &
+           asg_info == "Unassigned")
+
+by_year(dat_pending_data_unas, c("trip_report_id", "arr_year"))
+
+db_unas_by_year_month_wide <-
+  by_year_month_wide(dat_pending_data_unas, c("trip_report_id", "overridden", "arr_year_month"))
+
 
 
 ## From FHIER ====
@@ -105,6 +110,7 @@ from_fhier_data %>%
 
 # todo: add comments
 ### FHIER by year and month ----
+
 from_fhier_data_by_ym <-
   from_fhier_data_22 %>%
   select(edit_trip, overridden, arr_year_month) %>%
@@ -156,7 +162,19 @@ dim(db_n_fhier_data_ok)
 # dim(from_fhier_data)
 # [1] 5050   21
 
-## === Query parameterization ====
+### Repeat for db unassigned ====
+db_f_ym <-
+  inner_join(db_unas_by_year_month_wide,
+             from_fhier_data_by_ym,
+             by = join_by(arr_year_month))
+
+# names(db_f_ym) %>% paste0(sep = "', '", collapse = "") %>% cat()
+
+setnames(db_f_ym, old = c('arr_year_month', 'overridden.x', 'pending.x', 'total.x', 'overridden.y', 'pending.y', 'total.y'), 
+         new = c('arr_year_month', 'overridden_db', 'pending_db', 'total_db', 'overridden_fhier', 'pending_fhier', 'total_fhier'))
+View(db_f_ym)
+
+## Query parameterization ====
 
 make_sql_parameters <- function(my_param_df, sql_text) {
   param_list <- paste0("(",
