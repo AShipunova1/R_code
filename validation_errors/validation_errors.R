@@ -14,7 +14,7 @@ by_year <- function(my_df, fields_to_select_list) {
 }
 # TODO: Using `all_of()` outside of a selecting function was deprecated in tidyselect 1.2.0.
 # my_vars <- function() {
-  # c(any_of(c("name", "species")), ends_with("color"))
+# c(any_of(c("name", "species")), ends_with("color"))
 # }
 # dplyr::select(starwars, my_vars())
 
@@ -433,17 +433,19 @@ glimpse(db_n_fhier_data_22_ok)
 # Rows: 47,724
 # Columns: 55
 
-fields_to_select_list3 = (c(
-  "val_param_name",
-  "overridden",
-  "overridden.y",
-  "overrideuser",
-  # "captain_name",
-  "asg_info",
-  "data_from.x",
-  "data_from.y",
-  "arr_year_month"
-))
+fields_to_select_list3 = (
+  c(
+    "val_param_name",
+    "overridden",
+    "overridden.y",
+    "overrideuser",
+    # "captain_name",
+    "asg_info",
+    "data_from.x",
+    "data_from.y",
+    "arr_year_month"
+  )
+)
 
 # names(db_n_fhier_data_22_ok) %>% as.data.frame() %>% View()
 # grep("overr", names(db_n_fhier_data_22_ok), value = T)
@@ -454,9 +456,53 @@ db_n_fhier_data_22_ok_cnts <-
   arrange(arr_year_month) %>%
   group_by(across(all_of(fields_to_select_list3))) %>%
   summarise(n = n()) %>%
-  arrange(arr_year_month) 
+  ungroup() %>%
+  arrange(arr_year_month)
 
 # In FHIER too
-  # filter(db_n_fhier_data_22_ok_cnts, !is.na(overrideuser)) %>% View()
+# filter(db_n_fhier_data_22_ok_cnts, !is.na(overrideuser)) %>% View()
 View(db_n_fhier_data_22_ok_cnts)
-  # tail()
+# tail()
+
+param_in_both <-
+  db_n_fhier_data_22_ok_cnts %>%
+  filter(!is.na(data_from.x) &
+           !is.na(data_from.y)) %>%
+  # View()
+  select(val_param_name) %>% unique()
+# 12
+
+param_in_db_only <-
+  db_n_fhier_data_22_ok_cnts %>%
+  filter(!is.na(data_from.x) &
+           is.na(data_from.y)) %>%
+  # View()
+  select(val_param_name) %>% unique()
+# 16
+
+param_in_fh_only <-
+  db_n_fhier_data_22_ok_cnts %>%
+  filter(is.na(data_from.x) &
+           !is.na(data_from.y)) %>%
+  # View()
+  select(val_param_name) %>% unique()
+# 1 NA
+
+setdiff(param_in_db_only, param_in_both)
+# 1 Unusual End Port
+# 2 Warning for Depth information = 0
+# 3 Invalid Start and/or End Date
+# 4 Unusual Gear for Vessel    
+
+names(from_fhier_data_22_s)
+from_fhier_data_22_s %>%
+  # select(res_message, message) %>% head()
+  select(message) %>% unique() %>%
+  filter(
+    # grepl("nusual", message, ignore.case = TRUE) &
+# 161
+  # grepl("port", message, ignore.case = TRUE)
+# 0
+grepl("Invalid", message, ignore.case = TRUE)
+# 0
+  ) %>% str()
