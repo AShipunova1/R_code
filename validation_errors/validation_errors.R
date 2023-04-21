@@ -424,14 +424,32 @@ glimpse(db_n_fhier_data_22_ok)
 # Rows: 47,724
 # Columns: 55
 
-# fields_to_select_list = c("trip_report_id",
-#                           "val_param_name",
-#                           # "captain_name",
-#                           # "asg_info",
-#                           "arr_year_month")
-# # group_by(across(variables))
-# # by_year_month(db_n_fhier_data_22_ok, fields_to_select_list)
-# select(all_of(fields_to_select_list)) %>%
-#   group_by(arr_year_month) %>%
-#   summarise(n = n()) %>%
-#   return()
+fields_to_select_list3 = (c(
+  "trip_report_id",
+  "val_param_name",
+  "overridden",
+  "overridden.y",
+  # "captain_name",
+  # "asg_info",
+  "arr_year_month"
+))
+# group_by(across(variables))
+
+# grep("overr", names(db_n_fhier_data_22_ok), value = T)
+# db_n_fhier_data_22_ok_cnts <-
+db_n_fhier_data_22_ok %>%
+  select(all_of(fields_to_select_list3)) %>%
+  arrange(arr_year_month) %>%
+  group_by(
+  val_param_name,
+  overridden,
+  overridden.y,
+  # captain_name,
+  # asg_info,
+  arr_year_month
+) %>%
+  # group_by(arr_year_month) %>%
+  summarise(n = n()) %>%
+  arrange(arr_year_month) %>%
+  View()
+  # tail()
