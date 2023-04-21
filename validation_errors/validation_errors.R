@@ -11,13 +11,7 @@ by_year <- function(my_df, fields_to_select_list) {
     return()
 }
 
-identical(a1, a2)
-# T
-a1 <- by_year(dat_pending_date, c("trip_report_id", "arr_year"))
-a2 <- dat_pending_date %>%
-  select(trip_report_id, arr_year) %>%
-  group_by(arr_year) %>%
-  summarise(n = n())
+by_year(dat_pending_date, c("trip_report_id", "arr_year"))
 # by year
 # A tibble: 4 × 2
 #   arr_year     n
@@ -33,11 +27,22 @@ dat_pending_date %>%
   summarise(n = n())
 
 ### From db by year_month ====
+by_year_month <- function(my_df, fields_to_select_list) {
+  my_df %>%
+    select(all_of(fields_to_select_list)) %>%
+    group_by(arr_year_month) %>%
+    summarise(n = n()) %>%
+    return()
+}
+
 db_pending_by_year_month <-
   dat_pending_date %>%
   select(trip_report_id, arr_year_month) %>%
   group_by(arr_year_month) %>%
   summarise(n = n())
+
+b1 <- by_year_month(dat_pending_date, c("trip_report_id", "arr_year_month"))
+identical(db_pending_by_year_month, b1)
 
 View(db_pending_by_year_month)
 # A tibble: 17 × 2
