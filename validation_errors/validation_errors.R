@@ -36,17 +36,26 @@ by_year_month <- function(my_df, fields_to_select_list) {
 }
 
 db_pending_by_year_month <-
-  dat_pending_date %>%
-  select(trip_report_id, arr_year_month) %>%
-  group_by(arr_year_month) %>%
-  summarise(n = n())
-
-b1 <- by_year_month(dat_pending_date, c("trip_report_id", "arr_year_month"))
-identical(db_pending_by_year_month, b1)
+  by_year_month(dat_pending_date, c("trip_report_id", "arr_year_month"))
 
 View(db_pending_by_year_month)
 # A tibble: 17 × 2
 
+by_year_month_wide <- function(my_df, fields_to_select_list) {
+  my_df %>%
+    select(all_of(fields_to_select_list)) %>%
+    # add_count(trip_report_id, sort = TRUE)
+    group_by(overridden, arr_year_month) %>%
+    summarise(n = n()) %>%
+    # A tibble: 23 × 3
+    pivot_wider(names_from = overridden, values_from = n) %>%
+    # NAs to 0
+    mutate(pending = coalesce(pending, 0)) %>%
+    mutate(total = sum(overridden + pending)) %>%
+    return()
+}
+
+c1 <- by_year_month_wide(dat_pending_date, c("trip_report_id", "overridden", "arr_year_month"))
 # todo: add comments
 dat_pending_date_by_ym <-
   dat_pending_date %>%
@@ -60,7 +69,10 @@ dat_pending_date_by_ym <-
   mutate(pending = coalesce(pending, 0)) %>%
   mutate(total = sum(overridden + pending))
 
-View(db_pending_by_year_month)
+all.equal(dat_pending_date_by_ym, c1)
+# T
+View(dat_pending_date_by_ym)
+
 
 ### Repeat for uassigned only ====
 data_overview(dat_pending_date)
