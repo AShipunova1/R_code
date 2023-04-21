@@ -404,10 +404,18 @@ db_by_y_m_param_overr <-
 #### Split from both ====
 # View(from_fhier_data_22)
 
+dat_pending_data_22_s <-
+  dat_pending_data_22 %>%
+  mutate(data_from = "db")
+
+from_fhier_data_22_s <-
+  from_fhier_data_22 %>%
+  mutate(data_from = "fhier")
+
 db_n_fhier_data_22_ok <-
   full_join(
-    unique(dat_pending_data_22),
-    unique(from_fhier_data_22),
+    unique(dat_pending_data_22_s),
+    unique(from_fhier_data_22_s),
     by = join_by(
       trip_report_id == edit_trip,
       res_msg == message,
@@ -421,6 +429,7 @@ db_n_fhier_data_22_ok <-
   )
 
 glimpse(db_n_fhier_data_22_ok)
+
 # Rows: 47,724
 # Columns: 55
 
@@ -429,31 +438,25 @@ fields_to_select_list3 = (c(
   "overridden",
   "overridden.y",
   "overrideuser",
-  "captain_name",
+  # "captain_name",
   "asg_info",
+  "data_from.x",
+  "data_from.y",
   "arr_year_month"
 ))
 
-# group_by(across(variables))
 # names(db_n_fhier_data_22_ok) %>% as.data.frame() %>% View()
 # grep("overr", names(db_n_fhier_data_22_ok), value = T)
+
 db_n_fhier_data_22_ok_cnts <-
   db_n_fhier_data_22_ok %>%
   select(trip_report_id, all_of(fields_to_select_list3)) %>%
   arrange(arr_year_month) %>%
   group_by(across(all_of(fields_to_select_list3))) %>%
-#   group_by(
-#   val_param_name,
-#   overridden,
-#   overridden.y,
-#   overrideuser,
-#   # captain_name,
-#   asg_info,
-#   arr_year_month
-# ) %>%
-  # group_by(arr_year_month) %>%
   summarise(n = n()) %>%
   arrange(arr_year_month) 
-# %>%
-  View(db_n_fhier_data_22_ok_cnts)
+
+# In FHIER too
+  # filter(db_n_fhier_data_22_ok_cnts, !is.na(overrideuser)) %>% View()
+View(db_n_fhier_data_22_ok_cnts)
   # tail()
