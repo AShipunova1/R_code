@@ -1,6 +1,8 @@
 library(data.table)
-
+# install.packages("xlsx")
+# library(xlsx)
 source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
 source("~/R_code_github/validation_errors/validation_errors_get_data.r")
 
 ## From DB ====
@@ -402,6 +404,8 @@ db_by_y_m_param_overr <-
 # tibble [254 × 4] (S3: tbl_df/tbl/data.frame)
 
 #### Split from both ====
+#### Full join with a "data_from" column ====
+
 # View(from_fhier_data_22)
 
 dat_pending_data_22_s <-
@@ -450,6 +454,7 @@ fields_to_select_list3 = (
 # names(db_n_fhier_data_22_ok) %>% as.data.frame() %>% View()
 # grep("overr", names(db_n_fhier_data_22_ok), value = T)
 
+#### full_join with counts ====
 db_n_fhier_data_22_ok_cnts <-
   db_n_fhier_data_22_ok %>%
   select(trip_report_id, all_of(fields_to_select_list3)) %>%
@@ -459,7 +464,7 @@ db_n_fhier_data_22_ok_cnts <-
   ungroup() %>%
   arrange(arr_year_month)
 
-# In FHIER too
+#### In FHIER too ====
 # filter(db_n_fhier_data_22_ok_cnts, !is.na(overrideuser)) %>% View()
 View(db_n_fhier_data_22_ok_cnts)
 # tail()
@@ -561,4 +566,30 @@ setnames(
 )
 View(db_unas_param_f_ym)
 
-# ===
+### Apr 2022 ====
+apr_unas_both <-
+  db_n_fhier_data_22_ok_cnts %>%
+  filter(arr_year_month == "Apr 2022" &
+           asg_info == "Unassigned")
+View(apr_unas_both)
+
+write_csv(
+  apr_unas_both,
+  file.path(
+    my_paths$inputs,
+    "validation_errors",
+    "apr22_db_n_fhier_data_22_ok_cnts.csv"
+  ))
+
+db_apr_22 <- dat_pending_date %>%
+  filter(arr_year_month == "Apr 2022")
+
+write_csv(
+  db_apr_22,
+  file.path(
+    my_paths$inputs,
+    "validation_errors",
+    "db_apr_22.xlsx"
+    # ,
+    # sheetName = "db_apr_22"
+  ))
