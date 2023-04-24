@@ -33,9 +33,9 @@ my_paths <- set_work_dir()
 # get data
 source("~/R_code_github/compare_catch/get_data.R")
 
-## FHIER data
+## prepare FHIER data ----
 
-### Get field names into variables
+## get column names vars ----
 # There are different formats in different available files.
 # Find a column name with "itis" in it
 itis_field_name <- grep("itis", names(logbooks_content), value = T)
@@ -46,10 +46,9 @@ vessel_id_field_name <-
   grep("vessel.*official", names(logbooks_content), value = T)
 # vessel_official_nbr
 
+## Fix dates ----
 
-### Clean logbooks_content
-
-fhier_logbooks_content <-
+logbooks_content_transmission_date_ok <-
   logbooks_content  %>%
   # create a new column
   mutate(trip_start_date_time =
@@ -64,13 +63,11 @@ fhier_logbooks_content <-
   # change the column type to a number
   mutate(reported_quantity = as.integer(reported_quantity))
 
-# head
-fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
+# view
+logbooks_content_transmission_date_ok %>% select(starts_with("trip")) %>% str()
 
-#### Fix typos
-
-fhier_logbooks_content_date_fixed_tmp <-
-  fhier_logbooks_content %>%
+logbooks_content_transmission_date_ok_date_fixed_tmp <-
+  logbooks_content_transmission_date_ok %>%
   # if a "trip_end_date" is before 2020 - use "notif_trip_end_date" column instead
   mutate(trip_end_date1 = ifelse(
     trip_end_date < "2020-01-01",
@@ -78,27 +75,23 @@ fhier_logbooks_content_date_fixed_tmp <-
     trip_end_date
   ))
 
-fhier_logbooks_content_date_fixed <-
-  fhier_logbooks_content_date_fixed_tmp %>%
+logbooks_content_transmission_date_ok_date_fixed <-
+  logbooks_content_transmission_date_ok_date_fixed_tmp %>%
   # manually change the wrong value
   mutate(trip_end_date2 = ifelse(
     # find it
-    grepl("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1),
+    grepl("1992", logbooks_content_transmission_date_ok_date_fixed_tmp$trip_end_date1),
     # change it
     "2022-10-16 01:00:00",
     # don't change anything else
     trip_end_date1
   ))
 
-#### Use only 2022 data
-
-fhier_logbooks_content_date_fixed %<>%
+logbooks_content_transmission_date_ok_date_fixed %<>%
   filter(year(trip_end_date) == "2022")
 
-### Add waves
-
-fhier_logbooks_content_waves <-
-  fhier_logbooks_content_date_fixed %>%
+logbooks_content_transmission_date_ok_waves <-
+  logbooks_content_transmission_date_ok_date_fixed %>%
   # add a new column with a trip end Month
   mutate(end_month = as.yearmon(trip_end_date2)) %>%
   # add a new column with a trip end Year
@@ -109,9 +102,7 @@ fhier_logbooks_content_waves <-
   # add a new column with a Wave
   mutate(end_wave  = floor((end_month_num + 1) / 2))
 
-### FL county to region
-
-# Florida counties by region (from the Internet)
+# Florida counties by region (from the Internet) ----
 fl_counties <- list(
   "SA" = c(
     "Brevard",
@@ -153,12 +144,15 @@ fl_counties <- list(
   )
 )
 
-fhier_logbooks_content_waves_fl_county <-
-  fhier_logbooks_content_waves %>%
+logbooks_content_transmission_date_ok_waves_fl_county <-
+  logbooks_content_transmission_date_ok_waves %>%
   # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
   mutate(
     end_port_fl_reg = case_when(
       # check in the list
+      # if there is no end county, use the start
+      fix_names(start_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
+      fix_names(start_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
       fix_names(end_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
       fix_names(end_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
       # if not on the list - keep it
@@ -166,23 +160,7 @@ fhier_logbooks_content_waves_fl_county <-
     )
   )
 
-#### Not GOM or SA fhier_logbooks_content_waves_fl_county
-
-fhier_logbooks_content_waves_fl_county %>%
-  # get FL only
-  filter(end_port_state == "FL") %>%
-  # sort by county
-  arrange(end_port_county) %>%
-  distinct() %>%
-  # 37 counties
-  select(end_port_fl_reg) %>%
-  # what else is in the new column beside sa and gom
-  filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
-
-# NOT-SPECIFIED
-
-### States to GOM or SA
-
+## states to regions ----
 # list of states in the South Atlantic region (from the Internet)
 states_sa <- data.frame(
   state_name = c(
@@ -198,7 +176,6 @@ states_sa <- data.frame(
   )
 )
 
-#### Get state abbreviations
 sa_state_abb <-
   # a default R table
   state_tbl %>%
@@ -206,10 +183,9 @@ sa_state_abb <-
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
   select(state_abb)
-#### Add sa/gom to states
 
-fhier_logbooks_content_waves__sa_gom <-
-  fhier_logbooks_content_waves_fl_county %>%
+logbooks_content_transmission_date_ok_waves__sa_gom <-
+  logbooks_content_transmission_date_ok_waves_fl_county %>%
   # add a new column "end_port_sa_gom" with sa or gom for each state
   # use fix_name aux function to unify state names (lower case, no spaces etc.)
   mutate(end_port_sa_gom = case_when(
@@ -227,66 +203,15 @@ fhier_logbooks_content_waves__sa_gom <-
   )) %>%
   # remove this column, we don't need it anymore
   select(-end_port_fl_reg)
-```
 
-
-## Glimpse logbooks content
-```{r logbooks_content}
-glimpse(logbooks_content)
-```
-
-  
-## Wrong dates
-```{r logbooks_content wrong dates}
-
-fhier_dates <-
-  fhier_logbooks_content %>%
-  select(grep("date", names(fhier_logbooks_content), value = T))
-
-max(fhier_dates$trip_start_date_time)
-# [1] "2023-06-13 08:00:00 EDT"
-min(fhier_dates$trip_start_date_time)
-
-max(fhier_dates$trip_end_date_time)
-# [1] "2023-06-13 16:00:00 EDT"
-min(fhier_dates$trip_end_date_time)
-# [1] "1969-08-17 12:30:00 EDT"
-
-fhier_dates %>%
-  filter(trip_start_date_time < "2022-01-01" |
-           trip_start_date_time > "2023-04-01") %>%
-  head(1)
-# 1
-
-fhier_dates %>%
-  filter(trip_end_date_time < "2022-01-01" |
-           trip_end_date_time > "2023-04-01")  %>%
-  head()
-# 34
-
-```
-
-### to csv
-```{r logbooks_content wrong dates to csv}
-fhier_logbooks_content %>%
-  filter(
-    trip_start_date_time < "2022-01-01" |
-      trip_start_date_time > "2023-04-01" |
-      trip_end_date_time < "2022-01-01" |
-      trip_end_date_time > "2023-04-01"
-  ) %>% head()
-# %>%
-#   write.csv(file = "fhier_logbooks_wrong_dates.csv", row.names = F)
-```
-
-### Transmission year
-(1) check the transmission year. Anything sent in 2021 we ignore, since it was a testing year for approving apps.
-```{r Transmission year}
+### Transmission year ====
+# (1) check the transmission year. Anything sent in 2021 we ignore, since it was a testing year for approving apps.
+# ```{r Transmission year}
 
 grep("transm", names(logbooks_content), value = T)
 
 logbooks_content_transmission_date_ct <-
-  logbooks_content %>%
+  logbooks_content_transmission_date_ok_waves__sa_gom %>%
   mutate(transmission_date_ct = as.POSIXct(transmission_date,
                                            format = "%Y-%m-%d %H:%M:%S"))
 
@@ -313,21 +238,79 @@ transmission_date_ok <-
   filter(transmission_date_ct > "2022-01-01") %>%
   select(-`1`)
 
-transmission_date_ok %>%
-select(trip_start_date, trip_end_date, transmission_date) %>% 
-  unique() %>%
-  head()
+# transmission_date_ok %>%
+# select(trip_start_date, trip_end_date, transmission_date) %>% 
+#   unique() %>%
+#   head()
 # glimpse()
 # Rows: 20
 # write.csv(file = "fhier_logbooks_wrong_dates1.csv", row.names = F)
+
+### Get field names into variables
+# There are different formats in different available files.
+# Find a column name with "itis" in it
+
+logbooks_content_transmission_date_ok <- transmission_date_ok
+
+# names(logbooks_content_transmission_date_ok)
+
+```
+
+## Glimpse logbooks content
+```{r logbooks_content_transmission_date_ok}
+glimpse(logbooks_content_transmission_date_ok)
+```
+
+  
+## Wrong dates
+```{r logbooks_content wrong dates}
+
+fhier_dates <-
+  logbooks_content_transmission_date_ok %>%
+  select(grep("date", names(logbooks_content_transmission_date_ok), value = T))
+
+max(fhier_dates$trip_start_date_time)
+# [1] "2023-06-13 08:00:00 EDT"
+min(fhier_dates$trip_start_date_time)
+
+max(fhier_dates$trip_end_date_time)
+# [1] "2023-06-13 16:00:00 EDT"
+min(fhier_dates$trip_end_date_time)
+# [1] "1969-08-17 12:30:00 EDT"
+
+fhier_dates %>%
+  filter(trip_start_date_time < "2022-01-01" |
+           trip_start_date_time > "2023-04-01") %>%
+  head(1)
+# 1
+
+fhier_dates %>%
+  filter(trip_end_date_time < "2022-01-01" |
+           trip_end_date_time > "2023-04-01")  %>%
+  head()
+# 34
+
+```
+
+### to csv
+```{r logbooks_content wrong dates to csv}
+logbooks_content_transmission_date_ok %>%
+  filter(
+    trip_start_date_time < "2022-01-01" |
+      trip_start_date_time > "2023-04-01" |
+      trip_end_date_time < "2022-01-01" |
+      trip_end_date_time > "2023-04-01"
+  ) %>% head()
+# %>%
+#   write.csv(file = "fhier_logbooks_wrong_dates.csv", row.names = F)
 ```
 
 ## region is not SA or GOM
 ```{r region is not SA or GOM glimpse}
 
-# glimpse(fhier_logbooks_content_waves__sa_gom)
+# glimpse(logbooks_content_transmission_date_ok)
 
-fhier_logbooks_content_waves__sa_gom %>%
+logbooks_content_transmission_date_ok %>%
   filter(!(end_port_sa_gom %in% c("sa", "gom"))) %>%
   glimpse()
 # Rows: 188
@@ -336,7 +319,7 @@ fhier_logbooks_content_waves__sa_gom %>%
 ### not_specified_region_states
 ```{r not_specified_region_states}
 not_specified_region <-
-  fhier_logbooks_content_waves__sa_gom %>%
+  logbooks_content_transmission_date_ok %>%
   filter(!(end_port_sa_gom %in% c("sa", "gom")))
 
 not_specified_region_states <-
@@ -397,7 +380,7 @@ not_specified_region_states_not_monroe %>%
 ### region is not SA or GOM to csv
 ```{r region is not SA or GOM to csv}
 
-fhier_logbooks_content_waves_fl_county %>%
+logbooks_content_transmission_date_ok_waves_fl_county %>%
   filter(state_name == 'FLORIDA') %>%
   filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>%
   select(-c(`1`)) %>%
@@ -416,7 +399,7 @@ fhier_logbooks_content_waves_fl_county %>%
 ## Spp. is 0
 ```{r spp. is 0}
 ## spp. is 0 ----
-logbooks_content %>%
+logbooks_content_transmission_date_ok %>%
   filter(!!sym(itis_field_name) == "0") %>%
   glimpse()
 # Rows: 89
@@ -424,7 +407,7 @@ logbooks_content %>%
 # grep("common", names(logbooks_content), value = T)
 # common_name
 
-logbooks_content %>%
+logbooks_content_transmission_date_ok %>%
   filter(!!sym(itis_field_name) == "0") %>%
   select(common_name) %>% unique()
 # NA
@@ -434,7 +417,7 @@ logbooks_content %>%
   select(trip_start_date) %>% unique()
 # 70
 
-logbooks_content %>%
+logbooks_content_transmission_date_ok %>%
   filter(!!sym(itis_field_name) == "0") %>%
   glimpse()
 # A tibble: 89 × 151
@@ -450,7 +433,7 @@ logbooks_content %>%
 (2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to filter out of the data. As of about 4 months ago, Yanet should be filtering all data to exclude vessels that did not have our permit(s).
 
 ```{r Check the vendor}
-fhier_logbooks_content_waves_fl_county %>%
+logbooks_content_transmission_date_ok_waves_fl_county %>%
   select(starts_with("notif"), user_app) %>%
   unique() %>%
   # Rows: 47,242
