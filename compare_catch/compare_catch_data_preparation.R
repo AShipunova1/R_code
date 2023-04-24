@@ -318,6 +318,18 @@ mrip_estimate_catch_by_species_state_region_waves <-
   # drop sub_reg
   select(-sub_reg)
 
+### make a test mrip one sp. var ----
+# names(mrip_estimate_catch_by_species_state_region_waves)
+mrip_test_cnts <-
+  mrip_estimate_catch_by_species_state_region_waves %>%
+  # get one species
+  filter(itis_code == test_species_itis) %>%
+  # group by region
+  group_by(itis_code, sa_gom) %>%
+  # sum the MRIP catch
+  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
+  as.data.frame()
+
 ## rename fields ----
 
 # common field names
