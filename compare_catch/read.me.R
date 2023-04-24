@@ -1,5 +1,7 @@
-# Start with compare_catch.qmd
-
+# To prepare FHIER and MRIP data
+# 1) change directories in the source code (twice).
+# 1) have useful_functions_module.r in the working directory
+# 2) run the first part of compare_catch.r, everything before the "Join FHIER and MRIP" section.
 
 # Compare catch in survey vs logbook
 # all data for 2022
@@ -12,8 +14,10 @@
 ### separate gulf and sa permits or fishing place
 
 ## 2) MRIP data
-### download for region 6 & 7 (GoM by state, SA by state) from https://www.st.nmfs.noaa.gov/SASStoredProcess/do?#
-### use SP_CODE, SUB_REG, TOT_CAT
+### O:\Fishery Data\ACL Data\MRIP Based Rec Data(CHTS)\MRIPACLspec_rec81_22wv6_01mar23\mripaclspec_rec81_22wv6_01mar23.csv
+# or
+#  MRIPACLspec_rec81_22wv6_01Mar23.zip and is available on the Google drive at https://drive.google.com/drive/folders/12wpQ1J7W9_wA2OBqDuxP5tTfi201mTZT?usp=sharing
+# 
 
 ## 3) For (1) and (2) get total caught (numbers) for each unique species by permit type or region
 # compare counts
