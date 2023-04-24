@@ -19,40 +19,6 @@
 
 # ---- 1) SEFHIER data ----
 
-load_species_count_by_disposition <- function() {
-  species_count_csv_names_list_22 = c("compare_catch/SEFHIER data/Catch by Disposition Detail (Unit Measure = CN Only).csv")
-  species_count_contents <- load_csv_names(my_paths, species_count_csv_names_list_22)
-  
-  # vessel_id_field_name <- grep("vessel.*official.*number", 
-  #                                                      tolower(names(x)),
-  #                                                      value = T)
-  
-  species_count <- clean_all_csvs(species_count_contents)
-  
-  return(species_count[[1]])
-}
-fhier_species_count_by_disposition <- load_species_count_by_disposition()
-# str(fhier_species_count_by_disposition)
-# 'data.frame':	316171 obs. of  9 variables:
-
-load_safis_catch <- function() {
-  # download Reports / SAFIS Catches Extended for each month, one year is too slow
-  safis_catch <- 
-    list.files(path = file.path(my_paths$inputs, "compare_catch/SAFIS CATCHES EXTENDED_2022"), 
-               pattern = "*.csv",
-               full.names = TRUE)  %>%
-    map_df(~read_csv(.x,
-                     show_col_types = FALSE) %>% 
-             mutate(across(.fns = as.character))) %>%
-    type_convert() %>%
-    rename_with(toupper) %>%
-    unique()
-  
-  # str(safis_catch)
-  # A tibble: 327,397 × 59
-  return(safis_catch)
-}
-
 load_all_logbooks <- function() {
   # "~\Documents\R_files_local\my_inputs\logbooks_from_fhier\FHIER_all_logbook_data.csv"
   species_count_csv_names_list_lb = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
