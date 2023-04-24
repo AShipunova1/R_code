@@ -80,13 +80,13 @@
 # ==== From Mike ====
 
 
-Below is what I had in mind to discuss at the meeting today but feel free to edit or modify:
+# Below is what I had in mind to discuss at the meeting today but feel free to edit or modify:
   
-  Start with a landings comparison. I can provide the following MRIP data:
-  *MRIP Charter landings estimates by Gulf of Mexico state, year, and two-month wave.
-*Data for the years of 2021 and 2022
-*I can provide this data for the following species: red snapper, greater amberjack, gag, and gray triggerfish
+  # Start with a landings comparison. I can provide the following MRIP data:
+  # *MRIP Charter landings estimates by Gulf of Mexico state, year, and two-month wave.
+# *Data for the years of 2021 and 2022
+# *I can provide this data for the following species: red snapper, greater amberjack, gag, and gray triggerfish
 
-If I can get the same data for SEFHIER then we can start comparisons.
+# If I can get the same data for SEFHIER then we can start comparisons.
 
-Mike
+# Mike

@@ -54,7 +54,7 @@ load_safis_catch <- function() {
 }
 
 load_all_logbooks <- function() {
-  # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\logbooks_from_fhier\FHIER_all_logbook_data.csv"
+  # "~\Documents\R_files_local\my_inputs\logbooks_from_fhier\FHIER_all_logbook_data.csv"
   species_count_csv_names_list_lb = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
   fhier_all_logbook_data <- load_csv_names(my_paths, species_count_csv_names_list_lb)
   # browser()
