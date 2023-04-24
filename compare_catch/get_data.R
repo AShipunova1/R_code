@@ -141,13 +141,14 @@ dim(mrip_estimate_2022)
 # names(mrip_estimate)
 mrip_estimate <-
   mrip_estimate_2022 %>%
+  # filtering here for just SA (6) and Gulf (7) sub regions
     filter(sub_reg %in% c(6, 7)) %>%
 # dim(mrip_estimate)
 # [1] 7479   67
   # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
   # new_moden		alpha description of ‘new_mode’
-  filter(new_moden == "Cbt")
+  filter(new_moden == "Cbt") # charterboat
 # dim(mrip_estimate)
 # [1] 1442   67
 
