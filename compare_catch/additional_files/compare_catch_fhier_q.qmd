@@ -87,10 +87,14 @@ glimpse(logbooks_content_transmission_date_ok)
 (2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to filter out of the data. As of about 4 months ago, Yanet should be filtering all data to exclude vessels that did not have our permit(s).
 
 ```{r Check the vendor}
+# find the field
+grep("vendor", names(logbooks_content), value = T)
+# [1] "vendor_app_name" "vendor_platform"
 
 # logbooks_content_transmission_date_ok %>%
 logbooks_content %>%
-  select(user_app) %>%
+  select(starts_with("vendor")) %>%
+  filter(grepl("vms", tolower(vendor_app_name))) %>%
   unique() %>% glimpse()
                 # SRFH
 
