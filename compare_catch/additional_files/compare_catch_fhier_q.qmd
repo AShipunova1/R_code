@@ -34,6 +34,8 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 
+# Use fhier_logbooks_content_waves__sa_gom
+
 ### Transmission year ====
 # (1) check the transmission year. Anything sent in 2021 we ignore, since it was a testing year for approving apps.
 # ```{r Transmission year}
@@ -41,11 +43,13 @@ source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 grep("transm", names(logbooks_content), value = T)
 
 logbooks_content_transmission_date_ct <-
-  logbooks_content_transmission_date_ok_waves__sa_gom %>%
+  fhier_logbooks_content_waves__sa_gom %>%
+  # convert to a date format
   mutate(transmission_date_ct = as.POSIXct(transmission_date,
                                            format = "%Y-%m-%d %H:%M:%S"))
 
 #### "start" names ----
+# get names with "start"
 grep("start",
      names(logbooks_content_transmission_date_ct),
      value = T)
@@ -57,30 +61,19 @@ logbooks_content_dates_ct <-
     trip_end_date_ct = as.POSIXct(trip_end_date, format = "%Y-%m-%d %H:%M:%S")
   )
 
-transmission_date_ok <-
+logbooks_content_transmission_date_ok <-
   logbooks_content_dates_ct %>%
-  filter(
-    trip_start_date < "2022-01-01" |
-      trip_start_date > "2023-04-01" |
-      trip_end_date < "2022-01-01" |
-      trip_end_date > "2023-04-01"
-  ) %>%
+  # wrong dates
+  # filter(
+  #   trip_start_date < "2022-01-01" |
+  #     trip_start_date > "2023-04-01" |
+  #     trip_end_date < "2022-01-01" |
+  #     trip_end_date > "2023-04-01"
+  # ) %>%
+  # keep only correct transmission dates
   filter(transmission_date_ct > "2022-01-01") %>%
+  # rm an extra column
   select(-`1`)
-
-# transmission_date_ok %>%
-# select(trip_start_date, trip_end_date, transmission_date) %>% 
-#   unique() %>%
-#   head()
-# glimpse()
-# Rows: 20
-# write.csv(file = "fhier_logbooks_wrong_dates1.csv", row.names = F)
-
-### Get field names into variables
-# There are different formats in different available files.
-# Find a column name with "itis" in it
-
-logbooks_content_transmission_date_ok <- transmission_date_ok
 
 # names(logbooks_content_transmission_date_ok)
 
@@ -91,7 +84,6 @@ logbooks_content_transmission_date_ok <- transmission_date_ok
 glimpse(logbooks_content_transmission_date_ok)
 ```
 
-  
 ## Wrong dates
 ```{r logbooks_content wrong dates}
 
