@@ -101,6 +101,10 @@ Glimpse data
 (2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to filter out of the data. As of about 4 months ago, Yanet should be filtering all data to exclude vessels that did not have our permit(s).
 
 ```{r Check the vendor}
+## Check the vendor ----
+(2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to filter out of the data. As of about 4 months ago, Yanet should be filtering all data to exclude vessels that did not have our permit(s).
+
+
 # find the field
 # grep("vendor", names(logbooks_content), value = T)
 # [1] "vendor_app_name" "vendor_platform"
@@ -150,7 +154,7 @@ logbooks_content_transmission_date_not_vms_ok <-
 
 ## Wrong dates - VMS only
 ```{r logbooks_content wrong dates}
-
+## Wrong dates ----
 fhier_dates <-
   logbooks_content_transmission_date_not_vms_ok %>%
   select(grep("date", names(logbooks_content_transmission_date_not_vms_ok), value = T))
@@ -182,6 +186,8 @@ fhier_dates %>%
 
 ### to csv
 ```{r logbooks_content wrong dates to csv}
+### wrong dates to csv ----
+
 # logbooks_content_transmission_date_not_vms_ok %>%
 #   filter(
 #     trip_start_date_time < "2022-01-01" |
@@ -195,6 +201,7 @@ fhier_dates %>%
 
 ## region is not SA or GOM
 ```{r region is not SA or GOM glimpse, attr.output='style="max-height: 100px;"'}
+## region is not SA or GOM ----
 
 logbooks_content_transmission_date_not_vms_ok %>%
   filter(!(end_port_sa_gom %in% c("sa", "gom"))) %>%
@@ -205,6 +212,8 @@ logbooks_content_transmission_date_not_vms_ok %>%
   
 ### not_specified_region_states
 ```{r not_specified_region_states}
+### not_specified_region_states ----
+
 not_specified_region <-
   logbooks_content_transmission_date_not_vms_ok %>%
   filter(!(end_port_sa_gom %in% c("sa", "gom")))
@@ -240,7 +249,7 @@ head(not_specified_region_states)
   
 ### Specifics
 ```{r Specifics}
-
+### Specifics ----
 not_specified_region_states_not_monroe <-
   not_specified_region_states %>%
   filter(end_port_county == "NOT-SPECIFIED" &
@@ -266,6 +275,7 @@ not_specified_region_states_not_monroe %>%
   
 ### CSV: region is not SA or GOM
 ```{r region is not SA or GOM to csv}
+### CSV: region is not SA or GOM ----
 
 logbooks_content_transmission_date_not_vms_ok %>%
   filter(state_name == 'FLORIDA') %>%
@@ -277,13 +287,14 @@ logbooks_content_transmission_date_not_vms_ok %>%
   # Rows: 0
   unique() %>%
   # glimpse()
-  write.csv(file = "fhier_logbooks_no_fl_county_not_VMS.csv", row.names = F)
+  write_csv(file = "~\\fhier_logbooks_no_fl_county_not_VMS.csv")
   
 ```
 
 
 ## Spp. is 0 - VMS only
-```{r spp. is 0}
+```{r spp. is 0, attr.output='style="max-height: 100px;"'}
+
 ## spp. is 0 ----
 logbooks_content_transmission_date_not_vms_ok %>%
   filter(!!sym(itis_field_name) == "0") %>%
