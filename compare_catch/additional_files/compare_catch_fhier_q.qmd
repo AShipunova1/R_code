@@ -71,9 +71,18 @@ logbooks_content_transmission_date_ok <-
   #     trip_end_date > "2023-04-01"
   # ) %>%
   # keep only correct transmission dates
-  filter(transmission_date_ct > "2022-01-01") %>%
+  filter(transmission_date_ct > "2022-01-01" |
+           is.na(transmission_date_ct)) %>%
   # rm an extra column
   select(-`1`)
+
+dim(logbooks_content_dates_ct)
+# [1] 320024    163
+
+dim(logbooks_content_transmission_date_ok)
+# [1] 319773    162
+# without is.na filter:
+# [1] 59630   162
 
 # names(logbooks_content_transmission_date_ok)
 
@@ -91,29 +100,34 @@ glimpse(logbooks_content_transmission_date_ok)
 grep("vendor", names(logbooks_content), value = T)
 # [1] "vendor_app_name" "vendor_platform"
 
-# logbooks_content_transmission_date_ok %>%
-logbooks_content %>%
+# logbooks_content %>%
+logbooks_content_transmission_date_not_vms_ok %>%
   select(starts_with("vendor")) %>%
-  filter(grepl("vms", tolower(vendor_app_name))) %>%
+  filter(!grepl("vms", tolower(vendor_app_name))) %>%
   unique() %>% glimpse()
-                # SRFH
-
-logbooks_content %>%
-  # select(notif_accsp_system_id) %>%
-# "ETRIPS", NA, "VMS"
-  select(notif_ue) %>%
-  unique() %>% head(20)
-# %>% glimpse()
 
 logbooks_content_transmission_date_ok %>%
-  select(starts_with("notif")) %>%
-  unique() %>%
-  # Rows: 47,242
-  # Columns: 33
-  #   filter(complete.cases(.)) %>%
-  # 0
-  glimpse()
+  select(vendor_app_name) %>% unique() %>% glimpse()
+# $ vendor_app_name <chr> "VMS"
 
+logbooks_content %>%
+  mutate(
+    transmission_date_group =
+      case_when(
+        transmission_date < "2022-01-01" ~ "before Jan 2022",
+        transmission_date > "2022-01-01" ~ "after Jan 2022"
+      )
+  ) %>% 
+  select(vendor_app_name, transmission_date, transmission_date_group) %>% 
+  head()
+  unique()
+
+logbooks_content_transmission_date_not_vms_ok <-
+  logbooks_content_transmission_date_ok %>%
+  filter(!tolower(vendor_app_name) == "vms")
+
+dim(logbooks_content_transmission_date_not_vms_ok)
+  
 ```
 ---- End of data preparation ----
 
