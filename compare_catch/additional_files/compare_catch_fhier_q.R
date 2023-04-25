@@ -1,4 +1,3 @@
-
 ##| echo: false
 library(zoo)
 library(gridExtra)
@@ -18,54 +17,35 @@ source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 # Use fhier_logbooks_content_waves__sa_gom
 
 ### Transmission year ====
-# (1) check the transmission year. Anything sent in 2021 we ignore, since it was a testing year for approving apps.
+# (1) check the transmission year (trip_de fireld). Anything sent in 2021 we ignore, since it was a testing year for approving apps.
 # ```{r Transmission year}
 
-grep("transm", names(fhier_logbooks_content_waves__sa_gom), value = T)
+# fhier_logbooks_content_waves__sa_gom %>%
+#   select(trip_de, transmission_date) %>% unique()
 
-logbooks_content_transmission_date_ct <-
+# grep("transm", names(fhier_logbooks_content_waves__sa_gom), value = T)
+
+logbooks_content_transmission_trip_de_ct <-
   fhier_logbooks_content_waves__sa_gom %>%
   # convert to a date format
-  mutate(transmission_date_ct =
-           as.POSIXct(transmission_date,
+  mutate(trip_de_ct =
+           as.POSIXct(trip_de,
                       format = "%Y-%m-%d %H:%M:%S"))
 
-#### "start" names ----
-# get names with "start"
-grep("start",
-     names(logbooks_content_transmission_date_ct),
-     value = T)
-
-logbooks_content_dates_ct <-
-  logbooks_content_transmission_date_ct %>%
-  mutate(
-    trip_start_date_ct = as.POSIXct(trip_start_date, format = "%Y-%m-%d %H:%M:%S"),
-    trip_end_date_ct = as.POSIXct(trip_end_date, format = "%Y-%m-%d %H:%M:%S")
-  )
-
 logbooks_content_transmission_date_ok <-
-  logbooks_content_dates_ct %>%
-  # wrong dates
-  # filter(
-  #   trip_start_date < "2022-01-01" |
-  #     trip_start_date > "2023-04-01" |
-  #     trip_end_date < "2022-01-01" |
-  #     trip_end_date > "2023-04-01"
-  # ) %>%
+  logbooks_content_transmission_trip_de_ct %>%
   # keep only correct transmission dates
-  filter(transmission_date_ct > "2022-01-01" |
+  filter(trip_de_ct > "2022-01-01" |
            # or NAs
-           is.na(transmission_date_ct)) %>%
+           is.na(trip_de_ct)) %>%
   # rm an extra column
   select(-`1`)
 
-dim(logbooks_content_dates_ct)
-# [1] 320024    163
+dim(logbooks_content_transmission_trip_de_ct)
+# [1] 320024    161
 
 dim(logbooks_content_transmission_date_ok)
-# [1] 319773    162
-# without is.na filter:
-# [1] 59630   162
+# [1] 320021    160
 
 # names(logbooks_content_transmission_date_ok)
 
@@ -235,7 +215,6 @@ logbooks_content_transmission_date_not_vms_ok %>%
   # glimpse()
   write_csv(file = "~\\fhier_logbooks_no_fl_county_not_VMS.csv")
   
-
 ## spp. is 0 ----
 logbooks_content_transmission_date_not_vms_ok %>%
   filter(!!sym(itis_field_name) == "0") %>%
