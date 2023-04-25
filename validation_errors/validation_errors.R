@@ -1,6 +1,6 @@
 library(data.table)
 # install.packages("xlsx")
-# library(xlsx)
+library(xlsx)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 source("~/R_code_github/validation_errors/validation_errors_get_data.r")
@@ -47,7 +47,7 @@ by_year_month <- function(my_df, fields_to_select_list) {
 db_pending_by_year_month <-
   by_year_month(dat_pending_date, c("trip_report_id", "arr_year_month"))
 
-# View(db_pending_by_year_month)
+View(db_pending_by_year_month)
 # A tibble: 17 × 2
 
 by_year_month_wide <- function(my_df, fields_to_select_list) {
@@ -204,6 +204,7 @@ make_sql_parameters <- function(my_param_df, sql_text) {
 
 ## Compare by year_month ====
 all.equal(dat_pending_date_by_ym, from_fhier_data_by_ym_22)
+# F
 # View(dat_pending_date_by_ym)
 # View(from_fhier_data_by_ym_22)
 
@@ -215,7 +216,7 @@ both_ym <-
 # View(both_ym)
 
 ## Diff between DB and FHIER ====
-
+### for one month
 both_ym %>% filter(arr_year_month == "Nov 2022")
 # arr_year_month overridden.x pending.x total.x overridden.y pending.y total.y
 # 1 Nov 2022               1006         0    1006           78         1      79
@@ -276,9 +277,9 @@ db_n_fhier_data_ok_short1 %>%
 
 db_n_fhier_data_ok %>%
   filter(asg_info == "Unassigned" &
-           arr_year_month > "Jan 2022") %>% glimpse()
+           arr_year_month >= "Jan 2022") %>% glimpse()
 # %>% dim()
-# [1] 4824   56
+# [1] 4962   56
 
 source("~/R_code_github/validation_errors/validation_errors_one_vsl.r")
 
@@ -367,7 +368,7 @@ db_unas_sys_err_f_ym <-
     by = join_by(arr_year_month)
   )
 
-# View(db_unas_sys_err_f_ym)
+View(db_unas_sys_err_f_ym)
 
 # TODO: repeat for captain_name
 
@@ -434,7 +435,7 @@ db_n_fhier_data_22_ok <-
 
 glimpse(db_n_fhier_data_22_ok)
 
-# Rows: 47,724
+# Rows: 47,924
 # Columns: 55
 
 fields_to_select_list3 = (
@@ -571,28 +572,42 @@ apr_unas_both <-
   db_n_fhier_data_22_ok_cnts %>%
   filter(arr_year_month == "Apr 2022" &
            asg_info == "Unassigned")
-View(apr_unas_both)
+# View(apr_unas_both)
 
-write_csv(
-  apr_unas_both,
+write.xlsx(
+  as.data.frame(apr_unas_both),
   file.path(
     my_paths$inputs,
     "validation_errors",
-    "apr22_db_n_fhier_data_22_ok_cnts.csv"
-  ))
+    "apr22_db_n_fhier_data_22_ok_cnts.xlsx"),
+    sheetName = "apr_Unassigned",
+    row.names = FALSE,
+    append = TRUE
+  )
 
 db_apr_22 <- dat_pending_date %>%
   filter(arr_year_month == "Apr 2022")
 
-write_csv(
-  db_apr_22,
+# write_csv(
+#   db_apr_22,
+#   file.path(
+#     my_paths$outputs,
+#     "validation_errors",
+#     "db_apr_22.csv"
+#     # ,
+#     # sheetName = "db_apr_22"
+#   ))
+
+write.xlsx(
+  as.data.frame(db_apr_22),
   file.path(
-    my_paths$outputs,
+    my_paths$inputs,
     "validation_errors",
-    "db_apr_22.csv"
-    # ,
-    # sheetName = "db_apr_22"
-  ))
+    "apr22_db_n_fhier_data_22_ok_cnts.xlsx"),
+    sheetName = "db_apr_22",
+    row.names = FALSE,
+    append = TRUE
+  )
 
 fh_apr_22 <- from_fhier_data_22 %>%
   filter(arr_year_month == "Apr 2022")
