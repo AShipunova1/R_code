@@ -83,6 +83,35 @@ logbooks_content_transmission_date_ok <-
 ```{r logbooks_content_transmission_date_ok}
 glimpse(logbooks_content_transmission_date_ok)
 ```
+## Questions 2. Check the vendor
+(2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to filter out of the data. As of about 4 months ago, Yanet should be filtering all data to exclude vessels that did not have our permit(s).
+
+```{r Check the vendor}
+
+# logbooks_content_transmission_date_ok %>%
+logbooks_content %>%
+  select(user_app) %>%
+  unique() %>% glimpse()
+                # SRFH
+
+logbooks_content %>%
+  # select(notif_accsp_system_id) %>%
+# "ETRIPS", NA, "VMS"
+  select(notif_ue) %>%
+  unique() %>% head(20)
+# %>% glimpse()
+
+logbooks_content_transmission_date_ok %>%
+  select(starts_with("notif")) %>%
+  unique() %>%
+  # Rows: 47,242
+  # Columns: 33
+  #   filter(complete.cases(.)) %>%
+  # 0
+  glimpse()
+
+```
+---- End of data preparation ----
 
 ## Wrong dates
 ```{r logbooks_content wrong dates}
@@ -251,29 +280,3 @@ logbooks_content %>%
   select(vessel_official_nbr) %>% unique()
 ```
 
-## Questions 2. Check the vendor
-(2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to filter out of the data. As of about 4 months ago, Yanet should be filtering all data to exclude vessels that did not have our permit(s).
-
-```{r Check the vendor}
-logbooks_content_transmission_date_ok_waves_fl_county %>%
-  select(starts_with("notif"), user_app) %>%
-  unique() %>%
-  # Rows: 47,242
-  # Columns: 33
-  #   filter(complete.cases(.)) %>%
-  # 0
-  glimpse()
-
-# user_app, system
-grep("sta", names(not_specified_region), value = T)
-
-grep("accsp", names(not_specified_region), value = T)
-
-not_specified_region %>%
-  filter(state_name == "FLORIDA") %>%
-  select(starts_with("notif"),
-         user_app,
-         accsp_permit_license_nbr) %>%
-  unique() %>%
-  head()
-```
