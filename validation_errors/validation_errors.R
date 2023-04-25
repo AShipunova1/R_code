@@ -94,34 +94,55 @@ make_sql_parameters <- function(my_param_df, sql_text) {
 
 #### Split from DB ====
 dat_pending_data_22_plus <- dat_pending_date %>%
-  filter(departure_date >= "2022-01-01")
+  filter(departure_date >= "2022-01-01" &
+           is_enabled == 1)
 
 # names(dat_pending_data_22)
 
 # View(dat_pending_data_22)
 
 fields_to_keep <-
-  c("val_param_name",
-"trip_report_id",
-"ovr_flag",
-"vessel_name",
-"official_number",
-"departure_date",
-"trip_start_time",
-"arrival_date",
-"start_date",
-"end_date",
-"val_param_yr",
-"val_is_ovr",
-"val_err_type",
-"program_type",
-"is_enabled",
-"arr_year",
-"arr_year_month",
-"overridden")
+  c(
+    "val_param_name",
+    "trip_report_id",
+    "ovr_flag",
+    "vessel_name",
+    "official_number",
+    "departure_date",
+    "trip_start_time",
+    "arrival_date",
+    "start_date",
+    "end_date",
+    "val_param_yr",
+    "val_is_ovr",
+    "val_err_type",
+    "program_type",
+    "arr_year",
+    "arr_year_month",
+    "overridden"
+  )
 
 dat_pending_data_22_plus %>%
-  select(all_of(fields_to_keep)) %>% glimpse()
+  select(all_of(fields_to_keep)) %>%
+  # dim()
+  # [1] 48571    18
+  count(val_param_name, arr_year_month) %>%
+  arrange(arr_year_month) %>%
+  pivot_wider(names_from = arr_year_month, values_from = n) %>%
+  as.data.frame() %>%
+  write.xlsx(
+    file.path(
+      my_paths$inputs,
+      "validation_errors",
+      "validation_errors.xlsx"
+    )
+    ,
+    sheetName = "is_enabled, 2022_",
+    row.names = FALSE,
+    append = TRUE
+  )
+
+  # View()
 
 # ====
 
@@ -211,12 +232,14 @@ names(from_fhier_data_22_s)
 from_fhier_data_22_s %>%
   # select(res_message, message) %>% head()
   select(message) %>% unique() %>%
-  filter(# grepl("nusual", message, ignore.case = TRUE) &
+  filter(
+    # grepl("nusual", message, ignore.case = TRUE) &
     # 161
     # grepl("port", message, ignore.case = TRUE)
     # 0
     grepl("Invalid", message, ignore.case = TRUE)
-    # 0) %>% str()
+    # 0
+    ) %>% str()
     
     ### repeat diff with fewer param names ====
     # 1 Unusual End Port
