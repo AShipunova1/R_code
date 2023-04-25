@@ -24,3 +24,4 @@ tippy.css
 __packages
 quantify_compliance/SA_non_compliant_and_has_logbooks.csv
 *.rmarkdown
+*.RDataTmp
