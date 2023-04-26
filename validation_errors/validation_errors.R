@@ -300,6 +300,7 @@ ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
 my_row <- db_data_22_plus_overr_wide_tot[1,]
 
 get_percent_plot_for_1param <- function(my_row, no_legend = TRUE){
+  browser()
   # save in variables
   val_param_name <- my_row$val_param_name
   total_by_param <- my_row$total_by_param
@@ -350,7 +351,24 @@ get_percent_plot_for_1param <- function(my_row, no_legend = TRUE){
   
   return(plot_1_param)
 }
+
+db_data_22_plus_overr_wide_tot_transposed <-
+  t(db_data_22_plus_overr_wide_tot) %>%
+  as.data.frame()
   
+View(db_data_22_plus_overr_wide_tot_transposed)
+
+temp1 <- function(one_entry){
+  browser()
+}
+
+map(db_data_22_plus_overr_wide_tot_transposed, temp1)
+# str(db_data_22_plus_overr_wide_tot_transposed)
+all_plots <-
+  map(db_data_22_plus_overr_wide_tot_transposed,
+      function(x) {
+        get_percent_plot_for_1param(x)
+      })
 # db_data_22_plus_overr_wide_tot %>%
 #   map(get_percent_plot_for_1param(.))
 # 
