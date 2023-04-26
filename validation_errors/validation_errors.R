@@ -299,27 +299,30 @@ ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
   # tibble::rownames_to_column("month_overridden")
 my_row <- db_data_22_plus_overr_wide_tot[1,]
 
-get_percent_plot_for_1param <- function(my_row, no_legend = TRUE){
+
+a = c("1", "2")
+length(a)
+
+get_percent_plot_for_1param <-
+  function(my_entry, no_legend = TRUE){
   browser()
-  # save in variables
-  val_param_name <- my_row$val_param_name
-  total_by_param <- my_row$total_by_param
+  my_entry <- as.data.frame(my_entry) %>%
+        set_names("number_of_err") %>%
+    as.numeric()
   
-  row_as_col <-
-    my_row %>%
+  # save in variables for future usage
+  # save the row number
+  all_rows_n <- length(my_entry$number_of_err)
+  # save the param name
+  val_param_name <- my_entry[1, ]
+  # save the total
+  total_by_param <- my_entry[all_rows_n, ]
+  
+  transformed_entry <-
     # remove values saved separately, leave only what is needed for a plot
-    select(-c(val_param_name, total_by_param)) %>%
-    # transpose
-    t() %>%
-    as.data.frame() %>%
-    # set column name
-    set_names("number_of_err") %>%
-    # # Jan 2022_overridden etc.
-    tibble::rownames_to_column("month_overridden") %>%
-    # preserve the year/month order
-    mutate(month_overridden = factor(month_overridden,
-                                     levels = month_overridden)) %>%
-    replace(is.na(.), 0) %>%
+    my_entry[2:(all_rows_n - 1),] %>%
+    as.numeric() %>%
+    # set_names("number_of_err") %>%
     mutate(percentage = round(100 * number_of_err / sum(number_of_err),
                               digits = 2))
   
@@ -329,9 +332,9 @@ get_percent_plot_for_1param <- function(my_row, no_legend = TRUE){
   # Jul 2022_pending 0
   
   plot_1_param <-
-    ggplot(data = row_as_col,
+    ggplot(data = transformed_entry,
            aes(
-             x = month_overridden,
+             x = months_overridden,
              y = percentage,
              fill = factor(percentage)
            )) +
@@ -354,19 +357,33 @@ get_percent_plot_for_1param <- function(my_row, no_legend = TRUE){
 
 db_data_22_plus_overr_wide_tot_transposed <-
   t(db_data_22_plus_overr_wide_tot) %>%
-  as.data.frame()
+  as.data.frame() %>%
+  # # Jan 2022_overridden etc.
+  tibble::rownames_to_column("month_overridden") %>%
+  # preserve the year/month order
+  mutate(month_overridden =
+           factor(month_overridden,
+                  levels = month_overridden)) %>%
+  replace(is.na(.), 0)
+
+
   
-View(db_data_22_plus_overr_wide_tot_transposed)
+# View(db_data_22_plus_overr_wide_tot_transposed)
 
-temp1 <- function(one_entry){
-  browser()
-}
+# temp1 <- function(one_entry){
+  # browser()
+# }
 
-map(db_data_22_plus_overr_wide_tot_transposed, temp1)
+# map(db_data_22_plus_overr_wide_tot_transposed, temp1)
 # str(db_data_22_plus_overr_wide_tot_transposed)
+
+months_overridden <- db_data_22_plus_overr_wide_tot_transposed$month_overridden
+
 all_plots <-
-  map(db_data_22_plus_overr_wide_tot_transposed,
-      function(x) {
+  db_data_22_plus_overr_wide_tot_transposed %>%
+  # use only the val err numbers
+  select(-month_overridden) %>%
+  map(function(x) {
         get_percent_plot_for_1param(x)
       })
 # db_data_22_plus_overr_wide_tot %>%
