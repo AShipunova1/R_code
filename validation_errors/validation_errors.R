@@ -196,7 +196,20 @@ db_data_22_plus_overr_wide <-
 # iris %>% mutate(sumVar = rowSums(.[1:4]))
 # str(db_data_22_plus_overr_wide[,2:23])
 
-db_data_22_plus_overr_wide %>% 
+db_data_22_plus_overr_wide_tot <-
+  db_data_22_plus_overr_wide %>% 
+  # add total, exclude param names
   mutate(total_by_param = rowSums(.[2:23], na.rm = TRUE)) %>%
   arrange(desc(total_by_param))
+
 # [1,]
+
+# ggplot(data = df, aes(x = variable, y = value)) +
+#   geom_point() + 
+#   geom_smooth(method = "lm", se = FALSE, lwd = .5, col = "black") +
+#   facet_wrap(~ Name, scales = "free_y") 
+names(db_data_22_plus_overr_wide_tot)
+ggplot(data = db_data_22_plus_overr_wide_tot, aes(x = variable, y = value)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, lwd = .5, col = "black") +
+  facet_wrap(~ val_param_name, scales = "free_y") 
