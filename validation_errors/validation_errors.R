@@ -207,14 +207,6 @@ db_data_22_plus_overr_wide_tot <-
 # [1,]
 names(db_data_22_plus_overr_wide_tot)
 
-# ggplot(db_data_22_plus_overr_wide_tot,
-#        aes(x = Fields, y = Errors))
-# facet_grid( ~ Hospital)
-# geom_bar(width = 1,
-#          stat = "identity",
-#          position = "fill")
-# coord_polar(theta = "y")
-
 db_data_22_plus_overr_wide_tot1_long <-
   # transpose all columns except param_name and total
   t(db_data_22_plus_overr_wide_tot[1,2:23]) %>%
@@ -265,6 +257,7 @@ ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
          fill = factor(number_of_err)
        )) +
     # scale_fill_manual(values = mypalette_month) +
+    # columns are side by side (not stacked)
     geom_col(position = "dodge") +
     labs(title = "Landing location inconsistency with trip",
         # remove x and y axes titles
@@ -273,12 +266,11 @@ ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
     ) +
   theme(
     # turn x text
-    axis.text.x = element_text(angle = 45)
-    # ,
+    axis.text.x = element_text(angle = 45),
     # change text size
-    # plot.title = element_text(size = 9),
-    # legend.title = element_text(size = 8),
-    # legend.text = element_text(size = 8)
+    plot.title = element_text(size = 9),
+    legend.title = element_text(size = 8),
+    legend.text = element_text(size = 8)
   )
   # geom_bar(stat = "identity", width = 1) +
   # coord_polar("y", start = 0) +
@@ -306,7 +298,6 @@ length(a)
 
 get_percent_plot_for_1param <-
   function(my_entry, no_legend = TRUE){
-    
     # browser()
     
     # save in variables for future usage
@@ -331,9 +322,6 @@ get_percent_plot_for_1param <-
     # Jul 2022_overridden 1651
     # Jul 2022_pending 0
     
-    months_overridden_short <-
-      months_overridden[2:(all_rows_n - 1)]
-    
     plot_1_param <-
       ggplot(data = transformed_entry,
              aes(
@@ -346,8 +334,15 @@ get_percent_plot_for_1param <-
            # remove x and y axes titles
            x = "",
            y = "") +
-      theme(# turn x text
-        axis.text.x = element_text(angle = 45))
+      theme(
+        # turn x text
+        axis.text.x = element_text(angle = 45),
+        # change text size
+        plot.title = element_text(size = 9),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 8)
+      ) +
+      ylim(0, 70)
     
     # By default the "no_legend" parameter is TRUE
     if (no_legend) {
@@ -369,7 +364,18 @@ db_data_22_plus_overr_wide_tot_transposed <-
            factor(month_overridden,
                   levels = month_overridden))
 
-months_overridden <- db_data_22_plus_overr_wide_tot_transposed$month_overridden
+# prepare month names for plots
+months_overridden <-
+  db_data_22_plus_overr_wide_tot_transposed$month_overridden %>%
+  gsub(pattern = "(.+) \\d\\d(\\d\\d)_(.).+",
+       replacement = "\\1_\\2_\\U\\3",
+       perl = TRUE) %>%
+  as.factor()
+
+months_overridden_short <-
+    months_overridden[2:(all_rows_n - 1)]
+    
+
 
 db_data_22_plus_overr_wide_tot_transposed_short <-
   db_data_22_plus_overr_wide_tot_transposed %>%
