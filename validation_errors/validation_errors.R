@@ -119,42 +119,71 @@ fields_to_keep <-
     "program_type",
     "arr_year",
     "arr_year_month",
-    "overridden"
+    "overridden",
+    "asg_info"
   )
 
-dat_pending_data_22_plus %>%
-  select(all_of(fields_to_keep)) %>%
-  # dim()
-  # [1] 48571    18
-  count(val_param_name, arr_year_month) %>%
-  arrange(arr_year_month) %>%
-  pivot_wider(names_from = arr_year_month, values_from = n) %>%
-  as.data.frame() %>%
-  write.xlsx(
-    file.path(
-      my_paths$inputs,
-      "validation_errors",
-      "validation_errors.xlsx"
-    )
-    ,
-    sheetName = "is_enabled, 2022_",
-    row.names = FALSE,
-    append = TRUE
-  )
+db_data_22_plus <-
+  dat_pending_data_22_plus %>%
+  select(all_of(fields_to_keep))
+
+## db_data_22_plus to xls ---- 
+# do once
+# db_data_22_plus %>%
+#   # dim()
+#   # [1] 48571    18
+#   count(val_param_name, arr_year_month) %>%
+#   arrange(arr_year_month) %>%
+#   pivot_wider(names_from = arr_year_month, values_from = n) %>%
+#   as.data.frame() %>%
+#   write.xlsx(
+#     file.path(
+#       my_paths$inputs,
+#       "validation_errors",
+#       "validation_errors.xlsx"
+#     )
+#     ,
+#     sheetName = "is_enabled, 2022_",
+#     row.names = FALSE,
+#     append = TRUE
+#   )
 
   # View()
 
 # ====
 
+v1 <-
+  db_data_22_plus %>%
+  count(arr_year_month, asg_info, val_param_name, overridden) %>%
+  arrange(arr_year_month, val_param_name, asg_info, overridden) %>%
+  ungroup() %>% 
+  as.data.frame()
+
 db_by_y_m_asg_param_overr <-
-  dat_pending_data_22 %>%
+  db_data_22_plus %>%
   select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
   group_by(arr_year_month, asg_info, val_param_name, overridden) %>%
   summarise(n = n()) %>%
-  ungroup()
-# %>%
-#   str()
+  ungroup() %>%
+  arrange(arr_year_month, val_param_name, asg_info, overridden) %>%
+  as.data.frame()
+
 # tibble [3,931 × 5] (S3: tbl_df/tbl/data.frame)
+all.equal(v1, db_by_y_m_asg_param_overr)
+# [1] "Attributes: < Component “class”: Lengths (1, 3) differ (string compare on first 1) >"
+# [2] "Attributes: < Component “class”: 1 string mismatch >"
+
+# write_csv(v1, "v1_w_count.csv")
+# write_csv(db_by_y_m_asg_param_overr, "v2_w_summ.csv")
+
+str(v1)
+# 'data.frame':	3853 obs. of  5 variables:
+
+str(db_by_y_m_asg_param_overr)
+# tibble [3,853 × 5] (S3: tbl_df/tbl/data.frame)
+# 'data.frame':	3853 obs. of  5 variables:
+all.equal(v1, db_by_y_m_asg_param_overr)
+# T
 
 db_by_y_m_param_overr <-
   dat_pending_data_22 %>%
