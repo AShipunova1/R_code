@@ -360,7 +360,6 @@ db_data_22_plus_overr_wide_tot_transposed <-
   # remove repeating parts
   mutate(
     month_overridden_short_name =
-      
       gsub(
         month_overridden,
         pattern = "(.+) \\d\\d(\\d\\d)_(.).+",
@@ -368,7 +367,6 @@ db_data_22_plus_overr_wide_tot_transposed <-
         perl = TRUE
       )
   ) %>%
-  
   # preserve the year/month order
   mutate(
     month_overridden_short_name =
@@ -376,9 +374,11 @@ db_data_22_plus_overr_wide_tot_transposed <-
              levels = month_overridden_short_name)
   )
 
-# prepare month names for plots
+# prepare month names for plots, remove the first and last values
+all_length <-
+  length(db_data_22_plus_overr_wide_tot_transposed$month_overridden_short_name)
 months_overridden_short <-
-  db_data_22_plus_overr_wide_tot_transposed$month_overridden_short_name[2:(length(months_overridden) - 1)]
+  db_data_22_plus_overr_wide_tot_transposed$month_overridden_short_name[2:(all_length - 1)]
 
 # length(months_overridden)
 
@@ -405,9 +405,7 @@ all_plots[1]
 super_title = "Percentage of Validation Errors by Month and Overridden or Pending"
 
 # combine all plots
-grid.arrange(
-  grobs = all_plots,
-  top = super_title,
-  # left = my_legend,
-  ncol = 4
-)
+grid.arrange(grobs = all_plots,
+             top = super_title,
+             # left = my_legend,
+             ncol = 4)
