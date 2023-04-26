@@ -295,6 +295,25 @@ my_row <- db_data_22_plus_overr_wide_tot[1, ]
 # a = c("1", "2")
 # length(a)
 
+# margin(t = 0, r = 0, b = 0, l = 0, unit = "pt")
+my_theme_narrow <-
+  theme_bw() +
+  theme(# plot.margin = unit(rep(.5, 4), "lines")
+    # plot.margin = margin(rep(0, 4))
+    plot.margin = unit(c(5, 0, -30, 0), "pt"),)
+
+# ---- theme with transparent background ----
+# theme_transparent <- theme(
+#   legend.background = element_rect(fill = "transparent"),
+#   legend.title = element_blank(),
+#   #no legend background color or title
+#   legend.box.background = element_rect(fill = "transparent", colour = NA),
+#   #no fill color
+#   legend.key = element_rect(fill = "transparent"),
+#   #no fill color
+#   legend.spacing = unit(-1, "lines")
+# )
+
 get_percent_plot_for_1param <-
   function(my_entry, no_legend = TRUE) {
     # browser()
@@ -329,6 +348,7 @@ get_percent_plot_for_1param <-
            # remove x and y axes titles
            x = "",
            y = "") +
+      my_theme_narrow +
       theme(
         # turn x text and change text size
         axis.text.x = element_text(angle = 45,
@@ -349,7 +369,7 @@ get_percent_plot_for_1param <-
     }
     
     return(plot_1_param)
-  }
+}
 
 db_data_22_plus_overr_wide_tot_transposed <-
   t(db_data_22_plus_overr_wide_tot) %>%
@@ -377,16 +397,16 @@ db_data_22_plus_overr_wide_tot_transposed <-
 # prepare month names for plots, remove the first and last values
 all_length <-
   length(db_data_22_plus_overr_wide_tot_transposed$month_overridden_short_name)
+
 months_overridden_short <-
   db_data_22_plus_overr_wide_tot_transposed$month_overridden_short_name[2:(all_length - 1)]
 
-# length(months_overridden)
-
+# use only the val err numbers
 db_data_22_plus_overr_wide_tot_transposed_short <-
   db_data_22_plus_overr_wide_tot_transposed %>%
-  # use only the val err numbers
-  select(-month_overridden)
+  select(-all_of(starts_with("month_overridden")))
 
+# names(db_data_22_plus_overr_wide_tot_transposed_short)
 all_plots <-
   map(db_data_22_plus_overr_wide_tot_transposed_short,
       get_percent_plot_for_1param)
