@@ -152,48 +152,11 @@ db_data_22_plus <-
 
 # ====
 
-v1 <-
+db_data_22_plus_overr <-
   db_data_22_plus %>%
-  count(arr_year_month, asg_info, val_param_name, overridden) %>%
-  arrange(arr_year_month, val_param_name, asg_info, overridden) %>%
-  ungroup() %>% 
-  as.data.frame()
+  count(arr_year_month, val_param_name, overridden)
 
-db_by_y_m_asg_param_overr <-
-  db_data_22_plus %>%
-  select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
-  group_by(arr_year_month, asg_info, val_param_name, overridden) %>%
-  summarise(n = n()) %>%
-  ungroup() %>%
-  arrange(arr_year_month, val_param_name, asg_info, overridden) %>%
-  as.data.frame()
-
-# tibble [3,931 × 5] (S3: tbl_df/tbl/data.frame)
-all.equal(v1, db_by_y_m_asg_param_overr)
-# [1] "Attributes: < Component “class”: Lengths (1, 3) differ (string compare on first 1) >"
-# [2] "Attributes: < Component “class”: 1 string mismatch >"
-
-# write_csv(v1, "v1_w_count.csv")
-# write_csv(db_by_y_m_asg_param_overr, "v2_w_summ.csv")
-
-str(v1)
-# 'data.frame':	3853 obs. of  5 variables:
-
-str(db_by_y_m_asg_param_overr)
-# tibble [3,853 × 5] (S3: tbl_df/tbl/data.frame)
-# 'data.frame':	3853 obs. of  5 variables:
-all.equal(v1, db_by_y_m_asg_param_overr)
-# T
-
-db_by_y_m_param_overr <-
-  dat_pending_data_22 %>%
-  select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
-  group_by(arr_year_month, val_param_name, overridden) %>%
-  summarise(n = n()) %>%
-  ungroup()
-# %>%
-# str()
-# tibble [254 × 4] (S3: tbl_df/tbl/data.frame)
+View(db_data_22_plus_overr)
 
 fields_to_select_list3 = (
   c(
