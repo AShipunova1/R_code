@@ -320,8 +320,8 @@ my_theme_narrow <-
 #   legend.spacing = unit(-1, "lines")
 # )
 
-get_percent_plot_for_1param <-
-  function(my_entry, no_legend = TRUE) {
+get_plot_for_1param <-
+  function(my_entry, no_legend = TRUE, percent = TRUE) {
     # browser()
     
     # save in variables for future usage
@@ -337,19 +337,27 @@ get_percent_plot_for_1param <-
       my_entry[2:(all_rows_n - 1)] %>%
       as.data.frame() %>%
       set_names("number_of_err") %>%
-      mutate(number_of_err = as.numeric(number_of_err)) %>%
-      mutate(percentage = round(100 * number_of_err / sum(number_of_err),
-                                digits = 0))
+      mutate(number_of_err = as.numeric(number_of_err)) 
+    
+    if (percent) {
+      transformed_entry <- transformed_entry %>%
+        mutate(y_values =
+                 round(100 * number_of_err / sum(number_of_err),
+                       digits = 0))
+    } else {
+      transformed_entry <- transformed_entry %>%
+        mutate(y_values = number_of_err)
+    }
     
     plot_1_param <-
       ggplot(data = transformed_entry,
              aes(
                x = months_overridden_short,
-               y = percentage,
-               fill = factor(percentage)
+               y = y_values,
+               fill = factor(y_values)
              )) +
       geom_col(position = "dodge") +
-      geom_text(aes(label = percentage)) +
+      geom_text(aes(label = y_values)) +
       labs(title = val_param_name,
            # remove x and y axes titles
            x = "",
@@ -359,6 +367,7 @@ get_percent_plot_for_1param <-
         # turn x text and change text size
         axis.text.x = element_text(angle = 45,
                                    size = 8,
+                                   # lower text
                                    hjust = 1),
         axis.text.y = element_text(size = 7),
         plot.title = element_text(size = 8)
@@ -421,9 +430,9 @@ db_data_22_plus_overr_wide_tot_transposed_short <-
   select(-all_of(starts_with("month_overridden")))
 
 # names(db_data_22_plus_overr_wide_tot_transposed_short)
-all_plots <-
+all_plots_p <-
   map(db_data_22_plus_overr_wide_tot_transposed_short,
-      get_percent_plot_for_1param)
+      get_plot_for_1param)
 
 # all_plots[1]
 
@@ -436,23 +445,50 @@ all_plots <-
 #                                              FALSE)
 # use an aux function to pull out the legend
 # my_legend <- legend_for_grid_arrange(plot_w_legend)
-super_title = "Percentage of Validation Errors by Month and Overridden or Pending"
+super_title_p = "Percentage of Validation Errors by Month and Overridden or Pending"
+
+super_title_n = "Number of Validation Errors by Month and Overridden or Pending"
 
 ## footnote with an explanation ----
-footnote = textGrob(
-  "The Percentage calculated for each validation error independently, as 100 * number_of_err / sum(number_of_err). Plots are aranged by sum(number_of_err).",
-  gp = gpar(fontface = 3, fontsize = 10),
-  # justify left
-  hjust = 0,
-  x = 0.01, y = 0.99,
-  vjust = 1
+footnote_text_p = "The Percentage calculated for each validation error independently, as 100 * number_of_err / sum(number_of_err). Plots are aranged by sum(number_of_err)."
+footnote_text_n = "Plots are aranged by sum(number_of_err)." 
+
+footnote <- function(footnote_text) {
+  textGrob(
+    footnote_text,
+    gp = gpar(fontface = 3, fontsize = 10),
+    # justify left
+    hjust = 0,
+    x = 0.01,
+    y = 0.99,
+    vjust = 1
+  ) %>%
+    return()
+}
+
+# combine all plots ----
+grid.arrange(
+  grobs = all_plots_p,
+  top = super_title_p,
+  bottom = footnote(footnote_text_p),
+  # left = my_legend,
+  ncol = 4
 )
 
-# combine all plots
+# plots by numbers ----
+
+all_plots_n <-
+  map(db_data_22_plus_overr_wide_tot_transposed_short,
+      function(x) {
+        get_plot_for_1param(x, no_legend = TRUE, percent = FALSE)
+      })
+
+# all_plots_n[[1]]
+
+# combine all number plots ----
 grid.arrange(
-  grobs = all_plots,
-  top = super_title,
-  bottom = footnote,
-  # left = my_legend,
+  grobs = all_plots_n,
+  top = super_title_n,
+  bottom = footnote(footnote_text_n),
   ncol = 4
 )
