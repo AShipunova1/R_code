@@ -174,11 +174,11 @@ db_data_22_plus_overr %>%
 db_data_22_plus_overr_wide <-
   db_data_22_plus_overr %>%
   pivot_wider(names_from = c(arr_year_month, overridden),
-              values_from = n)
+              values_from = n) %>%
+  as.data.frame()
 
 # run once
-# db_data_22_plus_overr_wide %>%
-#   as.data.frame() %>%
+# db_data_22_plus_overr_wide %>%#   
 #   write.xlsx(
 #       file.path(
 #         my_paths$inputs,
@@ -192,3 +192,11 @@ db_data_22_plus_overr_wide <-
 # 
   # View()
 
+# plots ----
+# iris %>% mutate(sumVar = rowSums(.[1:4]))
+# str(db_data_22_plus_overr_wide[,2:23])
+
+db_data_22_plus_overr_wide %>% 
+  mutate(total_by_param = rowSums(.[2:23], na.rm = TRUE)) %>%
+  arrange(desc(total_by_param))
+# [1,]
