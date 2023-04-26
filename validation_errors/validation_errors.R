@@ -290,3 +290,71 @@ ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
 #          stat = "identity",
 #          position = "fill")
 # coord_polar(theta = "y")
+
+## num of errors to percents
+  # t(db_data_22_plus_overr_wide_tot[1,2:23]) %>%
+  # as.data.frame() %>%
+  # set_names("number_of_err") %>%
+  # # Jan 2022_overridden etc.
+  # tibble::rownames_to_column("month_overridden")
+my_row <- db_data_22_plus_overr_wide_tot[1,]
+
+get_percent_plot_for_1param <- function(my_row, no_legend = TRUE){
+  # save in variables
+  val_param_name <- my_row$val_param_name
+  total_by_param <- my_row$total_by_param
+  
+  row_as_col <-
+    my_row %>%
+    # remove values saved separately, leave only what is needed for a plot
+    select(-c(val_param_name, total_by_param)) %>%
+    # transpose
+    t() %>%
+    as.data.frame() %>%
+    # set column name
+    set_names("number_of_err") %>%
+    # # Jan 2022_overridden etc.
+    tibble::rownames_to_column("month_overridden") %>%
+    # preserve the year/month order
+    mutate(month_overridden = factor(month_overridden,
+                                     levels = month_overridden)) %>%
+    replace(is.na(.), 0) %>%
+    mutate(percentage = round(100 * number_of_err / sum(number_of_err),
+                              digits = 2))
+  
+  # View(row_as_col)
+  # result example
+  # Jul 2022_overridden 1651
+  # Jul 2022_pending 0
+  
+  plot_1_param <-
+    ggplot(data = row_as_col,
+           aes(
+             x = month_overridden,
+             y = percentage,
+             fill = factor(percentage)
+           )) +
+    geom_col(position = "dodge") +
+    labs(title = val_param_name,
+         # remove x and y axes titles
+         x = "",
+         y = "") +
+    theme(# turn x text
+      axis.text.x = element_text(angle = 45))
+  
+  # By default the "no_legend" parameter is TRUE
+  if (no_legend) {
+    plot_1_param <- plot_1_param +
+      theme(legend.position = "none")
+  }
+  
+  return(plot_1_param)
+}
+  
+# db_data_22_plus_overr_wide_tot %>%
+#   map(get_percent_plot_for_1param(.))
+# 
+# plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
+#               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+#                function(x) {plot_by_spp(x, fhier_mrip_gom_to_plot)}
+#                )
