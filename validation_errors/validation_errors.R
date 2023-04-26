@@ -2,6 +2,7 @@ library(data.table)
 # install.packages("xlsx")
 library(xlsx)
 library(viridis)
+library(gridExtra)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 source("~/R_code_github/validation_errors/validation_errors_get_data.r")
@@ -370,13 +371,32 @@ db_data_22_plus_overr_wide_tot_transposed <-
 
 months_overridden <- db_data_22_plus_overr_wide_tot_transposed$month_overridden
 
-all_plots <-
+db_data_22_plus_overr_wide_tot_transposed_short <-
   db_data_22_plus_overr_wide_tot_transposed %>%
   # use only the val err numbers
-  select(-month_overridden) %>%
-  map(function(x) {
-        get_percent_plot_for_1param(x)
-      })
+  select(-month_overridden)
+
+all_plots <-
+  map(db_data_22_plus_overr_wide_tot_transposed_short,
+      get_percent_plot_for_1param)
 
 all_plots[2]
 
+# combine plots ----
+
+#### separate a legend ----
+# only if creating a list of all percent values
+# plot_w_legend <- get_percent_plot_for_1param(db_data_22_plus_overr_wide_tot_transposed_short[,1],
+#                                              # keep the legend
+#                                              FALSE)
+# use an aux function to pull out the legend
+# my_legend <- legend_for_grid_arrange(plot_w_legend)
+super_title = "Percentage of Validation Errors by Month and Overridden or Pending"
+
+# combine all plots
+grid.arrange(
+  grobs = all_plots,
+  top = super_title,
+  # left = my_legend,
+  ncol = 4
+)
