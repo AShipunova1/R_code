@@ -305,55 +305,57 @@ length(a)
 
 get_percent_plot_for_1param <-
   function(my_entry, no_legend = TRUE){
-  browser()
-  my_entry <- as.data.frame(my_entry) %>%
-        set_names("number_of_err") %>%
-    as.numeric()
-  
-  # save in variables for future usage
-  # save the row number
-  all_rows_n <- length(my_entry$number_of_err)
-  # save the param name
-  val_param_name <- my_entry[1, ]
-  # save the total
-  total_by_param <- my_entry[all_rows_n, ]
-  
-  transformed_entry <-
-    # remove values saved separately, leave only what is needed for a plot
-    my_entry[2:(all_rows_n - 1),] %>%
-    as.numeric() %>%
-    # set_names("number_of_err") %>%
-    mutate(percentage = round(100 * number_of_err / sum(number_of_err),
-                              digits = 2))
-  
-  # View(row_as_col)
-  # result example
-  # Jul 2022_overridden 1651
-  # Jul 2022_pending 0
-  
-  plot_1_param <-
-    ggplot(data = transformed_entry,
-           aes(
-             x = months_overridden,
-             y = percentage,
-             fill = factor(percentage)
-           )) +
-    geom_col(position = "dodge") +
-    labs(title = val_param_name,
-         # remove x and y axes titles
-         x = "",
-         y = "") +
-    theme(# turn x text
-      axis.text.x = element_text(angle = 45))
-  
-  # By default the "no_legend" parameter is TRUE
-  if (no_legend) {
-    plot_1_param <- plot_1_param +
-      theme(legend.position = "none")
+    
+    browser()
+    
+    # save in variables for future usage
+    # save the row number
+    all_rows_n <- length(my_entry)
+    # save the param name
+    val_param_name <- my_entry[1]
+    # save the total
+    total_by_param <- my_entry[all_rows_n]
+    
+    transformed_entry <-
+      # remove values saved separately, leave only what is needed for a plot
+      my_entry[2:(all_rows_n - 1)] %>%
+      as.data.frame() %>%
+      set_names("number_of_err") %>%
+      mutate(number_of_err = as.numeric(number_of_err)) %>%
+      mutate(percentage = round(100 * number_of_err / sum(number_of_err),
+                                digits = 2))
+    
+    # View(row_as_col)
+    # result example
+    # Jul 2022_overridden 1651
+    # Jul 2022_pending 0
+    
+    months_overridden_short <-
+      months_overridden[2:(all_rows_n - 1)]
+    
+    plot_1_param <-
+      ggplot(data = transformed_entry,
+             aes(
+               x = months_overridden_short,
+               y = percentage,
+               fill = factor(percentage)
+             )) +
+      geom_col(position = "dodge") +
+      labs(title = val_param_name,
+           # remove x and y axes titles
+           x = "",
+           y = "") +
+      theme(# turn x text
+        axis.text.x = element_text(angle = 45))
+    
+    # By default the "no_legend" parameter is TRUE
+    if (no_legend) {
+      plot_1_param <- plot_1_param +
+        theme(legend.position = "none")
+    }
+    
+    return(plot_1_param)
   }
-  
-  return(plot_1_param)
-}
 
 db_data_22_plus_overr_wide_tot_transposed <-
   t(db_data_22_plus_overr_wide_tot) %>%
