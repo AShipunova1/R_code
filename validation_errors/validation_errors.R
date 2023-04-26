@@ -3,6 +3,8 @@ library(data.table)
 library(xlsx)
 library(viridis)
 library(gridExtra)
+library(grid)
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 source("~/R_code_github/validation_errors/validation_errors_get_data.r")
@@ -300,7 +302,9 @@ my_theme_narrow <-
   theme_bw() +
   theme(# plot.margin = unit(rep(.5, 4), "lines")
     # plot.margin = margin(rep(0, 4))
-    plot.margin = unit(c(5, 0, -30, 0), "pt"),)
+    # plot.margin = unit(c(5, 0, -30, -10), "pt")
+    plot.margin = unit(c(0, 0, 0, -5), "pt")
+    )
 
 # ---- theme with transparent background ----
 # theme_transparent <- theme(
@@ -413,7 +417,7 @@ all_plots <-
       get_percent_plot_for_1param)
 
 all_plots[1]
-
+# all_plots[1]$heights
 # combine plots ----
 
 #### separate a legend ----
@@ -425,8 +429,35 @@ all_plots[1]
 # my_legend <- legend_for_grid_arrange(plot_w_legend)
 super_title = "Percentage of Validation Errors by Month and Overridden or Pending"
 
+## footnote with an explanation ----
+footnote = textGrob(
+  "The Percentage calculated for each validation error independently, as 100 * number_of_err / sum(number_of_err)",
+  gp = gpar(fontface = 3, fontsize = 10),
+  # justify left
+  hjust = 0,
+  x = 0.01, y = 0.99,
+  vjust = 1
+)
+
+library(gtable)
+all_plots[1] %>% str()
+# gt <- gtable(unit(rep(5, 3), c("cm")), unit(5, "cm"))
+
+a <- ggplotGrob(all_plots[[1]])
+a
+a$grobs[[1]]
+# panel <- gtable_filter(a, "panel")
+
+# panel$widths
+# a$height
+
+# length(all_plots)
 # combine all plots
-grid.arrange(grobs = all_plots,
-             top = super_title,
-             # left = my_legend,
-             ncol = 4)
+grid.arrange(
+  grobs = all_plots,
+  top = super_title,
+  bottom = footnote,
+  # left = my_legend,
+  ncol = 4,
+  heights = c(rep(1, length(all_plots)))
+)
