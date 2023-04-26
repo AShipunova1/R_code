@@ -1,6 +1,7 @@
 library(data.table)
 # install.packages("xlsx")
 library(xlsx)
+library(viridis)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 source("~/R_code_github/validation_errors/validation_errors_get_data.r")
@@ -212,21 +213,52 @@ names(db_data_22_plus_overr_wide_tot)
 #          stat = "identity",
 #          position = "fill")
 # coord_polar(theta = "y")
+
 db_data_22_plus_overr_wide_tot1_long <-
-  db_data_22_plus_overr_wide_tot[1, ] %>%
-  gather('val_param_name', 'Jan 2022_overridden', 'Feb 2022_overridden', 'Mar 2022_overridden', 'Apr 2022_overridden', 'May 2022_overridden', 'Jun 2022_overridden', 'Jul 2022_overridden', 'Jul 2022_pending', 'Aug 2022_overridden', 'Sep 2022_overridden', 'Oct 2022_overridden', 'Nov 2022_overridden', 'Dec 2022_overridden', 'Jan 2023_overridden', 'Jan 2023_pending', 'Feb 2023_overridden', 'Feb 2023_pending', 'Mar 2023_overridden', 'Mar 2023_pending', 'Apr 2023_pending', 'Apr 2023_overridden', 'NA_overridden', 'total_by_param', factor_key = TRUE)
+  # transpose all columns except param_name and total
+  t(db_data_22_plus_overr_wide_tot[1,2:23]) %>%
+  as.data.frame() %>%
+  set_names("number_of_err") %>%
+  # Jan 2022_overridden etc.
+  tibble::rownames_to_column("month_overridden")
+# %>% View()
 
-names(db_data_22_plus_overr_wide_tot[1, ]) %>% paste0(collapse = "', '")
-ggplot(data = db_data_22_plus_overr_wide_tot[1,],
-       aes(x = "", y = value, fill = group)) +
+#### palette by val_param_name ----
+val_err_param_indexes <- sort(unique(db_data_22_plus_overr$val_param_name))
+my_colors = length(val_err_param_indexes)
+mypalette_params = viridis(my_colors, option = "D")
+# mypalette <- rainbow(length(gom_all_cnt_indexes))
+names(mypalette_params) <- val_err_param_indexes
+mypalette_params
+
+#### palette by month/overridden ----
+val_err_month_indexes <- sort(row.names(db_data_22_plus_overr_wide_tot1_long))
+my_colors = length(val_err_param_indexes)
+mypalette_params = viridis(my_colors, option = "D")
+# mypalette <- rainbow(length(gom_all_cnt_indexes))
+names(mypalette_params) <- val_err_param_indexes
+mypalette_params
+
+
+
+### 1 pie chart ----
+View(db_data_22_plus_overr)
+
+ggplot(data = db_data_22_plus_overr_wide_tot1_long,
+       aes(x = "", y = number_of_err, fill = number_of_err)) +
+  # geom_bar(stat = "identity")
   geom_bar(stat = "identity", width = 1) +
-  coord_polar("y", start = 0)
+  coord_polar("y", start = 0) +
+  theme_void() +
+  scale_fill_manual(values = mypalette)
+  
 
 
-ggplot(db_data_22_plus_overr_wide_tot[1,], 
-       aes(x = Fields, y = Errors))
-facet_grid( ~ Hospital)
-geom_bar(width = 1,
-         stat = "identity",
-         position = "fill")
-coord_polar(theta = "y")
+
+# ggplot(db_data_22_plus_overr_wide_tot[1,], 
+#        aes(x = Fields, y = Errors))
+# facet_grid( ~ Hospital)
+# geom_bar(width = 1,
+#          stat = "identity",
+#          position = "fill")
+# coord_polar(theta = "y")
