@@ -299,12 +299,14 @@ my_row <- db_data_22_plus_overr_wide_tot[1, ]
 
 # margin(t = 0, r = 0, b = 0, l = 0, unit = "pt")
 my_theme_narrow <-
-  theme_bw() +
+  # theme_bw() +
+  theme_classic() +
   theme(# plot.margin = unit(rep(.5, 4), "lines")
     # plot.margin = margin(rep(0, 4))
     # plot.margin = unit(c(5, 0, -30, -10), "pt")
-    plot.margin = unit(c(0, 0, 0, -5), "pt")
-    )
+    plot.margin = unit(c(0, 0, 0,-5), "pt")) 
+# +
+  # theme(axis.text.x = element_text(vjust = -12))
 
 # ---- theme with transparent background ----
 # theme_transparent <- theme(
@@ -392,6 +394,12 @@ db_data_22_plus_overr_wide_tot_transposed <-
         perl = TRUE
       )
   ) %>%
+  mutate(
+    month_overridden_short_name =
+      str_replace(month_overridden_short_name,
+                  "NA_overridden",
+                  "NA_O")
+  ) %>%
   # preserve the year/month order
   mutate(
     month_overridden_short_name =
@@ -405,6 +413,7 @@ all_length <-
 
 months_overridden_short <-
   db_data_22_plus_overr_wide_tot_transposed$month_overridden_short_name[2:(all_length - 1)]
+  
 
 # use only the val err numbers
 db_data_22_plus_overr_wide_tot_transposed_short <-
@@ -416,7 +425,7 @@ all_plots <-
   map(db_data_22_plus_overr_wide_tot_transposed_short,
       get_percent_plot_for_1param)
 
-all_plots[1]
+# all_plots[1]
 
 # combine plots ----
 
@@ -431,7 +440,7 @@ super_title = "Percentage of Validation Errors by Month and Overridden or Pendin
 
 ## footnote with an explanation ----
 footnote = textGrob(
-  "The Percentage calculated for each validation error independently, as 100 * number_of_err / sum(number_of_err)",
+  "The Percentage calculated for each validation error independently, as 100 * number_of_err / sum(number_of_err). Plots are aranged by sum(number_of_err).",
   gp = gpar(fontface = 3, fontsize = 10),
   # justify left
   hjust = 0,
@@ -439,23 +448,11 @@ footnote = textGrob(
   vjust = 1
 )
 
-library(gtable)
-p <- all_plots[[1]]
-# gtable, gTree
-p_table <- ggplotGrob(p)
-grid.draw(p_table) # alternative use plot(p_table)
-p_table$heights
-p_table$widths
-
-# show_layout
-gtable_show_layout(p_table)
-
 # combine all plots
 grid.arrange(
   grobs = all_plots,
   top = super_title,
   bottom = footnote,
   # left = my_legend,
-  ncol = 4,
-  heights = c(rep(10, length(all_plots)))
+  ncol = 4
 )
