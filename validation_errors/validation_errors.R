@@ -285,19 +285,18 @@ ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
 # coord_polar(theta = "y")
 
 ## num of errors to percents
-  # t(db_data_22_plus_overr_wide_tot[1,2:23]) %>%
-  # as.data.frame() %>%
-  # set_names("number_of_err") %>%
-  # # Jan 2022_overridden etc.
-  # tibble::rownames_to_column("month_overridden")
-my_row <- db_data_22_plus_overr_wide_tot[1,]
+# t(db_data_22_plus_overr_wide_tot[1,2:23]) %>%
+# as.data.frame() %>%
+# set_names("number_of_err") %>%
+# # Jan 2022_overridden etc.
+# tibble::rownames_to_column("month_overridden")
+my_row <- db_data_22_plus_overr_wide_tot[1, ]
 
-
-a = c("1", "2")
-length(a)
+# a = c("1", "2")
+# length(a)
 
 get_percent_plot_for_1param <-
-  function(my_entry, no_legend = TRUE){
+  function(my_entry, no_legend = TRUE) {
     # browser()
     
     # save in variables for future usage
@@ -315,12 +314,7 @@ get_percent_plot_for_1param <-
       set_names("number_of_err") %>%
       mutate(number_of_err = as.numeric(number_of_err)) %>%
       mutate(percentage = round(100 * number_of_err / sum(number_of_err),
-                                digits = 2))
-    
-    # View(row_as_col)
-    # result example
-    # Jul 2022_overridden 1651
-    # Jul 2022_pending 0
+                                digits = 0))
     
     plot_1_param <-
       ggplot(data = transformed_entry,
@@ -330,19 +324,23 @@ get_percent_plot_for_1param <-
                fill = factor(percentage)
              )) +
       geom_col(position = "dodge") +
+      geom_text(aes(label = percentage)) +
       labs(title = val_param_name,
            # remove x and y axes titles
            x = "",
            y = "") +
       theme(
-        # turn x text
-        axis.text.x = element_text(angle = 45),
-        # change text size
-        plot.title = element_text(size = 9),
-        legend.title = element_text(size = 8),
-        legend.text = element_text(size = 8)
-      ) +
-      ylim(0, 70)
+        # turn x text and change text size
+        axis.text.x = element_text(angle = 45,
+                                   size = 8),
+        axis.text.y = element_text(size = 8),
+        plot.title = element_text(size = 9)
+        # ,
+        # legend.title = element_text(size = 8),
+        # legend.text = element_text(size = 8)
+      )
+    # +
+    #   ylim(0, 70)
     
     # By default the "no_legend" parameter is TRUE
     if (no_legend) {
@@ -359,23 +357,30 @@ db_data_22_plus_overr_wide_tot_transposed <-
   # # Jan 2022_overridden etc.
   tibble::rownames_to_column("month_overridden") %>%
   replace(is.na(.), 0) %>%
+  # remove repeating parts
+  mutate(
+    month_overridden_short_name =
+      
+      gsub(
+        month_overridden,
+        pattern = "(.+) \\d\\d(\\d\\d)_(.).+",
+        replacement = "\\1_\\2_\\U\\3",
+        perl = TRUE
+      )
+  ) %>%
+  
   # preserve the year/month order
-  mutate(month_overridden =
-           factor(month_overridden,
-                  levels = month_overridden))
+  mutate(
+    month_overridden_short_name =
+      factor(month_overridden_short_name,
+             levels = month_overridden_short_name)
+  )
 
 # prepare month names for plots
-months_overridden <-
-  db_data_22_plus_overr_wide_tot_transposed$month_overridden %>%
-  gsub(pattern = "(.+) \\d\\d(\\d\\d)_(.).+",
-       replacement = "\\1_\\2_\\U\\3",
-       perl = TRUE) %>%
-  as.factor()
-
 months_overridden_short <-
-    months_overridden[2:(all_rows_n - 1)]
-    
+  db_data_22_plus_overr_wide_tot_transposed$month_overridden_short_name[2:(length(months_overridden) - 1)]
 
+# length(months_overridden)
 
 db_data_22_plus_overr_wide_tot_transposed_short <-
   db_data_22_plus_overr_wide_tot_transposed %>%
@@ -386,7 +391,7 @@ all_plots <-
   map(db_data_22_plus_overr_wide_tot_transposed_short,
       get_percent_plot_for_1param)
 
-all_plots[2]
+all_plots[1]
 
 # combine plots ----
 
