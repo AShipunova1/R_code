@@ -156,7 +156,40 @@ db_data_22_plus_overr <-
   db_data_22_plus %>%
   count(arr_year_month, val_param_name, overridden)
 
-View(db_data_22_plus_overr)
+names(db_data_22_plus_overr)
+
+db_data_22_plus_overr %>%
+  pivot_longer(c(val_param_name, overridden)) %>%
+  #   dplyr::group_by(n, name, arr_year_month) %>%
+  # dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  # dplyr::filter(n > 1L)
+  pivot_wider(names_from = arr_year_month,
+              values_from = value) %>%
+    View()
+
+
+  # pivot_longer(-c(Species,num,ID)) %>%
+  # pivot_wider(names_from = ID,values_from=value)
+
+db_data_22_plus_overr_wide <-
+  db_data_22_plus_overr %>%
+  pivot_wider(names_from = c(arr_year_month, overridden),
+              values_from = n)
+
+db_data_22_plus_overr_wide %>%
+  as.data.frame() %>%
+  write.xlsx(
+      file.path(
+        my_paths$inputs,
+        "validation_errors",
+        "db_data_22_plus_overr.xlsx"
+      ),
+      sheetName = "month_overr",
+      row.names = FALSE,
+      append = TRUE
+    )
+
+  # View()
 
 fields_to_select_list3 = (
   c(
