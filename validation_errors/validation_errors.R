@@ -250,21 +250,38 @@ db_data_22_plus_overr_wide_tot1_long_fact <-
   mutate(month_overridden = factor(month_overridden,
                                    levels = month_overridden))
 
+# replace nas with zeros
+db_data_22_plus_overr_wide_tot1_long %<>%
+  replace(is.na(.), 0)
+
+pie(db_data_22_plus_overr_wide_tot1_long_fact$number_of_err,
+    labels = db_data_22_plus_overr_wide_tot1_long_fact$month_overridden)
+
 ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
        aes(
          x = month_overridden,
          y = number_of_err,
          fill = factor(number_of_err)
        )) +
-  geom_bar(stat = "identity")
-# geom_bar(stat = "identity", width = 1) +
-# coord_polar("y", start = 0) +
-# theme_void()
-# +
-scale_fill_manual(values = mypalette_month)
-
-
-
+    # scale_fill_manual(values = mypalette_month) +
+    geom_col(position = "dodge") +
+    labs(title = "Landing location inconsistency with trip",
+        # remove x and y axes titles
+         x = "",
+         y = ""
+    ) +
+  theme(
+    # turn x text
+    axis.text.x = element_text(angle = 45)
+    # ,
+    # change text size
+    # plot.title = element_text(size = 9),
+    # legend.title = element_text(size = 8),
+    # legend.text = element_text(size = 8)
+  )
+  # geom_bar(stat = "identity", width = 1) +
+  # coord_polar("y", start = 0) +
+  # theme_void() +
 
 # ggplot(db_data_22_plus_overr_wide_tot[1,], 
 #        aes(x = Fields, y = Errors))
