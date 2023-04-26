@@ -352,9 +352,10 @@ get_percent_plot_for_1param <-
       theme(
         # turn x text and change text size
         axis.text.x = element_text(angle = 45,
-                                   size = 8),
-        axis.text.y = element_text(size = 8),
-        plot.title = element_text(size = 9)
+                                   size = 8,
+                                   hjust = 1),
+        axis.text.y = element_text(size = 7),
+        plot.title = element_text(size = 8)
         # ,
         # legend.title = element_text(size = 8),
         # legend.text = element_text(size = 8)
