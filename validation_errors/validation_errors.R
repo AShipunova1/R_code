@@ -232,26 +232,37 @@ names(mypalette_params) <- val_err_param_indexes
 mypalette_params
 
 #### palette by month/overridden ----
-val_err_month_indexes <- sort(row.names(db_data_22_plus_overr_wide_tot1_long))
-my_colors = length(val_err_param_indexes)
-mypalette_params = viridis(my_colors, option = "D")
+val_err_month_indexes <- sort(unique(db_data_22_plus_overr_wide_tot1_long$month_overridden))
+my_colors = length(val_err_month_indexes)
+mypalette_month = viridis(my_colors, option = "D")
 # mypalette <- rainbow(length(gom_all_cnt_indexes))
-names(mypalette_params) <- val_err_param_indexes
-mypalette_params
-
-
+names(mypalette_month) <- val_err_month_indexes
+mypalette_month
 
 ### 1 pie chart ----
-View(db_data_22_plus_overr)
+# View(db_data_22_plus_overr)
+View(db_data_22_plus_overr_wide_tot1_long)
+# df$derma <- factor(df$derma, levels = df$derma)
 
-ggplot(data = db_data_22_plus_overr_wide_tot1_long,
-       aes(x = "", y = number_of_err, fill = number_of_err)) +
-  # geom_bar(stat = "identity")
-  geom_bar(stat = "identity", width = 1) +
-  coord_polar("y", start = 0) +
-  theme_void() +
-  scale_fill_manual(values = mypalette)
-  
+db_data_22_plus_overr_wide_tot1_long_fact <-
+  db_data_22_plus_overr_wide_tot1_long %>%
+  # to keep the order
+  mutate(month_overridden = factor(month_overridden,
+                                   levels = month_overridden))
+
+ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
+       aes(
+         x = month_overridden,
+         y = number_of_err,
+         fill = factor(number_of_err)
+       )) +
+  geom_bar(stat = "identity")
+# geom_bar(stat = "identity", width = 1) +
+# coord_polar("y", start = 0) +
+# theme_void()
+# +
+scale_fill_manual(values = mypalette_month)
+
 
 
 
