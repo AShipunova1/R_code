@@ -417,7 +417,7 @@ all_plots <-
       get_percent_plot_for_1param)
 
 all_plots[1]
-# all_plots[1]$heights
+
 # combine plots ----
 
 #### separate a legend ----
@@ -440,18 +440,16 @@ footnote = textGrob(
 )
 
 library(gtable)
-all_plots[1] %>% str()
-# gt <- gtable(unit(rep(5, 3), c("cm")), unit(5, "cm"))
+p <- all_plots[[1]]
+# gtable, gTree
+p_table <- ggplotGrob(p)
+grid.draw(p_table) # alternative use plot(p_table)
+p_table$heights
+p_table$widths
 
-a <- ggplotGrob(all_plots[[1]])
-a
-a$grobs[[1]]
-# panel <- gtable_filter(a, "panel")
+# show_layout
+gtable_show_layout(p_table)
 
-# panel$widths
-# a$height
-
-# length(all_plots)
 # combine all plots
 grid.arrange(
   grobs = all_plots,
@@ -459,5 +457,5 @@ grid.arrange(
   bottom = footnote,
   # left = my_legend,
   ncol = 4,
-  heights = c(rep(1, length(all_plots)))
+  heights = c(rep(10, length(all_plots)))
 )
