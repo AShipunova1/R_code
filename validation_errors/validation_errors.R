@@ -306,7 +306,7 @@ length(a)
 get_percent_plot_for_1param <-
   function(my_entry, no_legend = TRUE){
     
-    browser()
+    # browser()
     
     # save in variables for future usage
     # save the row number
@@ -362,22 +362,11 @@ db_data_22_plus_overr_wide_tot_transposed <-
   as.data.frame() %>%
   # # Jan 2022_overridden etc.
   tibble::rownames_to_column("month_overridden") %>%
+  replace(is.na(.), 0) %>%
   # preserve the year/month order
   mutate(month_overridden =
            factor(month_overridden,
-                  levels = month_overridden)) %>%
-  replace(is.na(.), 0)
-
-
-  
-# View(db_data_22_plus_overr_wide_tot_transposed)
-
-# temp1 <- function(one_entry){
-  # browser()
-# }
-
-# map(db_data_22_plus_overr_wide_tot_transposed, temp1)
-# str(db_data_22_plus_overr_wide_tot_transposed)
+                  levels = month_overridden))
 
 months_overridden <- db_data_22_plus_overr_wide_tot_transposed$month_overridden
 
@@ -388,10 +377,6 @@ all_plots <-
   map(function(x) {
         get_percent_plot_for_1param(x)
       })
-# db_data_22_plus_overr_wide_tot %>%
-#   map(get_percent_plot_for_1param(.))
-# 
-# plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
-#               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-#                function(x) {plot_by_spp(x, fhier_mrip_gom_to_plot)}
-#                )
+
+all_plots[2]
+
