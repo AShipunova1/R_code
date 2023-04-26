@@ -203,13 +203,30 @@ db_data_22_plus_overr_wide_tot <-
   arrange(desc(total_by_param))
 
 # [1,]
-
-# ggplot(data = df, aes(x = variable, y = value)) +
-#   geom_point() + 
-#   geom_smooth(method = "lm", se = FALSE, lwd = .5, col = "black") +
-#   facet_wrap(~ Name, scales = "free_y") 
 names(db_data_22_plus_overr_wide_tot)
-ggplot(data = db_data_22_plus_overr_wide_tot, aes(x = variable, y = value)) +
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE, lwd = .5, col = "black") +
-  facet_wrap(~ val_param_name, scales = "free_y") 
+
+# ggplot(db_data_22_plus_overr_wide_tot,
+#        aes(x = Fields, y = Errors))
+# facet_grid( ~ Hospital)
+# geom_bar(width = 1,
+#          stat = "identity",
+#          position = "fill")
+# coord_polar(theta = "y")
+db_data_22_plus_overr_wide_tot1_long <-
+  db_data_22_plus_overr_wide_tot[1, ] %>%
+  gather('val_param_name', 'Jan 2022_overridden', 'Feb 2022_overridden', 'Mar 2022_overridden', 'Apr 2022_overridden', 'May 2022_overridden', 'Jun 2022_overridden', 'Jul 2022_overridden', 'Jul 2022_pending', 'Aug 2022_overridden', 'Sep 2022_overridden', 'Oct 2022_overridden', 'Nov 2022_overridden', 'Dec 2022_overridden', 'Jan 2023_overridden', 'Jan 2023_pending', 'Feb 2023_overridden', 'Feb 2023_pending', 'Mar 2023_overridden', 'Mar 2023_pending', 'Apr 2023_pending', 'Apr 2023_overridden', 'NA_overridden', 'total_by_param', factor_key = TRUE)
+
+names(db_data_22_plus_overr_wide_tot[1, ]) %>% paste0(collapse = "', '")
+ggplot(data = db_data_22_plus_overr_wide_tot[1,],
+       aes(x = "", y = value, fill = group)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0)
+
+
+ggplot(db_data_22_plus_overr_wide_tot[1,], 
+       aes(x = Fields, y = Errors))
+facet_grid( ~ Hospital)
+geom_bar(width = 1,
+         stat = "identity",
+         position = "fill")
+coord_polar(theta = "y")
