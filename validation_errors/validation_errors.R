@@ -429,14 +429,8 @@ prepare_month_names_for_plots <- function(my_df, month_col_name) {
   return(months_short)
 }
 
-# a <- "month_overridden_short_name"
-# db_data_22_plus_overr_wide_tot_transposed[a]
+months_overridden_short <- prepare_month_names_for_plots(db_data_22_plus_overr_wide_tot_transposed, "month_overridden_short_name")
 
-db_data_22_plus_overr_wide_tot_transposed$month_overridden_short_name
-mm <- prepare_month_names_for_plots(db_data_22_plus_overr_wide_tot_transposed, "month_overridden_short_name")
-
-identical(mm, months_overridden_short)
-# T
 # use only the val err numbers
 db_data_22_plus_overr_wide_tot_transposed_short <-
   db_data_22_plus_overr_wide_tot_transposed %>%
