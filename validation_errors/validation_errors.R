@@ -513,7 +513,7 @@ transform_to_plot <- function(my_df) {
   my_df %>%
     # short format for months
     mutate(arr_year_month =
-             format(arr_year_month, "%m %y")) %>%
+             format(arr_year_month, "%m-%y")) %>%
     select(-overridden) %>%
     pivot_wider(names_from = c(arr_year_month),
                 values_from = n) %>%
