@@ -536,12 +536,21 @@ transform_to_plot <- function(my_df) {
 db_data_22_plus_overr_only_wide <-
     transform_to_plot(db_data_22_plus_sep$overridden)
 
-View(db_data_22_plus_overr_only_wide)
+# View(db_data_22_plus_overr_only_wide)
+
+months_short <- prepare_month_names_for_plots(db_data_22_plus_overr_only_wide, "month")
+
+# use only the val err numbers
+db_data_22_plus_overr_only_wide_transposed_short <-
+  db_data_22_plus_overr_only_wide %>%
+  select(-all_of(starts_with("month")))
+
+# View(db_data_22_plus_overr_only_wide_transposed_short)
 
 # plots by numbers for overridden and pending ----
 
 all_plots_n_overridden <-
-  map(db_data_22_plus_sep$overridden,
+  map(db_data_22_plus_overr_only_wide_transposed_short,
       function(x) {
         get_plot_for_1param(x, no_legend = TRUE, percent = FALSE)
       })
