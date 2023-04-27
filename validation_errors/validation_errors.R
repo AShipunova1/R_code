@@ -46,7 +46,7 @@ by_year_month <- function(my_df, fields_to_select_list) {
 db_pending_by_year_month <-
   by_year_month(dat_pending_date, c("trip_report_id", "arr_year_month"))
 
-View(db_pending_by_year_month)
+# View(db_pending_by_year_month)
 # A tibble: 17 × 2
 
 by_year_month_wide <- function(my_df, fields_to_select_list) {
@@ -71,7 +71,7 @@ dat_pending_date_by_ym <-
                      c("trip_report_id", "overridden", "arr_year_month"))
 
 # all.equal(dat_pending_date_by_ym, dat_pending_date_by_ym1)
-View(dat_pending_date_by_ym)
+# View(dat_pending_date_by_ym)
 
 ## Query parameterization ====
 
@@ -167,7 +167,7 @@ db_data_22_plus_overr %>%
   # dplyr::filter(n > 1L)
   pivot_wider(names_from = arr_year_month,
               values_from = value) %>%
-    View()
+    str()
 
 
   # pivot_longer(-c(Species,num,ID)) %>%
@@ -234,7 +234,7 @@ mypalette_month
 
 ### 1 pie chart ----
 # View(db_data_22_plus_overr)
-View(db_data_22_plus_overr_wide_tot1_long)
+# View(db_data_22_plus_overr_wide_tot1_long)
 # df$derma <- factor(df$derma, levels = df$derma)
 
 db_data_22_plus_overr_wide_tot1_long_fact <-
@@ -368,7 +368,8 @@ get_plot_for_1param <-
                fill = factor(y_values)
              )) +
       geom_col(position = "dodge") +
-      geom_text(aes(label = y_values)) +
+      geom_text(aes(label = y_values),
+                size = 3) +
       labs(title = val_param_name,
            # remove x and y axes titles
            x = "",
@@ -468,7 +469,7 @@ super_title_n = "Number of Validation Errors by Month and Overridden or Pending"
 
 ## footnote with an explanation ----
 footnote_text_p = "The Percentage calculated for each validation error independently, as 100 * number_of_err / sum(number_of_err). Plots are aranged by sum(number_of_err)."
-footnote_text_n = "Plots are aranged by sum(number_of_err). The x axes scales are all different." 
+footnote_text_n = "Plots are aranged by sum(number_of_err). The Y axes scales are all different." 
 
 footnote <- function(footnote_text) {
   textGrob(
@@ -558,7 +559,7 @@ db_data_22_plus_overr_only_wide_transposed_short <-
   db_data_22_plus_overr_only_wide %>%
   select(-all_of(starts_with("month")))
 
-View(db_data_22_plus_overr_only_wide_transposed_short)
+# View(db_data_22_plus_overr_only_wide_transposed_short)
 
 #### plots by numbers for overridden ----
 
