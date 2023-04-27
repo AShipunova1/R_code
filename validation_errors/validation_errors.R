@@ -515,30 +515,32 @@ db_data_22_plus_overr %>%
 # View(db_data_22_plus_sep$overridden)
 # 'data.frame':	215 obs. of  4 variables:
 
+transform_to_plot <- function(my_df) {
+  my_df %>%
+    # short format for months
+    mutate(arr_year_month =
+             format(arr_year_month, "%m %y")) %>%
+    select(-overridden) %>%
+    pivot_wider(names_from = c(arr_year_month),
+                values_from = n) %>%
+    # count total by row in all columns except param names
+    mutate(total_by_param = rowSums(.[2:dim(.)[2]], na.rm = TRUE)) %>%
+    # sort
+    arrange(desc(total_by_param)) %>%
+    # transpose
+    t() %>%
+    as.data.frame() %>%
+    # NAs to zeros
+    replace(is.na(.), 0) %>%
+    # add a column with rownames
+    tibble::rownames_to_column("month") %>%
+    # keep the order
+    mutate(month = factor(month,
+                          levels = month)) %>%
+    return()
+}
 db_data_22_plus_overr_only_wide <-
-  db_data_22_plus_sep$overridden %>%
-  # short format for months
-  mutate(arr_year_month =
-           format(arr_year_month, "%m %y")) %>%
-  select(-overridden) %>%
-  pivot_wider(names_from = c(arr_year_month),
-              values_from = n) %>%
-  # count total by row in all columns except param names
-  mutate(total_by_param = rowSums(.[2:dim(.)[2]], na.rm = TRUE)) %>%
-  # sort
-  arrange(desc(total_by_param)) %>%
-  # transpose
-  t() %>%
-  as.data.frame() %>%
-  # NAs to zeros
-  replace(is.na(.), 0) %>%
-  # add a column with rownames
-  tibble::rownames_to_column("month") %>%
-  # keep the order
-  mutate(month = factor(month,
-                        levels = month))
-# %>%
-#   View()
+    transform_to_plot(db_data_22_plus_sep$overridden)
 
 View(db_data_22_plus_overr_only_wide)
 
