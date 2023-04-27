@@ -322,7 +322,7 @@ my_theme_narrow <-
 
 get_plot_for_1param <-
   function(my_entry, no_legend = TRUE, percent = TRUE) {
-    # browser()
+    browser()
     
     # save in variables for future usage
     # save the row number
@@ -484,6 +484,59 @@ all_plots_n <-
       })
 
 # all_plots_n[[1]]
+
+# combine all number plots ----
+grid.arrange(
+  grobs = all_plots_n,
+  top = super_title_n,
+  bottom = footnote(footnote_text_n),
+  ncol = 4
+)
+
+# separate overridden and pending ----
+# View(db_data_22_plus_overr)
+db_data_22_plus_sep <-
+db_data_22_plus_overr %>%
+  split(db_data_22_plus_overr$overridden)
+
+# View(db_data_22_plus_sep$overridden)
+# 'data.frame':	215 obs. of  4 variables:
+
+db_data_22_plus_overr_only_wide <-
+  db_data_22_plus_sep$overridden %>%
+  # short format for months
+  mutate(arr_year_month =
+           format(arr_year_month, "%m %y")) %>%
+  select(-overridden) %>%
+  pivot_wider(names_from = c(arr_year_month),
+              values_from = n) %>%
+  # count total by row in all columns except param names
+  mutate(total_by_param = rowSums(.[2:dim(.)[2]], na.rm = TRUE)) %>%
+  # sort
+  arrange(desc(total_by_param)) %>%
+  # transpose
+  t() %>%
+  as.data.frame() %>%
+  # NAs to zeros
+  replace(is.na(.), 0) %>%
+  # add a column with rownames
+  tibble::rownames_to_column("month") %>%
+  # keep the order
+  mutate(month = factor(month,
+                        levels = month))
+# %>%
+#   View()
+
+
+# plots by numbers for overridden and pending ----
+
+all_plots_n_overridden <-
+  map(db_data_22_plus_sep$overridden,
+      function(x) {
+        get_plot_for_1param(x, no_legend = TRUE, percent = FALSE)
+      })
+
+all_plots_n_overridden[[1]]
 
 # combine all number plots ----
 grid.arrange(
