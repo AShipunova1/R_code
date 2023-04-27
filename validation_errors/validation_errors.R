@@ -154,8 +154,6 @@ db_data_22_plus <-
 
   # View()
 
-# ====
-
 db_data_22_plus_overr <-
   db_data_22_plus %>%
   count(arr_year_month, val_param_name, overridden)
@@ -249,8 +247,8 @@ db_data_22_plus_overr_wide_tot1_long_fact <-
 db_data_22_plus_overr_wide_tot1_long %<>%
   replace(is.na(.), 0)
 
-pie(db_data_22_plus_overr_wide_tot1_long_fact$number_of_err,
-    labels = db_data_22_plus_overr_wide_tot1_long_fact$month_overridden)
+# pie(db_data_22_plus_overr_wide_tot1_long_fact$number_of_err,
+#     labels = db_data_22_plus_overr_wide_tot1_long_fact$month_overridden)
 
 ggplot(data = db_data_22_plus_overr_wide_tot1_long_fact,
        aes(
