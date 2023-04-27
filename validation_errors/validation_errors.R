@@ -321,8 +321,11 @@ my_theme_narrow <-
 # )
 
 get_plot_for_1param <-
-  function(my_entry, no_legend = TRUE, percent = TRUE) {
-    browser()
+  function(my_entry,
+           no_legend = TRUE,
+           percent = TRUE,
+           month_list_name = NULL) {
+    # browser()
     
     # save in variables for future usage
     # save the row number
@@ -337,22 +340,32 @@ get_plot_for_1param <-
       my_entry[2:(all_rows_n - 1)] %>%
       as.data.frame() %>%
       set_names("number_of_err") %>%
-      mutate(number_of_err = as.numeric(number_of_err)) 
+      mutate(number_of_err = as.numeric(number_of_err))
     
     if (percent) {
+      # count percentage from total
       transformed_entry <- transformed_entry %>%
         mutate(y_values =
                  round(100 * number_of_err / sum(number_of_err),
                        digits = 0))
     } else {
+      # rename
       transformed_entry <- transformed_entry %>%
         mutate(y_values = number_of_err)
+    }
+    
+    # get names for x axes
+    if (is.null(month_list_name)) {
+      month_list_name = sym("months_overridden_short")
+    }
+    else {
+      month_list_name = sym(month_list_name)
     }
     
     plot_1_param <-
       ggplot(data = transformed_entry,
              aes(
-               x = months_overridden_short,
+               x = !!month_list_name,
                y = y_values,
                fill = factor(y_values)
              )) +
@@ -365,15 +378,14 @@ get_plot_for_1param <-
       my_theme_narrow +
       theme(
         # turn x text and change text size
-        axis.text.x = element_text(angle = 45,
-                                   size = 8,
-                                   # lower text
-                                   hjust = 1),
+        axis.text.x = element_text(
+          angle = 45,
+          size = 8,
+          # lower text
+          hjust = 1
+        ),
         axis.text.y = element_text(size = 7),
         plot.title = element_text(size = 8)
-        # ,
-        # legend.title = element_text(size = 8),
-        # legend.text = element_text(size = 8)
       )
     # +
     #   ylim(0, 70)
@@ -385,7 +397,7 @@ get_plot_for_1param <-
     }
     
     return(plot_1_param)
-}
+  }
 
 db_data_22_plus_overr_wide_tot_transposed <-
   t(db_data_22_plus_overr_wide_tot) %>%
@@ -458,7 +470,7 @@ super_title_n = "Number of Validation Errors by Month and Overridden or Pending"
 
 ## footnote with an explanation ----
 footnote_text_p = "The Percentage calculated for each validation error independently, as 100 * number_of_err / sum(number_of_err). Plots are aranged by sum(number_of_err)."
-footnote_text_n = "Plots are aranged by sum(number_of_err)." 
+footnote_text_n = "Plots are aranged by sum(number_of_err). The x axes scales are all different." 
 
 footnote <- function(footnote_text) {
   textGrob(
@@ -533,6 +545,9 @@ transform_to_plot <- function(my_df) {
                           levels = month)) %>%
     return()
 }
+
+###  prepare overridden only for plotting ---- 
+
 db_data_22_plus_overr_only_wide <-
     transform_to_plot(db_data_22_plus_sep$overridden)
 
@@ -545,22 +560,71 @@ db_data_22_plus_overr_only_wide_transposed_short <-
   db_data_22_plus_overr_only_wide %>%
   select(-all_of(starts_with("month")))
 
-# View(db_data_22_plus_overr_only_wide_transposed_short)
+View(db_data_22_plus_overr_only_wide_transposed_short)
 
-# plots by numbers for overridden and pending ----
+#### plots by numbers for overridden ----
 
 all_plots_n_overridden <-
   map(db_data_22_plus_overr_only_wide_transposed_short,
       function(x) {
-        get_plot_for_1param(x, no_legend = TRUE, percent = FALSE)
+        get_plot_for_1param(
+          x,
+          no_legend = TRUE,
+          percent = FALSE,
+          month_list_name = "months_short"
+        )
       })
 
 all_plots_n_overridden[[1]]
 
-# combine all number plots ----
+#### combine all overridden plots ----
+super_title_n_overr = "Number of Validation Errors by Month. Overridden only."
+
 grid.arrange(
-  grobs = all_plots_n,
-  top = super_title_n,
+  grobs = all_plots_n_overridden,
+  top = super_title_n_overr,
   bottom = footnote(footnote_text_n),
   ncol = 4
 )
+
+## repeat for pending only ----
+
+db_data_22_plus_pending_only_wide <-
+    transform_to_plot(db_data_22_plus_sep$pending)
+
+# View(db_data_22_plus_pending_only_wide)
+
+months_short <- prepare_month_names_for_plots(db_data_22_plus_pending_only_wide, "month")
+
+# use only the val err numbers
+db_data_22_plus_pending_only_wide_transposed_short <-
+  db_data_22_plus_pending_only_wide %>%
+  select(-all_of(starts_with("month")))
+
+# View(db_data_22_plus_pending_only_wide_transposed_short)
+
+#### plots by numbers for overridden and pending ----
+
+all_plots_n_pending <-
+  map(db_data_22_plus_pending_only_wide_transposed_short,
+      function(x) {
+        get_plot_for_1param(
+          x,
+          no_legend = TRUE,
+          percent = FALSE,
+          month_list_name = "months_short"
+        )
+      })
+
+# all_plots_n_pending[[1]]
+super_title_pending = "Number of Validation Errors by Month. Pending only."
+
+# combine all pending plots ----
+grid.arrange(
+  grobs = all_plots_n_pending,
+  top = super_title_pending,
+  bottom = footnote(footnote_text_n),
+  ncol = 4
+)
+
+
