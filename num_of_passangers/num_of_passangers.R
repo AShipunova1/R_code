@@ -64,3 +64,59 @@ trip_id_vessel_from_logbooks %>%
 trip_id_vessel_from_db %>%
   filter(trip_id == "61479063")
 
+# ---
+str(in_db_only)
+
+trip_id_vessel_from_logbooks %>%
+  filter(trip_id == "59403264")
+
+trip_id_vessel_from_db %>%
+  filter(trip_id == "59403264")
+
+trip_id_vessel_from_logbooks %>%
+  filter(vessel_official_number == "556499")
+
+#    trip_id state_reg_nbr coast_guard_nbr
+# 1 59403264          <NA>          556499
+# in FHIER trips are all in 2021
+# names(trip_id_vessel_st_from_db)
+str(trip_id_vessel_st_from_db)
+# [1] "TRIP_ID"         "STATE_REG_NBR"   "COAST_GUARD_NBR"
+# [4] "DE"              "VENDOR_APP_NAME" "STATE_NAME"     
+
+str(in_db_only)
+# trip_id_vessel_st_from_db %<>%
+#   mutate(TRIP_ID = as.numeric(TRIP_ID))
+trip_id_vessel_st_from_db %>%
+  filter(TRIP_ID %in% in_db_only) %>%
+  select(STATE_NAME) %>% unique()
+
+fhier_logbooks_content %>%
+  # select(all_of(ends_with("state"))) %>%
+  # select(start_port_state, end_port_state) %>%
+  select(start_port_state) %>%
+  arrange(start_port_state) %>%
+  unique()
+# 17
+# NJ              
+# 12 NY              
+# 13 RI
+
+# states are not the cause for the difference
+head(in_db_only)
+
+# vessel_nbr ----
+vessel_nbr_trips_indb_only <-
+  trip_id_vessel_st_from_db %>%
+  filter(TRIP_ID %in% in_db_only) %>%
+  mutate(vessel_off_num = coalesce(STATE_REG_NBR, COAST_GUARD_NBR)) %>% 
+  # select(STATE_REG_NBR, COAST_GUARD_NBR) %>% 
+  select(vessel_off_num) %>%
+    unique() 
+# %>% 
+#   dim()
+# 691   
+
+str(vessel_nbr_trips_indb_only)
+fhier_logbooks_content %>%
+  filter(vessel_official_nbr %in% vessel_nbr_trips_indb_only$vessel_off_num) %>% View()

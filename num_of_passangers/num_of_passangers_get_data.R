@@ -55,7 +55,30 @@ paste0(names(trip_id_vessel_from_db), collapse = ", ")
 
 names(trip_id_vessel_from_db) <- c("trip_id", "state_reg_nbr", "coast_guard_nbr")
 
-#    trip_id state_reg_nbr coast_guard_nbr
-# 1 59403264          <NA>          556499
-# in FHIER trips are all in 2021
+query_w_state <- "SELECT
+--  *
+  trip_id,
+  state_reg_nbr,
+  coast_guard_nbr,
+  t.de,
+  vendor_app_name,
+--  ft.srfh_for_hire_name
+  s.state_name
+FROM
+       safis.trips@secapxdv_dblk.sfsc.noaa.gov t
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  USING ( vessel_id )
+--  JOIN srh.srfh_for_hire_type@secapxdv_dblk.sfsc.noaa.gov ft
+--  ON ( ft.safis_trip_type = t.trip_type )
+  JOIN safis.state@secapxdv_dblk.sfsc.noaa.gov   s
+  ON ( s.state_code = t.state )
+WHERE
+--    coast_guard_nbr = '556499'
+    t.vendor_app_name <> 'VMS'
+  AND t.de <= '26-FEB-23'
+  AND t.de >= '01-JAN-22'
+ORDER BY
+  t.de DESC
+"
 
+trip_id_vessel_st_from_db <- dbGetQuery(con, query_w_state)
