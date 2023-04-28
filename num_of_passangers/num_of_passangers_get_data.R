@@ -28,7 +28,8 @@ con = dbConnect(
 # from db ----
 query1 <- "SELECT DISTINCT
   trip_id,
-  coalesce(state_reg_nbr, coast_guard_nbr)
+  -- coalesce(state_reg_nbr, coast_guard_nbr)
+  state_reg_nbr, coast_guard_nbr
 FROM
        safis.trips@secapxdv_dblk.sfsc.noaa.gov t
   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
@@ -48,5 +49,13 @@ trip_id_vessel_from_db <- dbGetQuery(con, query1)
 ### rename columns to be the same ----
 paste0(names(trip_id_vessel_from_db), collapse = ", ")
 # "TRIP_ID, COALESCE(STATE_REG_NBR,COAST_GUARD_NBR)"
-names(trip_id_vessel_from_db) <- c("trip_id", "vessel_official_number")
+# [1] "TRIP_ID, STATE_REG_NBR, COAST_GUARD_NBR"
+
+# names(trip_id_vessel_from_db) <- c("trip_id", "vessel_official_number")
+
+names(trip_id_vessel_from_db) <- c("trip_id", "state_reg_nbr", "coast_guard_nbr")
+
+#    trip_id state_reg_nbr coast_guard_nbr
+# 1 59403264          <NA>          556499
+# in FHIER trips are all in 2021
 
