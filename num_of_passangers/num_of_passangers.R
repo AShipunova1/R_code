@@ -1,3 +1,4 @@
+# check diff between logbook csv and db
 View(fhier_logbooks_content)
 fhier_logbooks_content %>%
   filter(trip_de >= "2022-01-01 00:00:00") %>%
@@ -23,26 +24,10 @@ trip_id_vessel_from_logbooks %>% select(trip_id) %>% unique() %>% dim()
 
 # write_csv(trip_id_vessel, "trip_id_vessel.csv")
 
-# from db ----
-query1 <- "select distinct trip_id, COALESCE(state_reg_nbr, coast_guard_nbr)  from
-           safis.trips@secapxdv_dblk.sfsc.noaa.gov t
-                 JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
-      USING ( vessel_id )
-    WHERE
-      t.sero_vessel_permit IS NOT NULL
-      AND t.vendor_app_name <> 'VMS'
-    and t.de <= '26-FEB-23'
-      AND t.de >= '01-JAN-22'"
-
-trip_id_vessel_from_db <- dbGetQuery(con, query1)
-trip_id_vessel_from_db %>% select(TRIP_ID) %>% unique() %>% dim()
+trip_id_vessel_from_db %>% select(trip_id) %>% unique() %>% dim()
 # 87145
+# 89632     with sero_permit is null
 str(trip_id_vessel_from_db)
-
-### rename columns to be the same ----
-paste0(names(trip_id_vessel_from_db), collapse = ", ")
-# "TRIP_ID, COALESCE(STATE_REG_NBR,COAST_GUARD_NBR)"
-names(trip_id_vessel_from_db) <- c("trip_id", "vessel_official_number")
 
 unique(trip_id_vessel_from_db) %>% dim()
 # 87145     
@@ -55,16 +40,27 @@ trips_logbooks <- as.numeric(trip_id_vessel_from_logbooks$trip_id) %>%
 trips_db_trips <- as.numeric(trip_id_vessel_from_db$trip_id) %>%
   unique()
 # str(trips_db_trips)
+
 in_logbooks_only <-
   setdiff(trips_logbooks, trips_db_trips)
 length(in_logbooks_only)
-# 1522
+# 60
 
 in_db_only <-
   setdiff(trips_db_trips, trips_logbooks)
 length(in_db_only)
-# 7073
+# 8098
 
-out_dir <- file.path(my_paths$inputs, "fhier_vs_db")
-write_csv(as.data.frame(in_logbooks_only),
-          file.path(out_dir, "trips_in_logbooks_only.csv"))
+# out_dir <- file.path(my_paths$inputs, "fhier_vs_db")
+# write_csv(as.data.frame(in_logbooks_only),
+#           file.path(out_dir, "trips_in_logbooks_only.csv"))
+# write_csv(as.data.frame(in_db_only),
+#           file.path(out_dir, "trips_in_db_only.csv"))
+
+# ----
+trip_id_vessel_from_logbooks %>%
+  filter(trip_id == "61479063")
+
+trip_id_vessel_from_db %>%
+  filter(trip_id == "61479063")
+
