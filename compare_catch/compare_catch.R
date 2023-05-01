@@ -13,6 +13,16 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 
+## save common names and itis in a separate data frame ----
+fhier_common_names <-
+  fhier_logbooks_content %>%
+  # names()
+  select(catch_species_itis, common_name) %>%
+  unique()
+
+# add column names
+names(fhier_common_names) <- c("species_itis", "common_name")
+
 ## Join Fhier and ACL ----
 fhier_acl_catch_by_species_state_region_waves <-
   full_join(
@@ -20,6 +30,16 @@ fhier_acl_catch_by_species_state_region_waves <-
     acl_estimate_catch_by_species_state_region_waves,
     by = join_by(species_itis, state, sa_gom, year, wave)
   )
+
+# View(fhier_acl_catch_by_species_state_region_waves)
+## Add fhier_common_names to joined data ----
+fhier_acl_catch_by_species_state_region_waves_tmp1 <-
+  full_join(
+    fhier_acl_catch_by_species_state_region_waves,
+    fhier_common_names,
+    by = join_by(species_itis)
+  )
+
 
 ## NA counts to 0 ----
 # change NAs to 0 where one or another agency doesn't have counts for this species
@@ -58,16 +78,6 @@ fhier_acl_catch_by_species_state_region_waves %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_acl_cnt) %>%
   identical(acl_test_cnts$mackerel_acl_cnt)
-
-## save common names and itis in a separate data frame ----
-fhier_common_names <-
-  fhier_logbooks_content %>%
-  # names()
-  select(catch_species_itis, common_name) %>%
-  unique()
-
-# add column names
-names(fhier_common_names) <- c("species_itis", "common_name")
 
 # grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
 
@@ -129,23 +139,16 @@ glimpse(fhier_acl_catch_by_species_state_region_waves)
 # Rows: 5,728
 
 ## make a new column "year_wave" ----
-fhier_acl_catch_by_species_state_region_waves_tmp1 <-
-  mutate(fhier_acl_catch_by_species_state_region_waves,
-         year_wave = paste(year, wave, sep = "_"))
-
-## Add the fhier_common_names we made earlier ----
-fhier_acl_catch_by_species_state_region_waves_tmp2 <-
-  full_join(
-    fhier_acl_catch_by_species_state_region_waves_tmp1,
-    fhier_common_names,
-    by = join_by(species_itis)
-  )
+# fhier_acl_catch_by_species_state_region_waves_tmp1 <-
+#   mutate(fhier_acl_catch_by_species_state_region_waves,
+#          year_wave = paste(year, wave, sep = "_"))
 
 #| warning: false
+data_overview(fhier_acl_catch_by_species_state_region_waves_tmp1)
 
 ## Make separate data frames by region ----
 fhier_acl_catch_by_species_state_region_waves_list <-
-  fhier_acl_catch_by_species_state_region_waves_tmp2 %>%
+  fhier_acl_catch_by_species_state_region_waves_tmp1 >%
   # split by sa_gom column
   split(as.factor(fhier_acl_catch_by_species_state_region_waves$sa_gom)) %>%
   # remove extra columns in each df

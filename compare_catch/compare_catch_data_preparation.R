@@ -241,6 +241,7 @@ fhier_catch_by_species_state_region_waves <-
   # select only relevant columns
   select(
     catch_species_itis,
+    common_name,
     end_port_state,
     end_port_sa_gom,
     end_year,
@@ -250,6 +251,7 @@ fhier_catch_by_species_state_region_waves <-
   # group by all of them but "reported_quantity"
   group_by(
     catch_species_itis,
+    common_name,
     end_port_state,
     end_port_sa_gom,
     end_year,
@@ -279,6 +281,7 @@ fhier_test_cnts <-
   # sum the FHIER catch
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   as.data.frame()
+
 
 # source("~/R_code_github/compare_catch/compare_catch_fhier_q.R")
 
