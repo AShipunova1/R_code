@@ -4,6 +4,7 @@ library(gridExtra)
 library(grid)
 # install.packages("viridis")
 library(viridis)
+library(ROracle)
 
 # include auxilary functions ----
 source("~/R_code_github/useful_functions_module.r")
@@ -12,9 +13,6 @@ my_paths <- set_work_dir()
 ##| echo: false
 
 # source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
-
-source("~/R_code_github/useful_functions_module.r")
-library(ROracle)
 
 con = dbConnect(
   dbDriver("Oracle"),
@@ -93,32 +91,32 @@ trip_id_vessel_st_from_db <- clean_headers(trip_id_vessel_st_from_db)
 
 # download Reports / FHIER All Logbooks 01/01/2022-02/26/2023
 
-logbooks_downloaded_from_fhier_22_23_feb_file_name <-
-  file.path(my_paths$inputs,
-            r"(logbooks_from_fhier\SRFH All Logbooks.csv)")
+# logbooks_downloaded_from_fhier_22_23_feb_file_name <-
+#   file.path(my_paths$inputs,
+#             r"(logbooks_from_fhier\SRFH All Logbooks.csv)")
 
-logbooks_downloaded_from_fhier <- read_csv(logbooks_downloaded_from_fhier_22_23_feb_file_name)
+# logbooks_downloaded_from_fhier <- read_csv(logbooks_downloaded_from_fhier_22_23_feb_file_name)
 
-names(logbooks_downloaded_from_fhier)
+# names(logbooks_downloaded_from_fhier)
 
-logbooks_downloaded_from_fhier_trip_vsl <-
-  logbooks_downloaded_from_fhier %>%
-  select(View, `Vessel Official Number`)
+# logbooks_downloaded_from_fhier_trip_vsl <-
+#   logbooks_downloaded_from_fhier %>%
+#   select(View, `Vessel Official Number`)
 
-names(logbooks_downloaded_from_fhier_trip_vsl) <-
-  c("trip_id", "vessel_official_nbr")
+# names(logbooks_downloaded_from_fhier_trip_vsl) <-
+#   c("trip_id", "vessel_official_nbr")
+# 
+# str(logbooks_downloaded_from_fhier_trip_vsl)
 
-str(logbooks_downloaded_from_fhier_trip_vsl)
-
-logbooks_downloaded_from_fhier <- clean_headers(logbooks_downloaded_from_fhier)
+# logbooks_downloaded_from_fhier <- clean_headers(logbooks_downloaded_from_fhier)
 
 # === additional downloads from fhier ----
 
-logbooks_downloaded_from_fhier_22_23_feb_file_name <-
-  file.path(my_paths$inputs,
-            r"(logbooks_from_fhier\SRFH All Logbooks.csv)")
+# logbooks_downloaded_from_fhier_22_23_feb_file_name <-
+#   file.path(my_paths$inputs,
+#             r"(logbooks_from_fhier\SRFH All Logbooks.csv)")
 
-logbooks_downloaded_from_fhier <- read_csv(logbooks_downloaded_from_fhier_22_23_feb_file_name)
+# logbooks_downloaded_from_fhier <- read_csv(logbooks_downloaded_from_fhier_22_23_feb_file_name)
 
 file_list <-
   dir(file.path(my_paths$inputs, "logbooks_from_fhier"), pattern = "^SRFH All Logbooks \\d\\d \\d\\d.csv", full.names = TRUE, ignore.case = TRUE)
@@ -139,7 +137,8 @@ new_logb <-
     read.csv(f)
   }))
 
-# dim(new_logb)
+dim(new_logb)
 # 100824     
+# [1] 917542     15
 
 new_logb <- clean_headers(new_logb)
