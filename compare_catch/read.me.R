@@ -1,12 +1,15 @@
 # To prepare FHIER and MRIP data
 # 1) change directories in the source code (twice).
 # 1) have useful_functions_module.r in the working directory
-# 2) run the first part of compare_catch.r, everything before the "Join FHIER and MRIP" section.
+# 2) run the compare_catch_data_preparation.R
 
 # Compare catch in survey vs logbook
 # all data for 2022
 
 ## ---- Workflow ----
+# prepare data separately for comparison
+# join the data
+# ----
 ## 1) FHIER data FHIER / Reports / Species Count by Disposition
 # or from logbooks
 ### need permitgroup or landing info, scientific name (to use for SP_CODE)
