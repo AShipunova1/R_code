@@ -284,31 +284,31 @@ fhier_test_cnts <-
 
 ## MRIP ----
 
-mrip_estimate %<>%
+acl_estimate %<>%
   mutate(ab1 = as.integer(ab1))
 
-mrip_estimate_catch_by_species_state_region_waves <-
-  mrip_estimate %>%
+acl_estimate_catch_by_species_state_region_waves <-
+  acl_estimate %>%
   # select the relevant columns only
   select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
   # group by all except the counts
   group_by(itis_code, new_sta, sub_reg, year, wave) %>%
-  # save the sum of "ab1" for each group in "mrip_estimate_catch_by_4"
+  # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
   # remove NAs
-  summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
+  summarise(acl_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
   as.data.frame()
 
-glimpse(mrip_estimate_catch_by_species_state_region_waves)
+glimpse(acl_estimate_catch_by_species_state_region_waves)
 # 'data.frame':	878 obs. of  6 variables
 
 # "year" and "wave" to numbers
-mrip_estimate_catch_by_species_state_region_waves1 <-
-  mrip_estimate_catch_by_species_state_region_waves %>%
+acl_estimate_catch_by_species_state_region_waves1 <-
+  acl_estimate_catch_by_species_state_region_waves %>%
   mutate(year = as.double(year)) %>%
   mutate(wave = as.double(wave))
 
-mrip_estimate_catch_by_species_state_region_waves <-
-  mrip_estimate_catch_by_species_state_region_waves1 %>%
+acl_estimate_catch_by_species_state_region_waves <-
+  acl_estimate_catch_by_species_state_region_waves1 %>%
   # change a 6 to "sa" and a 7 "gom", leave everything else in place
   mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
                             sub_reg == "7" ~ "gom",
@@ -318,16 +318,16 @@ mrip_estimate_catch_by_species_state_region_waves <-
   # drop sub_reg
   select(-sub_reg)
 
-### make a test mrip one sp. var ----
-# names(mrip_estimate_catch_by_species_state_region_waves)
-mrip_test_cnts <-
-  mrip_estimate_catch_by_species_state_region_waves %>%
+### make a test acl one sp. var ----
+# names(acl_estimate_catch_by_species_state_region_waves)
+acl_test_cnts <-
+  acl_estimate_catch_by_species_state_region_waves %>%
   # get one species
   filter(itis_code == test_species_itis) %>%
   # group by region
   group_by(itis_code, sa_gom) %>%
   # sum the MRIP catch
-  summarise(mackerel_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)) %>%
+  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
 ## rename fields ----
@@ -341,19 +341,19 @@ wave_data_names_common <- c("species_itis",
                     )
 
 # to be sure columns are in the same order
-names(mrip_estimate_catch_by_species_state_region_waves)
+names(acl_estimate_catch_by_species_state_region_waves)
 
-mrip_names <- c("itis_code",
+acl_names <- c("itis_code",
                 "new_sta",
                 "sa_gom",
                 "year",
                 "wave",
-                "mrip_estimate_catch_by_4"
+                "acl_estimate_catch_by_4"
 )
 
 
-mrip_estimate_catch_by_species_state_region_waves %<>%
-  rename_at(vars(mrip_names[1:2]), function(x) wave_data_names_common[1:2])
+acl_estimate_catch_by_species_state_region_waves %<>%
+  rename_at(vars(acl_names[1:2]), function(x) wave_data_names_common[1:2])
 
 fhier_names <- c(
   "catch_species_itis",
@@ -373,9 +373,9 @@ names(fhier_test_cnts) <- c("species_itis", "sa_gom", "mackerel_fhier_cnt")
 
 #was: "catch_species_itis" "end_port_sa_gom"    "mackerel_fhier_cnt"
 
-# names(mrip_test_cnts)
+# names(acl_test_cnts)
 
 ### test: rename fields ----
 identical(names(fhier_catch_by_species_state_region_waves)[1:5],
-          names(mrip_estimate_catch_by_species_state_region_waves)[1:5])
+          names(acl_estimate_catch_by_species_state_region_waves)[1:5])
 

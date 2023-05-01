@@ -29,57 +29,56 @@ logbooks_content <- load_all_logbooks()
 # str(logbooks_content)
 
 # ---- 2) ACL (Annual Catch Limits surveys) ----
-load_mrip_data <- function() {
-  mrip_dir_path <- "compare_catch/MRIP data"
-  mrip_csv_names_list_raw <- c(
-    "mrip_aux/species_list.csv" # identical for all areas
+load_acl_data <- function() {
+  acl_dir_path <- "compare_catch/MRIP data"
+  acl_csv_names_list_raw <- c(
+    "acl_aux/species_list.csv" # identical for all areas
   )
   # a file recommended by Mike
-  mrip_xls_names_list_raw <- c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
+  acl_xls_names_list_raw <- c(r"(acl_US\aclaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
 
   # add prefix to each file name
-  mrip_csv_names_list <- 
-      map_chr(mrip_csv_names_list_raw, ~file.path(mrip_dir_path, .x))
-  mrip_xls_names_list <- map_chr(mrip_xls_names_list_raw, ~file.path(mrip_dir_path, .x))
+  acl_csv_names_list <- 
+      map_chr(acl_csv_names_list_raw, ~file.path(acl_dir_path, .x))
+  acl_xls_names_list <- map_chr(acl_xls_names_list_raw, ~file.path(acl_dir_path, .x))
 # browser()  
-  mrip_species_list <- load_csv_names(my_paths, mrip_csv_names_list)
+  acl_species_list <- load_csv_names(my_paths, acl_csv_names_list)
   
-  # str(mrip_species_list)
+  # str(acl_species_list)
   
-  mrip_estimate_usa <- 
-    load_xls_names(my_paths, mrip_xls_names_list,
-                   sheet_n = "mripaclspec_rec81_22wv6_01mar23") 
+  acl_estimate_usa <- 
+    load_xls_names(my_paths, acl_xls_names_list,
+                   sheet_n = "aclaclspec_rec81_22wv6_01mar23") 
 
-    output <- list(mrip_species_list, mrip_estimate_usa)
+    output <- list(acl_species_list, acl_estimate_usa)
   return(output)
 }
 
 # TODO: benchmark, too slow
-mrip_temp <- load_mrip_data()
+acl_temp <- load_acl_data()
 
-mrip_species_list <- mrip_temp[[1]]
-mrip_estimate <- mrip_temp[[2]]
+acl_species_list <- acl_temp[[1]]
+acl_estimate <- acl_temp[[2]]
 
-# data_overview(mrip_estimate)
+# data_overview(acl_estimate)
 
 ## ---- specifically for "O:\Fishery Data\ACL Data\"
-# "FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01Mar23\" and 
-# "MRIP Based Rec Data(CHTS)\MRIPACLspec_rec81_22wv6_01mar2\" ----
-# str(mrip_estimate)
-mrip_estimate_2022 <-
-  mrip_estimate %>%
+
+# str(acl_estimate)
+acl_estimate_2022 <-
+  acl_estimate %>%
   filter(year == "2022")
 
-dim(mrip_estimate)
+dim(acl_estimate)
 # [1] 347379 67
-dim(mrip_estimate_2022)
+dim(acl_estimate_2022)
 # [1] 8332   67
-# names(mrip_estimate)
-mrip_estimate <-
-  mrip_estimate_2022 %>%
+# names(acl_estimate)
+acl_estimate <-
+  acl_estimate_2022 %>%
   # filtering here for just SA (6) and Gulf (7) sub regions
     filter(sub_reg %in% c(6, 7)) %>%
-# dim(mrip_estimate)
+# dim(acl_estimate)
 # [1] 7479   67
   # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
@@ -89,20 +88,20 @@ mrip_estimate <-
   filter(!(ds == "SRHS"))
 # Explanations: ----
 # 5=charter/headboat - obsolete - check dates
-View(mrip_estimate)
-# dim(mrip_estimate)
+View(acl_estimate)
+# dim(acl_estimate)
 # [1] 1442   67
 
-# grep("mode", names(mrip_estimate), value = T)
+# grep("mode", names(acl_estimate), value = T)
 # [1] "new_mode"  "new_moden" "mode_fx"   "agg_moden"
 
-# mrip_estimate %>% select(new_moden) %>% unique()
-## ---- specifically for mrip_catch_year_2022_preliminary.csv and/or
-# mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv
+# acl_estimate %>% select(new_moden) %>% unique()
+## ---- specifically for acl_catch_year_2022_preliminary.csv and/or
+# acl_SA/acl_estim_catch_year_2022_2022_SA.csv
 # use sub_reg 6 & 7 for now (SA & GOM)
 # And federal waters only
-# mrip_estimate <-
-#   mrip_estimate_all %>% 
+# acl_estimate <-
+#   acl_estimate_all %>% 
 #   filter(sub_reg %in% c(6, 7))
 # %>%
 # ? WFL 10?
@@ -136,7 +135,7 @@ get_scientific_names <- function() {
 scientific_names <- get_scientific_names()
 
 # ---- rename all field names to upper case for comparability ----
-data_list_names <- list("fhier_species_count_by_disposition", "mrip_species_list", "mrip_estimate", "scientific_names")
+data_list_names <- list("fhier_species_count_by_disposition", "acl_species_list", "acl_estimate", "scientific_names")
 
 rename_all_field_names <- function() {
 # TODO: benchmark with map()
@@ -150,8 +149,8 @@ rename_all_field_names <- function() {
   }
 }
 # names(fhier_species_count_by_disposition)
-# str(mrip_species_list)
-# grep("Tile", mrip_species_list$common_name,
+# str(acl_species_list)
+# grep("Tile", acl_species_list$common_name,
 # ignore.case = T, value = T)
 
 # ## ---- get geographical data ----
