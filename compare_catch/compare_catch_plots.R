@@ -45,7 +45,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
    geom_text(aes(label = CATCH_CNT),
              position = position_dodge(width = 0.9),
              vjust = -0.25,
-             size = 3) +
+             size = 2) +
    # blank theme from ggplot
    theme_bw() +
    my_theme
@@ -569,4 +569,45 @@ grid.newpage()
 grid.arrange(grobs = plots_acl_top_gom,
              top = super_title,
              left = my_legend_gom,
+             ncol = 4)
+
+# SA Top ACL species plots ----
+
+sa_acl_top_to_plot <-
+  fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
+  inner_join(sa_acl_top_common_names)
+# Joining with `by = join_by(species_itis, common_name)`
+# 'data.frame':	225 obs. of  7 variables:
+
+# both_by_to_acl <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
+# View(both_by_to_acl)
+
+### sa plots for each common name from the top 10 ----
+plots_acl_top_sa <- map(unique(both_by_to_acl$common_name),
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+               function(x) {plot_by_spp(x, both_by_to_acl)}
+               )
+
+# plots_acl_top_sa[[2]]
+# both_by_to_acl %>%
+#   filter(common_name == 'RUNNER, BLUE' &
+#            wave == 1)
+
+# Title for all plots together
+super_title = "sa: Top ACL species counts by waves 2022"
+
+# separate a legend
+plot_w_legend_sa <- plot_by_spp("MACKEREL, SPANISH",
+                             both_by_to_acl,
+                             # keep the legend
+                             FALSE)
+# use an aux function to pull out the legend
+my_legend_sa <- legend_for_grid_arrange(plot_w_legend_sa)
+
+# clean the plate
+grid.newpage()
+# combine all plots
+grid.arrange(grobs = plots_acl_top_sa,
+             top = super_title,
+             left = my_legend_sa,
              ncol = 4)
