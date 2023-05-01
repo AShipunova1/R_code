@@ -11,7 +11,7 @@ my_paths <- set_work_dir()
 
 ##| echo: false
 
-source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
+# source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 
 source("~/R_code_github/useful_functions_module.r")
 library(ROracle)
@@ -121,20 +121,22 @@ logbooks_downloaded_from_fhier_22_23_feb_file_name <-
 logbooks_downloaded_from_fhier <- read_csv(logbooks_downloaded_from_fhier_22_23_feb_file_name)
 
 file_list <-
-  list(
-    "SRFH All Logbooks.csv",
-    "SRFH All Logbooks2.csv",
-    "SRFH All Logbooks3.csv",
-    "SRFH All Logbooks4.csv",
-    "SRFH All Logbooks5.csv",
-    "SRFH All Logbooks6.csv"
-  )
+  dir(file.path(my_paths$inputs, "logbooks_from_fhier"), pattern = "^SRFH All Logbooks \\d\\d \\d\\d.csv", full.names = TRUE, ignore.case = TRUE)
+
+  # list(
+  #   "SRFH All Logbooks 01 22.csv",
+  #   "SRFH All Logbooks2.csv",
+  #   "SRFH All Logbooks3.csv",
+  #   "SRFH All Logbooks4.csv",
+  #   "SRFH All Logbooks5.csv",
+  #   "SRFH All Logbooks6.csv"
+  # )
 
 new_logb <-
   bind_rows(lapply(file_list, function(f) {
-    f_name <- file.path(my_paths$inputs,
-                        "logbooks_from_fhier", f)
-    read.csv(f_name)
+    # f_name <- file.path(my_paths$inputs,
+    #                     "logbooks_from_fhier", f)
+    read.csv(f)
   }))
 
 # dim(new_logb)
