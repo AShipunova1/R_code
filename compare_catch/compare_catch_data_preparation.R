@@ -289,7 +289,7 @@ mrip_estimate %<>%
 
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate %>%
-  # select the relevan columns only
+  # select the relevant columns only
   select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
   # group by all except the counts
   group_by(itis_code, new_sta, sub_reg, year, wave) %>%
