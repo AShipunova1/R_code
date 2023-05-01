@@ -167,3 +167,16 @@ acl_estimate_catch_by_species_state_region_waves %>%
 #   fhier_common_names %>%
 #   filter(common_name %in% sa_top)
 
+### SA Top 10 ACL spp. ----
+sa_acl_top_spp <-
+  acl_estimate_catch_by_species_state_region_waves %>%
+  filter(sa_gom == "sa") %>%
+  select(species_itis, acl_estimate_catch_by_4) %>%
+  group_by(species_itis) %>%
+  summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
+  arrange(desc(acl_count)) %>%
+  head(14)
+
+sa_acl_top_common_names <-
+  fhier_common_names %>%
+  filter(species_itis %in% sa_acl_top_spp$species_itis)
