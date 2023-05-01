@@ -9,7 +9,17 @@
 ## ---- Workflow ----
 # prepare data separately for comparison
 # join the data
-# ----
+
+# ---- ACL data preparation according to Mike and Dominique ----
+# ab1 - counts
+# a 6 = "sa" and a 7 = "gom"
+# 2022 
+# new_mode	2=headboat, 3=charterboat, 5=charter/headboat
+# new_moden		alpha description of ‘new_mode’
+# surveys ?
+# filter(!(ds == "SRHS"))
+# change NAs to 0
+
 ## 1) FHIER data FHIER / Reports / Species Count by Disposition
 # or from logbooks
 ### need permitgroup or landing info, scientific name (to use for SP_CODE)
