@@ -72,7 +72,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
               use_series(mackerel_fhier_cnt)
             )
 
-#### SA sa_acl test
+#### SA sa_acl test ----
 
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
   filter(species_itis == test_species_itis) %>%
@@ -180,11 +180,11 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
 fhier_acl_to_plot_format <- function(my_df) {
   my_df %>%
   # change to shorter column names
-  rename(c("MRIP" = "acl_estimate_catch_by_4",
+  rename(c("ACL" = "acl_estimate_catch_by_4",
            "FHIER" = "fhier_quantity_by_4")) %>%
   # reformat to a long format to have fhier and acl data side by side
   pivot_longer(
-    cols = c(MRIP,
+    cols = c(ACL,
              FHIER),
     names_to = "AGENCY",
     values_to = "CATCH_CNT"
@@ -194,37 +194,10 @@ fhier_acl_to_plot_format <- function(my_df) {
     return()
 }
 
-
 ## GOM plots ----
 
-###  NA to 0 ---- 
-fhier_acl_gom_to_plot_0 <-
+hier_acl_gom_to_plot_0 <-
   fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
-# %>%
-#   # change NAs to 0 where one or another agency doesn't have counts for this species
-#   mutate_all(~replace_na(., 0))
-
-# all.equal(fhier_acl_gom_to_plot_0, fhier_acl_gom_to_plot_0a)
-
-glimpse(fhier_acl_gom_to_plot_0)
-
-## test: compare drop_na and 0 ----
-all.equal(
-  fhier_acl_gom_to_plot_0 %>%
-    arrange(species_itis, wave, AGENCY) %>%
-    slice(1:300)
-  ,
-  fhier_acl_gom_to_plot %>%
-    arrange(species_itis, wave, AGENCY) %>%
-    slice(1:300)
-  )
-
-# [1] "Attributes: < Component “row.names”: Numeric: lengths (476, 358) differ >" # [5] "Component “CATCH_CNT”: Mean relative difference: 2.276243"
-
-mean(fhier_acl_gom_to_plot$CATCH_CNT)
-# [1] 5605.33
-mean(fhier_acl_gom_to_plot_0$CATCH_CNT)
-# [1] 4215.773
 
 # an overview plot
 plot(fhier_acl_gom_to_plot)

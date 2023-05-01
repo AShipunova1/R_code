@@ -164,16 +164,6 @@ gom_acl_top_spp <-
   arrange(desc(acl_count)) %>%
   head(12)
 
-aa <-
-fhier_acl_catch_by_species_state_region_waves_list$gom %>%
-  select(species_itis, acl_estimate_catch_by_4) %>%
-  group_by(species_itis) %>%
-  summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
-  arrange(desc(acl_count)) %>%
-  head(12)
-
-# identical(aa, gom_acl_top_spp)
-# T
 gom_acl_top_common_names <-
   fhier_common_names %>%
   filter(species_itis %in% gom_acl_top_spp$species_itis)
