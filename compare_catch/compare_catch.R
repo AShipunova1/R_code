@@ -19,8 +19,14 @@ fhier_acl_catch_by_species_state_region_waves <-
              acl_estimate_catch_by_species_state_region_waves,
               by = join_by(species_itis, state, sa_gom, year, wave)
              )
-# default Joining with `by = join_by(species_itis, state, sa_gom, year, wave)`
-# final$S1 <- dplyr::coalesce(final[[" S1 .x"]],  final[[" S1 .y"]])
+
+## NA counts to 0 ----
+# change NAs to 0 where one or another agency doesn't have counts for this species
+fhier_acl_catch_by_species_state_region_waves %<>%
+  mutate(fhier_quantity_by_4 =
+           replace_na(fhier_quantity_by_4, 0),
+         acl_estimate_catch_by_4 =
+           replace_na(acl_estimate_catch_by_4, 0))
 
 ### test join ---- 
 # look at the first 20 entries for mackerel spanish
@@ -341,21 +347,12 @@ fhier_acl_to_plot_format <- function(my_df) {
 
 ## GOM plots ----
 
-### using drop_na ----
-
-fhier_acl_gom_to_plot <- fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10) %>%
-  # remove lines where one or another agency doesn't have counts for this species
-  drop_na()
-
-# all.equal(fhier_acl_gom_to_plot, fhier_acl_gom_to_plota)
-
-glimpse(fhier_acl_gom_to_plot)
-
 ###  NA to 0 ---- 
 fhier_acl_gom_to_plot_0 <-
-  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10) %>%
-  # change NAs to 0 where one or another agency doesn't have counts for this species
-  mutate_all(~replace_na(., 0))
+  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+# %>%
+#   # change NAs to 0 where one or another agency doesn't have counts for this species
+#   mutate_all(~replace_na(., 0))
 
 # all.equal(fhier_acl_gom_to_plot_0, fhier_acl_gom_to_plot_0a)
 
