@@ -196,6 +196,8 @@ fhier_acl_to_plot_format <- function(my_df) {
   ) %>%
   # use only the new columns
   select(wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+    group_by(wave, species_itis, common_name, AGENCY) %>%
+    summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
     return()
 }
 
