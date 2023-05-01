@@ -6,16 +6,9 @@
 # see read.me.R
 # SEFHIER data
 # "FHIER_all_logbook_data.csv"
-# or
-# Reports / SAFIS Catches Extended
-# or
-# Reports / Species Count by Disposition
 
 # MRIP
-# https://www.st.nmfs.noaa.gov/SASStoredProcess/do?#
-# or
 # "O:\Fishery Data\ACL Data\FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01Mar23\MRIP_FES_rec81_22wv6_01Mar23w2014to2021LACreel.xlsx"
-# 2022 only: local mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel_2022.xlsx
 
 # ---- 1) SEFHIER data ----
 
@@ -35,7 +28,7 @@ load_all_logbooks <- function() {
 logbooks_content <- load_all_logbooks()
 # str(logbooks_content)
 
-# ---- 2) MRIP ----
+# ---- 2) ACL (Annual Catch Limits surveys) ----
 load_mrip_data <- function() {
   mrip_dir_path <- "compare_catch/MRIP data"
   mrip_csv_names_list_raw <- c(
@@ -43,12 +36,6 @@ load_mrip_data <- function() {
   )
   # a file recommended by Mike
   mrip_xls_names_list_raw <- c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
-  # mrip_xls_names_list_raw <- c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel_2022.xlsx)")
-  
-    # r"(mrip_US\mripaclspec_rec81_22wv6_01mar23.csv)"
-    # "mrip_US/mrip_catch_year_2022_preliminary.csv"
-    # "mrip_SA/mrip_estim_catch_year_2022_2022_SA.csv",
-    # "mrip_GOM/mrip_estim_catch_year_2022_2022_gom.csv"
 
   # add prefix to each file name
   mrip_csv_names_list <- 
@@ -62,28 +49,11 @@ load_mrip_data <- function() {
   mrip_estimate_usa <- 
     load_xls_names(my_paths, mrip_xls_names_list,
                    sheet_n = "mripaclspec_rec81_22wv6_01mar23") 
-  # %>%
-    # guess integer types for whole numbers
-    # type_convert(guess_integer = TRUE)
 
-  # ---
-  # map_df(~read_csv(.x,
-  #                  name_repair = fix_names,
-  #                  show_col_types = FALSE) %>% 
-  #          mutate(across(.fns = as.character))) %>%
-  #   # Re-convert character columns
-  #   # guess integer types for whole numbers
-  #   type_convert(guess_integer = TRUE)
-  # 
-  # ---
-  
-  # mrip_estimate_sa <- temp_var[[2]]
-  # mrip_estimate_gom <- temp_var[[3]]
-  
-  # mrip_estimate <- rbind(mrip_estimate_sa, mrip_estimate_gom)
-  output <- list(mrip_species_list, mrip_estimate_usa)
+    output <- list(mrip_species_list, mrip_estimate_usa)
   return(output)
 }
+
 # TODO: benchmark, too slow
 mrip_temp <- load_mrip_data()
 
