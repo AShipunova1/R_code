@@ -116,7 +116,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 #### test: For the top 10, for each region sum separately MRIP and FHIER counts for one species, ----
 # should be the same as before
 
-#### test SA, FHIER counts
+#### test SA, FHIER counts ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
@@ -209,7 +209,6 @@ plots10_gom <- map(unique(fhier_acl_gom_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_gom_to_plot)}
                )
-
 
 # Title for all plots together
 super_title = "GOM: species counts by waves 2022"
@@ -532,3 +531,11 @@ gom_acl_top_to_plot <-
 # Joining with `by = join_by(species_itis, common_name)`
 # 'data.frame':	225 obs. of  7 variables:
 
+both_by_to_acl <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
+# str(both_by_to_acl)
+
+### GOM plots for each common name from the top 10 ----
+plots_acl_top_gom <- map(unique(both_by_to_acl$common_name),
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+               function(x) {plot_by_spp(x, both_by_to_acl)}
+               )
