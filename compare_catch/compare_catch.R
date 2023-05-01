@@ -13,22 +13,25 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 
-## Join Fhier and ACL ---- 
+## Join Fhier and ACL ----
 fhier_acl_catch_by_species_state_region_waves <-
-  full_join(fhier_catch_by_species_state_region_waves,
-             acl_estimate_catch_by_species_state_region_waves,
-              by = join_by(species_itis, state, sa_gom, year, wave)
-             )
+  full_join(
+    fhier_catch_by_species_state_region_waves,
+    acl_estimate_catch_by_species_state_region_waves,
+    by = join_by(species_itis, state, sa_gom, year, wave)
+  )
 
 ## NA counts to 0 ----
 # change NAs to 0 where one or another agency doesn't have counts for this species
 fhier_acl_catch_by_species_state_region_waves %<>%
-  mutate(fhier_quantity_by_4 =
-           replace_na(fhier_quantity_by_4, 0),
-         acl_estimate_catch_by_4 =
-           replace_na(acl_estimate_catch_by_4, 0))
+  mutate(
+    fhier_quantity_by_4 =
+      replace_na(fhier_quantity_by_4, 0),
+    acl_estimate_catch_by_4 =
+      replace_na(acl_estimate_catch_by_4, 0)
+  )
 
-### test join ---- 
+### test join ----
 # look at the first 20 entries for mackerel spanish
 fhier_acl_catch_by_species_state_region_waves %>%
   filter(species_itis == test_species_itis) %>% head(20)
@@ -43,7 +46,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis, sa_gom) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-  use_series(mackerel_fhier_cnt) %>% 
+  use_series(mackerel_fhier_cnt) %>%
   identical(fhier_test_cnts$mackerel_fhier_cnt)
 
 # acl_test_cnts
@@ -72,15 +75,15 @@ names(fhier_common_names) <- c("species_itis", "common_name")
 # DOLPHINFISH and DOLPHIN are combined
 # List by Michelle
 sa_top <- c(
-"BASS, BLACK SEA",
-"DOLPHIN",
-"GROUPER, BLACK",
-"GROUPER, GAG",
-"GROUPER, RED",
-"GROUPER, SCAMP",
-"MACKEREL, SPANISH",
-"SNAPPER, RED",
-"TRIGGERFISH, GRAY"
+  "BASS, BLACK SEA",
+  "DOLPHIN",
+  "GROUPER, BLACK",
+  "GROUPER, GAG",
+  "GROUPER, RED",
+  "GROUPER, SCAMP",
+  "MACKEREL, SPANISH",
+  "SNAPPER, RED",
+  "TRIGGERFISH, GRAY"
 )
 
 sa_top_spp <-
@@ -91,17 +94,17 @@ sa_top_spp <-
 # intersect(sa_top, fhier_common_names$common_name)
 # List by Michelle
 gom_top <- c(
-"AMBERJACK, GREATER",
-"COBIA",
-"GROUPER, BLACK",
-"GROUPER, GAG",
-"GROUPER, RED",
-"GROUPER, SCAMP",
-"MACKEREL, KING",
-"MACKEREL, SPANISH",
-"SNAPPER, GRAY",
-"SNAPPER, RED",
-"TRIGGERFISH, GRAY"
+  "AMBERJACK, GREATER",
+  "COBIA",
+  "GROUPER, BLACK",
+  "GROUPER, GAG",
+  "GROUPER, RED",
+  "GROUPER, SCAMP",
+  "MACKEREL, KING",
+  "MACKEREL, SPANISH",
+  "SNAPPER, GRAY",
+  "SNAPPER, RED",
+  "TRIGGERFISH, GRAY"
 )
 
 gom_top_spp <-
@@ -109,7 +112,7 @@ gom_top_spp <-
   filter(common_name %in% gom_top)
 
 glimpse(gom_top_spp)
-  
+
 ## an aux function to use only a wave from year_wave
 use_wave <- function(my_df) {
   my_df %>%
@@ -132,33 +135,25 @@ fhier_acl_catch_by_species_state_region_waves_tmp1 <-
 
 ## Add the fhier_common_names we made earlier ----
 fhier_acl_catch_by_species_state_region_waves_tmp2 <-
-  inner_join(fhier_acl_catch_by_species_state_region_waves_tmp1,
-           fhier_common_names,
-           by = join_by(species_itis))
+  inner_join(
+    fhier_acl_catch_by_species_state_region_waves_tmp1,
+    fhier_common_names,
+    by = join_by(species_itis)
+  )
 
 #| warning: false
 
-## Make separate data frames ----
-fhier_acl_catch_by_species_state_region_waves_list_for_plot <-
+## Make separate data frames by region ----
+fhier_acl_catch_by_species_state_region_waves_list <-
   fhier_acl_catch_by_species_state_region_waves_tmp2 %>%
   # split by sa_gom column
-    split(as.factor(fhier_acl_catch_by_species_state_region_waves$sa_gom)) %>%
+  split(as.factor(fhier_acl_catch_by_species_state_region_waves$sa_gom)) %>%
   # remove extra columns in each df
-    map(
-      .f = list(. %>% dplyr::select(-one_of("year", "sa_gom")
-                                    )
-                )
-  )
+  map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
 
-glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot)
+glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 
 ## Top 10 ACL spp. ----
-View(fhier_acl_catch_by_species_state_region_waves)
-View(acl_estimate_catch_by_species_state_region_waves)
-
-acl_estimate_catch_by_species_state_region_waves %>%
-  select(species_itis, sa_gom, acl_estimate_catch_by_4) %>%
-  group_by(species_itis, sa_gom) %>% str()
 ### GOM Top 10 ACL spp. ----
 gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
