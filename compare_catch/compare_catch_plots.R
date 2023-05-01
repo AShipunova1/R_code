@@ -41,6 +41,11 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
          y = ""
     ) +
    scale_x_continuous(n.breaks = 6) +
+   # catch_cnt for each bar
+   geom_text(aes(label = CATCH_CNT),
+             position = position_dodge(width = 0.9),
+             vjust = -0.25,
+             size = 3) +
    # blank theme from ggplot
    theme_bw() +
    my_theme
@@ -532,10 +537,31 @@ gom_acl_top_to_plot <-
 # 'data.frame':	225 obs. of  7 variables:
 
 both_by_to_acl <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
-# str(both_by_to_acl)
+View(both_by_to_acl)
 
 ### GOM plots for each common name from the top 10 ----
 plots_acl_top_gom <- map(unique(both_by_to_acl$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, both_by_to_acl)}
                )
+
+plots_acl_top_gom[[3]]
+
+# Title for all plots together
+super_title = "GOM: Top ACL species counts by waves 2022"
+
+# separate a legend
+plot_w_legend_gom <- plot_by_spp("MACKEREL, SPANISH",
+                             both_by_to_acl,
+                             # keep the legend
+                             FALSE)
+# use an aux function to pull out the legend
+my_legend_gom <- legend_for_grid_arrange(plot_w_legend_gom)
+
+# clean the plate
+grid.newpage()
+# combine all plots
+grid.arrange(grobs = plots_acl_top_gom,
+             top = super_title,
+             left = my_legend_gom,
+             ncol = 4)
