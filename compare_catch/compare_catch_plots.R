@@ -549,3 +549,13 @@ grid.arrange(
   ncol = 2
 )
 
+# === Top ACL species plots with cnts ----
+# GOM ----
+View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
+
+gom_acl_top_to_plot <-
+  fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+  inner_join(gom_acl_top_common_names)
+# Joining with `by = join_by(species_itis, common_name)`
+# 'data.frame':	225 obs. of  7 variables:
+
