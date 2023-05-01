@@ -72,7 +72,6 @@ fhier_logbooks_content_waves <-
   mutate(end_wave  = floor((end_month_num + 1) / 2))
 
 #| classes: test
-
 # test: show the new columns ----
 fhier_logbooks_content_waves %>%
   select(end_month, end_year, end_month_num, end_wave) %>%
@@ -236,8 +235,8 @@ fhier_logbooks_content_waves__sa_gom_dolph %>%
 
 ## calculate catch ----
 
-fhier_catch_by_species_state_region_waves <-  
-  fhier_logbooks_content_waves__sa_gom %>%
+fhier_catch_by_species_state_region_waves <-
+  fhier_logbooks_content_waves__sa_gom_dolph %>%
   # select only relevant columns
   select(
     catch_species_itis,
@@ -259,8 +258,11 @@ fhier_catch_by_species_state_region_waves <-
   ) %>%
   # save a sum of reported_quantity in each group in fhier_quantity_by_4
   # remove NAs
-  summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity), na.rm = TRUE)) %>%
+  summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity),
+                                      na.rm = TRUE)) %>%
   as.data.frame()
+
+# data_overview(fhier_catch_by_species_state_region_waves)
 
 #| classes: test
 ### test: cnts for 1 sp. ----
@@ -306,7 +308,7 @@ acl_estimate_2022 <-
   # surveys ?
   filter(!(ds == "SRHS"))
 
-View(acl_estimate)
+# View(acl_estimate)
 # dim(acl_estimate)
 # [1] 1442   67
 
@@ -314,6 +316,7 @@ dim(acl_estimate)
 # [1] 347379 67
 dim(acl_estimate_2022)
 # [1] 8332   67
+# 1442   
 # names(acl_estimate)
 
 acl_estimate_catch_by_species_state_region_waves <-
@@ -380,18 +383,19 @@ acl_names <- c("itis_code",
                 "acl_estimate_catch_by_4"
 )
 
-
 acl_estimate_catch_by_species_state_region_waves %<>%
-  rename_at(vars(acl_names[1:2]), function(x) wave_data_names_common[1:2])
+  rename_at(vars(acl_names[1:2]),
+            function(x) wave_data_names_common[1:2])
 
 fhier_names <- c(
   "catch_species_itis",
+  "common_name",
   "end_port_state",
   "end_port_sa_gom",
   "end_year",
   "end_wave",
   "fhier_quantity_by_4")
-  
+
 fhier_catch_by_species_state_region_waves %<>%
   rename_at(vars(fhier_names[1:5]),
             function(x) wave_data_names_common[1:5])
@@ -405,6 +409,8 @@ names(fhier_test_cnts) <- c("species_itis", "sa_gom", "mackerel_fhier_cnt")
 # names(acl_test_cnts)
 
 ### test: rename fields ----
-identical(names(fhier_catch_by_species_state_region_waves)[1:5],
-          names(acl_estimate_catch_by_species_state_region_waves)[1:5])
-
+names(fhier_catch_by_species_state_region_waves)
+names(acl_estimate_catch_by_species_state_region_waves)
+identical(names(fhier_catch_by_species_state_region_waves)[3:6],
+          names(acl_estimate_catch_by_species_state_region_waves)[2:5])
+# T
