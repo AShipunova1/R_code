@@ -32,11 +32,10 @@ logbooks_content <- load_all_logbooks()
 load_acl_data <- function() {
   acl_dir_path <- "compare_catch/MRIP data"
   acl_csv_names_list_raw <- c(
-    "acl_aux/species_list.csv" # identical for all areas
+    "mrip_aux/species_list.csv" # identical for all areas
   )
   # a file recommended by Mike
-  acl_xls_names_list_raw <- c(r"(acl_US\aclaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
-
+  acl_xls_names_list_raw <- c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
   # add prefix to each file name
   acl_csv_names_list <- 
       map_chr(acl_csv_names_list_raw, ~file.path(acl_dir_path, .x))
@@ -48,7 +47,7 @@ load_acl_data <- function() {
   
   acl_estimate_usa <- 
     load_xls_names(my_paths, acl_xls_names_list,
-                   sheet_n = "aclaclspec_rec81_22wv6_01mar23") 
+                   sheet_n = "mripaclspec_rec81_22wv6_01mar23") 
 
     output <- list(acl_species_list, acl_estimate_usa)
   return(output)
@@ -61,51 +60,6 @@ acl_species_list <- acl_temp[[1]]
 acl_estimate <- acl_temp[[2]]
 
 # data_overview(acl_estimate)
-
-## ---- specifically for "O:\Fishery Data\ACL Data\"
-
-# str(acl_estimate)
-acl_estimate_2022 <-
-  acl_estimate %>%
-  filter(year == "2022")
-
-dim(acl_estimate)
-# [1] 347379 67
-dim(acl_estimate_2022)
-# [1] 8332   67
-# names(acl_estimate)
-acl_estimate <-
-  acl_estimate_2022 %>%
-  # filtering here for just SA (6) and Gulf (7) sub regions
-    filter(sub_reg %in% c(6, 7)) %>%
-# dim(acl_estimate)
-# [1] 7479   67
-  # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
-  # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
-  # new_moden		alpha description of ‘new_mode’
-  # filter(new_moden == "Cbt") # charterboat
-  filter(new_mode %in% c(2,3,5))  %>%
-  filter(!(ds == "SRHS"))
-# Explanations: ----
-# 5=charter/headboat - obsolete - check dates
-View(acl_estimate)
-# dim(acl_estimate)
-# [1] 1442   67
-
-# grep("mode", names(acl_estimate), value = T)
-# [1] "new_mode"  "new_moden" "mode_fx"   "agg_moden"
-
-# acl_estimate %>% select(new_moden) %>% unique()
-## ---- specifically for acl_catch_year_2022_preliminary.csv and/or
-# acl_SA/acl_estim_catch_year_2022_2022_SA.csv
-# use sub_reg 6 & 7 for now (SA & GOM)
-# And federal waters only
-# acl_estimate <-
-#   acl_estimate_all %>% 
-#   filter(sub_reg %in% c(6, 7))
-# %>%
-# ? WFL 10?
-  # filter(area_x %in% c(2, 3, 4))
 
 # ---- 3) Auxilary ----
 get_permit_type_from_compiance <- function() {

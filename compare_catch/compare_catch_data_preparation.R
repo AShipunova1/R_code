@@ -282,13 +282,39 @@ fhier_test_cnts <-
 
 # source("~/R_code_github/compare_catch/compare_catch_fhier_q.R")
 
-## MRIP ----
+## ACL ----
 
+## ---- specifically for "O:\Fishery Data\ACL Data\"
+# from get_data
 acl_estimate %<>%
   mutate(ab1 = as.integer(ab1))
 
-acl_estimate_catch_by_species_state_region_waves <-
+# str(acl_estimate)
+
+acl_estimate_2022 <-
   acl_estimate %>%
+  filter(year == "2022") %>%
+  # filtering here for just SA (6) and Gulf (7) sub regions
+  filter(sub_reg %in% c(6, 7)) %>%
+  # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
+  # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
+  # new_moden		alpha description of ‘new_mode’
+  filter(new_mode %in% c(2, 3, 5))  %>%
+  # surveys ?
+  filter(!(ds == "SRHS"))
+
+View(acl_estimate)
+# dim(acl_estimate)
+# [1] 1442   67
+
+dim(acl_estimate)
+# [1] 347379 67
+dim(acl_estimate_2022)
+# [1] 8332   67
+# names(acl_estimate)
+
+acl_estimate_catch_by_species_state_region_waves <-
+  acl_estimate_2022 %>%
   # select the relevant columns only
   select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
   # group by all except the counts
@@ -326,7 +352,7 @@ acl_test_cnts <-
   filter(itis_code == test_species_itis) %>%
   # group by region
   group_by(itis_code, sa_gom) %>%
-  # sum the MRIP catch
+  # sum the ACL catch
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
