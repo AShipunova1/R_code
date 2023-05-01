@@ -32,7 +32,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
              fill = AGENCY)
   ) +
     # manually cange default colours
-    scale_fill_manual(values = c("MRIP" = "deepskyblue", "FHIER" = "red")) +
+    scale_fill_manual(values = c("ACL" = "deepskyblue", "FHIER" = "red")) +
     # columns are side by side (not stacked)
     geom_col(position = "dodge") +
     labs(title = com_name,
@@ -118,7 +118,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 
 #| classes: test
 
-#### test: For the top 10, for each region sum separately MRIP and FHIER counts for one species, ----
+#### test: For the top 10, for each region sum separately ACL and FHIER counts for one species, ----
 # should be the same as before
 
 #### test SA, FHIER counts ----
@@ -151,7 +151,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
             )
 
 
-# SA, MRIP counts
+# SA, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
@@ -165,7 +165,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
               use_series(mackerel_acl_cnt)
             )
 
-# GOM, MRIP counts
+# GOM, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
@@ -201,9 +201,9 @@ fhier_acl_to_plot_format <- function(my_df) {
 
 ## GOM plots ----
 
-hier_acl_gom_to_plot_0 <-
-  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
-
+# fhier_acl_gom_to_plot_0 <-
+#   fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+# 
 # an overview plot
 plot(fhier_acl_gom_to_plot)
 
@@ -269,7 +269,7 @@ grid.arrange(grobs = plots10,
 
 # source("~/R_code_github/compare_catch_no_na.R")
 
-## Count Index: use a MRIP/FHIER count ratio ----
+## Count Index: use a ACL/FHIER count ratio ----
 # keep ymax the same across plots
 
 # https://stackoverflow.com/questions/17074189/incorrect-left-align-using-tablegrob
@@ -303,8 +303,8 @@ textii <- function(d,
 
 ## footnote explanation ----
 footnote = textGrob(
-  "The Ratio is calculated as (acl_cnts - fhier_cnts) / (acl_cnts + fhier_cnts). Hence if the bars are > 0 then MRIP estmates > FHIER counts and vice versa.
-The smaller the bar is the closer the MRIP estmates are to the FHIER counts.",
+  "The Ratio is calculated as (acl_cnts - fhier_cnts) / (acl_cnts + fhier_cnts). Hence if the bars are > 0 then ACL estmates > FHIER counts and vice versa.
+The smaller the bar is the closer the ACL estmates are to the FHIER counts.",
   gp = gpar(fontface = 3, fontsize = 10),
   # justify left
   hjust = 0,
@@ -527,8 +527,8 @@ grid.arrange(
 )
 
 # === Top ACL species plots with cnts ----
-# GOM ----
-View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
+# GOM Top ACL species plots ----
+# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 
 gom_acl_top_to_plot <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
@@ -545,7 +545,10 @@ plots_acl_top_gom <- map(unique(both_by_to_acl$common_name),
                function(x) {plot_by_spp(x, both_by_to_acl)}
                )
 
-plots_acl_top_gom[[3]]
+# plots_acl_top_gom[[2]]
+# both_by_to_acl %>%
+#   filter(common_name == 'RUNNER, BLUE' &
+#            wave == 1)
 
 # Title for all plots together
 super_title = "GOM: Top ACL species counts by waves 2022"
