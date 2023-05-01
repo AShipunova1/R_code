@@ -114,7 +114,12 @@ mrip_estimate <-
   # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
   # new_moden		alpha description of ‘new_mode’
-  filter(new_moden == "Cbt") # charterboat
+  # filter(new_moden == "Cbt") # charterboat
+  filter(new_mode %in% c(2,3,5))  %>%
+  filter(!(ds == "SRHS"))
+# Explanations: ----
+# 5=charter/headboat - obsolete - check dates
+View(mrip_estimate)
 # dim(mrip_estimate)
 # [1] 1442   67
 
