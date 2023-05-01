@@ -1,15 +1,14 @@
 # check diff between logbook csv and db ----
-View(new_logb)
-new_logb %>%
-  filter(de >= "01/01/2022 00:00:00 AM") %>%
-  select(view) %>% unique() %>% str()
+View(fhier_logbooks_content)
+fhier_logbooks_content %>%
+  filter(trip_de >= "2022-01-01 00:00:00") %>%
+  select(trip_id) %>% str()
 # 346005
-# 907835 new_logb
-max(new_logb$trip_de)
+max(fhier_logbooks_content$trip_de)
 # [1] "2023-02-26 23:51:34"
 
 trip_id_vessel_from_logbooks <-
-new_logb %>%
+fhier_logbooks_content %>%
   filter(trip_de >= "2022-01-01 00:00:00",
          !(tolower(vendor_app_name) == "vms")) %>%
   select(trip_id, vessel_official_number) %>% unique()
@@ -92,7 +91,7 @@ trip_id_vessel_st_from_db %>%
   filter(TRIP_ID %in% in_db_only) %>%
   select(STATE_NAME) %>% unique()
 
-new_logb %>%
+fhier_logbooks_content %>%
   # select(all_of(ends_with("state"))) %>%
   # select(start_port_state, end_port_state) %>%
   select(start_port_state) %>%
@@ -120,7 +119,7 @@ vessel_nbr_trips_indb_only <-
 0
 
 str(vessel_nbr_trips_indb_only)
-new_logb %>%
+fhier_logbooks_content %>%
   filter(vessel_official_nbr %in% vessel_nbr_trips_indb_only$vessel_off_num) %>% View()
 
 # === compare downloaded from Fhier and from db ----
@@ -258,7 +257,7 @@ length(in_db_only)
 # 24473
 # 27575
 
-# ---
+# --- compare with fhier downloads ----
 names(new_logb)
 new_logb_supplier_ids <-
   new_logb %>%
