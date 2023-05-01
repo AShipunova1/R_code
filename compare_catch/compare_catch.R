@@ -63,6 +63,7 @@ names(fhier_common_names) <- c("species_itis", "common_name")
 # grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
 
 # "DOLPHINFISH",
+# List by Michelle
 sa_top <- c(
 "BASS, BLACK SEA",
 "DOLPHIN",
@@ -81,7 +82,7 @@ sa_top_spp <-
 
 # View(sa_top)
 # intersect(sa_top, fhier_common_names$common_name)
-
+# List by Michelle
 gom_top <- c(
 "AMBERJACK, GREATER",
 "COBIA",
@@ -478,7 +479,7 @@ textii <- function(d,
 
 ## footnote explanation ----
 footnote = textGrob(
-  "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts). Hence if the bars are > 0 then FHIER counts < MRIP estmates and vice versa.
+  "The Ratio is calculated as (mrip_cnts - fhier_cnts) / (mrip_cnts + fhier_cnts). Hence if the bars are > 0 then MRIP estmates > FHIER counts and vice versa.
 The smaller the bar is the closer the MRIP estmates are to the FHIER counts.",
   gp = gpar(fontface = 3, fontsize = 10),
   # justify left
