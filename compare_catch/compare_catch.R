@@ -139,8 +139,8 @@ fhier_acl_catch_by_species_state_region_waves_list <-
 
 glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 
-## Top 10 ACL spp. ----
-### GOM Top 10 ACL spp. ----
+## Top 12 ACL spp. ----
+### GOM Top 12 ACL spp. ----
 gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
   filter(sa_gom == "gom") %>%
@@ -168,7 +168,6 @@ sa_acl_top_spp <-
   arrange(desc(acl_count)) %>%
   head(12)
 # head(14) 12 fits better in one plot
-
 
 sa_acl_top_common_names <-
   fhier_common_names %>%

@@ -306,7 +306,7 @@ acl_estimate_2022 <-
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
   # new_moden		alpha description of ‘new_mode’
   filter(new_mode %in% c(2, 3, 5))  %>%
-  # Exclude the survey according to Dominique and Mike May 1
+  # Exclude the SRHS survey according to Dominique and Mike May 1
   filter(!(ds == "SRHS"))
 
 # View(acl_estimate)
