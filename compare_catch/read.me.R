@@ -1,7 +1,8 @@
 # To prepare FHIER and MRIP data
 # 1) change directories in the source code (twice).
 # 1) have useful_functions_module.r in the working directory
-# 2) run the compare_catch_data_preparation.R
+# 2) a) run the compare_catch_data_preparation.R
+  # Or b) source "compare_catch.R"
 
 # Compare catch in survey vs logbook
 # all data for 2022
