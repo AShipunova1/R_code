@@ -1,3 +1,11 @@
+# From db num of passengers > capacity ----
+# View(passengers_from_db)
+
+data_overview(passengers_from_db)
+# TRIP_ID               493
+# VESSEL_NAME            62
+
+
 # check diff between logbook csv and db ----
 View(fhier_logbooks_content)
 fhier_logbooks_content %>%
@@ -22,6 +30,7 @@ unique(trip_id_vessel_from_logbooks) %>% dim()
 trip_id_vessel_from_logbooks %>% select(trip_id) %>% unique() %>% dim()
 # 81594
 
+# Run once
 # write_csv(trip_id_vessel, "trip_id_vessel.csv")
 
 trip_id_vessel_from_db %>% select(trip_id) %>% unique() %>% dim()
@@ -51,19 +60,20 @@ in_db_only <-
 length(in_db_only)
 # 8098
 
+# Run once
 # out_dir <- file.path(my_paths$inputs, "fhier_vs_db")
 # write_csv(as.data.frame(in_logbooks_only),
 #           file.path(out_dir, "trips_in_logbooks_only.csv"))
 # write_csv(as.data.frame(in_db_only),
 #           file.path(out_dir, "trips_in_db_only.csv"))
 
+# compare one trip ----
 trip_id_vessel_from_logbooks %>%
   filter(trip_id == "61479063")
 
 trip_id_vessel_from_db %>%
   filter(trip_id == "61479063")
 
-# ---
 str(in_db_only)
 
 trip_id_vessel_from_logbooks %>%
@@ -84,6 +94,7 @@ trip_id_vessel_from_logbooks %>%
 # [7] "STATE_NAME"      
 str(trip_id_vessel_st_from_db)
 
+# is the diff by port? no
 str(in_db_only)
 # trip_id_vessel_st_from_db %<>%
 #   mutate(TRIP_ID = as.numeric(TRIP_ID))
@@ -92,8 +103,6 @@ trip_id_vessel_st_from_db %>%
   select(STATE_NAME) %>% unique()
 
 fhier_logbooks_content %>%
-  # select(all_of(ends_with("state"))) %>%
-  # select(start_port_state, end_port_state) %>%
   select(start_port_state) %>%
   arrange(start_port_state) %>%
   unique()
@@ -102,7 +111,7 @@ fhier_logbooks_content %>%
 # 12 NY              
 # 13 RI
 
-# states are not the cause for the difference
+# states are do not cause the difference
 head(in_db_only)
 
 # vessel_nbr ----
@@ -116,13 +125,13 @@ vessel_nbr_trips_indb_only <-
 # %>%
   # dim()
 # 691   
-0
+# 0
 
 str(vessel_nbr_trips_indb_only)
 fhier_logbooks_content %>%
   filter(vessel_official_nbr %in% vessel_nbr_trips_indb_only$vessel_off_num) %>% View()
 
-# === compare downloaded from Fhier and from db ----
+# === compare downloaded from Fhier and from db again ----
 logbooks_downloaded_from_fhier_trip_id_only <-
   logbooks_downloaded_from_fhier_trip_vsl %>%
   select(trip_id) %>% unique() 
@@ -134,16 +143,15 @@ trip_id_vessel_st_from_db_trip_id_only <-
   select(trip_id) %>% unique()
 # %>% dim()
 
+# in FHIER only
 setdiff(logbooks_downloaded_from_fhier_trip_id_only$trip_id, 
         trip_id_vessel_st_from_db_trip_id_only$trip_id) %>% length()
-# 17535
 # 2
 
+# In db only
 setdiff(trip_id_vessel_st_from_db_trip_id_only$trip_id,
         logbooks_downloaded_from_fhier_trip_id_only$trip_id) %>%
-  # head()
   length()
-# 7167
 # 5348
 
 names(trip_id_vessel_st_from_db)
@@ -161,12 +169,15 @@ names(logbooks_downloaded_from_fhier)
 # [13] "de"                        "ue"                       
 # [15] "submissionlag_time__mins_"
 
+# by supplier_trip_id ----
+# FHIER
 logbooks_downloaded_from_fhier_sup_trip_id_only <-
   logbooks_downloaded_from_fhier %>%
   select(supplier_trip_id) %>% unique() 
 
 # names(logbooks_downloaded_from_fhier_trip_vsl)
   
+# DB
 trip_id_vessel_st_from_db_sup_trip_id_only <-
   trip_id_vessel_st_from_db %>%
   select(supplier_trip_id) %>% unique()
@@ -223,7 +234,7 @@ str(vessel_num_in_db_only)
 # vessel_num_in_db_only$vessel_num %>% head(100) %>% 
   # paste0(collapse = ", ")
 
-# == make a filter supplier_trip_id ----
+# filter supplier_trip_id in DB only----
 
 supplier_trip_id_in_db_only <-
   trip_id_vessel_st_from_db %>%
@@ -231,20 +242,15 @@ supplier_trip_id_in_db_only <-
   select(supplier_trip_id)
   
 str(supplier_trip_id_in_db_only)
-# check in fhier
-# 
-# supplier_trip_id_in_db_only$supplier_trip_id %>%
-#   head(1000) %>%
-#   paste0(collapse = ", ")
-# # csv2
-# 
+
+# A filter fo FHIER
 # supplier_trip_id_in_db_only$supplier_trip_id %>%
 #   head(2000) %>%
 #   tail(1000) %>%
 #   paste0(collapse = ", ")
 # 
 
-names(new_logb)
+# names(new_logb)
 in_db_only <-
 setdiff(new_logb$suppliertripid,
         logbooks_downloaded_from_fhier_sup_trip_id_only$supplier_trip_id) 
@@ -254,8 +260,8 @@ length(in_db_only)
 # 24473
 # 27575
 
-# --- compare with fhier downloads ----
-names(new_logb)
+# --- compare with FHIER downloads ----
+# names(new_logb)
 new_logb_supplier_ids <-
   new_logb %>%
   filter(suppliertripid %in% in_db_only) %>%
