@@ -12,8 +12,6 @@ my_paths <- set_work_dir()
 
 ##| echo: false
 
-# source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
-
 con = dbConnect(
   dbDriver("Oracle"),
   username = keyring::key_list("SECPR")[1, 2],
@@ -90,6 +88,7 @@ trip_id_vessel_st_from_db <- dbGetQuery(con, query_w_state)
 trip_id_vessel_st_from_db <- clean_headers(trip_id_vessel_st_from_db)
 
 # download Reports / FHIER All Logbooks 01/01/2022-02/26/2023
+# by month, otherwise it is truncated
 
 # logbooks_downloaded_from_fhier_22_23_feb_file_name <-
 #   file.path(my_paths$inputs,

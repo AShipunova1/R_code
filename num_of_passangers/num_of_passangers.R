@@ -220,8 +220,8 @@ vessel_num_in_db_only <-
   select(vessel_num)
 
 str(vessel_num_in_db_only)
-vessel_num_in_db_only$vessel_num %>% head(100) %>% 
-  paste0(collapse = ", ")
+# vessel_num_in_db_only$vessel_num %>% head(100) %>% 
+  # paste0(collapse = ", ")
 
 # == make a filter supplier_trip_id ----
 
@@ -231,21 +231,18 @@ supplier_trip_id_in_db_only <-
   select(supplier_trip_id)
   
 str(supplier_trip_id_in_db_only)
-
-supplier_trip_id_in_db_only$supplier_trip_id %>%
-  head(1000) %>%
-  paste0(collapse = ", ")
-# csv2
-
-supplier_trip_id_in_db_only$supplier_trip_id %>%
-  head(2000) %>%
-  tail(1000) %>%
-  paste0(collapse = ", ")
-
-supplier_trip_id_in_db_only$supplier_trip_id %>%
-  head(5500) %>%
-  tail(1000) %>%
-  paste0(collapse = ", ")
+# check in fhier
+# 
+# supplier_trip_id_in_db_only$supplier_trip_id %>%
+#   head(1000) %>%
+#   paste0(collapse = ", ")
+# # csv2
+# 
+# supplier_trip_id_in_db_only$supplier_trip_id %>%
+#   head(2000) %>%
+#   tail(1000) %>%
+#   paste0(collapse = ", ")
+# 
 
 names(new_logb)
 in_db_only <-
