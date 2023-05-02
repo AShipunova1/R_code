@@ -150,9 +150,6 @@ gom_acl_top_spp <-
   arrange(desc(acl_count)) %>%
   head(12)
 
-spp_order_gom <- factor(gom_acl_top_spp$species_itis)
-# str(spp_order_gom)
-
 gom_acl_top_common_names <-
   fhier_common_names %>%
   # keep the subset only
@@ -171,8 +168,6 @@ sa_acl_top_spp <-
   head(12)
 # head(14) 12 fits better in one plot
 
-spp_order_sa <- factor(sa_acl_top_spp$species_itis)
-# str(spp_order_sa)
 
 sa_acl_top_common_names <-
   fhier_common_names %>%
