@@ -115,6 +115,7 @@ glimpse(gom_top_spp)
 ## an aux function to use only a wave from year_wave
 use_wave <- function(my_df) {
   my_df %>%
+    # split the column
     separate_wider_delim(year_wave,
                          delim = "_",
                          names = c("year", "wave")) %>%
