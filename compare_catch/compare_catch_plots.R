@@ -577,10 +577,20 @@ sa_acl_top_to_plot <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
   inner_join(sa_acl_top_common_names)
 # Joining with `by = join_by(species_itis, common_name)`
-# 'data.frame':	225 obs. of  7 variables:
+# str(sa_acl_top_to_plot)
+# 'data.frame':	331 obs. of  6 variables:
+str(sa_acl_top_common_names)
+sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 
-# both_by_to_acl <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
-# View(both_by_to_acl)
+# test the longer format transformation ----
+# View(sa_acl_top_to_plot)
+sa_acl_top_to_plot %>% 
+  filter(species_itis == '173138') %>%
+count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
+# 41469 
+filter(sa_acl_top_spp, species_itis == '173138')
+# 41469 
+
 
 ### sa plots for each common name from the top 10 ----
 plots_acl_top_sa <- map(unique(both_by_to_acl$common_name),
