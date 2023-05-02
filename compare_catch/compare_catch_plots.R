@@ -9,8 +9,6 @@ my_theme <- theme(
     # low it down
     # ,
     vjust = 0.5),
-  
-  # + opts(axis.title.x = theme_text(vjust=-0.5))
   # change text size
   plot.title = element_text(size = 9),
   legend.title = element_text(size = 8),
@@ -22,16 +20,15 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
 
  one_plot <-
   my_df %>%
-    # only the com name from the parameters
+    # only get the com name from the parameters
     filter(common_name == !!com_name) %>%
   ggplot(
          aes(x = wave,
              y = CATCH_CNT,
-            # color by the agency and
-            # make a legend if no_legend is FALSE
-             fill = AGENCY)
+            # color by the origin
+             fill = ORIGIN)
   ) +
-    # manually cange default colours
+    # manually change default colors
     scale_fill_manual(values = c("ACL" = "deepskyblue", "FHIER" = "red")) +
     # columns are side by side (not stacked)
     geom_col(position = "dodge") +
@@ -45,12 +42,14 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
    geom_text(aes(label = CATCH_CNT),
              position = position_dodge(width = 0.9),
              vjust = -0.25,
+             # size is in mm for geom_bar
              size = 2) +
    # blank theme from ggplot
    theme_bw() +
    my_theme
 
   # By default the "no_legend" parameter is TRUE
+            # make a legend if no_legend is FALSE
   if (no_legend) {
     one_plot <- one_plot +
       theme(legend.position = "none")
@@ -150,7 +149,6 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
               use_series(mackerel_fhier_cnt)
             )
 
-
 # SA, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   filter(species_itis == test_species_itis) %>%
@@ -191,12 +189,12 @@ fhier_acl_to_plot_format <- function(my_df) {
   pivot_longer(
     cols = c(ACL,
              FHIER),
-    names_to = "AGENCY",
+    names_to = "ORIGIN",
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
-    group_by(wave, species_itis, common_name, AGENCY) %>%
+  select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
+    group_by(wave, species_itis, common_name, ORIGIN) %>%
     summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
     return()
 }
@@ -239,33 +237,31 @@ grid.arrange(grobs = plots10_gom,
 ## SA plots ----
 
 fhier_acl_sa_to_plot <-
-  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10) %>%
-  # remove lines where one or another agency doesn't have counts for this species
-  drop_na()
+  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10) %>% 
+  ungroup()
 
-# all.equal(fhier_acl_sa_to_plot, fhier_acl_sa_to_plot_a)
-
-glimpse(fhier_acl_sa_to_plot)
+# glimpse(fhier_acl_sa_to_plot)
 
 # An overview plot
 # plot(fhier_acl_sa_to_plot)
 
            # for each common name from the top 10
-plots10 <- map(unique(fhier_acl_sa_to_plot$common_name),
+sa_plots10 <- map(unique(fhier_acl_sa_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_sa_to_plot)}
                )
 
 # The following code is the same as before, with "SA" instead of "GOM"
-super_title = "SA: species counts by waves (Council list)"
+sa_super_title = "SA: species counts by waves (Council list)"
 
-# separate a legend
-plot_w_legend <- plot_by_spp("MACKEREL, SPANISH", fhier_acl_sa_to_plot, FALSE)
-my_legend <- legend_for_grid_arrange(plot_w_legend)
+#### separate a legend ----
+sa_plot_w_legend <- plot_by_spp("MACKEREL, SPANISH", fhier_acl_sa_to_plot, FALSE)
+sa_my_legend <- legend_for_grid_arrange(sa_plot_w_legend)
 
-grid.arrange(grobs = plots10,
-             top = super_title,
-             left = my_legend,
+#### draw all sa plots10 together ----
+grid.arrange(grobs = sa_plots10,
+             top = sa_super_title,
+             left = sa_my_legend,
              ncol = 3)
 
 
