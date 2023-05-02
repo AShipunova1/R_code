@@ -161,8 +161,10 @@ sa_acl_top_spp <-
   group_by(species_itis) %>%
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
   arrange(desc(acl_count)) %>%
-  head(14)
+  head(12)
+# head(14)
 
 sa_acl_top_common_names <-
   fhier_common_names %>%
   filter(species_itis %in% sa_acl_top_spp$species_itis)
+
