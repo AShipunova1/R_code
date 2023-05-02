@@ -584,27 +584,24 @@ sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 
 # test the longer format transformation ----
 # View(sa_acl_top_to_plot)
-sa_acl_top_to_plot %>% 
-  filter(species_itis == '173138') %>%
-count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
-# 41469 
-filter(sa_acl_top_spp, species_itis == '173138')
-# 41469 
+# sa_acl_top_to_plot %>% 
+#   filter(species_itis == '173138') %>%
+# count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
+# # 41469 
+# filter(sa_acl_top_spp, species_itis == '173138')
+# # 41469 
 
 
-### sa plots for each common name from the top 10 ----
+### sa plots for each common name from the top ACL spp ----
 plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, sa_acl_top_to_plot_longer)}
                )
 
-# plots_acl_top_sa[[2]]
-# both_by_to_acl %>%
-#   filter(common_name == 'RUNNER, BLUE' &
-#            wave == 1)
+# plots_acl_top_sa[[1]]
 
 # Title for all plots together
-super_title = "sa: Top ACL species counts by waves 2022"
+super_title = "SA: Top ACL species counts by waves 2022"
 
 # separate a legend
 plot_w_legend_sa <- plot_by_spp("MACKEREL, SPANISH",
