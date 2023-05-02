@@ -538,13 +538,13 @@ gom_acl_top_to_plot <-
 # Joining with `by = join_by(species_itis, common_name)`
 # 'data.frame':	225 obs. of  7 variables:
 
-both_by_to_acl <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
-View(both_by_to_acl)
+gom_acl_top_to_plot_longer <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
+View(gom_acl_top_to_plot_longer)
 
 ### GOM plots for each common name from the top 10 ----
-plots_acl_top_gom <- map(unique(both_by_to_acl$common_name),
+plots_acl_top_gom <- map(unique(gom_acl_top_to_plot_longer$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_by_spp(x, both_by_to_acl)}
+               function(x) {plot_by_spp(x, gom_acl_top_to_plot_longer)}
                )
 
 # plots_acl_top_gom[[2]]
@@ -557,7 +557,7 @@ super_title = "GOM: Top ACL species counts by waves 2022"
 
 # separate a legend
 plot_w_legend_gom <- plot_by_spp("MACKEREL, SPANISH",
-                             both_by_to_acl,
+                             gom_acl_top_to_plot_longer,
                              # keep the legend
                              FALSE)
 # use an aux function to pull out the legend
@@ -593,9 +593,9 @@ filter(sa_acl_top_spp, species_itis == '173138')
 
 
 ### sa plots for each common name from the top 10 ----
-plots_acl_top_sa <- map(unique(both_by_to_acl$common_name),
+plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_by_spp(x, both_by_to_acl)}
+               function(x) {plot_by_spp(x, sa_acl_top_to_plot_longer)}
                )
 
 # plots_acl_top_sa[[2]]
@@ -608,7 +608,7 @@ super_title = "sa: Top ACL species counts by waves 2022"
 
 # separate a legend
 plot_w_legend_sa <- plot_by_spp("MACKEREL, SPANISH",
-                             both_by_to_acl,
+                             sa_acl_top_to_plot_longer,
                              # keep the legend
                              FALSE)
 # use an aux function to pull out the legend
@@ -621,3 +621,4 @@ grid.arrange(grobs = plots_acl_top_sa,
              top = super_title,
              left = my_legend_sa,
              ncol = 4)
+
