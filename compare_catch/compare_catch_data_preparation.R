@@ -212,7 +212,7 @@ fhier_logbooks_content_waves__sa_gom %>%
   unique() %>%
   glimpse()
 
-glimpse(fhier_logbooks_content_waves__sa_gom)
+# glimpse(fhier_logbooks_content_waves__sa_gom)
 
 ## combine dolphin and dolphinfish for FHIER data ----
 fhier_logbooks_content_waves__sa_gom_dolph <-
@@ -225,7 +225,7 @@ fhier_logbooks_content_waves__sa_gom_dolph <-
     )
   )
 
-glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
+# glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
 
 ### test: dolphins ----
 fhier_logbooks_content_waves__sa_gom_dolph %>%
@@ -284,14 +284,15 @@ fhier_test_cnts <-
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
-
 # source("~/R_code_github/compare_catch/compare_catch_fhier_q.R")
 
 ## ACL ----
 
 ## ---- specifically for "O:\Fishery Data\ACL Data\"
-# from get_data
+# from get_data.R
 acl_estimate %<>%
+  # using ab1 for catch counts
+  # convert to numbers
   mutate(ab1 = as.integer(ab1))
 
 # str(acl_estimate)
@@ -305,7 +306,7 @@ acl_estimate_2022 <-
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
   # new_moden		alpha description of ‘new_mode’
   filter(new_mode %in% c(2, 3, 5))  %>%
-  # surveys ?
+  # Exclude the survey according to Dominique and Mike May 1
   filter(!(ds == "SRHS"))
 
 # View(acl_estimate)
@@ -328,9 +329,10 @@ acl_estimate_catch_by_species_state_region_waves <-
   # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
   # remove NAs
   summarise(acl_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
+  # back to an ungrouped form
   as.data.frame()
 
-glimpse(acl_estimate_catch_by_species_state_region_waves)
+# glimpse(acl_estimate_catch_by_species_state_region_waves)
 # 'data.frame':	878 obs. of  6 variables
 
 # "year" and "wave" to numbers
@@ -396,21 +398,20 @@ fhier_names <- c(
   "end_wave",
   "fhier_quantity_by_4")
 
+# names(fhier_catch_by_species_state_region_waves)
 fhier_catch_by_species_state_region_waves %<>%
-  rename_at(vars(fhier_names[1:5]),
+  rename_at(vars(fhier_names[c(1, 3:6)]),
             function(x) wave_data_names_common[1:5])
-# %>% head(100) %>% tail(2)
 
 ### rename fields in the test variables ----
 names(fhier_test_cnts) <- c("species_itis", "sa_gom", "mackerel_fhier_cnt")
 
-#was: "catch_species_itis" "end_port_sa_gom"    "mackerel_fhier_cnt"
-
+# was: "catch_species_itis" "end_port_sa_gom"    "mackerel_fhier_cnt"
 # names(acl_test_cnts)
 
 ### test: rename fields ----
 names(fhier_catch_by_species_state_region_waves)
 names(acl_estimate_catch_by_species_state_region_waves)
-identical(names(fhier_catch_by_species_state_region_waves)[3:6],
-          names(acl_estimate_catch_by_species_state_region_waves)[2:5])
+identical(names(fhier_catch_by_species_state_region_waves)[c(1, 3:6)],
+          names(acl_estimate_catch_by_species_state_region_waves)[1:5])
 # T
