@@ -1,3 +1,16 @@
+# TODO ----
+# 3 sets of spp: 
+# 1a) SEDAR; 
+# 2b) Recreational ACL tops; 
+# 3c) All FHIER spp
+
+# Plots:
+# 1) By wave and region
+# 2) By wave and state
+# 3) By year and region
+# 4) By year and state
+# ---
+
 ##| echo: false
 library(zoo)
 library(gridExtra)
@@ -12,7 +25,7 @@ my_paths <- set_work_dir()
 ##| echo: false
 source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 
-## save common names and itis in a separate data frame ----
+## All FHIER common names and itis in a separate data frame ----
 fhier_common_names <-
   fhier_logbooks_content %>%
   # names()
@@ -70,7 +83,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
 
 # grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
 
-## SEDAR spp. lists ----
+## 1a) SEDAR spp. lists ----
 # DOLPHINFISH and DOLPHIN are combined
 # List by Michelle
 sa_top <- c(
@@ -129,7 +142,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves)
 # Rows: 5,728
 
 #| warning: false
-## Make separate data frames by region ----
+## Separate data frames by region ----
 fhier_acl_catch_by_species_state_region_waves_list <-
   fhier_acl_catch_by_species_state_region_waves %>%
   # split by sa_gom column
@@ -139,7 +152,7 @@ fhier_acl_catch_by_species_state_region_waves_list <-
 
 glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 
-## Top 12 ACL spp. ----
+## 2b) Top 12 ACL spp. ----
 ### GOM Top 12 ACL spp. ----
 gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
@@ -173,4 +186,155 @@ sa_acl_top_common_names <-
   fhier_common_names %>%
   # keep the subset only
   filter(species_itis %in% sa_acl_top_spp$species_itis)
+
+# 2) Data By wave and state ----
+# str(fhier_catch_by_species_state_region_waves)
+# str(acl_estimate_catch_by_species_state_region_waves)
+# fhier_acl_catch_by_species_state_region_waves - has only common species
+
+## split by state ----
+fhier_acl_catch_by_species_state_region_waves_states_list <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
+  # remove extra columns in each df
+  map(.f = list(. %>% dplyr::select(-"state")))
+
+str(fhier_acl_catch_by_species_state_region_waves_states_list)
+# List of 17
+
+# 3) Data By year and region ----
+# View(fhier_acl_catch_by_species_state_region_waves)
+
+fhier_acl_catch_by_species_region_year <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  select(species_itis,
+         common_name,
+         sa_gom,
+         fhier_quantity_by_4,
+         acl_estimate_catch_by_4) %>%
+  group_by(species_itis,
+         common_name,
+         sa_gom) %>%
+  mutate(
+    fhier_sum_cnts = sum(fhier_quantity_by_4),
+    rec_acl_sum_cnts = sum(acl_estimate_catch_by_4)
+  ) %>%
+  select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
+  unique()
+
+## split by sa_gom ----
+fhier_acl_catch_by_species_region_year_list <-
+  fhier_acl_catch_by_species_region_year %>%
+  ungroup %>%
+  split(as.factor(fhier_acl_catch_by_species_region_year$sa_gom)) %>%
+  # remove extra columns in each df
+  map(.f = list(. %>% dplyr::select(-"sa_gom")))
+
+# test
+# %>%
+  # filter(species_itis == '169059') %>%
+  # glimpse()
+
+# 4) Data By year and state ----
+
+fhier_acl_catch_by_species_state_year <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  select(species_itis,
+         common_name,
+         state,
+         fhier_quantity_by_4,
+         acl_estimate_catch_by_4) %>%
+  group_by(species_itis,
+         common_name,
+         state) %>%
+  mutate(
+    fhier_sum_cnts = sum(fhier_quantity_by_4),
+    rec_acl_sum_cnts = sum(acl_estimate_catch_by_4)
+  ) %>%
+  select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
+  unique()
+
+# test
+# fhier_acl_catch_by_species_state_year %>%
+  # filter(species_itis == '169059') %>%
+  # glimpse()
+
+## split by state ----
+fhier_acl_catch_by_species_state_year_list <-
+  fhier_acl_catch_by_species_state_year %>%
+  ungroup %>%
+  split(as.factor(fhier_acl_catch_by_species_state_year$state)) %>%
+  # remove extra columns in each df
+  map(.f = list(. %>% dplyr::select(-"state")))
+
+# str(fhier_acl_catch_by_species_state_year)
+# str(fhier_acl_catch_by_species_state_year_list)
+
+# 3c) All FHIER spp with large catch which is not in rec ACL
+spp_cnts_in_fhier_not_in_acl <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  select(species_itis,
+         common_name,
+         sa_gom,
+         fhier_quantity_by_4,
+         acl_estimate_catch_by_4) %>%
+  group_by(species_itis, common_name,
+           sa_gom) %>%
+  mutate(
+    fhier_cnts = sum(fhier_quantity_by_4),
+    rec_acl_cnts = sum(acl_estimate_catch_by_4)
+  ) %>%
+  select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
+  unique() %>%
+  filter(rec_acl_cnts == 0) %>%
+  select(-rec_acl_cnts) %>%
+  arrange(desc(fhier_cnts)) %>%
+  ungroup()
+# %>%
+# head(20)
+# select(common_name)
+# ungroup() %>%
+# str()
+# 628
+
+spp_cnts_in_fhier_not_in_acl %>%
+head(10) %>%
+  tail(5)
+
+# str(spp_cnts_in_fhier_not_in_acl)
+grep("ATLANTIC.*MACKEREL", acl_species_list[[1]]$COMMON_NAME, value = T)
+# [1] "ATLANTIC MACKEREL"
+grep("ATLANTIC.*CROAKER", acl_species_list[[1]]$COMMON_NAME, value = T)
+# [1] "ATLANTIC CROAKER"
+grep("RIBBONFISH", acl_species_list[[1]]$COMMON_NAME, value = T)
+# [1] "RIBBONFISH FAMILY"    "TAPERTAIL RIBBONFISH" "POLKA-DOT RIBBONFISH"
+# [4] "SCALLOPED RIBBONFISH"
+grep("GRUNT", acl_species_list[[1]]$COMMON_NAME, value = T)
+#  [1] "GRUNT SCULPIN"     "GRUNT FAMILY"      "GRUNT GENUS"      
+#  [4] "WHITE GRUNT"       "CAESAR GRUNT"      "SMALLMOUTH GRUNT" 
+#  [7] "FRENCH GRUNT"      "SPANISH GRUNT"     "BLUESTRIPED GRUNT"
+# [10] "STRIPED GRUNT"     "BARRED GRUNT"      "BURRO GRUNT"      
+grep("BLACKFIN.*TUNA", acl_species_list[[1]]$COMMON_NAME, value = T)
+# [1] "BLACKFIN TUNA"
+grep("DOLPHIN", acl_species_list[[1]]$COMMON_NAME, value = T)
+# [1] "DOLPHIN FAMILY"  "DOLPHIN GENUS"   "DOLPHIN"         "POMPANO DOLPHIN"
+grep("SUMMER.*FLOUNDER", acl_species_list[[1]]$COMMON_NAME, value = T)
+# [1] "SUMMER FLOUNDER"
+grep("SCUP", acl_species_list[[1]]$COMMON_NAME, value = T)
+# [1] "SCUP"
+# 169182       
+
+# acl_estimate
+acl_species_list[[1]] %>%
+  str()
+
+# TODO compare species_itis if names are similar
+# acl_species_list[[1]] %>%
+acl_estimate_2022 %>%
+  filter(new_com == "scup") %>%
+  select(itis_code) %>%
+  unique()
+# 169182   
+
+str(acl_estimate_2022)
 
