@@ -203,8 +203,8 @@ fhier_acl_to_plot_format <- function(my_df) {
 
 ## GOM plots ----
 
-# fhier_acl_gom_to_plot_0 <-
-#   fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+fhier_acl_gom_to_plot <-
+  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 # 
 # an overview plot
 plot(fhier_acl_gom_to_plot)
@@ -218,7 +218,7 @@ plots10_gom <- map(unique(fhier_acl_gom_to_plot$common_name),
                )
 
 # Title for all plots together
-super_title = "GOM: species counts by waves 2022"
+super_title = "GOM: species counts by waves 2022 (Council list)"
 
 # separate a legend
 plot_w_legend_gom <- plot_by_spp("MACKEREL, SPANISH",
@@ -248,7 +248,7 @@ fhier_acl_sa_to_plot <-
 glimpse(fhier_acl_sa_to_plot)
 
 # An overview plot
-plot(fhier_acl_sa_to_plot)
+# plot(fhier_acl_sa_to_plot)
 
            # for each common name from the top 10
 plots10 <- map(unique(fhier_acl_sa_to_plot$common_name),
@@ -257,7 +257,7 @@ plots10 <- map(unique(fhier_acl_sa_to_plot$common_name),
                )
 
 # The following code is the same as before, with "SA" instead of "GOM"
-super_title = "SA: species counts by waves"
+super_title = "SA: species counts by waves (Council list)"
 
 # separate a legend
 plot_w_legend <- plot_by_spp("MACKEREL, SPANISH", fhier_acl_sa_to_plot, FALSE)
