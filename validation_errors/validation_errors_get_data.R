@@ -33,23 +33,28 @@ dat_pending_date <-
   dat_pending %>%
   clean_headers() %>%
   mutate(
+    # year only
     arr_year = format(arrival_date, format = "%Y"),
+    # year and month
     arr_year_month = as.yearmon(arrival_date),
+    # a column with "overridden" or "pending" text
     overridden = case_when(ovr_flag == 1 ~ "overridden",
                            ovr_flag == 0 ~ "pending",
                            .default = "unknown"),
+    # trim white spaces
     vessel_name = trimws(vessel_name),
     official_number = trimws(official_number)
   )
 
 ## From FHIER ====
-
+# download separately overridden and not
 f_name_y <-
   r"(~\R_files_local\my_inputs\validation_errors\Errors assigned to Others and-or Unassigned21_y.csv)"
 
 f_name_n <-
   r"(~\R_files_local\my_inputs\validation_errors\Errors assigned to Others and-or Unassigned21_n.csv)"
 
+# read both csvs to R
 from_fhier <-
   c(f_name_y, f_name_n) %>%
   map_df(~ read_csv(.x, col_types = cols(.default = "c")))
@@ -77,21 +82,27 @@ from_fhier_data <-
   from_fhier %>%
   clean_headers() %>%
   mutate(
+    # convert to a data format
     arrival = as.POSIXct(arrival,
                          format = date_format),
     departure = as.POSIXct(departure,
                            format = date_format),
+    # year only column
     arr_year = format(arrival, format = "%Y"),
+    # get year and month column
     arr_year_month = as.yearmon(arrival),
+    # add a column with "overridden" and "pending" as text
     overridden1 = case_when(
       tolower(overridden) == "y" ~ "overridden",
       tolower(overridden) == "n" ~ "pending",
       .default = "unknown"
     ),
+    # trim white spaces
     vessel_name = trimws(vessel_name),
     vesselofficialnumber = trimws(vesselofficialnumber)
   )
 
+# keep 2022 plus only
 from_fhier_data_22 <-
   from_fhier_data %>%
   filter(arr_year_month >= "Jan 2022")
