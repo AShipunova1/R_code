@@ -528,8 +528,9 @@ grid.arrange(
   ncol = 2
 )
 
-# === Top ACL species plots with cnts ----
-# GOM Top ACL species plots ----
+
+# Top ACL species plots with cnts ----
+## GOM Top ACL species plots ----
 # View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 
 gom_acl_top_to_plot <-
@@ -538,8 +539,15 @@ gom_acl_top_to_plot <-
 # Joining with `by = join_by(species_itis, common_name)`
 # 'data.frame':	225 obs. of  7 variables:
 
-gom_acl_top_to_plot_longer <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
-View(gom_acl_top_to_plot_longer)
+str(gom_acl_top_to_plot)
+# df %>% arrange(factor(name, levels = cnts_order_sa))
+
+gom_acl_top_to_plot_longer <-
+  gom_acl_top_to_plot %>%
+  arrange(factor(species_itis, levels = spp_order_gom)) %>%
+  fhier_acl_to_plot_format()
+
+# View(gom_acl_top_to_plot_longer)
 
 ### GOM plots for each common name from the top 10 ----
 plots_acl_top_gom <- map(unique(gom_acl_top_to_plot_longer$common_name),
@@ -580,7 +588,11 @@ sa_acl_top_to_plot <-
 # str(sa_acl_top_to_plot)
 # 'data.frame':	331 obs. of  6 variables:
 str(sa_acl_top_common_names)
-sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
+
+sa_acl_top_to_plot_longer <- 
+  sa_acl_top_to_plot %>%
+  arrange(factor(species_itis, levels = spp_order_sa)) %>%
+  fhier_acl_to_plot_format()
 
 # test the longer format transformation ----
 # View(sa_acl_top_to_plot)
@@ -603,7 +615,7 @@ plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name),
 # Title for all plots together
 super_title = "SA: Top ACL species counts by waves 2022"
 
-# separate a legend
+# separate a legend from one random plot
 plot_w_legend_sa <- plot_by_spp("MACKEREL, SPANISH",
                              sa_acl_top_to_plot_longer,
                              # keep the legend

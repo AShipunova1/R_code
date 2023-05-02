@@ -146,11 +146,16 @@ gom_acl_top_spp <-
   select(species_itis, acl_estimate_catch_by_4) %>%
   group_by(species_itis) %>%
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
+  # sort
   arrange(desc(acl_count)) %>%
   head(12)
 
+spp_order_gom <- factor(gom_acl_top_spp$species_itis)
+# str(spp_order_gom)
+
 gom_acl_top_common_names <-
   fhier_common_names %>%
+  # keep the subset only
   filter(species_itis %in% gom_acl_top_spp$species_itis)
 
 ### SA Top 10 ACL spp. ----
@@ -159,12 +164,18 @@ sa_acl_top_spp <-
   filter(sa_gom == "sa") %>%
   select(species_itis, acl_estimate_catch_by_4) %>%
   group_by(species_itis) %>%
+  # sum the counts by species
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
+  # sort
   arrange(desc(acl_count)) %>%
   head(12)
-# head(14)
+# head(14) 12 fits better in one plot
+
+spp_order_sa <- factor(sa_acl_top_spp$species_itis)
+# str(spp_order_sa)
 
 sa_acl_top_common_names <-
   fhier_common_names %>%
+  # keep the subset only
   filter(species_itis %in% sa_acl_top_spp$species_itis)
 
