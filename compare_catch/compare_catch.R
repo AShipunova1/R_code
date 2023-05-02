@@ -70,7 +70,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
 
 # grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
 
-## Councils spp. lists ----
+## SEDAR spp. lists ----
 # DOLPHINFISH and DOLPHIN are combined
 # List by Michelle
 sa_top <- c(

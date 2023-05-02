@@ -216,7 +216,7 @@ plots10_gom <- map(unique(fhier_acl_gom_to_plot$common_name),
                )
 
 # Title for all plots together
-super_title = "GOM: species counts by waves 2022 (Council list)"
+super_title = "GOM: species counts by waves 2022 (SEDAR spp. list)"
 
 # separate a legend
 plot_w_legend_gom <- plot_by_spp("MACKEREL, SPANISH",
@@ -252,7 +252,7 @@ sa_plots10 <- map(unique(fhier_acl_sa_to_plot$common_name),
                )
 
 # The following code is the same as before, with "SA" instead of "GOM"
-sa_super_title = "SA: species counts by waves (Council list)"
+sa_super_title = "SA: species counts by waves (SEDAR spp. list)"
 
 #### separate a legend ----
 sa_plot_w_legend <- plot_by_spp("MACKEREL, SPANISH", fhier_acl_sa_to_plot, FALSE)
