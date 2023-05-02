@@ -73,7 +73,8 @@ get_permit_type_from_compiance <- function() {
   csv_contents <- load_csv_names(my_paths, full_file_names)
   
   # unify headers, trim vesselofficialnumber, just in case
-  csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name = "vessel_official_number")
+  csvs_clean1 <- clean_all_csvs(csv_contents,
+                                vessel_id_field_name = "vessel_official_number")
   compl_clean <- csvs_clean1[[1]]
   return(compl_clean)
 }
