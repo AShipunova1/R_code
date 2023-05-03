@@ -85,7 +85,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
 
 ## 1a) SEDAR spp. lists ----
 # DOLPHINFISH and DOLPHIN are combined
-# List by Michelle
+# CEDAR spp List by Michelle
 sa_top <- c(
   "BASS, BLACK SEA",
   "DOLPHIN",
@@ -104,7 +104,7 @@ sa_top_spp <-
 
 # View(sa_top)
 # intersect(sa_top, fhier_common_names$common_name)
-# List by Michelle
+# CEDAR spp List by Michelle
 gom_top <- c(
   "AMBERJACK, GREATER",
   "COBIA",
@@ -199,7 +199,22 @@ fhier_acl_catch_by_species_state_region_waves_states_list <-
   # remove extra columns in each df
   map(.f = list(. %>% dplyr::select(-"state")))
 
-str(fhier_acl_catch_by_species_state_region_waves_states_list)
+counts_by_state <-
+  fhier_acl_catch_by_species_state_region_waves_states_list %>%
+  map(function(x) {
+    # browser()
+    
+    x %>%
+      select(-sa_gom) %>%
+      group_by(species_itis, wave) %>%
+      mutate(
+        r_acl_count_by_itis_wave = sum(acl_estimate_catch_by_4),
+        fhier_count_by_itis_wave = sum(fhier_quantity_by_4)
+      ) %>% return()
+  })
+
+View(counts_by_state)
+names(fhier_acl_catch_by_species_state_region_waves_states_list[[2]])
 # List of 17
 
 # 3) Data By year and region ----
