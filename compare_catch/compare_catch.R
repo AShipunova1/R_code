@@ -199,21 +199,6 @@ fhier_acl_catch_by_species_state_region_waves_states_list <-
   # remove extra columns in each df
   map(.f = list(. %>% dplyr::select(-"state")))
 
-counts_by_state <-
-  fhier_acl_catch_by_species_state_region_waves_states_list %>%
-  map(function(x) {
-    # browser()
-    
-    x %>%
-      select(-sa_gom) %>%
-      group_by(species_itis, wave) %>%
-      mutate(
-        r_acl_count_by_itis_wave = sum(acl_estimate_catch_by_4),
-        fhier_count_by_itis_wave = sum(fhier_quantity_by_4)
-      ) %>% return()
-  })
-
-View(counts_by_state)
 names(fhier_acl_catch_by_species_state_region_waves_states_list[[2]])
 # List of 17
 
