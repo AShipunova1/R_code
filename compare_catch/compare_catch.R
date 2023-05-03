@@ -203,21 +203,22 @@ names(fhier_acl_catch_by_species_state_region_waves_states_list[[2]])
 # List of 17
 
 # 3) Data By year and region ----
-# View(fhier_acl_catch_by_species_state_region_waves)
+names(fhier_acl_catch_by_species_state_region_waves)
 
 fhier_acl_catch_by_species_region_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(species_itis,
-         common_name,
-         sa_gom,
-         fhier_quantity_by_4,
-         acl_estimate_catch_by_4) %>%
+  select(-c(state, wave, year)) %>%
+  # select(species_itis,
+  #        common_name,
+  #        sa_gom,
+  #        fhier_quantity_by_4,
+  #        acl_estimate_catch_by_4) %>%
   group_by(species_itis,
          common_name,
          sa_gom) %>%
   mutate(
-    fhier_sum_cnts = sum(fhier_quantity_by_4),
-    rec_acl_sum_cnts = sum(acl_estimate_catch_by_4)
+    fhier_cnts_by_year_reg = sum(fhier_quantity_by_4),
+    rec_acl_cnts_by_year_reg = sum(acl_estimate_catch_by_4)
   ) %>%
   select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
   unique()
