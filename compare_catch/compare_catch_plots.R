@@ -821,18 +821,19 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 # 4) By year and state ----
 plot_by_year(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts")
 
+# state_year_has_rec_acl_data_list_new
 state_year_plots <-
-  names(fhier_acl_catch_by_species_state_year_list) %>%
+  names(state_year_has_rec_acl_data_list_new) %>%
   # repeat for each state
   map(function(state_abbr) {
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       # filter(fhier_sum_cnts > 2000) %>%
-      # filter(rec_acl_sum_cnts > 2000) %>%
+      filter(rec_acl_sum_cnts > 2000) %>%
       plot_by_year(my_title = state_abbr, sort_field = "rec_acl_sum_cnts")
   })
 
-state_year_plots[[7]]
+state_year_plots[[2]]
 # 4) By year and state 1a) SEDAR ----
 # 4) By year and state 2b) Recreational ACL tops ----
 # 4) By year and state 3c) All FHIER spp ----

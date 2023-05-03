@@ -27,3 +27,4 @@ quantify_compliance/SA_non_compliant_and_has_logbooks.csv
 *.RDataTmp
 *.jpeg
 *.jpg
+compare_catch/compare_catch_plots0.R
