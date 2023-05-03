@@ -737,18 +737,18 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
   #   summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
+  # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
   mutate(common_name = reorder(common_name, desc(rec_acl_cnts_by_year_reg))) %>%
-  #
-  #   arrange(desc(rec_acl_cnts_by_year_reg)) %>%
-  #
-  #
-  #   mutate(common_name = as.factor(common_name, levels(or))) %>%
+  select(-species_itis) %>%
+  to_long_format() %>%
+  # ggplot(aes(rec_acl_cnts_by_year_reg, common_name)) +
+  # geom_segment(aes(xend = 0, yend = common_name))
   # str()
-  # to_long_format(fhier_acl_catch_by_species_region_year_list$gom) %>%
-  ggplot(aes(rec_acl_cnts_by_year_reg, common_name)) +
-  geom_segment(aes(xend = 0, yend = common_name))
-  
-  glimpse()
+  ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
+  geom_col() +
+  labs(title = "GOM 2022")
+
+
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
   select(-common_name) %>%
