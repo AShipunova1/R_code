@@ -297,9 +297,51 @@ spp_cnts_in_fhier_not_in_acl <-
 # str()
 # 628
 
+# same from separate ds ----
+fhier_catch_spp <-
+  fhier_catch_by_species_state_region_waves %>%
+  select(common_name, species_itis, fhier_quantity_by_4) %>%
+  group_by(common_name, species_itis) %>%
+  summarise(fhier_cnts = sum(fhier_quantity_by_4)) %>%
+  ungroup() %>%
+  arrange(desc(fhier_cnts))
+# %>%
+#   head(5)
+# %>% tail(5)
+
+# View(acl_estimate_2022)
+
+rec_acl_estimate_2022_spp <-
+  acl_estimate_2022 %>%
+  select(new_com, itis_code, ab1) %>%
+  group_by(new_com, itis_code) %>%
+  summarise(rec_acl_cnts = sum(ab1)) %>%
+  ungroup() %>%
+  arrange(desc(rec_acl_cnts))
+# %>%
+  # head(5)
+
+# View(acl_species_list[[1]])
+# View(acl_estimate_2022)
+
+spp_join <-
+  full_join(fhier_catch_spp, rec_acl_estimate_2022_spp,
+          join_by(species_itis == itis_code),
+          # keep all cols
+          keep = T,
+          # na are not equal
+          na_matches = "never")
+
+spp_join %>%
+  filter(is.na(species_itis))
+# ---
+
+
+
 spp_cnts_in_fhier_not_in_acl %>%
-head(10) %>%
-  tail(5)
+head(10) 
+# %>%
+#   tail(5)
 
 # str(spp_cnts_in_fhier_not_in_acl)
 grep("ATLANTIC.*MACKEREL", acl_species_list[[1]]$COMMON_NAME, value = T)
@@ -336,5 +378,10 @@ acl_estimate_2022 %>%
   unique()
 # 169182   
 
-str(acl_estimate_2022)
+acl_estimate_2022 %>%
+  filter(new_com == "scup") %>%
+  count(ab1)
+
+
+names(acl_estimate_2022)
 
