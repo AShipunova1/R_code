@@ -698,14 +698,15 @@ my_df_long %>%
    my_theme
 
 
-1) By wave and region 1a) SEDAR; ----
-1) By wave and region 2b) Recreational ACL tops; ----
-1) By wave and region 3c) All FHIER spp; ----
+# 1) By wave and region 1a) SEDAR; ----
+# 1) By wave and region 2b) Recreational ACL tops; ----
+# 1) By wave and region 3c) All FHIER spp; ----
 
 # 2) By wave and state 1a) SEDAR
 # 2) By wave and state 2b) Recreational ACL tops
 # 2) By wave and state 3c) All FHIER spp
 # 
+# 3) By year and region ----
 ### convert to a long format for plotting
 to_long_format <- function(my_df) {
   my_df %>%
@@ -723,6 +724,48 @@ to_long_format <- function(my_df) {
   ) %>%
     return()
 }
+
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  # change to shorter column names
+  rename(c("ACL" = starts_with("rec_acl"),
+           "FHIER" = starts_with("fhier")
+           )
+         ) %>% glimpse()
+  # # use only the new columns
+  # select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
+  #   group_by(wave, species_itis, common_name, ORIGIN) %>%
+  #   summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
+
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  mutate(common_name = reorder(common_name, desc(rec_acl_cnts_by_year_reg))) %>%
+  #
+  #   arrange(desc(rec_acl_cnts_by_year_reg)) %>%
+  #
+  #
+  #   mutate(common_name = as.factor(common_name, levels(or))) %>%
+  # str()
+  # to_long_format(fhier_acl_catch_by_species_region_year_list$gom) %>%
+  ggplot(aes(rec_acl_cnts_by_year_reg, common_name)) +
+  geom_segment(aes(xend = 0, yend = common_name))
+  
+  glimpse()
+
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  select(-common_name) %>%
+  plot(main = "GOM by year")
+
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  pivot_longer(
+    cols = c(ACL,
+             FHIER),
+    names_to = "ORIGIN",
+    values_to = "CATCH_CNT"
+  ) %>%
+
+
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  select(-common_name) %>%
+  plot(main = "SA by year")
 
 # 3) By year and region 1a) SEDAR
 # 3) By year and region 2b) Recreational ACL tops
