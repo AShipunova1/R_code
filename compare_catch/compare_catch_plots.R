@@ -630,6 +630,7 @@ grid.arrange(grobs = plots_acl_top_sa,
              ncol = 4)
 
 # 1) By wave and region 3c) All FHIER spp ----
+# TODO ----
 # GOM
 # fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 #   View()
@@ -698,15 +699,13 @@ grid.arrange(grobs = plots_acl_top_sa,
 #    theme_bw() +
 #    my_theme
 
-
 # 1) By wave and region 1a) SEDAR; ----
 # 1) By wave and region 2b) Recreational ACL tops; ----
 # 1) By wave and region 3c) All FHIER spp; ----
 
-# 2) By wave and state 1a) SEDAR
-# 2) By wave and state 2b) Recreational ACL tops
-# 2) By wave and state 3c) All FHIER spp
-
+# 2) By wave and state 1a) SEDAR TODO ----
+# 2) By wave and state 2b) Recreational ACL tops TODO ----
+# 2) By wave and state 3c) All FHIER spp TODO ----
 
 # 3) By year and region ----
 ### convert to a long format for plotting
@@ -727,10 +726,10 @@ to_long_format <- function(my_df) {
     return()
 }
 
-plot_by_year <- function(my_df, my_title) {
+plot_by_year <- function(my_df, my_title, sort_field = "rec_acl_cnts_by_year_reg") {
   my_df %>%
     # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
-    mutate(common_name = reorder(common_name, desc(rec_acl_cnts_by_year_reg))) %>%
+    mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
     select(-species_itis) %>%
     to_long_format() %>%
     ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
@@ -776,6 +775,13 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   # View()
   plot_by_year(my_title = my_title)
 
+# same orderd by FHIER:
+my_title <- "By year and region SEDAR spp. SA, ordered by FHIER cnts"
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  filter(species_itis %in% sa_top_spp$species_itis) %>% 
+  # View()
+  plot_by_year(my_title = my_title, sort_field = "fhier_cnts_by_year_reg")
+
 my_title <- "By year and region SEDAR spp. GOM"
 fhier_acl_catch_by_species_region_year_list$gom %>%
   filter(species_itis %in% gom_top_spp$species_itis) %>% 
@@ -812,6 +818,21 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   select(-common_name) %>%
   plot(main = "SA by year")
 
+# 4) By year and state ----
+plot_by_year(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts")
+
+state_year_plots <-
+  names(fhier_acl_catch_by_species_state_year_list) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+      # filter(fhier_sum_cnts > 2000) %>%
+      # filter(rec_acl_sum_cnts > 2000) %>%
+      plot_by_year(my_title = state_abbr, sort_field = "rec_acl_sum_cnts")
+  })
+
+state_year_plots[[7]]
 # 4) By year and state 1a) SEDAR ----
 # 4) By year and state 2b) Recreational ACL tops ----
 # 4) By year and state 3c) All FHIER spp ----
