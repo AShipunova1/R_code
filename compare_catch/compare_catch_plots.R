@@ -116,8 +116,9 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis %in% sa_top_spp$species_itis) %>%
-  mutate()
+  filter(species_itis %in% sa_top_spp$species_itis)
+# %>%
+#   mutate()
   
 glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # Rows: 300
@@ -630,8 +631,8 @@ grid.arrange(grobs = plots_acl_top_sa,
 
 # 1) By wave and region 3c) All FHIER spp ----
 # GOM
-fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  View()
+# fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+#   View()
 # SA
 
 ## plots by waves / states ----
@@ -641,10 +642,10 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 
 # fhier_acl_catch_by_species_state_region_waves_states_list
 
-fhier_acl_catch_by_species_region_year_list$gom 
-fhier_acl_catch_by_species_region_year_list$sa
+# fhier_acl_catch_by_species_region_year_list$gom 
+# fhier_acl_catch_by_species_region_year_list$sa
 
-my_df <- fhier_acl_catch_by_species_region_year_list$gom
+# my_df <- fhier_acl_catch_by_species_region_year_list$gom
 # ### convert to a long format for plotting
 
 # 3c) All FHIER spp by year / region ----
@@ -654,48 +655,48 @@ my_df <- fhier_acl_catch_by_species_region_year_list$gom
 # 100000 to 200000
 # <=100000
 
-my_df_long <-
-  my_df %>%
-  # change to shorter column names
-  rename(c("ACL" = "rec_acl_sum_cnts",
-           "FHIER" = "fhier_sum_cnts")) %>%
-  # reformat to a long format to have fhier and acl data side by side
-  pivot_longer(
-    cols = c(ACL,
-             FHIER),
-    names_to = "ORIGIN",
-    values_to = "CATCH_CNT"
-  ) %>%
-  # use only the new columns
-  select(common_name, ORIGIN, CATCH_CNT) %>%
-    group_by(common_name, ORIGIN) %>%
-    summarise(CATCH_CNT = sum(CATCH_CNT))
+# my_df_long <-
+#   my_df %>%
+#   # change to shorter column names
+#   rename(c("ACL" = "rec_acl_sum_cnts",
+#            "FHIER" = "fhier_sum_cnts")) %>%
+#   # reformat to a long format to have fhier and acl data side by side
+#   pivot_longer(
+#     cols = c(ACL,
+#              FHIER),
+#     names_to = "ORIGIN",
+#     values_to = "CATCH_CNT"
+#   ) %>%
+#   # use only the new columns
+#   select(common_name, ORIGIN, CATCH_CNT) %>%
+#     group_by(common_name, ORIGIN) %>%
+#     summarise(CATCH_CNT = sum(CATCH_CNT))
 
-my_df_long %>%
-  ggplot(
-         aes(x = common_name,
-             y = CATCH_CNT,
-            # color by the origin
-             fill = ORIGIN)
-  ) +
-    # manually change default colors
-    scale_fill_manual(values = c("ACL" = "deepskyblue", "FHIER" = "red")) +
-    # columns are side by side (not stacked)
-    geom_col(position = "dodge") +
-    labs(title = "com_name",
-        # remove x and y axes titles
-         x = "",
-         y = ""
-    ) +
-   # catch_cnt for each bar
-   geom_text(aes(label = CATCH_CNT),
-             position = position_dodge(width = 0.9),
-             vjust = -0.25,
-             # size is in mm for geom_bar
-             size = 2) +
-   # blank theme from ggplot
-   theme_bw() +
-   my_theme
+# my_df_long %>%
+#   ggplot(
+#          aes(x = common_name,
+#              y = CATCH_CNT,
+#             # color by the origin
+#              fill = ORIGIN)
+#   ) +
+#     # manually change default colors
+#     scale_fill_manual(values = c("ACL" = "deepskyblue", "FHIER" = "red")) +
+#     # columns are side by side (not stacked)
+#     geom_col(position = "dodge") +
+#     labs(title = "com_name",
+#         # remove x and y axes titles
+#          x = "",
+#          y = ""
+#     ) +
+#    # catch_cnt for each bar
+#    geom_text(aes(label = CATCH_CNT),
+#              position = position_dodge(width = 0.9),
+#              vjust = -0.25,
+#              # size is in mm for geom_bar
+#              size = 2) +
+#    # blank theme from ggplot
+#    theme_bw() +
+#    my_theme
 
 
 # 1) By wave and region 1a) SEDAR; ----
