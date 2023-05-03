@@ -1,3 +1,18 @@
+# 3 sets of spp: 
+# 1a) SEDAR; 
+# 2b) Recreational ACL tops; 
+# 3c) All FHIER spp
+
+# Plots:
+# 1) By wave and region
+# 2) By wave and state
+# 3) By year and region
+# 4) By year and state
+
+# 1) By wave and region 1a) SEDAR; ----
+# 1) By wave and region 2b) Recreational ACL tops; ----
+# 1) By wave and region 3c) All FHIER spp; ----
+
 fhier_acl_catch_by_species_state_region_waves_list_for_plot <-
   fhier_acl_catch_by_species_state_region_waves_list
 
