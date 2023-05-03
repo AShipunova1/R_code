@@ -232,10 +232,24 @@ fhier_acl_catch_by_species_region_year_list <-
   # remove extra columns in each df
   map(.f = list(. %>% dplyr::select(-"sa_gom")))
 
-# test
-# %>%
-  # filter(species_itis == '169059') %>%
-  # glimpse()
+# test 167760 GROUPER, BLACK ----
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  filter(species_itis == '167760') %>%
+  glimpse()
+# gom
+# fhier_cnts_by_year_reg   <int> 2016
+# rec_acl_cnts_by_year_reg <int> 1808
+# sa
+# fhier_cnts_by_year_reg   <int> 140
+# rec_acl_cnts_by_year_reg <int> 262
+
+acl_estimate_2022 %>%
+  filter(itis_code == '167760') %>%
+  group_by(itis_code, new_moden, year, sub_reg) %>%
+  summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
+  # 2070
+  # correct (262 + 1808)
+
 
 # 4) Data By year and state ----
 

@@ -780,11 +780,6 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   # View()
   plot_by_year(my_title = my_title)
 
-acl_estimate_2022 %>%
-  filter(itis_code == '167760') %>%
-  group_by(itis_code) %>%
-  summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
-  2070
   # View()
 
 # 3) By year and region 2b) Recreational ACL tops
