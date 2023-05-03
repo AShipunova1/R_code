@@ -9,10 +9,7 @@
 # 3) By year and region
 # 4) By year and state
 
-# 1) By wave and region 1a) SEDAR; ----
-# 1) By wave and region 2b) Recreational ACL tops; ----
-# 1) By wave and region 3c) All FHIER spp; ----
-
+# 1) By wave and region ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot <-
   fhier_acl_catch_by_species_state_region_waves_list
 
@@ -105,6 +102,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
               use_series(mackerel_acl_cnt)
             )
 
+# 1) By wave and region 1a) SEDAR ----
 ## keep only entries for spp. in the top ten list, separately for each region ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
@@ -539,7 +537,7 @@ grid.arrange(
   ncol = 2
 )
 
-# 2b) Top ACL species plots with cnts ----
+# 1) By wave and region 2b) Recreational ACL tops; ----
 ## GOM Top ACL species plots ----
 # View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 
@@ -630,7 +628,7 @@ grid.arrange(grobs = plots_acl_top_sa,
              left = my_legend_sa,
              ncol = 4)
 
-# 3c) All FHIER spp ----
+# 1) By wave and region 3c) All FHIER spp ----
 # GOM
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   View()
@@ -698,3 +696,20 @@ my_df_long %>%
    # blank theme from ggplot
    theme_bw() +
    my_theme
+
+
+1) By wave and region 1a) SEDAR; ----
+1) By wave and region 2b) Recreational ACL tops; ----
+1) By wave and region 3c) All FHIER spp; ----
+
+# 2) By wave and state 1a) SEDAR
+# 2) By wave and state 2b) Recreational ACL tops
+# 2) By wave and state 3c) All FHIER spp
+# 
+# 3) By year and region 1a) SEDAR
+# 3) By year and region 2b) Recreational ACL tops
+# 3) By year and region 3c) All FHIER spp
+# 
+# 4) By year and state 1a) SEDAR
+# 4) By year and state 2b) Recreational ACL tops
+# 4) By year and state 3c) All FHIER spp
