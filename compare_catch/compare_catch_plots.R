@@ -774,6 +774,19 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   plot(main = "SA by year")
 
 # 3) By year and region 1a) SEDAR
+my_title <- "By year and region SEDAR spp."
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  filter(species_itis %in% sa_top_spp$species_itis) %>% 
+  # View()
+  plot_by_year(my_title = my_title)
+
+acl_estimate_2022 %>%
+  filter(itis_code == '167760') %>%
+  group_by(itis_code) %>%
+  summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
+  2070
+  # View()
+
 # 3) By year and region 2b) Recreational ACL tops
 
 # 4) By year and state 1a) SEDAR
