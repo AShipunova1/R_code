@@ -745,8 +745,46 @@ plot_by_year <- function(my_df, my_title) {
     return()
 }
 
-# 3) By year and region 3c) All FHIER spp ----
-# gom ----
+## 3) By year and region 3c) All FHIER spp ----
+### gom ----
+my_reg <- "GOM"
+my_title <- paste0(my_reg, " 2022")
+
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  plot_by_year(my_title = my_title)
+
+### SA ---- 
+my_reg <- "SA"
+my_title <- paste0(my_reg, " 2022")
+
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  plot_by_year(my_title = my_title)
+
+### overview plots ----
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  select(-common_name) %>%
+  plot(main = "GOM by year")
+
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  select(-common_name) %>%
+  plot(main = "SA by year")
+
+## 3) By year and region 1a) SEDAR ----
+my_title <- "By year and region SEDAR spp. SA"
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  filter(species_itis %in% sa_top_spp$species_itis) %>% 
+  # View()
+  plot_by_year(my_title = my_title)
+
+my_title <- "By year and region SEDAR spp. GOM"
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  filter(species_itis %in% gom_top_spp$species_itis) %>% 
+  # View()
+  plot_by_year(my_title = my_title)
+
+
+## 3) By year and region 2b) Recreational ACL tops ----
+### gom ----
 my_limit <- 6000
 my_reg <- "GOM"
 my_title <- paste0(my_reg, " 2022. rec_acl_cnts_by_year_reg > ", my_limit)
@@ -756,6 +794,7 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
   filter(rec_acl_cnts_by_year_reg > my_limit) %>%
   plot_by_year(my_title = my_title)
 
+### SA ---- 
 my_limit <- 2000
 my_reg <- "SA"
 my_title <- paste0(my_reg, " 2022. rec_acl_cnts_by_year_reg > ", my_limit)
@@ -773,17 +812,6 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   select(-common_name) %>%
   plot(main = "SA by year")
 
-# 3) By year and region 1a) SEDAR
-my_title <- "By year and region SEDAR spp."
-fhier_acl_catch_by_species_region_year_list$sa %>%
-  filter(species_itis %in% sa_top_spp$species_itis) %>% 
-  # View()
-  plot_by_year(my_title = my_title)
-
-  # View()
-
-# 3) By year and region 2b) Recreational ACL tops
-
-# 4) By year and state 1a) SEDAR
-# 4) By year and state 2b) Recreational ACL tops
-# 4) By year and state 3c) All FHIER spp
+# 4) By year and state 1a) SEDAR ----
+# 4) By year and state 2b) Recreational ACL tops ----
+# 4) By year and state 3c) All FHIER spp ----
