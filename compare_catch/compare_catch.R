@@ -216,12 +216,13 @@ fhier_acl_catch_by_species_region_year <-
   group_by(species_itis,
          common_name,
          sa_gom) %>%
-  mutate(
+  summarise(
     fhier_cnts_by_year_reg = sum(fhier_quantity_by_4),
     rec_acl_cnts_by_year_reg = sum(acl_estimate_catch_by_4)
   ) %>%
-  select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
-  unique()
+  ungroup()
+  # select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
+  # unique()
 
 ## split by sa_gom ----
 fhier_acl_catch_by_species_region_year_list <-
