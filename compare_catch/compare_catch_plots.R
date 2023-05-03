@@ -711,13 +711,13 @@ my_df_long %>%
 to_long_format <- function(my_df) {
   my_df %>%
   # change to shorter column names
-  rename(c("ACL" = starts_with("rec_acl"),
+  rename(c("Rec_ACL" = starts_with("rec_acl"),
            "FHIER" = starts_with("fhier")
            )
          ) %>%
   # reformat to a long format to have fhier and acl data side by side
   pivot_longer(
-    cols = c(ACL,
+    cols = c(Rec_ACL,
              FHIER),
     names_to = "ORIGIN",
     values_to = "CATCH_CNT"
@@ -725,18 +725,20 @@ to_long_format <- function(my_df) {
     return()
 }
 
-fhier_acl_catch_by_species_region_year_list$gom %>%
-  # change to shorter column names
-  rename(c("ACL" = starts_with("rec_acl"),
-           "FHIER" = starts_with("fhier")
-           )
-         ) %>% glimpse()
+# fhier_acl_catch_by_species_region_year_list$gom %>%
+#   # change to shorter column names
+#   rename(c("ACL" = starts_with("rec_acl"),
+#            "FHIER" = starts_with("fhier")
+#            )
+#          ) %>% glimpse()
   # # use only the new columns
   # select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
   #   group_by(wave, species_itis, common_name, ORIGIN) %>%
   #   summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
+  # keep only top r_acl cnts
+  filter(rec_acl_cnts_by_year_reg > 20000) %>%
   # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
   mutate(common_name = reorder(common_name, desc(rec_acl_cnts_by_year_reg))) %>%
   select(-species_itis) %>%
@@ -746,8 +748,34 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
   # str()
   ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
   geom_col() +
-  labs(title = "GOM 2022")
+  labs(title = "GOM 2022. rec_acl_cnts_by_year_reg > 20000") +
+  geom_text(aes(label = CATCH_CNT),
+            size = 3
+            # ,
+            # hjust = 0.5
+            )
 
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  # keep only top r_acl cnts
+  filter(rec_acl_cnts_by_year_reg > 2000) %>%
+  # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
+  mutate(common_name = reorder(common_name, desc(rec_acl_cnts_by_year_reg))) %>%
+  select(-species_itis) %>%
+  to_long_format() %>%
+  ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
+  scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
+    # columns are side by side (not stacked)
+    geom_col(position = "dodge") +
+  # geom_col() +
+    # labs(title = "SA 2022. All spp") +
+  labs(title = "SA 2022. rec_acl_cnts_by_year_reg > 2000",
+        y = "") +
+  geom_text(aes(label = CATCH_CNT),
+            size = 3,
+            position = position_dodge(width = 0.9)
+            # ,
+            # vjust = -0.25
+            )
 
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
