@@ -847,7 +847,8 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   plot(main = "SA by year")
 
 # 4) By year and state ----
-plot_by_year(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts")
+# 4) By year and state 3c) All FHIER spp ----
+plot_by_year(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts", show_counts = FALSE)
 
 # state_year_has_rec_acl_data_list_new
 state_year_plots <-
@@ -857,10 +858,16 @@ state_year_plots <-
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       # filter(fhier_sum_cnts > 2000) %>%
-      filter(rec_acl_sum_cnts > 2000) %>%
-      plot_by_year(my_title = state_abbr, sort_field = "rec_acl_sum_cnts")
+      # filter(rec_acl_sum_cnts > 2000) %>%
+      plot_by_year(my_title = state_abbr, sort_field = "rec_acl_sum_cnts", show_counts = F, show_com_names = FALSE)
   })
 
-state_year_plots[[2]]
+super_title_y_st = "2022 Counts by State and spp."
+grid.arrange(grobs = state_year_plots,
+             top = super_title_y_st,
+             # left = my_legend_gom,
+             ncol = 2)
+
+# state_year_plots[[7]]
 # 4) By year and state 1a) SEDAR ----
 # 4) By year and state 2b) Recreational ACL tops ----
