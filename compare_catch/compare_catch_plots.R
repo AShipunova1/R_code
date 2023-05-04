@@ -9,6 +9,72 @@
 # 3) By year and region
 # 4) By year and state
 
+### convert to a long format for plotting
+to_long_format <- function(my_df) {
+  
+  my_df %>%
+  # change to shorter column names
+  rename(c("Rec_ACL" = starts_with("rec_acl"),
+           "FHIER" = starts_with("fhier")
+           )
+         ) %>%
+  # reformat to a long format to have fhier and acl data side by side
+  pivot_longer(
+    cols = c(Rec_ACL,
+             FHIER),
+    names_to = "ORIGIN",
+    values_to = "CATCH_CNT"
+  ) %>%
+    return()
+}
+
+plot_by_year <-
+  function(my_df,
+           my_title,
+           sort_field = "rec_acl_cnts_by_year_reg",
+           show_counts = TRUE,
+           show_com_names = TRUE,
+           show_legend = TRUE) {
+    # browser()
+    one_plot_by_year <-
+      my_df %>%
+      # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
+      mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
+      select(-species_itis) %>%
+      to_long_format() %>%
+      ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
+      scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
+      # columns are side by side (not stacked)
+      geom_col(position = "dodge") +
+      labs(title = my_title,
+           y = "") +
+      theme(axis.text.y = element_text(size = 7)) +
+      theme_bw() +
+      my_theme
+    
+    if (show_counts) {
+      one_plot_by_year <-
+        one_plot_by_year +
+        geom_text(aes(label = CATCH_CNT),
+                  size = 3,
+                  position = position_dodge(width = 0.9))
+    }
+    
+    if (!show_com_names) {
+      one_plot_by_year <-
+        one_plot_by_year +
+        theme(axis.text.y = element_blank())
+    }
+    
+    if (!show_legend) {
+      one_plot_by_year <-
+        one_plot_by_year +
+        theme(legend.position = "none")
+    }
+    
+    return(one_plot_by_year)
+  }
+
 # 1) By wave and region ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot <-
   fhier_acl_catch_by_species_state_region_waves_list
@@ -728,139 +794,28 @@ names(region_waves_sa_long_wave_list) %>%
     )
   })
 
-## plots by waves / states ----
-# 1a) SEDAR
-# 2b) Recreational ACL tops
-# 3c) All FHIER spp
+# 2) By wave and state ----
+state_waves_long_list <-
+  fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+  # rename the field
+  mutate(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  # split by waves column
+  split(
+    as.factor(
+      fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom$wave
+    )
+  )
 
-# fhier_acl_catch_by_species_state_region_waves_states_list
+View(state_waves_long_list)
+my_reg <- "GOM"
 
-# fhier_acl_catch_by_species_region_year_list$gom 
-# fhier_acl_catch_by_species_region_year_list$sa
-
-# my_df <- fhier_acl_catch_by_species_region_year_list$gom
-# ### convert to a long format for plotting
-
-# 3c) All FHIER spp by year / region ----
-# TODO split by spp.? or by cnts?
-# >600000
-# 200000 to 500000
-# 100000 to 200000
-# <=100000
-
-# my_df_long <-
-#   my_df %>%
-#   # change to shorter column names
-#   rename(c("ACL" = "rec_acl_sum_cnts",
-#            "FHIER" = "fhier_sum_cnts")) %>%
-#   # reformat to a long format to have fhier and acl data side by side
-#   pivot_longer(
-#     cols = c(ACL,
-#              FHIER),
-#     names_to = "ORIGIN",
-#     values_to = "CATCH_CNT"
-#   ) %>%
-#   # use only the new columns
-#   select(common_name, ORIGIN, CATCH_CNT) %>%
-#     group_by(common_name, ORIGIN) %>%
-#     summarise(CATCH_CNT = sum(CATCH_CNT))
-
-# my_df_long %>%
-#   ggplot(
-#          aes(x = common_name,
-#              y = CATCH_CNT,
-#             # color by the origin
-#              fill = ORIGIN)
-#   ) +
-#     # manually change default colors
-#     scale_fill_manual(values = c("ACL" = "deepskyblue", "FHIER" = "red")) +
-#     # columns are side by side (not stacked)
-#     geom_col(position = "dodge") +
-#     labs(title = "com_name",
-#         # remove x and y axes titles
-#          x = "",
-#          y = ""
-#     ) +
-#    # catch_cnt for each bar
-#    geom_text(aes(label = CATCH_CNT),
-#              position = position_dodge(width = 0.9),
-#              vjust = -0.25,
-#              # size is in mm for geom_bar
-#              size = 2) +
-#    # blank theme from ggplot
-#    theme_bw() +
-#    my_theme
-
+# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot)
 # 2) By wave and state 1a) SEDAR TODO ----
 # 2) By wave and state 2b) Recreational ACL tops TODO ----
 # 2) By wave and state 3c) All FHIER spp TODO ----
 
 # 3) By year and region ----
-### convert to a long format for plotting
-to_long_format <- function(my_df) {
-  
-  my_df %>%
-  # change to shorter column names
-  rename(c("Rec_ACL" = starts_with("rec_acl"),
-           "FHIER" = starts_with("fhier")
-           )
-         ) %>%
-  # reformat to a long format to have fhier and acl data side by side
-  pivot_longer(
-    cols = c(Rec_ACL,
-             FHIER),
-    names_to = "ORIGIN",
-    values_to = "CATCH_CNT"
-  ) %>%
-    return()
-}
-
-plot_by_year <-
-  function(my_df,
-           my_title,
-           sort_field = "rec_acl_cnts_by_year_reg",
-           show_counts = TRUE,
-           show_com_names = TRUE,
-           show_legend = TRUE) {
-    # browser()
-    one_plot_by_year <-
-      my_df %>%
-      # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
-      mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
-      select(-species_itis) %>%
-      to_long_format() %>%
-      ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
-      scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
-      # columns are side by side (not stacked)
-      geom_col(position = "dodge") +
-      labs(title = my_title,
-           y = "") +
-      theme(axis.text.y = element_text(size = 7)) +
-      theme_bw() +
-      my_theme
-    
-    if (show_counts) {
-      one_plot_by_year <-
-        one_plot_by_year +
-        geom_text(aes(label = CATCH_CNT),
-                  size = 3,
-                  position = position_dodge(width = 0.9))
-    }
-    
-    if (!show_com_names) {
-      one_plot_by_year <-
-        one_plot_by_year +
-        theme(axis.text.y = element_blank())
-    }
-    
-    if (!show_legend) {
-      one_plot_by_year <-
-        one_plot_by_year +
-        theme(legend.position = "none")
-    }
-    
-    return(one_plot_by_year)
-  }
 
 ## 3) By year and region 3c) All FHIER spp ----
 ### gom ----
