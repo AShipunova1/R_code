@@ -929,3 +929,68 @@ gridExtra::grid.arrange(
              ncol = 2)
 
 # 4) By year and state 2b) Recreational ACL tops ----
+# 
+# fhier_acl_catch_by_species_region_year_list$gom %>%
+#   # keep only top r_acl cnts
+#   filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+#   plot_by_year(my_title = my_title)
+
+# View(fhier_acl_catch_by_species_state_year_list[["FL"]])
+my_limit <- 2000
+small_st <- c("GA", "MS", "SC", "TX")
+state_year_top_rec_acl_plots_2k <-
+  # has rec_acl data
+  small_st %>%
+    # names(state_year_has_rec_acl_data_list_new) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+#   # keep only top r_acl cnts
+    filter(rec_acl_sum_cnts > my_limit) %>%
+      plot_by_year(
+        my_title = state_abbr,
+        sort_field = "rec_acl_sum_cnts",
+        show_counts = T,
+        show_com_names = T,
+        show_legend = F
+      )
+  })
+
+my_limit <- 4000
+big_st <- c("AL", "FL", "NC")
+state_year_top_rec_acl_plots_4k <-
+  # has rec_acl data
+  big_st %>%
+    # names(state_year_has_rec_acl_data_list_new) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+#   # keep only top r_acl cnts
+    filter(rec_acl_sum_cnts > my_limit) %>%
+      plot_by_year(
+        my_title = state_abbr,
+        sort_field = "rec_acl_sum_cnts",
+        show_counts = T,
+        show_com_names = T,
+        show_legend = F
+      )
+  })
+
+
+super_title_top_rec_acl = "2022, Top rec ACL Counts by State"
+
+# state_year_top_rec_acl_plots[[5]]
+
+gr_list_top_rec_acl <- c(
+  state_year_top_rec_acl_plots_2k,
+  state_year_top_rec_acl_plots_4k,
+  list(my_legend_st_sedar)
+)
+
+grid.newpage()
+gridExtra::grid.arrange(
+             grobs = gr_list_top_rec_acl,
+             top = super_title_top_rec_acl,
+             ncol = 3)
