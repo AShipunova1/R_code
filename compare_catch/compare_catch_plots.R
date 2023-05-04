@@ -983,14 +983,41 @@ super_title_top_rec_acl = "2022, Top rec ACL Counts by State"
 
 # state_year_top_rec_acl_plots[[5]]
 
-gr_list_top_rec_acl <- c(
+gr_list_top_rec_acl2 <- c(
   state_year_top_rec_acl_plots_2k,
-  state_year_top_rec_acl_plots_4k,
   list(my_legend_st_sedar)
 )
 
 grid.newpage()
-gridExtra::grid.arrange(
-             grobs = gr_list_top_rec_acl,
-             top = super_title_top_rec_acl,
-             ncol = 3)
+a <- gridExtra::grid.arrange(
+  grobs = state_year_top_rec_acl_plots_4k,
+  top = super_title_top_rec_acl,
+  ncol = 3,
+  nrow = 1,
+  # he = c(unit(.2, "npc"), unit(.4, "npc"), unit(.4, "npc"))
+  # widths = c(unit(.2, "npc"), unit(.4, "npc"), unit(.4, "npc"))
+)
+
+b <- 
+  gridExtra::grid.arrange(
+  grobs = gr_list_top_rec_acl2,
+  ncol = 3
+  # nrow = 4,
+  # widths = c(unit(.2, "npc"), unit(.4, "npc"), unit(.4, "npc"))
+)
+
+gridExtra::grid.arrange(a, b,
+                        heights = c(unit(.7, "npc"),
+                                    unit(.3, "npc")))
+
+#   gridExtra::grid.arrange(
+#   grobs = gr_list_top_rec_acl,
+#   top = super_title_top_rec_acl,
+#   ncol = 3,
+#   # nrow = 4,
+#   # widths = c(unit(.2, "npc"), unit(.4, "npc"), unit(.4, "npc"))
+# )
+# 
+# grid.arrange(stat, legend, nrow=1, ncol=2, widths=c(unit(.8, "npc"), unit(.2, "npc")))
+
+# grid.arrange(legend, stat, nrow=2, ncol=1, heights=c(unit(.2, "npc"), unit(.8, "npc")))
