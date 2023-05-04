@@ -913,14 +913,16 @@ my_legend_st_sedar_g <- textGrob(my_legend_st_sedar)
 
 my_list <- c(state_year_plots_sedar, list(my_legend_st_sedar_g))
 
+my_list1 <- c(state_year_plots_sedar, list(my_legend_st_sedar))
+
 grid.newpage()
 
 # g = c(list(tg),list(sg),plot_list)
-
-grided <- gridExtra::grid.arrange(grobs = my_list,
+# gtable_show_names(grided)
+gridExtra::grid.arrange(grobs = my_list1,
                                   ncol = 2)
 
-gridExtra::grid.arrange(grided, my_legend_st_sedar_g)
+# gridExtra::grid.arrange(grided, my_legend_st_sedar_g)
 
 # ggarrange(state_year_plots_sedar, my_legend_st_sedar_g)
 grid.arrange(
