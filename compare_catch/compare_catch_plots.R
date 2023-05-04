@@ -634,7 +634,6 @@ grid.arrange(grobs = plots_acl_top_sa,
              ncol = 4)
 
 # 1) By wave and region 3c) All FHIER spp ----
-# TODO ----
 # GOM
 # common_name, ORIGIN, CATCH_CNT
 
@@ -654,47 +653,15 @@ region_waves_gom_long_wave_list <-
 
 # View(region_waves_gom_long_wave_list)
 my_reg <- "GOM"
-my_title <- paste0(my_reg, " 2022 1")
-
-region_waves_gom_long_wave_list[[2]] %>%
-  unique() %>%
-  # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
-  mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
-  select(-species_itis) %>%
-  to_long_format() %>%
-  ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
-  scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
-  # columns are side by side (not stacked)
-  geom_col(position = "dodge") +
-  labs(title = my_title,
-       y = "") +
-  theme(axis.text.y = element_text(size = 7)) +
-  theme_bw() +
-  my_theme
-
-
-  map(function(state_abbr) {
-    # get data for this state
-    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
-#   # keep only top r_acl cnts
-    filter(rec_acl_sum_cnts > my_limit) %>%
-      plot_by_year(
-        my_title = state_abbr,
-        sort_field = "rec_acl_sum_cnts",
-        show_counts = T,
-        show_com_names = T,
-        show_legend = F
-      )
-  })
 
 plots_region_waves_gom_long_wave_list <-
-names(region_waves_gom_long_wave_list) %>%
+  names(region_waves_gom_long_wave_list) %>%
   map(function(wave_num) {
     # browser()
     region_waves_gom_long_wave_list[[wave_num]] %>%
       unique() %>%
       plot_by_year(
-        my_title = paste0("GOM wave ", wave_num, " 2022"),
+        my_title = paste0(my_reg, " wave ", wave_num, " 2022"),
         sort_field = "rec_acl_estimate_catch_by_4",
         show_counts = FALSE,
         show_com_names = TRUE,
@@ -704,35 +671,6 @@ names(region_waves_gom_long_wave_list) %>%
 
 plots_region_waves_gom_long_wave_list[[4]]
 
-region_waves_gom_long_wave_list[[2]] %>% 
-  unique() %>%  
-  plot_by_year(my_title = "GOM wave 2 2022",
-           sort_field = "rec_acl_estimate_catch_by_4",
-           show_counts = FALSE,
-           show_com_names = TRUE,
-           show_legend = TRUE)
-# a <- to_long_format(region_waves_gom_long_wave_list[[1]])
-
-sort_field = c("acl_estimate_catch_by_4")
-# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
-
-# View(region_waves_gom_long_wave1)
-region_waves_gom_long_wave1 %>%
-  select(-species_itis) %>%
-      ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
-      scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
-      # columns are side by side (not stacked)
-      geom_col(position = "dodge") +
-      labs(title = "my_title",
-           y = "") +
-      theme(axis.text.y = element_text(size = 7)) +
-      theme_bw() +
-      my_theme
-
-# plot_by_year("1", region_waves_gom_long_wave_list[[1]])
-# View(region_waves_gom_long_wave_list[[1]])
-
-length(unique(wave_reg_all_long_gom$common_name))
 # SA
 
 ## plots by waves / states ----
