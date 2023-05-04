@@ -634,8 +634,7 @@ grid.arrange(grobs = plots_acl_top_sa,
              ncol = 4)
 
 # 1) By wave and region 3c) All FHIER spp ----
-# GOM
-# common_name, ORIGIN, CATCH_CNT
+#### GOM ----
 
 region_waves_gom_long_wave_list <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
@@ -669,9 +668,64 @@ plots_region_waves_gom_long_wave_list <-
       )
   })
 
-plots_region_waves_gom_long_wave_list[[4]]
+# plots_region_waves_gom_long_wave_list[[4]]
 
-# SA
+#### SA ----
+
+region_waves_sa_long_wave_list <-
+  fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
+  # rename the field
+  mutate(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  # split by waves column
+  split(
+    as.factor(
+      fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa$wave
+    )
+  ) %>%
+  # remove extra columns in each df
+  map(.f = list(. %>% dplyr::select(-one_of("state", "wave"))))
+
+# View(region_waves_sa_long_wave_list)
+my_reg <- "SA"
+
+plots_region_waves_sa_long_wave_list <-
+  names(region_waves_sa_long_wave_list) %>%
+  map(function(wave_num) {
+    # browser()
+    region_waves_sa_long_wave_list[[wave_num]] %>%
+      unique() %>%
+      plot_by_year(
+        my_title = paste0(my_reg, " wave ", wave_num, " 2022"),
+        sort_field = "rec_acl_estimate_catch_by_4",
+        show_counts = FALSE,
+        show_com_names = TRUE,
+        show_legend = TRUE
+      )
+  })
+
+# ggsave("1a.png", plots_region_waves_sa_long_wave_list[[1]])
+names(region_waves_sa_long_wave_list) %>%
+  map(function(wave_num) {
+    # browser()
+    ggsave(
+      paste0(wave_num, "w.pdf"),
+      plots_region_waves_sa_long_wave_list[[as.numeric(wave_num)]],
+      width = 20,
+      height = 20,
+      units = "cm"
+    )
+  })
+
+wave_num = '1'
+ggsave(
+  paste0(wave_num, "w.pdf"),
+  plots_region_waves_sa_long_wave_list[[as.numeric(wave_num)]],
+  width = 20,
+  height = 20,
+  units = "cm"
+)
+
 
 ## plots by waves / states ----
 # 1a) SEDAR
