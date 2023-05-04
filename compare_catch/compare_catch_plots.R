@@ -870,4 +870,62 @@ grid.arrange(grobs = state_year_plots,
 
 # state_year_plots[[7]]
 # 4) By year and state 1a) SEDAR ----
+# View(fhier_acl_catch_by_species_state_year_list)
+state_year_plots_sedar <-
+  # has rec_acl data
+    names(state_year_has_rec_acl_data_list_new) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+      # keep only spp in the SEDAR spp lists
+      filter(
+        species_itis %in% gom_top_spp$species_itis |
+          species_itis %in% sa_top_spp$species_itis
+      ) %>%
+      plot_by_year(
+        my_title = state_abbr,
+        sort_field = "rec_acl_sum_cnts",
+        show_counts = F,
+        show_com_names = T,
+        show_legend = F
+      )
+  })
+
+super_title_sedar = "2022 Counts by State and SEDAR spp. lists"
+
+my_state = "FL"
+
+plot_w_legend_st_sedar <- 
+  fhier_acl_catch_by_species_state_year_list[[my_state]] %>%
+  plot_by_year(
+        my_title = my_state,
+        sort_field = "rec_acl_sum_cnts",
+        show_legend = TRUE
+      )
+  
+# use an aux function to pull out the legend
+my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
+
+str(plot_w_legend_st_sedar)
+
+my_legend_st_sedar_g <- textGrob(my_legend_st_sedar)
+
+# g2 <- ggplotGrob(p2)
+# g3 <- ggplotGrob(p3)
+# g <- rbind(g2, g3, size = "first")
+
+# my_grobs <- rbind(state_year_plots_sedar,
+                 # ggplotGrob(my_legend_st_sedar))
+# clean the plate
+grid.newpage()
+
+# ggarrange(state_year_plots_sedar, my_legend_st_sedar_g)
+grid.arrange(
+             grobs = c(state_year_plots_sedar,
+                       my_legend_st_sedar_g),
+             top = super_title_sedar,
+             bottom = my_legend_st_sedar,
+             ncol = 2)
+
 # 4) By year and state 2b) Recreational ACL tops ----
