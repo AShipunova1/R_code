@@ -22,9 +22,11 @@ my_theme <- theme(
     # ,
     vjust = 0.5),
   # change text size
-  plot.title = element_text(size = 9),
+  plot.title = element_text(size = 10),
   legend.title = element_text(size = 8),
-  legend.text = element_text(size = 8)
+  legend.text = element_text(size = 8),
+  axis.title = element_text(size = 9)
+
 )
 
 plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
@@ -745,7 +747,10 @@ plot_by_year <-
       geom_col(position = "dodge") +
       labs(title = my_title,
            y = "") +
-      theme(axis.text.y = element_text(size = 7))
+      theme(axis.text.y = element_text(size = 7)) +
+      theme_bw() +
+      my_theme
+    
     
     if (show_counts) {
       one_plot_by_year <-
@@ -753,7 +758,6 @@ plot_by_year <-
         geom_text(aes(label = CATCH_CNT),
                   size = 3,
                   position = position_dodge(width = 0.9))
-      
     }
     
     if (!show_com_names) {
