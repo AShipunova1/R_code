@@ -871,6 +871,16 @@ grid.arrange(grobs = state_year_plots,
 # state_year_plots[[7]]
 # 4) By year and state 1a) SEDAR ----
 # View(fhier_acl_catch_by_species_state_year_list)
+# View(
+#   fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+#     filter(
+#       (species_itis %in% gom_top_spp$species_itis)
+#       |
+#         (species_itis %in% sa_top_spp$species_itis)
+#     ) %>%
+#   select(common_name)
+# )
+
 state_year_plots_sedar <-
   # has rec_acl data
     names(state_year_has_rec_acl_data_list_new) %>%
@@ -894,9 +904,10 @@ state_year_plots_sedar <-
 
 super_title_sedar = "2022 Counts by State and SEDAR spp. lists"
 
+# one plot with a legend
 my_state = "FL"
-
 plot_w_legend_st_sedar <- 
+  # data for one state
   fhier_acl_catch_by_species_state_year_list[[my_state]] %>%
   plot_by_year(
         my_title = my_state,
@@ -907,28 +918,14 @@ plot_w_legend_st_sedar <-
 # use an aux function to pull out the legend
 my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
 
-str(plot_w_legend_st_sedar)
-
-my_legend_st_sedar_g <- textGrob(my_legend_st_sedar)
-
-my_list <- c(state_year_plots_sedar, list(my_legend_st_sedar_g))
-
-my_list1 <- c(state_year_plots_sedar, list(my_legend_st_sedar))
+# combine plots and the legend in a list
+gr_list <- c(state_year_plots_sedar,
+             list(my_legend_st_sedar))
 
 grid.newpage()
-
-# g = c(list(tg),list(sg),plot_list)
-# gtable_show_names(grided)
-gridExtra::grid.arrange(grobs = my_list1,
-                                  ncol = 2)
-
-# gridExtra::grid.arrange(grided, my_legend_st_sedar_g)
-
-# ggarrange(state_year_plots_sedar, my_legend_st_sedar_g)
-grid.arrange(
+gridExtra::grid.arrange(
              grobs = gr_list,
              top = super_title_sedar,
-             bottom = my_legend_st_sedar,
              ncol = 2)
 
 # 4) By year and state 2b) Recreational ACL tops ----
