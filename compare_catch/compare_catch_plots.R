@@ -671,8 +671,38 @@ region_waves_gom_long_wave_list[[2]] %>%
   theme(axis.text.y = element_text(size = 7)) +
   theme_bw() +
   my_theme
-names(region_waves_gom_long_wave_list[[2]])
 
+
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+#   # keep only top r_acl cnts
+    filter(rec_acl_sum_cnts > my_limit) %>%
+      plot_by_year(
+        my_title = state_abbr,
+        sort_field = "rec_acl_sum_cnts",
+        show_counts = T,
+        show_com_names = T,
+        show_legend = F
+      )
+  })
+
+plots_region_waves_gom_long_wave_list <-
+names(region_waves_gom_long_wave_list) %>%
+  map(function(wave_num) {
+    # browser()
+    region_waves_gom_long_wave_list[[wave_num]] %>%
+      unique() %>%
+      plot_by_year(
+        my_title = paste0("GOM wave ", wave_num, " 2022"),
+        sort_field = "rec_acl_estimate_catch_by_4",
+        show_counts = FALSE,
+        show_com_names = TRUE,
+        show_legend = TRUE
+      )
+  })
+
+plots_region_waves_gom_long_wave_list[[4]]
 
 region_waves_gom_long_wave_list[[2]] %>% 
   unique() %>%  
