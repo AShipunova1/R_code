@@ -911,13 +911,14 @@ str(plot_w_legend_st_sedar)
 
 my_legend_st_sedar_g <- textGrob(my_legend_st_sedar)
 
-lg <- tableGrob(c("26ppm", "39ppm"),
-                theme = ttheme_minimal())
-rg <- arrangeGrob(grobs = state_year_plots_sedar,
-                  ncol = 2)
+gr_list <- append(state_year_plots_sedar, my_legend_st_sedar_g)
+# lg <- tableGrob(c("26ppm", "39ppm"),
+#                 theme = ttheme_minimal())
+# rg <- arrangeGrob(grobs = state_year_plots_sedar,
+#                   ncol = 2)
 
 grid.newpage()
-grid.draw(cbind(lg, rg, size = "last"))
+# grid.draw(cbind(lg, rg, size = "last"))
 # ! `x` and `y` must have the same number of columns
 
 # ggplotGrob
@@ -932,8 +933,7 @@ grid.newpage()
 
 # ggarrange(state_year_plots_sedar, my_legend_st_sedar_g)
 grid.arrange(
-             grobs = c(state_year_plots_sedar,
-                       my_legend_st_sedar_g),
+             grobs = gr_list,
              top = super_title_sedar,
              bottom = my_legend_st_sedar,
              ncol = 2)
