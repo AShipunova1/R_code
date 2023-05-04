@@ -670,6 +670,17 @@ plots_region_waves_gom_long_wave_list <-
 
 # plots_region_waves_gom_long_wave_list[[4]]
 
+names(region_waves_gom_long_wave_list) %>%
+  map(function(wave_num) {
+    ggsave(
+      paste0(my_reg, wave_num, "w.pdf"),
+      plots_region_waves_gom_long_wave_list[[as.numeric(wave_num)]],
+      width = 20,
+      height = 20,
+      units = "cm"
+    )
+  })
+
 #### SA ----
 
 region_waves_sa_long_wave_list <-
@@ -709,23 +720,13 @@ names(region_waves_sa_long_wave_list) %>%
   map(function(wave_num) {
     # browser()
     ggsave(
-      paste0(wave_num, "w.pdf"),
+      paste0(my_reg, wave_num, "w.pdf"),
       plots_region_waves_sa_long_wave_list[[as.numeric(wave_num)]],
       width = 20,
       height = 20,
       units = "cm"
     )
   })
-
-wave_num = '1'
-ggsave(
-  paste0(wave_num, "w.pdf"),
-  plots_region_waves_sa_long_wave_list[[as.numeric(wave_num)]],
-  width = 20,
-  height = 20,
-  units = "cm"
-)
-
 
 ## plots by waves / states ----
 # 1a) SEDAR
