@@ -636,18 +636,39 @@ grid.arrange(grobs = plots_acl_top_sa,
 # 1) By wave and region 3c) All FHIER spp ----
 # TODO ----
 # GOM
+sort_field = c("acl_estimate_catch_by_4")
+# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 wave_reg_all_long_gom <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+  # make a factor to keep the order
+  mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
   fhier_acl_to_plot_format()
 
-plots_wave_reg_all_gom <- map(unique(wave_reg_all_long_gom$common_name),
-              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_by_spp(x, wave_reg_all_long_gom)}
-               )
+names_to_plot <- unique(wave_reg_all_long_gom$common_name)
+# str(names_to_plot)
+# 398
 
-plots_wave_reg_all_gom[[1]]
+# names_to_plot[1:10]names_to_plot[1:10]
+plots_wave_reg_all_gom1_10 <-
+    map(names_to_plot[395:399],
+        # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+        function(current_com_name) {
+          plot_by_spp(current_com_name,
+                      wave_reg_all_long_gom)
+        })
 
-grid.arrange(grobs = plots_wave_reg_all_gom)
+plots_wave_reg_all_gom[[9]]
+
+length(unique(wave_reg_all_long_gom$common_name))
+# 399
+# View(wave_reg_all_long_gom)
+# sort_field = c("CATCH_CNT", "ORIGIN")
+# wave_reg_all_long_gom %>% 
+#         mutate(common_name = reorder(common_name, desc(!!sort_field))) %>% glimpse()
+
+
+# grid.arrange(grobs = plots_wave_reg_all_gom)
+# too big
 #   View()
 # SA
 
@@ -713,10 +734,6 @@ grid.arrange(grobs = plots_wave_reg_all_gom)
 #    # blank theme from ggplot
 #    theme_bw() +
 #    my_theme
-
-# 1) By wave and region 1a) SEDAR; ----
-# 1) By wave and region 2b) Recreational ACL tops; ----
-# 1) By wave and region 3c) All FHIER spp; ----
 
 # 2) By wave and state 1a) SEDAR TODO ----
 # 2) By wave and state 2b) Recreational ACL tops TODO ----
