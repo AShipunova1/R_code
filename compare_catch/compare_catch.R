@@ -289,7 +289,7 @@ state_year_has_rec_acl_data_list <- fhier_acl_catch_by_species_state_year_list
 state_year_has_rec_acl_data_list_new <- c()
 # state_year_has_rec_acl_data_list_new["MA"] <- fhier_acl_catch_by_species_state_year_list["MA"]
 
-View(state_year_has_rec_acl_data_list_new)
+# View(state_year_has_rec_acl_data_list_new)
 
 my_st_names <- names(state_year_has_rec_acl_data_list)
 
