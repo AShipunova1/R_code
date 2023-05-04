@@ -941,7 +941,7 @@ gridExtra::grid.arrange(
 
 # View(fhier_acl_catch_by_species_state_year_list[["FL"]])
 my_limit <- 2000
-small_st <- c("GA", "MS", "SC", "TX")
+small_st <- c("SC", "GA", "MS", "TX")
 state_year_top_rec_acl_plots_2k <-
   # has rec_acl data
   small_st %>%
@@ -962,7 +962,7 @@ state_year_top_rec_acl_plots_2k <-
   })
 
 my_limit <- 4000
-big_st <- c("AL", "FL", "NC")
+big_st <- c("FL", "AL", "NC")
 state_year_top_rec_acl_plots_4k <-
   # has rec_acl data
   big_st %>%
@@ -998,30 +998,18 @@ a <- gridExtra::grid.arrange(
   top = super_title_top_rec_acl,
   ncol = 3,
   nrow = 1,
-  # he = c(unit(.2, "npc"), unit(.4, "npc"), unit(.4, "npc"))
-  # widths = c(unit(.2, "npc"), unit(.4, "npc"), unit(.4, "npc"))
+  widths = c(unit(.4, "npc"), unit(.3, "npc"), unit(.3, "npc"))
 )
 
 b <- 
   gridExtra::grid.arrange(
   grobs = gr_list_top_rec_acl2,
-  ncol = 3
-  # nrow = 4,
-  # widths = c(unit(.2, "npc"), unit(.4, "npc"), unit(.4, "npc"))
+  ncol = 3,
+  widths = c(unit(.4, "npc"), unit(.3, "npc"), unit(.3, "npc"))
+
 )
 
 gridExtra::grid.arrange(a, b,
                         heights = c(unit(.7, "npc"),
                                     unit(.3, "npc")))
 
-#   gridExtra::grid.arrange(
-#   grobs = gr_list_top_rec_acl,
-#   top = super_title_top_rec_acl,
-#   ncol = 3,
-#   # nrow = 4,
-#   # widths = c(unit(.2, "npc"), unit(.4, "npc"), unit(.4, "npc"))
-# )
-# 
-# grid.arrange(stat, legend, nrow=1, ncol=2, widths=c(unit(.8, "npc"), unit(.2, "npc")))
-
-# grid.arrange(legend, stat, nrow=2, ncol=1, heights=c(unit(.2, "npc"), unit(.8, "npc")))
