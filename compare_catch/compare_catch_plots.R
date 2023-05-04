@@ -637,45 +637,60 @@ grid.arrange(grobs = plots_acl_top_sa,
 # TODO ----
 # GOM
 # common_name, ORIGIN, CATCH_CNT
-# View(region_waves_gom_long_wave_list)
+
 region_waves_gom_long_wave_list <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+  # rename the field
+  mutate(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
   # split by waves column
-    split(as.factor(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom$wave)) %>%
+  split(
+    as.factor(
+      fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom$wave
+    )
+  ) %>%
   # remove extra columns in each df
-    map(
-      .f = list(. %>% dplyr::select(-one_of("state", "wave")
-                                    )
-                )
-  )
+  map(.f = list(. %>% dplyr::select(-one_of("state", "wave"))))
+
+# View(region_waves_gom_long_wave_list)
+my_reg <- "GOM"
+my_title <- paste0(my_reg, " 2022 1")
+
+region_waves_gom_long_wave_list[[2]] %>%
+  unique() %>%
+  # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
+  mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
+  select(-species_itis) %>%
+  to_long_format() %>%
+  ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
+  scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
+  # columns are side by side (not stacked)
+  geom_col(position = "dodge") +
+  labs(title = my_title,
+       y = "") +
+  theme(axis.text.y = element_text(size = 7)) +
+  theme_bw() +
+  my_theme
+names(region_waves_gom_long_wave_list[[2]])
+
+
+region_waves_gom_long_wave_list[[2]] %>% 
+  unique() %>%  
+  plot_by_year(my_title = "GOM wave 2 2022",
+           sort_field = "rec_acl_estimate_catch_by_4",
+           show_counts = FALSE,
+           show_com_names = TRUE,
+           show_legend = TRUE)
+# a <- to_long_format(region_waves_gom_long_wave_list[[1]])
 
 sort_field = c("acl_estimate_catch_by_4")
 # View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
-
-region_waves_gom_long_wave1 <-
-  region_waves_gom_long_wave_list[[1]] %>%
-  # make a factor to keep the order
-  mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
-  rename(c("rec_ACL" = "acl_estimate_catch_by_4",
-           "FHIER" = "fhier_quantity_by_4")) %>%
-  # reformat to a long format to have fhier and acl data side by side
-  pivot_longer(
-    cols = c(rec_ACL,
-             FHIER),
-    names_to = "ORIGIN",
-    values_to = "CATCH_CNT"
-  ) %>%
-  # use only the new columns
-  # select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
-  group_by(species_itis, common_name, ORIGIN) %>%
-  summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
-  ungroup()
 
 # View(region_waves_gom_long_wave1)
 region_waves_gom_long_wave1 %>%
   select(-species_itis) %>%
       ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
-      scale_fill_manual(values = c("rec_ACL" = "deepskyblue", "FHIER" = "red")) +
+      scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
       # columns are side by side (not stacked)
       geom_col(position = "dodge") +
       labs(title = "my_title",
@@ -684,30 +699,10 @@ region_waves_gom_long_wave1 %>%
       theme_bw() +
       my_theme
 
-plot_by_year("1", region_waves_gom_long_wave_list[[1]])
-View(region_waves_gom_long_wave_list[[1]])
-plots_wave_reg_all_gom1 <-
-    map(,
-        # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-        function(current_com_name) {
-          plot_by_spp(current_com_name,
-                      wave_reg_all_long_gom)
-        })
-
-# plots_wave_reg_all_gom1_10 %>% View()
-# plots_wave_reg_all_gom1_10[[5]]
+# plot_by_year("1", region_waves_gom_long_wave_list[[1]])
+# View(region_waves_gom_long_wave_list[[1]])
 
 length(unique(wave_reg_all_long_gom$common_name))
-# 399
-# View(wave_reg_all_long_gom)
-# sort_field = c("CATCH_CNT", "ORIGIN")
-# wave_reg_all_long_gom %>% 
-#         mutate(common_name = reorder(common_name, desc(!!sort_field))) %>% glimpse()
-
-
-# grid.arrange(grobs = plots_wave_reg_all_gom)
-# too big
-#   View()
 # SA
 
 ## plots by waves / states ----
@@ -780,6 +775,7 @@ length(unique(wave_reg_all_long_gom$common_name))
 # 3) By year and region ----
 ### convert to a long format for plotting
 to_long_format <- function(my_df) {
+  
   my_df %>%
   # change to shorter column names
   rename(c("Rec_ACL" = starts_with("rec_acl"),
@@ -803,6 +799,7 @@ plot_by_year <-
            show_counts = TRUE,
            show_com_names = TRUE,
            show_legend = TRUE) {
+    # browser()
     one_plot_by_year <-
       my_df %>%
       # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
@@ -818,7 +815,6 @@ plot_by_year <-
       theme(axis.text.y = element_text(size = 7)) +
       theme_bw() +
       my_theme
-    
     
     if (show_counts) {
       one_plot_by_year <-
