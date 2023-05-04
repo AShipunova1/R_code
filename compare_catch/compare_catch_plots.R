@@ -1,5 +1,5 @@
 # 3 sets of spp: 
-# 1a) SEDAR; 
+# 1a) SEDAR spp; 
 # 2b) Recreational ACL tops; 
 # 3c) All FHIER spp
 
@@ -219,6 +219,8 @@ fhier_acl_to_plot_format <- function(my_df) {
 
 fhier_acl_gom_to_plot <-
   fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+
+View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 # 
 # an overview plot
 plot(fhier_acl_gom_to_plot)
@@ -634,7 +636,18 @@ grid.arrange(grobs = plots_acl_top_sa,
 # 1) By wave and region 3c) All FHIER spp ----
 # TODO ----
 # GOM
-# fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+wave_reg_all_long_gom <-
+  fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+  fhier_acl_to_plot_format()
+
+plots_wave_reg_all_gom <- map(unique(wave_reg_all_long_gom$common_name),
+              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+               function(x) {plot_by_spp(x, wave_reg_all_long_gom)}
+               )
+
+plots_wave_reg_all_gom[[1]]
+
+grid.arrange(grobs = plots_wave_reg_all_gom)
 #   View()
 # SA
 
