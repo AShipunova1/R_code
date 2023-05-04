@@ -726,23 +726,50 @@ to_long_format <- function(my_df) {
     return()
 }
 
-plot_by_year <- function(my_df, my_title, sort_field = "rec_acl_cnts_by_year_reg") {
-  my_df %>%
-    # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
-    mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
-    select(-species_itis) %>%
-    to_long_format() %>%
-    ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
-    scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
-    # columns are side by side (not stacked)
-    geom_col(position = "dodge") +
-    labs(title = my_title,
-         y = "") +
-    geom_text(aes(label = CATCH_CNT),
-              size = 3,
-              position = position_dodge(width = 0.9)) %>%
-    return()
-}
+plot_by_year <-
+  function(my_df,
+           my_title,
+           sort_field = "rec_acl_cnts_by_year_reg",
+           show_counts = TRUE,
+           show_com_names = TRUE,
+           show_legend = TRUE) {
+    one_plot_by_year <-
+      my_df %>%
+      # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
+      mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
+      select(-species_itis) %>%
+      to_long_format() %>%
+      ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
+      scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
+      # columns are side by side (not stacked)
+      geom_col(position = "dodge") +
+      labs(title = my_title,
+           y = "") +
+      theme(axis.text.y = element_text(size = 7))
+    
+    if (show_counts) {
+      one_plot_by_year <-
+        one_plot_by_year +
+        geom_text(aes(label = CATCH_CNT),
+                  size = 3,
+                  position = position_dodge(width = 0.9))
+      
+    }
+    
+    if (!show_com_names) {
+      one_plot_by_year <-
+        one_plot_by_year +
+        theme(axis.text.y = element_blank())
+    }
+    
+    if (!show_legend) {
+      one_plot_by_year <-
+        one_plot_by_year +
+        theme(legend.position = "none")
+    }
+    
+    return(one_plot_by_year)
+  }
 
 ## 3) By year and region 3c) All FHIER spp ----
 ### gom ----
@@ -750,7 +777,7 @@ my_reg <- "GOM"
 my_title <- paste0(my_reg, " 2022")
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
-  plot_by_year(my_title = my_title)
+  plot_by_year(my_title = my_title, show_counts = FALSE)
 
 ### SA ---- 
 my_reg <- "SA"
@@ -758,6 +785,7 @@ my_title <- paste0(my_reg, " 2022")
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
   plot_by_year(my_title = my_title)
+# , show_counts = FALSE
 
 ### overview plots ----
 fhier_acl_catch_by_species_region_year_list$gom %>%
@@ -775,7 +803,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   # View()
   plot_by_year(my_title = my_title)
 
-# same orderd by FHIER:
+# same ordered by FHIER:
 my_title <- "By year and region SEDAR spp. SA, ordered by FHIER cnts"
 fhier_acl_catch_by_species_region_year_list$sa %>%
   filter(species_itis %in% sa_top_spp$species_itis) %>% 
@@ -787,7 +815,6 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
   filter(species_itis %in% gom_top_spp$species_itis) %>% 
   # View()
   plot_by_year(my_title = my_title)
-
 
 ## 3) By year and region 2b) Recreational ACL tops ----
 ### gom ----
@@ -810,6 +837,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   filter(rec_acl_cnts_by_year_reg > my_limit) %>%
   plot_by_year(my_title = my_title)
 
+### overview plots ----
 fhier_acl_catch_by_species_region_year_list$gom %>%
   select(-common_name) %>%
   plot(main = "GOM by year")
@@ -836,4 +864,3 @@ state_year_plots <-
 state_year_plots[[2]]
 # 4) By year and state 1a) SEDAR ----
 # 4) By year and state 2b) Recreational ACL tops ----
-# 4) By year and state 3c) All FHIER spp ----
