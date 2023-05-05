@@ -133,3 +133,25 @@ lat_long2_sf <- lat_long2 %>%
 
 plot(lat_long2_sf)
 mapview(lat_long2_sf)
+
+m_s <- mapview(sa_shp,
+               layer.name = "South Altlantic",
+               legend = FALSE)
+m_g <- mapview(gom_shp,
+               layer.name = "Gulf of Mexico",
+               legend = FALSE)
+# 20 points ----
+
+lat_long2_sf_20 <- 
+  lat_long2 %>%
+  unique() %>%
+  head(20) %>%
+  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  filter(complete.cases(.)) %>%
+  st_as_sf(coords = c("LONGITUDE",
+                      "LATITUDE"),
+           crs = 4326)
+
+View(lat_long2_sf_20)
+
+mapview(lat_long2_sf_20)
