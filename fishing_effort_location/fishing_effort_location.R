@@ -186,8 +186,32 @@ to_sf <- function(my_df) {
 # --- using first n ----
 n100 <-
   lat_long2 %>% 
-  clean_lat_long(10000) %>%
+  clean_lat_long(100) %>%
   to_sf() %>%
   mapview(grid = TRUE)
 
 n100 + m_g + m_s
+# --- with labels ----
+n_map <-
+  lat_long2 %>%
+  clean_lat_long(1000) %>%
+  mutate(point = paste(LATITUDE, LONGITUDE)) %>%
+  to_sf() %>%
+  mapview(zcol = "point",
+          legend = FALSE)
+
+n_map + m_g + m_s
+
+#   mapview(x_sf,
+  #         zcol = "name_cnts",
+  #         cex = "CATCH_CNT",
+  #         alpha = 0.3,
+  #         col.regions = viridisLite::turbo,
+  #         legend = FALSE,
+  #         layer.name = mrip_fhier_by_state_df$common_name[1]
+  #         ) %>%
+  # addStaticLabels(label = mrip_fhier_by_state_df$name_cnts,
+  #                 # noHide = TRUE,
+  #                 direction = 'top',
+  #                 # textOnly = TRUE,
+  #                 textsize = "10px")
