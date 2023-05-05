@@ -154,4 +154,30 @@ lat_long2_sf_20 <-
 
 View(lat_long2_sf_20)
 
-mapview(lat_long2_sf_20)
+m1 <- mapview(lat_long2_sf_20)
+m1 + m_g + m_s
+
+clean_lat_long <- function(my_lat_long_df, my_limit) {
+  my_lat_long_df %>%
+    unique() %>%
+    head(my_limit) %>%
+    # all should be negative
+    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+    # remove all entryes with missing coords
+    filter(complete.cases(.)) %>%
+    return()
+}
+
+to_sf <- function(my_df) {
+  my_df %>%
+    st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+             crs = 4326) %>%
+    return()
+}
+
+# --- using first 50 ----
+lat_long2 %>% 
+  clean_lat_long(1000) %>%
+  to_sf() %>%
+  mapview()
