@@ -191,6 +191,7 @@ n100 <-
   mapview(grid = TRUE)
 
 n100 + m_g + m_s
+
 # --- with labels ----
 points_num <- 1000
 clean_lat_long_subset <-
@@ -227,3 +228,32 @@ n_map + m_g + m_s
   #                 direction = 'top',
   #                 # textOnly = TRUE,
   #                 textsize = "10px")
+
+# --- with dates ----
+lat_long3 <- db_data %>%
+  mutate(ROW_ID = row_number()) %>%
+  mutate(TRIP_START_DAY_M =
+           format(TRIP_START_DATE, "%m")) %>%
+           # format(as.Date(TRIP_START_DATE,
+           #                # 2022-12-10 23:00:00"
+           #                format = "%d/%m/%Y"), "%m/%d")) %>%
+  select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
+str(lat_long3)
+
+points_num <- 100
+clean_lat_long_subset <-
+  lat_long3 %>%
+  clean_lat_long(points_num)
+
+n_map <-
+  clean_lat_long_subset %>%
+  # mutate(point = paste(LATITUDE, LONGITUDE, TRIP_START_DAY_M)) %>%
+  mutate(point = TRIP_START_DAY_M) %>%
+  to_sf() %>%
+  mapview(zcol = "point",
+          # col.regions = my_colors,
+          col.regions = viridisLite::turbo,
+          layer.name = 'Month',
+          legend = T)
+
+n_map + m_g + m_s
