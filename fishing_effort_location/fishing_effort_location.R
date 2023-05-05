@@ -75,6 +75,10 @@ sum(a$n)
 lat_long <- db_data %>%
   select(LATITUDE, LONGITUDE, TRIP_START_DATE)
 
+lat_long2 <- db_data %>%
+  mutate(row_id = row_number()) %>%
+  select(LATITUDE, LONGITUDE, row_id)
+
 ## ---- get geographical data ----
 read_shapefile <- function(filename) {
   shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
@@ -102,15 +106,15 @@ str(lat_long_sf)
 plot(lat_long_sf)
 plot(lat_long_sf$geometry)
 
-m1 <- mapview(lat_long_sf,
-          zcol = "TRIP_START_DATE"
-          # ,
-          # cex = "CATCH_CNT",
-          # alpha = 0.3,
-          # col.regions = viridisLite::turbo,
-          # legend = FALSE,
-          # layer.name = mrip_fhier_by_state_df$common_name[1]
-          ) 
+# m1 <- mapview(lat_long_sf,
+#           zcol = "TRIP_START_DATE"
+#           # ,
+#           # cex = "CATCH_CNT",
+#           # alpha = 0.3,
+#           # col.regions = viridisLite::turbo,
+#           # legend = FALSE,
+#           # layer.name = mrip_fhier_by_state_df$common_name[1]
+#           ) 
   # %>%
   # addStaticLabels(label = mrip_fhier_by_state_df$name_cnts,
                   # noHide = TRUE,
@@ -118,4 +122,14 @@ m1 <- mapview(lat_long_sf,
                   # textOnly = TRUE,
                   # textsize = "10px")
 
-mapview(lat_long_sf) 
+mapview(lat_long_sf)
+# Error in dispatch(map, "fitBounds", leaflet = { : Invalid map parameter
+
+lat_long2_sf <- lat_long2 %>%
+  filter(complete.cases(.)) %>%
+    st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+             crs = 4326)
+
+plot(lat_long2_sf)
+mapview(lat_long2_sf)
