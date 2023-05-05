@@ -1,8 +1,14 @@
 # information on location of relative fishing effort.  The relative would be looking by depth, area, and seasonally. 
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
+library(ROracle)
+# library(sp) # vector data
+# library(rgdal) # input/output, projections
+library(sf)
+library(mapview)
+library(leaflet)
 
 source("~/R_code_github/useful_functions_module.r")
-library(ROracle)
+my_paths <- set_work_dir()
 
 con = dbConnect(
   dbDriver("Oracle"),
@@ -37,6 +43,8 @@ FROM
   srh.mv_safis_trip_download@secapxdv_dblk.sfsc.noaa.gov
 WHERE
     trip_de >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+  AND TRIP_START_DATE >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+  AND TRIP_END_DATE <= TO_DATE('31-DEC-22', 'dd-mon-yy')
   AND trip_type_name = 'CHARTER'
   AND sero_vessel_permit IS NOT NULL"
 
@@ -45,6 +53,7 @@ db_data = dbGetQuery(con,
 
 # dbDisconnect(con)
 
+data_overview(db_data)
 # str(db_data)
 # 'data.frame':	306261 obs. of  19 variables:
 
@@ -57,4 +66,56 @@ a <- db_data %>%
 # 5                   <NA>   2455
 sum(a$n)
 # 306261
-  # data_overview()
+
+# LATITUDE      NA's   :1198            
+# TODO: check the sign
+# LATITUDE        LONGITUDE  
+# Min.   :-87.30   Min.   :-117.25
+# Max.   : 90.00   Max.   : 137.59  
+lat_long <- db_data %>%
+  select(LATITUDE, LONGITUDE, TRIP_START_DATE)
+
+## ---- get geographical data ----
+read_shapefile <- function(filename) {
+  shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
+
+  x <- read_sf(shapefile_file_name)
+  return(x)
+}
+sa_shp <- read_shapefile("osa_n_gom/SA_EEZ_off_states.shp")
+gom_shp <- read_shapefile("osa_n_gom/ReefFish_EFH_GOM.shp")
+plot(sa_shp)
+plot(gom_shp)
+str(sa_shp)
+
+plot(sa_shp$geometry)
+
+lat_long_sf <-
+  lat_long %>%
+  filter(complete.cases(.)) %>%
+    # mutate(latitude = jitter(latitude, factor = jitter_factor)) %>%
+    # mutate(longitude = jitter(longitude, factor = jitter_factor)) %>%
+    st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+             crs = 4326)
+str(lat_long_sf)
+plot(lat_long_sf)
+plot(lat_long_sf$geometry)
+
+m1 <- mapview(lat_long_sf,
+          zcol = "TRIP_START_DATE"
+          # ,
+          # cex = "CATCH_CNT",
+          # alpha = 0.3,
+          # col.regions = viridisLite::turbo,
+          # legend = FALSE,
+          # layer.name = mrip_fhier_by_state_df$common_name[1]
+          ) 
+  # %>%
+  # addStaticLabels(label = mrip_fhier_by_state_df$name_cnts,
+                  # noHide = TRUE,
+                  # direction = 'top',
+                  # textOnly = TRUE,
+                  # textsize = "10px")
+
+mapview(lat_long_sf) 
