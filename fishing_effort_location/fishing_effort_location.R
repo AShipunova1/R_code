@@ -168,7 +168,7 @@ clean_lat_long <- function(my_lat_long_df, my_limit) {
     # all should be negative
     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
     # remove wrong coords
-    filter(between(LATITUDE, 23, 36) &
+    filter(between(LATITUDE, 23, 37) &
              between(LONGITUDE, -98, -71)) %>%
     # remove all entryes with missing coords
     filter(complete.cases(.)) %>%
