@@ -197,13 +197,19 @@ clean_lat_long_subset <-
   lat_long2 %>%
   clean_lat_long(points_num)
 
+my_colors <-
+  # number of colors = number of unique points
+  viridisLite::turbo(n = dim(clean_lat_long_subset)[1],
+                     # reverse direction
+                     direction = -1)
+
 n_map <-
   clean_lat_long_subset %>%
   mutate(point = paste(LATITUDE, LONGITUDE)) %>%
   to_sf() %>%
   mapview(zcol = "point",
-          col.regions = viridisLite::turbo(n = dim(clean_lat_long_subset)[1],
-                                           direction = -1),
+          # col.regions = my_colors,
+          col.regions = viridisLite::turbo,
           legend = FALSE)
 
 n_map + m_g + m_s
