@@ -352,7 +352,7 @@ mapview_q <- function(my_df, points_num, q_name) {
   return(n_map)
 }
 
-points_num <- 1000
+points_num <- 10000
 
 maps_q <-
   map(names(lat_long_dat_dep_q_list),
@@ -361,20 +361,41 @@ maps_q <-
         m_n <- mapview_q(lat_long_dat_dep_q_list[[q_name]],
                          points_num,
                          q_name)
-        return(n_map + m_g + m_s)
+        return(m_n + m_g + m_s)
       })
 
+maps_q[[1]]
+
+map(lat_long_dat_dep_q_list,
+    function(x) {dim(x)})
+# $`2022 Q1`
+# [1] 35207    24
 # 
-# q_name <- "2022 Q1"
+# $`2022 Q2`
+# [1] 91786    24
+# 
+# $`2022 Q3`
+# [1] 89717    24
+# 
+# $`2022 Q4`
+# [1] 37148    24
 
-# m_n <- mapview_q(lat_long_dat_dep_q_list[[q_name]],
-#                  points_num,
-#                  q_name)
-
-str(maps_q)
-
-m_1 <- maps_q[[1]]
-# m_1 + 
-  m_g + m_s
-
-typeof(m_g)
+map(lat_long_dat_dep_q_list,
+    function(x) {
+      x %>%
+        select(LATITUDE, LONGITUDE) %>%
+        filter(complete.cases(.)) %>%
+        unique() %>%
+        dim()
+    })
+# $`2022 Q1`
+# [1] 9219    2
+# 
+# $`2022 Q2`
+# [1] 23792     2
+# 
+# $`2022 Q3`
+# [1] 22052     2
+# 
+# $`2022 Q4`
+# [1] 8950    2
