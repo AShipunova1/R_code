@@ -230,6 +230,7 @@ n_map + m_g + m_s
   #                 textsize = "10px")
 
 # --- with dates ----
+# View(db_data)
 lat_long3 <- db_data %>%
   mutate(ROW_ID = row_number()) %>%
   mutate(TRIP_START_DAY_M =
@@ -254,6 +255,32 @@ n_map <-
           # col.regions = my_colors,
           col.regions = viridisLite::turbo,
           layer.name = 'Month',
+          cex = "CATCH_CNT",
+          alpha = 0.3,
           legend = T)
 
 n_map + m_g + m_s
+
+# --- with depth ----
+
+db_data$AVG_BOTTOM_DEPTH <-
+  rowMeans(db_data[c("MINIMUM_BOTTOM_DEPTH", "MAXIMUM_BOTTOM_DEPTH")],
+           na.rm = TRUE)
+
+db_data %>% glimpse()
+
+lat_long3 <- db_data %>%
+  # labels are a month only
+  mutate(TRIP_START_DAY_M =
+           format(TRIP_START_DATE, "%m")) %>%
+  # get depth
+  mutate(avg_bottom_depth = mean(MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, na.rm = T)) %>% head()
+  mutate(AVG_DEPTH = case_when(
+    MINIMUM_BOTTOM_DEPTH > 0 &
+      MAXIMUM_BOTTOM_DEPTH > 0 ~ 
+# MINIMUM_BOTTOM_DEPTH,  MAXIMUM_BOTTOM_DEPTH,  AVG_DEPTH_IN_FATHOMS,  FISHING_GEAR_DEPTH,  DEPTH,
+        # mutate(vessel_off_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>% 
+  ))
+  select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
+str(lat_long3)
+
