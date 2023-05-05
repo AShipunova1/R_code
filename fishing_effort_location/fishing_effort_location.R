@@ -263,31 +263,47 @@ n_map + m_g + m_s
 
 # --- with depth ----
 
-db_data$AVG_BOTTOM_DEPTH <-
-  rowMeans(db_data[c("MINIMUM_BOTTOM_DEPTH", "MAXIMUM_BOTTOM_DEPTH")],
-           na.rm = TRUE)
-
 db_data %>% glimpse()
 
-# lat_long3 <- 
-db_data %>%
+lat_long_dat_dep <-
+  db_data %>%
   # labels are a month only
-  mutate(TRIP_START_DAY_M =
+  mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
   # compute on a data frame a row-at-a-time
   rowwise() %>%
   # get avg bottom depth
-  mutate(avg_bottom_depth = mean(c(
+  mutate(AVG_BOTTOM_DEPTH = mean(c(
     MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH
-  ), na.rm = T)) %>% glimpse()
+  ), na.rm = T)) %>%
+  ungroup() %>%
+  mutate(AVG_DEPTH = coalesce(
+    AVG_BOTTOM_DEPTH,
+    FISHING_GEAR_DEPTH,
+    DEPTH,
+    AVG_DEPTH_IN_FATHOMS
+  )) %>%
+  # MINIMUM_BOTTOM_DEPTH,  MAXIMUM_BOTTOM_DEPTH,  AVG_DEPTH_IN_FATHOMS,  FISHING_GEAR_DEPTH,  DEPTH,
+  select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH) %>%
+  mutate(AVG_DEPTH = replace_na(AVG_DEPTH, 0))
 
+# %>%
+# str()
 
-  mutate(AVG_DEPTH = case_when(
-    MINIMUM_BOTTOM_DEPTH > 0 &
-      MAXIMUM_BOTTOM_DEPTH > 0 ~ 
-# MINIMUM_BOTTOM_DEPTH,  MAXIMUM_BOTTOM_DEPTH,  AVG_DEPTH_IN_FATHOMS,  FISHING_GEAR_DEPTH,  DEPTH,
-        # mutate(vessel_off_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>% 
-  ))
-  select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
-str(lat_long3)
+points_num <- 100
+clean_lat_long_subset <-
+  lat_long_dat_dep %>%
+  clean_lat_long(points_num)
 
+n_map <-
+  clean_lat_long_subset %>%
+  mutate(point = TRIP_START_M) %>%
+  to_sf() %>%
+  mapview(zcol = "point",
+          col.regions = viridisLite::turbo,
+          layer.name = 'Month',
+          cex = "AVG_DEPTH",
+          alpha = 0.3,
+          legend = T)
+
+n_map + m_g + m_s
