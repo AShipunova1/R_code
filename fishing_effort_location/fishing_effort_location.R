@@ -121,7 +121,7 @@ plot(lat_long_sf$geometry)
                   # textOnly = TRUE,
                   # textsize = "10px")
 
-mapview(lat_long_sf)
+# mapview(lat_long_sf)
 # Error in dispatch(map, "fitBounds", leaflet = { : Invalid map parameter
 
 lat_long2_sf <- lat_long2 %>%
@@ -342,17 +342,19 @@ mapview_q <- function(my_df, points_num, q_name) {
     )
   
   # browser()
+  # title in bold
+  title_html <- paste0("<b>", q_name, "</b>")
   
   # change in place
   n_map@map %<>%
-    # add a title
-    addControl(paste0("<b>", q_name, "</b>"),
+    # add the title
+    addControl(title_html,
                position = "bottomright")
   
   return(n_map)
 }
 
-points_num <- 10000
+points_num <- 3000
 
 maps_q <-
   map(names(lat_long_dat_dep_q_list),
@@ -364,10 +366,10 @@ maps_q <-
         return(m_n + m_g + m_s)
       })
 
-maps_q[[1]]
+# maps_q[[4]]
 
-map(lat_long_dat_dep_q_list,
-    function(x) {dim(x)})
+# map(lat_long_dat_dep_q_list,
+#     function(x) {dim(x)})
 # $`2022 Q1`
 # [1] 35207    24
 # 
@@ -399,3 +401,11 @@ map(lat_long_dat_dep_q_list,
 # 
 # $`2022 Q4`
 # [1] 8950    2
+
+# View(lat_long_dat_dep_q)
+lat_long_dat_dep_q %>% 
+ filter(!(AVG_BOTTOM_DEPTH == AVG_DEPTH)) %>% dim()
+# 0
+# TODO: remove AVG_DEPTH
+# TODO: create lat_long_dat_dep_q independently
+
