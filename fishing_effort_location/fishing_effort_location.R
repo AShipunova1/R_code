@@ -192,12 +192,18 @@ n100 <-
 
 n100 + m_g + m_s
 # --- with labels ----
-n_map <-
+points_num <- 1000
+clean_lat_long_subset <-
   lat_long2 %>%
-  clean_lat_long(1000) %>%
+  clean_lat_long(points_num)
+
+n_map <-
+  clean_lat_long_subset %>%
   mutate(point = paste(LATITUDE, LONGITUDE)) %>%
   to_sf() %>%
   mapview(zcol = "point",
+          col.regions = viridisLite::turbo(n = dim(clean_lat_long_subset)[1],
+                                           direction = -1),
           legend = FALSE)
 
 n_map + m_g + m_s
