@@ -269,12 +269,19 @@ db_data$AVG_BOTTOM_DEPTH <-
 
 db_data %>% glimpse()
 
-lat_long3 <- db_data %>%
+# lat_long3 <- 
+db_data %>%
   # labels are a month only
   mutate(TRIP_START_DAY_M =
            format(TRIP_START_DATE, "%m")) %>%
-  # get depth
-  mutate(avg_bottom_depth = mean(MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, na.rm = T)) %>% head()
+  # compute on a data frame a row-at-a-time
+  rowwise() %>%
+  # get avg bottom depth
+  mutate(avg_bottom_depth = mean(c(
+    MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH
+  ), na.rm = T)) %>% glimpse()
+
+
   mutate(AVG_DEPTH = case_when(
     MINIMUM_BOTTOM_DEPTH > 0 &
       MAXIMUM_BOTTOM_DEPTH > 0 ~ 
