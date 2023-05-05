@@ -1,8 +1,7 @@
 # information on location of relative fishing effort.  The relative would be looking by depth, area, and seasonally. 
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
 library(ROracle)
-# library(sp) # vector data
-# library(rgdal) # input/output, projections
+library(zoo)
 library(sf)
 library(mapview)
 library(leaflet)
@@ -280,19 +279,20 @@ lat_long_dat_dep <-
   mutate(AVG_DEPTH = coalesce(
     AVG_BOTTOM_DEPTH,
     FISHING_GEAR_DEPTH,
-    DEPTH,
-    AVG_DEPTH_IN_FATHOMS
+    DEPTH
+    # ,
+    # AVG_DEPTH_IN_FATHOMS
   )) %>%
   # MINIMUM_BOTTOM_DEPTH,  MAXIMUM_BOTTOM_DEPTH,  AVG_DEPTH_IN_FATHOMS,  FISHING_GEAR_DEPTH,  DEPTH,
-  select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH) %>%
   mutate(AVG_DEPTH = replace_na(AVG_DEPTH, 0))
 
 # %>%
 # str()
 
-points_num <- 100
+points_num <- 1000
 clean_lat_long_subset <-
   lat_long_dat_dep %>%
+  select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH) %>%
   clean_lat_long(points_num)
 
 n_map <-
@@ -307,3 +307,74 @@ n_map <-
           legend = T)
 
 n_map + m_g + m_s
+
+# for quarters ----
+
+lat_long_dat_dep_q <-
+  lat_long_dat_dep %>%
+  # add quarter
+  mutate(YEAR_QUARTER = as.yearqtr(TRIP_START_DATE)) %>%
+  mutate(QUARTER = format(YEAR_QUARTER, "%q"))
+
+lat_long_dat_dep_q_list <-
+  split(lat_long_dat_dep_q,
+        as.factor(lat_long_dat_dep_q$YEAR_QUARTER))
+
+mapview_q <- function(my_df, points_num, q_name) {
+  clean_lat_long_subset <-
+    my_df %>%
+    select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH,
+           YEAR_QUARTER) %>%
+    clean_lat_long(points_num)
+  
+  n_map <-
+    clean_lat_long_subset %>%
+    mutate(POINT = paste(LATITUDE, LONGITUDE, YEAR_QUARTER,
+                         sep = ", ")) %>%
+    to_sf() %>%
+    mapview(
+      zcol = "TRIP_START_M",
+      col.regions = viridisLite::turbo,
+      layer.name = 'Month',
+      cex = "AVG_DEPTH",
+      alpha = 0.3,
+      legend = T
+    )
+  
+  # browser()
+  
+  # change in place
+  n_map@map %<>%
+    # add a title
+    addControl(paste0("<b>", q_name, "</b>"),
+               position = "bottomright")
+  
+  return(n_map)
+}
+
+points_num <- 1000
+
+maps_q <-
+  map(names(lat_long_dat_dep_q_list),
+      function(q_name) {
+        # browser()
+        m_n <- mapview_q(lat_long_dat_dep_q_list[[q_name]],
+                         points_num,
+                         q_name)
+        return(n_map + m_g + m_s)
+      })
+
+# 
+# q_name <- "2022 Q1"
+
+# m_n <- mapview_q(lat_long_dat_dep_q_list[[q_name]],
+#                  points_num,
+#                  q_name)
+
+str(maps_q)
+
+m_1 <- maps_q[[1]]
+# m_1 + 
+  m_g + m_s
+
+typeof(m_g)
