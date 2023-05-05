@@ -157,12 +157,19 @@ View(lat_long2_sf_20)
 m1 <- mapview(lat_long2_sf_20)
 m1 + m_g + m_s
 
+# --- OK boundaries ----
+# lat 23 : 36
+# lon -71 : -98
+
 clean_lat_long <- function(my_lat_long_df, my_limit) {
   my_lat_long_df %>%
     unique() %>%
     head(my_limit) %>%
     # all should be negative
     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+    # remove wrong coords
+    filter(between(LATITUDE, 23, 36) &
+             between(LONGITUDE, -98, -71)) %>%
     # remove all entryes with missing coords
     filter(complete.cases(.)) %>%
     return()
@@ -176,8 +183,11 @@ to_sf <- function(my_df) {
     return()
 }
 
-# --- using first 50 ----
-lat_long2 %>% 
-  clean_lat_long(1000) %>%
+# --- using first n ----
+n100 <-
+  lat_long2 %>% 
+  clean_lat_long(10000) %>%
   to_sf() %>%
-  mapview()
+  mapview(grid = TRUE)
+
+n100 + m_g + m_s
