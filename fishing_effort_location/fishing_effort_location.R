@@ -297,9 +297,9 @@ clean_lat_long_subset <-
 
 n_map <-
   clean_lat_long_subset %>%
-  mutate(point = TRIP_START_M) %>%
+  mutate(POINT = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
   to_sf() %>%
-  mapview(zcol = "point",
+  mapview(zcol = "TRIP_START_M",
           col.regions = viridisLite::turbo,
           layer.name = 'Month',
           cex = "AVG_DEPTH",
