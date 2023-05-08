@@ -1,5 +1,9 @@
 # information on location of relative fishing effort.  The relative would be looking by depth, area, and seasonally. 
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
+# --- OK boundaries
+# lat 23 : 36
+# lon -71 : -98
+
 library(ROracle)
 library(zoo)
 library(sf)
@@ -21,16 +25,8 @@ a <- db_data %>%
 sum(a$n)
 # 306261
 
-# LATITUDE      NA's   :1198            
-# LATITUDE        LONGITUDE  
-# Min.   :-87.30   Min.   :-117.25
-# Max.   : 90.00   Max.   : 137.59  
 lat_long <- db_data %>%
   select(LATITUDE, LONGITUDE, TRIP_START_DATE)
-
-lat_long2 <- db_data %>%
-  mutate(row_id = row_number()) %>%
-  select(LATITUDE, LONGITUDE, row_id)
 
 plot(sa_shp)
 plot(gom_shp)
@@ -41,8 +37,6 @@ plot(sa_shp$geometry)
 lat_long_sf <-
   lat_long %>%
   filter(complete.cases(.)) %>%
-    # mutate(latitude = jitter(latitude, factor = jitter_factor)) %>%
-    # mutate(longitude = jitter(longitude, factor = jitter_factor)) %>%
     st_as_sf(coords = c("LONGITUDE",
                         "LATITUDE"),
              crs = 4326)
@@ -50,59 +44,16 @@ str(lat_long_sf)
 plot(lat_long_sf)
 plot(lat_long_sf$geometry)
 
-# m1 <- mapview(lat_long_sf,
-#           zcol = "TRIP_START_DATE"
-#           # ,
-#           # cex = "CATCH_CNT",
-#           # alpha = 0.3,
-#           # col.regions = viridisLite::turbo,
-#           # legend = FALSE,
-#           # layer.name = mrip_fhier_by_state_df$common_name[1]
-#           ) 
-  # %>%
-  # addStaticLabels(label = mrip_fhier_by_state_df$name_cnts,
-                  # noHide = TRUE,
-                  # direction = 'top',
-                  # textOnly = TRUE,
-                  # textsize = "10px")
-
-# mapview(lat_long_sf)
-# Error in dispatch(map, "fitBounds", leaflet = { : Invalid map parameter
-
-lat_long2_sf <- lat_long2 %>%
-  filter(complete.cases(.)) %>%
-    st_as_sf(coords = c("LONGITUDE",
-                        "LATITUDE"),
-             crs = 4326)
-
-plot(lat_long2_sf)
-mapview(lat_long2_sf)
-
+# shape files maps ----
 m_s <- mapview(sa_shp,
                layer.name = "South Altlantic",
                legend = FALSE)
 m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
-# 20 points ----
 
-lat_long2_sf_20 <- 
-  lat_long2 %>%
-  unique() %>%
-  head(20) %>%
-  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-  filter(complete.cases(.)) %>%
-  st_as_sf(coords = c("LONGITUDE",
-                      "LATITUDE"),
-           crs = 4326)
-
-View(lat_long2_sf_20)
-
-m1 <- mapview(lat_long2_sf_20)
-m1 + m_g + m_s
-
-# --- OK boundaries ----
-# lat 23 : 36
+# OK boundaries ----
+# lat 23 : 28
 # lon -71 : -98
 
 clean_lat_long <- function(my_lat_long_df, my_limit) {
@@ -112,7 +63,7 @@ clean_lat_long <- function(my_lat_long_df, my_limit) {
     # all should be negative
     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
     # remove wrong coords
-    filter(between(LATITUDE, 23, 37) &
+    filter(between(LATITUDE, 23, 28) &
              between(LONGITUDE, -98, -71)) %>%
     # remove all entryes with missing coords
     filter(complete.cases(.)) %>%
@@ -127,20 +78,7 @@ to_sf <- function(my_df) {
     return()
 }
 
-# --- using first n ----
-n100 <-
-  lat_long2 %>% 
-  clean_lat_long(100) %>%
-  to_sf() %>%
-  mapview(grid = TRUE)
-
-n100 + m_g + m_s
-
 # --- with labels ----
-points_num <- 1000
-clean_lat_long_subset <-
-  lat_long2 %>%
-  clean_lat_long(points_num)
 
 my_colors <-
   # number of colors = number of unique points
@@ -157,21 +95,8 @@ n_map <-
           col.regions = viridisLite::turbo,
           legend = FALSE)
 
+### show my map + shape files ----
 n_map + m_g + m_s
-
-#   mapview(x_sf,
-  #         zcol = "name_cnts",
-  #         cex = "CATCH_CNT",
-  #         alpha = 0.3,
-  #         col.regions = viridisLite::turbo,
-  #         legend = FALSE,
-  #         layer.name = mrip_fhier_by_state_df$common_name[1]
-  #         ) %>%
-  # addStaticLabels(label = mrip_fhier_by_state_df$name_cnts,
-  #                 # noHide = TRUE,
-  #                 direction = 'top',
-  #                 # textOnly = TRUE,
-  #                 textsize = "10px")
 
 # --- with dates ----
 # View(db_data)
@@ -179,24 +104,21 @@ lat_long3 <- db_data %>%
   mutate(ROW_ID = row_number()) %>%
   mutate(TRIP_START_DAY_M =
            format(TRIP_START_DATE, "%m")) %>%
-           # format(as.Date(TRIP_START_DATE,
-           #                # 2022-12-10 23:00:00"
-           #                format = "%d/%m/%Y"), "%m/%d")) %>%
   select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
-str(lat_long3)
+
+# str(lat_long3)
 
 points_num <- 100
-clean_lat_long_subset <-
+clean_lat_long_subset3 <-
   lat_long3 %>%
   clean_lat_long(points_num)
 
 n_map <-
-  clean_lat_long_subset %>%
+  clean_lat_long_subset3 %>%
   # mutate(point = paste(LATITUDE, LONGITUDE, TRIP_START_DAY_M)) %>%
   mutate(point = TRIP_START_DAY_M) %>%
   to_sf() %>%
   mapview(zcol = "point",
-          # col.regions = my_colors,
           col.regions = viridisLite::turbo,
           layer.name = 'Month',
           cex = "CATCH_CNT",
@@ -205,7 +127,7 @@ n_map <-
 
 n_map + m_g + m_s
 
-# --- with depth ----
+## with depth ----
 
 db_data %>% glimpse()
 
@@ -221,20 +143,16 @@ lat_long_dat_dep <-
     MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH
   ), na.rm = T)) %>%
   ungroup() %>%
-  mutate(AVG_DEPTH = coalesce(
-    AVG_BOTTOM_DEPTH,
-    FISHING_GEAR_DEPTH,
-    DEPTH
-    # ,
-    # AVG_DEPTH_IN_FATHOMS
-  )) %>%
-  # MINIMUM_BOTTOM_DEPTH,  MAXIMUM_BOTTOM_DEPTH,  AVG_DEPTH_IN_FATHOMS,  FISHING_GEAR_DEPTH,  DEPTH,
+  # choose the first not na
+  # gives the same result as AVG_BOTTOM_DEPTH
+  mutate(AVG_DEPTH = coalesce(AVG_BOTTOM_DEPTH,
+                              FISHING_GEAR_DEPTH,
+                              DEPTH)) %>%
+  # 0 instead of NA
   mutate(AVG_DEPTH = replace_na(AVG_DEPTH, 0))
 
-# %>%
-# str()
-
 points_num <- 1000
+
 clean_lat_long_subset <-
   lat_long_dat_dep %>%
   select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH) %>%
@@ -242,14 +160,23 @@ clean_lat_long_subset <-
 
 n_map <-
   clean_lat_long_subset %>%
+  # save info to show on the map
   mutate(POINT = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+  # convert to sf
+  # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
   to_sf() %>%
-  mapview(zcol = "TRIP_START_M",
-          col.regions = viridisLite::turbo,
-          layer.name = 'Month',
-          cex = "AVG_DEPTH",
-          alpha = 0.3,
-          legend = T)
+  mapview(
+    # colors
+    zcol = "TRIP_START_M",
+    # color palette
+    col.regions = viridisLite::turbo,
+    layer.name = 'Month',
+    # size
+    cex = "AVG_DEPTH",
+    # transparency
+    alpha = 0.3,
+    legend = TRUE
+  )
 
 n_map + m_g + m_s
 
