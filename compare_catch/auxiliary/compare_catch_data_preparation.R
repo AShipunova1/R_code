@@ -1,6 +1,6 @@
 ##| echo: false
 
-source("~/R_code_github/compare_catch/get_data.R")
+source("~/R_code_github/compare_catch/auxiliary/get_data.R")
 
 ## prepare FHIER data ----
 

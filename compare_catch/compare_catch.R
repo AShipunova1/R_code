@@ -23,7 +23,7 @@ source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 ##| echo: false
-source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
+source("~/R_code_github/compare_catch/auxiliary/compare_catch_data_preparation.R")
 
 ## All FHIER common names and itis in a separate data frame ----
 fhier_common_names <-
