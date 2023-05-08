@@ -24,6 +24,20 @@
 # ===
 data_overview(db_data)
 
+lat_long_to_map <- function(my_df, my_title) {
+  my_df %>%
+  # save info to show on the map
+  mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+  # convert to sf
+  # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
+  to_sf() %>%
+  mapview(
+    col.regions = viridisLite::turbo,
+    layer.name = my_title,
+    legend = TRUE
+  ) %>% return()
+}
+
 # 1) a sign ----
 ## positive_long ---- 
 positive_long <-
