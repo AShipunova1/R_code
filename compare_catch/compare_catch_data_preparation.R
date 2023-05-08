@@ -302,21 +302,21 @@ acl_estimate_2022 <-
   filter(year == "2022") %>%
   # filtering here for just SA (6) and Gulf (7) sub regions
   filter(sub_reg %in% c(6, 7)) %>%
+  # Exclude the SRHS survey according to Dominique and Mike May 1
+  filter(!(ds == "SRHS")) %>%
+  # select(new_mode) %>% unique()
+  # the "new_mode" column only has options 1,3 & 4 remaining
   # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
   # new_moden		alpha description of ‘new_mode’
-  filter(new_mode %in% c(2, 3, 5))  %>%
-  # Exclude the SRHS survey according to Dominique and Mike May 1
-  filter(!(ds == "SRHS"))
+  filter(new_mode %in% c(2, 3, 5))
 
 # View(acl_estimate)
-# dim(acl_estimate)
-# [1] 1442   67
-
 dim(acl_estimate)
+# [1] 1442   67
 # [1] 347379 67
 dim(acl_estimate_2022)
-# [1] 8332   67
+# 8332
 # 1442   
 # names(acl_estimate)
 
