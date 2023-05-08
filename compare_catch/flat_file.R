@@ -73,6 +73,13 @@ set_work_dir <- function() {
 my_paths <- set_work_dir()
 
 # auxilary functions ----
+# quick look at the data structure
+data_overview <- function(my_df) {
+  summary(my_df) %>% print()
+  cat("\nCount unique values in each column:")
+  count_uniq_by_column(my_df)
+}
+
 # trim vesselofficialnumber, there are 273 white spaces in Feb 2023
 trim_all_vessel_ids_simple <-
   function(csvs_clean_ws, col_name_to_trim = NA) {
