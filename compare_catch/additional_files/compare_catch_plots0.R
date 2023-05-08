@@ -632,8 +632,8 @@ grid.arrange(grobs = plots_acl_top_sa,
 
 # 3c) All FHIER spp ----
 # GOM
-fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  View()
+# fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+  # View()
 # SA
 
 ## plots by waves / states ----
