@@ -80,36 +80,30 @@ negative_lat_c_subset <-
   negative_lat %>%
   select(LATITUDE, LONGITUDE)
 
-lat_long_to_map <- function(my_df, my_title) {
-  my_df %>%
-  # save info to show on the map
-  mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
-  # convert to sf
-  # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
-  to_sf() %>%
-  mapview(
-    col.regions = viridisLite::turbo,
-    layer.name = my_title,
-    legend = TRUE
-  ) %>% return()
-}
+neg_lat_map <-
+  lat_long_to_map(negative_lat_c_subset, 'Negative latitude')
 
-# neg_lat_map <-
-  # negative_lat_c_subset %>%
-  # # save info to show on the map
-  # mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
-  # # convert to sf
-  # # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
-  # to_sf() %>%
-  # mapview(
-  #   col.regions = viridisLite::turbo,
-  #   layer.name = 'Negative latitude',
-  #   legend = TRUE
-  # )
-
-## numbers are off the chart
+## 3) outside boundaries ----
 coords_off_boundaries <-
   db_data %>%
   filter(!between(abs(LATITUDE), 23, 37) |
            !between(abs(LONGITUDE), 71, 98))
 
+coords_off_boundaries %>% 
+  count(LATITUDE, LONGITUDE) %>%
+  arrange(n) %>% tail() 
+     # LATITUDE LONGITUDE   n
+# 2253 38.61667 -74.48333 107
+# 2254 83.00000  27.00000 125
+# 2255 41.08637 -71.75213 140
+# 2256 87.00000  30.00000 217
+# 2257 39.81874 -74.07497 326
+# 2258 41.58291 -70.38649 410
+
+coords_off_boundaries %>% 
+  # dim()
+  # 11357    
+  select(LATITUDE, LONGITUDE) %>% unique() %>%
+  lat_long_to_map('coords_off_boundaries')
+
+## 2) on land ----
