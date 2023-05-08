@@ -39,6 +39,38 @@
 
       # ab1			type A + type B1 catch estimate (number of fish killed or kept)
 
+#general set up:
+#load required packages; or install first if necessary
+library(tidyverse) #Collection of packages (visualization, manipulation): ggplot2, dplyr, purrr, etc.
+library(readxl) # to read in XL files
+library(zoo) #converting dates
+library(magrittr) #for data piping (%<>% allows piping in both direction)
+
+# set working directories
+# then you can use it in the code like my_paths$input etc.
+
+set_work_dir <- function() {
+  setwd("~/")
+  base_dir <- getwd()
+  main_r_dir <- "R_files_local"
+
+  in_dir <- "my_inputs"
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+  out_dir <- "my_outputs"
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  git_r_dir <- "R_code_github"
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  setwd(file.path(base_dir, main_r_dir))
+
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
+  return(my_paths)
+}
+
+my_paths <- set_work_dir()
 
 # auxilary functions ----
 # trim vesselofficialnumber, there are 273 white spaces in Feb 2023
