@@ -45,6 +45,12 @@ library(tidyverse) #Collection of packages (visualization, manipulation): ggplot
 library(readxl) # to read in XL files
 library(zoo) #converting dates
 library(magrittr) #for data piping (%<>% allows piping in both direction)
+# to combine plots
+library(gridExtra)
+library(grid)
+# add color palettes
+library(viridis)
+
 
 # set working directories
 # then you can use it in the code like my_paths$input etc.
@@ -117,6 +123,30 @@ load_csv_names <- function(my_paths, csv_names_list) {
   return(contents)
 }
 
+# use fix_names on column names of my_df and assign the result back
+clean_headers <- function(my_df) {
+  colnames(my_df) %<>%
+    fix_names()
+  return(my_df)
+}
+
+# to use in a function,
+# e.g. read_csv(name_repair = fix_names)
+fix_names <- function(x) {
+  x %>%
+    # remove dots
+    str_replace_all("\\.", "") %>%
+    # all not letters and numbers to underscores
+    str_replace_all("[^A-z0-9]", "_") %>%
+    # letters only in the beginning
+    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
+    # tolower
+    my_headers_case_function()
+}
+
+# Use my function in case we want to change the case in all functions
+my_headers_case_function <- tolower
+
 # Load all data ----
 # ---- 1) SEFHIER data ----
 
@@ -134,6 +164,23 @@ load_all_logbooks <- function() {
 logbooks_content <- load_all_logbooks()
 
 # ---- 2) ACL (Annual Catch Limits surveys) (MRIP) ----
+load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
+  my_inputs <- my_paths$inputs
+
+  # add input directory path in front of each file name.
+  myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
+  ## read all files
+  contents <- map_df(myfiles,
+         ~read_excel(.x,
+                     sheet = sheet_n,
+                     # use my fix_names function for col names
+                     .name_repair = fix_names,
+                     guess_max = 21474836,
+                     # read all columns as text
+                     col_types = "text"))
+  return(contents)
+}
+
 load_acl_data <- function() {
   acl_dir_path <- "compare_catch/MRIP data"
   acl_csv_names_list_raw <- c(
@@ -160,4 +207,686 @@ acl_temp <- load_acl_data()
 acl_species_list <- acl_temp[[1]]
 acl_estimate <- acl_temp[[2]]
 
-# data_overview(acl_estimate)
+# data preparation ----
+## prepare FHIER data ----
+
+## get column names vars ----
+# There are different formats in different available files.
+# Find a column name with "itis" in it
+itis_field_name <- grep("itis", names(logbooks_content), value = T)
+# catch_species_itis
+
+# Same for "vessel.*official"
+vessel_id_field_name <-
+  grep("vessel.*official", names(logbooks_content), value = T)
+# vessel_official_nbr
+
+## Fix dates ----
+# Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
+change_to_dates <- function(my_df, field_name, date_format) {
+  my_df %>%
+    mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+    format = date_format)) %>%
+    return()
+}
+
+fhier_logbooks_content <-
+  logbooks_content %>%
+  # create a new column
+  mutate(trip_start_date_time =
+    # trip start: combine a date without time, a space and a time
+    paste(substr(trip_start_date, 1, 10),
+    trip_start_time)) %>%
+  # Same for the trip end
+  mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
+  # change the new column types to a date
+  change_to_dates("trip_start_date_time", "%Y-%m-%d %H%M") %>%
+  change_to_dates("trip_end_date_time", "%Y-%m-%d %H%M") %>%
+  # change the column type to a number
+  mutate(reported_quantity = as.integer(reported_quantity))
+
+# # view the result
+# fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
+
+fhier_logbooks_content_date_fixed_tmp <-
+  fhier_logbooks_content %>%
+  # if a "trip_end_date" is before 2020 - use "notif_trip_end_date" column instead
+  mutate(trip_end_date1 = ifelse(
+    trip_end_date < "2020-01-01",
+    notif_trip_end_date,
+    trip_end_date
+  ))
+
+fhier_logbooks_content_date_fixed <-
+  fhier_logbooks_content_date_fixed_tmp %>%
+  # manually change the wrong value
+  mutate(trip_end_date2 = ifelse(
+    # find it
+    grepl("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1),
+    # change it
+    "2022-10-16 01:00:00",
+    # don't change anything else
+    trip_end_date1
+  ))
+
+fhier_logbooks_content_date_fixed %<>%
+  filter(year(trip_end_date) == "2022")
+
+fhier_logbooks_content_waves <-
+  fhier_logbooks_content_date_fixed %>%
+  # add a new column with a trip end Month
+  mutate(end_month = as.yearmon(trip_end_date2)) %>%
+  # add a new column with a trip end Year
+  mutate(end_year =
+           year(trip_end_date2)) %>%
+  # add a new column with a number for each trip end Month
+  mutate(end_month_num = month(trip_end_date2)) %>%
+  # add a new column with a Wave
+  mutate(end_wave  = floor((end_month_num + 1) / 2))
+
+#| classes: test
+# test: show the new columns ----
+fhier_logbooks_content_waves %>%
+  select(end_month, end_year, end_month_num, end_wave) %>%
+  unique() %>%
+  # sort by end_month_num
+  arrange(end_month_num)
+
+# Florida counties by region (from the Internet) ----
+fl_counties <- list(
+  "SA" = c(
+    "Brevard",
+    "Broward",
+    "Duval",
+    "Flagler",
+    "Indian River",
+    "Martin",
+    "Miami-Dade",
+    "Nassau",
+    "Palm Beach",
+    "St. Johns",
+    "St. Lucie",
+    "Volusia"
+  ),
+  "GOM" = c(
+    "Bay",
+    "Charlotte",
+    "Citrus",
+    "Collier",
+    "Dixie",
+    "Escambia",
+    "Franklin",
+    "Gulf",
+    "Hernando",
+    "Hillsborough",
+    "Lee",
+    "Levy",
+    "Manatee",
+    "Monroe",
+    "Okaloosa",
+    "Pasco",
+    "Pinellas",
+    "Santa Rosa",
+    "Sarasota",
+    "Taylor",
+    "Wakulla",
+    "Walton"
+  )
+)
+
+fhier_logbooks_content_waves_fl_county <-
+  fhier_logbooks_content_waves %>%
+  # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
+  mutate(
+    end_port_fl_reg = case_when(
+      # check in the list
+      # if there is no end county, use the start
+      fix_names(start_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
+      fix_names(start_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
+      fix_names(end_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
+      fix_names(end_port_county) %in% fix_names(fl_counties$GOM) ~ "gom",
+      # if not on the list - keep it
+      .default = end_port_county
+    )
+  )
+
+## test: check regions ----
+fhier_logbooks_content_waves_fl_county %>%
+  # get FL only
+  filter(end_port_state == "FL") %>%
+  # sort by county
+  arrange(end_port_county) %>%
+  distinct() %>%
+  # data_overview()
+  # 37 counties
+  # vessel_official_number          1096
+  select(end_port_fl_reg) %>%
+    table()
+
+## states to regions ----
+# list of states in the South Atlantic region (from the Internet)
+states_sa <- data.frame(
+  state_name = c(
+    "Delaware",
+    "District of Columbia",
+    # "Florida", # exclude, we have it separated by county
+    "Georgia",
+    "Maryland",
+    "North Carolina",
+    "South Carolina",
+    "Virginia",
+    "West Virginia"
+  )
+)
+
+state_tbl <- data.frame(state.abb, tolower(state.name))
+names(state_tbl) = c("state_abb", "state_name")
+
+sa_state_abb <-
+  # a default R table
+  state_tbl %>%
+  # get only these in our list
+  filter(state_name %in% tolower(states_sa$state_name)) %>%
+  # get abbreviations
+  select(state_abb)
+
+fhier_logbooks_content_waves__sa_gom <-
+  fhier_logbooks_content_waves_fl_county %>%
+  # add a new column "end_port_sa_gom" with sa or gom for each state
+  # use fix_name aux function to unify state names (lower case, no spaces etc.)
+  mutate(end_port_sa_gom = case_when(
+    # if a name is in our SA list - "sa", otherwise - "gom"
+    fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
+    .default = "gom"
+  )) %>%
+  # go through the new column again
+  # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
+  # otherwise don't change
+  mutate(end_port_sa_gom = ifelse(
+    tolower(end_port_state) == "fl",
+    end_port_fl_reg,
+    end_port_sa_gom
+  )) %>%
+  # remove this column, we don't need it anymore
+  select(-end_port_fl_reg)
+
+## test: states and regions ----
+fhier_logbooks_content_waves__sa_gom %>%
+  # look at states and regions
+  select(end_port_state, end_port_sa_gom) %>%
+  unique() %>%
+  glimpse()
+
+# glimpse(fhier_logbooks_content_waves__sa_gom)
+
+## combine dolphin and dolphinfish for FHIER data ----
+fhier_logbooks_content_waves__sa_gom_dolph <-
+  fhier_logbooks_content_waves__sa_gom %>%
+  rename(common_name_orig = common_name) %>%
+  mutate(common_name = if_else(
+    tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
+    "DOLPHIN",
+    common_name_orig
+    )
+  )
+
+# glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
+
+### test: dolphins ----
+fhier_logbooks_content_waves__sa_gom_dolph %>%
+  filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
+  select(common_name_orig, common_name) %>% unique()
+# ---
+
+## calculate catch ----
+
+fhier_catch_by_species_state_region_waves <-
+  fhier_logbooks_content_waves__sa_gom_dolph %>%
+  # select only relevant columns
+  select(
+    catch_species_itis,
+    common_name,
+    end_port_state,
+    end_port_sa_gom,
+    end_year,
+    end_wave,
+    reported_quantity
+  ) %>%
+  # group by all of them but "reported_quantity"
+  group_by(
+    catch_species_itis,
+    common_name,
+    end_port_state,
+    end_port_sa_gom,
+    end_year,
+    end_wave
+  ) %>%
+  # save a sum of reported_quantity in each group in fhier_quantity_by_4
+  # remove NAs
+  summarise(fhier_quantity_by_4 = sum(as.integer(reported_quantity),
+                                      na.rm = TRUE)) %>%
+  as.data.frame()
+
+# data_overview(fhier_catch_by_species_state_region_waves)
+
+### test: cnts for 1 sp. ----
+test_species_itis <-
+  fhier_logbooks_content %>%
+  filter(tolower(common_name) == "mackerel, spanish") %>%
+  select(catch_species_itis) %>%
+  unique() %>%
+  # get a string, not a df
+  use_series(catch_species_itis)
+
+fhier_test_cnts <-
+  fhier_catch_by_species_state_region_waves %>%
+  # get the same species
+  filter(catch_species_itis == test_species_itis) %>%
+  # group by region
+  group_by(catch_species_itis, end_port_sa_gom) %>%
+  # sum the FHIER catch
+  summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
+  as.data.frame()
+
+## ACL sata preparations ----
+
+## ---- specifically for "O:\Fishery Data\ACL Data\"
+# from get_data.R
+acl_estimate %<>%
+  # using ab1 for catch counts
+  # convert to numbers
+  mutate(ab1 = as.integer(ab1))
+
+# str(acl_estimate)
+
+acl_estimate_2022 <-
+  acl_estimate %>%
+  filter(year == "2022") %>%
+  # filtering here for just SA (6) and Gulf (7) sub regions
+  filter(sub_reg %in% c(6, 7)) %>%
+  # Exclude the SRHS survey according to Dominique and Mike May 1
+  filter(!(ds == "SRHS")) %>%
+  # select(new_mode) %>% unique()
+  # the "new_mode" column only has options 1,3 & 4 remaining
+  # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
+  # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
+  # new_moden		alpha description of ‘new_mode’
+  filter(new_mode %in% c(2, 3, 5))
+
+# View(acl_estimate)
+dim(acl_estimate)
+# [1] 347379 67
+dim(acl_estimate_2022)
+# 1442
+
+acl_estimate_catch_by_species_state_region_waves <-
+  acl_estimate_2022 %>%
+  # select the relevant columns only
+  select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
+  # group by all except the counts
+  group_by(itis_code, new_sta, sub_reg, year, wave) %>%
+  # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
+  # remove NAs
+  summarise(acl_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
+  # back to an ungrouped form
+  as.data.frame()
+
+# glimpse(acl_estimate_catch_by_species_state_region_waves)
+# 'data.frame':	878 obs. of  6 variables
+
+# "year" and "wave" to numbers
+acl_estimate_catch_by_species_state_region_waves1 <-
+  acl_estimate_catch_by_species_state_region_waves %>%
+  mutate(year = as.double(year)) %>%
+  mutate(wave = as.double(wave))
+
+acl_estimate_catch_by_species_state_region_waves <-
+  acl_estimate_catch_by_species_state_region_waves1 %>%
+  # change a 6 to "sa" and a 7 "gom", leave everything else in place
+  mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
+                            sub_reg == "7" ~ "gom",
+                            .default = sub_reg),
+                            # put the new column after sub_reg (by default at the end)
+                            .after = sub_reg) %>%
+  # drop sub_reg
+  select(-sub_reg)
+
+### make a test acl one sp. var ----
+# names(acl_estimate_catch_by_species_state_region_waves)
+acl_test_cnts <-
+  acl_estimate_catch_by_species_state_region_waves %>%
+  # get one species
+  filter(itis_code == test_species_itis) %>%
+  # group by region
+  group_by(itis_code, sa_gom) %>%
+  # sum the ACL catch
+  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
+  as.data.frame()
+
+## rename fields ----
+
+# common field names
+wave_data_names_common <- c("species_itis",
+                     "state",
+                     "sa_gom",
+                     "year",
+                     "wave"
+                    )
+
+# to be sure columns are in the same order
+names(acl_estimate_catch_by_species_state_region_waves)
+
+acl_names <- c("itis_code",
+                "new_sta",
+                "sa_gom",
+                "year",
+                "wave",
+                "acl_estimate_catch_by_4"
+)
+
+acl_estimate_catch_by_species_state_region_waves %<>%
+  rename_at(vars(acl_names[1:2]),
+            function(x) wave_data_names_common[1:2])
+
+fhier_names <- c(
+  "catch_species_itis",
+  "common_name",
+  "end_port_state",
+  "end_port_sa_gom",
+  "end_year",
+  "end_wave",
+  "fhier_quantity_by_4")
+
+# names(fhier_catch_by_species_state_region_waves)
+fhier_catch_by_species_state_region_waves %<>%
+  rename_at(vars(fhier_names[c(1, 3:6)]),
+            function(x) wave_data_names_common[1:5])
+
+### rename fields in the test variables ----
+names(fhier_test_cnts) <- c("species_itis", "sa_gom", "mackerel_fhier_cnt")
+
+# was: "catch_species_itis" "end_port_sa_gom"    "mackerel_fhier_cnt"
+# names(acl_test_cnts)
+
+### test: rename fields ----
+names(fhier_catch_by_species_state_region_waves)
+names(acl_estimate_catch_by_species_state_region_waves)
+identical(names(fhier_catch_by_species_state_region_waves)[c(1, 3:6)],
+          names(acl_estimate_catch_by_species_state_region_waves)[1:5])
+# TRUE
+
+## All FHIER common names and itis in a separate data frame ----
+fhier_common_names <-
+  fhier_logbooks_content %>%
+  # names()
+  select(catch_species_itis, common_name) %>%
+  unique()
+
+# add column names
+names(fhier_common_names) <- c("species_itis", "common_name")
+
+## Join Fhier and ACL ----
+fhier_acl_catch_by_species_state_region_waves <-
+  full_join(
+    fhier_catch_by_species_state_region_waves,
+    acl_estimate_catch_by_species_state_region_waves,
+    by = join_by(species_itis, state, sa_gom, year, wave)
+  )
+
+## Change NA counts to 0 ----
+# change NAs to 0 where one or another agency doesn't have counts for this species
+fhier_acl_catch_by_species_state_region_waves %<>%
+  mutate(
+    fhier_quantity_by_4 =
+      replace_na(fhier_quantity_by_4, 0),
+    acl_estimate_catch_by_4 =
+      replace_na(acl_estimate_catch_by_4, 0)
+  )
+
+### test join ----
+# look at the first 20 entries for mackerel spanish
+fhier_acl_catch_by_species_state_region_waves %>%
+  filter(species_itis == test_species_itis) %>% head(20)
+
+### test one sp in MRIP ----
+
+#| classes: test
+#### compare the saved numbers with those in the join, they should be the same ----
+# names(fhier_acl_catch_by_species_state_region_waves)
+fhier_acl_catch_by_species_state_region_waves %>%
+  filter(species_itis == test_species_itis) %>%
+  group_by(species_itis, sa_gom) %>%
+  summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
+  use_series(mackerel_fhier_cnt) %>%
+  identical(fhier_test_cnts$mackerel_fhier_cnt)
+
+# acl_test_cnts
+# fhier_test_cnts
+
+fhier_acl_catch_by_species_state_region_waves %>%
+  filter(species_itis == test_species_itis) %>%
+  group_by(species_itis, sa_gom) %>%
+  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
+  use_series(mackerel_acl_cnt) %>%
+  identical(acl_test_cnts$mackerel_acl_cnt)
+
+# grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
+
+## 1a) SEDAR spp. lists ----
+# DOLPHINFISH and DOLPHIN are combined
+# CEDAR spp List by Michelle
+sa_top <- c(
+  "BASS, BLACK SEA",
+  "DOLPHIN",
+  "GROUPER, BLACK",
+  "GROUPER, GAG",
+  "GROUPER, RED",
+  "GROUPER, SCAMP",
+  "MACKEREL, SPANISH",
+  "SNAPPER, RED",
+  "TRIGGERFISH, GRAY"
+)
+
+sa_top_spp <-
+  fhier_common_names %>%
+  filter(common_name %in% sa_top)
+
+# View(sa_top)
+# intersect(sa_top, fhier_common_names$common_name)
+# CEDAR spp List by Michelle
+gom_top <- c(
+  "AMBERJACK, GREATER",
+  "COBIA",
+  "GROUPER, BLACK",
+  "GROUPER, GAG",
+  "GROUPER, RED",
+  "GROUPER, SCAMP",
+  "MACKEREL, KING",
+  "MACKEREL, SPANISH",
+  "SNAPPER, GRAY",
+  "SNAPPER, RED",
+  "TRIGGERFISH, GRAY"
+)
+
+gom_top_spp <-
+  fhier_common_names %>%
+  filter(common_name %in% gom_top)
+
+glimpse(gom_top_spp)
+
+## an aux function to use only a wave from year_wave
+use_wave <- function(my_df) {
+  my_df %>%
+    # split the column
+    separate_wider_delim(year_wave,
+                         delim = "_",
+                         names = c("year", "wave")) %>%
+    select(-year) %>%
+    return()
+}
+
+glimpse(fhier_acl_catch_by_species_state_region_waves)
+# Rows: 6,327
+# Columns: 7
+# Rows: 5,728
+
+#| warning: false
+## Separate data frames by region ----
+fhier_acl_catch_by_species_state_region_waves_list <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  # split by sa_gom column
+  split(as.factor(fhier_acl_catch_by_species_state_region_waves$sa_gom)) %>%
+  # remove extra columns in each df
+  map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
+
+glimpse(fhier_acl_catch_by_species_state_region_waves_list)
+
+## 2b) Top 12 ACL spp. ----
+### GOM Top 12 ACL spp. ----
+gom_acl_top_spp <-
+  acl_estimate_catch_by_species_state_region_waves %>%
+  filter(sa_gom == "gom") %>%
+  select(species_itis, acl_estimate_catch_by_4) %>%
+  group_by(species_itis) %>%
+  summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
+  # sort
+  arrange(desc(acl_count)) %>%
+  head(12)
+
+gom_acl_top_common_names <-
+  fhier_common_names %>%
+  # keep the subset only
+  filter(species_itis %in% gom_acl_top_spp$species_itis)
+
+### SA Top 10 ACL spp. ----
+sa_acl_top_spp <-
+  acl_estimate_catch_by_species_state_region_waves %>%
+  filter(sa_gom == "sa") %>%
+  select(species_itis, acl_estimate_catch_by_4) %>%
+  group_by(species_itis) %>%
+  # sum the counts by species
+  summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
+  # sort
+  arrange(desc(acl_count)) %>%
+  head(12)
+# head(14) 12 fits better in one plot
+
+sa_acl_top_common_names <-
+  fhier_common_names %>%
+  # keep the subset only
+  filter(species_itis %in% sa_acl_top_spp$species_itis)
+
+# 2) Data By wave and state ----
+# str(fhier_catch_by_species_state_region_waves)
+# str(acl_estimate_catch_by_species_state_region_waves)
+# fhier_acl_catch_by_species_state_region_waves - has only common species
+
+## split by state ----
+fhier_acl_catch_by_species_state_region_waves_states_list <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
+  # remove extra columns in each df
+  map(.f = list(. %>% dplyr::select(-"state")))
+
+names(fhier_acl_catch_by_species_state_region_waves_states_list[[2]])
+
+# 3) Data By year and region ----
+names(fhier_acl_catch_by_species_state_region_waves)
+
+fhier_acl_catch_by_species_region_year <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  select(-c(state, wave, year)) %>%
+  # select(species_itis,
+  #        common_name,
+  #        sa_gom,
+  #        fhier_quantity_by_4,
+  #        acl_estimate_catch_by_4) %>%
+  group_by(species_itis,
+         common_name,
+         sa_gom) %>%
+  summarise(
+    fhier_cnts_by_year_reg = sum(fhier_quantity_by_4),
+    rec_acl_cnts_by_year_reg = sum(acl_estimate_catch_by_4)
+  ) %>%
+  ungroup()
+  
+## split by sa_gom ----
+fhier_acl_catch_by_species_region_year_list <-
+  fhier_acl_catch_by_species_region_year %>%
+  ungroup %>%
+  split(as.factor(fhier_acl_catch_by_species_region_year$sa_gom)) %>%
+  # remove extra columns in each df
+  map(.f = list(. %>% dplyr::select(-"sa_gom")))
+
+# test 167760 GROUPER, BLACK ----
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  filter(species_itis == '167760') %>%
+  glimpse()
+# gom
+# fhier_cnts_by_year_reg   <int> 2016
+# rec_acl_cnts_by_year_reg <int> 1808
+# sa
+# fhier_cnts_by_year_reg   <int> 140
+# rec_acl_cnts_by_year_reg <int> 262
+
+acl_estimate_2022 %>%
+  filter(itis_code == '167760') %>%
+  group_by(itis_code, new_moden, year, sub_reg) %>%
+  summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
+  # 2070
+  # correct (262 + 1808)
+
+
+# 4) Data By year and state ----
+
+fhier_acl_catch_by_species_state_year <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  select(species_itis,
+         common_name,
+         state,
+         fhier_quantity_by_4,
+         acl_estimate_catch_by_4) %>%
+  group_by(species_itis,
+         common_name,
+         state) %>%
+  mutate(
+    fhier_sum_cnts = sum(fhier_quantity_by_4),
+    rec_acl_sum_cnts = sum(acl_estimate_catch_by_4)
+  ) %>%
+  select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
+  unique()
+
+## split by state ----
+fhier_acl_catch_by_species_state_year_list <-
+  fhier_acl_catch_by_species_state_year %>%
+  ungroup %>%
+  split(as.factor(fhier_acl_catch_by_species_state_year$state)) %>%
+  # remove extra columns in each df
+  map(.f = list(. %>% dplyr::select(-"state")))
+
+state_year_has_rec_acl_data_list <- fhier_acl_catch_by_species_state_year_list
+# str(state_year_has_rec_acl_data_list)
+
+my_st_names <- names(state_year_has_rec_acl_data_list)
+
+for (i in 1:length(my_st_names)) {
+  # browser()
+  state_abbr <- my_st_names[[i]]
+  if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_sum_cnts) > 0) {
+    state_year_has_rec_acl_data_list_new[state_abbr] <- state_year_has_rec_acl_data_list[state_abbr]
+  }
+}
+View(state_year_has_rec_acl_data_list_new)
+
+state_year_has_rec_acl_data_list_new <-
+  names(state_year_has_rec_acl_data_list) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_sum_cnts) > 0) {
+      state_year_has_rec_acl_data_list_new[state_abbr] = state_year_has_rec_acl_data_list[state_abbr]
+      
+    }
+  })
+
+View(state_year_has_rec_acl_data_list_new)
