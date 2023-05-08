@@ -164,8 +164,10 @@ st_crs(gom_shp)
 #   User input: NAD83
     # ID["EPSG",4269]]
 
-
-
+identical(st_crs(sa_shp),
+st_crs(gom_shp)
+)
+# TRUE
 # m_s@map$x$options$crs
 # $crsClass
 # [1] "L.CRS.EPSG3857"
@@ -197,3 +199,19 @@ minus_sa <- st_difference(corrected_data_sf, sa_shp)
 # attribute variables are assumed to be spatially constant throughout all geometries 
 
 mapview(minus_sa)
+
+# minus_sa_gom <- st_difference(gom_shp, minus_sa)
+# Error in wk_handle.wk_wkb(wkb, s2_geography_writer(oriented = oriented,  : 
+#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
+
+sf_use_s2(FALSE)
+# Spherical geometry (s2) switched off
+
+minus_gom <- st_difference(corrected_data_sf, gom_shp)
+# although coordinates are longitude/latitude, st_difference
+# assumes that they are planar
+# in_gom <- st_intersection(corrected_data_sf, gom_shp)
+
+minus_sa_gom <- st_difference(gom_shp, minus_sa)
+
+# p <- poly2nb(st_make_valid(shp))
