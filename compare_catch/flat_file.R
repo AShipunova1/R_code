@@ -100,6 +100,17 @@ clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
   return(csvs_clean1)
 }
 
+load_csv_names <- function(my_paths, csv_names_list) {
+  my_inputs <- my_paths$inputs
+  # add input directory path in front of each file name.
+  myfiles <- lapply(csv_names_list, function(x) file.path(my_inputs, x))
+  # read all csv files
+  contents <- lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
+
+  return(contents)
+}
+
+# Load all data ----
 # ---- 1) SEFHIER data ----
 
 load_all_logbooks <- function() {
