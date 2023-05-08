@@ -107,3 +107,27 @@ coords_off_boundaries %>%
   lat_long_to_map('coords_off_boundaries')
 
 ## 2) on land ----
+corrected_data <-
+  db_data %>%
+  unique() %>%
+  # all LONG should be negative
+  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  # remove wrong coords
+  filter(between(LATITUDE, 23, 28) &
+           between(LONGITUDE,-98,-71)) %>%
+  # remove all entries with missing coords
+  filter(complete.cases(.))
+
+corrected_data_map <- to_sf(corrected_data) %>% mapview()
+View(corrected_data_map)
+11998
+
+# shape files maps ----
+m_s <- mapview(sa_shp,
+               layer.name = "South Altlantic",
+               legend = FALSE)
+m_g <- mapview(gom_shp,
+               layer.name = "Gulf of Mexico",
+               legend = FALSE)
+
+corrected_data_sf
