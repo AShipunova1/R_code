@@ -122,8 +122,8 @@ corrected_data <-
   filter(complete.cases(.))
 
 corrected_data_sf <- to_sf(corrected_data) 
-corrected_data_map <- corrected_data_sf %>% mapview()
-View(corrected_data_map)
+# corrected_data_map <- corrected_data_sf %>% mapview()
+# View(corrected_data_map)
 # 11998
 
 # shape files maps ----
@@ -134,7 +134,6 @@ m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
 
-minus_map <- st_intersection(corrected_data_sf, m_s)
 st_crs(m_s)
 # Coordinate Reference System: NA
 st_crs(corrected_data_sf)
@@ -182,3 +181,19 @@ st_crs(gom_shp)
 #                layer.name = "Gulf of Mexico",
 #                legend = FALSE)
 
+in_sa <- st_intersection(corrected_data_sf, sa_shp)
+# attribute variables are assumed to be spatially constant throughout all geometries 
+
+# st_crs(corrected_data_sf)
+# st_crs(sa_shp)
+
+mapview(minus_map)
+# subset
+mapview(corrected_data_sf[sa_shp, ])
+# lat_lon_data[shapefile_data, ]
+
+minus_sa <- st_difference(corrected_data_sf, sa_shp)
+# Warning message:
+# attribute variables are assumed to be spatially constant throughout all geometries 
+
+mapview(minus_sa)
