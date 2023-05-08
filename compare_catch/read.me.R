@@ -1,5 +1,9 @@
-# To prepare FHIER and MRIP data
-# 1) change directories in the source code (twice).
+# There is a main file "compare_catch.R" and all auxiliary files are called ("sourced") from it.
+
+# The most recent version of the code always is in https://github.com/AShipunova1/R_code/tree/main/compare_catch
+
+# To prepare FHIER and MRIP data separately from running the analytics code
+# 1) change directories in the source code to your path (in two "source" lines).
 # 1) have useful_functions_module.r in the working directory
 # 2) a) run the compare_catch_data_preparation.R
   # Or b) source "compare_catch.R"
