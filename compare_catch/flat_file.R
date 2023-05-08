@@ -1,11 +1,44 @@
-# get data for compare catch
+#----General Notes on how code works ----
 
-# see read.me.R
-# SEFHIER data
+# Input data
+# (1) SEFHIER data
 # "FHIER_all_logbook_data.csv"
 
-# MRIP
-# "O:\Fishery Data\ACL Data\FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01Mar23\MRIP_FES_rec81_22wv6_01Mar23w2014to2021LACreel.xlsx"
+  # (2) MRIP : "O:\Fishery Data\ACL Data\FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01Mar23\MRIP_FES_rec81_22wv6_01Mar23w2014to2021LACreel.xlsx"
+        # 2022 only: local mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel_2022.xlsx
+
+      ## MRIP data: field background info ----
+      # landing	Total Harvest (A+B1)	The total number of fish removed from the fishery resource.  May be obtained by summing catch types A (CLAIM) and B1 (HARVEST).
+      # tot_cat	Total Catch (A+B1+B2)	The number of fish caught but not necessarily brought ashore.  May be obtained by summing catch types A (CLAIM), B1 (HARVEST), and B2 (RELEASE).
+
+      # sp_code	Species = ITIS_CODE (SA or GOM_LABEL has common name)
+
+      # sub_reg	Region	" Subregion code for region of trip
+      # 4   = North Atlantic (ME; NH; MA; RI; CT)
+      # 5   = Mid-Atlantic (NY; NJ; DE; MD; VA)
+      # 6   = South Atlantic (NC; SC; GA; EFL)
+      # 7   = Gulf of Mexico (WFL; AL; MS; LA; TX)
+      #SRHS: 6=Atlantic (NC-FL Keys areas 1-17), 7=Gulf of Mexico (Dry Tortugas-TX areas 18-29)
+      #TPWD and LA CREEL: 7=Gulf of Mexico
+      # 8   = West Pacific (HI)
+      # 11 = U. S. Caribbean (Puerto Rico and Virgin Islands"
+
+      # Use all
+      # area_x	Fishing Area	" Collapsed area of fishing
+      # 1 = Ocean <= 3 mi (all but WFL)
+      # 2 = Ocean > 3 mi (all but WFL)
+      # 3 = Ocean <= 10 mi (WFL only)
+      # 4 = Ocean > 10 mi (WFL only)
+      # 5 = Inland"	CHAR
+
+      # Use DS column to filter out SRHS (headboat)
+
+      # Use "new mode" column to filter out private and shore modes (private = rec;
+      #            shore mode = private rec fishing from shore)
+      # # new_mode = recorded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
+
+      # ab1			type A + type B1 catch estimate (number of fish killed or kept)
+
 
 # auxilary functions ----
 # trim vesselofficialnumber, there are 273 white spaces in Feb 2023
