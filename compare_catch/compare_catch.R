@@ -11,18 +11,19 @@
 # 4) By year and state
 # ---
 
-##| echo: false
 library(zoo)
 library(gridExtra)
 library(grid)
-# install.packages("viridis")
 library(viridis)
 
 ## include auxilary functions ----
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
-##| echo: false
+# set path for auxiliary functions to be used through main code
+# and then whenever you call a function from that "sourced" file, be sure to have a note to that same effect: #calling function from auxiliary file
+
+
 source("~/R_code_github/compare_catch/auxiliary/compare_catch_data_preparation.R")
 
 ## All FHIER common names and itis in a separate data frame ----

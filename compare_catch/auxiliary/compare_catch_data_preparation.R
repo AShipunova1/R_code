@@ -18,7 +18,7 @@ vessel_id_field_name <-
 ## Fix dates ----
 
 fhier_logbooks_content <-
-  logbooks_content  %>%
+  logbooks_content %>%
   # create a new column
   mutate(trip_start_date_time =
     # trip start: combine a date without time, a space and a time
