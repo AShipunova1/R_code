@@ -4,8 +4,9 @@
 # lat 23 : 36
 # lon -71 : -98
 
-library(ROracle)
-library(zoo)
+library(ROracle) 
+library(zoo) #date manipulations
+# maps
 library(sf)
 library(mapview)
 library(leaflet)
@@ -24,13 +25,14 @@ a <- db_data %>%
 # 5                   <NA>   2455
 sum(a$n)
 # 306261
+# 253941
 
 lat_long <- db_data %>%
   select(LATITUDE, LONGITUDE, TRIP_START_DATE)
 
-plot(sa_shp)
-plot(gom_shp)
-str(sa_shp)
+# plot(sa_shp)
+# plot(gom_shp)
+# str(sa_shp)
 
 plot(sa_shp$geometry)
 
@@ -40,9 +42,10 @@ lat_long_sf <-
     st_as_sf(coords = c("LONGITUDE",
                         "LATITUDE"),
              crs = 4326)
-str(lat_long_sf)
-plot(lat_long_sf)
-plot(lat_long_sf$geometry)
+
+# str(lat_long_sf)
+# plot(lat_long_sf)
+# plot(lat_long_sf$geometry)
 
 # shape files maps ----
 m_s <- mapview(sa_shp,
@@ -65,7 +68,7 @@ clean_lat_long <- function(my_lat_long_df, my_limit) {
     # remove wrong coords
     filter(between(LATITUDE, 23, 28) &
              between(LONGITUDE, -98, -71)) %>%
-    # remove all entryes with missing coords
+    # remove all entries with missing coords
     filter(complete.cases(.)) %>%
     return()
 }
@@ -80,23 +83,22 @@ to_sf <- function(my_df) {
 
 # --- with labels ----
 
-my_colors <-
-  # number of colors = number of unique points
-  viridisLite::turbo(n = dim(clean_lat_long_subset)[1],
-                     # reverse direction
-                     direction = -1)
+# my_colors <-
+#   # number of colors = number of unique points
+#   viridisLite::turbo(n = dim(clean_lat_long_subset)[1],
+#                      # reverse direction
+#                      direction = -1)
 
-n_map <-
-  clean_lat_long_subset %>%
-  mutate(point = paste(LATITUDE, LONGITUDE)) %>%
-  to_sf() %>%
-  mapview(zcol = "point",
-          # col.regions = my_colors,
-          col.regions = viridisLite::turbo,
-          legend = FALSE)
+# n_map <-
+#   clean_lat_long_subset %>%
+#   mutate(point = paste(LATITUDE, LONGITUDE)) %>%
+#   to_sf() %>%
+#   mapview(zcol = "point",
+#           # col.regions = my_colors,
+#           col.regions = viridisLite::turbo,
+#           legend = FALSE)
 
-### show my map + shape files ----
-n_map + m_g + m_s
+# n_map + m_g + m_s
 
 # --- with dates ----
 # View(db_data)
@@ -125,6 +127,7 @@ n_map <-
           alpha = 0.3,
           legend = T)
 
+### show my map + shape files ----
 n_map + m_g + m_s
 
 ## with depth ----
