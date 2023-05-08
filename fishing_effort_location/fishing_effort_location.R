@@ -55,6 +55,29 @@ m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
 
+g_d <- mapview(gom_depth_shp,
+               layer.name = "Gulf of Mexico depth",
+               legend = TRUE)
+
+g_d_5_100 <- mapview(gom_depth_shp5_100,
+               layer.name = "Depth 5-100 m",
+               color = "yellow",
+               # col.regions = list("red", "green"),
+               legend = TRUE)
+
+
+g_d_100_1000 <- mapview(gom_depth_shp100_1000,
+               layer.name = "Depth 100-1000 m",
+               color = "lightgreen",
+               # col.regions = list("red", "green"),
+               legend = TRUE)
+
+g_d_500_4000 <- mapview(gom_depth_shp500_4000,
+               layer.name = "Depth 500-4000 m",
+               color = "darkgreen",
+               legend = TRUE)
+
+  
 # OK boundaries ----
 # lat 23 : 28
 # lon -71 : -98
@@ -110,7 +133,7 @@ lat_long3 <- db_data %>%
 
 # str(lat_long3)
 
-points_num <- 100
+points_num <- 3000
 clean_lat_long_subset3 <-
   lat_long3 %>%
   clean_lat_long(points_num)
@@ -132,7 +155,7 @@ n_map + m_g + m_s
 
 ## with depth ----
 
-db_data %>% glimpse()
+# db_data %>% glimpse()
 
 lat_long_dat_dep <-
   db_data %>%
@@ -164,7 +187,7 @@ clean_lat_long_subset <-
 n_map <-
   clean_lat_long_subset %>%
   # save info to show on the map
-  mutate(POINT = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+  mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
   # convert to sf
   # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
   to_sf() %>%
@@ -182,6 +205,8 @@ n_map <-
   )
 
 n_map + m_g + m_s
+# with depth lines
+n_map + m_g + m_s + g_d_5_100 + g_d_100_1000 + g_d_500_4000
 
 # for quarters ----
 
@@ -278,6 +303,7 @@ map(lat_long_dat_dep_q_list,
 # [1] 8950    2
 
 # View(lat_long_dat_dep_q)
+# check depth ----
 lat_long_dat_dep_q %>% 
  filter(!(AVG_BOTTOM_DEPTH == AVG_DEPTH)) %>% dim()
 # 0

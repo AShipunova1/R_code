@@ -54,3 +54,15 @@ read_shapefile <- function(filename) {
 }
 sa_shp <- read_shapefile("osa_n_gom/SA_EEZ_off_states.shp")
 gom_shp <- read_shapefile("osa_n_gom/ReefFish_EFH_GOM.shp")
+
+gom_depth_shp <- read_shapefile("w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
+plot(gom_depth_shp)
+
+gom_depth_shp5_100 <- read_shapefile("w98e78n31s18_isobath_5-100m/w98e78n31s18_isobath_5-100m.shp")
+plot(gom_depth_shp5_100)
+
+gom_depth_shp100_1000 <- read_shapefile("w98e78n31s18_isobath_100-1000m/w98e78n31s18_isobath_100-1000m.shp")
+# plot(gom_depth_shp100_1000)
+
+gom_depth_shp500_4000 <- read_shapefile("w98e78n31s18_isobath_500-4000m/w98e78n31s18_isobath_500-4000m.shp")
+
