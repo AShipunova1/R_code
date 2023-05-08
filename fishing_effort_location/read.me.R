@@ -1,3 +1,5 @@
+# https://github.com/AShipunova1/R_code/tree/main/fishing_effort_location
+
 # All of 2022 would work for us
 
 # Trips filtered to charter trips only.
