@@ -8,6 +8,24 @@
 # "O:\Fishery Data\ACL Data\FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01Mar23\MRIP_FES_rec81_22wv6_01Mar23w2014to2021LACreel.xlsx"
 
 # auxilary functions ----
+# trim vesselofficialnumber, there are 273 white spaces in Feb 2023
+trim_all_vessel_ids_simple <-
+  function(csvs_clean_ws, col_name_to_trim = NA) {
+    csvs_clean <- lapply(csvs_clean_ws, function(x) {
+      if (is.na(col_name_to_trim)) {
+        col_name_to_trim <- grep("vessel.*official.*number",
+                                 tolower(names(x)),
+                                 value = T)
+      }
+      col_name_to_trim_s <- sym(col_name_to_trim)
+      # Hard code vessel_official_number as vessel id
+      x %>%
+        mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+        return()
+    })
+    return(csvs_clean)
+  }
+
 # cleaning, regularly done for csvs downloaded from PHIER
 clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
   # unify headers
@@ -17,14 +35,13 @@ clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
   return(csvs_clean1)
 }
 
-
-
 # ---- 1) SEFHIER data ----
 
 load_all_logbooks <- function() {
   species_count_csv_names_list_lb = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
   fhier_all_logbook_data <- load_csv_names(my_paths, species_count_csv_names_list_lb)
   logbooks_content <-
+    # see an aux function above
     clean_all_csvs(fhier_all_logbook_data,
                    vessel_id_field_name = "vessel_official_nbr")
 
