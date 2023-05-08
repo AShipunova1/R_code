@@ -96,11 +96,19 @@ clean_lat_long <- function(my_lat_long_df, my_limit) {
     return()
 }
 
+# to_sf <- function(my_df) {
+#   my_df %>%
+#     st_as_sf(coords = c("LONGITUDE",
+#                         "LATITUDE"),
+#              crs = 4326) %>%
+#     return()
+# }
+
 to_sf <- function(my_df) {
   my_df %>%
     st_as_sf(coords = c("LONGITUDE",
                         "LATITUDE"),
-             crs = 4326) %>%
+             crs = st_crs(sa_shp)) %>%
     return()
 }
 
@@ -133,7 +141,7 @@ lat_long3 <- db_data %>%
 
 # str(lat_long3)
 
-points_num <- 3000
+points_num <- 1000
 clean_lat_long_subset3 <-
   lat_long3 %>%
   clean_lat_long(points_num)

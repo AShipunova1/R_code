@@ -1,3 +1,4 @@
+library(sp)
 # errors in geo data ----
 # 1) a sign
 # 2) on land
@@ -26,16 +27,18 @@ data_overview(db_data)
 
 lat_long_to_map <- function(my_df, my_title) {
   my_df %>%
-  # save info to show on the map
-  mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
-  # convert to sf
-  # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
-  to_sf() %>%
-  mapview(
-    col.regions = viridisLite::turbo,
-    layer.name = my_title,
-    legend = TRUE
-  ) %>% return()
+    # save info to show on the map
+    mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+    # convert to sf
+    # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
+    st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+             crs = st_crs(sa_shp)) %>%
+    mapview(
+      col.regions = viridisLite::turbo,
+      layer.name = my_title,
+      legend = TRUE
+    ) %>% return()
 }
 
 # 1) a sign ----
@@ -118,7 +121,8 @@ corrected_data <-
   # remove all entries with missing coords
   filter(complete.cases(.))
 
-corrected_data_map <- to_sf(corrected_data) %>% mapview()
+corrected_data_sf <- to_sf(corrected_data) 
+corrected_data_map <- corrected_data_sf %>% mapview()
 View(corrected_data_map)
 # 11998
 
@@ -145,4 +149,36 @@ st_crs(corrected_data_sf)
 #   can only subtract numbers from "POSIXt" objects
 
 
+# st_crs(m_s)
+# Coordinate Reference System: NA
+st_crs(corrected_data_sf)
+# Coordinate Reference System:
+#   User input: EPSG:4326 
+
+# municipalities_31370 <- st_transform(municipalities, "EPSG:31370")
+# sa_shp_4326 <- st_transform(sa_shp, "EPSG:4326")
+# m_s <- CRS("+init=epsg:4326")
+View(sa_shp_4326)
+st_crs(sa_shp)
+st_crs(gom_shp)
+# Coordinate Reference System:
+#   User input: NAD83
+    # ID["EPSG",4269]]
+
+
+
+# m_s@map$x$options$crs
+# $crsClass
+# [1] "L.CRS.EPSG3857"
+
+# proj4string(m_s)
+
+# read_sf 
+
+# m_s <- mapview(sa_shp,
+#                layer.name = "South Altlantic",
+#                legend = FALSE)
+# m_g <- mapview(gom_shp,
+#                layer.name = "Gulf of Mexico",
+#                legend = FALSE)
 
