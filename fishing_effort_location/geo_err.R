@@ -120,7 +120,7 @@ corrected_data <-
 
 corrected_data_map <- to_sf(corrected_data) %>% mapview()
 View(corrected_data_map)
-11998
+# 11998
 
 # shape files maps ----
 m_s <- mapview(sa_shp,
@@ -130,4 +130,19 @@ m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
 
-corrected_data_sf
+minus_map <- st_intersection(corrected_data_sf, m_s)
+st_crs(m_s)
+# Coordinate Reference System: NA
+st_crs(corrected_data_sf)
+# Coordinate Reference System:
+#   User input: EPSG:4326 
+#   wkt:
+# ...
+  # st_crs(x) == st_crs(y) is not TRUE
+
+  # corrected_data_sf - m_s - m_g
+# Error in `-.POSIXt`(left, right) : 
+#   can only subtract numbers from "POSIXt" objects
+
+
+
