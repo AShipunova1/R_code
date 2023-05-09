@@ -240,5 +240,17 @@ corrected_data_short_minus_union_shp <-
 # although coordinates are longitude/latitude, st_difference
 # assumes that they are planar
 
+# write_csv(corrected_data_short_minus_union_shp, "short_minus_sa_gom.csv")
 
-write_csv(corrected_data_short_minus_union_shp, "fishing_effort_location/short_minus_sa_gom.csv")
+
+m_minus <- mapview(corrected_data_short_minus_union_shp, color = "green")
+# View(corrected_data_short_minus_union_shp)
+
+m_minus + mapview(union_shp)
+
+# minus sa again? ----
+
+all_minus_sa <-
+  st_difference(corrected_data_short_minus_union_shp, sa_shp)
+
+
