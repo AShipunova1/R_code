@@ -666,7 +666,6 @@ names(fhier_test_cnts) <-
   c("species_itis", "sa_gom", "mackerel_fhier_cnt")
 
 # was: "catch_species_itis" "end_port_sa_gom"    "mackerel_fhier_cnt"
-# names(acl_test_cnts)
 
 ### test: rename fields ----
 names(fhier_catch_by_species_state_region_waves)
@@ -689,14 +688,16 @@ names(fhier_common_names) <- c("species_itis", "common_name")
 
 ## Join Fhier and ACL ----
 fhier_acl_catch_by_species_state_region_waves <-
+  # use a "full" join to keep entries from each df even if there is no counterpart in another one
   full_join(
     fhier_catch_by_species_state_region_waves,
     acl_estimate_catch_by_species_state_region_waves,
+    # have to specify columns to join by, because some other columns might have the same name, but different meaning, e.g common_name
     by = join_by(species_itis, state, sa_gom, year, wave)
   )
 
 ## Change NA counts to 0 ----
-# change NAs to 0 where one or another agency doesn't have counts for this species
+# change NAs to 0 where one or another agency doesn't have counts for this species (discussed if it is better than simply remove the entries)
 fhier_acl_catch_by_species_state_region_waves %<>%
   mutate(
     fhier_quantity_by_4 =
@@ -714,16 +715,13 @@ fhier_acl_catch_by_species_state_region_waves %>%
 
 #| classes: test
 #### compare the saved numbers with those in the join, they should be the same ----
-# names(fhier_acl_catch_by_species_state_region_waves)
+
 fhier_acl_catch_by_species_state_region_waves %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis, sa_gom) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(fhier_test_cnts$mackerel_fhier_cnt)
-
-# acl_test_cnts
-# fhier_test_cnts
 
 fhier_acl_catch_by_species_state_region_waves %>%
   filter(species_itis == test_species_itis) %>%
@@ -732,7 +730,17 @@ fhier_acl_catch_by_species_state_region_waves %>%
   use_series(mackerel_acl_cnt) %>%
   identical(acl_test_cnts$mackerel_acl_cnt)
 
-# grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
+# Data by 12 categories ----
+# 1) By wave and region
+# 2) By wave and state
+# 3) By year and region
+# 4) By year and state
+
+# 3 sets of spp: 
+# 1a) SEDAR; 
+# 2b) Recreational ACL tops; 
+# 3c) All FHIER spp
+
 
 ## 1a) SEDAR spp. lists ----
 # DOLPHINFISH and DOLPHIN are combined
