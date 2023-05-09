@@ -242,7 +242,6 @@ corrected_data_short_minus_union_shp <-
 
 # write_csv(corrected_data_short_minus_union_shp, "short_minus_sa_gom.csv")
 
-
 m_minus <- mapview(corrected_data_short_minus_union_shp, color = "green")
 # View(corrected_data_short_minus_union_shp)
 
@@ -253,4 +252,15 @@ m_minus + mapview(union_shp)
 all_minus_sa <-
   st_difference(corrected_data_short_minus_union_shp, sa_shp)
 
+write_csv(all_minus_sa, "all_minus_sa.csv")
 
+m_all_minus_sa <-
+  mapview(
+    all_minus_sa,
+    col.regions = "green",
+    layer.name = 'Not in GOM or SA',
+    alpha = 0.3,
+    cex = 1
+  )
+
+m_all_minus_sa + union_shp
