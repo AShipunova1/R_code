@@ -4,7 +4,6 @@
 # lat 23 : 36
 # lon -71 : -98
 
-library(ROracle) 
 library(zoo) #date manipulations
 # maps
 library(sf)
