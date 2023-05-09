@@ -23,7 +23,7 @@ library(sp)
 # Max.   : 90.00   Max.   : 137.59
 
 # ===
-data_overview(db_data)
+# data_overview(db_data)
 
 lat_long_to_map <- function(my_df, my_title) {
   my_df %>%
@@ -121,7 +121,12 @@ corrected_data <-
   # remove all entries with missing coords
   filter(complete.cases(.))
 
-corrected_data_sf <- to_sf(corrected_data) 
+# corrected_data_sf <- to_sf(corrected_data) 
+corrected_data_sf <- 
+  corrected_data %>%
+    st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+             crs = st_crs(sa_shp))
 # corrected_data_map <- corrected_data_sf %>% mapview()
 # View(corrected_data_map)
 # 11998
