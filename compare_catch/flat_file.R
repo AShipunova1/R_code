@@ -156,7 +156,7 @@ load_csv_names <- function(my_paths, csv_names_list) {
   myfiles <-
     lapply(csv_names_list, function(x)
       file.path(my_inputs, x))
-  # read all csv files
+  # read all csv files with columns as character (change later to other types)
   contents <-
     lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
   
@@ -170,9 +170,9 @@ my_headers_case_function <- tolower
 # ---- 1) SEFHIER data ----
 
 load_all_logbooks <- function() {
-  species_count_csv_names_list_lb = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
+  species_count_csv_names_list = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
   fhier_all_logbook_data <-
-    load_csv_names(my_paths, species_count_csv_names_list_lb)
+    load_csv_names(my_paths, species_count_csv_names_list)
   logbooks_content <-
     # see an aux function above
     clean_all_csvs(fhier_all_logbook_data,
