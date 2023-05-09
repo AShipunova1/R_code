@@ -1055,3 +1055,22 @@ gridExtra::grid.arrange(a, b,
                         heights = c(unit(.7, "npc"),
                                     unit(.3, "npc")))
 
+#### 0 counts? ----
+View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
+
+fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+  filter(fhier_quantity_by_4 == 0 &
+           acl_estimate_catch_by_4 == 0) %>%
+  count(species_itis)
+  # species_itis  n
+# 1       167793  1 sand perch
+# 2       168559  2 bluefish
+# 3       169056  3 invalid - other, see comments 	Pomadasyidae, grunts 
+# 4       169539  2 Atlantic spadefish
+# 5         <NA> 40
+# common_name is NA
+  # select(species_itis) %>%
+  # unique 
+# %>%
+#   
+#   View()
