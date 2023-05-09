@@ -171,8 +171,10 @@ my_headers_case_function <- tolower
 
 load_all_logbooks <- function() {
   species_count_csv_names_list = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
+  
   fhier_all_logbook_data <-
     load_csv_names(my_paths, species_count_csv_names_list)
+  
   logbooks_content <-
     # see an aux function above
     clean_all_csvs(fhier_all_logbook_data,
@@ -181,20 +183,23 @@ load_all_logbooks <- function() {
   return(logbooks_content[[1]])
 }
 
+# call the function
 logbooks_content <- load_all_logbooks()
 
 # ---- 2) ACL (Annual Catch Limits surveys) (MRIP) ----
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
+  # use prepared paths from above
   my_inputs <- my_paths$inputs
   
   # add input directory path in front of each file name.
   myfiles <-
-    lapply(xls_names_list, function(x)
-      file.path(my_inputs, x))
+    lapply(xls_names_list, function(x) file.path(my_inputs, x))
+  
   ## read all files
   contents <- map_df(
     myfiles,
     ~ read_excel(
+      # file name
       .x,
       sheet = sheet_n,
       # use my fix_names function for col names
@@ -208,27 +213,34 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
 }
 
 load_acl_data <- function() {
+  # my special dir with data
   acl_dir_path <- "compare_catch/MRIP data"
-                              # identical for all areas
+  # species_list.csv is identical for all areas
   acl_csv_names_list_raw <- c("mrip_aux/species_list.csv")
-                              # a file recommended by Mike
-                              acl_xls_names_list_raw <-
-                                c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
-                              # add prefix to each file name
-                              acl_csv_names_list <-
-                                map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
-                              acl_xls_names_list <-
-                                map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
-                              acl_species_list <- load_csv_names(my_paths, acl_csv_names_list)
-                              
-                              acl_estimate_usa <-
-                                load_xls_names(my_paths, acl_xls_names_list,
-                                               sheet_n = "mripaclspec_rec81_22wv6_01mar23")
-                              
-                              output <- list(acl_species_list, acl_estimate_usa)
-                              return(output)
+  # a file recommended by Mike
+  acl_xls_names_list_raw <-
+    c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
+  
+  # add prefix to each file name
+  acl_csv_names_list <-
+    map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
+  acl_xls_names_list <-
+    map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
+  
+  # use functions from above
+  acl_species_list <-
+    load_csv_names(my_paths, acl_csv_names_list)
+  
+  acl_estimate_usa <-
+    load_xls_names(my_paths, acl_xls_names_list,
+                   sheet_n = "mripaclspec_rec81_22wv6_01mar23")
+  
+  output <-
+    list(acl_species_list, acl_estimate_usa)
+  return(output)
 }
 
+# run the function, get the list of dfs
 acl_temp <- load_acl_data()
 
 acl_species_list <- acl_temp[[1]]
@@ -270,15 +282,16 @@ fhier_logbooks_content <-
                  trip_start_time)) %>%
   # Same for the trip end
   mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
-  # change the new column types to a date
+  # change the new column types to a date using the function from above
   change_to_dates("trip_start_date_time", "%Y-%m-%d %H%M") %>%
   change_to_dates("trip_end_date_time", "%Y-%m-%d %H%M") %>%
-  # change the column type to a number
+  # change this column type to a number
   mutate(reported_quantity = as.integer(reported_quantity))
 
-# # view the result
+## view the result
 # fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
 
+### fix wrong dates ----
 fhier_logbooks_content_date_fixed_tmp <-
   fhier_logbooks_content %>%
   # if a "trip_end_date" is before 2020 - use "notif_trip_end_date" column instead
@@ -303,9 +316,11 @@ fhier_logbooks_content_date_fixed <-
     trip_end_date1
   ))
 
+### keep only 2022 ----
 fhier_logbooks_content_date_fixed %<>%
   filter(year(trip_end_date) == "2022")
 
+## add waves ----
 fhier_logbooks_content_waves <-
   fhier_logbooks_content_date_fixed %>%
   # add a new column with a trip end Month
@@ -315,7 +330,7 @@ fhier_logbooks_content_waves <-
            year(trip_end_date2)) %>%
   # add a new column with a number for each trip end Month
   mutate(end_month_num = month(trip_end_date2)) %>%
-  # add a new column with a Wave
+  # add a new column with a Wave number
   mutate(end_wave  = floor((end_month_num + 1) / 2))
 
 #| classes: test
@@ -326,6 +341,7 @@ fhier_logbooks_content_waves %>%
   # sort by end_month_num
   arrange(end_month_num)
 
+## add region info ----
 # Florida counties by region (from the Internet) ----
 fl_counties <- list(
   "SA" = c(
@@ -368,6 +384,7 @@ fl_counties <- list(
   )
 )
 
+# Florida regions
 fhier_logbooks_content_waves_fl_county <-
   fhier_logbooks_content_waves %>%
   # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
@@ -384,7 +401,7 @@ fhier_logbooks_content_waves_fl_county <-
     )
   )
 
-## test: check regions ----
+## test: check Florida regions ----
 fhier_logbooks_content_waves_fl_county %>%
   # get FL only
   filter(end_port_state == "FL") %>%
@@ -397,7 +414,7 @@ fhier_logbooks_content_waves_fl_county %>%
   select(end_port_fl_reg) %>%
   table()
 
-## states to regions ----
+## Other states to regions ----
 # list of states in the South Atlantic region (from the Internet)
 states_sa <- data.frame(
   state_name = c(
@@ -413,17 +430,19 @@ states_sa <- data.frame(
   )
 )
 
+# Reformat the R state df
 state_tbl <- data.frame(state.abb, tolower(state.name))
 names(state_tbl) = c("state_abb", "state_name")
 
 sa_state_abb <-
-  # a default R table
+  # a table from above
   state_tbl %>%
   # get only these in our list
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
   select(state_abb)
 
+# add regions 
 fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
   # add a new column "end_port_sa_gom" with sa or gom for each state
@@ -521,10 +540,9 @@ fhier_test_cnts <-
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
-## ACL sata preparations ----
+## ACL data preparations ----
 
-## ---- specifically for "O:\Fishery Data\ACL Data\"
-# from get_data.R
+## specifically for "O:\Fishery Data\ACL Data\" ----
 acl_estimate %<>%
   # using ab1 for catch counts
   # convert to numbers
@@ -532,6 +550,7 @@ acl_estimate %<>%
 
 # str(acl_estimate)
 
+### filtering ----
 acl_estimate_2022 <-
   acl_estimate %>%
   filter(year == "2022") %>%
@@ -552,6 +571,7 @@ dim(acl_estimate)
 dim(acl_estimate_2022)
 # 1442
 
+### count catch ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
   # select the relevant columns only
@@ -573,6 +593,7 @@ acl_estimate_catch_by_species_state_region_waves1 <-
   mutate(year = as.double(year)) %>%
   mutate(wave = as.double(wave))
 
+## change regions to the same format as in FHIER ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_catch_by_species_state_region_waves1 %>%
   # change a 6 to "sa" and a 7 "gom", leave everything else in place
@@ -617,10 +638,11 @@ acl_names <- c("itis_code",
                "wave",
                "acl_estimate_catch_by_4")
 
+# rename in place
 acl_estimate_catch_by_species_state_region_waves %<>%
+  # rename the first 2 columns from the list
   rename_at(vars(acl_names[1:2]),
-            function(x)
-              wave_data_names_common[1:2])
+            function(x) wave_data_names_common[1:2])
 
 fhier_names <- c(
   "catch_species_itis",
@@ -633,10 +655,11 @@ fhier_names <- c(
 )
 
 # names(fhier_catch_by_species_state_region_waves)
+# rename in place
 fhier_catch_by_species_state_region_waves %<>%
+  # rename the first and columns 3 to 6 from the list
   rename_at(vars(fhier_names[c(1, 3:6)]),
-            function(x)
-              wave_data_names_common[1:5])
+            function(x) wave_data_names_common[1:5])
 
 ### rename fields in the test variables ----
 names(fhier_test_cnts) <-
