@@ -264,3 +264,18 @@ m_all_minus_sa <-
   )
 
 m_all_minus_sa + union_shp
+# ===
+
+# FL ---
+# https://catalog.data.gov/dataset/tiger-line-shapefile-2019-state-florida-current-place-state-based/resource/fcf74536-aeab-4ed1-a9df-06daf29a527b
+
+fl_shp <- read_shapefile("tl_2019_12_place_FL/tl_2019_12_place.shp")
+
+st_crs(fl_shp)
+    # ID["EPSG",4269]]
+
+on_land <- st_intersection(corrected_data_short_sf, fl_shp)
+dim(on_land)
+# [1] 3660   22
+
+m_l <- mapview(on_land)
