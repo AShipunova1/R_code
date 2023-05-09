@@ -184,9 +184,20 @@ sf_use_s2(FALSE)
 # assumes that they are planar
 # in_gom <- st_intersection(corrected_data_sf, gom_shp)
 
-minus_sa_gom <- st_difference(gom_shp, minus_sa)
+dim(minus_sa)
+# [1] 44023    20
+
+# minus_sa_gom <- st_difference(gom_shp, minus_sa)
 minus_sa_gom2 <- st_difference(minus_sa, gom_shp)
 
 # p <- poly2nb(st_make_valid(shp))
 
-mapview(minus_sa_gom)
+mm <- mapview(minus_sa_gom2, color = "green")
+
+View(minus_sa_gom2)
+
+mm + m_g + m_s
+# m_s is still resent?
+
+# A helper function that erases all of y from x:
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
