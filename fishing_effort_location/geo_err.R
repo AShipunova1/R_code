@@ -199,5 +199,46 @@ View(minus_sa_gom2)
 mm + m_g + m_s
 # m_s is still resent?
 
-# A helper function that erases all of y from x:
+# A helper function that erases all of y from x: ----
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+
+names(corrected_data) %>% paste0(collapse = ", ")
+
+corrected_data_short_sf <-
+  corrected_data %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    LATITUDE,
+    LONGITUDE,
+    MINIMUM_BOTTOM_DEPTH,
+    MAXIMUM_BOTTOM_DEPTH,
+    FISHING_GEAR_DEPTH
+  ) %>%
+  st_as_sf(coords = c("LONGITUDE",
+                      "LATITUDE"),
+           crs = st_crs(sa_shp))
+
+# str(corrected_data_short_sf)
+# Classes ‘sf’ and 'data.frame':	11998 obs. of  6 variables:
+
+# st_difference(corrected_data_short_sf, 
+#               st_union(st_combine(c(gom_shp, sa_shp))))
+
+union_shp <- st_union(gom_shp, sa_shp)
+# although coordinates are longitude/latitude, st_union assumes that they are planar
+# Warning message:
+# attribute variables are assumed to be spatially constant throughout all geometries 
+
+plot(union_shp)
+
+# st_difference(corrected_data_short_sf, 
+#               st_union(st_combine(c(gom_shp, sa_shp))))
+
+corrected_data_short_minus_union_shp <-
+  st_difference(corrected_data_short_sf, union_shp)
+# although coordinates are longitude/latitude, st_difference
+# assumes that they are planar
+
+
+write_csv(corrected_data_short_minus_union_shp, "fishing_effort_location/short_minus_sa_gom.csv")
