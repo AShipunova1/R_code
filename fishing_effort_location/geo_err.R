@@ -134,30 +134,12 @@ m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
 
-st_crs(m_s)
-# Coordinate Reference System: NA
-st_crs(corrected_data_sf)
-# Coordinate Reference System:
-#   User input: EPSG:4326 
-#   wkt:
-# ...
-  # st_crs(x) == st_crs(y) is not TRUE
-
-  # corrected_data_sf - m_s - m_g
-# Error in `-.POSIXt`(left, right) : 
-#   can only subtract numbers from "POSIXt" objects
-
-
 # st_crs(m_s)
 # Coordinate Reference System: NA
 st_crs(corrected_data_sf)
 # Coordinate Reference System:
-#   User input: EPSG:4326 
+    # ID["EPSG",4269]]
 
-# municipalities_31370 <- st_transform(municipalities, "EPSG:31370")
-# sa_shp_4326 <- st_transform(sa_shp, "EPSG:4326")
-# m_s <- CRS("+init=epsg:4326")
-View(sa_shp_4326)
 st_crs(sa_shp)
 st_crs(gom_shp)
 # Coordinate Reference System:
@@ -172,26 +154,15 @@ st_crs(gom_shp)
 # $crsClass
 # [1] "L.CRS.EPSG3857"
 
-# proj4string(m_s)
-
-# read_sf 
-
-# m_s <- mapview(sa_shp,
-#                layer.name = "South Altlantic",
-#                legend = FALSE)
-# m_g <- mapview(gom_shp,
-#                layer.name = "Gulf of Mexico",
-#                legend = FALSE)
-
-in_sa <- st_intersection(corrected_data_sf, sa_shp)
+# in_sa <- st_intersection(corrected_data_sf, sa_shp)
 # attribute variables are assumed to be spatially constant throughout all geometries 
 
 # st_crs(corrected_data_sf)
 # st_crs(sa_shp)
 
-mapview(minus_map)
+# mapview(minus_map)
 # subset
-mapview(corrected_data_sf[sa_shp, ])
+# mapview(corrected_data_sf[sa_shp, ])
 # lat_lon_data[shapefile_data, ]
 
 minus_sa <- st_difference(corrected_data_sf, sa_shp)
@@ -200,18 +171,17 @@ minus_sa <- st_difference(corrected_data_sf, sa_shp)
 
 mapview(minus_sa)
 
-# minus_sa_gom <- st_difference(gom_shp, minus_sa)
-# Error in wk_handle.wk_wkb(wkb, s2_geography_writer(oriented = oriented,  : 
-#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
-
 sf_use_s2(FALSE)
 # Spherical geometry (s2) switched off
 
-minus_gom <- st_difference(corrected_data_sf, gom_shp)
+# minus_gom <- st_difference(corrected_data_sf, gom_shp)
 # although coordinates are longitude/latitude, st_difference
 # assumes that they are planar
 # in_gom <- st_intersection(corrected_data_sf, gom_shp)
 
 minus_sa_gom <- st_difference(gom_shp, minus_sa)
+minus_sa_gom2 <- st_difference(minus_sa, gom_shp)
 
 # p <- poly2nb(st_make_valid(shp))
+
+mapview(minus_sa_gom)
