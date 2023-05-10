@@ -415,3 +415,12 @@ names(acl_estimate_catch_by_species_state_region_waves)
 identical(names(fhier_catch_by_species_state_region_waves)[c(1, 3:6)],
           names(acl_estimate_catch_by_species_state_region_waves)[1:5])
 # T
+
+## combine TNS ----
+# GRUNT, WHITE	F: 613026, 169059, MRIP 169059
+# dolphin: 168790, 168791
+# GRUNTS, HAEMULIDAE (FAMILY), Atlantic croaker: 169055, 169056, 169283
+# TRIGGERFISHES: 173128, 173138, 173139, 173170
+
+
+
