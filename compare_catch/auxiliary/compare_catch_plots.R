@@ -433,7 +433,7 @@ calculate_cnt_index <- function(my_df) {
   my_df %>%
     select(-c(state, species_itis)) %>%
     mutate_all( ~ replace_na(., 0)) %>%
-    group_by(year_wave, common_name) %>%
+    group_by(wave, common_name) %>%
     # aggregate counts by states
     summarise(
       fhier_cnts = sum(fhier_quantity_by_4),
@@ -447,6 +447,8 @@ calculate_cnt_index <- function(my_df) {
 
 ### GOM index ----
 fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+
+# names(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 
 # glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
@@ -795,7 +797,7 @@ names(region_waves_sa_long_wave_list) %>%
   })
 
 # 2) By wave and state ----
-state_waves_long_list <-
+state_waves_long_list_gom <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   # rename the field
   mutate(rec_acl_estimate_catch_by_4 =
@@ -807,9 +809,7 @@ state_waves_long_list <-
     )
   )
 
-View(state_waves_long_list)
-my_reg <- "GOM"
-
+# View()
 # View(fhier_acl_catch_by_species_state_region_waves_list_for_plot)
 # 2) By wave and state 1a) SEDAR TODO ----
 # 2) By wave and state 2b) Recreational ACL tops TODO ----
