@@ -227,6 +227,7 @@ grep("GRUNT", acl_species_list[[1]]$COMMON_NAME, value = T)
 #  [4] "WHITE GRUNT"       "CAESAR GRUNT"      "SMALLMOUTH GRUNT" 
 #  [7] "FRENCH GRUNT"      "SPANISH GRUNT"     "BLUESTRIPED GRUNT"
 # [10] "STRIPED GRUNT"     "BARRED GRUNT"      "BURRO GRUNT"      
+
 grep("BLACKFIN.*TUNA", acl_species_list[[1]]$COMMON_NAME, value = T)
 # [1] "BLACKFIN TUNA"
 grep("DOLPHIN", acl_species_list[[1]]$COMMON_NAME, value = T)
@@ -253,6 +254,57 @@ acl_estimate_2022 %>%
   filter(new_com == "scup") %>%
   count(ab1)
 
-
 names(acl_estimate_2022)
+
+# white grunt 2 ITIS ----
+grep("permit", names(fhier_logbooks_content), value = T) %>% paste0(collapse = ", ")
+
+# fhier_logbooks_content %>%
+#   filter(catch_species_itis == "169059") %>%
+#   select(trip_id, supplier_trip_id, trip_start_date_time, trip_de, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, dea_permit_id) %>%
+#   unique() %>% 
+#   arrange(trip_de, trip_start_date_time) %>%
+#   write_csv("169059_itis_date_permit.csv")
+
+
+grep("GRUNT", acl_species_list[[1]]$COMMON_NAME, value = T)
+#  [1] "GRUNT SCULPIN"     "GRUNT FAMILY"      "GRUNT GENUS"      
+#  [4] "WHITE GRUNT"       "CAESAR GRUNT"      "SMALLMOUTH GRUNT" 
+#  [7] "FRENCH GRUNT"      "SPANISH GRUNT"     "BLUESTRIPED GRUNT"
+# [10] "STRIPED GRUNT"     "BARRED GRUNT"      "BURRO GRUNT"      
+
+grep("GRUNT", toupper(fhier_common_names$common_name), value = T)
+fhier_common_names %>%
+  filter(grepl("GRUNT", toupper(common_name))) %>%
+  unique() %>% glimpse()
+# 12
+
+
+# names(acl_species_list[[1]])
+acl_species_list[[1]] %>%
+  filter(grepl("GRUNT", toupper(COMMON_NAME))) %>%
+  select(sp_code, COMMON_NAME) %>%
+  unique() %>% glimpse()
+# 12
+
+fhier_logbooks_content %>%
+  filter(grepl("GRUNT", toupper(common_name))) %>%
+    select(catch_species_itis, common_name) %>%
+  unique() %>% write_csv("fhier_grunt_temp.csv") 
+  # head(12)
+
+
+# names(acl_estimate_2022)
+acl_estimate_2022 %>%
+  filter(grepl("GRUNT", toupper(new_com))) %>%
+    select(itis_code, new_com) %>%
+  unique() %>% write_csv("acl_grunt_temp.csv")
+  # head()
+# 4
+#   itis_code new_com          
+#   <chr>     <chr>            
+# 1 169069    bluestriped grunt
+# 2 169065    french grunt     
+# 3 169056    grunt family     
+# 4 169059    white grunt      
 

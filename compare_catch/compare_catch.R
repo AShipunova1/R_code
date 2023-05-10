@@ -323,12 +323,3 @@ View(state_year_has_rec_acl_data_list_new)
 
 # source("~/R_code_github/compare_catch/spp_not_in_rec_acl.R")
 
-# white grunt 2 ITIS ----
-grep("permit", names(fhier_logbooks_content), value = T) %>% paste0(collapse = ", ")
-
-fhier_logbooks_content %>%
-  filter(catch_species_itis == "169059") %>%
-  select(trip_id, supplier_trip_id, trip_start_date_time, trip_de, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, dea_permit_id) %>%
-  unique() %>% 
-  arrange(trip_de, trip_start_date_time) %>%
-  write_csv("169059_itis_date_permit.csv")
