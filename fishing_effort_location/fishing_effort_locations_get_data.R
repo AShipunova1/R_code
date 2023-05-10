@@ -52,17 +52,36 @@ read_shapefile <- function(filename) {
   x <- read_sf(shapefile_file_name)
   return(x)
 }
-sa_shp <- read_shapefile("osa_n_gom/SA_EEZ_off_states.shp")
-gom_shp <- read_shapefile("osa_n_gom/ReefFish_EFH_GOM.shp")
 
-gom_depth_shp <- read_shapefile("w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
+sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
+)
+
+gom_bath_shp <- read_shapefile(r"(gom\bathyc\bathyc.shp)")
+# plot(gom_bath_shp)
+# mapview(gom_bath_shp)
+
+gom_protrac_shp <- read_shapefile(r"(gom\protrac_nad83\protrac_nad83.shp)")
+mapview(gom_protrac_shp)
+
+# gom_useez_shp <- read_shapefile(r"(useez/useez.shp)")
+# mapview(gom_useez_shp)
+
+Sys.setenv(SHAPE_RESTORE_SHX = "YES")
+# works:
+atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
+mapview(atmx_eez_shp)
+
+"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\atmx_eez\atmx_eez.shp"
+
+gom_depth_shp <- read_shapefile("gom/w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
 plot(gom_depth_shp)
 
-gom_depth_shp5_100 <- read_shapefile("w98e78n31s18_isobath_5-100m/w98e78n31s18_isobath_5-100m.shp")
+useez <- read_shapefile("Downloads/useez.shp")
+"C:\Users\anna.shipunova\Downloads\useez.shp"
+gom_depth_shp5_100 <- read_shapefile("gom/w98e78n31s18_isobath_5-100m/w98e78n31s18_isobath_5-100m.shp")
 plot(gom_depth_shp5_100)
 
-gom_depth_shp100_1000 <- read_shapefile("w98e78n31s18_isobath_100-1000m/w98e78n31s18_isobath_100-1000m.shp")
+gom_depth_shp100_1000 <- read_shapefile("gom/w98e78n31s18_isobath_100-1000m/w98e78n31s18_isobath_100-1000m.shp")
 # plot(gom_depth_shp100_1000)
 
-gom_depth_shp500_4000 <- read_shapefile("w98e78n31s18_isobath_500-4000m/w98e78n31s18_isobath_500-4000m.shp")
-
+gom_depth_shp500_4000 <- read_shapefile("gom/w98e78n31s18_isobath_500-4000m/w98e78n31s18_isobath_500-4000m.shp")
