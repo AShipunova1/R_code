@@ -216,7 +216,9 @@ View(fhier_acl_catch_by_species_state_region_waves_states_list)
 
 fhier_acl_list_by_state_wave <-
   fhier_acl_catch_by_species_state_region_waves %>%
+  # split by state
   split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
+  # split each state by wave
   map(.f = list(. %>%
                   split(as.factor(.$wave)
                         )

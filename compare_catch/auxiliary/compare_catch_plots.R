@@ -797,19 +797,8 @@ names(region_waves_sa_long_wave_list) %>%
   })
 
 # 2) By wave and state ----
-state_waves_long_list_gom <-
-  fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  # rename the field
-  mutate(rec_acl_estimate_catch_by_4 =
-           acl_estimate_catch_by_4) %>%
-  # split by waves column
-  split(
-    as.factor(
-      fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom$wave
-    )
-  )
 
-# View()
+View(fhier_acl_list_by_state_wave)
 # View(fhier_acl_catch_by_species_state_region_waves_list_for_plot)
 # 2) By wave and state 1a) SEDAR TODO ----
 # 2) By wave and state 2b) Recreational ACL tops TODO ----
