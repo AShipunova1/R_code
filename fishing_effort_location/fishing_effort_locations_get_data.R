@@ -67,7 +67,7 @@ mapview(gom_protrac_shp)
 # mapview(gom_useez_shp)
 
 Sys.setenv(SHAPE_RESTORE_SHX = "YES")
-# works:
+# works Atlantic + GOM:
 atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
 mapview(atmx_eez_shp)
 
@@ -76,8 +76,8 @@ mapview(atmx_eez_shp)
 gom_depth_shp <- read_shapefile("gom/w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
 plot(gom_depth_shp)
 
-useez <- read_shapefile("Downloads/useez.shp")
-"C:\Users\anna.shipunova\Downloads\useez.shp"
+# useez <- read_shapefile("Downloads/useez.shp")
+
 gom_depth_shp5_100 <- read_shapefile("gom/w98e78n31s18_isobath_5-100m/w98e78n31s18_isobath_5-100m.shp")
 plot(gom_depth_shp5_100)
 
