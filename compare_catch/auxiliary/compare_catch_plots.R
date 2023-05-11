@@ -798,9 +798,57 @@ names(region_waves_sa_long_wave_list) %>%
 
 # 2) By wave and state ----
 
-View(fhier_acl_list_by_state_wave)
-# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot)
+View(fhier_acl_catch_by_species_state_region_waves_states_list)
+
 # 2) By wave and state 1a) SEDAR TODO ----
+
+state_wave_plots_sedar <-
+  # has rec_acl data
+    names(state_year_has_rec_acl_data_list_new) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+      # keep only spp in the SEDAR spp lists
+      filter(
+        species_itis %in% gom_top_spp$species_itis |
+          species_itis %in% sa_top_spp$species_itis
+      ) %>%
+      plot_by_year(
+        my_title = state_abbr,
+        sort_field = "rec_acl_sum_cnts",
+        show_counts = F,
+        show_com_names = T,
+        show_legend = F
+      )
+  })
+
+super_title_sedar = "2022 Counts by State and SEDAR spp. lists"
+
+# one plot with a legend
+my_state = "FL"
+plot_w_legend_st_sedar <- 
+  # data for one state
+  fhier_acl_catch_by_species_state_year_list[[my_state]] %>%
+  plot_by_year(
+        my_title = my_state,
+        sort_field = "rec_acl_sum_cnts",
+        show_legend = TRUE
+      )
+  
+# use an aux function to pull out the legend
+my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
+
+# combine plots and the legend in a list
+gr_list <- c(state_year_plots_sedar,
+             list(my_legend_st_sedar))
+
+grid.newpage()
+gridExtra::grid.arrange(
+             grobs = gr_list,
+             top = super_title_sedar,
+             ncol = 2)
+
 # 2) By wave and state 2b) Recreational ACL tops TODO ----
 # 2) By wave and state 3c) All FHIER spp TODO ----
 

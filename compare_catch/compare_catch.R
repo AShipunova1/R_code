@@ -193,59 +193,34 @@ sa_acl_top_common_names <-
 # str(acl_estimate_catch_by_species_state_region_waves)
 # fhier_acl_catch_by_species_state_region_waves - has only common species
 
-## split by state ----
+### split by state ----
+
 fhier_acl_catch_by_species_state_region_waves_states_list <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
+  split(as.factor(fhier_acl_catch_by_species_state_region_waves$state))
+# %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-"state")))
-
-# View(fhier_acl_catch_by_species_state_region_waves_states_list)
-
-# names(fhier_acl_catch_by_species_state_region_waves_states_list[[2]])
-# List of 17
-
-# split each state by wave
-fhier_acl_catch_by_species_state_region_waves_states_list <-
-  fhier_acl_catch_by_species_state_region_waves %>%
-  split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
-  # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-"state")))
+  # map(.f = list(. %>% dplyr::select(-"state")))
+# 
 
 View(fhier_acl_catch_by_species_state_region_waves_states_list)
 
-fhier_acl_list_by_state_wave <-
-  fhier_acl_catch_by_species_state_region_waves %>%
-  # split by state
-  split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
-  # split each state by wave
-  map(.f = list(. %>%
-                  split(as.factor(.$wave)
-                        )
-                )
-  )
+# ### split each state by wave
+# View(fhier_acl_catch_by_species_state_region_waves)
+
+# fhier_acl_list_by_state_wave <-
+#   fhier_acl_catch_by_species_state_region_waves %>%
+#   # split by state
+#   split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
+#   # split each state by wave
+#   map(.f = list(. %>%
+#                   split(as.factor(.$wave)
+#                         )
+#                 )
+#   )
 
 # View(fhier_acl_list_by_state_wave)
 
-# fhier_acl_catch_by_species_state_region_waves_states_list %>%
-#   map(function(state_df){
-#     browser()
-#     
-#     
-#   })
-
-# aa <-
-# names(fhier_acl_catch_by_species_state_region_waves_states_list) %>%
-#   map(
-#       function(st_abbr) {
-#         fhier_acl_catch_by_species_state_region_waves_states_list[[st_abbr]] %>%
-#         # browser()
-#         split(as.factor(fhier_acl_catch_by_species_state_region_waves_states_list[[st_abbr]]["wave"]
-# )) %>%
-#         return()
-#       })
-# 
-# View(aa)
 
 # 3) Data By year and region ----
 names(fhier_acl_catch_by_species_state_region_waves)
