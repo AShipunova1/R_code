@@ -94,9 +94,16 @@ fl_state_land_waters <- read_shapefile("Florida_State_Waters_and_Land_Boundary/F
 mapview(fl_state_land_waters)
 
 # ====
-
-"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\ATL_SLA\ATL_SLA.shp"
+# https://catalog.data.gov/dataset/outer-continental-shelf-submerged-lands-act-boundary-atlantic-region-nad83
+# Outer Continental Shelf Submerged Lands Act Boundary - Atlantic Region NAD83
 
 atl_state_waters <- read_shapefile("ATL_SLA/ATL_SLA.shp")
 
 mapview(atl_state_waters)
+
+# ====
+"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp"
+
+fl_state <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
+
+mapview(fl_state)
