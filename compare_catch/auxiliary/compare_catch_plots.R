@@ -797,8 +797,7 @@ names(region_waves_sa_long_wave_list) %>%
   })
 
 # 2) By wave and state ----
-
-View(fhier_acl_catch_by_species_state_region_waves_states_list)
+View(state_wave_has_rec_acl_data_list_new)
 
 # 2) By wave and state 1a) SEDAR TODO ----
 

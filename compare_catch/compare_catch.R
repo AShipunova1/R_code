@@ -23,10 +23,9 @@ my_paths <- set_work_dir()
 # set path for auxiliary functions to be used through main code
 # and then whenever you call a function from that "sourced" file, be sure to have a note to that same effect: #calling function from auxiliary file
 
-
 source("~/R_code_github/compare_catch/auxiliary/compare_catch_data_preparation.R")
 
-## check MRIP spp codes
+## check MRIP spp codes ----
 # names(acl_estimate)
 acl_estimate_2022 %>%
   select(itis_code, species_code, species, sp_code, new_sci, new_com) %>%
@@ -89,7 +88,7 @@ fhier_common_names <-
 
 # add column names
 names(fhier_common_names) <- c("species_itis", "common_name")
-
+names(fhier_catch_by_species_state_region_waves)
 ## Join Fhier and ACL ----
 fhier_acl_catch_by_species_state_region_waves <-
   full_join(
