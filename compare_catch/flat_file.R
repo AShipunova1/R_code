@@ -419,18 +419,16 @@ fhier_logbooks_content_waves_fl_county %>%
   table()
 
 ## Other states to regions ----
-# list of states in the South Atlantic region (from the Internet)
+# list of states in the South Atlantic region
+# https://safmc.net/about/#:~:text=The%20South%20Atlantic%20Council%20is,east%20Florida%20to%20Key%20West
+# The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
+
 states_sa <- data.frame(
   state_name = c(
-    "Delaware",
-    "District of Columbia",
     # "Florida", # exclude, we have it separated by county
     "Georgia",
-    "Maryland",
     "North Carolina",
-    "South Carolina",
-    "Virginia",
-    "West Virginia"
+    "South Carolina"
   )
 )
 
@@ -547,6 +545,8 @@ fhier_test_cnts <-
 ## ACL data preparations ----
 
 ## specifically for "O:\Fishery Data\ACL Data\" ----
+# in case read.xls or .csv read a type incorrectly, or if you read data in as character, then use integer() to ensure all values in the ab1 col are now actually numbers
+
 acl_estimate %<>%
   # using ab1 for catch counts
   # convert to numbers
