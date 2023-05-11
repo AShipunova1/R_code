@@ -221,22 +221,6 @@ for (i in 1:length(my_st_names)) {
 View(state_wave_has_rec_acl_data_list_new)
 
 
-# ### split each state by wave
-# View(fhier_acl_catch_by_species_state_region_waves)
-
-# fhier_acl_list_by_state_wave <-
-#   fhier_acl_catch_by_species_state_region_waves %>%
-#   # split by state
-#   split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
-#   # split each state by wave
-#   map(.f = list(. %>%
-#                   split(as.factor(.$wave)
-#                         )
-#                 )
-#   )
-
-# View(fhier_acl_list_by_state_wave)
-
 
 # 3) Data By year and region ----
 names(fhier_acl_catch_by_species_state_region_waves)
