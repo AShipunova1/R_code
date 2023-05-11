@@ -26,6 +26,16 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/compare_catch/auxiliary/compare_catch_data_preparation.R")
 
+## check MRIP spp codes
+# names(acl_estimate)
+acl_estimate_2022 %>%
+  select(itis_code, species_code, species, sp_code, new_sci, new_com) %>%
+  unique() %>%
+  # Rows: 111
+  filter(!is.na(itis_code)) %>%
+  # Rows: 14
+  glimpse()
+
 ## All FHIER common names and itis in a separate data frame ----
 fhier_common_names <-
   fhier_logbooks_content %>%
@@ -198,16 +208,11 @@ sa_acl_top_common_names <-
 fhier_acl_catch_by_species_state_region_waves_states_list <-
   fhier_acl_catch_by_species_state_region_waves %>%
   split(as.factor(fhier_acl_catch_by_species_state_region_waves$state))
-# %>%
-  # remove extra columns in each df
-  # map(.f = list(. %>% dplyr::select(-"state")))
-# 
 
 # View(fhier_acl_catch_by_species_state_region_waves_states_list)
-### remove where is no rec acl count 
-state_wave_has_rec_acl_data_list_new <- c()
 
-# fhier_acl_catch_by_species_state_region_waves_states_list
+### remove where is no rec acl count ----
+state_wave_has_rec_acl_data_list_new <- c()
 
 my_st_names <- names(fhier_acl_catch_by_species_state_region_waves_states_list)
 
@@ -218,6 +223,7 @@ for (i in 1:length(my_st_names)) {
     state_wave_has_rec_acl_data_list_new[state_abbr] <- fhier_acl_catch_by_species_state_region_waves_states_list[state_abbr]
   }
 }
+
 View(state_wave_has_rec_acl_data_list_new)
 
 
