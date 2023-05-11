@@ -243,7 +243,7 @@ fhier_catch_by_species_state_region_waves_w_spp <-
 full_join(fhier_logbooks_content_waves__sa_gom,
           sefhier_spp,
           by = join_by(species_itis, common_name)) 
-# same species_itis has 2 common_names, e.g. for DOLPHIN and DOLPHINFISH
+# some common_names have 2 species_itis, e.g. GRUNT, WHITE
 
 fhier_catch_by_species_state_region_waves_w_spp %>%
   filter(is.na(scientific_name)) %>%
@@ -289,8 +289,7 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
 # Taxonomic Serial No.: 168791
 # )
 
-fhier_catch_by_species_state_region_waves_w_spp %>%
-
+# fhier_catch_by_species_state_region_waves_w_spp %>%
 grep("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, value = T, ignore.case = T) %>%
   unique()
 # "DOLPHIN"          "DOLPHIN, POMPANO" "DOLPHINFISH"     
@@ -308,29 +307,48 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
   select(scientific_name, species_itis, common_name) %>%
   unique() %>% View()
 
-## combine dolphin and dolphinfish for FHIER data ----
-fhier_logbooks_content_waves__sa_gom_dolph <-
-  fhier_logbooks_content_waves__sa_gom %>%
-  rename(common_name_orig = common_name) %>%
-  mutate(common_name = if_else(
-    tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
-    "DOLPHIN",
-    common_name_orig
-    )
-  )
+## combine GRUNT, WHITE for FHIER data ----
+# 169059 GRUNT, WHITE
+# 613026 GRUNT, WHITE
+
+# fhier_logbooks_content_waves__sa_gom_dolph <-
+#   fhier_catch_by_species_state_region_waves_w_spp %>%
+#   rename(common_name_orig = common_name) %>%
+#   mutate(common_name = if_else(
+#     tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
+#     "DOLPHIN",
+#     common_name_orig
+#     )
+#   )
+
+
+## combine FLOUNDERS, PARALICHTHYS for FHIER data ? ----
+
+
+# not needed any more, why?
+# ## combine dolphin and dolphinfish for FHIER data ----
+# fhier_logbooks_content_waves__sa_gom_dolph <-
+#   fhier_logbooks_content_waves__sa_gom %>%
+#   rename(common_name_orig = common_name) %>%
+#   mutate(common_name = if_else(
+#     tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
+#     "DOLPHIN",
+#     common_name_orig
+#     )
+#   )
 
 # glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
 
-### test: dolphins ----
-fhier_logbooks_content_waves__sa_gom_dolph %>%
-  filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
-  select(common_name_orig, common_name) %>% unique()
+# ### test: dolphins ----
+# fhier_logbooks_content_waves__sa_gom_dolph %>%
+#   filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
+#   select(common_name_orig, common_name) %>% unique()
 
 
 ## calculate catch ----
 # names(fhier_logbooks_content_waves__sa_gom_dolph)
 fhier_catch_by_species_state_region_waves <-
-  fhier_logbooks_content_waves__sa_gom_dolph %>%
+  fhier_catch_by_species_state_region_waves_w_spp %>%
   # select only relevant columns
   select(
     catch_species_itis,
