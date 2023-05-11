@@ -87,3 +87,16 @@ gom_depth_shp100_1000 <- read_shapefile("gom/w98e78n31s18_isobath_100-1000m/w98e
 # plot(gom_depth_shp100_1000)
 
 gom_depth_shp500_4000 <- read_shapefile("gom/w98e78n31s18_isobath_500-4000m/w98e78n31s18_isobath_500-4000m.shp")
+
+# ===
+fl_state_land_waters <- read_shapefile("Florida_State_Waters_and_Land_Boundary/Florida_State_Waters_and_Land_Boundary.shp")
+
+mapview(fl_state_land_waters)
+
+# ====
+
+"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\ATL_SLA\ATL_SLA.shp"
+
+atl_state_waters <- read_shapefile("ATL_SLA/ATL_SLA.shp")
+
+mapview(atl_state_waters)
