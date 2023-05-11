@@ -173,7 +173,8 @@ states_sa <- data.frame(
     "Georgia",
     # "Maryland",
     "North Carolina",
-    "South Carolina",
+    "South Carolina"
+    # ,
     # "Virginia",
     # "West Virginia"
   )
@@ -226,7 +227,8 @@ sefhier_spp <-
   sefhier_sp_all %>%
   select(species_itis, scientific_name, common_name) %>%
   unique()
-# %>% glimpse()
+
+# glimpse(sefhier_spp)
 # 736
 
 # mrip_spp_2022 %<>%
@@ -245,9 +247,24 @@ full_join(fhier_logbooks_content_waves__sa_gom,
 
 fhier_catch_by_species_state_region_waves_w_spp %>%
   filter(is.na(scientific_name)) %>%
-  glimpse()
-# Rows: 8,948
+  select(species_itis, common_name, reported_quantity) %>% 
+  group_by(species_itis, common_name) %>% 
+  summarise(sum_cnt = sum(reported_quantity)) %>%
+  ungroup() %>%
+  arrange(desc(sum_cnt)) %>%
+  head(2)
+#   species_itis common_name             sum_cnt
+#   <chr>        <chr>                     <int>
+# 1 169059       GRUNT, WHITE              69394
+# 2 172734       FLOUNDERS, PARALICHTHYS    3050
 
+  # unique() %>% 
+  # arrange(common_name) %>%
+# %>%
+#   dim()
+# Rows: 25
+
+# ---
 #   species_itis common_name  sum_cnts
 #   <chr>        <chr>           <int>
 # 1 169059       GRUNT, WHITE    69394
@@ -272,13 +289,15 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
 # Taxonomic Serial No.: 168791
 # )
 
-# grep("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, value = T, ignore.case = T) %>%
-  # unique()
+fhier_catch_by_species_state_region_waves_w_spp %>%
+
+grep("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, value = T, ignore.case = T) %>%
+  unique()
 # "DOLPHIN"          "DOLPHIN, POMPANO" "DOLPHINFISH"     
 
 fhier_catch_by_species_state_region_waves_w_spp %>%
   filter(grepl("DOLPHIN", common_name, ignore.case = T)) %>%
-  select(scientific_name, species_itis, common_name) %>%
+  select(scientific_name, species_itis, common_name) %>% 
   unique() %>% View()
 # glimpse()
 # 4
