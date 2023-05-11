@@ -9,6 +9,11 @@
 
 # MRIP
 # "O:\Fishery Data\ACL Data\FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01Mar23\MRIP_FES_rec81_22wv6_01Mar23w2014to2021LACreel.xlsx"
+# new from Mike:
+# The latest file is at this link to our o-drive and use the one with the LA creel data in the name of the file: 
+# 
+# O:\Fishery Data\ACL Data\FES_Rec_data(mail_survey)\MRIP_FES_rec81_22wv6_01May23
+# MRIP_FES_rec81_22wv6_01May23w2014to2022LACreel.xlsx
 
 # ---- 1) SEFHIER data ----
 
@@ -35,19 +40,22 @@ load_acl_data <- function() {
     "mrip_aux/species_list.csv" # identical for all areas
   )
   # a file recommended by Mike
-  acl_xls_names_list_raw <- c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
+  # acl_xls_names_list_raw <- c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
+  acl_xls_names_list_raw <- c("MRIP_FES_rec81_22wv6_01May23w2014to2022LACreel.xlsx")
+
   # add prefix to each file name
-  acl_csv_names_list <- 
-      map_chr(acl_csv_names_list_raw, ~file.path(acl_dir_path, .x))
-  acl_xls_names_list <- map_chr(acl_xls_names_list_raw, ~file.path(acl_dir_path, .x))
-# browser()  
+  acl_csv_names_list <-
+    map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
+  acl_xls_names_list <-
+    map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
+  # browser()  
   acl_species_list <- load_csv_names(my_paths, acl_csv_names_list)
   
   # str(acl_species_list)
   
   acl_estimate_usa <- 
     load_xls_names(my_paths, acl_xls_names_list,
-                   sheet_n = "mripaclspec_rec81_22wv6_01mar23") 
+                   sheet_n = "MRIP_FES_rec81_22wv6_01May23") 
 
     output <- list(acl_species_list, acl_estimate_usa)
   return(output)
