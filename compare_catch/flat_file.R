@@ -1,6 +1,8 @@
 #----General Notes on how code works ----
 
 # Input data
+# https://drive.google.com/drive/u/0/folders/1T0DqxoaNFOIsU-bYL-sizulMUFkANIJ2
+
 # (1) SEFHIER data
 # "FHIER_all_logbook_data.csv"
 
@@ -172,6 +174,7 @@ my_headers_case_function <- tolower
 load_all_logbooks <- function() {
   species_count_csv_names_list = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
   
+  # The auxiliary function load_csv_names shows how the relative path works in this case
   fhier_all_logbook_data <-
     load_csv_names(my_paths, species_count_csv_names_list)
   
@@ -301,6 +304,7 @@ fhier_logbooks_content_date_fixed_tmp <-
     trip_end_date
   ))
 
+# I checked all other dates for these entries and it looks like 2022 is correct.
 fhier_logbooks_content_date_fixed <-
   fhier_logbooks_content_date_fixed_tmp %>%
   # manually change the wrong value
