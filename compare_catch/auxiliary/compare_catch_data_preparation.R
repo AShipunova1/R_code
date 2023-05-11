@@ -217,24 +217,6 @@ fhier_logbooks_content_waves__sa_gom %>%
 
 # glimpse(fhier_logbooks_content_waves__sa_gom)
 
-## combine dolphin and dolphinfish for FHIER data ----
-fhier_logbooks_content_waves__sa_gom_dolph <-
-  fhier_logbooks_content_waves__sa_gom %>%
-  rename(common_name_orig = common_name) %>%
-  mutate(common_name = if_else(
-    tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
-    "DOLPHIN",
-    common_name_orig
-    )
-  )
-
-# glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
-
-### test: dolphins ----
-fhier_logbooks_content_waves__sa_gom_dolph %>%
-  filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
-  select(common_name_orig, common_name) %>% unique()
-
 ## add scientific names ----
 # grep("sci", names(fhier_logbooks_content_waves__sa_gom_dolph), value = T, ignore.case = T)
 
@@ -247,27 +229,25 @@ sefhier_spp <-
 # %>% glimpse()
 # 736
 
-mrip_spp_2022 %<>%
-  mutate(scientific_name_mrip = toupper(new_sci))
+# mrip_spp_2022 %<>%
+  # mutate(scientific_name_mrip = toupper(new_sci))
+# names(fhier_logbooks_content_waves__sa_gom)
+# grep("common", names(fhier_logbooks_content_waves__sa_gom), value = T, ignore.case = T)
+
+fhier_logbooks_content_waves__sa_gom %<>%
+  rename(species_itis = catch_species_itis)
 
 fhier_catch_by_species_state_region_waves_w_spp <-
-full_join(fhier_catch_by_species_state_region_waves,
-          sefhier_spp) 
-# Joining with `by = join_by(species_itis, common_name)`
+full_join(fhier_logbooks_content_waves__sa_gom,
+          sefhier_spp,
+          by = join_by(species_itis, common_name)) 
 # same species_itis has 2 common_names, e.g. for DOLPHIN and DOLPHINFISH
 
 fhier_catch_by_species_state_region_waves_w_spp %>%
   filter(is.na(scientific_name)) %>%
   glimpse()
-# Rows: 212
+# Rows: 8,948
 
-fhier_catch_by_species_state_region_waves_w_spp %>%
-  filter(is.na(scientific_name)) %>% 
-  select(species_itis, common_name, fhier_quantity_by_4) %>%
-  group_by(species_itis, common_name) %>%
-  summarise(sum_cnts = sum(fhier_quantity_by_4)) %>%
-  ungroup() %>%
-  arrange(desc(sum_cnts)) %>% head(2)
 #   species_itis common_name  sum_cnts
 #   <chr>        <chr>           <int>
 # 1 169059       GRUNT, WHITE    69394
@@ -302,6 +282,31 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
   unique() %>% View()
 # glimpse()
 # 4
+
+fhier_catch_by_species_state_region_waves_w_spp %>%
+  # filter(grepl("DOLPHIN", common_name, ignore.case = T)) %>%
+  filter(species_itis == "168790") %>%
+  select(scientific_name, species_itis, common_name) %>%
+  unique() %>% View()
+
+## combine dolphin and dolphinfish for FHIER data ----
+fhier_logbooks_content_waves__sa_gom_dolph <-
+  fhier_logbooks_content_waves__sa_gom %>%
+  rename(common_name_orig = common_name) %>%
+  mutate(common_name = if_else(
+    tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
+    "DOLPHIN",
+    common_name_orig
+    )
+  )
+
+# glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
+
+### test: dolphins ----
+fhier_logbooks_content_waves__sa_gom_dolph %>%
+  filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
+  select(common_name_orig, common_name) %>% unique()
+
 
 ## calculate catch ----
 # names(fhier_logbooks_content_waves__sa_gom_dolph)
