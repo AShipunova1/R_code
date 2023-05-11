@@ -33,7 +33,18 @@ load_all_logbooks <- function() {
 logbooks_content <- load_all_logbooks()
 # str(logbooks_content)
 
-# ---- 2) ACL (Annual Catch Limits surveys) ----
+## load sefhier spp.
+# "my_inputs\compare_catch\SEFHIER data\SEFHIER_species.xlsx"
+# sheet name is "Species tree"
+
+sefhier_sp_file_path <- r"(compare_catch\SEFHIER data\SEFHIER_species.xlsx)"
+sheet_name <- "Species Tree"
+
+sefhier_sp <- 
+    load_xls_names(my_paths, c(sefhier_sp_file_path),
+                   sheet_n = sheet_name) 
+
+# ---- 2) MRIP rec ACL (Annual Catch Limit surveys) ----
 load_acl_data <- function() {
   acl_dir_path <- "compare_catch/MRIP data"
   acl_csv_names_list_raw <- c(
