@@ -40,7 +40,7 @@ logbooks_content <- load_all_logbooks()
 sefhier_sp_file_path <- r"(compare_catch\SEFHIER data\SEFHIER_species.xlsx)"
 sheet_name <- "Species Tree"
 
-sefhier_sp <- 
+sefhier_sp_all <- 
     load_xls_names(my_paths, c(sefhier_sp_file_path),
                    sheet_n = sheet_name) 
 

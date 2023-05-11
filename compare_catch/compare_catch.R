@@ -36,6 +36,50 @@ acl_estimate_2022 %>%
   # Rows: 14
   glimpse()
 
+# View(sefhier_sp)
+### compare with sefhier spp. 
+mrip_spp_2022 <-
+  acl_estimate_2022 %>%
+  select(itis_code, species_code, species, sp_code, new_sci, new_com) %>%
+  unique()
+
+sefhier_spp <-
+  sefhier_sp_all %>%
+  select(species_itis, scientific_name, common_name) %>%
+  unique()
+# %>% glimpse()
+# 736
+# names(sefhier_sp)
+
+mrip_spp_2022 %<>%
+  mutate(scientific_name_mrip = toupper(new_sci))
+
+mrip_spp_2022 %>%
+  filter(is.na(scientific_name))
+# 0
+
+### join spp by scientific name ----
+mrip_sefhier_spp_by_sci_name <-
+  full_join(mrip_spp_2022, sefhier_spp,
+          by = join_by(scientific_name_mrip == scientific_name))
+
+mrip_sefhier_spp_by_sci_name %>%
+  filter(is.na(scientific_name)) %>% View()
+# 663
+
+View(mrip_sefhier_spp_by_sci_name)
+mrip_sefhier_spp_by_sci_name %>%
+  filter(is.na(species_itis)) %>%
+  # glimpse()
+# Rows: 4
+  select(new_sci)
+# 1 Seriola spp.          
+# 2 Caranx ruber          
+# 3 Epinephelus cruentatus
+# 4 Labridae              
+
+
+
 ## All FHIER common names and itis in a separate data frame ----
 fhier_common_names <-
   fhier_logbooks_content %>%
