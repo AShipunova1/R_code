@@ -53,6 +53,8 @@ read_shapefile <- function(filename) {
   return(x)
 }
 
+# https://www.fisheries.noaa.gov/resource/map/defined-fishery-management-areas-south-atlantic-states-map-gis-data
+
 sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 

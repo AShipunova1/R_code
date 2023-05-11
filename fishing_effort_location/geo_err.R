@@ -1,3 +1,4 @@
+library(sp)
 # errors in geo data ----
 # 1) a sign
 # 2) on land
@@ -22,20 +23,22 @@
 # Max.   : 90.00   Max.   : 137.59
 
 # ===
-data_overview(db_data)
+# data_overview(db_data)
 
 lat_long_to_map <- function(my_df, my_title) {
   my_df %>%
-  # save info to show on the map
-  mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
-  # convert to sf
-  # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
-  to_sf() %>%
-  mapview(
-    col.regions = viridisLite::turbo,
-    layer.name = my_title,
-    legend = TRUE
-  ) %>% return()
+    # save info to show on the map
+    mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+    # convert to sf
+    # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
+    st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+             crs = st_crs(sa_shp)) %>%
+    mapview(
+      col.regions = viridisLite::turbo,
+      layer.name = my_title,
+      legend = TRUE
+    ) %>% return()
 }
 
 # 1) a sign ----
@@ -118,8 +121,14 @@ corrected_data <-
   # remove all entries with missing coords
   filter(complete.cases(.))
 
-corrected_data_map <- to_sf(corrected_data) %>% mapview()
-View(corrected_data_map)
+# corrected_data_sf <- to_sf(corrected_data) 
+corrected_data_sf <- 
+  corrected_data %>%
+    st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+             crs = st_crs(sa_shp))
+# corrected_data_map <- corrected_data_sf %>% mapview()
+# View(corrected_data_map)
 # 11998
 
 # shape files maps ----
@@ -130,19 +139,143 @@ m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
 
-minus_map <- st_intersection(corrected_data_sf, m_s)
-st_crs(m_s)
+# st_crs(m_s)
 # Coordinate Reference System: NA
 st_crs(corrected_data_sf)
 # Coordinate Reference System:
-#   User input: EPSG:4326 
-#   wkt:
-# ...
-  # st_crs(x) == st_crs(y) is not TRUE
+    # ID["EPSG",4269]]
 
-  # corrected_data_sf - m_s - m_g
-# Error in `-.POSIXt`(left, right) : 
-#   can only subtract numbers from "POSIXt" objects
+st_crs(sa_shp)
+st_crs(gom_shp)
+# Coordinate Reference System:
+#   User input: NAD83
+    # ID["EPSG",4269]]
 
+identical(st_crs(sa_shp),
+st_crs(gom_shp)
+)
+# TRUE
+# m_s@map$x$options$crs
+# $crsClass
+# [1] "L.CRS.EPSG3857"
 
+# in_sa <- st_intersection(corrected_data_sf, sa_shp)
+# attribute variables are assumed to be spatially constant throughout all geometries 
 
+# st_crs(corrected_data_sf)
+# st_crs(sa_shp)
+
+# mapview(minus_map)
+# subset
+# mapview(corrected_data_sf[sa_shp, ])
+# lat_lon_data[shapefile_data, ]
+
+minus_sa <- st_difference(corrected_data_sf, sa_shp)
+# Warning message:
+# attribute variables are assumed to be spatially constant throughout all geometries 
+
+mapview(minus_sa)
+
+sf_use_s2(FALSE)
+# Spherical geometry (s2) switched off
+
+# minus_gom <- st_difference(corrected_data_sf, gom_shp)
+# although coordinates are longitude/latitude, st_difference
+# assumes that they are planar
+# in_gom <- st_intersection(corrected_data_sf, gom_shp)
+
+dim(minus_sa)
+# [1] 44023    20
+
+# minus_sa_gom <- st_difference(gom_shp, minus_sa)
+minus_sa_gom2 <- st_difference(minus_sa, gom_shp)
+
+# p <- poly2nb(st_make_valid(shp))
+
+mm <- mapview(minus_sa_gom2, color = "green")
+
+View(minus_sa_gom2)
+
+mm + m_g + m_s
+# m_s is still resent?
+
+# A helper function that erases all of y from x: ----
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+
+names(corrected_data) %>% paste0(collapse = ", ")
+
+corrected_data_short_sf <-
+  corrected_data %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    LATITUDE,
+    LONGITUDE,
+    MINIMUM_BOTTOM_DEPTH,
+    MAXIMUM_BOTTOM_DEPTH,
+    FISHING_GEAR_DEPTH
+  ) %>%
+  st_as_sf(coords = c("LONGITUDE",
+                      "LATITUDE"),
+           crs = st_crs(sa_shp))
+
+# str(corrected_data_short_sf)
+# Classes ‘sf’ and 'data.frame':	11998 obs. of  6 variables:
+
+# st_difference(corrected_data_short_sf, 
+#               st_union(st_combine(c(gom_shp, sa_shp))))
+
+union_shp <- st_union(gom_shp, sa_shp)
+# although coordinates are longitude/latitude, st_union assumes that they are planar
+# Warning message:
+# attribute variables are assumed to be spatially constant throughout all geometries 
+
+plot(union_shp)
+
+# st_difference(corrected_data_short_sf, 
+#               st_union(st_combine(c(gom_shp, sa_shp))))
+
+corrected_data_short_minus_union_shp <-
+  st_difference(corrected_data_short_sf, union_shp)
+# although coordinates are longitude/latitude, st_difference
+# assumes that they are planar
+
+# write_csv(corrected_data_short_minus_union_shp, "short_minus_sa_gom.csv")
+
+m_minus <- mapview(corrected_data_short_minus_union_shp, color = "green")
+# View(corrected_data_short_minus_union_shp)
+
+m_minus + mapview(union_shp)
+
+# minus sa again? ----
+
+all_minus_sa <-
+  st_difference(corrected_data_short_minus_union_shp, sa_shp)
+
+write_csv(all_minus_sa, "all_minus_sa.csv")
+
+m_all_minus_sa <-
+  mapview(
+    all_minus_sa,
+    col.regions = "green",
+    layer.name = 'Not in GOM or SA',
+    alpha = 0.3,
+    cex = 1
+  )
+
+m_all_minus_sa + union_shp
+# ===
+
+# FL ---
+# https://catalog.data.gov/dataset/tiger-line-shapefile-2019-state-florida-current-place-state-based/resource/fcf74536-aeab-4ed1-a9df-06daf29a527b
+
+fl_shp <- read_shapefile("tl_2019_12_place_FL/tl_2019_12_place.shp")
+
+st_crs(fl_shp)
+    # ID["EPSG",4269]]
+
+on_land <- st_intersection(corrected_data_short_sf, fl_shp)
+dim(on_land)
+# [1] 3660   22
+
+m_l <- mapview(on_land)

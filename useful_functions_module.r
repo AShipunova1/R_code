@@ -59,7 +59,7 @@ load_csv_names <- function(my_paths, csv_names_list) {
   # read all csv files
   # contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
   contents <- lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
-  
+
   return(contents)
 }
 
@@ -74,13 +74,13 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # start_time <- Sys.time()
   ## read all files
   contents <- map_df(myfiles,
-         ~read_excel(.x, 
-                     sheet = sheet_n, 
+         ~read_excel(.x,
+                     sheet = sheet_n,
                      .name_repair = fix_names,
                      guess_max = 21474836,
                      col_types = "text"))
   # %>%
-  # , col_types = "character" 
+  # , col_types = "character"
   #   type_convert(guess_integer = TRUE)
   # end_time <- Sys.time()
   # print(end_time - start_time)
@@ -123,7 +123,7 @@ clean_weeks <- function(my_df) {
   return(my_df)
 }
 
-# trim vesselofficialnumber, there are 273 w spaces in Feb 2023
+# trim vesselofficialnumber, there are 273 white spaces in Feb 2023
 trim_all_vessel_ids_simple <-
   function(csvs_clean_ws, col_name_to_trim = NA) {
     csvs_clean <- lapply(csvs_clean_ws, function(x) {
@@ -142,7 +142,7 @@ trim_all_vessel_ids_simple <-
     return(csvs_clean)
   }
 
-# cleaning, regularly done for csvs downloaded from PFIER
+# cleaning, regularly done for csvs downloaded from PHIER
 clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
   # unify headers
   csvs_clean0 <- lapply(csvs, clean_headers)
@@ -205,7 +205,7 @@ add_count_contacts <- function(all_data_df_clean) {
   # browser()
   contactdate_field_name <- find_col_name(all_data_df_clean, "contact", "date")[1]
   vessel_id_field_name <- find_col_name(all_data_df_clean, "vessel", "number")[1]
-  
+
   # browser()
   all_data_df_clean %>%
     # add a new column with a "yes" if there is a contactdate (and a "no" if not)
@@ -235,7 +235,7 @@ data_overview <- function(my_df) {
 }
 
 count_uniq_by_column <- function(my_df) {
-  sapply(my_df, function(x) length(unique(x))) %>% 
+  sapply(my_df, function(x) length(unique(x))) %>%
     as.data.frame()
 }
 
@@ -299,10 +299,10 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
 
   # ---- specific correspondence manipulations ----
   corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
-  
+
   ## ---- specific compliance manipulations ----
   compl_arr <- csvs_clean1[2:length(csvs_clean1)]
-  
+
   compl_clean <- compliance_cleaning(compl_arr)
   return(list(compl_clean, corresp_arr_contact_cnts_clean))
 }
@@ -321,7 +321,7 @@ corresp_cleaning <- function(csvs_clean1){
     change_to_dates(createdon_field_name, "%m/%d/%Y %H:%M") %>%
     change_to_dates(contactdate_field_name, "%m/%d/%Y %I:%M %p") ->
     corresp_arr_contact_cnts_clean
-  
+
   return(corresp_arr_contact_cnts_clean)
 }
 
@@ -333,11 +333,11 @@ compliance_cleaning <- function(compl_arr){
   if (!length(compl_arr) == 1) {
     compl <- join_same_kind_csvs(compl_arr)
   }
-  
-  permitgroupexpiration <- grep("permit.*group.*expiration", 
+
+  permitgroupexpiration <- grep("permit.*group.*expiration",
                            tolower(names(compl)),
                            value = T)
-  
+
   compl %>%
     # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
     clean_weeks() %>%
@@ -369,7 +369,7 @@ cat_filter_for_fhier <- function(my_characters) {
                        "cat_out.txt"))
 }
 
-# 
+#
 # benchmarking to insert inside a function
 # browser()
 # time_for_appl <<- benchmark(replications=rep(10, 3),
@@ -386,24 +386,24 @@ cat_filter_for_fhier <- function(my_characters) {
 # sappl_exp <- function(){
 #   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
 # }
-# 
+#
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
 #   map_df(my_df, my_fun)
 # }
-# 
+#
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
 #                             exp1,
 #                             exp2,
 #                             columns = c('test', 'elapsed', 'relative')
 # )
-# 
+#
 # map_df(my_df, function(x) length(unique(x)))
 # to compare:
 # time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
 
 connect_to_secpr <- function() {
-  # usage: 
+  # usage:
   # con <- connect_to_secpr()
   my_username <- keyring::key_list("SECPR")[1, 2]
   con = dbConnect(
@@ -444,11 +444,11 @@ legend_for_grid_arrange <- function(legend_plot) {
   #     breaks = c('Mean', 'Num of weeks'),
   #     values = my_colors
   #   )
-  # 
+  #
   # legend_plot
-  
+
   my_legend <-
     cowplot::get_legend(legend_plot)
-  
+
   return(my_legend)
 }
