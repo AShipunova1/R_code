@@ -160,19 +160,22 @@ fhier_logbooks_content_waves_fl_county %>%
 
 # NOT-SPECIFIED
 
-## states to regions ----
-# list of states in the South Atlantic region (from the Internet)
+## Other states to regions ----
+# list of states in the South Atlantic region
+# https://safmc.net/about/#:~:text=The%20South%20Atlantic%20Council%20is,east%20Florida%20to%20Key%20West
+# The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
+
 states_sa <- data.frame(
   state_name = c(
-    "Delaware",
-    "District of Columbia",
+    # "Delaware",
+    # "District of Columbia",
     # "Florida", # exclude, we have it separated by county
     "Georgia",
-    "Maryland",
+    # "Maryland",
     "North Carolina",
     "South Carolina",
-    "Virginia",
-    "West Virginia"
+    # "Virginia",
+    # "West Virginia"
   )
 )
 
