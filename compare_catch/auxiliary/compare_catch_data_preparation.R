@@ -231,10 +231,77 @@ fhier_logbooks_content_waves__sa_gom_dolph <-
 fhier_logbooks_content_waves__sa_gom_dolph %>%
   filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
   select(common_name_orig, common_name) %>% unique()
-# ---
+
+## add scientific names ----
+# grep("sci", names(fhier_logbooks_content_waves__sa_gom_dolph), value = T, ignore.case = T)
+
+# grep("sci", names(fhier_logbooks_content), value = T, ignore.case = T)
+
+sefhier_spp <-
+  sefhier_sp_all %>%
+  select(species_itis, scientific_name, common_name) %>%
+  unique()
+# %>% glimpse()
+# 736
+
+mrip_spp_2022 %<>%
+  mutate(scientific_name_mrip = toupper(new_sci))
+
+fhier_catch_by_species_state_region_waves_w_spp <-
+full_join(fhier_catch_by_species_state_region_waves,
+          sefhier_spp) 
+# Joining with `by = join_by(species_itis, common_name)`
+# same species_itis has 2 common_names, e.g. for DOLPHIN and DOLPHINFISH
+
+fhier_catch_by_species_state_region_waves_w_spp %>%
+  filter(is.na(scientific_name)) %>%
+  glimpse()
+# Rows: 212
+
+fhier_catch_by_species_state_region_waves_w_spp %>%
+  filter(is.na(scientific_name)) %>% 
+  select(species_itis, common_name, fhier_quantity_by_4) %>%
+  group_by(species_itis, common_name) %>%
+  summarise(sum_cnts = sum(fhier_quantity_by_4)) %>%
+  ungroup() %>%
+  arrange(desc(sum_cnts)) %>% head(2)
+#   species_itis common_name  sum_cnts
+#   <chr>        <chr>           <int>
+# 1 169059       GRUNT, WHITE    69394
+# 2 168790       DOLPHIN         65203
+
+# TODO combine 
+# 1) 
+# 169059 GRUNT, WHITE
+# 613026 GRUNT, WHITE
+# 2)
+# 168790       DOLPHIN (Genus	Coryphaena Linnaeus, 1758) 
+# https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=168790#null
+# with
+# CORYPHAENA
+# 168790
+# DOLPHINFISH
+# ?
+# "DOLPHIN, POMPANO" (Coryphaena equiselis  Linnaeus, 1758
+# Taxonomic Serial No.: 168792
+# )
+# "DOLPHINFISH" (Coryphaena hippurus  Linnaeus, 1758
+# Taxonomic Serial No.: 168791
+# )
+
+# grep("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, value = T, ignore.case = T) %>%
+  # unique()
+# "DOLPHIN"          "DOLPHIN, POMPANO" "DOLPHINFISH"     
+
+fhier_catch_by_species_state_region_waves_w_spp %>%
+  filter(grepl("DOLPHIN", common_name, ignore.case = T)) %>%
+  select(scientific_name, species_itis, common_name) %>%
+  unique() %>% View()
+# glimpse()
+# 4
 
 ## calculate catch ----
-
+# names(fhier_logbooks_content_waves__sa_gom_dolph)
 fhier_catch_by_species_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom_dolph %>%
   # select only relevant columns
@@ -416,7 +483,7 @@ identical(names(fhier_catch_by_species_state_region_waves)[c(1, 3:6)],
           names(acl_estimate_catch_by_species_state_region_waves)[1:5])
 # T
 
-## combine TNS ----
+## TODO: combine TNS ----
 # GRUNT, WHITE	F: 613026, 169059, MRIP 169059
 # dolphin: 168790, 168791
 # GRUNTS, HAEMULIDAE (FAMILY), Atlantic croaker: 169055, 169056, 169283
