@@ -175,26 +175,26 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 ## keep only entries for spp. in the top ten list, separately for each region ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis %in% gom_top_spp$species_itis)
+  filter(species_itis_fhier %in% gom_top_spp$species_itis)
 # 231  
-# filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
-# Rows: 217
+# 250
+
 # str(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
-# ?'data.frame':	196 obs. of  6 variables
+# 'data.frame':	196 obs. of  6 variables
 # 'data.frame':	238 obs. of  6 variables (new list)
+# 'data.frame':	250 obs. of  9 variables new file and sero only
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis %in% sa_top_spp$species_itis)
-# %>%
-#   mutate()
-  
+  filter(species_itis_fhier %in% sa_top_spp$species_itis)
+
 glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # Rows: 300
 # Rows: 274
 # 173
 # 228 (new list)
 # 206 with combined dolphins
+# 179 new file and sero only
 
 # fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>% select(common_name) %>% unique()
 
