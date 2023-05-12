@@ -36,7 +36,12 @@ fhier_acl_catch_by_species_state_region_waves <-
   )
 
 dim(fhier_acl_catch_by_species_state_region_waves)
-# [1] 6604   11
+# [1] 5738   11
+
+# fhier_acl_catch_by_species_state_region_waves %>%
+#   filter(!(species_itis_fhier == species_itis_mrip)) %>%
+#   glimpse()
+# 0
 
 ## NA counts to 0 ----
 # change NAs to 0 where one or another agency doesn't have counts for this species
