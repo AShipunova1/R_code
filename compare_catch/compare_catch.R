@@ -51,8 +51,8 @@ View(fhier_acl_catch_by_species_state_region_waves)
 
 ## NA counts to 0 ----
 # change NAs to 0 where one or another agency doesn't have counts for this species
-fhier_acl_catch_by_species_state_region_waves_0 <-
-  fhier_acl_catch_by_species_state_region_waves %>%
+# fhier_acl_catch_by_species_state_region_waves_0 <-
+fhier_acl_catch_by_species_state_region_waves %<>%
   mutate(
     fhier_quantity_by_4 =
       replace_na(fhier_quantity_by_4, 0),
