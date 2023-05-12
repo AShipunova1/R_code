@@ -443,8 +443,9 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
 
 ## calculate_cnt_index function ----
 calculate_cnt_index <- function(my_df) {
+  # browser()
   my_df %>%
-    select(wave, common_name_fhier, fhier_quantity_by_4, acl_estimate_catch_by_4)
+    select(wave, common_name_fhier, fhier_quantity_by_4, acl_estimate_catch_by_4) %>%
     # select(-c(state, species_itis_fhier, species_itis_mrip)) %>%
     mutate_all( ~ replace_na(., 0)) %>%
     group_by(wave, common_name_fhier) %>%
@@ -461,10 +462,10 @@ calculate_cnt_index <- function(my_df) {
 
 ### GOM index ----
 fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
-View(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 # names(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 
-# glimpse(fhier_acl_gom_ind)
+glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
 #   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
 #   select(wave) %>% unique()
