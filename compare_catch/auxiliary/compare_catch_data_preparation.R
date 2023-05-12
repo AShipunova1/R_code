@@ -419,6 +419,17 @@ dim(acl_estimate_2022)
 # data_overview(acl_estimate_2022)
 # new_sci            77
 
+#### check FL sa_gom ----
+acl_estimate_2022 %>%
+  select(new_sta, sub_reg, fl_reg) %>% unique() %>%
+  filter(new_sta %in% c("FLE", "FLW"))
+#   new_sta sub_reg fl_reg
+# 1 FLE     6       5     
+# 2 FLE     6       4     
+# 3 FLW     7       1     
+# 4 FLW     7       3     
+# 5 FLW     7       2     
+
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
   # select the relevant columns only
