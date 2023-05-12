@@ -242,24 +242,35 @@ sefhier_spp <-
 # glimpse(sefhier_spp)
 # 736
 
+fhier_logbooks_content_waves__sa_gom %<>%
+  # rename a column
+  rename(species_itis = catch_species_itis)
+
 # mrip_spp_2022 %<>%
   # mutate(scientific_name_mrip = toupper(new_sci))
 # names(fhier_logbooks_content_waves__sa_gom)
 # grep("common", names(fhier_logbooks_content_waves__sa_gom), value = T, ignore.case = T)
 
+#### check DOLPHIN ----
 grep("DOLPHIN", fhier_logbooks_content_waves__sa_gom$common_name, value = T, ignore.case = T) %>%
   unique()
-# sero_vessel_permit, reported_quantity
-grep("req", names(fhier_logbooks_content_waves__sa_gom), value = T, ignore.case = T)
+# reported_quantity
 
 fhier_logbooks_content_waves__sa_gom %>%
   filter(grepl("DOLPHIN", fhier_logbooks_content_waves__sa_gom$common_name, ignore.case = T)) %>%
-  unique() %>%
-  select(common_name, species_itis, )
+  select(common_name, species_itis) %>%
+  unique()
+#   common_name      species_itis
+#   <chr>            <chr>       
+# 1 DOLPHINFISH      168790      
+# 2 DOLPHIN          168791      
+# 3 DOLPHIN, POMPANO 168792      
 
-fhier_logbooks_content_waves__sa_gom %<>%
-  # rename a column
-  rename(species_itis = catch_species_itis)
+#### add scientific names to fhier data ----
+# fhier_logbooks_content_waves__sa_gom
+# grep("sci", names(fhier_logbooks_content_waves__sa_gom), value = T, ignore.case = T) %>%
+#   unique()
+# 0
 
 fhier_catch_by_species_state_region_waves_w_spp <-
 full_join(fhier_logbooks_content_waves__sa_gom,
