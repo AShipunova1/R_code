@@ -379,9 +379,8 @@ fhier_test_cnts <-
 
 # source("~/R_code_github/compare_catch/compare_catch_fhier_q.R")
 
-## ACL ----
+## rec ACL / MRIP ----
 
-## ---- specifically for "O:\Fishery Data\ACL Data\"
 # from get_data.R
 acl_estimate %<>%
   # using ab1 for catch counts
@@ -420,6 +419,10 @@ dim(acl_estimate_2022)
 names(acl_estimate_2022)
 # data_overview(acl_estimate_2022)
 # new_sci            77
+
+## change_case for scientific_names ----
+acl_estimate_2022 %<>%
+  mutate(new_sci = toupper(new_sci))
 
 #### check FL sa_gom ----
 acl_estimate_2022 %>%
