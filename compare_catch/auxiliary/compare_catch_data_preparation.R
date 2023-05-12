@@ -432,6 +432,13 @@ acl_estimate_2022 %>%
 # 4 FLW     7       3     
 # 5 FLW     7       2     
 
+### change FLE and FLW to FL ----
+# to compare with FHIER
+
+acl_estimate_2022 %<>%
+  mutate(state = case_when(new_sta %in% c("FLE", "FLW") ~ "FL",
+                           .default = new_sta))
+
 ## Get MRIP counts ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
@@ -439,7 +446,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   select(new_sci,
          itis_code,
          new_com,
-         new_sta,
+         state,
          sub_reg,
          # fl_reg,
          year,
@@ -449,7 +456,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   group_by(new_sci,
            itis_code,
            new_com,
-           new_sta,
+           state,
            sub_reg,
            # fl_reg,
            year,
@@ -522,7 +529,7 @@ acl_names <- c(
   'new_sci',
   'itis_code',
   'new_com',
-  'new_sta',
+  'state',
   'sa_gom',
   # 'fl_reg',
   'year',
