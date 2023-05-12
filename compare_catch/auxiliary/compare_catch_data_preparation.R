@@ -285,17 +285,19 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
   summarise(sum_cnt = sum(reported_quantity)) %>%
   ungroup() %>%
   arrange(desc(sum_cnt)) %>%
-  head(2)
+  head()
+# all permits:
 #   species_itis common_name             sum_cnt
 #   <chr>        <chr>                     <int>
 # 1 169059       GRUNT, WHITE              69394
 # 2 172734       FLOUNDERS, PARALICHTHYS    3050
+# SERO permit
+# 1 172734       FLOUNDERS, PARALICHTHYS    3007
+# Taxonomic Serial No.: 172734
+# Genus	Paralichthys Girard, 1858 – Summer flounders, southern flounders
+# many spp
+# https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=172734#null
 
-  # unique() %>% 
-  # arrange(common_name) %>%
-# %>%
-#   dim()
-# Rows: 25
 
 # ---
 #   species_itis common_name  sum_cnts
