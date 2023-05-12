@@ -330,6 +330,7 @@ fhier_catch_by_species_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom_fla %>%
   # select only relevant columns
   select(
+    scientific_name,
     species_itis,
     common_name,
     end_port_state,
@@ -340,6 +341,7 @@ fhier_catch_by_species_state_region_waves <-
   ) %>%
   # group by all of them but "reported_quantity"
   group_by(
+    scientific_name,
     species_itis,
     common_name,
     end_port_state,
@@ -415,7 +417,7 @@ dim(acl_estimate_2022)
 # new file
 # [1] 2088   69
 
-# names(acl_estimate)
+names(acl_estimate_2022)
 # data_overview(acl_estimate_2022)
 # new_sci            77
 
@@ -481,17 +483,6 @@ acl_estimate_catch_by_species_state_region_waves <-
   # drop sub_reg
   select(-sub_reg)
 
-#### check FL sa_gom ----
-acl_estimate_catch_by_species_state_region_waves %>%
-  select(new_sta, sa_gom, fl_reg) %>% unique() %>%
-  filter(new_sta %in% c("FLE", "FLW"))
-#   new_sta sa_gom fl_reg
-# 1     FLE     sa      4
-# 2     FLE     sa      5
-# 3     FLW    gom      1
-# 4     FLW    gom      3
-# 5     FLW    gom      2
-
 
 ### make a test acl one sp. var ----
 # names(acl_estimate_catch_by_species_state_region_waves)
@@ -507,23 +498,47 @@ acl_test_cnts <-
 
 ## rename fields ----
 
-# common field names
-wave_data_names_common <- c("species_itis",
-                     "state",
-                     "sa_gom",
-                     "year",
-                     "wave"
-                    )
+#### FHIER names ----
+names(fhier_catch_by_species_state_region_waves) %>%
+  paste0(collapse = "', '")
 
-# to be sure columns are in the same order
-names(acl_estimate_catch_by_species_state_region_waves)
+fhier_names <-
+  c(
+    'scientific_name',
+    'species_itis',
+    'common_name',
+    'end_port_state',
+    'end_port_sa_gom',
+    'end_year',
+    'end_wave',
+    'fhier_quantity_by_4'
+  )
 
-acl_names <- c("itis_code",
-                "new_sta",
-                "sa_gom",
-                "year",
-                "wave",
-                "acl_estimate_catch_by_4"
+#### MRIP names ----
+names(acl_estimate_catch_by_species_state_region_waves) %>%
+  paste0(collapse = "', '")
+
+acl_names <- c(
+  'new_sci',
+  'itis_code',
+  'new_com',
+  'new_sta',
+  'sa_gom',
+  # 'fl_reg',
+  'year',
+  'wave',
+  'acl_estimate_catch_by_4'
+)
+
+#### common field names ----
+wave_data_names_common <- c(
+    'scientific_name',
+    'species_itis',
+    'common_name',
+    "state",
+    "sa_gom",
+    "year",
+    "wave"
 )
 
 acl_estimate_catch_by_species_state_region_waves %<>%
