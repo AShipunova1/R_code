@@ -430,12 +430,28 @@ acl_estimate_2022 %>%
 # 4 FLW     7       3     
 # 5 FLW     7       2     
 
+## Get MRIP counts ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
   # select the relevant columns only
-  select(new_sci, itis_code, new_sta, sub_reg, fl_reg, year, wave, ab1) %>%
+  select(new_sci,
+         itis_code,
+         new_com,
+         new_sta,
+         sub_reg,
+         # fl_reg,
+         year,
+         wave,
+         ab1) %>%
   # group by all except the counts
-  group_by(new_sci, itis_code, new_sta, sub_reg, fl_reg, year, wave) %>%
+  group_by(new_sci,
+           itis_code,
+           new_com,
+           new_sta,
+           sub_reg,
+           # fl_reg,
+           year,
+           wave) %>%
   # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
   # remove NAs
   summarise(acl_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
@@ -445,7 +461,8 @@ acl_estimate_catch_by_species_state_region_waves <-
 glimpse(acl_estimate_catch_by_species_state_region_waves)
 # 'data.frame':	878 obs. of  6 variables
 # new file
-# Rows: 1,244
+# Rows: 1,244 with fl_reg
+# Rows: 968
 
 # "year" and "wave" to numbers
 acl_estimate_catch_by_species_state_region_waves1 <-
