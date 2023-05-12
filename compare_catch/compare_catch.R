@@ -25,6 +25,12 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/compare_catch/auxiliary/compare_catch_data_preparation.R")
 
+## separate fhier_spp data ----
+fhier_spp <-
+  fhier_acl_catch_by_species_state_region_waves %>%
+  select(species_itis_fhier, common_name_fhier, scientific_name) %>%
+  unique()
+
 ## Join Fhier and ACL ----
 fhier_acl_catch_by_species_state_region_waves <-
   full_join(
