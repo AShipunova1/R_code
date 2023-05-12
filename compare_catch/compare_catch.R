@@ -28,10 +28,15 @@ source("~/R_code_github/compare_catch/auxiliary/compare_catch_data_preparation.R
 ## Join Fhier and ACL ----
 fhier_acl_catch_by_species_state_region_waves <-
   full_join(
-    fhier_catch_by_species_state_region_waves,
-    acl_estimate_catch_by_species_state_region_waves,
-    by = join_by(species_itis, state, sa_gom, year, wave)
+    fhier_catch_by_species_state_region_waves_renamed,
+    acl_estimate_catch_by_species_state_region_waves_renamed,
+    by = join_by(scientific_name, state, sa_gom, year, wave),
+    # Override the default suffixes, c(".x", ".y") in not merged cols
+    suffix = c("_fhier", "_mrip")
   )
+
+dim(fhier_acl_catch_by_species_state_region_waves)
+# [1] 6604   11
 
 ## NA counts to 0 ----
 # change NAs to 0 where one or another agency doesn't have counts for this species
