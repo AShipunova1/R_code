@@ -285,24 +285,22 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
 # $ rec_acl_cnts_by_year_reg <int> 259
 
 acl_estimate_2022 %>%
-  filter(itis_code == '167760') %>%
-  group_by(itis_code, new_moden, year, sub_reg) %>%
+  filter(new_sci == 'MYCTEROPERCA BONACI') %>%
+  group_by(new_sci, new_moden, year, sub_reg) %>%
   summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
-  # 2070
-  # correct (262 + 1808)
-
+# same
 
 # 4) Data By year and state ----
 
 fhier_acl_catch_by_species_state_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(species_itis,
-         common_name,
+  select(species_itis_fhier,
+         common_name_fhier,
          state,
          fhier_quantity_by_4,
          acl_estimate_catch_by_4) %>%
-  group_by(species_itis,
-         common_name,
+  group_by(species_itis_fhier,
+         common_name_fhier,
          state) %>%
   mutate(
     fhier_sum_cnts = sum(fhier_quantity_by_4),
@@ -310,11 +308,6 @@ fhier_acl_catch_by_species_state_year <-
   ) %>%
   select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
   unique()
-
-# test
-# fhier_acl_catch_by_species_state_year %>%
-  # filter(species_itis == '169059') %>%
-  # glimpse()
 
 ## split by state ----
 fhier_acl_catch_by_species_state_year_list <-
@@ -328,9 +321,6 @@ state_year_has_rec_acl_data_list <- fhier_acl_catch_by_species_state_year_list
 # str(state_year_has_rec_acl_data_list)
 
 state_year_has_rec_acl_data_list_new <- c()
-# state_year_has_rec_acl_data_list_new["MA"] <- fhier_acl_catch_by_species_state_year_list["MA"]
-
-# View(state_year_has_rec_acl_data_list_new)
 
 my_st_names <- names(state_year_has_rec_acl_data_list)
 
@@ -343,21 +333,21 @@ for (i in 1:length(my_st_names)) {
 }
 View(state_year_has_rec_acl_data_list_new)
 
-# state_year_has_rec_acl_data_list_new <-
-names(state_year_has_rec_acl_data_list) %>%
-  # repeat for each state
-  map(function(state_abbr) {
-    # get data for this state
-   if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_sum_cnts) > 0) {
-    # browser()
-    # state_year_has_rec_acl_data_list[names(state_year_has_rec_acl_data_list) != state_abbr]# Remove list element
-     # state_year_has_rec_acl_data_list_new["MA"] <- fhier_acl_catch_by_species_state_year_list["MA"]
-   state_year_has_rec_acl_data_list_new[state_abbr] = state_year_has_rec_acl_data_list[state_abbr]
-     # return(state_year_has_rec_acl_data_list[[state_abbr]])
-   }
-  })
+# # state_year_has_rec_acl_data_list_new <-
+# names(state_year_has_rec_acl_data_list) %>%
+#   # repeat for each state
+#   map(function(state_abbr) {
+#     # get data for this state
+#    if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_sum_cnts) > 0) {
+#     # browser()
+#     # state_year_has_rec_acl_data_list[names(state_year_has_rec_acl_data_list) != state_abbr]# Remove list element
+#      # state_year_has_rec_acl_data_list_new["MA"] <- fhier_acl_catch_by_species_state_year_list["MA"]
+#    state_year_has_rec_acl_data_list_new[state_abbr] = state_year_has_rec_acl_data_list[state_abbr]
+#      # return(state_year_has_rec_acl_data_list[[state_abbr]])
+#    }
+#   })
 
-View(state_year_has_rec_acl_data_list_new)
+# View(state_year_has_rec_acl_data_list_new)
 # str(fhier_acl_catch_by_species_state_year)
 # str(fhier_acl_catch_by_species_state_year_list)
 
