@@ -40,7 +40,8 @@ dim(fhier_acl_catch_by_species_state_region_waves)
 
 ## NA counts to 0 ----
 # change NAs to 0 where one or another agency doesn't have counts for this species
-fhier_acl_catch_by_species_state_region_waves %<>%
+fhier_acl_catch_by_species_state_region_waves_0 <-
+  fhier_acl_catch_by_species_state_region_waves %>%
   mutate(
     fhier_quantity_by_4 =
       replace_na(fhier_quantity_by_4, 0),
@@ -51,7 +52,7 @@ fhier_acl_catch_by_species_state_region_waves %<>%
 ### test join ----
 # look at the first 20 entries for mackerel spanish
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(species_itis == test_species_itis) %>% head(20)
+  filter(species_itis_fhier == test_species_itis) %>% head(20)
 
 #| classes: test
 ### test one sp in MRIP ----
