@@ -146,8 +146,8 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
 #### GOM fhier test ----
 # names(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  filter(scientific_name == test_species_name) %>%
+  group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
@@ -205,8 +205,8 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 
 #### test SA, FHIER counts ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  filter(scientific_name == test_species_name) %>%
+  group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
@@ -220,8 +220,8 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
 # GOM, FHIER counts
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  filter(scientific_name == test_species_name) %>%
+  group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
@@ -234,8 +234,8 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
 
 # SA, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  filter(scientific_name == test_species_name) %>%
+  group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
@@ -247,20 +247,26 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
             )
 
 # GOM, ACL counts
+# TODO why numbers are different
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  filter(scientific_name == test_species_name) %>%
+  group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
     select(mackerel_acl_cnt) %>%
-  use_series(mackerel_acl_cnt) %>%
+  use_series(mackerel_acl_cnt) %>% 
+  # head() 173059
   identical(
     acl_test_cnts %>%
               filter(sa_gom == "gom") %>%
               select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
-            )
+#                       new_sci sa_gom mackerel_acl_cnt
+# 1 SCOMBEROMORUS MACULATUS    gom           173409
 
-# numbers are OK
+            )
+# F
+
+# all four above should be TRUE
 
 ### convert to a long format for plotting
 fhier_acl_to_plot_format <- function(my_df) {
