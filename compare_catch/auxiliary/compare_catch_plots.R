@@ -196,7 +196,9 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # 206 with combined dolphins
 # 179 new file and sero only
 
-# fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>% select(common_name) %>% unique()
+# fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
+#   select(common_name_fhier) %>% unique() %>% dim()
+# 11
 
 #| classes: test
 
@@ -282,8 +284,8 @@ fhier_acl_to_plot_format <- function(my_df) {
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
-    group_by(wave, species_itis, common_name, ORIGIN) %>%
+  select(wave, species_itis_fhier, common_name_fhier, ORIGIN, CATCH_CNT) %>%
+    group_by(wave, species_itis_fhier, common_name_fhier, ORIGIN) %>%
     summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
     return()
 }
@@ -301,7 +303,7 @@ plot(fhier_acl_gom_to_plot)
 # plot_by_spp("MACKEREL, SPANISH", fhier_acl_gom_to_plot)
 
 ### GOM plots for each common name from the top 10 ----
-plots10_gom <- map(unique(fhier_acl_gom_to_plot$common_name),
+plots10_gom <- map(unique(fhier_acl_gom_to_plot$common_name_fhier),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_gom_to_plot)}
                )
@@ -337,7 +339,7 @@ fhier_acl_sa_to_plot <-
 # plot(fhier_acl_sa_to_plot)
 
            # for each common name from the top 10
-sa_plots10 <- map(unique(fhier_acl_sa_to_plot$common_name),
+sa_plots10 <- map(unique(fhier_acl_sa_to_plot$common_name_fhier),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_sa_to_plot)}
                )
@@ -435,12 +437,17 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   return(one_ind_plot)
 }
 
+# fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+#   filter(is.na(common_name_fhier)) %>% unique()
+# 0
+
 ## calculate_cnt_index function ----
 calculate_cnt_index <- function(my_df) {
   my_df %>%
-    select(-c(state, species_itis)) %>%
+    select(wave, common_name_fhier, fhier_quantity_by_4, acl_estimate_catch_by_4)
+    # select(-c(state, species_itis_fhier, species_itis_mrip)) %>%
     mutate_all( ~ replace_na(., 0)) %>%
-    group_by(wave, common_name) %>%
+    group_by(wave, common_name_fhier) %>%
     # aggregate counts by states
     summarise(
       fhier_cnts = sum(fhier_quantity_by_4),
@@ -454,7 +461,7 @@ calculate_cnt_index <- function(my_df) {
 
 ### GOM index ----
 fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
-
+View(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 # names(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 
 # glimpse(fhier_acl_gom_ind)
