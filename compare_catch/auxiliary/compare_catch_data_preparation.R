@@ -278,6 +278,7 @@ full_join(fhier_logbooks_content_waves__sa_gom,
           by = join_by(species_itis, common_name)) 
 # some common_names have 2 species_itis, e.g. GRUNT, WHITE
 
+# check if sci name is a NA
 fhier_catch_by_species_state_region_waves_w_spp %>%
   filter(is.na(scientific_name)) %>%
   select(species_itis, common_name, reported_quantity) %>% 
@@ -298,86 +299,30 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
 # many spp
 # https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=172734#null
 
+## add sci name for FLOUNDERS, PARALICHTHYS for FHIER data ----
 
-# ---
-#   species_itis common_name  sum_cnts
-#   <chr>        <chr>           <int>
-# 1 169059       GRUNT, WHITE    69394
-# 2 168790       DOLPHIN         65203
-
-# TODO combine 
-# 1) 
-# 169059 GRUNT, WHITE
-# 613026 GRUNT, WHITE
-# 2)
-# 168790       DOLPHIN (Genus	Coryphaena Linnaeus, 1758) 
-# https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=168790#null
-# with
-# CORYPHAENA
-# 168790
-# DOLPHINFISH
-# ?
-# "DOLPHIN, POMPANO" (Coryphaena equiselis  Linnaeus, 1758
-# Taxonomic Serial No.: 168792
-# )
-# "DOLPHINFISH" (Coryphaena hippurus  Linnaeus, 1758
-# Taxonomic Serial No.: 168791
-# )
-
-# fhier_catch_by_species_state_region_waves_w_spp %>%
-grep("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, value = T, ignore.case = T) %>%
+fhier_catch_by_species_state_region_waves_w_spp %>%
+  filter(grepl("FLOUNDERS", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
+  select(common_name, species_itis, scientific_name) %>%
   unique()
-# "DOLPHIN"          "DOLPHIN, POMPANO" "DOLPHINFISH"     
+#   common_name             species_itis scientific_name
+# 1 FLOUNDERS, PARALICHTHYS 172734       NA             
 
-fhier_catch_by_species_state_region_waves_w_spp %>%
-  filter(grepl("DOLPHIN", common_name, ignore.case = T)) %>%
-  select(scientific_name, species_itis, common_name) %>% 
-  unique() %>% View()
-# glimpse()
-# 4
+fhier_logbooks_content_waves__sa_gom_fla <-
+  fhier_catch_by_species_state_region_waves_w_spp %>%
+  mutate(scientific_name = ifelse(
+    is.na(scientific_name) & species_itis == "172734",
+    "PARALICHTHYS",
+    scientific_name
+  ))
 
-fhier_catch_by_species_state_region_waves_w_spp %>%
-  # filter(grepl("DOLPHIN", common_name, ignore.case = T)) %>%
-  filter(species_itis == "168790") %>%
-  select(scientific_name, species_itis, common_name) %>%
-  unique() %>% View()
-
-## combine GRUNT, WHITE for FHIER data ----
-# 169059 GRUNT, WHITE
-# 613026 GRUNT, WHITE
-
-# fhier_logbooks_content_waves__sa_gom_dolph <-
-#   fhier_catch_by_species_state_region_waves_w_spp %>%
-#   rename(common_name_orig = common_name) %>%
-#   mutate(common_name = if_else(
-#     tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
-#     "DOLPHIN",
-#     common_name_orig
-#     )
-#   )
-
-
-## combine FLOUNDERS, PARALICHTHYS for FHIER data ? ----
-
-
-# not needed any more, why?
-# ## combine dolphin and dolphinfish for FHIER data ----
-# fhier_logbooks_content_waves__sa_gom_dolph <-
-#   fhier_logbooks_content_waves__sa_gom %>%
-#   rename(common_name_orig = common_name) %>%
-#   mutate(common_name = if_else(
-#     tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
-#     "DOLPHIN",
-#     common_name_orig
-#     )
-#   )
-
-# glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
-
-# ### test: dolphins ----
-# fhier_logbooks_content_waves__sa_gom_dolph %>%
-#   filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
-#   select(common_name_orig, common_name) %>% unique()
+#### test: FLOUNDERS ----
+fhier_logbooks_content_waves__sa_gom_fla %>%
+  filter(grepl("FLOUNDERS", fhier_logbooks_content_waves__sa_gom_fla$common_name, ignore.case = T)) %>%
+  select(common_name, species_itis, scientific_name) %>%
+  unique()
+#   common_name             species_itis scientific_name
+# 1 FLOUNDERS, PARALICHTHYS 172734       PARALICHTHYS   
 
 
 ## calculate catch ----
