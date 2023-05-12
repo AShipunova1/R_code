@@ -159,8 +159,8 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 #### SA sa_acl test ----
 
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  filter(scientific_name == test_species_name) %>%
+  group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
       use_series(mackerel_acl_cnt) %>%
   identical(
@@ -616,7 +616,8 @@ grid.arrange(
 
 gom_acl_top_to_plot <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  inner_join(gom_acl_top_common_names)
+  inner_join(gom_acl_top_spp,
+             by = join_by(scientific_name))
 # Joining with `by = join_by(species_itis, common_name)`
 # 'data.frame':	225 obs. of  7 variables:
 
