@@ -4,21 +4,31 @@ source("~/R_code_github/compare_catch/auxiliary/get_data.R")
 
 ## prepare FHIER data ----
 
+### use only entries with sero_vessel_permit ----
+
+logbooks_content_sero <-
+  logbooks_content %>%
+  filter(!is.na(sero_vessel_permit))
+# dim(logbooks_content)
+# 346022
+# dim(logbooks_content_sero)
+# 275734
+
 ## get column names vars ----
 # There are different formats in different available files.
 # Find a column name with "itis" in it
-itis_field_name <- grep("itis", names(logbooks_content), value = T)
+itis_field_name <- grep("itis", names(logbooks_content_sero), value = T)
 # catch_species_itis
 
 # Same for "vessel.*official"
 vessel_id_field_name <-
-  grep("vessel.*official", names(logbooks_content), value = T)
+  grep("vessel.*official", names(logbooks_content_sero), value = T)
 # vessel_official_nbr
 
 ## Fix dates ----
 
 fhier_logbooks_content <-
-  logbooks_content %>%
+  logbooks_content_sero %>%
   # create a new column
   mutate(trip_start_date_time =
     # trip start: combine a date without time, a space and a time
