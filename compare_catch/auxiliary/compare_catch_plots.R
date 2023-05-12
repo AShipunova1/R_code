@@ -658,11 +658,11 @@ grid.arrange(grobs = plots_acl_top_gom,
 
 sa_acl_top_to_plot <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  inner_join(sa_acl_top_common_names)
-# Joining with `by = join_by(species_itis, common_name)`
+  inner_join(sa_acl_top_spp, by = join_by(scientific_name))
+
 # str(sa_acl_top_to_plot)
 # 'data.frame':	331 obs. of  6 variables:
-str(sa_acl_top_common_names)
+
 sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 
 # test the longer format transformation ----
