@@ -52,7 +52,7 @@ fhier_acl_catch_by_species_state_region_waves_0 <-
 ### test join ----
 # look at the first 20 entries for mackerel spanish
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(species_itis_fhier == test_species_itis) %>% head(20)
+  filter(scientific_name == test_species_name) %>% head(20)
 
 #| classes: test
 ### test one sp in MRIP ----
@@ -61,8 +61,10 @@ fhier_acl_catch_by_species_state_region_waves %>%
 #### compare the saved numbers with those in the join, they should be the same ----
 # names(fhier_acl_catch_by_species_state_region_waves)
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis, sa_gom) %>%
+  filter(scientific_name == test_species_name) %>%
+# 
+#   filter(species_itis == test_species_itis) %>%
+  group_by(scientific_name, sa_gom) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(fhier_test_cnts$mackerel_fhier_cnt)
@@ -71,8 +73,8 @@ fhier_acl_catch_by_species_state_region_waves %>%
 # fhier_test_cnts
 
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis, sa_gom) %>%
+  filter(scientific_name == test_species_name) %>%
+  group_by(scientific_name, sa_gom) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_acl_cnt) %>%
   identical(acl_test_cnts$mackerel_acl_cnt)

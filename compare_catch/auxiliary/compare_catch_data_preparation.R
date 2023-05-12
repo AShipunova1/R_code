@@ -356,23 +356,25 @@ fhier_catch_by_species_state_region_waves <-
   as.data.frame()
 
 # data_overview(fhier_catch_by_species_state_region_waves)
+# names(fhier_logbooks_content)
 
 #| classes: test
 ### test: cnts for 1 sp. ----
-test_species_itis <-
-  fhier_logbooks_content %>%
-  filter(tolower(common_name) == "mackerel, spanish") %>%
-  select(catch_species_itis) %>%
+test_species_name <-
+  fhier_catch_by_species_state_region_waves %>%
+  # filter(tolower(common_name) == "mackerel, spanish") %>%
+  filter(tolower(scientific_name) == "scomberomorus maculatus") %>%
+  select(scientific_name) %>%
   unique() %>%
   # get a string, not a df
-  use_series(catch_species_itis)
+  use_series(scientific_name)
 
 fhier_test_cnts <-
   fhier_catch_by_species_state_region_waves %>%
   # get the same species
-  filter(species_itis == test_species_itis) %>%
+  filter(scientific_name == test_species_name) %>%
   # group by region
-  group_by(species_itis, end_port_sa_gom) %>%
+  group_by(scientific_name, end_port_sa_gom) %>%
   # sum the FHIER catch
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   as.data.frame()
@@ -499,9 +501,9 @@ acl_estimate_catch_by_species_state_region_waves <-
 acl_test_cnts <-
   acl_estimate_catch_by_species_state_region_waves %>%
   # get one species
-  filter(itis_code == test_species_itis) %>%
+  filter(tolower(new_sci) == "scomberomorus maculatus") %>%
   # group by region
-  group_by(itis_code, sa_gom) %>%
+  group_by(new_sci, sa_gom) %>%
   # sum the ACL catch
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
@@ -567,10 +569,10 @@ fhier_catch_by_species_state_region_waves_renamed <-
               wave_data_names_common[1:fhier_names_len_to_change])
 
 ### rename fields in the test variables ----
-names(fhier_test_cnts) <- c("species_itis", "sa_gom", "mackerel_fhier_cnt")
+names(fhier_test_cnts) <- c("scientific_name", "sa_gom", "mackerel_fhier_cnt")
 
-# was: "catch_species_itis" "end_port_sa_gom"    "mackerel_fhier_cnt"
 # names(acl_test_cnts)
+# "new_sci"          "sa_gom"           "mackerel_acl_cnt"
 
 ### test: rename fields ----
 names(fhier_catch_by_species_state_region_waves)
