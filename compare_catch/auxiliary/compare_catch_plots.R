@@ -38,11 +38,11 @@ plot_by_year <-
     # browser()
     one_plot_by_year <-
       my_df %>%
-      # make "common_name" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
-      mutate(common_name = reorder(common_name, desc(!!sym(sort_field)))) %>%
+      # make "common_name_fhier" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
+      mutate(common_name_fhier = reorder(common_name_fhier, desc(!!sym(sort_field)))) %>%
       select(-species_itis) %>%
       to_long_format() %>%
-      ggplot(aes(CATCH_CNT, common_name, fill = ORIGIN)) +
+      ggplot(aes(CATCH_CNT, common_name_fhier, fill = ORIGIN)) +
       scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
       # columns are side by side (not stacked)
       geom_col(position = "dodge") +
@@ -76,6 +76,7 @@ plot_by_year <-
   }
 
 # 1) By wave and region ----
+# rename for clarity
 fhier_acl_catch_by_species_state_region_waves_list_for_plot <-
   fhier_acl_catch_by_species_state_region_waves_list
 
@@ -101,7 +102,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
  one_plot <-
   my_df %>%
     # only get the com name from the parameters
-    filter(common_name == !!com_name) %>%
+    filter(common_name_fhier == !!com_name) %>%
   ggplot(
          aes(x = wave,
              y = CATCH_CNT,
