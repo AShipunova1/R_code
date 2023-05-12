@@ -35,7 +35,7 @@ fhier_acl_catch_by_species_state_region_waves <-
     suffix = c("_fhier", "_mrip")
   )
 
-dim(fhier_acl_catch_by_species_state_region_waves)
+View(fhier_acl_catch_by_species_state_region_waves)
 # [1] 5738   11
 
 # fhier_acl_catch_by_species_state_region_waves %>%
@@ -84,14 +84,13 @@ fhier_acl_catch_by_species_state_region_waves %>%
   use_series(mackerel_acl_cnt) %>%
   identical(acl_test_cnts$mackerel_acl_cnt)
 
-# grep("grouper, black", fhier_common_names$common_name, value = T, ignore.case = T)
-
 ## 1a) SEDAR spp. lists ----
-# DOLPHINFISH and DOLPHIN are combined
 # CEDAR spp List by Michelle
 sa_top <- c(
   "BASS, BLACK SEA",
   "DOLPHIN",
+  "DOLPHINFISH",
+  "DOLPHIN, POMPANO",
   "GROUPER, BLACK",
   "GROUPER, GAG",
   "GROUPER, RED",
@@ -101,9 +100,19 @@ sa_top <- c(
   "TRIGGERFISH, GRAY"
 )
 
+grep(
+  "dolphin",
+  fhier_acl_catch_by_species_state_region_waves$common_name_fhier,
+  ignore.case = T,
+  value = T
+) %>% unique()
+# [1] "DOLPHINFISH"      "DOLPHIN, POMPANO" "DOLPHIN"         
+
 sa_top_spp <-
-  fhier_common_names %>%
-  filter(common_name %in% sa_top)
+  fhier_acl_catch_by_species_state_region_waves %>%
+  filter(common_name_fhier %in% sa_top) %>%
+  select(species_itis_fhier, common_name_fhier, scientific_name) %>%
+  unique()
 
 # View(sa_top)
 # intersect(sa_top, fhier_common_names$common_name)
