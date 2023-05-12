@@ -247,7 +247,18 @@ sefhier_spp <-
 # names(fhier_logbooks_content_waves__sa_gom)
 # grep("common", names(fhier_logbooks_content_waves__sa_gom), value = T, ignore.case = T)
 
+grep("DOLPHIN", fhier_logbooks_content_waves__sa_gom$common_name, value = T, ignore.case = T) %>%
+  unique()
+# sero_vessel_permit, reported_quantity
+grep("req", names(fhier_logbooks_content_waves__sa_gom), value = T, ignore.case = T)
+
+fhier_logbooks_content_waves__sa_gom %>%
+  filter(grepl("DOLPHIN", fhier_logbooks_content_waves__sa_gom$common_name, ignore.case = T)) %>%
+  unique() %>%
+  select(common_name, species_itis, )
+
 fhier_logbooks_content_waves__sa_gom %<>%
+  # rename a column
   rename(species_itis = catch_species_itis)
 
 fhier_catch_by_species_state_region_waves_w_spp <-
