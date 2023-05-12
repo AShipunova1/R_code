@@ -235,8 +235,6 @@ for (i in 1:length(my_st_names)) {
 
 View(state_wave_has_rec_acl_data_list_new)
 
-
-
 # 3) Data By year and region ----
 names(fhier_acl_catch_by_species_state_region_waves)
 
@@ -268,7 +266,7 @@ fhier_acl_catch_by_species_region_year_list <-
 
 # test 167760 GROUPER, BLACK ----
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  filter(species_itis == '167760') %>%
+  filter(species_itis_fhier == '167760') %>%
   glimpse()
 # gom
 # fhier_cnts_by_year_reg   <int> 2016
@@ -276,6 +274,15 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 # sa
 # fhier_cnts_by_year_reg   <int> 140
 # rec_acl_cnts_by_year_reg <int> 262
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  filter(species_itis_fhier == '167760') %>%
+  glimpse()
+# new file and sero only gom
+# $ fhier_cnts_by_year_reg   <int> 1731
+# $ rec_acl_cnts_by_year_reg <int> 1894
+# new file and sero only sa
+# $ fhier_cnts_by_year_reg   <int> 140
+# $ rec_acl_cnts_by_year_reg <int> 259
 
 acl_estimate_2022 %>%
   filter(itis_code == '167760') %>%
