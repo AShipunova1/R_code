@@ -324,14 +324,13 @@ fhier_logbooks_content_waves__sa_gom_fla %>%
 #   common_name             species_itis scientific_name
 # 1 FLOUNDERS, PARALICHTHYS 172734       PARALICHTHYS   
 
-
 ## calculate catch ----
 # names(fhier_logbooks_content_waves__sa_gom_dolph)
 fhier_catch_by_species_state_region_waves <-
-  fhier_catch_by_species_state_region_waves_w_spp %>%
+  fhier_logbooks_content_waves__sa_gom_fla %>%
   # select only relevant columns
   select(
-    catch_species_itis,
+    species_itis,
     common_name,
     end_port_state,
     end_port_sa_gom,
@@ -341,7 +340,7 @@ fhier_catch_by_species_state_region_waves <-
   ) %>%
   # group by all of them but "reported_quantity"
   group_by(
-    catch_species_itis,
+    species_itis,
     common_name,
     end_port_state,
     end_port_sa_gom,
@@ -369,9 +368,9 @@ test_species_itis <-
 fhier_test_cnts <-
   fhier_catch_by_species_state_region_waves %>%
   # get the same species
-  filter(catch_species_itis == test_species_itis) %>%
+  filter(species_itis == test_species_itis) %>%
   # group by region
-  group_by(catch_species_itis, end_port_sa_gom) %>%
+  group_by(species_itis, end_port_sa_gom) %>%
   # sum the FHIER catch
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   as.data.frame()
@@ -407,25 +406,35 @@ acl_estimate_2022 <-
 dim(acl_estimate)
 # [1] 1442   67
 # [1] 347379 67
+# new file
+# [1] 372065     69
+# 
 dim(acl_estimate_2022)
 # 8332
 # 1442   
+# new file
+# [1] 2088   69
+
 # names(acl_estimate)
+# data_overview(acl_estimate_2022)
+# new_sci            77
 
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
   # select the relevant columns only
-  select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
+  select(new_sci, itis_code, new_sta, sub_reg, fl_reg, year, wave, ab1) %>%
   # group by all except the counts
-  group_by(itis_code, new_sta, sub_reg, year, wave) %>%
+  group_by(new_sci, itis_code, new_sta, sub_reg, fl_reg, year, wave) %>%
   # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
   # remove NAs
   summarise(acl_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
   # back to an ungrouped form
   as.data.frame()
 
-# glimpse(acl_estimate_catch_by_species_state_region_waves)
+glimpse(acl_estimate_catch_by_species_state_region_waves)
 # 'data.frame':	878 obs. of  6 variables
+# new file
+# Rows: 1,244
 
 # "year" and "wave" to numbers
 acl_estimate_catch_by_species_state_region_waves1 <-
@@ -443,6 +452,18 @@ acl_estimate_catch_by_species_state_region_waves <-
                             .after = sub_reg) %>%
   # drop sub_reg
   select(-sub_reg)
+
+#### check FL sa_gom ----
+acl_estimate_catch_by_species_state_region_waves %>%
+  select(new_sta, sa_gom, fl_reg) %>% unique() %>%
+  filter(new_sta %in% c("FLE", "FLW"))
+#   new_sta sa_gom fl_reg
+# 1     FLE     sa      4
+# 2     FLE     sa      5
+# 3     FLW    gom      1
+# 4     FLW    gom      3
+# 5     FLW    gom      2
+
 
 ### make a test acl one sp. var ----
 # names(acl_estimate_catch_by_species_state_region_waves)
