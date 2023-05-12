@@ -27,9 +27,11 @@ source("~/R_code_github/compare_catch/auxiliary/compare_catch_data_preparation.R
 
 ## separate fhier_spp data ----
 fhier_spp <-
-  fhier_acl_catch_by_species_state_region_waves %>%
-  select(species_itis_fhier, common_name_fhier, scientific_name) %>%
+  fhier_catch_by_species_state_region_waves_renamed %>%
+  select(species_itis, common_name, scientific_name) %>%
   unique()
+# dim(fhier_spp)
+# [1] 748   3
 
 ## Join Fhier and ACL ----
 fhier_acl_catch_by_species_state_region_waves <-
