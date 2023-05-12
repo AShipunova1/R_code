@@ -357,7 +357,6 @@ grid.arrange(grobs = sa_plots10,
              left = sa_my_legend,
              ncol = 3)
 
-
 # source("~/R_code_github/compare_catch_no_na.R")
 
 ## Count Index: use a ACL/FHIER count ratio ----
@@ -410,7 +409,7 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   # browser()
   one_ind_plot <-
     my_df %>%
-    filter(common_name == com_n) %>%
+    filter(common_name_fhier == com_n) %>%
     ggplot(aes(x = wave,
                y = cnt_index,
                fill = as.factor(cnt_index)
@@ -465,7 +464,7 @@ fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region
 # View(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 # names(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 
-glimpse(fhier_acl_gom_ind)
+# glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
 #   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
 #   select(wave) %>% unique()
@@ -497,11 +496,11 @@ mypalette
 
 # use_wave(fhier_acl_gom_ind) %>% glimpse()
 
-one_plot <- plot_ind(use_wave(fhier_acl_gom_ind), "MACKEREL, SPANISH", mypalette)
+one_plot <- plot_ind(fhier_acl_gom_ind, "MACKEREL, SPANISH", mypalette)
 
-gom_ind_plots <- map(unique(fhier_acl_gom_ind$common_name),
+gom_ind_plots <- map(unique(fhier_acl_gom_ind$common_name_fhier),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_ind(use_wave(fhier_acl_gom_ind), x, mypalette)}
+               function(x) {plot_ind(fhier_acl_gom_ind, x, mypalette)}
                )
 
 super_title = "GOM Counts Ratio by Wave 2022"
@@ -530,9 +529,9 @@ names(mypalette) <- sa_all_cnt_indexes
 mypalette
 # mypalette %>% unique()
 
-sa_ind_plots <- map(unique(fhier_acl_sa_ind$common_name),
+sa_ind_plots <- map(unique(fhier_acl_sa_ind$common_name_fhier),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_ind(use_wave(fhier_acl_sa_ind), x, mypalette)}
+               function(x) {plot_ind(fhier_acl_sa_ind, x, mypalette)}
                )
 
 super_title = "SA Counts Ratio by Wave 2022"
@@ -545,7 +544,6 @@ grid.arrange(grobs = sa_ind_plots,
              bottom = footnote,
              # , padding = unit(1, "line")
              ncol = 3)
-
 
 ## show both types of plot together
 
@@ -640,7 +638,7 @@ gom_acl_top_to_plot_longer <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
 View(gom_acl_top_to_plot_longer)
 
 ### GOM plots for each common name from the top 10 ----
-plots_acl_top_gom <- map(unique(gom_acl_top_to_plot_longer$common_name),
+plots_acl_top_gom <- map(unique(gom_acl_top_to_plot_longer$common_name_fhier),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, gom_acl_top_to_plot_longer)}
                )
@@ -691,7 +689,7 @@ sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 
 
 ### sa plots for each common name from the top ACL spp ----
-plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name),
+plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name_fhier),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, sa_acl_top_to_plot_longer)}
                )
@@ -887,11 +885,11 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 
 ### overview plots ----
 fhier_acl_catch_by_species_region_year_list$gom %>%
-  select(-common_name) %>%
+  select(-common_name_fhier) %>%
   plot(main = "GOM by year")
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  select(-common_name) %>%
+  select(-common_name_fhier) %>%
   plot(main = "SA by year")
 
 ## 3) By year and region 1a) SEDAR ----
@@ -937,11 +935,11 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 
 ### overview plots ----
 fhier_acl_catch_by_species_region_year_list$gom %>%
-  select(-common_name) %>%
+  select(-common_name_fhier) %>%
   plot(main = "GOM by year")
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  select(-common_name) %>%
+  select(-common_name_fhier) %>%
   plot(main = "SA by year")
 
 # 4) By year and state ----
@@ -976,7 +974,7 @@ grid.arrange(grobs = state_year_plots,
 #       |
 #         (species_itis %in% sa_top_spp$species_itis)
 #     ) %>%
-#   select(common_name)
+#   select(common_name_fhier)
 # )
 
 state_year_plots_sedar <-
