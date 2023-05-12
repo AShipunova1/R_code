@@ -93,7 +93,6 @@ fhier_acl_catch_by_species_state_region_waves %>%
   identical(acl_test_cnts$mackerel_acl_cnt)
 
 ## 1a) SEDAR spp. lists ----
-# CEDAR spp List by Michelle
 sa_top <- c(
   "BASS, BLACK SEA",
   "DOLPHIN",
@@ -117,14 +116,10 @@ grep(
 # [1] "DOLPHINFISH"      "DOLPHIN, POMPANO" "DOLPHIN"         
 
 sa_top_spp <-
-  fhier_acl_catch_by_species_state_region_waves %>%
-  filter(common_name_fhier %in% sa_top) %>%
-  select(species_itis_fhier, common_name_fhier, scientific_name) %>%
-  unique()
+  fhier_spp %>%
+  filter(common_name %in% sa_top)
+# 11
 
-# View(sa_top)
-# intersect(sa_top, fhier_common_names$common_name)
-# CEDAR spp List by Michelle
 gom_top <- c(
   "AMBERJACK, GREATER",
   "COBIA",
@@ -140,10 +135,11 @@ gom_top <- c(
 )
 
 gom_top_spp <-
-  fhier_common_names %>%
+  fhier_spp %>%
   filter(common_name %in% gom_top)
 
-glimpse(gom_top_spp)
+# glimpse(gom_top_spp)
+# 11
 
 ## an aux function to use only a wave from year_wave
 use_wave <- function(my_df) {
@@ -156,10 +152,10 @@ use_wave <- function(my_df) {
     return()
 }
 
-glimpse(fhier_acl_catch_by_species_state_region_waves)
+dim(fhier_acl_catch_by_species_state_region_waves)
 # Rows: 6,327
 # Columns: 7
-# Rows: 5,728
+# [1] 5738   11
 
 #| warning: false
 ## Separate data frames by region ----
