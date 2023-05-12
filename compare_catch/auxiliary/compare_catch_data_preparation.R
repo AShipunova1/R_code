@@ -541,23 +541,20 @@ wave_data_names_common <- c(
     "wave"
 )
 
-acl_estimate_catch_by_species_state_region_waves %<>%
-  rename_at(vars(acl_names[1:2]),
-            function(x) wave_data_names_common[1:2])
+acl_names_len_to_change <- length(acl_names) - 1
 
-fhier_names <- c(
-  "catch_species_itis",
-  "common_name",
-  "end_port_state",
-  "end_port_sa_gom",
-  "end_year",
-  "end_wave",
-  "fhier_quantity_by_4")
+acl_estimate_catch_by_species_state_region_waves_renamed <-
+  acl_estimate_catch_by_species_state_region_waves %>%
+  rename_at(vars(acl_names[1:acl_names_len_to_change]),
+            function(x) wave_data_names_common[1:acl_names_len_to_change])
 
-# names(fhier_catch_by_species_state_region_waves)
-fhier_catch_by_species_state_region_waves %<>%
-  rename_at(vars(fhier_names[c(1, 3:6)]),
-            function(x) wave_data_names_common[1:5])
+fhier_names_len_to_change <- length(fhier_names) - 1
+
+fhier_catch_by_species_state_region_waves_renamed <-
+  fhier_catch_by_species_state_region_waves %>%
+  rename_at(vars(fhier_names[1:fhier_names_len_to_change]),
+            function(x)
+              wave_data_names_common[1:fhier_names_len_to_change])
 
 ### rename fields in the test variables ----
 names(fhier_test_cnts) <- c("species_itis", "sa_gom", "mackerel_fhier_cnt")
@@ -568,15 +565,7 @@ names(fhier_test_cnts) <- c("species_itis", "sa_gom", "mackerel_fhier_cnt")
 ### test: rename fields ----
 names(fhier_catch_by_species_state_region_waves)
 names(acl_estimate_catch_by_species_state_region_waves)
-identical(names(fhier_catch_by_species_state_region_waves)[c(1, 3:6)],
-          names(acl_estimate_catch_by_species_state_region_waves)[1:5])
+identical(names(fhier_catch_by_species_state_region_waves_renamed)[1:7],
+          names(acl_estimate_catch_by_species_state_region_waves_renamed)[1:7])
 # T
-
-## TODO: combine TNS ----
-# GRUNT, WHITE	F: 613026, 169059, MRIP 169059
-# dolphin: 168790, 168791
-# GRUNTS, HAEMULIDAE (FAMILY), Atlantic croaker: 169055, 169056, 169283
-# TRIGGERFISHES: 173128, 173138, 173139, 173170
-
-
 
