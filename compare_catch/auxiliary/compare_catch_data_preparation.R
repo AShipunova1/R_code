@@ -56,11 +56,12 @@ fhier_logbooks_content_date_fixed <-
     trip_end_date1
   ))
 
-fhier_logbooks_content_date_fixed %<>%
+fhier_logbooks_content_date_fixed_2022 <-
+  fhier_logbooks_content_date_fixed %>%
   filter(year(trip_end_date) == "2022")
 
 fhier_logbooks_content_waves <-
-  fhier_logbooks_content_date_fixed %>%
+  fhier_logbooks_content_date_fixed_2022 %>%
   # add a new column with a trip end Month
   mutate(end_month = as.yearmon(trip_end_date2)) %>%
   # add a new column with a trip end Year
