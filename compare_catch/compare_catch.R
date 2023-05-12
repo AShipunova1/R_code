@@ -170,38 +170,42 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 
 ## 2b) Top 12 ACL spp. ----
 ### GOM Top 12 ACL spp. ----
+# names(acl_estimate_catch_by_species_state_region_waves)
+
+# the common manipulation for both "GOM" and "SA"
+get_acl_top_cnts <- function(my_df, top_num = 12) {
+  my_df %>%
+    select(new_sci, acl_estimate_catch_by_4) %>%
+    group_by(new_sci) %>%
+    summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
+    # sort
+    arrange(desc(acl_count)) %>%
+    head(top_num) %>%
+    return()
+}
+
 gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
-  filter(sa_gom == "gom") %>%
-  select(species_itis, acl_estimate_catch_by_4) %>%
-  group_by(species_itis) %>%
-  summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
-  # sort
-  arrange(desc(acl_count)) %>%
-  head(12)
+  filter(sa_gom == "gom") %>% 
+  get_acl_top_cnts()
 
-gom_acl_top_common_names <-
-  fhier_common_names %>%
-  # keep the subset only
-  filter(species_itis %in% gom_acl_top_spp$species_itis)
+glimpse(gom_acl_top_spp)
+
+# rename the column for future use
+gom_acl_top_spp <-
+  rename(gom_acl_top_spp, scientific_name = new_sci)
 
 ### SA Top 10 ACL spp. ----
 sa_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
   filter(sa_gom == "sa") %>%
-  select(species_itis, acl_estimate_catch_by_4) %>%
-  group_by(species_itis) %>%
-  # sum the counts by species
-  summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
-  # sort
-  arrange(desc(acl_count)) %>%
-  head(12)
-# head(14) 12 fits better in one plot
+  get_acl_top_cnts()
 
-sa_acl_top_common_names <-
-  fhier_common_names %>%
-  # keep the subset only
-  filter(species_itis %in% sa_acl_top_spp$species_itis)
+glimpse(sa_acl_top_spp)
+
+# rename the column for future use
+sa_acl_top_spp <-
+  rename(sa_acl_top_spp, scientific_name = new_sci)
 
 # 2) Data By wave and state ----
 # str(fhier_catch_by_species_state_region_waves)
