@@ -58,35 +58,38 @@ read_shapefile <- function(filename) {
 sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 
-gom_bath_shp <- read_shapefile(r"(gom\bathyc\bathyc.shp)")
+# doesn't work:
+# gom_only <- st_difference(atmx_eez_shp, sa_shp)
+# Warning message:
+# attribute variables are assumed to be spatially constant throughout all geometries 
+# mapview(gom_only,
+        # legend = F)
+
+# gom_bath_shp <- read_shapefile(r"(gom\bathyc\bathyc.shp)")
 # plot(gom_bath_shp)
 # mapview(gom_bath_shp)
 
-gom_protrac_shp <- read_shapefile(r"(gom\protrac_nad83\protrac_nad83.shp)")
-mapview(gom_protrac_shp)
-
-# gom_useez_shp <- read_shapefile(r"(useez/useez.shp)")
-# mapview(gom_useez_shp)
+# Protraction Diagram Polygons for the Gulf of Mexico OCS
+# gom_protrac_shp <- read_shapefile(r"(gom\protrac_nad83\protrac_nad83.shp)")
+# mapview(gom_protrac_shp)
 
 Sys.setenv(SHAPE_RESTORE_SHX = "YES")
 # works Atlantic + GOM:
 atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
-mapview(atmx_eez_shp)
+mapview(atmx_eez_shp, legend = F)
 
-"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\atmx_eez\atmx_eez.shp"
-
-gom_depth_shp <- read_shapefile("gom/w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
-plot(gom_depth_shp)
+# gom_depth_shp <- read_shapefile("gom/w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
+# plot(gom_depth_shp)
 
 # useez <- read_shapefile("Downloads/useez.shp")
 
-gom_depth_shp5_100 <- read_shapefile("gom/w98e78n31s18_isobath_5-100m/w98e78n31s18_isobath_5-100m.shp")
-plot(gom_depth_shp5_100)
+# gom_depth_shp5_100 <- read_shapefile("gom/w98e78n31s18_isobath_5-100m/w98e78n31s18_isobath_5-100m.shp")
+# plot(gom_depth_shp5_100)
 
-gom_depth_shp100_1000 <- read_shapefile("gom/w98e78n31s18_isobath_100-1000m/w98e78n31s18_isobath_100-1000m.shp")
+# gom_depth_shp100_1000 <- read_shapefile("gom/w98e78n31s18_isobath_100-1000m/w98e78n31s18_isobath_100-1000m.shp")
 # plot(gom_depth_shp100_1000)
 
-gom_depth_shp500_4000 <- read_shapefile("gom/w98e78n31s18_isobath_500-4000m/w98e78n31s18_isobath_500-4000m.shp")
+# gom_depth_shp500_4000 <- read_shapefile("gom/w98e78n31s18_isobath_500-4000m/w98e78n31s18_isobath_500-4000m.shp")
 
 # ===
 fl_state_land_waters <- read_shapefile("Florida_State_Waters_and_Land_Boundary/Florida_State_Waters_and_Land_Boundary.shp")
@@ -98,12 +101,10 @@ mapview(fl_state_land_waters)
 # Outer Continental Shelf Submerged Lands Act Boundary - Atlantic Region NAD83
 
 atl_state_waters <- read_shapefile("ATL_SLA/ATL_SLA.shp")
-
 mapview(atl_state_waters)
 
 # ====
-"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp"
 
-fl_state <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
+fl_state_w_counties <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
 
-mapview(fl_state)
+mapview(fl_state_w_counties)

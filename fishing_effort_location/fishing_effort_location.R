@@ -50,9 +50,9 @@ lat_long_sf <-
 m_s <- mapview(sa_shp,
                layer.name = "South Altlantic",
                legend = FALSE)
-m_g <- mapview(gom_shp,
-               layer.name = "Gulf of Mexico",
-               legend = FALSE)
+# m_g <- mapview(gom_shp,
+#                layer.name = "Gulf of Mexico",
+#                legend = FALSE)
 
 g_d <- mapview(gom_depth_shp,
                layer.name = "Gulf of Mexico depth",
