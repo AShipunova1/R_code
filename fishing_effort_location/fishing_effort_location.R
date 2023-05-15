@@ -312,66 +312,100 @@ lat_long_dat_dep_q %>%
 # TODO: remove AVG_DEPTH
 # TODO: create lat_long_dat_dep_q independently
 
-
 # lat long and area ----
 dim(db_area_data)[1]
-# 83 
+# 83 FL
+# 291
 dim(db_data)[1]
 # 254283     
-# 254283 + 83
-# [1] 254366
+# 254283 + 83 = 254366
 
-a <- full_join(db_area_data, db_data)
+db_data_w_area <- full_join(db_area_data, db_data)
 # Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
 # LOCAL_AREA_CODE)`
-dim(a)[1]
-# 254311
-
-b <- full_join(db_data, db_area_data,
-               by = join_by(AREA_CODE,
-                            LOCAL_AREA_CODE))
-# relationship = "many-to-many
-# ℹ Row 55 of `x` matches multiple rows in `y`.
-# ℹ Row 19 of `y` matches multiple rows in `x`.
-dim(b)[1]
-# 384641
-
-c <- full_join(db_data, db_area_data,
-               by = join_by(AREA_CODE))
-dim(c)[1]
-# [1] 388346
-
+dim(db_data_w_area)[1]
+# 254444
 
 lat_long_area <-
-  db_data %>%
+  db_data_w_area %>%
   # labels are a month only
   mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  select(LATITUDE,
-         LONGITUDE,
-         TRIP_START_M,
-         AREA_CODE,
-         DISTANCE_CODE_NAME)
+  select(
+    LATITUDE,
+    LONGITUDE,
+    TRIP_START_M,
+    AREA_CODE,
+    DISTANCE_CODE_NAME,
+    AREA_NAME,
+    SUB_AREA_NAME
+  )
          # , SUB_AREA_CODE, LOCAL_AREA_CODE, DISTANCE_CODE_NAME)
 
-lat_long_area_clean <- clean_lat_long(lat_long_area, 100)
+lat_long_area_clean <- clean_lat_long(lat_long_area, 10000)
 
 lat_long_area_clean_map <-
-    lat_long_area_clean %>%
-    mutate(POINT = paste(LATITUDE,
-         LONGITUDE,
-         TRIP_START_M,
-         AREA_CODE,
-         DISTANCE_CODE_NAME,
-                         sep = ", ")) %>%
-    to_sf() %>%
-    mapview(
-      zcol = "AREA_CODE",
-      col.regions = viridisLite::turbo,
-      layer.name = 'AREA_CODE',
-      cex = "DISTANCE_CODE_NAME",
-      alpha = 0.3,
-      legend = F
+  lat_long_area_clean %>%
+  mutate(
+    POINT = paste(
+      LATITUDE,
+      LONGITUDE,
+      TRIP_START_M,
+      AREA_NAME,
+      SUB_AREA_NAME,
+      AREA_CODE,
+      DISTANCE_CODE_NAME,
+      sep = ", "
     )
-  
-lat_long_area_clean_map + sa_shp
+  ) %>%
+  to_sf() %>%
+  mapview(
+    zcol = "AREA_NAME",
+    col.regions = viridisLite::turbo,
+    layer.name = 'AREA_NAME',
+    # cex = "DISTANCE_CODE_NAME",
+    alpha = 0.3,
+    legend = F
+  )
+
+# SpatialPointsDataFrame(coordinates(gadmCHE), 
+#                                       data = gadmCHE@data, 
+#                                       proj4string = CRS(proj4string(gadmCHE)))
+# 
+# lat_long_area_clean_map + sa_shp
+
+lat_long_area_clean %>%
+  mutate(
+    POINT = paste(
+      LATITUDE,
+      LONGITUDE,
+      TRIP_START_M,
+      AREA_NAME,
+      SUB_AREA_NAME,
+      AREA_CODE,
+      DISTANCE_CODE_NAME,
+      sep = ", "
+    )
+  ) %>%
+  leaflet() %>%
+  addTiles() %>%
+  addMarkers(
+    label = paste0(
+      lat_long_area_clean$LATITUDE,
+      lat_long_area_clean$LONGITUDE,
+      lat_long_area_clean$AREA_NAME,
+      collapse = " "
+    ),
+    # labelOptions = labelOptions(noHide = T),
+    clusterOptions = markerClusterOptions()
+  )
+
+lat_lon %>%
+  leaflet() %>%
+  addTiles() %>%
+  addMarkers(
+    label = lat_lon$haulnum,
+    # paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
+    labelOptions = labelOptions(noHide = T),
+    clusterOptions = markerClusterOptions()
+  )
