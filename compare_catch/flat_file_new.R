@@ -82,6 +82,7 @@ set_work_dir <- function() {
     add_dir <- "R_files_local/test_dir"
   }
 
+  # add an empty or Anna's folder
   main_r_dir <- file.path(add_dir, "SEFHIER/R code/Rec ACL vs SEFHIER stats/")
 
   in_dir <- "Inputs"
@@ -236,7 +237,7 @@ load_all_logbooks <- function() {
   return(logbooks_content[[1]])
 }
 
-# TODO: slow, benchmark
+# use functions from above
 logbooks_content <- load_all_logbooks()
 
 ### load sefhier spp. ----
@@ -269,7 +270,7 @@ load_acl_data <- function() {
   return(output)
 }
 
-# TODO: benchmark, too slow
+# run the function, get the list of dfs
 acl_temp <- load_acl_data()
 
 acl_species_list <- acl_temp[[1]]
@@ -664,7 +665,8 @@ fhier_test_cnts <-
 
 ## ACL data preparations ----
 
-# from get_data.R
+#in case read.xls or .csv created a extra value, or if you read data in as character,
+ #then use integer() here to ensure all values in the ab1 col are now actually numbers
 acl_estimate %<>%
   # using ab1 for catch counts
   # convert to numbers
@@ -672,12 +674,13 @@ acl_estimate %<>%
 
 # str(acl_estimate)
 
+### filtering ----
 acl_estimate_2022 <-
   acl_estimate %>%
   filter(year == "2022") %>%
   # filtering here for just SA (6) and Gulf (7) sub regions
   filter(sub_reg %in% c(6, 7)) %>%
-  # Exclude the SRHS survey according to Dominique and Mike May 1
+  # Exclude the SRHS survey according to Dominique and Mike May 1, 2023
   filter(!(ds == "SRHS")) %>%
   # select(new_mode) %>% unique()
   # the "new_mode" column only has options 1,3 & 4 remaining
@@ -707,6 +710,13 @@ acl_estimate_2022 %>%
 acl_estimate_2022 %<>%
   mutate(state = case_when(new_sta %in% c("FLE", "FLW") ~ "FL",
                            .default = new_sta))
+
+#### test: just for checking we actually filtered the raw data ----
+# View(acl_estimate)
+dim(acl_estimate)[1]
+# 372065
+dim(acl_estimate_2022)[1]
+# 2088   
 
 ## Get MRIP counts ----
 acl_estimate_catch_by_species_state_region_waves <-
