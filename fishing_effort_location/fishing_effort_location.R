@@ -342,7 +342,10 @@ lat_long_area <-
   )
          # , SUB_AREA_CODE, LOCAL_AREA_CODE, DISTANCE_CODE_NAME)
 
-lat_long_area_clean <- clean_lat_long(lat_long_area, 10000)
+all_points <- dim(lat_long_area)[1]
+# 254444
+
+lat_long_area_clean <- clean_lat_long(lat_long_area, all_points)
 
 lat_long_area_clean_map <-
   lat_long_area_clean %>%
@@ -365,7 +368,8 @@ lat_long_area_clean_map <-
     layer.name = 'AREA_NAME',
     # cex = "DISTANCE_CODE_NAME",
     alpha = 0.3,
-    legend = F
+    legend = F,
+    clusterOptions = markerClusterOptions()
   )
 
 # SpatialPointsDataFrame(coordinates(gadmCHE), 
@@ -373,10 +377,6 @@ lat_long_area_clean_map <-
 #                                       proj4string = CRS(proj4string(gadmCHE)))
 # 
 # lat_long_area_clean_map + sa_shp
-
-all_points <- dim(lat_long_area)[1]
-# 254444
-
 
 lat_long_area_for_leaflet <-
   clean_lat_long(lat_long_area, all_points) %>%
