@@ -41,9 +41,19 @@ WHERE
 db_data = dbGetQuery(con,
                      request_query)
 
+data_overview(db_data)
+
+# get area data ----
+
+area_data_query <- 
+  "select * from SAFIS.AREAS_FISHED@secapxdv_dblk.sfsc.noaa.gov 
+  where state = 'FL'"
+
+db_area_data = dbGetQuery(con,
+                     area_data_query)
+
 dbDisconnect(con)
 
-data_overview(db_data)
 # str(db_data)
 # 'data.frame':	306261 obs. of  19 variables
 
