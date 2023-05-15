@@ -653,6 +653,7 @@ test_species_name <-
   # get a string, not a df
   use_series(scientific_name)
 
+#test: cnts for 1 sp. in both regions (GOM vs SA)
 fhier_test_cnts <-
   fhier_catch_by_species_state_region_waves %>%
   # get the same species
@@ -716,9 +717,10 @@ acl_estimate_2022 %<>%
 dim(acl_estimate)[1]
 # 372065
 dim(acl_estimate_2022)[1]
-# 2088   
+# 2088
 
 ## Get MRIP counts ----
+### sum catch by state, region and wave ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
   # select the relevant columns only
@@ -727,7 +729,6 @@ acl_estimate_catch_by_species_state_region_waves <-
          new_com,
          state,
          sub_reg,
-         # fl_reg,
          year,
          wave,
          ab1) %>%
@@ -737,7 +738,6 @@ acl_estimate_catch_by_species_state_region_waves <-
            new_com,
            state,
            sub_reg,
-           # fl_reg,
            year,
            wave) %>%
   # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
@@ -748,12 +748,13 @@ acl_estimate_catch_by_species_state_region_waves <-
 
 # glimpse(acl_estimate_catch_by_species_state_region_waves)
 
-# "year" and "wave" to numbers
+# convert "year" and "wave" to numbers (were <chr> in acl_estimate_catch_by_species_state_region_waves)
 acl_estimate_catch_by_species_state_region_waves1 <-
   acl_estimate_catch_by_species_state_region_waves %>%
   mutate(year = as.double(year)) %>%
   mutate(wave = as.double(wave))
 
+## change regions to the same format as in FHIER ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_catch_by_species_state_region_waves1 %>%
   # change a 6 to "sa" and a 7 "gom", leave everything else in place
@@ -765,8 +766,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   # drop sub_reg
   select(-sub_reg)
 
-
-### make a test acl one sp. var ----
+### make a test acl cnts DF of just one sp.----
 # names(acl_estimate_catch_by_species_state_region_waves)
 acl_test_cnts <-
   acl_estimate_catch_by_species_state_region_waves %>%
