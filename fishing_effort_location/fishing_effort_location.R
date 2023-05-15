@@ -374,7 +374,12 @@ lat_long_area_clean_map <-
 # 
 # lat_long_area_clean_map + sa_shp
 
-lat_long_area_clean %>%
+all_points <- dim(lat_long_area)[1]
+# 254444
+
+
+lat_long_area_for_leaflet <-
+  clean_lat_long(lat_long_area, all_points) %>%
   mutate(
     POINT = paste(
       LATITUDE,
@@ -386,26 +391,28 @@ lat_long_area_clean %>%
       DISTANCE_CODE_NAME,
       sep = ", "
     )
-  ) %>%
+  ) 
+
+lat_long_area_leaflet_w_clusters <-
+  lat_long_area_for_leaflet %>%
   leaflet() %>%
   addTiles() %>%
   addMarkers(
-    label = paste0(
-      lat_long_area_clean$LATITUDE,
-      lat_long_area_clean$LONGITUDE,
-      lat_long_area_clean$AREA_NAME,
-      collapse = " "
+    label = paste(
+      lat_long_area_for_leaflet$LATITUDE,
+      lat_long_area_for_leaflet$LONGITUDE,
+      lat_long_area_for_leaflet$AREA_NAME,
+      sep = ", "
     ),
+    # lat_long_area_clean$POINT,
     # labelOptions = labelOptions(noHide = T),
     clusterOptions = markerClusterOptions()
   )
 
-lat_lon %>%
-  leaflet() %>%
-  addTiles() %>%
-  addMarkers(
-    label = lat_lon$haulnum,
-    # paste(lat_lon$haulnum, " ", lat_lon$latitude, " ", lat_lon$longitude),
-    labelOptions = labelOptions(noHide = T),
-    clusterOptions = markerClusterOptions()
-  )
+# doesn't show clusters
+# lat_long_area_for_leaflet %>%
+#   to_sf() %>%
+# mapview(clusterOptions = markerClusterOptions())
+# 
+# + 
+#   m_s
