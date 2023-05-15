@@ -314,6 +314,34 @@ lat_long_dat_dep_q %>%
 
 
 # lat long and area ----
+dim(db_area_data)[1]
+# 83 
+dim(db_data)[1]
+# 254283     
+# 254283 + 83
+# [1] 254366
+
+a <- full_join(db_area_data, db_data)
+# Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
+# LOCAL_AREA_CODE)`
+dim(a)[1]
+# 254311
+
+b <- full_join(db_data, db_area_data,
+               by = join_by(AREA_CODE,
+                            LOCAL_AREA_CODE))
+# relationship = "many-to-many
+# ℹ Row 55 of `x` matches multiple rows in `y`.
+# ℹ Row 19 of `y` matches multiple rows in `x`.
+dim(b)[1]
+# 384641
+
+c <- full_join(db_data, db_area_data,
+               by = join_by(AREA_CODE))
+dim(c)[1]
+# [1] 388346
+
+
 lat_long_area <-
   db_data %>%
   # labels are a month only
