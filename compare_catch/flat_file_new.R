@@ -842,8 +842,63 @@ fhier_catch_by_species_state_region_waves_renamed <-
 names(fhier_test_cnts) <- c("scientific_name", "sa_gom", "mackerel_fhier_cnt")
 
 ### test: rename fields ----
-names(fhier_catch_by_species_state_region_waves)
-names(acl_estimate_catch_by_species_state_region_waves)
+# names(fhier_catch_by_species_state_region_waves)
+# names(acl_estimate_catch_by_species_state_region_waves)
 identical(names(fhier_catch_by_species_state_region_waves_renamed)[1:7],
           names(acl_estimate_catch_by_species_state_region_waves_renamed)[1:7])
 # T
+
+## separate fhier_spp data ----
+fhier_spp <-
+  fhier_catch_by_species_state_region_waves_renamed %>%
+  select(species_itis, common_name, scientific_name) %>%
+  unique()
+
+## Join Fhier and ACL DFs ----
+fhier_acl_catch_by_species_state_region_waves <-
+  # use a "full" join to keep entries from each df even if there is no counterpart in another one
+  full_join(
+    fhier_catch_by_species_state_region_waves_renamed,
+    acl_estimate_catch_by_species_state_region_waves_renamed,
+    # have to specify columns to join by, because some other columns might have the same name, but different meaning, e.g common_name
+    by = join_by(scientific_name, state, sa_gom, year, wave),
+    # Override the default suffixes, c(".x", ".y") in not merged cols
+    suffix = c("_fhier", "_mrip")
+  )
+
+## Change NA counts to 0 ----
+# change NAs to 0 where one or another agency doesn't have counts for this species (discussed if it is better than simply remove the entries)
+fhier_acl_catch_by_species_state_region_waves %<>%
+  mutate(
+    fhier_quantity_by_4 =
+      replace_na(fhier_quantity_by_4, 0),
+    acl_estimate_catch_by_4 =
+      replace_na(acl_estimate_catch_by_4, 0)
+  )
+
+### test join ----
+# look at the first 20 entries for mackerel spanish
+fhier_acl_catch_by_species_state_region_waves %>%
+  filter(scientific_name == test_species_name) %>% head(20)
+
+### test one sp in MRIP ----
+
+#| classes: test
+#### compare the saved numbers with those in the join, they should be the same ----
+# names(fhier_acl_catch_by_species_state_region_waves)
+fhier_acl_catch_by_species_state_region_waves %>%
+  filter(scientific_name == test_species_name) %>%
+#
+#   filter(species_itis == test_species_itis) %>%
+  group_by(scientific_name, sa_gom) %>%
+  summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
+  use_series(mackerel_fhier_cnt) %>%
+  identical(fhier_test_cnts$mackerel_fhier_cnt) #[1] TRUE
+
+fhier_acl_catch_by_species_state_region_waves %>%
+  filter(scientific_name == test_species_name) %>%
+  group_by(scientific_name, sa_gom) %>%
+  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
+  use_series(mackerel_acl_cnt) %>%
+  identical(acl_test_cnts$mackerel_acl_cnt)
+  #[1] TRUE
