@@ -47,7 +47,9 @@ data_overview(db_data)
 
 area_data_query <- 
   "select * from SAFIS.AREAS_FISHED@secapxdv_dblk.sfsc.noaa.gov 
-  where state = 'FL'"
+  where state in ('FL', 'US');
+
+"
 
 db_area_data = dbGetQuery(con,
                      area_data_query)
