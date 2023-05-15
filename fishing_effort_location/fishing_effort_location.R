@@ -14,6 +14,15 @@ source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 source(file.path(my_paths$git_r, "fishing_effort_location", "fishing_effort_locations_get_data.R"))
 
+# SA only:
+# filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
+# get 
+# Trip start and end date
+# Start Port: Code, Name, County and/or State, State Code, Postal Code
+# End Port: Code,
+# Longitude and Latitude fields:  Lat and long as specific as possible
+# Fishing Area Code, Sub Area Code, Distance Code and Distance Code Name?
+
 # VENDOR_APP_NAME ----
 a <- db_data %>% 
   count(VENDOR_APP_NAME)
@@ -54,29 +63,7 @@ m_s <- mapview(sa_shp,
 #                layer.name = "Gulf of Mexico",
 #                legend = FALSE)
 
-g_d <- mapview(gom_depth_shp,
-               layer.name = "Gulf of Mexico depth",
-               legend = TRUE)
 
-g_d_5_100 <- mapview(gom_depth_shp5_100,
-               layer.name = "Depth 5-100 m",
-               color = "yellow",
-               # col.regions = list("red", "green"),
-               legend = TRUE)
-
-
-g_d_100_1000 <- mapview(gom_depth_shp100_1000,
-               layer.name = "Depth 100-1000 m",
-               color = "lightgreen",
-               # col.regions = list("red", "green"),
-               legend = TRUE)
-
-g_d_500_4000 <- mapview(gom_depth_shp500_4000,
-               layer.name = "Depth 500-4000 m",
-               color = "darkgreen",
-               legend = TRUE)
-
-  
 # OK boundaries ----
 # lat 23 : 28
 # lon -71 : -98
@@ -158,7 +145,7 @@ n_map <-
           legend = T)
 
 ### show my map + shape files ----
-n_map + m_g + m_s
+n_map + m_s
 
 ## with depth ----
 
@@ -211,9 +198,8 @@ n_map <-
     legend = TRUE
   )
 
-n_map + m_g + m_s
-# with depth lines
-n_map + m_g + m_s + g_d_5_100 + g_d_100_1000 + g_d_500_4000
+n_map + m_s
+
 
 # for quarters ----
 
@@ -261,7 +247,7 @@ mapview_q <- function(my_df, points_num, q_name) {
   return(n_map)
 }
 
-points_num <- 3000
+points_num <- 1000
 
 maps_q <-
   map(names(lat_long_dat_dep_q_list),
@@ -270,7 +256,7 @@ maps_q <-
         m_n <- mapview_q(lat_long_dat_dep_q_list[[q_name]],
                          points_num,
                          q_name)
-        return(m_n + m_g + m_s)
+        return(m_n + m_s)
       })
 
 maps_q[[4]]
