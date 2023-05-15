@@ -60,32 +60,33 @@ library(viridis)
 set_work_dir <- function() {
   setwd("~/")
   base_dir <- getwd()
-  main_r_dir <- "R_files_local"
-  
-  in_dir <- "my_inputs"
+  main_r_dir <- "/SEFHIER/R code/Rec ACL vs SEFHIER stats/"
+
+  in_dir <- "Inputs"
   # file.path instead of paste, because it provides correct concatenation, "\" or "/" etc.
   full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
-  out_dir <- "my_outputs"
+  out_dir <- "Outputs"
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-  
-  git_r_dir <- "R_code_github"
-  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-  
+
+  # git_r_dir <- "R_code_github"
+  # full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
   setwd(file.path(base_dir, main_r_dir))
-  
+
   my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir,
-                   "git_r" = full_path_to_r_git_dir)
+                   "outputs" = full_path_to_out_dir) #,
+                   #"git_r" = full_path_to_r_git_dir)
   return(my_paths)
 }
 
 # call that function
 my_paths <- set_work_dir()
 
-# other auxiliary functions ----
 
+# auxiliary functions (called throughout the code) ----
+
+# count unique values
 count_uniq_by_column <- function(my_df) {
-  # count unique values 
   sapply(my_df, function(x) length(unique(x))) %>%
     as.data.frame()
 }
@@ -113,7 +114,7 @@ trim_all_vessel_ids_simple <-
       col_name_to_trim_s <- sym(col_name_to_trim)
       # Hard code vessel_official_number as vessel id
       x %>%
-        # trim white spaces for the column
+        # trim white spaces from the column
         mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
         return()
     })
@@ -145,12 +146,13 @@ fix_names <- function(x) {
 clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
   # unify headers (see the function above)
   csvs_clean0 <- lapply(csvs, clean_headers)
-  # trim vesselofficialnumber, in case tthere are trailing spaces, see function above
+  # trim vessel_official_number col, in case there are trailing spaces
   csvs_clean1 <-
     trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
   return(csvs_clean1)
 }
 
+#use function to get local path and then read in the input files
 load_csv_names <- function(my_paths, csv_names_list) {
   # use local paths from above
   my_inputs <- my_paths$inputs
@@ -161,28 +163,34 @@ load_csv_names <- function(my_paths, csv_names_list) {
   # read all csv files with columns as character (change later to other types)
   contents <-
     lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
-  
+
   return(contents)
 }
 
 # Use my function in case we want to change the case in all functions
 my_headers_case_function <- tolower
 
+#end auxiliary functions --------------------
+
+
 # Load all data ----
 # ---- 1) SEFHIER data ----
 
+#this function loads all FHIER data files from the main dir into R
 load_all_logbooks <- function() {
-  species_count_csv_names_list = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
-  
-  # The auxiliary function load_csv_names shows how the relative path works in this case
+  #load species_list.csv from Inputs folder
+  #r"()" - will correct slashes, so I can "copy path" from the finder and paste it inside the parenthesis without worrying about "\" or "//" etc.
+  #species_count_csv_names_list = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
+  species_count_csv_names_list = c(r"(FHIER_all_logbook_data.csv)")
+
   fhier_all_logbook_data <-
     load_csv_names(my_paths, species_count_csv_names_list)
-  
+
   logbooks_content <-
     # see an aux function above
     clean_all_csvs(fhier_all_logbook_data,
                    vessel_id_field_name = "vessel_official_nbr")
-  
+
   return(logbooks_content[[1]])
 }
 
@@ -193,11 +201,11 @@ logbooks_content <- load_all_logbooks()
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # use prepared paths from above
   my_inputs <- my_paths$inputs
-  
+
   # add input directory path in front of each file name.
   myfiles <-
     lapply(xls_names_list, function(x) file.path(my_inputs, x))
-  
+
   ## read all files
   contents <- map_df(
     myfiles,
@@ -216,28 +224,29 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
 }
 
 load_acl_data <- function() {
-  # my special dir with data
-  acl_dir_path <- "compare_catch/MRIP data"
+  #my MRIP data is in my Path already, in Inputs, so skip lines 226-228
+  # # my special dir with data
+  # acl_dir_path <- "compare_catch/MRIP data"
   # species_list.csv is identical for all areas
-  acl_csv_names_list_raw <- c("mrip_aux/species_list.csv")
+  acl_csv_names_list_raw <- c("MRIPspecies_list.csv")
   # a file recommended by Mike
   acl_xls_names_list_raw <-
-    c(r"(mrip_US\mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
-  
-  # add prefix to each file name
-  acl_csv_names_list <-
-    map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
-  acl_xls_names_list <-
-    map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
-  
+    c(r"(mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
+
+  # add prefix to each file name if needed
+  # acl_csv_names_list <-
+  #   map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
+  # acl_xls_names_list <-
+  # map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
+
   # use functions from above
   acl_species_list <-
-    load_csv_names(my_paths, acl_csv_names_list)
-  
+    load_csv_names(my_paths, acl_csv_names_list_raw)
+
   acl_estimate_usa <-
-    load_xls_names(my_paths, acl_xls_names_list,
+    load_xls_names(my_paths, acl_xls_names_list_raw,
                    sheet_n = "mripaclspec_rec81_22wv6_01mar23")
-  
+
   output <-
     list(acl_species_list, acl_estimate_usa)
   return(output)
@@ -304,7 +313,7 @@ fhier_logbooks_content_date_fixed_tmp <-
     trip_end_date
   ))
 
-# I checked all other dates for these entries and it looks like 2022 is correct.
+#some logbooks have 1992 end dates, correct those here by converting 1992 to 2022
 fhier_logbooks_content_date_fixed <-
   fhier_logbooks_content_date_fixed_tmp %>%
   # manually change the wrong value
@@ -320,11 +329,11 @@ fhier_logbooks_content_date_fixed <-
     trip_end_date1
   ))
 
-### keep only 2022 ----
+### keep only 2022 ---- note: year() is a fxn from package "tidyverse"
 fhier_logbooks_content_date_fixed %<>%
   filter(year(trip_end_date) == "2022")
 
-## add waves ----
+## add waves column to FHIER DF----
 fhier_logbooks_content_waves <-
   fhier_logbooks_content_date_fixed %>%
   # add a new column with a trip end Month
@@ -346,7 +355,7 @@ fhier_logbooks_content_waves %>%
   arrange(end_month_num)
 
 ## add region info ----
-# Florida counties by region (from the Internet) ----
+# Create variable that organize Florida counties into Gulf or SA regions (from the Internet) ----
 fl_counties <- list(
   "SA" = c(
     "Brevard",
@@ -376,7 +385,7 @@ fl_counties <- list(
     "Lee",
     "Levy",
     "Manatee",
-    "Monroe",
+    "Monroe",  #may need to revise monroe catch into Gulf or SA region, based on Mike Larkin's input
     "Okaloosa",
     "Pasco",
     "Pinellas",
@@ -418,24 +427,30 @@ fhier_logbooks_content_waves_fl_county %>%
   select(end_port_fl_reg) %>%
   table()
 
-## Other states to regions ----
-# list of states in the South Atlantic region
+## now convert the Other states' counties to regions ----
+# list of states in the South Atlantic region (from the Internet)
 # https://safmc.net/about/#:~:text=The%20South%20Atlantic%20Council%20is,east%20Florida%20to%20Key%20West
 # The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
 
 states_sa <- data.frame(
   state_name = c(
+    #"Delaware",
+    #"District of Columbia",
     # "Florida", # exclude, we have it separated by county
     "Georgia",
+    #"Maryland",
     "North Carolina",
-    "South Carolina"
+    "South Carolina"#,
+    #"Virginia",
+    #"West Virginia"
   )
 )
 
-# Reformat the R state df
+# Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
 state_tbl <- data.frame(state.abb, tolower(state.name))
 names(state_tbl) = c("state_abb", "state_name")
 
+#from the DF created in lines 445-446, only grab the SA states defined in lines 430-442
 sa_state_abb <-
   # a table from above
   state_tbl %>%
@@ -444,7 +459,7 @@ sa_state_abb <-
   # get abbreviations
   select(state_abb)
 
-# add regions 
+# add regions to the FHIER logbook DF
 fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
   # add a new column "end_port_sa_gom" with sa or gom for each state
@@ -465,7 +480,7 @@ fhier_logbooks_content_waves__sa_gom <-
   # remove this column, we don't need it anymore
   select(-end_port_fl_reg)
 
-## test: states and regions ----
+## test: check new cols of states and regions ----
 fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   select(end_port_state, end_port_sa_gom) %>%
@@ -486,7 +501,7 @@ fhier_logbooks_content_waves__sa_gom_dolph <-
 
 # glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
 
-### test: dolphins ----
+### test: dolphins to ensure they now have the same common name in new "common_name" col----
 fhier_logbooks_content_waves__sa_gom_dolph %>%
   filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
   select(common_name_orig, common_name) %>% unique()
@@ -494,6 +509,7 @@ fhier_logbooks_content_waves__sa_gom_dolph %>%
 
 ## calculate catch ----
 
+#select only relevant columns from FHIER logbooks DF, and group all cols by reported quantity
 fhier_catch_by_species_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom_dolph %>%
   # select only relevant columns
@@ -532,6 +548,7 @@ test_species_itis <-
   # get a string, not a df
   use_series(catch_species_itis)
 
+#test: cnts for 1 sp. in both regions (GOM vs SA)
 fhier_test_cnts <-
   fhier_catch_by_species_state_region_waves %>%
   # get the same species
@@ -547,6 +564,8 @@ fhier_test_cnts <-
 ## specifically for "O:\Fishery Data\ACL Data\" ----
 # in case read.xls or .csv read a type incorrectly, or if you read data in as character, then use integer() to ensure all values in the ab1 col are now actually numbers
 
+#in case read.xls or .csv created a extra value, or if you read data in as character,
+ #then use integer() here to ensure all values in the ab1 col are now actually numbers
 acl_estimate %<>%
   # using ab1 for catch counts
   # convert to numbers
@@ -560,7 +579,7 @@ acl_estimate_2022 <-
   filter(year == "2022") %>%
   # filtering here for just SA (6) and Gulf (7) sub regions
   filter(sub_reg %in% c(6, 7)) %>%
-  # Exclude the SRHS survey according to Dominique and Mike May 1
+  # Exclude the SRHS survey according to Dominique and Mike May 1, 2023
   filter(!(ds == "SRHS")) %>%
   # select(new_mode) %>% unique()
   # the "new_mode" column only has options 1,3 & 4 remaining
@@ -569,13 +588,14 @@ acl_estimate_2022 <-
   # new_moden		alpha description of ‘new_mode’
   filter(new_mode %in% c(2, 3, 5))
 
+#just for checking we actually filtered the raw data
 # View(acl_estimate)
 dim(acl_estimate)
 # [1] 347379 67
 dim(acl_estimate_2022)
 # 1442
 
-### count catch ----
+### sum catch by state, region and wave ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
   # select the relevant columns only
@@ -591,7 +611,7 @@ acl_estimate_catch_by_species_state_region_waves <-
 # glimpse(acl_estimate_catch_by_species_state_region_waves)
 # 'data.frame':	878 obs. of  6 variables
 
-# "year" and "wave" to numbers
+# convert "year" and "wave" to numbers (were <chr> in acl_estimate_catch_by_species_state_region_waves)
 acl_estimate_catch_by_species_state_region_waves1 <-
   acl_estimate_catch_by_species_state_region_waves %>%
   mutate(year = as.double(year)) %>%
@@ -611,7 +631,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   # drop sub_reg
   select(-sub_reg)
 
-### make a test acl one sp. var ----
+### make a test acl cnts DF of just one sp.----
 # names(acl_estimate_catch_by_species_state_region_waves)
 acl_test_cnts <-
   acl_estimate_catch_by_species_state_region_waves %>%
@@ -623,7 +643,7 @@ acl_test_cnts <-
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
-## rename fields ----
+## rename fields to compare to FHIER----
 
 # common field names
 wave_data_names_common <- c("species_itis",
@@ -635,6 +655,7 @@ wave_data_names_common <- c("species_itis",
 # to be sure columns are in the same order
 names(acl_estimate_catch_by_species_state_region_waves)
 
+#rename cols of ACL DF so we can compare to FHIER DF
 acl_names <- c("itis_code",
                "new_sta",
                "sa_gom",
@@ -667,18 +688,16 @@ fhier_catch_by_species_state_region_waves %<>%
 
 ### rename fields in the test variables ----
 names(fhier_test_cnts) <-
-  c("species_itis", "sa_gom", "mackerel_fhier_cnt")
-
-# was: "catch_species_itis" "end_port_sa_gom"    "mackerel_fhier_cnt"
+  c("species_itis", "sa_gom", "mackerel_fhier_cnt")  # was: "catch_species_itis" "end_port_sa_gom"    "mackerel_fhier_cnt"
 
 ### test: rename fields ----
-names(fhier_catch_by_species_state_region_waves)
-names(acl_estimate_catch_by_species_state_region_waves)
+names(fhier_catch_by_species_state_region_waves) #col names same order as ACL?
+names(acl_estimate_catch_by_species_state_region_waves) #col names same order as FHIER?
+#use indentical() to check they are the same
 identical(
   names(fhier_catch_by_species_state_region_waves)[c(1, 3:6)],
   names(acl_estimate_catch_by_species_state_region_waves)[1:5]
-)
-# TRUE
+)  # RESULT = TRUE
 
 ## All FHIER common names and itis in a separate data frame ----
 fhier_common_names <-
@@ -690,7 +709,7 @@ fhier_common_names <-
 # add column names
 names(fhier_common_names) <- c("species_itis", "common_name")
 
-## Join Fhier and ACL ----
+## Join Fhier and ACL DFs----
 fhier_acl_catch_by_species_state_region_waves <-
   # use a "full" join to keep entries from each df even if there is no counterpart in another one
   full_join(
@@ -725,14 +744,14 @@ fhier_acl_catch_by_species_state_region_waves %>%
   group_by(species_itis, sa_gom) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
-  identical(fhier_test_cnts$mackerel_fhier_cnt)
+  identical(fhier_test_cnts$mackerel_fhier_cnt)  #[1] TRUE
 
 fhier_acl_catch_by_species_state_region_waves %>%
   filter(species_itis == test_species_itis) %>%
   group_by(species_itis, sa_gom) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_acl_cnt) %>%
-  identical(acl_test_cnts$mackerel_acl_cnt)
+  identical(acl_test_cnts$mackerel_acl_cnt)  #[1] TRUE
 
 # Data by 12 categories ----
 # 1) By wave and region
@@ -740,7 +759,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
 # 3) By year and region
 # 4) By year and state
 
-# 3 sets of spp: 
-# 1a) SEDAR; 
-# 2b) Recreational ACL tops; 
+# 3 sets of spp:
+# 1a) SEDAR;
+# 2b) Recreational ACL tops;
 # 3c) All FHIER spp

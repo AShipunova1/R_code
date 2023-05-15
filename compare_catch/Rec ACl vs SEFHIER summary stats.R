@@ -1,6 +1,8 @@
 #----General Notes on how code works ----
 
 # Input data
+# https://drive.google.com/drive/u/0/folders/1T0DqxoaNFOIsU-bYL-sizulMUFkANIJ2
+
 # (1) SEFHIER data
 # "FHIER_all_logbook_data.csv"
 
@@ -59,18 +61,18 @@ set_work_dir <- function() {
   setwd("~/")
   base_dir <- getwd()
   main_r_dir <- "/SEFHIER/R code/Rec ACL vs SEFHIER stats/"
-  
+
   in_dir <- "Inputs"
   # file.path instead of paste, because it provides correct concatenation, "\" or "/" etc.
   full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
   out_dir <- "Outputs"
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-  
+
   # git_r_dir <- "R_code_github"
   # full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-  
+
   setwd(file.path(base_dir, main_r_dir))
-  
+
   my_paths <- list("inputs" = full_path_to_in_dir,
                    "outputs" = full_path_to_out_dir) #,
                    #"git_r" = full_path_to_r_git_dir)
@@ -83,7 +85,7 @@ my_paths <- set_work_dir()
 
 # auxiliary functions (called throughout the code) ----
 
-# count unique values 
+# count unique values
 count_uniq_by_column <- function(my_df) {
     sapply(my_df, function(x) length(unique(x))) %>%
     as.data.frame()
@@ -161,7 +163,7 @@ load_csv_names <- function(my_paths, csv_names_list) {
   # read all csv files with columns as character (change later to other types)
   contents <-
     lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
-  
+
   return(contents)
 }
 
@@ -180,15 +182,15 @@ load_all_logbooks <- function() {
   #r"()" - will correct slashes, so I can "copy path" from the finder and paste it inside the parenthesis without worrying about "\" or "//" etc.
   #species_count_csv_names_list = c(r"(logbooks_from_fhier\FHIER_all_logbook_data.csv)")
   species_count_csv_names_list = c(r"(FHIER_all_logbook_data.csv)")
-  
+
   fhier_all_logbook_data <-
     load_csv_names(my_paths, species_count_csv_names_list)
-  
+
   logbooks_content <-
     # see an aux function above
     clean_all_csvs(fhier_all_logbook_data,
                    vessel_id_field_name = "vessel_official_nbr")
-  
+
   return(logbooks_content[[1]])
 }
 
@@ -199,11 +201,11 @@ logbooks_content <- load_all_logbooks()
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # use prepared paths from above
   my_inputs <- my_paths$inputs
-  
+
   # add input directory path in front of each file name.
   myfiles <-
     lapply(xls_names_list, function(x) file.path(my_inputs, x))
-  
+
   ## read all files
   contents <- map_df(
     myfiles,
@@ -230,21 +232,21 @@ load_acl_data <- function() {
   # a file recommended by Mike
   acl_xls_names_list_raw <-
     c(r"(mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx)")
-  
-  # add prefix to each file name
-  acl_csv_names_list <-
-    map_chr(acl_csv_names_list_raw, ~ file.path(.x))
-  acl_xls_names_list <-
-    map_chr(acl_xls_names_list_raw, ~ file.path(.x))
-  
+
+  # add prefix to each file name if needed
+  # acl_csv_names_list <-
+  #   map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
+  # acl_xls_names_list <-
+  # map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
+
   # use functions from above
   acl_species_list <-
-    load_csv_names(my_paths, acl_csv_names_list)
-  
+    load_csv_names(my_paths, acl_csv_names_list_raw)
+
   acl_estimate_usa <-
-    load_xls_names(my_paths, acl_xls_names_list,
+    load_xls_names(my_paths, acl_xls_names_list_raw,
                    sheet_n = "mripaclspec_rec81_22wv6_01mar23")
-  
+
   output <-
     list(acl_species_list, acl_estimate_usa)
   return(output)
@@ -427,6 +429,9 @@ fhier_logbooks_content_waves_fl_county %>%
 
 ## now convert the Other states' counties to regions ----
 # list of states in the South Atlantic region (from the Internet)
+# https://safmc.net/about/#:~:text=The%20South%20Atlantic%20Council%20is,east%20Florida%20to%20Key%20West
+# The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
+
 states_sa <- data.frame(
   state_name = c(
     #"Delaware",
@@ -454,7 +459,7 @@ sa_state_abb <-
   # get abbreviations
   select(state_abb)
 
-# add regions to the FHIER logbook DF 
+# add regions to the FHIER logbook DF
 fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
   # add a new column "end_port_sa_gom" with sa or gom for each state
@@ -504,7 +509,7 @@ fhier_logbooks_content_waves__sa_gom_dolph %>%
 
 ## calculate catch ----
 
-#select only relevant columns from FHIER logbooks DF, and group all cols by reported quantity 
+#select only relevant columns from FHIER logbooks DF, and group all cols by reported quantity
 fhier_catch_by_species_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom_dolph %>%
   select(
@@ -557,7 +562,7 @@ fhier_test_cnts <-
 
 ## specifically for "O:\Fishery Data\ACL Data\" ----
 
-#in case read.xls or .csv created a extra value, or if you read data in as character, 
+#in case read.xls or .csv created a extra value, or if you read data in as character,
  #then use integer() here to ensure all values in the ab1 col are now actually numbers
 acl_estimate %<>%
   # using ab1 for catch counts
@@ -752,7 +757,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
 # 3) By year and region
 # 4) By year and state
 
-# 3 sets of spp: 
-# 1a) SEDAR; 
-# 2b) Recreational ACL tops; 
+# 3 sets of spp:
+# 1a) SEDAR;
+# 2b) Recreational ACL tops;
 # 3c) All FHIER spp
