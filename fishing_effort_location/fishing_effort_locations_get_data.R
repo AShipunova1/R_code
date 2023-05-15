@@ -6,6 +6,9 @@ con = dbConnect(
 )
 
 ## From DB ====
+# fishing charter trips only
+# 2022
+# sero_vessel_permit
 
 request_query <- "SELECT
   trip_start_date,
@@ -24,7 +27,6 @@ request_query <- "SELECT
   longitude,
   minimum_bottom_depth,
   maximum_bottom_depth,
-  avg_depth_in_fathoms,
   fishing_gear_depth,
   depth
 FROM
@@ -45,7 +47,7 @@ data_overview(db_data)
 # str(db_data)
 # 'data.frame':	306261 obs. of  19 variables
 
-## ---- get geographical data ----
+## ---- get other geographical data ----
 read_shapefile <- function(filename) {
   shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
 
@@ -58,8 +60,10 @@ read_shapefile <- function(filename) {
 sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 
+mapview(atmx_eez_shp, legend = F) + mapview(sa_shp)
 # doesn't work:
 # gom_only <- st_difference(atmx_eez_shp, sa_shp)
+# gom_only <- st_difference(atmx_eez_shp, sa_shp$geometry)
 # Warning message:
 # attribute variables are assumed to be spatially constant throughout all geometries 
 # mapview(gom_only,
