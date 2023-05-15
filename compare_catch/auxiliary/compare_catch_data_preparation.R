@@ -329,6 +329,10 @@ fhier_catch_by_species_state_region_waves_w_spp_dolph %>%
 
 ### add sci name for FLOUNDERS, PARALICHTHYS for FHIER data ----
 
+# rename back
+fhier_catch_by_species_state_region_waves_w_spp <-
+fhier_catch_by_species_state_region_waves_w_spp_dolph
+
 fhier_catch_by_species_state_region_waves_w_spp %>%
   filter(grepl("FLOUNDERS", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
   select(common_name, species_itis, scientific_name) %>%
