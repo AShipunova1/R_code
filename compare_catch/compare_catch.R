@@ -49,7 +49,7 @@ View(fhier_acl_catch_by_species_state_region_waves)
 # fhier_acl_catch_by_species_state_region_waves %>%
 #   filter(!(species_itis_fhier == species_itis_mrip)) %>%
 #   glimpse()
-# 0
+# dolphin
 
 ## NA counts to 0 ----
 # change NAs to 0 where one or another agency doesn't have counts for this species
