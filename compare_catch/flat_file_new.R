@@ -76,13 +76,14 @@ set_work_dir <- function() {
   setwd("~/")
   base_dir <- getwd()
 
+  # for others
   add_dir <- ""
-  # for Anna only
+  # for Anna's computer
   if (get_hostname() == "SER-PC1648") {
     add_dir <- "R_files_local/test_dir"
   }
 
-  # add an empty or Anna's folder
+  # add an empty or Anna's folder in front
   main_r_dir <- file.path(add_dir, "SEFHIER/R code/Rec ACL vs SEFHIER stats/")
 
   in_dir <- "Inputs"
@@ -143,12 +144,8 @@ trim_all_vessel_ids_simple <-
     return(csvs_clean)
   }
 
-# use fix_names on column names of my_df and assign the result back
-clean_headers <- function(my_df) {
-  colnames(my_df) %<>%
-    fix_names()
-  return(my_df)
-}
+# Use my function in case we want to change the case in all functions
+my_headers_case_function <- tolower
 
 # to use in a function,
 # e.g. read_csv(name_repair = fix_names)
@@ -162,6 +159,13 @@ fix_names <- function(x) {
     str_replace_all("^(_*)(.+)", "\\2\\1") %>%
     # tolower
     my_headers_case_function()
+}
+
+# use fix_names on column names of my_df and assign the result back
+clean_headers <- function(my_df) {
+  colnames(my_df) %<>%
+    fix_names()
+  return(my_df)
 }
 
 # cleaning, regularly done for csvs downloaded from PHIER
@@ -189,9 +193,6 @@ load_csv_names <- function(my_paths, csv_names_list) {
   return(contents)
 }
 
-# Use my function in case we want to change the case in all functions
-my_headers_case_function <- tolower
-
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # use prepared paths from above
   my_inputs <- my_paths$inputs
@@ -217,7 +218,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   return(contents)
 }
 
-#end auxiliary functions --------------------
+# end auxiliary functions ----
 
 # Load all data ----
 ## 1) SEFHIER data ----
@@ -242,6 +243,7 @@ logbooks_content <- load_all_logbooks()
 
 ### load sefhier spp. ----
 #r"()" - will correct slashes, so I can "copy path" from the finder and paste it inside the parenthesis without worrying about "\" or "//" etc.
+
 sefhier_sp_file_name <- "SEFHIER_species.xlsx"
 sheet_name <- "Species Tree"
 
@@ -575,7 +577,7 @@ fhier_catch_by_species_state_region_waves_w_spp_dolph <-
   ) ~ "CORYPHAENA HIPPURUS",
   .default = scientific_name_orig))
 
-### test: dolphins to ensure they now have the same common name in new "common_name" col ----
+### test: dolphins to ensure they now have the same common and scientific names
 fhier_catch_by_species_state_region_waves_w_spp_dolph %>%
   # filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
   filter(startsWith(tolower(common_name_orig), "dolphin")) %>%
@@ -610,7 +612,7 @@ fhier_logbooks_content_waves__sa_gom_fla %>%
 #   common_name             species_itis scientific_name
 # 1 FLOUNDERS, PARALICHTHYS 172734       PARALICHTHYS
 
-## calculate catch ----
+## Calculate catch ----
 
 #select only relevant columns from FHIER logbooks DF, and group all cols by reported quantity
 fhier_catch_by_species_state_region_waves <-
@@ -690,7 +692,7 @@ acl_estimate_2022 <-
   # new_moden		alpha description of ‘new_mode’
   filter(new_mode %in% c(2, 3, 5))
 
-## change_case for scientific_names ----
+## change case for scientific_names to the same as in FHIER ----
 acl_estimate_2022 %<>%
   mutate(new_sci = toupper(new_sci))
 
@@ -719,8 +721,8 @@ dim(acl_estimate)[1]
 dim(acl_estimate_2022)[1]
 # 2088
 
-## Get MRIP counts ----
-### sum catch by state, region and wave ----
+## Get MRIP (rec ACL) counts ----
+### sum catch by species, state, region and wave
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
   # select the relevant columns only
@@ -767,7 +769,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   select(-sub_reg)
 
 ### make a test acl cnts DF of just one sp.----
-# names(acl_estimate_catch_by_species_state_region_waves)
+
 acl_test_cnts <-
   acl_estimate_catch_by_species_state_region_waves %>%
   # get one species
@@ -778,8 +780,7 @@ acl_test_cnts <-
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
-## rename fields ----
-
+## Rename fields to compare to FHIER ----
 #### FHIER names ----
 names(fhier_catch_by_species_state_region_waves) %>%
   paste0(collapse = "', '")
@@ -827,6 +828,8 @@ acl_names_len_to_change <- length(acl_names) - 1
 
 acl_estimate_catch_by_species_state_region_waves_renamed <-
   acl_estimate_catch_by_species_state_region_waves %>%
+    # rename all columns from the list, except the last one
+
   rename_at(vars(acl_names[1:acl_names_len_to_change]),
             function(x) wave_data_names_common[1:acl_names_len_to_change])
 
@@ -848,7 +851,7 @@ identical(names(fhier_catch_by_species_state_region_waves_renamed)[1:7],
           names(acl_estimate_catch_by_species_state_region_waves_renamed)[1:7])
 # T
 
-## separate fhier_spp data ----
+## fhier_spp data to a separate DF ----
 fhier_spp <-
   fhier_catch_by_species_state_region_waves_renamed %>%
   select(species_itis, common_name, scientific_name) %>%
@@ -877,7 +880,7 @@ fhier_acl_catch_by_species_state_region_waves %<>%
   )
 
 ### test join ----
-# look at the first 20 entries for mackerel spanish
+# look at the first 20 entries for mackerel spanish (test_species_name)
 fhier_acl_catch_by_species_state_region_waves %>%
   filter(scientific_name == test_species_name) %>% head(20)
 
