@@ -16,12 +16,21 @@ source(file.path(my_paths$git_r, "fishing_effort_location", "fishing_effort_loca
 
 # SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
+names(db_data)
 # get 
 # Trip start and end date
-# Start Port: Code, Name, County and/or State, State Code, Postal Code
+# Start Port: Code, Name, County and/or State, State Code, Postal Code - no
 # End Port: Code,
 # Longitude and Latitude fields:  Lat and long as specific as possible
 # Fishing Area Code, Sub Area Code, Distance Code and Distance Code Name?
+# depth
+
+db_data %>%
+  select(AREA_CODE) %>%
+# 
+#     select(AREA_CODE, SUB_AREA_CODE, LOCAL_AREA_CODE, DISTANCE_CODE_NAME) %>%
+  unique()
+  # View()
 
 # VENDOR_APP_NAME ----
 a <- db_data %>% 
@@ -68,7 +77,7 @@ m_s <- mapview(sa_shp,
 # lat 23 : 28
 # lon -71 : -98
 
-clean_lat_long <- function(my_lat_long_df, my_limit) {
+clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
   my_lat_long_df %>%
     unique() %>%
     head(my_limit) %>%
@@ -303,3 +312,38 @@ lat_long_dat_dep_q %>%
 # TODO: remove AVG_DEPTH
 # TODO: create lat_long_dat_dep_q independently
 
+
+# lat long and area ----
+lat_long_area <-
+  db_data %>%
+  # labels are a month only
+  mutate(TRIP_START_M =
+           format(TRIP_START_DATE, "%m")) %>%
+  select(LATITUDE,
+         LONGITUDE,
+         TRIP_START_M,
+         AREA_CODE,
+         DISTANCE_CODE_NAME)
+         # , SUB_AREA_CODE, LOCAL_AREA_CODE, DISTANCE_CODE_NAME)
+
+lat_long_area_clean <- clean_lat_long(lat_long_area, 100)
+
+lat_long_area_clean_map <-
+    lat_long_area_clean %>%
+    mutate(POINT = paste(LATITUDE,
+         LONGITUDE,
+         TRIP_START_M,
+         AREA_CODE,
+         DISTANCE_CODE_NAME,
+                         sep = ", ")) %>%
+    to_sf() %>%
+    mapview(
+      zcol = "AREA_CODE",
+      col.regions = viridisLite::turbo,
+      layer.name = 'AREA_CODE',
+      cex = "DISTANCE_CODE_NAME",
+      alpha = 0.3,
+      legend = F
+    )
+  
+lat_long_area_clean_map + sa_shp
