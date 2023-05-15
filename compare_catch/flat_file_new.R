@@ -12,9 +12,13 @@
 # needed to join with MRIP data
 
 # (2) MRIP
+# (a)
 # Recommended by Mike May 11, 2023. This file doesn't have ITIS for all spp., use scientific names to compare with FHIER
 # MRIP_FES_rec81_22wv6_01May23w2014to2022LACreel.xlsx
 # https://docs.google.com/spreadsheets/d/1YpfKfYFyUm3dWY7PK0XbEfUAM3onsnys/edit?usp=share_link&ouid=104137968095602765842&rtpof=true&sd=true
+
+# (b) mrip_species_list.csv
+# https://drive.google.com/file/d/1naWQtliI-5ke8jLz2Q-ZvICMuB99B0Ho/view?usp=share_link
 
 ## MRIP data: field background info ----
 # landing	Total Harvest (A+B1)	The total number of fish removed from the fishery resource.  May be obtained by summing catch types A (CLAIM) and B1 (HARVEST).
@@ -61,9 +65,9 @@ library(grid)
 library(viridis)
 
 # current computer name
-get_hostname <- function(){ 
-    return(as.character(Sys.info()["nodename"])) 
-} 
+get_hostname <- function(){
+    return(as.character(Sys.info()["nodename"]))
+}
 
 # set working directories
   # change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
@@ -71,13 +75,13 @@ get_hostname <- function(){
 set_work_dir <- function() {
   setwd("~/")
   base_dir <- getwd()
-  
+
   add_dir <- ""
   # for Anna only
   if (get_hostname() == "SER-PC1648") {
-    add_dir <- "R_files_local/test_dir"  
+    add_dir <- "R_files_local/test_dir"
   }
-  
+
   main_r_dir <- file.path(add_dir, "SEFHIER/R code/Rec ACL vs SEFHIER stats/")
 
   in_dir <- "Inputs"
@@ -220,15 +224,15 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
 load_all_logbooks <- function() {
   #load FHIER_all_logbook_data.csv from Inputs folder
   species_count_csv_names_list = c("FHIER_all_logbook_data.csv")
-  
+
   fhier_all_logbook_data <-
     load_csv_names(my_paths, species_count_csv_names_list)
-  
+
   logbooks_content <-
     # see an aux function above
     clean_all_csvs(fhier_all_logbook_data,
                    vessel_id_field_name = "vessel_official_nbr")
-  
+
   return(logbooks_content[[1]])
 }
 
@@ -252,14 +256,14 @@ load_acl_data <- function() {
   )
   # a file recommended by Mike
   acl_xls_names_list <- c("MRIP_FES_rec81_22wv6_01May23w2014to2022LACreel.xlsx")
-  
+
   acl_species_list <- load_csv_names(my_paths, acl_csv_names_list)
-  
+
   # str(acl_species_list)
-  
-  acl_estimate_usa <- 
+
+  acl_estimate_usa <-
     load_xls_names(my_paths, acl_xls_names_list,
-                   sheet_n = "MRIP_FES_rec81_22wv6_01May23") 
+                   sheet_n = "MRIP_FES_rec81_22wv6_01May23")
 
     output <- list(acl_species_list, acl_estimate_usa)
   return(output)
@@ -518,13 +522,13 @@ fhier_logbooks_content_waves__sa_gom %<>%
 fhier_catch_by_species_state_region_waves_w_spp <-
 full_join(fhier_logbooks_content_waves__sa_gom,
           sefhier_spp,
-          by = join_by(species_itis, common_name)) 
+          by = join_by(species_itis, common_name))
 
 # check if sci name is a NA
 fhier_catch_by_species_state_region_waves_w_spp %>%
   filter(is.na(scientific_name)) %>%
-  select(species_itis, common_name, reported_quantity) %>% 
-  group_by(species_itis, common_name) %>% 
+  select(species_itis, common_name, reported_quantity) %>%
+  group_by(species_itis, common_name) %>%
   summarise(sum_cnt = sum(reported_quantity)) %>%
   ungroup() %>%
   arrange(desc(sum_cnt)) %>%
@@ -544,9 +548,9 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
   filter(grepl("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
   select(common_name, species_itis, scientific_name) %>%
   unique()
-#   common_name      species_itis scientific_name     
-# 1 DOLPHINFISH      168790       CORYPHAENA          
-# 2 DOLPHIN          168791       CORYPHAENA HIPPURUS 
+#   common_name      species_itis scientific_name
+# 1 DOLPHINFISH      168790       CORYPHAENA
+# 2 DOLPHIN          168791       CORYPHAENA HIPPURUS
 # 3 DOLPHIN, POMPANO 168792       CORYPHAENA EQUISETIS
 
 # 1 in MRIP
@@ -587,7 +591,7 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
   select(common_name, species_itis, scientific_name) %>%
   unique()
 #   common_name             species_itis scientific_name
-# 1 FLOUNDERS, PARALICHTHYS 172734       NA             
+# 1 FLOUNDERS, PARALICHTHYS 172734       NA
 
 fhier_logbooks_content_waves__sa_gom_fla <-
   fhier_catch_by_species_state_region_waves_w_spp %>%
@@ -603,7 +607,7 @@ fhier_logbooks_content_waves__sa_gom_fla %>%
   select(common_name, species_itis, scientific_name) %>%
   unique()
 #   common_name             species_itis scientific_name
-# 1 FLOUNDERS, PARALICHTHYS 172734       PARALICHTHYS   
+# 1 FLOUNDERS, PARALICHTHYS 172734       PARALICHTHYS
 
 ## calculate catch ----
 
@@ -691,11 +695,11 @@ acl_estimate_2022 %>%
   select(new_sta, sub_reg, fl_reg) %>% unique() %>%
   filter(new_sta %in% c("FLE", "FLW"))
 #   new_sta sub_reg fl_reg
-# 1 FLE     6       5     
-# 2 FLE     6       4     
-# 3 FLW     7       1     
-# 4 FLW     7       3     
-# 5 FLW     7       2     
+# 1 FLE     6       5
+# 2 FLE     6       4
+# 3 FLW     7       1
+# 4 FLW     7       3
+# 5 FLW     7       2
 
 ### change FLE and FLW to FL ----
 # to compare with FHIER
@@ -833,6 +837,3 @@ names(acl_estimate_catch_by_species_state_region_waves)
 identical(names(fhier_catch_by_species_state_region_waves_renamed)[1:7],
           names(acl_estimate_catch_by_species_state_region_waves_renamed)[1:7])
 # T
-
-
-
