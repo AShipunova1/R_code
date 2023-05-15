@@ -64,9 +64,9 @@ library(grid)
 # add color palettes
 library(viridis)
 
-# current computer name
-get_hostname <- function(){
-    return(as.character(Sys.info()["nodename"]))
+# current user name
+get_username <- function(){
+    return(as.character(Sys.info()["user"]))
 }
 
 # set working directories
@@ -79,7 +79,7 @@ set_work_dir <- function() {
   # for others
   add_dir <- ""
   # for Anna's computer
-  if (get_hostname() == "SER-PC1648") {
+  if (get_username() == "anna.shipunova") {
     add_dir <- "R_files_local/test_dir"
   }
 
