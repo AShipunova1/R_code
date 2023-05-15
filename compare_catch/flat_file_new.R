@@ -60,15 +60,23 @@ library(grid)
 # add color palettes
 library(viridis)
 
+# current computer name
+get_hostname <- function(){ 
+    return(as.character(Sys.info()["nodename"])) 
+} 
+
 # set working directories
   # change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
   # then you can use it in the code like my_paths$input etc.
 set_work_dir <- function() {
   setwd("~/")
   base_dir <- getwd()
+  
   add_dir <- ""
   # for Anna only
-  add_dir <- "R_files_local/test_dir"
+  if (get_hostname() == "SER-PC1648") {
+    add_dir <- "R_files_local/test_dir"  
+  }
   
   main_r_dir <- file.path(add_dir, "SEFHIER/R code/Rec ACL vs SEFHIER stats/")
 
@@ -91,7 +99,6 @@ set_work_dir <- function() {
 
 # call that function
 my_paths <- set_work_dir()
-
 
 # auxiliary functions (called throughout the code) ----
 
@@ -208,7 +215,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
 #end auxiliary functions --------------------
 
 # Load all data ----
-## ---- 1) SEFHIER data ----
+## 1) SEFHIER data ----
 
 load_all_logbooks <- function() {
   #load FHIER_all_logbook_data.csv from Inputs folder
@@ -238,7 +245,7 @@ sefhier_sp_all <-
   load_xls_names(my_paths, c(sefhier_sp_file_name),
                  sheet_n = sheet_name)
 
-# ---- 2) MRIP rec ACL (Annual Catch Limit surveys) ----
+## 2) MRIP rec ACL (Annual Catch Limit surveys) ----
 load_acl_data <- function() {
   acl_csv_names_list <- c(
     "mrip_species_list.csv" # identical for all areas
@@ -266,15 +273,15 @@ acl_estimate <- acl_temp[[2]]
 
 # data_overview(acl_estimate)
 
-# data preparation ----
-## prepare FHIER data ----
+# Data preparation ----
+## Prepare FHIER data ----
 
 ### use only entries with sero_vessel_permit ----
 logbooks_content_sero <-
   logbooks_content %>%
   filter(!is.na(sero_vessel_permit))
 
-## get column names vars ----
+### get column names vars ----
 # There are different formats in different available files.
 # Find a column name with "itis" in it
 itis_field_name <- grep("itis", names(logbooks_content_sero), value = T)
@@ -285,19 +292,7 @@ vessel_id_field_name <-
   grep("vessel.*official", names(logbooks_content_sero), value = T)
 # vessel_official_nbr
 
-## Fix dates ----
-## get column names vars ----
-# There are different formats in different available files.
-# Find a column name with "itis" in it
-itis_field_name <- grep("itis", names(logbooks_content), value = T)
-# catch_species_itis
-
-# Same for "vessel.*official"
-vessel_id_field_name <-
-  grep("vessel.*official", names(logbooks_content), value = T)
-# vessel_official_nbr
-
-## Fix dates ----
+### Fix dates ----
 # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 change_to_dates <- function(my_df, field_name, date_format) {
   my_df %>%
@@ -311,7 +306,7 @@ change_to_dates <- function(my_df, field_name, date_format) {
 }
 
 fhier_logbooks_content <-
-  logbooks_content %>%
+  logbooks_content_sero %>%
   # create a new column
   mutate(trip_start_date_time =
            # trip start: combine a date without time, a space and a time
@@ -355,7 +350,7 @@ fhier_logbooks_content_date_fixed <-
 fhier_logbooks_content_date_fixed %<>%
   filter(lubridate::year(trip_end_date) == "2022")
 
-## add waves column to FHIER DF----
+### add waves column to FHIER DF ----
 fhier_logbooks_content_waves <-
   fhier_logbooks_content_date_fixed %>%
   # add a new column with a trip end Month
@@ -369,15 +364,15 @@ fhier_logbooks_content_waves <-
   mutate(end_wave  = floor((end_month_num + 1) / 2))
 
 #| classes: test
-# test: show the new columns ----
+#### test: show the new columns ----
 fhier_logbooks_content_waves %>%
   select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
   # sort by end_month_num
   arrange(end_month_num)
 
-## add region info ----
-### Create variable that organize Florida counties into Gulf or SA regions (from the Internet) ----
+### add region info ----
+#### Create variable that organize Florida counties into Gulf or SA regions (from the Internet) ----
 fl_counties <- list(
   "SA" = c(
     "Brevard",
@@ -436,7 +431,7 @@ fhier_logbooks_content_waves_fl_county <-
     )
   )
 
-## test: check Florida regions ----
+#### test: check Florida regions ----
 fhier_logbooks_content_waves_fl_county %>%
   # get FL only
   filter(end_port_state == "FL") %>%
@@ -449,7 +444,7 @@ fhier_logbooks_content_waves_fl_county %>%
   select(end_port_fl_reg) %>%
   table()
 
-## now convert the Other states' counties to regions ----
+### now convert the Other states' counties to regions ----
 # list of states in the South Atlantic region (from the Internet)
 # https://safmc.net/about/#:~:text=The%20South%20Atlantic%20Council%20is,east%20Florida%20to%20Key%20West
 # The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
@@ -502,14 +497,14 @@ fhier_logbooks_content_waves__sa_gom <-
   # remove this column, we don't need it anymore
   select(-end_port_fl_reg)
 
-## test: check new cols of states and regions ----
+#### test: check new cols of states and regions ----
 fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
   glimpse()
 
-## add scientific names ----
+### add scientific names ----
 sefhier_spp <-
   sefhier_sp_all %>%
   select(species_itis, scientific_name, common_name) %>%
@@ -540,7 +535,7 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
 # many spp
 # https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=172734#null
 
-#### check DOLPHIN ----
+### check DOLPHIN ----
 grep("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, value = T, ignore.case = T) %>%
   unique()
 
@@ -612,9 +607,9 @@ fhier_logbooks_content_waves__sa_gom_fla %>%
 
 ## calculate catch ----
 
+#select only relevant columns from FHIER logbooks DF, and group all cols by reported quantity
 fhier_catch_by_species_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom_fla %>%
-  # select only relevant columns
   select(
     scientific_name,
     species_itis,
@@ -625,7 +620,6 @@ fhier_catch_by_species_state_region_waves <-
     end_wave,
     reported_quantity
   ) %>%
-  # group by all of them but "reported_quantity"
   group_by(
     scientific_name,
     species_itis,
@@ -642,7 +636,6 @@ fhier_catch_by_species_state_region_waves <-
   as.data.frame()
 
 # data_overview(fhier_catch_by_species_state_region_waves)
-# names(fhier_logbooks_content)
 
 #| classes: test
 ### test: cnts for 1 sp. ----
@@ -665,9 +658,7 @@ fhier_test_cnts <-
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
-# source("~/R_code_github/compare_catch/compare_catch_fhier_q.R")
-
-## rec ACL / MRIP ----
+## ACL data preparations ----
 
 # from get_data.R
 acl_estimate %<>%
@@ -690,23 +681,6 @@ acl_estimate_2022 <-
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
   # new_moden		alpha description of ‘new_mode’
   filter(new_mode %in% c(2, 3, 5))
-
-# View(acl_estimate)
-dim(acl_estimate)
-# [1] 1442   67
-# [1] 347379 67
-# new file
-# [1] 372065     69
-# 
-dim(acl_estimate_2022)
-# 8332
-# 1442   
-# new file
-# [1] 2088   69
-
-names(acl_estimate_2022)
-# data_overview(acl_estimate_2022)
-# new_sci            77
 
 ## change_case for scientific_names ----
 acl_estimate_2022 %<>%
@@ -758,11 +732,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   # back to an ungrouped form
   as.data.frame()
 
-glimpse(acl_estimate_catch_by_species_state_region_waves)
-# 'data.frame':	878 obs. of  6 variables
-# new file
-# Rows: 1,244 with fl_reg
-# Rows: 968
+# glimpse(acl_estimate_catch_by_species_state_region_waves)
 
 # "year" and "wave" to numbers
 acl_estimate_catch_by_species_state_region_waves1 <-
@@ -856,9 +826,6 @@ fhier_catch_by_species_state_region_waves_renamed <-
 
 ### rename fields in the test variables ----
 names(fhier_test_cnts) <- c("scientific_name", "sa_gom", "mackerel_fhier_cnt")
-
-# names(acl_test_cnts)
-# "new_sci"          "sa_gom"           "mackerel_acl_cnt"
 
 ### test: rename fields ----
 names(fhier_catch_by_species_state_region_waves)
