@@ -37,3 +37,11 @@ add_to_report_xls(fhier_acl_catch_by_species_state_region_waves_list_for_plot_go
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   add_to_report_xls("1.1a wave and region SEDAR SA")
 
+# 1) By wave and region 2b) Recreational ACL tops; ----
+# gom ----
+gom_acl_top_to_plot %>%
+  add_to_report_xls("1.2b wave and region top MRIP GOM")
+
+# sa ----
+sa_acl_top_to_plot %>%
+  add_to_report_xls("1.2b wave and region top MRIP SA")
