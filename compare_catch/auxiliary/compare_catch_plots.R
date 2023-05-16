@@ -823,6 +823,19 @@ names(region_waves_sa_long_wave_list) %>%
 View(state_wave_has_rec_acl_data_list_new)
 
 # 2) By wave and state 1a) SEDAR TODO ----
+state_wave_has_rec_acl_data_list_state_sedar <-
+  map(state_wave_has_rec_acl_data_list_new,
+      function(by_state_df) {
+        # browser()
+        by_state_df %>%
+          filter(
+            scientific_name %in% gom_top_spp$scientific_name |
+              scientific_name %in% sa_top_spp$scientific_name
+          ) %>%
+        return()
+      })
+
+View(state_wave_has_rec_acl_data_list_state_sedar)
 
 state_wave_plots_sedar <-
   # has rec_acl data
