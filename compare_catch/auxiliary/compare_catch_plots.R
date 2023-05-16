@@ -623,7 +623,7 @@ grid.arrange(
   ncol = 2
 )
 
-# 1) By wave and region 2b) Recreational ACL tops; ----
+# 1) By wave and region 2b) Recreational ACL tops ----
 ## GOM Top ACL species plots ----
 # View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 
@@ -884,8 +884,56 @@ gridExtra::grid.arrange(
              left = my_legend_st_sedar,
              ncol = 2)
 
-# 2) By wave and state 2b) Recreational ACL tops TODO ----
+# 2) By wave and state 2b) Recreational ACL tops ----
+state_wave_rec_acl_top_list <-
+  map(state_wave_has_rec_acl_data_list_new,
+      function(by_state_df) {
+        # browser()
+        by_state_df %>%
+          filter(
+            scientific_name %in% gom_acl_top_spp$scientific_name |
+              scientific_name %in% sa_acl_top_spp$scientific_name
+          ) %>%
+          return()
+      })
 
+View(state_wave_rec_acl_top_list)
+state_wave_rec_acl_top_list[["FL"]] %>%
+  select(scientific_name) %>% unique() %>% dim()
+# 18
+
+state_wave_plots_mrip_top <-
+  # has rec_acl data
+    names(state_wave_rec_acl_top_list) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    super_title_state_mrip = paste0(state_abbr, ". Top ACL species counts by state. 2022")
+    # browser()
+    # get data for this state
+    state_wave_rec_acl_top_list[[state_abbr]] %>%
+      plot_by_time(
+        my_title = super_title_state_mrip,
+        sort_field = sort_field_state_wave_plots_sedar,
+        show_counts = T,
+        show_com_names = T,
+        show_legend = T
+      )
+  })
+
+state_wave_plots_mrip_top[[2]]
+
+# one plot with a legend - use the same
+
+# combine plots and the legend in a list
+# gr_list <- c(state_wave_plots_sedar,
+#              list(my_legend_st_sedar))
+
+grid.newpage()
+gridExtra::grid.arrange(
+             grobs = state_wave_plots_sedar,
+             top = super_title_sedar,
+             left = my_legend_st_sedar,
+             ncol = 2)
 
 # 2) By wave and state 3c) All FHIER spp TODO ----
 
