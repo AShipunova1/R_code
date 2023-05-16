@@ -173,13 +173,13 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 
 # 1) By wave and region 1a) SEDAR ----
 ## keep only entries for spp. in the top ten list, separately for each region ----
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(species_itis_fhier %in% gom_top_spp$species_itis)
 # 231  
 # 250
 
-# str(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+# str(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
 # 'data.frame':	196 obs. of  6 variables
 # 'data.frame':	238 obs. of  6 variables (new list)
 # 'data.frame':	250 obs. of  9 variables new file and sero only
@@ -221,7 +221,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
 
 # GOM, FHIER counts
 
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
@@ -250,7 +250,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
 
 # GOM, ACL counts
 # TODO why numbers are different
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
@@ -293,7 +293,7 @@ fhier_acl_to_plot_format <- function(my_df) {
 ## GOM plots ----
 
 fhier_acl_gom_to_plot <-
-  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
 
 View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 # 
@@ -436,7 +436,7 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   return(one_ind_plot)
 }
 
-# fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
+# fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
 #   filter(is.na(common_name_fhier)) %>% unique()
 # 0
 
@@ -460,9 +460,9 @@ calculate_cnt_index <- function(my_df) {
 }
 
 ### GOM index ----
-fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
-# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
-# names(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
+fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
+# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
+# names(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
 
 # glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
