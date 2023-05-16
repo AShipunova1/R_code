@@ -181,14 +181,14 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar <-
 # 250
 # 258
 
-# str(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
+# str(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
 # 'data.frame':	196 obs. of  6 variables
 # 'data.frame':	238 obs. of  6 variables (new list)
-# 'data.frame':	250 obs. of  9 variables new file and sero only
+# 'data.frame':	258 obs. of  9 variables new file and sero only
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis_fhier %in% sa_top_spp$species_itis)
+  filter(scientific_name %in% sa_top_spp$scientific_name)
 
 glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # Rows: 300
@@ -201,9 +201,9 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
 #   select(common_name_fhier) %>% unique() %>% dim()
 # 11
+# 9
 
 #| classes: test
-
 #### test: For the top 10, for each region sum separately ACL and FHIER counts for one species, ----
 # should be the same as before
 
@@ -250,24 +250,17 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
             )
 
 # GOM, ACL counts
-# TODO why numbers are different
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
-# fhier_acl_catch_by_species_state_region_waves_list$gom %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
     select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
-  # head()
-  # 173059
   identical(
     acl_test_cnts %>%
               filter(sa_gom == "gom") %>%
               select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
-#                       new_sci sa_gom mackerel_acl_cnt
-# 1 SCOMBEROMORUS MACULATUS    gom           173409
-
             )
 # TRUE
 
