@@ -48,7 +48,7 @@ plot_by_year <-
       geom_col(position = "dodge") +
       labs(title = my_title,
            y = "") +
-      theme(axis.text.y = element_text(size = 7)) +
+      theme(axis.text.y = element_text(size = 6)) +
       theme_bw() +
       my_theme
     
@@ -874,16 +874,19 @@ plot_w_legend_st_sedar <-
 my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
 
 # combine plots and the legend in a list
-gr_list <- c(state_wave_plots_sedar,
-             list(my_legend_st_sedar))
+# gr_list <- c(state_wave_plots_sedar,
+#              list(my_legend_st_sedar))
 
 grid.newpage()
 gridExtra::grid.arrange(
-             grobs = gr_list,
+             grobs = state_wave_plots_sedar,
              top = super_title_sedar,
+             left = my_legend_st_sedar,
              ncol = 2)
 
 # 2) By wave and state 2b) Recreational ACL tops TODO ----
+
+
 # 2) By wave and state 3c) All FHIER spp TODO ----
 
 # 3) By year and region ----
