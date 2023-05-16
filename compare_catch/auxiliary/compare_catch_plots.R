@@ -298,7 +298,12 @@ plot(fhier_acl_gom_to_plot)
 # plot_by_spp("MACKEREL, SPANISH", fhier_acl_gom_to_plot)
 
 ### GOM plots for each common name from the top 10 ----
-plots10_gom <- map(unique(fhier_acl_gom_to_plot$common_name_fhier),
+spp_to_plot_gom <- fhier_acl_gom_to_plot$common_name_fhier %>%
+  unique() %>%
+  # na.omit()
+  na.exclude()
+
+plots10_gom <- map(spp_to_plot_gom,
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_gom_to_plot)}
                )
