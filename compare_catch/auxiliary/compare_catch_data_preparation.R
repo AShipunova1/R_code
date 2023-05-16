@@ -498,9 +498,9 @@ acl_estimate_catch_by_species_state_region_waves <-
            # fl_reg,
            year,
            wave) %>%
-  # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
+  # save the sum of "ab1" for each group in "rec_acl_estimate_catch_by_4"
   # remove NAs
-  summarise(acl_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
+  summarise(rec_acl_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
   # back to an ungrouped form
   as.data.frame()
 
@@ -537,7 +537,7 @@ acl_test_cnts <-
   # group by region
   group_by(new_sci, sa_gom) %>%
   # sum the ACL catch
-  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
+  summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
 ## rename fields ----
@@ -571,7 +571,7 @@ acl_names <- c(
   # 'fl_reg',
   'year',
   'wave',
-  'acl_estimate_catch_by_4'
+  'rec_acl_estimate_catch_by_4'
 )
 
 #### common field names ----
