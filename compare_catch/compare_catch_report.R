@@ -30,4 +30,10 @@ add_to_report_xls <- function(my_df, current_sheet_name) {
 # 1) By wave and region 1a) SEDAR ----
 ## keep only entries for spp. in the top ten list, separately for each region ----
 
+# gom ----
 add_to_report_xls(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar, "1.1a wave and region SEDAR GOM")
+
+# sa ----
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
+  add_to_report_xls("1.1a wave and region SEDAR SA")
+
