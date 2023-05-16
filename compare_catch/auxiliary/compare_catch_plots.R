@@ -699,10 +699,15 @@ sa_acl_top_to_plot %>%
 # 103230
 
 ### sa plots for each common name from the top ACL spp ----
-plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name_fhier),
-              # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_by_spp(x, sa_acl_top_to_plot_longer)}
-               )
+
+plots_acl_top_sa <-
+  unique(sa_acl_top_to_plot_longer$common_name_fhier) %>%
+  # all names except NA
+  na.exclude() %>%
+  map(# run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+    function(x) {
+      plot_by_spp(x, sa_acl_top_to_plot_longer)
+    })
 
 # plots_acl_top_sa[[1]]
 
