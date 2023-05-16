@@ -96,8 +96,6 @@ fhier_acl_catch_by_species_state_region_waves %>%
 sa_top <- c(
   "BASS, BLACK SEA",
   "DOLPHIN",
-  "DOLPHINFISH",
-  "DOLPHIN, POMPANO",
   "GROUPER, BLACK",
   "GROUPER, GAG",
   "GROUPER, RED",
