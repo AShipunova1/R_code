@@ -4,7 +4,7 @@ library(xlsx)
 # 2b) MRIP / Recreational ACL tops;
 # 3c) All FHIER spp
 # For each:
-# 1) By wave and region
+# 1) By wave region
 # 2) By wave and state
 # 3) By year and region
 # 4) By year and state
@@ -21,27 +21,64 @@ add_to_report_xls <- function(my_df, current_sheet_name) {
     as.data.frame(my_df),
     file = report_file_path,
     sheetName = current_sheet_name,
-    # row.names = TRUE,
+    row.names = FALSE,
     col.names = TRUE,
     append = TRUE
   )
 }
 
-# 1) By wave and region 1a) SEDAR ----
+# all ----
+fhier_acl_catch_by_species_state_region_waves %>%
+  # rename the field
+  rename(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  add_to_report_xls("counts by species_state_region_waves")
+
+# 1) By wave region 1a) SEDAR ----
 ## keep only entries for spp. in the top ten list, separately for each region ----
 
-# gom ----
-add_to_report_xls(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar, "1.1a wave and region SEDAR GOM")
+## GOM ----
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar
+  # rename the field
+  rename(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  add_to_report_xls("1.1a wave region SEDAR GOM")
 
-# sa ----
+## SA ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
-  add_to_report_xls("1.1a wave and region SEDAR SA")
+  # rename the field
+  rename(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  add_to_report_xls("1.1a wave region SEDAR SA")
 
-# 1) By wave and region 2b) Recreational ACL tops; ----
-# gom ----
+# 1) By wave region 2b) Recreational ACL tops; ----
+## GOM ----
 gom_acl_top_to_plot %>%
-  add_to_report_xls("1.2b wave and region top MRIP GOM")
+  # rename the field
+  rename(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  add_to_report_xls("1.2b wave region top MRIP GOM")
 
-# sa ----
+## SA ----
 sa_acl_top_to_plot %>%
-  add_to_report_xls("1.2b wave and region top MRIP SA")
+  # rename the field
+  rename(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  add_to_report_xls("1.2b wave region top MRIP SA")
+
+# 1) By wave region 3c) All FHIER spp ----
+## GOM ----
+fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
+  # rename the field
+  rename(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  add_to_report_xls("1.3c wave region all FHIER GOM")
+
+## SA ----
+fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
+  # rename the field
+  rename(rec_acl_estimate_catch_by_4 =
+           acl_estimate_catch_by_4) %>%
+  add_to_report_xls("1.3c wave region all FHIER SA")
+
+state_wave_has_rec_acl_data_list_new
