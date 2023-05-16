@@ -173,11 +173,13 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 
 # 1) By wave and region 1a) SEDAR ----
 ## keep only entries for spp. in the top ten list, separately for each region ----
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar <-
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar <-
+  # fhier_acl_catch_by_species_state_region_waves_list
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis_fhier %in% gom_top_spp$species_itis)
+  filter(scientific_name %in% gom_top_spp$scientific_name)
 # 231  
 # 250
+# 258
 
 # str(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
 # 'data.frame':	196 obs. of  6 variables
@@ -220,8 +222,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
             )
 
 # GOM, FHIER counts
-
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
@@ -250,13 +251,15 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
 
 # GOM, ACL counts
 # TODO why numbers are different
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
+# fhier_acl_catch_by_species_state_region_waves_list$gom %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
     select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
-  # head() 173059
+  # head()
+  # 173059
   identical(
     acl_test_cnts %>%
               filter(sa_gom == "gom") %>%
@@ -266,7 +269,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar fhier_
 # 1 SCOMBEROMORUS MACULATUS    gom           173409
 
             )
-# F
+# TRUE
 
 # all four above should be TRUE
 
