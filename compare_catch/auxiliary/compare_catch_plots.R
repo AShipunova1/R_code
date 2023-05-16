@@ -633,12 +633,17 @@ gom_acl_top_to_plot <-
              by = join_by(scientific_name))
 # Joining with `by = join_by(species_itis, common_name)`
 # 'data.frame':	225 obs. of  7 variables:
+# 305
 
 gom_acl_top_to_plot_longer <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
-View(gom_acl_top_to_plot_longer)
+# View(gom_acl_top_to_plot_longer)
 
 ### GOM plots for each common name from the top 10 ----
-plots_acl_top_gom <- map(unique(gom_acl_top_to_plot_longer$common_name_fhier),
+spp_to_plot_gom_acl_top <- gom_acl_top_to_plot_longer$common_name_fhier %>%
+  unique() %>%
+  na.exclude()
+
+plots_acl_top_gom <- map(spp_to_plot_gom_acl_top,
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, gom_acl_top_to_plot_longer)}
                )
@@ -673,20 +678,25 @@ sa_acl_top_to_plot <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
   inner_join(sa_acl_top_spp, by = join_by(scientific_name))
 
-# str(sa_acl_top_to_plot)
+# dim(sa_acl_top_to_plot)
 # 'data.frame':	331 obs. of  6 variables:
+# 259
 
 sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 
 # test the longer format transformation ----
-# View(sa_acl_top_to_plot)
-# sa_acl_top_to_plot %>% 
-#   filter(species_itis == '173138') %>%
-# count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
-# # 41469 
-# filter(sa_acl_top_spp, species_itis == '173138')
-# # 41469 
-
+sa_acl_top_to_plot %>%
+  filter(scientific_name == test_species_name) %>%
+  count(acl_count = sum(acl_estimate_catch_by_4)) %>%
+  use_series(acl_count) %>%
+  identical(
+    sa_acl_top_spp %>%
+      filter(scientific_name == test_species_name) %>%
+      select(acl_count) %>%
+      use_series(acl_count)
+  )
+# T
+# 103230
 
 ### sa plots for each common name from the top ACL spp ----
 plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name_fhier),
