@@ -186,11 +186,11 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar <-
 # 'data.frame':	238 obs. of  6 variables (new list)
 # 'data.frame':	258 obs. of  9 variables new file and sero only
 
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 <-
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
   filter(scientific_name %in% sa_top_spp$scientific_name)
 
-glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
+glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar)
 # Rows: 300
 # Rows: 274
 # 173
@@ -198,7 +198,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # 206 with combined dolphins
 # 179 new file and sero only
 
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   select(common_name_fhier) %>% unique() %>% dim()
 # 11
 # 9
@@ -208,7 +208,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
 # should be the same as before
 
 #### test SA, FHIER counts ----
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
@@ -236,7 +236,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
             )
 
 # SA, ACL counts
-fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
@@ -325,7 +325,7 @@ grid.arrange(grobs = plots10_gom,
 ## SA plots ----
 
 fhier_acl_sa_to_plot <-
-  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10) %>% 
+  fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar) %>% 
   ungroup()
 
 # glimpse(fhier_acl_sa_to_plot)
@@ -509,7 +509,7 @@ grid.arrange(grobs = gom_ind_plots,
              ncol = 3)
 
 ### SA index ----
-fhier_acl_sa_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
+fhier_acl_sa_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar)
 
 ### SA index plots ----
 # plot(fhier_acl_sa_ind)
