@@ -162,7 +162,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
-  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
+  summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
       use_series(mackerel_acl_cnt) %>%
   identical(
     acl_test_cnts %>%
@@ -239,7 +239,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
-  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
+  summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
   identical(
@@ -253,7 +253,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
-  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
+  summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
     select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
   identical(
@@ -269,7 +269,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
 fhier_acl_to_plot_format <- function(my_df) {
   my_df %>%
   # change to shorter column names
-  rename(c("ACL" = "acl_estimate_catch_by_4",
+  rename(c("ACL" = "rec_acl_estimate_catch_by_4",
            "FHIER" = "fhier_quantity_by_4")) %>%
   # reformat to a long format to have fhier and acl data side by side
   pivot_longer(
@@ -444,14 +444,14 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
 calculate_cnt_index <- function(my_df) {
   # browser()
   my_df %>%
-    select(wave, common_name_fhier, fhier_quantity_by_4, acl_estimate_catch_by_4) %>%
+    select(wave, common_name_fhier, fhier_quantity_by_4, rec_acl_estimate_catch_by_4) %>%
     # select(-c(state, species_itis_fhier, species_itis_mrip)) %>%
     mutate_all( ~ replace_na(., 0)) %>%
     group_by(wave, common_name_fhier) %>%
     # aggregate counts by states
     summarise(
       fhier_cnts = sum(fhier_quantity_by_4),
-      acl_cnts = sum(acl_estimate_catch_by_4)
+      acl_cnts = sum(rec_acl_estimate_catch_by_4)
     ) %>%
     mutate(cnt_index = (acl_cnts - fhier_cnts) /
              (acl_cnts + fhier_cnts)) %>%
@@ -687,7 +687,7 @@ sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 # test the longer format transformation ----
 sa_acl_top_to_plot %>%
   filter(scientific_name == test_species_name) %>%
-  count(acl_count = sum(acl_estimate_catch_by_4)) %>%
+  count(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
   use_series(acl_count) %>%
   identical(
     sa_acl_top_spp %>%
@@ -735,9 +735,6 @@ grid.arrange(grobs = plots_acl_top_sa,
 
 region_waves_gom_long_wave_list <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  # rename the field
-  mutate(rec_acl_estimate_catch_by_4 =
-           acl_estimate_catch_by_4) %>%
   # split by waves column
   split(
     as.factor(
@@ -782,9 +779,6 @@ names(region_waves_gom_long_wave_list) %>%
 
 region_waves_sa_long_wave_list <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  # rename the field
-  mutate(rec_acl_estimate_catch_by_4 =
-           acl_estimate_catch_by_4) %>%
   # split by waves column
   split(
     as.factor(
@@ -1125,7 +1119,7 @@ View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(fhier_quantity_by_4 == 0 &
-           acl_estimate_catch_by_4 == 0) %>%
+           rec_acl_estimate_catch_by_4 == 0) %>%
   count(species_itis)
   # species_itis  n
 # 1       167793  1 sand perch
