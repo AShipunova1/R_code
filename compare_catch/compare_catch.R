@@ -58,8 +58,8 @@ fhier_acl_catch_by_species_state_region_waves %<>%
   mutate(
     fhier_quantity_by_4 =
       replace_na(fhier_quantity_by_4, 0),
-    acl_estimate_catch_by_4 =
-      replace_na(acl_estimate_catch_by_4, 0)
+    rec_acl_estimate_catch_by_4 =
+      replace_na(rec_acl_estimate_catch_by_4, 0)
   )
 
 ### test join ----
@@ -88,7 +88,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
 fhier_acl_catch_by_species_state_region_waves %>%
   filter(scientific_name == test_species_name) %>%
   group_by(scientific_name, sa_gom) %>%
-  summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
+  summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_acl_cnt) %>%
   identical(acl_test_cnts$mackerel_acl_cnt)
 
@@ -173,9 +173,9 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 # the common manipulation for both "GOM" and "SA"
 get_acl_top_cnts <- function(my_df, top_num = 12) {
   my_df %>%
-    select(new_sci, acl_estimate_catch_by_4) %>%
+    select(new_sci, rec_acl_estimate_catch_by_4) %>%
     group_by(new_sci) %>%
-    summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
+    summarise(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
     # sort
     arrange(desc(acl_count)) %>%
     head(top_num) %>%
@@ -226,7 +226,7 @@ my_st_names <- names(fhier_acl_catch_by_species_state_region_waves_states_list)
 for (i in 1:length(my_st_names)) {
   # browser()
   state_abbr <- my_st_names[[i]]
-  if (sum(fhier_acl_catch_by_species_state_region_waves_states_list[[state_abbr]]$acl_estimate_catch_by_4) > 0) {
+  if (sum(fhier_acl_catch_by_species_state_region_waves_states_list[[state_abbr]]$rec_acl_estimate_catch_by_4) > 0) {
     state_wave_has_rec_acl_data_list_new[state_abbr] <- fhier_acl_catch_by_species_state_region_waves_states_list[state_abbr]
   }
 }
@@ -243,14 +243,14 @@ fhier_acl_catch_by_species_region_year <-
          scientific_name,
          sa_gom,
          fhier_quantity_by_4,
-         acl_estimate_catch_by_4) %>%
+         rec_acl_estimate_catch_by_4) %>%
   group_by(species_itis_fhier,
          common_name_fhier,
          scientific_name,
          sa_gom) %>%
   summarise(
     fhier_cnts_by_year_reg = sum(fhier_quantity_by_4),
-    rec_acl_cnts_by_year_reg = sum(acl_estimate_catch_by_4)
+    rec_acl_cnts_by_year_reg = sum(rec_acl_estimate_catch_by_4)
   ) %>%
   ungroup()
 
@@ -296,15 +296,15 @@ fhier_acl_catch_by_species_state_year <-
          common_name_fhier,
          state,
          fhier_quantity_by_4,
-         acl_estimate_catch_by_4) %>%
+         rec_acl_estimate_catch_by_4) %>%
   group_by(species_itis_fhier,
          common_name_fhier,
          state) %>%
   mutate(
     fhier_sum_cnts = sum(fhier_quantity_by_4),
-    rec_acl_sum_cnts = sum(acl_estimate_catch_by_4)
+    rec_acl_sum_cnts = sum(rec_acl_estimate_catch_by_4)
   ) %>%
-  select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
+  select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
   unique()
 
 ## split by state ----
