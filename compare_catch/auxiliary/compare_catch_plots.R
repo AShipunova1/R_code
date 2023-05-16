@@ -28,7 +28,7 @@ to_long_format <- function(my_df) {
     return()
 }
 
-plot_by_year <-
+plot_by_time <-
   function(my_df,
            my_title,
            sort_field = "rec_acl_cnts_by_year_reg",
@@ -753,7 +753,7 @@ plots_region_waves_gom_long_wave_list <-
     # browser()
     region_waves_gom_long_wave_list[[wave_num]] %>%
       unique() %>%
-      plot_by_year(
+      plot_by_time(
         my_title = paste0(my_reg, " wave ", wave_num, " 2022"),
         sort_field = "rec_acl_estimate_catch_by_4",
         show_counts = FALSE,
@@ -797,7 +797,7 @@ plots_region_waves_sa_long_wave_list <-
     # browser()
     region_waves_sa_long_wave_list[[wave_num]] %>%
       unique() %>%
-      plot_by_year(
+      plot_by_time(
         my_title = paste0(my_reg, " wave ", wave_num, " 2022"),
         sort_field = "rec_acl_estimate_catch_by_4",
         show_counts = FALSE,
@@ -847,7 +847,7 @@ state_wave_plots_sedar <-
     # browser()
     # get data for this state
     state_wave_has_rec_acl_data_list_state_sedar[[state_abbr]] %>%
-      plot_by_year(
+      plot_by_time(
         my_title = state_abbr,
         sort_field = sort_field_state_wave_plots_sedar,
         show_counts = F,
@@ -864,7 +864,7 @@ my_state = "FL"
 plot_w_legend_st_sedar <- 
   # data for one state
   state_wave_has_rec_acl_data_list_state_sedar[[my_state]] %>%
-  plot_by_year(
+  plot_by_time(
         my_title = my_state,
         sort_field = sort_field_state_wave_plots_sedar,
         show_legend = TRUE
@@ -897,14 +897,14 @@ my_reg <- "GOM"
 my_title <- paste0(my_reg, " 2022")
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
-  plot_by_year(my_title = my_title, show_counts = FALSE)
+  plot_by_time(my_title = my_title, show_counts = FALSE)
 
 ### SA ---- 
 my_reg <- "SA"
 my_title <- paste0(my_reg, " 2022")
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  plot_by_year(my_title = my_title)
+  plot_by_time(my_title = my_title)
 # , show_counts = FALSE
 
 ### overview plots ----
@@ -921,20 +921,20 @@ my_title <- "By year and region SEDAR spp. SA"
 fhier_acl_catch_by_species_region_year_list$sa %>%
   filter(species_itis %in% sa_top_spp$species_itis) %>% 
   # View()
-  plot_by_year(my_title = my_title)
+  plot_by_time(my_title = my_title)
 
 # same ordered by FHIER:
 my_title <- "By year and region SEDAR spp. SA, ordered by FHIER cnts"
 fhier_acl_catch_by_species_region_year_list$sa %>%
   filter(species_itis %in% sa_top_spp$species_itis) %>% 
   # View()
-  plot_by_year(my_title = my_title, sort_field = "fhier_cnts_by_year_reg")
+  plot_by_time(my_title = my_title, sort_field = "fhier_cnts_by_year_reg")
 
 my_title <- "By year and region SEDAR spp. GOM"
 fhier_acl_catch_by_species_region_year_list$gom %>%
   filter(species_itis %in% gom_top_spp$species_itis) %>% 
   # View()
-  plot_by_year(my_title = my_title)
+  plot_by_time(my_title = my_title)
 
 ## 3) By year and region 2b) Recreational ACL tops ----
 ### gom ----
@@ -945,7 +945,7 @@ my_title <- paste0(my_reg, " 2022. rec_acl_cnts_by_year_reg > ", my_limit)
 fhier_acl_catch_by_species_region_year_list$gom %>%
   # keep only top r_acl cnts
   filter(rec_acl_cnts_by_year_reg > my_limit) %>%
-  plot_by_year(my_title = my_title)
+  plot_by_time(my_title = my_title)
 
 ### SA ---- 
 my_limit <- 2000
@@ -955,7 +955,7 @@ my_title <- paste0(my_reg, " 2022. rec_acl_cnts_by_year_reg > ", my_limit)
 fhier_acl_catch_by_species_region_year_list$sa %>%
   # keep only top r_acl cnts
   filter(rec_acl_cnts_by_year_reg > my_limit) %>%
-  plot_by_year(my_title = my_title)
+  plot_by_time(my_title = my_title)
 
 ### overview plots ----
 fhier_acl_catch_by_species_region_year_list$gom %>%
@@ -968,7 +968,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 
 # 4) By year and state ----
 # 4) By year and state 3c) All FHIER spp ----
-plot_by_year(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts", show_counts = FALSE)
+plot_by_time(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts", show_counts = FALSE)
 
 # state_year_has_rec_acl_data_list_new
 state_year_plots <-
@@ -979,7 +979,7 @@ state_year_plots <-
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       # filter(fhier_sum_cnts > 2000) %>%
       # filter(rec_acl_sum_cnts > 2000) %>%
-      plot_by_year(my_title = state_abbr, sort_field = "rec_acl_sum_cnts", show_counts = F, show_com_names = FALSE)
+      plot_by_time(my_title = state_abbr, sort_field = "rec_acl_sum_cnts", show_counts = F, show_com_names = FALSE)
   })
 
 super_title_y_st = "2022 Counts by State and spp."
@@ -1013,7 +1013,7 @@ state_year_plots_sedar <-
         species_itis %in% gom_top_spp$species_itis |
           species_itis %in% sa_top_spp$species_itis
       ) %>%
-      plot_by_year(
+      plot_by_time(
         my_title = state_abbr,
         sort_field = "rec_acl_sum_cnts",
         show_counts = F,
@@ -1029,7 +1029,7 @@ my_state = "FL"
 plot_w_legend_st_sedar <- 
   # data for one state
   fhier_acl_catch_by_species_state_year_list[[my_state]] %>%
-  plot_by_year(
+  plot_by_time(
         my_title = my_state,
         sort_field = "rec_acl_sum_cnts",
         show_legend = TRUE
@@ -1068,7 +1068,7 @@ state_year_top_rec_acl_plots_2k <-
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
 #   # keep only top r_acl cnts
     filter(rec_acl_sum_cnts > my_limit) %>%
-      plot_by_year(
+      plot_by_time(
         my_title = state_abbr,
         sort_field = "rec_acl_sum_cnts",
         show_counts = T,
@@ -1089,7 +1089,7 @@ state_year_top_rec_acl_plots_4k <-
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
 #   # keep only top r_acl cnts
     filter(rec_acl_sum_cnts > my_limit) %>%
-      plot_by_year(
+      plot_by_time(
         my_title = state_abbr,
         sort_field = "rec_acl_sum_cnts",
         show_counts = T,
