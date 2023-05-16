@@ -198,8 +198,8 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # 206 with combined dolphins
 # 179 new file and sero only
 
-# fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-#   select(common_name_fhier) %>% unique() %>% dim()
+fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
+  select(common_name_fhier) %>% unique() %>% dim()
 # 11
 # 9
 
@@ -263,7 +263,6 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
               use_series(mackerel_acl_cnt)
             )
 # TRUE
-
 # all four above should be TRUE
 
 ### convert to a long format for plotting
