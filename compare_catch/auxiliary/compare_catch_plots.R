@@ -918,49 +918,67 @@ save_plot_to_file <-
     )
   }
 
+get_current_sedar_list <- function(current_sa_gom) {
+  current_top_spp   = gom_top_spp
+  if (current_sa_gom == "sa") {
+    current_top_spp   = sa_top_spp
+  }
+  return(current_top_spp)
+}
+
+make_one_state_plot <-
+  function(state_abbr,
+           current_st_df_list,
+           current_top_spp,
+           current_sa_gom) {
+    # browser()
+    # get data for this state
+    all_plots_for_st <-
+      current_st_df_list[[state_abbr]] %>%
+      each_state_to_plot(current_top_spp)
+    
+    super_title_sedar =
+      paste(current_sa_gom,
+            state_abbr,
+            "2022 Counts by State and SEDAR spp. lists")
+    
+    combined_plot_for_1_state <-
+      gridExtra::arrangeGrob(
+        grobs = all_plots_for_st,
+        top = super_title_sedar,
+        left = one_legend,
+        ncol = 2
+      )
+    
+    #save each plot to file
+    save_plot_to_pdf(current_sa_gom,
+                     state_abbr,
+                     combined_plot_for_1_state)
+    
+    return(combined_plot_for_1_state)
+  }
+
 state_wave_plots_sedar <-
   map(c("sa", "gom"),
       function(current_sa_gom) {
         # browser()
-        if (current_sa_gom == "sa") {
-          current_top_spp   = sa_top_spp
-        }
-        else
-          current_top_spp   = gom_top_spp
-        
+        current_top_spp <- get_current_sedar_list(current_sa_gom)
         current_st_df_list <-
           state_wave_has_rec_acl_data_list_state_sedar[[current_sa_gom]]
-        # state has rec_acl data
-        names(current_st_df_list) %>%
-          # repeat for each state
-          map(function(state_abbr) {
-            # browser()
-            # get data for this state
-            all_plots_for_st <-
-              current_st_df_list[[state_abbr]] %>%
-              each_state_to_plot(current_top_spp)
-            
-            super_title_sedar =
-              paste(current_sa_gom,
-                    state_abbr,
-                    "2022 Counts by State and SEDAR spp. lists")
-            
-            combined_plot_for_1_state <-
-              gridExtra::arrangeGrob(
-                grobs = all_plots_for_st,
-                top = super_title_sedar,
-                left = one_legend,
-                ncol = 2
-              )
-            
-            #save each plot to file
-            save_plot_to_pdf(current_sa_gom,
-           state_abbr,
-           combined_plot_for_1_state)
-            
-            return(combined_plot_for_1_state)
-          })
+        # browser()
+        
+        # repeat for each state
+        map(
+          names(current_st_df_list),
+          ~ make_one_state_plot(.x,
+                                current_st_df_list,
+                                current_top_spp,
+                                current_sa_gom)
+        )
       })
+
+# to see plots
+# grid.arrange(state_wave_plots_sedar[[1]][[1]])
 
 # 2) By wave and state 2b) Recreational ACL tops ----
 state_wave_rec_acl_top_list <-
