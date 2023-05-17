@@ -160,11 +160,12 @@ dim(fhier_acl_catch_by_species_state_region_waves)
 fhier_acl_catch_by_species_state_region_waves_list <-
   fhier_acl_catch_by_species_state_region_waves %>%
   # split by sa_gom column
-  split(as.factor(fhier_acl_catch_by_species_state_region_waves$sa_gom)) %>%
-  # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
+  split(as.factor(fhier_acl_catch_by_species_state_region_waves$sa_gom)) 
+# %>%
+#   # remove extra columns in each df
+#   map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
 
-glimpse(fhier_acl_catch_by_species_state_region_waves_list)
+# glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 
 ## 2b) Top 12 ACL spp. ----
 ### GOM Top 12 ACL spp. ----
@@ -210,8 +211,18 @@ sa_acl_top_spp <-
 # str(acl_estimate_catch_by_species_state_region_waves)
 # fhier_acl_catch_by_species_state_region_waves - has only common species
 
-### split by state ----
+### split by region and state ----
 
+fhier_acl_catch_by_species_state_region_waves_states_list <-
+  fhier_acl_catch_by_species_state_region_waves_list %>%
+  map(function(current_df) {
+    # browser()
+    current_df %>%
+      split(as.factor(current_df$state))
+  })
+
+### split by state ----
+View(fhier_acl_catch_by_species_state_region_waves_states_list)
 fhier_acl_catch_by_species_state_region_waves_states_list <-
   fhier_acl_catch_by_species_state_region_waves %>%
   split(as.factor(fhier_acl_catch_by_species_state_region_waves$state))
