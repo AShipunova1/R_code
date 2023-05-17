@@ -846,18 +846,20 @@ state_wave_list_state_sedar <-
           return()
       })
 
+names(state_wave_list_state_sedar) <- c("sa", "gom")
 View(state_wave_list_state_sedar)
+
 state_wave_has_rec_acl_data_list_state_sedar <-
   state_wave_list_state_sedar %>%
   map(remove_no_mrip_cnts)
 
-View(state_wave_has_rec_acl_data_list_state_sedar)
-state_wave_has_rec_acl_data_list_state_sedar[[2]][["AL"]] %>%
-  select(scientific_name) %>% unique() %>% dim()[1]
-# [[1]][["NC"]] 9
-# [[2]][["AL"]] 11
+View(state_wave_has_rec_acl_data_list_state_sedar$gom$AL)
+state_wave_has_rec_acl_data_list_state_sedar$gom$AL %>%
+  select(scientific_name) %>% unique() %>% dim()
+# sa$NC 9
+# $gom$AL 11
 
-sort_field_state_wave_plots_sedar = "rec_acl_estimate_catch_by_4"
+# sort_field_state_wave_plots_sedar = "rec_acl_estimate_catch_by_4"
 
 # spp_to_plot <- full_join(gom_top_spp, sa_top_spp) %>%
 #   select(common_name) %>%
