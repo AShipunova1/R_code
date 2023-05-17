@@ -97,7 +97,7 @@ my_theme <- theme(
 )
 
 plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
-  # browser()
+  browser()
 
  one_plot <-
   my_df %>%
@@ -290,7 +290,7 @@ fhier_acl_to_plot_format <- function(my_df) {
 fhier_acl_gom_to_plot <-
   fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar)
 
-View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
+# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 # 
 # an overview plot
 # plot(fhier_acl_gom_to_plot)
@@ -806,6 +806,7 @@ plots_region_waves_sa_long_wave_list <-
       )
   })
 
+plots_region_waves_sa_long_wave_list[[1]]
 # ggsave("1a.png", plots_region_waves_sa_long_wave_list[[1]])
 names(region_waves_sa_long_wave_list) %>%
   map(function(wave_num) {
@@ -833,27 +834,39 @@ state_wave_has_rec_acl_data_list_state_sedar <-
         return()
       })
 
-View(state_wave_has_rec_acl_data_list_state_sedar)
+# View(state_wave_has_rec_acl_data_list_state_sedar)
 state_wave_has_rec_acl_data_list_state_sedar[["FL"]] %>%
   select(scientific_name) %>% unique() %>% dim()
 # 13
+
 sort_field_state_wave_plots_sedar = "rec_acl_estimate_catch_by_4"
 
+each_state_to_plot <- function(my_df) {
+  one_st_to_plot <-
+    fhier_acl_to_plot_format(my_df)
+  
+  spp_to_plot <- full_join(gom_top_spp, sa_top_spp) %>%
+    select(common_name) %>%
+    unique()
+  
+  plots_top <- map(spp_to_plot,
+                   # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+                   function(x) {
+                     plot_by_spp(x, one_st_to_plot)
+                   })
+  return(plots_top)
+}
+
 state_wave_plots_sedar <-
-  # has rec_acl data
+  # state has rec_acl data
     names(state_wave_has_rec_acl_data_list_state_sedar) %>%
   # repeat for each state
   map(function(state_abbr) {
     # browser()
     # get data for this state
     state_wave_has_rec_acl_data_list_state_sedar[[state_abbr]] %>%
-      plot_by_time(
-        my_title = state_abbr,
-        sort_field = sort_field_state_wave_plots_sedar,
-        show_counts = F,
-        show_com_names = T,
-        show_legend = F
-      )
+      each_state_to_plot() %>%
+      return()
   })
 
 super_title_sedar = "2022 Counts by State and SEDAR spp. lists"
