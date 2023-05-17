@@ -872,6 +872,28 @@ each_state_to_plot <- function(my_df, spp_list) {
   return(plots_top)
 }
 
+# make a legend
+make_a_legend <- function() {
+  
+  my_state = "FL"
+  
+  # one plot with a legend
+  plot_w_legend_st_sedar <- plot_by_spp(
+    fhier_acl_to_plot_format(state_wave_has_rec_acl_data_list_state_sedar$sa[[my_state]]),
+    "MACKEREL, SPANISH",
+    no_legend = FALSE
+  )
+  
+  # use an aux function to pull out the legend
+  my_legend_st_sedar <-
+    legend_for_grid_arrange(plot_w_legend_st_sedar)
+  
+  return(my_legend_st_sedar)
+}
+
+one_legend <- make_a_legend()
+my_out_dir <- r"(compare_catch\12 categories New\2) By wave and state\1a) SEDAR spp)"
+
 state_wave_plots_sedar <-
   map(c("sa", "gom"),
       function(current_sa_gom) {
@@ -890,9 +912,43 @@ state_wave_plots_sedar <-
           map(function(state_abbr) {
             # browser()
             # get data for this state
-            current_st_df_list[[state_abbr]] %>%
-              each_state_to_plot(current_top_spp) %>%
-              return()
+            all_plots_for_st <-
+              current_st_df_list[[state_abbr]] %>%
+              each_state_to_plot(current_top_spp)
+            
+            super_title_sedar =
+              paste(current_sa_gom,
+                    state_abbr,
+                    "2022 Counts by State and SEDAR spp. lists")
+            
+            combined_plot_for_1_state <-
+              gridExtra::arrangeGrob(
+                grobs = all_plots_for_st,
+                top = super_title_sedar,
+                left = one_legend,
+                ncol = 2
+              )
+            ggsave(
+              file = file.path(
+                my_paths$outputs,
+                my_out_dir,
+                paste0(
+                  "2_1a_",
+                  current_sa_gom,
+                  "_",
+                  state_abbr,
+                  "_state_wave_sedar",
+                  ".pdf"
+                )
+              ),
+              combined_plot_for_1_state,
+              width = 20,
+              height = 20,
+              units = "cm"
+              
+            ) #saves each plot
+            
+            return(combined_plot_for_1_state)
           })
       })
 
@@ -913,7 +969,7 @@ plot_w_legend_st_sedar <- plot_by_spp(
 # use an aux function to pull out the legend
 my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
 
-View(state_wave_plots_sedar[[1]])
+# View(state_wave_plots_sedar[[1]])
 grid.newpage()
 gridExtra::grid.arrange(
              grobs = state_wave_plots_sedar[[1]][[1]],
@@ -921,7 +977,6 @@ gridExtra::grid.arrange(
              left = my_legend_st_sedar,
              ncol = 2)
 # TODO: add state name
-# combine dolphin data for fhier
 
 # 2) By wave and state 2b) Recreational ACL tops ----
 state_wave_rec_acl_top_list <-
