@@ -894,6 +894,33 @@ make_a_legend <- function() {
 one_legend <- make_a_legend()
 my_out_dir <- r"(compare_catch\12 categories New\2) By wave and state\1a) SEDAR spp)"
 
+save_plot_to_file <-
+  function(current_sa_gom,
+           state_abbr,
+           combined_plot_for_1_state) {
+    output_file_name <-
+        paste0(
+          "2_1a_",
+          current_sa_gom,
+          "_",
+          state_abbr,
+          "_state_wave_sedar",
+          ".png"
+        )
+      
+    ggsave(
+      file = output_file_name,
+      plot = combined_plot_for_1_state,
+      device = "png",
+      path = file.path(
+        my_paths$outputs,
+        my_out_dir),
+      width = 20,
+      height = 20,
+      units = "cm"
+    )
+  }
+
 state_wave_plots_sedar <-
   map(c("sa", "gom"),
       function(current_sa_gom) {
@@ -928,25 +955,11 @@ state_wave_plots_sedar <-
                 left = one_legend,
                 ncol = 2
               )
-            ggsave(
-              file = file.path(
-                my_paths$outputs,
-                my_out_dir,
-                paste0(
-                  "2_1a_",
-                  current_sa_gom,
-                  "_",
-                  state_abbr,
-                  "_state_wave_sedar",
-                  ".pdf"
-                )
-              ),
-              combined_plot_for_1_state,
-              width = 20,
-              height = 20,
-              units = "cm"
-              
-            ) #saves each plot
+            
+            #save each plot to file
+            save_plot_to_pdf(current_sa_gom,
+           state_abbr,
+           combined_plot_for_1_state)
             
             return(combined_plot_for_1_state)
           })
