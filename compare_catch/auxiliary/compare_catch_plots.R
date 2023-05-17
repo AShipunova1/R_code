@@ -96,8 +96,8 @@ my_theme <- theme(
 
 )
 
-plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
-  browser()
+plot_by_spp <- function(my_df, com_name, no_legend = TRUE) {
+  # browser()
 
  one_plot <-
   my_df %>%
@@ -295,7 +295,7 @@ fhier_acl_gom_to_plot <-
 # an overview plot
 # plot(fhier_acl_gom_to_plot)
 
-# plot_by_spp("MACKEREL, SPANISH", fhier_acl_gom_to_plot)
+# plot_by_spp(fhier_acl_gom_to_plot, "MACKEREL, SPANISH")
 
 ### GOM plots for each common name from the top 10 ----
 spp_to_plot_gom <- fhier_acl_gom_to_plot$common_name_fhier %>%
@@ -305,15 +305,14 @@ spp_to_plot_gom <- fhier_acl_gom_to_plot$common_name_fhier %>%
 
 plots10_gom <- map(spp_to_plot_gom,
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_by_spp(x, fhier_acl_gom_to_plot)}
+               function(com_name) {plot_by_spp(fhier_acl_gom_to_plot, com_name)}
                )
 
 # Title for all plots together
 super_title = "GOM: species counts by waves 2022 (SEDAR spp. list)"
 
 # separate a legend
-plot_w_legend_gom <- plot_by_spp("MACKEREL, SPANISH",
-                             fhier_acl_gom_to_plot,
+plot_w_legend_gom <- plot_by_spp(                            fhier_acl_gom_to_plot, "MACKEREL, SPANISH",
                              # keep the legend
                              FALSE)
 # use an aux function to pull out the legend
@@ -341,14 +340,14 @@ fhier_acl_sa_to_plot <-
            # for each common name from the top 10
 sa_plots10 <- map(unique(fhier_acl_sa_to_plot$common_name_fhier),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_by_spp(x, fhier_acl_sa_to_plot)}
+               function(com_name) {plot_by_spp(fhier_acl_sa_to_plot, com_name)}
                )
 
 # The following code is the same as before, with "SA" instead of "GOM"
 sa_super_title = "SA: species counts by waves (SEDAR spp. list)"
 
 #### separate a legend ----
-sa_plot_w_legend <- plot_by_spp("MACKEREL, SPANISH", fhier_acl_sa_to_plot, FALSE)
+sa_plot_w_legend <- plot_by_spp(fhier_acl_sa_to_plot, "MACKEREL, SPANISH", FALSE)
 sa_my_legend <- legend_for_grid_arrange(sa_plot_w_legend)
 
 #### draw all sa plots10 together ----
@@ -645,7 +644,7 @@ spp_to_plot_gom_acl_top <- gom_acl_top_to_plot_longer$common_name_fhier %>%
 
 plots_acl_top_gom <- map(spp_to_plot_gom_acl_top,
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-               function(x) {plot_by_spp(x, gom_acl_top_to_plot_longer)}
+               function(com_name) {plot_by_spp(gom_acl_top_to_plot_longer, com_name)}
                )
 
 # plots_acl_top_gom[[2]]
@@ -657,10 +656,11 @@ plots_acl_top_gom <- map(spp_to_plot_gom_acl_top,
 super_title = "GOM: Top ACL species counts by waves 2022"
 
 # separate a legend
-plot_w_legend_gom <- plot_by_spp("MACKEREL, SPANISH",
-                             gom_acl_top_to_plot_longer,
-                             # keep the legend
-                             FALSE)
+plot_w_legend_gom <-
+  plot_by_spp(gom_acl_top_to_plot_longer,
+              "MACKEREL, SPANISH",
+              # keep the legend
+              FALSE)
 # use an aux function to pull out the legend
 my_legend_gom <- legend_for_grid_arrange(plot_w_legend_gom)
 
@@ -705,8 +705,8 @@ plots_acl_top_sa <-
   # all names except NA
   na.exclude() %>%
   map(# run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-    function(x) {
-      plot_by_spp(x, sa_acl_top_to_plot_longer)
+    function(com_name) {
+      plot_by_spp(sa_acl_top_to_plot_longer, com_name)
     })
 
 # plots_acl_top_sa[[1]]
@@ -715,10 +715,12 @@ plots_acl_top_sa <-
 super_title = "SA: Top ACL species counts by waves 2022"
 
 # separate a legend from one random plot
-plot_w_legend_sa <- plot_by_spp("MACKEREL, SPANISH",
-                             sa_acl_top_to_plot_longer,
-                             # keep the legend
-                             FALSE)
+plot_w_legend_sa <-
+  plot_by_spp(sa_acl_top_to_plot_longer,
+              "MACKEREL, SPANISH",
+              # keep the legend
+              FALSE)
+
 # use an aux function to pull out the legend
 my_legend_sa <- legend_for_grid_arrange(plot_w_legend_sa)
 
@@ -841,18 +843,18 @@ state_wave_has_rec_acl_data_list_state_sedar[["FL"]] %>%
 
 sort_field_state_wave_plots_sedar = "rec_acl_estimate_catch_by_4"
 
+spp_to_plot <- full_join(gom_top_spp, sa_top_spp) %>%
+  select(common_name) %>%
+  unique()
+
 each_state_to_plot <- function(my_df) {
   one_st_to_plot <-
     fhier_acl_to_plot_format(my_df)
   
-  spp_to_plot <- full_join(gom_top_spp, sa_top_spp) %>%
-    select(common_name) %>%
-    unique()
-  
-  plots_top <- map(spp_to_plot,
+  plots_top <- map(spp_to_plot$common_name,
                    # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-                   function(x) {
-                     plot_by_spp(x, one_st_to_plot)
+                   function(com_name) {
+                     plot_by_spp(one_st_to_plot, com_name)
                    })
   return(plots_top)
 }
@@ -869,20 +871,19 @@ state_wave_plots_sedar <-
       return()
   })
 
+# state_wave_plots_sedar[[1]][[1]]
+
 super_title_sedar = "2022 Counts by State and SEDAR spp. lists"
 
 # one plot with a legend
 my_state = "FL"
 
-plot_w_legend_st_sedar <- 
-  # data for one state
-  state_wave_has_rec_acl_data_list_state_sedar[[my_state]] %>%
-  plot_by_time(
-        my_title = my_state,
-        sort_field = sort_field_state_wave_plots_sedar,
-        show_legend = TRUE
-      )
-  
+plot_w_legend_st_sedar <- plot_by_spp(
+  fhier_acl_to_plot_format(state_wave_has_rec_acl_data_list_state_sedar[[my_state]]),
+  "MACKEREL, SPANISH",
+  no_legend = FALSE
+)
+    
 # use an aux function to pull out the legend
 my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
 
