@@ -320,14 +320,18 @@ acl_estimate_2022 %>%
 
 fhier_acl_catch_by_species_state_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(species_itis_fhier,
-         common_name_fhier,
-         state,
-         fhier_quantity_by_4,
-         rec_acl_estimate_catch_by_4) %>%
+  select(
+    species_itis_fhier,
+    scientific_name,
+    common_name_fhier,
+    state,
+    fhier_quantity_by_4,
+    rec_acl_estimate_catch_by_4
+  ) %>%
   group_by(species_itis_fhier,
-         common_name_fhier,
-         state) %>%
+           scientific_name,
+           common_name_fhier,
+           state) %>%
   mutate(
     fhier_sum_cnts = sum(fhier_quantity_by_4),
     rec_acl_sum_cnts = sum(rec_acl_estimate_catch_by_4)
