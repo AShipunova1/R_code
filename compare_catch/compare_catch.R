@@ -222,27 +222,44 @@ fhier_acl_catch_by_species_state_region_waves_states_list <-
   })
 
 ### split by state ----
-View(fhier_acl_catch_by_species_state_region_waves_states_list)
-fhier_acl_catch_by_species_state_region_waves_states_list <-
-  fhier_acl_catch_by_species_state_region_waves %>%
-  split(as.factor(fhier_acl_catch_by_species_state_region_waves$state))
-
 # View(fhier_acl_catch_by_species_state_region_waves_states_list)
-
+# fhier_acl_catch_by_species_state_region_waves_states_list <-
+#   fhier_acl_catch_by_species_state_region_waves %>%
+#   split(as.factor(fhier_acl_catch_by_species_state_region_waves$state))
+# 
+# # View(fhier_acl_catch_by_species_state_region_waves_states_list)
+# 
 ### remove where is no rec acl count ----
-state_wave_has_rec_acl_data_list_new <- c()
-
-my_st_names <- names(fhier_acl_catch_by_species_state_region_waves_states_list)
-
-for (i in 1:length(my_st_names)) {
-  # browser()
-  state_abbr <- my_st_names[[i]]
-  if (sum(fhier_acl_catch_by_species_state_region_waves_states_list[[state_abbr]]$rec_acl_estimate_catch_by_4) > 0) {
-    state_wave_has_rec_acl_data_list_new[state_abbr] <- fhier_acl_catch_by_species_state_region_waves_states_list[state_abbr]
+remove_no_mrip_cnts <- function(my_df_list) {
+  
+  new_list <- c()
+  
+  my_names <- names(my_df_list)
+  
+  for (i in 1:length(my_names)) {
+    # browser()
+    current_name <- my_names[[i]]
+    if (sum(my_df_list[[current_name]]$rec_acl_estimate_catch_by_4) > 0) {
+      new_list[current_name] <- my_df_list[current_name]
+    }
+    
+    return(new_list)
   }
 }
 
-View(state_wave_has_rec_acl_data_list_new)
+# state_wave_has_rec_acl_data_list_new <- c()
+# 
+# my_st_names <- names(fhier_acl_catch_by_species_state_region_waves_states_list)
+# 
+# for (i in 1:length(my_st_names)) {
+#   # browser()
+#   state_abbr <- my_st_names[[i]]
+#   if (sum(fhier_acl_catch_by_species_state_region_waves_states_list[[state_abbr]]$rec_acl_estimate_catch_by_4) > 0) {
+#     state_wave_has_rec_acl_data_list_new[state_abbr] <- fhier_acl_catch_by_species_state_region_waves_states_list[state_abbr]
+#   }
+# }
+# 
+# View(state_wave_has_rec_acl_data_list_new)
 
 # 3) Data By year and region ----
 names(fhier_acl_catch_by_species_state_region_waves)
