@@ -866,11 +866,11 @@ state_wave_has_rec_acl_data_list_state_sedar$gom$AL %>%
 #   unique()
 
 each_state_to_plot <- function(my_df, spp_list) {
-  browser()
+  # browser()
   one_st_to_plot <-
     fhier_acl_to_plot_format(my_df)
   
-  plots_top <- map(spp_list[common_name],
+  plots_top <- map(spp_list$common_name,
                    # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                    function(com_name) {
                      plot_by_spp(one_st_to_plot, com_name)
@@ -879,26 +879,39 @@ each_state_to_plot <- function(my_df, spp_list) {
 }
 
 state_wave_plots_sedar <-
-  # state has rec_acl data
-    names(state_wave_has_rec_acl_data_list_state_sedar[[1]]) %>%
-  # repeat for each state
-  map(function(state_abbr) {
-    # browser()
-    # get data for this state
-    state_wave_has_rec_acl_data_list_state_sedar[[state_abbr]] %>%
-      each_state_to_plot(sa_top_spp) %>%
-      return()
-  })
+  map(c("sa", "gom"),
+      function(current_sa_gom) {
+        # browser()
+        if (current_sa_gom == "sa") {
+          current_top_spp   = sa_top_spp
+        }
+        else
+          current_top_spp   = gom_top_spp
+        
+        current_st_df_list <-
+          state_wave_has_rec_acl_data_list_state_sedar[[current_sa_gom]]
+        # state has rec_acl data
+        names(current_st_df_list) %>%
+          # repeat for each state
+          map(function(state_abbr) {
+            # browser()
+            # get data for this state
+            current_st_df_list[[state_abbr]] %>%
+              each_state_to_plot(current_top_spp) %>%
+              return()
+          })
+      })
 
 # state_wave_plots_sedar[[1]][[1]]
-
-super_title_sedar = "2022 Counts by State and SEDAR spp. lists"
+# View(state_wave_plots_sedar)
+super_title_sedar = "SA 2022 Counts by State and SEDAR spp. lists"
 
 # one plot with a legend
 my_state = "FL"
 
+# View(state_wave_has_rec_acl_data_list_state_sedar)
 plot_w_legend_st_sedar <- plot_by_spp(
-  fhier_acl_to_plot_format(state_wave_has_rec_acl_data_list_state_sedar[[my_state]]),
+  fhier_acl_to_plot_format(state_wave_has_rec_acl_data_list_state_sedar$sa[[my_state]]),
   "MACKEREL, SPANISH",
   no_legend = FALSE
 )
@@ -910,10 +923,10 @@ my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
 # gr_list <- c(state_wave_plots_sedar,
 #              list(my_legend_st_sedar))
 
-# str(state_wave_plots_sedar)
+View(state_wave_plots_sedar[[1]])
 grid.newpage()
 gridExtra::grid.arrange(
-             grobs = state_wave_plots_sedar[[1]],
+             grobs = state_wave_plots_sedar[[1]][[1]],
              top = super_title_sedar,
              left = my_legend_st_sedar,
              ncol = 2)
