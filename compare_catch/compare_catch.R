@@ -231,7 +231,7 @@ fhier_acl_catch_by_species_state_region_waves_states_list <-
 # 
 ### remove where is no rec acl count ----
 remove_no_mrip_cnts <- function(my_df_list) {
-  
+  # browser()
   new_list <- c()
   
   my_names <- names(my_df_list)
@@ -242,9 +242,9 @@ remove_no_mrip_cnts <- function(my_df_list) {
     if (sum(my_df_list[[current_name]]$rec_acl_estimate_catch_by_4) > 0) {
       new_list[current_name] <- my_df_list[current_name]
     }
-    
-    return(new_list)
   }
+  return(new_list)
+  
 }
 
 # state_wave_has_rec_acl_data_list_new <- c()
