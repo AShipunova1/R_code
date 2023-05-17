@@ -825,33 +825,56 @@ names(region_waves_sa_long_wave_list) %>%
 # 2) By wave and state ----
 # 2) By wave and state 1a) SEDAR ----
 # separate by sa and gom
-View(state_wave_has_rec_acl_data_list_new)
-
 # View(state_wave_has_rec_acl_data_list_state_sedar)
+
 state_wave_has_rec_acl_data_list_state_sedar <-
-  map(state_wave_has_rec_acl_data_list_new,
-      function(by_state_df) {
+  # drop "NOT-SPECIFIED"
+  map(c("sa", "gom"),
+      function(current_sa_gom) {
         # browser()
-        by_state_df %>%
-          filter(if ((unique(state)) == "FL") {
-            scientific_name %in% gom_top_spp$scientific_name |
-              scientific_name %in% sa_top_spp$scientific_name
-          }
-          else if ((unique(sa_gom)) == "gom") {
-            scientific_name %in% gom_top_spp$scientific_name
-          }
-          else if ((unique(sa_gom)) == "sa") {
-            scientific_name %in% sa_top_spp$scientific_name
+        fhier_acl_catch_by_species_state_region_waves_states_list[[current_sa_gom]] %>%
+          map(function(current_df) {
+            current_df %>%
+              
+              filter(if (current_sa_gom == "gom") {
+                scientific_name %in% gom_top_spp$scientific_name
+              }
+              else if (current_sa_gom == "sa") {
+                scientific_name %in% sa_top_spp$scientific_name
+              }) %>%
+              return()
           }) %>%
           return()
       })
+          
+      
+      # function(by_state_df) {
+      #   # browser()
+      #   by_state_df %>%
+      #     filter(if ((unique(state)) == "FL") {
+      #       scientific_name %in% gom_top_spp$scientific_name |
+      #         scientific_name %in% sa_top_spp$scientific_name
+      #     }
+      #     else if ((unique(sa_gom)) == "gom") {
+      #       scientific_name %in% gom_top_spp$scientific_name
+      #     }
+      #     else if ((unique(sa_gom)) == "sa") {
+      #       scientific_name %in% sa_top_spp$scientific_name
+      #     }) %>%
+      #     return()
+      # }
+      
 
 # View(state_wave_has_rec_acl_data_list_state_sedar)
-state_wave_has_rec_acl_data_list_state_sedar[["FL"]] %>%
+state_wave_has_rec_acl_data_list_state_sedar[["NC"]] %>%
   select(scientific_name) %>% unique() %>% dim()
-# 13
+# FL 13
+# AL 11
+# NC 9
 
 sort_field_state_wave_plots_sedar = "rec_acl_estimate_catch_by_4"
+
+
 
 spp_to_plot <- full_join(gom_top_spp, sa_top_spp) %>%
   select(common_name) %>%
@@ -901,7 +924,7 @@ my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
 # gr_list <- c(state_wave_plots_sedar,
 #              list(my_legend_st_sedar))
 
-str(state_wave_plots_sedar)
+# str(state_wave_plots_sedar)
 grid.newpage()
 gridExtra::grid.arrange(
              grobs = state_wave_plots_sedar[[1]],
