@@ -899,22 +899,19 @@ save_plot_to_file <-
            state_abbr,
            combined_plot_for_1_state) {
     output_file_name <-
-        paste0(
-          "2_1a_",
-          current_sa_gom,
-          "_",
-          state_abbr,
-          "_state_wave_sedar",
-          ".png"
-        )
-      
+      paste0("2_1a_",
+             current_sa_gom,
+             "_",
+             state_abbr,
+             "_state_wave_sedar",
+             ".png")
+    
     ggsave(
       file = output_file_name,
       plot = combined_plot_for_1_state,
       device = "png",
-      path = file.path(
-        my_paths$outputs,
-        my_out_dir),
+      path = file.path(my_paths$outputs,
+                       my_out_dir),
       width = 20,
       height = 20,
       units = "cm"
