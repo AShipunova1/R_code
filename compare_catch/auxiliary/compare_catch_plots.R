@@ -1190,8 +1190,10 @@ gr_list <- c(state_year_plots_sedar,
 
 grid.newpage()
 gridExtra::grid.arrange(
-             grobs = gr_list,
+             # grobs = gr_list,
+             grobs = state_year_plots_sedar,
              top = super_title_sedar,
+             left = my_legend_st_sedar,
              ncol = 2)
 
 # 4) By year and state 2b) Recreational ACL tops ----
@@ -1263,13 +1265,12 @@ a <- gridExtra::grid.arrange(
   widths = c(unit(.4, "npc"), unit(.3, "npc"), unit(.3, "npc"))
 )
 
-b <- 
+b <-
   gridExtra::grid.arrange(
-  grobs = gr_list_top_rec_acl2,
-  ncol = 3,
-  widths = c(unit(.4, "npc"), unit(.3, "npc"), unit(.3, "npc"))
-
-)
+    grobs = gr_list_top_rec_acl2,
+    ncol = 3,
+    widths = c(unit(.45, "npc"), unit(.25, "npc"), unit(.3, "npc"))
+  )
 
 gridExtra::grid.arrange(a, b,
                         heights = c(unit(.7, "npc"),
