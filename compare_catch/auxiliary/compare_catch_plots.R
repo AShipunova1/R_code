@@ -959,15 +959,15 @@ make_one_state_plot <-
   }
 
 state_wave_plots_sedar <-
+  # for each region
   map(c("sa", "gom"),
       function(current_sa_gom) {
-        # browser()
+        # get spp list
         current_top_spp <- get_current_sedar_list(current_sa_gom)
+        # get data for this region
         current_st_df_list <-
           state_wave_has_rec_acl_data_list_state_sedar[[current_sa_gom]]
-        # browser()
-        
-        # repeat for each state
+        # make_one_state_plot for each state in that region (for all spp from the list)
         map(
           names(current_st_df_list),
           ~ make_one_state_plot(.x,
