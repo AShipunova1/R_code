@@ -197,7 +197,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar)
 # 228 (new list)
 # 206 with combined dolphins
 # 179 new file and sero only
-
+# 163 - combined dolphins
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   select(common_name_fhier) %>% unique() %>% dim()
 # 11
@@ -630,7 +630,7 @@ gom_acl_top_to_plot <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   inner_join(gom_acl_top_spp,
              by = join_by(scientific_name))
-# Joining with `by = join_by(species_itis, common_name)`
+# default Joining with `by = join_by(species_itis, common_name)`
 # 'data.frame':	225 obs. of  7 variables:
 # 305
 
@@ -859,12 +859,6 @@ state_wave_has_rec_acl_data_list_state_sedar$gom$AL %>%
 # sa$NC 9
 # $gom$AL 11
 
-# sort_field_state_wave_plots_sedar = "rec_acl_estimate_catch_by_4"
-
-# spp_to_plot <- full_join(gom_top_spp, sa_top_spp) %>%
-#   select(common_name) %>%
-#   unique()
-
 each_state_to_plot <- function(my_df, spp_list) {
   # browser()
   one_st_to_plot <-
@@ -918,10 +912,6 @@ plot_w_legend_st_sedar <- plot_by_spp(
     
 # use an aux function to pull out the legend
 my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
-
-# combine plots and the legend in a list
-# gr_list <- c(state_wave_plots_sedar,
-#              list(my_legend_st_sedar))
 
 View(state_wave_plots_sedar[[1]])
 grid.newpage()
