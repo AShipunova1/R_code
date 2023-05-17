@@ -1063,20 +1063,20 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 ## 3) By year and region 1a) SEDAR ----
 my_title <- "By year and region SEDAR spp. SA"
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  filter(species_itis %in% sa_top_spp$species_itis) %>% 
+  filter(scientific_name %in% sa_top_spp$scientific_name) %>% 
   # View()
   plot_by_time(my_title = my_title)
 
 # same ordered by FHIER:
 my_title <- "By year and region SEDAR spp. SA, ordered by FHIER cnts"
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  filter(species_itis %in% sa_top_spp$species_itis) %>% 
+  filter(scientific_name %in% sa_top_spp$scientific_name) %>% 
   # View()
   plot_by_time(my_title = my_title, sort_field = "fhier_cnts_by_year_reg")
 
 my_title <- "By year and region SEDAR spp. GOM"
 fhier_acl_catch_by_species_region_year_list$gom %>%
-  filter(species_itis %in% gom_top_spp$species_itis) %>% 
+  filter(scientific_name %in% gom_top_spp$scientific_name) %>% 
   # View()
   plot_by_time(my_title = my_title)
 
@@ -1145,6 +1145,8 @@ grid.arrange(grobs = state_year_plots,
 #   select(common_name_fhier)
 # )
 
+View(fhier_acl_catch_by_species_state_year_list)
+
 state_year_plots_sedar <-
   # has rec_acl data
     names(state_year_has_rec_acl_data_list_new) %>%
@@ -1154,8 +1156,8 @@ state_year_plots_sedar <-
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       # keep only spp in the SEDAR spp lists
       filter(
-        species_itis %in% gom_top_spp$species_itis |
-          species_itis %in% sa_top_spp$species_itis
+        scientific_name %in% gom_top_spp$scientific_name |
+          scientific_name %in% sa_top_spp$scientific_name
       ) %>%
       plot_by_time(
         my_title = state_abbr,
@@ -1279,16 +1281,21 @@ View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   filter(fhier_quantity_by_4 == 0 &
            rec_acl_estimate_catch_by_4 == 0) %>%
-  count(species_itis)
-  # species_itis  n
+  count(scientific_name)
+  # scientific_name  n
 # 1       167793  1 sand perch
 # 2       168559  2 bluefish
 # 3       169056  3 invalid - other, see comments 	Pomadasyidae, grunts 
 # 4       169539  2 Atlantic spadefish
 # 5         <NA> 40
 # common_name is NA
-  # select(species_itis) %>%
-  # unique 
-# %>%
-#   
-#   View()
+
+#   count(scientific_name)
+#          scientific_name  n
+# 1 ANISOTREMUS VIRGINICUS  1
+# 2           CARANX RUBER  3
+# 3   CHAETODIPTERUS FABER  2
+# 4    DIPLECTRUM FORMOSUM  1
+# 5    POMATOMUS SALTATRIX  2
+# 6           SERIOLA SPP.  4
+# 7                   <NA> 48
