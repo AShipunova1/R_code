@@ -952,32 +952,6 @@ state_wave_plots_sedar <-
           })
       })
 
-# state_wave_plots_sedar[[1]][[1]]
-# View(state_wave_plots_sedar)
-super_title_sedar = "SA 2022 Counts by State and SEDAR spp. lists"
-
-# one plot with a legend
-my_state = "FL"
-
-# View(state_wave_has_rec_acl_data_list_state_sedar)
-plot_w_legend_st_sedar <- plot_by_spp(
-  fhier_acl_to_plot_format(state_wave_has_rec_acl_data_list_state_sedar$sa[[my_state]]),
-  "MACKEREL, SPANISH",
-  no_legend = FALSE
-)
-    
-# use an aux function to pull out the legend
-my_legend_st_sedar <- legend_for_grid_arrange(plot_w_legend_st_sedar)
-
-# View(state_wave_plots_sedar[[1]])
-grid.newpage()
-gridExtra::grid.arrange(
-             grobs = state_wave_plots_sedar[[1]][[1]],
-             top = super_title_sedar,
-             left = my_legend_st_sedar,
-             ncol = 2)
-# TODO: add state name
-
 # 2) By wave and state 2b) Recreational ACL tops ----
 state_wave_rec_acl_top_list <-
   map(state_wave_has_rec_acl_data_list_new,
