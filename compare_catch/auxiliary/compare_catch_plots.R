@@ -825,9 +825,8 @@ names(region_waves_sa_long_wave_list) %>%
 # 2) By wave and state ----
 # 2) By wave and state 1a) SEDAR ----
 # separate by sa and gom
-# View(state_wave_has_rec_acl_data_list_state_sedar)
 
-state_wave_has_rec_acl_data_list_state_sedar <-
+state_wave_list_state_sedar <-
   # drop "NOT-SPECIFIED"
   map(c("sa", "gom"),
       function(current_sa_gom) {
@@ -846,45 +845,30 @@ state_wave_has_rec_acl_data_list_state_sedar <-
           }) %>%
           return()
       })
-          
-      
-      # function(by_state_df) {
-      #   # browser()
-      #   by_state_df %>%
-      #     filter(if ((unique(state)) == "FL") {
-      #       scientific_name %in% gom_top_spp$scientific_name |
-      #         scientific_name %in% sa_top_spp$scientific_name
-      #     }
-      #     else if ((unique(sa_gom)) == "gom") {
-      #       scientific_name %in% gom_top_spp$scientific_name
-      #     }
-      #     else if ((unique(sa_gom)) == "sa") {
-      #       scientific_name %in% sa_top_spp$scientific_name
-      #     }) %>%
-      #     return()
-      # }
-      
 
-# View(state_wave_has_rec_acl_data_list_state_sedar)
-state_wave_has_rec_acl_data_list_state_sedar[["NC"]] %>%
-  select(scientific_name) %>% unique() %>% dim()
-# FL 13
-# AL 11
-# NC 9
+View(state_wave_list_state_sedar)
+state_wave_has_rec_acl_data_list_state_sedar <-
+  state_wave_list_state_sedar %>%
+  map(remove_no_mrip_cnts)
+
+View(state_wave_has_rec_acl_data_list_state_sedar)
+state_wave_has_rec_acl_data_list_state_sedar[[2]][["AL"]] %>%
+  select(scientific_name) %>% unique() %>% dim()[1]
+# [[1]][["NC"]] 9
+# [[2]][["AL"]] 11
 
 sort_field_state_wave_plots_sedar = "rec_acl_estimate_catch_by_4"
 
+# spp_to_plot <- full_join(gom_top_spp, sa_top_spp) %>%
+#   select(common_name) %>%
+#   unique()
 
-
-spp_to_plot <- full_join(gom_top_spp, sa_top_spp) %>%
-  select(common_name) %>%
-  unique()
-
-each_state_to_plot <- function(my_df) {
+each_state_to_plot <- function(my_df, spp_list) {
+  browser()
   one_st_to_plot <-
     fhier_acl_to_plot_format(my_df)
   
-  plots_top <- map(spp_to_plot$common_name,
+  plots_top <- map(spp_list[common_name],
                    # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                    function(com_name) {
                      plot_by_spp(one_st_to_plot, com_name)
@@ -894,13 +878,13 @@ each_state_to_plot <- function(my_df) {
 
 state_wave_plots_sedar <-
   # state has rec_acl data
-    names(state_wave_has_rec_acl_data_list_state_sedar) %>%
+    names(state_wave_has_rec_acl_data_list_state_sedar[[1]]) %>%
   # repeat for each state
   map(function(state_abbr) {
     # browser()
     # get data for this state
     state_wave_has_rec_acl_data_list_state_sedar[[state_abbr]] %>%
-      each_state_to_plot() %>%
+      each_state_to_plot(sa_top_spp) %>%
       return()
   })
 
