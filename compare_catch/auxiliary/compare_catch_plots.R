@@ -823,7 +823,7 @@ names(region_waves_sa_long_wave_list) %>%
   })
 
 # 2) By wave and state ----
-# 2) By wave and state 1a) SEDAR ----
+## 2) By wave and state 1a) SEDAR ----
 # separate by sa and gom
 
 state_wave_list_state_sedar <-
@@ -860,11 +860,11 @@ state_wave_has_rec_acl_data_list_state_sedar$gom$AL %>%
 # $gom$AL 11
 
 each_state_to_plot <- function(my_df, spp_list) {
-  # browser()
+  browser()
   one_st_to_plot <-
     fhier_acl_to_plot_format(my_df)
   
-  plots_top <- map(spp_list$common_name,
+  plots_top <- map(spp_list$common_name_fhier,
                    # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                    function(com_name) {
                      plot_by_spp(one_st_to_plot, com_name)
@@ -930,22 +930,23 @@ make_one_state_plot <-
   function(state_abbr,
            current_st_df_list,
            current_top_spp,
-           current_sa_gom) {
-    # browser()
+           current_sa_gom, 
+           title) {
+    browser()
     # get data for this state
     all_plots_for_st <-
       current_st_df_list[[state_abbr]] %>%
       each_state_to_plot(current_top_spp)
     
-    super_title_sedar =
+    super_title_top_mrip =
       paste(current_sa_gom,
             state_abbr,
-            "2022 Counts by State and SEDAR spp. lists")
+            title)
     
     combined_plot_for_1_state <-
       gridExtra::arrangeGrob(
         grobs = all_plots_for_st,
-        top = super_title_sedar,
+        top = super_title_top_mrip,
         left = one_legend,
         ncol = 2
       )
@@ -973,14 +974,16 @@ state_wave_plots_sedar <-
           ~ make_one_state_plot(.x,
                                 current_st_df_list,
                                 current_top_spp,
-                                current_sa_gom)
+                                current_sa_gom,
+                                "2022 Counts by State and SEDAR spp. lists")
         )
       })
 
 # to see plots
 # grid.arrange(state_wave_plots_sedar[[1]][[1]])
 
-# 2) By wave and state 2b) Recreational ACL tops ----
+## 2) By wave and state 2b) Recreational ACL tops ----
+### all top ----
 state_wave_rec_acl_top_list <-
   map(state_wave_has_rec_acl_data_list_new,
       function(by_state_df) {
@@ -1031,7 +1034,134 @@ gridExtra::grid.arrange(
              left = my_legend_st_sedar,
              ncol = 2)
 
-# 2) By wave and state 3c) All FHIER spp TODO ----
+# 2) By wave and state 1a) SEDAR
+### by 12 top MRIP separate by sa and gom ----
+state_wave_list_state_top_mrip <-
+  # drop "NOT-SPECIFIED"
+  map(c("sa", "gom"),
+      function(current_sa_gom) {
+        # browser()
+        fhier_acl_catch_by_species_state_region_waves_states_list[[current_sa_gom]] %>%
+          map(function(current_df) {
+            current_df %>%
+              
+              filter(if (current_sa_gom == "gom") {
+                scientific_name %in% gom_top_spp$scientific_name
+              }
+              else if (current_sa_gom == "sa") {
+                scientific_name %in% sa_top_spp$scientific_name
+              }) %>%
+              return()
+          }) %>%
+          return()
+      })
+
+names(state_wave_list_state_top_mrip) <- c("sa", "gom")
+# View(state_wave_list_state_top_mrip)
+
+state_wave_has_rec_acl_data_list_state_top_mrip <-
+  state_wave_list_state_top_mrip %>%
+  map(remove_no_mrip_cnts)
+
+# View(state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL)
+state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL %>%
+  select(scientific_name) %>% unique() %>% dim()
+# sa$NC 9
+# $gom$AL 11
+
+each_state_to_plot <- function(my_df, spp_list) {
+  # browser()
+  one_st_to_plot <-
+    fhier_acl_to_plot_format(my_df)
+  
+  plots_top <- map(spp_list$common_name,
+                   # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+                   function(com_name) {
+                     plot_by_spp(one_st_to_plot, com_name)
+                   })
+  return(plots_top)
+}
+
+# make a legend
+make_a_legend <- function() {
+  
+  my_state = "FL"
+  
+  # one plot with a legend
+  plot_w_legend_st_top_mrip <- plot_by_spp(
+    fhier_acl_to_plot_format(state_wave_has_rec_acl_data_list_state_top_mrip$sa[[my_state]]),
+    "MACKEREL, SPANISH",
+    no_legend = FALSE
+  )
+  
+  # use an aux function to pull out the legend
+  my_legend_st_top_mrip <-
+    legend_for_grid_arrange(plot_w_legend_st_top_mrip)
+  
+  return(my_legend_st_top_mrip)
+}
+
+one_legend <- make_a_legend()
+my_out_dir <- r"(compare_catch\12 categories New\2) By wave and state\2b) Recreational ACL tops)"
+
+save_plot_to_file <-
+  function(current_sa_gom,
+           state_abbr,
+           combined_plot_for_1_state) {
+    output_file_name <-
+      paste0("2_2b_",
+             current_sa_gom,
+             "_",
+             state_abbr,
+             "_state_wave_top_mrip",
+             ".png")
+    
+    ggsave(
+      file = output_file_name,
+      plot = combined_plot_for_1_state,
+      device = "png",
+      path = file.path(my_paths$outputs,
+                       my_out_dir),
+      width = 20,
+      height = 20,
+      units = "cm"
+    )
+  }
+
+get_current_top_mrip_list <- function(current_sa_gom) {
+  current_top_spp = gom_acl_top_spp
+  if (current_sa_gom == "sa") {
+    current_top_spp = sa_acl_top_spp
+  }
+  return(current_top_spp)
+}
+
+state_wave_plots_top_mrip <-
+  # for each region
+  map(c("sa", "gom"),
+      function(current_sa_gom) {
+        # get spp list
+        current_top_spp <- get_current_top_mrip_list(current_sa_gom)
+        # get data for this region
+        current_st_df_list <-
+          state_wave_has_rec_acl_data_list_state_top_mrip[[current_sa_gom]]
+        # make_one_state_plot for each state in that region (for all spp from the list)
+        map(
+          names(current_st_df_list),
+          ~ make_one_state_plot(.x,
+                                current_st_df_list,
+                                current_top_spp,
+                                current_sa_gom,
+                                "2022 Counts by State and 12 top MRIP spp.")
+        )
+      })
+
+# to see plots
+# grid.arrange(state_wave_plots_sedar[[1]][[1]])
+
+
+
+## 2) By wave and state 3c) All FHIER spp TODO ----
 
 # 3) By year and region ----
 
