@@ -1,6 +1,6 @@
-# 3 sets of spp: 
-# 1a) SEDAR spp; 
-# 2b) Recreational ACL tops; 
+# 3 sets of spp:
+# 1a) SEDAR spp
+# 2b) Recreational ACL tops
 # 3c) All FHIER spp
 
 # Plots:
@@ -48,7 +48,7 @@ plot_by_time <-
       geom_col(position = "dodge") +
       labs(title = my_title,
            y = "") +
-      theme(axis.text.y = element_text(size = 6)) +
+      theme(axis.text.y = element_text(size = 4)) +
       theme_bw() +
       my_theme
     
@@ -1182,6 +1182,8 @@ gridExtra::grid.arrange(
 #   plot_by_year(my_title = my_title)
 
 # View(fhier_acl_catch_by_species_state_year_list[["FL"]])
+
+### by limit ----
 my_limit <- 2000
 small_st <- c("SC", "GA", "MS", "TX")
 state_year_top_rec_acl_plots_2k <-
@@ -1253,6 +1255,83 @@ b <-
 gridExtra::grid.arrange(a, b,
                         heights = c(unit(.65, "npc"),
                                     unit(.35, "npc")))
+
+# 4) By year and state 2b) Recreational ACL tops
+### by top 12 ----
+
+state_year_plots_mrip_top <-
+  # has rec_acl data
+    names(state_year_has_rec_acl_data_list_new) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+      # keep only spp in the SEDAR spp lists
+      filter(
+        scientific_name %in% gom_acl_top_spp$scientific_name |
+          scientific_name %in% sa_acl_top_spp$scientific_name
+      ) %>%
+      plot_by_time(
+        my_title = state_abbr,
+        sort_field = "rec_acl_sum_cnts",
+        show_counts = F,
+        show_com_names = T,
+        show_legend = F
+      )
+  })
+
+super_title_mrip_top = "2022 Counts by State and 12 top rec ACL spp for both regions"
+
+grid.newpage()
+gridExtra::grid.arrange(
+             grobs = state_year_plots_mrip_top,
+             top = super_title_sedar,
+             # reuse the same legend
+             left = my_legend_st_sedar,
+             ncol = 2)
+
+### separate SA GOM TODO ----
+# the plot is too busy, separate by SA, GOM
+# "Georgia",
+# "North Carolina",
+# "South Carolina"
+# use gom_acl_top_spp and sa_acl_top_spp respectively
+
+sa_st <- c("GA", "NC", "SC", "FL")
+
+state_year_plots_mrip_top <-
+  # has rec_acl data
+    names(state_year_has_rec_acl_data_list_new) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+      # keep only spp in the SEDAR spp lists
+      filter(
+        scientific_name %in% gom_acl_top_spp$scientific_name |
+          scientific_name %in% sa_acl_top_spp$scientific_name
+      ) %>%
+      plot_by_time(
+        my_title = state_abbr,
+        sort_field = "rec_acl_sum_cnts",
+        show_counts = F,
+        show_com_names = T,
+        show_legend = F
+      )
+  })
+
+super_title_mrip_top = "2022 Counts by State and 12 top rec ACL spp for both regions"
+
+grid.newpage()
+gridExtra::grid.arrange(
+             grobs = state_year_plots_mrip_top,
+             top = super_title_sedar,
+             # reuse the same legend
+             left = my_legend_st_sedar,
+             ncol = 2)
+
+
+
 
 # 4) By year and state 3c) All FHIER spp ----
 plot_by_time(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts", show_counts = FALSE)
