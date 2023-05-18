@@ -162,20 +162,19 @@ state_year_sedar <-
   })
 
 # 2b) MRIP / Recreational ACL tops;
-my_limit <- 2000
-state_year_top_rec_acl <- 
-
-(function(state_abbr) {
+names(state_year_has_rec_acl_data_list_new) %>%
+  map(function(state_abbr) {
+    sheet_name <-
+      paste("4.2b year", state_abbr, "top MRIP")
     # get data for this state
-    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
-#   # keep only top r_acl cnts
-    filter(rec_acl_sum_cnts > my_limit) %>%
-      plot_by_time(
-        my_title = state_abbr,
-        sort_field = "rec_acl_sum_cnts",
-        show_counts = T,
-        show_com_names = T,
-        show_legend = F
-      )
+    state_year_has_rec_acl_data_list_new[[state_abbr]] %>%
+      # keep only top r_acl cnts
+            filter(
+        scientific_name %in% gom_acl_top_spp$scientific_name |
+          scientific_name %in% sa_acl_top_spp$scientific_name
+      ) %>%
+      add_to_report_xls(sheet_name, 
+                        report_file_path = report_file_path_year)
   })
+
 # 3c) All FHIER spp

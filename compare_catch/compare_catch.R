@@ -355,7 +355,7 @@ fhier_acl_catch_by_species_state_year_list <-
   # remove extra columns in each df
   map(.f = list(. %>% dplyr::select(-"state")))
 
-state_year_has_rec_acl_data_list <- fhier_acl_catch_by_species_state_year_list
+state_year_has_rec_acl_data_list <-     fhier_acl_catch_by_species_state_year_list
 # str(state_year_has_rec_acl_data_list)
 
 state_year_has_rec_acl_data_list_new <- c()
