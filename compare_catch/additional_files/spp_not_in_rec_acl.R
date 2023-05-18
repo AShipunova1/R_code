@@ -1,24 +1,31 @@
 # run from compare_catch.R
 # see "~\R_files_local\my_outputs\compare_catch\spp_research\not_in_rec_acl.xlsx"
 # 3c) All FHIER spp with large catch which is not in rec ACL ----
+# View(fhier_acl_catch_by_species_state_region_waves)
 spp_cnts_in_fhier_not_in_acl <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(species_itis,
-         common_name,
-         sa_gom,
-         fhier_quantity_by_4,
-         acl_estimate_catch_by_4) %>%
-  group_by(species_itis, common_name,
+  select(
+    species_itis_fhier,
+    # species_itis_mrip,
+    common_name_fhier,
+    # common_name_mrip,
+    scientific_name,
+    sa_gom,
+    fhier_quantity_by_4,
+    rec_acl_estimate_catch_by_4
+  ) %>%
+  group_by(scientific_name,
            sa_gom) %>%
   mutate(
     fhier_cnts = sum(fhier_quantity_by_4),
-    rec_acl_cnts = sum(acl_estimate_catch_by_4)
+    rec_acl_cnts = sum(rec_acl_estimate_catch_by_4)
   ) %>%
-  select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
+  select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
   unique() %>%
   filter(rec_acl_cnts == 0) %>%
-  select(-rec_acl_cnts) %>%
-  arrange(desc(fhier_cnts)) %>%
+  select(-c(rec_acl_cnts)) %>%
+  filter(!(fhier_cnts == 0)) %>%
+    arrange(desc(fhier_cnts)) %>%
   ungroup()
 # %>%
 # head(20)
@@ -27,36 +34,63 @@ spp_cnts_in_fhier_not_in_acl <-
 # str()
 # 628
 
+View(spp_cnts_in_fhier_not_in_acl)
+# 908
+  # filter(!(fhier_cnts == 0)) %>%
+# 592
+# without
+    # species_itis_mrip,
+    # common_name_mrip,
+# 581
+
+# write_csv(spp_cnts_in_fhier_not_in_acl, "spp_cnts_in_fhier_not_in_acl.csv")
+
+# glimpse(spp_cnts_in_fhier_not_in_acl)
+
+# test
+acl_estimate_catch_by_species_state_region_waves_renamed %>%
+  filter(toupper(scientific_name) == "SCOMBER COLIAS")
+
+acl_estimate_2022 %>%
+  filter(toupper(new_sci) == "SCOMBER COLIAS") %>% dim()
+0
+
+acl_estimate_2022 %>%
+  filter(toupper(new_sci) == "MICROPOGONIAS UNDULATUS") %>% dim()
+0
+
 # spp from separate ds ----
 fhier_catch_spp <-
   fhier_catch_by_species_state_region_waves %>%
-  select(common_name, species_itis, fhier_quantity_by_4) %>%
-  group_by(common_name, species_itis) %>%
+  select(scientific_name, common_name, species_itis, fhier_quantity_by_4) %>%
+  group_by(scientific_name) %>%
   summarise(fhier_cnts = sum(fhier_quantity_by_4)) %>%
   ungroup() %>%
-  arrange(desc(fhier_cnts))
-# %>%
-#   head(5)
+  arrange(desc(fhier_cnts)) %>%
+  unique()
+
+head(fhier_catch_spp, 5)
 # %>% tail(5)
+
 
 # View(acl_estimate_2022)
 
 rec_acl_estimate_2022_spp <-
   acl_estimate_2022 %>%
-  select(new_com, itis_code, ab1) %>%
-  group_by(new_com, itis_code) %>%
+  select(new_sci, new_com, itis_code, ab1) %>%
+  group_by(new_sci) %>%
   summarise(rec_acl_cnts = sum(ab1)) %>%
   ungroup() %>%
   arrange(desc(rec_acl_cnts))
-# %>%
-  # head(5)
+
+head(rec_acl_estimate_2022_spp, 5)
 
 # View(acl_species_list[[1]])
 # View(acl_estimate_2022)
 
 spp_join <-
   full_join(fhier_catch_spp, rec_acl_estimate_2022_spp,
-          join_by(species_itis == itis_code),
+          join_by(scientific_name == new_sci),
           # keep all cols
           keep = T,
           # na are not equal
@@ -65,15 +99,16 @@ spp_join <-
 # spp_join %>%
 #   filter(is.na(species_itis))
 
-# 
+glimpse(spp_join)
 
 ## spp by fhier count if not in rec acl ----
 not_in_rec_acl <-
   spp_join %>%
   arrange(desc(fhier_cnts)) %>%
-  filter(is.na(itis_code))
+  filter(is.na(scientific_name))
 
-# str(not_in_rec_acl)
+str(not_in_rec_acl)
+# 5
 
 fhier_catch_spp %>%
   filter(grepl('GRUNT, WHITE', common_name))
