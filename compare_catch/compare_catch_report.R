@@ -101,7 +101,8 @@ report_file_path_year <-
 ## 1a) SEDAR lists ----
 map(c("sa", "gom"),
     function(sa_or_gom) {
-      sheet_name <- paste("3 1a year", sa_or_gom,  "SEDAR.xlsx")
+      sheet_name <- paste("3 1a year", sa_or_gom,  "SEDAR")
+      # choose a spp list by sa_or_gom
       top_list <- get(paste0(sa_or_gom, "_top_spp"))
 
       fhier_acl_catch_by_species_region_year_list[[sa_or_gom]] %>%
@@ -110,4 +111,31 @@ map(c("sa", "gom"),
     })
 
 ## 2b) MRIP / Recreational ACL tops ----
+### SA ----
+my_limit <- 2000
+sa_or_gom <- "SA"
+sheet_name <- paste("3 2b year", sa_or_gom,  "top MRIP")
+
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  # keep only top r_acl cnts
+  filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+  add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
+
+### GOM ----
+my_limit <- 6000
+sa_or_gom <- "GOM"
+sheet_name <- paste("3 2b year", sa_or_gom,  "top MRIP")
+
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  # keep only top r_acl cnts
+  filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+  add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
+
 ## 3c) All FHIER spp ----
+map(c("sa", "gom"),
+    function(sa_or_gom) {
+      sheet_name <- paste("3 1a year", sa_or_gom,  "all species")
+      
+      fhier_acl_catch_by_species_region_year_list[[sa_or_gom]] %>%
+        add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
+    })
