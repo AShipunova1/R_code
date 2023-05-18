@@ -283,6 +283,7 @@ fhier_acl_catch_by_species_region_year <-
   ungroup() %>%
   select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
   filter(!is.na(species_itis_fhier)) %>%
+  filter(!is.na(scientific_name)) %>%
   unique()
 
 # test, should be sa and gom, df 2 by 6

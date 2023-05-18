@@ -1085,7 +1085,6 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   select(-common_name_fhier) %>%
   plot(main = "SA by year")
 
-
 ## 3) By year and region 3c) All FHIER spp ----
 ### gom ----
 my_reg <- "GOM"
