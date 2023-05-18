@@ -113,6 +113,25 @@ map(names(state_wave_has_rec_acl_data_list_state_top_mrip),
     })
 
 ## 3c) All FHIER spp ----
+# View(fhier_acl_catch_by_species_state_region_waves_states_list)
+
+wave_sate_all_fhier_spp <-
+  fhier_acl_catch_by_species_state_region_waves_states_list %>%
+  map(remove_no_mrip_cnts)
+
+map(names(wave_sate_all_fhier_spp),
+    function(sa_or_gom) {
+      # browser()
+      current_df_list <-
+        wave_sate_all_fhier_spp[[sa_or_gom]]
+      map(names(current_df_list),
+          function(current_state_abbr) {
+            sheet_name = paste("2 3c wave st", current_state_abbr, toupper(sa_or_gom), "All FHIER spp.")
+            # browser()
+            current_df_list[[current_state_abbr]] %>%
+              add_to_report_xls(sheet_name, report_file_path = report_file_path2_states)
+          })
+    })
 
 # 3) By year and region ----
 report_file_path_year <- 
