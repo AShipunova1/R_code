@@ -847,13 +847,13 @@ state_wave_list_state_sedar <-
       })
 
 names(state_wave_list_state_sedar) <- c("sa", "gom")
-View(state_wave_list_state_sedar)
+# View(state_wave_list_state_sedar)
 
 state_wave_has_rec_acl_data_list_state_sedar <-
   state_wave_list_state_sedar %>%
   map(remove_no_mrip_cnts)
 
-View(state_wave_has_rec_acl_data_list_state_sedar$gom$AL)
+# View(state_wave_has_rec_acl_data_list_state_sedar$gom$AL)
 state_wave_has_rec_acl_data_list_state_sedar$gom$AL %>%
   select(scientific_name) %>% unique() %>% dim()
 # sa$NC 9
@@ -1046,10 +1046,10 @@ state_wave_list_state_top_mrip <-
             current_df %>%
               
               filter(if (current_sa_gom == "gom") {
-                scientific_name %in% gom_top_spp$scientific_name
+                scientific_name %in% gom_acl_top_spp$scientific_name
               }
               else if (current_sa_gom == "sa") {
-                scientific_name %in% sa_top_spp$scientific_name
+                scientific_name %in% sa_acl_top_spp$scientific_name
               }) %>%
               return()
           }) %>%
