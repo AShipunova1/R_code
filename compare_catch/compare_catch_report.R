@@ -139,3 +139,27 @@ map(c("sa", "gom"),
       fhier_acl_catch_by_species_region_year_list[[sa_or_gom]] %>%
         add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
     })
+
+# 4) By year and state ----
+## 1a) SEDAR lists ----
+
+state_year_sedar <-
+  # has rec_acl data
+  names(state_year_has_rec_acl_data_list_new) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    sheet_name <-
+      paste("4 1a year", state_abbr, "SEDAR spp.")
+    
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+      # keep only spp in the SEDAR spp lists
+      filter(
+        scientific_name %in% gom_top_spp$scientific_name |
+          scientific_name %in% sa_top_spp$scientific_name
+      ) %>%
+      add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
+  })
+
+# 2b) MRIP / Recreational ACL tops;
+# 3c) All FHIER spp
