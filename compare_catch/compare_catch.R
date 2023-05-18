@@ -335,15 +335,16 @@ fhier_acl_catch_by_species_state_year <-
     fhier_quantity_by_4,
     rec_acl_estimate_catch_by_4
   ) %>%
-  group_by(species_itis_fhier,
-           scientific_name,
-           common_name_fhier,
+  group_by(scientific_name,
            state) %>%
   mutate(
     fhier_sum_cnts = sum(fhier_quantity_by_4),
     rec_acl_sum_cnts = sum(rec_acl_estimate_catch_by_4)
   ) %>%
+  ungroup() %>%
   select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
+  filter(!is.na(species_itis_fhier)) %>%
+  filter(!is.na(scientific_name)) %>%
   unique()
 
 ## split by state ----
