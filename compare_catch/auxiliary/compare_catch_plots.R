@@ -1110,31 +1110,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   select(-common_name_fhier) %>%
   plot(main = "SA by year")
 
-
-
 # 4) By year and state ----
-# 4) By year and state 3c) All FHIER spp ----
-plot_by_time(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts", show_counts = FALSE)
-
-# state_year_has_rec_acl_data_list_new
-state_year_plots <-
-  names(state_year_has_rec_acl_data_list_new) %>%
-  # repeat for each state
-  map(function(state_abbr) {
-    # get data for this state
-    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
-      # filter(fhier_sum_cnts > 2000) %>%
-      # filter(rec_acl_sum_cnts > 2000) %>%
-      plot_by_time(my_title = state_abbr, sort_field = "rec_acl_sum_cnts", show_counts = F, show_com_names = FALSE)
-  })
-
-super_title_y_st = "2022 Counts by State and spp."
-grid.arrange(grobs = state_year_plots,
-             top = super_title_y_st,
-             # left = my_legend_gom,
-             ncol = 2)
-
-# state_year_plots[[7]]
 # 4) By year and state 1a) SEDAR ----
 # View(fhier_acl_catch_by_species_state_year_list)
 # View(
@@ -1277,6 +1253,30 @@ b <-
 gridExtra::grid.arrange(a, b,
                         heights = c(unit(.7, "npc"),
                                     unit(.3, "npc")))
+
+# 4) By year and state 3c) All FHIER spp ----
+plot_by_time(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts", show_counts = FALSE)
+
+# state_year_has_rec_acl_data_list_new
+state_year_plots <-
+  names(state_year_has_rec_acl_data_list_new) %>%
+  # repeat for each state
+  map(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+      # filter(fhier_sum_cnts > 2000) %>%
+      # filter(rec_acl_sum_cnts > 2000) %>%
+      plot_by_time(my_title = state_abbr, sort_field = "rec_acl_sum_cnts", show_counts = F, show_com_names = FALSE)
+  })
+
+super_title_y_st = "2022 Counts by State and spp."
+grid.arrange(grobs = state_year_plots,
+             top = super_title_y_st,
+             # left = my_legend_gom,
+             ncol = 2)
+
+# state_year_plots[[7]]
+
 
 #### 0 counts? ----
 View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
