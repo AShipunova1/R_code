@@ -162,4 +162,20 @@ state_year_sedar <-
   })
 
 # 2b) MRIP / Recreational ACL tops;
+my_limit <- 2000
+state_year_top_rec_acl <- 
+
+(function(state_abbr) {
+    # get data for this state
+    fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
+#   # keep only top r_acl cnts
+    filter(rec_acl_sum_cnts > my_limit) %>%
+      plot_by_time(
+        my_title = state_abbr,
+        sort_field = "rec_acl_sum_cnts",
+        show_counts = T,
+        show_com_names = T,
+        show_legend = F
+      )
+  })
 # 3c) All FHIER spp
