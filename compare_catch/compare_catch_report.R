@@ -70,8 +70,8 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
 # 2b) MRIP / Recreational ACL tops;
 # 3c) All FHIER spp
 
-report_file_path2 <- file.path(my_paths$outputs,
-                                    r"(compare_catch\report\12_categories_tables_states.xlsx)")
+report_file_path2_states <- file.path(my_paths$outputs,
+                                    r"(compare_catch\report\12_categories_tables_states.xlsm)")
 
 ## 1a) SEDAR lists ----
 # c("sa", "gom")
@@ -87,7 +87,7 @@ map(names(state_wave_has_rec_acl_data_list_state_sedar),
             sheet_name = paste("2.1a wave state SEDAR", sa_or_gom, current_state_abbr)
             # browser()
             current_df_list[[current_state_abbr]] %>%
-              add_to_report_xls(sheet_name, report_file_path = report_file_path2)
+              add_to_report_xls(sheet_name, report_file_path = report_file_path2_states)
           })
     })
 # if file exists gives an error:
