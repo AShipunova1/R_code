@@ -190,7 +190,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
   filter(scientific_name %in% sa_top_spp$scientific_name)
 
-glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar)
+dim(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar)
 # Rows: 300
 # Rows: 274
 # 173
@@ -1035,31 +1035,6 @@ gridExtra::grid.arrange(
 
 # 3) By year and region ----
 
-## 3) By year and region 3c) All FHIER spp ----
-### gom ----
-my_reg <- "GOM"
-my_title <- paste0(my_reg, " 2022")
-
-fhier_acl_catch_by_species_region_year_list$gom %>%
-  plot_by_time(my_title = my_title, show_counts = FALSE)
-
-### SA ---- 
-my_reg <- "SA"
-my_title <- paste0(my_reg, " 2022")
-
-fhier_acl_catch_by_species_region_year_list$sa %>%
-  plot_by_time(my_title = my_title)
-# , show_counts = FALSE
-
-### overview plots ----
-fhier_acl_catch_by_species_region_year_list$gom %>%
-  select(-common_name_fhier) %>%
-  plot(main = "GOM by year")
-
-fhier_acl_catch_by_species_region_year_list$sa %>%
-  select(-common_name_fhier) %>%
-  plot(main = "SA by year")
-
 ## 3) By year and region 1a) SEDAR ----
 my_title <- "By year and region SEDAR spp. SA"
 fhier_acl_catch_by_species_region_year_list$sa %>%
@@ -1109,6 +1084,34 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
 fhier_acl_catch_by_species_region_year_list$sa %>%
   select(-common_name_fhier) %>%
   plot(main = "SA by year")
+
+
+## 3) By year and region 3c) All FHIER spp ----
+### gom ----
+my_reg <- "GOM"
+my_title <- paste0(my_reg, " 2022")
+
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  plot_by_time(my_title = my_title, show_counts = FALSE)
+
+### SA ---- 
+my_reg <- "SA"
+my_title <- paste0(my_reg, " 2022")
+
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  plot_by_time(my_title = my_title)
+# , show_counts = FALSE
+
+### overview plots ----
+fhier_acl_catch_by_species_region_year_list$gom %>%
+  select(-common_name_fhier) %>%
+  plot(main = "GOM by year")
+
+fhier_acl_catch_by_species_region_year_list$sa %>%
+  select(-common_name_fhier) %>%
+  plot(main = "SA by year")
+
+
 
 # 4) By year and state ----
 # 4) By year and state 3c) All FHIER spp ----
