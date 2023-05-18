@@ -73,7 +73,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
 report_file_path2 <- file.path(my_paths$outputs,
                                     r"(compare_catch\report\12_categories_tables_states.xlsx)")
 
-# 1a) SEDAR lists ----
+## 1a) SEDAR lists ----
 # c("sa", "gom")
 View(state_wave_has_rec_acl_data_list_state_sedar)
 
@@ -92,6 +92,9 @@ map(names(state_wave_has_rec_acl_data_list_state_sedar),
     })
 # if file exists gives an error:
 # ! no field, method or inner class called 'use_cli_format' 
+
+## 2b) MRIP / Recreational ACL tops ----
+## 3c) All FHIER spp ----
 
 # 3) By year and region ----
 report_file_path_year <- 
@@ -134,7 +137,7 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
 ## 3c) All FHIER spp ----
 map(c("sa", "gom"),
     function(sa_or_gom) {
-      sheet_name <- paste("3 1a year", sa_or_gom,  "all species")
+      sheet_name <- paste("3 3c year", sa_or_gom,  "all species")
       
       fhier_acl_catch_by_species_region_year_list[[sa_or_gom]] %>%
         add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
@@ -177,4 +180,14 @@ names(state_year_has_rec_acl_data_list_new) %>%
                         report_file_path = report_file_path_year)
   })
 
-# 3c) All FHIER spp
+## 3c) All FHIER spp ----
+names(state_year_has_rec_acl_data_list_new) %>%
+  map(function(state_abbr) {
+    sheet_name <-
+      paste("4 3c year", state_abbr, "all species")
+    # get data for this state
+    state_year_has_rec_acl_data_list_new[[state_abbr]] %>%
+      # write to excel
+      add_to_report_xls(sheet_name,
+                        report_file_path = report_file_path_year)
+  })
