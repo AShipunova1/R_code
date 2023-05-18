@@ -264,7 +264,6 @@ remove_no_mrip_cnts <- function(my_df_list) {
 # 3) Data By year and region ----
 names(fhier_acl_catch_by_species_state_region_waves)
 
-
 fhier_acl_catch_by_species_region_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
     select(
@@ -283,12 +282,13 @@ fhier_acl_catch_by_species_region_year <-
   ) %>%
   ungroup() %>%
   select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
-  filter(!is.na(species_itis_fhier))
+  filter(!is.na(species_itis_fhier)) %>%
+  unique()
 
 # test, should be sa and gom, df 2 by 6
 fhier_acl_catch_by_species_region_year %>%
   filter(scientific_name == "SCOMBEROMORUS MACULATUS") %>%
-  unique() %>% glimpse()
+  glimpse()
 
 ## split by sa_gom ----
 fhier_acl_catch_by_species_region_year_list <-

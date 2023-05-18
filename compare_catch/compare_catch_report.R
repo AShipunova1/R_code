@@ -109,10 +109,5 @@ map(c("sa", "gom"),
         add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
     })
 
-sheet_name <- "3 1a year SA SEDAR.xlsx"
-
-fhier_acl_catch_by_species_region_year_list$sa %>%
-  add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
-
 ## 2b) MRIP / Recreational ACL tops ----
 ## 3c) All FHIER spp ----
