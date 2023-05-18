@@ -93,7 +93,25 @@ map(names(state_wave_has_rec_acl_data_list_state_sedar),
 # if file exists gives an error:
 # ! no field, method or inner class called 'use_cli_format' 
 
+# 2) year and state
 ## 2b) MRIP / Recreational ACL tops ----
+
+# View(state_wave_has_rec_acl_data_list_state_top_mrip)
+# View(state_wave_has_rec_acl_data_list_state_sedar)
+map(names(state_wave_has_rec_acl_data_list_state_top_mrip),
+    function(sa_or_gom) {
+      # browser()
+      current_df_list <-
+        state_wave_has_rec_acl_data_list_state_top_mrip[[sa_or_gom]]
+      map(names(current_df_list),
+          function(current_state_abbr) {
+            sheet_name = paste("2 2b wave state top MRIP", sa_or_gom, current_state_abbr)
+            # browser()
+            current_df_list[[current_state_abbr]] %>%
+              add_to_report_xls(sheet_name, report_file_path = report_file_path2_states)
+          })
+    })
+
 ## 3c) All FHIER spp ----
 
 # 3) By year and region ----
