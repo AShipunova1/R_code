@@ -1251,8 +1251,8 @@ b <-
   )
 
 gridExtra::grid.arrange(a, b,
-                        heights = c(unit(.7, "npc"),
-                                    unit(.3, "npc")))
+                        heights = c(unit(.65, "npc"),
+                                    unit(.35, "npc")))
 
 # 4) By year and state 3c) All FHIER spp ----
 plot_by_time(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_sum_cnts", show_counts = FALSE)
