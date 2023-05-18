@@ -264,7 +264,7 @@ remove_no_mrip_cnts <- function(my_df_list) {
 # 3) Data By year and region ----
 names(fhier_acl_catch_by_species_state_region_waves)
 
-fhier_acl_catch_by_species_region_year <-
+fhier_acl_catch_by_species_region_year1 <-
   fhier_acl_catch_by_species_state_region_waves %>%
   select(species_itis_fhier,
          common_name_fhier,
@@ -272,15 +272,29 @@ fhier_acl_catch_by_species_region_year <-
          sa_gom,
          fhier_quantity_by_4,
          rec_acl_estimate_catch_by_4) %>%
-  group_by(species_itis_fhier,
-         common_name_fhier,
-         scientific_name,
+  group_by(scientific_name,
          sa_gom) %>%
-  summarise(
-    fhier_cnts_by_year_reg = sum(fhier_quantity_by_4),
-    rec_acl_cnts_by_year_reg = sum(rec_acl_estimate_catch_by_4)
+summarise(
+    fhier_cnts_by_year_reg1 = sum(fhier_quantity_by_4),
+    rec_acl_cnts_by_year_reg1 = sum(rec_acl_estimate_catch_by_4)
   ) %>%
   ungroup()
+
+# all.equal(fhier_acl_catch_by_species_region_year, fhier_acl_catch_by_species_region_year1)
+
+fhier_acl_catch_by_species_region_year1 %>%
+  filter(scientific_name == "SCOMBEROMORUS MACULATUS") %>%
+  select(species_itis_fhier,	common_name_fhier,	scientific_name,	fhier_cnts_by_year_reg1,	rec_acl_cnts_by_year_reg1
+) %>%
+  unique() %>% glimpse()
+
+fhier_acl_catch_by_species_region_year %>%
+  filter(scientific_name == "SCOMBEROMORUS MACULATUS") %>%
+  select(species_itis_fhier,	common_name_fhier,	scientific_name,	fhier_cnts_by_year_reg,	rec_acl_cnts_by_year_reg
+) %>%
+  unique() %>% glimpse()
+
+
 
 ## split by sa_gom ----
 fhier_acl_catch_by_species_region_year_list <-
