@@ -283,7 +283,7 @@ acl_estimate <- acl_temp[[2]]
 # ---- 3) Auxilary ----
 
 get_scientific_names <- function() {
-  scientific_names_xls_names_list = c("compare_catch/SEFHIER data/SEFHIER_species.xlsx")
+  scientific_names_xls_names_list = c("SEFHIER_species.xlsx")
   scientific_names_xls_content <- load_xls_names(my_paths,
                                                  scientific_names_xls_names_list,
                                                  sheet_n = "Species Only")
