@@ -3,6 +3,9 @@
 # --- OK boundaries
 # lat 23 : 36
 # lon -71 : -98
+# SAFMC/GMFMC boundary
+# see https://myfwc.com/fishing/saltwater/recreational/maps/
+# 83 west (federal waters) / 24'35 N, 24'33 N (state waters)
 
 library(zoo) #date manipulations
 # maps
@@ -75,7 +78,7 @@ m_s <- mapview(sa_shp,
 
 # OK boundaries ----
 # lat 23 : 28
-# lon -71 : -98
+# lon -71 : -83
 
 clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
   my_lat_long_df %>%
@@ -85,7 +88,7 @@ clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
     # remove wrong coords
     filter(between(LATITUDE, 23, 28) &
-             between(LONGITUDE, -98, -71)) %>%
+             between(LONGITUDE, -83, -71)) %>%
     # remove all entries with missing coords
     filter(complete.cases(.)) %>%
     return()
@@ -136,7 +139,7 @@ lat_long3 <- db_data %>%
 
 # str(lat_long3)
 
-points_num <- 1000
+points_num <- 100
 clean_lat_long_subset3 <-
   lat_long3 %>%
   clean_lat_long(points_num)
@@ -325,6 +328,7 @@ db_data_w_area <- full_join(db_area_data, db_data)
 # LOCAL_AREA_CODE)`
 dim(db_data_w_area)[1]
 # 254444
+# 254689
 
 lat_long_area <-
   db_data_w_area %>%
@@ -344,8 +348,10 @@ lat_long_area <-
 
 all_points <- dim(lat_long_area)[1]
 # 254444
+# 254689
 
 lat_long_area_clean <- clean_lat_long(lat_long_area, all_points)
+View(lat_long_area_clean)
 
 lat_long_area_clean_map <-
   lat_long_area_clean %>%
@@ -416,3 +422,65 @@ lat_long_area_leaflet_w_clusters <-
 # 
 # + 
 #   m_s
+
+lat_long_area_leaflet_w_clusters
+# ===
+lat_long_area_clean %>%
+  select(AREA_NAME,
+         SUB_AREA_NAME,
+         AREA_CODE,
+         DISTANCE_CODE_NAME) %>%
+  unique() %>% 
+  arrange(AREA_CODE) %>% 
+  glimpse()
+# Rows: 85
+
+lat_long_area_clean %>%
+  select(AREA_NAME,
+         SUB_AREA_NAME,
+         AREA_CODE) %>%
+  unique() %>% 
+  arrange(AREA_CODE) %>% 
+  View()
+# Rows: 47
+
+lat_long_area_clean %>%
+  select(AREA_NAME,
+         AREA_CODE) %>%
+  unique() %>% 
+  arrange(AREA_CODE) %>% 
+  View()
+# 26
+
+lat_long_area_clean %>%
+  select(AREA_NAME,
+         AREA_CODE) %>%
+  filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
+  filter(!grepl("TAMPA", AREA_NAME)) %>% 
+  filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
+  unique() %>% 
+  arrange(AREA_CODE) %>% 
+  View()
+  # write_csv("area_code_name.csv")
+
+View(db_data)
+
+# separate SA only ----
+# see v_safis_trip_download
+"SELECT
+  distinct region
+FROM
+safis.areas_fished@secapxdv_dblk.sfsc.noaa.gov"
+# null, unknown?
+# ===
+# SOUTH ATLANTIC
+# SOUTH ATLANIC
+# MID ATLANTIC
+# CARIBBEAN
+#  
+# 
+# GULF OF MEXICO
+# SOUTH ATLANTIC 
+# NEW ENGLAND
+# RHODE ISLAND
+# UNKNOWN

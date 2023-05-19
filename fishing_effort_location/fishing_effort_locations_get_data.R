@@ -47,8 +47,7 @@ data_overview(db_data)
 
 area_data_query <- 
   "select * from SAFIS.AREAS_FISHED@secapxdv_dblk.sfsc.noaa.gov 
-  where state in ('FL', 'US');
-
+  where state in ('FL', 'US')
 "
 
 db_area_data = dbGetQuery(con,
@@ -72,7 +71,6 @@ read_shapefile <- function(filename) {
 sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 
-mapview(atmx_eez_shp, legend = F) + mapview(sa_shp)
 # doesn't work:
 # gom_only <- st_difference(atmx_eez_shp, sa_shp)
 # gom_only <- st_difference(atmx_eez_shp, sa_shp$geometry)
@@ -92,8 +90,8 @@ mapview(atmx_eez_shp, legend = F) + mapview(sa_shp)
 Sys.setenv(SHAPE_RESTORE_SHX = "YES")
 # works Atlantic + GOM:
 atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
-mapview(atmx_eez_shp, legend = F)
-
+# mapview(atmx_eez_shp, legend = F)
+mapview(atmx_eez_shp, legend = F) + mapview(sa_shp)
 # gom_depth_shp <- read_shapefile("gom/w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
 # plot(gom_depth_shp)
 
