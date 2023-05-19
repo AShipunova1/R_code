@@ -392,3 +392,14 @@ View(state_year_has_rec_acl_data_list_new)
 # source("~/R_code_github/compare_catch/spp_not_in_rec_acl.R")
 
 # make a flat file
+dir_to_comb <- "~/R_code_github/compare_catch"
+files_to_combine <-
+  c(
+    "~/R_code_github/useful_functions_module.r",
+    file.path(dir_to_comb, "auxiliary/get_data.R"),
+    file.path(dir_to_comb, "auxiliary/compare_catch_data_preparation.R"),
+    file.path(dir_to_comb, "compare_catch.R")
+  )
+
+make_a_flat_file("flat_file_3.R", files_to_combine)
+
