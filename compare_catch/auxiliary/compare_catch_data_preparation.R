@@ -446,6 +446,7 @@ acl_estimate %<>%
 
 # str(acl_estimate)
 
+### MRIP data filtering ----
 acl_estimate_2022 <-
   acl_estimate %>%
   filter(year == "2022") %>%
@@ -539,6 +540,7 @@ acl_estimate_catch_by_species_state_region_waves1 <-
   mutate(year = as.double(year)) %>%
   mutate(wave = as.double(wave))
 
+### change regions to the same format as in FHIER ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_catch_by_species_state_region_waves1 %>%
   # change a 6 to "sa" and a 7 "gom", leave everything else in place
@@ -563,7 +565,7 @@ acl_test_cnts <-
   summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
 
-## rename fields ----
+## Rename fields to compare to FHIER ----
 
 #### FHIER names ----
 names(fhier_catch_by_species_state_region_waves) %>%
