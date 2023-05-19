@@ -31,14 +31,14 @@ to_long_format <- function(my_df) {
 plot_by_time <-
   function(my_df,
            my_title,
-           sort_field = "rec_acl_cnts_by_year_reg",
+           sort_field = "rec_acl_cnts_by_year",
            show_counts = TRUE,
            show_com_names = TRUE,
            show_legend = TRUE) {
     # browser()
     one_plot_by_year <-
       my_df %>%
-      # make "common_name_fhier" a factor to keep an order by desc(rec_acl_cnts_by_year_reg)
+      # make "common_name_fhier" a factor to keep an order by desc(rec_acl_cnts_by_year)
       mutate(common_name_fhier = reorder(common_name_fhier, desc(!!sym(sort_field)))) %>%
       select(-starts_with("species_itis")) %>%
       to_long_format() %>%
@@ -1189,21 +1189,21 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
 ### gom ----
 my_limit <- 6000
 my_reg <- "GOM"
-my_title <- paste0(my_reg, " 2022. rec_acl_cnts_by_year_reg > ", my_limit)
+my_title <- paste0(my_reg, " 2022. rec_acl_cnts_by_year > ", my_limit)
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
   # keep only top r_acl cnts
-  filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+  filter(rec_acl_cnts_by_year > my_limit) %>%
   plot_by_time(my_title = my_title)
 
 ### SA ---- 
 my_limit <- 2000
 my_reg <- "SA"
-my_title <- paste0(my_reg, " 2022. rec_acl_cnts_by_year_reg > ", my_limit)
+my_title <- paste0(my_reg, " 2022. rec_acl_cnts_by_year > ", my_limit)
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
   # keep only top r_acl cnts
-  filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+  filter(rec_acl_cnts_by_year > my_limit) %>%
   plot_by_time(my_title = my_title)
 
 ### overview plots ----
@@ -1269,7 +1269,7 @@ state_year_plots_sedar <-
       ) %>%
       plot_by_time(
         my_title = state_abbr,
-        sort_field = "rec_acl_cnts_by_year_reg",
+        sort_field = "rec_acl_cnts_by_year",
         show_counts = F,
         show_com_names = T,
         show_legend = F
@@ -1285,7 +1285,7 @@ plot_w_legend_st_sedar <-
   fhier_acl_catch_by_species_state_year_list[[my_state]] %>%
   plot_by_time(
         my_title = my_state,
-        sort_field = "rec_acl_cnts_by_year_reg",
+        sort_field = "rec_acl_cnts_by_year",
         show_legend = TRUE
       )
   
@@ -1308,7 +1308,7 @@ gridExtra::grid.arrange(
 # 
 # fhier_acl_catch_by_species_region_year_list$gom %>%
 #   # keep only top r_acl cnts
-#   filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+#   filter(rec_acl_cnts_by_year > my_limit) %>%
 #   plot_by_year(my_title = my_title)
 
 # View(fhier_acl_catch_by_species_state_year_list[["FL"]])
@@ -1325,10 +1325,10 @@ state_year_top_rec_acl_plots_2k <-
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
 #   # keep only top r_acl cnts
-    filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+    filter(rec_acl_cnts_by_year > my_limit) %>%
       plot_by_time(
         my_title = state_abbr,
-        sort_field = "rec_acl_cnts_by_year_reg",
+        sort_field = "rec_acl_cnts_by_year",
         show_counts = T,
         show_com_names = T,
         show_legend = F
@@ -1346,10 +1346,10 @@ state_year_top_rec_acl_plots_4k <-
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
 #   # keep only top r_acl cnts
-    filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+    filter(rec_acl_cnts_by_year > my_limit) %>%
       plot_by_time(
         my_title = state_abbr,
-        sort_field = "rec_acl_cnts_by_year_reg",
+        sort_field = "rec_acl_cnts_by_year",
         show_counts = T,
         show_com_names = T,
         show_legend = F
@@ -1403,7 +1403,7 @@ state_year_plots_mrip_top <-
       ) %>%
       plot_by_time(
         my_title = state_abbr,
-        sort_field = "rec_acl_cnts_by_year_reg",
+        sort_field = "rec_acl_cnts_by_year",
         show_counts = F,
         show_com_names = T,
         show_legend = F
@@ -1443,7 +1443,7 @@ state_year_plots_mrip_top <-
       ) %>%
       plot_by_time(
         my_title = state_abbr,
-        sort_field = "rec_acl_cnts_by_year_reg",
+        sort_field = "rec_acl_cnts_by_year",
         show_counts = F,
         show_com_names = T,
         show_legend = F
@@ -1464,7 +1464,7 @@ gridExtra::grid.arrange(
 
 
 # 4) By year and state 3c) All FHIER spp ----
-plot_by_time(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_cnts_by_year_reg", show_counts = FALSE)
+plot_by_time(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "rec_acl_cnts_by_year", show_counts = FALSE)
 
 # state_year_has_rec_acl_data_list_new
 state_year_plots <-
@@ -1473,7 +1473,7 @@ state_year_plots <-
   map(function(state_abbr) {
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
-      plot_by_time(my_title = state_abbr, sort_field = "rec_acl_cnts_by_year_reg", show_counts = F, show_com_names = FALSE)
+      plot_by_time(my_title = state_abbr, sort_field = "rec_acl_cnts_by_year", show_counts = F, show_com_names = FALSE)
   })
 
 super_title_y_st = "2022 Counts by State and spp."

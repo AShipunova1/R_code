@@ -125,7 +125,7 @@ fhier_acl_catch_by_species_region_year <-
            sa_gom) %>%
   summarise(
     fhier_cnts_by_year = sum(fhier_quantity_by_4),
-    rec_acl_cnts_by_year_reg = sum(acl_estimate_catch_by_4)
+    rec_acl_cnts_by_year = sum(acl_estimate_catch_by_4)
   ) %>%
   ungroup()
 
@@ -143,10 +143,10 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   glimpse()
 # gom
 # fhier_cnts_by_year   <int> 2016
-# rec_acl_cnts_by_year_reg <int> 1808
+# rec_acl_cnts_by_year <int> 1808
 # sa
 # fhier_cnts_by_year   <int> 140
-# rec_acl_cnts_by_year_reg <int> 262
+# rec_acl_cnts_by_year <int> 262
 
 acl_estimate_2022 %>%
   filter(itis_code == '167760') %>%

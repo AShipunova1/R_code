@@ -299,19 +299,19 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   glimpse()
 # gom
 # fhier_cnts_by_year   <int> 2016
-# rec_acl_cnts_by_year_reg <int> 1808
+# rec_acl_cnts_by_year <int> 1808
 # sa
 # fhier_cnts_by_year   <int> 140
-# rec_acl_cnts_by_year_reg <int> 262
+# rec_acl_cnts_by_year <int> 262
 fhier_acl_catch_by_species_region_year_list$gom %>%
   filter(species_itis_fhier == '167760') %>%
   glimpse()
 # new file and sero only gom
 # $ fhier_cnts_by_year   <int> 1731
-# $ rec_acl_cnts_by_year_reg <int> 1894
+# $ rec_acl_cnts_by_year <int> 1894
 # new file and sero only sa
 # $ fhier_cnts_by_year   <int> 140
-# $ rec_acl_cnts_by_year_reg <int> 259
+# $ rec_acl_cnts_by_year <int> 259
 
 acl_estimate_2022 %>%
   filter(new_sci == 'MYCTEROPERCA BONACI') %>%
@@ -353,7 +353,7 @@ my_st_names <- names(state_year_has_rec_acl_data_list)
 for (i in 1:length(my_st_names)) {
   # browser()
   state_abbr <- my_st_names[[i]]
-  if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_cnts_by_year_reg) > 0) {
+  if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_cnts_by_year) > 0) {
     state_year_has_rec_acl_data_list_new[state_abbr] <- state_year_has_rec_acl_data_list[state_abbr]
   }
 }

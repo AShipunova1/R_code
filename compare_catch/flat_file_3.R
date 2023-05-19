@@ -1052,7 +1052,7 @@ new_group_counts <- function(my_df) {
   # sum counts grouped by scientific_name and region only
   mutate(
     fhier_cnts_by_year = sum(fhier_quantity_by_4),
-    rec_acl_cnts_by_year_reg = sum(rec_acl_estimate_catch_by_4)
+    rec_acl_cnts_by_year = sum(rec_acl_estimate_catch_by_4)
   ) %>%
     ungroup() %>%
     # remove columns that we used for summing

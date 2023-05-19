@@ -158,7 +158,7 @@ sheet_name <- paste("3 2b year", sa_or_gom,  "top MRIP")
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
   # keep only top r_acl cnts
-  filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+  filter(rec_acl_cnts_by_year > my_limit) %>%
   add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
 
 ### GOM ----
@@ -168,7 +168,7 @@ sheet_name <- paste("3 2b year", sa_or_gom,  "top MRIP")
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
   # keep only top r_acl cnts
-  filter(rec_acl_cnts_by_year_reg > my_limit) %>%
+  filter(rec_acl_cnts_by_year > my_limit) %>%
   add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
 
 ## 3c) All FHIER spp ----
