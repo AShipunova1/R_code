@@ -1028,7 +1028,7 @@ fhier_acl_catch_by_species_state_region_waves_states_list <-
       split(as.factor(current_df$state))
   })
 
-### remove where is no MRIP counts ----
+### remove DFs (states) where is no MRIP counts ----
 remove_no_mrip_cnts <- function(my_df_list) {
   # create an empty list
   new_list <- c()
@@ -1044,7 +1044,6 @@ remove_no_mrip_cnts <- function(my_df_list) {
     }
   }
   return(new_list)
-
 }
 
 # recalculate counts by new grouping
@@ -1082,18 +1081,6 @@ fhier_acl_catch_by_species_region_year <-
          sa_gom) %>%
   # function defined above
   new_group_counts()
-  # # sum counts grouped by scientific_name and region only
-  # mutate(
-  #   fhier_cnts_by_year_reg = sum(fhier_quantity_by_4),
-  #   rec_acl_cnts_by_year_reg = sum(rec_acl_estimate_catch_by_4)
-  # ) %>%
-  # ungroup() %>%
-  # # remove columns that we used for summing
-  # select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
-  # # keep only the rows where species_itis_fhier or scientific_name is not an NA
-  # filter(!is.na(species_itis_fhier)) %>%
-  # filter(!is.na(scientific_name)) %>%
-  # unique()
 
 # test, should be sa and gom, df 2 by 6
 fhier_acl_catch_by_species_region_year %>%
@@ -1121,15 +1108,6 @@ fhier_acl_catch_by_species_state_year <-
            state) %>%
   # function defined above
   new_group_counts()
-  # mutate(
-  #   fhier_sum_cnts = sum(fhier_quantity_by_4),
-  #   rec_acl_sum_cnts = sum(rec_acl_estimate_catch_by_4)
-  # ) %>%
-  # ungroup() %>%
-  # select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
-  # filter(!is.na(species_itis_fhier)) %>%
-  # filter(!is.na(scientific_name)) %>%
-  # unique()
 
 ## split by state ----
 fhier_acl_catch_by_species_state_year_list <-
