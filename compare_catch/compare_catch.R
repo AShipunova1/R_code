@@ -247,20 +247,6 @@ remove_no_mrip_cnts <- function(my_df_list) {
   
 }
 
-# state_wave_has_rec_acl_data_list_new <- c()
-# 
-# my_st_names <- names(fhier_acl_catch_by_species_state_region_waves_states_list)
-# 
-# for (i in 1:length(my_st_names)) {
-#   # browser()
-#   state_abbr <- my_st_names[[i]]
-#   if (sum(fhier_acl_catch_by_species_state_region_waves_states_list[[state_abbr]]$rec_acl_estimate_catch_by_4) > 0) {
-#     state_wave_has_rec_acl_data_list_new[state_abbr] <- fhier_acl_catch_by_species_state_region_waves_states_list[state_abbr]
-#   }
-# }
-# 
-# View(state_wave_has_rec_acl_data_list_new)
-
 # recalculate counts by new grouping
 new_group_counts <- function(my_df) {
   my_df %>%
@@ -347,7 +333,7 @@ fhier_acl_catch_by_species_state_year <-
   ) %>%
   group_by(scientific_name,
            state) %>%
-    new_group_counts()
+  new_group_counts()
 
 ## split by state ----
 fhier_acl_catch_by_species_state_year_list <-
