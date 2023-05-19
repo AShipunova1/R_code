@@ -98,12 +98,22 @@ to_report <-
 dim(to_report)
 # 27077
 
-to_report %>%
-  select(LATITUDE, LONGITUDE) %>% 
-  unique() %>% 
-  data_overview()
-    # dim()
-# 23548     
-  # filter(is.na(LATITUDE) | is.na(LONGITUDE)) %>% 
-  #   dim()
-# 0
+# add counts to unique?
+  db_data_w_area_lat_lon_reg %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    START_PORT,
+    START_PORT_NAME,
+    START_PORT_COUNTY,
+    START_PORT_STATE,
+    END_PORT,
+    LATITUDE,
+    LONGITUDE,
+    MINIMUM_BOTTOM_DEPTH,
+    MAXIMUM_BOTTOM_DEPTH,
+    FISHING_GEAR_DEPTH,
+    DEPTH
+  ) %>%
+data_overview()
+  
