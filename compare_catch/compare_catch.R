@@ -373,20 +373,6 @@ for (i in 1:length(my_st_names)) {
 }
 View(state_year_has_rec_acl_data_list_new)
 
-# # state_year_has_rec_acl_data_list_new <-
-# names(state_year_has_rec_acl_data_list) %>%
-#   # repeat for each state
-#   map(function(state_abbr) {
-#     # get data for this state
-#    if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_sum_cnts) > 0) {
-#     # browser()
-#     # state_year_has_rec_acl_data_list[names(state_year_has_rec_acl_data_list) != state_abbr]# Remove list element
-#      # state_year_has_rec_acl_data_list_new["MA"] <- fhier_acl_catch_by_species_state_year_list["MA"]
-#    state_year_has_rec_acl_data_list_new[state_abbr] = state_year_has_rec_acl_data_list[state_abbr]
-#      # return(state_year_has_rec_acl_data_list[[state_abbr]])
-#    }
-#   })
-
 # View(state_year_has_rec_acl_data_list_new)
 # str(fhier_acl_catch_by_species_state_year)
 # str(fhier_acl_catch_by_species_state_year_list)
