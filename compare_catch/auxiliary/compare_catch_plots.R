@@ -1177,7 +1177,7 @@ my_title <- "By year and region SEDAR spp. SA, ordered by FHIER cnts"
 fhier_acl_catch_by_species_region_year_list$sa %>%
   filter(scientific_name %in% sa_top_spp$scientific_name) %>% 
   # View()
-  plot_by_time(my_title = my_title, sort_field = "fhier_cnts_by_year_reg")
+  plot_by_time(my_title = my_title, sort_field = "fhier_cnts_by_year")
 
 my_title <- "By year and region SEDAR spp. GOM"
 fhier_acl_catch_by_species_region_year_list$gom %>%

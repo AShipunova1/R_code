@@ -247,13 +247,13 @@ remove_no_mrip_cnts <- function(my_df_list) {
   
 }
 
-# recalculate counts by new grouping
+# recalculate counts by new grouping by year and place
 new_group_counts <- function(my_df) {
   my_df %>%
-  # sum counts grouped by scientific_name and region only
+  # sum counts by a new group
   mutate(
-    fhier_cnts_by_year_reg = sum(fhier_quantity_by_4),
-    rec_acl_cnts_by_year_reg = sum(rec_acl_estimate_catch_by_4)
+    fhier_cnts_by_year = sum(fhier_quantity_by_4),
+    rec_acl_cnts_by_year = sum(rec_acl_estimate_catch_by_4)
   ) %>%
     ungroup() %>%
     # remove columns that we used for summing
@@ -298,19 +298,19 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
   filter(species_itis_fhier == '167760') %>%
   glimpse()
 # gom
-# fhier_cnts_by_year_reg   <int> 2016
+# fhier_cnts_by_year   <int> 2016
 # rec_acl_cnts_by_year_reg <int> 1808
 # sa
-# fhier_cnts_by_year_reg   <int> 140
+# fhier_cnts_by_year   <int> 140
 # rec_acl_cnts_by_year_reg <int> 262
 fhier_acl_catch_by_species_region_year_list$gom %>%
   filter(species_itis_fhier == '167760') %>%
   glimpse()
 # new file and sero only gom
-# $ fhier_cnts_by_year_reg   <int> 1731
+# $ fhier_cnts_by_year   <int> 1731
 # $ rec_acl_cnts_by_year_reg <int> 1894
 # new file and sero only sa
-# $ fhier_cnts_by_year_reg   <int> 140
+# $ fhier_cnts_by_year   <int> 140
 # $ rec_acl_cnts_by_year_reg <int> 259
 
 acl_estimate_2022 %>%
@@ -365,7 +365,7 @@ View(state_year_has_rec_acl_data_list_new)
 
 # source("~/R_code_github/compare_catch/spp_not_in_rec_acl.R")
 
-# make a flat file
+# make a flat file ----
 dir_to_comb <- "~/R_code_github/compare_catch"
 files_to_combine <-
   c(
@@ -375,5 +375,6 @@ files_to_combine <-
     file.path(dir_to_comb, "compare_catch.R")
   )
 
-make_a_flat_file("flat_file_3.R", files_to_combine)
+# run as needed
+# make_a_flat_file("flat_file_3.R", files_to_combine)
 
