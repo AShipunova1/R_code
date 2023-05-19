@@ -452,3 +452,18 @@ legend_for_grid_arrange <- function(legend_plot) {
 
   return(my_legend)
 }
+
+make_a_flat_file <- 
+  function(flat_file_name,
+           files_to_combine_list) {
+    # write to file
+    sink(flat_file_name)
+    
+    for (i in 1:length(files_to_combine_list)) {
+      current_file = readLines(files_to_combine_list[i])
+      cat("\n\n#### Current file:", files_to_combine_list[i], "\n\n")
+      cat(current_file, sep = "\n")
+    }
+    
+    sink()
+  }
