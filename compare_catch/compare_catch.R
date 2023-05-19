@@ -367,7 +367,7 @@ my_st_names <- names(state_year_has_rec_acl_data_list)
 for (i in 1:length(my_st_names)) {
   # browser()
   state_abbr <- my_st_names[[i]]
-  if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_sum_cnts) > 0) {
+  if (sum(fhier_acl_catch_by_species_state_year_list[[state_abbr]]$rec_acl_cnts_by_year_reg) > 0) {
     state_year_has_rec_acl_data_list_new[state_abbr] <- state_year_has_rec_acl_data_list[state_abbr]
   }
 }
