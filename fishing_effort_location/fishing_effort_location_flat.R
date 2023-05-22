@@ -607,13 +607,6 @@ sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EE
 
 gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
 
-### atl_state_waters ----
-# https://catalog.data.gov/dataset/outer-continental-shelf-submerged-lands-act-boundary-atlantic-region-nad83
-# Outer Continental Shelf Submerged Lands Act Boundary - Atlantic Region NAD83
-
-atl_state_waters <- read_shapefile("ATL_SLA/ATL_SLA.shp")
-# mapview(atl_state_waters)
-
 ### fl_state_w_counties ----
 
 fl_state_w_counties <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
@@ -695,9 +688,21 @@ dim(to_report)
 #### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_location_viz.R ----
 
 # shape files maps ----
-m_s <- mapview(sa_shp,
-               layer.name = "South Altlantic",
-               legend = FALSE)
+m_s <- mapview(
+  sa_shp,
+  layer.name = "South Altlantic",
+  # col.regions = "#F4E3FF",
+  alpha.regions = 0.2,
+  legend = FALSE
+)
+
+m_fl_state_w_counties <- mapview(
+  fl_state_w_counties,
+  layer.name = "Fl counties and state waters",
+  # col.regions = "#F4E3FF",
+  alpha.regions = 0.2,
+  legend = FALSE
+)
 
 # OK boundaries ----
 # lat 23 : 28
@@ -753,14 +758,19 @@ lat_long_month_depth_clean <-
   clean_lat_long(lat_long_month_depth, all_points)
 dim(lat_long_month_depth_clean)[1]
 # 28032
-# %>%
-#   to_sf(lat_long_month_depth_clean)
 
-names(lat_long_month_depth_minus_gom)
+# to avoid this error:
+#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
+sf::sf_use_s2(FALSE)
 
-lat_long_month_depth_minus_gom_sf <- st_difference(to_sf(lat_long_month_depth_clean), gom_reef_shp)
+# remove points which belong to gom_reef_shp
+# that works for several minutes before producing a result
+lat_long_month_depth_minus_gom_sf <-
+  sf::st_difference(to_sf(lat_long_month_depth_clean), gom_reef_shp)
 
-mapviewOptions(fgb = FALSE)
+# to avoid errors when print into file
+mapview::mapviewOptions(fgb = FALSE)
+
 lat_long_month_no_gom_map <-
   lat_long_month_depth_minus_gom_sf %>%
   mapview(
@@ -776,115 +786,14 @@ lat_long_month_no_gom_map <-
     legend = TRUE
   )
 
-res_map <- lat_long_month_no_gom_map + m_s
-
-# install.packages("webshot2")
-# library(webshot2)
-# mapviewOptions(fgb = FALSE)
-# remotes::install_github("r-spatial/mapview")
-png_fl <- "res_map.png"
-mapview::mapshot(res_map, file = png_fl)
-# open the file
-browseURL(png_fl)
-
-## clusters ----
-lat_long_area_for_leaflet <-
-  clean_lat_long(lat_long_area, all_points) %>%
-  mutate(
-    POINT = paste(
-      LATITUDE,
-      LONGITUDE,
-      TRIP_START_M,
-      AREA_NAME,
-      SUB_AREA_NAME,
-      AREA_CODE,
-      DISTANCE_CODE_NAME,
-      sep = ", "
-    )
-  ) 
-
-lat_long_area_leaflet_w_clusters <-
-  lat_long_area_for_leaflet %>%
-  leaflet() %>%
-  addTiles() %>%
-  addMarkers(
-    label = paste(
-      lat_long_area_for_leaflet$LATITUDE,
-      lat_long_area_for_leaflet$LONGITUDE,
-      lat_long_area_for_leaflet$AREA_NAME,
-      sep = ", "
-    ),
-    # lat_long_area_clean$POINT,
-    # labelOptions = labelOptions(noHide = T),
-    clusterOptions = markerClusterOptions()
-  )
-
-# doesn't show clusters
-# lat_long_area_for_leaflet %>%
-#   to_sf() %>%
-# mapview(clusterOptions = markerClusterOptions())
+res_map <- lat_long_month_no_gom_map + m_s + m_fl_state_w_counties
 # 
-# + 
-#   m_s
+# # install.packages("webshot2")
+# # library(webshot2)
+# # mapviewOptions(fgb = FALSE)
+# # remotes::install_github("r-spatial/mapview")
+# png_fl <- "res_map.png"
+# mapview::mapshot(res_map, file = png_fl)
+# # open the file
+# browseURL(png_fl)
 
-lat_long_area_leaflet_w_clusters
-## check different area options ----
-lat_long_area_clean %>%
-  select(AREA_NAME,
-         SUB_AREA_NAME,
-         AREA_CODE,
-         DISTANCE_CODE_NAME) %>%
-  unique() %>% 
-  arrange(AREA_CODE) %>% 
-  glimpse()
-# Rows: 85
-
-lat_long_area_clean %>%
-  select(AREA_NAME,
-         SUB_AREA_NAME,
-         AREA_CODE) %>%
-  unique() %>% 
-  arrange(AREA_CODE) %>% 
-  View()
-# Rows: 47
-
-lat_long_area_clean %>%
-  select(AREA_NAME,
-         AREA_CODE) %>%
-  unique() %>% 
-  arrange(AREA_CODE) %>% 
-  View()
-# 26
-
-lat_long_area_clean %>%
-  select(AREA_NAME,
-         AREA_CODE) %>%
-  filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
-  filter(!grepl("TAMPA", AREA_NAME)) %>% 
-  filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
-  unique() %>% 
-  arrange(AREA_CODE) %>% 
-  View()
-  # write_csv("area_code_name.csv")
-
-# View(db_data)
-
-# separate SA only ----
-# see v_safis_trip_download
-"SELECT
-  distinct region
-FROM
-safis.areas_fished@secapxdv_dblk.sfsc.noaa.gov"
-# null, unknown?
-# ===
-# SOUTH ATLANTIC
-# SOUTH ATLANIC
-# MID ATLANTIC
-# CARIBBEAN
-#  
-# 
-# GULF OF MEXICO
-# SOUTH ATLANTIC 
-# NEW ENGLAND
-# RHODE ISLAND
-# UNKNOWN
