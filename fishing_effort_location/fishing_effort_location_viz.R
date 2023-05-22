@@ -7,15 +7,21 @@
 # see https://myfwc.com/fishing/saltwater/recreational/maps/
 # 83 west (federal waters) / 24'35 N, 24'33 N (state waters)
 
-library(zoo) #date manipulations
-# maps
-library(sf)
-library(mapview)
-library(leaflet)
-
-source("~/R_code_github/useful_functions_module.r")
-my_paths <- set_work_dir()
-source(file.path(my_paths$git_r, "fishing_effort_location", "fishing_effort_locations_get_data.R"))
+# library(zoo) #date manipulations
+# # maps
+# library(sf)
+# library(mapview)
+# library(leaflet)
+# 
+# source("~/R_code_github/useful_functions_module.r")
+# my_paths <- set_work_dir()
+# source(
+#   file.path(
+#     my_paths$git_r,
+#     "fishing_effort_location",
+#     "fishing_effort_locations_get_data.R"
+#   )
+# )
 
 # SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
