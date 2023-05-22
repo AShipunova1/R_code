@@ -34,10 +34,11 @@ source(file.path(my_paths$git_r, "fishing_effort_location", "fishing_effort_loca
 clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
   my_lat_long_df %>%
     unique() %>%
+    # we can limit the amount of points to show on the map
     head(my_limit) %>%
     # all LONG should be negative
     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-    # remove wrong coords
+    # remove coords outside off requested borders
     filter(between(LATITUDE, 23, 28) &
              between(LONGITUDE, -83, -71)) %>%
     return()
