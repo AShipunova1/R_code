@@ -8,6 +8,8 @@
 # 83 west (federal waters) / 24'35 N, 24'33 N (state waters)
 
 library(zoo) #date manipulations
+library(sf) #Create sf object to work with coordinates
+library(mapview) #View spatial objects interactively
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -38,8 +40,6 @@ clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
     # remove wrong coords
     filter(between(LATITUDE, 23, 28) &
              between(LONGITUDE, -83, -71)) %>%
-    # remove all entries with missing coords
-    filter(complete.cases(.)) %>%
     return()
 }
 
@@ -116,4 +116,31 @@ dim(to_report)
     DEPTH
   ) %>%
 data_overview()
-  
+
+# make a flat file ----
+dir_to_comb <- file.path(my_paths$git_r, "fishing_effort_location")
+
+files_to_combine <-
+  c(
+    file.path(my_paths$git_r, "useful_functions_module.r"),
+    file.path(dir_to_comb, "read.me.R"),
+    file.path(dir_to_comb, "fishing_effort_locations_get_data.R"),
+    file.path(dir_to_comb, "fishing_effort_location.R"),
+    file.path(dir_to_comb, "fishing_effort_location_viz.R")
+  )
+
+flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
+
+# # write to file
+# files_to_combine_list <- files_to_combine
+# # sink()
+# for (i in 1:length(files_to_combine_list)) {
+#     # browser()
+#     current_file = readLines(files_to_combine_list[i])
+#   cat("\n\n#### Current file:", files_to_combine_list[i], "\n\n")
+#   # cat(current_file, sep = "\n")
+# }
+
+# run as needed
+make_a_flat_file(flat_file_name,
+                 files_to_combine_list)
