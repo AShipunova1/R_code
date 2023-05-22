@@ -489,6 +489,8 @@ lat_long_month_no_gom_map <-
   )
 
 res_map <- lat_long_month_no_gom_map + m_s
+res_map1 <- lat_long_month_no_gom_map + m_s + mapview(atl_state_waters)
+
 
 # install.packages("webshot2")
 # library(webshot2)
@@ -498,7 +500,6 @@ png_fl <- "res_map.png"
 mapview::mapshot(res_map, file = png_fl)
 # open the file
 browseURL(png_fl)
-
 
 ## clusters ----
 lat_long_area_for_leaflet <-
