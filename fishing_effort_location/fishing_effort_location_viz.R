@@ -328,6 +328,7 @@ dim(db_area_data)[1]
 dim(db_data)[1]
 # 254283     
 # 254283 + 83 = 254366
+# 254528
 
 db_data_w_area <- full_join(db_area_data, db_data)
 # Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
@@ -369,7 +370,7 @@ lat_long_area_clean_no_gom <-
   lat_long_area_clean %>%
   filter(!REGION %in% c("GULF OF MEXICO"))
 
-lat_long_area_clean_map <-
+lat_long_area_clean_sf <-
   lat_long_area_clean_no_gom %>%
   mutate(
     POINT = paste(
@@ -384,7 +385,10 @@ lat_long_area_clean_map <-
       sep = ", "
     )
   ) %>%
-  to_sf() %>%
+  to_sf()
+
+lat_long_area_clean_map <-
+  lat_long_area_clean_sf %>%
   mapview(
     zcol = "AREA_NAME",
     col.regions = viridisLite::turbo,
@@ -401,8 +405,14 @@ lat_long_area_clean_map
 #                                       data = gadmCHE@data, 
 #                                       proj4string = CRS(proj4string(gadmCHE)))
 # 
-# lat_long_area_clean_map + sa_shp
+# minus_sa <- st_difference(corrected_data_sf, sa_shp)
+# sa_areas_only <- st_difference((lat_long_area_clean_sf + sa_shp), gom_reef_shp)
+sf_use_s2(FALSE)
+sa_areas_minus_gom <- st_difference(lat_long_area_clean_sf, gom_reef_shp)
+# although coordinates are longitude/latitude, st_difference assumes
+# that they are planar
 
+## clusters ----
 lat_long_area_for_leaflet <-
   clean_lat_long(lat_long_area, all_points) %>%
   mutate(
@@ -443,7 +453,7 @@ lat_long_area_leaflet_w_clusters <-
 #   m_s
 
 lat_long_area_leaflet_w_clusters
-# ===
+## check different area options ----
 lat_long_area_clean %>%
   select(AREA_NAME,
          SUB_AREA_NAME,
@@ -482,7 +492,7 @@ lat_long_area_clean %>%
   View()
   # write_csv("area_code_name.csv")
 
-View(db_data)
+# View(db_data)
 
 # separate SA only ----
 # see v_safis_trip_download
