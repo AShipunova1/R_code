@@ -86,19 +86,20 @@ m_s <- mapview(sa_shp,
 # lat 23 : 28
 # lon -71 : -83
 
-clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
-  my_lat_long_df %>%
-    unique() %>%
-    head(my_limit) %>%
-    # all LONG should be negative
-    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-    # remove wrong coords
-    filter(between(LATITUDE, 23, 28) &
-             between(LONGITUDE, -83, -71)) %>%
-    # remove all entries with missing coords
-    # filter(complete.cases(.)) %>%
-    return()
-}
+# defined in the main
+# clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
+#   my_lat_long_df %>%
+#     unique() %>%
+#     head(my_limit) %>%
+#     # all LONG should be negative
+#     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+#     # remove wrong coords
+#     filter(between(LATITUDE, 23, 28) &
+#              between(LONGITUDE, -83, -71)) %>%
+#     # remove all entries with missing coords
+#     # filter(complete.cases(.)) %>%
+#     return()
+# }
 
 # to_sf <- function(my_df) {
 #   my_df %>%
@@ -366,6 +367,7 @@ lat_long_area_clean %>%
   filter(grepl("MEX", AREA_NAME) | grepl("GOM", AREA_NAME)) %>% 
   unique() 
 
+# exclude GOM
 lat_long_area_clean_no_gom <-
   lat_long_area_clean %>%
   filter(!REGION %in% c("GULF OF MEXICO"))
@@ -437,16 +439,18 @@ lat_long_month_depth <-
            format(TRIP_START_DATE, "%m")) %>%
   # compute on a data frame a row-at-a-time
   rowwise() %>%
-  # get avg bottom depth
+  # get avg bottom depth for labels
   mutate(AVG_DEPTH = mean(
     c(
       MINIMUM_BOTTOM_DEPTH,
       MAXIMUM_BOTTOM_DEPTH,
       FISHING_GEAR_DEPTH
     ),
-    na.rm = T
+    na.rm = TRUE
   )) %>%
+  # return to the default colwise operations
   ungroup() %>%
+  # combine a label
   mutate(
     POINT = paste(
       LATITUDE,
