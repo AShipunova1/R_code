@@ -96,7 +96,7 @@ clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
     filter(between(LATITUDE, 23, 28) &
              between(LONGITUDE, -83, -71)) %>%
     # remove all entries with missing coords
-    filter(complete.cases(.)) %>%
+    # filter(complete.cases(.)) %>%
     return()
 }
 
@@ -399,7 +399,7 @@ lat_long_area_clean_map <-
     clusterOptions = markerClusterOptions()
   )
 
-lat_long_area_clean_map
+# lat_long_area_clean_map
 
 # SpatialPointsDataFrame(coordinates(gadmCHE), 
 #                                       data = gadmCHE@data, 
@@ -407,10 +407,88 @@ lat_long_area_clean_map
 # 
 # minus_sa <- st_difference(corrected_data_sf, sa_shp)
 # sa_areas_only <- st_difference((lat_long_area_clean_sf + sa_shp), gom_reef_shp)
+
+ # to avoide 
+# Error in wk_handle.wk_wkb(wkb, s2_geography_writer(oriented = oriented,  : 
+#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
 sf_use_s2(FALSE)
+
 sa_areas_minus_gom <- st_difference(lat_long_area_clean_sf, gom_reef_shp)
 # although coordinates are longitude/latitude, st_difference assumes
 # that they are planar
+
+sa_areas_minus_gom %>%
+    mapview(
+    zcol = "AREA_NAME",
+    col.regions = viridisLite::turbo,
+    layer.name = 'AREA_NAME',
+    # cex = "DISTANCE_CODE_NAME",
+    alpha = 0.3,
+    legend = F,
+    clusterOptions = markerClusterOptions()
+  )
+
+## no gom by month ----
+# names(db_data)
+lat_long_month_depth <-
+  db_data_w_area %>%
+  # labels are a month only
+  mutate(TRIP_START_M =
+           format(TRIP_START_DATE, "%m")) %>%
+  # compute on a data frame a row-at-a-time
+  rowwise() %>%
+  # get avg bottom depth
+  mutate(AVG_DEPTH = mean(
+    c(
+      MINIMUM_BOTTOM_DEPTH,
+      MAXIMUM_BOTTOM_DEPTH,
+      FISHING_GEAR_DEPTH
+    ),
+    na.rm = T
+  )) %>%
+  ungroup() %>%
+  mutate(
+    POINT = paste(
+      LATITUDE,
+      LONGITUDE,
+      TRIP_START_M,
+      AVG_DEPTH,
+      AREA_NAME,
+      START_PORT_NAME,
+      sep = ", "
+    )) %>%
+  filter(!REGION %in% c("GULF OF MEXICO"))
+
+all_points <- dim(lat_long_month_depth)[1]
+# 254503
+
+lat_long_month_depth_clean <- clean_lat_long(lat_long_month_depth, all_points)
+dim(lat_long_month_depth_clean)[1]
+# 28032
+# %>%
+#   to_sf(lat_long_month_depth_clean)
+
+
+
+lat_long_month_depth_minus_gom_sf <- st_difference(to_sf(lat_long_month_depth_clean), gom_reef_shp)
+
+lat_long_month_no_gom_map <-
+  sa_areas_minus_gom_sf %>%
+  mapview(
+    # colors
+    zcol = "TRIP_START_M",
+    # color palette
+    col.regions = viridisLite::turbo,
+    layer.name = 'Month',
+    # size
+    cex = "AVG_DEPTH",
+    # transparency
+    alpha = 0.3,
+    legend = TRUE
+  )
+
+lat_long_month_no_gom_map
+# + m_s
 
 ## clusters ----
 lat_long_area_for_leaflet <-
