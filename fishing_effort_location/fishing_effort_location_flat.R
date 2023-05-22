@@ -61,13 +61,45 @@ library(mapview) #View spatial objects interactively
 #  
 # 
 
-# more setup ----
+# setup ----
+set_work_dir <- function() {
+  setwd("~/")
+  base_dir <- getwd()
+  main_r_dir <- "R_files_local"
+
+  in_dir <- "my_inputs"
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+  out_dir <- "my_outputs"
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  git_r_dir <- "R_code_github"
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  setwd(file.path(base_dir, main_r_dir))
+
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
+  return(my_paths)
+}
+
+count_uniq_by_column <- function(my_df) {
+  sapply(my_df, function(x) length(unique(x))) %>%
+    as.data.frame()
+}
+
+data_overview <- function(my_df) {
+  summary(my_df) %>% print()
+  cat("\nCount unique values in each column:")
+  count_uniq_by_column(my_df)
+}
+
 my_paths <- set_work_dir()
 
 #### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_locations_get_data.R ----
 
-con = dbConnect(
-  dbDriver("Oracle"),
+con = ROracle::dbConnect(
+  DBI::dbDriver("Oracle"),
   username = keyring::key_list("SECPR")[1, 2],
   password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
   dbname = "SECPR"
@@ -106,7 +138,7 @@ WHERE
   AND trip_type_name = 'CHARTER'
   AND sero_vessel_permit IS NOT NULL"
 
-db_data = dbGetQuery(con,
+db_data = ROracle::dbGetQuery(con,
                      request_query)
 
 
@@ -116,10 +148,10 @@ area_data_query <-
   where state in ('FL', 'US')
 "
 
-db_area_data = dbGetQuery(con,
+db_area_data = ROracle::dbGetQuery(con,
                      area_data_query)
 
-dbDisconnect(con)
+ROracle::dbDisconnect(con)
 
 ## ---- get other geographical data ----
 read_shapefile <- function(filename) {
@@ -131,16 +163,16 @@ read_shapefile <- function(filename) {
 
 # https://www.fisheries.noaa.gov/resource/map/defined-fishery-management-areas-south-atlantic-states-map-gis-data
 
+# see the function above, F2 in RStudio will show the function definition, when the cursor is on the name.
 sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 
+# see the function above
 gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
 
 ### fl_state_w_counties ----
-
+# see the function above
 fl_state_w_counties <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
-
-# mapview(fl_state_w_counties)
 
 #### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_location.R ----
 
@@ -155,7 +187,6 @@ fl_state_w_counties <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_C
 
 # to get SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
-# ? how to get the boundary?
 
 # fields to get 
 # Trip start and end date
@@ -170,6 +201,7 @@ fl_state_w_counties <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_C
 # lon -71 : -83
 
 clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
+  
   my_lat_long_df %>%
     unique() %>%
     # we can limit the amount of points to show on the map
@@ -183,7 +215,7 @@ clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
 }
 
 # combine with additional area data ----
-db_data_w_area <- full_join(db_area_data, db_data)
+db_data_w_area <- dplyr::full_join(db_area_data, db_data)
 # Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
 # LOCAL_AREA_CODE)`
 
@@ -194,7 +226,7 @@ all_points <- dim(db_data_w_area)[1]
 
 to_report <-
   db_data_w_area %>%
-  select(
+  dplyr::select(
     TRIP_START_DATE,
     TRIP_END_DATE,
     START_PORT,
@@ -229,7 +261,7 @@ m_s <- mapview(
 
 m_fl_state_w_counties <- mapview(
   fl_state_w_counties,
-  layer.name = "Fl counties and state waters",
+  layer.name = "FL counties and state waters",
   # col.regions = "#F4E3FF",
   alpha.regions = 0.2,
   legend = FALSE
@@ -241,9 +273,9 @@ m_fl_state_w_counties <- mapview(
 
 to_sf <- function(my_df) {
   my_df %>%
-    st_as_sf(coords = c("LONGITUDE",
+    sf::st_as_sf(coords = c("LONGITUDE",
                         "LATITUDE"),
-             crs = st_crs(sa_shp)) %>%
+             crs = sf::st_crs(sa_shp)) %>%
     return()
 }
 
@@ -252,14 +284,14 @@ to_sf <- function(my_df) {
 lat_long_month_depth_report <-
   to_report %>%
   # exclude GOM
-  filter(!REGION %in% c("GULF OF MEXICO")) %>%
+  dplyr::filter(!REGION %in% c("GULF OF MEXICO")) %>%
   # labels are a month only
-  mutate(TRIP_START_M =
+  dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
   # compute on a data frame a row-at-a-time
-  rowwise() %>%
+  dplyr::rowwise() %>%
   # get avg bottom depth for labels
-  mutate(AVG_DEPTH = mean(
+  dplyr::mutate(AVG_DEPTH = mean(
     c(
       MINIMUM_BOTTOM_DEPTH,
       MAXIMUM_BOTTOM_DEPTH,
@@ -268,9 +300,9 @@ lat_long_month_depth_report <-
     na.rm = TRUE
   )) %>%
   # return to the default colwise operations
-  ungroup() %>%
+  dplyr::ungroup() %>%
   # combine a label
-  mutate(
+  dplyr::mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,
@@ -317,6 +349,7 @@ lat_long_month_no_gom_map <-
     legend = TRUE
   )
 
+# combine mapviews
 res_map <- m_s + m_fl_state_w_counties + lat_long_month_no_gom_map
 
 res_map
@@ -325,5 +358,5 @@ res_map
 # png_fl <- "res_map.png"
 # mapview::mapshot(res_map, file = png_fl)
 # # open the file
-# browseURL(png_fl)
+# utils::browseURL(png_fl)
 
