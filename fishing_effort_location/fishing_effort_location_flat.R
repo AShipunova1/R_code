@@ -786,12 +786,11 @@ lat_long_month_no_gom_map <-
     legend = TRUE
   )
 
-res_map <- lat_long_month_no_gom_map + m_s + m_fl_state_w_counties
-# 
-# # install.packages("webshot2")
-# # library(webshot2)
-# # mapviewOptions(fgb = FALSE)
-# # remotes::install_github("r-spatial/mapview")
+res_map <- m_s + m_fl_state_w_counties + lat_long_month_no_gom_map
+
+res_map
+
+# safe as a png
 # png_fl <- "res_map.png"
 # mapview::mapshot(res_map, file = png_fl)
 # # open the file
