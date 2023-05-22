@@ -678,12 +678,14 @@ to_report <-
     MINIMUM_BOTTOM_DEPTH,
     MAXIMUM_BOTTOM_DEPTH,
     FISHING_GEAR_DEPTH,
-    DEPTH
+    DEPTH,
+    REGION,
+    AREA_NAME
   ) %>%
   unique() #?
 
 dim(to_report)
-# 75546
+# 75549
 
 #### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_location_viz.R ----
 
@@ -718,8 +720,8 @@ to_sf <- function(my_df) {
 
 ## no gom by month ----
 
-lat_long_month_depth <-
-  db_data_w_area %>%
+lat_long_month_depth_report <-
+  to_report %>%
   # exclude GOM
   filter(!REGION %in% c("GULF OF MEXICO")) %>%
   # labels are a month only
@@ -750,12 +752,12 @@ lat_long_month_depth <-
       sep = ", "
     ))
 
-all_points <- dim(lat_long_month_depth)[1]
-# 254503
+all_points <- dim(lat_long_month_depth_report)[1]
+# 75598
 
 # see the function above, F2 in RStudio will show the function definition.
 lat_long_month_depth_clean <-
-  clean_lat_long(lat_long_month_depth, all_points)
+  clean_lat_long(lat_long_month_depth_report, all_points)
 dim(lat_long_month_depth_clean)[1]
 # 28032
 
