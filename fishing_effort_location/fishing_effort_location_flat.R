@@ -650,10 +650,11 @@ fl_state_w_counties <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_C
 clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
   my_lat_long_df %>%
     unique() %>%
+    # we can limit the amount of points to show on the map
     head(my_limit) %>%
     # all LONG should be negative
     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-    # remove wrong coords
+    # remove coords outside off requested borders
     filter(between(LATITUDE, 23, 28) &
              between(LONGITUDE, -83, -71)) %>%
     return()
@@ -702,18 +703,6 @@ m_s <- mapview(sa_shp,
 # lat 23 : 28
 # lon -71 : -83
 
-clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
-  my_lat_long_df %>%
-    unique() %>%
-    head(my_limit) %>%
-    # all LONG should be negative
-    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-    # remove wrong coords
-    filter(between(LATITUDE, 23, 28) &
-             between(LONGITUDE, -83, -71)) %>%
-    return()
-}
-
 to_sf <- function(my_df) {
   my_df %>%
     st_as_sf(coords = c("LONGITUDE",
@@ -726,37 +715,42 @@ to_sf <- function(my_df) {
 
 lat_long_month_depth <-
   db_data_w_area %>%
+  # exclude GOM
+  filter(!REGION %in% c("GULF OF MEXICO")) %>%
   # labels are a month only
   mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
   # compute on a data frame a row-at-a-time
   rowwise() %>%
-  # get avg bottom depth
+  # get avg bottom depth for labels
   mutate(AVG_DEPTH = mean(
     c(
       MINIMUM_BOTTOM_DEPTH,
       MAXIMUM_BOTTOM_DEPTH,
       FISHING_GEAR_DEPTH
     ),
-    na.rm = T
+    na.rm = TRUE
   )) %>%
+  # return to the default colwise operations
   ungroup() %>%
+  # combine a label
   mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,
       TRIP_START_M,
-      AVG_DEPTH,
-      AREA_NAME,
+      paste0("avg_depth: ", AVG_DEPTH),
+      paste0("area_name: ", AREA_NAME),
       START_PORT_NAME,
       sep = ", "
-    )) %>%
-  filter(!REGION %in% c("GULF OF MEXICO"))
+    ))
 
 all_points <- dim(lat_long_month_depth)[1]
 # 254503
 
-lat_long_month_depth_clean <- clean_lat_long(lat_long_month_depth, all_points)
+# see the function above, F2 in RStudio will show the function definition.
+lat_long_month_depth_clean <-
+  clean_lat_long(lat_long_month_depth, all_points)
 dim(lat_long_month_depth_clean)[1]
 # 28032
 # %>%
