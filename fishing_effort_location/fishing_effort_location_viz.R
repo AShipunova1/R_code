@@ -468,12 +468,13 @@ dim(lat_long_month_depth_clean)[1]
 # %>%
 #   to_sf(lat_long_month_depth_clean)
 
-
+names(lat_long_month_depth_minus_gom)
 
 lat_long_month_depth_minus_gom_sf <- st_difference(to_sf(lat_long_month_depth_clean), gom_reef_shp)
 
+mapviewOptions(fgb = FALSE)
 lat_long_month_no_gom_map <-
-  sa_areas_minus_gom_sf %>%
+  lat_long_month_depth_minus_gom_sf %>%
   mapview(
     # colors
     zcol = "TRIP_START_M",
@@ -487,8 +488,17 @@ lat_long_month_no_gom_map <-
     legend = TRUE
   )
 
-lat_long_month_no_gom_map
-# + m_s
+res_map <- lat_long_month_no_gom_map + m_s
+
+# install.packages("webshot2")
+# library(webshot2)
+# mapviewOptions(fgb = FALSE)
+# remotes::install_github("r-spatial/mapview")
+png_fl <- "res_map.png"
+mapview::mapshot(res_map, file = png_fl)
+# open the file
+browseURL(png_fl)
+
 
 ## clusters ----
 lat_long_area_for_leaflet <-
