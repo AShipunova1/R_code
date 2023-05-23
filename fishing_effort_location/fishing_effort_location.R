@@ -189,7 +189,8 @@ cc <- sf::st_coordinates(db_data_w_area_report_sa_eez)
 
 str(db_data_w_area_report_sa_eez)
 
-# mapview(db_data_w_area_report_sa_eez)
+m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez,
+        layer.name = 'SA EEZ')
 
 # db_data_w_area_report_sa_eez %>%
 #   select(-c(Id, AreaName)) %>%
@@ -209,7 +210,8 @@ s1 <- filter(sa_shp,
              AreaName == "Off FL")
 
 mapview(s1)
-# ===
+
+# state waters sa ----
 fl_counties_sa <- c(
   "Brevard",
   "Broward",
@@ -222,7 +224,8 @@ fl_counties_sa <- c(
   "Palm Beach",
   "Saint Johns",
   "Saint Lucie",
-  "Volusia"
+  "Volusia",
+  "Monroe"
 )
 
 names(fl_state_w_counties)
@@ -232,10 +235,10 @@ fl_state_w_counties_names <- fl_state_w_counties$gnis_name
 length(fl_state_w_counties_names)
 # 67
 
-grep("Miami", fl_state_w_counties_names, value = T)
+grep("Monroe", fl_state_w_counties_names, value = T)
 
 str(fl_counties_sa)
-# 12
+# 12 + Monroe
 
 fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
 # str(fl_state_w_counties_names_df)
@@ -255,3 +258,22 @@ sa_fl_state_w_counties_names <-
     return(sa_county)
   })
 
+
+fl_state_w_counties_sa <- filter(fl_state_w_counties,
+             gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names)
+
+mapview(fl_state_w_counties_sa)
+
+names(fl_state_w_counties_sa)
+
+db_data_w_area_report_sa_counties <-
+  sf::st_intersection(db_data_w_area_report_sf, fl_state_w_counties_sa)
+
+m_db_data_w_area_report_sa_counties <-
+  mapview(
+  db_data_w_area_report_sa_counties,
+  col.regions = "green",
+  layer.name = 'State and inner waters'
+)
+
+m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_sa_counties
