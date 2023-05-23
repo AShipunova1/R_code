@@ -225,6 +225,15 @@ all_points <- dim(db_data_w_area)[1]
 
 # View(db_data_w_area)
 
+# write_csv(
+#   db_data_w_area,
+#   file.path(
+#     my_paths$outputs,
+#     "fishing_effort_location",
+#     "db_data_w_area.csv"
+#   )
+# )
+
 to_report <-
   db_data_w_area %>%
   dplyr::select(
