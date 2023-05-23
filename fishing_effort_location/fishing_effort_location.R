@@ -201,3 +201,11 @@ str(db_data_w_area_report_sa_eez)
 #   ))
 # 
 #   
+
+# to_sf
+
+str(sa_shp)
+s1 <- filter(sa_shp,
+             AreaName == "Off FL")
+
+mapview(s1)
