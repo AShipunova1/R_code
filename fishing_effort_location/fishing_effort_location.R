@@ -145,3 +145,59 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
 # run as needed
 make_a_flat_file(flat_file_name,
                  files_to_combine_list)
+
+# SA EEZ only ----
+db_data_w_area_report <-
+  db_data_w_area %>%
+  # all LONG should be negative
+  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    START_PORT,
+    START_PORT_NAME,
+    START_PORT_COUNTY,
+    START_PORT_STATE,
+    END_PORT,
+    LATITUDE,
+    LONGITUDE,
+    MINIMUM_BOTTOM_DEPTH,
+    MAXIMUM_BOTTOM_DEPTH,
+    FISHING_GEAR_DEPTH
+  )
+
+dim(db_data_w_area_report)
+# 254689     
+db_data_w_area_report_short <-
+  db_data_w_area_report %>%
+  filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
+# 253142
+dim(db_data_w_area_report_short)
+# data_overview(db_data_w_area_report)
+
+db_data_w_area_report_sf <- sf::st_as_sf(
+  db_data_w_area_report_short,
+  coords = c("LONGITUDE",
+             "LATITUDE"),
+  crs = sf::st_crs(sa_shp)
+)
+
+db_data_w_area_report_sa_eez <-
+  sf::st_intersection(db_data_w_area_report_sf, sa_shp)
+
+cc <- sf::st_coordinates(db_data_w_area_report_sa_eez)
+
+str(db_data_w_area_report_sa_eez)
+
+# mapview(db_data_w_area_report_sa_eez)
+
+# db_data_w_area_report_sa_eez %>%
+#   select(-c(Id, AreaName)) %>%
+#   write_csv(
+#   file.path(
+#     my_paths$outputs,
+#     "fishing_effort_location",
+#     "db_data_w_area_report_sa_eez.csv"
+#   ))
+# 
+#   
