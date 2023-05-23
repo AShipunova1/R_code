@@ -325,6 +325,9 @@ m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_28_s_no_gom_reef_state_
 db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez <-
   sf::st_difference(db_data_w_area_report_28_s_no_gom_reef, sa_shp)
 
+mapview(db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez)
+
 # - state_w
-sf::st_difference(db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez,
+db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez_minus_state <-
+  sf::st_difference(db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez,
                   fl_state_w_counties)
