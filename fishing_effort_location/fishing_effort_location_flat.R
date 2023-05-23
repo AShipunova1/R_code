@@ -83,6 +83,8 @@ set_work_dir <- function() {
   return(my_paths)
 }
 
+my_paths <- set_work_dir()
+
 count_uniq_by_column <- function(my_df) {
   sapply(my_df, function(x) length(unique(x))) %>%
     as.data.frame()
@@ -94,7 +96,6 @@ data_overview <- function(my_df) {
   count_uniq_by_column(my_df)
 }
 
-my_paths <- set_work_dir()
 
 #### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_locations_get_data.R ----
 
@@ -154,7 +155,7 @@ db_area_data = ROracle::dbGetQuery(con,
 
 ROracle::dbDisconnect(con)
 
-## ---- get other geographical data ----
+## get other geographical data ----
 read_shapefile <- function(filename) {
   shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
 
@@ -253,7 +254,7 @@ to_report <-
     REGION,
     AREA_NAME
   ) %>%
-  unique() #?
+  unique()
 
 dim(to_report)
 # 75549
@@ -340,7 +341,7 @@ sf::sf_use_s2(FALSE)
 # that works for several minutes before producing a result
 lat_long_month_depth_minus_gom_sf <-
   sf::st_difference(to_sf(lat_long_month_depth_clean), gom_reef_shp)
-
+# str(gom_reef_shp)
 # to avoid errors when print into file
 mapview::mapviewOptions(fgb = FALSE)
 
@@ -353,7 +354,7 @@ lat_long_month_no_gom_map <-
     col.regions = viridisLite::turbo,
     layer.name = 'Month',
     # size
-    cex = "AVG_DEPTH",
+    cex = "FISHING_GEAR_DEPTH",
     # transparency
     alpha = 0.3,
     legend = TRUE
