@@ -265,7 +265,7 @@ dim(to_report)
 m_s <- mapview(
   sa_shp,
   layer.name = "South Altlantic",
-  # col.regions = "#F4E3FF",
+  col.regions = "#F4E3FF",
   alpha.regions = 0.2,
   legend = FALSE
 )
