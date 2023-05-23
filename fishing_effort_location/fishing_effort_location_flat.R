@@ -101,7 +101,8 @@ my_paths <- set_work_dir()
 con = ROracle::dbConnect(
   DBI::dbDriver("Oracle"),
   username = keyring::key_list("SECPR")[1, 2],
-  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
+  password = keyring::key_get("SECPR",
+                              keyring::key_list("SECPR")[1, 2]),
   dbname = "SECPR"
 )
 
