@@ -74,9 +74,14 @@ lat_long_sf <-
 # plot(lat_long_sf$geometry)
 
 # shape files maps ----
-m_s <- mapview(sa_shp,
-               layer.name = "South Altlantic",
-               legend = FALSE)
+m_s <- mapview(
+  sa_shp,
+  col.regions = "#F4E3FF",
+  alpha.regions = 0.2,
+  layer.name = "South Altlantic",
+  legend = FALSE
+)
+
 # m_g <- mapview(gom_shp,
 #                layer.name = "Gulf of Mexico",
 #                legend = FALSE)
