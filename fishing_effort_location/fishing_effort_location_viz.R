@@ -159,7 +159,7 @@ n_map <-
   mapview(zcol = "point",
           col.regions = viridisLite::turbo,
           layer.name = 'Month',
-          cex = "CATCH_CNT",
+          cex = "FISHING_GEAR_DEPTH",
           alpha = 0.3,
           legend = T)
 
@@ -211,14 +211,13 @@ n_map <-
     col.regions = viridisLite::turbo,
     layer.name = 'Month',
     # size
-    cex = "AVG_DEPTH",
+    cex = "FISHING_GEAR_DEPTH",
     # transparency
     alpha = 0.3,
     legend = TRUE
   )
 
 n_map + m_s
-
 
 # for quarters ----
 
@@ -248,7 +247,7 @@ mapview_q <- function(my_df, points_num, q_name) {
       zcol = "TRIP_START_M",
       col.regions = viridisLite::turbo,
       layer.name = 'Month',
-      cex = "AVG_DEPTH",
+      cex = "FISHING_GEAR_DEPTH",
       alpha = 0.3,
       legend = T
     )
@@ -486,7 +485,7 @@ lat_long_month_no_gom_map <-
     col.regions = viridisLite::turbo,
     layer.name = 'Month',
     # size
-    cex = "AVG_DEPTH",
+    cex = "FISHING_GEAR_DEPTH",
     # transparency
     alpha = 0.3,
     legend = TRUE
