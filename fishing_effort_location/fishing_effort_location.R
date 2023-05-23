@@ -185,9 +185,9 @@ db_data_w_area_report_sf <- sf::st_as_sf(
 db_data_w_area_report_sa_eez <-
   sf::st_intersection(db_data_w_area_report_sf, sa_shp)
 
-cc <- sf::st_coordinates(db_data_w_area_report_sa_eez)
-
-str(db_data_w_area_report_sa_eez)
+# cc <- sf::st_coordinates(db_data_w_area_report_sa_eez)
+# 
+# str(db_data_w_area_report_sa_eez)
 
 m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez,
         layer.name = 'SA EEZ')
@@ -282,3 +282,27 @@ m_db_data_w_area_report_sa_counties_no_gom <-
 )
 
 m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_sa_counties_no_gom
+
+### state w south of 28 ----
+db_data_w_area_report_sf_28_s <-
+  db_data_w_area_report_short %>%
+  filter(between(LATITUDE, 23, 28) &
+           between(LONGITUDE, -83, -71)) %>%
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = sf::st_crs(sa_shp))
+# dim(db_data_w_area_report_sf_28_s)
+# 92949    
+
+## exclude GOM ----
+  db_data_w_area_report_sa_counties_no_gom <-
+    sf::st_difference(db_data_w_area_report_sa_counties, gom_reef_shp)
+
+### Below 28: remove GOM at sea points ----
+db_data_w_area_report_28_s_no_gom_reef <-
+  sf::st_difference(db_data_w_area_report_sf_28_s, gom_reef_shp)
+
+### Below 28: keep only SA counties ----
+db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
+  sf::st_intersection(db_data_w_area_report_28_s_no_gom_reef,
+                      fl_state_w_counties_sa)
