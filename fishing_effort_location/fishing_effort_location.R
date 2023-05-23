@@ -306,3 +306,25 @@ db_data_w_area_report_28_s_no_gom_reef <-
 db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
   sf::st_intersection(db_data_w_area_report_28_s_no_gom_reef,
                       fl_state_w_counties_sa)
+
+
+m_db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
+  mapview(
+  db_data_w_area_report_28_s_no_gom_reef_state_w_sf,
+  col.regions = "green",
+  layer.name = 'State and inner waters south of 28N'
+)
+
+m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_28_s_no_gom_reef_state_w_sf
+
+# mapview(db_data_w_area_report_28_s_no_gom_reef) + m_s
+
+# grey points in SA outside of EEZ
+
+# - sa_eez
+db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez <-
+  sf::st_difference(db_data_w_area_report_28_s_no_gom_reef, sa_shp)
+
+# - state_w
+sf::st_difference(db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez,
+                  fl_state_w_counties)
