@@ -209,3 +209,46 @@ s1 <- filter(sa_shp,
              AreaName == "Off FL")
 
 mapview(s1)
+# ===
+fl_counties_sa <- c(
+  "Brevard",
+  "Broward",
+  "Duval",
+  "Flagler",
+  "Indian River",
+  "Martin",
+  "Miami-Dade",
+  "Nassau",
+  "Palm Beach",
+  "Saint Johns",
+  "Saint Lucie",
+  "Volusia"
+)
+
+names(fl_state_w_counties)
+fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
+
+fl_state_w_counties_names <- fl_state_w_counties$gnis_name
+length(fl_state_w_counties_names)
+# 67
+
+grep("Miami", fl_state_w_counties_names, value = T)
+
+str(fl_counties_sa)
+# 12
+
+fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
+# str(fl_state_w_counties_names_df)
+# fl_state_w_counties_names) %>%
+
+rr <-
+  as.data.frame(fl_counties_sa)[[1]] %>%
+  map(function(fl_county) {
+    # browser()
+    fl_state_w_counties_names_df %>%
+      filter(grepl(
+        fl_county,
+        fl_state_w_counties_names_df$fl_state_w_counties_names
+      )) %>%
+      return
+  })
