@@ -31,7 +31,46 @@ options(scipen = 999)
 # Use my function in case we want to change the case in all functions
 my_headers_case_function <- tolower
 
+# current user name
+get_username <- function(){
+    return(as.character(Sys.info()["user"]))
+}
+
+# set working directories
+  # change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
+  # then you can use it in the code like my_paths$input etc.
 set_work_dir <- function() {
+  setwd("~/")
+  base_dir <- getwd()
+
+  # for others
+  add_dir <- ""
+  # for Anna's computer
+  if (get_username() == "anna.shipunova") {
+    add_dir <- "R_files_local/test_dir"
+  }
+
+  # add an empty or Anna's folder in front
+  main_r_dir <- file.path(add_dir, "SEFHIER/R code")
+
+  in_dir <- "Inputs"
+  # file.path instead of paste, because it provides correct concatenation, "\" or "/" etc.
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+  out_dir <- "Outputs"
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  # git_r_dir <- "R_code_github"
+  # full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  setwd(file.path(base_dir, main_r_dir))
+
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir) #,
+                   #"git_r" = full_path_to_r_git_dir)
+  return(my_paths)
+}
+
+set_work_dir_local <- function() {
   setwd("~/")
   base_dir <- getwd()
   main_r_dir <- "R_files_local"
@@ -50,6 +89,10 @@ set_work_dir <- function() {
                    "outputs" = full_path_to_out_dir,
                    "git_r" = full_path_to_r_git_dir)
   return(my_paths)
+}
+
+if (get_username() == "anna.shipunova") {
+  set_work_dir <- set_work_dir_local
 }
 
 load_csv_names <- function(my_paths, csv_names_list) {
