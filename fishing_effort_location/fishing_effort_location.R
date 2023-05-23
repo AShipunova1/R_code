@@ -241,14 +241,17 @@ fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
 # str(fl_state_w_counties_names_df)
 # fl_state_w_counties_names) %>%
 
-rr <-
+sa_fl_state_w_counties_names <-
   as.data.frame(fl_counties_sa)[[1]] %>%
-  map(function(fl_county) {
+  map_df(function(fl_county) {
     # browser()
-    fl_state_w_counties_names_df %>%
+    sa_county <-
+      fl_state_w_counties_names_df %>%
       filter(grepl(
         fl_county,
         fl_state_w_counties_names_df$fl_state_w_counties_names
-      )) %>%
-      return
+      ))
+    
+    return(sa_county)
   })
+
