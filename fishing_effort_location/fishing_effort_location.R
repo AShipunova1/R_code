@@ -269,11 +269,16 @@ names(fl_state_w_counties_sa)
 db_data_w_area_report_sa_counties <-
   sf::st_intersection(db_data_w_area_report_sf, fl_state_w_counties_sa)
 
-m_db_data_w_area_report_sa_counties <-
+## exclude GOM ----
+db_data_w_area_report_sa_counties_no_gom <- st_difference(db_data_w_area_report_sa_counties, gom_reef_shp)
+
+
+### map ----
+m_db_data_w_area_report_sa_counties_no_gom <-
   mapview(
-  db_data_w_area_report_sa_counties,
+  db_data_w_area_report_sa_counties_no_gom,
   col.regions = "green",
   layer.name = 'State and inner waters'
 )
 
-m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_sa_counties
+m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_sa_counties_no_gom
