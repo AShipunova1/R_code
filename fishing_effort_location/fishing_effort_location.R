@@ -17,7 +17,6 @@ source(file.path(my_paths$git_r, "fishing_effort_location", "fishing_effort_loca
 
 # to get SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
-# ? how to get the boundary?
 
 # fields to get 
 # Trip start and end date
@@ -31,6 +30,10 @@ source(file.path(my_paths$git_r, "fishing_effort_location", "fishing_effort_loca
 # lat 23 : 28
 # lon -71 : -83
 
+# south of 28N - all SA
+# north of 28N - EEZ only
+
+# south of 28N - all SA ----
 clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
   my_lat_long_df %>%
     unique() %>%
@@ -63,7 +66,7 @@ db_data_w_area_lat_lon <-
              between(LONGITUDE, -83, -71))
 # 92949    
 
-names(db_data_w_area_lat_lon)
+dim(db_data_w_area_lat_lon)
 
 db_data_w_area_lat_lon_reg <-  
   db_data_w_area_lat_lon %>% 
@@ -75,28 +78,28 @@ db_data_w_area_lat_lon_reg <-
 dim(db_data_w_area_lat_lon_reg)
 # 88796
 
-View(db_data_w_area_lat_lon_reg)
+# View(db_data_w_area_lat_lon_reg)
 
-to_report <-
-  db_data_w_area_lat_lon_reg %>%
-  select(
-    TRIP_START_DATE,
-    TRIP_END_DATE,
-    START_PORT,
-    START_PORT_NAME,
-    START_PORT_COUNTY,
-    START_PORT_STATE,
-    END_PORT,
-    LATITUDE,
-    LONGITUDE,
-    MINIMUM_BOTTOM_DEPTH,
-    MAXIMUM_BOTTOM_DEPTH,
-    FISHING_GEAR_DEPTH,
-    DEPTH
-  ) %>%
-  unique() #?
+# to_report <-
+#   db_data_w_area_lat_lon_reg %>%
+#   select(
+#     TRIP_START_DATE,
+#     TRIP_END_DATE,
+#     START_PORT,
+#     START_PORT_NAME,
+#     START_PORT_COUNTY,
+#     START_PORT_STATE,
+#     END_PORT,
+#     LATITUDE,
+#     LONGITUDE,
+#     MINIMUM_BOTTOM_DEPTH,
+#     MAXIMUM_BOTTOM_DEPTH,
+#     FISHING_GEAR_DEPTH,
+#     DEPTH
+#   ) %>%
+#   unique() #?
 
-dim(to_report)
+# dim(to_report)
 # 27077
 
 # add counts to unique?
@@ -131,16 +134,6 @@ files_to_combine <-
   )
 
 flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
-
-# # write to file
-# files_to_combine_list <- files_to_combine
-# # sink()
-# for (i in 1:length(files_to_combine_list)) {
-#     # browser()
-#     current_file = readLines(files_to_combine_list[i])
-#   cat("\n\n#### Current file:", files_to_combine_list[i], "\n\n")
-#   # cat(current_file, sep = "\n")
-# }
 
 # run as needed
 make_a_flat_file(flat_file_name,
