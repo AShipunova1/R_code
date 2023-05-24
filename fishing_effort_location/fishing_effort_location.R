@@ -427,6 +427,31 @@ dim(db_data_w_area_report_sf_28_s_minus_eez)
 str(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # [1] 23519    32
 
-dim(db_data_w_area_report_sf_28_s_minus_eez_minus_gom1)
-# [1] 62537    11
+# [1] 39200    11
 
+# 23519 + 39200 - 62537
+# 182?
+# exclude gom reef again ----
+# gom_reef_shp
+
+tic("sf::st_difference(db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
+                    gom_reef_shp)")
+db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok <-
+  sf::st_difference(db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
+                    gom_reef_shp)
+toc()
+# 730.45 / 60 = 12 min
+
+dim(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok)
+# 6279
+
+### or read it ----
+
+db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name <-
+file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok.csv")
+  
+write_csv(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok, db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name)
+
+db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok1 <-
+  read_sf(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name) %>%
+  my_to_sf()
