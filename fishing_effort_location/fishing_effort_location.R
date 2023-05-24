@@ -268,6 +268,8 @@ mapview(db_data_w_area_report_28_s_sa_counties_sf,
 
 # to avoid this error:
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
+
+
 sf::sf_use_s2(FALSE)
 tic("sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)")
 db_data_w_area_report_28_s_sa_counties_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
@@ -279,31 +281,33 @@ toc()
       # )
 write_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_no_gom_sf.csv"))
 
-
+dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+314
 ### map ----
 tic("mapview(
   db_data_w_area_report_sa_counties_no_gom")
-m_db_data_w_area_report_sa_counties_no_gom <-
+m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   mapview(
-  db_data_w_area_report_sa_counties_no_gom,
+  db_data_w_area_report_28_s_sa_counties_no_gom_sf,
   col.regions = "green",
   layer.name = 'State and inner waters'
 )
 toc()
 
-tic("Show mapview(
-  db_data_w_area_report_sa_counties_no_gom")
-m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_sa_counties_no_gom
+tic("Show m_db_data_w_area_report_28_s_sa_counties_no_gom_sf + eez")
+m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
+  db_data_w_area_report_sa_eez_sf1
 toc()
 
-db_data_w_area_lat_lon_reg <-  
-  db_data_w_area_lat_lon %>% 
-  filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
-  filter(!grepl("TAMPA", AREA_NAME)) %>% 
-  filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
-  filter(!grepl("GULF OF MEXICO", REGION))
-
-dim(db_data_w_area_lat_lon_reg)
+## below 28 grey ----
+# db_data_w_area_lat_lon_reg <-  
+#   db_data_w_area_lat_lon %>% 
+#   filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
+#   filter(!grepl("TAMPA", AREA_NAME)) %>% 
+#   filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
+#   filter(!grepl("GULF OF MEXICO", REGION))
+# 
+# dim(db_data_w_area_lat_lon_reg)
 # 88796
 
 # View(db_data_w_area_lat_lon_reg)
@@ -331,46 +335,46 @@ dim(db_data_w_area_lat_lon_reg)
 # 27077
 
 # add counts to unique?
-  db_data_w_area_lat_lon_reg %>%
-  select(
-    TRIP_START_DATE,
-    TRIP_END_DATE,
-    START_PORT,
-    START_PORT_NAME,
-    START_PORT_COUNTY,
-    START_PORT_STATE,
-    END_PORT,
-    LATITUDE,
-    LONGITUDE,
-    MINIMUM_BOTTOM_DEPTH,
-    MAXIMUM_BOTTOM_DEPTH,
-    FISHING_GEAR_DEPTH,
-    DEPTH
-  ) %>%
-data_overview()
+#   db_data_w_area_lat_lon_reg %>%
+#   select(
+#     TRIP_START_DATE,
+#     TRIP_END_DATE,
+#     START_PORT,
+#     START_PORT_NAME,
+#     START_PORT_COUNTY,
+#     START_PORT_STATE,
+#     END_PORT,
+#     LATITUDE,
+#     LONGITUDE,
+#     MINIMUM_BOTTOM_DEPTH,
+#     MAXIMUM_BOTTOM_DEPTH,
+#     FISHING_GEAR_DEPTH,
+#     DEPTH
+#   ) %>%
+# data_overview()
 
 ## Below 28: remove GOM at sea points ----
-db_data_w_area_report_28_s_no_gom_reef <-
-  sf::st_difference(db_data_w_area_report_sf_28_s, gom_reef_shp)
+# db_data_w_area_report_28_s_no_gom_reef <-
+#   sf::st_difference(db_data_w_area_report_sf_28_s, gom_reef_shp)
 
 ## Below 28: keep only SA counties ----
-db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
-  sf::st_intersection(db_data_w_area_report_28_s_no_gom_reef,
-                      fl_state_w_counties_sa)
-
-
-m_db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
-  mapview(
-  db_data_w_area_report_28_s_no_gom_reef_state_w_sf,
-  col.regions = "green",
-  layer.name = 'State and inner waters south of 28N'
-)
-
-m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_28_s_no_gom_reef_state_w_sf
+# db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
+#   sf::st_intersection(db_data_w_area_report_28_s_no_gom_reef,
+#                       fl_state_w_counties_sa)
+# 
+# 
+# m_db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
+#   mapview(
+#   db_data_w_area_report_28_s_no_gom_reef_state_w_sf,
+#   col.regions = "green",
+#   layer.name = 'State and inner waters south of 28N'
+# )
+# 
+# m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_28_s_no_gom_reef_state_w_sf
 
 # mapview(db_data_w_area_report_28_s_no_gom_reef) + m_s
 
-# grey points in SA outside of EEZ
+### grey points in SA outside of EEZ ----
 
 # - sa_eez
 db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez <-
