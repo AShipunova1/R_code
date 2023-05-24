@@ -10,6 +10,7 @@
 library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
+library(tictoc) #benchmarking
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -123,8 +124,8 @@ write_csv(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_proj
 # 
 # str(db_data_w_area_report_sa_eez)
 
-m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez_sf,
-        layer.name = 'SA EEZ')
+# m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez_sf,
+        # layer.name = 'SA EEZ')
 
 # db_data_w_area_report_sa_eez %>%
 #   select(-c(Id, AreaName)) %>%
@@ -196,12 +197,19 @@ sa_fl_state_w_counties_names <-
 fl_state_w_counties_sa <- filter(fl_state_w_counties,
              gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names)
 
-mapview(fl_state_w_counties_sa)
+# mapview(fl_state_w_counties_sa)
 
 # names(fl_state_w_counties_sa)
 
-db_data_w_area_report_sa_counties <-
+points_report_sa_counties_sf <-
   sf::st_intersection(db_data_w_area_report_sf, fl_state_w_counties_sa)
+# 3m
+
+write_csv(points_report_sa_counties, file.path(my_paths$outputs, current_project_name, "points_report_sa_counties_sf.csv"))
+
+tic("mapview(points_report_sa_counties_sf)")
+mapview(points_report_sa_counties_sf)
+toc()
 
 ## exclude GOM ----
 db_data_w_area_report_sa_counties_no_gom <- st_difference(db_data_w_area_report_sa_counties, gom_reef_shp)
