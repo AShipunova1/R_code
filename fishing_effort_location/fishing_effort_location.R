@@ -194,7 +194,6 @@ db_data_w_area_report_sf_28_s <-
 
 ## state waters sa ----
 fl_counties_sa <- list(
-  "sa" <- c(
     "Brevard",
     "Broward",
     "Duval",
@@ -206,10 +205,9 @@ fl_counties_sa <- list(
     "Palm Beach",
     "Saint Johns",
     "Saint Lucie",
-    "Volusia"
-  ),
-  "both" <- c("Monroe") #has GOM too, remove separately
-)
+    "Volusia", 
+    "Monroe") #has GOM too, remove separately
+
 
 # mapview(fl_state_w_counties)
 # fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
