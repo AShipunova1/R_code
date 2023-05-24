@@ -295,13 +295,33 @@ m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
 # 3) (2) - Florida not sa counties
 
 # 1) all points below 28 minus "good points" ----
-View(db_data_w_area_report_sf_28_s)
-View(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+# mapview(db_data_w_area_report_sf_28_s)
+# mapview(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
-all_s_28_minus_good_p_joins <-
-  full_join(db_data_w_area_report_sf_28_s,
-            db_data_w_area_report_28_s_sa_counties_no_gom_sf)
-)
+db_data_w_area_report_sf_28_s_char <- mutate(db_data_w_area_report_sf_28_s,
+         across(everything(), as.character))
+db_data_w_area_report_28_s_sa_counties_no_gom_sf_char <- mutate(db_data_w_area_report_28_s_sa_counties_no_gom_sf,
+         across(everything(), as.character))
+
+# anti_join(x, y, by = NULL, copy = FALSE, ...)
+
+all_s_28_minus_good_p_anti <-
+  anti_join(
+    as.data.frame(db_data_w_area_report_sf_28_s_char),
+    as.data.frame(db_data_w_area_report_28_s_sa_counties_no_gom_sf_char),
+    by = join_by(
+      TRIP_START_DATE,
+      TRIP_END_DATE,
+      START_PORT,
+      START_PORT_NAME,
+      START_PORT_COUNTY,
+      START_PORT_STATE,
+      END_PORT,
+      LATITUDE,
+      LONGITUDE,
+      FISHING_GEAR_DEPTH
+    )
+  )
 
 dim(db_data_w_area_report_sf_28_s)
 # [1] 92949    11
@@ -309,10 +329,26 @@ dim(db_data_w_area_report_sf_28_s)
 dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # [1] 23519    32
 
-dim(all_s_28_minus_good_p)
+# dim(all_s_28_minus_good_p)
 # [1] 69430    11
 
-# mapview(all_s_28_minus_good_p) + sa_shp
+a <- my_to_sf(all_s_28_minus_good_p_joins)
+mapview(a)
+# [1] 116468     33
+# names(db_data_w_area_report_sf_28_s_char)
+# names(db_data_w_area_report_28_s_sa_counties_no_gom_sf_char)
+# names(all_s_28_minus_good_p_joins)
+all_s_28_minus_good_p <-
+  all_s_28_minus_good_p_joins %>%
+  filter(!is.na(gnis_name)) %>%
+  my_to_sf()
+
+dim(all_s_28_minus_good_p)
+# [1] 23519    34
+
+# all_s_28_minus_good_p
+
+mapview(all_s_28_minus_good_p) + sa_shp
 
 # 2) (1) - gom shape ----
 all_s_28_minus_good_p_minus_not_gom <-
