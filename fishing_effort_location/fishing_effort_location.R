@@ -273,6 +273,7 @@ db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
 
 dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 23519    32
+
 write_csv(
   db_data_w_area_report_28_s_sa_counties_no_gom_sf,
   sa_counties_no_gom_sf_filename
@@ -294,14 +295,13 @@ m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
 # 3) (2) - Florida not sa counties
 
 # 1) all points below 28 minus "good points" ----
-all_s_28_minus_good_p <-
-  filter(
-    db_data_w_area_report_sf_28_s,
-    !(
-      geometry %in%
-        db_data_w_area_report_28_s_sa_counties_no_gom_sf$geometry
-    )
-  )
+View(db_data_w_area_report_sf_28_s)
+View(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+
+all_s_28_minus_good_p_joins <-
+  full_join(db_data_w_area_report_sf_28_s,
+            db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+)
 
 dim(db_data_w_area_report_sf_28_s)
 # [1] 92949    11
@@ -311,6 +311,8 @@ dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
 dim(all_s_28_minus_good_p)
 # [1] 69430    11
+
+# mapview(all_s_28_minus_good_p) + sa_shp
 
 # 2) (1) - gom shape ----
 all_s_28_minus_good_p_minus_not_gom <-
@@ -327,7 +329,7 @@ all_s_28_minus_good_p_minus_not_gom <-
   read_sf(all_s_28_minus_good_p_minus_not_gom_file_name) %>%
   my_to_sf()
 
-dim(all_s_28_minus_good_p_minus_not_gom)
+mapview(all_s_28_minus_good_p_minus_not_gom) + m_s
 # [1] 36509    13
 
 # 3) (2) - Florida not sa counties ----
@@ -338,7 +340,7 @@ all_s_28_minus_good_p_minus_not_gom_not_state <-
                      fl_state_w_counties)
 # 571.08 sec
 dim(all_s_28_minus_good_p_minus_not_gom_not_state)
-# 2440925      32
+
 # =======
 # - sa_eez
 get_florida_st_box <- function() {
