@@ -146,7 +146,18 @@ write_csv(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_proj
 # 
 # mapview(s1)
 
-# state waters sa ----
+# state w south of 28 ----
+db_data_w_area_report_sf_28_s <-
+  db_data_w_area_report_short %>%
+  filter(between(LATITUDE, 23, 28) &
+           between(LONGITUDE, -83, -71)) %>%
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = sf::st_crs(sa_shp))
+# dim(db_data_w_area_report_sf_28_s)
+# 92949    
+
+## state waters sa ----
 fl_counties_sa <- c(
   "Brevard",
   "Broward",
@@ -201,40 +212,45 @@ fl_state_w_counties_sa <- filter(fl_state_w_counties,
 
 # names(fl_state_w_counties_sa)
 
-points_report_sa_counties_sf <-
-  sf::st_intersection(db_data_w_area_report_sf, fl_state_w_counties_sa)
+tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
+                      fl_state_w_counties_sa)")
+db_data_w_area_report_28_s_sa_counties_sf <-
+  sf::st_intersection(db_data_w_area_report_sf_28_s,
+                      fl_state_w_counties_sa)
 # 3m
-
-write_csv(points_report_sa_counties, file.path(my_paths$outputs, current_project_name, "points_report_sa_counties_sf.csv"))
-
-tic("mapview(points_report_sa_counties_sf)")
-mapview(points_report_sa_counties_sf)
 toc()
 
-## exclude GOM ----
-db_data_w_area_report_sa_counties_no_gom <- st_difference(db_data_w_area_report_sa_counties, gom_reef_shp)
+mapview(db_data_w_area_report_28_s_sa_counties_sf,
+          col.regions = "green",
+  layer.name = 'State and inner waters'
+) + sa_shp
 
+write_csv(db_data_w_area_report_28_s_sa_counties_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf.csv"))
+
+### exclude GOM ----
+# to avoid this error:
+#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
+sf::sf_use_s2(FALSE)
+tic("sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)")
+db_data_w_area_report_sa_counties_no_gom <- sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
+toc()
+
+# names(gom_reef_shp)
 
 ### map ----
+tic("mapview(
+  db_data_w_area_report_sa_counties_no_gom")
 m_db_data_w_area_report_sa_counties_no_gom <-
   mapview(
   db_data_w_area_report_sa_counties_no_gom,
   col.regions = "green",
   layer.name = 'State and inner waters'
 )
+toc()
 
 m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_sa_counties_no_gom
 
-### state w south of 28 ----
-db_data_w_area_report_sf_28_s <-
-  db_data_w_area_report_short %>%
-  filter(between(LATITUDE, 23, 28) &
-           between(LONGITUDE, -83, -71)) %>%
-  sf::st_as_sf(coords = c("LONGITUDE",
-                          "LATITUDE"),
-               crs = sf::st_crs(sa_shp))
-# dim(db_data_w_area_report_sf_28_s)
-# 92949    
+
 
 ## exclude GOM ----
   db_data_w_area_report_sa_counties_no_gom <-
