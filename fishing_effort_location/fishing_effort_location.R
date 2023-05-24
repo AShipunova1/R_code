@@ -106,7 +106,8 @@ db_data_w_area_report_sf <- sf::st_as_sf(
   coords = c("LONGITUDE",
              "LATITUDE"),
   crs = sf::st_crs(sa_shp),
-  remove = FALSE 
+  # keep LAT/LONG, to save in a file
+  remove = FALSE
 )
 
 View(db_data_w_area_report_sf)
@@ -172,9 +173,13 @@ db_data_w_area_report_sf_28_s <-
   db_data_w_area_report_short %>%
   filter(between(LATITUDE, 23, 28) &
            between(LONGITUDE, -83, -71)) %>%
-  sf::st_as_sf(coords = c("LONGITUDE",
-                          "LATITUDE"),
-               crs = sf::st_crs(sa_shp))
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = sf::st_crs(sa_shp),
+    # keep LAT/LONG, to save in a file
+    remove = FALSE
+  )
 # dim(db_data_w_area_report_sf_28_s)
 # 92949    
 
