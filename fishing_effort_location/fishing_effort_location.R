@@ -110,8 +110,8 @@ db_data_w_area_report_sf <- sf::st_as_sf(
   remove = FALSE
 )
 
-View(db_data_w_area_report_sf)
-# 253142      
+dim(db_data_w_area_report_sf)
+# 253142      11
 
 ## sa eez st_intersection ----
 tic("sf::st_intersection(db_data_w_area_report_sf, sa_shp)")
@@ -120,11 +120,12 @@ db_data_w_area_report_sa_eez_sf <-
 # 2min
 toc()
 # 657.37 / 60 ~ 11m
+# clean session: ~62 sec
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
 
-db_data_w_area_report_sa_eez_sf1 <-
+db_data_w_area_report_sa_eez_sf <-
   read_sf(db_data_w_area_report_sa_eez_file_name) %>%
   sf::st_as_sf(
     coords = c("LONGITUDE",
@@ -135,8 +136,8 @@ db_data_w_area_report_sa_eez_sf1 <-
   )
 
 # all.equal(db_data_w_area_report_sa_eez_sf,
-          # db_data_w_area_report_sa_eez_sf1)
-dim(db_data_w_area_report_sa_eez_sf1)
+#           db_data_w_area_report_sa_eez_sf1)
+dim(db_data_w_area_report_sa_eez_sf)
 # 54950 13
 # db_data_w_area_report_sa_eez_sf <- db_data_w_area_report_sa_eez
 
@@ -209,19 +210,19 @@ fl_counties_sa <- c(
 # fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
 
 fl_state_w_counties_names <- fl_state_w_counties$gnis_name
-# length(fl_state_w_counties_names)
+length(fl_state_w_counties_names)
 # 67
 
 # grep("Monroe", fl_state_w_counties_names, value = T)
 
-# length(fl_counties_sa[[1]])
+length(fl_counties_sa)
 # 12 + Monroe
 
 fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
 # str(fl_state_w_counties_names_df)
 # fl_state_w_counties_names) %>%
 
-View(as.data.frame(fl_counties_sa))
+# View(as.data.frame(fl_counties_sa))
 
 sa_fl_state_w_counties_names <-
   as.data.frame(fl_counties_sa)[[1]] %>%
@@ -252,15 +253,19 @@ db_data_w_area_report_28_s_sa_counties_sf <-
                       fl_state_w_counties_sa)
 # 3 m
 toc()
-# 5.03 sec
+# 5.03 sec 1 county
+# 10.39 sec
+
+dim(db_data_w_area_report_28_s_sa_counties_sf)
+# 30392    30
 
 # names(db_data_w_area_report_28_s_sa_counties_sf)
 write_csv(db_data_w_area_report_28_s_sa_counties_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf.csv"))
 
-mapview(db_data_w_area_report_28_s_sa_counties_sf,
-          col.regions = "green",
-  layer.name = 'State and inner waters'
-) + sa_shp
+# mapview(db_data_w_area_report_28_s_sa_counties_sf,
+#           col.regions = "green",
+#   layer.name = 'State and inner waters'
+# ) + sa_shp
 
 ## For Monroe exclude GOM ----
 
@@ -269,20 +274,35 @@ mapview(db_data_w_area_report_28_s_sa_counties_sf,
 # to avoid this error:
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
 
-
 sf::sf_use_s2(FALSE)
 tic("sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)")
 db_data_w_area_report_28_s_sa_counties_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
 toc()
 # 15 m
 # 673.98 = 11 m
-# 7.16 sec clean session, no plots
-# names(db_data_w_area_report_28_s_sa_counties_no_gom_sf
-      # )
-write_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_no_gom_sf.csv"))
+# 7.16 sec clean session, no plots, 1 county
+# 541.61 / 60 = 9 m, all sa counties, 1 plot
 
-dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
-314
+# or read csv 
+sa_counties_no_gom_sf_filename <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_no_gom_sf.csv")
+
+db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
+  read_sf(sa_counties_no_gom_sf_filename) %>%
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = sf::st_crs(sa_shp),
+    # keep LAT/LONG, to save in a file
+    remove = FALSE
+  )
+
+# all.equal(db_data_w_area_report_28_s_sa_counties_no_gom_sf, db_data_w_area_report_28_s_sa_counties_no_gom_sf1)
+
+# dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+# 23519    32
+write_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf,
+          sa_counties_no_gom_sf_filename)
+
 ### map ----
 tic("mapview(
   db_data_w_area_report_sa_counties_no_gom")
@@ -377,12 +397,45 @@ toc()
 ### grey points in SA outside of EEZ ----
 
 # - sa_eez
-db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez <-
-  sf::st_difference(db_data_w_area_report_28_s_no_gom_reef, sa_shp)
+names(sa_shp)
+sa_shp$AreaName
+
+sa_shp_fl <-
+  filter(sa_shp,
+         AreaName == "Off FL")
+
+geom_sa_shp_fl <- st_geometry(sa_shp_fl)
+# Geometry type: POLYGON
+# Bounding box:  xmin: -83 ymin: 23.81794 xmax: -76.5011 ymax: 30.71267
+
+# all but ymax are from sa_shp_fl
+new_box <- c(
+  xmin = -83,
+  ymin = 23.81794,
+  xmax = -76.5011,
+  ymax = 28 # 28N
+)
+
+sa_shp_fl_s_28 <- sf::st_crop(sa_shp, new_box)
+# st_geometry(sa_shp_fl_s_28)
+
+# all.equal(sa_shp_fl_s_28, sa_shp_fl_s_281)
+
+geom_db_data_w_area_report_sf_28_s <- st_geometry(db_data_w_area_report_sf_28_s) 
+# Geometry set for 92949 features 
+# Geometry type: POINT
+# Dimension:     XY
+# Bounding box:  xmin: -83 ymin: 23.29354 xmax: -78 ymax: 28
+
+# st_disjoint
+db_data_w_area_report_sf_28_s_minus_eez <-
+  sf::st_difference(db_data_w_area_report_sf_28_s,
+                    sa_shp_fl_s_28)
 
 mapview(db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez)
 
 # - state_w
-db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez_minus_state <-
-  sf::st_difference(db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez,
-                  fl_state_w_counties)
+dim(db_data_w_area_report_sf_28_s)
+dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+db_data_w_area_report_sf_28_s_minus_state <-
+  sf::st_difference(db_data_w_area_report_sf_28_s,                    db_data_w_area_report_28_s_sa_counties_no_gom_sf)
