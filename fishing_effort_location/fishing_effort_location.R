@@ -275,13 +275,35 @@ m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   layer.name = 'State and inner waters'
 )
 
-# tic("Show m_db_data_w_area_report_28_s_sa_counties_no_gom_sf + eez")
-# m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
-#   db_data_w_area_report_sa_eez_sf1
-# toc()
+# grey points in SA outside of EEZ ----
 
-### grey points in SA outside of EEZ ----
+# 1) all points below 28 minus "good points"
+# db_data_w_area_report_28_s_sa_counties_no_gom_sf
+# 2) (1) - gom shape
+# 3) (2) - Florida not sa counties
 
+# 1) all points below 28 minus "good points" ----
+all_s_28_minus_good_p <-
+  filter(
+    db_data_w_area_report_sf_28_s,
+    !(
+      geometry %in%
+        db_data_w_area_report_28_s_sa_counties_no_gom_sf$geometry
+    )
+  )
+
+dim(db_data_w_area_report_sf_28_s)
+# [1] 92949    11
+
+dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+# [1] 23519    32
+
+dim(all_s_28_minus_good_p)
+# [1] 69430    11
+
+# ) (1) - Florida not sa counties
+  filter(all_s_28_minus_good_p,
+         )
 # - sa_eez
 get_florida_st_box <- function() {
   # names(sa_shp)
