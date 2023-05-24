@@ -204,6 +204,7 @@ fl_counties_sa <- c(
 # fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
 
 fl_state_w_counties_names <- fl_state_w_counties_shp$gnis_name
+
 length(fl_state_w_counties_names)
 # 67
 
@@ -297,10 +298,19 @@ sa_shp_fl <-
 all_shp1 <-
   sf::st_union(sa_shp_fl, gom_reef_shp)
 
+tic("sf::st_union(all_shp1, fl_state_w_counties_shp)")
 all_shp2 <-
   sf::st_union(all_shp1, fl_state_w_counties_shp)
+toc()
 
 mapview(all_shp2)
+
+## all points below 28 minus all shapes ----
+tic("with_st_difference(db_data_w_area_report_sf_28_s, all_shp2)")
+db_data_w_area_report_sf_28_s_minus_all_shp <-
+  with_st_difference(db_data_w_area_report_sf_28_s, all_shp2)
+toc()
+
 # 1) all points below 28 minus "good points"
 # db_data_w_area_report_28_s_sa_counties_no_gom_sf
 # 2) (1) - gom shape
