@@ -146,7 +146,7 @@ write_csv(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_proj
 # 
 # mapview(s1)
 
-# state w south of 28 ----
+# south of 28N - all SA ----
 db_data_w_area_report_sf_28_s <-
   db_data_w_area_report_short %>%
   filter(between(LATITUDE, 23, 28) &
@@ -158,20 +158,22 @@ db_data_w_area_report_sf_28_s <-
 # 92949    
 
 ## state waters sa ----
-fl_counties_sa <- c(
-  "Brevard",
-  "Broward",
-  "Duval",
-  "Flagler",
-  "Indian River",
-  "Martin",
-  "Miami-Dade",
-  "Nassau",
-  "Palm Beach",
-  "Saint Johns",
-  "Saint Lucie",
-  "Volusia",
-  "Monroe" #has GOM too, remove separately
+fl_counties_sa <- list(
+  "sa" <- c(
+    "Brevard",
+    "Broward",
+    "Duval",
+    "Flagler",
+    "Indian River",
+    "Martin",
+    "Miami-Dade",
+    "Nassau",
+    "Palm Beach",
+    "Saint Johns",
+    "Saint Lucie",
+    "Volusia"
+  ),
+  "both" <- c("Monroe") #has GOM too, remove separately
 )
 
 # mapview(fl_state_w_counties)
@@ -183,7 +185,7 @@ fl_state_w_counties_names <- fl_state_w_counties$gnis_name
 
 # grep("Monroe", fl_state_w_counties_names, value = T)
 
-# length(fl_counties_sa)
+# length(fl_counties_sa[[1]])
 # 12 + Monroe
 
 fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
@@ -191,7 +193,7 @@ fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
 # fl_state_w_counties_names) %>%
 
 sa_fl_state_w_counties_names <-
-  as.data.frame(fl_counties_sa)[[1]] %>%
+  as.data.frame(fl_counties_sa[[1]])[[1]] %>%
   map_df(function(fl_county) {
     # browser()
     sa_county <-
@@ -212,29 +214,54 @@ fl_state_w_counties_sa <- filter(fl_state_w_counties,
 
 # names(fl_state_w_counties_sa)
 
+fl_state_w_counties_sa <- filter(fl_state_w_counties,
+             gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names)
+
+
 tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
                       fl_state_w_counties_sa)")
 db_data_w_area_report_28_s_sa_counties_sf <-
   sf::st_intersection(db_data_w_area_report_sf_28_s,
                       fl_state_w_counties_sa)
-# 3m
+# 3 m
 toc()
+
+write_csv(db_data_w_area_report_28_s_sa_counties_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf.csv"))
 
 mapview(db_data_w_area_report_28_s_sa_counties_sf,
           col.regions = "green",
   layer.name = 'State and inner waters'
 ) + sa_shp
 
-write_csv(db_data_w_area_report_28_s_sa_counties_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf.csv"))
+## For Monroe exclude GOM ----
 
-### exclude GOM ----
+fl_state_w_counties_monroe <- filter(fl_state_w_counties, grepl("Monroe", fl_state_w_counties$gnis_name))
+
+# View(fl_state_w_counties_monroe)
+
+### get points in Monroe
+tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
+                      fl_state_w_counties_monroe)")
+db_data_w_area_report_28_s_sa_monroe_sf <-
+  sf::st_intersection(db_data_w_area_report_sf_28_s,
+                      fl_state_w_counties_monroe)
+# 14.36 sec
+toc()
+
+# View(db_data_w_area_report_28_s_sa_monroe_sf)
 # to avoid this error:
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
 sf::sf_use_s2(FALSE)
-tic("sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)")
-db_data_w_area_report_sa_counties_no_gom <- sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
+tic("sf::st_difference(db_data_w_area_report_28_s_sa_monroe_sf, gom_reef_shp)")
+db_data_w_area_report_28_s_sa_monroe_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_sa_monroe_sf, gom_reef_shp)
 toc()
+# 15 m
+# 673.98 = 11 m Monroe only
 
+write_csv(db_data_w_area_report_28_s_sa_monroe_no_gom_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_monroe_no_gom_sf.csv"))
+
+mapview(db_data_w_area_report_28_s_sa_monroe_no_gom_sf
+        )
 # names(gom_reef_shp)
 
 ### map ----
@@ -248,15 +275,15 @@ m_db_data_w_area_report_sa_counties_no_gom <-
 )
 toc()
 
+tic("Show mapview(
+  db_data_w_area_report_sa_counties_no_gom")
 m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_sa_counties_no_gom
-
-
+toc()
 
 ## exclude GOM ----
   db_data_w_area_report_sa_counties_no_gom <-
     sf::st_difference(db_data_w_area_report_sa_counties, gom_reef_shp)
 
-# south of 28N - all SA ----
 clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
   my_lat_long_df %>%
     unique() %>%
