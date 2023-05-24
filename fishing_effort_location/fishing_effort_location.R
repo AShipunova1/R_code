@@ -306,15 +306,12 @@ write_csv(
 )
 
 ### map ----
-tic("mapview(
-  db_data_w_area_report_sa_counties_no_gom")
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   mapview(
   db_data_w_area_report_28_s_sa_counties_no_gom_sf,
   col.regions = "green",
   layer.name = 'State and inner waters'
 )
-toc()
 
 tic("Show m_db_data_w_area_report_28_s_sa_counties_no_gom_sf + eez")
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
@@ -392,20 +389,25 @@ dim(db_data_w_area_report_sf_28_s)
 # db_data_w_area_report_sf_28_s_minus_state <-
 #   sf::st_difference(db_data_w_area_report_sf_28_s,                    db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
-tic("  st_filter(
+tic("  filter(
     db_data_w_area_report_sf_28_s_minus_eez,
-    db_data_w_area_report_28_s_sa_counties_no_gom_sf,
-    .predicate = st_disjoint
-  )
-")
+    !geometry %in% db_data_w_area_report_28_s_sa_counties_no_gom_sf$geometry
+"
+)
 
 db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
-  st_filter(
+  filter(
     db_data_w_area_report_sf_28_s_minus_eez,
-    db_data_w_area_report_28_s_sa_counties_no_gom_sf,
-    .predicate = st_disjoint
+    !geometry %in% db_data_w_area_report_28_s_sa_counties_no_gom_sf$geometry
   )
 toc()
+# 0.91 s
+# "  st_filter(
+#     db_data_w_area_report_sf_28_s_minus_eez,
+#     db_data_w_area_report_28_s_sa_counties_no_gom_sf,
+#     .predicate = st_disjoint
+#   )
+# "
 # 51.48 sec
 
 ### or read it ----
@@ -422,7 +424,7 @@ db_data_w_area_report_sf_28_s_minus_eez_minus_gom1 <-
 dim(db_data_w_area_report_sf_28_s_minus_eez)
 # [1] 62537    11
 
-dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+str(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # [1] 23519    32
 
 dim(db_data_w_area_report_sf_28_s_minus_eez_minus_gom1)
