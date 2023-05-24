@@ -159,19 +159,19 @@ fl_counties_sa <- c(
   "Saint Johns",
   "Saint Lucie",
   "Volusia",
-  "Monroe"
+  "Monroe" #has GOM too, remove separately
 )
 
-names(fl_state_w_counties)
-fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
+# mapview(fl_state_w_counties)
+# fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
 
 fl_state_w_counties_names <- fl_state_w_counties$gnis_name
-length(fl_state_w_counties_names)
+# length(fl_state_w_counties_names)
 # 67
 
-grep("Monroe", fl_state_w_counties_names, value = T)
+# grep("Monroe", fl_state_w_counties_names, value = T)
 
-str(fl_counties_sa)
+# length(fl_counties_sa)
 # 12 + Monroe
 
 fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
@@ -198,7 +198,7 @@ fl_state_w_counties_sa <- filter(fl_state_w_counties,
 
 mapview(fl_state_w_counties_sa)
 
-names(fl_state_w_counties_sa)
+# names(fl_state_w_counties_sa)
 
 db_data_w_area_report_sa_counties <-
   sf::st_intersection(db_data_w_area_report_sf, fl_state_w_counties_sa)

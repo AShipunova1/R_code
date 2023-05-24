@@ -115,7 +115,7 @@ gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
 # gom_depth_shp500_4000 <- read_shapefile("gom/w98e78n31s18_isobath_500-4000m/w98e78n31s18_isobath_500-4000m.shp")
 
 # ===
-fl_state_land_waters <- read_shapefile("Florida_State_Waters_and_Land_Boundary/Florida_State_Waters_and_Land_Boundary.shp")
+# fl_state_land_waters <- read_shapefile("Florida_State_Waters_and_Land_Boundary/Florida_State_Waters_and_Land_Boundary.shp")
 
 # mapview(fl_state_land_waters)
 
@@ -127,6 +127,6 @@ fl_state_land_waters <- read_shapefile("Florida_State_Waters_and_Land_Boundary/F
 # mapview(atl_state_waters)
 
 ### fl_state_w_counties ----
-fl_state_w_counties <- read_shapefile(r"(Florida_State_Waters_and_Land_Boundary\Florida_State_Waters_and_Land_Boundary.shp)")
+fl_state_w_counties <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
 
 # mapview(fl_state_w_counties)
