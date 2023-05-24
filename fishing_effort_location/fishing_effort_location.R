@@ -36,7 +36,7 @@ source(
 # depth
 
 # south of 28N - all SA
-# OK boundaries ----
+# OK boundaries
 # lat 23 : 28
 # lon -71 : -83
 
@@ -108,17 +108,29 @@ db_data_w_area_report_sf <- sf::st_as_sf(
   crs = sf::st_crs(sa_shp)
 )
 
+# dim(db_data_w_area_report_sf)
+# 253142      
+
+tic(sf::st_intersection(db_data_w_area_report_sf, sa_shp))
 db_data_w_area_report_sa_eez_sf <-
   sf::st_intersection(db_data_w_area_report_sf, sa_shp)
 # 2min
+toc()
 
+# or read it
+db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
+
+db_data_w_area_report_sa_eez_sf <- read_csv(db_data_w_area_report_sa_eez_file_name)
+
+# dim(db_data_w_area_report_sa_eez_sf1)
+# 54953    
 # db_data_w_area_report_sa_eez_sf <- db_data_w_area_report_sa_eez
 
 #### save sa_eez_data ----
 # sf::st_write(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.shp"))
 # err
 
-write_csv(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv"))
+write_csv(db_data_w_area_report_sa_eez, db_data_w_area_report_sa_eez_file_name)
 
 # cc <- sf::st_coordinates(db_data_w_area_report_sa_eez)
 # 
@@ -147,13 +159,10 @@ write_csv(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_proj
 # mapview(s1)
 
 # south of 28N - all SA ----
-db_data_w_area_report_28_s <-
+db_data_w_area_report_sf_28_s <-
   db_data_w_area_report_short %>%
   filter(between(LATITUDE, 23, 28) &
-           between(LONGITUDE, -83, -71))
-
-db_data_w_area_report_sf_28_s <-
-  db_data_w_area_report_28_s %>%
+           between(LONGITUDE, -83, -71)) %>%
   sf::st_as_sf(coords = c("LONGITUDE",
                           "LATITUDE"),
                crs = sf::st_crs(sa_shp))
@@ -237,59 +246,32 @@ mapview(db_data_w_area_report_28_s_sa_counties_sf,
 ) + sa_shp
 
 ## For Monroe exclude GOM ----
-# Monroe County
-# Coordinates: 25°07′N 81°09′W
 
 fl_state_w_counties_monroe <- filter(fl_state_w_counties, grepl("Monroe", fl_state_w_counties$gnis_name))
 
 # View(fl_state_w_counties_monroe)
 
-### filter data to Monroe only ---
-# fl_state_w_counties_monroe$geometry
-# Bounding box:  xmin: -83.10891 ymin: 24.39631 xmax: -80.18387 ymax: 25.80538
-
-db_data_w_area_report_28_s_monroe_sf <-
-  db_data_w_area_report_short %>%
-  filter(between(LATITUDE, 24.3, 25.8) &
-           between(LONGITUDE, -83.1, -80.1)) %>%
-  sf::st_as_sf(coords = c("LONGITUDE",
-                          "LATITUDE"),
-               crs = sf::st_crs(sa_shp))
-
-# dim(db_data_w_area_report_28_s_monroe_sf)
-# 44405     
-
-### get points in Monroe in sf ----
-# tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
-#                       fl_state_w_counties_monroe)")
-# db_data_w_area_report_28_s_sa_monroe_sf <-
-#   sf::st_intersection(db_data_w_area_report_sf_28_s,
-#                       fl_state_w_counties_monroe)
+### get points in Monroe
+tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
+                      fl_state_w_counties_monroe)")
+db_data_w_area_report_28_s_sa_monroe_sf <-
+  sf::st_intersection(db_data_w_area_report_sf_28_s,
+                      fl_state_w_counties_monroe)
 # 14.36 sec
-# toc()
+toc()
 
 # View(db_data_w_area_report_28_s_sa_monroe_sf)
 # to avoid this error:
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
 sf::sf_use_s2(FALSE)
-tic("sf::st_difference(db_data_w_area_report_28_s_monroe_sf, gom_reef_shp)")
-db_data_w_area_report_28_s_sa_monroe_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_monroe_sf, gom_reef_shp)
+tic("sf::st_difference(db_data_w_area_report_28_s_sa_monroe_sf, gom_reef_shp)")
+db_data_w_area_report_28_s_sa_monroe_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_sa_monroe_sf, gom_reef_shp)
 toc()
 # 15 m
-# 673.98 = 11 m Monroe only
+# 673.98 = 11 m
 
-tic("st_difference(st_geometry(db_data_w_area_report_28_s_monroe_sf),
-                st_geometry(gom_reef_shp))")
-db_data_w_area_report_28_s_sa_monroe_no_gom_sf_geom <-
-  st_difference(st_geometry(db_data_w_area_report_28_s_monroe_sf),
-                st_geometry(gom_reef_shp))
-toc()
-# 1163.83 / 60 = 19.3971719.39717
+write_csv(db_data_w_area_report_sa_counties_no_gom_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_counties_no_gom.csv"))
 
-write_csv(db_data_w_area_report_28_s_sa_monroe_no_gom_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_monroe_no_gom_sf.csv"))
-
-mapview(db_data_w_area_report_28_s_sa_monroe_no_gom_sf
-        )
 # names(gom_reef_shp)
 
 ### map ----
