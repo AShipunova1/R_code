@@ -160,38 +160,8 @@ dim(db_data_w_area_report_sa_eez_sf)
 # db_data_w_area_report_sa_eez_sf <- db_data_w_area_report_sa_eez
 
 #### save sa_eez_data ----
-# sf::st_write(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.shp"))
-# err
-
 write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
 
-# cc <- sf::st_coordinates(db_data_w_area_report_sa_eez)
-# 
-# str(db_data_w_area_report_sa_eez)
-
-# m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez_sf,
-        # layer.name = 'SA EEZ')
-
-# db_data_w_area_report_sa_eez %>%
-#   select(-c(Id, AreaName)) %>%
-#   write_csv(
-#   file.path(
-#     my_paths$outputs,
-#     current_project_name,
-#     "db_data_w_area_report_sa_eez.csv"
-#   ))
-# 
-#   
-
-# to_sf
-
-# str(sa_shp)
-# s1 <- filter(sa_shp,
-#              AreaName == "Off FL")
-# 
-
-
-mapview(db_data_w_area_report_sa_eez_sf1)
 
 # south of 28N - all SA ----
 db_data_w_area_report_sf_28_s <-
