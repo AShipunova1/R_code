@@ -66,7 +66,6 @@ with_st_difference <- function(points_sf, polygons_sf) {
   return(res)
 }
 
-
 # to get SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
 
@@ -204,7 +203,7 @@ fl_counties_sa <- c(
 # mapview(fl_state_w_counties)
 # fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
 
-fl_state_w_counties_names <- fl_state_w_counties$gnis_name
+fl_state_w_counties_names <- fl_state_w_counties_shp$gnis_name
 length(fl_state_w_counties_names)
 # 67
 
@@ -233,7 +232,7 @@ sa_fl_state_w_counties_names <-
     return(sa_county)
   })
 
-fl_state_w_counties_sa <- filter(fl_state_w_counties,
+fl_state_w_counties_sa <- filter(fl_state_w_counties_shp,
              gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names)
 
 db_data_w_area_report_28_s_sa_counties_sf <-
@@ -289,6 +288,19 @@ m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
 
 # grey points in SA outside of EEZ ----
 
+# (1) combine all shp
+# sa_shp$AreaName
+sa_shp_fl <-
+  sa_shp %>% 
+  filter(AreaName == "Off FL")
+
+all_shp1 <-
+  sf::st_union(sa_shp_fl, gom_reef_shp)
+
+all_shp2 <-
+  sf::st_union(all_shp1, fl_state_w_counties_shp)
+
+mapview(all_shp2)
 # 1) all points below 28 minus "good points"
 # db_data_w_area_report_28_s_sa_counties_no_gom_sf
 # 2) (1) - gom shape
