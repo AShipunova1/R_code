@@ -24,6 +24,18 @@ source(
   )
 )
 
+my_to_sf <- function(my_df) {
+  my_df %>%
+    sf::st_as_sf(
+      coords = c("LONGITUDE",
+                 "LATITUDE"),
+      crs = sf::st_crs(sa_shp),
+      # keep LAT/LONG, to save in a file
+      remove = FALSE
+    ) %>%
+    return()
+}
+
 # to get SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
 
@@ -70,7 +82,7 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
 make_a_flat_file(flat_file_name,
                  files_to_combine_list)
 
-# SA EEZ only ----
+# correct lat/long ----
 db_data_w_area_report <-
   db_data_w_area %>%
   # all LONG should be negative
@@ -101,18 +113,12 @@ dim(db_data_w_area_report_short)
 # data_overview(db_data_w_area_report)
 # 253142     
 
-db_data_w_area_report_sf <- sf::st_as_sf(
-  db_data_w_area_report_short,
-  coords = c("LONGITUDE",
-             "LATITUDE"),
-  crs = sf::st_crs(sa_shp),
-  # keep LAT/LONG, to save in a file
-  remove = FALSE
-)
+db_data_w_area_report_sf <- my_to_sf(db_data_w_area_report_short)
 
 dim(db_data_w_area_report_sf)
 # 253142      11
 
+# SA EEZ only ----
 ## sa eez st_intersection ----
 tic("sf::st_intersection(db_data_w_area_report_sf, sa_shp)")
 db_data_w_area_report_sa_eez_sf <-
@@ -127,13 +133,7 @@ db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_pr
 
 db_data_w_area_report_sa_eez_sf <-
   read_sf(db_data_w_area_report_sa_eez_file_name) %>%
-  sf::st_as_sf(
-    coords = c("LONGITUDE",
-               "LATITUDE"),
-    crs = sf::st_crs(sa_shp),
-    # keep LAT/LONG, to save in a file
-    remove = FALSE
-  )
+  my_to_sf()
 
 # all.equal(db_data_w_area_report_sa_eez_sf,
 #           db_data_w_area_report_sa_eez_sf1)
@@ -180,14 +180,9 @@ db_data_w_area_report_sf_28_s <-
   db_data_w_area_report_short %>%
   filter(between(LATITUDE, 23, 28) &
            between(LONGITUDE, -83, -71)) %>%
-  sf::st_as_sf(
-    coords = c("LONGITUDE",
-               "LATITUDE"),
-    crs = sf::st_crs(sa_shp),
-    # keep LAT/LONG, to save in a file
-    remove = FALSE
-  )
-# dim(db_data_w_area_report_sf_28_s)
+  my_to_sf()
+
+dim(db_data_w_area_report_sf_28_s)
 # 92949    
 
 ## state waters sa ----
