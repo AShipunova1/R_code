@@ -250,12 +250,23 @@ db_data_w_area_report_28_s_sa_counties_sf <-
 toc()
 # 5.03 sec 1 county
 # 10.39 sec
+# 57 sec
+
+# or read csv
+db_data_w_area_report_28_s_sa_counties_file_name <- 
+file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf.csv")
+
+db_data_w_area_report_28_s_sa_counties_sf <-
+  read_sf(db_data_w_area_report_28_s_sa_counties_file_name) %>%
+  my_to_sf()
+
+write_csv(
+  db_data_w_area_report_28_s_sa_counties_sf,
+  db_data_w_area_report_28_s_sa_counties_file_name
+)
 
 dim(db_data_w_area_report_28_s_sa_counties_sf)
 # 30392    30
-
-# names(db_data_w_area_report_28_s_sa_counties_sf)
-write_csv(db_data_w_area_report_28_s_sa_counties_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf.csv"))
 
 # mapview(db_data_w_area_report_28_s_sa_counties_sf,
 #           col.regions = "green",
@@ -283,20 +294,16 @@ sa_counties_no_gom_sf_filename <- file.path(my_paths$outputs, current_project_na
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   read_sf(sa_counties_no_gom_sf_filename) %>%
-  sf::st_as_sf(
-    coords = c("LONGITUDE",
-               "LATITUDE"),
-    crs = sf::st_crs(sa_shp),
-    # keep LAT/LONG, to save in a file
-    remove = FALSE
-  )
+  my_to_sf()
 
 # all.equal(db_data_w_area_report_28_s_sa_counties_no_gom_sf, db_data_w_area_report_28_s_sa_counties_no_gom_sf1)
 
 # dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 23519    32
-write_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf,
-          sa_counties_no_gom_sf_filename)
+write_csv(
+  db_data_w_area_report_28_s_sa_counties_no_gom_sf,
+  sa_counties_no_gom_sf_filename
+)
 
 ### map ----
 tic("mapview(
@@ -431,6 +438,14 @@ mapview(db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez)
 
 # - state_w
 dim(db_data_w_area_report_sf_28_s)
+db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name <-
+file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name.csv")
+  
+write_csv(db_data_w_area_report_sf_28_s_minus_eez_minus_gom, db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name)
+
+db_data_w_area_report_sf_28_s_minus_eez_minus_gom1 <-
+  read_sf(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name) %>%
+  my_to_sf()
 dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 db_data_w_area_report_sf_28_s_minus_state <-
   sf::st_difference(db_data_w_area_report_sf_28_s,                    db_data_w_area_report_28_s_sa_counties_no_gom_sf)
