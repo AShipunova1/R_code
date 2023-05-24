@@ -1,16 +1,18 @@
-con = dbConnect(
-  dbDriver("Oracle"),
-  username = keyring::key_list("SECPR")[1, 2],
-  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
-  dbname = "SECPR"
-)
-
+# get area data ----
 ## From DB ====
-# fishing charter trips only
-# 2022
-# sero_vessel_permit
-
-request_query <- "SELECT
+data_from_db <- function() {
+  con = dbConnect(
+    dbDriver("Oracle"),
+    username = keyring::key_list("SECPR")[1, 2],
+    password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
+    dbname = "SECPR"
+  )
+  
+  # fishing charter trips only
+  # 2022
+  # sero_vessel_permit
+  
+  request_query <- "SELECT
   trip_start_date,
   trip_end_date,
   start_port,
@@ -37,29 +39,29 @@ WHERE
   AND TRIP_END_DATE <= TO_DATE('31-DEC-22', 'dd-mon-yy')
   AND trip_type_name = 'CHARTER'
   AND sero_vessel_permit IS NOT NULL"
-
-db_data = dbGetQuery(con,
-                     request_query)
-
-data_overview(db_data)
-
-# get area data ----
-
-area_data_query <- 
-  "select * from SAFIS.AREAS_FISHED@secapxdv_dblk.sfsc.noaa.gov 
+  
+  db_data = dbGetQuery(con,
+                       request_query)
+  
+  data_overview(db_data)
+  
+  
+  area_data_query <-
+    "select * from SAFIS.AREAS_FISHED@secapxdv_dblk.sfsc.noaa.gov
   where state in ('FL', 'US')
 "
+  
+  db_area_data = dbGetQuery(con,
+                            area_data_query)
+  
+  dbDisconnect(con)
+}
 
-db_area_data = dbGetQuery(con,
-                     area_data_query)
-
-dbDisconnect(con)
 
 # str(db_data)
 # 'data.frame':	306261 obs. of  19 variables
 
 # or get data from the saved csv ----
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\fishing_effort_locations\db_data_w_area.csv"
 
 db_data_w_area <- read_csv(file.path(my_paths$inputs, "fishing_effort_locations/db_data_w_area.csv"))
 
