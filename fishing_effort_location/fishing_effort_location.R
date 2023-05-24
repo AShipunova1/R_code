@@ -190,7 +190,7 @@ db_data_w_area_report_sf_28_s <-
 # 92949    
 
 ## state waters sa ----
-fl_counties_sa <- list(
+fl_counties_sa <- c(
     "Brevard",
     "Broward",
     "Duval",
@@ -204,7 +204,6 @@ fl_counties_sa <- list(
     "Saint Lucie",
     "Volusia", 
     "Monroe") #has GOM too, remove separately
-
 
 # mapview(fl_state_w_counties)
 # fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
@@ -222,8 +221,10 @@ fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
 # str(fl_state_w_counties_names_df)
 # fl_state_w_counties_names) %>%
 
+View(as.data.frame(fl_counties_sa))
+
 sa_fl_state_w_counties_names <-
-  as.data.frame(fl_counties_sa[[1]])[[1]] %>%
+  as.data.frame(fl_counties_sa)[[1]] %>%
   map_df(function(fl_county) {
     # browser()
     sa_county <-
@@ -236,13 +237,13 @@ sa_fl_state_w_counties_names <-
     return(sa_county)
   })
 
-
 fl_state_w_counties_sa <- filter(fl_state_w_counties,
              gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names)
 
 # mapview(fl_state_w_counties_sa)
 
 # names(fl_state_w_counties_sa)
+# View(fl_state_w_counties_sa)
 
 tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
                       fl_state_w_counties_sa)")
