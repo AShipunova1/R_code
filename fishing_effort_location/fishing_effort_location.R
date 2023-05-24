@@ -113,25 +113,17 @@ db_data_w_area_report_sf <- sf::st_as_sf(
 View(db_data_w_area_report_sf)
 # 253142      
 
+## sa eez st_intersection ----
 tic("sf::st_intersection(db_data_w_area_report_sf, sa_shp)")
 db_data_w_area_report_sa_eez_sf <-
   sf::st_intersection(db_data_w_area_report_sf, sa_shp)
 # 2min
 toc()
+# 657.37 / 60 ~ 11m
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
 
-db_data_w_area_report_sa_eez_sf <-
-  read_sf(db_data_w_area_report_sa_eez_file_name)
-View(db_data_w_area_report_sa_eez_sf)
-# %>%
-#   sf::st_as_sf(coords = c("LONGITUDE",
-#                           "LATITUDE"),
-#                crs = sf::st_crs(sa_shp))
-
-# dim(db_data_w_area_report_sa_eez_sf1)
-# 54953    
 db_data_w_area_report_sa_eez_sf1 <-
   read_sf(db_data_w_area_report_sa_eez_file_name) %>%
   sf::st_as_sf(
@@ -141,13 +133,18 @@ db_data_w_area_report_sa_eez_sf1 <-
     # keep LAT/LONG, to save in a file
     remove = FALSE
   )
+
+# all.equal(db_data_w_area_report_sa_eez_sf,
+          # db_data_w_area_report_sa_eez_sf1)
+dim(db_data_w_area_report_sa_eez_sf1)
+# 54950 13
 # db_data_w_area_report_sa_eez_sf <- db_data_w_area_report_sa_eez
 
 #### save sa_eez_data ----
 # sf::st_write(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.shp"))
 # err
 
-write_csv(db_data_w_area_report_sa_eez, db_data_w_area_report_sa_eez_file_name)
+write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
 
 # cc <- sf::st_coordinates(db_data_w_area_report_sa_eez)
 # 
@@ -175,7 +172,7 @@ write_csv(db_data_w_area_report_sa_eez, db_data_w_area_report_sa_eez_file_name)
 # 
 
 
-mapview(sf:: db_data_w_area_report_sa_eez)
+mapview(db_data_w_area_report_sa_eez_sf1)
 
 # south of 28N - all SA ----
 db_data_w_area_report_sf_28_s <-
@@ -247,10 +244,6 @@ fl_state_w_counties_sa <- filter(fl_state_w_counties,
 
 # names(fl_state_w_counties_sa)
 
-fl_state_w_counties_sa <- filter(fl_state_w_counties,
-             gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names)
-
-
 tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
                       fl_state_w_counties_sa)")
 db_data_w_area_report_28_s_sa_counties_sf <-
@@ -258,7 +251,9 @@ db_data_w_area_report_28_s_sa_counties_sf <-
                       fl_state_w_counties_sa)
 # 3 m
 toc()
+# 5.03 sec
 
+# names(db_data_w_area_report_28_s_sa_counties_sf)
 write_csv(db_data_w_area_report_28_s_sa_counties_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf.csv"))
 
 mapview(db_data_w_area_report_28_s_sa_counties_sf,
@@ -268,32 +263,21 @@ mapview(db_data_w_area_report_28_s_sa_counties_sf,
 
 ## For Monroe exclude GOM ----
 
-fl_state_w_counties_monroe <- filter(fl_state_w_counties, grepl("Monroe", fl_state_w_counties$gnis_name))
-
 # View(fl_state_w_counties_monroe)
 
-### get points in Monroe
-tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
-                      fl_state_w_counties_monroe)")
-db_data_w_area_report_28_s_sa_monroe_sf <-
-  sf::st_intersection(db_data_w_area_report_sf_28_s,
-                      fl_state_w_counties_monroe)
-# 14.36 sec
-toc()
-
-# View(db_data_w_area_report_28_s_sa_monroe_sf)
 # to avoid this error:
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
 sf::sf_use_s2(FALSE)
-tic("sf::st_difference(db_data_w_area_report_28_s_sa_monroe_sf, gom_reef_shp)")
-db_data_w_area_report_28_s_sa_monroe_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_sa_monroe_sf, gom_reef_shp)
+tic("sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)")
+db_data_w_area_report_28_s_sa_counties_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
 toc()
 # 15 m
 # 673.98 = 11 m
+# 7.16 sec clean session, no plots
+# names(db_data_w_area_report_28_s_sa_counties_no_gom_sf
+      # )
+write_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_no_gom_sf.csv"))
 
-write_csv(db_data_w_area_report_sa_counties_no_gom_sf, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_counties_no_gom.csv"))
-
-# names(gom_reef_shp)
 
 ### map ----
 tic("mapview(
@@ -310,34 +294,6 @@ tic("Show mapview(
   db_data_w_area_report_sa_counties_no_gom")
 m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_sa_counties_no_gom
 toc()
-
-## exclude GOM ----
-  db_data_w_area_report_sa_counties_no_gom <-
-    sf::st_difference(db_data_w_area_report_sa_counties, gom_reef_shp)
-
-clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
-  my_lat_long_df %>%
-    unique() %>%
-    # we can limit the amount of points to show on the map
-    head(my_limit) %>%
-    # all LONG should be negative
-    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-    # remove coords outside off requested borders
-    filter(between(LATITUDE, 23, 28) &
-             between(LONGITUDE, -83, -71)) %>%
-    return()
-}
-
-db_data_w_area_lat_lon <- 
-  db_data_w_area %>%
-      # all LONG should be negative
-    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-    # remove wrong coords
-    filter(between(LATITUDE, 23, 28) &
-             between(LONGITUDE, -83, -71))
-# 92949    
-
-dim(db_data_w_area_lat_lon)
 
 db_data_w_area_lat_lon_reg <-  
   db_data_w_area_lat_lon %>% 
