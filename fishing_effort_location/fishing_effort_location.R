@@ -455,3 +455,33 @@ write_csv(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok, db_data_w_area_r
 db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok1 <-
   read_sf(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name) %>%
   my_to_sf()
+
+# all maps together ----
+m_s <- mapview(
+  sa_shp,
+  col.regions = "#F4E3FF",
+  alpha.regions = 0.2,
+  layer.name = "South Altlantic",
+  legend = FALSE
+)
+
+m_g_r <- mapview(
+  gom_reef_shp,
+  col.regions = "lightblue",
+  alpha.regions = 0.2,
+  layer.name = "GOM Reef Fish EFH",
+  legend = FALSE
+)
+tic("show all maps")
+m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
+  mapview(
+    db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
+    col.regions = "darkgrey",
+    layer.name = 'State and inner waters'
+  # ) +
+  # m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
+  # db_data_w_area_report_sa_eez_sf +
+  # m_s +
+  # m_g_r
+toc()
+# 4s
