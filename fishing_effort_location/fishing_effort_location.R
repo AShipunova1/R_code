@@ -121,13 +121,30 @@ dim(db_data_w_area_report_sf)
 
 # SA EEZ only ----
 ## sa eez st_intersection ----
-tic("sf::st_intersection(db_data_w_area_report_sf, sa_shp)")
-db_data_w_area_report_sa_eez_sf <-
-  sf::st_intersection(db_data_w_area_report_sf, sa_shp)
-# 2min
-toc()
-# 657.37 / 60 ~ 11m
-# clean session: ~62 sec
+### with st_intersection ----
+
+
+with_st_intersection <- function(points_sf, polygons_sf) {
+  browser()
+  par1 <- rlang::enexpr(points_sf)
+  par2 <- rlang::enexpr(polygons_sf)
+
+  tic(paste0("sf::st_intersection(", par1, ", ", par2, ")"))
+  res <- sf::st_intersection(points_sf, polygons_sf)
+  toc()
+  return(res)
+}
+
+db_data_w_area_report_sa_eez_sf2 <-
+with_st_intersection(db_data_w_area_report_sf, sa_shp)
+  # tic("sf::st_intersection(db_data_w_area_report_sf, sa_shp)")
+  # db_data_w_area_report_sa_eez_sf <-
+  #   sf::st_intersection(db_data_w_area_report_sf, sa_shp)
+  # # 2min
+  # toc()
+  # # 657.37 / 60 ~ 11m
+  # clean session: ~62 sec
+}
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
