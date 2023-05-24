@@ -81,8 +81,8 @@ files_to_combine <-
 flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
 
 # run as needed
-make_a_flat_file(flat_file_name,
-                 files_to_combine_list)
+# make_a_flat_file(flat_file_name,
+                 # files_to_combine_list)
 
 # correct lat/long ----
 db_data_w_area_report <-
@@ -112,7 +112,6 @@ db_data_w_area_report_short <-
   filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
 
 dim(db_data_w_area_report_short)
-# data_overview(db_data_w_area_report)
 # 253142     
 
 db_data_w_area_report_sf <- my_to_sf(db_data_w_area_report_short)
