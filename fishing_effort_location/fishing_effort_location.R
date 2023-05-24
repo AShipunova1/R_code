@@ -105,13 +105,14 @@ db_data_w_area_report_sf <- sf::st_as_sf(
   db_data_w_area_report_short,
   coords = c("LONGITUDE",
              "LATITUDE"),
-  crs = sf::st_crs(sa_shp)
+  crs = sf::st_crs(sa_shp),
+  remove = FALSE 
 )
 
-# dim(db_data_w_area_report_sf)
+View(db_data_w_area_report_sf)
 # 253142      
 
-tic(sf::st_intersection(db_data_w_area_report_sf, sa_shp))
+tic("sf::st_intersection(db_data_w_area_report_sf, sa_shp)")
 db_data_w_area_report_sa_eez_sf <-
   sf::st_intersection(db_data_w_area_report_sf, sa_shp)
 # 2min
@@ -120,7 +121,13 @@ toc()
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
 
-db_data_w_area_report_sa_eez_sf <- read_csv(db_data_w_area_report_sa_eez_file_name)
+db_data_w_area_report_sa_eez_sf <-
+  read_sf(db_data_w_area_report_sa_eez_file_name)
+View(db_data_w_area_report_sa_eez_sf)
+# %>%
+#   sf::st_as_sf(coords = c("LONGITUDE",
+#                           "LATITUDE"),
+#                crs = sf::st_crs(sa_shp))
 
 # dim(db_data_w_area_report_sa_eez_sf1)
 # 54953    
@@ -156,7 +163,9 @@ write_csv(db_data_w_area_report_sa_eez, db_data_w_area_report_sa_eez_file_name)
 # s1 <- filter(sa_shp,
 #              AreaName == "Off FL")
 # 
-# mapview(s1)
+
+
+mapview(sf:: db_data_w_area_report_sa_eez)
 
 # south of 28N - all SA ----
 db_data_w_area_report_sf_28_s <-
