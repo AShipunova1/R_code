@@ -322,24 +322,29 @@ toc()
 ### grey points in SA outside of EEZ ----
 
 # - sa_eez
-# names(sa_shp)
-# sa_shp$AreaName
+get_florida_st_box <- function() {
+  # names(sa_shp)
+  # sa_shp$AreaName
+  
+  sa_shp_fl <-
+    filter(sa_shp,
+           AreaName == "Off FL")
+  
+  # geom_sa_shp_fl <- st_geometry(sa_shp_fl)
+  # Geometry type: POLYGON
+  # Bounding box:  xmin: -83 ymin: 23.81794 xmax: -76.5011 ymax: 30.71267
+  
+  # all but ymax are from sa_shp_fl
+  new_box <- c(
+    xmin = -83,
+    ymin = 23.81794,
+    xmax = -76.5011,
+    ymax = 28 # 28N
+  )
+  return(new_box)
+}
 
-# sa_shp_fl <-
-  # filter(sa_shp,
-         # AreaName == "Off FL")
-
-# geom_sa_shp_fl <- st_geometry(sa_shp_fl)
-# Geometry type: POLYGON
-# Bounding box:  xmin: -83 ymin: 23.81794 xmax: -76.5011 ymax: 30.71267
-
-# all but ymax are from sa_shp_fl
-new_box <- c(
-  xmin = -83,
-  ymin = 23.81794,
-  xmax = -76.5011,
-  ymax = 28 # 28N
-)
+new_box <- get_florida_st_box()
 
 sa_shp_fl_s_28 <- sf::st_crop(sa_shp, new_box)
 # st_geometry(sa_shp_fl_s_28)
