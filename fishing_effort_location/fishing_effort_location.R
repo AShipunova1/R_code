@@ -13,7 +13,15 @@ library(mapview) #View spatial objects interactively
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-source(file.path(my_paths$git_r, "fishing_effort_location", "fishing_effort_locations_get_data.R"))
+current_project_name <- "fishing_effort_location"
+
+source(
+  file.path(
+    my_paths$git_r,
+    current_project_name,
+    "fishing_effort_locations_get_data.R"
+  )
+)
 
 # to get SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
@@ -26,26 +34,12 @@ source(file.path(my_paths$git_r, "fishing_effort_location", "fishing_effort_loca
 # Fishing Area Code, Sub Area Code, Distance Code and Distance Code Name?
 # depth
 
+# south of 28N - all SA
 # OK boundaries ----
 # lat 23 : 28
 # lon -71 : -83
 
-# south of 28N - all SA
 # north of 28N - EEZ only
-
-# south of 28N - all SA ----
-clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
-  my_lat_long_df %>%
-    unique() %>%
-    # we can limit the amount of points to show on the map
-    head(my_limit) %>%
-    # all LONG should be negative
-    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-    # remove coords outside off requested borders
-    filter(between(LATITUDE, 23, 28) &
-             between(LONGITUDE, -83, -71)) %>%
-    return()
-}
 
 # combine with additional area data ----
 db_data_w_area <- full_join(db_area_data, db_data)
@@ -57,72 +51,8 @@ all_points <- dim(db_data_w_area)[1]
 
 # View(db_data_w_area)
 
-db_data_w_area_lat_lon <- 
-  db_data_w_area %>%
-      # all LONG should be negative
-    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-    # remove wrong coords
-    filter(between(LATITUDE, 23, 28) &
-             between(LONGITUDE, -83, -71))
-# 92949    
-
-dim(db_data_w_area_lat_lon)
-
-db_data_w_area_lat_lon_reg <-  
-  db_data_w_area_lat_lon %>% 
-  filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
-  filter(!grepl("TAMPA", AREA_NAME)) %>% 
-  filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
-  filter(!grepl("GULF OF MEXICO", REGION))
-
-dim(db_data_w_area_lat_lon_reg)
-# 88796
-
-# View(db_data_w_area_lat_lon_reg)
-
-# to_report <-
-#   db_data_w_area_lat_lon_reg %>%
-#   select(
-#     TRIP_START_DATE,
-#     TRIP_END_DATE,
-#     START_PORT,
-#     START_PORT_NAME,
-#     START_PORT_COUNTY,
-#     START_PORT_STATE,
-#     END_PORT,
-#     LATITUDE,
-#     LONGITUDE,
-#     MINIMUM_BOTTOM_DEPTH,
-#     MAXIMUM_BOTTOM_DEPTH,
-#     FISHING_GEAR_DEPTH,
-#     DEPTH
-#   ) %>%
-#   unique() #?
-
-# dim(to_report)
-# 27077
-
-# add counts to unique?
-  db_data_w_area_lat_lon_reg %>%
-  select(
-    TRIP_START_DATE,
-    TRIP_END_DATE,
-    START_PORT,
-    START_PORT_NAME,
-    START_PORT_COUNTY,
-    START_PORT_STATE,
-    END_PORT,
-    LATITUDE,
-    LONGITUDE,
-    MINIMUM_BOTTOM_DEPTH,
-    MAXIMUM_BOTTOM_DEPTH,
-    FISHING_GEAR_DEPTH,
-    DEPTH
-  ) %>%
-data_overview()
-
 # make a flat file ----
-dir_to_comb <- file.path(my_paths$git_r, "fishing_effort_location")
+dir_to_comb <- file.path(my_paths$git_r, current_project_name)
 
 files_to_combine <-
   c(
@@ -161,12 +91,14 @@ db_data_w_area_report <-
 
 dim(db_data_w_area_report)
 # 254689     
+
 db_data_w_area_report_short <-
   db_data_w_area_report %>%
   filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
-# 253142
+
 dim(db_data_w_area_report_short)
 # data_overview(db_data_w_area_report)
+# 253142     
 
 db_data_w_area_report_sf <- sf::st_as_sf(
   db_data_w_area_report_short,
@@ -175,14 +107,23 @@ db_data_w_area_report_sf <- sf::st_as_sf(
   crs = sf::st_crs(sa_shp)
 )
 
-db_data_w_area_report_sa_eez <-
+db_data_w_area_report_sa_eez_sf <-
   sf::st_intersection(db_data_w_area_report_sf, sa_shp)
+# 2min
+
+# db_data_w_area_report_sa_eez_sf <- db_data_w_area_report_sa_eez
+
+#### save sa_eez_data ----
+# sf::st_write(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.shp"))
+# err
+
+write_csv(db_data_w_area_report_sa_eez, file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv"))
 
 # cc <- sf::st_coordinates(db_data_w_area_report_sa_eez)
 # 
 # str(db_data_w_area_report_sa_eez)
 
-m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez,
+m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez_sf,
         layer.name = 'SA EEZ')
 
 # db_data_w_area_report_sa_eez %>%
@@ -190,7 +131,7 @@ m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez,
 #   write_csv(
 #   file.path(
 #     my_paths$outputs,
-#     "fishing_effort_location",
+#     current_project_name,
 #     "db_data_w_area_report_sa_eez.csv"
 #   ))
 # 
@@ -198,11 +139,11 @@ m_db_data_w_area_report_sa_eez <- mapview(db_data_w_area_report_sa_eez,
 
 # to_sf
 
-str(sa_shp)
-s1 <- filter(sa_shp,
-             AreaName == "Off FL")
-
-mapview(s1)
+# str(sa_shp)
+# s1 <- filter(sa_shp,
+#              AreaName == "Off FL")
+# 
+# mapview(s1)
 
 # state waters sa ----
 fl_counties_sa <- c(
@@ -291,11 +232,89 @@ db_data_w_area_report_sf_28_s <-
   db_data_w_area_report_sa_counties_no_gom <-
     sf::st_difference(db_data_w_area_report_sa_counties, gom_reef_shp)
 
-### Below 28: remove GOM at sea points ----
+# south of 28N - all SA ----
+clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
+  my_lat_long_df %>%
+    unique() %>%
+    # we can limit the amount of points to show on the map
+    head(my_limit) %>%
+    # all LONG should be negative
+    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+    # remove coords outside off requested borders
+    filter(between(LATITUDE, 23, 28) &
+             between(LONGITUDE, -83, -71)) %>%
+    return()
+}
+
+db_data_w_area_lat_lon <- 
+  db_data_w_area %>%
+      # all LONG should be negative
+    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+    # remove wrong coords
+    filter(between(LATITUDE, 23, 28) &
+             between(LONGITUDE, -83, -71))
+# 92949    
+
+dim(db_data_w_area_lat_lon)
+
+db_data_w_area_lat_lon_reg <-  
+  db_data_w_area_lat_lon %>% 
+  filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
+  filter(!grepl("TAMPA", AREA_NAME)) %>% 
+  filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
+  filter(!grepl("GULF OF MEXICO", REGION))
+
+dim(db_data_w_area_lat_lon_reg)
+# 88796
+
+# View(db_data_w_area_lat_lon_reg)
+
+# to_report <-
+#   db_data_w_area_lat_lon_reg %>%
+#   select(
+#     TRIP_START_DATE,
+#     TRIP_END_DATE,
+#     START_PORT,
+#     START_PORT_NAME,
+#     START_PORT_COUNTY,
+#     START_PORT_STATE,
+#     END_PORT,
+#     LATITUDE,
+#     LONGITUDE,
+#     MINIMUM_BOTTOM_DEPTH,
+#     MAXIMUM_BOTTOM_DEPTH,
+#     FISHING_GEAR_DEPTH,
+#     DEPTH
+#   ) %>%
+#   unique() #?
+
+# dim(to_report)
+# 27077
+
+# add counts to unique?
+  db_data_w_area_lat_lon_reg %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    START_PORT,
+    START_PORT_NAME,
+    START_PORT_COUNTY,
+    START_PORT_STATE,
+    END_PORT,
+    LATITUDE,
+    LONGITUDE,
+    MINIMUM_BOTTOM_DEPTH,
+    MAXIMUM_BOTTOM_DEPTH,
+    FISHING_GEAR_DEPTH,
+    DEPTH
+  ) %>%
+data_overview()
+
+## Below 28: remove GOM at sea points ----
 db_data_w_area_report_28_s_no_gom_reef <-
   sf::st_difference(db_data_w_area_report_sf_28_s, gom_reef_shp)
 
-### Below 28: keep only SA counties ----
+## Below 28: keep only SA counties ----
 db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
   sf::st_intersection(db_data_w_area_report_28_s_no_gom_reef,
                       fl_state_w_counties_sa)
