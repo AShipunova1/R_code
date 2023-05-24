@@ -54,11 +54,13 @@ my_to_sf <- function(my_df) {
 
 # north of 28N - EEZ only
 
-# combine with additional area data ----
-db_data_w_area <- full_join(db_area_data, db_data)
-# Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
-# LOCAL_AREA_CODE)`
-
+# if from db ----
+## combine with additional area data ----  
+combine_data_from_db <- function() {
+  db_data_w_area <- full_join(db_area_data, db_data)
+  # Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
+  # LOCAL_AREA_CODE)`
+}
 all_points <- dim(db_data_w_area)[1]
 # 254689
 
