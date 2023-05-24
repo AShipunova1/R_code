@@ -58,7 +58,7 @@ dbDisconnect(con)
 # str(db_data)
 # 'data.frame':	306261 obs. of  19 variables
 
-# or get data from the saved csv
+# or get data from the saved csv ----
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\fishing_effort_locations\db_data_w_area.csv"
 
 db_data_w_area <- read_csv(file.path(my_paths$inputs, "fishing_effort_locations/db_data_w_area.csv"))
