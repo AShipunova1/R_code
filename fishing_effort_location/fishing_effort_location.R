@@ -7,6 +7,8 @@
 # see https://myfwc.com/fishing/saltwater/recreational/maps/
 # 83 west (federal waters) / 24'35 N, 24'33 N (state waters)
 
+# setup ----
+
 library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
@@ -35,6 +37,35 @@ my_to_sf <- function(my_df) {
     ) %>%
     return()
 }
+
+# to avoid this error:
+#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
+sf::sf_use_s2(FALSE)
+
+with_st_intersection <- function(points_sf, polygons_sf) {
+  # browser()
+  # get param names
+  par1 <- rlang::enexpr(points_sf)
+  par2 <- rlang::enexpr(polygons_sf)
+  
+  tic(paste0("sf::st_intersection(", par1, ", ", par2, ")"))
+  res <- sf::st_intersection(points_sf, polygons_sf)
+  toc()
+  return(res)
+}
+
+with_st_difference <- function(points_sf, polygons_sf) {
+  # browser()
+  # get param names
+  par1 <- rlang::enexpr(points_sf)
+  par2 <- rlang::enexpr(polygons_sf)
+  
+  tic(paste0("sf::st_difference(", par1, ", ", par2, ")"))
+  res <- sf::st_difference(points_sf, polygons_sf)
+  toc()
+  return(res)
+}
+
 
 # to get SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
@@ -122,18 +153,6 @@ dim(db_data_w_area_report_sf)
 # SA EEZ only ----
 ## sa eez st_intersection ----
 ### with st_intersection ----
-
-with_st_intersection <- function(points_sf, polygons_sf) {
-  # browser()
-  # get param names
-  par1 <- rlang::enexpr(points_sf)
-  par2 <- rlang::enexpr(polygons_sf)
-  
-  tic(paste0("sf::st_intersection(", par1, ", ", par2, ")"))
-  res <- sf::st_intersection(points_sf, polygons_sf)
-  toc()
-  return(res)
-}
 
 db_data_w_area_report_sa_eez_sf <-
   with_st_intersection(db_data_w_area_report_sf, sa_shp)
@@ -241,17 +260,9 @@ dim(db_data_w_area_report_28_s_sa_counties_sf)
 
 # View(fl_state_w_counties_monroe)
 
-# to avoid this error:
-#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
-sf::sf_use_s2(FALSE)
 
-tic("sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)")
-db_data_w_area_report_28_s_sa_counties_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
-toc()
-# 15 m
-# 673.98 = 11 m
-# 7.16 sec clean session, no plots, 1 county
-# 541.61 / 60 = 9 m, all sa counties, 1 plot
+db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
+  with_st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
 
 # or read csv 
 sa_counties_no_gom_sf_filename <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_no_gom_sf.csv")
@@ -301,9 +312,11 @@ dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 dim(all_s_28_minus_good_p)
 # [1] 69430    11
 
-# ) (1) - Florida not sa counties
-  filter(all_s_28_minus_good_p,
-         )
+# 2) (1) - gom shape
+all_s_28_minus_good_p_minus_not_gom <-
+  all_s_28_minus_good_p
+
+# =======
 # - sa_eez
 get_florida_st_box <- function() {
   # names(sa_shp)
