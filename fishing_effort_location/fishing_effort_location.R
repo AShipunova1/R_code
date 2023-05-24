@@ -132,6 +132,15 @@ View(db_data_w_area_report_sa_eez_sf)
 
 # dim(db_data_w_area_report_sa_eez_sf1)
 # 54953    
+db_data_w_area_report_sa_eez_sf1 <-
+  read_sf(db_data_w_area_report_sa_eez_file_name) %>%
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = sf::st_crs(sa_shp),
+    # keep LAT/LONG, to save in a file
+    remove = FALSE
+  )
 # db_data_w_area_report_sa_eez_sf <- db_data_w_area_report_sa_eez
 
 #### save sa_eez_data ----
