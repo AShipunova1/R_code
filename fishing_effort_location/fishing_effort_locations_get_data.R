@@ -58,6 +58,11 @@ dbDisconnect(con)
 # str(db_data)
 # 'data.frame':	306261 obs. of  19 variables
 
+# or get data from the saved csv
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\fishing_effort_locations\db_data_w_area.csv"
+
+db_data_w_area <- read_csv(file.path(my_paths$inputs, "fishing_effort_locations/db_data_w_area.csv"))
+
 ## ---- get other geographical data ----
 read_shapefile <- function(filename) {
   shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
@@ -89,13 +94,13 @@ gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
 # gom_protrac_shp <- read_shapefile(r"(gom\protrac_nad83\protrac_nad83.shp)")
 # mapview(gom_protrac_shp)
 
-Sys.setenv(SHAPE_RESTORE_SHX = "YES")
+# Sys.setenv(SHAPE_RESTORE_SHX = "YES")
 # works Atlantic + GOM:
-atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
+# atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
 # mapview(atmx_eez_shp, legend = F)
-mapview(atmx_eez_shp, legend = F) +
-  mapview(sa_shp) +
-  mapview(gom_reef_shp)
+# mapview(atmx_eez_shp, legend = F) +
+  # mapview(sa_shp) +
+  # mapview(gom_reef_shp)
 # gom_depth_shp <- read_shapefile("gom/w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
 # plot(gom_depth_shp)
 
@@ -112,17 +117,16 @@ mapview(atmx_eez_shp, legend = F) +
 # ===
 fl_state_land_waters <- read_shapefile("Florida_State_Waters_and_Land_Boundary/Florida_State_Waters_and_Land_Boundary.shp")
 
-mapview(fl_state_land_waters)
+# mapview(fl_state_land_waters)
 
 ### atl_state_waters ----
 # https://catalog.data.gov/dataset/outer-continental-shelf-submerged-lands-act-boundary-atlantic-region-nad83
 # Outer Continental Shelf Submerged Lands Act Boundary - Atlantic Region NAD83
 
-atl_state_waters <- read_shapefile("ATL_SLA/ATL_SLA.shp")
-mapview(atl_state_waters)
+# atl_state_waters <- read_shapefile("ATL_SLA/ATL_SLA.shp")
+# mapview(atl_state_waters)
 
 ### fl_state_w_counties ----
+fl_state_w_counties <- read_shapefile(r"(Florida_State_Waters_and_Land_Boundary\Florida_State_Waters_and_Land_Boundary.shp)")
 
-fl_state_w_counties <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
-
-mapview(fl_state_w_counties)
+# mapview(fl_state_w_counties)
