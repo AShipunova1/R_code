@@ -321,92 +321,17 @@ m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
   db_data_w_area_report_sa_eez_sf1
 toc()
 
-## below 28 grey ----
-# db_data_w_area_lat_lon_reg <-  
-#   db_data_w_area_lat_lon %>% 
-#   filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
-#   filter(!grepl("TAMPA", AREA_NAME)) %>% 
-#   filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
-#   filter(!grepl("GULF OF MEXICO", REGION))
-# 
-# dim(db_data_w_area_lat_lon_reg)
-# 88796
-
-# View(db_data_w_area_lat_lon_reg)
-
-# to_report <-
-#   db_data_w_area_lat_lon_reg %>%
-#   select(
-#     TRIP_START_DATE,
-#     TRIP_END_DATE,
-#     START_PORT,
-#     START_PORT_NAME,
-#     START_PORT_COUNTY,
-#     START_PORT_STATE,
-#     END_PORT,
-#     LATITUDE,
-#     LONGITUDE,
-#     MINIMUM_BOTTOM_DEPTH,
-#     MAXIMUM_BOTTOM_DEPTH,
-#     FISHING_GEAR_DEPTH,
-#     DEPTH
-#   ) %>%
-#   unique() #?
-
-# dim(to_report)
-# 27077
-
-# add counts to unique?
-#   db_data_w_area_lat_lon_reg %>%
-#   select(
-#     TRIP_START_DATE,
-#     TRIP_END_DATE,
-#     START_PORT,
-#     START_PORT_NAME,
-#     START_PORT_COUNTY,
-#     START_PORT_STATE,
-#     END_PORT,
-#     LATITUDE,
-#     LONGITUDE,
-#     MINIMUM_BOTTOM_DEPTH,
-#     MAXIMUM_BOTTOM_DEPTH,
-#     FISHING_GEAR_DEPTH,
-#     DEPTH
-#   ) %>%
-# data_overview()
-
-## Below 28: remove GOM at sea points ----
-# db_data_w_area_report_28_s_no_gom_reef <-
-#   sf::st_difference(db_data_w_area_report_sf_28_s, gom_reef_shp)
-
-## Below 28: keep only SA counties ----
-# db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
-#   sf::st_intersection(db_data_w_area_report_28_s_no_gom_reef,
-#                       fl_state_w_counties_sa)
-# 
-# 
-# m_db_data_w_area_report_28_s_no_gom_reef_state_w_sf <-
-#   mapview(
-#   db_data_w_area_report_28_s_no_gom_reef_state_w_sf,
-#   col.regions = "green",
-#   layer.name = 'State and inner waters south of 28N'
-# )
-# 
-# m_db_data_w_area_report_sa_eez + m_db_data_w_area_report_28_s_no_gom_reef_state_w_sf
-
-# mapview(db_data_w_area_report_28_s_no_gom_reef) + m_s
-
 ### grey points in SA outside of EEZ ----
 
 # - sa_eez
-names(sa_shp)
-sa_shp$AreaName
+# names(sa_shp)
+# sa_shp$AreaName
 
-sa_shp_fl <-
-  filter(sa_shp,
-         AreaName == "Off FL")
+# sa_shp_fl <-
+  # filter(sa_shp,
+         # AreaName == "Off FL")
 
-geom_sa_shp_fl <- st_geometry(sa_shp_fl)
+# geom_sa_shp_fl <- st_geometry(sa_shp_fl)
 # Geometry type: POLYGON
 # Bounding box:  xmin: -83 ymin: 23.81794 xmax: -76.5011 ymax: 30.71267
 
@@ -423,21 +348,68 @@ sa_shp_fl_s_28 <- sf::st_crop(sa_shp, new_box)
 
 # all.equal(sa_shp_fl_s_28, sa_shp_fl_s_281)
 
-geom_db_data_w_area_report_sf_28_s <- st_geometry(db_data_w_area_report_sf_28_s) 
+# geom_db_data_w_area_report_sf_28_s <- st_geometry(db_data_w_area_report_sf_28_s) 
 # Geometry set for 92949 features 
 # Geometry type: POINT
 # Dimension:     XY
 # Bounding box:  xmin: -83 ymin: 23.29354 xmax: -78 ymax: 28
 
-# st_disjoint
+# tic("sf::st_disjoint(db_data_w_area_report_sf_28_s, sa_shp_fl_s_28)")
+# db_data_w_area_report_sf_28_s_minus_eez_dis <-
+#   sf::st_disjoint(db_data_w_area_report_sf_28_s,
+#                   sa_shp_fl_s_28)
+# toc()
+# 2.61 sec no plots
+
+ # st_filter(a, st_union(b), .predicate = st_disjoint)
+# plot(db_data_w_area_report_sf_28_s)
+# str(db_data_w_area_report_sf_28_s)
+# str(sa_shp_fl_s_28)
+
+tic("st_filter(db_data_w_area_report_sf_28_s,
+                       sa_shp_fl_s_28,
+                       .pred = st_disjoint)")
 db_data_w_area_report_sf_28_s_minus_eez <-
-  sf::st_difference(db_data_w_area_report_sf_28_s,
-                    sa_shp_fl_s_28)
+  st_filter(db_data_w_area_report_sf_28_s,
+                       sa_shp_fl_s_28,
+                       .predicate = st_disjoint)
+toc()
+# 3.29  sec
 
-mapview(db_data_w_area_report_28_s_no_gom_reef_minus_sa_eez)
-
-# - state_w
 dim(db_data_w_area_report_sf_28_s)
+# [1] 92949    11
+
+dim(sa_shp_fl_s_28)
+# 1
+
+dim(db_data_w_area_report_sf_28_s_minus_eez)
+# [1] 62537    11
+
+mapview(db_data_w_area_report_sf_28_s_minus_eez)
+
+# -state_w
+dim(db_data_w_area_report_sf_28_s)
+# db_data_w_area_report_sf_28_s_minus_state <-
+#   sf::st_difference(db_data_w_area_report_sf_28_s,                    db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+
+tic("  st_filter(
+    db_data_w_area_report_sf_28_s_minus_eez,
+    db_data_w_area_report_28_s_sa_counties_no_gom_sf,
+    .predicate = st_disjoint
+  )
+")
+
+db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
+  st_filter(
+    db_data_w_area_report_sf_28_s_minus_eez,
+    db_data_w_area_report_28_s_sa_counties_no_gom_sf,
+    .predicate = st_disjoint
+  )
+toc()
+# 51.48 sec
+
+### or read it ----
+
 db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name <-
 file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name.csv")
   
@@ -446,6 +418,13 @@ write_csv(db_data_w_area_report_sf_28_s_minus_eez_minus_gom, db_data_w_area_repo
 db_data_w_area_report_sf_28_s_minus_eez_minus_gom1 <-
   read_sf(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name) %>%
   my_to_sf()
+
+dim(db_data_w_area_report_sf_28_s_minus_eez)
+# [1] 62537    11
+
 dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
-db_data_w_area_report_sf_28_s_minus_state <-
-  sf::st_difference(db_data_w_area_report_sf_28_s,                    db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+# [1] 23519    32
+
+dim(db_data_w_area_report_sf_28_s_minus_eez_minus_gom1)
+# [1] 62537    11
+
