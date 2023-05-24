@@ -237,19 +237,14 @@ write_csv(
 dim(db_data_w_area_report_28_s_sa_counties_sf)
 # 30392    30
 
-# mapview(db_data_w_area_report_28_s_sa_counties_sf,
-#           col.regions = "green",
-#   layer.name = 'State and inner waters'
-# ) + sa_shp
-
 ## For Monroe exclude GOM ----
 
 # View(fl_state_w_counties_monroe)
 
 # to avoid this error:
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
-
 sf::sf_use_s2(FALSE)
+
 tic("sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)")
 db_data_w_area_report_28_s_sa_counties_no_gom_sf <- sf::st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
 toc()
@@ -265,9 +260,7 @@ db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   read_sf(sa_counties_no_gom_sf_filename) %>%
   my_to_sf()
 
-# all.equal(db_data_w_area_report_28_s_sa_counties_no_gom_sf, db_data_w_area_report_28_s_sa_counties_no_gom_sf1)
-
-# dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 23519    32
 write_csv(
   db_data_w_area_report_28_s_sa_counties_no_gom_sf,
@@ -282,10 +275,10 @@ m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   layer.name = 'State and inner waters'
 )
 
-tic("Show m_db_data_w_area_report_28_s_sa_counties_no_gom_sf + eez")
-m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
-  db_data_w_area_report_sa_eez_sf1
-toc()
+# tic("Show m_db_data_w_area_report_28_s_sa_counties_no_gom_sf + eez")
+# m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
+#   db_data_w_area_report_sa_eez_sf1
+# toc()
 
 ### grey points in SA outside of EEZ ----
 
@@ -317,25 +310,11 @@ new_box <- get_florida_st_box()
 sa_shp_fl_s_28 <- sf::st_crop(sa_shp, new_box)
 # st_geometry(sa_shp_fl_s_28)
 
-# all.equal(sa_shp_fl_s_28, sa_shp_fl_s_281)
-
 # geom_db_data_w_area_report_sf_28_s <- st_geometry(db_data_w_area_report_sf_28_s) 
 # Geometry set for 92949 features 
 # Geometry type: POINT
 # Dimension:     XY
 # Bounding box:  xmin: -83 ymin: 23.29354 xmax: -78 ymax: 28
-
-# tic("sf::st_disjoint(db_data_w_area_report_sf_28_s, sa_shp_fl_s_28)")
-# db_data_w_area_report_sf_28_s_minus_eez_dis <-
-#   sf::st_disjoint(db_data_w_area_report_sf_28_s,
-#                   sa_shp_fl_s_28)
-# toc()
-# 2.61 sec no plots
-
- # st_filter(a, st_union(b), .predicate = st_disjoint)
-# plot(db_data_w_area_report_sf_28_s)
-# str(db_data_w_area_report_sf_28_s)
-# str(sa_shp_fl_s_28)
 
 tic("st_filter(db_data_w_area_report_sf_28_s,
                        sa_shp_fl_s_28,
@@ -356,12 +335,11 @@ dim(sa_shp_fl_s_28)
 dim(db_data_w_area_report_sf_28_s_minus_eez)
 # [1] 62537    11
 
-mapview(db_data_w_area_report_sf_28_s_minus_eez)
+# mapview(db_data_w_area_report_sf_28_s_minus_eez)
 
 # -state_w
 dim(db_data_w_area_report_sf_28_s)
-# db_data_w_area_report_sf_28_s_minus_state <-
-#   sf::st_difference(db_data_w_area_report_sf_28_s,                    db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+# [1] 92949    11
 
 tic("  filter(
     db_data_w_area_report_sf_28_s_minus_eez,
@@ -376,13 +354,6 @@ db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
   )
 toc()
 # 0.91 s
-# "  st_filter(
-#     db_data_w_area_report_sf_28_s_minus_eez,
-#     db_data_w_area_report_28_s_sa_counties_no_gom_sf,
-#     .predicate = st_disjoint
-#   )
-# "
-# 51.48 sec
 
 ### or read it ----
 
@@ -391,7 +362,7 @@ file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sf_28_s
   
 write_csv(db_data_w_area_report_sf_28_s_minus_eez_minus_gom, db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name)
 
-db_data_w_area_report_sf_28_s_minus_eez_minus_gom1 <-
+db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
   read_sf(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name) %>%
   my_to_sf()
 
@@ -407,7 +378,7 @@ str(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 182?
 # exclude gom reef again ----
 # gom_reef_shp
-
+sf::sf_use_s2(FALSE)
 tic("sf::st_difference(db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
                     gom_reef_shp)")
 db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok <-
@@ -426,9 +397,12 @@ file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sf_28_s
   
 write_csv(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok, db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name)
 
-db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok1 <-
+db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok <-
   read_sf(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name) %>%
   my_to_sf()
+
+dim(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok)
+# [1] 6279   13
 
 # all maps together ----
 m_s <- mapview(
@@ -446,16 +420,22 @@ m_g_r <- mapview(
   layer.name = "GOM Reef Fish EFH",
   legend = FALSE
 )
-tic("show all maps")
-m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
+
+m_grey_outside <-
   mapview(
     db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
     col.regions = "darkgrey",
     layer.name = 'State and inner waters'
-  # ) +
-  # m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
-  # db_data_w_area_report_sa_eez_sf +
-  # m_s +
-  # m_g_r
+  )
+
+tic("show all maps")
+m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
+ m_grey_outside +
+  m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
+  db_data_w_area_report_sa_eez_sf +
+  m_s +
+  m_g_r
 toc()
 # 4s
+
+m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom
