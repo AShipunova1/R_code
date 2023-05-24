@@ -123,28 +123,20 @@ dim(db_data_w_area_report_sf)
 ## sa eez st_intersection ----
 ### with st_intersection ----
 
-
 with_st_intersection <- function(points_sf, polygons_sf) {
-  browser()
+  # browser()
+  # get param names
   par1 <- rlang::enexpr(points_sf)
   par2 <- rlang::enexpr(polygons_sf)
-
+  
   tic(paste0("sf::st_intersection(", par1, ", ", par2, ")"))
   res <- sf::st_intersection(points_sf, polygons_sf)
   toc()
   return(res)
 }
 
-db_data_w_area_report_sa_eez_sf2 <-
-with_st_intersection(db_data_w_area_report_sf, sa_shp)
-  # tic("sf::st_intersection(db_data_w_area_report_sf, sa_shp)")
-  # db_data_w_area_report_sa_eez_sf <-
-  #   sf::st_intersection(db_data_w_area_report_sf, sa_shp)
-  # # 2min
-  # toc()
-  # # 657.37 / 60 ~ 11m
-  # clean session: ~62 sec
-}
+db_data_w_area_report_sa_eez_sf <-
+  with_st_intersection(db_data_w_area_report_sf, sa_shp)
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
@@ -162,6 +154,7 @@ dim(db_data_w_area_report_sa_eez_sf)
 #### save sa_eez_data ----
 write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
 
+# mapview(db_data_w_area_report_sa_eez_sf1)
 
 # south of 28N - all SA ----
 db_data_w_area_report_sf_28_s <-
@@ -224,21 +217,9 @@ sa_fl_state_w_counties_names <-
 fl_state_w_counties_sa <- filter(fl_state_w_counties,
              gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names)
 
-# mapview(fl_state_w_counties_sa)
-
-# names(fl_state_w_counties_sa)
-# View(fl_state_w_counties_sa)
-
-tic("sf::st_intersection(db_data_w_area_report_sf_28_s,
-                      fl_state_w_counties_sa)")
 db_data_w_area_report_28_s_sa_counties_sf <-
-  sf::st_intersection(db_data_w_area_report_sf_28_s,
+  with_st_intersection(db_data_w_area_report_sf_28_s,
                       fl_state_w_counties_sa)
-# 3 m
-toc()
-# 5.03 sec 1 county
-# 10.39 sec
-# 57 sec
 
 # or read csv
 db_data_w_area_report_28_s_sa_counties_file_name <- 
