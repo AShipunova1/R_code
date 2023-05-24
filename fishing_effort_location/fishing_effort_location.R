@@ -312,10 +312,33 @@ dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 dim(all_s_28_minus_good_p)
 # [1] 69430    11
 
-# 2) (1) - gom shape
+# 2) (1) - gom shape ----
 all_s_28_minus_good_p_minus_not_gom <-
-  all_s_28_minus_good_p
+  with_st_difference(all_s_28_minus_good_p, gom_reef_shp)
+# 1227.47 / 60 ~ 20 min
 
+### or read csv ----
+all_s_28_minus_good_p_minus_not_gom_file_name <-
+  file.path(my_paths$outputs, current_project_name, "all_s_28_minus_good_p_minus_not_gom_file_name.csv")
+  
+write_csv(all_s_28_minus_good_p_minus_not_gom, all_s_28_minus_good_p_minus_not_gom_file_name)
+
+all_s_28_minus_good_p_minus_not_gom <-
+  read_sf(all_s_28_minus_good_p_minus_not_gom_file_name) %>%
+  my_to_sf()
+
+dim(all_s_28_minus_good_p_minus_not_gom)
+# [1] 36509    13
+
+# 3) (2) - Florida not sa counties ----
+str(fl_state_w_counties)
+
+all_s_28_minus_good_p_minus_not_gom_not_state <-
+  with_st_difference(all_s_28_minus_good_p_minus_not_gom,
+                     fl_state_w_counties)
+# 571.08 sec
+dim(all_s_28_minus_good_p_minus_not_gom_not_state)
+# 2440925      32
 # =======
 # - sa_eez
 get_florida_st_box <- function() {
@@ -413,7 +436,8 @@ str(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 182?
 # exclude gom reef again ----
 # gom_reef_shp
-sf::sf_use_s2(FALSE)
+# sf::sf_use_s2(FALSE)
+
 tic("sf::st_difference(db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
                     gom_reef_shp)")
 db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok <-
