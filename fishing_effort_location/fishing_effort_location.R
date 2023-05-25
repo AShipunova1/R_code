@@ -13,7 +13,6 @@ library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
 library(tictoc) #benchmarking
-library(sfheaders) #working with sf
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -278,11 +277,11 @@ filter_fl_counties  <- quo(
 )
 
 # use the filter
-db_data_w_area_report_minus_gom_sub4 <-
+db_data_w_area_report_minus_gom_sub4a <-
   db_data_w_area_report_minus_gom %>%
   filter(!!filter_fl_counties)
 
-db_data_w_area_report_minus_gom_sub4 %>% 
+db_data_w_area_report_minus_gom_sub4a %>% 
   # View()
   count(END_PORT_COUNTY)
 # END_PORT_COUNTY     n
@@ -298,7 +297,7 @@ db_data_w_area_report_minus_gom_sub4 %>%
   
 # Monroe county "good coords"
 good_coords_monroe <-
-  db_data_w_area_report_minus_gom_sub4 %>%
+  db_data_w_area_report_minus_gom_sub4a %>%
   filter(END_PORT_COUNTY == "MONROE" &
            !is.na(LATITUDE) &
            !is.na(LONGITUDE))
@@ -313,25 +312,50 @@ good_coords_monroe_sf_minus_gom <-
   with_st_difference(good_coords_monroe_sf, gom_reef_shp)
 toc()
 # 55.92 sec
-good_coords_monroe_minus_gom_df <-
-  sf::sf_to_df(good_coords_monroe_sf_minus_gom)
-# %>%
-#   select(-c("Area_SqKm", "Perim_M", "geometry")) %>%
-#   ungroup()
+db_data_w_area_report_minus_gom_sub4 <-
+  sf::st_drop_geometry(good_coords_monroe_sf_minus_gom) %>%
+  select(-c("Area_SqKm", "Perim_M")) 
 
-str(good_coords_monroe_minus_gom_df)
+str(db_data_w_area_report_minus_gom_sub4)
+# [1] 2953   20
 
 ## combine SA areas ----
 db_data_w_area_report_minus_gom <-
-  full_join(db_data_w_area_report_minus_gom_sub1,
-            db_data_w_area_report_minus_gom_sub2)
+  db_data_w_area_report_minus_gom_sub1 %>% 
+  rbind(db_data_w_area_report_minus_gom_sub2) %>%
+  rbind(db_data_w_area_report_minus_gom_sub3) %>%
+  rbind(db_data_w_area_report_minus_gom_sub4)
+
+dim(db_data_w_area_report_minus_gom_sub1)
+dim(db_data_w_area_report_minus_gom_sub2)
+dim(db_data_w_area_report_minus_gom_sub3)
+dim(db_data_w_area_report_minus_gom_sub4)
 
 dim(db_data_w_area_report_minus_gom)
-# 26004 + 10806 = 36810
+# [1] 42293    20
+dim(db_data_w_area_report_minus_gom_sub1)[1] +
+dim(db_data_w_area_report_minus_gom_sub2)[1] +
+dim(db_data_w_area_report_minus_gom_sub3)[1] +
+dim(db_data_w_area_report_minus_gom_sub4)[1]
+# 42293 - correct
 
 View(db_data_w_area_report_minus_gom)
 # end port
 # 2 maps, 2 tables
+
+db_data_w_area_report_minus_gom %>%
+  filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) %>% dim()
+# [1] 42293    20
+
+db_data_w_area_report_minus_gom_sf <-
+  my_to_sf(db_data_w_area_report_minus_gom)
+
+mapview(db_data_w_area_report_minus_gom_sf) + sa_shp +
+  gom_reef_shp + fl_state_w_counties_shp
+
+sa_shp_nc <-
+  sa_shp %>% 
+  filter(AreaName == "Off NC")
 
 # correct lat/long ----
 db_data_w_area_report <-
