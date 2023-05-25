@@ -236,42 +236,102 @@ to_mapview <- function(my_df) {
 #   my_to_sf() %>% mapview() + sa_shp
 
 ### area_codes_to_keep (all other SA areas) ----
-area_codes_to_keep <- c(
-  "000", "001", "002", 631:749
-)
+area_codes_to_remove <- paste0("00", c(3:9))
+area_codes_to_remove_part2 <- paste0("0", c(10:19))
 
+# db_data_w_area_report_minus_gom_fl_sa %>% 
+  # filter(AREA_CODE %in% c("015", "052")) %>% View()
+
+# db_data_w_area_report_minus_gom_fl_sa %>% select(AREA_CODE) %>% unique %>% arrange(AREA_CODE) %>% View()
 # length(area_codes_to_keep)
 # 122
 
 db_data_w_area_report_minus_gom_stat_areas <-
   db_data_w_area_report_minus_gom_fl_sa %>%
-  dplyr::filter(AREA_CODE %in%
-                  area_codes_to_keep)
+  dplyr::filter(
+    !(AREA_CODE %in%
+        area_codes_to_remove) &
+      !(AREA_CODE %in%
+          area_codes_to_remove_part2)
+  )
 
-dim(db_data_w_area_report_minus_gom_stat_areas)
+# db_data_w_area_report_minus_gom_stat_areas %>%
+#   select(AREA_CODE) %>% unique() %>%
+#   arrange(AREA_CODE) %>% 
+#   View()
+# 052?
+# dim(db_data_w_area_report_minus_gom_stat_areas)
+# [1] 130232     21
+# [1] 127553     21 (codes 10:)
+
 # 36366    
 # [1] 26004    19
 # [1] 25542    20
 # no 000
 # [1] 18478    20
 
+# filter(db_data_w_area_report_minus_gom_stat_areas,
+#        row_id == 139475) %>% View()
 
-## if an area code is 000 use the end port ----
+## if an area code is 000 or "OFF" use the end port ----
+db_data_w_area_report_minus_gom_stat_not0 <-
+  filter(db_data_w_area_report_minus_gom_stat_areas,
+         !(AREA_CODE %in% c("000", "OFF", "OFU")))
+  
+db_data_w_area_report_minus_gom_stat_no_area <-
+  filter(db_data_w_area_report_minus_gom_stat_areas,
+         AREA_CODE %in% c("000", "OFF", "OFU"))
+
 ### filter_fl_counties ----
+fl_counties_sa <- c(
+    "Brevard",
+    "Broward",
+    "Duval",
+    "Flagler",
+    "Indian River",
+    "Martin",
+    "Miami-Dade",
+    "Nassau",
+    "Palm Beach",
+    "Saint Johns",
+    "Saint Lucie",
+    "Volusia", 
+    "Monroe") #has GOM too, remove separately
+
 # create a filter
 filter_fl_counties <- quo(
     tolower(END_PORT_STATE) == "fl" &
     tolower(END_PORT_COUNTY) %in% tolower(fl_counties_sa)
 )
 
-# use the filter
-sub3_fl_counties <-
-  db_data_w_area_report_minus_gom %>%
-  filter(!!filter_fl_counties)
+# length(fl_counties_sa)
+# 13
 
-db_data_w_area_report_minus_gom_sub4a %>% 
+# use the filter
+sub1_fl_counties <-
+  db_data_w_area_report_minus_gom_stat_no_area %>%
+  filter(!!filter_fl_counties)
+# dim(sub1_fl_counties)
+# [1] 42949    21
+
+# save what is not in florida
+db_data_w_area_report_minus_gom_stat_no_area_not_fl <-
+  filter(db_data_w_area_report_minus_gom_stat_no_area,
+       !(tolower(END_PORT_STATE) == tolower("fl")))
+
+# dim(db_data_w_area_report_minus_gom_stat_no_area_not_fl)
+# [1] 23440    21
+# 23440 + 42949 = 66389
+
+# dim(db_data_w_area_report_minus_gom_stat_no_area)
+
+sub1_fl_counties %>% 
   # View()
   count(END_PORT_COUNTY)
+# 11
+# ...
+# 8 MONROE          27476
+
 # 000
 # END_PORT_COUNTY     n
 #   <chr>           <int>
@@ -299,16 +359,18 @@ db_data_w_area_report_minus_gom_sub4a %>%
 
 # Monroe county "good coords"
 good_coords_monroe <-
-  db_data_w_area_report_minus_gom_sub4a %>%
+  sub1_fl_counties %>%
   filter(END_PORT_COUNTY == "MONROE" &
            !is.na(LATITUDE) &
            !is.na(LONGITUDE))
-# dim(good_coords_monroe)
-# 18581
+dim(good_coords_monroe)
+# [1] 27476    21
 
-# [1] 3120   20
-good_coords_monroe_sf <- my_to_sf(good_coords_monroe)
-# str(good_coords_monroe_sf)
+good_coords_monroe_sf <-
+  good_coords_monroe %>%
+  select(LATITUDE, LONGITUDE, row_id) %>%
+  my_to_sf()
+# dim(good_coords_monroe_sf)
 
 tic("with_st_difference(good_coords_monroe_sf, gom_reef_shp)")
 good_coords_monroe_sf_minus_gom <-
@@ -316,16 +378,67 @@ good_coords_monroe_sf_minus_gom <-
 toc()
 # 55.92 sec
 # 59.19 sec after 1 mapview
+# 496.29 sec ~ 8 min
 
-db_data_w_area_report_minus_gom_sub4 <-
+good_coords_monroe_sf_minus_gom_file_path <-
+  file.path(my_paths$outputs,
+            current_project_name,
+            "good_coords_monroe_sf_minus_gom.csv")
+
+good_coords_monroe_sf_minus_gom <-
+  read_sf(good_coords_monroe_sf_minus_gom_file_path) %>%
+  my_to_sf()
+
+write_csv(
+  good_coords_monroe_sf_minus_gom,
+  good_coords_monroe_sf_minus_gom_file_path
+)
+
+
+good_coords_monroe_sf_minus_gom_df <-
   # remove the geometry field
   sf::st_drop_geometry(good_coords_monroe_sf_minus_gom) %>%
   # remove the rest of sf columns
   select(-c("Area_SqKm", "Perim_M")) 
 
-str(db_data_w_area_report_minus_gom_sub4)
-# [1] 2953   20
+# dim(good_coords_monroe_sf_minus_gom_df)
+# [1] 22558     3
 
+# to_mapview(good_coords_monroe_sf_minus_gom_df)
+
+sub1_fl_counties_no_monroe <-
+  filter(sub1_fl_counties,
+         !(END_PORT_COUNTY == "MONROE"))
+# dim(sub1_fl_counties_no_monroe)
+# [1] 15473    21
+
+sub2_fl_counties_monroe_good <-
+  filter(
+    sub1_fl_counties,
+    (END_PORT_COUNTY == "MONROE") &
+      row_id %in% good_coords_monroe_sf_minus_gom_df$row_id
+  )
+dim(sub2_fl_counties_monroe_good)
+# [1] 22558    21
+
+### combine ----
+
+db_data_w_area_report_table_cleaned <-
+  rbind(
+    db_data_w_area_report_minus_gom_stat_not0,
+    db_data_w_area_report_minus_gom_stat_no_area_not_fl,
+    sub1_fl_counties_no_monroe,
+    sub2_fl_counties_monroe_good
+  )
+
+# to_mapview(db_data_w_area_report_table_cleaned)
+filter(db_data_w_area_report_table_cleaned,
+       row_id == 31873) %>% View()
+# 43114
+
+
+
+# TODO: check below
 ## combine SA areas ----
 db_data_w_area_report_minus_gom <-
   db_data_w_area_report_minus_gom_sub1 %>% 
