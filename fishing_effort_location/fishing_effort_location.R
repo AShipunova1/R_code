@@ -142,7 +142,7 @@ dim(db_data_w_area_report_minus_gom)
 # 504
 
 
-# find codes ----
+## find codes ----
 # names(db_data_w_area_report_minus_gom)
 db_data_w_area_report_minus_gom %>%
   # filter(AREA_CODE == "001") %>% 
@@ -214,19 +214,7 @@ db_data_w_area_report_minus_gom_sub2 <-
 dim(db_data_w_area_report_minus_gom_sub2)
 # [1] 26004    19
 
-### combine SA areas ----
-db_data_w_area_report_minus_gom <-
-  full_join(db_data_w_area_report_minus_gom_sub1,
-            db_data_w_area_report_minus_gom_sub2)
-
-dim(db_data_w_area_report_minus_gom)
-# 26004 + 10806 = 36810
-
-View(db_data_w_area_report_minus_gom)
-# end port
-# 2 maps, 2 tables
-
-### area unknown ----
+### unknown areas ----
 states_sa <- data.frame(
   state_name = c(
     # "Florida", separate
@@ -246,18 +234,27 @@ sa_state_abb <-
   # get only these in our list
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
-  select(state_abb)
+  select(state_abb) %>%
+  as.data.frame()
 
-db_data_w_area_report_minus_gom %>%
-  filter(AREA_CODE == "000") %>% 
-  select(END_PORT_STATE) %>% unique()
-  View()
+# str(sa_state_abb)
+
+# db_data_w_area_report_minus_gom %>%
+#   filter(AREA_CODE == "000") %>%
+#   select(END_PORT_STATE) %>% count(END_PORT_STATE)
+#   END_PORT_STATE    n
+# 1             DE    4
+# 2             FL 6101
+# 3             GA  334
+# 4             MD   33
+# 5             NC  637
+# 6             NJ   49
+
+  # View()
 
 # create a filter
-filter_sa_states <- quo(
-  AREA_CODE == "000" &
-    tolower(END_PORT_STATE) %in% tolower(sa_state_abb)
-)
+filter_sa_states <- quo(AREA_CODE == "000" &
+                          tolower(END_PORT_STATE) %in% tolower(sa_state_abb$state_abb))
 
 filter_fl_counties  <- quo(
   AREA_CODE == "000" &
@@ -265,12 +262,33 @@ filter_fl_counties  <- quo(
     tolower(END_PORT_COUNTY) %in% tolower(fl_counties_sa)
 )
 
-# use the filter 
-compl_clean_sa_non_compl <-
-  compl_clean_sa %>%
-  filter(!!filter_egregious)
+# use the filters
+# names(db_data_w_area_report_minus_gom)
+db_data_w_area_report_minus_gom_sub3 <-
+  db_data_w_area_report_minus_gom %>%
+  # filter(AREA_CODE == "000" &
+  #          tolower(END_PORT_STATE) %in% 
+  #        # == "fl")
+  #        tolower(sa_state_abb$state_abb)) %>%
+  # count(END_PORT_STATE)
+  filter(!!filter_sa_states) %>% 
+  filter(!!filter_fl_counties) %>% 
+  count(END_PORT_STATE)
   
   
+
+## combine SA areas ----
+db_data_w_area_report_minus_gom <-
+  full_join(db_data_w_area_report_minus_gom_sub1,
+            db_data_w_area_report_minus_gom_sub2)
+
+dim(db_data_w_area_report_minus_gom)
+# 26004 + 10806 = 36810
+
+View(db_data_w_area_report_minus_gom)
+# end port
+# 2 maps, 2 tables
+
 # correct lat/long ----
 db_data_w_area_report <-
   db_data_w_area %>%
