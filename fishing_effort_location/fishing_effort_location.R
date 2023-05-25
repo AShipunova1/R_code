@@ -120,7 +120,8 @@ dim(db_data_w_area_short)
 
 db_data_w_area_report_minus_gom <-
   db_data_w_area_short %>%
-  dplyr::filter(!(grepl("MEX", AREA_NAME))) %>%    dplyr::filter(!(grepl("GOM", AREA_NAME))) %>%
+  dplyr::filter(!(grepl("MEX", AREA_NAME))) %>%
+  dplyr::filter(!(grepl("GOM", AREA_NAME))) %>%
   dplyr::filter(!REGION %in% c("GULF OF MEXICO")) %>%
   # all LONG should be negative
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
@@ -136,8 +137,8 @@ dim(db_data_w_area_report_minus_gom)
 
     # filter(between(LATITUDE, 23, 28)
 
-db_data_w_area %>%
-  filter(is.na(AREA_CODE)) %>% dim()
+# db_data_w_area %>%
+#   filter(is.na(AREA_CODE)) %>% dim()
 # 504
 
 
@@ -197,7 +198,7 @@ db_data_w_area_report_minus_gom_sub1 <-
 dim(db_data_w_area_report_minus_gom_sub1)
 # [1] 10806    19
 
-### area_codes_to_keep ----
+### area_codes_to_keep (all other SA areas) ----
 area_codes_to_keep <- c(
   "000", 631:747, 749
 )
@@ -206,14 +207,14 @@ glimpse(area_codes_to_keep)
 # 119
 
 db_data_w_area_report_minus_gom_sub2 <-
-  db_data_w_area_report_minus_gom %>% 
-    dplyr::filter(AREA_CODE %in%
-                    area_codes_to_keep
-                  ) 
+  db_data_w_area_report_minus_gom %>%
+  dplyr::filter(AREA_CODE %in%
+                  area_codes_to_keep)
 
 dim(db_data_w_area_report_minus_gom_sub2)
 # [1] 26004    19
 
+### combine SA areas ----
 db_data_w_area_report_minus_gom <-
   full_join(db_data_w_area_report_minus_gom_sub1,
             db_data_w_area_report_minus_gom_sub2)
@@ -225,6 +226,51 @@ View(db_data_w_area_report_minus_gom)
 # end port
 # 2 maps, 2 tables
 
+### area unknown ----
+states_sa <- data.frame(
+  state_name = c(
+    # "Florida", separate
+    "Georgia",
+    "North Carolina",
+    "South Carolina")
+)
+
+# Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
+state_tbl <- data.frame(state.abb, tolower(state.name))
+names(state_tbl) = c("state_abb", "state_name")
+
+# get SA states only from state_tbl
+sa_state_abb <-
+  # a table from above
+  state_tbl %>%
+  # get only these in our list
+  filter(state_name %in% tolower(states_sa$state_name)) %>%
+  # get abbreviations
+  select(state_abb)
+
+db_data_w_area_report_minus_gom %>%
+  filter(AREA_CODE == "000") %>% 
+  select(END_PORT_STATE) %>% unique()
+  View()
+
+# create a filter
+filter_sa_states <- quo(
+  AREA_CODE == "000" &
+    tolower(END_PORT_STATE) %in% tolower(sa_state_abb)
+)
+
+filter_fl_counties  <- quo(
+  AREA_CODE == "000" &
+    tolower(END_PORT_STATE) == "fl" &
+    tolower(END_PORT_COUNTY) %in% tolower(fl_counties_sa)
+)
+
+# use the filter 
+compl_clean_sa_non_compl <-
+  compl_clean_sa %>%
+  filter(!!filter_egregious)
+  
+  
 # correct lat/long ----
 db_data_w_area_report <-
   db_data_w_area %>%
