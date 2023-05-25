@@ -118,6 +118,7 @@ db_data_w_area_short <-
 dim(db_data_w_area_short)
 # [1] 254689     15
 
+## filtering by region/area/coords ----
 db_data_w_area_report_minus_gom <-
   db_data_w_area_short %>%
   dplyr::filter(!(grepl("MEX", AREA_NAME))) %>%
@@ -142,69 +143,6 @@ data_overview(db_data_w_area_report_minus_gom)
 # db_data_w_area_report_minus_gom %>% 
    # filter(is.na(AREA_CODE)) %>% dim()
 # 0
-
-### states to keep ----
-sa_states_to_keep <- function() {
-  states_sa <-
-    data.frame(state_name = c("Florida",
-                              "Georgia",
-                              "North Carolina",
-                              "South Carolina"))
-  
-  # Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
-  state_tbl <- data.frame(state.abb, tolower(state.name))
-  names(state_tbl) = c("state_abb", "state_name")
-  
-  # get SA states only from state_tbl
-  sa_state_abb <-
-    # a table from above
-    state_tbl %>%
-    # get only these in our list
-    filter(state_name %in% tolower(states_sa$state_name)) %>%
-    # get abbreviations
-    select(state_abb) %>%
-    as.data.frame()
-  
-  return(sa_state_abb)
-}
-
-sa_state_abb <- sa_states_to_keep() 
-
-# db_data_w_area_report_minus_gom %>%
-#   filter(AREA_CODE == "000") %>%
-#   select(END_PORT_STATE) %>% count(END_PORT_STATE)
-#   END_PORT_STATE    n
-# 1             DE    4
-# 2             FL 6101
-# 3             GA  334
-# 4             MD   33
-# 5             NC  637
-# 6             NJ   49
-
-  # View()
-
-### filter_sa_states ----
-# create a filter
-# AREA_CODE == "000" &
-filter_sa_states <- quo(tolower(END_PORT_STATE) %in% tolower(sa_state_abb$state_abb))
-
-# use the filter
-# names(db_data_w_area_report_minus_gom)
-db_data_w_area_report_minus_gom_sa_states <-
-  db_data_w_area_report_minus_gom %>%
-  filter(!!filter_sa_states)
-
-# db_data_w_area_report_minus_gom_sa_states %>%
-#   count(END_PORT_STATE)
-#   END_PORT_STATE      n
-#   <chr>           <int>
-# 1 FL             109426
-# 2 GA               1112
-# 3 NC              15353
-# 4 SC              14129
-
-
-
 
 ## find codes ----
 # names(db_data_w_area_report_minus_gom)
@@ -234,7 +172,44 @@ db_data_w_area_report_minus_gom_sa_states <-
 # 3 UNKNOWN  
 # Bahamas 186
 
-## sa area codes and unknowns ----
+## if an area code is 000 use the end port ----
+### states to keep ----
+sa_states_to_keep <- function() {
+  states_sa <-
+    data.frame(state_name = c("Florida",
+                              "Georgia",
+                              "North Carolina",
+                              "South Carolina"))
+  
+  # Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
+  state_tbl <- data.frame(state.abb, tolower(state.name))
+  names(state_tbl) = c("state_abb", "state_name")
+  
+  # get SA states only from state_tbl
+  sa_state_abb <-
+    # a table from above
+    state_tbl %>%
+    # get only these in our list
+    filter(state_name %in% tolower(states_sa$state_name)) %>%
+    # get abbreviations
+    select(state_abb) %>%
+    as.data.frame()
+  
+  return(sa_state_abb)
+}
+
+sa_state_abb <- sa_states_to_keep() 
+
+db_data_w_area_report_minus_gom %>%
+  filter(AREA_CODE == "000") %>%
+  select(END_PORT_STATE) %>% count(END_PORT_STATE)
+# # A tibble: 3 × 2
+#   END_PORT_STATE     n
+# 1 FL              6096
+# 2 GA               334
+# 3 NC               634
+# NC and GA - keep all
+
 ### FL sub-areas ----
 sa_sub_area_codes <- list(
   "001" = c("0001", "0009"), # for 001
@@ -242,14 +217,9 @@ sa_sub_area_codes <- list(
   "748" = c("0000", "0009") # for 748
 )
 
-# names(sa_sub_area_codes)
-
-# db_data_w_area_report_minus_gom_sub1 <-
 sub1_fl_sub_areas <-
   names(sa_sub_area_codes) %>%
   purrr::map_df(function(current_area_code) {
-  # purrr::map(function(current_area_code) {
-    # browser()
     filter(
       db_data_w_area_report_minus_gom,
       (toupper(db_data_w_area_report_minus_gom$START_PORT_STATE) == "FL") &
