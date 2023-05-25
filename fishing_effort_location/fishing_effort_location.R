@@ -178,11 +178,11 @@ db_data_w_area_report_minus_gom %>%
     ) %>% 
   # filter(is.na(AREA_CODE)) %>%
   # 0
-  # unique() %>% 
+  unique() %>%
   # arrange(SUB_AREA_CODE)
     # arrange(AREA_CODE)
 # %>%
-  # dim()
+  dim()
   # View()
 # 1 0000         
 # 2 0001         
@@ -195,12 +195,7 @@ db_data_w_area_report_minus_gom %>%
 # Bahamas 186
 
 ## sa area codes and unknowns ----
-area_codes_to_keep <- c(
-  "000", 631:747, 749
-)
-
-# View(area_codes_to_keep)
-
+### FL sub-areas ----
 sa_sub_area_codes <- list(
   "001" = c("0001", "0009"), # for 001
   "002" = c("0002", "0009"), # for 002
@@ -209,31 +204,49 @@ sa_sub_area_codes <- list(
 
 # names(sa_sub_area_codes)
 
-db_data_w_area_report_minus_gom_sa_areas <-
-  db_data_w_area_report_minus_gom %>% 
-    dplyr::filter(AREA_CODE %in%
-                    area_codes_to_keep
-                  ) 
-dim(db_data_w_area_report_minus_gom_sa_areas)
-# 40792    
-
-res1 <-
+db_data_w_area_report_minus_gom_sub1 <-
   names(sa_sub_area_codes) %>%
-  map(function(current_area_code) {
-    browser()
+  purrr::map_df(function(current_area_code) {
+  # purrr::map(function(current_area_code) {
+    # browser()
     filter(
-      db_data_w_area_report_minus_gom_sa_areas,
-      (toupper(db_data_w_area_report_minus_gom_sa_areas$START_PORT_STATE) == "FL") &
-      db_data_w_area_report_minus_gom_sa_areas$AREA_CODE == current_area_code &
-        db_data_w_area_report_minus_gom_sa_areas$SUB_AREA_CODE %in%
+      db_data_w_area_report_minus_gom,
+      (toupper(db_data_w_area_report_minus_gom$START_PORT_STATE) == "FL") &
+      db_data_w_area_report_minus_gom$AREA_CODE == current_area_code &
+        db_data_w_area_report_minus_gom$SUB_AREA_CODE %in%
         sa_sub_area_codes[current_area_code][[1]]
     ) %>%
       return()
   })
 
-length(res1)
-# 3
+dim(db_data_w_area_report_minus_gom_sub1)
+# [1] 10806    19
 
+### area_codes_to_keep ----
+area_codes_to_keep <- c(
+  "000", 631:747, 749
+)
+
+glimpse(area_codes_to_keep)
+# 119
+
+db_data_w_area_report_minus_gom_sub2 <-
+  db_data_w_area_report_minus_gom %>% 
+    dplyr::filter(AREA_CODE %in%
+                    area_codes_to_keep
+                  ) 
+
+dim(db_data_w_area_report_minus_gom_sub2)
+# [1] 26004    19
+
+db_data_w_area_report_minus_gom <-
+  full_join(db_data_w_area_report_minus_gom_sub1,
+            db_data_w_area_report_minus_gom_sub2)
+
+dim(db_data_w_area_report_minus_gom)
+# 26004 + 10806 = 36810
+
+View(db_data_w_area_report_minus_gom)
 # end port
 # 2 maps, 2 tables
 
