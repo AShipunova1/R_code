@@ -115,10 +115,8 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
                  # files_to_combine_list)
 
 # to a table report ----
-db_data_w_area_report <-
+db_data_w_area_short <-
   db_data_w_area %>%
-  # all LONG should be negative
-  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   select(
     TRIP_START_DATE,
     TRIP_END_DATE,
@@ -131,20 +129,73 @@ db_data_w_area_report <-
     LONGITUDE,
     FISHING_GEAR_DEPTH,
     AREA_NAME,
-    SUB_AREA_NAME,
     AREA_CODE,
+    SUB_AREA_NAME,
+    SUB_AREA_CODE,
+    LOCAL_AREA_NAME,
+    LOCAL_AREA_CODE,
+    AREA_DISPLAY_NAME,
     DISTANCE_CODE_NAME,
     REGION
   )
 
-db_data_w_area_report_miuns_gom <-
-  db_data_w_area_report %>%
-  dplyr::filter(grepl("MEX", AREA_NAME) | grepl("GOM", AREA_NAME)) %>%
+dim(db_data_w_area_short)
+# [1] 254689     15
+
+db_data_w_area_report_minus_gom <-
+  db_data_w_area_short %>%
+  dplyr::filter(!(grepl("MEX", AREA_NAME))) %>%    dplyr::filter(!(grepl("GOM", AREA_NAME))) %>%
   dplyr::filter(!REGION %in% c("GULF OF MEXICO")) %>%
+  # all LONG should be negative
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   dplyr::filter(between(LONGITUDE, -83, -71))
 
-    # filter(between(LATITUDE, 23, 28) &
-    #        between(LONGITUDE, -83, -71)) %>%
+dim(db_data_w_area_report_minus_gom)
+# [1] 145694     15
+
+# data_overview(db_data_w_area_report_minus_gom)
+# LATITUDE      
+# Min.   : 8.00 !
+# Max.   :85.00  
+
+    # filter(between(LATITUDE, 23, 28)
+
+# find codes ----
+# names(db_data_w_area_report_minus_gom)
+db_data_w_area_report_minus_gom %>% 
+# db_data_w_area %>%
+  filter(AREA_CODE == "001") %>% 
+  select(# AREA_NAME,
+    SUB_AREA_CODE,
+    # AREA_CODE,
+    # DISTANCE_CODE_NAME,
+    # REGION
+    ) %>% 
+  unique() %>% 
+  arrange(SUB_AREA_CODE)
+# 1 0000         
+# 2 0001         
+# 3 0008         
+# 4 0009 
+# REGION
+# 1 NA            
+# 2 SOUTH ATLANTIC
+# 3 UNKNOWN  
+
+
+## sa area codes and unknowns ----
+area_codes_to_keep <- c(
+  "000", "001", "002", 631:749
+)
+
+# View(area_codes_to_keep)
+
+sa_sub_area_codes <- list(
+  "001" = c("0001", "0009"), # for 001
+  "002" = c("0002", "0009"), # for 002
+  "748" = c("0000", "0009") # for 748
+)
+
 
 
 
@@ -336,8 +387,8 @@ tic("sf::st_union(all_shp1, fl_state_w_counties_shp)")
 all_shp2 <-
   sf::st_union(all_shp1, fl_state_w_counties_shp)
 toc()
-
-# mapview(all_shp2)
+# 83.17 
+# plot(all_shp2)
 
 ## all points below 28 minus all shapes ----
 tic("with_st_difference(db_data_w_area_report_sf_28_s, all_shp2)")
