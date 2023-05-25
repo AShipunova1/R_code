@@ -130,39 +130,99 @@ db_data_w_area_report_minus_gom <-
 # st_geometry(sa_shp)
 # Bounding box:  xmin: -83 ymin: 23.81794 xmax: -71.37133 ymax: 36.55028
 
-
-dim(db_data_w_area_report_minus_gom)
+# dim(db_data_w_area_report_minus_gom)
 # [1] 145694     15
 
-# data_overview(db_data_w_area_report_minus_gom)
-# LATITUDE      
-# Min.   : 8.00 !
-# Max.   :85.00  
-
-    # filter(between(LATITUDE, 23, 28)
+data_overview(db_data_w_area_report_minus_gom)
+# no lat/long NAs
 
 # db_data_w_area %>%
-#   filter(is.na(AREA_CODE)) %>% dim()
+  # filter(is.na(AREA_CODE)) %>% dim()
 # 504
+# db_data_w_area_report_minus_gom %>% 
+   # filter(is.na(AREA_CODE)) %>% dim()
+# 0
+
+### states to keep ----
+sa_states_to_keep <- function() {
+  states_sa <-
+    data.frame(state_name = c("Florida",
+                              "Georgia",
+                              "North Carolina",
+                              "South Carolina"))
+  
+  # Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
+  state_tbl <- data.frame(state.abb, tolower(state.name))
+  names(state_tbl) = c("state_abb", "state_name")
+  
+  # get SA states only from state_tbl
+  sa_state_abb <-
+    # a table from above
+    state_tbl %>%
+    # get only these in our list
+    filter(state_name %in% tolower(states_sa$state_name)) %>%
+    # get abbreviations
+    select(state_abb) %>%
+    as.data.frame()
+  
+  return(sa_state_abb)
+}
+
+sa_state_abb <- sa_states_to_keep() 
+
+# db_data_w_area_report_minus_gom %>%
+#   filter(AREA_CODE == "000") %>%
+#   select(END_PORT_STATE) %>% count(END_PORT_STATE)
+#   END_PORT_STATE    n
+# 1             DE    4
+# 2             FL 6101
+# 3             GA  334
+# 4             MD   33
+# 5             NC  637
+# 6             NJ   49
+
+  # View()
+
+### filter_sa_states ----
+# create a filter
+# AREA_CODE == "000" &
+filter_sa_states <- quo(tolower(END_PORT_STATE) %in% tolower(sa_state_abb$state_abb))
+
+# use the filter
+# names(db_data_w_area_report_minus_gom)
+db_data_w_area_report_minus_gom_sa_states <-
+  db_data_w_area_report_minus_gom %>%
+  filter(!!filter_sa_states)
+
+# db_data_w_area_report_minus_gom_sa_states %>%
+#   count(END_PORT_STATE)
+#   END_PORT_STATE      n
+#   <chr>           <int>
+# 1 FL             109426
+# 2 GA               1112
+# 3 NC              15353
+# 4 SC              14129
+
+
 
 
 ## find codes ----
 # names(db_data_w_area_report_minus_gom)
-db_data_w_area_report_minus_gom %>%
+# db_data_w_area_report_minus_gom %>%
   # filter(AREA_CODE == "001") %>% 
-  select(# AREA_NAME,
+  # select(# AREA_NAME,
     # SUB_AREA_CODE,
-    AREA_CODE,
+    # AREA_CODE,
     # DISTANCE_CODE_NAME,
     # REGION
-    ) %>% 
+    # ) %>% 
   # filter(is.na(AREA_CODE)) %>%
   # 0
-  unique() %>%
+  # unique() %>%
   # arrange(SUB_AREA_CODE)
     # arrange(AREA_CODE)
 # %>%
-  dim()
+  # dim()
   # View()
 # 1 0000         
 # 2 0001         
@@ -184,7 +244,8 @@ sa_sub_area_codes <- list(
 
 # names(sa_sub_area_codes)
 
-db_data_w_area_report_minus_gom_sub1 <-
+# db_data_w_area_report_minus_gom_sub1 <-
+sub1_fl_sub_areas <-
   names(sa_sub_area_codes) %>%
   purrr::map_df(function(current_area_code) {
   # purrr::map(function(current_area_code) {
@@ -199,83 +260,32 @@ db_data_w_area_report_minus_gom_sub1 <-
       return()
   })
 
-dim(db_data_w_area_report_minus_gom_sub1)
-# [1] 10806    19
+dim(sub1_fl_sub_areas)
+# [1] 10806    20
 
 ### area_codes_to_keep (all other SA areas) ----
 area_codes_to_keep <- c(
   "000", 631:747, 749
 )
 
-glimpse(area_codes_to_keep)
+# length(area_codes_to_keep)
 # 119
 
-db_data_w_area_report_minus_gom_sub2 <-
+sub2_other_stat_areas <-
   db_data_w_area_report_minus_gom %>%
   dplyr::filter(AREA_CODE %in%
                   area_codes_to_keep)
 
-dim(db_data_w_area_report_minus_gom_sub2)
+dim(sub2_other_stat_areas)
 # [1] 26004    19
+# [1] 25542    20
 
 ### unknown areas ----
-states_sa <- data.frame(
-  state_name = c(
-    # "Florida", separate
-    "Georgia",
-    "North Carolina",
-    "South Carolina")
-)
-
-# Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
-state_tbl <- data.frame(state.abb, tolower(state.name))
-names(state_tbl) = c("state_abb", "state_name")
-
-# get SA states only from state_tbl
-sa_state_abb <-
-  # a table from above
-  state_tbl %>%
-  # get only these in our list
-  filter(state_name %in% tolower(states_sa$state_name)) %>%
-  # get abbreviations
-  select(state_abb) %>%
-  as.data.frame()
-
-# str(sa_state_abb)
-
-# db_data_w_area_report_minus_gom %>%
-#   filter(AREA_CODE == "000") %>%
-#   select(END_PORT_STATE) %>% count(END_PORT_STATE)
-#   END_PORT_STATE    n
-# 1             DE    4
-# 2             FL 6101
-# 3             GA  334
-# 4             MD   33
-# 5             NC  637
-# 6             NJ   49
-
-  # View()
-
-### filter_sa_states ----
-# create a filter
-filter_sa_states <- quo(AREA_CODE == "000" &
-                          tolower(END_PORT_STATE) %in% tolower(sa_state_abb$state_abb))
-
-# use the filter
-# names(db_data_w_area_report_minus_gom)
-db_data_w_area_report_minus_gom_sub3 <-
-  db_data_w_area_report_minus_gom %>%
-  filter(!!filter_sa_states)
-#   count(END_PORT_STATE)
-#     END_PORT_STATE     n
-#   <chr>          <int>
-# 1 GA               334
-# 2 NC               637
 
 ### filter_fl_counties ----
 # create a filter
 filter_fl_counties  <- quo(
-  AREA_CODE == "000" &
+  # AREA_CODE == "000" &
     tolower(END_PORT_STATE) == "fl" &
     tolower(END_PORT_COUNTY) %in% tolower(fl_counties_sa)
 )
@@ -288,6 +298,7 @@ db_data_w_area_report_minus_gom_sub4a <-
 db_data_w_area_report_minus_gom_sub4a %>% 
   # View()
   count(END_PORT_COUNTY)
+# 000
 # END_PORT_COUNTY     n
 #   <chr>           <int>
 # 1 BREVARD           720
@@ -298,14 +309,28 @@ db_data_w_area_report_minus_gom_sub4a %>%
 # 6 NASSAU             12
 # 7 PALM BEACH        107
 # 8 VOLUSIA           507
-  
+  # all
+#    END_PORT_COUNTY     n
+#    <chr>           <int>
+#  1 BREVARD          1766
+#  2 BROWARD           579
+#  3 DUVAL            1596
+#  4 INDIAN RIVER       43
+#  5 MARTIN            278
+#  6 MIAMI-DADE       2278
+#  7 MONROE          18581
+#  8 NASSAU            206
+#  9 PALM BEACH       1556
+# 10 VOLUSIA          1056
+
 # Monroe county "good coords"
 good_coords_monroe <-
   db_data_w_area_report_minus_gom_sub4a %>%
   filter(END_PORT_COUNTY == "MONROE" &
            !is.na(LATITUDE) &
            !is.na(LONGITUDE))
-# View(good_coords_monroe)
+# dim(good_coords_monroe)
+# 18581
 
 # [1] 3120   20
 good_coords_monroe_sf <- my_to_sf(good_coords_monroe)
@@ -350,13 +375,13 @@ dim(db_data_w_area_report_minus_gom_sub3)[1] +
 dim(db_data_w_area_report_minus_gom_sub4)[1]
 # 40269 - correct
 
-View(db_data_w_area_report_minus_gom)
+# View(db_data_w_area_report_minus_gom)
 # end port
 # 2 maps, 2 tables
 
-db_data_w_area_report_minus_gom %>%
-  filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) %>% dim()
-# [1] 42293    20
+# db_data_w_area_report_minus_gom %>%
+#   filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) %>% dim()
+# same
 
 db_data_w_area_report_minus_gom_sf <-
   my_to_sf(db_data_w_area_report_minus_gom)
