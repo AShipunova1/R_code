@@ -226,26 +226,37 @@ db_data_w_area_report_minus_gom_fl_sa <-
 dim(db_data_w_area_report_minus_gom_fl_sa)
 # [1] 136213     21
 
-## if an area code is 000 use the end port ----
+to_mapview <- function(my_df) {
+  my_df %>%
+    select(LATITUDE, LONGITUDE, row_id) %>%
+    my_to_sf() %>% mapview() + sa_shp
+}
+# db_data_w_area_report_minus_gom_fl_sa %>% 
+#   select(LATITUDE, LONGITUDE, row_id) %>%
+#   my_to_sf() %>% mapview() + sa_shp
+
 ### area_codes_to_keep (all other SA areas) ----
 area_codes_to_keep <- c(
-  631:747, 749
+  "000", "001", "002", 631:749
 )
 
 # length(area_codes_to_keep)
-# 119
+# 122
 
-sub2_other_stat_areas <-
-  db_data_w_area_report_minus_gom %>%
+db_data_w_area_report_minus_gom_stat_areas <-
+  db_data_w_area_report_minus_gom_fl_sa %>%
   dplyr::filter(AREA_CODE %in%
                   area_codes_to_keep)
 
-dim(sub2_other_stat_areas)
+dim(db_data_w_area_report_minus_gom_stat_areas)
+# 36366    
 # [1] 26004    19
 # [1] 25542    20
 # no 000
 # [1] 18478    20
 
+
+## if an area code is 000 use the end port ----
 ### filter_fl_counties ----
 # create a filter
 filter_fl_counties <- quo(
