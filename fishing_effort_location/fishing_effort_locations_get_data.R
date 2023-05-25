@@ -20,6 +20,9 @@ data_from_db <- function() {
   start_port_county,
   start_port_state,
   end_port,
+  end_port_name,
+  end_port_county,
+  end_port_state,
   vendor_app_name,
   area_code,
   sub_area_code,
@@ -43,8 +46,7 @@ WHERE
   db_data = dbGetQuery(con,
                        request_query)
   
-  data_overview(db_data)
-  
+  # data_overview(db_data)
   
   area_data_query <-
     "select * from SAFIS.AREAS_FISHED@secapxdv_dblk.sfsc.noaa.gov
@@ -55,15 +57,32 @@ WHERE
                             area_data_query)
   
   dbDisconnect(con)
+  
+  db_data_w_area <- full_join(db_area_data, db_data)
+  # Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
+  # LOCAL_AREA_CODE)`
+  
+  return(db_data_w_area)
 }
 
-
-# str(db_data)
+# tic("data_from_db()")
+# db_data_w_area <- data_from_db()
+# toc()
+# 
+# dim(db_data_w_area)
 # 'data.frame':	306261 obs. of  19 variables
+# [1] 254689     32  (May 25)
+
+db_data_w_area_file_path <-
+  file.path(my_paths$inputs,
+            "fishing_effort_locations/db_data_w_area.csv")
+
+# write_csv(db_data_w_area,
+#           db_data_w_area_file_path)
 
 # or get data from the saved csv ----
 
-db_data_w_area <- read_csv(file.path(my_paths$inputs, "fishing_effort_locations/db_data_w_area.csv"))
+db_data_w_area <- read_csv(db_data_w_area_file_path)
 
 ## ---- get other geographical data ----
 read_shapefile <- function(filename) {
