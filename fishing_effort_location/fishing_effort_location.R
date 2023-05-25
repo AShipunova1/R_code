@@ -114,6 +114,40 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
 # make_a_flat_file(flat_file_name,
                  # files_to_combine_list)
 
+# to a table report ----
+db_data_w_area_report <-
+  db_data_w_area %>%
+  # all LONG should be negative
+  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    START_PORT,
+    START_PORT_NAME,
+    START_PORT_COUNTY,
+    START_PORT_STATE,
+    END_PORT,
+    LATITUDE,
+    LONGITUDE,
+    FISHING_GEAR_DEPTH,
+    AREA_NAME,
+    SUB_AREA_NAME,
+    AREA_CODE,
+    DISTANCE_CODE_NAME,
+    REGION
+  )
+
+db_data_w_area_report_miuns_gom <-
+  db_data_w_area_report %>%
+  dplyr::filter(grepl("MEX", AREA_NAME) | grepl("GOM", AREA_NAME)) %>%
+  dplyr::filter(!REGION %in% c("GULF OF MEXICO")) %>%
+  dplyr::filter(between(LONGITUDE, -83, -71))
+
+    # filter(between(LATITUDE, 23, 28) &
+    #        between(LONGITUDE, -83, -71)) %>%
+
+
+
 # correct lat/long ----
 db_data_w_area_report <-
   db_data_w_area %>%
@@ -303,7 +337,7 @@ all_shp2 <-
   sf::st_union(all_shp1, fl_state_w_counties_shp)
 toc()
 
-mapview(all_shp2)
+# mapview(all_shp2)
 
 ## all points below 28 minus all shapes ----
 tic("with_st_difference(db_data_w_area_report_sf_28_s, all_shp2)")
