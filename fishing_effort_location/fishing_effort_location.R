@@ -125,6 +125,9 @@ db_data_w_area_short <-
     START_PORT_COUNTY,
     START_PORT_STATE,
     END_PORT,
+    END_PORT_NAME,
+    END_PORT_COUNTY,
+    END_PORT_STATE,
     LATITUDE,
     LONGITUDE,
     FISHING_GEAR_DEPTH,
@@ -132,8 +135,6 @@ db_data_w_area_short <-
     AREA_CODE,
     SUB_AREA_NAME,
     SUB_AREA_CODE,
-    LOCAL_AREA_NAME,
-    LOCAL_AREA_CODE,
     AREA_DISPLAY_NAME,
     DISTANCE_CODE_NAME,
     REGION
