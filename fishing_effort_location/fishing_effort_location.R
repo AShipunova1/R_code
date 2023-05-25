@@ -144,6 +144,12 @@ data_overview(db_data_w_area_report_minus_gom)
    # filter(is.na(AREA_CODE)) %>% dim()
 # 0
 
+## add a rowid ----
+db_data_w_area_report_minus_gom %<>%
+  dplyr::mutate(row_id = row_number())
+
+# View(db_data_w_area_report_minus_gom)
+
 ## find codes ----
 # names(db_data_w_area_report_minus_gom)
 # db_data_w_area_report_minus_gom %>%
@@ -172,70 +178,37 @@ data_overview(db_data_w_area_report_minus_gom)
 # 3 UNKNOWN  
 # Bahamas 186
 
-## if an area code is 000 use the end port ----
-### states to keep ----
-sa_states_to_keep <- function() {
-  states_sa <-
-    data.frame(state_name = c("Florida",
-                              "Georgia",
-                              "North Carolina",
-                              "South Carolina"))
-  
-  # Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
-  state_tbl <- data.frame(state.abb, tolower(state.name))
-  names(state_tbl) = c("state_abb", "state_name")
-  
-  # get SA states only from state_tbl
-  sa_state_abb <-
-    # a table from above
-    state_tbl %>%
-    # get only these in our list
-    filter(state_name %in% tolower(states_sa$state_name)) %>%
-    # get abbreviations
-    select(state_abb) %>%
-    as.data.frame()
-  
-  return(sa_state_abb)
-}
-
-sa_state_abb <- sa_states_to_keep() 
-
-db_data_w_area_report_minus_gom %>%
-  filter(AREA_CODE == "000") %>%
-  select(END_PORT_STATE) %>% count(END_PORT_STATE)
-# # A tibble: 3 × 2
-#   END_PORT_STATE     n
-# 1 FL              6096
-# 2 GA               334
-# 3 NC               634
-# NC and GA - keep all
-
-### FL sub-areas ----
+## FL sub-areas SA ----
 sa_sub_area_codes <- list(
   "001" = c("0001", "0009"), # for 001
   "002" = c("0002", "0009"), # for 002
   "748" = c("0000", "0009") # for 748
 )
 
-sub1_fl_sub_areas <-
+# sub1_fl_sub_areas <-
+fl_sub_areas_ids <-
   names(sa_sub_area_codes) %>%
   purrr::map_df(function(current_area_code) {
-    filter(
+    dplyr::filter(
       db_data_w_area_report_minus_gom,
-      (toupper(db_data_w_area_report_minus_gom$START_PORT_STATE) == "FL") &
+      # current sub-area
       db_data_w_area_report_minus_gom$AREA_CODE == current_area_code &
         db_data_w_area_report_minus_gom$SUB_AREA_CODE %in%
         sa_sub_area_codes[current_area_code][[1]]
     ) %>%
+      select(row_id) %>%
       return()
   })
 
-dim(sub1_fl_sub_areas)
-# [1] 10806    20
+dim(sub1_fl_sub_areas_ids)
+# [1] 10824     1
 
+
+
+## if an area code is 000 use the end port ----
 ### area_codes_to_keep (all other SA areas) ----
 area_codes_to_keep <- c(
-  "000", 631:747, 749
+  631:747, 749
 )
 
 # length(area_codes_to_keep)
@@ -249,19 +222,18 @@ sub2_other_stat_areas <-
 dim(sub2_other_stat_areas)
 # [1] 26004    19
 # [1] 25542    20
-
-### unknown areas ----
+# no 000
+# [1] 18478    20
 
 ### filter_fl_counties ----
 # create a filter
-filter_fl_counties  <- quo(
-  # AREA_CODE == "000" &
+filter_fl_counties <- quo(
     tolower(END_PORT_STATE) == "fl" &
     tolower(END_PORT_COUNTY) %in% tolower(fl_counties_sa)
 )
 
 # use the filter
-db_data_w_area_report_minus_gom_sub4a <-
+sub3_fl_counties <-
   db_data_w_area_report_minus_gom %>%
   filter(!!filter_fl_counties)
 
