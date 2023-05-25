@@ -206,20 +206,20 @@ sa_sub_area_codes <- list(
   "748" = c("0000", "0009") # for 748
 )
 
-names(sa_sub_area_codes)
+# names(sa_sub_area_codes)
+
 db_data_w_area_report_minus_gom_sa_areas <-
   db_data_w_area_report_minus_gom %>% 
     dplyr::filter(AREA_CODE %in%
-                    area_codes_to_keep |
-                    is.na(AREA_CODE)
+                    area_codes_to_keep
                   ) 
 dim(db_data_w_area_report_minus_gom_sa_areas)
 # 40792    
 
 res1 <-
-names(sa_sub_area_codes) %>%
+  names(sa_sub_area_codes) %>%
   map(function(current_area_code) {
-    # browser()
+    browser()
     filter(
       db_data_w_area_report_minus_gom_sa_areas,
       (toupper(db_data_w_area_report_minus_gom_sa_areas$START_PORT_STATE) == "FL") &
@@ -230,21 +230,11 @@ names(sa_sub_area_codes) %>%
       return()
   })
 
-View(res1)
+length(res1)
+# 3
 
 # end port
 # 2 maps, 2 tables
-
-# db_data_w_area_report_minus_gom_sa_areas  %>%
-#      dplyr::filter((AREA_CODE %in% names(sa_sub_area_codes) &
-#                       (SUB_AREA_CODE %in% ) )) %>%  
-
-    # dplyr::filter(case_when()
-    #   AREA_CODE %in%
-    #                 area_codes_to_keep) %>%
-
-    glimpse()
-
 
 # correct lat/long ----
 db_data_w_area_report <-
