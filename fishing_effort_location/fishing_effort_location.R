@@ -178,15 +178,14 @@ db_data_w_area_report_minus_gom %<>%
 # 3 UNKNOWN  
 # Bahamas 186
 
-## FL sub-areas SA ----
+### FL sub-areas SA ----
 sa_sub_area_codes <- list(
   "001" = c("0001", "0009"), # for 001
   "002" = c("0002", "0009"), # for 002
   "748" = c("0000", "0009") # for 748
 )
 
-# sub1_fl_sub_areas <-
-fl_sub_areas_ids <-
+sub1_fl_sub_areas <-
   names(sa_sub_area_codes) %>%
   purrr::map_df(function(current_area_code) {
     dplyr::filter(
@@ -196,14 +195,36 @@ fl_sub_areas_ids <-
         db_data_w_area_report_minus_gom$SUB_AREA_CODE %in%
         sa_sub_area_codes[current_area_code][[1]]
     ) %>%
-      select(row_id) %>%
       return()
   })
 
-dim(sub1_fl_sub_areas_ids)
-# [1] 10824     1
+View(sub1_fl_sub_areas)
+# [1] 10824    21
 
+sub2_not_fl_sub_areas <-
+  dplyr::filter(db_data_w_area_report_minus_gom,
+                !(AREA_CODE %in% names(sa_sub_area_codes)))
 
+# dim(sub1_fl_sub_areas)
+# [1] 10824    21
+
+# dim(sub2_not_fl_sub_areas)
+# [1] 125389     21
+
+# should be
+# 10824 + 125389 = 136213
+
+# (AREA_CODE %in% names(sa_sub_area_codes)
+# [1] 14788    21
+
+# dim(db_data_w_area_report_minus_gom)
+# [1] 140177     21
+
+db_data_w_area_report_minus_gom_fl_sa <-
+  rbind(sub1_fl_sub_areas, sub2_not_fl_sub_areas)
+
+dim(db_data_w_area_report_minus_gom_fl_sa)
+# [1] 136213     21
 
 ## if an area code is 000 use the end port ----
 ### area_codes_to_keep (all other SA areas) ----
