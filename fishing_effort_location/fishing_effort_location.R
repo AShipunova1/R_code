@@ -160,19 +160,29 @@ dim(db_data_w_area_report_minus_gom)
 
     # filter(between(LATITUDE, 23, 28)
 
+db_data_w_area %>%
+  filter(is.na(AREA_CODE)) %>% dim()
+# 504
+
+
 # find codes ----
 # names(db_data_w_area_report_minus_gom)
-db_data_w_area_report_minus_gom %>% 
-# db_data_w_area %>%
-  filter(AREA_CODE == "001") %>% 
+db_data_w_area_report_minus_gom %>%
+  # filter(AREA_CODE == "001") %>% 
   select(# AREA_NAME,
-    SUB_AREA_CODE,
-    # AREA_CODE,
+    # SUB_AREA_CODE,
+    AREA_CODE,
     # DISTANCE_CODE_NAME,
     # REGION
     ) %>% 
-  unique() %>% 
-  arrange(SUB_AREA_CODE)
+  # filter(is.na(AREA_CODE)) %>%
+  # 0
+  # unique() %>% 
+  # arrange(SUB_AREA_CODE)
+    # arrange(AREA_CODE)
+# %>%
+  # dim()
+  # View()
 # 1 0000         
 # 2 0001         
 # 3 0008         
@@ -181,11 +191,11 @@ db_data_w_area_report_minus_gom %>%
 # 1 NA            
 # 2 SOUTH ATLANTIC
 # 3 UNKNOWN  
-
+# Bahamas 186
 
 ## sa area codes and unknowns ----
 area_codes_to_keep <- c(
-  "000", "001", "002", 631:749
+  "000", 631:747, 749
 )
 
 # View(area_codes_to_keep)
@@ -200,11 +210,34 @@ names(sa_sub_area_codes)
 db_data_w_area_report_minus_gom_sa_areas <-
   db_data_w_area_report_minus_gom %>% 
     dplyr::filter(AREA_CODE %in%
-                    area_codes_to_keep) 
-  
-  %>%
-     dplyr::filter((AREA_CODE %in% names(sa_sub_area_codes) &
-                      (SUB_AREA_CODE %in% ) )) %>%  
+                    area_codes_to_keep |
+                    is.na(AREA_CODE)
+                  ) 
+dim(db_data_w_area_report_minus_gom_sa_areas)
+# 40792    
+
+res1 <-
+names(sa_sub_area_codes) %>%
+  map(function(current_area_code) {
+    # browser()
+    filter(
+      db_data_w_area_report_minus_gom_sa_areas,
+      (toupper(db_data_w_area_report_minus_gom_sa_areas$START_PORT_STATE) == "FL") &
+      db_data_w_area_report_minus_gom_sa_areas$AREA_CODE == current_area_code &
+        db_data_w_area_report_minus_gom_sa_areas$SUB_AREA_CODE %in%
+        sa_sub_area_codes[current_area_code][[1]]
+    ) %>%
+      return()
+  })
+
+View(res1)
+
+# end port
+# 2 maps, 2 tables
+
+# db_data_w_area_report_minus_gom_sa_areas  %>%
+#      dplyr::filter((AREA_CODE %in% names(sa_sub_area_codes) &
+#                       (SUB_AREA_CODE %in% ) )) %>%  
 
     # dplyr::filter(case_when()
     #   AREA_CODE %in%
