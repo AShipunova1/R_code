@@ -296,6 +296,30 @@ db_data_w_area_report_minus_gom_sub4 %>%
 # 7 PALM BEACH        107
 # 8 VOLUSIA           507
   
+# Monroe county "good coords"
+good_coords_monroe <-
+  db_data_w_area_report_minus_gom_sub4 %>%
+  filter(END_PORT_COUNTY == "MONROE" &
+           !is.na(LATITUDE) &
+           !is.na(LONGITUDE))
+# View(good_coords_monroe)
+
+# [1] 3120   20
+good_coords_monroe_sf <- my_to_sf(good_coords_monroe)
+# str(good_coords_monroe_sf)
+
+tic("with_st_difference(good_coords_monroe_sf, gom_reef_shp)")
+good_coords_monroe_sf_minus_gom <-
+  with_st_difference(good_coords_monroe_sf, gom_reef_shp)
+toc()
+# 55.92 sec
+good_coords_monroe_minus_gom_df <-
+  sf::sf_to_df(good_coords_monroe_sf_minus_gom)
+# %>%
+#   select(-c("Area_SqKm", "Perim_M", "geometry")) %>%
+#   ungroup()
+
+str(good_coords_monroe_minus_gom_df)
 
 ## combine SA areas ----
 db_data_w_area_report_minus_gom <-
