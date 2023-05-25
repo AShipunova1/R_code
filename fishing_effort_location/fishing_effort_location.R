@@ -394,7 +394,6 @@ write_csv(
   good_coords_monroe_sf_minus_gom_file_path
 )
 
-
 good_coords_monroe_sf_minus_gom_df <-
   # remove the geometry field
   sf::st_drop_geometry(good_coords_monroe_sf_minus_gom) %>%
@@ -418,7 +417,8 @@ sub2_fl_counties_monroe_good <-
     (END_PORT_COUNTY == "MONROE") &
       row_id %in% good_coords_monroe_sf_minus_gom_df$row_id
   )
-dim(sub2_fl_counties_monroe_good)
+
+# dim(sub2_fl_counties_monroe_good)
 # [1] 22558    21
 
 ### combine ----
@@ -431,12 +431,16 @@ db_data_w_area_report_table_cleaned <-
     sub2_fl_counties_monroe_good
   )
 
-# to_mapview(db_data_w_area_report_table_cleaned)
-filter(db_data_w_area_report_table_cleaned,
-       row_id == 31873) %>% View()
+to_mapview(db_data_w_area_report_table_cleaned)
+# filter(db_data_w_area_report_table_cleaned,
+#        row_id == 31873) %>% View()
 # 43114
 
-
+write_csv(db_data_w_area_report_table_cleaned,
+          file.path(my_paths$outputs,
+            current_project_name,
+            "db_data_w_area_report_table_cleaned.csv")
+)
 
 # TODO: check below
 ## combine SA areas ----
@@ -515,8 +519,10 @@ dim(db_data_w_area_report_sf)
 ## sa eez st_intersection ----
 ### with st_intersection ----
 
+tic("with_st_intersection(db_data_w_area_report_sf, sa_shp)")
 db_data_w_area_report_sa_eez_sf <-
   with_st_intersection(db_data_w_area_report_sf, sa_shp)
+toc()
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
@@ -902,16 +908,16 @@ m_g_r <- mapview(
   legend = FALSE
 )
 
-m_grey_outside <-
-  mapview(
-    db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
-    col.regions = "darkgrey",
-    layer.name = 'State and inner waters'
-  )
+# m_grey_outside <-
+#   mapview(
+#     db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
+#     col.regions = "darkgrey",
+#     layer.name = 'State and inner waters'
+#   )
 
 tic("show all maps")
 m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
- m_grey_outside +
+ # m_grey_outside +
   m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
   db_data_w_area_report_sa_eez_sf +
   m_s +
