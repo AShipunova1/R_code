@@ -84,35 +84,10 @@ with_st_difference <- function(points_sf, polygons_sf) {
 
 # north of 28N - EEZ only
 
-# if from db ----
-## combine with additional area data ----  
-combine_data_from_db <- function() {
-  db_data_w_area <- full_join(db_area_data, db_data)
-  # Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
-  # LOCAL_AREA_CODE)`
-}
 all_points <- dim(db_data_w_area)[1]
 # 254689
 
 # View(db_data_w_area)
-
-# make a flat file ----
-dir_to_comb <- file.path(my_paths$git_r, current_project_name)
-
-files_to_combine <-
-  c(
-    file.path(my_paths$git_r, "useful_functions_module.r"),
-    file.path(dir_to_comb, "read.me.R"),
-    file.path(dir_to_comb, "fishing_effort_locations_get_data.R"),
-    file.path(dir_to_comb, "fishing_effort_location.R"),
-    file.path(dir_to_comb, "fishing_effort_location_viz.R")
-  )
-
-flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
-
-# run as needed
-# make_a_flat_file(flat_file_name,
-                 # files_to_combine_list)
 
 # to a table report ----
 db_data_w_area_short <-
@@ -694,3 +669,21 @@ toc()
 # 4s
 
 m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom
+
+# make a flat file ----
+dir_to_comb <- file.path(my_paths$git_r, current_project_name)
+
+files_to_combine <-
+  c(
+    file.path(my_paths$git_r, "useful_functions_module.r"),
+    file.path(dir_to_comb, "read.me.R"),
+    file.path(dir_to_comb, "fishing_effort_locations_get_data.R"),
+    file.path(dir_to_comb, "fishing_effort_location.R"),
+    file.path(dir_to_comb, "fishing_effort_location_viz.R")
+  )
+
+flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
+
+# run as needed
+# make_a_flat_file(flat_file_name,
+                 # files_to_combine_list)
