@@ -13,6 +13,7 @@ library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
 library(tictoc) #benchmarking
+library(sfheaders) #working with sf
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -252,29 +253,48 @@ sa_state_abb <-
 
   # View()
 
+### filter_sa_states ----
 # create a filter
 filter_sa_states <- quo(AREA_CODE == "000" &
                           tolower(END_PORT_STATE) %in% tolower(sa_state_abb$state_abb))
 
+# use the filter
+# names(db_data_w_area_report_minus_gom)
+db_data_w_area_report_minus_gom_sub3 <-
+  db_data_w_area_report_minus_gom %>%
+  filter(!!filter_sa_states)
+#   count(END_PORT_STATE)
+#     END_PORT_STATE     n
+#   <chr>          <int>
+# 1 GA               334
+# 2 NC               637
+
+### filter_fl_counties ----
+# create a filter
 filter_fl_counties  <- quo(
   AREA_CODE == "000" &
     tolower(END_PORT_STATE) == "fl" &
     tolower(END_PORT_COUNTY) %in% tolower(fl_counties_sa)
 )
 
-# use the filters
-# names(db_data_w_area_report_minus_gom)
-db_data_w_area_report_minus_gom_sub3 <-
+# use the filter
+db_data_w_area_report_minus_gom_sub4 <-
   db_data_w_area_report_minus_gom %>%
-  # filter(AREA_CODE == "000" &
-  #          tolower(END_PORT_STATE) %in% 
-  #        # == "fl")
-  #        tolower(sa_state_abb$state_abb)) %>%
-  # count(END_PORT_STATE)
-  filter(!!filter_sa_states) %>% 
-  filter(!!filter_fl_counties) %>% 
-  count(END_PORT_STATE)
-  
+  filter(!!filter_fl_counties)
+
+db_data_w_area_report_minus_gom_sub4 %>% 
+  # View()
+  count(END_PORT_COUNTY)
+# END_PORT_COUNTY     n
+#   <chr>           <int>
+# 1 BREVARD           720
+# 2 DUVAL              26
+# 3 MARTIN             18
+# 4 MIAMI-DADE          2
+# 5 MONROE           3120
+# 6 NASSAU             12
+# 7 PALM BEACH        107
+# 8 VOLUSIA           507
   
 
 ## combine SA areas ----
