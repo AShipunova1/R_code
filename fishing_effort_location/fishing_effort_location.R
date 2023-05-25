@@ -196,7 +196,21 @@ sa_sub_area_codes <- list(
   "748" = c("0000", "0009") # for 748
 )
 
+names(sa_sub_area_codes)
+db_data_w_area_report_minus_gom_sa_areas <-
+  db_data_w_area_report_minus_gom %>% 
+    dplyr::filter(AREA_CODE %in%
+                    area_codes_to_keep) 
+  
+  %>%
+     dplyr::filter((AREA_CODE %in% names(sa_sub_area_codes) &
+                      (SUB_AREA_CODE %in% ) )) %>%  
 
+    # dplyr::filter(case_when()
+    #   AREA_CODE %in%
+    #                 area_codes_to_keep) %>%
+
+    glimpse()
 
 
 # correct lat/long ----
