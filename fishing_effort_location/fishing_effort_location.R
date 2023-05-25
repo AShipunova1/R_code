@@ -125,7 +125,11 @@ db_data_w_area_report_minus_gom <-
   dplyr::filter(!REGION %in% c("GULF OF MEXICO")) %>%
   # all LONG should be negative
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-  dplyr::filter(between(LONGITUDE, -83, -71))
+  dplyr::filter(between(LONGITUDE, -83, -71.37133)) %>%
+  dplyr::filter(between(LATITUDE, 23.81794, 36.55028))
+# st_geometry(sa_shp)
+# Bounding box:  xmin: -83 ymin: 23.81794 xmax: -71.37133 ymax: 36.55028
+
 
 dim(db_data_w_area_report_minus_gom)
 # [1] 145694     15
@@ -312,8 +316,12 @@ good_coords_monroe_sf_minus_gom <-
   with_st_difference(good_coords_monroe_sf, gom_reef_shp)
 toc()
 # 55.92 sec
+# 59.19 sec after 1 mapview
+
 db_data_w_area_report_minus_gom_sub4 <-
+  # remove the geometry field
   sf::st_drop_geometry(good_coords_monroe_sf_minus_gom) %>%
+  # remove the rest of sf columns
   select(-c("Area_SqKm", "Perim_M")) 
 
 str(db_data_w_area_report_minus_gom_sub4)
@@ -326,18 +334,21 @@ db_data_w_area_report_minus_gom <-
   rbind(db_data_w_area_report_minus_gom_sub3) %>%
   rbind(db_data_w_area_report_minus_gom_sub4)
 
-dim(db_data_w_area_report_minus_gom_sub1)
-dim(db_data_w_area_report_minus_gom_sub2)
-dim(db_data_w_area_report_minus_gom_sub3)
-dim(db_data_w_area_report_minus_gom_sub4)
+# dim(db_data_w_area_report_minus_gom_sub1)
+# dim(db_data_w_area_report_minus_gom_sub2)
+# dim(db_data_w_area_report_minus_gom_sub3)
+# dim(db_data_w_area_report_minus_gom_sub4)
 
 dim(db_data_w_area_report_minus_gom)
 # [1] 42293    20
+# after using sa_shp box
+# [1] 40269    20
+
 dim(db_data_w_area_report_minus_gom_sub1)[1] +
 dim(db_data_w_area_report_minus_gom_sub2)[1] +
 dim(db_data_w_area_report_minus_gom_sub3)[1] +
 dim(db_data_w_area_report_minus_gom_sub4)[1]
-# 42293 - correct
+# 40269 - correct
 
 View(db_data_w_area_report_minus_gom)
 # end port
@@ -352,10 +363,6 @@ db_data_w_area_report_minus_gom_sf <-
 
 mapview(db_data_w_area_report_minus_gom_sf) + sa_shp +
   gom_reef_shp + fl_state_w_counties_shp
-
-sa_shp_nc <-
-  sa_shp %>% 
-  filter(AreaName == "Off NC")
 
 # correct lat/long ----
 db_data_w_area_report <-
