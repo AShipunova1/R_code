@@ -174,17 +174,18 @@ write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_nam
 
 # mapview(db_data_w_area_report_sa_eez_sf)
 
-# south of 28N - all SA ----
-db_data_w_area_report_sf_28_s <-
+# South of 28N - all SA ----
+db_data_w_area_report_28_s_sf <-
   db_data_w_area_report %>%
   filter(between(LATITUDE, 23, 28)) %>%
   my_to_sf()
 
-dim(db_data_w_area_report_sf_28_s)
+dim(db_data_w_area_report_28_s_sf)
 # 92949    
 
 ## state waters sa ----
-fl_counties_sa <- c(
+state_waters_sa_sf <- function() {
+  fl_counties_sa <- c(
     "Brevard",
     "Broward",
     "Duval",
@@ -196,47 +197,56 @@ fl_counties_sa <- c(
     "Palm Beach",
     "Saint Johns",
     "Saint Lucie",
-    "Volusia", 
-    "Monroe") #has GOM too, remove separately
+    "Volusia",
+    "Monroe"
+  ) #has GOM too, remove separately
+  
+  # mapview(fl_state_w_counties)
+  # fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
+  
+  fl_state_w_counties_names <- fl_state_w_counties_shp$gnis_name
+  
+  # length(fl_state_w_counties_names)
+  # 67
+  
+  # grep("Monroe", fl_state_w_counties_names, value = T)
+  
+  # length(fl_counties_sa)
+  # 12 + Monroe
+  
+  fl_state_w_counties_names_df <-
+    as.data.frame(fl_state_w_counties_names)
+  # str(fl_state_w_counties_names_df)
+  # fl_state_w_counties_names) %>%
+  
+  # View(as.data.frame(fl_counties_sa))
+  
+  sa_fl_state_w_counties_names <-
+    as.data.frame(fl_counties_sa)[[1]] %>%
+    map_df(function(fl_county) {
+      # browser()
+      sa_county <-
+        fl_state_w_counties_names_df %>%
+        filter(grepl(
+          fl_county,
+          fl_state_w_counties_names_df$fl_state_w_counties_names
+        ))
+      
+      return(sa_county)
+    })
+  
+  fl_state_w_counties_sa <- filter(
+    fl_state_w_counties_shp,
+    gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names
+  )
+  
+  return(fl_state_w_counties_sa)
+}
 
-# mapview(fl_state_w_counties)
-# fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
-
-fl_state_w_counties_names <- fl_state_w_counties_shp$gnis_name
-
-length(fl_state_w_counties_names)
-# 67
-
-# grep("Monroe", fl_state_w_counties_names, value = T)
-
-length(fl_counties_sa)
-# 12 + Monroe
-
-fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
-# str(fl_state_w_counties_names_df)
-# fl_state_w_counties_names) %>%
-
-# View(as.data.frame(fl_counties_sa))
-
-sa_fl_state_w_counties_names <-
-  as.data.frame(fl_counties_sa)[[1]] %>%
-  map_df(function(fl_county) {
-    # browser()
-    sa_county <-
-      fl_state_w_counties_names_df %>%
-      filter(grepl(
-        fl_county,
-        fl_state_w_counties_names_df$fl_state_w_counties_names
-      ))
-    
-    return(sa_county)
-  })
-
-fl_state_w_counties_sa <- filter(fl_state_w_counties_shp,
-             gnis_name %in% sa_fl_state_w_counties_names$fl_state_w_counties_names)
+fl_state_w_counties_sa_sf <- state_waters_sa_sf()
 
 db_data_w_area_report_28_s_sa_counties_sf <-
-  with_st_intersection(db_data_w_area_report_sf_28_s,
+  with_st_intersection(db_data_w_area_report_28_s_sf,
                       fl_state_w_counties_sa)
 
 # or read csv
