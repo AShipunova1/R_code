@@ -94,6 +94,7 @@ with_st_difference <- function(points_sf, polygons_sf) {
 
 all_points <- dim(db_data_w_area)[1]
 # 254689
+#  75536 u
 
 # View(db_data_w_area)
 
@@ -144,6 +145,14 @@ db_data_w_area_report_short <-
     START_PORT_COUNTY,
     START_PORT_STATE,
     END_PORT,
+    END_PORT_NAME,
+    END_PORT_COUNTY,
+    END_PORT_STATE,
+    ACTIVITY_TYPE_NAME,
+    TRIP_TYPE_NAME,
+    AREA_CODE,
+    SUB_AREA_CODE,
+    DISTANCE_CODE_NAME,
     LATITUDE,
     LONGITUDE,
     FISHING_GEAR_DEPTH
@@ -151,6 +160,7 @@ db_data_w_area_report_short <-
 
 dim(db_data_w_area_report_short)
 # 45315 10
+# [1] 45264    18
 
 # keep fewer rows by removing duplicates ----
 db_data_w_area_report <-
@@ -165,8 +175,8 @@ db_data_w_area_report_sf <-
   # convert to sf, see fun above (use F2)
   my_to_sf()
 
-# dim(db_data_w_area_report_sf)
-# [1] 45261    11
+dim(db_data_w_area_report_sf)
+# [1] 45264    19
 
 ### with st_intersection ----
 # get only the points inside the SA EEZ by intersection
@@ -176,9 +186,11 @@ db_data_w_area_report_sa_eez_sf <-
 # 63.44 sec (uniq)
 # 65.1 sec 
 # 174.95 sec
+# 193.08 /60 ~3
+# 196.25 sec
 
 ### or read it ----
-db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
+db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf_more_fields.csv")
 
 db_data_w_area_report_sa_eez_sf <-
   read_sf(db_data_w_area_report_sa_eez_file_name) %>%
@@ -189,6 +201,8 @@ write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_nam
 
 dim(db_data_w_area_report_sa_eez_sf)
 # 18989 13
+# [1] 18967    13
+# [1] 18970    21
 
 # South of 28N - all SA ----
 db_data_w_area_report_28_s_sf <-
@@ -199,7 +213,7 @@ db_data_w_area_report_28_s_sf <-
 
 dim(db_data_w_area_report_28_s_sf)
 # 92882   11
-# 27979   11   unique
+# 27979   19   unique
 
 ## state waters sa ----
 get_state_waters_sa_sf <- function() {
@@ -272,14 +286,14 @@ db_data_w_area_report_28_s_sa_counties_sf <-
 # 0.37 sec 
 # 3.56 sec
 
-# dim(db_data_w_area_report_28_s_sa_counties_sf)
-# [1] 10761    30
+dim(db_data_w_area_report_28_s_sa_counties_sf)
+# [1] 10761    38
 
 # mapview(db_data_w_area_report_28_s_sa_counties_sf)
 
 ### or read csv ----
 db_data_w_area_report_28_s_sa_counties_file_name <- 
-file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf_u.csv")
+file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf_u_more_fields.csv")
 
 db_data_w_area_report_28_s_sa_counties_sf <-
   read_sf(db_data_w_area_report_28_s_sa_counties_file_name) %>%
@@ -292,7 +306,7 @@ write_csv(
 
 dim(db_data_w_area_report_28_s_sa_counties_sf)
 # 30392    30
-# 10761    30
+# 10761    38
 
 ## For Monroe exclude GOM ----
 
@@ -303,15 +317,17 @@ dim(db_data_w_area_report_28_s_sa_counties_sf)
 db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   with_st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
 # 188.69 sec
+# 195.96 sec ~3 m
+
 
 # or read csv 
-sa_counties_no_gom_sf_filename <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_no_gom_sf.csv")
+sa_counties_no_gom_sf_filename <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_no_gom_sf_more_fields.csv")
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   read_sf(sa_counties_no_gom_sf_filename) %>%
   my_to_sf()
 
-# dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 23519    32
 # 8903
 
@@ -429,7 +445,6 @@ db_data_w_area_report_28_s_sa_counties_no_gom_df_more_fields <-
 
 # ℹ `x$TRIP_START_DATE` is a <datetime<local>>.
 # ℹ `y$TRIP_START_DATE` is a <character>.
-
 
 dim(db_data_w_area_report_28_s_sa_counties_no_gom_df_more_fields)
 my_sf_to_csv(db_data_w_area_report_sa_eez_sf, "sa_eez_all")

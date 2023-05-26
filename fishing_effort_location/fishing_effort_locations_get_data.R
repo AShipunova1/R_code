@@ -75,10 +75,10 @@ WHERE
 
 db_data_w_area_file_path <-
   file.path(my_paths$inputs,
-            "fishing_effort_locations/db_data_w_area.csv")
+            "fishing_effort_locations/db_data_w_area_more_fields.csv")
 
 # write_csv(db_data_w_area,
-#           db_data_w_area_file_path)
+          # db_data_w_area_file_path)
 
 # or get data from the saved csv ----
 
