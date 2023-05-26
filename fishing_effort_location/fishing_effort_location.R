@@ -323,8 +323,7 @@ write_csv(
 # mapview(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
 # Report csv ----
-
-my_sf_to_csv <- function(my_sf, file_name) {
+my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
@@ -341,6 +340,12 @@ my_sf_to_csv <- function(my_sf, file_name) {
       FISHING_GEAR_DEPTH
     ) %>%
     unique()
+  
+  return(my_df)
+}
+
+my_sf_to_csv <- function(my_sf, file_name) {
+  my_df <- my_sf_to_df(my_sf)
   
   write_csv(
     my_df,
@@ -413,3 +418,13 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
 # run as needed
 # make_a_flat_file(flat_file_name,
                  # files_to_combine_list)
+
+# The relative would be looking by depth, area, and seasonally. ----
+## by area: ----
+# db_data_w_area_report_sa_eez_sf
+# db_data_w_area_report_28_s_sa_counties_no_gom_sf
+
+## by depth ----
+db_data_w_area_report_sa_eez_sf %>%
+  my_sf_to_df() %>%
+  count(FISHING_GEAR_DEPTH, ) %>% View()
