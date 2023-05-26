@@ -152,35 +152,35 @@ db_data_w_area_report_short <-
 dim(db_data_w_area_report_short)
 # 254503     10     
 # [1] 140177     10
-# uniq
+# uniq above 28
 # [1] 17725    10
 
-
-db_data_w_area_report_short <-
-  db_data_w_area_report %>% unique()
-# %>%dim()
+# keep fewer rows by removing duplicates ----
+db_data_w_area_report <-
+  db_data_w_area_report_short %>% unique()
+# dim(db_data_w_area_report_short)
 # [1] 45261    10
+# dim(db_data_w_area_report)
+# [1] 17714    10
 
-db_data_w_area_report_sf <- my_to_sf(db_data_w_area_report)
+db_data_w_area_report_sf <- my_to_sf(db_data_w_area_report_short)
 
 dim(db_data_w_area_report_sf)
 # 253142      11
 # [1] 140177     11
+# [1] 45261    11
+# 17725
 
 # SA EEZ only ----
 ## sa eez st_intersection ----
 ### with st_intersection ----
-
-dim(db_data_w_area_report_sf)
-# [1] 140177     11
-
-dim(db_data_w_area_report_sf)
 
 tic("with_st_intersection(db_data_w_area_report_sf, sa_shp)")
 db_data_w_area_report_sa_eez_sf <-
   with_st_intersection(db_data_w_area_report_sf, sa_shp)
 toc()
 # 594.35 sec
+# 63.44 sec (uniq)
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
@@ -198,10 +198,12 @@ write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_nam
 db_data_w_area_report_28_s_sf <-
   db_data_w_area_report %>%
   filter(between(LATITUDE, 23, 28)) %>%
-  my_to_sf()
+  my_to_sf() %>%
+  unique()
 
 dim(db_data_w_area_report_28_s_sf)
 # [1] 92882    11
+# 432 uniq
 
 ## state waters sa ----
 state_waters_sa_sf <- function() {
@@ -315,7 +317,7 @@ write_csv(
 
 # Report csv ----
 
-my_sf_to_df <- function(my_sf, file_name) {
+my_sf_to_csv <- function(my_sf, file_name) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
@@ -342,10 +344,8 @@ my_sf_to_df <- function(my_sf, file_name) {
   )
 }
 
-my_sf_to_df(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28na") 
-
-
-my_sf_to_df(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28na") 
+my_sf_to_csv(db_data_w_area_report_sa_eez_sf, "north_of_28n")
+my_sf_to_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28na") 
 
 # map ----
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
