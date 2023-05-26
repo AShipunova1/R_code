@@ -68,7 +68,6 @@ with_st_difference <- function(points_sf, polygons_sf) {
 
 # to get SA only:
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary. 
-
 # fields to get 
 # Trip start and end date
 # Start Port: Code, Name, County and/or State, State Code, Postal Code - no
@@ -111,10 +110,8 @@ db_data_w_area_no_mex <-
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) %>% 
   # [1] 253003     32
   # south and north by SA shp
-  # dplyr::filter(between(LATITUDE, 23.81794, 36.55028)) %>% 
+  dplyr::filter(between(LATITUDE, 23.81794, 36.55028)) %>%
     # [1] 241183     32
-  # above 28N
-  dplyr::filter(between(LATITUDE, 23, 36.55028)) %>%
   # 133889     
   dplyr::filter(between(LONGITUDE, -83, -71.37133))
   # [1] 140177     32
@@ -122,11 +119,12 @@ db_data_w_area_no_mex <-
 # st_geometry(sa_shp)
 # Bounding box:  xmin: -83 ymin: 23.81794 xmax: -71.37133 ymax: 36.55028
 
-dim(db_data_w_area_no_mex_uniq) <-
+db_data_w_area_no_mex_uniq <-
   db_data_w_area_no_mex %>% 
 # [1] 140177     32
 # [1] 48579    32
   unique() 
+# dim(db_data_w_area_no_mex_uniq)
 # n of 28
 # [1] 17725    32
 # all
@@ -134,6 +132,7 @@ dim(db_data_w_area_no_mex_uniq) <-
 # filter(is.na(LONGITUDE) | is.na(LATITUDE)) %>% dim()
 # 1500
 # 0
+# 45315    
   
 # keep fewer columns ----
 db_data_w_area_report_short <-
@@ -156,6 +155,7 @@ dim(db_data_w_area_report_short)
 # [1] 140177     10
 # uniq above 28
 # [1] 17725    10
+# 45315        
 
 # keep fewer rows by removing duplicates ----
 db_data_w_area_report <-
@@ -166,15 +166,15 @@ dim(db_data_w_area_report)
 # above 28n
 # [1] 17714    10
 # all
-# 45268
+# 45261
 
-# SA EEZ above 28n only ----
+# SA EEZ for all ----
 ## sa eez st_intersection ----
 
 db_data_w_area_report_sf <-
   db_data_w_area_report_short %>%
   # north of 28n
-  dplyr::filter(between(LATITUDE, 28, 36.55028)) %>%
+  # dplyr::filter(between(LATITUDE, 28, 36.55028)) %>%
   my_to_sf()
 
 dim(db_data_w_area_report_sf)
@@ -182,6 +182,7 @@ dim(db_data_w_area_report_sf)
 # [1] 140177     11
 # [1] 45261    11
 # 17725
+# [1] 45315    11
 
 ### with st_intersection ----
 
@@ -190,6 +191,8 @@ db_data_w_area_report_sa_eez_sf <-
 # 594.35 sec
 # 63.44 sec (uniq)
 # 65.1 sec 
+# after restart
+# 174.95 sec
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
@@ -311,6 +314,7 @@ dim(db_data_w_area_report_28_s_sa_counties_sf)
 # using sf - slow
 db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   with_st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
+# 188.69 sec
 
 # or read csv 
 sa_counties_no_gom_sf_filename <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_no_gom_sf.csv")
@@ -321,11 +325,14 @@ db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
 
 dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 23519    32
+# 8903
 
 write_csv(
   db_data_w_area_report_28_s_sa_counties_no_gom_sf,
   sa_counties_no_gom_sf_filename
 )
+
+# mapview(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
 # Report csv ----
 
@@ -358,6 +365,8 @@ my_sf_to_csv <- function(my_sf, file_name) {
 
 my_sf_to_csv(db_data_w_area_report_sa_eez_sf, "north_of_28n")
 my_sf_to_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28na") 
+# dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+# 8903   
 
 # map ----
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
