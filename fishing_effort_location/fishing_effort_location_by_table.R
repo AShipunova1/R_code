@@ -286,6 +286,7 @@ good_coords_monroe <-
            !is.na(LONGITUDE))
 dim(good_coords_monroe)
 # [1] 27476    21
+# [1] 9394   21
 
 good_coords_monroe_sf <-
   good_coords_monroe %>%
@@ -293,18 +294,17 @@ good_coords_monroe_sf <-
   my_to_sf()
 # dim(good_coords_monroe_sf)
 
-tic("with_st_difference(good_coords_monroe_sf, gom_reef_shp)")
 good_coords_monroe_sf_minus_gom <-
   with_st_difference(good_coords_monroe_sf, gom_reef_shp)
-toc()
 # 55.92 sec
 # 59.19 sec after 1 mapview
 # 496.29 sec ~ 8 min
+# 172.65 s
 
 good_coords_monroe_sf_minus_gom_file_path <-
   file.path(my_paths$outputs,
             current_project_name,
-            "good_coords_monroe_sf_minus_gom.csv")
+            "good_coords_monroe_sf_minus_gom_u.csv")
 
 good_coords_monroe_sf_minus_gom <-
   read_sf(good_coords_monroe_sf_minus_gom_file_path) %>%
@@ -321,8 +321,9 @@ good_coords_monroe_sf_minus_gom_df <-
   # remove the rest of sf columns
   select(-c("Area_SqKm", "Perim_M")) 
 
-# dim(good_coords_monroe_sf_minus_gom_df)
+dim(good_coords_monroe_sf_minus_gom_df)
 # [1] 22558     3
+# [1] 8046    3
 
 # to_mapview(good_coords_monroe_sf_minus_gom_df)
 
@@ -331,6 +332,7 @@ sub1_fl_counties_no_monroe <-
          !(END_PORT_COUNTY == "MONROE"))
 # dim(sub1_fl_counties_no_monroe)
 # [1] 15473    21
+# [1] 4897   21
 
 sub2_fl_counties_monroe_good <-
   filter(
@@ -352,7 +354,13 @@ db_data_w_area_report_table_cleaned <-
     sub2_fl_counties_monroe_good
   )
 
-to_mapview(db_data_w_area_report_table_cleaned)
+# dim(db_data_w_area_report_table_cleaned)
+# [1] 33297    21
+
+db_data_w_area_report_table_cleaned %>%
+  select(LATITUDE, LONGITUDE, row_id) %>%
+  my_to_sf() %>% mapview(layer.name = 'points cleared by area and end port') + m_s
+
 # filter(db_data_w_area_report_table_cleaned,
 #        row_id == 31873) %>% View()
 # 43114
