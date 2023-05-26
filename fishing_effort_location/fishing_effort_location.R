@@ -480,7 +480,7 @@ db_data_w_area_report_minus_gom_sf <-
 mapview(db_data_w_area_report_minus_gom_sf) + sa_shp +
   gom_reef_shp + fl_state_w_counties_shp
 
-# correct lat/long ----
+# Correct lat/long ----
 db_data_w_area_report <-
   db_data_w_area %>%
   # all LONG should be negative
@@ -533,14 +533,14 @@ db_data_w_area_report_sa_eez_sf <-
 
 # all.equal(db_data_w_area_report_sa_eez_sf,
 #           db_data_w_area_report_sa_eez_sf1)
-dim(db_data_w_area_report_sa_eez_sf)
+# mapview(db_data_w_area_report_sa_eez_sf)
 # 54950 13
 # db_data_w_area_report_sa_eez_sf <- db_data_w_area_report_sa_eez
 
 #### save sa_eez_data ----
 write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
 
-# mapview(db_data_w_area_report_sa_eez_sf1)
+mapview(db_data_w_area_report_sa_eez_sf)
 
 # south of 28N - all SA ----
 db_data_w_area_report_sf_28_s <-
@@ -908,6 +908,13 @@ m_g_r <- mapview(
   legend = FALSE
 )
 
+m_sa_eez <-
+  mapview(
+    db_data_w_area_report_sa_eez_sf,
+    # col.regions = "green",
+    layer.name = 'SA EEZ'
+  )
+
 # m_grey_outside <-
 #   mapview(
 #     db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
@@ -916,16 +923,16 @@ m_g_r <- mapview(
 #   )
 
 tic("show all maps")
-m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
+all_maps <-
  # m_grey_outside +
+  m_sa_eez +
   m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
-  db_data_w_area_report_sa_eez_sf +
   m_s +
   m_g_r
 toc()
 # 4s
 
-m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom
+# m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom
 
 # make a flat file ----
 dir_to_comb <- file.path(my_paths$git_r, current_project_name)
