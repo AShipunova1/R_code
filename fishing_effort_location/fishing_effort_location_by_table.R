@@ -1,3 +1,4 @@
+# Clean data using mostly area codes
 # to a table report ----
 db_data_w_area_short <-
   db_data_w_area %>%
@@ -367,7 +368,7 @@ db_data_w_area_report_table_cleaned %>%
 
 write_csv(db_data_w_area_report_table_cleaned,
           file.path(my_paths$outputs,
-            current_project_name,
+            current_project_name, "report",
             "db_data_w_area_report_table_cleaned.csv")
 )
 
