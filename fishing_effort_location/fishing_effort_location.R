@@ -173,6 +173,7 @@ dim(db_data_w_area_report)
 
 db_data_w_area_report_sf <-
   db_data_w_area_report_short %>%
+  unique() %>%
   # north of 28n
   # dplyr::filter(between(LATITUDE, 28, 36.55028)) %>%
   my_to_sf()
@@ -180,9 +181,10 @@ db_data_w_area_report_sf <-
 dim(db_data_w_area_report_sf)
 # 253142      11
 # [1] 140177     11
-# [1] 45261    11
-# 17725
 # [1] 45315    11
+# [1] 45261    11
+# north only
+# 17725
 
 ### with st_intersection ----
 
@@ -205,7 +207,8 @@ db_data_w_area_report_sa_eez_sf <-
 
 write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
 
-# mapview(db_data_w_area_report_sa_eez_sf)
+dim(db_data_w_area_report_sa_eez_sf)
+# 18989    
 
 # South of 28N - all SA ----
 db_data_w_area_report_28_s_sf <-
@@ -215,7 +218,7 @@ db_data_w_area_report_28_s_sf <-
 
 dim(db_data_w_area_report_28_s_sf)
 # [1] 92882    11
-# 27986    uniq
+# 27979    unique
 
 ## state waters sa ----
 state_waters_sa_sf <- function() {
@@ -363,12 +366,15 @@ my_sf_to_csv <- function(my_sf, file_name) {
   )
 }
 
-my_sf_to_csv(db_data_w_area_report_sa_eez_sf, "north_of_28n")
-my_sf_to_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28na") 
+my_sf_to_csv(db_data_w_area_report_sa_eez_sf, "sa_eez_all")
+# dim(db_data_w_area_report_sa_eez_sf)
+# 18989    
+my_sf_to_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28_state_w") 
 # dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 8903   
 
-# map ----
+# all maps together ----
+## south of 28 map ----
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   mapview(
   db_data_w_area_report_28_s_sa_counties_no_gom_sf,
@@ -376,243 +382,6 @@ m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   layer.name = 'State and inner waters'
 )
 
-# grey points in SA outside of EEZ ----
-
-# (1) combine all shp
-# sa_shp$AreaName
-sa_shp_fl <-
-  sa_shp %>% 
-  filter(AreaName == "Off FL")
-
-all_shp1 <-
-  sf::st_union(sa_shp_fl, gom_reef_shp)
-
-tic("sf::st_union(all_shp1, fl_state_w_counties_shp)")
-all_shp2 <-
-  sf::st_union(all_shp1, fl_state_w_counties_shp)
-toc()
-# 83.17 
-# plot(all_shp2)
-
-## all points below 28 minus all shapes ----
-tic("with_st_difference(db_data_w_area_report_sf_28_s, all_shp2)")
-db_data_w_area_report_sf_28_s_minus_all_shp <-
-  with_st_difference(db_data_w_area_report_sf_28_s, all_shp2)
-toc()
-
-# 1) all points below 28 minus "good points"
-# db_data_w_area_report_28_s_sa_counties_no_gom_sf
-# 2) (1) - gom shape
-# 3) (2) - Florida not sa counties
-
-# 1) all points below 28 minus "good points" ----
-# mapview(db_data_w_area_report_sf_28_s)
-# mapview(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
-
-db_data_w_area_report_sf_28_s_char <- mutate(db_data_w_area_report_sf_28_s,
-         across(everything(), as.character))
-db_data_w_area_report_28_s_sa_counties_no_gom_sf_char <- mutate(db_data_w_area_report_28_s_sa_counties_no_gom_sf,
-         across(everything(), as.character))
-
-# anti_join(x, y, by = NULL, copy = FALSE, ...)
-
-all_s_28_minus_good_p_anti <-
-  anti_join(
-    as.data.frame(db_data_w_area_report_sf_28_s_char),
-    as.data.frame(db_data_w_area_report_28_s_sa_counties_no_gom_sf_char),
-    by = join_by(
-      TRIP_START_DATE,
-      TRIP_END_DATE,
-      START_PORT,
-      START_PORT_NAME,
-      START_PORT_COUNTY,
-      START_PORT_STATE,
-      END_PORT,
-      LATITUDE,
-      LONGITUDE,
-      FISHING_GEAR_DEPTH
-    )
-  )
-
-dim(db_data_w_area_report_sf_28_s)
-# [1] 92949    11
-
-dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
-# [1] 23519    32
-
-# dim(all_s_28_minus_good_p)
-# [1] 69430    11
-
-a <- my_to_sf(all_s_28_minus_good_p_joins)
-mapview(a)
-# [1] 116468     33
-# names(db_data_w_area_report_sf_28_s_char)
-# names(db_data_w_area_report_28_s_sa_counties_no_gom_sf_char)
-# names(all_s_28_minus_good_p_joins)
-all_s_28_minus_good_p <-
-  all_s_28_minus_good_p_joins %>%
-  filter(!is.na(gnis_name)) %>%
-  my_to_sf()
-
-dim(all_s_28_minus_good_p)
-# [1] 23519    34
-
-# all_s_28_minus_good_p
-
-mapview(all_s_28_minus_good_p) + sa_shp
-
-# 2) (1) - gom shape ----
-all_s_28_minus_good_p_minus_not_gom <-
-  with_st_difference(all_s_28_minus_good_p, gom_reef_shp)
-# 1227.47 / 60 ~ 20 min
-
-### or read csv ----
-all_s_28_minus_good_p_minus_not_gom_file_name <-
-  file.path(my_paths$outputs, current_project_name, "all_s_28_minus_good_p_minus_not_gom_file_name.csv")
-  
-write_csv(all_s_28_minus_good_p_minus_not_gom, all_s_28_minus_good_p_minus_not_gom_file_name)
-
-all_s_28_minus_good_p_minus_not_gom <-
-  read_sf(all_s_28_minus_good_p_minus_not_gom_file_name) %>%
-  my_to_sf()
-
-mapview(all_s_28_minus_good_p_minus_not_gom) + m_s
-# [1] 36509    13
-
-# 3) (2) - Florida not sa counties ----
-str(fl_state_w_counties)
-
-all_s_28_minus_good_p_minus_not_gom_not_state <-
-  with_st_difference(all_s_28_minus_good_p_minus_not_gom,
-                     fl_state_w_counties)
-# 571.08 sec
-dim(all_s_28_minus_good_p_minus_not_gom_not_state)
-
-# =======
-# - sa_eez
-get_florida_st_box <- function() {
-  # names(sa_shp)
-  # sa_shp$AreaName
-  
-  sa_shp_fl <-
-    filter(sa_shp,
-           AreaName == "Off FL")
-  
-  # geom_sa_shp_fl <- st_geometry(sa_shp_fl)
-  # Geometry type: POLYGON
-  # Bounding box:  xmin: -83 ymin: 23.81794 xmax: -76.5011 ymax: 30.71267
-  
-  # all but ymax are from sa_shp_fl
-  new_box <- c(
-    xmin = -83,
-    ymin = 23.81794,
-    xmax = -76.5011,
-    ymax = 28 # 28N
-  )
-  return(new_box)
-}
-
-new_box <- get_florida_st_box()
-
-sa_shp_fl_s_28 <- sf::st_crop(sa_shp, new_box)
-# st_geometry(sa_shp_fl_s_28)
-
-# geom_db_data_w_area_report_sf_28_s <- st_geometry(db_data_w_area_report_sf_28_s) 
-# Geometry set for 92949 features 
-# Geometry type: POINT
-# Dimension:     XY
-# Bounding box:  xmin: -83 ymin: 23.29354 xmax: -78 ymax: 28
-
-tic("st_filter(db_data_w_area_report_sf_28_s,
-                       sa_shp_fl_s_28,
-                       .pred = st_disjoint)")
-db_data_w_area_report_sf_28_s_minus_eez <-
-  st_filter(db_data_w_area_report_sf_28_s,
-                       sa_shp_fl_s_28,
-                       .predicate = st_disjoint)
-toc()
-# 3.29  sec
-
-dim(db_data_w_area_report_sf_28_s)
-# [1] 92949    11
-
-dim(sa_shp_fl_s_28)
-# 1
-
-dim(db_data_w_area_report_sf_28_s_minus_eez)
-# [1] 62537    11
-
-# mapview(db_data_w_area_report_sf_28_s_minus_eez)
-
-# -state_w
-dim(db_data_w_area_report_sf_28_s)
-# [1] 92949    11
-
-tic("  filter(
-    db_data_w_area_report_sf_28_s_minus_eez,
-    !geometry %in% db_data_w_area_report_28_s_sa_counties_no_gom_sf$geometry
-"
-)
-
-db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
-  filter(
-    db_data_w_area_report_sf_28_s_minus_eez,
-    !geometry %in% db_data_w_area_report_28_s_sa_counties_no_gom_sf$geometry
-  )
-toc()
-# 0.91 s
-
-### or read it ----
-
-db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name <-
-file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name.csv")
-  
-write_csv(db_data_w_area_report_sf_28_s_minus_eez_minus_gom, db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name)
-
-db_data_w_area_report_sf_28_s_minus_eez_minus_gom <-
-  read_sf(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_file_name) %>%
-  my_to_sf()
-
-dim(db_data_w_area_report_sf_28_s_minus_eez)
-# [1] 62537    11
-
-str(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
-# [1] 23519    32
-
-# [1] 39200    11
-
-# 23519 + 39200 - 62537
-# 182?
-# exclude gom reef again ----
-# gom_reef_shp
-# sf::sf_use_s2(FALSE)
-
-tic("sf::st_difference(db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
-                    gom_reef_shp)")
-db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok <-
-  sf::st_difference(db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
-                    gom_reef_shp)
-toc()
-# 730.45 / 60 = 12 min
-
-dim(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok)
-# 6279
-
-### or read it ----
-
-db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name <-
-file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok.csv")
-  
-write_csv(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok, db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name)
-
-db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok <-
-  read_sf(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok_file_name) %>%
-  my_to_sf()
-
-dim(db_data_w_area_report_sf_28_s_minus_eez_minus_gom_ok)
-# [1] 6279   13
-
-# all maps together ----
 m_s <- mapview(
   sa_shp,
   col.regions = "#F4E3FF",
@@ -632,28 +401,15 @@ m_g_r <- mapview(
 m_sa_eez <-
   mapview(
     db_data_w_area_report_sa_eez_sf,
-    # col.regions = "green",
     layer.name = 'SA EEZ'
   )
 
-# m_grey_outside <-
-#   mapview(
-#     db_data_w_area_report_sf_28_s_minus_eez_minus_gom,
-#     col.regions = "darkgrey",
-#     layer.name = 'State and inner waters'
-#   )
-
-tic("show all maps")
 all_maps <-
- # m_grey_outside +
-  m_sa_eez +
-  m_db_data_w_area_report_28_s_sa_counties_no_gom_sf +
   m_s +
-  m_g_r
-toc()
-# 4s
+  m_g_r +
+  m_sa_eez +
+  m_db_data_w_area_report_28_s_sa_counties_no_gom_sf
 
-# m_db_data_w_area_report_sf_28_s_minus_eez_minus_gom
 
 # make a flat file ----
 dir_to_comb <- file.path(my_paths$git_r, current_project_name)
