@@ -424,7 +424,15 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
 # db_data_w_area_report_sa_eez_sf
 # db_data_w_area_report_28_s_sa_counties_no_gom_sf
 
-## by depth ----
+## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, ) %>% View()
+  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  View()
+
+db_data_w_area_report_28_s_sa_counties_no_gom_sf %>% 
+  my_sf_to_df() %>%
+  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  View()
+
+## seasonally ----
