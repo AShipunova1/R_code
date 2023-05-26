@@ -114,7 +114,7 @@ db_data_w_area_no_mex <-
   # dplyr::filter(between(LATITUDE, 23.81794, 36.55028)) %>% 
     # [1] 241183     32
   # above 28N
-  dplyr::filter(between(LATITUDE, 28, 36.55028)) %>%
+  dplyr::filter(between(LATITUDE, 23, 36.55028)) %>%
   # 133889     
   dplyr::filter(between(LONGITUDE, -83, -71.37133))
   # [1] 140177     32
@@ -122,13 +122,15 @@ db_data_w_area_no_mex <-
 # st_geometry(sa_shp)
 # Bounding box:  xmin: -83 ymin: 23.81794 xmax: -71.37133 ymax: 36.55028
 
-db_data_w_area_no_mex_uniq <-
+dim(db_data_w_area_no_mex_uniq) <-
   db_data_w_area_no_mex %>% 
 # [1] 140177     32
 # [1] 48579    32
   unique() 
+# n of 28
 # [1] 17725    32
-
+# all
+# 45322
 # filter(is.na(LONGITUDE) | is.na(LATITUDE)) %>% dim()
 # 1500
 # 0
@@ -160,10 +162,20 @@ db_data_w_area_report <-
   db_data_w_area_report_short %>% unique()
 # dim(db_data_w_area_report_short)
 # [1] 45261    10
-# dim(db_data_w_area_report)
+dim(db_data_w_area_report)
+# above 28n
 # [1] 17714    10
+# all
+# 45268
 
-db_data_w_area_report_sf <- my_to_sf(db_data_w_area_report_short)
+# SA EEZ above 28n only ----
+## sa eez st_intersection ----
+
+db_data_w_area_report_sf <-
+  db_data_w_area_report_short %>%
+  # north of 28n
+  dplyr::filter(between(LATITUDE, 28, 36.55028)) %>%
+  my_to_sf()
 
 dim(db_data_w_area_report_sf)
 # 253142      11
@@ -171,16 +183,13 @@ dim(db_data_w_area_report_sf)
 # [1] 45261    11
 # 17725
 
-# SA EEZ only ----
-## sa eez st_intersection ----
 ### with st_intersection ----
 
-tic("with_st_intersection(db_data_w_area_report_sf, sa_shp)")
 db_data_w_area_report_sa_eez_sf <-
   with_st_intersection(db_data_w_area_report_sf, sa_shp)
-toc()
 # 594.35 sec
 # 63.44 sec (uniq)
+# 65.1 sec 
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
@@ -190,6 +199,7 @@ db_data_w_area_report_sa_eez_sf <-
   my_to_sf()
 
 #### save sa_eez_data ----
+
 write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
 
 # mapview(db_data_w_area_report_sa_eez_sf)
@@ -198,12 +208,11 @@ write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_nam
 db_data_w_area_report_28_s_sf <-
   db_data_w_area_report %>%
   filter(between(LATITUDE, 23, 28)) %>%
-  my_to_sf() %>%
-  unique()
+  my_to_sf()
 
 dim(db_data_w_area_report_28_s_sf)
 # [1] 92882    11
-# 432 uniq
+# 27986    uniq
 
 ## state waters sa ----
 state_waters_sa_sf <- function() {
@@ -267,18 +276,20 @@ state_waters_sa_sf <- function() {
 
 fl_state_w_counties_sa_sf <- state_waters_sa_sf()
 
-tic("db_data_w_area_report_28_s_sa_counties_sf <-
-  with_st_intersection(db_data_w_area_report_28_s_sf,
-                      fl_state_w_counties_sa)
-")
+# mapview(db_data_w_area_report_28_s_sf)
+
 db_data_w_area_report_28_s_sa_counties_sf <-
   with_st_intersection(db_data_w_area_report_28_s_sf,
-                      fl_state_w_counties_sa)
-toc()
+                      fl_state_w_counties_sa_sf)
+# 0.37 sec 
+# 3.56 sec
+
+# mapview(db_data_w_area_report_28_s_sa_counties_sf)
+# [1] 10761    30
 
 # or read csv
 db_data_w_area_report_28_s_sa_counties_file_name <- 
-file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf.csv")
+file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf_u.csv")
 
 db_data_w_area_report_28_s_sa_counties_sf <-
   read_sf(db_data_w_area_report_28_s_sa_counties_file_name) %>%
@@ -291,6 +302,7 @@ write_csv(
 
 dim(db_data_w_area_report_28_s_sa_counties_sf)
 # 30392    30
+# 10761    
 
 ## For Monroe exclude GOM ----
 
