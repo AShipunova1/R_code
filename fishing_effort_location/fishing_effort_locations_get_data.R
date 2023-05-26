@@ -12,28 +12,26 @@ data_from_db <- function() {
   # 2022
   # sero_vessel_permit
   
-  request_query <- "SELECT
-  trip_start_date,
-  trip_end_date,
-  start_port,
-  start_port_name,
-  start_port_county,
-  start_port_state,
-  end_port,
-  end_port_name,
-  end_port_county,
-  end_port_state,
-  vendor_app_name,
-  area_code,
-  sub_area_code,
-  distance_code_name,
-  local_area_code,
-  latitude,
-  longitude,
-  minimum_bottom_depth,
-  maximum_bottom_depth,
-  fishing_gear_depth,
-  depth
+  request_query <- "SELECT distinct
+    trip_start_date,
+    trip_end_date,
+    start_port,
+    start_port_name,
+    start_port_county,
+    start_port_state,
+    end_port,
+    end_port_name,
+    end_port_county,
+    end_port_state,
+    activity_type_name,
+    trip_type_name,
+    area_code,
+    sub_area_code,
+    distance_code_name,
+    latitude,
+    longitude,
+    fishing_gear_depth
+
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk.sfsc.noaa.gov
 WHERE
@@ -68,6 +66,8 @@ WHERE
 # tic("data_from_db()")
 # db_data_w_area <- data_from_db()
 # toc()
+# 110.58 sec
+
 # 
 # dim(db_data_w_area)
 # 'data.frame':	306261 obs. of  19 variables

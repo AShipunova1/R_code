@@ -356,9 +356,86 @@ my_sf_to_csv <- function(my_sf, file_name) {
   )
 }
 
+db_data_w_area_more_fields_u <-
+  db_data_w_area %>%
+  unique()
+# %>%
+#   mutate(across(.fns = as.character))
+
+str(db_data_w_area_more_fields_u)
+# 75536    
+
+db_data_w_area_report_sa_eez_df <- my_sf_to_df(db_data_w_area_report_sa_eez_sf) 
+# %>% 
+    # mutate(across(.fns = as.character))
+
+
+dim(db_data_w_area_report_sa_eez_df)
+# 18967    
+
+db_data_w_area_report_sa_eez_df_more_fields <-
+  inner_join(
+    db_data_w_area_more_fields_u,
+    db_data_w_area_report_sa_eez_df
+    # ,
+    # join_by(
+    #   TRIP_START_DATE,
+    #   TRIP_END_DATE,
+    #   START_PORT,
+    #   END_PORT,
+    #   LATITUDE,
+    #   LONGITUDE,
+    #   FISHING_GEAR_DEPTH
+    # )
+  )
+# Joining with `by = join_by(TRIP_START_DATE, TRIP_END_DATE, START_PORT,
+# START_PORT_NAME, START_PORT_COUNTY, START_PORT_STATE, END_PORT, LATITUDE,
+# LONGITUDE, FISHING_GEAR_DEPTH)`
+
+dim(db_data_w_area_report_sa_eez_df_more_fields)
+# [1] 15482    30
+
+# south
+db_data_w_area_report_28_s_sa_counties_no_gom_df <- my_sf_to_df(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
+# %>%
+#   mutate(SPECIESITIS = as.character(SPECIESITIS))
+
+  # mutate(across(.fns = as.character))
+# ! Using `across()` without supplying `.cols` was deprecated in dplyr
+#   1.1.0.
+# ℹ Please supply `.cols` instead.
+
+dim(db_data_w_area_report_28_s_sa_counties_no_gom_df)
+# 8903   
+
+db_data_w_area_more_fields_u1 <-
+  db_data_w_area_more_fields_u %>%
+  mutate(across(.cols = c(TRIP_END_DATE,
+                          TRIP_START_DATE,
+                          LATITUDE,
+                          LONGITUDE,
+                          FISHING_GEAR_DEPTH
+                          ),
+                .fns = as.character)) 
+# %>% 
+    # mutate(across(.cols = c(TRIP_END_DATE,
+    #                       TRIP_START_DATE
+    #                       ),
+    #             .fns = as.double()))
+
+db_data_w_area_report_28_s_sa_counties_no_gom_df_more_fields <-
+  inner_join(db_data_w_area_more_fields_u1,
+             db_data_w_area_report_28_s_sa_counties_no_gom_df)
+
+# ℹ `x$TRIP_START_DATE` is a <datetime<local>>.
+# ℹ `y$TRIP_START_DATE` is a <character>.
+
+
+dim(db_data_w_area_report_28_s_sa_counties_no_gom_df_more_fields)
 my_sf_to_csv(db_data_w_area_report_sa_eez_sf, "sa_eez_all")
 # dim(db_data_w_area_report_sa_eez_sf)
 # 18989    
+
 my_sf_to_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28_state_w") 
 # dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 # 8903   
