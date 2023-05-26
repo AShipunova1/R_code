@@ -22,10 +22,12 @@ db_data_w_area_short <-
     AREA_DISPLAY_NAME,
     DISTANCE_CODE_NAME,
     REGION
-  )
+  ) %>% 
+  unique()
 
 dim(db_data_w_area_short)
 # [1] 254689     15
+# [1] 75541    20
 
 ## filtering by region/area/coords ----
 db_data_w_area_report_minus_gom <-
@@ -40,8 +42,9 @@ db_data_w_area_report_minus_gom <-
 # st_geometry(sa_shp)
 # Bounding box:  xmin: -83 ymin: 23.81794 xmax: -71.37133 ymax: 36.55028
 
-# dim(db_data_w_area_report_minus_gom)
+dim(db_data_w_area_report_minus_gom)
 # [1] 145694     15
+# [1]  45269    20
 
 data_overview(db_data_w_area_report_minus_gom)
 # no lat/long NAs
@@ -107,33 +110,39 @@ sub1_fl_sub_areas <-
       return()
   })
 
-View(sub1_fl_sub_areas)
+dim(sub1_fl_sub_areas)
 # [1] 10824    21
+# 3866
 
 sub2_not_fl_sub_areas <-
   dplyr::filter(db_data_w_area_report_minus_gom,
                 !(AREA_CODE %in% names(sa_sub_area_codes)))
 
-# dim(sub1_fl_sub_areas)
+dim(sub1_fl_sub_areas)
 # [1] 10824    21
+# 3866
 
-# dim(sub2_not_fl_sub_areas)
+dim(sub2_not_fl_sub_areas)
 # [1] 125389     21
+# 40177    
 
-# should be
 # 10824 + 125389 = 136213
-
+# 40177 + 3866 = 44043
+# dim(db_data_w_area_report_minus_gom) - in gom sub areas
+# 45269    
 # (AREA_CODE %in% names(sa_sub_area_codes)
 # [1] 14788    21
 
-# dim(db_data_w_area_report_minus_gom)
+dim(db_data_w_area_report_minus_gom)
 # [1] 140177     21
+# 45269    
 
 db_data_w_area_report_minus_gom_fl_sa <-
   rbind(sub1_fl_sub_areas, sub2_not_fl_sub_areas)
 
 dim(db_data_w_area_report_minus_gom_fl_sa)
 # [1] 136213     21
+# 44043    
 
 to_mapview <- function(my_df) {
   my_df %>%
@@ -220,17 +229,19 @@ filter_fl_counties <- quo(
 sub1_fl_counties <-
   db_data_w_area_report_minus_gom_stat_no_area %>%
   filter(!!filter_fl_counties)
-# dim(sub1_fl_counties)
+dim(sub1_fl_counties)
 # [1] 42949    21
+# 14291    
 
 # save what is not in florida
 db_data_w_area_report_minus_gom_stat_no_area_not_fl <-
   filter(db_data_w_area_report_minus_gom_stat_no_area,
        !(tolower(END_PORT_STATE) == tolower("fl")))
 
-# dim(db_data_w_area_report_minus_gom_stat_no_area_not_fl)
+dim(db_data_w_area_report_minus_gom_stat_no_area_not_fl)
 # [1] 23440    21
 # 23440 + 42949 = 66389
+# 8565   
 
 # dim(db_data_w_area_report_minus_gom_stat_no_area)
 
@@ -240,6 +251,7 @@ sub1_fl_counties %>%
 # 11
 # ...
 # 8 MONROE          27476
+ # 8 MONROE           9394
 
 # 000
 # END_PORT_COUNTY     n
