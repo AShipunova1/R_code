@@ -98,51 +98,60 @@ all_points <- dim(db_data_w_area)[1]
 # )
 
 # Filter out maximum by data
-db_data_w_area_rm_mex <-
+db_data_w_area_no_mex <-
   db_data_w_area %>%
-  dplyr::filter(!(grepl("MEX", AREA_NAME))) %>%
+  # [1] 254689     32
+  dplyr::filter(!(grepl("MEX", AREA_NAME))) %>% 
+    # 254503     
   dplyr::filter(!(grepl("GOM", AREA_NAME))) %>%
   dplyr::filter(!REGION %in% c("GULF OF MEXICO")) %>%
   # all LONG should be negative
-  dplyr::mutate(LONGITUDE = -abs(LONGITUDE))
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>% 
   # keep only full sets of coordinates
-  filter(!is.na(LONGITUDE) | !is.na(LATITUDE))
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) %>% 
+  # [1] 253003     32
+  # south and north by SA shp
+  dplyr::filter(between(LATITUDE, 23.81794, 36.55028)) %>% 
+  # [1] 241183     32
+  dplyr::filter(between(LONGITUDE, -83, -71.37133))
+  # [1] 140177     32
 
-# db_data_w_area_rm_mex %>% 
+# st_geometry(sa_shp)
+# Bounding box:  xmin: -83 ymin: 23.81794 xmax: -71.37133 ymax: 36.55028
+
+# db_data_w_area_no_mex %>% 
+#   dim()
+# [1] 140177     32
+
 # filter(is.na(LONGITUDE) | is.na(LATITUDE)) %>% dim()
 # 1500
+# 0
   
-# Correct lat/long ----
-# db_data_w_area_report <-
-#   db_data_w_area %>%
-#   select(
-#     TRIP_START_DATE,
-#     TRIP_END_DATE,
-#     START_PORT,
-#     START_PORT_NAME,
-#     START_PORT_COUNTY,
-#     START_PORT_STATE,
-#     END_PORT,
-#     LATITUDE,
-#     LONGITUDE,
-#     FISHING_GEAR_DEPTH
-#   )
+# keep fewer columns ----
+db_data_w_area_report <-
+  db_data_w_area_no_mex %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    START_PORT,
+    START_PORT_NAME,
+    START_PORT_COUNTY,
+    START_PORT_STATE,
+    END_PORT,
+    LATITUDE,
+    LONGITUDE,
+    FISHING_GEAR_DEPTH
+  )
 
-# dim(db_data_w_area_report)
-# 254689     
+dim(db_data_w_area_report)
+# 254503     10     
+# [1] 140177     10
 
-db_data_w_area_report_short <-
-  db_data_w_area_report %>%
-    # all LONG should be negative
-  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-
-# dim(db_data_w_area_report_short)
-# 253142     
-
-db_data_w_area_report_sf <- my_to_sf(db_data_w_area_report_short)
+db_data_w_area_report_sf <- my_to_sf(db_data_w_area_report)
 
 dim(db_data_w_area_report_sf)
 # 253142      11
+# [1] 140177     11
 
 # SA EEZ only ----
 ## sa eez st_intersection ----
@@ -160,22 +169,15 @@ db_data_w_area_report_sa_eez_sf <-
   read_sf(db_data_w_area_report_sa_eez_file_name) %>%
   my_to_sf()
 
-# all.equal(db_data_w_area_report_sa_eez_sf,
-#           db_data_w_area_report_sa_eez_sf1)
-# mapview(db_data_w_area_report_sa_eez_sf)
-# 54950 13
-# db_data_w_area_report_sa_eez_sf <- db_data_w_area_report_sa_eez
-
 #### save sa_eez_data ----
 write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
 
-mapview(db_data_w_area_report_sa_eez_sf)
+# mapview(db_data_w_area_report_sa_eez_sf)
 
 # south of 28N - all SA ----
 db_data_w_area_report_sf_28_s <-
-  db_data_w_area_report_short %>%
-  filter(between(LATITUDE, 23, 28) &
-           between(LONGITUDE, -83, -71)) %>%
+  db_data_w_area_report %>%
+  filter(between(LATITUDE, 23, 28)) %>%
   my_to_sf()
 
 dim(db_data_w_area_report_sf_28_s)
