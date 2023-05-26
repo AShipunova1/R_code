@@ -296,36 +296,64 @@ write_csv(
 
 # Report csv ----
 
-south_of_28n <-
-  db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
-  sf::st_drop_geometry() %>%
-  select(
-    TRIP_START_DATE,
-    TRIP_END_DATE,
-    START_PORT,
-    START_PORT_NAME,
-    START_PORT_COUNTY,
-    START_PORT_STATE,
-    END_PORT,
-    LATITUDE,
-    LONGITUDE,
-    FISHING_GEAR_DEPTH
-  ) %>%
-  # 23519    
-  unique()
-
-# dim(south_of_28n)
-# 8904
-
-write_csv(
-  south_of_28n,
-  file.path(
-    my_paths$outputs,
-    current_project_name,
-    "report",
-    "south_of_28n.csv"
+my_sf_to_df <- function(my_sf, file_name) {
+  my_df <-
+    my_sf %>%
+    sf::st_drop_geometry() %>%
+    select(
+      TRIP_START_DATE,
+      TRIP_END_DATE,
+      START_PORT,
+      START_PORT_NAME,
+      START_PORT_COUNTY,
+      START_PORT_STATE,
+      END_PORT,
+      LATITUDE,
+      LONGITUDE,
+      FISHING_GEAR_DEPTH
+    ) %>%
+    unique()
+  
+  write_csv(
+    my_df,
+    file.path(my_paths$outputs,
+              current_project_name,
+              "report",
+              paste0(file_name, ".csv"))
   )
-)
+}
+
+my_sf_to_df(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28na") 
+#   
+#   %>%
+#   sf::st_drop_geometry() %>%
+#   select(
+#     TRIP_START_DATE,
+#     TRIP_END_DATE,
+#     START_PORT,
+#     START_PORT_NAME,
+#     START_PORT_COUNTY,
+#     START_PORT_STATE,
+#     END_PORT,
+#     LATITUDE,
+#     LONGITUDE,
+#     FISHING_GEAR_DEPTH
+#   ) %>%
+#   # 23519    
+#   unique()
+# 
+# # dim(south_of_28n)
+# # 8904
+# 
+# write_csv(
+#   south_of_28n,
+#   file.path(
+#     my_paths$outputs,
+#     current_project_name,
+#     "report",
+#     "south_of_28n.csv"
+#   )
+# )
 
 # map ----
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
