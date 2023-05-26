@@ -111,25 +111,31 @@ db_data_w_area_no_mex <-
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) %>% 
   # [1] 253003     32
   # south and north by SA shp
-  dplyr::filter(between(LATITUDE, 23.81794, 36.55028)) %>% 
-  # [1] 241183     32
+  # dplyr::filter(between(LATITUDE, 23.81794, 36.55028)) %>% 
+    # [1] 241183     32
+  # above 28N
+  dplyr::filter(between(LATITUDE, 28, 36.55028)) %>%
+  # 133889     
   dplyr::filter(between(LONGITUDE, -83, -71.37133))
   # [1] 140177     32
 
 # st_geometry(sa_shp)
 # Bounding box:  xmin: -83 ymin: 23.81794 xmax: -71.37133 ymax: 36.55028
 
-# db_data_w_area_no_mex %>% 
-#   dim()
+db_data_w_area_no_mex_uniq <-
+  db_data_w_area_no_mex %>% 
 # [1] 140177     32
+# [1] 48579    32
+  unique() 
+# [1] 17725    32
 
 # filter(is.na(LONGITUDE) | is.na(LATITUDE)) %>% dim()
 # 1500
 # 0
   
 # keep fewer columns ----
-db_data_w_area_report <-
-  db_data_w_area_no_mex %>%
+db_data_w_area_report_short <-
+  db_data_w_area_no_mex_uniq %>%
   select(
     TRIP_START_DATE,
     TRIP_END_DATE,
@@ -143,9 +149,17 @@ db_data_w_area_report <-
     FISHING_GEAR_DEPTH
   )
 
-dim(db_data_w_area_report)
+dim(db_data_w_area_report_short)
 # 254503     10     
 # [1] 140177     10
+# uniq
+# [1] 17725    10
+
+
+db_data_w_area_report_short <-
+  db_data_w_area_report %>% unique()
+# %>%dim()
+# [1] 45261    10
 
 db_data_w_area_report_sf <- my_to_sf(db_data_w_area_report)
 
@@ -156,6 +170,11 @@ dim(db_data_w_area_report_sf)
 # SA EEZ only ----
 ## sa eez st_intersection ----
 ### with st_intersection ----
+
+dim(db_data_w_area_report_sf)
+# [1] 140177     11
+
+dim(db_data_w_area_report_sf)
 
 tic("with_st_intersection(db_data_w_area_report_sf, sa_shp)")
 db_data_w_area_report_sa_eez_sf <-
@@ -324,36 +343,9 @@ my_sf_to_df <- function(my_sf, file_name) {
 }
 
 my_sf_to_df(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28na") 
-#   
-#   %>%
-#   sf::st_drop_geometry() %>%
-#   select(
-#     TRIP_START_DATE,
-#     TRIP_END_DATE,
-#     START_PORT,
-#     START_PORT_NAME,
-#     START_PORT_COUNTY,
-#     START_PORT_STATE,
-#     END_PORT,
-#     LATITUDE,
-#     LONGITUDE,
-#     FISHING_GEAR_DEPTH
-#   ) %>%
-#   # 23519    
-#   unique()
-# 
-# # dim(south_of_28n)
-# # 8904
-# 
-# write_csv(
-#   south_of_28n,
-#   file.path(
-#     my_paths$outputs,
-#     current_project_name,
-#     "report",
-#     "south_of_28n.csv"
-#   )
-# )
+
+
+my_sf_to_df(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28na") 
 
 # map ----
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
