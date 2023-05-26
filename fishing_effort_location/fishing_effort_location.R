@@ -156,27 +156,7 @@ db_data_w_area_no_mex_uniq <-
 # keep fewer columns ----
 db_data_w_area_report_short <-
   db_data_w_area_no_mex_uniq %>%
-  select(fields_list)
-
-  #   TRIP_START_DATE,
-  #   TRIP_END_DATE,
-  #   START_PORT,
-  #   START_PORT_NAME,
-  #   START_PORT_COUNTY,
-  #   START_PORT_STATE,
-  #   END_PORT,
-  #   END_PORT_NAME,
-  #   END_PORT_COUNTY,
-  #   END_PORT_STATE,
-  #   ACTIVITY_TYPE_NAME,
-  #   TRIP_TYPE_NAME,
-  #   AREA_CODE,
-  #   SUB_AREA_CODE,
-  #   DISTANCE_CODE_NAME,
-  #   LATITUDE,
-  #   LONGITUDE,
-  #   FISHING_GEAR_DEPTH
-  # )
+  select(all_of(fields_list))
 
 dim(db_data_w_area_report_short)
 # 45315 10
