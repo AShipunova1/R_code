@@ -161,6 +161,7 @@ tic("with_st_intersection(db_data_w_area_report_sf, sa_shp)")
 db_data_w_area_report_sa_eez_sf <-
   with_st_intersection(db_data_w_area_report_sf, sa_shp)
 toc()
+# 594.35 sec
 
 # or read it
 db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_sa_eez_sf.csv")
@@ -181,7 +182,7 @@ db_data_w_area_report_28_s_sf <-
   my_to_sf()
 
 dim(db_data_w_area_report_28_s_sf)
-# 92949    
+# [1] 92882    11
 
 ## state waters sa ----
 state_waters_sa_sf <- function() {
@@ -245,9 +246,14 @@ state_waters_sa_sf <- function() {
 
 fl_state_w_counties_sa_sf <- state_waters_sa_sf()
 
+tic("db_data_w_area_report_28_s_sa_counties_sf <-
+  with_st_intersection(db_data_w_area_report_28_s_sf,
+                      fl_state_w_counties_sa)
+")
 db_data_w_area_report_28_s_sa_counties_sf <-
   with_st_intersection(db_data_w_area_report_28_s_sf,
                       fl_state_w_counties_sa)
+toc()
 
 # or read csv
 db_data_w_area_report_28_s_sa_counties_file_name <- 
@@ -269,7 +275,7 @@ dim(db_data_w_area_report_28_s_sa_counties_sf)
 
 # View(fl_state_w_counties_monroe)
 
-
+# using sf - slow
 db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   with_st_difference(db_data_w_area_report_28_s_sa_counties_sf, gom_reef_shp)
 
@@ -288,7 +294,40 @@ write_csv(
   sa_counties_no_gom_sf_filename
 )
 
-### map ----
+# Report csv ----
+
+south_of_28n <-
+  db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
+  sf::st_drop_geometry() %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    START_PORT,
+    START_PORT_NAME,
+    START_PORT_COUNTY,
+    START_PORT_STATE,
+    END_PORT,
+    LATITUDE,
+    LONGITUDE,
+    FISHING_GEAR_DEPTH
+  ) %>%
+  # 23519    
+  unique()
+
+# dim(south_of_28n)
+# 8904
+
+write_csv(
+  south_of_28n,
+  file.path(
+    my_paths$outputs,
+    current_project_name,
+    "report",
+    "south_of_28n.csv"
+  )
+)
+
+# map ----
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   mapview(
   db_data_w_area_report_28_s_sa_counties_no_gom_sf,
