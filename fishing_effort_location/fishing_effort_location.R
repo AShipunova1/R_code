@@ -343,17 +343,19 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(
-      TRIP_START_DATE,
-      TRIP_END_DATE,
-      START_PORT,
-      START_PORT_NAME,
-      START_PORT_COUNTY,
-      START_PORT_STATE,
-      END_PORT,
-      LATITUDE,
-      LONGITUDE,
-      FISHING_GEAR_DEPTH
+    select(all_of(fields_list)
+           # )
+    # select(
+    #   TRIP_START_DATE,
+    #   TRIP_END_DATE,
+    #   START_PORT,
+    #   START_PORT_NAME,
+    #   START_PORT_COUNTY,
+    #   START_PORT_STATE,
+    #   END_PORT,
+    #   LATITUDE,
+    #   LONGITUDE,
+    #   FISHING_GEAR_DEPTH
     ) %>%
     unique()
   
@@ -373,7 +375,7 @@ my_sf_to_csv <- function(my_sf, file_name) {
 }
 
 dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
-# 8903   
+# 8903   40
 
 my_sf_to_csv(db_data_w_area_report_sa_eez_sf, "sa_eez_all")
 # names(db_data_w_area_report_sa_eez_sf)
