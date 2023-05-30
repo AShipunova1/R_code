@@ -44,7 +44,6 @@ make_a_legend <- function(my_df) {
   # one plot with a legend
   plot_w_legend_st_sedar <-
     plot_by_spp(my_df_state_in_long_format,
-                # fhier_acl_to_plot_format(state_wave_has_rec_acl_data_list_state_sedar$sa[[my_state]]),
                 "MACKEREL, SPANISH",
                 no_legend = FALSE)
   
@@ -66,6 +65,31 @@ get_current_acl_list <- function(current_sa_gom) {
   return(current_top_spp)
 }
 
+save_plot_to_file <-
+  function(current_sa_gom,
+           state_abbr,
+           combined_plot_for_1_state) {
+    output_file_name <-
+      paste0("2_2b_",
+             current_sa_gom,
+             "_",
+             state_abbr,
+             "_state_wave_top_mrip",
+             ".png")
+    
+    ggsave(
+      file = output_file_name,
+      plot = combined_plot_for_1_state,
+      device = "png",
+      path = file.path(my_paths$outputs,
+                       my_out_dir),
+      width = 20,
+      height = 20,
+      units = "cm"
+    )
+  }
+
+
 state_wave_plots_rec_acl_top <-
   # for each region
   map(c("sa", "gom"),
@@ -74,7 +98,7 @@ state_wave_plots_rec_acl_top <-
         current_top_spp <- get_current_acl_list(current_sa_gom)
         # get data for this region
         current_st_df_list <-
-          state_wave_has_rec_acl_data_list_state_rec_acl_top[[current_sa_gom]]
+          fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom[[current_sa_gom]]
         # make_one_state_plot for each state in that region (for all spp from the list)
         map(
           names(current_st_df_list),
@@ -82,6 +106,6 @@ state_wave_plots_rec_acl_top <-
                                 current_st_df_list,
                                 current_top_spp,
                                 current_sa_gom,
-                                "2022 Counts by State and rec_acl_top spp. lists")
+                                "2022 Counts by State and rec ACL top spp.")
         )
       })
