@@ -27,8 +27,13 @@ View(fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_go
           # fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom
           # )
 
-fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom$sa$NC %>%
-  select(scientific_name) %>% unique() %>% dim()
+state_wave_has_rec_acl_data_list_state_top_mrip <-
+  fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom %>%
+  map(remove_no_mrip_cnts)
+
+# View(state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL)
+# state_wave_has_rec_acl_data_list_state_top_mrip$sa$NC %>%
+#   select(scientific_name) %>% unique() %>% dim()
 # sa$NC 12
 # $gom$AL 11
 
@@ -54,7 +59,7 @@ make_a_legend <- function(my_df) {
   return(my_legend_st_sedar)
 }
 
-one_legend <- make_a_legend(fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom)
+one_legend <- make_a_legend(state_wave_has_rec_acl_data_list_state_top_mrip)
 my_out_dir <- r"(compare_catch\12 categories New\2) By wave and state\2b) Recreational ACL tops)"
 
 get_current_acl_list <- function(current_sa_gom) {
@@ -98,7 +103,7 @@ state_wave_plots_rec_acl_top <-
         current_top_spp <- get_current_acl_list(current_sa_gom)
         # get data for this region
         current_st_df_list <-
-          fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom[[current_sa_gom]]
+          state_wave_has_rec_acl_data_list_state_top_mrip[[current_sa_gom]]
         # make_one_state_plot for each state in that region (for all spp from the list)
         map(
           names(current_st_df_list),
