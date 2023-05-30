@@ -860,7 +860,7 @@ state_wave_has_rec_acl_data_list_state_sedar$gom$AL %>%
 # $gom$AL 11
 
 each_state_to_plot <- function(my_df, spp_list) {
-  browser()
+  # browser()
   one_st_to_plot <-
     fhier_acl_to_plot_format(my_df)
   
