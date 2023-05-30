@@ -428,16 +428,17 @@ all_maps <-
 # make a flat file ----
 dir_to_comb <- file.path(my_paths$git_r, current_project_name)
 
-files_to_combine <-
+files_to_combine_list <-
   c(
     file.path(my_paths$git_r, "useful_functions_module.r"),
     file.path(dir_to_comb, "read.me.R"),
     file.path(dir_to_comb, "fishing_effort_locations_get_data.R"),
-    file.path(dir_to_comb, "fishing_effort_location.R"),
-    file.path(dir_to_comb, "fishing_effort_location_viz.R")
+    file.path(dir_to_comb, "fishing_effort_location.R")
+    # ,
+    # file.path(dir_to_comb, "fishing_effort_location_viz.R")
   )
 
-flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat.R")
+flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 
 # run as needed
 # make_a_flat_file(flat_file_name,
