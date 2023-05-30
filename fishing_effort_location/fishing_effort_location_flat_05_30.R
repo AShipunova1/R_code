@@ -404,6 +404,8 @@ db_data_w_area_report_28_s_sf <-
   my_to_sf()
 
 ## state waters sa ----
+# search in fl_state_w_counties_shp shapefile names
+# if it is in the SA list - keep it
 get_state_waters_sa_sf <- function() {
   fl_counties_sa <- c(
     "Brevard",
@@ -430,7 +432,6 @@ get_state_waters_sa_sf <- function() {
     as.data.frame(fl_counties_sa)[[1]] %>%
     # for each fl_county
     purrr::map_df(function(fl_county) {
-      # browser()
       sa_county <-
         fl_state_w_counties_names_df %>%
         dplyr::filter(grepl(
@@ -449,9 +450,10 @@ get_state_waters_sa_sf <- function() {
   return(fl_state_w_counties_sa)
 }
 
+# run it
 fl_state_w_counties_sa_sf <- get_state_waters_sa_sf()
 
-# mapview(db_data_w_area_report_28_s_sf)
+# mapview(fl_state_w_counties_sa_sf)
 
 ### get only state and inner waters by intersection ----
 db_data_w_area_report_28_s_sa_counties_sf <-
@@ -466,11 +468,11 @@ db_data_w_area_report_28_s_sa_counties_file_name <-
 file.path(my_paths$outputs, current_project_name, "db_data_w_area_report_28_s_sa_counties_sf_u_more_fields.csv")
 
 db_data_w_area_report_28_s_sa_counties_sf <-
-  see above
   sf::read_sf(db_data_w_area_report_28_s_sa_counties_file_name) %>%
+  # see above
   my_to_sf()
 
-write_csv(
+readr::write_csv(
   db_data_w_area_report_28_s_sa_counties_sf,
   db_data_w_area_report_28_s_sa_counties_file_name
 )
@@ -493,7 +495,7 @@ db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
 
 # dim(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
-write_csv(
+readr::write_csv(
   db_data_w_area_report_28_s_sa_counties_no_gom_sf,
   sa_counties_no_gom_sf_filename
 )
@@ -504,8 +506,8 @@ my_sf_to_df <- function(my_sf) {
     my_sf %>%
     # convert to data frame from an SF object
     sf::st_drop_geometry() %>%
-    # zkeep only the fields from fields_list
-    select(all_of(fields_list)
+    # keep only the fields from fields_list
+    dplyr::select(dplyr::all_of(fields_list)
     ) %>%
     unique()
 
@@ -513,9 +515,10 @@ my_sf_to_df <- function(my_sf) {
 }
 
 my_sf_to_csv <- function(my_sf, file_name) {
+  # see above
   my_df <- my_sf_to_df(my_sf)
 
-  write_csv(
+  readr::write_csv(
     my_df,
     file.path(my_paths$outputs,
               current_project_name,
@@ -524,15 +527,17 @@ my_sf_to_csv <- function(my_sf, file_name) {
   )
 }
 
+# see above (F2)
 my_sf_to_csv(db_data_w_area_report_sa_eez_sf, "sa_eez_all")
 
 my_sf_to_csv(db_data_w_area_report_28_s_sa_counties_no_gom_sf, "south_of_28_state_w")
 
 # all maps together ----
-## south of 28 map ----
+
 # to keep the light basemaps
 mapviewOptions(basemaps.color.shuffle = FALSE)
 
+## south of 28 map ----
 m_db_data_w_area_report_28_s_sa_counties_no_gom_sf <-
   mapview(
   db_data_w_area_report_28_s_sa_counties_no_gom_sf,
