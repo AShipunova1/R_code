@@ -183,28 +183,44 @@ get_acl_top_cnts <- function(my_df, top_num = 12) {
     return()
 }
 
+add_common_name_to_acl_top <- function(my_df) {
+  inner_join(
+    my_df,
+    fhier_spp,
+    by = join_by(scientific_name)
+  ) %>%
+    rename(common_name_fhier = common_name) %>% 
+    return()
+}
+
 gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
   filter(sa_gom == "gom") %>% 
   get_acl_top_cnts()
 
-glimpse(gom_acl_top_spp)
-
 # rename the column for future use
-gom_acl_top_spp <-
+gom_acl_top_spp_0 <-
   rename(gom_acl_top_spp, scientific_name = new_sci)
 
+gom_acl_top_spp <-
+  add_common_name_to_acl_top(gom_acl_top_spp_0)
+
+# glimpse(gom_acl_top_spp)
+
 ### SA Top 10 ACL spp. ----
-sa_acl_top_spp <-
+sa_acl_top_spp_0 <-
   acl_estimate_catch_by_species_state_region_waves %>%
   filter(sa_gom == "sa") %>%
   get_acl_top_cnts()
 
-glimpse(sa_acl_top_spp)
-
 # rename the column for future use
+sa_acl_top_spp_0 <-
+  rename(sa_acl_top_spp_0, scientific_name = new_sci)
+
 sa_acl_top_spp <-
-  rename(sa_acl_top_spp, scientific_name = new_sci)
+  add_common_name_to_acl_top(sa_acl_top_spp_0)
+
+# glimpse(sa_acl_top_spp)
 
 # 2) Data By wave and state ----
 # str(fhier_catch_by_species_state_region_waves)
