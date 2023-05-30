@@ -1,3 +1,5 @@
+# Version May 30 2023 ASh
+
 # setup ----
 
 library(tidyverse)
@@ -398,7 +400,7 @@ readr::write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_f
 
 # South of 28N - all SA ----
 db_data_w_area_report_28_s_sf <-
-  db_data_w_area_report %>%
+  db_data_w_area_report_short %>%
   filter(between(LATITUDE, 23, 28)) %>%
   # convert to sf, see fun above (use F2)
   my_to_sf()
