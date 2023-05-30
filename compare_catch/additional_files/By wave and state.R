@@ -56,4 +56,32 @@ make_a_legend <- function(my_df) {
 }
 
 one_legend <- make_a_legend(fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom)
-my_out_dir <- r"(compare_catch\12 categories New\2) By wave and state\1a) SEDAR spp)"
+my_out_dir <- r"(compare_catch\12 categories New\2) By wave and state\2b) Recreational ACL tops)"
+
+get_current_acl_list <- function(current_sa_gom) {
+  current_top_spp   = gom_acl_top_spp
+  if (current_sa_gom == "sa") {
+    current_top_spp = sa_acl_top_spp
+  }
+  return(current_top_spp)
+}
+
+state_wave_plots_rec_acl_top <-
+  # for each region
+  map(c("sa", "gom"),
+      function(current_sa_gom) {
+        # get spp list
+        current_top_spp <- get_current_acl_list(current_sa_gom)
+        # get data for this region
+        current_st_df_list <-
+          state_wave_has_rec_acl_data_list_state_rec_acl_top[[current_sa_gom]]
+        # make_one_state_plot for each state in that region (for all spp from the list)
+        map(
+          names(current_st_df_list),
+          ~ make_one_state_plot(.x,
+                                current_st_df_list,
+                                current_top_spp,
+                                current_sa_gom,
+                                "2022 Counts by State and rec_acl_top spp. lists")
+        )
+      })
