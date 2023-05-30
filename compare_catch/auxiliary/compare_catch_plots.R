@@ -932,7 +932,7 @@ make_one_state_plot <-
            current_top_spp,
            current_sa_gom, 
            title) {
-    browser()
+    # browser()
     # get data for this state
     all_plots_for_st <-
       current_st_df_list[[state_abbr]] %>%
@@ -952,7 +952,7 @@ make_one_state_plot <-
       )
     
     #save each plot to file
-    save_plot_to_pdf(current_sa_gom,
+    save_plot_to_file(current_sa_gom,
                      state_abbr,
                      combined_plot_for_1_state)
     
@@ -1069,18 +1069,18 @@ state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL %>%
 # sa$NC 9
 # $gom$AL 11
 
-each_state_to_plot <- function(my_df, spp_list) {
-  # browser()
-  one_st_to_plot <-
-    fhier_acl_to_plot_format(my_df)
-  
-  plots_top <- map(spp_list$common_name,
-                   # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
-                   function(com_name) {
-                     plot_by_spp(one_st_to_plot, com_name)
-                   })
-  return(plots_top)
-}
+# each_state_to_plot <- function(my_df, spp_list) {
+#   # browser()
+#   one_st_to_plot <-
+#     fhier_acl_to_plot_format(my_df)
+#   
+#   plots_top <- map(spp_list$common_name,
+#                    # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+#                    function(com_name) {
+#                      plot_by_spp(one_st_to_plot, com_name)
+#                    })
+#   return(plots_top)
+# }
 
 # make a legend
 make_a_legend <- function() {
