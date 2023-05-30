@@ -311,7 +311,7 @@ db_data_w_area_file_path <-
           # db_data_w_area_file_path)
 
 # or get data from the saved csv ----
-db_data_w_area <- read_csv(db_data_w_area_file_path)
+db_data_w_area <- readr::read_csv(db_data_w_area_file_path)
 
 ## ---- get other geographical data ----
 read_shapefile <- function(filename) {
@@ -378,7 +378,7 @@ db_data_w_area_report_sf <-
 # dim(db_data_w_area_report_sf)
 # [1] 45264    19
 
-### with st_intersection ----
+### with st_intersection (slow) ----
 # get only the points inside the SA EEZ by intersection
 db_data_w_area_report_sa_eez_sf <-
   with_st_intersection(db_data_w_area_report_sf, sa_shp)
@@ -388,12 +388,13 @@ db_data_w_area_report_sa_eez_file_name <- file.path(my_paths$outputs, current_pr
 
 db_data_w_area_report_sa_eez_sf <-
   sf::read_sf(db_data_w_area_report_sa_eez_file_name) %>%
+  # see above
   my_to_sf()
 
 #### save sa_eez_data ----
-write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
+readr::write_csv(db_data_w_area_report_sa_eez_sf, db_data_w_area_report_sa_eez_file_name)
 
-dim(db_data_w_area_report_sa_eez_sf)
+# dim(db_data_w_area_report_sa_eez_sf)
 
 # South of 28N - all SA ----
 db_data_w_area_report_28_s_sf <-
@@ -417,36 +418,22 @@ get_state_waters_sa_sf <- function() {
     "Saint Johns",
     "Saint Lucie",
     "Volusia",
-    "Monroe"
-  ) #has GOM too, remove separately
-
-  # mapview(fl_state_w_counties)
-  # fl_state_w_counties$gnis_name %>% paste0(collapse = ", ")
+    "Monroe" #has GOM too, remove separately
+  ) 
 
   fl_state_w_counties_names <- fl_state_w_counties_shp$gnis_name
 
-  # length(fl_state_w_counties_names)
-  # 67
-
-  # grep("Monroe", fl_state_w_counties_names, value = T)
-
-  # length(fl_counties_sa)
-  # 12 + Monroe
-
   fl_state_w_counties_names_df <-
     as.data.frame(fl_state_w_counties_names)
-  # str(fl_state_w_counties_names_df)
-  # fl_state_w_counties_names) %>%
-
-  # View(as.data.frame(fl_counties_sa))
 
   sa_fl_state_w_counties_names <-
     as.data.frame(fl_counties_sa)[[1]] %>%
-    map_df(function(fl_county) {
+    # for each fl_county
+    purrr::map_df(function(fl_county) {
       # browser()
       sa_county <-
         fl_state_w_counties_names_df %>%
-        filter(grepl(
+        dplyr::filter(grepl(
           fl_county,
           fl_state_w_counties_names_df$fl_state_w_counties_names
         ))
