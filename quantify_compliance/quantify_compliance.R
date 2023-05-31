@@ -21,3 +21,11 @@ compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
 
 # View(compl_clean_sa_vs_gom)
 
+## ---- add columns for month and quarter ----
+compl_clean_sa_vs_gom_m <-
+  compl_clean_sa_vs_gom %>%
+  # add month
+  mutate(year_month = as.yearmon(week_start)) %>%
+  # add quarter
+  mutate(year_quarter = as.yearqtr(week_start))
+
