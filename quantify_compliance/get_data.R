@@ -180,3 +180,12 @@ toc()
 
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 names(compl_err_db_data)
+
+compl_err_db_data_22_23 <-
+  compl_err_db_data %>% 
+  filter(comp_year > '2021')
+
+# dim(compl_err_db_data)
+# [1] 87925    15
+# dim(compl_err_db_data_22_23)
+# [1] 43157    15
