@@ -277,6 +277,25 @@ non_compl_per_week_month <-
         name = "non_compl_week") %>%
   # how many non_compliant each month
   count(year_month, non_compl_week, name = "non_compl_in_month") 
+glimpse(non_compl_per_week_month)
+
+non_compl_total_nc_per_month <-
+  compl_clean_sa_vs_gom_m_int %>% 
+  filter(compliant_ == "NO") %>% 
+  count(year_month, name = "total_nc_per_month")
+  # %>% glimpse()
+  
+non_compl_per_week_month_w_total <-
+  non_compl_per_week_month %>%
+  full_join(non_compl_total_nc_per_month)
+# Joining with `by = join_by(year_month)`
+
+  # count(year_month)
+  mutate(percent_nc_weeks = )
+
+ggplot(non_compl_per_week_month,
+       aes(non_compl_week, non_compl_in_month))
+
 # non_compl_per_week_month %>% 
 #   pivot_longer(
 #     cols = c(non_compl_week,
