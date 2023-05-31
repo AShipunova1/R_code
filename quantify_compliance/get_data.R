@@ -93,10 +93,13 @@ get_permit_data_from_PIMS_csv <- function() {
 active_permits_from_pims <- get_permit_data_from_PIMS_csv()
 
 ## get permit data from db ----
-con <- connect_to_secpr()
 
-permit_query <-
-"SELECT DISTINCT
+get_permit_data_from_db <- function() {
+  # run once
+  con <- connect_to_secpr()
+  
+  permit_query <-
+    "SELECT DISTINCT
   permit,
   top,
   permit_status,
@@ -111,5 +114,18 @@ FROM
 WHERE
   effective_date > TO_DATE('01-JAN-20')
 "
-permit_db_data = ROracle::dbGetQuery(con,
-                       permit_query)
+  
+  permit_db_data = ROracle::dbGetQuery(con,
+                                       permit_query)
+  
+  ROracle::dbDisconnect(con)
+  
+  return(permit_db_data)
+}
+
+# to run
+permit_db_data <- get_permit_data_from_db()
+
+str(permit_db_data)
+# 37187 
+# old csv 23888
