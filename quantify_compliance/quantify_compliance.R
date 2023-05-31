@@ -69,7 +69,7 @@ compl_err_db_data %<>%
 tic("full_join")
 compl_clean_sa_vs_gom_m_int_v <-
   full_join(
-    compl_err_db_data,
+    compl_err_db_data_22_23,
     compl_clean_sa_vs_gom_m_int,
     by = join_by(supplier_vessel_id == vessel_official_number,
                  comp_year == year,
@@ -81,7 +81,7 @@ compl_clean_sa_vs_gom_m_int_v <-
 # names(compl_clean_sa_vs_gom_m_int)
 toc()
 dim(compl_clean_sa_vs_gom_m_int_v)
-# [1] 253757     36
+# [1] 208989     36
 
 # "supplier_vessel_id"
 # "coast_guard_nbr"      "state_reg_nbr"
@@ -90,15 +90,98 @@ compl_clean_sa_vs_gom_m_int_v %>%
   filter(!is.na(coast_guard_nbr) &
            !is.na(state_reg_nbr) &
            (!(coast_guard_nbr == state_reg_nbr))) %>% View()
-# 3134
+# 1618
 
 # comp_error_type_cd,
 # error_type_wo_desc
 
- compl_clean_sa_vs_gom_m_int_v %>%
-   filter(is.na(permit)) %>% 
-   count(comp_year)
+not_in_compl_join <-
+  compl_clean_sa_vs_gom_m_int_v %>%
+  filter(is.na(permit))
+# count(comp_year)
 #   comp_year     n
-# 1      2021 44768
 # 2      2022    58
 # 3      2023    24
+
+names(not_in_compl_join)
+not_in_compl_join %>% 
+  select(supplier_vessel_id, coast_guard_nbr, state_reg_nbr) %>% 
+  unique()
+#    supplier_vessel_id coast_guard_nbr state_reg_nbr
+# 1             1299734         1299734      TX6287FJ
+# 19             991490          991490      FL7825PU
+# 40            1198330         1198330      FL9110GE
+# 51            1327036         1327036      FL2940RH
+# 62            1000164         1000164      FL2310RW
+
+compl_clean_sa_vs_gom_m_int %>%
+  filter(
+    vessel_official_number %in% c("TX6287FJ", "FL7825PU", "FL9110GE", "FL2940RH", "FL2310RW")
+  ) %>% View()
+
+## join those by state_reg_nbr ----
+tic("full_join")
+compl_clean_sa_vs_gom_m_int_j <-
+  inner_join(
+    compl_err_db_data_22_23,
+    compl_clean_sa_vs_gom_m_int_v,
+    by = join_by(state_reg_nbr == supplier_vessel_id,
+                 comp_year,
+                 comp_week
+                 ),
+    relationship = "many-to-many"
+  ) 
+toc()
+
+dim(compl_clean_sa_vs_gom_m_int_j)
+# [1] 23808    48
+dim(compl_clean_sa_vs_gom)
+# [1] 208893     22
+dim(compl_clean_sa_vs_gom_m_int_v)
+# [1] 208989     36
+
+# test
+compl_clean_sa_vs_gom_m_int_j %>%
+  filter(is.na(permit)) %>% View()
+# 0
+
+grep("x", names(compl_clean_sa_vs_gom_m_int_j), value = T) %>% 
+  paste0(collapse = ", ")
+
+compl_clean_sa_vs_gom_m_int_j %>% select(activity_dt.x,
+activity_dt.y,
+activity_time.x,
+activity_time.y,
+coast_guard_nbr.x,
+coast_guard_nbr.y,
+comp_error_type_cd.x,
+comp_error_type_cd.y,
+error_type_wo_desc.x,
+error_type_wo_desc.y,
+for_hire_trip_type.x,
+for_hire_trip_type.y,
+is_overridable.x,
+is_overridable.y,
+is_past_grace_period.x,
+is_past_grace_period.y,
+lateness.x,
+lateness.y,
+safis_vessel_id.x,
+safis_vessel_id.y,
+srh_vessel_comp_id.x,
+srh_vessel_comp_id.y) %>% 
+  unique() %>% 
+  filter(
+    !(activity_dt.x == activity_dt.y) |
+!(activity_time.x == activity_time.y) |
+!(coast_guard_nbr.x == coast_guard_nbr.y) |
+!(comp_error_type_cd.x == comp_error_type_cd.y) |
+!(error_type_wo_desc.x == error_type_wo_desc.y) |
+!(for_hire_trip_type.x == for_hire_trip_type.y) |
+!(is_overridable.x == is_overridable.y) |
+!(is_past_grace_period.x == is_past_grace_period.y) |
+!(lateness.x == lateness.y) |
+!(safis_vessel_id.x == safis_vessel_id.y) |
+!(srh_vessel_comp_id.x == srh_vessel_comp_id.y)
+  )
+# 0
