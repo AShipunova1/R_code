@@ -304,17 +304,26 @@ non_compl_per_week_month_wide <-
 
 names(non_compl_per_week_month_wide)
 
-non_compl_per_week_month_w_total <-
+non_compl_per_week_month_wide_w_total <-
   non_compl_per_week_month_wide %>% 
   mutate(total_nc_vsl_per_month = rowSums(.[2:6]))
 
+names(non_compl_per_week_month_wide_w_total)
+
+non_compl_per_week_month_w_total <-
+  non_compl_per_week_month_wide_w_total %>% 
+    pivot_longer(-c(year_month, total_nc_vsl_per_month),
+                 names_to = "non_compl_week",
+                 values_to = "non_compl_in_month") %>% 
+    mutate(percent_nc_weeks = 100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month
+             )
 View(non_compl_per_week_month_w_total)
 
-  # count(year_month)
-  # mutate(percent_nc_weeks = )
-
-# ggplot(non_compl_per_week_month,
-#        aes(non_compl_week, non_compl_in_month))
+gg_23_12 <- 
+  non_compl_per_week_month_w_total %>% 
+  filter(year_month == "Dec 2022") %>%
+  ggplot(aes(non_compl_week, percent_nc_weeks)) +
+  geom_col()
 
 # non_compl_per_week_month %>% 
 #   pivot_longer(
