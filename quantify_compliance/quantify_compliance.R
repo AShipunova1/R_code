@@ -319,16 +319,32 @@ non_compl_per_week_month_w_total <-
              )
 View(non_compl_per_week_month_w_total)
 
-gg_23_12 <- 
+gg_22_01 <- 
   non_compl_per_week_month_w_total %>% 
-  filter(year_month == "Dec 2022") %>%
+  filter(year_month == "Jan 2022") %>%
   ggplot(aes(non_compl_week, percent_nc_weeks)) +
   geom_col()
 
-# non_compl_per_week_month %>% 
-#   pivot_longer(
-#     cols = c(non_compl_week,
-#              non_compl_in_month),
-#     names_to = "AGENCY",
-#     values_to = "CATCH_CNT"
-#   ) %>% View()
+non_compl_per_week_month_w_total_short <-
+  non_compl_per_week_month_w_total %>%
+  select(year_month, non_compl_week, percent_nc_weeks)
+
+gg_non_compl_per_week_month_w_total <-
+  non_compl_per_week_month_w_total_short$year_month %>%
+  unique() %>% 
+  map(function(current_year_month) {
+    non_compl_per_week_month_w_total_short %>%
+      filter(year_month == current_year_month) %>%
+      ggplot(aes(non_compl_week, percent_nc_weeks)) +
+      geom_col(fill = "lightblue") +
+      labs(title = current_year_month) %>%
+      # TODO: add color, a month as a title, axes text
+      return()
+  })
+
+gg_non_compl_per_week_month_w_total[[1]]
+
+grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
+             # top = super_title,
+             # left = my_legend,
+             ncol = 4)
