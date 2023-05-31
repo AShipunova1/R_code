@@ -12,7 +12,7 @@ filenames = c("FHIER_Compliance_2022__05_31_2023.csv",
 ## ---- get csv data into variables ----
 csv_names_list <- prepare_csv_names(filenames)
 
-View(csv_names_list)
+# View(csv_names_list)
 # read all csv files
 csv_contents <- load_csv_names(my_paths, csv_names_list)
 # browser()
@@ -22,7 +22,7 @@ str(csvs_clean1)
 # browser()
 compl_clean <- compliance_cleaning(csvs_clean1)
 
-View(compl_clean)
+# View(compl_clean)
 dim(compl_clean)
 # 208893     21
 
