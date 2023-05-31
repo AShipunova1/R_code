@@ -80,7 +80,7 @@ compl_clean_sa_vs_gom_m_int_v %>%
 
 not_in_compl_join <-
   compl_clean_sa_vs_gom_m_int_v %>%
-  filter(is.na(permit))
+  filter(is.na(permit_sa_gom))
 # count(comp_year)
 #   comp_year     n
 # 2      2022    58
@@ -137,7 +137,7 @@ dim(compl_clean_sa_vs_gom_m_int_v)
 
 # test
 compl_clean_sa_vs_gom_m_int_j %>%
-  filter(is.na(permit)) %>% dim()
+  filter(is.na(permit_sa_gom)) %>% dim()
 # 0
 
 grep("x", names(compl_clean_sa_vs_gom_m_int_j), value = T) %>% 
@@ -172,7 +172,7 @@ compl_clean_sa_vs_gom_m_int_j %>%
 
 sa_compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m_int %>% 
-  filter(permit == "sa_only")
+  filter(permit_sa_gom == "sa_only")
 
 str(sa_compl_clean_sa_vs_gom_m_int)
 # 123,453
