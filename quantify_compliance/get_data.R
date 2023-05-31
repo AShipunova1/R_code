@@ -37,12 +37,12 @@ err_desc <-
                   "%m/%d/%Y %I:%M:%S %p")
 
 ## ---- get permit data from PIMS ----
-permit_names_list = r"(other\Permits_2023-03-29_1611_active.csv)"
+# permit_names_list = r"(other\Permits_2023-03-29_1611_active.csv)"
 
-active_permits_from_pims_raw <-
-  load_csv_names(my_paths, permit_names_list)
+# active_permits_from_pims_raw <-
+  # load_csv_names(my_paths, permit_names_list)
 # View(active_permits_from_pims[[1]])
-head(active_permits_from_pims_raw[[1]])
+glimpse(active_permits_from_pims_raw[[1]])
 
 # clean_headers
 active_permits_from_pims_temp1 <-
@@ -85,3 +85,24 @@ active_permits_from_pims %>%
 # correct
 str(active_permits_from_pims)
 
+## get permit data from db ----
+con <- connect_to_secpr()
+
+permit_query <-
+"SELECT DISTINCT
+  permit,
+  top,
+  permit_status,
+  vessel_id,
+  vessel_alt_num,
+  effective_date,
+  expiration_date,
+  end_date,
+  top_name
+FROM
+  srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  effective_date > TO_DATE('01-JAN-20')
+"
+permit_db_data = ROracle::dbGetQuery(con,
+                       permit_query)
