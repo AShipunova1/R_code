@@ -269,3 +269,18 @@ compl_clean_sa_vs_gom_m_int %>%
 # 2     2                       25
 # 3     3                       38
 # 4     4                      379
+
+non_compl_per_week_month <-
+  compl_clean_sa_vs_gom_m_int %>%
+  filter(compliant_ == "NO") %>%
+  count(year_month, vessel_official_number, 
+        name = "non_compl_week") %>%
+  # how many non_compliant each month
+  count(year_month, non_compl_week, name = "non_compl_in_month") 
+# non_compl_per_week_month %>% 
+#   pivot_longer(
+#     cols = c(non_compl_week,
+#              non_compl_in_month),
+#     names_to = "AGENCY",
+#     values_to = "CATCH_CNT"
+#   ) %>% View()
