@@ -1,5 +1,7 @@
 # this file is called from quantify_compliance.R
 
+library(tictoc)
+
 project_dir_name <- "FHIER Compliance"
 
 filenames = c("FHIER_Compliance_2022__05_31_2023.csv",
@@ -21,6 +23,8 @@ str(csvs_clean1)
 compl_clean <- compliance_cleaning(csvs_clean1)
 
 View(compl_clean)
+dim(compl_clean)
+# 208893     21
 
 ## ---- get compliance error definitions ----
 
@@ -140,12 +144,14 @@ get_compl_err_data_from_db <- function() {
   "SELECT
   srh_vessel_comp_id,
   safis_vessel_id,
+  supplier_vessel_id, 
+  coast_guard_nbr, 
+  state_reg_nbr,
   comp_year,
   comp_week,
   comp_error_type_cd,
   error_type_wo_desc,
   is_overridable,
-  safis_identifier,
   for_hire_trip_type,
   activity_dt,
   activity_time,
@@ -153,6 +159,9 @@ get_compl_err_data_from_db <- function() {
   lateness
 FROM
   srh.v_comp_srfh_comp_err_detail@secapxdv_dblk.sfsc.noaa.gov
+  join
+  SAFIS.VESSELS@secapxdv_dblk.sfsc.noaa.gov
+  on(safis_vessel_id = vessel_id)
 WHERE
   comp_year > '2020'
 "
@@ -164,4 +173,10 @@ WHERE
   return(compl_err_db_data)
 }
 
-compl_err_db_data <- get_compl_err_data_from_db()
+tic("get_compl_err_data_from_db()")
+compl_err_db_data_raw <- get_compl_err_data_from_db()
+toc()
+# 16.46 sec
+
+compl_err_db_data <- clean_headers(compl_err_db_data_raw)
+names(compl_err_db_data)
