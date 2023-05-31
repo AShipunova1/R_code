@@ -83,33 +83,22 @@ toc()
 dim(compl_clean_sa_vs_gom_m_int_v)
 # [1] 253757     36
 
-# too big
-# [1] 4539787      38
-# aa %>% 
-#   filter(is.na(vessel_official_number)) %>% dim()
-# 0
-
-aa %>%
-  filter(is.na(COAST_GUARD_NBR)) %>%
-  glimpse()
-  # dim()
-# [1] 2341422      38
-
 # "supplier_vessel_id"
 # "coast_guard_nbr"      "state_reg_nbr"
 
-compl_clean_sa_vs_gom_m_int_v <-
-  compl_clean_sa_vs_gom_m_int %>%
-  filter((
-    vessel_official_number == compl_err_db_data$supplier_vessel_id
-  ) |
-    (vessel_official_number == compl_err_db_data$coast_guard_nbr) |
-    (vessel_official_number == compl_err_db_data$state_reg_nbr)
-  )
+compl_clean_sa_vs_gom_m_int_v %>%
+  filter(!is.na(coast_guard_nbr) &
+           !is.na(state_reg_nbr) &
+           (!(coast_guard_nbr == state_reg_nbr))) %>% View()
+# 3134
 
+# comp_error_type_cd,
+# error_type_wo_desc
 
-  mutate(comp_year = compl_err_db_data$comp_year,
-comp_week = compl_err_db_data$comp_week,
-comp_error_type_cd = compl_err_db_data$comp_error_type_cd,
-error_type_wo_desc = compl_err_db_data$error_type_wo_desc
-)
+ compl_clean_sa_vs_gom_m_int_v %>%
+   filter(is.na(permit)) %>% 
+   count(comp_year)
+#   comp_year     n
+# 1      2021 44768
+# 2      2022    58
+# 3      2023    24
