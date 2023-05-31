@@ -62,3 +62,24 @@ str(sa_compl_clean_sa_vs_gom_m_int)
 # 123,453
 
 View(err_desc_clean_headers_csv_content)
+
+tic("full_join")
+aa <-
+  full_join(
+    compl_err_db_data,
+    compl_clean_sa_vs_gom_m_int,
+    by = join_by(SUPPLIER_VESSEL_ID == vessel_official_number),
+    relationship = "many-to-many"
+  )
+toc()
+# dim(aa) 
+# too big
+# [1] 4539787      38
+# aa %>% 
+#   filter(is.na(vessel_official_number)) %>% dim()
+# 0
+
+aa %>%
+  filter(is.na(coast_guard_nbr)) %>% dim()
+# [1] 2341422      38
+
