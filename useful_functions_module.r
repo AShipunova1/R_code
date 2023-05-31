@@ -231,9 +231,11 @@ aux_fun_for_dates <- function(x, date_format) {
                     format = date_format)
   out
 }
-
-# across(a:b, \(x) mean(x, na.rm = TRUE))
-
+  # # Previously
+  # across(a:b, mean, na.rm = TRUE)
+  # 
+  # # Now
+  # across(a:b, \(x) mean(x, na.rm = TRUE))
 change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
   my_df %>%
     mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
