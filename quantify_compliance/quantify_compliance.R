@@ -63,16 +63,26 @@ str(sa_compl_clean_sa_vs_gom_m_int)
 
 View(err_desc_clean_headers_csv_content)
 
+compl_err_db_data %<>% 
+  mutate(comp_year = as.character(comp_year))
+
 tic("full_join")
-aa <-
+compl_clean_sa_vs_gom_m_int_v <-
   full_join(
     compl_err_db_data,
     compl_clean_sa_vs_gom_m_int,
-    by = join_by(SUPPLIER_VESSEL_ID == vessel_official_number),
+    by = join_by(supplier_vessel_id == vessel_official_number,
+                 comp_year == year,
+                 comp_week == week_num
+                 ),
     relationship = "many-to-many"
   )
+# 
+# names(compl_clean_sa_vs_gom_m_int)
 toc()
-# dim(aa) 
+dim(compl_clean_sa_vs_gom_m_int_v)
+# [1] 253757     36
+
 # too big
 # [1] 4539787      38
 # aa %>% 
@@ -80,6 +90,26 @@ toc()
 # 0
 
 aa %>%
-  filter(is.na(coast_guard_nbr)) %>% dim()
+  filter(is.na(COAST_GUARD_NBR)) %>%
+  glimpse()
+  # dim()
 # [1] 2341422      38
 
+# "supplier_vessel_id"
+# "coast_guard_nbr"      "state_reg_nbr"
+
+compl_clean_sa_vs_gom_m_int_v <-
+  compl_clean_sa_vs_gom_m_int %>%
+  filter((
+    vessel_official_number == compl_err_db_data$supplier_vessel_id
+  ) |
+    (vessel_official_number == compl_err_db_data$coast_guard_nbr) |
+    (vessel_official_number == compl_err_db_data$state_reg_nbr)
+  )
+
+
+  mutate(comp_year = compl_err_db_data$comp_year,
+comp_week = compl_err_db_data$comp_week,
+comp_error_type_cd = compl_err_db_data$comp_error_type_cd,
+error_type_wo_desc = compl_err_db_data$error_type_wo_desc
+)
