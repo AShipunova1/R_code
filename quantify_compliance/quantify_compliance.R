@@ -274,9 +274,9 @@ non_compl_per_week_month <-
   compl_clean_sa_vs_gom_m_int %>%
   filter(compliant_ == "NO") %>%
   count(year_month, vessel_official_number, 
-        name = "non_compl_week") %>%
+        name = "non_compl_weeks") %>%
   # how many non_compliant each month
-  count(year_month, non_compl_week, name = "non_compl_in_month") 
+  count(year_month, non_compl_weeks, name = "non_compl_in_month") 
 glimpse(non_compl_per_week_month)
 
 # non_compl_total_nc_per_month <-
@@ -298,7 +298,7 @@ names(non_compl_per_week_month)
 
 non_compl_per_week_month_wide <-
   non_compl_per_week_month %>%
-    pivot_wider(names_from = non_compl_week,
+    pivot_wider(names_from = non_compl_weeks,
                 values_from = non_compl_in_month,
                 values_fill = 0)
 
@@ -313,7 +313,7 @@ names(non_compl_per_week_month_wide_w_total)
 non_compl_per_week_month_w_total <-
   non_compl_per_week_month_wide_w_total %>% 
     pivot_longer(-c(year_month, total_nc_vsl_per_month),
-                 names_to = "non_compl_week",
+                 names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>% 
     mutate(percent_nc_weeks = 100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month
              )
@@ -322,12 +322,12 @@ View(non_compl_per_week_month_w_total)
 gg_22_01 <- 
   non_compl_per_week_month_w_total %>% 
   filter(year_month == "Jan 2022") %>%
-  ggplot(aes(non_compl_week, percent_nc_weeks)) +
+  ggplot(aes(non_compl_weeks, percent_nc_weeks)) +
   geom_col()
 
 non_compl_per_week_month_w_total_short <-
   non_compl_per_week_month_w_total %>%
-  select(year_month, non_compl_week, percent_nc_weeks)
+  select(year_month, non_compl_weeks, percent_nc_weeks)
 
 gg_non_compl_per_week_month_w_total <-
   non_compl_per_week_month_w_total_short$year_month %>%
@@ -335,14 +335,14 @@ gg_non_compl_per_week_month_w_total <-
   map(function(current_year_month) {
     non_compl_per_week_month_w_total_short %>%
       filter(year_month == current_year_month) %>%
-      ggplot(aes(non_compl_week, percent_nc_weeks)) +
+      ggplot(aes(non_compl_weeks, percent_nc_weeks)) +
       geom_col(fill = "lightblue") +
       labs(title = current_year_month) %>%
       # TODO: add color, a month as a title, axes text
       return()
   })
 
-gg_non_compl_per_week_month_w_total[[1]]
+gg_non_compl_per_week_month_w_total[[12]]
 
 grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
              # top = super_title,
