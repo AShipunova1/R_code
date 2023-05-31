@@ -279,22 +279,42 @@ non_compl_per_week_month <-
   count(year_month, non_compl_week, name = "non_compl_in_month") 
 glimpse(non_compl_per_week_month)
 
-non_compl_total_nc_per_month <-
-  compl_clean_sa_vs_gom_m_int %>% 
+# non_compl_total_nc_per_month <-
+#   compl_clean_sa_vs_gom_m_int %>% 
+#   filter(compliant_ == "NO") %>% 
+#   count(year_month, name = "total_nc_per_month")
+#   # %>% glimpse()
+
+compl_clean_sa_vs_gom_m_int %>% 
   filter(compliant_ == "NO") %>% 
-  count(year_month, name = "total_nc_per_month")
-  # %>% glimpse()
+  filter(year_month == "Dec 2022") %>%
+  select(vessel_official_number) %>%
+  unique() %>% 
+  dim()
+# 467 = 25+25+38+379
+
   
-non_compl_per_week_month_w_total <-
+names(non_compl_per_week_month)
+
+non_compl_per_week_month_wide <-
   non_compl_per_week_month %>%
-  full_join(non_compl_total_nc_per_month)
-# Joining with `by = join_by(year_month)`
+    pivot_wider(names_from = non_compl_week,
+                values_from = non_compl_in_month,
+                values_fill = 0)
+
+names(non_compl_per_week_month_wide)
+
+non_compl_per_week_month_w_total <-
+  non_compl_per_week_month_wide %>% 
+  mutate(total_nc_vsl_per_month = rowSums(.[2:6]))
+
+View(non_compl_per_week_month_w_total)
 
   # count(year_month)
-  mutate(percent_nc_weeks = )
+  # mutate(percent_nc_weeks = )
 
-ggplot(non_compl_per_week_month,
-       aes(non_compl_week, non_compl_in_month))
+# ggplot(non_compl_per_week_month,
+#        aes(non_compl_week, non_compl_in_month))
 
 # non_compl_per_week_month %>% 
 #   pivot_longer(
