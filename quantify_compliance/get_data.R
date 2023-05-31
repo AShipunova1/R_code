@@ -129,3 +129,39 @@ permit_db_data <- get_permit_data_from_db()
 str(permit_db_data)
 # 37187 
 # old csv 23888
+
+# get compliance err data from db ----
+
+get_compl_err_data_from_db <- function() {
+  # run once
+  con <- connect_to_secpr()
+
+  compl_err_query <-
+  "SELECT
+  srh_vessel_comp_id,
+  safis_vessel_id,
+  comp_year,
+  comp_week,
+  comp_error_type_cd,
+  error_type_wo_desc,
+  is_overridable,
+  safis_identifier,
+  for_hire_trip_type,
+  activity_dt,
+  activity_time,
+  is_past_grace_period,
+  lateness
+FROM
+  srh.v_comp_srfh_comp_err_detail@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  comp_year > '2020'
+"
+  compl_err_db_data = ROracle::dbGetQuery(con,
+                                       compl_err_query)
+  
+  ROracle::dbDisconnect(con)
+  
+  return(compl_err_db_data)
+}
+
+compl_err_db_data <- get_compl_err_data_from_db()
