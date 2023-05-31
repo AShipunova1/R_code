@@ -22,3 +22,20 @@ it would be the same compliance report we used in the egregious code
 
 03/21/2023
 I would just stick with the weekly, then aggregate compliance weeks into 4 week chunks (we'll call those ~ months), then into annual.
+
+31/05/2023
+SA only permit vessels
+for 2022 dual were as GOM
+1 per week: logbook or no fishing report:
+at least 4 per weeks
+
+For example: for January plot for each week
+compl / non compl
+
+How many non compl in each week
+100% - the total of non compliance vessels for a given month% of submit of 1 week, 2 weeks
+prop of weeks w report is missing
+
+Gulf and dual 2022
+Compl, non compl - even number
+by week

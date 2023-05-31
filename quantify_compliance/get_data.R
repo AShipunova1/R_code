@@ -1,8 +1,16 @@
-filenames = c("FHIER_Compliance_22__02_24_23.csv",
-              "FHIER_Compliance_23__02_24_23.csv")
+# this file is called from quantify_compliance.R
+
+project_dir_name <- "FHIER Compliance"
+
+filenames = c("FHIER_Compliance_2022__05_31_2023.csv",
+              "FHIER_Compliance_2023__05_31_2023.csv")
+
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\FHIER Compliance\05_31_2023\FHIER_Compliance_2023__05_31_2023.csv"
 
 ## ---- get csv data into variables ----
 csv_names_list <- prepare_csv_names(filenames)
+
+View(csv_names_list)
 # read all csv files
 csv_contents <- load_csv_names(my_paths, csv_names_list)
 # browser()
@@ -12,11 +20,11 @@ str(csvs_clean1)
 # browser()
 compl_clean <- compliance_cleaning(csvs_clean1)
 
-# View(compl_clean)
+View(compl_clean)
 
 ## ---- get compliance error definitions ----
 
-err_desc_filenames = c("Compliance_Error_Types_03_29_2023.csv")
+err_desc_filenames = c(file.path(project_dir_name, "Compliance_Error_Types_03_29_2023.csv"))
 
 err_desc_csv_contents <-
   load_csv_names(my_paths, err_desc_filenames)
