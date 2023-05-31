@@ -120,68 +120,58 @@ compl_clean_sa_vs_gom_m_int %>%
   ) %>% View()
 
 ## join those by state_reg_nbr ----
-tic("full_join")
 compl_clean_sa_vs_gom_m_int_j <-
   inner_join(
     compl_err_db_data_22_23,
     compl_clean_sa_vs_gom_m_int_v,
-    by = join_by(state_reg_nbr == supplier_vessel_id,
-                 comp_year,
-                 comp_week
-                 ),
+    by = join_by(
+      state_reg_nbr == supplier_vessel_id,
+      comp_year,
+      comp_week,
+      activity_dt,
+      activity_time,
+      coast_guard_nbr,
+      comp_error_type_cd,
+      error_type_wo_desc,
+      for_hire_trip_type,
+      is_overridable,
+      is_past_grace_period,
+      lateness,
+      safis_vessel_id,
+      srh_vessel_comp_id
+    ),
     relationship = "many-to-many"
   ) 
-toc()
 
 dim(compl_clean_sa_vs_gom_m_int_j)
-# [1] 23808    48
+# [1] 23682    37
+
 dim(compl_clean_sa_vs_gom)
 # [1] 208893     22
+
 dim(compl_clean_sa_vs_gom_m_int_v)
 # [1] 208989     36
 
 # test
 compl_clean_sa_vs_gom_m_int_j %>%
-  filter(is.na(permit)) %>% View()
+  filter(is.na(permit)) %>% dim()
 # 0
 
 grep("x", names(compl_clean_sa_vs_gom_m_int_j), value = T) %>% 
   paste0(collapse = ", ")
 
-compl_clean_sa_vs_gom_m_int_j %>% select(activity_dt.x,
-activity_dt.y,
-activity_time.x,
-activity_time.y,
-coast_guard_nbr.x,
-coast_guard_nbr.y,
-comp_error_type_cd.x,
-comp_error_type_cd.y,
-error_type_wo_desc.x,
-error_type_wo_desc.y,
-for_hire_trip_type.x,
-for_hire_trip_type.y,
-is_overridable.x,
-is_overridable.y,
-is_past_grace_period.x,
-is_past_grace_period.y,
-lateness.x,
-lateness.y,
-safis_vessel_id.x,
-safis_vessel_id.y,
-srh_vessel_comp_id.x,
-srh_vessel_comp_id.y) %>% 
-  unique() %>% 
+compl_clean_sa_vs_gom_m_int_j %>%
+  select(permit_groupexpiration, permitgroupexpiration) %>%
+  unique() %>%
+  # change_to_dates(permitgroupexpiration, "%m/%d/%Y"
+  mutate(permit_groupexpiration = as.POSIXct(permit_groupexpiration,
+                                             format = "%m/%d/%Y")) %>%
+  # str()
+  
+# $ permit_groupexpiration: chr  "04/30/2024" "01/31/2024" "02/29/2024" "12/31/2023" ...
+# $ permitgroupexpiration : POSIXct, format: "2024-04-30" "2024-01-31" ...
+
   filter(
-    !(activity_dt.x == activity_dt.y) |
-!(activity_time.x == activity_time.y) |
-!(coast_guard_nbr.x == coast_guard_nbr.y) |
-!(comp_error_type_cd.x == comp_error_type_cd.y) |
-!(error_type_wo_desc.x == error_type_wo_desc.y) |
-!(for_hire_trip_type.x == for_hire_trip_type.y) |
-!(is_overridable.x == is_overridable.y) |
-!(is_past_grace_period.x == is_past_grace_period.y) |
-!(lateness.x == lateness.y) |
-!(safis_vessel_id.x == safis_vessel_id.y) |
-!(srh_vessel_comp_id.x == srh_vessel_comp_id.y)
-  )
+    !(permit_groupexpiration == permitgroupexpiration)
+  ) %>% dim()
 # 0
