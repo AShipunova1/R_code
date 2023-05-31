@@ -29,3 +29,12 @@ compl_clean_sa_vs_gom_m <-
   # add quarter
   mutate(year_quarter = as.yearqtr(week_start))
 
+## ---- convert report numbers to numeric ----
+compl_clean_sa_vs_gom_m_int <-
+  compl_clean_sa_vs_gom_m %>%
+  mutate(
+    captainreports__ = as.integer(captainreports__),
+    negativereports__ = as.integer(negativereports__),
+    captainreports__ = as.integer(gom_permitteddeclarations__)
+  )
+
