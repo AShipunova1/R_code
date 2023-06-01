@@ -10,21 +10,29 @@ my_paths <- set_work_dir()
 source("~/R_code_github/quantify_compliance/get_data.R")
 
 # ---- separate SA and GOM permits ----
-
-separate_permits_into_3_groups <- function(compl_clean) {
+separate_permits_into_3_groups <- function(compl_clean, permit_group_field_name = "permitgroup") {
   compl_clean %>%
   mutate(permit_sa_gom =
            case_when(
-             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
-             !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
+             !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
+             !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
              .default = "both"
            )) %>%
     return()
 }
 
+## fhier data ---
+
 compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
 
 # View(compl_clean_sa_vs_gom)
+
+## db_data ----
+compl_err_db_data_sa_g <-
+  separate_permits_into_3_groups(compl_err_db_data,
+                                 "permit_group")
+  
+View(compl_err_db_data_sa_g)
 
 # ---- add columns for month and quarter ----
 compl_clean_sa_vs_gom_m <-
@@ -68,7 +76,8 @@ get_non_compl_week_counts <- function(my_df) {
     mutate(percent_nc = round(
       100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
       digits = 2
-    )) %>% return()
+    )) %>%
+    return()
 }
 
 # join with db data? ----
@@ -512,10 +521,120 @@ gom_all_compl_clean_sa_vs_gom_m_int_non_comp_perc <-
 # SA:
 #    TRUNC(SYSDATE) >= (TRUNC(c.comp_week_end_dt) + 24) THEN -- Past allotted correction time
 
-
 # select * from srh.srfh_for_hire_type@secapxdv_dblk.sfsc.noaa.gov
 # 1	HEADBOAT
 # 2	CHARTER
 # 42	RECREATIONAL
 # 81	COMMERCIAL
 # 62	UNKNOWN
+
+# ===
+gom_compl_err_db_data_sa_g <-
+  compl_err_db_data_sa_g %>% 
+  filter(!(permit_sa_gom == "sa_only"))
+dim(compl_err_db_data_sa_g)
+# [1] 44930    39
+
+dim(gom_compl_err_db_data_sa_g)
+# [1] 5405   39
+
+gom_compl_err_db_data_sa_g %>%
+  count(comp_error_type_cd)
+#     comp_error_type_cd    n
+# 1         DECL_NO_TRIP  761
+# 2        NO_TRIP_FOUND 3456
+# 3 SUBMIT_AFTER_ARRIVAL  578
+# 4     TRIP_BEFORE_DECL   20
+# 5         TRIP_NO_DECL  430
+# 6   VAL_ERROR_TRIP_GOM   65
+# 7     VMS_DECL_NO_TRIP   95
+
+  # select(comp_error_type_cd) %>%
+  # unique()
+#       comp_error_type_cd
+# 1           DECL_NO_TRIP
+# 2   SUBMIT_AFTER_ARRIVAL
+# 7           TRIP_NO_DECL
+# 8     VAL_ERROR_TRIP_GOM
+# 11         NO_TRIP_FOUND
+# 37      VMS_DECL_NO_TRIP
+# 236     TRIP_BEFORE_DECL
+
+# names(gom_compl_err_db_data_sa_g) %>% paste0(collapse = ", ")
+
+# [1] "srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, override_dt, override_user_id, override_cmt, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, pa_review_needed_dt, pa_review_needed_user_id, is_pa_reviewed, pa_reviewed_dt, pa_reviewed_user_id, pa_reviewed_cmt, val_tr_res_id, vms_table_pk, srh_vessel_id, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, srfh_assignment_id, permit_sa_gom"
+
+gom_compl_err_db_data_sa_g_short <-
+  gom_compl_err_db_data_sa_g %>% 
+  select(
+    c(
+      comp_error_type_cd,
+      vessel_official_nbr,
+      permit_group,
+      comp_year,
+      comp_week,
+      comp_week_start_dt,
+      comp_week_end_dt,
+      is_comp,
+      is_comp_override,
+      comp_override_cmt,
+      permit_sa_gom
+    )
+  )
+
+View(gom_compl_err_db_data_sa_g_short)
+
+gom_compl_err_db_data_sa_g_short_22_clean <-
+  gom_compl_err_db_data_sa_g_short %>%
+  filter(comp_year == '2022') %>%
+  mutate(year_month = as.yearmon(comp_week_start_dt)) 
+
+# TODO 2023 separately for "both" permits
+
+gom_compl_err_db_data_sa_g_short_22_clean_nc <-
+  gom_compl_err_db_data_sa_g_short_22_clean %>% 
+  filter(is_comp == 0 & is_comp_override == 0)
+
+# glimpse(gom_compl_err_db_data_sa_g_short_22_clean_nc)
+# Rows: 613
+# Columns: 12
+
+gom_compl_err_db_data_sa_g_short %>% 
+  count(comp_error_type_cd)
+#     comp_error_type_cd    n
+# 1         DECL_NO_TRIP  761
+# 2        NO_TRIP_FOUND 3456
+# 3 SUBMIT_AFTER_ARRIVAL  578
+# 4     TRIP_BEFORE_DECL   20
+# 5         TRIP_NO_DECL  430
+# 6   VAL_ERROR_TRIP_GOM   65
+# 7     VMS_DECL_NO_TRIP   95
+
+gom_compl_err_db_data_sa_g_short_nc %>% 
+  count(comp_error_type_cd)
+# 1      NO_TRIP_FOUND 2916
+
+gom_compl_err_db_data_sa_g_short_nc %>% 
+  filter(comp_year == '2022') %>% 
+# how many non_compliant weeks per vessel this month
+    count(comp_week, vessel_official_nbr,
+          name = "nc_weeks_per_vessl") %>%
+    # nc weeks per year
+    count(nc_weeks_per_vessl,
+          name = "occurence_in_year") %>% str()
+    # turn amount of nc weeks into headers, to have one row per year_month
+    pivot_wider(names_from = nc_weeks_per_vessl_m,
+                # number of vessels
+                values_from = occurence_in_month,
+                values_fill = 0) %>%
+    # sum nc by month to get Total
+    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    # turn to have num of weeks per month in a row
+    pivot_longer(-c(year_month, total_nc_vsl_per_month),
+                 names_to = "non_compl_weeks",
+                 values_to = "non_compl_in_month") %>%
+    # count percentage
+    mutate(percent_nc = round(
+      100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
+      digits = 2
+    ))
