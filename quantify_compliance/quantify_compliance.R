@@ -9,7 +9,7 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/quantify_compliance/get_data.R")
 
-### ---- separate SA and GOM permits ----
+# ---- separate SA and GOM permits ----
 
 separate_permits_into_3_groups <- function(compl_clean) {
   compl_clean %>%
@@ -26,7 +26,7 @@ compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
 
 # View(compl_clean_sa_vs_gom)
 
-## ---- add columns for month and quarter ----
+# ---- add columns for month and quarter ----
 compl_clean_sa_vs_gom_m <-
   compl_clean_sa_vs_gom %>%
   # add month
@@ -34,7 +34,7 @@ compl_clean_sa_vs_gom_m <-
   # add quarter
   mutate(year_quarter = as.yearqtr(week_start))
 
-## ---- convert report numbers to numeric ----
+# ---- convert report numbers to numeric ----
 compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m %>%
   mutate(
@@ -45,6 +45,33 @@ compl_clean_sa_vs_gom_m_int <-
 
 # View(err_desc_clean_headers_csv_content)
 
+get_non_compl_week_counts <- function(my_df) {
+  my_df %>%
+    # how many non_compliant weeks per vessel this month
+    count(year_month, vessel_official_number,
+          name = "nc_weeks_per_vessl_m") %>%
+    # nc weeks per month
+    count(year_month, nc_weeks_per_vessl_m,
+          name = "occurence_in_month") %>%
+    # turn amount of nc weeks into headers, to have one row per year_month
+    pivot_wider(names_from = nc_weeks_per_vessl_m,
+                # number of vessels
+                values_from = occurence_in_month,
+                values_fill = 0) %>%
+    # sum nc by month to get Total
+    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    # turn to have num of weeks per month in a row
+    pivot_longer(-c(year_month, total_nc_vsl_per_month),
+                 names_to = "non_compl_weeks",
+                 values_to = "non_compl_in_month") %>%
+    # count percentage
+    mutate(percent_nc = round(
+      100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
+      digits = 2
+    )) %>% return()
+}
+
+# join with db data? ----
 compl_err_db_data_22_23 %<>% 
   mutate(comp_year = as.character(comp_year))
 
@@ -426,7 +453,6 @@ gom_all_compl_clean_sa_vs_gom_m_int <-
   filter(!(permit_sa_gom == "sa_only"))
 
 str(gom_all_compl_clean_sa_vs_gom_m_int)
-# gom_non_compl_clean_sa_vs_gom_m_int$captainreports__ gom_permitteddeclarations__
 # [1] 85440    24
 
 gom_all_compl_clean_sa_vs_gom_m_int_even <-
@@ -446,6 +472,31 @@ gom_all_compl_clean_sa_vs_gom_m_int_even %>%
 # 2 even         YES        76908
 # 3 odd          NO           373
 # 4 odd          YES         4617 ?
+
+## investigate  odd/YES ----
+# gom_all_compl_clean_sa_vs_gom_m_int_even %>% 
+#   filter(compliant_ == "YES" & even_num_rep == "odd") %>% View()
+
+gom_all_compl_clean_sa_vs_gom_m_int_even %>% 
+  filter(compliant_ == "YES" & even_num_rep == "odd") %>% head(1) %>% glimpse()
+# $ vessel_official_number      <chr> "TX3416RA"
+# $ name                        <chr> "CONTROLLED CHAOS"
+# $ permitgroup                 <chr> "(CHG)885,(RCG)836"
+# $ year_month                  <yearmon> Dec 2022
+# $ week_num                    <int> 52
+# $ week                        <chr> "52: 12/26/2022 - 01/01/2023"
+# $ week_start                  <date> 2022-12-26
+# $ week_end                    <date> 2023-01-01
+
+
+## by "compliant?"
+gom_all_compl_clean_sa_vs_gom_m_int_non_comp <-
+  gom_all_compl_clean_sa_vs_gom_m_int %>% 
+  filter(compliant_ == "NO")
+
+gom_all_compl_clean_sa_vs_gom_m_int_non_comp_perc <-
+  get_non_compl_week_counts(gom_all_compl_clean_sa_vs_gom_m_int_non_comp)
+# numbers are too low
 
 # GOM + dual from db ----
 
