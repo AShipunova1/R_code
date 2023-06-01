@@ -420,3 +420,51 @@ View(sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total_long)
 
 ## Same using only report counts without "compliant__" ----
 
+# GOM + dual ----
+gom_all_compl_clean_sa_vs_gom_m_int <-
+  compl_clean_sa_vs_gom_m_int %>% 
+  filter(!(permit_sa_gom == "sa_only"))
+
+str(gom_all_compl_clean_sa_vs_gom_m_int)
+# gom_non_compl_clean_sa_vs_gom_m_int$captainreports__ gom_permitteddeclarations__
+# [1] 85440    24
+
+gom_all_compl_clean_sa_vs_gom_m_int_even <-
+  gom_all_compl_clean_sa_vs_gom_m_int %>%
+  mutate(
+    logb_n_decl = captainreports__ + gom_permitteddeclarations__,
+    even_num_rep = dplyr::if_else(((logb_n_decl %% 2) == 0),
+                                  "even", "odd")
+  )
+View(gom_all_compl_clean_sa_vs_gom_m_int_even)
+
+gom_all_compl_clean_sa_vs_gom_m_int_even %>% 
+  count(even_num_rep, compliant_)
+#   even_num_rep compliant_     n
+#   <chr>        <chr>      <int>
+# 1 even         NO          3542 ?
+# 2 even         YES        76908
+# 3 odd          NO           373
+# 4 odd          YES         4617 ?
+
+# GOM + dual from db ----
+
+ # e.comp_error_type_cd = 'DECL_NO_TRIP'
+ # AND TRUNC(SYSDATE) > TRUNC(tn.trip_start_date)
+ # )
+ # OR -- Past activity date
+ # (
+ # e.comp_error_type_cd = 'TRIP_NO_DECL'
+
+ # AND TRUNC(SYSDATE) < (TRUNC(c.comp_week_end_dt) + 14) THEN -- Not past allotted correction time
+
+# SA:
+#    TRUNC(SYSDATE) >= (TRUNC(c.comp_week_end_dt) + 24) THEN -- Past allotted correction time
+
+
+# select * from srh.srfh_for_hire_type@secapxdv_dblk.sfsc.noaa.gov
+# 1	HEADBOAT
+# 2	CHARTER
+# 42	RECREATIONAL
+# 81	COMMERCIAL
+# 62	UNKNOWN
