@@ -40,7 +40,7 @@ compl_clean_sa_vs_gom_m_int <-
   mutate(
     captainreports__ = as.integer(captainreports__),
     negativereports__ = as.integer(negativereports__),
-    captainreports__ = as.integer(gom_permitteddeclarations__)
+    gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
   )
 
 
