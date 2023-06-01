@@ -141,30 +141,39 @@ get_compl_err_data_from_db <- function() {
   con <- connect_to_secpr()
 
   compl_err_query <-
-  "SELECT
-  srh_vessel_comp_id,
-  safis_vessel_id,
-  supplier_vessel_id, 
-  coast_guard_nbr, 
-  state_reg_nbr,
-  comp_year,
-  comp_week,
-  comp_error_type_cd,
-  error_type_wo_desc,
-  is_overridable,
-  for_hire_trip_type,
-  activity_dt,
-  activity_time,
-  is_past_grace_period,
-  lateness
+    "SELECT
+  *
 FROM
-  srh.v_comp_srfh_comp_err_detail@secapxdv_dblk.sfsc.noaa.gov
-  join
-  SAFIS.VESSELS@secapxdv_dblk.sfsc.noaa.gov
-  on(safis_vessel_id = vessel_id)
+       srh.srfh_vessel_comp_err@secapxdv_dblk.sfsc.noaa.gov
+  JOIN srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
+  USING ( srh_vessel_comp_id )
 WHERE
   comp_year > '2020'
 "
+#   "SELECT
+#   srh_vessel_comp_id,
+#   safis_vessel_id,
+#   supplier_vessel_id, 
+#   coast_guard_nbr, 
+#   state_reg_nbr,
+#   comp_year,
+#   comp_week,
+#   comp_error_type_cd,
+#   error_type_wo_desc,
+#   is_overridable,
+#   for_hire_trip_type,
+#   activity_dt,
+#   activity_time,
+#   is_past_grace_period,
+#   lateness
+# FROM
+#   srh.v_comp_srfh_comp_err_detail@secapxdv_dblk.sfsc.noaa.gov
+#   join
+#   SAFIS.VESSELS@secapxdv_dblk.sfsc.noaa.gov
+#   on(safis_vessel_id = vessel_id)
+# WHERE
+#   comp_year > '2020'
+# "
   compl_err_db_data = ROracle::dbGetQuery(con,
                                        compl_err_query)
   
@@ -177,6 +186,7 @@ tic("get_compl_err_data_from_db()")
 compl_err_db_data_raw <- get_compl_err_data_from_db()
 toc()
 # 16.46 sec
+# get_compl_err_data_from_db(): 47.5 sec elapsed
 
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 names(compl_err_db_data)
@@ -184,7 +194,11 @@ names(compl_err_db_data)
 compl_err_db_data_22_23 <-
   compl_err_db_data %>% 
   filter(comp_year > '2021')
-
+names(compl_err_db_data) %>%
+  unique() %>% 
+  # 42
+  length()
+# 46
 # dim(compl_err_db_data)
 # [1] 87925    15
 # dim(compl_err_db_data_22_23)
