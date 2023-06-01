@@ -148,38 +148,29 @@ FROM
   JOIN srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
   USING ( srh_vessel_comp_id )
 WHERE
-  comp_year > '2020'
+  comp_year > '2021'
 "
-#   "SELECT
-#   srh_vessel_comp_id,
-#   safis_vessel_id,
-#   supplier_vessel_id, 
-#   coast_guard_nbr, 
-#   state_reg_nbr,
-#   comp_year,
-#   comp_week,
-#   comp_error_type_cd,
-#   error_type_wo_desc,
-#   is_overridable,
-#   for_hire_trip_type,
-#   activity_dt,
-#   activity_time,
-#   is_past_grace_period,
-#   lateness
-# FROM
-#   srh.v_comp_srfh_comp_err_detail@secapxdv_dblk.sfsc.noaa.gov
-#   join
-#   SAFIS.VESSELS@secapxdv_dblk.sfsc.noaa.gov
-#   on(safis_vessel_id = vessel_id)
-# WHERE
-#   comp_year > '2020'
-# "
-  compl_err_db_data = ROracle::dbGetQuery(con,
+# common fields
+#   SRH_VESSEL_COMP_ID
+# CREATED_DT
+# CREATED_USER_ID
+# LU_DT
+# LU_USER_ID
+
+    compl_err_db_data_0 = ROracle::dbGetQuery(con,
                                        compl_err_query)
-  
+    
+    compl_err_db_data_1 <-
+      compl_err_db_data_0 %>%
+      # remove duplicated columns
+      select(-c(CREATED_DT,
+                CREATED_USER_ID,
+                LU_DT,
+                LU_USER_ID))
+    
   ROracle::dbDisconnect(con)
   
-  return(compl_err_db_data)
+  return(compl_err_db_data_1)
 }
 
 tic("get_compl_err_data_from_db()")
@@ -187,18 +178,27 @@ compl_err_db_data_raw <- get_compl_err_data_from_db()
 toc()
 # 16.46 sec
 # get_compl_err_data_from_db(): 47.5 sec elapsed
+# get_compl_err_data_from_db(): 22.23 sec elapsed
+
+names(compl_err_db_data_raw) %>% 
+  unique() %>%
+#   # 42
+  # 38
+  length()
+# 46
+# 38
 
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 names(compl_err_db_data)
 
-compl_err_db_data_22_23 <-
-  compl_err_db_data %>% 
-  filter(comp_year > '2021')
-names(compl_err_db_data) %>%
-  unique() %>% 
-  # 42
-  length()
-# 46
+# compl_err_db_data_22_23 <-
+#   compl_err_db_data %>%
+#   filter(comp_year > '2021')
+# names(compl_err_db_data) %>%
+#   unique() %>% 
+#   # 42
+#   length()
+# # 46
 # dim(compl_err_db_data)
 # [1] 87925    15
 # dim(compl_err_db_data_22_23)
