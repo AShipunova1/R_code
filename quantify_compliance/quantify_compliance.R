@@ -36,7 +36,7 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
     return()
 }
 
-create_perc_plots_by_month <-
+perc_plots_by_month <-
   function(my_df, current_year_month) {
     # browser()
     my_df %>%
@@ -48,13 +48,13 @@ create_perc_plots_by_month <-
                 # ,
                 # vjust = -0.5
                 ) +
-      labs(title = current_year_month,
-           # x = "",
-           x = "Num of nc weeks",
-           y = ""
-           ) %>%
-           # TODO: axes text
-           return()
+                ylim(0, 100) +
+                  labs(title = current_year_month,
+                       # x = "",
+                       x = "Num of nc weeks",
+                       y = "") %>%
+                  # TODO: axes text
+                  return()
   }
 
 # using data from db
@@ -62,7 +62,6 @@ create_perc_plots_by_month <-
 compl_err_db_data_m <-
   compl_err_db_data %>%
   mutate(year_month = as.yearmon(comp_week_start_dt))
-
 
 # ---- separate SA and GOM permits ----
 separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
@@ -175,7 +174,7 @@ gg_sa_compl_err_db_data_permit_grps_nc_perc <-
   month_names |>
   map(
     \(current_year_month)
-    create_perc_plots_by_month(
+    perc_plots_by_month(
       sa_compl_err_db_data_permit_grps_nc_perc_short,
       current_year_month
     )
@@ -221,7 +220,7 @@ gom_compl_err_db_data_permit_grps <-
 
 dim(compl_err_db_data_permit_grps)
 # [1] 44930    39
-# [1] 44662    39
+# [1] 44662    40
 
 dim(gom_compl_err_db_data_permit_grps)
 # [1] 5405   39
@@ -257,21 +256,22 @@ gom_compl_err_db_data_permit_grps_short <-
       is_comp,
       is_comp_override,
       comp_override_cmt,
+      year_month,
       permit_sa_gom
     )
   )
 
-View(gom_compl_err_db_data_permit_grps_short)
+# View(gom_compl_err_db_data_permit_grps_short)
 
 ## GOM + dual 2022 non compliant ----
 
-gom_compl_err_db_data_permit_grps_short_22_clean_nc <-
+gom_compl_err_db_data_permit_grps_short_nc <-
   gom_compl_err_db_data_permit_grps_short %>% 
   filter(is_comp == 0 & is_comp_override == 0)
 
-glimpse(gom_compl_err_db_data_permit_grps_short_22_clean_nc)
+dim(gom_compl_err_db_data_permit_grps_short_nc)
 # Rows: 613
-# Columns: 11
+# Columns: 12
 
 gom_compl_err_db_data_permit_grps_short %>% 
   count(comp_error_type_cd)
@@ -284,19 +284,17 @@ gom_compl_err_db_data_permit_grps_short %>%
 # 6   VAL_ERROR_TRIP_GOM   65
 # 7     VMS_DECL_NO_TRIP   95
 
-# gom_compl_err_db_data_permit_grps_short_nc %>% 
-#   count(comp_error_type_cd)
-# 1      NO_TRIP_FOUND 2916
-
-gom_compl_err_db_data_permit_grps_short_22_clean_nc %>% 
+gom_compl_err_db_data_permit_grps_short_nc %>% 
     count(comp_error_type_cd)
-# 1      NO_TRIP_FOUND 613
+# 1      NO_TRIP_FOUND 613 
+# TODO: why sa err?
 
-perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc <-
-  get_non_compl_week_counts_percent(gom_compl_err_db_data_permit_grps_short_22_clean_nc,
+# names(gom_compl_err_db_data_permit_grps_short_nc)
+perc_gom_compl_err_db_data_permit_grps_short_nc <-
+  get_non_compl_week_counts_percent(gom_compl_err_db_data_permit_grps_short_nc,
                                     "vessel_official_nbr")
 
-View(perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc)
+# View(perc_gom_compl_err_db_data_permit_grps_short_nc)
 
 # gg_22_01_gom <- 
 #   perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc %>%
@@ -304,15 +302,22 @@ View(perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc)
 #   ggplot(aes(non_compl_weeks, percent_nc)) +
 #   geom_col()
 
-## all GOM 2022 plots ----
-gg_gom_sa_compl_err_db_data_permit_grps_nc_perc <-
-  perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc$year_month %>%
-  unique() %>% 
-  map()
-gg_gom_sa_compl_err_db_data_permit_grps_nc_perc[[1]]
+## GOM 2022 plots ----
+gom22_month_names <- perc_gom_compl_err_db_data_permit_grps_short_nc$year_month %>%
+  unique()
 
-super_title = "GOM: how many weeks vessels were non_compliant"
+gg_perc_gom_compl_err_db_data_permit_grps_short_nc <-
+  gom22_month_names |>
+  map(
+    \(current_year_month)
+    perc_plots_by_month(
+      perc_gom_compl_err_db_data_permit_grps_short_nc,
+      current_year_month
+    )
+  )
+
+super_title = "GOM + dual 2022: how many weeks vessels were non_compliant"
 grid.arrange(grobs =
-               gg_gom_sa_compl_err_db_data_permit_grps_nc_perc,
+               gg_perc_gom_compl_err_db_data_permit_grps_short_nc,
              top = super_title,
              ncol = 4)
