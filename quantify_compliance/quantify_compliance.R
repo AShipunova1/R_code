@@ -9,6 +9,27 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/quantify_compliance/get_data.R")
 
+create_perc_plots_by_month <-
+  function(my_df, current_year_month) {
+    browser()
+    my_df %>%
+      filter(year_month == current_year_month) %>%
+      ggplot(aes(non_compl_weeks, percent_nc)) +
+      geom_col(fill = "lightblue") +
+      geom_text(aes(label = paste0(percent_nc, "%")),
+                position = position_dodge(width = 0.9)
+                # ,
+                # vjust = -0.5
+                ) +
+      labs(title = current_year_month,
+           # x = "",
+           x = "Num of nc weeks",
+           y = ""
+           ) %>%
+           # TODO: axes text
+           return()
+  }
+
 # using data from db
 # add year_month ----
 compl_err_db_data_m <-
