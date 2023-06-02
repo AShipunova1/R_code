@@ -27,13 +27,6 @@ compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
 
 # View(compl_clean_sa_vs_gom)
 
-## db_data ----
-compl_err_db_data_sa_g <-
-  separate_permits_into_3_groups(compl_err_db_data,
-                                 "permit_group")
-  
-View(compl_err_db_data_sa_g)
-
 # ---- add columns for month and quarter ----
 compl_clean_sa_vs_gom_m <-
   compl_clean_sa_vs_gom %>%
@@ -80,151 +73,11 @@ get_non_compl_week_counts <- function(my_df) {
     return()
 }
 
-# join with db data? ----
-compl_err_db_data_22_23 %<>% 
-  mutate(comp_year = as.character(comp_year))
 
-tic("full_join")
-compl_clean_sa_vs_gom_m_int_v <-
-  full_join(
-    compl_err_db_data_22_23,
-    compl_clean_sa_vs_gom_m_int,
-    by = join_by(supplier_vessel_id == vessel_official_number,
-                 comp_year == year,
-                 comp_week == week_num
-                 ),
-    relationship = "many-to-many"
-  )
-# 
-# names(compl_clean_sa_vs_gom_m_int)
-toc()
-dim(compl_clean_sa_vs_gom_m_int_v)
-# [1] 208989     36
 
-# "supplier_vessel_id"
-# "coast_guard_nbr"      "state_reg_nbr"
-
-compl_clean_sa_vs_gom_m_int_v %>%
-  filter(!is.na(coast_guard_nbr) &
-           !is.na(state_reg_nbr) &
-           (!(coast_guard_nbr == state_reg_nbr))) %>% dim()
-# 1618
-
-# comp_error_type_cd,
-# error_type_wo_desc
-
-not_in_compl_join <-
-  compl_clean_sa_vs_gom_m_int_v %>%
-  filter(is.na(permit_sa_gom))
-
-not_in_compl_join %>%  count(comp_year)
-#   comp_year     n
-# 2      2022    58
-# 3      2023    24
-
-# names(not_in_compl_join)
-not_in_compl_join %>% 
-  count(supplier_vessel_id, coast_guard_nbr, state_reg_nbr) %>% 
-  unique()
-#   supplier_vessel_id coast_guard_nbr state_reg_nbr  n
-# 1            1000164         1000164      FL2310RW 21
-# 2            1198330         1198330      FL9110GE 11
-# 3            1299734         1299734      TX6287FJ 18
-# 4            1327036         1327036      FL2940RH 11
-# 5             991490          991490      FL7825PU 21
-
-compl_clean_sa_vs_gom_m_int %>%
-  filter(
-    vessel_official_number %in% c("TX6287FJ", "FL7825PU", "FL9110GE", "FL2940RH", "FL2310RW")
-  ) %>% dim()
-# 218
-
-## join those by state_reg_nbr ----
-compl_clean_sa_vs_gom_m_int_j <-
-  inner_join(
-    compl_err_db_data_22_23,
-    compl_clean_sa_vs_gom_m_int_v,
-    by = join_by(
-      state_reg_nbr == supplier_vessel_id,
-      comp_year,
-      comp_week,
-      activity_dt,
-      activity_time,
-      coast_guard_nbr,
-      comp_error_type_cd,
-      error_type_wo_desc,
-      for_hire_trip_type,
-      is_overridable,
-      is_past_grace_period,
-      lateness,
-      safis_vessel_id,
-      srh_vessel_comp_id
-    ),
-    relationship = "many-to-many"
-  ) 
-
-dim(compl_clean_sa_vs_gom_m_int_j)
-# [1] 23682    37
 
 dim(compl_clean_sa_vs_gom)
 # [1] 208893     22
-
-dim(compl_clean_sa_vs_gom_m_int_v)
-# [1] 208989     36
-
-# test
-compl_clean_sa_vs_gom_m_int_j %>%
-  filter(is.na(permit_sa_gom)) %>% dim()
-# 0 37
-
-grep("x", names(compl_clean_sa_vs_gom_m_int_j), value = T) %>% 
-  paste0(collapse = ", ")
-
-compl_clean_sa_vs_gom_m_int_j %>%
-  select(permit_groupexpiration, permitgroupexpiration) %>%
-  unique() %>%
-  # change_to_dates(permitgroupexpiration, "%m/%d/%Y"
-  mutate(permit_groupexpiration = as.POSIXct(permit_groupexpiration,
-                                             format = "%m/%d/%Y")) %>%
-  # str()
-  
-# $ permit_groupexpiration: chr  "04/30/2024" "01/31/2024" "02/29/2024" "12/31/2023" ...
-# $ permitgroupexpiration : POSIXct, format: "2024-04-30" "2024-01-31" ...
-
-  filter(
-    !(permit_groupexpiration == permitgroupexpiration)
-  ) %>% dim()
-# 0
-
-identical(names(compl_clean_sa_vs_gom_m_int_j),
-          names(compl_clean_sa_vs_gom_m_int_v))
-# F
-
-setdiff(names(compl_clean_sa_vs_gom_m_int_j),
-          names(compl_clean_sa_vs_gom_m_int_v))
-# [1] "state_reg_nbr.y"
-
-grep("\\.y", names(compl_clean_sa_vs_gom_m_int_j), value = T) %>% 
-  paste0(collapse = ", ")
-
-compl_clean_sa_vs_gom_m_int_j %>%
-  select(state_reg_nbr.y, state_reg_nbr) %>%
-  unique() %>%
-  filter(!(state_reg_nbr.y == state_reg_nbr)) %>% dim()
-# 0
-
-compl_clean_sa_vs_gom_m_int_j_n <-
-  select(compl_clean_sa_vs_gom_m_int_j,
-         -state_reg_nbr.y)
-  
-## combine v and j ----
-
-compl_clean_sa_vs_gom_m_int_join <-
-  rbind(compl_clean_sa_vs_gom_m_int_v,
-        compl_clean_sa_vs_gom_m_int_j_n)
-
-dim(compl_clean_sa_vs_gom_m_int_join)
-# [1] 232671     36
 
 # SA only ----
 
@@ -238,42 +91,29 @@ dim(compl_clean_sa_vs_gom_m_int_join)
 
 # View(compl_clean_sa_vs_gom_m_int)
 
+## get SA only ----
 sa_compl_clean_sa_vs_gom_m_int <-
-  compl_clean_sa_vs_gom_m_int_join %>% 
+  compl_clean_sa_vs_gom_m_int %>% 
   filter(permit_sa_gom == "sa_only")
 
 dim(sa_compl_clean_sa_vs_gom_m_int)
 # 123,453
-# [1] 145187 w j
 
-View(sa_compl_clean_sa_vs_gom_m_int)
-
-sa_compl_clean_sa_vs_gom_m_int %>% count(error_type_wo_desc)
-#   error_type_wo_desc     n
-# 1          NO REPORT 61294
-# 2               <NA> 83893
-# > 
 
 sa_compl_clean_sa_vs_gom_m_int %>% 
-  filter(is.na(error_type_wo_desc)) %>% 
   count(compliant_)
 #     compliant_     n
-# 1         NO    53
-# 2        YES 83840
+# 1 NO         38259
+# 2 YES        85194
 
 sa_compl_clean_sa_vs_gom_m_int %>% 
-   filter(is.na(error_type_wo_desc) &
-           compliant_ == "NO" ) %>% 
-   count(name, supplier_vessel_id)
-#         name supplier_vessel_id  n
-# 1   FIRED UP           FL7825PU 21
-# 2  SEAS FIRE           FL9110GE 11
-# 3 UNDER FIRE           FL2310RW 21
+  count(compliant_, overridden_)
+#   compliant_ overridden_     n
+#   <chr>      <chr>       <int>
+# 1 NO         NO          33322
+# 2 NO         YES          4937
+# 3 YES        NO          85194
 
-compl_clean_sa_vs_gom_m_int_join %>% 
-  filter(state_reg_nbr %in% c("FL2310RW", "FL9110GE", "FL2310RW") ) %>%
-  View()
-# supplier_vessel_id by coast_guard, not state
 
 sa_compl_clean_sa_vs_gom_m_int_non_c <-
   sa_compl_clean_sa_vs_gom_m_int %>% 
