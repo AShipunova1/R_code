@@ -9,9 +9,16 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/quantify_compliance/get_data.R")
 
+# using data from db
+# add year_month ----
+compl_err_db_data_m <-
+  compl_err_db_data %>%
+  mutate(year_month = as.yearmon(comp_week_start_dt))
+
+
 # ---- separate SA and GOM permits ----
-separate_permits_into_3_groups <- function(compl_clean, permit_group_field_name = "permitgroup") {
-  compl_clean %>%
+separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
+  my_df %>%
   mutate(permit_sa_gom =
            case_when(
              !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
@@ -21,210 +28,11 @@ separate_permits_into_3_groups <- function(compl_clean, permit_group_field_name 
     return()
 }
 
-## fhier data ---
-
-compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
-
-# View(compl_clean_sa_vs_gom)
-
-## db_data ----
 compl_err_db_data_sa_g <-
   separate_permits_into_3_groups(compl_err_db_data,
                                  "permit_group")
   
 View(compl_err_db_data_sa_g)
-
-# ---- add columns for month and quarter ----
-compl_clean_sa_vs_gom_m <-
-  compl_clean_sa_vs_gom %>%
-  # add month
-  mutate(year_month = as.yearmon(week_start)) %>%
-  # add quarter
-  mutate(year_quarter = as.yearqtr(week_start))
-
-# ---- convert report numbers to numeric ----
-compl_clean_sa_vs_gom_m_int <-
-  compl_clean_sa_vs_gom_m %>%
-  mutate(
-    captainreports__ = as.integer(captainreports__),
-    negativereports__ = as.integer(negativereports__),
-    gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
-  )
-
-# View(err_desc_clean_headers_csv_content)
-
-get_non_compl_week_counts <- function(my_df) {
-  my_df %>%
-    # how many non_compliant weeks per vessel this month
-    count(year_month, vessel_official_number,
-          name = "nc_weeks_per_vessl_m") %>%
-    # nc weeks per month
-    count(year_month, nc_weeks_per_vessl_m,
-          name = "occurence_in_month") %>%
-    # turn amount of nc weeks into headers, to have one row per year_month
-    pivot_wider(names_from = nc_weeks_per_vessl_m,
-                # number of vessels
-                values_from = occurence_in_month,
-                values_fill = 0) %>%
-    # sum nc by month to get Total
-    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
-    # turn to have num of weeks per month in a row
-    pivot_longer(-c(year_month, total_nc_vsl_per_month),
-                 names_to = "non_compl_weeks",
-                 values_to = "non_compl_in_month") %>%
-    # count percentage
-    mutate(percent_nc = round(
-      100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
-      digits = 2
-    )) %>%
-    return()
-}
-
-# join with db data? ----
-compl_err_db_data_22_23 %<>% 
-  mutate(comp_year = as.character(comp_year))
-
-tic("full_join")
-compl_clean_sa_vs_gom_m_int_v <-
-  full_join(
-    compl_err_db_data_22_23,
-    compl_clean_sa_vs_gom_m_int,
-    by = join_by(supplier_vessel_id == vessel_official_number,
-                 comp_year == year,
-                 comp_week == week_num
-                 ),
-    relationship = "many-to-many"
-  )
-# 
-# names(compl_clean_sa_vs_gom_m_int)
-toc()
-dim(compl_clean_sa_vs_gom_m_int_v)
-# [1] 208989     36
-
-# "supplier_vessel_id"
-# "coast_guard_nbr"      "state_reg_nbr"
-
-compl_clean_sa_vs_gom_m_int_v %>%
-  filter(!is.na(coast_guard_nbr) &
-           !is.na(state_reg_nbr) &
-           (!(coast_guard_nbr == state_reg_nbr))) %>% dim()
-# 1618
-
-# comp_error_type_cd,
-# error_type_wo_desc
-
-not_in_compl_join <-
-  compl_clean_sa_vs_gom_m_int_v %>%
-  filter(is.na(permit_sa_gom))
-
-not_in_compl_join %>%  count(comp_year)
-#   comp_year     n
-# 2      2022    58
-# 3      2023    24
-
-# names(not_in_compl_join)
-not_in_compl_join %>% 
-  count(supplier_vessel_id, coast_guard_nbr, state_reg_nbr) %>% 
-  unique()
-#   supplier_vessel_id coast_guard_nbr state_reg_nbr  n
-# 1            1000164         1000164      FL2310RW 21
-# 2            1198330         1198330      FL9110GE 11
-# 3            1299734         1299734      TX6287FJ 18
-# 4            1327036         1327036      FL2940RH 11
-# 5             991490          991490      FL7825PU 21
-
-compl_clean_sa_vs_gom_m_int %>%
-  filter(
-    vessel_official_number %in% c("TX6287FJ", "FL7825PU", "FL9110GE", "FL2940RH", "FL2310RW")
-  ) %>% dim()
-# 218
-
-## join those by state_reg_nbr ----
-compl_clean_sa_vs_gom_m_int_j <-
-  inner_join(
-    compl_err_db_data_22_23,
-    compl_clean_sa_vs_gom_m_int_v,
-    by = join_by(
-      state_reg_nbr == supplier_vessel_id,
-      comp_year,
-      comp_week,
-      activity_dt,
-      activity_time,
-      coast_guard_nbr,
-      comp_error_type_cd,
-      error_type_wo_desc,
-      for_hire_trip_type,
-      is_overridable,
-      is_past_grace_period,
-      lateness,
-      safis_vessel_id,
-      srh_vessel_comp_id
-    ),
-    relationship = "many-to-many"
-  ) 
-
-dim(compl_clean_sa_vs_gom_m_int_j)
-# [1] 23682    37
-
-dim(compl_clean_sa_vs_gom)
-# [1] 208893     22
-
-dim(compl_clean_sa_vs_gom_m_int_v)
-# [1] 208989     36
-
-# test
-compl_clean_sa_vs_gom_m_int_j %>%
-  filter(is.na(permit_sa_gom)) %>% dim()
-# 0 37
-
-grep("x", names(compl_clean_sa_vs_gom_m_int_j), value = T) %>% 
-  paste0(collapse = ", ")
-
-compl_clean_sa_vs_gom_m_int_j %>%
-  select(permit_groupexpiration, permitgroupexpiration) %>%
-  unique() %>%
-  # change_to_dates(permitgroupexpiration, "%m/%d/%Y"
-  mutate(permit_groupexpiration = as.POSIXct(permit_groupexpiration,
-                                             format = "%m/%d/%Y")) %>%
-  # str()
-  
-# $ permit_groupexpiration: chr  "04/30/2024" "01/31/2024" "02/29/2024" "12/31/2023" ...
-# $ permitgroupexpiration : POSIXct, format: "2024-04-30" "2024-01-31" ...
-
-  filter(
-    !(permit_groupexpiration == permitgroupexpiration)
-  ) %>% dim()
-# 0
-
-identical(names(compl_clean_sa_vs_gom_m_int_j),
-          names(compl_clean_sa_vs_gom_m_int_v))
-# F
-
-setdiff(names(compl_clean_sa_vs_gom_m_int_j),
-          names(compl_clean_sa_vs_gom_m_int_v))
-# [1] "state_reg_nbr.y"
-
-grep("\\.y", names(compl_clean_sa_vs_gom_m_int_j), value = T) %>% 
-  paste0(collapse = ", ")
-
-compl_clean_sa_vs_gom_m_int_j %>%
-  select(state_reg_nbr.y, state_reg_nbr) %>%
-  unique() %>%
-  filter(!(state_reg_nbr.y == state_reg_nbr)) %>% dim()
-# 0
-
-compl_clean_sa_vs_gom_m_int_j_n <-
-  select(compl_clean_sa_vs_gom_m_int_j,
-         -state_reg_nbr.y)
-  
-## combine v and j ----
-
-compl_clean_sa_vs_gom_m_int_join <-
-  rbind(compl_clean_sa_vs_gom_m_int_v,
-        compl_clean_sa_vs_gom_m_int_j_n)
-
-dim(compl_clean_sa_vs_gom_m_int_join)
-# [1] 232671     36
 
 # SA only ----
 
@@ -384,129 +192,6 @@ grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
              # left = my_legend,
              ncol = 4)
 
-## same using only the FHIER data ----
-non_compl_clean_sa_vs_gom_m_int <-
-  compl_clean_sa_vs_gom_m_int %>% 
-  filter(compliant_ == "NO")
-
-sa_non_compl_clean_sa_vs_gom_m_int <-
-  non_compl_clean_sa_vs_gom_m_int %>% 
-  filter(permit_sa_gom == "sa_only")
-
-dim(compl_clean_sa_vs_gom_m_int)
-# 208893     
-dim(non_compl_clean_sa_vs_gom_m_int)
-# 42174    
-dim(sa_non_compl_clean_sa_vs_gom_m_int)
-# 38259
-View(sa_non_compl_clean_sa_vs_gom_m_int)
-
-sa_non_compl_clean_sa_vs_gom_m_int_1 <-
-  sa_non_compl_clean_sa_vs_gom_m_int %>% 
-  mutate(report_num = captainreports__ + negativereports__,
-         year_month_week = paste(year_month, week_num))
-
-sa_non_compl_clean_sa_vs_gom_m_int_1 %>% 
-  count(report_num, year_month_week) %>% View()
-# 312
-
-sa_non_compl_clean_sa_vs_gom_m_int_2 <-
-  sa_non_compl_clean_sa_vs_gom_m_int_1 %>% 
-  # filter(year_month == "Dec 2022") %>%
-  # how many non_compliant weeks per vessel this month
-  count(year_month, vessel_official_number, name = "nc_weeks_per_vessl_m")
-
-# View(sa_non_compl_clean_sa_vs_gom_m_int_2)
-
-sa_non_compl_clean_sa_vs_gom_m_int_cnts <-
-  sa_non_compl_clean_sa_vs_gom_m_int_2 %>% 
-  count(year_month, nc_weeks_per_vessl_m, name = "occurence_in_month")
-# %>% View()
-# dec 22
-# 15+20+35+364
-# [1] 434
-
-sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide <-
-  sa_non_compl_clean_sa_vs_gom_m_int_cnts %>%
-    pivot_wider(names_from = nc_weeks_per_vessl_m,
-                values_from = occurence_in_month,
-                values_fill = 0)
-
-# View(sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide)
-
-sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total <-
-  sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide %>% 
-  mutate(total_nc_vsl_per_month = rowSums(.[2:6]))
-
-View(sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total)
-
-sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total_long <-
-  sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total %>%
-  pivot_longer(-c(year_month, total_nc_vsl_per_month),
-               names_to = "non_compl_weeks",
-               values_to = "non_compl_in_month") %>%
-  mutate(percent_nc = round(
-    100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
-    digits = 2
-  ))
-
-View(sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total_long)
-# 3.456221+4.608295+8.064516+83.870968
-# [1] 100
-
-## Same using only report counts without "compliant__" ----
-
-# GOM + dual ----
-gom_all_compl_clean_sa_vs_gom_m_int <-
-  compl_clean_sa_vs_gom_m_int %>% 
-  filter(!(permit_sa_gom == "sa_only"))
-
-str(gom_all_compl_clean_sa_vs_gom_m_int)
-# [1] 85440    24
-
-gom_all_compl_clean_sa_vs_gom_m_int_even <-
-  gom_all_compl_clean_sa_vs_gom_m_int %>%
-  mutate(
-    logb_n_decl = captainreports__ + gom_permitteddeclarations__,
-    even_num_rep = dplyr::if_else(((logb_n_decl %% 2) == 0),
-                                  "even", "odd")
-  )
-View(gom_all_compl_clean_sa_vs_gom_m_int_even)
-
-gom_all_compl_clean_sa_vs_gom_m_int_even %>% 
-  count(even_num_rep, compliant_)
-#   even_num_rep compliant_     n
-#   <chr>        <chr>      <int>
-# 1 even         NO          3542 ?
-# 2 even         YES        76908
-# 3 odd          NO           373
-# 4 odd          YES         4617 ?
-
-## investigate  odd/YES ----
-# gom_all_compl_clean_sa_vs_gom_m_int_even %>% 
-#   filter(compliant_ == "YES" & even_num_rep == "odd") %>% View()
-
-gom_all_compl_clean_sa_vs_gom_m_int_even %>% 
-  filter(compliant_ == "YES" & even_num_rep == "odd") %>% head(1) %>% glimpse()
-# $ vessel_official_number      <chr> "TX3416RA"
-# $ name                        <chr> "CONTROLLED CHAOS"
-# $ permitgroup                 <chr> "(CHG)885,(RCG)836"
-# $ year_month                  <yearmon> Dec 2022
-# $ week_num                    <int> 52
-# $ week                        <chr> "52: 12/26/2022 - 01/01/2023"
-# $ week_start                  <date> 2022-12-26
-# $ week_end                    <date> 2023-01-01
-
-
-## by "compliant?"
-gom_all_compl_clean_sa_vs_gom_m_int_non_comp <-
-  gom_all_compl_clean_sa_vs_gom_m_int %>% 
-  filter(compliant_ == "NO")
-
-gom_all_compl_clean_sa_vs_gom_m_int_non_comp_perc <-
-  get_non_compl_week_counts(gom_all_compl_clean_sa_vs_gom_m_int_non_comp)
-# numbers are too low
-
 # GOM + dual from db ----
 
  # e.comp_error_type_cd = 'DECL_NO_TRIP'
@@ -528,7 +213,7 @@ gom_all_compl_clean_sa_vs_gom_m_int_non_comp_perc <-
 # 81	COMMERCIAL
 # 62	UNKNOWN
 
-# ===
+## not SA ----
 gom_compl_err_db_data_sa_g <-
   compl_err_db_data_sa_g %>% 
   filter(!(permit_sa_gom == "sa_only"))
@@ -549,21 +234,11 @@ gom_compl_err_db_data_sa_g %>%
 # 6   VAL_ERROR_TRIP_GOM   65
 # 7     VMS_DECL_NO_TRIP   95
 
-  # select(comp_error_type_cd) %>%
-  # unique()
-#       comp_error_type_cd
-# 1           DECL_NO_TRIP
-# 2   SUBMIT_AFTER_ARRIVAL
-# 7           TRIP_NO_DECL
-# 8     VAL_ERROR_TRIP_GOM
-# 11         NO_TRIP_FOUND
-# 37      VMS_DECL_NO_TRIP
-# 236     TRIP_BEFORE_DECL
-
 # names(gom_compl_err_db_data_sa_g) %>% paste0(collapse = ", ")
 
 # [1] "srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, override_dt, override_user_id, override_cmt, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, pa_review_needed_dt, pa_review_needed_user_id, is_pa_reviewed, pa_reviewed_dt, pa_reviewed_user_id, pa_reviewed_cmt, val_tr_res_id, vms_table_pk, srh_vessel_id, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, srfh_assignment_id, permit_sa_gom"
 
+## keep fewer columns ----
 gom_compl_err_db_data_sa_g_short <-
   gom_compl_err_db_data_sa_g %>% 
   select(
@@ -582,12 +257,14 @@ gom_compl_err_db_data_sa_g_short <-
     )
   )
 
-View(gom_compl_err_db_data_sa_g_short)
+# View(gom_compl_err_db_data_sa_g_short)
 
-gom_compl_err_db_data_sa_g_short_22_clean <-
+## add year_month ----
+gom_compl_err_db_data_sa_g_short_m <-
   gom_compl_err_db_data_sa_g_short %>%
-  filter(comp_year == '2022') %>%
   mutate(year_month = as.yearmon(comp_week_start_dt)) 
+
+  # filter(comp_year == '2022') %>%
 
 # TODO 2023 separately for "both" permits
 
