@@ -28,11 +28,11 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
     return()
 }
 
-compl_err_db_data_sa_g <-
-  separate_permits_into_3_groups(compl_err_db_data,
+compl_err_db_data_permit_grps <-
+  separate_permits_into_3_groups(compl_err_db_data_m,
                                  "permit_group")
   
-View(compl_err_db_data_sa_g)
+View(compl_err_db_data_permit_grps)
 
 # SA only ----
 
@@ -192,7 +192,9 @@ grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
              # left = my_legend,
              ncol = 4)
 
-# GOM + dual from db ----
+# SA + dual for 2023 ----
+
+# GOM + dual for 2022 ----
 
  # e.comp_error_type_cd = 'DECL_NO_TRIP'
  # AND TRUNC(SYSDATE) > TRUNC(tn.trip_start_date)
@@ -213,15 +215,19 @@ grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
 # 81	COMMERCIAL
 # 62	UNKNOWN
 
-## not SA ----
-gom_compl_err_db_data_sa_g <-
-  compl_err_db_data_sa_g %>% 
+## not SA 2022 ----
+gom_compl_err_db_data <-
+  compl_err_db_data_sa_g %>%
+  filter(comp_year == '2022') %>%
   filter(!(permit_sa_gom == "sa_only"))
+
 dim(compl_err_db_data_sa_g)
 # [1] 44930    39
+# [1] 44662    39
 
 dim(gom_compl_err_db_data_sa_g)
 # [1] 5405   39
+# [1] 2810   39 
 
 gom_compl_err_db_data_sa_g %>%
   count(comp_error_type_cd)
@@ -259,12 +265,8 @@ gom_compl_err_db_data_sa_g_short <-
 
 # View(gom_compl_err_db_data_sa_g_short)
 
-## add year_month ----
-gom_compl_err_db_data_sa_g_short_m <-
-  gom_compl_err_db_data_sa_g_short %>%
-  mutate(year_month = as.yearmon(comp_week_start_dt)) 
 
-  # filter(comp_year == '2022') %>%
+  
 
 # TODO 2023 separately for "both" permits
 
