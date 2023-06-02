@@ -153,6 +153,9 @@ WHERE
 
 # get compliance err data from db ----
 
+# uses an inner_join, keeps only entries with compl errors.
+# To get all use FULL OUTER JOIN
+
 get_compl_err_data_from_db <- function() {
   # run once
   con <- connect_to_secpr()
@@ -162,7 +165,7 @@ get_compl_err_data_from_db <- function() {
   *
 FROM
        srh.srfh_vessel_comp_err@secapxdv_dblk.sfsc.noaa.gov
-  JOIN srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
+  INNER JOIN srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
   USING ( srh_vessel_comp_id )
 WHERE
   comp_year > '2021'
@@ -191,7 +194,7 @@ WHERE
 }
 
 tic("get_compl_err_data_from_db()")
-compl_err_db_data_raw <- get_compl_err_data_from_db()
+compl_err_db_data_raw1 <- get_compl_err_data_from_db()
 toc()
 
 # 16.46 sec
@@ -215,15 +218,6 @@ identical(all_names_len, uniq_names_len)
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 names(compl_err_db_data)
 
-# compl_err_db_data_22_23 <-
-#   compl_err_db_data %>%
-#   filter(comp_year > '2021')
-# names(compl_err_db_data) %>%
-#   unique() %>% 
-#   # 42
-#   length()
-# # 46
-# dim(compl_err_db_data)
+dim(compl_err_db_data)
 # [1] 87925    15
-# dim(compl_err_db_data_22_23)
-# [1] 43157    15
+# [1] 44662    38 2021+
