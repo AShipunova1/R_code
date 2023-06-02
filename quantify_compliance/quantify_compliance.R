@@ -38,7 +38,7 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
 
 create_perc_plots_by_month <-
   function(my_df, current_year_month) {
-    browser()
+    # browser()
     my_df %>%
       filter(year_month == current_year_month) %>%
       ggplot(aes(non_compl_weeks, percent_nc)) +
@@ -171,24 +171,20 @@ sa_compl_err_db_data_permit_grps_nc_perc_short <-
 month_names <- sa_compl_err_db_data_permit_grps_nc_perc_short$year_month %>%
   unique()
 
-month_names |>
-map(\(x)
-    create_perc_plots_by_month(sa_compl_err_db_data_permit_grps_nc_perc_short, x
-))
-  
-gg_sa_compl_err_db_data_permit_grps_nc_perc1 <-
-  sa_compl_err_db_data_permit_grps_nc_perc_short$year_month %>%
-  unique() %>% 
+gg_sa_compl_err_db_data_permit_grps_nc_perc <-
+  month_names |>
   map(
-    create_perc_plots_by_month(sa_compl_err_db_data_permit_grps_nc_perc_short,
-                                 
-                                 )
+    \(current_year_month)
+    create_perc_plots_by_month(
+      sa_compl_err_db_data_permit_grps_nc_perc_short,
+      current_year_month
     )
+  )
 
 # gg_sa_compl_err_db_data_permit_grps_nc_perc[[12]]
 
 super_title = "SA only: how many weeks vessels were non_compliant"
-  
+
 grid.arrange(grobs = gg_sa_compl_err_db_data_permit_grps_nc_perc,
              top = super_title,
              # left = my_legend,
