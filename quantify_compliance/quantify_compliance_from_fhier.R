@@ -46,10 +46,10 @@ compl_clean_sa_vs_gom_m_int <-
 
 # View(err_desc_clean_headers_csv_content)
 
-get_non_compl_week_counts <- function(my_df) {
-  my_df %>%
+get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
+    my_df %>%
     # how many non_compliant weeks per vessel this month
-    count(year_month, vessel_official_number,
+    count(year_month, !!sym(vessel_id_col_name),
           name = "nc_weeks_per_vessl_m") %>%
     # nc weeks per month
     count(year_month, nc_weeks_per_vessl_m,
@@ -72,9 +72,6 @@ get_non_compl_week_counts <- function(my_df) {
     )) %>%
     return()
 }
-
-
-
 
 dim(compl_clean_sa_vs_gom)
 # [1] 208893     22
@@ -99,7 +96,7 @@ sa_compl_clean_sa_vs_gom_m_int <-
 dim(sa_compl_clean_sa_vs_gom_m_int)
 # 123,453
 
-
+## SA only non compliant ----
 sa_compl_clean_sa_vs_gom_m_int %>% 
   count(compliant_)
 #     compliant_     n
@@ -114,25 +111,11 @@ sa_compl_clean_sa_vs_gom_m_int %>%
 # 2 NO         YES          4937
 # 3 YES        NO          85194
 
-
 sa_compl_clean_sa_vs_gom_m_int_non_c <-
   sa_compl_clean_sa_vs_gom_m_int %>% 
   filter(compliant_ == "NO")
 
-sa_compl_clean_sa_vs_gom_m_int_non_c %>% 
-  filter(year_month == "Dec 2022") %>%
-  count(supplier_vessel_id, state_reg_nbr, comp_week, overridden_) %>% 
-  filter(n > 1)
-#     supplier_vessel_id state_reg_nbr comp_week overridden_ n
-#               1000164      FL2310RW        49         YES 1
-#               1000241          <NA>        49          NO 1
-#               1090694       1090694        49          NO 2
-
-# sa_compl_clean_sa_vs_gom_m_int_non_c %>% 
-#   filter(year_month == "Dec 2022") %>%
-#   count(supplier_vessel_id, state_reg_nbr, comp_week) %>%
-#   group_by(comp_week) 
-   
+### test one month ----
 compl_clean_sa_vs_gom_m_int %>% 
   filter(compliant_ == "NO") %>% 
   filter(year_month == "Dec 2022") %>%
@@ -146,153 +129,41 @@ compl_clean_sa_vs_gom_m_int %>%
 # 3     3                       38
 # 4     4                      379
 
-non_compl_per_week_month <-
-  compl_clean_sa_vs_gom_m_int %>%
-  filter(compliant_ == "NO") %>%
-  count(year_month, vessel_official_number, 
-        name = "non_compl_weeks") %>%
-  # how many non_compliant each month
-  count(year_month, non_compl_weeks, name = "non_compl_in_month") 
-glimpse(non_compl_per_week_month)
+sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
+  get_non_compl_week_counts_percent(sa_compl_clean_sa_vs_gom_m_int_non_c,
+                                    "vessel_official_number")
+View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
 
-# non_compl_total_nc_per_month <-
-#   compl_clean_sa_vs_gom_m_int %>% 
-#   filter(compliant_ == "NO") %>% 
-#   count(year_month, name = "total_nc_per_month")
-#   # %>% glimpse()
-
-compl_clean_sa_vs_gom_m_int %>% 
-  filter(compliant_ == "NO") %>% 
-  filter(year_month == "Dec 2022") %>%
-  select(vessel_official_number) %>%
-  unique() %>% 
-  dim()
-# 467 = 25+25+38+379
-
-names(non_compl_per_week_month)
-
-non_compl_per_week_month_wide <-
-  non_compl_per_week_month %>%
-    pivot_wider(names_from = non_compl_weeks,
-                values_from = non_compl_in_month,
-                values_fill = 0)
-
-names(non_compl_per_week_month_wide)
-
-non_compl_per_week_month_wide_w_total <-
-  non_compl_per_week_month_wide %>% 
-  mutate(total_nc_vsl_per_month = rowSums(.[2:6]))
-
-names(non_compl_per_week_month_wide_w_total)
-
-non_compl_per_week_month_w_total <-
-  non_compl_per_week_month_wide_w_total %>% 
-    pivot_longer(-c(year_month, total_nc_vsl_per_month),
-                 names_to = "non_compl_weeks",
-                 values_to = "non_compl_in_month") %>% 
-    mutate(percent_nc_weeks = 100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month
-             )
-# View(non_compl_per_week_month_w_total)
-
+## SA only plots ----
+### one plot ----
 gg_22_01 <- 
-  non_compl_per_week_month_w_total %>% 
+  sa_compl_clean_sa_vs_gom_m_int_non_c_perc %>% 
   filter(year_month == "Jan 2022") %>%
-  ggplot(aes(non_compl_weeks, percent_nc_weeks)) +
+  ggplot(aes(non_compl_weeks, percent_nc)) +
   geom_col()
 
-non_compl_per_week_month_w_total_short <-
-  non_compl_per_week_month_w_total %>%
-  select(year_month, non_compl_weeks, percent_nc_weeks)
 
-gg_non_compl_per_week_month_w_total <-
-  non_compl_per_week_month_w_total_short$year_month %>%
-  unique() %>% 
-  map(function(current_year_month) {
-    non_compl_per_week_month_w_total_short %>%
-      filter(year_month == current_year_month) %>%
-      ggplot(aes(non_compl_weeks, percent_nc_weeks)) +
-      geom_col(fill = "lightblue") +
-      labs(title = current_year_month) %>%
-      # TODO: add color, a month as a title, axes text
-      return()
-  })
+sa_compl_err_db_data_permit_grps_nc_perc_short$year_month %>%
+  unique()
 
-gg_non_compl_per_week_month_w_total[[12]]
+gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
+  unique(sa_compl_clean_sa_vs_gom_m_int_non_c_perc$year_month) |>
+  map(
+    \(current_year_month)
+    perc_plots_by_month(
+      sa_compl_clean_sa_vs_gom_m_int_non_c_perc,
+      current_year_month
+    )
+  )
 
-grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
-             # top = super_title,
+gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc[[12]]
+
+super_title = "SA only from csvs: how many weeks vessels were non_compliant"
+
+grid.arrange(grobs = gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc,
+             top = super_title,
              # left = my_legend,
              ncol = 4)
-
-## same using only the FHIER data ----
-non_compl_clean_sa_vs_gom_m_int <-
-  compl_clean_sa_vs_gom_m_int %>% 
-  filter(compliant_ == "NO")
-
-sa_non_compl_clean_sa_vs_gom_m_int <-
-  non_compl_clean_sa_vs_gom_m_int %>% 
-  filter(permit_sa_gom == "sa_only")
-
-dim(compl_clean_sa_vs_gom_m_int)
-# 208893     
-dim(non_compl_clean_sa_vs_gom_m_int)
-# 42174    
-dim(sa_non_compl_clean_sa_vs_gom_m_int)
-# 38259
-View(sa_non_compl_clean_sa_vs_gom_m_int)
-
-sa_non_compl_clean_sa_vs_gom_m_int_1 <-
-  sa_non_compl_clean_sa_vs_gom_m_int %>% 
-  mutate(report_num = captainreports__ + negativereports__,
-         year_month_week = paste(year_month, week_num))
-
-sa_non_compl_clean_sa_vs_gom_m_int_1 %>% 
-  count(report_num, year_month_week) %>% View()
-# 312
-
-sa_non_compl_clean_sa_vs_gom_m_int_2 <-
-  sa_non_compl_clean_sa_vs_gom_m_int_1 %>% 
-  # filter(year_month == "Dec 2022") %>%
-  # how many non_compliant weeks per vessel this month
-  count(year_month, vessel_official_number, name = "nc_weeks_per_vessl_m")
-
-# View(sa_non_compl_clean_sa_vs_gom_m_int_2)
-
-sa_non_compl_clean_sa_vs_gom_m_int_cnts <-
-  sa_non_compl_clean_sa_vs_gom_m_int_2 %>% 
-  count(year_month, nc_weeks_per_vessl_m, name = "occurence_in_month")
-# %>% View()
-# dec 22
-# 15+20+35+364
-# [1] 434
-
-sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide <-
-  sa_non_compl_clean_sa_vs_gom_m_int_cnts %>%
-    pivot_wider(names_from = nc_weeks_per_vessl_m,
-                values_from = occurence_in_month,
-                values_fill = 0)
-
-# View(sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide)
-
-sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total <-
-  sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide %>% 
-  mutate(total_nc_vsl_per_month = rowSums(.[2:6]))
-
-View(sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total)
-
-sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total_long <-
-  sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total %>%
-  pivot_longer(-c(year_month, total_nc_vsl_per_month),
-               names_to = "non_compl_weeks",
-               values_to = "non_compl_in_month") %>%
-  mutate(percent_nc = round(
-    100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
-    digits = 2
-  ))
-
-View(sa_non_compl_clean_sa_vs_gom_m_int_cnts_wide_w_total_long)
-# 3.456221+4.608295+8.064516+83.870968
-# [1] 100
 
 ## Same using only report counts without "compliant__" ----
 
