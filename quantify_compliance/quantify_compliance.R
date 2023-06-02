@@ -9,6 +9,33 @@ my_paths <- set_work_dir()
 
 source("~/R_code_github/quantify_compliance/get_data.R")
 
+get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
+    my_df %>%
+    # how many non_compliant weeks per vessel this month
+    count(year_month, !!sym(vessel_id_col_name),
+          name = "nc_weeks_per_vessl_m") %>%
+    # nc weeks per month
+    count(year_month, nc_weeks_per_vessl_m,
+          name = "occurence_in_month") %>%
+    # turn amount of nc weeks into headers, to have one row per year_month
+    pivot_wider(names_from = nc_weeks_per_vessl_m,
+                # number of vessels
+                values_from = occurence_in_month,
+                values_fill = 0) %>%
+    # sum nc by month to get Total
+    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    # turn to have num of weeks per month in a row
+    pivot_longer(-c(year_month, total_nc_vsl_per_month),
+                 names_to = "non_compl_weeks",
+                 values_to = "non_compl_in_month") %>%
+    # count percentage
+    mutate(percent_nc = round(
+      100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
+      digits = 2
+    )) %>%
+    return()
+}
+
 create_perc_plots_by_month <-
   function(my_df, current_year_month) {
     browser()
@@ -76,6 +103,7 @@ dim(sa_compl_err_db_data_permit_grps)
 
 View(sa_compl_err_db_data_permit_grps)
 
+### SA errors distribution ----
 sa_compl_err_db_data_permit_grps %>% count(comp_error_type_cd)
 # 1      NO_TRIP_FOUND 39270
 # NO_TRIP_FOUND	= NO REPORT
@@ -84,95 +112,85 @@ sa_compl_err_db_data_permit_grps %>% count(comp_error_type_cd)
 # 2               <NA> 83893
 # > 
 
-
-compl_clean_sa_vs_gom_m_int %>% 
-  filter(compliant_ == "NO") %>% 
+### one month test ----
+sa_compl_err_db_data_permit_grps_nc <-
+  sa_compl_err_db_data_permit_grps %>% 
+  filter(is_comp == 0) %>% 
+  filter(is_comp_override == 0) %>% 
   filter(year_month == "Dec 2022") %>%
-  count(vessel_official_number, name = "id_n") %>%
+  count(vessel_official_nbr, name = "id_n") %>%
   # how many non_compliant this month
   count(id_n, name = "non_compl_weeks_in_month")
-  # count(week_num, compliant_)
-#    id_n non_compl_weeks_in_month
-# 1     1                       25
-# 2     2                       25
-# 3     3                       38
-# 4     4                      379
+#   id_n non_compl_weeks_in_month
+# 1    1                       15
+# 2    2                       19
+# 3    3                       35
+# 4    4                      361
 
-non_compl_per_week_month <-
-  compl_clean_sa_vs_gom_m_int %>%
-  filter(compliant_ == "NO") %>%
-  count(year_month, vessel_official_number, 
-        name = "non_compl_weeks") %>%
-  # how many non_compliant each month
-  count(year_month, non_compl_weeks, name = "non_compl_in_month") 
-glimpse(non_compl_per_week_month)
+# with filter(is_comp_override == 0)
+#   id_n non_compl_weeks_in_month
+# 1    1                       14
+# 2    2                       19
+# 3    3                       34
+# 4    4                      349
 
-# non_compl_total_nc_per_month <-
-#   compl_clean_sa_vs_gom_m_int %>% 
-#   filter(compliant_ == "NO") %>% 
-#   count(year_month, name = "total_nc_per_month")
-#   # %>% glimpse()
-
-compl_clean_sa_vs_gom_m_int %>% 
-  filter(compliant_ == "NO") %>% 
+# test
+sa_compl_err_db_data_permit_grps %>% 
+  filter(is_comp == 0) %>% 
+  filter(is_comp_override == 0) %>% 
   filter(year_month == "Dec 2022") %>%
-  select(vessel_official_number) %>%
+  select(vessel_official_nbr) %>%
   unique() %>% 
   dim()
-# 467 = 25+25+38+379
+# 416 = 349+34+19+14
 
-names(non_compl_per_week_month)
+sa_compl_err_db_data_permit_grps_nc <-
+  sa_compl_err_db_data_permit_grps %>% 
+  filter(is_comp == 0) %>% 
+  filter(is_comp_override == 0)
+  
+### SA percentage nc weeks ----
+sa_compl_err_db_data_permit_grps_nc_perc <-
+  get_non_compl_week_counts_percent(sa_compl_err_db_data_permit_grps_nc,
+                                    "vessel_official_nbr")
 
-non_compl_per_week_month_wide <-
-  non_compl_per_week_month %>%
-    pivot_wider(names_from = non_compl_weeks,
-                values_from = non_compl_in_month,
-                values_fill = 0)
+names(sa_compl_err_db_data_permit_grps_nc_perc)
 
-names(non_compl_per_week_month_wide)
+### SA plots ----
+# one month plot
+# gg_22_01 <- 
+#   sa_compl_err_db_data_permit_grps_nc_perc %>% 
+#   filter(year_month == "Jan 2022") %>%
+#   ggplot(aes(non_compl_weeks, percent_nc)) +
+#   geom_col()
 
-non_compl_per_week_month_wide_w_total <-
-  non_compl_per_week_month_wide %>% 
-  mutate(total_nc_vsl_per_month = rowSums(.[2:6]))
+sa_compl_err_db_data_permit_grps_nc_perc_short <-
+  sa_compl_err_db_data_permit_grps_nc_perc %>%
+  select(year_month, non_compl_weeks, percent_nc)
 
-names(non_compl_per_week_month_wide_w_total)
+month_names <- sa_compl_err_db_data_permit_grps_nc_perc_short$year_month %>%
+  unique()
 
-non_compl_per_week_month_w_total <-
-  non_compl_per_week_month_wide_w_total %>% 
-    pivot_longer(-c(year_month, total_nc_vsl_per_month),
-                 names_to = "non_compl_weeks",
-                 values_to = "non_compl_in_month") %>% 
-    mutate(percent_nc_weeks = 100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month
-             )
-# View(non_compl_per_week_month_w_total)
-
-gg_22_01 <- 
-  non_compl_per_week_month_w_total %>% 
-  filter(year_month == "Jan 2022") %>%
-  ggplot(aes(non_compl_weeks, percent_nc_weeks)) +
-  geom_col()
-
-non_compl_per_week_month_w_total_short <-
-  non_compl_per_week_month_w_total %>%
-  select(year_month, non_compl_weeks, percent_nc_weeks)
-
-gg_non_compl_per_week_month_w_total <-
-  non_compl_per_week_month_w_total_short$year_month %>%
+month_names |>
+map(\(x)
+    create_perc_plots_by_month(sa_compl_err_db_data_permit_grps_nc_perc_short, x
+))
+  
+gg_sa_compl_err_db_data_permit_grps_nc_perc1 <-
+  sa_compl_err_db_data_permit_grps_nc_perc_short$year_month %>%
   unique() %>% 
-  map(function(current_year_month) {
-    non_compl_per_week_month_w_total_short %>%
-      filter(year_month == current_year_month) %>%
-      ggplot(aes(non_compl_weeks, percent_nc_weeks)) +
-      geom_col(fill = "lightblue") +
-      labs(title = current_year_month) %>%
-      # TODO: add color, a month as a title, axes text
-      return()
-  })
+  map(
+    create_perc_plots_by_month(sa_compl_err_db_data_permit_grps_nc_perc_short,
+                                 
+                                 )
+    )
 
-gg_non_compl_per_week_month_w_total[[12]]
+# gg_sa_compl_err_db_data_permit_grps_nc_perc[[12]]
 
-grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
-             # top = super_title,
+super_title = "SA only: how many weeks vessels were non_compliant"
+  
+grid.arrange(grobs = gg_sa_compl_err_db_data_permit_grps_nc_perc,
+             top = super_title,
              # left = my_legend,
              ncol = 4)
 
@@ -278,35 +296,6 @@ gom_compl_err_db_data_permit_grps_short_22_clean_nc %>%
     count(comp_error_type_cd)
 # 1      NO_TRIP_FOUND 613
 
-# TODO: func get_non_compl_week_counts with params to use here
-
-get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
-    my_df %>%
-    # how many non_compliant weeks per vessel this month
-    count(year_month, !!sym(vessel_id_col_name),
-          name = "nc_weeks_per_vessl_m") %>%
-    # nc weeks per month
-    count(year_month, nc_weeks_per_vessl_m,
-          name = "occurence_in_month") %>%
-    # turn amount of nc weeks into headers, to have one row per year_month
-    pivot_wider(names_from = nc_weeks_per_vessl_m,
-                # number of vessels
-                values_from = occurence_in_month,
-                values_fill = 0) %>%
-    # sum nc by month to get Total
-    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
-    # turn to have num of weeks per month in a row
-    pivot_longer(-c(year_month, total_nc_vsl_per_month),
-                 names_to = "non_compl_weeks",
-                 values_to = "non_compl_in_month") %>%
-    # count percentage
-    mutate(percent_nc = round(
-      100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
-      digits = 2
-    )) %>%
-    return()
-}
-
 perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc <-
   get_non_compl_week_counts_percent(gom_compl_err_db_data_permit_grps_short_22_clean_nc,
                                     "vessel_official_nbr")
@@ -320,31 +309,14 @@ View(perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc)
 #   geom_col()
 
 ## all GOM 2022 plots ----
-gg_gom_non_compl_per_week_month_w_total <-
+gg_gom_sa_compl_err_db_data_permit_grps_nc_perc <-
   perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc$year_month %>%
   unique() %>% 
-  map(function(current_year_month) {
-    perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc %>%
-      filter(year_month == current_year_month) %>%
-      ggplot(aes(non_compl_weeks, percent_nc)) +
-      geom_col(fill = "lightblue") +
-      geom_text(aes(label = paste0(percent_nc, "%")),
-                position = position_dodge(width = 0.9)
-                # ,
-                # vjust = -0.5
-                ) +
-      labs(title = current_year_month,
-           # x = "",
-           x = "Num of weeks",
-           y = ""
-           ) %>%
-           # TODO: axes text
-           return()
-  })
-gg_gom_non_compl_per_week_month_w_total[[1]]
+  map()
+gg_gom_sa_compl_err_db_data_permit_grps_nc_perc[[1]]
 
 super_title = "GOM: how many weeks vessels were non_compliant"
 grid.arrange(grobs =
-               gg_gom_non_compl_per_week_month_w_total,
+               gg_gom_sa_compl_err_db_data_permit_grps_nc_perc,
              top = super_title,
              ncol = 4)
