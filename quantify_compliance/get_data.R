@@ -33,7 +33,7 @@ get_data_from_FHIER_csvs <- function() {
 # uncomment to run
 # compl_clean <- get_data_from_FHIER_csvs()
 # View(compl_clean)
-# dim(compl_clean)
+dim(compl_clean)
 # 208893     21
 
 ## get compliance error definitions from csvs ----
@@ -194,10 +194,9 @@ WHERE
 }
 
 tic("get_compl_err_data_from_db()")
-compl_err_db_data_raw1 <- get_compl_err_data_from_db()
+compl_err_db_data_raw <- get_compl_err_data_from_db()
 toc()
 
-# 16.46 sec
 # get_compl_err_data_from_db(): 47.5 sec elapsed
 # get_compl_err_data_from_db(): 22.23 sec elapsed
 
@@ -216,7 +215,7 @@ identical(all_names_len, uniq_names_len)
 # 38
 
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
-names(compl_err_db_data)
+# names(compl_err_db_data)
 
 dim(compl_err_db_data)
 # [1] 87925    15
