@@ -46,61 +46,24 @@ View(compl_err_db_data_permit_grps)
 
 # View(compl_clean_sa_vs_gom_m_int)
 
-sa_compl_clean_sa_vs_gom_m_int <-
-  compl_clean_sa_vs_gom_m_int_join %>% 
+sa_compl_err_db_data_permit_grps <-
+  compl_err_db_data_permit_grps %>% 
   filter(permit_sa_gom == "sa_only")
 
-dim(sa_compl_clean_sa_vs_gom_m_int)
-# 123,453
-# [1] 145187 w j
+dim(sa_compl_err_db_data_permit_grps)
+# [1] 39270    40
 
-View(sa_compl_clean_sa_vs_gom_m_int)
+View(sa_compl_err_db_data_permit_grps)
 
-sa_compl_clean_sa_vs_gom_m_int %>% count(error_type_wo_desc)
+sa_compl_err_db_data_permit_grps %>% count(comp_error_type_cd)
+# 1      NO_TRIP_FOUND 39270
+# NO_TRIP_FOUND	= NO REPORT
 #   error_type_wo_desc     n
 # 1          NO REPORT 61294
 # 2               <NA> 83893
 # > 
 
-sa_compl_clean_sa_vs_gom_m_int %>% 
-  filter(is.na(error_type_wo_desc)) %>% 
-  count(compliant_)
-#     compliant_     n
-# 1         NO    53
-# 2        YES 83840
 
-sa_compl_clean_sa_vs_gom_m_int %>% 
-   filter(is.na(error_type_wo_desc) &
-           compliant_ == "NO" ) %>% 
-   count(name, supplier_vessel_id)
-#         name supplier_vessel_id  n
-# 1   FIRED UP           FL7825PU 21
-# 2  SEAS FIRE           FL9110GE 11
-# 3 UNDER FIRE           FL2310RW 21
-
-compl_clean_sa_vs_gom_m_int_join %>% 
-  filter(state_reg_nbr %in% c("FL2310RW", "FL9110GE", "FL2310RW") ) %>%
-  View()
-# supplier_vessel_id by coast_guard, not state
-
-sa_compl_clean_sa_vs_gom_m_int_non_c <-
-  sa_compl_clean_sa_vs_gom_m_int %>% 
-  filter(compliant_ == "NO")
-
-sa_compl_clean_sa_vs_gom_m_int_non_c %>% 
-  filter(year_month == "Dec 2022") %>%
-  count(supplier_vessel_id, state_reg_nbr, comp_week, overridden_) %>% 
-  filter(n > 1)
-#     supplier_vessel_id state_reg_nbr comp_week overridden_ n
-#               1000164      FL2310RW        49         YES 1
-#               1000241          <NA>        49          NO 1
-#               1090694       1090694        49          NO 2
-
-# sa_compl_clean_sa_vs_gom_m_int_non_c %>% 
-#   filter(year_month == "Dec 2022") %>%
-#   count(supplier_vessel_id, state_reg_nbr, comp_week) %>%
-#   group_by(comp_week) 
-   
 compl_clean_sa_vs_gom_m_int %>% 
   filter(compliant_ == "NO") %>% 
   filter(year_month == "Dec 2022") %>%
