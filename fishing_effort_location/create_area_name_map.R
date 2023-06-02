@@ -1,0 +1,146 @@
+library(tictoc)
+# to keep the light basemaps
+mapviewOptions(basemaps.color.shuffle = FALSE)
+
+# run st_difference with benchmark
+with_st_difference <- function(points_sf, polygons_sf) {
+  sf::sf_use_s2(FALSE)
+
+  # browser()
+  # get param names
+  par1 <- rlang::enexpr(points_sf)
+  par2 <- rlang::enexpr(polygons_sf)
+  
+  # start time
+  tic(paste0("sf::st_difference(", par1, ", ", par2, ")"))
+  res <- sf::st_difference(points_sf, polygons_sf)
+  # print time
+  toc()
+  return(res)
+}
+
+# db_data_w_area %>% 
+#   select(AREA_NAME) %>% 
+#   unique() %>% arrange(AREA_NAME) %>% 
+#   head(15)
+# 
+# add TRIP_START_M and select fewer columns ----
+# lat_long_area <-
+#   db_data_w_area %>%
+#   # labels are a month only
+#   mutate(TRIP_START_M =
+#            format(TRIP_START_DATE, "%m")) %>%
+#   select(
+#     LATITUDE,
+#     LONGITUDE,
+#     TRIP_START_M,
+#     AREA_CODE,
+#     DISTANCE_CODE_NAME,
+#     AREA_NAME,
+#     SUB_AREA_NAME, 
+#     REGION
+#   )
+lat_long_area <- db_data_w_area %>%
+  mutate(TRIP_START_M =
+           format(TRIP_START_DATE, "%m")) %>%
+  unique()
+
+all_points <- dim(lat_long_area)[1]
+# 75536
+
+# clean coordinates and cut by coordinate boundaries ----
+lat_long_area_clean <- clean_lat_long(lat_long_area, all_points)
+dim(lat_long_area_clean)[1]
+# 28008
+
+# exclude GOM "region" ----
+lat_long_area_clean_no_gom <-
+  lat_long_area_clean %>%
+  filter(!REGION %in% c("GULF OF MEXICO"))
+
+# create sf ----
+lat_long_area_clean_sf <-
+  lat_long_area_clean_no_gom %>%
+  filter(!is.na(AREA_NAME)) %>%
+  mutate(
+    POINT = paste(
+      LATITUDE,
+      LONGITUDE,
+      TRIP_START_M,
+      AREA_NAME,
+      SUB_AREA_NAME,
+      AREA_CODE,
+      DISTANCE_CODE_NAME,
+      REGION,
+      sep = ", "
+    )
+  ) %>%
+  my_to_sf()
+
+lat_long_area_clean_map <-
+  lat_long_area_clean_sf %>%
+  mapview(
+    zcol = "END_PORT_NAME",
+    # zcol = "AREA_NAME",
+    col.regions = viridisLite::turbo,
+    layer.name = 'AREA_NAME',
+    # cex = "DISTANCE_CODE_NAME",
+    alpha = 0.3,
+    legend = F
+  )
+
+m_s <- mapview(
+  sa_shp,
+  col.regions = "#F4E3FF",
+  alpha.regions = 0.2,
+  layer.name = "South Altlantic",
+  legend = FALSE
+)
+
+m_g_r <- mapview(
+  gom_reef_shp,
+  col.regions = "lightblue",
+  alpha.regions = 0.2,
+  layer.name = "GOM Reef Fish EFH",
+  legend = FALSE
+)
+
+m_s + m_g_r + lat_long_area_clean_map
+
+# 2) remove GOM reef polygon 
+tic("with_st_difference(lat_long_area_clean_sf, gom_reef_shp)")
+lat_long_area_clean_sf_no_gom_reef_sf <-
+  with_st_difference(lat_long_area_clean_sf, gom_reef_shp)
+toc()
+# 540.17 sec elapsed
+
+### or read csv ----
+lat_long_area_clean_sf_no_gom_reef_sf_file_name <- 
+file.path(my_paths$outputs, current_project_name, "lat_long_area_clean_sf_no_gom_reef_sf.csv")
+
+lat_long_area_clean_sf_no_gom_reef_sf <-
+  read_sf(lat_long_area_clean_sf_no_gom_reef_sf_file_name) %>%
+  my_to_sf()
+
+write_csv(
+  lat_long_area_clean_sf_no_gom_reef_sf,
+  lat_long_area_clean_sf_no_gom_reef_sf_file_name
+)
+
+lat_long_area_clean_sf_no_gom_reef_sf_map <-
+  lat_long_area_clean_sf_no_gom_reef_sf %>%
+  filter(!is.na(AREA_NAME)) %>%
+  select(AREA_NAME) %>% 
+  unique() %>% 
+  head(15)
+  mapview(
+    # zcol = "END_PORT_NAME",
+    zcol = "AREA_NAME",
+    col.regions = viridisLite::turbo,
+    layer.name = 'AREA_NAME',
+    # cex = "DISTANCE_CODE_NAME",
+    alpha = 0.3,
+    legend = F
+  )
+
+m_s + m_g_r + lat_long_area_clean_sf_no_gom_reef_sf_map
