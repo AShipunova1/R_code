@@ -10,19 +10,6 @@ my_paths <- set_work_dir()
 source("~/R_code_github/quantify_compliance/get_data.R")
 
 # ---- separate SA and GOM permits ----
-separate_permits_into_3_groups <- function(compl_clean, permit_group_field_name = "permitgroup") {
-  compl_clean %>%
-  mutate(permit_sa_gom =
-           case_when(
-             !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
-             !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
-             .default = "both"
-           )) %>%
-    return()
-}
-
-## fhier data ---
-
 compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
 
 # View(compl_clean_sa_vs_gom)
@@ -43,8 +30,6 @@ compl_clean_sa_vs_gom_m_int <-
     negativereports__ = as.integer(negativereports__),
     gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
   )
-
-# View(err_desc_clean_headers_csv_content)
 
 dim(compl_clean_sa_vs_gom)
 # [1] 208893     22
@@ -109,15 +94,11 @@ View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
 
 ## SA only plots ----
 ### one plot ----
-gg_22_01 <- 
-  sa_compl_clean_sa_vs_gom_m_int_non_c_perc %>% 
-  filter(year_month == "Jan 2022") %>%
-  ggplot(aes(non_compl_weeks, percent_nc)) +
-  geom_col()
-
-
-sa_compl_err_db_data_permit_grps_nc_perc_short$year_month %>%
-  unique()
+# gg_22_01 <- 
+  # sa_compl_clean_sa_vs_gom_m_int_non_c_perc %>% 
+  # filter(year_month == "Jan 2022") %>%
+  # ggplot(aes(non_compl_weeks, percent_nc)) +
+  # geom_col()
 
 gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   unique(sa_compl_clean_sa_vs_gom_m_int_non_c_perc$year_month) |>
@@ -129,7 +110,8 @@ gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
     )
   )
 
-gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc[[12]]
+# one plot
+# gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc[[12]]
 
 super_title = "SA only from csvs: how many weeks vessels were non_compliant"
 
@@ -145,7 +127,7 @@ gom_all_compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m_int %>% 
   filter(!(permit_sa_gom == "sa_only"))
 
-# dim(gom_all_compl_clean_sa_vs_gom_m_int)
+dim(gom_all_compl_clean_sa_vs_gom_m_int)
 # [1] 85440    24
 
 gom_all_compl_clean_sa_vs_gom_m_int_even <-
@@ -155,7 +137,7 @@ gom_all_compl_clean_sa_vs_gom_m_int_even <-
     even_num_rep = dplyr::if_else(((logb_n_decl %% 2) == 0),
                                   "even", "odd")
   )
-View(gom_all_compl_clean_sa_vs_gom_m_int_even)
+# View(gom_all_compl_clean_sa_vs_gom_m_int_even)
 
 gom_all_compl_clean_sa_vs_gom_m_int_even %>% 
   count(even_num_rep, compliant_)
@@ -187,8 +169,8 @@ gom_all_compl_clean_sa_vs_gom_m_int_non_comp <-
   gom_all_compl_clean_sa_vs_gom_m_int %>% 
   filter(compliant_ == "NO")
 
-gom_all_compl_clean_sa_vs_gom_m_int_non_comp_perc <-
-  get_non_compl_week_counts(gom_all_compl_clean_sa_vs_gom_m_int_non_comp)
+# gom_all_compl_clean_sa_vs_gom_m_int_non_comp_perc <-
+#   get_non_compl_week_counts(gom_all_compl_clean_sa_vs_gom_m_int_non_comp)
 # numbers are too low
 
 # GOM + dual non compl ----
@@ -252,11 +234,11 @@ View(perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22)
 
 ## GOM + dual 22 csv plots ----
 ### one plot
-gg_22_01_gom <- 
-  perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22 %>%
-  filter(year_month == "Jan 2022") %>%
-  ggplot(aes(non_compl_weeks, percent_nc)) +
-  geom_col()
+# gg_22_01_gom <- 
+  # perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22 %>%
+  # filter(year_month == "Jan 2022") %>%
+  # ggplot(aes(non_compl_weeks, percent_nc)) +
+  # geom_col()
 
 gg_perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22 <-
   unique(perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22$year_month) |>
