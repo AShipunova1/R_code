@@ -1,5 +1,5 @@
 # quantify_compliance
-
+# TODO 2023 separately for "both" permits
 library(zoo)
 library(gridExtra)
 library(cowplot)
@@ -196,14 +196,14 @@ grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
 
 # GOM + dual for 2022 ----
 
- # e.comp_error_type_cd = 'DECL_NO_TRIP'
- # AND TRUNC(SYSDATE) > TRUNC(tn.trip_start_date)
- # )
- # OR -- Past activity date
- # (
- # e.comp_error_type_cd = 'TRIP_NO_DECL'
+# e.comp_error_type_cd = 'DECL_NO_TRIP'
+# AND TRUNC(SYSDATE) > TRUNC(tn.trip_start_date)
+# )
+# OR -- Past activity date
+# (
+# e.comp_error_type_cd = 'TRIP_NO_DECL'
 
- # AND TRUNC(SYSDATE) < (TRUNC(c.comp_week_end_dt) + 14) THEN -- Not past allotted correction time
+# AND TRUNC(SYSDATE) < (TRUNC(c.comp_week_end_dt) + 14) THEN -- Not past allotted correction time
 
 # SA:
 #    TRUNC(SYSDATE) >= (TRUNC(c.comp_week_end_dt) + 24) THEN -- Past allotted correction time
@@ -216,20 +216,20 @@ grid.arrange(grobs = gg_non_compl_per_week_month_w_total,
 # 62	UNKNOWN
 
 ## not SA 2022 ----
-gom_compl_err_db_data <-
-  compl_err_db_data_sa_g %>%
+gom_compl_err_db_data_permit_grps <-
+  compl_err_db_data_permit_grps %>%
   filter(comp_year == '2022') %>%
   filter(!(permit_sa_gom == "sa_only"))
 
-dim(compl_err_db_data_sa_g)
+dim(compl_err_db_data_permit_grps)
 # [1] 44930    39
 # [1] 44662    39
 
-dim(gom_compl_err_db_data_sa_g)
+dim(gom_compl_err_db_data_permit_grps)
 # [1] 5405   39
-# [1] 2810   39 
+# [1] 2810   40
 
-gom_compl_err_db_data_sa_g %>%
+gom_compl_err_db_data_permit_grps %>%
   count(comp_error_type_cd)
 #     comp_error_type_cd    n
 # 1         DECL_NO_TRIP  761
@@ -240,13 +240,13 @@ gom_compl_err_db_data_sa_g %>%
 # 6   VAL_ERROR_TRIP_GOM   65
 # 7     VMS_DECL_NO_TRIP   95
 
-# names(gom_compl_err_db_data_sa_g) %>% paste0(collapse = ", ")
+# names(gom_compl_err_db_data_permit_grps) %>% paste0(collapse = ", ")
 
 # [1] "srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, override_dt, override_user_id, override_cmt, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, pa_review_needed_dt, pa_review_needed_user_id, is_pa_reviewed, pa_reviewed_dt, pa_reviewed_user_id, pa_reviewed_cmt, val_tr_res_id, vms_table_pk, srh_vessel_id, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, srfh_assignment_id, permit_sa_gom"
 
 ## keep fewer columns ----
-gom_compl_err_db_data_sa_g_short <-
-  gom_compl_err_db_data_sa_g %>% 
+gom_compl_err_db_data_permit_grps_short <-
+  gom_compl_err_db_data_permit_grps %>% 
   select(
     c(
       comp_error_type_cd,
@@ -263,22 +263,19 @@ gom_compl_err_db_data_sa_g_short <-
     )
   )
 
-# View(gom_compl_err_db_data_sa_g_short)
+View(gom_compl_err_db_data_permit_grps_short)
 
+## GOM + dual 2022 non compliant ----
 
-  
-
-# TODO 2023 separately for "both" permits
-
-gom_compl_err_db_data_sa_g_short_22_clean_nc <-
-  gom_compl_err_db_data_sa_g_short_22_clean %>% 
+gom_compl_err_db_data_permit_grps_short_22_clean_nc <-
+  gom_compl_err_db_data_permit_grps_short %>% 
   filter(is_comp == 0 & is_comp_override == 0)
 
-# glimpse(gom_compl_err_db_data_sa_g_short_22_clean_nc)
+glimpse(gom_compl_err_db_data_permit_grps_short_22_clean_nc)
 # Rows: 613
-# Columns: 12
+# Columns: 11
 
-gom_compl_err_db_data_sa_g_short %>% 
+gom_compl_err_db_data_permit_grps_short %>% 
   count(comp_error_type_cd)
 #     comp_error_type_cd    n
 # 1         DECL_NO_TRIP  761
@@ -289,18 +286,18 @@ gom_compl_err_db_data_sa_g_short %>%
 # 6   VAL_ERROR_TRIP_GOM   65
 # 7     VMS_DECL_NO_TRIP   95
 
-gom_compl_err_db_data_sa_g_short_nc %>% 
-  count(comp_error_type_cd)
+# gom_compl_err_db_data_permit_grps_short_nc %>% 
+#   count(comp_error_type_cd)
 # 1      NO_TRIP_FOUND 2916
 
-gom_compl_err_db_data_sa_g_short_22_clean_nc %>% 
+gom_compl_err_db_data_permit_grps_short_22_clean_nc %>% 
     count(comp_error_type_cd)
 # 1      NO_TRIP_FOUND 613
 
-# TODO change get_non_compl_week_counts params to use here
+# TODO: func get_non_compl_week_counts with params to use here
 
-perc_gom_compl_err_db_data_sa_g_short_22_clean_nc <-
-  gom_compl_err_db_data_sa_g_short_22_clean_nc %>%
+perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc <-
+  gom_compl_err_db_data_permit_grps_short_22_clean_nc %>%
   # how many non_compliant weeks per vessel this month
   count(year_month, vessel_official_nbr,
         name = "nc_weeks_per_vessl_m") %>%
@@ -324,19 +321,19 @@ perc_gom_compl_err_db_data_sa_g_short_22_clean_nc <-
     digits = 2
   ))
 
-View(perc_gom_compl_err_db_data_sa_g_short_22_clean_nc)
+View(perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc)
 
 gg_22_01_gom <- 
-  perc_gom_compl_err_db_data_sa_g_short_22_clean_nc %>%
+  perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc %>%
   filter(year_month == "Jan 2022") %>%
   ggplot(aes(non_compl_weeks, percent_nc)) +
   geom_col()
 
 gg_gom_non_compl_per_week_month_w_total <-
-  perc_gom_compl_err_db_data_sa_g_short_22_clean_nc$year_month %>%
+  perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc$year_month %>%
   unique() %>% 
   map(function(current_year_month) {
-    perc_gom_compl_err_db_data_sa_g_short_22_clean_nc %>%
+    perc_gom_compl_err_db_data_permit_grps_short_22_clean_nc %>%
       filter(year_month == current_year_month) %>%
       ggplot(aes(non_compl_weeks, percent_nc)) +
       geom_col(fill = "lightblue") +
