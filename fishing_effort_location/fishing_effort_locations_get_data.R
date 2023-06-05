@@ -97,7 +97,13 @@ read_shapefile <- function(filename) {
 sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 
+# all GOM ----
 gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
+
+gom_all <- read_shapefile(r"(gom\GOM_FedWatersBoundary\MSA_FMC_GOM_FedWaters.shp)")
+
+plot(gom_all)
+mapview(gom_all)
 
 # doesn't work:
 # gom_only <- st_difference(atmx_eez_shp, sa_shp)
