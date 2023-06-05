@@ -1,23 +1,4 @@
-library(tictoc)
-# to keep the light basemaps
-mapviewOptions(basemaps.color.shuffle = FALSE)
-
-# run st_difference with benchmark
-with_st_difference <- function(points_sf, polygons_sf) {
-  sf::sf_use_s2(FALSE)
-
-  # browser()
-  # get param names
-  par1 <- rlang::enexpr(points_sf)
-  par2 <- rlang::enexpr(polygons_sf)
-  
-  # start time
-  tic(paste0("sf::st_difference(", par1, ", ", par2, ")"))
-  res <- sf::st_difference(points_sf, polygons_sf)
-  # print time
-  toc()
-  return(res)
-}
+mapview(sa_shp)
 
 m_s <- mapview(
   sa_shp,
@@ -97,18 +78,6 @@ lat_long_area_clean_sf_no_gom_reef_sf <-
 # fewer points
 # 90.67 sec elapsed
 
-### or read csv ----
-lat_long_area_clean_sf_no_gom_reef_sf_file_name <- 
-file.path(my_paths$outputs, current_project_name, "lat_long_area_clean_sf_no_gom_reef_sf_short.csv")
-
-lat_long_area_clean_sf_no_gom_reef_sf <-
-  read_sf(lat_long_area_clean_sf_no_gom_reef_sf_file_name) %>%
-  my_to_sf()
-
-write_csv(
-  lat_long_area_clean_sf_no_gom_reef_sf,
-  lat_long_area_clean_sf_no_gom_reef_sf_file_name
-)
 
 lat_long_area_clean_sf_no_gom_reef_sf_map <-
   lat_long_area_clean_sf_no_gom_reef_sf %>%
@@ -117,7 +86,6 @@ lat_long_area_clean_sf_no_gom_reef_sf_map <-
     zcol = "AREA_NAME",
     col.regions = viridisLite::turbo,
     layer.name = 'AREA_NAME',
-    # cex = "DISTANCE_CODE_NAME",
     alpha = 0.3,
     legend = F
   )
