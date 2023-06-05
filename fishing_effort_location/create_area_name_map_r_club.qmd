@@ -1,7 +1,12 @@
 ---
+title: "A mapview example"
+date: today
 output:
-  pdf_document: default
-  html_document: default
+  html_document
+format:
+  html:
+    css: styles.css
+    code-overflow: wrap
 ---
 
 ```{r setup}
