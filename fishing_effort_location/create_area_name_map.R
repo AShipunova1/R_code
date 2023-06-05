@@ -90,10 +90,9 @@ lat_long_area_clean_map <-
 m_s + m_g_r + lat_long_area_clean_map
 
 # 2) remove GOM reef polygon 
-tic("with_st_difference(lat_long_area_clean_sf, gom_reef_shp)")
+
 lat_long_area_clean_sf_no_gom_reef_sf <-
-  with_st_difference(lat_long_area_clean_sf, gom_reef_shp)
-toc()
+  sf::st_difference(lat_long_area_clean_sf, gom_reef_shp)
 # 540.17 sec elapsed
 # fewer points
 # 90.67 sec elapsed
