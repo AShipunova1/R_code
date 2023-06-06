@@ -349,4 +349,59 @@ counts_join <-
 compl_percent_per_permit_year <-
   counts_join %>%
   mutate(percent_compl = cnt_compl_per_perm_year * 100 / total_compl_per_perm_year)
-View(counts_join)
+
+View(compl_percent_per_permit_year)
+
+# plot percent compl vs. non-compl
+
+compl_percent_per_permit_year %>%
+  filter(year == "2022") %>%
+  ggplot(aes(x = "",
+             y = percent_compl,
+             fill = compliant_)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0)
+
+compl_pie_chart <- function(my_df, y_p_title) {
+  ggplot(my_df,
+         aes(x = "",
+             y = percent_compl,
+             fill = compliant_)) +
+    geom_bar(width = 1, stat = "identity") +
+    coord_polar("y", start = 0) +
+          labs(title = y_p_title,
+           x = "",
+           # x = "Compliant",
+           y = "Percent compliant")
+
+}
+
+compl_percent_per_permit_year_spl <-
+  compl_percent_per_permit_year %>%
+  split(as.factor(compl_percent_per_permit_year$year)) %>%
+  map(.f = list(. %>%
+                  split(as.factor(.$permit_sa_gom))))
+
+str(compl_percent_per_permit_year_spl)
+# List of 2
+# $ 2022:List of 3
+
+all_gg_compl_percent_per_permit_year_spl <-
+  names(compl_percent_per_permit_year_spl) %>%
+  map(function(a_year) {
+    # browser()
+    data_by_year <-
+      compl_percent_per_permit_year_spl[[a_year]]
+    names(data_by_year) %>%
+      map_df(function(permit_reg) {
+        y_p_title <- paste(a_year, permit_reg)
+        compl_pie_chart(data_by_year[[permit_reg]], y_p_title)
+      })
+  })
+# purrr::map_df
+super_title = "Percent compliant per yer and permit region"
+
+grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
+             top = super_title,
+             # left = my_legend,
+             ncol = 4)
