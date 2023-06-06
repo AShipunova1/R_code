@@ -31,7 +31,7 @@ get_data_from_FHIER_csvs <- function() {
 }
 
 # uncomment to run
-# compl_clean <- get_data_from_FHIER_csvs()
+compl_clean <- get_data_from_FHIER_csvs()
 # View(compl_clean)
 dim(compl_clean)
 # 208893     21
@@ -109,7 +109,7 @@ get_permit_data_from_PIMS_csv <- function() {
 }
 
 # uncomment to run
-# active_permits_from_pims <- get_permit_data_from_PIMS_csv()
+active_permits_from_pims <- get_permit_data_from_PIMS_csv()
 
 # get data from db ----
 
@@ -215,8 +215,11 @@ identical(all_names_len, uniq_names_len)
 # 38
 
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
-# names(compl_err_db_data)
+names(compl_err_db_data)
 
-dim(compl_err_db_data)
+# dim(compl_err_db_data)
 # [1] 87925    15
 # [1] 44662    38 2021+
+
+# override comments ----
+compl_err_db_data_raw %>% select(OVERRIDE_CMT, COMP_OVERRIDE_CMT) %>% unique()
