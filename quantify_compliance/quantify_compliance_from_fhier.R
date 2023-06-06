@@ -350,9 +350,9 @@ compl_percent_per_permit_year <-
   counts_join %>%
   mutate(percent_compl = cnt_compl_per_perm_year * 100 / total_compl_per_perm_year)
 
-View(compl_percent_per_permit_year)
+# View(compl_percent_per_permit_year)
 
-# plot percent compl vs. non-compl
+# plot percent compl vs. non-compl ----
 
 compl_percent_per_permit_year %>%
   filter(year == "2022") %>%
@@ -375,7 +375,9 @@ compl_pie_chart <- function(my_df, y_p_title) {
            x = "",
            # x = "Compliant",
            y = "") +
-    scale_fill_discrete(name = "Compliant") %>% 
+    geom_text(aes(label = paste0(round(percent_compl, 1), "%")),
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_discrete(name = "Compliant") %>%
     return()
 }
 
@@ -413,3 +415,4 @@ grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
              top = super_title,
              # left = my_legend,
              ncol = 3)
+
