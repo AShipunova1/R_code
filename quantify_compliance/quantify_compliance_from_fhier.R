@@ -357,23 +357,27 @@ View(compl_percent_per_permit_year)
 compl_percent_per_permit_year %>%
   filter(year == "2022") %>%
   ggplot(aes(x = "",
-             y = percent_compl,
+             # y = percent_compl,
+             y = "",
              fill = compliant_)) +
   geom_bar(width = 1, stat = "identity") +
-  coord_polar("y", start = 0)
+  coord_polar("y", start = 0) +
+  scale_fill_discrete(name = "Compliant")
 
 compl_pie_chart <- function(my_df, y_p_title) {
   ggplot(my_df,
          aes(x = "",
-             y = percent_compl,
+             # y = percent_compl,
+             y = "",
              fill = compliant_)) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
           labs(title = y_p_title,
            x = "",
            # x = "Compliant",
-           y = "Percent compliant")
-
+           y = "Percent compliant") +
+    scale_fill_discrete(name = "Compliant") %>% 
+    return()
 }
 
 compl_percent_per_permit_year_spl <-
@@ -406,7 +410,7 @@ compl_percent_per_permit_year_1col <-
   # compute on a data frame a row-at-a-time
   dplyr::rowwise() %>%
   mutate(year_reg = 
-           paste0(year, ".", permit_sa_gom)) %>% 
+           paste(year, permit_sa_gom)) %>% 
   # return to the default colwise operations
   dplyr::ungroup()
   
@@ -414,25 +418,19 @@ compl_percent_per_permit_year_spl1 <-
   compl_percent_per_permit_year_1col %>% 
   split(as.factor(compl_percent_per_permit_year_1col$year_reg))
 
-View(compl_percent_per_permit_year_spl1)
+# View(compl_percent_per_permit_year_spl1)
 
 # make all plots ----
 all_gg_compl_percent_per_permit_year_spl <-
   names(compl_percent_per_permit_year_spl1) %>%
   map(function(year_region) {
     # browser()
-    year_reg_list <- str_split_1(year_region, "\\.")
-    a_year <- year_reg_list[[1]]
-    permit_reg <- year_reg_list[[2]]
-    y_p_title <- paste(a_year, permit_reg)
+    y_p_title <- year_region
     data_by_year <-
       compl_percent_per_permit_year_spl1[[year_region]] %>%
       compl_pie_chart(y_p_title)
   })
 # purrr::map_df
-
-
-View(all_gg_compl_percent_per_permit_year_spl)
 
 super_title = "Percent compliant per year and permit region"
 
