@@ -347,3 +347,15 @@ grid.arrange(grobs =
              ncol = 4)
 
 # percent of non_compliant and compliant ----
+compl_err_db_data_permit_grps %>% count(permit_sa_gom, is_comp)
+#   permit_sa_gom is_comp     n
+# 1          both       0  3453
+# 2          both       1   611
+# 3      gom_only       0  1185
+# 4      gom_only       1   272
+# 5       sa_only       0 37540
+# 6       sa_only       1  2558
+
+compl_err_db_data_permit_grps %>% 
+  mutate(nc_no = is_comp | is_comp_override) %>% 
+  count(permit_sa_gom, nc_no)

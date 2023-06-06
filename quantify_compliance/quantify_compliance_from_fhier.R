@@ -143,7 +143,7 @@ gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   )
 
 # one plot
-gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc[[12]]
+# gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc[[12]]
 
 super_title = "SA only from csvs: how many weeks vessels were non_compliant"
 
@@ -320,3 +320,13 @@ grid.arrange(grobs =
                gg_perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22,
              top = super_title,
              ncol = 4)
+
+# percent of non_compliant and compliant ----
+compl_clean_sa_vs_gom_m_int %>% count(permit_sa_gom, compliant_)
+#   permit_sa_gom compliant_     n
+# 1 both          NO          3383
+# 2 both          YES        19770
+# 3 gom_only      NO           532
+# 4 gom_only      YES        61755
+# 5 sa_only       NO         38259
+# 6 sa_only       YES        85194
