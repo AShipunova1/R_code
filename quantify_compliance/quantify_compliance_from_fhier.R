@@ -64,10 +64,13 @@ sa_compl_clean_sa_vs_gom_m_int %>%
 sa_compl_clean_sa_vs_gom_m_int %>% 
   count(compliant_, overridden_)
 #   compliant_ overridden_     n
-#   <chr>      <chr>       <int>
 # 1 NO         NO          33322
-# 2 NO         YES          4937
+# TODO: check if the override comment it is somewhere else
+# 2 NO         YES          4937 
 # 3 YES        NO          85194
+
+# compl_clean_sa_vs_gom_m_int %>% 
+#   count(compliant_, overridden_)
 
 sa_compl_clean_sa_vs_gom_m_int_non_c <-
   sa_compl_clean_sa_vs_gom_m_int %>% 
@@ -86,11 +89,14 @@ compl_clean_sa_vs_gom_m_int %>%
 # 2     2                       25
 # 3     3                       38
 # 4     4                      379
+# TODO vessels in "1" not anywhere else
 
 sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   get_non_compl_week_counts_percent(sa_compl_clean_sa_vs_gom_m_int_non_c,
                                     "vessel_official_number")
 View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
+
+
 
 ## SA only plots ----
 ### one plot ----
@@ -116,6 +122,35 @@ gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
 super_title = "SA only from csvs: how many weeks vessels were non_compliant"
 
 grid.arrange(grobs = gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc,
+             top = super_title,
+             # left = my_legend,
+             ncol = 4)
+
+## SA non compliant and not overridden ----
+sa_compl_clean_sa_vs_gom_m_int_nc_no <-
+  sa_compl_clean_sa_vs_gom_m_int %>% 
+  filter(compliant_ == "NO" & overridden_ == "NO")
+
+sa_compl_clean_sa_vs_gom_m_int_nc_no_perc <-
+  get_non_compl_week_counts_percent(sa_compl_clean_sa_vs_gom_m_int_nc_no,                                    "vessel_official_number")
+# View(sa_compl_clean_sa_vs_gom_m_int_nc_no_perc)
+
+gg_sa_compl_clean_sa_vs_gom_m_int_nc_no_perc <-
+  unique(sa_compl_clean_sa_vs_gom_m_int_nc_no_perc$year_month) |>
+  map(
+    \(current_year_month)
+    perc_plots_by_month(
+      sa_compl_clean_sa_vs_gom_m_int_nc_no_perc,
+      current_year_month
+    )
+  )
+
+# one plot
+gg_sa_compl_clean_sa_vs_gom_m_int_nc_no_perc[[12]]
+
+super_title = "SA only from csvs: how many weeks vessels were non_compliant and not overridden"
+
+grid.arrange(grobs = gg_sa_compl_clean_sa_vs_gom_m_int_nc_no_perc,
              top = super_title,
              # left = my_legend,
              ncol = 4)
