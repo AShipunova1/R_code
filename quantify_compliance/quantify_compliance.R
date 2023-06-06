@@ -59,7 +59,9 @@ perc_plots_by_month <-
                 # ,
                 # vjust = -0.5
                 ) +
-      theme(plot.title = element_text(size = 10)) +
+      theme(plot.title = element_text(size = 10),
+            axis.title = element_text(size = 9)
+            ) +
       ylim(0, 100) +
       labs(title = month_title,
            # x = "",
@@ -344,3 +346,4 @@ grid.arrange(grobs =
              top = super_title,
              ncol = 4)
 
+# percent of non_compliant and compliant ----
