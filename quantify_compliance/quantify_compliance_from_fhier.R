@@ -77,21 +77,40 @@ sa_compl_clean_sa_vs_gom_m_int_non_c <-
   filter(compliant_ == "NO")
 
 ### test one month ----
-compl_clean_sa_vs_gom_m_int %>% 
+non_compliant_dec_2022 <-
+  compl_clean_sa_vs_gom_m_int %>% 
   filter(compliant_ == "NO") %>% 
-  filter(year_month == "Dec 2022") %>%
-  # count(vessel_official_number, name = "id_n") %>% 
-  # filter(vessel_official_number == "MI1381CC")
-  # filter(id_n == 1) %>% View
+  filter(year_month == "Dec 2022")
+
+#### check how many unique vessel_official_numbers ----
+
+non_compliant_dec_2022_vessel_num <-
+  non_compliant_dec_2022 %>% 
+  select(vessel_official_number) %>% unique() %>% dim()
+# [1] 467   1
+
+non_compliant_dec_2022_count_nc_weeks_per_vessel <-
+  non_compliant_dec_2022 %>% 
+  count(vessel_official_number, name = "id_n") %>%
   # how many non_compliant this month
   count(id_n, name = "non_compl_weeks_in_month")
-  # count(week_num, compliant_)
 #    id_n non_compl_weeks_in_month
 # 1     1                       25
 # 2     2                       25
 # 3     3                       38
 # 4     4                      379
-# TODO vessels in "1" not anywhere else
+
+#### test if the number of unique vessel official numbers is equal to the sum of vessels in the non_compl_weeks_in_month categories
+sum(non_compliant_dec_2022_count_nc_weeks_per_vessel$non_compl_weeks_in_month) ==
+non_compliant_dec_2022_vessel_num[1]
+# TRUE
+
+#### check a vessel (vessels in "1" not anywhere else) ----
+non_compliant_dec_2022 %>% 
+  count(vessel_official_number, name = "id_n") %>%
+  filter(vessel_official_number == "MI1381CC")
+  filter(id_n == 1)
+
 
 sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   get_non_compl_week_counts_percent(sa_compl_clean_sa_vs_gom_m_int_non_c,
