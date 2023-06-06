@@ -386,6 +386,20 @@ str(compl_percent_per_permit_year_spl)
 # List of 2
 # $ 2022:List of 3
 
+# flat_a <-
+#   lapply(compl_percent_per_permit_year_spl, rapply, f = c)
+
+# flat_a <- unlist(compl_percent_per_permit_year_spl)
+# names(flat_a)
+# [69] "2023.sa_only.total_compl_per_perm_year1" 
+# [70] "2023.sa_only.total_compl_per_perm_year2" 
+# [71] "2023.sa_only.percent_compl1"             
+# [72] "2023.sa_only.percent_compl2" 
+# flat_a <- bind_rows(compl_percent_per_permit_year_spl)
+
+# flat_a <- flatten(compl_percent_per_permit_year_spl)
+# View(flat_a)
+
 all_gg_compl_percent_per_permit_year_spl <-
   names(compl_percent_per_permit_year_spl) %>%
   map(function(a_year) {
@@ -393,12 +407,13 @@ all_gg_compl_percent_per_permit_year_spl <-
     data_by_year <-
       compl_percent_per_permit_year_spl[[a_year]]
     names(data_by_year) %>%
-      map_df(function(permit_reg) {
+      map(function(permit_reg) {
         y_p_title <- paste(a_year, permit_reg)
         compl_pie_chart(data_by_year[[permit_reg]], y_p_title)
       })
   })
 # purrr::map_df
+
 super_title = "Percent compliant per yer and permit region"
 
 grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
