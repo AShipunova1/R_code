@@ -10,7 +10,7 @@ my_paths <- set_work_dir()
 source("~/R_code_github/quantify_compliance/get_data.R")
 
 get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
-  browser()
+  # browser()
     my_df %>%
     # how many non_compliant weeks per vessel this month
     count(year_month, !!sym(vessel_id_col_name),
@@ -332,3 +332,4 @@ grid.arrange(grobs =
                gg_perc_gom_compl_err_db_data_permit_grps_short_nc_no,
              top = super_title,
              ncol = 4)
+
