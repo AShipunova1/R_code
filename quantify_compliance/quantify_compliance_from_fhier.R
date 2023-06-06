@@ -400,23 +400,43 @@ str(compl_percent_per_permit_year_spl)
 # flat_a <- flatten(compl_percent_per_permit_year_spl)
 # View(flat_a)
 
+# split by year_permit_region without nesting ----
+compl_percent_per_permit_year_1col <-
+  compl_percent_per_permit_year %>%
+  # compute on a data frame a row-at-a-time
+  dplyr::rowwise() %>%
+  mutate(year_reg = 
+           paste0(year, ".", permit_sa_gom)) %>% 
+  # return to the default colwise operations
+  dplyr::ungroup()
+  
+compl_percent_per_permit_year_spl1 <-
+  compl_percent_per_permit_year_1col %>% 
+  split(as.factor(compl_percent_per_permit_year_1col$year_reg))
+
+View(compl_percent_per_permit_year_spl1)
+
+# make all plots ----
 all_gg_compl_percent_per_permit_year_spl <-
-  names(compl_percent_per_permit_year_spl) %>%
-  map(function(a_year) {
+  names(compl_percent_per_permit_year_spl1) %>%
+  map(function(year_region) {
     # browser()
+    year_reg_list <- str_split_1(year_region, "\\.")
+    a_year <- year_reg_list[[1]]
+    permit_reg <- year_reg_list[[2]]
+    y_p_title <- paste(a_year, permit_reg)
     data_by_year <-
-      compl_percent_per_permit_year_spl[[a_year]]
-    names(data_by_year) %>%
-      map(function(permit_reg) {
-        y_p_title <- paste(a_year, permit_reg)
-        compl_pie_chart(data_by_year[[permit_reg]], y_p_title)
-      })
+      compl_percent_per_permit_year_spl1[[year_region]] %>%
+      compl_pie_chart(y_p_title)
   })
 # purrr::map_df
 
-super_title = "Percent compliant per yer and permit region"
+
+View(all_gg_compl_percent_per_permit_year_spl)
+
+super_title = "Percent compliant per year and permit region"
 
 grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
              top = super_title,
              # left = my_legend,
-             ncol = 4)
+             ncol = 3)
