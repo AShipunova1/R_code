@@ -380,30 +380,6 @@ compl_pie_chart <- function(my_df, y_p_title) {
     return()
 }
 
-compl_percent_per_permit_year_spl <-
-  compl_percent_per_permit_year %>%
-  split(as.factor(compl_percent_per_permit_year$year)) %>%
-  map(.f = list(. %>%
-                  split(as.factor(.$permit_sa_gom))))
-
-str(compl_percent_per_permit_year_spl)
-# List of 2
-# $ 2022:List of 3
-
-# flat_a <-
-#   lapply(compl_percent_per_permit_year_spl, rapply, f = c)
-
-# flat_a <- unlist(compl_percent_per_permit_year_spl)
-# names(flat_a)
-# [69] "2023.sa_only.total_compl_per_perm_year1" 
-# [70] "2023.sa_only.total_compl_per_perm_year2" 
-# [71] "2023.sa_only.percent_compl1"             
-# [72] "2023.sa_only.percent_compl2" 
-# flat_a <- bind_rows(compl_percent_per_permit_year_spl)
-
-# flat_a <- flatten(compl_percent_per_permit_year_spl)
-# View(flat_a)
-
 # split by year_permit_region without nesting ----
 compl_percent_per_permit_year_1col <-
   compl_percent_per_permit_year %>%
