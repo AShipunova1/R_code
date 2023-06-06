@@ -105,19 +105,21 @@ sum(non_compliant_dec_2022_count_nc_weeks_per_vessel$non_compl_weeks_in_month) =
 non_compliant_dec_2022_vessel_num[1]
 # TRUE
 
-#### check a vessel (vessels in "1" not anywhere else) ----
+#### check a vessel (a vessel in "1" is not anywhere else) ----
 non_compliant_dec_2022 %>% 
   count(vessel_official_number, name = "id_n") %>%
   filter(vessel_official_number == "MI1381CC")
   filter(id_n == 1)
 
-
+# View(sa_compl_clean_sa_vs_gom_m_int_non_c)
 sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   get_non_compl_week_counts_percent(sa_compl_clean_sa_vs_gom_m_int_non_c,
                                     "vessel_official_number")
-View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
 
-
+sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos <-
+  sa_compl_clean_sa_vs_gom_m_int_non_c_perc %>% 
+  filter(non_compl_in_month > 0)
+View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos)
 
 ## SA only plots ----
 ### one plot ----
@@ -126,6 +128,9 @@ View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
   # filter(year_month == "Jan 2022") %>%
   # ggplot(aes(non_compl_weeks, percent_nc)) +
   # geom_col()
+sa_compl_clean_sa_vs_gom_m_int_non_c_perc_orig <- sa_compl_clean_sa_vs_gom_m_int_non_c_perc
+
+sa_compl_clean_sa_vs_gom_m_int_non_c_perc <- sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos
 
 gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   unique(sa_compl_clean_sa_vs_gom_m_int_non_c_perc$year_month) |>
@@ -138,7 +143,7 @@ gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   )
 
 # one plot
-# gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc[[12]]
+gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc[[12]]
 
 super_title = "SA only from csvs: how many weeks vessels were non_compliant"
 
@@ -284,7 +289,8 @@ gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22 <-
 ## get percentage of nc weeks ----
 perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22 <-
   get_non_compl_week_counts_percent(gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22,
-                                    "vessel_official_number")
+                                    "vessel_official_number") %>% 
+  filter(non_compl_in_month > 0)
 
 View(perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22)
 

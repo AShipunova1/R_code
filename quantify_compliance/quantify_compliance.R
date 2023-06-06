@@ -40,6 +40,16 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
 perc_plots_by_month <-
   function(my_df, current_year_month) {
     # browser()
+    # month_title = current_year_month
+    total_nc_vsl_per_month <-
+      my_df %>% 
+      filter(year_month == current_year_month) %>% 
+      select(total_nc_vsl_per_month) %>% 
+      unique()
+    
+    # month_title = paste0(current_year_month, " Total non-compliant vessels: ", total_nc_vsl_per_month[[1]])
+    month_title = paste0(current_year_month, ": ", total_nc_vsl_per_month[[1]], " total nc vsls")
+
     my_df %>%
       filter(year_month == current_year_month) %>%
       ggplot(aes(non_compl_weeks, percent_nc)) +
@@ -49,13 +59,14 @@ perc_plots_by_month <-
                 # ,
                 # vjust = -0.5
                 ) +
-                ylim(0, 100) +
-                  labs(title = current_year_month,
-                       # x = "",
-                       x = "Num of nc weeks",
-                       y = "") %>%
-                  # TODO: axes text
-                  return()
+      theme(plot.title = element_text(size = 10)) +
+      ylim(0, 100) +
+      labs(title = month_title,
+           # x = "",
+           x = "Num of nc weeks",
+           y = "") %>%
+      # TODO: axes text
+      return()
   }
 
 # using data from db
