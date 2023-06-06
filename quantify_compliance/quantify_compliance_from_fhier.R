@@ -330,3 +330,23 @@ compl_clean_sa_vs_gom_m_int %>% count(permit_sa_gom, compliant_)
 # 4 gom_only      YES        61755
 # 5 sa_only       NO         38259
 # 6 sa_only       YES        85194
+
+compl_vs_non_compl_per_year_cnt <-
+  compl_clean_sa_vs_gom_m_int %>% count(permit_sa_gom, compliant_, year, name = "cnt_compl_per_perm_year")
+
+total_per_permit_year <-
+  compl_vs_non_compl_per_year_cnt %>%
+  count(permit_sa_gom,
+        year,
+        wt = cnt_compl_per_perm_year,
+        name = "total_compl_per_perm_year")
+
+counts_join <-
+  full_join(compl_vs_non_compl_per_year_cnt,
+            total_per_permit_year)
+# Joining with `by = join_by(permit_sa_gom, year)`
+
+compl_percent_per_permit_year <-
+  counts_join %>%
+  mutate(percent_compl = cnt_compl_per_perm_year * 100 / total_compl_per_perm_year)
+View(counts_join)
