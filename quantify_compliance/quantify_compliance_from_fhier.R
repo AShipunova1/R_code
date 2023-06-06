@@ -367,15 +367,14 @@ compl_percent_per_permit_year %>%
 compl_pie_chart <- function(my_df, y_p_title) {
   ggplot(my_df,
          aes(x = "",
-             # y = percent_compl,
-             y = "",
+             y = percent_compl,
              fill = compliant_)) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
           labs(title = y_p_title,
            x = "",
            # x = "Compliant",
-           y = "Percent compliant") +
+           y = "") +
     scale_fill_discrete(name = "Compliant") %>% 
     return()
 }
