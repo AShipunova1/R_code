@@ -80,7 +80,9 @@ sa_compl_clean_sa_vs_gom_m_int_non_c <-
 compl_clean_sa_vs_gom_m_int %>% 
   filter(compliant_ == "NO") %>% 
   filter(year_month == "Dec 2022") %>%
-  count(vessel_official_number, name = "id_n") %>%
+  # count(vessel_official_number, name = "id_n") %>% 
+  # filter(vessel_official_number == "MI1381CC")
+  # filter(id_n == 1) %>% View
   # how many non_compliant this month
   count(id_n, name = "non_compl_weeks_in_month")
   # count(week_num, compliant_)
