@@ -850,9 +850,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
 # $ percent_compl              <dbl> 63.46154, 36.53846
 
 # 2) split nc_percentage into 4 buckets ----
-## 2a split df by year and permit without nesting ----
-
-# Only non-compl and fewer cols
+## 2a Only non-compl and fewer cols ----
 count_weeks_per_vsl_permit_year_compl_p_short <-
   count_weeks_per_vsl_permit_year_compl_p %>% 
   filter(compliant_ == "NO") %>%
@@ -867,7 +865,7 @@ count_weeks_per_vsl_permit_year_compl_p_short <-
   unique()
 
 # add a column
-count_weeks_per_vsl_permit_year_compl_p_add_c <-
+count_weeks_per_vsl_permit_year_compl_p_short_y_p <-
   count_weeks_per_vsl_permit_year_compl_p_short %>%
   # compute on a data frame a row-at-a-time
   dplyr::rowwise() %>%
@@ -876,31 +874,22 @@ count_weeks_per_vsl_permit_year_compl_p_add_c <-
   # return to the default colwise operations
   dplyr::ungroup()
   
-# split
-count_weeks_per_vsl_permit_year_compl_p_short_spl <-
-  count_weeks_per_vsl_permit_year_compl_p_add_c %>% 
-  split(as.factor(count_weeks_per_vsl_permit_year_compl_p_add_c$year_reg))
+## 2b) get percentage "buckets" ----
+# View(count_weeks_per_vsl_permit_year_compl_p_short_y_p)
 
-## 2b) get buckets for each year/permit region ----
-View(count_weeks_per_vsl_permit_year_compl_p_short_spl)
-
-count_weeks_per_vsl_permit_year_compl_p_short_cuts <-
-  count_weeks_per_vsl_permit_year_compl_p_short_spl %>% 
-  purrr::map_df(function(my_df){
-    # browser()
-    my_df %>%
-      mutate(percentage_rank = 
-               case_when(
-                 percent_compl < 25 ~ '0-24%',
-                 25 <= percent_compl &
-                   percent_compl < 50 ~ '25-49%',
-                 50 <= percent_compl &
-                   percent_compl < 75 ~ '50-74%',
-                 75 <= percent_compl ~ '75-100%'
-               )
-      ) %>% 
-      return()
-  })
+count_weeks_per_vsl_permit_year_compl_p_short_y_p_cuts <-
+  count_weeks_per_vsl_permit_year_compl_p_short_y_p %>%
+  mutate(
+    percentage_rank =
+      case_when(
+        percent_compl < 25 ~ '0-24%',
+        25 <= percent_compl &
+          percent_compl < 50 ~ '25-49%',
+        50 <= percent_compl &
+          percent_compl < 75 ~ '50-74%',
+        75 <= percent_compl ~ '75-100%'
+      )
+  )
 
 View(count_weeks_per_vsl_permit_year_compl_p_short_cuts)
 
@@ -910,6 +899,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
   filter(year_reg == "2023 sa_only") %>% 
   count(percent_compl, year_reg,
         name = "amount_of_occurences") %>%
+  arrange(desc(percent_compl)) %>% 
   glimpse()
   # count(wt = amount_of_occurences)
 
