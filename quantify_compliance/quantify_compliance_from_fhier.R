@@ -588,8 +588,11 @@ non_compl_weeks_per_year %>%
 #          year == "2022") %>% 
 #   count(compliant_)
 
-compl_clean_sa_vs_gom_m_int %>% 
-  count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel") %>% 
+compl_clean_sa_vs_gom_m_int_cnt_w <-
+  compl_clean_sa_vs_gom_m_int %>% 
+  count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel")
+
+compl_clean_sa_vs_gom_m_int_cnt_w %>% 
     filter(vessel_official_number == "MI9152BZ",
          year == "2022") %>%
   glimpse()
@@ -598,3 +601,98 @@ compl_clean_sa_vs_gom_m_int %>%
 # $ vessel_official_number <chr> "MI9152BZ"
 # $ compliant_             <chr> "NO"
 # $ weeks_per_vessel       <int> 31
+
+### test one category ----
+# compl_clean_sa_vs_gom_m_int_cnt_w %>%
+#   filter(year == "2022", permit_sa_gom == "sa_only", weeks_per_vessel == 31) %>% glimpse()
+# # 36
+
+compl_clean_sa_vs_gom_m_int_cnt_w %>%
+  filter(vessel_official_number == "1020822",
+         year == "2022") %>% glimpse()
+# $ compliant_             <chr> "NO", "YES"
+# $ weeks_per_vessel       <int> 19, 33
+
+compl_clean %>%
+  filter(vessel_official_number == "1020822",
+         year == "2022") %>% dim()
+# 52 == 33 + 19
+
+# 19*100/52 = 36.53846 % non compl
+
+compl_clean_sa_vs_gom_m_int_cnt_w1 <-
+  compl_clean_sa_vs_gom_m_int %>%
+  add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
+
+compl_clean_sa_vs_gom_m_int_cnt_w1 %>%
+  filter(vessel_official_number == "1020822",
+         year == "2022") %>%
+  select(compliant_,
+         weeks_per_vessel_per_compl,
+         total_weeks_per_vessel) %>%
+  unique() %>%
+  glimpse()
+# $ compliant_                 <chr> "YES", "NO"
+# $ weeks_per_vessel_per_compl <int> 33, 19
+# $ total_weeks_per_vessel     <int> 52, 52
+
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc <-
+  compl_clean_sa_vs_gom_m_int_cnt_w1 %>%
+  mutate(percent_compl =
+           weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
+
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
+  filter(vessel_official_number == "1020822",
+         year == "2022") %>%
+  select(percent_compl, 
+         compliant_,
+         weeks_per_vessel_per_compl,
+         total_weeks_per_vessel) %>%
+  unique() %>%
+  glimpse()
+
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
+  filter(permit_sa_gom == "sa_only",
+         year == "2022") %>%
+  View()
+
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
+  filter(permit_sa_gom == "sa_only",
+         year == "2022") %>%
+  filter(compliant_ == "NO") %>%
+  select(
+    vessel_official_number,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) %>%
+  unique() %>%
+  count(percent_compl, name = "cnt_percent_nc") %>%
+  arrange(desc(cnt_percent_nc)) %>%
+  # count(wt = cnt_percent_nc)
+  # 1289 - total nc weeks
+  mutate(pp = cnt_percent_nc * 100 / sum(cnt_percent_nc)) %>%
+  # mutate(pp = cnt_percent_nc * 100 / 284) %>%
+  View()
+
+# by month?
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
+  filter(permit_sa_gom == "sa_only",
+         year == "2022") %>%
+  filter(year_month == "Dec 2022") %>% 
+  filter(compliant_ == "NO") %>%
+  select(
+    vessel_official_number,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) %>%
+  unique() %>%
+  count(percent_compl, name = "cnt_percent_nc") %>%
+  arrange(desc(cnt_percent_nc)) %>%
+  # count(wt = cnt_percent_nc)
+  # 1289 - total nc weeks
+  mutate(pp = cnt_percent_nc * 100 / sum(cnt_percent_nc)) %>%
+  # mutate(pp = cnt_percent_nc * 100 / 284) %>%
+  View()
