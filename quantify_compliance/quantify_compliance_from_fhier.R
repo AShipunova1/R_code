@@ -461,20 +461,31 @@ non_compl_weeks_per_year_22_sa <-
   non_compl_weeks_per_year %>% 
   filter(year == "2022", permit_sa_gom == "sa_only")
 
-str(non_compl_weeks_per_year_22_sa)
+# str(non_compl_weeks_per_year_22_sa)
 
 non_compl_weeks_per_year_22_sa %>% count(wt = nc_weeks_cnt)
-# 1   117
+# 1   117 (22 both)
+# 1289 (22 sa)
+
+View(non_compl_weeks_per_year_22_sa)
+non_compl_weeks_per_year_22_sa %>%
+  mutate(mm = nc_weeks_per_vsl * nc_weeks_cnt) %>%
+  count(wt = mm, name = total_nc_22_sa_per_year) %>%
+  glimpse()
+# 26466 - correct, see "Percent compliant per year and permit region"
 
 non_compl_weeks_per_year_22_sa %>% summarise(sum(nc_weeks_cnt))
 # 117
+# 1289 (22 sa)
 
 non_compl_weeks_per_year_22_sa %>%
   mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
   arrange(perc) %>%
   mutate(perc_labels = scales::percent(perc)) %>% 
   View()
-
+#   `sum(nc_weeks_per_vsl)`
+#                     <int>
+# 1                    1378
 
 ## get percents ---- 
 non_compl_weeks_per_year %>%
