@@ -5,7 +5,6 @@ library(tictoc)
 project_dir_name <- "FHIER Compliance"
 
 # get data from csvs ----
-
 get_data_from_FHIER_csvs <- function() {
   filenames = c(
     "FHIER_Compliance_2022__05_31_2023.csv",
@@ -30,13 +29,6 @@ get_data_from_FHIER_csvs <- function() {
   return(compl_clean)
 }
 
-# uncomment to run
-compl_clean <- get_data_from_FHIER_csvs()
-# View(compl_clean)
-dim(compl_clean)
-# 208893     21
-
-## get compliance error definitions from csvs ----
 get_compliance_error_definitions <- function() {
   err_desc_filenames = c(file.path(project_dir_name, "Compliance_Error_Types_03_29_2023.csv"))
   
@@ -53,9 +45,6 @@ get_compliance_error_definitions <- function() {
   return(err_desc)
 }
 
-err_desc <- get_compliance_error_definitions()
-
-## get permit data from PIMS csv ----
 get_permit_data_from_PIMS_csv <- function() {
   permit_names_list = r"(other\Permits_2023-03-29_1611_active.csv)"
   
@@ -108,13 +97,25 @@ get_permit_data_from_PIMS_csv <- function() {
   return(active_permits_from_pims)
 }
 
+get_data_from_csv <- function() {
+  
 # uncomment to run
+compl_clean <- get_data_from_FHIER_csvs()
+# View(compl_clean)
+dim(compl_clean)
+# 208893     21
+
+## get compliance error definitions from csvs ----
+err_desc <- get_compliance_error_definitions()
+
+## get permit data from PIMS csv ----
+
 active_permits_from_pims <- get_permit_data_from_PIMS_csv()
 
+return(compl_clean)
+}
+
 # get data from db ----
-
-## get permit data from db ----
-
 get_permit_data_from_db <- function() {
   # run once
   con <- connect_to_secpr()
@@ -143,18 +144,6 @@ WHERE
   
   return(permit_db_data)
 }
-
-# to run
-# permit_db_data <- get_permit_data_from_db()
-
-# str(permit_db_data)
-# 37187 
-# old csv 23888
-
-# get compliance err data from db ----
-
-# uses an inner_join, keeps only entries with compl errors.
-# To get all use FULL OUTER JOIN
 
 get_compl_err_data_from_db <- function() {
   # run once
@@ -193,6 +182,21 @@ WHERE
   return(compl_err_db_data_1)
 }
 
+get_data_from_db <- function() {
+  
+## get permit data from db ----
+# to run
+permit_db_data <- get_permit_data_from_db()
+
+# str(permit_db_data)
+# 37187 
+# old csv 23888
+
+# get compliance err data from db ----
+
+# uses an inner_join, keeps only entries with compl errors.
+# To get all use FULL OUTER JOIN
+
 tic("get_compl_err_data_from_db()")
 compl_err_db_data_raw <- get_compl_err_data_from_db()
 toc()
@@ -223,3 +227,12 @@ names(compl_err_db_data)
 
 # override comments ----
 compl_err_db_data_raw %>% select(OVERRIDE_CMT, COMP_OVERRIDE_CMT) %>% unique()
+}
+
+if (exists("get_data_from_param")) {
+  if (get_data_from_param == "db") {
+    get_data_from_db()
+  }
+} else {
+  compl_clean <- get_data_from_csv()
+}

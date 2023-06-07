@@ -1,13 +1,6 @@
-# quantify_compliance
+# get_data_from_param <- "csv"
 
-library(zoo)
-library(gridExtra)
-library(cowplot)
-
-source("~/R_code_github/useful_functions_module.r")
-my_paths <- set_work_dir()
-
-source("~/R_code_github/quantify_compliance/get_data.R")
+source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
 # ---- separate SA and GOM permits ----
 compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
@@ -77,51 +70,54 @@ sa_compl_clean_sa_vs_gom_m_int_non_c <-
   filter(compliant_ == "NO")
 
 ### test one month ----
-non_compliant_dec_2022 <-
-  compl_clean_sa_vs_gom_m_int %>% 
-  filter(compliant_ == "NO") %>% 
-  filter(year_month == "Dec 2022")
-
-#### check how many unique vessel_official_numbers ----
-
-non_compliant_dec_2022_vessel_num <-
-  non_compliant_dec_2022 %>% 
-  select(vessel_official_number) %>% unique() %>% dim()
-# [1] 467   1
-
-non_compliant_dec_2022_count_nc_weeks_per_vessel <-
-  non_compliant_dec_2022 %>% 
-  count(vessel_official_number, name = "id_n") %>%
-  # how many non_compliant this month
-  count(id_n, name = "non_compl_weeks_in_month")
-#    id_n non_compl_weeks_in_month
-# 1     1                       25
-# 2     2                       25
-# 3     3                       38
-# 4     4                      379
-
-#### test if the number of unique vessel official numbers is equal to the sum of vessels in the non_compl_weeks_in_month categories
-sum(non_compliant_dec_2022_count_nc_weeks_per_vessel$non_compl_weeks_in_month) ==
-non_compliant_dec_2022_vessel_num[1]
-# TRUE
-
-#### check a vessel (a vessel in "1" is not anywhere else) ----
-non_compliant_dec_2022 %>% 
-  count(vessel_official_number, name = "id_n") %>%
-  filter(vessel_official_number == "MI1381CC")
-  filter(id_n == 1)
+test_one_month <- function() {
+  non_compliant_dec_2022 <-
+    compl_clean_sa_vs_gom_m_int %>%
+    filter(compliant_ == "NO") %>%
+    filter(year_month == "Dec 2022")
+  
+  #### check how many unique vessel_official_numbers ----
+  
+  non_compliant_dec_2022_vessel_num <-
+    non_compliant_dec_2022 %>%
+    select(vessel_official_number) %>% unique() %>% dim()
+  # [1] 467   1
+  
+  non_compliant_dec_2022_count_nc_weeks_per_vessel <-
+    non_compliant_dec_2022 %>%
+    count(vessel_official_number, name = "id_n") %>%
+    # how many non_compliant this month
+    count(id_n, name = "non_compl_weeks_in_month")
+  #    id_n non_compl_weeks_in_month
+  # 1     1                       25
+  # 2     2                       25
+  # 3     3                       38
+  # 4     4                      379
+  
+  #### test if the number of unique vessel official numbers is equal to the sum of vessels in the non_compl_weeks_in_month categories
+  sum(non_compliant_dec_2022_count_nc_weeks_per_vessel$non_compl_weeks_in_month) ==
+    non_compliant_dec_2022_vessel_num[1]
+  # TRUE
+  
+  #### check a vessel (a vessel in "1" is not anywhere else) ----
+  non_compliant_dec_2022 %>%
+    count(vessel_official_number, name = "id_n") %>%
+    filter(vessel_official_number == "MI1381CC")
+  # filter(id_n == 1)
+}
 
 # get percentage ----
 # View(sa_compl_clean_sa_vs_gom_m_int_non_c)
-sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
+sa_compl_clean_sa_vs_gom_m_int_non_c_perc_0 <-
   get_non_compl_week_counts_percent(sa_compl_clean_sa_vs_gom_m_int_non_c,
                               "vessel_official_number")
 
-sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos <-
-  sa_compl_clean_sa_vs_gom_m_int_non_c_perc %>% 
+sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
+  sa_compl_clean_sa_vs_gom_m_int_non_c_perc_0 %>% 
   # don't show if no data
   filter(non_compl_in_month > 0)
-View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos)
+
+View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
 
 ## SA only plots ----
 ### one plot ----
@@ -130,9 +126,6 @@ View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos)
   # filter(year_month == "Jan 2022") %>%
   # ggplot(aes(non_compl_weeks, percent_nc)) +
   # geom_col()
-sa_compl_clean_sa_vs_gom_m_int_non_c_perc_orig <- sa_compl_clean_sa_vs_gom_m_int_non_c_perc
-
-sa_compl_clean_sa_vs_gom_m_int_non_c_perc <- sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos
 
 gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   unique(sa_compl_clean_sa_vs_gom_m_int_non_c_perc$year_month) |>
@@ -227,7 +220,7 @@ gom_all_compl_clean_sa_vs_gom_m_int_even %>%
 # $ week_end                    <date> 2023-01-01
 
 
-## by "compliant?"
+## GOM by "compliant?" ----
 gom_all_compl_clean_sa_vs_gom_m_int_non_comp <-
   gom_all_compl_clean_sa_vs_gom_m_int %>% 
   filter(compliant_ == "NO")
@@ -397,7 +390,7 @@ compl_percent_per_permit_year_spl1 <-
   compl_percent_per_permit_year_1col %>% 
   split(as.factor(compl_percent_per_permit_year_1col$year_reg))
 
-# View(compl_percent_per_permit_year_spl1)
+View(compl_percent_per_permit_year_spl1)
 
 # make all plots ----
 all_gg_compl_percent_per_permit_year_spl <-
@@ -419,9 +412,75 @@ grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
              ncol = 3)
 
 # percent per year ----
-sa_percent_per_permit_year <-
-  sa_compl_clean_sa_vs_gom_m_int_non_c_perc %>%
-  count(non_compl_weeks,
-        wt = percent_nc,
-        name = "total_perc_year")
-View(sa_percent_per_permit_year)
+df <- data %>% 
+  group_by(answer) %>% # Variable to be transformed
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc))
+
+count_weeks_per_permit_year <-
+  compl_clean_sa_vs_gom_m_int %>%
+    filter(compliant_ == "NO") %>%
+    count(vessel_official_number, year, permit_sa_gom,
+        name = "nc_weeks_per_vsl")
+
+View(count_weeks_per_permit_year)
+
+non_compl_weeks_per_year <-
+  count_weeks_per_permit_year %>%
+  count(year, permit_sa_gom, nc_weeks_per_vsl,
+        name = "nc_weeks_cnt") %>% 
+  arrange(nc_weeks_per_vsl)
+  
+View(non_compl_weeks_per_year)
+
+non_compl_weeks_per_year %>% 
+  group_by(year, permit_sa_gom) %>% 
+  mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>% 
+  mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>% 
+    arrange(perc) %>%
+  mutate(labels = scales::percent(perc)) %>% 
+    View()
+
+non_compl_weeks_per_year %>% filter(year == "2022", permit_sa_gom == "both") %>% count(wt = nc_weeks_cnt)
+# 1   117
+
+non_compl_weeks_per_year %>% filter(year == "2022", permit_sa_gom == "both") %>% summarise(sum(nc_weeks_cnt))
+# 117
+
+non_compl_weeks_per_year %>%
+  group_by(year, permit_sa_gom) %>%
+  mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>%
+  # mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
+  mutate(total_by_year_reg = sum(sum_nc_weeks_cnt_per_year_reg)) %>%
+  head(1) %>% 
+  glimpse()
+# 2022  both 3% from 
+# 117*100/3627
+# [1] 3.225806
+
+# Rows: 1
+# Columns: 6
+# Groups: year, permit_sa_gom [1]
+# $ year                          <chr> "2022"
+# $ permit_sa_gom                 <chr> "both"
+# $ nc_weeks_per_vsl              <int> 1
+# $ nc_weeks_cnt                  <int> 27
+# $ sum_nc_weeks_cnt_per_year_reg <int> 117
+# $ total_by_year_reg             <int> 3627
+# 27*100/117
+# [1] 23.07692
+# 2022 - both - 1 w nc - 23%
+
+# # A tibble: 6 × 3
+# # Groups:   year [2]
+#   year  permit_sa_gom `sum(sum_nc_weeks_cnt_per_year_reg)`
+#   <chr> <chr>                                        <int>
+# 1 2022  both                                          3627
+# 2 2022  gom_only                                      2805
+# 3 2022  sa_only                                      67028
+# 4 2023  both                                          4880
+# 5 2023  gom_only                                         6
+# 6 2023  sa_only                                      29064
