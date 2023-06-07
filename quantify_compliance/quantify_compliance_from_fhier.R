@@ -891,7 +891,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_y_p_cuts <-
       )
   )
 
-View(count_weeks_per_vsl_permit_year_compl_p_short_cuts)
+# View(count_weeks_per_vsl_permit_year_compl_p_short_cuts)
 
 ### test 2 ----
 count_weeks_per_vsl_permit_year_compl_p_short_cuts %>% 
@@ -900,8 +900,8 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
   count(percent_compl, year_reg,
         name = "amount_of_occurences") %>%
   arrange(desc(percent_compl)) %>% 
-  glimpse()
-  # count(wt = amount_of_occurences)
-
+  # View()
+  count(wt = amount_of_occurences)
+# 499
 
 
