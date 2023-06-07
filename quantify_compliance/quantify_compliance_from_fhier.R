@@ -450,9 +450,9 @@ perc_non_compl_weeks_per_year <-
   non_compl_weeks_per_year %>%
   group_by(year, permit_sa_gom) %>%
   mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>%
-  mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
+  mutate(perc = nc_weeks_cnt * 100 / sum(nc_weeks_cnt)) %>%
   arrange(perc) %>%
-  mutate(perc_labels = scales::percent(perc))
+  mutate(perc_labels = paste0(round(perc, 1), "%"))
 
 View(perc_non_compl_weeks_per_year)
 
@@ -480,9 +480,9 @@ non_compl_weeks_per_year_22_sa %>% summarise(sum(nc_weeks_cnt))
 
 non_compl_weeks_per_year_22_sa_perc <-
   non_compl_weeks_per_year_22_sa %>%
-  mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
+  mutate(perc = nc_weeks_cnt * 100 / sum(nc_weeks_cnt)) %>%
   arrange(desc(perc)) %>%
-  mutate(perc_labels = scales::percent(perc))
+  mutate(perc_labels = paste0(round(perc, 1), "%"))
 
 View(non_compl_weeks_per_year_22_sa_perc)
 #   `sum(nc_weeks_per_vsl)`
@@ -502,22 +502,26 @@ View(non_compl_weeks_per_year_22_sa_perc)
 #            y = cnt_index) +
 #          geom_point())
 
-non_compl_weeks_per_year_22_sa_perc %>% 
-  #   mutate(order = fct_reorder(
-  #   as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species),
-  #   species_itis
-  # )) %>%
-  mutate(order = fct_reorder(
-    as.factor(nc_weeks_per_vsl),
-    perc
-  )) %>%
+current_title <- "Percentage of non compliant weeks per year for SA 2022"
+
+non_compl_weeks_per_year_22_sa_perc %>%
+  mutate(nc_weeks_per_vsl_order = 
+           fct_reorder(as.factor(nc_weeks_per_vsl),
+                       perc)) %>% 
   # glimpse()
-  ggplot(
-     aes(x = order, y = perc)) +
+  ggplot(aes(x = nc_weeks_per_vsl_order, y = perc)) +
   geom_col(fill = 'lightblue') +
-  ylim(0, 0.1) +
+  # ylim(0, 100) +
   geom_text(aes(label = perc_labels),
-            position = position_stack(vjust = 0.5))
+            position = position_stack(vjust = 1),
+            size = 3) +
+  theme(plot.title = element_text(size = 10),
+        axis.title = element_text(size = 9)) +
+  labs(title = current_title,
+       # x = "",
+       x = "Num of nc weeks",
+       y = "Percent of num of nc weeks of all nc weeks SA 2022")
+
 # +
 #   scale_fill_manual(okabe)
 # withr::with_options(
