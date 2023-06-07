@@ -468,24 +468,61 @@ non_compl_weeks_per_year_22_sa %>% count(wt = nc_weeks_cnt)
 # 1289 (22 sa)
 
 View(non_compl_weeks_per_year_22_sa)
+
 non_compl_weeks_per_year_22_sa %>%
-  mutate(mm = nc_weeks_per_vsl * nc_weeks_cnt) %>%
-  count(wt = mm, name = total_nc_22_sa_per_year) %>%
+  mutate(nc_cnt = nc_weeks_per_vsl * nc_weeks_cnt) %>%
+  count(wt = nc_cnt, name = "total_nc_22_sa_per_year") %>%
   glimpse()
 # 26466 - correct, see "Percent compliant per year and permit region"
 
 non_compl_weeks_per_year_22_sa %>% summarise(sum(nc_weeks_cnt))
-# 117
 # 1289 (22 sa)
 
-non_compl_weeks_per_year_22_sa %>%
+non_compl_weeks_per_year_22_sa_perc <-
+  non_compl_weeks_per_year_22_sa %>%
   mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
-  arrange(perc) %>%
-  mutate(perc_labels = scales::percent(perc)) %>% 
-  View()
+  arrange(desc(perc)) %>%
+  mutate(perc_labels = scales::percent(perc))
+
+View(non_compl_weeks_per_year_22_sa_perc)
 #   `sum(nc_weeks_per_vsl)`
 #                     <int>
 # 1                    1378
+
+# ggplot(df, aes(x = "", y = perc, fill = answer)) +
+#   geom_col() +
+#   geom_text(aes(label = labels),
+#             position = position_stack(vjust = 0.5)) +
+#   
+# okabe <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# mutate(dates_index = as.factor(year_wave),
+#     year_wave = factor(year_wave, levels = unique(dates_index)) %>%
+#   ggplot(aes(x = year_wave,
+#            y = cnt_index) +
+#          geom_point())
+
+non_compl_weeks_per_year_22_sa_perc %>% 
+  #   mutate(order = fct_reorder(
+  #   as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species),
+  #   species_itis
+  # )) %>%
+  mutate(order = fct_reorder(
+    as.factor(nc_weeks_per_vsl),
+    perc
+  )) %>%
+  # glimpse()
+  ggplot(
+     aes(x = order, y = perc)) +
+  geom_col(fill = 'lightblue') +
+  ylim(0, 0.1) +
+  geom_text(aes(label = perc_labels),
+            position = position_stack(vjust = 0.5))
+# +
+#   scale_fill_manual(okabe)
+# withr::with_options(
+#   list(ggplot2.discrete.fill = okabe),
+
 
 ## get percents ---- 
 non_compl_weeks_per_year %>%
