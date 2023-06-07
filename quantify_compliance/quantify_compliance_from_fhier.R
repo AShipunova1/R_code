@@ -809,4 +809,22 @@ compl_clean %>%
          year == "2022") %>% dim()
 # 52 == 33 + 19
 
-# 2) split nc_percentage into 
+# 2) split nc_percentage into 4 buckets 
+# 3) count how many in each bucket
+# 4) cnt percents of (3)
+
+# 2) split nc_percentage into 4 buckets 
+percent_compl_limits <-
+  quantile(x <- percent_compl_only_c$percent_compl)
+percent_compl_cut_labels <- c('1-25', '25-52', '52-81', '81-100')
+cuts <-
+  cut(
+    compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl,
+    breaks = percent_compl_limits,
+    labels = percent_compl_cut_labels
+  )
+
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts <-
+  cbind(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short, cuts)
+
+View(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts)
