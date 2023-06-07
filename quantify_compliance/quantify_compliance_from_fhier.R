@@ -329,6 +329,8 @@ compl_clean_sa_vs_gom_m_int %>% count(permit_sa_gom, compliant_)
 compl_vs_non_compl_per_year_cnt <-
   compl_clean_sa_vs_gom_m_int %>% count(permit_sa_gom, compliant_, year, name = "cnt_compl_per_perm_year")
 
+glimpse(compl_vs_non_compl_per_year_cnt)
+
 total_per_permit_year <-
   compl_vs_non_compl_per_year_cnt %>%
   count(permit_sa_gom,
@@ -347,7 +349,7 @@ compl_percent_per_permit_year <-
 
 # View(compl_percent_per_permit_year)
 
-# plot percent compl vs. non-compl ----
+## plot percent compl vs. non-compl ----
 
 compl_percent_per_permit_year %>%
   filter(year == "2022") %>%
@@ -376,7 +378,7 @@ compl_pie_chart <- function(my_df, y_p_title) {
     return()
 }
 
-# split by year_permit_region without nesting ----
+## split by year_permit_region without nesting ----
 compl_percent_per_permit_year_1col <-
   compl_percent_per_permit_year %>%
   # compute on a data frame a row-at-a-time
@@ -390,9 +392,9 @@ compl_percent_per_permit_year_spl1 <-
   compl_percent_per_permit_year_1col %>% 
   split(as.factor(compl_percent_per_permit_year_1col$year_reg))
 
-View(compl_percent_per_permit_year_spl1)
+# View(compl_percent_per_permit_year_spl1)
 
-# make all plots ----
+## make all plots ----
 all_gg_compl_percent_per_permit_year_spl <-
   names(compl_percent_per_permit_year_spl1) %>%
   map(function(year_region) {
@@ -411,14 +413,14 @@ grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
              # left = my_legend,
              ncol = 3)
 
-# percent per year ----
-df <- data %>% 
-  group_by(answer) %>% # Variable to be transformed
-  count() %>% 
-  ungroup() %>% 
-  mutate(perc = `n` / sum(`n`)) %>% 
-  arrange(perc) %>%
-  mutate(labels = scales::percent(perc))
+# Percent nc weeks per year and region ----
+# df <- data %>% 
+#   group_by(answer) %>% # Variable to be transformed
+#   count() %>% 
+#   ungroup() %>% 
+#   mutate(perc = `n` / sum(`n`)) %>% 
+#   arrange(perc) %>%
+#   mutate(labels = scales::percent(perc))
 
 count_weeks_per_permit_year <-
   compl_clean_sa_vs_gom_m_int %>%
@@ -426,7 +428,7 @@ count_weeks_per_permit_year <-
     count(vessel_official_number, year, permit_sa_gom,
         name = "nc_weeks_per_vsl")
 
-View(count_weeks_per_permit_year)
+# View(count_weeks_per_permit_year)
 
 non_compl_weeks_per_year <-
   count_weeks_per_permit_year %>%
@@ -434,22 +436,39 @@ non_compl_weeks_per_year <-
         name = "nc_weeks_cnt") %>% 
   arrange(nc_weeks_per_vsl)
   
-View(non_compl_weeks_per_year)
+# View(non_compl_weeks_per_year)
 
-non_compl_weeks_per_year %>% 
-  group_by(year, permit_sa_gom) %>% 
-  mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>% 
-  mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>% 
-    arrange(perc) %>%
-  mutate(labels = scales::percent(perc)) %>% 
-    View()
+perc_non_compl_weeks_per_year <-
+  non_compl_weeks_per_year %>%
+  group_by(year, permit_sa_gom) %>%
+  mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>%
+  mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
+  arrange(perc) %>%
+  mutate(perc_labels = scales::percent(perc))
 
-non_compl_weeks_per_year %>% filter(year == "2022", permit_sa_gom == "both") %>% count(wt = nc_weeks_cnt)
+View(perc_non_compl_weeks_per_year)
+
+### test one category ----
+non_compl_weeks_per_year_22_sa <-
+  non_compl_weeks_per_year %>% 
+  filter(year == "2022", permit_sa_gom == "sa_only")
+
+str(non_compl_weeks_per_year_22_sa)
+
+non_compl_weeks_per_year_22_sa %>% count(wt = nc_weeks_cnt)
 # 1   117
 
-non_compl_weeks_per_year %>% filter(year == "2022", permit_sa_gom == "both") %>% summarise(sum(nc_weeks_cnt))
+non_compl_weeks_per_year_22_sa %>% summarise(sum(nc_weeks_cnt))
 # 117
 
+non_compl_weeks_per_year_22_sa %>%
+  mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
+  arrange(perc) %>%
+  mutate(perc_labels = scales::percent(perc)) %>% 
+  View()
+
+
+## get percents ---- 
 non_compl_weeks_per_year %>%
   group_by(year, permit_sa_gom) %>%
   mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>%
