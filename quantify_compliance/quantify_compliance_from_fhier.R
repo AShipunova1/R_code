@@ -436,7 +436,7 @@ count_weeks_per_permit_year <-
     count(vessel_official_number, year, permit_sa_gom,
         name = "nc_weeks_per_vsl")
 
-# View(count_weeks_per_permit_year)
+View(count_weeks_per_permit_year)
 
 non_compl_weeks_per_year <-
   count_weeks_per_permit_year %>%
@@ -457,6 +457,17 @@ perc_non_compl_weeks_per_year <-
 View(perc_non_compl_weeks_per_year)
 
 ### test one category ----
+count_weeks_per_permit_year %>% filter(year == "2022", permit_sa_gom == "sa_only", nc_weeks_per_vsl == 31) %>% dim()
+# 15
+# MI9152BZ
+
+compl_clean %>% 
+  filter(vessel_official_number == "MI9152BZ",
+         year == "2022") %>% 
+  count(compliant_)
+# 1 NO            31
+# 31
+
 non_compl_weeks_per_year_22_sa <-
   non_compl_weeks_per_year %>% 
   filter(year == "2022", permit_sa_gom == "sa_only")
@@ -478,6 +489,7 @@ non_compl_weeks_per_year_22_sa %>%
 non_compl_weeks_per_year_22_sa %>% summarise(sum(nc_weeks_cnt))
 # 1289 (22 sa)
 
+View(non_compl_weeks_per_year_22_sa)
 non_compl_weeks_per_year_22_sa_perc <-
   non_compl_weeks_per_year_22_sa %>%
   mutate(perc = nc_weeks_cnt * 100 / sum(nc_weeks_cnt)) %>%
@@ -563,3 +575,26 @@ non_compl_weeks_per_year %>%
 # 4 2023  both                                          4880
 # 5 2023  gom_only                                         6
 # 6 2023  sa_only                                      29064
+
+# percent should be by total entries for each vessel ----
+## per year ----
+
+# count_weeks_per_permit_year %>% filter(year == "2022", permit_sa_gom == "sa_only", nc_weeks_per_vsl == 31) %>% dim()
+# # 15
+# # MI9152BZ
+# 
+# compl_clean %>% 
+#   filter(vessel_official_number == "MI9152BZ",
+#          year == "2022") %>% 
+#   count(compliant_)
+
+compl_clean_sa_vs_gom_m_int %>% 
+  count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel") %>% 
+    filter(vessel_official_number == "MI9152BZ",
+         year == "2022") %>%
+  glimpse()
+# $ year                   <chr> "2022"
+# $ permit_sa_gom          <chr> "sa_only"
+# $ vessel_official_number <chr> "MI9152BZ"
+# $ compliant_             <chr> "NO"
+# $ weeks_per_vessel       <int> 31
