@@ -758,5 +758,55 @@ labels <- c('0-25', '25-50', '50-75')
 # , '75-100'
 # length(labels)
 cuts <- cut(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl, breaks = breaks, labels = labels)
-cars <- cbind(cars, cuts)
-head(cars)
+cars <- cbind(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short, cuts)
+View(cars)
+
+# ---
+percent_compl_limits <-
+  quantile(x <- percent_compl_only_c$percent_compl)
+percent_compl_cut_labels <- c('1-25', '25-52', '52-81', '81-100')
+cuts <-
+  cut(
+    compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl,
+    breaks = percent_compl_limits,
+    labels = percent_compl_cut_labels
+  )
+
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts <-
+  cbind(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short, cuts)
+
+View(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts)
+
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts %>% 
+  filter(cuts == '81-100') %>% 
+  count(percent_compl, name = "amount_of_occurences") %>% 
+  count(wt = amount_of_occurences)
+# 616
+#    percent_compl   amount_of_occurences
+# 1       81.25000   1
+# 2       82.22222   1
+# 3       83.33333   1
+# ...
+# 36      97.91667   1
+# 37      98.07692   2
+# 38     100.00000 561
+
+# the Workflow
+# 1)
+# count percents - a given vsl non_compl per counted weeks total
+# a vsl "A" has 52 w on record for 2022, was nc - 19
+# 19*100/52 = 36.53846
+# the vsl "A" was non-compliant 36.5% of all its records in 2022
+
+compl_clean_sa_vs_gom_m_int_cnt_w %>%
+  filter(vessel_official_number == "1020822",
+         year == "2022") %>% glimpse()
+# $ compliant_             <chr> "NO", "YES"
+# $ weeks_per_vessel       <int> 19, 33
+
+compl_clean %>%
+  filter(vessel_official_number == "1020822",
+         year == "2022") %>% dim()
+# 52 == 33 + 19
+
+# 2) split nc_percentage into 
