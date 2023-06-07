@@ -726,13 +726,19 @@ split(percent_compl_only_c$percent_compl,
 # View(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short)
 # https://stackoverflow.com/questions/66404334/how-to-divide-column-in-dataset-into-three-groups-tertiles-based-on-another-co
 q_limits <-
-  quantile(
-    compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl,
-    
-    prob = 0:4 / 4,
-    names = T
-  )
+  quantile(x <-
+             compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl)
+# ,
+    # 
+    # prob = 0:4 / 4,
+    # names = T
+  # )
            # seq(0, 4, 1/4), na.rm = TRUE)
+
+# compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short %>%
+  # mutate(qq <-
+cut(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl, q_limits, include.lowest = TRUE)
+           # )
 
 
 compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short %>%
@@ -741,3 +747,13 @@ compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short %>%
   #          quantile(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl,
   #                prob = 0:4 / 4, names = FALSE)) %>% 
   str()
+
+# ---
+# https://stackoverflow.com/questions/66404334/how-to-divide-column-in-dataset-into-three-groups-tertiles-based-on-another-co
+cars <- mtcars
+breaks <- quantile(cars$mpg, c(.33, .67, 1))
+breaks <- c(0, breaks)
+labels <- c('low', 'medium', 'high')
+cuts <- cut(cars$mpg, breaks = breaks, labels = labels)
+cars <- cbind(cars, cuts)
+head(cars)
