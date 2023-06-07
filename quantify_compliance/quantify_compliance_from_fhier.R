@@ -683,16 +683,20 @@ compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
   filter(year_month == "Dec 2022") %>% 
   filter(compliant_ == "NO") %>%
   select(
-    vessel_official_number,
-    weeks_per_vessel_per_compl,
-    total_weeks_per_vessel,
+    # vessel_official_number,
+    # weeks_per_vessel_per_compl,
+    # total_weeks_per_vessel,
     percent_compl
   ) %>%
-  unique() %>%
-  count(percent_compl, name = "cnt_percent_nc") %>%
-  arrange(desc(cnt_percent_nc)) %>%
-  # count(wt = cnt_percent_nc)
-  # 1289 - total nc weeks
-  mutate(pp = cnt_percent_nc * 100 / sum(cnt_percent_nc)) %>%
-  # mutate(pp = cnt_percent_nc * 100 / 284) %>%
-  View()
+  unique() ->
+  percent_compl_only_c
+# %>%
+  # mutate(quantile1 = quantile(x <- percent_compl)) %>%
+  # # mutate(quantile = dplyr::ntile(percent_compl, 10)) %>%
+  str()
+  # View()
+  
+  View(percent_compl_only_c)
+# 
+  # summary()
+quantile(x <- percent_compl_only_c$percent_compl)
