@@ -850,9 +850,11 @@ count_weeks_per_vsl_permit_year_compl_p %>%
 # $ percent_compl              <dbl> 63.46154, 36.53846
 
 # 2) split nc_percentage into 4 buckets ----
-## 2a split df by year and permit 
-count_weeks_per_vsl_permit_year_compl_p_nc_short <-
-  count_weeks_per_vsl_permit_year_compl_p %>%
+## 2a split df by year and permit without nesting ----
+
+# Only non-compl and fewer cols
+count_weeks_per_vsl_permit_year_compl_p_short <-
+  count_weeks_per_vsl_permit_year_compl_p %>% 
   filter(compliant_ == "NO") %>%
   select(
     year,
@@ -864,23 +866,44 @@ count_weeks_per_vsl_permit_year_compl_p_nc_short <-
   ) %>%
   unique()
 
-View(count_weeks_per_vsl_permit_year_compl_p_nc_short)
-percent_compl_limits <-
-  quantile(x <- count_weeks_per_vsl_permit_year_compl_p_nc_short$percent_compl)
+# add a column
+count_weeks_per_vsl_permit_year_compl_p_add_c <-
+  count_weeks_per_vsl_permit_year_compl_p_short %>%
+  # compute on a data frame a row-at-a-time
+  dplyr::rowwise() %>%
+  mutate(year_reg = 
+           paste(year, permit_sa_gom)) %>% 
+  # return to the default colwise operations
+  dplyr::ungroup()
+  
+# split
+count_weeks_per_vsl_permit_year_compl_p_short_spl <-
+  count_weeks_per_vsl_permit_year_compl_p_add_c %>% 
+  split(as.factor(count_weeks_per_vsl_permit_year_compl_p_add_c$year_reg))
+
+## 2b) get buckets for each year/permit region ----
+View(count_weeks_per_vsl_permit_year_compl_p_short_spl)
+
+count_weeks_per_vsl_permit_year_compl_p_short_spl_1 <-
+  count_weeks_per_vsl_permit_year_compl_p_short_spl %>% 
+  purrr::map_df(function(my_df){
+    browser()
+    percent_compl_limits <-
+      quantile(x <- my_df$percent_compl)
+    percent_compl_cut_labels <-
+      c('0-25%', '25-50', '50-75', '75-100')
+    cuts <-
+      cut(my_df$percent_compl,
+          breaks = percent_compl_limits,
+          labels = percent_compl_cut_labels)
+    
+    res <- cbind(my_df, cuts)
+    return(res)
+  })
+
   #       0%        25%        50%        75%       100% 
   # 1.851852  12.740385  42.997199  95.454545 100.000000 
 
-percent_compl_cut_labels <- c('0-25%', '25-50', '50-75', '75-100')
-
-cuts <-
-  cut(
-    count_weeks_per_vsl_permit_year_compl_p_nc_short$percent_compl,
-    breaks = percent_compl_limits,
-    labels = percent_compl_cut_labels
-  )
-
-count_weeks_per_vsl_permit_year_compl_p_nc_short_cuts <-
-  cbind(count_weeks_per_vsl_permit_year_compl_p_nc_short, cuts)
 
 # View(count_weeks_per_vsl_permit_year_compl_p_nc_short_cuts)
 ### test 2 ----
