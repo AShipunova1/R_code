@@ -343,6 +343,7 @@ counts_join <-
             total_per_permit_year)
 # Joining with `by = join_by(permit_sa_gom, year)`
 
+### Percent compliant per year and permit region ----
 compl_percent_per_permit_year <-
   counts_join %>%
   mutate(percent_compl = cnt_compl_per_perm_year * 100 / total_compl_per_perm_year)
@@ -399,7 +400,14 @@ all_gg_compl_percent_per_permit_year_spl <-
   names(compl_percent_per_permit_year_spl1) %>%
   map(function(year_region) {
     # browser()
-    y_p_title <- year_region
+    total_non_compl_df <-
+      compl_percent_per_permit_year_spl1[[year_region]] %>% 
+      filter(compliant_ == "NO") %>% 
+      select(cnt_compl_per_perm_year)
+    
+    y_p_title <- 
+      paste(year_region, total_non_compl_df[[1]], "non compl")
+    # y_p_title <- year_region
     data_by_year <-
       compl_percent_per_permit_year_spl1[[year_region]] %>%
       compl_pie_chart(y_p_title)
