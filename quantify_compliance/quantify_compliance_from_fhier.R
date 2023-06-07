@@ -884,34 +884,34 @@ count_weeks_per_vsl_permit_year_compl_p_short_spl <-
 ## 2b) get buckets for each year/permit region ----
 View(count_weeks_per_vsl_permit_year_compl_p_short_spl)
 
-count_weeks_per_vsl_permit_year_compl_p_short_spl_1 <-
+count_weeks_per_vsl_permit_year_compl_p_short_cuts <-
   count_weeks_per_vsl_permit_year_compl_p_short_spl %>% 
   purrr::map_df(function(my_df){
-    browser()
-    percent_compl_limits <-
-      quantile(x <- my_df$percent_compl)
-    percent_compl_cut_labels <-
-      c('0-25%', '25-50', '50-75', '75-100')
-    cuts <-
-      cut(my_df$percent_compl,
-          breaks = percent_compl_limits,
-          labels = percent_compl_cut_labels)
-    
-    res <- cbind(my_df, cuts)
-    return(res)
+    # browser()
+    my_df %>%
+      mutate(percentage_rank = 
+               case_when(
+                 percent_compl < 25 ~ '0-24%',
+                 25 <= percent_compl &
+                   percent_compl < 50 ~ '25-49%',
+                 50 <= percent_compl &
+                   percent_compl < 75 ~ '50-74%',
+                 75 <= percent_compl ~ '75-100%'
+               )
+      ) %>% 
+      return()
   })
 
-  #       0%        25%        50%        75%       100% 
-  # 1.851852  12.740385  42.997199  95.454545 100.000000 
+View(count_weeks_per_vsl_permit_year_compl_p_short_cuts)
 
-
-# View(count_weeks_per_vsl_permit_year_compl_p_nc_short_cuts)
 ### test 2 ----
-count_weeks_per_vsl_permit_year_compl_p_nc_short_cuts %>% 
-  filter(cuts == '75-100') %>% 
-  count(percent_compl, name = "amount_of_occurences") 
-# %>% 
-#   count(wt = amount_of_occurences)
-# 616
+count_weeks_per_vsl_permit_year_compl_p_short_cuts %>% 
+  filter(percentage_rank == '75-100%') %>%
+  filter(year_reg == "2023 sa_only") %>% 
+  count(percent_compl, year_reg,
+        name = "amount_of_occurences") %>%
+  glimpse()
+  # count(wt = amount_of_occurences)
+
 
 
