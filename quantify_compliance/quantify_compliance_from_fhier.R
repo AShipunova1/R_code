@@ -750,10 +750,13 @@ compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short %>%
 
 # ---
 # https://stackoverflow.com/questions/66404334/how-to-divide-column-in-dataset-into-three-groups-tertiles-based-on-another-co
-cars <- mtcars
-breaks <- quantile(cars$mpg, c(.33, .67, 1))
-breaks <- c(0, breaks)
-labels <- c('low', 'medium', 'high')
-cuts <- cut(cars$mpg, breaks = breaks, labels = labels)
+# cars <- compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short
+breaks <- quantile(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl, c(0, .25, .5, .75))
+# length(breaks)
+# breaks <- c(0, breaks)
+labels <- c('0-25', '25-50', '50-75')
+# , '75-100'
+# length(labels)
+cuts <- cut(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl, breaks = breaks, labels = labels)
 cars <- cbind(cars, cuts)
 head(cars)
