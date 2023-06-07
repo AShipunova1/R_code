@@ -111,13 +111,15 @@ non_compliant_dec_2022 %>%
   filter(vessel_official_number == "MI1381CC")
   filter(id_n == 1)
 
+# get percentage ----
 # View(sa_compl_clean_sa_vs_gom_m_int_non_c)
 sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   get_non_compl_week_counts_percent(sa_compl_clean_sa_vs_gom_m_int_non_c,
-                                    "vessel_official_number")
+                              "vessel_official_number")
 
 sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos <-
   sa_compl_clean_sa_vs_gom_m_int_non_c_perc %>% 
+  # don't show if no data
   filter(non_compl_in_month > 0)
 View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc_pos)
 
@@ -416,3 +418,10 @@ grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
              # left = my_legend,
              ncol = 3)
 
+# percent per year ----
+sa_percent_per_permit_year <-
+  sa_compl_clean_sa_vs_gom_m_int_non_c_perc %>%
+  count(non_compl_weeks,
+        wt = percent_nc,
+        name = "total_perc_year")
+View(sa_percent_per_permit_year)
