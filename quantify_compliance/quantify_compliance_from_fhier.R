@@ -813,18 +813,82 @@ compl_clean %>%
 # 3) count how many in each bucket
 # 4) cnt percents of (3)
 
-# 2) split nc_percentage into 4 buckets 
+# run workflow ----
+# 1) count percents - a given vsl non_compl per counted weeks total ----
+## 1a) how many weeks each vessel was present ----
+count_weeks_per_vsl_permit_year_compl <-
+  compl_clean_sa_vs_gom_m_int %>%
+  add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
+
+# View(count_weeks_per_vsl_permit_year_compl)
+
+## 1b) percent of compl/non-compl per total weeks each vsl was present ----
+count_weeks_per_vsl_permit_year_compl_p <-
+  count_weeks_per_vsl_permit_year_compl %>%
+  mutate(percent_compl =
+           weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
+
+# View(count_weeks_per_vsl_permit_year_compl_p)
+### test ----
+count_weeks_per_vsl_permit_year_compl_p %>%
+  filter(vessel_official_number == "1020822",
+         year == "2022") %>%
+  select(
+    year,
+    permit_sa_gom,
+    compliant_,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) %>%
+  unique() %>%
+  glimpse()
+# $ compliant_                 <chr> "YES", "NO"
+# $ weeks_per_vessel_per_compl <int> 33, 19
+# $ total_weeks_per_vessel     <int> 52, 52
+# $ percent_compl              <dbl> 63.46154, 36.53846
+
+# 2) split nc_percentage into 4 buckets ----
+## 2a split df by year and permit 
+count_weeks_per_vsl_permit_year_compl_p_nc_short <-
+  count_weeks_per_vsl_permit_year_compl_p %>%
+  filter(compliant_ == "NO") %>%
+  select(
+    year,
+    permit_sa_gom,
+    vessel_official_number,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) %>%
+  unique()
+
+View(count_weeks_per_vsl_permit_year_compl_p_nc_short)
 percent_compl_limits <-
-  quantile(x <- percent_compl_only_c$percent_compl)
-percent_compl_cut_labels <- c('1-25', '25-52', '52-81', '81-100')
+  quantile(x <- count_weeks_per_vsl_permit_year_compl_p_nc_short$percent_compl)
+  #       0%        25%        50%        75%       100% 
+  # 1.851852  12.740385  42.997199  95.454545 100.000000 
+
+percent_compl_cut_labels <- c('0-25%', '25-50', '50-75', '75-100')
+
 cuts <-
   cut(
-    compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl,
+    count_weeks_per_vsl_permit_year_compl_p_nc_short$percent_compl,
     breaks = percent_compl_limits,
     labels = percent_compl_cut_labels
   )
 
-compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts <-
-  cbind(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short, cuts)
+count_weeks_per_vsl_permit_year_compl_p_nc_short_cuts <-
+  cbind(count_weeks_per_vsl_permit_year_compl_p_nc_short, cuts)
 
-View(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts)
+# View(count_weeks_per_vsl_permit_year_compl_p_nc_short_cuts)
+### test 2 ----
+count_weeks_per_vsl_permit_year_compl_p_nc_short_cuts %>% 
+  filter(cuts == '75-100') %>% 
+  count(percent_compl, name = "amount_of_occurences") 
+# %>% 
+#   count(wt = amount_of_occurences)
+# 616
+
+
