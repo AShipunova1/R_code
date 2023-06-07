@@ -696,7 +696,27 @@ compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
   str()
   # View()
   
-  View(percent_compl_only_c)
+View(percent_compl_only_c)
 # 
   # summary()
 quantile(x <- percent_compl_only_c$percent_compl)
+#       0%        25%        50%        75%       100% 
+# 1.923077  24.264706  52.000000  81.101190 100.000000 
+
+percent_compl_only_c %>% 
+  mutate(quantile1 = ntile(percent_compl, 4)) %>% 
+  count(quantile1)
+#   quantile1     n
+#       <int> <int>
+# 1         1    27
+# 2         2    27
+# 3         3    27
+# 4         4    26
+
+split(percent_compl_only_c$percent_compl,
+      cut(
+        percent_compl_only_c$percent_compl,
+        quantile(percent_compl_only_c$percent_compl,
+                 prob = 0:4 / 4, names = FALSE),
+        include = TRUE
+      ))
