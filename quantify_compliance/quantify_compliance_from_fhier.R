@@ -676,36 +676,37 @@ compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
   # mutate(pp = cnt_percent_nc * 100 / 284) %>%
   View()
 
-# by month?
-compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
+# by quantile
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short <-
+  compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
   filter(permit_sa_gom == "sa_only",
          year == "2022") %>%
-  filter(year_month == "Dec 2022") %>% 
+  # filter(year_month == "Dec 2022") %>%
   filter(compliant_ == "NO") %>%
   select(
-    # vessel_official_number,
-    # weeks_per_vessel_per_compl,
-    # total_weeks_per_vessel,
+    vessel_official_number,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
     percent_compl
   ) %>%
-  unique() ->
-  percent_compl_only_c
+  unique()
+# percent_compl_only_c
 # %>%
   # mutate(quantile1 = quantile(x <- percent_compl)) %>%
-  # # mutate(quantile = dplyr::ntile(percent_compl, 10)) %>%
-  str()
+  # mutate(quantile = dplyr::ntile(percent_compl, 4)) %>%
+  # str()
   # View()
   
-View(percent_compl_only_c)
+# View(percent_compl_only_c)
 # 
   # summary()
-quantile(x <- percent_compl_only_c$percent_compl)
+# quantile(x <- percent_compl_only_c$percent_compl)
 #       0%        25%        50%        75%       100% 
 # 1.923077  24.264706  52.000000  81.101190 100.000000 
 
-percent_compl_only_c %>% 
-  mutate(quantile1 = ntile(percent_compl, 4)) %>% 
-  count(quantile1)
+# percent_compl_only_c %>% 
+#   mutate(quantile1 = ntile(percent_compl, 4)) %>% 
+#   count(quantile1)
 #   quantile1     n
 #       <int> <int>
 # 1         1    27
@@ -720,3 +721,23 @@ split(percent_compl_only_c$percent_compl,
                  prob = 0:4 / 4, names = FALSE),
         include = TRUE
       ))
+
+# ---
+# View(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short)
+# https://stackoverflow.com/questions/66404334/how-to-divide-column-in-dataset-into-three-groups-tertiles-based-on-another-co
+q_limits <-
+  quantile(
+    compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl,
+    
+    prob = 0:4 / 4,
+    names = T
+  )
+           # seq(0, 4, 1/4), na.rm = TRUE)
+
+
+compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short %>%
+  mutate(quantile_gr = ntile(percent_compl, 4)) %>% 
+  # mutate(quantile_gr = 
+  #          quantile(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl,
+  #                prob = 0:4 / 4, names = FALSE)) %>% 
+  str()
