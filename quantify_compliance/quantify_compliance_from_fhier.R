@@ -900,8 +900,19 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
   count(percent_compl, year_reg,
         name = "amount_of_occurences") %>%
   arrange(desc(percent_compl)) %>% 
-  # View()
+  View()
   count(wt = amount_of_occurences)
 # 499
 
-
+## total counts for each bucket
+  count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
+    add_count(percent_compl, 
+              year_reg, 
+              percentage_rank,
+              name = "amount_of_occurences") %>%
+    #add_count(percentage_rank, year_reg, amount_of_occurences) %>% 
+        group_by(percentage_rank, year_reg) %>% 
+  summarise(n = n()) %>% 
+#    filter(percentage_rank == "75-100%" & 
+ #            year_reg == "2022 both") %>% 
+    View()
