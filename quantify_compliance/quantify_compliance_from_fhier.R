@@ -1130,3 +1130,53 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
 # $ perc1           <dbl> 33.33333, 66.66667
 # $ percentage_rank <chr> "50-74%", "0-24%"
 # ==
+
+compl_clean_sa_vs_gom_m_int %>% 
+  filter(year == "2023", permit_sa_gom == "gom_only") %>%
+  select(vessel_official_number) %>% 
+  unique() %>% 
+  dim()
+# 998
+
+compl_clean_sa_vs_gom_m_int %>% 
+  filter(year == "2023", permit_sa_gom == "gom_only") %>%
+  select(vessel_official_number, compliant_) %>% 
+  unique() %>% 
+  count(compliant_)
+# not uniq
+# 1 NO            13
+# 2 YES        18429
+
+# uniq
+#   compliant_     n
+#   <chr>      <int>
+# 1 NO             3
+# 2 YES          998
+
+compl_clean_sa_vs_gom_m_int %>% 
+  filter(year == "2023",
+         permit_sa_gom == "gom_only",
+         compliant_ == "NO") %>%
+  count(vessel_official_number) %>% glimpse()
+# $ vessel_official_number <chr> "1247024", "1298355", "FL4749LH"
+# $ n                      <int> 11, 1, 1
+
+# tot_nc_weeks 13
+# perc 13:100% 11:x% 11*100/13
+# 84.61538%  7.692308%  7.692308%
+# "1247024", "1298355", "FL4749LH"
+# 1*100/13
+
+# ===
+# compl_clean_sa_vs_gom_m_int_cnt_w1 <-
+compl_clean_sa_vs_gom_m_int %>%
+  select(year, 
+         permit_sa_gom, 
+         vessel_official_number, 
+         compliant_)
+
+  add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  filter(compliant_ == "NO",
+         year == "2022",
+         permit_sa_gom == "gom_only") %>%
+  View()
