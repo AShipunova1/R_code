@@ -929,24 +929,25 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
 # [1] 117
 
 ### total in bucket ----
-count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_perc <-
+count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot <-
   count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
-  # total cnt per year, region
-  # group_by(year_reg) %>% 
-  # summarise(total_per_y_r = sum(cnt_in_bucket)) %>% glimpse()
-  add_count(year_reg, wt = cnt_in_bucket, name = "total_per_y_r") %>%
-  filter(year_reg == "2022 both") %>%
   select(year_reg,
          percentage_rank,
-         cnt_in_bucket,
-         total_per_y_r) %>%
+         cnt_in_bucket) %>%
   unique() %>%
-  glimpse()
+  # total cnt per year, region
+  add_count(year_reg, wt = cnt_in_bucket, name = "total_per_y_r")
+# %>%
+#   filter(year_reg == "2022 both")
   
+View(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot)
+
+count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
+  count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot %>%
   mutate(percent_per_y_r = cnt_in_bucket * 100 / total_per_y_r) %>%
   mutate(perc_labels = paste0(round(percent_per_y_r, 1), "%"))
 
-count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_perc %>%
+count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc %>%
   filter(year_reg == "2022 both") %>%
   select(year_reg,
          percentage_rank,
