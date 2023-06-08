@@ -831,6 +831,23 @@ count_weeks_per_vsl_permit_year_compl_p <-
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 # View(count_weeks_per_vsl_permit_year_compl_p)
+count_weeks_per_vsl_permit_year_compl_p %>%
+  filter(permit_sa_gom == "sa_only", year == "2022") %>%
+  select(vessel_official_number) %>%
+  unique() %>%
+  dim()
+# [1] 2178 
+
+count_weeks_per_vsl_permit_year_compl_p %>%
+  filter(permit_sa_gom == "sa_only", 
+         year == "2022",
+         compliant_ == "NO") %>%
+  select(vessel_official_number) %>%
+  # unique() %>%
+# 1289    Non compliant vsl
+  dim()
+# [1] 26466 non compliant weeks
+
 ### test ----
 count_weeks_per_vsl_permit_year_compl_p %>%
   filter(vessel_official_number == "1020822",
@@ -949,7 +966,8 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   mutate(perc_labels = paste0(round(percent_per_y_r, 1), "%"))
 
 count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc %>%
-  filter(year_reg == "2022 sa_only") %>% View()
+  filter(year_reg  == "2022 both" |
+           year_reg  ==  "2022 gom_only") %>% View()
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc)
 
