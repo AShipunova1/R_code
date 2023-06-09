@@ -22,32 +22,47 @@ compl_clean_sa_vs_gom_m_int %>%
 # vessels
 
 # add year_region column ----
+
 compl_clean_sa_vs_gom_m_int_c <-
   compl_clean_sa_vs_gom_m_int %>%
-  # compute on a data frame a row-at-a-time
-  dplyr::rowwise() %>%
-  mutate(year_region = 
-           paste(year, permit_sa_gom)) %>% 
-  # return to the default colwise operations
-  dplyr::ungroup()
-  
-View(compl_clean_sa_vs_gom_m_int_c2)
-
-compl_clean_sa_vs_gom_m_int_c2 <-
-  compl_clean_sa_vs_gom_m_int %>%
-  # # compute on a data frame a row-at-a-time
-  # dplyr::rowwise() %>%
   mutate(year_region = 
            paste(year, permit_sa_gom))
-# %>% 
-  # return to the default colwise operations
-  # dplyr::ungroup()
 
-identical(compl_clean_sa_vs_gom_m_int_c, compl_clean_sa_vs_gom_m_int_c2)
+# count weeks per vessel, year, region, compl ----
+compl_clean_sa_vs_gom_m_int_c_cnts <-
+  compl_clean_sa_vs_gom_m_int_c %>%
+  add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
+
+## test ----
+nc_2023_gom_only_test <-
+  compl_clean_sa_vs_gom_m_int_c_cnts %>%
+  filter(year_region == "2023 gom_only",
+         compliant_ == "NO") %>%
+  select(vessel_official_number,
+         weeks_per_vessel_per_compl,
+         total_weeks_per_vessel) %>%
+  unique()
+
+head(nc_2023_gom_only_test)
+# 1247024   11  22
+# FL4749LH  1   22
+# 1298355   1   22
+
+compl_clean_sa_vs_gom_m_int_c_cnts %>%
+  filter(year_region == "2023 gom_only",
+         compliant_ == "YES",
+         vessel_official_number == "FL4749LH") %>%
+  select(vessel_official_number,
+         weeks_per_vessel_per_compl,
+         total_weeks_per_vessel) %>%
+  unique()
+# 21  22
+
 # compl vs. non-compl vessels per year, region ----
 
 compl_vs_non_compl_per_year_cnt <-
-  compl_clean_sa_vs_gom_m_int %>% 
+  compl_clean_sa_vs_gom_m_int_c %>% 
   count(permit_sa_gom, compliant_, year, name = "cnt_compl_per_perm_year")
 
 glimpse(compl_vs_non_compl_per_year_cnt)
