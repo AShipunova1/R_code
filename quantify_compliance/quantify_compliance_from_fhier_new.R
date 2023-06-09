@@ -285,4 +285,14 @@ vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
 
   })
 
-gg_all_c_vs_nc_plots[[5]]
+# gg_all_c_vs_nc_plots[[5]]
+
+grid.arrange(grobs = gg_all_c_vs_nc_plots,
+             top = main_title,
+             # left = my_legend,
+             ncol = 3)
+
+# View(vessels_cnt_per_year_reg_compl_tot_perc)
+# TODO: add actual numbers to plots,
+# keep only one legend
+# plots for nc vessels with buckets of weeks
