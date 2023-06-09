@@ -233,42 +233,31 @@ r1 <-
 
 glimpse(r1)  
 
-curr_year_region = "2022 both"
-y_p_title = paste("Percent unique compliant vs. non compliant vessels per year, permit region:", curr_year_region)
+main_title = "Percent unique compliant vs. non compliant vessels per year, permit region"
 
-ggplot(r1,
-       aes(x = is_compliant,
-           y = percent,
-           fill = is_compliant)) +
-  geom_col() +
-  scale_fill_manual(values = c("percent_compl" = "lightgreen",
-                               "percent_non_compl" = "red"),
-                    name = "Is compliant?",
-                    labels = c("Yes", "No")) +
-  ylim(0, 100) +
-  geom_text(aes(label = paste0(round(percent, 1), "%")),
-            position = position_stack(vjust = 0.5)) +
-  labs(title = y_p_title,
-       x = "",
-       y = "")
-my_df <- r1
-plots_for_c_vs_nc_vsls <- function(my_df) {
-  ggplot(my_df,
-         aes(x = is_compliant,
-             y = percent,
-             fill = is_compliant)) +
+curr_year_region = "2022 both"
+y_r_title = curr_year_region
+
+# my_df <- r1
+
+plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
+  
+  one_plot <-
+    my_df %>%
+    ggplot(aes(x = is_compliant,
+               y = percent,
+               fill = is_compliant)) +
     geom_col() +
     ylim(0, 100) +
     geom_text(aes(label = paste0(round(percent, 1), "%")),
               position = position_stack(vjust = 0.5)) +
-    labs(title = y_p_title,
+    labs(title = y_r_title,
          x = "",
          y = "") +
-    # theme(axis.text.x = element_blank()) +
-    scale_x_discrete(# breaks=c("0.5","1","2"),
-      labels = c("Yes", "No")) +
-
-    scale_fill_manual(      values =
+    scale_x_discrete(labels = c("Yes", "No")) +
+    
+    scale_fill_manual(
+      values =
         c(
           "percent_compl" = "lightgreen",
           "percent_non_compl" = "red"
@@ -276,4 +265,24 @@ plots_for_c_vs_nc_vsls <- function(my_df) {
       name = "Is compliant?",
       labels = c("Yes", "No")
     )
+  return(one_plot)
 }
+
+gg_all_c_vs_nc_plots <-
+vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
+  map(function(curr_year_region) {
+    # browser()
+    curr_df <-    
+    vessels_cnt_per_year_reg_compl_tot_perc %>%
+      filter(year_region == curr_year_region) %>%
+  pivot_longer(cols = c(percent_compl,
+                        percent_non_compl),
+               names_to = "is_compliant",
+               values_to = "percent")
+
+    y_r_title = curr_year_region
+    plots_for_c_vs_nc_vsls(curr_df, y_r_title)
+
+  })
+
+gg_all_c_vs_nc_plots[[5]]
