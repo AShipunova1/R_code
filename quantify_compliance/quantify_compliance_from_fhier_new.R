@@ -264,10 +264,11 @@ plots_for_c_vs_nc_vsls <- function(my_df) {
     labs(title = y_p_title,
          x = "",
          y = "") +
-    theme(axis.text.x = element_blank(),
-          axis.text.y = element_blank()) +
-    scale_fill_manual(
-      values =
+    # theme(axis.text.x = element_blank()) +
+    scale_x_discrete(# breaks=c("0.5","1","2"),
+      labels = c("Yes", "No")) +
+
+    scale_fill_manual(      values =
         c(
           "percent_compl" = "lightgreen",
           "percent_non_compl" = "red"
