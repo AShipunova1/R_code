@@ -62,14 +62,26 @@ compl_clean_sa_vs_gom_m_int_c_cnts %>%
 # compl vs. non-compl vessels per year, region ----
 
 compl_vs_non_compl_per_year_cnt <-
-  compl_clean_sa_vs_gom_m_int_c %>% 
-  count(permit_sa_gom, compliant_, year, name = "cnt_compl_per_perm_year")
+  compl_clean_sa_vs_gom_m_int_c_cnts %>% 
+  select(vessel_official_number, year_region, compliant_) %>% 
+  unique() %>% 
+  add_count(compliant_, year_region, name = "cnt_compl_per_perm_year")
 
 glimpse(compl_vs_non_compl_per_year_cnt)
 
-total_per_permit_year <-
+### test ----
+compl_vs_non_compl_per_year_cnt %>%
+  filter(year_region == "2023 gom_only",
+         vessel_official_number == "FL4749LH") %>%
+  glimpse()
+# $ compliant_              <chr> "YES", "NO"
+# $ cnt_compl_per_perm_year <int> 998, 3
+
+# separate vessels non-compliant at least once per year ----
+non_compl_vessel_ids_per_y_r <-
   compl_vs_non_compl_per_year_cnt %>%
-  count(permit_sa_gom,
-        year,
-        wt = cnt_compl_per_perm_year,
-        name = "total_compl_per_perm_year")
+  filter(compliant_ == "NO") %>%
+  select(vessel_official_number, year_region) %>%
+  unique()
+
+View(non_compl_vessel_ids_per_y_r)
