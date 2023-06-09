@@ -219,8 +219,19 @@ vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
       select(compl_vsls, non_compl_vsls) %>% pie()
   })
 
-# install.packages("lessR")
 library(lessR)
 
-PieChart(gend, hole = 0, values = "%", data = gender,
+r1 <-
+  vessels_cnt_per_year_reg_compl_tot_perc %>%
+  filter(year_region == "2022 both") %>%
+  select(compl_vsls, non_compl_vsls) %>%
+  pivot_longer(cols = c(compl_vsls,
+                        non_compl_vsls),
+               names_to = "compl",
+               values_to = "percent") %>%
+  
+
+str(r1)
+
+PieChart(r1, hole = 0, values = "%",
          fill = c("lightblue", "pink"), main = "")
