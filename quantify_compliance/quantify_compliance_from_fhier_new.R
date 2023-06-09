@@ -204,34 +204,41 @@ head(vessels_cnt_per_year_reg_compl_tot)
 
 # get perc non_compl vs. total for each year_region ----
 names(vessels_cnt_per_year_reg_compl_tot)
+
 vessels_cnt_per_year_reg_compl_tot_perc <-
   vessels_cnt_per_year_reg_compl_tot %>% 
   mutate(percent_compl = compl_vsls * 100 / total_vsl_ids_per_y_r) %>% 
-  mutate(perc_labels = paste0(round(percent_compl, 1), "%"))
+  mutate(percent_non_compl = non_compl_vsls * 100 / total_vsl_ids_per_y_r)
+# %>% 
+#   mutate(perc_labels = paste0(round(percent_compl, 1), "%"))
 
 View(vessels_cnt_per_year_reg_compl_tot_perc)
 
-vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
-  map(function(curr_year_region) {
-    browser()
-    vessels_cnt_per_year_reg_compl_tot_perc %>%
-      filter(year_region == curr_year_region) %>%
-      select(compl_vsls, non_compl_vsls) %>% pie()
-  })
-
-library(lessR)
+# vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
+#   map(function(curr_year_region) {
+#     browser()
+#     vessels_cnt_per_year_reg_compl_tot_perc %>%
+#       filter(year_region == curr_year_region) %>%
+#       select(compl_vsls, non_compl_vsls) %>% pie()
+#   })
 
 r1 <-
   vessels_cnt_per_year_reg_compl_tot_perc %>%
   filter(year_region == "2022 both") %>%
-  select(compl_vsls, non_compl_vsls) %>%
-  pivot_longer(cols = c(compl_vsls,
-                        non_compl_vsls),
-               names_to = "compl",
-               values_to = "percent") %>%
-  
+  # select(compl_vsls, non_compl_vsls) %>%
+  pivot_longer(cols = c(percent_compl,
+                        percent_non_compl),
+               names_to = "is_compliant",
+               values_to = "percent")
 
-str(r1)
+View(r1)  
 
-PieChart(r1, hole = 0, values = "%",
-         fill = c("lightblue", "pink"), main = "")
+curr_year_region = "2022 both"
+pie(r1$percent, 
+    labels = paste0(round(r1$percent,
+                                      1), "%"
+                                )
+    ,
+    main = paste("Percent unique compliant vs. non compliant vessels per year, permit region:", curr_year_region)
+    )
+
