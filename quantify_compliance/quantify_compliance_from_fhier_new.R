@@ -251,4 +251,28 @@ ggplot(r1,
   labs(title = y_p_title,
        x = "",
        y = "")
-
+my_df <- r1
+plots_for_c_vs_nc_vsls <- function(my_df) {
+  ggplot(my_df,
+         aes(x = is_compliant,
+             y = percent,
+             fill = is_compliant)) +
+    geom_col() +
+    ylim(0, 100) +
+    geom_text(aes(label = paste0(round(percent, 1), "%")),
+              position = position_stack(vjust = 0.5)) +
+    labs(title = y_p_title,
+         x = "",
+         y = "") +
+    theme(axis.text.x = element_blank(),
+          axis.text.y = element_blank()) +
+    scale_fill_manual(
+      values =
+        c(
+          "percent_compl" = "lightgreen",
+          "percent_non_compl" = "red"
+        ),
+      name = "Is compliant?",
+      labels = c("Yes", "No")
+    )
+}
