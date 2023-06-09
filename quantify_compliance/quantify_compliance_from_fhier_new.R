@@ -85,3 +85,24 @@ non_compl_vessel_ids_per_y_r <-
   unique()
 
 View(non_compl_vessel_ids_per_y_r)
+
+## split by year_region ----
+non_compl_vessel_ids_per_y_r_list <-
+  split(non_compl_vessel_ids_per_y_r,
+        as.factor(non_compl_vessel_ids_per_y_r$year_region))
+  # # remove extra columns in each df
+  #   map(
+  #     .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
+  #                                   )
+  #               )
+  # )
+
+# View(non_compl_vessel_ids_per_y_r_list)
+
+all_compl_vs_non_compl_per_year_cnt_list <-
+  split(compl_vs_non_compl_per_year_cnt,
+        as.factor(compl_vs_non_compl_per_year_cnt$year_region))
+
+# View(all_compl_vs_non_compl_per_year_cnt_list)
+
+
