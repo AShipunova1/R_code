@@ -210,3 +210,17 @@ vessels_cnt_per_year_reg_compl_tot_perc <-
   mutate(perc_labels = paste0(round(percent_compl, 1), "%"))
 
 View(vessels_cnt_per_year_reg_compl_tot_perc)
+
+vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
+  map(function(curr_year_region) {
+    browser()
+    vessels_cnt_per_year_reg_compl_tot_perc %>%
+      filter(year_region == curr_year_region) %>%
+      select(compl_vsls, non_compl_vsls) %>% pie()
+  })
+
+# install.packages("lessR")
+library(lessR)
+
+PieChart(gend, hole = 0, values = "%", data = gender,
+         fill = c("lightblue", "pink"), main = "")
