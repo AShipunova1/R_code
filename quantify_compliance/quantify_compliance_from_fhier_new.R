@@ -133,3 +133,56 @@ compl_only %>%
   filter(year_region == "2023 gom_only") %>% 
   dim()
 # 995  3
+
+# get total unique vessel_ids per year_region ----
+
+compl_only %>% 
+  filter(year_region == "2023 gom_only") %>% 
+  select(compliant_) %>% 
+  table()
+# compliant_
+# YES 
+# 995 
+
+compl_only %>% 
+  filter(year_region == "2023 gom_only") %>% 
+  count(compliant_)
+# 1 YES          995
+
+compl_only_cnts <-
+  compl_only %>% 
+  add_count(year_region, compliant_, name = "compl_vsls") %>% 
+  select(-c(vessel_official_number, compliant_)) %>% 
+  unique()
+
+tail(compl_only_cnts)
+# 4 2023 both     YES           87
+# 5 2023 gom_only YES          995
+# 6 2023 sa_only  YES          521
+
+non_compl_only_cnts <-
+  non_compl_vessel_ids_per_y_r %>%
+  add_count(year_region, name = "non_compl_vsls") %>%
+  select(-vessel_official_number) %>%
+  unique()
+
+tail(non_compl_only_cnts)
+# 1 2022 sa_only   1289
+# 2 2022 both       117
+# 3 2022 gom_only   187
+# 4 2023 sa_only   1384
+# 5 2023 both       244
+# 6 2023 gom_only     3
+
+count_vessels_per_year_reg <-
+  full_join(compl_only_cnts, non_compl_only_cnts)
+# Joining with `by = join_by(year_region)`
+
+head(count_vessels_per_year_reg)
+#   year_region   compl_vsls non_compl_vsls
+# 1 2022 both            257            117
+# 2 2022 gom_only        934            187
+# 3 2022 sa_only         889           1289
+# 4 2023 both             87            244
+# 5 2023 gom_only        995              3
+# 6 2023 sa_only         521           1384
