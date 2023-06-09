@@ -112,7 +112,35 @@ err_desc <- get_compliance_error_definitions()
 
 active_permits_from_pims <- get_permit_data_from_PIMS_csv()
 
-return(compl_clean)
+compl_clean1 <- additional_clean_up(compl_clean)
+
+return(compl_clean1)
+}
+
+additional_clean_up <- function(compl_clean) {
+  # ---- separate SA and GOM permits ----
+  compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
+  
+  # View(compl_clean_sa_vs_gom)
+  
+  # ---- add columns for month and quarter ----
+  compl_clean_sa_vs_gom_m <-
+    compl_clean_sa_vs_gom %>%
+    # add month
+    mutate(year_month = as.yearmon(week_start)) %>%
+    # add quarter
+    mutate(year_quarter = as.yearqtr(week_start))
+  
+  # ---- convert report numbers to numeric ----
+  compl_clean_sa_vs_gom_m_int <-
+    compl_clean_sa_vs_gom_m %>%
+    mutate(
+      captainreports__ = as.integer(captainreports__),
+      negativereports__ = as.integer(negativereports__),
+      gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
+    )
+  
+  return(compl_clean_sa_vs_gom_m_int)
 }
 
 # get data from db ----
@@ -234,5 +262,5 @@ if (exists("get_data_from_param")) {
     get_data_from_db()
   }
 } else {
-  compl_clean <- get_data_from_csv()
+  compl_clean_sa_vs_gom_m_int <- get_data_from_csv()
 }
