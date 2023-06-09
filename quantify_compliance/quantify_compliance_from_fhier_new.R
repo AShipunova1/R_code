@@ -231,14 +231,24 @@ r1 <-
                names_to = "is_compliant",
                values_to = "percent")
 
-View(r1)  
+glimpse(r1)  
 
 curr_year_region = "2022 both"
-pie(r1$percent, 
-    labels = paste0(round(r1$percent,
-                                      1), "%"
-                                )
-    ,
-    main = paste("Percent unique compliant vs. non compliant vessels per year, permit region:", curr_year_region)
-    )
+y_p_title = paste("Percent unique compliant vs. non compliant vessels per year, permit region:", curr_year_region)
+
+ggplot(r1,
+       aes(x = is_compliant,
+           y = percent,
+           fill = is_compliant)) +
+  geom_col() +
+  scale_fill_manual(values = c("percent_compl" = "lightgreen",
+                               "percent_non_compl" = "red"),
+                    name = "Is compliant?",
+                    labels = c("Yes", "No")) +
+  ylim(0, 100) +
+  geom_text(aes(label = paste0(round(percent, 1), "%")),
+            position = position_stack(vjust = 0.5)) +
+  labs(title = y_p_title,
+       x = "",
+       y = "")
 
