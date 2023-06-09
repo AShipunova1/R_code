@@ -201,3 +201,12 @@ head(vessels_cnt_per_year_reg_compl_tot)
 # 4 2023 both     87  244   331
 # 5 2023 gom_only 995 3     998
 # 6 2023 sa_only  521 1384  1905
+
+# get perc non_compl vs. total for each year_region ----
+names(vessels_cnt_per_year_reg_compl_tot)
+vessels_cnt_per_year_reg_compl_tot_perc <-
+  vessels_cnt_per_year_reg_compl_tot %>% 
+  mutate(percent_compl = compl_vsls * 100 / total_vsl_ids_per_y_r) %>% 
+  mutate(perc_labels = paste0(round(percent_compl, 1), "%"))
+
+View(vessels_cnt_per_year_reg_compl_tot_perc)
