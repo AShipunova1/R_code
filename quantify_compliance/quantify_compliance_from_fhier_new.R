@@ -174,11 +174,11 @@ tail(non_compl_only_cnts)
 # 5 2023 both       244
 # 6 2023 gom_only     3
 
-count_vessels_per_year_reg <-
+vessels_cnt_per_year_reg_compl <-
   full_join(compl_only_cnts, non_compl_only_cnts)
 # Joining with `by = join_by(year_region)`
 
-head(count_vessels_per_year_reg)
+head(vessels_cnt_per_year_reg_compl)
 #   year_region   compl_vsls non_compl_vsls
 # 1 2022 both            257            117
 # 2 2022 gom_only        934            187
@@ -186,3 +186,18 @@ head(count_vessels_per_year_reg)
 # 4 2023 both             87            244
 # 5 2023 gom_only        995              3
 # 6 2023 sa_only         521           1384
+
+# add total vessels_cnt_per_year_reg ----
+vessels_cnt_per_year_reg_compl_tot <-
+  vessels_cnt_per_year_reg_compl %>% 
+  # compute on a data frame a row-at-a-time
+  dplyr::rowwise() %>%
+  mutate(total_vsl_ids_per_y_r = sum(compl_vsls, non_compl_vsls)) %>% 
+  # return to the default colwise operations
+  dplyr::ungroup()
+
+head(vessels_cnt_per_year_reg_compl_tot)
+                # YES NO    total
+# 4 2023 both     87  244   331
+# 5 2023 gom_only 995 3     998
+# 6 2023 sa_only  521 1384  1905
