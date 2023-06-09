@@ -90,12 +90,6 @@ View(non_compl_vessel_ids_per_y_r)
 non_compl_vessel_ids_per_y_r_list <-
   split(non_compl_vessel_ids_per_y_r,
         as.factor(non_compl_vessel_ids_per_y_r$year_region))
-  # # remove extra columns in each df
-  #   map(
-  #     .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
-  #                                   )
-  #               )
-  # )
 
 # View(non_compl_vessel_ids_per_y_r_list)
 
@@ -103,6 +97,32 @@ all_compl_vs_non_compl_per_year_cnt_list <-
   split(compl_vs_non_compl_per_year_cnt,
         as.factor(compl_vs_non_compl_per_year_cnt$year_region))
 
-# View(all_compl_vs_non_compl_per_year_cnt_list)
+View(all_compl_vs_non_compl_per_year_cnt_list)
+# all_compl_vs_non_compl_per_year_cnt_list[["2023 gom_only"]][["cnt_compl_per_perm_year"]] %>% 
+# unique()
+# [1] 998   3
 
 
+# If a vessel was non-compliant even once during a year, it is non_compliant for that year.
+# remove non-compl vessels from compliant = 
+# total unique vessels number vs. non-compl vessels
+
+compl_only <-
+  names(all_compl_vs_non_compl_per_year_cnt_list) %>% 
+  map_df(
+    function(current_year_region) {
+      browser()
+      curr_df <-
+        all_compl_vs_non_compl_per_year_cnt_list[[current_year_region]]
+      
+      curr_non_compl_vsl_ids <- non_compl_vessel_ids_per_y_r %>%
+        filter(year_region == current_year_region) %>%
+        select(vessel_official_number)
+      
+      curr_df_compl_only <-
+        curr_df %>%
+        filter(!(vessel_official_number %in% curr_non_compl_vsl_ids$vessel_official_number))
+      
+      return(curr_df_compl_only)
+    }
+)
