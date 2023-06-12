@@ -401,18 +401,19 @@ get_p_buckets <- function(my_df, field_name) {
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1 <- 
   get_p_buckets(count_weeks_per_vsl_permit_year_n_compl_p_short,
                 "percent_compl")
-View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts)
 
-all.equal(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts, count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1)
-# T
+# all.equal(
+#   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts,
+#   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1
+# )
 
 ### test 2 ----
-count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>% 
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1 %>% 
   filter(percent_n_compl_rank == '75-100%') %>%
   filter(year_region == "2023 sa_only") %>%
-  count(!!sym(field_name), year_region,
+  count(percent_compl, year_region,
         name = "amount_of_occurences") %>%
-  arrange(desc(!!sym(field_name))) %>% 
+  arrange(desc(percent_compl)) %>% 
   # View()
   count(wt = amount_of_occurences)
 # 499
