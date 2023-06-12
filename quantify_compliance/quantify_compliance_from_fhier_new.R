@@ -827,14 +827,20 @@ gg_month_nc_perc <-
     }
   ) 
 
-gg_month_nc_perc[[5]][[5]]
+# gg_month_nc_perc[[5]][[5]]
 
-super_title = "Percent distribution of non compliant vessels per year & region"
+super_title = "Percent distribution of non compliant vessels per year, month & region"
 
-grid.arrange(grobs =
-               gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc,
-             top = super_title,
-             # left = my_legend,
-             ncol = 3)
+all_maps <-
+  gg_month_nc_perc %>%
+  map(function(curr_year_reg_list) {
+    arrangeGrob(grobs =
+                   curr_year_reg_list,
+                 top = super_title,
+                 # left = my_legend,
+                 ncol = 3) %>% 
+      return()
+  })
 # percent_distribution.png
 
+gridExtra::grid.draw(all_maps[[5]])
