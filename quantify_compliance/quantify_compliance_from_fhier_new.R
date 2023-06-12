@@ -758,6 +758,42 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r <-
 
 # View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r)
 
+sorted_year_regions <- names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r) %>%
+  sort()
+# [1] "2022 both"     "2022 gom_only" "2022 sa_only" 
+# [4] "2023 both"     "2023 gom_only" "2023 sa_only" 
+
+get_one_y_month_data_to_plot <-
+  function(my_df, curr_year_month) {
+    my_df %>%
+      filter(year_month == curr_year_month) %>%
+      select(perc_vsls_per_y_r_b,
+             percent_n_compl_rank,
+             perc_labels) %>%
+      unique() %>% 
+      return()
+  }
+
+function(my_df, curr_year_region, curr_year_month) {
+  # browser()
+  curr_title <- paste(curr_year_region, curr_year_month)
+  
+  one_plot <-
+    ggplot(my_df,
+           aes(x = percent_n_compl_rank,
+               y = perc_vsls_per_y_r_b)) +
+    geom_col(fill = "skyblue") +
+    labs(title = curr_title,
+         x = "Non compliant",
+         y = "% nc vsls per year, month & region") +
+    geom_text(aes(label = perc_labels),
+              position = position_stack(vjust = 0.5)) +
+    ylim(0, 100)
+  
+  return(one_plot)
+}
+
+
 gg_month_nc_perc <-
   names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r) %>%
   sort() %>%
@@ -774,32 +810,7 @@ gg_month_nc_perc <-
       
       curr_year_months$year_month %>%
         sort() %>%
-        map(function(curr_year_month) {
-          # browser()
-          curr_m_data <-
-            curr_df %>%
-            filter(year_month == curr_year_month) %>%
-            select(perc_vsls_per_y_r_b,
-                   percent_n_compl_rank,
-                   perc_labels) %>%
-            unique()
-          
-          curr_title <- paste(curr_year_region, curr_year_month)
-          
-          one_plot <-
-            ggplot(curr_m_data,
-                   aes(x = percent_n_compl_rank,
-                       y = perc_vsls_per_y_r_b)) +
-            geom_col(fill = "skyblue") +
-            labs(title = curr_title,
-                 x = "Non compliant",
-                 y = "% nc vsls per year, month & region") +
-            geom_text(aes(label = perc_labels),
-                      position = position_stack(vjust = 0.5)) +
-            ylim(0, 100)
-          
-          return(one_plot)
-        }) %>%
+        map() %>%
         return()
     }
   ) 
