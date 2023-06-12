@@ -265,11 +265,10 @@ grid.arrange(grobs = gg_all_c_vs_nc_plots,
              # left = my_legend,
              ncol = 3)
 
-# View(vessels_cnt_per_year_reg_compl_tot_perc)
 # TODO: 
 # done) add actual numbers to plots,
 # keep only one legend
-# plots for nc vessels with buckets of weeks
+# done) plots for nc vessels with buckets of weeks
 
 # Non compliant only ----
 
@@ -507,3 +506,47 @@ grid.arrange(grobs =
              ncol = 3)
 # percent_distribution.png
 
+# Per month, region ----
+# test
+View(compl_clean_sa_vs_gom_m_int_c)
+
+compl_clean_sa_vs_gom_m_int_c %>%
+  add_count(year_region,
+            year_month,
+            vessel_official_number,
+            compliant_,
+            name = "weeks_per_vessel_per_compl_m") %>%
+  filter(year_region == "2023 gom_only" &
+           compliant_ == "NO") %>%
+  select(vessel_official_number,
+         compliant_,
+         year_month,
+         weeks_per_vessel_per_compl_m) %>%
+  unique() %>%
+  View()
+
+count_weeks_per_vsl_permit_year_compl_month <-
+  compl_clean_sa_vs_gom_m_int_c %>%
+  add_count(year_region,
+            year_month,
+            vessel_official_number,
+            compliant_,
+            name = "weeks_per_vessel_per_compl_m") %>%
+  add_count(year_region,
+            year_month,
+            vessel_official_number,
+            name = "total_weeks_per_vessel_per_compl_m")
+  
+View(count_weeks_per_vsl_permit_year_compl_month)
+
+# test
+count_weeks_per_vsl_permit_year_compl_month %>%
+  select(
+    year_region,
+    year_month,
+    weeks_per_vessel_per_compl_m,
+    total_weeks_per_vessel_per_compl_m,
+    compliant_
+  ) %>%
+  unique() %>%
+  filter(year_region == "2023 gom_only")
