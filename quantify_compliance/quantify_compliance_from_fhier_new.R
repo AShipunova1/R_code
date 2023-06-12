@@ -839,7 +839,7 @@ gg_month_nc_perc[[1]][[1]]
 
 super_title = "Percent distribution of non compliant vessels per year, month & region"
 
-all_maps <-
+all_plots <-
   gg_month_nc_perc %>%
   map(function(curr_year_reg_list) {
     # browser()
@@ -852,10 +852,66 @@ all_maps <-
                 ncol = 3) %>%
       return()
   })
-# percent_distribution.png
 
-gridExtra::grid.arrange(all_maps[[5]])
+gridExtra::grid.arrange(all_plots[[5]])
 
-# TODO: 
-# done) change x text,
-# done) titles
+# all plots per month to files ----
+save_plots_list_to_pdf <-
+  function(file_full_name,
+           plots_list) {
+    ggsave(
+      file_full_name,
+      plots_list,
+      width = 20,
+      height = 20,
+      units = "cm"
+    )
+  }
+
+
+gg_month_nc_perc %>%
+  map(function(curr_year_reg_list) {
+    # browser()
+    super_title <- paste(super_title,
+                         curr_year_reg_list[[1]])
+    
+    all_plots_curr_year_reg <-
+      arrangeGrob(grobs =
+                    curr_year_reg_list[[2]],
+                  top = super_title,
+                  # left = my_legend,
+                  ncol = 3)
+    
+    file_name_base <- paste0(curr_year_reg_list[[1]],
+                        "_percent_distribution_per_month",
+                        ".pdf")
+    file_path <-
+      r"(quantify_compliance\jun_9_2023_uniq_vsls\per_month)"
+    
+    file_full_name <- file.path(my_paths$outputs,
+                           file_path,
+                           file_name_base)
+    
+    save_plots_list_to_pdf(file_full_name,
+           all_plots_curr_year_reg)
+  })
+
+# [[1]]
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 both_percent_distribution_per_month.pdf"
+# 
+# [[2]]
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 gom_only_percent_distribution_per_month.pdf"
+# 
+# [[3]]
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 sa_only_percent_distribution_per_month.pdf"
+# 
+# [[4]]
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 both_percent_distribution_per_month.pdf"
+# 
+# [[5]]
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 gom_only_percent_distribution_per_month.pdf"
+# 
+# [[6]]
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 sa_only_percent_distribution_per_month.pdf"
+
+# TODO: why Only 1 per month for 2023 gom only. When 998 total vsls?
