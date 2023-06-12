@@ -763,26 +763,14 @@ sorted_year_regions <- names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_so
 # [1] "2022 both"     "2022 gom_only" "2022 sa_only" 
 # [4] "2023 both"     "2023 gom_only" "2023 sa_only" 
 
-get_one_y_month_data_to_plot <-
-  function(my_df, curr_year_month) {
-    my_df %>%
-      filter(year_month == curr_year_month) %>%
-      # select(perc_vsls_per_y_r_b,
-      #        percent_n_compl_rank,
-      #        perc_labels) %>%
-      unique() %>% 
-      return()
-  }
 
 # get_one_y_month_data_to_plot(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r$`2023 gom_only`, "Apr 2023") %>% 
 #   View()
 
-my_df_list <- nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r
+# View(my_df_list[["2023 gom_only"]])
+# curr_year_month <- "Apr 2023"
 
-View(my_df_list[["2023 gom_only"]])
-curr_year_month <- "Apr 2023"
-
-my_df <- my_df_list[["2023 gom_only"]]
+# my_df <- my_df_list[["2023 gom_only"]]
 
 get_one_plot_by_month <-
   function(my_df, curr_year_month) {
@@ -793,10 +781,15 @@ get_one_plot_by_month <-
     curr_year_region <- my_df$year_region %>%
       unique()
     
-    curr_title <- paste(curr_year_region, curr_year_month)
+    curr_tot_v_per_m_y_r <- my_df$tot_v_per_m_y_r %>%
+      unique()
     
+    curr_title <- paste(curr_year_region, 
+                        curr_year_month,
+                        curr_tot_v_per_m_y_r, "total vsls")
+
     one_plot <-
-      ggplot(my_df,
+      ggplot(curr_data,
              aes(x = percent_n_compl_rank,
                  y = perc_vsls_per_y_r_b)) +
       geom_col(fill = "skyblue") +
@@ -810,15 +803,14 @@ get_one_plot_by_month <-
     return(one_plot)
   }
 
-
 gg_month_nc_perc <-
-  names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r) %>%
-  sort() %>%
+  sorted_year_regions %>%
   map(
     function(current_year_region) {
-      browser()
+      # browser()
       curr_df <-
         nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r[[current_year_region]]
+      
       curr_year_months <-
         curr_df %>%
         select(year_month) %>%
@@ -827,13 +819,15 @@ gg_month_nc_perc <-
       
       curr_year_months$year_month %>%
         sort() %>%
-        map() %>%
+          map(~ get_one_plot_by_month(curr_df,
+                                      curr_year_month = . ) ) %>% 
+
+        # map(get_one_plot_by_month) %>%
         return()
     }
   ) 
 
-
-gg_month_nc_perc %>%  str()
+gg_month_nc_perc[[5]][[5]]
 
 super_title = "Percent distribution of non compliant vessels per year & region"
 
