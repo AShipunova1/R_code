@@ -778,15 +778,17 @@ get_one_plot_by_month <-
     curr_data <- my_df %>%
       filter(year_month == curr_year_month)
     
-    curr_year_region <- my_df$year_region %>%
+    curr_year_region <- curr_data$year_region %>%
       unique()
     
-    curr_tot_v_per_m_y_r <- my_df$tot_v_per_m_y_r %>%
+    curr_tot_v_per_m_y_r <- curr_data$tot_v_per_m_y_r %>%
       unique()
     
-    curr_title <- paste(curr_year_region, 
+    curr_title <- paste(
+      # curr_year_region, 
                         curr_year_month,
-                        curr_tot_v_per_m_y_r, "total vsls")
+                        curr_tot_v_per_m_y_r,
+                        "total vsls")
 
     one_plot <-
       ggplot(curr_data,
@@ -795,7 +797,7 @@ get_one_plot_by_month <-
       geom_col(fill = "skyblue") +
       labs(title = curr_title,
            x = "Non compliant",
-           y = "% nc vsls per year, month & region") +
+           y = "% nc vsls") +
       geom_text(aes(label = perc_labels),
                 position = position_stack(vjust = 0.5)) +
       ylim(0, 100)
@@ -817,16 +819,22 @@ gg_month_nc_perc <-
         unique() %>%
         as.data.frame()
       
-      curr_year_months$year_month %>%
+      list_of_plots <-
+        curr_year_months$year_month %>%
         sort() %>%
-          map(~ get_one_plot_by_month(curr_df,
-                                      curr_year_month = . ) ) %>% 
+        map(~ get_one_plot_by_month(curr_df,
+                                    curr_year_month = .))
+      
+      names(list_of_plots) <-
+        sort(curr_year_months$year_month)
 
-        # map(get_one_plot_by_month) %>%
-        return()
+      res <- list(current_year_region, list_of_plots)      
+      return(res)
     }
   ) 
 
+gg_month_nc_perc[[1]][[1]]
+# "2022 both"
 # gg_month_nc_perc[[5]][[5]]
 
 super_title = "Percent distribution of non compliant vessels per year, month & region"
@@ -843,4 +851,7 @@ all_maps <-
   })
 # percent_distribution.png
 
-gridExtra::grid.draw(all_maps[[5]])
+gridExtra::grid.arrange(all_maps[[1]])
+
+# TODO: change x text,
+# titles
