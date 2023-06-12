@@ -549,4 +549,40 @@ count_weeks_per_vsl_permit_year_compl_month %>%
     compliant_
   ) %>%
   unique() %>%
-  filter(year_region == "2023 gom_only")
+  filter(year_region == "2023 gom_only") %>% 
+  View()
+
+count_weeks_per_vsl_permit_year_compl_m <-
+  compl_clean_sa_vs_gom_m_int_c %>%
+  add_count(year_region, year_month,
+            vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl_m")
+
+# test
+# count_weeks_per_vsl_permit_year_compl_m %>% 
+# filter(year_region == "2023 gom_only" &
+#            compliant_ == "NO") %>%
+#   select(vessel_official_number,
+#          compliant_,
+#          year_month,
+#          weeks_per_vessel_per_compl_m) %>%
+#   unique() %>%
+#   glimpse()  
+# $ vessel_official_number       <chr> "1247024", "1247024", "1247024", "…
+# $ compliant_                   <chr> "NO", "NO", "NO", "NO", "NO"
+# $ year_month                   <yearmon> May 2023, Apr 2023, Mar 2023, Feb …
+# $ weeks_per_vessel_per_compl_m <int> 4, 4, 3, 1, 1
+  
+count_weeks_per_vsl_permit_year_compl_m %>%
+  add_count(year_region,
+            year_month,
+            vessel_official_number,
+            name = "total_weeks_per_vessel_m") %>% 
+filter(year_region == "2023 gom_only" &
+         vessel_official_number == "1247024") %>% 
+           # compliant_ == "NO") %>%
+  select(vessel_official_number,
+         compliant_,
+         year_month,
+         weeks_per_vessel_per_compl_m,
+         total_weeks_per_vessel_m) %>%
+  unique() %>% View()
