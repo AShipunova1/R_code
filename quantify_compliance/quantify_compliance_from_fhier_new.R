@@ -767,12 +767,15 @@ get_one_y_month_data_to_plot <-
   function(my_df, curr_year_month) {
     my_df %>%
       filter(year_month == curr_year_month) %>%
-      select(perc_vsls_per_y_r_b,
-             percent_n_compl_rank,
-             perc_labels) %>%
+      # select(perc_vsls_per_y_r_b,
+      #        percent_n_compl_rank,
+      #        perc_labels) %>%
       unique() %>% 
       return()
   }
+
+get_one_y_month_data_to_plot(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r$`2023 gom_only`, "Apr 2023") %>% 
+  View()
 
 function(my_df, curr_year_region, curr_year_month) {
   # browser()
