@@ -398,17 +398,12 @@ get_p_buckets <- function(my_df, field_name) {
     return()
 }
 
-count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1 <- 
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts <- 
   get_p_buckets(count_weeks_per_vsl_permit_year_n_compl_p_short,
                 "percent_compl")
 
-# all.equal(
-#   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts,
-#   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1
-# )
-
 ### test 2 ----
-count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1 %>% 
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>% 
   filter(percent_n_compl_rank == '75-100%') %>%
   filter(year_region == "2023 sa_only") %>%
   count(percent_compl, year_region,
@@ -604,14 +599,14 @@ count_weeks_per_vsl_permit_year_compl_m_tot %>%
   arrange(year_month) %>% 
   View()
 
-## percent compl weeks per vsl per month ----
+## 1) Month: percent compl weeks per vsl per month ----
 
 count_weeks_per_vsl_permit_year_compl_m_tot_p <-
   count_weeks_per_vsl_permit_year_compl_m_tot %>%
   mutate(percent_compl_m =
            weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_m)
 
-# test
+### test ----
 count_weeks_per_vsl_permit_year_compl_m_tot_p %>% 
   filter(year_region == "2023 gom_only" &
            vessel_official_number == "1247024") %>%
@@ -627,3 +622,39 @@ count_weeks_per_vsl_permit_year_compl_m_tot_p %>%
   unique() %>%
   arrange(year_month) %>% 
   View()
+
+# 2a) Month: Only non-compl and fewer cols ----
+
+nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort <-
+  count_weeks_per_vsl_permit_year_compl_m_tot_p %>% 
+  filter(compliant_ == "NO") %>%
+  select(
+    year_region,
+    year_month,
+    vessel_official_number,
+    weeks_per_vessel_per_compl_m,
+    total_weeks_per_vessel_m,
+    percent_compl_m,
+    compliant_
+  ) %>%
+  unique()
+
+# 2b) Month: get percentage "buckets" ----
+
+nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b <-
+  get_p_buckets(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort,
+                "percent_compl_m")
+
+# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b)
+
+### test ----
+nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>% 
+  filter(percent_n_compl_rank == '75-100%') %>%
+  filter(year_region == "2023 gom_only" &
+           vessel_official_number == "1247024") %>%
+  add_count(percent_compl_m, year_region,
+        name = "amount_of_occurences") %>%
+  arrange(desc(percent_compl_m)) %>% 
+  add_count(wt = amount_of_occurences) %>% 
+  View()
+# 3
