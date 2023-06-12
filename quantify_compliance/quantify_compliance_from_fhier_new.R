@@ -357,8 +357,7 @@ count_weeks_per_vsl_permit_year_compl_p_short <-
   count_weeks_per_vsl_permit_year_compl_p %>% 
   filter(compliant_ == "NO") %>%
   select(
-    year,
-    permit_sa_gom,
+    year_region,
     vessel_official_number,
     weeks_per_vessel_per_compl,
     total_weeks_per_vessel,
@@ -366,13 +365,13 @@ count_weeks_per_vsl_permit_year_compl_p_short <-
   ) %>%
   unique()
 
-# str(count_weeks_per_vsl_permit_year_compl_p_short)
-# tibble [3,224 × 6] (S3: tbl_df/tbl/data.frame)
+str(count_weeks_per_vsl_permit_year_compl_p_short)
+# tibble [3,224 × 5] (S3: tbl_df/tbl/data.frame)
 
 ## 2b) get percentage "buckets" ----
 # View(count_weeks_per_vsl_permit_year_compl_p_short_y_p)
 
-count_weeks_per_vsl_permit_year_compl_p_short_y_p_cuts <-
+count_weeks_per_vsl_permit_year_compl_p_short_cuts <-
   count_weeks_per_vsl_permit_year_compl_p_short %>%
   mutate(
     percentage_rank =
@@ -386,16 +385,16 @@ count_weeks_per_vsl_permit_year_compl_p_short_y_p_cuts <-
       )
   )
 
-# View(count_weeks_per_vsl_permit_year_compl_p_short_cuts)
+View(count_weeks_per_vsl_permit_year_compl_p_short_cuts)
 
 ### test 2 ----
 count_weeks_per_vsl_permit_year_compl_p_short_cuts %>% 
   filter(percentage_rank == '75-100%') %>%
-  filter(year_reg == "2023 sa_only") %>% 
-  count(percent_compl, year_reg,
+  filter(year_region == "2023 sa_only") %>%
+  count(percent_compl, year_region,
         name = "amount_of_occurences") %>%
   arrange(desc(percent_compl)) %>% 
-  View()
+  # View()
   count(wt = amount_of_occurences)
 # 499
 
