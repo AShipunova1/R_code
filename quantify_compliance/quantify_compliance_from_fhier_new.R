@@ -398,3 +398,40 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
   count(wt = amount_of_occurences)
 # 499
 
+# 3) count how many in each bucket ----
+
+View(count_weeks_per_vsl_permit_year_compl_p_short_cuts)
+
+count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b <-  
+  count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
+    add_count(year_region, 
+              percentage_rank,
+              name = "cnt_v_in_bucket")
+
+# test
+count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>% 
+   filter(year_region == "2022 both") %>%
+      select(year_region, percentage_rank, cnt_v_in_bucket) %>%
+      unique() %>% 
+  add_count(wt = cnt_v_in_bucket, name = "total_per_y_r") %>% 
+    View()  
+# "2022 both"
+# 12+17+85+3
+# [1] 117
+
+## 3a) total per year / region ----
+# View(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b)
+
+count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot <-
+  count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
+  select(year_region,
+         percentage_rank,
+         cnt_v_in_bucket) %>%
+  unique() %>%
+  # total cnt per year, region
+  add_count(year_region, wt = cnt_v_in_bucket, name = "total_per_y_r")
+# %>%
+#   filter(year_reg == "2022 both")
+  
+# View(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot)
+
