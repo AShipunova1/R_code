@@ -842,16 +842,20 @@ super_title = "Percent distribution of non compliant vessels per year, month & r
 all_maps <-
   gg_month_nc_perc %>%
   map(function(curr_year_reg_list) {
+    # browser()
+    super_title <- paste(super_title,
+                         curr_year_reg_list[[1]])
     arrangeGrob(grobs =
-                   curr_year_reg_list,
-                 top = super_title,
-                 # left = my_legend,
-                 ncol = 3) %>% 
+                  curr_year_reg_list[[2]],
+                top = super_title,
+                # left = my_legend,
+                ncol = 3) %>%
       return()
   })
 # percent_distribution.png
 
-gridExtra::grid.arrange(all_maps[[1]])
+gridExtra::grid.arrange(all_maps[[5]])
 
-# TODO: change x text,
-# titles
+# TODO: 
+# done) change x text,
+# done) titles
