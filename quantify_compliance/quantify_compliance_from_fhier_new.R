@@ -756,49 +756,56 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r <-
   split(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p,
         as.factor(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p$year_region))
 
-View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r)
+# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r)
 
-gg_nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p <-
-  nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p$year_region %>%
-  unique() %>%
-  sort() %>% 
-  map(function(curr_year_region) {
-    # browser()
-    total_non_compl_df <-
-      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
-      filter(year_region == curr_year_region) %>%
-      select(perc_vsls_per_y_r_b,
-             percent_n_compl_rank,
-             perc_labels) %>%
-      unique()
-    
-    # title_vals <-
-    #   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
-    #   filter(year_region == curr_year_region) %>%
-    #   select(cnt_v_in_bucket, vsls_per_y_r) %>%
-    #   unique()
-    
-    # y_p_title <-
-    #   paste0(curr_year_region, ". ",
-    #          title_vals$cnt_v_in_bucket, " non compl, ",
-    #          title_vals$vsls_per_y_r, " total vsls")
-    y_p_title <- curr_year_region
-    one_plot <-
-      ggplot(total_non_compl_df,
-             aes(x = percent_n_compl_rank,
-                 y = perc_vsls_per_y_r_b)) +
-      geom_col(fill = "deepskyblue") +
-      labs(title = y_p_title,
-           x = "Been non compliant",
-           y = "% nc vsls per year & region") +
-      geom_text(aes(label = perc_labels),
-                position = position_stack(vjust = 0.5)) +
-      ylim(0, 100)
-    
-    return(one_plot)
-  })
+gg_month_nc_perc <-
+  names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r) %>%
+  sort() %>%
+  map(
+    function(current_year_region) {
+      browser()
+      curr_df <-
+        nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r[[current_year_region]]
+      curr_year_months <-
+        curr_df %>%
+        select(year_month) %>%
+        unique() %>%
+        as.data.frame()
+      
+      curr_year_months$year_month %>%
+        sort() %>%
+        map(function(curr_year_month) {
+          # browser()
+          curr_m_data <-
+            curr_df %>%
+            filter(year_month == curr_year_month) %>%
+            select(perc_vsls_per_y_r_b,
+                   percent_n_compl_rank,
+                   perc_labels) %>%
+            unique()
+          
+          curr_title <- paste(curr_year_region, curr_year_month)
+          
+          one_plot <-
+            ggplot(curr_m_data,
+                   aes(x = percent_n_compl_rank,
+                       y = perc_vsls_per_y_r_b)) +
+            geom_col(fill = "skyblue") +
+            labs(title = curr_title,
+                 x = "Non compliant",
+                 y = "% nc vsls per year, month & region") +
+            geom_text(aes(label = perc_labels),
+                      position = position_stack(vjust = 0.5)) +
+            ylim(0, 100)
+          
+          return(one_plot)
+        }) %>%
+        return()
+    }
+  ) 
 
-# gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[5]]
+
+gg_month_nc_perc %>%  str()
 
 super_title = "Percent distribution of non compliant vessels per year & region"
 
