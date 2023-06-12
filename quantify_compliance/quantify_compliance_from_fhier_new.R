@@ -233,7 +233,7 @@ r1 <-
 
 glimpse(r1)  
 
-main_title = "Percent unique compliant vs. non compliant vessels per year, permit region"
+main_title = "Percent unique compliant vs. non compliant vessels per year, permit region. 05/31/2023"
 
 curr_year_region = "2022 both"
 y_r_title = curr_year_region
@@ -241,7 +241,8 @@ y_r_title = curr_year_region
 # my_df <- r1
 
 plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
-  
+  total_vsls <- unique(my_df$total_vsl_ids_per_y_r)
+  current_title <- paste0(y_r_title, ". Total vsls: ", total_vsls)
   one_plot <-
     my_df %>%
     ggplot(aes(x = is_compliant,
@@ -251,7 +252,7 @@ plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
     ylim(0, 100) +
     geom_text(aes(label = paste0(round(percent, 1), "%")),
               position = position_stack(vjust = 0.5)) +
-    labs(title = y_r_title,
+    labs(title = current_title,
          x = "",
          y = "") +
     scale_x_discrete(labels = c("Yes", "No")) +
