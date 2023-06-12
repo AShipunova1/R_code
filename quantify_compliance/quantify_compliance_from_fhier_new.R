@@ -451,3 +451,58 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
 #   <chr>                              <dbl>
 # 1 0-24%                               66.7
 # 2 50-74%                              33.3
+
+# 5) plots ----
+
+# View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc)
+
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
+  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_region %>%
+  unique() %>%
+  map(function(curr_year_region) {
+    # browser()
+    total_non_compl_df <-
+      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+      filter(year_region == curr_year_region) %>%
+      select(perc_vsls_per_y_r_b,
+             percent_n_compl_rank,
+             perc_labels) %>%
+      unique()
+    
+    title_vals <-
+      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+      filter(year_region == curr_year_region) %>%
+      select(cnt_v_in_bucket, vsls_per_y_r) %>%
+      unique()
+    
+    y_p_title <-
+      paste0(curr_year_region, ". ",
+             title_vals$cnt_v_in_bucket, " non compl, ",
+             title_vals$vsls_per_y_r, " total vsls")
+    # y_p_title <- curr_year_region
+    one_plot <-
+      ggplot(total_non_compl_df,
+             aes(x = percent_n_compl_rank,
+                 y = perc_vsls_per_y_r_b)) +
+      geom_col(fill = "deepskyblue") +
+      labs(title = y_p_title,
+           x = "Been non compliant",
+           y = "% nc vsls per year & region") +
+      geom_text(aes(label = perc_labels),
+                position = position_stack(vjust = 0.5)) +
+      ylim(0, 100)
+    
+    return(one_plot)
+  })
+
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[5]]
+
+super_title = "Percent non compliant vessels per year & region"
+
+grid.arrange(grobs =
+               gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc,
+             top = super_title,
+             # left = my_legend,
+             ncol = 3)
+# percent_distribution.png
+
