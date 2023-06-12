@@ -8,6 +8,11 @@ compl_clean_sa_vs_gom_m_int_c <-
   mutate(year_region = 
            paste(year, permit_sa_gom))
 
+# functions
+name <- function(variables) {
+  
+}
+
 # save vsl count ----
 
 count_vessels <-
@@ -447,7 +452,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc <-
   mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
   mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
 
-# test
+### test 4 ----
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
   # filter(year_region == "2022 both") %>%
   filter(year_region == "2023 gom_only") %>%
@@ -610,7 +615,7 @@ count_weeks_per_vsl_permit_year_compl_m_tot_p <-
   mutate(percent_compl_m =
            weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_m)
 
-### test ----
+### test 1, by month ----
 count_weeks_per_vsl_permit_year_compl_m_tot_p %>% 
   filter(year_region == "2023 gom_only" &
            vessel_official_number == "1247024") %>%
@@ -627,7 +632,7 @@ count_weeks_per_vsl_permit_year_compl_m_tot_p %>%
   arrange(year_month) %>% 
   View()
 
-# 2a) Month: Only non-compl and fewer cols ----
+## 2a) Month: Only non-compl and fewer cols ----
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort <-
   count_weeks_per_vsl_permit_year_compl_m_tot_p %>% 
@@ -643,7 +648,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort <-
   ) %>%
   unique()
 
-# 2b) Month: get percentage "buckets" ----
+## 2b) Month: get percentage "buckets" ----
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b <-
   get_p_buckets(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort,
@@ -651,7 +656,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b <-
 
 # View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b)
 
-### test 2 ----
+### test 2, by month ----
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>% 
   filter(percent_n_compl_rank == '75-100%') %>%
   filter(year_region == "2023 gom_only" &
@@ -663,7 +668,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>%
   View()
 # 3
 
-# 3) Month: count how many in each bucket ----
+## 3) Month: count how many in each bucket ----
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b <-  
   nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>%
@@ -680,9 +685,9 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot <-
          cnt_v_in_bucket) %>%
   unique() %>%
   add_count(year_month, year_region, wt = cnt_v_in_bucket,
-            name = "tot_v_per_m")
+            name = "tot_v_per_m_y_r")
 
-### tests 3, month  ----
+### tests 3, by month ----
 
 # total 35 nc vsls in "Jan 2022 both"
 compl_clean_sa_vs_gom_m_int_c %>% 
@@ -705,11 +710,102 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b %>%
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%
   filter(year_region == "2022 both") %>%
-  filter(year_month == "Jan 2022") %>% 
+  filter(year_month == "Jan 2022") %>%
+  arrange(percent_n_compl_rank) %>% 
   str()
- # $ percent_n_compl_rank: chr [1:3] "75-100%" "0-24%" "25-49%"
- # $ cnt_v_in_bucket     : int [1:3] 20 9 6
- # $ tot_v_per_m         : int [1:3] 35 35 35
+ # $ percent_n_compl_rank: chr [1:3] "0-24%" "25-49%" "75-100%"
+ # $ cnt_v_in_bucket     : int [1:3] 9 6 20
+ # $ tot_v_per_m_y_r     : int [1:3] 35 35 35
 
 # 35
 # T
+
+## 4) Month: cnt percents of (3) ----
+View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot)
+
+nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p <-
+  nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%
+  # add_count(year_region, 
+  #           year_month,
+  #           name = "vsls_per_y_r_m") %>% View()
+  mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / tot_v_per_m_y_r) %>%
+  mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+
+### test 4, by month ----
+
+# names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p)
+nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p %>%
+  filter(year_region == "2022 both") %>%
+  # filter(year_region == "2023 gom_only") %>%
+  filter(year_month == "Jan 2022") %>%
+  select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
+  unique() %>%
+  arrange(percent_n_compl_rank) %>% 
+  head()
+#   percent_n_compl_rank perc_vsls_per_y_r_b
+# 1 0-24%                               25.7
+# 2 25-49%                              17.1
+# 3 75-100%                             57.1
+# 20*100/35 == 57.1
+
+# 5) Month plots ----
+
+# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p)
+
+nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r <-
+  split(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p,
+        as.factor(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p$year_region))
+
+View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r)
+
+gg_nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p <-
+  nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p$year_region %>%
+  unique() %>%
+  sort() %>% 
+  map(function(curr_year_region) {
+    # browser()
+    total_non_compl_df <-
+      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+      filter(year_region == curr_year_region) %>%
+      select(perc_vsls_per_y_r_b,
+             percent_n_compl_rank,
+             perc_labels) %>%
+      unique()
+    
+    # title_vals <-
+    #   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+    #   filter(year_region == curr_year_region) %>%
+    #   select(cnt_v_in_bucket, vsls_per_y_r) %>%
+    #   unique()
+    
+    # y_p_title <-
+    #   paste0(curr_year_region, ". ",
+    #          title_vals$cnt_v_in_bucket, " non compl, ",
+    #          title_vals$vsls_per_y_r, " total vsls")
+    y_p_title <- curr_year_region
+    one_plot <-
+      ggplot(total_non_compl_df,
+             aes(x = percent_n_compl_rank,
+                 y = perc_vsls_per_y_r_b)) +
+      geom_col(fill = "deepskyblue") +
+      labs(title = y_p_title,
+           x = "Been non compliant",
+           y = "% nc vsls per year & region") +
+      geom_text(aes(label = perc_labels),
+                position = position_stack(vjust = 0.5)) +
+      ylim(0, 100)
+    
+    return(one_plot)
+  })
+
+# gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[5]]
+
+super_title = "Percent distribution of non compliant vessels per year & region"
+
+grid.arrange(grobs =
+               gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc,
+             top = super_title,
+             # left = my_legend,
+             ncol = 3)
+# percent_distribution.png
+
