@@ -594,3 +594,26 @@ count_weeks_per_vsl_permit_year_compl_m_tot %>%
   arrange(year_month) %>% 
   View()
 
+## percent compl weeks per vsl per month ----
+
+count_weeks_per_vsl_permit_year_compl_m_tot_p <-
+  count_weeks_per_vsl_permit_year_compl_m_tot %>%
+  mutate(percent_compl_m =
+           weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_m)
+
+# test
+count_weeks_per_vsl_permit_year_compl_m_tot_p %>% 
+  filter(year_region == "2023 gom_only" &
+           vessel_official_number == "1247024") %>%
+  # compliant_ == "NO") %>%
+  select(
+    vessel_official_number,
+    compliant_,
+    year_month,
+    weeks_per_vessel_per_compl_m,
+    total_weeks_per_vessel_m,
+    percent_compl_m
+  ) %>%
+  unique() %>%
+  arrange(year_month) %>% 
+  View()
