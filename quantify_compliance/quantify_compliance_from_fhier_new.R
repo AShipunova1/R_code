@@ -672,7 +672,18 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b <-
               percent_n_compl_rank,
               name = "cnt_v_in_bucket")
 
-### test 3, month  ----
+nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot <-
+  nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b %>%
+  select(year_month,
+         year_region,
+         percent_n_compl_rank,
+         cnt_v_in_bucket) %>%
+  unique() %>%
+  add_count(year_month, year_region, wt = cnt_v_in_bucket,
+            name = "tot_v_per_m")
+
+### tests 3, month  ----
+
 # total 35 nc vsls in "Jan 2022 both"
 compl_clean_sa_vs_gom_m_int_c %>% 
   filter(year_region == "2022 both") %>%
@@ -690,24 +701,15 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b %>%
   unique() %>% str()
 # 35
 
-nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b %>%
-  filter(percent_n_compl_rank == '75-100%') %>%
-  filter(year_region == "2022 both") %>%
-  # filter(year_region == "2023 gom_only") %>%
-  filter(year_month == "Jan 2022") %>%
-  arrange(year_month) %>%
-  View()
+# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b)
 
-  View()
-  # filter(year_region == "2023 gom_only") %>%
-  # filter(year_month == "Jan 2022") %>%
-  select(year_region,
-         percent_n_compl_rank,
-         cnt_v_in_bucket,
-         year_month) %>%
-  unique() %>%
-  # add_count(year_month, wt = cnt_v_in_bucket, name = "total_per_y_r_m") %>%
-  arrange(year_month) %>%
-  filter(year_month == "Jan 2022") %>%
-  View()
-# should be 117 v in 2022 year
+nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%
+  filter(year_region == "2022 both") %>%
+  filter(year_month == "Jan 2022") %>% 
+  str()
+ # $ percent_n_compl_rank: chr [1:3] "75-100%" "0-24%" "25-49%"
+ # $ cnt_v_in_bucket     : int [1:3] 20 9 6
+ # $ tot_v_per_m         : int [1:3] 35 35 35
+
+# 35
+# T
