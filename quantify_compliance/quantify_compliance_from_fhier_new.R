@@ -381,29 +381,38 @@ str(count_weeks_per_vsl_permit_year_n_compl_p_short)
 ## 2b) get percentage "buckets" ----
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_y_p)
 
-count_weeks_per_vsl_permit_year_n_compl_p_short_cuts <-
-  count_weeks_per_vsl_permit_year_n_compl_p_short %>%
-  mutate(
-    percent_n_compl_rank =
-      case_when(
-        percent_compl < 25 ~ '0-24%',
-        25 <= percent_compl &
-          percent_compl < 50 ~ '25-49%',
-        50 <= percent_compl &
-          percent_compl < 75 ~ '50-74%',
-        75 <= percent_compl ~ '75-100%'
-      )
-  )
+get_p_buckets <- function(my_df, field_name) {
+  
+  my_df %>%
+    mutate(
+      percent_n_compl_rank =
+        case_when(
+          !!sym(field_name) < 25 ~ '0-24%',
+          25 <= !!sym(field_name) &
+            !!sym(field_name) < 50 ~ '25-49%',
+          50 <= !!sym(field_name) &
+            !!sym(field_name) < 75 ~ '50-74%',
+          75 <= !!sym(field_name) ~ '75-100%'
+        )
+    ) %>%
+    return()
+}
 
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1 <- 
+  get_p_buckets(count_weeks_per_vsl_permit_year_n_compl_p_short,
+                "percent_compl")
 View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts)
+
+all.equal(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts, count_weeks_per_vsl_permit_year_n_compl_p_short_cuts1)
+# T
 
 ### test 2 ----
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>% 
   filter(percent_n_compl_rank == '75-100%') %>%
   filter(year_region == "2023 sa_only") %>%
-  count(percent_compl, year_region,
+  count(!!sym(field_name), year_region,
         name = "amount_of_occurences") %>%
-  arrange(desc(percent_compl)) %>% 
+  arrange(desc(!!sym(field_name))) %>% 
   # View()
   count(wt = amount_of_occurences)
 # 499
