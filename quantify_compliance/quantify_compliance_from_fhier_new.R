@@ -459,6 +459,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_region %>%
   unique() %>%
+  sort() %>% 
   map(function(curr_year_region) {
     # browser()
     total_non_compl_df <-
@@ -469,17 +470,17 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
              perc_labels) %>%
       unique()
     
-    title_vals <-
-      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
-      filter(year_region == curr_year_region) %>%
-      select(cnt_v_in_bucket, vsls_per_y_r) %>%
-      unique()
+    # title_vals <-
+    #   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+    #   filter(year_region == curr_year_region) %>%
+    #   select(cnt_v_in_bucket, vsls_per_y_r) %>%
+    #   unique()
     
-    y_p_title <-
-      paste0(curr_year_region, ". ",
-             title_vals$cnt_v_in_bucket, " non compl, ",
-             title_vals$vsls_per_y_r, " total vsls")
-    # y_p_title <- curr_year_region
+    # y_p_title <-
+    #   paste0(curr_year_region, ". ",
+    #          title_vals$cnt_v_in_bucket, " non compl, ",
+    #          title_vals$vsls_per_y_r, " total vsls")
+    y_p_title <- curr_year_region
     one_plot <-
       ggplot(total_non_compl_df,
              aes(x = percent_n_compl_rank,
@@ -495,9 +496,9 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
     return(one_plot)
   })
 
-gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[5]]
+# gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[5]]
 
-super_title = "Percent non compliant vessels per year & region"
+super_title = "Percent distribution of non compliant vessels per year & region"
 
 grid.arrange(grobs =
                gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc,
