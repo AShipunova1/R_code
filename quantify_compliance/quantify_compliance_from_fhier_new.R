@@ -2,6 +2,12 @@
 
 source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
+# add year_region column ----
+compl_clean_sa_vs_gom_m_int_c <-
+  compl_clean_sa_vs_gom_m_int %>%
+  mutate(year_region = 
+           paste(year, permit_sa_gom))
+
 # save vsl count ----
 
 count_vessels <-
@@ -31,11 +37,6 @@ vessels_compl_or_not_per_y_r <-
 # 6 NO         2023  sa_only        1384
 # 7 YES        2022  both            366
 
-# add year_region column ----
-compl_clean_sa_vs_gom_m_int_c <-
-  compl_clean_sa_vs_gom_m_int %>%
-  mutate(year_region = 
-           paste(year, permit_sa_gom))
 
 # compl vs. non-compl vessels per year, region ----
 
@@ -275,13 +276,13 @@ grid.arrange(grobs = gg_all_c_vs_nc_plots,
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present ----
 count_weeks_per_vsl_permit_year_compl <-
-  compl_clean_sa_vs_gom_m_int %>%
+  compl_clean_sa_vs_gom_m_int_c %>%
   add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
   add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
 
 ## test ----
 nc_2023_gom_only_test <-
-  compl_clean_sa_vs_gom_m_int_c_cnts %>%
+  count_weeks_per_vsl_permit_year_compl %>%
   filter(year_region == "2023 gom_only",
          compliant_ == "NO") %>%
   select(vessel_official_number,
@@ -294,7 +295,7 @@ head(nc_2023_gom_only_test)
 # FL4749LH  1   22
 # 1298355   1   22
 
-compl_clean_sa_vs_gom_m_int_c_cnts %>%
+count_weeks_per_vsl_permit_year_compl %>%
   filter(year_region == "2023 gom_only",
          compliant_ == "YES",
          vessel_official_number == "FL4749LH") %>%
@@ -304,11 +305,48 @@ compl_clean_sa_vs_gom_m_int_c_cnts %>%
   unique()
 # 21  22
 
-
-# View(count_weeks_per_vsl_permit_year_compl)
-
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   count_weeks_per_vsl_permit_year_compl %>%
   mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
+
+# View(count_weeks_per_vsl_permit_year_compl_p)
+
+# test
+# View(count_weeks_per_vsl_permit_year_compl_p)
+count_weeks_per_vsl_permit_year_compl_p %>%
+  filter(permit_sa_gom == "sa_only", year == "2022") %>%
+  select(vessel_official_number) %>%
+  unique() %>%
+  dim()
+# [1] 2178 
+
+count_weeks_per_vsl_permit_year_compl_p %>%
+  filter(permit_sa_gom == "sa_only", 
+         year == "2022",
+         compliant_ == "NO") %>%
+  select(vessel_official_number) %>%
+  # unique() %>%
+# 1289    Non compliant vsl
+  dim()
+# [1] 26466 non compliant weeks
+
+### test ----
+count_weeks_per_vsl_permit_year_compl_p %>%
+  filter(vessel_official_number == "1020822",
+         year == "2022") %>%
+  select(
+    year,
+    permit_sa_gom,
+    compliant_,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) %>%
+  unique() %>%
+  glimpse()
+# $ compliant_                 <chr> "YES", "NO"
+# $ weeks_per_vessel_per_compl <int> 33, 19
+# $ total_weeks_per_vessel     <int> 52, 52
+# $ percent_compl              <dbl> 63.46154, 36.53846
