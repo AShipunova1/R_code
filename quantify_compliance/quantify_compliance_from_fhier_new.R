@@ -9,9 +9,9 @@ compl_clean_sa_vs_gom_m_int_c <-
            paste(year, permit_sa_gom))
 
 # functions
-name <- function(variables) {
-  
-}
+# name <- function(variables) {
+#   
+# }
 
 # save vsl count ----
 
@@ -822,12 +822,16 @@ gg_month_nc_perc <-
       list_of_plots <-
         curr_year_months$year_month %>%
         sort() %>%
+        # repeat the function for each year_month
+        # see the function definition F2
         map(~ get_one_plot_by_month(curr_df,
                                     curr_year_month = .))
       
+      # add correct names instead of 1, 2...
       names(list_of_plots) <-
         sort(curr_year_months$year_month)
 
+      # put the name and the plots into a list to return
       res <- list(current_year_region, list_of_plots)      
       return(res)
     }
@@ -841,18 +845,19 @@ super_title = "Percent distribution of non compliant vessels per year, month & r
 
 all_plots <-
   gg_month_nc_perc %>%
+  # repeat for each entry
   map(function(curr_year_reg_list) {
     # browser()
     super_title <- paste(super_title,
                          curr_year_reg_list[[1]])
-    arrangeGrob(grobs =
+    gridExtra::arrangeGrob(grobs =
                   curr_year_reg_list[[2]],
                 top = super_title,
-                # left = my_legend,
                 ncol = 3) %>%
       return()
   })
 
+# draw one plot to test
 gridExtra::grid.arrange(all_plots[[5]])
 
 # all plots per month to files ----
@@ -870,16 +875,17 @@ save_plots_list_to_pdf <-
 
 
 gg_month_nc_perc %>%
-  map(function(curr_year_reg_list) {
+  # repeat for each entry
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     super_title <- paste(super_title,
                          curr_year_reg_list[[1]])
     
+    # arrangeGrob creates an object to use later
     all_plots_curr_year_reg <-
-      arrangeGrob(grobs =
+      gridExtra::arrangeGrob(grobs =
                     curr_year_reg_list[[2]],
                   top = super_title,
-                  # left = my_legend,
                   ncol = 3)
     
     file_name_base <- paste0(curr_year_reg_list[[1]],
@@ -888,10 +894,12 @@ gg_month_nc_perc %>%
     file_path <-
       r"(quantify_compliance\jun_9_2023_uniq_vsls\per_month)"
     
+    # file.path adds the correct concatenation
     file_full_name <- file.path(my_paths$outputs,
                            file_path,
                            file_name_base)
     
+    # see the function definition F2
     save_plots_list_to_pdf(file_full_name,
            all_plots_curr_year_reg)
   })
@@ -914,4 +922,11 @@ gg_month_nc_perc %>%
 # [[6]]
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 sa_only_percent_distribution_per_month.pdf"
 
-# TODO: why Only 1 per month for 2023 gom only. When 998 total vsls?
+# test numbers ----
+compl_clean_sa_vs_gom_m_int_c %>%
+  filter(compliant_ == "NO") %>%
+  filter(year_region == "2022 gom_only") %>%
+  filter(year_month == "Jan 2022") %>%
+  select(vessel_official_number) %>%
+  unique() %>% dim()
+# [1] 10  1
