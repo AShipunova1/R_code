@@ -202,6 +202,40 @@ vessels_cnt_per_year_reg_compl_tot_perc <-
 
 glimpse(vessels_cnt_per_year_reg_compl_tot_perc)
 
+make_one_plot_compl_vs_non_compl <- function(my_df, no_legend = FALSE) {
+  
+  one_plot <-
+    my_df %>%
+    ggplot(aes(x = is_compliant,
+               y = percent,
+               fill = is_compliant)) +
+    geom_col() +
+    ylim(0, 100) +
+    geom_text(aes(label = paste0(round(percent, 1), "%")),
+              position = position_stack(vjust = 0.5)) +
+    labs(title = current_title,
+         x = "",
+         y = "") +
+    scale_x_discrete(labels = c("Yes", "No")) +
+    
+    scale_fill_manual(
+      values =
+        c(
+          "percent_compl" = "lightgreen",
+          "percent_non_compl" = "red"
+        ),
+      name = "Is compliant?",
+      labels = c("Yes", "No")
+    )
+  
+  if (no_legend) {
+    one_plot <- one_plot +
+      theme(legend.position = "none")
+  }
+  
+  return(one_plot)
+}
+
 plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
   total_vsls <- unique(my_df$total_vsl_ids_per_y_r)
   current_title <-
