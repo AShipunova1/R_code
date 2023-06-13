@@ -392,12 +392,12 @@ get_p_buckets <- function(my_df, field_name) {
     mutate(
       percent_n_compl_rank =
         case_when(
-          !!sym(field_name) < 25 ~ '0-24%',
+          !!sym(field_name) < 25 ~ '<25%',
           25 <= !!sym(field_name) &
-            !!sym(field_name) < 50 ~ '25-49%',
+            !!sym(field_name) < 50 ~ '25<= & <50%',
           50 <= !!sym(field_name) &
-            !!sym(field_name) < 75 ~ '50-74%',
-          75 <= !!sym(field_name) ~ '75-100%'
+            !!sym(field_name) < 75 ~ '50<= & <75%',
+          75 <= !!sym(field_name) ~ '75<= & <=100%'
         )
     ) %>%
     return()
