@@ -28,7 +28,7 @@ compl_clean_sa_vs_gom_m_int_c <-
       )
   )
 
-View(compl_clean_sa_vs_gom_m_int_c)
+# View(compl_clean_sa_vs_gom_m_int_c)
 
 # save vsl count ----
 
@@ -193,7 +193,7 @@ glimpse(vessels_cnt_per_year_reg_compl_tot)
 # $ total_vsl_ids_per_y_r <int> 1495, 2178, 2236
 
 # get perc non_compl vs. total for each year_permit ----
-names(vessels_cnt_per_year_reg_compl_tot)
+# names(vessels_cnt_per_year_reg_compl_tot)
 
 vessels_cnt_per_year_reg_compl_tot_perc <-
   vessels_cnt_per_year_reg_compl_tot %>% 
@@ -205,7 +205,7 @@ glimpse(vessels_cnt_per_year_reg_compl_tot_perc)
 plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
   total_vsls <- unique(my_df$total_vsl_ids_per_y_r)
   current_title <-
-    paste0(y_r_title, ". (Total vsls: ", total_vsls, ")")
+    paste0(y_r_title, " permitted (Total vsls: ", total_vsls, ")")
   one_plot <-
     my_df %>%
     ggplot(aes(x = is_compliant,
@@ -232,6 +232,13 @@ plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
   return(one_plot)
 }
 
+# curr_year_permit
+add_year_permit_label <- function(my_df) {
+  my_df %>%
+    mutate(year_permit_label =
+             stringr::str_replace(toupper(year_permit), "_", " "))
+}
+
 gg_all_c_vs_nc_plots <-
 vessels_cnt_per_year_reg_compl_tot_perc$year_permit %>%
   map(function(curr_year_permit) {
@@ -244,14 +251,21 @@ vessels_cnt_per_year_reg_compl_tot_perc$year_permit %>%
                names_to = "is_compliant",
                values_to = "percent")
 
-    y_r_title = curr_year_permit
+    # year_permit_label
+    year_permit_label <-
+      add_year_permit_label(curr_df) %>% 
+      select(year_permit_label) %>%  
+      unique()
+    
+    y_r_title = year_permit_label
     plots_for_c_vs_nc_vsls(curr_df, y_r_title)
 
   })
 
-gg_all_c_vs_nc_plots_2022 <- c(gg_all_c_vs_nc_plots[[1]], gg_all_c_vs_nc_plots[[2]])
+# % of non-compliant South Atlantic Only Permitted Vessels by month (2022)
+# % of non-compliant Gulf + Dual permitted vessels by month (2022)
 
-# gg_all_c_vs_nc_plots[[3]]
+gg_all_c_vs_nc_plots[[3]]
 
 main_title = "Percent unique compliant vs. non compliant vessels for 2022"
 
