@@ -202,8 +202,9 @@ vessels_cnt_per_year_reg_compl_tot_perc <-
 
 glimpse(vessels_cnt_per_year_reg_compl_tot_perc)
 
-make_one_plot_compl_vs_non_compl <- function(my_df, no_legend = FALSE) {
-  
+make_one_plot_compl_vs_non_compl <- 
+  function(my_df, current_title = "", no_legend = FALSE) {
+  # browser()
   one_plot <-
     my_df %>%
     ggplot(aes(x = is_compliant,
@@ -236,35 +237,13 @@ make_one_plot_compl_vs_non_compl <- function(my_df, no_legend = FALSE) {
   return(one_plot)
 }
 
-plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
-  total_vsls <- unique(my_df$total_vsl_ids_per_y_r)
-  current_title <-
-    paste0(y_r_title, " permitted (Total vsls: ", total_vsls, ")")
-  one_plot <-
-    my_df %>%
-    ggplot(aes(x = is_compliant,
-               y = percent,
-               fill = is_compliant)) +
-    geom_col() +
-    ylim(0, 100) +
-    geom_text(aes(label = paste0(round(percent, 1), "%")),
-              position = position_stack(vjust = 0.5)) +
-    labs(title = current_title,
-         x = "",
-         y = "") +
-    scale_x_discrete(labels = c("Yes", "No")) +
-    
-    scale_fill_manual(
-      values =
-        c(
-          "percent_compl" = "lightgreen",
-          "percent_non_compl" = "red"
-        ),
-      name = "Is compliant?",
-      labels = c("Yes", "No")
-    )
-  return(one_plot)
-}
+# plots_for_c_vs_nc_vsls <- function(my_df, y_r_title, total_vsls) {
+#   current_title <-
+#     paste0(y_r_title, " permitted (Total vsls: ", total_vsls, ")")
+#   one_plot <-
+#     make_one_plot_compl_vs_non_compl(my_df, current_title)
+#   return(one_plot)
+# }
 
 make_year_permit_label <- function(curr_year_permit) {
   stringr::str_replace(toupper(curr_year_permit),
@@ -273,21 +252,30 @@ make_year_permit_label <- function(curr_year_permit) {
 }
 
 gg_all_c_vs_nc_plots <-
-vessels_cnt_per_year_reg_compl_tot_perc$year_permit %>%
+  vessels_cnt_per_year_reg_compl_tot_perc$year_permit %>%
   map(function(curr_year_permit) {
     # browser()
-    curr_df <-    
-    vessels_cnt_per_year_reg_compl_tot_perc %>%
+    curr_df <-
+      vessels_cnt_per_year_reg_compl_tot_perc %>%
       filter(year_permit == curr_year_permit) %>%
-  pivot_longer(cols = c(percent_compl,
-                        percent_non_compl),
-               names_to = "is_compliant",
-               values_to = "percent")
-
+      pivot_longer(
+        cols = c(percent_compl,
+                 percent_non_compl),
+        names_to = "is_compliant",
+        values_to = "percent"
+      )
+    
     y_r_title <-
       make_year_permit_label(curr_year_permit)
     
-    plots_for_c_vs_nc_vsls(curr_df, y_r_title)
+    total_vsls <- unique(curr_df$total_vsl_ids_per_y_r)
+    
+    current_title <-
+      paste0(y_r_title, " permitted (Total vsls: ", total_vsls, ")")
+    one_plot <-
+      make_one_plot_compl_vs_non_compl(curr_df, current_title)
+
+    return(one_plot)
 
   })
 
@@ -306,7 +294,7 @@ grid.arrange(gg_all_c_vs_nc_plots[[1]],
 # keep only one legend
 
 # add percentage for whole 2022 ----
-View(vessels_cnt_per_year_reg_compl_tot_perc)
+# View(vessels_cnt_per_year_reg_compl_tot_perc)
 
 total_p_2022 <-
   vessels_cnt_per_year_reg_compl_tot_perc %>%
@@ -320,31 +308,46 @@ total_p_2022 <-
     perc_compl_2022 = tot_compl * 100 / tot_v_2022,
     perc_non_compl_2022 = tot_non_compl * 100 / tot_v_2022
   )
-View(total_p_2022)
+# View(total_p_2022)
 
 total_p_2022_longer <-
   total_p_2022 %>%
   select(perc_compl_2022,
-             perc_non_compl_2022) %>% 
-  unique() %>% 
+         perc_non_compl_2022) %>%
+  unique() %>%
+  # rename fields for the plot
+  dplyr::rename(percent_non_compl = perc_non_compl_2022,
+                percent_compl = perc_compl_2022
+                ) %>% 
   pivot_longer(
-    cols = c(perc_compl_2022,
-             perc_non_compl_2022),
+    cols = c(percent_compl,
+             percent_non_compl),
     names_to = "is_compliant",
     values_to = "percent"
-  )
+  ) %>%
+  unique()
 
-View(total_p_2022_longer)
+# View(total_p_2022_longer)
+# View(total_p_2022)
 
-y_r_title <-
+total_vsls <- total_p_2022$tot_v_2022 %>% 
+  unique()
+
+y_2022_title <-
   paste0(
-    "Compliant vs. non_compliant vessels in 2022 (",
+        "Compliant vs. non_compliant vessels in 2022 (",
     total_p_2022$tot_v_2022,
     " total vessels)"
   ) %>%
   unique()
 
-all_2022_plot <-  plots_for_c_vs_nc_vsls(total_p_2022_longer, y_r_title)
+one_2022_plot <-
+      make_one_plot_compl_vs_non_compl(total_p_2022_longer, y_2022_title)
+# 
+# 
+#   (total_p_2022_longer, y_r_title, total_vsls)
+
+one_2022_plot
 
 # Non compliant only ----
 
