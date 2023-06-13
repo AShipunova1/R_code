@@ -284,13 +284,9 @@ vessels_cnt_per_year_reg_compl_tot_perc$year_permit %>%
                names_to = "is_compliant",
                values_to = "percent")
 
-    # year_permit_label
-    year_permit_label <-
-      add_year_permit_label(curr_df) %>% 
-      select(year_permit_label) %>%  
-      unique()
+    y_r_title <-
+      make_year_permit_label(curr_year_permit)
     
-    y_r_title = year_permit_label
     plots_for_c_vs_nc_vsls(curr_df, y_r_title)
 
   })
@@ -310,6 +306,45 @@ grid.arrange(gg_all_c_vs_nc_plots[[1]],
 # keep only one legend
 
 # add percentage for whole 2022 ----
+View(vessels_cnt_per_year_reg_compl_tot_perc)
+
+total_p_2022 <-
+  vessels_cnt_per_year_reg_compl_tot_perc %>%
+  filter(startsWith(year_permit, "2022")) %>%
+  mutate(
+    tot_compl = sum(compl_vsls),
+    tot_non_compl = sum(non_compl_vsls),
+    tot_v_2022 = sum(total_vsl_ids_per_y_r)
+  ) %>%
+  mutate(
+    perc_compl_2022 = tot_compl * 100 / tot_v_2022,
+    perc_non_compl_2022 = tot_non_compl * 100 / tot_v_2022
+  )
+View(total_p_2022)
+
+total_p_2022_longer <-
+  total_p_2022 %>%
+  select(perc_compl_2022,
+             perc_non_compl_2022) %>% 
+  unique() %>% 
+  pivot_longer(
+    cols = c(perc_compl_2022,
+             perc_non_compl_2022),
+    names_to = "is_compliant",
+    values_to = "percent"
+  )
+
+View(total_p_2022_longer)
+
+y_r_title <-
+  paste0(
+    "Compliant vs. non_compliant vessels in 2022 (",
+    total_p_2022$tot_v_2022,
+    " total vessels)"
+  ) %>%
+  unique()
+
+all_2022_plot <-  plots_for_c_vs_nc_vsls(total_p_2022_longer, y_r_title)
 
 # Non compliant only ----
 
