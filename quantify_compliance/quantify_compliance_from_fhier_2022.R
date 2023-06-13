@@ -350,13 +350,13 @@ one_2022_plot <-
 one_2022_plot
 
 # Non compliant only ----
-
+# names(compl_clean_sa_vs_gom_m_int_c)
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present ----
 count_weeks_per_vsl_permit_year_compl <-
   compl_clean_sa_vs_gom_m_int_c %>%
-  add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
-  add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
+  add_count(year_permit, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  add_count(year_permit, vessel_official_number, name = "total_weeks_per_vessel")
 
 # View(count_weeks_per_vsl_permit_year_compl)
 
@@ -370,29 +370,33 @@ count_weeks_per_vsl_permit_year_compl %>%
 # 1 2022  YES                                50                     52
 # 2 2022  NO                                  2                     52
 
-nc_2023_gom_only_test <-
+nc_2022_sa_only_test <-
   count_weeks_per_vsl_permit_year_compl %>%
-  filter(year_permit == "2023 gom_only",
+  filter(year_permit == "2022 sa_only",
          compliant_ == "NO") %>%
   select(vessel_official_number,
          weeks_per_vessel_per_compl,
          total_weeks_per_vessel) %>%
   unique()
 
-head(nc_2023_gom_only_test)
-# 1247024   11  22
-# FL4749LH  1   22
-# 1298355   1   22
+head(nc_2022_sa_only_test)
+            # weeks_per_vessel_per…¹ total_weeks_per_vessel
+# 1 VA9236AV 52 52 
+# 2 VA6784AD 24 24 
+# 3 VA4480ZY 44 44 
+# 4 SC9207BX 26 50 
+# 5 SC8907DF 14 40 
+# 6 SC8298DH 45 45 
 
 count_weeks_per_vsl_permit_year_compl %>%
-  filter(year_permit == "2023 gom_only",
+  filter(year_permit == "2022 sa_only",
          compliant_ == "YES",
-         vessel_official_number == "FL4749LH") %>%
+         vessel_official_number == "SC8907DF") %>%
   select(vessel_official_number,
          weeks_per_vessel_per_compl,
          total_weeks_per_vessel) %>%
   unique()
-# 21  22
+# 26  40
 
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
@@ -400,7 +404,7 @@ count_weeks_per_vsl_permit_year_compl_p <-
   mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
-# View(count_weeks_per_vsl_permit_year_compl_p)
+View(count_weeks_per_vsl_permit_year_compl_p)
 
 # test
 # View(count_weeks_per_vsl_permit_year_compl_p)
@@ -456,6 +460,9 @@ count_weeks_per_vsl_permit_year_n_compl_p_short <-
 
 str(count_weeks_per_vsl_permit_year_n_compl_p_short)
 # tibble [3,224 × 5] (S3: tbl_df/tbl/data.frame)
+ # $ weeks_per_vessel_per_compl: int [1:3221] 52 24 44 26 14 45 5 41 52 27 ...
+ # $ total_weeks_per_vessel    : int [1:3221] 52 24 44 50 40 45 41 45 52 52 ...
+ # $ percent_compl             : num [1:3221] 100 100 100 52 35 ...
 
 ## 2b) get percentage "buckets" ----
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_y_p)
