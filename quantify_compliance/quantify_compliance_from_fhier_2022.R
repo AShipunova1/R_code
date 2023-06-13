@@ -266,11 +266,10 @@ plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
   return(one_plot)
 }
 
-# curr_year_permit
-add_year_permit_label <- function(my_df) {
-  my_df %>%
-    mutate(year_permit_label =
-             stringr::str_replace(toupper(year_permit), "_", " "))
+make_year_permit_label <- function(curr_year_permit) {
+  stringr::str_replace(toupper(curr_year_permit),
+                       "_", " ") %>% 
+    return()
 }
 
 gg_all_c_vs_nc_plots <-
