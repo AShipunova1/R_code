@@ -1187,6 +1187,15 @@ compl_data_sa_2022_m_short_is_compl_cnt_tot_perc <-
     percent_no_yes = NO_YES * 100 / total_vsls_m
   )
 
+write_csv(
+  compl_data_sa_2022_m_short_is_compl_cnt_tot_perc,
+  file.path(
+    my_paths$outputs,
+    r"(quantify_compliance\by_dual)",
+    "compl_data_sa_2022_m_short_is_compl_cnt_tot_perc.csv"
+  )
+)
+
 # check counts
 # %>%
   # count(month_num, name = "nc_v_per_month")
