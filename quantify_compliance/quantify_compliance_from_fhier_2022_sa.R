@@ -142,6 +142,35 @@ compl_data_sa_2022_m_short_tot_ov_wide %>%
 #  9 11        November   YES_NO  
 # 10 12        December   YES_NO  
 
+names(compl_data_sa_2022_m_short_tot_ov_wide) %>% 
+  head() %>% paste0(collapse = ", ")
+# "compliant_, overridden_, month_name, month_num, tota_vsl_m, VI5498TB"
+
+compl_data_sa_2022_m_short_tot_ov_long <-
+  compl_data_sa_2022_m_short_tot_ov_wide %>%
+  pivot_longer(
+    cols = -c(compliant_,
+              overridden_,
+              month_name,
+              month_num,
+              tota_vsl_m),
+    values_to = "is_compl_overridden",
+    names_to = "vessel_official_number"
+  )
+
+View(compl_data_sa_2022_m_short_tot_ov_long)
+
+# add compl counts ----
+compl_data_sa_2022_m_short_tot_ov_long %>% 
+  ungroup() %>%
+  select(-vessel_official_number) %>%
+  
+  add_count(month_name, 
+            is_compl_overridden,
+            name = "count_by_m_c_o") %>%
+  unique() %>%
+  arrange(month_num) %>% View()
+
 
 # compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
 # compl_data_sa_2022_m_short_tot %>%
