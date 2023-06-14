@@ -113,21 +113,18 @@ compl_data_sa_2022_m_short_tot_ov_wide <-
   dplyr::group_by(month_num) %>%
   tidyr::pivot_wider(
     names_from = vessel_official_number,
-    values_from = compl_overr,
-    # make it "NO_YES" if both
-    values_fn = ~ paste0(sort(.x), collapse = "__")
+    values_from = compl_overr
   )
-
 
 ### check compl_data_sa_2022_m_short_is_compl_wide ----
 compl_data_sa_2022_m_short_tot_ov %>% 
   filter(vessel_official_number == "SC9087BU") %>% View()
 
-compl_data_sa_2022_m_short_tot_ov_wide %>%
+compl_data_sa_2022_m_short_tot_ov_wide %>% 
   arrange(month_num) %>%
   select(month_name, SC9087BU) %>%
   filter(complete.cases(SC9087BU)) %>% 
-  tail()
+  tail(10)
 
 #    month_num month_name SC9087BU
 #    <chr>     <chr>      <chr>   
@@ -142,8 +139,8 @@ compl_data_sa_2022_m_short_tot_ov_wide %>%
 #  9 11        November   YES_NO  
 # 10 12        December   YES_NO  
 
-names(compl_data_sa_2022_m_short_tot_ov_wide) %>% 
-  head() %>% paste0(collapse = ", ")
+# names(compl_data_sa_2022_m_short_tot_ov_wide) %>% 
+#   head() %>% paste0(collapse = ", ")
 # "compliant_, overridden_, month_name, month_num, tota_vsl_m, VI5498TB"
 
 compl_data_sa_2022_m_short_tot_ov_long <-
@@ -161,16 +158,50 @@ compl_data_sa_2022_m_short_tot_ov_long <-
 View(compl_data_sa_2022_m_short_tot_ov_long)
 
 # add compl counts ----
-compl_data_sa_2022_m_short_tot_ov_long %>% 
-  ungroup() %>%
-  select(-vessel_official_number) %>%
-  
-  add_count(month_name, 
-            is_compl_overridden,
-            name = "count_by_m_c_o") %>%
-  unique() %>%
-  arrange(month_num) %>% View()
+compl_data_sa_2022_m_short_tot_ov_long %>%
+  select(month_name,
+         month_num,
+         tota_vsl_m,
+         is_compl_overridden) %>%
+  filter(complete.cases(is_compl_overridden)) %>%
+  glimpse()
 
+compl_data_sa_2022_m_short_tot_ov_long %>% 
+  select(month_name,
+         month_num,
+         tota_vsl_m,
+         is_compl_overridden) %>%
+  filter(complete.cases(is_compl_overridden)) %>%
+    group_by(month_num) %>%
+  summarise(n = n()) %>%
+  mutate(Freq = n/sum(n)) %>% View()
+
+# count uniq vessel ids with "no" for compl and "no" for "overidden?" per month 
+compl_data_sa_2022_m_short_tot_ov_cnt_c_o <-
+  compl_data_sa_2022_m_short_tot_ov_long %>%
+  filter(is_compl_overridden == "NO_NO") %>%
+  group_by(month_num) %>%
+  mutate(count_no_no = n_distinct(vessel_official_number)) %>% 
+  ungroup()
+
+# names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o)
+
+compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no <-
+  compl_data_sa_2022_m_short_tot_ov_cnt_c_o %>%
+  select(-c(
+    vessel_official_number,
+    compliant_,
+    overridden_,
+    is_compl_overridden
+  )) %>%
+  unique()
+
+names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no)
+
+# add percentage to no_no ----
+compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p <-
+  compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no %>% 
+  mutate(percent_no_no = count_no_no * 100 / tota_vsl_m)
 
 # compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
 # compl_data_sa_2022_m_short_tot %>%
