@@ -54,6 +54,31 @@ compl_data_sa_2022_m_short_compl_vs_nc_per_m <-
 # %>%
 #   View()
 
+# count total
+compl_data_sa_2022_m_short_total_vsl_m_check <- 
+  compl_data_sa_2022_m_short %>%
+  # Applying group_by & summarise
+  group_by(month_num) %>%
+  summarise(count = n_distinct(vessel_official_number))
+
+# View(compl_data_sa_2022_m_short_total_vsl_m_check)
+
+compl_data_sa_2022_m_short_tot <-
+  compl_data_sa_2022_m_short %>%
+  # Applying group_by & summarise
+  group_by(month_num) %>%
+  mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
+  ungroup()
+
+View(compl_data_sa_2022_m_short_tot)
+
+# check
+# compl_data_sa_2022_m_short_tot %>% 
+#     filter(month_num == "01") %>% 
+#     select(tota_vsl_m) %>% 
+#     unique()
+# 1635
+
 ## Month: get nc vessel_ids ----
 compl_data_sa_2022_m_short_nc_v <-
   compl_data_sa_2022_m_short %>%
