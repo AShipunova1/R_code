@@ -69,46 +69,88 @@ View(compl_data_sa_2022_m_short_tot)
 #     unique()
 # 1635
 
-## compl/nc per month ----
+# check 2
+names(compl_clean_sa_vs_gom_m_int_c)
+
+compl_clean_sa_vs_gom_m_int_c %>%
+  filter(year_month == "Jan 2022" &
+           permit_sa_gom == "sa_only") %>%
+  select(vessel_official_number) %>%
+  unique() %>%
+  dim()
+# 1635
+
+# compl/nc per month ----
 # compl_data_sa_2022_m_short_compl_vs_nc_per_m <-
 
 names(compl_data_sa_2022_m_short_tot)
+
 compl_data_sa_2022_m_short_tot_ov <-
   compl_data_sa_2022_m_short_tot %>%
     group_by(month_num) %>%
   mutate(compl_overr = paste(compliant_, overridden_, sep = "_"))
 
-View(compl_data_sa_2022_m_short_tot_w_cnts)
-  
-  select(vessel_official_number,
-         compliant_,
-         overridden_,
-         month_name,
-         month_num,
-         tota_vsl_m) %>%
-  add_count(compliant_,
-            overridden_,
-            month_name,
-            name = "compl_overr_v") %>%
-  arrange(month_num) %>%
-  unique()
+# check
+compl_clean_sa_vs_gom_m_int_c %>%
+  filter(year_month == "Jan 2022" &
+           permit_sa_gom == "sa_only" &
+           compliant_ == "NO" &
+           overridden_ == "NO") %>%
+  select(vessel_official_number) %>%
+  unique() %>%
+  dim()
+# [1] 468   1
 
-View(compl_data_sa_2022_m_short_tot_w_cnts)
 
 # add compl counts ----
-# compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
-compl_data_sa_2022_m_short_tot %>%
-  group_by(month_num) %>%
-  mutate(compl_overr = paste(compliant_, overridden_, sep = "_")) %>%
-  filter(compl_overr == "NO_NO") %>% 
-    ggplot(aes(x = month_name,
-               y = compl_overr_v)) +
-    geom_point(color = "red")
 
-compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
-  group_by(month_num) %>%
-  mutate(compl_overr = paste(compliant_, overridden_, sep = "_")) %>%
-  View()
+## get compl, no compl, or both per month ----
+names(compl_data_sa_2022_m_short_tot_ov)
+
+compl_data_sa_2022_m_short_tot_ov_wide <-
+  compl_data_sa_2022_m_short_tot_ov %>%
+  unique() %>%
+  dplyr::group_by(month_num) %>%
+  tidyr::pivot_wider(
+    names_from = vessel_official_number,
+    values_from = compl_overr,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(sort(.x), collapse = "__")
+  )
+
+
+### check compl_data_sa_2022_m_short_is_compl_wide ----
+compl_data_sa_2022_m_short_tot_ov %>% 
+  filter(vessel_official_number == "SC9087BU") %>% View()
+
+compl_data_sa_2022_m_short_tot_ov_wide %>%
+  arrange(month_num) %>%
+  select(month_name, SC9087BU) %>%
+  filter(complete.cases(SC9087BU)) %>% 
+  tail()
+
+#    month_num month_name SC9087BU
+#    <chr>     <chr>      <chr>   
+#  1 06        June       YES_NO  
+#  2 06        June       NO_YES  
+#  3 07        July       YES_NO  
+#  4 08        August     YES_NO  
+#  5 08        August     NO_YES  
+#  6 09        September  NO_YES  
+#  7 10        October    YES_NO  
+#  8 10        October    NO_YES  
+#  9 11        November   YES_NO  
+# 10 12        December   YES_NO  
+
+
+# compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
+# compl_data_sa_2022_m_short_tot %>%
+#   group_by(month_num) %>%
+#   mutate(compl_overr = paste(compliant_, overridden_, sep = "_")) %>%
+#   filter(compl_overr == "NO_NO") %>% 
+#     ggplot(aes(x = month_name,
+#                y = compl_overr_v)) +
+#     geom_point(color = "red")
 
 ## Month: get nc vessel_ids ----
 compl_data_sa_2022_m_short_nc_v <-
