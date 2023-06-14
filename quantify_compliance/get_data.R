@@ -118,8 +118,10 @@ return(compl_clean1)
 }
 
 additional_clean_up <- function(compl_clean) {
+  
   # ---- separate SA and GOM permits ----
-  compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
+  compl_clean_sa_vs_gom <-
+    separate_permits_into_3_groups(compl_clean)
   
   # View(compl_clean_sa_vs_gom)
   
@@ -140,7 +142,25 @@ additional_clean_up <- function(compl_clean) {
       gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
     )
   
-  return(compl_clean_sa_vs_gom_m_int)
+  # add year_permit column ----
+  compl_clean_sa_vs_gom_m_int_c <-
+    compl_clean_sa_vs_gom_m_int %>%
+    mutate(
+      year_permit =
+        case_when(
+          year == "2022" & permit_sa_gom == "sa_only" ~
+            paste(year, "sa_only"),
+          year == "2022" & (permit_sa_gom %in% c("gom_only",
+                                                 "both")) ~
+            paste(year, "gom_dual"),
+          year == "2023" & (permit_sa_gom %in% c("sa_only",
+                                                 "both")) ~
+            paste(year, "sa_dual")
+        )
+    )
+  
+  
+  return(compl_clean_sa_vs_gom_m_int_c)
 }
 
 # get data from db ----
