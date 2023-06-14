@@ -19,6 +19,7 @@ compl_data_sa_2022_m <-
   dplyr::mutate(month_name = format(year_month, "%B")) %>%
   dplyr::mutate(month_num = format(year_month, "%m"))
 
+# get fewer fields ----
 compl_data_sa_2022_m_short <-
   compl_data_sa_2022_m %>%
   select(vessel_official_number,
@@ -38,25 +39,12 @@ compl_data_sa_2022_m_short <-
 
   #79 count(compliant_, year, permit_sa_gom)
 
-## compl/nc per month ----
-compl_data_sa_2022_m_short_compl_vs_nc_per_m <-
-  compl_data_sa_2022_m_short %>%
-  select(vessel_official_number,
-         compliant_,
-         overridden_,
-         month_name,
-         month_num) %>%
-  add_count(compliant_, overridden_, month_name, 
-            name = "compl_overr_v") %>%
-  arrange(month_num) %>%
-  unique()
-
 compl_data_sa_2022_m_short_compl_vs_nc_per_m %>% 
     select(compliant_, overridden_, month_name, month_num, compl_overr_v) %>%
   unique() %>% 
   View()
 
-# count total
+# count total ----
 compl_data_sa_2022_m_short_total_vsl_m_check <- 
   compl_data_sa_2022_m_short %>%
   # Applying group_by & summarise
@@ -81,13 +69,37 @@ View(compl_data_sa_2022_m_short_tot)
 #     unique()
 # 1635
 
+## compl/nc per month ----
+# compl_data_sa_2022_m_short_compl_vs_nc_per_m <-
+
+names(compl_data_sa_2022_m_short_tot)
+compl_data_sa_2022_m_short_tot_ov <-
+  compl_data_sa_2022_m_short_tot %>%
+    group_by(month_num) %>%
+  mutate(compl_overr = paste(compliant_, overridden_, sep = "_"))
+
+View(compl_data_sa_2022_m_short_tot_w_cnts)
+  
+  select(vessel_official_number,
+         compliant_,
+         overridden_,
+         month_name,
+         month_num,
+         tota_vsl_m) %>%
+  add_count(compliant_,
+            overridden_,
+            month_name,
+            name = "compl_overr_v") %>%
+  arrange(month_num) %>%
+  unique()
+
+View(compl_data_sa_2022_m_short_tot_w_cnts)
+
+# add compl counts ----
 # compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
 compl_data_sa_2022_m_short_tot %>%
   group_by(month_num) %>%
-  add_count(compliant_, overridden_, month_name, 
-            name = "compl_overr_v") %>%
-  mutate(compl_overr = paste(compliant_, overridden_, sep = "_")) %>% View()
-  
+  mutate(compl_overr = paste(compliant_, overridden_, sep = "_")) %>%
   filter(compl_overr == "NO_NO") %>% 
     ggplot(aes(x = month_name,
                y = compl_overr_v)) +
