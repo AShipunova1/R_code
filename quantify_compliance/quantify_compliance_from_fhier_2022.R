@@ -1070,12 +1070,101 @@ compl_data_sa_2022_m_short_nc_v <-
   # select(month_num, nc_v_per_month) %>% 
   
 ## Month: get compl only vessel_ids ----
+
+# df %>% group_by(a) %>% mutate(d = +(b %in% c))
+
+View(compl_data_sa_2022_m_short)
+
 compl_data_sa_2022_m_short %>%
-  filter(compliant_ == "YES") %>% 
+  unique() %>% 
+  select(-permitgroupexpiration) %>% 
+  group_by(month_num) %>%
+  tidyr::pivot_wider(names_from = vessel_official_number, values_from = compliant_) %>% 
+  View()
+# Warning in View :
+#   Values from `compliant_` are not uniquely identified; output will
+# contain list-cols.
+# • Use `values_fn = list` to suppress this warning.
+# • Use `values_fn = {summary_fun}` to summarise duplicates.
+# • Use the following dplyr code to identify duplicates.
+#   {data} %>%
+#   dplyr::group_by(permitgroupexpiration, month_name, month_num,
+#   vessel_official_number) %>%
+#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+#   dplyr::filter(n > 1L)
+
+# check
+# compl_data_sa_2022_m_short %>%
+#   unique() %>%
+#   dplyr::group_by(permitgroupexpiration,
+#                   month_name,
+#                   month_num,
+#                   vessel_official_number) %>%
+#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+#   dplyr::filter(n > 1L) %>%
+#   View()
+
+## get compl, no compl, or both per month ----
+compl_data_sa_2022_m_short_is_compl <-
+  compl_data_sa_2022_m_short %>%
+  unique() %>%
+  dplyr::select(-permitgroupexpiration) %>%
+  dplyr::group_by(month_num) %>%
+  tidyr::pivot_wider(
+    names_from = vessel_official_number,
+    values_from = compliant_,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(sort(.x), collapse = "_")
+  ) 
+
+### check compl_data_sa_2022_m_short_is_compl ----
+compl_data_sa_2022_m_short_is_compl %>% 
+  arrange(month_num) %>% 
+  select(month_name, SC9087BU) %>% 
+  tail()
+# 1 07        July       YES     
+# 2 08        August     NO_YES  
+# 3 09        September  NO      
+# 4 10        October    NO_YES  
+# 5 11        November   YES     
+# 6 12        December   YES     
+
+## check before ----
+compl_data_sa_2022_m %>%
+  select(vessel_official_number, compliant_, month_name, month_num) %>%
+  unique() %>%
+  filter(vessel_official_number == "SC9087BU") %>% 
+  arrange(month_num) %>% 
+  tail(10)
+#  3 SC9087BU               YES        July       07       
+#  4 SC9087BU               NO         August     08       
+#  5 SC9087BU               YES        August     08       
+#  6 SC9087BU               NO         September  09       
+#  7 SC9087BU               YES        October    10       
+#  8 SC9087BU               NO         October    10       
+#  9 SC9087BU               YES        November   11       
+# 10 SC9087BU               YES        December   12       
+# correct
+compl_data_sa_2022_m_short %>% 
+  group_by(month_num) %>% 
+  # mutate(compl_only = +())
+  
+  
+filter(month_num == compl_data_sa_2022_m_short_nc_v$month_num &
+    !(vessel_official_number %in% compl_data_sa_2022_m_short_nc_v$vessel_official_number)) %>% 
+  
+    filter(compliant_ == "YES") %>% 
+  full_join(compl_data_sa_2022_m_short_nc_v)
+
   filter(month_num == compl_data_sa_2022_m_short_nc_v$month_num &
     !(vessel_official_number %in% compl_data_sa_2022_m_short_nc_v$vessel_official_number)) %>% 
   View()
 
+# check counts
+# %>%
+  # count(month_num, name = "nc_v_per_month")
+# %>%
+  # select(month_num, nc_v_per_month) %>% 
 
 
 compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
