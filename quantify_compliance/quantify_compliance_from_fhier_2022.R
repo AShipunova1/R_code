@@ -827,10 +827,6 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r <-
 
 # View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r)
 
-sorted_year_permits <- names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r) %>%
-  sort()
-# [1] "2022 gom_dual" "2022 sa_only"  "2023 sa_dual" 
-
 get_one_plot_by_month <-
   function(my_df, curr_year_month) {
     # browser()
@@ -848,7 +844,7 @@ get_one_plot_by_month <-
                         curr_year_month,
                         " (",
                         curr_tot_v_per_m_y_r,
-                        " non compliant vessels)")
+                        " non compliant v)")
 
     one_plot <-
       ggplot(curr_data,
@@ -857,13 +853,28 @@ get_one_plot_by_month <-
       geom_col(fill = "skyblue") +
       labs(title = curr_title,
            x = "",
-           y = "% nc vsls") +
+           y = "") +
+           # y = "% nc vsls") +
       geom_text(aes(label = perc_labels),
                 position = position_stack(vjust = 0.5)) +
       ylim(0, 100)
     
     return(one_plot)
   }
+
+
+sorted_year_permits <- names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r) %>%
+  sort()
+# [1] "2022 gom_dual" "2022 sa_only"  "2023 sa_dual" 
+
+year_permit_titles <-
+  data.frame(
+             super_title_gom = "% of non-compliant Gulf + Dual permitted vessels by month (2022)",
+             super_title_sa = "% of non-compliant South Atlantic Only Permitted Vessels by month (2022)",
+             super_title_2023 = "% of non-compliant South Atlantic + Dual permitted vessels by month (2023)")
+
+names(year_permit_titles) <- sorted_year_permits
+
 
 gg_month_nc_perc <-
   sorted_year_permits %>%
@@ -901,26 +912,26 @@ gg_month_nc_perc <-
 # "2022 both"
 # gg_month_nc_perc[[5]][[5]]
 
-super_title_sa <- "% of non-compliant South Atlantic Only Permitted Vessels by month (2022)"
-
-super_title_gom <- "% of non-compliant Gulf + Dual permitted vessels by month (2022)"
-
 all_plots <-
   gg_month_nc_perc %>%
   # repeat for each entry
   map(function(curr_year_reg_list) {
+    
     # browser()
-    super_title <- paste(super_title,
-                         curr_year_reg_list[[1]])
+    curr_year_permit <- curr_year_reg_list[[1]]
+    
+    
+    curr_super_title <- year_permit_titles[[curr_year_permit]]
+    
     gridExtra::arrangeGrob(grobs =
-                  curr_year_reg_list[[2]],
-                top = super_title,
-                ncol = 3) %>%
+                             curr_year_reg_list[[2]],
+                           top = curr_super_title,
+                           ncol = 3) %>%
       return()
   })
 
 # draw one plot to test
-gridExtra::grid.arrange(all_plots[[5]])
+gridExtra::grid.arrange(all_plots[[2]])
 
 # all plots per month to files ----
 save_plots_list_to_pdf <-
