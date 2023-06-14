@@ -1105,7 +1105,7 @@ compl_data_sa_2022_m_short %>%
 #   View()
 
 ## get compl, no compl, or both per month ----
-compl_data_sa_2022_m_short_is_compl <-
+compl_data_sa_2022_m_short_is_compl_wide <-
   compl_data_sa_2022_m_short %>%
   unique() %>%
   dplyr::select(-permitgroupexpiration) %>%
@@ -1117,8 +1117,8 @@ compl_data_sa_2022_m_short_is_compl <-
     values_fn = ~ paste0(sort(.x), collapse = "_")
   )
 
-### check compl_data_sa_2022_m_short_is_compl ----
-compl_data_sa_2022_m_short_is_compl %>%
+### check compl_data_sa_2022_m_short_is_compl_wide ----
+compl_data_sa_2022_m_short_is_compl_wide %>%
   arrange(month_num) %>%
   select(month_name, SC9087BU) %>%
   tail()
@@ -1145,12 +1145,29 @@ compl_data_sa_2022_m %>%
 #  9 SC9087BU               YES        November   11
 # 10 SC9087BU               YES        December   12
 # correct
-compl_data_sa_2022_m_short %>%
-  group_by(month_num) %>%
-  # mutate(compl_only = +())
 
+# View(compl_data_sa_2022_m_short_is_compl_wide)
+compl_data_sa_2022_m_short_is_compl <-
+  compl_data_sa_2022_m_short_is_compl_wide %>%
+  pivot_longer(
+    cols = -c(month_name, month_num),
+    values_to = "is_compl_or_both",
+    names_to = "vessel_official_number"
+  )
 
-  View(compl_data_sa_2022_m_short_is_compl
+names(compl_data_sa_2022_m_short_is_compl)
+
+compl_data_sa_2022_m_short_is_compl_cnt <-
+  compl_data_sa_2022_m_short_is_compl %>%
+  ungroup() %>%
+  select(-vessel_official_number) %>%
+  add_count(month_name, is_compl_or_both,
+            name = "count_by_m_c") %>%
+  unique() %>%
+  arrange(month_num)
+
+  View()
+  
 # check counts
 # %>%
   # count(month_num, name = "nc_v_per_month")
