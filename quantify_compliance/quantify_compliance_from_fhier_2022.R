@@ -1039,3 +1039,19 @@ compl_data_sa_2022_m_short <-
 #  $ permitgroupexpiration : POSIXct[1:190], format: "2023-06-30" 
 
   #79 count(compliant_, year, permit_sa_gom)
+
+## compl/nc per month ----
+compl_data_sa_2022_m_short_compl_vs_nc_per_m <-
+  compl_data_sa_2022_m_short %>%
+  select(vessel_official_number,
+         compliant_,
+         # permitgroupexpiration,
+         month_name,
+         month_num) %>%
+  unique() %>% 
+  add_count(compliant_, month_name) %>%
+  select(compliant_, month_name, month_num, n) %>%
+  arrange(month_num) %>%
+  unique()
+# %>% 
+#   View()
