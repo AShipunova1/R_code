@@ -1019,14 +1019,16 @@ compl_data_sa_2022 <-
 ## add month only for plots ----
 compl_data_sa_2022_m <-
   compl_data_sa_2022 %>%
-  dplyr::mutate(month_name = format(year_month, "%B"))
+  dplyr::mutate(month_name = format(year_month, "%B")) %>% 
+  dplyr::mutate(month_num = format(year_month, "%m"))
 
 compl_data_sa_2022_m_short <-
   compl_data_sa_2022_m %>%
   select(vessel_official_number,
          compliant_,
          permitgroupexpiration,
-         month_name)
+         month_name,
+         month_num)
 
 # check
 compl_clean_sa_vs_gom_m_int_c %>% 
