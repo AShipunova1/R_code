@@ -1055,3 +1055,17 @@ compl_data_sa_2022_m_short_compl_vs_nc_per_m <-
   unique()
 # %>% 
 #   View()
+
+## Month: get nc vessel_ids ----
+compl_data_sa_2022_m_short_nc_v <-
+  compl_data_sa_2022_m_short %>%
+  filter(compliant_ == "NO") %>% 
+  select(vessel_official_number, month_num) %>% 
+  unique()
+
+# check counts
+# %>%
+  # count(month_num, name = "nc_v_per_month")
+# %>%
+  # select(month_num, nc_v_per_month) %>% 
+  
