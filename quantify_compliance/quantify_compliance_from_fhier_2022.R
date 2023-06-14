@@ -1003,3 +1003,37 @@ compl_clean_sa_vs_gom_m_int_c %>%
   select(vessel_official_number) %>%
   unique() %>% dim()
 # [1] 10  1
+# ===
+# 1)
+# "% Non-Compliant Vessels in Jan 2022 (12345 permitted; 125 expired permits)". I realize that is a long title, so perhaps we can push the % non-compliant vessels to the main title, and those smaller titles over the figure could just start at "jan...". Having the # of expired permits (compared to the # of permits) in each figure would better explain if they haven't tried to renew, and therefore haven't had to submit reports in order to renew. That is pretty much our only means to get them to comply, in the SA.
+  
+# 2)
+# do you see a progression through the months of 2022 of increasing non-compliance for SA vessels? ----
+
+# View(compl_clean_sa_vs_gom_m_int_c)
+
+compl_data_sa_2022 <-
+  compl_clean_sa_vs_gom_m_int_c %>% 
+  filter(year_permit == "2022 sa_only")
+  
+## add month only for plots ----
+compl_data_sa_2022_m <-
+  compl_data_sa_2022 %>%
+  dplyr::mutate(month_name = format(year_month, "%B"))
+
+compl_data_sa_2022_m_short <-
+  compl_data_sa_2022_m %>%
+  select(vessel_official_number,
+         compliant_,
+         permitgroupexpiration,
+         month_name)
+
+# check
+compl_clean_sa_vs_gom_m_int_c %>% 
+  select(permit_groupexpiration,  permitgroupexpiration) %>% 
+  unique() %>% 
+  str()
+# permit_groupexpiration: chr [1:190] "06/30/2023" "08/31/2023" "09/30/2023" "05/31/2024" ...
+#  $ permitgroupexpiration : POSIXct[1:190], format: "2023-06-30" 
+
+  #79 count(compliant_, year, permit_sa_gom)
