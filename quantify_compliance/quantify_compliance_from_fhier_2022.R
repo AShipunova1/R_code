@@ -1196,6 +1196,73 @@ write_csv(
   )
 )
 
+plot(compl_data_sa_2022_m_short_is_compl_cnt_tot_perc$month_num, compl_data_sa_2022_m_short_is_compl_cnt_tot_perc$percent_yes)
+
+# x = fct_rev(fct_reorder(
+             # common_name,!!sym(count_field_name),
+             # .fun = max
+           # )),
+
+plot_perc_compl_per_m <-
+  compl_data_sa_2022_m_short_is_compl_cnt_tot_perc %>%
+  ungroup() %>%
+  mutate(month_name_order = fct_reorder(month_name,
+                                        as.numeric(month_num))) %>%
+  ggplot(aes(x = month_name_order,
+             y = percent_yes,
+             color = "blue")) +
+  geom_point() +
+  # geom_text(aes(label = paste0(round(percent, 1), "%")),
+  #           position = position_stack(vjust = 0.5)) +
+  labs(title = "% of compliant South Atlantic Only Permitted Vessels by month (2022)",
+       x = "",
+       y = "Percent") +
+  # footnote
+  labs(caption = "Counted for unique vessels per month as (compliant only) * 100 / (total)") +
+  geom_point(aes(x = month_name_order,
+                 y = percent_no_yes,
+             color = "yellow")) +
+  geom_point(aes(x = month_name_order,
+                 y = percent_no,
+             color = "red"))
+
+plot_perc_compl_per_m
+
+names(compl_data_sa_2022_m_short_is_compl_cnt_tot_perc)
+# compl_data_sa_2022_m_short_is_compl_cnt_tot_perc %>%
+#   ungroup() %>%
+#   select(month_name, YES, tot_not_compl_m,  total_vsls_m, percent_yes) %>% View()
+
+# check numbers
+compl_data_sa_2022_m %>% 
+        filter(year_month == "Jan 2022" & year_permit == "2022 sa_only") %>% select(vessel_official_number) %>% 
+        unique() %>% 
+        dim()
+# 1635
+
+# 932+703
+# [1] 1635
+
+
+names(compl_data_sa_2022_m_short_is_compl_cnt_tot_perc)
+plot_perc_non_compl_per_m <-
+  compl_data_sa_2022_m_short_is_compl_cnt_tot_perc %>%
+  ungroup() %>%
+  mutate(month_name_order = fct_reorder(month_name,
+                                        as.numeric(month_num))) %>%
+  ggplot(aes(x = month_name_order,
+             y = percent_tot_not)) +
+  geom_point(color = "red") +
+  # geom_text(aes(label = paste0(round(percent, 1), "%")),
+  #           position = position_stack(vjust = 0.5)) +
+  labs(title = "% of compliant South Atlantic Only Permitted Vessels by month (2022)",
+       x = "",
+       y = "Percent") +
+  # footnote
+  labs(caption = "Counted for unique vessels per month as (compliant only) * 100 / (total)")
+
+# do you see a progression through the months of 2022 of increasing non-compliance for SA vessels?
+    
 # check counts
 # %>%
   # count(month_num, name = "nc_v_per_month")
