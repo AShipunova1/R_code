@@ -203,14 +203,13 @@ compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p <-
   compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no %>% 
   mutate(percent_no_no = count_no_no * 100 / tota_vsl_m)
 
-# compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
-# compl_data_sa_2022_m_short_tot %>%
-#   group_by(month_num) %>%
-#   mutate(compl_overr = paste(compliant_, overridden_, sep = "_")) %>%
-#   filter(compl_overr == "NO_NO") %>% 
-#     ggplot(aes(x = month_name,
-#                y = compl_overr_v)) +
-#     geom_point(color = "red")
+# names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p)
+compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p %>%
+  mutate(month_name_order = fct_reorder(month_name,
+                                        as.numeric(month_num))) %>%
+  ggplot(aes(x = month_name_order,
+             y = percent_no_no)) +
+  geom_point(color = "red")
 
 ## Month: get nc vessel_ids ----
 compl_data_sa_2022_m_short_nc_v <-
