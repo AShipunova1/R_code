@@ -1031,10 +1031,10 @@ compl_data_sa_2022_m_short <-
          month_num)
 
 # check
-compl_clean_sa_vs_gom_m_int_c %>% 
-  select(permit_groupexpiration,  permitgroupexpiration) %>% 
-  unique() %>% 
-  str()
+# compl_clean_sa_vs_gom_m_int_c %>% 
+#   select(permit_groupexpiration,  permitgroupexpiration) %>% 
+#   unique() %>% 
+#   str()
 # permit_groupexpiration: chr [1:190] "06/30/2023" "08/31/2023" "09/30/2023" "05/31/2024" ...
 #  $ permitgroupexpiration : POSIXct[1:190], format: "2023-06-30" 
 
