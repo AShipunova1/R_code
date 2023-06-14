@@ -1077,3 +1077,23 @@ compl_data_sa_2022_m_short %>%
   View()
 
 
+
+compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
+  mutate(month_name_order = fct_reorder(month_name,
+                                        as.numeric(month_num)))
+
+
+
+
+  ggplot()
+  # x = fct_rev(fct_reorder(common_name,
+  #                                  !!sym(count_field_name),
+  #                                  .fun = max)),
+  
+  
+      pivot_longer(
+        cols = c(percent_compl,
+                 percent_non_compl),
+        names_to = "is_compliant",
+        values_to = "percent"
+      )
