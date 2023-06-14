@@ -1069,3 +1069,11 @@ compl_data_sa_2022_m_short_nc_v <-
 # %>%
   # select(month_num, nc_v_per_month) %>% 
   
+## Month: get compl only vessel_ids ----
+compl_data_sa_2022_m_short %>%
+  filter(compliant_ == "YES") %>% 
+  filter(month_num == compl_data_sa_2022_m_short_nc_v$month_num &
+    !(vessel_official_number %in% compl_data_sa_2022_m_short_nc_v$vessel_official_number)) %>% 
+  View()
+
+
