@@ -1166,8 +1166,16 @@ compl_data_sa_2022_m_short_is_compl_cnt <-
   unique() %>%
   arrange(month_num)
 
-  View()
-  
+  View(compl_data_sa_2022_m_short_is_compl_cnt)
+
+## get total counts per month ----
+compl_data_sa_2022_m_short_is_compl_cnt_tot <-
+  compl_data_sa_2022_m_short_is_compl_cnt %>%
+  group_by(month_num) %>%
+  pivot_wider(names_from = is_compl_or_both, values_from = count_by_m_c) %>%
+  mutate(total_vsls_m = sum(YES, NO, NO_YES),
+         tot_not_compl_m = sum(NO, NO_YES))
+
 # check counts
 # %>%
   # count(month_num, name = "nc_v_per_month")
