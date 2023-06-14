@@ -1176,6 +1176,17 @@ compl_data_sa_2022_m_short_is_compl_cnt_tot <-
   mutate(total_vsls_m = sum(YES, NO, NO_YES),
          tot_not_compl_m = sum(NO, NO_YES))
 
+names(compl_data_sa_2022_m_short_is_compl_cnt_tot)
+# get percentage ----
+compl_data_sa_2022_m_short_is_compl_cnt_tot_perc <-
+  compl_data_sa_2022_m_short_is_compl_cnt_tot %>%
+  mutate(
+    percent_yes = YES * 100 / total_vsls_m,
+    percent_tot_not = tot_not_compl_m * 100 / total_vsls_m,
+    percent_no = NO * 100 / total_vsls_m,
+    percent_no_yes = NO_YES * 100 / total_vsls_m
+  )
+
 # check counts
 # %>%
   # count(month_num, name = "nc_v_per_month")
