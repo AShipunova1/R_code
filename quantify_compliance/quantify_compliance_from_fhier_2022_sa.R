@@ -301,19 +301,35 @@ compl_data_sa_2022_m %>%
 # 10 SC9087BU               YES        December   12
 # correct
 
-compl_data_sa_2022_m_exp_diff_short_wide_compl <-
+# print_df_names(compl_data_sa_2022_m_exp_diff_short_wide, 6)
+compl_data_sa_2022_m_exp_diff_short_wide_long <-
   compl_data_sa_2022_m_exp_diff_short_wide %>%
   pivot_longer(
-    cols = -c(month_name, month_num),
+    cols = -c(exp_1_m, month_name, month_num),
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
 
-names(compl_data_sa_2022_m_short_is_compl)
+print_df_names(compl_data_sa_2022_m_exp_diff_short_wide_long)
 
-compl_data_sa_2022_m_short_is_compl_cnt <-
-  compl_data_sa_2022_m_short_is_compl %>%
-  ungroup() %>%
+compl_data_sa_2022_m_exp_diff_short_wide_long %>%
+  group_by(month_num) %>% 
+  unique() %>% 
+  select(-vessel_official_number) %>%
+  count(month_name, exp_1_m, is_compl_or_both, ) %>% 
+  filter(month_name == "Jan") %>% 
+  head()
+# 1 01        Jan        less_t_1m NO                  62
+# 2 01        Jan        less_t_1m YES                 15
+# 3 01        Jan        less_t_1m NA                2101
+# 4 01        Jan        more_t_1m NO                 547
+# 5 01        Jan        more_t_1m NO_YES             125
+# 6 01        Jan        more_t_1m YES                925
+# Problem: the same vessel is counted twice per month if in one week it was more and another - less than a month from expiration
+
+
+compl_data_sa_2022_m_exp_diff_short_wide_long_cnt <-
+  compl_data_sa_2022_m_exp_diff_short_wide_long %>%
   select(-vessel_official_number) %>%
   add_count(month_name, is_compl_or_both,
             name = "count_by_m_c") %>%
