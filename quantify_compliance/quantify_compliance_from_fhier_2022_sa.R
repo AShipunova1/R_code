@@ -247,11 +247,11 @@ compl_data_sa_2022_m %>%
 
 # names(compl_data_sa_2022_m_short_exp)
 ## get compl, no compl, or both per month ----
-compl_data_sa_2022_m_short_exp_wide <-
-  compl_data_sa_2022_m_short_exp %>%
+compl_data_sa_2022_m_exp_diff_short_wide <-
+  compl_data_sa_2022_m_exp_diff_short %>%
   unique() %>%
   # dplyr::select(-permitgroupexpiration) %>%
-  dplyr::group_by(month_num) %>%
+  dplyr::group_by(month_num, exp_1_m) %>%
   tidyr::pivot_wider(
     names_from = vessel_official_number,
     values_from = compliant_,
@@ -259,7 +259,7 @@ compl_data_sa_2022_m_short_exp_wide <-
     values_fn = ~ paste0(sort(.x), collapse = "_")
   )
 
-View(compl_data_sa_2022_m_short_exp_wide)
+View(compl_data_sa_2022_m_exp_diff_short_wide)
 
 ## Month: get compl only vessel_ids ----
 
