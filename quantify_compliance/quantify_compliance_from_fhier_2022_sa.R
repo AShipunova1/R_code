@@ -392,32 +392,31 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t %>%
 
 View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t)
 
-# stopped here ----
-# get percentage ----
-compl_data_sa_2022_m_short_is_compl_cnt_tot_perc <-
-  compl_data_sa_2022_m_short_is_compl_cnt_tot %>%
+# get percentage per month, exp ----
+compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc <-
+  compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t %>%
   mutate(
-    percent_yes = YES * 100 / total_vsls_m,
-    percent_tot_not = tot_not_compl_m * 100 / total_vsls_m,
-    percent_no = NO * 100 / total_vsls_m,
-    percent_no_yes = NO_YES * 100 / total_vsls_m
+    percent_yes = YES * 100 / total_vsls_m_exp,
+    percent_tot_not = not_compl_m_exp * 100 / total_vsls_m_exp,
+    percent_no = NO * 100 / total_vsls_m_exp,
+    percent_no_yes = NO_YES * 100 / total_vsls_m_exp
   )
 
 # write_csv(
-#   compl_data_sa_2022_m_short_is_compl_cnt_tot_perc,
+#   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc,
 #   file.path(
 #     my_paths$outputs,
 #     r"(quantify_compliance\by_dual)",
-#     "compl_data_sa_2022_m_short_is_compl_cnt_tot_perc.csv"
+#     "compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc.csv"
 #   )
 # )
 
-plot(compl_data_sa_2022_m_short_is_compl_cnt_tot_perc$month_num, compl_data_sa_2022_m_short_is_compl_cnt_tot_perc$percent_yes)
+plot(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc$month_num, compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc$percent_no)
 
-names(compl_data_sa_2022_m_short_is_compl_cnt_tot_perc)
+print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc)
 
 plot_perc_compl_per_m <-
-  compl_data_sa_2022_m_short_is_compl_cnt_tot_perc %>%
+  compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc %>%
   ungroup() %>%
   mutate(month_name_order = fct_reorder(month_name,
                                         as.numeric(month_num))) %>%
