@@ -225,27 +225,30 @@ compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p %>%
 #   scale_x_discrete(labels = month_name_tot)
 
 # Don't use overridden and use permitexp ----
-## fewer columns
-compl_data_sa_2022_m_short_exp <-
+# expire before_current_month ----
+compl_data_sa_2022_m_exp_diff <-
   compl_data_sa_2022_m %>%
+  mutate(exp_w_end_diff =
+           as.numeric(as.Date(permitgroupexpiration) - week_end + 1)) %>% 
+  mutate(exp_1_m = 
+           case_when(exp_w_end_diff <= 31 ~ "less_t_1m",
+                     exp_w_end_diff > 31 ~ "more_t_1m"))
+
+# select(permitgroupexpiration, week_end, exp_w_end_diff) %>% 
+  # View()
+
+# names(compl_data_sa_2022_m_short_exp)
+## fewer columns ----
+compl_data_sa_2022_m_exp_diff_short <-
+  compl_data_sa_2022_m_exp_diff %>% 
   select(vessel_official_number,
          compliant_,
          # overridden_,
-         permitgroupexpiration,
+         # permitgroupexpiration,
+         exp_1_m,
          month_name,
          month_num)
 
-# expire before_current_month ----
-compl_data_sa_2022_m %>%
-  # unique() %>%
-  mutate(exp_w_end_diff =
-           as.numeric(as.Date(permitgroupexpiration) - week_end + 1)
-) %>%
-  
-  select(permitgroupexpiration, week_end, exp_w_end_diff) %>% 
-  View()
-
-# names(compl_data_sa_2022_m_short_exp)
 ## get compl, no compl, or both per month ----
 compl_data_sa_2022_m_exp_diff_short_wide <-
   compl_data_sa_2022_m_exp_diff_short %>%
