@@ -361,44 +361,38 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt %>%
 
 View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
 
-# stopped here ----
+## get total compl counts per month ----
+# print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
+compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t <-
+  compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt %>%
+  group_by(month_num, exp_1_m) %>%
+  pivot_wider(names_from = is_compl_or_both, values_from = compl_or_not_cnt) %>%
+  select(-`NA`) %>% 
+  replace(is.na(.), 0) %>% 
+  mutate(
+    total_vsls_m_exp = sum(YES, NO, NO_YES),
+    not_compl_m_exp = sum(NO, NO_YES)
+  ) %>% 
+  ungroup()
 
-compl_data_sa_2022_m_exp_diff_short_wide_long %>%
-  group_by(month_num) %>% 
-  unique() %>% 
-  select(-vessel_official_number) %>%
-  count(month_name, exp_1_m, is_compl_or_both, ) %>% 
+compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t %>% 
   filter(month_name == "Jan") %>% 
-  head()
-# 1 01        Jan        less_t_1m NO                  62
-# 2 01        Jan        less_t_1m YES                 15
-# 3 01        Jan        less_t_1m NA                2101
-# 4 01        Jan        more_t_1m NO                 547
-# 5 01        Jan        more_t_1m NO_YES             125
-# 6 01        Jan        more_t_1m YES                925
-# Problem: the same vessel is counted twice per month if in one week it was more and another - less than a month from expiration
+  glimpse()
+# $ exp_1_m          <chr> "more_t_1m", "less_t_1m"
+# $ month_name       <chr> "Jan", "Jan"
+# $ month_num        <chr> "01", "01"
+# $ distinct_vsls_m  <int> 1635, 1635
+# $ YES              <int> 918, 14
+# $ NO               <int> 517, 61
+# $ NO_YES           <int> 125, 0
+# $ total_vsls_m_exp <int> 1560, 75
+# $ not_compl_m      <int> 642, 61
+# 1560+75 == 1635
+# What is a 100%? per expiration or total per month?
 
+View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t)
 
-compl_data_sa_2022_m_exp_diff_short_wide_long_cnt <-
-  compl_data_sa_2022_m_exp_diff_short_wide_long %>%
-  select(-vessel_official_number) %>%
-  add_count(month_name, is_compl_or_both,
-            name = "count_by_m_c") %>%
-  unique() %>%
-  arrange(month_num)
-
-  View(compl_data_sa_2022_m_short_is_compl_cnt)
-
-## get total counts per month ----
-compl_data_sa_2022_m_short_is_compl_cnt_tot <-
-  compl_data_sa_2022_m_short_is_compl_cnt %>%
-  group_by(month_num) %>%
-  pivot_wider(names_from = is_compl_or_both, values_from = count_by_m_c) %>%
-  mutate(total_vsls_m = sum(YES, NO, NO_YES),
-         tot_not_compl_m = sum(NO, NO_YES))
-
-names(compl_data_sa_2022_m_short_is_compl_cnt_tot)
-
+# stopped here ----
 # get percentage ----
 compl_data_sa_2022_m_short_is_compl_cnt_tot_perc <-
   compl_data_sa_2022_m_short_is_compl_cnt_tot %>%
