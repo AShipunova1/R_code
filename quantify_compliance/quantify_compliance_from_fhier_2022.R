@@ -198,14 +198,11 @@ make_one_plot_compl_vs_non_compl <-
                y = percent,
                fill = is_compliant)) +
     geom_col() +
-    ylim(0, 100) +
     geom_text(aes(label = paste0(round(percent, 1), "%")),
               position = position_stack(vjust = 0.5)) +
     labs(title = current_title,
          x = "",
          y = "") +
-    scale_x_discrete(labels = c("Yes", "No")) +
-
     scale_fill_manual(
       values =
         c(
@@ -214,7 +211,12 @@ make_one_plot_compl_vs_non_compl <-
         ),
       name = "Is compliant?",
       labels = c("Yes", "No")
-    )
+    ) +
+    scale_x_discrete(labels = c("Yes", "No")) +
+    # scale_y_continuous(limits = c(0, 100), labels = scales::percent)
+  ylim(0, 100)
+  # +
+  # scale_y_continuous(labels = scales::label_percent(scale = 1))
 
   if (no_legend) {
     one_plot <- one_plot +
@@ -233,8 +235,10 @@ make_one_plot_compl_vs_non_compl <-
 # }
 
 make_year_permit_label <- function(curr_year_permit) {
-  stringr::str_replace(toupper(curr_year_permit),
-                       "_", " ") %>%
+  curr_year_permit %>%
+    stringr::str_replace("_dual", " + dual") %>%
+    stringr::str_replace("_", " ") %>%
+    toupper() %>%
     return()
 }
 
