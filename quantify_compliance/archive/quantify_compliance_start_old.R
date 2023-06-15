@@ -29,7 +29,7 @@ separate_permits_into_3_groups <- function(compl_clean) {
            case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
-             .default = "both"
+             .default = "dual"
            )) %>%
     return()
 }

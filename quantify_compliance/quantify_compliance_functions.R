@@ -62,13 +62,3 @@ perc_plots_by_month <-
       return()
   }
 
-separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
-  my_df %>%
-  mutate(permit_sa_gom =
-           case_when(
-             !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
-             !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
-             .default = "both"
-           )) %>%
-    return()
-}
