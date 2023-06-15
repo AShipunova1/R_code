@@ -312,6 +312,21 @@ compl_data_sa_2022_m_exp_diff_short_wide_long <-
 
 print_df_names(compl_data_sa_2022_m_exp_diff_short_wide_long)
 
+# diff in month ----
+compl_data_sa_2022_m_exp_diff_m <-
+  compl_data_sa_2022_m %>%
+  mutate(exp_w_end_diff_m = interval(as.Date(year_month), as.Date(permitgroupexpiration)) %/% months(1)
+         ) %>% 
+  select(permitgroupexpiration, year_month, exp_w_end_diff_m) %>%
+  View()
+  
+  mutate(exp_1_m = 
+           case_when(exp_w_end_diff <= 31 ~ "less_t_1m",
+                     exp_w_end_diff > 31 ~ "more_t_1m"))
+
+# interval(date_1, date_2) %/% months(1)    # Apply interval & months
+
+
 compl_data_sa_2022_m_exp_diff_short_wide_long %>%
   group_by(month_num) %>% 
   unique() %>% 
