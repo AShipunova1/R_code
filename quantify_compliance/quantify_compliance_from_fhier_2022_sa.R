@@ -253,78 +253,36 @@ compl_data_sa_2022_m_exp_diff_short <-
 compl_data_sa_2022_m_exp_diff_short_wide <-
   compl_data_sa_2022_m_exp_diff_short %>%
   unique() %>%
-  # dplyr::select(-permitgroupexpiration) %>%
   dplyr::group_by(month_num, exp_1_m) %>%
   tidyr::pivot_wider(
     names_from = vessel_official_number,
     values_from = compliant_,
     # make it "NO_YES" if both
     values_fn = ~ paste0(sort(.x), collapse = "_")
-  )
+  ) %>% 
+  ungroup()
 
 View(compl_data_sa_2022_m_exp_diff_short_wide)
 
-## Month: get compl only vessel_ids ----
-
-# df %>% group_by(a) %>% mutate(d = +(b %in% c))
-
-View(compl_data_sa_2022_m_short)
-
-compl_data_sa_2022_m_short %>%
-  unique() %>%
-  select(-permitgroupexpiration) %>%
-  group_by(month_num) %>%
-  tidyr::pivot_wider(names_from = vessel_official_number, values_from = compliant_) %>%
-  View()
-# Warning in View :
-#   Values from `compliant_` are not uniquely identified; output will
-# contain list-cols.
-# • Use `values_fn = list` to suppress this warning.
-# • Use `values_fn = {summary_fun}` to summarise duplicates.
-# • Use the following dplyr code to identify duplicates.
-#   {data} %>%
-#   dplyr::group_by(permitgroupexpiration, month_name, month_num,
-#   vessel_official_number) %>%
-#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-#   dplyr::filter(n > 1L)
-
-# check
-# compl_data_sa_2022_m_short %>%
-#   unique() %>%
-#   dplyr::group_by(permitgroupexpiration,
-#                   month_name,
-#                   month_num,
-#                   vessel_official_number) %>%
-#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-#   dplyr::filter(n > 1L) %>%
-#   View()
-
-## get compl, no compl, or both per month ----
-compl_data_sa_2022_m_short_is_compl_wide <-
-  compl_data_sa_2022_m_short %>%
-  unique() %>%
-  dplyr::select(-permitgroupexpiration) %>%
-  dplyr::group_by(month_num) %>%
-  tidyr::pivot_wider(
-    names_from = vessel_official_number,
-    values_from = compliant_,
-    # make it "NO_YES" if both
-    values_fn = ~ paste0(sort(.x), collapse = "_")
-  )
-
-# View(compl_data_sa_2022_m_short_is_compl_wide)
-
 ### check compl_data_sa_2022_m_short_is_compl_wide ----
-compl_data_sa_2022_m_short_is_compl_wide %>%
+compl_data_sa_2022_m_exp_diff_short_wide %>%
   arrange(month_num) %>%
   select(month_name, SC9087BU) %>%
-  tail()
-# 1 07        July       YES
-# 2 08        August     NO_YES
-# 3 09        September  NO
-# 4 10        October    NO_YES
-# 5 11        November   YES
-# 6 12        December   YES
+  filter(complete.cases(SC9087BU)) %>% 
+  tail(10)
+#  5 Jul        YES     
+#  6 Aug        NO_YES  
+#  7 Sep        NO      
+#  8 Oct        NO_YES  
+#  9 Nov        YES     
+# 10 Dec        YES     
+
+#  5 07        more_t_1m Jul        YES     
+#  6 08        more_t_1m Aug        NO_YES  
+#  7 09        more_t_1m Sep        NO      
+#  8 10        more_t_1m Oct        NO_YES  
+#  9 11        more_t_1m Nov        YES     
+# 10 12        more_t_1m Dec        YES     
 
 ## check before ----
 compl_data_sa_2022_m %>%
@@ -343,9 +301,8 @@ compl_data_sa_2022_m %>%
 # 10 SC9087BU               YES        December   12
 # correct
 
-# View(compl_data_sa_2022_m_short_is_compl_wide)
-compl_data_sa_2022_m_short_is_compl <-
-  compl_data_sa_2022_m_short_is_compl_wide %>%
+compl_data_sa_2022_m_exp_diff_short_wide_compl <-
+  compl_data_sa_2022_m_exp_diff_short_wide %>%
   pivot_longer(
     cols = -c(month_name, month_num),
     values_to = "is_compl_or_both",
