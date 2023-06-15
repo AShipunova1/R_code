@@ -327,12 +327,24 @@ compl_data_sa_2022_m_exp_diff_m_short_wide_long <-
 
 str(compl_data_sa_2022_m_exp_diff_m_short_wide_long)
 
-# count total uniq vessels per month
-# compl_data_sa_2022_m_exp_diff_m_short_wide_long_compl_cnt <-
-#   compl_data_sa_2022_m_exp_diff_m_short_wide_long %>%
-#   group_by(month_num) %>%
-#   unique() %>%
-#   select(-vessel_official_number) %>%
+## count total uniq vessels per month ----
+str(compl_data_sa_2022_m_exp_diff_m_short_wide_long)
+
+compl_data_sa_2022_m_exp_diff_m_short_wide_long_tot <-
+  compl_data_sa_2022_m_exp_diff_m_short_wide_long %>%
+  group_by(month_num) %>%
+  summarize(distinct_vsls = n_distinct(vessel_official_number)) %>% 
+  # select(-vessel_official_number) %>%
+  unique() %>% 
+  View()
+# that counts per year!
+  
+  # mutate(tot_v = n_distinct(vessel_official_number)) %>% 
+  # select(-vessel_official_number) %>%
+  # unique() %>% 
+  # View()
+
+  
 
 
 ## get compl, no compl, or both per month with exp ----
