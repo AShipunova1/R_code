@@ -258,20 +258,27 @@ compl_data_sa_2022_m_exp_diff_m <-
   # select(permitgroupexpiration, year_month, exp_w_end_diff_m) %>% View()
 # -6
 
+# add total vessels per month ----
+compl_data_sa_2022_m_exp_diff_m_tot <-
+  compl_data_sa_2022_m_exp_diff_m %>%
+  group_by(month_num) %>%
+  mutate(distinct_vsls_m = n_distinct(vessel_official_number))
+
 ## fewer columns ----
-compl_data_sa_2022_m_exp_diff_m_short <-
-  compl_data_sa_2022_m_exp_diff_m %>% 
+compl_data_sa_2022_m_exp_diff_m_tot_short <-
+  compl_data_sa_2022_m_exp_diff_m_tot %>% 
   select(vessel_official_number,
          compliant_,
          # overridden_,
          # permitgroupexpiration,
          exp_1_m,
          month_name,
-         month_num)
+         month_num,
+         distinct_vsls_m)
 
 ## get compl, no compl, or both per month ----
-compl_data_sa_2022_m_exp_diff_m_short_wide <-
-  compl_data_sa_2022_m_exp_diff_m_short %>%
+compl_data_sa_2022_m_exp_diff_m_tot_short_wide <-
+  compl_data_sa_2022_m_exp_diff_m_tot_short %>%
   dplyr::group_by(month_num, exp_1_m) %>%
   # can unique, because we are looking at vessels, not weeks
   unique() %>%
@@ -283,10 +290,10 @@ compl_data_sa_2022_m_exp_diff_m_short_wide <-
   ) %>% 
   ungroup()
 
-# View(compl_data_sa_2022_m_exp_diff_m_short_wide)
+# View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide)
 
 ### check compl_data_sa_2022_m_exp_diff_m_short_wide ----
-compl_data_sa_2022_m_exp_diff_m_short_wide %>%
+compl_data_sa_2022_m_exp_diff_m_tot_short_wide %>%
   arrange(month_num) %>%
   select(month_name, SC9087BU) %>%
   filter(complete.cases(SC9087BU)) %>% 
@@ -315,41 +322,20 @@ compl_data_sa_2022_m %>%
 # 10 SC9087BU               YES        December   12
 # correct
 
-# names(compl_data_sa_2022_m_short_exp)
-# print_df_names(compl_data_sa_2022_m_exp_diff_m_short_wide, 6)
-compl_data_sa_2022_m_exp_diff_m_short_wide_long <-
-  compl_data_sa_2022_m_exp_diff_m_short_wide %>%
+# print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide, 6)
+compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long <-
+  compl_data_sa_2022_m_exp_diff_m_tot_short_wide %>%
   pivot_longer(
-    cols = -c(exp_1_m, month_name, month_num),
+    cols = -c(exp_1_m, month_name, month_num, distinct_vsls_m),
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
 
-str(compl_data_sa_2022_m_exp_diff_m_short_wide_long)
-
-## count total uniq vessels per month ----
-str(compl_data_sa_2022_m_exp_diff_m_short_wide_long)
-
-compl_data_sa_2022_m_exp_diff_m_short_wide_long_tot <-
-  compl_data_sa_2022_m_exp_diff_m_short_wide_long %>%
-  group_by(month_num) %>%
-  summarize(distinct_vsls = n_distinct(vessel_official_number)) %>% 
-  # select(-vessel_official_number) %>%
-  unique() %>% 
-  View()
-# that counts per year!
-  
-  # mutate(tot_v = n_distinct(vessel_official_number)) %>% 
-  # select(-vessel_official_number) %>%
-  # unique() %>% 
-  # View()
-
-  
-
+# str(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long)
 
 ## get compl, no compl, or both per month with exp ----
-compl_data_sa_2022_m_exp_diff_m_short_wide_long_compl_cnt <-
-  compl_data_sa_2022_m_exp_diff_m_short_wide_long %>%
+compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt <-
+  compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long %>%
   group_by(month_num) %>%
   unique() %>%
   select(-vessel_official_number) %>%
@@ -358,58 +344,22 @@ compl_data_sa_2022_m_exp_diff_m_short_wide_long_compl_cnt <-
   unique() %>% 
   ungroup()
 
-# check compl_data_sa_2022_m_exp_diff_m_short_wide_long_compl_cnt
-compl_data_sa_2022_m_exp_diff_m_short_wide_long_compl_cnt %>% 
+# check compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt ----
+compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt %>%
   filter(month_name == "Jan" &
-           !(is_compl_or_both == "YES")) %>% 
-  mutate(m_sum = sum(compl_or_not_cnt)) %>% 
+           !(is_compl_or_both == "YES")) %>%
+  mutate(m_sum = sum(compl_or_not_cnt)) %>%
   glimpse()
 # $ exp_1_m          <chr> "more_t_1m", "more_t_1m", "less_t_1m"
 # $ month_name       <chr> "Jan", "Jan", "Jan"
 # $ month_num        <chr> "01", "01", "01"
+# $ distinct_vsls_m  <int> 1635, 1635, 1635
 # $ is_compl_or_both <chr> "NO", "NO_YES", "NO"
 # $ compl_or_not_cnt <int> 517, 125, 61
 # $ m_sum            <int> 703, 703, 703
-# 703 - correct
+# 703 non-c - correct
 
-
-View(compl_data_sa_2022_m_exp_diff_m_short_wide_long_compl_cnt)
-# compl_data_sa_2022_m_short_tot_ov_cnt_c_o <-
-#   compl_data_sa_2022_m_short_tot_ov_long %>%
-#   filter(is_compl_overridden == "NO_NO") %>%
-#   group_by(month_num) %>%
-#   mutate(count_no_no = n_distinct(vessel_official_number)) %>% 
-#   ungroup()
-
-
-### check ----
-compl_data_sa_2022_m_exp_diff_m_short_wide_long %>%
-  group_by(month_num) %>% 
-  unique() %>% 
-  select(-vessel_official_number) %>%
-  count(month_name, exp_1_m, is_compl_or_both) %>% 
-  filter(month_name == "Jan") %>% 
-  head()
-#   month_num month_name exp_1_m   is_compl_or_both     n
-#   <chr>     <chr>      <chr>     <chr>            <int>
-# 1 01        Jan        less_t_1m NO                  61
-# 2 01        Jan        less_t_1m YES                 14
-# 3 01        Jan        less_t_1m NA                2103
-# 4 01        Jan        more_t_1m NO                 517
-# 5 01        Jan        more_t_1m NO_YES             125
-# 6 01        Jan        more_t_1m YES                918
-# "NO" and "NO_YES"
-# > 61+517+125
-# [1] 703
-
-# by week (wrong):
-# 1 01        Jan        less_t_1m NO                  62
-# 2 01        Jan        less_t_1m YES                 15
-# 3 01        Jan        less_t_1m NA                2101
-# 4 01        Jan        more_t_1m NO                 547
-# 5 01        Jan        more_t_1m NO_YES             125
-# 6 01        Jan        more_t_1m YES                925
-
+View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
 
 # stopped here ----
 
