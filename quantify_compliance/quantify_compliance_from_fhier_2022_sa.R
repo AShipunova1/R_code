@@ -417,28 +417,27 @@ print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t
 
 plot_perc_compl_per_m <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc %>%
-  mutate(month_name_tot = paste0(month_name, 
+  mutate(month_name_tot = paste0(month_name,
                                  " (",
                                  distinct_vsls_m,
-                                 ")"
-                                 )) %>%
+                                 ")")) %>%
   mutate(month_name_order = fct_reorder(month_name_tot,
                                         as.numeric(month_num))) %>%
-  # mutate(month_name_order = fct_reorder(month_name,
-  #                                       as.numeric(month_num))) %>%
   ggplot(aes(x = month_name_order,
              y = percent_tot_not,
              color = exp_1_m)) +
-  geom_point(cex = 11) +
-  # geom_text(aes(label = paste0(round(percent, 1), "%")),
-  #           position = position_stack(vjust = 0.5)) +
+  geom_point(cex = 12) +
   labs(title = "% of non_compliant South Atlantic Only Permitted Vessels by month and expiration (2022)",
        x = "",
        y = "Percent") +
   geom_text(aes(label = total_vsls_m_exp),
-            # label = paste0(round(percent_no, 1), "%")),
             color = "black") +
   # footnote
-  labs(caption = "Numbers on dots show total number of vessels per month / expiration. Numbers at month show total unique vessels per month.")
+  labs(caption = "Numbers on dots show total number of vessels per month / expiration. Numbers at month show total unique vessels per month.") +
+  # change the Legend
+  scale_color_discrete(name = "Permit exp",
+                       labels = c("< 1 month", "> 1 month")) +
+  # add "%" sign to Y ticks
+  scale_y_continuous(labels = scales::label_percent(scale = 1))
 
 plot_perc_compl_per_m
