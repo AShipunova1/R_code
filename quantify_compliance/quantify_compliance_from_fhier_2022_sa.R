@@ -430,10 +430,6 @@ plot_perc_compl_per_m <-
   labs(title = "% of non_compliant South Atlantic Only Permitted Vessels by month and expiration (2022)",
        x = "",
        y = "Percent") +
-  geom_text(aes(label = total_vsls_m_exp),
-            color = "black") +
-  # footnote
-  labs(caption = "Numbers on dots show total number of vessels per month / expiration. Numbers at month show total unique vessels per month.") +
   # change the Legend
   scale_color_discrete(name = "Permit exp",
                        labels = c("< 1 month", "> 1 month")) +
@@ -441,3 +437,11 @@ plot_perc_compl_per_m <-
   scale_y_continuous(labels = scales::label_percent(scale = 1))
 
 plot_perc_compl_per_m
+
+## w numbers ----
+plot_perc_compl_per_m +
+  geom_text(aes(label = total_vsls_m_exp),
+            color = "black") +
+  # footnote
+  labs(caption = "Numbers on dots show total number of vessels per month / expiration. Numbers at month show total unique vessels per month.")
+
