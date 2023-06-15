@@ -417,13 +417,13 @@ print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t
 
 plot_perc_compl_per_m <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc %>%
-  ungroup() %>%
   mutate(month_name_order = fct_reorder(month_name,
                                         as.numeric(month_num))) %>%
   ggplot(aes(x = month_name_order,
-             y = percent_tot_not
+             y = percent_tot_not,
+             color = exp_1_m
              )) +
-  geom_point(color = "red") +
+  geom_point() +
   # geom_text(aes(label = paste0(round(percent, 1), "%")),
   #           position = position_stack(vjust = 0.5)) +
   labs(title = "% of non_compliant South Atlantic Only Permitted Vessels by month (2022)",
@@ -431,6 +431,7 @@ plot_perc_compl_per_m <-
        y = "Percent") 
 
 plot_perc_compl_per_m
+
 # +
   # footnote
   # labs(caption = "Counted for unique vessels per month as (compliant only) * 100 / (total)") 
