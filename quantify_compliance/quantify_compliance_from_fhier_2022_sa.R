@@ -16,7 +16,7 @@ compl_data_sa_2022 <-
 ## add month only for plots ----
 compl_data_sa_2022_m <-
   compl_data_sa_2022 %>%
-  dplyr::mutate(month_name = format(year_month, "%B")) %>%
+  dplyr::mutate(month_name = format(year_month, "%b")) %>%
   dplyr::mutate(month_num = format(year_month, "%m"))
 
 # get fewer fields ----
@@ -157,26 +157,26 @@ compl_data_sa_2022_m_short_tot_ov_long <-
 
 View(compl_data_sa_2022_m_short_tot_ov_long)
 
-# add compl counts ----
-compl_data_sa_2022_m_short_tot_ov_long %>%
-  select(month_name,
-         month_num,
-         tota_vsl_m,
-         is_compl_overridden) %>%
-  filter(complete.cases(is_compl_overridden)) %>%
-  glimpse()
+# add compl counts
+# compl_data_sa_2022_m_short_tot_ov_long %>%
+#   select(month_name,
+#          month_num,
+#          tota_vsl_m,
+#          is_compl_overridden) %>%
+#   filter(complete.cases(is_compl_overridden)) %>%
+#   glimpse()
 
-compl_data_sa_2022_m_short_tot_ov_long %>% 
-  select(month_name,
-         month_num,
-         tota_vsl_m,
-         is_compl_overridden) %>%
-  filter(complete.cases(is_compl_overridden)) %>%
-    group_by(month_num) %>%
-  summarise(n = n()) %>%
-  mutate(Freq = n/sum(n)) %>% View()
+# compl_data_sa_2022_m_short_tot_ov_long %>% 
+#   select(month_name,
+#          month_num,
+#          tota_vsl_m,
+#          is_compl_overridden) %>%
+#   filter(complete.cases(is_compl_overridden)) %>%
+#     group_by(month_num) %>%
+#   summarise(n = n()) %>%
+#   mutate(Freq = n/sum(n)) %>% View()
 
-# count uniq vessel ids with "no" for compl and "no" for "overidden?" per month 
+# count uniq vessel ids with "no" for compl and "no" for "overidden?" per month ----
 compl_data_sa_2022_m_short_tot_ov_cnt_c_o <-
   compl_data_sa_2022_m_short_tot_ov_long %>%
   filter(is_compl_overridden == "NO_NO") %>%
@@ -186,6 +186,7 @@ compl_data_sa_2022_m_short_tot_ov_cnt_c_o <-
 
 # names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o)
 
+# Fewer columns ----
 compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no <-
   compl_data_sa_2022_m_short_tot_ov_cnt_c_o %>%
   select(-c(
@@ -203,26 +204,62 @@ compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p <-
   compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no %>% 
   mutate(percent_no_no = count_no_no * 100 / tota_vsl_m)
 
+# plot no_no ----
 # names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p)
 compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p %>%
-  mutate(month_name_order = fct_reorder(month_name,
+  arrange(month_num) %>%
+  mutate(month_name_tot = paste(month_name, tota_vsl_m)) %>%
+  mutate(month_name_order = fct_reorder(month_name_tot,
                                         as.numeric(month_num))) %>%
   ggplot(aes(x = month_name_order,
              y = percent_no_no)) +
-  geom_point(color = "red")
+  geom_point(color = "red",
+             cex = 10) +
+  labs(title = "% of non_compliant and not overridden South Atlantic Only Permitted Vessels by month (2022)",
+       x = "",
+       y = "Percent") + 
+  geom_text(aes(label = count_no_no))
+            # ,
+            # position = position_stack(vjust = 0.5)) 
+# +
+#   scale_x_discrete(labels = month_name_tot)
 
-## Month: get nc vessel_ids ----
-compl_data_sa_2022_m_short_nc_v <-
-  compl_data_sa_2022_m_short %>%
-  filter(compliant_ == "NO") %>%
-  select(vessel_official_number, month_num) %>%
-  unique()
+# Don't use overridden and use permitexp ----
+## fewer columns
+compl_data_sa_2022_m_short_exp <-
+  compl_data_sa_2022_m %>%
+  select(vessel_official_number,
+         compliant_,
+         # overridden_,
+         permitgroupexpiration,
+         month_name,
+         month_num)
 
-# check counts
-# %>%
-  # count(month_num, name = "nc_v_per_month")
-# %>%
-  # select(month_num, nc_v_per_month) %>%
+# expire before_current_month ----
+compl_data_sa_2022_m %>%
+  # unique() %>%
+  mutate(exp_w_end_diff =
+           as.numeric(as.Date(permitgroupexpiration) - week_end + 1)
+) %>%
+  
+  select(permitgroupexpiration, week_end, exp_w_end_diff) %>% 
+  View()
+
+# names(compl_data_sa_2022_m_short_exp)
+## get compl, no compl, or both per month ----
+compl_data_sa_2022_m_short_exp_wide <-
+  compl_data_sa_2022_m_short_exp %>%
+  unique() %>%
+  # dplyr::select(-permitgroupexpiration) %>%
+  dplyr::group_by(month_num) %>%
+  tidyr::pivot_wider(
+    names_from = vessel_official_number,
+    values_from = compliant_,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(sort(.x), collapse = "_")
+  )
+
+View(compl_data_sa_2022_m_short_exp_wide)
 
 ## Month: get compl only vessel_ids ----
 
