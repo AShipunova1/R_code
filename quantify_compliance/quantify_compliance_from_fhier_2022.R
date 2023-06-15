@@ -13,7 +13,7 @@ compl_clean_sa_vs_gom_m_int_filtered <-
   compl_clean_sa_vs_gom_m_int %>%
   filter(!(year == '2023' & permit_sa_gom == "gom_only"))
 
-View(compl_clean_sa_vs_gom_m_int_c)
+# View(compl_clean_sa_vs_gom_m_int_c)
 
 # save vsl count ----
 
@@ -33,7 +33,10 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 
 vessels_compl_or_not_per_y_r_all <-
   compl_clean_sa_vs_gom_m_int %>%
-  select(vessel_official_number, compliant_, year, permit_sa_gom) %>%
+  select(vessel_official_number, 
+         compliant_, 
+         year, 
+         permit_sa_gom) %>%
   unique() %>%
   count(compliant_, year, permit_sa_gom)
 
@@ -49,7 +52,6 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 5 YES        2022 sa_only   1617
 # 3 NO         2023 sa_dual   1628
 # 6 YES        2023 sa_dual   2125
-
 
 # compl vs. non-compl vessels per year, region ----
 
@@ -352,8 +354,8 @@ count_weeks_per_vsl_permit_year_compl %>%
  select(year, compliant_, weeks_per_vessel_per_compl, total_weeks_per_vessel) %>%
   unique()
 #   year  compliant_ weeks_per_vessel_per_compl total_weeks_per_vessel
-# 1 2022  YES                                50                     52
-# 2 2022  NO                                  2                     52
+# 1 2022 YES 50 52
+# 2 2022 NO 2 52
 
 nc_2022_sa_only_test <-
   count_weeks_per_vsl_permit_year_compl %>%
@@ -537,7 +539,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
 
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc)
 
-names(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc)
+# print_df_names(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc)
 
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
@@ -578,33 +580,49 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
     return(one_plot)
   })
 
-gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[1]]
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]]
 
+# plot 2022 ----
 super_title = "% of non-compliant vessels by permit (2022)"
 
-footnote = textGrob(
-  "X axes is % of missing reports for non-compliant vessels",
-  gp = gpar(fontface = 3, fontsize = 10),
-  # justify left
-  hjust = 0,
-  x = 0.01, y = 0.99,
-  vjust = 1
-)
+# footnote = textGrob(
+#   "X axes is % of missing reports for non-compliant vessels",
+#   gp = gpar(fontface = 3, fontsize = 10),
+#   # justify left
+#   # hjust = 0,
+#   hjust = -1.5,
+#   just = "right",
+#   x = 0.01, y = 0.99,
+#   vjust = 1
+# )
 
-grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[1]],
-             gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[2]],
-             top = super_title,
-             bottom = footnote)
+# grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[1]],
+#              gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[2]],
+#              top = super_title,
+#              bottom = footnote)
 
+### common y axes
+yleft <- textGrob("% per permit", rot = 90, gp = gpar(fontsize = 10))
+p <-
+  list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
+  map( ~ .x + labs(x = NULL, y = NULL))
+
+plot_perc_22 <- grid.arrange(
+  grobs = p,
+  left = yleft,
+  top = super_title)
+
+## SA23 ----
+
+super_title = "% of non-compliant vessels (2023)"
 
 grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]],
              top = super_title,
              bottom = footnote)
 
-# TODO:
-# all 2022
-
 # Per month, region ----
+# super_title_per_m = "% non-compliant weeks per month for non-compliant vessels by permit type (2022)"
+
 # test
 View(compl_clean_sa_vs_gom_m_int_c)
 
