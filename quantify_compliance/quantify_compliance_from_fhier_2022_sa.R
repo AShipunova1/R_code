@@ -417,7 +417,11 @@ print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t
 
 plot_perc_compl_per_m <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc %>%
-  mutate(month_name_tot = paste(month_name, distinct_vsls_m)) %>%
+  mutate(month_name_tot = paste0(month_name, 
+                                 " (",
+                                 distinct_vsls_m,
+                                 ")"
+                                 )) %>%
   mutate(month_name_order = fct_reorder(month_name_tot,
                                         as.numeric(month_num))) %>%
   # mutate(month_name_order = fct_reorder(month_name,
@@ -435,7 +439,7 @@ plot_perc_compl_per_m <-
             # label = paste0(round(percent_no, 1), "%")),
             color = "black") +
   # footnote
-  labs(caption = "Numbers on dots show total number of vessels per month / expiration")
+  labs(caption = "Numbers on dots show total number of vessels per month / expiration. Numbers at month show total unique vessels per month")
 
 plot_perc_compl_per_m
 
