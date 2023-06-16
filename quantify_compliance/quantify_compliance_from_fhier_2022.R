@@ -90,7 +90,6 @@ glimpse(compl_clean_sa_vs_gom_m_int_c_short)
 compl_clean_sa_vs_gom_m_int_c_tot <-
   compl_clean_sa_vs_gom_m_int_c %>%
   group_by(year_permit) %>%
-  # rowwise() %>% 
   mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
   ungroup()
 
@@ -105,13 +104,12 @@ compl_clean_sa_vs_gom_m_int_c_tot <-
 # 2 2022 gom_dual       1495
 # 3 2023 sa_dual        2236
 
-
 ## expired or not? ----
 end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
 # str(end_of_2022)
 
-compl_clean_sa_vs_gom_m_int_c_exp_diff_y <-
-  compl_clean_sa_vs_gom_m_int_c %>%
+compl_clean_sa_vs_gom_m_int_c_tot_exp_y <-
+  compl_clean_sa_vs_gom_m_int_c_tot %>%
   mutate(exp_w_end_diff_y =
            as.numeric(as.Date(permitgroupexpiration) -
                         end_of_2022)) %>%
@@ -120,22 +118,24 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_y <-
                      exp_w_end_diff_y > 0 ~ "active"))
 
 ## fewer fields ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_y %>%
+# print_df_names(compl_clean_sa_vs_gom_m_int_c_tot_exp_y)
+compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short <-
+  compl_clean_sa_vs_gom_m_int_c_tot_exp_y %>%
   select(vessel_official_number,
          year_permit,
          compliant_,
+         tota_vsl_m,
          perm_exp_y) %>%
   unique()
 
-# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short)
+# View(compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short)
 
 # get compl_counts ----
 ## get compl, no compl, or both per year ----
 
 # print_df_names(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short)
-compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short %>%
+compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide <-
+  compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short %>%
   dplyr::group_by(year_permit, perm_exp_y) %>%
   # can unique, because we are looking at vessels, not weeks
   unique() %>%
@@ -147,23 +147,23 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide <-
   ) %>% 
   ungroup()
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide, 5)
+# print_df_names(compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide, 5)
 
+# View(compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide)
 ## count compl, no compl, or both per year, permit, active status ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide %>%
+compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide_long <-
+  compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide %>%
   pivot_longer(
-    cols = -c(year_permit, perm_exp_y),
+    cols = -c(year_permit, tota_vsl_m, perm_exp_y),
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
 
-# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long)
-
+# View(compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide_long)
 
 ## get cnts for compl, no compl, or both per month with exp ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_cnt <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long %>%
+compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide_long_cnt <-
+  compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide_long %>%
   dplyr::group_by(year_permit, perm_exp_y) %>%
   unique() %>%
   select(-vessel_official_number) %>%
@@ -172,8 +172,22 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_cnt <-
   unique() %>% 
   ungroup()
 
-View(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_cnt)
+View(compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide_long_cnt)
 
+# check counts ----
+compl_clean_sa_vs_gom_m_int_c_tot_exp_y_short_wide_long_cnt %>%
+  filter(complete.cases(is_compl_or_both)) %>%
+  select(year_permit, tota_vsl_m, compl_or_not_cnt) %>%
+  # filter(year_permit == "2022 sa_only") %>%
+  group_by(year_permit) %>% 
+  mutate(sum_cnts = sum(compl_or_not_cnt)) %>%
+  filter(!tota_vsl_m == sum_cnts) %>%
+  unique()
+
+#   year_permit  tota_vsl_m compl_or_not_cnt sum_cnts
+#   <chr>             <int>            <int>    <int>
+# 1 2022 sa_only       2178              820     2179
+# ...
 
 # year non compliant ----
 
