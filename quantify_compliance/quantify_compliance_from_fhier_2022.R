@@ -84,6 +84,25 @@ compl_clean_sa_vs_gom_m_int_c_short <-
 
 glimpse(compl_clean_sa_vs_gom_m_int_c_short)
 
+# by year ----
+# get compl_counts ----
+## get compl, no compl, or both per year ----
+compl_clean_sa_vs_gom_m_int_c_short_wide <-
+  compl_clean_sa_vs_gom_m_int_c_short %>%
+  dplyr::group_by(year_permit, perm_exp) %>%
+  # can unique, because we are looking at vessels, not weeks
+  unique() %>%
+  tidyr::pivot_wider(
+    names_from = vessel_official_number,
+    values_from = compliant_,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(sort(.x), collapse = "_")
+  ) %>% 
+  ungroup()
+
+View(compl_clean_sa_vs_gom_m_int_c_short_wide)
+
+
 # separate vessels non-compliant at least once per year ----
 non_compl_vessel_ids_per_y_r <-
   compl_clean_sa_vs_gom_m_int_c_short %>%
@@ -1034,4 +1053,3 @@ compl_clean_sa_vs_gom_m_int_c %>%
 # ===
 # 1)
 # "% Non-Compliant Vessels in Jan 2022 (12345 permitted; 125 expired permits)". I realize that is a long title, so perhaps we can push the % non-compliant vessels to the main title, and those smaller titles over the figure could just start at "jan...". Having the # of expired permits (compared to the # of permits) in each figure would better explain if they haven't tried to renew, and therefore haven't had to submit reports in order to renew. That is pretty much our only means to get them to comply, in the SA.
-
