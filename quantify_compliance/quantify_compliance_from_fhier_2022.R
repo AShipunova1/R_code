@@ -94,11 +94,16 @@ compl_clean_sa_vs_gom_m_int_c_tot <-
   mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
   ungroup()
 
-View(compl_clean_sa_vs_gom_m_int_c_tot)
+# View(compl_clean_sa_vs_gom_m_int_c_tot)
 
-compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_tot %>% 
-  select(year_permit, tota_vsl_m) %>% 
-  unique()
+# compl_clean_sa_vs_gom_m_int_c_tot %>% 
+#   select(year_permit, tota_vsl_m) %>% 
+#   unique()
+#   year_permit   tota_vsl_m
+#   <chr>              <int>
+# 1 2022 sa_only        2178
+# 2 2022 gom_dual       1495
+# 3 2023 sa_dual        2236
 
 
 ## expired or not? ----
