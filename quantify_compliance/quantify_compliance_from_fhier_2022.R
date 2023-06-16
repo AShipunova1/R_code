@@ -100,8 +100,47 @@ compl_clean_sa_vs_gom_m_int_c_short_wide <-
   ) %>% 
   ungroup()
 
-View(compl_clean_sa_vs_gom_m_int_c_short_wide)
+print_df_names(compl_clean_sa_vs_gom_m_int_c_short_wide, 5)
 
+## count compl, no compl, or both per year, permit, active status ----
+compl_clean_sa_vs_gom_m_int_c_short_wide_long <-
+  compl_clean_sa_vs_gom_m_int_c_short_wide %>%
+  pivot_longer(
+    cols = -c(year_permit, perm_exp),
+    values_to = "is_compl_or_both",
+    names_to = "vessel_official_number"
+  )
+
+# View(compl_clean_sa_vs_gom_m_int_c_short_wide_long)
+
+## get compl, no compl, or both per month with exp ----
+compl_clean_sa_vs_gom_m_int_c_short_wide_long_compl_cnt <-
+  compl_clean_sa_vs_gom_m_int_c_short_wide_long %>%
+  dplyr::group_by(year_permit, perm_exp) %>%
+  unique() %>%
+  select(-vessel_official_number) %>%
+  add_count(year_permit, perm_exp, is_compl_or_both,
+            name = "compl_or_not_cnt") %>% 
+  unique() %>% 
+  ungroup()
+
+View(compl_clean_sa_vs_gom_m_int_c_short_wide_long_compl_cnt)
+
+
+compl_clean_sa_vs_gom_m_int_c_short_wide %>%
+    # filter(complete.cases(SC9087BU)) %>% 
+  select(year_permit, perm_exp, SC9087BU) %>% 
+View()
+  dplyr::group_by(year_permit, perm_exp) %>%
+  # rowwise() %>% 
+  add_count(year_permit, perm_exp,
+            name = "is_compl_y") %>% 
+  select(year_permit, perm_exp, is_compl_y) %>% 
+  View()
+
+
+# stopped here ----
+  
 
 # separate vessels non-compliant at least once per year ----
 non_compl_vessel_ids_per_y_r <-
