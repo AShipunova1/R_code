@@ -89,32 +89,34 @@ glimpse(compl_clean_sa_vs_gom_m_int_c_short)
 ## expired or not? ----
 end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
 # str(end_of_2022)
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
+
+compl_clean_sa_vs_gom_m_int_c_exp_diff_y <-
+  compl_clean_sa_vs_gom_m_int_c %>%
   mutate(exp_w_end_diff_y =
            as.numeric(as.Date(permitgroupexpiration) -
-                        end_of_2022)) %>% 
-  filter(exp_w_end_diff_y <= 0) %>% 
-  # filter(!(exp_w_end_diff == exp_w_end_diff_y)) %>% 
-  View()
-  mutate(perm_exp_y = 
+                        end_of_2022)) %>%
+  mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
-                     exp_w_end_diff > 0 ~ "active"))
+                     exp_w_end_diff_y > 0 ~ "active"))
 
 ## fewer fields ----
-compl_clean_sa_vs_gom_m_int_c_short <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_y %>%
   select(vessel_official_number,
          year_permit,
          compliant_,
-         perm_exp) %>%
+         perm_exp_y) %>%
   unique()
+
+# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short)
 
 # get compl_counts ----
 ## get compl, no compl, or both per year ----
-compl_clean_sa_vs_gom_m_int_c_short_wide <-
-  compl_clean_sa_vs_gom_m_int_c_short %>%
-  dplyr::group_by(year_permit, perm_exp) %>%
+
+# print_df_names(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short)
+compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short %>%
+  dplyr::group_by(year_permit, perm_exp_y) %>%
   # can unique, because we are looking at vessels, not weeks
   unique() %>%
   tidyr::pivot_wider(
@@ -125,31 +127,31 @@ compl_clean_sa_vs_gom_m_int_c_short_wide <-
   ) %>% 
   ungroup()
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_c_short_wide, 5)
+# print_df_names(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide, 5)
 
 ## count compl, no compl, or both per year, permit, active status ----
-compl_clean_sa_vs_gom_m_int_c_short_wide_long <-
-  compl_clean_sa_vs_gom_m_int_c_short_wide %>%
+compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide %>%
   pivot_longer(
-    cols = -c(year_permit, perm_exp),
+    cols = -c(year_permit, perm_exp_y),
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
 
-# View(compl_clean_sa_vs_gom_m_int_c_short_wide_long)
+# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long)
 
-## get compl, no compl, or both per month with exp ----
-compl_clean_sa_vs_gom_m_int_c_short_wide_long_compl_cnt <-
-  compl_clean_sa_vs_gom_m_int_c_short_wide_long %>%
-  dplyr::group_by(year_permit, perm_exp) %>%
+## get cnts for compl, no compl, or both per month with exp ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_cnt <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long %>%
+  dplyr::group_by(year_permit, perm_exp_y) %>%
   unique() %>%
   select(-vessel_official_number) %>%
-  add_count(year_permit, perm_exp, is_compl_or_both,
+  add_count(year_permit, perm_exp_y, is_compl_or_both,
             name = "compl_or_not_cnt") %>% 
   unique() %>% 
   ungroup()
 
-# View(compl_clean_sa_vs_gom_m_int_c_short_wide_long_compl_cnt)
+View(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_cnt)
 
 
 # stopped here ----
