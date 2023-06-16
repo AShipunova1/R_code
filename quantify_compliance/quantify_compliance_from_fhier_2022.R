@@ -55,13 +55,34 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 
 # compl vs. non-compl vessels per year, region ----
 
+## add the difference between expiration and week_end ----
+# View(compl_clean_sa_vs_gom_m_int_c)
+compl_clean_sa_vs_gom_m_int_c_exp_diff <-
+  compl_clean_sa_vs_gom_m_int_c %>% 
+  mutate(exp_w_end_diff =
+           as.numeric(as.Date(permitgroupexpiration) - week_end + 1))
+
+# %>% 
+#   select(exp_w_end_diff, permitgroupexpiration, week_end) %>% 
+#   View()
+
+## expired or not? ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff %>% 
+  mutate(perm_exp = 
+           case_when(exp_w_end_diff <= 0 ~ "expired",
+                     exp_w_end_diff > 0 ~ "active"))
+
 ## fewer fields ----
 compl_clean_sa_vs_gom_m_int_c_short <-
-  compl_clean_sa_vs_gom_m_int_c %>%
-  select(vessel_official_number, year_permit, compliant_) %>%
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+  select(vessel_official_number,
+         year_permit,
+         compliant_,
+         perm_exp) %>%
   unique()
 
-# glimpse(compl_clean_sa_vs_gom_m_int_c_short)
+glimpse(compl_clean_sa_vs_gom_m_int_c_short)
 
 # separate vessels non-compliant at least once per year ----
 non_compl_vessel_ids_per_y_r <-
