@@ -85,6 +85,31 @@ compl_clean_sa_vs_gom_m_int_c_short <-
 glimpse(compl_clean_sa_vs_gom_m_int_c_short)
 
 # by year ----
+
+## expired or not? ----
+end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
+# str(end_of_2022)
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
+  mutate(exp_w_end_diff_y =
+           as.numeric(as.Date(permitgroupexpiration) -
+                        end_of_2022)) %>% 
+  filter(exp_w_end_diff_y <= 0) %>% 
+  # filter(!(exp_w_end_diff == exp_w_end_diff_y)) %>% 
+  View()
+  mutate(perm_exp_y = 
+           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+                     exp_w_end_diff > 0 ~ "active"))
+
+## fewer fields ----
+compl_clean_sa_vs_gom_m_int_c_short <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+  select(vessel_official_number,
+         year_permit,
+         compliant_,
+         perm_exp) %>%
+  unique()
+
 # get compl_counts ----
 ## get compl, no compl, or both per year ----
 compl_clean_sa_vs_gom_m_int_c_short_wide <-
@@ -100,7 +125,7 @@ compl_clean_sa_vs_gom_m_int_c_short_wide <-
   ) %>% 
   ungroup()
 
-print_df_names(compl_clean_sa_vs_gom_m_int_c_short_wide, 5)
+# print_df_names(compl_clean_sa_vs_gom_m_int_c_short_wide, 5)
 
 ## count compl, no compl, or both per year, permit, active status ----
 compl_clean_sa_vs_gom_m_int_c_short_wide_long <-
@@ -124,19 +149,7 @@ compl_clean_sa_vs_gom_m_int_c_short_wide_long_compl_cnt <-
   unique() %>% 
   ungroup()
 
-View(compl_clean_sa_vs_gom_m_int_c_short_wide_long_compl_cnt)
-
-
-compl_clean_sa_vs_gom_m_int_c_short_wide %>%
-    # filter(complete.cases(SC9087BU)) %>% 
-  select(year_permit, perm_exp, SC9087BU) %>% 
-View()
-  dplyr::group_by(year_permit, perm_exp) %>%
-  # rowwise() %>% 
-  add_count(year_permit, perm_exp,
-            name = "is_compl_y") %>% 
-  select(year_permit, perm_exp, is_compl_y) %>% 
-  View()
+# View(compl_clean_sa_vs_gom_m_int_c_short_wide_long_compl_cnt)
 
 
 # stopped here ----
