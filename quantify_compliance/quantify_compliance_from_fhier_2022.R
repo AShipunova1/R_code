@@ -85,6 +85,21 @@ compl_clean_sa_vs_gom_m_int_c_short <-
 glimpse(compl_clean_sa_vs_gom_m_int_c_short)
 
 # by year ----
+# year add total ----
+
+compl_clean_sa_vs_gom_m_int_c_tot <-
+  compl_clean_sa_vs_gom_m_int_c %>%
+  group_by(year_permit) %>%
+  # rowwise() %>% 
+  mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
+  ungroup()
+
+View(compl_clean_sa_vs_gom_m_int_c_tot)
+
+compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_tot %>% 
+  select(year_permit, tota_vsl_m) %>% 
+  unique()
+
 
 ## expired or not? ----
 end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
@@ -140,6 +155,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long <-
 
 # View(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long)
 
+
 ## get cnts for compl, no compl, or both per month with exp ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_cnt <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long %>%
@@ -152,6 +168,52 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_cnt <-
   ungroup()
 
 View(compl_clean_sa_vs_gom_m_int_c_exp_diff_y_short_wide_long_cnt)
+
+
+# year non compliant ----
+
+
+# add percents ----
+
+# plot
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
+  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
+  unique() %>%
+  sort() %>%
+  map(function(curr_year_permit) {
+    # browser()
+    total_non_compl_df <-
+      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+      filter(year_permit == curr_year_permit) %>%
+      select(perc_vsls_per_y_r_b,
+             percent_n_compl_rank,
+             perc_labels,
+             vsls_per_y_r) %>%
+      unique()
+
+    curr_title_y_p <- make_year_permit_label(curr_year_permit)
+    y_p_title <- paste0(curr_title_y_p,
+                       " (Total non compliant vessels: ",
+                       total_non_compl_df$vsls_per_y_r,
+                       ")"
+                       )
+
+    one_plot <-
+      ggplot(total_non_compl_df,
+             aes(x = percent_n_compl_rank,
+                 y = perc_vsls_per_y_r_b)) +
+      geom_col(fill = "deepskyblue") +
+      labs(title = y_p_title,
+           x = "",
+           y = "% nc vsls per year & permit") +
+      geom_text(aes(label = perc_labels),
+                position = position_stack(vjust = 0.5)) +
+      ylim(0, 100)
+
+    "% of missing reports for non-compliant vessels"
+
+    return(one_plot)
+  })
 
 
 # stopped here ----
