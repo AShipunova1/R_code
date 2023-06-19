@@ -92,8 +92,8 @@ make_one_plot_compl_vs_non_compl <-
       scale_fill_manual(
         values =
           c(
-            "percent_compl" = "lightgreen",
-            "percent_non_compl" = "red"
+            "compliant" = "lightgreen",
+            "non_compliant" = "red"
           ),
         name = "Is compliant?",
         labels = c("Yes", "No")
