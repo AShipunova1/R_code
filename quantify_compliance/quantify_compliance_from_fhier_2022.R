@@ -326,6 +326,13 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y <-
 #   # remove NAs
 #   filter(year_permit == '2022 gom_dual' & perm_exp_y == 'expired') %>% View()
 
+# add percents of total ----
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y)
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y %>%
+  select(year_permit, tota_vsl_y, perm_exp_y, compl_or_not, cnt_y_p_c, cnt_y_p_e) %>%
+  unique() %>%
+  mutate(perc_c_nc = cnt_y_p_c * 100 / tota_vsl_y)
 # Non compliant by year ----
 # print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
