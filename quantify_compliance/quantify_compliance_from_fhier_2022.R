@@ -160,7 +160,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
     names_to = "vessel_official_number"
   )
 
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
 
 ## get cnts for compl, no compl, or both per month with exp ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt <-
@@ -173,7 +173,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt <-
   unique() %>%
   ungroup()
 
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 
 # check counts ----
 # print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
@@ -205,9 +205,10 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
 # ...
 # https://stackoverflow.com/questions/51848578/how-to-find-values-shared-between-groups-in-a-data-frame
 
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
+  filter(!is.na(is_compl_or_both)) %>%
   group_by(vessel_official_number) %>%
   mutate(shared = n_distinct(is_compl_or_both) == n_distinct(.$is_compl_or_both)) %>%
   filter(shared == TRUE) %>%
@@ -215,25 +216,38 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
 # 0
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
+  filter(!is.na(is_compl_or_both)) %>%
   group_by(vessel_official_number) %>%
   mutate(shared = n_distinct(perm_exp_y) == n_distinct(.$perm_exp_y)) %>%
   filter(shared == TRUE) %>%
+  arrange(vessel_official_number) %>%
   glimpse()
-# 3,887
+# $ year_permit            <chr> "2022 sa_only", "2022 sa_only"
+# $ tota_vsl_y             <int> 2178, 2178
+# $ perm_exp_y             <chr> "active", "expired"
+# $ vessel_official_number <chr> "FL7825PU", "FL7825PU"
+# $ is_compl_or_both       <chr> "NO", "YES"
+# $ shared                 <lgl> TRUE, TRUE
 
-test_VI5498TB <-
+# ERR: perm_exp_y             <chr> "active", "expired"
+# ERR: is_compl_or_both       <chr> "NO", "YES"
+
+test_FL7825PU <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
-  filter(vessel_official_number == "VI5498TB")
+  filter(vessel_official_number == "FL7825PU")
 
-data_overview(test_VI5498TB)
+data_overview(test_FL7825PU)
+# permitgroupexpiration        2
+# compliant_                   2
+# permit_groupexpiration       2
 
-test_VI5498TB %>%
+test_FL7825PU %>%
   select(permit_sa_gom, year_permit, permitgroupexpiration) %>%
   unique()
 #   permit_sa_gom year_permit  permitgroupexpiration
-# 1 sa_only       2022 sa_only 2023-06-30 00:00:00
-# 2 sa_only       2023 sa_dual 2023-06-30 00:00:00
-
+# 1 sa_only       2022 sa_only 2022-05-31 00:00:00
+# 2 sa_only       2022 sa_only 2024-05-31 00:00:00
+# TODO: redo all when fixed
 
 # why tota_vsl_y != sum_cnts
 compl_clean_sa_vs_gom_m_int_filtered %>%
