@@ -6,10 +6,9 @@
 library(grid)
 source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
-# compl_clean_sa_vs_gom_m_int_c <- compl_clean_sa_vs_gom_m_int
-
 # remove 2023 gom_only ----
 compl_clean_sa_vs_gom_m_int_filtered <-
+  # from get_data
   compl_clean_sa_vs_gom_m_int %>%
   filter(!(year == '2023' & permit_sa_gom == "gom_only"))
 
@@ -41,7 +40,7 @@ vessels_compl_or_not_per_y_r_all <-
   count(compliant_, year, permit_sa_gom)
 
 vessels_compl_or_not_per_y_r_not_gom23 <-
-  compl_clean_sa_vs_gom_m_int_c %>%
+  compl_clean_sa_vs_gom_m_int_filtered %>%
   select(vessel_official_number, compliant_, year_permit) %>%
   unique() %>%
   count(compliant_, year_permit)
@@ -53,17 +52,28 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 3 NO         2023 sa_dual   1628
 # 6 YES        2023 sa_dual   2125
 
+#   compliant_ year_permit       n
+# 1 NO         2022 gom_dual   187
+# 2 NO         2022 sa_only   1289
+# 3 NO         2023 sa_dual   1384
+# 4 NO         NA              292
+# 5 YES        2022 gom_dual  1116
+# 6 YES        2022 sa_only   1617
+# 7 YES        2023 sa_dual   1795
+# 8 YES        NA              382
+
 # compl vs. non-compl vessels per year, region ----
 
+# by Month: ----
 ## add the difference between expiration and week_end ----
-# View(compl_clean_sa_vs_gom_m_int_c)
+
 compl_clean_sa_vs_gom_m_int_c_exp_diff <-
-  compl_clean_sa_vs_gom_m_int_c %>% 
+  compl_clean_sa_vs_gom_m_int_filtered %>% 
   mutate(exp_w_end_diff =
            as.numeric(as.Date(permitgroupexpiration) - week_end + 1))
 
-# %>% 
-#   select(exp_w_end_diff, permitgroupexpiration, week_end) %>% 
+# compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
+#   select(exp_w_end_diff, permitgroupexpiration, week_end) %>%
 #   View()
 
 ## expired or not? ----
@@ -87,22 +97,28 @@ glimpse(compl_clean_sa_vs_gom_m_int_c_short)
 # by year ----
 # year add total ----
 
-compl_clean_sa_vs_gom_m_int_c_tot <-
-  compl_clean_sa_vs_gom_m_int_c %>%
+compl_clean_sa_vs_gom_m_int_filtered_tot <-
+  compl_clean_sa_vs_gom_m_int_filtered %>%
   group_by(year_permit) %>%
-  mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
+  mutate(tota_vsl_y = n_distinct(vessel_official_number)) %>% 
   ungroup()
 
-# View(compl_clean_sa_vs_gom_m_int_c_tot)
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot)
 
-# compl_clean_sa_vs_gom_m_int_c_tot %>% 
-#   select(year_permit, tota_vsl_m) %>% 
-#   unique()
+compl_clean_sa_vs_gom_m_int_filtered_tot %>%
+  select(year_permit, tota_vsl_y) %>%
+  unique()
 #   year_permit   tota_vsl_m
 #   <chr>              <int>
 # 1 2022 sa_only        2178
 # 2 2022 gom_dual       1495
 # 3 2023 sa_dual        2236
+
+# 1 2022 sa_only        2178
+# 2 NA                   387
+# 3 2022 gom_dual       1121
+# 4 2023 sa_dual        1905
+
 
 ## expired or not? ----
 end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
