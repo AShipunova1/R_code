@@ -249,7 +249,7 @@ test_FL7825PU %>%
 # 2 sa_only       2022 sa_only 2024-05-31 00:00:00
 # TODO: redo all when fixed
 
-# why tota_vsl_y != sum_cnts
+# check tota_vsl_y vs. sum_cnts (should be equal, see dbl FL7825PU above)
 compl_clean_sa_vs_gom_m_int_filtered %>%
   filter(year_permit == "2022 sa_only") %>%
   group_by(compliant_) %>%
@@ -303,15 +303,37 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 # 2179
 
 # year non compliant ----
+# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
   filter(is_compl_or_both %in% c("NO_YES", "NO"))
+# %>%
+  # select(-is_compl_or_both)
+
+# add total non compliant per year and permit ----
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt <-
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl %>%
+  group_by(year_permit) %>%
+  mutate(not_compl_cnt_y_p = sum(compl_or_not_cnt)) %>%
+  ungroup()
+
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt)
+
+# add total non compliant per year, permit and expiration ----
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt_e <-
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt %>%
+  group_by(year_permit, perm_exp_y) %>%
+  mutate(not_compl_cnt_e = sum(compl_or_not_cnt)) %>%
+  ungroup()
+
+View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt_e)
 
 # add percents ----
-# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
+print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt)
+
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl %>%
-  mutate(perc_y = compl_or_not_cnt * 100 / tota_vsl_m)
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt %>%
+  mutate(perc_y = not_compl_cnt_y_p * 100 / tota_vsl_y)
 
 View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc)
 
