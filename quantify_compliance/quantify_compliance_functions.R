@@ -33,11 +33,11 @@ perc_plots_by_month <-
     # browser()
     # month_title = current_year_month
     total_nc_vsl_per_month <-
-      my_df %>% 
-      filter(year_month == current_year_month) %>% 
-      select(total_nc_vsl_per_month) %>% 
+      my_df %>%
+      filter(year_month == current_year_month) %>%
+      select(total_nc_vsl_per_month) %>%
       unique()
-    
+
     # month_title = paste0(current_year_month, " Total non-compliant vessels: ", total_nc_vsl_per_month[[1]])
     month_title = paste0(current_year_month, ": ", total_nc_vsl_per_month[[1]], " total nc vsls")
 
@@ -62,3 +62,10 @@ perc_plots_by_month <-
       return()
   }
 
+make_year_permit_label <- function(curr_year_permit) {
+  curr_year_permit %>%
+    stringr::str_replace("_dual", " + dual") %>%
+    stringr::str_replace("_", " ") %>%
+    toupper() %>%
+    return()
+}
