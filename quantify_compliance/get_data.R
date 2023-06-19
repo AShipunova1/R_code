@@ -22,7 +22,7 @@ get_data_from_FHIER_csvs <- function() {
   # browser()
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
-  str(csvs_clean1)
+#  str(csvs_clean1)
   # browser()
   compl_clean <- compliance_cleaning(csvs_clean1)
   
@@ -92,7 +92,7 @@ get_permit_data_from_PIMS_csv <- function() {
     select(status_date) %>%
     arrange(desc(status_date)) %>% unique() %>% head()
   # correct
-  str(active_permits_from_pims)
+  # str(active_permits_from_pims)
   
   return(active_permits_from_pims)
 }
