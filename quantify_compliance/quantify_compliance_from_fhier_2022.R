@@ -221,19 +221,33 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
   glimpse()
 # 3,887
 
-# why tota_vsl_m != sum_cnts
-compl_clean_sa_vs_gom_m_int_c %>%
+test_VI5498TB <-
+  compl_clean_sa_vs_gom_m_int_filtered %>%
+  filter(vessel_official_number == "VI5498TB")
+
+data_overview(test_VI5498TB)
+
+test_VI5498TB %>%
+  select(permit_sa_gom, year_permit, permitgroupexpiration) %>%
+  unique()
+#   permit_sa_gom year_permit  permitgroupexpiration
+# 1 sa_only       2022 sa_only 2023-06-30 00:00:00
+# 2 sa_only       2023 sa_dual 2023-06-30 00:00:00
+
+
+# why tota_vsl_y != sum_cnts
+compl_clean_sa_vs_gom_m_int_filtered %>%
   filter(year_permit == "2022 sa_only") %>%
   group_by(compliant_) %>%
   mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>%
-  ungroup()
+  ungroup() %>%
   select(tota_vsl_m, compliant_) %>%
   unique() %>%
   head()
 # 1       1617 YES
 # 2       1289 NO
 
-compl_clean_sa_vs_gom_m_int_c %>%
+compl_clean_sa_vs_gom_m_int_filtered %>%
   filter(year_permit == "2022 sa_only") %>%
   mutate(exp_w_end_diff_y =
            as.numeric(as.Date(permitgroupexpiration) -
@@ -263,6 +277,16 @@ compl_clean_sa_vs_gom_m_int_c %>%
 # 1617+1289
 # 2906
 
+# today()
+# [1] "2023-06-19"
+#   tota_vsl_m compliant_ perm_exp_y
+#        <int> <chr>      <chr>
+# 1       1707 YES        active
+# 2       1707 NO         active
+# 3        472 NO         expired
+# 4        472 YES        expired
+# 1707 + 472
+# 2179
 
 # year non compliant ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
