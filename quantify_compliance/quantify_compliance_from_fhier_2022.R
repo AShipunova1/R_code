@@ -196,9 +196,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
 # 890 + 562 + 727
 # [1] 2179
 
-# TODO: "YES", "NO", "NO_YES" - is one vessel in 2 groups? ----
-# or in perm_exp_y?
-
+# TODO: One vessel in 2 perm_exp_y - email
 #   year_permit  tota_vsl_m compl_or_not_cnt sum_cnts
 #   <chr>             <int>            <int>    <int>
 # 1 2022 sa_only       2178              820     2179
@@ -302,13 +300,11 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 # 1707 + 472
 # 2179
 
-# year non compliant ----
+# Non compliant by year ----
 # print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
   filter(is_compl_or_both %in% c("NO_YES", "NO"))
-# %>%
-  # select(-is_compl_or_both)
 
 # add total non compliant per year and permit ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt <-
@@ -317,7 +313,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt
   mutate(not_compl_cnt_y_p = sum(compl_or_not_cnt)) %>%
   ungroup()
 
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt)
+View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt)
 
 # add total non compliant per year, permit and expiration ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt_e <-
@@ -329,18 +325,27 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt
 View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt_e)
 
 # add percents ----
-print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt)
+# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt)
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt %>%
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt_e %>%
   mutate(perc_y = not_compl_cnt_y_p * 100 / tota_vsl_y)
 
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc)
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc)
+# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc)
+
+## fewer fields ----
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act <-
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc %>%
+  select(-c(is_compl_or_both, compl_or_not_cnt)) %>%
+  filter(perm_exp_y == "active") %>%
+  unique()
 
 
 # plot
 gg_compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_perc <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc$year_permit %>%
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc %>%
   unique() %>%
   sort() %>%
   map(function(curr_year_permit) {
