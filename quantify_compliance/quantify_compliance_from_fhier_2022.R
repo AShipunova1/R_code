@@ -300,6 +300,32 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 # 1707 + 472
 # 2179
 
+# add total cnts ----
+# active vs expired per year, permit, compl, permit expiration
+
+# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
+
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y <-
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
+  # remove NAs
+  filter(complete.cases(is_compl_or_both)) %>%
+  mutate(compl_or_not = case_when(is_compl_or_both == "YES" ~
+                                    "compliant",
+                                  .default = "non_compliant")) %>%
+  group_by(year_permit, compl_or_not) %>%
+  # add counts by compliant
+  mutate(cnt_y_p_c = sum(compl_or_not_cnt)) %>%
+  ungroup() %>%
+  # add counts by permit expiration
+  group_by(year_permit, perm_exp_y) %>%
+  mutate(cnt_y_p_e = sum(compl_or_not_cnt)) %>%
+  ungroup()
+
+# check cnts
+# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
+#   # remove NAs
+#   filter(year_permit == '2022 gom_dual' & perm_exp_y == 'expired') %>% View()
+
 # Non compliant by year ----
 # print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
