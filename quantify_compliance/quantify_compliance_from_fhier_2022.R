@@ -351,6 +351,35 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_per
 # $ not_compl_cnt_e   <int> 281
 # $ perc_y            <dbl> 20.33445
 
+# red/green plots for compl vs. non compl vessels per year ----
+gg_all_c_vs_nc_plots <-
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act$year_permit %>%
+  map(function(curr_year_permit) {
+    browser()
+    curr_df <-
+      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act %>%
+      filter(year_permit == curr_year_permit) %>%
+      mutate(percent_compl = 100 - perc_y) %>%
+      pivot_longer(
+        cols = c(percent_compl,
+                 perc_y),
+        names_to = "is_compliant",
+        values_to = "percent"
+      )
+
+    y_r_title <-
+      make_year_permit_label(curr_year_permit)
+
+    total_vsls <- unique(curr_df$total_vsl_ids_per_y_r)
+
+    current_title <-
+      paste0(y_r_title, " permitted (Total vsls: ", total_vsls, ")")
+    one_plot <-
+      make_one_plot_compl_vs_non_compl(curr_df, current_title)
+
+    return(one_plot)
+
+  })
 
 
 # plot
