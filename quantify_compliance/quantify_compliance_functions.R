@@ -73,15 +73,18 @@ make_year_permit_label <- function(curr_year_permit) {
 make_one_plot_compl_vs_non_compl <-
   function(my_df,
            current_title = "",
+           is_compliant = "is_compliant",
+           percent = "percent",
            no_legend = FALSE) {
     # browser()
     one_plot <-
       my_df %>%
-      ggplot(aes(x = is_compliant,
-                 y = percent,
-                 fill = is_compliant)) +
+      ggplot(aes(x = !!sym(is_compliant),
+                 y = !!sym(percent),
+                 fill = !!sym(is_compliant))) +
       geom_col() +
-      geom_text(aes(label = paste0(round(percent, 1), "%")),
+      geom_text(aes(label =
+                      paste0(round(!!sym(percent), 1), "%")),
                 position = position_stack(vjust = 0.5)) +
       labs(title = current_title,
            x = "",
