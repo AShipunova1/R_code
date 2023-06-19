@@ -338,16 +338,15 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_per
 View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc)
 
 
-
 # plot
 gg_compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_perc <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_perc$year_permit %>%
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc$year_permit %>%
   unique() %>%
   sort() %>%
   map(function(curr_year_permit) {
     browser()
     total_non_compl_df <-
-      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_perc %>%
+      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc %>%
       filter(year_permit == curr_year_permit) %>%
       unique()
     curr_title_y_p <- make_year_permit_label(curr_year_permit)
@@ -556,14 +555,6 @@ make_one_plot_compl_vs_non_compl <-
 #     make_one_plot_compl_vs_non_compl(my_df, current_title)
 #   return(one_plot)
 # }
-
-make_year_permit_label <- function(curr_year_permit) {
-  curr_year_permit %>%
-    stringr::str_replace("_dual", " + dual") %>%
-    stringr::str_replace("_", " ") %>%
-    toupper() %>%
-    return()
-}
 
 gg_all_c_vs_nc_plots <-
   vessels_cnt_per_year_reg_compl_tot_perc$year_permit %>%
