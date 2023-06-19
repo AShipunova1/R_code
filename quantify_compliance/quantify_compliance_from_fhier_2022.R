@@ -155,12 +155,12 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide %>%
   pivot_longer(
-    cols = -c(year_permit, tota_vsl_m, perm_exp_y),
+    cols = -c(year_permit, tota_vsl_y, perm_exp_y),
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
 
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
+View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
 
 ## get cnts for compl, no compl, or both per month with exp ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt <-
@@ -181,10 +181,10 @@ View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
   filter(complete.cases(is_compl_or_both)) %>%
-  select(year_permit, tota_vsl_m, compl_or_not_cnt, is_compl_or_both) %>%
+  select(year_permit, tota_vsl_y, compl_or_not_cnt, is_compl_or_both) %>%
   group_by(year_permit) %>%
   mutate(sum_cnts = sum(compl_or_not_cnt)) %>%
-  filter(!tota_vsl_m == sum_cnts) %>%
+  filter(!tota_vsl_y == sum_cnts) %>%
   unique() %>%
   group_by(is_compl_or_both) %>%
   mutate(sum_compl_or_not_cnt = sum(compl_or_not_cnt)) %>%
@@ -196,13 +196,30 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
 # 890 + 562 + 727
 # [1] 2179
 
-# TODO: "YES", "NO", "NO_YES" - is one vessel in 2 groups?
+# TODO: "YES", "NO", "NO_YES" - is one vessel in 2 groups? ----
 # or in perm_exp_y?
 
 #   year_permit  tota_vsl_m compl_or_not_cnt sum_cnts
 #   <chr>             <int>            <int>    <int>
 # 1 2022 sa_only       2178              820     2179
 # ...
+# https://stackoverflow.com/questions/51848578/how-to-find-values-shared-between-groups-in-a-data-frame
+
+View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
+
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
+  group_by(vessel_official_number) %>%
+  mutate(shared = n_distinct(is_compl_or_both) == n_distinct(.$is_compl_or_both)) %>%
+  filter(shared == TRUE) %>%
+  glimpse()
+# 0
+
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
+  group_by(vessel_official_number) %>%
+  mutate(shared = n_distinct(perm_exp_y) == n_distinct(.$perm_exp_y)) %>%
+  filter(shared == TRUE) %>%
+  glimpse()
+# 3,887
 
 # why tota_vsl_m != sum_cnts
 compl_clean_sa_vs_gom_m_int_c %>%
