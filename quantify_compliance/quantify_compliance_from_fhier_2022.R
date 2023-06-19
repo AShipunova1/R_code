@@ -374,7 +374,13 @@ gg_all_c_vs_nc_plots <-
       )
 
     one_plot <-
-      make_one_plot_compl_vs_non_compl(curr_df, current_title)
+    curr_df %>%
+      select(compl_or_not, perc_c_nc) %>%
+      unique() %>%
+      make_one_plot_compl_vs_non_compl(
+                                       current_title,
+                                       is_compliant = "compl_or_not",
+                                       percent = "perc_c_nc")
 
     return(one_plot)
 
