@@ -150,11 +150,9 @@ additional_clean_up <- function(compl_clean) {
         case_when(
           year == "2022" & permit_sa_gom == "sa_only" ~
             paste(year, "sa_only"),
-          year == "2022" & (permit_sa_gom %in% c("gom_only",
-                                                 "both")) ~
+          year == "2022" & (permit_sa_gom %in% c("gom_only", "dual")) ~
             paste(year, "gom_dual"),
-          year == "2023" & (permit_sa_gom %in% c("sa_only",
-                                                 "both")) ~
+          year == "2023" & (permit_sa_gom %in% c("sa_only", "dual")) ~
             paste(year, "sa_dual")
         )
     )
