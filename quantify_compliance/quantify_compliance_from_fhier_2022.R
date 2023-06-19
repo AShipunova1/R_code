@@ -337,6 +337,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y %>%
 # TODO: use compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act for green and red plot. yes = 100% - "perc_non_compl_y"
 
 # red/green plots for compl vs. non compl vessels per year ----
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
@@ -609,43 +610,6 @@ vessels_cnt_per_year_reg_compl_tot_perc <-
   mutate(percent_non_compl = non_compl_vsls * 100 / total_vsl_ids_per_y_r)
 
 glimpse(vessels_cnt_per_year_reg_compl_tot_perc)
-
-# make_one_plot_compl_vs_non_compl <-
-#   function(my_df, current_title = "", no_legend = FALSE) {
-#   # browser()
-#   one_plot <-
-#     my_df %>%
-#     ggplot(aes(x = is_compliant,
-#                y = percent,
-#                fill = is_compliant)) +
-#     geom_col() +
-#     geom_text(aes(label = paste0(round(percent, 1), "%")),
-#               position = position_stack(vjust = 0.5)) +
-#     labs(title = current_title,
-#          x = "",
-#          y = "") +
-#     scale_fill_manual(
-#       values =
-#         c(
-#           "percent_compl" = "lightgreen",
-#           "percent_non_compl" = "red"
-#         ),
-#       name = "Is compliant?",
-#       labels = c("Yes", "No")
-#     ) +
-#     scale_x_discrete(labels = c("Yes", "No")) +
-#     # scale_y_continuous(limits = c(0, 100), labels = scales::percent)
-#   ylim(0, 100)
-#   # +
-#   # scale_y_continuous(labels = scales::label_percent(scale = 1))
-#
-#   if (no_legend) {
-#     one_plot <- one_plot +
-#       theme(legend.position = "none")
-#   }
-
-  return(one_plot)
-}
 
 # plots_for_c_vs_nc_vsls <- function(my_df, y_r_title, total_vsls) {
 #   current_title <-
