@@ -341,17 +341,27 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_per
   filter(perm_exp_y == "active") %>%
   unique()
 
+# TODO: 1) get buckets for the blue plot
+# 2) use compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act for green and red plot. yes = 100% - "perc_y"
+# see make_one_plot_compl_vs_non_compl
+# $ year_permit       <chr> "2022 gom_dual"
+# $ tota_vsl_y        <int> 1495
+# $ perm_exp_y        <chr> "active"
+# $ not_compl_cnt_y_p <int> 304
+# $ not_compl_cnt_e   <int> 281
+# $ perc_y            <dbl> 20.33445
+
+
 
 # plot
 gg_compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_perc <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc$year_permit %>%
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc %>%
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act$year_permit %>%
   unique() %>%
   sort() %>%
   map(function(curr_year_permit) {
     browser()
     total_non_compl_df <-
-      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc %>%
+      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act %>%
       filter(year_permit == curr_year_permit) %>%
       unique()
     curr_title_y_p <- make_year_permit_label(curr_year_permit)
