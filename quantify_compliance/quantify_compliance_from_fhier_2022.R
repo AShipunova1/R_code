@@ -342,7 +342,7 @@ gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
   map(function(curr_year_permit) {
-    browser()
+    # browser()
     curr_df <-
       compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
       filter(year_permit == curr_year_permit)
@@ -385,6 +385,16 @@ gg_all_c_vs_nc_plots <-
     return(one_plot)
 
   })
+
+gg_all_c_vs_nc_plots[[3]]
+
+main_title = "Percent unique compliant vs. non compliant vessels for 2022"
+
+grid.arrange(gg_all_c_vs_nc_plots[[1]],
+             gg_all_c_vs_nc_plots[[2]],
+             top = main_title)
+
+
 # --- stopped here [1] "2023-06-19"
 
 
@@ -625,44 +635,37 @@ glimpse(vessels_cnt_per_year_reg_compl_tot_perc)
 #   return(one_plot)
 # }
 
-gg_all_c_vs_nc_plots <-
-  vessels_cnt_per_year_reg_compl_tot_perc$year_permit %>%
-  map(function(curr_year_permit) {
-    # browser()
-    curr_df <-
-      vessels_cnt_per_year_reg_compl_tot_perc %>%
-      filter(year_permit == curr_year_permit) %>%
-      pivot_longer(
-        cols = c(percent_compl,
-                 percent_non_compl),
-        names_to = "is_compliant",
-        values_to = "percent"
-      )
-
-    y_r_title <-
-      make_year_permit_label(curr_year_permit)
-
-    total_vsls <- unique(curr_df$total_vsl_ids_per_y_r)
-
-    current_title <-
-      paste0(y_r_title, " permitted (Total vsls: ", total_vsls, ")")
-    one_plot <-
-      make_one_plot_compl_vs_non_compl(curr_df, current_title)
-
-    return(one_plot)
-
-  })
+# gg_all_c_vs_nc_plots <-
+#   vessels_cnt_per_year_reg_compl_tot_perc$year_permit %>%
+#   map(function(curr_year_permit) {
+#     # browser()
+#     curr_df <-
+#       vessels_cnt_per_year_reg_compl_tot_perc %>%
+#       filter(year_permit == curr_year_permit) %>%
+#       pivot_longer(
+#         cols = c(percent_compl,
+#                  percent_non_compl),
+#         names_to = "is_compliant",
+#         values_to = "percent"
+#       )
+#
+#     y_r_title <-
+#       make_year_permit_label(curr_year_permit)
+#
+#     total_vsls <- unique(curr_df$total_vsl_ids_per_y_r)
+#
+#     current_title <-
+#       paste0(y_r_title, " permitted (Total vsls: ", total_vsls, ")")
+#     one_plot <-
+#       make_one_plot_compl_vs_non_compl(curr_df, current_title)
+#
+#     return(one_plot)
+#
+#   })
 
 # % of non-compliant South Atlantic Only Permitted Vessels by month (2022)
 # % of non-compliant Gulf + Dual permitted vessels by month (2022)
 
-gg_all_c_vs_nc_plots[[3]]
-
-main_title = "Percent unique compliant vs. non compliant vessels for 2022"
-
-grid.arrange(gg_all_c_vs_nc_plots[[1]],
-             gg_all_c_vs_nc_plots[[2]],
-             top = main_title)
 
 # TODO:
 # keep only one legend
