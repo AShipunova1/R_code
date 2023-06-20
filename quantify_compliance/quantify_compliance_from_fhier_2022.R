@@ -913,12 +913,16 @@ count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot <-
 ### tests 3, by month ----
 
 compl_clean_sa_vs_gom_m_int_filtered %>%
-  filter(year_permit == "2022 sa_only") %>%
+  filter(year_permit == "2022 gom_dual") %>%
   filter(year_month == "Jan 2022") %>%
-  filter(compliant_ == "NO") %>%
+  # filter(compliant_ == "NO") %>%
   select(vessel_official_number) %>%
   unique() %>% str()
 # total 703 nc vsls in "Jan 2022 sa_only"
+# tot 1635 in Jan 2022
+
+# 45 nc vsls in "Jan 2022 gom_dual"
+# 45 * 100 / 1192 = 3.8%
 
 # still true
 count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b %>%
@@ -969,17 +973,15 @@ count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p %>%
 
 # 5) Month plots ----
 
-# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p)
+count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p_y_r <-
+  split(count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p,
+        as.factor(count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p$year_permit))
 
-nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r <-
-  split(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p,
-        as.factor(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p$year_permit))
-
-# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r)
+# View(count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p_y_r)
 
 get_one_plot_by_month <-
   function(my_df, curr_year_month) {
-    # browser()
+    browser()
     curr_data <- my_df %>%
       filter(year_month == curr_year_month)
 
@@ -1012,8 +1014,7 @@ get_one_plot_by_month <-
     return(one_plot)
   }
 
-
-sorted_year_permits <- names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r) %>%
+sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p_y_r) %>%
   sort()
 # [1] "2022 gom_dual" "2022 sa_only"  "2023 sa_dual"
 
@@ -1025,14 +1026,13 @@ year_permit_titles <-
 
 names(year_permit_titles) <- sorted_year_permits
 
-
 gg_month_nc_perc <-
   sorted_year_permits %>%
   map(
     function(current_year_permit) {
-      # browser()
+      browser()
       curr_df <-
-        nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p_y_r[[current_year_permit]]
+        count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p_y_r[[current_year_permit]]
 
       curr_year_months <-
         curr_df %>%
