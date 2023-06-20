@@ -706,6 +706,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
 
 ## add the difference between expiration and week_end ----
 
+# if we use a week_end, than a vessel which ends near the end of year will have its last week expired.
 compl_clean_sa_vs_gom_m_int_c_exp_diff <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
   mutate(exp_w_end_diff =
@@ -730,14 +731,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
   mutate(exp_m_tot_cnt = n_distinct(vessel_official_number)) %>%
   ungroup()
 
-str(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt)
-# tibble [190,451 × 29] (S3: tbl_df/tbl/data.frame)
-
 # check
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
-  count(year_month, perm_exp_m)
-
-# test
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   filter(year == "2022") %>%
   select(year_month, perm_exp_m, exp_m_tot_cnt,
@@ -754,43 +748,6 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 # 5 Dec 2022   active              2787        2788
 # 6 Dec 2022   expired                1        2788
 # correct
-
-tic("check count exp by month")
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
-  select(vessel_official_number, compliant_, week_num, week_start, week_end, permitgroupexpiration, permit_sa_gom, year_month, year_permit, total_vsl_m, exp_w_end_diff, perm_exp_m, exp_m_tot_cnt
-) %>%
-  unique() %>%
-  group_by(year_month, vessel_official_number) %>%
-  mutate(shared = n_distinct(perm_exp_m) == n_distinct(.$perm_exp_m)) %>%
-  filter(shared == TRUE) %>%
-  glimpse()
-toc()
-# Rows: 3,478
-# Columns: 14
-# Groups: year_month, vessel_official_number [801]
-# $ vessel_official_number <chr> "FL5386PZ", "NC1645ES", "FL5386P…
-
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
-  filter(year_month == "Dec 2022" &
-           vessel_official_number == "FL5386PZ") %>%
-  arrange(desc(week_num)) %>%
-  glimpse()
-
-# VA4480ZY
-# 12/31/2022
-# 52: 12/26/2022 - 01/01/2023
-# active
-
-# FL5386PZ
-# $ week_num                    <int> 52, 51, 50, 49
-# $ week_start                  <date> 2022-12-26, 2022-12-19, 202…
-# $ week_end                    <date> 2023-01-01, 2022-12-25, 202…
-# $ permitgroupexpiration       <dttm> 2022-12-29, 2022-12-29, 202…
-# $ total_vsl_m                 <int> 2788,
-# $ exp_w_end_diff              <dbl> -2, 5, 12, 19
-# $ perm_exp_m                  <chr> "expired", "active", "activ…
-# $ exp_m_tot_cnt               <int> 3, 2787, 2787, 2787
-
 
 # cnt unique total vessels per month, compl ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v_c <-
@@ -826,19 +783,6 @@ count_weeks_per_vsl_permit_year_compl_month <-
             name = "total_weeks_per_vessel_per_compl_m")
 
 # View(count_weeks_per_vsl_permit_year_compl_month)
-
-# test
-# count_weeks_per_vsl_permit_year_compl_month %>%
-#   select(
-#     year_permit,
-#     year_month,
-#     compliant_,
-#     weeks_per_vessel_per_compl_m,
-#     total_weeks_per_vessel_per_compl_m
-#   ) %>%
-#   unique() %>%
-#   filter(year_permit == "2022 sa_only") %>%
-#   View()
 
 count_weeks_per_vsl_permit_year_compl_m <-
   count_weeks_per_vsl_permit_year_compl_month %>%
