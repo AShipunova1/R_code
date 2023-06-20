@@ -395,13 +395,9 @@ grid.arrange(gg_all_c_vs_nc_plots[[1]],
              top = main_title)
 
 
-# --- stopped here [1] "2023-06-19"
+# stopped here [1] "2023-06-19" ----
 
 View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
-
-# Non compliant by year ----
-
-
 
 # TODO: 1) get buckets for the blue plot
 # see make_one_plot_compl_vs_non_compl
@@ -456,22 +452,6 @@ gg_compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_perc <-
   })
 
 
-# separate vessels non-compliant at least once per year ----
-non_compl_vessel_ids_per_y_r <-
-  compl_clean_sa_vs_gom_m_int_c_short %>%
-  filter(compliant_ == "NO") %>%
-  select(vessel_official_number, year_permit) %>%
-  unique()
-
-# View(non_compl_vessel_ids_per_y_r)
-# 3221
-
-## split by year_permit ----
-all_compl_vs_non_compl_per_year_cnt_list <-
-  split(compl_clean_sa_vs_gom_m_int_c_short,
-        as.factor(compl_clean_sa_vs_gom_m_int_c_short$year_permit))
-
-# View(all_compl_vs_non_compl_per_year_cnt_list)
 
 ### test ----
 all_compl_vs_non_compl_per_year_cnt_list[["2022 sa_only"]] %>%
@@ -482,38 +462,12 @@ all_compl_vs_non_compl_per_year_cnt_list[["2022 sa_only"]] %>%
 # remove non-compl vessels from compliant, to count each vessel once per year
 # total unique vessels number vs. non-compl vessels
 
-# compl_only <-
-#   names(all_compl_vs_non_compl_per_year_cnt_list) %>%
-#   # for each year_permit
-#   map_df(
-#     function(current_year_permit) {
-#       # browser()
-#       # get a df
-#       curr_df <-
-#         all_compl_vs_non_compl_per_year_cnt_list[[current_year_permit]]
-#
-#       # get non compliant vessel ids for the current_year_permit
-#       curr_non_compl_vsl_ids <-
-#         non_compl_vessel_ids_per_y_r %>%
-#         filter(year_permit == current_year_permit) %>%
-#         select(vessel_official_number)
-#
-#       # keep only vessels from the current df which a not "non-compliant"
-#       curr_df_compl_only <-
-#         curr_df %>%
-#         filter(!(vessel_official_number %in% curr_non_compl_vsl_ids$vessel_official_number))
-#
-#       return(curr_df_compl_only)
-#     }
-# )
 
 ### test ----
 compl_only %>%
   filter(year_permit == "2022 sa_only") %>%
   dim()
 # 889  3
-
-# get total unique vessel_ids per year_permit ----
 
 ## test
 
@@ -522,128 +476,28 @@ compl_only %>%
   count(compliant_)
 # YES 889
 
-# compl_only_cnts <-
-#   compl_only %>%
-#   add_count(year_permit, compliant_, name = "compl_vsls") %>%
-#   select(-c(vessel_official_number, compliant_)) %>%
-#   unique()
-
-head(compl_only_cnts)
 # 1 2022 gom_dual       1191
 # 2 2022 sa_only         889
 # 3 2023 sa_dual         608
 
-# non_compl_only_cnts <-
-#   non_compl_vessel_ids_per_y_r %>%
-#   add_count(year_permit, name = "non_compl_vsls") %>%
-#   select(-vessel_official_number) %>%
-#   unique()
-
-head(non_compl_only_cnts)
 # 1 2022 sa_only            1289
 # 2 2022 gom_dual            304
 # 3 2023 sa_dual            1628
 
-vessels_cnt_per_year_reg_compl <-
-  full_join(compl_only_cnts, non_compl_only_cnts)
-# Joining with `by = join_by(year_permit)`
-
-head(vessels_cnt_per_year_reg_compl)
 #   year_permit   compl_vsls non_compl_vsls
 # 1 2022 gom_dual       1191            304
 # 2 2022 sa_only         889           1289
 # 3 2023 sa_dual         608           1628
 
-# add total vessels_cnt_per_year_reg ----
-vessels_cnt_per_year_reg_compl_tot <-
-  vessels_cnt_per_year_reg_compl %>%
-  # compute on a data frame a row-at-a-time
-  dplyr::rowwise() %>%
-  mutate(total_vsl_ids_per_y_r = sum(compl_vsls, non_compl_vsls)) %>%
-  # return to the default colwise operations
-  dplyr::ungroup()
-
-# without rowwise:
-# $ total_vsl_ids_per_y_r <int> 5909, 5909, 5909
-
-glimpse(vessels_cnt_per_year_reg_compl_tot)
 # $ year_permit           <chr> "2022 gom_dual", "2022 sa_…
 # $ compl_vsls            <int> 1191, 889, 608
 # $ non_compl_vsls        <int> 304, 1289, 1628
 # $ total_vsl_ids_per_y_r <int> 1495, 2178, 2236
 
-# get perc non_compl vs. total for each year_permit ----
-# names(vessels_cnt_per_year_reg_compl_tot)
-
-vessels_cnt_per_year_reg_compl_tot_perc <-
-  vessels_cnt_per_year_reg_compl_tot %>%
-  mutate(percent_compl = compl_vsls * 100 / total_vsl_ids_per_y_r) %>%
-  mutate(percent_non_compl = non_compl_vsls * 100 / total_vsl_ids_per_y_r)
-
-glimpse(vessels_cnt_per_year_reg_compl_tot_perc)
-
 # % of non-compliant South Atlantic Only Permitted Vessels by month (2022)
 # % of non-compliant Gulf + Dual permitted vessels by month (2022)
 
-
-# TODO:
-# keep only one legend
-
-# add percentage for whole 2022 ----
-# View(vessels_cnt_per_year_reg_compl_tot_perc)
-
-total_p_2022 <-
-  vessels_cnt_per_year_reg_compl_tot_perc %>%
-  filter(startsWith(year_permit, "2022")) %>%
-  mutate(
-    tot_compl = sum(compl_vsls),
-    tot_non_compl = sum(non_compl_vsls),
-    tot_v_2022 = sum(total_vsl_ids_per_y_r)
-  ) %>%
-  mutate(
-    perc_compl_2022 = tot_compl * 100 / tot_v_2022,
-    perc_non_compl_2022 = tot_non_compl * 100 / tot_v_2022
-  )
-# View(total_p_2022)
-
-total_p_2022_longer <-
-  total_p_2022 %>%
-  select(perc_compl_2022,
-         perc_non_compl_2022) %>%
-  unique() %>%
-  # rename fields for the plot
-  dplyr::rename(percent_non_compl = perc_non_compl_2022,
-                percent_compl = perc_compl_2022
-                ) %>%
-  pivot_longer(
-    cols = c(percent_compl,
-             percent_non_compl),
-    names_to = "is_compliant",
-    values_to = "percent"
-  ) %>%
-  unique()
-
-# View(total_p_2022_longer)
-# View(total_p_2022)
-
-total_vsls <- total_p_2022$tot_v_2022 %>%
-  unique()
-
-y_2022_title <-
-  paste0(
-        "Compliant vs. non_compliant vessels in 2022 (",
-    total_p_2022$tot_v_2022,
-    " total vessels)"
-  ) %>%
-  unique()
-
-one_2022_plot <-
-      make_one_plot_compl_vs_non_compl(total_p_2022_longer, y_2022_title)
-#
-#
-#   (total_p_2022_longer, y_r_title, total_vsls)
-
-one_2022_plot
+# TODO: keep only one legend
 
 # Non compliant only ----
 
