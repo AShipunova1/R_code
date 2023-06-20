@@ -154,13 +154,13 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
   ) %>%
   ungroup()
 
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
+View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
 
 ## count compl, no compl, or both per year, permit, active status ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide %>%
   pivot_longer(
-    cols = -c(year_permit, total_vsl_y, perm_exp_y),
+    cols = -c(year_permit, total_vsl_y, perm_exp_y, exp_y_tot_cnt),
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
@@ -181,8 +181,8 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt <-
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 
 # check counts ----
-# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
-# [1] "year_permit, tota_vsl_m, perm_exp_y, is_compl_or_both, compl_or_not_cnt"
+print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
+# [1] "year_permit, total_vsl_y, perm_exp_y, exp_y_tot_cnt, is_compl_or_both, compl_or_not_cnt"
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
   filter(complete.cases(is_compl_or_both)) %>%
@@ -417,9 +417,10 @@ View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y)
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present ----
 weeks_per_vsl_permit_year_compl_cnt <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y %>%
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
   add_count(year_permit, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
-  add_count(year_permit, vessel_official_number, name = "total_weeks_per_vessel")
+  add_count(year_permit, vessel_official_number, name = "total_weeks_per_vessel") %>%
+  ungroup()
 
 View(weeks_per_vsl_permit_year_compl_cnt)
 
