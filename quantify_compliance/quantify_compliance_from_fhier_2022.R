@@ -750,28 +750,34 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 # correct
 
 # cnt unique total vessels per month, compl ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v_c <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v %>%
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   group_by(year_month, compliant_) %>%
   mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
   ungroup()
 
+print_df_names(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt)
+
 ## test tot cnts per month ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v_c %>%
-  select(year_month, perm_exp_m, exp_m_tot_cnt, tot_vsl_m, compliant_, cnt_vsl_m_compl) %>%
+tic("test tot cnts per month")
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
+  select(year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
   unique() %>%
   filter(year_month == "Jan 2022") %>%
-  View()
-# $ year_month      <yearmon> Dec 2022, Dec 2022, Dec 2022, Dec 2022,…
-# $ perm_exp_m      <chr> "active", "active", "expired", "expired", "…
-# $ exp_m_tot_cnt   <int> 2787, 2787, 63, 63, 2827, 2827, 52, 52, 288…
-# $ tot_vsl_m       <int> 2788, 2788, 2788, 2788, 2829, 2829, 2829, 2…
-# $ compliant_      <chr> "YES", "NO", "NO", "YES", "YES", "NO", "NO"…
-# $ cnt_vsl_m_compl <int> 2398, 467, 467, 2398, 2416, 472, 472, 2416,…
+  glimpse()
+toc()
+# test tot cnts per month: 1.97 sec elapsed
+
+# $ year_month      <yearmon> Jan 2022, Jan 2022
+# $ perm_exp_m      <chr> "active", "active"
+# $ exp_m_tot_cnt   <int> 2827, 2827
+# $ total_vsl_m     <int> 2827, 2827
+# $ compliant_      <chr> "YES", "NO"
+# $ cnt_vsl_m_compl <int> 2230, 748
 
 # add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
   add_count(year_permit,
             year_month,
             vessel_official_number,
@@ -782,7 +788,7 @@ count_weeks_per_vsl_permit_year_compl_month <-
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")
 
-# View(count_weeks_per_vsl_permit_year_compl_month)
+View(count_weeks_per_vsl_permit_year_compl_month)
 
 count_weeks_per_vsl_permit_year_compl_m <-
   count_weeks_per_vsl_permit_year_compl_month %>%
@@ -814,7 +820,8 @@ count_weeks_per_vsl_permit_year_compl_m_tot <-
             vessel_official_number,
             name = "total_weeks_per_vessel_m")
 
-# View(count_weeks_per_vsl_permit_year_compl_m_tot)
+View(count_weeks_per_vsl_permit_year_compl_m_tot)
+# TODO: why 3 week counts?
 
 ## 1) Month: percent compl weeks per vsl per month ----
 
