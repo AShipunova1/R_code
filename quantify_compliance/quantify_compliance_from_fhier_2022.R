@@ -136,8 +136,6 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short <-
          exp_y_tot_cnt) %>%
   unique()
 
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short)
-
 # get compl_counts ----
 ## get compl, no compl, or both per year ----
 
@@ -156,9 +154,8 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
   ) %>%
   ungroup()
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide, 5)
-
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
+
 ## count compl, no compl, or both per year, permit, active status ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide %>%
@@ -402,110 +399,7 @@ grid.arrange(gg_all_c_vs_nc_plots[[1]],
              gg_all_c_vs_nc_plots[[2]],
              top = main_title)
 
-
 # stopped here [1] "2023-06-19" ----
-
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
-
-# TODO: 1) get buckets for the blue plot
-# see make_one_plot_compl_vs_non_compl
-# $ year_permit       <chr> "2022 gom_dual"
-# $ tota_vsl_y        <int> 1495
-# $ perm_exp_y        <chr> "active"
-# $ not_compl_cnt_y_p <int> 304
-# $ not_compl_cnt_e   <int> 281
-# $ perc_non_compl_y            <dbl> 20.33445
-
-# plot
-gg_compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_perc <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act$year_permit %>%
-  unique() %>%
-  sort() %>%
-  map(function(curr_year_permit) {
-    browser()
-    total_non_compl_df <-
-      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act %>%
-      filter(year_permit == curr_year_permit) %>%
-      unique()
-    curr_title_y_p <- make_year_permit_label(curr_year_permit)
-    active_compl <-
-    total_non_compl_df %>%
-    filter(is_compl_or_both == "YES") %>%
-    filter(perm_exp_y == "active") %>%
-    select(compl_or_not_cnt)
-
-    y_p_title <- paste0(curr_title_y_p,
-                       " (Total non compliant vessels: ",
-                       total_non_compl_df$vsls_per_y_r,
-                       "; Compl. vsls. with active permits: ",
-                       active_compl,
-                       ")"
-                       )
-
-    one_plot <-
-      ggplot(total_non_compl_df,
-             aes(x = percent_n_compl_rank,
-                 y = perc_vsls_per_y_r_b)) +
-      geom_col(fill = "deepskyblue") +
-      labs(title = y_p_title,
-           x = "",
-           y = "% nc vsls per year & permit") +
-      geom_text(aes(label = perc_labels),
-                position = position_stack(vjust = 0.5)) +
-      ylim(0, 100)
-
-    "% of missing reports for non-compliant vessels"
-
-    return(one_plot)
-  })
-
-
-
-### test ----
-all_compl_vs_non_compl_per_year_cnt_list[["2022 sa_only"]] %>%
-  unique() %>% dim()
-# [1] 2906 3
-
-# If a vessel was non-compliant even once during a year, it is non_compliant for that year.
-# remove non-compl vessels from compliant, to count each vessel once per year
-# total unique vessels number vs. non-compl vessels
-
-
-### test ----
-compl_only %>%
-  filter(year_permit == "2022 sa_only") %>%
-  dim()
-# 889  3
-
-## test
-
-compl_only %>%
-  filter(year_permit == "2022 sa_only") %>%
-  count(compliant_)
-# YES 889
-
-# 1 2022 gom_dual       1191
-# 2 2022 sa_only         889
-# 3 2023 sa_dual         608
-
-# 1 2022 sa_only            1289
-# 2 2022 gom_dual            304
-# 3 2023 sa_dual            1628
-
-#   year_permit   compl_vsls non_compl_vsls
-# 1 2022 gom_dual       1191            304
-# 2 2022 sa_only         889           1289
-# 3 2023 sa_dual         608           1628
-
-# $ year_permit           <chr> "2022 gom_dual", "2022 sa_…
-# $ compl_vsls            <int> 1191, 889, 608
-# $ non_compl_vsls        <int> 304, 1289, 1628
-# $ total_vsl_ids_per_y_r <int> 1495, 2178, 2236
-
-# % of non-compliant South Atlantic Only Permitted Vessels by month (2022)
-# % of non-compliant Gulf + Dual permitted vessels by month (2022)
-
-# TODO: keep only one legend
 
 # Non compliant only ----
 
@@ -514,7 +408,12 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
   filter(is_compl_or_both %in% c("NO_YES", "NO"))
 
 
-# names(compl_clean_sa_vs_gom_m_int_c)
+# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl)
+# [1] "year_permit, total_vsl_y, perm_exp_y, is_compl_or_both, compl_or_not_cnt"
+
+View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y)
+
+# start with the new data with expiration by year
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present ----
 weeks_per_vsl_permit_year_compl_cnt <-
@@ -543,7 +442,7 @@ nc_2022_sa_only_test <-
          total_weeks_per_vessel) %>%
   unique()
 
-head(nc_2022_sa_only_test)
+glimpse(nc_2022_sa_only_test)
             # weeks_per_vessel_per…¹ total_weeks_per_vessel
 # 1 VA9236AV 52 52
 # 2 VA6784AD 24 24
@@ -559,7 +458,8 @@ weeks_per_vsl_permit_year_compl_cnt %>%
   select(vessel_official_number,
          weeks_per_vessel_per_compl,
          total_weeks_per_vessel) %>%
-  unique()
+  unique() %>%
+  glimpse()
 # 26  40
 
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
@@ -571,7 +471,6 @@ count_weeks_per_vsl_permit_year_compl_p <-
 View(count_weeks_per_vsl_permit_year_compl_p)
 
 # test
-# View(count_weeks_per_vsl_permit_year_compl_p)
 count_weeks_per_vsl_permit_year_compl_p %>%
   filter(permit_sa_gom == "sa_only", year == "2022") %>%
   select(vessel_official_number) %>%
@@ -1187,3 +1086,106 @@ compl_clean_sa_vs_gom_m_int_c %>%
 # ===
 # 1)
 # "% Non-Compliant Vessels in Jan 2022 (12345 permitted; 125 expired permits)". I realize that is a long title, so perhaps we can push the % non-compliant vessels to the main title, and those smaller titles over the figure could just start at "jan...". Having the # of expired permits (compared to the # of permits) in each figure would better explain if they haven't tried to renew, and therefore haven't had to submit reports in order to renew. That is pretty much our only means to get them to comply, in the SA.
+
+# Clean up: ----
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
+
+# TODO: 1) get buckets for the blue plot
+# see make_one_plot_compl_vs_non_compl
+# $ year_permit       <chr> "2022 gom_dual"
+# $ total_vsl_y        <int> 1495
+# $ perm_exp_y        <chr> "active"
+# $ not_compl_cnt_y_p <int> 304
+# $ not_compl_cnt_e   <int> 281
+# $ perc_non_compl_y            <dbl> 20.33445
+
+# plot
+gg_compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_perc <-
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act$year_permit %>%
+  unique() %>%
+  sort() %>%
+  map(function(curr_year_permit) {
+    browser()
+    total_non_compl_df <-
+      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
+      filter(year_permit == curr_year_permit) %>%
+      unique()
+    curr_title_y_p <- make_year_permit_label(curr_year_permit)
+    active_compl <-
+    total_non_compl_df %>%
+    filter(is_compl_or_both == "YES") %>%
+    filter(perm_exp_y == "active") %>%
+    select(compl_or_not_cnt)
+
+    y_p_title <- paste0(curr_title_y_p,
+                       " (Total non compliant vessels: ",
+                       total_non_compl_df$vsls_per_y_r,
+                       "; Compl. vsls. with active permits: ",
+                       active_compl,
+                       ")"
+                       )
+
+    one_plot <-
+      ggplot(total_non_compl_df,
+             aes(x = percent_n_compl_rank,
+                 y = perc_vsls_per_y_r_b)) +
+      geom_col(fill = "deepskyblue") +
+      labs(title = y_p_title,
+           x = "",
+           y = "% nc vsls per year & permit") +
+      geom_text(aes(label = perc_labels),
+                position = position_stack(vjust = 0.5)) +
+      ylim(0, 100)
+
+    "% of missing reports for non-compliant vessels"
+
+    return(one_plot)
+  })
+
+
+
+### test ----
+all_compl_vs_non_compl_per_year_cnt_list[["2022 sa_only"]] %>%
+  unique() %>% dim()
+# [1] 2906 3
+
+# If a vessel was non-compliant even once during a year, it is non_compliant for that year.
+# remove non-compl vessels from compliant, to count each vessel once per year
+# total unique vessels number vs. non-compl vessels
+
+
+### test ----
+compl_only %>%
+  filter(year_permit == "2022 sa_only") %>%
+  dim()
+# 889  3
+
+## test
+
+compl_only %>%
+  filter(year_permit == "2022 sa_only") %>%
+  count(compliant_)
+# YES 889
+
+# 1 2022 gom_dual       1191
+# 2 2022 sa_only         889
+# 3 2023 sa_dual         608
+
+# 1 2022 sa_only            1289
+# 2 2022 gom_dual            304
+# 3 2023 sa_dual            1628
+
+#   year_permit   compl_vsls non_compl_vsls
+# 1 2022 gom_dual       1191            304
+# 2 2022 sa_only         889           1289
+# 3 2023 sa_dual         608           1628
+
+# $ year_permit           <chr> "2022 gom_dual", "2022 sa_…
+# $ compl_vsls            <int> 1191, 889, 608
+# $ non_compl_vsls        <int> 304, 1289, 1628
+# $ total_vsl_ids_per_y_r <int> 1495, 2178, 2236
+
+# % of non-compliant South Atlantic Only Permitted Vessels by month (2022)
+# % of non-compliant Gulf + Dual permitted vessels by month (2022)
+
+# TODO: keep only one legend
