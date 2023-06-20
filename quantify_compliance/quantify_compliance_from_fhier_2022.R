@@ -122,6 +122,8 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y <-
 # print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y)
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y %>%
+  group_by(year_permit, perm_exp_y) %>%
+  mutate(exp_y_tot_cnt = n_distinct(vessel_official_number))
   select(vessel_official_number,
          year_permit,
          compliant_,
