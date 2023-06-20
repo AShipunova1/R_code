@@ -396,8 +396,7 @@ grid.arrange(gg_all_c_vs_nc_plots[[1]],
 
 
 # --- stopped here [1] "2023-06-19"
-
-
+View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 
 # Non compliant by year ----
 # print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
@@ -408,42 +407,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
   filter(is_compl_or_both %in% c("NO_YES", "NO"))
 
-# add total non compliant per year and permit ----
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl %>%
-  group_by(year_permit) %>%
-  mutate(not_compl_cnt_y_p = sum(compl_or_not_cnt)) %>%
-  ungroup()
 
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt)
-
-# add total non compliant per year, permit and expiration ----
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt_e <-
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt %>%
-  group_by(year_permit, perm_exp_y) %>%
-  mutate(not_compl_cnt_e = sum(compl_or_not_cnt)) %>%
-  ungroup()
-
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt_e)
-
-# add percents ----
-# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt)
-
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_cnt_e %>%
-  mutate(perc_non_compl_y = not_compl_cnt_y_p * 100 / tota_vsl_y)
-
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc)
-# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc)
-
-## fewer fields ----
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc_act <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc %>%
-  select(-c(is_compl_or_both, compl_or_not_cnt)) %>%
-  # filter(perm_exp_y == "active") %>%
-  unique()
-
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl_perc)
 
 # TODO: 1) get buckets for the blue plot
 # see make_one_plot_compl_vs_non_compl
