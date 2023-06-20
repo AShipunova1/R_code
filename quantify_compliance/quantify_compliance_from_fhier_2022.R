@@ -643,10 +643,17 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
              vsls_per_y_r) %>%
       unique()
 
+    active_permits <- count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+      filter(year_permit == curr_year_permit) %>%
+      filter(perm_exp_y == "active") %>%
+      select(exp_y_tot_cnt)
+
     curr_title_y_p <- make_year_permit_label(curr_year_permit)
     y_p_title <- paste0(curr_title_y_p,
                        " (Total non compliant vessels: ",
                        total_non_compl_df$vsls_per_y_r,
+                       "; Acitve permits: ",
+active_permits$exp_y_tot_cnt,
                        ")"
                        )
 
@@ -670,6 +677,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]]
 
 # plot 2022 ----
+
 super_title = "% of non-compliant vessels by permit (2022)"
 
 # footnote = textGrob(
