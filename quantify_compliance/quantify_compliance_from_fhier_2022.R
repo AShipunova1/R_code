@@ -131,8 +131,9 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short <-
   select(vessel_official_number,
          year_permit,
          compliant_,
-         tota_vsl_y,
-         perm_exp_y) %>%
+         total_vsl_y,
+         perm_exp_y,
+         exp_y_tot_cnt) %>%
   unique()
 
 View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short)
@@ -142,8 +143,9 @@ View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short)
 
 # print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short)
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short %>%
-  dplyr::group_by(year_permit, perm_exp_y) %>%
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short %>%
+  # group_by everything but
+      group_by_at(vars(-c("vessel_official_number", "compliant_"))) %>%
   # can unique, because we are looking at vessels, not weeks
   unique() %>%
   tidyr::pivot_wider(
@@ -614,6 +616,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short <-
   select(
     year_permit,
     vessel_official_number,
+    perm_exp_y,
     weeks_per_vessel_per_compl,
     total_weeks_per_vessel,
     percent_compl
