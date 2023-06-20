@@ -510,6 +510,8 @@ count_weeks_per_vsl_permit_year_compl_p %>%
 
 # 2) split nc_percentage into 4 buckets ----
 ## 2a Only non-compl and fewer cols ----
+# print_df_names(count_weeks_per_vsl_permit_year_compl_p)
+
 count_weeks_per_vsl_permit_year_n_compl_p_short <-
   count_weeks_per_vsl_permit_year_compl_p %>%
   filter(compliant_ == "NO") %>%
@@ -517,6 +519,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short <-
     year_permit,
     vessel_official_number,
     perm_exp_y,
+    exp_y_tot_cnt,
     weeks_per_vessel_per_compl,
     total_weeks_per_vessel,
     percent_compl
@@ -524,7 +527,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short <-
   unique()
 
 str(count_weeks_per_vsl_permit_year_n_compl_p_short)
-# tibble [3,224 × 5] (S3: tbl_df/tbl/data.frame)
+# tibble [3,221 × 7] (S3: tbl_df/tbl/data.frame)
  # $ weeks_per_vessel_per_compl: int [1:3221] 52 24 44 26 14 45 5 41 52 27 ...
  # $ total_weeks_per_vessel    : int [1:3221] 52 24 44 50 40 45 41 45 52 52 ...
  # $ percent_compl             : num [1:3221] 100 100 100 52 35 ...
@@ -563,6 +566,8 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
   # View()
   count(wt = amount_of_occurences)
 # 633
+# [1] "2023-06-20"
+# 634
 
 # 3) count how many in each bucket ----
 
