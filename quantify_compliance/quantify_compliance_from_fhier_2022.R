@@ -53,38 +53,6 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 #  NO         2023 sa_dual   1628
 #  YES        2023 sa_dual   2125
 
-# compl vs. non-compl vessels per year, region ----
-
-# by Month: ----
-## add the difference between expiration and week_end ----
-
-compl_clean_sa_vs_gom_m_int_c_exp_diff <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
-  mutate(exp_w_end_diff =
-           as.numeric(as.Date(permitgroupexpiration) - week_end + 1))
-
-# compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
-#   select(exp_w_end_diff, permitgroupexpiration, week_end) %>%
-#   View()
-
-## expired or not? ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
-  mutate(perm_exp =
-           case_when(exp_w_end_diff <= 0 ~ "expired",
-                     exp_w_end_diff > 0 ~ "active"))
-
-## fewer fields ----
-compl_clean_sa_vs_gom_m_int_c_short <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
-  select(vessel_official_number,
-         year_permit,
-         compliant_,
-         perm_exp) %>%
-  unique()
-
-# glimpse(compl_clean_sa_vs_gom_m_int_c_short)
-
 # by Year: ----
 # year add total ----
 
@@ -711,6 +679,7 @@ plot_perc_22 <- grid.arrange(
 
 super_title = "% of non-compliant vessels (2023)"
 
+
 grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]],
              top = super_title
              # ,
@@ -720,11 +689,40 @@ grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_
 # Per month, region ----
 # super_title_per_m = "% non-compliant weeks per month for non-compliant vessels by permit type (2022)"
 
-# test
-View(compl_clean_sa_vs_gom_m_int_c)
+# by Month: ----
+## add the difference between expiration and week_end ----
 
+compl_clean_sa_vs_gom_m_int_c_exp_diff <-
+  compl_clean_sa_vs_gom_m_int_filtered %>%
+  mutate(exp_w_end_diff =
+           as.numeric(as.Date(permitgroupexpiration) - week_end + 1))
+
+# test
+# compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
+#   select(exp_w_end_diff, permitgroupexpiration, week_end) %>%
+#   View()
+
+## expired or not? ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
+  mutate(perm_exp_m =
+           case_when(exp_w_end_diff <= 0 ~ "expired",
+                     exp_w_end_diff > 0 ~ "active"))
+
+# ## fewer fields ----
+# compl_clean_sa_vs_gom_m_int_c_short <-
+#   compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+#   select(vessel_official_number,
+#          year_permit,
+#          compliant_,
+#          perm_exp) %>%
+#   unique()
+
+# glimpse(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+
+# add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
-  compl_clean_sa_vs_gom_m_int_c %>%
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
   add_count(year_permit,
             year_month,
             vessel_official_number,
@@ -735,7 +733,7 @@ count_weeks_per_vsl_permit_year_compl_month <-
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")
 
-View(count_weeks_per_vsl_permit_year_compl_month)
+# View(count_weeks_per_vsl_permit_year_compl_month)
 
 # test
 # count_weeks_per_vsl_permit_year_compl_month %>%
@@ -751,7 +749,7 @@ View(count_weeks_per_vsl_permit_year_compl_month)
 #   View()
 
 count_weeks_per_vsl_permit_year_compl_m <-
-  compl_clean_sa_vs_gom_m_int_c %>%
+  compl_clean_sa_vs_gom_m_int_filtered %>%
   add_count(year_permit,
             year_month,
             vessel_official_number,
@@ -779,6 +777,8 @@ count_weeks_per_vsl_permit_year_compl_m_tot <-
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_m")
+
+# View(count_weeks_per_vsl_permit_year_compl_m_tot)
 
 ## 1) Month: percent compl weeks per vsl per month ----
 
