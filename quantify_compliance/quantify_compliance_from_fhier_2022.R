@@ -749,7 +749,7 @@ count_weeks_per_vsl_permit_year_compl_month <-
 #   View()
 
 count_weeks_per_vsl_permit_year_compl_m <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
+  count_weeks_per_vsl_permit_year_compl_month %>%
   add_count(year_permit,
             year_month,
             vessel_official_number,
@@ -772,7 +772,7 @@ filter(year_permit == "2022 sa_only" &
 # $ weeks_per_vessel_per_compl_m <int> 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4…
 
 count_weeks_per_vsl_permit_year_compl_m_tot <-
-  count_weeks_per_vsl_permit_year_compl_m %>%
+  count_weeks_per_vsl_permit_year_compl_month %>%
   add_count(year_permit,
             year_month,
             vessel_official_number,
@@ -805,7 +805,7 @@ count_weeks_per_vsl_permit_year_compl_m_tot_p %>%
   View()
 
 ## 2a) Month: Only non-compl and fewer cols ----
-
+# print_df_names(count_weeks_per_vsl_permit_year_compl_m_tot_p)
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort <-
   count_weeks_per_vsl_permit_year_compl_m_tot_p %>%
   filter(compliant_ == "NO") %>%
@@ -816,10 +816,12 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort <-
     weeks_per_vessel_per_compl_m,
     total_weeks_per_vessel_m,
     percent_compl_m,
-    compliant_
+    compliant_,
+    perm_exp_m
   ) %>%
   unique()
 
+# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort)
 ## 2b) Month: get percentage "buckets" ----
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b <-
