@@ -86,7 +86,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y <-
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active"))
 
-# count expiration by year, permit ----
+## count expiration by year, permit ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y %>%
   group_by(year_permit, perm_exp_y) %>%
@@ -709,16 +709,43 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
            case_when(exp_w_end_diff <= 0 ~ "expired",
                      exp_w_end_diff > 0 ~ "active"))
 
-# ## fewer fields ----
-# compl_clean_sa_vs_gom_m_int_c_short <-
-#   compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
-#   select(vessel_official_number,
-#          year_permit,
-#          compliant_,
-#          perm_exp) %>%
-#   unique()
+## count exp by month  ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+  group_by(year_month, perm_exp_m) %>%
+  mutate(exp_m_tot_cnt = n_distinct(vessel_official_number)) %>%
+  ungroup()
 
-# glimpse(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+glimpse(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt)
+
+# cnt unique total vessels per month ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
+  group_by(year_month) %>%
+  mutate(tot_vsl_m = n_distinct(vessel_official_number)) %>%
+  ungroup()
+
+# cnt unique total vessels per month, compl ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v_c <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v %>%
+  group_by(year_month, compliant_) %>%
+  mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
+  ungroup()
+
+## test tot cnts per month ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v_c %>%
+  select(year_month, perm_exp_m, exp_m_tot_cnt, tot_vsl_m, compliant_, cnt_vsl_m_compl) %>%
+  unique() %>%
+  filter(year_month == "Jan 2022") %>%
+  View()
+# $ year_month      <yearmon> Dec 2022, Dec 2022, Dec 2022, Dec 2022,…
+# $ perm_exp_m      <chr> "active", "active", "expired", "expired", "…
+# $ exp_m_tot_cnt   <int> 2787, 2787, 63, 63, 2827, 2827, 52, 52, 288…
+# $ tot_vsl_m       <int> 2788, 2788, 2788, 2788, 2829, 2829, 2829, 2…
+# $ compliant_      <chr> "YES", "NO", "NO", "YES", "YES", "NO", "NO"…
+# $ cnt_vsl_m_compl <int> 2398, 467, 467, 2398, 2416, 472, 472, 2416,…
+
+
 
 # add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
@@ -851,11 +878,13 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b <-
               year_month,
               percent_n_compl_rank,
               name = "cnt_v_in_bucket")
+print_df_names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b)
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot <-
   nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b %>%
   select(year_month,
          year_permit,
+         perm_exp_m,
          percent_n_compl_rank,
          cnt_v_in_bucket) %>%
   unique() %>%
@@ -864,12 +893,12 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot <-
 
 ### tests 3, by month ----
 
-compl_clean_sa_vs_gom_m_int_c %>%
-  filter(year_permit == "2022 sa_only") %>%
-  filter(year_month == "Jan 2022") %>%
-  filter(compliant_ == "NO") %>%
-  select(vessel_official_number) %>%
-  unique() %>% str()
+# compl_clean_sa_vs_gom_m_int_c %>%
+  # filter(year_permit == "2022 sa_only") %>%
+  # filter(year_month == "Jan 2022") %>%
+  # filter(compliant_ == "NO") %>%
+  # select(vessel_official_number) %>%
+  # unique() %>% str()
 # total 703 nc vsls in "Jan 2022 sa_only"
 
 # still true
@@ -880,9 +909,9 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b %>%
   unique() %>% dim()
 #  703
 
-# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b)
-
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%
+  select(-perm_exp_m) %>%
+  unique() %>%
   filter(year_permit == "2022 sa_only") %>%
   filter(year_month == "Jan 2022") %>%
   arrange(percent_n_compl_rank) %>%
