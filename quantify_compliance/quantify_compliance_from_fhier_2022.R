@@ -839,7 +839,9 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>%
         name = "amount_of_occurences") %>%
   arrange(desc(percent_compl_m)) %>%
   add_count(wt = amount_of_occurences) %>%
-  View()
+  glimpse()
+# $ amount_of_occurences         <int> 12, 12, 12, 12, 12, 12, 12, 12…
+# $ n                            <int> 144, 144, 144, 144, 144, 144, …
 
 ## 3) Month: count how many in each bucket ----
 
