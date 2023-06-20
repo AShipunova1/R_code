@@ -944,17 +944,15 @@ count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot %>%
 # T
 
 ## 4) Month: cnt percents of (3) ----
-# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot)
 
-nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p <-
-  nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%
+count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p <-
+  count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot %>%
   mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / tot_v_per_m_y_r) %>%
   mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
 
 ### test 4, by month ----
 
-# names(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p)
-nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p %>%
+count_weeks_per_vsl_permit_year_compl_m_tot_p_nc_b_cnt_in_b_tot_p %>%
   filter(year_permit == "2022 sa_only") %>%
   filter(year_month == "Jan 2022") %>%
   select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
