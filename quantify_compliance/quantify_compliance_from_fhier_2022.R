@@ -595,6 +595,10 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
 # 633+85+172+399
 # [1] 1289
 
+# $ cnt_v_in_bucket     : int [1:4] 399 171 85 634
+# 399 + 171 + 85 + 634
+# 1289
+
 # 4) cnt percents of (3) ----
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b)
 
