@@ -370,16 +370,14 @@ grid.arrange(gg_all_c_vs_nc_plots[[1]],
 # stopped here [1] "2023-06-19" ----
 
 # Non compliant only ----
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt)
+#
+# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
+# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
+#   filter(is_compl_or_both %in% c("NO_YES", "NO"))
 
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
-  filter(is_compl_or_both %in% c("NO_YES", "NO"))
 
-
-# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl)
-# [1] "year_permit, total_vsl_y, perm_exp_y, is_compl_or_both, compl_or_not_cnt"
-
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y)
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y)
 
 # start with the new data with expiration by year
 # 1) count percents - a given vsl non_compl per counted weeks total ----
@@ -690,14 +688,30 @@ grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_
 # super_title_per_m = "% non-compliant weeks per month for non-compliant vessels by permit type (2022)"
 
 # by Month: ----
+## add tot cnts per month ----
+compl_clean_sa_vs_gom_m_int_filtered_tot_m <-
+  compl_clean_sa_vs_gom_m_int_filtered %>%
+  group_by(year_month) %>%
+  mutate(total_vsl_m = n_distinct(vessel_official_number)) %>%
+  ungroup()
+
+### test tot month ----
+compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
+  select(year_month, total_vsl_m) %>%
+  arrange(year_month) %>%
+  unique()
+ # 1 Jan 2022          2827
+ # 2 Feb 2022          2832
+ # 3 Mar 2022          2830
+
 ## add the difference between expiration and week_end ----
 
 compl_clean_sa_vs_gom_m_int_c_exp_diff <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
+  compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
   mutate(exp_w_end_diff =
            as.numeric(as.Date(permitgroupexpiration) - week_end + 1))
 
-# test
+# check
 # compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
 #   select(exp_w_end_diff, permitgroupexpiration, week_end) %>%
 #   View()
@@ -716,14 +730,37 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
   mutate(exp_m_tot_cnt = n_distinct(vessel_official_number)) %>%
   ungroup()
 
-glimpse(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt)
+# test
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
+  select(year_month, perm_exp_m, exp_m_tot_cnt) %>%
+  unique() %>%
+  arrange(year_month) %>%
+  head()
+# 1 Jan 2022   active              2826
+# 2 Jan 2022   expired               59
+# 3 Feb 2022   active              2827
+# 4 Feb 2022   expired               63
+# 5 Mar 2022   active              2828
+# 6 Mar 2022   expired               66
+# 2826 + 59
+# 2885
 
-# cnt unique total vessels per month ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
-  group_by(year_month) %>%
-  mutate(tot_vsl_m = n_distinct(vessel_official_number)) %>%
-  ungroup()
+# a vessel can be in both categories in the same month?
+# total v:
+# Jan 2022          2827
+
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
+  # filter(!is.na(is_compl_or_both)) %>%
+  group_by(vessel_official_number) %>%
+  mutate(shared = n_distinct(perm_exp_m) == n_distinct(.$perm_exp_m)) %>%
+  filter(shared == TRUE) %>%
+  glimpse()
+
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
+  filter(year_month                  == "Dec 2022" &
+           vessel_official_number      == "VA4480ZY") %>%
+  View()
+exp 2023-01-01
 
 # cnt unique total vessels per month, compl ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v_c <-
@@ -744,8 +781,6 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v_c %>%
 # $ tot_vsl_m       <int> 2788, 2788, 2788, 2788, 2829, 2829, 2829, 2…
 # $ compliant_      <chr> "YES", "NO", "NO", "YES", "YES", "NO", "NO"…
 # $ cnt_vsl_m_compl <int> 2398, 467, 467, 2398, 2416, 472, 472, 2416,…
-
-
 
 # add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
