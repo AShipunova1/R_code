@@ -712,8 +712,10 @@ plot_perc_22 <- grid.arrange(
 super_title = "% of non-compliant vessels (2023)"
 
 grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]],
-             top = super_title,
-             bottom = footnote)
+             top = super_title
+             # ,
+             # bottom = footnote
+             )
 
 # Per month, region ----
 # super_title_per_m = "% non-compliant weeks per month for non-compliant vessels by permit type (2022)"
