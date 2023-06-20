@@ -709,7 +709,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
 compl_clean_sa_vs_gom_m_int_c_exp_diff <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
   mutate(exp_w_end_diff =
-           as.numeric(as.Date(permitgroupexpiration) - week_end + 1))
+           as.numeric(as.Date(permitgroupexpiration) - week_start + 1))
 
 # check
 # compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
@@ -720,8 +720,8 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff <-
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   mutate(perm_exp_m =
-           case_when(exp_w_end_diff <= 0 ~ "expired",
-                     exp_w_end_diff > 0 ~ "active"))
+           case_when(exp_w_end_diff < 0 ~ "expired",
+                     exp_w_end_diff >= 0 ~ "active"))
 
 ## count exp by month  ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
@@ -730,37 +730,67 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
   mutate(exp_m_tot_cnt = n_distinct(vessel_official_number)) %>%
   ungroup()
 
+str(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt)
+# tibble [190,451 × 29] (S3: tbl_df/tbl/data.frame)
+
+# check
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+  count(year_month, perm_exp_m)
+
 # test
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
-  select(year_month, perm_exp_m, exp_m_tot_cnt) %>%
+  filter(year == "2022") %>%
+  select(year_month, perm_exp_m, exp_m_tot_cnt,
+         total_vsl_m) %>%
   unique() %>%
   arrange(year_month) %>%
-  head()
-# 1 Jan 2022   active              2826
-# 2 Jan 2022   expired               59
-# 3 Feb 2022   active              2827
-# 4 Feb 2022   expired               63
-# 5 Mar 2022   active              2828
-# 6 Mar 2022   expired               66
-# 2826 + 59
-# 2885
+  tail()
+#   year_month perm_exp_m exp_m_tot_cnt total_vsl_m
+#   <yearmon>  <chr>              <int>       <int>
+# 1 Oct 2022   active              2888        2889
+# 2 Oct 2022   expired                1        2889
+# 3 Nov 2022   active              2828        2829
+# 4 Nov 2022   expired                1        2829
+# 5 Dec 2022   active              2787        2788
+# 6 Dec 2022   expired                1        2788
+# correct
 
-# a vessel can be in both categories in the same month?
-# total v:
-# Jan 2022          2827
-
+tic("check count exp by month")
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
-  # filter(!is.na(is_compl_or_both)) %>%
-  group_by(vessel_official_number) %>%
+  select(vessel_official_number, compliant_, week_num, week_start, week_end, permitgroupexpiration, permit_sa_gom, year_month, year_permit, total_vsl_m, exp_w_end_diff, perm_exp_m, exp_m_tot_cnt
+) %>%
+  unique() %>%
+  group_by(year_month, vessel_official_number) %>%
   mutate(shared = n_distinct(perm_exp_m) == n_distinct(.$perm_exp_m)) %>%
   filter(shared == TRUE) %>%
   glimpse()
+toc()
+# Rows: 3,478
+# Columns: 14
+# Groups: year_month, vessel_official_number [801]
+# $ vessel_official_number <chr> "FL5386PZ", "NC1645ES", "FL5386P…
 
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
-  filter(year_month                  == "Dec 2022" &
-           vessel_official_number      == "VA4480ZY") %>%
-  View()
-exp 2023-01-01
+  filter(year_month == "Dec 2022" &
+           vessel_official_number == "FL5386PZ") %>%
+  arrange(desc(week_num)) %>%
+  glimpse()
+
+# VA4480ZY
+# 12/31/2022
+# 52: 12/26/2022 - 01/01/2023
+# active
+
+# FL5386PZ
+# $ week_num                    <int> 52, 51, 50, 49
+# $ week_start                  <date> 2022-12-26, 2022-12-19, 202…
+# $ week_end                    <date> 2023-01-01, 2022-12-25, 202…
+# $ permitgroupexpiration       <dttm> 2022-12-29, 2022-12-29, 202…
+# $ total_vsl_m                 <int> 2788,
+# $ exp_w_end_diff              <dbl> -2, 5, 12, 19
+# $ perm_exp_m                  <chr> "expired", "active", "activ…
+# $ exp_m_tot_cnt               <int> 3, 2787, 2787, 2787
+
 
 # cnt unique total vessels per month, compl ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_e_v_c <-
