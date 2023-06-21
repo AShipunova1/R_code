@@ -1207,11 +1207,24 @@ gridExtra::grid.arrange(all_plots_w_titles_list[[2]][[2]])
 save_plots_list_to_pdf <-
   function(file_full_name,
            plots_list) {
-    ggsave(
+    ggplot2::ggsave(
       file_full_name,
       plots_list,
-      width = 20,
+      width = 30,
       height = 20,
+      units = "cm"
+    )
+  }
+
+
+save_plots_list_to_png <-
+  function(file_full_name,
+           plots_list) {
+    ggplot2::ggsave(
+      file_full_name,
+      plots_list,
+      width = 30,
+      # height = 20,
       units = "cm"
     )
   }
@@ -1220,7 +1233,9 @@ all_plots_w_titles_list %>%
   purrr::map(function(curr_plot_list) {
     file_name_base <- paste0(curr_plot_list[[1]],
                              "_percent_distribution_per_month",
-                             ".pdf")
+                             # ".pdf")
+                             ".png")
+    
     file_path <-
       r"(quantify_compliance\jun_21_2023\per_month)"
     
@@ -1232,19 +1247,10 @@ all_plots_w_titles_list %>%
     # see the function definition F2
     save_plots_list_to_pdf(file_full_name,
                            curr_plot_list[[2]])
-    
-    
   })
 
 # [[1]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2022 gom_dual_percent_distribution_per_month.pdf"
-# 
-# [[2]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2022 sa_only_percent_distribution_per_month.pdf"
-# 
-# [[3]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2023 sa_dual_percent_distribution_per_month.pdf"
-
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"
 
 # TODO: Clean up ----
 # test numbers ----
