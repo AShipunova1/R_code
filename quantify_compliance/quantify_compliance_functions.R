@@ -111,3 +111,20 @@ make_one_plot_compl_vs_non_compl <-
 
     return(one_plot)
   }
+
+get_p_buckets <- function(my_df, field_name) {
+
+  my_df %>%
+    mutate(
+      percent_n_compl_rank =
+        case_when(
+          !!sym(field_name) < 25 ~ '0<= & <25%',
+          25 <= !!sym(field_name) &
+            !!sym(field_name) < 50 ~ '25<= & <50%',
+          50 <= !!sym(field_name) &
+            !!sym(field_name) < 75 ~ '50<= & <75%',
+          75 <= !!sym(field_name) ~ '75<= & <=100%'
+        )
+    ) %>%
+    return()
+}

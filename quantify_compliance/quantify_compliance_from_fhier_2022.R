@@ -501,23 +501,6 @@ str(count_weeks_per_vsl_permit_year_n_compl_p_short)
 ## 2b) get percentage "buckets" ----
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_y_p)
 
-get_p_buckets <- function(my_df, field_name) {
-
-  my_df %>%
-    mutate(
-      percent_n_compl_rank =
-        case_when(
-          !!sym(field_name) < 25 ~ '0<= & <25%',
-          25 <= !!sym(field_name) &
-            !!sym(field_name) < 50 ~ '25<= & <50%',
-          50 <= !!sym(field_name) &
-            !!sym(field_name) < 75 ~ '50<= & <75%',
-          75 <= !!sym(field_name) ~ '75<= & <=100%'
-        )
-    ) %>%
-    return()
-}
-
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts <-
   get_p_buckets(count_weeks_per_vsl_permit_year_n_compl_p_short,
                 "percent_compl")
