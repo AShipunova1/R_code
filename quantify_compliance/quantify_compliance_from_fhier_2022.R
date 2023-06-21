@@ -1115,7 +1115,7 @@ gg_month_nc_perc <-
 
 # gg_month_nc_perc[[1]][[2]]
 
-footnote_text <- "In parenthesis are 1) # of non_compliant_vessels per month; 2) total active permits per month."
+footnote_text <- "In parenthesis are 1) # of non_compliant_vessels per month; 2) total active permits per month"
 
 footnote <- textGrob(
   footnote_text,
@@ -1129,22 +1129,42 @@ footnote <- textGrob(
   vjust = 1
 )
 
+### common axes for Months ----
+y_left <- textGrob("% per 'bucket'", 
+                  rot = 90, 
+                  gp = gpar(fontsize = 10))
+
+x_bottom <- textGrob("'buckets' - distibution of % of non compliant weeks per vessel", 
+                  gp = gpar(fontsize = 10))
+
+# p <-
+#   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
+#   map( ~ .x + labs(x = NULL, y = NULL))
+
 all_plots <-
   gg_month_nc_perc %>%
   # repeat for each entry
   map(function(curr_year_reg_list) {
-
     # browser()
     curr_year_permit <- curr_year_reg_list[[1]]
-
-
+    
+    
     curr_super_title <- year_permit_titles[[curr_year_permit]]
-
-    gridExtra::arrangeGrob(grobs =
-                             curr_year_reg_list[[2]],
-                           top = curr_super_title,
-                           bottom = footnote,
-                           ncol = 3) %>%
+    
+    # plot_perc_22 <- grid.arrange(
+    #   grobs = p,
+    #   left = yleft,
+    #   top = super_title)
+    
+    gridExtra::arrangeGrob(
+      grobs =
+        curr_year_reg_list[[2]],
+      top = paste0(curr_super_title, "\n", footnote_text),
+      left = y_left,
+      bottom = x_bottom,
+        # footnote,
+      ncol = 3
+    ) %>%
       return()
   })
 
