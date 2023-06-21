@@ -993,7 +993,6 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
   # can unique, because all counts by vessel are done already
   unique()
   
-# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 # add column with Month name only (for plotting)
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short %>% 
@@ -1004,8 +1003,8 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 # [1] 11766    15
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
-# [1] 107  11
-View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
+# [1] 107  12
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 
 ## 5) Month plots ----
 
@@ -1035,6 +1034,24 @@ year_permit_titles <-
 
 names(year_permit_titles) <- sorted_year_permits
 
+# TODO: simplify
+get_expired_permit_numbers <- function(curr_data) {
+  # browser()
+
+  exp_filt <- curr_data %>%
+    filter(perm_exp_m == "expired") %>% 
+    unique()
+  
+  res = exp_filt$perm_exp_m
+  
+  if (dim(exp_filt)[1] == 0)
+  {
+      res = 0
+  }
+  
+  return(res)
+}
+
 get_one_plot_by_month <-
   function(my_df, curr_year_month) {
     # browser()
@@ -1054,14 +1071,19 @@ get_one_plot_by_month <-
       filter(perm_exp_m == "active") %>%
       select(exp_m_tot_cnt) %>%
       unique()
-    
+
+    # get_expired_permit_numbers
+    cnt_expired <- get_expired_permit_numbers(curr_data) 
+
     curr_title <- paste0(
       curr_month_name,
       " (",
       curr_tot_v_per_m_y_r,
       " vsls; ",
       curr_m_tot_active$exp_m_tot_cnt,
-      " act. perm.)"
+      " act. perm.; ",
+      cnt_expired,
+      " exp. perm.)"
     )
     
     one_plot <-
@@ -1115,7 +1137,7 @@ gg_month_nc_perc <-
 
 # gg_month_nc_perc[[1]][[2]]
 
-footnote_text <- "In parenthesis are 1) # of non_compliant_vessels per month; 2) total active permits per month"
+footnote_text <- "In parenthesis are 1) # of non_compliant_vessels per month; 2) total active permits per month; 3) total expired permits per month;"
 
 footnote <- textGrob(
   footnote_text,
@@ -1137,10 +1159,6 @@ y_left <- textGrob("% per 'bucket'",
 x_bottom <- textGrob("'buckets' - distibution of % of non compliant weeks per vessel", 
                   gp = gpar(fontsize = 10))
 
-# p <-
-#   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
-#   map( ~ .x + labs(x = NULL, y = NULL))
-
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
@@ -1150,11 +1168,6 @@ all_plots_w_titles_list <-
     curr_year_permit <- curr_year_reg_list[[1]]
     
     curr_super_title <- year_permit_titles[[curr_year_permit]]
-    
-    # plot_perc_22 <- grid.arrange(
-    #   grobs = p,
-    #   left = yleft,
-    #   top = super_title)
     
     all_plots_per_year_region <-
       gridExtra::arrangeGrob(
