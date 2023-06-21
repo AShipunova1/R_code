@@ -1002,6 +1002,13 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
   # can unique, because all counts by vessel are done already
   unique()
   
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
+# add column with Month name only (for plotting)
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short %>% 
+  # remove a space and following digits
+  mutate(month_only = str_replace(year_month, " \\d+", ""))
+
 # check
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 # [1] 11766    15
@@ -1042,27 +1049,30 @@ get_one_plot_by_month <-
     # browser()
     curr_data <- my_df %>%
       filter(year_month == curr_year_month)
-
+    
+    curr_month_name <- curr_data$month_only %>%
+      unique()
+    
     curr_year_permit <- curr_data$year_permit %>%
       unique()
-
+    
     curr_tot_v_per_m_y_r <- curr_data$cnt_vsl_m_compl %>%
       unique()
-
+    
     curr_m_tot_active <- curr_data %>%
       filter(perm_exp_m == "active") %>%
       select(exp_m_tot_cnt) %>%
       unique()
-
+    
     curr_title <- paste0(
-      curr_year_month,
+      curr_month_name,
       " (",
       curr_tot_v_per_m_y_r,
       " vsls; ",
       curr_m_tot_active$exp_m_tot_cnt,
       " act. perm.)"
     )
-
+    
     one_plot <-
       ggplot(curr_data,
              aes(x = percent_n_compl_rank,
@@ -1075,9 +1085,8 @@ get_one_plot_by_month <-
       geom_text(aes(label = perc_labels),
                 position = position_stack(vjust = 0.5)) +
       ylim(0, 100) +
-      theme(plot.title = element_text(size = 10)
-)
-
+      theme(plot.title = element_text(size = 10))
+    
     return(one_plot)
   }
 
