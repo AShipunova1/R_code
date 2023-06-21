@@ -1015,6 +1015,28 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r <-
   split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short,
         as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short$year_permit))
 
+sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r) %>%
+  sort()
+# [1] "2022 gom_dual" "2022 sa_only"  "2023 sa_dual"
+
+get_year_permit_titles <- function(permit, year) {
+      paste0("% of non-compliant ",
+             permit,
+             " Permitted vessels by month",
+             " (", year, ")"
+             ) %>%
+    return()
+}
+
+year_permit_titles <-
+  data.frame(
+    super_title_gom = get_year_permit_titles("Gulf + Dual", "2022"),
+    super_title_sa = get_year_permit_titles("South Atlantic Only", "2022"),
+    super_title_2023 = get_year_permit_titles("South Atlantic + Dual", "2023")
+  )
+
+names(year_permit_titles) <- sorted_year_permits
+
 get_one_plot_by_month <-
   function(my_df, curr_year_month) {
     # browser()
@@ -1052,32 +1074,12 @@ get_one_plot_by_month <-
       # y = "% nc vsls") +
       geom_text(aes(label = perc_labels),
                 position = position_stack(vjust = 0.5)) +
-      ylim(0, 100)
+      ylim(0, 100) +
+      theme(plot.title = element_text(size = 10)
+)
 
     return(one_plot)
   }
-
-sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r) %>%
-  sort()
-# [1] "2022 gom_dual" "2022 sa_only"  "2023 sa_dual"
-
-get_year_permit_titles <- function(permit, year) {
-      paste0("% of non-compliant ",
-             permit,
-             " Permitted vessels by month",
-             " (", year, ")"
-             ) %>%
-    return()
-}
-
-year_permit_titles <-
-  data.frame(
-    super_title_gom = get_year_permit_titles("Gulf + Dual", "2022"),
-    super_title_sa = get_year_permit_titles("South Atlantic Only", "2022"),
-    super_title_2023 = get_year_permit_titles("South Atlantic + Dual", "2023")
-  )
-
-names(year_permit_titles) <- sorted_year_permits
 
 gg_month_nc_perc <-
   sorted_year_permits %>%
@@ -1120,9 +1122,10 @@ footnote <- textGrob(
   gp = gpar(fontface = 3, fontsize = 10),
   # justify left
   # hjust = 0,
-  hjust = -1,
-  just = "right",
-  x = 0.01, y = 0.99,
+  hjust = -0.5,
+  # just = "right",
+  x = 0.01,
+  y = 0.99,
   vjust = 1
 )
 
