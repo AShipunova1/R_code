@@ -887,6 +887,8 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
               percent_n_compl_rank,
               name = "cnt_v_in_bucket")
 
+View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
+
 # check
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   group_by(year_permit,
@@ -898,22 +900,27 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   dim()
 # 0 - correct
 
-## 3b) Month: count total in each bucket ----
-count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot <-
-  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
-  select(-vessel_official_number
-    # year_month,
-    # year_permit,
-    # perm_exp_m,
-    # exp_m_tot_cnt,
-    # percent_n_compl_rank,
-    # cnt_v_in_bucket
-  ) %>%
-  unique() %>%
-  add_count(year_month, year_permit, wt = cnt_v_in_bucket,
-            name = "tot_v_per_m_y_r")
+## 3b) Month: count total in each bucket ?----
+# count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot <-
+#   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
+#   # select(-vessel_official_number
+#     # year_month,
+#     # year_permit,
+#     # perm_exp_m,
+#     # exp_m_tot_cnt,
+#     # percent_n_compl_rank,
+#     # cnt_v_in_bucket
+#   # ) %>%
+#   # unique() %>%
+#   # add_count(year_month, year_permit, wt = cnt_v_in_bucket,
+#             # name = "tot_v_per_m_y_r")
+#   group_by(year_permit, year_month, compliant_, percent_n_compl_rank) %>% 
+#   mutate(tot_v_per_m_y_r1 = dplyr::n_distinct(vessel_official_number)) %>% 
+#   select(-vessel_official_number) %>% 
+#   unique()
 
 ### tests 3, by month ----
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot)
 
 compl_clean_sa_vs_gom_m_int_filtered %>%
   filter(year_permit == "2022 sa_only") %>%
@@ -935,13 +942,13 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   unique() %>% dim()
 #  703 1
 
-count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot %>%
-  # select(-c(perm_exp_m, exp_m_tot_cnt)) %>%
-  unique() %>%
-  filter(year_permit == "2022 sa_only") %>%
-  filter(year_month == "Jan 2022") %>%
-  arrange(percent_n_compl_rank) %>%
-  View()
+# count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot %>%
+#   # select(-c(perm_exp_m, exp_m_tot_cnt)) %>%
+#   unique() %>%
+#   filter(year_permit == "2022 sa_only") %>%
+#   filter(year_month == "Jan 2022") %>%
+#   arrange(percent_n_compl_rank) %>%
+#   View()
  # $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
  # $ cnt_v_in_bucket     : int [1:4] 33 29 29 612
  # $ tot_v_per_m_y_r     : int [1:4] 703 703 703 703
@@ -951,21 +958,27 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot %>%
 # T
 
 ## 4) Month: cnt percents of (3) ----
-
-count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p <-
-  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot %>%
-  mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / tot_v_per_m_y_r) %>%
+# print_df_names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b)
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
+  mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / cnt_vsl_m_compl) %>%
   mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
 
 ### test 4, by month ----
 
-count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p %>%
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
   filter(year_permit == "2022 sa_only") %>%
-  filter(year_month == "Jan 2022") %>%
+  filter(year_month == "Dec 2022") %>%
   select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
   unique() %>%
   arrange(percent_n_compl_rank) %>%
   head()
+# Dec 2022
+# 1 25<= & <50%                         2.30
+# 2 50<= & <75%                         4.15
+# 3 75<= & <=100%                      93.5 
+
+# Jan 2022
 #   percent_n_compl_rank perc_vsls_per_y_r_b
 # 1 0<= & <25%                          4.69
 # 2 25<= & <50%                         4.13
