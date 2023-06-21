@@ -776,16 +776,16 @@ count_weeks_per_vsl_permit_year_compl_month <-
 
 # View(count_weeks_per_vsl_permit_year_compl_month)
 
-count_weeks_per_vsl_permit_year_compl_m <-
-  count_weeks_per_vsl_permit_year_compl_month %>%
-  add_count(year_permit,
-            year_month,
-            vessel_official_number,
-            compliant_,
-            name = "weeks_per_vessel_per_compl_m")
+# count_weeks_per_vsl_permit_year_compl_m <-
+#   count_weeks_per_vsl_permit_year_compl_month %>%
+#   add_count(year_permit,
+#             year_month,
+#             vessel_official_number,
+#             compliant_,
+#             name = "weeks_per_vessel_per_compl_m")
 
 # test
-count_weeks_per_vsl_permit_year_compl_m %>%
+count_weeks_per_vsl_permit_year_compl_month %>%
 filter(year_permit == "2022 sa_only" &
            compliant_ == "NO") %>%
   select(vessel_official_number,
@@ -800,9 +800,9 @@ filter(year_permit == "2022 sa_only" &
 # $ weeks_per_vessel_per_compl_m <int> 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4…
 
 ## 1) Month: percent compl weeks per vsl per month ----
-
+# View(count_weeks_per_vsl_permit_year_compl_month)
 count_weeks_per_vsl_permit_year_compl_m_p <-
-  count_weeks_per_vsl_permit_year_compl_m %>%
+  count_weeks_per_vsl_permit_year_compl_month %>%
   mutate(percent_compl_m =
            weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_per_compl_m)
 
@@ -841,9 +841,12 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc <-
   ) %>%
   unique()
 
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc)
+
 ## 2b) Month: get percentage "buckets" ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b <-
+  # Use F2 to see the function definition
   get_p_buckets(count_weeks_per_vsl_permit_year_compl_m_p_nc,
                 "percent_compl_m")
 
