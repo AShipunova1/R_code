@@ -987,17 +987,26 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
 
 # 612*100/703 == 87.05548
 
+# keep only fields needed to plot ----
+# print_df_names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
-  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>% 
-  select(-vessel_official_number) %>% 
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
+  select(
+    -c(
+      vessel_official_number,
+      weeks_per_vessel_per_compl_m,
+      total_weeks_per_vessel_per_compl_m,
+      percent_compl_m
+    )
+  ) %>%
   # can unique, because all counts by vessel are done already
   unique()
-
+  
 # check
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 # [1] 11766    15
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
-# [1] 251  14
+# [1] 107  11
 View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 
 ## 5) Month plots ----
@@ -1008,15 +1017,14 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r <-
 
 get_one_plot_by_month <-
   function(my_df, curr_year_month) {
-
-    browser()
+    # browser()
     curr_data <- my_df %>%
       filter(year_month == curr_year_month)
 
     curr_year_permit <- curr_data$year_permit %>%
       unique()
 
-    curr_tot_v_per_m_y_r <- curr_data$tot_v_per_m_y_r %>%
+    curr_tot_v_per_m_y_r <- curr_data$cnt_vsl_m_compl %>%
       unique()
 
     curr_m_tot_active <- curr_data %>%
@@ -1028,9 +1036,9 @@ get_one_plot_by_month <-
       curr_year_month,
       " (",
       curr_tot_v_per_m_y_r,
-      " non c. v; ",
+      " vsls; ",
       curr_m_tot_active$exp_m_tot_cnt,
-      " m active perm.)"
+      " act. perm.)"
     )
 
     one_plot <-
@@ -1057,9 +1065,8 @@ get_year_permit_titles <- function(permit, year) {
       paste0("% of non-compliant ",
              permit,
              " Permitted vessels by month",
-             " (", year, "). ",
-             "In parenthesis are 1) # of non_compliant_vessels; 2) total active permits." 
-             ) %>% 
+             " (", year, ")"
+             ) %>%
     return()
 }
 
@@ -1076,7 +1083,7 @@ gg_month_nc_perc <-
   sorted_year_permits %>%
   map(
     function(current_year_permit) {
-      browser()
+      # browser()
       curr_df <-
         count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[[current_year_permit]]
 
@@ -1106,6 +1113,19 @@ gg_month_nc_perc <-
 
 # gg_month_nc_perc[[1]][[2]]
 
+footnote_text <- "In parenthesis are 1) # of non_compliant_vessels per month; 2) total active permits per month."
+
+footnote <- textGrob(
+  footnote_text,
+  gp = gpar(fontface = 3, fontsize = 10),
+  # justify left
+  # hjust = 0,
+  hjust = -1,
+  just = "right",
+  x = 0.01, y = 0.99,
+  vjust = 1
+)
+
 all_plots <-
   gg_month_nc_perc %>%
   # repeat for each entry
@@ -1120,9 +1140,15 @@ all_plots <-
     gridExtra::arrangeGrob(grobs =
                              curr_year_reg_list[[2]],
                            top = curr_super_title,
+                           bottom = footnote,
                            ncol = 3) %>%
       return()
   })
+
+# warnings()
+# ...
+# 22: Removed 1 rows containing missing values (`geom_text()`).
+# 23: Removed 1 rows containing missing values (`geom_col()`).
 
 # draw one plot to test
 gridExtra::grid.arrange(all_plots[[2]])
