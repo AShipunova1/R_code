@@ -319,23 +319,22 @@ gg_all_c_vs_nc_plots <-
     curr_df <-
       compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
       filter(year_permit == curr_year_permit)
-    # %>%
-    # pivot_longer(
-    #   cols = c(percent_compl,
-    #            perc_non_compl_y),
-    #   names_to = "is_compliant",
-    #   values_to = "percent"
-    # )
-
+    
     y_r_title <-
       make_year_permit_label(curr_year_permit)
-
+    
     total_vsls <- unique(curr_df$total_vsl_y)
+    
     active_permits <- curr_df %>%
       filter(perm_exp_y == "active") %>%
       select(cnt_y_p_e) %>%
       unique()
-
+    
+    expired_permits <- curr_df %>%
+      filter(perm_exp_y == "expired") %>%
+      select(cnt_y_p_e) %>%
+      unique()
+    
     current_title <-
       paste0(
         y_r_title,
@@ -343,20 +342,21 @@ gg_all_c_vs_nc_plots <-
         total_vsls,
         "; Active permits: ",
         active_permits$cnt_y_p_e,
+        "; Expired permits: ",
+        expired_permits$cnt_y_p_e,
         ")"
       )
-
+    
     one_plot <-
-    curr_df %>%
+      curr_df %>%
       select(compl_or_not, perc_c_nc) %>%
       unique() %>%
-      make_one_plot_compl_vs_non_compl(
-                                       current_title,
+      make_one_plot_compl_vs_non_compl(current_title,
                                        is_compliant = "compl_or_not",
                                        percent = "perc_c_nc")
-
+    
     return(one_plot)
-
+    
   })
 
 gg_all_c_vs_nc_plots[[3]]
@@ -366,8 +366,6 @@ main_title = "Percent unique compliant vs. non compliant vessels for 2022"
 grid.arrange(gg_all_c_vs_nc_plots[[1]],
              gg_all_c_vs_nc_plots[[2]],
              top = main_title)
-
-# stopped here [1] "2023-06-19" ----
 
 # Non compliant only ----
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt)
@@ -597,12 +595,20 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
       filter(perm_exp_y == "active") %>%
       select(exp_y_tot_cnt)
 
+  expired_permits <- count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+      filter(year_permit == curr_year_permit) %>%
+      filter(perm_exp_y == "expired") %>%
+      select(exp_y_tot_cnt)
+
+    
     curr_title_y_p <- make_year_permit_label(curr_year_permit)
     y_p_title <- paste0(curr_title_y_p,
                        " (Total non compliant vessels: ",
                        total_non_compl_df$vsls_per_y_r,
                        "; Acitve permits: ",
 active_permits$exp_y_tot_cnt,
+                       "; Expired permits: ",
+expired_permits$exp_y_tot_cnt,
                        ")"
                        )
 
@@ -726,7 +732,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   unique() %>%
   arrange(year_permit, year_month) %>%
   tail()
-  year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
+  # year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
 #   <chr>        <yearmon>  <chr>              <int>       <int>
 # 1 2022 sa_only Oct 2022   active              1721        1722
 # 2 2022 sa_only Oct 2022   expired                1        1722
@@ -887,7 +893,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
               percent_n_compl_rank,
               name = "cnt_v_in_bucket")
 
-View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 
 # check
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
