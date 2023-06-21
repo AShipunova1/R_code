@@ -990,13 +990,13 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
 ## 5) Month plots ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p_y_r <-
-  split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p,
-        as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p$year_permit))
+  split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p,
+        as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p$year_permit))
 
 get_one_plot_by_month <-
   function(my_df, curr_year_month) {
 
-    # browser()
+    browser()
     curr_data <- my_df %>%
       filter(year_month == curr_year_month)
 
@@ -1040,11 +1040,22 @@ sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_
   sort()
 # [1] "2022 gom_dual" "2022 sa_only"  "2023 sa_dual"
 
+get_year_permit_titles <- function(permit, year) {
+      paste0("% of non-compliant ",
+             permit,
+             " Permitted vessels by month",
+             " (", year, "). ",
+             "In parenthesis are 1) # of non_compliant_vessels; 2) total active permits." 
+             ) %>% 
+    return()
+}
+
 year_permit_titles <-
   data.frame(
-             super_title_gom = "% of non-compliant Gulf + Dual permitted vessels by month (2022)",
-             super_title_sa = "% of non-compliant South Atlantic Only Permitted Vessels by month (2022)",
-             super_title_2023 = "% of non-compliant South Atlantic + Dual permitted vessels by month (2023)")
+    super_title_gom = get_year_permit_titles("Gulf + Dual", "2022"),
+    super_title_sa = get_year_permit_titles("South Atlantic Only", "2022"),
+    super_title_2023 = get_year_permit_titles("South Atlantic + Dual", "2023")
+  )
 
 names(year_permit_titles) <- sorted_year_permits
 
@@ -1052,7 +1063,7 @@ gg_month_nc_perc <-
   sorted_year_permits %>%
   map(
     function(current_year_permit) {
-      # browser()
+      browser()
       curr_df <-
         count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p_y_r[[current_year_permit]]
 
