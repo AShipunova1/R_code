@@ -987,11 +987,24 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
 
 # 612*100/703 == 87.05548
 
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>% 
+  select(-vessel_official_number) %>% 
+  # can unique, because all counts by vessel are done already
+  unique()
+
+# check
+dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
+# [1] 11766    15
+dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
+# [1] 251  14
+View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
+
 ## 5) Month plots ----
 
-count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p_y_r <-
-  split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p,
-        as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p$year_permit))
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r <-
+  split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short,
+        as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short$year_permit))
 
 get_one_plot_by_month <-
   function(my_df, curr_year_month) {
@@ -1036,7 +1049,7 @@ get_one_plot_by_month <-
     return(one_plot)
   }
 
-sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p_y_r) %>%
+sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r) %>%
   sort()
 # [1] "2022 gom_dual" "2022 sa_only"  "2023 sa_dual"
 
@@ -1065,7 +1078,7 @@ gg_month_nc_perc <-
     function(current_year_permit) {
       browser()
       curr_df <-
-        count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot_p_y_r[[current_year_permit]]
+        count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[[current_year_permit]]
 
       curr_year_months <-
         curr_df %>%
