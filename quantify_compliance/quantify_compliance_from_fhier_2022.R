@@ -1150,13 +1150,13 @@ x_bottom <- textGrob("'buckets' - distibution of % of non compliant weeks per ve
 #   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
 #   map( ~ .x + labs(x = NULL, y = NULL))
 
-all_plots <-
+all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
   map(function(curr_year_reg_list) {
+    
     # browser()
     curr_year_permit <- curr_year_reg_list[[1]]
-    
     
     curr_super_title <- year_permit_titles[[curr_year_permit]]
     
@@ -1165,16 +1165,21 @@ all_plots <-
     #   left = yleft,
     #   top = super_title)
     
-    gridExtra::arrangeGrob(
-      grobs =
-        curr_year_reg_list[[2]],
-      top = paste0(curr_super_title, "\n", footnote_text),
-      left = y_left,
-      bottom = x_bottom,
+    all_plots_per_year_region <-
+      gridExtra::arrangeGrob(
+        grobs =
+          curr_year_reg_list[[2]],
+        top = paste0(curr_super_title, "\n", footnote_text),
+        left = y_left,
+        bottom = x_bottom,
         # footnote,
-      ncol = 3
-    ) %>%
-      return()
+        ncol = 3
+      )
+    
+    res <- list(curr_year_permit,
+             all_plots_per_year_region)
+    
+    return(res)
   })
 
 # warnings()
@@ -1183,7 +1188,9 @@ all_plots <-
 # 23: Removed 1 rows containing missing values (`geom_col()`).
 
 # draw one plot to test
-gridExtra::grid.arrange(all_plots[[2]])
+gridExtra::grid.arrange(all_plots_w_titles_list[[1]][[2]])
+
+# View(all_plots_w_titles_list)
 
 ## all plots per month to files ----
 save_plots_list_to_pdf <-
@@ -1198,55 +1205,36 @@ save_plots_list_to_pdf <-
     )
   }
 
-
-gg_month_nc_perc %>%
-  # repeat for each entry
-  purrr::map(function(curr_year_reg_list) {
-    # browser()
-    super_title <- paste(super_title,
-                         curr_year_reg_list[[1]])
-
-    # arrangeGrob creates an object to use later
-    all_plots_curr_year_reg <-
-      gridExtra::arrangeGrob(grobs =
-                    curr_year_reg_list[[2]],
-                  top = super_title,
-                  ncol = 3)
-
-    file_name_base <- paste0(curr_year_reg_list[[1]],
-                        "_percent_distribution_per_month",
-                        ".pdf")
+all_plots_w_titles_list %>%
+  purrr::map(function(curr_plot_list) {
+    file_name_base <- paste0(curr_plot_list[[1]],
+                             "_percent_distribution_per_month",
+                             ".pdf")
     file_path <-
       r"(quantify_compliance\jun_9_2023_uniq_vsls\per_month)"
-
+    
     # file.path adds the correct concatenation
     file_full_name <- file.path(my_paths$outputs,
-                           file_path,
-                           file_name_base)
-
+                                file_path,
+                                file_name_base)
+    
     # see the function definition F2
     save_plots_list_to_pdf(file_full_name,
-           all_plots_curr_year_reg)
+                           curr_plot_list[[2]])
+    
+    
   })
-
 # [[1]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 both_percent_distribution_per_month.pdf"
-#
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 gom_dual_percent_distribution_per_month.pdf"
+# 
 # [[2]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 gom_only_percent_distribution_per_month.pdf"
-#
-# [[3]]
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 sa_only_percent_distribution_per_month.pdf"
-#
-# [[4]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 both_percent_distribution_per_month.pdf"
-#
-# [[5]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 gom_only_percent_distribution_per_month.pdf"
-#
-# [[6]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 sa_only_percent_distribution_per_month.pdf"
+# 
+# [[3]]
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 sa_dual_percent_distribution_per_month.pdf"
 
+
+# Clean up: ----
 # test numbers ----
 compl_clean_sa_vs_gom_m_int_c %>%
   filter(compliant_ == "NO") %>%
@@ -1259,7 +1247,6 @@ compl_clean_sa_vs_gom_m_int_c %>%
 # 1)
 # "% Non-Compliant Vessels in Jan 2022 (12345 permitted; 125 expired permits)". I realize that is a long title, so perhaps we can push the % non-compliant vessels to the main title, and those smaller titles over the figure could just start at "jan...". Having the # of expired permits (compared to the # of permits) in each figure would better explain if they haven't tried to renew, and therefore haven't had to submit reports in order to renew. That is pretty much our only means to get them to comply, in the SA.
 
-# Clean up: ----
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 
 # TODO: 1) get buckets for the blue plot
