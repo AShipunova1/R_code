@@ -948,23 +948,8 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   unique() %>% dim()
 #  703 1
 
-# count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_tot %>%
-#   # select(-c(perm_exp_m, exp_m_tot_cnt)) %>%
-#   unique() %>%
-#   filter(year_permit == "2022 sa_only") %>%
-#   filter(year_month == "Jan 2022") %>%
-#   arrange(percent_n_compl_rank) %>%
-#   View()
- # $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
- # $ cnt_v_in_bucket     : int [1:4] 33 29 29 612
- # $ tot_v_per_m_y_r     : int [1:4] 703 703 703 703
-
-# 33+29+29+612
-# 703
-# T
-
 ## 4) Month: cnt percents of (3) ----
-# print_df_names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b)
+
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p <-
   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / cnt_vsl_m_compl) %>%
