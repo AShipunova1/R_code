@@ -1204,7 +1204,7 @@ gridExtra::grid.arrange(all_plots_w_titles_list[[2]][[2]])
 # View(all_plots_w_titles_list)
 
 ## all plots per month to files ----
-save_plots_list_to_pdf <-
+save_plots_list_to_files <-
   function(file_full_name,
            plots_list) {
     ggplot2::ggsave(
@@ -1212,19 +1212,6 @@ save_plots_list_to_pdf <-
       plots_list,
       width = 30,
       height = 20,
-      units = "cm"
-    )
-  }
-
-
-save_plots_list_to_png <-
-  function(file_full_name,
-           plots_list) {
-    ggplot2::ggsave(
-      file_full_name,
-      plots_list,
-      width = 30,
-      # height = 20,
       units = "cm"
     )
   }
@@ -1245,8 +1232,8 @@ all_plots_w_titles_list %>%
                                 file_name_base)
     
     # see the function definition F2
-    save_plots_list_to_pdf(file_full_name,
-                           curr_plot_list[[2]])
+    save_plots_list_to_files(file_full_name,
+                             curr_plot_list[[2]])
   })
 
 # [[1]]
