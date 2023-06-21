@@ -1042,7 +1042,7 @@ get_expired_permit_numbers <- function(curr_data) {
     filter(perm_exp_m == "expired") %>% 
     unique()
   
-  res = exp_filt$perm_exp_m
+  res = exp_filt$exp_m_tot_cnt
   
   if (dim(exp_filt)[1] == 0)
   {
@@ -1081,9 +1081,9 @@ get_one_plot_by_month <-
       curr_tot_v_per_m_y_r,
       " vsls; ",
       curr_m_tot_active$exp_m_tot_cnt,
-      " act. perm.; ",
+      " act. p.; ",
       cnt_expired,
-      " exp. perm.)"
+      " exp. p.)"
     )
     
     one_plot <-
@@ -1135,9 +1135,16 @@ gg_month_nc_perc <-
     }
   )
 
+# check
+# test_df <-
+#   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[["2022 sa_only"]]
+# 
+# get_one_plot_by_month(test_df,
+#                       curr_year_month = "Aug 2022")
+
 # gg_month_nc_perc[[1]][[2]]
 
-footnote_text <- "In parenthesis are 1) # of non_compliant_vessels per month; 2) total active permits per month; 3) total expired permits per month;"
+footnote_text <- "In parenthesis are 1) # of non compliant vessels per month; 2) total active permits per month; 3) total expired permits per month;"
 
 footnote <- textGrob(
   footnote_text,
@@ -1192,7 +1199,7 @@ all_plots_w_titles_list <-
 # 23: Removed 1 rows containing missing values (`geom_col()`).
 
 # draw one plot to test
-gridExtra::grid.arrange(all_plots_w_titles_list[[1]][[2]])
+gridExtra::grid.arrange(all_plots_w_titles_list[[2]][[2]])
 
 # View(all_plots_w_titles_list)
 
@@ -1215,7 +1222,7 @@ all_plots_w_titles_list %>%
                              "_percent_distribution_per_month",
                              ".pdf")
     file_path <-
-      r"(quantify_compliance\jun_9_2023_uniq_vsls\per_month)"
+      r"(quantify_compliance\jun_21_2023\per_month)"
     
     # file.path adds the correct concatenation
     file_full_name <- file.path(my_paths$outputs,
@@ -1228,17 +1235,18 @@ all_plots_w_titles_list %>%
     
     
   })
+
 # [[1]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 gom_dual_percent_distribution_per_month.pdf"
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2022 gom_dual_percent_distribution_per_month.pdf"
 # 
 # [[2]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2022 sa_only_percent_distribution_per_month.pdf"
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2022 sa_only_percent_distribution_per_month.pdf"
 # 
 # [[3]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_9_2023_uniq_vsls\\per_month/2023 sa_dual_percent_distribution_per_month.pdf"
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2023 sa_dual_percent_distribution_per_month.pdf"
 
 
-# Clean up: ----
+# TODO: Clean up ----
 # test numbers ----
 compl_clean_sa_vs_gom_m_int_c %>%
   filter(compliant_ == "NO") %>%
