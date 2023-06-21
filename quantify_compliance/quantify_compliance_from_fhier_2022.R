@@ -688,21 +688,27 @@ grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_
 # super_title_per_m = "% non-compliant weeks per month for non-compliant vessels by permit type (2022)"
 
 # by Month: ----
-## add tot cnts per month ----
+## add tot cnts per month, permit ----
+
 compl_clean_sa_vs_gom_m_int_filtered_tot_m <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
-  group_by(year_month) %>%
+  group_by(year_permit, year_month) %>%
   mutate(total_vsl_m = n_distinct(vessel_official_number)) %>%
   ungroup()
 
 ### test tot month ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
-  select(year_month, total_vsl_m) %>%
-  arrange(year_month) %>%
-  unique()
- # 1 Jan 2022          2827
- # 2 Feb 2022          2832
- # 3 Mar 2022          2830
+  filter(year == "2022") %>%
+  select(year_permit, year_month, total_vsl_m) %>%
+  arrange(year_month, year_permit) %>%
+  unique() %>% 
+  tail()
+# 1 2022 gom_dual Oct 2022          1167
+# 2 2022 sa_only  Oct 2022          1722
+# 3 2022 gom_dual Nov 2022          1152
+# 4 2022 sa_only  Nov 2022          1677
+# 5 2022 gom_dual Dec 2022          1131
+# 6 2022 sa_only  Dec 2022          1657
 
 ## add the difference between expiration and week_end ----
 
@@ -720,11 +726,6 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
                      exp_w_end_diff >= 0 ~ "active"))
 
 ## count exp by month  ----
-# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt <-
-#   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y %>%
-#   group_by(year_permit, perm_exp_y) %>%
-#   mutate(exp_y_tot_cnt = n_distinct(vessel_official_number))
-
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
   group_by(year_permit, year_month, perm_exp_m) %>%
@@ -742,40 +743,41 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   unique() %>%
   arrange(year_permit, year_month) %>%
   tail()
-# A tibble: 6 × 5
-#   year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
+  year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
 #   <chr>        <yearmon>  <chr>              <int>       <int>
-# 1 2022 sa_only Oct 2022   active              1721        2889
-# 2 2022 sa_only Oct 2022   expired                1        2889
-# 3 2022 sa_only Nov 2022   active              1676        2829
-# 4 2022 sa_only Nov 2022   expired                1        2829
-# 5 2022 sa_only Dec 2022   active              1656        2788
-# 6 2022 sa_only Dec 2022   expired                1        2788
-
+# 1 2022 sa_only Oct 2022   active              1721        1722
+# 2 2022 sa_only Oct 2022   expired                1        1722
+# 3 2022 sa_only Nov 2022   active              1676        1677
+# 4 2022 sa_only Nov 2022   expired                1        1677
+# 5 2022 sa_only Dec 2022   active              1656        1657
+# 6 2022 sa_only Dec 2022   expired                1        1657
+# compare with the text for tot month above
+  
 # cnt unique total vessels per month, compl ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
-  group_by(year_month, compliant_) %>%
+  group_by(year_permit, year_month, compliant_) %>%
   mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
   ungroup()
 
 # print_df_names(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt)
 
 ## test tot cnts per month ----
-tic("test tot cnts per month")
+# tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
-  select(year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
+  select(year_permit, year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
   unique() %>%
   filter(year_month == "Jan 2022") %>%
   glimpse()
-toc()
+# toc()
 # $ year_month      <yearmon> Jan 2022, Jan 2022, Jan 2022, Jan 2022
 # $ perm_exp_m      <chr> "active", "active", "active", "active"
 # $ exp_m_tot_cnt   <int> 1635, 1635, 1192, 1192
-# $ total_vsl_m     <int> 2827, 2827, 2827, 2827
+# $ total_vsl_m     <int> 1635, 1635, 1192, 1192
 # $ compliant_      <chr> "YES", "NO", "YES", "NO"
-# $ cnt_vsl_m_compl <int> 2230, 748, 2230, 748
-
+# $ cnt_vsl_m_compl <int> 1057, 703, 1173, 45
+# 1057 + 703 = 1760? It is more than total. TODO
+  
 # add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
