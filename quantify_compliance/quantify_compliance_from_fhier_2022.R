@@ -1379,7 +1379,19 @@ compl_clean_sa_vs_gom_m_int %>%
   # 74
   # View()
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup, ignore.case = T))
+# ->
+#   in_j_only_sa
 
 # 74 out of 2205 had dual permits
 
+# 137 - 74 = 63 why not in a?
+
 ## Search for in_a_only in j ----
+
+# print_df_names(vessels_per_permit_from_j_vsl)
+vessels_per_permit_from_j_vsl %>%
+  filter(vessel_official_number %in% in_a_only) %>% 
+  # select(vessel_official_number, permitgroup) %>% 
+  unique() %>%
+  dim()
+# 0
