@@ -1370,17 +1370,16 @@ in_a_only <-
 head(in_j_only)
 # [1] "1000051" "1020792" "1021103" "1035832" "1041705" "1041927"
 
-grep("1000051",
-     compl_clean_sa_vs_gom_m_int$vessel_official_number,
-     value = T)
-# 0
-
-compl_clean_sa_vs_gom_m_int %>% 
+compl_clean_sa_vs_gom_m_int %>%
+  filter(year == "2022") %>% 
   filter(vessel_official_number %in% in_j_only) %>% 
   select(vessel_official_number, permitgroup) %>% 
   unique() %>% 
   # dim()
-# 75  
+  # 74
   # View()
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup, ignore.case = T))
-# 1 548359                 (CDW)CDW,(CHS)CHS,(SC)SC
+
+# 74 out of 2205 had dual permits
+
+## Search for in_a_only in j ----
