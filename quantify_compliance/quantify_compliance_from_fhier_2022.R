@@ -1425,7 +1425,7 @@ vessels_per_permit_from_j_vsl %>%
 paste0(in_a_only, collapse = ", ")
 # 8 of them are dual
 
-# get all compliance count from fhier reports for 2022
+## get all compliance count from fhier reports for 2022 ----
 all_permits_from_fier_file_name <- r"(my_inputs\quantify_compliance\Vessel Compliance Count Details.csv)"
 
 all_permits_from_fier <-
@@ -1433,3 +1433,44 @@ all_permits_from_fier <-
   clean_headers()
 # Rows: 3528 Columns: 4                                                                             
 print_df_names(all_permits_from_fier)
+
+in_a_and_c_cnts_8 <-
+  all_permits_from_fier %>%
+  filter(vessel_official_number %in% in_a_only)
+# 8
+
+# 659890
+# in compliance report - permit group == "(CDW)CDW,(CHS)CHS,(SC)SC"
+# in compliance counts - dual
+# in vessel dashboard CHG	
+# err in compliance report?
+
+# # in a and not in compl cnts ----
+str(in_a_and_c_cnts_8)
+
+in_a_and_not_in_compl_counts <-
+  compl_clean_sa_vs_gom_m_int %>%
+  filter(year == "2022") %>%
+  filter(!(
+    vessel_official_number %in% in_a_and_c_cnts_8$vessel_official_number
+  )) %>%
+  filter((vessel_official_number %in% in_a_only)) %>%
+  unique()
+
+in_a_and_not_in_compl_counts %>%
+  select(vessel_official_number, permitgroup, year) %>%
+  unique() %>%
+  dim()
+# 102
+
+# SC5388DG not in count compl
+# in_a_and_not_in_compl_counts %>% 
+#   select(permitgroup) %>%
+#   unique() %>%
+#   View()
+
+# in_a_and_not_in_compl_counts %>%
+#   select(vessel_official_number, permitgroup, week_end) %>%
+#   unique() %>%
+#   count(week_end) %>% 
+#   View()
