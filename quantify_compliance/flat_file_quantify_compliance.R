@@ -11,7 +11,7 @@
 # dual + SA
 
 
-#### Current file: ~/R_code_github/useful_functions_module.r 
+#### Current file: ~/R_code_github/useful_functions_module.r ----
 
 # nolint: commented_code_linter
 # useful functions
@@ -421,39 +421,6 @@ cat_filter_for_fhier <- function(my_characters) {
                        "cat_out.txt"))
 }
 
-#
-# benchmarking to insert inside a function
-# browser()
-# time_for_appl <<- benchmark(replications=rep(10, 3),
-                            # lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
-                            # sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
-                            # ,
-                            # columns = c('test', 'elapsed', 'relative')
-# )
-
-# write.csv(time_for_appl, "time_for_appl.csv")
-
-# or
-# browser()
-# sappl_exp <- function(){
-#   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
-# }
-#
-# map_exp <- function(){
-#   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
-# }
-#
-# time_for_appl <<- benchmark(replications=rep(10^7, 3),
-#                             exp1,
-#                             exp2,
-#                             columns = c('test', 'elapsed', 'relative')
-# )
-#
-# map_df(my_df, function(x) length(unique(x)))
-# to compare:
-# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
-
 connect_to_secpr <- function() {
   # usage:
   # con <- connect_to_secpr()
@@ -533,7 +500,7 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
 }
 
 
-#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_functions.R 
+#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_functions.R ----
 
 make_year_permit_label <- function(curr_year_permit) {
   curr_year_permit %>%
@@ -610,7 +577,7 @@ get_p_buckets <- function(my_df, field_name) {
     return()
 }
 
-#### Current file: ~/R_code_github/quantify_compliance/get_data.R 
+#### Current file: ~/R_code_github/quantify_compliance/get_data.R ----
 
 # benchmarking
 library(tictoc)
@@ -898,7 +865,7 @@ if (exists("get_data_from_param")) {
 }
 
 
-#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R 
+#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R ----
 
 # dates
 library(zoo)
