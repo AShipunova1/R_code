@@ -1,5 +1,4 @@
 # quantify_compliance start
-# TODO 2023 separately for "both" permits
 library(zoo)
 library(gridExtra)
 library(cowplot)
