@@ -83,27 +83,35 @@ make_one_plot_compl_vs_non_compl <-
                  y = !!sym(percent),
                  fill = !!sym(is_compliant))) +
       geom_col() +
+      # Add percent numbers on the bars
       geom_text(aes(label =
                       paste0(round(!!sym(percent), 1), "%")),
+                # in the middle of the bar
                 position = position_stack(vjust = 0.5)) +
+      # no x and y titles for individual plots
       labs(title = current_title,
            x = "",
            y = "") +
       scale_fill_manual(
+        # use custom colors
         values =
           c(
             "compliant" = "lightgreen",
             "non_compliant" = "red"
           ),
+        # Legend title
         name = "Is compliant?",
         labels = c("Yes", "No")
       ) +
+      # manual x axes ticks labels
       scale_x_discrete(labels = c("Yes", "No")) +
       # scale_y_continuous(limits = c(0, 100), labels = scales::percent)
+      # Y axes between 0 and 100
       ylim(0, 100)
     # +
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
 
+    # to use with grid arrange multiple plots
     if (no_legend) {
       one_plot <- one_plot +
         theme(legend.position = "none")
@@ -112,6 +120,7 @@ make_one_plot_compl_vs_non_compl <-
     return(one_plot)
   }
 
+# percent buckets
 get_p_buckets <- function(my_df, field_name) {
 
   my_df %>%

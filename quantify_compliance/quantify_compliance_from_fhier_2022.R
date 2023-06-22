@@ -338,30 +338,32 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
   unique() %>%
   dplyr::mutate(perc_c_nc = cnt_y_p_c * 100 / total_vsl_y)
 
-# red/green plots for compl vs. non compl vessels per year ----
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
+## red/green plots for compl vs. non compl vessels per year ----
+
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
-  map(function(curr_year_permit) {
+  # repeat for each year_permit
+  purrr::map(function(curr_year_permit) {
     # browser()
     curr_df <-
       compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
-      filter(year_permit == curr_year_permit)
+      dplyr::filter(year_permit == curr_year_permit)
     
+    # See function definition F2
     y_r_title <-
       make_year_permit_label(curr_year_permit)
     
     total_vsls <- unique(curr_df$total_vsl_y)
     
     active_permits <- curr_df %>%
-      filter(perm_exp_y == "active") %>%
-      select(cnt_y_p_e) %>%
+      dplyr::filter(perm_exp_y == "active") %>%
+      dplyr::select(cnt_y_p_e) %>%
       unique()
     
     expired_permits <- curr_df %>%
-      filter(perm_exp_y == "expired") %>%
-      select(cnt_y_p_e) %>%
+      dplyr::filter(perm_exp_y == "expired") %>%
+      dplyr::select(cnt_y_p_e) %>%
       unique()
     
     current_title <-
@@ -378,8 +380,9 @@ gg_all_c_vs_nc_plots <-
     
     one_plot <-
       curr_df %>%
-      select(compl_or_not, perc_c_nc) %>%
+      dplyr::select(compl_or_not, perc_c_nc) %>%
       unique() %>%
+      # See function definition F2
       make_one_plot_compl_vs_non_compl(current_title,
                                        is_compliant = "compl_or_not",
                                        percent = "perc_c_nc")
@@ -388,23 +391,17 @@ gg_all_c_vs_nc_plots <-
     
   })
 
+# 2023 plot
 gg_all_c_vs_nc_plots[[3]]
 
 main_title = "Percent unique compliant vs. non compliant vessels for 2022"
 
+# combine plots for 2022
 grid.arrange(gg_all_c_vs_nc_plots[[1]],
              gg_all_c_vs_nc_plots[[2]],
              top = main_title)
 
 # Non compliant only ----
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt)
-#
-# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_non_compl <-
-# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
-#   filter(is_compl_or_both %in% c("NO_YES", "NO"))
-
-
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y)
 
 # start with the new data with expiration by year
 # 1) count percents - a given vsl non_compl per counted weeks total ----
