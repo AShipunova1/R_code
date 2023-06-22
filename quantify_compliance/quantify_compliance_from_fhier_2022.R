@@ -1320,18 +1320,17 @@ make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), file
 j_file_name = r"(my_inputs\quantify_compliance\PermitInfo.csv)"
 
 vessels_per_permit_from_j <-
-  read_csv(j_file_name)
+  read_csv(j_file_name) %>% 
+  clean_headers()
 
 # print_df_names(vessels_per_permit_from_j)
 vessels_per_permit_from_j_vsl <-
   vessels_per_permit_from_j %>% 
-  select(`Vessel Official Number`) %>% 
-  arrange(`Vessel Official Number`) %>% 
+  select(vessel_official_number) %>% 
+  arrange(vessel_official_number) %>% 
   unique()
 #   dim()
 # 2205    
-
-names(vessels_per_permit_from_j_vsl) <- "vessel_official_number"
 
 compl_clean_sa_vs_gom_m_int_22_sa <-
   compl_clean_sa_vs_gom_m_int %>%
@@ -1387,16 +1386,31 @@ in_a_and_j_dual %>%
 # 74 out of 2205 had dual permits
 
 ## 137 - 74 = 63 why not in a? ----
-setdiff(as.data.frame(in_j_only),
+
+setdiff(in_j_only,
         in_a_and_j_dual$vessel_official_number)
 
-grep("FL5722SJ", in_a_and_j_dual$vessel_official_number, 
+# no compliance info? 
+# Ask Jenny where she got her compliance info
+
+# grep("FL5722SJ", in_a_and_j_dual$vessel_official_number, 
+#      ignore.case = T)
+# T
+
+grep("992461", in_j_only, 
      ignore.case = T)
 # T
 
-grep("FL5722SJ", in_j_only, 
+grep("992461", in_a_only, 
      ignore.case = T)
-T
+# F
+
+compl_clean_sa_vs_gom_m_int %>%
+  # filter(year == "2022") %>% 
+  filter(vessel_official_number == "992461") %>% 
+  View()
+
+# no compliance info on FHIER
 
 ## Search for in_a_only in j ----
 
