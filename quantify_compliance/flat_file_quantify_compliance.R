@@ -1,3 +1,980 @@
+
+
+#### Current file: ~/R_code_github/useful_functions_module.r 
+
+# nolint: commented_code_linter
+# useful functions
+
+##--- start functions ---
+# How to use:
+# my_paths <- set_work_dir()
+# csv_names_list = list("report1.csv", "report2.csv")
+# xls_names_list = list("report1a.xls", "report2a.xls")
+# csv_content_1 <- load_csv_names(my_paths, csv_names_list)[[1]]
+# xls_content_1 <- load_xls_names(my_paths, xls_names_list, sheet_num = 2)[[1]]
+
+## get csv data into variables
+# temp_var <- get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23)
+# compl_clean <- temp_var[[1]]
+# corresp_contact_cnts_clean <- temp_var[[2]]
+
+#---
+
+#install.packages("tidyverse")
+library(tidyverse)
+library(magrittr)
+library(readxl)  # reading in .xlsx
+library(rbenchmark)
+library(ROracle)
+
+# Do not show warnings about groups
+options(dplyr.summarise.inform = FALSE)
+# Turn off the scientific notation
+options(scipen = 999)
+
+# Use my function in case we want to change the case in all functions
+my_headers_case_function <- tolower
+
+# current user name
+get_username <- function(){
+    return(as.character(Sys.info()["user"]))
+}
+
+# set working directories
+  # change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
+  # then you can use it in the code like my_paths$input etc.
+set_work_dir <- function() {
+  setwd("~/")
+  base_dir <- getwd()
+
+  # for others
+  add_dir <- ""
+  # for Anna's computer
+  if (get_username() == "anna.shipunova") {
+    add_dir <- "R_files_local/test_dir"
+  }
+
+  # add an empty or Anna's folder in front
+  main_r_dir <- file.path(add_dir, "SEFHIER/R code")
+
+  in_dir <- "Inputs"
+  # file.path instead of paste, because it provides correct concatenation, "\" or "/" etc.
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+  out_dir <- "Outputs"
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  # git_r_dir <- "R_code_github"
+  # full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  setwd(file.path(base_dir, main_r_dir))
+
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir) #,
+                   #"git_r" = full_path_to_r_git_dir)
+  return(my_paths)
+}
+
+set_work_dir_local <- function() {
+  setwd("~/")
+  base_dir <- getwd()
+  main_r_dir <- "R_files_local"
+
+  in_dir <- "my_inputs"
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+  out_dir <- "my_outputs"
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  git_r_dir <- "R_code_github"
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  setwd(file.path(base_dir, main_r_dir))
+
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
+  return(my_paths)
+}
+
+if (get_username() == "anna.shipunova") {
+  set_work_dir <- set_work_dir_local
+}
+
+load_csv_names <- function(my_paths, csv_names_list) {
+  my_inputs <- my_paths$inputs
+# add input directory path in front of each file name.
+  myfiles <- lapply(csv_names_list, function(x) file.path(my_inputs, x))
+  # read all csv files
+  # contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
+  contents <- lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
+
+  return(contents)
+}
+
+load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
+  my_inputs <- my_paths$inputs
+
+  # add input directory path in front of each file name.
+  myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
+
+  # browser()
+  # print("map:")
+  # start_time <- Sys.time()
+  ## read all files
+  contents <- map_df(myfiles,
+         ~read_excel(.x,
+                     sheet = sheet_n,
+                     .name_repair = fix_names,
+                     guess_max = 21474836,
+                     col_types = "text"))
+  # %>%
+  # , col_types = "character"
+  #   type_convert(guess_integer = TRUE)
+  # end_time <- Sys.time()
+  # print(end_time - start_time)
+  return(contents)
+}
+
+clean_headers <- function(my_df) {
+  colnames(my_df) %<>%
+    fix_names()
+  return(my_df)
+}
+
+# to use in a function,
+# e.g. read_csv(name_repair = fix_names)
+fix_names <- function(x) {
+  x %>%
+    # remove dots
+    str_replace_all("\\.", "") %>%
+    # all not letters and numbers to underscores
+    str_replace_all("[^A-z0-9]", "_") %>%
+    # letters only in the beginning
+    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
+    # tolower
+    my_headers_case_function()
+}
+
+## ---- functions to clean FHIER compliance and correspondense reports ----
+
+# split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
+clean_weeks <- function(my_df) {
+  my_df %>%
+    separate_wider_delim(week, ":", names = c("week_num", "week_rest")) %>%
+    separate_wider_delim(week_rest, " - ", names = c("week_start", "week_end")) ->
+    temp_df
+
+  my_df$week_num <- as.integer(trimws(temp_df$week_num))
+  my_df$week_start <- as.Date(trimws(temp_df$week_start), "%m/%d/%Y")
+  my_df$week_end <- as.Date(trimws(temp_df$week_end), "%m/%d/%Y")
+
+  return(my_df)
+}
+
+# trim vesselofficialnumber, there are 273 white spaces in Feb 2023
+trim_all_vessel_ids_simple <-
+  function(csvs_clean_ws, col_name_to_trim = NA) {
+    csvs_clean <- lapply(csvs_clean_ws, function(x) {
+      if (is.na(col_name_to_trim)) {
+        col_name_to_trim <- grep("vessel.*official.*number",
+                                 tolower(names(x)),
+                                 value = T)
+      }
+      col_name_to_trim_s <- sym(col_name_to_trim)
+      # Hard code vessel_official_number as vessel id
+      x %>%
+        mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+        # mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
+        return()
+    })
+    return(csvs_clean)
+  }
+
+# cleaning, regularly done for csvs downloaded from PHIER
+clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
+  # unify headers
+  csvs_clean0 <- lapply(csvs, clean_headers)
+  # trim vesselofficialnumber, just in case
+  # browser()
+  csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
+  return(csvs_clean1)
+}
+
+join_same_kind_csvs <- function(csvs_list_2_plus) {
+  return(bind_rows(csvs_list_2_plus))
+}
+
+# Combine correspondence and compliance information into one dataframe by "vesselofficialnumber" only. Not by time!
+join_all_csvs <- function(corresp_arr, compl_arr) {
+  corresp <- corresp_arr
+  if (!is.data.frame(corresp_arr)) {
+    corresp <- join_same_kind_csvs(corresp_arr)
+  }
+
+  compl <- compl_arr
+  if (!is.data.frame(compl_arr)) {
+    compl <- join_same_kind_csvs(compl_arr)
+  }
+
+  compl %>%
+    full_join(corresp,
+              by = c("vesselofficialnumber"),
+              multiple = "all") %>%
+    return()
+}
+
+# Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
+change_to_dates <- function(my_df, field_name, date_format) {
+  my_df %>%
+    mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+    format = date_format)) %>%
+    return()
+}
+
+aux_fun_for_dates <- function(x, date_format) {
+  out <- as.POSIXct(x,
+                    format = date_format)
+  out
+}
+  # # Previously
+  # across(a:b, mean, na.rm = TRUE)
+  # 
+  # # Now
+  # across(a:b, \(x) mean(x, na.rm = TRUE))
+change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
+  my_df %>%
+    mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+
+    # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+                                        # format = date_format)) %>%
+    return()
+}
+
+# Use for contacts in the setup function before combining with compliant dataframes
+add_count_contacts <- function(all_data_df_clean) {
+  # browser()
+  contactdate_field_name <- find_col_name(all_data_df_clean, "contact", "date")[1]
+  vessel_id_field_name <- find_col_name(all_data_df_clean, "vessel", "number")[1]
+
+  # browser()
+  all_data_df_clean %>%
+    # add a new column with a "yes" if there is a contactdate (and a "no" if not)
+    # TODO: as.factor
+    mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
+    # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
+    add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
+    return()
+}
+
+# Get frequencies for each column in the list
+# usage:
+# group_by_arr <- c("vesselofficialnumber", "contacttype")
+# count_by_column_arr(my_df, group_by_arr)
+count_by_column_arr <- function(my_df, group_by_arr) {
+  my_df %>%
+    arrange(group_by_arr[1]) %>%
+    group_by_at(group_by_arr) %>%
+    summarise(my_freq = n()) %>%
+    return()
+}
+
+data_overview <- function(my_df) {
+  summary(my_df) %>% print()
+  cat("\nCount unique values in each column:")
+  count_uniq_by_column(my_df)
+}
+
+count_uniq_by_column <- function(my_df) {
+  sapply(my_df, function(x) length(unique(x))) %>%
+    as.data.frame()
+}
+
+# from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
+# concat_unique <- function(x){paste(unique(x),  collapse=', ')}
+
+concat_unique <-
+  function(x) {
+    paste0(unique(x[!is.na(x)]), collapse = ", ")
+  }
+
+print_df_names <- function(my_df, names_num = 100) {
+  names(my_df) %>% 
+    head(names_num) %>% 
+    paste0(collapse = ", ") %>% 
+    return()
+}
+
+combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my_df, group_by_arr) {
+  my_df %>%
+    group_by_at(group_by_arr) %>%
+    summarise_all(concat_unique) %>%
+    return()
+}
+
+concat_unique_sorted <- function(x){paste0(unique(sort(x[!is.na(x)])), collapse= ", ")}
+
+combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
+  my_df %>%
+    group_by_at(group_by_arr) %>%
+    summarise_all(concat_unique_sorted) %>%
+    return()
+}
+
+## usage:
+# my_paths <- set_work_dir()
+#
+## get csv data into variables
+# temp_var <- get_compl_and_corresp_data(my_paths)
+# compl_clean <- temp_var[[1]]
+# corresp_clean <- temp_var[[2]]
+
+csv_names_list_22_23 = c("Correspondence.csv",
+                         "FHIER_Compliance_22.csv",
+                         "FHIER_Compliance_23.csv")
+
+# add my additional folder names to each filename
+prepare_csv_names <- function(filenames) {
+  add_path_corresp <- "Correspondence"
+  add_path_compl <- "FHIER Compliance"
+
+  my_list <- sapply(filenames, function(x) {
+    case_when(startsWith(my_headers_case_function(x), "correspond") ~
+                file.path(add_path_corresp,  x),
+              startsWith(my_headers_case_function(x), "fhier_compliance") ~
+                file.path(add_path_compl,  x),
+              .default = file.path(add_path_compl,  x)
+    )
+  } )
+  paste(my_list) %>% as.list() %>% return()
+}
+
+get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) {
+  # browser()
+  # add my additional folder names
+  csv_names_list <- prepare_csv_names(filenames)
+  # read all csv files
+  csv_contents <- load_csv_names(my_paths, csv_names_list)
+# browser()
+  # unify headers, trim vesselofficialnumber, just in case
+  csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
+
+  # ---- specific correspondence manipulations ----
+  corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
+
+  ## ---- specific compliance manipulations ----
+  compl_arr <- csvs_clean1[2:length(csvs_clean1)]
+
+  compl_clean <- compliance_cleaning(compl_arr)
+  return(list(compl_clean, corresp_arr_contact_cnts_clean))
+}
+
+# ---- specific correspondence manipulations ----
+corresp_cleaning <- function(csvs_clean1){
+  corresp_arr <- csvs_clean1[[1]]
+  # add a new column with a "yes" if there is a contactdate (and a "no" if not),
+  # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
+  # browser()
+  corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
+  createdon_field_name <- find_col_name(corresp_arr, "created", "on")[1]
+  contactdate_field_name <- find_col_name(corresp_arr, "contact", "date")[1]
+  # change classes from char to POSIXct
+  corresp_arr_contact_cnts %>%
+    change_to_dates(createdon_field_name, "%m/%d/%Y %H:%M") %>%
+    change_to_dates(contactdate_field_name, "%m/%d/%Y %I:%M %p") ->
+    corresp_arr_contact_cnts_clean
+
+  return(corresp_arr_contact_cnts_clean)
+}
+
+## ---- specific compliance manipulations ----
+compliance_cleaning <- function(compl_arr){
+  # if it is one df already, do nothing
+  compl <- compl_arr
+  # else combine separate dataframes for all years into one
+  if (!length(compl_arr) == 1) {
+    compl <- join_same_kind_csvs(compl_arr)
+  }
+
+  permitgroupexpiration <- grep("permit.*group.*expiration",
+                           tolower(names(compl)),
+                           value = T)
+
+  compl %>%
+    # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
+    clean_weeks() %>%
+    # change dates classes from char to POSIXct
+    change_to_dates(permitgroupexpiration, "%m/%d/%Y") %>%
+    return()
+}
+
+# read csv file with EOF within quoted strings
+read_csv_w_eofs <- function(my_paths, csv_names_list) {
+  my_inputs <- my_paths$inputs
+  # add input directory path in front of each file name.
+  myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))
+
+  # read csv files
+  contents <- sapply(myfiles, fread, header = TRUE)
+  # convert the first one into a data frame
+  # TODO change this function to deal with multiple files
+  contents[, 1] %>%
+    as.data.frame() %>%
+    return()
+}
+
+# To use as a filter in FHIER
+cat_filter_for_fhier <- function(my_characters) {
+  cat(my_characters,
+      sep = ', ',
+      file = file.path(my_paths$outputs,
+                       "cat_out.txt"))
+}
+
+#
+# benchmarking to insert inside a function
+# browser()
+# time_for_appl <<- benchmark(replications=rep(10, 3),
+                            # lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
+                            # sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
+                            # ,
+                            # columns = c('test', 'elapsed', 'relative')
+# )
+
+# write.csv(time_for_appl, "time_for_appl.csv")
+
+# or
+# browser()
+# sappl_exp <- function(){
+#   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
+# }
+#
+# map_exp <- function(){
+#   my_fun <- function(x) length(unique(x))
+#   map_df(my_df, my_fun)
+# }
+#
+# time_for_appl <<- benchmark(replications=rep(10^7, 3),
+#                             exp1,
+#                             exp2,
+#                             columns = c('test', 'elapsed', 'relative')
+# )
+#
+# map_df(my_df, function(x) length(unique(x)))
+# to compare:
+# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+
+connect_to_secpr <- function() {
+  # usage:
+  # con <- connect_to_secpr()
+  my_username <- keyring::key_list("SECPR")[1, 2]
+  con = dbConnect(
+    dbDriver("Oracle"),
+    username = my_username,
+    password = keyring::key_get("SECPR",
+                                my_username),
+    dbname = "SECPR"
+  )
+  return(con)
+}
+
+# usage: complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*xcompliance", "errors.*")[1]
+# TODO what if two names?
+find_col_name <- function(mydf, start_part, end_part) {
+  to_search <- paste0(start_part, ".*", end_part)
+  grep(to_search,
+       tolower(names(mydf)),
+       value = T)
+}
+
+# https://stackoverflow.com/questions/23986140/how-to-call-exists-without-quotation-marks
+# usage: vexists(con_psql, bogus_variable_name)
+vexists <- function(...) {
+  vars <- as.character(substitute(...()))
+  sapply(vars, exists)
+}
+
+# make a separate legend for grid.arrange
+legend_for_grid_arrange <- function(legend_plot) {
+  # legend_plot <-
+  #   ggplot(data = legend_data, aes(x1, y1, colour = ll)) +
+  #   geom_text(dat = legend_data,
+  #             aes(label = ll),
+  #             hjust = 0) +
+  #   scale_color_manual(
+  #     name = 'Lines',
+  #     breaks = c('Mean', 'Num of weeks'),
+  #     values = my_colors
+  #   )
+  #
+  # legend_plot
+
+  my_legend <-
+    cowplot::get_legend(legend_plot)
+
+  return(my_legend)
+}
+
+make_a_flat_file <- 
+  function(flat_file_name,
+           files_to_combine_list) {
+    # browser()
+    # write to file
+    sink(flat_file_name)
+    
+    for (i in 1:length(files_to_combine_list)) {
+      current_file = readLines(files_to_combine_list[i])
+      cat("\n\n#### Current file:", files_to_combine_list[i], "\n\n")
+      cat(current_file, sep = "\n")
+    }
+    
+    sink()
+  }
+
+separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
+  my_df %>%
+  mutate(permit_sa_gom =
+           case_when(
+             !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
+             !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
+             .default = "dual"
+           )) %>%
+    return()
+}
+
+
+#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_functions.R 
+
+# quantify_compliance_functions
+
+get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
+  # browser()
+    my_df %>%
+    # how many non_compliant weeks per vessel this month
+    count(year_month, !!sym(vessel_id_col_name),
+          name = "nc_weeks_per_vessl_m") %>%
+    # nc weeks per month
+    count(year_month, nc_weeks_per_vessl_m,
+          name = "occurence_in_month") %>%
+    # turn amount of nc weeks into headers, to have one row per year_month
+    pivot_wider(names_from = nc_weeks_per_vessl_m,
+                # number of vessels
+                values_from = occurence_in_month,
+                values_fill = 0) %>%
+    # sum nc by month to get Total
+    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    # turn to have num of weeks per month in a row
+    pivot_longer(-c(year_month, total_nc_vsl_per_month),
+                 names_to = "non_compl_weeks",
+                 values_to = "non_compl_in_month") %>%
+    # count percentage
+    mutate(percent_nc = round(
+      100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
+      digits = 2
+    )) %>%
+    return()
+}
+
+perc_plots_by_month <-
+  function(my_df, current_year_month) {
+    # browser()
+    # month_title = current_year_month
+    total_nc_vsl_per_month <-
+      my_df %>%
+      filter(year_month == current_year_month) %>%
+      select(total_nc_vsl_per_month) %>%
+      unique()
+
+    # month_title = paste0(current_year_month, " Total non-compliant vessels: ", total_nc_vsl_per_month[[1]])
+    month_title = paste0(current_year_month, ": ", total_nc_vsl_per_month[[1]], " total nc vsls")
+
+    my_df %>%
+      filter(year_month == current_year_month) %>%
+      ggplot(aes(non_compl_weeks, percent_nc)) +
+      geom_col(fill = "lightblue") +
+      geom_text(aes(label = paste0(percent_nc, "%")),
+                position = position_dodge(width = 0.9)
+                # ,
+                # vjust = -0.5
+                ) +
+      theme(plot.title = element_text(size = 10),
+            axis.title = element_text(size = 9)
+            ) +
+      ylim(0, 100) +
+      labs(title = month_title,
+           # x = "",
+           x = "Num of nc weeks",
+           y = "") %>%
+      # TODO: axes text
+      return()
+  }
+
+make_year_permit_label <- function(curr_year_permit) {
+  curr_year_permit %>%
+    stringr::str_replace("_dual", " + dual") %>%
+    stringr::str_replace("_", " ") %>%
+    toupper() %>%
+    return()
+}
+
+make_one_plot_compl_vs_non_compl <-
+  function(my_df,
+           current_title = "",
+           is_compliant = "is_compliant",
+           percent = "percent",
+           no_legend = FALSE) {
+    # browser()
+    one_plot <-
+      my_df %>%
+      ggplot(aes(x = !!sym(is_compliant),
+                 y = !!sym(percent),
+                 fill = !!sym(is_compliant))) +
+      geom_col() +
+      # Add percent numbers on the bars
+      geom_text(aes(label =
+                      paste0(round(!!sym(percent), 1), "%")),
+                # in the middle of the bar
+                position = position_stack(vjust = 0.5)) +
+      # no x and y titles for individual plots
+      labs(title = current_title,
+           x = "",
+           y = "") +
+      scale_fill_manual(
+        # use custom colors
+        values =
+          c(
+            "compliant" = "lightgreen",
+            "non_compliant" = "red"
+          ),
+        # Legend title
+        name = "Is compliant?",
+        labels = c("Yes", "No")
+      ) +
+      # manual x axes ticks labels
+      scale_x_discrete(labels = c("Yes", "No")) +
+      # scale_y_continuous(limits = c(0, 100), labels = scales::percent)
+      # Y axes between 0 and 100
+      ylim(0, 100)
+    # +
+    # scale_y_continuous(labels = scales::label_percent(scale = 1))
+
+    # to use with grid arrange multiple plots
+    if (no_legend) {
+      one_plot <- one_plot +
+        theme(legend.position = "none")
+    }
+
+    return(one_plot)
+  }
+
+# percent buckets
+get_p_buckets <- function(my_df, field_name) {
+  my_df %>%
+    dplyr::mutate(
+      percent_n_compl_rank =
+        dplyr::case_when(
+          !!sym(field_name) < 25 ~ '0<= & <25%',
+          25 <= !!sym(field_name) &
+            !!sym(field_name) < 50 ~ '25<= & <50%',
+          50 <= !!sym(field_name) &
+            !!sym(field_name) < 75 ~ '50<= & <75%',
+          75 <= !!sym(field_name) ~ '75<= & <=100%'
+        )
+    ) %>%
+    return()
+}
+
+
+
+#### Current file: ~/R_code_github/quantify_compliance/get_data.R 
+
+# this file is called from quantify_compliance.R
+
+library(tictoc)
+
+project_dir_name <- "FHIER Compliance"
+
+# get data from csvs ----
+get_data_from_FHIER_csvs <- function() {
+  filenames = c(
+    "FHIER_Compliance_2022__05_31_2023.csv",
+    "FHIER_Compliance_2023__05_31_2023.csv"
+  )
+
+  # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\FHIER Compliance\05_31_2023\FHIER_Compliance_2023__05_31_2023.csv"
+
+  ## ---- get csv data into variables ----
+  csv_names_list <- prepare_csv_names(filenames)
+
+  # View(csv_names_list)
+  # read all csv files
+  csv_contents <- load_csv_names(my_paths, csv_names_list)
+  # browser()
+  # unify headers, trim vesselofficialnumber, just in case
+  csvs_clean1 <- clean_all_csvs(csv_contents)
+#  str(csvs_clean1)
+  # browser()
+  compl_clean <- compliance_cleaning(csvs_clean1)
+
+  return(compl_clean)
+}
+
+get_compliance_error_definitions <- function() {
+  err_desc_filenames = c(file.path(project_dir_name, "Compliance_Error_Types_03_29_2023.csv"))
+
+  err_desc_csv_contents <-
+    load_csv_names(my_paths, err_desc_filenames)
+
+  err_desc_clean_headers_csv_content <-
+    clean_headers(err_desc_csv_contents[[1]])
+  err_desc <-
+    change_to_dates(err_desc_clean_headers_csv_content,
+                    "last_updated",
+                    "%m/%d/%Y %I:%M:%S %p")
+
+  return(err_desc)
+}
+
+get_permit_data_from_PIMS_csv <- function() {
+  permit_names_list = r"(other\Permits_2023-03-29_1611_active.csv)"
+
+  active_permits_from_pims_raw <-
+    load_csv_names(my_paths, permit_names_list)
+  # View(active_permits_from_pims[[1]])
+  # glimpse(active_permits_from_pims_raw[[1]])
+
+  # clean_headers
+  active_permits_from_pims_temp1 <-
+    active_permits_from_pims_raw[[1]] %>%
+    clean_headers()
+
+  # separate columns
+  active_permits_from_pims_temp2 <-
+    active_permits_from_pims_temp1 %>%
+    separate_wider_delim(permit__,
+                         "-",
+                         names = c("permit_code", "permit_num"),
+                         too_many = "merge") %>%
+    separate_wider_regex(
+      cols = vessel_or_dealer,
+      patterns = c(
+        vessel_official_number = "[A-Za-z0-9]+",
+        " */* ",
+        vessel_name = "[A-Za-z0-9]+"
+      ),
+      too_few = "align_start"
+    )
+
+  # correct dates format
+
+  # get a list of field names ends with "_date"
+  ends_with_date_fields <-
+    grep("_date", names(active_permits_from_pims_temp2), value = TRUE)
+
+  # convert to date
+  active_permits_from_pims <-
+    change_fields_arr_to_dates(active_permits_from_pims_temp2,
+                               ends_with_date_fields,
+                               "%m/%d/%Y")
+
+  # test
+  active_permits_from_pims %>%
+    select(status_date) %>%
+    arrange(desc(status_date)) %>% unique() %>% head()
+  # correct
+  # str(active_permits_from_pims)
+
+  return(active_permits_from_pims)
+}
+
+get_data_from_csv <- function() {
+
+# uncomment to run
+compl_clean <- get_data_from_FHIER_csvs()
+# View(compl_clean)
+dim(compl_clean)
+# 208893     21
+
+## get compliance error definitions from csvs ----
+err_desc <- get_compliance_error_definitions()
+
+## get permit data from PIMS csv ----
+
+active_permits_from_pims <- get_permit_data_from_PIMS_csv()
+
+compl_clean1 <- additional_clean_up(compl_clean)
+
+return(compl_clean1)
+}
+
+additional_clean_up <- function(compl_clean) {
+
+  # ---- separate SA and GOM permits ----
+  compl_clean_sa_vs_gom <-
+    separate_permits_into_3_groups(compl_clean)
+
+  # View(compl_clean_sa_vs_gom)
+
+  # ---- add columns for month and quarter ----
+  compl_clean_sa_vs_gom_m <-
+    compl_clean_sa_vs_gom %>%
+    # add month
+    mutate(year_month = as.yearmon(week_start)) %>%
+    # add quarter
+    mutate(year_quarter = as.yearqtr(week_start))
+
+  # ---- convert report numbers to numeric ----
+  compl_clean_sa_vs_gom_m_int <-
+    compl_clean_sa_vs_gom_m %>%
+    mutate(
+      captainreports__ = as.integer(captainreports__),
+      negativereports__ = as.integer(negativereports__),
+      gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
+    )
+
+  # add year_permit column ----
+  compl_clean_sa_vs_gom_m_int_c <-
+    compl_clean_sa_vs_gom_m_int %>%
+    mutate(
+      year_permit =
+        case_when(
+          year == "2022" & (permit_sa_gom == "gom_only"
+                            | permit_sa_gom =="dual") ~
+            paste(year, "gom_dual"),
+          year == "2022" & permit_sa_gom == "sa_only" ~
+            paste(year, "sa_only"),
+          year == "2023" & (permit_sa_gom %in% c("sa_only", "dual")) ~
+            paste(year, "sa_dual")
+        )
+    )
+
+
+  return(compl_clean_sa_vs_gom_m_int_c)
+}
+
+# get data from db ----
+get_permit_data_from_db <- function() {
+  # run once
+  con <- connect_to_secpr()
+
+  permit_query <-
+    "SELECT DISTINCT
+  permit,
+  top,
+  permit_status,
+  vessel_id,
+  vessel_alt_num,
+  effective_date,
+  expiration_date,
+  end_date,
+  top_name
+FROM
+  srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  effective_date > TO_DATE('01-JAN-20')
+"
+
+  permit_db_data = ROracle::dbGetQuery(con,
+                                       permit_query)
+
+  ROracle::dbDisconnect(con)
+
+  return(permit_db_data)
+}
+
+get_compl_err_data_from_db <- function() {
+  # run once
+  con <- connect_to_secpr()
+
+  compl_err_query <-
+    "SELECT
+  *
+FROM
+       srh.srfh_vessel_comp_err@secapxdv_dblk.sfsc.noaa.gov
+  INNER JOIN srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
+  USING ( srh_vessel_comp_id )
+WHERE
+  comp_year > '2021'
+"
+# common fields
+#   SRH_VESSEL_COMP_ID
+# CREATED_DT
+# CREATED_USER_ID
+# LU_DT
+# LU_USER_ID
+
+    compl_err_db_data_0 = ROracle::dbGetQuery(con,
+                                       compl_err_query)
+
+    compl_err_db_data_1 <-
+      compl_err_db_data_0 %>%
+      # remove duplicated columns
+      select(-c(CREATED_DT,
+                CREATED_USER_ID,
+                LU_DT,
+                LU_USER_ID))
+
+  ROracle::dbDisconnect(con)
+
+  return(compl_err_db_data_1)
+}
+
+get_data_from_db <- function() {
+
+## get permit data from db ----
+# to run
+permit_db_data <- get_permit_data_from_db()
+
+# str(permit_db_data)
+# 37187
+# old csv 23888
+
+# get compliance err data from db ----
+
+# uses an inner_join, keeps only entries with compl errors.
+# To get all use FULL OUTER JOIN
+
+tic("get_compl_err_data_from_db()")
+compl_err_db_data_raw <- get_compl_err_data_from_db()
+toc()
+
+# get_compl_err_data_from_db(): 47.5 sec elapsed
+# get_compl_err_data_from_db(): 22.23 sec elapsed
+
+# test for unique() fields
+all_names_len <- names(compl_err_db_data_raw) %>% length()
+uniq_names_len <-
+  names(compl_err_db_data_raw) %>% unique() %>% length()
+identical(all_names_len, uniq_names_len)
+
+# names(compl_err_db_data_raw) %>%
+  # unique() %>%
+#   # 42
+  # 38
+  # length()
+# 46
+# 38
+
+compl_err_db_data <- clean_headers(compl_err_db_data_raw)
+names(compl_err_db_data)
+
+# dim(compl_err_db_data)
+# [1] 87925    15
+# [1] 44662    38 2021+
+
+# override comments ----
+compl_err_db_data_raw %>% select(OVERRIDE_CMT, COMP_OVERRIDE_CMT) %>% unique()
+}
+
+if (exists("get_data_from_param")) {
+  if (get_data_from_param == "db") {
+    get_data_from_db()
+  }
+} else {
+  compl_clean_sa_vs_gom_m_int <- get_data_from_csv()
+}
+
+
+#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R 
+
 # Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
 
 # Michelle Masi
