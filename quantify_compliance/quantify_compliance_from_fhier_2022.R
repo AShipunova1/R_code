@@ -1370,21 +1370,33 @@ in_a_only <-
 head(in_j_only)
 # [1] "1000051" "1020792" "1021103" "1035832" "1041705" "1041927"
 
-compl_clean_sa_vs_gom_m_int %>%
+in_a_and_j_dual <-
+  compl_clean_sa_vs_gom_m_int %>%
   filter(year == "2022") %>% 
   filter(vessel_official_number %in% in_j_only) %>% 
   select(vessel_official_number, permitgroup) %>% 
-  unique() %>% 
-  # dim()
+  unique()
+
+# dim(in_a_and_j_dual)
   # 74
-  # View()
+# View(in_a_and_j_dual)
+in_a_and_j_dual %>% 
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup, ignore.case = T))
-# ->
-#   in_j_only_sa
+# 0
 
 # 74 out of 2205 had dual permits
 
-# 137 - 74 = 63 why not in a?
+## 137 - 74 = 63 why not in a? ----
+setdiff(as.data.frame(in_j_only),
+        in_a_and_j_dual$vessel_official_number)
+
+grep("FL5722SJ", in_a_and_j_dual$vessel_official_number, 
+     ignore.case = T)
+# T
+
+grep("FL5722SJ", in_j_only, 
+     ignore.case = T)
+T
 
 ## Search for in_a_only in j ----
 
