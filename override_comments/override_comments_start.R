@@ -43,64 +43,43 @@ vesl_override_cmts <-
 
 override_cmts_data_sep_cmts <-
   override_cmts_data %>%
-  mutate(vesl_comment = case_when(
+  mutate(comment_group = case_when(
     grepl("vesl", COMP_OVERRIDE_CMT,
-          ignore.case = T) ~ COMP_OVERRIDE_CMT,
-    .default = ""
-  )) %>%
-  mutate(etrips_comment = case_when(
+          ignore.case = T) ~ "vesl_comment",
     grepl("ETRIPS", COMP_OVERRIDE_CMT,
-          ignore.case = T) ~ COMP_OVERRIDE_CMT,
-    .default = ""
-  )) %>%
-  mutate(scdnr_comment = case_when(
+          ignore.case = T) ~ "etrips_comment",
     grepl("SCDNR", COMP_OVERRIDE_CMT,
-          ignore.case = T) ~ COMP_OVERRIDE_CMT,
-    .default = ""
-  )) %>%
-  mutate(safis_comment = case_when(
+          ignore.case = T) ~ "scdnr_comment",
     grepl("SAFIS", COMP_OVERRIDE_CMT,
-          ignore.case = T) ~ COMP_OVERRIDE_CMT,
-    .default = ""
-  )) %>%
-  mutate(submitted_comment = case_when(
-    grepl("SUBMITTED", COMP_OVERRIDE_CMT,
-          ignore.case = T) ~ COMP_OVERRIDE_CMT,
-    .default = ""
-  )) %>%
-  mutate(gom_comment = case_when(
+          ignore.case = T) ~ "safis_comment",
+    grepl("VMS", COMP_OVERRIDE_CMT,
+          ignore.case = T) ~ "vms_comment",
+    grepl("submitted_comment", COMP_OVERRIDE_CMT,
+          ignore.case = T) ~ "submitted_comment",
     grepl("dual|gom|feb 23|lawsuit", COMP_OVERRIDE_CMT,
-          ignore.case = T) ~ COMP_OVERRIDE_CMT,
-    .default = ""
-  )) %>%
-  mutate(cancel_comment = case_when(
+          ignore.case = T) ~ "gom_comment",
     grepl("CANCELED|CANCELLED", COMP_OVERRIDE_CMT,
-          ignore.case = T) ~ COMP_OVERRIDE_CMT,
+          ignore.case = T) ~ "cancel_comment",
     .default = ""
-  )) %>%
-  arrange(desc(COMP_WEEK_END_DT)) %>% 
-  filter(vesl_comment == "" & 
-           etrips_comment == "" &
-           scdnr_comment == "" &
-           safis_comment == "" &
-           submitted_comment == "" &
-           gom_comment == "" &
-           cancel_comment == "") 
-# before gom_comment 2,932 entries
+  )) 
 
-override_cmts_data_sep_cmts %>% 
+override_cmts_data_sep_cmts_other <-
+  override_cmts_data_sep_cmts %>% 
+  arrange(desc(COMP_WEEK_END_DT)) %>% 
+  filter(comment_group == "")
+
+override_cmts_data_sep_cmts_other %>% 
   select(COMP_OVERRIDE_CMT, COMP_WEEK_END_DT) %>% 
   View()
 
-override_cmts_data_sep_cmts %>%
+override_cmts_data_sep_cmts_other %>%
   # count(COMP_OVERRIDE_CMT, COMP_YEAR) %>% View()
   filter(COMP_YEAR > "2021") %>%
   count(COMP_OVERRIDE_CMT) %>%
   filter(n > 1) %>%
   View()
-# 303 
 
-grep("PUSHED", override_cmts_data_sep_cmts$COMP_OVERRIDE_CMT,
+grep("PUSHED", override_cmts_data_sep_cmts_other$COMP_OVERRIDE_CMT,
           ignore.case = T, value = T) %>%
   # 35
   unique()
@@ -111,3 +90,11 @@ grep("PUSHED", override_cmts_data_sep_cmts$COMP_OVERRIDE_CMT,
 # [5] "LOGBOOK WITH HMS SPECIES, NOT PUSHED TO SRFH."               
 # [6] "LOGBOOKS WITH HMS SPECIES, NOT PUSHED TO SRFH"               
 # [7] "NO FISHING REPORTS NOT PUSHED TO SRFH"                       
+
+
+grep("VMS", override_cmts_data_sep_cmts_other$COMP_OVERRIDE_CMT,
+          ignore.case = T, value = T) %>% 
+  # length()
+  # 77
+  unique() %>% as.data.frame() %>% 
+  View()
