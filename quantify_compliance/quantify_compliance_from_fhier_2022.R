@@ -1,4 +1,11 @@
-# get_data_from_param <- "csv"
+# Quantify compliance
+# Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
+
+# Michelle Masi
+# Some caveats I have run into, in trying to quantify - are that folks may be missing 1 of 100 reports (e.g.) and that makes them non-compliant at the time you pull the compliance report data
+# proportion of trip_submitted
+# 2022 - 90% compliance, but what about # of reports
+
 # 2022
 # dual + GOM vs. SA
 # 2023
@@ -12,9 +19,7 @@ compl_clean_sa_vs_gom_m_int_filtered <-
   compl_clean_sa_vs_gom_m_int %>%
   filter(!(year == '2023' & permit_sa_gom == "gom_only"))
 
-# View(compl_clean_sa_vs_gom_m_int_c)
-
-# save vsl count ----
+# save vsl count for future checks ----
 
 count_all_vessels <-
   compl_clean_sa_vs_gom_m_int %>%
@@ -54,16 +59,19 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 #  YES        2023 sa_dual   2125
 
 # by Year: ----
-# year add total ----
+## year add total ----
+# (both compl. and not, a vsl can be in both)
 
 compl_clean_sa_vs_gom_m_int_filtered_tot <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
-  group_by(year_permit) %>%
-  mutate(total_vsl_y = n_distinct(vessel_official_number)) %>%
-  ungroup()
+  # group by per year and permit
+  dplyr::group_by(year_permit) %>%
+  # cnt distinct vessels in each group
+  dplyr::mutate(total_vsl_y = 
+                  dplyr::n_distinct(vessel_official_number)) %>%
+  dplyr::ungroup()
 
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot)
-
+# check
 compl_clean_sa_vs_gom_m_int_filtered_tot %>%
   select(year_permit, total_vsl_y) %>%
   unique()
@@ -79,35 +87,37 @@ end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y <-
   compl_clean_sa_vs_gom_m_int_filtered_tot %>%
-  mutate(exp_w_end_diff_y =
+  # get difference in days
+  dplyr::mutate(exp_w_end_diff_y =
            as.numeric(as.Date(permitgroupexpiration) -
                         end_of_2022)) %>%
-  mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+  # create a column 
+  dplyr::mutate(perm_exp_y =
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active"))
 
 ## count expiration by year, permit ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y %>%
-  group_by(year_permit, perm_exp_y) %>%
-  mutate(exp_y_tot_cnt = n_distinct(vessel_official_number))
+  dplyr::group_by(year_permit, perm_exp_y) %>%
+  # count distinct vessels per group
+  dplyr::mutate(exp_y_tot_cnt = n_distinct(vessel_official_number))
 
 # fewer fields ----
-# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y)
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          year_permit,
          compliant_,
          total_vsl_y,
          perm_exp_y,
          exp_y_tot_cnt) %>%
+  # can uniq, because already counted
   unique()
 
-# get compl_counts ----
-## get compl, no compl, or both per year ----
+## get compl_counts ----
+### get compl, no compl, or both per year ----
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short)
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short %>%
   # group_by everything but
