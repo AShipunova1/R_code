@@ -91,10 +91,3 @@ grep("PUSHED", override_cmts_data_sep_cmts_other$COMP_OVERRIDE_CMT,
 # [6] "LOGBOOKS WITH HMS SPECIES, NOT PUSHED TO SRFH"               
 # [7] "NO FISHING REPORTS NOT PUSHED TO SRFH"                       
 
-
-grep("VMS", override_cmts_data_sep_cmts_other$COMP_OVERRIDE_CMT,
-          ignore.case = T, value = T) %>% 
-  # length()
-  # 77
-  unique() %>% as.data.frame() %>% 
-  View()
