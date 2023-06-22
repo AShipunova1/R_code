@@ -1421,3 +1421,15 @@ vessels_per_permit_from_j_vsl %>%
   unique() %>%
   dim()
 # 0
+
+paste0(in_a_only, collapse = ", ")
+# 8 of them are dual
+
+# get all compliance count from fhier reports for 2022
+all_permits_from_fier_file_name <- r"(my_inputs\quantify_compliance\Vessel Compliance Count Details.csv)"
+
+all_permits_from_fier <-
+  readr::read_csv(all_permits_from_fier_file_name) %>% 
+  clean_headers()
+# Rows: 3528 Columns: 4                                                                             
+print_df_names(all_permits_from_fier)
