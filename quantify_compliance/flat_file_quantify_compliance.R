@@ -1,25 +1,30 @@
-# Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
-
-# Michelle Masi
-# Some caveats I have run into, in trying to quantify - are that folks may be missing 1 of 100 reports (e.g.) and that makes them non-compliant at the time you pull the compliance report data
-# proportion of trip_submitted
-# 2022 - 90% compliance, but what about # of reports
-
-# 2022
-# dual + GOM vs. SA
-# 2023
-# dual + SA
 
 
-#### Current file: ~/R_code_github/useful_functions_module.r ----
+#### Current file: ~/R_code_github/useful_functions_module.r 
 
 # nolint: commented_code_linter
 # useful functions
+
+##--- start functions ---
+# How to use:
+# my_paths <- set_work_dir()
+# csv_names_list = list("report1.csv", "report2.csv")
+# xls_names_list = list("report1a.xls", "report2a.xls")
+# csv_content_1 <- load_csv_names(my_paths, csv_names_list)[[1]]
+# xls_content_1 <- load_xls_names(my_paths, xls_names_list, sheet_num = 2)[[1]]
+
+## get csv data into variables
+# temp_var <- get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23)
+# compl_clean <- temp_var[[1]]
+# corresp_contact_cnts_clean <- temp_var[[2]]
+
+#---
 
 #install.packages("tidyverse")
 library(tidyverse)
 library(magrittr)
 library(readxl)  # reading in .xlsx
+library(rbenchmark)
 library(ROracle)
 
 # Do not show warnings about groups
@@ -58,11 +63,14 @@ set_work_dir <- function() {
   out_dir <- "Outputs"
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
 
+  # git_r_dir <- "R_code_github"
+  # full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
   setwd(file.path(base_dir, main_r_dir))
 
   my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir)
-                   
+                   "outputs" = full_path_to_out_dir) #,
+                   #"git_r" = full_path_to_r_git_dir)
   return(my_paths)
 }
 
@@ -421,6 +429,39 @@ cat_filter_for_fhier <- function(my_characters) {
                        "cat_out.txt"))
 }
 
+#
+# benchmarking to insert inside a function
+# browser()
+# time_for_appl <<- benchmark(replications=rep(10, 3),
+                            # lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
+                            # sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
+                            # ,
+                            # columns = c('test', 'elapsed', 'relative')
+# )
+
+# write.csv(time_for_appl, "time_for_appl.csv")
+
+# or
+# browser()
+# sappl_exp <- function(){
+#   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
+# }
+#
+# map_exp <- function(){
+#   my_fun <- function(x) length(unique(x))
+#   map_df(my_df, my_fun)
+# }
+#
+# time_for_appl <<- benchmark(replications=rep(10^7, 3),
+#                             exp1,
+#                             exp2,
+#                             columns = c('test', 'elapsed', 'relative')
+# )
+#
+# map_df(my_df, function(x) length(unique(x)))
+# to compare:
+# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+
 connect_to_secpr <- function() {
   # usage:
   # con <- connect_to_secpr()
@@ -475,7 +516,6 @@ legend_for_grid_arrange <- function(legend_plot) {
 make_a_flat_file <- 
   function(flat_file_name,
            files_to_combine_list) {
-    # browser()
     # write to file
     sink(flat_file_name)
     
@@ -500,7 +540,71 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
 }
 
 
-#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_functions.R ----
+#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_functions.R 
+
+# quantify_compliance_functions
+
+get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
+  # browser()
+    my_df %>%
+    # how many non_compliant weeks per vessel this month
+    count(year_month, !!sym(vessel_id_col_name),
+          name = "nc_weeks_per_vessl_m") %>%
+    # nc weeks per month
+    count(year_month, nc_weeks_per_vessl_m,
+          name = "occurence_in_month") %>%
+    # turn amount of nc weeks into headers, to have one row per year_month
+    pivot_wider(names_from = nc_weeks_per_vessl_m,
+                # number of vessels
+                values_from = occurence_in_month,
+                values_fill = 0) %>%
+    # sum nc by month to get Total
+    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    # turn to have num of weeks per month in a row
+    pivot_longer(-c(year_month, total_nc_vsl_per_month),
+                 names_to = "non_compl_weeks",
+                 values_to = "non_compl_in_month") %>%
+    # count percentage
+    mutate(percent_nc = round(
+      100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
+      digits = 2
+    )) %>%
+    return()
+}
+
+perc_plots_by_month <-
+  function(my_df, current_year_month) {
+    # browser()
+    # month_title = current_year_month
+    total_nc_vsl_per_month <-
+      my_df %>%
+      filter(year_month == current_year_month) %>%
+      select(total_nc_vsl_per_month) %>%
+      unique()
+
+    # month_title = paste0(current_year_month, " Total non-compliant vessels: ", total_nc_vsl_per_month[[1]])
+    month_title = paste0(current_year_month, ": ", total_nc_vsl_per_month[[1]], " total nc vsls")
+
+    my_df %>%
+      filter(year_month == current_year_month) %>%
+      ggplot(aes(non_compl_weeks, percent_nc)) +
+      geom_col(fill = "lightblue") +
+      geom_text(aes(label = paste0(percent_nc, "%")),
+                position = position_dodge(width = 0.9)
+                # ,
+                # vjust = -0.5
+                ) +
+      theme(plot.title = element_text(size = 10),
+            axis.title = element_text(size = 9)
+            ) +
+      ylim(0, 100) +
+      labs(title = month_title,
+           # x = "",
+           x = "Num of nc weeks",
+           y = "") %>%
+      # TODO: axes text
+      return()
+  }
 
 make_year_permit_label <- function(curr_year_permit) {
   curr_year_permit %>%
@@ -577,9 +681,12 @@ get_p_buckets <- function(my_df, field_name) {
     return()
 }
 
-#### Current file: ~/R_code_github/quantify_compliance/get_data.R ----
 
-# benchmarking
+
+#### Current file: ~/R_code_github/quantify_compliance/get_data.R 
+
+# this file is called from quantify_compliance.R
+
 library(tictoc)
 
 project_dir_name <- "FHIER Compliance"
@@ -865,12 +972,21 @@ if (exists("get_data_from_param")) {
 }
 
 
-#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R ----
+#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R 
 
-# dates
-library(zoo)
-# additional functions for plots
+# Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
+
+# Michelle Masi
+# Some caveats I have run into, in trying to quantify - are that folks may be missing 1 of 100 reports (e.g.) and that makes them non-compliant at the time you pull the compliance report data
+# proportion of trip_submitted
+# 2022 - 90% compliance, but what about # of reports
+
+# 2022
+# dual + GOM vs. SA
+# 2023
+# dual + SA
 library(grid)
+library(zoo)
 library(gridExtra)
 library(cowplot)
 
