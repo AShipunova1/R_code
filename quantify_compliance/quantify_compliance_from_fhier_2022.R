@@ -346,16 +346,13 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
 title_permits <- data.frame(
   title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
   year_permit = c("2022 sa_only",
-                   "2022 gom_dual",
-                   "2023 sa_dual")
+                  "2022 gom_dual",
+                  "2023 sa_dual"),
+  second_part = c("Permitted Vessels",
+                  "Permitted Vessels",
+                  "Permitted SEFHIER Vessels")
 )
 
-# title_permits_2022 <- data.frame(
-#   title = c("SA Only", "GOM + Dual"),
-#   year_permit = c("2022 sa_only",
-#                    "2022 gom_dual",
-#                    )
-# )
 
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
@@ -388,18 +385,20 @@ gg_all_c_vs_nc_plots <-
   
     curr_title_permit <- 
       title_permits %>% 
-      filter(year_permit == curr_year_permit) %>% 
-      select(title)
+      filter(year_permit == curr_year_permit)
     
     current_title <-
-      paste0(curr_title_permit$title,
-        " Permitted Vessels (Total Permitted: ",
+      paste0(
+        curr_title_permit$title,
+        " ",
+        curr_title_permit$second_part,
+        " (Total Permitted: ",
         total_vsls,
-        "; Expired Permits: ", 
+        "; Expired Permits: ",
         expired_permits$cnt_y_p_e,
         ")"
       )
-
+    
     one_plot <-
       curr_df %>%
       dplyr::select(compl_or_not, perc_c_nc) %>%
