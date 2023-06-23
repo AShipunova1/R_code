@@ -1463,6 +1463,7 @@ in_a_and_not_in_compl_counts %>%
   dim()
 # 102
 
+glimpse(in_a_and_not_in_compl_counts)
 # SC5388DG not in count compl
 # in_a_and_not_in_compl_counts %>% 
 #   select(permitgroup) %>%
@@ -1474,3 +1475,5 @@ in_a_and_not_in_compl_counts %>%
 #   unique() %>%
 #   count(week_end) %>% 
 #   View()
+
+# Difference between FHIER Compliance report and compliance counts
