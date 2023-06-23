@@ -343,6 +343,13 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
 
 ## red/green plots for compl vs. non compl vessels per year ----
 
+title_permits <- data.frame(
+  titles = c("SA Only", "GOM + Dual", "SA + Dual"),
+  year_permits = c("2022 sa_only",
+                   "2022 gom_dual",
+                   "2023 sa_dual")
+)
+
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
@@ -369,17 +376,32 @@ gg_all_c_vs_nc_plots <-
       dplyr::select(cnt_y_p_e) %>%
       unique()
     
+# 1st figure title: "SA Only Permitted Vessels (Total Permitted: 2178; Expired Permits: 472)"
+# 2nd figure title: "GOM + Dual Permitted Vessels (Total Permitted: 1495; Expired Permits: 303)"
+  
+    curr_title_permit <- 
+      title_permits %>% 
+      filter(year_permits == curr_year_permit) %>% 
+      select(titles)
+    
     current_title <-
-      paste0(
-        y_r_title,
-        " permitted (Total vsls: ",
+      paste0(curr_title_permit$titles,
+        " Permitted Vessels (Total Permitted: ",
         total_vsls,
-        "; Active permits: ",
-        active_permits$cnt_y_p_e,
-        "; Expired permits: ",
+        "; Expired Permits: ", 
         expired_permits$cnt_y_p_e,
         ")"
       )
+      # paste0(
+      #   y_r_title,
+      #   " Permitted (Total vsls: ",
+      #   total_vsls,
+      #   "; Active permits: ",
+      #   active_permits$cnt_y_p_e,
+      #   "; Expired permits: ",
+      #   expired_permits$cnt_y_p_e,
+      #   ")"
+      # )
     
     one_plot <-
       curr_df %>%
@@ -397,7 +419,7 @@ gg_all_c_vs_nc_plots <-
 # 2023 plot
 gg_all_c_vs_nc_plots[[3]]
 
-main_title = "Percent unique compliant vs. non compliant vessels for 2022"
+main_title = "2022: Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
 # combine plots for 2022
 grid.arrange(gg_all_c_vs_nc_plots[[1]],
