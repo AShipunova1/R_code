@@ -195,6 +195,7 @@ corresp_contact_cnts_clean <-
 
 data_overview(corresp_contact_cnts_clean)
 # vesselofficial_number   3223
+# vessel_official_number  3371
 
 ## ---- direct_contact ----
 ## ---- 1) all are voicemails ----
@@ -215,6 +216,7 @@ all_vm_ids <- get_all_voicemails_id(corresp_contact_cnts_clean)
 str(all_vm_ids)
 # 284
 # 27: 222
+# 134
 
 # field_name into a var
 contactcomments_field_name <-
@@ -293,7 +295,8 @@ calls_with_direct_communication <-
 dim(calls_with_direct_communication)
 # [1] 12584    23
 # 27: [1] 10062    23
-# 
+# [1] 10475    23
+
 # str(calls_with_direct_communication)
 
 ## ---- 2) in and out emails ----
@@ -346,11 +349,13 @@ data_overview(corresp_contact_cnts_clean) %>% head(1)
 # vesselofficialnumber  3450
 # 3571
 # 27: vesselofficial_number 3223
+# vesselofficial_number 3371
+
 data_overview(both_in_n_out_2_plus_emails)  %>% head(1)
 # vesselofficialnumber  147
 # 173
 # 27: 246
-
+# 461
 # group_by_arr <- c("vessel_official_number", "calltype")
 # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) %>% glimpse()
 
@@ -363,11 +368,12 @@ data_overview(to_investigation_to_NEIS) %>% head(1)
 # vesselofficialnumber  3070
 # 3170
 # 27: vesselofficial_number 2843
-
+# 3034
 # names(to_investigation_to_NEIS)
 dim(to_investigation_to_NEIS)
 # [1] 14401    23
 # 27: [1] 12192    23
+# [1] 14463    23
 
 # str(to_investigation_to_NEIS)
 # View(to_investigation_to_NEIS)
@@ -390,14 +396,16 @@ inner_join(
   compl_corr_to_investigation
 
 # to_investigation_to_NEIS[15,] FL3262PM
-# compl_w_non_compliant_weeks %>%
-#   filter(vessel_official_number == "FL3262PM")
+compl_w_non_compliant_weeks %>%
+  filter(vessel_official_number == "FL3262PM") %>% 
+  View()
 
 dim(compl_corr_to_investigation)
 # [1] 16081    44
 # 27: 11151
+# 18093    45
 
-str(compl_corr_to_investigation)
+# str(compl_corr_to_investigation)
 # compl_corr_to_investigation %>%
 #   head() %>%
 #   select(grep("official", names(compl_corr_to_investigation), value = T))
@@ -406,11 +414,13 @@ str(compl_corr_to_investigation)
 count_uniq_by_column(compl_clean_sa_non_compl) %>% head(1)
 # 1785
 # 27: 1969
+# vessel_official_number 1573
 
 count_uniq_by_column(compl_corr_to_investigation) %>% head(1)
 # 110
 # 107
 # 27: 177
+# vesselofficial_number 188
 
 ## ---- output needed investigation ----
 # 1) create additional columns
@@ -454,6 +464,7 @@ dim(date__contacttype_per_id)
 # [1] 110    2
 # 107
 # 27: 177
+# 188   2
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
@@ -489,7 +500,9 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
 dim(compl_corr_to_investigation_short)
 # [1] 107   9
 # 27: [1] 177  10
-str(compl_corr_to_investigation_short)
+# 188  10
+
+# str(compl_corr_to_investigation_short)
 
 ## ---- 3) remove vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases. 
@@ -509,15 +522,18 @@ compl_corr_to_investigation_short1 <-
 dim(compl_corr_to_investigation_short1)
 # 102
 # 27: 164
+# 177
 
 ## check
 length(unique(compl_corr_to_investigation_short1$vessel_official_number))
 # 107
 # 102
 # 27: 164
+# 177
 
 data_overview(compl_corr_to_investigation_short1) %>% head(1)
 # vessel_official_number 164
+# 177
 
 compl_corr_to_investigation_short_output <-
 compl_corr_to_investigation_short1 %>%
@@ -525,8 +541,9 @@ compl_corr_to_investigation_short1 %>%
 
 dim(compl_corr_to_investigation_short_output)
 # [1] 146  10
+# 134
 
-# View(compl_corr_to_investigation_short_output)
+View(compl_corr_to_investigation_short_output)
 # test compl_corr_to_investigation_short_output non compliant weeks number ----
 week_start_1 <-
   compl_corr_to_investigation_short_output %>%
@@ -539,7 +556,7 @@ dim(week_start_1)[[1]] == 0
 # TRUE
 
 # output ----
-write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_plus_weeks_04_05_2023.csv"), row.names = FALSE)
+write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_plus_weeks_06_22_2023.csv"), row.names = FALSE)
 
 ## ---- who needs an email ----
 source(file.path(current_project_path, "need_an_email.R"))
@@ -558,8 +575,9 @@ no_compl_info <-
     corresp_contact_cnts_clean$vessel_official_number,
     compl_clean$vessel_official_number
   )
-# %>% length()
-#398
+length(no_compl_info)
+# 398
+# 136
 # Not in compliance info!
 
 # grep("1131132", compl_clean$vessel_official_number)
