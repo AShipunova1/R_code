@@ -1,6 +1,6 @@
 
 
-#### Current file: ~/R_code_github/useful_functions_module.r 
+#### Current file: ~/R_code_github/useful_functions_module.r ----
 
 # nolint: commented_code_linter
 # useful functions
@@ -540,7 +540,7 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
 }
 
 
-#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_functions.R 
+#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_functions.R ----
 
 # quantify_compliance_functions
 
@@ -683,7 +683,7 @@ get_p_buckets <- function(my_df, field_name) {
 
 
 
-#### Current file: ~/R_code_github/quantify_compliance/get_data.R 
+#### Current file: ~/R_code_github/quantify_compliance/get_data.R ----
 
 # this file is called from quantify_compliance.R
 
@@ -972,7 +972,7 @@ if (exists("get_data_from_param")) {
 }
 
 
-#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R 
+#### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R ----
 
 # Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
 
@@ -1319,6 +1319,17 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
 
 ## red/green plots for compl vs. non compl vessels per year ----
 
+title_permits <- data.frame(
+  title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
+  year_permit = c("2022 sa_only",
+                  "2022 gom_dual",
+                  "2023 sa_dual"),
+  second_part = c("Permitted Vessels",
+                  "Permitted Vessels",
+                  "Permitted SEFHIER Vessels")
+)
+
+
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
@@ -1345,14 +1356,21 @@ gg_all_c_vs_nc_plots <-
       dplyr::select(cnt_y_p_e) %>%
       unique()
     
+# 1st figure title: "SA Only Permitted Vessels (Total Permitted: 2178; Expired Permits: 472)"
+# 2nd figure title: "GOM + Dual Permitted Vessels (Total Permitted: 1495; Expired Permits: 303)"
+  
+    curr_title_permit <- 
+      title_permits %>% 
+      filter(year_permit == curr_year_permit)
+    
     current_title <-
       paste0(
-        y_r_title,
-        " permitted (Total vsls: ",
+        curr_title_permit$title,
+        " ",
+        curr_title_permit$second_part,
+        " (Total Permitted: ",
         total_vsls,
-        "; Active permits: ",
-        active_permits$cnt_y_p_e,
-        "; Expired permits: ",
+        "; Expired Permits: ",
         expired_permits$cnt_y_p_e,
         ")"
       )
@@ -1373,7 +1391,7 @@ gg_all_c_vs_nc_plots <-
 # 2023 plot
 gg_all_c_vs_nc_plots[[3]]
 
-main_title = "Percent unique compliant vs. non compliant vessels for 2022"
+main_title = "2022: Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
 # combine plots for 2022
 grid.arrange(gg_all_c_vs_nc_plots[[1]],
@@ -1579,11 +1597,30 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
 # 3 50<= & <75%                         6.59
 # 4 75<= & <=100%                      49.1
 
-# 5) plots ----
+# 5) blue plots by year ----
 
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc)
 
 # print_df_names(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc)
+
+# "2022: % Non-Compliant GOM + Dual Permitted Vessels Missing >25%, <=25-49.9%, <=50-74.9%, <75% of their reports"
+# [subtitle this]  "(Total Non-Compliant = 304 Vessels; Active Permits = 1192 Vessels)"
+# "2022: % Non-Compliant SA Only Permitted Vessels Missing >25%, <=25-49.9%, <=50-74.9%, <75% of their reports"
+# [subtitle this] "(Total Non-Compliant = 1289 Vessels; Active Permits = 1707 Vessels)"
+# For plot 4:
+# "2023: SA + Dual Permitted SEFHIER Vessels (Total Permitted: 2235 ; Total Noncompliant: 1628; Expired Permits: 1)"
+
+blue_year_plot_titles <-
+  data.frame(
+    year_permit = c("2022 sa_only",
+                    "2022 gom_dual",
+                    "2023 sa_dual"),
+    first_part = c(
+      "SA Only Permitted Vessels\n(",
+      "GOM + Dual Permitted Vessels\n(",
+      "2023: SA + Dual Permitted SEFHIER Vessels\n(Total Permitted = 2235 Vessels; "
+    )
+  )
 
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
@@ -1614,17 +1651,21 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
     
     # See the function definition F2
     curr_title_y_p <- make_year_permit_label(curr_year_permit)
+
+    curr_blue_year_plot_title <-
+      blue_year_plot_titles %>% 
+      filter(year_permit == curr_year_permit)
     
     y_p_title <-
       paste0(
-        curr_title_y_p,
-        " (Total non compliant vessels: ",
+        curr_blue_year_plot_title$first_part,
+        "Total Non-Compliant = ",
         total_non_compl_df$vsls_per_y_r,
-        "; Acitve permits: ",
+        " Vessels; Acitve permits = ",
         active_permits$exp_y_tot_cnt,
-        "; Expired permits: ",
-        expired_permits$exp_y_tot_cnt,
-        ")"
+        # "; Expired permits: ",
+        # expired_permits$exp_y_tot_cnt,
+        " Vessels)"
       )
     
     one_plot <-
@@ -1639,9 +1680,10 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
       geom_text(aes(label = perc_labels),
                 position = position_stack(vjust = 0.5)) +
       # y axes 0 to 100
-      ylim(0, 100)
-    
-    # "% of missing reports for non-compliant vessels"
+      ylim(0, 100) +
+      # size of an individual plot's title
+      theme(plot.title = 
+              element_text(size = 12))
     
     return(one_plot)
   })
@@ -1649,8 +1691,10 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]]
 
 ## plot 2022 ----
-
-super_title = "% of non-compliant vessels by permit (2022)"
+ndash <- "\u2013"
+super_title = paste0(
+  "2022: % Non-Compliant Vessels Missing <25%, 25%", ndash, "49.9%, 50%", ndash, "74.9%, >=75% of their reports"
+)
 
 # footnote = textGrob(
 #   "X axes is % of missing reports for non-compliant vessels",
@@ -1664,7 +1708,7 @@ super_title = "% of non-compliant vessels by permit (2022)"
 # )
 
 ### common y axes ----
-yleft <- textGrob("% per permit", 
+yleft <- textGrob("% per permit region", 
                   # rotate
                   rot = 90, 
                   gp = gpar(fontsize = 10))
