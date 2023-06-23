@@ -4,14 +4,14 @@ library(tictoc)
 
 project_dir_name <- "FHIER Compliance"
 
+# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
+
 # get data from csvs ----
 get_data_from_FHIER_csvs <- function() {
   filenames = c(
     "FHIER_Compliance_2022__05_31_2023.csv",
     "FHIER_Compliance_2023__05_31_2023.csv"
   )
-
-  # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\FHIER Compliance\05_31_2023\FHIER_Compliance_2023__05_31_2023.csv"
 
   ## ---- get csv data into variables ----
   csv_names_list <- prepare_csv_names(filenames)

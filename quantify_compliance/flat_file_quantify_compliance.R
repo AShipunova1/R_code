@@ -1,5 +1,3 @@
-
-
 #### Current file: ~/R_code_github/useful_functions_module.r ----
 
 # nolint: commented_code_linter
@@ -685,10 +683,9 @@ get_p_buckets <- function(my_df, field_name) {
 
 #### Current file: ~/R_code_github/quantify_compliance/get_data.R ----
 
-# this file is called from quantify_compliance.R
-
 library(tictoc)
 
+# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
 project_dir_name <- "FHIER Compliance"
 
 # get data from csvs ----
@@ -697,8 +694,6 @@ get_data_from_FHIER_csvs <- function() {
     "FHIER_Compliance_2022__05_31_2023.csv",
     "FHIER_Compliance_2023__05_31_2023.csv"
   )
-
-  # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\FHIER Compliance\05_31_2023\FHIER_Compliance_2023__05_31_2023.csv"
 
   ## ---- get csv data into variables ----
   csv_names_list <- prepare_csv_names(filenames)
@@ -1762,9 +1757,9 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
 # 6 2022 sa_only  Dec 2022          1657
 # numbers are as before, ok
 
-## add the difference between expiration and week_end ----
+## add the difference between expiration and week_start ----
 
-# If we use a week_end, than a vessel which ends near the end of year will have its last week expired.
+# If we use a week_end, then a vessel which ends near the end of year will have its last week expired.
 compl_clean_sa_vs_gom_m_int_c_exp_diff <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
   # add a column with difference in days

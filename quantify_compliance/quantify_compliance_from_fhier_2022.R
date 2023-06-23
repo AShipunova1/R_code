@@ -786,7 +786,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
 # 6 2022 sa_only  Dec 2022          1657
 # numbers are as before, ok
 
-## add the difference between expiration and week_end ----
+## add the difference between expiration and week_start----
 
 # If we use a week_end, than a vessel which ends near the end of year will have its last week expired.
 compl_clean_sa_vs_gom_m_int_c_exp_diff <-
