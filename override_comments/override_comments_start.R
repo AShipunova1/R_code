@@ -60,8 +60,14 @@ override_cmts_data_sep_cmts <-
           ignore.case = T) ~ "gom_comment",
     grepl("CANCELED|CANCELLED", COMP_OVERRIDE_CMT,
           ignore.case = T) ~ "cancel_comment",
+    grepl("PUSHED", COMP_OVERRIDE_CMT,
+          ignore.case = T) ~ "pushed_comment",
     .default = ""
   )) 
+
+override_cmts_data_sep_cmts_csv_name <- "override_cmts_data_sep_cmts.csv"
+write_csv(override_cmts_data_sep_cmts,
+          override_cmts_data_sep_cmts_csv_name)
 
 override_cmts_data_sep_cmts_other <-
   override_cmts_data_sep_cmts %>% 
