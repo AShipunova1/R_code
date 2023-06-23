@@ -13,8 +13,6 @@ current_project_path <-
 
 source(file.path(current_project_path, "get_data.R"))
 
-# identical(corresp_contact_cnts_clean0$vesselofficial_number, corresp_contact_cnts_clean0$vessel_official_number)
-# T
 ## ---- Preparing compliance info ----
 
 ## ---- add permit_expired column ----
@@ -69,9 +67,15 @@ compl_clean_sa_non_compl <-
   compl_clean_sa %>%
   filter(!!filter_egregious)
 
-# compl_clean_sa_non_compl %>%
-#   count_uniq_by_column() %>% head(1)
+dim(compl_clean_sa_non_compl)
+# [1] 18205    23
+
+compl_clean_sa_non_compl %>%
+  count_uniq_by_column() %>% head(1)
 # vesselofficialnumber 1785
+# today()
+# "2023-06-23"
+# vessel_official_number 1573
 
 ## ----- get only those with n+ weeks of non compliance -----
 # number_of_weeks_for_non_compliancy = 51
@@ -93,17 +97,19 @@ get_num_of_non_compliant_weeks <-
 id_n_plus_weeks <-
   get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
 
-# glimpse(id_n_plus_weeks)
+glimpse(id_n_plus_weeks)
 # 'data.frame':	156 obs. of  2 variables
 # vesselofficialnumber: ...
 # n                   : int  58 55
+# # "2023-06-23" Rows: 226
 
 # ---- Get compliance information for only vessels which have more than n "NO REPORT". ----
 compl_w_non_compliant_weeks <-
   compl_clean_sa_non_compl %>%
   filter(vessel_official_number %in% id_n_plus_weeks$vessel_official_number)
-# dim(compl_w_non_compliant_weeks)
+dim(compl_w_non_compliant_weeks)
 # [1] 8941   21
+# [1] 7943   23
 
 ## ---- Check vesselofficialnumbers for "all weeks are non-compliant" ----
 compliant_field_name <-
@@ -126,6 +132,7 @@ all_weeks_not_compliance_id <-
 # str(all_weeks_not_compliance_id)
 # 343
 # 355
+# 201 
 
 # all weeks are non compliant
 intersect(
@@ -134,6 +141,7 @@ intersect(
 ) %>% str()
 # 19
 # 27: 185
+# 42
 # n+ weeks are not compliant, but some other weeks are compliant
 setdiff(
   id_n_plus_weeks$vessel_official_number,
@@ -141,6 +149,7 @@ setdiff(
 ) %>% str()
 # 137
 # 27: 392
+# 184
 
 # all weeks are not compliant, but there are fewer than n weeks for 2022-2023
 setdiff(
@@ -153,6 +162,7 @@ setdiff(
   str()
 # 324
 # 27: 170
+# 159
 
 group_by_arr <-
   c("vessel_official_number",
@@ -171,6 +181,8 @@ compl_clean_sa %>%
 # str(fewer_n_all_non_compl22_23)
 # [1] 324   3
 # 27: gropd_df [170 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
+# gropd_df [159 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
+
 
 # write.csv(fewer_52_all_non_compl22_23, file.path(my_paths$outputs, "fewer_52_all_non_compl22_23.csv"), row.names = FALSE)
 
