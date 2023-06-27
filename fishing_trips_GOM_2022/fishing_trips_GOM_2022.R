@@ -110,10 +110,10 @@ gom_landing_2022_query <-
   readr::read_file(q_file_name_all_info)
 
 # remove semicolon at the end of the query!
-data_from_db2 <-
+data_from_db3 <-
   dbGetQuery(con, gom_landing_2022_query)
 
-dim(data_from_db2)
+# dim(data_from_db2)
 # 1104
 
 data_from_db2 %>% 
@@ -204,3 +204,65 @@ View(data_from_db2)
 # ,12-MAY-22
 # ,30-SEP-18
 # ,30-SEP-21
+
+# data from db without sero_vessel_permit is not null ----
+data_overview(data_from_db3)
+# 2318  
+# SAFIS_VESSEL_ID               819
+# SERO_OFFICIAL_NUMBER          818
+
+# SAFIS_VESSEL_ID_1_only <-
+setdiff(unique(data_from_db1_2022$SAFIS_VESSEL_ID),
+        unique(data_from_db3$SAFIS_VESSEL_ID)) %>% 
+  length()
+# 654
+
+in_fhier_only <-
+  setdiff(
+    unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
+    unique(data_from_db3$SERO_OFFICIAL_NUMBER)
+  )
+# %>% 
+#   length()
+# 39
+
+in_db_only <-
+  setdiff(
+    unique(data_from_db3$SERO_OFFICIAL_NUMBER),
+    unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER)
+  )
+length(in_db_only)
+# 28
+
+# TODO: why the difference?
+
+head(in_db_only)
+# FL8519NA - has trip
+
+head(in_fhier_only)
+# FL2947LJ - twice in the vessel dashboard
+
+data_from_fhier_GOM %>% 
+  filter(VESSEL_OFFICIAL_NUMBER %in% in_fhier_only) %>% 
+  View()
+
+# SIX SHOOTER
+
+in_fhier_only_name <-
+  setdiff(
+    unique(data_from_fhier_GOM$VESSEL_NAME),
+    unique(data_from_db3$VESSEL_NAME)
+  )
+# print_df_names(data_from_db3)
+length(in_fhier_only_name)
+# 33
+head(in_fhier_only_name)
+
+data_from_fhier_GOM %>% 
+  filter(VESSEL_NAME %in% in_fhier_only_name) %>% 
+  View()
+
+data_from_fhier_GOM %>% 
+  filter(VESSEL_NAME %in% in_fhier_only_name) %>% 
+  select(VESSEL_OFFICIAL_NUMBER) %>% 
+  unique()
