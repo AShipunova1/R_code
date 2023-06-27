@@ -123,7 +123,38 @@ data_from_db1_2022 <-
   data_from_db1 %>% 
   filter(END_DATE > '2022-12-31')
 
+SAFIS_VESSEL_ID_1_only <-
 setdiff(unique(data_from_db1_2022$SAFIS_VESSEL_ID),
-        unique(data_from_db_2$SAFIS_VESSEL_ID)) %>% length()
+        unique(data_from_db_2$SAFIS_VESSEL_ID))
 
+SAFIS_VESSEL_ID_1_only %>% 
+  as.data.frame() %>% 
+  write_csv("vessel_ids_to_check.csv")
+  # length()
+
+# 876
+
+SAFIS_VESSEL_ID_1_only_str <- 
+  paste0(SAFIS_VESSEL_ID_1_only, collapse = ', ')
+
+# str(SAFIS_VESSEL_ID_1_only_str)
+# check missing ones
+missing_vessels_query <-
+  paste0(
+    "SELECT
+  vessel_id, coast_guard_nbr, state_reg_nbr, vessel_name, sero_official_number
+FROM
+  safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  where vessel_id in (
+",
+SAFIS_VESSEL_ID_1_only_str,
+")"
+  )
+
+# str(missing_vessels_query)
+
+data_from_db_missing_vessels <-
+  dbGetQuery(con, missing_vessels_query)
+
+dim(data_from_db_missing_vessels)
 # 876
