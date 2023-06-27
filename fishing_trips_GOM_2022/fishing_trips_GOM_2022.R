@@ -1,0 +1,49 @@
+#  Questions ----
+# FHIER / Reports
+# TRIP NOTIFICATIONS (HAIL-OUT) EXTENDED -- REPORT OF DATA FOUND IN THE TRIP NOTIFICATIONS TABLE WITH LIST OF VALUE ITEMS EXTENDED UPON TO SHOW ADDITIONAL INFORMATION.
+# or
+# TRIP NOTIFICATIONS (HAIL-OUTS) -- REPORT OF DATA FOUND IN THE TRIP NOTIFICATIONS TABLE.
+# or
+# SRHS TRIP NOTIFICATIONS (HAIL-OUT) EXTENDED -- REPORT OF DATA FOUND IN THE TRIP NOTIFICATIONS TABLE FOR VESSELS IN THE HEADBOAT SURVEY WITH LIST OF VALUE ITEMS EXTENDED UPON TO SHOW ADDITIONAL INFORMATION.
+# or
+# GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE -- GOM TRIP NOTIFICATIONS BY ARRIVAL PORT WHERE THE TRIP NOTIFICATION WAS NOT CANCELLED.
+# Read.me ----
+# Ken Brennan has requested the 2022 number of fishing intended trips with effort for just trips landing at a GOM state (west coast only of FL), by state, for GOM permitted SEFHIER vessels. 
+# 
+# I think you can just use the FHIER report "Trip notifications (hail-outs) extended (declaration data from SAFIS). From there, you'd want to filter out any non-GOM permitted vessels, parse for just fishing intended charter and headboat trips (A & H), and then filter those declarations into state bins to count (using the landing location info) - to get the total # for just 2022.
+# 
+# Taking a quick look at that csv file (trip notifications (hail-out) extended), a lot of the state abbreviations appear to be missing.  So, I think finding numbers by state will be the most complicated part of this data request. Perhaps parsing by County and then matching county -> corresponding state would be the best bet. This would make just grabbing west coast FL landing locations possible as well. 
+# 
+# I told Ken we'd get this back to him by COB Friday, but let me know if you need more time. You can also pull from the DB, if that is easiest for you. 
+
+# setup ----
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+
+# get data ----
+# 01/01/2022 - 12/31/2022
+
+data_from_fhier_extended <- read_csv(
+r"(my_inputs\fishing_trips_GOM_2022\Trip Notifications (Hail-Outs) Extended.csv)")
+# Rows: 65004 Columns: 31                                                                               
+# ── Column specification ───────────────────────────────────────────
+# Delimiter: ","
+# chr (22): NOTIFICATION_TYPE_NAME, SYSTEM_ID, TRIP_TYPE, TRIP_TY...
+# dbl  (7): NOTIFICATION_SEQ, NOTIFICATION_TYPE_ID, ACCSP_PERMIT_...
+# lgl  (2): CANCEL_FLAG, TRIP_START_DATE_TIME
+
+# ---
+# FHIER / Reports / GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE
+# 51641
+# Filters in FHIER
+# INTENDED_FISHING_FLAG = 'YES'
+# TRIP_TYPE in 'CHARTER, HEADBOAT'
+data_from_fhier_GOM <-
+  read_csv(r"(my_inputs\fishing_trips_GOM_2022\Trip Notifications Detail.csv)")
+# Rows: 51641 Columns: 18                                                                               
+# ── Column specification ───────────────────────────────────────────
+# Delimiter: ","
+# chr (16): NOTIFICATION_TYPE, VESSEL_OFFICIAL_NUMBER, VESSEL_NAM...
+# dbl  (2): NOTIFICATION_SEQ, LANDING_LOCATION
+
+print_df_names(data_from_fhier_GOM)
