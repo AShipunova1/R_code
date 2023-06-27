@@ -104,7 +104,7 @@ data_from_db1
 # DECODE(t.activity_type, 0, 'TRIP WITH EFFORT', 80, 'TRIP UNABLE TO FISH', 81, 'TRIP NO INTENTION OF FISHING') AS activity_type_name,
 
 q_file_name_all_info <- r"(my_inputs\fishing_trips_GOM_2022\gom_landing_2022.sql)"
-# 962 in db
+# 963 in db
 
 gom_landing_2022_query <- 
   readr::read_file(q_file_name_all_info)
@@ -114,7 +114,12 @@ data_from_db2 <-
   dbGetQuery(con, gom_landing_2022_query)
 
 dim(data_from_db2)
-# 963  
+# 1104
+
+data_from_db2 %>% 
+    select(ACTIVITY_TYPE_NAME) %>% unique()
+# 1    TRIP WITH EFFORT
+# 2 TRIP UNABLE TO FISH
 
 # head(sort(unique(data_from_db1$SAFIS_VESSEL_ID)))
 # head(sort(unique(data_from_db_2$SAFIS_VESSEL_ID)))
@@ -125,17 +130,24 @@ data_from_db1_2022 <-
 
 SAFIS_VESSEL_ID_1_only <-
 setdiff(unique(data_from_db1_2022$SAFIS_VESSEL_ID),
-        unique(data_from_db_2$SAFIS_VESSEL_ID))
+        unique(data_from_db2$SAFIS_VESSEL_ID))
 
 SAFIS_VESSEL_ID_1_only %>% 
-  as.data.frame() %>% 
-  write_csv("vessel_ids_to_check.csv")
-  # length()
+  # as.data.frame() %>% 
+  # write_csv("vessel_ids_to_check.csv")
+  length()
 
-# 876
+# 873
 
 SAFIS_VESSEL_ID_1_only_str <- 
   paste0(SAFIS_VESSEL_ID_1_only, collapse = ', ')
+
+SAFIS_VESSEL_ID_1_only <-
+setdiff(unique(data_from_db1_2022$SAFIS_VESSEL_ID),
+        unique(data_from_db2$SAFIS_VESSEL_ID))
+
+
+# ---
 
 # str(SAFIS_VESSEL_ID_1_only_str)
 # check missing ones
@@ -156,5 +168,39 @@ SAFIS_VESSEL_ID_1_only_str,
 data_from_db_missing_vessels <-
   dbGetQuery(con, missing_vessels_query)
 
-dim(data_from_db_missing_vessels)
 # 876
+
+data_from_db_missing_vessels %>% 
+  select(SERO_OFFICIAL_NUMBER) %>% 
+  unique() %>% 
+  write_csv("data_from_db_missing_vessels_sero_off_nbr.csv")
+  # paste0(collapse = ", ") %>% cat()
+
+# compare with fhier ----
+setdiff(unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
+        unique(data_from_db2$SERO_OFFICIAL_NUMBER))
+# 312
+# FL3059CY
+# no trip info in FHIER / vessel dashboard
+data_from_fhier_GOM %>% 
+  filter(VESSEL_OFFICIAL_NUMBER == 'FL3059CY') %>% 
+  View()
+# counts ----
+## using gom_landing_2022 ----
+View(data_from_db2)
+
+# where safis_vessel_id = '328952'
+#     order by end_date desc;
+#     328952	DOUBLE O	16-MAY-22	31-OCT-23	MAILED
+# 328952	DOUBLE O	01-OCT-21	12-MAY-22	TRANSFERRED
+
+# SELECT DISTINCT
+# t.sero_vessel_permit,
+# gom.end_date
+# from gom_landing_2022
+
+# "SERO_VESSEL_PERMIT","END_DATE"
+# ,30-SEP-19
+# ,12-MAY-22
+# ,30-SEP-18
+# ,30-SEP-21
