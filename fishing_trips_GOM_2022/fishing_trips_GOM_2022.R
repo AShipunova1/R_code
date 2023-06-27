@@ -104,13 +104,13 @@ data_from_db1
 # DECODE(t.activity_type, 0, 'TRIP WITH EFFORT', 80, 'TRIP UNABLE TO FISH', 81, 'TRIP NO INTENTION OF FISHING') AS activity_type_name,
 
 q_file_name_all_info <- r"(my_inputs\fishing_trips_GOM_2022\gom_landing_2022.sql)"
-# 963 in db
+# 1) 963 in db
 
 gom_landing_2022_query <- 
   readr::read_file(q_file_name_all_info)
 
 # remove semicolon at the end of the query!
-data_from_db3 <-
+data_from_db4 <-
   dbGetQuery(con, gom_landing_2022_query)
 
 # dim(data_from_db2)
@@ -266,3 +266,24 @@ data_from_fhier_GOM %>%
   filter(VESSEL_NAME %in% in_fhier_only_name) %>% 
   select(VESSEL_OFFICIAL_NUMBER) %>% 
   unique()
+
+# rm AND trunc(t.trip_start_date) BETWEEN trunc(gom.effective_date) AND trunc(gom.end_date) ----
+# WHERE
+# t.activity_type IN (0, 80)
+# AND
+# t.trip_type IN ('A', 'H')
+# AND trunc(t.trip_start_date) BETWEEN  TO_DATE('01-JAN-22') and
+# TO_DATE('31-DEC-22')
+
+
+dim(data_from_db4)
+# 16342    
+
+in_fhier_only_name <-
+  setdiff(
+    unique(data_from_fhier_GOM$VESSEL_NAME),
+    unique(data_from_db4$VESSEL_NAME)
+  )
+
+length(in_fhier_only_name)
+# 30
