@@ -89,6 +89,17 @@ data_from_db1 <-
 data_from_db1 %>%
   # filter(EFFECTIVE_DATE < '2022-01-01') %>% # 14
   filter(EFFECTIVE_DATE >= '2022-01-01') %>% # 2004
-  filter(END_DATE > '2022-12-31') %>% # [1] 2018
+  filter(END_DATE > '2022-12-31') %>% # [1] 2018 vessels
   dim()
 
+data_from_db1
+
+# "ACTIVITY_TYPE"
+# 81
+# null ?
+# 3 ?
+# 0
+# 80
+
+# V_SAFIS_TRIP_DOWNLOAD.sql
+# DECODE(t.activity_type, 0, 'TRIP WITH EFFORT', 80, 'TRIP UNABLE TO FISH', 81, 'TRIP NO INTENTION OF FISHING') AS activity_type_name,
