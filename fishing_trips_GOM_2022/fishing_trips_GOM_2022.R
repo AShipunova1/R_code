@@ -7,6 +7,28 @@
 # SRHS TRIP NOTIFICATIONS (HAIL-OUT) EXTENDED -- REPORT OF DATA FOUND IN THE TRIP NOTIFICATIONS TABLE FOR VESSELS IN THE HEADBOAT SURVEY WITH LIST OF VALUE ITEMS EXTENDED UPON TO SHOW ADDITIONAL INFORMATION.
 # or
 # GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE -- GOM TRIP NOTIFICATIONS BY ARRIVAL PORT WHERE THE TRIP NOTIFICATION WAS NOT CANCELLED.
+
+# data base questions
+# udp.v_sero_oth_prm_period_his@secpr_dblk
+# 1) what are end_date, expiration_date, last_expiration_date
+# 2) select distinct permit_status from
+          # udp.v_sero_oth_prm_period_his@secpr_dblk;
+# -- MV_SAFIS_GOM_VESSELS
+# select distinct permit_status
+# "PERMIT_STATUS"
+# "EXPIRED"
+# "TERMINATED"
+# "TRANSFERRED"
+# "PENDING VESSEL SOLD"
+# "RENEWED"
+# "DUPLICATED"
+# "VESSEL SOLD"
+# "UPDATED"
+# "VESSEL LEASED"
+# "MAILED"
+# "SURRENDERED"
+
+
 # Read.me ----
 # Ken Brennan has requested the 2022 number of fishing intended trips with effort for just trips landing at a GOM state (west coast only of FL), by state, for GOM permitted SEFHIER vessels. 
 # 
@@ -15,6 +37,8 @@
 # Taking a quick look at that csv file (trip notifications (hail-out) extended), a lot of the state abbreviations appear to be missing.  So, I think finding numbers by state will be the most complicated part of this data request. Perhaps parsing by County and then matching county -> corresponding state would be the best bet. This would make just grabbing west coast FL landing locations possible as well. 
 # 
 # I told Ken we'd get this back to him by COB Friday, but let me know if you need more time. You can also pull from the DB, if that is easiest for you. 
+
+# But don't forget to filter out any non-GOM permitted vessels from the pulled data. There'd need to be some comparison to the 2022 permitted vessels list, and an innerjoin() of something to exclude those in the report that are not in fact permitted. I'm sure you know this, but just putting it here in case. ;)
 
 # setup ----
 source("~/R_code_github/useful_functions_module.r")
@@ -47,3 +71,24 @@ data_from_fhier_GOM <-
 # dbl  (2): NOTIFICATION_SEQ, LANDING_LOCATION
 
 print_df_names(data_from_fhier_GOM)
+
+# data from db ----
+con <- connect_to_secpr()
+
+q_file_name <- r"(my_inputs\fishing_trips_GOM_2022\MV_SAFIS_GOM_VESSELS.sql)"
+
+MV_SAFIS_GOM_VESSELS_w_permit_status_query <- 
+  readr::read_file(q_file_name)
+
+data_from_db1 <-
+  dbGetQuery(con, MV_SAFIS_GOM_VESSELS_w_permit_status_query)
+
+
+# dim(data_from_db1)
+# 19451     
+data_from_db1 %>%
+  # filter(EFFECTIVE_DATE < '2022-01-01') %>% # 14
+  filter(EFFECTIVE_DATE >= '2022-01-01') %>% # 2004
+  filter(END_DATE > '2022-12-31') %>% # [1] 2018
+  dim()
+
