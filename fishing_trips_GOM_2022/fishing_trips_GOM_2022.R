@@ -83,7 +83,6 @@ MV_SAFIS_GOM_VESSELS_w_permit_status_query <-
 data_from_db1 <-
   dbGetQuery(con, MV_SAFIS_GOM_VESSELS_w_permit_status_query)
 
-
 # dim(data_from_db1)
 # 19451     
 data_from_db1 %>%
@@ -103,3 +102,28 @@ data_from_db1
 
 # V_SAFIS_TRIP_DOWNLOAD.sql
 # DECODE(t.activity_type, 0, 'TRIP WITH EFFORT', 80, 'TRIP UNABLE TO FISH', 81, 'TRIP NO INTENTION OF FISHING') AS activity_type_name,
+
+q_file_name_all_info <- r"(my_inputs\fishing_trips_GOM_2022\gom_landing_2022.sql)"
+# 962 in db
+
+gom_landing_2022_query <- 
+  readr::read_file(q_file_name_all_info)
+
+# remove semicolon at the end of the query!
+data_from_db2 <-
+  dbGetQuery(con, gom_landing_2022_query)
+
+dim(data_from_db2)
+# 963  
+
+# head(sort(unique(data_from_db1$SAFIS_VESSEL_ID)))
+# head(sort(unique(data_from_db_2$SAFIS_VESSEL_ID)))
+
+data_from_db1_2022 <-
+  data_from_db1 %>% 
+  filter(END_DATE > '2022-12-31')
+
+setdiff(unique(data_from_db1_2022$SAFIS_VESSEL_ID),
+        unique(data_from_db_2$SAFIS_VESSEL_ID)) %>% length()
+
+# 876
