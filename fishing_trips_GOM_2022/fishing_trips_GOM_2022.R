@@ -608,15 +608,29 @@ names(gom_fhier1) %>%
 
 
 # https://stackoverflow.com/questions/51297089/how-to-split-data-frame-by-column-names-in-r
-# 
+# split by column names int percent and total
 gom_fhier1_list <-
-  purrr::map(rlang::set_names(c("T", "R")),
+  purrr::map(rlang::set_names(c("Total", "Round")),
              ~ dplyr::select(gom_fhier1,
                              tidyselect::starts_with(.x)))
 str(gom_fhier1_list)
 # List of 2
 
+gom_fhier1_list$Total %>%
+  t() %>% 
+  as.data.frame() %>% 
+  tibble::rownames_to_column()
+  
 
-inner_join(data_from_db_more_fields_end_p_s_by_trip_p,
-           gom_fhier,
-           join_by())
+gom_fhier1_list_t <- purrr::map(gom_fhier1_list,
+  # transpose
+  ~ t(.x) %>% 
+  as.data.frame() %>% 
+  tibble::rownames_to_column()
+)
+
+#            ~ tibble::rownames_to_column(.x)) %>% View()
+
+# inner_join(data_from_db_more_fields_end_p_s_by_trip_p,
+#            gom_fhier,
+#            join_by())
