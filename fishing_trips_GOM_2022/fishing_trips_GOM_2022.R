@@ -585,9 +585,37 @@ gom_fhier <-
 
 str(gom_fhier)
 
-gom_fhier1 <- gom_trip_notifications_by_arrival_port_state_summary %>% as.data.frame() %>% 
-map(set_names(c("trip_by_state_num", "perc_st")),
-    ~select(df, starts_with(.x)))
+gom_fhier1 <-
+  gom_trip_notifications_by_arrival_port_state_summary %>%
+  as.data.frame()
+
+# %>% 
+
+# purrr::map(rlang::set_names(c("trip_by_state_num", "perc_st")),
+#            ~ select(df, starts_with(.x)))
+
+# gom_state_abbr %>% 
+names(gom_fhier1) %>% 
+  purrr::map(
+    function(curr_name) {
+      gom_fhier1      
+    
+           # ~ select(gom_fhier1, grepl(.x)))
+})
+
+names(gom_fhier1) %>% 
+  gsub(".x$|.y$", "", name)
+
+
+# https://stackoverflow.com/questions/51297089/how-to-split-data-frame-by-column-names-in-r
+# 
+gom_fhier1_list <-
+  purrr::map(rlang::set_names(c("T", "R")),
+             ~ dplyr::select(gom_fhier1,
+                             tidyselect::starts_with(.x)))
+str(gom_fhier1_list)
+# List of 2
+
 
 inner_join(data_from_db_more_fields_end_p_s_by_trip_p,
            gom_fhier,
