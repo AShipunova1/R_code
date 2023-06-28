@@ -41,12 +41,28 @@
 # But don't forget to filter out any non-GOM permitted vessels from the pulled data. There'd need to be some comparison to the 2022 permitted vessels list, and an innerjoin() of something to exclude those in the report that are not in fact permitted. I'm sure you know this, but just putting it here in case. ;)
 
 # setup ----
+library(tictoc)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # get data ----
 # 01/01/2022 - 12/31/2022
 
+gom_state_abbr <- c("AL", "FL", "LA", "MS", "TX")
+
+## data from fhier ----
+### GOM Trip Notifications by Arrival Port State ----
+file_name_summ <- r"(my_inputs\fishing_trips_GOM_2022\gom_trip_notifications_by_arrival_port_state_summary.csv)"
+  
+gom_trip_notifications_by_arrival_port_state_summary <-
+  read_csv(file_name_summ)
+# Rows: 1 Columns: 11                                                                                 
+# ── Column specification ─────────────────────────────────────────
+# Delimiter: ","
+# dbl (6): Rounded AL Pct, Rounded FL Pct, Rounded LA Pct, Tota...
+# num (5): Total With GOM Arrival Port, Total AL, Total FL, Tot...
+
+### Trip Notifications (Hail-Outs) Extended ---- 
 data_from_fhier_extended <- read_csv(
 r"(my_inputs\fishing_trips_GOM_2022\Trip Notifications (Hail-Outs) Extended.csv)")
 # Rows: 65004 Columns: 31                                                                               
@@ -72,7 +88,7 @@ data_from_fhier_GOM <-
 
 print_df_names(data_from_fhier_GOM)
 
-# data from db ----
+## data from db ----
 con <- connect_to_secpr()
 
 q_file_name <- r"(my_inputs\fishing_trips_GOM_2022\MV_SAFIS_GOM_VESSELS.sql)"
@@ -176,7 +192,7 @@ data_from_db_missing_vessels %>%
   write_csv("data_from_db_missing_vessels_sero_off_nbr.csv")
   # paste0(collapse = ", ") %>% cat()
 
-# compare with fhier ----
+### compare with fhier ----
 setdiff(unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
         unique(data_from_db2$SERO_OFFICIAL_NUMBER))
 # 312
@@ -185,8 +201,8 @@ setdiff(unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
 data_from_fhier_GOM %>% 
   filter(VESSEL_OFFICIAL_NUMBER == 'FL3059CY') %>% 
   View()
-# counts ----
-## using gom_landing_2022 ----
+
+## check gom_landing_2022 ----
 View(data_from_db2)
 
 # where safis_vessel_id = '328952'
@@ -205,7 +221,7 @@ View(data_from_db2)
 # ,30-SEP-18
 # ,30-SEP-21
 
-# data from db without sero_vessel_permit is not null ----
+## data from db without sero_vessel_permit is not null ----
 data_overview(data_from_db3)
 # 2318  
 # SAFIS_VESSEL_ID               819
@@ -417,7 +433,7 @@ data_from_fhier_GOM %>%
   select(VESSEL_OFFICIAL_NUMBER) %>% 
   unique()
 
-# rm AND trunc(t.trip_start_date) BETWEEN trunc(gom.effective_date) AND trunc(gom.end_date) ----
+## rm AND trunc(t.trip_start_date) BETWEEN trunc(gom.effective_date) AND trunc(gom.end_date) ----
 # WHERE
 # t.activity_type IN (0, 80)
 # AND
@@ -438,8 +454,6 @@ in_fhier_only_name <-
 length(in_fhier_only_name)
 # 30
 
-# get lanfing locations count ----
-## from FHIER
 data_overview(data_from_fhier_GOM)
 # VESSEL_NAME              732
 # TRIP_TYPE                  2
