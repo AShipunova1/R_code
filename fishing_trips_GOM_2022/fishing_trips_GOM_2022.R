@@ -488,3 +488,107 @@ toc()
 # 731.83 sec elapsed
 # 455.661 in sql dev
 
+# count landing locations by trip_id ----
+## from DB
+
+# str(data_from_db4)
+# 'data.frame':	16342 obs. of  22 variables:
+
+data_from_db4 %>%
+  select(SERO_OFFICIAL_NUMBER, END_PORT_STATE) %>%
+  count(END_PORT_STATE)
+#    END_PORT_STATE     n
+# 1              AL  2074
+# 2              DE    39
+# 3              FL 11449
+# 4              LA   654
+# 5              ME     8
+# 6              MS   323
+# 7              NC   149
+# 8              NJ    51
+# 9              NY     5
+# 10             RI    44
+# 11             SC    15
+# 12             TX  1531
+
+# in FHIER / GOM Trip Notifications by Arrival Port State
+# Total AL 8,714
+# Total FL 41,066
+# Total LA 1,557
+# Total MS 970
+# Total TX 4,809
+
+View(data_from_db4)
+View(data_from_fhier_GOM)
+View(data_from_db_more_fields)
+
+in_fhier_only_names_diff5 <-
+setdiff(unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
+        unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER))
+
+length(in_fhier_only_names_diff5)
+# 33
+data_from_db_more_fields %>% 
+  select(TRIP_ID, END_PORT_STATE) %>%
+  unique() %>% 
+  count(END_PORT_STATE)
+
+# View(gom_trip_notifications_by_arrival_port_state_summary)
+
+data_from_db_more_fields_end_p_s_by_trip <-
+  data_from_db_more_fields %>%
+  filter(END_PORT_STATE %in% gom_state_abbr) %>%
+  select(TRIP_ID, END_PORT_STATE) %>%
+  unique()
+
+dim(data_from_db_more_fields_end_p_s_by_trip)
+# 53504
+
+data_from_db_more_fields_end_p_s_by_trip %>% 
+  count(END_PORT_STATE)
+#   END_PORT_STATE     n
+# 1             AL  8398
+# 2             FL 38180
+# 3             LA  1640
+# 4             MS   991
+# 5             TX  4295
+
+data_from_db_more_fields %>% 
+  filter(NOTIF_LANDING_LOCATION_STATE %in% gom_state_abbr) %>%
+  select(TRIP_ID, NOTIF_LANDING_LOCATION_STATE) %>%
+  unique() %>% 
+  count(NOTIF_LANDING_LOCATION_STATE)
+  # NOTIF_LANDING_LOCATION_STATE     n
+# 1                           AL  7322
+# 2                           FL 22471
+# 3                           LA  1265
+# 4                           MS   893
+# 5                           TX  2940
+# even less (in compar. w GOM Trip Notifications by Arrival Port State)
+
+data_from_db_more_fields_end_p_s_by_trip_p <-
+  data_from_db_more_fields_end_p_s_by_trip %>%
+  add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
+  select(END_PORT_STATE, trip_by_state_num) %>% 
+  unique() %>% 
+  mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
+
+View(data_from_db_more_fields_end_p_s_by_trip_p)
+# percentage is very close
+
+# data_from_db_more_fields_end_p_s_by_trip_p
+
+gom_fhier <-
+  t(gom_trip_notifications_by_arrival_port_state_summary) %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column()
+
+str(gom_fhier)
+
+gom_fhier1 <- gom_trip_notifications_by_arrival_port_state_summary %>% as.data.frame() %>% 
+map(set_names(c("trip_by_state_num", "perc_st")),
+    ~select(df, starts_with(.x)))
+
+inner_join(data_from_db_more_fields_end_p_s_by_trip_p,
+           gom_fhier,
+           join_by())
