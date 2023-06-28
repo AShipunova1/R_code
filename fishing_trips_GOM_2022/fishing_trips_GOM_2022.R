@@ -269,7 +269,7 @@ head(in_fhier_only_name)
 # 0
 
 ### check in_fhier_only_name ----
-in_fhier_only_name_query <- 
+in_fhier_only_name_query0 <- 
   paste0(
 "SELECT
   *
@@ -284,12 +284,133 @@ in_fhier_only_name,
   )
 # [30] "SELECT\n  *\nFROM\n       safis.trips@secapxdv_dblk.sfsc.noaa.gov\n  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov\n  USING ( vessel_id )\nWHERE\n  vessel_name in (DANIELLE)"         
 
+# in_fhier_only_name_query
 
-in_fhier_only_name_query
+in_fhier_only_name_flat <-
+  in_fhier_only_name %>%
+  paste0(collapse = "', '")
 
-data_from_fhier_GOM %>% 
-  filter(VESSEL_NAME %in% in_fhier_only_name) %>% 
+in_fhier_only_name_query1 <- 
+  paste0(
+    "SELECT
+  *
+FROM
+       safis.trips@secapxdv_dblk.sfsc.noaa.gov
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  USING ( vessel_id )
+WHERE
+  vessel_name in ('",
+in_fhier_only_name_flat,
+"')",
+" AND trunc(trip_start_date) BETWEEN TO_DATE('01-JAN-22') and
+   TO_DATE('31-DEC-22')
+"
+  )
+
+# in_fhier_only_name_query0
+
+check_missing_vsls1 <-
+  dbGetQuery(con, in_fhier_only_name_query1)
+
+dim(check_missing_vsls)
+# [1] 716 100
+
+# TRIP_START_DATE                 
+# Min.   :2021-01-06 23:00:00.00  
+# 1st Qu.:2021-07-11 18:00:00.00  
+# Median :2022-05-15 00:00:00.00  
+# Mean   :2022-03-21 19:42:34.19  
+# 3rd Qu.:2022-10-08 06:00:00.00  
+# Max.   :2023-06-26 00:00:00.00  
+
+# START_PORT       
+#  Length:716
+
+str(check_missing_vsls1)
+# 'data.frame':	275 obs. of  100 variables:
+
+check_missing_vsls1 %>%
+  select(
+    SERO_OFFICIAL_NUMBER,
+    COAST_GUARD_NBR,
+    STATE_REG_NBR,
+    VESSEL_NAME,
+    END_PORT,
+    ACTIVITY_TYPE,
+    REPORTING_SOURCE,
+    TRIP_TYPE
+  ) %>%
+  unique() %>%
   View()
+# 14
+
+# SERO_OFFICIAL_NUMBER 7
+# $ TRIP_TYPE <chr> "A", "R", "U"
+# $ ACTIVITY_TYPE <dbl> 80, 0, NA
+
+# FL9013MV - only STATE_REG_NBR, no SERO_OFFICIAL_NUMBER!
+#     SERO_OFFICIAL_NUMBER    VESSEL_NAME
+# 1               FL0018NB     WATER BEAR
+# 19                658805  FISHER OF MEN
+# 210               590873 BLIND SQUIRREL
+# 240              1251931         AMBUSH
+# 242               934561      ANTHONY C
+# 274                 <NA>   HEATHER LYNN
+# 275             FL2597MN SALT CRACKER V
+
+### check permits for fhier only ----
+vessel_ids0 <- 'FL9013MV'
+vessel_ids <- check_missing_vsls1 %>%
+  select(
+    SERO_OFFICIAL_NUMBER
+  ) %>%
+  unique() %>% 
+  {paste0(.$SERO_OFFICIAL_NUMBER, collapse = "', '")}
+
+check_permits_fo_query <-
+  paste0(
+"SELECT
+distinct vessel_id, top
+FROM
+udp.v_sero_oth_prm_period_his@secpr_dblk
+WHERE
+vessel_id in ('",
+vessel_ids,
+"')
+order by vessel_id
+")
+
+# FL9013MV_permits <-
+#   dbGetQuery(con, check_permits_fo_query)
+# 0
+
+missing_vessels_permits <-
+  dbGetQuery(con, check_permits_fo_query)
+
+grep("G", missing_vessels_permits$TOP, value = T, ignore.case = T)
+# [1] "CHG" "RCG"
+
+missing_vessels_permits %>% 
+  filter(grepl("G", missing_vessels_permits$TOP))
+#   VESSEL_ID TOP
+# 1  FL2597MN CHG
+# 2  FL2597MN RCG
+# MAILED
+
+# Why not from db?
+  # FL9013MV 'HEATHER LYNN' only STATE_REG_NBR, no SERO_OFFICIAL_NUMBER!
+# hull XKH31047E585
+# in FHIER vessel_id = 694424
+# no G permits in 2022
+  # FL2597MN trip_start_date 2023
+# In db end_port = 110935
+# vessel_id = '386533'
+# trip_start 21-AUG-22
+# --  srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
+
+### check data_from_fhier_GOM ---- 
+data_from_fhier_GOM %>%
+  filter(VESSEL_NAME %in% in_fhier_only_name)
 
 data_from_fhier_GOM %>% 
   filter(VESSEL_NAME %in% in_fhier_only_name) %>% 
