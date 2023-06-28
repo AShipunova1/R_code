@@ -72,8 +72,7 @@ r"(my_inputs\fishing_trips_GOM_2022\Trip Notifications (Hail-Outs) Extended.csv)
 # dbl  (7): NOTIFICATION_SEQ, NOTIFICATION_TYPE_ID, ACCSP_PERMIT_...
 # lgl  (2): CANCEL_FLAG, TRIP_START_DATE_TIME
 
-# ---
-# FHIER / Reports / GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE
+### FHIER / Reports / GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE ----
 # 51641
 # Filters in FHIER
 # INTENDED_FISHING_FLAG = 'YES'
@@ -86,7 +85,65 @@ data_from_fhier_GOM <-
 # chr (16): NOTIFICATION_TYPE, VESSEL_OFFICIAL_NUMBER, VESSEL_NAM...
 # dbl  (2): NOTIFICATION_SEQ, LANDING_LOCATION
 
-print_df_names(data_from_fhier_GOM)
+# print_df_names(data_from_fhier_GOM)
+
+#### check data_from_fhier_GOM ----
+# Florida counties by region (from the Internet)
+fl_counties <- list(
+  "SA" = c(
+    "Brevard",
+    "Broward",
+    "Duval",
+    "Flagler",
+    "Indian River",
+    "Martin",
+    "Miami-Dade",
+    "Nassau",
+    "Palm Beach",
+    "St. Johns",
+    "St. Lucie",
+    "Volusia"
+  ),
+  "GOM" = c(
+    "Bay",
+    "Charlotte",
+    "Citrus",
+    "Collier",
+    "Dixie",
+    "Escambia",
+    "Franklin",
+    "Gulf",
+    "Hernando",
+    "Hillsborough",
+    "Lee",
+    "Levy",
+    "Manatee",
+    "Monroe",
+    "Okaloosa",
+    "Pasco",
+    "Pinellas",
+    "Santa Rosa",
+    "Sarasota",
+    "Taylor",
+    "Wakulla",
+    "Walton"
+  )
+)
+
+data_from_fhier_GOM_fl_counties <-
+  data_from_fhier_GOM %>% 
+  filter(ARRIVAL_PORT_STATE == "FL") %>% 
+  select(ARRIVAL_PORT_COUNTY) %>% 
+  unique()
+
+str(data_from_fhier_GOM_fl_counties)
+
+sa_fl_counties_in_fhier_data <-
+  intersect(
+    toupper(fl_counties$SA),
+    toupper(data_from_fhier_GOM_fl_counties$ARRIVAL_PORT_COUNTY)
+  )
+
 
 ## data from db ----
 con <- connect_to_secpr()
@@ -500,6 +557,10 @@ toc()
 # 731.83 sec elapsed
 # 455.661 in sql dev
 
+### save data_from_db_more_fields on disc ----
+write_csv(data_from_db_more_fields,
+          "gom_landing_2022_more_fields.csv")
+
 ### compare again with FHIER ----
 ## in_fhier_only_names_diff5 ----
 in_fhier_only_names_diff5 <-
@@ -707,3 +768,10 @@ compare_perc_db_fhier %>%
           # "lending_compare_perc_db_fhier.csv")
 
 dbDisconnect(con)
+
+## Separate Florida counties by region
+```{r Separate Florida counties by region}
+## Separate Florida counties by region ----
+# And just send Marion County as GOM (keys), since it’s too hard to break up by region. Unless you have a quick solution. This is just a best guess, and doesn’t need to be perfect.
+
+print_df_names(data_from_db_more_fields)
