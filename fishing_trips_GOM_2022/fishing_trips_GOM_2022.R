@@ -705,3 +705,5 @@ compare_perc_db_fhier %>%
 
 # write_csv(compare_perc_db_fhier,
           # "lending_compare_perc_db_fhier.csv")
+
+dbDisconnect(con)
