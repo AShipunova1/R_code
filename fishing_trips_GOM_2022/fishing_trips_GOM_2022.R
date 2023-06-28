@@ -242,7 +242,7 @@ in_fhier_only <-
 #   length()
 # 39
 
-in_db_only <-
+in_db_only3 <-
   setdiff(
     unique(data_from_db3$SERO_OFFICIAL_NUMBER),
     unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER)
@@ -251,6 +251,14 @@ length(in_db_only)
 # 28
 
 # TODO: why the difference?
+
+in_db_only4 <-
+  setdiff(
+    unique(data_from_db4$SERO_OFFICIAL_NUMBER),
+    unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER)
+  )
+length(in_db_only4)
+# 82
 
 head(in_db_only)
 # FL8519NA - has trip
@@ -416,8 +424,12 @@ missing_vessels_permits %>%
 # Why not from db?
   # FL9013MV 'HEATHER LYNN' only STATE_REG_NBR, no SERO_OFFICIAL_NUMBER!
 # hull XKH31047E585
-# in FHIER vessel_id = 694424
+# in FHIER 1st 'HEATHER LYNN' vessel_id = 694424
+# 694424.................. HEATHER LYNN - DAVID ALAN LEVERE            (727) 4170877
 # no G permits in 2022
+# in FHIER 2nd hull XKH310290581 (638363:FL6359PX......... SUSAN T - HEATHER LYNN BROOKS            (727) 6146104)
+
+
   # FL2597MN trip_start_date 2023
 # In db end_port = 110935
 # vessel_id = '386533'
@@ -488,6 +500,23 @@ toc()
 # 731.83 sec elapsed
 # 455.661 in sql dev
 
+### compare again with FHIER ----
+## in_fhier_only_names_diff5 ----
+in_fhier_only_names_diff5 <-
+setdiff(unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
+        unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER))
+
+length(in_fhier_only_names_diff5)
+# 33
+
+in_db_only_names_diff5 <-
+setdiff(unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER),
+        unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER))
+
+length(in_db_only_names_diff5)
+# 83
+
+
 # count landing locations by trip_id ----
 ## from DB
 
@@ -518,16 +547,10 @@ data_from_db4 %>%
 # Total MS 970
 # Total TX 4,809
 
-View(data_from_db4)
-View(data_from_fhier_GOM)
-View(data_from_db_more_fields)
+# View(data_from_db4)
+# View(data_from_fhier_GOM)
+# View(data_from_db_more_fields)
 
-in_fhier_only_names_diff5 <-
-setdiff(unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
-        unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER))
-
-length(in_fhier_only_names_diff5)
-# 33
 data_from_db_more_fields %>% 
   select(TRIP_ID, END_PORT_STATE) %>%
   unique() %>% 
