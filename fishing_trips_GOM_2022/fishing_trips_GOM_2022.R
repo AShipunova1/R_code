@@ -471,3 +471,20 @@ data_from_fhier_GOM %>%
 # ok
 
 head(in_fhier_only_name)
+
+## get data from db with the same fields as in fhier ----
+
+# print_df_names(data_from_fhier_GOM)
+
+q_file_name <- r"(my_inputs\fishing_trips_GOM_2022\gom_landing_2022_more_fields.sql)"
+
+gom_landing_2022_more_fields_query <- 
+  readr::read_file(q_file_name)
+
+tic("data_from_db_more_fields")
+data_from_db_more_fields <-
+  dbGetQuery(con, gom_landing_2022_more_fields_query)
+toc()
+# 731.83 sec elapsed
+# 455.661 in sql dev
+
