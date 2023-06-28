@@ -316,3 +316,23 @@ in_fhier_only_name <-
 
 length(in_fhier_only_name)
 # 30
+
+# get lanfing locations count ----
+## from FHIER
+data_overview(data_from_fhier_GOM)
+# VESSEL_NAME              732
+# TRIP_TYPE                  2
+# LANDING_LOCATION         432
+# ARRIVAL_PORT_STATE         5
+
+### check dates ----
+data_from_fhier_GOM %>% 
+    select(TRIP_START_DATE) %>% 
+    unique() %>% 
+    arrange(TRIP_START_DATE) %>% 
+    tail()
+# 6 12/31/2022     
+# head()
+# ok
+
+head(in_fhier_only_name)
