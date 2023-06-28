@@ -626,11 +626,59 @@ gom_fhier1_list_t <- purrr::map(gom_fhier1_list,
   # transpose
   ~ t(.x) %>% 
   as.data.frame() %>% 
-  tibble::rownames_to_column()
+  # var: Name of column to use for rownames.
+  tibble::rownames_to_column(var = "header_state")
 )
 
-#            ~ tibble::rownames_to_column(.x)) %>% View()
+glimpse(gom_fhier1_list_t$Round)
 
-# inner_join(data_from_db_more_fields_end_p_s_by_trip_p,
-#            gom_fhier,
-#            join_by())
+gom_fhier1_list_t <-
+  purrr::map(gom_fhier1_list_t,
+             ~ mutate(.x,
+                      # gsub(pattern, replacement, x, ignore.case = FALSE...)
+                      # remove any of:
+                      state_abbr = gsub("Total |Rounded | Pct",
+                                        "", 
+                                        header_state, 
+                                        ignore.case = T
+                                        )
+                      )
+             )
+
+View(gom_fhier1_list_t)
+
+compare_perc_db_fhier0 <-
+  data_from_db_more_fields_end_p_s_by_trip_p %>%
+  dplyr::mutate(rounded_percent_db = round(perc_st)) %>%
+  dplyr::inner_join(gom_fhier1_list_t$Round,
+             dplyr::join_by(END_PORT_STATE == state_abbr))
+
+compare_perc_db_fhier1 <-
+  dplyr::inner_join(compare_perc_db_fhier0,
+                    gom_fhier1_list_t$Total,
+             dplyr::join_by(END_PORT_STATE == state_abbr))
+
+# View(compare_perc_db_fhier)
+# print_df_names(compare_perc_db_fhier)
+# [1] "END_PORT_STATE, trip_by_state_num, perc_st, rounded_percent_db, header_state.x, V1.x, header_state.y, V1.y"
+
+compare_perc_db_fhier <-
+  compare_perc_db_fhier1 %>%
+  select(-starts_with("header_state"))
+
+names(compare_perc_db_fhier) <-
+  c("END_PORT_STATE", "trip_by_state_num", "perc_st", "rounded_percent_db", "rounded_percent_fhier", "total_fhier")
+
+# View(compare_perc_db_fhier)
+
+compare_perc_db_fhier %>%
+  count(wt = trip_by_state_num)
+#       n
+# 1 53504
+compare_perc_db_fhier %>%
+  count(wt = total_fhier)
+#       n
+# 1 57116
+
+# write_csv(compare_perc_db_fhier,
+          # "lending_compare_perc_db_fhier.csv")
