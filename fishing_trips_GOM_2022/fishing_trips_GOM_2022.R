@@ -556,6 +556,7 @@ data_from_db_more_fields <-
 toc()
 # 731.83 sec elapsed
 # 455.661 in sql dev
+# data_from_db_more_fields: 837.41 sec elapsed
 
 ### save data_from_db_more_fields on disc ----
 write_csv(data_from_db_more_fields,
@@ -769,9 +770,48 @@ compare_perc_db_fhier %>%
 
 dbDisconnect(con)
 
-## Separate Florida counties by region
-```{r Separate Florida counties by region}
 ## Separate Florida counties by region ----
 # And just send Marion County as GOM (keys), since it’s too hard to break up by region. Unless you have a quick solution. This is just a best guess, and doesn’t need to be perfect.
 
 print_df_names(data_from_db_more_fields)
+
+data_from_db_more_fields_gom0 <-
+  data_from_db_more_fields %>%
+  filter(END_PORT_STATE %in% gom_state_abbr) %>%
+  mutate(fl_county_gom = case_when(
+    toupper(END_PORT_COUNTY) %in% toupper(fl_counties$GOM) ~ "fl_county_gom",
+    .default = 'not_gom'
+  ))
+  
+data_from_db_more_fields_gom0 %>% 
+  select(END_PORT_COUNTY, END_PORT_STATE, fl_county_gom) %>% 
+  filter(END_PORT_STATE == "FL" & fl_county_gom == 'not_gom') %>% 
+  unique() %>% 
+  head()
+#   END_PORT_COUNTY END_PORT_STATE fl_county_gom
+# 1      PALM BEACH             FL       not_gom
+# 2        ST LUCIE             FL       not_gom
+# 8         BREVARD             FL       not_gom
+# 9           DUVAL             FL       not_gom
+
+filter_florida <-
+  quo(END_PORT_STATE == 'FL' & fl_county_gom == 'fl_county_gom')
+
+data_from_db_more_fields_gom1 <-
+  data_from_db_more_fields_gom0 %>%
+  filter(!!filter_florida | !(END_PORT_STATE == "FL"))
+
+dim(data_from_db_more_fields_gom1)
+# 564416
+
+data_from_db_more_fields_gom1_p <-
+  data_from_db_more_fields_gom1 %>%
+  select(TRIP_ID, END_PORT_STATE) %>%
+  unique() %>% 
+  add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
+  select(END_PORT_STATE, trip_by_state_num) %>% 
+  unique() %>% 
+  mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
+
+write_csv(data_from_db_more_fields_gom1_p,
+         "data_from_db_more_fields_gom1_p.csv")
