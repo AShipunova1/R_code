@@ -258,6 +258,35 @@ length(in_fhier_only_name)
 # 33
 head(in_fhier_only_name)
 
+# "SELECT
+#   *
+# FROM
+#        safis.trips@secapxdv_dblk.sfsc.noaa.gov
+#   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+#   USING ( vessel_id )
+# WHERE
+#   vessel_name = 'SIX PACKED'"
+# 0
+
+### check in_fhier_only_name ----
+in_fhier_only_name_query <- 
+  paste0(
+"SELECT
+  *
+FROM
+       safis.trips@secapxdv_dblk.sfsc.noaa.gov
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  USING ( vessel_id )
+WHERE
+  vessel_name in (",
+in_fhier_only_name,
+")"
+  )
+# [30] "SELECT\n  *\nFROM\n       safis.trips@secapxdv_dblk.sfsc.noaa.gov\n  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov\n  USING ( vessel_id )\nWHERE\n  vessel_name in (DANIELLE)"         
+
+
+in_fhier_only_name_query
+
 data_from_fhier_GOM %>% 
   filter(VESSEL_NAME %in% in_fhier_only_name) %>% 
   View()
