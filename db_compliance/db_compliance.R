@@ -170,11 +170,23 @@ permit_vessel_query_exp21_reg_1 %>%
   filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
   ungroup
 
+permit_vessel_query_exp21_reg_1 %>%
+  group_by(SERO_OFFICIAL_NUMBER) %>% 
+  filter(distinct_regs > 1 &
+           (all(abs(diff(my_end_date)) < 1) &
+           all(abs(diff(EFFECTIVE_DATE)) < 1))) %>%
+  View()
+# 102
+  # filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
+  # ungroup
 
-# %>% 
-  dplyr::mutate(case_when(
-    distinct_regs > 1 & 
-    ~ 
+permit_vessel_query_exp21_reg_1 %>%
+  group_by(SERO_OFFICIAL_NUMBER) %>% 
+  mutate(dual_perm_same_dates = case_when(
+    distinct_regs > 1 &
+           (all(abs(diff(my_end_date)) < 1) &
+           all(abs(diff(EFFECTIVE_DATE)) < 1)) ~ "dual",
+    .default = permit_sa_gom
     )
-    ) %>% 
+    ) %>%
   View()
