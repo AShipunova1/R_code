@@ -102,19 +102,6 @@ gom_trip_notifications_by_arrival_port_state_summary <-
 # num (5): Total With GOM Arrival Port, Total AL, Total FL, Tot...
 ```
 
-### Trip Notifications (Hail-Outs) Extended
-```{r Trip Notifications (Hail-Outs) Extended}
-### Trip Notifications (Hail-Outs) Extended ---- 
-data_from_fhier_extended <- read_csv(file.path(my_paths$inputs,
-r"(fishing_trips_GOM_2022\Trip Notifications (Hail-Outs) Extended.csv)"))
-# Rows: 65004 Columns: 31                                                                               
-# ── Column specification ───────────────────────────────────────────
-# Delimiter: ","
-# chr (22): NOTIFICATION_TYPE_NAME, SYSTEM_ID, TRIP_TYPE, TRIP_TY...
-# dbl  (7): NOTIFICATION_SEQ, NOTIFICATION_TYPE_ID, ACCSP_PERMIT_...
-# lgl  (2): CANCEL_FLAG, TRIP_START_DATE_TIME
-```
-
 ### GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE
 ```{r GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE}
 ### FHIER / Reports / GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE ----
@@ -197,7 +184,7 @@ sa_fl_counties_in_fhier_data <-
 ```
 
 
-## get data from db with the same fields as in fhier
+## get data from db
 ```{r setup, cache = TRUE}
 
 # get data ----
@@ -206,8 +193,6 @@ sa_fl_counties_in_fhier_data <-
 gom_state_abbr <- c("AL", "FL", "LA", "MS", "TX")
 
 ## data from db ----
-## get data from db with the same fields as in fhier ----
-con <- connect_to_secpr()
 
 # if a csv exists, read it, it is faster than from db
 db_csv_data_gom_22_path <- 
@@ -218,6 +203,8 @@ if (file.exists(db_csv_data_gom_22_path)) {
   data_from_db_more_fields <-
     read_csv(db_csv_data_gom_22_path)
 } else {
+  con <- connect_to_secpr()
+
   q_file_name <-
     file.path(my_paths$inputs,
             r"(fishing_trips_GOM_2022\gom_landing_2022_more_fields.sql)")
@@ -231,6 +218,8 @@ if (file.exists(db_csv_data_gom_22_path)) {
   toc()
   # 731.83 sec elapsed
   # 455.661 in sql dev
+  
+  dbDisconnect(con)
 }
 ```
 
@@ -239,15 +228,18 @@ if (file.exists(db_csv_data_gom_22_path)) {
 ## Compare with FHIER ----
 ## in_fhier_only_names_diff ----
 in_fhier_only_names_diff5 <-
-setdiff(unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
-        unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER))
+  setdiff(
+    unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
+    unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER))
 
 length(in_fhier_only_names_diff5)
 # 33
 
 in_db_only_names_diff5 <-
-setdiff(unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER),
-        unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER))
+  setdiff(
+    unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER),
+    unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER)
+  )
 
 length(in_db_only_names_diff5)
 # 83
@@ -257,25 +249,22 @@ length(in_db_only_names_diff5)
 ## Separate Florida counties by region
 ```{r Separate Florida counties by region}
 ## Separate Florida counties by region ----
-# And just send Marion County as GOM (keys), since it’s too hard to break up by region. Unless you have a quick solution. This is just a best guess, and doesn’t need to be perfect.
-
-## Separate Florida counties by region ----
-# And just send Marion County as GOM (keys), since it’s too hard to break up by region. Unless you have a quick solution. This is just a best guess, and doesn’t need to be perfect.
-
-print_df_names(data_from_db_more_fields)
 
 data_from_db_more_fields_gom0 <-
   data_from_db_more_fields %>%
-  filter(END_PORT_STATE %in% gom_state_abbr) %>%
-  mutate(fl_county_gom = case_when(
+  dplyr::filter(END_PORT_STATE %in% gom_state_abbr) %>%
+  dplyr::mutate(fl_county_gom = case_when(
     toupper(END_PORT_COUNTY) %in% toupper(fl_counties$GOM) ~ "fl_county_gom",
     .default = 'not_gom'
   ))
   
-data_from_db_more_fields_gom0 %>% 
-  select(END_PORT_COUNTY, END_PORT_STATE, fl_county_gom) %>% 
-  filter(END_PORT_STATE == "FL" & fl_county_gom == 'not_gom') %>% 
-  unique() %>% 
+data_from_db_more_fields_gom0 %>%
+  dplyr::select(END_PORT_COUNTY,
+                END_PORT_STATE,
+                fl_county_gom) %>%
+  dplyr::filter(END_PORT_STATE == "FL" &
+                  fl_county_gom == 'not_gom') %>%
+  unique() %>%
   head()
 #   END_PORT_COUNTY END_PORT_STATE fl_county_gom
 # 1      PALM BEACH             FL       not_gom
@@ -284,11 +273,11 @@ data_from_db_more_fields_gom0 %>%
 # 9           DUVAL             FL       not_gom
 
 filter_florida <-
-  quo(END_PORT_STATE == 'FL' & fl_county_gom == 'fl_county_gom')
+  rlang::quo(END_PORT_STATE == 'FL' & fl_county_gom == 'fl_county_gom')
 
 data_from_db_more_fields_gom1 <-
   data_from_db_more_fields_gom0 %>%
-  filter(!!filter_florida | !(END_PORT_STATE == "FL"))
+  dplyr::filter(!!filter_florida | !(END_PORT_STATE == "FL"))
 
 dim(data_from_db_more_fields_gom1)
 # 564416
@@ -296,11 +285,12 @@ dim(data_from_db_more_fields_gom1)
 ```
 
 
-# Count landing locations by trip_id (db)
-```{r count landing locations by trip_id (db)}
-# count landing locations by trip_id ----
+# Count end port by trip_id (db)
+```{r count end port by trip_id (db)}
+# count end port by trip_id ----
 ## from DB
 
+# For comparison:
 # in FHIER / GOM Trip Notifications by Arrival Port State
 # Total AL 8,714
 # Total FL 41,066
@@ -310,12 +300,14 @@ dim(data_from_db_more_fields_gom1)
 
 data_from_db_more_fields_gom1_p <-
   data_from_db_more_fields_gom1 %>%
-  select(TRIP_ID, END_PORT_STATE) %>%
-  unique() %>% 
-  add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
-  select(END_PORT_STATE, trip_by_state_num) %>% 
-  unique() %>% 
-  mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
+  dplyr::select(TRIP_ID, END_PORT_STATE) %>%
+  unique() %>%
+  dplyr::add_count(END_PORT_STATE,
+                   name = "trip_by_state_num") %>%
+  dplyr::select(END_PORT_STATE, trip_by_state_num) %>%
+  unique() %>%
+  dplyr::mutate(perc_st =
+                  trip_by_state_num * 100 / sum(trip_by_state_num))
 
 
 glimpse(data_from_db_more_fields_gom1_p)
@@ -330,7 +322,7 @@ gom_fhier1 <-
   as.data.frame()
 
 # https://stackoverflow.com/questions/51297089/how-to-split-data-frame-by-column-names-in-r
-# split by column names int percent and total
+# split by column names into Total and Round dfs
 gom_fhier1_list <-
   purrr::map(rlang::set_names(c("Total", "Round")),
              ~ dplyr::select(gom_fhier1,
@@ -357,16 +349,16 @@ glimpse(gom_fhier1_list_t$Round)
 # clean headers
 gom_fhier1_list_t <-
   purrr::map(gom_fhier1_list_t,
-             ~ mutate(.x,
-                      # gsub(pattern, replacement, x, ignore.case = FALSE...)
-                      # remove any of:
-                      state_abbr = gsub("Total |Rounded | Pct",
-                                        "", 
-                                        header_state, 
-                                        ignore.case = T
-                                        )
-                      )
-             )
+          ~ mutate(.x,
+          # gsub(pattern, replacement, x, ignore.case = FALSE...)
+          # remove any of:
+          state_abbr = gsub("Total |Rounded | Pct",
+                            "", 
+                            header_state, 
+                            ignore.case = T
+                            )
+          )
+ )
 
 glimpse(gom_fhier1_list_t)
 ```
@@ -374,6 +366,7 @@ glimpse(gom_fhier1_list_t)
 ## Join db results with FHIER summary
 ```{r join db results with FHIER summary}
 ## join db results with FHIER summary ----
+# join each df separately, for clarity
 compare_perc_db_fhier0 <-
   data_from_db_more_fields_gom1_p %>%
   dplyr::mutate(rounded_percent_db = round(perc_st)) %>%
@@ -395,7 +388,7 @@ glimpse(compare_perc_db_fhier1)
 ## change columns ----
 compare_perc_db_fhier <-
   compare_perc_db_fhier1 %>%
-  select(-starts_with("header_state"))
+  dplyr::select(-dplyr::starts_with("header_state"))
 
 names(compare_perc_db_fhier) <-
   c("END_PORT_STATE", "trip_by_state_num", "perc_st", "rounded_percent_db", "rounded_percent_fhier", "total_fhier")
@@ -406,10 +399,13 @@ glimpse(compare_perc_db_fhier)
 ## Get total
 ```{r Get total}
 ## Get total ----
+# DB:
 compare_perc_db_fhier %>%
   count(wt = trip_by_state_num)
 #       n
 # 1 53504
+
+# FHIER:
 compare_perc_db_fhier %>%
   count(wt = total_fhier)
 #       n
@@ -417,6 +413,5 @@ compare_perc_db_fhier %>%
 
 # write_csv(compare_perc_db_fhier,
           # "lending_compare_perc_db_fhier.csv")
-dbDisconnect(con)
 ```
 
