@@ -36,8 +36,20 @@ srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
 permit_info <- dbGetQuery(con,
                           mv_sero_fh_permits_his_query)
 
-View(permit_info)
+# View(permit_info)
 
+### the same from another db table (to compare) ----
+
+udp_v_sero_oth_prm_period_his_query <-
+  "select * from
+  udp.v_sero_oth_prm_period_his@secpr_dblk
+"
+
+permit_info_udp <- dbGetQuery(con,
+                          udp_v_sero_oth_prm_period_his_query)
+
+
+### permit + vessel ----
 permit_vessel_query_exp21_query <-
 "select * from srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
 join safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
