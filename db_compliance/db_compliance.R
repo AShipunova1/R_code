@@ -120,5 +120,8 @@ permit_vessel_query_exp21_reg %>%
   select(SERO_OFFICIAL_NUMBER,
          permit_sa_gom) %>%
   unique() %>% 
-  View()
 # 7573
+  count(SERO_OFFICIAL_NUMBER) %>% 
+  filter(n > 1) %>% 
+  View()
+# 483
