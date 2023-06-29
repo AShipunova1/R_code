@@ -287,3 +287,28 @@ overlap_join1 %>%
   dim()
 # 4982 dual permits with dates overlapping between SA and GOM
 
+# get overlapping periods
+# https://stackoverflow.com/questions/37486572/date-roll-up-in-r/37487673#37487673
+  # mutate(gr = cumsum(FromDate-lag(ToDate, default=1) != 1)) %>% 
+# ---
+# https://stackoverflow.com/questions/76076208/calculating-number-of-overlapping-days-between-two-date-ranges
+dat <-
+  data.frame(enr_dte = sample(seq(
+    as.Date('2022-01-01'), 
+    as.Date('2023-06-30'), 
+    by = "day"
+  ), 10))
+
+dat %>% 
+  mutate( 
+    # Create interval between enrollment and enrollment + 180 days:
+    enr_end_int = lubridate::interval( enr_dte, enr_dte + days(180) )
+    # Create winter interval:
+    , winter_int = lubridate::interval( as.Date('2022-10-01'), as.Date('2023-05-31') )
+    # Get the intersection between enrollment interval and winter interval:
+    , enr_winter_intersection = lubridate::intersect( enr_end_int, winter_int )
+    # Get the length of the intersection (int_length can only return length in seconds):
+    , enr_winter_intersection_length_sec = lubridate::int_length( enr_winter_intersection )
+    # Convert seconds to days:
+    , enr_winter_intersection_length_days = enr_winter_intersection_length_sec/60/60/24
+  )
