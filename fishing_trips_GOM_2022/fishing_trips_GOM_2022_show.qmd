@@ -259,62 +259,39 @@ length(in_db_only_names_diff5)
 ## Separate Florida counties by region ----
 # And just send Marion County as GOM (keys), since it’s too hard to break up by region. Unless you have a quick solution. This is just a best guess, and doesn’t need to be perfect.
 
-# Florida counties by region (from the Internet)
-fl_counties <- list(
-  "SA" = c(
-    "Brevard",
-    "Broward",
-    "Duval",
-    "Flagler",
-    "Indian River",
-    "Martin",
-    "Miami-Dade",
-    "Nassau",
-    "Palm Beach",
-    "St. Johns",
-    "St. Lucie",
-    "Volusia"
-  ),
-  "GOM" = c(
-    "Bay",
-    "Charlotte",
-    "Citrus",
-    "Collier",
-    "Dixie",
-    "Escambia",
-    "Franklin",
-    "Gulf",
-    "Hernando",
-    "Hillsborough",
-    "Lee",
-    "Levy",
-    "Manatee",
-    "Monroe",
-    "Okaloosa",
-    "Pasco",
-    "Pinellas",
-    "Santa Rosa",
-    "Sarasota",
-    "Taylor",
-    "Wakulla",
-    "Walton"
-  )
-)
+## Separate Florida counties by region ----
+# And just send Marion County as GOM (keys), since it’s too hard to break up by region. Unless you have a quick solution. This is just a best guess, and doesn’t need to be perfect.
 
 print_df_names(data_from_db_more_fields)
-data_from_db_more_fields %>% 
-  filter(ARRIVAL_PORT_STATE == "FL") %>% 
-  select(ARRIVAL_PORT_COUNTY) %>% 
-  unique()
 
-str(data_from_fhier_GOM_fl_counties)
+data_from_db_more_fields_gom0 <-
+  data_from_db_more_fields %>%
+  filter(END_PORT_STATE %in% gom_state_abbr) %>%
+  mutate(fl_county_gom = case_when(
+    toupper(END_PORT_COUNTY) %in% toupper(fl_counties$GOM) ~ "fl_county_gom",
+    .default = 'not_gom'
+  ))
+  
+data_from_db_more_fields_gom0 %>% 
+  select(END_PORT_COUNTY, END_PORT_STATE, fl_county_gom) %>% 
+  filter(END_PORT_STATE == "FL" & fl_county_gom == 'not_gom') %>% 
+  unique() %>% 
+  head()
+#   END_PORT_COUNTY END_PORT_STATE fl_county_gom
+# 1      PALM BEACH             FL       not_gom
+# 2        ST LUCIE             FL       not_gom
+# 8         BREVARD             FL       not_gom
+# 9           DUVAL             FL       not_gom
 
-sa_fl_counties_in_fhier_data <-
-  intersect(
-    toupper(fl_counties$SA),
-    toupper(data_from_fhier_GOM_fl_counties$ARRIVAL_PORT_COUNTY)
-  )
+filter_florida <-
+  quo(END_PORT_STATE == 'FL' & fl_county_gom == 'fl_county_gom')
 
+data_from_db_more_fields_gom1 <-
+  data_from_db_more_fields_gom0 %>%
+  filter(!!filter_florida | !(END_PORT_STATE == "FL"))
+
+dim(data_from_db_more_fields_gom1)
+# 564416
 
 ```
 
@@ -331,51 +308,18 @@ sa_fl_counties_in_fhier_data <-
 # Total MS 970
 # Total TX 4,809
 
-data_from_db_more_fields %>% 
+data_from_db_more_fields_gom1_p <-
+  data_from_db_more_fields_gom1 %>%
   select(TRIP_ID, END_PORT_STATE) %>%
   unique() %>% 
-  count(END_PORT_STATE)
-
-data_from_db_more_fields_end_p_s_by_trip <-
-  data_from_db_more_fields %>%
-  filter(END_PORT_STATE %in% gom_state_abbr) %>%
-  select(TRIP_ID, END_PORT_STATE) %>%
-  unique()
-
-dim(data_from_db_more_fields_end_p_s_by_trip)
-# 53504
-
-data_from_db_more_fields_end_p_s_by_trip %>% 
-  count(END_PORT_STATE)
-#   END_PORT_STATE     n
-# 1             AL  8398
-# 2             FL 38180
-# 3             LA  1640
-# 4             MS   991
-# 5             TX  4295
-
-data_from_db_more_fields %>% 
-  filter(NOTIF_LANDING_LOCATION_STATE %in% gom_state_abbr) %>%
-  select(TRIP_ID, NOTIF_LANDING_LOCATION_STATE) %>%
-  unique() %>% 
-  count(NOTIF_LANDING_LOCATION_STATE)
-  # NOTIF_LANDING_LOCATION_STATE     n
-# 1                           AL  7322
-# 2                           FL 22471
-# 3                           LA  1265
-# 4                           MS   893
-# 5                           TX  2940
-# even less (in compar. w GOM Trip Notifications by Arrival Port State)
-
-data_from_db_more_fields_end_p_s_by_trip_p <-
-  data_from_db_more_fields_end_p_s_by_trip %>%
   add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
   select(END_PORT_STATE, trip_by_state_num) %>% 
   unique() %>% 
   mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
 
-glimpse(data_from_db_more_fields_end_p_s_by_trip_p)
-# percentage is very close
+
+glimpse(data_from_db_more_fields_gom1_p)
+# percentage is very close to FHIER summary
 ```
 
 ## convert gom_fhier
@@ -431,7 +375,7 @@ glimpse(gom_fhier1_list_t)
 ```{r join db results with FHIER summary}
 ## join db results with FHIER summary ----
 compare_perc_db_fhier0 <-
-  data_from_db_more_fields_end_p_s_by_trip_p %>%
+  data_from_db_more_fields_gom1_p %>%
   dplyr::mutate(rounded_percent_db = round(perc_st)) %>%
   dplyr::inner_join(gom_fhier1_list_t$Round,
              dplyr::join_by(END_PORT_STATE == state_abbr))
