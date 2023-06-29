@@ -65,13 +65,60 @@ permit_vessel_query_exp21 <- dbGetQuery(con,
 
 # add sa gom field
 
-print_df_names(permit_vessel_query_exp21)
-
-permit_vessel_query_exp21_reg <- 
-permit_vessel_query_exp21 %>% 
-  separate_permits_into_3_groups(permit_group_field_name = "top")
-
 names(permit_vessel_query_exp21) <-
-  make.unique(names(permit_vessel_query_exp21))
+  make.unique(names(permit_vessel_query_exp21), sep = "_")
 
-  # dplyr::rename(iris, id_name_v = vessel_id.1)
+print_df_names(permit_vessel_query_exp21)
+grep(".1", names(permit_vessel_query_exp21), value = T)
+# [1] "VESSEL_ID.1"
+
+
+permit_vessel_query_exp21 %>% 
+  filter(!(VESSEL_ID.1 == VESSEL_ID)) %>% 
+  dim()
+# 37424: all
+
+permit_vessel_query_exp21 %>% 
+  filter(!(VESSEL_ID == SERO_OFFICIAL_NUMBER)) %>% 
+  dim()
+# 0
+
+# permit_vessel_query_exp21 %>% 
+#   filter(VESSEL_ID == "910032") %>% 
+#   View()
+
+permit_vessel_query_exp21_1 <-
+  permit_vessel_query_exp21 %>% 
+  dplyr::rename(VESSEL_ID_permit = VESSEL_ID,
+                VESSEL_ID_vessel = VESSEL_ID.1)
+
+## separate_permits_into_3_groups ----
+
+print_df_names(permit_vessel_query_exp21_reg)
+
+permit_vessel_query_exp21_reg <-
+  permit_vessel_query_exp21_1 %>%
+  separate_permits_into_3_groups(permit_group_field_name = "TOP")
+
+permit_vessel_query_exp21_reg %>%
+  select(PERMIT_GROUP,
+         permit_sa_gom) %>%
+  unique() %>% 
+  arrange(PERMIT_GROUP) %>% 
+  head(7)
+#   PERMIT_GROUP permit_sa_gom
+# 1            2       sa_only
+# 2            4       sa_only
+# 3            5       sa_only
+# 4            6       sa_only
+# 5            7      gom_only
+# 6            7       sa_only
+# 7            8       sa_only
+
+
+permit_vessel_query_exp21_reg %>%
+  select(SERO_OFFICIAL_NUMBER,
+         permit_sa_gom) %>%
+  unique() %>% 
+  View()
+# 7573
