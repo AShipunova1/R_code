@@ -550,17 +550,27 @@ q_file_name <- r"(my_inputs\fishing_trips_GOM_2022\gom_landing_2022_more_fields.
 gom_landing_2022_more_fields_query <- 
   readr::read_file(q_file_name)
 
-tic("data_from_db_more_fields")
-data_from_db_more_fields <-
-  dbGetQuery(con, gom_landing_2022_more_fields_query)
-toc()
-# 731.83 sec elapsed
-# 455.661 in sql dev
-# data_from_db_more_fields: 837.41 sec elapsed
+# if a csv exists, read it, it is faster than from db
+db_csv_data_gom_22_path <- 
+  file.path(my_paths$inputs, 
+r"(fishing_trips_GOM_2022\gom_landing_2022_more_fields.csv)")
+
+if (file.exists(db_csv_data_gom_22_path)) {
+  data_from_db_more_fields <-
+    read_csv(db_csv_data_gom_22_path)
+} else {
+  tic("data_from_db_more_fields")
+  data_from_db_more_fields <-
+    dbGetQuery(con, gom_landing_2022_more_fields_query)
+  toc()
+  # 731.83 sec elapsed
+  # 455.661 in sql dev
+  # data_from_db_more_fields: 837.41 sec elapsed
+}
 
 ### save data_from_db_more_fields on disc ----
-write_csv(data_from_db_more_fields,
-          "gom_landing_2022_more_fields.csv")
+# write_csv(data_from_db_more_fields,
+          # "gom_landing_2022_more_fields.csv")
 
 ### compare again with FHIER ----
 ## in_fhier_only_names_diff5 ----
@@ -813,5 +823,5 @@ data_from_db_more_fields_gom1_p <-
   unique() %>% 
   mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
 
-write_csv(data_from_db_more_fields_gom1_p,
-         "data_from_db_more_fields_gom1_p.csv")
+# write_csv(data_from_db_more_fields_gom1_p,
+#          "data_from_db_more_fields_gom1_p.csv")
