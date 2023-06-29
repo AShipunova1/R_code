@@ -94,7 +94,7 @@ permit_vessel_query_exp21_1 <-
 
 ## separate_permits_into_3_groups ----
 
-print_df_names(permit_vessel_query_exp21_reg)
+# print_df_names(permit_vessel_query_exp21_reg)
 
 permit_vessel_query_exp21_reg <-
   permit_vessel_query_exp21_1 %>%
@@ -151,34 +151,38 @@ permit_vessel_query_exp21_reg_0 %>%
   dplyr::group_by(SERO_OFFICIAL_NUMBER) %>% 
   dplyr::summarise(distinct_regs = n_distinct(permit_sa_gom)) %>% 
   filter(distinct_regs > 1) %>%
+  ungroup() %>% 
   View()
 # 483
 
 permit_vessel_query_exp21_reg_1 <- 
   permit_vessel_query_exp21_reg_0 %>% 
   dplyr::group_by(SERO_OFFICIAL_NUMBER) %>% 
-  dplyr::mutate(distinct_regs = n_distinct(permit_sa_gom))
+  dplyr::mutate(distinct_regs = n_distinct(permit_sa_gom)) %>% 
+  ungroup()
 
-View(permit_vessel_query_exp21_reg_1)
+# View(permit_vessel_query_exp21_reg_1)
 
 permit_vessel_query_exp21_reg_1 %>%
   filter(distinct_regs > 1 &
            (all(abs(diff(my_end_date)) > 0) |
            all(abs(diff(EFFECTIVE_DATE)) > 0))) %>%
   View()
-
-  filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
-  ungroup
+# 0
+  # filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
+  
 
 permit_vessel_query_exp21_reg_1 %>%
   group_by(SERO_OFFICIAL_NUMBER) %>% 
   filter(distinct_regs > 1 &
            (all(abs(diff(my_end_date)) < 1) &
            all(abs(diff(EFFECTIVE_DATE)) < 1))) %>%
+  ungroup() %>% 
   View()
 # 102
   # filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
   # ungroup
+
 permit_vessel_query_exp21_reg_2 <-
   permit_vessel_query_exp21_reg_1 %>%
   group_by(SERO_OFFICIAL_NUMBER) %>%
@@ -190,12 +194,35 @@ permit_vessel_query_exp21_reg_2 <-
                          all(abs(
                            diff(EFFECTIVE_DATE)
                          ) < 1)) ~ "dual",
-                     .default = permit_sa_gom))
-# %>%
+                     .default = permit_sa_gom)) %>% 
+  ungroup()
+
+permit_vessel_query_exp21_reg_2 %>%
   filter(dual_perm_same_dates == "dual") %>% 
-  View()
+  dim()
 # 102
 
 permit_vessel_query_exp21_1 %>% 
   filter(VESSEL_ID_permit == '676256') %>% 
   view()
+
+# print_df_names(permit_vessel_query_exp21_reg_1)
+
+permit_vessel_query_exp21_reg_1 %>% 
+  filter(SERO_OFFICIAL_NUMBER == '676256') %>% 
+  str()
+
+permit_vessel_query_exp21_reg_1 %>%
+  # filter(SERO_OFFICIAL_NUMBER == '676256') %>% 
+  group_by(SERO_OFFICIAL_NUMBER) %>%
+  mutate(a = abs(diff(my_end_date))) %>% 
+  ungroup() %>% 
+  str()
+
+# ℹ In argument: `a = abs(diff(my_end_date))`.
+# ℹ In group 1: `SERO_OFFICIAL_NUMBER = "1000042"`.
+# Caused by error:
+# ! `a` must be size 4 or 1, not 3.
+
+# check differently
+# https://stackoverflow.com/questions/63402652/comparing-dates-in-different-columns-to-isolate-certain-within-group-entries-in
