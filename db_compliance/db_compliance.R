@@ -288,7 +288,12 @@ overlap_join1 %>%
 # 1 2021-05-31 00:00:00         sa_only       2021-05-14 2021-12-06 23:00:00
 # 2 2021-12-05 23:00:00         sa_only       2021-05-14 2021-12-06 23:00:00
 
-
+overlap_join1 %>% 
+  filter(!is.na(permit_sa_gom.y)) %>% 
+  select(SERO_OFFICIAL_NUMBER) %>% 
+  unique() %>% 
+  dim()
+# 4982 dual permits with dates overlapping between SA and GOM
 
 example_df_merged %>% 
   filter(SERO_OFFICIAL_NUMBER == '676256' |
