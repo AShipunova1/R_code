@@ -179,14 +179,23 @@ permit_vessel_query_exp21_reg_1 %>%
 # 102
   # filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
   # ungroup
-
-permit_vessel_query_exp21_reg_1 %>%
-  group_by(SERO_OFFICIAL_NUMBER) %>% 
-  mutate(dual_perm_same_dates = case_when(
-    distinct_regs > 1 &
-           (all(abs(diff(my_end_date)) < 1) &
-           all(abs(diff(EFFECTIVE_DATE)) < 1)) ~ "dual",
-    .default = permit_sa_gom
-    )
-    ) %>%
+permit_vessel_query_exp21_reg_2 <-
+  permit_vessel_query_exp21_reg_1 %>%
+  group_by(SERO_OFFICIAL_NUMBER) %>%
+  mutate(dual_perm_same_dates =
+           case_when(distinct_regs > 1 &
+                       (all(abs(
+                         diff(my_end_date)
+                       ) < 1) &
+                         all(abs(
+                           diff(EFFECTIVE_DATE)
+                         ) < 1)) ~ "dual",
+                     .default = permit_sa_gom))
+# %>%
+  filter(dual_perm_same_dates == "dual") %>% 
   View()
+# 102
+
+permit_vessel_query_exp21_1 %>% 
+  filter(VESSEL_ID_permit == '676256') %>% 
+  view()
