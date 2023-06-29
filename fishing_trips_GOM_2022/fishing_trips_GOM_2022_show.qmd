@@ -209,18 +209,29 @@ gom_state_abbr <- c("AL", "FL", "LA", "MS", "TX")
 ## get data from db with the same fields as in fhier ----
 con <- connect_to_secpr()
 
-# remove semicolon at the end of the query!
-q_file_name <- file.path(my_paths$inputs, r"(fishing_trips_GOM_2022\gom_landing_2022_more_fields.sql)")
+# if a csv exists, read it, it is faster than from db
+db_csv_data_gom_22_path <- 
+  file.path(my_paths$inputs, 
+r"(fishing_trips_GOM_2022\gom_landing_2022_more_fields.csv)")
 
-gom_landing_2022_more_fields_query <- 
-  readr::read_file(q_file_name)
-
-tic("data_from_db_more_fields")
-data_from_db_more_fields <-
-  dbGetQuery(con, gom_landing_2022_more_fields_query)
-toc()
-# 731.83 sec elapsed
-# 455.661 in sql dev
+if (file.exists(db_csv_data_gom_22_path)) {
+  data_from_db_more_fields <-
+    read_csv(db_csv_data_gom_22_path)
+} else {
+  q_file_name <-
+    file.path(my_paths$inputs,
+            r"(fishing_trips_GOM_2022\gom_landing_2022_more_fields.sql)")
+  
+  gom_landing_2022_more_fields_query <-
+    readr::read_file(q_file_name)
+  
+  tic("data_from_db_more_fields")
+  data_from_db_more_fields <-
+    dbGetQuery(con, gom_landing_2022_more_fields_query)
+  toc()
+  # 731.83 sec elapsed
+  # 455.661 in sql dev
+}
 ```
 
 ## Compare with FHIER
