@@ -251,8 +251,43 @@ example_df_merged <-
     join_by = "SERO_OFFICIAL_NUMBER"
   )
 
-by <- join_by(chromosome, overlaps(x$start, x$end, y$start, y$end, bounds = "[)"))
-full_join(segments, reference, by) %>% 
+by <- join_by(SERO_OFFICIAL_NUMBER, 
+              overlaps(x$EFFECTIVE_DATE, 
+                       x$my_end_date, 
+                       y$EFFECTIVE_DATE,
+                       y$my_end_date,
+                       bounds = "[)"))
+
+overlap_join1 <-
+  full_join(
+  permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only,
+  permit_vessel_query_exp21_reg_0_list_by_perm_r$sa_only,
+  by
+)
+
+dim(overlap_join1)
+# 16639
+
+View(overlap_join1)
+
+overlap_join1 %>% 
+  filter(!is.na(permit_sa_gom.y)) %>% 
+  # View()
+# 12,868 
+  # select(SERO_OFFICIAL_NUMBER) %>% 
+  # unique() %>% 
+  # dim()
+# 4982
+  filter(SERO_OFFICIAL_NUMBER == '669631')
+
+# an overlap example
+#   SERO_OFFICIAL_NUMBER permit_sa_gom.x EFFECTIVE_DATE.x
+# 1               669631        gom_only       2020-06-27
+# 2               669631        gom_only       2021-06-04
+#         my_end_date.x permit_sa_gom.y EFFECTIVE_DATE.y       my_end_date.y
+# 1 2021-05-31 00:00:00         sa_only       2021-05-14 2021-12-06 23:00:00
+# 2 2021-12-05 23:00:00         sa_only       2021-05-14 2021-12-06 23:00:00
+
 
 
 example_df_merged %>% 
