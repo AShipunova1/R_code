@@ -17,9 +17,9 @@ con <- connect_to_secpr()
 ## permit ----
 file_name_permits <- r"(my_outputs\from_db\mv_sero_fh_permits_his.csv)"
 
-mv_sero_fh_permits_his <- 
+mv_sero_fh_permits_his <-
   read_csv(file_name_permits)
-# Rows: 181032 Columns: 22                                                                        
+# Rows: 181032 Columns: 22
 # ── Column specification ─────────────────────────────────────
 # Delimiter: ","
 # chr (14): VESSEL_ID, EXPIRATION_DATE, TOP, PERMIT, EFFECT...
@@ -73,22 +73,22 @@ grep(".1", names(permit_vessel_query_exp21), value = T)
 # [1] "VESSEL_ID.1"
 
 
-permit_vessel_query_exp21 %>% 
-  filter(!(VESSEL_ID.1 == VESSEL_ID)) %>% 
+permit_vessel_query_exp21 %>%
+  filter(!(VESSEL_ID.1 == VESSEL_ID)) %>%
   dim()
 # 37424: all
 
-permit_vessel_query_exp21 %>% 
-  filter(!(VESSEL_ID == SERO_OFFICIAL_NUMBER)) %>% 
+permit_vessel_query_exp21 %>%
+  filter(!(VESSEL_ID == SERO_OFFICIAL_NUMBER)) %>%
   dim()
 # 0
 
-# permit_vessel_query_exp21 %>% 
-#   filter(VESSEL_ID == "910032") %>% 
+# permit_vessel_query_exp21 %>%
+#   filter(VESSEL_ID == "910032") %>%
 #   View()
 
 permit_vessel_query_exp21_1 <-
-  permit_vessel_query_exp21 %>% 
+  permit_vessel_query_exp21 %>%
   dplyr::rename(VESSEL_ID_permit = VESSEL_ID,
                 VESSEL_ID_vessel = VESSEL_ID.1)
 
@@ -103,8 +103,8 @@ permit_vessel_query_exp21_reg <-
 permit_vessel_query_exp21_reg %>%
   select(PERMIT_GROUP,
          permit_sa_gom) %>%
-  unique() %>% 
-  arrange(PERMIT_GROUP) %>% 
+  unique() %>%
+  arrange(PERMIT_GROUP) %>%
   head(7)
 #   PERMIT_GROUP permit_sa_gom
 # 1            2       sa_only
@@ -119,9 +119,62 @@ permit_vessel_query_exp21_reg %>%
 permit_vessel_query_exp21_reg %>%
   select(SERO_OFFICIAL_NUMBER,
          permit_sa_gom) %>%
-  unique() %>% 
+  unique() %>%
 # 7573
-  count(SERO_OFFICIAL_NUMBER) %>% 
-  filter(n > 1) %>% 
+  count(SERO_OFFICIAL_NUMBER) %>%
+  filter(n > 1) %>%
   View()
 # 483
+
+### both permit group should be active at the same time to be "dual" ----
+
+print_df_names(permit_vessel_query_exp21_reg)
+
+permit_vessel_query_exp21_reg_0 <-
+  permit_vessel_query_exp21_reg %>%
+  select(SERO_OFFICIAL_NUMBER,
+         permit_sa_gom,
+         EFFECTIVE_DATE,
+         END_DATE,
+         EXPIRATION_DATE) %>%
+  mutate(my_end_date = dplyr::coalesce(END_DATE,
+                                       EXPIRATION_DATE)) %>%
+  select(-c(END_DATE,
+            EXPIRATION_DATE)) %>%
+  unique()
+# dim()
+# 17588
+# 17583
+# View()
+
+permit_vessel_query_exp21_reg_0 %>% 
+  dplyr::group_by(SERO_OFFICIAL_NUMBER) %>% 
+  dplyr::summarise(distinct_regs = n_distinct(permit_sa_gom)) %>% 
+  filter(distinct_regs > 1) %>%
+  View()
+# 483
+
+permit_vessel_query_exp21_reg_1 <- 
+  permit_vessel_query_exp21_reg_0 %>% 
+  dplyr::group_by(SERO_OFFICIAL_NUMBER) %>% 
+  dplyr::mutate(distinct_regs = n_distinct(permit_sa_gom))
+
+View(permit_vessel_query_exp21_reg_1)
+
+permit_vessel_query_exp21_reg_1 %>%
+  filter(distinct_regs > 1 &
+           (all(abs(diff(my_end_date)) > 0) |
+           all(abs(diff(EFFECTIVE_DATE)) > 0))) %>%
+  View()
+
+  filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
+  ungroup
+
+
+# %>% 
+  dplyr::mutate(case_when(
+    distinct_regs > 1 & 
+    ~ 
+    )
+    ) %>% 
+  View()
