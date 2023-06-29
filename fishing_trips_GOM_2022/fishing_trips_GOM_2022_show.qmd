@@ -77,7 +77,7 @@ Ken Brennan has requested the 2022 number of fishing intended trips with effort 
 ```
 
 
-```{r no cache setup, include=FALSE}
+```{r no cache setup}
 # setup ----
 library(tictoc)
 source("~/R_code_github/useful_functions_module.r")
