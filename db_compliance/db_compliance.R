@@ -226,3 +226,74 @@ permit_vessel_query_exp21_reg_1 %>%
 
 # check differently
 # https://stackoverflow.com/questions/63402652/comparing-dates-in-different-columns-to-isolate-certain-within-group-entries-in
+
+permit_vessel_query_exp21_reg_0_list_by_perm_r <-
+  permit_vessel_query_exp21_reg_0 %>%
+  split(as.factor(permit_vessel_query_exp21_reg_0$permit_sa_gom))
+# %>%
+#   View()
+
+str(permit_vessel_query_exp21_reg_0_list_by_perm_r)
+
+example_df_merged <-
+  merge(
+    permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only,
+    permit_vessel_query_exp21_reg_0_list_by_perm_r$sa_only,
+    by = "SERO_OFFICIAL_NUMBER"
+  )
+dim(example_df_merged)
+# 3405
+
+example_df_merged <-
+  inner_join(
+    permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only,
+    permit_vessel_query_exp21_reg_0_list_by_perm_r$sa_only,
+    join_by = "SERO_OFFICIAL_NUMBER"
+  )
+
+by <- join_by(chromosome, overlaps(x$start, x$end, y$start, y$end, bounds = "[)"))
+full_join(segments, reference, by) %>% 
+
+
+example_df_merged %>% 
+  filter(SERO_OFFICIAL_NUMBER == '676256' |
+           SERO_OFFICIAL_NUMBER == '910032') %>%
+  View()
+# no 910032
+
+segments <- tibble(
+  segment_id = 1:4,
+  chromosome = c("chr1", "chr2", "chr2", "chr1"),
+  start = c(140, 210, 380, 230),
+  end = c(150, 240, 415, 280)
+)
+segments
+
+reference <- tibble(
+  reference_id = 1:4,
+  chromosome = c("chr1", "chr1", "chr2", "chr2"),
+  start = c(100, 200, 300, 415),
+  end = c(150, 250, 399, 450)
+)
+reference
+
+# Find every time a segment falls completely within a reference.
+# Sometimes using `x$` and `y$` makes your intentions clearer, even if they
+# match the default behavior.
+by <- join_by(chromosome, within(x$start, x$end, y$start, y$end))
+inner_join(segments, reference, by) %>% 
+  View()
+
+# Find every time a segment overlaps a reference in any way.
+by <- join_by(chromosome, overlaps(x$start, x$end, y$start, y$end))
+full_join(segments, reference, by) %>% 
+  View()
+
+# It is common to have right-open ranges with bounds like `[)`, which would
+# mean an end value of `415` would no longer overlap a start value of `415`.
+# Setting `bounds` allows you to compute overlaps with those kinds of ranges.
+by <- join_by(chromosome, overlaps(x$start, x$end, y$start, y$end, bounds = "[)"))
+full_join(segments, reference, by) %>% 
+  View()
+
+
