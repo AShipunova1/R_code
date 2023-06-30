@@ -293,7 +293,6 @@ overlap_join1 %>%
   ) %>%
   View()
 
-
 overlap_join1 %>% 
   filter(!is.na(permit_sa_gom.sa)) %>% 
   select(SERO_OFFICIAL_NUMBER) %>% 
@@ -301,6 +300,45 @@ overlap_join1 %>%
   dim()
 # 4982 dual permits with dates overlapping between SA and GOM
 
+overlapped_gom_sa <-
+  overlap_join1 %>% 
+  filter(!is.na(permit_sa_gom.sa)) %>% 
+  unique()
+
+dim(overlapped_gom_sa)
+# 12868     
+
+overlapped_gom_sa_int <-
+  overlapped_gom_sa %>% 
+    mutate(
+    eff_int_gom =
+      lubridate::interval(EFFECTIVE_DATE.gom,
+                          my_end_date.gom),
+    eff_int_sa =
+      lubridate::interval(EFFECTIVE_DATE.sa,
+                          my_end_date.sa)
+  ) %>%
+  mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
+
+print_df_names(overlapped_gom_sa_int)
+
+overlapped_gom_sa_int %>%
+  filter(
+    int_overlapped == TRUE &
+      !(eff_int_gom == eff_int_sa) &
+      year(EFFECTIVE_DATE.sa) == '2022' &
+      (
+        my_end_date.gom < EFFECTIVE_DATE.sa |
+          my_end_date.sa < EFFECTIVE_DATE.gom
+      )
+  ) %>%
+  # mutate(eff_year_sa = year(EFFECTIVE_DATE.sa)) %>%
+  View()
+# 359
+
+    # select(SERO_OFFICIAL_NUMBER) %>% 
+  # unique() %>% dim()
+# 221   
 # get overlapping periods
 # https://stackoverflow.com/questions/37486572/date-roll-up-in-r/37487673#37487673
   # mutate(gr = cumsum(FromDate-lag(ToDate, default=1) != 1)) %>% 
