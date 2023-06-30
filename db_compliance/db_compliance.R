@@ -272,9 +272,6 @@ permit_info_r_l_short_22 <-
 glimpse(permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only)
 
 ## get all days in 2022 ----
-days_22 <- seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days")
-# str(days)
-# POSIXct[1:366],
 
 # print_df_names(permit_info)
 
@@ -282,11 +279,6 @@ days_22 <- seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days")
 # 'data.frame':	85586 obs. of  3 variables:
 # 'data.frame':	85592 obs. of  5 variables:
 # 'data.frame':	85319 obs. of  3 variables:
-
-year_int <-
-  lubridate::interval(ISOdate(2022, 1, 1),
-                      ISOdate(2023, 1, 1))
-
 
 my_compl_function <- function(my_row) {
   # browser()
@@ -329,9 +321,14 @@ toc()
 # permit_info_22 by day: 33.33 sec elapsed
 # permit_info_r_l_short_22 by day: 16.42 sec elapsed
 
+
+permit_info_22_days %<>%
+  map( ~ .x %>%
+         rename(is_effective_date = EFFECTIVE_DATE))
+
 # dim(permit_info_22_days$gom_only)
 # [1] 444680      3
-# dim(permit_info_22_days$sa_only)
+# View(permit_info_22_days$sa_only)
 # [1] 1313487       3
 # 444680 + 1313487
 # 1758167
@@ -339,3 +336,22 @@ toc()
 # [1] 3497829       3
 # 3497829 /1758167
 # [1] 1.989475
+
+# whole year df ----
+days_22 <- 
+  seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days") %>% 
+  as.data.frame()
+# str(days)
+# POSIXct[1:366],
+
+names(days_22) <- "day_in_2022"
+# View(days_22)
+
+
+days_22_permits_1 <-
+  full_join(
+  permit_info_r_l_short$gom_only,
+  permit_info_r_l_short$sa_only,
+  by,
+  suffix = c(".gom", ".sa")
+)
