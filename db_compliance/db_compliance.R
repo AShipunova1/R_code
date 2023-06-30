@@ -93,153 +93,59 @@ permit_vessel_query_exp21_1 <-
                 VESSEL_ID_vessel = VESSEL_ID.1)
 
 ## separate_permits_into_3_groups ----
+#repeat for permit only
 
 # print_df_names(permit_vessel_query_exp21_reg)
 
-permit_vessel_query_exp21_reg <-
-  permit_vessel_query_exp21_1 %>%
+permit_info_r <-
+  permit_info  %>%
   separate_permits_into_3_groups(permit_group_field_name = "TOP")
 
-permit_vessel_query_exp21_reg %>%
-  select(PERMIT_GROUP,
-         permit_sa_gom) %>%
+# str(permit_info_r)
+# 'data.frame':	181188 obs. of  23 variables:
+
+permit_info_r %>% 
+  select(VESSEL_ID) %>%
   unique() %>%
-  arrange(PERMIT_GROUP) %>%
-  head(7)
-#   PERMIT_GROUP permit_sa_gom
-# 1            2       sa_only
-# 2            4       sa_only
-# 3            5       sa_only
-# 4            6       sa_only
-# 5            7      gom_only
-# 6            7       sa_only
-# 7            8       sa_only
-
-
-permit_vessel_query_exp21_reg %>%
-  select(SERO_OFFICIAL_NUMBER,
-         permit_sa_gom) %>%
-  unique() %>%
-# 7573
-  count(SERO_OFFICIAL_NUMBER) %>%
-  filter(n > 1) %>%
-  View()
-# 483
-
-### both permit group should be active at the same time to be "dual" ----
-
-print_df_names(permit_vessel_query_exp21_reg)
-
-permit_vessel_query_exp21_reg_0 <-
-  permit_vessel_query_exp21_reg %>%
-  select(SERO_OFFICIAL_NUMBER,
-         permit_sa_gom,
-         EFFECTIVE_DATE,
-         END_DATE,
-         EXPIRATION_DATE) %>%
-  mutate(my_end_date = dplyr::coalesce(END_DATE,
-                                       EXPIRATION_DATE)) %>%
-  select(-c(END_DATE,
-            EXPIRATION_DATE)) %>%
-  unique()
-# dim()
-# 17588
-# 17583
-# View()
-
-permit_vessel_query_exp21_reg_0 %>% 
-  dplyr::group_by(SERO_OFFICIAL_NUMBER) %>% 
-  dplyr::summarise(distinct_regs = n_distinct(permit_sa_gom)) %>% 
-  filter(distinct_regs > 1) %>%
-  ungroup() %>% 
-  View()
-# 483
-
-permit_vessel_query_exp21_reg_1 <- 
-  permit_vessel_query_exp21_reg_0 %>% 
-  dplyr::group_by(SERO_OFFICIAL_NUMBER) %>% 
-  dplyr::mutate(distinct_regs = n_distinct(permit_sa_gom)) %>% 
-  ungroup()
-
-# View(permit_vessel_query_exp21_reg_1)
-
-permit_vessel_query_exp21_reg_1 %>%
-  filter(distinct_regs > 1 &
-           (all(abs(diff(my_end_date)) > 0) |
-           all(abs(diff(EFFECTIVE_DATE)) > 0))) %>%
-  View()
-# 0
-  # filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
-  
-
-permit_vessel_query_exp21_reg_1 %>%
-  group_by(SERO_OFFICIAL_NUMBER) %>% 
-  filter(distinct_regs > 1 &
-           (all(abs(diff(my_end_date)) < 1) &
-           all(abs(diff(EFFECTIVE_DATE)) < 1))) %>%
-  ungroup() %>% 
-  View()
-# 102
-  # filter(n() >= 2, all(abs(diff(dat)) <= 1)) %>%
-  # ungroup
-
-permit_vessel_query_exp21_reg_2 <-
-  permit_vessel_query_exp21_reg_1 %>%
-  group_by(SERO_OFFICIAL_NUMBER) %>%
-  mutate(dual_perm_same_dates =
-           case_when(distinct_regs > 1 &
-                       (all(abs(
-                         diff(my_end_date)
-                       ) < 1) &
-                         all(abs(
-                           diff(EFFECTIVE_DATE)
-                         ) < 1)) ~ "dual",
-                     .default = permit_sa_gom)) %>% 
-  ungroup()
-
-permit_vessel_query_exp21_reg_2 %>%
-  filter(dual_perm_same_dates == "dual") %>% 
-  dim()
-# 102
-
-permit_vessel_query_exp21_1 %>% 
-  filter(VESSEL_ID_permit == '676256') %>% 
-  view()
-
-# print_df_names(permit_vessel_query_exp21_reg_1)
-
-permit_vessel_query_exp21_reg_1 %>% 
-  filter(SERO_OFFICIAL_NUMBER == '676256') %>% 
   str()
-
-permit_vessel_query_exp21_reg_1 %>%
-  # filter(SERO_OFFICIAL_NUMBER == '676256') %>% 
-  group_by(SERO_OFFICIAL_NUMBER) %>%
-  mutate(a = abs(diff(my_end_date))) %>% 
-  ungroup() %>% 
-  str()
-
-# ℹ In argument: `a = abs(diff(my_end_date))`.
-# ℹ In group 1: `SERO_OFFICIAL_NUMBER = "1000042"`.
-# Caused by error:
-# ! `a` must be size 4 or 1, not 3.
+# 13929
 
 # check differently
 # https://stackoverflow.com/questions/63402652/comparing-dates-in-different-columns-to-isolate-certain-within-group-entries-in
 
-permit_vessel_query_exp21_reg_0_list_by_perm_r <-
-  permit_vessel_query_exp21_reg_0 %>%
-  split(as.factor(permit_vessel_query_exp21_reg_0$permit_sa_gom))
-# %>%
-#   View()
+## get all permit info for 2022 ---- 
 
-str(permit_vessel_query_exp21_reg_0_list_by_perm_r)
+permit_info_r_1 <-
+  permit_info_r_l %>%
+  map(~.x %>% 
+  select(VESSEL_ID,
+         EFFECTIVE_DATE,
+         END_DATE,
+         EXPIRATION_DATE) %>%
+  mutate(my_end_date =
+           case_when((END_DATE < EFFECTIVE_DATE) &
+                       (EXPIRATION_DATE > EFFECTIVE_DATE)
+                     ~ EXPIRATION_DATE,
+                     .default =
+                       dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
+           )) %>%
+  select(-c(END_DATE,
+            EXPIRATION_DATE)) %>%
+  unique())
+
+View(permit_info_r_1)
+
+permit_info_r_l <-
+  permit_info_r %>%
+  split(as.factor(permit_info_r$permit_sa_gom))
+
+glimpse(permit_info_r_l)
 
 # From Help:
 # It is common to have right-open ranges with bounds like `[)`, which would
 # mean an end value of `415` would no longer overlap a start value of `415`.
 # Setting `bounds` allows you to compute overlaps with those kinds of ranges.
-by <- join_by(SERO_OFFICIAL_NUMBER, 
+by <- join_by(VESSEL_ID, 
               overlaps(x$EFFECTIVE_DATE, 
                        x$my_end_date, 
                        y$EFFECTIVE_DATE,
@@ -248,8 +154,8 @@ by <- join_by(SERO_OFFICIAL_NUMBER,
 
 overlap_join1 <-
   full_join(
-  permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only,
-  permit_vessel_query_exp21_reg_0_list_by_perm_r$sa_only,
+  permit_info_r_l$gom_only,
+  permit_info_r_l$sa_only,
   by,
   suffix = c(".gom", ".sa")
 )
