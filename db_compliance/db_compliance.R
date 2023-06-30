@@ -449,12 +449,14 @@ overlapped_gom_sa_int_22 %>%
 # permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only
 glimpse(permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only)
 
-days_22 = seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days")
-str(days)
+## get all days in 2022 ----
+days_22 <- seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days")
+# str(days)
 # POSIXct[1:366],
 
 print_df_names(permit_info)
 
+## get all permit info for 2022 ---- 
 permit_info_1 <-
   permit_info %>%
   select(VESSEL_ID,
@@ -483,9 +485,31 @@ permit_info_22 <-
 dim(permit_info_22)
 # 9074
 
-days_22
-dat %>% rowwise() %>%
-        mutate(match = ifelse(between(actual.date, before.date, after.date), 1, 0)) %>%
-        select(-c(before.date, after.date)) %>%
-        arrange(actual.date, desc(match)) %>%
-        distinct(actual.date)
+## get info for each day for vessel permitted in 2022 ----
+View(permit_info_22)
+
+# days_22
+# dat %>% rowwise() %>%
+#   mutate(match = ifelse(between(actual.date, before.date, after.date), 1, 0)) %>%
+#   select(-c(before.date, after.date)) %>%
+#   arrange(actual.date, desc(match)) %>%
+#   distinct(actual.date)
+
+# permit_info_22 %>% 
+#     filter(VESSEL_ID == '910032') %>% 
+#     map(~
+#     complete(new_date = seq(.x$EFFECTIVE_DATE, .$my_end_date, "1 day"))) %>%
+#     str()
+
+ex1 <-
+permit_info_22 %>%
+  filter(VESSEL_ID == '910032')
+
+# apply(M, 1, function(x) 2*x[1]+x[2])
+
+ex1[1,] %>%
+  # dplyr::rowwise() %>%
+  # str()
+  complete(EFFECTIVE_DATE =
+             seq(EFFECTIVE_DATE, my_end_date, "1 day")) %>%
+  str()
