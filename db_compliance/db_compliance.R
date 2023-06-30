@@ -8,7 +8,7 @@
 # VESSELS
 
 # setup ----
-
+library(tictoc)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 con <- connect_to_secpr()
@@ -602,17 +602,18 @@ permit_info_22_days <-
 # Caused by error in `seq.int()`:
 # ! wrong sign in 'by' argument
 
-# permit_info_22[593,] %>% View()
-permit_info %>%
-  filter(VESSEL_ID == "FL0173JY"
-         & year(EFFECTIVE_DATE) == "2022") %>%
-  View()
-
-permit_info_22 %>%
- filter(VESSEL_ID == "FL0173JY") %>%
- glimpse()
-
-permit_info_22 %>%
+# # permit_info_22[593,] %>% View()
+# permit_info %>%
+#   filter(VESSEL_ID == "FL0173JY"
+#          & year(EFFECTIVE_DATE) == "2022") %>%
+#   View()
+# 
+# permit_info_22 %>%
+#  filter(VESSEL_ID == "FL0173JY") %>%
+#  glimpse()
+tic("permit_info_22 by day")
+permit_info_22_days <-
+  permit_info_22 %>%
   group_by(VESSEL_ID) %>%
   purrr::pmap(
     # .l = ex1,
@@ -623,7 +624,7 @@ permit_info_22 %>%
       # browser()
       my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
       if (EFFECTIVE_DATE > my_end_date) {
-        res = my_df  
+        res = my_df
       } else {
         res <- my_compl_function(my_df)
       }
@@ -631,8 +632,6 @@ permit_info_22 %>%
     }
   ) %>%
   list_rbind()
+toc()
+# permit_info_22 by day: 33.33 sec elapsed
 
-permit_info %>% 
-  filter(VESSEL_ID == '909792') %>% 
-  arrange(EFFECTIVE_DATE) %>% 
-  View()
