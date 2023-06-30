@@ -465,20 +465,37 @@ permit_info_1 <-
          END_DATE,
          EXPIRATION_DATE) %>%
   mutate(my_end_date =
-           case_when((END_DATE > EFFECTIVE_DATE) |
+           case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
-                     ~ dplyr::coalesce(END_DATE,
-                                       EXPIRATION_DATE),
-                     (END_DATE < EFFECTIVE_DATE) &
-                       (EXPIRATION_DATE > EFFECTIVE_DATE)
-                     ~ EXPIRATION_DATE )
+                     ~ EXPIRATION_DATE,
+                     .default = dplyr::coalesce(END_DATE,
+                                       EXPIRATION_DATE)
+                     )
            ) %>%
-           select(-c(END_DATE,
-                     EXPIRATION_DATE)) %>%
+           # select(-c(END_DATE,
+           #           EXPIRATION_DATE)) %>%
            unique()
          
 str(permit_info_1)
 # 'data.frame':	85586 obs. of  3 variables:
+# 'data.frame':	85592 obs. of  5 variables:
+
+permit_info_1 %>%
+  filter(VESSEL_ID == '909792') %>%
+  arrange(EFFECTIVE_DATE) %>%
+  View()
+
+permit_info_1 %>%
+  filter(VESSEL_ID == '909792') %>%
+  # filter(EFFECTIVE_DATE > my_end_date) %>%
+  View()
+
+permit_info_1 %>%
+  filter(VESSEL_ID == '909792') %>%
+  filter((END_DATE < EFFECTIVE_DATE) &
+           (EXPIRATION_DATE > EFFECTIVE_DATE)) %>% 
+  View()
+
 
 year_int <-
   lubridate::interval(ISOdate(2022, 1, 1),
