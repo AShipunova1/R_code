@@ -334,6 +334,34 @@ overlapped_gom_sa_int_22 <-
   # View()
 # 359
 
+df <- read.table(
+  text = "
+                 id          start           end
+    1            2      2018-10-01    2018-12-01
+    2            3      2018-01-01    2018-04-01
+",
+header = TRUE
+)
+
+do.call(rbind, 
+        with(df, lapply(1:nrow(df), function(i)
+  data.frame(
+    id = id[i],
+    date = seq(as.Date(start[i]), as.Date(end[i]), by = "month")
+  )))) %>% 
+  View()
+
+lst1 <-
+  Map(seq,
+      MoreArgs = list(by = 'month'),
+      as.Date(df$start),
+      as.Date(df$end))
+
+View(lst1)
+
+data.frame(id = rep(df$id, lengths(lst1)),
+           date = do.call(c, lst1))
+
     # select(SERO_OFFICIAL_NUMBER) %>% 
   # unique() %>% dim()
 # 221   
@@ -343,38 +371,6 @@ overlapped_gom_sa_int_22 <-
 #   mutate(new_var = case_when(value == max(value) ~ "higher",
 #       TRUE ~ "lower")) %>% 
 #   ungroup
-
-overlapped_gom_sa_int_22 %>%
-  filter(SERO_OFFICIAL_NUMBER == '901070') %>%
-  # select(SERO_OFFICIAL_NUMBER, eff_int_gom) %>%
-  # group_by(SERO_OFFICIAL_NUMBER) %>%
-  mutate(new_var =
-           int_diff(c(my_end_date.gom, EFFECTIVE_DATE.gom))
-         ) %>%
-         str()
-         
-dates <- now() + days(1:10)
-str(dates)
-
-overlapped_gom_sa_int_22 %>%
-filter(SERO_OFFICIAL_NUMBER == '901070') %>%
-# select(SERO_OFFICIAL_NUMBER, eff_int_gom) %>%
-# group_by(SERO_OFFICIAL_NUMBER) %>%
-mutate(new_var =
-int_diff(c(my_end_date.gom, EFFECTIVE_DATE.gom))
-) %>%
-str()
-dates <- now() + days(1:10)
-dates
-str(dates)
-dates <- c(my_end_date.gom, EFFECTIVE_DATE.gom)
-d1 <- as.Date('2020-08-21 00:00:00')
-d1
-d2 <- as.Date('2020-03-10 00:00:00')
-dates <- c(d1, d2)
-str(dates)
-int_diff(dates)
-int_diff(dates) %>% int_length()
 
 # Warning in View :
 #   Values from `eff_int_gom` are not uniquely identified;
@@ -445,5 +441,51 @@ overlapped_gom_sa_int_22 %>%
 
 # Permits: by day solutuion ----
 
+# library(sqldf)
+# sqldf("SELECT ID, Date, COUNT(*) as PurchaseCount
+#        FROM df
+#        GROUP BY Date, ID")
+
 # permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only
 glimpse(permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only)
+
+days_22 = seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days")
+str(days)
+# POSIXct[1:366],
+
+print_df_names(permit_info)
+
+permit_info_1 <-
+  permit_info %>%
+  select(VESSEL_ID,
+         EFFECTIVE_DATE,
+         END_DATE,
+         EXPIRATION_DATE) %>%
+  mutate(my_end_date =
+           dplyr::coalesce(END_DATE,                                       EXPIRATION_DATE)) %>%
+  select(-c(END_DATE,
+            EXPIRATION_DATE)) %>%
+  unique()
+
+str(permit_info_1)
+# 'data.frame':	85586 obs. of  3 variables:
+
+year_int <-
+  lubridate::interval(ISOdate(2022, 1, 1),
+                      ISOdate(2023, 1, 1))
+permit_info_22 <-
+  permit_info_1 %>%
+  mutate(permit_eff =
+           lubridate::interval(EFFECTIVE_DATE,
+                               my_end_date)) %>%
+  filter(lubridate::int_overlaps(permit_eff, year_int))
+
+dim(permit_info_22)
+# 9074
+
+days_22
+dat %>% rowwise() %>%
+        mutate(match = ifelse(between(actual.date, before.date, after.date), 1, 0)) %>%
+        select(-c(before.date, after.date)) %>%
+        arrange(actual.date, desc(match)) %>%
+        distinct(actual.date)
