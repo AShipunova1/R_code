@@ -497,7 +497,6 @@ str(permit_info_1)
 #            (EXPIRATION_DATE > EFFECTIVE_DATE)) %>% 
 #   View()
 
-
 year_int <-
   lubridate::interval(ISOdate(2022, 1, 1),
                       ISOdate(2023, 1, 1))
@@ -511,6 +510,7 @@ permit_info_22 <-
 dim(permit_info_22)
 # 9074
 # 9072
+# 9070
 
 ## get info for each day for vessel permitted in 2022 ----
 # View(permit_info_22)
@@ -595,10 +595,17 @@ permit_info_22_days <-
     }
   ) %>%
   list_rbind()
-# err
+# err if expir < eff
+
+# fixed expir < eff
+# ℹ In index: 593.
+# Caused by error in `seq.int()`:
+# ! wrong sign in 'by' argument
+
+permit_info_22[593,] %>% View()
 
 permit_info_22 %>%
-  filter(VESSEL_ID == "909792") %>% 
+  filter(VESSEL_ID == "FL0173JY") %>%
   group_by(VESSEL_ID) %>%
   purrr::pmap(
     # .l = ex1,
@@ -608,7 +615,11 @@ permit_info_22 %>%
                   ...) {
       browser()
       my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
-      res <- my_compl_function(my_df)
+      if (EFFECTIVE_DATE > my_end_date) {
+        res = my_df  
+      } else {
+        res <- my_compl_function(my_df)
+      }
       return(res)
     }
   ) %>%
