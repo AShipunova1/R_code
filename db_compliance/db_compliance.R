@@ -322,23 +322,78 @@ overlapped_gom_sa_int <-
 
 print_df_names(overlapped_gom_sa_int)
 
-overlapped_gom_sa_int %>%
+overlapped_gom_sa_int_22 <-
+  overlapped_gom_sa_int %>%
   filter(
     int_overlapped == TRUE &
       !(eff_int_gom == eff_int_sa) &
-      year(EFFECTIVE_DATE.sa) == '2022' &
-      (
-        my_end_date.gom < EFFECTIVE_DATE.sa |
-          my_end_date.sa < EFFECTIVE_DATE.gom
-      )
-  ) %>%
+      year(EFFECTIVE_DATE.sa) == '2022'
+  ) 
+# %>%
   # mutate(eff_year_sa = year(EFFECTIVE_DATE.sa)) %>%
-  View()
+  # View()
 # 359
 
     # select(SERO_OFFICIAL_NUMBER) %>% 
   # unique() %>% dim()
 # 221   
+
+# df1 %>% 
+#   group_by(id) %>% 
+#   mutate(new_var = case_when(value == max(value) ~ "higher",
+#       TRUE ~ "lower")) %>% 
+#   ungroup
+
+overlapped_gom_sa_int_22 %>%
+  filter(SERO_OFFICIAL_NUMBER == '901070') %>%
+  # select(SERO_OFFICIAL_NUMBER, eff_int_gom) %>%
+  # group_by(SERO_OFFICIAL_NUMBER) %>%
+  mutate(new_var =
+           int_diff(c(my_end_date.gom, EFFECTIVE_DATE.gom))
+         ) %>%
+         str()
+         
+dates <- now() + days(1:10)
+str(dates)
+
+overlapped_gom_sa_int_22 %>%
+filter(SERO_OFFICIAL_NUMBER == '901070') %>%
+# select(SERO_OFFICIAL_NUMBER, eff_int_gom) %>%
+# group_by(SERO_OFFICIAL_NUMBER) %>%
+mutate(new_var =
+int_diff(c(my_end_date.gom, EFFECTIVE_DATE.gom))
+) %>%
+str()
+dates <- now() + days(1:10)
+dates
+str(dates)
+dates <- c(my_end_date.gom, EFFECTIVE_DATE.gom)
+d1 <- as.Date('2020-08-21 00:00:00')
+d1
+d2 <- as.Date('2020-03-10 00:00:00')
+dates <- c(d1, d2)
+str(dates)
+int_diff(dates)
+int_diff(dates) %>% int_length()
+
+# Warning in View :
+#   Values from `eff_int_gom` are not uniquely identified;
+# output will contain list-cols.
+# • Use `values_fn = list` to suppress this warning.
+# • Use `values_fn = {summary_fun}` to summarise duplicates.
+# • Use the following dplyr code to identify duplicates.
+#   {data} %>%
+#   dplyr::group_by(SERO_OFFICIAL_NUMBER) %>%
+#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+#   dplyr::filter(n > 1L)
+
+overlapped_gom_sa_int_22 %>%
+  filter(SERO_OFFICIAL_NUMBER == '901070') %>%
+  dplyr::group_by(SERO_OFFICIAL_NUMBER) %>%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L)
+
+
 # get overlapping periods
 # https://stackoverflow.com/questions/37486572/date-roll-up-in-r/37487673#37487673
   # mutate(gr = cumsum(FromDate-lag(ToDate, default=1) != 1)) %>% 
