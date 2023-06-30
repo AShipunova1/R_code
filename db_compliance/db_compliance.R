@@ -532,5 +532,22 @@ vessel1 <-
 ) %>% 
   list_rbind()
 
+vessel2 <-
+  ex1 %>%
+  group_by(VESSEL_ID) %>%
+  purrr::pmap(
+    # .l = ex1,
+    .f = function(VESSEL_ID,
+                  EFFECTIVE_DATE,
+                  my_end_date,
+                  ...) {
+      # browser()
+      my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
+      res <- my_compl_function(my_df)
+      return(res)
+    }
+  ) %>%
+  list_rbind()
 
-View(vessel1)
+identical(vessel1, vessel2)
+# T
