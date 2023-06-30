@@ -468,34 +468,17 @@ permit_info_1 <-
            case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
                      ~ EXPIRATION_DATE,
-                     .default = dplyr::coalesce(END_DATE,
-                                       EXPIRATION_DATE)
-                     )
-           ) %>%
-           select(-c(END_DATE,
-                     EXPIRATION_DATE)) %>%
-           unique()
-         
+                     .default =
+                       dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
+           )) %>%
+  select(-c(END_DATE,
+            EXPIRATION_DATE)) %>%
+  unique()
+
 str(permit_info_1)
 # 'data.frame':	85586 obs. of  3 variables:
 # 'data.frame':	85592 obs. of  5 variables:
 # 'data.frame':	85319 obs. of  3 variables:
-
-# permit_info_1 %>%
-#   filter(VESSEL_ID == '909792') %>%
-#   arrange(EFFECTIVE_DATE) %>%
-#   View()
-# 
-# permit_info_1 %>%
-#   filter(VESSEL_ID == '909792') %>%
-#   # filter(EFFECTIVE_DATE > my_end_date) %>%
-#   View()
-# 
-# permit_info_1 %>%
-#   filter(VESSEL_ID == '909792') %>%
-#   filter((END_DATE < EFFECTIVE_DATE) &
-#            (EXPIRATION_DATE > EFFECTIVE_DATE)) %>% 
-#   View()
 
 year_int <-
   lubridate::interval(ISOdate(2022, 1, 1),
@@ -512,26 +495,6 @@ dim(permit_info_22)
 # 9072
 # 9070
 
-## get info for each day for vessel permitted in 2022 ----
-# View(permit_info_22)
-
-# days_22
-# dat %>% rowwise() %>%
-#   mutate(match = ifelse(between(actual.date, before.date, after.date), 1, 0)) %>%
-#   select(-c(before.date, after.date)) %>%
-#   arrange(actual.date, desc(match)) %>%
-#   distinct(actual.date)
-
-# permit_info_22 %>% 
-#     filter(VESSEL_ID == '910032') %>% 
-#     map(~
-#     complete(new_date = seq(.x$EFFECTIVE_DATE, .$my_end_date, "1 day"))) %>%
-#     str()
-
-# ex1 <-
-# permit_info_22 %>%
-#   filter(VESSEL_ID == '910032')
-
 my_compl_function <- function(my_row) {
   # browser()
   my_row %>%
@@ -544,73 +507,7 @@ my_compl_function <- function(my_row) {
     return()
 }
 
-# vessel1 <-
-#   purrr::pmap(
-#   .l = ex1,
-#   .f = function(VESSEL_ID,
-#                 EFFECTIVE_DATE,
-#                 my_end_date,
-#                 ...) {
-#     # browser()
-#     my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
-#     res <- my_compl_function(my_df)
-#     return(res)
-#   }
-# ) %>% 
-#   list_rbind()
 
-# vessel2 <-
-#   ex1 %>%
-#   group_by(VESSEL_ID) %>%
-#   purrr::pmap(
-#     # .l = ex1,
-#     .f = function(VESSEL_ID,
-#                   EFFECTIVE_DATE,
-#                   my_end_date,
-#                   ...) {
-#       # browser()
-#       my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
-#       res <- my_compl_function(my_df)
-#       return(res)
-#     }
-#   ) %>%
-#   list_rbind()
-
-# identical(vessel1, vessel2)
-# T
-
-permit_info_22_days <-
-  permit_info_22 %>%
-  group_by(VESSEL_ID) %>%
-  purrr::pmap(
-    # .l = ex1,
-    .f = function(VESSEL_ID,
-                  EFFECTIVE_DATE,
-                  my_end_date,
-                  ...) {
-      # browser()
-      my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
-      res <- my_compl_function(my_df)
-      return(res)
-    }
-  ) %>%
-  list_rbind()
-# err if expir < eff
-
-# fixed expir < eff
-# ℹ In index: 593.
-# Caused by error in `seq.int()`:
-# ! wrong sign in 'by' argument
-
-# # permit_info_22[593,] %>% View()
-# permit_info %>%
-#   filter(VESSEL_ID == "FL0173JY"
-#          & year(EFFECTIVE_DATE) == "2022") %>%
-#   View()
-# 
-# permit_info_22 %>%
-#  filter(VESSEL_ID == "FL0173JY") %>%
-#  glimpse()
 tic("permit_info_22 by day")
 permit_info_22_days <-
   permit_info_22 %>%
@@ -635,3 +532,5 @@ permit_info_22_days <-
 toc()
 # permit_info_22 by day: 33.33 sec elapsed
 
+dim(permit_info_22_days)
+# [1] 3497829       3
