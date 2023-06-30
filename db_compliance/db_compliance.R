@@ -537,8 +537,38 @@ my_compl_function <- function(my_row) {
 # pmap(ex1, my_compl_function)
 # ex1 %>% 
   # rowwise() %>% 
-  pmap(.l = ex1, .f = function(VESSEL_ID, ...){ paste(VESSEL_ID, "###") })
-  pmap(my_compl_function(VESSEL_ID, ...))
+pmap(
+  .l = ex1,
+  .f = function(VESSEL_ID,
+                EFFECTIVE_DATE,
+                my_end_date,
+                ...) {
+    paste(VESSEL_ID, "###")
+  }
+)
+
+pmap(
+  .l = ex1,
+  .f = function(VESSEL_ID,
+                EFFECTIVE_DATE,
+                my_end_date,
+                ...) {
+    browser()
+    my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
+    # paste(VESSEL_ID,
+    #             EFFECTIVE_DATE,
+    #             my_end_date)
+    tidyr::complete(my_df,
+      EFFECTIVE_DATE =
+        seq(EFFECTIVE_DATE, my_end_date, "1 day"),
+      VESSEL_ID = VESSEL_ID
+    )
+  }
+)
+
+
+      
+pmap(my_compl_function(VESSEL_ID, ...))
 
 
 # ex1 %>% 
