@@ -132,11 +132,11 @@ permit_info_r_l_short <-
                      ~ EXPIRATION_DATE,
                      .default =
                        dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
-           )) %>%
+           ) 
+         ) %>%
   select(-c(END_DATE,
             EXPIRATION_DATE)) %>%
   unique())
-
 
 # From Help:
 # It is common to have right-open ranges with bounds like `[)`, which would
@@ -269,7 +269,6 @@ permit_info_r_l_short_22 <-
 #        GROUP BY Date, ID")
 
 # permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only
-glimpse(permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only)
 
 ## get all days in 2022 ----
 
@@ -320,21 +319,39 @@ permit_info_22_days <-
 toc()
 # permit_info_22 by day: 33.33 sec elapsed
 # permit_info_r_l_short_22 by day: 16.42 sec elapsed
+print_df_names(permit_info_22_days_rename$gom_only)
+permit_info_22_days_rename <-
+  permit_info_22_days %>%
+  map(~ .x %>%
+        rename(is_effective_date = EFFECTIVE_DATE))
 
-permit_info_22_days %<>%
-  map( ~ .x %>%
-         rename(is_effective_date = EFFECTIVE_DATE))
+## get day only ----
+permit_info_22_days <-
+  permit_info_22_days_rename %>%
+  map(
+    ~ .x %>%
+      mutate(
+        is_effective_date =
+          lubridate::floor_date(is_effective_date,
+                                unit = "day"),
+        my_end_date =
+          lubridate::floor_date(my_end_date,
+                                unit = "day")
+      )
+  )
+
+# View(permit_info_22_days$gom_only)
 
 # dim(permit_info_22_days$gom_only)
-# [1] 444680      3
-# View(permit_info_22_days$sa_only)
+# [1] 444989      3
+# dim(permit_info_22_days$sa_only)
 # [1] 1313487       3
-# 444680 + 1313487
-# 1758167
+# 444989 + 1313487       
+# 1758476
 # permit_info_22_days
 # [1] 3497829       3
-# 3497829 /1758167
-# [1] 1.989475
+ # 3497829 /1758476
+# [1] 1.989125
 
 # whole year df ----
 days_22 <- 
@@ -344,20 +361,42 @@ days_22 <-
 # POSIXct[1:366],
 
 names(days_22) <- "day_in_2022"
-View(days_22)
-print_df_names(permit_info_22_days$gom_only)
-
+# View(days_22)
+# print_df_names(permit_info_22_days$gom_only)
+tic("days_22_permits_g full_join")
 days_22_permits_g <-
   full_join(permit_info_22_days$gom_only,
             days_22,
             join_by(is_effective_date == day_in_2022)) %>% 
   unique()
-            
+toc()
+
 View(days_22_permits_g)
 # [1] 441634      3
 
 # HERE
 # TODO: pivot wider?
+
+
+# days_22_permits_g %>%
+#   select(-my_end_date) %>%
+#   pivot_wider(names_from = is_effective_date,
+#               values_from = VESSEL_ID) %>%
+#   View()
+# bad
+
+tic("days_22_permits_s full_join")
+days_22_permits_s <-
+  full_join(permit_info_22_days$sa_only,
+            days_22,
+            join_by(is_effective_date == day_in_2022)) %>% 
+  unique()
+toc()
+# days_22_permits_s full_join: 19.61 sec elapsed
+
+View(days_22_permits_s)
+# days_22_permits_s[1,][1]$is_effective_date %>% floor_date(unit = "day")
+# [1] "2022-02-20 GMT"
 
 days_22_permits_g_s <-
   full_join(
