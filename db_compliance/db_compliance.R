@@ -104,7 +104,7 @@ permit_info_r <-
 # str(permit_info_r)
 # 'data.frame':	181188 obs. of  23 variables:
 
-permit_info_r %>% 
+permit_info_r %>%
   select(VESSEL_ID) %>%
   unique() %>%
   str()
@@ -121,7 +121,7 @@ permit_info_r_l <-
 ## add my_end_date ----
 permit_info_r_l_short <-
   permit_info_r_l %>%
-  map(~.x %>% 
+  map(~.x %>%
   select(VESSEL_ID,
          EFFECTIVE_DATE,
          END_DATE,
@@ -132,7 +132,7 @@ permit_info_r_l_short <-
                      ~ EXPIRATION_DATE,
                      .default =
                        dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
-           ) 
+           )
          ) %>%
   select(-c(END_DATE,
             EXPIRATION_DATE)) %>%
@@ -142,9 +142,9 @@ permit_info_r_l_short <-
 # It is common to have right-open ranges with bounds like `[)`, which would
 # mean an end value of `415` would no longer overlap a start value of `415`.
 # Setting `bounds` allows you to compute overlaps with those kinds of ranges.
-by <- join_by(VESSEL_ID, 
-              overlaps(x$EFFECTIVE_DATE, 
-                       x$my_end_date, 
+by <- join_by(VESSEL_ID,
+              overlaps(x$EFFECTIVE_DATE,
+                       x$my_end_date,
                        y$EFFECTIVE_DATE,
                        y$my_end_date,
                        bounds = "[)"))
@@ -163,7 +163,7 @@ dim(overlap_join1)
 View(overlap_join1)
 
 # to get dual in the overlapping period:
-# filter(!is.na(permit_sa_gom.sa)) 
+# filter(!is.na(permit_sa_gom.sa))
 
 overlap_join1 %>%
   filter(VESSEL_ID == '669631') %>%
@@ -177,17 +177,17 @@ overlap_join1 %>%
   ) %>%
   View()
 
-overlap_join1 %>% 
+overlap_join1 %>%
   filter(!is.na(EFFECTIVE_DATE.sa) |
            !is.na(EFFECTIVE_DATE.gom)
-         ) %>% 
-  select(VESSEL_ID) %>% 
-  unique() %>% 
+         ) %>%
+  select(VESSEL_ID) %>%
+  unique() %>%
   dim()
 # [1] 13929     1
  # dual permits with dates overlapping between SA and GOM
 
-## get all permit info for 2022 ---- 
+## get all permit info for 2022 ----
 
 permit_info_r_l_short_22 <-
   permit_info_r_l_short %>%
@@ -199,9 +199,9 @@ permit_info_r_l_short_22 <-
 # dim(permit_info_r_l_short_22$sa_only)
 # [1] 3649    3
 
-# 
+#
 # overlapped_gom_sa_int <-
-#   overlapped_gom_sa %>% 
+#   overlapped_gom_sa %>%
 #     mutate(
 #     eff_int_gom =
 #       lubridate::interval(EFFECTIVE_DATE.gom,
@@ -214,18 +214,18 @@ permit_info_r_l_short_22 <-
 
 # get overlapping periods
 # https://stackoverflow.com/questions/37486572/date-roll-up-in-r/37487673#37487673
-  # mutate(gr = cumsum(FromDate-lag(ToDate, default=1) != 1)) %>% 
+  # mutate(gr = cumsum(FromDate-lag(ToDate, default=1) != 1)) %>%
 # ---
 # https://stackoverflow.com/questions/76076208/calculating-number-of-overlapping-days-between-two-date-ranges
 # dat <-
 #   data.frame(enr_dte = sample(seq(
-#     as.Date('2022-01-01'), 
-#     as.Date('2023-06-30'), 
+#     as.Date('2022-01-01'),
+#     as.Date('2023-06-30'),
 #     by = "day"
 #   ), 10))
-# 
-# dat %>% 
-#   mutate( 
+#
+# dat %>%
+#   mutate(
 #     # Create interval between enrollment and enrollment + 180 days:
 #     enr_end_int = lubridate::interval( enr_dte, enr_dte + days(180) )
 #     # Create winter interval:
@@ -236,7 +236,7 @@ permit_info_r_l_short_22 <-
 #     , enr_winter_intersection_length_sec = lubridate::int_length( enr_winter_intersection )
 #     # Convert seconds to days:
 #     , enr_winter_intersection_length_days = enr_winter_intersection_length_sec/60/60/24
-#   ) %>% 
+#   ) %>%
 #   View()
 
 # lubridate::
@@ -254,7 +254,7 @@ permit_info_r_l_short_22 <-
 # int_gom = EFFECTIVE_DATE.gom, my_end_date.gom
 # in_sa = EFFECTIVE_DATE.sa, my_end_date.sa
 # overlapps?
-# int_o = int_overlaps(int_gom, in_sa) 
+# int_o = int_overlaps(int_gom, in_sa)
 # if overlaps get overlapping period dates:
 # int_start(int_o) =
 #   ymd(min(EFFECTIVE_DATE.gom, EFFECTIVE_DATE.sa))
@@ -346,7 +346,7 @@ permit_info_22_days <-
 # [1] 444989      3
 # dim(permit_info_22_days$sa_only)
 # [1] 1313487       3
-# 444989 + 1313487       
+# 444989 + 1313487
 # 1758476
 # permit_info_22_days
 # [1] 3497829       3
@@ -354,25 +354,34 @@ permit_info_22_days <-
 # [1] 1.989125
 
 # whole year df ----
-days_22 <- 
-  seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days") %>% 
+days_22 <-
+  seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days") %>%
   as.data.frame()
 # str(days)
 # POSIXct[1:366],
 
 names(days_22) <- "day_in_2022"
-# View(days_22)
 # print_df_names(permit_info_22_days$gom_only)
+
+days_22$day_in_2022 <-
+  floor_date(days_22$day_in_2022, unit = "day")
+
+# View(days_22)
+
 tic("days_22_permits_g full_join")
 days_22_permits_g <-
   full_join(permit_info_22_days$gom_only,
             days_22,
-            join_by(is_effective_date == day_in_2022)) %>% 
+            join_by(is_effective_date == day_in_2022)) %>%
   unique()
 toc()
 
-View(days_22_permits_g)
-# [1] 441634      3
+days_22_permits_g$is_effective_date <-
+  floor_date(days_22_permits_g$is_effective_date, unit = "day")
+
+# str(permit_info_22_days$gom_only)
+# View(days_22_permits_g)
+
 
 # HERE
 # TODO: pivot wider?
@@ -389,7 +398,7 @@ tic("days_22_permits_s full_join")
 days_22_permits_s <-
   full_join(permit_info_22_days$sa_only,
             days_22,
-            join_by(is_effective_date == day_in_2022)) %>% 
+            join_by(is_effective_date == day_in_2022)) %>%
   unique()
 toc()
 # days_22_permits_s full_join: 19.61 sec elapsed
@@ -409,14 +418,14 @@ days_22_permits_g_s <-
 # ℹ Row 24971 of `y` matches multiple rows in `x`.
 
 # days_22_permits_g[79413, ]
-#   is_effective_date   VESSEL_ID my_end_date        
-#   <dttm>              <chr>     <dttm>             
+#   is_effective_date   VESSEL_ID my_end_date
+#   <dttm>              <chr>     <dttm>
 # 1 2022-01-26 04:00:00 697536    2022-12-30 23:00:00
 
-# permit_info_22_days$sa %>% 
+# permit_info_22_days$sa %>%
 #   filter(VESSEL_ID == "697536")
-#    is_effective_date   VESSEL_ID my_end_date        
-#    <dttm>              <chr>     <dttm>             
+#    is_effective_date   VESSEL_ID my_end_date
+#    <dttm>              <chr>     <dttm>
 #  1 2022-01-25 23:00:00 697536    2022-12-30 23:00:00
 #  2 2022-01-26 23:00:00 697536    2022-12-30 23:00:00
 
