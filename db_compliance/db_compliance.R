@@ -535,10 +535,10 @@ my_compl_function <- function(my_row) {
 }
 
 # pmap(ex1, my_compl_function)
-ex1 %>%
-  mutate(new =
-           pmap(select(., -permit_eff),
-                ~ my_compl_function(.)))
+# ex1 %>% 
+  # rowwise() %>% 
+  pmap(.l = ex1, .f = function(VESSEL_ID, ...){ paste(VESSEL_ID, "###") })
+  pmap(my_compl_function(VESSEL_ID, ...))
 
 
 # ex1 %>% 
