@@ -311,4 +311,28 @@ dat %>%
     , enr_winter_intersection_length_sec = lubridate::int_length( enr_winter_intersection )
     # Convert seconds to days:
     , enr_winter_intersection_length_days = enr_winter_intersection_length_sec/60/60/24
-  )
+  ) %>% 
+  View()
+
+# lubridate::
+# int_overlaps
+# int_diff() returns the intervals that occur between the elements of a vector of date-times. int_diff() is similar to the POSIXt and Date methods of diff(), but returns an Interval object instead of a difftime object.
+# interval(start = NULL, end = NULL, tzone = tz(start))
+# int_length(int)
+# period(months = 1, days = 15)
+# [1] "1m 15d 0H 0M 0S"
+
+# int_standardize(int)
+# int_shift(int, duration(days = 11))
+
+
+# print_df_names(overlap_join1)
+# int_gom = EFFECTIVE_DATE.gom, my_end_date.gom
+# in_sa = EFFECTIVE_DATE.sa, my_end_date.sa
+# overlapps?
+# int_o = int_overlaps(int_gom, in_sa) 
+# if overlaps get overlapping period dates:
+# int_start(int_o) =
+#   ymd(min(EFFECTIVE_DATE.gom, EFFECTIVE_DATE.sa))
+# int_end(int_o) =
+#   ymd(max(EFFECTIVE_DATE.gom, EFFECTIVE_DATE.sa))
