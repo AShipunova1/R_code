@@ -506,10 +506,74 @@ permit_info_22 %>%
   filter(VESSEL_ID == '910032')
 
 # apply(M, 1, function(x) 2*x[1]+x[2])
-
-ex1[1,] %>%
+print_df_names(ex1)
+one_row_complete_dates <-
+  ex1[1, ] %>%
+  # mutate(first_effective_date = EFFECTIVE_DATE) %>% 
   # dplyr::rowwise() %>%
   # str()
-  complete(EFFECTIVE_DATE =
-             seq(EFFECTIVE_DATE, my_end_date, "1 day")) %>%
-  str()
+  tidyr::complete(EFFECTIVE_DATE =
+                    seq(EFFECTIVE_DATE, my_end_date, "1 day"),
+                  VESSEL_ID = VESSEL_ID)
+
+View(one_row_complete_dates)
+### repeat for each row ----
+# pmap(ex1, function(x, ...) browser())
+# Called from: .f(VESSEL_ID = .l[[1L]][[i]], EFFECTIVE_DATE = .l[[2L]][[i]], 
+#     my_end_date = .l[[3L]][[i]], permit_eff = .l[[4L]][[i]], 
+#     ...)
+
+my_compl_function <- function(my_row) {
+  browser()
+  my_row %>%
+    tidyr::complete(
+      EFFECTIVE_DATE =
+        seq(EFFECTIVE_DATE, my_end_date, "1 day"),
+      VESSEL_ID = VESSEL_ID
+    ) %>%
+    return()
+}
+
+# pmap(ex1, my_compl_function)
+ex1 %>%
+  mutate(new =
+           pmap(select(., -permit_eff),
+                ~ my_compl_function(.)))
+
+
+# ex1 %>% 
+#   pmap_dfr(.l = select(nrow()), .f = my_compl_function(.))
+
+# mutate(new = pmap_int(select(., -sev_curve, -weight), ~ n_distinct(c(...))))
+
+ 
+# If you need to apply on each row, use pmap Try df %>% mutate(new = pmap(select(., -sev_curve, -weight), ~ length(c(...)))) It is not clear which function you want to apply – 
+
+# df_rowwise <- df %>%
+#   mutate( avg = x - mean(x) ) %>%
+#   rowwise() %>%
+#   mutate( a = list( {c(sum(x), sum(y), sum(z))} ) ) %>%
+#   ungroup()
+
+ex1 %>% 
+  
+  # rowwise() %>%
+  my_compl_function()
+
+# ex
+df <- tribble(
+  ~x,   ~y,      ~z,         
+  c(1), c(1,10), c(1, 10, 100),
+  c(2), c(2,20), c(2, 20, 200),
+)
+
+glimpse(df)
+func <- function(x, y, z){c(sum(x), sum(y), sum(z))}
+
+# `df` will have to be passes explicitly if not using pipes (eg, `mutate(.data = df, a = pmap(.l = df, ...`).
+
+df_dots <- df %>%
+  mutate(
+    a = pmap(.l = ., .f = function(x, y, z, ...){ c(sum(x), sum(y), sum(z)) })
+  )
+glimpse(df)
