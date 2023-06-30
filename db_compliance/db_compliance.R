@@ -280,6 +280,20 @@ overlap_join1 %>%
 # 1 2021-05-31 00:00:00         sa_only       2021-05-14 2021-12-06 23:00:00
 # 2 2021-12-05 23:00:00         sa_only       2021-05-14 2021-12-06 23:00:00
 
+overlap_join1 %>%
+  filter(!is.na(permit_sa_gom.sa)) %>%
+  filter(SERO_OFFICIAL_NUMBER == '669631') %>%
+  mutate(
+    eff_int_gom =
+      lubridate::interval(EFFECTIVE_DATE.gom,
+                          my_end_date.gom),
+    eff_int_sa =
+      lubridate::interval(EFFECTIVE_DATE.sa,
+                          my_end_date.sa)
+  ) %>%
+  View()
+
+
 overlap_join1 %>% 
   filter(!is.na(permit_sa_gom.sa)) %>% 
   select(SERO_OFFICIAL_NUMBER) %>% 
@@ -325,7 +339,6 @@ dat %>%
 # int_standardize(int)
 # int_shift(int, duration(days = 11))
 
-
 # print_df_names(overlap_join1)
 # int_gom = EFFECTIVE_DATE.gom, my_end_date.gom
 # in_sa = EFFECTIVE_DATE.sa, my_end_date.sa
@@ -336,3 +349,8 @@ dat %>%
 #   ymd(min(EFFECTIVE_DATE.gom, EFFECTIVE_DATE.sa))
 # int_end(int_o) =
 #   ymd(max(EFFECTIVE_DATE.gom, EFFECTIVE_DATE.sa))
+
+# Permits: by day solutuion ----
+
+# permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only
+glimpse(permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only)
