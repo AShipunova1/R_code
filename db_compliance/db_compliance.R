@@ -505,26 +505,8 @@ ex1 <-
 permit_info_22 %>%
   filter(VESSEL_ID == '910032')
 
-# apply(M, 1, function(x) 2*x[1]+x[2])
-print_df_names(ex1)
-one_row_complete_dates <-
-  ex1[1, ] %>%
-  # mutate(first_effective_date = EFFECTIVE_DATE) %>% 
-  # dplyr::rowwise() %>%
-  # str()
-  tidyr::complete(EFFECTIVE_DATE =
-                    seq(EFFECTIVE_DATE, my_end_date, "1 day"),
-                  VESSEL_ID = VESSEL_ID)
-
-View(one_row_complete_dates)
-### repeat for each row ----
-# pmap(ex1, function(x, ...) browser())
-# Called from: .f(VESSEL_ID = .l[[1L]][[i]], EFFECTIVE_DATE = .l[[2L]][[i]], 
-#     my_end_date = .l[[3L]][[i]], permit_eff = .l[[4L]][[i]], 
-#     ...)
-
 my_compl_function <- function(my_row) {
-  browser()
+  # browser()
   my_row %>%
     tidyr::complete(
       EFFECTIVE_DATE =
@@ -534,41 +516,19 @@ my_compl_function <- function(my_row) {
     return()
 }
 
-# pmap(ex1, my_compl_function)
-# ex1 %>% 
-  # rowwise() %>% 
-pmap(
+vessel1 <-
+  pmap(
   .l = ex1,
   .f = function(VESSEL_ID,
                 EFFECTIVE_DATE,
                 my_end_date,
                 ...) {
-    paste(VESSEL_ID, "###")
-  }
-)
-
-pmap(
-  .l = ex1,
-  .f = function(VESSEL_ID,
-                EFFECTIVE_DATE,
-                my_end_date,
-                ...) {
-    browser()
+    # browser()
     my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
-    # paste(VESSEL_ID,
-    #             EFFECTIVE_DATE,
-    #             my_end_date)
-    tidyr::complete(my_df,
-      EFFECTIVE_DATE =
-        seq(EFFECTIVE_DATE, my_end_date, "1 day"),
-      VESSEL_ID = VESSEL_ID
-    )
+    res <- my_compl_function(my_df)
+    return(res)
   }
 )
-
-
-      
-pmap(my_compl_function(VESSEL_ID, ...))
 
 
 # ex1 %>% 
