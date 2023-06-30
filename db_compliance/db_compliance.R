@@ -292,7 +292,7 @@ my_compl_function <- function(my_row) {
     return()
 }
 
-print_df_names(permit_info_r_l_short_22$gom_only)
+# print_df_names(permit_info_r_l_short_22$gom_only)
 
 tic("permit_info_r_l_short_22 by day")
 permit_info_22_days <-
@@ -321,7 +321,6 @@ toc()
 # permit_info_22 by day: 33.33 sec elapsed
 # permit_info_r_l_short_22 by day: 16.42 sec elapsed
 
-
 permit_info_22_days %<>%
   map( ~ .x %>%
          rename(is_effective_date = EFFECTIVE_DATE))
@@ -345,13 +344,49 @@ days_22 <-
 # POSIXct[1:366],
 
 names(days_22) <- "day_in_2022"
-# View(days_22)
+View(days_22)
+print_df_names(permit_info_22_days$gom_only)
 
+days_22_permits_g <-
+  full_join(permit_info_22_days$gom_only,
+            days_22,
+            join_by(is_effective_date == day_in_2022)) %>% 
+  unique()
+            
+View(days_22_permits_g)
+# [1] 441634      3
 
-days_22_permits_1 <-
+# HERE
+# TODO: pivot wider?
+
+days_22_permits_g_s <-
   full_join(
-  permit_info_r_l_short$gom_only,
-  permit_info_r_l_short$sa_only,
-  by,
-  suffix = c(".gom", ".sa")
-)
+    days_22_permits_g,
+    permit_info_22_days$sa,
+    join_by(is_effective_date, VESSEL_ID),
+    suffix = c(".gom", ".sa")
+  )
+# ℹ Row 79413 of `x` matches multiple rows in `y`.
+# ℹ Row 24971 of `y` matches multiple rows in `x`.
+
+# days_22_permits_g[79413, ]
+#   is_effective_date   VESSEL_ID my_end_date        
+#   <dttm>              <chr>     <dttm>             
+# 1 2022-01-26 04:00:00 697536    2022-12-30 23:00:00
+
+# permit_info_22_days$sa %>% 
+#   filter(VESSEL_ID == "697536")
+#    is_effective_date   VESSEL_ID my_end_date        
+#    <dttm>              <chr>     <dttm>             
+#  1 2022-01-25 23:00:00 697536    2022-12-30 23:00:00
+#  2 2022-01-26 23:00:00 697536    2022-12-30 23:00:00
+
+tic("days_22_permits_g_s full_join")
+days_22_permits_g_s <-
+  full_join(
+    days_22_permits_g,
+    permit_info_22_days$sa,
+    join_by(is_effective_date),
+    suffix = c(".gom", ".sa")
+  )
+toc()
