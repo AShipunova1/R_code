@@ -329,5 +329,13 @@ toc()
 # permit_info_22 by day: 33.33 sec elapsed
 # permit_info_r_l_short_22 by day: 16.42 sec elapsed
 
-dim(permit_info_22_days)
+# dim(permit_info_22_days$gom_only)
+# [1] 444680      3
+# dim(permit_info_22_days$sa_only)
+# [1] 1313487       3
+# 444680 + 1313487
+# 1758167
+# permit_info_22_days
 # [1] 3497829       3
+# 3497829 /1758167
+# [1] 1.989475
