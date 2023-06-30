@@ -113,9 +113,13 @@ permit_info_r %>%
 # check differently
 # https://stackoverflow.com/questions/63402652/comparing-dates-in-different-columns-to-isolate-certain-within-group-entries-in
 
-## get all permit info for 2022 ---- 
+## split by permit ----
+permit_info_r_l <-
+  permit_info_r %>%
+  split(as.factor(permit_info_r$permit_sa_gom))
 
-permit_info_r_1 <-
+## add my_end_date ----
+permit_info_r_l_short <-
   permit_info_r_l %>%
   map(~.x %>% 
   select(VESSEL_ID,
@@ -133,13 +137,6 @@ permit_info_r_1 <-
             EXPIRATION_DATE)) %>%
   unique())
 
-View(permit_info_r_1)
-
-permit_info_r_l <-
-  permit_info_r %>%
-  split(as.factor(permit_info_r$permit_sa_gom))
-
-glimpse(permit_info_r_l)
 
 # From Help:
 # It is common to have right-open ranges with bounds like `[)`, which would
@@ -154,41 +151,22 @@ by <- join_by(VESSEL_ID,
 
 overlap_join1 <-
   full_join(
-  permit_info_r_l$gom_only,
-  permit_info_r_l$sa_only,
+  permit_info_r_l_short$gom_only,
+  permit_info_r_l_short$sa_only,
   by,
   suffix = c(".gom", ".sa")
 )
 
 dim(overlap_join1)
-# 16639
+# [1] 84570     5
 
 View(overlap_join1)
 
 # to get dual in the overlapping period:
 # filter(!is.na(permit_sa_gom.sa)) 
 
-overlap_join1 %>% 
-  filter(!is.na(permit_sa_gom.sa)) %>% 
-  # View()
-# 12,868 
-  # select(SERO_OFFICIAL_NUMBER) %>% 
-  # unique() %>% 
-  # dim()
-# 4982
-  filter(SERO_OFFICIAL_NUMBER == '669631')
-
-# an overlap example
-#   SERO_OFFICIAL_NUMBER permit_sa_gom.x EFFECTIVE_DATE.x
-# 1               669631        gom_only       2020-06-27
-# 2               669631        gom_only       2021-06-04
-#         my_end_date.x permit_sa_gom.sa EFFECTIVE_DATE.sa       my_end_date.sa
-# 1 2021-05-31 00:00:00         sa_only       2021-05-14 2021-12-06 23:00:00
-# 2 2021-12-05 23:00:00         sa_only       2021-05-14 2021-12-06 23:00:00
-
 overlap_join1 %>%
-  filter(!is.na(permit_sa_gom.sa)) %>%
-  filter(SERO_OFFICIAL_NUMBER == '669631') %>%
+  filter(VESSEL_ID == '669631') %>%
   mutate(
     eff_int_gom =
       lubridate::interval(EFFECTIVE_DATE.gom,
@@ -200,101 +178,39 @@ overlap_join1 %>%
   View()
 
 overlap_join1 %>% 
-  filter(!is.na(permit_sa_gom.sa)) %>% 
-  select(SERO_OFFICIAL_NUMBER) %>% 
+  filter(!is.na(EFFECTIVE_DATE.sa) |
+           !is.na(EFFECTIVE_DATE.gom)
+         ) %>% 
+  select(VESSEL_ID) %>% 
   unique() %>% 
   dim()
-# 4982 dual permits with dates overlapping between SA and GOM
+# [1] 13929     1
+ # dual permits with dates overlapping between SA and GOM
 
-overlapped_gom_sa <-
-  overlap_join1 %>% 
-  filter(!is.na(permit_sa_gom.sa)) %>% 
-  unique()
+## get all permit info for 2022 ---- 
 
-dim(overlapped_gom_sa)
-# 12868     
+permit_info_r_l_short_22 <-
+  permit_info_r_l_short %>%
+  map( ~ .x %>%
+         filter(year(EFFECTIVE_DATE) == '2022'))
 
-overlapped_gom_sa_int <-
-  overlapped_gom_sa %>% 
-    mutate(
-    eff_int_gom =
-      lubridate::interval(EFFECTIVE_DATE.gom,
-                          my_end_date.gom),
-    eff_int_sa =
-      lubridate::interval(EFFECTIVE_DATE.sa,
-                          my_end_date.sa)
-  ) %>%
-  mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
+# dim(permit_info_r_l_short_22$gom_only)
+# [1] 1342    3
+# dim(permit_info_r_l_short_22$sa_only)
+# [1] 3649    3
 
-print_df_names(overlapped_gom_sa_int)
-
-overlapped_gom_sa_int_22 <-
-  overlapped_gom_sa_int %>%
-  filter(
-    int_overlapped == TRUE &
-      !(eff_int_gom == eff_int_sa) &
-      year(EFFECTIVE_DATE.sa) == '2022'
-  ) 
-# %>%
-  # mutate(eff_year_sa = year(EFFECTIVE_DATE.sa)) %>%
-  # View()
-# 359
-
-df <- read.table(
-  text = "
-                 id          start           end
-    1            2      2018-10-01    2018-12-01
-    2            3      2018-01-01    2018-04-01
-",
-header = TRUE
-)
-
-do.call(rbind, 
-        with(df, lapply(1:nrow(df), function(i)
-  data.frame(
-    id = id[i],
-    date = seq(as.Date(start[i]), as.Date(end[i]), by = "month")
-  )))) %>% 
-  View()
-
-lst1 <-
-  Map(seq,
-      MoreArgs = list(by = 'month'),
-      as.Date(df$start),
-      as.Date(df$end))
-
-View(lst1)
-
-data.frame(id = rep(df$id, lengths(lst1)),
-           date = do.call(c, lst1))
-
-    # select(SERO_OFFICIAL_NUMBER) %>% 
-  # unique() %>% dim()
-# 221   
-
-# df1 %>% 
-#   group_by(id) %>% 
-#   mutate(new_var = case_when(value == max(value) ~ "higher",
-#       TRUE ~ "lower")) %>% 
-#   ungroup
-
-# Warning in View :
-#   Values from `eff_int_gom` are not uniquely identified;
-# output will contain list-cols.
-# • Use `values_fn = list` to suppress this warning.
-# • Use `values_fn = {summary_fun}` to summarise duplicates.
-# • Use the following dplyr code to identify duplicates.
-#   {data} %>%
-#   dplyr::group_by(SERO_OFFICIAL_NUMBER) %>%
-#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-#   dplyr::filter(n > 1L)
-
-overlapped_gom_sa_int_22 %>%
-  filter(SERO_OFFICIAL_NUMBER == '901070') %>%
-  dplyr::group_by(SERO_OFFICIAL_NUMBER) %>%
-  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-  dplyr::filter(n > 1L)
-
+# 
+# overlapped_gom_sa_int <-
+#   overlapped_gom_sa %>% 
+#     mutate(
+#     eff_int_gom =
+#       lubridate::interval(EFFECTIVE_DATE.gom,
+#                           my_end_date.gom),
+#     eff_int_sa =
+#       lubridate::interval(EFFECTIVE_DATE.sa,
+#                           my_end_date.sa)
+#   ) %>%
+#   mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
 
 # get overlapping periods
 # https://stackoverflow.com/questions/37486572/date-roll-up-in-r/37487673#37487673
@@ -360,28 +276,9 @@ days_22 <- seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days")
 # str(days)
 # POSIXct[1:366],
 
-print_df_names(permit_info)
+# print_df_names(permit_info)
 
-## get all permit info for 2022 ---- 
-
-permit_info_1 <-
-  permit_info %>%
-  select(VESSEL_ID,
-         EFFECTIVE_DATE,
-         END_DATE,
-         EXPIRATION_DATE) %>%
-  mutate(my_end_date =
-           case_when((END_DATE < EFFECTIVE_DATE) &
-                       (EXPIRATION_DATE > EFFECTIVE_DATE)
-                     ~ EXPIRATION_DATE,
-                     .default =
-                       dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
-           )) %>%
-  select(-c(END_DATE,
-            EXPIRATION_DATE)) %>%
-  unique()
-
-str(permit_info_1)
+# dim(permit_info_r_l_short_22$gom_only)
 # 'data.frame':	85586 obs. of  3 variables:
 # 'data.frame':	85592 obs. of  5 variables:
 # 'data.frame':	85319 obs. of  3 variables:
@@ -389,17 +286,7 @@ str(permit_info_1)
 year_int <-
   lubridate::interval(ISOdate(2022, 1, 1),
                       ISOdate(2023, 1, 1))
-permit_info_22 <-
-  permit_info_1 %>%
-  mutate(permit_eff =
-           lubridate::interval(EFFECTIVE_DATE,
-                               my_end_date)) %>%
-  filter(lubridate::int_overlaps(permit_eff, year_int))
 
-dim(permit_info_22)
-# 9074
-# 9072
-# 9070
 
 my_compl_function <- function(my_row) {
   # browser()
@@ -413,30 +300,34 @@ my_compl_function <- function(my_row) {
     return()
 }
 
+print_df_names(permit_info_r_l_short_22$gom_only)
 
-tic("permit_info_22 by day")
+tic("permit_info_r_l_short_22 by day")
 permit_info_22_days <-
-  permit_info_22 %>%
-  group_by(VESSEL_ID) %>%
-  purrr::pmap(
-    # .l = ex1,
-    .f = function(VESSEL_ID,
-                  EFFECTIVE_DATE,
-                  my_end_date,
-                  ...) {
-      # browser()
-      my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
-      if (EFFECTIVE_DATE > my_end_date) {
-        res = my_df
-      } else {
-        res <- my_compl_function(my_df)
-      }
-      return(res)
-    }
-  ) %>%
-  list_rbind()
+  permit_info_r_l_short_22 %>%
+  map(~.x %>%
+        group_by(VESSEL_ID) %>%
+        purrr::pmap(
+          # .l = ex1,
+          .f = function(VESSEL_ID,
+                        EFFECTIVE_DATE,
+                        my_end_date,
+                        ...) {
+            # browser()
+            my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
+            if (EFFECTIVE_DATE > my_end_date) {
+              res = my_df
+            } else {
+              res <- my_compl_function(my_df)
+            }
+            return(res)
+          }
+        ) %>%
+        list_rbind()
+  )
 toc()
 # permit_info_22 by day: 33.33 sec elapsed
+# permit_info_r_l_short_22 by day: 16.42 sec elapsed
 
 dim(permit_info_22_days)
 # [1] 3497829       3
