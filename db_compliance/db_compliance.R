@@ -511,13 +511,14 @@ my_compl_function <- function(my_row) {
     tidyr::complete(
       EFFECTIVE_DATE =
         seq(EFFECTIVE_DATE, my_end_date, "1 day"),
-      VESSEL_ID = VESSEL_ID
+      VESSEL_ID = VESSEL_ID,
+      my_end_date = my_end_date
     ) %>%
     return()
 }
 
 vessel1 <-
-  pmap(
+  purrr::pmap(
   .l = ex1,
   .f = function(VESSEL_ID,
                 EFFECTIVE_DATE,
@@ -528,42 +529,8 @@ vessel1 <-
     res <- my_compl_function(my_df)
     return(res)
   }
-)
+) %>% 
+  list_rbind()
 
 
-# ex1 %>% 
-#   pmap_dfr(.l = select(nrow()), .f = my_compl_function(.))
-
-# mutate(new = pmap_int(select(., -sev_curve, -weight), ~ n_distinct(c(...))))
-
- 
-# If you need to apply on each row, use pmap Try df %>% mutate(new = pmap(select(., -sev_curve, -weight), ~ length(c(...)))) It is not clear which function you want to apply – 
-
-# df_rowwise <- df %>%
-#   mutate( avg = x - mean(x) ) %>%
-#   rowwise() %>%
-#   mutate( a = list( {c(sum(x), sum(y), sum(z))} ) ) %>%
-#   ungroup()
-
-ex1 %>% 
-  
-  # rowwise() %>%
-  my_compl_function()
-
-# ex
-df <- tribble(
-  ~x,   ~y,      ~z,         
-  c(1), c(1,10), c(1, 10, 100),
-  c(2), c(2,20), c(2, 20, 200),
-)
-
-glimpse(df)
-func <- function(x, y, z){c(sum(x), sum(y), sum(z))}
-
-# `df` will have to be passes explicitly if not using pipes (eg, `mutate(.data = df, a = pmap(.l = df, ...`).
-
-df_dots <- df %>%
-  mutate(
-    a = pmap(.l = ., .f = function(x, y, z, ...){ c(sum(x), sum(y), sum(z)) })
-  )
-glimpse(df)
+View(vessel1)
