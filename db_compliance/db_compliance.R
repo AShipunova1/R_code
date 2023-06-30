@@ -602,10 +602,17 @@ permit_info_22_days <-
 # Caused by error in `seq.int()`:
 # ! wrong sign in 'by' argument
 
-permit_info_22[593,] %>% View()
+# permit_info_22[593,] %>% View()
+permit_info %>%
+  filter(VESSEL_ID == "FL0173JY"
+         & year(EFFECTIVE_DATE) == "2022") %>%
+  View()
 
 permit_info_22 %>%
-  filter(VESSEL_ID == "FL0173JY") %>%
+ filter(VESSEL_ID == "FL0173JY") %>%
+ glimpse()
+
+permit_info_22 %>%
   group_by(VESSEL_ID) %>%
   purrr::pmap(
     # .l = ex1,
@@ -613,7 +620,7 @@ permit_info_22 %>%
                   EFFECTIVE_DATE,
                   my_end_date,
                   ...) {
-      browser()
+      # browser()
       my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
       if (EFFECTIVE_DATE > my_end_date) {
         res = my_df  
