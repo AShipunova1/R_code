@@ -429,19 +429,36 @@ vessels_in_both <-
 dim(vessels_in_both)
 278
 
-days_22_permits_g
+days_22_permits_g_in_both <-
+days_22_permits_g %>% 
+  filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID)
 
+days_22_permits_s_in_both <-
+days_22_permits_s %>% 
+  filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID)
+
+glimpse(days_22_permits_g_in_both)
 
 # join gom and sa with all days and vessels
 tic("days_22_permits_g_s full join")
 days_22_permits_g_s <-
   full_join(
-    days_22_permits_g,
-    days_22_permits_s,
+    days_22_permits_g_in_both,
+    days_22_permits_s_in_both,
     join_by(is_effective_date, VESSEL_ID),
-    suffix = c(".gom", ".sa")
+    suffix = c(".gom", ".sa"),
+    relationship = "many-to-many"
   )
 toc()
+# ℹ Row 89859 of `x` matches multiple rows in `y`.
+# ℹ Row 3554 of `y` matches multiple rows in `x`.
+
+# days_22_permits_g_in_both[89859, ]
+# days_22_permits_s_in_both %>%
+#   filter(VESSEL_ID == "697536")
+
+ 
+
 # ℹ Row 79413 of `x` matches multiple rows in `y`.
 # ℹ Row 24971 of `y` matches multiple rows in `x`.
 
