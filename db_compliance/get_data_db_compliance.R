@@ -157,19 +157,34 @@ write_csv(trip_notifications_2022,
           file.path(input_path, "trip_notifications_2022.csv"))
 
 # get vessels from db ----
+vessels_all <-
+  read_csv(file.path(input_path, "vessels.csv"))
+# chr (22): COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE,...
+# dbl  (6): VESSEL_ID, PASSENGER_CAPACITY, YEAR_BUILT, OWNER_ID, SER_ID, UPDATE...
+# lgl  (1): VESSEL_TYPE
+# 
+# ℹ Use `spec()` to retrieve the full column specification for this data.
+# ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+
 vessels_query <-
   "SELECT *
   FROM
     safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
+# Error in .oci.GetQuery(conn, statement, data = data, prefetch = prefetch,  : 
+#   Error in try({ : embedded nul in string: '\0'
+
+# > dbGetQuery(cnx, "select replace(s, chr(0), '') s from test_00")
+# dat <- dbGetQuery(myConnection,"SELECT REPLACE(COLUMN_NAME, CHR(0), ' ') AS NEW_COLUMN
+#                                 FROM MY_TABLE")
 
 tic("vessels_all")
 vessels_all <- dbGetQuery(con,
                           vessels_query)
 toc()
-# trip_neg_query_2022: 201.21 sec elapsed
 
-write_csv(trip_neg_2022, 
-          file.path(input_path, "trip_neg_2022.csv"))
+write_csv(vessels_all, 
+          file.path(input_path, "vessels_all.csv"))
 
 # glimpse(trip_neg_2022)
 # Rows: 1,495,929
