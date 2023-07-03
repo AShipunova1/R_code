@@ -486,25 +486,36 @@ toc()
 # tibble [101,228 × 3] (S3: tbl_df/tbl/data.frame)
 # $ gom_only: tibble [192,768 × 9] (S3: tbl_df/tbl/data.frame)
 
+# TODO: get only few field to join on, add other info later?
 
-
-# str(days_22_permits_g)
-# tibble [101,228 × 3] (S3: tbl_df/tbl/data.frame)
 
 # join gom and sa with all days and vessels ----
+# print_df_names(permit_info_22_days_vsls_in_both_d$gom_only)
+# is_effective_date, VESSEL_ID, TOP, PERMIT, PERMIT_STATUS, VESSEL_ALT_NUM, permit_sa_gom, my_end_date, eff_int
+
 tic("days_22_permits_g_s full join")
 days_22_permits_g_s <-
   full_join(
-    days_22_permits_g_in_both,
-    days_22_permits_s_in_both,
-    join_by(is_effective_date, VESSEL_ID),
-    suffix = c(".gom", ".sa")
-    # ,
-    # relationship = "many-to-many"
+    permit_info_22_days_vsls_in_both_d$gom_only,
+    permit_info_22_days_vsls_in_both_d$sa_only,
+    join_by(is_effective_date, 
+            VESSEL_ID,
+            VESSEL_ALT_NUM
+            ),
+    suffix = c(".gom", ".sa"),
+    relationship = "many-to-many"
   )
 toc()
 # days_22_permits_g_s full join: 1.16 sec elapsed
 
+View(days_22_permits_g_s)
+
+## get overlapping intervals ----
+days_22_permits_g_s_overl <-
+  days_22_permits_g_s %>%
+  filter(int_overlaps(eff_int.gom, eff_int.sa))
+
+View(days_22_permits_g_s_overl)
 # ℹ Row 89859 of `x` matches multiple rows in `y`.
 # ℹ Row 3554 of `y` matches multiple rows in `x`.
 
