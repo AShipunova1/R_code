@@ -217,6 +217,8 @@ permit_info_r_l_short_22 <-
 # [1] 3649    3
 # [1] 8148    9
 
+# TODO: split after all map .x
+
 #
 # overlapped_gom_sa_int <-
 #   overlapped_gom_sa %>%
@@ -304,7 +306,13 @@ my_compl_function <- function(my_row) {
       EFFECTIVE_DATE =
         seq(EFFECTIVE_DATE, my_end_date, "1 day"),
       VESSEL_ID = VESSEL_ID,
-      my_end_date = my_end_date
+      TOP = TOP,
+      PERMIT = PERMIT,
+      PERMIT_STATUS = PERMIT_STATUS,
+      VESSEL_ALT_NUM = VESSEL_ALT_NUM,
+      permit_sa_gom = permit_sa_gom,
+      my_end_date = my_end_date,
+      eff_int = eff_int
     ) %>%
     return()
 }
@@ -318,12 +326,9 @@ permit_info_22_days <-
         group_by(VESSEL_ID) %>%
         purrr::pmap(
           # .l = ex1,
-          .f = function(VESSEL_ID,
-                        EFFECTIVE_DATE,
-                        my_end_date,
-                        ...) {
+          .f = function(VESSEL_ID, TOP, PERMIT, EFFECTIVE_DATE, PERMIT_STATUS, VESSEL_ALT_NUM, permit_sa_gom, my_end_date, eff_int) {
             # browser()
-            my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
+            my_df <- data.frame(VESSEL_ID, TOP, PERMIT, EFFECTIVE_DATE, PERMIT_STATUS, VESSEL_ALT_NUM, permit_sa_gom, my_end_date, eff_int)
             if (EFFECTIVE_DATE > my_end_date) {
               print(paste(VESSEL_ID, 
                           EFFECTIVE_DATE, 
@@ -338,6 +343,8 @@ permit_info_22_days <-
         list_rbind()
   )
 toc()
+# permit_info_r_l_short_22 by day: 395.39 sec elapsed
+# with all fields
 # permit_info_22 by day: 33.33 sec elapsed
 # permit_info_r_l_short_22 by day: 16.42 sec elapsed
 # print_df_names(permit_info_22_days_rename$gom_only)
@@ -348,30 +355,40 @@ toc()
 # [1] "FL0173JY 2022-01-31 23:00:00 2022-01-30 23:00:00"
 # [1] "1115726 2022-01-31 23:00:00 2022-01-30 23:00:00"
 
-permit_info_22_days_rename <-
+# [1] "FL0173JY 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# [1] "FL0173JY 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# [1] "FL0173JY 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# [1] "FL0173JY 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# [1] "FL0173JY 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# [1] "1115726 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# [1] "1115726 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# permit_info_r_l_short_22 by day: 38.83 sec elapsed
+
+permit_info_22_days <-
   permit_info_22_days %>%
   map(~ .x %>%
         rename(is_effective_date = EFFECTIVE_DATE))
 
 ## get day only ----
-permit_info_22_days <-
-  permit_info_22_days_rename %>%
-  map(
-    ~ .x %>%
-      mutate(
-        is_effective_date =
-          lubridate::floor_date(is_effective_date,
-                                unit = "day"),
-        my_end_date =
-          lubridate::floor_date(my_end_date,
-                                unit = "day")
-      )
-  )
+# permit_info_22_days <-
+#   permit_info_22_days_rename %>%
+#   map(
+#     ~ .x %>%
+#       mutate(
+#         is_effective_date =
+#           lubridate::floor_date(is_effective_date,
+#                                 unit = "day"),
+#         my_end_date =
+#           lubridate::floor_date(my_end_date,
+#                                 unit = "day")
+#       )
+#   )
 
-# View(permit_info_22_days$gom_only)
+View(permit_info_22_days$gom_only)
 
 # dim(permit_info_22_days$gom_only)
 # [1] 444989      3
+# 860296      9
 # dim(permit_info_22_days$sa_only)
 # [1] 1313487       3
 # 444989 + 1313487
@@ -418,13 +435,19 @@ vessels_in_both <-
 # 277   
 
 ## use only vesel_ids in both ----
+tic("permit_info_22_days_vsls_in_both")
 permit_info_22_days_vsls_in_both <-
   permit_info_22_days %>%
   map(~ .x %>%
         filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID) %>%
         unique())
+toc()
 
-# View(permit_info_22_days_vsls_in_both)
+permit_info_22_days_vsls_in_both$gom_only %>% 
+  select(is_effective_date) %>% 
+  unique() %>% 
+  dim()
+
 
 # join with days_22 ----
 ## convert G to day only, no hours ----
