@@ -75,10 +75,6 @@ permit_vessel_query_exp21 %>%
   dim()
 # 0
 
-# permit_vessel_query_exp21 %>%
-#   filter(VESSEL_ID == "910032") %>%
-#   View()
-
 ## separate_permits_into_3_groups ----
 #repeat for permit only
 
@@ -88,7 +84,7 @@ permit_info_r <-
   permit_info  %>%
   separate_permits_into_3_groups(permit_group_field_name = "TOP")
 
-# dim(permit_info_r)
+# View(permit_info_r)
 # 'data.frame':	181188 obs. of  23 variables:
 # [1] 181207     23
 
@@ -102,42 +98,32 @@ permit_info_r %>%
 # check differently
 # https://stackoverflow.com/questions/63402652/comparing-dates-in-different-columns-to-isolate-certain-within-group-entries-in
 
-## split by permit ----
-permit_info_r_l <-
-  permit_info_r %>%
-  split(as.factor(permit_info_r$permit_sa_gom))
-
 ## add my_end_date ----
 
 # View(permit_info_r_l)
-permit_info_r_l_short <-
-  permit_info_r_l %>%
-  map(
-    ~ .x %>%
-      select(
-        VESSEL_ID,
-        EXPIRATION_DATE,
-        TOP,
-        PERMIT,
-        EFFECTIVE_DATE,
-        END_DATE,
-        PERMIT_STATUS,
-        VESSEL_ALT_NUM,
-        permit_sa_gom
-      ) %>%
-      mutate(
-        my_end_date =
-          case_when((END_DATE < EFFECTIVE_DATE) &
-                      (EXPIRATION_DATE > EFFECTIVE_DATE)
-                    ~ EXPIRATION_DATE,
-                    .default =
-                      dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
-          )
-      ) %>%
-      select(-c(END_DATE,
-                EXPIRATION_DATE)) %>%
-      unique()
-  )
+permit_info_r_short <-
+  permit_info_r %>%
+  select(
+    VESSEL_ID,
+    EXPIRATION_DATE,
+    TOP,
+    PERMIT,
+    EFFECTIVE_DATE,
+    END_DATE,
+    PERMIT_STATUS,
+    VESSEL_ALT_NUM,
+    permit_sa_gom
+  ) %>%
+  mutate(my_end_date =
+           case_when((END_DATE < EFFECTIVE_DATE) &
+                       (EXPIRATION_DATE > EFFECTIVE_DATE)
+                     ~ EXPIRATION_DATE,
+                     .default =
+                       dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
+           )) %>%
+  select(-c(END_DATE,
+            EXPIRATION_DATE)) %>%
+  unique()
 
 # From Help:
 # It is common to have right-open ranges with bounds like `[)`, which would
@@ -189,11 +175,12 @@ permit_info_r_l_short <-
  # dual permits with dates overlapping between SA and GOM
 
 # add intervals ----
-glimpse(permit_info_r_l_short$gom_only)
+dim(permit_info_r_short)
+181041      
 # [1] 48441     8
 # dim(permit_info_r_l_short$sa_only)
 # [1] 132600    8
-
+132600+48441
 permit_info_r_l_short_int <-
   permit_info_r_l_short %>%
   map( ~ .x %>%
@@ -542,3 +529,9 @@ days_22_permits_g_s %>%
   filter(VESSEL_ID == '558306') %>% 
   unique() %>% 
   View()
+
+# ===
+  ## split by permit ----
+permit_info_r_l <-
+  permit_info_r %>%
+  split(as.factor(permit_info_r$permit_sa_gom))
