@@ -366,7 +366,7 @@ names(days_22) <- "day_in_2022"
 days_22$day_in_2022 <-
   floor_date(days_22$day_in_2022, unit = "day")
 
-# View(days_22)
+View(days_22)
 
 tic("days_22_permits_g full_join")
 days_22_permits_g <-
@@ -381,11 +381,11 @@ days_22_permits_g$is_effective_date <-
   floor_date(days_22_permits_g$is_effective_date, unit = "day")
 
 # str(permit_info_22_days$gom_only)
-# View(days_22_permits_g)
+View(days_22_permits_g)
+# [1] 444680      3
 
 # HERE
 # TODO: pivot wider?
-
 
 # days_22_permits_g %>%
 #   select(-my_end_date) %>%
@@ -413,13 +413,32 @@ days_22_permits_s$is_effective_date <-
 
 str(days_22_permits_s)
 
+vess_only_g <- 
+  days_22_permits_g %>% 
+  select(VESSEL_ID) %>% 
+  unique()
+
+vess_only_s <- 
+  days_22_permits_s %>% 
+  select(VESSEL_ID) %>% 
+  unique()
+
+vessels_in_both <-
+  inner_join(vess_only_s, vess_only_g)
+
+dim(vessels_in_both)
+278
+
+days_22_permits_g
+
+
 # join gom and sa with all days and vessels
 tic("days_22_permits_g_s full join")
 days_22_permits_g_s <-
   full_join(
     days_22_permits_g,
     days_22_permits_s,
-    join_by(is_effective_date, vess),
+    join_by(is_effective_date, VESSEL_ID),
     suffix = c(".gom", ".sa")
   )
 toc()
