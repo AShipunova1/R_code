@@ -467,3 +467,26 @@ toc()
 #  1 2022-01-25 23:00:00 697536    2022-12-30 23:00:00
 #  2 2022-01-26 23:00:00 697536    2022-12-30 23:00:00
 
+View(days_22_permits_g_s)
+# days_22_permits_g_s %>% dim()
+#   unique() %>% dim()
+# [1] 108314      4
+
+days_22_permits_g_s %>% 
+  # group_by(VESSEL_ID) %>% 
+  select(is_effective_date, VESSEL_ID) %>% 
+  count(is_effective_date)
+
+days_22_permits_g_s %>%
+  mutate(is_effective_date =
+           lubridate::floor_date(is_effective_date,
+                                 unit = "day")) %>%
+  select(is_effective_date, VESSEL_ID) %>%
+  add_count(is_effective_date) %>% 
+  # filter(is_effective_date == '2022-01-01 00:00:00') %>%
+  View()
+
+days_22_permits_g_s %>%
+  filter(VESSEL_ID == '558306') %>% 
+  unique() %>% 
+  View()
