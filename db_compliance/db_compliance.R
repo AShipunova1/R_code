@@ -189,6 +189,30 @@ permit_info_r_l_overlap_join1_w_dual <-
 # 186,210 
 # to get dual in the overlapping period:
 # filter(!is.na(permit_sa_gom.sa))
+
+interval_2022 = lubridate::interval(as.Date('2022-01-01'),
+                                    as.Date('2022-12-31'))
+
+permit_info_r_l_overlap_join1_w_dual_22 <-
+  permit_info_r_l_overlap_join1_w_dual %>%
+  mutate(
+    eff_int_gom =
+      lubridate::interval(EFFECTIVE_DATE.gom,
+                          my_end_date.gom),
+    eff_int_sa =
+      lubridate::interval(EFFECTIVE_DATE.sa,
+                          my_end_date.sa)
+  ) %>%
+  #   mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
+  filter(int_overlaps(eff_int_gom,
+                      interval_2022))
+
+permit_info_r_l_overlap_join1_w_dual_22
+  filter(permit_sa_gom == "dual") %>% 
+  select(VESSEL_ID) %>% 
+  unique() %>% 
+  dim()
+# 361
 # end here permits
 
 # overlap_join1 %>%
