@@ -176,37 +176,26 @@ permit_info_r_short <-
 
 # add intervals ----
 dim(permit_info_r_short)
-181041      
-# [1] 48441     8
-# dim(permit_info_r_l_short$sa_only)
-# [1] 132600    8
-132600+48441
-permit_info_r_l_short_int <-
-  permit_info_r_l_short %>%
-  map( ~ .x %>%
-         mutate(eff_int =
-                  lubridate::interval(EFFECTIVE_DATE,
-                                      my_end_date)))
+# 181041      
 
-# View(permit_info_r_l_short_int)
+permit_info_r_short_int <-
+  permit_info_r_short %>%
+  mutate(eff_int =
+           lubridate::interval(EFFECTIVE_DATE,
+                               my_end_date))
+
+# View(permit_info_r_short_int)
 
 ## get all permit info for 2022 ----
 
-permit_info_r_l_short_22 <-
-  permit_info_r_l_short_int %>%
-  map( ~ .x %>%
-         filter(year(EFFECTIVE_DATE) == '2022'))
+permit_info_r_short_int_22 <-
+  permit_info_r_short_int %>%
+  filter(year(EFFECTIVE_DATE) == '2022')
 
-# dim(permit_info_r_l_short_22$gom_only)
-# [1] 1342    3
-# 2595    9
-# dim(permit_info_r_l_short_22$sa_only)
-# [1] 3649    3
-# [1] 8148    9
+# dim(permit_info_r_short_int_22)
+# [1] 10743     9
 
-# TODO: split after all map .x
-
-#
+# by period ----
 # overlapped_gom_sa_int <-
 #   overlapped_gom_sa %>%
 #     mutate(
@@ -219,7 +208,7 @@ permit_info_r_l_short_22 <-
 #   ) %>%
 #   mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
 
-# get overlapping periods
+# get overlapping periods ----
 # https://stackoverflow.com/questions/37486572/date-roll-up-in-r/37487673#37487673
   # mutate(gr = cumsum(FromDate-lag(ToDate, default=1) != 1)) %>%
 # ---
@@ -304,32 +293,53 @@ my_compl_function <- function(my_row) {
     return()
 }
 
-# print_df_names(permit_info_r_l_short_22$gom_only)
+# print_df_names(permit_info_r_short_int_22)
 
-tic("permit_info_r_l_short_22 by day")
+tic("permit_info_r_short_int_22 by day")
 permit_info_22_days <-
-  permit_info_r_l_short_22 %>%
-  map(~.x %>%
-        group_by(VESSEL_ID) %>%
-        purrr::pmap(
-          # .l = ex1,
-          .f = function(VESSEL_ID, TOP, PERMIT, EFFECTIVE_DATE, PERMIT_STATUS, VESSEL_ALT_NUM, permit_sa_gom, my_end_date, eff_int) {
-            # browser()
-            my_df <- data.frame(VESSEL_ID, TOP, PERMIT, EFFECTIVE_DATE, PERMIT_STATUS, VESSEL_ALT_NUM, permit_sa_gom, my_end_date, eff_int)
-            if (EFFECTIVE_DATE > my_end_date) {
-              print(paste(VESSEL_ID, 
-                          EFFECTIVE_DATE, 
-                          my_end_date))
-              res = my_df
-            } else {
-              res <- my_compl_function(my_df)
-            }
-            return(res)
-          }
-        ) %>%
-        list_rbind()
-  )
+  permit_info_r_short_int_22 %>%
+  group_by(VESSEL_ID) %>%
+  # run in parallel
+  purrr::pmap(
+    # .l = ex1,
+    .f = function(VESSEL_ID,
+                  TOP,
+                  PERMIT,
+                  EFFECTIVE_DATE,
+                  PERMIT_STATUS,
+                  VESSEL_ALT_NUM,
+                  permit_sa_gom,
+                  my_end_date,
+                  eff_int) {
+      # browser()
+      my_df <-
+        data.frame(
+          VESSEL_ID,
+          TOP,
+          PERMIT,
+          EFFECTIVE_DATE,
+          PERMIT_STATUS,
+          VESSEL_ALT_NUM,
+          permit_sa_gom,
+          my_end_date,
+          eff_int
+        )
+      if (EFFECTIVE_DATE > my_end_date) {
+        # save wrong ones
+        print(paste(VESSEL_ID,
+                    EFFECTIVE_DATE,
+                    my_end_date))
+        res = my_df
+      } else {
+        res <- my_compl_function(my_df)
+      }
+      return(res)
+    }
+  ) %>%
+  list_rbind()
 toc()
+# permit_info_r_short_int_22 by day: 211.58 sec elapsed
+# not splitted
 # permit_info_r_l_short_22 by day: 395.39 sec elapsed
 # with all fields
 # permit_info_22 by day: 33.33 sec elapsed
@@ -351,43 +361,32 @@ toc()
 # [1] "1115726 2022-01-31 23:00:00 2022-01-30 23:00:00"
 # permit_info_r_l_short_22 by day: 38.83 sec elapsed
 
-permit_info_22_days <-
+permit_info_22_days_rename <-
   permit_info_22_days %>%
-  map(~ .x %>%
-        rename(is_effective_date = EFFECTIVE_DATE))
+  rename(is_effective_date = EFFECTIVE_DATE)
 
 ## get day only ----
-# permit_info_22_days <-
-#   permit_info_22_days_rename %>%
-#   map(
-#     ~ .x %>%
-#       mutate(
-#         is_effective_date =
-#           lubridate::floor_date(is_effective_date,
-#                                 unit = "day"),
-#         my_end_date =
-#           lubridate::floor_date(my_end_date,
-#                                 unit = "day")
-#       )
-#   )
+tic("get day only")
+permit_info_22_days <-
+  permit_info_22_days_rename %>%
+  mutate(
+    is_effective_date =
+      lubridate::floor_date(is_effective_date,
+                            unit = "day"),
+    my_end_date =
+      lubridate::floor_date(my_end_date,
+                            unit = "day")
+  ) %>% 
+  # unique()
+toc()
+# View(permit_info_22_days)
 
-View(permit_info_22_days$gom_only)
-
-# dim(permit_info_22_days$gom_only)
-# [1] 444989      3
-# 860296      9
-# dim(permit_info_22_days$sa_only)
-# [1] 1313487       3
-# 444989 + 1313487
-# 1758476
-# permit_info_22_days
-# [1] 3497829       3
- # 3497829 /1758476
-# [1] 1.989125
+dim(permit_info_22_days)
+# [1] 3806184       9
 
 # whole year df ----
 days_22 <-
-  seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days") %>%
+  seq(ISOdate(2022, 1, 1), ISOdate(2023, 1, 1), "days") %>%
   as.data.frame()
 # str(days_22)
 # 'data.frame':	366 obs. of  1 variable:
@@ -399,26 +398,21 @@ names(days_22) <- "day_in_2022"
 days_22$day_in_2022 <-
   floor_date(days_22$day_in_2022, unit = "day")
 
-# View(days_22)
+View(days_22)
 
 # get vessels which are in both ----
 
 permit_info_22_days_vessels_only <-
   permit_info_22_days %>%
-  map(
-    ~ .x %>%
-        select(VESSEL_ID) %>% 
-        unique()
-  )
-
-vessels_in_both <-
-  inner_join(
-    permit_info_22_days_vessels_only$gom_only,
-    permit_info_22_days_vessels_only$sa_only
-  ) %>% 
+  select(VESSEL_ID) %>%
   unique()
 
-# dim(vessels_in_both)
+vessels_in_both <-
+  permit_info_22_days %>%
+  filter(VESSEL_ID %in% permit_info_22_days_vessels_only$VESSEL_ID) %>%
+  unique()
+
+dim(vessels_in_both)
 # 277   
 
 ## use only vesel_ids in both ----
