@@ -454,6 +454,17 @@ permit_info_22_days_vsls_in_both$gom_only %>%
 permit_info_22_days_vsls_in_both$gom_only$is_effective_date <-
   permit_info_22_days_vsls_in_both$gom_only$is_effective_date %>%
   floor_date(unit = "day")
+## convert to days only, no hours ----
+permit_info_22_days_vsls_in_both_d <-
+  permit_info_22_days_vsls_in_both %>%
+  map(~ .x %>%
+        mutate(is_effective_date =
+                 floor_date(is_effective_date,
+                            unit = "day")))
+
+# permit_info_22_days_vsls_in_both$gom_only$is_effective_date <-
+#   permit_info_22_days_vsls_in_both$gom_only$is_effective_date %>%
+#   floor_date(unit = "day")
 
 # str(permit_info_22_days_vsls_in_both$gom_only)
  # $ is_effective_date: POSIXct[1:100862], format: "2022-05-16" ...
