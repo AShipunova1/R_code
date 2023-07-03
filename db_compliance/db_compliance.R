@@ -175,8 +175,6 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
 # 379
 # end here permits
 
-# get all vessels for 2022 ----
-# vessel_id_2022 <- 
 permit_info_r_l_overlap_join1_w_dual_22 %>%
   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
   filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
@@ -219,18 +217,16 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
 
 # View(permit_info_r_l_overlap_join1_w_dual_22__list_ids)
 
-  filter(permit_sa_gom == "dual" |
-           permit_sa_gom == "gom_only") %>% 
-  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>% 
-  pivot_longer(cols = c(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom)) %>% 
-  select(value) %>% 
-  unique() %>% 
-  View()
+# get all vessels for 2022 ----
+inner_join(permit_info_r_l_overlap_join1_w_dual_22__list_ids,
+           vessels_all)
 
 # compliance for GOM 2022 ----
 # GOM:
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
+
+permit_info_r_l_overlap_join1_w_dual_22__list_ids
 
   trip_notifications_2022
 permit_info_r_l_overlap_join1_w_dual_22
