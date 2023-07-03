@@ -339,7 +339,7 @@ permit_info_22_days <-
       )
   )
 
-View(permit_info_22_days$gom_only)
+# View(permit_info_22_days$gom_only)
 
 # dim(permit_info_22_days$gom_only)
 # [1] 444989      3
@@ -366,8 +366,29 @@ names(days_22) <- "day_in_2022"
 days_22$day_in_2022 <-
   floor_date(days_22$day_in_2022, unit = "day")
 
-View(days_22)
+# View(days_22)
 
+# get vessels which are in both ----
+
+permit_info_22_days_vessels_only <-
+  permit_info_22_days %>%
+  map(
+    ~ .x %>%
+        select(VESSEL_ID) %>% 
+        unique()
+  )
+
+vessels_in_both <-
+  inner_join(
+    permit_info_22_days_vessels_only$gom_only,
+    permit_info_22_days_vessels_only$sa_only
+  ) %>% 
+  unique()
+
+# dim(vessels_in_both)
+# 277   
+
+# join with days_22 ----
 tic("days_22_permits_g full_join")
 days_22_permits_g <-
   full_join(permit_info_22_days$gom_only,
@@ -413,21 +434,6 @@ days_22_permits_s$is_effective_date <-
 
 str(days_22_permits_s)
 
-vess_only_g <- 
-  days_22_permits_g %>% 
-  select(VESSEL_ID) %>% 
-  unique()
-
-vess_only_s <- 
-  days_22_permits_s %>% 
-  select(VESSEL_ID) %>% 
-  unique()
-
-vessels_in_both <-
-  inner_join(vess_only_s, vess_only_g)
-
-dim(vessels_in_both)
-278
 
 days_22_permits_g_in_both <-
 days_22_permits_g %>% 
