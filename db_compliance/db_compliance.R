@@ -61,22 +61,14 @@ where expiration_date > TO_DATE('01-JAN-21')
 permit_vessel_query_exp21 <- dbGetQuery(con,
                           permit_vessel_query_exp21_query)
 
-# View(permit_vessel_query_exp21)
+View(permit_vessel_query_exp21)
 
 # add sa gom field
 
 names(permit_vessel_query_exp21) <-
   make.unique(names(permit_vessel_query_exp21), sep = "_")
 
-print_df_names(permit_vessel_query_exp21)
-grep(".1", names(permit_vessel_query_exp21), value = T)
-# [1] "VESSEL_ID.1"
-
-
-permit_vessel_query_exp21 %>%
-  filter(!(VESSEL_ID.1 == VESSEL_ID)) %>%
-  dim()
-# 37424: all
+# print_df_names(permit_vessel_query_exp21)
 
 permit_vessel_query_exp21 %>%
   filter(!(VESSEL_ID == SERO_OFFICIAL_NUMBER)) %>%
@@ -87,11 +79,6 @@ permit_vessel_query_exp21 %>%
 #   filter(VESSEL_ID == "910032") %>%
 #   View()
 
-permit_vessel_query_exp21_1 <-
-  permit_vessel_query_exp21 %>%
-  dplyr::rename(VESSEL_ID_permit = VESSEL_ID,
-                VESSEL_ID_vessel = VESSEL_ID.1)
-
 ## separate_permits_into_3_groups ----
 #repeat for permit only
 
@@ -101,14 +88,16 @@ permit_info_r <-
   permit_info  %>%
   separate_permits_into_3_groups(permit_group_field_name = "TOP")
 
-# str(permit_info_r)
+# dim(permit_info_r)
 # 'data.frame':	181188 obs. of  23 variables:
+# [1] 181207     23
 
 permit_info_r %>%
   select(VESSEL_ID) %>%
   unique() %>%
   str()
 # 13929
+# 13930
 
 # check differently
 # https://stackoverflow.com/questions/63402652/comparing-dates-in-different-columns-to-isolate-certain-within-group-entries-in
@@ -142,48 +131,48 @@ permit_info_r_l_short <-
 # It is common to have right-open ranges with bounds like `[)`, which would
 # mean an end value of `415` would no longer overlap a start value of `415`.
 # Setting `bounds` allows you to compute overlaps with those kinds of ranges.
-by <- join_by(VESSEL_ID,
-              overlaps(x$EFFECTIVE_DATE,
-                       x$my_end_date,
-                       y$EFFECTIVE_DATE,
-                       y$my_end_date,
-                       bounds = "[)"))
-
-overlap_join1 <-
-  full_join(
-  permit_info_r_l_short$gom_only,
-  permit_info_r_l_short$sa_only,
-  by,
-  suffix = c(".gom", ".sa")
-)
-
-dim(overlap_join1)
+# by <- join_by(VESSEL_ID,
+#               overlaps(x$EFFECTIVE_DATE,
+#                        x$my_end_date,
+#                        y$EFFECTIVE_DATE,
+#                        y$my_end_date,
+#                        bounds = "[)"))
+# 
+# overlap_join1 <-
+#   full_join(
+#   permit_info_r_l_short$gom_only,
+#   permit_info_r_l_short$sa_only,
+#   by,
+#   suffix = c(".gom", ".sa")
+# )
+# 
+# dim(overlap_join1)
 # [1] 84570     5
 
-View(overlap_join1)
+# View(overlap_join1)
 
 # to get dual in the overlapping period:
 # filter(!is.na(permit_sa_gom.sa))
 
-overlap_join1 %>%
-  filter(VESSEL_ID == '669631') %>%
-  mutate(
-    eff_int_gom =
-      lubridate::interval(EFFECTIVE_DATE.gom,
-                          my_end_date.gom),
-    eff_int_sa =
-      lubridate::interval(EFFECTIVE_DATE.sa,
-                          my_end_date.sa)
-  ) %>%
-  View()
+# overlap_join1 %>%
+  # filter(VESSEL_ID == '669631') %>%
+  # mutate(
+  #   eff_int_gom =
+  #     lubridate::interval(EFFECTIVE_DATE.gom,
+  #                         my_end_date.gom),
+  #   eff_int_sa =
+  #     lubridate::interval(EFFECTIVE_DATE.sa,
+  #                         my_end_date.sa)
+  # ) %>%
+  # View()
 
-overlap_join1 %>%
-  filter(!is.na(EFFECTIVE_DATE.sa) |
-           !is.na(EFFECTIVE_DATE.gom)
-         ) %>%
-  select(VESSEL_ID) %>%
-  unique() %>%
-  dim()
+# overlap_join1 %>%
+#   filter(!is.na(EFFECTIVE_DATE.sa) |
+#            !is.na(EFFECTIVE_DATE.gom)
+#          ) %>%
+#   select(VESSEL_ID) %>%
+#   unique() %>%
+#   dim()
 # [1] 13929     1
  # dual permits with dates overlapping between SA and GOM
 
@@ -307,6 +296,9 @@ permit_info_22_days <-
             # browser()
             my_df <- data.frame(VESSEL_ID, EFFECTIVE_DATE, my_end_date)
             if (EFFECTIVE_DATE > my_end_date) {
+              print(paste(VESSEL_ID, 
+                          EFFECTIVE_DATE, 
+                          my_end_date))
               res = my_df
             } else {
               res <- my_compl_function(my_df)
@@ -319,7 +311,14 @@ permit_info_22_days <-
 toc()
 # permit_info_22 by day: 33.33 sec elapsed
 # permit_info_r_l_short_22 by day: 16.42 sec elapsed
-print_df_names(permit_info_22_days_rename$gom_only)
+# print_df_names(permit_info_22_days_rename$gom_only)
+# permit_info_r_l_short_22 by day: 23.05 sec elapsed
+
+# TODO: expired before eff
+# [1] "FL0173JY 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# [1] "FL0173JY 2022-01-31 23:00:00 2022-01-30 23:00:00"
+# [1] "1115726 2022-01-31 23:00:00 2022-01-30 23:00:00"
+
 permit_info_22_days_rename <-
   permit_info_22_days %>%
   map(~ .x %>%
@@ -340,7 +339,7 @@ permit_info_22_days <-
       )
   )
 
-# View(permit_info_22_days$gom_only)
+View(permit_info_22_days$gom_only)
 
 # dim(permit_info_22_days$gom_only)
 # [1] 444989      3
@@ -357,8 +356,9 @@ permit_info_22_days <-
 days_22 <-
   seq(ISOdate(2022,1,1), ISOdate(2023,1,1), "days") %>%
   as.data.frame()
-# str(days)
-# POSIXct[1:366],
+# str(days_22)
+# 'data.frame':	366 obs. of  1 variable:
+#  $ .: POSIXct, format: "2022-01-01 12:00:00" ...
 
 names(days_22) <- "day_in_2022"
 # print_df_names(permit_info_22_days$gom_only)
@@ -375,13 +375,13 @@ days_22_permits_g <-
             join_by(is_effective_date == day_in_2022)) %>%
   unique()
 toc()
+# days_22_permits_g full_join: 6.84 sec elapsed
 
 days_22_permits_g$is_effective_date <-
   floor_date(days_22_permits_g$is_effective_date, unit = "day")
 
 # str(permit_info_22_days$gom_only)
 # View(days_22_permits_g)
-
 
 # HERE
 # TODO: pivot wider?
@@ -402,18 +402,27 @@ days_22_permits_s <-
   unique()
 toc()
 # days_22_permits_s full_join: 19.61 sec elapsed
+# days_22_permits_s full_join: 20.97 sec elapsed
 
-View(days_22_permits_s)
 # days_22_permits_s[1,][1]$is_effective_date %>% floor_date(unit = "day")
 # [1] "2022-02-20 GMT"
 
+days_22_permits_s$is_effective_date <-
+  floor_date(days_22_permits_s$is_effective_date, 
+             unit = "day")
+
+str(days_22_permits_s)
+
+# join gom and sa with all days and vessels
+tic("days_22_permits_g_s full join")
 days_22_permits_g_s <-
   full_join(
     days_22_permits_g,
-    permit_info_22_days$sa,
-    join_by(is_effective_date, VESSEL_ID),
+    days_22_permits_s,
+    join_by(is_effective_date, vess),
     suffix = c(".gom", ".sa")
   )
+toc()
 # ℹ Row 79413 of `x` matches multiple rows in `y`.
 # ℹ Row 24971 of `y` matches multiple rows in `x`.
 
