@@ -133,8 +133,12 @@ permit_info_r_l_overlap_join1_w_dual <-
              
            ))
 
-# View(permit_info_r_l_overlap_join1_w_dual)
 # 186,210 
+permit_info_r_l_overlap_join1_w_dual %>% 
+  select(permit_sa_gom) %>% 
+  unique()
+# all 3
+
 # to get dual in the overlapping period:
 # filter(!is.na(permit_sa_gom.sa))
 
@@ -153,14 +157,82 @@ permit_info_r_l_overlap_join1_w_dual_22 <-
   ) %>%
   #   mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
   filter(int_overlaps(eff_int_gom,
-                      interval_2022))
+                      interval_2022) |
+           int_overlaps(eff_int_sa,
+                      interval_2022)
+         )
 
-permit_info_r_l_overlap_join1_w_dual_22
+permit_info_r_l_overlap_join1_w_dual_22 %>% 
+  select(permit_sa_gom) %>% 
+  unique()
+# all 3
+
+permit_info_r_l_overlap_join1_w_dual_22 %>% 
   filter(permit_sa_gom == "dual") %>% 
   select(VESSEL_ID) %>% 
   unique() %>% 
   dim()
-# 361
+# 379
 # end here permits
 
-# 
+# get all vessels for 2022 ----
+# vessel_id_2022 <- 
+permit_info_r_l_overlap_join1_w_dual_22 %>%
+  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+  filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
+  dim()
+# 652
+  
+permit_info_r_l_overlap_join1_w_dual_22 %>%
+  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+  filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom)) %>%
+  dim()  
+# 356
+
+# permit_info_r_l_overlap_join1_w_dual_22 %>%
+#   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+#   filter(!(VESSEL_ALT_NUM.gom == VESSEL_ALT_NUM.sa)) %>%
+#   dim()
+# 0  
+
+# split by permit ----
+
+permit_info_r_l_overlap_join1_w_dual_22__list <-
+  permit_info_r_l_overlap_join1_w_dual_22 %>%
+  split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
+
+permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(
+    ~ .x %>%
+      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+      pivot_longer(
+        cols = c(VESSEL_ID,
+                 VESSEL_ALT_NUM.sa,
+                 VESSEL_ALT_NUM.gom),
+        values_to = "vessel_id"
+      ) %>%
+      select(vessel_id) %>%
+      unique() %>%
+      return()
+  )
+
+# View(permit_info_r_l_overlap_join1_w_dual_22__list_ids)
+
+  filter(permit_sa_gom == "dual" |
+           permit_sa_gom == "gom_only") %>% 
+  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>% 
+  pivot_longer(cols = c(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom)) %>% 
+  select(value) %>% 
+  unique() %>% 
+  View()
+
+# compliance for GOM 2022 ----
+# GOM:
+# There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
+# There should be a logbook for every declaration of a charter or headboat intending to fish.
+
+  trip_notifications_2022
+permit_info_r_l_overlap_join1_w_dual_22
+  
+  vessel_id_2022_gom_dual
