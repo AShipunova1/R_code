@@ -63,11 +63,34 @@ permit_vessel_query_exp21 %>%
 # get trips info for 2022 ----
 
 trips_22_query <-
-  "select * from
-safis.trips@secapxdv_dblk.sfsc.noaa.gov
-where year = '2022'
+  "SELECT
+ *
+FROM
+  safis.trips@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  trip_start_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+  OR trip_end_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
 "
+
+  
 
 trips_info_2022 <- dbGetQuery(con,
                           trips_22_query)
 
+# trip_notifications ----
+trip_notifications_query <-
+  "SELECT
+ *
+FROM
+  safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  trip_start_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+  OR trip_end_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+"
+# 97279
+
+tic("trip_notifications_query")
+trip_notifications_query_2022 <- dbGetQuery(con,
+                          trip_notifications_query)
+toc()
+trip_notifications_query: 52.08 sec elapsed
