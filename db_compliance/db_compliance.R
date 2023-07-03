@@ -75,7 +75,8 @@ permit_vessel_query_exp21 %>%
   dim()
 # 0
 
-## separate_permits_into_3_groups ----
+
+# separate_permits_into_3_groups ----
 #repeat for permit only
 
 # print_df_names(permit_vessel_query_exp21_reg)
@@ -99,8 +100,6 @@ permit_info_r %>%
 # https://stackoverflow.com/questions/63402652/comparing-dates-in-different-columns-to-isolate-certain-within-group-entries-in
 
 ## add my_end_date ----
-
-# View(permit_info_r_l)
 permit_info_r_short <-
   permit_info_r %>%
   select(
@@ -125,32 +124,72 @@ permit_info_r_short <-
             EXPIRATION_DATE)) %>%
   unique()
 
+# split by permit ----
+permit_info_r_l <-
+  permit_info_r_short %>%
+  split(as.factor(permit_info_r_short$permit_sa_gom))
+
+
+
 # From Help:
 # It is common to have right-open ranges with bounds like `[)`, which would
 # mean an end value of `415` would no longer overlap a start value of `415`.
 # Setting `bounds` allows you to compute overlaps with those kinds of ranges.
-# by <- join_by(VESSEL_ID,
-#               overlaps(x$EFFECTIVE_DATE,
-#                        x$my_end_date,
-#                        y$EFFECTIVE_DATE,
-#                        y$my_end_date,
-#                        bounds = "[)"))
-# 
-# overlap_join1 <-
-#   full_join(
-#   permit_info_r_l_short$gom_only,
-#   permit_info_r_l_short$sa_only,
-#   by,
-#   suffix = c(".gom", ".sa")
-# )
-# 
-# dim(overlap_join1)
+by <- join_by(VESSEL_ID,
+              overlaps(x$EFFECTIVE_DATE,
+                       x$my_end_date,
+                       y$EFFECTIVE_DATE,
+                       y$my_end_date,
+                       bounds = "[)"))
+
+tic("permit_info_r_l_overlap_join1")
+permit_info_r_l_overlap_join1 <-
+  full_join(
+  permit_info_r_l$gom_only,
+  permit_info_r_l$sa_only,
+  by,
+  suffix = c(".gom", ".sa")
+)
+toc()
+# permit_info_r_l_overlap_join1: 0.66 sec elapsed
+
+
+# dim(permit_info_r_l_overlap_join1)
 # [1] 84570     5
+# [1] 186210     15
 
-# View(overlap_join1)
+# View(permit_info_r_l_overlap_join1)
 
+permit_info_r_l_overlap_join1 %>% 
+  select(VESSEL_ID) %>% 
+  unique() %>% 
+  dim()
+# [1] 13930     1
+
+permit_info_r %>% 
+  select(VESSEL_ID) %>% 
+  unique() %>% 
+  dim()
+# 13930     
+
+# add "dual" to intervals ----
+permit_info_r_l_overlap_join1_w_dual <-
+  permit_info_r_l_overlap_join1 %>%
+  mutate(permit_sa_gom =
+           case_when(
+             !is.na(permit_sa_gom.sa) &
+               !is.na(permit_sa_gom.gom) ~ "dual",
+             .default =
+               dplyr::coalesce(permit_sa_gom.sa,
+                               permit_sa_gom.gom)
+             
+           ))
+
+# View(permit_info_r_l_overlap_join1_w_dual)
+# 186,210 
 # to get dual in the overlapping period:
 # filter(!is.na(permit_sa_gom.sa))
+# end here permits
 
 # overlap_join1 %>%
   # filter(VESSEL_ID == '669631') %>%
@@ -524,8 +563,3 @@ days_22_permits_g_s %>%
   unique() %>% 
   View()
 
-# ===
-  ## split by permit ----
-permit_info_r_l <-
-  permit_info_r %>%
-  split(as.factor(permit_info_r$permit_sa_gom))
