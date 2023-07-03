@@ -388,90 +388,77 @@ vessels_in_both <-
 # dim(vessels_in_both)
 # 277   
 
+## use only vesel_ids in both ----
+permit_info_22_days_vsls_in_both <-
+  permit_info_22_days %>%
+  map(~ .x %>%
+        filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID) %>%
+        unique())
+
+# View(permit_info_22_days_vsls_in_both)
+
 # join with days_22 ----
+## convert G to day only, no hours ----
+permit_info_22_days_vsls_in_both$gom_only$is_effective_date <-
+  permit_info_22_days_vsls_in_both$gom_only$is_effective_date %>%
+  floor_date(unit = "day")
+
+# str(permit_info_22_days_vsls_in_both$gom_only)
+ # $ is_effective_date: POSIXct[1:100862], format: "2022-05-16" ...
+
+# str(days_22)
+
 tic("days_22_permits_g full_join")
 days_22_permits_g <-
-  full_join(permit_info_22_days$gom_only,
+  full_join(permit_info_22_days_vsls_in_both$gom_only,
             days_22,
             join_by(is_effective_date == day_in_2022)) %>%
   unique()
 toc()
 # days_22_permits_g full_join: 6.84 sec elapsed
+# days_22_permits_g full_join: 1.11 sec elapsed (both only)
 
-days_22_permits_g$is_effective_date <-
-  floor_date(days_22_permits_g$is_effective_date, unit = "day")
+dim(days_22_permits_g)
 
-# str(permit_info_22_days$gom_only)
-View(days_22_permits_g)
-# [1] 444680      3
-
-# HERE
-# TODO: pivot wider?
-
-# days_22_permits_g %>%
-#   select(-my_end_date) %>%
-#   pivot_wider(names_from = is_effective_date,
-#               values_from = VESSEL_ID) %>%
-#   View()
-# bad
+## convert G to day only, no hours ----
+permit_info_22_days_vsls_in_both$sa_only$is_effective_date <-
+  permit_info_22_days_vsls_in_both$sa_only$is_effective_date %>%
+  floor_date(unit = "day")
 
 tic("days_22_permits_s full_join")
 days_22_permits_s <-
-  full_join(permit_info_22_days$sa_only,
+  full_join(permit_info_22_days_vsls_in_both$sa_only,
             days_22,
             join_by(is_effective_date == day_in_2022)) %>%
   unique()
 toc()
-# days_22_permits_s full_join: 19.61 sec elapsed
-# days_22_permits_s full_join: 20.97 sec elapsed
-
-# days_22_permits_s[1,][1]$is_effective_date %>% floor_date(unit = "day")
-# [1] "2022-02-20 GMT"
-
-days_22_permits_s$is_effective_date <-
-  floor_date(days_22_permits_s$is_effective_date, 
-             unit = "day")
-
-str(days_22_permits_s)
 
 
-days_22_permits_g_in_both <-
-days_22_permits_g %>% 
-  filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID)
 
-days_22_permits_s_in_both <-
-days_22_permits_s %>% 
-  filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID)
 
-glimpse(days_22_permits_g_in_both)
+# str(days_22_permits_g)
+# tibble [101,228 × 3] (S3: tbl_df/tbl/data.frame)
 
-# join gom and sa with all days and vessels
+# join gom and sa with all days and vessels ----
 tic("days_22_permits_g_s full join")
 days_22_permits_g_s <-
   full_join(
     days_22_permits_g_in_both,
     days_22_permits_s_in_both,
     join_by(is_effective_date, VESSEL_ID),
-    suffix = c(".gom", ".sa"),
-    relationship = "many-to-many"
+    suffix = c(".gom", ".sa")
+    # ,
+    # relationship = "many-to-many"
   )
 toc()
+# days_22_permits_g_s full join: 1.16 sec elapsed
+
 # ℹ Row 89859 of `x` matches multiple rows in `y`.
 # ℹ Row 3554 of `y` matches multiple rows in `x`.
 
 # days_22_permits_g_in_both[89859, ]
 # days_22_permits_s_in_both %>%
 #   filter(VESSEL_ID == "697536")
-
- 
-
-# ℹ Row 79413 of `x` matches multiple rows in `y`.
-# ℹ Row 24971 of `y` matches multiple rows in `x`.
-
-# days_22_permits_g[79413, ]
-#   is_effective_date   VESSEL_ID my_end_date
-#   <dttm>              <chr>     <dttm>
-# 1 2022-01-26 04:00:00 697536    2022-12-30 23:00:00
 
 # permit_info_22_days$sa %>%
 #   filter(VESSEL_ID == "697536")
@@ -480,12 +467,3 @@ toc()
 #  1 2022-01-25 23:00:00 697536    2022-12-30 23:00:00
 #  2 2022-01-26 23:00:00 697536    2022-12-30 23:00:00
 
-tic("days_22_permits_g_s full_join")
-days_22_permits_g_s <-
-  full_join(
-    days_22_permits_g,
-    permit_info_22_days$sa,
-    join_by(is_effective_date),
-    suffix = c(".gom", ".sa")
-  )
-toc()
