@@ -511,45 +511,44 @@ toc()
 View(days_22_permits_g_s)
 
 ## get overlapping intervals ----
+tic("days_22_permits_g_s_overl")
 days_22_permits_g_s_overl <-
   days_22_permits_g_s %>%
-  filter(int_overlaps(eff_int.gom, eff_int.sa))
-
-View(days_22_permits_g_s_overl)
-# ℹ Row 89859 of `x` matches multiple rows in `y`.
-# ℹ Row 3554 of `y` matches multiple rows in `x`.
-
-# days_22_permits_g_in_both[89859, ]
-# days_22_permits_s_in_both %>%
-#   filter(VESSEL_ID == "697536")
-
-# permit_info_22_days$sa %>%
-#   filter(VESSEL_ID == "697536")
-#    is_effective_date   VESSEL_ID my_end_date
-#    <dttm>              <chr>     <dttm>
-#  1 2022-01-25 23:00:00 697536    2022-12-30 23:00:00
-#  2 2022-01-26 23:00:00 697536    2022-12-30 23:00:00
-
-View(days_22_permits_g_s)
-# days_22_permits_g_s %>% dim()
-#   unique() %>% dim()
-# [1] 108314      4
+  filter(int_overlaps(eff_int.gom, eff_int.sa)) %>% 
+  unique()
+toc()
+# View(days_22_permits_g_s_overl)
 
 days_22_permits_g_s %>% 
   # group_by(VESSEL_ID) %>% 
   select(is_effective_date, VESSEL_ID) %>% 
   count(is_effective_date)
-
-days_22_permits_g_s %>%
+tic("days_22_permits_g_s_cnts u")
+days_22_permits_g_s_cnts <-
+  days_22_permits_g_s %>%
   mutate(is_effective_date =
            lubridate::floor_date(is_effective_date,
                                  unit = "day")) %>%
   select(is_effective_date, VESSEL_ID) %>%
-  add_count(is_effective_date) %>% 
-  # filter(is_effective_date == '2022-01-01 00:00:00') %>%
-  View()
+  unique() %>%
+  add_count(is_effective_date)
+toc()
+# days_22_permits_g_s_cnts u: 3.34 sec elapsed
+# dim(days_22_permits_g_s_cnts)
+# [1] 106736      3
 
-days_22_permits_g_s %>%
-  filter(VESSEL_ID == '558306') %>% 
-  unique() %>% 
-  View()
+View(days_22_permits_g_s_cnts)
+
+# %>%
+  # filter(is_effective_date == '2022-01-01 00:00:00')
+  # C%>%
+  # View()
+
+# days_22_permits_g_s %>%
+#   filter(VESSEL_ID == '558306') %>% 
+#   unique() %>% 
+#   dim()
+# [1] 698  15
+
+# add dual ----
+View(days_22_permits_g_s_overl)
