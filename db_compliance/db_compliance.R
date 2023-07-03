@@ -216,10 +216,36 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
   )
 
 # View(permit_info_r_l_overlap_join1_w_dual_22__list_ids)
-
+print_df_names(vessels_all)
 # get all vessels for 2022 ----
-inner_join(permit_info_r_l_overlap_join1_w_dual_22__list_ids,
-           vessels_all)
+vessels_by_sero_of_num <-
+  permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(vessel_id == SERO_OFFICIAL_NUMBER)))
+
+View(vessels_by_sero_of_num)
+View(permit_info_r_l_overlap_join1_w_dual_22__list_ids)
+
+permit_info_r_l_overlap_join1_w_dual_22__list_id_num <-
+  permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
+  map(~ .x %>% dim())
+      
+View(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
+
+vessels_by_sero_of_num_num <-
+  vessels_by_sero_of_num %>% 
+  map(~ .x %>% 
+        select(vessel_id) %>% 
+        unique() %>% 
+      dim())
+  
+View(vessels_by_sero_of_num_num)
+all.equal(vessels_by_sero_of_num_num, permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
+# [1] "Component “dual”: Mean relative difference: 0.03693931"    
+# [2] "Component “gom_only”: Mean relative difference: 0.05823627"
+# [3] "Component “sa_only”: Mean relative difference: 0.03952467" 
+
 
 # compliance for GOM 2022 ----
 # GOM:
