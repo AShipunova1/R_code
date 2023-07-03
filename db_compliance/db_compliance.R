@@ -49,7 +49,7 @@ permit_info_udp <- dbGetQuery(con,
                           udp_v_sero_oth_prm_period_his_query)
 
 
-### permit + vessel ----
+### permit + vessel from db ----
 permit_vessel_query_exp21_query <-
 "select * from srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
 join safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
@@ -176,7 +176,7 @@ permit_info_r_short <-
 
 # add intervals ----
 dim(permit_info_r_short)
-# 181041      
+# 180869      
 
 permit_info_r_short_int <-
   permit_info_r_short %>%
