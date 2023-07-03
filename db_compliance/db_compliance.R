@@ -135,7 +135,7 @@ permit_info_r_short <-
 #                        y$EFFECTIVE_DATE,
 #                        y$my_end_date,
 #                        bounds = "[)"))
-# 
+#
 # overlap_join1 <-
 #   full_join(
 #   permit_info_r_l_short$gom_only,
@@ -143,7 +143,7 @@ permit_info_r_short <-
 #   by,
 #   suffix = c(".gom", ".sa")
 # )
-# 
+#
 # dim(overlap_join1)
 # [1] 84570     5
 
@@ -176,7 +176,7 @@ permit_info_r_short <-
 
 # add intervals ----
 dim(permit_info_r_short)
-# 180869      
+# 180869
 
 permit_info_r_short_int <-
   permit_info_r_short %>%
@@ -338,6 +338,8 @@ permit_info_22_days <-
   ) %>%
   list_rbind()
 toc()
+# permit_info_r_l_short_22 by day: 196 sec elapsed
+
 # permit_info_r_short_int_22 by day: 211.58 sec elapsed
 # not splitted
 # permit_info_r_l_short_22 by day: 395.39 sec elapsed
@@ -376,12 +378,12 @@ permit_info_22_days <-
     my_end_date =
       lubridate::floor_date(my_end_date,
                             unit = "day")
-  ) %>% 
+  ) %>%
   # unique()
 toc()
 # View(permit_info_22_days)
 
-dim(permit_info_22_days)
+# dim(permit_info_22_days)
 # [1] 3806184       9
 
 # whole year df ----
@@ -413,7 +415,7 @@ vessels_in_both <-
   unique()
 
 dim(vessels_in_both)
-# 277   
+# 277
 
 ## use only vesel_ids in both ----
 tic("permit_info_22_days_vsls_in_both")
@@ -423,109 +425,97 @@ permit_info_22_days_vsls_in_both <-
         filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID) %>%
         unique())
 toc()
+# permit_info_22_days_vsls_in_both: 221.2 sec elapsed
 
-permit_info_22_days_vsls_in_both$gom_only %>% 
-  select(is_effective_date) %>% 
-  unique() %>% 
-  dim()
-
+# permit_info_22_days_vsls_in_both$gom_only %>%
+#   select(is_effective_date) %>%
+#   unique() %>%
+#   dim()
+# [1] 849   1
 
 # join with days_22 ----
-## convert G to day only, no hours ----
-permit_info_22_days_vsls_in_both$gom_only$is_effective_date <-
-  permit_info_22_days_vsls_in_both$gom_only$is_effective_date %>%
-  floor_date(unit = "day")
+## convert to days only, no hours ----
+permit_info_22_days_vsls_in_both_d <-
+  permit_info_22_days_vsls_in_both %>%
+  map(~ .x %>%
+        mutate(is_effective_date =
+                 floor_date(is_effective_date,
+                            unit = "day")))
+
+# permit_info_22_days_vsls_in_both$gom_only$is_effective_date <-
+#   permit_info_22_days_vsls_in_both$gom_only$is_effective_date %>%
+#   floor_date(unit = "day")
 
 # str(permit_info_22_days_vsls_in_both$gom_only)
  # $ is_effective_date: POSIXct[1:100862], format: "2022-05-16" ...
 
 # str(days_22)
 
-tic("days_22_permits_g full_join")
-days_22_permits_g <-
-  full_join(permit_info_22_days_vsls_in_both$gom_only,
-            days_22,
-            join_by(is_effective_date == day_in_2022)) %>%
-  unique()
+# join each with days_22 ----
+
+tic("permit_info_22_days_vsls_in_both_d full_join")
+permit_info_22_days_vsls_in_both_d_j <-
+  permit_info_22_days_vsls_in_both_d %>%
+  map(~ .x %>%
+        full_join(days_22,
+                  join_by(is_effective_date == day_in_2022)) %>%
+        unique())
 toc()
-# days_22_permits_g full_join: 6.84 sec elapsed
-# days_22_permits_g full_join: 1.11 sec elapsed (both only)
+# permit_info_22_days_vsls_in_both_d full_join: 210.74 sec elapsed
 
-dim(days_22_permits_g)
-
-## convert G to day only, no hours ----
-permit_info_22_days_vsls_in_both$sa_only$is_effective_date <-
-  permit_info_22_days_vsls_in_both$sa_only$is_effective_date %>%
-  floor_date(unit = "day")
-
-tic("days_22_permits_s full_join")
-days_22_permits_s <-
-  full_join(permit_info_22_days_vsls_in_both$sa_only,
-            days_22,
-            join_by(is_effective_date == day_in_2022)) %>%
-  unique()
-toc()
-
-
-
-
-# str(days_22_permits_g)
+# str(permit_info_22_days_vsls_in_both_d_j)
 # tibble [101,228 × 3] (S3: tbl_df/tbl/data.frame)
+# $ gom_only: tibble [192,768 × 9] (S3: tbl_df/tbl/data.frame)
+
+# TODO: get only few field to join on, add other info later?
+
 
 # join gom and sa with all days and vessels ----
+# print_df_names(permit_info_22_days_vsls_in_both_d$gom_only)
+# is_effective_date, VESSEL_ID, TOP, PERMIT, PERMIT_STATUS, VESSEL_ALT_NUM, permit_sa_gom, my_end_date, eff_int
+
 tic("days_22_permits_g_s full join")
 days_22_permits_g_s <-
   full_join(
-    days_22_permits_g_in_both,
-    days_22_permits_s_in_both,
-    join_by(is_effective_date, VESSEL_ID),
-    suffix = c(".gom", ".sa")
-    # ,
-    # relationship = "many-to-many"
+    permit_info_22_days_vsls_in_both_d$gom_only,
+    permit_info_22_days_vsls_in_both_d$sa_only,
+    join_by(is_effective_date,
+            VESSEL_ID,
+            VESSEL_ALT_NUM
+            ),
+    suffix = c(".gom", ".sa"),
+    relationship = "many-to-many"
   )
 toc()
 # days_22_permits_g_s full join: 1.16 sec elapsed
 
-# ℹ Row 89859 of `x` matches multiple rows in `y`.
-# ℹ Row 3554 of `y` matches multiple rows in `x`.
-
-# days_22_permits_g_in_both[89859, ]
-# days_22_permits_s_in_both %>%
-#   filter(VESSEL_ID == "697536")
-
-# permit_info_22_days$sa %>%
-#   filter(VESSEL_ID == "697536")
-#    is_effective_date   VESSEL_ID my_end_date
-#    <dttm>              <chr>     <dttm>
-#  1 2022-01-25 23:00:00 697536    2022-12-30 23:00:00
-#  2 2022-01-26 23:00:00 697536    2022-12-30 23:00:00
-
 View(days_22_permits_g_s)
-# days_22_permits_g_s %>% dim()
-#   unique() %>% dim()
-# [1] 108314      4
 
-days_22_permits_g_s %>% 
-  # group_by(VESSEL_ID) %>% 
-  select(is_effective_date, VESSEL_ID) %>% 
-  count(is_effective_date)
+## get overlapping intervals ----
+tic("days_22_permits_g_s_overl")
+days_22_permits_g_s_overl <-
+  days_22_permits_g_s %>%
+  filter(int_overlaps(eff_int.gom, eff_int.sa)) %>%
+  unique()
+toc()
+# View(days_22_permits_g_s_overl)
 
 days_22_permits_g_s %>%
+  # group_by(VESSEL_ID) %>%
+  select(is_effective_date, VESSEL_ID) %>%
+  count(is_effective_date)
+tic("days_22_permits_g_s_cnts u")
+days_22_permits_g_s_cnts <-
+  days_22_permits_g_s %>%
   mutate(is_effective_date =
            lubridate::floor_date(is_effective_date,
                                  unit = "day")) %>%
   select(is_effective_date, VESSEL_ID) %>%
-  add_count(is_effective_date) %>% 
+  add_count(is_effective_date) %>%
   # filter(is_effective_date == '2022-01-01 00:00:00') %>%
   View()
 
 days_22_permits_g_s %>%
-  filter(VESSEL_ID == '558306') %>% 
-  unique() %>% 
+  filter(VESSEL_ID == '558306') %>%
+  unique() %>%
   View()
-
-# ===
-  ## split by permit ----
-permit_info_r_l <-
-  permit_info_r %>%
-  split(as.factor(permit_info_r$permit_sa_gom))
