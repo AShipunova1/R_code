@@ -343,6 +343,8 @@ permit_info_22_days <-
         list_rbind()
   )
 toc()
+# permit_info_r_l_short_22 by day: 196 sec elapsed
+
 # permit_info_r_l_short_22 by day: 395.39 sec elapsed
 # with all fields
 # permit_info_22 by day: 33.33 sec elapsed
@@ -384,7 +386,7 @@ permit_info_22_days <-
 #       )
 #   )
 
-View(permit_info_22_days$gom_only)
+# View(permit_info_22_days$gom_only)
 
 # dim(permit_info_22_days$gom_only)
 # [1] 444989      3
@@ -442,18 +444,15 @@ permit_info_22_days_vsls_in_both <-
         filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID) %>%
         unique())
 toc()
+# permit_info_22_days_vsls_in_both: 221.2 sec elapsed
 
-permit_info_22_days_vsls_in_both$gom_only %>% 
-  select(is_effective_date) %>% 
-  unique() %>% 
-  dim()
-
+# permit_info_22_days_vsls_in_both$gom_only %>% 
+#   select(is_effective_date) %>% 
+#   unique() %>% 
+#   dim()
+# [1] 849   1
 
 # join with days_22 ----
-## convert G to day only, no hours ----
-permit_info_22_days_vsls_in_both$gom_only$is_effective_date <-
-  permit_info_22_days_vsls_in_both$gom_only$is_effective_date %>%
-  floor_date(unit = "day")
 ## convert to days only, no hours ----
 permit_info_22_days_vsls_in_both_d <-
   permit_info_22_days_vsls_in_both %>%
@@ -471,31 +470,21 @@ permit_info_22_days_vsls_in_both_d <-
 
 # str(days_22)
 
-tic("days_22_permits_g full_join")
-days_22_permits_g <-
-  full_join(permit_info_22_days_vsls_in_both$gom_only,
-            days_22,
-            join_by(is_effective_date == day_in_2022)) %>%
-  unique()
+# join each with days_22 ----
+
+tic("permit_info_22_days_vsls_in_both_d full_join")
+permit_info_22_days_vsls_in_both_d_j <-
+  permit_info_22_days_vsls_in_both_d %>%
+  map(~ .x %>%
+        full_join(days_22,
+                  join_by(is_effective_date == day_in_2022)) %>%
+        unique())
 toc()
-# days_22_permits_g full_join: 6.84 sec elapsed
-# days_22_permits_g full_join: 1.11 sec elapsed (both only)
+# permit_info_22_days_vsls_in_both_d full_join: 210.74 sec elapsed
 
-dim(days_22_permits_g)
-
-## convert G to day only, no hours ----
-permit_info_22_days_vsls_in_both$sa_only$is_effective_date <-
-  permit_info_22_days_vsls_in_both$sa_only$is_effective_date %>%
-  floor_date(unit = "day")
-
-tic("days_22_permits_s full_join")
-days_22_permits_s <-
-  full_join(permit_info_22_days_vsls_in_both$sa_only,
-            days_22,
-            join_by(is_effective_date == day_in_2022)) %>%
-  unique()
-toc()
-
+# str(permit_info_22_days_vsls_in_both_d_j)
+# tibble [101,228 × 3] (S3: tbl_df/tbl/data.frame)
+# $ gom_only: tibble [192,768 × 9] (S3: tbl_df/tbl/data.frame)
 
 
 
