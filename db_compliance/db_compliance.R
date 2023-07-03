@@ -108,24 +108,36 @@ permit_info_r_l <-
   split(as.factor(permit_info_r$permit_sa_gom))
 
 ## add my_end_date ----
+
+# View(permit_info_r_l)
 permit_info_r_l_short <-
   permit_info_r_l %>%
-  map(~.x %>%
-  select(VESSEL_ID,
-         EFFECTIVE_DATE,
-         END_DATE,
-         EXPIRATION_DATE) %>%
-  mutate(my_end_date =
-           case_when((END_DATE < EFFECTIVE_DATE) &
-                       (EXPIRATION_DATE > EFFECTIVE_DATE)
-                     ~ EXPIRATION_DATE,
-                     .default =
-                       dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
-           )
-         ) %>%
-  select(-c(END_DATE,
-            EXPIRATION_DATE)) %>%
-  unique())
+  map(
+    ~ .x %>%
+      select(
+        VESSEL_ID,
+        EXPIRATION_DATE,
+        TOP,
+        PERMIT,
+        EFFECTIVE_DATE,
+        END_DATE,
+        PERMIT_STATUS,
+        VESSEL_ALT_NUM,
+        permit_sa_gom
+      ) %>%
+      mutate(
+        my_end_date =
+          case_when((END_DATE < EFFECTIVE_DATE) &
+                      (EXPIRATION_DATE > EFFECTIVE_DATE)
+                    ~ EXPIRATION_DATE,
+                    .default =
+                      dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
+          )
+      ) %>%
+      select(-c(END_DATE,
+                EXPIRATION_DATE)) %>%
+      unique()
+  )
 
 # From Help:
 # It is common to have right-open ranges with bounds like `[)`, which would
@@ -176,17 +188,34 @@ permit_info_r_l_short <-
 # [1] 13929     1
  # dual permits with dates overlapping between SA and GOM
 
+# add intervals ----
+glimpse(permit_info_r_l_short$gom_only)
+# [1] 48441     8
+# dim(permit_info_r_l_short$sa_only)
+# [1] 132600    8
+
+permit_info_r_l_short_int <-
+  permit_info_r_l_short %>%
+  map( ~ .x %>%
+         mutate(eff_int =
+                  lubridate::interval(EFFECTIVE_DATE,
+                                      my_end_date)))
+
+# View(permit_info_r_l_short_int)
+
 ## get all permit info for 2022 ----
 
 permit_info_r_l_short_22 <-
-  permit_info_r_l_short %>%
+  permit_info_r_l_short_int %>%
   map( ~ .x %>%
          filter(year(EFFECTIVE_DATE) == '2022'))
 
 # dim(permit_info_r_l_short_22$gom_only)
 # [1] 1342    3
+# 2595    9
 # dim(permit_info_r_l_short_22$sa_only)
 # [1] 3649    3
+# [1] 8148    9
 
 #
 # overlapped_gom_sa_int <-
