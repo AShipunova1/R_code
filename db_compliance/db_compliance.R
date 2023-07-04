@@ -231,90 +231,33 @@ vessels_by_sero_of_num_state_n <-
                    join_by(vessel_id == STATE_REG_NBR)))
 
 
-View(vessels_by_sero_of_num)
-View(permit_info_r_l_overlap_join1_w_dual_22__list_ids)
 
 permit_info_r_l_overlap_join1_w_dual_22__list_id_num <-
   permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
   map(~ .x %>% dim())
       
-View(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
 
-vessels_by_sero_of_num_num <-
-  vessels_by_sero_of_num %>% 
-  map(~ .x %>% 
-        select(vessel_id) %>% 
-        unique() %>% 
-      dim())
-  
-View(vessels_by_sero_of_num_num)
-all.equal(vessels_by_sero_of_num_num, permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
-# [1] "Component “dual”: Mean relative difference: 0.03693931"    
-# [2] "Component “gom_only”: Mean relative difference: 0.05823627"
-# [3] "Component “sa_only”: Mean relative difference: 0.03952467" 
-# (sp.vessel_id =
-#     nvl(vs.state_reg_nbr, 'X~X'))
-
-# compliance for GOM 2022 ----
-# GOM:
-# There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
-# There should be a logbook for every declaration of a charter or headboat intending to fish.
-
-permit_info_r_l_overlap_join1_w_dual_22__list_ids
-
-  trip_notifications_2022
-permit_info_r_l_overlap_join1_w_dual_22
-  
-  vessel_id_2022_gom_dual
-  
-## 2 ----
-vessels_by_sero_of_num2 <-
-permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
-map(~ .x %>%
-      inner_join(vessels_all,
-                 join_by(vessel_id == COAST_GUARD_NBR)))
-# print_df_names(vessels_all)
-
-## 3 ----
-vessels_by_sero_of_num3 <-
-permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
-map(~ .x %>%
-      inner_join(vessels_all,
-                 join_by(vessel_id == STATE_REG_NBR)))
-
-all.equal(vessels_by_sero_of_num, vessels_by_sero_of_num2)
-# FALSE (198 diff)
-
-all.equal(vessels_by_sero_of_num2, vessels_by_sero_of_num3)
-# 158 diff
-
-### compare ----
-vessels_by_sero_of_num_num <-
-  vessels_by_sero_of_num %>% 
-  map(~ .x %>% 
-        select(vessel_id) %>% 
-        unique() %>% 
-      dim())
-  
-str(vessels_by_sero_of_num_num)
-
-vessels_by_sero_of_num_num2 <-
-  vessels_by_sero_of_num2 %>% 
-  map(~ .x %>% 
-        select(vessel_id) %>% 
-        unique() %>% 
-      dim())
-
-str(vessels_by_sero_of_num_num2)
-
-vessels_by_sero_of_num_num3 <-
-  vessels_by_sero_of_num3 %>% 
+vessels_by_sero_of_num_state_n_num <-
+  vessels_by_sero_of_num_state_n %>% 
   map(~ .x %>% 
         select(vessel_id) %>% 
         unique() %>% 
       dim())
 
 str(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
-str(vessels_by_sero_of_num_num)
-str(vessels_by_sero_of_num_num2)
-str(vessels_by_sero_of_num_num3)
+str(vessels_by_sero_of_num_coast_g)
+str(vessels_by_sero_of_num_state_n)
+
+vessels_by_sero_of_num__all <-
+  map2_dfr(vessels_by_sero_of_num_coast_g,
+           vessels_by_sero_of_num_state_n,
+           dplyr::bind_rows)
+
+
+vessels_by_sero_of_num_state_n %>% 
+  map(~ .x %>% 
+        
+        select(vessel_id) %>% 
+        unique() %>% 
+      dim()
+      )
