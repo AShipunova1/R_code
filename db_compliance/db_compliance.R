@@ -249,15 +249,89 @@ str(vessels_by_sero_of_num_coast_g)
 str(vessels_by_sero_of_num_state_n)
 
 vessels_by_sero_of_num__all <-
+  # map over 2 lists of dataframes
   map2_dfr(vessels_by_sero_of_num_coast_g,
+           vessels_by_sero_of_num_state_n,
+           dplyr::bind_rows) %>% 
+  unique()
+
+vessels_by_sero_of_num__all_l <-
+  # map over 2 lists of dataframes
+  map2(vessels_by_sero_of_num_coast_g,
            vessels_by_sero_of_num_state_n,
            dplyr::bind_rows)
 
 
-vessels_by_sero_of_num_state_n %>% 
+View(vessels_by_sero_of_num__all_l)
+
+vessels_by_sero_of_num__all_l_num <-
+  vessels_by_sero_of_num__all_l %>% 
   map(~ .x %>% 
-        
         select(vessel_id) %>% 
         unique() %>% 
       dim()
       )
+
+str(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
+str(vessels_by_sero_of_num__all_l_num)
+# > str(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
+# List of 3
+#  $ dual    : int [1:2] 393 1
+#  $ gom_only: int [1:2] 1272 1
+#  $ sa_only : int [1:2] 4024 1
+# > str(vessels_by_sero_of_num__all_l_num)
+# List of 3
+#  $ dual    : int [1:2] 393 1
+#  $ gom_only: int [1:2] 1272 1
+#  $ sa_only : int [1:2] 4020 1
+
+all.equal(
+  permit_info_r_l_overlap_join1_w_dual_22__list_id_num,
+  vessels_by_sero_of_num__all_l_num
+)
+# [1] "Component “sa_only”: Mean relative difference: 0.0009940358"
+
+setdiff(
+  permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$vessel_id,
+  vessels_by_sero_of_num__all_l$sa_only$vessel_id
+)
+# [1] "1304296"  "NA"       "FL6437NY" "1176885" 
+
+setdiff(
+  vessels_by_sero_of_num__all_l$sa_only$vessel_id,
+  permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$vessel_id
+)
+0
+
+permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+    filter(VESSEL_ID == '1304296') %>% View()
+# alt_num.sa DL5161AM
+
+permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+    filter(VESSEL_ID == 'FL6437NY') %>% View()
+
+# FL6437NY
+# 2015-09-01 EDT--2022-06-02 EDT
+# VESSEL SOLD
+
+
+permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+    filter(VESSEL_ID == '1176885') %>% View()
+# alt num FL0668PV 2021-05-01 EDT--2022-03-31 EDT
+
+
+vessels_by_sero_of_num__all_l$sa_only %>% 
+  filter(vessel_id == '1304296' |
+           VESSEL_ID == '1304296' |
+           COAST_GUARD_NBR == '1304296' |
+           STATE_REG_NBR == '1304296'
+           ) %>% 
+  View()
+# 0
+
+
+vessels_by_sero_of_num__all_l$sa_only %>% 
+  filter(vessel_id == 'DL5161AM') %>% 
+  View()
+# 1
+# SERO_OFFICIAL_NUMBER is NULL
