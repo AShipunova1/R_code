@@ -392,8 +392,39 @@ uniq_permit_vsl_ids %>%
 
 # View(trip_notifications_2022)
 
-## trip types A and H gom trip_notif ----
+# fix trip data ----
+## add trip_int ----
+trips_info_2022 %>% 
+  select(TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME) %>% 
+  str()
+# POSIXct
+# str(trips_info_2022)
 
+# is_effective_date =
+#   lubridate::floor_date(is_effective_date,
+#                         unit = "day"),
+
+trips_info_2022_int <-
+  trips_info_2022 %>%
+  mutate(trip_int =
+           lubridate::interval(
+             lubridate::floor_date(TRIP_START_DATE,
+                                   unit = "day"),
+             lubridate::floor_date(TRIP_END_DATE,
+                                   unit = "day")
+           ))
+
+### check trips_info_2022_int ----
+trips_info_2022_int %>%
+  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>% 
+  View()
+
+## trip types A and H trips ----
+trips_info_2022_int_ah <-
+  trips_info_2022_int %>%
+  filter(TRIP_TYPE %in% c("A", "H"))
+
+## trip types A and H trip_notif ----
 trip_notifications_2022 %>%
    select(TRIP_TYPE) %>% unique()
 #     TRIP_TYPE
@@ -402,7 +433,7 @@ trip_notifications_2022 %>%
 # 383         R
 # 697         C
 
-trip_notifications_2022_AH <-
+trip_notifications_2022_ah <-
   trip_notifications_2022 %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
@@ -410,7 +441,7 @@ trip_notifications_2022_AH <-
 
 ## compare vessel_ids ----
 trip_notifications_2022_vsl_ids <-
-  trip_notifications_2022_AH %>%
+  trip_notifications_2022_ah %>%
   select(VESSEL_ID) %>%
   unique()
 
@@ -426,7 +457,7 @@ vessels_by_permit_vessel__all_l_u_vsl_ids_l <-
             select(VESSEL_ID) %>%
             unique())
 
-dim(trip_notifications_2022_AH)
+dim(trip_notifications_2022_ah)
 # [1] 126726     33
 dim(trip_notifications_2022_vsl_ids)
 # [1] 1095    1
@@ -476,7 +507,7 @@ vessels__trip_notif_22_l <-
     ~ .x %>%
       unique() %>%
       inner_join(
-        trip_notifications_2022_AH,
+        trip_notifications_2022_ah,
         join_by(VESSEL_ID),
         relationship = "many-to-many",
         suffix = c(".v", ".tn")
@@ -569,29 +600,4 @@ vessels__trips_22_l$sa_only
 # interval_2022
 # dates_2022
 
-print_df_names(trips_info_2022)
-
-trips_info_2022 %>% 
-  select(TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME) %>% 
-  str()
-# POSIXct
-# str(trips_info_2022)
-
-# is_effective_date =
-#   lubridate::floor_date(is_effective_date,
-#                         unit = "day"),
-
-trips_info_2022_int <-
-  trips_info_2022 %>%
-  mutate(trip_int =
-           lubridate::interval(
-             lubridate::floor_date(TRIP_START_DATE,
-                                   unit = "day"),
-             lubridate::floor_date(TRIP_END_DATE,
-                                   unit = "day")
-           ))
-
-# check trips_info_2022_int ----
-trips_info_2022_int %>%
-  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>% 
-  View()
+# print_df_names(trips_info_2022_int_ah)
