@@ -340,41 +340,28 @@ vessels_by_sero_of_num__all %>%
   filter(vessel_id == '1023478') %>% 
   View()
 
-vessels_by_sero_of_num__all %>%
-  filter(vessel_id == '1023478') %>%
-  group_by(vessel_id) %>%
-  mutate(COAST_GUARD_NBR =
-           dplyr::coalesce(COAST_GUARD_NBR, COAST_GUARD_NBR)) %>%
-  View()
-
 # 
 # https://stackoverflow.com/questions/45515218/combine-rows-in-data-frame-containing-na-to-make-complete-row
+# coalesce_by_column <- function(df) {
+#   return(coalesce(df[1], df[2]))
+# }
 coalesce_by_column <- function(df) {
-  return(coalesce(df[1], df[2]))
+  return(dplyr::coalesce(!!! as.list(df)))
 }
+
 # 
 # df %>%
 #   group_by(A) %>%
 #   summarise_all(coalesce_by_column)
 
-
-vessels_by_sero_of_num__all %>%
+vessels_by_sero_of_num__all_2 <-
+  vessels_by_sero_of_num__all %>%
   filter(vessel_id == '1023478') %>%
   group_by(vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
   # mutate(COAST_GUARD_NBR =
   #          dplyr::coalesce(COAST_GUARD_NBR, COAST_GUARD_NBR)) %>%
   
-
-
-coalesce_by_column <- function(df) {
-  return(dplyr::coalesce(!!! as.list(df)))
-}
-
-df %>%
-  group_by(A) %>%
-  summarise_all(coalesce_by_column)
-
 
 # GOM 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
