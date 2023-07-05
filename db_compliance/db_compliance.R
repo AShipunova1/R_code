@@ -194,141 +194,108 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
 #   dim()
 # 0  
 
-# split by permit again ----
+# combine permit VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom ----
 
-permit_info_r_l_overlap_join1_w_dual_22__list <-
+# permit_info_r_l_overlap_join1_w_dual_22__list <-
+#   permit_info_r_l_overlap_join1_w_dual_22 %>%
+#   split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
+View(permit_info_r_l_overlap_join1_w_dual_22)
+
+permit_info_r_l_overlap_join1_w_dual_22_ids <-
   permit_info_r_l_overlap_join1_w_dual_22 %>%
-  split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
-
-permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(
-    ~ .x %>%
-      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-      pivot_longer(
-        cols = c(VESSEL_ID,
-                 VESSEL_ALT_NUM.sa,
-                 VESSEL_ALT_NUM.gom),
-        values_to = "vessel_id"
-      ) %>%
-      select(vessel_id) %>%
-      unique() %>%
-      return()
-  )
+  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+  pivot_longer(
+    cols = c(VESSEL_ID,
+             VESSEL_ALT_NUM.sa,
+             VESSEL_ALT_NUM.gom),
+    values_to = "permit_vessel_id"
+  ) %>%
+  select(permit_vessel_id) %>%
+  unique()
 
 # View(permit_info_r_l_overlap_join1_w_dual_22__list_ids)
 
 # get all vessels for 2022 ----
 # join by different vessel ids, then bind together and unique
 vessels_by_sero_of_num_coast_g <-
-  permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
-  map(~ .x %>%
-        inner_join(vessels_all,
-                   join_by(vessel_id == COAST_GUARD_NBR)))
+  permit_info_r_l_overlap_join1_w_dual_22_ids %>%
+  inner_join(vessels_all,
+             join_by(permit_vessel_id == COAST_GUARD_NBR))
 
 vessels_by_sero_of_num_state_n <-
-  permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
-  map(~ .x %>%
-        inner_join(vessels_all,
-                   join_by(vessel_id == STATE_REG_NBR)))
+  permit_info_r_l_overlap_join1_w_dual_22_ids %>%
+  inner_join(vessels_all,
+             join_by(permit_vessel_id == STATE_REG_NBR))
 
-vessels_by_sero_of_num__all_l <-
-  # map over 2 lists of dataframes and make a list
-  map2(vessels_by_sero_of_num_coast_g,
-           vessels_by_sero_of_num_state_n,
-           dplyr::bind_rows)
-
-# the same for checking
-vessels_by_sero_of_num__all <-
-  # map over 2 lists of dataframes and make a df
-  map2_dfr(vessels_by_sero_of_num_coast_g,
-           vessels_by_sero_of_num_state_n,
-           dplyr::bind_rows) %>%
+vessels_by_permit_vessel <-
+  dplyr::bind_rows(vessels_by_sero_of_num_state_n,
+                   vessels_by_sero_of_num_coast_g) %>%
+# [1] 145547     30
   unique()
+dim(vessels_by_permit_vessel)
+# [1] 145546     30
 
 ### check joins ----
 
-permit_info_r_l_overlap_join1_w_dual_22__list_id_num <-
-  permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
-  map(~ .x %>% dim())
-
-vessels_by_sero_of_num__all_l_num <-
-  vessels_by_sero_of_num__all_l %>%
-  map(~ .x %>%
-        select(vessel_id) %>%
-        unique() %>%
-        dim())
+vessels_by_permit_vessel_num <-
+  vessels_by_permit_vessel %>%
+  select(permit_vessel_id) %>%
+  unique() %>%
+  dim()
+# [1] 5632    1
 
 str(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
-str(vessels_by_sero_of_num__all_l_num)
-# > str(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
 # List of 3
-#  $ dual    : int [1:2] 393 1
+#  $ dual    : int [1:2] 392 1
 #  $ gom_only: int [1:2] 1272 1
 #  $ sa_only : int [1:2] 4024 1
-# > str(vessels_by_sero_of_num__all_l_num)
-# List of 3
-#  $ dual    : int [1:2] 393 1
-#  $ gom_only: int [1:2] 1272 1
-#  $ sa_only : int [1:2] 4020 1
+# > 392 +1272+4024
+# [1] 5688
 
-all.equal(
-  permit_info_r_l_overlap_join1_w_dual_22__list_id_num,
-  vessels_by_sero_of_num__all_l_num
-)
-# [1] "Component “sa_only”: Mean relative difference: 0.0009940358"
 
-setdiff(
-  permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$vessel_id,
-  vessels_by_sero_of_num__all_l$sa_only$vessel_id
-)
+# setdiff(
+#   permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$vessel_id,
+#   vessels_by_sero_of_num__all_l$sa_only$vessel_id
+# )
 # [1] "1304296"  "NA"       "FL6437NY" "1176885" 
 
-setdiff(
-  vessels_by_sero_of_num__all_l$sa_only$vessel_id,
-  permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$vessel_id
-)
-0
-
-permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
-    filter(VESSEL_ID == '1304296') %>% View()
-# alt_num.sa DL5161AM
-
-permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
-    filter(VESSEL_ID == 'FL6437NY') %>% View()
+# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+#     filter(VESSEL_ID == '1304296') %>% View()
+# # alt_num.sa DL5161AM
+# 
+# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+#     filter(VESSEL_ID == 'FL6437NY') %>% View()
 
 # FL6437NY
 # 2015-09-01 EDT--2022-06-02 EDT
 # VESSEL SOLD
 
-
-permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
-    filter(VESSEL_ID == '1176885') %>% View()
+# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+#     filter(VESSEL_ID == '1176885') %>% View()
 # alt num FL0668PV 2021-05-01 EDT--2022-03-31 EDT
 
+# vessels_by_sero_of_num__all_l$sa_only %>% 
+#   filter(vessel_id == '1304296' |
+#            VESSEL_ID == '1304296' |
+#            COAST_GUARD_NBR == '1304296' |
+#            STATE_REG_NBR == '1304296'
+#            ) %>% 
+#   View()
+# # 0
 
-vessels_by_sero_of_num__all_l$sa_only %>% 
-  filter(vessel_id == '1304296' |
-           VESSEL_ID == '1304296' |
-           COAST_GUARD_NBR == '1304296' |
-           STATE_REG_NBR == '1304296'
-           ) %>% 
-  View()
-# 0
 
-
-vessels_by_sero_of_num__all_l$sa_only %>% 
-  filter(vessel_id == 'DL5161AM') %>% 
-  View()
+# vessels_by_sero_of_num__all_l$sa_only %>% 
+#   filter(vessel_id == 'DL5161AM') %>% 
+#   View()
 # 1
 # SERO_OFFICIAL_NUMBER is NULL
 # difference is in 1 vessel in sa_only
 
 ## clean up vessels_by_sero_of_num__all ----
-vessels_by_sero_of_num__all %>% 
-  count(vessel_id) %>% 
-  filter(n > 1)
-# 29
+# vessels_by_sero_of_num__all %>% 
+#   count(vessel_id) %>% 
+#   filter(n > 1)
+# # 29
  # 1 1023478       2
  # 2 1064839       2
  # 3 1090694       2
@@ -336,9 +303,9 @@ vessels_by_sero_of_num__all %>%
  # 5 1320038       2
  # 6 16250027      2
 
-vessels_by_sero_of_num__all %>% 
-  filter(vessel_id == '1023478') %>% 
-  View()
+# vessels_by_sero_of_num__all %>% 
+#   filter(vessel_id == '1023478') %>% 
+#   View()
 
 # 
 # https://stackoverflow.com/questions/45515218/combine-rows-in-data-frame-containing-na-to-make-complete-row
@@ -439,6 +406,11 @@ not_in_vessel_trip_gom <-
 glimpse(not_in_vessel_trip_gom)
  # num [1:15] 326294 249111 280684 326421 326390 ...
 
+vessels_by_sero_of_num__all_u %>% 
+    split(as.factor(vessels_by_sero_of_num__all_u$permit_sa_gom))
+print_df_names(vessels_by_sero_of_num__all_u)
+
+
 ## join gom vessels, trip, trip notif  ----
 vessels__trip_notif_22_gom <-
   inner_join(
@@ -466,5 +438,4 @@ vessels__trip_notif_22_gom %>%
 vessels__trip_notif_22_gom_AH <-
   vessels__trip_notif_22_gom %>% 
   filter(TRIP_TYPE %in% c("A", "H"))
-
 
