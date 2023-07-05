@@ -502,9 +502,8 @@ vessels__trip_notif_22_l %>%
 # 1 38464    95585    1250
 # 2    62       62      62
 
-# vessels and trips ----
 # vessels and trip negatives ----
-View(trip_neg_2022)
+# View(trip_neg_2022)
 
 vessels__trip_neg_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
@@ -525,3 +524,27 @@ vessels__trip_neg_22_l %>%
 #   <int>    <int>   <int>
 # 1 41272    56506  795944
 # 2    41       41      41
+
+# vessels and trips ----
+# trips_info_2022
+
+# View(trips_info_2022)
+
+vessels__trips_22_l <-
+  vessels_by_permit_vessel__all_l_u %>%
+  map(
+    ~ .x %>%
+      unique() %>%
+      inner_join(
+        trips_info_2022,
+        join_by(VESSEL_ID),
+        relationship = "many-to-many",
+        suffix = c(".v", ".t")
+      )
+  )
+
+vessels__trips_22_l %>% 
+  map_df(~dim(.))
+#    dual gom_only sa_only
+# 1 31108    75776  107751
+# 2   101      101     101
