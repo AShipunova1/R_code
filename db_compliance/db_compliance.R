@@ -218,36 +218,36 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
 
 # get all vessels for 2022 ----
 # join by different vessel ids, then bind together and unique
-vessels_permit_vsl_id__all <-
+vessels_permit_vsl_id_coast_g <-
   permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
   map(~ .x %>%
         inner_join(vessels_all,
                    join_by(permit_vessel_id == COAST_GUARD_NBR)))
 
-vessels_by_sero_of_num_state_n <-
+vessels_permit_vsl_id_state_n <-
   permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
   map(~ .x %>%
         inner_join(vessels_all,
                    join_by(permit_vessel_id == STATE_REG_NBR)))
 
-vessels_by_sero_of_num__all_l <-
+vessels_permit_vsl_id__all_l <-
   # map over 2 lists of dataframes and make a list
-  map2(vessels_permit_vsl_id__all,
-           vessels_by_sero_of_num_state_n,
+  map2(vessels_permit_vsl_id_coast_g,
+           vessels_permit_vsl_id_state_n,
            dplyr::bind_rows)
 
 ## the same for checking as a df ----
-vessels_by_sero_of_num__all <-
+vessels_permit_vsl_id__all <-
   # map over 2 lists of dataframes and make a df
-  map2_dfr(vessels_permit_vsl_id__all,
-           vessels_by_sero_of_num_state_n,
+  map2_dfr(vessels_permit_vsl_id_coast_g,
+           vessels_permit_vsl_id_state_n,
            dplyr::bind_rows) %>%
   unique()
 
 ### check joins ----
 
 vessels_by_permit_vessel_num <-
-  vessels_by_sero_of_num__all %>%
+  vessels_permit_vsl_id__all %>%
   select(permit_vessel_id) %>%
   unique() %>%
   dim()
@@ -255,7 +255,7 @@ vessels_by_permit_vessel_num <-
 
 # setdiff(
 #   permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$vessel_id,
-#   vessels_by_sero_of_num__all_l$sa_only$vessel_id
+#   vessels_permit_vsl_id__all_l$sa_only$vessel_id
 # )
 # [1] "1304296"  "NA"       "FL6437NY" "1176885" 
 
@@ -274,7 +274,7 @@ vessels_by_permit_vessel_num <-
 #     filter(VESSEL_ID == '1176885') %>% View()
 # alt num FL0668PV 2021-05-01 EDT--2022-03-31 EDT
 
-# vessels_by_sero_of_num__all_l$sa_only %>% 
+# vessels_permit_vsl_id__all_l$sa_only %>% 
 #   filter(vessel_id == '1304296' |
 #            VESSEL_ID == '1304296' |
 #            COAST_GUARD_NBR == '1304296' |
@@ -283,15 +283,15 @@ vessels_by_permit_vessel_num <-
 #   View()
 # # 0
 
-# vessels_by_sero_of_num__all_l$sa_only %>%
+# vessels_permit_vsl_id__all_l$sa_only %>%
 #   filter(permit_vessel_id == 'DL5161AM') %>%
 #   View()
 # 1
 # SERO_OFFICIAL_NUMBER is NULL
 # difference is in 1 vessel in sa_only
 
-# clean up vessels_by_sero_of_num__all ----
-# vessels_by_sero_of_num__all %>%
+# clean up vessels_permit_vsl_id__all ----
+# vessels_permit_vsl_id__all %>%
 #   count(permit_vessel_id) %>%
 #   filter(n > 1)
 # # 29
@@ -302,7 +302,7 @@ vessels_by_permit_vessel_num <-
  # 5 1320038       2
  # 6 16250027      2
 
-# vessels_by_sero_of_num__all %>% 
+# vessels_permit_vsl_id__all %>% 
 #   filter(vessel_id == '1023478') %>% 
 #   View()
 
@@ -316,24 +316,24 @@ coalesce_by_column <- function(df) {
 }
 
 ### test coalesce_by_column ----
-vessels_by_sero_of_num__all_2 <-
+vessels_permit_vsl_id__all_2 <-
   vessels_by_permit_vessel %>%
   filter(permit_vessel_id == '1023478') %>%
   group_by(permit_vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
 
-View(vessels_by_sero_of_num__all_2)
+View(vessels_permit_vsl_id__all_2)
 
-vessels_by_sero_of_num__all_0 <-
+vessels_permit_vsl_id__all_0 <-
   vessels_by_permit_vessel %>%
   filter(permit_vessel_id == '1023478')
 
-all.equal(vessels_by_sero_of_num__all_2,
-          vessels_by_sero_of_num__all_0[1,])
+all.equal(vessels_permit_vsl_id__all_2,
+          vessels_permit_vsl_id__all_0[1,])
 # [1] "Component “COAST_GUARD_NBR”: 'is.NA' value mismatch: 1 in current 0 in target"
 
-all.equal(vessels_by_sero_of_num__all_2,
-          vessels_by_sero_of_num__all_0[2,])
+all.equal(vessels_permit_vsl_id__all_2,
+          vessels_permit_vsl_id__all_0[2,])
 # [1] "Component “STATE_REG_NBR”: 'is.NA' value mismatch: 1 in current 0 in target"
 
 ## all coalesce ----
@@ -342,7 +342,7 @@ vessels_by_permit_vessel__all_u <-
   group_by(permit_vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
 
-### check vessels_by_sero_of_num__all_u ---
+### check vessels_permit_vsl_id__all_u ---
 dim(vessels_by_permit_vessel)
 # [1] 145546     30
 
@@ -393,7 +393,7 @@ dim(vessels_by_permit_vessel__all_u_vsl_ids)
 not_in_vessel_trip_sa <-
   setdiff(
     trip_notifications_2022_vsl_ids$VESSEL_ID,
-    unique(vessels_by_sero_of_num__all_l__sa_ids$VESSEL_ID)
+    unique(vessels_permit_vsl_id__all_l__sa_ids$VESSEL_ID)
   ) %>%
   unique()
 glimpse(not_in_vessel_trip_sa)
@@ -403,22 +403,22 @@ glimpse(not_in_vessel_trip_sa)
 not_in_vessel_trip_gom <-
   setdiff(
     trip_notifications_2022_vsl_ids$VESSEL_ID,
-    unique(vessels_by_sero_of_num__all_l__gom_ids$VESSEL_ID)
+    unique(vessels_permit_vsl_id__all_l__gom_ids$VESSEL_ID)
   ) %>%
   unique()
 glimpse(not_in_vessel_trip_gom)
  # num [1:15] 326294 249111 280684 326421 326390 ...
 
-vessels_by_sero_of_num__all_u %>% 
-    split(as.factor(vessels_by_sero_of_num__all_u$permit_sa_gom))
-print_df_names(vessels_by_sero_of_num__all_u)
+vessels_permit_vsl_id__all_u %>% 
+    split(as.factor(vessels_permit_vsl_id__all_u$permit_sa_gom))
+print_df_names(vessels_permit_vsl_id__all_u)
 
 
 ## join gom vessels, trip, trip notif  ----
 vessels__trip_notif_22_gom <-
   inner_join(
     trip_notifications_2022,
-    unique(vessels_by_sero_of_num__all_l$gom_only),
+    unique(vessels_permit_vsl_id__all_l$gom_only),
     join_by(VESSEL_ID),
     relationship = "many-to-many",
     suffix = c(".tn", ".v")
