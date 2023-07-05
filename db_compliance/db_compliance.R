@@ -218,7 +218,7 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
 
 # get all vessels for 2022 ----
 # join by different vessel ids, then bind together and unique
-vessels_by_sero_of_num_coast_g <-
+vessels_permit_vsl_id__all <-
   permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
   map(~ .x %>%
         inner_join(vessels_all,
@@ -232,55 +232,26 @@ vessels_by_sero_of_num_state_n <-
 
 vessels_by_sero_of_num__all_l <-
   # map over 2 lists of dataframes and make a list
-  map2(vessels_by_sero_of_num_coast_g,
+  map2(vessels_permit_vsl_id__all,
            vessels_by_sero_of_num_state_n,
            dplyr::bind_rows)
 
 ## the same for checking as a df ----
 vessels_by_sero_of_num__all <-
   # map over 2 lists of dataframes and make a df
-  map2_dfr(vessels_by_sero_of_num_coast_g,
+  map2_dfr(vessels_permit_vsl_id__all,
            vessels_by_sero_of_num_state_n,
            dplyr::bind_rows) %>%
   unique()
 
-# get all vessels for 2022 ----
-# join by different vessel ids, then bind together and unique
-vessels_by_sero_of_num_coast_g <-
-  permit_info_r_l_overlap_join1_w_dual_22_ids %>%
-  inner_join(vessels_all,
-             join_by(permit_vessel_id == COAST_GUARD_NBR))
-
-vessels_by_sero_of_num_state_n <-
-  permit_info_r_l_overlap_join1_w_dual_22_ids %>%
-  inner_join(vessels_all,
-             join_by(permit_vessel_id == STATE_REG_NBR))
-
-vessels_by_permit_vessel <-
-  dplyr::bind_rows(vessels_by_sero_of_num_state_n,
-                   vessels_by_sero_of_num_coast_g) %>%
-# [1] 145547     30
-  unique()
-dim(vessels_by_permit_vessel)
-# [1] 145546     30
-
 ### check joins ----
 
 vessels_by_permit_vessel_num <-
-  vessels_by_permit_vessel %>%
+  vessels_by_sero_of_num__all %>%
   select(permit_vessel_id) %>%
   unique() %>%
   dim()
 # [1] 5632    1
-
-str(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
-# List of 3
-#  $ dual    : int [1:2] 392 1
-#  $ gom_only: int [1:2] 1272 1
-#  $ sa_only : int [1:2] 4024 1
-# > 392 +1272+4024
-# [1] 5688
-
 
 # setdiff(
 #   permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$vessel_id,
@@ -312,17 +283,16 @@ str(permit_info_r_l_overlap_join1_w_dual_22__list_id_num)
 #   View()
 # # 0
 
-
-# vessels_by_sero_of_num__all_l$sa_only %>% 
-#   filter(vessel_id == 'DL5161AM') %>% 
+# vessels_by_sero_of_num__all_l$sa_only %>%
+#   filter(permit_vessel_id == 'DL5161AM') %>%
 #   View()
 # 1
 # SERO_OFFICIAL_NUMBER is NULL
 # difference is in 1 vessel in sa_only
 
-## clean up vessels_by_sero_of_num__all ----
-# vessels_by_sero_of_num__all %>% 
-#   count(vessel_id) %>% 
+# clean up vessels_by_sero_of_num__all ----
+# vessels_by_sero_of_num__all %>%
+#   count(permit_vessel_id) %>%
 #   filter(n > 1)
 # # 29
  # 1 1023478       2
