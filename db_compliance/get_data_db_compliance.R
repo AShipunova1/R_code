@@ -68,12 +68,16 @@ write_csv(permit_info_udp, file.path(input_path, "permit_info.csv"))
 
 trips_22_query <-
   "SELECT
- *
+  *
 FROM
   safis.trips@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  trip_start_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
-  OR trip_end_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+  , 'dd-mon-yy') )
+  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+  , 'dd-mon-yy') )
+ORDER BY
+  trip_end_date DESC
 "
 
 tic("trips_info_2022")
@@ -81,8 +85,11 @@ trips_info_2022 <- dbGetQuery(con,
                           trips_22_query)
 toc()
 # trips_info_2022: 92.95 sec elapsed
-# glimpse(trips_info_2022)
+# trips_info_2022: 39.97 sec elapsed
+
+dim(trips_info_2022)
 # Rows: 205,772
+# [1] 98449    72
 
 write_csv(trips_info_2022, file.path(input_path, "trips_info_2022.csv"))
 
