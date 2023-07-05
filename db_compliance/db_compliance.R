@@ -194,12 +194,13 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
 #   dim()
 # 0  
 
-# combine permit VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom ----
+# split permits by region again ----
+permit_info_r_l_overlap_join1_w_dual_22__list <-
+  permit_info_r_l_overlap_join1_w_dual_22 %>%
+  split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
+View(permit_info_r_l_overlap_join1_w_dual_22__list)
 
-# permit_info_r_l_overlap_join1_w_dual_22__list <-
-#   permit_info_r_l_overlap_join1_w_dual_22 %>%
-#   split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
-View(permit_info_r_l_overlap_join1_w_dual_22)
+# combine permit VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom ----
 
 permit_info_r_l_overlap_join1_w_dual_22_ids <-
   permit_info_r_l_overlap_join1_w_dual_22 %>%
@@ -213,7 +214,7 @@ permit_info_r_l_overlap_join1_w_dual_22_ids <-
   select(permit_vessel_id) %>%
   unique()
 
-# View(permit_info_r_l_overlap_join1_w_dual_22__list_ids)
+# View(permit_info_r_l_overlap_join1_w_dual_22_ids)
 
 # get all vessels for 2022 ----
 # join by different vessel ids, then bind together and unique
