@@ -104,7 +104,7 @@ trip_notifications_2022 <- dbGetQuery(con,
 toc()
 # trip_notifications_query: 52.08 sec elapsed
 
-# glimpse(trip_notifications_2022)
+glimpse(trip_notifications_2022)
 # Rows: 129,701
 
 write_csv(trip_notifications_2022, 
@@ -157,16 +157,6 @@ write_csv(trip_notifications_2022,
           file.path(input_path, "trip_notifications_2022.csv"))
 
 # get vessels from db ----
-vessels_all <-
-  read_csv(file.path(input_path, "vessels.csv"))
-# chr (22): COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE,...
-# dbl  (6): VESSEL_ID, PASSENGER_CAPACITY, YEAR_BUILT, OWNER_ID, SER_ID, UPDATE...
-# lgl  (1): VESSEL_TYPE
-# 
-# ℹ Use `spec()` to retrieve the full column specification for this data.
-# ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-
 vessels_query <-
   "SELECT *
   FROM
@@ -178,13 +168,26 @@ vessels_query <-
 # dat <- dbGetQuery(myConnection,"SELECT REPLACE(COLUMN_NAME, CHR(0), ' ') AS NEW_COLUMN
 #                                 FROM MY_TABLE")
 
-tic("vessels_all")
-vessels_all <- dbGetQuery(con,
-                          vessels_query)
-toc()
+# tic("vessels_all")
+# vessels_all <- dbGetQuery(con,
+#                           vessels_query)
+# toc()
+# Error in try({ : embedded nul in string: '\0'
 
-write_csv(vessels_all, 
-          file.path(input_path, "vessels_all.csv"))
+# dim(vessels_all)
+vessels_all_file_path <- file.path(input_path, "vessels.csv")
+# write_csv(vessels_all, vessels_all_file_path)
 
-# glimpse(trip_neg_2022)
-# Rows: 1,495,929
+vessels_all <- read_csv(vessels_all_file_path)
+# Rows: 140405 Columns: 29                                                                                            
+# ── Column specification ─────────────────────────────────────────────────────────
+# Delimiter: ","
+# chr (22): COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE,...
+# dbl  (6): VESSEL_ID, PASSENGER_CAPACITY, YEAR_BUILT, OWNER_ID, SER_ID, UPDATE...
+# lgl  (1): VESSEL_TYPE
+
+# dim(permit_info)
+# dim(trip_neg_2022)
+# dim(trip_notifications_2022)
+# dim(trips_info_2022)
+# dim(vessels_all)
