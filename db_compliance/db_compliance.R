@@ -198,23 +198,51 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
 permit_info_r_l_overlap_join1_w_dual_22__list <-
   permit_info_r_l_overlap_join1_w_dual_22 %>%
   split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
-View(permit_info_r_l_overlap_join1_w_dual_22__list)
 
 # combine permit VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom ----
+permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(
+    ~ .x %>%
+      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+      pivot_longer(
+        cols = c(VESSEL_ID,
+                 VESSEL_ALT_NUM.sa,
+                 VESSEL_ALT_NUM.gom),
+        values_to = "permit_vessel_id"
+      ) %>%
+      select(permit_vessel_id) %>%
+      unique() %>%
+      return()
+  )
 
-permit_info_r_l_overlap_join1_w_dual_22_ids <-
-  permit_info_r_l_overlap_join1_w_dual_22 %>%
-  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-  pivot_longer(
-    cols = c(VESSEL_ID,
-             VESSEL_ALT_NUM.sa,
-             VESSEL_ALT_NUM.gom),
-    values_to = "permit_vessel_id"
-  ) %>%
-  select(permit_vessel_id) %>%
+# get all vessels for 2022 ----
+# join by different vessel ids, then bind together and unique
+vessels_by_sero_of_num_coast_g <-
+  permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(permit_vessel_id == COAST_GUARD_NBR)))
+
+vessels_by_sero_of_num_state_n <-
+  permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(permit_vessel_id == STATE_REG_NBR)))
+
+vessels_by_sero_of_num__all_l <-
+  # map over 2 lists of dataframes and make a list
+  map2(vessels_by_sero_of_num_coast_g,
+           vessels_by_sero_of_num_state_n,
+           dplyr::bind_rows)
+
+## the same for checking as a df ----
+vessels_by_sero_of_num__all <-
+  # map over 2 lists of dataframes and make a df
+  map2_dfr(vessels_by_sero_of_num_coast_g,
+           vessels_by_sero_of_num_state_n,
+           dplyr::bind_rows) %>%
   unique()
-
-# View(permit_info_r_l_overlap_join1_w_dual_22_ids)
 
 # get all vessels for 2022 ----
 # join by different vessel ids, then bind together and unique
