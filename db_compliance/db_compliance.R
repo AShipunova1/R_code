@@ -254,8 +254,8 @@ vessels_by_permit_vessel_num <-
 # [1] 5632    1
 
 # setdiff(
-#   permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$vessel_id,
-#   vessels_permit_vsl_id__all_l$sa_only$vessel_id
+#   permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$permit_vessel_id,
+#   vessels_permit_vsl_id__all_l$sa_only$permit_vessel_id
 # )
 # [1] "1304296"  "NA"       "FL6437NY" "1176885" 
 
@@ -293,7 +293,8 @@ vessels_by_permit_vessel_num <-
 # clean up vessels_permit_vsl_id__all ----
 # vessels_permit_vsl_id__all %>%
 #   count(permit_vessel_id) %>%
-#   filter(n > 1)
+#   filter(n > 1) %>% 
+# head()
 # # 29
  # 1 1023478       2
  # 2 1064839       2
@@ -302,9 +303,10 @@ vessels_by_permit_vessel_num <-
  # 5 1320038       2
  # 6 16250027      2
 
-# vessels_permit_vsl_id__all %>% 
-#   filter(vessel_id == '1023478') %>% 
-#   View()
+# vessels_permit_vsl_id__all %>%
+#   filter(permit_vessel_id == '1023478') %>%
+#   dim()
+# [1]  2 30
 
 # 
 # https://stackoverflow.com/questions/45515218/combine-rows-in-data-frame-containing-na-to-make-complete-row
@@ -317,7 +319,7 @@ coalesce_by_column <- function(df) {
 
 ### test coalesce_by_column ----
 vessels_permit_vsl_id__all_2 <-
-  vessels_by_permit_vessel %>%
+  vessels_permit_vsl_id__all %>%
   filter(permit_vessel_id == '1023478') %>%
   group_by(permit_vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
@@ -325,7 +327,7 @@ vessels_permit_vsl_id__all_2 <-
 View(vessels_permit_vsl_id__all_2)
 
 vessels_permit_vsl_id__all_0 <-
-  vessels_by_permit_vessel %>%
+  vessels_permit_vsl_id__all %>%
   filter(permit_vessel_id == '1023478')
 
 all.equal(vessels_permit_vsl_id__all_2,
@@ -337,33 +339,56 @@ all.equal(vessels_permit_vsl_id__all_2,
 # [1] "Component “STATE_REG_NBR”: 'is.NA' value mismatch: 1 in current 0 in target"
 
 ## all coalesce ----
-vessels_by_permit_vessel__all_u <-
-  vessels_by_permit_vessel %>%
-  group_by(permit_vessel_id) %>%
-  dplyr::summarise_all(coalesce_by_column)
+# vessels_by_permit_vessel__all_u <-
+#   vessels_permit_vsl_id__all %>%
+#   group_by(permit_vessel_id) %>%
+#   dplyr::summarise_all(coalesce_by_column)
+
+# View(vessels_permit_vsl_id__all_l)
+tic("vessels_by_permit_vessel__all_l_u")
+vessels_by_permit_vessel__all_l_u <-
+  vessels_permit_vsl_id__all_l %>%
+  map(~ .x %>%
+        group_by(permit_vessel_id) %>%
+        dplyr::summarise_all(coalesce_by_column))
+toc()
+# vessels_by_permit_vessel__all_l_u: 98.53 sec elapsed
 
 ### check vessels_permit_vsl_id__all_u ---
-dim(vessels_by_permit_vessel)
-# [1] 145546     30
 
-vessels_by_permit_vessel__all_u %>%
-  select(permit_vessel_id) %>%
-  unique() %>%
-  dim()
+map_df(vessels_permit_vsl_id__all_l,
+       ~.x %>% dim())
+#    dual gom_only sa_only
+# 1   392   141154  143932
+
+map_df(vessels_by_permit_vessel__all_l_u,
+       ~.x %>% dim())
+#    dual gom_only sa_only
+# 1   392     1272    4020
+# 2    30       30      30
+
+uniq_permit_vsl_ids <-
+  map_df(
+  vessels_by_permit_vessel__all_l_u,
+  ~ .x %>%
+    select(permit_vessel_id) %>%
+    unique() %>%
+    dim()
+)
+#    dual gom_only sa_only
+#   <int>    <int>   <int>
+# 1   392     1272    4020
+# 2     1        1       1
+View(uniq_permit_vsl_ids)
+uniq_permit_vsl_ids %>% 
+  rowSums()
+# 5684    
+
+# vessels_by_permit_vessel__all %>%
+#   select(permit_vessel_id) %>%
+#   unique() %>%
+#   dim()
 # 5632    
-
-dim(vessels_by_permit_vessel__all_u)
-# 5632   
-
-vessels_by_permit_vessel__all_u %>% 
-  select(permit_vessel_id) %>% 
-  unique() %>% 
-  dim()
-# 5632    
-
-print_df_names(vessels_by_permit_vessel__all_u)
-
-# join vessels and permits ----
 
 # GOM 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
