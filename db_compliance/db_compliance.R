@@ -318,16 +318,16 @@ coalesce_by_column <- function(df) {
 
 ### test coalesce_by_column ----
 vessels_by_sero_of_num__all_2 <-
-  vessels_by_sero_of_num__all %>%
-  filter(vessel_id == '1023478') %>%
-  group_by(vessel_id) %>%
+  vessels_by_permit_vessel %>%
+  filter(permit_vessel_id == '1023478') %>%
+  group_by(permit_vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
 
-# View(vessels_by_sero_of_num__all_2)
+View(vessels_by_sero_of_num__all_2)
 
 vessels_by_sero_of_num__all_0 <-
-  vessels_by_sero_of_num__all %>%
-  filter(vessel_id == '1023478')
+  vessels_by_permit_vessel %>%
+  filter(permit_vessel_id == '1023478')
 
 all.equal(vessels_by_sero_of_num__all_2,
           vessels_by_sero_of_num__all_0[1,])
@@ -338,54 +338,58 @@ all.equal(vessels_by_sero_of_num__all_2,
 # [1] "Component “STATE_REG_NBR”: 'is.NA' value mismatch: 1 in current 0 in target"
 
 ## all coalesce ----
-vessels_by_sero_of_num__all_u <-
-  vessels_by_sero_of_num__all %>%
-  group_by(vessel_id) %>%
+vessels_by_permit_vessel__all_u <-
+  vessels_by_permit_vessel %>%
+  group_by(permit_vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
 
 ### check vessels_by_sero_of_num__all_u ---
-dim(vessels_by_sero_of_num__all)
+dim(vessels_by_permit_vessel)
 # [1] 145546     30
 
-vessels_by_sero_of_num__all %>%
-  select(vessel_id) %>%
+vessels_by_permit_vessel__all_u %>%
+  select(permit_vessel_id) %>%
   unique() %>%
   dim()
 # 5632    
 
-dim(vessels_by_sero_of_num__all_u)
+dim(vessels_by_permit_vessel__all_u)
 # 5632   
 
-vessels_by_sero_of_num__all_u %>% 
-  select(vessel_id) %>% 
+vessels_by_permit_vessel__all_u %>% 
+  select(permit_vessel_id) %>% 
   unique() %>% 
   dim()
 # 5632    
+
+print_df_names(vessels_by_permit_vessel__all_u)
+
+# join vessels and permits ----
 
 # GOM 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
 
 # View(trip_notifications_2022)
-## join trip_notifications and vessel_trips ----
+## join trip_notifications and vessels ----
 ### compare vessel_ids ----
 trip_notifications_2022_vsl_ids <-
   trip_notifications_2022 %>%
   select(VESSEL_ID) %>%
   unique()
 
-vessels_by_sero_of_num__all_l__sa_ids <-
-  vessels_by_sero_of_num__all_l$sa_only %>%
+vessels_by_permit_vessel__all_u_vsl_ids <-
+  vessels_by_permit_vessel__all_u %>% 
   select(VESSEL_ID) %>%
   unique()
 
-vessels_by_sero_of_num__all_l__gom_ids <-
-  vessels_by_sero_of_num__all_l$gom_only %>%
-  select(VESSEL_ID) %>%
-  unique()
+dim(trip_notifications_2022)
+# [1] 129746     33
+dim(trip_notifications_2022_vsl_ids)
+# [1] 1095    1
+dim(vessels_by_permit_vessel__all_u_vsl_ids)
+# [1] 5407    1
 
-# View(trip_notifications_2022)
-# 1095
 # not in vessel_trip sa
 not_in_vessel_trip_sa <-
   setdiff(
