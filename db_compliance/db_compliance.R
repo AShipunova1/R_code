@@ -238,12 +238,13 @@ vessels_by_sero_of_num__all_l <-
            vessels_by_sero_of_num_state_n,
            dplyr::bind_rows)
 
-# vessels_by_sero_of_num__all <-
-#   # map over 2 lists of dataframes and make a df
-#   map2_dfr(vessels_by_sero_of_num_coast_g,
-#            vessels_by_sero_of_num_state_n,
-#            dplyr::bind_rows) %>% 
-#   unique()
+# the same for checking
+vessels_by_sero_of_num__all <-
+  # map over 2 lists of dataframes and make a df
+  map2_dfr(vessels_by_sero_of_num_coast_g,
+           vessels_by_sero_of_num_state_n,
+           dplyr::bind_rows) %>%
+  unique()
 
 ### check joins ----
 
@@ -323,6 +324,40 @@ vessels_by_sero_of_num__all_l$sa_only %>%
 # SERO_OFFICIAL_NUMBER is NULL
 # difference is in 1 vessel in sa_only
 
+## clean up vessels_by_sero_of_num__all ----
+vessels_by_sero_of_num__all %>% 
+  count(vessel_id) %>% 
+  filter(n > 1)
+# 29
+ # 1 1023478       2
+ # 2 1064839       2
+ # 3 1090694       2
+ # 4 1243727       2
+ # 5 1320038       2
+ # 6 16250027      2
+
+vessels_by_sero_of_num__all %>% 
+  filter(vessel_id == '1023478') %>% 
+  View()
+
+vessels_by_sero_of_num__all %>%
+  filter(vessel_id == '1023478') %>%
+  group_by(vessel_id) %>%
+  mutate(COAST_GUARD_NBR =
+           dplyr::coalesce(COAST_GUARD_NBR, COAST_GUARD_NBR)) %>%
+  View()
+
+# https: /  / stackoverflow.com / questions / 45515218 / combine - rows - in-data -
+#   frame - containing - na - to - make - complete - row
+# coalesce_by_column <- function(df) {
+#   return(coalesce(df[1], df[2]))
+# }
+# 
+# df %>%
+#   group_by(A) %>%
+#   summarise_all(coalesce_by_column)
+
+
 # GOM 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
@@ -340,16 +375,56 @@ vessels_by_sero_of_num__all_l__sa_ids <-
   select(VESSEL_ID) %>%
   unique()
 
+vessels_by_sero_of_num__all_l__gom_ids <-
+  vessels_by_sero_of_num__all_l$gom_only %>%
+  select(VESSEL_ID) %>%
+  unique()
+
 # View(trip_notifications_2022)
 # 1095
-# not in vessel_trip
-not_in_vessel_trip <-
+# not in vessel_trip sa
+not_in_vessel_trip_sa <-
   setdiff(
     trip_notifications_2022_vsl_ids$VESSEL_ID,
     unique(vessels_by_sero_of_num__all_l__sa_ids$VESSEL_ID)
   ) %>%
   unique()
-glimpse(not_in_vessel_trip)
+glimpse(not_in_vessel_trip_sa)
 # 60
  # num [1:60] 327682 248806 326294 249111 246954 ...
 
+not_in_vessel_trip_gom <-
+  setdiff(
+    trip_notifications_2022_vsl_ids$VESSEL_ID,
+    unique(vessels_by_sero_of_num__all_l__gom_ids$VESSEL_ID)
+  ) %>%
+  unique()
+glimpse(not_in_vessel_trip_gom)
+ # num [1:15] 326294 249111 280684 326421 326390 ...
+
+## join gom vessels, trip, trip notif  ----
+vessels__trip_notif_22_gom <-
+  inner_join(
+    trip_notifications_2022,
+    unique(vessels_by_sero_of_num__all_l$gom_only),
+    join_by(VESSEL_ID),
+    relationship = "many-to-many",
+    suffix = c(".tn", ".v")
+  )
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 108620 of `y` matches multiple rows in `x`.
+
+### check gom trip_notif ----
+# View(vessels__trip_notif_22_gom)
+
+vessels__trip_notif_22_gom %>% 
+   select(TRIP_TYPE) %>% unique()
+#     TRIP_TYPE
+# 1           H
+# 3           A
+# 383         R
+# 697         C
+
+vessels__trip_notif_22_gom_AH <-
+  vessels__trip_notif_22_gom %>% 
+  filter(TRIP_TYPE %in% c("A", "H"))
