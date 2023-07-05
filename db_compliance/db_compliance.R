@@ -395,63 +395,78 @@ uniq_permit_vsl_ids %>%
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
 
 # View(trip_notifications_2022)
-## join trip_notifications and vessels ----
+
 ### compare vessel_ids ----
 trip_notifications_2022_vsl_ids <-
   trip_notifications_2022 %>%
   select(VESSEL_ID) %>%
   unique()
 
-vessels_by_permit_vessel__all_u_vsl_ids <-
-  vessels_by_permit_vessel__all_u %>% 
-  select(VESSEL_ID) %>%
-  unique()
+vessels_by_permit_vessel__all_l_u_vsl_ids <-
+  vessels_by_permit_vessel__all_l_u %>%
+  map_df( ~ .x %>%
+            select(VESSEL_ID) %>%
+            unique())
+
+vessels_by_permit_vessel__all_l_u_vsl_ids_l <-
+  vessels_by_permit_vessel__all_l_u %>%
+  map( ~ .x %>%
+            select(VESSEL_ID) %>%
+            unique())
 
 dim(trip_notifications_2022)
 # [1] 129746     33
 dim(trip_notifications_2022_vsl_ids)
 # [1] 1095    1
-dim(vessels_by_permit_vessel__all_u_vsl_ids)
-# [1] 5407    1
+dim(vessels_by_permit_vessel__all_l_u_vsl_ids)
+# [1] 5459      1
+# vessels_by_permit_vessel__all_l_u_vsl_ids %>%
+#   unique() %>%
+#   dim()
+# [1] 5409    1
+dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$gom_only)
+# [1] 1204    1
+dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$dual)
+# 378   
+# 1204+378
+# 1582
 
-# not in vessel_trip sa
-not_in_vessel_trip_sa <-
-  setdiff(
-    trip_notifications_2022_vsl_ids$VESSEL_ID,
-    unique(vessels_permit_vsl_id__all_l__sa_ids$VESSEL_ID)
-  ) %>%
-  unique()
-glimpse(not_in_vessel_trip_sa)
-# 60
+# # not in vessel_trip sa
+# not_in_vessel_trip_sa <-
+#   setdiff(
+#     trip_notifications_2022_vsl_ids$VESSEL_ID,
+#     unique(vessels_permit_vsl_id__all_l__sa_ids$VESSEL_ID)
+#   ) %>%
+#   unique()
+# glimpse(not_in_vessel_trip_sa)
+# # 60
  # num [1:60] 327682 248806 326294 249111 246954 ...
 
+View()
 not_in_vessel_trip_gom <-
   setdiff(
     trip_notifications_2022_vsl_ids$VESSEL_ID,
-    unique(vessels_permit_vsl_id__all_l__gom_ids$VESSEL_ID)
+    unique(vessels_by_permit_vessel__all_l_u_vsl_ids_l$gom_only$VESSEL_ID)
   ) %>%
   unique()
+
 glimpse(not_in_vessel_trip_gom)
  # num [1:15] 326294 249111 280684 326421 326390 ...
-
-vessels_permit_vsl_id__all_u %>% 
-    split(as.factor(vessels_permit_vsl_id__all_u$permit_sa_gom))
-print_df_names(vessels_permit_vsl_id__all_u)
-
+ # num [1:305] 328214 328340 247128 247129 326387 ...
 
 ## join gom vessels, trip, trip notif  ----
+View(vessels_by_permit_vessel__all_l_u)
+
 vessels__trip_notif_22_gom <-
   inner_join(
     trip_notifications_2022,
-    unique(vessels_permit_vsl_id__all_l$gom_only),
+    unique(vessels_by_permit_vessel__all_l_u$gom_only),
     join_by(VESSEL_ID),
     relationship = "many-to-many",
     suffix = c(".tn", ".v")
   )
-# ℹ Row 1 of `x` matches multiple rows in `y`.
-# ℹ Row 108620 of `y` matches multiple rows in `x`.
 
-# View(vessels__trip_notif_22_gom)
+View(vessels__trip_notif_22_gom)
 
 ### trip types A and H gom trip_notif ----
 
