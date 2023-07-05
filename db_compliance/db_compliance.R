@@ -536,7 +536,33 @@ vessels__trips_22_l %>%
 # 1 31108    75776  107751
 # 2   101      101     101
 
-# GOM 2022 compliance ----
+print_df_names(vessels__trips_22_l$sa_only)
+
+# add week num ----
+
+# > strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%V")
+# [1] "21" "21" "21" "22" "22" "22" "22" "22"
+# > 
+#   > strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%U")
+# [1] "21" "21" "22" "22" "22" "22" "22" "23"
+
+# grep(
+#   "WEEK",
+#   names(vessels__trips_22_l$sa_only),
+#   ignore.case = T,
+#   value = T
+# )
+# 0
+# Yanet: For the weeks between 2 months, both months are affected by the non-compliant status.
+
+vessels__trips_22_l$sa_only
+
+# GOM + dual 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
 
+# SA 2022 compliance ----
+# There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
+# DNFs should not be submitted more than 30 days in advance
+
+# interval_2022
