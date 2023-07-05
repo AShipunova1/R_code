@@ -108,17 +108,17 @@ toc()
 
 # View(permit_info_r_l_overlap_join1)
 
-permit_info_r_l_overlap_join1 %>% 
-  select(VESSEL_ID) %>% 
-  unique() %>% 
+permit_info_r_l_overlap_join1 %>%
+  select(VESSEL_ID) %>%
+  unique() %>%
   dim()
 # [1] 13930     1
 
-permit_info_r %>% 
-  select(VESSEL_ID) %>% 
-  unique() %>% 
+permit_info_r %>%
+  select(VESSEL_ID) %>%
+  unique() %>%
   dim()
-# 13930     
+# 13930
 
 # add "dual" to intervals ----
 permit_info_r_l_overlap_join1_w_dual <-
@@ -130,12 +130,12 @@ permit_info_r_l_overlap_join1_w_dual <-
              .default =
                dplyr::coalesce(permit_sa_gom.sa,
                                permit_sa_gom.gom)
-             
+
            ))
 
-# 186,210 
-permit_info_r_l_overlap_join1_w_dual %>% 
-  select(permit_sa_gom) %>% 
+# 186,210
+permit_info_r_l_overlap_join1_w_dual %>%
+  select(permit_sa_gom) %>%
   unique()
 # all 3
 
@@ -163,15 +163,15 @@ permit_info_r_l_overlap_join1_w_dual_22 <-
          )
 
 ### check ----
-permit_info_r_l_overlap_join1_w_dual_22 %>% 
-  select(permit_sa_gom) %>% 
+permit_info_r_l_overlap_join1_w_dual_22 %>%
+  select(permit_sa_gom) %>%
   unique()
 # all 3
 
-permit_info_r_l_overlap_join1_w_dual_22 %>% 
-  filter(permit_sa_gom == "dual") %>% 
-  select(VESSEL_ID) %>% 
-  unique() %>% 
+permit_info_r_l_overlap_join1_w_dual_22 %>%
+  filter(permit_sa_gom == "dual") %>%
+  select(VESSEL_ID) %>%
+  unique() %>%
   dim()
 # 379
 # end here permits
@@ -181,18 +181,18 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
   filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
   dim()
 # 652
-  
+
 permit_info_r_l_overlap_join1_w_dual_22 %>%
   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
   filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom)) %>%
-  dim()  
+  dim()
 # 356
 
 # permit_info_r_l_overlap_join1_w_dual_22 %>%
 #   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
 #   filter(!(VESSEL_ALT_NUM.gom == VESSEL_ALT_NUM.sa)) %>%
 #   dim()
-# 0  
+# 0
 
 # split permits by region again ----
 permit_info_r_l_overlap_join1_w_dual_22__list <-
@@ -257,29 +257,29 @@ vessels_by_permit_vessel_num <-
 #   permit_info_r_l_overlap_join1_w_dual_22__list_ids$sa_only$permit_vessel_id,
 #   vessels_permit_vsl_id__all_l$sa_only$permit_vessel_id
 # )
-# [1] "1304296"  "NA"       "FL6437NY" "1176885" 
+# [1] "1304296"  "NA"       "FL6437NY" "1176885"
 
-# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>%
 #     filter(VESSEL_ID == '1304296') %>% View()
 # # alt_num.sa DL5161AM
-# 
-# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+#
+# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>%
 #     filter(VESSEL_ID == 'FL6437NY') %>% View()
 
 # FL6437NY
 # 2015-09-01 EDT--2022-06-02 EDT
 # VESSEL SOLD
 
-# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+# permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>%
 #     filter(VESSEL_ID == '1176885') %>% View()
 # alt num FL0668PV 2021-05-01 EDT--2022-03-31 EDT
 
-# vessels_permit_vsl_id__all_l$sa_only %>% 
+# vessels_permit_vsl_id__all_l$sa_only %>%
 #   filter(vessel_id == '1304296' |
 #            VESSEL_ID == '1304296' |
 #            COAST_GUARD_NBR == '1304296' |
 #            STATE_REG_NBR == '1304296'
-#            ) %>% 
+#            ) %>%
 #   View()
 # # 0
 
@@ -293,7 +293,7 @@ vessels_by_permit_vessel_num <-
 # clean up vessels_permit_vsl_id__all ----
 # vessels_permit_vsl_id__all %>%
 #   count(permit_vessel_id) %>%
-#   filter(n > 1) %>% 
+#   filter(n > 1) %>%
 # head()
 # # 29
  # 1 1023478       2
@@ -308,7 +308,7 @@ vessels_by_permit_vessel_num <-
 #   dim()
 # [1]  2 30
 
-# 
+#
 # https://stackoverflow.com/questions/45515218/combine-rows-in-data-frame-containing-na-to-make-complete-row
 # coalesce_by_column <- function(df) {
 #   return(coalesce(df[1], df[2]))
@@ -380,25 +380,21 @@ uniq_permit_vsl_ids <-
 # 1   392     1272    4020
 # 2     1        1       1
 View(uniq_permit_vsl_ids)
-uniq_permit_vsl_ids %>% 
+uniq_permit_vsl_ids %>%
   rowSums()
-# 5684    
+# 5684
 
 # vessels_by_permit_vessel__all %>%
 #   select(permit_vessel_id) %>%
 #   unique() %>%
 #   dim()
-# 5632    
-
-# GOM 2022 compliance ----
-# There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
-# There should be a logbook for every declaration of a charter or headboat intending to fish.
+# 5632
 
 # View(trip_notifications_2022)
 
-### trip types A and H gom trip_notif ----
+## trip types A and H gom trip_notif ----
 
-trip_notifications_2022 %>% 
+trip_notifications_2022 %>%
    select(TRIP_TYPE) %>% unique()
 #     TRIP_TYPE
 # 1           H
@@ -407,10 +403,12 @@ trip_notifications_2022 %>%
 # 697         C
 
 trip_notifications_2022_AH <-
-  trip_notifications_2022 %>% 
+  trip_notifications_2022 %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
-### compare vessel_ids ----
+# vessels and trip_notifications ----
+
+## compare vessel_ids ----
 trip_notifications_2022_vsl_ids <-
   trip_notifications_2022_AH %>%
   select(VESSEL_ID) %>%
@@ -441,7 +439,7 @@ dim(vessels_by_permit_vessel__all_l_u_vsl_ids)
 dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$gom_only)
 # [1] 1204    1
 dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$dual)
-# 378   
+# 378
 # 1204+378
 # 1582
 
@@ -469,19 +467,8 @@ glimpse(not_in_vessel_trip_gom)
 # A, H
  # num [1:296] 328214 328340 247128 247129 326387 ...
 
-## join gom vessels, trip, trip notif  ----
+## join vessels, trip notif  ----
 # View(vessels_by_permit_vessel__all_l_u)
-
-# vessels__trip_notif_22_gom <-
-#   inner_join(
-#     trip_notifications_2022_AH,
-#     unique(vessels_by_permit_vessel__all_l_u$gom_only),
-#     join_by(VESSEL_ID),
-#     relationship = "many-to-many",
-#     suffix = c(".tn", ".v")
-#   )
-
-# View(vessels__trip_notif_22_gom)
 
 vessels__trip_notif_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
@@ -518,7 +505,7 @@ vessels__trip_neg_22_l <-
       )
   )
 
-vessels__trip_neg_22_l %>% 
+vessels__trip_neg_22_l %>%
   map_df(~dim(.))
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
@@ -543,8 +530,13 @@ vessels__trips_22_l <-
       )
   )
 
-vessels__trips_22_l %>% 
+vessels__trips_22_l %>%
   map_df(~dim(.))
 #    dual gom_only sa_only
 # 1 31108    75776  107751
 # 2   101      101     101
+
+# GOM 2022 compliance ----
+# There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
+# There should be a logbook for every declaration of a charter or headboat intending to fish.
+
