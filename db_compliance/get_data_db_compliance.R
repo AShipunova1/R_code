@@ -191,3 +191,33 @@ vessels_all <- read_csv(vessels_all_file_path)
 # dim(trip_notifications_2022)
 # dim(trips_info_2022)
 # dim(vessels_all)
+
+# dates_2022 ----
+# "SELECT * FROM
+#   srh.dim_dates@secapxdv_dblk.sfsc.noaa.gov
+# WHERE
+#   complete_date BETWEEN '01-jan-2022' AND '31-DEC-2022'
+# "
+
+dates_2022_query <-
+  "SELECT
+  dd.year,
+  dd.month_of_year,
+  dd.week_of_year,
+  dd.complete_date
+FROM
+  srh.dim_dates@secapxdv_dblk.sfsc.noaa.gov dd
+WHERE
+  dd.complete_date BETWEEN '01-JAN-2022' AND '31-DEC-2022'
+"
+
+tic("dates_2022_query")
+dates_2022 <- dbGetQuery(con,
+                         dates_2022_query)
+toc()
+
+glimpse(dates_2022)
+# Rows: 365
+
+write_csv(dates_2022, 
+          file.path(input_path, "dates_2022.csv"))
