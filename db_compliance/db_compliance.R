@@ -396,9 +396,23 @@ uniq_permit_vsl_ids %>%
 
 # View(trip_notifications_2022)
 
+### trip types A and H gom trip_notif ----
+
+trip_notifications_2022 %>% 
+   select(TRIP_TYPE) %>% unique()
+#     TRIP_TYPE
+# 1           H
+# 3           A
+# 383         R
+# 697         C
+
+trip_notifications_2022_AH <-
+  trip_notifications_2022 %>% 
+  filter(TRIP_TYPE %in% c("A", "H"))
+
 ### compare vessel_ids ----
 trip_notifications_2022_vsl_ids <-
-  trip_notifications_2022 %>%
+  trip_notifications_2022_AH %>%
   select(VESSEL_ID) %>%
   unique()
 
@@ -414,8 +428,8 @@ vessels_by_permit_vessel__all_l_u_vsl_ids_l <-
             select(VESSEL_ID) %>%
             unique())
 
-dim(trip_notifications_2022)
-# [1] 129746     33
+dim(trip_notifications_2022_AH)
+# [1] 126726     33
 dim(trip_notifications_2022_vsl_ids)
 # [1] 1095    1
 dim(vessels_by_permit_vessel__all_l_u_vsl_ids)
@@ -442,7 +456,6 @@ dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$dual)
 # # 60
  # num [1:60] 327682 248806 326294 249111 246954 ...
 
-View()
 not_in_vessel_trip_gom <-
   setdiff(
     trip_notifications_2022_vsl_ids$VESSEL_ID,
@@ -453,32 +466,41 @@ not_in_vessel_trip_gom <-
 glimpse(not_in_vessel_trip_gom)
  # num [1:15] 326294 249111 280684 326421 326390 ...
  # num [1:305] 328214 328340 247128 247129 326387 ...
+# A, H
+ # num [1:296] 328214 328340 247128 247129 326387 ...
 
 ## join gom vessels, trip, trip notif  ----
-View(vessels_by_permit_vessel__all_l_u)
+# View(vessels_by_permit_vessel__all_l_u)
 
-vessels__trip_notif_22_gom <-
-  inner_join(
-    trip_notifications_2022,
-    unique(vessels_by_permit_vessel__all_l_u$gom_only),
-    join_by(VESSEL_ID),
-    relationship = "many-to-many",
-    suffix = c(".tn", ".v")
+# vessels__trip_notif_22_gom <-
+#   inner_join(
+#     trip_notifications_2022_AH,
+#     unique(vessels_by_permit_vessel__all_l_u$gom_only),
+#     join_by(VESSEL_ID),
+#     relationship = "many-to-many",
+#     suffix = c(".tn", ".v")
+#   )
+
+# View(vessels__trip_notif_22_gom)
+
+vessels__trip_notif_22_l <-
+  vessels_by_permit_vessel__all_l_u %>%
+  map(
+    ~ .x %>%
+      unique() %>%
+      inner_join(
+        trip_notifications_2022_AH,
+        join_by(VESSEL_ID),
+        relationship = "many-to-many",
+        suffix = c(".v", ".tn")
+      )
   )
 
-View(vessels__trip_notif_22_gom)
+vessels__trip_notif_22_l %>%
+  map_df(~ .x %>%
+           dim())
+#    dual gom_only sa_only
+# 1 38464    95585    1250
+# 2    62       62      62
 
-### trip types A and H gom trip_notif ----
-
-vessels__trip_notif_22_gom %>% 
-   select(TRIP_TYPE) %>% unique()
-#     TRIP_TYPE
-# 1           H
-# 3           A
-# 383         R
-# 697         C
-
-vessels__trip_notif_22_gom_AH <-
-  vessels__trip_notif_22_gom %>% 
-  filter(TRIP_TYPE %in% c("A", "H"))
 
