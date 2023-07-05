@@ -359,9 +359,21 @@ vessels_by_sero_of_num__all_2 <-
   filter(vessel_id == '1023478') %>%
   group_by(vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
-  # mutate(COAST_GUARD_NBR =
-  #          dplyr::coalesce(COAST_GUARD_NBR, COAST_GUARD_NBR)) %>%
-  
+
+# View(vessels_by_sero_of_num__all_2)
+
+vessels_by_sero_of_num__all_0 <-
+  vessels_by_sero_of_num__all %>%
+  filter(vessel_id == '1023478')
+
+all.equal(vessels_by_sero_of_num__all_2,
+          vessels_by_sero_of_num__all_0[1,])
+# [1] "Component “COAST_GUARD_NBR”: 'is.NA' value mismatch: 1 in current 0 in target"
+
+
+all.equal(vessels_by_sero_of_num__all_2,
+          vessels_by_sero_of_num__all_0[2,])
+# [1] "Component “STATE_REG_NBR”: 'is.NA' value mismatch: 1 in current 0 in target"
 
 # GOM 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
