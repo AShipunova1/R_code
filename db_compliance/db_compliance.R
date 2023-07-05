@@ -534,6 +534,7 @@ vessels__trips_22_l %>%
   map_df(~dim(.))
 #    dual gom_only sa_only
 # 1 31108    75776  107751
+# 1 14905    41172   47421
 # 2   101      101     101
 
 print_df_names(vessels__trips_22_l$sa_only)
@@ -566,3 +567,31 @@ vessels__trips_22_l$sa_only
 # DNFs should not be submitted more than 30 days in advance
 
 # interval_2022
+# dates_2022
+
+print_df_names(trips_info_2022)
+
+trips_info_2022 %>% 
+  select(TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME) %>% 
+  str()
+# POSIXct
+# str(trips_info_2022)
+
+# is_effective_date =
+#   lubridate::floor_date(is_effective_date,
+#                         unit = "day"),
+
+trips_info_2022_int <-
+  trips_info_2022 %>%
+  mutate(trip_int =
+           lubridate::interval(
+             lubridate::floor_date(TRIP_START_DATE,
+                                   unit = "day"),
+             lubridate::floor_date(TRIP_END_DATE,
+                                   unit = "day")
+           ))
+
+# check trips_info_2022_int ----
+trips_info_2022_int %>%
+  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>% 
+  View()
