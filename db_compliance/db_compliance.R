@@ -347,15 +347,33 @@ vessels_by_sero_of_num__all %>%
            dplyr::coalesce(COAST_GUARD_NBR, COAST_GUARD_NBR)) %>%
   View()
 
-# https: /  / stackoverflow.com / questions / 45515218 / combine - rows - in-data -
-#   frame - containing - na - to - make - complete - row
-# coalesce_by_column <- function(df) {
-#   return(coalesce(df[1], df[2]))
-# }
+# 
+# https://stackoverflow.com/questions/45515218/combine-rows-in-data-frame-containing-na-to-make-complete-row
+coalesce_by_column <- function(df) {
+  return(coalesce(df[1], df[2]))
+}
 # 
 # df %>%
 #   group_by(A) %>%
 #   summarise_all(coalesce_by_column)
+
+
+vessels_by_sero_of_num__all %>%
+  filter(vessel_id == '1023478') %>%
+  group_by(vessel_id) %>%
+  dplyr::summarise_all(coalesce_by_column)
+  # mutate(COAST_GUARD_NBR =
+  #          dplyr::coalesce(COAST_GUARD_NBR, COAST_GUARD_NBR)) %>%
+  
+
+
+coalesce_by_column <- function(df) {
+  return(dplyr::coalesce(!!! as.list(df)))
+}
+
+df %>%
+  group_by(A) %>%
+  summarise_all(coalesce_by_column)
 
 
 # GOM 2022 compliance ----
@@ -414,8 +432,9 @@ vessels__trip_notif_22_gom <-
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 108620 of `y` matches multiple rows in `x`.
 
-### check gom trip_notif ----
 # View(vessels__trip_notif_22_gom)
+
+### trip types A and H gom trip_notif ----
 
 vessels__trip_notif_22_gom %>% 
    select(TRIP_TYPE) %>% unique()
@@ -428,3 +447,5 @@ vessels__trip_notif_22_gom %>%
 vessels__trip_notif_22_gom_AH <-
   vessels__trip_notif_22_gom %>% 
   filter(TRIP_TYPE %in% c("A", "H"))
+
+
