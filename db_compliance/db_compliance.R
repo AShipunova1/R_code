@@ -349,11 +349,7 @@ coalesce_by_column <- function(df) {
   return(dplyr::coalesce(!!! as.list(df)))
 }
 
-# 
-# df %>%
-#   group_by(A) %>%
-#   summarise_all(coalesce_by_column)
-
+### test coalesce_by_column ----
 vessels_by_sero_of_num__all_2 <-
   vessels_by_sero_of_num__all %>%
   filter(vessel_id == '1023478') %>%
@@ -370,10 +366,34 @@ all.equal(vessels_by_sero_of_num__all_2,
           vessels_by_sero_of_num__all_0[1,])
 # [1] "Component “COAST_GUARD_NBR”: 'is.NA' value mismatch: 1 in current 0 in target"
 
-
 all.equal(vessels_by_sero_of_num__all_2,
           vessels_by_sero_of_num__all_0[2,])
 # [1] "Component “STATE_REG_NBR”: 'is.NA' value mismatch: 1 in current 0 in target"
+
+## all coalesce ----
+vessels_by_sero_of_num__all_u <-
+  vessels_by_sero_of_num__all %>%
+  group_by(vessel_id) %>%
+  dplyr::summarise_all(coalesce_by_column)
+
+### check vessels_by_sero_of_num__all_u ---
+dim(vessels_by_sero_of_num__all)
+# [1] 145546     30
+
+vessels_by_sero_of_num__all %>%
+  select(vessel_id) %>%
+  unique() %>%
+  dim()
+# 5632    
+
+dim(vessels_by_sero_of_num__all_u)
+# 5632   
+
+vessels_by_sero_of_num__all_u %>% 
+  select(vessel_id) %>% 
+  unique() %>% 
+  dim()
+# 5632    
 
 # GOM 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
