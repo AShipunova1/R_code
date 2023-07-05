@@ -357,12 +357,12 @@ toc()
 ### check vessels_permit_vsl_id__all_u ---
 
 map_df(vessels_permit_vsl_id__all_l,
-       ~.x %>% dim())
+       ~ dim(.))
 #    dual gom_only sa_only
 # 1   392   141154  143932
 
 map_df(vessels_by_permit_vessel__all_l_u,
-       ~.x %>% dim())
+       ~dim(.))
 #    dual gom_only sa_only
 # 1   392     1272    4020
 # 2    30       30      30
@@ -497,10 +497,31 @@ vessels__trip_notif_22_l <-
   )
 
 vessels__trip_notif_22_l %>%
-  map_df(~ .x %>%
-           dim())
+  map_df(~dim(.))
 #    dual gom_only sa_only
 # 1 38464    95585    1250
 # 2    62       62      62
 
+# vessels and trips ----
+# vessels and trip negatives ----
+View(trip_neg_2022)
 
+vessels__trip_neg_22_l <-
+  vessels_by_permit_vessel__all_l_u %>%
+  map(
+    ~ .x %>%
+      unique() %>%
+      inner_join(
+        trip_neg_2022,
+        join_by(VESSEL_ID),
+        relationship = "many-to-many",
+        suffix = c(".v", ".tneg")
+      )
+  )
+
+vessels__trip_neg_22_l %>% 
+  map_df(~dim(.))
+#    dual gom_only sa_only
+#   <int>    <int>   <int>
+# 1 41272    56506  795944
+# 2    41       41      41
