@@ -111,12 +111,14 @@ trip_neg_2022 <- dbGetQuery(con,
                           trip_neg_query_2022)
 toc()
 # trip_neg_query_2022: 201.21 sec elapsed
+# trip_neg_query_2022: 60.06 sec elapsed
 
 write_csv(trip_neg_2022, 
           file.path(input_path, "trip_neg_2022.csv"))
 
-# glimpse(trip_neg_2022)
+dim(trip_neg_2022)
 # Rows: 1,495,929
+# [1] 746087     12
 
 # trip_notifications ----
 trip_notifications_query <-
