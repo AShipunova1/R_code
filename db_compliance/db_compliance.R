@@ -9,6 +9,7 @@
 
 # setup ----
 library(tictoc)
+library(zoo)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_name <- "db_compliance"
@@ -437,6 +438,51 @@ trip_notifications_2022_ah <-
   trip_notifications_2022 %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
+# add week num ----
+
+# strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%V")
+# [1] "21" "21" "21" "22" "22" "22" "22" "22"
+# > 
+#   > strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%U")
+# [1] "21" "21" "22" "22" "22" "22" "22" "23"
+
+# grep(
+#   "WEEK",
+#   names(vessels__trips_22_l$sa_only),
+#   ignore.case = T,
+#   value = T
+# )
+# 0
+# Yanet: For the weeks between 2 months, both months are affected by the non-compliant status.
+
+View(trips_info_2022_int_ah)
+
+# trips_info_2022_int_ah %>% 
+#   select(TRIP_START_DATE) %>% 
+#   head()
+
+trips_info_2022_int_ah_w_y <-
+  trips_info_2022_int_ah %>%
+  mutate(
+    TRIP_START_week_num =
+      strftime(TRIP_START_DATE, format = "%U"),
+    TRIP_END_week_num =
+      strftime(TRIP_END_DATE, format = "%U"),
+    TRIP_START_y =
+      year(TRIP_START_DATE),
+    TRIP_END_y =
+      year(TRIP_END_DATE),
+    TRIP_START_m =
+      zoo::as.yearmon(TRIP_START_DATE),
+    TRIP_END_m =
+      zoo::as.yearmon(TRIP_END_DATE)
+  )
+
+trips_info_2022_int_ah_w_y %>% 
+  select(starts_with("TRIP")) %>% 
+  arrange()
+  View()
+
 # vessels and trip_notifications ----
 
 ## compare vessel_ids ----
@@ -554,7 +600,7 @@ vessels__trips_22_l <-
     ~ .x %>%
       unique() %>%
       inner_join(
-        trips_info_2022,
+        trips_info_2022_int_ah,
         join_by(VESSEL_ID),
         relationship = "many-to-many",
         suffix = c(".v", ".t")
@@ -567,27 +613,10 @@ vessels__trips_22_l %>%
 # 1 31108    75776  107751
 # 1 14905    41172   47421
 # 2   101      101     101
+# 1 14525    40210   47157
+# 2   102      102     102
 
 print_df_names(vessels__trips_22_l$sa_only)
-
-# add week num ----
-
-# > strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%V")
-# [1] "21" "21" "21" "22" "22" "22" "22" "22"
-# > 
-#   > strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%U")
-# [1] "21" "21" "22" "22" "22" "22" "22" "23"
-
-# grep(
-#   "WEEK",
-#   names(vessels__trips_22_l$sa_only),
-#   ignore.case = T,
-#   value = T
-# )
-# 0
-# Yanet: For the weeks between 2 months, both months are affected by the non-compliant status.
-
-vessels__trips_22_l$sa_only
 
 # GOM + dual 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
@@ -601,3 +630,8 @@ vessels__trips_22_l$sa_only
 # dates_2022
 
 # print_df_names(trips_info_2022_int_ah)
+
+#   > strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%U")
+
+# View(vessels__trips_22_l)
+# vessels__trips_22_l$sa_only
