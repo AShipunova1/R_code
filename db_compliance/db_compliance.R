@@ -841,3 +841,12 @@ dim(vessels_trips_and_notif_by_week)
 #   dim()
 # 0
 
+## join with all weeks ---- 
+print_df_names(vessels__trips_22_l_sa_short)
+by_start = join_by(TRIP_START_y == YEAR,
+                   TRIP_START_week_num == WEEK_OF_YEAR)
+
+vessels__trips_22_l_sa_short_all_dates <-
+  vessels__trips_22_l_sa_short %>% 
+  full_join(dates_2022,
+            by_start)
