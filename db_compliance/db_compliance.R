@@ -797,3 +797,20 @@ vessels__trips_22_l_sa_weeks_per_vessel <-
 # View(vessels__trips_22_l_sa_weeks_per_vessel)
 # 1110
 
+## combine weeks, vessels and trips (all) info ----
+# by = join_by(permit_vessel_id, TRIP_START_week_num, TRIP_END_week_num)
+by = join_by(permit_vessel_id, TRIP_START_week_num)
+
+vessels_trips_and_notif_by_week <-
+  vessels__trips_22_l_sa_short %>% 
+  full_join(vessels__trip_notif_22_l_sa_short,
+            by)
+
+View(vessels_trips_and_notif_by_week)
+# [1] 19598     3
+# same by noth weeks
+# vessels_trips_and_ntif_by_week %>% 
+#   filter(is.na(TRIP_END_week_num)) %>% 
+#   dim()
+# 0
+
