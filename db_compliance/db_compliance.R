@@ -502,21 +502,39 @@ vessels_permit_bind <-
 # View(vessels_permit_bind)
 
 ## uniq ----
+
+vessels_permit_bind_u_test_0 <-
+  vessels_permit_bind$gom_only %>%
+  filter(SERO_OFFICIAL_NUMBER == 'FL4203RB')
+
 vessels_permit_bind_u_test <-
   vessels_permit_bind$gom_only %>%
   filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
   group_by(SERO_OFFICIAL_NUMBER) %>%
   dplyr::summarise_all(coalesce_by_column)
 
+vessels_permit_bind_u_test2 <-
+  vessels_permit_bind$gom_only %>%
+  filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
+  group_by(VESSEL_ID.v) %>%
+  dplyr::summarise_all(coalesce_by_column)
+
+View(vessels_permit_bind_u_test_0)
 View(vessels_permit_bind_u_test)
 
-vessels_permit_vsl_id__all_0 <-
-  vessels_permit_vsl_id__all %>%
-  filter(permit_vessel_id == '1023478')
+tic("vessels_permit_bind_u")
+vessels_permit_bind_u1 <-
+  vessels_permit_bind %>%
+  map(
+    ~ .x %>%
+      group_by(VESSEL_ID.v) %>%
+      dplyr::summarise_all(coalesce_by_column)
+  )
+toc()
+# vessels_permit_bind_u: 747.64 sec elapsed
 
-all.equal(vessels_permit_vsl_id__all_2,
-          vessels_permit_vsl_id__all_0[1,])
-
+all.equal(vessels_permit_bind_u$gom_only,
+          vessels_permit_bind_u1$gom_only)
 
 # fix trip data ----
 ## add trip_int ----
