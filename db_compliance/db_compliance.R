@@ -484,8 +484,8 @@ trips_info_2022_int_ah_w_y %>%
   View()
 
 ## to trip notifications ----
-trip_notifications_2022_w_y <-
-  trip_notifications_2022 %>%
+trip_notifications_2022_ah_w_y <-
+  trip_notifications_2022_ah %>%
   mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
@@ -501,13 +501,13 @@ trip_notifications_2022_w_y <-
       zoo::as.yearmon(TRIP_END_DATE)
   )
 
-trip_notifications_2022_w_y %>% 
+trip_notifications_2022_ah_w_y %>% 
   select(starts_with("TRIP")) %>% 
   arrange(TRIP_START_DATE) %>% 
   View()
 
 ## to negative trips ----
-print_df_names(trip_neg_2022)
+# print_df_names(trip_neg_2022)
 trip_neg_2022_w_y <-
   trip_neg_2022 %>%
   mutate(
@@ -524,12 +524,11 @@ trip_neg_2022_w_y %>%
   arrange(TRIP_DATE) %>% 
   View()
 
-
 # vessels and trip_notifications ----
 
 ## compare vessel_ids ----
-trip_notifications_2022_vsl_ids <-
-  trip_notifications_2022_ah %>%
+trip_notifications_2022_ah_w_y_vsl_ids <-
+  trip_notifications_2022_ah_w_y %>%
   select(VESSEL_ID) %>%
   unique()
 
@@ -545,7 +544,7 @@ vessels_by_permit_vessel__all_l_u_vsl_ids_l <-
             select(VESSEL_ID) %>%
             unique())
 
-dim(trip_notifications_2022_ah)
+dim(trip_notifications_2022_ah_w_y)
 # [1] 126726     33
 # [1] 67738    33
 
@@ -577,7 +576,7 @@ dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$dual)
 
 not_in_vessel_trip_gom <-
   setdiff(
-    trip_notifications_2022_vsl_ids$VESSEL_ID,
+    trip_notifications_2022_ah_w_y_vsl_ids$VESSEL_ID,
     unique(vessels_by_permit_vessel__all_l_u_vsl_ids_l$gom_only$VESSEL_ID)
   ) %>%
   unique()
@@ -598,7 +597,7 @@ vessels__trip_notif_22_l <-
     ~ .x %>%
       unique() %>%
       inner_join(
-        trip_notifications_2022_ah,
+        trip_notifications_2022_ah_w_y,
         join_by(VESSEL_ID),
         relationship = "many-to-many",
         suffix = c(".v", ".tn")
@@ -610,9 +609,10 @@ vessels__trip_notif_22_l %>%
 #    dual gom_only sa_only
 # 1 38464    95585    1250
 # 2    62       62      62
+# 1 19885    52087     555
 
 # vessels and trip negatives ----
-# View(trip_neg_2022)
+# View(trip_neg_2022_w_y)
 
 vessels__trip_neg_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
@@ -620,7 +620,7 @@ vessels__trip_neg_22_l <-
     ~ .x %>%
       unique() %>%
       inner_join(
-        trip_neg_2022,
+        trip_neg_2022_w_y,
         join_by(VESSEL_ID),
         relationship = "many-to-many",
         suffix = c(".v", ".tneg")
@@ -633,9 +633,9 @@ vessels__trip_neg_22_l %>%
 #   <int>    <int>   <int>
 # 1 41272    56506  795944
 # 2    41       41      41
+# 1 17947    21175  390659
 
 # vessels and trips ----
-# trips_info_2022
 
 # View(trips_info_2022)
 
@@ -645,7 +645,7 @@ vessels__trips_22_l <-
     ~ .x %>%
       unique() %>%
       inner_join(
-        trips_info_2022_int_ah,
+        trips_info_2022_int_ah_w_y,
         join_by(VESSEL_ID),
         relationship = "many-to-many",
         suffix = c(".v", ".t")
@@ -661,7 +661,7 @@ vessels__trips_22_l %>%
 # 1 14525    40210   47157
 # 2   102      102     102
 
-print_df_names(vessels__trips_22_l$sa_only)
+# print_df_names(vessels__trips_22_l$sa_only)
 
 # GOM + dual 2022 compliance ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
