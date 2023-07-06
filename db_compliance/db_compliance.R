@@ -998,4 +998,55 @@ vessels__trips_22_l_sa_short_all_dates_t_start_all_cols %>%
 
 # View(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
 
-## join by the end of week?
+#### join by the end of week ? ----
+
+## join trip notif and days ----
+
+vessels__trip_notif_22_l_sa_short_all_dates_t_start <-
+  vessels__trip_notif_22_l_sa_short %>%
+  dplyr::right_join(dates_2022_short,
+                    by_start,
+                    relationship = "many-to-many") %>%
+  unique()
+# dim(vessels__trip_notif_22_l_sa_short_all_dates_t_start)
+# [1] 232   5
+
+vessels__trip_notif_22_l_sa_short_all_dates_t_start %>%
+  filter(is.na(permit_vessel_id))
+# 11
+# ...
+# 5 NA 52 NA 2021
+# 6 NA  1 NA 2023
+
+# vessels__trip_notif_22_l_sa_short_all_dates_t_start %>% 
+#   filter(TRIP_START_week_num == 47)
+
+## join trip neg and dates ----
+by_start_t_neg = join_by(TRIP_DATE_y == YEAR,
+                         TRIP_week_num == WEEK_OF_YEAR)
+
+vessels__trip_neg_22_l_sa_short_all_dates_t_start <-
+  vessels__trip_neg_22_l_sa_short %>%
+  dplyr::right_join(dates_2022_short,
+                    by_start_t_neg,
+                    relationship = "many-to-many") %>%
+  unique()
+
+# dim(vessels__trip_neg_22_l_sa_short_all_dates_t_start)
+# [1] 65644     4
+
+vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
+  filter(is.na(permit_vessel_id))
+# 11
+ # 5 NA NA 52 2021
+ # 6 NA NA  1 2023
+
+## find periods (weeks) when each vessel was permitted ----
+permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
+  dplyr::left_join(vessels_by_permit_vessel__all_l_u,
+                   )
+
+
+## for each vessel count neg rep and notif and compare with permitted weeks
+
+View(vessels_by_permit_vessel__all_l_u)
