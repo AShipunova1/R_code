@@ -741,3 +741,30 @@ vessels__trip_neg_22_l_sa_short_weeks_per_vessel <-
 
 View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
 # 1709
+
+## trip notifications per vessel per week
+data_overview(vessels__trip_notif_22_l$sa_only)
+# permit_vessel_id              17
+
+vessels__trip_notif_22_l_sa_short <-
+  vessels__trip_notif_22_l$sa_only %>%
+  filter(TRIP_START_y %in% c('2021', '2022')) %>%
+  filter(TRIP_END_y %in% c('2022', '2023')) %>%
+  select(permit_vessel_id,
+         TRIP_START_week_num,
+         TRIP_END_week_num) %>%
+  unique()
+  
+vessels__trip_notif_22_l_sa_vessels_trips <-
+  vessels__trip_notif_22_l_sa_short %>%
+  group_by(permit_vessel_id) %>%
+  summarise(
+    tot_start_weeks =
+      n_distinct(TRIP_START_week_num),
+    tot_end_weeks =
+      n_distinct(TRIP_END_week_num)
+  )
+
+dim(vessels__trip_notif_22_l_sa_vessels_trips)
+# [1] 17  3
+
