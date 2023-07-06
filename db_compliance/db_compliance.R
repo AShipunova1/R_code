@@ -476,12 +476,20 @@ trips_info_2022_int_ah_w_y <-
       zoo::as.yearmon(TRIP_START_DATE),
     TRIP_END_m =
       zoo::as.yearmon(TRIP_END_DATE)
+  ) %>%
+  mutate(
+    TRIP_START_week_num =
+      as.double(TRIP_START_week_num),
+    TRIP_END_week_num =
+      as.double(TRIP_END_week_num)
   )
 
-trips_info_2022_int_ah_w_y %>% 
-  select(starts_with("TRIP")) %>% 
-  arrange(TRIP_START_DATE) %>% 
-  View()
+# str(trips_info_2022_int_ah_w_y)
+
+# trips_info_2022_int_ah_w_y %>% 
+#   select(starts_with("TRIP")) %>% 
+#   arrange(TRIP_START_DATE) %>% 
+#   View()
 
 ## to trip notifications ----
 trip_notifications_2022_ah_w_y <-
@@ -499,12 +507,18 @@ trip_notifications_2022_ah_w_y <-
       zoo::as.yearmon(TRIP_START_DATE),
     TRIP_END_m =
       zoo::as.yearmon(TRIP_END_DATE)
+  ) %>%
+  mutate(
+    TRIP_START_week_num =
+      as.double(TRIP_START_week_num),
+    TRIP_END_week_num =
+      as.double(TRIP_END_week_num)
   )
 
-trip_notifications_2022_ah_w_y %>% 
-  select(starts_with("TRIP")) %>% 
-  arrange(TRIP_START_DATE) %>% 
-  View()
+# trip_notifications_2022_ah_w_y %>% 
+#   select(starts_with("TRIP")) %>% 
+#   arrange(TRIP_START_DATE) %>% 
+#   View()
 
 ## to negative trips ----
 # print_df_names(trip_neg_2022)
@@ -517,7 +531,9 @@ trip_neg_2022_w_y <-
       year(TRIP_DATE),
     TRIP_DATE_m =
       zoo::as.yearmon(TRIP_DATE)
-  )
+  ) %>%
+  mutate(TRIP_week_num =
+           as.double(TRIP_week_num))
 
 trip_neg_2022_w_y %>% 
   select(starts_with("TRIP")) %>% 
@@ -701,9 +717,11 @@ vessels__trip_neg_22_l_sa_short <-
   # select(contains("vessel"), starts_with("TRIP")) %>%
   # unique()
 
-View(vessels__trip_neg_22_l_sa_short)
+# data_overview(vessels__trip_neg_22_l_sa_short)
 # 390,659 10
 # permit_vessel_id   1709
+# [1] 66631     4
+
 
 ### remove neg trips on 2021-12-31 ----
 vessels__trip_neg_22_l_sa_short %>%
@@ -810,6 +828,7 @@ View(vessels_trips_and_notif_by_week)
 # [1] 19598     3
 # same by noth weeks
 # vessels_trips_and_ntif_by_week %>% 
+# vessels_trips_and_notif_by_week %>% 
 #   filter(is.na(TRIP_END_week_num)) %>% 
 #   dim()
 # 0
