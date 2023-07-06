@@ -203,6 +203,91 @@ permit_info_r_l_overlap_join1_w_dual_22__list <-
   split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
 
 # combine permit VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom ----
+
+## check the diff ----
+check_1 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map_df(
+    ~ .x %>%
+      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+      filter(!(VESSEL_ALT_NUM.sa == VESSEL_ALT_NUM.gom))
+  )
+str(check_1)
+# 0
+# VESSEL_ALT_NUM.sa == VESSEL_ALT_NUM.gom:
+# 'data.frame':	3668 obs. of  3 variables
+
+
+check_2 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(
+    ~ .x %>%
+      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+      unique() %>% 
+      filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom))
+  )
+
+map_df(check_2, ~ dim(.))
+#    dual gom_only sa_only
+# 1   143      213       0
+# unique()
+# 1    14       70       0
+# [1] 356   3
+
+check_3 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(
+    ~ .x %>%
+      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+      unique() %>% 
+      filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa))
+  )
+
+map_df(check_3, ~ dim(.))
+   # dual gom_only sa_only
+# 1    14        0     151
+
+
+# [1] 657   3
+# ? ----
+# join vessels and permits for 2022 ----
+# join by different vessel ids, then bind together and unique
+vessels_permit_vsl_id_coast_g <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(vessel_id == COAST_GUARD_NBR)))
+
+vessels_permit_vsl_id_state_n <-
+  permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(permit_vessel_id == STATE_REG_NBR)))
+
+vessels_permit_vsl_id__all_l <-
+  # map over 2 lists of dataframes and make a list
+  map2(vessels_permit_vsl_id_coast_g,
+           vessels_permit_vsl_id_state_n,
+           dplyr::bind_rows)
+
+## the same for checking as a df ----
+vessels_permit_vsl_id__all <-
+  # map over 2 lists of dataframes and make a df
+  map2_dfr(vessels_permit_vsl_id_coast_g,
+           vessels_permit_vsl_id_state_n,
+           dplyr::bind_rows) %>%
+  unique()
+
+grep(
+  "int",
+  names(vessels_permit_vsl_id__all),
+  ignore.case = T,
+  value = T
+)
+# 0
+
+
+# get all vessel_ids for permits ----
 permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
   permit_info_r_l_overlap_join1_w_dual_22__list %>%
   map(
@@ -247,6 +332,13 @@ vessels_permit_vsl_id__all <-
            dplyr::bind_rows) %>%
   unique()
 
+grep(
+  "int",
+  names(vessels_permit_vsl_id__all),
+  ignore.case = T,
+  value = T
+)
+# 0
 ### check joins ----
 
 vessels_by_permit_vessel_num <-
@@ -689,6 +781,11 @@ vessels__trips_22_l %>%
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
 
+dates_2022_short <-
+  dates_2022 %>% 
+  select(-c(COMPLETE_DATE, MONTH_OF_YEAR))
+# MONTH_OF_YEAR: could be 2 for the same week,: 17, 4, 5
+
 # interval_2022
 # dates_2022
 
@@ -844,14 +941,12 @@ dim(vessels_trips_and_notif_by_week)
 # 0
 
 ## join with all weeks ---- 
-# print_df_names(vessels__trips_22_l_sa_short)
-dates_2022_short <-
-  dates_2022 %>% 
-  select(-c(COMPLETE_DATE, MONTH_OF_YEAR))
-# MONTH_OF_YEAR: could be 2 for the same week,: 17, 4, 5
-
 by_start = join_by(TRIP_START_y == YEAR,
                    TRIP_START_week_num == WEEK_OF_YEAR)
+
+### with trips ----
+# print_df_names(vessels__trips_22_l_sa_short)
+
 
 vessels__trips_22_l_sa_short_all_dates_t_start <-
   vessels__trips_22_l_sa_short %>%
@@ -879,7 +974,7 @@ vessels__trips_22_l_sa_short_all_dates_t_start %>%
 
 View(vessels__trips_22_l_sa_short_all_dates_t_start)
 
-## keeping all columns ----
+#### keeping all columns ----
 vessels__trips_22_l_sa_short_all_dates_t_start_all_cols <-
   sqldf("SELECT
   *
