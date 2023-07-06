@@ -686,11 +686,20 @@ vessels__trips_22_l %>%
 # vessels__trip_notif_22_l
 # vessels__trip_neg_22_l
 
-## neg
+## neg trips per week per vessel ----
 vessels__trip_neg_22_l_sa_short <-
   vessels__trip_neg_22_l$sa_only %>%
-  select(contains("vessel"), starts_with("TRIP")) %>%
+  filter(!lubridate::floor_date(TRIP_DATE,
+                                unit = "day") ==
+           "2021-12-31") %>%
+  select(permit_vessel_id,
+         SUPPLIER_VESSEL_ID,
+         TRIP_week_num,
+         TRIP_DATE_y) %>%
   unique()
+
+  # select(contains("vessel"), starts_with("TRIP")) %>%
+  # unique()
 
 View(vessels__trip_neg_22_l_sa_short)
 # 390,659 10
