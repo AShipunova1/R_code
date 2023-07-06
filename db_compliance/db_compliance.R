@@ -873,23 +873,24 @@ vessels__trips_22_l_sa_short_all_dates %>%
   filter(is.na(permit_vessel_id))
 # 0
 
-# Right outer: merge(x = df1, y = df2, by = "CustomerId", all.y = TRUE)
-
-df4 <- sqldf("SELECT
-  *
-FROM
-       vessels__trips_22_l_sa_short right
-  JOIN dates_2022_short
-  ON ( trip_start_y = year )
-WHERE
-  trip_start_week_num = week_of_year
-"
-) %>% 
-  unique()
-
-dim(df4)
-# [1] 136300      7
-# [1] 19433     7
-
-df4 %>% 
-  filter(is.na(permit_vessel_id))
+# check ----
+# df4 <- sqldf("SELECT
+#   *
+# FROM
+#        vessels__trips_22_l_sa_short right
+#   JOIN dates_2022_short
+#   ON ( trip_start_y = year )
+# WHERE
+#   trip_start_week_num = week_of_year
+# "
+# ) %>% 
+#   unique()
+# 
+# dim(df4)
+# # [1] 136300      7
+# # [1] 19433     7
+# 
+# df4 %>% 
+#   filter(is.na(permit_vessel_id))
+# 0 
+# data_overview(df4)
