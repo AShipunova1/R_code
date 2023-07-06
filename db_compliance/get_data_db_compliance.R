@@ -93,38 +93,17 @@ dim(trips_info_2022)
 
 write_csv(trips_info_2022, file.path(input_path, "trips_info_2022.csv"))
 
-# trip_notifications ----
-trip_notifications_query <-
-  "SELECT
- *
-FROM
-  safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
-WHERE
-  trip_start_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
-  OR trip_end_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
-"
-# 97279
-
-tic("trip_notifications_query")
-trip_notifications_2022 <- dbGetQuery(con,
-                          trip_notifications_query)
-toc()
-# trip_notifications_query: 52.08 sec elapsed
-
-glimpse(trip_notifications_2022)
-# Rows: 129,701
-
-write_csv(trip_notifications_2022, 
-          file.path(input_path, "trip_notifications_2022.csv"))
-
 # get trip neg from db ----
 trip_neg_query_2022 <-
   "SELECT *
   FROM
     safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov
-  WHERE
-    trip_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
-    OR trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')"
+WHERE
+  ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+  , 'dd-mon-yy') )"
+  # WHERE
+  #   trip_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+  #   OR trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')"
 # 1495929  
 
 tic("trip_neg_query_2022")
@@ -146,19 +125,23 @@ trip_notifications_query <-
 FROM
   safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  trip_start_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
-  OR trip_end_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+  , 'dd-mon-yy') )
+  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+  , 'dd-mon-yy') )
 "
-# 97279
 
 tic("trip_notifications_query")
 trip_notifications_2022 <- dbGetQuery(con,
                           trip_notifications_query)
 toc()
 # trip_notifications_query: 52.08 sec elapsed
+# 97279
+# trip_notifications_query: 7.65 sec elapsed
 
-# glimpse(trip_notifications_2022)
+dim(trip_notifications_2022)
 # Rows: 129,701
+# [1] 70056    33
 
 write_csv(trip_notifications_2022, 
           file.path(input_path, "trip_notifications_2022.csv"))
