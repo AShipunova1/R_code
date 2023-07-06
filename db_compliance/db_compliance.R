@@ -713,8 +713,29 @@ dim(vessels__trip_neg_22_l_sa_short)
 
 View(vessels__trip_neg_22_l_sa_short)
 
-vessels__trip_neg_22_l_sa_short %>% 
-    select(permit_vessel_id, SUPPLIER_VESSEL_ID, TRIP_week_num) %>% 
-    unique() %>% 
-    add_count(permit_vessel_id, SUPPLIER_VESSEL_ID) %>% 
-    View()
+vessels__trip_neg_22_l_sa_short %>%
+  select(permit_vessel_id, SUPPLIER_VESSEL_ID, TRIP_week_num) %>%
+  unique() %>%
+  add_count(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
+  View()
+
+vessels__trip_neg_22_l_sa_short %>%
+  filter(permit_vessel_id == '03017306') %>%
+  select(permit_vessel_id, TRIP_week_num) %>%
+  unique() %>%
+  group_by(permit_vessel_id) %>% 
+  summarise(n_distinct(TRIP_week_num)) %>% 
+  # count(TRIP_week_num) %>% 
+  glimpse()
+#   $ permit_vessel_id            <chr> "03017306"
+# $ `n_distinct(TRIP_week_num)` <int> 19
+
+vessels__trip_neg_22_l_sa_short_weeks_per_vessel <-
+  vessels__trip_neg_22_l_sa_short %>%
+  select(permit_vessel_id, SUPPLIER_VESSEL_ID, TRIP_week_num) %>%
+  unique() %>%
+  group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
+  summarise(tot_weeks = n_distinct(TRIP_week_num))
+
+dim(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
+# 1709
