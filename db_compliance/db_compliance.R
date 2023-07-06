@@ -842,11 +842,43 @@ dim(vessels_trips_and_notif_by_week)
 # 0
 
 ## join with all weeks ---- 
-print_df_names(vessels__trips_22_l_sa_short)
+# print_df_names(vessels__trips_22_l_sa_short)
+dates_2022_short <-
+  dates_2022 %>% 
+  select(-c(COMPLETE_DATE, MONTH_OF_YEAR))
+# MONTH_OF_YEAR: could be 2 for the same week,: 17, 4, 5
+
 by_start = join_by(TRIP_START_y == YEAR,
                    TRIP_START_week_num == WEEK_OF_YEAR)
 
 vessels__trips_22_l_sa_short_all_dates <-
-  vessels__trips_22_l_sa_short %>% 
-  full_join(dates_2022,
-            by_start)
+  vessels__trips_22_l_sa_short %>%
+  dplyr::right_join(dates_2022_short,
+            by_start,
+            relationship = "many-to-many") %>% 
+# [1] 136391    6
+  unique()
+# [1] 23362     6
+# [1] 19524     5 (no day and month)
+
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 166 of `y` matches multiple rows in `x`.
+
+dim(vessels__trips_22_l_sa_short_all_dates)
+# [1] 19433     5
+
+vessels__trips_22_l_sa_short_all_dates %>% 
+  filter(is.na(permit_vessel_id))
+# 0
+
+# Right outer: merge(x = df1, y = df2, by = "CustomerId", all.y = TRUE)
+
+vessels__trips_22_l_sa_short_all_dates1 <-
+  merge(x = vessels__trips_22_l_sa_short,
+        y = dates_2022_short,
+        by = 
+          c(x$TRIP_START_y == y$YEAR),
+        #            TRIP_START_week_num == WEEK_OF_YEAR),
+        all.y = TRUE)
+   
+  
