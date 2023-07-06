@@ -705,28 +705,23 @@ View(vessels__trip_neg_22_l_sa_short)
 # 390,659 10
 # permit_vessel_id   1709
 
-## remove neg trips on 2021-12-31
+### remove neg trips on 2021-12-31 ----
 vessels__trip_neg_22_l_sa_short %>%
   filter(lubridate::floor_date(TRIP_DATE,
                                unit = "day") ==
            "2021-12-31") %>% glimpse()
 # Rows: 1,006
 
-vessels__trip_neg_22_l_sa_short %<>%
-  filter(!lubridate::floor_date(TRIP_DATE,
-                               unit = "day") ==
-           "2021-12-31")
-
 dim(vessels__trip_neg_22_l_sa_short)
-# [1] 389653     10
+# [1] 66631     3
 
 View(vessels__trip_neg_22_l_sa_short)
 
-vessels__trip_neg_22_l_sa_short %>%
-  select(permit_vessel_id, SUPPLIER_VESSEL_ID, TRIP_week_num) %>%
-  unique() %>%
-  add_count(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
-  View()
+# vessels__trip_neg_22_l_sa_short %>%
+#   select(permit_vessel_id, SUPPLIER_VESSEL_ID, TRIP_week_num) %>%
+#   unique() %>%
+#   add_count(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
+#   View()
 
 vessels__trip_neg_22_l_sa_short %>%
   filter(permit_vessel_id == '03017306') %>%
@@ -741,10 +736,8 @@ vessels__trip_neg_22_l_sa_short %>%
 
 vessels__trip_neg_22_l_sa_short_weeks_per_vessel <-
   vessels__trip_neg_22_l_sa_short %>%
-  select(permit_vessel_id, SUPPLIER_VESSEL_ID, TRIP_week_num) %>%
-  unique() %>%
   group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
   summarise(tot_weeks = n_distinct(TRIP_week_num))
 
-dim(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
+View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
 # 1709
