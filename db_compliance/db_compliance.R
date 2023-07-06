@@ -250,96 +250,6 @@ map_df(check_3, ~ dim(.))
 
 # [1] 657   3
 # ? ----
-# join vessels and permits for 2022 ----
-# join by different vessel ids, then bind together and unique
-# View(permit_info_r_l_overlap_join1_w_dual_22__list)
-vessels_permit_vsl_id_coast_g1 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(~ .x %>%
-        inner_join(vessels_all,
-                   join_by(VESSEL_ID == COAST_GUARD_NBR)))
-
-vessels_permit_vsl_id_coast_g2 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(~ .x %>%
-        inner_join(vessels_all,
-                   join_by(VESSEL_ALT_NUM.sa == COAST_GUARD_NBR)))
-
-vessels_permit_vsl_id_coast_g3 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(~ .x %>%
-        inner_join(vessels_all,
-                   join_by(VESSEL_ALT_NUM.gom == COAST_GUARD_NBR)))
-
-vessels_permit_vsl_id_state_n1 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(~ .x %>%
-        inner_join(vessels_all,
-                   join_by(VESSEL_ID == STATE_REG_NBR)))
-
-vessels_permit_vsl_id_state_n2 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(~ .x %>%
-        inner_join(vessels_all,
-                   join_by(VESSEL_ALT_NUM.sa == STATE_REG_NBR)))
-
-vessels_permit_vsl_id_state_n3 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(~ .x %>%
-        inner_join(vessels_all,
-                   join_by(VESSEL_ALT_NUM.gom == STATE_REG_NBR)))
-
-## bind ----
-
-vessels_permit_vsl_id_bind1 <-
-  # map over 2 lists of dataframes and make a list
-  map2(vessels_permit_vsl_id_coast_g1,
-           vessels_permit_vsl_id_state_n1,
-           dplyr::bind_rows)
-
-vessels_permit_vsl_id_bind2 <-
-  # map over 2 lists of dataframes and make a list
-  map2(vessels_permit_vsl_id_coast_g2,
-           vessels_permit_vsl_id_state_n2,
-           dplyr::bind_rows)
-
-vessels_permit_vsl_id_bind3 <-
-  # map over 2 lists of dataframes and make a list
-  map2(vessels_permit_vsl_id_coast_g3,
-           vessels_permit_vsl_id_state_n3,
-           dplyr::bind_rows)
-
-
-## the same for checking as a df ----
-vessels_permit_vsl_id__all1 <-
-  # map over 2 lists of dataframes and make a df
-  map2_dfr(vessels_permit_vsl_id_coast_g1,
-           vessels_permit_vsl_id_state_n1,
-           dplyr::bind_rows) %>%
-  unique()
-
-vessels_permit_vsl_id__all2 <-
-  # map over 2 lists of dataframes and make a df
-  map2_dfr(vessels_permit_vsl_id_coast_g2,
-           vessels_permit_vsl_id_state_n2,
-           dplyr::bind_rows) %>%
-  unique()
-
-vessels_permit_vsl_id__all3 <-
-  # map over 2 lists of dataframes and make a df
-  map2_dfr(vessels_permit_vsl_id_coast_g3,
-           vessels_permit_vsl_id_state_n3,
-           dplyr::bind_rows) %>%
-  unique()
-
-grep(
-  "int",
-  names(vessels_permit_vsl_id__all1),
-  ignore.case = T,
-  value = T
-)
-
-
 # get all vessel_ids for permits ----
 permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
   permit_info_r_l_overlap_join1_w_dual_22__list %>%
@@ -539,6 +449,119 @@ uniq_permit_vsl_ids %>%
 # 5632
 
 # View(trip_notifications_2022)
+
+# join vessels and permits for 2022 ----
+# join by different vessel ids, then bind together and unique
+# print_df_names(permit_info_r_l_overlap_join1_w_dual_22__list$sa_only)
+
+vessels_permit_1 <-
+  purrr::map2(permit_info_r_l_overlap_join1_w_dual_22__list,
+              vessels_by_permit_vessel__all_l_u,
+              function(x, y) {
+                dplyr::inner_join(x,
+                                  y,
+                                  join_by(VESSEL_ID == permit_vessel_id),
+                                  suffix = c(".p", ".v"))
+              })
+
+View(vessels_permit_1)
+
+vessels_permit_2 <-
+  purrr::map2(permit_info_r_l_overlap_join1_w_dual_22__list,
+              vessels_by_permit_vessel__all_l_u,
+              function(x, y) {
+                dplyr::inner_join(x,
+                                  y,
+                                  join_by(VESSEL_ID == VESSEL_ALT_NUM.sa),
+                                  suffix = c(".p", ".v"))
+              })
+
+
+  # permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  # map(~ .x %>%
+  #       inner_join(
+  #                  join_by(VESSEL_ID == permit_vessel_id)))
+
+vessels_permit_vsl_id_coast_g2 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(VESSEL_ALT_NUM.sa == COAST_GUARD_NBR)))
+
+vessels_permit_vsl_id_coast_g3 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(VESSEL_ALT_NUM.gom == COAST_GUARD_NBR)))
+
+vessels_permit_vsl_id_state_n1 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(VESSEL_ID == STATE_REG_NBR)))
+
+vessels_permit_vsl_id_state_n2 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(VESSEL_ALT_NUM.sa == STATE_REG_NBR)))
+
+vessels_permit_vsl_id_state_n3 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list %>%
+  map(~ .x %>%
+        inner_join(vessels_all,
+                   join_by(VESSEL_ALT_NUM.gom == STATE_REG_NBR)))
+
+## bind ----
+
+vessels_permit_vsl_id_bind1 <-
+  # map over 2 lists of dataframes and make a list
+  map2(vessels_permit_vsl_id_coast_g1,
+           vessels_permit_vsl_id_state_n1,
+           dplyr::bind_rows)
+
+vessels_permit_vsl_id_bind2 <-
+  # map over 2 lists of dataframes and make a list
+  map2(vessels_permit_vsl_id_coast_g2,
+           vessels_permit_vsl_id_state_n2,
+           dplyr::bind_rows)
+
+vessels_permit_vsl_id_bind3 <-
+  # map over 2 lists of dataframes and make a list
+  map2(vessels_permit_vsl_id_coast_g3,
+           vessels_permit_vsl_id_state_n3,
+           dplyr::bind_rows)
+
+
+## the same for checking as a df ----
+vessels_permit_vsl_id__all1 <-
+  # map over 2 lists of dataframes and make a df
+  map2_dfr(vessels_permit_vsl_id_coast_g1,
+           vessels_permit_vsl_id_state_n1,
+           dplyr::bind_rows) %>%
+  unique()
+
+vessels_permit_vsl_id__all2 <-
+  # map over 2 lists of dataframes and make a df
+  map2_dfr(vessels_permit_vsl_id_coast_g2,
+           vessels_permit_vsl_id_state_n2,
+           dplyr::bind_rows) %>%
+  unique()
+
+vessels_permit_vsl_id__all3 <-
+  # map over 2 lists of dataframes and make a df
+  map2_dfr(vessels_permit_vsl_id_coast_g3,
+           vessels_permit_vsl_id_state_n3,
+           dplyr::bind_rows) %>%
+  unique()
+
+grep(
+  "int",
+  names(vessels_permit_vsl_id__all1),
+  ignore.case = T,
+  value = T
+)
+
 
 # fix trip data ----
 ## add trip_int ----
