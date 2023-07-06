@@ -853,7 +853,7 @@ dates_2022_short <-
 by_start = join_by(TRIP_START_y == YEAR,
                    TRIP_START_week_num == WEEK_OF_YEAR)
 
-vessels__trips_22_l_sa_short_all_dates <-
+vessels__trips_22_l_sa_short_all_dates_t_start <-
   vessels__trips_22_l_sa_short %>%
   dplyr::right_join(dates_2022_short,
             by_start,
@@ -866,31 +866,41 @@ vessels__trips_22_l_sa_short_all_dates <-
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 166 of `y` matches multiple rows in `x`.
 
-dim(vessels__trips_22_l_sa_short_all_dates)
+dim(vessels__trips_22_l_sa_short_all_dates_t_start)
 # [1] 19433     5
+# [1] 19445     5 (with 2021 and 2023)
 
-vessels__trips_22_l_sa_short_all_dates %>% 
+vessels__trips_22_l_sa_short_all_dates_t_start %>% 
+  filter(is.na(permit_vessel_id))
+# A tibble: 10 × 5
+# ...
+# 4 NA 51 NA 2021
+# 5 NA  1 NA 2023
+
+View(vessels__trips_22_l_sa_short_all_dates_t_start)
+
+## keeping all columns ----
+vessels__trips_22_l_sa_short_all_dates_t_start_all_cols <-
+  sqldf("SELECT
+  *
+FROM
+       vessels__trips_22_l_sa_short 
+  RIGHT JOIN dates_2022_short
+  ON ( trip_start_y = year )
+WHERE
+  trip_start_week_num = week_of_year
+"
+  ) %>%
+  unique()
+
+dim(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
+# [1] 19435     7
+
+vessels__trips_22_l_sa_short_all_dates_t_start_all_cols %>%
   filter(is.na(permit_vessel_id))
 # 0
+# data_overview(vessels__trips_22_l_sa_short_all_dates_all_cols)
 
-# check ----
-# df4 <- sqldf("SELECT
-#   *
-# FROM
-#        vessels__trips_22_l_sa_short right
-#   JOIN dates_2022_short
-#   ON ( trip_start_y = year )
-# WHERE
-#   trip_start_week_num = week_of_year
-# "
-# ) %>% 
-#   unique()
-# 
-# dim(df4)
-# # [1] 136300      7
-# # [1] 19433     7
-# 
-# df4 %>% 
-#   filter(is.na(permit_vessel_id))
-# 0 
-# data_overview(df4)
+# View(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
+
+## join by the end of week?
