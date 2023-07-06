@@ -455,7 +455,7 @@ trip_notifications_2022_ah <-
 # 0
 # Yanet: For the weeks between 2 months, both months are affected by the non-compliant status.
 
-View(trips_info_2022_int_ah)
+# View(trips_info_2022_int_ah)
 
 # trips_info_2022_int_ah %>% 
 #   select(TRIP_START_DATE) %>% 
@@ -506,7 +506,25 @@ trip_notifications_2022_w_y %>%
   arrange(TRIP_START_DATE) %>% 
   View()
 
-## to nrgative trips ----
+## to negative trips ----
+print_df_names(trip_neg_2022)
+trip_neg_2022_w_y <-
+  trip_neg_2022 %>%
+  mutate(
+    TRIP_week_num =
+      strftime(TRIP_DATE, format = "%U"),
+    TRIP_DATE_y =
+      year(TRIP_DATE),
+    TRIP_DATE_m =
+      zoo::as.yearmon(TRIP_DATE)
+  )
+
+trip_neg_2022_w_y %>% 
+  select(starts_with("TRIP")) %>% 
+  arrange(TRIP_DATE) %>% 
+  View()
+
+
 # vessels and trip_notifications ----
 
 ## compare vessel_ids ----
@@ -529,8 +547,10 @@ vessels_by_permit_vessel__all_l_u_vsl_ids_l <-
 
 dim(trip_notifications_2022_ah)
 # [1] 126726     33
+# [1] 67738    33
+
 dim(trip_notifications_2022_vsl_ids)
-# [1] 1095    1
+# [1] 914   1
 dim(vessels_by_permit_vessel__all_l_u_vsl_ids)
 # [1] 5459      1
 # vessels_by_permit_vessel__all_l_u_vsl_ids %>%
@@ -567,6 +587,7 @@ glimpse(not_in_vessel_trip_gom)
  # num [1:305] 328214 328340 247128 247129 326387 ...
 # A, H
  # num [1:296] 328214 328340 247128 247129 326387 ...
+ # num [1:226] 79639 329030 326452 247045 325995 ...
 
 ## join vessels, trip notif  ----
 # View(vessels_by_permit_vessel__all_l_u)
