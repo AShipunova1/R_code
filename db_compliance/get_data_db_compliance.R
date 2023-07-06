@@ -200,8 +200,10 @@ dates_2022_query <-
 FROM
   srh.dim_dates@secapxdv_dblk.sfsc.noaa.gov dd
 WHERE
-  dd.complete_date BETWEEN '01-JAN-2022' AND '31-DEC-2022'
+  dd.complete_date BETWEEN '01-DEC-2021' AND '31-JAN-2023'
 "
+# dd.complete_date BETWEEN '01-DEC-2022' AND '31-JAN-2023'
+# TO_DATE('01-JAN-22', 'dd-mon-yy')
 
 tic("dates_2022_query")
 dates_2022 <- dbGetQuery(con,
@@ -209,7 +211,8 @@ dates_2022 <- dbGetQuery(con,
 toc()
 
 glimpse(dates_2022)
-# Rows: 365
+# Rows: 427
 
 write_csv(dates_2022, 
           file.path(input_path, "dates_2022.csv"))
+
