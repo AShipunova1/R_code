@@ -439,7 +439,7 @@ trip_notifications_2022_ah <-
   filter(TRIP_TYPE %in% c("A", "H"))
 
 # add week num ----
-
+## to trips ----
 # strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%V")
 # [1] "21" "21" "21" "22" "22" "22" "22" "22"
 # > 
@@ -480,9 +480,33 @@ trips_info_2022_int_ah_w_y <-
 
 trips_info_2022_int_ah_w_y %>% 
   select(starts_with("TRIP")) %>% 
-  arrange()
+  arrange(TRIP_START_DATE) %>% 
   View()
 
+## to trip notifications ----
+trip_notifications_2022_w_y <-
+  trip_notifications_2022 %>%
+  mutate(
+    TRIP_START_week_num =
+      strftime(TRIP_START_DATE, format = "%U"),
+    TRIP_END_week_num =
+      strftime(TRIP_END_DATE, format = "%U"),
+    TRIP_START_y =
+      year(TRIP_START_DATE),
+    TRIP_END_y =
+      year(TRIP_END_DATE),
+    TRIP_START_m =
+      zoo::as.yearmon(TRIP_START_DATE),
+    TRIP_END_m =
+      zoo::as.yearmon(TRIP_END_DATE)
+  )
+
+trip_notifications_2022_w_y %>% 
+  select(starts_with("TRIP")) %>% 
+  arrange(TRIP_START_DATE) %>% 
+  View()
+
+## to nrgative trips ----
 # vessels and trip_notifications ----
 
 ## compare vessel_ids ----
