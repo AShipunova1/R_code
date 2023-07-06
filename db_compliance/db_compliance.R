@@ -10,6 +10,8 @@
 # setup ----
 library(tictoc)
 library(zoo)
+# install.packages("sqldf")
+library(sqldf)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_name <- "db_compliance"
@@ -873,12 +875,21 @@ vessels__trips_22_l_sa_short_all_dates %>%
 
 # Right outer: merge(x = df1, y = df2, by = "CustomerId", all.y = TRUE)
 
-vessels__trips_22_l_sa_short_all_dates1 <-
-  merge(x = vessels__trips_22_l_sa_short,
-        y = dates_2022_short,
-        by = 
-          c(x$TRIP_START_y == y$YEAR),
-        #            TRIP_START_week_num == WEEK_OF_YEAR),
-        all.y = TRUE)
-   
-  
+df4 <- sqldf("SELECT
+  *
+FROM
+       vessels__trips_22_l_sa_short right
+  JOIN dates_2022_short
+  ON ( trip_start_y = year )
+WHERE
+  trip_start_week_num = week_of_year
+"
+) %>% 
+  unique()
+
+dim(df4)
+# [1] 136300      7
+# [1] 19433     7
+
+df4 %>% 
+  filter(is.na(permit_vessel_id))
