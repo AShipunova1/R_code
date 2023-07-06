@@ -768,3 +768,32 @@ vessels__trip_notif_22_l_sa_vessels_trips <-
 dim(vessels__trip_notif_22_l_sa_vessels_trips)
 # [1] 17  3
 
+## vessels and trips and weeks
+data_overview(vessels__trips_22_l$sa_only)
+# TRIP_START_y                    2
+# TRIP_END_y                      3
+# permit_vessel_id             1110
+# VESSEL_ID                    1069
+# SUPPLIER_VESSEL_ID           1069
+
+vessels__trips_22_l_sa_short <-
+  vessels__trips_22_l$sa_only %>%
+  filter(TRIP_START_y %in% c('2021', '2022')) %>%
+  filter(TRIP_END_y %in% c('2022', '2023')) %>%
+  select(permit_vessel_id, TRIP_START_week_num,
+         TRIP_END_week_num) %>%
+  unique()
+
+vessels__trips_22_l_sa_weeks_per_vessel <-
+  vessels__trips_22_l_sa_short %>%
+  group_by(permit_vessel_id) %>%
+  summarise(
+    tot_start_weeks =
+      n_distinct(TRIP_START_week_num),
+    tot_end_weeks =
+      n_distinct(TRIP_END_week_num)
+  )
+
+# View(vessels__trips_22_l_sa_weeks_per_vessel)
+# 1110
+
