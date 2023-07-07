@@ -1249,16 +1249,47 @@ vessels__trips_22_l_sa_weeks_cnt_u %>%
 
 ## join trips and trip_negative (logbooks + DNFs) ----
 
-by_t__tne = join_by(VESSEL_ID,
-                    permit_vessel_id,
-                    SUPPLIER_VESSEL_ID,
-                    SERO_OFFICIAL_NUMBER)
+by_t__tne = join_by(
+  VESSEL_ID,
+  permit_vessel_id,
+  SUPPLIER_VESSEL_ID,
+  SERO_OFFICIAL_NUMBER,
+  TRIP_week_num == TRIP_START_week_num,
+  TRIP_DATE_y == TRIP_START_y
+)
 
-vessels__t_tne_sa_weeks_cnt_u <-
-  full_join(vessels__trips_22_l_sa_weeks_cnt_u,
-          vessels__trip_neg_22_l_sa_weeks_cnt_u,
-          by_t__tne,
-          suffix = c(".t", ".tne"))
+# inner_join(d2, d1, by = join_by(x, between(pos, start, end)))
+  # # between(x, left, right)
+  # dplyr::between(TRIP_DATE, TRIP_START_DATE, TRIP_END_DATE)
+
+
+# grep("TRIP", names(vessels__trip_neg_22_l$sa_only), ignore.case = T, value = T)
+# [1] "TRIP_DATE"     "TRIP_ID"       "TRIP_week_num" "TRIP_DATE_y"  
+# [5] "TRIP_DATE_m"  
+
+# grep("TRIP", names(vessels__trips_22_l$sa_only), ignore.case = T, value = T)
+#  [1] "TRIP_ID"             "TRIP_TYPE"           "SUPPLIER_TRIP_ID"   
+#  [4] "TRIP_NBR"            "SPLIT_TRIP"          "TRIP_START_DATE"    
+#  [7] "TRIP_END_DATE"       "TRIP_END_TIME"       "TRIP_START_TIME"    
+# [10] "SUB_TRIP_TYPE"       "TRIP_FEE"            "TRIP_TIME_ZONE"     
+# [13] "trip_int"            "TRIP_START_week_num" "TRIP_END_week_num"  
+# [16] "TRIP_START_y"        "TRIP_END_y"          "TRIP_START_m"       
+# [19] "TRIP_END_m"         
+
+tic("join vessels__t_tne_sa unique")
+vessels__t_tne_sa <-
+  full_join(
+    vessels__trip_neg_22_l$sa_only,
+    vessels__trips_22_l$sa_only,
+    by_t__tne,
+    suffix = c(".t", ".tne"),
+    relationship = "many-to-many"
+  ) %>% 
+  unique()
+toc()
+
+dim(vessels__t_tne_sa)
+# [1] 457647    146
 
 # count total report number for trips + trip_neg ----
 # what if max_weeks_cnt_t, distinct_weeks_ne for the same week?
