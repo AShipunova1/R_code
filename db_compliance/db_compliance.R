@@ -1177,7 +1177,7 @@ dim(vessels_permit_bind_u1_sa_w_p_short)
 View(vessels__trip_neg_22_l)
 # vessels_permit_bind_u1_sa_w_p_short
 # check for 2022
-# count distinct weeks per vessel, compare with permit weeks in year
+# count distinct weeks per vessel, compare with permit weeks in year ----
 
 # vessels__trip_neg_22_l_sa_weeks_cnt <-
 #   vessels__trip_neg_22_l$sa_only %>%
@@ -1186,7 +1186,10 @@ View(vessels__trip_neg_22_l)
 # 
 # vessels__trip_neg_22_l_sa_weeks_cnt %>% 
 #   View()
-print_df_names(vessels__trip_neg_22_l$sa_only)
+# print_df_names(vessels__trip_neg_22_l$sa_only)
+
+## neg trip weeks ----
+
 vessels__trip_neg_22_l_sa_weeks_cnt_u <-
   vessels__trip_neg_22_l$sa_only %>%
   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
@@ -1214,3 +1217,17 @@ vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
   # dim()
 # [1] 2 5
 # 
+
+## trip_notif ----
+vessels__trip_notif_22_l_sa_weeks_cnt_u <-
+  vessels__trip_notif_22_l$sa_only %>%
+  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
+  summarise(distinct_start_weeks = n_distinct(TRIP_START_week_num),
+            distinct_end_weeks = n_distinct(TRIP_END_week_num))
+
+View(vessels__trip_notif_22_l_sa_weeks_cnt_u)
+vessels__trip_notif_22_l_sa_weeks_cnt_u %>% 
+   filter(!distinct_start_weeks == distinct_end_weeks) %>% 
+   dim()
+# [1] 0 6
+# ok
