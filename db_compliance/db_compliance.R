@@ -755,7 +755,7 @@ dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$sa_only)
 # not_in_vessel_trip_sa <-
 #   setdiff(
 #     trip_notifications_2022_vsl_ids$VESSEL_ID,
-#     unique(vessels_permit_vsl_id__all_l__sa_ids$VESSEL_ID)
+#     distinct(vessels_permit_vsl_id__all_l__sa_ids$VESSEL_ID)
 #   ) %>%
 #   distinct()
 # glimpse(not_in_vessel_trip_sa)
@@ -767,7 +767,7 @@ not_in_vessel_trip_gom <-
     trip_notifications_2022_ah_w_y_vsl_ids$VESSEL_ID,
     unique(vessels_by_permit_vessel__all_l_u_vsl_ids_l$gom_only$VESSEL_ID)
   ) %>%
-  distinct()
+  unique()
 
 glimpse(not_in_vessel_trip_gom)
  # num [1:15] 326294 249111 280684 326421 326390 ...
@@ -934,7 +934,7 @@ vessels__trip_neg_22_l_sa_short_weeks_per_vessel <-
   group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
   summarise(tot_weeks = n_distinct(TRIP_week_num))
 
-View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
+# View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
 # 1709
 
 ## trip notifications per vessel per week
@@ -952,7 +952,7 @@ vessels__trip_notif_22_l_sa_short <-
          TRIP_END_y) %>%
   distinct()
   
-str(vessels__trip_notif_22_l_sa_short)
+# str(vessels__trip_notif_22_l_sa_short)
 vessels__trip_notif_22_l_sa_vessels_trips <-
   vessels__trip_notif_22_l_sa_short %>%
   group_by(permit_vessel_id) %>%
@@ -1225,7 +1225,7 @@ vessels__trip_notif_22_l_sa_weeks_cnt_u <-
   summarise(distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
             distinct_end_weeks_tn = n_distinct(TRIP_END_week_num))
 
-View(vessels__trip_notif_22_l_sa_weeks_cnt_u)
+# View(vessels__trip_notif_22_l_sa_weeks_cnt_u)
 vessels__trip_notif_22_l_sa_weeks_cnt_u %>% 
    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>% 
    dim()
@@ -1244,7 +1244,7 @@ vessels__trips_22_l_sa_weeks_cnt_u <-
 # View(vessels__trips_22_l_sa_weeks_cnt_u)
 vessels__trips_22_l_sa_weeks_cnt_u %>% 
    filter(!distinct_start_weeks_t == distinct_end_weeks_t) %>% 
-   View()
+   dim()
 # 27
 
 ## join trips and trip_negative (logbooks + DNFs) ----
@@ -1268,6 +1268,7 @@ vessels__t_tne_sa <-
     relationship = "many-to-many"
   )
 toc()
+# join vessels__t_tne_sa: 1.55 sec elapsed
 
 dim(vessels__t_tne_sa)
 # [1] 457647    146
@@ -1283,7 +1284,7 @@ vessels__trip_neg_22_l_sa_vsls <-
   select(VESSEL_ID, permit_vessel_id) %>% 
   distinct()
 
-  dim()
+# dim(vessels__trip_neg_22_l_sa_vsls)
 # 1709    
   
 vessels__trips_22_l_sa_vsls <-
@@ -1291,7 +1292,6 @@ vessels__trips_22_l_sa_vsls <-
   select(VESSEL_ID, permit_vessel_id) %>% 
   distinct()
 # [1] 1110    2
-
 
 full_join(
   vessels__trip_neg_22_l_sa_vsls,
@@ -1316,10 +1316,10 @@ vessels__t_tne_sa_tne_in_t_short <-
 
   # distinct() same
 
-unique(vessels__t_tne_sa_tne_in_t_short) %>%  dim()
+distinct(vessels__t_tne_sa_tne_in_t_short) %>%  dim()
 # [1] 5219    6
   
-View(vessels__t_tne_sa_tne_in_t_short)
+# View(vessels__t_tne_sa_tne_in_t_short)
 # [1] 5513  146
 
 # inner_join(d2, d1, by = join_by(x, between(pos, start, end)))
@@ -1356,21 +1356,66 @@ vessels__t_tne_sa_tne_in_t_cnt <-
       )
   )
     
-tic("vessels__t_tne_sa_tne_in_t_cnt unique")
-vessels__t_tne_sa_tne_in_t_cnt %>% 
+tic("vessels__t_tne_sa_tne_in_t_cnt distinct")
+vessels__t_tne_sa_tne_in_t_cnt_temp <-
+  vessels__t_tne_sa_tne_in_t_cnt %>% 
   select(neg_in_t, starts_with("TRIP")) %>% 
-  distinct() %>%
-  glimpse()
+  distinct()
 toc()
 # vessels__t_tne_sa_tne_in_t_cnt distinct: 0.53 sec elapsed
 # vessels__t_tne_sa_tne_in_t_cnt unique: 322.19 sec elapsed
 
+vessels__t_tne_sa_tne_in_t_cnt_temp %>% 
+  # filter(neg_in_t == "both_t__tne") %>% 
+  filter(neg_in_t == "unknown") %>% 
+  # Rows: 5,095
+  # tail() %>% 
+  View()
+# stopped here ----
+# vessels__t_tne_sa_tne_in_t_cnt distinct: 0.53 sec elapsed
+# vessels__t_tne_sa_tne_in_t_cnt unique: 322.19 sec elapsed
+vessels__t_tne_sa_tne_in_t_cnt_temp %>% 
+      filter(neg_in_t == "both_t__tne") %>% 
+    select(TRIP_week_num, TRIP_END_week_num) %>% 
+    distinct() %>% 
+  # Rows: 5,095
+  # tail() %>% 
+  filter(!TRIP_week_num == TRIP_END_week_num) %>% dim()
+# 45
+
 # count total report number for trips + trip_neg ----
+print_df_names(vessels__t_tne_sa)
+# dplyr::between(TRIP_DATE,
+#                TRIP_START_DATE,
+#                TRIP_END_DATE) ~ "both_t__tne",
+# is.na(TRIP_START_TIME) ~ "tne",
+# is.na(TRIP_DATE) ~ "t",
+
 vessels__t_tne_sa %>%
   dplyr::group_by(VESSEL_ID,
-           permit_vessel_id,
-           SUPPLIER_VESSEL_ID,
-           SERO_OFFICIAL_NUMBER) %>%
+                  permit_vessel_id,
+                  SUPPLIER_VESSEL_ID,
+                  SERO_OFFICIAL_NUMBER) %>%
+  dplyr::summarise(
+    distinct_weeks_ne =
+      dplyr::n_distinct(TRIP_week_num[neg_in_t == 'tne']),
+    distinct_start_weeks_t =
+      dplyr::n_distinct(TRIP_START_week_num[!neg_in_t == 'tne']),
+    distinct_end_weeks_t = 
+      dplyr::n_distinct(TRIP_END_week_num[!neg_in_t == 'tne'])
+  ) %>%
+  ungroup()
+  
+  summarize(
+    
+    # last_date = max(last_date_temp, na.rm = TRUE),
+    
+    distinct_date = n_distinct(date[type != "Online"]),
+  ) %>%
+  distinct()
+  
+          # distinct_date = n_distinct(date[type != "Online"])
+  
   dplyr::summarise(
     distinct_weeks_ne = dplyr::n_distinct(TRIP_week_num),
     distinct_start_weeks_t = dplyr::n_distinct(TRIP_START_week_num),
@@ -1378,3 +1423,4 @@ vessels__t_tne_sa %>%
   ) %>%
   dplyr::mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t)) %>% 
   dplyr::ungroup()
+
