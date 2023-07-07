@@ -1272,7 +1272,7 @@ toc()
 dim(vessels__t_tne_sa)
 # [1] 457647    146
 
-### check, there should not be doubles? ----
+### check uniq vsls ----
 vessels__t_tne_sa %>% select(VESSEL_ID, permit_vessel_id) %>% 
   unique() %>% 
   dim()
@@ -1303,6 +1303,7 @@ full_join(
 # [1] 1751    2
 # ok, as in join
 
+### check, there should not be doubles? ----
 vessels__t_tne_sa_tne_in_t_short <-
   vessels__t_tne_sa %>%
   filter(dplyr::between(TRIP_DATE, TRIP_START_DATE, TRIP_END_DATE)) %>%
@@ -1339,10 +1340,31 @@ View(vessels__t_tne_sa_tne_in_t_short)
 # [19] "TRIP_END_m"         
 
 # trip_int, TRIP_DATE
-
-
+### what if max_weeks_cnt_t, distinct_weeks_ne for the same week? ---
+# count ones
+vessels__t_tne_sa_tne_in_t_cnt <-
+  vessels__t_tne_sa %>%
+  mutate(neg_in_t =
+           case_when(
+             dplyr::between(TRIP_DATE,
+                            TRIP_START_DATE,
+                            TRIP_END_DATE) ~ "both_t__tne",
+             .default = "one_report"
+           ))
+  # filter(dplyr::between(TRIP_DATE, TRIP_START_DATE, TRIP_END_DATE)) %>%
+    
+# dim(vessels__t_tne_sa_tne_in_t_cnt)
 
 # count total report number for trips + trip_neg ----
-# what if max_weeks_cnt_t, distinct_weeks_ne for the same week?
-vessels__t_tne_sa_weeks_cnt_u %>% 
-  add_count()
+vessels__t_tne_sa %>%
+  dplyr::group_by(VESSEL_ID,
+           permit_vessel_id,
+           SUPPLIER_VESSEL_ID,
+           SERO_OFFICIAL_NUMBER) %>%
+  dplyr::summarise(
+    distinct_weeks_ne = dplyr::n_distinct(TRIP_week_num),
+    distinct_start_weeks_t = dplyr::n_distinct(TRIP_START_week_num),
+    distinct_end_weeks_t = dplyr::n_distinct(TRIP_END_week_num)
+  ) %>%
+  dplyr::mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t)) %>% 
+  dplyr::ungroup()
