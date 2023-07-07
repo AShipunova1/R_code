@@ -1218,7 +1218,7 @@ vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
 # [1] 2 5
 # 
 
-## trip_notif ----
+## trip_notif weeks count per vessel ----
 vessels__trip_notif_22_l_sa_weeks_cnt_u <-
   vessels__trip_notif_22_l$sa_only %>%
   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
@@ -1231,3 +1231,17 @@ vessels__trip_notif_22_l_sa_weeks_cnt_u %>%
    dim()
 # [1] 0 6
 # ok
+
+## trips weeks count per vessel ----
+
+vessels__trips_22_l_sa_weeks_cnt_u <-
+  vessels__trips_22_l$sa_only %>%
+  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
+  summarise(distinct_start_weeks = n_distinct(TRIP_START_week_num),
+            distinct_end_weeks = n_distinct(TRIP_END_week_num))
+
+View(vessels__trips_22_l_sa_weeks_cnt_u)
+vessels__trips_22_l_sa_weeks_cnt_u %>% 
+   filter(!distinct_start_weeks == distinct_end_weeks) %>% 
+   View()
+# 27
