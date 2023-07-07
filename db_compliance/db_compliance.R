@@ -1258,7 +1258,7 @@ by_t__tne = join_by(
   TRIP_DATE_y == TRIP_START_y
 )
 
-tic("join vessels__t_tne_sa unique")
+tic("join vessels__t_tne_sa")
 vessels__t_tne_sa <-
   full_join(
     vessels__trip_neg_22_l$sa_only,
@@ -1266,14 +1266,43 @@ vessels__t_tne_sa <-
     by_t__tne,
     suffix = c(".t", ".tne"),
     relationship = "many-to-many"
-  ) %>% 
-  unique()
+  )
 toc()
 
 dim(vessels__t_tne_sa)
 # [1] 457647    146
 
 ### check, there should not be doubles? ----
+vessels__t_tne_sa %>% select(VESSEL_ID, permit_vessel_id) %>% 
+  unique() %>% 
+  dim()
+# [1] 1751    2
+
+vessels__trip_neg_22_l_sa_vsls <-
+  vessels__trip_neg_22_l$sa_only %>% 
+  select(VESSEL_ID, permit_vessel_id) %>% 
+  unique()
+
+  dim()
+# 1709    
+  
+vessels__trips_22_l_sa_vsls <-
+  vessels__trips_22_l$sa_only %>% 
+  select(VESSEL_ID, permit_vessel_id) %>% 
+  unique()
+# [1] 1110    2
+
+
+full_join(
+  vessels__trip_neg_22_l_sa_vsls,
+  vessels__trips_22_l_sa_vsls,
+  join_by(VESSEL_ID, permit_vessel_id)
+) %>%
+  unique() %>%
+  dim()
+# [1] 1751    2
+# ok, as in join
+
 vessels__t_tne_sa_tne_in_t_short <-
   vessels__t_tne_sa %>%
   filter(dplyr::between(TRIP_DATE, TRIP_START_DATE, TRIP_END_DATE)) %>%
