@@ -1264,7 +1264,7 @@ vessels__t_tne_sa <-
     vessels__trip_neg_22_l$sa_only,
     vessels__trips_22_l$sa_only,
     by_t__tne,
-    suffix = c(".t", ".tne"),
+    suffix = c(".tne", ".t"),
     relationship = "many-to-many"
   )
 toc()
@@ -1340,20 +1340,30 @@ View(vessels__t_tne_sa_tne_in_t_short)
 # [19] "TRIP_END_m"         
 
 # trip_int, TRIP_DATE
-### what if max_weeks_cnt_t, distinct_weeks_ne for the same week? ---
+### mark if max_weeks_cnt_t, distinct_weeks_ne for the same week ---
 # count ones
 vessels__t_tne_sa_tne_in_t_cnt <-
   vessels__t_tne_sa %>%
-  mutate(neg_in_t =
-           case_when(
-             dplyr::between(TRIP_DATE,
-                            TRIP_START_DATE,
-                            TRIP_END_DATE) ~ "both_t__tne",
-             .default = "one_report"
-           ))
-  # filter(dplyr::between(TRIP_DATE, TRIP_START_DATE, TRIP_END_DATE)) %>%
+  mutate(
+    neg_in_t =
+      case_when(
+        dplyr::between(TRIP_DATE,
+                       TRIP_START_DATE,
+                       TRIP_END_DATE) ~ "both_t__tne",
+        is.na(TRIP_START_TIME) ~ "tne",
+        is.na(TRIP_DATE) ~ "t",
+        .default = "unknown"
+      )
+  )
     
-# dim(vessels__t_tne_sa_tne_in_t_cnt)
+tic("vessels__t_tne_sa_tne_in_t_cnt unique")
+vessels__t_tne_sa_tne_in_t_cnt %>% 
+  select(neg_in_t, starts_with("TRIP")) %>% 
+  distinct() %>%
+  glimpse()
+toc()
+# vessels__t_tne_sa_tne_in_t_cnt distinct: 0.53 sec elapsed
+# vessels__t_tne_sa_tne_in_t_cnt unique: 322.19 sec elapsed
 
 # count total report number for trips + trip_neg ----
 vessels__t_tne_sa %>%
