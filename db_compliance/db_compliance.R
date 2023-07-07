@@ -520,7 +520,7 @@ vessels_permit_bind_u_test2 <-
 View(vessels_permit_bind_u_test_0)
 View(vessels_permit_bind_u_test)
 
-tic("vessels_permit_bind_ sero_#")
+tic("vessels_permit_bind_sero_#")
 vessels_permit_bind_u_sero <-
   vessels_permit_bind %>%
   map(
@@ -530,6 +530,9 @@ vessels_permit_bind_u_sero <-
   )
 toc()
 # vessels_permit_bind_ sero_#: 736.12 sec elapsed
+vessels_permit_bind_u_sero %>%
+  map(~ .x %>%
+        write_csv("vessels_permit_bind_u_sero.csv",   append = TRUE))
 
 tic("vessels_permit_bind_u1")
 vessels_permit_bind_u1 <-
@@ -540,7 +543,10 @@ vessels_permit_bind_u1 <-
       dplyr::summarise_all(coalesce_by_column)
   )
 toc()
-# vessels_permit_bind_u: 747.64 sec elapsed
+# vessels_permit_bind_u1: 747.64 sec elapsed
+vessels_permit_bind_u1 %>%
+  map(~ .x %>%
+        write_csv("vessels_permit_bind_u.csv",   append = TRUE))
 
 # all.equal(vessels_permit_bind_u_sero$gom_only,
 #           vessels_permit_bind_u1$gom_only)
@@ -728,7 +734,7 @@ dim(trip_notifications_2022_ah_w_y)
 # [1] 126726     33
 # [1] 67738    33
 
-dim(trip_notifications_2022_vsl_ids)
+# dim(trip_notifications_2022_vsl_ids)
 # [1] 914   1
 dim(vessels_by_permit_vessel__all_l_u_vsl_ids)
 # [1] 5459      1
@@ -1114,10 +1120,6 @@ vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
  # 6 NA NA  1 2023
 
 ## find periods (weeks) when each vessel was permitted ----
-permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>% 
-  dplyr::left_join(vessels_by_permit_vessel__all_l_u,
-                   )
-
 
 ## for each vessel count neg rep and notif and compare with permitted weeks
 
@@ -1144,11 +1146,12 @@ vessels_permit_bind_u1_sa_w_p_short <-
   vessels_permit_bind_u1_sa_w_p %>% 
   # we need an sa only
   select(-ends_with(".gom"))
-View(vessels_permit_bind_u1_sa_w_p_short)
+dim(vessels_permit_bind_u1_sa_w_p_short)
 # [1] 3877   42
 
-vessels_permit_bind_u1_sa_w_p_short %>% 
-   filter(!VESSEL_ID == VESSEL_ID.p) %>% View()
+### an err ----
+# vessels_permit_bind_u1_sa_w_p_short %>% 
+#    filter(!VESSEL_ID == VESSEL_ID.p) %>% View()
 # [1]  1 42
 #   VESSEL_ID.v VESSEL_ID TOP.sa PERMIT.sa EFFECTIVE_DATE.sa  
 #         <dbl> <chr>     <chr>  <chr>     <dttm>             
@@ -1169,3 +1172,9 @@ vessels_permit_bind_u1_sa_w_p_short %>%
 # Coast g 696709
 # state reg nbr 'FL'
 # HAPPY DAY TODAY
+
+# 
+View(vessels__trip_neg_22_l)
+# vessels_permit_bind_u1_sa_w_p_short
+# check for 2022
+# count distinct weeks per vessel, compare with permit weeks in year
