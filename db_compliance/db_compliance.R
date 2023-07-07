@@ -1178,3 +1178,39 @@ View(vessels__trip_neg_22_l)
 # vessels_permit_bind_u1_sa_w_p_short
 # check for 2022
 # count distinct weeks per vessel, compare with permit weeks in year
+
+# vessels__trip_neg_22_l_sa_weeks_cnt <-
+#   vessels__trip_neg_22_l$sa_only %>%
+#   group_by(VESSEL_ID, permit_vessel_id) %>%
+#   mutate(distinct_weeks = n_distinct(TRIP_week_num))
+# 
+# vessels__trip_neg_22_l_sa_weeks_cnt %>% 
+#   View()
+print_df_names(vessels__trip_neg_22_l$sa_only)
+vessels__trip_neg_22_l_sa_weeks_cnt_u <-
+  vessels__trip_neg_22_l$sa_only %>%
+  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
+  summarise(distinct_weeks = n_distinct(TRIP_week_num))
+
+View(vessels__trip_neg_22_l_sa_weeks_cnt_u)
+### check ids ----
+vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
+  filter(!permit_vessel_id == SUPPLIER_VESSEL_ID) %>%
+  dim()
+# [1] 58  5
+
+vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
+  filter(!permit_vessel_id == SERO_OFFICIAL_NUMBER) %>%
+  dim()
+# [1] 58  5
+
+vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
+  filter(!SUPPLIER_VESSEL_ID == SERO_OFFICIAL_NUMBER)
+#   VESSEL_ID permit_vessel_id SUPPLIER_VESSEL_ID SERO_OFFICIAL_NUMBER
+# 1    383419 NC0676EK         1292480            NC0676EK            
+# 2    390281 FL0416RM         FL0416RM           504660              
+
+# %>%
+  # dim()
+# [1] 2 5
+# 
