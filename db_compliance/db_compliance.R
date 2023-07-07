@@ -227,7 +227,7 @@ check_2 <-
       filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom))
   )
 
-map_df(check_2, ~ dim(.))
+map_df(check_2, dim)
 #    dual gom_only sa_only
 # 1   143      213       0
 # unique()
@@ -243,7 +243,7 @@ check_3 <-
       filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa))
   )
 
-map_df(check_3, ~ dim(.))
+map_df(check_3, dim)
    # dual gom_only sa_only
 # 1    14        0     151
 
@@ -414,13 +414,11 @@ toc()
 
 ### check vessels_permit_vsl_id__all_u ---
 
-map_df(vessels_permit_vsl_id__all_l,
-       ~ dim(.))
+map_df(vessels_permit_vsl_id__all_l, dim)
 #    dual gom_only sa_only
 # 1   392   141154  143932
 
-map_df(vessels_by_permit_vessel__all_l_u,
-       ~dim(.))
+map_df(vessels_by_permit_vessel__all_l_u, dim)
 #    dual gom_only sa_only
 # 1   392     1272    4020
 # 2    30       30      30
@@ -744,6 +742,8 @@ dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$dual)
 # 378
 # 1204+378
 # 1582
+dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$sa_only)
+# [1] 3877    1
 
 # # not in vessel_trip sa
 # not_in_vessel_trip_sa <-
@@ -786,8 +786,8 @@ vessels__trip_notif_22_l <-
       )
   )
 
-vessels__trip_notif_22_l %>%
-  map_df(~dim(.))
+# vessels__trip_notif_22_l %>%
+#   map_df(dim)
 #    dual gom_only sa_only
 # 1 38464    95585    1250
 # 2    62       62      62
@@ -809,8 +809,8 @@ vessels__trip_neg_22_l <-
       )
   )
 
-vessels__trip_neg_22_l %>%
-  map_df(~dim(.))
+# vessels__trip_neg_22_l %>%
+#   map_df(dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1 41272    56506  795944
@@ -834,8 +834,8 @@ vessels__trips_22_l <-
       )
   )
 
-vessels__trips_22_l %>%
-  map_df(~dim(.))
+# vessels__trips_22_l %>%
+#   map_df(dim)
 #    dual gom_only sa_only
 # 1 31108    75776  107751
 # 1 14905    41172   47421
@@ -1122,3 +1122,11 @@ permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>%
 ## for each vessel count neg rep and notif and compare with permitted weeks
 
 View(vessels_by_permit_vessel__all_l_u)
+View(vessels_permit_bind_u1)
+vessels_permit_bind_u1 %>% 
+  map_df(dim)
+#    dual gom_only sa_only
+# 1   378     1204    3877
+# 2    48       48      48
+
+        
