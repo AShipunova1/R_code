@@ -1193,9 +1193,9 @@ View(vessels__trip_neg_22_l)
 vessels__trip_neg_22_l_sa_weeks_cnt_u <-
   vessels__trip_neg_22_l$sa_only %>%
   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
-  summarise(distinct_weeks = n_distinct(TRIP_week_num))
+  summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
-View(vessels__trip_neg_22_l_sa_weeks_cnt_u)
+# View(vessels__trip_neg_22_l_sa_weeks_cnt_u)
 ### check ids ----
 vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
   filter(!permit_vessel_id == SUPPLIER_VESSEL_ID) %>%
@@ -1222,12 +1222,12 @@ vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
 vessels__trip_notif_22_l_sa_weeks_cnt_u <-
   vessels__trip_notif_22_l$sa_only %>%
   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
-  summarise(distinct_start_weeks = n_distinct(TRIP_START_week_num),
-            distinct_end_weeks = n_distinct(TRIP_END_week_num))
+  summarise(distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
+            distinct_end_weeks_tn = n_distinct(TRIP_END_week_num))
 
 View(vessels__trip_notif_22_l_sa_weeks_cnt_u)
 vessels__trip_notif_22_l_sa_weeks_cnt_u %>% 
-   filter(!distinct_start_weeks == distinct_end_weeks) %>% 
+   filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>% 
    dim()
 # [1] 0 6
 # ok
@@ -1237,11 +1237,30 @@ vessels__trip_notif_22_l_sa_weeks_cnt_u %>%
 vessels__trips_22_l_sa_weeks_cnt_u <-
   vessels__trips_22_l$sa_only %>%
   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
-  summarise(distinct_start_weeks = n_distinct(TRIP_START_week_num),
-            distinct_end_weeks = n_distinct(TRIP_END_week_num))
+  summarise(distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
+            distinct_end_weeks_t = n_distinct(TRIP_END_week_num)) %>% 
+  mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
 
-View(vessels__trips_22_l_sa_weeks_cnt_u)
+# View(vessels__trips_22_l_sa_weeks_cnt_u)
 vessels__trips_22_l_sa_weeks_cnt_u %>% 
-   filter(!distinct_start_weeks == distinct_end_weeks) %>% 
+   filter(!distinct_start_weeks_t == distinct_end_weeks_t) %>% 
    View()
 # 27
+
+## join trips and trip_negative (logbooks + DNFs) ----
+
+by_t__tne = join_by(VESSEL_ID,
+                    permit_vessel_id,
+                    SUPPLIER_VESSEL_ID,
+                    SERO_OFFICIAL_NUMBER)
+
+vessels__t_tne_sa_weeks_cnt_u <-
+  full_join(vessels__trips_22_l_sa_weeks_cnt_u,
+          vessels__trip_neg_22_l_sa_weeks_cnt_u,
+          by_t__tne,
+          suffix = c(".t", ".tne"))
+
+# count total report number for trips + trip_neg ----
+# what if max_weeks_cnt_t, distinct_weeks_ne for the same week?
+vessels__t_tne_sa_weeks_cnt_u %>% 
+  add_count()
