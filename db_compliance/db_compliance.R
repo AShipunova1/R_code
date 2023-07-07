@@ -522,6 +522,16 @@ vessels_permit_bind_u_test2 <-
 View(vessels_permit_bind_u_test_0)
 View(vessels_permit_bind_u_test)
 
+tic("vessels_permit_bind_ sero_#")
+vessels_permit_bind_u_sero <-
+  vessels_permit_bind %>%
+  map(
+    ~ .x %>%
+      group_by(SERO_OFFICIAL_NUMBER) %>%
+      dplyr::summarise_all(coalesce_by_column)
+  )
+toc()
+
 tic("vessels_permit_bind_u")
 vessels_permit_bind_u1 <-
   vessels_permit_bind %>%
@@ -533,7 +543,7 @@ vessels_permit_bind_u1 <-
 toc()
 # vessels_permit_bind_u: 747.64 sec elapsed
 
-all.equal(vessels_permit_bind_u$gom_only,
+all.equal(vessels_permit_bind_u_sero$gom_only,
           vessels_permit_bind_u1$gom_only)
 
 # fix trip data ----
