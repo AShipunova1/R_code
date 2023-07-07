@@ -531,8 +531,9 @@ vessels_permit_bind_u_sero <-
       dplyr::summarise_all(coalesce_by_column)
   )
 toc()
+# vessels_permit_bind_ sero_#: 736.12 sec elapsed
 
-tic("vessels_permit_bind_u")
+tic("vessels_permit_bind_u1")
 vessels_permit_bind_u1 <-
   vessels_permit_bind %>%
   map(
@@ -543,8 +544,20 @@ vessels_permit_bind_u1 <-
 toc()
 # vessels_permit_bind_u: 747.64 sec elapsed
 
-all.equal(vessels_permit_bind_u_sero$gom_only,
-          vessels_permit_bind_u1$gom_only)
+# all.equal(vessels_permit_bind_u_sero$gom_only,
+#           vessels_permit_bind_u1$gom_only)
+#  [2] "Attributes: < Component “row.names”: Numeric: lengths (1202, 1204) differ >"                     
+
+all.equal(vessels_permit_bind_u_sero$sa_only,
+          vessels_permit_bind_u1$sa_only)
+ # [2] "Attributes: < Component “row.names”: Numeric: lengths (3870, 3877) differ >"                     
+
+all.equal(vessels_permit_bind_u_sero$dual,
+          vessels_permit_bind_u1$dual)
+ # [1] "Names: 28 string mismatches"                               
+all.equal(vessels_permit_bind_u_sero,
+          vessels_permit_bind_u1)
+  # [4] "Component “dual”: Component “VESSEL_ID”: 378 string mismatches"                                                        
 
 # fix trip data ----
 ## add trip_int ----
