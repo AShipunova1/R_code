@@ -1129,4 +1129,43 @@ vessels_permit_bind_u1 %>%
 # 1   378     1204    3877
 # 2    48       48      48
 
-        
+vessels_permit_bind_u1$sa_only %>% 
+  head() %>% glimpse()
+## how many weeks the permit was in effect ----
+# eff_int_sa            
+
+vessels_permit_bind_u1_sa_w_p <-
+  vessels_permit_bind_u1$sa_only %>%
+  mutate(weeks_perm = eff_int_sa / lubridate::dweeks(1))
+dim(vessels_permit_bind_u1_sa_w_p)
+# [1] 3877   49
+
+vessels_permit_bind_u1_sa_w_p_short <-
+  vessels_permit_bind_u1_sa_w_p %>% 
+  # we need an sa only
+  select(-ends_with(".gom"))
+View(vessels_permit_bind_u1_sa_w_p_short)
+# [1] 3877   42
+
+vessels_permit_bind_u1_sa_w_p_short %>% 
+   filter(!VESSEL_ID == VESSEL_ID.p) %>% View()
+# [1]  1 42
+#   VESSEL_ID.v VESSEL_ID TOP.sa PERMIT.sa EFFECTIVE_DATE.sa  
+#         <dbl> <chr>     <chr>  <chr>     <dttm>             
+# 1      100346 696709    CDW    CDW       2021-10-16 00:00:00
+# SERO_OFF 696709
+# VESSEL_ID.p 1243529
+# HATCS337I485
+
+# FHIER:
+  # 696709
+  # HATCS337I485
+
+  # 1243529
+  # YFY363121213
+
+# Oracle vessels
+# HATCS337I485	
+# Coast g 696709
+# state reg nbr 'FL'
+# HAPPY DAY TODAY
