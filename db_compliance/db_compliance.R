@@ -42,7 +42,7 @@ permit_info_r <-
 
 permit_info_r %>%
   select(VESSEL_ID) %>%
-  unique() %>%
+  distinct() %>%
   str()
 # 13929
 # 13930
@@ -73,7 +73,7 @@ permit_info_r_short <-
            )) %>%
   select(-c(END_DATE,
             EXPIRATION_DATE)) %>%
-  unique()
+  distinct()
 
 # split by permit ----
 permit_info_r_l <-
@@ -113,13 +113,13 @@ toc()
 
 permit_info_r_l_overlap_join1 %>%
   select(VESSEL_ID) %>%
-  unique() %>%
+  distinct() %>%
   dim()
 # [1] 13930     1
 
 permit_info_r %>%
   select(VESSEL_ID) %>%
-  unique() %>%
+  distinct() %>%
   dim()
 # 13930
 
@@ -139,7 +139,7 @@ permit_info_r_l_overlap_join1_w_dual <-
 # 186,210
 permit_info_r_l_overlap_join1_w_dual %>%
   select(permit_sa_gom) %>%
-  unique()
+  distinct()
 # all 3
 
 # to get dual in the overlapping period:
@@ -168,13 +168,13 @@ permit_info_r_l_overlap_join1_w_dual_22 <-
 ### check ----
 permit_info_r_l_overlap_join1_w_dual_22 %>%
   select(permit_sa_gom) %>%
-  unique()
+  distinct()
 # all 3
 
 permit_info_r_l_overlap_join1_w_dual_22 %>%
   filter(permit_sa_gom == "dual") %>%
   select(VESSEL_ID) %>%
-  unique() %>%
+  distinct() %>%
   dim()
 # 379
 # end here permits
@@ -223,14 +223,14 @@ check_2 <-
   map(
     ~ .x %>%
       select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-      unique() %>% 
+      distinct() %>% 
       filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom))
   )
 
 map_df(check_2, dim)
 #    dual gom_only sa_only
 # 1   143      213       0
-# unique()
+# distinct()
 # 1    14       70       0
 # [1] 356   3
 
@@ -239,7 +239,7 @@ check_3 <-
   map(
     ~ .x %>%
       select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-      unique() %>% 
+      distinct() %>% 
       filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa))
   )
 
@@ -263,7 +263,7 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
         values_to = "permit_vessel_id"
       ) %>%
       select(permit_vessel_id) %>%
-      unique() %>%
+      distinct() %>%
       return()
   )
 
@@ -293,7 +293,7 @@ vessels_permit_vsl_id__all <-
   map2_dfr(vessels_permit_vsl_id_coast_g,
            vessels_permit_vsl_id_state_n,
            dplyr::bind_rows) %>%
-  unique()
+  distinct()
 
 grep(
   "int",
@@ -307,7 +307,7 @@ grep(
 vessels_by_permit_vessel_num <-
   vessels_permit_vsl_id__all %>%
   select(permit_vessel_id) %>%
-  unique() %>%
+  distinct() %>%
   dim()
 # [1] 5632    1
 
@@ -428,7 +428,7 @@ uniq_permit_vsl_ids <-
   vessels_by_permit_vessel__all_l_u,
   ~ .x %>%
     select(permit_vessel_id) %>%
-    unique() %>%
+    distinct() %>%
     dim()
 )
 #    dual gom_only sa_only
@@ -442,7 +442,7 @@ uniq_permit_vsl_ids %>%
 
 # vessels_by_permit_vessel__all %>%
 #   select(permit_vessel_id) %>%
-#   unique() %>%
+#   distinct() %>%
 #   dim()
 # 5632
 
@@ -597,7 +597,7 @@ trips_info_2022_int_ah <-
 
 ## trip types A and H trip_notif ----
 trip_notifications_2022 %>%
-   select(TRIP_TYPE) %>% unique()
+   select(TRIP_TYPE) %>% distinct()
 #     TRIP_TYPE
 # 1           H
 # 3           A
@@ -716,19 +716,19 @@ trip_neg_2022_w_y %>%
 trip_notifications_2022_ah_w_y_vsl_ids <-
   trip_notifications_2022_ah_w_y %>%
   select(VESSEL_ID) %>%
-  unique()
+  distinct()
 
 vessels_by_permit_vessel__all_l_u_vsl_ids <-
   vessels_by_permit_vessel__all_l_u %>%
   map_df( ~ .x %>%
             select(VESSEL_ID) %>%
-            unique())
+            distinct())
 
 vessels_by_permit_vessel__all_l_u_vsl_ids_l <-
   vessels_by_permit_vessel__all_l_u %>%
   map( ~ .x %>%
             select(VESSEL_ID) %>%
-            unique())
+            distinct())
 
 dim(trip_notifications_2022_ah_w_y)
 # [1] 126726     33
@@ -739,7 +739,7 @@ dim(trip_notifications_2022_ah_w_y)
 dim(vessels_by_permit_vessel__all_l_u_vsl_ids)
 # [1] 5459      1
 # vessels_by_permit_vessel__all_l_u_vsl_ids %>%
-#   unique() %>%
+#   distinct() %>%
 #   dim()
 # [1] 5409    1
 dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$gom_only)
@@ -757,7 +757,7 @@ dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$sa_only)
 #     trip_notifications_2022_vsl_ids$VESSEL_ID,
 #     unique(vessels_permit_vsl_id__all_l__sa_ids$VESSEL_ID)
 #   ) %>%
-#   unique()
+#   distinct()
 # glimpse(not_in_vessel_trip_sa)
 # # 60
  # num [1:60] 327682 248806 326294 249111 246954 ...
@@ -767,7 +767,7 @@ not_in_vessel_trip_gom <-
     trip_notifications_2022_ah_w_y_vsl_ids$VESSEL_ID,
     unique(vessels_by_permit_vessel__all_l_u_vsl_ids_l$gom_only$VESSEL_ID)
   ) %>%
-  unique()
+  distinct()
 
 glimpse(not_in_vessel_trip_gom)
  # num [1:15] 326294 249111 280684 326421 326390 ...
@@ -783,7 +783,7 @@ vessels__trip_notif_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
   map(
     ~ .x %>%
-      unique() %>%
+      distinct() %>%
       inner_join(
         trip_notifications_2022_ah_w_y,
         join_by(VESSEL_ID),
@@ -806,7 +806,7 @@ vessels__trip_neg_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
   map(
     ~ .x %>%
-      unique() %>%
+      distinct() %>%
       inner_join(
         trip_neg_2022_w_y,
         join_by(VESSEL_ID),
@@ -831,7 +831,7 @@ vessels__trips_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
   map(
     ~ .x %>%
-      unique() %>%
+      distinct() %>%
       inner_join(
         trips_info_2022_int_ah_w_y,
         join_by(VESSEL_ID),
@@ -889,10 +889,10 @@ vessels__trip_neg_22_l_sa_short <-
          SUPPLIER_VESSEL_ID,
          TRIP_week_num,
          TRIP_DATE_y) %>%
-  unique()
+  distinct()
 
   # select(contains("vessel"), starts_with("TRIP")) %>%
-  # unique()
+  # distinct()
 
 # data_overview(vessels__trip_neg_22_l_sa_short)
 # 390,659 10
@@ -914,14 +914,14 @@ vessels__trip_neg_22_l_sa_short <-
 
 # vessels__trip_neg_22_l_sa_short %>%
 #   select(permit_vessel_id, SUPPLIER_VESSEL_ID, TRIP_week_num) %>%
-#   unique() %>%
+#   distinct() %>%
 #   add_count(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
 #   View()
 
 vessels__trip_neg_22_l_sa_short %>%
   filter(permit_vessel_id == '03017306') %>%
   select(permit_vessel_id, TRIP_week_num) %>%
-  unique() %>%
+  distinct() %>%
   group_by(permit_vessel_id) %>% 
   summarise(n_distinct(TRIP_week_num)) %>% 
   # count(TRIP_week_num) %>% 
@@ -950,7 +950,7 @@ vessels__trip_notif_22_l_sa_short <-
          TRIP_END_week_num,
          TRIP_START_y,
          TRIP_END_y) %>%
-  unique()
+  distinct()
   
 str(vessels__trip_notif_22_l_sa_short)
 vessels__trip_notif_22_l_sa_vessels_trips <-
@@ -983,7 +983,7 @@ vessels__trips_22_l_sa_short <-
          TRIP_END_week_num,
          TRIP_START_y,
          TRIP_END_y) %>%
-  unique()
+  distinct()
 
 vessels__trips_22_l_sa_weeks_per_vessel <-
   vessels__trips_22_l_sa_short %>%
@@ -1032,7 +1032,7 @@ vessels__trips_22_l_sa_short_all_dates_t_start <-
             by_start,
             relationship = "many-to-many") %>% 
 # [1] 136391    6
-  unique()
+  distinct()
 # [1] 23362     6
 # [1] 19524     5 (no day and month)
 
@@ -1064,7 +1064,7 @@ WHERE
   trip_start_week_num = week_of_year
 "
   ) %>%
-  unique()
+  distinct()
 
 dim(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
 # [1] 19435     7
@@ -1085,7 +1085,7 @@ vessels__trip_notif_22_l_sa_short_all_dates_t_start <-
   dplyr::right_join(dates_2022_short,
                     by_start,
                     relationship = "many-to-many") %>%
-  unique()
+  distinct()
 # dim(vessels__trip_notif_22_l_sa_short_all_dates_t_start)
 # [1] 232   5
 
@@ -1108,7 +1108,7 @@ vessels__trip_neg_22_l_sa_short_all_dates_t_start <-
   dplyr::right_join(dates_2022_short,
                     by_start_t_neg,
                     relationship = "many-to-many") %>%
-  unique()
+  distinct()
 
 # dim(vessels__trip_neg_22_l_sa_short_all_dates_t_start)
 # [1] 65644     4
@@ -1274,14 +1274,14 @@ dim(vessels__t_tne_sa)
 
 ### check uniq vsls ----
 vessels__t_tne_sa %>% select(VESSEL_ID, permit_vessel_id) %>% 
-  unique() %>% 
+  distinct() %>% 
   dim()
 # [1] 1751    2
 
 vessels__trip_neg_22_l_sa_vsls <-
   vessels__trip_neg_22_l$sa_only %>% 
   select(VESSEL_ID, permit_vessel_id) %>% 
-  unique()
+  distinct()
 
   dim()
 # 1709    
@@ -1289,7 +1289,7 @@ vessels__trip_neg_22_l_sa_vsls <-
 vessels__trips_22_l_sa_vsls <-
   vessels__trips_22_l$sa_only %>% 
   select(VESSEL_ID, permit_vessel_id) %>% 
-  unique()
+  distinct()
 # [1] 1110    2
 
 
@@ -1298,7 +1298,7 @@ full_join(
   vessels__trips_22_l_sa_vsls,
   join_by(VESSEL_ID, permit_vessel_id)
 ) %>%
-  unique() %>%
+  distinct() %>%
   dim()
 # [1] 1751    2
 # ok, as in join
@@ -1314,7 +1314,7 @@ vessels__t_tne_sa_tne_in_t_short <-
          VESSEL_ID,
          permit_vessel_id)
 
-  # unique() same
+  # distinct() same
 
 unique(vessels__t_tne_sa_tne_in_t_short) %>%  dim()
 # [1] 5219    6
