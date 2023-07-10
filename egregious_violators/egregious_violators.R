@@ -142,6 +142,17 @@ glimpse(id_n_plus_weeks)
 # $ vessel_official_number <chr> "1000164", "1020529", "1030892", "1064222", …
 # $ n                      <int> 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28, …
 
+# All weeks in the last 6 m are "non-compliance" ----
+compl_clean_sa %>% 
+  select(vessel_official_number, week, compliant_) %>% 
+  add_count(vessel_official_number, compliant_,
+            name = "compl_weeks_amnt") %>%
+  select(-week) %>% 
+  filter(compl_weeks_amnt >= number_of_weeks_for_non_compliancy) %>%
+  filter(compliant_ == 'NO') %>%
+  unique() %>% 
+  arrange(desc(compl_weeks_amnt), vessel_official_number) %>% 
+  View()
 
 # ---- Get compliance information for only vessels which have more than n "NO REPORT". ----
 compl_w_non_compliant_weeks <-
