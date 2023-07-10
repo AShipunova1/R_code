@@ -545,7 +545,7 @@ file_path_vessels_permit_bind_u.csv <- file.path(
 
 
 if (file.exists(file_path_vessels_permit_bind_u.csv)) {
-  vessels_permit_bind_u1 <-
+  vessels_permit_bind_u_one_df <-
     readr::read_csv(file_path_vessels_permit_bind_u.csv,
                     col_types = cols(
                       VESSEL_ID.v = "c"
@@ -558,7 +558,11 @@ if (file.exists(file_path_vessels_permit_bind_u.csv)) {
     # need distinct because the first line is written twices, see below
     distinct()
   # Rows: 5460 Columns: 48             
-
+  
+  vessels_permit_bind_u1 <-
+    vessels_permit_bind_u_one_df %>% 
+    split(as.factor(vessels_permit_bind_u_one_df$permit_sa_gom))
+  
 } else {
   tic("vessels_permit_bind_u1")
   vessels_permit_bind_u1 <-
@@ -1027,7 +1031,7 @@ vessels__trips_22_l_sa_weeks_per_vessel <-
       n_distinct(TRIP_END_week_num)
   )
 
-# dim(vessels__trips_22_l_sa_weeks_per_vessel)
+dim(vessels__trips_22_l_sa_weeks_per_vessel)
 # 1110
 
 ## combine weeks, vessels and trips (all) info ----
@@ -1118,7 +1122,7 @@ vessels__trip_notif_22_l_sa_short_all_dates_t_start <-
                     by_start,
                     relationship = "many-to-many") %>%
   distinct()
-# dim(vessels__trip_notif_22_l_sa_short_all_dates_t_start)
+dim(vessels__trip_notif_22_l_sa_short_all_dates_t_start)
 # [1] 232   5
 
 vessels__trip_notif_22_l_sa_short_all_dates_t_start %>%
@@ -1142,7 +1146,7 @@ vessels__trip_neg_22_l_sa_short_all_dates_t_start <-
                     relationship = "many-to-many") %>%
   distinct()
 
-# dim(vessels__trip_neg_22_l_sa_short_all_dates_t_start)
+dim(vessels__trip_neg_22_l_sa_short_all_dates_t_start)
 # [1] 65644     4
 
 vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
@@ -1155,8 +1159,8 @@ vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
 
 ## for each vessel count neg rep and notif and compare with permitted weeks
 
-View(vessels_by_permit_vessel__all_l_u)
-View(vessels_permit_bind_u1)
+# View(vessels_by_permit_vessel__all_l_u)
+dim(vessels_permit_bind_u1)
 vessels_permit_bind_u1 %>%
   map_df(dim)
 #    dual gom_only sa_only
