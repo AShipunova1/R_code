@@ -503,69 +503,33 @@ vessels_permit_bind <-
 
 ## uniq ----
 
-vessels_permit_bind_u_test_0 <-
-  vessels_permit_bind$gom_only %>%
-  filter(SERO_OFFICIAL_NUMBER == 'FL4203RB')
+# vessels_permit_bind_u_test_0 <-
+#   vessels_permit_bind$gom_only %>%
+#   filter(SERO_OFFICIAL_NUMBER == 'FL4203RB')
+# 
+# vessels_permit_bind_u_test <-
+#   vessels_permit_bind$gom_only %>%
+#   filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
+#   group_by(SERO_OFFICIAL_NUMBER) %>%
+#   dplyr::summarise_all(coalesce_by_column)
+# 
+# vessels_permit_bind_u_test2 <-
+#   vessels_permit_bind$gom_only %>%
+#   filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
+#   group_by(VESSEL_ID.v) %>%
+#   dplyr::summarise_all(coalesce_by_column)
+# 
+# View(vessels_permit_bind_u_test_0)
+# View(vessels_permit_bind_u_test)
 
-vessels_permit_bind_u_test <-
-  vessels_permit_bind$gom_only %>%
-  filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
-  group_by(SERO_OFFICIAL_NUMBER) %>%
-  dplyr::summarise_all(coalesce_by_column)
-
-vessels_permit_bind_u_test2 <-
-  vessels_permit_bind$gom_only %>%
-  filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
-  group_by(VESSEL_ID.v) %>%
-  dplyr::summarise_all(coalesce_by_column)
-
-View(vessels_permit_bind_u_test_0)
-View(vessels_permit_bind_u_test)
-
-
-# vessels_permit_bind_sero_# from csv ----
-
-file_path_vessels_permit_bind_u_sero.csv <-
-  file.path(
-    my_paths$inputs,
-    current_project_name,
-    r"(intermediate_dfs\vessels_permit_bind_u_sero.csv)"
-  )
-
-# View(vessels_permit_bind_u_sero)
-if (file.exists(file_path_vessels_permit_bind_u_sero.csv)) {
-  vessels_permit_bind_u_sero <-
-    readr::read_csv(file_path_vessels_permit_bind_u_sero.csv)
-} else {
-  tic("vessels_permit_bind_sero_#")
-  vessels_permit_bind_u_sero <-
-    vessels_permit_bind %>%
-    map(
-      ~ .x %>%
-        group_by(SERO_OFFICIAL_NUMBER) %>%
-        dplyr::summarise_all(coalesce_by_column)
-    )
-  toc()
-  # vessels_permit_bind_ sero_#: 736.12 sec elapsed
-  # vessels_permit_bind_sero_#: 712.56 sec elapsed
-
-  vessels_permit_bind_u_sero %>%
-    map(~ .x %>%
-          write_csv(file_path_vessels_permit_bind_u_sero.csv, append = TRUE))
-}
-# > problems()
-# # A tibble: 1 × 5
-#     row   col expected actual   file
-#   <int> <int> <chr>    <chr>    <chr>
-# 1  4865    47 a double FL9051MR C:/Users/anna.shipunova/Documents/R_files_l…
-# Rows: 5449 Columns: 48
+### vessels_permit_bind_ from csv ----
 
 file_path_vessels_permit_bind_u.csv <- file.path(
   my_paths$inputs,
   current_project_name,
   r"(intermediate_dfs\vessels_permit_bind_u.csv)"
 )
-# View(vessels_permit_bind)
+
 if (file.exists(file_path_vessels_permit_bind_u.csv)) {
   vessels_permit_bind_u1 <-
     readr::read_csv(file_path_vessels_permit_bind_u.csv)
@@ -577,13 +541,19 @@ if (file.exists(file_path_vessels_permit_bind_u.csv)) {
            group_by(VESSEL_ID.v) %>%
            dplyr::summarise_all(coalesce_by_column))
   toc()
+# vessels_permit_bind_u1: 698.83 sec elapsed
 
+  # write headers
+  vessels_permit_bind_u1[[1]][1,] %>%
+    write_csv(file_path_vessels_permit_bind_u.csv)
+  
+  # write all
   vessels_permit_bind_u1 %>%
-    map( ~ .x %>%
+    walk(~ .x %>%
            write_csv(file_path_vessels_permit_bind_u.csv,
                      append = TRUE))
-
 }
+
 # vessels_permit_bind_u1: 747.64 sec elapsed
 
 # all.equal(vessels_permit_bind_u_sero$gom_only,
