@@ -4,6 +4,8 @@ csv_names_list_22_23 = c("Correspondence_22_23__06_22_2023.csv",
                          r"(FHIER_Compliance_2022__06_22_2023.csv)",
                          r"(FHIER_Compliance_2023__06_22_2023.csv)")
 
+data_file_date <- lubridate::mdy("06_22_2023") 
+
 ## ---- get csv data into variables ----
 temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_22_23)
 
