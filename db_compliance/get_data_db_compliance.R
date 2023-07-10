@@ -104,7 +104,7 @@ WHERE
   # WHERE
   #   trip_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
   #   OR trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')"
-# 1495929  
+# 1495929
 
 tic("trip_neg_query_2022")
 trip_neg_2022 <- dbGetQuery(con,
@@ -112,8 +112,9 @@ trip_neg_2022 <- dbGetQuery(con,
 toc()
 # trip_neg_query_2022: 201.21 sec elapsed
 # trip_neg_query_2022: 60.06 sec elapsed
+# trip_neg_query_2022: 89.38 sec elapsed
 
-write_csv(trip_neg_2022, 
+write_csv(trip_neg_2022,
           file.path(input_path, "trip_neg_2022.csv"))
 
 dim(trip_neg_2022)
@@ -145,7 +146,7 @@ dim(trip_notifications_2022)
 # Rows: 129,701
 # [1] 70056    33
 
-write_csv(trip_notifications_2022, 
+write_csv(trip_notifications_2022,
           file.path(input_path, "trip_notifications_2022.csv"))
 
 # get vessels from db ----
@@ -153,7 +154,7 @@ vessels_query <-
   "SELECT *
   FROM
     safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
-# Error in .oci.GetQuery(conn, statement, data = data, prefetch = prefetch,  : 
+# Error in .oci.GetQuery(conn, statement, data = data, prefetch = prefetch,  :
 #   Error in try({ : embedded nul in string: '\0'
 
 # > dbGetQuery(cnx, "select replace(s, chr(0), '') s from test_00")
@@ -171,7 +172,7 @@ vessels_all_file_path <- file.path(input_path, "vessels.csv")
 # write_csv(vessels_all, vessels_all_file_path)
 
 vessels_all <- read_csv(vessels_all_file_path)
-# Rows: 140405 Columns: 29                                                                                            
+# Rows: 140405 Columns: 29
 # ── Column specification ─────────────────────────────────────────────────────────
 # Delimiter: ","
 # chr (22): COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE,...
@@ -213,6 +214,6 @@ toc()
 glimpse(dates_2022)
 # Rows: 427
 
-write_csv(dates_2022, 
+write_csv(dates_2022,
           file.path(input_path, "dates_2022.csv"))
 
