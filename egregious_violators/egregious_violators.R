@@ -104,7 +104,9 @@ get_num_of_non_compliant_weeks <-
       unique() %>%
       # add a column with counts
       count(vessel_official_number) %>%
-      # keep only with count > 51
+      # save an intermediate result for checking
+      {. ->> temp_n_compl_cnts } %>% 
+      # keep only with count > number_of_weeks_for_non_compliancy
       filter(n > number_of_weeks_for_non_compliancy) %>%
       return()
   }
