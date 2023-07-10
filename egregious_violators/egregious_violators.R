@@ -23,52 +23,59 @@ compl_clean_w_permit_exp <-
                                     .default = "yes"))
 
 ## ---- add year_month column ----
-half_year_ago <- 
-  floor_date(data_file_date, "month") - months(6)
+# half_year_ago <- 
+#   floor_date(data_file_date, "month") - months(6)
 
-compl_clean_w_permit_exp_last6m <-
+days_in_27_weeks <- 27*7
+half_year_ago <- 
+  data_file_date - days_in_27_weeks
+
+compl_clean_w_permit_exp_last_27w <-
   compl_clean_w_permit_exp %>%
   mutate(year_month = as.yearmon(week_start)) %>%
-  # keep entries for the last 6 month
-  filter(year_month > as.yearmon(half_year_ago))
+  # keep entries for the last 28 weeks
+  filter(year_month >= as.yearmon(half_year_ago))
 
 # dim(compl_clean_w_permit_exp)
 # 185538     
 # [1] 217772     22
-dim(compl_clean_w_permit_exp_last6m)
+dim(compl_clean_w_permit_exp_last_27w)
 # [1] 74809    23
 # [1] 70118    23
+# [1] 92370    23 (7m)
+# [1] 81153    23 189 d
 
 ## ---- Have only SA permits, exclude those with Gulf permits ----
 compl_clean_sa <- 
-  compl_clean_w_permit_exp_last6m %>%
+  compl_clean_w_permit_exp_last_27w %>%
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 ## ---- filter for egregious here, use all compliance data ----
 
-# put col names to variables
-gom_declarations_field_name <-
-  find_col_name(compl_clean_sa, ".*gom", "declarations.*")[1]
-captainreports_field_name <-
-  find_col_name(compl_clean_sa, ".*captain", "reports.*")[1]
-negativereports_field_name <-
-  find_col_name(compl_clean_sa, ".*negative", "reports.*")[1]
-complianceerrors_field_name <-
-  find_col_name(compl_clean_sa, ".*compliance", "errors.*")[1]
+# # put col names to variables
+# gom_declarations_field_name <-
+#   find_col_name(compl_clean_sa, ".*gom", "declarations.*")[1]
+# captainreports_field_name <-
+#   find_col_name(compl_clean_sa, ".*captain", "reports.*")[1]
+# negativereports_field_name <-
+#   find_col_name(compl_clean_sa, ".*negative", "reports.*")[1]
+# complianceerrors_field_name <-
+#   find_col_name(compl_clean_sa, ".*compliance", "errors.*")[1]
 
-# test: Get all entries with no reports and more than 1 compliance error ----
-# create a filter
-filter_egregious <- quo(
-  # use variables with column names we saved in the previous step
-  !!sym(gom_declarations_field_name) == 0 &
-    !!sym(captainreports_field_name) == 0 &
-    !!sym(negativereports_field_name) == 0 &
-    !!sym(complianceerrors_field_name) > 0
-)
+# # test: Get all entries with no reports and more than 1 compliance error ----
+# # create a filter
+# filter_egregious <- quo(
+#   # use variables with column names we saved in the previous step
+#   !!sym(gom_declarations_field_name) == 0 &
+#     !!sym(captainreports_field_name) == 0 &
+#     !!sym(negativereports_field_name) == 0 &
+#     !!sym(complianceerrors_field_name) > 0
+# )
 # 36965
 
 # use the filter 
 # today()
+# [1] "2023-07-10"
 # Look at "compliant_" only
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
@@ -80,15 +87,18 @@ dim(compl_clean_sa_non_compl)
 # [1] 11473    23
 # [1] 10597    23
 # [1] 12484    23
+# [1] 15549    23
+# [1] 13992    23
 
 compl_clean_sa_non_compl %>%
   count_uniq_by_column() %>% head(1)
 # vesselofficialnumber 1785
-today()
+# today()
 # "2023-06-23"
 # vessel_official_number 1573
 # [1] "2023-07-10"
-# vessel_official_number 1327
+# vessel_official_number 1403
+# vessel_official_number 1369
 
 ## ----- get only those with n+ weeks of non compliance -----
 # number_of_weeks_for_non_compliancy = 51
@@ -116,11 +126,22 @@ get_num_of_non_compliant_weeks <-
 id_n_plus_weeks <-
   get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
 
+# temp_n_compl_cnts %>% 
+#   arrange(desc(n)) %>% 
+#   View()
+
 glimpse(id_n_plus_weeks)
 # 'data.frame':	156 obs. of  2 variables
 # vesselofficialnumber: ...
 # n                   : int  58 55
 # # "2023-06-23" Rows: 226
+# today()
+# [1] "2023-07-10"
+# Rows: 151
+# Columns: 2
+# $ vessel_official_number <chr> "1000164", "1020529", "1030892", "1064222", …
+# $ n                      <int> 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28, …
+
 
 # ---- Get compliance information for only vessels which have more than n "NO REPORT". ----
 compl_w_non_compliant_weeks <-
@@ -129,6 +150,7 @@ compl_w_non_compliant_weeks <-
 dim(compl_w_non_compliant_weeks)
 # [1] 8941   21
 # [1] 7943   23
+# [1] 5867   23
 
 ## ---- Check vesselofficialnumbers for "all weeks are non-compliant" ----
 compliant_field_name <-
@@ -152,7 +174,7 @@ all_weeks_not_compliance_id <-
 # 343
 # 355
 # 201 
-
+# 169
 # all weeks are non compliant
 intersect(
   id_n_plus_weeks$vessel_official_number,
@@ -161,6 +183,8 @@ intersect(
 # 19
 # 27: 185
 # 42
+# 22
+
 # n+ weeks are not compliant, but some other weeks are compliant
 setdiff(
   id_n_plus_weeks$vessel_official_number,
@@ -169,7 +193,7 @@ setdiff(
 # 137
 # 27: 392
 # 184
-
+# 166
 # all weeks are not compliant, but there are fewer than n weeks for 2022-2023
 setdiff(
   all_weeks_not_compliance_id$vessel_official_number,
@@ -187,15 +211,15 @@ group_by_arr <-
   c("vessel_official_number",
     as.character(compliant_field_name))
 
-compl_clean_sa %>%
-  filter(vessel_official_number %in%
-           fewer_n_all_non_compl22_23_ids) %>%
-  select(vessel_official_number, !!compliant_field_name, week) %>%
-  count_by_column_arr(group_by_arr) %>%
-  {
-    . ->> fewer_n_all_non_compl22_23
-  } %>% # save into a var
-  head()
+# compl_clean_sa %>%
+#   filter(vessel_official_number %in%
+#            fewer_n_all_non_compl22_23_ids) %>%
+#   select(vessel_official_number, !!compliant_field_name, week) %>%
+#   count_by_column_arr(group_by_arr) %>%
+#   {
+#     . ->> fewer_n_all_non_compl22_23
+#   } %>% # save into a var
+#   head()
 
 # str(fewer_n_all_non_compl22_23)
 # [1] 324   3
