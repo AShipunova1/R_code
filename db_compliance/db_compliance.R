@@ -529,10 +529,36 @@ file_path_vessels_permit_bind_u.csv <- file.path(
   current_project_name,
   r"(intermediate_dfs\vessels_permit_bind_u.csv)"
 )
+# grep("date",
+#      names(vessels_permit_bind_u1),
+#      ignore.case = T,
+#      value = T)
+
+# sn1 <- setNames(c(list(col_character()),
+           # rep(list(col_integer(
+           # )), 5)),
+           # grep("date", names(vessels_permit_bind_u1), ignore.case = T,
+                # value = T))
+         # c("name", paste0("id_", 1:5)))
+
+# View(sn1)
+
 
 if (file.exists(file_path_vessels_permit_bind_u.csv)) {
   vessels_permit_bind_u1 <-
-    readr::read_csv(file_path_vessels_permit_bind_u.csv)
+    readr::read_csv(file_path_vessels_permit_bind_u.csv,
+                    col_types = cols(
+                      VESSEL_ID.v = "c"
+                    # col_types = cols(.default = "c", 
+                    #                  EFFECTIVE_DATE.gom = "D",
+                    #                  my_end_date.gom = "D",
+                    #                  EFFECTIVE_DATE.sa = "D",
+                    #                  my_end_date.sa = "D",
+                                     )) %>% 
+    # need distinct because the first line is written twices, see below
+    distinct()
+  # Rows: 5460 Columns: 48             
+
 } else {
   tic("vessels_permit_bind_u1")
   vessels_permit_bind_u1 <-
@@ -541,7 +567,7 @@ if (file.exists(file_path_vessels_permit_bind_u.csv)) {
            group_by(VESSEL_ID.v) %>%
            dplyr::summarise_all(coalesce_by_column))
   toc()
-# vessels_permit_bind_u1: 698.83 sec elapsed
+  # vessels_permit_bind_u1: 698.83 sec elapsed
 
   # write headers
   vessels_permit_bind_u1[[1]][1,] %>%
@@ -554,7 +580,6 @@ if (file.exists(file_path_vessels_permit_bind_u.csv)) {
                      append = TRUE))
 }
 
-# vessels_permit_bind_u1: 747.64 sec elapsed
 
 # all.equal(vessels_permit_bind_u_sero$gom_only,
 #           vessels_permit_bind_u1$gom_only)
