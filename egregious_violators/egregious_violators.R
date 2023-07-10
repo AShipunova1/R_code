@@ -18,13 +18,13 @@ source(file.path(current_project_path, "get_data.R"))
 ## ---- add permit_expired column ----
 compl_clean_w_permit_exp <-
   compl_clean %>%
-  # if permit group expiration is more than a month from today than "no"
-  mutate(permit_expired = case_when(permitgroupexpiration > (Sys.Date() + 30) ~ "no",
+  # if permit group expiration is more than a month from data_file_date than "no"
+  mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                                     .default = "yes"))
 
 ## ---- add year_month column ----
 half_year_ago <- 
-  floor_date(Sys.Date(), "month") - months(6)
+  floor_date(data_file_date, "month") - months(6)
 
 compl_clean_w_permit_exp_last6m <-
   compl_clean_w_permit_exp %>%
@@ -32,10 +32,12 @@ compl_clean_w_permit_exp_last6m <-
   # keep entries for the last 6 month
   filter(year_month > as.yearmon(half_year_ago))
 
-# dim(compl_clean_w_permit_exp)  
+# dim(compl_clean_w_permit_exp)
 # 185538     
-# dim(compl_clean_w_permit_exp_last6m)
+# [1] 217772     22
+dim(compl_clean_w_permit_exp_last6m)
 # [1] 74809    23
+# [1] 70118    23
 
 ## ---- Have only SA permits, exclude those with Gulf permits ----
 compl_clean_sa <- 
@@ -66,25 +68,34 @@ filter_egregious <- quo(
 # 36965
 
 # use the filter 
+# today()
+# Look at "compliant_" only
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
-  filter(!!filter_egregious)
+  # filter(!!filter_egregious)
+  filter(compliant_ == 'NO')
 
 dim(compl_clean_sa_non_compl)
 # [1] 18205    23
+# [1] 11473    23
+# [1] 10597    23
+# [1] 12484    23
 
 compl_clean_sa_non_compl %>%
   count_uniq_by_column() %>% head(1)
 # vesselofficialnumber 1785
-# today()
+today()
 # "2023-06-23"
 # vessel_official_number 1573
+# [1] "2023-07-10"
+# vessel_official_number 1327
 
 ## ----- get only those with n+ weeks of non compliance -----
 # number_of_weeks_for_non_compliancy = 51
 number_of_weeks_for_non_compliancy = 26
 get_num_of_non_compliant_weeks <-
   function(compl_clean_sa_non_compl) {
+    # browser()
     compl_clean_sa_non_compl %>%
       # use only 2 columns
       select(vessel_official_number, week) %>%
@@ -97,6 +108,9 @@ get_num_of_non_compliant_weeks <-
       filter(n > number_of_weeks_for_non_compliancy) %>%
       return()
   }
+
+# View(compl_clean_sa_non_compl)
+
 id_n_plus_weeks <-
   get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
 
