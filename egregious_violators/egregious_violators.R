@@ -143,14 +143,19 @@ glimpse(id_n_plus_weeks)
 # $ n                      <int> 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28, …
 
 # All weeks in the last 6 m are "non-compliance" ----
-compl_clean_sa %>% 
+compl_clean_sa_all_weeks_cnt <- 
+  compl_clean_sa %>% 
   select(vessel_official_number, week, compliant_) %>% 
+  add_count(vessel_official_number,
+            name = "total_weeks") %>%
   add_count(vessel_official_number, compliant_,
-            name = "compl_weeks_amnt") %>%
+            name = "compl_weeks_amnt")
+
+compl_clean_sa_all_weeks_cnt %>%
   select(-week) %>% 
+  dplyr::distinct() %>% 
   filter(compl_weeks_amnt >= number_of_weeks_for_non_compliancy) %>%
   filter(compliant_ == 'NO') %>%
-  unique() %>% 
   arrange(desc(compl_weeks_amnt), vessel_official_number) %>% 
   View()
 
