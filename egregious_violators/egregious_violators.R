@@ -23,11 +23,14 @@ compl_clean_w_permit_exp <-
                                     .default = "yes"))
 
 ## ---- add year_month column ----
+half_year_ago <- 
+  floor_date(Sys.Date(), "month") - months(6)
+
 compl_clean_w_permit_exp_last6m <-
   compl_clean_w_permit_exp %>%
   mutate(year_month = as.yearmon(week_start)) %>%
   # keep entries for the last 6 month
-  filter(year_month > "Sep 2022")
+  filter(year_month > as.yearmon(half_year_ago))
 
 # dim(compl_clean_w_permit_exp)  
 # 185538     
