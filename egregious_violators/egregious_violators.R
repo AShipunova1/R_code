@@ -596,26 +596,56 @@ dim(compl_corr_to_investigation_short)
 
 # str(compl_corr_to_investigation_short)
 
-## ---- 3) remove vessels already in the know list ----
+## ---- 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases. 
 
-vessels_to_remove <-
-  read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
-names(vessels_to_remove) = "vessel_official_number"
-str(vessels_to_remove)
+# vessels_to_remove <-
+#   read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
+# names(vessels_to_remove) = "vessel_official_number"
+# str(vessels_to_remove)
 # 58
-# remove these vessels
+
+# today()
+# [1] "2023-07-11"
+# Data from the previous tab of "egregious violators for investigation"
+previous_egr_data_path <-
+  file.path(
+    my_paths$outputs,
+    r"(egregious_violators\from_web\egregious violators for investigation - 04-05-2023 27 weeks.csv)"
+  )
+
+# file.exists(previous_egr_data_path)
+# T
+vessels_to_remove <-
+  read_csv(previous_egr_data_path)
+
+# data_overview(vessels_to_remove)
+
+vessels_to_remove_ids <-
+  vessels_to_remove %>%
+  filter(tolower(`Contacted 2x?`) == 'yes') %>%
+  select(vessel_official_number)
+
+# mark these vessels
 compl_corr_to_investigation_short1 <-
   compl_corr_to_investigation_short %>%
-  filter(!(
-    vessel_official_number %in%
-      vessels_to_remove$vessel_official_number
-  ))
+  mutate(
+    duplicate_w_last_time =
+      case_when(
+        vessel_official_number %in%
+          vessels_to_remove$vessel_official_number ~ "duplicate",
+        .default = "new"
+      )
+  )
+# filter(!(
+  #   vessel_official_number %in%
+  #     vessels_to_remove$vessel_official_number
+  # ))
 dim(compl_corr_to_investigation_short1)
 # 102
 # 27: 164
 # 177
-
+# 31
 ## check
 length(unique(compl_corr_to_investigation_short1$vessel_official_number))
 # 107
@@ -624,7 +654,7 @@ length(unique(compl_corr_to_investigation_short1$vessel_official_number))
 # 177
 
 data_overview(compl_corr_to_investigation_short1) %>% head(1)
-# vessel_official_number 164
+# vessel_official_number
 # 177
 
 compl_corr_to_investigation_short_output <-
@@ -634,8 +664,10 @@ compl_corr_to_investigation_short1 %>%
 dim(compl_corr_to_investigation_short_output)
 # [1] 146  10
 # 134
+# [1] 151  11
 
 View(compl_corr_to_investigation_short_output)
+
 # test compl_corr_to_investigation_short_output non compliant weeks number ----
 week_start_1 <-
   compl_corr_to_investigation_short_output %>%
