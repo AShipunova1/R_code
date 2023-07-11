@@ -102,7 +102,7 @@ compl_clean_sa_non_compl %>%
 
 ## ----- get only those with n+ weeks of non compliance -----
 # number_of_weeks_for_non_compliancy = 51
-number_of_weeks_for_non_compliancy = 26
+number_of_weeks_for_non_compliancy = 27
 get_num_of_non_compliant_weeks <-
   function(compl_clean_sa_non_compl) {
     # browser()
@@ -117,7 +117,7 @@ get_num_of_non_compliant_weeks <-
       # save an intermediate result for checking
       {. ->> temp_n_compl_cnts } %>% 
       # keep only with count > number_of_weeks_for_non_compliancy
-      filter(n > number_of_weeks_for_non_compliancy) %>%
+      filter(n >= number_of_weeks_for_non_compliancy) %>%
       return()
   }
 
@@ -126,11 +126,14 @@ get_num_of_non_compliant_weeks <-
 id_n_plus_weeks <-
   get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
 
-# temp_n_compl_cnts %>% 
-#   arrange(desc(n)) %>% 
-#   View()
+temp_n_compl_cnts %>%
+  arrange(desc(n)) %>%
+  View()
 
-glimpse(id_n_plus_weeks)
+# all 27
+data_overview(id_n_plus_weeks)
+# vessel_official_number 241
+
 # 'data.frame':	156 obs. of  2 variables
 # vesselofficialnumber: ...
 # n                   : int  58 55
@@ -141,6 +144,7 @@ glimpse(id_n_plus_weeks)
 # Columns: 2
 # $ vessel_official_number <chr> "1000164", "1020529", "1030892", "1064222", …
 # $ n                      <int> 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28, …
+# Rows: 241
 
 # All weeks in the last 6 m are "non-compliance" ----
 compl_clean_sa_all_weeks_cnt <- 
@@ -153,9 +157,13 @@ compl_clean_sa_all_weeks_cnt <-
 
 compl_clean_sa_all_weeks_cnt %>%
   select(-week) %>% 
-  dplyr::distinct() %>% 
-  filter(compl_weeks_amnt >= number_of_weeks_for_non_compliancy) %>%
+  dplyr::distinct() %>%
+# [1] 3095    4
+  filter(compl_weeks_amnt >= (number_of_weeks_for_non_compliancy - 1)) %>%
+# 418
+# -1 514   
   filter(compliant_ == 'NO') %>%
+# 0
   arrange(desc(compl_weeks_amnt), vessel_official_number) %>% 
   View()
 
