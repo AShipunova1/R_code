@@ -599,12 +599,6 @@ dim(compl_corr_to_investigation_short)
 ## ---- 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases. 
 
-# vessels_to_remove <-
-#   read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
-# names(vessels_to_remove) = "vessel_official_number"
-# str(vessels_to_remove)
-# 58
-
 # today()
 # [1] "2023-07-11"
 # Data from the previous tab of "egregious violators for investigation"
@@ -616,13 +610,13 @@ previous_egr_data_path <-
 
 # file.exists(previous_egr_data_path)
 # T
-vessels_to_remove <-
+vessels_to_mark <-
   read_csv(previous_egr_data_path)
 
 # data_overview(vessels_to_remove)
 
-vessels_to_remove_ids <-
-  vessels_to_remove %>%
+vessels_to_mark_ids <-
+  vessels_to_mark %>%
   filter(tolower(`Contacted 2x?`) == 'yes') %>%
   select(vessel_official_number)
 
@@ -638,16 +632,32 @@ compl_corr_to_investigation_short1 <-
       )
   )
 
+dim(compl_corr_to_investigation_short1)
+# [1] 177  11
 
-# filter(!(
-  #   vessel_official_number %in%
-  #     vessels_to_remove$vessel_official_number
-  # ))
+vessels_to_remove <-
+  read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
+names(vessels_to_remove) = "vessel_official_number"
+dim(vessels_to_remove)
+# 58
+
+compl_corr_to_investigation_short2 <-
+  compl_corr_to_investigation_short1 %>%
+  filter(!(
+    vessel_official_number %in%
+      vessels_to_remove$vessel_official_number
+  ))
+# 164
+
 dim(compl_corr_to_investigation_short1)
 # 102
 # 27: 164
 # 177
 # 31
+
+# dim(compl_corr_to_investigation_short2)
+# 164
+
 ## check
 length(unique(compl_corr_to_investigation_short1$vessel_official_number))
 # 107
@@ -660,13 +670,14 @@ data_overview(compl_corr_to_investigation_short1) %>% head(1)
 # 177
 
 compl_corr_to_investigation_short_output <-
-compl_corr_to_investigation_short1 %>%
+compl_corr_to_investigation_short2 %>%
   filter(permit_expired == "no")
 
 dim(compl_corr_to_investigation_short_output)
 # [1] 146  10
 # 134
 # [1] 151  11
+# [1] 146  11 (with removed from Apr)
 
 View(compl_corr_to_investigation_short_output)
 
@@ -692,13 +703,24 @@ file.exists(results_with_comments_path)
 # T
 
 results_with_comments <-
-  read_csv(results_with_comments_path)
+  readr::read_csv(results_with_comments_path,
+                  col_types = cols(.default = 'c'))
 
-View(results_with_comments)
+# View(results_with_comments)
 
-all.equal(results_with_comments,
-          compl_corr_to_investigation_short_output)
+# all.equal(results_with_comments,
+#           compl_corr_to_investigation_short_output)
+# F
 
+compl_corr_to_investigation_short_output_w_comments <-
+  inner_join(results_with_comments,
+             compl_corr_to_investigation_short_output)
+# Joining with `by = join_by(vessel_official_number, name, permit_expired,
+# permitgroup, permitgroupexpiration, contactrecipientname,
+# contactphone_number, contactemailaddress, week_start, date__contacttypes)`
+
+View(compl_corr_to_investigation_short_output_w_comments)
+0
 # output ----
 write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_plus_weeks_06_22_2023.csv"), row.names = FALSE)
 
