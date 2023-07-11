@@ -130,6 +130,21 @@ temp_n_compl_cnts %>%
   arrange(desc(n)) %>%
   View()
 
+# check '1066100', marked as a yes, egr.
+temp_n_compl_cnts %>% 
+  filter(vessel_official_number == '1066100') %>% 
+  View()
+
+compl_clean_sa %>%
+  filter(vessel_official_number == '1066100') %>%
+  View()
+
+compl_clean %>%
+  filter(vessel_official_number == '1066100') %>%
+  View()
+
+# Why weeks 13 and 14 in my data are compliant?
+
 # all 27
 data_overview(id_n_plus_weeks)
 # vessel_official_number 241
@@ -145,6 +160,17 @@ data_overview(id_n_plus_weeks)
 # $ vessel_official_number <chr> "1000164", "1020529", "1030892", "1064222", …
 # $ n                      <int> 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28, …
 # Rows: 241
+
+compl_clean_sa %>%
+  filter(vessel_official_number %in% id_n_plus_weeks$vessel_official_number) %>%
+  filter(compliant_ == "YES") %>%
+  select(vessel_official_number, year_month, week_num) %>%
+  distinct() %>%
+  data_overview()
+# week_num   13, 14 ?
+# vessel_official_number 241
+# year_month               2
+# week_num                 2
 
 # All weeks in the last 6 m are "non-compliance" ----
 compl_clean_sa_all_weeks_cnt <- 
@@ -567,7 +593,6 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
 dim(compl_corr_to_investigation_short)
 # [1] 107   9
 # 27: [1] 177  10
-# 188  10
 
 # str(compl_corr_to_investigation_short)
 
