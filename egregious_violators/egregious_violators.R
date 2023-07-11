@@ -637,6 +637,8 @@ compl_corr_to_investigation_short1 <-
         .default = "new"
       )
   )
+
+
 # filter(!(
   #   vessel_official_number %in%
   #     vessels_to_remove$vessel_official_number
@@ -678,6 +680,24 @@ week_start_1 <-
   
 dim(week_start_1)[[1]] == 0
 # TRUE
+
+## add comments from the compliance crew (if already exist) ----
+results_with_comments_path <-
+  file.path(
+    my_paths$outputs,
+    r"(egregious_violators\from_web\egregious violators for investigation - 06-26-2023.csv)"
+  )
+
+file.exists(results_with_comments_path)
+# T
+
+results_with_comments <-
+  read_csv(results_with_comments_path)
+
+View(results_with_comments)
+
+all.equal(results_with_comments,
+          compl_corr_to_investigation_short_output)
 
 # output ----
 write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_plus_weeks_06_22_2023.csv"), row.names = FALSE)
