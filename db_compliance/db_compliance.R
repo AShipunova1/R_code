@@ -122,6 +122,7 @@ permit_info_r %>%
   distinct() %>%
   dim()
 # 13930
+# 13942     
 
 # add "dual" to intervals ----
 permit_info_r_l_overlap_join1_w_dual <-
@@ -412,7 +413,37 @@ vessels_by_permit_vessel__all_l_u <-
 toc()
 # vessels_by_permit_vessel__all_l_u: 98.53 sec elapsed
 # vessels_by_permit_vessel__all_l_u: 148.02 sec elapsed
+# vessels_by_permit_vessel__all_l_u: 137.68 sec elapsed
 
+my_function_vessels_permit_vsl_id__all_l <-
+  function(vessels_permit_vsl_id__all_l) {
+    purrr::map(
+      vessels_permit_vsl_id__all_l,
+      ~ .x %>%
+        dplyr::group_by(permit_vessel_id) %>%
+        dplyr::summarise_all(coalesce_by_column)
+    ) %>%
+      return()
+  }
+
+vessels_by_permit_vessel__all_l_u_file_path <-
+  file.path(
+    my_paths$inputs,
+    current_project_name,
+    "intermediate_dfs",
+    "vessels_by_permit_vessel__all_l_u.csv"
+  )
+
+rr1 <-
+  read_csv_or_run(
+    vessels_by_permit_vessel__all_l_u_file_path,
+    vessels_by_permit_vessel__all_l_u,
+    my_function_vessels_permit_vsl_id__all_l
+  )
+
+all.equal(vessels_by_permit_vessel__all_l_u,
+          rr1)
+T
 ### check vessels_permit_vsl_id__all_u ---
 
 map_df(vessels_permit_vsl_id__all_l, dim)
