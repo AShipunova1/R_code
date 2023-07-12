@@ -159,6 +159,12 @@ manual_no <- c("1133962",
 "565041")
 
 # compare with manual check
+
+compl_clean_sa_all_weeks_non_c |> 
+  filter(vessel_official_number %in%
+           manual_no) |> 
+  View()
+
 compl_clean_sa |> 
   filter(vessel_official_number %in%
            manual_no) |> 
