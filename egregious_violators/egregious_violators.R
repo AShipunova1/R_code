@@ -8,8 +8,9 @@ library(zoo)
 
 # ----set up----
 my_paths <- set_work_dir()
+current_project_name <- "egregious_violators"
 current_project_path <-
-  file.path(my_paths$git_r, "egregious_violators")
+  file.path(my_paths$git_r, current_project_name)
 
 source(file.path(current_project_path, "get_data.R"))
 
@@ -286,6 +287,8 @@ get_calls_with_direct_communication <-
 
 calls_with_direct_communication <-
   get_calls_with_direct_communication(corresp_contact_cnts_clean_direct_cnt)
+# TODO: out of 4 contacts for 1305207 only one is in the "contactdate_field_name 
+
 dim(calls_with_direct_communication)
 # [1] 12584    23
 # 27: [1] 10062    23
@@ -505,8 +508,8 @@ dim(compl_corr_to_investigation_short)
 # Data from the previous tab of "egregious violators for investigation"
 previous_egr_data_path <-
   file.path(
-    my_paths$outputs,
-    r"(egregious_violators\from_web\egregious violators for investigation - 04-05-2023 27 weeks.csv)"
+    my_paths$outputs, current_project_name,
+    r"(from_web\egregious violators for investigation - 04-05-2023 27 weeks.csv)"
   )
 
 # file.exists(previous_egr_data_path)
@@ -592,7 +595,8 @@ View(compl_corr_to_investigation_short_dup_marked)
 results_with_comments_path <-
   file.path(
     my_paths$outputs,
-    r"(egregious_violators\from_web\egregious violators for investigation - 06-26-2023.csv)"
+    current_project_name,
+    r"(from_web\egregious violators for investigation - 06-26-2023.csv)"
   )
 
 file.exists(results_with_comments_path)
@@ -674,15 +678,33 @@ no_comments_vsls_ids <-
   no_comments_vsls |>
   select(vessel_official_number)
 
+
+# no_comments_vsls_ids |>
+#   filter(vessel_official_number == '1305207') |> dim()
+# 1
+# compl_corr_to_investigation_short_output_w_comments |>
+#   filter(vessel_official_number == '1305207') |> dim()
+# [1]  1 21
+
 setdiff(no_comments_vsls_ids, in_the_new_res_only_df)
 # 1305207
 
 setdiff(in_the_new_res_only_df, no_comments_vsls_ids)
 # 0
 
-
 # output ----
-write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_plus_weeks_06_22_2023.csv"), row.names = FALSE)
+result_file_path <- file.path(
+  my_paths$outputs,
+  current_project_name,
+  paste0(
+    "egregious_violators_for_investigation_from_",
+    half_year_ago,
+    "_to_06_22_2023.csv"
+  ))
+  
+write_csv(
+  compl_corr_to_investigation_short_output_w_comments,
+  result_file_path)
 
 ## ---- who needs an email ----
 source(file.path(current_project_path, "need_an_email.R"))
