@@ -1160,15 +1160,18 @@ vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
 ## for each vessel count neg rep and notif and compare with permitted weeks
 
 # View(vessels_by_permit_vessel__all_l_u)
-dim(vessels_permit_bind_u1)
+# dim(vessels_permit_bind_u1)
 vessels_permit_bind_u1 %>%
   map_df(dim)
 #    dual gom_only sa_only
 # 1   378     1204    3877
 # 2    48       48      48
+# from csv
+# 1   379     1204    3877
 
 vessels_permit_bind_u1$sa_only %>%
   head() %>% glimpse()
+
 ## how many weeks the permit was in effect ----
 # eff_int_sa
 

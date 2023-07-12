@@ -564,7 +564,7 @@ count_uniq_by_column(compl_corr_to_investigation) %>% head(1)
 
 ## ----- list of contact dates and contact type in parentheses  -----
 
-# put nammes int vars
+# put names into vars
 contactdate_field_name <-
   find_col_name(compl_corr_to_investigation, "contact", "date")[1]
 contacttype_field_name <-
