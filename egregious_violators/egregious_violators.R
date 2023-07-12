@@ -53,11 +53,11 @@ compl_clean_sa <-
 # today()
 # [1] "2023-07-10"
 ## Not "compliant_" ----
-compl_clean_sa_non_compl <-
-  compl_clean_sa %>%
-  filter(compliant_ == 'NO')
+# compl_clean_sa_non_compl <-
+  # compl_clean_sa %>%
+  # filter(compliant_ == 'NO')
 
-dim(compl_clean_sa_non_compl)
+# dim(compl_clean_sa_non_compl)
 # [1] 18205    23
 # [1] 11473    23
 # [1] 10597    23
@@ -65,8 +65,8 @@ dim(compl_clean_sa_non_compl)
 # [1] 15549    23
 # [1] 13992    23
 
-compl_clean_sa_non_compl %>%
-  count_uniq_by_column() %>% head(1)
+# compl_clean_sa_non_compl %>%
+  # count_uniq_by_column() %>% head(1)
 # vesselofficialnumber 1785
 # today()
 # "2023-06-23"
@@ -76,14 +76,14 @@ compl_clean_sa_non_compl %>%
 # vessel_official_number 1369
 
 ## filter for egregious ----
-### check if these don't have any "compliant_ == YES" since half_year_ago ----
+### check if there is no "compliant_ == YES" since half_year_ago ----
 
 last_week_start <- data_file_date - 6
 
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa |>
-  dplyr::filter(vessel_official_number %in%
-           compl_clean_sa_non_compl$vessel_official_number) |>
+  # dplyr::filter(vessel_official_number %in%
+           # compl_clean_sa_non_compl$vessel_official_number) |>
   # in the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
