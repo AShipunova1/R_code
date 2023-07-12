@@ -52,34 +52,11 @@ compl_clean_sa <-
 
 ## ---- filter for egregious here, use all compliance data ----
 
-# # put col names to variables
-# gom_declarations_field_name <-
-#   find_col_name(compl_clean_sa, ".*gom", "declarations.*")[1]
-# captainreports_field_name <-
-#   find_col_name(compl_clean_sa, ".*captain", "reports.*")[1]
-# negativereports_field_name <-
-#   find_col_name(compl_clean_sa, ".*negative", "reports.*")[1]
-# complianceerrors_field_name <-
-#   find_col_name(compl_clean_sa, ".*compliance", "errors.*")[1]
-
-# # test: Get all entries with no reports and more than 1 compliance error ----
-# # create a filter
-# filter_egregious <- quo(
-#   # use variables with column names we saved in the previous step
-#   !!sym(gom_declarations_field_name) == 0 &
-#     !!sym(captainreports_field_name) == 0 &
-#     !!sym(negativereports_field_name) == 0 &
-#     !!sym(complianceerrors_field_name) > 0
-# )
-# 36965
-
-# use the filter 
 # today()
 # [1] "2023-07-10"
 # Look at "compliant_" only
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
-  # filter(!!filter_egregious)
   filter(compliant_ == 'NO')
 
 dim(compl_clean_sa_non_compl)
