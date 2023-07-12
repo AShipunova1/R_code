@@ -615,7 +615,9 @@ setdiff(results_with_comments$vessel_official_number,
 # 35 (new filter)
 
 setdiff(compl_corr_to_investigation_short_dup_marked$vessel_official_number,
-        results_with_comments$vessel_official_number) |> 
+        results_with_comments$vessel_official_number) |> cat()
+# 1266718 602091 FL0435LD FL6279PH FL7282LE FL8725DA
+
   length()
 # 6
 
