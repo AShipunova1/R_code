@@ -82,15 +82,23 @@ compl_clean_sa_non_compl %>%
 # View(compl_clean_sa_non_compl)
 
 # half_year_ago
+last_week_start <- data_file_date - 6
+
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa |>
   filter(vessel_official_number %in%
            compl_clean_sa_non_compl$vessel_official_number) |>
   # [1] 32238    23
+  # in the last 27 week
   filter(week_start > half_year_ago) |>
   # [1] 30077    23
+  # before the last week (a report grace period)
+  filter(week_start < last_week_start) |>
+  # [1] 28907    23
+  # not expired
   filter(tolower(permit_expired) == "no") |>
   # [1] 26153    23
+  # [1] 25029    23
   select(vessel_official_number, week, compliant_) %>%
   add_count(vessel_official_number,
             name = "total_weeks") %>%
@@ -102,12 +110,18 @@ compl_clean_sa_all_weeks_non_c <-
   # filter(vessel_official_number == '1133962') |> View()
   # filter(tolower(compliant_) == "no" & (compl_weeks_amnt + 1) >= total_weeks ) |> dim()
   # [1] 292   4
-  filter(tolower(compliant_) == "no" &
-           (compl_weeks_amnt + 1) >= total_weeks) |>
-  filter(total_weeks == number_of_weeks_for_non_compliancy)
+  # not compliant
+  filter(tolower(compliant_) == "no") |> 
+  # all weeks where non compliant
+  filter(compl_weeks_amnt == total_weeks) |>
+  # [1] 304   4
+  # permitted for the whole period (disregard the last week)
+  filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
 # 130
+  # 138
 
-# dim(compl_clean_sa_all_weeks_non_c)
+dim(compl_clean_sa_all_weeks_non_c)
+# 130
 
 manual_no <- c("1133962",
 "1158893",
