@@ -27,7 +27,7 @@ compl_clean_w_permit_exp <-
 number_of_weeks_for_non_compliancy = 27
 days_in_27_weeks <- number_of_weeks_for_non_compliancy*7
 
-half_year_ago <- 
+half_year_ago <-
   data_file_date - days_in_27_weeks
 
 compl_clean_w_permit_exp_last_27w <-
@@ -37,7 +37,7 @@ compl_clean_w_permit_exp_last_27w <-
   filter(year_month >= as.yearmon(half_year_ago))
 
 # dim(compl_clean_w_permit_exp)
-# 185538     
+# 185538
 # [1] 217772     22
 # dim(compl_clean_w_permit_exp_last_27w)
 # [1] 74809    23
@@ -46,7 +46,7 @@ compl_clean_w_permit_exp_last_27w <-
 # [1] 81153    23 189 d
 
 ## ---- Have only SA permits, exclude those with Gulf permits ----
-compl_clean_sa <- 
+compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
@@ -83,13 +83,13 @@ last_week_start <- data_file_date - 6
 compl_clean_sa_non_c_not_exp <-
   compl_clean_sa |>
   # not compliant
-  filter(tolower(compliant_) == "no") |> 
+  filter(tolower(compliant_) == "no") |>
   # in the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
   dplyr::filter(week_start < last_week_start) |>
   # not expired
-  dplyr::filter(tolower(permit_expired) == "no") 
+  dplyr::filter(tolower(permit_expired) == "no")
 
 dim(compl_clean_sa_non_c_not_exp)
 # [1] 10419    23
@@ -126,7 +126,7 @@ need_cols_names <- c(
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa_non_c_not_exp |>
   select(all_of(need_cols_names)) |>
-  inner_join(compl_clean_sa_all_weeks_non_c_short) |> 
+  inner_join(compl_clean_sa_all_weeks_non_c_short) |>
 # Joining with `by = join_by(vessel_official_number)`
   distinct()
 
@@ -250,7 +250,7 @@ add_a_direct_contact_column <-
         )
       ) %>%
       return()
-    
+
     # filter(direct_contact == "no") |>
     # select(vesselofficialnumber) |>
     # dplyr::distinct() |>
@@ -299,7 +299,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
   emails_filter <- quo(contact_freq > 1 &
                          ((tolower(contacttype) == "email") |
                             (tolower(contacttype) == "other")))
-  
+
   # use emails_filter for incoming
   incoming_2_plus_emails <-
     corresp_contact_cnts_clean |>
@@ -308,7 +308,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
     select(vessel_official_number) |>
     dplyr::distinct()
   # 259
-  
+
   # use emails_filter for outgoing
   outgoing_2_plus_emails <-
     corresp_contact_cnts_clean |>
@@ -320,13 +320,13 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
   #   glimpse()
   # 624
   # 712
-  
+
   # get ids wihch are in both in and out lists
   both_in_n_out_2_plus_email_ids <-
     intersect(incoming_2_plus_emails, outgoing_2_plus_emails)
   # 148
   # 173
-  
+
   # keep correspondence information only for those
   corresp_contact_cnts_clean_direct_cnt |>
     filter(
@@ -391,7 +391,7 @@ compl_corr_to_investigation <-
 # check
 # to_investigation_to_NEIS[15,] FL3262PM
 compl_clean_sa_all_weeks_non_c |>
-  filter(vessel_official_number == "FL3262PM") |> 
+  filter(vessel_official_number == "FL3262PM") |>
   View()
 
 dim(compl_corr_to_investigation)
@@ -498,7 +498,7 @@ dim(compl_corr_to_investigation_short)
 # str(compl_corr_to_investigation_short)
 
 ## ---- 3) mark vessels already in the know list ----
-# The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases. 
+# The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
 # today()
 # [1] "2023-07-11"
@@ -609,7 +609,7 @@ View(results_with_comments)
 # F
 
 setdiff(results_with_comments$vessel_official_number,
-        compl_corr_to_investigation_short_dup_marked$vessel_official_number) |> 
+        compl_corr_to_investigation_short_dup_marked$vessel_official_number) |>
   length()
 # 68
 # 35 (new filter)
@@ -662,7 +662,7 @@ no_comments_vsls <-
   compl_corr_to_investigation_short_output_w_comments |>
   filter(is.na(
     `Confirmed Egregious? (missing past 6 months, 2 contacts with at least 1 call)`
-  )) 
+  ))
 # |>
   # View()
 
@@ -672,10 +672,10 @@ names(in_the_new_res_only_df) <- "vessel_official_number"
 
 no_comments_vsls_ids <-
   no_comments_vsls |>
-  select(vessel_official_number)  
+  select(vessel_official_number)
 
 setdiff(no_comments_vsls_ids, in_the_new_res_only_df)
-# 1305207               
+# 1305207
 
 setdiff(in_the_new_res_only_df, no_comments_vsls_ids)
 # 0
