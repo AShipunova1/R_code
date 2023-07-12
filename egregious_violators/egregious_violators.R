@@ -614,23 +614,40 @@ setdiff(results_with_comments$vessel_official_number,
 # 68
 # 35 (new filter)
 
-setdiff(compl_corr_to_investigation_short_dup_marked$vessel_official_number,
-        results_with_comments$vessel_official_number) |> cat()
+in_the_new_res_only <-
+  setdiff(
+    compl_corr_to_investigation_short_dup_marked$vessel_official_number,
+    results_with_comments$vessel_official_number
+  )
+# |> cat()
 # 1266718 602091 FL0435LD FL6279PH FL7282LE FL8725DA
-
-  length()
+  # length()
 # 6
 
 ### join comments
 
-by = join_by(vessel_official_number, name, permit_expired,
-permitgroup, permitgroupexpiration, contactrecipientname,
-contactphone_number, contactemailaddress, week_start)
+by = join_by(
+  vessel_official_number,
+  name
+  # ,
+  # permit_expired,
+  # permitgroup,
+  # permitgroupexpiration,
+  # contactrecipientname,
+  # contactphone_number,
+  # contactemailaddress
+  # ,
+  # date__contacttypes
+)
 
 compl_corr_to_investigation_short_output_w_comments <-
-  full_join(results_with_comments,
-             compl_corr_to_investigation_short_output,
-             by)
+  left_join(compl_corr_to_investigation_short_dup_marked,
+            results_with_comments,
+            by,
+            # Override the default suffixes, c(".x", ".y") in not merged cols
+    suffix = c(".my_output",
+               ".commented_output")
+            )
 # Joining with `by = join_by(vessel_official_number, name, permit_expired,
 # permitgroup, permitgroupexpiration, contactrecipientname,
 # contactphone_number, contactemailaddress, week_start, date__contacttypes)`
@@ -639,6 +656,31 @@ View(compl_corr_to_investigation_short_output_w_comments)
 # 38
 # 280
 # 0
+
+#### check no comments ----
+no_comments_vsls <-
+  compl_corr_to_investigation_short_output_w_comments |>
+  filter(is.na(
+    `Confirmed Egregious? (missing past 6 months, 2 contacts with at least 1 call)`
+  )) 
+# |>
+  # View()
+
+in_the_new_res_only_df <-
+  as.data.frame(in_the_new_res_only)
+names(in_the_new_res_only_df) <- "vessel_official_number"
+
+no_comments_vsls_ids <-
+  no_comments_vsls |>
+  select(vessel_official_number)  
+
+setdiff(no_comments_vsls_ids, in_the_new_res_only_df)
+# 1305207               
+
+setdiff(in_the_new_res_only_df, no_comments_vsls_ids)
+# 0
+
+
 # output ----
 write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_plus_weeks_06_22_2023.csv"), row.names = FALSE)
 
