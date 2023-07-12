@@ -534,3 +534,40 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
            )) %>%
     return()
 }
+
+read_csv_or_run <-
+  function(my_csv_file_path,
+           my_data_list_of_dfs,
+           my_function) {
+  browser()
+  if (file.exists(my_csv_file_path)) {
+    my_csv_df <-
+      readr::read_csv(my_csv_file_path
+                      # ,
+                      # col_types = cols(
+                      # VESSEL_ID.v = "c"
+                      # )
+                      ) %>%
+                      # need distinct because the first line is written twice, see below
+                      distinct()
+  } else {
+    tic("my_csv_file_path run")
+    vessels_permit_bind_u1 <-
+      my_function(my_data_list_of_dfs)
+    # vessels_permit_bind %>%
+    # map( ~ .x %>%
+    #        group_by(VESSEL_ID.v) %>%
+    #        dplyr::summarise_all(coalesce_by_column))
+    toc()
+    
+    # write headers
+    my_data_list_of_dfs[[1]][1, ] %>%
+      write_csv(my_csv_file_path)
+    
+    # write all
+    my_data_list_of_dfs %>%
+      walk( ~ .x %>%
+              write_csv(my_csv_file_path,
+                        append = TRUE))
+  }
+}
