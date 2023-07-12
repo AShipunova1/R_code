@@ -632,16 +632,14 @@ in_the_new_res_only <-
 
 by = join_by(
   vessel_official_number,
-  name
-  # ,
-  # permit_expired,
-  # permitgroup,
-  # permitgroupexpiration,
-  # contactrecipientname,
-  # contactphone_number,
-  # contactemailaddress
-  # ,
-  # date__contacttypes
+  name,
+  permit_expired,
+  permitgroup,
+  permitgroupexpiration,
+  contactrecipientname,
+  contactphone_number,
+  contactemailaddress,
+  date__contacttypes
 )
 
 compl_corr_to_investigation_short_output_w_comments <-
@@ -656,10 +654,11 @@ compl_corr_to_investigation_short_output_w_comments <-
 # permitgroup, permitgroupexpiration, contactrecipientname,
 # contactphone_number, contactemailaddress, week_start, date__contacttypes)`
 
-View(compl_corr_to_investigation_short_output_w_comments)
+dim(compl_corr_to_investigation_short_output_w_comments)
 # 38
 # 280
 # 0
+# [1] 105  14
 
 #### check no comments ----
 no_comments_vsls <-
@@ -702,9 +701,10 @@ result_file_path <- file.path(
     "_to_06_22_2023.csv"
   ))
   
-write_csv(
+readr::write_csv(
   compl_corr_to_investigation_short_output_w_comments,
-  result_file_path)
+  result_file_path,
+  na = "")
 
 ## ---- who needs an email ----
 source(file.path(current_project_path, "need_an_email.R"))
