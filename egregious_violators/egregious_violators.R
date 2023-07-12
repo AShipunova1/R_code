@@ -39,7 +39,7 @@ compl_clean_w_permit_exp_last_27w <-
 # dim(compl_clean_w_permit_exp)
 # 185538     
 # [1] 217772     22
-dim(compl_clean_w_permit_exp_last_27w)
+# dim(compl_clean_w_permit_exp_last_27w)
 # [1] 74809    23
 # [1] 70118    23
 # [1] 92370    23 (7m)
@@ -111,7 +111,7 @@ get_num_of_non_compliant_weeks <-
       select(vessel_official_number, week) %>%
       # sort
       arrange(vessel_official_number, week) %>%
-      unique() %>%
+      distinct() %>%
       # add a column with counts
       count(vessel_official_number) %>%
       # save an intermediate result for checking
@@ -121,7 +121,7 @@ get_num_of_non_compliant_weeks <-
       return()
   }
 
-# View(compl_clean_sa_non_compl)
+View(compl_clean_sa_non_compl)
 
 id_n_plus_weeks <-
   get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
@@ -141,25 +141,13 @@ compl_clean_sa %>%
 
 compl_clean %>%
   filter(vessel_official_number == '1066100') %>%
+  filter(tolower(compliant_) == "yes" &
+           year == '2023') %>%
   View()
-
-# Why weeks 13 and 14 in my data are compliant?
 
 # all 27
 data_overview(id_n_plus_weeks)
-# vessel_official_number 241
-
-# 'data.frame':	156 obs. of  2 variables
-# vesselofficialnumber: ...
-# n                   : int  58 55
-# # "2023-06-23" Rows: 226
-# today()
-# [1] "2023-07-10"
-# Rows: 151
-# Columns: 2
-# $ vessel_official_number <chr> "1000164", "1020529", "1030892", "1064222", …
-# $ n                      <int> 28, 28, 27, 28, 28, 28, 28, 28, 28, 28, 28, …
-# Rows: 241
+# vessel_official_number 151
 
 compl_clean_sa %>%
   filter(vessel_official_number %in% id_n_plus_weeks$vessel_official_number) %>%
@@ -167,10 +155,9 @@ compl_clean_sa %>%
   select(vessel_official_number, year_month, week_num) %>%
   distinct() %>%
   data_overview()
-# week_num   13, 14 ?
-# vessel_official_number 241
-# year_month               2
-# week_num                 2
+# vessel_official_number 151
+# year_month               6
+# week_num                 9
 
 # All weeks in the last 6 m are "non-compliance" ----
 compl_clean_sa_all_weeks_cnt <- 
@@ -181,15 +168,18 @@ compl_clean_sa_all_weeks_cnt <-
   add_count(vessel_official_number, compliant_,
             name = "compl_weeks_amnt")
 
+
+compl_clean_sa %>% 
+  View()
+
 compl_clean_sa_all_weeks_cnt %>%
   select(-week) %>% 
   dplyr::distinct() %>%
-# [1] 3095    4
+# [1] 3210    4
   filter(compl_weeks_amnt >= (number_of_weeks_for_non_compliancy - 1)) %>%
-# 418
-# -1 514   
+# [1] 913   4
   filter(compliant_ == 'NO') %>%
-# 0
+# 180
   arrange(desc(compl_weeks_amnt), vessel_official_number) %>% 
   View()
 
@@ -215,7 +205,7 @@ get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
     # leave only those with all weeks are non compliant
     filter(all_weeks_non_compl) %>%
     select(vessel_official_number) %>%
-    unique() %>%
+    dplyr::distinct() %>%
     return()
 }
 all_weeks_not_compliance_id <-
@@ -301,7 +291,7 @@ get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
     filter(all_vm) %>%
     # keep only one column
     select("vessel_official_number") %>%
-    unique() %>%
+    dplyr::distinct() %>%
     return()
 }
 
@@ -353,7 +343,7 @@ add_a_direct_contact_column <-
     
     # filter(direct_contact == "no") %>%
     # select(vesselofficialnumber) %>%
-    # unique() %>%
+    # dplyr::distinct() %>%
     # str()
     # 'data.frame':	1126 obs. of  1 variable
     # with new filters
@@ -405,7 +395,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
     filter(!!emails_filter &
              tolower(calltype) == "incoming") %>%
     select(vessel_official_number) %>%
-    unique()
+    dplyr::distinct()
   # 259
   
   # use emails_filter for outgoing
@@ -414,7 +404,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
     filter(!!emails_filter &
              tolower(calltype) == "outgoing") %>%
     select(vessel_official_number) %>%
-    unique()
+    dplyr::distinct()
   # %>%
   #   glimpse()
   # 624
@@ -470,8 +460,8 @@ dim(to_investigation_to_NEIS)
 
 # str(to_investigation_to_NEIS)
 # View(to_investigation_to_NEIS)
-# count unique values in each column
-# apply(to_investigation_to_NEIS, 2, function(x) length(unique(x))) %>%
+# count dplyr::distinct values in each column
+# apply(to_investigation_to_NEIS, 2, function(x) length(dplyr::distinct(x))) %>%
 #   as.data.frame() %>% head(1)
 # vesselofficialnumber  3070
 # 3170
@@ -531,7 +521,7 @@ contacttype_field_name <-
   find_col_name(compl_corr_to_investigation, "contact", "type")[1]
 
 # write.csv(compl_corr_to_investigation, file.path(my_paths$outputs, "more_than_27_compl_corr_to_investigation_22_23__03_27_2023.csv"), row.names = FALSE)
-# 435 unique ids
+# 435 dplyr::distinct ids
 
 get_date_contacttype <- function(compl_corr_to_investigation) {
   compl_corr_to_investigation %>%
@@ -542,7 +532,7 @@ get_date_contacttype <- function(compl_corr_to_investigation) {
     # [1] 49903     2
     # sort
     arrange(vessel_official_number, date__contacttype) %>%
-    unique() %>%
+    dplyr::distinct() %>%
     group_by(vessel_official_number) %>%
     # [1] 1125    2
     # for each vessel id combine all date__contacttypes separated by comma in one cell
@@ -659,7 +649,7 @@ dim(compl_corr_to_investigation_short1)
 # 164
 
 ## check
-length(unique(compl_corr_to_investigation_short1$vessel_official_number))
+length(dplyr::distinct(compl_corr_to_investigation_short1$vessel_official_number))
 # 107
 # 102
 # 27: 164
@@ -712,15 +702,29 @@ results_with_comments <-
 #           compl_corr_to_investigation_short_output)
 # F
 
+setdiff(results_with_comments$vessel_official_number,
+        compl_corr_to_investigation_short_output$vessel_official_number)
+# 68
+
+setdiff(compl_corr_to_investigation_short_output$vessel_official_number,
+        results_with_comments$vessel_official_number)
+
+by = join_by(vessel_official_number, name, permit_expired,
+permitgroup, permitgroupexpiration, contactrecipientname,
+contactphone_number, contactemailaddress, week_start)
+
 compl_corr_to_investigation_short_output_w_comments <-
-  inner_join(results_with_comments,
-             compl_corr_to_investigation_short_output)
+  full_join(results_with_comments,
+             compl_corr_to_investigation_short_output,
+             by)
 # Joining with `by = join_by(vessel_official_number, name, permit_expired,
 # permitgroup, permitgroupexpiration, contactrecipientname,
 # contactphone_number, contactemailaddress, week_start, date__contacttypes)`
 
 View(compl_corr_to_investigation_short_output_w_comments)
-0
+# 38
+# 280
+# 0
 # output ----
 write.csv(compl_corr_to_investigation_short_output, file.path(my_paths$outputs, "egregious_violators_for_investigation_27_plus_weeks_06_22_2023.csv"), row.names = FALSE)
 
