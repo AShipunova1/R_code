@@ -113,17 +113,26 @@ dim(compl_clean_sa_all_weeks_non_c_short)
 # 130
 
 ### add back columns needed for the output ----
-    # "vessel_official_number",
-    # "name",
-    # "permit_expired",
-    # "permitgroup",
-    # "permitgroupexpiration",
-    # "week_start",
+need_cols_names <- c(
+  "vessel_official_number",
+  "name",
+  "permit_expired",
+  "permitgroup",
+  "permitgroupexpiration"
+  # ,
+  # "week_start"
+)
 
-compl_clean_sa_all_weeks_non_c_short <-
+compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa_non_c_not_exp |>
+  select(all_of(need_cols_names)) |>
+  inner_join(compl_clean_sa_all_weeks_non_c_short) |> 
+# Joining with `by = join_by(vessel_official_number)`
+  distinct()
 
-compl_clean_sa_all_weeks_non_c
+# dim(compl_clean_sa_all_weeks_non_c_long)
+# [1] 130   8
+
 ### check the last output manually ----
 manual_no <- c("1133962",
 "1158893",
@@ -390,6 +399,7 @@ dim(compl_corr_to_investigation)
 # 27: 11151
 # 18093    45
 # [1] 264  26
+# [1] 264  30
 
 # str(compl_corr_to_investigation)
 # compl_corr_to_investigation |>
@@ -447,7 +457,7 @@ dim(date__contacttype_per_id)
 # 107
 # 27: 177
 # 188   2
-# 105 (the new filter)
+# 105   2 (the new filter)
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
@@ -455,7 +465,8 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
   inner_join(date__contacttype_per_id,
              by = "vessel_official_number")
 
-# str(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
+dim(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
+# [1] 264  31
 
 ## ---- 2) remove duplicated columns ----
 
@@ -474,15 +485,15 @@ compl_corr_to_investigation_short <-
     "contactrecipientname",
     !!contactphonenumber_field_name,
     "contactemailaddress",
-    "week_start",
+    # "week_start",
     "date__contacttypes"
   ) |>
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
-
 dim(compl_corr_to_investigation_short)
 # [1] 107   9
 # 27: [1] 177  10
+# [1] 105   9
 
 # str(compl_corr_to_investigation_short)
 
@@ -511,20 +522,22 @@ vessels_to_mark_ids <-
   select(vessel_official_number)
 
 # mark these vessels
-compl_corr_to_investigation_short1 <-
+compl_corr_to_investigation_short_dup_marked <-
   compl_corr_to_investigation_short |>
   mutate(
     duplicate_w_last_time =
       case_when(
         vessel_official_number %in%
-          vessels_to_remove$vessel_official_number ~ "duplicate",
+          vessels_to_mark_ids$vessel_official_number ~ "duplicate",
         .default = "new"
       )
   )
 
-dim(compl_corr_to_investigation_short1)
+dim(compl_corr_to_investigation_short_dup_marked)
 # [1] 177  11
+# [1] 105  10
 
+#### remove some? ----
 vessels_to_remove <-
   read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
 names(vessels_to_remove) = "vessel_official_number"
@@ -532,14 +545,14 @@ dim(vessels_to_remove)
 # 58
 
 compl_corr_to_investigation_short2 <-
-  compl_corr_to_investigation_short1 |>
+  compl_corr_to_investigation_short_dup_marked |>
   filter(!(
     vessel_official_number %in%
       vessels_to_remove$vessel_official_number
   ))
 # 164
 
-dim(compl_corr_to_investigation_short1)
+dim(compl_corr_to_investigation_short_dup_marked)
 # 102
 # 27: 164
 # 177
@@ -548,39 +561,32 @@ dim(compl_corr_to_investigation_short1)
 # dim(compl_corr_to_investigation_short2)
 # 164
 
-## check
-length(dplyr::distinct(compl_corr_to_investigation_short1$vessel_official_number))
+#### check ----
+  # no applicable method for 'distinct' applied to an object of class "character"
+
+length(unique(compl_corr_to_investigation_short_dup_marked$vessel_official_number))
 # 107
 # 102
 # 27: 164
 # 177
+# 105
 
-data_overview(compl_corr_to_investigation_short1) |> head(1)
+data_overview(compl_corr_to_investigation_short_dup_marked) |> head(1)
 # vessel_official_number
 # 177
+# 105
 
-compl_corr_to_investigation_short_output <-
-compl_corr_to_investigation_short2 |>
-  filter(permit_expired == "no")
+# compl_corr_to_investigation_short_output <-
+# compl_corr_to_investigation_short2 |>
+#   filter(permit_expired == "no")
 
-dim(compl_corr_to_investigation_short_output)
+# dim(compl_corr_to_investigation_short_output)
 # [1] 146  10
 # 134
 # [1] 151  11
 # [1] 146  11 (with removed from Apr)
 
-View(compl_corr_to_investigation_short_output)
-
-# test compl_corr_to_investigation_short_output non compliant weeks number ----
-week_start_1 <-
-  compl_corr_to_investigation_short_output |>
-  select(week_start) |>
-  # count commas
-  mutate(week_amount = str_count(week_start, ",") + 1) |>
-  filter(week_amount < 27)
-  
-dim(week_start_1)[[1]] == 0
-# TRUE
+View(compl_corr_to_investigation_short_dup_marked)
 
 ## add comments from the compliance crew (if already exist) ----
 results_with_comments_path <-
@@ -596,18 +602,24 @@ results_with_comments <-
   readr::read_csv(results_with_comments_path,
                   col_types = cols(.default = 'c'))
 
-# View(results_with_comments)
+View(results_with_comments)
 
 # all.equal(results_with_comments,
 #           compl_corr_to_investigation_short_output)
 # F
 
 setdiff(results_with_comments$vessel_official_number,
-        compl_corr_to_investigation_short_output$vessel_official_number)
+        compl_corr_to_investigation_short_dup_marked$vessel_official_number) |> 
+  length()
 # 68
+# 35 (new filter)
 
-setdiff(compl_corr_to_investigation_short_output$vessel_official_number,
-        results_with_comments$vessel_official_number)
+setdiff(compl_corr_to_investigation_short_dup_marked$vessel_official_number,
+        results_with_comments$vessel_official_number) |> 
+  length()
+# 6
+
+### join comments
 
 by = join_by(vessel_official_number, name, permit_expired,
 permitgroup, permitgroupexpiration, contactrecipientname,
