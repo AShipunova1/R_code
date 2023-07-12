@@ -106,7 +106,7 @@ compl_clean_sa_all_weeks_non_c <-
 dim(compl_clean_sa_all_weeks_non_c)
 # 130
 
-### check the last one ---
+### check the last output manually ----
 manual_no <- c("1133962",
 "1158893",
 "1202614",
@@ -142,92 +142,15 @@ manual_no <- c("1133962",
 "1279625",
 "565041")
 
-# compl_clean_sa_all_weeks_non_c |> 
-  # filter(vessel_official_number %in%
-           # manual_no) |> 
-  # View()
-
-# compl_clean_sa |> 
-  # filter(vessel_official_number %in%
-           # manual_no) |> 
-  # View()
-
-## ---- Check vesselofficialnumbers for "all weeks are non-compliant" ----
-compliant_field_name <-
-  as.name(find_col_name(compl_clean_sa, ".*comp", "liant.*")[1])
-
-get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
-  compl_clean_sa |>
-    group_by(vessel_official_number) |>
-    reframe(all_weeks_non_compl = all(tolower(!!sym(
-      compliant_field_name
-    )) == "no")) |>
-    # leave only those with all weeks are non compliant
-    filter(all_weeks_non_compl) |>
-    select(vessel_official_number) |>
-    dplyr::distinct() |>
-    return()
-}
-all_weeks_not_compliance_id <-
-  get_all_weeks_not_compliance_id(compl_clean_sa)
-# str(all_weeks_not_compliance_id)
-# 343
-# 355
-# 201 
-# 169
-# all weeks are non compliant
-intersect(
-  id_n_plus_weeks$vessel_official_number,
-  all_weeks_not_compliance_id$vessel_official_number
-) |> str()
-# 19
-# 27: 185
-# 42
-# 22
-
-# n+ weeks are not compliant, but some other weeks are compliant
-setdiff(
-  id_n_plus_weeks$vessel_official_number,
-  all_weeks_not_compliance_id$vessel_official_number
-) |> str()
-# 137
-# 27: 392
-# 184
-# 166
-# all weeks are not compliant, but there are fewer than n weeks for 2022-2023
-setdiff(
-  all_weeks_not_compliance_id$vessel_official_number,
-  id_n_plus_weeks$vessel_official_number
-) |>
-  {
-    . ->> fewer_n_all_non_compl22_23_ids
-  } |> # save into a var
-  str()
-# 324
-# 27: 170
-# 159
-
-group_by_arr <-
-  c("vessel_official_number",
-    as.character(compliant_field_name))
+# compl_clean_sa_all_weeks_non_c |>
+#   filter(vessel_official_number %in%
+#            manual_no) |>
+#   View()
 
 # compl_clean_sa |>
 #   filter(vessel_official_number %in%
-#            fewer_n_all_non_compl22_23_ids) |>
-#   select(vessel_official_number, !!compliant_field_name, week) |>
-#   count_by_column_arr(group_by_arr) |>
-#   {
-#     . ->> fewer_n_all_non_compl22_23
-#   } |> # save into a var
-#   head()
-
-# str(fewer_n_all_non_compl22_23)
-# [1] 324   3
-# 27: gropd_df [170 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
-# gropd_df [159 × 3] (S3: grouped_df/tbl_df/tbl/data.frame)
-
-
-# write.csv(fewer_52_all_non_compl22_23, file.path(my_paths$outputs, "fewer_52_all_non_compl22_23.csv"), row.names = FALSE)
+#            manual_no) |>
+#   View()
 
 ## ---- Preparing Correspondence ----
 
