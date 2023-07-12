@@ -13,7 +13,7 @@ current_project_path <-
 
 source(file.path(current_project_path, "get_data.R"))
 
-## ---- Preparing compliance info ----
+# ---- Preparing compliance info ----
 
 ## ---- add permit_expired column ----
 compl_clean_w_permit_exp <-
@@ -23,10 +23,10 @@ compl_clean_w_permit_exp <-
                                     .default = "yes"))
 
 ## ---- add year_month column ----
-# half_year_ago <- 
-#   floor_date(data_file_date, "month") - months(6)
 
-days_in_27_weeks <- 27*7
+number_of_weeks_for_non_compliancy = 27
+days_in_27_weeks <- number_of_weeks_for_non_compliancy*7
+
 half_year_ago <- 
   data_file_date - days_in_27_weeks
 
@@ -50,11 +50,9 @@ compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w %>%
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
-## ---- filter for egregious here, use all compliance data ----
-
 # today()
 # [1] "2023-07-10"
-# Look at "compliant_" only
+## Not "compliant_" ----
 compl_clean_sa_non_compl <-
   compl_clean_sa %>%
   filter(compliant_ == 'NO')
@@ -77,52 +75,40 @@ compl_clean_sa_non_compl %>%
 # vessel_official_number 1403
 # vessel_official_number 1369
 
-## check if these don't have any "compliance" since half_year_ago ----
+## filter for egregious ----
+### check if these don't have any "compliant_ == YES" since half_year_ago ----
 
-# View(compl_clean_sa_non_compl)
-
-# half_year_ago
 last_week_start <- data_file_date - 6
 
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa |>
-  filter(vessel_official_number %in%
+  dplyr::filter(vessel_official_number %in%
            compl_clean_sa_non_compl$vessel_official_number) |>
-  # [1] 32238    23
   # in the last 27 week
-  filter(week_start > half_year_ago) |>
-  # [1] 30077    23
-  # before the last week (a report grace period)
-  filter(week_start < last_week_start) |>
-  # [1] 28907    23
+  dplyr::filter(week_start > half_year_ago) |>
+  # before the last week (a report's grace period)
+  dplyr::filter(week_start < last_week_start) |>
   # not expired
-  filter(tolower(permit_expired) == "no") |>
-  # [1] 26153    23
-  # [1] 25029    23
-  select(vessel_official_number, week, compliant_) %>%
-  add_count(vessel_official_number,
+  dplyr::filter(tolower(permit_expired) == "no") |>
+  dplyr::select(vessel_official_number, week, compliant_) %>%
+  dplyr::add_count(vessel_official_number,
             name = "total_weeks") %>%
-  add_count(vessel_official_number, compliant_,
+  dplyr::add_count(vessel_official_number, compliant_,
             name = "compl_weeks_amnt") |>
-  arrange(desc(compl_weeks_amnt), vessel_official_number) %>%
-  select(-week) |>
-  distinct() |>
-  # filter(vessel_official_number == '1133962') |> View()
-  # filter(tolower(compliant_) == "no" & (compl_weeks_amnt + 1) >= total_weeks ) |> dim()
-  # [1] 292   4
+  dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) %>%
+  dplyr::select(-week) |>
+  dplyr::distinct() |>
   # not compliant
   filter(tolower(compliant_) == "no") |> 
-  # all weeks where non compliant
+  # all weeks were non compliant
   filter(compl_weeks_amnt == total_weeks) |>
-  # [1] 304   4
   # permitted for the whole period (disregard the last week)
   filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
-# 130
-  # 138
 
 dim(compl_clean_sa_all_weeks_non_c)
 # 130
 
+### check the last one ---
 manual_no <- c("1133962",
 "1158893",
 "1202614",
@@ -158,109 +144,15 @@ manual_no <- c("1133962",
 "1279625",
 "565041")
 
-# compare with manual check
+# compl_clean_sa_all_weeks_non_c |> 
+  # filter(vessel_official_number %in%
+           # manual_no) |> 
+  # View()
 
-compl_clean_sa_all_weeks_non_c |> 
-  filter(vessel_official_number %in%
-           manual_no) |> 
-  View()
-
-compl_clean_sa |> 
-  filter(vessel_official_number %in%
-           manual_no) |> 
-  View()
-
-## ----- get only those with n+ weeks of non compliance -----
-# number_of_weeks_for_non_compliancy = 51
-number_of_weeks_for_non_compliancy = 27
-get_num_of_non_compliant_weeks <-
-  function(compl_clean_sa_non_compl) {
-    # browser()
-    compl_clean_sa_non_compl %>%
-      # use only 2 columns
-      select(vessel_official_number, week) %>%
-      # sort
-      arrange(vessel_official_number, week) %>%
-      distinct() %>%
-      # add a column with counts
-      count(vessel_official_number) %>%
-      # save an intermediate result for checking
-      {. ->> temp_n_compl_cnts } %>% 
-      # keep only with count > number_of_weeks_for_non_compliancy
-      filter(n >= number_of_weeks_for_non_compliancy) %>%
-      return()
-  }
-
-View(compl_clean_sa_non_compl)
-
-id_n_plus_weeks <-
-  get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
-
-temp_n_compl_cnts %>%
-  arrange(desc(n)) %>%
-  View()
-
-# check '1066100', marked as a yes, egr.
-temp_n_compl_cnts %>% 
-  filter(vessel_official_number == '1066100') %>% 
-  View()
-
-compl_clean_sa %>%
-  filter(vessel_official_number == '1066100') %>%
-  View()
-
-compl_clean %>%
-  filter(vessel_official_number == '1066100') %>%
-  filter(tolower(compliant_) == "yes" &
-           year == '2023') %>%
-  View()
-
-# all 27
-data_overview(id_n_plus_weeks)
-# vessel_official_number 151
-
-compl_clean_sa %>%
-  filter(vessel_official_number %in% id_n_plus_weeks$vessel_official_number) %>%
-  filter(compliant_ == "YES") %>%
-  select(vessel_official_number, year_month, week_num) %>%
-  distinct() %>%
-  data_overview()
-# vessel_official_number 151
-# year_month               6
-# week_num                 9
-
-# All weeks in the last 6 m are "non-compliance" ----
-compl_clean_sa_all_weeks_cnt <- 
-  compl_clean_sa %>% 
-  select(vessel_official_number, week, compliant_) %>% 
-  add_count(vessel_official_number,
-            name = "total_weeks") %>%
-  add_count(vessel_official_number, compliant_,
-            name = "compl_weeks_amnt")
-
-
-compl_clean_sa %>% 
-  View()
-
-compl_clean_sa_all_weeks_cnt %>%
-  select(-week) %>% 
-  dplyr::distinct() %>%
-# [1] 3210    4
-  filter(compl_weeks_amnt >= (number_of_weeks_for_non_compliancy - 1)) %>%
-# [1] 913   4
-  filter(compliant_ == 'NO') %>%
-# 180
-  arrange(desc(compl_weeks_amnt), vessel_official_number) %>% 
-  View()
-
-# ---- Get compliance information for only vessels which have more than n "NO REPORT". ----
-compl_w_non_compliant_weeks <-
-  compl_clean_sa_non_compl %>%
-  filter(vessel_official_number %in% id_n_plus_weeks$vessel_official_number)
-dim(compl_w_non_compliant_weeks)
-# [1] 8941   21
-# [1] 7943   23
-# [1] 5867   23
+# compl_clean_sa |> 
+  # filter(vessel_official_number %in%
+           # manual_no) |> 
+  # View()
 
 ## ---- Check vesselofficialnumbers for "all weeks are non-compliant" ----
 compliant_field_name <-
