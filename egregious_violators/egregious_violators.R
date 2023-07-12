@@ -77,6 +77,79 @@ compl_clean_sa_non_compl %>%
 # vessel_official_number 1403
 # vessel_official_number 1369
 
+## check if these don't have any "compliance" since half_year_ago ----
+
+# View(compl_clean_sa_non_compl)
+
+# half_year_ago
+compl_clean_sa_all_weeks_non_c <-
+  compl_clean_sa |>
+  filter(vessel_official_number %in%
+           compl_clean_sa_non_compl$vessel_official_number) |>
+  # [1] 32238    23
+  filter(week_start > half_year_ago) |>
+  # [1] 30077    23
+  filter(tolower(permit_expired) == "no") |>
+  # [1] 26153    23
+  select(vessel_official_number, week, compliant_) %>%
+  add_count(vessel_official_number,
+            name = "total_weeks") %>%
+  add_count(vessel_official_number, compliant_,
+            name = "compl_weeks_amnt") |>
+  arrange(desc(compl_weeks_amnt), vessel_official_number) %>%
+  select(-week) |>
+  distinct() |>
+  # filter(vessel_official_number == '1133962') |> View()
+  # filter(tolower(compliant_) == "no" & (compl_weeks_amnt + 1) >= total_weeks ) |> dim()
+  # [1] 292   4
+  filter(tolower(compliant_) == "no" &
+           (compl_weeks_amnt + 1) >= total_weeks) |>
+  filter(total_weeks == number_of_weeks_for_non_compliancy)
+# 130
+
+# dim(compl_clean_sa_all_weeks_non_c)
+
+manual_no <- c("1133962",
+"1158893",
+"1202614",
+"FL6540TD",
+"NJ3548GR",
+"1254648",
+"943683",
+"1077813",
+"1243529",
+"1266505",
+"1064222",
+"FL9628RY",
+"FL7060HK",
+"978217",
+"508385",
+"FL2034JA",
+"594390",
+"1321667",
+"591881",
+"1233418",
+"606326",
+"FL1348GL",
+"1254999",
+"FL3557RC",
+"FL1267MZ",
+"FL6220RN",
+"FL6900MH",
+"FL5207CA",
+"SC6965DN",
+"FL4959PK",
+"FL7207LT",
+"FL7703LT",
+"1279625",
+"565041")
+
+# compare with manual check
+compl_clean_sa |> 
+  filter(vessel_official_number %in%
+           manual_no) |> 
+  View()
+
 ## ----- get only those with n+ weeks of non compliance -----
 # number_of_weeks_for_non_compliancy = 51
 number_of_weeks_for_non_compliancy = 27
