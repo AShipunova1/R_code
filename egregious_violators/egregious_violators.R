@@ -80,32 +80,50 @@ compl_clean_sa <-
 
 last_week_start <- data_file_date - 6
 
-compl_clean_sa_all_weeks_non_c <-
+compl_clean_sa_non_c_not_exp <-
   compl_clean_sa |>
+  # not compliant
+  filter(tolower(compliant_) == "no") |> 
   # in the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
   dplyr::filter(week_start < last_week_start) |>
   # not expired
-  dplyr::filter(tolower(permit_expired) == "no") |>
+  dplyr::filter(tolower(permit_expired) == "no") 
+
+dim(compl_clean_sa_non_c_not_exp)
+# [1] 10419    23
+
+compl_clean_sa_all_weeks_non_c_short <-
+  compl_clean_sa_non_c_not_exp |>
   dplyr::select(vessel_official_number, week, compliant_) |>
   dplyr::add_count(vessel_official_number,
-            name = "total_weeks") |>
+                   name = "total_weeks") |>
   dplyr::add_count(vessel_official_number, compliant_,
-            name = "compl_weeks_amnt") |>
+                   name = "compl_weeks_amnt") |>
   dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
   dplyr::select(-week) |>
   dplyr::distinct() |>
-  # not compliant
-  filter(tolower(compliant_) == "no") |> 
   # all weeks were non compliant
   filter(compl_weeks_amnt == total_weeks) |>
   # permitted for the whole period (disregard the last week)
   filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
 
-dim(compl_clean_sa_all_weeks_non_c)
+dim(compl_clean_sa_all_weeks_non_c_short)
 # 130
 
+### add back columns needed for the output ----
+    # "vessel_official_number",
+    # "name",
+    # "permit_expired",
+    # "permitgroup",
+    # "permitgroupexpiration",
+    # "week_start",
+
+compl_clean_sa_all_weeks_non_c_short <-
+  compl_clean_sa_non_c_not_exp |>
+
+compl_clean_sa_all_weeks_non_c
 ### check the last output manually ----
 manual_no <- c("1133962",
 "1158893",
@@ -174,7 +192,7 @@ get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
     filter(all_vm) |>
     # keep only one column
     select("vessel_official_number") |>
-    dplyr::distinct() |>
+    dplyr::distinct() %>%
     return()
 }
 
@@ -221,7 +239,7 @@ add_a_direct_contact_column <-
           vessel_official_number %in% all_vm_ids$vessel_official_number ~ "no",
           .default = "yes"
         )
-      ) |>
+      ) %>%
       return()
     
     # filter(direct_contact == "no") |>
@@ -231,8 +249,8 @@ add_a_direct_contact_column <-
     # 'data.frame':	1126 obs. of  1 variable
     # with new filters
     # 'data.frame':	1138 obs. of  1 variable
-    
   }
+
 corresp_contact_cnts_clean_direct_cnt <-
   add_a_direct_contact_column(corresp_contact_cnts_clean)
 # glimpse(corresp_contact_cnts_clean_direct_cnt)
@@ -253,9 +271,10 @@ get_calls_with_direct_communication <-
     )
     # use the filter
     corresp_contact_cnts_clean_direct_cnt |>
-      filter(!!answered_1_plus_filter) |>
+      filter(!!answered_1_plus_filter) %>%
       return()
   }
+
 calls_with_direct_communication <-
   get_calls_with_direct_communication(corresp_contact_cnts_clean_direct_cnt)
 dim(calls_with_direct_communication)
@@ -303,7 +322,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean_direct_cnt |>
     filter(
       vessel_official_number %in% both_in_n_out_2_plus_email_ids$vessel_official_number
-    ) |>
+    ) %>%
     return()
 }
 
@@ -351,18 +370,18 @@ dim(to_investigation_to_NEIS)
 
 ## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
 
-
-inner_join(
-    to_investigation_to_NEIS, 
-    compl_w_non_compliant_weeks,
+compl_corr_to_investigation <-
+  inner_join(
+    to_investigation_to_NEIS,
+    compl_clean_sa_all_weeks_non_c,
     by = c("vessel_official_number"),
     multiple = "all",
     relationship = "many-to-many"
-  ) ->
-  compl_corr_to_investigation
+  )
 
+# check
 # to_investigation_to_NEIS[15,] FL3262PM
-compl_w_non_compliant_weeks |>
+compl_clean_sa_all_weeks_non_c |>
   filter(vessel_official_number == "FL3262PM") |> 
   View()
 
@@ -370,6 +389,7 @@ dim(compl_corr_to_investigation)
 # [1] 16081    44
 # 27: 11151
 # 18093    45
+# [1] 264  26
 
 # str(compl_corr_to_investigation)
 # compl_corr_to_investigation |>
@@ -377,16 +397,12 @@ dim(compl_corr_to_investigation)
 #   select(grep("official", names(compl_corr_to_investigation), value = T))
 
 ## check
-count_uniq_by_column(compl_clean_sa_non_compl) |> head(1)
-# 1785
-# 27: 1969
-# vessel_official_number 1573
-
 count_uniq_by_column(compl_corr_to_investigation) |> head(1)
 # 110
 # 107
 # 27: 177
 # vesselofficial_number 188
+# vesselofficial_number 105
 
 ## ---- output needed investigation ----
 # 1) create additional columns
@@ -419,7 +435,7 @@ get_date_contacttype <- function(compl_corr_to_investigation) {
     group_by(vessel_official_number) |>
     # [1] 1125    2
     # for each vessel id combine all date__contacttypes separated by comma in one cell
-    summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) |>
+    summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
     # [1] 435   2
     return()
 }
@@ -431,6 +447,7 @@ dim(date__contacttype_per_id)
 # 107
 # 27: 177
 # 188   2
+# 105 (the new filter)
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
@@ -446,7 +463,8 @@ contactphonenumber_field_name <-
   find_col_name(compl_corr_to_investigation, ".*contact", "number.*")[1]
 
 # names(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
-compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
+compl_corr_to_investigation_short <-
+  compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
   select(
     "vessel_official_number",
     "name",
@@ -457,11 +475,10 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
     !!contactphonenumber_field_name,
     "contactemailaddress",
     "week_start",
-    "date__contacttypes",
-    "permit_expired"
+    "date__contacttypes"
   ) |>
-  combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number") ->
-  compl_corr_to_investigation_short
+  combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
+
 
 dim(compl_corr_to_investigation_short)
 # [1] 107   9
