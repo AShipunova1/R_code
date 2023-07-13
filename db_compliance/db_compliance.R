@@ -446,7 +446,7 @@ vessels_by_permit_vessel__all_l_u_file_path <-
     my_paths$inputs,
     current_project_name,
     "intermediate_dfs",
-    "vessels_by_permit_vessel__all_l_u.csv"
+    "vessels_by_permit_vessel__all_l_u.rds"
   )
 
 # vessels_by_permit_vessel__all_l_u_col_types <-
@@ -454,22 +454,23 @@ vessels_by_permit_vessel__all_l_u_file_path <-
 # names(vessels_by_permit_vessel__all_l_u)
 
 # View(vessels_permit_vsl_id__all_l)
-vessels_by_permit_vessel__all_l_u <-
-  read_csv_or_run(
+vessels_by_permit_vessel__all_l_u_rds <-
+  read_rds_or_run(
     vessels_by_permit_vessel__all_l_u_file_path,
     vessels_permit_vsl_id__all_l,
     my_function_vessels_permit_vsl_id__all_l
   )
 # run the function: 117.58 sec elapsed
 
-length(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id) +
-  length(vessels_by_permit_vessel__all_l_u$gom_only$permit_vessel_id) +
-  length(vessels_by_permit_vessel__all_l_u$sa_only$permit_vessel_id)
+length(vessels_by_permit_vessel__all_l_u_rds$dual$permit_vessel_id) +
+  length(vessels_by_permit_vessel__all_l_u_rds$gom_only$permit_vessel_id) +
+  length(vessels_by_permit_vessel__all_l_u_rds$sa_only$permit_vessel_id)
 # 5684
 
 # all.equal(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id,
-#           vessels_by_permit_vessel__all_l_u1$permit_vessel_id)
-# [1] "Lengths (392, 5632) differ (string compare on first 392)"
+#           vessels_by_permit_vessel__all_l_u_rds$dual$permit_vessel_id)
+# T
+
 length(unique(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id))
 # 392
 length(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id)
