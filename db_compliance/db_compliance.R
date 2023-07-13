@@ -1646,5 +1646,16 @@ join_v_p__t_tne <-
             tne)
 # Joining with `by = join_by(SERO_OFFICIAL_NUMBER)`
 
+View(join_v_p__t_tne)
+
 # TODO: SERO_OFFICIAL_NUMBER is NA, use an alternative id
 
+# TODO: check that t and tne not in the same week! Before joining
+
+# TODO: weeks per permit count separately for 2022
+# vsl 586759
+# p weeks 82.57143
+# 39
+# 22
+
+# TODO: create all weeks for 2022, fill permit weeks, t and tne
