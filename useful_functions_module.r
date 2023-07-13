@@ -540,40 +540,39 @@ read_csv_or_run <-
            my_data_list_of_dfs,
            my_function,
            my_col_types = NA) {
+    
     # browser()
     if (is.na(my_col_types)) {
       my_col_types = cols(.default = "c")
     }
     
     if (file.exists(my_csv_file_path)) {
-    my_csv_df <-
-      readr::read_csv(my_csv_file_path
-                      ,
-                      col_types = my_col_types
-                      # col_types = cols(
-                      # VESSEL_ID.v = "c"
-                      # )
-                      ) %>%
-                      # need distinct because the first line is written twice, see below
-                      distinct()
-  } else {
-    tic("my_csv_file_path run")
-    vessels_permit_bind_u1 <-
-      my_function(my_data_list_of_dfs)
-    # vessels_permit_bind %>%
-    # map( ~ .x %>%
-    #        group_by(VESSEL_ID.v) %>%
-    #        dplyr::summarise_all(coalesce_by_column))
-    toc()
-    
-    # write headers
-    my_data_list_of_dfs[[1]][1, ] %>%
-      write_csv(my_csv_file_path)
-    
-    # write all
-    my_data_list_of_dfs %>%
-      walk( ~ .x %>%
-              write_csv(my_csv_file_path,
-                        append = TRUE))
+      # returns a df
+      my_csv_df_temp <-
+        readr::read_csv(my_csv_file_path,
+                        col_types = my_col_types) %>%
+        # need distinct because the first line is written twice, see below
+        distinct()
+      
+      my_csv_df <-
+        my_csv_df_temp |>
+        split(as.factor(my_csv_df_temp$permit_sa_gom))
+    } else {
+      tic("run the function")
+      my_csv_df <-
+        my_function(my_data_list_of_dfs)
+      toc()
+      
+      # write headers
+      my_data_list_of_dfs[[1]][1, ] %>%
+        write_csv(my_csv_file_path)
+      
+      # write all
+      my_data_list_of_dfs %>%
+        walk( ~ .x %>%
+                write_csv(my_csv_file_path,
+                          append = TRUE))
+    }
+    # returns a list of dfs!
+    return(my_csv_df)
   }
-}
