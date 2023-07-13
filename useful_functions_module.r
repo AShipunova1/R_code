@@ -570,9 +570,18 @@ read_csv_or_run <-
       # write all
       my_data_list_of_dfs %>%
         walk( ~ .x %>%
-                write_csv(my_csv_file_path,
+                readr::write_rds(my_csv_file_path,
                           append = TRUE))
     }
     # returns a list of dfs!
     return(my_csv_df)
   }
+write_rds(test, "test1.rds")
+test_read_back_rds <- read_rds("test1.rds")
+> readr::write_rds(vessels_permit_bind_u_one_df1, "vessels_permit_bind_u_one_df1.csv")
+> vessels_permit_bind_u_one_df1_from_csv <- readr::read_rds
+> vessels_permit_bind_u_one_df1_from_csv <- readr::read_rds("vessels_permit_bind_u_one_df1.csv)
++ 
+> vessels_permit_bind_u_one_df1_from_csv <- readr::read_rds("vessels_permit_bind_u_one_df1.csv")
+> all.equal(vessels_permit_bind_u_one_df1_from_csv, vessels_permit_bind_u_one_df1)
+[1] TRUE
