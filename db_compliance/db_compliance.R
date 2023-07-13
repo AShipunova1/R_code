@@ -599,13 +599,13 @@ my_function_vessels_permit_bind_u_one_df <-
 
 my_col_type <- cols(VESSEL_ID.v = "c")
 
-vessels_permit_bind_u_one_df1 <-
+vessels_permit_bind_u_one_df <-
   read_csv_or_run(file_path_vessels_permit_bind_u,
            vessels_permit_bind,
            my_function_vessels_permit_bind_u_one_df,
            my_col_type)
 
-map_df(vessels_permit_bind_u_one_df1, dim)
+map_df(vessels_permit_bind_u_one_df, dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1   379     1204    3877
@@ -846,6 +846,7 @@ vessels__trip_notif_22_l <-
 # 1 38464    95585    1250
 # 2    62       62      62
 # 1 19885    52087     555
+# 2    69       69      69
 
 # vessels and trip negatives ----
 # View(trip_neg_2022_w_y)
@@ -863,13 +864,14 @@ vessels__trip_neg_22_l <-
       )
   )
 
-# vessels__trip_neg_22_l %>%
-#   map_df(dim)
+vessels__trip_neg_22_l %>%
+  map_df(dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1 41272    56506  795944
 # 2    41       41      41
 # 1 17947    21175  390659
+# 2    45       45      45
 
 # vessels and trips ----
 
@@ -896,6 +898,8 @@ vessels__trips_22_l <-
 # 2   101      101     101
 # 1 14525    40210   47157
 # 2   102      102     102
+# 1 14525    40210   47233
+# 2   109      109     109
 
 # print_df_names(vessels__trips_22_l$sa_only)
 
@@ -942,11 +946,11 @@ vessels__trip_neg_22_l_sa_short <-
   # select(contains("vessel"), starts_with("TRIP")) %>%
   # distinct()
 
-# data_overview(vessels__trip_neg_22_l_sa_short)
+data_overview(vessels__trip_neg_22_l_sa_short)
 # 390,659 10
 # permit_vessel_id   1709
 # [1] 66631     4
-
+# permit_vessel_id   1714
 
 ### remove neg trips on 2021-12-31 ----
 # vessels__trip_neg_22_l_sa_short %>%
@@ -982,8 +986,9 @@ vessels__trip_neg_22_l_sa_short_weeks_per_vessel <-
   group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
   summarise(tot_weeks = n_distinct(TRIP_week_num))
 
-# View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
+View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
 # 1709
+# 1714
 
 ## trip notifications per vessel per week
 # data_overview(vessels__trip_notif_22_l$sa_only)
@@ -1021,6 +1026,9 @@ dim(vessels__trip_notif_22_l_sa_vessels_trips)
 # permit_vessel_id             1110
 # VESSEL_ID                    1069
 # SUPPLIER_VESSEL_ID           1069
+# --
+# permit_vessel_id             1112
+# VESSEL_ID                    1071
 
 vessels__trips_22_l_sa_short <-
   vessels__trips_22_l$sa_only %>%
@@ -1044,21 +1052,32 @@ vessels__trips_22_l_sa_weeks_per_vessel <-
   )
 
 dim(vessels__trips_22_l_sa_weeks_per_vessel)
-# 1110
+# 1112
 
 ## combine weeks, vessels and trips (all) info ----
 # by = join_by(permit_vessel_id, TRIP_START_week_num, TRIP_END_week_num)
-by = join_by(permit_vessel_id, TRIP_START_week_num, TRIP_START_y)
+by_vessels_trips_and_notif_by_week =
+  join_by(permit_vessel_id, TRIP_START_week_num, TRIP_START_y)
 
 vessels_trips_and_notif_by_week <-
   vessels__trips_22_l_sa_short %>%
   full_join(vessels__trip_notif_22_l_sa_short,
-            by)
+            by_vessels_trips_and_notif_by_week)
+# Joining with `by = join_by(permit_vessel_id, TRIP_START_week_num,
+# TRIP_END_week_num, TRIP_START_y, TRIP_END_y)`
+
+# all.equal(vessels_trips_and_notif_by_week,
+#           vessels_trips_and_notif_by_week1)
+# [1] "Names: 2 string mismatches"                                    
+# [2] "Length mismatch: comparison on first 5 components"             
+# [3] "Component 3: 'is.NA' value mismatch: 76 in current 0 in target"
+# [4] "Component 5: 'is.NA' value mismatch: 76 in current 0 in target"
 
 dim(vessels_trips_and_notif_by_week)
 # [1] 19598     3
 # with year
 # [1] 19600     7
+# [1] 19616     5
 
 # same by notif weeks
 # vessels_trips_and_notif_by_week %>%
@@ -1072,7 +1091,6 @@ by_start = join_by(TRIP_START_y == YEAR,
 
 ### with trips ----
 # print_df_names(vessels__trips_22_l_sa_short)
-
 
 vessels__trips_22_l_sa_short_all_dates_t_start <-
   vessels__trips_22_l_sa_short %>%
@@ -1090,6 +1108,7 @@ vessels__trips_22_l_sa_short_all_dates_t_start <-
 dim(vessels__trips_22_l_sa_short_all_dates_t_start)
 # [1] 19433     5
 # [1] 19445     5 (with 2021 and 2023)
+# [1] 19461     5
 
 vessels__trips_22_l_sa_short_all_dates_t_start %>%
   filter(is.na(permit_vessel_id))
@@ -1116,6 +1135,7 @@ WHERE
 
 dim(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
 # [1] 19435     7
+# [1] 19451     7
 
 vessels__trips_22_l_sa_short_all_dates_t_start_all_cols %>%
   filter(is.na(permit_vessel_id))
@@ -1160,6 +1180,7 @@ vessels__trip_neg_22_l_sa_short_all_dates_t_start <-
 
 dim(vessels__trip_neg_22_l_sa_short_all_dates_t_start)
 # [1] 65644     4
+# [1] 65818     4
 
 vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
   filter(is.na(permit_vessel_id))
@@ -1173,7 +1194,8 @@ vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
 
 # View(vessels_by_permit_vessel__all_l_u)
 # dim(vessels_permit_bind_u1)
-vessels_permit_bind_u1 %>%
+# vessels_permit_bind 
+vessels_permit_bind_u_one_df %>%
   map_df(dim)
 #    dual gom_only sa_only
 # 1   378     1204    3877
@@ -1181,14 +1203,27 @@ vessels_permit_bind_u1 %>%
 # from csv
 # 1   379     1204    3877
 
-vessels_permit_bind_u1$sa_only %>%
-  head() %>% glimpse()
+# vessels_permit_bind_u1$sa_only %>%
+#   head() %>% glimpse()
 
 ## how many weeks the permit was in effect ----
-# eff_int_sa
+# Restore eff_int_sa (might be frome the csv)
+  # mutate(
+  #   eff_int_gom =
+  #     lubridate::interval(EFFECTIVE_DATE.gom,
+  #                         my_end_date.gom),
+  #   eff_int_sa =
+  #     lubridate::interval(EFFECTIVE_DATE.sa,
+  #                         my_end_date.sa)
+  # ) %>%
+
+
+str(vessels_permit_bind_u_one_df1)
+
+
 
 vessels_permit_bind_u1_sa_w_p <-
-  vessels_permit_bind_u1$sa_only %>%
+  vessels_permit_bind_u_one_df1$sa_only %>%
   mutate(weeks_perm = eff_int_sa / lubridate::dweeks(1))
 dim(vessels_permit_bind_u1_sa_w_p)
 # [1] 3877   49
