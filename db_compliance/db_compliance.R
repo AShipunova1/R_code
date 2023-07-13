@@ -441,14 +441,16 @@ rr1 <-
     my_function_vessels_permit_vsl_id__all_l
   )
 
-all.equal(vessels_by_permit_vessel__all_l_u,
-          rr1)
-T
+# all.equal(vessels_by_permit_vessel__all_l_u,
+#           rr1)
+# T
 ### check vessels_permit_vsl_id__all_u ---
 
 map_df(vessels_permit_vsl_id__all_l, dim)
 #    dual gom_only sa_only
 # 1   392   141154  143932
+
+map_df(rr1, dim)
 
 map_df(vessels_by_permit_vessel__all_l_u, dim)
 #    dual gom_only sa_only
@@ -467,7 +469,7 @@ uniq_permit_vsl_ids <-
 #   <int>    <int>   <int>
 # 1   392     1272    4020
 # 2     1        1       1
-View(uniq_permit_vsl_ids)
+# View(uniq_permit_vsl_ids)
 
 uniq_permit_vsl_ids %>%
   rowSums()
