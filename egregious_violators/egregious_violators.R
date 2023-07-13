@@ -274,7 +274,7 @@ get_calls_with_direct_communication <-
     # save the long filter
     # more than one call
     answered_1_plus_filter <- quo(
-      contact_freq > 0 &
+      contact_freq > 1 &
         tolower(contacttype) == "call" &
         direct_contact == "yes" &
         tolower(voicemail) ==  "no"
