@@ -1219,22 +1219,22 @@ vessels_permit_bind_u_one_df %>%
   # ) %>%
 
 
-str(vessels_permit_bind_u_one_df1)
-
-
+str(vessels_permit_bind_u_one_df)
 
 vessels_permit_bind_u1_sa_w_p <-
-  vessels_permit_bind_u_one_df1$sa_only %>%
+  vessels_permit_bind_u_one_df$sa_only %>%
   mutate(weeks_perm = eff_int_sa / lubridate::dweeks(1))
+
 dim(vessels_permit_bind_u1_sa_w_p)
-# [1] 3877   49
+# [1] 3877   50
 
 vessels_permit_bind_u1_sa_w_p_short <-
   vessels_permit_bind_u1_sa_w_p %>%
   # we need an sa only
   select(-ends_with(".gom"))
+
 dim(vessels_permit_bind_u1_sa_w_p_short)
-# [1] 3877   42
+# [1] 3877   43
 
 ### an err ----
 # vessels_permit_bind_u1_sa_w_p_short %>%
@@ -1261,7 +1261,7 @@ dim(vessels_permit_bind_u1_sa_w_p_short)
 # HAPPY DAY TODAY
 
 #
-View(vessels__trip_neg_22_l)
+# View(vessels__trip_neg_22_l)
 # vessels_permit_bind_u1_sa_w_p_short
 # check for 2022
 # count distinct weeks per vessel, compare with permit weeks in year ----
@@ -1282,7 +1282,9 @@ vessels__trip_neg_22_l_sa_weeks_cnt_u <-
   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
   summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
-# View(vessels__trip_neg_22_l_sa_weeks_cnt_u)
+dim(vessels__trip_neg_22_l_sa_weeks_cnt_u)
+# [1] 1714    5
+
 ### check ids ----
 vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
   filter(!permit_vessel_id == SUPPLIER_VESSEL_ID) %>%
@@ -1359,26 +1361,32 @@ toc()
 
 dim(vessels__t_tne_sa)
 # [1] 457647    146
+# [1] 458922    148
 
 ### check uniq vsls ----
 vessels__t_tne_sa %>% select(VESSEL_ID, permit_vessel_id) %>%
   distinct() %>%
   dim()
 # [1] 1751    2
+# [1] 1756    2
 
 vessels__trip_neg_22_l_sa_vsls <-
   vessels__trip_neg_22_l$sa_only %>%
   select(VESSEL_ID, permit_vessel_id) %>%
   distinct()
 
-# dim(vessels__trip_neg_22_l_sa_vsls)
+dim(vessels__trip_neg_22_l_sa_vsls)
 # 1709
+# [1] 1714    2
 
 vessels__trips_22_l_sa_vsls <-
   vessels__trips_22_l$sa_only %>%
   select(VESSEL_ID, permit_vessel_id) %>%
   distinct()
+
+dim(vessels__trips_22_l_sa_vsls)
 # [1] 1110    2
+# [1] 1112    2
 
 full_join(
   vessels__trip_neg_22_l_sa_vsls,
@@ -1388,9 +1396,10 @@ full_join(
   distinct() %>%
   dim()
 # [1] 1751    2
+# [1] 1756    2
 # ok, as in join
 
-### check, there should not be doubles? ----
+### check, there should be no doubles? ----
 vessels__t_tne_sa_tne_in_t_short <-
   vessels__t_tne_sa %>%
   filter(dplyr::between(TRIP_DATE, TRIP_START_DATE, TRIP_END_DATE)) %>%
@@ -1401,13 +1410,13 @@ vessels__t_tne_sa_tne_in_t_short <-
          VESSEL_ID,
          permit_vessel_id)
 
-  # distinct() same
+dim(vessels__t_tne_sa_tne_in_t_short)
+# [1] 5523    6
 
 distinct(vessels__t_tne_sa_tne_in_t_short) %>%  dim()
 # [1] 5219    6
+# [1] 5229    6
 
-# View(vessels__t_tne_sa_tne_in_t_short)
-# [1] 5513  146
 
 # inner_join(d2, d1, by = join_by(x, between(pos, start, end)))
   # # between(x, left, right)
@@ -1458,7 +1467,16 @@ vessels__t_tne_sa_tne_in_t_cnt_temp %>%
   # Rows: 5,095
   # tail() %>%
   View()
+
+# 1) Get all weeks for permit per vessel
+# 2) all trips (logbook) - weeks
+# 3) all neg reports (DNF) - weeks
+# 4) compare if all permit weeks have at least one or another
+
 # stopped here ----
+
+
+
 # vessels__t_tne_sa_tne_in_t_cnt distinct: 0.53 sec elapsed
 # vessels__t_tne_sa_tne_in_t_cnt unique: 322.19 sec elapsed
 vessels__t_tne_sa_tne_in_t_cnt_temp %>%
