@@ -459,13 +459,13 @@ vessels_by_permit_vessel__all_l_u <-
     my_function_vessels_permit_vsl_id__all_l
   )
 
-length(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id) +
-  length(vessels_by_permit_vessel__all_l_u$gom_only$permit_vessel_id) +
-  length(vessels_by_permit_vessel__all_l_u$sa_only$permit_vessel_id)
+# length(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id) +
+#   length(vessels_by_permit_vessel__all_l_u$gom_only$permit_vessel_id) +
+#   length(vessels_by_permit_vessel__all_l_u$sa_only$permit_vessel_id)
 # 5684
 
-all.equal(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id,
-          vessels_by_permit_vessel__all_l_u1$permit_vessel_id)
+# all.equal(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id,
+#           vessels_by_permit_vessel__all_l_u1$permit_vessel_id)
 # [1] "Lengths (392, 5632) differ (string compare on first 392)"
 # length(unique(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id))
 # 392
@@ -501,12 +501,6 @@ uniq_permit_vsl_ids %>%
   rowSums()
 # 5684
 
-# vessels_by_permit_vessel__all %>%
-#   select(permit_vessel_id) %>%
-#   distinct() %>%
-#   dim()
-# 5632
-
 # View(trip_notifications_2022)
 
 # join vessels and permits for 2022 ----
@@ -523,7 +517,7 @@ vessels_permit_1 <-
                                   suffix = c(".p", ".v"))
               })
 
-View(vessels_permit_1)
+# View(vessels_permit_1)
 
 vessels_permit_2 <-
   purrr::map2(permit_info_r_l_overlap_join1_w_dual_22__list,
@@ -558,7 +552,7 @@ vessels_permit_bind <-
        vessels_permit_3,
        dplyr::bind_rows)
 
-# View(vessels_permit_bind)
+View(vessels_permit_bind)
 
 ## uniq ----
 
