@@ -539,10 +539,10 @@ read_csv_or_run <-
   function(my_csv_file_path,
            my_data_list_of_dfs,
            my_function,
-           my_col_types = NA) {
+           my_col_types = NULL) {
     
     # browser()
-    if (is.na(my_col_types)) {
+    if (is.null(my_col_types)) {
       my_col_types = cols(.default = "c")
     }
     
