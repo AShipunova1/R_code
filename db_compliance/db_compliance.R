@@ -582,48 +582,51 @@ View(vessels_permit_bind)
 
 ### vessels_permit_bind_ from csv ----
 
-file_path_vessels_permit_bind_u.csv <- file.path(
+file_path_vessels_permit_bind_u <- file.path(
   my_paths$inputs,
   current_project_name,
   r"(intermediate_dfs\vessels_permit_bind_u.csv)"
 )
-# grep("date",
-#      names(vessels_permit_bind_u1),
-#      ignore.case = T,
-#      value = T)
 
-# sn1 <- setNames(c(list(col_character()),
-           # rep(list(col_integer(
-           # )), 5)),
-           # grep("date", names(vessels_permit_bind_u1), ignore.case = T,
-                # value = T))
-         # c("name", paste0("id_", 1:5)))
+my_function_vessels_permit_bind_u_one_df <-
+  function(vessels_permit_bind) {
+    vessels_permit_bind %>%
+      map(~ .x %>%
+            group_by(VESSEL_ID.v) %>%
+            dplyr::summarise_all(coalesce_by_column)) %>%
+      return()
+  }
 
-# View(sn1)
+my_col_type <- cols(VESSEL_ID.v = "c")
 
+vessels_permit_bind_u_one_df1 <-
+  read_csv_or_run(file_path_vessels_permit_bind_u,
+           vessels_permit_bind,
+           my_function_vessels_permit_bind_u_one_df,
+           my_col_type)
 
-if (file.exists(file_path_vessels_permit_bind_u.csv)) {
-  vessels_permit_bind_u_one_df <-
-    readr::read_csv(file_path_vessels_permit_bind_u.csv,
-                    col_types = cols(
-                      VESSEL_ID.v = "c"
+# if (file.exists(file_path_vessels_permit_bind_u.csv)) {
+  # vessels_permit_bind_u_one_df <-
+    # readr::read_csv(file_path_vessels_permit_bind_u.csv,
+                    # col_types = cols(
+                      # VESSEL_ID.v = "c"
                     # col_types = cols(.default = "c", 
                     #                  EFFECTIVE_DATE.gom = "D",
                     #                  my_end_date.gom = "D",
                     #                  EFFECTIVE_DATE.sa = "D",
                     #                  my_end_date.sa = "D",
-                                     )) %>% 
+                                     # )) %>% 
     # need distinct because the first line is written twices, see below
-    distinct()
+    # distinct()
   # Rows: 5460 Columns: 48             
   
-  vessels_permit_bind_u1 <-
-    vessels_permit_bind_u_one_df %>% 
-    split(as.factor(vessels_permit_bind_u_one_df$permit_sa_gom))
+  # vessels_permit_bind_u1 <-
+    # vessels_permit_bind_u_one_df %>% 
+    # split(as.factor(vessels_permit_bind_u_one_df$permit_sa_gom))
   
-} else {
-  tic("vessels_permit_bind_u1")
-  vessels_permit_bind_u1 <-
+# } else {
+  # tic("vessels_permit_bind_u1")
+  # vessels_permit_bind_u1 <-
     vessels_permit_bind %>%
     map( ~ .x %>%
            group_by(VESSEL_ID.v) %>%
