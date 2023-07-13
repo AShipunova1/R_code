@@ -282,11 +282,22 @@ vessels_permit_vsl_id_state_n <-
         inner_join(vessels_all,
                    join_by(permit_vessel_id == STATE_REG_NBR)))
 
-vessels_permit_vsl_id__all_l <-
+vessels_permit_vsl_id__all_l_0 <-
   # map over 2 lists of dataframes and make a list
   map2(vessels_permit_vsl_id_coast_g,
            vessels_permit_vsl_id_state_n,
            dplyr::bind_rows)
+
+# add permit_sa_gom back as a column
+vessels_permit_vsl_id__all_l <-
+  vessels_permit_vsl_id__all_l_0 |> 
+  map2(names(vessels_permit_vsl_id__all_l_0),
+       ~ mutate(.x, permit_sa_gom = .y))
+
+# setdiff(names(vessels_permit_vsl_id__all_l$dual),
+#         names(vessels_permit_vsl_id__all_l_0$dual)
+# )
+# [1] "permit_sa_gom"
 
 ## the same for checking as a df ----
 vessels_permit_vsl_id__all <-
@@ -383,7 +394,7 @@ vessels_permit_vsl_id__all_2 <-
   group_by(permit_vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
 
-View(vessels_permit_vsl_id__all_2)
+# View(vessels_permit_vsl_id__all_2)
 
 vessels_permit_vsl_id__all_0 <-
   vessels_permit_vsl_id__all %>%
@@ -415,6 +426,8 @@ all.equal(vessels_permit_vsl_id__all_2,
 # # vessels_by_permit_vessel__all_l_u: 148.02 sec elapsed
 # vessels_by_permit_vessel__all_l_u: 137.68 sec elapsed
 
+View(vessels_permit_vsl_id__all_l)
+
 my_function_vessels_permit_vsl_id__all_l <-
   function(vessels_permit_vsl_id__all_l) {
     purrr::map(
@@ -434,10 +447,11 @@ vessels_by_permit_vessel__all_l_u_file_path <-
     "vessels_by_permit_vessel__all_l_u.csv"
   )
 
-vessels_by_permit_vessel__all_l_u_col_types <-
-  cols(VESSEL_ID.v = "c")
+# vessels_by_permit_vessel__all_l_u_col_types <-
+#   cols(VESSEL_ID.v = "c")
+# names(vessels_by_permit_vessel__all_l_u)
 
-vessels_by_permit_vessel__all_l_u1 <-
+vessels_by_permit_vessel__all_l_u <-
   read_csv_or_run(
     vessels_by_permit_vessel__all_l_u_file_path,
     vessels_by_permit_vessel__all_l_u,
@@ -445,7 +459,7 @@ vessels_by_permit_vessel__all_l_u1 <-
   )
 
 # all.equal(vessels_by_permit_vessel__all_l_u,
-          # vessels_by_permit_vessel__all_l_u1)
+#           vessels_by_permit_vessel__all_l_u1)
 
 
 ### check vessels_permit_vsl_id__all_u ---
