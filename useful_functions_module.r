@@ -542,7 +542,7 @@ read_csv_or_run <-
            my_col_types = NA) {
     # browser()
     if (is.na(my_col_types)) {
-      my_col_types == cols(.default = .default)
+      my_col_types = cols(.default = "c")
     }
     
     if (file.exists(my_csv_file_path)) {

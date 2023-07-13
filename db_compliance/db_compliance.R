@@ -441,23 +441,12 @@ vessels_by_permit_vessel__all_l_u1 <-
   read_csv_or_run(
     vessels_by_permit_vessel__all_l_u_file_path,
     vessels_by_permit_vessel__all_l_u,
-    my_function_vessels_permit_vsl_id__all_l,
-    vessels_by_permit_vessel__all_l_u_col_types
+    my_function_vessels_permit_vsl_id__all_l
   )
 
 # all.equal(vessels_by_permit_vessel__all_l_u,
-#           my_csv_df)
-# T
+          # vessels_by_permit_vessel__all_l_u1)
 
-my_csv_df <-
-      readr::read_csv(vessels_by_permit_vessel__all_l_u_file_path,
-                      col_types = vessels_by_permit_vessel__all_l_u_col_types
-                      # col_types = cols(
-                      # VESSEL_ID.v = "c"
-                      # )
-                      ) %>%
-                      # need distinct because the first line is written twice, see below
-                      distinct()
 
 ### check vessels_permit_vsl_id__all_u ---
 
