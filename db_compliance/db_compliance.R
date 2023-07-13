@@ -1598,7 +1598,7 @@ vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks <-
   select(SERO_OFFICIAL_NUMBER, distinct_weeks_ne) |> 
   distinct()
 
-dim(vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks)
+# dim(vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks)
 # [1] 1714    2
 # [1] 1656    2
 
@@ -1607,16 +1607,25 @@ dim(vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks)
 # dim(v_p)
 # 3869    
 
-dim(vessels__trips_22_l_sa_weeks_cnt_u_weeks)
+# dim(vessels__trips_22_l_sa_weeks_cnt_u_weeks)
 # 1071    
 # dim(t)
 # 1069    
+
 v_p <-
   vessels_permit_bind_u1_sa_w_p_short_weeks |>
   filter(!if_any(everything(), is.na))
 
 t <- vessels__trips_22_l_sa_weeks_cnt_u_weeks |> 
   filter(!if_any(everything(), is.na))
+
+tne <- vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks |> 
+  filter(!if_any(everything(), is.na))
+
+dim(vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks)
+# 1656        
+dim(tne)
+# 1655  
 
 join_v_p__t <-
   full_join(v_p,
@@ -1632,4 +1641,10 @@ join_v_p__t <-
 #   <chr>                          <int>
 # 1 NA                                 1
 
+join_v_p__t_tne <-
+  full_join(join_v_p__t,
+            tne)
+# Joining with `by = join_by(SERO_OFFICIAL_NUMBER)`
+
 # TODO: SERO_OFFICIAL_NUMBER is NA, use an alternative id
+
