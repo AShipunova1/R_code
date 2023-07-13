@@ -426,7 +426,7 @@ all.equal(vessels_permit_vsl_id__all_2,
 # # vessels_by_permit_vessel__all_l_u: 148.02 sec elapsed
 # vessels_by_permit_vessel__all_l_u: 137.68 sec elapsed
 
-View(vessels_permit_vsl_id__all_l)
+# View(vessels_permit_vsl_id__all_l)
 
 my_function_vessels_permit_vsl_id__all_l <-
   function(vessels_permit_vsl_id__all_l) {
@@ -451,16 +451,26 @@ vessels_by_permit_vessel__all_l_u_file_path <-
 #   cols(VESSEL_ID.v = "c")
 # names(vessels_by_permit_vessel__all_l_u)
 
+# View(vessels_permit_vsl_id__all_l)
 vessels_by_permit_vessel__all_l_u <-
   read_csv_or_run(
     vessels_by_permit_vessel__all_l_u_file_path,
-    vessels_by_permit_vessel__all_l_u,
+    vessels_permit_vsl_id__all_l,
     my_function_vessels_permit_vsl_id__all_l
   )
 
-# all.equal(vessels_by_permit_vessel__all_l_u,
-#           vessels_by_permit_vessel__all_l_u1)
+length(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id) +
+  length(vessels_by_permit_vessel__all_l_u$gom_only$permit_vessel_id) +
+  length(vessels_by_permit_vessel__all_l_u$sa_only$permit_vessel_id)
+# 5684
 
+all.equal(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id,
+          vessels_by_permit_vessel__all_l_u1$permit_vessel_id)
+# [1] "Lengths (392, 5632) differ (string compare on first 392)"
+# length(unique(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id))
+# 392
+# length(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id)
+# 392
 
 ### check vessels_permit_vsl_id__all_u ---
 
