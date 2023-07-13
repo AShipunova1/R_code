@@ -454,7 +454,7 @@ vessels_by_permit_vessel__all_l_u_file_path <-
 # names(vessels_by_permit_vessel__all_l_u)
 
 # View(vessels_permit_vsl_id__all_l)
-vessels_by_permit_vessel__all_l_u_rds <-
+vessels_by_permit_vessel__all_l_u_rds1 <-
   read_rds_or_run(
     vessels_by_permit_vessel__all_l_u_file_path,
     vessels_permit_vsl_id__all_l,
@@ -462,18 +462,21 @@ vessels_by_permit_vessel__all_l_u_rds <-
   )
 # run the function: 117.58 sec elapsed
 
-length(vessels_by_permit_vessel__all_l_u_rds$dual$permit_vessel_id) +
-  length(vessels_by_permit_vessel__all_l_u_rds$gom_only$permit_vessel_id) +
-  length(vessels_by_permit_vessel__all_l_u_rds$sa_only$permit_vessel_id)
+map_df(vessels_by_permit_vessel__all_l_u_rds, dim)
+map_df(vessels_by_permit_vessel__all_l_u_rds1, dim)
+
+length(vessels_by_permit_vessel__all_l_u_rds1$dual$permit_vessel_id) +
+  length(vessels_by_permit_vessel__all_l_u_rds1$gom_only$permit_vessel_id) +
+  length(vessels_by_permit_vessel__all_l_u_rds1$sa_only$permit_vessel_id)
 # 5684
 
 # all.equal(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id,
 #           vessels_by_permit_vessel__all_l_u_rds$dual$permit_vessel_id)
 # T
 
-length(unique(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id))
+length(unique(vessels_by_permit_vessel__all_l_u_rds1$gom_only$permit_vessel_id))
 # 392
-length(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id)
+length(vessels_by_permit_vessel__all_l_u_rds1$gom_only$permit_vessel_id)
 # 392
 
 ### check vessels_permit_vsl_id__all_u ---
