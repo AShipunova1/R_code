@@ -1572,3 +1572,64 @@ setdiff(
 # )
 
 # 4) see if all permit weeks have at least one or another
+# SERO_OFFICIAL_NUMBER
+
+vessels_permit_bind_u1_sa_w_p_short_weeks <-
+  vessels_permit_bind_u1_sa_w_p_short |>
+  dplyr::ungroup() |> 
+  select(SERO_OFFICIAL_NUMBER, weeks_perm) |> 
+  # [1] 3877    2
+  distinct()
+  # [1] 3873    2
+
+# dim(vessels_permit_bind_u1_sa_w_p_short_weeks)
+
+vessels__trips_22_l_sa_weeks_cnt_u_weeks <-
+  vessels__trips_22_l_sa_weeks_cnt_u |> 
+  dplyr::ungroup() |> 
+  select(SERO_OFFICIAL_NUMBER, max_weeks_cnt_t) |> 
+# [1] 1112    2
+    distinct()
+# [1] 1071    2
+
+vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks <-
+  vessels__trip_neg_22_l_sa_weeks_cnt_u |> 
+  dplyr::ungroup() |> 
+  select(SERO_OFFICIAL_NUMBER, distinct_weeks_ne) |> 
+  distinct()
+
+dim(vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks)
+# [1] 1714    2
+# [1] 1656    2
+
+# dim(vessels_permit_bind_u1_sa_w_p_short_weeks)
+# 3873    
+# dim(v_p)
+# 3869    
+
+dim(vessels__trips_22_l_sa_weeks_cnt_u_weeks)
+# 1071    
+# dim(t)
+# 1069    
+v_p <-
+  vessels_permit_bind_u1_sa_w_p_short_weeks |>
+  filter(!if_any(everything(), is.na))
+
+t <- vessels__trips_22_l_sa_weeks_cnt_u_weeks |> 
+  filter(!if_any(everything(), is.na))
+
+join_v_p__t <-
+  full_join(v_p,
+            t)
+# Joining with `by = join_by(SERO_OFFICIAL_NUMBER)`
+
+# vessels_permit_bind_u1_sa_w_p_short_weeks[975,]
+#   SERO_OFFICIAL_NUMBER weeks_perm
+#   <chr>                     <dbl>
+# 1 NA                         50.4
+# vessels__trips_22_l_sa_weeks_cnt_u_weeks[490 ,]
+#   SERO_OFFICIAL_NUMBER max_weeks_cnt_t
+#   <chr>                          <int>
+# 1 NA                                 1
+
+# TODO: SERO_OFFICIAL_NUMBER is NA, use an alternative id
