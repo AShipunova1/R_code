@@ -538,12 +538,18 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
 read_csv_or_run <-
   function(my_csv_file_path,
            my_data_list_of_dfs,
-           my_function) {
-  browser()
-  if (file.exists(my_csv_file_path)) {
+           my_function,
+           my_col_types = NA) {
+    # browser()
+    if (is.na(my_col_types)) {
+      my_col_types == cols(.default = .default)
+    }
+    
+    if (file.exists(my_csv_file_path)) {
     my_csv_df <-
       readr::read_csv(my_csv_file_path
-                      # ,
+                      ,
+                      col_types = my_col_types
                       # col_types = cols(
                       # VESSEL_ID.v = "c"
                       # )
