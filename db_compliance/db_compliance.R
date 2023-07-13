@@ -1264,6 +1264,7 @@ dim(vessels_permit_bind_u1_sa_w_p_short)
 # View(vessels__trip_neg_22_l)
 # vessels_permit_bind_u1_sa_w_p_short
 # check for 2022
+
 # count distinct weeks per vessel, compare with permit weeks in year ----
 
 # vessels__trip_neg_22_l_sa_weeks_cnt <-
@@ -1468,63 +1469,93 @@ vessels__t_tne_sa_tne_in_t_cnt_temp %>%
   # tail() %>%
   View()
 
+View(vessels__t_tne_sa_tne_in_t_cnt)
+
+# temp ----
+
+# # vessels__t_tne_sa_tne_in_t_cnt distinct: 0.53 sec elapsed
+# # vessels__t_tne_sa_tne_in_t_cnt unique: 322.19 sec elapsed
+# vessels__t_tne_sa_tne_in_t_cnt_temp %>%
+#       filter(neg_in_t == "both_t__tne") %>%
+#     select(TRIP_week_num, TRIP_END_week_num) %>%
+#     distinct() %>%
+#   # Rows: 5,095
+#   # tail() %>%
+#   filter(!TRIP_week_num == TRIP_END_week_num) %>% dim()
+# # 45
+# 
+# # count total report number for trips + trip_neg ----
+# print_df_names(vessels__t_tne_sa)
+# # dplyr::between(TRIP_DATE,
+# #                TRIP_START_DATE,
+# #                TRIP_END_DATE) ~ "both_t__tne",
+# # is.na(TRIP_START_TIME) ~ "tne",
+# # is.na(TRIP_DATE) ~ "t",
+# 
+# vessels__t_tne_sa %>%
+#   dplyr::group_by(VESSEL_ID,
+#                   permit_vessel_id,
+#                   SUPPLIER_VESSEL_ID,
+#                   SERO_OFFICIAL_NUMBER) %>%
+#   dplyr::summarise(
+#     distinct_weeks_ne =
+#       dplyr::n_distinct(TRIP_week_num[neg_in_t == 'tne']),
+#     distinct_start_weeks_t =
+#       dplyr::n_distinct(TRIP_START_week_num[!neg_in_t == 'tne']),
+#     distinct_end_weeks_t =
+#       dplyr::n_distinct(TRIP_END_week_num[!neg_in_t == 'tne'])
+#   ) %>%
+#   ungroup()
+# 
+#   summarize(
+# 
+#     # last_date = max(last_date_temp, na.rm = TRUE),
+# 
+#     distinct_date = n_distinct(date[type != "Online"]),
+#   ) %>%
+#   distinct()
+# 
+#           # distinct_date = n_distinct(date[type != "Online"])
+# 
+#   dplyr::summarise(
+#     distinct_weeks_ne = dplyr::n_distinct(TRIP_week_num),
+#     distinct_start_weeks_t = dplyr::n_distinct(TRIP_START_week_num),
+#     distinct_end_weeks_t = dplyr::n_distinct(TRIP_END_week_num)
+#   ) %>%
+#   dplyr::mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t)) %>%
+#   dplyr::ungroup()
+
+#  end of temp ----
+
 # 1) Get all weeks for permit per vessel
 # 2) all trips (logbook) - weeks
 # 3) all neg reports (DNF) - weeks
 # 4) compare if all permit weeks have at least one or another
 
-# stopped here ----
+# 1) Get all weeks for permit per vessel
+print_df_names(vessels_permit_bind_u1_sa_w_p_short)
+# [1] "VESSEL_ID.v, VESSEL_ID, TOP.sa, PERMIT.sa, EFFECTIVE_DATE.sa, PERMIT_STATUS.sa, VESSEL_ALT_NUM.sa, permit_sa_gom.sa, my_end_date.sa, permit_sa_gom.p, eff_int_gom, eff_int_sa, COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE, HULL_ID_NBR, STATE_REG_NBR, REGISTERING_STATE, VESSEL_NAME, PASSENGER_CAPACITY, VESSEL_TYPE, YEAR_BUILT, UPDATE_DATE, PRIMARY_GEAR, OWNER_ID, EVENT_ID, DE, UE, DC, UC, STATUS, SER_ID, UPDATED_FLAG, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER, COAST_GUARD_NBR, permit_sa_gom.v, VESSEL_ID.p, weeks_perm"
 
 
+# 2) all trips (logbook) - weeks
+print_df_names(vessels__trips_22_l_sa_weeks_cnt_u)
+# [1] "VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER, distinct_start_weeks_t, distinct_end_weeks_t, max_weeks_cnt_t"
 
-# vessels__t_tne_sa_tne_in_t_cnt distinct: 0.53 sec elapsed
-# vessels__t_tne_sa_tne_in_t_cnt unique: 322.19 sec elapsed
-vessels__t_tne_sa_tne_in_t_cnt_temp %>%
-      filter(neg_in_t == "both_t__tne") %>%
-    select(TRIP_week_num, TRIP_END_week_num) %>%
-    distinct() %>%
-  # Rows: 5,095
-  # tail() %>%
-  filter(!TRIP_week_num == TRIP_END_week_num) %>% dim()
-# 45
+setdiff(
+  unique(vessels__trips_22_l_sa_weeks_cnt_u$permit_vessel_id),
+  unique(vessels_permit_bind_u1_sa_w_p_short$VESSEL_ID.p)
+)
+# 44
 
-# count total report number for trips + trip_neg ----
-print_df_names(vessels__t_tne_sa)
-# dplyr::between(TRIP_DATE,
-#                TRIP_START_DATE,
-#                TRIP_END_DATE) ~ "both_t__tne",
-# is.na(TRIP_START_TIME) ~ "tne",
-# is.na(TRIP_DATE) ~ "t",
+setdiff(
+  unique(vessels__trips_22_l_sa_weeks_cnt_u$SERO_OFFICIAL_NUMBER),
+  unique(vessels_permit_bind_u1_sa_w_p_short$SERO_OFFICIAL_NUMBER)
+)
+# 0 (the same)
 
-vessels__t_tne_sa %>%
-  dplyr::group_by(VESSEL_ID,
-                  permit_vessel_id,
-                  SUPPLIER_VESSEL_ID,
-                  SERO_OFFICIAL_NUMBER) %>%
-  dplyr::summarise(
-    distinct_weeks_ne =
-      dplyr::n_distinct(TRIP_week_num[neg_in_t == 'tne']),
-    distinct_start_weeks_t =
-      dplyr::n_distinct(TRIP_START_week_num[!neg_in_t == 'tne']),
-    distinct_end_weeks_t =
-      dplyr::n_distinct(TRIP_END_week_num[!neg_in_t == 'tne'])
-  ) %>%
-  ungroup()
+# 3) all neg reports (DNF) - weeks
+# vessels__trip_neg_22_l_sa_weeks_cnt_u
+print_df_names(vessels__trip_neg_22_l_sa_weeks_cnt_u)
+# distinct_weeks_ne
 
-  summarize(
-
-    # last_date = max(last_date_temp, na.rm = TRUE),
-
-    distinct_date = n_distinct(date[type != "Online"]),
-  ) %>%
-  distinct()
-
-          # distinct_date = n_distinct(date[type != "Online"])
-
-  dplyr::summarise(
-    distinct_weeks_ne = dplyr::n_distinct(TRIP_week_num),
-    distinct_start_weeks_t = dplyr::n_distinct(TRIP_START_week_num),
-    distinct_end_weeks_t = dplyr::n_distinct(TRIP_END_week_num)
-  ) %>%
-  dplyr::mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t)) %>%
-  dplyr::ungroup()
+# 4) see if all permit weeks have at least one or another
