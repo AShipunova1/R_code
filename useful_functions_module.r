@@ -535,53 +535,26 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
     return()
 }
 
-read_csv_or_run <-
+read_rds_or_run <-
   function(my_csv_file_path,
            my_data_list_of_dfs,
-           my_function,
-           my_col_types = NULL) {
-    
+           my_function) {
     # browser()
-    if (is.null(my_col_types)) {
-      my_col_types = cols(.default = "c")
-    }
     
     if (file.exists(my_csv_file_path)) {
-      # returns a df
-      my_csv_df_temp <-
-        readr::read_csv(my_csv_file_path,
-                        col_types = my_col_types) %>%
-        # need distinct because the first line is written twice, see below
-        distinct()
-      
-      my_csv_df <-
-        my_csv_df_temp |>
-        split(as.factor(my_csv_df_temp$permit_sa_gom))
+      # read a binary file saved previously
+      my_df <-
+        readr::read_rds(my_csv_file_path)
     } else {
       tic("run the function")
-      my_csv_df <-
+      my_df <-
         my_function(my_data_list_of_dfs)
       toc()
       
-      # write headers
-      my_data_list_of_dfs[[1]][1, ] %>%
-        write_csv(my_csv_file_path)
-      
-      # write all
-      my_data_list_of_dfs %>%
-        walk( ~ .x %>%
-                readr::write_rds(my_csv_file_path,
-                          append = TRUE))
+      # write all as binary
+      readr::write_rds(my_data_list_of_dfs,
+                       my_csv_file_path)
     }
-    # returns a list of dfs!
-    return(my_csv_df)
+    
+    return(my_df)
   }
-write_rds(test, "test1.rds")
-test_read_back_rds <- read_rds("test1.rds")
-> readr::write_rds(vessels_permit_bind_u_one_df1, "vessels_permit_bind_u_one_df1.csv")
-> vessels_permit_bind_u_one_df1_from_csv <- readr::read_rds
-> vessels_permit_bind_u_one_df1_from_csv <- readr::read_rds("vessels_permit_bind_u_one_df1.csv)
-+ 
-> vessels_permit_bind_u_one_df1_from_csv <- readr::read_rds("vessels_permit_bind_u_one_df1.csv")
-> all.equal(vessels_permit_bind_u_one_df1_from_csv, vessels_permit_bind_u_one_df1)
-[1] TRUE
