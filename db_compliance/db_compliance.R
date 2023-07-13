@@ -403,16 +403,16 @@ all.equal(vessels_permit_vsl_id__all_2,
 #   group_by(permit_vessel_id) %>%
 #   dplyr::summarise_all(coalesce_by_column)
 
-# View(vessels_permit_vsl_id__all_l)
-tic("vessels_by_permit_vessel__all_l_u")
-vessels_by_permit_vessel__all_l_u <-
-  vessels_permit_vsl_id__all_l %>%
-  purrr::map(~ .x %>%
-        dplyr::group_by(permit_vessel_id) %>%
-        dplyr::summarise_all(coalesce_by_column))
-toc()
-# vessels_by_permit_vessel__all_l_u: 98.53 sec elapsed
-# vessels_by_permit_vessel__all_l_u: 148.02 sec elapsed
+# # View(vessels_permit_vsl_id__all_l)
+# tic("vessels_by_permit_vessel__all_l_u")
+# vessels_by_permit_vessel__all_l_u <-
+#   vessels_permit_vsl_id__all_l %>%
+#   purrr::map(~ .x %>%
+#         dplyr::group_by(permit_vessel_id) %>%
+#         dplyr::summarise_all(coalesce_by_column))
+# toc()
+# # vessels_by_permit_vessel__all_l_u: 98.53 sec elapsed
+# # vessels_by_permit_vessel__all_l_u: 148.02 sec elapsed
 # vessels_by_permit_vessel__all_l_u: 137.68 sec elapsed
 
 my_function_vessels_permit_vsl_id__all_l <-
@@ -434,23 +434,36 @@ vessels_by_permit_vessel__all_l_u_file_path <-
     "vessels_by_permit_vessel__all_l_u.csv"
   )
 
-rr1 <-
+vessels_by_permit_vessel__all_l_u_col_types <-
+  cols(VESSEL_ID.v = "c")
+
+vessels_by_permit_vessel__all_l_u1 <-
   read_csv_or_run(
     vessels_by_permit_vessel__all_l_u_file_path,
     vessels_by_permit_vessel__all_l_u,
-    my_function_vessels_permit_vsl_id__all_l
+    my_function_vessels_permit_vsl_id__all_l,
+    vessels_by_permit_vessel__all_l_u_col_types
   )
 
 # all.equal(vessels_by_permit_vessel__all_l_u,
-#           rr1)
+#           my_csv_df)
 # T
+
+my_csv_df <-
+      readr::read_csv(vessels_by_permit_vessel__all_l_u_file_path,
+                      col_types = vessels_by_permit_vessel__all_l_u_col_types
+                      # col_types = cols(
+                      # VESSEL_ID.v = "c"
+                      # )
+                      ) %>%
+                      # need distinct because the first line is written twice, see below
+                      distinct()
+
 ### check vessels_permit_vsl_id__all_u ---
 
 map_df(vessels_permit_vsl_id__all_l, dim)
 #    dual gom_only sa_only
 # 1   392   141154  143932
-
-map_df(rr1, dim)
 
 map_df(vessels_by_permit_vessel__all_l_u, dim)
 #    dual gom_only sa_only
