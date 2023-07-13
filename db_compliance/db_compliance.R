@@ -1554,8 +1554,21 @@ setdiff(
 # 0 (the same)
 
 # 3) all neg reports (DNF) - weeks
-# vessels__trip_neg_22_l_sa_weeks_cnt_u
+
 print_df_names(vessels__trip_neg_22_l_sa_weeks_cnt_u)
-# distinct_weeks_ne
+# [1] "VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER, distinct_weeks_ne"
+
+setdiff(
+  unique(vessels__trip_neg_22_l_sa_weeks_cnt_u$SERO_OFFICIAL_NUMBER),
+  unique(vessels_permit_bind_u1_sa_w_p_short$SERO_OFFICIAL_NUMBER)
+)
+# 0 (the same)
+
+
+# setdiff(
+#   unique(vessels__trips_22_l_sa_weeks_cnt_u$SERO_OFFICIAL_NUMBER),
+#     unique(vessels__trip_neg_22_l_sa_weeks_cnt_u$SERO_OFFICIAL_NUMBER)
+# 
+# )
 
 # 4) see if all permit weeks have at least one or another
