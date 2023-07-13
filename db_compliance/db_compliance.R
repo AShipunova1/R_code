@@ -605,60 +605,11 @@ vessels_permit_bind_u_one_df1 <-
            my_function_vessels_permit_bind_u_one_df,
            my_col_type)
 
-# if (file.exists(file_path_vessels_permit_bind_u.csv)) {
-  # vessels_permit_bind_u_one_df <-
-    # readr::read_csv(file_path_vessels_permit_bind_u.csv,
-                    # col_types = cols(
-                      # VESSEL_ID.v = "c"
-                    # col_types = cols(.default = "c", 
-                    #                  EFFECTIVE_DATE.gom = "D",
-                    #                  my_end_date.gom = "D",
-                    #                  EFFECTIVE_DATE.sa = "D",
-                    #                  my_end_date.sa = "D",
-                                     # )) %>% 
-    # need distinct because the first line is written twices, see below
-    # distinct()
-  # Rows: 5460 Columns: 48             
-  
-  # vessels_permit_bind_u1 <-
-    # vessels_permit_bind_u_one_df %>% 
-    # split(as.factor(vessels_permit_bind_u_one_df$permit_sa_gom))
-  
-# } else {
-  # tic("vessels_permit_bind_u1")
-  # vessels_permit_bind_u1 <-
-    vessels_permit_bind %>%
-    map( ~ .x %>%
-           group_by(VESSEL_ID.v) %>%
-           dplyr::summarise_all(coalesce_by_column))
-  toc()
-  # vessels_permit_bind_u1: 698.83 sec elapsed
-
-  # write headers
-  vessels_permit_bind_u1[[1]][1,] %>%
-    write_csv(file_path_vessels_permit_bind_u.csv)
-  
-  # write all
-  vessels_permit_bind_u1 %>%
-    walk(~ .x %>%
-           write_csv(file_path_vessels_permit_bind_u.csv,
-                     append = TRUE))
-}
-
-
-# all.equal(vessels_permit_bind_u_sero$gom_only,
-#           vessels_permit_bind_u1$gom_only)
-#  [2] "Attributes: < Component “row.names”: Numeric: lengths (1202, 1204) differ >"
-all.equal(vessels_permit_bind_u_sero$sa_only,
-          vessels_permit_bind_u1$sa_only)
- # [2] "Attributes: < Component “row.names”: Numeric: lengths (3870, 3877) differ >"
-
-all.equal(vessels_permit_bind_u_sero$dual,
-          vessels_permit_bind_u1$dual)
- # [1] "Names: 28 string mismatches"
-all.equal(vessels_permit_bind_u_sero,
-          vessels_permit_bind_u1)
-  # [4] "Component “dual”: Component “VESSEL_ID”: 378 string mismatches"
+map_df(vessels_permit_bind_u_one_df1, dim)
+#    dual gom_only sa_only
+#   <int>    <int>   <int>
+# 1   379     1204    3877
+# 2    48       48      48
 
 # fix trip data ----
 ## add trip_int ----
