@@ -449,12 +449,8 @@ vessels_by_permit_vessel__all_l_u_file_path <-
     "vessels_by_permit_vessel__all_l_u.rds"
   )
 
-# vessels_by_permit_vessel__all_l_u_col_types <-
-#   cols(VESSEL_ID.v = "c")
-# names(vessels_by_permit_vessel__all_l_u)
-
 # View(vessels_permit_vsl_id__all_l)
-vessels_by_permit_vessel__all_l_u_rds1 <-
+vessels_by_permit_vessel__all_l_u <-
   read_rds_or_run(
     vessels_by_permit_vessel__all_l_u_file_path,
     vessels_permit_vsl_id__all_l,
@@ -462,21 +458,20 @@ vessels_by_permit_vessel__all_l_u_rds1 <-
   )
 # run the function: 117.58 sec elapsed
 
-map_df(vessels_by_permit_vessel__all_l_u_rds, dim)
-map_df(vessels_by_permit_vessel__all_l_u_rds1, dim)
+map_df(vessels_by_permit_vessel__all_l_u, dim)
 
-length(vessels_by_permit_vessel__all_l_u_rds1$dual$permit_vessel_id) +
-  length(vessels_by_permit_vessel__all_l_u_rds1$gom_only$permit_vessel_id) +
-  length(vessels_by_permit_vessel__all_l_u_rds1$sa_only$permit_vessel_id)
+length(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id) +
+  length(vessels_by_permit_vessel__all_l_u$gom_only$permit_vessel_id) +
+  length(vessels_by_permit_vessel__all_l_u$sa_only$permit_vessel_id)
 # 5684
 
 # all.equal(vessels_by_permit_vessel__all_l_u$dual$permit_vessel_id,
 #           vessels_by_permit_vessel__all_l_u_rds$dual$permit_vessel_id)
 # T
 
-length(unique(vessels_by_permit_vessel__all_l_u_rds1$gom_only$permit_vessel_id))
+length(unique(vessels_by_permit_vessel__all_l_u$gom_only$permit_vessel_id))
 # 392
-length(vessels_by_permit_vessel__all_l_u_rds1$gom_only$permit_vessel_id)
+length(vessels_by_permit_vessel__all_l_u$gom_only$permit_vessel_id)
 # 392
 
 ### check vessels_permit_vsl_id__all_u ---
@@ -584,12 +579,12 @@ View(vessels_permit_bind)
 # View(vessels_permit_bind_u_test_0)
 # View(vessels_permit_bind_u_test)
 
-### vessels_permit_bind_ from csv ----
+### vessels_permit_bind ----
 
 file_path_vessels_permit_bind_u <- file.path(
   my_paths$inputs,
   current_project_name,
-  r"(intermediate_dfs\vessels_permit_bind_u.csv)"
+  r"(intermediate_dfs\vessels_permit_bind_u.rds)"
 )
 
 my_function_vessels_permit_bind_u_one_df <-
@@ -601,19 +596,21 @@ my_function_vessels_permit_bind_u_one_df <-
       return()
   }
 
-my_col_type <- cols(VESSEL_ID.v = "c")
-
 vessels_permit_bind_u_one_df <-
-  read_csv_or_run(file_path_vessels_permit_bind_u,
+  read_rds_or_run(file_path_vessels_permit_bind_u,
            vessels_permit_bind,
-           my_function_vessels_permit_bind_u_one_df,
-           my_col_type)
+           my_function_vessels_permit_bind_u_one_df)
+# run the function: 578.76 sec elapsed
 
 map_df(vessels_permit_bind_u_one_df, dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1   379     1204    3877
 # 2    48       48      48
+
+# all.equal(vessels_permit_bind_u_one_df,
+#           vessels_permit_bind_u_one_df1)
+# T
 
 # fix trip data ----
 ## add trip_int ----
