@@ -1718,6 +1718,7 @@ data_overview(trip_neg_2022_w_y)
 # TRIP_DATE_m       12
 # TRIP_DATE        365
 
+# check vessels the same for t and tne ----
 trip_neg_2022_w_y__v_ids <-
   trip_neg_2022_w_y |> 
   select(VESSEL_ID) |> 
@@ -1749,7 +1750,45 @@ intersect(trips_info_2022_int_ah_w_y__v_ids$VESSEL_ID,
 head(trips_info_2022_int_ah_w_y__v_ids$VESSEL_ID)
 head(trip_neg_2022_w_y__v_ids$VESSEL_ID)
 
-intersect(trips_info_2022_int_ah_w_y__v_ids_all$VESSEL_ID,
-          trip_neg_2022_w_y__v_ids$VESSEL_ID) |>
-  length()
+vessel_ids_t__tne <-
+  intersect(
+    trips_info_2022_int_ah_w_y__v_ids_all$VESSEL_ID,
+    trip_neg_2022_w_y__v_ids$VESSEL_ID
+  )
+
+length(vessel_ids_t__tne)
 # [1] 1290
+
+# check vessels the same for p_v and t and tne ----
+vessels_permit_bind_u_one_df__v_ids <-
+  vessels_permit_bind_u_one_df$sa_only |> 
+  select(VESSEL_ID) |> 
+  distinct()
+
+# STATE_REG_NBR, SERO_OFFICIAL_NUMBER, COAST_GUARD_NBR,
+# VESSEL_ID.v, VESSEL_ID, VESSEL_ALT_NUM.sa,
+# VESSEL_ID.p
+
+dim(vessels_permit_bind_u_one_df__v_ids)
+# 3871    
+
+intersect(vessel_ids_t__tne,
+          vessels_permit_bind_u_one_df__v_ids$VESSEL_ID) |>
+  length()
+# 0
+
+id_names <-
+  c(
+    "COAST_GUARD_NBR",
+    "SERO_OFFICIAL_NUMBER",
+    "STATE_REG_NBR",
+    "VESSEL_ALT_NUM.sa",
+    "VESSEL_ID",
+    "VESSEL_ID.p",
+    "VESSEL_ID.v"
+  )
+
+map(id_names,
+    function(x){
+      print(x)
+    })
