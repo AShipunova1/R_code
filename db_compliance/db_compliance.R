@@ -1904,10 +1904,51 @@ str(vessels_all_ids)
 #  $ VESSEL_ID           : num [1:140405] 80803 80805 80807 80809 80811 ...
 #  $ SUPPLIER_VESSEL_ID  : chr [1:140405] "658020" "NY4726GN" "638529" "557344" ...
 
-intersect(vessels_all_ids$SERO_OFFICIAL_NUMBER, 
-          vessels_all_ids$COAST_GUARD_NBR)
-
 library(gtools)
-combinations(length(vessels_all__v_id_names), 2, vessels_all__v_id_names, repeats.allowed = F)
+vessels_all__v_id_names__pairs <-
+  combinations(length(vessels_all__v_id_names),
+               2,
+               vessels_all__v_id_names,
+               repeats.allowed = F) |> 
+  as.data.frame()
 
+vessels_all__v_id_names__pairs |> 
+  rowwise() |> 
+  mutate(xx = vessels_all_ids[V1] |> 
+           head(3) |> 
+           paste())
+
+vessels_all__v_id_names__pairs |> 
+  mutate(xx = distinct(vessels_all_ids[V1]) |> 
+           head(3) |> 
+           paste())
+
+vessels_all__v_id_names__pairs |> 
+  mutate(yy = distinct(vessels_all_ids[V2]) |> 
+           head(3) |> 
+           paste())
+
+vessels_all__v_id_names__pairs_c_y <-
+  vessels_all__v_id_names__pairs |> 
+  mutate(xx1 = distinct(vessels_all_ids[V1]) |> 
+           list()) |> 
+  mutate(yy1 = distinct(vessels_all_ids[V2]) |> 
+           list())
+# 
+#   mutate(ii = intersect(xx1,
+#                         yy1) |> head()
+# )
   
+    # mutate(inters = intersect(vessels_all_ids[V1],
+  #                           vessels_all_ids[V2]))
+
+  # head()
+  # mutate(inters = intersect(vessels_all_ids[V1],
+  #                           vessels_all_ids[V2]))
+
+intersect(vessels_all_ids$VESSEL_ID,
+          vessels_all_ids$COAST_GUARD_NBR) |> 
+  length()
+
+
+
