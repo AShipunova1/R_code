@@ -2008,8 +2008,15 @@ v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |>
 x1 <-
   v_p_t_tne_dates_join |>
   group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) |>
-  mutate(no_tne =
-           sum(is.na(TRIP_week_num)))
+  mutate(
+    total_p_weeks = n_distinct(WEEK_OF_YEAR),
+    no_tne =
+      sum(is.na(TRIP_week_num)),
+    no_t =
+      sum(is.na(TRIP_START_week_num)),
+    both_t_tne = sum(!is.na(TRIP_START_week_num) &
+                       !is.na(TRIP_START_week_num))
+  )
 
 View(x1)       
        # ,
