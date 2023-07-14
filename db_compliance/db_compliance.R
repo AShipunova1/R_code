@@ -1759,6 +1759,8 @@ vessel_ids_t__tne <-
 length(vessel_ids_t__tne)
 # [1] 1290
 
+head(vessel_ids_t__tne)
+
 # check vessels the same for p_v and t and tne ----
 vessels_permit_bind_u_one_df__v_ids <-
   vessels_permit_bind_u_one_df$sa_only |> 
@@ -1772,8 +1774,8 @@ vessels_permit_bind_u_one_df__v_ids <-
 dim(vessels_permit_bind_u_one_df__v_ids)
 # 3871    
 
-intersect(vessel_ids_t__tne,
-          vessels_permit_bind_u_one_df__v_ids$VESSEL_ID) |>
+intersect(as.character(vessel_ids_t__tne),
+          as.character(vessels_permit_bind_u_one_df__v_ids$VESSEL_ID)) |>
   length()
 # 0
 
@@ -1789,6 +1791,19 @@ id_names <-
   )
 
 map(id_names,
-    function(x){
+    function(x) {
       print(x)
+      curr_v_ids <-
+        vessels_permit_bind_u_one_df$sa_only[[x]] |> 
+        as.character()
+      
+      intersect(
+        as.character(vessel_ids_t__tne),
+        curr_v_ids
+      ) |>
+        length()
     })
+# str(vessels_permit_bind_u_one_df__v_ids$VESSEL_ID)
+# VESSEL_ID.v = 1031
+
+# TODO: the same for vessel and permit
