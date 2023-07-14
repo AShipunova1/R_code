@@ -1881,3 +1881,33 @@ map(vessels_all__v_id_names,
 # "__VESSEL_ALT_NUM.sa__"
 # 13
 
+# compare vessel ids in vessel
+vessels_all__v_id_names <-
+  c(
+    "SERO_OFFICIAL_NUMBER",
+    "COAST_GUARD_NBR",
+    "STATE_REG_NBR",
+    "VESSEL_ID",
+    "SUPPLIER_VESSEL_ID"
+  )
+
+vessels_all_ids <-
+  vessels_all |> 
+  select(all_of(vessels_all__v_id_names)) |> 
+  distinct()
+
+str(vessels_all_ids)
+# tibble [140,405 × 5] (S3: tbl_df/tbl/data.frame)
+#  $ SERO_OFFICIAL_NUMBER: chr [1:140405] "658020" NA "638529" NA ...
+#  $ COAST_GUARD_NBR     : chr [1:140405] "658020" NA "638529" "557344" ...
+#  $ STATE_REG_NBR       : chr [1:140405] NA "NY4726GN" NA NA ...
+#  $ VESSEL_ID           : num [1:140405] 80803 80805 80807 80809 80811 ...
+#  $ SUPPLIER_VESSEL_ID  : chr [1:140405] "658020" "NY4726GN" "638529" "557344" ...
+
+intersect(vessels_all_ids$SERO_OFFICIAL_NUMBER, 
+          vessels_all_ids$COAST_GUARD_NBR)
+
+library(gtools)
+combinations(length(vessels_all__v_id_names), 2, vessels_all__v_id_names, repeats.allowed = F)
+
+  
