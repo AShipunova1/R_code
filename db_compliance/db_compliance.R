@@ -2124,12 +2124,16 @@ permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22 <-
   permit_info_r_l_overlap_join1_w_dual_22__list$sa_only |>
   select(-ends_with("gom")) |>
   mutate(permit_2022 = lubridate::intersect(eff_int_sa,
-                      interval_2022))
-  mutate(weeks_perm_2022 =
+                      interval_2022)) |>
+  mutate(weeks_perm_2022_amnt =
            (permit_2022 / lubridate::dweeks(1)) |>
            round()
          ) |>
   distinct()
 
-View(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22)
-  
+min(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt)
+# 0-52  
+
+data_overview(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22)
+# VESSEL_ID            3875
+# weeks_perm_2022_amnt   53
