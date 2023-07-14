@@ -1648,7 +1648,7 @@ join_v_p__t_tne <-
 
 View(join_v_p__t_tne)
 
-# TODO: SERO_OFFICIAL_NUMBER is NA, use an alternative id
+# TODO: if SERO_OFFICIAL_NUMBER is NA, use an alternative id
 
 # TODO: check that t and tne not in the same week! Before joining
 
@@ -1658,4 +1658,98 @@ View(join_v_p__t_tne)
 # 39
 # 22
 
-# TODO: create all weeks for 2022, fill permit weeks, t and tne
+# TODO: create all weeks for 2022, fill permit weeks, t and tne for each vsl
+
+# interval_2022 = lubridate::interval(as.Date('2022-01-01'),
+#                                     as.Date('2022-12-31'))
+
+# dates_2022
+
+# for each vessel full_join(dates_2022,
+# permit_info)
+
+data_overview(vessels_permit_bind_u_one_df$sa_only)
+# EFFECTIVE_DATE.sa,
+# my_end_date.sa,
+# eff_int_sa,
+# STATE_REG_NBR, SERO_OFFICIAL_NUMBER, COAST_GUARD_NBR,
+# VESSEL_ID.v, VESSEL_ID, VESSEL_ALT_NUM.sa,
+# VESSEL_ID.p
+
+# check ids ----
+# SERO_OFFICIAL_NUMBER  3870
+# COAST_GUARD_NBR        159
+# HULL_ID_NBR           3193
+# STATE_REG_NBR          158
+# SUPPLIER_VESSEL_ID    3877
+# VESSEL_ID.v           3877
+# VESSEL_ID.p           3871
+# VESSEL_ALT_NUM.sa     3871
+# VESSEL_ID             3871
+
+data_overview(trips_info_2022_int_ah_w_y)
+# SERO_VESSEL_PERMIT           1732
+# TRIP_START_DATE              1026
+# TRIP_END_DATE                 380
+# VESSEL_ID                    1955
+# trip_int                     1044
+# TRIP_START_week_num            53
+# TRIP_END_week_num              53
+# TRIP_START_y                    2
+# TRIP_END_y                      6
+# TRIP_START_m                   17
+# TRIP_END_m                     21
+
+data_overview(trip_notifications_2022_ah_w_y)
+# TRIP_START_week_num             53
+# TRIP_END_week_num               54
+# TRIP_START_y                     5
+# TRIP_END_y                      15
+# TRIP_START_m                    22
+# TRIP_END_m                      35
+# VESSEL_ID                      914
+# TRIP_START_DATE                378
+# TRIP_END_DATE                  393
+
+data_overview(trip_neg_2022_w_y)
+# VESSEL_ID       3414
+# TRIP_week_num     53
+# TRIP_DATE_y        2
+# TRIP_DATE_m       12
+# TRIP_DATE        365
+
+trip_neg_2022_w_y__v_ids <-
+  trip_neg_2022_w_y |> 
+  select(VESSEL_ID) |> 
+  distinct()
+
+# dim(trip_neg_2022_w_y__v_ids)
+# 3414
+
+trips_info_2022_int_ah_w_y__v_ids <-
+  trips_info_2022_int_ah_w_y |> 
+  filter(!is.na(SERO_VESSEL_PERMIT)) |> 
+  select(VESSEL_ID) |> 
+  distinct()
+
+dim(trips_info_2022_int_ah_w_y__v_ids)
+# 1711    
+
+trips_info_2022_int_ah_w_y__v_ids_all <-
+  trips_info_2022_int_ah_w_y |> 
+  # filter(!is.na(SERO_VESSEL_PERMIT)) |> 
+  select(VESSEL_ID) |> 
+  distinct()
+
+intersect(trips_info_2022_int_ah_w_y__v_ids$VESSEL_ID,
+          trip_neg_2022_w_y__v_ids$VESSEL_ID) |>
+  length()
+# 1246
+
+head(trips_info_2022_int_ah_w_y__v_ids$VESSEL_ID)
+head(trip_neg_2022_w_y__v_ids$VESSEL_ID)
+
+intersect(trips_info_2022_int_ah_w_y__v_ids_all$VESSEL_ID,
+          trip_neg_2022_w_y__v_ids$VESSEL_ID) |>
+  length()
+# [1] 1290
