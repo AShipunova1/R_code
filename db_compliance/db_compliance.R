@@ -1992,5 +1992,27 @@ v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |>
 # 0
 
 v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |> 
-       filter(is.na(TRIP_START_week_num) | is.na(TRIP_week_num)) |> 
+       filter(!is.na(TRIP_START_week_num) & !is.na(TRIP_week_num)) |> 
   View()
+
+# check weeks and reports or dnfs (= t and tne)
+
+v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |> 
+       filter(is.na(TRIP_START_week_num)) |> 
+  select(WEEK_OF_YEAR, YEAR) |> 
+  distinct() |> 
+  View()
+
+# mutate(a = mean(y[x2 == 1]), z = y / a)
+
+x1 <-
+  v_p_t_tne_dates_join |>
+  group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) |>
+  mutate(no_tne =
+           sum(is.na(TRIP_week_num)))
+
+View(x1)       
+       # ,
+         # tne_only = sum(TRIP_week_num, na.rm = T),
+         # )
+  
