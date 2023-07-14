@@ -1807,3 +1807,77 @@ map(id_names,
 # VESSEL_ID.v = 1031
 
 # TODO: the same for vessel and permit
+print_df_names(permit_info)
+# VESSEL_ID, VESSEL_ALT_NUM
+print_df_names(permit_info_r_l_overlap_join1_w_dual_22__list$sa_only)
+# VESSEL_ID, VESSEL_ALT_NUM.sa
+
+print_df_names(vessels_all)
+
+vessels_all__v_id_names <-
+  c(
+    "SERO_OFFICIAL_NUMBER",
+    "COAST_GUARD_NBR",
+    "STATE_REG_NBR",
+    "VESSEL_ID",
+    "SUPPLIER_VESSEL_ID"
+  )
+
+map(vessels_all__v_id_names,
+    function(x) {
+      curr_v_ids <-
+        vessels_all[[x]] |>
+        unique() |>
+        as.character()
+      
+      print(x)
+      print("__VESSEL_ID__")
+      intersect(
+        as.character(
+          permit_info_r_l_overlap_join1_w_dual_22__list$sa_only$VESSEL_ID
+        ),
+        curr_v_ids
+      ) |>
+        length() |>
+        print()
+      
+      print("__VESSEL_ALT_NUM.sa__")
+      intersect(
+        as.character(
+          permit_info_r_l_overlap_join1_w_dual_22__list$sa_only$VESSEL_ALT_NUM.sa
+        ),
+        curr_v_ids
+      ) |>
+        length() |>
+        print()
+    })
+# "SERO_OFFICIAL_NUMBER"
+# "__VESSEL_ID__"
+# 3868
+# "__VESSEL_ALT_NUM.sa__"
+# 3720
+
+# "SUPPLIER_VESSEL_ID"
+# "__VESSEL_ID__"
+# 3870
+# "__VESSEL_ALT_NUM.sa__"
+# 3736
+
+# "COAST_GUARD_NBR"
+# "__VESSEL_ID__"
+# 2520
+# "__VESSEL_ALT_NUM.sa__"
+# 2373
+
+# "STATE_REG_NBR"
+# "__VESSEL_ID__"
+# 1361
+# "__VESSEL_ALT_NUM.sa__"
+# 1509
+
+# "VESSEL_ID"
+# "__VESSEL_ID__"
+# 14
+# "__VESSEL_ALT_NUM.sa__"
+# 13
+
