@@ -1681,8 +1681,7 @@ View(join_v_p__t_tne)
 
 # dates_2022
 
-# for each vessel full_join(dates_2022,
-# permit_info)
+# for each vessel full_join(dates_2022, permit_info) ----
 
 data_overview(vessels_permit_bind_u_one_df$sa_only)
 # EFFECTIVE_DATE.sa,
@@ -1920,9 +1919,6 @@ str(vessels_all_ids)
 #  $ VESSEL_ID           : num [1:140405] 80803 80805 80807 80809 80811 ...
 #  $ SUPPLIER_VESSEL_ID  : chr [1:140405] "658020" "NY4726GN" "638529" "557344" ...
 
-# aa_temp <- vessels_all_ids["SUPPLIER_VESSEL_ID"] |> 
-#           distinct() |> list()
-
 vessels_all__v_id_names_l <-
   vessels_all__v_id_names |>
   map(
@@ -1943,7 +1939,7 @@ vessels_all__v_id_names__pairs <-
                repeats.allowed = F) |> 
   as.data.frame()
 
-head(vessels_all__v_id_names__pairs)
+# head(vessels_all__v_id_names__pairs)
 # 6 SERO_OFFICIAL_NUMBER   SUPPLIER_VESSEL_ID
 
 vessels_all__v_id_names__pairs_length <-
@@ -1958,53 +1954,43 @@ vessels_all__v_id_names__pairs_length <-
       length()
   )
 
-View(vessels_all__v_id_names__pairs_length)
+write_csv(vessels_all__v_id_names__pairs_length, "vessels_all__v_id_names__pairs_length.csv")
 
-list(intersect(vessels_all__v_id_names_l_named[["SERO_OFFICIAL_NUMBER"]][["SERO_OFFICIAL_NUMBER"]],
-          vessels_all__v_id_names_l_named[["SUPPLIER_VESSEL_ID"]][["SUPPLIER_VESSEL_ID"]]
-          )) |> 
-  length()
-# 13890
+# for each vessel full_join(dates_2022, permit_info) ----
+# View(vessels__trips_22_l)
+# full_join(dates_2022, vessels_permit_bind_u1_sa_w_p_short_weeks)
 
-head(vessels_all__v_id_names_l_named[["SUPPLIER_VESSEL_ID"]][["SUPPLIER_VESSEL_ID"]])
+vessels__trip_neg_22_l_sa_short_all_dates_t_start |> 
+  select(TRIP_week_num, TRIP_DATE_y) |> 
+  distinct() |> 
+  dim()
+# 63
 
-head(vessels_all__v_id_names_l_named$SERO_OFFICIAL_NUMBER$SERO_OFFICIAL_NUMBER)
-#   rowwise() |> 
-#   mutate(xx = vessels_all_ids[V1] |> 
-#            head(3) |> 
-#            paste())
-# 
-# vessels_all__v_id_names__pairs |> 
-#   mutate(xx = distinct(vessels_all_ids[V1]) |> 
-#            head(3) |> 
-#            paste())
-# 
-# vessels_all__v_id_names__pairs |> 
-#   mutate(yy = distinct(vessels_all_ids[V2]) |> 
-#            head(3) |> 
-#            paste())
-# 
-# vessels_all__v_id_names__pairs_c_y <-
-#   vessels_all__v_id_names__pairs |> 
-#   mutate(xx1 = list(distinct(vessels_all_ids[V1]))) |> 
-#   mutate(yy1 = list(distinct(vessels_all_ids[V2])))
+vessels__trip_neg_22_l_sa_short__dates |> 
+  select(TRIP_week_num, TRIP_DATE_y) |> 
+  distinct() |> 
+  dim()
+# 52, 2
 
-View(vessels_all__v_id_names__pairs_c_y)
-# 
-#   mutate(ii = intersect(xx1,
-#                         yy1) |> head()
-# )
-  
-    # mutate(inters = intersect(vessels_all_ids[V1],
-  #                           vessels_all_ids[V2]))
+View(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
+vessels__trips_22_l_sa_short_all_dates_t_start_all_cols |> 
+  select(WEEK_OF_YEAR, YEAR) |> 
+  distinct() |> 
+  dim()
+# 53, 2
 
-  # head()
-  # mutate(inters = intersect(vessels_all_ids[V1],
-  #                           vessels_all_ids[V2]))
+v_p_t_tne_dates_join <-
+  full_join(
+    vessels__trips_22_l_sa_short_all_dates_t_start_all_cols,
+    vessels__trip_neg_22_l_sa_short__dates
+  )
+# Joining with `by = join_by(permit_vessel_id, YEAR, WEEK_OF_YEAR)`
+View(v_p_t_tne_dates_join)
 
-intersect(vessels_all_ids$VESSEL_ID,
-          vessels_all_ids$COAST_GUARD_NBR) |> 
-  length()
+v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |>
+  filter(is.na(TRIP_START_week_num) & is.na(TRIP_week_num))
+# 0
 
-
-
+v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |> 
+       filter(is.na(TRIP_START_week_num) | is.na(TRIP_week_num)) |> 
+  View()
