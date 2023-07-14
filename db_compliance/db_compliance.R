@@ -2104,6 +2104,32 @@ dplyr::full_join(
   relationship = "many-to-many"
 )
 toc()
-v_p_t_tne_dates_join_week_cnts__p: 0.47 sec elapsed
+# v_p_t_tne_dates_join_week_cnts__p: 0.47 sec elapsed
 
 View(v_p_t_tne_dates_join_week_cnts__p)
+
+# add 2022 period weeks to permit ----
+
+# df %>%
+#   mutate(overlap =
+#            map2(start, end,
+#                 ~ sum(
+#                   seq(.x, .y, by = '1 day') %in%
+#                     seq(my.start, my.end, by = '1 day')
+#                 )))
+# I think it is 0 5 5 12 0 –
+# > intersect(interval(ymd("2017-11-23"),ymd("2017-11-30")),interval(ymd("2017-11-20"),ymd("2018-11-16")))
+
+permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22 <-
+  permit_info_r_l_overlap_join1_w_dual_22__list$sa_only |>
+  select(-ends_with("gom")) |>
+  mutate(permit_2022 = lubridate::intersect(eff_int_sa,
+                      interval_2022))
+  mutate(weeks_perm_2022 =
+           (permit_2022 / lubridate::dweeks(1)) |>
+           round()
+         ) |>
+  distinct()
+
+View(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22)
+  
