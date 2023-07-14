@@ -1904,10 +1904,10 @@ str(vessels_all_ids)
 #  $ VESSEL_ID           : num [1:140405] 80803 80805 80807 80809 80811 ...
 #  $ SUPPLIER_VESSEL_ID  : chr [1:140405] "658020" "NY4726GN" "638529" "557344" ...
 
-aa_temp <- vessels_all_ids["SUPPLIER_VESSEL_ID"] |> 
-          distinct() |> list()
+# aa_temp <- vessels_all_ids["SUPPLIER_VESSEL_ID"] |> 
+#           distinct() |> list()
 
-vessels_all__v_id_names_l1 <-
+vessels_all__v_id_names_l <-
   vessels_all__v_id_names |>
   map(
       function(id_name) {
@@ -1915,17 +1915,9 @@ vessels_all__v_id_names_l1 <-
           distinct()
       })
 
-str(vessels_all__v_id_names_l)
-# List of 5
-#  $ :List of 1
-#   ..$ : tibble [13,897 × 1] (S3: tbl_df/tbl/data.frame)
-#   .. ..$ SERO_OFFICIAL_NUMBER: chr [1:13897] "658020" NA "638529" "933346" ...
-
-View(vessels_all__v_id_names_l1)
-
 vessels_all__v_id_names_l_named <- set_names(vessels_all__v_id_names_l1, vessels_all__v_id_names)
 
-View(vessels_all__v_id_names_l_named)
+# View(vessels_all__v_id_names_l_named)
 
 library(gtools)
 vessels_all__v_id_names__pairs <-
@@ -1935,7 +1927,32 @@ vessels_all__v_id_names__pairs <-
                repeats.allowed = F) |> 
   as.data.frame()
 
-# vessels_all__v_id_names__pairs |> 
+head(vessels_all__v_id_names__pairs)
+# 6 SERO_OFFICIAL_NUMBER   SUPPLIER_VESSEL_ID
+
+vessels_all__v_id_names__pairs_length <-
+  vessels_all__v_id_names__pairs |>
+  rowwise() %>%
+  mutate(
+    inter =
+      intersect(
+        vessels_all__v_id_names_l_named[[V1]][[V1]],
+        vessels_all__v_id_names_l_named[[V2]][[V2]]
+      ) |>
+      length()
+  )
+
+View(vessels_all__v_id_names__pairs_length)
+
+list(intersect(vessels_all__v_id_names_l_named[["SERO_OFFICIAL_NUMBER"]][["SERO_OFFICIAL_NUMBER"]],
+          vessels_all__v_id_names_l_named[["SUPPLIER_VESSEL_ID"]][["SUPPLIER_VESSEL_ID"]]
+          )) |> 
+  length()
+# 13890
+
+head(vessels_all__v_id_names_l_named[["SUPPLIER_VESSEL_ID"]][["SUPPLIER_VESSEL_ID"]])
+
+head(vessels_all__v_id_names_l_named$SERO_OFFICIAL_NUMBER$SERO_OFFICIAL_NUMBER)
 #   rowwise() |> 
 #   mutate(xx = vessels_all_ids[V1] |> 
 #            head(3) |> 
