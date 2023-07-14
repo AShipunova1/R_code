@@ -80,8 +80,6 @@ permit_info_r_l <-
   permit_info_r_short %>%
   split(as.factor(permit_info_r_short$permit_sa_gom))
 
-
-
 # From Help:
 # It is common to have right-open ranges with bounds like `[)`, which would
 # mean an end value of `415` would no longer overlap a start value of `415`.
@@ -2005,17 +2003,23 @@ v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |>
 
 # mutate(a = mean(y[x2 == 1]), z = y / a)
 
-x1 <-
+v_p_t_tne_dates_join_week_cnts <-
   v_p_t_tne_dates_join |>
   group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) |>
   mutate(
     total_p_weeks = n_distinct(WEEK_OF_YEAR),
+    tne_only =
+      sum(!is.na(TRIP_week_num)),
     no_tne =
       sum(is.na(TRIP_week_num)),
+    t_only =
+      sum(!is.na(TRIP_START_week_num)),
     no_t =
       sum(is.na(TRIP_START_week_num)),
     both_t_tne = sum(!is.na(TRIP_START_week_num) &
-                       !is.na(TRIP_START_week_num))
+                       !is.na(TRIP_week_num)),
+    no_t_tne = sum(is.na(TRIP_START_week_num) &
+                     is.na(TRIP_week_num))
   )
 
 View(x1)       
@@ -2023,3 +2027,25 @@ View(x1)
          # tne_only = sum(TRIP_week_num, na.rm = T),
          # )
   
+# add weeks to permits ----
+# mutate(weeks_perm = eff_int_sa / lubridate::dweeks(1))
+# vessels_permit_bind_u1_sa_w_p_short
+
+permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p <-
+  permit_info_r_l_overlap_join1_w_dual_22__list$sa_only |> 
+  select(-ends_with("gom")) |> 
+  mutate(weeks_perm = 
+           (eff_int_sa / lubridate::dweeks(1)) |> 
+           round()
+         ) |> 
+  distinct()
+
+dim(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p)
+# [1] 13693    10
+
+v_p_t_tne_dates_join__p <-
+  full_join(
+    v_p_t_tne_dates_join,
+    permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p
+  )
+
