@@ -1189,6 +1189,22 @@ vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
  # 5 NA NA 52 2021
  # 6 NA NA  1 2023
 
+
+#### keeping all columns tne ----
+vessels__trip_neg_22_l_sa_short__dates <-
+  sqldf("SELECT
+  *
+FROM
+       vessels__trip_neg_22_l_sa_short
+  RIGHT JOIN dates_2022_short
+  ON ( TRIP_DATE_y = year )
+WHERE
+  TRIP_week_num = week_of_year
+"
+  ) %>%
+  distinct()
+
+
 ## find periods (weeks) when each vessel was permitted ----
 
 ## for each vessel count neg rep and notif and compare with permitted weeks
