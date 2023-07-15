@@ -185,25 +185,77 @@ dim(trip_notifications_2022)
 # Rows: 129,701
 # [1] 70056    33
 
+# get_vessels wtih permits 2022 ----
+vessels_permits_2022_query <-
+  "SELECT
+  *
+FROM
+       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  ON ( p.vessel_id = sero_official_number )
+WHERE
+  ( end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+    OR expiration_date >= TO_DATE('01-JAN-22', 'dd-mon-yy') )
+  AND effective_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+UNION ALL
+SELECT
+  *
+FROM
+       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  ON ( p.vessel_id = coast_guard_nbr )
+WHERE
+  ( end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+    OR expiration_date >= TO_DATE('01-JAN-22', 'dd-mon-yy') )
+  AND effective_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+UNION ALL
+SELECT
+  *
+FROM
+       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  ON ( p.vessel_id = state_reg_nbr )
+WHERE
+  ( end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+    OR expiration_date >= TO_DATE('01-JAN-22', 'dd-mon-yy') )
+  AND effective_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')"
+
+
+vessels_permits_2022_file_path <- file.path(input_path, "vessels_permits_2022.rds")
+
+vessels_permits_2022_fun <-
+  function(vessels_permits_2022_query) {
+    return(dbGetQuery(con,
+                      vessels_permits_2022_query))
+  }
+
+vessels_permits_2022 <-
+  read_rds_or_run(
+    vessels_permits_2022_file_path,
+    vessels_permits_2022_query,
+    vessels_permits_2022_fun
+  )
+# 2023-07-15 run the function: 13.33 sec elapsed
+
 # get vessels ----
-vessels_query <-
+# vessels_query <-
   "SELECT *
   FROM
     safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
 
-vessels_file_path <- file.path(input_path, "vessels.rds")
+# vessels_file_path <- file.path(input_path, "vessels.rds")
 
-vessels_fun <- function(vessels_query) {
-  return(dbGetQuery(con,
-                    vessels_query))
-}
+# vessels_fun <- function(vessels_query) {
+  # return(dbGetQuery(con,
+                    # vessels_query))
+# }
 
-vessels <-
-  read_rds_or_run(
-    vessels_file_path,
-    vessels_query,
-    vessels_fun
-  )
+# vessels <-
+  # read_rds_or_run(
+    # vessels_file_path,
+    # vessels_query,
+    # vessels_fun
+  # )
 
 # vessels_all <- 
 # Error in .oci.GetQuery(conn, statement, data = data, prefetch = prefetch,  :
@@ -265,6 +317,6 @@ toc()
 glimpse(dates_2022)
 # Rows: 427
 
-write_csv(dates_2022,
-          file.path(input_path, "dates_2022.csv"))
+write_rds(dates_2022,
+          file.path(input_path, "dates_2022.rds"))
 
