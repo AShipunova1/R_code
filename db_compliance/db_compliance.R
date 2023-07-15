@@ -187,17 +187,8 @@ permit_info_r_l_overlap_join1_w_dual_22__list <-
 
 # end here permits ----
 
-# fix trip data ----
-## add trip_int ----
-trips_info_2022 %>%
-  select(TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME) %>%
-  str()
-# POSIXct
-# str(trips_info_2022)
-
-# is_effective_date =
-#   lubridate::floor_date(is_effective_date,
-#                         unit = "day"),
+# Trip data (= logbooks) ----
+## add trip interval ----
 
 trips_info_2022_int <-
   trips_info_2022 %>%
@@ -212,13 +203,15 @@ trips_info_2022_int <-
 ### check trips_info_2022_int ----
 trips_info_2022_int %>%
   select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
-  View()
+  dim()
+# [1] 98528     3
 
 ## trip types A and H trips ----
 trips_info_2022_int_ah <-
   trips_info_2022_int %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
+# Trip notifications (= declarations) ----
 ## trip types A and H trip_notif ----
 trip_notifications_2022 %>%
    select(TRIP_TYPE) %>% distinct()
@@ -251,10 +244,6 @@ trip_notifications_2022_ah <-
 
 # View(trips_info_2022_int_ah)
 
-# trips_info_2022_int_ah %>%
-#   select(TRIP_START_DATE) %>%
-#   head()
-
 trips_info_2022_int_ah_w_y <-
   trips_info_2022_int_ah %>%
   mutate(
@@ -280,11 +269,6 @@ trips_info_2022_int_ah_w_y <-
 
 # str(trips_info_2022_int_ah_w_y)
 
-# trips_info_2022_int_ah_w_y %>%
-#   select(starts_with("TRIP")) %>%
-#   arrange(TRIP_START_DATE) %>%
-#   View()
-
 ## to trip notifications ----
 trip_notifications_2022_ah_w_y <-
   trip_notifications_2022_ah %>%
@@ -309,11 +293,6 @@ trip_notifications_2022_ah_w_y <-
       as.double(TRIP_END_week_num)
   )
 
-# trip_notifications_2022_ah_w_y %>%
-#   select(starts_with("TRIP")) %>%
-#   arrange(TRIP_START_DATE) %>%
-#   View()
-
 ## to negative trips ----
 # print_df_names(trip_neg_2022)
 trip_neg_2022_w_y <-
@@ -329,17 +308,10 @@ trip_neg_2022_w_y <-
   mutate(TRIP_week_num =
            as.double(TRIP_week_num))
 
-trip_neg_2022_w_y %>%
-  select(starts_with("TRIP")) %>%
-  arrange(TRIP_DATE) %>%
-  View()
-
-# start HERE
-
 
 # combine permit VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom ----
 
-# get all vessel_ids for permits ----
+## get all permits vessel_ids ----
 permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
   permit_info_r_l_overlap_join1_w_dual_22__list %>%
   map(
@@ -355,7 +327,6 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
       distinct() %>%
       return()
   )
-
 
 
 
