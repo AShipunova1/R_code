@@ -4,7 +4,6 @@ input_path <- file.path(my_paths$inputs, current_project_name)
 ## permit ----
 file_name_permits <- 
   file.path(input_path, "permit_info.rds")
-  
   # r"(my_outputs\from_db\mv_sero_fh_permits_his.rds)"
 
 mv_sero_fh_permits_his_query <-
@@ -74,6 +73,9 @@ mv_sero_fh_permits_his <-
 
 # get trips info for 2022 ----
 
+trips_22_file_name <-
+    file.path(input_path, "trips_22.rds")
+
 trips_22_query <-
   "SELECT
   *
@@ -88,18 +90,28 @@ ORDER BY
   trip_end_date DESC
 "
 
-tic("trips_info_2022")
-trips_info_2022 <- dbGetQuery(con,
-                          trips_22_query)
-toc()
+trips_22_fun <- function(trips_22_query) {
+  return(dbGetQuery(con,
+             trips_22_query))
+}
+
+trips_info_2022 <- 
+  read_rds_or_run(trips_22_file_name,
+                  trips_22_query,
+                  trips_22_fun
+                  )
+
+
 # trips_info_2022: 92.95 sec elapsed
 # trips_info_2022: 39.97 sec elapsed
+# run the function: 35.42 sec elapsed
 
 dim(trips_info_2022)
 # Rows: 205,772
 # [1] 98449    72
+# [1] 98528    72
 
-write_csv(trips_info_2022, file.path(input_path, "trips_info_2022.csv"))
+# write_csv(trips_info_2022, file.path(input_path, "trips_info_2022.csv"))
 
 # get trip neg from db ----
 trip_neg_query_2022 <-
@@ -122,8 +134,8 @@ toc()
 # trip_neg_query_2022: 60.06 sec elapsed
 # trip_neg_query_2022: 89.38 sec elapsed
 
-write_csv(trip_neg_2022,
-          file.path(input_path, "trip_neg_2022.csv"))
+# write_csv(trip_neg_2022,
+#           file.path(input_path, "trip_neg_2022.csv"))
 
 dim(trip_neg_2022)
 # Rows: 1,495,929
