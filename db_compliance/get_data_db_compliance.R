@@ -29,30 +29,22 @@ mv_sero_fh_permits_his <-
 # mv_sero_fh_permits_his <-
   # read_csv(file_name_permits)
 # Rows: 181032 Columns: 22
-# ── Column specification ─────────────────────────────────────
-# Delimiter: ","
-# chr (14): VESSEL_ID, EXPIRATION_DATE, TOP, PERMIT, EFFECT...
-
-# View(mv_sero_fh_permits_his)
-
-### the same from db ----
-
-
-# View(permit_info)
-
-# write_csv(permit_info, file.path(input_path, "permit_info.csv"))
+# dim(mv_sero_fh_permits_his)
+# [1] 181689     22
 
 ### the same from another db table (to compare) ----
 
-udp_v_sero_oth_prm_period_his_query <-
-  "select * from
-  udp.v_sero_oth_prm_period_his@secpr_dblk
-"
-
-permit_info_udp <- dbGetQuery(con,
-                          udp_v_sero_oth_prm_period_his_query)
-
-write_csv(permit_info_udp, file.path(input_path, "permit_info.csv"))
+# udp_v_sero_oth_prm_period_his_query <-
+#   "select * from
+#   udp.v_sero_oth_prm_period_his@secpr_dblk
+# "
+# 
+# permit_info_udp <- dbGetQuery(con,
+#                           udp_v_sero_oth_prm_period_his_query)
+# 
+# write all as binary
+# readr::write_rds(permit_info_udp,
+#                  file.path(input_path, "permit_info_udp.rds"))
 
 ### permit + vessel from db ----
 # permit_vessel_query_exp21_query <-
