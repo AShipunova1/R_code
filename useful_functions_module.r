@@ -535,26 +535,50 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
     return()
 }
 
+# read_rds_or_run <-
+#   function(my_file_path,
+#            my_data_list_of_dfs,
+#            my_function) {
+#     # browser()
+#     
+#     if (file.exists(my_file_path)) {
+#       # read a binary file saved previously
+#       my_df <-
+#         readr::read_rds(my_file_path)
+#     } else {
+#       tic("run the function")
+#       my_df <-
+#         my_function(my_data_list_of_dfs)
+#       toc()
+#       
+#       # write all as binary
+#       readr::write_rds(my_df,
+#                        my_file_path)
+#     }
+#     
+#     return(my_df)
+#   }
+
 read_rds_or_run <-
   function(my_file_path,
-           my_data_list_of_dfs,
+           my_data = as.data.frame(""),
            my_function) {
-    # browser()
+    browser()
     
     if (file.exists(my_file_path)) {
       # read a binary file saved previously
-      my_df <-
+      my_result <-
         readr::read_rds(my_file_path)
     } else {
       tic("run the function")
-      my_df <-
-        my_function(my_data_list_of_dfs)
+      my_result <-
+        my_function(my_data)
       toc()
       
       # write all as binary
-      readr::write_rds(my_df,
+      readr::write_rds(my_result,
                        my_file_path)
     }
     
-    return(my_df)
+    return(my_result)
   }
