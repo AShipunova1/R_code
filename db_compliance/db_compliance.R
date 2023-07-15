@@ -28,15 +28,12 @@ get_data_file_path <- file.path(
 source(get_data_file_path)
 
 # separate_permits_into_3_groups ----
-#repeat for permit only
-
-# print_df_names(permit_vessel_query_exp21_reg)
 
 permit_info_r <-
   permit_info  %>%
   separate_permits_into_3_groups(permit_group_field_name = "TOP")
 
-# View(permit_info_r)
+# dim(permit_info_r)
 # 'data.frame':	181188 obs. of  23 variables:
 # [1] 181207     23
 
@@ -45,7 +42,7 @@ permit_info_r %>%
   distinct() %>%
   str()
 # 13929
-# 13930
+# 13949 
 
 # check differently
 # https://stackoverflow.com/questions/63402652/comparing-dates-in-different-columns-to-isolate-certain-within-group-entries-in
@@ -102,7 +99,6 @@ permit_info_r_l_overlap_join1 <-
 toc()
 # permit_info_r_l_overlap_join1: 0.66 sec elapsed
 
-
 # dim(permit_info_r_l_overlap_join1)
 # [1] 84570     5
 # [1] 186210     15
@@ -113,7 +109,7 @@ permit_info_r_l_overlap_join1 %>%
   select(VESSEL_ID) %>%
   distinct() %>%
   dim()
-# [1] 13930     1
+# [1] 13949 
 
 permit_info_r %>%
   select(VESSEL_ID) %>%
@@ -176,79 +172,172 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
   distinct() %>%
   dim()
 # 379
-# end here permits
+# end here permits ----
 
 permit_info_r_l_overlap_join1_w_dual_22 %>%
   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
   filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
   dim()
-# 652
-
-permit_info_r_l_overlap_join1_w_dual_22 %>%
-  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-  filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom)) %>%
-  dim()
-# 356
-
-# permit_info_r_l_overlap_join1_w_dual_22 %>%
-#   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-#   filter(!(VESSEL_ALT_NUM.gom == VESSEL_ALT_NUM.sa)) %>%
-#   dim()
-# 0
+# 660
 
 # split permits by region again ----
 permit_info_r_l_overlap_join1_w_dual_22__list <-
   permit_info_r_l_overlap_join1_w_dual_22 %>%
   split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
 
+
+# fix trip data ----
+## add trip_int ----
+trips_info_2022 %>%
+  select(TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME) %>%
+  str()
+# POSIXct
+# str(trips_info_2022)
+
+# is_effective_date =
+#   lubridate::floor_date(is_effective_date,
+#                         unit = "day"),
+
+trips_info_2022_int <-
+  trips_info_2022 %>%
+  mutate(trip_int =
+           lubridate::interval(
+             lubridate::floor_date(TRIP_START_DATE,
+                                   unit = "day"),
+             lubridate::floor_date(TRIP_END_DATE,
+                                   unit = "day")
+           ))
+
+### check trips_info_2022_int ----
+trips_info_2022_int %>%
+  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
+  View()
+
+## trip types A and H trips ----
+trips_info_2022_int_ah <-
+  trips_info_2022_int %>%
+  filter(TRIP_TYPE %in% c("A", "H"))
+
+## trip types A and H trip_notif ----
+trip_notifications_2022 %>%
+   select(TRIP_TYPE) %>% distinct()
+#     TRIP_TYPE
+# 1           H
+# 3           A
+# 383         R
+# 697         C
+
+trip_notifications_2022_ah <-
+  trip_notifications_2022 %>%
+  filter(TRIP_TYPE %in% c("A", "H"))
+
+# add week num ----
+## to trips ----
+# strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%V")
+# [1] "21" "21" "21" "22" "22" "22" "22" "22"
+# >
+#   > strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%U")
+# [1] "21" "21" "22" "22" "22" "22" "22" "23"
+
+# grep(
+#   "WEEK",
+#   names(vessels__trips_22_l$sa_only),
+#   ignore.case = T,
+#   value = T
+# )
+# 0
+# Yanet: For the weeks between 2 months, both months are affected by the non-compliant status.
+
+# View(trips_info_2022_int_ah)
+
+# trips_info_2022_int_ah %>%
+#   select(TRIP_START_DATE) %>%
+#   head()
+
+trips_info_2022_int_ah_w_y <-
+  trips_info_2022_int_ah %>%
+  mutate(
+    TRIP_START_week_num =
+      strftime(TRIP_START_DATE, format = "%U"),
+    TRIP_END_week_num =
+      strftime(TRIP_END_DATE, format = "%U"),
+    TRIP_START_y =
+      year(TRIP_START_DATE),
+    TRIP_END_y =
+      year(TRIP_END_DATE),
+    TRIP_START_m =
+      zoo::as.yearmon(TRIP_START_DATE),
+    TRIP_END_m =
+      zoo::as.yearmon(TRIP_END_DATE)
+  ) %>%
+  mutate(
+    TRIP_START_week_num =
+      as.double(TRIP_START_week_num),
+    TRIP_END_week_num =
+      as.double(TRIP_END_week_num)
+  )
+
+# str(trips_info_2022_int_ah_w_y)
+
+# trips_info_2022_int_ah_w_y %>%
+#   select(starts_with("TRIP")) %>%
+#   arrange(TRIP_START_DATE) %>%
+#   View()
+
+## to trip notifications ----
+trip_notifications_2022_ah_w_y <-
+  trip_notifications_2022_ah %>%
+  mutate(
+    TRIP_START_week_num =
+      strftime(TRIP_START_DATE, format = "%U"),
+    TRIP_END_week_num =
+      strftime(TRIP_END_DATE, format = "%U"),
+    TRIP_START_y =
+      year(TRIP_START_DATE),
+    TRIP_END_y =
+      year(TRIP_END_DATE),
+    TRIP_START_m =
+      zoo::as.yearmon(TRIP_START_DATE),
+    TRIP_END_m =
+      zoo::as.yearmon(TRIP_END_DATE)
+  ) %>%
+  mutate(
+    TRIP_START_week_num =
+      as.double(TRIP_START_week_num),
+    TRIP_END_week_num =
+      as.double(TRIP_END_week_num)
+  )
+
+# trip_notifications_2022_ah_w_y %>%
+#   select(starts_with("TRIP")) %>%
+#   arrange(TRIP_START_DATE) %>%
+#   View()
+
+## to negative trips ----
+# print_df_names(trip_neg_2022)
+trip_neg_2022_w_y <-
+  trip_neg_2022 %>%
+  mutate(
+    TRIP_week_num =
+      strftime(TRIP_DATE, format = "%U"),
+    TRIP_DATE_y =
+      year(TRIP_DATE),
+    TRIP_DATE_m =
+      zoo::as.yearmon(TRIP_DATE)
+  ) %>%
+  mutate(TRIP_week_num =
+           as.double(TRIP_week_num))
+
+trip_neg_2022_w_y %>%
+  select(starts_with("TRIP")) %>%
+  arrange(TRIP_DATE) %>%
+  View()
+
+# start HERE
+
+
 # combine permit VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom ----
 
-## check the diff ----
-check_1 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map_df(
-    ~ .x %>%
-      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-      filter(!(VESSEL_ALT_NUM.sa == VESSEL_ALT_NUM.gom))
-  )
-str(check_1)
-# 0
-# VESSEL_ALT_NUM.sa == VESSEL_ALT_NUM.gom:
-# 'data.frame':	3668 obs. of  3 variables
-
-
-check_2 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(
-    ~ .x %>%
-      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-      distinct() %>%
-      filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom))
-  )
-
-map_df(check_2, dim)
-#    dual gom_only sa_only
-# 1   143      213       0
-# distinct()
-# 1    14       70       0
-# [1] 356   3
-
-check_3 <-
-  permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(
-    ~ .x %>%
-      select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-      distinct() %>%
-      filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa))
-  )
-
-map_df(check_3, dim)
-   # dual gom_only sa_only
-# 1    14        0     151
-
-
-# [1] 657   3
-# ? ----
 # get all vessel_ids for permits ----
 permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
   permit_info_r_l_overlap_join1_w_dual_22__list %>%
@@ -265,6 +354,10 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
       distinct() %>%
       return()
   )
+
+
+
+
 
 # get all vessels for 2022 ----
 # join by different vessel ids, then bind together and unique
@@ -610,152 +703,6 @@ map_df(vessels_permit_bind_u_one_df, dim)
 #           vessels_permit_bind_u_one_df1)
 # T
 
-# fix trip data ----
-## add trip_int ----
-trips_info_2022 %>%
-  select(TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME) %>%
-  str()
-# POSIXct
-# str(trips_info_2022)
-
-# is_effective_date =
-#   lubridate::floor_date(is_effective_date,
-#                         unit = "day"),
-
-trips_info_2022_int <-
-  trips_info_2022 %>%
-  mutate(trip_int =
-           lubridate::interval(
-             lubridate::floor_date(TRIP_START_DATE,
-                                   unit = "day"),
-             lubridate::floor_date(TRIP_END_DATE,
-                                   unit = "day")
-           ))
-
-### check trips_info_2022_int ----
-trips_info_2022_int %>%
-  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
-  View()
-
-## trip types A and H trips ----
-trips_info_2022_int_ah <-
-  trips_info_2022_int %>%
-  filter(TRIP_TYPE %in% c("A", "H"))
-
-## trip types A and H trip_notif ----
-trip_notifications_2022 %>%
-   select(TRIP_TYPE) %>% distinct()
-#     TRIP_TYPE
-# 1           H
-# 3           A
-# 383         R
-# 697         C
-
-trip_notifications_2022_ah <-
-  trip_notifications_2022 %>%
-  filter(TRIP_TYPE %in% c("A", "H"))
-
-# add week num ----
-## to trips ----
-# strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%V")
-# [1] "21" "21" "21" "22" "22" "22" "22" "22"
-# >
-#   > strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%U")
-# [1] "21" "21" "22" "22" "22" "22" "22" "23"
-
-# grep(
-#   "WEEK",
-#   names(vessels__trips_22_l$sa_only),
-#   ignore.case = T,
-#   value = T
-# )
-# 0
-# Yanet: For the weeks between 2 months, both months are affected by the non-compliant status.
-
-# View(trips_info_2022_int_ah)
-
-# trips_info_2022_int_ah %>%
-#   select(TRIP_START_DATE) %>%
-#   head()
-
-trips_info_2022_int_ah_w_y <-
-  trips_info_2022_int_ah %>%
-  mutate(
-    TRIP_START_week_num =
-      strftime(TRIP_START_DATE, format = "%U"),
-    TRIP_END_week_num =
-      strftime(TRIP_END_DATE, format = "%U"),
-    TRIP_START_y =
-      year(TRIP_START_DATE),
-    TRIP_END_y =
-      year(TRIP_END_DATE),
-    TRIP_START_m =
-      zoo::as.yearmon(TRIP_START_DATE),
-    TRIP_END_m =
-      zoo::as.yearmon(TRIP_END_DATE)
-  ) %>%
-  mutate(
-    TRIP_START_week_num =
-      as.double(TRIP_START_week_num),
-    TRIP_END_week_num =
-      as.double(TRIP_END_week_num)
-  )
-
-# str(trips_info_2022_int_ah_w_y)
-
-# trips_info_2022_int_ah_w_y %>%
-#   select(starts_with("TRIP")) %>%
-#   arrange(TRIP_START_DATE) %>%
-#   View()
-
-## to trip notifications ----
-trip_notifications_2022_ah_w_y <-
-  trip_notifications_2022_ah %>%
-  mutate(
-    TRIP_START_week_num =
-      strftime(TRIP_START_DATE, format = "%U"),
-    TRIP_END_week_num =
-      strftime(TRIP_END_DATE, format = "%U"),
-    TRIP_START_y =
-      year(TRIP_START_DATE),
-    TRIP_END_y =
-      year(TRIP_END_DATE),
-    TRIP_START_m =
-      zoo::as.yearmon(TRIP_START_DATE),
-    TRIP_END_m =
-      zoo::as.yearmon(TRIP_END_DATE)
-  ) %>%
-  mutate(
-    TRIP_START_week_num =
-      as.double(TRIP_START_week_num),
-    TRIP_END_week_num =
-      as.double(TRIP_END_week_num)
-  )
-
-# trip_notifications_2022_ah_w_y %>%
-#   select(starts_with("TRIP")) %>%
-#   arrange(TRIP_START_DATE) %>%
-#   View()
-
-## to negative trips ----
-# print_df_names(trip_neg_2022)
-trip_neg_2022_w_y <-
-  trip_neg_2022 %>%
-  mutate(
-    TRIP_week_num =
-      strftime(TRIP_DATE, format = "%U"),
-    TRIP_DATE_y =
-      year(TRIP_DATE),
-    TRIP_DATE_m =
-      zoo::as.yearmon(TRIP_DATE)
-  ) %>%
-  mutate(TRIP_week_num =
-           as.double(TRIP_week_num))
-
-trip_neg_2022_w_y %>%
-  select(starts_with("TRIP")) %>%
-  arrange(TRIP_DATE) %>%
-  View()
 
 # vessels and trip_notifications ----
 
