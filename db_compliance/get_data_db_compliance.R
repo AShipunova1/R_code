@@ -2,10 +2,32 @@
 input_path <- file.path(my_paths$inputs, current_project_name)
 
 ## permit ----
-file_name_permits <- r"(my_outputs\from_db\mv_sero_fh_permits_his.csv)"
+file_name_permits <- 
+  file.path(input_path, "permit_info.rds")
+  
+  # r"(my_outputs\from_db\mv_sero_fh_permits_his.rds)"
 
-mv_sero_fh_permits_his <-
-  read_csv(file_name_permits)
+mv_sero_fh_permits_his_query <-
+  "select * from
+srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
+"
+
+permit_info_fun <- 
+  function(mv_sero_fh_permits_his_query) {
+    dbGetQuery(con,
+               mv_sero_fh_permits_his_query) %>%
+      return()
+    
+  }
+
+mv_sero_fh_permits_his <- 
+  read_rds_or_run(file_name_permits,
+                  mv_sero_fh_permits_his_query,
+                  permit_info_fun
+                  )
+
+# mv_sero_fh_permits_his <-
+  # read_csv(file_name_permits)
 # Rows: 181032 Columns: 22
 # ── Column specification ─────────────────────────────────────
 # Delimiter: ","
@@ -15,16 +37,10 @@ mv_sero_fh_permits_his <-
 
 ### the same from db ----
 
-mv_sero_fh_permits_his_query <-
-  "select * from
-srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
-"
-
-permit_info <- dbGetQuery(con,
-                          mv_sero_fh_permits_his_query)
 
 # View(permit_info)
-write_csv(permit_info, file.path(input_path, "permit_info.csv"))
+
+# write_csv(permit_info, file.path(input_path, "permit_info.csv"))
 
 ### the same from another db table (to compare) ----
 
