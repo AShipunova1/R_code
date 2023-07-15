@@ -2007,7 +2007,7 @@ v_p_t_tne_dates_join_week_cnts <-
   v_p_t_tne_dates_join |>
   group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) |>
   mutate(
-    total_p_weeks = n_distinct(WEEK_OF_YEAR),
+    total_WEEK_OF_YEAR = n_distinct(WEEK_OF_YEAR),
     tne_only =
       sum(!is.na(TRIP_week_num)),
     no_tne =
@@ -2020,9 +2020,10 @@ v_p_t_tne_dates_join_week_cnts <-
                        !is.na(TRIP_week_num)),
     no_t_tne = sum(is.na(TRIP_START_week_num) &
                      is.na(TRIP_week_num))
-  )
+  ) |> 
+  ungroup()
 
-View(x1)
+# View(x1)
        # ,
          # tne_only = sum(TRIP_week_num, na.rm = T),
          # )
@@ -2046,67 +2047,67 @@ dim(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p)
 print_df_names(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p)
 print_df_names(v_p_t_tne_dates_join)
 
-permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short <-
-  permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p |> 
-  dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, weeks_perm) |> 
-  # filter()
-  dplyr::distinct()
-
-data_overview(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short)
-# Max.   :886.00  
+# permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short <-
+#   permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p |> 
+#   dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, weeks_perm) |> 
+#   # filter()
+#   dplyr::distinct()
 # 
-# Count unique values in each column:                     .
-# VESSEL_ID         3875
-# VESSEL_ALT_NUM.sa 3872
-# weeks_perm         192
-
-permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short |> 
-  filter(weeks_perm > 53) |> 
-  distinct() |> 
-  View()
+# data_overview(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short)
+# # Max.   :886.00  
+# # 
+# # Count unique values in each column:                     .
+# # VESSEL_ID         3875
+# # VESSEL_ALT_NUM.sa 3872
+# # weeks_perm         192
+# 
+# permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short |> 
+#   filter(weeks_perm > 53) |> 
+#   distinct() |> 
+#   View()
 
 # permit_info_r_l_overlap_join1_w_dual_22__list$sa_only |> 
 #     filter(VESSEL_ID == 'FL7957JL') |> View()
 # SELECT j.*, weeks_perm
-tic("v_p_t_tne_dates_join__p sql")
-v_p_t_tne_dates_join__p_sql <-
-  sqldf("
-        SELECT j.*, weeks_perm
-        FROM
-        permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short p
-        FULL join
-        v_p_t_tne_dates_join j
-        on(VESSEL_ID = permit_vessel_id)
-        ")
-toc()
+# tic("v_p_t_tne_dates_join__p sql")
+# v_p_t_tne_dates_join__p_sql <-
+#   sqldf("
+#         SELECT j.*, weeks_perm
+#         FROM
+#         permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short p
+#         FULL join
+#         v_p_t_tne_dates_join j
+#         on(VESSEL_ID = permit_vessel_id)
+#         ")
+# toc()
 # too slow
 # v_p_t_tne_dates_join__p sql: 25.11 sec elapsed
 
-View(v_p_t_tne_dates_join__p_sql)
+# View(v_p_t_tne_dates_join__p_sql)
 
-tic("v_p_t_tne_dates_join__p")
-v_p_t_tne_dates_join__p <-
-dplyr::full_join(
-  v_p_t_tne_dates_join,
-  permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short,
-  dplyr::join_by(permit_vessel_id == VESSEL_ID),
-  relationship = "many-to-many"
-)
-toc()
+# tic("v_p_t_tne_dates_join__p")
+# v_p_t_tne_dates_join__p <-
+# dplyr::full_join(
+#   v_p_t_tne_dates_join,
+#   permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short,
+#   dplyr::join_by(permit_vessel_id == VESSEL_ID),
+#   relationship = "many-to-many"
+# )
+# toc()
 # v_p_t_tne_dates_join__p: 0.03 sec elapsed
 
-tic("v_p_t_tne_dates_join_week_cnts__p")
-v_p_t_tne_dates_join_week_cnts__p <-
-dplyr::full_join(
-  v_p_t_tne_dates_join_week_cnts,
-  permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short,
-  dplyr::join_by(permit_vessel_id == VESSEL_ID),
-  relationship = "many-to-many"
-)
-toc()
+# tic("v_p_t_tne_dates_join_week_cnts__p")
+# v_p_t_tne_dates_join_week_cnts__p <-
+# dplyr::full_join(
+#   v_p_t_tne_dates_join_week_cnts,
+#   permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short,
+#   dplyr::join_by(permit_vessel_id == VESSEL_ID),
+#   relationship = "many-to-many"
+# )
+# toc()
 # v_p_t_tne_dates_join_week_cnts__p: 0.47 sec elapsed
 
-View(v_p_t_tne_dates_join_week_cnts__p)
+# View(v_p_t_tne_dates_join_week_cnts__p)
 
 # add 2022 period weeks to permit ----
 
@@ -2137,3 +2138,49 @@ min(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt
 data_overview(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22)
 # VESSEL_ID            3875
 # weeks_perm_2022_amnt   53
+
+permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22_short <-
+  permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22 |>
+  dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, weeks_perm_2022_amnt) |>
+  dplyr::distinct()
+
+tic("v_p_t_tne_dates_join_week_cnts__p22")
+v_p_t_tne_dates_join_week_cnts__p22 <-
+dplyr::full_join(
+  v_p_t_tne_dates_join_week_cnts,
+  permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22_short,
+  dplyr::join_by(permit_vessel_id == VESSEL_ID),
+  relationship = "many-to-many"
+)
+toc()
+# v_p_t_tne_dates_join_week_cnts__p22: 0.44 sec elapsed
+View(v_p_t_tne_dates_join_week_cnts__p22)
+
+# v_p_t_tne_dates_join_week_cnts__p22: 0.44 sec elapsed
+
+v_p_t_tne_dates_join_week_cnts__p22 |> 
+   filter(weeks_perm_2022_amnt > total_WEEK_OF_YEAR) |> 
+   View()
+
+v_p_t_tne_dates_join_week_cnts__p22 |> 
+    filter(permit_vessel_id == '1020057') |> dim()
+# 104
+
+
+v_p_t_tne_dates_join_week_cnts__p22_short <-
+  v_p_t_tne_dates_join_week_cnts__p22 |>
+  select(
+    -c(
+      TRIP_START_week_num,
+      TRIP_END_week_num,
+      TRIP_START_y,
+      TRIP_END_y,
+      YEAR,
+      WEEK_OF_YEAR,
+      TRIP_week_num,
+      TRIP_DATE_y,
+    )
+  ) |>
+  distinct()
+
+View(v_p_t_tne_dates_join_week_cnts__p22_short)
