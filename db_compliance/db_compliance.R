@@ -565,3 +565,34 @@ vessels__trips_22_l_sa_weeks_cnt_u %>%
 # SA 2022 compliance ----
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
+
+## join trips and trip_negative (logbooks + DNFs) ----
+by_t__tne = join_by(
+  VESSEL_ID,
+  permit_vessel_id,
+  SUPPLIER_VESSEL_ID,
+  SERO_OFFICIAL_NUMBER,
+  TRIP_week_num == TRIP_START_week_num,
+  TRIP_DATE_y == TRIP_START_y
+)
+
+tic("join trips_info_2022_int_ah_w_y and tne")
+vessels__t_tne_sa <-
+  full_join(
+    trips_info_2022_int_ah_w_y,
+    trip_neg_2022_w_y,
+    by_t__tne,
+    suffix = c(".tne", ".t"),
+    relationship = "many-to-many"
+  )
+toc()
+# join vessels__t_tne_sa: 1.55 sec elapsed
+
+dim(vessels__t_tne_sa)
+# [1] 457647    146
+# [1] 458922    148
+
+
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22
+
