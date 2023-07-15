@@ -210,6 +210,90 @@ data_overview(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p22)
 
 # end here permits ----
 
+# vessels_permits_2022 ----
+## region permit groups 
+vessels_permits_2022_l <-
+  vessels_permits_2022  %>%
+  separate_permits_into_3_groups(permit_group_field_name = "TOP")
+
+## add my_end_date ----
+vessels_permits_2022_l_end_date <-
+  vessels_permits_2022_l %>%
+  # select(
+  #   VESSEL_ID,
+  #   EXPIRATION_DATE,
+  #   TOP,
+  #   PERMIT,
+  #   EFFECTIVE_DATE,
+  #   END_DATE,
+  #   PERMIT_STATUS,
+  #   VESSEL_ALT_NUM,
+  #   permit_sa_gom
+  # ) %>%
+  mutate(my_end_date =
+           case_when((END_DATE < EFFECTIVE_DATE) &
+                       (EXPIRATION_DATE > EFFECTIVE_DATE)
+                     ~ EXPIRATION_DATE,
+                     .default =
+                       dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
+           )) %>%
+  select(-c(END_DATE,
+            EXPIRATION_DATE)) %>%
+  distinct()
+
+dim(vessels_permits_2022_l_end_date)
+# [1] 20231    51
+
+## split by permit ----
+vessels_permits_2022_l_end_date_l <-
+  vessels_permits_2022_l_end_date %>%
+  split(as.factor(vessels_permits_2022_l_end_date$permit_sa_gom))
+
+# From Help:
+# It is common to have right-open ranges with bounds like `[)`, which would
+# mean an end value of `415` would no longer overlap a start value of `415`.
+# Setting `bounds` allows you to compute overlaps with those kinds of ranges.
+
+View(vessels_permits_2022_l_end_date_l$gom_only)
+by <- join_by(VESSEL_ID,
+              overlaps(x$EFFECTIVE_DATE,
+                       x$my_end_date,
+                       y$EFFECTIVE_DATE,
+                       y$my_end_date,
+                       bounds = "[)"))
+
+tic("vessels_permits_2022_l_end_date_overlap_join")
+vessels_permits_2022_l_end_date_l_overlap_join <-
+  full_join(
+  vessels_permits_2022_l_end_date_l$gom_only,
+  vessels_permits_2022_l_end_date_l$sa_only,
+  by,
+  suffix = c(".gom", ".sa")
+)
+toc()
+# permit_info_r_l_overlap_join1: 0.66 sec elapsed
+
+# dim(permit_info_r_l_overlap_join1)
+dim(vessels_permits_2022_l_end_date_overlap_join)
+# [1] 84570     5
+# [1] 186210     15
+
+# View(permit_info_r_l_overlap_join1)
+
+permit_info_r_l_overlap_join1 %>%
+  select(VESSEL_ID) %>%
+  distinct() %>%
+  dim()
+# [1] 13949 
+
+permit_info_r %>%
+  select(VESSEL_ID) %>%
+  distinct() %>%
+  dim()
+# 13930
+# 13942
+
+
 # Trip data (= logbooks) ----
 ## add trip interval ----
 
