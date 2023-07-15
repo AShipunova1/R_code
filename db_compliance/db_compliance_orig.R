@@ -554,7 +554,8 @@ vessels_permit_bind <-
        vessels_permit_3,
        dplyr::bind_rows)
 
-View(vessels_permit_bind)
+map_df(vessels_permit_bind, dim)
+# 1 11004    10914   41069
 
 ## uniq ----
 
@@ -606,6 +607,8 @@ map_df(vessels_permit_bind_u_one_df, dim)
 # 1   379     1204    3877
 # 2    48       48      48
 
+# 379 + 1204 + 3877
+# 5460
 # all.equal(vessels_permit_bind_u_one_df,
 #           vessels_permit_bind_u_one_df1)
 # T
