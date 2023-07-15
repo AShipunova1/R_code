@@ -190,6 +190,22 @@ vessels_query <-
   "SELECT *
   FROM
     safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
+
+vessels_file_path <- file.path(input_path, "vessels.rds")
+
+vessels_fun <- function(vessels_query) {
+  return(dbGetQuery(con,
+                    vessels_query))
+}
+
+vessels <-
+  read_rds_or_run(
+    vessels_file_path,
+    vessels_query,
+    vessels_fun
+  )
+
+# vessels_all <- 
 # Error in .oci.GetQuery(conn, statement, data = data, prefetch = prefetch,  :
 #   Error in try({ : embedded nul in string: '\0'
 
@@ -204,10 +220,9 @@ vessels_query <-
 # Error in try({ : embedded nul in string: '\0'
 
 # dim(vessels_all)
-vessels_all_file_path <- file.path(input_path, "vessels.csv")
-# write_csv(vessels_all, vessels_all_file_path)
+# vessels_all_file_path <- file.path(input_path, "vessels.csv")
 
-vessels_all <- read_csv(vessels_all_file_path)
+# vessels_all <- read_csv(vessels_all_file_path)
 # Rows: 140405 Columns: 29
 # ── Column specification ─────────────────────────────────────────────────────────
 # Delimiter: ","
