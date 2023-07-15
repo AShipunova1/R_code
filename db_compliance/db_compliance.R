@@ -391,6 +391,8 @@ data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa
 # weeks_perm_2022_amnt   53
 # VESSEL_ID                3888
 
+# TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
+# adjust the query
 # end here vessel_permits ----
 
 # Trip data (= logbooks) ----
