@@ -27,7 +27,8 @@ get_data_file_path <- file.path(
 )
 source(get_data_file_path)
 
-# separate_permits_into_3_groups ----
+# Permits ----
+## separate_permits_into_3_groups ----
 
 permit_info_r <-
   permit_info  %>%
@@ -72,7 +73,7 @@ permit_info_r_short <-
             EXPIRATION_DATE)) %>%
   distinct()
 
-# split by permit ----
+## split by permit ----
 permit_info_r_l <-
   permit_info_r_short %>%
   split(as.factor(permit_info_r_short$permit_sa_gom))
@@ -118,7 +119,7 @@ permit_info_r %>%
 # 13930
 # 13942
 
-# add "dual" to intervals ----
+### add "dual" to intervals ----
 permit_info_r_l_overlap_join1_w_dual <-
   permit_info_r_l_overlap_join1 %>%
   mutate(permit_sa_gom =
@@ -160,7 +161,7 @@ permit_info_r_l_overlap_join1_w_dual_22 <-
                       interval_2022)
          )
 
-### check ----
+#### check ----
 permit_info_r_l_overlap_join1_w_dual_22 %>%
   select(permit_sa_gom) %>%
   distinct()
@@ -172,19 +173,19 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
   distinct() %>%
   dim()
 # 379
-# end here permits ----
 
-permit_info_r_l_overlap_join1_w_dual_22 %>%
-  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-  filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
-  dim()
+# permit_info_r_l_overlap_join1_w_dual_22 %>%
+#   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+#   filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
+  # dim()
 # 660
 
-# split permits by region again ----
+## split permits by region again ----
 permit_info_r_l_overlap_join1_w_dual_22__list <-
   permit_info_r_l_overlap_join1_w_dual_22 %>%
   split(as.factor(permit_info_r_l_overlap_join1_w_dual_22$permit_sa_gom))
 
+# end here permits ----
 
 # fix trip data ----
 ## add trip_int ----
