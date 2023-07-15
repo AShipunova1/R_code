@@ -151,7 +151,7 @@ dim(trip_neg_2022)
 # [1] 747173     12
 
 # trip_notifications ----
-trip_notifications_query <-
+trip_notifications_2022_query <-
   "SELECT
  *
 FROM
@@ -163,22 +163,29 @@ WHERE
   , 'dd-mon-yy') )
 "
 
-tic("trip_notifications_query")
-trip_notifications_2022 <- dbGetQuery(con,
-                          trip_notifications_query)
-toc()
+trip_notifications_2022_file_path <- 
+  file.path(input_path, "trip_notifications_2022.rds")
+
+trip_notifications_2022_fun <- function(trip_notifications_2022_query) {
+  return(dbGetQuery(con, trip_notifications_2022_query))
+}
 # trip_notifications_query: 52.08 sec elapsed
 # 97279
 # trip_notifications_query: 7.65 sec elapsed
+
+trip_notifications_2022 <-
+  read_rds_or_run(
+    trip_notifications_2022_file_path,
+    trip_notifications_2022_query,
+    trip_notifications_2022_fun
+  )
+# 2023-07-15 run the function: 13.41 sec elapsed
 
 dim(trip_notifications_2022)
 # Rows: 129,701
 # [1] 70056    33
 
-write_csv(trip_notifications_2022,
-          file.path(input_path, "trip_notifications_2022.csv"))
-
-# get vessels from db ----
+# get vessels ----
 vessels_query <-
   "SELECT *
   FROM
