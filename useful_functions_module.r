@@ -570,7 +570,8 @@ read_rds_or_run <-
       my_result <-
         readr::read_rds(my_file_path)
     } else {
-      tic("run the function")
+      msg_text <- paste(today(), "run the function")
+      tic(msg_text)
       my_result <-
         my_function(my_data)
       toc()
