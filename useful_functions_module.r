@@ -563,7 +563,7 @@ read_rds_or_run <-
   function(my_file_path,
            my_data = as.data.frame(""),
            my_function) {
-    browser()
+    # browser()
     
     if (file.exists(my_file_path)) {
       # read a binary file saved previously
