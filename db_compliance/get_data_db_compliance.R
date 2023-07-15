@@ -111,10 +111,12 @@ dim(trips_info_2022)
 # [1] 98449    72
 # [1] 98528    72
 
-# write_csv(trips_info_2022, file.path(input_path, "trips_info_2022.csv"))
+# get trip neg ----
 
-# get trip neg from db ----
-trip_neg_query_2022 <-
+trip_neg_2022_file_path <- 
+  file.path(input_path, "trip_neg_2022.rds")
+
+trip_neg_2022_query <-
   "SELECT *
   FROM
     safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov
@@ -126,20 +128,27 @@ WHERE
   #   OR trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')"
 # 1495929
 
-tic("trip_neg_query_2022")
-trip_neg_2022 <- dbGetQuery(con,
-                          trip_neg_query_2022)
-toc()
+trip_neg_2022_fun <-
+  function(trip_neg_2022_query) {
+    return(dbGetQuery(con, trip_neg_query_2022))
+  }
+
 # trip_neg_query_2022: 201.21 sec elapsed
 # trip_neg_query_2022: 60.06 sec elapsed
 # trip_neg_query_2022: 89.38 sec elapsed
 
-# write_csv(trip_neg_2022,
-#           file.path(input_path, "trip_neg_2022.csv"))
+trip_neg_2022 <- 
+  read_rds_or_run(trip_neg_2022_file_path,
+                  trip_neg_2022_query,
+                  trip_neg_2022_fun
+                  )
+# run the function: 98.23 sec elapsed
+
 
 dim(trip_neg_2022)
 # Rows: 1,495,929
 # [1] 746087     12
+# [1] 747173     12
 
 # trip_notifications ----
 trip_notifications_query <-
