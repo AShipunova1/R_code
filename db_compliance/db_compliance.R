@@ -211,29 +211,6 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
   split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22$permit_sa_gom))
 
-# add 2022 SA period weeks cnt to permit ----
-
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22 <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$sa_only |>
-  # remove gom, keep sa only
-  select(-ends_with("gom")) |>
-  mutate(permit_2022 = lubridate::intersect(eff_int_sa,
-                      interval_2022)) |>
-  mutate(weeks_perm_2022_amnt =
-           (permit_2022 / lubridate::dweeks(1)) |>
-           round()
-         ) |>
-  distinct()
-
-min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt)
-max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt)
-# 0-52  
-
-# data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22)
-# VESSEL_ID            3875
-# weeks_perm_2022_amnt   53
-# VESSEL_ID                3888
-
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
 
@@ -366,26 +343,28 @@ trip_neg_2022_w_y <-
 
 ## neg trip weeks ----
 # TODO ?do we need a join?
-vessels__trip_neg_22_l_sa_weeks_cnt_u <-
-  vessels__trip_neg_22_l$sa_only %>%
-  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
-  summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
+
+# trip_neg_2022_w_y_cnt_u <-
+# vessels__trip_neg_22_l_sa_weeks_cnt_u <-
+#   vessels__trip_neg_22_l$sa_only %>%
+#   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
+#   summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
 # dim(vessels__trip_neg_22_l_sa_weeks_cnt_u)
 # [1] 1709    5
 
 ## trip_notif weeks count per vessel ----
-vessels__trip_notif_22_l_sa_weeks_cnt_u <-
-  vessels__trip_notif_22_l$sa_only %>%
-  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
-  summarise(distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
-            distinct_end_weeks_tn = n_distinct(TRIP_END_week_num))
-
-dim(vessels__trip_notif_22_l_sa_weeks_cnt_u)
-# 17
-vessels__trip_notif_22_l_sa_weeks_cnt_u %>%
-   filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
-   dim()
+# vessels__trip_notif_22_l_sa_weeks_cnt_u <-
+#   vessels__trip_notif_22_l$sa_only %>%
+#   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
+#   summarise(distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
+#             distinct_end_weeks_tn = n_distinct(TRIP_END_week_num))
+# 
+# dim(vessels__trip_notif_22_l_sa_weeks_cnt_u)
+# # 17
+# vessels__trip_notif_22_l_sa_weeks_cnt_u %>%
+#    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
+#    dim()
 # [1] 0 6
 # ok
 
@@ -414,7 +393,31 @@ trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
 # Join everything to dates_2022 ----
 # View(dates_2022)
 ## p_v ----
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list
+map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
+#    dual gom_only sa_only
+#   <int>    <int>   <int>
+# 1  3281     3673   13749
+# 2   116      116     116
+
+
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual$EFFECTIVE_DATE.gom
+# effective_date, COMPLETE_DATE
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates <-
+  names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list) |> 
+  map(~ function(curr_permit_region) {
+    curr_df <-
+      vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list[[curr_permit_region]]
+    curr_f_name <- paste0("EFFECTIVE_DATE.", curr_permit_region)
+    res <-
+      left_join(dates_2022,
+                curr_df,
+                join_by(COMPLETE_DATE == curr_f_name))
+    
+    return(res)
+  })
+
+
 ## t ----
 ## tne ----
 ## tn ----
@@ -423,6 +426,29 @@ trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
 # SA 2022 compliance ----
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
+
+# add 2022 SA period weeks cnt to permit ----
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22 <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$sa_only |>
+  # remove gom, keep sa only
+  select(-ends_with("gom")) |>
+  mutate(permit_2022 = lubridate::intersect(eff_int_sa,
+                      interval_2022)) |>
+  mutate(weeks_perm_2022_amnt =
+           (permit_2022 / lubridate::dweeks(1)) |>
+           round()
+         ) |>
+  distinct()
+
+min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt)
+max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt)
+# 0-52  
+
+# data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22)
+# VESSEL_ID            3875
+# weeks_perm_2022_amnt   53
+# VESSEL_ID                3888
 
 
 ## join trips and trip_negative (logbooks + DNFs) ----
