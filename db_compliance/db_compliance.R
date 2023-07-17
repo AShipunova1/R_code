@@ -527,11 +527,67 @@ data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dua
 # VESSEL_VESSEL_ID            293
 # SERO_OFFICIAL_NUMBER.gom    293
 
-
 ## t ----
+# print_df_names(trips_info_2022_int_ah_w_y)
+
+# TODO: or end_date? check the difference for output week counts
+t_by <- join_by(COMPLETE_DATE == TRIP_START_DATE)
+trips_info_2022_int_ah_w_y_dates <-
+  left_join(dates_2022,
+            trips_info_2022_int_ah_w_y,
+            t_by)
+
+### check numbers ----
+data_overview(trips_info_2022_int_ah_w_y_dates)
+# COMPLETE_DATE                 427
+# VESSEL_ID                    1935
+# data_overview(trips_info_2022_int_ah_w_y)
+# VESSEL_ID                    1934
+
+trips_info_2022_int_ah_w_y_dates_ids <- trips_info_2022_int_ah_w_y_dates |> 
+  select(VESSEL_ID) |> 
+  distinct()
+
+trips_info_2022_int_ah_w_y_ids <-
+trips_info_2022_int_ah_w_y |> 
+  select(VESSEL_ID) |> 
+  distinct()
+
+# setdiff(trips_info_2022_int_ah_w_y_ids, trips_info_2022_int_ah_w_y_dates_ids)
+# 0
 ## tne ----
+print_df_names(trip_neg_2022_w_y)
+tne_by <- join_by(COMPLETE_DATE == TRIP_DATE)
+trip_neg_2022_w_y_dates <-
+  left_join(dates_2022,
+            trip_neg_2022_w_y,
+            tne_by)
+
+count_uniq_by_column(trip_neg_2022_w_y)
+# VESSEL_ID       3414
+
+count_uniq_by_column(trip_neg_2022_w_y_dates)
+# COMPLETE_DATE    427
+# VESSEL_ID       3415
+
+# TODO: why more vessel_ids? NA
+
 ## tn ----
 
+tn_by <- join_by(COMPLETE_DATE == TRIP_START_DATE)
+trip_notifications_2022_ah_w_y_dates <-
+  left_join(dates_2022,
+            trip_notifications_2022_ah_w_y,
+            tn_by)
+
+count_uniq_by_column(trip_notifications_2022_ah_w_y)
+# VESSEL_ID                      914
+# TRIP_START_DATE                378
+
+count_uniq_by_column(trip_notifications_2022_ah_w_y_dates)
+# COMPLETE_DATE                  427
+# VESSEL_ID                      915
+# TRIP_START_DATE                378
 
 # SA 2022 compliance ----
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
