@@ -72,20 +72,30 @@ vessels_permits_2022_r_short <-
 # dim(vessels_permits_2022_r_short)
 # [1] 9442   11
 
+# vessels_permits_2022_r_short |> 
+#   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
+# 23 is here
+
 ## add my_end_date ----
 # print_df_names(vessels_permits_2022_r)
 vessels_permits_2022_r_end_date <-
   vessels_permits_2022_r_short |>
+  rowwise() |> 
   mutate(my_end_date =
            case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
                      ~ EXPIRATION_DATE,
                      .default =
-                       dplyr::coalesce(END_DATE,                                     EXPIRATION_DATE)
+                       max(END_DATE,                                     EXPIRATION_DATE,
+                           na.rm = T)
            )) %>%
-  select(-c(END_DATE,
-            EXPIRATION_DATE)) %>%
+  # select(-c(END_DATE,
+            # EXPIRATION_DATE)) %>%
   distinct()
+
+# vessels_permits_2022_r_end_date |> 
+#   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
+# correct now
 
 # View(vessels_permits_2022_r_end_date)
 # [1] 20231    51
@@ -608,7 +618,7 @@ count_uniq_by_column(trip_notifications_2022_ah_w_y_dates)
 #   filter(PERMIT_VESSEL_ID == 'FL8701TB') |> View()
 # vessels_permits_2022 |>
 #   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
-# TODO: fix end in 2023 dissappeared
+# TODO: fix end in 2023 disappeared
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$sa_only |>
