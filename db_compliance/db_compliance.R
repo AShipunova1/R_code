@@ -593,7 +593,7 @@ count_uniq_by_column(trip_notifications_2022_ah_w_y_dates)
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
 
-# ## keep only sero permitted ----
+# ## keep only sero permitted
 # 
 # trip_notifications_2022_ah_w_y_dates_s <-
 #   trip_notifications_2022_ah_w_y_dates |> 
@@ -633,6 +633,8 @@ data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dat
 # weeks_perm_2022_amnt         54
 
 ## compare vessel_ids ----
+
+### v_p ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids <-
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |> 
   select(contains("vessel")) |> 
@@ -654,24 +656,26 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_i
   dim()
 # 130
 
+### v_p vs. t ----
 trips_info_2022_int_ah_w_y_dates_ids <-
   trips_info_2022_int_ah_w_y_dates |>
+  filter(!is.na(SERO_VESSEL_PERMIT)) |> 
   select(contains("vessel")) |>
   distinct()
 
 dim(trips_info_2022_int_ah_w_y_dates_ids)
 # [1] 2244    3
-
+# [1] 1729    3 filter(!is.na(SERO_VESSEL_PERMIT)) |> 
 setdiff(
   trips_info_2022_int_ah_w_y_dates_ids$VESSEL_ID,
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
 ) |> glimpse()
   # length()
-# 979
+  # 774
 
 trips_info_2022_int_ah_w_y_dates_ids |> 
   filter(VESSEL_ID == '327558') |> 
-  View()
+  glimpse()
 
 setdiff(
   trips_info_2022_int_ah_w_y_dates_ids$SERO_VESSEL_PERMIT,
@@ -686,15 +690,35 @@ setdiff(
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
 ) |>
   length()
+# [1] 1710
 
+### v_p vs. tne ----
+
+# View(trip_neg_2022_w_y_dates)
 trip_neg_2022_w_y_dates_ids <-
   trip_neg_2022_w_y_dates |>
   select(contains("vessel")) |>
   distinct()
 
-dim(trip_neg_2022_w_y_dates_ids)
+# tail(trip_neg_2022_w_y_dates_ids)
 # [1] 3415    1
+# VESSEL_ID 
+setdiff(
+  trip_neg_2022_w_y_dates_ids$VESSEL_ID,
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
+) |>
+  length()
+# 1984
 
+setdiff(
+  trip_neg_2022_w_y_dates_ids$VESSEL_ID,
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$PERMIT_VESSEL_ID
+) |>
+  length()
+# 3414
+
+
+# use vessel and vessel_id
 
 ## add trips and trip_negative (logbooks + DNFs) ----
 trips_info_2022_int_ah_w_y_dates
