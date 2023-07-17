@@ -32,11 +32,16 @@ interval_2022 = lubridate::interval(as.Date('2022-01-01'),
                                     as.Date('2022-12-31'))
 
 # vessels_permits_2022 ----
+# dim(vessels_permits_2022)
+# [1] 40474    51
 
-## fist weird header ----
-vessels_permits_2022 %<>%
-  rename("VESSEL_ID" = "QCSJ_C000000000300000")
-
+## weird headers ----
+# print_df_names(vessels_permits_2022)
+vessels_permits_2022_c <-
+  vessels_permits_2022 |> 
+  rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |> 
+  rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
+  
 ## region permit groups ----
 vessels_permits_2022_r <-
   vessels_permits_2022  %>%
