@@ -466,31 +466,67 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # 1   635     1879    6308
 # 2    33       33      33
 
-# names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list)
+l_names <- 
+  names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list)
 # [1] "dual"     "gom_only" "sa_only"
 
 # str_split("sa_only", "_")
 # str_split("saonly", "_")
 my_f <- function(curr_permit_region) {
+
   # browser()
   curr_df <-
-    vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list[[curr_permit_region_o]]
-  curr_f_name <- paste0("EFFECTIVE_DATE.", curr_permit_region)
+    vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list[[curr_permit_region]]
+
+  curr_permit_s_g_all <- curr_df |>
+    select(permit_sa_gom) |>
+    distinct()
+  
+  # treat dual as gom for 2022
+  if (curr_permit_s_g_all == "dual") {
+    curr_permit_s_g <- "gom"
+  } else {
+    curr_permit_s_g_all0 <- str_split(curr_permit_s_g_all, "_")
+    curr_permit_s_g <- curr_permit_s_g_all0[[1]][[1]]
+  }
+  
+  curr_f_name <- paste0("EFFECTIVE_DATE.", curr_permit_s_g)
+  
   res <-
     left_join(dates_2022,
               curr_df,
               join_by(COMPLETE_DATE == !!sym(curr_f_name)))
-
+  
   return(res)
 }
 
-nl <- list("gom", "sa" )
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates <-
-  map(nl, my_f)
+  map(l_names, my_f)
 
-View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates)
+names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates) <- l_names
 
+### check v_ dates join ---- 
 map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates, dim)
+#    dual gom_only sa_only
+#   <int>    <int>   <int>
+# 1   648     1271    3615
+# 2    36       36      36
+
+# data_overview(dates_2022)
+# COMPLETE_DATE 427
+
+data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual)
+# PERMIT_VESSEL_ID            353
+# VESSEL_VESSEL_ID            353
+# EFFECTIVE_DATE.gom          232
+# EFFECTIVE_DATE.sa           230
+
+# data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$dual)
+# COMPLETE_DATE               427
+# PERMIT_VESSEL_ID            293
+# VESSEL_VESSEL_ID            293
+# SERO_OFFICIAL_NUMBER.gom    293
+
 
 ## t ----
 ## tne ----
