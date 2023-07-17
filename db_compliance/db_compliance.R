@@ -595,20 +595,23 @@ count_uniq_by_column(trip_notifications_2022_ah_w_y_dates)
 
 # add 2022 SA period weeks cnt to permit ----
 
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22 <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$sa_only |>
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$sa_only |>
   # remove gom, keep sa only
   select(-ends_with("gom")) |>
-  mutate(permit_2022 = lubridate::intersect(eff_int_sa,
-                      interval_2022)) |>
+  mutate(permit_2022 =
+           lubridate::intersect(eff_int_sa,
+                                interval_2022)) |>
   mutate(weeks_perm_2022_amnt =
            (permit_2022 / lubridate::dweeks(1)) |>
-           round()
-         ) |>
+           round()) |>
   distinct()
 
-min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt)
-max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt)
+# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
+max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
+# 0-52
+# 0-109 (without interval_2022)
 # 0-52
 
 # data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22)
