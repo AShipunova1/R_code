@@ -87,7 +87,7 @@ vessels_permits_2022_r_end_date <-
             EXPIRATION_DATE)) %>%
   distinct()
 
-View(vessels_permits_2022_r_end_date)
+# View(vessels_permits_2022_r_end_date)
 # [1] 20231    51
 # short
 # [1] 9433   10
@@ -95,7 +95,6 @@ View(vessels_permits_2022_r_end_date)
 ## add weeks and months ----
 # print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
 
-# print_df_names(vessels_permits_2022_r_end_date)
 vessels_permits_2022_r_end_date_w_y <-
 vessels_permits_2022_r_end_date |> 
     mutate(
@@ -119,10 +118,18 @@ vessels_permits_2022_r_end_date |>
       as.double(my_end_week_num)
   )
 
+# dim(vessels_permits_2022_r_end_date_w_y)
+# [1] 9433   16
+
 ## split by permit ----
 vessels_permits_2022_r_end_date_l <-
   vessels_permits_2022_r_end_date_w_y %>%
   split(as.factor(vessels_permits_2022_r_end_date_w_y$permit_sa_gom))
+
+map_df(vessels_permits_2022_r_end_date_l, dim)
+#   gom_only sa_only
+# 1     2525    6908
+# 2       16      16
 
 ## join by overlap of gom and sa (= dual) ----
 # From Help:
@@ -131,7 +138,8 @@ vessels_permits_2022_r_end_date_l <-
 # Setting `bounds` allows you to compute overlaps with those kinds of ranges.
 # View(vessels_permits_2022)
 # View(vessels_permits_2022_r_end_date_l$gom_only)
-by <- join_by(VESSEL_ID,
+by <- join_by(PERMIT_VESSEL_ID,
+              VESSEL_VESSEL_ID,
               overlaps(x$EFFECTIVE_DATE,
                        x$my_end_date,
                        y$EFFECTIVE_DATE,
@@ -150,19 +158,29 @@ toc()
 # permit_info_r_l_overlap_join1: 0.66 sec elapsed
 
 dim(vessels_permits_2022_r_end_date_l_overlap_join)
-# [1] 20918   113
+# [1] 20918   112
+# short
+# [1] 8939   30
 
 vessels_permits_2022_r_end_date_l_overlap_join %>%
-  select(VESSEL_ID) %>%
+  select(VESSEL_VESSEL_ID) %>%
   distinct() %>%
   dim()
+# select(PERMIT_VESSEL_ID) %>%
 # [1] 5461    1
 
 vessels_permits_2022 %>%
-  select(VESSEL_ID) %>%
+  # select(QCSJ_C000000000300000
+  # [1] 5461    1
+  # select(QCSJ_C000000000300001
+  # [1] 5461    1
+  
+  select(QCSJ_C000000000300000,
+         QCSJ_C000000000300001,
+         VESSEL_ALT_NUM) %>%
   distinct() %>%
   dim()
-# [1] 5461    1
+# [1] 5462    1
 
 ### add "dual" to intervals ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual <-
@@ -184,6 +202,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual %>%
 
 dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
 # [1] 20918   114
+# [1] 8939   31
 
 # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
 
@@ -213,30 +232,43 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
   distinct()
 # all 3
 
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
+#   filter(!VESSEL_VESSEL_ID == PERMIT_VESSEL_ID) |> 
+#   dim()
+# [1] 8822   33
+
+
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
   filter(permit_sa_gom == "dual") %>%
-  select(VESSEL_ID) %>%
+  # select(VESSEL_VESSEL_ID) %>%
+  select(PERMIT_VESSEL_ID) %>%
   distinct() %>%
   dim()
 # 379
 # 353
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
-  select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-  filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
+  select(PERMIT_VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
+  filter(!(PERMIT_VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
 dim()
 # 660
 # 636
+# [1] 274   3
 
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
   split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22$permit_sa_gom))
 
+map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
+#    dual gom_only sa_only
+# 1   635     1879    6308
+# 2    33       33      33
+
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
 
-# end here vessel_permits ----
+# end vessel_permits preparations ----
 
 # Trip data (= logbooks) ----
 ## add trip interval ----
@@ -359,6 +391,11 @@ trip_neg_2022_w_y <-
   mutate(TRIP_week_num =
            as.double(TRIP_week_num))
 
+# results:
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list
+# trips_info_2022_int_ah_w_y
+# trip_neg_2022_w_y
+# trip_notifications_2022_ah_w_y
 # end of data preparations ----
 
 # Count distinct weeks per vessel ----
