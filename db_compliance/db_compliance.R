@@ -777,8 +777,10 @@ t__tne__dates_w_cnt_t_tne |>
 # [1] 5971   99
 
 ## fewer columns ----
-t__tne__dates_short <-
-  t__tne__dates |>
+# print_df_names(t__tne__dates_w_cnt_t_tne)
+
+t__tne__dates_w_cnt_t_tne_short <-
+  t__tne__dates_w_cnt_t_tne |>
   select(
     YEAR,
     MONTH_OF_YEAR,
@@ -798,23 +800,27 @@ t__tne__dates_short <-
     TRIP_ID.tne,
     TRIP_week_num,
     TRIP_DATE_y,
-    TRIP_DATE_m
-  ) |> 
+    TRIP_DATE_m,
+    distinct_start_weeks_t,
+    distinct_end_weeks_t,
+    max_weeks_cnt_t,
+    distinct_weeks_ne
+  ) |>
   distinct()
 
 # dim(t__tne__dates)
 # [1] 838720     95
-# dim(t__tne__dates_short)
-# [1] 838720     19
+# dim(t__tne__dates_w_cnt_t_tne_short)
+# [1] 838720     23
 
-View(t__tne__dates_short)
+View(t__tne__dates_w_cnt_t_tne_short)
 ## add week_cnts t, tne
-# t__tne__dates_short |> 
-#   mutate(weeks_amnt = 
+# t__tne__dates_short |>
+#   mutate(weeks_amnt =
 #            case_when(
 #              (!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne) ~
-#                 
-#     
+#
+#
 #   )
 #            )
 
