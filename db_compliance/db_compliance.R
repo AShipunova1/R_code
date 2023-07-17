@@ -33,11 +33,11 @@ interval_2022 = lubridate::interval(as.Date('2022-01-01'),
 
 # vessels_permits_2022 ----
 
-## fist weird header
+## fist weird header ----
 vessels_permits_2022 %<>%
   rename("VESSEL_ID" = "QCSJ_C000000000300000")
 
-## region permit groups 
+## region permit groups ----
 vessels_permits_2022_r <-
   vessels_permits_2022  %>%
   separate_permits_into_3_groups(permit_group_field_name = "TOP")
@@ -70,10 +70,37 @@ vessels_permits_2022_r_end_date <-
 dim(vessels_permits_2022_r_end_date)
 # [1] 20231    51
 
+## add weeks and months ----
+# print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
+
+# print_df_names(vessels_permits_2022_r_end_date)
+vessels_permits_2022_r_end_date_w_y <-
+vessels_permits_2022_r_end_date |> 
+    mutate(
+    EFFECTIVE_DATE_week_num =
+      strftime(EFFECTIVE_DATE, format = "%U"),
+    my_end_week_num =
+      strftime(my_end_date, format = "%U"),
+    EFFECTIVE_DATE_y =
+      year(EFFECTIVE_DATE),
+    my_end_y =
+      year(my_end_date),
+    EFFECTIVE_DATE_m =
+      zoo::as.yearmon(EFFECTIVE_DATE),
+    my_end_m =
+      zoo::as.yearmon(my_end_date)
+  ) %>%
+  mutate(
+    EFFECTIVE_DATE_week_num =
+      as.double(EFFECTIVE_DATE_week_num),
+    my_end_week_num =
+      as.double(my_end_week_num)
+  )
+
 ## split by permit ----
 vessels_permits_2022_r_end_date_l <-
-  vessels_permits_2022_r_end_date %>%
-  split(as.factor(vessels_permits_2022_l_end_date$permit_sa_gom))
+  vessels_permits_2022_r_end_date_w_y %>%
+  split(as.factor(vessels_permits_2022_r_end_date_w_y$permit_sa_gom))
 
 ## join by overlap of gom and sa (= dual) ----
 # From Help:
@@ -101,7 +128,7 @@ toc()
 # permit_info_r_l_overlap_join1: 0.66 sec elapsed
 
 dim(vessels_permits_2022_r_end_date_l_overlap_join)
-# [1] 20918   101
+# [1] 20918   113
 
 vessels_permits_2022_r_end_date_l_overlap_join %>%
   select(VESSEL_ID) %>%
@@ -134,9 +161,9 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual %>%
 # all 3
 
 dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
-# [1] 20918   102
+# [1] 20918   114
 
-View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
+# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
 
 # to get dual in the overlapping period:
 # filter(!is.na(permit_sa_gom.sa))
@@ -202,13 +229,14 @@ min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22$wee
 max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22$weeks_perm_2022_amnt)
 # 0-52  
 
-data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22)
+# data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22)
 # VESSEL_ID            3875
 # weeks_perm_2022_amnt   53
 # VESSEL_ID                3888
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
+
 # end here vessel_permits ----
 
 # Trip data (= logbooks) ----
@@ -362,25 +390,40 @@ vessels__trip_notif_22_l_sa_weeks_cnt_u %>%
 # ok
 
 ## trips weeks count per vessel ----
-
-vessels__trips_22_l_sa_weeks_cnt_u <-
-  vessels__trips_22_l$sa_only %>%
-  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
-  summarise(distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
-            distinct_end_weeks_t = n_distinct(TRIP_END_week_num)) %>%
-  mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
-
-dim(vessels__trips_22_l_sa_weeks_cnt_u)
+# View(trips_info_2022_int_ah_w_y)
+trips_info_2022_int_ah_w_y_weeks_cnt_u <-
+  trips_info_2022_int_ah_w_y %>%
+    # browser()
+    group_by(VESSEL_ID) %>%
+      summarise(
+        distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
+        distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
+      ) %>%
+      mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
+  
+dim(trips_info_2022_int_ah_w_y_weeks_cnt_u)
 # [1] 1110    7
+# [1] 1934    4
 
-vessels__trips_22_l_sa_weeks_cnt_u %>%
+trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
    filter(!distinct_start_weeks_t == distinct_end_weeks_t) %>%
    dim()
 # 27
+# 63
+
+# Join everything to dates_2022 ----
+# View(dates_2022)
+## p_v ----
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list
+## t ----
+## tne ----
+## tn ----
+
 
 # SA 2022 compliance ----
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
+
 
 ## join trips and trip_negative (logbooks + DNFs) ----
 by_t__tne = join_by(
