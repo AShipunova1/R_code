@@ -455,7 +455,7 @@ trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
 # 27
 # 63
 
-# Join everything to dates_2022 ----
+# Join dates_2022 and everything  ----
 # View(dates_2022)
 ## p_v ----
 map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
@@ -570,7 +570,7 @@ count_uniq_by_column(trip_neg_2022_w_y_dates)
 # COMPLETE_DATE    427
 # VESSEL_ID       3415
 
-# TODO: why more vessel_ids? NA
+# why more vessel_ids? NA
 
 ## tn ----
 
@@ -593,7 +593,17 @@ count_uniq_by_column(trip_notifications_2022_ah_w_y_dates)
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
 
-# add 2022 SA period weeks cnt to permit ----
+# ## keep only sero permitted ----
+# 
+# trip_notifications_2022_ah_w_y_dates_s <-
+#   trip_notifications_2022_ah_w_y_dates |> 
+#   filter(!is.na())
+# data_overview(trips_info_2022_int_ah_w_y_dates)
+# 
+# trip_neg_2022_w_y_dates
+# data_overview(trips_info_2022_int_ah_w_y_dates)
+
+## add 2022 SA period weeks cnt to v permit ----
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$sa_only |>
@@ -607,46 +617,87 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <
            round()) |>
   distinct()
 
-# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
 max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
 # 0-52
 # 0-109 (without interval_2022)
 # 0-52
 
-# data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22)
+data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 # VESSEL_ID            3875
 # weeks_perm_2022_amnt   53
 # VESSEL_ID                3888
+# today() [1] "2023-07-17"
+# VESSEL_VESSEL_ID           3182
+# weeks_perm_2022_amnt         54
+
+## compare vessel_ids ----
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids <-
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |> 
+  select(contains("vessel")) |> 
+  distinct()
+
+dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids)
+# [1] 3182    4
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids |> 
+  filter(!PERMIT_VESSEL_ID == SUPPLIER_VESSEL_ID.sa) |> glimpse()
+# $ PERMIT_VESSEL_ID      <chr> "NC0676EK"
+# $ VESSEL_VESSEL_ID      <dbl> 383419
+# $ SUPPLIER_VESSEL_ID.sa <chr> "1292480"
+# $ VESSEL_ALT_NUM.sa     <chr> "NC0676EK"
+# FHIER correct:
+# 1292480:NC0676EK........ SOUTHERN RUN - BENJAMIN AUGUSTUS MORRIS            (828) 4298076
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids |> 
+  filter(!VESSEL_ALT_NUM.sa == SUPPLIER_VESSEL_ID.sa) |> 
+  dim()
+# 130
+
+trips_info_2022_int_ah_w_y_dates_ids <-
+  trips_info_2022_int_ah_w_y_dates |>
+  select(contains("vessel")) |>
+  distinct()
+
+dim(trips_info_2022_int_ah_w_y_dates_ids)
+# [1] 2244    3
+
+setdiff(
+  trips_info_2022_int_ah_w_y_dates_ids$VESSEL_ID,
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
+) |> glimpse()
+  # length()
+# 979
+
+trips_info_2022_int_ah_w_y_dates_ids |> 
+  filter(VESSEL_ID == '327558') |> 
+  View()
+
+setdiff(
+  trips_info_2022_int_ah_w_y_dates_ids$SERO_VESSEL_PERMIT,
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$PERMIT_VESSEL_ID
+) |>
+  length()
+# 1713
+# SUPPLIER_VESSEL_ID.sa, VESSEL_ALT_NUM.sa same
+
+setdiff(
+  trips_info_2022_int_ah_w_y_dates_ids$SERO_VESSEL_PERMIT,
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
+) |>
+  length()
+
+trip_neg_2022_w_y_dates_ids <-
+  trip_neg_2022_w_y_dates |>
+  select(contains("vessel")) |>
+  distinct()
+
+dim(trip_neg_2022_w_y_dates_ids)
+# [1] 3415    1
 
 
-## join trips and trip_negative (logbooks + DNFs) ----
-by_t__tne = join_by(
-  VESSEL_ID,
-  permit_vessel_id,
-  SUPPLIER_VESSEL_ID,
-  SERO_OFFICIAL_NUMBER,
-  TRIP_week_num == TRIP_START_week_num,
-  TRIP_DATE_y == TRIP_START_y
-)
+## add trips and trip_negative (logbooks + DNFs) ----
+trips_info_2022_int_ah_w_y_dates
 
-tic("join trips_info_2022_int_ah_w_y and tne")
-vessels__t_tne_sa <-
-  full_join(
-    trips_info_2022_int_ah_w_y,
-    trip_neg_2022_w_y,
-    by_t__tne,
-    suffix = c(".tne", ".t"),
-    relationship = "many-to-many"
-  )
-toc()
-# join vessels__t_tne_sa: 1.55 sec elapsed
-
-dim(vessels__t_tne_sa)
-# [1] 457647    146
-# [1] 458922    148
-
-
-
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list__sa_w_p22
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 
