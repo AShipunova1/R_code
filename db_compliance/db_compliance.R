@@ -604,11 +604,16 @@ count_uniq_by_column(trip_notifications_2022_ah_w_y_dates)
 # data_overview(trips_info_2022_int_ah_w_y_dates)
 
 ## add 2022 SA period weeks amnt to v permit ----
+# vessels_permits_2022 |> View()
+#   filter(PERMIT_VESSEL_ID == 'FL8701TB') |> View()
+# vessels_permits_2022 |>
+#   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
+# TODO: fix end in 2023 dissappeared
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$sa_only |>
   # remove gom, keep sa only
-  select(-ends_with("gom")) |>
+  select(-ends_with("gom")) |> View()
   mutate(permit_2022 =
            lubridate::intersect(eff_int_sa,
                                 interval_2022)) |>
@@ -858,9 +863,11 @@ t__tne__dates_w_cnt_t_tne_short |>
 # 1834 + 515 + 3412
 # [1] 5761
 
-print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 
 ## combine v_p, t, tne ----
+
+print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_short <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
   select(contains("VESSEL"), weeks_perm_2022_amnt) |>
