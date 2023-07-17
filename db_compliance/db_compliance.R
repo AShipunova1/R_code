@@ -403,7 +403,12 @@ trip_neg_2022_w_y <-
 ## neg trip weeks ----
 # TODO ?do we need a join?
 
-# trip_neg_2022_w_y_cnt_u <-
+print_df_names(trip_neg_2022_w_y)
+trip_neg_2022_w_y_cnt_u <-
+  trip_neg_2022_w_y |>
+  group_by(VESSEL_ID) %>%
+  summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
+  
 # vessels__trip_neg_22_l_sa_weeks_cnt_u <-
 #   vessels__trip_neg_22_l$sa_only %>%
 #   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
