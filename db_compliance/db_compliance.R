@@ -403,34 +403,35 @@ trip_neg_2022_w_y <-
 ## neg trip weeks ----
 # TODO ?do we need a join?
 
-print_df_names(trip_neg_2022_w_y)
+# print_df_names(trip_neg_2022_w_y)
 trip_neg_2022_w_y_cnt_u <-
   trip_neg_2022_w_y |>
   group_by(VESSEL_ID) %>%
   summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
   
-# vessels__trip_neg_22_l_sa_weeks_cnt_u <-
-#   vessels__trip_neg_22_l$sa_only %>%
-#   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
-#   summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
-
-# dim(vessels__trip_neg_22_l_sa_weeks_cnt_u)
+dim(trip_neg_2022_w_y_cnt_u)
 # [1] 1709    5
+# [1] 3414    2
 
 ## trip_notif weeks count per vessel ----
-# vessels__trip_notif_22_l_sa_weeks_cnt_u <-
-#   vessels__trip_notif_22_l$sa_only %>%
-#   group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
-#   summarise(distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
-#             distinct_end_weeks_tn = n_distinct(TRIP_END_week_num))
-# 
-# dim(vessels__trip_notif_22_l_sa_weeks_cnt_u)
-# # 17
-# vessels__trip_notif_22_l_sa_weeks_cnt_u %>%
-#    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
-#    dim()
+trip_notifications_2022_ah_w_y_cnt_u <-
+  trip_notifications_2022_ah_w_y |>
+  group_by(VESSEL_ID) |> 
+  summarise(
+    distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
+    distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
+  )
+
+dim(trip_notifications_2022_ah_w_y_cnt_u)
+# [1] 914   3
+
+trip_notifications_2022_ah_w_y_cnt_u %>%
+   filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
+   dim()
 # [1] 0 6
 # ok
+# [1] 57  3
+# TODO: why?
 
 ## trips weeks count per vessel ----
 # View(trips_info_2022_int_ah_w_y)
