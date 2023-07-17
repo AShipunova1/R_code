@@ -717,11 +717,100 @@ setdiff(
   length()
 # 3414
 
+### reverse (in permit, but not in t or tne: ----
+setdiff(
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID,
+  trips_info_2022_int_ah_w_y_dates_ids$VESSEL_ID
+) |>
+  length()
+# 2245
+
+setdiff(
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID,
+  trip_neg_2022_w_y_dates_ids$VESSEL_ID
+) |>
+  length()
+# 1751
 
 # use vessel and vessel_id
 
-## add trips and trip_negative (logbooks + DNFs) ----
-trips_info_2022_int_ah_w_y_dates
+## combine trips and trip_negative (logbooks + DNFs) ----
+# trips_info_2022_int_ah_w_y_dates
+# trip_neg_2022_w_y_dates
 
-View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+t__tne__dates <-
+  full_join(
+    trips_info_2022_int_ah_w_y_dates,
+    trip_neg_2022_w_y_dates,
+    join_by(YEAR,
+            MONTH_OF_YEAR,
+            WEEK_OF_YEAR,
+            COMPLETE_DATE,
+            VESSEL_ID),
+    relationship = "many-to-many",
+    suffix = c(".t", ".tne")
+  )
 
+# View(t__tne__dates)
+
+t__tne__dates |> 
+#   dim()
+# [1] 838720     95
+  filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
+  dim()
+# [1] 5971   95
+
+# print_df_names(t__tne__dates)
+
+## fewer columns ----
+t__tne__dates_short <-
+  t__tne__dates |>
+  select(
+    YEAR,
+    MONTH_OF_YEAR,
+    WEEK_OF_YEAR,
+    COMPLETE_DATE,
+    TRIP_ID.t,
+    VESSEL_ID,
+    TRIP_END_DATE,
+    SERO_VESSEL_PERMIT,
+    trip_int,
+    TRIP_START_week_num,
+    TRIP_END_week_num,
+    TRIP_START_y,
+    TRIP_END_y,
+    TRIP_START_m,
+    TRIP_END_m,
+    TRIP_ID.tne,
+    TRIP_week_num,
+    TRIP_DATE_y,
+    TRIP_DATE_m
+  ) |> 
+  distinct()
+
+# dim(t__tne__dates)
+# [1] 838720     95
+# dim(t__tne__dates_short)
+# [1] 838720     19
+
+View(t__tne__dates_short)
+## add week_cnts t, tne
+# t__tne__dates_short |> 
+#   mutate(weeks_amnt = 
+#            case_when(
+#              (!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne) ~
+#                 
+#     
+#   )
+#            )
+
+# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+
+v_p_t_dates <-
+  left_join(
+    vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22,
+    trips_info_2022_int_ah_w_y_dates,
+    join_by(VESSEL_VESSEL_ID == VESSEL_ID)
+  )
+
+View(trips_info_2022_int_ah_w_y_dates)
