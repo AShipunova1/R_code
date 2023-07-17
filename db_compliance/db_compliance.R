@@ -858,10 +858,20 @@ t__tne__dates_w_cnt_t_tne_short |>
 # 1834 + 515 + 3412
 # [1] 5761
 
-# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 
 ## combine v_p, t, tne ----
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_short <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
+  select(contains("VESSEL"), weeks_perm_2022_amnt) |>
+  distinct()
+
+dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+# [1] 3615   22
+
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_short)
+# [1] 3464    5
+
 
 v_p_t_dates <-
   left_join(
