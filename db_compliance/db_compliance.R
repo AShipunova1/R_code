@@ -399,24 +399,27 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # 1  3281     3673   13749
 # 2   116      116     116
 
-
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual$EFFECTIVE_DATE.gom
 # effective_date, COMPLETE_DATE
 
+my_f <- function(curr_permit_region) {
+  browser()
+  curr_df <-
+    vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list[[curr_permit_region]]
+  curr_f_name <- paste0("EFFECTIVE_DATE.", curr_permit_region)
+  res <-
+    left_join(dates_2022,
+              curr_df,
+              join_by(COMPLETE_DATE == curr_f_name))
+  
+  return(res)
+}
+
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates <-
   names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list) |> 
-  map(~ function(curr_permit_region) {
-    curr_df <-
-      vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list[[curr_permit_region]]
-    curr_f_name <- paste0("EFFECTIVE_DATE.", curr_permit_region)
-    res <-
-      left_join(dates_2022,
-                curr_df,
-                join_by(COMPLETE_DATE == curr_f_name))
-    
-    return(res)
-  })
+  map(~ my_f)
 
+map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates, dim)
 
 ## t ----
 ## tne ----
