@@ -44,23 +44,38 @@ vessels_permits_2022_c <-
   
 ## region permit groups ----
 vessels_permits_2022_r <-
-  vessels_permits_2022  %>%
+  vessels_permits_2022_c |>
   separate_permits_into_3_groups(permit_group_field_name = "TOP")
 
+# print_df_names(vessels_permits_2022_r)
+
+## Fewer fields for vessels_permits_2022_r ----
+vessels_permits_2022_r_short <-
+  vessels_permits_2022_r |> 
+  select(
+    PERMIT_VESSEL_ID,
+    VESSEL_VESSEL_ID,
+    COAST_GUARD_NBR,
+    SERO_OFFICIAL_NUMBER,
+    STATE_REG_NBR,
+    SUPPLIER_VESSEL_ID,
+    VESSEL_ALT_NUM,
+    EFFECTIVE_DATE,
+    END_DATE,
+    EXPIRATION_DATE,
+    permit_sa_gom
+  ) |>
+  distinct()
+
+# dim(vessels_permits_2022_r)
+# [1] 40474    52
+# dim(vessels_permits_2022_r_short)
+# [1] 9442   11
+
 ## add my_end_date ----
+# print_df_names(vessels_permits_2022_r)
 vessels_permits_2022_r_end_date <-
-  vessels_permits_2022_r %>%
-  # select(
-  #   VESSEL_ID,
-  #   EXPIRATION_DATE,
-  #   TOP,
-  #   PERMIT,
-  #   EFFECTIVE_DATE,
-  #   END_DATE,
-  #   PERMIT_STATUS,
-  #   VESSEL_ALT_NUM,
-  #   permit_sa_gom
-  # ) %>%
+  vessels_permits_2022_r_short |> 
   mutate(my_end_date =
            case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
@@ -72,8 +87,10 @@ vessels_permits_2022_r_end_date <-
             EXPIRATION_DATE)) %>%
   distinct()
 
-dim(vessels_permits_2022_r_end_date)
+View(vessels_permits_2022_r_end_date)
 # [1] 20231    51
+# short
+# [1] 9433   10
 
 ## add weeks and months ----
 # print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
