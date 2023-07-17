@@ -734,9 +734,14 @@ setdiff(
 
 # use vessel and vessel_id
 
-## combine trips and trip_negative (logbooks + DNFs) ----
-# trips_info_2022_int_ah_w_y_dates
-# trip_neg_2022_w_y_dates
+## combine trips and trip_negative week cnts (logbooks + DNFs) ----
+# trips_info_2022_int_ah_w_y_weeks_cnt_u
+# trip_notifications_2022_ah_w_y_cnt_u
+# trip_neg_2022_w_y_cnt_u
+# intersect(
+# names(trips_info_2022_int_ah_w_y_weeks_cnt_u),
+# names(trip_neg_2022_w_y_cnt_u))
+# VESSEL_ID
 
 t__tne__dates <-
   full_join(
@@ -751,16 +756,25 @@ t__tne__dates <-
     suffix = c(".t", ".tne")
   )
 
-# View(t__tne__dates)
+t__tne__dates_w_cnt_t <-
+  left_join(t__tne__dates,
+            trips_info_2022_int_ah_w_y_weeks_cnt_u,
+            dplyr::join_by(VESSEL_ID))
 
-t__tne__dates |> 
-#   dim()
-# [1] 838720     95
+
+t__tne__dates_w_cnt_t_tne <-
+  left_join(t__tne__dates_w_cnt_t,
+            trip_neg_2022_w_y_cnt_u,
+            dplyr::join_by(VESSEL_ID))
+
+  
+dim(t__tne__dates_w_cnt_t_tne)
+# [1] 838720     99
+
+t__tne__dates_w_cnt_t_tne |> 
   filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
   dim()
-# [1] 5971   95
-
-# print_df_names(t__tne__dates)
+# [1] 5971   99
 
 ## fewer columns ----
 t__tne__dates_short <-
