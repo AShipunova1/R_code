@@ -528,6 +528,7 @@ my_f <- function(curr_permit_region) {
   res <-
     left_join(dates_2022,
               curr_df,
+              # TODO: change so not to loose data!
               join_by(COMPLETE_DATE == !!sym(curr_f_name)))
   
   return(res)
@@ -1041,8 +1042,116 @@ map_df(all_id_inters, length) |>
 # $ VESSEL_VESSEL_ID        <int> 1457
 
 #### which ids are in trips, but not in v_p? ----
-  intersect(v_p_ids_only[[id_name]],
-            t__tne__dates_w_cnt_t_tne_short_v_ids_v_ids)
+ids_in_t_tne <-
+  setdiff(t__tne__dates_w_cnt_t_tne_short_v_ids_v_ids,
+          v_p_ids_only$VESSEL_VESSEL_ID)
+
+length(ids_in_t_tne)
+# 2423
+
+str(ids_in_t_tne)
+# [1] "328420" "326154" "327521" "327779" "328640" "250451"
+
+print_df_names(vessels_permits_2022)
+vessels_permits_2022 |> 
+  filter(QCSJ_C000000000300001 %in% ids_in_t_tne) |> 
+  distinct() |> 
+  dim()
+# [1] 4015   51
+
+# glimpse(vessels_permits_2022_r)
+vessels_permits_2022_r |> 
+  filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |> 
+# 4015
+  filter(permit_sa_gom == 'sa_only') |> 
+# [1] 1524   52
+  distinct() |> 
+  dim()
+
+vessels_permits_2022_r_short |>
+  filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+# 1838   
+  filter(permit_sa_gom == 'sa_only') |> 
+  distinct() |>
+  dim()
+# [1] 564  11
+
+vessels_permits_2022_r_end_date |> 
+  filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+# 1838   
+  filter(permit_sa_gom == 'sa_only') |> 
+# [1] 564  11
+  distinct() |>
+  dim()
+
+vessels_permits_2022_r_end_date_w_y |>
+  filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+# 1838   
+  filter(permit_sa_gom == 'sa_only') |>
+# 564
+  distinct() |>
+  dim()
+
+# vessels_permits_2022_r_end_date_l |> 
+#   map(~    filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+#   distinct() |>
+#   dim()
+# )
+
+View(vessels_permits_2022_r_end_date_l_overlap_join)
+vessels_permits_2022_r_end_date_l_overlap_join |>
+  filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+# 1574   
+  filter(permit_sa_gom.sa == 'sa_only') |>
+  # [1] 624  34
+  distinct() |>
+  dim()
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual |>
+  filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+# 1574   
+  # filter(permit_sa_gom.sa == 'sa_only') |>
+# 624
+  filter(permit_sa_gom == 'sa_only') |>
+  # 257  
+  distinct() |>
+  dim()
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
+  filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+# 1574   
+  # filter(permit_sa_gom.sa == 'sa_only') |>
+# 624
+  filter(permit_sa_gom == 'sa_only') |>
+  # 257  
+  distinct() |>
+  dim()
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list |>
+  map(function(curr_df) {
+    curr_df |>
+      filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+      distinct()
+  }) |>
+  map_df(dim)
+#    dual gom_only sa_only
+#   <int>    <int>   <int>
+# 1   367      950     257
+
+
+dd <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates |>
+  # 536
+  map(function(curr_df) {
+    curr_df |>
+      filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
+      distinct()
+  })
+
+# map_df(dd, dim)
+#    dual gom_only sa_only
+#   <int>    <int>   <int>
+# 1   203      570       0
 
 ## join v_p and t_tne ----
 v_p_t_tne_dates <-
