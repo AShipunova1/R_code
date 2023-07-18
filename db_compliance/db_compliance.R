@@ -289,7 +289,7 @@ id_names <- c(
   "SUPPLIER_VESSEL_ID.sa",
   "VESSEL_ALT_NUM.sa")
 
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_ui <-
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
   rowwise() |>
   mutate(all_ids = list(
@@ -310,10 +310,11 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_ui <-
   )) |>
   mutate(unique_ids = list(na.omit(unique(all_ids)))) |>
   ungroup() |>
-  select(-id_names, -all_ids)
+  select(-any_of(id_names), -all_ids)
+
 # dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
 # 8949 37
-View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_ui)
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid)
 # [1] 8949   39
 # [1] 8949   26
 
