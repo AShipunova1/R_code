@@ -1094,5 +1094,54 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
       ungroup()
   )
 
+### check numbers ----
 dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
 # [1] 825393     45
+
+# 
+v_p_t_tne_dates_w_v_p__cnts__t_tne |>
+  select(contains("vessel_id")) |>
+  # select(contains("vessel")) |> # [1] 8322    5
+  distinct() |>
+  dim()
+# 7059 3
+
+v_p_t_tne_dates_w_v_p |>
+  # select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  select(contains("vessel_id")) |>
+  distinct() |>
+  dim()
+# [1] 7059    3
+
+v_p_t_tne_dates_w_v_p__cnts__t_tne |>
+  # select(VESSEL_VESSEL_ID) |>  # [1] 5603    1
+  # select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  select(contains("vessel_id")) |>
+  distinct() |>
+  dim()
+# [1] 7059    3
+
+v_p_t_tne_dates |>
+  # select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  select(contains("vessel_id")) |>
+  distinct() |>
+  dim()
+# 7060 3
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |> 
+  # select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  select(contains("vessel_id")) |>
+  distinct() |>
+  dim()
+# 3181 3
+
+t__tne__dates_w_cnt_t_tne_short |>
+  select(contains("vessel_id")) |>
+  distinct() |>
+  dim()
+# 3880
+
+# TODO: join by another fields
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 + t__tne__dates_w_cnt_t_tne_short
+# 3181 +3880
+# 7061
