@@ -819,7 +819,6 @@ t__tne__dates_w_cnt_t_tne <-
   left_join(t__tne__dates_w_cnt_t,
             trip_neg_2022_w_y_cnt_u,
             dplyr::join_by(VESSEL_ID))
-
   
 dim(t__tne__dates_w_cnt_t_tne)
 # [1] 838720     99
@@ -943,52 +942,40 @@ t__tne__dates_w_cnt_t_tne_short |>
 
 # print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 
-v_p_t_dates <-
+v_p_t_tne_dates <-
   full_join(
     vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22,
-    trips_info_2022_int_ah_w_y_dates,
+    t__tne__dates_w_cnt_t_tne_short,
     join_by(VESSEL_VESSEL_ID == VESSEL_ID,
             COMPLETE_DATE),
+    relationship = "many-to-many",
+    suffix = c(".v_p", ".t_tne")
+  )
+
+dim(v_p_t_tne_dates)
+# [1] 825558     45
+
+print_df_names(v_p_t_tne_dates)
+
+v_p_t_tne_dates_by = join_by(YEAR,
+            MONTH_OF_YEAR,
+            WEEK_OF_YEAR,
+            COMPLETE_DATE,
+            VESSEL_VESSEL_ID == VESSEL_ID)
+
+v_p_t_tne_dates <-
+  full_join(
+    vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22,
+    t__tne__dates_w_cnt_t_tne,
+    v_p_t_tne_dates_by,
     relationship = "many-to-many",
     suffix = c(".vp", ".t")
   )
 
-dim(v_p_t_dates)
-# [1] 100517    104
+dim(v_p_t_tne_dates)
+# [1] 825558    118
 
-# look at only sero trips ----
-trips_info_2022_int_ah_w_y_dates_sero <-
-  trips_info_2022_int_ah_w_y_dates |>
-  filter(!is.na(SERO_VESSEL_PERMIT)) |> 
-  distinct()
-
-# dim(trips_info_2022_int_ah_w_y_dates_sero)
-# [1] 80963    82
-
-# t__tne__dates_w_cnt_t_tne_short_sero <-
-#   t__tne__dates_w_cnt_t_tne_short |> 
-#   filter(!is.na(SERO_VESSEL_PERMIT)) |> 
-#   distinct()
-#   
-# # dim(t__tne__dates_w_cnt_t_tne_short_sero)
-# # [1] 81035    23
-
-# trips_info_2022_int_ah_w_y_dates |> 
-#   filter(!is.na(SERO_VESSEL_PERMIT)) |> 
-#   glimpse()
-
-v_p_ts_dates <-
-  full_join(
-    vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22,
-    trips_info_2022_int_ah_w_y_dates_sero,
-    join_by(VESSEL_VESSEL_ID == VESSEL_ID,
-            COMPLETE_DATE),
-    relationship = "many-to-many",
-    suffix = c(".vp", ".t")
-  )
-
-dim(v_p_ts_dates)
-# [1] 84470   104
+View(v_p_ts_dates)
 
 ## combine v_p ts_dates with t neg ----
 
