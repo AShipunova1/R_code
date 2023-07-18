@@ -325,34 +325,49 @@ glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid)
 # $ eff_int_sa                  <Interval> NA--NA, NA--NA, NA--NA, NA--NA, NA--NA,…
 # $ unique_ids                  <list> <"FL4459MW", "391019">, <"FL4459MW", "39101…
 
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid1 <-
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid |>
   select(eff_int_gom, eff_int_sa, unique_ids, permit_sa_gom) |>
   # [1] 8949    4
   distinct()
 # [1] 8891    4
 
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |>
+#   filter(permit_sa_gom == 'dual') |>
+#   mutate(int_g_dur = time_length(eff_int_gom)) |>
+#   mutate(int_s_dur = time_length(eff_int_sa)) |>
+#   filter(is.na(int_g_dur) | is.na(int_s_dur)) |>
+#   dim()
+# 0
+  
 tic("union_int_sa_gom")
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid1 |> 
-  filter(permit_sa_gom == 'dual') |> 
-  head() |> 
-  group_by(unique_ids, permit_sa_gom) |> 
-  mutate(int_g_dur = time_length(eff_int_gom)) |>
-  mutate(int_s_dur = time_length(eff_int_sa)) |>
-  # glimpse()
-  # mutate(a = mean(y[x2 == 1]), z = y / a)
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |>
+  # group_by(unique_ids, permit_sa_gom) |> 
+  # mutate(a = mean(y[x2 == 1]))
   mutate(union_int_sa_gom = 
-    #        case_when(
-    # !is.na(int_g_dur) &
-    #   !is.na(int_s_dur) ~
-  #   (!is.na(eff_int_sa) & !is.na(eff_int_gom)) ~
-      lubridate::union(eff_int_sa, eff_int_gom)
-    # "UU",
-    # .default = "no union")
-  # )
-  ) |>
-  glimpse()
+           case_when(permit_sa_gom == 'dual'
+                     &
+                       lubridate::int_start(eff_int_gom) > 
+                       lubridate::int_start(eff_int_sa)
+                     & (!is.na(eff_int_sa) | !is.na(eff_int_gom))
+                     ~ 
+                       lubridate::union(eff_int_gom, eff_int_sa),
+                     permit_sa_gom == 'dual'
+                     &
+                       lubridate::int_start(eff_int_gom) < 
+                       lubridate::int_start(eff_int_sa)
+                     & (!is.na(eff_int_sa) | !is.na(eff_int_gom))
+                     ~ 
+                       lubridate::union(eff_int_sa, eff_int_gom)
+                     )
+  )
 toc()
+
+  # |>
+  #   filter(!union_int_sa_gom == eff_int_gom) |> 
+  # glimpse()
+
 
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
