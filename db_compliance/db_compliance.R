@@ -318,14 +318,32 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
 # [1] 8949   39
 # [1] 8949   26
 
+## union intervals ----
 
-# select(all_of(id_names))
-# 5503     
+glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid)
+# $ eff_int_gom                 <Interval> 2021-11-07 23:00:00 EST--2022-06-30 00:…
+# $ eff_int_sa                  <Interval> NA--NA, NA--NA, NA--NA, NA--NA, NA--NA,…
+# $ unique_ids                  <list> <"FL4459MW", "391019">, <"FL4459MW", "39101…
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid1 <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid |>
+  select(eff_int_gom, eff_int_sa, unique_ids, permit_sa_gom) |>
+  # [1] 8949    4
+  distinct()
+# [1] 8891    4
+
+tic("union_int_sa_gom")
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid1 |> 
+  group_by(unique_ids, permit_sa_gom) |> 
+  mutate(union_int_sa_gom = union(eff_int_sa, eff_int_gom)) |> 
+  glimpse()
+# ! NAs are not allowed in subscripted assignments
+toc()
 
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
-  split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22$permit_sa_gom))
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid %>%
+  split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid$permit_sa_gom))
 
 map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 #    dual gom_only sa_only
@@ -333,6 +351,7 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # 2    33       33      33
 # 1   653     1940    6356
 # 2    37       37      37
+# 2    26       26      26
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
@@ -540,6 +559,15 @@ trips_info_2022_int_ah_w_y_sero <-
 
 # View(dates_2022)
 ## p_v ----
+
+### split all permit intervals by day ----
+# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list)
+
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual |> 
+#   group_by(unique_ids) |> 
+#   mutate(union_int_sa = )
+
+### end split all permit intervals by day ----
 map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
@@ -549,6 +577,7 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # 2    33       33      33
 # 1   653     1940    6356
 # 2    37       37      37
+# 2    26       26      26
 
 l_names <- 
   names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list)
