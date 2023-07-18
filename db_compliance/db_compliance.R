@@ -475,6 +475,17 @@ trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
 # 27
 # 63
 
+# Keep only sero permitted ----
+trips_info_2022_int_ah_w_y_sero <-
+  trips_info_2022_int_ah_w_y |>
+  filter(!is.na(SERO_VESSEL_PERMIT)) |>
+  distinct()
+
+# no:
+# trip_notifications_2022_ah_w_y_dates |>  filter(!is.na(SERO_VESSEL_PERMIT)) |> dim()
+# trip_neg_2022_w_y_dates |>  filter(!is.na(SERO_VESSEL_PERMIT)) |> dim()
+
+
 # Join dates_2022 and everything  ----
 # View(dates_2022)
 ## p_v ----
