@@ -321,8 +321,9 @@ rr <-
       VESSEL_ALT_NUM.sa
     ))) %>%
   # mutate(unique_ids = purrr::map(all_ids, unique)) |>
-  mutate(unique_ids = list(unique(all_ids))) |> 
-  ungroup()
+  mutate(unique_ids = list(na.omit(unique(all_ids)))) |> 
+  ungroup() |> 
+  distinct()
 # 
 #   c() |>
 #   mutate(all_ids <- )
@@ -335,8 +336,8 @@ toc()
 #   mutate(unique_vals = purrr::map(Y, unique), 
 #          count = lengths(Y)) |> 
 #     View()
-View(rr)
-  
+dim(rr)
+# 5503     
   # mutate(vessel_ids_comb = x[!duplicated(x)])
 # ?duplicated
 # View(rr)
