@@ -363,7 +363,7 @@ toc()
 # Caused by error in `x@.Data[i] <- value@.Data`:
 # ! NAs are not allowed in subscripted assignments
 
-short_example <-
+short_example_g <-
  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only[1,] 
 # $ eff_int_gom   <Interval> 2021-11-07 23:00:00 EST--2022-06-30 EDT
 # $ eff_int_sa    <Interval> NA--NA
@@ -377,6 +377,47 @@ short_example <-
 # # how to search in unique_ids !
 # "FL4459MW" %in% unlist(short_example$unique_ids)
 # # T
+
+short_example_g |> 
+  group_by(unique_ids, permit_sa_gom) |>
+  mutate(
+    union_int_sa_gom = case_when(
+      permit_sa_gom == 'dual' ~ 
+        # eff_int_sa,
+        union(eff_int_sa, eff_int_gom),
+      permit_sa_gom == 'sa_only' ~ eff_int_sa,
+      permit_sa_gom == 'gom_only' ~ eff_int_gom
+    )
+  ) |> 
+  ungroup() |> 
+  glimpse()
+
+
+short_example_d <-
+ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |> 
+  filter(permit_sa_gom == "dual") |> 
+  filter(!eff_int_gom == eff_int_sa) |> 
+  slice_head(n = 1)
+
+short_example_d_g <-
+  rbind(short_example_g, short_example_d)
+
+# glimpse(short_example_d_g)
+
+short_example_d_g |>
+  group_by(unique_ids, permit_sa_gom) |>
+  mutate(
+    union_int_sa_gom = case_when(
+      permit_sa_gom == 'dual' ~
+        union(eff_int_gom, eff_int_sa),
+      permit_sa_gom == 'sa_only' ~ eff_int_sa,
+      permit_sa_gom == 'gom_only' ~ eff_int_gom
+    )
+  ) |>
+  ungroup() |>
+  View()
+
+
 
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
