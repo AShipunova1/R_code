@@ -942,21 +942,6 @@ t__tne__dates_w_cnt_t_tne_short |>
 
 # print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 
-v_p_t_tne_dates <-
-  full_join(
-    vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22,
-    t__tne__dates_w_cnt_t_tne_short,
-    join_by(VESSEL_VESSEL_ID == VESSEL_ID,
-            COMPLETE_DATE),
-    relationship = "many-to-many",
-    suffix = c(".v_p", ".t_tne")
-  )
-
-dim(v_p_t_tne_dates)
-# [1] 825558     45
-
-print_df_names(v_p_t_tne_dates)
-
 v_p_t_tne_dates_by = join_by(YEAR,
             MONTH_OF_YEAR,
             WEEK_OF_YEAR,
@@ -966,23 +951,12 @@ v_p_t_tne_dates_by = join_by(YEAR,
 v_p_t_tne_dates <-
   full_join(
     vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22,
-    t__tne__dates_w_cnt_t_tne,
+    t__tne__dates_w_cnt_t_tne_short,
     v_p_t_tne_dates_by,
     relationship = "many-to-many",
-    suffix = c(".vp", ".t")
+    suffix = c(".v_p", ".t_tne")
   )
 
 dim(v_p_t_tne_dates)
-# [1] 825558    118
+# [1] 825558     42
 
-View(v_p_ts_dates)
-
-## combine v_p ts_dates with t neg ----
-
-
-    t__tne__dates_w_cnt_t_tne_short,
-    join_by(VESSEL_VESSEL_ID == VESSEL_ID,
-            COMPLETE_DATE),
-    relationship = "many-to-many",
-    suffix = c(".vp_t", ".tne")
-  )
