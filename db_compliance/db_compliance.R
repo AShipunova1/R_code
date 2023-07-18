@@ -341,15 +341,42 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only <-
 # 0
   
 tic("union_int_sa_gom")
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union <-
-
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |>
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |>
+  # filter(permit_sa_gom == 'dual') |> 
   group_by(unique_ids, permit_sa_gom) |>
-  filter(permit_sa_gom == 'dual') |> 
-  group_by(unique_ids, permit_sa_gom) |> 
-  mutate(union_int_sa_gom = union(eff_int_sa, eff_int_gom)) |> 
-glimpse()
+  mutate(
+    union_int_sa_gom = case_when(
+      permit_sa_gom == 'dual' ~ union(eff_int_sa, eff_int_gom),
+      permit_sa_gom == 'sa_only' ~ eff_int_sa,
+      permit_sa_gom == 'gom_only' ~ eff_int_gom
+    )
+  ) |> 
+  ungroup()
+toc()
+# union_int_sa_gom: 7.87 sec elapsed
+# ℹ In argument: `union_int_sa_gom = case_when(...)`.
+# ℹ In group 1: `unique_ids = <"FL4459MW", "391019">`, `permit_sa_gom =
+#   "gom_only"`.
+# Caused by error in `case_when()`:
+# ! Failed to evaluate the right-hand side of formula 1.
+# Caused by error in `x@.Data[i] <- value@.Data`:
+# ! NAs are not allowed in subscripted assignments
 
+short_example <-
+ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only[1,] 
+# $ eff_int_gom   <Interval> 2021-11-07 23:00:00 EST--2022-06-30 EDT
+# $ eff_int_sa    <Interval> NA--NA
+# $ unique_ids    <list> <"FL4459MW", "391019">
+# $ permit_sa_gom <chr> "gom_only"
+
+#   # filter(unique_ids %in% c("FL4459MW", "391019") &
+#   #          permit_sa_gom == "gom_only") |>
+#   glimpse()
+
+# # how to search in unique_ids !
+# "FL4459MW" %in% unlist(short_example$unique_ids)
+# # T
 
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
