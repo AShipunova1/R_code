@@ -287,8 +287,7 @@ dim()
 tic("get uniq ids")
 rr <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
-  mutate(
-    vessel_ids_comb = unique(
+distinct(
       PERMIT_VESSEL_ID,
       VESSEL_VESSEL_ID,
       COAST_GUARD_NBR.gom,
@@ -300,10 +299,11 @@ rr <-
       SERO_OFFICIAL_NUMBER.sa,
       STATE_REG_NBR.sa,
       SUPPLIER_VESSEL_ID.sa,
-      VESSEL_ALT_NUM.sa,
-      fromLast = T
-    )
-  )
+      VESSEL_ALT_NUM.sa
+    ) |> 
+    rowwise() %>%
+    do(data.frame(., Count = n_distinct(unlist(.))))
+
 toc()
 View(rr)
   
