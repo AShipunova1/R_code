@@ -567,9 +567,10 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates, dim
 
 # TODO: or end_date? check the difference for output week counts
 t_by <- join_by(COMPLETE_DATE == TRIP_START_DATE)
+
 trips_info_2022_int_ah_w_y_dates <-
   left_join(dates_2022,
-            trips_info_2022_int_ah_w_y,
+            trips_info_2022_int_ah_w_y_sero,
             t_by)
 
 ### check numbers ----
@@ -579,13 +580,14 @@ trips_info_2022_int_ah_w_y_dates <-
 # data_overview(trips_info_2022_int_ah_w_y)
 # VESSEL_ID                    1934
 
-trips_info_2022_int_ah_w_y_dates_ids <- trips_info_2022_int_ah_w_y_dates |> 
-  select(VESSEL_ID) |> 
+trips_info_2022_int_ah_w_y_dates_ids <-
+  trips_info_2022_int_ah_w_y_dates |>
+  select(VESSEL_ID) |>
   distinct()
 
 trips_info_2022_int_ah_w_y_ids <-
-trips_info_2022_int_ah_w_y |> 
-  select(VESSEL_ID) |> 
+  trips_info_2022_int_ah_w_y_sero |>
+  select(VESSEL_ID) |>
   distinct()
 
 setdiff(trips_info_2022_int_ah_w_y_ids, trips_info_2022_int_ah_w_y_dates_ids)
@@ -716,17 +718,17 @@ trips_info_2022_int_ah_w_y_dates_ids <-
 dim(trips_info_2022_int_ah_w_y_dates_ids)
 # [1] 2244    3
 # [1] 1729    3 filter(!is.na(SERO_VESSEL_PERMIT)) |> 
-setdiff(
-  trips_info_2022_int_ah_w_y_dates_ids$VESSEL_ID,
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
-) |> glimpse()
+# setdiff(
+#   trips_info_2022_int_ah_w_y_dates_ids$VESSEL_ID,
+#   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
+# ) |> glimpse()
   # length()
   # 774
 # 775
 
-trips_info_2022_int_ah_w_y_dates_ids |> 
-  filter(VESSEL_ID == '327558') |> 
-  glimpse()
+# trips_info_2022_int_ah_w_y_dates_ids |> 
+#   filter(VESSEL_ID == '327558') |> 
+#   glimpse()
 
 setdiff(
   trips_info_2022_int_ah_w_y_dates_ids$SERO_VESSEL_PERMIT,
@@ -821,11 +823,13 @@ t__tne__dates_w_cnt_t_tne <-
   
 dim(t__tne__dates_w_cnt_t_tne)
 # [1] 838720     99
+# [1] 823051     99 (sero t only)
 
 t__tne__dates_w_cnt_t_tne |> 
   filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
   dim()
 # [1] 5971   99
+# [1] 5575   99
 
 ## fewer columns t__tne__dates_w_cnt_t_tne ----
 # print_df_names(t__tne__dates_w_cnt_t_tne)
@@ -859,17 +863,21 @@ t__tne__dates_w_cnt_t_tne_short <-
   ) |>
   distinct()
 
-# dim(t__tne__dates)
+dim(t__tne__dates)
 # [1] 838720     95
-# dim(t__tne__dates_w_cnt_t_tne)
+# [1] 823051     95
+
+dim(t__tne__dates_w_cnt_t_tne)
 # [1] 838720     99
-# dim(t__tne__dates_w_cnt_t_tne_short)
+# 823051
+dim(t__tne__dates_w_cnt_t_tne_short)
 # [1] 838720     23
+# 823051
 
 # View(t__tne__dates_w_cnt_t_tne_short)
 
 ## Total vessels SA 2022 ----
-3181
+# 3181
 
 ## Compare week counts t/tne ----
 
@@ -881,6 +889,7 @@ t__tne__dates_w_cnt_t_tne_short |>
   dim()
 # [1] 5971   23
 # [1] 515   1 select(VESSEL_ID) |>
+# 481 sero only
 
 # t only
 t__tne__dates_w_cnt_t_tne_short |>
@@ -890,6 +899,7 @@ t__tne__dates_w_cnt_t_tne_short |>
   dim()
 # [1] 91099    23
 # [1] 1834    1 select(VESSEL_ID) |>
+# 1612    sero only
 
 # tne only
 # View(t__tne__dates_w_cnt_t_tne_short)
