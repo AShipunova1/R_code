@@ -289,16 +289,35 @@ id_names <- c(
   "SUPPLIER_VESSEL_ID.sa",
   "VESSEL_ALT_NUM.sa")
 
-rr <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
-  distinct() |>
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_ui <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
   rowwise() |>
-  mutate(all_ids = list(id_names)) |>
+  mutate(all_ids = list(
+    c(
+      PERMIT_VESSEL_ID,
+      VESSEL_VESSEL_ID,
+      COAST_GUARD_NBR.gom,
+      SERO_OFFICIAL_NUMBER.gom,
+      STATE_REG_NBR.gom,
+      SUPPLIER_VESSEL_ID.gom,
+      VESSEL_ALT_NUM.gom,
+      COAST_GUARD_NBR.sa,
+      SERO_OFFICIAL_NUMBER.sa,
+      STATE_REG_NBR.sa,
+      SUPPLIER_VESSEL_ID.sa,
+      VESSEL_ALT_NUM.sa
+    )
+  )) |>
   mutate(unique_ids = list(na.omit(unique(all_ids)))) |>
-  ungroup()
+  ungroup() |>
+  select(-id_names, -all_ids)
+# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
+# 8949 37
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_ui)
+# [1] 8949   39
+# [1] 8949   26
 
-dim(rr)
-# [1] 8949   39 (same with distinct)
+
 # select(all_of(id_names))
 # 5503     
 
