@@ -960,3 +960,21 @@ v_p_t_tne_dates <-
 dim(v_p_t_tne_dates)
 # [1] 825558     42
 
+## Count weeks ----
+### permit, but no t/tne ----
+v_p_t_tne_dates |> 
+  filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |> 
+  dim()
+# [1] 2567   42
+
+v_p_t_tne_dates_cnts__no_t__no_tne <-
+  v_p_t_tne_dates |>
+  # permit period for this dates exists
+  filter(!is.na(PERMIT_VESSEL_ID) | !is.na(VESSEL_VESSEL_ID)) |>
+  # no t or tne
+  filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
+  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
+
+dim(v_p_t_tne_dates_cnts__no_t__no_tne)
+# [1] 2402   43
