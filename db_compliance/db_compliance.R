@@ -1027,3 +1027,72 @@ v_p_t_tne_dates_cnts__t_and_tne <-
 
 View(v_p_t_tne_dates_cnts__t_and_tne)
 # [1] 5575   43
+
+# df2 <- 
+  # df %>%
+  # mutate(x = if_else(B > 100, A, A),
+  #        Xi = if_else(B > 100,  x*0.1 + A, A),
+  #        Xii = if_else(B > 100,  x*0.5 + A, A),
+  #        Xiii = if_else(B > 100,  x*0.9 + A, A))
+
+# all 3 conditions together ----
+  # left_join(dt1,
+  #           dt1 %>% 
+  #                filter(x2==1) %>%
+  #                group_by(x) %>%
+  #                summarise(a=mean(y)), by='x') %>%
+  #                mutate(z=y/a)%>%
+  #                head()
+
+v_p_t_tne_dates_w_v_p <-
+  v_p_t_tne_dates |>
+  # permit period for this dates exists
+  filter(!is.na(PERMIT_VESSEL_ID) | !is.na(VESSEL_VESSEL_ID))
+
+# 1) # no t or tne
+v_p_t_tne_dates_w_v_p__cnts__t_tne <-
+  left_join(
+    v_p_t_tne_dates_w_v_p,
+    v_p_t_tne_dates_w_v_p |>
+      # no t or tne
+      filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
+      group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+      mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
+      ungroup()
+  )
+dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
+# [1] 825393     43
+
+# 2) t xor tne
+v_p_t_tne_dates_w_v_p__cnts__t_tne <-
+  left_join(
+    v_p_t_tne_dates_w_v_p__cnts__t_tne,
+    v_p_t_tne_dates_w_v_p__cnts__t_tne |>
+      # t xor tne, # but not both are absent
+      filter(
+        (is.na(TRIP_ID.t) | is.na(TRIP_ID.tne)) &
+        !(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne))
+        ) |>
+      group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+      mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
+      ungroup()
+  )
+
+dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
+# [1] 825393     44
+
+# 3) t and tne
+v_p_t_tne_dates_w_v_p__cnts__t_tne <-
+  left_join(
+    v_p_t_tne_dates_w_v_p__cnts__t_tne,
+    v_p_t_tne_dates_w_v_p__cnts__t_tne |>
+      # t and tne
+      filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
+      group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+      mutate(t_and_tne_weeks_amnt =
+               n_distinct(WEEK_OF_YEAR, YEAR)) |>
+      ungroup()
+  )
+
+dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
+# [1] 825393     45
