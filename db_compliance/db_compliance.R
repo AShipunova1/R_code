@@ -293,22 +293,7 @@ rr <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
   distinct() |>
   rowwise() |>
-  mutate(all_ids = list(
-    c(
-      PERMIT_VESSEL_ID,
-      VESSEL_VESSEL_ID,
-      COAST_GUARD_NBR.gom,
-      SERO_OFFICIAL_NUMBER.gom,
-      STATE_REG_NBR.gom,
-      SUPPLIER_VESSEL_ID.gom,
-      VESSEL_ALT_NUM.gom,
-      COAST_GUARD_NBR.sa,
-      SERO_OFFICIAL_NUMBER.sa,
-      STATE_REG_NBR.sa,
-      SUPPLIER_VESSEL_ID.sa,
-      VESSEL_ALT_NUM.sa
-    )
-  )) |>
+  mutate(all_ids = list(id_names)) |>
   mutate(unique_ids = list(na.omit(unique(all_ids)))) |>
   ungroup()
 
