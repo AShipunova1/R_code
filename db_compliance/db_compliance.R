@@ -273,6 +273,55 @@ dim()
 # [1] 274   3
 # 282
 
+## fewer v ids ----
+# I know I can use sqldf() and write an easy "SELECT DISTINCT var1, var2, ... varN" query, but I am looking for an R way of doing this.
+
+> print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
+# "PERMIT_VESSEL_ID, VESSEL_VESSEL_ID, COAST_GUARD_NBR.gom, SERO_OFFICIAL_NUMBER.gom, STATE_REG_NBR.gom, SUPPLIER_VESSEL_ID.gom, VESSEL_ALT_NUM.gom, EFFECTIVE_DATE.gom, END_DATE.gom, EXPIRATION_DATE.gom, permit_sa_gom.gom, my_end_date.gom, EFFECTIVE_DATE_week_num.gom, my_end_week_num.gom, EFFECTIVE_DATE_y.gom, my_end_y.gom, EFFECTIVE_DATE_m.gom, my_end_m.gom, COAST_GUARD_NBR.sa, SERO_OFFICIAL_NUMBER.sa, STATE_REG_NBR.sa, SUPPLIER_VESSEL_ID.sa, VESSEL_ALT_NUM.sa, EFFECTIVE_DATE.sa, END_DATE.sa, EXPIRATION_DATE.sa, permit_sa_gom.sa, my_end_date.sa, EFFECTIVE_DATE_week_num.sa, my_end_week_num.sa, EFFECTIVE_DATE_y.sa, my_end_y.sa, EFFECTIVE_DATE_m.sa, my_end_m.sa, permit_sa_gom, eff_int_gom, eff_int_sa"
+
+# rr <-
+#   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |> 
+#   mutate(vessel_ids_comb = distinct(contains("vessel"), 
+#          starts_with("SERO_OFFICIAL_NUMBER")))
+
+tic("get uniq ids")
+rr <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
+  mutate(
+    vessel_ids_comb = unique(
+      PERMIT_VESSEL_ID,
+      VESSEL_VESSEL_ID,
+      COAST_GUARD_NBR.gom,
+      SERO_OFFICIAL_NUMBER.gom,
+      STATE_REG_NBR.gom,
+      SUPPLIER_VESSEL_ID.gom,
+      VESSEL_ALT_NUM.gom,
+      COAST_GUARD_NBR.sa,
+      SERO_OFFICIAL_NUMBER.sa,
+      STATE_REG_NBR.sa,
+      SUPPLIER_VESSEL_ID.sa,
+      VESSEL_ALT_NUM.sa,
+      fromLast = T
+    )
+  )
+toc()
+View(rr)
+  
+  # mutate(vessel_ids_comb = x[!duplicated(x)])
+# ?duplicated
+View(rr)
+# (
+    # "select distinct
+    # PERMIT_VESSEL_ID,
+    # SERO_OFFICIAL_NUMBER.sa,
+    # SUPPLIER_VESSEL_ID.sa,
+    # VESSEL_ALT_NUM.sa,
+    # VESSEL_VESSEL_ID
+    # from
+# 
+     # "
+  # )
+
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
@@ -486,7 +535,9 @@ trips_info_2022_int_ah_w_y_sero <-
 # trip_neg_2022_w_y_dates |>  filter(!is.na(SERO_VESSEL_PERMIT)) |> dim()
 
 
-# Join dates_2022 and everything  ----
+# Join dates_2022 and everything ----
+# get_v_ids and dates only
+
 # View(dates_2022)
 ## p_v ----
 map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
@@ -528,7 +579,7 @@ my_f <- function(curr_permit_region) {
   res <-
     left_join(dates_2022,
               curr_df,
-              # TODO: change so not to loose data!
+              # TODO:  change so not to loose data!
               join_by(COMPLETE_DATE == !!sym(curr_f_name)))
   
   return(res)
