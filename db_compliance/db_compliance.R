@@ -334,10 +334,24 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid1 <-
 
 tic("union_int_sa_gom")
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid1 |> 
+  filter(permit_sa_gom == 'dual') |> 
+  head() |> 
   group_by(unique_ids, permit_sa_gom) |> 
-  mutate(union_int_sa_gom = union(eff_int_sa, eff_int_gom)) |> 
+  mutate(int_g_dur = time_length(eff_int_gom)) |>
+  mutate(int_s_dur = time_length(eff_int_sa)) |>
+  # glimpse()
+  # mutate(a = mean(y[x2 == 1]), z = y / a)
+  mutate(union_int_sa_gom = 
+    #        case_when(
+    # !is.na(int_g_dur) &
+    #   !is.na(int_s_dur) ~
+  #   (!is.na(eff_int_sa) & !is.na(eff_int_gom)) ~
+      lubridate::union(eff_int_sa, eff_int_gom)
+    # "UU",
+    # .default = "no union")
+  # )
+  ) |>
   glimpse()
-# ! NAs are not allowed in subscripted assignments
 toc()
 
 ## split permits by region again ----
