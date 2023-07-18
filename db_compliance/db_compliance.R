@@ -948,6 +948,61 @@ v_p_t_tne_dates_by = join_by(YEAR,
             COMPLETE_DATE,
             VESSEL_VESSEL_ID == VESSEL_ID)
 
+# df %>% distinct(var1, var2, .keep_all = TRUE)
+v_p_ids <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
+  distinct(
+    PERMIT_VESSEL_ID,
+    SERO_OFFICIAL_NUMBER.sa,
+    SUPPLIER_VESSEL_ID.sa,
+    VESSEL_ALT_NUM.sa,
+    VESSEL_VESSEL_ID,
+    .keep_all = TRUE
+  ) 
+
+dim(v_p_ids)
+# [1] 3181   24
+# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+# [1] 3616   24
+# View(v_p_ids)
+
+
+v_p_ids_only <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
+  distinct(
+    PERMIT_VESSEL_ID,
+    SERO_OFFICIAL_NUMBER.sa,
+    SUPPLIER_VESSEL_ID.sa,
+    VESSEL_ALT_NUM.sa,
+    VESSEL_VESSEL_ID
+  ) 
+dim(v_p_ids_only)
+# [1] 3181    5
+
+v_p_ids_only |> 
+  filter(!SERO_OFFICIAL_NUMBER.sa == SUPPLIER_VESSEL_ID.sa) |> 
+  glimpse()
+# 1
+# $ PERMIT_VESSEL_ID        <chr> "NC0676EK"
+# $ SERO_OFFICIAL_NUMBER.sa <chr> "NC0676EK"
+# $ SUPPLIER_VESSEL_ID.sa   <chr> "1292480"
+# $ VESSEL_ALT_NUM.sa       <chr> "NC0676EK"
+# $ VESSEL_VESSEL_ID        <dbl> 383419
+
+# v_p_ids <-
+#   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
+#   mutate(distinct_id = 
+#            select(    PERMIT_VESSEL_ID,
+#     SERO_OFFICIAL_NUMBER.sa,
+#     SUPPLIER_VESSEL_ID.sa,
+#     VESSEL_ALT_NUM.sa,
+#     VESSEL_VESSEL_ID
+# ) |> 
+#   distinct(
+#   ) |> as.list()
+#   )  |> str()
+
+
 v_p_t_tne_dates <-
   full_join(
     vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22,
