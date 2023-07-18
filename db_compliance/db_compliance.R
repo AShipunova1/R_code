@@ -1012,3 +1012,18 @@ dim(v_p_t_tne_dates_cnts__t_xor_tne)
 # v_p_t_tne_dates_cnts__t_xor_tne |> 
 #   filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |> dim()
 # [1] 2402   43
+
+
+### permit, t and tne ----
+
+v_p_t_tne_dates_cnts__t_and_tne <-
+  v_p_t_tne_dates |>
+  # permit period for this dates exists
+  filter(!is.na(PERMIT_VESSEL_ID) | !is.na(VESSEL_VESSEL_ID)) |>
+  # t and tne
+  filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
+  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  mutate(t_and_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
+
+View(v_p_t_tne_dates_cnts__t_and_tne)
+# [1] 5575   43
