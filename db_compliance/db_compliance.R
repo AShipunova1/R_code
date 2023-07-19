@@ -344,12 +344,14 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # adjust the query
 
 ## union intervals ----
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__listd1_gr <-
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__listd1_gr
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list2 <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual |>
-  group_by(unique_ids, permit_sa_gom) |>
+  # group_by(unique_ids, permit_sa_gom) |>
   mutate(union_int_sa_gom =
-           lubridate::union(eff_int_gom, eff_int_sa)) |> 
-  ungroup()
+           lubridate::union(eff_int_gom, eff_int_sa)) 
+# |> 
+#   ungroup()
 
 all.equal(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__listd1_gr,
           vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__listd2)
