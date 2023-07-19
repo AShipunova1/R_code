@@ -344,12 +344,28 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # adjust the query
 
 ## union intervals ----
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual <-
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__listd1_gr <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual |>
+  group_by(unique_ids, permit_sa_gom) |>
   mutate(union_int_sa_gom =
-           lubridate::union(eff_int_gom, eff_int_sa))
+           lubridate::union(eff_int_gom, eff_int_sa)) |> 
+  ungroup()
 
-View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list)
+all.equal(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__listd1_gr,
+          vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__listd2)
+T
+
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__listd2)
+
+### the biggest permit interval ----
+  # .ints <- purrr::map(list(int1 = int1, int2 = int2), lubridate::int_standardize)
+  # if (!lubridate::int_overlaps(int1, int2)) {
+  #   stop("Intervals do not overlap")
+  # }
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$gom_only |> print_df_names()
+  group_by()
+  
 
 # end vessel_permits preparations ----
 
