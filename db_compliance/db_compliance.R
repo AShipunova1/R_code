@@ -388,11 +388,22 @@ View(short_example_4)
 
 add_union_int_sa_gom <- function(my_df) {
   # browser()
-  my_df |> 
-  group_by(unique_ids, permit_sa_gom) |>
-    mutate(union_int_sa_gom =
-             ifelse(permit_sa_gom == 'dual',
-                    union(eff_int_gom, eff_int_sa), NA)) |> 
+  # initialize the column as an interval
+  my_df$union_int_sa_gom <-
+    rep(interval(as.POSIXct(NA),
+                 as.POSIXct(NA)),
+        nrow(my_df))
+  
+  my_df |>
+    group_by(unique_ids, permit_sa_gom) |>
+    mutate(
+      union_int_sa_gom =
+        ifelse(
+          permit_sa_gom == 'dual',
+          lubridate::union(eff_int_gom, eff_int_sa),
+          lubridate::as.interval(NA)
+        )
+    ) |>
     # union_int_sa_gom =
     #   case_when(
     #   permit_sa_gom == 'dual' ~
@@ -401,19 +412,22 @@ add_union_int_sa_gom <- function(my_df) {
     #   permit_sa_gom == 'gom_only' ~ eff_int_gom,
     #   .default = as.interval(NA)
     # )
-  # ) |> 
-  ungroup() %>%
+    # ) |>
+    ungroup() %>%
     return()
 }
 
-add_union_int_sa_gom(short_example_4)
+# add_union_int_sa_gom(short_example_4)
 
 tic("add_union_int_sa_gom")
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union <-
   add_union_int_sa_gom(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only)
 toc()
 # add_union_int_sa_gom: 7.24 sec elapsed
-dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union)
+# add_union_int_sa_gom: 14.58 sec elapsed (as.interval)
+# add_union_int_sa_gom: 17.19 sec elapsed (initizlizing)
+
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union)
 # [1] 8891    5 ok
 
 short_example_4 |>
@@ -421,7 +435,7 @@ short_example_4 |>
   mutate(union_int_sa_gom =
            ifelse(permit_sa_gom == 'dual',
                   union(eff_int_gom, eff_int_sa),
-                  NA)) |> 
+                  as.interval(NA))) |> 
   View()
 
 
