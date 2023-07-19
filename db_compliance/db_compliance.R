@@ -291,7 +291,7 @@ id_names <- c(
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
-  # rowwise() |>
+  rowwise() |>
   mutate(all_ids = list(
     c(
       PERMIT_VESSEL_ID,
@@ -314,7 +314,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
 
 # dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
 # 8949 37
-# str(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid)
+# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid)
 # [1] 8949   39
 # [1] 8949   26
 
@@ -341,20 +341,150 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only <-
 # 0
   
 tic("union_int_sa_gom")
+result = tryCatch({
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |>
   # filter(permit_sa_gom == 'dual') |> 
   group_by(unique_ids, permit_sa_gom) |>
   mutate(
     union_int_sa_gom = case_when(
-      permit_sa_gom == 'dual' ~ union(eff_int_sa, eff_int_gom),
+      permit_sa_gom == 'dual' ~
+        union(eff_int_gom, eff_int_sa),
       permit_sa_gom == 'sa_only' ~ eff_int_sa,
-      permit_sa_gom == 'gom_only' ~ eff_int_gom
+      permit_sa_gom == 'gom_only' ~ eff_int_gom,
+      .default = as.interval(NA)
     )
   ) |> 
   ungroup()
 toc()
+
+}, warning = function(w) {
+  print("warning: ")
+    print(w)
+}, error = function(e) {
+  print("error: ")
+    print(e)
+}, finally = {
+    print("Done!")
+})
+
+# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union)
+# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only[539,])
+grep(
+  "115209",
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only$unique_ids,
+  value = T
+)
+# [1] "c(\"1152092\", \"253181\")" "c(\"1152092\", \"253181\")"
+# [3] "c(\"1152092\", \"253181\")" "c(\"1152092\", \"253181\")"
+
+
+short_example_4 <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |>
+  filter(grepl("115209",
+               unique_ids))
+
+View(short_example_4)
+
+add_union_int_sa_gom <- function(my_df) {
+  # browser()
+  my_df |> 
+  group_by(unique_ids, permit_sa_gom) |>
+    mutate(union_int_sa_gom =
+             ifelse(permit_sa_gom == 'dual',
+                    union(eff_int_gom, eff_int_sa), NA)) |> 
+    # union_int_sa_gom =
+    #   case_when(
+    #   permit_sa_gom == 'dual' ~
+    #     union(eff_int_gom, eff_int_sa),
+    #   permit_sa_gom == 'sa_only' ~ eff_int_sa,
+    #   permit_sa_gom == 'gom_only' ~ eff_int_gom,
+    #   .default = as.interval(NA)
+    # )
+  # ) |> 
+  ungroup() %>%
+    return()
+}
+
+add_union_int_sa_gom(short_example_4)
+
+tic("add_union_int_sa_gom")
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union <-
+  add_union_int_sa_gom(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only)
+toc()
+# add_union_int_sa_gom: 7.24 sec elapsed
+dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union)
+# [1] 8891    5 ok
+
+short_example_4 |>
+  group_by(unique_ids, permit_sa_gom) |>
+  mutate(union_int_sa_gom =
+           ifelse(permit_sa_gom == 'dual',
+                  union(eff_int_gom, eff_int_sa),
+                  NA)) |> 
+  View()
+
+
+# filter(unique_ids == c("1152092", "253181"))
 # union_int_sa_gom: 7.87 sec elapsed
+# err: ℹ In group 539: `unique_ids = <"1152092", "253181">`, `permit_sa_gom =
+#   "sa_only"`.
+
+
+# unique_ids = <"1152092", "253181">`, `permit_sa_gom =
+  # "sa_only"`.
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only[540,])
+short_example_539 <-
+ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |> 
+  filter(permit_sa_gom == "sa_only" &
+           c("1152092", "253181") == unlist(unique_ids)
+           # "1152092" %in% unlist(unique_ids) &
+           # "253181" %in% unlist(unique_ids)
+           ) |> 
+  distinct()
+
+short_example_10 <-
+ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only |> 
+  slice_head(n = 10)
+str(short_example_10)
+
+# library(data.table)
+
+# FL4459MW" "391019
+# any(short_example_10$unique_ids %like% 'FL4459MW')
+T
+# stri_detect_fixed(short_example_10$unique_ids, 'FL4459MW')
+
+any(short_example_10$unique_ids == 'FL4459MW')
+F
+any(short_example_10$unique_ids == c("FL4459MW", "391019"))
+F
+
+"FL4459MW" %in% short_example_10$unique_ids
+F
+"FL4459MW" %in% unlist(short_example_10$unique_ids)
+T
+
+str(unlist(short_example_10$unique_ids))
+# chr [1:20]
+any(unlist(short_example_10$unique_ids) == c("FL4459MW", "39101a9"))
+# T - bad
+
+# glimpse(short_example_539)
+# # Rows: 6,323
+
+# typeof(c("1152092", "253181"))
+# [1] "character"
+# typeof(short_example_d$unique_ids)
+# [1] "list"
+# typeof(unlist(short_example_d$unique_ids))
+# [1] "character"
+
+# c("FL3610NF", "328460") == unlist(short_example_d$unique_ids)
+# TT
+
+# list(c("FL3610NF", "328460")) == short_example_d$unique_ids
+# err
 # ℹ In argument: `union_int_sa_gom = case_when(...)`.
 # ℹ In group 1: `unique_ids = <"FL4459MW", "391019">`, `permit_sa_gom =
 #   "gom_only"`.
@@ -362,6 +492,9 @@ toc()
 # ! Failed to evaluate the right-hand side of formula 1.
 # Caused by error in `x@.Data[i] <- value@.Data`:
 # ! NAs are not allowed in subscripted assignments
+
+short_example_d$unique_ids |> typeof()
+# list
 
 short_example_g <-
  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only[1,] 
@@ -411,11 +544,12 @@ short_example_d_g |>
       permit_sa_gom == 'dual' ~
         union(eff_int_gom, eff_int_sa),
       permit_sa_gom == 'sa_only' ~ eff_int_sa,
-      permit_sa_gom == 'gom_only' ~ eff_int_gom
+      permit_sa_gom == 'gom_only' ~ eff_int_gom,
+      .default = as.interval(NA)
     )
   ) |>
   ungroup() |>
-  View()
+  glimpse()
 
 
 
