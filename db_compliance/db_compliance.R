@@ -318,9 +318,17 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
 # [1] 8949   39
 # [1] 8949   26
 
+## fewer fields
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid %>%
+  select(eff_int_gom, eff_int_sa, unique_ids, permit_sa_gom)
+
+# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short)
+# [1] 8949    4
+
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid %>%
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short %>%
   split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid$permit_sa_gom))
 
 map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
@@ -330,6 +338,7 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # 1   653     1940    6356
 # 2    37       37      37
 # 2    26       26      26
+# 2     4        4       4
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
