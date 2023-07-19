@@ -384,26 +384,38 @@ short_example_4 <-
   filter(grepl("115209",
                unique_ids))
 
-View(short_example_4)
-
+# View(short_example_4)
+# lubridate :: interval() returns numeric values once in a for loop
 add_union_int_sa_gom <- function(my_df) {
   # browser()
   # initialize the column as an interval
   my_df$union_int_sa_gom <-
-    rep(interval(as.POSIXct(NA),
+    rep(lubridate::interval(as.POSIXct(NA),
                  as.POSIXct(NA)),
         nrow(my_df))
-  
-  my_df |>
-    group_by(unique_ids, permit_sa_gom) |>
-    mutate(
-      union_int_sa_gom =
-        ifelse(
-          permit_sa_gom == 'dual',
-          lubridate::union(eff_int_gom, eff_int_sa),
-          lubridate::as.interval(NA)
-        )
-    ) |>
+
+  for (i in seq_along(my_df$permit_sa_gom)) {
+    # browser()
+    my_df$union_int_sa_gom[i] <-
+      ifelse(
+        my_df$permit_sa_gom[i] == 'dual',
+        lubridate::union(my_df$eff_int_gom[i],
+                         my_df$eff_int_sa[i]),
+        lubridate::as.interval(NA)
+      )
+        # interval(start = my_df$sunset[i],
+    #                                end = my_df$sunrise[i])
+  }  
+  # my_df |>
+  #   group_by(unique_ids, permit_sa_gom) |>
+  #   mutate(
+  #     union_int_sa_gom =
+        # ifelse(
+        #   permit_sa_gom == 'dual',
+        #   lubridate::union(eff_int_gom, eff_int_sa),
+        #   lubridate::as.interval(NA)
+        # )
+  #   ) |>
     # union_int_sa_gom =
     #   case_when(
     #   permit_sa_gom == 'dual' ~
@@ -413,11 +425,11 @@ add_union_int_sa_gom <- function(my_df) {
     #   .default = as.interval(NA)
     # )
     # ) |>
-    ungroup() %>%
-    return()
+    # ungroup() %>%
+    return(my_df)
 }
 
-# add_union_int_sa_gom(short_example_4)
+add_union_int_sa_gom(short_example_4)
 
 tic("add_union_int_sa_gom")
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union <-
@@ -426,9 +438,11 @@ toc()
 # add_union_int_sa_gom: 7.24 sec elapsed
 # add_union_int_sa_gom: 14.58 sec elapsed (as.interval)
 # add_union_int_sa_gom: 17.19 sec elapsed (initizlizing)
+# add_union_int_sa_gom: 23.84 sec elapsed (for)
 
-View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union)
+data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_int_only_union)
 # [1] 8891    5 ok
+# union_int_sa_gom  207
 
 short_example_4 |>
   group_by(unique_ids, permit_sa_gom) |>
