@@ -491,3 +491,11 @@ in_j_only_t_neg_all <-
   dbGetQuery(con, "Select * from ora$ptt_p_v")
 dim(in_j_only_t_neg_all)
 # [1] 20208    51
+
+# compbine results ----
+all_in_j_only_t_neg_all501_ <-
+  rbind(in_j_only_t_neg_all1,                                   in_j_only_t_neg_all501_) 
+
+View(all_in_j_only_t_neg_all501_)
+sum(all_in_j_only_t_neg_all501_$TOTAL_DNF)
+# [1] 240886
