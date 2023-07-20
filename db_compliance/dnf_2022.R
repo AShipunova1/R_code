@@ -124,6 +124,7 @@ glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa
 check_j_ids
 
 glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list)
+
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
   head() |> 
   tidyr::unnest_wider(unique_all_vessel_ids, names_sep = "_") |> 
@@ -208,3 +209,85 @@ length(rr[[1]])
 # 0
 str(rr)
 map(rr, length)
+
+# ====
+v_p_gom <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |>
+  tidyr::unnest_wider(unique_all_vessel_ids, names_sep = "_") 
+
+v_p_dual <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$dual |>
+  tidyr::unnest_wider(unique_all_vessel_ids, names_sep = "_") 
+
+names(v_p_gom)
+v_p_gom1__j <-
+  left_join(
+    v_p_gom,
+    check_j_ids,
+    join_by(unique_all_vessel_ids_1 == VESSEL_OFFICIAL_NUMBER_GOMDNF)
+  )
+
+dim(v_p_gom1__j)
+# tibble [1,940 × 6] (S3: tbl_df/tbl/data.frame)
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only$unique_all_vessel_ids[[1]] |> str()
+ # chr [1:2] "FL4459MW" "391019"
+ # - attr(*, "na.action")= 'omit' int 3
+
+v_p_gom2__j <-
+  left_join(
+    v_p_gom,
+    check_j_ids,
+    join_by(unique_all_vessel_ids_2 == VESSEL_OFFICIAL_NUMBER_GOMDNF)
+  )
+dim(v_p_gom2__j)
+# [1] 1940    6
+
+v_p_gom3__j <-
+  left_join(
+    v_p_gom,
+    check_j_ids,
+    join_by(unique_all_vessel_ids_3 == VESSEL_OFFICIAL_NUMBER_GOMDNF)
+  )
+str(v_p_gom3__j)
+# [1] 1940    6
+str(v_p_gom$unique_all_vessel_ids_1)
+all_u_ids <- append(v_p_gom$unique_all_vessel_ids_1,
+                   v_p_gom$unique_all_vessel_ids_2) |> 
+  append(v_p_gom$unique_all_vessel_ids_3) |> 
+  unique()
+# str(all_u_ids)
+#  chr [1:2578] "FL4459MW" "FL4459PW" "FL4463MX" "FL4482NJ" ...
+
+int_xy_gom <-
+intersect(all_u_ids, check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)
+length(int_xy_gom)
+# [1] 1009
+
+intersect(v_p_gom$unique_all_vessel_ids_1,
+          check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF) |>
+  length()
+# [1] 1009
+
+intersect(v_p_gom$unique_all_vessel_ids_3,
+          check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF) |>
+  length()
+# 2 & 3: 0
+
+# ====
+v_p_gom1__j <-
+  inner_join(
+    v_p_gom,
+    check_j_ids,
+    join_by(unique_all_vessel_ids_1 == VESSEL_OFFICIAL_NUMBER_GOMDNF)
+  )
+
+View(v_p_gom1__j)
+v_p_gom1__j |>
+  select(unique_all_vessel_ids_1) |>
+  distinct() |>
+  dim()
+# [1] 1009    1
+ok
+
+# ====
