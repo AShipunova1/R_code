@@ -605,6 +605,44 @@ count(wt = TOTAL_TRIP_IDS)
 # 3            767
 # correct
 
+# count as in db with vars as list of names ----
+
+list_of_names <- c('945573',
+'1116186',
+'FL7991RP')
+
+list_of_names_str <- paste0(list_of_names, collapse = "', '")
+
+v__tne_query_2 <-
+  stringr::str_glue("SELECT
+  sero_official_number,
+  count(distinct trip_id) as total_trip_ids
+FROM
+       safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+  USING ( vessel_id )
+WHERE
+    sero_official_number in ('{list_of_names_str}')
+  AND trip_date BETWEEN TO_DATE('31-DEC-21', 'dd-mon-yy') and TO_DATE('31-DEC-22', 'dd-mon-yy')  
+  GROUP by sero_official_number 
+  order by total_trip_ids desc
+  ")
+
+all_cnts_from_v__tne_2 <-
+  dbGetQuery(con, v__tne_query_2)
+# 3
+
+View(all_cnts_from_v__tne_1)
+
+all_cnts_from_v__tne_2 |> 
+select(SERO_OFFICIAL_NUMBER) |> 
+  distinct() |> 
+  dim()
+# 3
+
+all_cnts_from_v__tne_2 |> 
+count(wt = TOTAL_TRIP_IDS)  
+
 # should be
 # Total Did Not Fish Reports
 # 28,564	
