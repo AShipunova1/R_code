@@ -380,3 +380,114 @@ stringr::str_glue("SELECT *
 
 in_j_only_t_neg <-
   dbGetQuery(con, trip_neg_query)
+
+# create temp p_v_22 table ----
+create_p_v_22_query <-
+  "CREATE PRIVATE TEMPORARY TABLE ora$ptt_p_v ON COMMIT PRESERVE DEFINITION
+  AS
+    SELECT DISTINCT
+      p.vessel_id AS p_vessel_id,
+      entity_id,
+      expiration_date,
+      permit_group,
+      p.TOP as p_top,
+      permit,
+      effective_date,
+      end_date,
+      initial_eff_date,
+      grp_eff_date,
+      last_expiration_date,
+      tm_order,
+      tm_top_order,
+      prior_owner,
+      new_owner,
+      grp_prior_owner,
+      application_id,
+      permit_status,
+      vessel_alt_num,
+      min_period,
+      max_period,
+      top_name,
+      v.vessel_id AS v_vessel_id,
+      county_code,
+      state_code,
+      entry_date,
+      supplier_vessel_id,
+      port_code,
+      hull_id_nbr,
+      coast_guard_nbr,
+      state_reg_nbr,
+      registering_state,
+      vessel_name,
+      passenger_capacity,
+      vessel_type,
+      year_built,
+      update_date,
+      primary_gear,
+      owner_id,
+      event_id,
+      de,
+      ue,
+      dc,
+      uc,
+      STATUS,
+      ser_id,
+      updated_flag,
+      sero_home_port_city,
+      sero_home_port_county,
+      sero_home_port_state,
+      sero_official_number
+    FROM
+           srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
+      JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+      ON ( p.vessel_id = sero_official_number )
+    WHERE
+      ( end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+        OR expiration_date >= TO_DATE('01-JAN-22', 'dd-mon-yy') )
+      AND effective_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+"
+
+temp_table_p_v_22 <-
+  dbGetQuery(con, create_p_v_22_query)
+
+all_j_names1_500 <-
+  paste0(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF[1:500], collapse = "', '")
+# 1327
+all_j_names500_ <-
+  paste0(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF[501:length(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)], collapse = "', '")
+
+# in ('{all_j_names1_500}')
+all_trip_neg_query <-
+stringr::str_glue("SELECT 
+distinct sero_official_number,
+count(trip_id) as total_dnf
+FROM
+  ora$ptt_p_v p_v
+    JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+  ON ( p_v.v_vessel_id = tne.vessel_id )
+WHERE sero_official_number
+  in ('{all_j_names500_}')
+AND p_top LIKE '%G%'
+AND effective_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+AND expiration_date > TO_DATE('31-DEC-21', 'dd-mon-yy')
+group by sero_official_number
+")
+
+# all_j_names1_500
+in_j_only_t_neg_all1 <-
+  dbGetQuery(con, all_trip_neg_query)
+
+# all_j_names500_
+in_j_only_t_neg_all501_ <-
+  dbGetQuery(con, all_trip_neg_query)
+
+str(in_j_only_t_neg_all1)
+# 'data.frame':	170 obs. of  2 variables:
+str(in_j_only_t_neg_all501_)
+# 'data.frame':	249 obs. of  2 variables:
+
+in_j_only_t_neg_all501_
+in_j_only_t_neg_all <-
+  dbGetQuery(con, "Select * from ora$ptt_p_v")
+dim(in_j_only_t_neg_all)
+# [1] 20208    51
