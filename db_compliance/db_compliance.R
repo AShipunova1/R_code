@@ -802,7 +802,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |
 
 View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 
-View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids)
+# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids)
 
 str(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids)
 # [1] 3182    4
@@ -812,6 +812,20 @@ str(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p
 #   ..$ : chr  "FL3612RX" "252980"
 #   .. ..- attr(*, "na.action")= 'omit' int 3
 
+# # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids |> 
+# #   filter(!PERMIT_VESSEL_ID == SUPPLIER_VESSEL_ID.sa) |> glimpse()
+# # $ PERMIT_VESSEL_ID      <chr> "NC0676EK"
+# # $ VESSEL_VESSEL_ID      <dbl> 383419
+# # $ SUPPLIER_VESSEL_ID.sa <chr> "1292480"
+# # $ VESSEL_ALT_NUM.sa     <chr> "NC0676EK"
+# # FHIER correct:
+# # 1292480:NC0676EK........ SOUTHERN RUN - BENJAMIN AUGUSTUS MORRIS            (828) 4298076
+# 
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids |> 
+#   filter(!VESSEL_ALT_NUM.sa == SUPPLIER_VESSEL_ID.sa) |> 
+#   dim()
+# # 130
+# 
 ### v_p vs. t ----
 trips_info_2022_int_ah_w_y_dates_ids <-
   trips_info_2022_int_ah_w_y_dates |>
