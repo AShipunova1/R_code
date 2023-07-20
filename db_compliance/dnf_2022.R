@@ -132,17 +132,37 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
 # $ unique_all_vessel_ids_1 <chr> "FL4459MW", "FL4459MW", "FL445…
 # $ unique_all_vessel_ids_2 <chr> "391019", "391019", "390425", …
 # $ permit_sa_gom           <chr> "gom_only", "gom_only", "gom_o…
+x <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |>
+  head()
+y <- list(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)
 
-tib1 <- tibble(x = list(1, 2, 3), y = list(4, 5, 6))
-tib2 <- tibble(x = list(1, 2, 4, 5), y = list(4, c(5, 10), 6, 7))
+str(y)
 
-tib1 <- mutate_all(tib1, funs(hash = map_chr(., digest::digest)))
-# View(tib2)
-# tib11 <- mutate_all(tib1, ~(hash = map_chr(., digest::digest)))
-# all.equal(tib1, tib11)
-# F
-tib2 <- mutate_all(tib2, funs(hash = map_chr(., digest::digest)))
+my_f <- function(x, y) {
+    browser()
+    # stringi::stri_detect_fixed()
+    head(x, n = 1) |> 
+      glimpse()
+    x %>%
+  # filter(unique_all_vessel_ids %>%
+  #          map(str_detect, y) %>%
+  #          map_lgl(any))
+  #   ! `pattern` must be a string, not a list.
 
-dplyr::inner_join(tib1, tib2, c('x_hash', 'y_hash')) %>%
-  select(x.x, x.y) |> 
+
+  }
+
+purrr::pmap(x, y, my_f(x, y)) |> str()
+
+# map(y, function() {unique_all_vessel_ids })
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
+  head() |> 
+  filter(unique_all_vessel_ids %>%
+           purrr::pmap(check_j_ids)
+           # purrr::pmap(str_detect, "Lannister|Stark") 
+         # %>%
+           # map_lgl(any)
+         ) %>%
   str()
+
