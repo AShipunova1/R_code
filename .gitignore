@@ -28,3 +28,4 @@ quantify_compliance/SA_non_compliant_and_has_logbooks.csv
 *.jpeg
 *.jpg
 compare_catch/compare_catch_plots0.R
+db_compliance/dnf_2022.R
