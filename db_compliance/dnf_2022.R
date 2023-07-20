@@ -132,28 +132,26 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
 # $ unique_all_vessel_ids_1 <chr> "FL4459MW", "FL4459MW", "FL445…
 # $ unique_all_vessel_ids_2 <chr> "391019", "391019", "390425", …
 # $ permit_sa_gom           <chr> "gom_only", "gom_only", "gom_o…
-x <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |>
-  head()
-y <- list(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)
+# x <-
+#   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |>
+#   head()
+# y <- list(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)
+# 
+# str(y)
+# 
+# my_f <- function(x, y) {
+#     browser()
+#     # stringi::stri_detect_fixed()
+#     head(x, n = 1) |> 
+#       glimpse()
+#     # x %>%
+#   # filter(unique_all_vessel_ids %>%
+#   #          map(str_detect, y) %>%
+#   #          map_lgl(any))
+#   #   ! `pattern` must be a string, not a list.
+  # }
 
-str(y)
-
-my_f <- function(x, y) {
-    browser()
-    # stringi::stri_detect_fixed()
-    head(x, n = 1) |> 
-      glimpse()
-    x %>%
-  # filter(unique_all_vessel_ids %>%
-  #          map(str_detect, y) %>%
-  #          map_lgl(any))
-  #   ! `pattern` must be a string, not a list.
-
-
-  }
-
-purrr::pmap(x, y, my_f(x, y)) |> str()
+# purrr::pmap(x, y, my_f(x, y)) |> str()
 
 # map(y, function() {unique_all_vessel_ids })
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
@@ -166,3 +164,33 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
          ) %>%
   str()
 
+# ====
+x <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |>
+  head(5)
+y <- list(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)
+
+my_f <- function(x, y) {
+  
+  browser()
+  # stringi::stri_detect_fixed()
+  head(x, n = 1) |>
+    glimpse()
+  
+  res <-
+    map(x$unique_all_vessel_ids,
+        dplyr::intersect,
+        y)
+  
+  # x %>%
+  # filter(unique_all_vessel_ids %>%
+  #          map(str_detect, y) %>%
+  #          map_lgl(any))
+  #   ! `pattern` must be a string, not a list.
+  
+  return(res)
+}
+
+rr <- my_f(x, y)
+# length(rr[[1]])
+# 0
