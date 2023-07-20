@@ -291,3 +291,92 @@ v_p_gom1__j |>
 ok
 
 # ====
+v_p__gom_dual__unnest <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid |>
+  dplyr::filter(permit_sa_gom %in% c("dual", "gom_only")) |>
+  tidyr::unnest_wider(unique_all_vessel_ids, names_sep = "_")
+
+# str(v_p__gom_dual__unnest)
+# tibble [2,593 × 28] (S3: tbl_df/tbl/data.frame)
+
+v_p_gom_dual_1__j <-
+  inner_join(
+    v_p__gom_dual__unnest,
+    check_j_ids,
+    join_by(unique_all_vessel_ids_1 == VESSEL_OFFICIAL_NUMBER_GOMDNF)
+  )
+
+dim(v_p_gom_dual_1__j)
+# [1] 2239   28
+
+dim(check_j_ids)
+# [1] 1327    1
+
+v_p_gom_dual_1__j |> 
+select(unique_all_vessel_ids_1) |>
+  distinct() |>
+  dim()
+# [1] 1298    1
+# 
+
+intersect(v_p__gom_dual__unnest$unique_all_vessel_ids_1,
+          check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF) |>
+  length()
+# [1] 1298
+
+
+in_j_only <-
+  setdiff(
+    check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF,
+    v_p__gom_dual__unnest$unique_all_vessel_ids_1
+  )
+
+glimpse(in_j_only)
+# chr [1:29]
+
+from_part <- c(
+  "safis.vessels@secapxdv_dblk.sfsc.noaa.gov",
+  "safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov"
+)
+
+field_names <- tibble(
+  c(
+    "SERO_OFFICIAL_NUMBER",
+    "VESSEL_ID",
+    "SUPPLIER_VESSEL_ID",
+    "COAST_GUARD_NBR",
+    "STATE_REG_NBR"
+  )
+)
+
+all_29_ids <- paste0(in_j_only, collapse = "', '")
+
+trip_neg_query_templ <- 
+  "SELECT *
+  FROM
+  {from_part}
+  WHERE 
+  {field_name}
+  in ('{all_29_ids}')"
+
+# res_q <-
+#   map_chr(field_names[,1], str_interp, string = trip_neg_query_templ)
+
+# stringr::str_glue(
+#   "My name is {field_names[1,]}, ",
+#   "my age next year is {from_part}, "
+# )
+
+stringr::str_glue("SELECT *
+  FROM
+  {from_part}
+  WHERE 
+  {field_names[1,]}
+  in ('{all_29_ids}')")
+
+# field_names |> 
+  # map(~)
+
+
+in_j_only_t_neg <-
+  dbGetQuery(con, trip_neg_query)
