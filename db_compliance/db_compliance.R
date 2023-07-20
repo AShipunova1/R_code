@@ -309,7 +309,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
       VESSEL_ALT_NUM.sa
     )
   )) |>
-  mutate(unique_ids = list(na.omit(unique(all_ids)))) |>
+  mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
   ungroup() |>
   select(-any_of(id_names), -all_ids)
 
@@ -322,14 +322,14 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
 ## fewer fields
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid %>%
-  select(eff_int_gom, eff_int_sa, unique_ids, permit_sa_gom)
+  select(eff_int_gom, eff_int_sa, unique_all_vessel_ids, permit_sa_gom)
 
 # dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short)
 # [1] 8949    4
 
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short %>%
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid %>%
   split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid$permit_sa_gom))
 
 map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
@@ -339,17 +339,24 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # 1   653     1940    6356
 # 2    37       37      37
 # 2    26       26      26
+
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list <-
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short %>%
+  split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short$permit_sa_gom))
+
+map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list, dim)
+# 1   653     1940    6356
 # 2     4        4       4
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
 
 ## union intervals ----
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual %<>%
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$dual %<>%
   mutate(union_int_sa_gom =
            lubridate::union(eff_int_gom, eff_int_sa))
 
-map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
+map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list, dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1   653     1940    6356
@@ -362,15 +369,16 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
   # }
 get_max_p_int <- function(my_df) {
   my_df |>
-    group_by(unique_ids, permit_sa_gom) |>
+    group_by(unique_all_vessel_ids, permit_sa_gom) |>
     max(eff_int)
     
 }
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$gom_only |> 
-#   group_by(unique_ids, permit_sa_gom) |>
+# HERE!
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
+#   group_by(unique_all_vessel_ids, permit_sa_gom) |>
   
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$gom_only |> print_df_names()
-  # group_by(unique_ids, permit_sa_gom) |>
+  # group_by(unique_all_vessel_ids, permit_sa_gom) |>
 # |> 
 #   ungroup()
   
@@ -583,10 +591,11 @@ trips_info_2022_int_ah_w_y_sero <-
 # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list)
 
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual |> 
-#   group_by(unique_ids) |> 
+#   group_by(unique_all_vessel_ids) |> 
 #   mutate(union_int_sa = )
 
 ### end split all permit intervals by day ----
+
 map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
@@ -597,7 +606,6 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 # 1   653     1940    6356
 # 2    37       37      37
 # 2    26       26      26
-# 2     5        4       4
 
 l_names <- 
   names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list)
@@ -606,7 +614,6 @@ l_names <-
 # str_split("sa_only", "_")
 # str_split("saonly", "_")
 my_f <- function(curr_permit_region) {
-
   # browser()
   curr_df <-
     vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list[[curr_permit_region]]
@@ -647,15 +654,17 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates, dim
 # 2    36       36      36
 # 1   657     1267    3616
 # 2    40       40      40
+# 2    29       29      29
 
 # data_overview(dates_2022)
 # COMPLETE_DATE 427
 
-# data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual)
+data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual)
 # PERMIT_VESSEL_ID            353, 357
 # VESSEL_VESSEL_ID            same
 # EFFECTIVE_DATE.gom          232, 234
 # EFFECTIVE_DATE.sa           230, 232
+# unique_all_vessel_ids                  357
 
 # data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$dual)
 # COMPLETE_DATE               427
@@ -791,23 +800,17 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |
   select(contains("vessel")) |> 
   distinct()
 
-dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids)
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+
+View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids)
+
+str(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids)
 # [1] 3182    4
 # 3181
-
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids |> 
-  filter(!PERMIT_VESSEL_ID == SUPPLIER_VESSEL_ID.sa) |> glimpse()
-# $ PERMIT_VESSEL_ID      <chr> "NC0676EK"
-# $ VESSEL_VESSEL_ID      <dbl> 383419
-# $ SUPPLIER_VESSEL_ID.sa <chr> "1292480"
-# $ VESSEL_ALT_NUM.sa     <chr> "NC0676EK"
-# FHIER correct:
-# 1292480:NC0676EK........ SOUTHERN RUN - BENJAMIN AUGUSTUS MORRIS            (828) 4298076
-
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids |> 
-  filter(!VESSEL_ALT_NUM.sa == SUPPLIER_VESSEL_ID.sa) |> 
-  dim()
-# 130
+# 'data.frame':	3181 obs. of  1 variable:
+#  $ unique_all_vessel_ids:List of 3181
+#   ..$ : chr  "FL3612RX" "252980"
+#   .. ..- attr(*, "na.action")= 'omit' int 3
 
 ### v_p vs. t ----
 trips_info_2022_int_ah_w_y_dates_ids <-
