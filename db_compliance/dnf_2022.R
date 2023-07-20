@@ -169,18 +169,28 @@ x <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only
 # |>
 #   head(5)
-y <- list(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)
+y <- check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF
 
 my_f <- function(x, y) {
+  
   # browser()
   # stringi::stri_detect_fixed()
   # head(x, n = 1) |>
   #   glimpse()
   
-  res <-
-    map(y,
-        dplyr::intersect,
-        x$unique_all_vessel_ids)
+  res <- map(y, function(one_j_id) {
+    # browser()
+    map(x$unique_all_vessel_ids,
+        function(unique_all_vessel_id) {
+          # browser()
+          stringr::str_detect(unique_all_vessel_id, one_j_id) %>%
+            return()
+        })
+  })
+  # map(0:1, function(x)
+  #   map_df(0:7,function(y)
+  # dplyr::intersect,
+  # x$unique_all_vessel_ids)
   
   # x %>%
   # filter(unique_all_vessel_ids %>%
