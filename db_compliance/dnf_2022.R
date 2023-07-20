@@ -466,10 +466,15 @@ FROM
     JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
   ON ( p_v.v_vessel_id = tne.vessel_id )
 WHERE sero_official_number
-  in ('{all_j_names500_}')
+  in ('{all_j_names1_500}')
 AND p_top LIKE '%G%'
 AND effective_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
 AND expiration_date > TO_DATE('31-DEC-21', 'dd-mon-yy')
+WHERE sero_official_number
+  in ('{all_j_names1_500}')
+
+and trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+and trip_date > TO_DATE('31-DEC-21', 'dd-mon-yy')
 group by sero_official_number
 ")
 
@@ -482,20 +487,77 @@ in_j_only_t_neg_all501_ <-
   dbGetQuery(con, all_trip_neg_query)
 
 str(in_j_only_t_neg_all1)
-# 'data.frame':	170 obs. of  2 variables:
+# 'data.frame':	109 obs. of  2 variables:
 str(in_j_only_t_neg_all501_)
-# 'data.frame':	249 obs. of  2 variables:
+# 'data.frame':	177 obs. of  2 variables:
 
-in_j_only_t_neg_all501_
-in_j_only_t_neg_all <-
-  dbGetQuery(con, "Select * from ora$ptt_p_v")
-dim(in_j_only_t_neg_all)
+# in_j_only_t_neg_all501_
+# in_j_only_t_neg_all <-
+#   dbGetQuery(con, "Select * from ora$ptt_p_v")
+# dim(in_j_only_t_neg_all)
 # [1] 20208    51
 
 # compbine results ----
-all_in_j_only_t_neg_all501_ <-
-  rbind(in_j_only_t_neg_all1,                                   in_j_only_t_neg_all501_) 
+all_in_j_only_t_neg_all <-
+  rbind(in_j_only_t_neg_all1,                                   in_j_only_t_neg_all501_) |> 
+  distinct()
 
-View(all_in_j_only_t_neg_all501_)
-sum(all_in_j_only_t_neg_all501_$TOTAL_DNF)
-# [1] 240886
+dim(all_in_j_only_t_neg_all)
+286
+
+sum(all_in_j_only_t_neg_all$TOTAL_DNF)
+# [1] 93276
+
+# should be
+# Total Did Not Fish Reports
+# 28,564	
+
+# check why too much ----
+# 1064902
+# 400
+
+# SELECT
+#   count(distinct trip_id)
+# FROM
+#        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+#   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+#   USING ( vessel_id )
+# WHERE
+#   sero_official_number = '1064902';
+# --346
+
+# count without permits ----
+v__tne_query <-
+  stringr::str_glue("SELECT
+  distinct sero_official_number,
+  count(trip_id) as total_dnf
+  FROM
+       safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+  USING ( vessel_id )
+  WHERE 
+  sero_official_number in ('{all_j_names1_500}')
+  or
+  sero_official_number in ('{all_j_names500_}')
+  and trip_date > TO_DATE('31-DEC-21', 'dd-mon-yy')
+  and trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+  group by sero_official_number
+")
+
+all_cnts_from_v_tne <-
+  dbGetQuery(con, v__tne_query)
+# 351
+
+all_cnts_from_v_tne |> 
+select(SERO_OFFICIAL_NUMBER) |> 
+  distinct() |> 
+  dim()
+# 351   
+
+sum(all_cnts_from_v_tne$TOTAL_DNF)
+# [1] 45665
+
+# should be
+# Total Did Not Fish Reports
+# 28,564	
+
