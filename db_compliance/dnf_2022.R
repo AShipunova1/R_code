@@ -562,40 +562,164 @@ sum(all_cnts_from_v_tne$TOTAL_DNF)
 # 28,564	
 
 # count trip_dates ----
+# the same result
 
-v__tne_query_dates <-
+# count as in db with list of names ----
+v__tne_query_1 <-
   stringr::str_glue("SELECT
-  distinct sero_official_number,
-  count(trip_date) as total_dnf_dates
-  FROM
+  sero_official_number,
+  count(distinct trip_id) as total_trip_ids
+FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
   USING ( vessel_id )
-  WHERE 
-  sero_official_number in ('{all_j_names1_500}')
-  or
-  sero_official_number in ('{all_j_names500_}')
-  and trip_date > TO_DATE('31-DEC-21', 'dd-mon-yy')
-  and trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
-  group by sero_official_number
-")
+WHERE
+  sero_official_number in 
+  ('945573',
+'1116186',
+'FL7991RP'
+)
+  AND trip_date BETWEEN TO_DATE('31-DEC-21', 'dd-mon-yy') and TO_DATE('31-DEC-22', 'dd-mon-yy')  
+  GROUP by sero_official_number 
+  order by total_trip_ids desc
+  ")
 
-all_cnts_from_v__tne_query_dates <-
-  dbGetQuery(con, v__tne_query_dates)
-# 351
+all_cnts_from_v__tne_1 <-
+  dbGetQuery(con, v__tne_query_1)
+# 3
 
-all_cnts_from_v__tne_query_dates |> 
+View(all_cnts_from_v__tne_1)
+
+all_cnts_from_v__tne_1 |> 
 select(SERO_OFFICIAL_NUMBER) |> 
   distinct() |> 
   dim()
-# 351   
+# 3
 
-sum(all_cnts_from_v__tne_query_dates$TOTAL_DNF_DATES)
-# [1] 45665
-# same
+all_cnts_from_v__tne_1 |> 
+count(wt = TOTAL_TRIP_IDS)  
+# 1504
+#   TOTAL_TRIP_IDS
+# 1            365
+# 2            372
+# 3            767
+# correct
 
 # should be
 # Total Did Not Fish Reports
 # 28,564	
 
 # count again ----
+v__tne_query_btw <-
+  stringr::str_glue("
+SELECT
+sero_official_number,
+  count(distinct trip_id) as total_trip_ids
+FROM
+       safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+  USING ( vessel_id )
+WHERE
+    sero_official_number in ('{all_j_names1_500}')
+  or
+  sero_official_number in ('{all_j_names500_}')
+  AND trip_date BETWEEN TO_DATE('31-DEC-21', 'dd-mon-yy') and TO_DATE('31-DEC-22', 'dd-mon-yy')  
+  GROUP by sero_official_number 
+  order by total_trip_ids desc
+  ")
+
+all_cnts_from_v__tne_query_btw <-
+  dbGetQuery(con, v__tne_query_btw)
+
+str(all_cnts_from_v__tne_query_btw)
+all_cnts_from_v__tne_query_btw |> 
+  filter(SERO_OFFICIAL_NUMBER == 'FL0094NN')
+
+sum(all_cnts_from_v__tne_query_btw$TOTAL_TRIP_IDS)
+# 45710
+all_cnts_from_v__tne_query_btw |> 
+  count(wt = TOTAL_TRIP_IDS)
+# 45710
+
+all_cnts_from_v__tne_query_btw |> 
+  select(SERO_OFFICIAL_NUMBER) |> 
+  distinct() |> 
+  dim()
+# 351
+# not 0 in db - 288
+
+# detailed_report from FHIER ----
+fhier_cnts_file <-
+  r"(~\R_files_local\jennys_code\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source).xlsx)"
+
+file.exists(fhier_cnts_file)
+# T
+fhier_cnts <-
+  read_xlsx(fhier_cnts_file,
+            .name_repair = fix_names
+            # ,
+      # guess_max = 21474836,
+      # # read all columns as text
+      # col_types = "text"
+      )
+
+glimpse(fhier_cnts)
+# Vessel Official Number                        3591
+
+fhier_cnts_g_d <-
+  fhier_cnts |> 
+  filter(gom_permits_ == "Y")
+
+data_overview(fhier_cnts_g_d)
+# vessel_official_number                        1327
+# total_did_not_fish_reports                     147
+
+# print_df_names(fhier_cnts_g_d)
+# vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_grouping_region, total_trip_notifications_fishing_intention, total_trip_notifications_no_fishing_intention, total_logbooks, total_did_not_fish_reports, total_power_down
+
+fhier_cnts_g_d_short <-
+  fhier_cnts_g_d |> 
+  select(
+    vessel_official_number,
+    vessel_name,
+    effective_date,
+    end_date,
+    permits,
+    sa_permits_,
+    gom_permits_,
+    permit_grouping_region,
+    total_did_not_fish_reports
+  ) |>
+  distinct()
+
+# [1] 1327    9
+fhier_cnts_g_d_short_not_exp <-
+  fhier_cnts_g_d_short |> 
+  filter(end_date <= as.Date('2022-12-31'))
+dim(fhier_cnts_g_d_short_not_exp)
+# 277
+
+fhier_cnts_g_d_short_vessel_ids <-
+  fhier_cnts_g_d_short |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+intersect(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF,
+        fhier_cnts_g_d_short_vessel_ids$vessel_official_number) |> 
+  length()
+# 1327 (the same)
+
+length(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)
+length(fhier_cnts_g_d_short_vessel_ids$vessel_official_number)
+# 1327
+
+# join with my db results ----
+fhier_and_db <-
+  full_join(
+    fhier_cnts_g_d_short,
+    all_cnts_from_v__tne_query_btw,
+    join_by(vessel_official_number == SERO_OFFICIAL_NUMBER)
+  )
+
+# View(fhier_and_db)
+# [1] 1327   10
