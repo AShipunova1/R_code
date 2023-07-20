@@ -109,3 +109,40 @@ v_p_tne__dual |>
 v_p_tne |> 
   filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
   View()
+
+check_j_ids_f_name <- r"(~\R_files_local\jennys_code\output\GOMvesselsDNFreports.xlsx)"
+
+file.exists(check_j_ids_f_name)
+# T
+check_j_ids <-
+  read_xlsx(check_j_ids_f_name)
+
+names(check_j_ids) <- "VESSEL_OFFICIAL_NUMBER_GOMDNF"
+# [1] "unique(GOMDNFreports$VESSEL_OFFICIAL_NUMBER)"
+
+glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+check_j_ids
+
+glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list)
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
+  head() |> 
+  tidyr::unnest_wider(unique_all_vessel_ids, names_sep = "_") |> 
+  glimpse()
+# ...
+# $ unique_all_vessel_ids_1 <chr> "FL4459MW", "FL4459MW", "FL445…
+# $ unique_all_vessel_ids_2 <chr> "391019", "391019", "390425", …
+# $ permit_sa_gom           <chr> "gom_only", "gom_only", "gom_o…
+
+tib1 <- tibble(x = list(1, 2, 3), y = list(4, 5, 6))
+tib2 <- tibble(x = list(1, 2, 4, 5), y = list(4, c(5, 10), 6, 7))
+
+tib1 <- mutate_all(tib1, funs(hash = map_chr(., digest::digest)))
+# View(tib2)
+# tib11 <- mutate_all(tib1, ~(hash = map_chr(., digest::digest)))
+# all.equal(tib1, tib11)
+# F
+tib2 <- mutate_all(tib2, funs(hash = map_chr(., digest::digest)))
+
+dplyr::inner_join(tib1, tib2, c('x_hash', 'y_hash')) %>%
+  select(x.x, x.y) |> 
+  str()
