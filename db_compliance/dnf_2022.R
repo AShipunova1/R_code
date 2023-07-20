@@ -565,7 +565,11 @@ sum(all_cnts_from_v_tne$TOTAL_DNF)
 # the same result
 
 # count as in db with list of names ----
-v__tne_query_1 <-
+  # sero_official_number in ('{all_j_names1_500}')
+  # or
+  # sero_official_number in ('{all_j_names500_}')
+
+v__tne_query_1_500 <-
   stringr::str_glue("SELECT
   sero_official_number,
   count(distinct trip_id) as total_trip_ids
@@ -574,36 +578,36 @@ FROM
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
   USING ( vessel_id )
 WHERE
-  sero_official_number in 
-  ('945573',
-'1116186',
-'FL7991RP'
-)
+  sero_official_number in ('{all_j_names500_}')
   AND trip_date BETWEEN TO_DATE('31-DEC-21', 'dd-mon-yy') and TO_DATE('31-DEC-22', 'dd-mon-yy')  
   GROUP by sero_official_number 
   order by total_trip_ids desc
   ")
 
-all_cnts_from_v__tne_1 <-
-  dbGetQuery(con, v__tne_query_1)
-# 3
+all_cnts_from_v__tne_1_500 <-
+  dbGetQuery(con, v__tne_query_1_500)
 
-View(all_cnts_from_v__tne_1)
+# View(all_cnts_from_v__tne_1_500)
 
-all_cnts_from_v__tne_1 |> 
+all_cnts_from_v__tne_1_500 |> 
 select(SERO_OFFICIAL_NUMBER) |> 
   distinct() |> 
   dim()
-# 3
+# 112
+# 177
 
-all_cnts_from_v__tne_1 |> 
+all_cnts_from_v__tne_1_500 |> 
 count(wt = TOTAL_TRIP_IDS)  
-# 1504
-#   TOTAL_TRIP_IDS
-# 1            365
-# 2            372
-# 3            767
-# correct
+# 11628
+# 17096
+# 17096 + 11628 =  28724
+# FHIER:
+# Total Did Not Fish Reports
+# 28,564	
+# ok
+# Jenny:
+# 1) The number of GOM DNF reports that I got was 28,720. Which we saw from Michelle's email, is pretty close to what she saw in a different summary table. 
+
 
 # count as in db with vars as list of names ----
 
@@ -632,7 +636,7 @@ all_cnts_from_v__tne_2 <-
   dbGetQuery(con, v__tne_query_2)
 # 3
 
-View(all_cnts_from_v__tne_1)
+View(all_cnts_from_v__tne_2)
 
 all_cnts_from_v__tne_2 |> 
 select(SERO_OFFICIAL_NUMBER) |> 
@@ -642,10 +646,6 @@ select(SERO_OFFICIAL_NUMBER) |>
 
 all_cnts_from_v__tne_2 |> 
 count(wt = TOTAL_TRIP_IDS)  
-
-# should be
-# Total Did Not Fish Reports
-# 28,564	
 
 # count again ----
 v__tne_query_btw <-
@@ -761,3 +761,52 @@ fhier_and_db <-
 
 # View(fhier_and_db)
 # [1] 1327   10
+
+# all counts in one query ----
+# count as in db with list of names ----
+  # sero_official_number in ('{all_j_names1_500}')
+  # or
+  # sero_official_number in ('{all_j_names500_}')
+
+v__tne_query_all <-
+  stringr::str_glue("SELECT
+  sero_official_number,
+  count(distinct trip_id) as total_trip_ids
+FROM
+       safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+  USING ( vessel_id )
+WHERE
+  sero_official_number in ('{all_j_names1_500}')
+  AND trip_date BETWEEN TO_DATE('31-DEC-21', 'dd-mon-yy') and TO_DATE('31-DEC-22', 'dd-mon-yy')  
+  GROUP by sero_official_number 
+union all
+SELECT
+  sero_official_number,
+  count(distinct trip_id) as total_trip_ids
+FROM
+       safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+  USING ( vessel_id )
+WHERE
+  sero_official_number in ('{all_j_names500_}')
+  AND trip_date BETWEEN TO_DATE('31-DEC-21', 'dd-mon-yy') and TO_DATE('31-DEC-22', 'dd-mon-yy')  
+  GROUP by sero_official_number 
+  order by total_trip_ids desc
+  ")
+
+all_cnts_from_v__tne_query_all <-
+  dbGetQuery(con, v__tne_query_all)
+
+# View(all_cnts_from_v__tne_query_all)
+
+all_cnts_from_v__tne_query_all |> 
+select(SERO_OFFICIAL_NUMBER) |> 
+  distinct() |> 
+  dim()
+# 289
+
+all_cnts_from_v__tne_query_all |> 
+count(wt = TOTAL_TRIP_IDS)  
+# 28724!
+
