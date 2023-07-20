@@ -166,21 +166,21 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
 
 # ====
 x <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |>
-  head(5)
+  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only
+# |>
+#   head(5)
 y <- list(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF)
 
 my_f <- function(x, y) {
-  
-  browser()
+  # browser()
   # stringi::stri_detect_fixed()
-  head(x, n = 1) |>
-    glimpse()
+  # head(x, n = 1) |>
+  #   glimpse()
   
   res <-
-    map(x$unique_all_vessel_ids,
+    map(y,
         dplyr::intersect,
-        y)
+        x$unique_all_vessel_ids)
   
   # x %>%
   # filter(unique_all_vessel_ids %>%
@@ -191,6 +191,10 @@ my_f <- function(x, y) {
   return(res)
 }
 
+tic("compare_column_list")
 rr <- my_f(x, y)
-# length(rr[[1]])
+toc()
+length(rr[[1]])
 # 0
+str(rr)
+map(rr, length)
