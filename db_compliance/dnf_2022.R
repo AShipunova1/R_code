@@ -561,3 +561,41 @@ sum(all_cnts_from_v_tne$TOTAL_DNF)
 # Total Did Not Fish Reports
 # 28,564	
 
+# count trip_dates ----
+
+v__tne_query_dates <-
+  stringr::str_glue("SELECT
+  distinct sero_official_number,
+  count(trip_date) as total_dnf_dates
+  FROM
+       safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+  USING ( vessel_id )
+  WHERE 
+  sero_official_number in ('{all_j_names1_500}')
+  or
+  sero_official_number in ('{all_j_names500_}')
+  and trip_date > TO_DATE('31-DEC-21', 'dd-mon-yy')
+  and trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')
+  group by sero_official_number
+")
+
+all_cnts_from_v__tne_query_dates <-
+  dbGetQuery(con, v__tne_query_dates)
+# 351
+
+all_cnts_from_v__tne_query_dates |> 
+select(SERO_OFFICIAL_NUMBER) |> 
+  distinct() |> 
+  dim()
+# 351   
+
+sum(all_cnts_from_v__tne_query_dates$TOTAL_DNF_DATES)
+# [1] 45665
+# same
+
+# should be
+# Total Did Not Fish Reports
+# 28,564	
+
+# count again ----
