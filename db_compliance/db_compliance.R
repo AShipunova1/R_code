@@ -447,11 +447,8 @@ vessels_permits_2022_r_10_dual_maybe <-
 #   dim()
 # # 357
 
-## check if the same vessel in dual and not ----
-# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |> filter(permit_sa_gom_dual ==)
-
 ## split permits by region ----
-# can't do now, whern the same vessel can be in sa_only or gom only
+# the same vessel can be in both sa_only and gom only in diff time
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual %>%
   split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual$permit_sa_gom_dual))
@@ -469,6 +466,32 @@ map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
+
+## check if the same vessel in dual and not ----
+dual_gom <-
+  intersect(
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual$unique_all_vessel_ids,
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$gom_only$unique_all_vessel_ids
+)
+length(dual_gom)
+# 0
+
+dual_sa <-
+  intersect(
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual$unique_all_vessel_ids,
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only$unique_all_vessel_ids
+)
+length(dual_sa)
+# 0
+
+gom_sa <-
+  intersect(
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$gom_only$unique_all_vessel_ids,
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only$unique_all_vessel_ids
+)
+# length(gom_sa)
+# 92
+# ASK?: these will be counted in both sa and gom compliance
 
 ## union intervals ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22__list$dual %<>%
