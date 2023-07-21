@@ -100,8 +100,58 @@ dim(vessels_permits_2022_r_short)
 #   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
 # 2023 is here, ok
 
+## fewer v ids ----
+
+id_names <- c(
+  "COAST_GUARD_NBR",
+  "PERMIT_VESSEL_ID",
+  "SERO_OFFICIAL_NUMBER",
+  "STATE_REG_NBR",
+  "SUPPLIER_VESSEL_ID",
+  "VESSEL_ALT_NUM",
+  "VESSEL_VESSEL_ID")
+
+tic("uid")
+vessels_permits_2022_r_short_uid <-
+  vessels_permits_2022_r_short |>
+  rowwise() |>
+  mutate(all_ids = list(
+    c(
+      PERMIT_VESSEL_ID,
+      VESSEL_VESSEL_ID,
+      COAST_GUARD_NBR,
+      SERO_OFFICIAL_NUMBER,
+      STATE_REG_NBR,
+      SUPPLIER_VESSEL_ID,
+      VESSEL_ALT_NUM,
+      COAST_GUARD_NBR,
+      SERO_OFFICIAL_NUMBER,
+      STATE_REG_NBR,
+      SUPPLIER_VESSEL_ID,
+      VESSEL_ALT_NUM
+    )
+  )) |>
+  mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
+  ungroup() |>
+  select(-any_of(id_names), -all_ids)
+toc()
+
+dim(vessels_permits_2022_r_short)
+# [1] 9442   12
+dim(vessels_permits_2022_r_short_uid)
+# [1] 9442   11
+
+### fewer fields ----
+vessels_permits_2022_r_short_uid_short <-
+  vessels_permits_2022_r_short_uid %>%
+  # select(eff_int_gom, eff_int_sa, unique_all_vessel_ids, permit_sa_gom)
+  select(-all_of(id_names))
+
+dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short)
+# [1] 8949    4
+
 ## get the earliest and the latest permit dates ----
-vessels_permits_2022_r_mm <-
+vessels_permits_2022_r_short_mm <-
   vessels_permits_2022_r_short |>
   group_by(
     PERMIT_VESSEL_ID,
@@ -299,61 +349,6 @@ dim()
 # 636
 # [1] 274   3
 # 282
-
-## fewer v ids ----
-
-id_names <- c(
-  "PERMIT_VESSEL_ID",
-  "VESSEL_VESSEL_ID",
-  "COAST_GUARD_NBR.gom",
-  "SERO_OFFICIAL_NUMBER.gom",
-  "STATE_REG_NBR.gom",
-  "SUPPLIER_VESSEL_ID.gom",
-  "VESSEL_ALT_NUM.gom",
-  "COAST_GUARD_NBR.sa",
-  "SERO_OFFICIAL_NUMBER.sa",
-  "STATE_REG_NBR.sa",
-  "SUPPLIER_VESSEL_ID.sa",
-  "VESSEL_ALT_NUM.sa")
-
-tic("uid")
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
-  rowwise() |>
-  mutate(all_ids = list(
-    c(
-      PERMIT_VESSEL_ID,
-      VESSEL_VESSEL_ID,
-      COAST_GUARD_NBR.gom,
-      SERO_OFFICIAL_NUMBER.gom,
-      STATE_REG_NBR.gom,
-      SUPPLIER_VESSEL_ID.gom,
-      VESSEL_ALT_NUM.gom,
-      COAST_GUARD_NBR.sa,
-      SERO_OFFICIAL_NUMBER.sa,
-      STATE_REG_NBR.sa,
-      SUPPLIER_VESSEL_ID.sa,
-      VESSEL_ALT_NUM.sa
-    )
-  )) |>
-  mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
-  ungroup() |>
-  select(-any_of(id_names), -all_ids)
-toc()
-
-dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
-# 8949 37
-dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid)
-# [1] 8949   39
-# [1] 8949   26
-
-## fewer fields
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid %>%
-  select(eff_int_gom, eff_int_sa, unique_all_vessel_ids, permit_sa_gom)
-
-dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short)
-# [1] 8949    4
 
 ## split permits by region again ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
