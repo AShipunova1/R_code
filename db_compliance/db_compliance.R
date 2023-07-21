@@ -193,6 +193,7 @@ toc()
 #   View()
 
 ## mark dual ----
+# Dual only if GOM and SA for the same period
 # dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv)
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
@@ -495,6 +496,31 @@ glimpse(reg_cnts)
  # $ : chr [1:3] "dual" "917" "275"
  # $ : chr [1:3] "gom_only" "2066" "1322"
  # $ : chr [1:3] "sa_only" "6459" "3956"
+
+### what makes them duplicates ----
+#### in dual ----
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |> dim()
+# 917
+
+# FL3610NF 4
+
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
+  select(-starts_with("EXPIRATION_DATE"),
+    -starts_with("END_DATE"),
+    -permit_sa_gom
+    # ,
+    # -c(my_end_date,
+    # permit_sa_gom)
+  ) |>
+  distinct() |>
+  # filter(grepl("FL3610NF", unique_all_vessel_ids)) |> 
+  # View()
+# [1] 472  13
+
+
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |> 
+#   filter(grepl("FL3610NF", unique_all_vessel_ids)) |> 
+#   View()
 
 ## check if the same vessel in dual and not ----
 dual_gom <-
