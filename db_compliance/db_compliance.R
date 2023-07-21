@@ -49,37 +49,10 @@ vessels_permits_2022_r <-
 
 # print_df_names(vessels_permits_2022_r)
 
-## Fewer fields for vessels_permits_2022_r ----
-vessels_permits_2022_r_short <-
-  vessels_permits_2022_r |>
-  select(
-    PERMIT_VESSEL_ID,
-    VESSEL_VESSEL_ID,
-    COAST_GUARD_NBR,
-    SERO_OFFICIAL_NUMBER,
-    STATE_REG_NBR,
-    SUPPLIER_VESSEL_ID,
-    VESSEL_ALT_NUM,
-    EFFECTIVE_DATE,
-    END_DATE,
-    EXPIRATION_DATE,
-    permit_sa_gom
-  ) |>
-  distinct()
-
-# dim(vessels_permits_2022_r)
-# [1] 40474    52
-# dim(vessels_permits_2022_r_short)
-# [1] 9442   11
-
-# vessels_permits_2022_r_short |> 
-#   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
-# 23 is here
-
 ## add my_end_date ----
-# print_df_names(vessels_permits_2022_r)
+tic("add my_end_date")
 vessels_permits_2022_r_end_date <-
-  vessels_permits_2022_r_short |>
+  vessels_permits_2022_r |>
   rowwise() |> 
   mutate(my_end_date =
            case_when((END_DATE < EFFECTIVE_DATE) &
@@ -91,19 +64,66 @@ vessels_permits_2022_r_end_date <-
            )) %>%
   # select(-c(END_DATE,
             # EXPIRATION_DATE)) %>%
+  dplyr::ungroup() |> 
+  distinct()
+toc()
+# add my_end_date: 25.6 sec elapsed
+
+dim(vessels_permits_2022_r_end_date)
+# [1] 20231    53
+
+## Fewer fields for vessels_permits_2022_r ----
+vessels_permits_2022_r_short <-
+  vessels_permits_2022_r_end_date |>
+  select(
+    PERMIT_VESSEL_ID,
+    VESSEL_VESSEL_ID,
+    COAST_GUARD_NBR,
+    SERO_OFFICIAL_NUMBER,
+    STATE_REG_NBR,
+    SUPPLIER_VESSEL_ID,
+    VESSEL_ALT_NUM,
+    EFFECTIVE_DATE,
+    END_DATE,
+    EXPIRATION_DATE,
+    permit_sa_gom,
+    my_end_date
+  ) |>
   distinct()
 
-# vessels_permits_2022_r_end_date |> 
-#   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
-# correct now
+dim(vessels_permits_2022_r)
+# [1] 40474    52
+dim(vessels_permits_2022_r_short)
+# [1] 9442   12
 
-# View(vessels_permits_2022_r_end_date)
-# [1] 20231    51
-# short
-# [1] 9433   10
+# vessels_permits_2022_r_short |>
+#   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
+# 2023 is here, ok
+
+## get the earliest and the latest permit dates ----
+vessels_permits_2022_r_mm <-
+  vessels_permits_2022_r_short |>
+  group_by(
+    PERMIT_VESSEL_ID,
+    VESSEL_VESSEL_ID,
+    COAST_GUARD_NBR,
+    SERO_OFFICIAL_NUMBER,
+    STATE_REG_NBR,
+    SUPPLIER_VESSEL_ID,
+    VESSEL_ALT_NUM
+  ) |>
+  mutate(
+    min_permit_eff_date = min(EFFECTIVE_DATE),
+    max_permit_end_date = max(my_end_date)
+  ) |>
+  ungroup()
+
+dim(vessels_permits_2022_r_mm)
+# [1] 9442   14
+
+# View(vessels_permits_2022_r_mm)
 
 ## add weeks and months ----
-# print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
 
 vessels_permits_2022_r_end_date_w_y <-
 vessels_permits_2022_r_end_date |>
@@ -130,6 +150,7 @@ vessels_permits_2022_r_end_date |>
 
 # dim(vessels_permits_2022_r_end_date_w_y)
 # [1] 9433   16
+# [1] 9442   18
 
 ## split by permit ----
 vessels_permits_2022_r_end_date_l <-
@@ -140,6 +161,8 @@ map_df(vessels_permits_2022_r_end_date_l, dim)
 #   gom_only sa_only
 # 1     2525    6908
 # 2       16      16
+# 1     2528    6914
+# 2       18      18
 
 ## join by overlap of gom and sa (= dual) ----
 # From Help:
@@ -171,12 +194,12 @@ dim(vessels_permits_2022_r_end_date_l_overlap_join)
 # [1] 20918   112
 # short
 # [1] 8939   30
+# [1] 8949   34
 
 vessels_permits_2022_r_end_date_l_overlap_join %>%
   select(VESSEL_VESSEL_ID) %>%
   distinct() %>%
   dim()
-# select(PERMIT_VESSEL_ID) %>%
 # [1] 5461    1
 
 vessels_permits_2022 %>%
@@ -190,7 +213,7 @@ vessels_permits_2022 %>%
          VESSEL_ALT_NUM) %>%
   distinct() %>%
   dim()
-# [1] 5462    1
+# [1] 5462    3
 
 ### add "dual" to intervals ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual <-
@@ -203,7 +226,8 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual <-
                dplyr::coalesce(permit_sa_gom.sa,
                                permit_sa_gom.gom)
 
-           ))
+           )) |> 
+  ungroup()
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual %>%
   select(permit_sa_gom) %>%
@@ -213,6 +237,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual %>%
 dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
 # [1] 20918   114
 # [1] 8939   31
+# [1] 8949   35
 
 # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
 
@@ -242,6 +267,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 <-
 toc()
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 225.5 sec elapsed
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 231.15 sec elapsed
+# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 0.24 sec elapsed
 
 #### check ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
@@ -290,9 +316,10 @@ id_names <- c(
   "SUPPLIER_VESSEL_ID.sa",
   "VESSEL_ALT_NUM.sa")
 
+tic("uid")
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
-  # rowwise() |>
+  rowwise() |>
   mutate(all_ids = list(
     c(
       PERMIT_VESSEL_ID,
@@ -312,10 +339,11 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid <-
   mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
   ungroup() |>
   select(-any_of(id_names), -all_ids)
+toc()
 
-# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
+dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
 # 8949 37
-# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid)
+dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid)
 # [1] 8949   39
 # [1] 8949   26
 
@@ -324,7 +352,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid %>%
   select(eff_int_gom, eff_int_sa, unique_all_vessel_ids, permit_sa_gom)
 
-# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short)
+dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short)
 # [1] 8949    4
 
 ## split permits by region again ----
@@ -367,6 +395,19 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list,
   # if (!lubridate::int_overlaps(int1, int2)) {
   #   stop("Intervals do not overlap")
   # }
+
+glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only)
+vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only %>%
+  group_by(unique_all_vessel_ids) |>
+  # mutate(eff_int_gom_union =
+  #          lubridate::union(eff_int_gom)
+  # doesn't work for 1
+  #          )
+  mutate(min_p_start = min())
+    max(eff_int_gom)
+
+
+
 get_max_p_int <- function(my_df) {
   my_df |>
     group_by(unique_all_vessel_ids, permit_sa_gom) |>
