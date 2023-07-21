@@ -261,12 +261,9 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual)
 # to get dual in the overlapping period:
 # filter(!is.na(permit_sa_gom.sa))
 
-# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
-# [1] 8949   35
-
-tic("vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22")
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual %>%
+tic("vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22")
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
   mutate(
     eff_int_gom =
       lubridate::interval(EFFECTIVE_DATE.gom,
@@ -275,83 +272,57 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 <-
       lubridate::interval(EFFECTIVE_DATE.sa,
                           my_end_date.sa)
   ) %>% 
-  #   mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
   filter(int_overlaps(eff_int_gom,
                       interval_2022) |
            int_overlaps(eff_int_sa,
                       interval_2022)
          )
 toc()
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 225.5 sec elapsed
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 231.15 sec elapsed
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 0.24 sec elapsed
 
 #### check ----
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
   select(permit_sa_gom) %>%
   distinct()
 # all 3
 
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
-#   filter(!VESSEL_VESSEL_ID == PERMIT_VESSEL_ID) |>
-#   dim()
-# [1] 8822   33
-
-
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
   filter(permit_sa_gom == "dual") %>%
-  # select(VESSEL_VESSEL_ID) %>%
-  select(PERMIT_VESSEL_ID) %>%
+  select(unique_all_vessel_ids) %>%
   distinct() %>%
   dim()
-# 379
-# 353
 # 357
 
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
-  select(PERMIT_VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-  filter(!(PERMIT_VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
-dim()
-# 660
-# 636
-# [1] 274   3
-# 282
-
 ## split permits by region again ----
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid %>%
-  split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid$permit_sa_gom))
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22__list <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
+  split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22$permit_sa_gom))
 
-map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
+map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22__list, dim)
 #    dual gom_only sa_only
 # 1   635     1879    6308
 # 2    33       33      33
 # 1   653     1940    6356
 # 2    37       37      37
 # 2    26       26      26
-
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short %>%
-  split(as.factor(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short$permit_sa_gom))
-
-map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list, dim)
-# 1   653     1940    6356
-# 2     4        4       4
+# 2    30       30      30
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
 
 ## union intervals ----
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$dual %<>%
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22__list$dual %<>%
   mutate(union_int_sa_gom =
            lubridate::union(eff_int_gom, eff_int_sa))
 
-map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list, dim)
+map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22__list, dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1   653     1940    6356
 # 2     5        4       4
+# 2    31       30      30
 
+glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22__list$dual)
 ### the biggest permit interval ----
   # .ints <- purrr::map(list(int1 = int1, int2 = int2), lubridate::int_standardize)
   # if (!lubridate::int_overlaps(int1, int2)) {
