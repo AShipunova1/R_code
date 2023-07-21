@@ -126,7 +126,7 @@ dim(vessels_permits_2022_r_end_date_uid_short)
 # print_df_names(vessels_permits_2022_r_end_date_uid_short)
 vessels_permits_2022_r_end_date_uid_short_mm <-
   vessels_permits_2022_r_end_date_uid_short |>
-  group_by(unique_all_vessel_ids) |>
+  group_by(unique_all_vessel_ids, permit_sa_gom) |>
   mutate(
     min_permit_eff_date = min(EFFECTIVE_DATE),
     max_permit_end_date = max(my_end_date)
@@ -168,6 +168,22 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y <-
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # [1] 9433   16
 # [1] 9442   14
+
+## get permit periods ----
+glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
+  group_by(permit_sa_gom, )
+  
+  mutate(
+    eff_int_gom =
+      lubridate::interval(EFFECTIVE_DATE.gom,
+                          my_end_date.gom),
+    eff_int_sa =
+      lubridate::interval(EFFECTIVE_DATE.sa,
+                          my_end_date.sa)
+  ) %>% 
+
 
 ## mark dual ----
 glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
@@ -277,8 +293,8 @@ vessels_permits_2022_r_10_dual_maybe <-
          permit_sa_gom) |>
   distinct()
 
-write_csv(vessels_permits_2022_r_10_dual_maybe,
-          "vessels_permits_2022_dual_maybe.csv")
+# write_csv(vessels_permits_2022_r_10_dual_maybe,
+#           "vessels_permits_2022_dual_maybe.csv")
 
 ## split by permit ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_l <-
