@@ -84,8 +84,8 @@ id_names <- c(
   "VESSEL_VESSEL_ID")
 
 tic("uid")
-vessels_permits_2022_r_uid <-
-  vessels_permits_2022_r |>
+vessels_permits_2022_r_end_date_uid <-
+  vessels_permits_2022_r_end_date |>
   rowwise() |>
   mutate(all_ids = list(
     c(
@@ -102,17 +102,24 @@ vessels_permits_2022_r_uid <-
   ungroup()
 toc()
 
-dim(vessels_permits_2022_r_short)
+dim(vessels_permits_2022_r_end_date_uid)
+# [1] 20231    55
 # [1] 9442   12
-dim(vessels_permits_2022_r_short_uid)
-# [1] 9442   14
 
 ### fewer fields ----
-vessels_permits_2022_r_short_uid_short <-
-  vessels_permits_2022_r_short_uid |> 
-  select(-any_of(id_names), -all_ids)
+vessels_permits_2022_r_end_date_uid_short <-
+  vessels_permits_2022_r_end_date_uid |>
+  select(
+    EFFECTIVE_DATE,
+    END_DATE,
+    EXPIRATION_DATE,
+    permit_sa_gom,
+    my_end_date,
+    unique_all_vessel_ids
+  ) |> 
+  distinct()
 
-dim(vessels_permits_2022_r_short_uid_short)
+dim(vessels_permits_2022_r_end_date_uid_short)
 # [1] 9442    6
 
 ## get the earliest and the latest permit dates ----
