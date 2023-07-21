@@ -323,136 +323,155 @@ vessels_permits_2022_r_10_dual_maybe <-
 # write_csv(vessels_permits_2022_r_10_dual_maybe,
 #           "vessels_permits_2022_dual_maybe.csv")
 
-## split by permit ----
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
-  split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y$permit_sa_gom))
+## split by permit to get dual in another way ----
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l <-
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
+#   split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y$permit_sa_gom))
+# 
+# map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l, dim)
+# #   gom_only sa_only
+# # 1     2525    6908
+# # 2       16      16
+# # 1     2528    6914
+# # 2       14      14
+# 
+### join by overlap of gom and sa (= dual) ----
+# # From Help:
+# # It is common to have right-open ranges with bounds like `[)`, which would
+# # mean an end value of `415` would no longer overlap a start value of `415`.
+# # Setting `bounds` allows you to compute overlaps with those kinds of ranges.
+# # View(vessels_permits_2022)
+# # View(vessels_permits_2022_r_end_date_l$gom_only)
+# by <- join_by(unique_all_vessel_ids,
+#               overlaps(x$EFFECTIVE_DATE,
+#                        x$my_end_date,
+#                        y$EFFECTIVE_DATE,
+#                        y$my_end_date,
+#                        bounds = "[)"))
+# 
+# tic("vessels_permits_2022_r_end_date_overlap_join")
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join <-
+#   full_join(
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l$gom_only,
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l$sa_only,
+#   by,
+#   suffix = c(".gom", ".sa")
+# )
+# toc()
+# # permit_info_r_l_overlap_join1: 0.66 sec elapsed
+# 
+# dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
+# # [1] 20918   112
+# # short
+# # [1] 8939   30
+# # [1] 8949   34
+# # [1] 9442   14
+# 
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
+#   select(unique_all_vessel_ids) %>%
+#   distinct() %>%
+#   dim()
+# # [1] 5461    1
+# 
+# vessels_permits_2022 %>%
+#   # select(QCSJ_C000000000300000
+#   # [1] 5461    1
+#   # select(QCSJ_C000000000300001
+#   # [1] 5461    1
+#   select(QCSJ_C000000000300000,
+#          QCSJ_C000000000300001,
+#          VESSEL_ALT_NUM) %>%
+#   distinct() %>%
+#   dim()
+# # [1] 5462    3 (+NA)
+# 
+ ### add "dual" to intervals ----
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual <-
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
+#   mutate(permit_sa_gom =
+#            case_when(
+#              !is.na(permit_sa_gom.sa) &
+#                !is.na(permit_sa_gom.gom) ~ "dual",
+#              .default =
+#                dplyr::coalesce(permit_sa_gom.sa,
+#                                permit_sa_gom.gom)
+# 
+#            )) |> 
+#   ungroup()
+# 
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
+#   select(permit_sa_gom) %>%
+#   distinct()
+# # all 3
+# 
+# dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual)
+# # [1] 20918   114
+# # [1] 8939   31
+# # [1] 8949   35
+# # [1] 8949   28
+# 
+# # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
+# 
+# # to get dual in the overlapping period:
+# # filter(!is.na(permit_sa_gom.sa))
+# 
+# tic("vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22")
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 <-
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
+#   mutate(
+#     eff_int_gom =
+#       lubridate::interval(EFFECTIVE_DATE.gom,
+#                           my_end_date.gom),
+#     eff_int_sa =
+#       lubridate::interval(EFFECTIVE_DATE.sa,
+#                           my_end_date.sa)
+#   ) %>% 
+#   filter(int_overlaps(eff_int_gom,
+#                       interval_2022) |
+#            int_overlaps(eff_int_sa,
+#                       interval_2022)
+#          )
+# toc()
+# # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 0.24 sec elapsed
+# 
+#### check ----
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
+#   select(permit_sa_gom) %>%
+#   distinct()
+# # all 3
+# 
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
+#   filter(permit_sa_gom == "dual") %>%
+#   select(unique_all_vessel_ids) %>%
+#   distinct() %>%
+#   dim()
+# # 357
 
-map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l, dim)
-#   gom_only sa_only
-# 1     2525    6908
-# 2       16      16
-# 1     2528    6914
-# 2       14      14
+## split permits by region ----
+# can't do now, whern the same vessel can be in sa_only or gom only
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list <-
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual %>%
+#   split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22$permit_sa_gom))
 
-## join by overlap of gom and sa (= dual) ----
-# From Help:
-# It is common to have right-open ranges with bounds like `[)`, which would
-# mean an end value of `415` would no longer overlap a start value of `415`.
-# Setting `bounds` allows you to compute overlaps with those kinds of ranges.
-# View(vessels_permits_2022)
-# View(vessels_permits_2022_r_end_date_l$gom_only)
-by <- join_by(unique_all_vessel_ids,
-              overlaps(x$EFFECTIVE_DATE,
-                       x$my_end_date,
-                       y$EFFECTIVE_DATE,
-                       y$my_end_date,
-                       bounds = "[)"))
-
-tic("vessels_permits_2022_r_end_date_overlap_join")
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join <-
-  full_join(
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l$gom_only,
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l$sa_only,
-  by,
-  suffix = c(".gom", ".sa")
+tic("split_by eff_int and region")
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual %>%
+  # split(a, f = list(groups, groups_2))
+  split(f = list(
+    as.factor(
+      vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual$permit_sa_gom
+    ),
+    as.factor(
+      vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual$eff_int
+    )
+  )
 )
 toc()
-# permit_info_r_l_overlap_join1: 0.66 sec elapsed
+# split_by eff_int and region: 5.22 sec elapsed
+# A tibble: 2 × 5,370
+  # gom_only.2022-03-23 00:00:00 …¹ sa_only.2022-03-23 0…² gom_only.2021-12-14 …³
 
-dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
-# [1] 20918   112
-# short
-# [1] 8939   30
-# [1] 8949   34
-# [1] 9442   14
-
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
-  select(unique_all_vessel_ids) %>%
-  distinct() %>%
-  dim()
-# [1] 5461    1
-
-vessels_permits_2022 %>%
-  # select(QCSJ_C000000000300000
-  # [1] 5461    1
-  # select(QCSJ_C000000000300001
-  # [1] 5461    1
-  select(QCSJ_C000000000300000,
-         QCSJ_C000000000300001,
-         VESSEL_ALT_NUM) %>%
-  distinct() %>%
-  dim()
-# [1] 5462    3 (+NA)
-
-### add "dual" to intervals ----
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
-  mutate(permit_sa_gom =
-           case_when(
-             !is.na(permit_sa_gom.sa) &
-               !is.na(permit_sa_gom.gom) ~ "dual",
-             .default =
-               dplyr::coalesce(permit_sa_gom.sa,
-                               permit_sa_gom.gom)
-
-           )) |> 
-  ungroup()
-
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
-  select(permit_sa_gom) %>%
-  distinct()
-# all 3
-
-dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual)
-# [1] 20918   114
-# [1] 8939   31
-# [1] 8949   35
-# [1] 8949   28
-
-# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
-
-# to get dual in the overlapping period:
-# filter(!is.na(permit_sa_gom.sa))
-
-tic("vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22")
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
-  mutate(
-    eff_int_gom =
-      lubridate::interval(EFFECTIVE_DATE.gom,
-                          my_end_date.gom),
-    eff_int_sa =
-      lubridate::interval(EFFECTIVE_DATE.sa,
-                          my_end_date.sa)
-  ) %>% 
-  filter(int_overlaps(eff_int_gom,
-                      interval_2022) |
-           int_overlaps(eff_int_sa,
-                      interval_2022)
-         )
-toc()
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 0.24 sec elapsed
-
-#### check ----
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
-  select(permit_sa_gom) %>%
-  distinct()
-# all 3
-
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
-  filter(permit_sa_gom == "dual") %>%
-  select(unique_all_vessel_ids) %>%
-  distinct() %>%
-  dim()
-# 357
-
-## split permits by region again ----
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22__list <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
-  split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22$permit_sa_gom))
-
-map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22__list, dim)
+map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 #    dual gom_only sa_only
 # 1   635     1879    6308
 # 2    33       33      33
