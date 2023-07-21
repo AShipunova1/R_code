@@ -100,7 +100,7 @@ dim(vessels_permits_2022_r_short)
 #   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
 # 2023 is here, ok
 
-## fewer v ids ----
+## combine v ids ----
 
 id_names <- c(
   "COAST_GUARD_NBR",
@@ -117,18 +117,13 @@ vessels_permits_2022_r_short_uid <-
   rowwise() |>
   mutate(all_ids = list(
     c(
-      PERMIT_VESSEL_ID,
-      VESSEL_VESSEL_ID,
       COAST_GUARD_NBR,
+      PERMIT_VESSEL_ID,
       SERO_OFFICIAL_NUMBER,
       STATE_REG_NBR,
       SUPPLIER_VESSEL_ID,
       VESSEL_ALT_NUM,
-      COAST_GUARD_NBR,
-      SERO_OFFICIAL_NUMBER,
-      STATE_REG_NBR,
-      SUPPLIER_VESSEL_ID,
-      VESSEL_ALT_NUM
+      VESSEL_VESSEL_ID
     )
   )) |>
   mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
@@ -138,8 +133,8 @@ toc()
 
 dim(vessels_permits_2022_r_short)
 # [1] 9442   12
-dim(vessels_permits_2022_r_short_uid)
-# [1] 9442   11
+View(vessels_permits_2022_r_short_uid)
+# [1] 9442   6
 
 ### fewer fields ----
 vessels_permits_2022_r_short_uid_short <-
