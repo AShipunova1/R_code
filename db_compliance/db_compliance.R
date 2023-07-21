@@ -169,6 +169,19 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # [1] 9433   16
 # [1] 9442   14
 
+## mark dual ----
+glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
+
+vessels_permits_2022_r_end_date_uid_short_mm_w_y |> 
+  group_by(unique_all_vessel_ids) |> 
+  mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |> 
+  # , "328460
+  # ungroup() |>
+  # filter(grepl("FL3610NF", unique_all_vessel_ids)) |> 
+  filter(grepl("FL8701TB|FL3610NF", unique_all_vessel_ids)) |> 
+  mutate(all_permit_sa_gom_size = length(all_permit_sa_gom[[1]])) |> 
+  glimpse()
+
 ## split by permit ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_l <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
