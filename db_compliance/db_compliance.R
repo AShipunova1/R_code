@@ -140,6 +140,12 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm)
 #   filter(grepl('FL8701TB', unique_all_vessel_ids)) |> View()
 # 2023 is here, ok
 
+# vessels_permits_2022_r_end_date_uid_short_mm |>
+#   filter(grepl('FL9004NX', unique_all_vessel_ids)) |>
+#   View()
+# diff sa / gom
+
+
 ## add weeks and months ----
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y <-
@@ -170,20 +176,21 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # [1] 9442   14
 
 ## get permit periods ----
-glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
+tic("get permit periods")
+# glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
-  group_by(permit_sa_gom, )
-  
-  mutate(
-    eff_int_gom =
-      lubridate::interval(EFFECTIVE_DATE.gom,
-                          my_end_date.gom),
-    eff_int_sa =
-      lubridate::interval(EFFECTIVE_DATE.sa,
-                          my_end_date.sa)
-  ) %>% 
+  group_by(permit_sa_gom, unique_all_vessel_ids) |>
+  mutate(eff_int =
+           lubridate::interval(min_permit_eff_date,
+                               max_permit_end_date)) |> 
+  ungroup()
+toc()
+# get permit periods: 46.29 sec elapsed
 
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |>
+  filter(grepl('FL9004NX', unique_all_vessel_ids)) |>
+  View()
 
 ## mark dual ----
 glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
