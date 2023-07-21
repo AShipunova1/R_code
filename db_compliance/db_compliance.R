@@ -72,34 +72,6 @@ toc()
 dim(vessels_permits_2022_r_end_date)
 # [1] 20231    53
 
-## Fewer fields for vessels_permits_2022_r ----
-vessels_permits_2022_r_short <-
-  vessels_permits_2022_r_end_date |>
-  select(
-    PERMIT_VESSEL_ID,
-    VESSEL_VESSEL_ID,
-    COAST_GUARD_NBR,
-    SERO_OFFICIAL_NUMBER,
-    STATE_REG_NBR,
-    SUPPLIER_VESSEL_ID,
-    VESSEL_ALT_NUM,
-    EFFECTIVE_DATE,
-    END_DATE,
-    EXPIRATION_DATE,
-    permit_sa_gom,
-    my_end_date
-  ) |>
-  distinct()
-
-dim(vessels_permits_2022_r)
-# [1] 40474    52
-dim(vessels_permits_2022_r_short)
-# [1] 9442   12
-
-# vessels_permits_2022_r_short |>
-#   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
-# 2023 is here, ok
-
 ## combine v ids ----
 
 id_names <- c(
@@ -112,8 +84,8 @@ id_names <- c(
   "VESSEL_VESSEL_ID")
 
 tic("uid")
-vessels_permits_2022_r_short_uid <-
-  vessels_permits_2022_r_short |>
+vessels_permits_2022_r_uid <-
+  vessels_permits_2022_r |>
   rowwise() |>
   mutate(all_ids = list(
     c(
@@ -127,46 +99,37 @@ vessels_permits_2022_r_short_uid <-
     )
   )) |>
   mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
-  ungroup() |>
-  select(-any_of(id_names), -all_ids)
+  ungroup()
 toc()
 
 dim(vessels_permits_2022_r_short)
 # [1] 9442   12
-View(vessels_permits_2022_r_short_uid)
-# [1] 9442   6
+dim(vessels_permits_2022_r_short_uid)
+# [1] 9442   14
 
 ### fewer fields ----
 vessels_permits_2022_r_short_uid_short <-
-  vessels_permits_2022_r_short_uid %>%
-  # select(eff_int_gom, eff_int_sa, unique_all_vessel_ids, permit_sa_gom)
-  select(-all_of(id_names))
+  vessels_permits_2022_r_short_uid |> 
+  select(-any_of(id_names), -all_ids)
 
-dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short)
-# [1] 8949    4
+dim(vessels_permits_2022_r_short_uid_short)
+# [1] 9442    6
 
 ## get the earliest and the latest permit dates ----
-vessels_permits_2022_r_short_mm <-
-  vessels_permits_2022_r_short |>
-  group_by(
-    PERMIT_VESSEL_ID,
-    VESSEL_VESSEL_ID,
-    COAST_GUARD_NBR,
-    SERO_OFFICIAL_NUMBER,
-    STATE_REG_NBR,
-    SUPPLIER_VESSEL_ID,
-    VESSEL_ALT_NUM
-  ) |>
+# print_df_names(vessels_permits_2022_r_short_uid)
+vessels_permits_2022_r_short_uid_mm <-
+  vessels_permits_2022_r_short_uid |>
+  group_by(unique_all_vessel_ids) |>
   mutate(
     min_permit_eff_date = min(EFFECTIVE_DATE),
     max_permit_end_date = max(my_end_date)
   ) |>
   ungroup()
 
-dim(vessels_permits_2022_r_mm)
-# [1] 9442   14
+dim(vessels_permits_2022_r_short_uid_mm)
+# [1] 9442   6
 
-# View(vessels_permits_2022_r_mm)
+
 
 ## add weeks and months ----
 
