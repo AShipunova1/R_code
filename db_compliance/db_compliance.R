@@ -447,29 +447,14 @@ vessels_permits_2022_r_10_dual_maybe <-
 #   dim()
 # # 357
 
+## check if the same vessel in dual and not ----
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |> filter(permit_sa_gom_dual ==)
+
 ## split permits by region ----
 # can't do now, whern the same vessel can be in sa_only or gom only
-# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list <-
-#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual %>%
-#   split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22$permit_sa_gom))
-
-tic("split_by eff_int and region")
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual %>%
-  # split(a, f = list(groups, groups_2))
-  split(f = list(
-    as.factor(
-      vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual$permit_sa_gom
-    ),
-    as.factor(
-      vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual$eff_int
-    )
-  )
-)
-toc()
-# split_by eff_int and region: 5.22 sec elapsed
-# A tibble: 2 × 5,370
-  # gom_only.2022-03-23 00:00:00 …¹ sa_only.2022-03-23 0…² gom_only.2021-12-14 …³
+  split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual$permit_sa_gom_dual))
 
 map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 #    dual gom_only sa_only
@@ -479,6 +464,8 @@ map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 # 2    37       37      37
 # 2    26       26      26
 # 2    30       30      30
+# 1   917     2066    6459 (the same vessel in diff cat)
+# 2    16       16      16
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
