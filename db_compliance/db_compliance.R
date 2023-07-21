@@ -123,9 +123,9 @@ dim(vessels_permits_2022_r_end_date_uid_short)
 # [1] 9442    6
 
 ## get the earliest and the latest permit dates ----
-# print_df_names(vessels_permits_2022_r_short_uid)
-vessels_permits_2022_r_short_uid_mm <-
-  vessels_permits_2022_r_short_uid |>
+# print_df_names(vessels_permits_2022_r_end_date_uid_short)
+vessels_permits_2022_r_end_date_uid_short_mm <-
+  vessels_permits_2022_r_end_date_uid_short |>
   group_by(unique_all_vessel_ids) |>
   mutate(
     min_permit_eff_date = min(EFFECTIVE_DATE),
@@ -133,15 +133,17 @@ vessels_permits_2022_r_short_uid_mm <-
   ) |>
   ungroup()
 
-dim(vessels_permits_2022_r_short_uid_mm)
-# [1] 9442   6
+dim(vessels_permits_2022_r_end_date_uid_short_mm)
+# [1] 9442   8
 
-
+# vessels_permits_2022_r_end_date_uid_short_mm |>
+#   filter(grepl('FL8701TB', unique_all_vessel_ids)) |> View()
+# 2023 is here, ok
 
 ## add weeks and months ----
 
-vessels_permits_2022_r_end_date_w_y <-
-vessels_permits_2022_r_end_date |>
+vessels_permits_2022_r_end_date_uid_short_mm_w_y <-
+  vessels_permits_2022_r_end_date_uid_short_mm |>
     mutate(
     EFFECTIVE_DATE_week_num =
       strftime(EFFECTIVE_DATE, format = "%U"),
@@ -163,21 +165,21 @@ vessels_permits_2022_r_end_date |>
       as.double(my_end_week_num)
   )
 
-# dim(vessels_permits_2022_r_end_date_w_y)
+dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # [1] 9433   16
-# [1] 9442   18
+# [1] 9442   14
 
 ## split by permit ----
-vessels_permits_2022_r_end_date_l <-
-  vessels_permits_2022_r_end_date_w_y %>%
-  split(as.factor(vessels_permits_2022_r_end_date_w_y$permit_sa_gom))
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
+  split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y$permit_sa_gom))
 
-map_df(vessels_permits_2022_r_end_date_l, dim)
+map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l, dim)
 #   gom_only sa_only
 # 1     2525    6908
 # 2       16      16
 # 1     2528    6914
-# 2       18      18
+# 2       14      14
 
 ## join by overlap of gom and sa (= dual) ----
 # From Help:
@@ -186,8 +188,7 @@ map_df(vessels_permits_2022_r_end_date_l, dim)
 # Setting `bounds` allows you to compute overlaps with those kinds of ranges.
 # View(vessels_permits_2022)
 # View(vessels_permits_2022_r_end_date_l$gom_only)
-by <- join_by(PERMIT_VESSEL_ID,
-              VESSEL_VESSEL_ID,
+by <- join_by(unique_all_vessel_ids,
               overlaps(x$EFFECTIVE_DATE,
                        x$my_end_date,
                        y$EFFECTIVE_DATE,
@@ -195,24 +196,25 @@ by <- join_by(PERMIT_VESSEL_ID,
                        bounds = "[)"))
 
 tic("vessels_permits_2022_r_end_date_overlap_join")
-vessels_permits_2022_r_end_date_l_overlap_join <-
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join <-
   full_join(
-  vessels_permits_2022_r_end_date_l$gom_only,
-  vessels_permits_2022_r_end_date_l$sa_only,
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l$gom_only,
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l$sa_only,
   by,
   suffix = c(".gom", ".sa")
 )
 toc()
 # permit_info_r_l_overlap_join1: 0.66 sec elapsed
 
-dim(vessels_permits_2022_r_end_date_l_overlap_join)
+dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # [1] 20918   112
 # short
 # [1] 8939   30
 # [1] 8949   34
+# [1] 9442   14
 
-vessels_permits_2022_r_end_date_l_overlap_join %>%
-  select(VESSEL_VESSEL_ID) %>%
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
+  select(unique_all_vessel_ids) %>%
   distinct() %>%
   dim()
 # [1] 5461    1
@@ -222,17 +224,16 @@ vessels_permits_2022 %>%
   # [1] 5461    1
   # select(QCSJ_C000000000300001
   # [1] 5461    1
-
   select(QCSJ_C000000000300000,
          QCSJ_C000000000300001,
          VESSEL_ALT_NUM) %>%
   distinct() %>%
   dim()
-# [1] 5462    3
+# [1] 5462    3 (+NA)
 
 ### add "dual" to intervals ----
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual <-
-  vessels_permits_2022_r_end_date_l_overlap_join %>%
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
   mutate(permit_sa_gom =
            case_when(
              !is.na(permit_sa_gom.sa) &
@@ -244,15 +245,16 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual <-
            )) |> 
   ungroup()
 
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual %>%
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
   select(permit_sa_gom) %>%
   distinct()
 # all 3
 
-dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
+dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual)
 # [1] 20918   114
 # [1] 8939   31
 # [1] 8949   35
+# [1] 8949   28
 
 # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
 
