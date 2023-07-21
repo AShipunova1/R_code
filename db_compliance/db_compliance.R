@@ -172,21 +172,113 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 ## mark dual ----
 glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 
-vessels_permits_2022_r_end_date_uid_short_mm_w_y |> 
-  group_by(unique_all_vessel_ids) |> 
-  mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |> 
-  # ungroup() |>
-  # filter(grepl("FL3610NF", unique_all_vessel_ids)) |> 
-  filter(grepl("FL8701TB|FL3610NF", unique_all_vessel_ids)) |> 
-  mutate(all_permit_sa_gom_size = lengths(all_permit_sa_gom)) |>   mutate(permit_sa_gom_dual = 
-           case_when(all_permit_sa_gom_size > 1 ~
-                        "dual",
-                      .default = permit_sa_gom)
-  ) |> 
-           # length(all_permit_sa_gom[[1]])) |> 
-  select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) 
-# |> 
-#   glimpse()
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y |>
+  # for each vessel
+  group_by(unique_all_vessel_ids) |>
+  # create a list of all permit regions
+  mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |>
+  # get the length of each list of permits
+  mutate(all_permit_sa_gom_size = lengths(all_permit_sa_gom)) |>
+  # if there are both sa and gom mark as dual,
+  # otherwise keep the original permit region
+  mutate(permit_sa_gom_dual =
+           case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
+                     .default = permit_sa_gom)) |>
+  # remove temporary columns
+  select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
+  ungroup()
+
+### check ----
+dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual)
+# [1] 9442   15
+
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual |> 
+  filter(grepl("FL8701TB|FL3610NF", unique_all_vessel_ids)) |>
+  select(unique_all_vessel_ids,
+         permit_sa_gom_dual) |> 
+  distinct() |> 
+  glimpse()
+# $ unique_all_vessel_ids <list> <"FL3610NF", "328460">, <"FL8701TB", …
+# $ permit_sa_gom_dual    <chr> "dual", "sa_only"
+
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual__dual_ids <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual |> 
+  filter(permit_sa_gom_dual == "dual") |> 
+  select(unique_all_vessel_ids) |> 
+  distinct()
+
+dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual__dual_ids)
+# [1] 367   1
+
+old_dual_v_ids <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual |> 
+  filter(permit_sa_gom == "dual") |> 
+  select(unique_all_vessel_ids) |> 
+  distinct()
+
+dim(old_dual_v_ids)
+# [1] 357   1
+
+intersect(vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual__dual_ids$unique_all_vessel_ids,
+          old_dual_v_ids$unique_all_vessel_ids) |> 
+  length()
+# 357
+
+in_new_dual_only <-
+  setdiff(vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual__dual_ids$unique_all_vessel_ids,
+          old_dual_v_ids$unique_all_vessel_ids)
+glimpse(in_new_dual_only)
+# 10
+
+setdiff(old_dual_v_ids$unique_all_vessel_ids,
+        vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual__dual_ids$unique_all_vessel_ids) |> 
+  length()
+# 0
+
+#### why not in old?
+# glimpse(in_new_dual_only)
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual |> 
+  filter(grepl("FL9004NX", unique_all_vessel_ids)) |>
+  glimpse()
+# $ permit_sa_gom           <chr> "sa_only", "gom_only"
+
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual |> 
+  filter(grepl("FL9004NX", unique_all_vessel_ids)) |>
+  glimpse()
+# $ permit_sa_gom               <chr> "gom_only", "sa_only"
+
+vessels_permits_2022_r |> 
+  # filter(PERMIT_VESSEL_ID == "FL9004NX") |>
+  filter(PERMIT_VESSEL_ID == "TX6550AU") |>
+  View()
+
+vessels_dual_maybe <- c("1074262",
+"1145285",
+"1152092",
+"567241",
+"609460",
+"960433",
+"FL7422NT",
+"FL7812SM",
+"FL9004NX",
+"TX6550AU")
+
+# vessels_permits_2022_r |> 
+#   filter(PERMIT_VESSEL_ID %in% vessels_dual_maybe) |> 
+#   View()
+
+vessels_permits_2022_r_10_dual_maybe <-
+  vessels_permits_2022_r |>
+  filter(PERMIT_VESSEL_ID %in% vessels_dual_maybe) |>
+  select(PERMIT_VESSEL_ID, EFFECTIVE_DATE,
+         END_DATE,
+         PERMIT_STATUS,
+         permit_sa_gom) |>
+  distinct()
+
+write_csv(vessels_permits_2022_r_10_dual_maybe,
+          "vessels_permits_2022_dual_maybe.csv")
 
 ## split by permit ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_l <-
