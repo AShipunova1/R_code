@@ -329,8 +329,6 @@ vessels_trip_neg_2022 <-
                   )
 # 2023-07-24 run the function: 125.96 sec elapsed
 
-
-
 # get vessels and trip notifications 2022 ----
 # to have vessel official number
 vessels_trip_notifications__file_name <-
