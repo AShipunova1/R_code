@@ -804,54 +804,86 @@ data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
 # permit_eff_int_2022      320
 # weeks_perm_2022_amnt      53
 
-## combine trips and trip_negative week cnts (logbooks + DNFs) ----
-# trips_info_2022_int_ah_w_y_weeks_cnt_u
-# trip_notifications_2022_ah_w_y_cnt_u
-# trip_neg_2022_w_y_cnt_u
-# intersect(
-# names(trips_info_2022_int_ah_w_y_weeks_cnt_u),
-# names(trip_neg_2022_w_y_cnt_u))
-# VESSEL_ID
+## remove vessel specific fields (get them from v_p if needed) ----
+names_to_rm <- 
+  c("SER_ID",
+    "UPDATED_FLAG",
+    "SERO_HOME_PORT_CITY",
+    "SERO_HOME_PORT_COUNTY",
+    "SERO_HOME_PORT_STATE",
+    "SERO_OFFICIAL_NUMBER",
+    "COUNTY_CODE",
+    "STATE_CODE",
+    "ENTRY_DATE",
+    "SUPPLIER_VESSEL_ID",
+    "PORT_CODE",
+    "HULL_ID_NBR",
+    "COAST_GUARD_NBR",
+    "STATE_REG_NBR",
+    "REGISTERING_STATE",
+    "VESSEL_NAME",
+    "PASSENGER_CAPACITY",
+    "VESSEL_TYPE",
+    "YEAR_BUILT",
+    "UPDATE_DATE",
+    "PRIMARY_GEAR",
+    "OWNER_ID",
+    "EVENT_ID_V",
+    "DE_V",
+    "UE_V",
+    "DC_V",
+    "UC_V",
+    "STATUS_V"
+  )
 
-t__tne__dates <-
+# print_df_names(v_trip_neg_2022_w_y_cnt_u)
+# print_df_names(v_trips_info_2022_int_ah_w_y_weeks_cnt_u)
+
+v_trip_neg_2022_w_y_cnt_u_short <-
+  v_trip_neg_2022_w_y_cnt_u |> 
+  select(-any_of(names_to_rm)) |> 
+  distinct()
+
+v_trips_info_2022_int_ah_w_y_weeks_cnt_u_short <-
+  v_trips_info_2022_int_ah_w_y_weeks_cnt_u |> 
+  select(-any_of(names_to_rm)) |> 
+  distinct()
+
+## combine trips and trip_negative week cnts (logbooks + DNFs) ----
+# intersect(names(v_trips_info_2022_int_ah_w_y),
+#          names(v_trip_neg_2022_w_y)) |> 
+#   paste(sep = ", ") |> cat()
+
+tic("t__tne_22")
+t__tne_22 <-
   full_join(
-    trips_info_2022_int_ah_w_y_dates,
-    trip_neg_2022_w_y_dates,
-    join_by(YEAR,
-            MONTH_OF_YEAR,
-            WEEK_OF_YEAR,
-            COMPLETE_DATE,
-            VESSEL_ID),
+    v_trips_info_2022_int_ah_w_y_weeks_cnt_u_short,
+    v_trip_neg_2022_w_y_cnt_u_short,
+    join_by(VESSEL_ID),
     relationship = "many-to-many",
     suffix = c(".t", ".tne")
   )
+toc()
 
-t__tne__dates_w_cnt_t <-
-  left_join(t__tne__dates,
-            trips_info_2022_int_ah_w_y_weeks_cnt_u,
-            dplyr::join_by(VESSEL_ID))
-
-t__tne__dates_w_cnt_t_tne <-
-  left_join(t__tne__dates_w_cnt_t,
-            trip_neg_2022_w_y_cnt_u,
-            dplyr::join_by(VESSEL_ID))
-  
-dim(t__tne__dates_w_cnt_t_tne)
+dim(t__tne_22)
 # [1] 838720     99
 # [1] 823051     99 (sero t only)
+# [1] 844068    119
+# [1] 8785739     103
 
-t__tne__dates_w_cnt_t_tne |> 
+t__tne_22 |> 
   filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
   dim()
 # [1] 5971   99
 # [1] 5575   99
+# [1]   0 119
 
-## fewer columns t__tne__dates_w_cnt_t_tne ----
-# print_df_names(t__tne__dates_w_cnt_t_tne)
+## fewer columns t__tne_22 ----
+View(t__tne_22)
 
 t__tne__dates_w_cnt_t_tne_short <-
   t__tne__dates_w_cnt_t_tne |>
-  select(
+  select(-c
     YEAR,
     MONTH_OF_YEAR,
     WEEK_OF_YEAR,
