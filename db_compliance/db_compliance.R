@@ -894,14 +894,26 @@ max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2
 # permit_eff_int_2022      320
 # weeks_perm_2022_amnt      53
 
+## all weeks of 2022 * all vessels ----
+# each can have:
+# 1) a permit
+# 2) a trip
+# 3) a negative report
+# 1 only
+# 1,2
+# 1,3
+# 2 only
+# 3 only
+# 2,3?
+
+View(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
+
+v_p_t <-
   full_join(
     vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa,
-    t__tne_22,
-    sa_v_p_t_tne_by,
+    trips_info_2022_int_ah_w_y_weeks_cnt_u,
+    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
     relationship = "many-to-many",
-    suffix = c(".v_p", ".t_tne")
-  )
-toc()
     suffix = c(".v_p", ".t")
   )
 
