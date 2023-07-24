@@ -757,51 +757,57 @@ v_trips_info_2022_int_ah_w_y_sero <-
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
 
-vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <-
-  vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$sa_only |>
-  # remove gom, keep sa only
-  select(-ends_with("gom")) |> 
-  mutate(permit_2022 =
-           lubridate::intersect(eff_int_sa,
+print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only)
+# [1] "EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual"
+
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
+  mutate(permit_eff_int_2022 =
+           lubridate::intersect(eff_int,
                                 interval_2022)) |>
   mutate(weeks_perm_2022_amnt =
-           (permit_2022 / lubridate::dweeks(1)) |>
+           (permit_eff_int_2022 / lubridate::dweeks(1)) |>
            round()) |>
   distinct()
 
-# View(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
 
-sa_v_p <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only
+# sa_v_p <-
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only
 
 # print_df_names(sa_v_p)
 # EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual
 
-sa_v_p_short <-
-  sa_v_p |> 
-  select(unique_all_vessel_ids,
-         eff_int)
+# sa_v_p_short <-
+#   sa_v_p |> 
+#   select(unique_all_vessel_ids,
+#          eff_int)
 
-sa_v_p_short_22 <-
-  sa_v_p_short |> 
-  mutate(eff_int_22 =
-           lubridate::intersect(eff_int,
-                                   interval_2022)) |> 
-  distinct()
+# sa_v_p_short_22 <-
+#   sa_v_p_short |> 
+#   mutate(eff_int_22 =
+#            lubridate::intersect(eff_int,
+#                                    interval_2022)) |> 
+#   distinct()
 # str(sa_v_p_short_22)
 # [1] 6459    3
 # [1] 3956    3 distinct
 
+# print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
+# [1] 6459   18
 
 sa_v_p_short_22_w_amnt <-
-  sa_v_p_short_22 |>
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa |>
   group_by(unique_all_vessel_ids) |>
   mutate(week_amnt =
-           time_length(eff_int_22, "week")) |> 
+           time_length(permit_eff_int_2022, "week")) |> 
   ungroup()
 
-dim(sa_v_p_short_22_w_amnt)
+View(sa_v_p_short_22_w_amnt)
 # [1] 3956    4
+# [1] 6459   19
+# > setdiff(sa_v_p_short_22_w_amnt$weeks_perm_2022_amnt,
+# +         round(sa_v_p_short_22_w_amnt$week_amnt, 0))
+# numeric(0)
 
 min(sa_v_p_short_22_w_amnt$week_amnt, na.rm = T)
 # [1] 0.1190476
