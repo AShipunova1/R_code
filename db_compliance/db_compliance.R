@@ -551,10 +551,14 @@ length(gom_sa)
 # end vessel_permits preparations ----
 
 # Trip data (= logbooks) ----
+## rename duplicate columns ---- 
+new_col_names <- make.unique(names(vessels_trips_info_2022), sep = "_")
+names(vessels_trips_info_2022) <- new_col_names
+
 ## add trip interval ----
 
-trips_info_2022_int <-
-  trips_info_2022 %>%
+v_trips_info_2022_int <-
+  vessels_trips_info_2022 %>%
   mutate(trip_int =
            lubridate::interval(
              lubridate::floor_date(TRIP_START_DATE,
@@ -564,19 +568,24 @@ trips_info_2022_int <-
            ))
 
 ### check trips_info_2022_int ----
-trips_info_2022_int %>%
+v_trips_info_2022_int %>%
   select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
   dim()
 # [1] 98528     3
+# [1] 98514     3 + v
 
 ## trip types A and H trips ----
-trips_info_2022_int_ah <-
-  trips_info_2022_int %>%
+v_trips_info_2022_int_ah <-
+  v_trips_info_2022_int %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
 # Trip notifications (= declarations) ----
+## rename duplicate columns ---- 
+new_col_names <- make.unique(names(vessels_trip_notifications_2022), sep = "_")
+names(vessels_trip_notifications_2022) <- new_col_names
+
 ## trip types A and H trip_notif ----
-trip_notifications_2022 %>%
+vessels_trip_notifications_2022 %>%
    select(TRIP_TYPE) %>% distinct()
 #     TRIP_TYPE
 # 1           H
@@ -584,8 +593,8 @@ trip_notifications_2022 %>%
 # 383         R
 # 697         C
 
-trip_notifications_2022_ah <-
-  trip_notifications_2022 %>%
+v_trip_notifications_2022_ah <-
+  vessels_trip_notifications_2022 %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
 # add week num ----
@@ -607,8 +616,8 @@ trip_notifications_2022_ah <-
 
 # View(trips_info_2022_int_ah)
 
-trips_info_2022_int_ah_w_y <-
-  trips_info_2022_int_ah %>%
+v_trips_info_2022_int_ah_w_y <-
+  v_trips_info_2022_int_ah %>%
   mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
@@ -630,11 +639,11 @@ trips_info_2022_int_ah_w_y <-
       as.double(TRIP_END_week_num)
   )
 
-# str(trips_info_2022_int_ah_w_y)
+# str(v_trips_info_2022_int_ah_w_y)
 
 ## to trip notifications ----
-trip_notifications_2022_ah_w_y <-
-  trip_notifications_2022_ah %>%
+v_trip_notifications_2022_ah_w_y <-
+  v_trip_notifications_2022_ah %>%
   mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
