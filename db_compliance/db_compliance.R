@@ -553,7 +553,7 @@ length(gom_sa)
 # end vessel_permits preparations ----
 
 # Trips, trips info, trips neg ----
-# rm extra cols ----
+## rm extra cols ----
 t_names_to_rm <- 
   c("ACTIVITY_TYPE",
     "ADDDITIONAL_FISHERMEN",
@@ -635,6 +635,12 @@ trip_neg_2022_short <-
   select(-any_of(t_names_to_rm)) |> 
   distinct()
 
+trip_notifications_2022_short <-
+  trip_notifications_2022 |>
+  select(-any_of(t_names_to_rm)) |>
+  distinct()
+
+
 # Trip data (= logbooks) ----
 ## add trip interval ----
 
@@ -670,8 +676,8 @@ trip_notifications_2022 %>%
 # 383         R
 # 697         C
 
-v_trip_notifications_2022_ah <-
-  vessels_trip_notifications_2022 %>%
+trip_notifications_2022_ah <-
+  trip_notifications_2022_short %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
 # add week num ----
@@ -693,8 +699,8 @@ v_trip_notifications_2022_ah <-
 
 # View(trips_info_2022_int_ah)
 
-v_trips_info_2022_int_ah_w_y <-
-  v_trips_info_2022_int_ah %>%
+trips_info_2022_int_ah_w_y <-
+  trips_info_2022_int_ah %>%
   mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
@@ -719,8 +725,8 @@ v_trips_info_2022_int_ah_w_y <-
 # str(v_trips_info_2022_int_ah_w_y)
 
 ## to trip notifications ----
-v_trip_notifications_2022_ah_w_y <-
-  v_trip_notifications_2022_ah %>%
+trip_notifications_2022_ah_w_y <-
+  trip_notifications_2022_ah %>%
   mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
@@ -743,9 +749,9 @@ v_trip_notifications_2022_ah_w_y <-
   )
 
 ## to negative trips ----
-## rename duplicate columns ---- 
-v_trip_neg_2022_w_y <-
-  vessels_trip_neg_2022 %>%
+
+trip_neg_2022_w_y <-
+  trip_neg_2022_short %>%
   mutate(
     TRIP_week_num =
       strftime(TRIP_DATE, format = "%U"),
@@ -758,10 +764,14 @@ v_trip_neg_2022_w_y <-
            as.double(TRIP_week_num))
 
 # results:
-# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list
-# v_trips_info_2022_int_ah_w_y
-# v_trip_neg_2022_w_y
-# v_trip_notifications_2022_ah_w_y
+length(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
+dim(trips_info_2022_int_ah_w_y)
+# [1] 97003    15
+dim(trip_neg_2022_w_y)
+# [1] 747173      6
+dim(trip_notifications_2022_ah_w_y)
+# [1] 67738    33
+
 # end of data preparations ----
 
 # Count distinct weeks per vessel ----
@@ -770,43 +780,43 @@ v_trip_neg_2022_w_y <-
 # TODO ?do we need a join?
 
 # print_df_names(v_trip_neg_2022_w_y)
-v_trip_neg_2022_w_y_cnt_u <-
-  v_trip_neg_2022_w_y |>
+trip_neg_2022_w_y_cnt_u <-
+  trip_neg_2022_w_y |>
   group_by(VESSEL_ID) %>%
   mutate(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
-dim(v_trip_neg_2022_w_y_cnt_u)
+dim(trip_neg_2022_w_y_cnt_u)
 # [1] 1709    5
 # [1] 3414    2 summarize
 # [1] 747078     44 mutate 
+# [1] 747173      7
 
 ## trip_notif weeks count per vessel ----
-v_trip_notifications_2022_ah_w_y_cnt_u <-
-  v_trip_notifications_2022_ah_w_y |>
+trip_notifications_2022_ah_w_y_cnt_u <-
+  trip_notifications_2022_ah_w_y |>
   group_by(VESSEL_ID) |>
   mutate(
     distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
   )
 
-dim(v_trip_notifications_2022_ah_w_y_cnt_u)
+dim(trip_notifications_2022_ah_w_y_cnt_u)
 # [1] 914   3 summarize
-# [1] 67738    69 
+# [1] 67738    35 
 
-v_trip_notifications_2022_ah_w_y_cnt_u %>%
+trip_notifications_2022_ah_w_y_cnt_u %>%
    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
    dim()
 # [1] 0 6
 # ok
 # [1] 57  3
 # TODO: why - long trip
-# [1] 6318   69
+# [1] 6318   35
 
 ## trips weeks count per vessel ----
 # View(v_trips_info_2022_int_ah_w_y)
-v_trips_info_2022_int_ah_w_y_weeks_cnt_u <-
-  v_trips_info_2022_int_ah_w_y %>%
-    # browser()
+trips_info_2022_int_ah_w_y_weeks_cnt_u <-
+  trips_info_2022_int_ah_w_y %>%
     group_by(VESSEL_ID) %>%
       mutate(
         distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
@@ -814,23 +824,25 @@ v_trips_info_2022_int_ah_w_y_weeks_cnt_u <-
       ) %>%
       mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
 
-dim(v_trips_info_2022_int_ah_w_y_weeks_cnt_u)
+dim(trips_info_2022_int_ah_w_y_weeks_cnt_u)
 # [1] 1110    7
 # [1] 1934    4
 # [1] 1933    4 summarize
 # [1] 96990   110
+# [1] 97003    18
 
-v_trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
-   filter(!distinct_start_weeks_t == distinct_end_weeks_t) %>%
-   dim()
+trips_info_2022_int_ah_w_y_weeks_cnt_u |>
+  filter(!distinct_start_weeks_t == distinct_end_weeks_t) |>
+  dim()
 # 27
 # 63
 # [1] 64  4
 # [1] 3628  110 - long trips
+# [1] 3552   18
 
-# Keep only sero permitted ----
-v_trips_info_2022_int_ah_w_y_sero <-
-  v_trips_info_2022_int_ah_w_y |>
+# Keep only SERO permitted ----
+trips_info_2022_int_ah_w_y_sero <-
+  trips_info_2022_int_ah_w_y |>
   filter(!is.na(SERO_VESSEL_PERMIT)) |>
   distinct()
 
