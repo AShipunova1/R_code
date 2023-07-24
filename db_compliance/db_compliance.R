@@ -946,9 +946,35 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <
            round()) |>
   distinct()
 
-# View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
-min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
-max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
+# View(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
+
+sa_v_p <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only
+
+# print_df_names(sa_v_p)
+# EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual
+
+sa_v_p_short <-
+  sa_v_p |> 
+  select(unique_all_vessel_ids,
+         eff_int)
+
+sa_v_p_short_22 <-
+  sa_v_p_short |> 
+  mutate(eff_int_22 =
+           lubridate::intersect(eff_int,
+                                   interval_2022))
+
+
+sa_v_p_short_w_amnt <-
+  sa_v_p_short |>
+  group_by(unique_all_vessel_ids) |>
+  mutate(week_amnt =
+           time_length(eff_int, "week"))
+
+View(sa_v_p_short_w_amnt)
+# min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
+# max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
 # 0-52
 # 0-109 (without interval_2022)
 # 0-52
