@@ -928,7 +928,38 @@ v_p_t__t_in_p <-
   ungroup() |> 
   distinct()
 toc()
+
 # v_p_t__t_in_p: 24.43 sec elapsed
 dim(v_p_t__t_in_p)
 # [1] 83842    37
-v_p_t__t_in_p |> head() |> View()
+# v_p_t__t_in_p |> head() |> View()
+
+## Data per year, vessel, sa trips ----
+v_p_t__t_in_p_short_y <-
+  v_p_t__t_in_p |>
+  select(VESSEL_VESSEL_ID,
+         permit_eff_int_2022,
+         weeks_perm_2022_amnt,
+         max_weeks_cnt_t) |>
+  distinct()
+
+# Data per year, vessel, sa trips
+View(v_p_t__t_in_p_short_y)
+# [1] 1081    4
+
+## Data per month, vessel, sa trips ----
+v_p_t__t_in_p_short_m <-
+  v_p_t__t_in_p |>
+  select(VESSEL_VESSEL_ID,
+         TRIP_START_m, 
+         TRIP_END_m,
+         trip_int,
+         permit_eff_int_2022,
+         weeks_perm_2022_amnt
+         ) |>
+  distinct()
+
+dim(v_p_t__t_in_p_short_m)
+# [1] 42918     7
+
+# TODO count weeks in month
