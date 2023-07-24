@@ -906,8 +906,9 @@ max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2
 # 3 only
 # 2,3?
 
-View(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
+# View(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
 
+## trips in the permit period ---- 
 v_p_t <-
   full_join(
     vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa,
@@ -963,3 +964,56 @@ dim(v_p_t__t_in_p_short_m)
 # [1] 42918     7
 
 # TODO count weeks in month
+# TODO: repeat both with intersections of trip and permit intervals
+
+## trip negative in the permit period
+v_p_tne <-
+  full_join(
+    vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa,
+    trip_neg_2022_w_y_cnt_u,
+    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
+    relationship = "many-to-many",
+    suffix = c(".v_p", ".tne")
+  )
+
+dim(v_p_tne)
+# [1] 1004319      26
+
+tic("v_p_tne__tne_in_p")
+v_p_tne__tne_in_p <-
+  v_p_tne |>
+  group_by(VESSEL_VESSEL_ID) |>
+  filter(TRIP_DATE %within% permit_eff_int_2022) |>
+  ungroup() |> 
+  distinct()
+toc()
+# v_p_tne__tne_in_p: 11.11 sec elapsed
+
+## Data per year, vessel, sa trips neg ----
+v_p_tne__tne_in_p_short_y <-
+  v_p_tne__tne_in_p |>
+  select(VESSEL_VESSEL_ID,
+         permit_eff_int_2022,
+         weeks_perm_2022_amnt,
+         distinct_weeks_ne) |>
+  distinct()
+
+data_overview(v_p_tne__tne_in_p_short_y)
+# [1] 1672    4
+# VESSEL_VESSEL_ID     1672
+# permit_eff_int_2022   218
+# weeks_perm_2022_amnt   52
+# distinct_weeks_ne      53
+
+v_p_tne__tne_in_p_short_m <-
+  v_p_tne__tne_in_p |>
+  select(VESSEL_VESSEL_ID,
+         TRIP_DATE_m, 
+         permit_eff_int_2022,
+         weeks_perm_2022_amnt
+         ) |>
+  distinct()
+
+dim(v_p_tne__tne_in_p_short_m)
+# [1] 14844     4
+# TODO for noth t and tne caluclate weeks again, inside each permit
