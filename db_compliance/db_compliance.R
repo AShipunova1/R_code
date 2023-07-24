@@ -53,7 +53,7 @@ vessels_permits_2022_r <-
 tic("add my_end_date")
 vessels_permits_2022_r_end_date <-
   vessels_permits_2022_r |>
-  rowwise() |> 
+  rowwise() |>
   mutate(my_end_date =
            case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
@@ -64,7 +64,7 @@ vessels_permits_2022_r_end_date <-
            )) %>%
   # select(-c(END_DATE,
             # EXPIRATION_DATE)) %>%
-  dplyr::ungroup() |> 
+  dplyr::ungroup() |>
   distinct()
 toc()
 # add my_end_date: 25.6 sec elapsed
@@ -119,7 +119,7 @@ vessels_permits_2022_r_end_date_uid_short <-
     permit_sa_gom,
     my_end_date,
     unique_all_vessel_ids
-  ) |> 
+  ) |>
   distinct()
 
 dim(vessels_permits_2022_r_end_date_uid_short)
@@ -186,7 +186,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   group_by(permit_sa_gom, unique_all_vessel_ids) |>
   mutate(eff_int =
            lubridate::interval(min_permit_eff_date,
-                               max_permit_end_date)) |> 
+                               max_permit_end_date)) |>
   ungroup()
 toc()
 # get permit periods: 46.29 sec elapsed
@@ -232,25 +232,25 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 # FL9004NX in both, but not dual, bc intervals do not overlap
 
 new_dual_ids <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |> 
-  filter(permit_sa_gom_dual == "dual") |> 
-  select(unique_all_vessel_ids) |> 
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
+  filter(permit_sa_gom_dual == "dual") |>
+  select(unique_all_vessel_ids) |>
   distinct()
 
 dim(new_dual_ids)
 # [1] 275   1
 
 # old_dual_v_ids <-
-#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual |> 
-#   filter(permit_sa_gom == "dual") |> 
-#   select(unique_all_vessel_ids) |> 
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual |>
+#   filter(permit_sa_gom == "dual") |>
+#   select(unique_all_vessel_ids) |>
 #   distinct()
 
 # dim(old_dual_v_ids)
 # [1] 357   1
 
 # intersect(new_dual_ids$unique_all_vessel_ids,
-#           old_dual_v_ids$unique_all_vessel_ids) |> 
+#           old_dual_v_ids$unique_all_vessel_ids) |>
 #   length()
 # 357
 # 275
@@ -274,32 +274,32 @@ dim(new_dual_ids)
 
 #### why not in new? ----
 
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |> 
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   filter(grepl("FL2995SR", unique_all_vessel_ids)) |>
-  select(eff_int, permit_sa_gom_dual) |> 
+  select(eff_int, permit_sa_gom_dual) |>
   head()
   # eff_int                            permit_sa_gom_dual
-#   <Interval>                                       <chr>             
-# 1 2022-03-02 23:00:00 EST--2023-01-30 23:00:00 EST gom_only          
-# 2 2022-10-19 00:00:00 EDT--2024-01-30 23:00:00 EST sa_only           
+#   <Interval>                                       <chr>
+# 1 2022-03-02 23:00:00 EST--2023-01-30 23:00:00 EST gom_only
+# 2 2022-10-19 00:00:00 EDT--2024-01-30 23:00:00 EST sa_only
 # gom and sa periods overlap
 
 #### why not in old? ----
 # glimpse(in_new_dual_only)
-# vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual |> 
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual |>
 #   filter(grepl("FL9004NX", unique_all_vessel_ids)) |>
 #   glimpse()
 # $ permit_sa_gom           <chr> "sa_only", "gom_only"
 
-# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual |> 
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual |>
 #   filter(grepl("FL9004NX", unique_all_vessel_ids)) |>
 #   glimpse()
 # $ permit_sa_gom               <chr> "gom_only", "sa_only"
 
-# vessels_permits_2022_r |> 
+# vessels_permits_2022_r |>
 #   # filter(PERMIT_VESSEL_ID == "FL9004NX") |>
 #   filter(PERMIT_VESSEL_ID == "TX6550AU") |>
-#   distinct() |> 
+#   distinct() |>
 #   glimpse()
 
 # vessels_dual_maybe <- c("1074262",
@@ -313,8 +313,8 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 # "FL9004NX",
 # "TX6550AU")
 
-# vessels_permits_2022_r |> 
-#   filter(PERMIT_VESSEL_ID %in% vessels_dual_maybe) |> 
+# vessels_permits_2022_r |>
+#   filter(PERMIT_VESSEL_ID %in% vessels_dual_maybe) |>
 #   View()
 
 # vessels_permits_2022_r_10_dual_maybe <-
@@ -333,14 +333,14 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l <-
 #   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
 #   split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y$permit_sa_gom))
-# 
+#
 # map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l, dim)
 # #   gom_only sa_only
 # # 1     2525    6908
 # # 2       16      16
 # # 1     2528    6914
 # # 2       14      14
-# 
+#
 ### join by overlap of gom and sa (= dual) ----
 # # From Help:
 # # It is common to have right-open ranges with bounds like `[)`, which would
@@ -354,7 +354,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #                        y$EFFECTIVE_DATE,
 #                        y$my_end_date,
 #                        bounds = "[)"))
-# 
+#
 # tic("vessels_permits_2022_r_end_date_overlap_join")
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join <-
 #   full_join(
@@ -365,20 +365,20 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 # )
 # toc()
 # # permit_info_r_l_overlap_join1: 0.66 sec elapsed
-# 
+#
 # dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # # [1] 20918   112
 # # short
 # # [1] 8939   30
 # # [1] 8949   34
 # # [1] 9442   14
-# 
+#
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
 #   select(unique_all_vessel_ids) %>%
 #   distinct() %>%
 #   dim()
 # # [1] 5461    1
-# 
+#
 # vessels_permits_2022 %>%
 #   # select(QCSJ_C000000000300000
 #   # [1] 5461    1
@@ -390,7 +390,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #   distinct() %>%
 #   dim()
 # # [1] 5462    3 (+NA)
-# 
+#
  ### add "dual" to intervals ----
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual <-
 #   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
@@ -401,26 +401,26 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #              .default =
 #                dplyr::coalesce(permit_sa_gom.sa,
 #                                permit_sa_gom.gom)
-# 
-#            )) |> 
+#
+#            )) |>
 #   ungroup()
-# 
+#
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
 #   select(permit_sa_gom) %>%
 #   distinct()
 # # all 3
-# 
+#
 # dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual)
 # # [1] 20918   114
 # # [1] 8939   31
 # # [1] 8949   35
 # # [1] 8949   28
-# 
+#
 # # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
-# 
+#
 # # to get dual in the overlapping period:
 # # filter(!is.na(permit_sa_gom.sa))
-# 
+#
 # tic("vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22")
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 <-
 #   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
@@ -431,7 +431,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #     eff_int_sa =
 #       lubridate::interval(EFFECTIVE_DATE.sa,
 #                           my_end_date.sa)
-#   ) %>% 
+#   ) %>%
 #   filter(int_overlaps(eff_int_gom,
 #                       interval_2022) |
 #            int_overlaps(eff_int_sa,
@@ -439,13 +439,13 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #          )
 # toc()
 # # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22: 0.24 sec elapsed
-# 
+#
 #### check ----
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
 #   select(permit_sa_gom) %>%
 #   distinct()
 # # all 3
-# 
+#
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual_22 %>%
 #   filter(permit_sa_gom == "dual") %>%
 #   select(unique_all_vessel_ids) %>%
@@ -474,17 +474,17 @@ map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 # adjust the query
 
 ## check if vessels are duplicated in a region
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual$unique_all_vessel_ids |> 
-  unique() |> 
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual$unique_all_vessel_ids |>
+  unique() |>
   length()
 # 917
-  # unique() |> 
+  # unique() |>
 # 275
 
 names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
 
 reg_cnts <-
-  # "dual"     "gom_only" "sa_only" 
+  # "dual"     "gom_only" "sa_only"
   names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list) |>
   map(function(reg_name) {
     curr_ids <-
@@ -514,13 +514,13 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
     -permit_sa_gom
   ) |>
   distinct() |> dim()
-  # filter(grepl("FL3610NF", unique_all_vessel_ids)) |> 
+  # filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
   # View()
 # [1] 472  13
 
 
-# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |> 
-#   filter(grepl("FL3610NF", unique_all_vessel_ids)) |> 
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
+#   filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
 #   View()
 
 ## check if the same vessel in dual and not ----
@@ -554,7 +554,7 @@ length(gom_sa)
 
 # Trips, trips info, trips neg ----
 ## rm extra cols ----
-t_names_to_rm <- 
+t_names_to_rm <-
   c("ACTIVITY_TYPE",
     "ADDDITIONAL_FISHERMEN",
     "APP_VERSION",
@@ -620,19 +620,19 @@ t_names_to_rm <-
     "VALIDATING_AGENCY",
     "VENDOR_APP_NAME",
     "VENDOR_PLATFORM",
-    "VTR_NUMBER") 
-  
+    "VTR_NUMBER")
+
 # print_df_names(trips_info_2022_short)
 # print_df_names(trip_neg_2022_short)
 
 trips_info_2022_short <-
-  trips_info_2022 |> 
-  select(-any_of(t_names_to_rm)) |> 
+  trips_info_2022 |>
+  select(-any_of(t_names_to_rm)) |>
   distinct()
 
 trip_neg_2022_short <-
-  trip_neg_2022 |> 
-  select(-any_of(t_names_to_rm)) |> 
+  trip_neg_2022 |>
+  select(-any_of(t_names_to_rm)) |>
   distinct()
 
 trip_notifications_2022_short <-
@@ -788,7 +788,7 @@ trip_neg_2022_w_y_cnt_u <-
 dim(trip_neg_2022_w_y_cnt_u)
 # [1] 1709    5
 # [1] 3414    2 summarize
-# [1] 747078     44 mutate 
+# [1] 747078     44 mutate
 # [1] 747173      7
 
 ## trip_notif weeks count per vessel ----
@@ -802,7 +802,7 @@ trip_notifications_2022_ah_w_y_cnt_u <-
 
 dim(trip_notifications_2022_ah_w_y_cnt_u)
 # [1] 914   3 summarize
-# [1] 67738    35 
+# [1] 67738    35
 
 trip_notifications_2022_ah_w_y_cnt_u %>%
    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
@@ -919,8 +919,8 @@ v_p_t <-
 
 dim(v_p_t)
 # [1] 139572     37
-  
-v_p_t
+
+tic("v_p_t__t_in_p")
 v_p_t__t_in_p <-
   v_p_t |>
   group_by(VESSEL_VESSEL_ID) |>
