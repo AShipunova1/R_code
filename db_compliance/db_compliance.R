@@ -696,23 +696,25 @@ v_trip_neg_2022_w_y <-
 v_trip_neg_2022_w_y_cnt_u <-
   v_trip_neg_2022_w_y |>
   group_by(VESSEL_ID) %>%
-  summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
+  mutate(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
 dim(v_trip_neg_2022_w_y_cnt_u)
 # [1] 1709    5
-# [1] 3414    2
+# [1] 3414    2 summarize
+# [1] 747078     44 mutate 
 
 ## trip_notif weeks count per vessel ----
 v_trip_notifications_2022_ah_w_y_cnt_u <-
   v_trip_notifications_2022_ah_w_y |>
   group_by(VESSEL_ID) |>
-  summarise(
+  mutate(
     distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
   )
 
 dim(v_trip_notifications_2022_ah_w_y_cnt_u)
-# [1] 914   3
+# [1] 914   3 summarize
+# [1] 67738    69 
 
 v_trip_notifications_2022_ah_w_y_cnt_u %>%
    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
@@ -721,6 +723,7 @@ v_trip_notifications_2022_ah_w_y_cnt_u %>%
 # ok
 # [1] 57  3
 # TODO: why - long trip
+# [1] 6318   69
 
 ## trips weeks count per vessel ----
 # View(v_trips_info_2022_int_ah_w_y)
@@ -728,7 +731,7 @@ v_trips_info_2022_int_ah_w_y_weeks_cnt_u <-
   v_trips_info_2022_int_ah_w_y %>%
     # browser()
     group_by(VESSEL_ID) %>%
-      summarise(
+      mutate(
         distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
         distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
       ) %>%
@@ -737,7 +740,8 @@ v_trips_info_2022_int_ah_w_y_weeks_cnt_u <-
 dim(v_trips_info_2022_int_ah_w_y_weeks_cnt_u)
 # [1] 1110    7
 # [1] 1934    4
-# [1] 1933    4
+# [1] 1933    4 summarize
+# [1] 96990   110
 
 v_trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
    filter(!distinct_start_weeks_t == distinct_end_weeks_t) %>%
@@ -745,7 +749,7 @@ v_trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
 # 27
 # 63
 # [1] 64  4
-
+# [1] 3628  110 - long trips
 
 # Keep only sero permitted ----
 v_trips_info_2022_int_ah_w_y_sero <-
@@ -794,6 +798,10 @@ data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
 # eff_int               2072
 # eff_int_22             320
 # week_amnt              318
+# ---
+# unique_all_vessel_ids   3956
+# eff_int                 2072
+# permit_eff_int_2022      320
 # weeks_perm_2022_amnt      53
 
 ## combine trips and trip_negative week cnts (logbooks + DNFs) ----
