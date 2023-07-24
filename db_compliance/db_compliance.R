@@ -925,4 +925,10 @@ v_p_t__t_in_p <-
   v_p_t |>
   group_by(VESSEL_VESSEL_ID) |>
   filter(trip_int %within% permit_eff_int_2022) |>
-  ungroup()
+  ungroup() |> 
+  distinct()
+toc()
+# v_p_t__t_in_p: 24.43 sec elapsed
+dim(v_p_t__t_in_p)
+# [1] 83842    37
+v_p_t__t_in_p |> head() |> View()
