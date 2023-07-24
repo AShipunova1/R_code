@@ -552,15 +552,94 @@ length(gom_sa)
 
 # end vessel_permits preparations ----
 
-# Trip data (= logbooks) ----
-## rename duplicate columns ---- 
-new_col_names <- make.unique(names(vessels_trips_info_2022), sep = "_")
-names(vessels_trips_info_2022) <- new_col_names
+# Trips, trips info, trips neg ----
+# rm extra cols ----
+t_names_to_rm <- 
+  c("ACTIVITY_TYPE",
+    "ADDDITIONAL_FISHERMEN",
+    "APP_VERSION",
+    "APPROVAL_DATE",
+    "APPROVED_BY",
+    "BAIT_WEIGHT",
+    "CAPT_NAME_FIRST",
+    "CAPT_NAME_LAST",
+    "CF_ID",
+    "CF_ISS_AGENCY",
+    "CF_PERMIT_ID",
+    "CONFIRMATION_SIGNATURE",
+    "CONFIRMED_VALIDATING_AGENCY",
+    "COST_BAIT",
+    "COST_FOOD",
+    "COST_ICE",
+    "COST_IFQ",
+    "COST_LIGHT",
+    "COST_MISC",
+    "DAYS_AT_SEA",
+    "DC",
+    "DE",
+    "DEA_PERMIT_ID",
+    "END_PORT",
+    "EVENT_ID",
+    "FORM_VERSION",
+    "FUEL_DIESEL_GALLON_PRICE",
+    "FUEL_DIESEL_GALLONS",
+    "FUEL_GALLON_PRICE",
+    "FUEL_GALLONS",
+    "FUEL_GAS_GALLON_PRICE",
+    "FUEL_GAS_GALLONS",
+    "ICE_MAKER",
+    "NBR_OF_CREW",
+    "NBR_PAYING_PASSENGERS",
+    "NUM_ANGLERS",
+    "OWNER_ABOARD",
+    "PARTNER_VTR",
+    "PAY_PERCENT_TO_CAPT",
+    "PAY_PERCENT_TO_CREW",
+    "PAY_PERCENT_TO_OWNER",
+    "PAY_TO_CAPT_CREW",
+    "PORT",
+    "REPORTING_SOURCE",
+    "REVENUE_TOTAL",
+    "SEA_TIME",
+    "SPLIT_TRIP",
+    "START_PORT",
+    "STATE",
+    "STATUS",
+    "SUB_TRIP_TYPE",
+    "SUBMIT_METHOD",
+    "SUBMITTED_BY_PARTICIPANT",
+    "SUPPLIER_TRIP_ID",
+    "TICKET_TYPE",
+    "TRANSMISSION_DATE",
+    "TRIP_END_TIME",
+    "TRIP_FEE",
+    "TRIP_NBR",
+    "TRIP_START_TIME",
+    "UC",
+    "UE",
+    "VALIDATING_AGENCY",
+    "VENDOR_APP_NAME",
+    "VENDOR_PLATFORM",
+    "VTR_NUMBER") 
+  
+# print_df_names(trips_info_2022_short)
+# print_df_names(trip_neg_2022_short)
 
+trips_info_2022_short <-
+  trips_info_2022 |> 
+  select(-any_of(t_names_to_rm)) |> 
+  distinct()
+
+trip_neg_2022_short <-
+  trip_neg_2022 |> 
+  select(-any_of(t_names_to_rm)) |> 
+  distinct()
+
+# Trip data (= logbooks) ----
 ## add trip interval ----
 
-v_trips_info_2022_int <-
-  vessels_trips_info_2022 %>%
+trips_info_2022_int <-
+  trips_info_2022_short %>%
   mutate(trip_int =
            lubridate::interval(
              lubridate::floor_date(TRIP_START_DATE,
@@ -570,24 +649,20 @@ v_trips_info_2022_int <-
            ))
 
 ### check trips_info_2022_int ----
-v_trips_info_2022_int %>%
+trips_info_2022_int %>%
   select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
   dim()
 # [1] 98528     3
-# [1] 98514     3 + v
 
 ## trip types A and H trips ----
-v_trips_info_2022_int_ah <-
-  v_trips_info_2022_int %>%
+trips_info_2022_int_ah <-
+  trips_info_2022_int %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
 # Trip notifications (= declarations) ----
-## rename duplicate columns ---- 
-new_col_names <- make.unique(names(vessels_trip_notifications_2022), sep = "_")
-names(vessels_trip_notifications_2022) <- new_col_names
 
 ## trip types A and H trip_notif ----
-vessels_trip_notifications_2022 %>%
+trip_notifications_2022 %>%
    select(TRIP_TYPE) %>% distinct()
 #     TRIP_TYPE
 # 1           H
@@ -805,157 +880,6 @@ max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2
 # eff_int                 2072
 # permit_eff_int_2022      320
 # weeks_perm_2022_amnt      53
-
-## remove vessel specific fields (get them from v_p if needed) and extra trip field----
-v_names_to_rm <- 
-  c("SER_ID",
-    "UPDATED_FLAG",
-    "SERO_HOME_PORT_CITY",
-    "SERO_HOME_PORT_COUNTY",
-    "SERO_HOME_PORT_STATE",
-    "SERO_OFFICIAL_NUMBER",
-    "COUNTY_CODE",
-    "STATE_CODE",
-    "ENTRY_DATE",
-    "SUPPLIER_VESSEL_ID",
-    "PORT_CODE",
-    "HULL_ID_NBR",
-    "COAST_GUARD_NBR",
-    "STATE_REG_NBR",
-    "REGISTERING_STATE",
-    "VESSEL_NAME",
-    "PASSENGER_CAPACITY",
-    "VESSEL_TYPE",
-    "YEAR_BUILT",
-    "UPDATE_DATE",
-    "PRIMARY_GEAR",
-    "OWNER_ID",
-    "EVENT_ID_V",
-    "DE_V",
-    "UE_V",
-    "DC_V",
-    "UC_V",
-    "STATUS_V"
-  )
-
-t_names_to_rm <- 
-  c("ACTIVITY_TYPE",
-    "ADDDITIONAL_FISHERMEN",
-    "APP_VERSION",
-    "APPROVAL_DATE",
-    "APPROVED_BY",
-    "BAIT_WEIGHT",
-    "CAPT_NAME_FIRST",
-    "CAPT_NAME_LAST",
-    "CF_ISS_AGENCY",
-    "CF_PERMIT_ID.t",
-    "CONFIRMATION_SIGNATURE",
-    "CONFIRMED_VALIDATING_AGENCY",
-    "COST_BAIT",
-    "COST_FOOD",
-    "COST_ICE",
-    "COST_IFQ",
-    "COST_LIGHT",
-    "COST_MISC",
-    "DAYS_AT_SEA",
-    "DC_1",
-    "DC.t",
-    "DE_1",
-    "DE.t",
-    "DEA_PERMIT_ID",
-    "END_PORT",
-    "EVENT_ID_1",
-    "EVENT_ID.t",
-    "FORM_VERSION",
-    "FUEL_DIESEL_GALLON_PRICE",
-    "FUEL_DIESEL_GALLONS",
-    "FUEL_GALLON_PRICE",
-    "FUEL_GALLONS",
-    "FUEL_GAS_GALLON_PRICE",
-    "FUEL_GAS_GALLONS",
-    "ICE_MAKER",
-    "NBR_OF_CREW",
-    "NBR_PAYING_PASSENGERS",
-    "NUM_ANGLERS",
-    "OWNER_ABOARD",
-    "PARTNER_VTR",
-    "PAY_PERCENT_TO_CAPT",
-    "PAY_PERCENT_TO_CREW",
-    "PAY_PERCENT_TO_OWNER",
-    "PAY_TO_CAPT_CREW",
-    "PORT",
-    "REPORTING_SOURCE",
-    "REVENUE_TOTAL",
-    "SEA_TIME",
-    "SPLIT_TRIP",
-    "START_PORT",
-    "STATE",
-    "STATUS.t",
-    "SUB_TRIP_TYPE",
-    "SUBMIT_METHOD.t",
-    "SUBMITTED_BY_PARTICIPANT",
-    "SUPPLIER_TRIP_ID",
-    "TICKET_TYPE",
-    "TRANSMISSION_DATE",
-    "TRIP_END_TIME",
-    "TRIP_FEE",
-    "TRIP_NBR",
-    "TRIP_START_TIME",
-    "UC_1",
-    "UC.t",
-    "UE_1",
-    "UE.t",
-    "VALIDATING_AGENCY",
-    "VENDOR_APP_NAME",
-    "VENDOR_PLATFORM",
-    "VTR_NUMBER") 
-  
-names_to_keep <-  
-  c("eff_int",
-    "EFFECTIVE_DATE",
-    "EFFECTIVE_DATE_m",
-    "EFFECTIVE_DATE_week_num",
-    "EFFECTIVE_DATE_y",
-    "END_DATE",
-    "EXPIRATION_DATE",
-    "GARFO_VESSEL_PERMIT",
-    "max_permit_end_date",
-    "min_permit_eff_date",
-    "my_end_date",
-    "my_end_m",
-    "my_end_week_num",
-    "my_end_y",
-    "permit_eff_int_2022",
-    "permit_sa_gom",
-    "permit_sa_gom_dual",
-    "PERMIT_VESSEL_ID",
-    "SERO_VESSEL_PERMIT",
-    "TRIP_END_DATE",
-    "TRIP_END_week_num",
-    "TRIP_ID.t",
-    "trip_int",
-    "TRIP_START_DATE",
-    "TRIP_START_week_num",
-    "TRIP_TIME_ZONE",
-    "TRIP_TYPE",
-    "unique_all_vessel_ids",
-    "VESSEL_VESSEL_ID",
-    "weeks_perm_2022_amnt")
-
-# print_df_names(v_trip_neg_2022_w_y_cnt_u)
-# print_df_names(v_trips_info_2022_int_ah_w_y_weeks_cnt_u)
-
-v_trip_neg_2022_w_y_cnt_u_short <-
-  v_trip_neg_2022_w_y_cnt_u |> 
-  select(-any_of(v_names_to_rm)) |> 
-  select(-any_of(t_names_to_rm)) |> 
-  distinct()
-
-v_trips_info_2022_int_ah_w_y_weeks_cnt_u_short <-
-  v_trips_info_2022_int_ah_w_y_weeks_cnt_u |> 
-  select(-any_of(v_names_to_rm)) |> 
-  select(-any_of(t_names_to_rm)) |> 
-  distinct()
 
 ## combine trips and trip_negative week cnts (logbooks + DNFs) ----
 # intersect(names(v_trips_info_2022_int_ah_w_y),
