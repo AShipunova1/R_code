@@ -239,156 +239,158 @@ vessels_permits_2022 <-
 
 # get vessels ----
 # can't because of "\\0"
+# use:
+# replace(VESSEL_NAME, chr(0), '') VESSEL_NAME,
 
-# get vessels and trips 2022 ----
-# to have vessel official number
-vessels_trips_22_file_name <-
-    file.path(input_path, "vessels_trips_22.rds")
-
-vessels_trips_22_query <-
-  "SELECT
-  *
-FROM
-  safis.trips@secapxdv_dblk.sfsc.noaa.gov
-  join
-  safis.vessels@secapxdv_dblk.sfsc.noaa.gov
-  using(VESSEL_ID)
-WHERE
-  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
-  , 'dd-mon-yy') )
-  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
-  , 'dd-mon-yy') )
-ORDER BY
-  trip_end_date DESC
-"
-vessels_trips_22_fun <- function(vessels_trips_22_query) {
-  return(dbGetQuery(con,
-             vessels_trips_22_query))
-}
-
-vessels_trips_info_2022 <- 
-  read_rds_or_run(vessels_trips_22_file_name,
-                  vessels_trips_22_query,
-                  vessels_trips_22_fun
-                  )
-# 2023-07-24 run the function: 39.3 sec elapsed
-
-# get trip neg and vessels 2022 ----
-# to have vessel official number
-vessels_trip_neg_2022_file_name <-
-    file.path(input_path, "vessels_trip_neg_2022.rds")
-
-vessels_trip_neg_2022_query <-
-  "SELECT
-  tne.*,
-  COUNTY_CODE,
-  STATE_CODE,
-  ENTRY_DATE,
-  SUPPLIER_VESSEL_ID,
-  PORT_CODE,
-  HULL_ID_NBR,
-  COAST_GUARD_NBR,
-  STATE_REG_NBR,
-  REGISTERING_STATE,
-  replace(VESSEL_NAME, chr(0), '') VESSEL_NAME,
-  PASSENGER_CAPACITY,
-  VESSEL_TYPE,
-  YEAR_BUILT,
-  UPDATE_DATE,
-  PRIMARY_GEAR,
-  OWNER_ID,
-  v.EVENT_ID as EVENT_ID_V,
-  v.DE as DE_V,
-  v.UE as UE_V,
-  v.DC as DC_V,
-  v.UC as UC_V,
-  v.STATUS as STATUS_V,
-  SER_ID,
-  UPDATED_FLAG,
-  SERO_HOME_PORT_CITY,
-  SERO_HOME_PORT_COUNTY,
-  SERO_HOME_PORT_STATE,
-  SERO_OFFICIAL_NUMBER
-FROM
-       safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
-  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
-  on ( tne.vessel_id = v.vessel_id )
-WHERE
-  ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22',
-  'dd-mon-yy') )"
-
-vessels_trip_neg_2022_fun <- function(vessels_trip_neg_2022_query) {
-  return(dbGetQuery(con,
-             vessels_trip_neg_2022_query))
-}
-
-vessels_trip_neg_2022 <- 
-  read_rds_or_run(vessels_trip_neg_2022_file_name,
-                  vessels_trip_neg_2022_query,
-                  vessels_trip_neg_2022_fun
-                  )
-# 2023-07-24 run the function: 125.96 sec elapsed
-
-# get vessels and trip notifications 2022 ----
-# to have vessel official number
-vessels_trip_notifications__file_name <-
-    file.path(input_path, "vessels_trip_notifications_.rds")
-
-vessels_trip_notifications__query <-
-  "SELECT
-  *
-FROM
-  safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
-  join
-  safis.vessels@secapxdv_dblk.sfsc.noaa.gov
-  using(VESSEL_ID)
-WHERE
-  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
-  , 'dd-mon-yy') )
-  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
-  , 'dd-mon-yy') )
-ORDER BY
-  trip_end_date DESC
-"
-vessels_trip_notifications__fun <-
-  function(vessels_trip_notifications__query) {
-    return(dbGetQuery(con,
-                      vessels_trip_notifications__query))
-  }
-
-vessels_trip_notifications_2022 <- 
-  read_rds_or_run(vessels_trip_notifications__file_name,
-                  vessels_trip_notifications__query,
-                  vessels_trip_notifications__fun
-                  )
-# 2023-07-24 run the function: 12.61 sec elapsed
-
-
-# vessels_all <- 
-# Error in .oci.GetQuery(conn, statement, data = data, prefetch = prefetch,  :
-#   Error in try({ : embedded nul in string: '\0'
-
-# > dbGetQuery(cnx, "select replace(s, chr(0), '') s from test_00")
-# dat <- dbGetQuery(myConnection,"SELECT REPLACE(COLUMN_NAME, CHR(0), ' ') AS NEW_COLUMN
-#                                 FROM MY_TABLE")
-
-# tic("vessels_all")
-# vessels_all <- dbGetQuery(con,
-#                           vessels_query)
-# toc()
-# Error in try({ : embedded nul in string: '\0'
-
-# dim(vessels_all)
-# vessels_all_file_path <- file.path(input_path, "vessels.csv")
-
-# vessels_all <- read_csv(vessels_all_file_path)
-# Rows: 140405 Columns: 29
-# ── Column specification ─────────────────────────────────────────────────────────
-# Delimiter: ","
-# chr (22): COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE,...
-# dbl  (6): VESSEL_ID, PASSENGER_CAPACITY, YEAR_BUILT, OWNER_ID, SER_ID, UPDATE...
-# lgl  (1): VESSEL_TYPE
-
+# # get vessels and trips 2022 ----
+# # to have vessel official number
+# vessels_trips_22_file_name <-
+#     file.path(input_path, "vessels_trips_22.rds")
+# 
+# vessels_trips_22_query <-
+#   "SELECT
+#   *
+# FROM
+#   safis.trips@secapxdv_dblk.sfsc.noaa.gov
+#   join
+#   safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+#   using(VESSEL_ID)
+# WHERE
+#   ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+#   , 'dd-mon-yy') )
+#   OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+#   , 'dd-mon-yy') )
+# ORDER BY
+#   trip_end_date DESC
+# "
+# vessels_trips_22_fun <- function(vessels_trips_22_query) {
+#   return(dbGetQuery(con,
+#              vessels_trips_22_query))
+# }
+# 
+# vessels_trips_info_2022 <- 
+#   read_rds_or_run(vessels_trips_22_file_name,
+#                   vessels_trips_22_query,
+#                   vessels_trips_22_fun
+#                   )
+# # 2023-07-24 run the function: 39.3 sec elapsed
+# 
+# # get trip neg and vessels 2022 ----
+# # to have vessel official number
+# vessels_trip_neg_2022_file_name <-
+#     file.path(input_path, "vessels_trip_neg_2022.rds")
+# 
+# vessels_trip_neg_2022_query <-
+#   "SELECT
+#   tne.*,
+#   COUNTY_CODE,
+#   STATE_CODE,
+#   ENTRY_DATE,
+#   SUPPLIER_VESSEL_ID,
+#   PORT_CODE,
+#   HULL_ID_NBR,
+#   COAST_GUARD_NBR,
+#   STATE_REG_NBR,
+#   REGISTERING_STATE,
+#   replace(VESSEL_NAME, chr(0), '') VESSEL_NAME,
+#   PASSENGER_CAPACITY,
+#   VESSEL_TYPE,
+#   YEAR_BUILT,
+#   UPDATE_DATE,
+#   PRIMARY_GEAR,
+#   OWNER_ID,
+#   v.EVENT_ID as EVENT_ID_V,
+#   v.DE as DE_V,
+#   v.UE as UE_V,
+#   v.DC as DC_V,
+#   v.UC as UC_V,
+#   v.STATUS as STATUS_V,
+#   SER_ID,
+#   UPDATED_FLAG,
+#   SERO_HOME_PORT_CITY,
+#   SERO_HOME_PORT_COUNTY,
+#   SERO_HOME_PORT_STATE,
+#   SERO_OFFICIAL_NUMBER
+# FROM
+#        safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
+#   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+#   on ( tne.vessel_id = v.vessel_id )
+# WHERE
+#   ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22',
+#   'dd-mon-yy') )"
+# 
+# vessels_trip_neg_2022_fun <- function(vessels_trip_neg_2022_query) {
+#   return(dbGetQuery(con,
+#              vessels_trip_neg_2022_query))
+# }
+# 
+# vessels_trip_neg_2022 <- 
+#   read_rds_or_run(vessels_trip_neg_2022_file_name,
+#                   vessels_trip_neg_2022_query,
+#                   vessels_trip_neg_2022_fun
+#                   )
+# # 2023-07-24 run the function: 125.96 sec elapsed
+# 
+# # get vessels and trip notifications 2022 ----
+# # to have vessel official number
+# vessels_trip_notifications__file_name <-
+#     file.path(input_path, "vessels_trip_notifications_.rds")
+# 
+# vessels_trip_notifications__query <-
+#   "SELECT
+#   *
+# FROM
+#   safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
+#   join
+#   safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+#   using(VESSEL_ID)
+# WHERE
+#   ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+#   , 'dd-mon-yy') )
+#   OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+#   , 'dd-mon-yy') )
+# ORDER BY
+#   trip_end_date DESC
+# "
+# vessels_trip_notifications__fun <-
+#   function(vessels_trip_notifications__query) {
+#     return(dbGetQuery(con,
+#                       vessels_trip_notifications__query))
+#   }
+# 
+# vessels_trip_notifications_2022 <- 
+#   read_rds_or_run(vessels_trip_notifications__file_name,
+#                   vessels_trip_notifications__query,
+#                   vessels_trip_notifications__fun
+#                   )
+# # 2023-07-24 run the function: 12.61 sec elapsed
+# 
+# 
+# # vessels_all <- 
+# # Error in .oci.GetQuery(conn, statement, data = data, prefetch = prefetch,  :
+# #   Error in try({ : embedded nul in string: '\0'
+# 
+# # > dbGetQuery(cnx, "select replace(s, chr(0), '') s from test_00")
+# # dat <- dbGetQuery(myConnection,"SELECT REPLACE(COLUMN_NAME, CHR(0), ' ') AS NEW_COLUMN
+# #                                 FROM MY_TABLE")
+# 
+# # tic("vessels_all")
+# # vessels_all <- dbGetQuery(con,
+# #                           vessels_query)
+# # toc()
+# # Error in try({ : embedded nul in string: '\0'
+# 
+# # dim(vessels_all)
+# # vessels_all_file_path <- file.path(input_path, "vessels.csv")
+# 
+# # vessels_all <- read_csv(vessels_all_file_path)
+# # Rows: 140405 Columns: 29
+# # ── Column specification ─────────────────────────────────────────────────────────
+# # Delimiter: ","
+# # chr (22): COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE,...
+# # dbl  (6): VESSEL_ID, PASSENGER_CAPACITY, YEAR_BUILT, OWNER_ID, SER_ID, UPDATE...
+# # lgl  (1): VESSEL_TYPE
+# 
 # # Where is \\0 : vessel_name ----
 # # tic("vessels_zero")
 # # print_df_names(vessels_trip_notifications_2022 )
