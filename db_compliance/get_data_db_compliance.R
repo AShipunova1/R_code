@@ -297,12 +297,12 @@ vessels_trip_neg_2022_query <-
   UPDATE_DATE,
   PRIMARY_GEAR,
   OWNER_ID,
-  EVENT_ID,
-  DE,
-  UE,
-  DC,
-  UC,
-  STATUS,
+  v.EVENT_ID as EVENT_ID_V,
+  v.DE as DE_V,
+  v.UE as UE_V,
+  v.DC as DC_V,
+  v.UC as UC_V,
+  v.STATUS as STATUS_V,
   SER_ID,
   UPDATED_FLAG,
   SERO_HOME_PORT_CITY,
@@ -312,7 +312,7 @@ vessels_trip_neg_2022_query <-
 FROM
        safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
-  USING ( vessel_id )
+  on ( tne.vessel_id = v.vessel_id )
 WHERE
   ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22',
   'dd-mon-yy') )"
@@ -327,7 +327,8 @@ vessels_trip_neg_2022 <-
                   vessels_trip_neg_2022_query,
                   vessels_trip_neg_2022_fun
                   )
-# Error in try({ : embedded nul in string: '\0'
+# 2023-07-24 run the function: 125.96 sec elapsed
+
 
 
 # get vessels and trip notifications 2022 ----
