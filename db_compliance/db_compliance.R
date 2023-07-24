@@ -786,7 +786,7 @@ max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2
 # 0-109 (without interval_2022)
 # 0-52
 
-data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
+# data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
 # VESSEL_ID            3875
 # weeks_perm_2022_amnt   53
 # VESSEL_ID                3888
@@ -864,6 +864,7 @@ t__tne_22 <-
     suffix = c(".t", ".tne")
   )
 toc()
+# t__tne_22: 35.96 sec elapsed
 
 dim(t__tne_22)
 # [1] 838720     99
@@ -871,44 +872,35 @@ dim(t__tne_22)
 # [1] 844068    119
 # [1] 8785739     103
 
-t__tne_22 |> 
-  filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
-  dim()
-# [1] 5971   99
-# [1] 5575   99
-# [1]   0 119
-
-## fewer columns t__tne_22 ----
-View(t__tne_22)
-
-t__tne__dates_w_cnt_t_tne_short <-
-  t__tne__dates_w_cnt_t_tne |>
-  select(-c
-    YEAR,
-    MONTH_OF_YEAR,
-    WEEK_OF_YEAR,
-    COMPLETE_DATE,
-    TRIP_ID.t,
-    VESSEL_ID,
-    TRIP_END_DATE,
-    SERO_VESSEL_PERMIT,
-    trip_int,
-    TRIP_START_week_num,
-    TRIP_END_week_num,
-    TRIP_START_y,
-    TRIP_END_y,
-    TRIP_START_m,
-    TRIP_END_m,
-    TRIP_ID.tne,
-    TRIP_week_num,
-    TRIP_DATE_y,
-    TRIP_DATE_m,
-    distinct_start_weeks_t,
-    distinct_end_weeks_t,
-    max_weeks_cnt_t,
-    distinct_weeks_ne
-  ) |>
-  distinct()
+# 
+# t__tne__dates_w_cnt_t_tne_short <-
+#   t__tne__dates_w_cnt_t_tne |>
+#   select(-c
+#     YEAR,
+#     MONTH_OF_YEAR,
+#     WEEK_OF_YEAR,
+#     COMPLETE_DATE,
+#     TRIP_ID.t,
+#     VESSEL_ID,
+#     TRIP_END_DATE,
+#     SERO_VESSEL_PERMIT,
+#     trip_int,
+#     TRIP_START_week_num,
+#     TRIP_END_week_num,
+#     TRIP_START_y,
+#     TRIP_END_y,
+#     TRIP_START_m,
+#     TRIP_END_m,
+#     TRIP_ID.tne,
+#     TRIP_week_num,
+#     TRIP_DATE_y,
+#     TRIP_DATE_m,
+#     distinct_start_weeks_t,
+#     distinct_end_weeks_t,
+#     max_weeks_cnt_t,
+#     distinct_weeks_ne
+#   ) |>
+#   distinct()
 
 dim(t__tne__dates)
 # [1] 838720     95
@@ -969,11 +961,10 @@ t__tne__dates_w_cnt_t_tne_short |>
 # TODO: why?
 # 1834 + 3412 = 5246
 
-
-# split ids to easier merge ----
+## split ids to easier merge ----
 # data %>% unnest_wider(ListCol)
-sa_v_p_short_22_w_amnt_all_ids_long <-
-  sa_v_p_short_22_w_amnt |>
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_long <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa |>
   unnest_auto(unique_all_vessel_ids)
 # Using `unnest_longer(unique_all_vessel_ids, indices_include = FALSE)`; no element has names
 
