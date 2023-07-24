@@ -757,9 +757,10 @@ v_trips_info_2022_int_ah_w_y_sero <-
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
 
-print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only)
+# print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only)
 # [1] "EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual"
 
+## get eff_int and 2022 intersection ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
   mutate(permit_eff_int_2022 =
@@ -770,53 +771,18 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa <-
            round()) |>
   distinct()
 
-
-# sa_v_p <-
-#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only
-
-# print_df_names(sa_v_p)
-# EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual
-
-# sa_v_p_short <-
-#   sa_v_p |> 
-#   select(unique_all_vessel_ids,
-#          eff_int)
-
-# sa_v_p_short_22 <-
-#   sa_v_p_short |> 
-#   mutate(eff_int_22 =
-#            lubridate::intersect(eff_int,
-#                                    interval_2022)) |> 
-#   distinct()
-# str(sa_v_p_short_22)
-# [1] 6459    3
-# [1] 3956    3 distinct
-
-# print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
-# [1] 6459   18
-
-sa_v_p_short_22_w_amnt <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa |>
-  group_by(unique_all_vessel_ids) |>
-  mutate(week_amnt =
-           time_length(permit_eff_int_2022, "week")) |> 
-  ungroup()
-
-View(sa_v_p_short_22_w_amnt)
 # [1] 3956    4
 # [1] 6459   19
-# > setdiff(sa_v_p_short_22_w_amnt$weeks_perm_2022_amnt,
-# +         round(sa_v_p_short_22_w_amnt$week_amnt, 0))
-# numeric(0)
 
-min(sa_v_p_short_22_w_amnt$week_amnt, na.rm = T)
+min(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2022_amnt, na.rm = T)
 # [1] 0.1190476
-max(sa_v_p_short_22_w_amnt$week_amnt, na.rm = T)
+
+max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2022_amnt, na.rm = T)
 # 52
 # 0-109 (without interval_2022)
 # 0-52
 
-data_overview(sa_v_p_short_22_w_amnt)
+data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
 # VESSEL_ID            3875
 # weeks_perm_2022_amnt   53
 # VESSEL_ID                3888
@@ -828,6 +794,7 @@ data_overview(sa_v_p_short_22_w_amnt)
 # eff_int               2072
 # eff_int_22             320
 # week_amnt              318
+# weeks_perm_2022_amnt      53
 
 ## combine trips and trip_negative week cnts (logbooks + DNFs) ----
 # trips_info_2022_int_ah_w_y_weeks_cnt_u
