@@ -692,40 +692,40 @@ v_trip_neg_2022_w_y <-
 ## neg trip weeks ----
 # TODO ?do we need a join?
 
-# print_df_names(trip_neg_2022_w_y)
-trip_neg_2022_w_y_cnt_u <-
-  trip_neg_2022_w_y |>
+# print_df_names(v_trip_neg_2022_w_y)
+v_trip_neg_2022_w_y_cnt_u <-
+  v_trip_neg_2022_w_y |>
   group_by(VESSEL_ID) %>%
   summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
-dim(trip_neg_2022_w_y_cnt_u)
+dim(v_trip_neg_2022_w_y_cnt_u)
 # [1] 1709    5
 # [1] 3414    2
 
 ## trip_notif weeks count per vessel ----
-trip_notifications_2022_ah_w_y_cnt_u <-
-  trip_notifications_2022_ah_w_y |>
+v_trip_notifications_2022_ah_w_y_cnt_u <-
+  v_trip_notifications_2022_ah_w_y |>
   group_by(VESSEL_ID) |>
   summarise(
     distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
   )
 
-dim(trip_notifications_2022_ah_w_y_cnt_u)
+dim(v_trip_notifications_2022_ah_w_y_cnt_u)
 # [1] 914   3
 
-trip_notifications_2022_ah_w_y_cnt_u %>%
+v_trip_notifications_2022_ah_w_y_cnt_u %>%
    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
    dim()
 # [1] 0 6
 # ok
 # [1] 57  3
-# TODO: why?
+# TODO: why - long trip
 
 ## trips weeks count per vessel ----
-# View(trips_info_2022_int_ah_w_y)
-trips_info_2022_int_ah_w_y_weeks_cnt_u <-
-  trips_info_2022_int_ah_w_y %>%
+# View(v_trips_info_2022_int_ah_w_y)
+v_trips_info_2022_int_ah_w_y_weeks_cnt_u <-
+  v_trips_info_2022_int_ah_w_y %>%
     # browser()
     group_by(VESSEL_ID) %>%
       summarise(
@@ -734,214 +734,28 @@ trips_info_2022_int_ah_w_y_weeks_cnt_u <-
       ) %>%
       mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
 
-dim(trips_info_2022_int_ah_w_y_weeks_cnt_u)
+dim(v_trips_info_2022_int_ah_w_y_weeks_cnt_u)
 # [1] 1110    7
 # [1] 1934    4
+# [1] 1933    4
 
-trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
+v_trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
    filter(!distinct_start_weeks_t == distinct_end_weeks_t) %>%
    dim()
 # 27
 # 63
+# [1] 64  4
+
 
 # Keep only sero permitted ----
-trips_info_2022_int_ah_w_y_sero <-
-  trips_info_2022_int_ah_w_y |>
+v_trips_info_2022_int_ah_w_y_sero <-
+  v_trips_info_2022_int_ah_w_y |>
   filter(!is.na(SERO_VESSEL_PERMIT)) |>
   distinct()
-
-# no:
-# trip_notifications_2022_ah_w_y_dates |>  filter(!is.na(SERO_VESSEL_PERMIT)) |> dim()
-# trip_neg_2022_w_y_dates |>  filter(!is.na(SERO_VESSEL_PERMIT)) |> dim()
-
-# Join dates_2022 and everything ----
-# get_v_ids and dates only
-
-View(dates_2022)
-## p_v ----
-
-### split all permit intervals by day ? ----
-# View(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
-
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list$dual |> 
-#   group_by(unique_all_vessel_ids) |> 
-#   mutate(union_int_sa = )
-
-### end split all permit intervals by day ----
-
-map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
-#    dual gom_only sa_only
-#   <int>    <int>   <int>
-# 1  3281     3673   13749
-# 2   116      116     116
-# 1   635     1879    6308
-# 2    33       33      33
-# 1   653     1940    6356
-# 2    37       37      37
-# 2    26       26      26
-# 1   917     2066    6459
-# 2    16       16      16
-
-l_names <- 
-  names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
-# [1] "dual"     "gom_only" "sa_only"
-
-# str_split("sa_only", "_")
-# str_split("saonly", "_")
-my_f <- function(curr_permit_region) {
-  # browser()
-  curr_df <-
-    vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list[[curr_permit_region]]
-
-  curr_permit_s_g_all <- curr_df |>
-    select(permit_sa_gom_dual) |>
-    distinct()
-  
-  # treat dual as gom for 2022
-  if (curr_permit_s_g_all == "dual") {
-    curr_permit_s_g <- "gom"
-  } else {
-    curr_permit_s_g_all0 <- str_split(curr_permit_s_g_all, "_")
-    curr_permit_s_g <- curr_permit_s_g_all0[[1]][[1]]
-  }
-  
-  curr_f_name <- paste0("EFFECTIVE_DATE.", curr_permit_s_g)
-  
-  res <-
-    left_join(dates_2022,
-              curr_df,
-              # TODO:  change so not to loose data!
-              join_by(COMPLETE_DATE == !!sym(curr_f_name)))
-  
-  return(res)
-}
-
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates <-
-  # map(l_names, my_f)
-
-# names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates) <- l_names
-
-### check v_ dates join ---- 
-# map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates, dim)
-#    dual gom_only sa_only
-#   <int>    <int>   <int>
-# 1   648     1271    3615
-# 2    36       36      36
-# 1   657     1267    3616
-# 2    40       40      40
-# 2    29       29      29
-
-# data_overview(dates_2022)
-# COMPLETE_DATE 427
-
-data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual)
-# PERMIT_VESSEL_ID            353, 357
-# VESSEL_VESSEL_ID            same
-# EFFECTIVE_DATE.gom          232, 234
-# EFFECTIVE_DATE.sa           230, 232
-# unique_all_vessel_ids       357
-# ---
-# unique_all_vessel_ids   275
-# EFFECTIVE_DATE          201
-
-# data_overview(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$dual)
-# COMPLETE_DATE               427
-# PERMIT_VESSEL_ID            293
-# VESSEL_VESSEL_ID            293
-# SERO_OFFICIAL_NUMBER.gom    293
-
-## t ----
-# print_df_names(trips_info_2022_int_ah_w_y)
-
-# TODO: or end_date? check the difference for output week counts
-t_by <- join_by(COMPLETE_DATE == TRIP_START_DATE)
-
-trips_info_2022_int_ah_w_y_dates <-
-  left_join(dates_2022,
-            trips_info_2022_int_ah_w_y_sero,
-            t_by)
-
-### check numbers ----
-# data_overview(trips_info_2022_int_ah_w_y_dates)
-# COMPLETE_DATE                 427
-# VESSEL_ID                    1935
-# data_overview(trips_info_2022_int_ah_w_y)
-# VESSEL_ID                    1934
-
-trips_info_2022_int_ah_w_y_dates_ids <-
-  trips_info_2022_int_ah_w_y_dates |>
-  select(VESSEL_ID) |>
-  distinct()
-
-trips_info_2022_int_ah_w_y_ids <-
-  trips_info_2022_int_ah_w_y_sero |>
-  select(VESSEL_ID) |>
-  distinct()
-
-setdiff(trips_info_2022_int_ah_w_y_ids, trips_info_2022_int_ah_w_y_dates_ids)
-# 0
-
-## tne ----
-# print_df_names(trip_neg_2022_w_y)
-tne_by <- join_by(COMPLETE_DATE == TRIP_DATE)
-trip_neg_2022_w_y_dates <-
-  left_join(dates_2022,
-            trip_neg_2022_w_y,
-            tne_by)
-
-count_uniq_by_column(trip_neg_2022_w_y)
-# VESSEL_ID       3414
-
-count_uniq_by_column(trip_neg_2022_w_y_dates)
-# COMPLETE_DATE    427
-# VESSEL_ID       3415
-
-# why more vessel_ids? +NA
-
-## tn ----
-
-tn_by <- join_by(COMPLETE_DATE == TRIP_START_DATE)
-trip_notifications_2022_ah_w_y_dates <-
-  left_join(dates_2022,
-            trip_notifications_2022_ah_w_y,
-            tn_by)
-
-count_uniq_by_column(trip_notifications_2022_ah_w_y)
-# VESSEL_ID                      914
-# TRIP_START_DATE                378
-
-count_uniq_by_column(trip_notifications_2022_ah_w_y_dates)
-# COMPLETE_DATE                  427
-# VESSEL_ID                      915
-# TRIP_START_DATE                378
-# VESSEL_ID                      914
-
-# dates and everethyng results:
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates
-# trip_notifications_2022_ah_w_y_dates
-# trip_neg_2022_w_y_dates
-# trips_info_2022_int_ah_w_y_dates
 
 # SA 2022 compliance ----
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
-
-# ## keep only sero permitted
-# 
-# trip_notifications_2022_ah_w_y_dates_s <-
-#   trip_notifications_2022_ah_w_y_dates |> 
-#   filter(!is.na())
-# data_overview(trips_info_2022_int_ah_w_y_dates)
-# 
-# trip_neg_2022_w_y_dates
-# data_overview(trips_info_2022_int_ah_w_y_dates)
-
-## add 2022 SA period weeks amnt to v permit ----
-# vessels_permits_2022 |> View()
-#   filter(PERMIT_VESSEL_ID == 'FL8701TB') |> View()
-# vessels_permits_2022 |>
-#   filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
-# TODO: fix end in 2023 disappeared
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$sa_only |>
