@@ -1224,6 +1224,16 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_ids <-
   select(unique_all_vessel_ids) |>
   distinct()
 
+intersect(t__tne__dates_w_cnt_t_tne_short$VESSEL_ID,
+          vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_ids$unique_all_vessel_ids) |> 
+  length()
+# [1] 2428
+
+# length(unique(t__tne__dates_w_cnt_t_tne_short$VESSEL_ID))
+# [1] 3880
+
+
+
 ## join v_p and t_tne ----
 sa_v_p_t_tne_by1 <-
   dplyr::join_by(unique_all_vessel_ids_2 == VESSEL_ID)
