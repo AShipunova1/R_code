@@ -963,8 +963,12 @@ sa_v_p_short_22 <-
   sa_v_p_short |> 
   mutate(eff_int_22 =
            lubridate::intersect(eff_int,
-                                   interval_2022))
-# glimpse(sa_v_p_short_22)
+                                   interval_2022)) |> 
+  distinct()
+# str(sa_v_p_short_22)
+# [1] 6459    3
+# [1] 3956    3 distinct
+
 
 sa_v_p_short_22_w_amnt <-
   sa_v_p_short_22 |>
@@ -973,7 +977,9 @@ sa_v_p_short_22_w_amnt <-
            time_length(eff_int_22, "week")) |> 
   ungroup()
 
-# View(sa_v_p_short_22_w_amnt)
+dim(sa_v_p_short_22_w_amnt)
+# [1] 3956    4
+
 min(sa_v_p_short_22_w_amnt$week_amnt, na.rm = T)
 # [1] 0.1190476
 max(sa_v_p_short_22_w_amnt$week_amnt, na.rm = T)
@@ -1127,25 +1133,34 @@ t__tne__dates_w_cnt_t_tne_short |>
 # TODO: why?
 # 1834 + 3412 = 5246
 
+
+# split ids to easier merge ----
+# data %>% unnest_wider(ListCol)
+sa_v_p_short_22_w_amnt_all_ids_long <-
+  sa_v_p_short_22_w_amnt |>
+  unnest_auto(unique_all_vessel_ids)
+# Using `unnest_longer(unique_all_vessel_ids, indices_include = FALSE)`; no element has names
+
+sa_v_p_short_22_w_amnt_all_ids_wide <-
+  sa_v_p_short_22_w_amnt |>
+  unnest_wider(unique_all_vessel_ids, names_sep = "_")
+
+dim(sa_v_p_short_22_w_amnt_all_ids_long)
+# [1] 8067    4
+
+dim(sa_v_p_short_22_w_amnt_all_ids_wide)
+# [1] 3956    6
+
 ## combine dates with v_p, t, tne ----
 # to see the weeks with no reports
 
-# print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+print_df_names(sa_v_p_short_22_w_amnt)
+# [1] "unique_all_vessel_ids, eff_int, eff_int_22, week_amnt"
 
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_short <-
-#   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
-#   select(contains("VESSEL"), weeks_perm_2022_amnt) |>
-#   distinct()
-
-# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+dim(sa_v_p_short_22_w_amnt)
 # [1] 3615   22
 # [1] 3616   24
-
-# dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_short)
-# [1] 3464    5
-# [1] 3452    5
-
-# print_df_names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
+# [1] 3956    4
 
 v_p_t_tne_dates_by = join_by(YEAR,
             MONTH_OF_YEAR,
