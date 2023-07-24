@@ -1215,6 +1215,15 @@ sa_v_p_short_22_w_amnt_all_ids_wide |>
 # unique_all_vessel_ids_2 2196
 # unique_all_vessel_ids_3   69
 
+
+##### is the rest gom/dual? 
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_ids <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
+  # print_df_names()
+  unnest_longer(unique_all_vessel_ids) |>
+  select(unique_all_vessel_ids) |>
+  distinct()
+
 ## join v_p and t_tne ----
 sa_v_p_t_tne_by1 <-
   dplyr::join_by(unique_all_vessel_ids_2 == VESSEL_ID)
@@ -1231,19 +1240,19 @@ sa_v_p_t_tne1 <-
 # print_df_names(sa_v_p_t_tne1)
 # [1] "unique_all_vessel_ids_1, unique_all_vessel_ids_2, unique_all_vessel_ids_3, eff_int, eff_int_22, week_amnt, YEAR, MONTH_OF_YEAR, WEEK_OF_YEAR, COMPLETE_DATE, TRIP_ID.t, TRIP_END_DATE, SERO_VESSEL_PERMIT, trip_int, TRIP_START_week_num, TRIP_END_week_num, TRIP_START_y, TRIP_END_y, TRIP_START_m, TRIP_END_m, TRIP_ID.tne, TRIP_week_num, TRIP_DATE_y, TRIP_DATE_m, distinct_start_weeks_t, distinct_end_weeks_t, max_weeks_cnt_t, distinct_weeks_ne"
 
-sa_v_p_t_tne_by2 <-
-  dplyr::join_by(unique_all_vessel_ids_3 == VESSEL_ID)
-
-tic("sa_v_p_t_tne2")
-sa_v_p_t_tne2 <-
-  full_join(
-    sa_v_p_t_tne1,
-    t__tne__dates_w_cnt_t_tne_short,
-    sa_v_p_t_tne_by2,
-    relationship = "many-to-many",
-    suffix = c(".v_p", ".t_tne")
-  )
-toc()
+# sa_v_p_t_tne_by2 <-
+#   dplyr::join_by(unique_all_vessel_ids_3 == VESSEL_ID)
+# 
+# tic("sa_v_p_t_tne2")
+# sa_v_p_t_tne2 <-
+#   full_join(
+#     sa_v_p_t_tne1,
+#     t__tne__dates_w_cnt_t_tne_short,
+#     sa_v_p_t_tne_by2,
+#     relationship = "many-to-many",
+#     suffix = c(".v_p", ".t_tne")
+#   )
+# toc()
 # sa_v_p_t_tne2: 52.23 sec elapsed
 
 dim(sa_v_p_t_tne2)
