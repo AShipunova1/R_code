@@ -666,9 +666,9 @@ v_trip_notifications_2022_ah_w_y <-
   )
 
 ## to negative trips ----
-# print_df_names(trip_neg_2022)
-trip_neg_2022_w_y <-
-  trip_neg_2022 %>%
+## rename duplicate columns ---- 
+v_trip_neg_2022_w_y <-
+  vessels_trip_neg_2022 %>%
   mutate(
     TRIP_week_num =
       strftime(TRIP_DATE, format = "%U"),
@@ -681,10 +681,10 @@ trip_neg_2022_w_y <-
            as.double(TRIP_week_num))
 
 # results:
-# vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list
-# trips_info_2022_int_ah_w_y
-# trip_neg_2022_w_y
-# trip_notifications_2022_ah_w_y
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list
+# v_trips_info_2022_int_ah_w_y
+# v_trip_neg_2022_w_y
+# v_trip_notifications_2022_ah_w_y
 # end of data preparations ----
 
 # Count distinct weeks per vessel ----
