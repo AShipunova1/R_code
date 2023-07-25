@@ -635,7 +635,7 @@ trip_neg_2022_short <-
   select(-any_of(t_names_to_rm)) |>
   distinct()
 
-trip_notifications_2022_short <-
+trips_notifications_2022_short <-
   trip_notifications_2022 |>
   select(-any_of(t_names_to_rm)) |>
   distinct()
@@ -668,7 +668,7 @@ trips_info_2022_int_ah <-
 # Trip notifications (= declarations) ----
 
 ## trip types A and H trip_notif ----
-trip_notifications_2022 %>%
+trips_notifications_2022 %>%
    select(TRIP_TYPE) %>% distinct()
 #     TRIP_TYPE
 # 1           H
@@ -676,8 +676,8 @@ trip_notifications_2022 %>%
 # 383         R
 # 697         C
 
-trip_notifications_2022_ah <-
-  trip_notifications_2022_short %>%
+trips_notifications_2022_ah <-
+  trips_notifications_2022_short %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
 # add week num ----
@@ -725,8 +725,8 @@ trips_info_2022_int_ah_w_y <-
 # str(v_trips_info_2022_int_ah_w_y)
 
 ## to trip notifications ----
-trip_notifications_2022_ah_w_y <-
-  trip_notifications_2022_ah %>%
+trips_notifications_2022_ah_w_y <-
+  trips_notifications_2022_ah %>%
   mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
@@ -769,142 +769,8 @@ dim(trips_info_2022_int_ah_w_y)
 # [1] 97003    15
 dim(trip_neg_2022_w_y)
 # [1] 747173      6
-dim(trip_notifications_2022_ah_w_y)
+dim(trips_notifications_2022_ah_w_y)
 # [1] 67738    33
-
-# end of data preparations ----
-
-# Count distinct weeks per vessel ----
-
-## neg trip weeks ----
-# TODO ?do we need a join?
-
-# print_df_names(v_trip_neg_2022_w_y)
-trip_neg_2022_w_y_cnt_u <-
-  trip_neg_2022_w_y |>
-  group_by(VESSEL_ID) %>%
-  mutate(distinct_weeks_ne = n_distinct(TRIP_week_num))
-
-dim(trip_neg_2022_w_y_cnt_u)
-# [1] 1709    5
-# [1] 3414    2 summarize
-# [1] 747078     44 mutate
-# [1] 747173      7
-
-## trip_notif weeks count per vessel ----
-trip_notifications_2022_ah_w_y_cnt_u <-
-  trip_notifications_2022_ah_w_y |>
-  group_by(VESSEL_ID) |>
-  mutate(
-    distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
-    distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
-  )
-
-dim(trip_notifications_2022_ah_w_y_cnt_u)
-# [1] 914   3 summarize
-# [1] 67738    35
-
-trip_notifications_2022_ah_w_y_cnt_u %>%
-   filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
-   dim()
-# [1] 0 6
-# ok
-# [1] 57  3
-# TODO: why - long trip
-# [1] 6318   35
-
-## trips weeks count per vessel ----
-# View(v_trips_info_2022_int_ah_w_y)
-trips_info_2022_int_ah_w_y_weeks_cnt_u <-
-  trips_info_2022_int_ah_w_y %>%
-    group_by(VESSEL_ID) %>%
-      mutate(
-        distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
-        distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
-      ) %>%
-      mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
-
-dim(trips_info_2022_int_ah_w_y_weeks_cnt_u)
-# [1] 1110    7
-# [1] 1934    4
-# [1] 1933    4 summarize
-# [1] 96990   110
-# [1] 97003    18
-
-trips_info_2022_int_ah_w_y_weeks_cnt_u |>
-  filter(!distinct_start_weeks_t == distinct_end_weeks_t) |>
-  dim()
-# 27
-# 63
-# [1] 64  4
-# [1] 3628  110 - long trips
-# [1] 3552   18
-
-# Keep only SERO permitted ----
-trips_info_2022_int_ah_w_y_sero <-
-  trips_info_2022_int_ah_w_y |>
-  filter(!is.na(SERO_VESSEL_PERMIT)) |>
-  distinct()
-
-# SA 2022 compliance ----
-# There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
-# DNFs should not be submitted more than 30 days in advance
-
-# print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only)
-# [1] "EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual"
-
-## eff_int and 2022 intersection ----
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
-  mutate(permit_eff_int_2022 =
-           lubridate::intersect(eff_int,
-                                interval_2022)) |>
-  mutate(weeks_perm_2022_amnt =
-           (permit_eff_int_2022 / lubridate::dweeks(1)) |>
-           round()) |>
-  distinct()
-
-dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
-# [1] 3956    4
-# [1] 6459   20
-
-min(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2022_amnt, na.rm = T)
-# [1] 0.1190476
-
-max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2022_amnt, na.rm = T)
-# 52
-# 0-109 (without interval_2022)
-# 0-52
-
-# data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
-# VESSEL_ID            3875
-# weeks_perm_2022_amnt   53
-# VESSEL_ID                3888
-# today() [1] "2023-07-17"
-# VESSEL_VESSEL_ID           3181
-# weeks_perm_2022_amnt         54
-# ---
-# unique_all_vessel_ids 3956
-# eff_int               2072
-# eff_int_22             320
-# week_amnt              318
-# ---
-# unique_all_vessel_ids   3956
-# eff_int                 2072
-# permit_eff_int_2022      320
-# weeks_perm_2022_amnt      53
-
-## all weeks of 2022 * all vessels ----
-# each can have:
-# 1) a permit
-# 2) a trip
-# 3) a negative report
-# 1 only
-# 1,2
-# 1,3
-# 2 only
-# 3 only
-# 2,3?
 
 ## add all weeks to each df ----
 
@@ -1004,112 +870,157 @@ tne_d_w <-
 toc()
 # tne_d_w: 0.96 sec elapsed
 
-## trips in the permit period ---- 
-v_p_t <-
-  full_join(
-    vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa,
-    trips_info_2022_int_ah_w_y_weeks_cnt_u,
-    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
-    relationship = "many-to-many",
-    suffix = c(".v_p", ".t")
-  )
+### tn by start ----
 
-dim(v_p_t)
-# [1] 139572     37
+tn_dates_by <-
+   join_by(date_y_m     == TRIP_START_m,
+           WEEK_OF_YEAR == TRIP_START_week_num
+)
 
-tic("v_p_t__t_in_p")
-v_p_t__t_in_p <-
-  v_p_t |>
-  group_by(VESSEL_VESSEL_ID) |>
-  filter(trip_int %within% permit_eff_int_2022) |>
-  ungroup() |> 
-  distinct()
+tic("tn_d_w")  
+tn_d_w <-
+   full_join(
+     dates_2022_w,
+     trips_notifications_2022_ah_w_y_cnt_u,
+     tn_dates_by
+     # ,
+     # relationship = "many-to-many"
+   )
 toc()
 
-# v_p_t__t_in_p: 24.43 sec elapsed
-dim(v_p_t__t_in_p)
-# [1] 83842    37
-# v_p_t__t_in_p |> head() |> View()
 
-## Data per year, vessel, sa trips ----
-v_p_t__t_in_p_short_y <-
-  v_p_t__t_in_p |>
-  select(VESSEL_VESSEL_ID,
-         permit_eff_int_2022,
-         weeks_perm_2022_amnt,
-         max_weeks_cnt_t) |>
-  distinct()
+## 
+# end of data preparations ----
 
-# Data per year, vessel, sa trips
-View(v_p_t__t_in_p_short_y)
-# [1] 1081    4
+# Count distinct weeks per vessel ----
 
-## Data per month, vessel, sa trips ----
-v_p_t__t_in_p_short_m <-
-  v_p_t__t_in_p |>
-  select(VESSEL_VESSEL_ID,
-         TRIP_START_m, 
-         TRIP_END_m,
-         trip_int,
-         permit_eff_int_2022,
-         weeks_perm_2022_amnt
-         ) |>
-  distinct()
+## neg trip weeks ----
+# TODO ?do we need a join?
 
-dim(v_p_t__t_in_p_short_m)
-# [1] 42918     7
+# print_df_names(v_trip_neg_2022_w_y)
+trip_neg_2022_w_y_cnt_u <-
+  trip_neg_2022_w_y |>
+  group_by(VESSEL_ID) %>%
+  mutate(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
-# TODO count weeks in month
-# TODO: repeat both with intersections of trip and permit intervals
+dim(trip_neg_2022_w_y_cnt_u)
+# [1] 1709    5
+# [1] 3414    2 summarize
+# [1] 747078     44 mutate
+# [1] 747173      7
 
-## trip negative in the permit period
-v_p_tne <-
-  full_join(
-    vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa,
-    trip_neg_2022_w_y_cnt_u,
-    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
-    relationship = "many-to-many",
-    suffix = c(".v_p", ".tne")
+## trip_notif weeks count per vessel ----
+trips_notifications_2022_ah_w_y_cnt_u <-
+  trips_notifications_2022_ah_w_y |>
+  group_by(VESSEL_ID) |>
+  mutate(
+    distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
+    distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
   )
 
-dim(v_p_tne)
-# [1] 1004319      26
+dim(strips_notifications_2022_ah_w_y_cnt_u)
+# [1] 914   3 summarize
+# [1] 67738    35
 
-tic("v_p_tne__tne_in_p")
-v_p_tne__tne_in_p <-
-  v_p_tne |>
-  group_by(VESSEL_VESSEL_ID) |>
-  filter(TRIP_DATE %within% permit_eff_int_2022) |>
-  ungroup() |> 
+trips_notifications_2022_ah_w_y_cnt_u %>%
+   filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
+   dim()
+# [1] 0 6
+# ok
+# [1] 57  3
+# TODO: why - long trip
+# [1] 6318   35
+
+## trips weeks count per vessel ----
+# View(v_trips_info_2022_int_ah_w_y)
+trips_info_2022_int_ah_w_y_weeks_cnt_u <-
+  trips_info_2022_int_ah_w_y %>%
+    group_by(VESSEL_ID) %>%
+      mutate(
+        distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
+        distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
+      ) %>%
+      mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
+
+dim(trips_info_2022_int_ah_w_y_weeks_cnt_u)
+# [1] 1110    7
+# [1] 1934    4
+# [1] 1933    4 summarize
+# [1] 96990   110
+# [1] 97003    18
+
+trips_info_2022_int_ah_w_y_weeks_cnt_u |>
+  filter(!distinct_start_weeks_t == distinct_end_weeks_t) |>
+  dim()
+# 27
+# 63
+# [1] 64  4
+# [1] 3628  110 - long trips
+# [1] 3552   18
+
+# Keep only SERO permitted ----
+trips_info_2022_int_ah_w_y_sero <-
+  trips_info_2022_int_ah_w_y |>
+  filter(!is.na(SERO_VESSEL_PERMIT)) |>
   distinct()
-toc()
-# v_p_tne__tne_in_p: 11.11 sec elapsed
 
-## Data per year, vessel, sa trips neg ----
-v_p_tne__tne_in_p_short_y <-
-  v_p_tne__tne_in_p |>
-  select(VESSEL_VESSEL_ID,
-         permit_eff_int_2022,
-         weeks_perm_2022_amnt,
-         distinct_weeks_ne) |>
+# SA 2022 compliance ----
+# There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
+# DNFs should not be submitted more than 30 days in advance
+
+# print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only)
+# [1] "EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual"
+
+## eff_int and 2022 intersection ----
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
+  mutate(permit_eff_int_2022 =
+           lubridate::intersect(eff_int,
+                                interval_2022)) |>
+  mutate(weeks_perm_2022_amnt =
+           (permit_eff_int_2022 / lubridate::dweeks(1)) |>
+           round()) |>
   distinct()
 
-data_overview(v_p_tne__tne_in_p_short_y)
-# [1] 1672    4
-# VESSEL_VESSEL_ID     1672
-# permit_eff_int_2022   218
-# weeks_perm_2022_amnt   52
-# distinct_weeks_ne      53
+dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
+# [1] 3956    4
+# [1] 6459   20
 
-v_p_tne__tne_in_p_short_m <-
-  v_p_tne__tne_in_p |>
-  select(VESSEL_VESSEL_ID,
-         TRIP_DATE_m, 
-         permit_eff_int_2022,
-         weeks_perm_2022_amnt
-         ) |>
-  distinct()
+min(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2022_amnt, na.rm = T)
+# [1] 0.1190476
 
-dim(v_p_tne__tne_in_p_short_m)
-# [1] 14844     4
-# TODO for noth t and tne caluclate weeks again, inside each permit
+max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2022_amnt, na.rm = T)
+# 52
+# 0-109 (without interval_2022)
+# 0-52
+
+# data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
+# VESSEL_ID            3875
+# weeks_perm_2022_amnt   53
+# VESSEL_ID                3888
+# today() [1] "2023-07-17"
+# VESSEL_VESSEL_ID           3181
+# weeks_perm_2022_amnt         54
+# ---
+# unique_all_vessel_ids 3956
+# eff_int               2072
+# eff_int_22             320
+# week_amnt              318
+# ---
+# unique_all_vessel_ids   3956
+# eff_int                 2072
+# permit_eff_int_2022      320
+# weeks_perm_2022_amnt      53
+
+## all weeks of 2022 * all vessels ----
+# SA: each can have:
+# 1) a permit
+# 2) a trip
+# 3) a negative report
+# 1 only
+# 1,2
+# 1,3
+# 2 only
+# 3 only
+# 2,3?
+

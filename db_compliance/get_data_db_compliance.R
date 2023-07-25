@@ -150,8 +150,8 @@ dim(trip_neg_2022)
 # [1] 746087     12
 # [1] 747173     12
 
-# trip_notifications ----
-trip_notifications_2022_query <-
+# trips_notifications ----
+trips_notifications_2022_query <-
   "SELECT
  *
 FROM
@@ -163,25 +163,25 @@ WHERE
   , 'dd-mon-yy') )
 "
 
-trip_notifications_2022_file_path <- 
-  file.path(input_path, "trip_notifications_2022.rds")
+trips_notifications_2022_file_path <- 
+  file.path(input_path, "trips_notifications_2022.rds")
 
-trip_notifications_2022_fun <- function(trip_notifications_2022_query) {
-  return(dbGetQuery(con, trip_notifications_2022_query))
+trips_notifications_2022_fun <- function(trips_notifications_2022_query) {
+  return(dbGetQuery(con, trips_notifications_2022_query))
 }
-# trip_notifications_query: 52.08 sec elapsed
+# trips_notifications_query: 52.08 sec elapsed
 # 97279
-# trip_notifications_query: 7.65 sec elapsed
+# trips_notifications_query: 7.65 sec elapsed
 
-trip_notifications_2022 <-
+trips_notifications_2022 <-
   read_rds_or_run(
-    trip_notifications_2022_file_path,
-    trip_notifications_2022_query,
-    trip_notifications_2022_fun
+    trips_notifications_2022_file_path,
+    trips_notifications_2022_query,
+    trips_notifications_2022_fun
   )
 # 2023-07-15 run the function: 13.41 sec elapsed
 
-dim(trip_notifications_2022)
+dim(trips_notifications_2022)
 # Rows: 129,701
 # [1] 70056    33
 
@@ -333,14 +333,14 @@ vessels_permits_2022 <-
 # 
 # # get vessels and trip notifications 2022 ----
 # # to have vessel official number
-# vessels_trip_notifications__file_name <-
-#     file.path(input_path, "vessels_trip_notifications_.rds")
+# vessels_trips_notifications__file_name <-
+#     file.path(input_path, "vessels_trips_notifications_.rds")
 # 
-# vessels_trip_notifications__query <-
+# vessels_trips_notifications__query <-
 #   "SELECT
 #   *
 # FROM
-#   safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
+#   safis.trips_notifications@secapxdv_dblk.sfsc.noaa.gov
 #   join
 #   safis.vessels@secapxdv_dblk.sfsc.noaa.gov
 #   using(VESSEL_ID)
@@ -352,16 +352,16 @@ vessels_permits_2022 <-
 # ORDER BY
 #   trip_end_date DESC
 # "
-# vessels_trip_notifications__fun <-
-#   function(vessels_trip_notifications__query) {
+# vessels_trips_notifications__fun <-
+#   function(vessels_trips_notifications__query) {
 #     return(dbGetQuery(con,
-#                       vessels_trip_notifications__query))
+#                       vessels_trips_notifications__query))
 #   }
 # 
-# vessels_trip_notifications_2022 <- 
-#   read_rds_or_run(vessels_trip_notifications__file_name,
-#                   vessels_trip_notifications__query,
-#                   vessels_trip_notifications__fun
+# vessels_trips_notifications_2022 <- 
+#   read_rds_or_run(vessels_trips_notifications__file_name,
+#                   vessels_trips_notifications__query,
+#                   vessels_trips_notifications__fun
 #                   )
 # # 2023-07-24 run the function: 12.61 sec elapsed
 # 
@@ -393,7 +393,7 @@ vessels_permits_2022 <-
 # 
 # # Where is \\0 : vessel_name ----
 # # tic("vessels_zero")
-# # print_df_names(vessels_trip_notifications_2022 )
+# # print_df_names(vessels_trips_notifications_2022 )
 # 
 # field_names <- 
 #   c("VESSEL_ID",
@@ -459,7 +459,7 @@ vessels_permits_2022 <-
 # 
 # # dim(permit_info)
 # # dim(trip_neg_2022)
-# # dim(trip_notifications_2022)
+# # dim(trips_notifications_2022)
 # # dim(trips_info_2022)
 # # dim(vessels_all)
 # 
