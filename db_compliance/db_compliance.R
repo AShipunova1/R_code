@@ -1082,7 +1082,7 @@ trips_info_2022_int_ah_w_y_sero <-
 # 2,3?
 
 ## SA: compliant vessels per year ----
-
+# TODO move up the joins, bc the same for GOM
 ### rm dates, leave w, m, y ----
 #### v_p_d ----
 # print_df_names(v_p_d_w_sa_22)
@@ -1159,6 +1159,51 @@ tne_d_w |>
 
 # dim(tne_d_w_short)
 # [1] 136333      6
+
+
+#### tn_d ----
+print_df_names(tn_d_w)
+tn_d_w_short <-
+  tn_d_w |>
+  select(
+    -c(
+      NOTIFICATION_TYPE_ID,
+      SYSTEM_ID,
+      TRIP_TYPE,
+      TRIP_START_DATE,
+      ARRIVAL_PORT,
+      DEPARTURE_PORT,
+      NOTIFICATION_SEQ,
+      CANCEL_FLAG,
+      TRIP_END_DATE,
+      TRIP_ID,
+      TRIP_START_DATE_TIME,
+      EMAIL_SENT,
+      TRIP_ID,
+      INTENDED_FISHING_FLAG,
+      LANDING_LOCATION,
+      DEA_PERMIT_SOLD_NOTIFICATION,
+      GEAR_NOTIFICATION,
+      LANDING_LOCATION_NAME,
+      STAT_ZONE,
+      LANDING_LOCATION_STATE,
+      LANDING_LOCATION_COUNTY,
+      LANDING_LOCATION_CITY,
+      PROCESSED,
+      PROCESSED_TIMESTAMP,
+      RAW_INPUT_ID,
+      NOTIFICATION_TIME_ZONE
+    )
+  ) |> 
+  distinct()
+
+tn_d_w |> 
+  filter(!YEAR == TRIP_START_y) |> 
+  dim()
+# 0
+
+View(tn_d_w_short)
+# [1] 21211    10
 
 ## join by week ----
 # v_p_d_w_sa_22_short
@@ -1394,3 +1439,31 @@ t_d_w |>
   filter(is.na(YEAR)) |> 
   glimpse()
 # 0 with left join
+
+# plot SA year
+data_overview(v_p__tne__t_d_weeks_compl_w_cnt_short)
+# VESSEL_VESSEL_ID     3997
+# PERMIT_VESSEL_ID     1690
+
+data_overview(not_compliant)
+# VESSEL_VESSEL_ID        2268
+# PERMIT_VESSEL_ID        2269
+
+# compl
+1690 * 100 / (1690 + 2269)
+# [1] 42.68755
+
+# non compl
+2269 * 100 / (1690 + 2269)
+# [1] 57.31245
+
+# (was 41% yes vs. 59% no)
+  # pivot_longer(cols = c(percent_compl,
+  #                       percent_non_compl),
+  #              names_to = "is_compliant",
+  #              values_to = "percent")
+  # 
+  #   y_r_title = curr_year_region
+  #   plots_for_c_vs_nc_vsls(curr_df, y_r_title)
+
+# GOM + dual compl by year ----
