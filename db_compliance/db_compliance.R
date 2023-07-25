@@ -1206,7 +1206,6 @@ View(tn_d_w_short)
 # [1] 21211    10
 
 ## join by week ----
-# v_p_d_w_sa_22_short
 
 tic("v_p__tne_d_weeks")
 v_p__tne_d_weeks <-
@@ -1467,3 +1466,97 @@ data_overview(not_compliant)
   #   plots_for_c_vs_nc_vsls(curr_df, y_r_title)
 
 # GOM + dual compl by year ----
+
+## join by week ----
+
+tic("v_p__tn_d_weeks")
+v_p__tn_d_weeks <-
+  full_join(
+    v_p_d_w_sa_22_short,
+    tn_d_w_short,
+    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
+    relationship = "many-to-many"
+  )
+toc()
+# v_p__tn_d_weeks: 0.39 sec elapsed
+dim(v_p__tn_d_weeks)
+# [1] 28213    20
+
+common_names <-
+  intersect(names(v_p__tn_d_weeks),
+            names(t_d_w_short))
+
+# common_names |>
+#   head(100) %>%
+#   paste0(collapse = ", ")
+  
+tic("v_p__tn__t_d_weeks")
+v_p__tn__t_d_weeks <-
+  full_join(
+    v_p__tn_d_weeks,
+    t_d_w_short,
+    join_by(
+      YEAR,
+      MONTH_OF_YEAR,
+      WEEK_OF_YEAR,
+      date_y_m,
+      VESSEL_VESSEL_ID == VESSEL_ID
+    ),
+    relationship = "many-to-many",
+    suffix = c(".tn", ".t")
+  )
+toc()
+# v_p__tn__t_d_weeks: 0.11 sec elapsed
+
+dim(v_p__tn__t_d_weeks)
+# [1] 49539    24
+
+# data_overview(v_p__tn__t_d_weeks)
+# VESSEL_VESSEL_ID        4865
+# PERMIT_VESSEL_ID        3957 (same as for SA)
+# TODO: WHY?
+# date_y_m                  25
+# TODO: WHY? (12 month)
+# YEAR                       4
+
+# print_df_names(v_p__tn__t_d_weeks)
+
+v_p__tn__t_d_weeks |>
+  filter(WEEK_OF_YEAR == 0) |>
+    filter(!is.na(TRIP_START_y.tn)) |>
+  View()
+
+# TODO: check if permit_id in tn mean the same as in p_v
+# 
+# ===
+
+v_p__tn__t_d_weeks_compl <-
+  v_p__tn__t_d_weeks |> 
+  mutate(is_compliant = case_when(
+    is.na(TRIP_START_y.t) & is.na(TRIP_START_y.tn) ~
+      "no",
+    .default = "yes"
+  ))
+
+v_p__tn__t_d_weeks_compl |> 
+  select(PERMIT_VESSEL_ID) |> 
+  distinct() |> 
+  dim()
+# 3957    
+
+v_p__tn__t_d_weeks_compl |> 
+  select(PERMIT_VESSEL_ID, is_compliant) |> 
+  distinct() |> 
+  count(is_compliant)
+# 1 no            3895
+# 2 yes             63
+
+3895 * 100 / (3957)
+# [1] 98.43316
+
+63 * 100 / (3957)
+# [1] 1.592115
+
+# Was 78% yes and 20% no
+# TODO: why?
+# 
