@@ -727,7 +727,12 @@ trips_info_2022_int_ah_w_y <-
       as.double(TRIP_END_week_num)
   )
 
-# str(v_trips_info_2022_int_ah_w_y)
+# str(trips_info_2022_int_ah_w_y)
+trips_info_2022_int_ah_w_y |> 
+  filter(TRIP_START_week_num == 0) |> 
+  dim()
+# TRIP_START_m == "Jan 2022"
+# [1] 104  15
 
 ## to trip notifications ----
 trips_notifications_2022_ah_w_y <-
@@ -753,6 +758,12 @@ trips_notifications_2022_ah_w_y <-
       as.double(TRIP_END_week_num)
   )
 
+trips_notifications_2022_ah_w_y |> 
+  filter(TRIP_START_week_num == 0) |> 
+  View()
+# [1] 32 33
+
+
 ## to negative trips ----
 
 trip_neg_2022_w_y <-
@@ -766,7 +777,14 @@ trip_neg_2022_w_y <-
       zoo::as.yearmon(TRIP_DATE)
   ) %>%
   mutate(TRIP_week_num =
-           as.double(TRIP_week_num))
+           as.double(TRIP_week_num)) |> 
+  mutate()
+
+# check 
+trip_neg_2022_w_y |> 
+  filter(TRIP_week_num == 0 & TRIP_DATE_m == "Jan 2022") |> 
+  dim()
+# [1] 2101    6
 
 # results:
 length(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
@@ -781,9 +799,38 @@ dim(trips_notifications_2022_ah_w_y)
 
 # View(dates_2022)
 
-dates_2022_yw <-
+dates_2022_yw0 <-
   dates_2022 |> 
   mutate(date_y_m = as.yearmon(COMPLETE_DATE))
+
+dates_2022_yw0 |> 
+  head(28) |> 
+  tail()
+# 24 2021  12  52 2021-12-30 23:00:00 Dec 2021
+# 25 2022   1  52 2021-12-31 23:00:00 Jan 2022!
+# 26 2022   1  52 2022-01-01 23:00:00 Jan 2022!
+# 27 2022   1  1  2022-01-03 23:00:00 Jan 2022
+# 28 2022   1  1  2022-01-05 23:00:00 Jan 2022
+
+dates_2022_yw <-
+  dates_2022_yw0 |>
+  # remove all before the last week of 2021
+  # TODO check if there are earlier reports with an end date in 2022
+  filter(!(MONTH_OF_YEAR == 12 &
+             YEAR == 2021 &
+             WEEK_OF_YEAR < 52)) |>
+  mutate(WEEK_OF_YEAR =
+    case_when(
+      MONTH_OF_YEAR == 1 &
+        YEAR == 2022 &
+        WEEK_OF_YEAR == 52
+      ~ WEEK_OF_YEAR == 0,
+      .default = WEEK_OF_YEAR
+    )
+  )
+
+View(dates_2022_yw)
+# [1] 401   6
 
 dates_2022_w <-
   dates_2022_yw |>
@@ -861,6 +908,9 @@ toc()
 # [1] 627414     17
 
 ### tne ----
+# tne_d_w |> 
+#   filter(WEEK_OF_YEAR == 0) |> 
+#   glimpse()
 
 tne_dates_by <-
    join_by(date_y_m     == TRIP_DATE_m,
@@ -1177,4 +1227,9 @@ v_p__tne__t_d_weeks |>
   select(MONTH_OF_YEAR) |> 
     distinct() |> 
     arrange(MONTH_OF_YEAR)
+
+v_p__tne__t_d_weeks |> 
+  filter(WEEK_OF_YEAR == 0) |> 
+    filter(!is.na(TRIP_START_y)) |> 
+  View()
 
