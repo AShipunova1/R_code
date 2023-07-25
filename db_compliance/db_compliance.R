@@ -906,7 +906,103 @@ max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2
 # 3 only
 # 2,3?
 
-# View(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
+## add all weeks to each df ----
+
+# View(dates_2022)
+
+dates_2022_yw <-
+  dates_2022 |> 
+  mutate(date_y_m = as.yearmon(COMPLETE_DATE))
+
+dates_2022_w <-
+  dates_2022_yw |>
+  select(-COMPLETE_DATE)
+
+# str(dates_2022_w)
+
+### v_p ----
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa |>
+  select(
+    VESSEL_VESSEL_ID,
+    PERMIT_VESSEL_ID,
+    unique_all_vessel_ids,
+    min_permit_eff_date,
+    max_permit_end_date,
+    EFFECTIVE_DATE_week_num,
+    my_end_week_num,
+    EFFECTIVE_DATE_y,
+    my_end_y,
+    EFFECTIVE_DATE_m,
+    my_end_m,
+    eff_int,
+    permit_sa_gom_dual,
+    permit_eff_int_2022,
+    weeks_perm_2022_amnt
+  )
+
+vp_dates_by <-
+   join_by(date_y_m     >= EFFECTIVE_DATE_m,
+           date_y_m     <= my_end_m,
+           WEEK_OF_YEAR >= EFFECTIVE_DATE_week_num,
+           WEEK_OF_YEAR <= my_end_week_num
+              # overlaps(x$EFFECTIVE_DATE,
+              #          x$my_end_date,
+              #          y$EFFECTIVE_DATE,
+              #          y$my_end_date,
+              #          bounds = "[)"))
+
+   )     
+ 
+tic("v_p_d_w")  
+v_p_d_w <-
+   full_join(
+     dates_2022_w,
+     vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short,
+     vp_dates_by
+   )
+toc()
+# v_p_d_w: 0.44 sec elapsed
+
+data_overview(v_p_d_w)
+# [1] 204865     19
+# VESSEL_VESSEL_ID        3956
+
+### t by start ----
+
+t_dates_by <-
+   join_by(date_y_m     == TRIP_START_m,
+           WEEK_OF_YEAR == TRIP_START_week_num
+)
+
+tic("t_d_w")  
+t_d_w <-
+   full_join(
+     dates_2022_w,
+     trips_info_2022_int_ah_w_y_weeks_cnt_u,
+     t_dates_by,
+     relationship = "many-to-many"
+   )
+toc()
+# t_d_w: 0.38 sec elapsed
+
+### tne ----
+
+tne_dates_by <-
+   join_by(date_y_m     == TRIP_DATE_m,
+           WEEK_OF_YEAR == TRIP_week_num
+)
+
+tic("tne_d_w")  
+tne_d_w <-
+   full_join(
+     dates_2022_w,
+     trip_neg_2022_w_y_cnt_u,
+     tne_dates_by,
+     relationship = "many-to-many"
+   )
+toc()
+# tne_d_w: 0.96 sec elapsed
 
 ## trips in the permit period ---- 
 v_p_t <-
