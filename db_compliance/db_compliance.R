@@ -1292,3 +1292,36 @@ dim(not_compliant)
 # Rows: 2,269
 # TODO: add which weeks
 
+not_compliant_vsl_ids <-
+  not_compliant |> 
+  select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
+  distinct()
+dim(not_compliant_vsl_ids)
+# [1] 2269    2
+
+v_p__tne__t_d_weeks_compl1 <-
+  v_p__tne__t_d_weeks |> 
+  filter(!(!!non_compliant_filter))
+
+dim(v_p__tne__t_d_weeks_compl1)
+# [1] 216740     20
+
+v_p__tne__t_d_weeks_compl1_ids <-
+  v_p__tne__t_d_weeks_compl1 |>
+  select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
+  distinct()
+
+dim(v_p__tne__t_d_weeks_compl1_ids)
+# [1] 4841    2
+
+intersect(not_compliant_vsl_ids$PERMIT_VESSEL_ID,
+          v_p__tne__t_d_weeks_compl1_ids$PERMIT_VESSEL_ID) |> 
+  head()
+# 2
+# [1] "FL2310RW" NA        
+# FL2310RW - duplicate in vessels on FHIER
+
+intersect(not_compliant_vsl_ids$VESSEL_VESSEL_ID,
+          v_p__tne__t_d_weeks_compl1_ids$VESSEL_VESSEL_ID) |> 
+  length()
+# 61
