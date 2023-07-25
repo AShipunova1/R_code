@@ -28,7 +28,7 @@ get_data_file_path <- file.path(
 source(get_data_file_path)
 
 # 2022 year interval ----
-interval_2022 = lubridate::interval(as.Date('2022-01-01'),
+interval_2022 <- lubridate::interval(as.Date('2022-01-01'),
                                     as.Date('2022-12-31'))
 
 # vessels_permits_2022 ----
@@ -187,10 +187,15 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   mutate(eff_int =
            lubridate::interval(min_permit_eff_date,
                                max_permit_end_date)) |>
+  mutate(permit_2022_int =
+           lubridate::intersect(eff_int,
+                                interval_2022)) |>
+
   ungroup()
 toc()
 # get permit periods: 46.29 sec elapsed
 # get permit periods: 48.8 sec elapsed
+# get permit periods: 96.22 sec elapsed
 
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |>
 #   filter(grepl('FL9004NX', unique_all_vessel_ids)) |>
@@ -203,7 +208,7 @@ toc()
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |>
   # for each vessel and permit in effect interval
-  group_by(unique_all_vessel_ids, eff_int) |>
+  group_by(unique_all_vessel_ids, eff_int, permit_2022_int) |>
   # create a list of all permit regions
   mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |>
   # get the length of each list of permits
@@ -802,9 +807,8 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short <-
     EFFECTIVE_DATE_m,
     my_end_m,
     eff_int,
-    permit_sa_gom_dual
-    # ,
-    # permit_eff_int_2022,
+    permit_sa_gom_dual,
+    permit_2022_int
     # weeks_perm_2022_amnt
   )
 
@@ -925,7 +929,7 @@ trips_notifications_2022_ah_w_y_cnt_u <-
     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
   )
 
-dim(strips_notifications_2022_ah_w_y_cnt_u)
+dim(trips_notifications_2022_ah_w_y_cnt_u)
 # [1] 914   3 summarize
 # [1] 67738    35
 
@@ -992,7 +996,7 @@ trips_info_2022_int_ah_w_y_sero <-
 
 ## SA: compliant vessels per year ----
 
-## try to join v_p, t, tne ----
+## join v_p, t, tne ----
 
 ### rm dates, leave w, m, y ----
 #### v_p_d ----
@@ -1011,7 +1015,8 @@ v_p_d_w_sa_22_short <-
     my_end_y,
     my_end_m,
     my_end_week_num,
-    eff_int
+    eff_int,
+    permit_2022_int
   ) |> 
   distinct()
 
@@ -1077,6 +1082,7 @@ v_p__tne_d_weeks <-
     tne_d_w_short,
     join_by(date_y_m,
             YEAR,
+            WEEK_OF_YEAR,
             VESSEL_VESSEL_ID == VESSEL_ID),
     relationship = "many-to-many"
   )
@@ -1084,6 +1090,7 @@ toc()
 # v_p__tne_d_weeks: 0.42 sec elapsed
 dim(v_p__tne_d_weeks)
 # [1] 206877     15
+# [1] 162614     14 WEEK_OF_YEAR
 
 tic("v_p__tne__t_d_weeks")
 v_p__tne__t_d_weeks <-
@@ -1092,6 +1099,8 @@ v_p__tne__t_d_weeks <-
     t_d_w_short,
     join_by(date_y_m,
             YEAR,
+            WEEK_OF_YEAR,
+            MONTH_OF_YEAR,
             VESSEL_VESSEL_ID == VESSEL_ID),
     relationship = "many-to-many"
   )
@@ -1100,3 +1109,23 @@ toc()
 
 dim(v_p__tne__t_d_weeks)
 # [1] 287374     21
+# [1] 190794     19 +WEEK_OF_YEAR
+# [1] 192748     18 +MONTH_OF_YEAR
+
+data_overview(v_p__tne__t_d_weeks)
+# VESSEL_VESSEL_ID        6265
+# PERMIT_VESSEL_ID        3957
+
+v_p__tne__t_d_weeks_22 <-
+  v_p__tne__t_d_weeks |>
+  # it is not 2021
+  filter(!YEAR %in% c(2021, 2023) &
+           # there is a report
+           (!is.na(TRIP_DATE_y)) & !is.na(TRIP_START_y))
+
+View(v_p__tne__t_d_weeks_22)
+# [1] 8387   19
+# data_overview(v_p__tne__t_d_weeks_22)
+# VESSEL_VESSEL_ID        1062
+# PERMIT_VESSEL_ID         309
+
