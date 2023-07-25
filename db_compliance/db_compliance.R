@@ -1321,7 +1321,37 @@ intersect(not_compliant_vsl_ids$PERMIT_VESSEL_ID,
 # [1] "FL2310RW" NA        
 # FL2310RW - duplicate in vessels on FHIER
 
-intersect(not_compliant_vsl_ids$VESSEL_VESSEL_ID,
-          v_p__tne__t_d_weeks_compl1_ids$VESSEL_VESSEL_ID) |> 
-  length()
+vessel_ids_both_compl_and_not <-
+  intersect(not_compliant_vsl_ids$VESSEL_VESSEL_ID,
+          v_p__tne__t_d_weeks_compl1_ids$VESSEL_VESSEL_ID) 
+# |> 
+  # length()
 # 61
+# [1]  94753  98483 326294 248489 291474 248785
+
+
+# print_df_names(vessels_permits_2022_c)
+vessels_permits_2022_c |> 
+  filter(VESSEL_VESSEL_ID %in% vessel_ids_both_compl_and_not) |> 
+  select(PERMIT_VESSEL_ID) |> 
+  distinct() |> 
+  View()
+
+vessels_permits_2022_c |> 
+  filter(PERMIT_VESSEL_ID == "1255890") |> 
+  View()
+# VESSEL_VESSEL_ID       283991 Gulf, sold
+# TODO: investigate all 61
+
+# v_p__tne__t_d_weeks_compl1_ids |> 
+v_p__tne__t_d_weeks |>   
+  filter(VESSEL_VESSEL_ID == "283991") |> 
+  View()
+# has reports, check permit
+
+v_p__tne__t_d_weeks_compl1_ids |> 
+  filter(PERMIT_VESSEL_ID == "1255890")
+# 0
+
+# FHIER
+# 1255890................. KNOT READY  - DARRELL R BESSINGER            (352) 2227202
