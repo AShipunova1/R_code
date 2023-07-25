@@ -636,7 +636,7 @@ trip_neg_2022_short <-
   distinct()
 
 trips_notifications_2022_short <-
-  trip_notifications_2022 |>
+  trips_notifications_2022 |>
   select(-any_of(t_names_to_rm)) |>
   distinct()
 
@@ -788,7 +788,7 @@ dates_2022_w <-
 
 ### v_p ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa |>
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
   select(
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
@@ -802,9 +802,10 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short <-
     EFFECTIVE_DATE_m,
     my_end_m,
     eff_int,
-    permit_sa_gom_dual,
-    permit_eff_int_2022,
-    weeks_perm_2022_amnt
+    permit_sa_gom_dual
+    # ,
+    # permit_eff_int_2022,
+    # weeks_perm_2022_amnt
   )
 
 vp_dates_by <-
@@ -821,7 +822,7 @@ vp_dates_by <-
    )     
  
 tic("v_p_d_w")  
-v_p_d_w <-
+v_p_d_w_sa_22 <-
    full_join(
      dates_2022_w,
      vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short,
@@ -830,7 +831,7 @@ v_p_d_w <-
 toc()
 # v_p_d_w: 0.44 sec elapsed
 
-data_overview(v_p_d_w)
+dim(v_p_d_w_sa_22)
 # [1] 204865     19
 # VESSEL_VESSEL_ID        3956
 
@@ -845,12 +846,15 @@ tic("t_d_w")
 t_d_w <-
    full_join(
      dates_2022_w,
-     trips_info_2022_int_ah_w_y_weeks_cnt_u,
+     trips_info_2022_int_ah_w_y,
      t_dates_by,
      relationship = "many-to-many"
    )
 toc()
 # t_d_w: 0.38 sec elapsed
+
+# dim(t_d_w)
+# [1] 627414     17
 
 ### tne ----
 
@@ -863,12 +867,14 @@ tic("tne_d_w")
 tne_d_w <-
    full_join(
      dates_2022_w,
-     trip_neg_2022_w_y_cnt_u,
+     trip_neg_2022_w_y,
      tne_dates_by,
      relationship = "many-to-many"
    )
 toc()
 # tne_d_w: 0.96 sec elapsed
+dim(tne_d_w)
+# [1] 4806915       8
 
 ### tn by start ----
 
@@ -881,15 +887,16 @@ tic("tn_d_w")
 tn_d_w <-
    full_join(
      dates_2022_w,
-     trips_notifications_2022_ah_w_y_cnt_u,
+     trips_notifications_2022_ah_w_y,
      tn_dates_by
      # ,
      # relationship = "many-to-many"
    )
 toc()
+# tn_d_w: 0.75 sec elapsed
+dim(tn_d_w)
+# [1] 435779     35
 
-
-## 
 # end of data preparations ----
 
 # Count distinct weeks per vessel ----
@@ -971,47 +978,6 @@ trips_info_2022_int_ah_w_y_sero <-
 # print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only)
 # [1] "EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual"
 
-## eff_int and 2022 intersection ----
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
-  mutate(permit_eff_int_2022 =
-           lubridate::intersect(eff_int,
-                                interval_2022)) |>
-  mutate(weeks_perm_2022_amnt =
-           (permit_eff_int_2022 / lubridate::dweeks(1)) |>
-           round()) |>
-  distinct()
-
-dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
-# [1] 3956    4
-# [1] 6459   20
-
-min(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2022_amnt, na.rm = T)
-# [1] 0.1190476
-
-max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2022_amnt, na.rm = T)
-# 52
-# 0-109 (without interval_2022)
-# 0-52
-
-# data_overview(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa)
-# VESSEL_ID            3875
-# weeks_perm_2022_amnt   53
-# VESSEL_ID                3888
-# today() [1] "2023-07-17"
-# VESSEL_VESSEL_ID           3181
-# weeks_perm_2022_amnt         54
-# ---
-# unique_all_vessel_ids 3956
-# eff_int               2072
-# eff_int_22             320
-# week_amnt              318
-# ---
-# unique_all_vessel_ids   3956
-# eff_int                 2072
-# permit_eff_int_2022      320
-# weeks_perm_2022_amnt      53
-
 ## all weeks of 2022 * all vessels ----
 # SA: each can have:
 # 1) a permit
@@ -1024,3 +990,113 @@ max(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa$weeks_perm_2
 # 3 only
 # 2,3?
 
+## SA: compliant vessels per year ----
+
+## try to join v_p, t, tne ----
+
+### rm dates, leave w, m, y ----
+#### v_p_d ----
+print_df_names(v_p_d_w_sa_22)
+v_p_d_w_sa_22_short <-
+  v_p_d_w_sa_22 |>
+  select(
+    YEAR,
+    WEEK_OF_YEAR,
+    date_y_m,
+    VESSEL_VESSEL_ID,
+    PERMIT_VESSEL_ID,
+    EFFECTIVE_DATE_y,
+    EFFECTIVE_DATE_m,
+    EFFECTIVE_DATE_week_num,
+    my_end_y,
+    my_end_m,
+    my_end_week_num,
+    eff_int
+  ) |> 
+  distinct()
+
+v_p_d_w_sa_22_short |> 
+  filter(!YEAR == EFFECTIVE_DATE_y) |> 
+  glimpse()
+# Rows: 8,470
+# Columns: 12
+
+dim(v_p_d_w_sa_22_short)
+# [1] 38031     9
+
+#### t_d ----
+# print_df_names(t_d_w)
+t_d_w_short <-
+  t_d_w |>
+  select(
+    -c(
+      TRIP_START_DATE,
+      TRIP_END_DATE,
+      TRIP_ID, 
+      TRIP_TYPE,
+      SERO_VESSEL_PERMIT,
+      GARFO_VESSEL_PERMIT,
+      TRIP_TIME_ZONE,
+      trip_int
+    )
+  ) |> 
+  distinct()
+
+t_d_w |> 
+  filter(!YEAR == TRIP_START_y) |> 
+  glimpse()
+# Rows: 198
+
+dim(t_d_w_short)
+# [1] 97014    11
+# [1] 38447     9 (no trip_id)
+
+#### tne_d ----
+
+print_df_names(tne_d_w)
+tne_d_w_short <-
+  tne_d_w |>
+  select(-c(TRIP_DATE, TRIP_ID)) |>
+  distinct()
+
+# check year
+tne_d_w |> 
+  filter(!YEAR == TRIP_DATE_y) |> 
+  glimpse()
+# Rows: 4,154
+# Columns: 8
+
+# dim(tne_d_w_short)
+# [1] 136333      6
+
+## join by week ----
+tic("v_p__tne_d_weeks")
+v_p__tne_d_weeks <-
+  full_join(
+    v_p_d_w_sa_22_short,
+    tne_d_w_short,
+    join_by(date_y_m,
+            YEAR,
+            VESSEL_VESSEL_ID == VESSEL_ID),
+    relationship = "many-to-many"
+  )
+toc()
+# v_p__tne_d_weeks: 0.42 sec elapsed
+dim(v_p__tne_d_weeks)
+# [1] 206877     15
+
+tic("v_p__tne__t_d_weeks")
+v_p__tne__t_d_weeks <-
+  full_join(
+    v_p__tne_d_weeks,
+    t_d_w_short,
+    join_by(date_y_m,
+            YEAR,
+            VESSEL_VESSEL_ID == VESSEL_ID),
+    relationship = "many-to-many"
+  )
+toc()
+# v_p__tne__t_d_weeks: 0.45 sec elapsed
+
+dim(v_p__tne__t_d_weeks)
+# [1] 287374     21
