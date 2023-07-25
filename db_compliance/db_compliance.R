@@ -797,7 +797,30 @@ dim(trips_notifications_2022_ah_w_y)
 
 ## add all weeks to each df ----
 
-# View(dates_2022)
+#### check if there are earlier reports with an end date in 2022 and start in 2021 ----
+trips_info_2022_int_ah_w_y |>
+  # filter(TRIP_START_y == 2021) |>
+  filter(TRIP_START_week_num < 52 &
+           TRIP_START_y == 2021 &
+           TRIP_END_y == 2022) |>
+  View()
+# 5
+
+trips_notifications_2022_ah_w_y |>
+  # filter(TRIP_START_y == 2021) |>
+  filter(TRIP_START_week_num < 52 &
+           TRIP_START_y == 2021 &
+           TRIP_END_y == 2022) |>
+  View()
+# 8
+
+# trip_neg_2022_w_y_cnt_u |> 
+#   # filter(TRIP_START_y == 2021) |>
+#   filter(TRIP_week_num < 52 &
+#            TRIP_DATE_y == 2021) |>
+#   dim()
+# 0
+### adjust dates_2022 ----
 
 dates_2022_yw0 <-
   dates_2022 |> 
@@ -815,10 +838,10 @@ dates_2022_yw0 |>
 dates_2022_yw <-
   dates_2022_yw0 |>
   # remove all before the last week of 2021
-  # TODO check if there are earlier reports with an end date in 2022
   filter(!(MONTH_OF_YEAR == 12 &
              YEAR == 2021 &
              WEEK_OF_YEAR < 52)) |>
+  # has to rename to 0, bc that's how %U works
   mutate(WEEK_OF_YEAR =
     case_when(
       MONTH_OF_YEAR == 1 &
@@ -829,8 +852,8 @@ dates_2022_yw <-
     )
   )
 
-View(dates_2022_yw)
-# [1] 401   6
+# View(dates_2022_yw)
+# [1] 401   5
 
 dates_2022_w <-
   dates_2022_yw |>
