@@ -859,7 +859,7 @@ dates_2022_w <-
   dates_2022_yw |>
   select(-COMPLETE_DATE)
 
-# str(dates_2022_w)
+glimpse(dates_2022_w)
 
 ### t by start ----
 
@@ -870,7 +870,7 @@ t_dates_by <-
 
 tic("t_d_w")  
 t_d_w <-
-   full_join(
+   left_join(
      dates_2022_w,
      trips_info_2022_int_ah_w_y,
      t_dates_by,
@@ -879,13 +879,16 @@ t_d_w <-
 toc()
 # t_d_w: 0.38 sec elapsed
 
-# dim(t_d_w)
+dim(t_d_w)
 # [1] 627414     17
+# [1] 626904     17
+# TODO: check the difference, what was in the full_join? (no dates)
 
 ### tne ----
-# tne_d_w |> 
-#   filter(WEEK_OF_YEAR == 0) |> 
+# tne_d_w |>
+#   filter(WEEK_OF_YEAR == 0) |>
 #   glimpse()
+# Rows: 4,202
 
 tne_dates_by <-
    join_by(date_y_m     == TRIP_DATE_m,
@@ -1296,7 +1299,7 @@ not_compliant_vsl_ids <-
   not_compliant |> 
   select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
   distinct()
-dim(not_compliant_vsl_ids)
+# dim(not_compliant_vsl_ids)
 # [1] 2269    2
 
 v_p__tne__t_d_weeks_compl1 <-
@@ -1355,3 +1358,39 @@ v_p__tne__t_d_weeks_compl1_ids |>
 
 # FHIER
 # 1255890................. KNOT READY  - DARRELL R BESSINGER            (352) 2227202
+
+## not compliant 2022 ----
+v_p__tne__t_d_weeks_compl <-
+  v_p__tne__t_d_weeks |> 
+  filter(!VESSEL_VESSEL_ID %in% not_compliant_vsl_ids$VESSEL_VESSEL_ID)
+
+dim(v_p__tne__t_d_weeks_compl)
+# [1] 215114     20
+
+v_p__tne__t_d_weeks_compl_w_cnt <-
+  v_p__tne__t_d_weeks_compl |> 
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, YEAR) |> 
+  mutate(compl_weeks = n_distinct(WEEK_OF_YEAR)) |> 
+  ungroup()
+
+v_p__tne__t_d_weeks_compl_w_cnt_short <-
+  v_p__tne__t_d_weeks_compl_w_cnt |>
+  select(VESSEL_VESSEL_ID,
+         PERMIT_VESSEL_ID,
+         YEAR,
+         permit_weeks_amnt_22,
+         compl_weeks) |> 
+  distinct()
+
+View(v_p__tne__t_d_weeks_compl_w_cnt_short)
+# [1] 7547    5
+
+# is.na(YEAR)? 381155 1024989 
+# compl_weeks < permit_weeks_amnt_22, why it is in compliant? Where are the other weeks (147361 1036367)
+
+# is.na(YEAR) ----
+
+t_d_w |> 
+  filter(is.na(YEAR)) |> 
+  glimpse()
+# 0 with left join
