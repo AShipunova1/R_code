@@ -812,27 +812,27 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short <-
     # weeks_perm_2022_amnt
   )
 
-vp_dates_by <-
-   join_by(date_y_m     >= EFFECTIVE_DATE_m,
-           date_y_m     <= my_end_m,
-           WEEK_OF_YEAR >= EFFECTIVE_DATE_week_num,
-           WEEK_OF_YEAR <= my_end_week_num
-              # overlaps(x$EFFECTIVE_DATE,
-              #          x$my_end_date,
-              #          y$EFFECTIVE_DATE,
-              #          y$my_end_date,
-              #          bounds = "[)"))
-
-   )     
+# vp_dates_by <-
+#    join_by(date_y_m     >= EFFECTIVE_DATE_m,
+#            date_y_m     <= my_end_m,
+#            WEEK_OF_YEAR >= EFFECTIVE_DATE_week_num,
+#            WEEK_OF_YEAR <= my_end_week_num
+#               # overlaps(x$EFFECTIVE_DATE,
+#               #          x$my_end_date,
+#               #          y$EFFECTIVE_DATE,
+#               #          y$my_end_date,
+#               #          bounds = "[)"))
+# 
+#    )     
  
-tic("v_p_d_w")  
-v_p_d_w_sa_22 <-
-   full_join(
-     dates_2022_w,
-     vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short,
-     vp_dates_by
-   )
-toc()
+# tic("v_p_d_w")  
+# v_p_d_w_sa_22 <-
+#    full_join(
+#      dates_2022_w,
+#      vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short,
+#      vp_dates_by
+#    )
+# toc()
 # v_p_d_w: 0.44 sec elapsed
 
 dim(v_p_d_w_sa_22)
@@ -996,17 +996,12 @@ trips_info_2022_int_ah_w_y_sero <-
 
 ## SA: compliant vessels per year ----
 
-## join v_p, t, tne ----
-
 ### rm dates, leave w, m, y ----
 #### v_p_d ----
-print_df_names(v_p_d_w_sa_22)
+# print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short)
 v_p_d_w_sa_22_short <-
-  v_p_d_w_sa_22 |>
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short |>
   select(
-    YEAR,
-    WEEK_OF_YEAR,
-    date_y_m,
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
     EFFECTIVE_DATE_y,
@@ -1020,14 +1015,15 @@ v_p_d_w_sa_22_short <-
   ) |> 
   distinct()
 
-v_p_d_w_sa_22_short |> 
-  filter(!YEAR == EFFECTIVE_DATE_y) |> 
-  glimpse()
+# v_p_d_w_sa_22_short |> 
+#   filter(!YEAR == EFFECTIVE_DATE_y) |> 
+#   glimpse()
 # Rows: 8,470
 # Columns: 12
 
 dim(v_p_d_w_sa_22_short)
 # [1] 38031     9
+# [1] 6423   10 V-P with no dates yet
 
 #### t_d ----
 # print_df_names(t_d_w)
@@ -1075,15 +1071,14 @@ tne_d_w |>
 # [1] 136333      6
 
 ## join by week ----
+# v_p_d_w_sa_22_short
+
 tic("v_p__tne_d_weeks")
 v_p__tne_d_weeks <-
   full_join(
     v_p_d_w_sa_22_short,
     tne_d_w_short,
-    join_by(date_y_m,
-            YEAR,
-            WEEK_OF_YEAR,
-            VESSEL_VESSEL_ID == VESSEL_ID),
+    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
     relationship = "many-to-many"
   )
 toc()
@@ -1091,6 +1086,7 @@ toc()
 dim(v_p__tne_d_weeks)
 # [1] 206877     15
 # [1] 162614     14 WEEK_OF_YEAR
+# [1] 190268     15 by vessel_only
 
 tic("v_p__tne__t_d_weeks")
 v_p__tne__t_d_weeks <-
@@ -1111,7 +1107,8 @@ dim(v_p__tne__t_d_weeks)
 # [1] 287374     21
 # [1] 190794     19 +WEEK_OF_YEAR
 # [1] 192748     18 +MONTH_OF_YEAR
-
+# [1] 220442     19
+# 
 data_overview(v_p__tne__t_d_weeks)
 # VESSEL_VESSEL_ID        6265
 # PERMIT_VESSEL_ID        3957
@@ -1180,3 +1177,4 @@ v_p__tne__t_d_weeks |>
   select(MONTH_OF_YEAR) |> 
     distinct() |> 
     arrange(MONTH_OF_YEAR)
+
