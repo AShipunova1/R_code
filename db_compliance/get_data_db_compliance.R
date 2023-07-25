@@ -71,6 +71,7 @@ mv_sero_fh_permits_his <-
   # dim()
 # 0
 
+# Logbooks
 # get trips info for 2022 ----
 
 trips_22_file_name <-
@@ -111,6 +112,7 @@ dim(trips_info_2022)
 # [1] 98449    72
 # [1] 98528    72
 
+# DNF reports
 # get trip neg ----
 
 trip_neg_2022_file_path <- 
@@ -150,6 +152,7 @@ dim(trip_neg_2022)
 # [1] 746087     12
 # [1] 747173     12
 
+# Declarations
 # trips_notifications ----
 trips_notifications_2022_query <-
   "SELECT
