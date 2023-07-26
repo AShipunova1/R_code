@@ -1292,9 +1292,12 @@ v_p__t__tne_d_weeks_sa_compl |>
 
 v_p__t__tne_d_weeks_sa_compl_w_cnt <-
   v_p__t__tne_d_weeks_sa_compl |> 
-  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, YEAR) |> 
-  mutate(compl_weeks = n_distinct(WEEK_OF_YEAR)) |> 
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, YEAR, compliant) |> 
+  mutate(compl_weeks = if_else(compliant == "yes",  n_distinct(WEEK_OF_YEAR), 0)) |> 
   ungroup()
+
+dim(v_p__t__tne_d_weeks_sa_compl_w_cnt)
+# [1] 23704    16
 
 v_p__t__tne_d_weeks_sa_compl_w_cnt_short <-
   v_p__t__tne_d_weeks_sa_compl_w_cnt |>
@@ -1308,7 +1311,7 @@ v_p__t__tne_d_weeks_sa_compl_w_cnt_short <-
 
 dim(v_p__t__tne_d_weeks_sa_compl_w_cnt_short)
 # [1] 7547    5
-# [1] 3958    5
+# [1] 3958    6
 
 ### check is.na(YEAR)? 381155 1024989 ----
 v_p__t__tne_d_weeks_sa_compl_w_cnt_short |> 
@@ -1324,6 +1327,18 @@ v_p__t__tne_d_weeks_sa_compl_w_cnt_short |>
 # TODO: change compliant case_when - default - no, if there is a report - yes? Look for permit_weeks_amnt_22 <= compl_weeks?
 
 # compl_weeks < permit_weeks_amnt_22, why it is in compliant? Where are the other weeks (147361 1036367)
+v_p__t__tne_d_weeks_sa_compl_w_cnt_short |> 
+  filter(VESSEL_VESSEL_ID == "147361") |> 
+  glimpse()
+
+# $ permit_weeks_amnt_22 <dbl> 52
+# $ compl_weeks          <int> 4
+# $ compliant            <chr> "yes"
+
+v_p__t__tne_d_weeks_sa_compl_w_cnt |> 
+  filter(VESSEL_VESSEL_ID == "147361") |> 
+  glimpse()
+
 
 # is.na(YEAR) ----
 
@@ -1332,14 +1347,37 @@ t_d_w |>
   dim()
 # 0 with left join
 
-# plot SA year
-data_overview(v_p__tne__t_d_weeks_compl_w_cnt_short)
-# VESSEL_VESSEL_ID     3997
-# PERMIT_VESSEL_ID     1690
+## count SA year compliance by weeks comparison with permit ----
+# print_df_names(v_p__t__tne_d_weeks_sa_compl_w_cnt)
+v_p__t__tne_d_weeks_sa_compl_week_cnt <-
+  v_p__t__tne_d_weeks_sa_compl_w_cnt |> 
+  mutate(compl_2022 = case_when(
+           compl_weeks >= permit_weeks_amnt_22 ~ "yes",
+           .default = "no")
+  ) |> 
+  ungroup()
 
-data_overview(not_compliant)
-# VESSEL_VESSEL_ID        2268
-# PERMIT_VESSEL_ID        2269
+dim(v_p__t__tne_d_weeks_sa_compl_week_cnt)
+# [1] 23704    17
+
+## plot SA year ----
+# data_overview(v_p__t__tne_d_weeks_sa_compl_week_cnt)
+# VESSEL_VESSEL_ID     3956
+# PERMIT_VESSEL_ID     3956
+
+v_p__t__tne_d_weeks_sa_compl_week_cnt |> 
+  select(PERMIT_VESSEL_ID,
+         compl_2022) |> 
+  distinct() |> 
+  count(compl_2022)
+# 1 no         3908
+# 2 yes          48
+
+# no
+# 3908 * 100 / (3956)
+# [1] 98.78665
+# wrong!
+
 
 # compl
 1690 * 100 / (1690 + 2269)
