@@ -929,55 +929,6 @@ toc()
 dim(tn_d_w)
 # [1] 435779     35
 
-## v_p ----
-# ### short
-# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short <-
-#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
-#   select(
-#     VESSEL_VESSEL_ID,
-#     PERMIT_VESSEL_ID,
-#     unique_all_vessel_ids,
-#     min_permit_eff_date,
-#     max_permit_end_date,
-#     EFFECTIVE_DATE_week_num,
-#     my_end_week_num,
-#     EFFECTIVE_DATE_y,
-#     my_end_y,
-#     EFFECTIVE_DATE_m,
-#     my_end_m,
-#     eff_int,
-#     permit_sa_gom_dual,
-#     permit_2022_int
-#     # weeks_perm_2022_amnt
-#   )
-
-# vp_dates_by <-
-#    join_by(date_y_m     >= EFFECTIVE_DATE_m,
-#            date_y_m     <= my_end_m,
-#            WEEK_OF_YEAR >= EFFECTIVE_DATE_week_num,
-#            WEEK_OF_YEAR <= my_end_week_num
-#               # overlaps(x$EFFECTIVE_DATE,
-#               #          x$my_end_date,
-#               #          y$EFFECTIVE_DATE,
-#               #          y$my_end_date,
-#               #          bounds = "[)"))
-# 
-#    )     
- 
-# tic("v_p_d_w")  
-# v_p_d_w_sa_22 <-
-#    full_join(
-#      dates_2022_w,
-#      vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual_sa_short,
-#      vp_dates_by
-#    )
-# toc()
-# v_p_d_w: 0.44 sec elapsed
-
-# dim(v_p_d_w_sa_22)
-# [1] 204865     19
-# VESSEL_VESSEL_ID        3956
-
 ### add weeks per permit 22 ----
 
 v_p_d_w_22 <-
@@ -986,11 +937,6 @@ v_p_d_w_22 <-
            round(permit_2022_int / lubridate::dweeks(1)))
 
   
-  # v_p_d_w_sa_22 <-
-  # vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
-  # mutate(permit_weeks_amnt_22 =
-  #          round(permit_2022_int / lubridate::dweeks(1)))
-
 dim(v_p_d_w_22)
 # [1] 6459   20
 # [1] 9442   20
