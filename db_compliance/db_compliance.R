@@ -1480,30 +1480,24 @@ View(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short)
 # TODO: check year = NA
 
 ## plot SA year ----
-# data_overview(v_p__t__tne_d_weeks_sa_compl_week_cnt)
-# VESSEL_VESSEL_ID     3956
+# length(unique(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     3956
 
-v_p__t__tne_d_weeks_sa_compl_week_cnt |> 
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |> 
   select(PERMIT_VESSEL_ID,
          compl_2022) |> 
   distinct() |> 
   count(compl_2022)
-# 1 no         3908
-# 2 yes          48
-
-# no
-# 3908 * 100 / (3956)
-# [1] 98.78665
-# wrong!
+# 1 no          2695
+# 2 yes         1262
 
 # compl
-1690 * 100 / (1690 + 2269)
-# [1] 42.68755
+1262 * 100 / (3956)
+# 32%
 
-# non compl
-2269 * 100 / (1690 + 2269)
-# [1] 57.31245
+# no
+2695 * 100 / (3956)
+# 68%
 
 # (was 41% yes vs. 59% no)
   # pivot_longer(cols = c(percent_compl,
