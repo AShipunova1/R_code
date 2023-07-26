@@ -1015,36 +1015,15 @@ trips_info_2022_int_ah_w_y_sero <-
   filter(!is.na(SERO_VESSEL_PERMIT)) |>
   distinct()
 
-# SA 2022 compliance ----
-# There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
-# DNFs should not be submitted more than 30 days in advance
-
-# print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only)
-# [1] "EFFECTIVE_DATE, END_DATE, EXPIRATION_DATE, permit_sa_gom, my_end_date, unique_all_vessel_ids, min_permit_eff_date, max_permit_end_date, EFFECTIVE_DATE_week_num, my_end_week_num, EFFECTIVE_DATE_y, my_end_y, EFFECTIVE_DATE_m, my_end_m, eff_int, permit_sa_gom_dual"
-
-## all weeks of 2022 * all vessels ----
-# SA: each can have:
-# 1) a permit
-# 2) a trip
-# 3) a negative report
-# 1 only
-# 1,2
-# 1,3
-# 2 only
-# 3 only
-# 2,3?
-
-## SA: compliant vessels per year ----
-# TODO move up the joins, bc the same for GOM
-### rm dates, leave w, m, y ----
-#### v_p_d ----
+# rm dates, leave w, m, y ----
+## v_p_d ----
 # print_df_names(v_p_d_w_22)
-v_p_d_w_sa_22_short <-
+v_p_d_w_22_short <-
   v_p_d_w_22 |>
-  filter(permit_sa_gom_dual == "sa_only") |> 
   select(
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
+    permit_sa_gom_dual,
     EFFECTIVE_DATE_y,
     EFFECTIVE_DATE_m,
     EFFECTIVE_DATE_week_num,
@@ -1057,13 +1036,14 @@ v_p_d_w_sa_22_short <-
   ) |> 
   distinct()
 
-dim(v_p_d_w_sa_22_short)
+# v_p_d_w_sa_22_short
 # [1] 38031     9
 # [1] 6423   10 V-P with no dates yet
 # [1] 6423   11 (weeks per permit)
-# print_df_names(v_p_d_w_sa_22_short)
+dim(v_p_d_w_22_short)
+# [1] 8939   12
 
-#### t_d ----
+### t_d ----
 # print_df_names(t_d_w)
 t_d_w_short <-
   t_d_w |>
@@ -1090,7 +1070,7 @@ dim(t_d_w_short)
 # [1] 97014    11
 # [1] 38447     9 (no trip_id)
 
-#### tne_d ----
+### tne_d ----
 
 # print_df_names(tne_d_w)
 tne_d_w_short <-
@@ -1109,7 +1089,7 @@ tne_d_w |>
 # [1] 136333      6
 
 
-#### tn_d ----
+### tn_d ----
 print_df_names(tn_d_w)
 tn_d_w_short <-
   tn_d_w |>
@@ -1158,7 +1138,7 @@ View(tn_d_w_short)
 tic("v_p__tne_d_weeks")
 v_p__tne_d_weeks <-
   full_join(
-    v_p_d_w_sa_22_short,
+    v_p_d_w_22_short,
     tne_d_w_short,
     join_by(VESSEL_VESSEL_ID == VESSEL_ID),
     relationship = "many-to-many"
@@ -1169,6 +1149,7 @@ dim(v_p__tne_d_weeks)
 # [1] 206877     15
 # [1] 162614     14 WEEK_OF_YEAR
 # [1] 190268     15 by vessel_only
+# [1] 198144     16 all
 
 tic("v_p__tne__t_d_weeks")
 v_p__tne__t_d_weeks <-
@@ -1191,6 +1172,7 @@ dim(v_p__tne__t_d_weeks)
 # [1] 192748     18 +MONTH_OF_YEAR
 # [1] 220442     19
 # 220438     20
+# [1] 228335     20 all p reg
 
 # data_overview(v_p__tne__t_d_weeks)
 # VESSEL_VESSEL_ID        6265
@@ -1262,37 +1244,57 @@ dim(v_p__tne__t_d_weeks_21)
 #     distinct() |> 
 #     arrange(MONTH_OF_YEAR)
 # 
-v_p__tne__t_d_weeks |>
-  filter(WEEK_OF_YEAR == 0) |>
-    filter(!is.na(TRIP_START_y)) |>
-  View()
+# v_p__tne__t_d_weeks |>
+#   filter(WEEK_OF_YEAR == 0) |>
+#     filter(!is.na(TRIP_START_y)) |>
+#   View()
 # TODO: get read of 0 week
 # 
 # ===
+# SA 2022 compliance ----
+# There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
+# DNFs should not be submitted more than 30 days in advance
+
+# all weeks of 2022 * all vessels
+# SA: each can have:
+# 1) a permit
+# 2) a trip
+# 3) a negative report
+# 1 only
+# 1,2
+# 1,3
+# 2 only
+# 3 only
+# 2,3?
+
 # SA compliance by year ----
 non_compliant_filter <- quo(# no reports
   is.na(TRIP_DATE_y) & is.na(TRIP_START_y))
 
-not_compliant <-
+not_compliant_sa <-
   v_p__tne__t_d_weeks |>
+  filter(permit_sa_gom_dual == "sa_only") |>
   # use the saved filter
   filter(!!non_compliant_filter) |> 
   distinct() |>
   arrange(PERMIT_VESSEL_ID) 
 
-dim(not_compliant)
+dim(not_compliant_sa)
 # [1] 3698   20
+# [1] 3690   21 from all
+# TODO: why the difference?
 
 # distinct
 # Rows: 2,269
 # TODO: add which weeks
 
 not_compliant_vsl_ids <-
-  not_compliant |> 
+  not_compliant_sa |> 
   select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
   distinct()
-# dim(not_compliant_vsl_ids)
+dim(not_compliant_vsl_ids)
 # [1] 2269    2
+# [1] 2268    2
 
 v_p__tne__t_d_weeks_compl1 <-
   v_p__tne__t_d_weeks |> 
@@ -1300,6 +1302,7 @@ v_p__tne__t_d_weeks_compl1 <-
 
 dim(v_p__tne__t_d_weeks_compl1)
 # [1] 216740     20
+# [1] 222252     21
 
 v_p__tne__t_d_weeks_compl1_ids <-
   v_p__tne__t_d_weeks_compl1 |>
@@ -1415,12 +1418,15 @@ data_overview(not_compliant)
 
 # GOM + dual compl by year ----
 
+v_p_d_w_22_short_gom <-
+  v_p_d_w_22_short |> 
+  filter(permit_sa_gom_dual %in% c("gom_only", "dual"))
 ## join by week ----
 
 tic("v_p__tn_d_weeks")
 v_p__tn_d_weeks <-
   full_join(
-    v_p_d_w_sa_22_short,
+    v_p_d_w_22_short_gom,
     tn_d_w_short,
     join_by(VESSEL_VESSEL_ID == VESSEL_ID),
     relationship = "many-to-many"
@@ -1429,6 +1435,7 @@ toc()
 # v_p__tn_d_weeks: 0.39 sec elapsed
 dim(v_p__tn_d_weeks)
 # [1] 28213    20
+# [1] 40678    21
 
 common_names <-
   intersect(names(v_p__tn_d_weeks),
@@ -1458,11 +1465,15 @@ toc()
 
 dim(v_p__tn__t_d_weeks)
 # [1] 49539    24
+# [1] 62087    25 gom
 
-# data_overview(v_p__tn__t_d_weeks)
+data_overview(v_p__tn__t_d_weeks)
+# VESSEL_VESSEL_ID        2711
+# PERMIT_VESSEL_ID        1598
+
 # VESSEL_VESSEL_ID        4865
 # PERMIT_VESSEL_ID        3957 (same as for SA)
-# TODO: WHY?
+# TODO: WHY? - used sa
 # date_y_m                  25
 # TODO: WHY? (12 month)
 # YEAR                       4
