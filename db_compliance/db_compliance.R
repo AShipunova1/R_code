@@ -1137,6 +1137,8 @@ dim(tn_d_w_short)
 # join with dates_22 by week ----
 
 ## v_p & t ----
+# print_df_names(v_p_d_w_22_short)
+# print_df_names(t_d_w_short)
 tic("v_p__t_d_weeks")
 v_p__t_d_weeks <-
   full_join(
@@ -1147,7 +1149,7 @@ v_p__t_d_weeks <-
   )
 toc()
 
-dim(v_p__t_d_weeks)
+View(v_p__t_d_weeks)
 # [1] 42856    13
 
 ## v_p__t & tne ----
@@ -1178,6 +1180,20 @@ dim(v_p__t__tne_d_weeks)
 # data_overview(v_p__tne__t_d_weeks)
 # VESSEL_VESSEL_ID        6265
 # PERMIT_VESSEL_ID        3957
+
+v_p__tne__t_d_weeks |>
+    filter(VESSEL_VESSEL_ID == "326929") |>
+# [1] 17 21
+  # select(PERMIT_VESSEL_ID, WEEK_OF_YEAR) |> 
+  # distinct() |> 
+  # count(PERMIT_VESSEL_ID)
+# 1 FL4430NN            14
+  group_by(PERMIT_VESSEL_ID) |> 
+  mutate(compl_weeks =
+           n_distinct(WEEK_OF_YEAR)) |> 
+  View()
+# 14
+# compl_weeks >= permit_weeks_amnt_22
 
 # data_overview(v_p__t__tne_d_weeks)
 # VESSEL_VESSEL_ID     6925
