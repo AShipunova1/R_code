@@ -807,7 +807,7 @@ dim(trip_neg_2022_w_y)
 dim(trips_notifications_2022_ah_w_y)
 # [1] 67738    33
 
-## add all weeks to each df ----
+# add all weeks to each df ----
 
 #### check if there are earlier reports with an end date in 2022 and start in 2021 ----
 trips_info_2022_int_ah_sero_w_y |>
@@ -873,12 +873,12 @@ dates_2022_w <-
 
 glimpse(dates_2022_w)
 
-### t by start ----
+## t by start & dates22 ----
 
 t_dates_by <-
-   join_by(date_y_m     == TRIP_START_m,
-           WEEK_OF_YEAR == TRIP_START_week_num
-)
+  join_by(YEAR == TRIP_START_y,
+          date_y_m     == TRIP_START_m,
+          WEEK_OF_YEAR == TRIP_START_week_num)
 
 tic("t_d_w")  
 t_d_w <-
@@ -896,7 +896,13 @@ dim(t_d_w)
 # [1] 626904     17
 # TODO: check the difference, what was in the full_join? (no dates)
 # [1] 523465     17 left_join
-# [1] 523877     17 full_join
+# [1] 523877     16 full_join
+
+# t_d_w |> 
+#   filter(is.na(YEAR)) |> 
+#   dim()
+# 0
+
 
 ### tne ----
 # tne_d_w |>
@@ -1141,20 +1147,29 @@ dim(tn_d_w_short)
 ## t & tne ----
 
 tic("t__tne_d_weeks")
+# dates_2022_w |> glimpse()
+# dim(dates_2022_w) 401
+# length(unique(t_d_w_short$WEEK_OF_YEAR))
+# # 53
+# length(unique(tne_d_w_short$WEEK_OF_YEAR))
+# # 53
+# length(unique(t__tne_d_weeks$WEEK_OF_YEAR))
+# 53
+
 t__tne_d_weeks <-
   full_join(
     t_d_w_short,
     tne_d_w_short,
-    join_by(date_y_m,
-            YEAR,
-            WEEK_OF_YEAR,
+    join_by(YEAR,
             MONTH_OF_YEAR,
+            WEEK_OF_YEAR,
+            date_y_m,
             VESSEL_ID),
     relationship = "many-to-many"
   )
 toc()
 dim(t__tne_d_weeks)
-# [1] 160791     10
+# [1] 160791     11
 
 ## t & tn ----
 tic("t__tn_d_weeks")
@@ -1162,10 +1177,10 @@ t__tn_d_weeks <-
   full_join(
     t_d_w_short,
     tn_d_w_short,
-    join_by(date_y_m,
-            YEAR,
-            WEEK_OF_YEAR,
+    join_by(YEAR,
             MONTH_OF_YEAR,
+            WEEK_OF_YEAR,
+            date_y_m,
             VESSEL_ID),
     relationship = "many-to-many",
     suffix = c(".t", ".tn")
