@@ -903,17 +903,18 @@ dim(t_d_w)
 #   dim()
 # 0
 
-
 ### tne ----
 # tne_d_w |>
 #   filter(WEEK_OF_YEAR == 0) |>
 #   glimpse()
 # Rows: 4,202
 
+print_df_names(trip_neg_2022_w_y_cnt_u)
+
 tne_dates_by <-
-   join_by(date_y_m     == TRIP_DATE_m,
-           WEEK_OF_YEAR == TRIP_week_num
-)
+  join_by(YEAR == TRIP_DATE_y,
+          date_y_m     == TRIP_DATE_m,
+          WEEK_OF_YEAR == TRIP_week_num)
 
 tic("tne_d_w")
 tne_d_w <-
@@ -931,24 +932,24 @@ dim(tne_d_w)
 
 ### tn by start ----
 
-tn_dates_by <-
-   join_by(date_y_m     == TRIP_START_m,
-           WEEK_OF_YEAR == TRIP_START_week_num
-)
+# tn_dates_by <-
+#    join_by(date_y_m     == TRIP_START_m,
+#            WEEK_OF_YEAR == TRIP_START_week_num
+# )
 
 tic("tn_d_w")  
 tn_d_w <-
    full_join(
      dates_2022_w,
      trips_notifications_2022_ah_w_y,
-     tn_dates_by,
+     t_dates_by,
      relationship = "many-to-many"
    )
 toc()
 # tn_d_w: 0.75 sec elapsed
 dim(tn_d_w)
 # [1] 435779     35
-# [1] 435640     35 (SERO)
+# [1] 435640     35 (SERO), 34 by Year
 
 ### add weeks per permit 22 ----
 
@@ -1069,7 +1070,7 @@ t_d_w_short <-
   mutate(rep_type = "trips")
 
 t_d_w |> 
-  filter(!YEAR == TRIP_START_y) |> 
+  filter(is.na(YEAR)) |> 
   dim()
 # 0
 
