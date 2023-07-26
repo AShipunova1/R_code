@@ -980,13 +980,20 @@ dim(tn_d_w)
 
 ### add weeks per permit 22 ----
 
-v_p_d_w_sa_22 <-
-  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
+v_p_d_w_22 <-
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   mutate(permit_weeks_amnt_22 =
            round(permit_2022_int / lubridate::dweeks(1)))
 
-dim(v_p_d_w_sa_22)
+  
+  # v_p_d_w_sa_22 <-
+  # vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$sa_only |>
+  # mutate(permit_weeks_amnt_22 =
+  #          round(permit_2022_int / lubridate::dweeks(1)))
+
+dim(v_p_d_w_22)
 # [1] 6459   20
+# [1] 9442   20
 
 # end of data preparations ----
 
@@ -1085,9 +1092,10 @@ trips_info_2022_int_ah_w_y_sero <-
 # TODO move up the joins, bc the same for GOM
 ### rm dates, leave w, m, y ----
 #### v_p_d ----
-# print_df_names(v_p_d_w_sa_22)
+# print_df_names(v_p_d_w_22)
 v_p_d_w_sa_22_short <-
-  v_p_d_w_sa_22 |>
+  v_p_d_w_22 |>
+  filter(permit_sa_gom_dual == "sa_only") |> 
   select(
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
@@ -1102,12 +1110,6 @@ v_p_d_w_sa_22_short <-
     permit_weeks_amnt_22
   ) |> 
   distinct()
-
-# v_p_d_w_sa_22_short |> 
-#   filter(!YEAR == EFFECTIVE_DATE_y) |> 
-#   glimpse()
-# Rows: 8,470
-# Columns: 12
 
 dim(v_p_d_w_sa_22_short)
 # [1] 38031     9
