@@ -941,8 +941,6 @@ dim(v_p_d_w_22)
 # [1] 6459   20
 # [1] 9442   20
 
-# end of data preparations ----
-
 # Count distinct weeks per vessel ----
 
 ## neg trip weeks ----
@@ -1024,13 +1022,13 @@ v_p_d_w_22_short <-
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
     permit_sa_gom_dual,
-    EFFECTIVE_DATE_y,
-    EFFECTIVE_DATE_m,
-    EFFECTIVE_DATE_week_num,
-    my_end_y,
-    my_end_m,
-    my_end_week_num,
-    eff_int,
+    # EFFECTIVE_DATE_y,
+    # EFFECTIVE_DATE_m,
+    # EFFECTIVE_DATE_week_num,
+    # my_end_y,
+    # my_end_m,
+    # my_end_week_num,
+    # eff_int,
     permit_2022_int,
     permit_weeks_amnt_22
   ) |> 
@@ -1042,8 +1040,9 @@ v_p_d_w_22_short <-
 # [1] 6423   11 (weeks per permit)
 dim(v_p_d_w_22_short)
 # [1] 8939   12
+# [1] 5554    5
 
-### t_d ----
+## t_d ----
 # print_df_names(t_d_w)
 t_d_w_short <-
   t_d_w |>
@@ -1063,14 +1062,16 @@ t_d_w_short <-
 
 t_d_w |> 
   filter(!YEAR == TRIP_START_y) |> 
-  glimpse()
+  dim()
 # Rows: 198
+# 0
 
 dim(t_d_w_short)
 # [1] 97014    11
 # [1] 38447     9 (no trip_id)
+# [1] 37990     9
 
-### tne_d ----
+## tne_d ----
 
 # print_df_names(tne_d_w)
 tne_d_w_short <-
@@ -1081,16 +1082,16 @@ tne_d_w_short <-
 # check year
 tne_d_w |> 
   filter(!YEAR == TRIP_DATE_y) |> 
-  glimpse()
+  dim()
 # Rows: 4,154
-# Columns: 8
+# 0
 
-# dim(tne_d_w_short)
+dim(tne_d_w_short)
 # [1] 136333      6
+# [1] 136329      6
 
-
-### tn_d ----
-print_df_names(tn_d_w)
+## tn_d ----
+# print_df_names(tn_d_w)
 tn_d_w_short <-
   tn_d_w |>
   select(
@@ -1130,10 +1131,10 @@ tn_d_w |>
   dim()
 # 0
 
-View(tn_d_w_short)
+dim(tn_d_w_short)
 # [1] 21211    10
 
-## join by week ----
+## join with dates_22 by week ----
 
 tic("v_p__tne_d_weeks")
 v_p__tne_d_weeks <-
@@ -1150,6 +1151,7 @@ dim(v_p__tne_d_weeks)
 # [1] 162614     14 WEEK_OF_YEAR
 # [1] 190268     15 by vessel_only
 # [1] 198144     16 all
+# [1] 141122     10
 
 tic("v_p__tne__t_d_weeks")
 v_p__tne__t_d_weeks <-
@@ -1470,11 +1472,7 @@ dim(v_p__tn__t_d_weeks)
 data_overview(v_p__tn__t_d_weeks)
 # VESSEL_VESSEL_ID        2711
 # PERMIT_VESSEL_ID        1598
-
-# VESSEL_VESSEL_ID        4865
-# PERMIT_VESSEL_ID        3957 (same as for SA)
-# TODO: WHY? - used sa
-# date_y_m                  25
+# date_y_m                  24
 # TODO: WHY? (12 month)
 # YEAR                       4
 
