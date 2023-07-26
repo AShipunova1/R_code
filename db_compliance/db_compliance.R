@@ -1536,27 +1536,45 @@ v_p__t__tn_d_weeks_gom_short <-
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 22090    11
 
+# change na rep to 0?
+v_p__t__tn_d_weeks_gom_short_rep0 <-
+  v_p__t__tn_d_weeks_gom_short |>
+  # mutate(across(c(rep_type.t,
+  #                 rep_type.tn), tidyr::replace_na, 0))
+  mutate(across(c(rep_type.t,
+                  rep_type.tn), ~ replace(., is.na(.), 0)))
+
+# dim(v_p__t__tn_d_weeks_gom_short_rep0)
+
 v_p__tn__t_d_weeks_compl <-
-  v_p__t__tn_d_weeks_gom |>
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID,
-           permit_2022_int) |> 
-  mutate(rep_t_cnts = n(rep_type.t),
-         rep_tn_cnts = n(rep_type.tn)) |> 
+  v_p__t__tn_d_weeks_gom_short_rep0 |>
+  # group_by(VESSEL_VESSEL_ID,
+  #          PERMIT_VESSEL_ID,
+  #          permit_2022_int) |> 
+  add_count(rep_type.t, name = "rep_t_cnts") |> 
+  add_count(rep_type.tn, name = "rep_tn_cnts") |> 
+  # mutate(rep_t_cnts = n(rep_type.t),
+  #        rep_tn_cnts = n(rep_type.tn)) |> 
   ungroup()
-  dim()
 # Error in `mutate()`:
 # ℹ In argument: `rep_t_cnts = n(rep_type.t)`.
 # ℹ In group 1: `VESSEL_VESSEL_ID = 72359`, `PERMIT_VESSEL_ID = "933533"`,
 #   `permit_2022_int = 2021-12-31 19:00:00 EST--2022-12-30 19:00:00 EST`.
 
-  VESSEL_VESSEL_ID 
+View(v_p__tn__t_d_weeks_compl)
+# [1] 22090    13
+
+# v_p__t__tn_d_weeks_gom_short_rep0 |> 
+#   filter(VESSEL_VESSEL_ID == 72359) |> 
+#   select(rep_type.t) |> 
+#   glimpse()
+   
   
-  mutate(is_compliant = case_when(
-    is.na(rep_type.t) & is.na(rep_type.t) ~
-      "no",
-    .default = "yes"
-  ))
+  # mutate(is_compliant = case_when(
+  #   is.na(rep_type.t) & is.na(rep_type.t) ~
+  #     "no",
+  #   .default = "yes"
+  # ))
 
 v_p__tn__t_d_weeks_compl |> 
   select(PERMIT_VESSEL_ID) |> 
