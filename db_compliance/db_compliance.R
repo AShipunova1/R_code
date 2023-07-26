@@ -935,9 +935,8 @@ tn_d_w <-
    full_join(
      dates_2022_w,
      trips_notifications_2022_ah_w_y,
-     tn_dates_by
-     # ,
-     # relationship = "many-to-many"
+     tn_dates_by,
+     relationship = "many-to-many"
    )
 toc()
 # tn_d_w: 0.75 sec elapsed
@@ -1150,12 +1149,12 @@ v_p__t_d_weeks <-
   )
 toc()
 
-View(v_p__t_d_weeks)
+dim(v_p__t_d_weeks)
 # [1] 42856    13
 # [1] 37101    13
-# VI5498TB - na
 
 ## v_p__t & tne ----
+# does not combines with v_p_t if t is.na, produces an extra row
 tic("v_p__t__tne_d_weeks")
 v_p__t__tne_d_weeks <-
   full_join(
