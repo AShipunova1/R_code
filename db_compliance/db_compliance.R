@@ -1069,11 +1069,6 @@ t_d_w_short <-
   distinct() |> 
   mutate(rep_type = "trips")
 
-t_d_w |> 
-  filter(is.na(YEAR)) |> 
-  dim()
-# 0
-
 dim(t_d_w_short)
 # [1] 97014    11
 # [1] 38447     9 (no trip_id)
@@ -1088,12 +1083,6 @@ tne_d_w_short <-
   select(-c(TRIP_DATE, TRIP_ID)) |>
   distinct() |> 
   mutate(rep_type = "trips_neg")
-
-# check year
-tne_d_w |> 
-  filter(!YEAR == TRIP_DATE_y) |> 
-  dim()
-# 0
 
 dim(tne_d_w_short)
 # [1] 136333      6
@@ -1136,11 +1125,6 @@ tn_d_w_short <-
   distinct() |> 
   mutate(rep_type = "trips_notif")
 
-tn_d_w |> 
-  filter(!YEAR == TRIP_START_y) |> 
-  dim()
-# 0
-
 dim(tn_d_w_short)
 # [1] 21211    10
 
@@ -1148,15 +1132,6 @@ dim(tn_d_w_short)
 ## t & tne ----
 
 tic("t__tne_d_weeks")
-# dates_2022_w |> glimpse()
-# dim(dates_2022_w) 401
-# length(unique(t_d_w_short$WEEK_OF_YEAR))
-# # 53
-# length(unique(tne_d_w_short$WEEK_OF_YEAR))
-# # 53
-# length(unique(t__tne_d_weeks$WEEK_OF_YEAR))
-# 53
-
 t__tne_d_weeks <-
   full_join(
     t_d_w_short,
@@ -1166,7 +1141,8 @@ t__tne_d_weeks <-
             WEEK_OF_YEAR,
             date_y_m,
             VESSEL_ID),
-    relationship = "many-to-many"
+    relationship = "many-to-many",
+    suffix = c(".t", ".tne")
   )
 toc()
 dim(t__tne_d_weeks)
@@ -1189,8 +1165,10 @@ t__tn_d_weeks <-
 toc()
 dim(t__tn_d_weeks)
 # [1] 41248    14
-# WEEK_OF_YEAR          53
-# VESSEL_ID           1991
+# length(unique(t__tn_d_weeks$WEEK_OF_YEAR))         
+# 53
+length(unique(t__tn_d_weeks$VESSEL_ID))         
+# 1991
 
 ## t_tne & v_p ----
 
@@ -1237,35 +1215,21 @@ View(v_p__t__tn_d_weeks)
 # [1] 46329    18
 
 v_p__t__tn_d_weeks |>
-  filter(is.na(TRIP_START_y.t) & is.na(TRIP_START_y.tn)) |>
+  filter(is.na(rep_type.t) & is.na(rep_type.tn)) |>
   dim()
-# [1] 3548   18
+# [1] 3541   18
 
 ### check ----
 # 1)
 v_p__t__tne_d_weeks |> 
   filter(PERMIT_VESSEL_ID == "VI5498TB") |> 
-  count(TRIP_DATE_y) |> 
+  count(YEAR) |> 
   glimpse()
 # now has TRIP_DATE_y          
 # 58
 # $ TRIP_DATE_y <dbl> 2021, 2022
 # $ n           <int> 1, 57
-
-vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |> 
-  filter(PERMIT_VESSEL_ID == "VI5498TB") |> 
-  dim()
-2
- 
-v_p_d_w_22_short |> 
-  filter(PERMIT_VESSEL_ID == "VI5498TB") |> 
-  dim()
-# 1
-
-trip_neg_2022_w_y_cnt_u |>
-  filter(VESSEL_ID == "248316") |>
-  dim()
-# 209
+# ok
 
 # 2)
 v_p__t__tne_d_weeks_21 <-
@@ -1274,12 +1238,13 @@ v_p__t__tne_d_weeks_21 <-
   # exclude the last weeks of 2021 before 52
   filter(date_y_m == 'Dec 2021' & 
              WEEK_OF_YEAR < 52 &
-             is.na(TRIP_DATE_y) & 
-             is.na(TRIP_START_y)
+             is.na(rep_type.t) & 
+             is.na(rep_type.tne)
          )
 
 dim(v_p__t__tne_d_weeks_21)
 # 0 (change 52/1 0)
+# ok
 
 # # SA 2022 compliance ----
 # # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
@@ -1447,7 +1412,8 @@ dim(v_p__t__tne_d_weeks_21)
 v_p__t__tne_d_weeks_sa <-
   v_p__t__tne_d_weeks |>
   filter(permit_sa_gom_dual == "sa_only")
-glimpse(v_p__t__tne_d_weeks_sa)
+dim(v_p__t__tne_d_weeks_sa)
+# [1] 90766    15
 
 tic("v_p__t__tne_d_weeks_sa_compl")
 v_p__t__tne_d_weeks_sa_compl <-
@@ -1457,31 +1423,31 @@ v_p__t__tne_d_weeks_sa_compl <-
            WEEK_OF_YEAR,
            date_y_m,
            YEAR) |>
-  mutate(sa_compl_week = case_when(is.na(TRIP_START_y) &
-                                is.na(TRIP_DATE_y) ~
+  mutate(sa_compl_week = case_when(is.na(rep_type.t) &
+                                is.na(rep_type.tne) ~
                                 "no",
                               .default = "yes")) |> 
   ungroup()
 toc()
 # v_p__t__tne_d_weeks_sa_compl: 28.39 sec elapsed
 
-dim(v_p__t__tne_d_weeks_sa_compl)
-# [1] 90766    15
+View(v_p__t__tne_d_weeks_sa_compl)
+# [1] 90766    16
 
 ## count compl weeks ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w <-
   v_p__t__tne_d_weeks_sa_compl |>
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
-           YEAR,
+           # YEAR,
            # WEEK_OF_YEAR,
            # date_y_m,
            sa_compl_week) |>
   mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |> 
   ungroup()
 
-# dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
-# [1] 90766    16
+dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
+# [1] 90766    17
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w |> 
@@ -1492,7 +1458,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
   ungroup()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22)
-# [1] 90766    17
+# [1] 90766    18
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
@@ -1502,14 +1468,16 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
     permit_weeks_amnt_22,
     YEAR,
     compl_w_cnt,
-    compl_2022
+    compl_2022,
+    rep_type.t,
+    rep_type.tne
   ) |>
   distinct()
 
 View(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short)
 # [1] 5275    6
 
-# wrong, year = NA
+# TODO: check year = NA
 
 ## plot SA year ----
 # data_overview(v_p__t__tne_d_weeks_sa_compl_week_cnt)
