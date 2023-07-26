@@ -1436,7 +1436,8 @@ v_p__t__tne_d_weeks_sa_compl <-
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
            WEEK_OF_YEAR,
-           date_y_m) |>
+           date_y_m,
+           YEAR) |>
   mutate(sa_compl_week = case_when(is.na(TRIP_START_y) &
                                 is.na(TRIP_DATE_y) ~
                                 "no",
@@ -1445,23 +1446,51 @@ v_p__t__tne_d_weeks_sa_compl <-
 toc()
 # v_p__t__tne_d_weeks_sa_compl: 28.39 sec elapsed
 
-View(v_p__t__tne_d_weeks_sa_compl)
+dim(v_p__t__tne_d_weeks_sa_compl)
 # [1] 90766    15
 
-  # mutate(compl_weeks =
-  #          n_distinct(WEEK_OF_YEAR)) |> 
-
-
-v_p__t__tne_d_weeks_sa_compl <-
-  v_p__t__tne_d_weeks_sa |> 
-  mutate(compl_2022 = case_when(
-           compl_weeks >= permit_weeks_amnt_22 ~ "yes",
-           .default = "no")
-  ) |> 
+## count compl weeks ----
+v_p__t__tne_d_weeks_sa_compl_cnt_w <-
+  v_p__t__tne_d_weeks_sa_compl |>
+  group_by(PERMIT_VESSEL_ID,
+           VESSEL_VESSEL_ID,
+           YEAR,
+           # WEEK_OF_YEAR,
+           # date_y_m,
+           sa_compl_week) |>
+  mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |> 
   ungroup()
 
-dim(v_p__t__tne_d_weeks_sa_compl_week_cnt)
-# [1] 23704    17
+# dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
+# [1] 90766    16
+
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
+  v_p__t__tne_d_weeks_sa_compl_cnt_w |> 
+  mutate(compl_2022 = case_when(
+           compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
+           .default = "no")
+  ) |>
+  ungroup()
+
+dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22)
+# [1] 90766    17
+
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
+  v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
+  select(
+    PERMIT_VESSEL_ID,
+    permit_2022_int,
+    permit_weeks_amnt_22,
+    YEAR,
+    compl_w_cnt,
+    compl_2022
+  ) |>
+  distinct()
+
+View(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short)
+# [1] 5275    6
+
+# wrong, year = NA
 
 ## plot SA year ----
 # data_overview(v_p__t__tne_d_weeks_sa_compl_week_cnt)
