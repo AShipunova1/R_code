@@ -1134,30 +1134,27 @@ tn_d_w |>
 dim(tn_d_w_short)
 # [1] 21211    10
 
-## join with dates_22 by week ----
+# join with dates_22 by week ----
 
-tic("v_p__tne_d_weeks")
-v_p__tne_d_weeks <-
+## v_p & t ----
+tic("v_p__t_d_weeks")
+v_p__t_d_weeks <-
   full_join(
     v_p_d_w_22_short,
-    tne_d_w_short,
+    t_d_w_short,
     join_by(VESSEL_VESSEL_ID == VESSEL_ID),
     relationship = "many-to-many"
   )
 toc()
-# v_p__tne_d_weeks: 0.42 sec elapsed
-dim(v_p__tne_d_weeks)
-# [1] 206877     15
-# [1] 162614     14 WEEK_OF_YEAR
-# [1] 190268     15 by vessel_only
-# [1] 198144     16 all
-# [1] 141122     10
 
-tic("v_p__tne__t_d_weeks")
-v_p__tne__t_d_weeks <-
+dim(v_p__t_d_weeks)
+# [1] 42856    13
+
+tic("v_p__t__tne_d_weeks")
+v_p__t__tne_d_weeks <-
   full_join(
-    v_p__tne_d_weeks,
-    t_d_w_short,
+    v_p__t_d_weeks,
+    tne_d_w_short,
     join_by(date_y_m,
             YEAR,
             WEEK_OF_YEAR,
@@ -1166,37 +1163,27 @@ v_p__tne__t_d_weeks <-
     relationship = "many-to-many"
   )
 toc()
-# v_p__tne__t_d_weeks: 0.45 sec elapsed
+# v_p__t__tne_d_weeks: 0.46 sec elapsed
 
-dim(v_p__tne__t_d_weeks)
+dim(v_p__t__tne_d_weeks)
 # [1] 287374     21
 # [1] 190794     19 +WEEK_OF_YEAR
 # [1] 192748     18 +MONTH_OF_YEAR
 # [1] 220442     19
 # 220438     20
 # [1] 228335     20 all p reg
+# [1] 170905     14 in v_p + t + tne, fewer permit fields
 
 # data_overview(v_p__tne__t_d_weeks)
 # VESSEL_VESSEL_ID        6265
 # PERMIT_VESSEL_ID        3957
 
-# v_p__tne__t_d_weeks_22 <-
-#   v_p__tne__t_d_weeks |>
-#   # it is not 2021
-#   filter(!YEAR %in% c(2021, 2023) &
-#            # there is a report
-#            (!is.na(TRIP_DATE_y)) & !is.na(TRIP_START_y))
-# 
-# View(v_p__tne__t_d_weeks_22)
-# # [1] 8387   19
-# # data_overview(v_p__tne__t_d_weeks_22)
-# # VESSEL_VESSEL_ID        1062
-# # PERMIT_VESSEL_ID         309
-# 
-# str(v_p__tne__t_d_weeks)
+# data_overview(v_p__t__tne_d_weeks)
+# VESSEL_VESSEL_ID     6925
+# PERMIT_VESSEL_ID     5462 all permit regions
 
-v_p__tne__t_d_weeks_21 <-
-  v_p__tne__t_d_weeks |>
+v_p__t__tne_d_weeks_21 <-
+  v_p__t__tne_d_weeks |>
   # filter(date_y_m %within% permit_2022_int)
   # exclude the last weeks of 2021 before 52
   filter(date_y_m == 'Dec 2021' & 
@@ -1205,12 +1192,8 @@ v_p__tne__t_d_weeks_21 <-
              is.na(TRIP_START_y)
          )
 
-# 22
-# [1] 189986     19
-
-dim(v_p__tne__t_d_weeks_21)
-# [1] 336  19
-# [1]  0 20 (52/1 0)
+dim(v_p__t__tne_d_weeks_21)
+# 0 (change 52/1 0)
 
 # v_p__tne__t_d_weeks |>
 #   filter(date_y_m == 'Dec 2021' & 
