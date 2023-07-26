@@ -1222,58 +1222,6 @@ v_p__t__tn_d_weeks |>
   dim()
 # [1] 3548   18
 
-## v_p & t ----
-# print_df_names(v_p_d_w_22_short)
-# print_df_names(t_d_w_short)
-tic("v_p__t_d_weeks")
-v_p__t_d_weeks <-
-  full_join(
-    v_p_d_w_22_short,
-    t_d_w_short,
-    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
-    relationship = "many-to-many"
-  )
-toc()
-
-dim(v_p__t_d_weeks)
-# [1] 42856    13
-# [1] 37101    13
-
-## v_p__t & tne ----
-# does not combines with v_p_t if t is.na, produces an extra row
-tic("v_p__t__tne_d_weeks")
-v_p__t__tne_d_weeks <-
-  full_join(
-    v_p__t_d_weeks,
-    tne_d_w_short,
-    join_by(date_y_m,
-            YEAR,
-            WEEK_OF_YEAR,
-            MONTH_OF_YEAR,
-            VESSEL_VESSEL_ID == VESSEL_ID),
-    relationship = "many-to-many"
-  )
-toc()
-# v_p__t__tne_d_weeks: 0.46 sec elapsed
-
-dim(v_p__t__tne_d_weeks)
-# [1] 287374     21
-# [1] 190794     19 +WEEK_OF_YEAR
-# [1] 192748     18 +MONTH_OF_YEAR
-# [1] 220442     19
-# 220438     20
-# [1] 228335     20 all p reg
-# [1] 170905     14 in v_p + t + tne, fewer permit fields
-# [1] 165517     14 sero
-
-# data_overview(v_p__tne__t_d_weeks)
-# VESSEL_VESSEL_ID        6265
-# PERMIT_VESSEL_ID        3957
-
-# data_overview(v_p__t__tne_d_weeks)
-# VESSEL_VESSEL_ID     6913
-# PERMIT_VESSEL_ID     5462 all permit regions
-
 ### check ----
 # 1)
 v_p__t__tne_d_weeks |> 
@@ -1281,6 +1229,7 @@ v_p__t__tne_d_weeks |>
   glimpse()
 # NA, but all compliant in FHIER
 # $ VESSEL_VESSEL_ID     <dbl> 248316
+# now has TRIP_DATE_y          
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |> 
   filter(PERMIT_VESSEL_ID == "VI5498TB") |> 
@@ -1297,8 +1246,6 @@ trip_neg_2022_w_y_cnt_u |>
   dim()
 # 209
 
-# TODO: got lost in the join!
-
 # 2)
 v_p__t__tne_d_weeks_21 <-
   v_p__t__tne_d_weeks |>
@@ -1313,27 +1260,6 @@ v_p__t__tne_d_weeks_21 <-
 dim(v_p__t__tne_d_weeks_21)
 # 0 (change 52/1 0)
 
-## v_p__t & tn ----
-tic("v_p__t__tn_d_weeks")
-v_p__t__tn_d_weeks <-
-  full_join(
-    v_p__t_d_weeks,
-    tn_d_w_short,
-    join_by(date_y_m,
-            YEAR,
-            WEEK_OF_YEAR,
-            MONTH_OF_YEAR,
-            VESSEL_VESSEL_ID == VESSEL_ID),
-    relationship = "many-to-many",
-    suffix = c(".tn", ".t")
-  )
-toc()
-# v_p__t__tn_d_weeks: 0.09 sec elapsed
-
-dim(v_p__t__tn_d_weeks)
-# [1] 47184    18
-
-# ===
 # SA 2022 compliance ----
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # DNFs should not be submitted more than 30 days in advance
