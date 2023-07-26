@@ -1287,8 +1287,8 @@ v_p__t__tne_d_weeks |>
     filter(VESSEL_VESSEL_ID == "326929") |>
 # [1] 17 21
   select(PERMIT_VESSEL_ID, WEEK_OF_YEAR) |>
-  distinct() |>
-  count(PERMIT_VESSEL_ID)
+  distinct() |> 
+  # count(PERMIT_VESSEL_ID)
 # 1 FL4430NN            14
   group_by(PERMIT_VESSEL_ID) |> 
   mutate(compl_weeks =
@@ -1297,28 +1297,15 @@ v_p__t__tne_d_weeks |>
 # 14
 # compl_weeks >= permit_weeks_amnt_22
 
-
-
-# old
-non_compliant_filter <- quo(# no reports
-  is.na(TRIP_DATE_y) & is.na(TRIP_START_y))
-
-v_p__t__tne_d_weeks_sa_compl <-
-  v_p__t__tne_d_weeks |>
-  filter(permit_sa_gom_dual == "sa_only") |>
-  mutate(compliant = case_when(!!non_compliant_filter ~ "no",
-                   .default = "yes")) |> 
-  distinct() |>
-  arrange(PERMIT_VESSEL_ID) 
-
-# dim(not_compliant_sa)
-# [1] 2845   14
-
-# View(v_p__t__tne_d_weeks_sa_compl)
-# data_overview(v_p__t__tne_d_weeks_sa_compl)
-# [1] 23704    15
-# VESSEL_VESSEL_ID     3956
-# PERMIT_VESSEL_ID     3956
+v_p__t__tne_d_weeks |>
+  filter(VESSEL_VESSEL_ID == "326929") |>
+  group_by(VESSEL_VESSEL_ID) |>
+  summarise(n_distinct(WEEK_OF_YEAR))
+# # A tibble: 1 × 2
+#   VESSEL_VESSEL_ID `n_distinct(WEEK_OF_YEAR)`
+#              <dbl>                      <int>
+# 1           326929                         14
+# correct
 
 # TODO: add which weeks
 
