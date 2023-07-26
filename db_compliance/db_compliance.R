@@ -1211,13 +1211,8 @@ v_p__t__tn_d_weeks <-
   )
 toc()
 
-View(v_p__t__tn_d_weeks)
+dim(v_p__t__tn_d_weeks)
 # [1] 46329    18
-
-v_p__t__tn_d_weeks |>
-  filter(is.na(rep_type.t) & is.na(rep_type.tn)) |>
-  dim()
-# [1] 3541   18
 
 ### check ----
 # 1)
@@ -1499,7 +1494,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |>
 2695 * 100 / (3956)
 # 68%
 
-# (was 41% yes vs. 59% no)
+# (was 41% yes vs. 59% no from 2178 vessels)
   # pivot_longer(cols = c(percent_compl,
   #                       percent_non_compl),
   #              names_to = "is_compliant",
@@ -1514,19 +1509,51 @@ v_p__t__tn_d_weeks_gom <-
   v_p__t__tn_d_weeks |> 
   filter(permit_sa_gom_dual %in% c("gom_only", "dual"))
 
-data_overview(v_p__t__tn_d_weeks_gom)
-# [1] 18998    18
-# VESSEL_VESSEL_ID     1597
+dim(v_p__t__tn_d_weeks_gom)
+# [1] 22613    18
+
+# length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     1597
 
 # TODO: check if permit_id in tn mean the same as in p_v
 # 
 # ===
+v_p__t__tn_d_weeks_gom_short <-
+  v_p__t__tn_d_weeks_gom |>
+  select(
+    -c(
+      TRIP_END_week_num.t,
+      TRIP_END_y.t,
+      TRIP_END_m.t,
+      PERMIT_ID,
+      TRIP_END_week_num.tn,
+      TRIP_END_y.tn,
+      TRIP_END_m.tn,
+    )
+  ) |>
+  distinct()
+
+dim(v_p__t__tn_d_weeks_gom_short)
+# [1] 22090    11
 
 v_p__tn__t_d_weeks_compl <-
-  v_p__t__tn_d_weeks_gom |> 
+  v_p__t__tn_d_weeks_gom |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           permit_2022_int) |> 
+  mutate(rep_t_cnts = n(rep_type.t),
+         rep_tn_cnts = n(rep_type.tn)) |> 
+  ungroup()
+  dim()
+# Error in `mutate()`:
+# ℹ In argument: `rep_t_cnts = n(rep_type.t)`.
+# ℹ In group 1: `VESSEL_VESSEL_ID = 72359`, `PERMIT_VESSEL_ID = "933533"`,
+#   `permit_2022_int = 2021-12-31 19:00:00 EST--2022-12-30 19:00:00 EST`.
+
+  VESSEL_VESSEL_ID 
+  
   mutate(is_compliant = case_when(
-    is.na(TRIP_START_y.t) & is.na(TRIP_START_y.tn) ~
+    is.na(rep_type.t) & is.na(rep_type.t) ~
       "no",
     .default = "yes"
   ))
