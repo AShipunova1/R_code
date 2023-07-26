@@ -197,7 +197,7 @@ toc()
 # get permit periods: 48.8 sec elapsed
 # get permit periods: 96.22 sec elapsed
 # get permit periods: 111.64 sec elapsed
-# 
+#
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |>
 #   filter(grepl('FL9004NX', unique_all_vessel_ids)) |>
 #   View()
@@ -732,8 +732,8 @@ trips_info_2022_int_ah_sero_w_y <-
       as.double(TRIP_END_week_num)
   )
 
-trips_info_2022_int_ah_sero_w_y |> 
-  filter(TRIP_START_week_num == 0) |> 
+trips_info_2022_int_ah_sero_w_y |>
+  filter(TRIP_START_week_num == 0) |>
   dim()
 # TRIP_START_m == "Jan 2022"
 # [1] 104  15
@@ -763,8 +763,8 @@ trips_notifications_2022_ah_w_y <-
       as.double(TRIP_END_week_num)
   )
 
-trips_notifications_2022_ah_w_y |> 
-  filter(TRIP_START_week_num == 0) |> 
+trips_notifications_2022_ah_w_y |>
+  filter(TRIP_START_week_num == 0) |>
   dim()
 # [1] 32 33
 
@@ -782,12 +782,12 @@ trip_neg_2022_w_y <-
       zoo::as.yearmon(TRIP_DATE)
   ) %>%
   mutate(TRIP_week_num =
-           as.double(TRIP_week_num)) |> 
+           as.double(TRIP_week_num)) |>
   mutate()
 
-# check 
-trip_neg_2022_w_y |> 
-  filter(TRIP_week_num == 0 & TRIP_DATE_m == "Jan 2022") |> 
+# check
+trip_neg_2022_w_y |>
+  filter(TRIP_week_num == 0 & TRIP_DATE_m == "Jan 2022") |>
   dim()
 # [1] 2101    6
 
@@ -826,7 +826,7 @@ trips_notifications_2022_ah_w_y |>
   dim()
 # 8
 
-# trip_neg_2022_w_y_cnt_u |> 
+# trip_neg_2022_w_y_cnt_u |>
 #   # filter(TRIP_START_y == 2021) |>
 #   filter(TRIP_week_num < 52 &
 #            TRIP_DATE_y == 2021) |>
@@ -835,11 +835,11 @@ trips_notifications_2022_ah_w_y |>
 ### adjust dates_2022 ----
 
 dates_2022_yw0 <-
-  dates_2022 |> 
+  dates_2022 |>
   mutate(date_y_m = as.yearmon(COMPLETE_DATE))
 
-dates_2022_yw0 |> 
-  head(28) |> 
+dates_2022_yw0 |>
+  head(28) |>
   tail()
 # 24 2021  12  52 2021-12-30 23:00:00 Dec 2021
 # 25 2022   1  52 2021-12-31 23:00:00 Jan 2022!
@@ -880,7 +880,7 @@ t_dates_by <-
           date_y_m     == TRIP_START_m,
           WEEK_OF_YEAR == TRIP_START_week_num)
 
-tic("t_d_w")  
+tic("t_d_w")
 t_d_w <-
    full_join(
      dates_2022_w,
@@ -898,8 +898,8 @@ dim(t_d_w)
 # [1] 523465     17 left_join
 # [1] 523877     16 full_join
 
-# t_d_w |> 
-#   filter(is.na(YEAR)) |> 
+# t_d_w |>
+#   filter(is.na(YEAR)) |>
 #   dim()
 # 0
 
@@ -937,7 +937,7 @@ dim(tne_d_w)
 #            WEEK_OF_YEAR == TRIP_START_week_num
 # )
 
-tic("tn_d_w")  
+tic("tn_d_w")
 tn_d_w <-
    full_join(
      dates_2022_w,
@@ -969,7 +969,7 @@ dim(v_p_d_w_22)
 trip_neg_2022_w_y_cnt_u <-
   trip_neg_2022_w_y |>
   group_by(VESSEL_ID) %>%
-  mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |> 
+  mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |>
   ungroup()
 
 dim(trip_neg_2022_w_y_cnt_u)
@@ -1039,7 +1039,7 @@ v_p_d_w_22_short <-
     # eff_int,
     permit_2022_int,
     permit_weeks_amnt_22
-  ) |> 
+  ) |>
   distinct()
 
 # v_p_d_w_sa_22_short
@@ -1058,15 +1058,15 @@ t_d_w_short <-
     -c(
       TRIP_START_DATE,
       TRIP_END_DATE,
-      TRIP_ID, 
+      TRIP_ID,
       TRIP_TYPE,
       SERO_VESSEL_PERMIT,
       GARFO_VESSEL_PERMIT,
       TRIP_TIME_ZONE,
       trip_int
     )
-  ) |> 
-  distinct() |> 
+  ) |>
+  distinct() |>
   mutate(rep_type = "trips")
 
 dim(t_d_w_short)
@@ -1081,7 +1081,7 @@ dim(t_d_w_short)
 tne_d_w_short <-
   tne_d_w |>
   select(-c(TRIP_DATE, TRIP_ID)) |>
-  distinct() |> 
+  distinct() |>
   mutate(rep_type = "trips_neg")
 
 dim(tne_d_w_short)
@@ -1121,8 +1121,8 @@ tn_d_w_short <-
       RAW_INPUT_ID,
       NOTIFICATION_TIME_ZONE
     )
-  ) |> 
-  distinct() |> 
+  ) |>
+  distinct() |>
   mutate(rep_type = "trips_notif")
 
 dim(tn_d_w_short)
@@ -1165,9 +1165,9 @@ t__tn_d_weeks <-
 toc()
 dim(t__tn_d_weeks)
 # [1] 41248    14
-# length(unique(t__tn_d_weeks$WEEK_OF_YEAR))         
+# length(unique(t__tn_d_weeks$WEEK_OF_YEAR))
 # 53
-length(unique(t__tn_d_weeks$VESSEL_ID))         
+length(unique(t__tn_d_weeks$VESSEL_ID))
 # 1991
 
 ## t_tne & v_p ----
@@ -1195,7 +1195,7 @@ dim(v_p__t__tne_d_weeks)
 # WEEK_OF_YEAR           54
 # date_y_m               18
 
-v_p__t__tne_d_weeks |> 
+v_p__t__tne_d_weeks |>
   filter(VESSEL_VESSEL_ID == "248316") |>
   dim()
 # [1] 58 14 correct
@@ -1216,11 +1216,11 @@ dim(v_p__t__tn_d_weeks)
 
 ### check ----
 # 1)
-v_p__t__tne_d_weeks |> 
-  filter(PERMIT_VESSEL_ID == "VI5498TB") |> 
-  count(YEAR) |> 
+v_p__t__tne_d_weeks |>
+  filter(PERMIT_VESSEL_ID == "VI5498TB") |>
+  count(YEAR) |>
   glimpse()
-# now has TRIP_DATE_y          
+# now has TRIP_DATE_y
 # 58
 # $ TRIP_DATE_y <dbl> 2021, 2022
 # $ n           <int> 1, 57
@@ -1231,9 +1231,9 @@ v_p__t__tne_d_weeks_21 <-
   v_p__t__tne_d_weeks |>
   # filter(date_y_m %within% permit_2022_int)
   # exclude the last weeks of 2021 before 52
-  filter(date_y_m == 'Dec 2021' & 
+  filter(date_y_m == 'Dec 2021' &
              WEEK_OF_YEAR < 52 &
-             is.na(rep_type.t) & 
+             is.na(rep_type.t) &
              is.na(rep_type.tne)
          )
 
@@ -1244,7 +1244,7 @@ dim(v_p__t__tne_d_weeks_21)
 # # SA 2022 compliance ----
 # # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
 # # DNFs should not be submitted more than 30 days in advance
-# 
+#
 # # all weeks of 2022 * all vessels
 # # SA: each can have:
 # # 1) a permit
@@ -1256,7 +1256,7 @@ dim(v_p__t__tne_d_weeks_21)
 # # 2 only
 # # 3 only
 # # 2,3?
-# 
+#
 # ### check ----
 # v_p__t__tne_d_weeks |>
 #     filter(VESSEL_VESSEL_ID == "326929") |>
@@ -1272,7 +1272,7 @@ dim(v_p__t__tne_d_weeks_21)
 #   dim()
 # # 14
 # # compl_weeks >= permit_weeks_amnt_22
-# 
+#
 # v_p__t__tne_d_weeks |>
 #   filter(VESSEL_VESSEL_ID == "326929") |>
 #   group_by(VESSEL_VESSEL_ID) |>
@@ -1282,74 +1282,74 @@ dim(v_p__t__tne_d_weeks_21)
 # #              <dbl>                      <int>
 # # 1           326929                         14
 # # correct
-# 
+#
 # # TODO: add which weeks
-# 
-# 
+#
+#
 # not_compliant_sa_vsl_ids <-
-#   v_p__t__tne_d_weeks_sa_compl |> 
-#   filter(compliant == "no") |> 
-#   select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
+#   v_p__t__tne_d_weeks_sa_compl |>
+#   filter(compliant == "no") |>
+#   select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
 #   distinct()
 # dim(not_compliant_sa_vsl_ids)
 # # [1] 2269    2
 # # [1] 2268    2
 # # [1] 2845    2 ok
-# 
+#
 # v_p__t__tne_d_weeks_compl1 <-
-#   v_p__t__tne_d_weeks_sa_compl |> 
-#   filter(compliant == "yes") |> 
-#   select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
+#   v_p__t__tne_d_weeks_sa_compl |>
+#   filter(compliant == "yes") |>
+#   select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
 #   distinct()
-# 
+#
 # dim(v_p__t__tne_d_weeks_compl1)
 # # [1] 1112    2
-# 
+#
 # intersect(not_compliant_sa_vsl_ids$PERMIT_VESSEL_ID,
-#           v_p__t__tne_d_weeks_compl1$PERMIT_VESSEL_ID) |> 
+#           v_p__t__tne_d_weeks_compl1$PERMIT_VESSEL_ID) |>
 #   head()
 # # 0
 # # 2
-# # [1] "FL2310RW" NA        
+# # [1] "FL2310RW" NA
 # # FL2310RW - duplicate in vessels on FHIER
-# 
+#
 # vessel_ids_both_compl_and_not <-
 #   intersect(not_compliant_sa_vsl_ids$VESSEL_VESSEL_ID,
-#           v_p__t__tne_d_weeks_compl1$VESSEL_VESSEL_ID) 
-# 
+#           v_p__t__tne_d_weeks_compl1$VESSEL_VESSEL_ID)
+#
 # length(vessel_ids_both_compl_and_not)
 # # 61
 # # [1]  94753  98483 326294 248489 291474 248785
 # # 0
-# 
-# v_p__t__tne_d_weeks_sa_compl |> 
-#   filter(VESSEL_VESSEL_ID == "248785") |> 
+#
+# v_p__t__tne_d_weeks_sa_compl |>
+#   filter(VESSEL_VESSEL_ID == "248785") |>
 #   dim()
 # # [1] 45 15
-# 
-# 
-# v_p__t__tne_d_weeks_sa_compl |>   
-#   filter(VESSEL_VESSEL_ID == "283991") |> 
+#
+#
+# v_p__t__tne_d_weeks_sa_compl |>
+#   filter(VESSEL_VESSEL_ID == "283991") |>
 #   View()
 # # has reports, check permit
-# 
-# v_p__t__tne_d_weeks_sa_compl |> 
-#   filter(PERMIT_VESSEL_ID == "1255890") |> 
+#
+# v_p__t__tne_d_weeks_sa_compl |>
+#   filter(PERMIT_VESSEL_ID == "1255890") |>
 #   View()
 # # [1]  5 15
-# 
+#
 # # FHIER
 # # 1255890................. KNOT READY  - DARRELL R BESSINGER            (352) 2227202
-# 
+#
 # v_p__t__tne_d_weeks_sa_compl_w_cnt <-
-#   v_p__t__tne_d_weeks_sa_compl |> 
-#   group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, YEAR, compliant) |> 
-#   mutate(compl_weeks = if_else(compliant == "yes",  n_distinct(WEEK_OF_YEAR), 0)) |> 
+#   v_p__t__tne_d_weeks_sa_compl |>
+#   group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, YEAR, compliant) |>
+#   mutate(compl_weeks = if_else(compliant == "yes",  n_distinct(WEEK_OF_YEAR), 0)) |>
 #   ungroup()
-# 
+#
 # dim(v_p__t__tne_d_weeks_sa_compl_w_cnt)
 # # [1] 23704    16
-# 
+#
 # v_p__t__tne_d_weeks_sa_compl_w_cnt_short <-
 #   v_p__t__tne_d_weeks_sa_compl_w_cnt |>
 #   select(VESSEL_VESSEL_ID,
@@ -1357,16 +1357,16 @@ dim(v_p__t__tne_d_weeks_21)
 #          YEAR,
 #          permit_weeks_amnt_22,
 #          compl_weeks,
-#          compliant) |> 
+#          compliant) |>
 #   distinct()
-# 
+#
 # dim(v_p__t__tne_d_weeks_sa_compl_w_cnt_short)
 # # [1] 7547    5
 # # [1] 3958    6
-# 
+#
 # ### check is.na(YEAR)? 381155 1024989 ----
-# v_p__t__tne_d_weeks_sa_compl_w_cnt_short |> 
-#   filter(VESSEL_VESSEL_ID == "381155") |> 
+# v_p__t__tne_d_weeks_sa_compl_w_cnt_short |>
+#   filter(VESSEL_VESSEL_ID == "381155") |>
 #   glimpse()
 # # $ VESSEL_VESSEL_ID     <dbl> 381155
 # # $ PERMIT_VESSEL_ID     <chr> "1024989"
@@ -1374,31 +1374,31 @@ dim(v_p__t__tne_d_weeks_21)
 # # $ permit_weeks_amnt_22 <dbl> 32
 # # $ compl_weeks          <int> 10
 # # $ compliant            <chr> "yes"
-# 
+#
 # # TODO: change compliant case_when - default - no, if there is a report - yes? Look for permit_weeks_amnt_22 <= compl_weeks?
-# 
+#
 # # compl_weeks < permit_weeks_amnt_22, why it is in compliant? Where are the other weeks (147361 1036367)
-# v_p__t__tne_d_weeks_sa_compl_w_cnt_short |> 
-#   filter(VESSEL_VESSEL_ID == "147361") |> 
+# v_p__t__tne_d_weeks_sa_compl_w_cnt_short |>
+#   filter(VESSEL_VESSEL_ID == "147361") |>
 #   glimpse()
-# 
+#
 # # $ permit_weeks_amnt_22 <dbl> 52
 # # $ compl_weeks          <int> 4
 # # $ compliant            <chr> "yes"
-# 
-# v_p__t__tne_d_weeks_sa_compl_w_cnt |> 
-#   filter(VESSEL_VESSEL_ID == "147361") |> 
+#
+# v_p__t__tne_d_weeks_sa_compl_w_cnt |>
+#   filter(VESSEL_VESSEL_ID == "147361") |>
 #   glimpse()
-# 
-# 
+#
+#
 # ### check is.na(YEAR) ----
-# 
-# t_d_w |> 
-#   filter(is.na(YEAR)) |> 
+#
+# t_d_w |>
+#   filter(is.na(YEAR)) |>
 #   dim()
 # # [1] 412  17
 # # 0 with left join
-# 
+#
 ## count SA year compliance by weeks comparison with permit ----
 # print_df_names(v_p__t__tne_d_weeks_sa_compl_w_cnt)
 
@@ -1421,7 +1421,7 @@ v_p__t__tne_d_weeks_sa_compl <-
   mutate(sa_compl_week = case_when(is.na(rep_type.t) &
                                 is.na(rep_type.tne) ~
                                 "no",
-                              .default = "yes")) |> 
+                              .default = "yes")) |>
   ungroup()
 toc()
 # v_p__t__tne_d_weeks_sa_compl: 28.39 sec elapsed
@@ -1438,14 +1438,14 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w <-
            # WEEK_OF_YEAR,
            # date_y_m,
            sa_compl_week) |>
-  mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |> 
+  mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
   ungroup()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 # [1] 90766    17
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
-  v_p__t__tne_d_weeks_sa_compl_cnt_w |> 
+  v_p__t__tne_d_weeks_sa_compl_cnt_w |>
   mutate(compl_2022 = case_when(
            compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
            .default = "no")
@@ -1478,10 +1478,10 @@ View(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short)
 # length(unique(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     3956
 
-v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |> 
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |>
   select(PERMIT_VESSEL_ID,
-         compl_2022) |> 
-  distinct() |> 
+         compl_2022) |>
+  distinct() |>
   count(compl_2022)
 # 1 no          2695
 # 2 yes         1262
@@ -1499,14 +1499,14 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |>
   #                       percent_non_compl),
   #              names_to = "is_compliant",
   #              values_to = "percent")
-  # 
+  #
   #   y_r_title = curr_year_region
   #   plots_for_c_vs_nc_vsls(curr_df, y_r_title)
 
 # GOM + dual compl by year ----
 
 v_p__t__tn_d_weeks_gom <-
-  v_p__t__tn_d_weeks |> 
+  v_p__t__tn_d_weeks |>
   filter(permit_sa_gom_dual %in% c("gom_only", "dual"))
 
 dim(v_p__t__tn_d_weeks_gom)
@@ -1516,7 +1516,7 @@ dim(v_p__t__tn_d_weeks_gom)
 # PERMIT_VESSEL_ID     1597
 
 # TODO: check if permit_id in tn mean the same as in p_v
-# 
+#
 # ===
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom |>
@@ -1556,7 +1556,7 @@ v_p__tn__t_d_weeks_compl <-
     rep_t_cnts_na = sum(is.na((rep_type.t))),
     rep_tn_cnts_notna = sum(!is.na((rep_type.tn))),
     rep_tn_cnts_na = sum(is.na((rep_type.tn)))
-  ) |> 
+  ) |>
   ungroup()
 
 
@@ -1568,39 +1568,39 @@ View(v_p__tn__t_d_weeks_compl)
 dim(v_p__tn__t_d_weeks_compl)
 # [1] 22090    15
 
-# v_p__t__tn_d_weeks_gom_short_rep0 |> 
-#   filter(VESSEL_VESSEL_ID == 72359) |> 
-#   select(rep_type.t) |> 
+# v_p__t__tn_d_weeks_gom_short_rep0 |>
+#   filter(VESSEL_VESSEL_ID == 72359) |>
+#   select(rep_type.t) |>
 #   glimpse()
-   
-  
+
+
   # mutate(is_compliant = case_when(
   #   is.na(rep_type.t) & is.na(rep_type.t) ~
   #     "no",
   #   .default = "yes"
   # ))
 
-v_p__tn__t_d_weeks_compl |> 
-  select(PERMIT_VESSEL_ID) |> 
-  distinct() |> 
+v_p__tn__t_d_weeks_compl |>
+  select(PERMIT_VESSEL_ID) |>
+  distinct() |>
   dim()
-# 1597    
+# 1597
 
 v_p__tn__t_d_weeks_compl_cnt <-
-  v_p__tn__t_d_weeks_compl |> 
+  v_p__tn__t_d_weeks_compl |>
   group_by(PERMIT_VESSEL_ID, is_compliant) |>
-  dplyr::add_count(is_compliant, name = "compl_cnt") |> 
+  dplyr::add_count(is_compliant, name = "compl_cnt") |>
   mutate(compl_y_22 =
            case_when(permit_weeks_amnt_22 == compl_cnt ~
                        "yes",
                      .default = "no"
-    
-  )) |> 
+
+  )) |>
   ungroup()
 
 # View(v_p__tn__t_d_weeks_compl_cnt)
 
-v_p__tn__t_d_weeks_compl_cnt |> 
+v_p__tn__t_d_weeks_compl_cnt |>
   select(PERMIT_VESSEL_ID, compl_y_22) |>
   distinct() |>
   count(compl_y_22)
@@ -1617,4 +1617,4 @@ v_p__tn__t_d_weeks_compl_cnt |>
 
 # Was 78% yes and 20% no
 # TODO: why?
-# 
+#
