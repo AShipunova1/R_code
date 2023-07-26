@@ -1150,6 +1150,7 @@ toc()
 dim(v_p__t_d_weeks)
 # [1] 42856    13
 
+## v_p__t & tne ----
 tic("v_p__t__tne_d_weeks")
 v_p__t__tne_d_weeks <-
   full_join(
@@ -1182,6 +1183,7 @@ dim(v_p__t__tne_d_weeks)
 # VESSEL_VESSEL_ID     6925
 # PERMIT_VESSEL_ID     5462 all permit regions
 
+### check ----
 v_p__t__tne_d_weeks_21 <-
   v_p__t__tne_d_weeks |>
   # filter(date_y_m %within% permit_2022_int)
@@ -1194,6 +1196,25 @@ v_p__t__tne_d_weeks_21 <-
 
 dim(v_p__t__tne_d_weeks_21)
 # 0 (change 52/1 0)
+
+## v_p__t & tn ----
+tic("v_p__t__tn_d_weeks")
+v_p__t__tn_d_weeks <-
+  full_join(
+    v_p__t_d_weeks,
+    tn_d_w_short,
+    join_by(date_y_m,
+            YEAR,
+            WEEK_OF_YEAR,
+            MONTH_OF_YEAR,
+            VESSEL_VESSEL_ID == VESSEL_ID),
+    relationship = "many-to-many"
+  )
+toc()
+# v_p__t__tn_d_weeks: 0.09 sec elapsed
+
+dim(v_p__t__tn_d_weeks)
+# [1] 47184    18
 
 # ===
 # SA 2022 compliance ----
