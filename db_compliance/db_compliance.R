@@ -1556,21 +1556,17 @@ v_p__tn__t_d_weeks_compl <-
     rep_t_cnts_na = sum(is.na((rep_type.t))),
     rep_tn_cnts_notna = sum(!is.na((rep_type.tn))),
     rep_tn_cnts_na = sum(is.na((rep_type.tn)))
-  )
-
-View(v_p__tn__t_d_weeks_compl)
-  add_count(rep_type.t, name = "rep_t_cnts") |> 
-  add_count(rep_type.tn, name = "rep_tn_cnts") |> 
-  # mutate(rep_t_cnts = n(rep_type.t),
-  #        rep_tn_cnts = n(rep_type.tn)) |> 
+  ) |> 
   ungroup()
-# Error in `mutate()`:
-# ℹ In argument: `rep_t_cnts = n(rep_type.t)`.
-# ℹ In group 1: `VESSEL_VESSEL_ID = 72359`, `PERMIT_VESSEL_ID = "933533"`,
-#   `permit_2022_int = 2021-12-31 19:00:00 EST--2022-12-30 19:00:00 EST`.
+
 
 View(v_p__tn__t_d_weeks_compl)
-# [1] 22090    13
+
+
+# TODO: count rep_t_cnts_notna == rep_tn_cnts_notna
+
+dim(v_p__tn__t_d_weeks_compl)
+# [1] 22090    15
 
 # v_p__t__tn_d_weeks_gom_short_rep0 |> 
 #   filter(VESSEL_VESSEL_ID == 72359) |> 
