@@ -1059,7 +1059,8 @@ t_d_w_short <-
       trip_int
     )
   ) |> 
-  distinct()
+  distinct() |> 
+  mutate(rep_type = "trips")
 
 t_d_w |> 
   filter(!YEAR == TRIP_START_y) |> 
@@ -1078,7 +1079,8 @@ dim(t_d_w_short)
 tne_d_w_short <-
   tne_d_w |>
   select(-c(TRIP_DATE, TRIP_ID)) |>
-  distinct()
+  distinct() |> 
+  mutate(rep_type = "trips_neg")
 
 # check year
 tne_d_w |> 
@@ -1124,7 +1126,8 @@ tn_d_w_short <-
       NOTIFICATION_TIME_ZONE
     )
   ) |> 
-  distinct()
+  distinct() |> 
+  mutate(rep_type = "trips_notif")
 
 tn_d_w |> 
   filter(!YEAR == TRIP_START_y) |> 
