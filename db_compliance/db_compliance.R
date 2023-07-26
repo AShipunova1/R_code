@@ -1226,10 +1226,12 @@ v_p__t__tn_d_weeks |>
 # 1)
 v_p__t__tne_d_weeks |> 
   filter(PERMIT_VESSEL_ID == "VI5498TB") |> 
+  count(TRIP_DATE_y) |> 
   glimpse()
-# NA, but all compliant in FHIER
-# $ VESSEL_VESSEL_ID     <dbl> 248316
 # now has TRIP_DATE_y          
+# 58
+# $ TRIP_DATE_y <dbl> 2021, 2022
+# $ n           <int> 1, 57
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |> 
   filter(PERMIT_VESSEL_ID == "VI5498TB") |> 
