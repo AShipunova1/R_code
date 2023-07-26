@@ -1135,6 +1135,92 @@ dim(tn_d_w_short)
 # [1] 21211    10
 
 # join with dates_22 by week ----
+## t & tne ----
+
+tic("t__tne_d_weeks")
+t__tne_d_weeks <-
+  full_join(
+    t_d_w_short,
+    tne_d_w_short,
+    join_by(date_y_m,
+            YEAR,
+            WEEK_OF_YEAR,
+            MONTH_OF_YEAR,
+            VESSEL_ID),
+    relationship = "many-to-many"
+  )
+toc()
+dim(t__tne_d_weeks)
+# [1] 160791     10
+
+## t & tn ----
+tic("t__tn_d_weeks")
+t__tn_d_weeks <-
+  full_join(
+    t_d_w_short,
+    tn_d_w_short,
+    join_by(date_y_m,
+            YEAR,
+            WEEK_OF_YEAR,
+            MONTH_OF_YEAR,
+            VESSEL_ID),
+    relationship = "many-to-many",
+    suffix = c(".t", ".tn")
+  )
+toc()
+dim(t__tn_d_weeks)
+# [1] 41248    14
+# WEEK_OF_YEAR          53
+# VESSEL_ID           1991
+
+## t_tne & v_p ----
+
+tic("v_p__t__tne_d_weeks")
+v_p__t__tne_d_weeks <-
+  full_join(
+    v_p_d_w_22_short,
+    t__tne_d_weeks,
+    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
+    relationship = "many-to-many"
+  )
+toc()
+
+dim(v_p__t__tne_d_weeks)
+# [1] 165834     14
+
+# VESSEL_VESSEL_ID     6913
+# PERMIT_VESSEL_ID     5462
+# permit_sa_gom_dual      4
+# permit_2022_int       357
+# permit_weeks_amnt_22   54
+# YEAR                    4
+# MONTH_OF_YEAR          13
+# WEEK_OF_YEAR           54
+# date_y_m               18
+
+v_p__t__tne_d_weeks |> 
+  filter(VESSEL_VESSEL_ID == "248316") |>
+  dim()
+# [1] 58 14 correct
+
+## t_tn & v_p ----
+tic("v_p__t__tn_d_weeks")
+v_p__t__tn_d_weeks <-
+  full_join(
+    v_p_d_w_22_short,
+    t__tn_d_weeks,
+    join_by(VESSEL_VESSEL_ID == VESSEL_ID),
+    relationship = "many-to-many"
+  )
+toc()
+
+View(v_p__t__tn_d_weeks)
+# [1] 46329    18
+
+v_p__t__tn_d_weeks |>
+  filter(is.na(TRIP_START_y.t) & is.na(TRIP_START_y.tn)) |>
+  dim()
+# [1] 3548   18
 
 ## v_p & t ----
 # print_df_names(v_p_d_w_22_short)
