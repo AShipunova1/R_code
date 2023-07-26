@@ -1446,13 +1446,26 @@ v_p__tn__t_d_weeks_compl |>
   dim()
 # 1597    
 
-View(v_p__tn__t_d_weeks_compl)
-v_p__tn__t_d_weeks_compl |> 
-  select(PERMIT_VESSEL_ID, is_compliant) |> 
-  distinct() |> 
-  count(is_compliant)
-# 1 no            774
-# 2 yes           823
+v_p__tn__t_d_weeks_compl_cnt <-
+  v_p__tn__t_d_weeks_compl |> 
+  group_by(PERMIT_VESSEL_ID, is_compliant) |>
+  dplyr::add_count(is_compliant, name = "compl_cnt") |> 
+  mutate(compl_y_22 =
+           case_when(permit_weeks_amnt_22 == compl_cnt ~
+                       "yes",
+                     .default = "no"
+    
+  )) |> 
+  ungroup()
+
+# View(v_p__tn__t_d_weeks_compl_cnt)
+
+v_p__tn__t_d_weeks_compl_cnt |> 
+  select(PERMIT_VESSEL_ID, compl_y_22) |>
+  distinct() |>
+  count(compl_y_22)
+# 1 no          1588
+# 2 yes            9
 
 # yes
 823 * 100 / (1597)
