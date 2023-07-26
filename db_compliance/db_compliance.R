@@ -1195,46 +1195,6 @@ v_p__t__tne_d_weeks_21 <-
 dim(v_p__t__tne_d_weeks_21)
 # 0 (change 52/1 0)
 
-# v_p__tne__t_d_weeks |>
-#   filter(date_y_m == 'Dec 2021' & 
-#            (!is.na(TRIP_DATE_y) |
-#              !is.na(TRIP_START_y))
-#          ) |> 
-#   glimpse()
-# 1
-# $ WEEK_OF_YEAR            <dbl> 52
-# $ TRIP_START_y            <dbl> 2021
-# $ TRIP_END_y              <dbl> 2022
-# $ TRIP_END_m              <yearmon> Feb 2022
-
-# FL3612RX = compl in FHIER
-# trips_info_2022_int_ah_w_y_weeks_cnt_u |> 
-#   filter(VESSEL_ID == "252980") |> 
-#   dim()
-# # 0
-# 
-# trip_neg_2022_w_y_cnt_u |> 
-#   filter(VESSEL_ID == "252980") |> 
-#   View()
-# # [1] 215   7
-# 
-# v_p__tne__t_d_weeks |> 
-#   filter(VESSEL_VESSEL_ID == "252980") |> 
-#   View()
-# # 59
-# 
-# v_p__tne__t_d_weeks |> 
-#   filter(VESSEL_VESSEL_ID == "252980") |> 
-#   select(MONTH_OF_YEAR) |> 
-#     distinct() |> 
-#     arrange(MONTH_OF_YEAR)
-# 
-# v_p__tne__t_d_weeks |>
-#   filter(WEEK_OF_YEAR == 0) |>
-#     filter(!is.na(TRIP_START_y)) |>
-#   View()
-# TODO: get read of 0 week
-# 
 # ===
 # SA 2022 compliance ----
 # There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
