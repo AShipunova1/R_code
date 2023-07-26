@@ -1536,21 +1536,29 @@ v_p__t__tn_d_weeks_gom_short <-
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 22090    11
 
-# change na rep to 0?
-v_p__t__tn_d_weeks_gom_short_rep0 <-
-  v_p__t__tn_d_weeks_gom_short |>
-  # mutate(across(c(rep_type.t,
-  #                 rep_type.tn), tidyr::replace_na, 0))
-  mutate(across(c(rep_type.t,
-                  rep_type.tn), ~ replace(., is.na(.), 0)))
+# # change na rep to 0?
+# v_p__t__tn_d_weeks_gom_short_rep0 <-
+#   v_p__t__tn_d_weeks_gom_short |>
+#   # mutate(across(c(rep_type.t,
+#   #                 rep_type.tn), tidyr::replace_na, 0))
+#   mutate(across(c(rep_type.t,
+#                   rep_type.tn), ~ replace(., is.na(.), 0)))
 
 # dim(v_p__t__tn_d_weeks_gom_short_rep0)
 
 v_p__tn__t_d_weeks_compl <-
-  v_p__t__tn_d_weeks_gom_short_rep0 |>
-  # group_by(VESSEL_VESSEL_ID,
-  #          PERMIT_VESSEL_ID,
-  #          permit_2022_int) |> 
+  v_p__t__tn_d_weeks_gom_short |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           permit_2022_int) |>
+  mutate(
+    rep_t_cnts_notna = sum(!is.na((rep_type.t))),
+    rep_t_cnts_na = sum(is.na((rep_type.t))),
+    rep_tn_cnts_notna = sum(!is.na((rep_type.tn))),
+    rep_tn_cnts_na = sum(is.na((rep_type.tn)))
+  )
+
+View(v_p__tn__t_d_weeks_compl)
   add_count(rep_type.t, name = "rep_t_cnts") |> 
   add_count(rep_type.tn, name = "rep_tn_cnts") |> 
   # mutate(rep_t_cnts = n(rep_type.t),
