@@ -1688,6 +1688,15 @@ fhier_db_compl_gom_join |>
   View()
 
 # ===
+# By month ----
+# GOM by month ----
+## count separately amount of trips and trip_n for each vsl ----
+# dim(v_p__t__tn_d_weeks_gom_short)
+v_p__t__tn_d_weeks_gom_short_compl_m <-
+  v_p__t__tn_d_weeks_gom_short |>
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int, date_y_m) |>
+  mutate(non_na_count.t = sum(!is.na(rep_type.t)),
+            non_na_count.tn = sum(!is.na(rep_type.tn))) |> 
   ungroup()
 
 View(v_p__t__tn_d_weeks_gom_short_compl_m)
