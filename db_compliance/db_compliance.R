@@ -1813,3 +1813,15 @@ v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 |>
 # % non-compliant weeks per month for non-compliant vessels by permit type ----
 
 ## non_compliant vessels per week ----
+v_p__t__tn_d_weeks_gom_compl_w <-
+  v_p__t__tn_d_weeks_gom |> 
+    group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int, date_y_m, WEEK_OF_YEAR) |>
+  mutate(is_compliant_y =
+           case_when(non_na_count.t == non_na_count.tn ~
+                       "yes",
+                     .default = "no")) |>
+  ungroup()
+
+
+# convert yearmon to date format, compare with permit
+  # filter(as.Date(date_y_m) %within% permit_2022_int)
