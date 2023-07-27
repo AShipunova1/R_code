@@ -909,7 +909,7 @@ dim(t_d_w)
 #   glimpse()
 # Rows: 4,202
 
-print_df_names(trip_neg_2022_w_y_cnt_u)
+# print_df_names(trip_neg_2022_w_y_cnt_u)
 
 tne_dates_by <-
   join_by(YEAR == TRIP_DATE_y,
@@ -920,7 +920,7 @@ tic("tne_d_w")
 tne_d_w <-
    full_join(
      dates_2022_w,
-     trip_neg_2022_w_y_cnt_u,
+     trip_neg_2022_w_y,
      tne_dates_by,
      relationship = "many-to-many"
    )
@@ -929,6 +929,7 @@ toc()
 dim(tne_d_w)
 # [1] 4806915       8
 # [1] 4806913       8
+# [1] 4806913       7
 
 ### tn by start ----
 
@@ -964,63 +965,63 @@ dim(v_p_d_w_22)
 
 # Count distinct weeks per vessel ----
 
-## neg trip weeks ----
-
-trip_neg_2022_w_y_cnt_u <-
-  trip_neg_2022_w_y |>
-  group_by(VESSEL_ID) %>%
-  mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |>
-  ungroup()
-
-dim(trip_neg_2022_w_y_cnt_u)
-# [1] 1709    5
-# [1] 3414    2 summarize
-# [1] 747078     44 mutate
-# [1] 747173      7
-
-## trip_notif weeks count per vessel ----
-trips_notifications_2022_ah_w_y_cnt_u <-
-  trips_notifications_2022_ah_w_y |>
-  group_by(VESSEL_ID) |>
-  mutate(
-    distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
-    distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
-  )
-
-dim(trips_notifications_2022_ah_w_y_cnt_u)
-# [1] 914   3 summarize
-# [1] 67738    35
-
-trips_notifications_2022_ah_w_y_cnt_u %>%
-   filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
-   dim()
-# [1] 0 6
-# ok
-# [1] 6318   35
-
-## trips weeks count per vessel ----
-trips_info_2022_int_ah_sero_w_y_weeks_cnt_u <-
-  trips_info_2022_int_ah_sero_w_y %>%
-    group_by(VESSEL_ID) %>%
-      mutate(
-        distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
-        distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
-      ) %>%
-      mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
-
-dim(trips_info_2022_int_ah_sero_w_y_weeks_cnt_u)
-# [1] 1110    7
-# [1] 1934    4
-# [1] 1933    4 summarize
-# [1] 96990   110
-# [1] 97003    18
-# [1] 80967    18 sero
-
-trips_info_2022_int_ah_sero_w_y_weeks_cnt_u |>
-  filter(!distinct_start_weeks_t == distinct_end_weeks_t) |>
-  dim()
-# 2196 sero
-
+# ## neg trip weeks ----
+# 
+# trip_neg_2022_w_y_cnt_u <-
+#   trip_neg_2022_w_y |>
+#   group_by(VESSEL_ID) %>%
+#   mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |>
+#   ungroup()
+# 
+# dim(trip_neg_2022_w_y_cnt_u)
+# # [1] 1709    5
+# # [1] 3414    2 summarize
+# # [1] 747078     44 mutate
+# # [1] 747173      7
+# 
+# ## trip_notif weeks count per vessel ----
+# trips_notifications_2022_ah_w_y_cnt_u <-
+#   trips_notifications_2022_ah_w_y |>
+#   group_by(VESSEL_ID) |>
+#   mutate(
+#     distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
+#     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
+#   )
+# 
+# dim(trips_notifications_2022_ah_w_y_cnt_u)
+# # [1] 914   3 summarize
+# # [1] 67738    35
+# 
+# trips_notifications_2022_ah_w_y_cnt_u %>%
+#    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
+#    dim()
+# # [1] 0 6
+# # ok
+# # [1] 6318   35
+# 
+# ## trips weeks count per vessel ----
+# trips_info_2022_int_ah_sero_w_y_weeks_cnt_u <-
+#   trips_info_2022_int_ah_sero_w_y %>%
+#     group_by(VESSEL_ID) %>%
+#       mutate(
+#         distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
+#         distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
+#       ) %>%
+#       mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
+# 
+# dim(trips_info_2022_int_ah_sero_w_y_weeks_cnt_u)
+# # [1] 1110    7
+# # [1] 1934    4
+# # [1] 1933    4 summarize
+# # [1] 96990   110
+# # [1] 97003    18
+# # [1] 80967    18 sero
+# 
+# trips_info_2022_int_ah_sero_w_y_weeks_cnt_u |>
+#   filter(!distinct_start_weeks_t == distinct_end_weeks_t) |>
+#   dim()
+# # 2196 sero
+# 
 # rm dates, leave w, m, y ----
 ## v_p_d ----
 
