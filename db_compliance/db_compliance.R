@@ -847,13 +847,16 @@ dates_2022_yw0 |>
 # 27 2022   1  1  2022-01-03 23:00:00 Jan 2022
 # 28 2022   1  1  2022-01-05 23:00:00 Jan 2022
 
-dates_2022_yw <-
+dates_2022_yw1 <-
   dates_2022_yw0 |>
   # remove all before the last week of 2021
   filter(!(MONTH_OF_YEAR == 12 &
              YEAR == 2021 &
-             WEEK_OF_YEAR < 52)) |>
-  # has to rename to 0, bc that's how %U works
+             WEEK_OF_YEAR < 52))
+
+### has to rename 52 to 0, bc that's how %U works ----
+dates_2022_yw <-
+  dates_2022_yw1
   mutate(WEEK_OF_YEAR =
     case_when(
       MONTH_OF_YEAR == 1 &
