@@ -1711,11 +1711,14 @@ v_p__t__tn_d_weeks_gom_short_compl_m_short <-
             permit_sa_gom_dual)) |>
   distinct()
 
-View(v_p__t__tn_d_weeks_gom_short_compl_m_short)
+dim(v_p__t__tn_d_weeks_gom_short_compl_m_short)
 # [1] 7266   10
 
-# v_p__t__tn_d_weeks_gom_short_compl_m_short |> 
-#    filter(as.Date(date_y_m, frac = 1) %within% permit_2022_int) |> 
-#    dim()
-# [1] 6476    9
+## rm odd dates ----
+v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p <-
+  v_p__t__tn_d_weeks_gom_short_compl_m_short |>
+  # convert yearmon to date format, compare with permit
+  filter(as.Date(date_y_m) %within% permit_2022_int)
 
+dim(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p)
+# [1] 6476    9
