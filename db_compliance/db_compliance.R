@@ -733,7 +733,7 @@ trips_info_2022_int_ah_sero_w_y <-
   )
 
 trips_info_2022_int_ah_sero_w_y |>
-  filter(TRIP_START_week_num == 0) |>
+  filter(TRIP_START_week_num == 0 &
   dim()
 # TRIP_START_m == "Jan 2022"
 # [1] 104  15
