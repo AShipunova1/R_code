@@ -671,7 +671,7 @@ trips_info_2022_int_ah <-
   trips_info_2022_int %>%
   filter(TRIP_TYPE %in% c("A", "H"))
 
-# Keep only SERO permitted ----
+## Keep only SERO permitted ----
 trips_info_2022_int_ah_sero <-
   trips_info_2022_int_ah |>
   filter(!is.na(SERO_VESSEL_PERMIT)) |>
@@ -1093,41 +1093,41 @@ dim(tne_d_w_short)
 # print_df_names(tn_d_w)
 tn_d_w_short <-
   tn_d_w |>
-  select(
-    -c(
-      NOTIFICATION_TYPE_ID,
-      SYSTEM_ID,
-      TRIP_TYPE,
-      TRIP_START_DATE,
-      ARRIVAL_PORT,
-      DEPARTURE_PORT,
-      NOTIFICATION_SEQ,
-      CANCEL_FLAG,
-      TRIP_END_DATE,
-      TRIP_ID,
-      TRIP_START_DATE_TIME,
-      EMAIL_SENT,
-      TRIP_ID,
-      INTENDED_FISHING_FLAG,
-      LANDING_LOCATION,
-      DEA_PERMIT_SOLD_NOTIFICATION,
-      GEAR_NOTIFICATION,
-      LANDING_LOCATION_NAME,
-      STAT_ZONE,
-      LANDING_LOCATION_STATE,
-      LANDING_LOCATION_COUNTY,
-      LANDING_LOCATION_CITY,
-      PROCESSED,
-      PROCESSED_TIMESTAMP,
-      RAW_INPUT_ID,
-      NOTIFICATION_TIME_ZONE
-    )
+  select(-c(
+    ARRIVAL_PORT,
+    CANCEL_FLAG,
+    DEA_PERMIT_SOLD_NOTIFICATION,
+    DEPARTURE_PORT,
+    EMAIL_SENT,
+    GEAR_NOTIFICATION,
+    INTENDED_FISHING_FLAG,
+    LANDING_LOCATION_CITY,
+    LANDING_LOCATION_COUNTY,
+    LANDING_LOCATION_NAME,
+    LANDING_LOCATION_STATE,
+    LANDING_LOCATION,
+    NOTIFICATION_SEQ,
+    NOTIFICATION_TIME_ZONE,
+    NOTIFICATION_TYPE_ID,
+    PERMIT_ID,
+    PROCESSED_TIMESTAMP,
+    PROCESSED,
+    RAW_INPUT_ID,
+    STAT_ZONE,
+    SYSTEM_ID,
+    TRIP_END_DATE,
+    TRIP_ID,
+    TRIP_START_DATE_TIME,
+    TRIP_START_DATE,
+    TRIP_TYPE
+  )
   ) |>
   distinct() |>
   mutate(rep_type = "trips_notif")
 
 dim(tn_d_w_short)
 # [1] 21211    10
+# [1] 21179     9 (no permit_id)
 
 # join with dates_22 by week ----
 ## t & tne ----
@@ -1547,6 +1547,12 @@ v_p__t__tn_d_weeks_gom_short_compl <-
             non_na_count.tn = sum(!is.na(rep_type.tn))) |> 
   ungroup()
 
+dim(v_p__t__tn_d_weeks_gom_short_compl)
+# [1] 22090    13
+
+# Jenny?: Number of unmatched declarations for logbooks, and unmatched logbooks for declarations
+# write_csv(v_p__t__tn_d_weeks_gom_short_compl, "cnt_t_n_tn__v_p__t__tn_d_weeks_gom_short_compl.csv")
+
 # v_p__t__tn_d_weeks_gom_short_compl |>
 #   filter(VESSEL_VESSEL_ID == 72359) |>
 #   select(rep_type.t, rep_type.tn) |>
@@ -1725,7 +1731,7 @@ v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p <-
   # convert yearmon to date format, compare with permit
   filter(as.Date(date_y_m) %within% permit_2022_int)
 
-View(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p)
+dim(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p)
 # [1] 6476    9
 
 ## gom is_compliant by month ----
@@ -1769,8 +1775,6 @@ v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0 |>
   dim()
 # [1] 1241   14
 
-print_df_names(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0)
-
 v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 <-
   v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0 |>
   select(date_y_m,
@@ -1805,3 +1809,7 @@ v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 |>
 # 0
 
 # TODO: why more permits than vsls?
+
+# % non-compliant weeks per month for non-compliant vessels by permit type ----
+
+## non_compliant vessels per week ----
