@@ -1513,7 +1513,7 @@ v_p__t__tn_d_weeks_gom <-
 dim(v_p__t__tn_d_weeks_gom)
 # [1] 22613    18
 
-# length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
+length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     1597
 
 # TODO: check if permit_id in tn mean the same as in p_v
@@ -1536,6 +1536,36 @@ v_p__t__tn_d_weeks_gom_short <-
 
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 22090    11
+
+# View(v_p__t__tn_d_weeks_gom_short)
+v_p__t__tn_d_weeks_gom_short_compl <-
+  v_p__t__tn_d_weeks_gom_short |>
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int) |>
+  mutate(non_na_count.t = sum(!is.na(rep_type.t)),
+            non_na_count.tn = sum(!is.na(rep_type.tn))) |> 
+  ungroup()
+
+# View(v_p__t__tn_d_weeks_gom_short_compl)
+
+v_p__t__tn_d_weeks_gom_short_compl_short <-
+  v_p__t__tn_d_weeks_gom_short_compl |>
+  select(-c(MONTH_OF_YEAR,
+            WEEK_OF_YEAR,
+            date_y_m,
+            rep_type.t,
+            rep_type.tn)) |>
+  distinct()
+dim(v_p__t__tn_d_weeks_gom_short_compl_short)
+# [1] 1643    8
+
+v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
+  v_p__t__tn_d_weeks_gom_short_compl_short |>
+  mutate(is_compliant_y =
+           case_when(non_na_count.t == non_na_count.tn ~
+                       "yes",
+                     .default = "no"))
+
+View(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 
 # # change na rep to 0?
 # v_p__t__tn_d_weeks_gom_short_rep0 <-
