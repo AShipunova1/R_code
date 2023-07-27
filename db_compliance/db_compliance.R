@@ -1839,5 +1839,42 @@ v_p__t__tn_d_weeks_gom_compl_w_nc <-
   v_p__t__tn_d_weeks_gom_compl_w |>
   filter(is_compliant_w == "no")
 
-dim(v_p__t__tn_d_weeks_gom_compl_w_nc)
+View(v_p__t__tn_d_weeks_gom_compl_w_nc)
 # [1] 9285   21
+
+## rm fields ----
+v_p__t__tn_d_weeks_gom_compl_w_nc_short <-
+  v_p__t__tn_d_weeks_gom_compl_w_nc |>
+  select(
+    -c(
+      non_na_count.t,
+      non_na_count.tn,
+      rep_type.t,
+      rep_type.tn,
+      PERMIT_ID,
+      YEAR
+    ),
+    -any_of(starts_with("TRIP_END"))
+  ) |> 
+  distinct()
+
+dim(v_p__t__tn_d_weeks_gom_compl_w_nc_short)
+# [1] 9068    9
+
+length(unique(v_p__t__tn_d_weeks_gom_compl_w_nc_short$PERMIT_VESSEL_ID))
+# 630
+
+# length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
+# [1] 1597
+
+v_p__t__tn_d_weeks_gom_compl_w_nc_short_cnt_w <-
+  v_p__t__tn_d_weeks_gom_compl_w_nc_short |>
+  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
+           date_y_m) |>
+  mutate(weeks_pv_pm = dplyr::n_distinct(WEEK_OF_YEAR)) |> 
+  ungroup()
+
+View(v_p__t__tn_d_weeks_gom_compl_w_nc_short_cnt_w)
+# [1] 9068   10
+
+# 0, Jan 2022, 52, Jan 2022
