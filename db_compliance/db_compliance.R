@@ -1740,4 +1740,22 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m)
 
 # GOM total compliant numbers per month ----
 
-v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m
+v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0 <-
+  v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m |>
+  group_by(date_y_m) |>
+  mutate(
+    vessel_per_month =
+      n_distinct(PERMIT_VESSEL_ID),
+    total_is_compl =
+      sum(is_compliant_y == "yes"),
+    total_is_non_compl =
+      sum(is_compliant_y == "no")
+  ) |>
+  ungroup()
+
+View(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0)
+
+v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0 |>
+  filter(!(total_is_compl + total_is_non_compl) == vessel_per_month) |>
+  View()
+# Rows: 1,241
