@@ -1565,6 +1565,7 @@ v_p__t__tn_d_weeks_gom_short_compl_short <-
 dim(v_p__t__tn_d_weeks_gom_short_compl_short)
 # [1] 1643    8
 
+## gom is_compliant ----
 v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
   v_p__t__tn_d_weeks_gom_short_compl_short |>
   mutate(is_compliant_y =
@@ -1720,5 +1721,23 @@ v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p <-
   # convert yearmon to date format, compare with permit
   filter(as.Date(date_y_m) %within% permit_2022_int)
 
-dim(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p)
+View(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p)
 # [1] 6476    9
+
+## gom is_compliant by month ----
+# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p)
+v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m <-
+  v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p |>
+  group_by(date_y_m) |>
+  mutate(is_compliant_y =
+           case_when(non_na_count.t == non_na_count.tn ~
+                       "yes",
+                     .default = "no")) |>
+  ungroup()
+
+dim(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m)
+# [1] 6476   10
+
+# GOM total compliant numbers per month ----
+
+v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m
