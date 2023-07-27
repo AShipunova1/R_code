@@ -646,7 +646,6 @@ trips_notifications_2022_short <-
   select(-any_of(t_names_to_rm)) |>
   distinct()
 
-
 # Trip data (= logbooks) ----
 ## add trip interval ----
 
@@ -734,10 +733,17 @@ trips_info_2022_int_ah_sero_w_y <-
 
 trips_info_2022_int_ah_sero_w_y |>
   filter(TRIP_START_week_num == 0 &
+           TRIP_START_m == "Jan 2022") |>
   dim()
 # TRIP_START_m == "Jan 2022"
 # [1] 104  15
 # 77 15 (sero)
+
+trips_info_2022_int_ah_sero_w_y |>
+  filter(TRIP_START_week_num == 52 &
+           TRIP_START_m == "Jan 2022") |>
+  dim()
+# [1] 80 15
 
 ## to trip notifications ----
 trips_notifications_2022_ah_w_y <-
@@ -768,6 +774,10 @@ trips_notifications_2022_ah_w_y |>
   dim()
 # [1] 32 33
 
+trips_notifications_2022_ah_w_y |>
+  filter(TRIP_START_week_num == 52) |>
+  dim()
+# [1] 1132   33
 
 ## to negative trips ----
 
@@ -790,6 +800,11 @@ trip_neg_2022_w_y |>
   filter(TRIP_week_num == 0 & TRIP_DATE_m == "Jan 2022") |>
   dim()
 # [1] 2101    6
+
+trip_neg_2022_w_y |>
+  filter(TRIP_week_num == 52 & TRIP_DATE_m == "Jan 2022") |>
+  dim()
+# [1] 2077    6
 
 # results:
 map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
@@ -854,27 +869,28 @@ dates_2022_yw1 <-
              YEAR == 2021 &
              WEEK_OF_YEAR < 52))
 
-### has to rename 52 to 0, bc that's how %U works ----
+### rename 52 to 0, bc that's how %U works ? ----
 dates_2022_yw <-
-  dates_2022_yw1
-  mutate(WEEK_OF_YEAR =
-    case_when(
-      MONTH_OF_YEAR == 1 &
-        YEAR == 2022 &
-        WEEK_OF_YEAR == 52
-      ~ WEEK_OF_YEAR == 0,
-      .default = WEEK_OF_YEAR
-    )
-  )
+  dates_2022_yw1 
+# |> 
+#   mutate(WEEK_OF_YEAR =
+#     case_when(
+#       MONTH_OF_YEAR == 1 &
+#         date_y_m == "Jan 2022" &
+#         WEEK_OF_YEAR == 52
+#       ~ WEEK_OF_YEAR == 0,
+#       .default = WEEK_OF_YEAR
+#     )
+#   )
 
-# View(dates_2022_yw)
+dim(dates_2022_yw)
 # [1] 401   5
 
 dates_2022_w <-
   dates_2022_yw |>
   select(-COMPLETE_DATE)
 
-glimpse(dates_2022_w)
+# glimpse(dates_2022_w)
 
 ## t by start & dates22 ----
 
@@ -954,6 +970,32 @@ toc()
 dim(tn_d_w)
 # [1] 435779     35
 # [1] 435640     35 (SERO), 34 by Year
+
+#### check for week 52 in Jan 22 ----
+tn_d_w |> 
+    filter(date_y_m == "Jan 2022" &
+               WEEK_OF_YEAR == 52) |> 
+  dim()
+# [1] 142  34
+trips_notifications_2022_ah_w_y |>
+    filter(TRIP_START_m == "Jan 2022",
+               TRIP_START_week_num == 52) |> 
+  dim()
+# [1] 142  33
+
+trips_info_2022_int_ah_sero_w_y |>
+    filter(TRIP_START_m == "Jan 2022",
+               TRIP_START_week_num == 52) |> 
+  dim()
+# [1] 80 15
+
+trip_neg_2022_w_y |> 
+    filter(TRIP_DATE_m == "Jan 2022" &
+               TRIP_week_num == 52) |> 
+  glimpse()
+# [1] 2077    6
+# 0 
+# [1] 2101    6
 
 ### add weeks per permit 22 ----
 
