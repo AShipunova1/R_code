@@ -1699,5 +1699,23 @@ v_p__t__tn_d_weeks_gom_short_compl_m <-
             non_na_count.tn = sum(!is.na(rep_type.tn))) |> 
   ungroup()
 
-View(v_p__t__tn_d_weeks_gom_short_compl_m)
+dim(v_p__t__tn_d_weeks_gom_short_compl_m)
 # [1] 22090    13
+
+## fewer columns ----
+v_p__t__tn_d_weeks_gom_short_compl_m_short <-
+  v_p__t__tn_d_weeks_gom_short_compl_m |>
+  select(-c(WEEK_OF_YEAR,
+            rep_type.t,
+            rep_type.tn,
+            permit_sa_gom_dual)) |>
+  distinct()
+
+View(v_p__t__tn_d_weeks_gom_short_compl_m_short)
+# [1] 7266   10
+
+# v_p__t__tn_d_weeks_gom_short_compl_m_short |> 
+#    filter(as.Date(date_y_m, frac = 1) %within% permit_2022_int) |> 
+#    dim()
+# [1] 6476    9
+
