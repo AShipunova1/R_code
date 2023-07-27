@@ -659,6 +659,16 @@ trips_info_2022_int <-
                                    unit = "day")
            ))
 
+### trips durations:
+trips_info_2022_int_dur <-
+  trips_info_2022_int |>
+  mutate(trip_dur =
+           lubridate::as.duration(trip_int)) |>
+  mutate(trip_dur_days =
+           as.numeric(trip_dur, "days"))
+
+# write_csv(trips_info_2022_int_dur, "trips_info_2022_int_dur.csv")
+
 ### check trips_info_2022_int ----
 trips_info_2022_int %>%
   select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
@@ -909,6 +919,11 @@ t_d_w <-
    )
 toc()
 # t_d_w: 0.48 sec elapsed
+
+t_d_w |> 
+    filter(WEEK_OF_YEAR == 52) |> 
+  glimpse()
+
 
 dim(t_d_w)
 # [1] 627414     17
@@ -1573,7 +1588,6 @@ v_p__t__tn_d_weeks_gom_short <-
       TRIP_END_week_num.t,
       TRIP_END_y.t,
       TRIP_END_m.t,
-      PERMIT_ID,
       TRIP_END_week_num.tn,
       TRIP_END_y.tn,
       TRIP_END_m.tn,
