@@ -1505,6 +1505,8 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |>
   #   plots_for_c_vs_nc_vsls(curr_df, y_r_title)
 
 # GOM + dual compl by year ----
+# There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
+# There should be a logbook for every declaration of a charter or headboat intending to fish.
 
 v_p__t__tn_d_weeks_gom <-
   v_p__t__tn_d_weeks |>
@@ -1518,7 +1520,7 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 
 # TODO: check if permit_id in tn mean the same as in p_v
 #
-# ===
+## fewer fields GOM ----
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom |>
   select(
@@ -1537,7 +1539,7 @@ v_p__t__tn_d_weeks_gom_short <-
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 22090    11
 
-# View(v_p__t__tn_d_weeks_gom_short)
+## count separately amount of trips and trip_n for each vsl ----
 v_p__t__tn_d_weeks_gom_short_compl <-
   v_p__t__tn_d_weeks_gom_short |>
   group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int) |>
@@ -1545,8 +1547,13 @@ v_p__t__tn_d_weeks_gom_short_compl <-
             non_na_count.tn = sum(!is.na(rep_type.tn))) |> 
   ungroup()
 
-# View(v_p__t__tn_d_weeks_gom_short_compl)
+# v_p__t__tn_d_weeks_gom_short_compl |>
+#   filter(VESSEL_VESSEL_ID == 72359) |>
+#   select(rep_type.t, rep_type.tn) |>
+#   glimpse()
+# NA both
 
+## rm more columns ---- 
 v_p__t__tn_d_weeks_gom_short_compl_short <-
   v_p__t__tn_d_weeks_gom_short_compl |>
   select(-c(MONTH_OF_YEAR,
@@ -1565,87 +1572,123 @@ v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
                        "yes",
                      .default = "no"))
 
-View(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
+dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
+# [1] 1643    9
 
-# # change na rep to 0?
-# v_p__t__tn_d_weeks_gom_short_rep0 <-
-#   v_p__t__tn_d_weeks_gom_short |>
-#   # mutate(across(c(rep_type.t,
-#   #                 rep_type.tn), tidyr::replace_na, 0))
-#   mutate(across(c(rep_type.t,
-#                   rep_type.tn), ~ replace(., is.na(.), 0)))
+v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>   filter(VESSEL_VESSEL_ID == 72359) |>
+  glimpse()
+# $ permit_sa_gom_dual   <chr> "dual"
+# $ permit_weeks_amnt_22 <dbl> 52
+# $ YEAR                 <dbl> NA
+# $ non_na_count.t       <int> 0
+# $ non_na_count.tn      <int> 0
+# $ is_compliant_y       <chr> "yes"
+# same in fhier
 
-# dim(v_p__t__tn_d_weeks_gom_short_rep0)
-
-v_p__tn__t_d_weeks_compl <-
-  v_p__t__tn_d_weeks_gom_short |>
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID,
-           permit_2022_int) |>
-  mutate(
-    rep_t_cnts_notna = sum(!is.na((rep_type.t))),
-    rep_t_cnts_na = sum(is.na((rep_type.t))),
-    rep_tn_cnts_notna = sum(!is.na((rep_type.tn))),
-    rep_tn_cnts_na = sum(is.na((rep_type.tn)))
-  ) |>
-  ungroup()
-
-
-View(v_p__tn__t_d_weeks_compl)
-
-
-# TODO: count rep_t_cnts_notna == rep_tn_cnts_notna
-
-dim(v_p__tn__t_d_weeks_compl)
-# [1] 22090    15
-
-# v_p__t__tn_d_weeks_gom_short_rep0 |>
-#   filter(VESSEL_VESSEL_ID == 72359) |>
-#   select(rep_type.t) |>
-#   glimpse()
-
-
-  # mutate(is_compliant = case_when(
-  #   is.na(rep_type.t) & is.na(rep_type.t) ~
-  #     "no",
-  #   .default = "yes"
-  # ))
-
-v_p__tn__t_d_weeks_compl |>
+## check total compl per year ----
+v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
   select(PERMIT_VESSEL_ID) |>
   distinct() |>
   dim()
 # 1597
 
-v_p__tn__t_d_weeks_compl_cnt <-
-  v_p__tn__t_d_weeks_compl |>
-  group_by(PERMIT_VESSEL_ID, is_compliant) |>
-  dplyr::add_count(is_compliant, name = "compl_cnt") |>
-  mutate(compl_y_22 =
-           case_when(permit_weeks_amnt_22 == compl_cnt ~
-                       "yes",
-                     .default = "no"
-
-  )) |>
-  ungroup()
-
-# View(v_p__tn__t_d_weeks_compl_cnt)
-
-v_p__tn__t_d_weeks_compl_cnt |>
-  select(PERMIT_VESSEL_ID, compl_y_22) |>
+v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
+  select(PERMIT_VESSEL_ID, is_compliant_y) |>
   distinct() |>
-  count(compl_y_22)
-# 1 no          1588
-# 2 yes            9
+  count(is_compliant_y)
+# 1 no               625
+# 2 yes              972
 
 # yes
-823 * 100 / (1597)
-# [1] 51.53413
+972 * 100 / (625 + 972)
+# [1] 60.86412
 
 # no
-774 * 100 / (1597)
-# [1] 48.46587
+625 * 100 / (1597)
+# [1] 39.13588
 
 # Was 78% yes and 20% no
 # TODO: why?
-#
+
+# Compare results with FHIER ----
+FHIER_Compliance_2022__06_22_2023 <-
+  read_csv(
+    r"(~\R_files_local\my_inputs\FHIER Compliance\FHIER_Compliance_2022__06_22_2023.csv)",
+    name_repair = fix_names
+  )
+
+dim(FHIER_Compliance_2022__06_22_2023)
+# [1] 147654     17
+
+FHIER_Compliance_2022__06_22_2023_short <-
+  FHIER_Compliance_2022__06_22_2023 |>
+  select(
+    vessel_official_number,
+    permitgroup,
+    gom_permitteddeclarations__,
+    captainreports__,
+    negativereports__,
+    compliant_,
+    overridden_
+  ) |>
+  distinct()
+
+dim(FHIER_Compliance_2022__06_22_2023_short)
+# [1] 18475     7
+
+FHIER_Compliance_2022__06_22_2023_short_reg <-
+  FHIER_Compliance_2022__06_22_2023_short |>
+  separate_permits_into_3_groups(permit_group_field_name = "permitgroup")
+
+# glimpse(FHIER_Compliance_2022__06_22_2023_short_reg)
+FHIER_Compliance_2022__06_22_2023_short_reg_gom <-
+  FHIER_Compliance_2022__06_22_2023_short_reg |> 
+  filter(permit_sa_gom %in% c("gom_only", "dual"))
+
+dim(FHIER_Compliance_2022__06_22_2023_short_reg_gom)
+# [1] 9233    8
+
+fhier_db_compl_gom_join <-
+  full_join(
+    FHIER_Compliance_2022__06_22_2023_short_reg_gom,
+    v_p__t__tn_d_weeks_gom_short_compl_short_compl_y,
+    join_by(vessel_official_number == PERMIT_VESSEL_ID),
+    relationship = "many-to-many"
+  )
+
+View(fhier_db_compl_gom_join)
+# [1] 9815   16
+
+fhier_db_compl_gom_join |>
+  filter(!tolower(compliant_) == tolower(is_compliant_y)) |>
+  View()
+# Rows: 5,557
+
+trips_info_2022 |>
+  filter(VESSEL_ID == "328219") |>
+  dim()
+
+trips_info_2022 |>
+  filter(VESSEL_ID == "328219",
+         TRIP_TYPE %in% c("A", "H")) |>
+  dim()
+
+trips_info_2022 |>
+  filter(VESSEL_ID == "328219",
+         TRIP_TYPE %in% c("A", "H")) |> 
+    select(SERO_VESSEL_PERMIT) |> 
+    distinct() |> 
+  dim()
+# NA
+
+# TODO: ask Michelle
+# why is it compl in FHIER compl?
+fhier_db_compl_gom_join |> 
+  filter(VESSEL_VESSEL_ID == "328219") |> 
+  View()
+
+# ===
+  ungroup()
+
+View(v_p__t__tn_d_weeks_gom_short_compl_m)
+# [1] 22090    13
