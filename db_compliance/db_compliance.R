@@ -1568,10 +1568,12 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_short)
 ## gom is_compliant ----
 v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
   v_p__t__tn_d_weeks_gom_short_compl_short |>
+  group_by(PERMIT_VESSEL_ID, permit_2022_int) |> 
   mutate(is_compliant_y =
            case_when(non_na_count.t == non_na_count.tn ~
                        "yes",
-                     .default = "no"))
+                     .default = "no")) |> 
+  ungroup()
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 # [1] 1643    9
@@ -1668,11 +1670,13 @@ fhier_db_compl_gom_join |>
 trips_info_2022 |>
   filter(VESSEL_ID == "328219") |>
   dim()
+# [1] 139  72
 
 trips_info_2022 |>
   filter(VESSEL_ID == "328219",
          TRIP_TYPE %in% c("A", "H")) |>
   dim()
+# [1] 133  72
 
 trips_info_2022 |>
   filter(VESSEL_ID == "328219",
@@ -1728,7 +1732,7 @@ View(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p)
 # print_df_names(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p)
 v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m <-
   v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p |>
-  group_by(date_y_m) |>
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int, date_y_m) |>
   mutate(is_compliant_y =
            case_when(non_na_count.t == non_na_count.tn ~
                        "yes",
@@ -1746,16 +1750,58 @@ v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0 <-
   mutate(
     vessel_per_month =
       n_distinct(PERMIT_VESSEL_ID),
+    total_permits =
+      sum(!is.na(permit_2022_int)),
     total_is_compl =
       sum(is_compliant_y == "yes"),
     total_is_non_compl =
-      sum(is_compliant_y == "no")
+      sum(is_compliant_y == "no"),
+    c_n_nc = 
+      total_is_compl + total_is_non_compl
   ) |>
   ungroup()
 
-View(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0)
+dim(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0)
+# [1] 6476   14
 
 v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0 |>
   filter(!(total_is_compl + total_is_non_compl) == vessel_per_month) |>
-  View()
-# Rows: 1,241
+  dim()
+# [1] 1241   14
+
+print_df_names(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0)
+
+v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 <-
+  v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m0 |>
+  select(date_y_m,
+         vessel_per_month,
+         total_permits,
+         total_is_compl,
+         total_is_non_compl,
+         c_n_nc) |>
+  distinct()
+
+dim(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1)
+# 12
+
+## check ----
+
+v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 |>
+  filter(!vessel_per_month == c_n_nc) |>
+  arrange(date_y_m) |> 
+  glimpse()
+# Rows: 2
+# $ date_y_m           <yearmon> Jan 2022, Jul 2022
+# $ vessel_per_month   <int> 220, 732
+# $ total_permits      <int> 249, 992
+# $ total_is_compl     <int> 89, 549
+# $ total_is_non_compl <int> 160, 443
+# $ c_n_nc             <int> 249, 992
+
+v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 |>
+  filter(!c_n_nc == total_permits) |>
+  arrange(date_y_m) |> 
+  dim()
+# 0
+
+# TODO: why more permits than vsls?
