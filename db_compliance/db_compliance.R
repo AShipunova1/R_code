@@ -12,6 +12,7 @@ library(tictoc)
 library(zoo)
 # install.packages("sqldf")
 library(sqldf)
+library(gridExtra)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_name <- "db_compliance"
@@ -1614,12 +1615,12 @@ sa_compl_cnts_perc <-
 
 # (was 41% yes vs. 59% no from 2178 vessels)
 # print_df_names(sa_compl_cnts_perc)
-sa22_title = "Compliance of SA only permitted vessels in 2022 (total vessels: {sa_compl_cnts_perc$total_vsls})"
+sa22_title = "SA Only Permitted Vessels (Total permitted: {sa_compl_cnts_perc$total_vsls})"
 
 compl_2022_ord <- factor(sa_compl_cnts_perc$compl_2022,
                          levels = c("yes", "no"))
-
-sa_compl_cnts_perc %>%
+year_plot_sa <-
+  sa_compl_cnts_perc %>%
   ggplot(aes(x = compl_2022_ord,
              y = compl_perc,
              fill = compl_2022)) +
@@ -1632,16 +1633,10 @@ sa_compl_cnts_perc %>%
   
   geom_text(aes(label = paste0(round(compl_perc, 1), "%")),
             position = position_stack(vjust = 0.5)) +
-  #
-  #             position = position_dodge(width = 0.9),
-  #             vjust = -0.25) +
-  # size is in mm for geom_bar
-  # size = 2) +
-  # scale_fill_discrete(name = "compl_2022")
   scale_fill_manual(
     values =
-      c("yes" = "springgreen3",
-        "no" = "red3"),
+      c("yes" = "turquoise1",
+        "no" = "yellow"),
     name = "Is compliant?",
     labels = c("yes", "no")
   )
@@ -1781,12 +1776,13 @@ gom_compl_cnts_perc <-
   
 
 # print_df_names(sa_compl_cnts_perc)
-gom22_title = "Compliance of GOM only and Dual permitted vessels in 2022 (total vessels: {gom_compl_cnts_perc$total_vsls})"
+gom22_title = "GOM + Dual Permitted Vessels (Total permitted: {gom_compl_cnts_perc$total_vsls})"
 
 compl_2022_ord_gom <- factor(gom_compl_cnts_perc$is_compliant_y,
                          levels = c("yes", "no"))
 
-gom_compl_cnts_perc %>%
+year_plot_gom <-
+  gom_compl_cnts_perc %>%
   ggplot(aes(x = compl_2022_ord_gom,
              y = compl_perc,
              fill = is_compliant_y)) +
@@ -1799,11 +1795,22 @@ gom_compl_cnts_perc %>%
             position = position_stack(vjust = 0.5)) +
   scale_fill_manual(
     values =
-      c("yes" = "springgreen3",
-        "no" = "red3"),
+      c("yes" = "turquoise1",
+        "no" = "yellow"),
     name = "Is compliant?",
     labels = c("yes", "no")
   )
+
+# both year plots ----
+super_title = "2022: Percent Compliant vs. Noncompliant SEFHIER Vessels (Active Permits Only)"
+
+year_plots <- list(year_plot_sa, year_plot_gom)
+grid.arrange(
+  grobs = year_plots,
+  top = super_title,
+  # left = my_legend,
+  ncol = 1
+)
 
 # Compare results with FHIER ----
 FHIER_Compliance_2022__06_22_2023 <-
@@ -1975,18 +1982,17 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1)
 # 12
 
 ## check ----
-
 v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 |>
   filter(!vessel_per_month == c_n_nc) |>
   arrange(date_y_m) |> 
   glimpse()
 # Rows: 2
 # $ date_y_m           <yearmon> Jan 2022, Jul 2022
-# $ vessel_per_month   <int> 220, 732
-# $ total_permits      <int> 249, 992
+# $ vessel_per_month   <int> 208, 730
+# $ total_permits      <int> 235, 989
 # $ total_is_compl     <int> 89, 549
-# $ total_is_non_compl <int> 160, 443
-# $ c_n_nc             <int> 249, 992
+# $ total_is_non_compl <int> 149, 440
+# $ c_n_nc             <int> 235, 989
 
 v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 |>
   filter(!c_n_nc == total_permits) |>
@@ -1999,6 +2005,7 @@ v_p__t__tn_d_weeks_gom_short_compl_m_short_in_p_compl_m1 |>
 # % non-compliant weeks per month for non-compliant vessels by permit type ----
 
 ## compliance per vsl and week ----
+tic("v_p__t__tn_d_weeks_gom_compl_w")
 v_p__t__tn_d_weeks_gom_compl_w <-
   v_p__t__tn_d_weeks_gom |>
   group_by(VESSEL_VESSEL_ID,
@@ -2013,9 +2020,11 @@ v_p__t__tn_d_weeks_gom_compl_w <-
                        "yes",
                      .default = "no")) |>
   ungroup()
+toc()
 
 dim(v_p__t__tn_d_weeks_gom_compl_w)
 # [1] 22613    21
+# [1] 22580    20
 
 ## non_compliant vessels per week ----
 v_p__t__tn_d_weeks_gom_compl_w_nc <-
