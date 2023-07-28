@@ -1760,6 +1760,15 @@ v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
 # Was 78% yes and 20% no
 # TODO: why?
 
+## plot gom/dual year ----
+gom_compl_cnts <-
+  v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
+  select(PERMIT_VESSEL_ID, is_compliant_y) |>
+  distinct() |>
+  add_count(is_compliant_y, name = "total_compl_y_GOM")
+
+# glimpse(gom_compl_cnts)
+
 # Compare results with FHIER ----
 FHIER_Compliance_2022__06_22_2023 <-
   read_csv(
