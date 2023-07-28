@@ -2198,6 +2198,45 @@ v_p_d_w_22_w_short_vsl_m__tot_weeks |>
 # get permit weeks amount per month for each vessel
 # for each month check if it is overlaps with a permit
 
+# is.na(date_y_m)
+# $ permit_weeks_amnt_22    <dbl> 43
+# $ VESSEL_VESSEL_ID        <dbl> 325926
+# $ PERMIT_VESSEL_ID        <chr> "FL2694HA"
+# $ permit_sa_gom_dual      <chr> "gom_only"
+# $ permit_2022_int         <Interval> 2021-12-31 19:00:00 EST--2022-10-31 EDT…
+# print_df_names(dates_2022)
+# floor_date(ymd(df$date), 'month')
+dates_2022_yw_month_d <-
+  dates_2022_yw |>
+  mutate(
+    m_start =
+      floor_date(COMPLETE_DATE, 'month'),
+    m_end =
+      ceiling_date(COMPLETE_DATE, 'month') - days(1)
+  ) |> 
+  select(-COMPLETE_DATE) |> 
+  distinct()
+
+View(dates_2022_yw_month_d)
+
+v_p_d_w_22_w_short_vsl_m__tot_weeks |> 
+  filter(PERMIT_VESSEL_ID == "FL2694HA") |> 
+  select(VESSEL_VESSEL_ID,
+         PERMIT_VESSEL_ID,
+         permit_2022_int) |> 
+  distinct() |> 
+  mutate(permit_2022_int_start = int_start(permit_2022_int),
+         permit_2022_int_end = int_end(permit_2022_int)) |> 
+  left_join(dates_2022_w,
+    join_by(overlaps(x$permit_2022_int_start,
+                       x$my_end_date,
+                       y$EFFECTIVE_DATE,
+                       y$my_end_date,
+                       bounds = "[)"))
+
+            )
+  glimpse()
+# w_amnt_per_m            
 # get percent buckets
 
 # View(v_p_d_w_22_w_short_vsl_m__tot_weeks)
@@ -2208,5 +2247,5 @@ v_p_d_w_22_w_short_vsl_m__tot_weeks_perc <-
   mutate(perc_nc_w_per_m =
            permit_weeks_amnt_per_m * 100 / w_amnt_per_m)
 
-View(v_p_d_w_22_w_short_vsl_m__tot_weeks_perc)
+# View(v_p_d_w_22_w_short_vsl_m__tot_weeks_perc)
 # [1] 22581    15
