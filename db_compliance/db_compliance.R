@@ -2079,3 +2079,20 @@ v_p_d_w_22_w <-
 # ok
 
 # TODO: 0, Jan 2022, 52, Jan 2022
+
+
+### get # of non compliant vessels per month ----
+# print_df_names(v_p__t__tn_d_weeks_gom)
+
+v_p_d_w_22_w_short <-
+  v_p_d_w_22_w |>
+  select(-any_of(starts_with("TRIP_END")))
+
+# print_df_names(v_p_d_w_22_w_short)
+
+v_p_d_w_22_w_short_vsl_m <-
+  v_p_d_w_22_w_short |>
+  group_by(date_y_m) |>
+  mutate(tot_vessels_per_month = n_distinct(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID))
+
+View(v_p_d_w_22_w_short_vsl_m)
