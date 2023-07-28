@@ -2140,3 +2140,14 @@ View(v_p_d_w_22_w_short_vsl_m__tot_weeks)
 
 # get permit weeks amount per month for each vessel
 # get percent buckets
+
+# View(v_p_d_w_22_w_short_vsl_m__tot_weeks)
+
+v_p_d_w_22_w_short_vsl_m__tot_weeks_perc <-
+  v_p_d_w_22_w_short_vsl_m__tot_weeks |>
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, date_y_m) |>
+  mutate(perc_nc_w_per_m =
+           permit_weeks_amnt_per_m * 100 / w_amnt_per_m)
+
+View(v_p_d_w_22_w_short_vsl_m__tot_weeks_perc)
+# [1] 22581    15
