@@ -203,6 +203,16 @@ toc()
 #   filter(grepl('FL9004NX', unique_all_vessel_ids)) |>
 #   View()
 
+# # too long
+# tic("month_in_permit_names")
+# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_m_in_perm <-
+#   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |>
+#   rowwise() |>
+#   mutate(month_in_permit_names =
+#            list(month.abb[min_permit_eff_date:max_permit_end_date])) |>
+#   ungroup()
+# toc()
+
 ## mark dual ----
 # Dual only if GOM and SA for the same period
 # dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv)
@@ -2134,11 +2144,58 @@ v_p_d_w_22_w_short_vsl_m__tot_weeks <-
     suffix = c(".gom", ".dates")
   )
 
-View(v_p_d_w_22_w_short_vsl_m__tot_weeks)
+dim(v_p_d_w_22_w_short_vsl_m)
+# [1] 22580    13
+dim(v_p_d_w_22_w_short_vsl_m__tot_weeks)
 # [1] 114878     17
 # [1] 22581    14
 
+v_p_d_w_22_w_short_vsl_m__tot_weeks |> 
+  filter(is.na(date_y_m)) |> 
+  dim()
+# [1] 683  14
+
+# v_p_d_w_22_w_short_vsl_m |> 
+#   filter(PERMIT_VESSEL_ID == "TX9901FX") |> 
+#   View()
+
+v_p_d_w_22_w_short_vsl_m |>
+  filter(PERMIT_VESSEL_ID == "FL3627NN") |>
+  dim()
+
+v_p_d_w_22_w_short_vsl_m__tot_weeks |> 
+  filter(is.na(date_y_m)) |> 
+  select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID,
+         permit_weeks_amnt_22) |> 
+  distinct() |> 
+  dim()
+# 683
+
+# TODO: get amount of weeks per month per permit if both t & tne are NAs
+
+# too long
+# tic("get months in permit int")
+# v_p_d_w_22_w_short_vsl_m__tot_weeks |>
+#   filter(is.na(date_y_m)) |>
+#   filter(permit_weeks_amnt_22 < 52)
+# [1] 487  14
+
+#   mutate(month_in_permit =
+#            permit_2022_int %/% months(1)) |>
+#   # group_by(permit_2022_int) |> 
+#   rowwise() |> 
+#   mutate(permit_start_22 = int_start(permit_2022_int),
+#          permit_end_22 = int_end(permit_2022_int)) |> 
+#   mutate(month_in_permit_names =
+#            list(month.abb[permit_start_22:permit_end_22])) |>
+#   ungroup() |> 
+#   str()
+# x= x %/% months(1)
+# month.abb[month(start):month(finish)]
+
 # get permit weeks amount per month for each vessel
+# for each month check if it is overlaps with a permit
+
 # get percent buckets
 
 # View(v_p_d_w_22_w_short_vsl_m__tot_weeks)
