@@ -1921,7 +1921,7 @@ fhier_metrics |>
   select(vessel_official_number) |>
   distinct() |>
   count()
-# 1  3590
+# 1  3526
 
 # View(fhier_metrics)
 fhier_metrics |>
@@ -1931,37 +1931,36 @@ fhier_metrics |>
   count(permit_grouping_region)
 #   permit_grouping_region     n
 #   <chr>                  <int>
-# 1 GOM                     1327
-# 2 SA                      2263
+# 1 GOM                     1323
+# 2 SA                      2203
 # 3 NA                         1
 
 fhier_metrics_r <-
   fhier_metrics |>
   separate_permits_into_3_groups(permit_group_field_name = "permits")
 
-print_df_names(fhier_metrics_r)
+# print_df_names(fhier_metrics_r)
 
 fhier_metrics_r |>
   select(vessel_official_number,
          permit_sa_gom) |>
   distinct() |>
   count(permit_sa_gom)
-# 1 dual            306
-# 2 gom_only       1021
-# 3 sa_only        2263
+# 1 dual            304
+# 2 gom_only       1019
+# 3 sa_only        2203
 
 fhier_metrics_r_ids <-
   fhier_metrics_r |>
   select(vessel_official_number) |>
   distinct()
 
-#
 in_db_only <- setdiff(
   vessels_permits_2022_r$PERMIT_VESSEL_ID,
   fhier_metrics_r_ids$vessel_official_number
 )
 length(in_db_only)
-# [1] 1901
+# [1] 1962
 
 in_metrics_only <- setdiff(
   fhier_metrics_r_ids$vessel_official_number,
@@ -1969,7 +1968,7 @@ in_metrics_only <- setdiff(
 )
 
 length(in_metrics_only)
-# 30
+# 27
 
 head(in_metrics_only)
 
