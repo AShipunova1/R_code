@@ -2078,16 +2078,4 @@ v_p_d_w_22_w <-
 #     View()
 # ok
 
-
-View(v_p_d_w_22_w)
-v_p__t__tn_d_weeks_gom_compl_w_nc_short_cnt_w <-
-  v_p__t__tn_d_weeks_gom_compl_w_nc_short |>
-  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
-           date_y_m) |>
-  mutate(weeks_pv_pm = dplyr::n_distinct(WEEK_OF_YEAR)) |> 
-  ungroup()
-
-View(v_p__t__tn_d_weeks_gom_compl_w_nc_short_cnt_w)
-# [1] 9068   10
-
-# 0, Jan 2022, 52, Jan 2022
+# TODO: 0, Jan 2022, 52, Jan 2022
