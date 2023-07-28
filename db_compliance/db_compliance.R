@@ -857,6 +857,7 @@ trips_notifications_2022_ah_w_y |>
 #            TRIP_DATE_y == 2021) |>
 #   dim()
 # 0
+
 ### adjust dates_2022 ----
 
 dates_2022_yw0 <-
@@ -872,26 +873,55 @@ dates_2022_yw0 |>
 # 27 2022   1  1  2022-01-03 23:00:00 Jan 2022
 # 28 2022   1  1  2022-01-05 23:00:00 Jan 2022
 
-dates_2022_yw1 <-
-  dates_2022_yw0 |>
-  # remove all before the last week of 2021
-  filter(!(MONTH_OF_YEAR == 12 &
-             YEAR == 2021 &
-             WEEK_OF_YEAR < 52))
+# dates_2022_yw1 <-
+#   dates_2022_yw0 |>
+#   # remove all before the last week of 2021
+#   filter(!(MONTH_OF_YEAR == 12 &
+#              YEAR == 2021 &
+#              WEEK_OF_YEAR < 52))
 
-### rename 52 to 0, bc that's how %U works ? ----
+### rename 52 to 0, bc that's how %U works ?
 dates_2022_yw <-
-  dates_2022_yw1 
-# |> 
-#   mutate(WEEK_OF_YEAR =
-#     case_when(
-#       MONTH_OF_YEAR == 1 &
-#         date_y_m == "Jan 2022" &
-#         WEEK_OF_YEAR == 52
-#       ~ WEEK_OF_YEAR == 0,
-#       .default = WEEK_OF_YEAR
-#     )
-#   )
+  dates_2022_yw0 |>
+  mutate(WEEK_OF_YEAR =
+    case_when(
+      YEAR == 2022 &
+      MONTH_OF_YEAR == 1 &
+        date_y_m == "Jan 2022" &
+        WEEK_OF_YEAR == 52
+      ~ WEEK_OF_YEAR == 0,
+      .default = WEEK_OF_YEAR
+    )
+  )
+
+# check
+trips_info_2022_int_ah_sero_w_y |> 
+  filter(TRIP_START_y %in% c("2021", "2022") &
+           TRIP_START_m == "Jan 2022") |> 
+  select(TRIP_START_y,
+         TRIP_START_m,
+         TRIP_START_week_num) |> 
+  distinct() |> 
+  arrange(TRIP_START_y,
+         TRIP_START_m,
+         TRIP_START_week_num) |> 
+  head()
+#   TRIP_START_y TRIP_START_m TRIP_START_week_num
+# 1         2021     Jan 2022                  52
+# 2         2022     Jan 2022                   0
+# 3         2022     Jan 2022                   1
+# 4         2022     Jan 2022                   2
+# 5         2022     Jan 2022                   3
+# 6         2022     Jan 2022                   4
+# vs.
+# dates:
+# YEAR MONTH_OF_YEAR WEEK_OF_YEAR COMPLETE_DATE date_y_m
+# 2021  12  52  2021-12-28 23:00:00 Dec 2021
+# 2021  12  52  2021-12-30 23:00:00 Dec 2021
+# 2022   1  52  2021-12-31 23:00:00 Jan 2022
+# 2022   1  52  2022-01-01 23:00:00 Jan 2022
+# 2022   1   1  2022-01-03 23:00:00 Jan 2022
+# 2022   1   1  2022-01-05 23:00:00 Jan 2022
 
 dim(dates_2022_yw)
 # [1] 401   5
@@ -902,6 +932,7 @@ dates_2022_w <-
 
 # glimpse(dates_2022_w)
 
+# join with dates ----
 ## t by start & dates22 ----
 
 t_dates_by <-
@@ -922,8 +953,15 @@ toc()
 
 t_d_w |> 
     filter(WEEK_OF_YEAR == 52) |> 
+  select(YEAR,
+         MONTH_OF_YEAR,
+         date_y_m) |> 
+  distinct() |> 
   glimpse()
-
+# [1] 7948   16
+# $ YEAR          <dbl> 2021, 2022, 2022, 2023, 2021
+# $ MONTH_OF_YEAR <dbl> 12, 1, 12, 1, NA
+# $ date_y_m      <yearmon> Dec 2021, Jan 2022, Dec 2022, Jan 2023, Jan 2022
 
 dim(t_d_w)
 # [1] 627414     17
@@ -1083,7 +1121,7 @@ dim(v_p_d_w_22)
 # # 2196 sero
 # 
 # rm dates, leave w, m, y ----
-## v_p_d ----
+## v_p ----
 
 v_p_d_w_22_short <-
   v_p_d_w_22 |>
@@ -1207,7 +1245,7 @@ t__tne_d_weeks <-
   )
 toc()
 dim(t__tne_d_weeks)
-# [1] 160791     11
+# [1] 160791     10
 
 ## t & tn ----
 tic("t__tn_d_weeks")
@@ -1505,16 +1543,22 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w <-
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 # [1] 90766    17
 
+reports_exists <- rlang::quo(
+  !(is.na(rep_type.t) & is.na(rep_type.tne))
+)
+
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w |>
-  mutate(compl_2022 = case_when(
-           compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
+  mutate(compl_2022 = 
+           case_when(
+    !!reports_exists & 
+      compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
            .default = "no")
   ) |>
   ungroup()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22)
-# [1] 90766    18
+# [1] 90766    17
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
@@ -1530,8 +1574,9 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
   ) |>
   distinct()
 
-View(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short)
+dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short)
 # [1] 5275    6
+# [1] 6627    8
 
 # TODO: check year = NA
 
@@ -1907,7 +1952,7 @@ v_p__t__tn_d_weeks_gom_compl_w_nc_short <-
       non_na_count.tn,
       rep_type.t,
       rep_type.tn,
-      PERMIT_ID,
+      # PERMIT_ID,
       YEAR
     ),
     -any_of(starts_with("TRIP_END"))
