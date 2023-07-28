@@ -1616,23 +1616,35 @@ sa_compl_cnts_perc <-
 # print_df_names(sa_compl_cnts_perc)
 sa22_title = "Compliance of SA only permitted vessels in 2022 (total vessels: {sa_compl_cnts_perc$total_vsls})"
 
+compl_2022_ord <- factor(sa_compl_cnts_perc$compl_2022,
+                         levels = c("yes", "no"))
+
 sa_compl_cnts_perc %>%
-  ggplot(aes(x = "",
+  ggplot(aes(x = compl_2022_ord,
              y = compl_perc,
              fill = compl_2022)) +
-  geom_col(position = "dodge") +
+  # geom_col(position = "dodge") +
+  geom_col() +
   labs(title = str_glue(sa22_title),
        x = "",
        # x = "Compliant",
        y = "") +
   
   geom_text(aes(label = paste0(round(compl_perc, 1), "%")),
-                      position = position_dodge(width = 0.9),
-             vjust = -0.25,
-             # size is in mm for geom_bar
-             # size = 2
-            ) +
-  scale_fill_discrete(name = "compl_2022")
+            position = position_stack(vjust = 0.5)) +
+  #
+  #             position = position_dodge(width = 0.9),
+  #             vjust = -0.25) +
+  # size is in mm for geom_bar
+  # size = 2) +
+  # scale_fill_discrete(name = "compl_2022")
+  scale_fill_manual(
+    values =
+      c("yes" = "springgreen3",
+        "no" = "red3"),
+    name = "Is compliant?",
+    labels = c("yes", "no")
+  )
 
 # GOM + dual compl by year ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
