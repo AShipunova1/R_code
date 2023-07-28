@@ -929,7 +929,8 @@ dim(dates_2022_yw)
 
 dates_2022_w <-
   dates_2022_yw |>
-  select(-COMPLETE_DATE)
+  select(-COMPLETE_DATE) |> 
+  distinct()
 
 # glimpse(dates_2022_w)
 
@@ -2061,7 +2062,7 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # [1] 1597
 
 ## cnt weeks per permit
-### add amnt of weeks per permit per month ----
+## add amnt of weeks per permit per month ----
 # print_df_names(v_p__t__tn_d_weeks_gom)
 
 v_p_d_w_22_w <-
@@ -2081,7 +2082,7 @@ v_p_d_w_22_w <-
 # TODO: 0, Jan 2022, 52, Jan 2022
 
 
-### get # of non compliant vessels per month ----
+## get # of non compliant vessels per month ----
 # print_df_names(v_p__t__tn_d_weeks_gom)
 
 v_p_d_w_22_w_short <-
@@ -2093,6 +2094,49 @@ v_p_d_w_22_w_short <-
 v_p_d_w_22_w_short_vsl_m <-
   v_p_d_w_22_w_short |>
   group_by(date_y_m) |>
-  mutate(tot_vessels_per_month = n_distinct(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID))
+  mutate(tot_vessels_per_month = n_distinct(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID)) |> 
+  ungroup()
 
-View(v_p_d_w_22_w_short_vsl_m)
+dim(v_p_d_w_22_w_short_vsl_m)
+# [1] 22580    13
+
+## get total weeks in each month ----
+# print_df_names(dates_2022_w)
+dates_2022_w_cnt <-
+  dates_2022_w |> 
+  group_by(YEAR, date_y_m) |> 
+  mutate(w_amnt_per_m = n_distinct(WEEK_OF_YEAR)) |> 
+  ungroup()
+
+# glimpse(dates_2022_w_cnt)
+# Rows: 74
+# Columns: 5
+# $ YEAR          <dbl> 2021, 2021, 2021, 2021, 2021, 2022, 2022, 2022, 2…
+# $ MONTH_OF_YEAR <dbl> 12, 12, 12, 12, 12, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,…
+# $ WEEK_OF_YEAR  <dbl> 48, 49, 50, 51, 52, 0, 1, 2, 3, 4, 5, 5, 6, 7, 8,…
+# $ date_y_m      <yearmon> Dec 2021, Dec 2021, Dec 2021, Dec 2021, Dec 2…
+# $ w_amnt_per_m  <int> 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5…
+
+## join gom nc data with dates weeks cnts ----
+dates_2022_w_cnt_short <-
+  dates_2022_w_cnt |> 
+  select(-c(YEAR, MONTH_OF_YEAR, WEEK_OF_YEAR)) |> 
+  distinct()
+dim(dates_2022_w_cnt_short)
+# 14
+
+v_p_d_w_22_w_short_vsl_m__tot_weeks <-
+  full_join(
+    v_p_d_w_22_w_short_vsl_m,
+    dates_2022_w_cnt_short,
+    join_by(date_y_m),
+    relationship = "many-to-many",
+    suffix = c(".gom", ".dates")
+  )
+
+View(v_p_d_w_22_w_short_vsl_m__tot_weeks)
+# [1] 114878     17
+# [1] 22581    14
+
+# get permit weeks amount per month for each vessel
+# get percent buckets
