@@ -2031,8 +2031,9 @@ v_p__t__tn_d_weeks_gom_compl_w_nc <-
   v_p__t__tn_d_weeks_gom_compl_w |>
   filter(is_compliant_w == "no")
 
-View(v_p__t__tn_d_weeks_gom_compl_w_nc)
+dim(v_p__t__tn_d_weeks_gom_compl_w_nc)
 # [1] 9285   21
+# [1] 9277   20
 
 ## rm fields ----
 v_p__t__tn_d_weeks_gom_compl_w_nc_short <-
@@ -2056,9 +2057,29 @@ dim(v_p__t__tn_d_weeks_gom_compl_w_nc_short)
 length(unique(v_p__t__tn_d_weeks_gom_compl_w_nc_short$PERMIT_VESSEL_ID))
 # 630
 
-# length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
+length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # [1] 1597
 
+## cnt weeks per permit
+### add amnt of weeks per permit per month ----
+# print_df_names(v_p__t__tn_d_weeks_gom)
+
+v_p_d_w_22_w <-
+  v_p__t__tn_d_weeks_gom |>
+  group_by(PERMIT_VESSEL_ID, date_y_m) |> 
+  mutate(permit_weeks_amnt_per_m = n_distinct(WEEK_OF_YEAR)) |> 
+  ungroup()
+
+# check
+# View(v_p_d_w_22_w)
+# v_p_d_w_22_w |> 
+#     filter(PERMIT_VESSEL_ID == "FL4459PW") |> 
+#     select(-any_of(starts_with("TRIP_END"))) |> 
+#     View()
+# ok
+
+
+View(v_p_d_w_22_w)
 v_p__t__tn_d_weeks_gom_compl_w_nc_short_cnt_w <-
   v_p__t__tn_d_weeks_gom_compl_w_nc_short |>
   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
