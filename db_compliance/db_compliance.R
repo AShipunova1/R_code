@@ -1637,11 +1637,11 @@ year_plot_sa <-
              fill = compl_2022)) +
   # geom_col(position = "dodge") +
   geom_col() +
+  ylim(0, 100) +
   labs(title = str_glue(sa22_title),
        x = "",
        # x = "Compliant",
        y = "") +
-  
   geom_text(aes(label = paste0(round(compl_perc, 1), "%")),
             position = position_stack(vjust = 0.5)) +
   scale_fill_manual(
@@ -1649,8 +1649,9 @@ year_plot_sa <-
       c("yes" = "turquoise1",
         "no" = "yellow"),
     name = "Is compliant?",
-    labels = c("yes", "no")
+    labels = c("no", "yes")
   )
+  
 
 # GOM + dual compl by year ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
@@ -1799,6 +1800,7 @@ year_plot_gom <-
              fill = is_compliant_y)) +
   # geom_col(position = "dodge") +
   geom_col() +
+  ylim(0, 100) +
   labs(title = str_glue(gom22_title),
        x = "",
        y = "") +
@@ -1809,7 +1811,7 @@ year_plot_gom <-
       c("yes" = "turquoise1",
         "no" = "yellow"),
     name = "Is compliant?",
-    labels = c("yes", "no")
+    labels = c("no", "yes")
   )
 
 # both year plots ----
