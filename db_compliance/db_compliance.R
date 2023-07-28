@@ -1584,11 +1584,12 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short)
 # length(unique(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     3956
 
-v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |>
+sa_compl_cnts <-
+  v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |>
   select(PERMIT_VESSEL_ID,
          compl_2022) |>
   distinct() |>
-  count(compl_2022)
+  add_count(compl_2022, name = "total_compl_y")
 # 1 no          2695
 # 2 yes         1262
 
@@ -1600,14 +1601,38 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |>
 2695 * 100 / (3956)
 # 68%
 
+sa_compl_cnts_perc <-
+  sa_compl_cnts |>
+  mutate(total_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
+  select(-PERMIT_VESSEL_ID) |>
+  distinct() |>
+  group_by(compl_2022) |>
+  mutate(compl_perc =
+           total_compl_y * 100 / (total_vsls)) |>
+  ungroup()
+  
+
 # (was 41% yes vs. 59% no from 2178 vessels)
-  # pivot_longer(cols = c(percent_compl,
-  #                       percent_non_compl),
-  #              names_to = "is_compliant",
-  #              values_to = "percent")
-  #
-  #   y_r_title = curr_year_region
-  #   plots_for_c_vs_nc_vsls(curr_df, y_r_title)
+# print_df_names(sa_compl_cnts_perc)
+sa22_title = "Compliance of SA only permitted vessels in 2022 (total vessels: {sa_compl_cnts_perc$total_vsls})"
+
+sa_compl_cnts_perc %>%
+  ggplot(aes(x = "",
+             y = compl_perc,
+             fill = compl_2022)) +
+  geom_col(position = "dodge") +
+  labs(title = str_glue(sa22_title),
+       x = "",
+       # x = "Compliant",
+       y = "") +
+  
+  geom_text(aes(label = paste0(round(compl_perc, 1), "%")),
+                      position = position_dodge(width = 0.9),
+             vjust = -0.25,
+             # size is in mm for geom_bar
+             # size = 2
+            ) +
+  scale_fill_discrete(name = "compl_2022")
 
 # GOM + dual compl by year ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
