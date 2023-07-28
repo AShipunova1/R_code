@@ -13,6 +13,8 @@ library(zoo)
 # install.packages("sqldf")
 library(sqldf)
 library(gridExtra)
+library(readxl)
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_name <- "db_compliance"
@@ -1903,6 +1905,80 @@ trips_info_2022 |>
 fhier_db_compl_gom_join |> 
   filter(VESSEL_VESSEL_ID == "328219") |> 
   View()
+
+# compare with FHIER metrics ----
+fhier_metrics_path <- r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)03012022_12312022.csv)"
+
+fhier_metrics <- read_excel(
+  fhier_metrics_path,
+  # sheet = sheet_n,
+  # use my fix_names function for col names
+  .name_repair = fix_names,
+  guess_max = 21474836
+  # ,
+  # read all columns as text
+  # col_types = "text"
+) |> 
+  filter(!is.na(vessel_official_number))
+
+dim(fhier_metrics)
+# [1] 3590   13
+
+fhier_metrics |> 
+  select(vessel_official_number) |> 
+  distinct() |> 
+  count()
+# 1  3590
+
+# View(fhier_metrics)
+fhier_metrics |> 
+  select(vessel_official_number,
+         permit_grouping_region) |> 
+  distinct() |> 
+  count(permit_grouping_region)
+#   permit_grouping_region     n
+#   <chr>                  <int>
+# 1 GOM                     1327
+# 2 SA                      2263
+# 3 NA                         1
+
+fhier_metrics_r <-
+  fhier_metrics |>
+  separate_permits_into_3_groups(permit_group_field_name = "permits")
+
+print_df_names(fhier_metrics_r)
+
+fhier_metrics_r |> 
+  select(vessel_official_number,
+         permit_sa_gom) |> 
+  distinct() |> 
+  count(permit_sa_gom)
+# 1 dual            306
+# 2 gom_only       1021
+# 3 sa_only        2263
+
+fhier_metrics_r_ids <-
+  fhier_metrics_r |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+# 
+in_db_only <- setdiff(
+  vessels_permits_2022_r$PERMIT_VESSEL_ID,
+  fhier_metrics_r_ids$vessel_official_number
+)
+length(in_db_only)
+# [1] 1901
+
+in_metrics_only <- setdiff(
+  fhier_metrics_r_ids$vessel_official_number,
+  vessels_permits_2022_r$PERMIT_VESSEL_ID
+)
+
+length(in_metrics_only)
+# 30
+
+head(in_metrics_only)
 
 # ===
 # By month ----
