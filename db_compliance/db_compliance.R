@@ -1767,7 +1767,43 @@ gom_compl_cnts <-
   distinct() |>
   add_count(is_compliant_y, name = "total_compl_y_GOM")
 
-# glimpse(gom_compl_cnts)
+# print_df_names(gom_compl_cnts)
+
+gom_compl_cnts_perc <-
+  gom_compl_cnts |>
+  mutate(total_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
+  select(-PERMIT_VESSEL_ID) |>
+  distinct() |>
+  group_by(is_compliant_y) |>
+  mutate(compl_perc =
+           total_compl_y_GOM * 100 / (total_vsls)) |>
+  ungroup()
+  
+
+# print_df_names(sa_compl_cnts_perc)
+gom22_title = "Compliance of GOM only and Dual permitted vessels in 2022 (total vessels: {gom_compl_cnts_perc$total_vsls})"
+
+compl_2022_ord_gom <- factor(gom_compl_cnts_perc$is_compliant_y,
+                         levels = c("yes", "no"))
+
+gom_compl_cnts_perc %>%
+  ggplot(aes(x = compl_2022_ord_gom,
+             y = compl_perc,
+             fill = is_compliant_y)) +
+  # geom_col(position = "dodge") +
+  geom_col() +
+  labs(title = str_glue(gom22_title),
+       x = "",
+       y = "") +
+  geom_text(aes(label = paste0(round(compl_perc, 1), "%")),
+            position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(
+    values =
+      c("yes" = "springgreen3",
+        "no" = "red3"),
+    name = "Is compliant?",
+    labels = c("yes", "no")
+  )
 
 # Compare results with FHIER ----
 FHIER_Compliance_2022__06_22_2023 <-
