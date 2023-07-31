@@ -2,7 +2,7 @@
 input_path <- file.path(my_paths$inputs, current_project_name)
 
 ## permit ----
-file_name_permits <- 
+file_name_permits <-
   file.path(input_path, "permit_info.rds")
   # r"(my_outputs\from_db\mv_sero_fh_permits_his.rds)"
 
@@ -11,15 +11,15 @@ mv_sero_fh_permits_his_query <-
 srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
 "
 
-permit_info_fun <- 
+permit_info_fun <-
   function(mv_sero_fh_permits_his_query) {
     dbGetQuery(con,
                mv_sero_fh_permits_his_query) %>%
       return()
-    
+
   }
 
-mv_sero_fh_permits_his <- 
+mv_sero_fh_permits_his <-
   read_rds_or_run(file_name_permits,
                   mv_sero_fh_permits_his_query,
                   permit_info_fun
@@ -37,10 +37,10 @@ mv_sero_fh_permits_his <-
 #   "select * from
 #   udp.v_sero_oth_prm_period_his@secpr_dblk
 # "
-# 
+#
 # permit_info_udp <- dbGetQuery(con,
 #                           udp_v_sero_oth_prm_period_his_query)
-# 
+#
 # write all as binary
 # readr::write_rds(permit_info_udp,
 #                  file.path(input_path, "permit_info_udp.rds"))
@@ -96,7 +96,7 @@ trips_22_fun <- function(trips_22_query) {
              trips_22_query))
 }
 
-trips_info_2022 <- 
+trips_info_2022 <-
   read_rds_or_run(trips_22_file_name,
                   trips_22_query,
                   trips_22_fun
@@ -115,7 +115,7 @@ dim(trips_info_2022)
 # DNF reports
 # get trip neg ----
 
-trip_neg_2022_file_path <- 
+trip_neg_2022_file_path <-
   file.path(input_path, "trip_neg_2022.rds")
 
 trip_neg_2022_query <-
@@ -139,7 +139,7 @@ trip_neg_2022_fun <-
 # trip_neg_query_2022: 60.06 sec elapsed
 # trip_neg_query_2022: 89.38 sec elapsed
 
-trip_neg_2022 <- 
+trip_neg_2022 <-
   read_rds_or_run(trip_neg_2022_file_path,
                   trip_neg_2022_query,
                   trip_neg_2022_fun
@@ -166,7 +166,7 @@ WHERE
   , 'dd-mon-yy') )
 "
 
-trips_notifications_2022_file_path <- 
+trips_notifications_2022_file_path <-
   file.path(input_path, "trips_notifications_2022.rds")
 
 trips_notifications_2022_fun <- function(trips_notifications_2022_query) {
@@ -223,7 +223,6 @@ WHERE
     OR expiration_date >= TO_DATE('01-JAN-22', 'dd-mon-yy') )
   AND effective_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')"
 
-
 vessels_permits_2022_file_path <- file.path(input_path, "vessels_permits_2022.rds")
 
 vessels_permits_2022_fun <-
@@ -249,7 +248,7 @@ vessels_permits_2022 <-
 # # to have vessel official number
 # vessels_trips_22_file_name <-
 #     file.path(input_path, "vessels_trips_22.rds")
-# 
+#
 # vessels_trips_22_query <-
 #   "SELECT
 #   *
@@ -270,19 +269,19 @@ vessels_permits_2022 <-
 #   return(dbGetQuery(con,
 #              vessels_trips_22_query))
 # }
-# 
-# vessels_trips_info_2022 <- 
+#
+# vessels_trips_info_2022 <-
 #   read_rds_or_run(vessels_trips_22_file_name,
 #                   vessels_trips_22_query,
 #                   vessels_trips_22_fun
 #                   )
 # # 2023-07-24 run the function: 39.3 sec elapsed
-# 
+#
 # # get trip neg and vessels 2022 ----
 # # to have vessel official number
 # vessels_trip_neg_2022_file_name <-
 #     file.path(input_path, "vessels_trip_neg_2022.rds")
-# 
+#
 # vessels_trip_neg_2022_query <-
 #   "SELECT
 #   tne.*,
@@ -321,24 +320,24 @@ vessels_permits_2022 <-
 # WHERE
 #   ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22',
 #   'dd-mon-yy') )"
-# 
+#
 # vessels_trip_neg_2022_fun <- function(vessels_trip_neg_2022_query) {
 #   return(dbGetQuery(con,
 #              vessels_trip_neg_2022_query))
 # }
-# 
-# vessels_trip_neg_2022 <- 
+#
+# vessels_trip_neg_2022 <-
 #   read_rds_or_run(vessels_trip_neg_2022_file_name,
 #                   vessels_trip_neg_2022_query,
 #                   vessels_trip_neg_2022_fun
 #                   )
 # # 2023-07-24 run the function: 125.96 sec elapsed
-# 
+#
 # # get vessels and trip notifications 2022 ----
 # # to have vessel official number
 # vessels_trips_notifications__file_name <-
 #     file.path(input_path, "vessels_trips_notifications_.rds")
-# 
+#
 # vessels_trips_notifications__query <-
 #   "SELECT
 #   *
@@ -360,32 +359,32 @@ vessels_permits_2022 <-
 #     return(dbGetQuery(con,
 #                       vessels_trips_notifications__query))
 #   }
-# 
-# vessels_trips_notifications_2022 <- 
+#
+# vessels_trips_notifications_2022 <-
 #   read_rds_or_run(vessels_trips_notifications__file_name,
 #                   vessels_trips_notifications__query,
 #                   vessels_trips_notifications__fun
 #                   )
 # # 2023-07-24 run the function: 12.61 sec elapsed
-# 
-# 
-# # vessels_all <- 
+#
+#
+# # vessels_all <-
 # # Error in .oci.GetQuery(conn, statement, data = data, prefetch = prefetch,  :
 # #   Error in try({ : embedded nul in string: '\0'
-# 
+#
 # # > dbGetQuery(cnx, "select replace(s, chr(0), '') s from test_00")
 # # dat <- dbGetQuery(myConnection,"SELECT REPLACE(COLUMN_NAME, CHR(0), ' ') AS NEW_COLUMN
 # #                                 FROM MY_TABLE")
-# 
+#
 # # tic("vessels_all")
 # # vessels_all <- dbGetQuery(con,
 # #                           vessels_query)
 # # toc()
 # # Error in try({ : embedded nul in string: '\0'
-# 
+#
 # # dim(vessels_all)
 # # vessels_all_file_path <- file.path(input_path, "vessels.csv")
-# 
+#
 # # vessels_all <- read_csv(vessels_all_file_path)
 # # Rows: 140405 Columns: 29
 # # ── Column specification ─────────────────────────────────────────────────────────
@@ -393,12 +392,12 @@ vessels_permits_2022 <-
 # # chr (22): COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE,...
 # # dbl  (6): VESSEL_ID, PASSENGER_CAPACITY, YEAR_BUILT, OWNER_ID, SER_ID, UPDATE...
 # # lgl  (1): VESSEL_TYPE
-# 
+#
 # # Where is \\0 : vessel_name ----
 # # tic("vessels_zero")
 # # print_df_names(vessels_trips_notifications_2022 )
-# 
-# field_names <- 
+#
+# field_names <-
 #   c("VESSEL_ID",
 #     "COUNTY_CODE",
 #     "STATE_CODE",
@@ -428,13 +427,13 @@ vessels_permits_2022 <-
 #     "SERO_HOME_PORT_COUNTY",
 #     "SERO_HOME_PORT_STATE",
 #     "SERO_OFFICIAL_NUMBER")
-# 
+#
 # vessels_zero_query <-
 #   "select
 #   distinct {field_name}
 #   from
 #   safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
-# 
+#
 # rr <-
 #   map(field_names,
 #     function(field_name) {
@@ -447,25 +446,25 @@ vessels_permits_2022 <-
 #       return(dim(vessels_all))
 #     }
 # )
-# 
+#
 # # \\0 err:
 # #   field_name = VESSEL_NAME
-# 
-# 
+#
+#
 # # distinct vessel_id ok
-# tic("vessels_all1")  
+# tic("vessels_all1")
 # vessels_all <- dbGetQuery(con,
 #                           vessels_zero_query)
 # toc()
-# 
-# 
-# 
+#
+#
+#
 # # dim(permit_info)
 # # dim(trip_neg_2022)
 # # dim(trips_notifications_2022)
 # # dim(trips_info_2022)
 # # dim(vessels_all)
-# 
+#
 # dates_2022 ----
 # "SELECT * FROM
 #   srh.dim_dates@secapxdv_dblk.sfsc.noaa.gov
