@@ -1830,7 +1830,7 @@ grid.arrange(
 # Compare results with FHIER ----
 FHIER_Compliance_2022__06_22_2023 <-
   read_csv(
-    r"(~\R_files_local\my_inputs\FHIER Compliance\FHIER_Compliance_2022__06_22_2023.csv)",
+    r"(~\R_files_local\my_inputs\from_Fhier\FHIER Compliance\FHIER_Compliance_2022__06_22_2023.csv)",
     name_repair = fix_names
   )
 
@@ -1955,13 +1955,74 @@ fhier_metrics_r_ids <-
   select(vessel_official_number) |>
   distinct()
 
+#### in_db_only ----
 in_db_only <- setdiff(
   vessels_permits_2022_r$PERMIT_VESSEL_ID,
   fhier_metrics_r_ids$vessel_official_number
 )
-length(in_db_only)
+head(in_db_only)
 # [1] 1962
+# TODO: WHY?
+# [1] "FL4450PT" "FL2694HA" "FL3320HK" "FL2619KK" "FL2632PW" "FL3250EM"
+# vessels_permits_2022_r |> 
+#   filter(PERMIT_VESSEL_ID == "FL4450PT") |> 
+#   View()
+# 2022-02-27 23:00:00
 
+# trips_info_2022 |>
+# trip_neg_2022 |>
+# trips_notifications_2022 |> 
+#   filter(VESSEL_ID == "317460")
+ # 0
+str(in_db_only)
+
+vessel_info_in_db_only <-
+  vessels_permits_2022_r |>
+  filter(PERMIT_VESSEL_ID %in% in_db_only) |> 
+  select(PERMIT_VESSEL_ID, EFFECTIVE_DATE, END_DATE, PERMIT_STATUS, VESSEL_VESSEL_ID, UE, permit_sa_gom) |> 
+  distinct()
+
+View(vessel_info_in_db_only)
+# [1] 5239   52
+# [1] 3382    7
+
+# PERMIT_VESSEL_ID 1962
+# EFFECTIVE_DATE    518
+# END_DATE          264
+# PERMIT_STATUS      11
+# VESSEL_VESSEL_ID 1962
+# UE                  8
+# permit_sa_gom       2
+
+vessel_info_in_db_only_vsl_ids <-
+  vessel_info_in_db_only |>
+  filter(END_DATE > as.Date('2022-01-03') &
+           END_DATE < as.Date('2022-12-31')) |>
+  select(VESSEL_VESSEL_ID) |>
+  distinct()
+
+trip_neg_2022 |> 
+  filter(VESSEL_ID %in% vessel_info_in_db_only_vsl_ids$VESSEL_VESSEL_ID) |> 
+  dim()
+# 8928   
+
+trips_notifications_2022 |> 
+  filter(VESSEL_ID %in% vessel_info_in_db_only_vsl_ids$VESSEL_VESSEL_ID) |> 
+  dim()
+# [1] 1355   33
+
+trips_info_2022_int_ah |> 
+  filter(VESSEL_ID %in% vessel_info_in_db_only_vsl_ids$VESSEL_VESSEL_ID) |> 
+  dim()
+# [1] 1561    9
+# [1] 1029   15 trips_info_2022_int_ah_sero_w_y
+
+vessel_info_in_db_only |> 
+  filter(VESSEL_VESSEL_ID == 280672)
+#   PERMIT_VESSEL_ID      EFFECTIVE_DATE            END_DATE
+# 1          1206187 2021-01-31 23:00:00 2022-01-30 23:00:00
+
+#### in_metrics_only ----
 in_metrics_only <- setdiff(
   fhier_metrics_r_ids$vessel_official_number,
   vessels_permits_2022_r$PERMIT_VESSEL_ID
@@ -1971,6 +2032,75 @@ length(in_metrics_only)
 # 27
 
 head(in_metrics_only)
+# [1] "1139674"  "AL0727MT" "LA3183FS" "1304296"  "AL4269AW" "653939"  
+
+in_metrics_only_ids_str <- paste(in_metrics_only, collapse = "', '")
+
+vessel_info_in_metrics_only_query <-
+  "SELECT
+  *
+FROM
+       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  ON ( p.vessel_id = sero_official_number )
+WHERE sero_official_number in ('{in_metrics_only_ids_str}')
+  "
+
+vessel_info_in_metrics_only_res <-
+  dbGetQuery(con, str_glue(vessel_info_in_metrics_only_query)
+  )
+# [1] 443  51
+ 
+names(vessel_info_in_metrics_only_res) <-
+    names(vessel_info_in_metrics_only_res) |> 
+  make.names(unique = T)
+
+# print_df_names(vessel_info_in_metrics_only_res)
+vessel_info_in_metrics_only_res |>
+  select(
+    VESSEL_ID,
+    VESSEL_ID.1,
+    EFFECTIVE_DATE,
+    EXPIRATION_DATE,
+    END_DATE,
+    PERMIT_STATUS,
+    SERO_OFFICIAL_NUMBER,
+    UE
+  ) |>
+  filter(EXPIRATION_DATE >=
+           as.Date('2022-01-03') &
+           EFFECTIVE_DATE <=
+           as.Date('2022-12-31')) |>
+  # select(VESSEL_ID, VESSEL_ID.1) |>
+  distinct() |>
+  glimpse()
+# $ VESSEL_ID   <chr> "1139674", "1176885", "1195318"
+# $ VESSEL_ID.1 <dbl> 393431, 326994, 307565
+         
+# this 2 should be in mydb results.
+
+trips_info_2022 |> 
+  filter(VESSEL_ID %in% 
+           c(393431, 326994, 307565)) |> 
+  count(VESSEL_ID)
+#     VESSEL_ID n
+# 1    326994 1
+# 2    393431 6
+
+trip_neg_2022 |> 
+  filter(VESSEL_ID %in% 
+           c(393431, 326994, 307565)) |> 
+  count(VESSEL_ID)
+#   VESSEL_ID   n
+# 1    326994 304
+# 2    393431 177
+
+trips_notifications_2022 |> 
+  filter(VESSEL_ID %in% 
+           c(393431, 326994, 307565)) |> 
+  count(VESSEL_ID)
+0
+
 
 # ===
 # By month ----
@@ -2285,25 +2415,25 @@ dates_2022_yw_month_d <-
   select(-COMPLETE_DATE) |>
   distinct()
 
-View(dates_2022_yw_month_d)
+# View(dates_2022_yw_month_d)
 
-v_p_d_w_22_w_short_vsl_m__tot_weeks |>
-  filter(PERMIT_VESSEL_ID == "FL2694HA") |>
-  select(VESSEL_VESSEL_ID,
-         PERMIT_VESSEL_ID,
-         permit_2022_int) |>
-  distinct() |>
-  mutate(permit_2022_int_start = int_start(permit_2022_int),
-         permit_2022_int_end = int_end(permit_2022_int)) |>
-  left_join(dates_2022_w,
-    join_by(overlaps(x$permit_2022_int_start,
-                       x$my_end_date,
-                       y$EFFECTIVE_DATE,
-                       y$my_end_date,
-                       bounds = "[)"))
-
-            )
-  glimpse()
+# v_p_d_w_22_w_short_vsl_m__tot_weeks |>
+#   filter(PERMIT_VESSEL_ID == "FL2694HA") |>
+#   select(VESSEL_VESSEL_ID,
+#          PERMIT_VESSEL_ID,
+#          permit_2022_int) |>
+#   distinct() |>
+#   mutate(permit_2022_int_start = int_start(permit_2022_int),
+#          permit_2022_int_end = int_end(permit_2022_int)) |>
+#   left_join(dates_2022_w,
+#     join_by(overlaps(x$permit_2022_int_start,
+#                        x$my_end_date,
+#                        y$EFFECTIVE_DATE,
+#                        y$my_end_date,
+#                        bounds = "[)"))
+# 
+#             )
+#   glimpse()
 # w_amnt_per_m
 # get percent buckets
 
@@ -2317,3 +2447,4 @@ v_p_d_w_22_w_short_vsl_m__tot_weeks_perc <-
 
 # View(v_p_d_w_22_w_short_vsl_m__tot_weeks_perc)
 # [1] 22581    15
+
