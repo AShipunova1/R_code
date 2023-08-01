@@ -116,20 +116,26 @@ compl_clean_sa_all_weeks_non_c_short <-
   # [1] 9486    5
   dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
   dplyr::select(-week) |>
-  dplyr::distinct() |>
+  dplyr::distinct() |> 
+  # View(compl_clean_sa_all_weeks_non_c_short)
   # dim()
   # [1] 1046    4
   # all weeks were non compliant
-  filter(compl_weeks_amnt == total_weeks)
-# |>
+  filter(compl_weeks_amnt == total_weeks) |>
   # [1] 1046    4
   # permitted for the whole period (disregard the last week)
   # filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
-
-# View(compl_clean_sa_all_weeks_non_c_short)
+  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 2))
+# number_of_weeks_for_non_compliancy 27
+dim(compl_clean_sa_all_weeks_non_c_short)
 # 130
 # 0
 # [1] 1046    4
+# 114
+# 127 (-3)
+# 13  & compl_weeks_amnt == (number_of_weeks_for_non_compliancy - 3)
+View(compl_clean_sa_all_weeks_non_c_short)
+# 114 - 2 (25 total weeks)
 
 ### add back columns needed for the output ----
 need_cols_names <- c(
@@ -152,7 +158,7 @@ compl_clean_sa_all_weeks_non_c <-
 dim(compl_clean_sa_all_weeks_non_c)
 # [1] 130   8
 # 0
-# 1046
+# 127
 
 # ## check the last output manually ----
 # manual_no <- c("1133962",
@@ -229,11 +235,12 @@ get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
 }
 
 all_vm_ids <- get_all_voicemails_id(corresp_contact_cnts_clean)
-str(all_vm_ids)
+dim(all_vm_ids)
 # 284
 # 27: 222
 # 134
 # 120
+
 # field_name into a var
 contactcomments_field_name <-
   sym(find_col_name(corresp_contact_cnts_clean, ".*contact", "comments.*")[1])
@@ -423,9 +430,9 @@ compl_corr_to_investigation <-
 
 # check
 # to_investigation_to_NEIS[15,] FL3262PM
-compl_clean_sa_all_weeks_non_c |>
-  filter(vessel_official_number == "FL3262PM") |>
-  View()
+# compl_clean_sa_all_weeks_non_c |>
+#   filter(vessel_official_number == "FL3262PM") |>
+#   View()
 
 dim(compl_corr_to_investigation)
 # [1] 16081    44
@@ -433,7 +440,7 @@ dim(compl_corr_to_investigation)
 # 18093    45
 # [1] 264  26
 # [1] 264  30
-# 4028 30
+# 309
 
 # str(compl_corr_to_investigation)
 # compl_corr_to_investigation |>
@@ -447,7 +454,8 @@ count_uniq_by_column(compl_corr_to_investigation) |> head(1)
 # 27: 177
 # vesselofficial_number 188
 # vesselofficial_number 105
-# 848
+# 108
+# 97
 
 ## ---- output needed investigation ----
 # 1) create additional columns
@@ -467,8 +475,7 @@ contacttype_field_name <-
 write.csv(compl_corr_to_investigation,
           file.path(
             my_paths$outputs,
-            paste0(
-              "more_than_27_compl_corr_to_investigation_22_23__",
+            paste0(              "more_than_24_compl_corr_to_investigation_22_23__",
               today(),
               ".csv"
             )
@@ -502,7 +509,8 @@ dim(date__contacttype_per_id)
 # 27: 177
 # 188   2
 # 105   2 (the new filter)
-# 848
+# 108
+# 97
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
@@ -512,6 +520,8 @@ compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
 
 dim(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
 # [1] 264  31
+# 309
+# 271
 
 ## ---- 2) remove duplicated columns ----
 
@@ -539,8 +549,9 @@ dim(compl_corr_to_investigation_short)
 # [1] 107   9
 # 27: [1] 177  10
 # [1] 105   9
-
+# 108
 # str(compl_corr_to_investigation_short)
+# 97
 
 ## ---- 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
@@ -548,13 +559,14 @@ dim(compl_corr_to_investigation_short)
 # today()
 # [1] "2023-07-11"
 # Data from the previous tab of "egregious violators for investigation"
+# Download first
 previous_egr_data_path <-
   file.path(
     my_paths$outputs, current_project_name,
     r"(from_web\egregious violators for investigation - 04-05-2023 27 weeks.csv)"
   )
 
-# file.exists(previous_egr_data_path)
+file.exists(previous_egr_data_path)
 # T
 vessels_to_mark <-
   read_csv(previous_egr_data_path)
@@ -581,7 +593,8 @@ compl_corr_to_investigation_short_dup_marked <-
 dim(compl_corr_to_investigation_short_dup_marked)
 # [1] 177  11
 # [1] 105  10
-
+# 108
+# 97
 #### remove some? ----
 # vessels_to_remove <-
 #   read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
@@ -602,6 +615,7 @@ dim(compl_corr_to_investigation_short_dup_marked)
 # 27: 164
 # 177
 # 31
+# 108
 
 # dim(compl_corr_to_investigation_short2)
 # 164
@@ -615,11 +629,14 @@ length(unique(compl_corr_to_investigation_short_dup_marked$vessel_official_numbe
 # 27: 164
 # 177
 # 105
+# 108
+# 97
 
 data_overview(compl_corr_to_investigation_short_dup_marked) |> head(1)
 # vessel_official_number
 # 177
 # 105
+# 108
 
 # compl_corr_to_investigation_short_output <-
 # compl_corr_to_investigation_short2 |>
@@ -648,7 +665,8 @@ results_with_comments <-
   readr::read_csv(results_with_comments_path,
                   col_types = cols(.default = 'c'))
 
-View(results_with_comments)
+dim(results_with_comments)
+# 134 13
 
 # all.equal(results_with_comments,
 #           compl_corr_to_investigation_short_output)
@@ -659,7 +677,8 @@ setdiff(results_with_comments$vessel_official_number,
   length()
 # 68
 # 35 (new filter)
-
+# 67
+# 71
 in_the_new_res_only <-
   setdiff(
     compl_corr_to_investigation_short_dup_marked$vessel_official_number,
@@ -667,8 +686,10 @@ in_the_new_res_only <-
   )
 # |> cat()
 # 1266718 602091 FL0435LD FL6279PH FL7282LE FL8725DA
-  # length()
+length(in_the_new_res_only)
 # 6
+# 1061382 1069364 1168496 1209015 1224219 1259129 1266718 1296710 1308401 1318467 1331794 523112 602091 678141 970286 996263 FL0435LD FL2447TL FL2453TE FL3159TK FL3697PB FL3979EA FL4801NV FL6279PH FL6680JK FL6954LD FL7772SV FL8090RU FL8666CH FL8725DA FL9131RJ FL9446TH FL9793RU FL9914GX GA8847NJ MD9128BD MS8535ZG NC2851DH NC4246DP NC9819DF VA1460CJ
+# 34
 
 ### join comments
 
@@ -701,6 +722,8 @@ dim(compl_corr_to_investigation_short_output_w_comments)
 # 280
 # 0
 # [1] 105  14
+# 108
+# 97
 
 #### check no comments ----
 no_comments_vsls <-
@@ -709,16 +732,19 @@ no_comments_vsls <-
     `Confirmed Egregious? (missing past 6 months, 2 contacts with at least 1 call)`
   ))
 # |>
-  # View()
+View(no_comments_vsls)
+# Rows: 53
+# Columns: 14
 
-in_the_new_res_only_df <-
-  as.data.frame(in_the_new_res_only)
-names(in_the_new_res_only_df) <- "vessel_official_number"
+# in_the_new_res_only_df <-
+#   as.data.frame(in_the_new_res_only)
+# names(in_the_new_res_only_df) <- "vessel_official_number"
 
 no_comments_vsls_ids <-
   no_comments_vsls |>
   select(vessel_official_number)
-
+dim(no_comments_vsls_ids)
+# 62
 
 # no_comments_vsls_ids |>
 #   filter(vessel_official_number == '1305207') |> dim()
@@ -727,10 +753,12 @@ no_comments_vsls_ids <-
 #   filter(vessel_official_number == '1305207') |> dim()
 # [1]  1 21
 
-setdiff(no_comments_vsls_ids, in_the_new_res_only_df)
+setdiff(no_comments_vsls_ids$vessel_official_number, in_the_new_res_only_df) |> 
+  length()
 # 1305207
+# 62
 
-setdiff(in_the_new_res_only_df, no_comments_vsls_ids)
+# setdiff(in_the_new_res_only_df, no_comments_vsls_ids$vessel_official_number)
 # 0
 
 # output ----
@@ -744,7 +772,8 @@ result_file_path <- file.path(
     data_file_date,
     ".csv"
   ))
-  
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious_violators_for_investigation_from_2023-01-24_to_2023-08-01.csv"
+
 readr::write_csv(
   compl_corr_to_investigation_short_output_w_comments,
   result_file_path,
