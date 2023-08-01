@@ -1719,6 +1719,7 @@ v_p__t__tn_d_weeks_gom_short <-
 
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 22090    11
+# [1] 21470    11
 
 ## count separately amount of trips and trip_n for each vsl ----
 v_p__t__tn_d_weeks_gom_short_compl_y <-
@@ -1732,6 +1733,7 @@ v_p__t__tn_d_weeks_gom_short_compl_y <-
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_y)
 # [1] 22090    13
+# [1] 21470    13
 
 # Jenny?: Number of unmatched declarations for logbooks, and unmatched logbooks for declarations
 # write_csv(v_p__t__tn_d_weeks_gom_short_compl, "cnt_t_n_tn__v_p__t__tn_d_weeks_gom_short_compl.csv")
@@ -1743,23 +1745,25 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_y)
 # NA both
 
 ## rm more columns ----
-v_p__t__tn_d_weeks_gom_short_compl_short <-
-  v_p__t__tn_d_weeks_gom_short_compl |>
+v_p__t__tn_d_weeks_gom_short_compl_y_short <-
+  v_p__t__tn_d_weeks_gom_short_compl_y |>
   select(-c(MONTH_OF_YEAR,
             WEEK_OF_YEAR,
             date_y_m,
             rep_type.t,
             rep_type.tn)) |>
   distinct()
-dim(v_p__t__tn_d_weeks_gom_short_compl_short)
+dim(v_p__t__tn_d_weeks_gom_short_compl_y_short)
 # [1] 1643    8
+# 1641
 
 ## gom is_compliant by year ----
-dim(v_p__t__tn_d_weeks_gom_short_compl)
-## gom is_compliant ----
+dim(v_p__t__tn_d_weeks_gom_short_compl_y)
+# [1] 21470    13
+
 # t(logbooks) < tn(declarations) w fishing intention, A, H
 v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
-  v_p__t__tn_d_weeks_gom_short_compl |>
+  v_p__t__tn_d_weeks_gom_short_compl_y |>
   group_by(PERMIT_VESSEL_ID, 
            permit_2022_int) |>
   # View()
@@ -1781,8 +1785,10 @@ v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
 dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 # [1] 1643    9
 # [1] 22090    14
+# [1] 21470    14
 
-v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>   filter(PERMIT_VESSEL_ID == 'TX9211DE') |>
+v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>   
+  filter(PERMIT_VESSEL_ID == 'TX9211DE') |>
   dim()
 # 40
 # filter(VESSEL_VESSEL_ID == 72359) |>
@@ -1810,18 +1816,23 @@ v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
 # new rule
 # 1 no               564
 # 2 yes             1033
+# fish intend
+# 1 no               438
+# 2 yes             1159
 
 # yes
 972 * 100 / (625 + 972)
 # [1] 60.86412
 1033 * 100 / (625 + 972)
 # [1] 64.68378
+1159 * 100 / (625 + 972)
 
 # no
 625 * 100 / (1597)
 # [1] 39.13588
 564 * 100 / (1597)
 # [1] 35.31622
+438 * 100 / (1597)
 
 # Was 78% yes and 20% no
 # TODO: why?
