@@ -1658,6 +1658,8 @@ year_plot_sa <-
 # GOM + dual compl by year ----
 # There should be a declaration for every logbook (in other words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant).
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
+# There should be at least one of each count per week
+# Noncompliant + overridden are compliant
 
 v_p__t__tn_d_weeks_gom <-
   v_p__t__tn_d_weeks |>
@@ -1721,21 +1723,40 @@ v_p__t__tn_d_weeks_gom_short_compl_short <-
 dim(v_p__t__tn_d_weeks_gom_short_compl_short)
 # [1] 1643    8
 
+## gom is_compliant by week ----
+glimpse(v_p__t__tn_d_weeks_gom_short_compl)
 ## gom is_compliant ----
+# t(logbooks) < tn(declarations) w fishing intention, A, H
 v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
-  v_p__t__tn_d_weeks_gom_short_compl_short |>
-  group_by(PERMIT_VESSEL_ID, permit_2022_int) |>
-  mutate(is_compliant_y =
-           case_when(non_na_count.t == non_na_count.tn ~
-                       "yes",
-                     .default = "no")) |>
+  v_p__t__tn_d_weeks_gom_short_compl |>
+  group_by(PERMIT_VESSEL_ID, 
+           permit_2022_int,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  # View()
+  mutate(is_compliant_w =
+           case_when(non_na_count.t < non_na_count.tn
+                     ~ "no",
+                     .default = "yes")) |>
   ungroup()
+
+# v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
+#   v_p__t__tn_d_weeks_gom_short_compl_short |>
+#   group_by(PERMIT_VESSEL_ID, permit_2022_int) |>
+#   mutate(is_compliant_y =
+#            case_when(non_na_count.t == non_na_count.tn ~
+#                        "yes",
+#                      .default = "no")) |>
+#   ungroup()
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 # [1] 1643    9
+# [1] 22090    14
 
-v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>   filter(VESSEL_VESSEL_ID == 72359) |>
-  glimpse()
+v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>   filter(PERMIT_VESSEL_ID == 'TX9211DE') |>
+  View()
+# 40
+# filter(VESSEL_VESSEL_ID == 72359) |>
 # $ permit_sa_gom_dual   <chr> "dual"
 # $ permit_weeks_amnt_22 <dbl> 52
 # $ YEAR                 <dbl> NA
@@ -2077,8 +2098,6 @@ vessel_info_in_metrics_only_res |>
 # $ VESSEL_ID   <chr> "1139674", "1176885", "1195318"
 # $ VESSEL_ID.1 <dbl> 393431, 326994, 307565
          
-# this 2 should be in mydb results.
-
 trips_info_2022 |> 
   filter(VESSEL_ID %in% 
            c(393431, 326994, 307565)) |> 
@@ -2095,12 +2114,14 @@ trip_neg_2022 |>
 # 1    326994 304
 # 2    393431 177
 
+# this 2 should be in my db results.
+
+
 trips_notifications_2022 |> 
   filter(VESSEL_ID %in% 
            c(393431, 326994, 307565)) |> 
   count(VESSEL_ID)
 0
-
 
 # ===
 # By month ----
@@ -2445,6 +2466,8 @@ v_p_d_w_22_w_short_vsl_m__tot_weeks_perc <-
   mutate(perc_nc_w_per_m =
            permit_weeks_amnt_per_m * 100 / w_amnt_per_m)
 
-# View(v_p_d_w_22_w_short_vsl_m__tot_weeks_perc)
+View(v_p_d_w_22_w_short_vsl_m__tot_weeks_perc)
 # [1] 22581    15
 
+# Find weeks with no reports for GOM ----
+  # mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
