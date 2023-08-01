@@ -701,6 +701,24 @@ trips_info_2022_int_ah_sero <-
 
 # Trip notifications (= declarations) ----
 
+## intended fishing declarations ----
+# dim(trips_notifications_2022)
+# Rows: 70,056
+
+# trips_notifications_2022 |>
+#   select(INTENDED_FISHING_FLAG) |>
+#     distinct() |>
+#     glimpse()
+# $ INTENDED_FISHING_FLAG <chr> "Y", NA, "N"
+
+trips_notifications_2022_short_f <-
+  trips_notifications_2022_short |> 
+  # fishing intended or NA
+  filter(!INTENDED_FISHING_FLAG == "N")
+
+dim(trips_notifications_2022_short_f)
+# [1] 63110    27
+
 ## trip types A and H trip_notif ----
 trips_notifications_2022 %>%
    select(TRIP_TYPE) %>% distinct()
@@ -710,9 +728,20 @@ trips_notifications_2022 %>%
 # 383         R
 # 697         C
 
+trips_notifications_2022_short_f |>
+  count(TRIP_TYPE) %>% 
+  head()
+#   TRIP_TYPE     n
+# 1         A 51754
+# 2         H 10988
+# 3         R   368
+
 trips_notifications_2022_ah <-
-  trips_notifications_2022_short %>%
+  trips_notifications_2022_short_f %>%
   filter(TRIP_TYPE %in% c("A", "H"))
+
+dim(trips_notifications_2022_ah)
+# [1] 62742    27
 
 # add week num ----
 ## to trips ----
