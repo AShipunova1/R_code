@@ -37,37 +37,44 @@ compl_clean_w_permit_exp_last_27w <-
   # keep entries for the last 28 weeks
   filter(year_month >= as.yearmon(half_year_ago))
 
-# dim(compl_clean_w_permit_exp)
+dim(compl_clean_w_permit_exp)
+# today()
+# [1] "2023-08-01"
+# [1] 235509     22
+
 # 185538
 # [1] 217772     22
-# dim(compl_clean_w_permit_exp_last_27w)
+dim(compl_clean_w_permit_exp_last_27w)
 # [1] 74809    23
 # [1] 70118    23
 # [1] 92370    23 (7m)
 # [1] 81153    23 189 d
+# [1] 87826    23
 
 ## ---- Have only SA permits, exclude those with Gulf permits ----
 compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
-# today()
+today()
+# [1] "2023-08-01"
 # [1] "2023-07-10"
 ## Not "compliant_" ----
-# compl_clean_sa_non_compl <-
-  # compl_clean_sa |>
-  # filter(compliant_ == 'NO')
+compl_clean_sa_non_compl <-
+  compl_clean_sa |>
+  filter(compliant_ == 'NO')
 
-# dim(compl_clean_sa_non_compl)
+dim(compl_clean_sa_non_compl)
 # [1] 18205    23
 # [1] 11473    23
 # [1] 10597    23
 # [1] 12484    23
 # [1] 15549    23
 # [1] 13992    23
+# [1] 14204    23
 
-# compl_clean_sa_non_compl |>
-  # count_uniq_by_column() |> head(1)
+compl_clean_sa_non_compl |>
+  count_uniq_by_column() |> head(1)
 # vesselofficialnumber 1785
 # today()
 # "2023-06-23"
@@ -75,6 +82,8 @@ compl_clean_sa <-
 # [1] "2023-07-10"
 # vessel_official_number 1403
 # vessel_official_number 1369
+# [1] "2023-08-01"
+# vessel_official_number 1370
 
 ## filter for egregious ----
 ### check if there is no "compliant_ == YES" since half_year_ago ----
@@ -94,6 +103,7 @@ compl_clean_sa_non_c_not_exp <-
 
 dim(compl_clean_sa_non_c_not_exp)
 # [1] 10419    23
+# [1] 9486   23
 
 compl_clean_sa_all_weeks_non_c_short <-
   compl_clean_sa_non_c_not_exp |>
@@ -102,16 +112,24 @@ compl_clean_sa_all_weeks_non_c_short <-
                    name = "total_weeks") |>
   dplyr::add_count(vessel_official_number, compliant_,
                    name = "compl_weeks_amnt") |>
+  # dim()
+  # [1] 9486    5
   dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
   dplyr::select(-week) |>
   dplyr::distinct() |>
+  # dim()
+  # [1] 1046    4
   # all weeks were non compliant
-  filter(compl_weeks_amnt == total_weeks) |>
+  filter(compl_weeks_amnt == total_weeks)
+# |>
+  # [1] 1046    4
   # permitted for the whole period (disregard the last week)
-  filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
+  # filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
 
-dim(compl_clean_sa_all_weeks_non_c_short)
+# View(compl_clean_sa_all_weeks_non_c_short)
 # 130
+# 0
+# [1] 1046    4
 
 ### add back columns needed for the output ----
 need_cols_names <- c(
@@ -131,55 +149,57 @@ compl_clean_sa_all_weeks_non_c <-
 # Joining with `by = join_by(vessel_official_number)`
   distinct()
 
-# dim(compl_clean_sa_all_weeks_non_c_long)
+dim(compl_clean_sa_all_weeks_non_c)
 # [1] 130   8
+# 0
+# 1046
 
-### check the last output manually ----
-manual_no <- c("1133962",
-"1158893",
-"1202614",
-"FL6540TD",
-"NJ3548GR",
-"1254648",
-"943683",
-"1077813",
-"1243529",
-"1266505",
-"1064222",
-"FL9628RY",
-"FL7060HK",
-"978217",
-"508385",
-"FL2034JA",
-"594390",
-"1321667",
-"591881",
-"1233418",
-"606326",
-"FL1348GL",
-"1254999",
-"FL3557RC",
-"FL1267MZ",
-"FL6220RN",
-"FL6900MH",
-"FL5207CA",
-"SC6965DN",
-"FL4959PK",
-"FL7207LT",
-"FL7703LT",
-"1279625",
-"565041")
-
-# compl_clean_sa_all_weeks_non_c |>
-#   filter(vessel_official_number %in%
-#            manual_no) |>
-#   View()
-
-# compl_clean_sa |>
-#   filter(vessel_official_number %in%
-#            manual_no) |>
-#   View()
-
+# ## check the last output manually ----
+# manual_no <- c("1133962",
+# "1158893",
+# "1202614",
+# "FL6540TD",
+# "NJ3548GR",
+# "1254648",
+# "943683",
+# "1077813",
+# "1243529",
+# "1266505",
+# "1064222",
+# "FL9628RY",
+# "FL7060HK",
+# "978217",
+# "508385",
+# "FL2034JA",
+# "594390",
+# "1321667",
+# "591881",
+# "1233418",
+# "606326",
+# "FL1348GL",
+# "1254999",
+# "FL3557RC",
+# "FL1267MZ",
+# "FL6220RN",
+# "FL6900MH",
+# "FL5207CA",
+# "SC6965DN",
+# "FL4959PK",
+# "FL7207LT",
+# "FL7703LT",
+# "1279625",
+# "565041")
+# 
+# # compl_clean_sa_all_weeks_non_c |>
+# #   filter(vessel_official_number %in%
+# #            manual_no) |>
+# #   View()
+# 
+# # compl_clean_sa |>
+# #   filter(vessel_official_number %in%
+# #            manual_no) |>
+# #   View()
+# 
 ## ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
@@ -187,9 +207,11 @@ corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   filter(!grepl("^99999", vessel_official_number))
 
-data_overview(corresp_contact_cnts_clean)
+data_overview(corresp_contact_cnts_clean) |> 
+  head(1)
 # vesselofficial_number   3223
 # vessel_official_number  3371
+# vesselofficial_number 3434
 
 ## ---- direct_contact ----
 ## ---- 1) all are voicemails ----
@@ -211,7 +233,7 @@ str(all_vm_ids)
 # 284
 # 27: 222
 # 134
-
+# 120
 # field_name into a var
 contactcomments_field_name <-
   sym(find_col_name(corresp_contact_cnts_clean, ".*contact", "comments.*")[1])
@@ -263,7 +285,8 @@ add_a_direct_contact_column <-
 
 corresp_contact_cnts_clean_direct_cnt <-
   add_a_direct_contact_column(corresp_contact_cnts_clean)
-# glimpse(corresp_contact_cnts_clean_direct_cnt)
+dim(corresp_contact_cnts_clean_direct_cnt)
+# [1] 18629    23
 
 ## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
 # to investigation (to NEIS)
@@ -293,6 +316,7 @@ dim(calls_with_direct_communication)
 # [1] 12584    23
 # 27: [1] 10062    23
 # [1] 10475    23
+# [1] 10594    23
 
 # str(calls_with_direct_communication)
 
@@ -347,12 +371,15 @@ data_overview(corresp_contact_cnts_clean) |> head(1)
 # 3571
 # 27: vesselofficial_number 3223
 # vesselofficial_number 3371
+# vesselofficial_number 3434
 
 data_overview(both_in_n_out_2_plus_emails)  |> head(1)
 # vesselofficialnumber  147
 # 173
 # 27: 246
 # 461
+# 549
+
 # group_by_arr <- c("vessel_official_number", "calltype")
 # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) |> glimpse()
 
@@ -366,11 +393,14 @@ data_overview(to_investigation_to_NEIS) |> head(1)
 # 3170
 # 27: vesselofficial_number 2843
 # 3034
+# 2811
+
 # names(to_investigation_to_NEIS)
 dim(to_investigation_to_NEIS)
 # [1] 14401    23
 # 27: [1] 12192    23
 # [1] 14463    23
+# [1] 15556    23
 
 # str(to_investigation_to_NEIS)
 # View(to_investigation_to_NEIS)
@@ -403,6 +433,7 @@ dim(compl_corr_to_investigation)
 # 18093    45
 # [1] 264  26
 # [1] 264  30
+# 4028 30
 
 # str(compl_corr_to_investigation)
 # compl_corr_to_investigation |>
@@ -416,6 +447,7 @@ count_uniq_by_column(compl_corr_to_investigation) |> head(1)
 # 27: 177
 # vesselofficial_number 188
 # vesselofficial_number 105
+# 848
 
 ## ---- output needed investigation ----
 # 1) create additional columns
@@ -432,7 +464,16 @@ contactdate_field_name <-
 contacttype_field_name <-
   find_col_name(compl_corr_to_investigation, "contact", "type")[1]
 
-# write.csv(compl_corr_to_investigation, file.path(my_paths$outputs, "more_than_27_compl_corr_to_investigation_22_23__03_27_2023.csv"), row.names = FALSE)
+write.csv(compl_corr_to_investigation,
+          file.path(
+            my_paths$outputs,
+            paste0(
+              "more_than_27_compl_corr_to_investigation_22_23__",
+              today(),
+              ".csv"
+            )
+          ),
+          row.names = FALSE)
 # 435 dplyr::distinct ids
 
 get_date_contacttype <- function(compl_corr_to_investigation) {
@@ -461,6 +502,7 @@ dim(date__contacttype_per_id)
 # 27: 177
 # 188   2
 # 105   2 (the new filter)
+# 848
 
 ## ---- combine output ----
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id <-
@@ -698,7 +740,9 @@ result_file_path <- file.path(
   paste0(
     "egregious_violators_for_investigation_from_",
     half_year_ago,
-    "_to_06_22_2023.csv"
+    "_to_",
+    data_file_date,
+    ".csv"
   ))
   
 readr::write_csv(
