@@ -1,10 +1,11 @@
 # get data for egregious violators
 # Download from FHIER first
-csv_names_list_22_23 = c("Correspondence_22_23__06_22_2023.csv",
-                         r"(FHIER_Compliance_2022__06_22_2023.csv)",
-                         r"(FHIER_Compliance_2023__06_22_2023.csv)")
+csv_names_list_22_23 = c("Correspondence__08_01_2023.csv",
+                         r"(FHIER_Compliance_2022__08_01_2023.csv)",
+                         r"(FHIER_Compliance_2023__08_01_2023.csv)")
 
-data_file_date <- lubridate::mdy("06_22_2023") 
+data_file_date <- today()
+  # lubridate::mdy("06_22_2023") 
 
 ## ---- get csv data into variables ----
 my_paths$inputs <- file.path(my_paths$inputs, "from_Fhier")
