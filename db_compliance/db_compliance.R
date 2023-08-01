@@ -1692,14 +1692,16 @@ dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 22090    11
 
 ## count separately amount of trips and trip_n for each vsl ----
-v_p__t__tn_d_weeks_gom_short_compl <-
+v_p__t__tn_d_weeks_gom_short_compl_y <-
   v_p__t__tn_d_weeks_gom_short |>
-  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int) |>
+  group_by(VESSEL_VESSEL_ID, 
+           PERMIT_VESSEL_ID, 
+           permit_2022_int) |>
   mutate(non_na_count.t = sum(!is.na(rep_type.t)),
             non_na_count.tn = sum(!is.na(rep_type.tn))) |>
   ungroup()
 
-dim(v_p__t__tn_d_weeks_gom_short_compl)
+dim(v_p__t__tn_d_weeks_gom_short_compl_y)
 # [1] 22090    13
 
 # Jenny?: Number of unmatched declarations for logbooks, and unmatched logbooks for declarations
@@ -1723,18 +1725,16 @@ v_p__t__tn_d_weeks_gom_short_compl_short <-
 dim(v_p__t__tn_d_weeks_gom_short_compl_short)
 # [1] 1643    8
 
-## gom is_compliant by week ----
-glimpse(v_p__t__tn_d_weeks_gom_short_compl)
+## gom is_compliant by year ----
+dim(v_p__t__tn_d_weeks_gom_short_compl)
 ## gom is_compliant ----
 # t(logbooks) < tn(declarations) w fishing intention, A, H
 v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
   v_p__t__tn_d_weeks_gom_short_compl |>
   group_by(PERMIT_VESSEL_ID, 
-           permit_2022_int,
-           WEEK_OF_YEAR,
-           date_y_m) |>
+           permit_2022_int) |>
   # View()
-  mutate(is_compliant_w =
+  mutate(is_compliant_y =
            case_when(non_na_count.t < non_na_count.tn
                      ~ "no",
                      .default = "yes")) |>
@@ -1754,7 +1754,7 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 # [1] 22090    14
 
 v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>   filter(PERMIT_VESSEL_ID == 'TX9211DE') |>
-  View()
+  dim()
 # 40
 # filter(VESSEL_VESSEL_ID == 72359) |>
 # $ permit_sa_gom_dual   <chr> "dual"
@@ -1778,14 +1778,21 @@ v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
   count(is_compliant_y)
 # 1 no               625
 # 2 yes              972
+# new rule
+# 1 no               564
+# 2 yes             1033
 
 # yes
 972 * 100 / (625 + 972)
 # [1] 60.86412
+1033 * 100 / (625 + 972)
+# [1] 64.68378
 
 # no
 625 * 100 / (1597)
 # [1] 39.13588
+564 * 100 / (1597)
+# [1] 35.31622
 
 # Was 78% yes and 20% no
 # TODO: why?
