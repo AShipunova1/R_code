@@ -541,18 +541,18 @@ dim(compl_corr_to_investigation_short_dup_marked)
 # [1] 105  10
 
 #### remove some? ----
-vessels_to_remove <-
-  read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
-names(vessels_to_remove) = "vessel_official_number"
-dim(vessels_to_remove)
+# vessels_to_remove <-
+#   read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
+# names(vessels_to_remove) = "vessel_official_number"
+# dim(vessels_to_remove)
 # 58
 
-compl_corr_to_investigation_short2 <-
-  compl_corr_to_investigation_short_dup_marked |>
-  filter(!(
-    vessel_official_number %in%
-      vessels_to_remove$vessel_official_number
-  ))
+# compl_corr_to_investigation_short2 <-
+#   compl_corr_to_investigation_short_dup_marked |>
+#   filter(!(
+#     vessel_official_number %in%
+#       vessels_to_remove$vessel_official_number
+#   ))
 # 164
 
 dim(compl_corr_to_investigation_short_dup_marked)
@@ -707,26 +707,26 @@ readr::write_csv(
   na = "")
 
 ## ---- who needs an email ----
-source(file.path(current_project_path, "need_an_email.R"))
+# source(file.path(current_project_path, "need_an_email.R"))
 
-## ---- no correspondence ----
-source(
-  file.path(
-    current_project_path,
-    "not_compliant_51_plus_weeks_and_no_correspondence.R"
-  )
-)
-
-## ---- correspondence, no compliance information ----
-no_compl_info <-
-  setdiff(
-    corresp_contact_cnts_clean$vessel_official_number,
-    compl_clean$vessel_official_number
-  )
-length(no_compl_info)
-# 398
-# 136
-# Not in compliance info!
-
-# grep("1131132", compl_clean$vessel_official_number)
-# 0
+# ## ---- no correspondence ----
+# source(
+#   file.path(
+#     current_project_path,
+#     "not_compliant_51_plus_weeks_and_no_correspondence.R"
+#   )
+# )
+# 
+# ## ---- correspondence, no compliance information ----
+# no_compl_info <-
+#   setdiff(
+#     corresp_contact_cnts_clean$vessel_official_number,
+#     compl_clean$vessel_official_number
+#   )
+# length(no_compl_info)
+# # 398
+# # 136
+# # Not in compliance info!
+# 
+# # grep("1131132", compl_clean$vessel_official_number)
+# # 0
