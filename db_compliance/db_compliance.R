@@ -2412,9 +2412,17 @@ dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m
 v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m |> 
   # filter(!is_compliant_m == is_compliant_w) |> 
   filter(PERMIT_VESSEL_ID == 'FL8981NK') |> 
+  filter(date_y_m == "Apr 2022") |> 
   View()
 # [1] 462  15
+# vsl_id 328370
 
+trips_notifications_2022 |> 
+  filter(VESSEL_ID == '328370' &
+           INTENDED_FISHING_FLAG == 'Y'
+           # TRIP_START_DATE > ''
+         ) |> 
+  View()
 
 # By month ----
 # GOM by month ----
