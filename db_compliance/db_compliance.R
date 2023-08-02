@@ -2436,9 +2436,9 @@ trips_info_2022_int_ah_sero_w_y |>
 # print_df_names(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w)
 
 ### add month interval ----
-glimpse(dates_2022)
+# glimpse(dates_2022)
 dates_2022_m_int <-
-  dates_2022 |> 
+  dates_2022_yw |> 
   group_by(YEAR, MONTH_OF_YEAR) |>
   mutate(month_int =
            lubridate::interval(
@@ -2447,9 +2447,13 @@ dates_2022_m_int <-
            )) |> 
   ungroup()
 
-dates_2022_m_int |> 
-  select(YEAR, MONTH_OF_YEAR, month_int) |> 
-  distinct() |> 
+dates_2022_m_int_short <-
+  dates_2022_m_int |> 
+  select(-COMPLETE_DATE)
+
+dates_2022_m_int_short |> 
+  # select(YEAR, MONTH_OF_YEAR, month_int) |> 
+  # distinct() |> 
   glimpse()
   
 v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_days <-
