@@ -2334,7 +2334,6 @@ v_p__t__tn_d_weeks_gom_short_in_p <-
 dim(v_p__t__tn_d_weeks_gom_short_in_p)
 # [1] 20349    11
 
-
 ## count separately amount of trips and trip_n for each vsl ----
 v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts <-
   v_p__t__tn_d_weeks_gom_short_in_p |>
@@ -2350,6 +2349,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts <-
 dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts)
 # [1] 20349    13
 
+### db err views ----
 v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts |>
   filter(
     PERMIT_VESSEL_ID %in% c(
@@ -2364,9 +2364,57 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts |>
       "FL6786PB"
     )
   ) |>
-  select(PERMIT_VESSEL_ID) |> 
-  distinct()
+  # select(PERMIT_VESSEL_ID) |> 
+  dim()
 # 10 w FL6786PB
+
+### gom compl ----
+tic()
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w <-
+  v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           permit_2022_int,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(is_compliant_w =
+           case_when(non_na_count.t < non_na_count.tn ~
+                       "no",
+                     .default = "yes")) |>
+  ungroup()
+toc()
+# 5.12 sec elapsed
+
+dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w)
+# [1] 20349    14
+
+### GOM compl per month from weeks ----
+tic("GOM compl per month from weeks")
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m <-
+  v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           permit_2022_int,
+           # WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(is_compliant_m =
+           case_when(any(is_compliant_w == "no") ~
+                       "no",
+                     .default = "yes")) |>
+  ungroup() |> 
+  distinct()
+toc()
+# GOM compl per month from weeks: 1.7 sec elapsed
+
+dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m
+    )
+# [1] 20349    15
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m |> 
+  # filter(!is_compliant_m == is_compliant_w) |> 
+  filter(PERMIT_VESSEL_ID == 'FL8981NK') |> 
+  View()
+# [1] 462  15
+
 
 # By month ----
 # GOM by month ----
