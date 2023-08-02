@@ -2460,4 +2460,32 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_days <-
 View(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_days)
 
 
+### add total weeks per permit per month ----
+tic("v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w")
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w <-
+  v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           permit_2022_int,
+           date_y_m) |>
+  mutate(permit_weeks_month_amnt_22 =
+           round(permit_2022_int / lubridate::dweeks(1))) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w: 3.94 sec elapsed
 
+View(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w)
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_non_compl <-
+  v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w |>
+  filter(is_compliant_w == "no")
+
+### test jan ----
+
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_non_compl |> 
+  filter(MONTH_OF_YEAR == 4) |> 
+  data_overview()
+# VESSEL_VESSEL_ID     205
+# PERMIT_VESSEL_ID     205
+# permit_sa_gom_dual     2
+# MONTH_OF_YEAR          1
+# WEEK_OF_YEAR           5
