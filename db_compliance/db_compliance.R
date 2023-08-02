@@ -2368,7 +2368,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts |>
   dim()
 # 10 w FL6786PB
 
-### gom compl ----
+## gom compl ----
 tic()
 v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w <-
   v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts |>
@@ -2388,7 +2388,7 @@ toc()
 dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w)
 # [1] 20349    14
 
-### GOM compl per month from weeks ----
+## GOM compl per month from weeks ----
 tic("GOM compl per month from weeks")
 v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m <-
   v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w |>
@@ -2433,6 +2433,31 @@ trips_info_2022_int_ah_sero_w_y |>
   View()
   
 ## if we know which are compliant - divide non compliant by buckets ----
+# print_df_names(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w)
+
+### add month interval ----
+glimpse(dates_2022)
+dates_2022_m_int <-
+  dates_2022 |> 
+  group_by(YEAR, MONTH_OF_YEAR) |>
+  mutate(month_int =
+           lubridate::interval(
+             min(COMPLETE_DATE),
+             max(COMPLETE_DATE)
+           )) |> 
+  ungroup()
+
+dates_2022_m_int |> 
+  select(YEAR, MONTH_OF_YEAR, month_int) |> 
+  distinct() |> 
+  glimpse()
+  
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_days <-
+  v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w |>
+  mutate(m_first_day = day(date_y_m), 
+         m_last_day = day(as.Date(date_y_m, frac = 1)))
+
+View(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_days)
 
 
 
