@@ -2321,6 +2321,16 @@ trips_notifications_2022 |>
 0
 
 # ===
+# GOM compliance each week ----
+## count separately amount of trips and trip_n for each vsl ----
+v_p__t__tn_d_weeks_gom_short_compl_w <-
+  v_p__t__tn_d_weeks_gom_short |>
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int, WEEK_OF_YEAR, date_y_m) |>
+  mutate(non_na_count.t = sum(!is.na(rep_type.t)),
+            non_na_count.tn = sum(!is.na(rep_type.tn))) |>
+  ungroup()
+
+
 # By month ----
 # GOM by month ----
 ## count separately amount of trips and trip_n for each vsl ----
