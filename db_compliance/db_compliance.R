@@ -702,6 +702,18 @@ trips_info_2022_int_ah_sero <-
 
 # Trip notifications (= declarations) ----
 
+trips_notifications_2022 |> 
+  count(NOTIFICATION_TYPE_ID)
+#   NOTIFICATION_TYPE_ID     n
+# 1                    5   122
+# 2                    6 69934
+# 5 = cancellation
+# 6 = hail out/declaration
+
+# TODO: 5/6
+# TODO: match logbooks and declarations, 
+# decl trip start < or > 1h logbooks trip start
+# fishing intention, H/A
 ## intended fishing declarations ----
 # dim(trips_notifications_2022)
 # Rows: 70,056
@@ -2032,6 +2044,7 @@ fhier_db_compl_gom_join |>
 
 # compare with FHIER metrics ----
 fhier_metrics_path <- r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)03012022_12312022.csv)"
+# TODO: change to 12/31/2022 -- 12/31/2023
 
 fhier_metrics <- read_csv(fhier_metrics_path,
                           guess_max = 21474836,
@@ -2417,6 +2430,10 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m |>
 # [1] 462  15
 # vsl_id 328370
 
+fhier_metrics |> 
+  filter(vessel_official_number == 'FL5809RN') |> 
+  dim()
+
 trips_notifications_2022 |> 
   filter(VESSEL_ID == '328370' &
            INTENDED_FISHING_FLAG == 'Y'
@@ -2456,7 +2473,19 @@ dates_2022_m_int_short |>
   # distinct() |> 
   glimpse()
   
-v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_days <-
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_int <-
+  right_join(
+    dates_2022_m_int_short,
+    v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w,
+    join_by(YEAR, MONTH_OF_YEAR, WEEK_OF_YEAR, date_y_m),
+    relationship = "many-to-many"
+  )
+
+dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_int)
+# [1] 125598     15
+# dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w)
+
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_perm <-
   v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w |>
   mutate(m_first_day = day(date_y_m), 
          m_last_day = day(as.Date(date_y_m, frac = 1)))
