@@ -2350,7 +2350,23 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts <-
 dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts)
 # [1] 20349    13
 
-
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts |>
+  filter(
+    PERMIT_VESSEL_ID %in% c(
+      "FL1885MS",
+      "1196390",
+      "FL8446RP",
+      "1294141",
+      "980514",
+      "FL0188RM",
+      "1041927",
+      "689131",
+      "FL6786PB"
+    )
+  ) |>
+  select(PERMIT_VESSEL_ID) |> 
+  distinct()
+# 10 w FL6786PB
 
 # By month ----
 # GOM by month ----
