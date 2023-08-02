@@ -2322,13 +2322,34 @@ trips_notifications_2022 |>
 
 # ===
 # GOM compliance each week ----
-## count separately amount of trips and trip_n for each vsl ----
-v_p__t__tn_d_weeks_gom_short_compl_w <-
+
+dim(v_p__t__tn_d_weeks_gom_short)
+# [1] 21470    11
+
+## remove odd dates ----
+v_p__t__tn_d_weeks_gom_short_in_p <-
   v_p__t__tn_d_weeks_gom_short |>
-  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int, WEEK_OF_YEAR, date_y_m) |>
+  # convert yearmon to date format (the first of month), compare with permit
+  filter(as.Date(date_y_m) %within% permit_2022_int)
+dim(v_p__t__tn_d_weeks_gom_short_in_p)
+# [1] 20349    11
+
+
+## count separately amount of trips and trip_n for each vsl ----
+v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts <-
+  v_p__t__tn_d_weeks_gom_short_in_p |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           permit_2022_int,
+           WEEK_OF_YEAR,
+           date_y_m) |>
   mutate(non_na_count.t = sum(!is.na(rep_type.t)),
-            non_na_count.tn = sum(!is.na(rep_type.tn))) |>
+         non_na_count.tn = sum(!is.na(rep_type.tn))) |>
   ungroup()
+
+dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts)
+# [1] 20349    13
+
 
 
 # By month ----
