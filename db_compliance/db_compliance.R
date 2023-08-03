@@ -1777,31 +1777,34 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 
 # TODO: check if permit_id in tn mean the same as in p_v
 
-# ## fewer fields GOM ----
-# v_p__t__tn_d_weeks_gom_short <-
-#   v_p__t__tn_d_weeks_gom |>
-#   select(
-#     -c(
-#       TRIP_END_week_num.t,
-#       TRIP_END_y.t,
-#       TRIP_END_m.t,
-#       TRIP_END_week_num.tn,
-#       TRIP_END_y.tn,
-#       TRIP_END_m.tn,
-#     )
-#   ) |>
-#   distinct()
-# 
-# dim(v_p__t__tn_d_weeks_gom_short)
-# [1] 22090    11
-# [1] 21470    11
+v_p__t__tn_d_weeks_gom_short_matched <-
+  v_p__t__tn_d_weeks_gom_short |>
+  # both reports are present
+  filter(!is.na(rep_type.t) & !is.na(rep_type.tn)) |>
+  # the time is the same
+  mutate(TRIP_START_TIME_t_hm = 
+           parse_date_time(TRIP_START_TIME.t, "HM"),
+         TRIP_START_TIME_tn_hm = 
+      parse_date_time(TRIP_START_TIME.tn, "HM")
+  ) |> 
+  # count the difference between start times t and tn
+  mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |> 
+  filter(time_diff1 < 3600)
+# ℹ In argument: `TRIP_START_TIME_tn_hm = parse_date_time(TRIP_START_TIME.tn,
+#   "HM")`.
+# Caused by warning:
+# !  2 failed to parse. 
 
-v_p__t__tn_d_weeks_gom_short |> 
-  filter(!is.na(rep_type.t) & !is.na(rep_type.tn)) |> 
-  # head() |> 
-  filter(parse_date_time(TRIP_START_TIME.t, "HM") ==
-         parse_date_time(TRIP_START_TIME.tn, "HM")) |> 
-  dim()
+v_p__t__tn_d_weeks_gom_short_matched
+
+v_p__t__tn_d_weeks_gom_short_matched |> 
+  mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm + 1))) |> 
+  distinct()
+
+# Caused by warning:
+# !  2 failed to parse. 
+
+dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 35294    38
 
 ## count separately amount of trips and trip_n for each vsl ----
