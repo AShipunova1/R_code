@@ -572,128 +572,129 @@ trips_notifications_2022_ah_fish_6 <-
 
 dim(trips_notifications_2022_ah_fish_6)
 # [1] 62690    34
+# [1] 63535    34
 
-# match logbooks and declarations ----
-# decl trip start < or > 1h logbooks trip start
-intersect(
-  names(trips_info_2022_int_ah),
-  names(trips_notifications_2022_ah_fish_6)
-) |> paste(collapse = ", ")
-# TRIP_ID, TRIP_TYPE, DE, UE, DC, UC, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME
-
-# by <- join_by(unique_all_vessel_ids,
-#               overlaps(x$EFFECTIVE_DATE,
-#                        x$my_end_date,
-#                        y$EFFECTIVE_DATE,
-#                        y$my_end_date,
-#                        bounds = "[)"))
-
-View(trips_info_2022_int_ah)
-# hm
-t__t_n <-
-  full_join(
-    trips_info_2022_int_ah,
-    trips_notifications_2022_ah_fish_6,
-    join_by(TRIP_TYPE,
-            VESSEL_ID,
-            TRIP_START_DATE,
-            TRIP_END_DATE),
-    relationship = "many-to-many"
-  )
-# dim(trips_info_2022_int_ah)[1] +
-# dim(trips_notifications_2022_ah_fish_6)[1]
-# [1] 159693
-
-View(t__t_n)
-# [1] 122585     39
-
-# rm extra cols ----
-t_names_to_rm <-
-  c("ACTIVITY_TYPE",
-    "ADDDITIONAL_FISHERMEN",
-    "APP_VERSION",
-    "APPROVAL_DATE",
-    "APPROVED_BY",
-    "BAIT_WEIGHT",
-    "CAPT_NAME_FIRST",
-    "CAPT_NAME_LAST",
-    "CF_ID",
-    "CF_ISS_AGENCY",
-    "CF_PERMIT_ID",
-    "CONFIRMATION_SIGNATURE",
-    "CONFIRMED_VALIDATING_AGENCY",
-    "COST_BAIT",
-    "COST_FOOD",
-    "COST_ICE",
-    "COST_IFQ",
-    "COST_LIGHT",
-    "COST_MISC",
-    "DAYS_AT_SEA",
-    "DC",
-    "DE",
-    "DEA_PERMIT_ID",
-    "END_PORT",
-    "EVENT_ID",
-    "FORM_VERSION",
-    "FUEL_DIESEL_GALLON_PRICE",
-    "FUEL_DIESEL_GALLONS",
-    "FUEL_GALLON_PRICE",
-    "FUEL_GALLONS",
-    "FUEL_GAS_GALLON_PRICE",
-    "FUEL_GAS_GALLONS",
-    "ICE_MAKER",
-    "NBR_OF_CREW",
-    "NBR_PAYING_PASSENGERS",
-    "NUM_ANGLERS",
-    "OWNER_ABOARD",
-    "PARTNER_VTR",
-    "PAY_PERCENT_TO_CAPT",
-    "PAY_PERCENT_TO_CREW",
-    "PAY_PERCENT_TO_OWNER",
-    "PAY_TO_CAPT_CREW",
-    "PORT",
-    "REPORTING_SOURCE",
-    "REVENUE_TOTAL",
-    "SEA_TIME",
-    "SPLIT_TRIP",
-    "START_PORT",
-    "STATE",
-    "STATUS",
-    "SUB_TRIP_TYPE",
-    "SUBMIT_METHOD",
-    "SUBMITTED_BY_PARTICIPANT",
-    "SUPPLIER_TRIP_ID",
-    "TICKET_TYPE",
-    "TRANSMISSION_DATE",
-    "TRIP_END_TIME",
-    "TRIP_FEE",
-    "TRIP_NBR",
-    "TRIP_START_TIME",
-    "UC",
-    "UE",
-    "VALIDATING_AGENCY",
-    "VENDOR_APP_NAME",
-    "VENDOR_PLATFORM",
-    "VTR_NUMBER")
-
-# print_df_names(trips_info_2022_short)
-# print_df_names(trip_neg_2022_short)
-
-trips_info_2022_short <-
-  trips_info_2022 |>
-  select(-any_of(t_names_to_rm)) |>
-  distinct()
-
-trip_neg_2022_short <-
-  trip_neg_2022 |>
-  select(-any_of(t_names_to_rm)) |>
-  distinct()
-
-trips_notifications_2022_short <-
-  trips_notifications_2022 |>
-  select(-any_of(t_names_to_rm)) |>
-  distinct()
-
+# # match logbooks and declarations ----
+# # decl trip start < or > 1h logbooks trip start
+# intersect(
+#   names(trips_info_2022_int_ah),
+#   names(trips_notifications_2022_ah_fish_6)
+# ) |> paste(collapse = ", ")
+# # TRIP_ID, TRIP_TYPE, DE, UE, DC, UC, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME
+# 
+# # by <- join_by(unique_all_vessel_ids,
+# #               overlaps(x$EFFECTIVE_DATE,
+# #                        x$my_end_date,
+# #                        y$EFFECTIVE_DATE,
+# #                        y$my_end_date,
+# #                        bounds = "[)"))
+# 
+# # View(trips_info_2022_int_ah)
+# # hm
+# t__t_n <-
+#   full_join(
+#     trips_info_2022_int_ah,
+#     trips_notifications_2022_ah_fish_6,
+#     join_by(TRIP_TYPE,
+#             VESSEL_ID,
+#             TRIP_START_DATE,
+#             TRIP_END_DATE),
+#     relationship = "many-to-many"
+#   )
+# # dim(trips_info_2022_int_ah)[1] +
+# # dim(trips_notifications_2022_ah_fish_6)[1]
+# # [1] 159693
+# 
+# View(t__t_n)
+# # [1] 122585     39
+# 
+# # rm extra cols ----
+# t_names_to_rm <-
+#   c("ACTIVITY_TYPE",
+#     "ADDDITIONAL_FISHERMEN",
+#     "APP_VERSION",
+#     "APPROVAL_DATE",
+#     "APPROVED_BY",
+#     "BAIT_WEIGHT",
+#     "CAPT_NAME_FIRST",
+#     "CAPT_NAME_LAST",
+#     "CF_ID",
+#     "CF_ISS_AGENCY",
+#     "CF_PERMIT_ID",
+#     "CONFIRMATION_SIGNATURE",
+#     "CONFIRMED_VALIDATING_AGENCY",
+#     "COST_BAIT",
+#     "COST_FOOD",
+#     "COST_ICE",
+#     "COST_IFQ",
+#     "COST_LIGHT",
+#     "COST_MISC",
+#     "DAYS_AT_SEA",
+#     "DC",
+#     "DE",
+#     "DEA_PERMIT_ID",
+#     "END_PORT",
+#     "EVENT_ID",
+#     "FORM_VERSION",
+#     "FUEL_DIESEL_GALLON_PRICE",
+#     "FUEL_DIESEL_GALLONS",
+#     "FUEL_GALLON_PRICE",
+#     "FUEL_GALLONS",
+#     "FUEL_GAS_GALLON_PRICE",
+#     "FUEL_GAS_GALLONS",
+#     "ICE_MAKER",
+#     "NBR_OF_CREW",
+#     "NBR_PAYING_PASSENGERS",
+#     "NUM_ANGLERS",
+#     "OWNER_ABOARD",
+#     "PARTNER_VTR",
+#     "PAY_PERCENT_TO_CAPT",
+#     "PAY_PERCENT_TO_CREW",
+#     "PAY_PERCENT_TO_OWNER",
+#     "PAY_TO_CAPT_CREW",
+#     "PORT",
+#     "REPORTING_SOURCE",
+#     "REVENUE_TOTAL",
+#     "SEA_TIME",
+#     "SPLIT_TRIP",
+#     "START_PORT",
+#     "STATE",
+#     "STATUS",
+#     "SUB_TRIP_TYPE",
+#     "SUBMIT_METHOD",
+#     "SUBMITTED_BY_PARTICIPANT",
+#     "SUPPLIER_TRIP_ID",
+#     "TICKET_TYPE",
+#     "TRANSMISSION_DATE",
+#     "TRIP_END_TIME",
+#     "TRIP_FEE",
+#     "TRIP_NBR",
+#     "TRIP_START_TIME",
+#     "UC",
+#     "UE",
+#     "VALIDATING_AGENCY",
+#     "VENDOR_APP_NAME",
+#     "VENDOR_PLATFORM",
+#     "VTR_NUMBER")
+# 
+# # print_df_names(trips_info_2022_short)
+# # print_df_names(trip_neg_2022_short)
+# 
+# trips_info_2022_short <-
+#   trips_info_2022 |>
+#   select(-any_of(t_names_to_rm)) |>
+#   distinct()
+# 
+# trip_neg_2022_short <-
+#   trip_neg_2022 |>
+#   select(-any_of(t_names_to_rm)) |>
+#   distinct()
+# 
+# trips_notifications_2022_short <-
+#   trips_notifications_2022 |>
+#   select(-any_of(t_names_to_rm)) |>
+#   distinct()
+# 
 # add week num ----
 ## to trips ----
 # strftime(c("2022-05-27", "2022-05-28", "2022-05-29", "2022-05-30", "2022-05-31", "2022-06-01", "2022-06-04", "2022-06-05"), format = "%V")
