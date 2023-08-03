@@ -701,6 +701,12 @@ trips_info_2022_int_ah_sero <-
   distinct()
 
 # Trip notifications (= declarations) ----
+# Jenny:
+# The declaration's notification type ID = 6 (hail-out)
+# The declaration has an intended fishing flag = Yes
+# The declaration has not been canceled (i.e., we cannot find another declaration 
+# record that has the same SAFIS vessel ID, trip start date, and trip start time 
+# as the declaration we are currently checking where this other record's notification type ID = 5)
 
 trips_notifications_2022 |> 
   count(NOTIFICATION_TYPE_ID)
@@ -710,7 +716,38 @@ trips_notifications_2022 |>
 # 5 = cancellation
 # 6 = hail out/declaration
 
+# print_df_names(trips_notifications_2022)
 # TODO: 5/6
+rr <-
+trips_notifications_2022 |> 
+  group_by(
+    "TRIP_TYPE",
+    "ACCSP_VESSEL_ID",
+    "VESSEL_OFFICIAL_NUMBER",
+    "TRIP_START_DATE",
+    "TRIP_START_TIME",
+    "ESTIMATED_TRIP_END_DATE",
+    "ESTIMATED_TRIP_END_TIME"
+  ) |> 
+  #   mutate(all_ids = list(
+  #   c(
+  #     COAST_GUARD_NBR,
+  #     PERMIT_VESSEL_ID,
+  #     SERO_OFFICIAL_NUMBER,
+  #     STATE_REG_NBR,
+  #     SUPPLIER_VESSEL_ID,
+  #     VESSEL_ALT_NUM,
+  #     VESSEL_VESSEL_ID
+  #   )
+  # )) |>
+  # mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
+  mutate(NOTIFICATION_TYPE_IDs = n_distinct(NOTIFICATION_TYPE_ID)) |> 
+# 
+#            list(NOTIFICATION_TYPE_ID)) |> 
+#   mutate(NOTIFICATION_TYPE_IDs_u = list(na.omit(unique(NOTIFICATION_TYPE_ID)))) |> 
+  ungroup()
+
+View(rr)
 # TODO: match logbooks and declarations, 
 # decl trip start < or > 1h logbooks trip start
 # fishing intention, H/A
@@ -2490,7 +2527,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_perm <-
   mutate(m_first_day = day(date_y_m), 
          m_last_day = day(as.Date(date_y_m, frac = 1)))
 
-View(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_days)
+# View(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_days)
 
 
 ### add total weeks per permit per month ----
