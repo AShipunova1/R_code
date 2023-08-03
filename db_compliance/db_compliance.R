@@ -534,40 +534,6 @@ trips_notifications_2022_ah_fish_6 <-
 dim(trips_notifications_2022_ah_fish_6)
 # [1] 63535    34
 
-# # match logbooks and declarations ----
-# # decl trip start < or > 1h logbooks trip start
-# intersect(
-#   names(trips_info_2022_int_ah),
-#   names(trips_notifications_2022_ah_fish_6)
-# ) |> paste(collapse = ", ")
-# # TRIP_ID, TRIP_TYPE, DE, UE, DC, UC, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME
-# 
-# # by <- join_by(unique_all_vessel_ids,
-# #               overlaps(x$EFFECTIVE_DATE,
-# #                        x$my_end_date,
-# #                        y$EFFECTIVE_DATE,
-# #                        y$my_end_date,
-# #                        bounds = "[)"))
-# 
-# # View(trips_info_2022_int_ah)
-# # hm
-# t__t_n <-
-#   full_join(
-#     trips_info_2022_int_ah,
-#     trips_notifications_2022_ah_fish_6,
-#     join_by(TRIP_TYPE,
-#             VESSEL_ID,
-#             TRIP_START_DATE,
-#             TRIP_END_DATE),
-#     relationship = "many-to-many"
-#   )
-# # dim(trips_info_2022_int_ah)[1] +
-# # dim(trips_notifications_2022_ah_fish_6)[1]
-# # [1] 159693
-# 
-# View(t__t_n)
-# # [1] 122585     39
-# 
 # # rm extra cols ----
 # t_names_to_rm <-
 #   c("ACTIVITY_TYPE",
@@ -702,7 +668,7 @@ trips_info_2022_int_ah_sero_w_y |>
 # TRIP_START_m == "Jan 2022"
 # [1] 104  15
 # 77 15 (sero)
-
+# 77 79
 trips_info_2022_int_ah_sero_w_y |>
   filter(TRIP_START_week_num == 52 &
            TRIP_START_m == "Jan 2022") |>
@@ -737,18 +703,18 @@ trips_notifications_2022_ah_w_y |>
   filter(TRIP_START_week_num == 0) |>
   dim()
 # [1] 32 33
-# [1] 31 33
+# [1] 32 39
 
 trips_notifications_2022_ah_w_y |>
   filter(TRIP_START_week_num == 52) |>
   dim()
-# [1] 1132   33
-# [1] 1008   33
+# [1] 1132   39
 
 ## to negative trips ----
 
+tic("trip_neg_2022_w_y")
 trip_neg_2022_w_y <-
-  trip_neg_2022_short %>%
+  trip_neg_2022 %>%
   mutate(
     TRIP_week_num =
       strftime(TRIP_DATE, format = "%U"),
@@ -760,34 +726,37 @@ trip_neg_2022_w_y <-
   mutate(TRIP_week_num =
            as.double(TRIP_week_num)) |>
   mutate()
+toc()
+# trip_neg_2022_w_y: 2.56 sec elapsed
 
 # check
 trip_neg_2022_w_y |>
   filter(TRIP_week_num == 0 & TRIP_DATE_m == "Jan 2022") |>
   dim()
-# [1] 2101    6
+# [1] 2101    15
 
 trip_neg_2022_w_y |>
   filter(TRIP_week_num == 52 & TRIP_DATE_m == "Jan 2022") |>
   dim()
-# [1] 2077    6
+# [1] 2077
 
 # results:
 map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1   917     2066    6459
+# 1   911     1781    3515
 # 2    19       19      19
+
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
-# [1] 9442   19
+# [1] 6207   19
 
 dim(trips_info_2022_int_ah_sero_w_y)
-# [1] 80967    15
+# [1] 80967    79
 dim(trip_neg_2022_w_y)
-# [1] 747173      6
+# [1] 747173      15
 dim(trips_notifications_2022_ah_w_y)
-# [1] 67738    33
-# [1] 62742    33
+# [1] 67738    39
 
 # add all weeks to each df ----
 
@@ -807,14 +776,6 @@ trips_notifications_2022_ah_w_y |>
            TRIP_END_y == 2022) |>
   dim()
 # 8
-# [1]  7 33
-
-# trip_neg_2022_w_y_cnt_u |>
-#   # filter(TRIP_START_y == 2021) |>
-#   filter(TRIP_week_num < 52 &
-#            TRIP_DATE_y == 2021) |>
-#   dim()
-# 0
 
 ### adjust dates_2022 ----
 
@@ -882,7 +843,6 @@ trips_info_2022_int_ah_sero_w_y |>
 # 2022   1   1  2022-01-05 23:00:00 Jan 2022
 
 dim(dates_2022_yw)
-# [1] 401   5
 # [1] 427   5
 
 dates_2022_w <-
@@ -890,7 +850,7 @@ dates_2022_w <-
   select(-COMPLETE_DATE) |>
   distinct()
 
-# dim(dates_2022_w)
+dim(dates_2022_w)
 # [1] 74  4
 
 # join with dates ----
@@ -934,21 +894,14 @@ dim(t_d_w)
 # TODO: check the difference, what was in the full_join? (no dates)
 # [1] 523465     17 left_join
 # [1] 523877     16 full_join
-# [1] 80978    16
+# [1] 80978    80
 
-# t_d_w |>
-#   filter(is.na(YEAR)) |>
-#   dim()
+t_d_w |>
+  filter(is.na(YEAR)) |>
+  dim()
 # 0
 
 ### tne ----
-# tne_d_w |>
-#   filter(WEEK_OF_YEAR == 0) |>
-#   glimpse()
-# Rows: 4,202
-
-# print_df_names(trip_neg_2022_w_y_cnt_u)
-
 tne_dates_by <-
   join_by(YEAR == TRIP_DATE_y,
           date_y_m     == TRIP_DATE_m,
@@ -963,12 +916,9 @@ tne_d_w <-
      relationship = "many-to-many"
    )
 toc()
-# tne_d_w: 0.96 sec elapsed
+# tne_d_w: 0.61 sec elapsed
 dim(tne_d_w)
-# [1] 4806915       8
-# [1] 4806913       8
-# [1] 4806913       7
-# [1] 747185      7
+# [1] 747185      17
 
 ### tn by start ----
 
@@ -988,39 +938,33 @@ tn_d_w <-
 toc()
 # tn_d_w: 0.75 sec elapsed
 dim(tn_d_w)
-# [1] 435779     35
-# [1] 435640     35 (SERO), 34 by Year
 # [1] 62752    34
+# [1] 67748    40
 
 #### check for week 52 in Jan 22 ----
 tn_d_w |>
     filter(date_y_m == "Jan 2022" &
                WEEK_OF_YEAR == 52) |>
   dim()
-# [1] 142  34
-# [1] 70 34
+# [1] 142  40
 
 trips_notifications_2022_ah_w_y |>
     filter(TRIP_START_m == "Jan 2022",
                TRIP_START_week_num == 52) |>
   dim()
-# [1] 142  33
-# [1] 70 33
+# [1] 142  39
 
 trips_info_2022_int_ah_sero_w_y |>
     filter(TRIP_START_m == "Jan 2022",
                TRIP_START_week_num == 52) |>
   dim()
-# [1] 80 15
+# [1] 80 79
 
 trip_neg_2022_w_y |>
     filter(TRIP_DATE_m == "Jan 2022" &
                TRIP_week_num == 52) |>
   dim()
-# [1] 2077    6
-# 0
-# [1] 2101    6
-# [1] 2077    6
+# [1] 2077    15
 
 ### add weeks per permit 22 ----
 
@@ -1032,6 +976,7 @@ v_p_d_w_22 <-
 dim(v_p_d_w_22)
 # [1] 6459   20
 # [1] 9442   20
+# [1] 6207   20
 
 # Count distinct weeks per vessel ----
 
@@ -1113,13 +1058,10 @@ v_p_d_w_22_short <-
   ) |>
   distinct()
 
-# v_p_d_w_sa_22_short
-# [1] 38031     9
-# [1] 6423   10 V-P with no dates yet
-# [1] 6423   11 (weeks per permit)
 dim(v_p_d_w_22_short)
 # [1] 8939   12
 # [1] 5554    5
+# [1] 3654    5
 
 ## t_d ----
 
@@ -1127,14 +1069,15 @@ t_d_w_short <-
   t_d_w |>
   select(
     -c(
-      TRIP_START_DATE,
-      TRIP_END_DATE,
-      TRIP_ID,
-      TRIP_TYPE,
-      SERO_VESSEL_PERMIT,
-      GARFO_VESSEL_PERMIT,
-      TRIP_TIME_ZONE,
-      trip_int
+      # TRIP_START_DATE,
+      # TRIP_END_DATE,
+      TRIP_ID
+      # ,
+      # TRIP_TYPE,
+      # SERO_VESSEL_PERMIT,
+      # GARFO_VESSEL_PERMIT,
+      # TRIP_TIME_ZONE,
+      # trip_int
     )
   ) |>
   distinct() |>
@@ -1146,6 +1089,7 @@ dim(t_d_w_short)
 # [1] 37990     9
 # [1] 32375     9
 # [1] 32379     9
+# [1] 80978    76
 
 ## tne_d ----
 
@@ -1159,6 +1103,7 @@ tne_d_w_short <-
 dim(tne_d_w_short)
 # [1] 136329      6
 # [1] 136333      6
+# [1] 230311     15
 
 ## tn_d ----
 # print_df_names(tn_d_w)
@@ -1166,7 +1111,7 @@ tn_d_w_short <-
   tn_d_w |>
   select(-c(
     ARRIVAL_PORT,
-    CANCEL_FLAG,
+    # CANCEL_FLAG,
     DEA_PERMIT_SOLD_NOTIFICATION,
     DEPARTURE_PORT,
     EMAIL_SENT,
@@ -1186,11 +1131,12 @@ tn_d_w_short <-
     RAW_INPUT_ID,
     STAT_ZONE,
     SYSTEM_ID,
-    TRIP_END_DATE,
-    TRIP_ID,
-    TRIP_START_DATE_TIME,
-    TRIP_START_DATE,
-    TRIP_TYPE
+    # TRIP_END_DATE,
+    TRIP_ID
+    # ,
+    # TRIP_START_DATE_TIME,
+    # TRIP_START_DATE,
+    # TRIP_TYPE
   )
   ) |>
   distinct() |>
@@ -1200,6 +1146,7 @@ dim(tn_d_w_short)
 # [1] 21211    10
 # [1] 21179     9 (no permit_id)
 # [1] 20466     9
+# [1] 66710    20
 
 # join with dates_22 by week ----
 ## t & tne ----
@@ -1221,6 +1168,7 @@ toc()
 dim(t__tne_d_weeks)
 # [1] 160791     10
 # [1] 160795     10
+# [1] 314492     90
 
 ## t & tn ----
 intersect(names(t_d_w_short),
@@ -1263,7 +1211,6 @@ length(unique(t__tn_d_weeks$WEEK_OF_YEAR))
 # 53
 length(unique(t__tn_d_weeks$VESSEL_ID))
 # 1991
-# [1] 1977
 
 ## t_tne & v_p ----
 
@@ -1280,6 +1227,7 @@ toc()
 dim(v_p__t__tne_d_weeks)
 # [1] 165834     14
 # [1] 165838     14
+# [1] 320962     94
 
 # VESSEL_VESSEL_ID     6913
 # PERMIT_VESSEL_ID     5462
@@ -1295,6 +1243,7 @@ v_p__t__tne_d_weeks |>
   filter(VESSEL_VESSEL_ID == "248316") |>
   dim()
 # [1] 58 14 correct
+# [1] 77 94
 
 ## t_tn & v_p ----
 tic("v_p__t__tn_d_weeks")
@@ -1310,6 +1259,7 @@ toc()
 dim(v_p__t__tn_d_weeks)
 # [1] 46329    18
 # [1] 45530    17
+# [1] 128369     93
 
 ### check ----
 # 1)
@@ -1322,6 +1272,8 @@ v_p__t__tne_d_weeks |>
 # $ TRIP_DATE_y <dbl> 2021, 2022
 # $ n           <int> 1, 57
 # ok
+# $ n    <int> 1, 76
+
 
 # 2)
 v_p__t__tne_d_weeks_21 <-
@@ -1506,6 +1458,7 @@ v_p__t__tne_d_weeks_sa <-
   filter(permit_sa_gom_dual == "sa_only")
 dim(v_p__t__tne_d_weeks_sa)
 # [1] 90766    15
+# [1] 194697     94
 
 tic("v_p__t__tne_d_weeks_sa_compl")
 v_p__t__tne_d_weeks_sa_compl <-
@@ -1522,15 +1475,18 @@ v_p__t__tne_d_weeks_sa_compl <-
   ungroup()
 toc()
 # v_p__t__tne_d_weeks_sa_compl: 28.39 sec elapsed
+# v_p__t__tne_d_weeks_sa_compl: 22.39 sec elapsed
 
 dim(v_p__t__tne_d_weeks_sa_compl)
 # [1] 90766    16
+# [1] 194697     95
 
 ## count compl weeks ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w <-
   v_p__t__tne_d_weeks_sa_compl |>
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
+# TODO: group by year?           
            # YEAR,
            # WEEK_OF_YEAR,
            # date_y_m,
@@ -1540,6 +1496,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w <-
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 # [1] 90766    16
+# [1] 194697     96
 
 reports_exists <- rlang::quo(
   !(is.na(rep_type.t) & is.na(rep_type.tne))
@@ -1557,6 +1514,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22)
 # [1] 90766    17
+# [1] 194697     97
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
@@ -1575,6 +1533,23 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short)
 # [1] 5275    6
 # [1] 6627    8
+# [1] 4934    8 (metrics vsls)
+
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |> 
+  filter(compl_2022 == "yes") |> 
+  head() |> 
+  glimpse()
+
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |> 
+filter(PERMIT_VESSEL_ID == "FL2698TE") |> 
+  glimpse()
+# $ permit_weeks_amnt_22 <dbl> 32, 32
+# $ YEAR                 <dbl> 2022, 2021
+# $ compl_w_cnt          <int> 53, 1
+# $ compl_2022           <chr> "yes", "no"
+# w/ join_by YEAR:
+# $ compl_w_cnt          <int> 53, 53
+# $ compl_2022           <chr> "yes", "yes"
 
 # TODO: check year = NA
 
@@ -1596,18 +1571,26 @@ sa_compl_cnts |>
   distinct()
 # 2 no                  2700
 # 1 yes                 1257
+#   compl_2022 total_compl_y
+#   <chr>              <int>
+# 1 yes                 1234
+# 2 no                  1069
 
 # compl
-1262 * 100 / (3956)
+# 1262 * 100 / (3956)
 # 32%
-1257 * 100 / (3956)
+# 1257 * 100 / (3956)
 # 31.77452
+1234 * 100 / (1234 + 1069)
+# [1] 53.58228
 
 # no
-2695 * 100 / (3956)
+# 2695 * 100 / (3956)
 # 68%
-2700 * 100 / (3956)
+# 2700 * 100 / (3956)
 # [1] 68.25076
+1069 * 100 / (1234 + 1069)
+# [1] 46.41772
 
 sa_compl_cnts_perc <-
   sa_compl_cnts |>
@@ -1647,6 +1630,7 @@ year_plot_sa <-
     labels = c("no", "yes")
   )
 
+year_plot_sa
 
 # GOM + dual compl by year ----
 # There should be a declaration for every logbook.
@@ -1659,30 +1643,89 @@ v_p__t__tn_d_weeks_gom <-
   filter(permit_sa_gom_dual %in% c("gom_only", "dual"))
 
 dim(v_p__t__tn_d_weeks_gom)
-# [1] 22613    18
-# [1] 21945    17
+# [1] 75524    93
 
-length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
-# PERMIT_VESSEL_ID     1597
+## rm extra cols ----
+t_names_to_rm <-
+  c(
+    # "ACTIVITY_TYPE",
+    "ADDDITIONAL_FISHERMEN",
+    "APP_VERSION",
+    "APPROVAL_DATE",
+    "APPROVED_BY",
+    "BAIT_WEIGHT",
+    "CAPT_NAME_FIRST",
+    "CAPT_NAME_LAST",
+    "CF_ID",
+    "CF_ISS_AGENCY",
+    "CF_PERMIT_ID",
+    "CONFIRMATION_SIGNATURE",
+    "CONFIRMED_VALIDATING_AGENCY",
+    "COST_BAIT",
+    "COST_FOOD",
+    "COST_ICE",
+    "COST_IFQ",
+    "COST_LIGHT",
+    "COST_MISC",
+    "DAYS_AT_SEA",
+    "DC",
+    "DE",
+    "DEA_PERMIT_ID",
+    "END_PORT",
+    # "EVENT_ID",
+    "FORM_VERSION",
+    "FUEL_DIESEL_GALLON_PRICE",
+    "FUEL_DIESEL_GALLONS",
+    "FUEL_GALLON_PRICE",
+    "FUEL_GALLONS",
+    "FUEL_GAS_GALLON_PRICE",
+    "FUEL_GAS_GALLONS",
+    "ICE_MAKER",
+    "NBR_OF_CREW",
+    "NBR_PAYING_PASSENGERS",
+    "NUM_ANGLERS",
+    "OWNER_ABOARD",
+    "PARTNER_VTR",
+    "PAY_PERCENT_TO_CAPT",
+    "PAY_PERCENT_TO_CREW",
+    "PAY_PERCENT_TO_OWNER",
+    "PAY_TO_CAPT_CREW",
+    "PORT",
+    "REPORTING_SOURCE",
+    "REVENUE_TOTAL",
+    "SEA_TIME",
+    "SPLIT_TRIP",
+    "START_PORT",
+    "STATE",
+    # "STATUS",
+    "SUB_TRIP_TYPE",
+    # "SUBMIT_METHOD",
+    "SUBMITTED_BY_PARTICIPANT",
+    "SUPPLIER_TRIP_ID",
+    "TICKET_TYPE",
+    "TRANSMISSION_DATE",
+    # "TRIP_END_TIME",
+    "TRIP_FEE",
+    "TRIP_NBR",
+    # "TRIP_START_TIME",
+    "UC",
+    "UE",
+    "VALIDATING_AGENCY",
+    "VENDOR_APP_NAME",
+    "VENDOR_PLATFORM",
+    "VTR_NUMBER")
 
-# TODO: check if permit_id in tn mean the same as in p_v
-
-## fewer fields GOM ----
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom |>
-  select(
-    -c(
-      TRIP_END_week_num.t,
-      TRIP_END_y.t,
-      TRIP_END_m.t,
-      TRIP_END_week_num.tn,
-      TRIP_END_y.tn,
-      TRIP_END_m.tn,
-    )
-  ) |>
+  select(-any_of(t_names_to_rm)) |>
   distinct()
 
+dim(v_p__t__tn_d_weeks_gom)
+# [1] 75524    93
+
 dim(v_p__t__tn_d_weeks_gom_short)
+# [1] 75524    38
+
 # [1] 22090    11
 # [1] 21470    11
 
