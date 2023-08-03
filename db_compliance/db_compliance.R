@@ -573,7 +573,135 @@ length(gom_sa)
 # end vessel_permits preparations ----
 
 # Trips, trips info, trips neg ----
-## rm extra cols ----
+# Trip data (= logbooks) ----
+## add trip interval ----
+
+trips_info_2022_int <-
+  trips_info_2022_short %>%
+  mutate(trip_int =
+           lubridate::interval(
+             lubridate::floor_date(TRIP_START_DATE,
+                                   unit = "day"),
+             lubridate::floor_date(TRIP_END_DATE,
+                                   unit = "day")
+           ))
+
+### trips durations:
+trips_info_2022_int_dur <-
+  trips_info_2022_int |>
+  mutate(trip_dur =
+           lubridate::as.duration(trip_int)) |>
+  mutate(trip_dur_days =
+           as.numeric(trip_dur, "days"))
+
+# write_csv(trips_info_2022_int_dur, "trips_info_2022_int_dur.csv")
+
+### check trips_info_2022_int ----
+trips_info_2022_int %>%
+  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
+  dim()
+# [1] 98528     3
+
+## trip types A and H trips ----
+trips_info_2022_int_ah <-
+  trips_info_2022_int %>%
+  filter(TRIP_TYPE %in% c("A", "H"))
+
+## Keep only SERO permitted ----
+trips_info_2022_int_ah_sero <-
+  trips_info_2022_int_ah |>
+  filter(!is.na(SERO_VESSEL_PERMIT)) |>
+  distinct()
+
+# Trip notifications (= declarations) ----
+# Jenny:
+# The declaration's notification type ID = 6 (hail-out)
+# The declaration has an intended fishing flag = Yes
+# The declaration has not been canceled (i.e., we cannot find another declaration 
+# record that has the same SAFIS vessel ID, trip start date, and trip start time 
+# as the declaration we are currently checking where this other record's notification type ID = 5)
+
+## trip types A and H trip_notif ----
+trips_notifications_2022 %>%
+   # select(TRIP_TYPE) %>% distinct()
+   count(TRIP_TYPE)
+#   TRIP_TYPE     n
+# 1         A 55328
+# 2         C   202
+# 3         H 12410
+# 4         R  2116
+
+trips_notifications_2022_ah <-
+  trips_notifications_2022 %>%
+  filter(TRIP_TYPE %in% c("A", "H"))
+
+dim(trips_notifications_2022)
+# [1] 70056    33
+
+dim(trips_notifications_2022_ah)
+# [1] 67738    33
+
+## intended fishing declarations ----
+
+trips_notifications_2022_ah |>
+  count(INTENDED_FISHING_FLAG)
+#   INTENDED_FISHING_FLAG     n
+# 1                     N  4080
+# 2                     Y 62742
+# 3                  <NA>   916
+
+# trips_notifications_2022_ah |> 
+#   filter(is.na(INTENDED_FISHING_FLAG)) |> 
+#   View()
+
+trips_notifications_2022_ah_fish <-
+  trips_notifications_2022_ah |> 
+  # fishing intended or NA
+  filter(!INTENDED_FISHING_FLAG == "N")
+
+dim(trips_notifications_2022_ah_fish)
+# [1] 62742    33
+
+## not cancelled ----
+trips_notifications_2022_ah_fish |>
+  count(NOTIFICATION_TYPE_ID)
+#   NOTIFICATION_TYPE_ID     n
+# 1                    5    38
+# 2                    6 62704
+# 5 = cancellation
+# 6 = hail out/declaration
+
+# print_df_names(trips_notifications_2022)
+# 5/6
+trips_notifications_2022_ah_fish_5_6 <-
+  trips_notifications_2022_ah_fish |>
+  group_by(
+    TRIP_TYPE,
+    VESSEL_ID,
+    TRIP_START_DATE,
+    TRIP_START_TIME,
+    TRIP_END_DATE,
+    TRIP_END_TIME
+  ) |>
+  mutate(NOTIFICATION_TYPE_IDs =
+              toString(unique(NOTIFICATION_TYPE_ID))) |> 
+  ungroup()
+
+dim(trips_notifications_2022_ah_fish)
+# [1] 62742    33
+
+dim(trips_notifications_2022_ah_fish_5_6)
+# [1] 62742    34
+# dim(trips_notifications_2022_ah_fish_5_6_1)
+# [1] 59901     7 summarize
+
+trips_notifications_2022_ah_fish_6 <-
+  trips_notifications_2022_ah_fish_5_6 |>  
+  filter(NOTIFICATION_TYPE_IDs == '6')
+
+dim(trips_notifications_2022_ah_fish_6)
+# [1] 62690    34
+
 t_names_to_rm <-
   c("ACTIVITY_TYPE",
     "ADDDITIONAL_FISHERMEN",
@@ -659,124 +787,6 @@ trips_notifications_2022_short <-
   trips_notifications_2022 |>
   select(-any_of(t_names_to_rm)) |>
   distinct()
-
-# Trip data (= logbooks) ----
-## add trip interval ----
-
-trips_info_2022_int <-
-  trips_info_2022_short %>%
-  mutate(trip_int =
-           lubridate::interval(
-             lubridate::floor_date(TRIP_START_DATE,
-                                   unit = "day"),
-             lubridate::floor_date(TRIP_END_DATE,
-                                   unit = "day")
-           ))
-
-### trips durations:
-trips_info_2022_int_dur <-
-  trips_info_2022_int |>
-  mutate(trip_dur =
-           lubridate::as.duration(trip_int)) |>
-  mutate(trip_dur_days =
-           as.numeric(trip_dur, "days"))
-
-# write_csv(trips_info_2022_int_dur, "trips_info_2022_int_dur.csv")
-
-### check trips_info_2022_int ----
-trips_info_2022_int %>%
-  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
-  dim()
-# [1] 98528     3
-
-## trip types A and H trips ----
-trips_info_2022_int_ah <-
-  trips_info_2022_int %>%
-  filter(TRIP_TYPE %in% c("A", "H"))
-
-## Keep only SERO permitted ----
-trips_info_2022_int_ah_sero <-
-  trips_info_2022_int_ah |>
-  filter(!is.na(SERO_VESSEL_PERMIT)) |>
-  distinct()
-
-# Trip notifications (= declarations) ----
-# Jenny:
-# The declaration's notification type ID = 6 (hail-out)
-# The declaration has an intended fishing flag = Yes
-# The declaration has not been canceled (i.e., we cannot find another declaration 
-# record that has the same SAFIS vessel ID, trip start date, and trip start time 
-# as the declaration we are currently checking where this other record's notification type ID = 5)
-
-## not cancelled ----
-# trips_notifications_2022 |> 
-  # count(NOTIFICATION_TYPE_ID)
-#   NOTIFICATION_TYPE_ID     n
-# 1                    5   122
-# 2                    6 69934
-# 5 = cancellation
-# 6 = hail out/declaration
-
-# print_df_names(trips_notifications_2022)
-# 5/6
-rr <-
-  trips_notifications_2022 |>
-  group_by(
-    TRIP_TYPE,
-    VESSEL_ID,
-    TRIP_START_DATE,
-    TRIP_START_TIME,
-    TRIP_END_DATE,
-    TRIP_END_TIME
-  ) |>
-  summarise(NOTIFICATION_TYPE_IDs =
-              toString(unique(NOTIFICATION_TYPE_ID)), .groups = 'drop')
-
-str(rr)
-# TODO: match logbooks and declarations, 
-# decl trip start < or > 1h logbooks trip start
-# fishing intention, H/A
-## intended fishing declarations ----
-# dim(trips_notifications_2022)
-# Rows: 70,056
-
-# trips_notifications_2022 |>
-#   select(INTENDED_FISHING_FLAG) |>
-#     distinct() |>
-#     glimpse()
-# $ INTENDED_FISHING_FLAG <chr> "Y", NA, "N"
-
-trips_notifications_2022_short_f <-
-  trips_notifications_2022_short |> 
-  # fishing intended or NA
-  filter(!INTENDED_FISHING_FLAG == "N")
-
-dim(trips_notifications_2022_short_f)
-# [1] 63110    27
-
-## trip types A and H trip_notif ----
-trips_notifications_2022 %>%
-   select(TRIP_TYPE) %>% distinct()
-#     TRIP_TYPE
-# 1           H
-# 3           A
-# 383         R
-# 697         C
-
-trips_notifications_2022_short_f |>
-  count(TRIP_TYPE) %>% 
-  head()
-#   TRIP_TYPE     n
-# 1         A 51754
-# 2         H 10988
-# 3         R   368
-
-trips_notifications_2022_ah <-
-  trips_notifications_2022_short_f %>%
-  filter(TRIP_TYPE %in% c("A", "H"))
-
-dim(trips_notifications_2022_ah)
-# [1] 62742    27
 
 # add week num ----
 ## to trips ----
