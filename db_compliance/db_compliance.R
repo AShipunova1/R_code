@@ -650,9 +650,13 @@ trips_notifications_2022_ah |>
 # 2                     Y 62742
 # 3                  <NA>   916
 
-# trips_notifications_2022_ah |> 
-#   filter(is.na(INTENDED_FISHING_FLAG)) |> 
-#   View()
+trips_notifications_2022_ah |>
+  filter(is.na(INTENDED_FISHING_FLAG)) |>
+  # distinct() |> 
+  # dim()
+  # write_csv("INTENDED_FISHING_FLAG_is_na.csv")
+  count(SYSTEM_ID)
+# 1    ETRIPS 916
 
 trips_notifications_2022_ah_fish <-
   trips_notifications_2022_ah |> 
