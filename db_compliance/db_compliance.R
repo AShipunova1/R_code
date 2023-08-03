@@ -357,7 +357,7 @@ glimpse(reg_cnts)
 ### what makes them duplicates ----
 #### in dual ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |> dim()
-# 917
+# 911
 
 # FL3610NF 4
 
@@ -367,14 +367,14 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
     -permit_sa_gom
   ) |>
   distinct() |> dim()
-  # filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
-  # View()
-# [1] 472  16
+# [1] 469  16
 
-
-# vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
-#   filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
-#   View()
+vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
+  filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
+  glimpse()
+# $ permit_sa_gom           <chr> "sa_only", "gom_only", "sa_only", "gom_only"
+# $ permit_2022_int         <Interval> 2021-12-31 19:00:00 EST--2022-12-30 19:00:00 EST,…
+# $ permit_sa_gom_dual      <chr> "dual", "dual", "dual", "dual"
 
 ## check if the same vessel in dual and not ----
 dual_gom <-
@@ -407,6 +407,7 @@ length(gom_sa)
 
 # Trips, trips info, trips neg ----
 # Trip data (= logbooks) ----
+
 ## add trip interval ----
 
 trips_info_2022_int <-
@@ -483,62 +484,22 @@ trips_notifications_2022_ah |>
 # 2                     Y 62742
 # 3                  <NA>   916
 
-trips_notifications_2022_ah |>
-  filter(is.na(INTENDED_FISHING_FLAG)) |>
-  # distinct() |> 
-  # dim()
-  # write_csv("INTENDED_FISHING_FLAG_is_na.csv")
-  count(SYSTEM_ID)
-# 1    ETRIPS 916
-
-print_df_names(trips_notifications_2022_ah)
-
-print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv)
-
-rr1 <-
-  left_join(
-    trips_notifications_2022_ah,
-    vessels_permits_2022_r_end_date,
-    join_by(VESSEL_ID == VESSEL_VESSEL_ID),
-    relationship = "many-to-many"
-  )
-
-dim(rr1)
-# [1] 162521     50
-# [1] 335947     85
-
-rr2 <-
-  rr1 |>
-  filter(TRIP_START_DATE %within% permit_2022_int) |>
-  filter(is.na(INTENDED_FISHING_FLAG)) |>
-  select(PERMIT_VESSEL_ID,
-         EFFECTIVE_DATE,
-         END_DATE,
-         names(trips_notifications_2022_ah)) |>
-  distinct()
-dim(rr2)
-# [1] 159847     50
-# [1] 796  33
-# [1] 1520   36
-
-# write_csv(rr2,
-#           "INTENDED_FISHING_FLAG_is_na_and_permit.csv")
-          
-
 trips_notifications_2022_ah_fish <-
   trips_notifications_2022_ah |> 
-  # fishing intended or NA
-  filter(!INTENDED_FISHING_FLAG == "N")
+  # fishing intended or NA - count as fishing intended
+  filter(INTENDED_FISHING_FLAG == "Y" |
+           is.na(INTENDED_FISHING_FLAG))
 
 dim(trips_notifications_2022_ah_fish)
 # [1] 62742    33
+# [1] 63658    33
 
 ## not cancelled ----
 trips_notifications_2022_ah_fish |>
   count(NOTIFICATION_TYPE_ID)
 #   NOTIFICATION_TYPE_ID     n
-# 1                    5    38
-# 2                    6 62704
+# 1                    5   109
+# 2                    6 63549
 # 5 = cancellation
 # 6 = hail out/declaration
 
@@ -559,10 +520,10 @@ trips_notifications_2022_ah_fish_5_6 <-
   ungroup()
 
 dim(trips_notifications_2022_ah_fish)
-# [1] 62742    33
+# [1] 63658    33
 
 dim(trips_notifications_2022_ah_fish_5_6)
-# [1] 62742    34
+# [1] 63658    34
 # dim(trips_notifications_2022_ah_fish_5_6_1)
 # [1] 59901     7 summarize
 
@@ -571,7 +532,6 @@ trips_notifications_2022_ah_fish_6 <-
   filter(NOTIFICATION_TYPE_IDs == '6')
 
 dim(trips_notifications_2022_ah_fish_6)
-# [1] 62690    34
 # [1] 63535    34
 
 # # match logbooks and declarations ----
