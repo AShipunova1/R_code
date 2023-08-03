@@ -577,7 +577,7 @@ length(gom_sa)
 ## add trip interval ----
 
 trips_info_2022_int <-
-  trips_info_2022_short %>%
+  trips_info_2022 %>%
   mutate(trip_int =
            lubridate::interval(
              lubridate::floor_date(TRIP_START_DATE,
@@ -658,6 +658,37 @@ trips_notifications_2022_ah |>
   count(SYSTEM_ID)
 # 1    ETRIPS 916
 
+print_df_names(trips_notifications_2022_ah)
+
+print_df_names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv)
+
+rr1 <-
+  left_join(
+    trips_notifications_2022_ah,
+    vessels_permits_2022_r_end_date,
+    join_by(VESSEL_ID == VESSEL_VESSEL_ID),
+    relationship = "many-to-many"
+  )
+
+dim(rr1)
+# [1] 162521     50
+# [1] 335947     85
+
+rr2 <-
+  rr1 |>
+  filter(TRIP_START_DATE %within% permit_2022_int) |>
+  filter(is.na(INTENDED_FISHING_FLAG)) |>
+  select(PERMIT_VESSEL_ID,
+         EFFECTIVE_DATE,
+         END_DATE,
+         names(trips_notifications_2022_ah)) |>
+  distinct()
+dim(rr2)
+# [1] 159847     50
+# [1] 796  33
+# [1] 1520   36
+
+
 trips_notifications_2022_ah_fish <-
   trips_notifications_2022_ah |> 
   # fishing intended or NA
@@ -712,20 +743,33 @@ intersect(
   names(trips_info_2022_int_ah),
   names(trips_notifications_2022_ah_fish_6)
 ) |> paste(collapse = ", ")
-# , TRIP_START_DATE, TRIP_END_DATE
+# TRIP_ID, TRIP_TYPE, DE, UE, DC, UC, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME
+
+# by <- join_by(unique_all_vessel_ids,
+#               overlaps(x$EFFECTIVE_DATE,
+#                        x$my_end_date,
+#                        y$EFFECTIVE_DATE,
+#                        y$my_end_date,
+#                        bounds = "[)"))
+
+View(trips_info_2022_int_ah)
+# hm
 t__t_n <-
   full_join(
     trips_info_2022_int_ah,
     trips_notifications_2022_ah_fish_6,
-    join_by(TRIP_TYPE, VESSEL_ID),
+    join_by(TRIP_TYPE,
+            VESSEL_ID,
+            TRIP_START_DATE,
+            TRIP_END_DATE),
     relationship = "many-to-many"
   )
 # dim(trips_info_2022_int_ah)[1] +
 # dim(trips_notifications_2022_ah_fish_6)[1]
 # [1] 159693
 
-dim(t__t_n)
-# 159693
+View(t__t_n)
+# [1] 122585     39
 
 # rm extra cols ----
 t_names_to_rm <-
