@@ -1726,8 +1726,83 @@ dim(v_p__t__tn_d_weeks_gom)
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 75524    38
 
+## match logbooks and declarations ----
+
+# decl trip start < or > 1h logbooks trip start
+# data_overview(v_p__t__tn_d_weeks_gom_short)
+     
+# VESSEL_VESSEL_ID      1351
+# PERMIT_VESSEL_ID      1351
+
+v_p__t__tn_d_weeks_gom_short |> 
+  count(permit_sa_gom_dual)
+# 1 dual               15875
+# 2 gom_only           59649
+
+v_p__t__tn_d_weeks_gom_short |> 
+  count(ACTIVITY_TYPE)
+#   ACTIVITY_TYPE     n
+#           <dbl> <int>
+# 1             0 45834
+# 2             3     1
+# 3            80   488
+# 4            81     2
+# 5            NA 29199
+
+v_p__t__tn_d_weeks_gom_short |> 
+  count(TRIP_TYPE)
+#   TRIP_TYPE     n
+#   <chr>     <int>
+# 1 A         63121
+# 2 H         11935
+# 3 NA          468
+
+ # by <- join_by(unique_all_vessel_ids,
+# #               overlaps(x$EFFECTIVE_DATE,
+# #                        x$my_end_date,
+# #                        y$EFFECTIVE_DATE,
+# #                        y$my_end_date,
+# #                        bounds = "[)"))
+ 
+# # View(trips_info_2022_int_ah)
+# # hm
+
+  # TRIP_END_TIME,
+  # TRIP_START_TIME,
+
+# t__tn_d_weeks
+
+length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
+# PERMIT_VESSEL_ID     1351
+
+# TODO: check if permit_id in tn mean the same as in p_v
+
+# ## fewer fields GOM ----
+# v_p__t__tn_d_weeks_gom_short <-
+#   v_p__t__tn_d_weeks_gom |>
+#   select(
+#     -c(
+#       TRIP_END_week_num.t,
+#       TRIP_END_y.t,
+#       TRIP_END_m.t,
+#       TRIP_END_week_num.tn,
+#       TRIP_END_y.tn,
+#       TRIP_END_m.tn,
+#     )
+#   ) |>
+#   distinct()
+# 
+# dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 22090    11
 # [1] 21470    11
+
+v_p__t__tn_d_weeks_gom_short |> 
+  filter(!is.na(rep_type.t) & !is.na(rep_type.tn)) |> 
+  # head() |> 
+  filter(parse_date_time(TRIP_START_TIME.t, "HM") ==
+         parse_date_time(TRIP_START_TIME.tn, "HM")) |> 
+  dim()
+# [1] 35294    38
 
 ## count separately amount of trips and trip_n for each vsl ----
 v_p__t__tn_d_weeks_gom_short_compl_y <-
