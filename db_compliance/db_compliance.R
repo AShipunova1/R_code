@@ -702,6 +702,28 @@ trips_notifications_2022_ah_fish_6 <-
 dim(trips_notifications_2022_ah_fish_6)
 # [1] 62690    34
 
+# match logbooks and declarations ----
+# decl trip start < or > 1h logbooks trip start
+intersect(
+  names(trips_info_2022_int_ah),
+  names(trips_notifications_2022_ah_fish_6)
+) |> paste(collapse = ", ")
+# , TRIP_START_DATE, TRIP_END_DATE
+t__t_n <-
+  full_join(
+    trips_info_2022_int_ah,
+    trips_notifications_2022_ah_fish_6,
+    join_by(TRIP_TYPE, VESSEL_ID),
+    relationship = "many-to-many"
+  )
+# dim(trips_info_2022_int_ah)[1] +
+# dim(trips_notifications_2022_ah_fish_6)[1]
+# [1] 159693
+
+dim(t__t_n)
+# 159693
+
+# rm extra cols ----
 t_names_to_rm <-
   c("ACTIVITY_TYPE",
     "ADDDITIONAL_FISHERMEN",
