@@ -1223,25 +1223,43 @@ dim(t__tne_d_weeks)
 # [1] 160795     10
 
 ## t & tn ----
+intersect(names(t_d_w_short),
+          names(tn_d_w_short)) |> 
+  paste(collapse = ", ")
+# YEAR, MONTH_OF_YEAR, WEEK_OF_YEAR, date_y_m, TRIP_TYPE, DE, UE, DC, UC, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME, TRIP_END_week_num, TRIP_END_y, TRIP_END_m, rep_type
+
+t__tn_join_by <- join_by(
+  YEAR,
+  MONTH_OF_YEAR,
+  WEEK_OF_YEAR,
+  date_y_m,
+  TRIP_TYPE,
+  VESSEL_ID,
+  TRIP_START_DATE,
+  TRIP_END_DATE,
+  TRIP_END_week_num,
+  TRIP_END_y,
+  TRIP_END_m
+)
+
 tic("t__tn_d_weeks")
 t__tn_d_weeks <-
   full_join(
     t_d_w_short,
     tn_d_w_short,
-    join_by(YEAR,
-            MONTH_OF_YEAR,
-            WEEK_OF_YEAR,
-            date_y_m,
-            VESSEL_ID),
+    t__tn_join_by,
     relationship = "many-to-many",
     suffix = c(".t", ".tn")
   )
 toc()
-dim(t__tn_d_weeks)
-# [1] 41248    14
-# [1] 40531    13
 
-# length(unique(t__tn_d_weeks$WEEK_OF_YEAR))
+dim(t_d_w_short)[1] +
+dim(tn_d_w_short)[1]
+# [1] 147688
+dim(t__tn_d_weeks)
+# [1] 120876     89
+
+length(unique(t__tn_d_weeks$WEEK_OF_YEAR))
 # 53
 length(unique(t__tn_d_weeks$VESSEL_ID))
 # 1991
