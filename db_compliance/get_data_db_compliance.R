@@ -1,6 +1,16 @@
 # get data ----
 input_path <- file.path(my_paths$inputs, current_project_name)
 
+## fhier_reports_metrics_tracking ----
+
+fhier_reports_metrics_tracking_file_path <-
+  r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)\metrics_tracking_31_12_2021__21_12_2022.csv)"
+
+fhier_reports_metrics_tracking <-
+  read_csv(fhier_reports_metrics_tracking_file_path,
+           # read as character
+           col_types = cols(.default = 'c'))
+
 ## permit ----
 file_name_permits <-
   file.path(input_path, "permit_info.rds")
