@@ -9,7 +9,8 @@ fhier_reports_metrics_tracking_file_path <-
 fhier_reports_metrics_tracking <-
   read_csv(fhier_reports_metrics_tracking_file_path,
            # read as character
-           col_types = cols(.default = 'c'))
+           col_types = cols(.default = 'c'),
+           name_repair = fix_names)
 
 ## permit ----
 file_name_permits <-
