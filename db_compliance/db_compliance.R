@@ -708,8 +708,9 @@ trips_info_2022_int_ah_sero <-
 # record that has the same SAFIS vessel ID, trip start date, and trip start time 
 # as the declaration we are currently checking where this other record's notification type ID = 5)
 
-trips_notifications_2022 |> 
-  count(NOTIFICATION_TYPE_ID)
+## not cancelled ----
+# trips_notifications_2022 |> 
+  # count(NOTIFICATION_TYPE_ID)
 #   NOTIFICATION_TYPE_ID     n
 # 1                    5   122
 # 2                    6 69934
@@ -717,37 +718,21 @@ trips_notifications_2022 |>
 # 6 = hail out/declaration
 
 # print_df_names(trips_notifications_2022)
-# TODO: 5/6
+# 5/6
 rr <-
-trips_notifications_2022 |> 
+  trips_notifications_2022 |>
   group_by(
-    "TRIP_TYPE",
-    "ACCSP_VESSEL_ID",
-    "VESSEL_OFFICIAL_NUMBER",
-    "TRIP_START_DATE",
-    "TRIP_START_TIME",
-    "ESTIMATED_TRIP_END_DATE",
-    "ESTIMATED_TRIP_END_TIME"
-  ) |> 
-  #   mutate(all_ids = list(
-  #   c(
-  #     COAST_GUARD_NBR,
-  #     PERMIT_VESSEL_ID,
-  #     SERO_OFFICIAL_NUMBER,
-  #     STATE_REG_NBR,
-  #     SUPPLIER_VESSEL_ID,
-  #     VESSEL_ALT_NUM,
-  #     VESSEL_VESSEL_ID
-  #   )
-  # )) |>
-  # mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
-  mutate(NOTIFICATION_TYPE_IDs = n_distinct(NOTIFICATION_TYPE_ID)) |> 
-# 
-#            list(NOTIFICATION_TYPE_ID)) |> 
-#   mutate(NOTIFICATION_TYPE_IDs_u = list(na.omit(unique(NOTIFICATION_TYPE_ID)))) |> 
-  ungroup()
+    TRIP_TYPE,
+    VESSEL_ID,
+    TRIP_START_DATE,
+    TRIP_START_TIME,
+    TRIP_END_DATE,
+    TRIP_END_TIME
+  ) |>
+  summarise(NOTIFICATION_TYPE_IDs =
+              toString(unique(NOTIFICATION_TYPE_ID)), .groups = 'drop')
 
-View(rr)
+str(rr)
 # TODO: match logbooks and declarations, 
 # decl trip start < or > 1h logbooks trip start
 # fishing intention, H/A
