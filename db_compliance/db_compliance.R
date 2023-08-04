@@ -1326,7 +1326,7 @@ reports_exists_filter <- rlang::quo(
 
 ## mark weekly compliance ----
 tic("v_p__t__tne_d_weeks_sa_compl")
-v_p__t__tne_d_weeks_sa_compl_w1 <-
+v_p__t__tne_d_weeks_sa_compl_w <-
   v_p__t__tne_d_weeks_sa |>
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
@@ -1347,26 +1347,27 @@ dim(v_p__t__tne_d_weeks_sa_compl_w)
 # [1] 90766    16
 # [1] 194697     93
 
-all.equal(v_p__t__tne_d_weeks_sa_compl_w,
-          v_p__t__tne_d_weeks_sa_compl_w1)
-T
 ## count compl weeks ----
-v_p__t__tne_d_weeks_sa_compl_cnt_w <-
+v_p__t__tne_d_weeks_sa_compl_cnt_w1 <-
   v_p__t__tne_d_weeks_sa_compl_w |>
   group_by(PERMIT_VESSEL_ID,
-           VESSEL_VESSEL_ID,
+           VESSEL_VESSEL_ID
 # TODO: group by year?           
            # YEAR,
            # WEEK_OF_YEAR,
            # date_y_m,
-           sa_compl_week) |>
+           # sa_compl_week
+) |>
   mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
   ungroup()
 
-View(v_p__t__tne_d_weeks_sa_compl_cnt_w)
+dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 # [1] 90766    16
 # [1] 194697     94
 
+all.equal(v_p__t__tne_d_weeks_sa_compl_cnt_w,
+          v_p__t__tne_d_weeks_sa_compl_cnt_w1)
+T
 ### check compl week count ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w |> 
   filter(PERMIT_VESSEL_ID == "FL4430NN") |>
