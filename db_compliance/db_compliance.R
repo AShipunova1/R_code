@@ -679,8 +679,8 @@ trips_info_2022_int_ah_sero_w_y |>
 # [1] 80 15
 
 ## to trip notifications ----
-trips_notifications_2022_ah_w_y <-
-  trips_notifications_2022_ah %>%
+trips_notifications_2022_ah_fish_6_w_y <-
+  trips_notifications_2022_ah_fish_6 %>%
   mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
@@ -702,16 +702,18 @@ trips_notifications_2022_ah_w_y <-
       as.double(TRIP_END_week_num)
   )
 
-trips_notifications_2022_ah_w_y |>
+trips_notifications_2022_ah_fish_6_w_y |>
   filter(TRIP_START_week_num == 0) |>
   dim()
 # [1] 32 33
 # [1] 32 39
+# 31 40
 
-trips_notifications_2022_ah_w_y |>
+trips_notifications_2022_ah_fish_6_w_y |>
   filter(TRIP_START_week_num == 52) |>
   dim()
 # [1] 1132   39
+# [1] 1007   40 (fishing only)
 
 ## to negative trips ----
 
@@ -758,8 +760,9 @@ dim(trips_info_2022_int_ah_sero_w_y)
 # [1] 80967    79
 dim(trip_neg_2022_w_y)
 # [1] 747173      15
-dim(trips_notifications_2022_ah_w_y)
+dim(trips_notifications_2022_ah_fish_6_w_y)
 # [1] 67738    39
+# [1] 63535    40 fishing only
 
 # add all weeks to each df ----
 
@@ -772,13 +775,13 @@ trips_info_2022_int_ah_sero_w_y |>
   dim()
 # 4
 
-trips_notifications_2022_ah_w_y |>
+trips_notifications_2022_ah_fish_6_w_y |>
   # filter(TRIP_START_y == 2021) |>
   filter(TRIP_START_week_num < 52 &
            TRIP_START_y == 2021 &
            TRIP_END_y == 2022) |>
   dim()
-# 8
+# 7
 
 ### adjust dates_2022 ----
 
@@ -934,7 +937,7 @@ tic("tn_d_w")
 tn_d_w <-
    full_join(
      dates_2022_w,
-     trips_notifications_2022_ah_w_y,
+     trips_notifications_2022_ah_fish_6_w_y,
      t_dates_by,
      relationship = "many-to-many"
    )
@@ -943,6 +946,7 @@ toc()
 dim(tn_d_w)
 # [1] 62752    34
 # [1] 67748    40
+# [1] 63545    41 fishing
 
 #### check for week 52 in Jan 22 ----
 tn_d_w |>
@@ -951,11 +955,12 @@ tn_d_w |>
   dim()
 # [1] 142  40
 
-trips_notifications_2022_ah_w_y |>
+trips_notifications_2022_ah_fish_6_w_y |>
     filter(TRIP_START_m == "Jan 2022",
                TRIP_START_week_num == 52) |>
   dim()
 # [1] 142  39
+# 70 40 fishing only
 
 trips_info_2022_int_ah_sero_w_y |>
     filter(TRIP_START_m == "Jan 2022",
@@ -1536,7 +1541,7 @@ v_p__t__tn_d_weeks_gom <-
   filter(permit_sa_gom_dual %in% c("gom_only", "dual"))
 
 dim(v_p__t__tn_d_weeks_gom)
-# [1] 75524    90
+# [1] 75524    91
 
 ## check activity type ----
 v_p__t__tn_d_weeks_gom |>
@@ -1552,6 +1557,21 @@ v_p__t__tn_d_weeks_gom |>
 # 80, 'TRIP UNABLE TO FISH', 
 # 81, 'TRIP NO INTENTION OF FISHING'
 
+#    ACTIVITY_TYPE INTENDED_FISHING_FLAG     n
+#            <dbl> <chr>                 <int>
+#  1             0 N                       488
+#  2             0 Y                     43375
+#  3             0 NA                     1971
+#  4             3 Y                         1
+#  5            80 N                        21
+#  6            80 Y                       425
+#  7            80 NA                       42
+#  8            81 N                         1
+#  9            81 Y                         1
+# 10            NA N                      3562
+# 11            NA Y                     24375
+# 12            NA NA                     1262
+
 v_p__t__tn_d_weeks_gom |> 
   filter(ACTIVITY_TYPE == "3") |> 
   # head(2) |> 
@@ -1562,11 +1582,21 @@ v_p__t__tn_d_weeks_gom |>
 # $ VESSEL_VESSEL_ID            <dbl> 328032
 # $ PERMIT_VESSEL_ID            <chr> "FL9452SM"
 
-v_p__t__tn_d_weeks_gom |> 
-  filter(ACTIVITY_TYPE == "81") |> 
-  select(INTENDED_FISHING_FLAG) |> 
+v_p__t__tn_d_weeks_gom |>
+  filter(ACTIVITY_TYPE == "81") |>
+  select(PERMIT_VESSEL_ID,
+         ACTIVITY_TYPE,
+         INTENDED_FISHING_FLAG,
+         all_of(starts_with("rep_type"))) |>
   glimpse()
-  View()
+# $ PERMIT_VESSEL_ID      <chr> "1114447", "FL6430PK"
+# $ ACTIVITY_TYPE         <dbl> 81, 81
+# $ INTENDED_FISHING_FLAG <chr> "Y", "N"
+# $ rep_type.t            <chr> "trips", "trips"
+# $ rep_type.tn           <chr> "trips_notif", "trips_notif"
+
+# TODO: check for INTENDED_FISHING_FLAG again
+
 ## rm extra cols ----
 ### find empty columns ----
 names(v_p__t__tn_d_weeks_gom) |> 
@@ -1584,9 +1614,7 @@ print_df_names(empty_cols)
 # 32
 
 t_names_to_rm <-
-  c(
-    # "ACTIVITY_TYPE",
-    "ADDDITIONAL_FISHERMEN",
+  c("ADDDITIONAL_FISHERMEN",
     "APP_VERSION",
     "APPROVAL_DATE",
     "APPROVED_BY",
@@ -1610,7 +1638,6 @@ t_names_to_rm <-
     "DE",
     "DEA_PERMIT_ID",
     "END_PORT",
-    # "EVENT_ID",
     "FORM_VERSION",
     "FUEL_DIESEL_GALLON_PRICE",
     "FUEL_DIESEL_GALLONS",
@@ -1635,23 +1662,21 @@ t_names_to_rm <-
     "SPLIT_TRIP",
     "START_PORT",
     "STATE",
-    # "STATUS",
     "SUB_TRIP_TYPE",
-    # "SUBMIT_METHOD",
     "SUBMITTED_BY_PARTICIPANT",
     "SUPPLIER_TRIP_ID",
     "TICKET_TYPE",
     "TRANSMISSION_DATE",
-    # "TRIP_END_TIME",
     "TRIP_FEE",
     "TRIP_NBR",
-    # "TRIP_START_TIME",
+    "TRIP_START_DATE_TIME",
     "UC",
     "UE",
     "VALIDATING_AGENCY",
     "VENDOR_APP_NAME",
     "VENDOR_PLATFORM",
-    "VTR_NUMBER")
+    "VTR_NUMBER"
+  )
 
 # do not rm:
 # "ACTIVITY_TYPE",
@@ -1667,7 +1692,7 @@ v_p__t__tn_d_weeks_gom_short <-
   distinct()
 
 dim(v_p__t__tn_d_weeks_gom)
-# [1] 75524    90
+# [1] 75524    91
 
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 75524    35
@@ -1693,6 +1718,13 @@ v_p__t__tn_d_weeks_gom_short |>
 # 1 A         63121
 # 2 H         11935
 # 3 NA          468
+v_p__t__tn_d_weeks_gom_short |>
+  count(INTENDED_FISHING_FLAG)
+#   INTENDED_FISHING_FLAG     n
+#   <chr>                 <int>
+# 1 N                      4072
+# 2 Y                     68177
+# 3 NA                     3275
 
  # by <- join_by(unique_all_vessel_ids,
 # #               overlaps(x$EFFECTIVE_DATE,
