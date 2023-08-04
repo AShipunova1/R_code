@@ -1783,6 +1783,7 @@ v_p__t__tn_d_weeks_gom_short |>
 
 v_p__t__tn_d_weeks_gom_short_matched <-
   v_p__t__tn_d_weeks_gom_short |>
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
   # both reports are present
   # filter(!is.na(rep_type.t) & !is.na(rep_type.tn)) |>
   # convert time to a Date format
@@ -1794,7 +1795,7 @@ v_p__t__tn_d_weeks_gom_short_matched <-
   ) |>
   # count the difference between start times t and tn
   mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
-  # less than an hour
+  # less than an hour difference between trip and trip notif start time
   mutate(matched_reports = 
            case_when(time_diff1 < 3600 ~ "matched",
                      .default = "not_matched"
@@ -1808,6 +1809,29 @@ dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 35664    38 filter with restored time
 # [1] 44312    39 add matched col
 # [1] 75524    39 without filter out not matched
+
+v_p__t__tn_d_weeks_gom_short_matched |> 
+  count(matched_reports)
+# 1 matched         35664
+# 2 not_matched     39860
+
+v_p__t__tn_d_weeks_gom_short_matched |>
+  select(PERMIT_VESSEL_ID, matched_reports) |>
+  distinct() |>
+  count(matched_reports)
+# 1 matched           595
+# 2 not_matched      1300
+
+length(unique(v_p__t__tn_d_weeks_gom_short_matched$PERMIT_VESSEL_ID))
+# [1] 1351
+
+v_p__t__tn_d_weeks_gom_short_matched |>
+  filter(rep_type.tn == "trips_notif" &
+           INTENDED_FISHING_FLAG == 'Y' &
+             matched_reports == "not_matched" &
+             !is.na(rep_type.t)) |>
+  head() |> 
+  View()
 
 
 # ## count separately amount of trips and trip_n for each vsl ----
