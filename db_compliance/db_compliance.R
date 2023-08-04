@@ -1067,19 +1067,18 @@ dim(v_p_d_w_22_short)
 # [1] 3654    5
 
 ## t_d ----
-
+# remove fields
 t_d_w_short <-
   t_d_w |>
   select(
     -c(
       # TRIP_START_DATE,
       # TRIP_END_DATE,
-      TRIP_ID
-      # ,
+      TRIP_ID,
       # TRIP_TYPE,
       # SERO_VESSEL_PERMIT,
-      # GARFO_VESSEL_PERMIT,
-      # TRIP_TIME_ZONE,
+      GARFO_VESSEL_PERMIT,
+      TRIP_TIME_ZONE,
       # trip_int
     )
   ) |>
@@ -1109,7 +1108,7 @@ dim(tne_d_w_short)
 # [1] 230311     15
 
 ## tn_d ----
-# print_df_names(tn_d_w)
+# remove fields
 tn_d_w_short <-
   tn_d_w |>
   select(-c(
@@ -1126,7 +1125,7 @@ tn_d_w_short <-
     LANDING_LOCATION_STATE,
     LANDING_LOCATION,
     NOTIFICATION_SEQ,
-    # NOTIFICATION_TIME_ZONE,
+    NOTIFICATION_TIME_ZONE,
     NOTIFICATION_TYPE_ID,
     PERMIT_ID,
     PROCESSED_TIMESTAMP,
@@ -1192,18 +1191,6 @@ t__tn_join_by <- join_by(
   TRIP_END_y,
   TRIP_END_m
 )
-
-grep("zone", 
-     names(t_d_w_short),
-     ignore.case = T,
-     value = T)
-# [1] "TRIP_TIME_ZONE"
-
-grep("zone", 
-     names(tn_d_w_short),
-     ignore.case = T,
-     value = T)
-# NOTIFICATION_TIME_ZONE
 
 tic("t__tn_d_weeks")
 t__tn_d_weeks <-
@@ -1804,14 +1791,8 @@ v_p__t__tn_d_weeks_gom_short_matched <-
   ) |>
   # count the difference between start times t and tn
   mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
-  filter(!TRIP_TIME_ZONE == NOTIFICATION_TIME_ZONE)
-# |> 
-#   select(TRIP_TIME_ZONE, NOTIFICATION_TIME_ZONE)
-
-# write_csv(v_p__t__tn_d_weeks_gom_short_matched,
-#           "v_p__t__tn_d_weeks_gom_short_matched_time_zones.csv")
-  # filter(time_diff1 < 3600) |> 
-  # distinct()
+  filter(time_diff1 < 3600) |>
+  distinct()
 # ℹ In argument: `TRIP_START_TIME_tn_hm = parse_date_time(TRIP_START_TIME.tn,
 #   "HM")`.
 # Caused by warning:
@@ -1819,17 +1800,6 @@ v_p__t__tn_d_weeks_gom_short_matched <-
 
 dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 35662    41
-
-grep("zone", 
-     names(v_p__t__tn_d_weeks_gom_short_matched),
-     ignore.case = T,
-     value = T)
-# [1] "TRIP_TIME_ZONE"         "NOTIFICATION_TIME_ZONE"
-
-# v_p__t__tn_d_weeks_gom_short_matched |> 
-#   filter(!TRIP_TIME_ZONE == NOTIFICATION_TIME_ZONE) |> 
-#   select(TRIP_TIME_ZONE, NOTIFICATION_TIME_ZONE)
-#   View()
 
 ## count separately amount of trips and trip_n for each vsl ----
 v_p__t__tn_d_weeks_gom_short_compl_y <-
