@@ -1393,12 +1393,12 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
 # 4            80    229
 # 5            NA 130432
 
-v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
-  # select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, all_of(starts_with("UE"))) |>
-  select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, UE.t) |>
-  distinct() |>
-  filter(ACTIVITY_TYPE %in% c("2", "8")) |>
-  head(10)
+# v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
+#   # select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, all_of(starts_with("UE"))) |>
+#   select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, UE.t) |>
+#   distinct() |>
+#   filter(ACTIVITY_TYPE %in% c("2", "8")) |>
+#   head(10)
 
 ### fewer columns ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
@@ -1685,6 +1685,46 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 
 # TODO: check if permit_id in tn mean the same as in p_v
 
+### wrong TRIP_START_TIME.tn ----
+# ℹ In argument: `TRIP_START_TIME_tn_hm = parse_date_time(TRIP_START_TIME.tn,
+#   "HM")`.
+# Caused by warning:
+# !  2 failed to parse.
+
+v_p__t__tn_d_weeks_gom_short |> 
+  select(TRIP_START_TIME.tn) |> 
+  distinct() |> 
+  arrange(desc(TRIP_START_TIME.tn)) |> 
+  rowwise() |> 
+  head(3) |> 
+  # count number of digits, should be 4
+  # mutate(l = floor(log10(as.numeric(TRIP_START_TIME.tn))) + 1)
+  mutate(l = nchar(TRIP_START_TIME.tn))
+#   <chr>              <int>
+# 1 601                    3
+# 2 600                    3
+# 3 2359                   4
+
+v_p__t__tn_d_weeks_gom_short |> 
+  filter(!(nchar(TRIP_START_TIME.tn) == 4) |
+           !(nchar(TRIP_START_TIME.t) == 4) 
+         ) |> 
+  glimpse()
+# $ TRIP_START_TIME.t    <chr> "0700", "0601", NA
+# $ TRIP_START_TIME.tn   <chr> "601", "601", "600"
+
+# assume the missing leading zero, can't be 6010 etc.
+#### restore ----
+v_p__t__tn_d_weeks_gom_short <-
+  v_p__t__tn_d_weeks_gom_short |> 
+  mutate(TRIP_START_TIME.tn = 
+           case_when(
+           nchar(TRIP_START_TIME.tn) < 4 ~
+           paste0("0", TRIP_START_TIME.tn),
+         .default = TRIP_START_TIME.tn
+           )
+         )
+
 v_p__t__tn_d_weeks_gom_short_matched <-
   v_p__t__tn_d_weeks_gom_short |>
   # both reports are present
@@ -1698,15 +1738,17 @@ v_p__t__tn_d_weeks_gom_short_matched <-
   ) |>
   # count the difference between start times t and tn
   mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
-  filter(time_diff1 < 3600) |>
+  mutate(matched_reprots = 
+           case_when(time_diff1 < 3600 ~ "matched",
+                     .default = "not_matched"
+           )) |> 
+  # filter(time_diff1 < 3600) |>
   distinct()
-# ℹ In argument: `TRIP_START_TIME_tn_hm = parse_date_time(TRIP_START_TIME.tn,
-#   "HM")`.
-# Caused by warning:
-# !  2 failed to parse.
 
 dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 35662    41
+# [1] 35664    38 filter with restored time
+# [1] 44312    39 add matched col
 
 ## count separately amount of trips and trip_n for each vsl ----
 v_p__t__tn_d_weeks_gom_short_compl_y <-
