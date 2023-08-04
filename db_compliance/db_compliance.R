@@ -1083,6 +1083,7 @@ t_d_w_short <-
     )
   ) |>
   distinct() |>
+  # add a table report type for future counting
   mutate(rep_type = "trips")
 
 dim(t_d_w_short)
@@ -1113,7 +1114,7 @@ tn_d_w_short <-
   tn_d_w |>
   select(-c(
     ARRIVAL_PORT,
-    # CANCEL_FLAG,
+    CANCEL_FLAG,
     DEA_PERMIT_SOLD_NOTIFICATION,
     DEPARTURE_PORT,
     EMAIL_SENT,
@@ -1142,11 +1143,8 @@ tn_d_w_short <-
   )
   ) |>
   distinct() |>
+  # add a table report type for future counting
   mutate(rep_type = "trips_notif")
-
-tn_d_w_short |> 
-  count(CANCEL_FLAG)
-# 1        <NA> 66710
 
 dim(tn_d_w_short)
 # [1] 21211    10
