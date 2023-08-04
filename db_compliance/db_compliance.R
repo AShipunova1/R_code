@@ -1144,6 +1144,10 @@ tn_d_w_short <-
   distinct() |>
   mutate(rep_type = "trips_notif")
 
+tn_d_w_short |> 
+  count(CANCEL_FLAG)
+# 1        <NA> 66710
+
 dim(tn_d_w_short)
 # [1] 21211    10
 # [1] 21179     9 (no permit_id)
