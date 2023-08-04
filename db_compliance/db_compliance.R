@@ -1361,19 +1361,19 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 # [1] 90766    16
 # [1] 194697     94
 
-all.equal(v_p__t__tne_d_weeks_sa_compl_cnt_w,
-          v_p__t__tne_d_weeks_sa_compl_cnt_w1)
-T
 ### check compl week count ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w |> 
   filter(PERMIT_VESSEL_ID == "FL4430NN") |>
   select(WEEK_OF_YEAR, date_y_m, all_of(starts_with("rep_type")), compl_w_cnt) |> 
     distinct() |> 
     View()
+# 14 distinct weeks
 # 17 rows bc some weeks are in 2 month, e.g. 48 in Nov 2022 and Dec 2022
 
-v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
+## compliance per year ----
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_1 <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w |>
+  rowwise() |> 
   mutate(compl_2022 =
            case_when(
     !!reports_exists_filter &
@@ -1382,10 +1382,14 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
   ) |>
   ungroup()
 
+all.equal(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_1,
+          v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22)
+T
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22)
 # [1] 90766    17
 # [1] 194697     95
 
+### fewer columns ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
   select(
@@ -1409,6 +1413,15 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |>
   filter(compl_2022 == "yes") |> 
   head() |> 
   glimpse()
+# $ PERMIT_VESSEL_ID     <chr> "FL4430NN", "FL2698TE", "FL2698TE", "FL2720R…
+# $ permit_2022_int      <Interval> 2022-10-11 00:00:00 EDT--2022-12-30 19:…
+# $ permit_weeks_amnt_22 <dbl> 12, 32, 32, 52, 52, 52
+# $ YEAR                 <dbl> 2022, 2022, 2021, 2022, 2021, 2022
+# $ compl_w_cnt          <int> 14, 53, 53, 53, 53, 52
+# $ compl_2022           <chr> "yes", "yes", "yes", "yes", "yes", "yes"
+# $ rep_type.t           <chr> NA, NA, NA, NA, NA, "trips"
+# $ rep_type.tne         <chr> "trips_neg", "trips_neg", "trips_neg", "trip…
+
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short |> 
 filter(PERMIT_VESSEL_ID == "FL2698TE") |> 
