@@ -1385,6 +1385,21 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22)
 # [1] 90766    17
 # [1] 194697     95
 
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |> 
+  count(ACTIVITY_TYPE)
+# 1             0  64007
+# 2             2      7
+# 3             8     22
+# 4            80    229
+# 5            NA 130432
+
+v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
+  # select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, all_of(starts_with("UE"))) |>
+  select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, UE.t) |>
+  distinct() |>
+  filter(ACTIVITY_TYPE %in% c("2", "8")) |>
+  head(10)
+
 ### fewer columns ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 |>
@@ -1513,15 +1528,15 @@ year_plot_sa
 # GOM + dual compl by year ----
 # There should be a declaration for every logbook.
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
-# There should be at least one of each count per week
 # Noncompliant + overridden are compliant
 
+## get gom and dual vsls ---- 
 v_p__t__tn_d_weeks_gom <-
   v_p__t__tn_d_weeks |>
   filter(permit_sa_gom_dual %in% c("gom_only", "dual"))
 
 dim(v_p__t__tn_d_weeks_gom)
-# [1] 75524    93
+# [1] 75524    90
 
 ## rm extra cols ----
 t_names_to_rm <-
@@ -1600,16 +1615,17 @@ v_p__t__tn_d_weeks_gom_short <-
   distinct()
 
 dim(v_p__t__tn_d_weeks_gom)
-# [1] 75524    94
+# [1] 75524    90
 
 dim(v_p__t__tn_d_weeks_gom_short)
-# [1] 75524    38
+# [1] 75524    35
 
 ## match logbooks and declarations ----
 
 # decl trip start < or > 1h logbooks trip start
-# data_overview(v_p__t__tn_d_weeks_gom_short)
 
+data_overview(v_p__t__tn_d_weeks_gom_short) |> 
+  head(2)
 # VESSEL_VESSEL_ID      1351
 # PERMIT_VESSEL_ID      1351
 
@@ -1627,6 +1643,19 @@ v_p__t__tn_d_weeks_gom_short |>
 # 3            80   488
 # 4            81     2
 # 5            NA 29199
+# 0, 'TRIP WITH EFFORT', 
+# 80, 'TRIP UNABLE TO FISH', 
+# 81, 'TRIP NO INTENTION OF FISHING'
+
+v_p__t__tn_d_weeks_gom |> 
+  filter(ACTIVITY_TYPE == "3") |> 
+  # head(2) |> 
+  # select(all_of(starts_with("UE"))) |> 
+  glimpse()
+# $ UE.t  <chr> "KCSPORTFISHING                "
+# $ UE.tn <chr> "KCSPORTFISHING"
+# $ VESSEL_VESSEL_ID            <dbl> 328032
+# $ PERMIT_VESSEL_ID            <chr> "FL9452SM"
 
 v_p__t__tn_d_weeks_gom_short |>
   count(TRIP_TYPE)
