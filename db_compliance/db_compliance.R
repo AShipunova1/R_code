@@ -1348,16 +1348,12 @@ dim(v_p__t__tne_d_weeks_sa_compl_w)
 # [1] 194697     93
 
 ## count compl weeks ----
-v_p__t__tne_d_weeks_sa_compl_cnt_w1 <-
+# Do not group by year, the last week of 2021 should be counted together with 2022
+
+v_p__t__tne_d_weeks_sa_compl_cnt_w <-
   v_p__t__tne_d_weeks_sa_compl_w |>
   group_by(PERMIT_VESSEL_ID,
-           VESSEL_VESSEL_ID
-# TODO: group by year?           
-           # YEAR,
-           # WEEK_OF_YEAR,
-           # date_y_m,
-           # sa_compl_week
-) |>
+           VESSEL_VESSEL_ID) |>
   mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
   ungroup()
 
