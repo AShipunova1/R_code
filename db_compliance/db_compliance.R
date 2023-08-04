@@ -1,4 +1,7 @@
 # db_compliance
+# Assumptions 
+# 1) Disregard the time zone for trips and trip notifications
+
 # It would be really interesting to see an after the fact analysis done for compliance with another point of view, you can query the source of the activity from the tables we download from ACCSP and the permit materialized view mv_sero_fh_permits_his and then apply the latest compliance rules (all the fields needed for compliance are in these tables), it is very different to write an analysis report after the fact than build something for day-to-day activity that it has to be assigned to multiple users step by step.
 # CATCHES
 # EFFORTS
@@ -1123,7 +1126,7 @@ tn_d_w_short <-
     LANDING_LOCATION_STATE,
     LANDING_LOCATION,
     NOTIFICATION_SEQ,
-    NOTIFICATION_TIME_ZONE,
+    # NOTIFICATION_TIME_ZONE,
     NOTIFICATION_TYPE_ID,
     PERMIT_ID,
     PROCESSED_TIMESTAMP,
@@ -1189,6 +1192,18 @@ t__tn_join_by <- join_by(
   TRIP_END_y,
   TRIP_END_m
 )
+
+grep("zone", 
+     names(t_d_w_short),
+     ignore.case = T,
+     value = T)
+# [1] "TRIP_TIME_ZONE"
+
+grep("zone", 
+     names(tn_d_w_short),
+     ignore.case = T,
+     value = T)
+# NOTIFICATION_TIME_ZONE
 
 tic("t__tn_d_weeks")
 t__tn_d_weeks <-
@@ -1563,8 +1578,6 @@ sa_compl_cnts <-
          compl_2022) |>
   distinct() |>
   add_count(compl_2022, name = "total_compl_y")
-# 1 no          2695
-# 2 yes         1262
 
 sa_compl_cnts |> 
   select(compl_2022, total_compl_y) |> 
@@ -1654,6 +1667,7 @@ t_names_to_rm <-
     "APPROVAL_DATE",
     "APPROVED_BY",
     "BAIT_WEIGHT",
+    "CANCEL_FLAG",
     "CAPT_NAME_FIRST",
     "CAPT_NAME_LAST",
     "CF_ID",
@@ -1721,7 +1735,7 @@ v_p__t__tn_d_weeks_gom_short <-
   distinct()
 
 dim(v_p__t__tn_d_weeks_gom)
-# [1] 75524    93
+# [1] 75524    94
 
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 75524    38
@@ -1781,31 +1795,41 @@ v_p__t__tn_d_weeks_gom_short_matched <-
   v_p__t__tn_d_weeks_gom_short |>
   # both reports are present
   filter(!is.na(rep_type.t) & !is.na(rep_type.tn)) |>
-  # the time is the same
-  mutate(TRIP_START_TIME_t_hm = 
-           parse_date_time(TRIP_START_TIME.t, "HM"),
-         TRIP_START_TIME_tn_hm = 
+  # convert time to a Date format
+  mutate(
+    TRIP_START_TIME_t_hm =
+      parse_date_time(TRIP_START_TIME.t, "HM"),
+    TRIP_START_TIME_tn_hm =
       parse_date_time(TRIP_START_TIME.tn, "HM")
-  ) |> 
+  ) |>
   # count the difference between start times t and tn
-  mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |> 
-  filter(time_diff1 < 3600)
+  mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
+  filter(!TRIP_TIME_ZONE == NOTIFICATION_TIME_ZONE)
+# |> 
+#   select(TRIP_TIME_ZONE, NOTIFICATION_TIME_ZONE)
+
+# write_csv(v_p__t__tn_d_weeks_gom_short_matched,
+#           "v_p__t__tn_d_weeks_gom_short_matched_time_zones.csv")
+  # filter(time_diff1 < 3600) |> 
+  # distinct()
 # ℹ In argument: `TRIP_START_TIME_tn_hm = parse_date_time(TRIP_START_TIME.tn,
 #   "HM")`.
 # Caused by warning:
 # !  2 failed to parse. 
 
-v_p__t__tn_d_weeks_gom_short_matched
-
-v_p__t__tn_d_weeks_gom_short_matched |> 
-  mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm + 1))) |> 
-  distinct()
-
-# Caused by warning:
-# !  2 failed to parse. 
-
 dim(v_p__t__tn_d_weeks_gom_short_matched)
-# [1] 35294    38
+# [1] 35662    41
+
+grep("zone", 
+     names(v_p__t__tn_d_weeks_gom_short_matched),
+     ignore.case = T,
+     value = T)
+# [1] "TRIP_TIME_ZONE"         "NOTIFICATION_TIME_ZONE"
+
+# v_p__t__tn_d_weeks_gom_short_matched |> 
+#   filter(!TRIP_TIME_ZONE == NOTIFICATION_TIME_ZONE) |> 
+#   select(TRIP_TIME_ZONE, NOTIFICATION_TIME_ZONE)
+#   View()
 
 ## count separately amount of trips and trip_n for each vsl ----
 v_p__t__tn_d_weeks_gom_short_compl_y <-
