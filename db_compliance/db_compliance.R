@@ -1119,7 +1119,7 @@ tn_d_w_short <-
     DEPARTURE_PORT,
     EMAIL_SENT,
     GEAR_NOTIFICATION,
-    INTENDED_FISHING_FLAG,
+    # INTENDED_FISHING_FLAG,
     LANDING_LOCATION_CITY,
     LANDING_LOCATION_COUNTY,
     LANDING_LOCATION_NAME,
@@ -1538,7 +1538,51 @@ v_p__t__tn_d_weeks_gom <-
 dim(v_p__t__tn_d_weeks_gom)
 # [1] 75524    90
 
+## check activity type ----
+v_p__t__tn_d_weeks_gom |>
+  count(ACTIVITY_TYPE, INTENDED_FISHING_FLAG)
+#   ACTIVITY_TYPE     n
+#           <dbl> <int>
+# 1             0 45834
+# 2             3     1
+# 3            80   488
+# 4            81     2
+# 5            NA 29199
+# 0, 'TRIP WITH EFFORT', 
+# 80, 'TRIP UNABLE TO FISH', 
+# 81, 'TRIP NO INTENTION OF FISHING'
+
+v_p__t__tn_d_weeks_gom |> 
+  filter(ACTIVITY_TYPE == "3") |> 
+  # head(2) |> 
+  # select(all_of(starts_with("UE"))) |> 
+  glimpse()
+# $ UE.t  <chr> "KCSPORTFISHING                "
+# $ UE.tn <chr> "KCSPORTFISHING"
+# $ VESSEL_VESSEL_ID            <dbl> 328032
+# $ PERMIT_VESSEL_ID            <chr> "FL9452SM"
+
+v_p__t__tn_d_weeks_gom |> 
+  filter(ACTIVITY_TYPE == "81") |> 
+  select(INTENDED_FISHING_FLAG) |> 
+  glimpse()
+  View()
 ## rm extra cols ----
+### find empty columns ----
+names(v_p__t__tn_d_weeks_gom) |> 
+  length() 
+# 90
+
+empty_cols <-
+  v_p__t__tn_d_weeks_gom |>
+  map_df(function(x) {
+    if (length(unique(x)) == 1) {
+      return(unique(x))
+    }
+  })
+print_df_names(empty_cols) 
+# 32
+
 t_names_to_rm <-
   c(
     # "ACTIVITY_TYPE",
@@ -1609,6 +1653,14 @@ t_names_to_rm <-
     "VENDOR_PLATFORM",
     "VTR_NUMBER")
 
+# do not rm:
+# "ACTIVITY_TYPE",
+# "EVENT_ID",
+# "STATUS",
+# "SUBMIT_METHOD",
+# "TRIP_END_TIME",
+# "TRIP_START_TIME",
+
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom |>
   select(-any_of(t_names_to_rm)) |>
@@ -1633,29 +1685,6 @@ v_p__t__tn_d_weeks_gom_short |>
   count(permit_sa_gom_dual)
 # 1 dual               15875
 # 2 gom_only           59649
-
-v_p__t__tn_d_weeks_gom_short |>
-  count(ACTIVITY_TYPE)
-#   ACTIVITY_TYPE     n
-#           <dbl> <int>
-# 1             0 45834
-# 2             3     1
-# 3            80   488
-# 4            81     2
-# 5            NA 29199
-# 0, 'TRIP WITH EFFORT', 
-# 80, 'TRIP UNABLE TO FISH', 
-# 81, 'TRIP NO INTENTION OF FISHING'
-
-v_p__t__tn_d_weeks_gom |> 
-  filter(ACTIVITY_TYPE == "3") |> 
-  # head(2) |> 
-  # select(all_of(starts_with("UE"))) |> 
-  glimpse()
-# $ UE.t  <chr> "KCSPORTFISHING                "
-# $ UE.tn <chr> "KCSPORTFISHING"
-# $ VESSEL_VESSEL_ID            <dbl> 328032
-# $ PERMIT_VESSEL_ID            <chr> "FL9452SM"
 
 v_p__t__tn_d_weeks_gom_short |>
   count(TRIP_TYPE)
@@ -1749,6 +1778,11 @@ dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 35662    41
 # [1] 35664    38 filter with restored time
 # [1] 44312    39 add matched col
+
+v_p__t__tn_d_weeks_gom_short_matched |> 
+  select(TRIP_START_DATE_TIME) |> 
+  distinct()
+# NA
 
 ## count separately amount of trips and trip_n for each vsl ----
 v_p__t__tn_d_weeks_gom_short_compl_y <-
