@@ -1752,7 +1752,8 @@ v_p__t__tn_d_weeks_gom_short <-
 # decl trip start < or > 1h logbooks trip start
 
   # mutate(isFilter = case_when(Time == "T0" & Value > 5 ~ 1, TRUE ~ 0)) %>%
-# df <- df %>% group_by(levelled) %>% filter(any(direction == "down"))
+# df <- df %>% group_by(levelled) %>% 
+# filter(any(direction == "down"))
 
 ### at least one pair of matching declarations per week ----
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
@@ -1827,15 +1828,25 @@ v_p__t__tn_d_weeks_gom_short_matched |>
 v_p__t__tn_d_weeks_gom_short_matched |>
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
-           # WEEK_OF_YEAR,
+           WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(l1 = length(unique(matched_reports[matched_reports == "matched"]))) |> 
+  mutate(is_compliant_gom =
+           case_when(any(matched_reports == "matched") ~
+                       "yes",
+                     .default = "no")) |> 
+# filter(any(direction == "down"))
+  # mutate(l1 = length(unique(matched_reports == "matched"))) |> 
+  # mutate(l1 = length(unique(matched_reports[matched_reports == "matched"]))) |> 
   ungroup() |>
   # filter(grepl("not_matched", l1)) |> 
-  filter(l1 > 1) |>
-  # glimpse()
-  dim()
-# 0
+  # filter(!l1 == 2) |>
+  filter(PERMIT_VESSEL_ID %in% c("FL4459MW", "FL4459PW")) |> 
+  glimpse()
+  # View()
+  # dim()
+# [1] 50915    40 year
+# [1] 37660    40 month
+# [1] 26834    40 week
 
   add_count(matched_reports == "matched",
             name = 'matched_reports_amnt_w') |> 
