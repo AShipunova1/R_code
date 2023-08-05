@@ -1885,12 +1885,32 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 # disregard not_matched & yes, that means there are more than 1 decl
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
-  filter(date_y_m == "Feb 2022",
+  filter(date_y_m == "Feb 2022") |> 
+         # ,
          # matched_reports == "not_matched"
-         INTENDED_FISHING_FLAG == "N",
-         is_compliant_w == "yes"
-         )
-
+         # INTENDED_FISHING_FLAG == "N"
+         # ,
+         # is_compliant_w == "yes") |>
+         filter(PERMIT_VESSEL_ID == "1093374") |>
+           select(
+             VESSEL_VESSEL_ID,
+             PERMIT_VESSEL_ID,
+             WEEK_OF_YEAR,
+             date_y_m,
+             TRIP_TYPE,
+             TRIP_START_DATE,
+             TRIP_START_TIME.t,
+             ACTIVITY_TYPE,
+             SERO_VESSEL_PERMIT,
+             trip_int,
+             TRIP_START_TIME.tn,
+             INTENDED_FISHING_FLAG,
+             time_diff1,
+             matched_reports,
+             is_compliant_w
+           ) |>
+           distinct() |>
+           View()
 
 # ## count separately amount of trips and trip_n for each vsl ----
 # v_p__t__tn_d_weeks_gom_short_compl_y <-
