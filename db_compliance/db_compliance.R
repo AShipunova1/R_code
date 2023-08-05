@@ -1923,9 +1923,35 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
   group_by(date_y_m,
            WEEK_OF_YEAR,
            is_compliant_w) |>
-  mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
+  mutate(cnt_vsls =
+           case_when(
+             any(is_compliant_w == "yes") ~
+               n_distinct(PERMIT_VESSEL_ID),
+             .default = 0
+           )) |>
+  # n_distinct(PERMIT_VESSEL_ID)) |>
   select(-PERMIT_VESSEL_ID) |>
   distinct()
 # disregard not_matched & yes, that means there are more than 1 decl
 
-View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w)
+glimpse(v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w)
+
+# subset(df, levelled %in% levelled[direction == 'down'])
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
+  select(PERMIT_VESSEL_ID,
+         date_y_m,
+         WEEK_OF_YEAR,
+         is_compliant_w) |>
+  distinct() |>
+  group_by(date_y_m,
+           WEEK_OF_YEAR,
+           is_compliant_w) |>
+  filter(date_y_m == 'Mar 2022') |> 
+  subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[is_compliant_w == 'yes']) |> 
+  mutate(cnt_c1 = n_distinct(PERMIT_VESSEL_ID)) |> 
+  ungroup() |> 
+  select(-PERMIT_VESSEL_ID) |>
+  distinct() |>
+  View()
+
