@@ -1866,7 +1866,6 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   glimpse()
   # write_csv("compliant_fishing_month.csv")
 
-
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
          date_y_m,
@@ -1913,3 +1912,20 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
            distinct() |>
            View()
 
+## cnt compl vessels per week ----
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
+  select(PERMIT_VESSEL_ID,
+         date_y_m,
+         WEEK_OF_YEAR,
+         is_compliant_w) |>
+  distinct() |>
+  group_by(date_y_m,
+           WEEK_OF_YEAR,
+           is_compliant_w) |>
+  mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
+  select(-PERMIT_VESSEL_ID) |>
+  distinct()
+# disregard not_matched & yes, that means there are more than 1 decl
+
+View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w)
