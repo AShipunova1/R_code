@@ -1584,7 +1584,7 @@ empty_cols <-
       return(unique(x))
     }
   })
-print_df_names(empty_cols) 
+# print_df_names(empty_cols) 
 # 32
 
 t_names_to_rm <-
@@ -1747,22 +1747,19 @@ v_p__t__tn_d_weeks_gom_short <-
 
 ## match logbooks and declarations ----
 
-# There should be a declaration for every logbook.
-# There should be a logbook for every declaration of a charter or headboat intending to fish.
+# There should be a declaration for every logbook. - no
+# There should be a logbook for every declaration of a charter or headboat intending to fish. - yes
 # decl trip start < or > 1h logbooks trip start
 
-# There should be a declaration for every logbook.
-filter_decl_for_logb <- rlang::quo(
-  !is.na(rep_type.t) & !is.na(rep_type.tn)
-)
   # mutate(isFilter = case_when(Time == "T0" & Value > 5 ~ 1, TRUE ~ 0)) %>%
 # df <- df %>% group_by(levelled) %>% filter(any(direction == "down"))
 
+### at least one pair of matching declarations per week ----
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
 # $ rep_type.t            <chr> "trips", "trips"
 # $ rep_type.tn           <chr> "trips_notif", "trips_notif"
 
-filter_logb_for_decl <- rlang::quo(
+filter_logb_for_decl_fish <- rlang::quo(
   rep_type.tn == "trips_notif" &
   INTENDED_FISHING_FLAG == 'Y'
   &
@@ -1770,22 +1767,15 @@ filter_logb_for_decl <- rlang::quo(
 )
 
 v_p__t__tn_d_weeks_gom_short |>
-  filter(!!filter_decl_for_logb) |> 
-  dim()
-# [1] 44312    35
-
-v_p__t__tn_d_weeks_gom_short |>
-  filter(!!filter_logb_for_decl) |> 
+  filter(!!filter_logb_for_decl_fish) |> 
   dim()
 # [1] 43802    35
 
-# decl trip start < or > 1h logbooks trip start
+#### decl trip start < or > 1h logbooks trip start ----
 
 v_p__t__tn_d_weeks_gom_short_matched <-
   v_p__t__tn_d_weeks_gom_short |>
   group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
-  # both reports are present
-  # filter(!is.na(rep_type.t) & !is.na(rep_type.tn)) |>
   # convert time to a Date format
   mutate(
     TRIP_START_TIME_t_hm =
@@ -1831,7 +1821,26 @@ v_p__t__tn_d_weeks_gom_short_matched |>
              matched_reports == "not_matched" &
              !is.na(rep_type.t)) |>
   head() |> 
-  View()
+  dim()
+# 6 39
+
+v_p__t__tn_d_weeks_gom_short_matched |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           # WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(l1 = length(unique(matched_reports[matched_reports == "matched"]))) |> 
+  ungroup() |>
+  # filter(grepl("not_matched", l1)) |> 
+  filter(l1 > 1) |>
+  # glimpse()
+  dim()
+# 0
+
+  add_count(matched_reports == "matched",
+            name = 'matched_reports_amnt_w') |> 
+  ungroup() |> 
+  glimpse()
 
 
 # ## count separately amount of trips and trip_n for each vsl ----
