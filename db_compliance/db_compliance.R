@@ -1825,23 +1825,29 @@ v_p__t__tn_d_weeks_gom_short_matched |>
   dim()
 # 6 39
 
-v_p__t__tn_d_weeks_gom_short_matched |>
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w")
+v_p__t__tn_d_weeks_gom_short_matched_compl_w <-
+  v_p__t__tn_d_weeks_gom_short_matched |>
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(is_compliant_gom =
+  mutate(is_compliant_w =
            case_when(any(matched_reports == "matched") ~
                        "yes",
                      .default = "no")) |> 
 # filter(any(direction == "down"))
   # mutate(l1 = length(unique(matched_reports == "matched"))) |> 
   # mutate(l1 = length(unique(matched_reports[matched_reports == "matched"]))) |> 
-  ungroup() |>
+  ungroup() 
+toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w: 5.39 sec elapsed
+
+# |>
   # filter(grepl("not_matched", l1)) |> 
   # filter(!l1 == 2) |>
-  filter(PERMIT_VESSEL_ID %in% c("FL4459MW", "FL4459PW")) |> 
-  glimpse()
+  # filter(PERMIT_VESSEL_ID %in% c("FL4459MW", "FL4459PW")) |> 
+  # glimpse()
   # View()
   # dim()
 # [1] 50915    40 year
