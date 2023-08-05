@@ -1835,29 +1835,61 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w <-
   mutate(is_compliant_w =
            case_when(any(matched_reports == "matched") ~
                        "yes",
-                     .default = "no")) |> 
-# filter(any(direction == "down"))
-  # mutate(l1 = length(unique(matched_reports == "matched"))) |> 
-  # mutate(l1 = length(unique(matched_reports[matched_reports == "matched"]))) |> 
-  ungroup() 
+                     .default = "no")) |>
+  ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w: 5.39 sec elapsed
 
-# |>
-  # filter(grepl("not_matched", l1)) |> 
-  # filter(!l1 == 2) |>
-  # filter(PERMIT_VESSEL_ID %in% c("FL4459MW", "FL4459PW")) |> 
-  # glimpse()
-  # View()
-  # dim()
-# [1] 50915    40 year
-# [1] 37660    40 month
-# [1] 26834    40 week
+# filter(PERMIT_VESSEL_ID %in% c("FL4459MW", "FL4459PW")) |> 
 
-  add_count(matched_reports == "matched",
-            name = 'matched_reports_amnt_w') |> 
-  ungroup() |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w |> 
+  count(INTENDED_FISHING_FLAG)
+# 1 N                      4072
+# 2 Y                     68177
+# 3 NA                     3275
+
+  # INTENDED_FISHING_FLAG is_compliant_w     n
+# 1 N                     no              2739
+# 2 N                     yes             1333
+# 3 Y                     no             23597
+# 4 Y                     yes            44580
+# 5 NA                    no              2917
+# 6 NA                    yes              358
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
+  count(# VESSEL_VESSEL_ID,
+    #     PERMIT_VESSEL_ID,
+    # WEEK_OF_YEAR,
+    date_y_m,
+    INTENDED_FISHING_FLAG,
+    is_compliant_w) |> 
   glimpse()
+  # write_csv("compliant_fishing_month.csv")
+
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
+  select(PERMIT_VESSEL_ID,
+         date_y_m,
+         matched_reports,
+         INTENDED_FISHING_FLAG,
+         is_compliant_w) |>
+  distinct() |>
+  group_by(date_y_m,
+           matched_reports,
+           INTENDED_FISHING_FLAG,
+           is_compliant_w) |>
+  mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
+  select(-PERMIT_VESSEL_ID) |> 
+  distinct() |> 
+  glimpse()
+# disregard not_matched & yes, that means there are more than 1 decl
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
+  filter(date_y_m == "Feb 2022",
+         # matched_reports == "not_matched"
+         INTENDED_FISHING_FLAG == "N",
+         is_compliant_w == "yes"
+         )
 
 
 # ## count separately amount of trips and trip_n for each vsl ----
