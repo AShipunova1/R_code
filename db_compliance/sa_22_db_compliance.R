@@ -71,7 +71,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w |>
   filter(PERMIT_VESSEL_ID == "FL4430NN") |>
   select(WEEK_OF_YEAR, date_y_m, all_of(starts_with("rep_type")), compl_w_cnt) |>
     distinct() |>
-    View()
+    dim()
 # 14 distinct weeks
 # 17 rows bc some weeks are in 2 month, e.g. 48 in Nov 2022 and Dec 2022
 
