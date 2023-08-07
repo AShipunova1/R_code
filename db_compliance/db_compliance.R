@@ -2033,9 +2033,118 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_all <-
   ) |>
   ungroup()
 toc()
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_all: 6.5 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_all: 203.72 sec elapsed
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_all |> 
   count(compl_w)
-# 1 no      75403
-# 
+# 1 no      24381
+# 2 yes     51022
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_all |> 
+  select(PERMIT_VESSEL_ID, compl_w) |> 
+  distinct() |> 
+  count(compl_w)
+# 1 no        476
+# 2 yes      1140
+
+## GOM total compliance per year ----
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_y_all")
+v_p__t__tn_d_weeks_gom_short_matched_compl_y_all <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID) |> 
+  mutate(
+    compl_y =
+      case_when(
+        matched_compl == "no" &
+          not_fish_compl == "no" &
+          no_rep_compl == "no" &
+          no_decl_compl == "no" &
+          no_lgb_compl == "no" ~ "no",
+        .default = "yes"
+      )
+  ) |>
+  ungroup()
+toc()
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_y_all |> 
+  select(PERMIT_VESSEL_ID, compl_y) |> 
+  distinct() |> 
+  count(compl_y)
+# 1 no        476
+# 2 yes      1140
+
+length(unique(v_p__t__tn_d_weeks_gom_short_matched_compl_y_all$PERMIT_VESSEL_ID))
+# 1351
+476 * 100 / 1351
+# 35% no
+
+1140 * 100 / 1351
+# 84% yes
+
+# Was 80% yes and 20% no from 1495 in a year
+
+## check ----
+# View(v_p__t__tn_d_weeks_gom_short_matched_compl_y_all)
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short <-
+    v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
+    select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int, permit_weeks_amnt_22, WEEK_OF_YEAR, date_y_m, ends_with("compl")) |> 
+    distinct()
+
+# dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5)
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short)
+# [1] 21568    11
+
+# View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short) 
+
+all_not_compl_filter <-
+  rlang::quo(
+    matched_compl == "no" &
+      not_fish_compl == "no" &
+      no_rep_compl == "no" &
+      no_decl_compl == "no" &
+      no_lgb_compl == "no"
+  )
+
+tic("v_p__t__tn_d_weeks_gom_short_matched_short_compl_w")
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(compl_w =
+           case_when(!!all_not_compl_filter ~ "no",
+                     .default = "yes")) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_matched_short_compl_w: 7.01 sec elapsed
+
+  # mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |>
+  # # get the length of each list of permits
+  # mutate(all_permit_sa_gom_size = lengths(all_permit_sa_gom)) |>
+  # # if there are both sa and gom mark as dual,
+  # # otherwise keep the original permit region
+  # mutate(permit_sa_gom_dual =
+  #          case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
+  #                    .default = permit_sa_gom)) |>
+  # # remove temporary columns
+  # 
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |> 
+  group_by(PERMIT_VESSEL_ID, date_y_m) |> 
+  mutate(compl_per_m = list(na.omit(unique(compl_w))),
+         compl_m_len = lengths(compl_per_m)) |>
+  filter(compl_m_len > 1) |> 
+  ungroup() |> 
+  View()
+
+# FL4463MX Jun
+
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |>
+  filter(PERMIT_VESSEL_ID == "FL4463MX" &
+           date_y_m == "Jun 2022") |>
+  arrange(WEEK_OF_YEAR) |> 
+  glimpse()
+# $ WEEK_OF_YEAR         <dbl> 22, 23, 24, 25, 26
+# $ compl_w              <chr> "no", "no", "yes", "yes", "yes"
