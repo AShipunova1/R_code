@@ -486,6 +486,9 @@ trips_notifications_2022_ah |>
 # 2                    6 63549
 # 5 = cancellation
 # 6 = hail out/declaration
+#   NOTIFICATION_TYPE_ID     n
+# 1                    5   111
+# 2                    6 67627
 
 # print_df_names(trips_notifications_2022)
 # 5/6
@@ -505,6 +508,7 @@ trips_notifications_2022_ah_5_6 <-
 
 dim(trips_notifications_2022_ah)
 # [1] 63658    33
+# [1] 67738    33
 
 dim(trips_notifications_2022_ah_5_6)
 # [1] 63658    34
@@ -515,6 +519,11 @@ trips_notifications_2022_ah_6 <-
 
 dim(trips_notifications_2022_ah_6)
 # [1] 63535    34
+# [1] 67613    34
+
+trips_notifications_2022_ah_6 |> 
+  count(NOTIFICATION_TYPE_ID)
+# 1                    6 67613
 
 # # rm extra cols ----
 # t_names_to_rm <-
@@ -655,11 +664,11 @@ trips_info_2022_int_ah_sero_w_y |>
   filter(TRIP_START_week_num == 52 &
            TRIP_START_m == "Jan 2022") |>
   dim()
-# [1] 80 15
+# [1] 80 79
 
 ## to trip notifications ----
-trips_notifications_2022_ah_w_y <-
-  trips_notifications_2022_ah %>%
+trips_notifications_2022_ah_6_w_y <-
+  trips_notifications_2022_ah_6 %>%
   mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
@@ -681,16 +690,17 @@ trips_notifications_2022_ah_w_y <-
       as.double(TRIP_END_week_num)
   )
 
-trips_notifications_2022_ah_w_y |>
+trips_notifications_2022_ah_6_w_y |>
   filter(TRIP_START_week_num == 0) |>
   dim()
 # [1] 32 33
-# [1] 32 39
+# [1] 32 40
 
-trips_notifications_2022_ah_w_y |>
+trips_notifications_2022_ah_6_w_y |>
   filter(TRIP_START_week_num == 52) |>
   dim()
 # [1] 1132   39
+# [1] 1063   40 not cancelled
 
 ## to negative trips ----
 
@@ -737,8 +747,9 @@ dim(trips_info_2022_int_ah_sero_w_y)
 # [1] 80967    79
 dim(trip_neg_2022_w_y)
 # [1] 747173      15
-dim(trips_notifications_2022_ah_w_y)
+dim(trips_notifications_2022_ah_6_w_y)
 # [1] 67738    39
+# [1] 67613    40
 
 # add all weeks to each df ----
 
@@ -749,9 +760,9 @@ trips_info_2022_int_ah_sero_w_y |>
            TRIP_START_y == 2021 &
            TRIP_END_y == 2022) |>
   dim()
-# 4
+# 4 79
 
-trips_notifications_2022_ah_w_y |>
+trips_notifications_2022_ah_6_w_y |>
   # filter(TRIP_START_y == 2021) |>
   filter(TRIP_START_week_num < 52 &
            TRIP_START_y == 2021 &
@@ -913,7 +924,7 @@ tic("tn_d_w")
 tn_d_w <-
    full_join(
      dates_2022_w,
-     trips_notifications_2022_ah_w_y,
+     trips_notifications_2022_ah_6_w_y,
      t_dates_by,
      relationship = "many-to-many"
    )
@@ -922,6 +933,7 @@ toc()
 dim(tn_d_w)
 # [1] 62752    34
 # [1] 67748    40
+# [1] 67623    41 not cancelled
 
 #### check for week 52 in Jan 22 ----
 tn_d_w |>
@@ -929,12 +941,14 @@ tn_d_w |>
                WEEK_OF_YEAR == 52) |>
   dim()
 # [1] 142  40
+# [1] 74 41 not canc
 
-trips_notifications_2022_ah_w_y |>
+trips_notifications_2022_ah_6_w_y |>
     filter(TRIP_START_m == "Jan 2022",
                TRIP_START_week_num == 52) |>
   dim()
 # [1] 142  39
+# [1] 74 40 not canc
 
 trips_info_2022_int_ah_sero_w_y |>
     filter(TRIP_START_m == "Jan 2022",
@@ -977,19 +991,19 @@ dim(v_p_d_w_22)
 # # [1] 747173      7
 #
 # ## trip_notif weeks count per vessel ----
-# trips_notifications_2022_ah_w_y_cnt_u <-
-#   trips_notifications_2022_ah_w_y |>
+# trips_notifications_2022_ah_6_w_y_cnt_u <-
+#   trips_notifications_2022_ah_6_w_y |>
 #   group_by(VESSEL_ID) |>
 #   mutate(
 #     distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
 #     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
 #   )
 #
-# dim(trips_notifications_2022_ah_w_y_cnt_u)
+# dim(trips_notifications_2022_ah_6_w_y_cnt_u)
 # # [1] 914   3 summarize
 # # [1] 67738    35
 #
-# trips_notifications_2022_ah_w_y_cnt_u %>%
+# trips_notifications_2022_ah_6_w_y_cnt_u %>%
 #    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
 #    dim()
 # # [1] 0 6
@@ -1130,6 +1144,7 @@ dim(tn_d_w_short)
 # [1] 21179     9 (no permit_id)
 # [1] 20466     9
 # [1] 66710    19
+# [1] 66585    21 not canc
 
 # join with dates_22 by week ----
 ## t & tne ----
@@ -1187,8 +1202,10 @@ toc()
 dim(t_d_w_short)[1] +
 dim(tn_d_w_short)[1]
 # [1] 147688
+# 147563
 dim(t__tn_d_weeks)
 # [1] 120876     86
+# [1] 120754     88
 
 length(unique(t__tn_d_weeks$WEEK_OF_YEAR))
 # 53
@@ -1243,6 +1260,7 @@ dim(v_p__t__tn_d_weeks)
 # [1] 46329    18
 # [1] 45530    17
 # [1] 128369     90
+# [1] 128243     92
 
 ### check ----
 # 1)
@@ -1756,7 +1774,6 @@ v_p__t__tn_d_weeks_gom_short <-
 # filter(any(direction == "down"))
 
 ### at least one pair of matching declarations per week ----
-# There should be a logbook for every declaration of a charter or headboat intending to fish.
 # $ rep_type.t            <chr> "trips", "trips"
 # $ rep_type.tn           <chr> "trips_notif", "trips_notif"
 
@@ -1791,7 +1808,6 @@ v_p__t__tn_d_weeks_gom_short_matched <-
            case_when(time_diff1 < 3600 ~ "matched",
                      .default = "not_matched"
            )) |> 
-  # filter(time_diff1 < 3600) |>
   distinct() |> 
   ungroup()
 
@@ -1825,6 +1841,7 @@ v_p__t__tn_d_weeks_gom_short_matched |>
   dim()
 # 6 39
 
+## strict compl vessels per week ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w <-
   v_p__t__tn_d_weeks_gom_short_matched |>
@@ -1912,7 +1929,6 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
            distinct() |>
            View()
 
-## cnt compl vessels per week ----
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
@@ -1955,3 +1971,36 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   distinct() |>
   View()
 
+## mark weeks with at least one match ----
+v_p__t__tn_d_weeks_gom_short_matched
+
+
+# no matched declarations, but compliant? ----
+# There should be a logbook for every declaration of a charter or a headboat intending to fish.
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w |> 
+  filter(is_compliant_w == "no") |> 
+  View()
+
+# print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w)
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
+  filter(matched_reports == "not_matched" &
+         INTENDED_FISHING_FLAG == "N" &
+           !is.na(rep_type.tn))
+         # ,
+         # is_compliant_w == "yes") |>
+
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+
+  
+#   mutate(is_compliant_w =
+#            case_when(any(matched_reports == "matched") ~
+#                        "yes",
+#                      .default = "no")) |>
+#   ungroup()
+# toc()
