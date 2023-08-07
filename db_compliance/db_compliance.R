@@ -2010,3 +2010,32 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
   glimpse()
 # 0
 
+## GOM Compliant in all categories per week ----
+# print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5)
+
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_all")
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_all <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(
+    compl_w =
+      case_when(
+        matched_compl == "yes" |
+          not_fish_compl == "yes" |
+          no_rep_compl == "yes" |
+          no_decl_compl == "yes" |
+          no_lgb_compl == "yes" ~ "yes",
+        .default = "no"
+      )
+  ) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_all: 6.5 sec elapsed
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_all |> 
+  count(compl_w)
+# 1 no      75403
+# 
