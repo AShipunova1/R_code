@@ -1854,14 +1854,11 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 # 0
 
 ## a week with a logb and no decl ----
+# err, but is compliant
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   filter(VESSEL_VESSEL_ID == 72359,
 #          PERMIT_VESSEL_ID == "933533")
-    # group_by(VESSEL_VESSEL_ID,
-    #        PERMIT_VESSEL_ID,
-    #        WEEK_OF_YEAR,
-    #        date_y_m) |>
 
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
@@ -1896,8 +1893,43 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 # 1 no            73790
 # 2 yes            1613 (not NA)
 
+
+### the same in a different way ----
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a")
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(
+    # cnt_t  = sum(!is.na(rep_type.t)),
+    # cnt_tn = sum(!is.na(rep_type.tn)),
+    no_decl_compl =
+      case_when(
+        is_compliant_w == "no" &
+          not_fish_compl == "no" &
+          no_rep_compl == "no" &
+          # no decl for a lgb
+          !is.na(rep_type.t) &
+          is.na(rep_type.tn)
+          # cnt_t > cnt_tn 
+        ~ "yes",
+        .default = "no"
+      )
+  ) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a: 5.85 sec elapsed
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |> 
+  count(no_decl_compl)
+# 1 no            73738
+# 2 yes            1665
+
+# TODO find the differnece between 4 and 4a
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |> 
-  View()
+  glimpse()
 # 330202 1281880
 # 382204 1299573
 
