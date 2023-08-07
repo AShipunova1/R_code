@@ -1870,14 +1870,20 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3_0rep <-
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
-           date_y_m) |> 
-  group_by(rep_type.t,
-           .add = TRUE) |>
+           date_y_m,
+           rep_type.t
+           ) |>
+  mutate(failed_launches = sum(rep_type.t == "trips"))
+
   dplyr::add_count(rep_type.t, name = "cnt_t") |>
-  ungroup() |> str()
-  group_by(rep_type.t,
-           .add = TRUE) |>
-  dplyr::add_count(rep_type.t, name = "cnt_t") |>
+  str()
+  ungroup() |> 
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m,
+           rep_type.tn) |>
+  dplyr::add_count(rep_type.tn, name = "cnt_tn") |>
 
 
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4")
