@@ -1807,7 +1807,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
   arrange(WEEK_OF_YEAR) |>
   glimpse()
 
-## a week with no reports ----
+## a week with no reports of any kind (compl) ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_3")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
@@ -1853,8 +1853,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   View()
 # 0
 
-## a week with a logb and no decl ----
-# err, but is compliant
+## a week with a logb and no decl (err, but is compliant) ----
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   filter(VESSEL_VESSEL_ID == 72359,
@@ -1868,66 +1867,33 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
            WEEK_OF_YEAR,
            date_y_m) |>
   mutate(
-    cnt_t  = sum(!is.na(rep_type.t)),
-    cnt_tn = sum(!is.na(rep_type.tn)),
-    no_decl_compl =
+    no_decl_compl_0 =
       case_when(
         is_compliant_w == "no" &
           not_fish_compl == "no" &
           no_rep_compl == "no" &
-          # no decl for a lgb
-          cnt_t > cnt_tn ~ "yes",
-        .default = "no"
-      )
-  ) |>
-  ungroup()
-toc()
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 11.17 sec elapsed
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 16.42 sec elapsed
-
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |> 
-  count(no_decl_compl)
-# 1 no            75400 (w 42)
-# 2 yes               3 (w 25)
-# 1 no            73790
-# 2 yes            1613 (not NA)
-
-
-### the same in a different way ----
-tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a")
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID,
-           WEEK_OF_YEAR,
-           date_y_m) |>
-  mutate(
-    # cnt_t  = sum(!is.na(rep_type.t)),
-    # cnt_tn = sum(!is.na(rep_type.tn)),
-    no_decl_compl =
-      case_when(
-        is_compliant_w == "no" &
-          not_fish_compl == "no" &
-          no_rep_compl == "no" &
-          # no decl for a lgb
-          !is.na(rep_type.t) &
+          # no decl for a lgb!is.na(rep_type.t) &
           is.na(rep_type.tn)
-          # cnt_t > cnt_tn 
+        # cnt_t > cnt_tn
         ~ "yes",
         .default = "no"
       )
   ) |>
+  mutate(no_decl_compl =
+           case_when(all(no_decl_compl_0 == "yes") ~ "yes",
+                     .default = "no")) |>
   ungroup()
 toc()
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a: 5.85 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 11.72 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |> 
-  count(no_decl_compl)
-# 1 no            73738
-# 2 yes            1665
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |> 
+  count(no_decl_compl_0)
+# 1 no              73738
+# 2 yes              1665
+  # count(no_decl_compl)
+# 1 no            73812
+# 2 yes            1591
 
-### TODO find the differnece between 4 and 4a ----
 v_yes <-
   list(
     v_p__t__tn_d_weeks_gom_short_matched_compl_w_4,
@@ -1959,7 +1925,7 @@ in4a <-
           v_yes[[1]]$PERMIT_VESSEL_ID)
 
 length(in4a)
-# 33
+# 34
 #  [1] "FL3326MC" "1271163"  "1271879"  "1174344"  "1211890"  "1174689" 
 #  [7] "1109181"  "1087799"  "1217823"  "1264525"  "FL6017NC" "LA2117GM"
 # [13] "FL8511RT" "FL9207ST" "FL8845ML" "FL1640RJ" "FL0957RW" "AL0364RL"
@@ -1972,32 +1938,21 @@ length(in4a)
 #            v_yes[[2]]$PERMIT_VESSEL_ID) |> 
 #   View()
 
-FL4482RC_4 <-
+FL3326MC_4 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
   filter(PERMIT_VESSEL_ID == "FL3326MC") |> 
-  select(-c(cnt_t, cnt_tn))
+  select(-no_decl_compl_0)
 
-FL4482RC_4a <-
+FL3326MC_4a <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |>
   filter(PERMIT_VESSEL_ID == "FL3326MC")
 
-all.equal(FL4482RC_4, FL4482RC_4a)
-# [1] "Component “no_decl_compl”: 1 string mismatch"
-
-# library(arsenal)
-# summary(comparedf(FL4482RC_4, FL4482RC_4a))
-# Error in h(simpleError(msg, call)) : 
-#   error in evaluating the argument 'object' in selecting a method for function 'summary': Incompatible classes: <numeric> + <Interval>
-
-library(diffdf)
-diffdf(FL4482RC_4, FL4482RC_4a)
+# library(diffdf)
+diffdf(FL3326MC_4, FL3326MC_4a)
 # All rows are shown in table below
 
-  # =============================================
   #    VARIABLE     ..ROWNUMBER..  BASE  COMPARE 
-  # ---------------------------------------------
   #  no_decl_compl       37         no     yes   
-  # ---------------------------------------------
 
 glimpse(FL4482RC_4[37,])
 glimpse(FL4482RC_4a[37,])
@@ -2008,8 +1963,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
   glimpse()
 # $ cnt_t                 <int> 1, 1
 # $ cnt_tn                <int> 1, 1
-# 2 entries, 1 has t, another has a tn!
-
+# 2 entries, 1 has t, another has a tn! should be not compl
 
 # no report, but a decl is a "no fish" - compl ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5")
