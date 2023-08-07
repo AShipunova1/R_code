@@ -1644,7 +1644,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(is_compliant_w =
+  mutate(matched_compl =
            case_when(any(matched_reports == "matched") ~
                        "yes",
                      .default = "no")) |>
@@ -1660,7 +1660,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 # 2 Y                     68177
 # 3 NA                     3275
 
-  # INTENDED_FISHING_FLAG is_compliant_w     n
+  # INTENDED_FISHING_FLAG matched_compl     n
 # 1 N                     no              2739
 # 2 N                     yes             1333
 # 3 Y                     no             23597
@@ -1674,7 +1674,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
     # WEEK_OF_YEAR,
     date_y_m,
     INTENDED_FISHING_FLAG,
-    is_compliant_w) |>
+    matched_compl) |>
   glimpse()
   # write_csv("compliant_fishing_month.csv")
 
@@ -1683,12 +1683,12 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
          date_y_m,
          matched_reports,
          INTENDED_FISHING_FLAG,
-         is_compliant_w) |>
+         matched_compl) |>
   distinct() |>
   group_by(date_y_m,
            matched_reports,
            INTENDED_FISHING_FLAG,
-           is_compliant_w) |>
+           matched_compl) |>
   mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
   select(-PERMIT_VESSEL_ID) |>
   distinct() |>
@@ -1702,7 +1702,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
          # matched_reports == "not_matched"
          # INTENDED_FISHING_FLAG == "N"
          # ,
-         # is_compliant_w == "yes") |>
+         # matched_compl == "yes") |>
          filter(PERMIT_VESSEL_ID == "1093374") |>
            select(
              VESSEL_VESSEL_ID,
@@ -1719,7 +1719,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
              INTENDED_FISHING_FLAG,
              time_diff1,
              matched_reports,
-             is_compliant_w
+             matched_compl
            ) |>
            distinct() |>
            View()
@@ -1729,14 +1729,14 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
   select(PERMIT_VESSEL_ID,
          date_y_m,
          WEEK_OF_YEAR,
-         is_compliant_w) |>
+         matched_compl) |>
   distinct() |>
   group_by(date_y_m,
            WEEK_OF_YEAR,
-           is_compliant_w) |>
+           matched_compl) |>
   mutate(cnt_vsls =
            case_when(
-             any(is_compliant_w == "yes") ~
+             any(matched_compl == "yes") ~
                n_distinct(PERMIT_VESSEL_ID),
              .default = 0
            )) |>
@@ -1753,13 +1753,13 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
          date_y_m,
          WEEK_OF_YEAR,
-         is_compliant_w) |>
+         matched_compl) |>
   distinct() |>
   group_by(date_y_m,
            WEEK_OF_YEAR,
-           is_compliant_w) |>
+           matched_compl) |>
   filter(date_y_m == 'Mar 2022') |>
-  subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[is_compliant_w == 'yes']) |>
+  subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
   mutate(cnt_c1 = n_distinct(PERMIT_VESSEL_ID)) |>
   ungroup() |>
   select(-PERMIT_VESSEL_ID) |>
@@ -1783,7 +1783,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
            date_y_m) |>
   mutate(not_fish_compl =
            case_when(
-             is_compliant_w == "no" &
+             matched_compl == "no" &
                # all reports are not fishing declarations
                all(INTENDED_FISHING_FLAG == "N" &
                      !is.na(rep_type.tn)) ~ "yes",
@@ -1818,7 +1818,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 <-
   mutate(
     no_rep_compl =
       case_when(
-        is_compliant_w == "no" &
+        matched_compl == "no" &
           not_fish_compl == "no" &
           # no reports
           all(is.na(rep_type.t)) &
@@ -1869,7 +1869,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   mutate(
     no_decl_compl_0 =
       case_when(
-        is_compliant_w == "no" &
+        matched_compl == "no" &
           not_fish_compl == "no" &
           no_rep_compl == "no" &
           # no decl for a lgb!is.na(rep_type.t) &
@@ -1976,7 +1976,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
   mutate(
     no_lgb_compl =
       case_when(
-        is_compliant_w == "no" &
+        matched_compl == "no" &
           not_fish_compl == "no" &
           no_rep_compl == "no" &
           INTENDED_FISHING_FLAG == "N" &
