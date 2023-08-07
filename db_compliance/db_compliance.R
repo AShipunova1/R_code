@@ -1,4 +1,8 @@
 # db_compliance
+# Throughout the code
+# "Declaration" == "trip notification"
+# "Logbook"     == "trip"
+
 # Assumptions
 # 1) Disregard the time zone for trips and trip notifications
 
@@ -1292,9 +1296,9 @@ dim(v_p__t__tne_d_weeks_21)
 # ok
 
 # Run to get SA compliance
-source(file.path(my_paths$git_r,
-                 current_project_name,
-                 "sa_22_db_compliance.R"))
+# source(file.path(my_paths$git_r,
+#                  current_project_name,
+#                  "sa_22_db_compliance.R"))
 
 # GOM + dual compl by year ----
 # There should be a declaration for every logbook.
@@ -1308,6 +1312,7 @@ v_p__t__tn_d_weeks_gom <-
 
 dim(v_p__t__tn_d_weeks_gom)
 # [1] 75524    91
+# [1] 75403    92
 
 ## check activity type ----
 v_p__t__tn_d_weeks_gom |>
@@ -1367,7 +1372,7 @@ v_p__t__tn_d_weeks_gom |>
 ### find empty columns ----
 names(v_p__t__tn_d_weeks_gom) |> 
   length() 
-# 90
+# 92
 
 empty_cols <-
   v_p__t__tn_d_weeks_gom |>
@@ -1376,7 +1381,7 @@ empty_cols <-
       return(unique(x))
     }
   })
-# print_df_names(empty_cols) 
+# dim(empty_cols)[2] 
 # 32
 
 t_names_to_rm <-
@@ -1459,9 +1464,11 @@ v_p__t__tn_d_weeks_gom_short <-
 
 dim(v_p__t__tn_d_weeks_gom)
 # [1] 75524    91
+# [1] 75403    92
 
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 75524    35
+# [1] 75403    36
 
 data_overview(v_p__t__tn_d_weeks_gom_short) |> 
   head(2)
@@ -1472,6 +1479,8 @@ v_p__t__tn_d_weeks_gom_short |>
   count(permit_sa_gom_dual)
 # 1 dual               15875
 # 2 gom_only           59649
+# 1 dual               15853
+# 2 gom_only           59550
 
 v_p__t__tn_d_weeks_gom_short |>
   count(TRIP_TYPE)
@@ -1480,6 +1489,10 @@ v_p__t__tn_d_weeks_gom_short |>
 # 1 A         63121
 # 2 H         11935
 # 3 NA          468
+# 1 A         63009
+# 2 H         11926
+# 3 NA          468
+# Activity type NA - declaration only
 
 v_p__t__tn_d_weeks_gom_short |>
   count(INTENDED_FISHING_FLAG)
@@ -1745,31 +1758,37 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   distinct() |>
   View()
 
-## mark weeks with at least one match ----
-v_p__t__tn_d_weeks_gom_short_matched
-
-
 # no matched declarations, but compliant? ----
 # There should be a logbook for every declaration of a charter or a headboat intending to fish.
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w |> 
-  filter(is_compliant_w == "no") |> 
-  View()
-
 # print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w)
 
+print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w)
+
+## There is a not matched not fishing intended declarations per week ----
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+    mutate(not_fish =
+           case_when(is_c
+             any(INTENDED_FISHING_FLAG == "N" &
+           !is.na(rep_type.tn))
+               
+               
+               is_compliant_w == "yes") ~
+               n_distinct(PERMIT_VESSEL_ID),
+             .default = 0
+           )) |>
+
   filter(matched_reports == "not_matched" &
          INTENDED_FISHING_FLAG == "N" &
            !is.na(rep_type.tn))
          # ,
          # is_compliant_w == "yes") |>
 
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID,
-           WEEK_OF_YEAR,
-           date_y_m) |>
 
   
 #   mutate(is_compliant_w =
