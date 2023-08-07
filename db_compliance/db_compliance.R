@@ -1863,9 +1863,28 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
     #        WEEK_OF_YEAR,
     #        date_y_m) |>
 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_3_0rep <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
+  mutate(rep_type.t = tidyr::replace_na(rep_type.t, "0"),
+         rep_type.tn = tidyr::replace_na(rep_type.tn, "0")) |> 
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |> 
+  group_by(rep_type.t,
+           .add = TRUE) |>
+  dplyr::add_count(rep_type.t, name = "cnt_t") |>
+  ungroup() |> str()
+  group_by(rep_type.t,
+           .add = TRUE) |>
+  dplyr::add_count(rep_type.t, name = "cnt_t") |>
+
+
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
+  mutate(rep_type.t = tidyr::replace_na(rep_type.t, 0),
+         rep_type.tn = tidyr::replace_na(rep_type.tn, 0)) |> 
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
@@ -1886,4 +1905,47 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 11.17 sec elapsed
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |> 
+  count(no_decl_compl)
+# 1 no            75400 (w 42)
+# 2 yes               3 (w 25)
+
+# 330202 1281880
+# 382204 1299573
+
+# no fish decl and no report - compl
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5")
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(
+    no_lgb_compl =
+      case_when(
+        is_compliant_w == "no" &
+          not_fish_compl == "no" &
+          no_rep_compl == "no" &
+          INTENDED_FISHING_FLAG == "N" &
+          # no lgb for a not fish decl
+          is.na(rep_type.t) &
+          # there is a decl!is.na(rep_type.tn)
+          ~ "yes",
+        .default = "no"
+      )
+  ) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 10.2 sec elapsed
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
+  count(no_lgb_compl)
+# 1 no           75060
+# 2 yes            343
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
+  arrange(desc(no_lgb_compl)) |> 
+  View()
 
