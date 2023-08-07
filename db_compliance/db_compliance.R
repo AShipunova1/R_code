@@ -1933,7 +1933,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 # 330202 1281880
 # 382204 1299573
 
-# no fish decl and no report - compl
+# no report, but a decl is a "no fish" - compl ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
@@ -1950,14 +1950,16 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
           INTENDED_FISHING_FLAG == "N" &
           # no lgb for a not fish decl
           is.na(rep_type.t) &
-          # there is a decl!is.na(rep_type.tn)
-          ~ "yes",
+          !is.na(rep_type.tn)
+        # there is a decl!is.na(rep_type.tn)
+        ~ "yes",
         .default = "no"
       )
   ) |>
   ungroup()
 toc()
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 10.2 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 13.05 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 3032.68 sec elapsed rowwise
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
   count(no_lgb_compl)
@@ -1966,5 +1968,14 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
   arrange(desc(no_lgb_compl)) |> 
-  View()
+  glimpse()
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
+  arrange(desc(no_lgb_compl)) |>
+  filter(no_decl_compl == "yes" & no_lgb_compl == "yes") |>
+  count(unique(PERMIT_VESSEL_ID))
+# # A tibble: 1 × 2
+#   `unique(PERMIT_VESSEL_ID)`     n
+#   <chr>                      <int>
+# 1 FL3495RT                       5
 
