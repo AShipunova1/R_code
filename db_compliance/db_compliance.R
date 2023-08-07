@@ -1301,6 +1301,8 @@ dim(v_p__t__tne_d_weeks_21)
 #                  "sa_22_db_compliance.R"))
 
 # GOM + dual compl by year ----
+# GOM must have both (1) a logbook for any fishing intended declaration, and (2) an intended fishing declaration for any logbook
+
 # There should be a declaration for every logbook.
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
 # Noncompliant + overridden are compliant
@@ -1575,9 +1577,11 @@ v_p__t__tn_d_weeks_gom_short |>
   filter(!!filter_logb_for_decl_fish) |> 
   dim()
 # [1] 43802    35
+# [1] 43767    36
 
 #### decl trip start < or > 1h logbooks trip start ----
 
+tic("v_p__t__tn_d_weeks_gom_short_matched")
 v_p__t__tn_d_weeks_gom_short_matched <-
   v_p__t__tn_d_weeks_gom_short |>
   group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
@@ -1597,17 +1601,21 @@ v_p__t__tn_d_weeks_gom_short_matched <-
            )) |> 
   distinct() |> 
   ungroup()
+toc()
 
 dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 35662    41
 # [1] 35664    38 filter with restored time
 # [1] 44312    39 add matched col
 # [1] 75524    39 without filter out not matched
+# [1] 75403    40
 
 v_p__t__tn_d_weeks_gom_short_matched |> 
   count(matched_reports)
 # 1 matched         35664
 # 2 not_matched     39860
+# 1 matched         35641
+# 2 not_matched     39762
 
 v_p__t__tn_d_weeks_gom_short_matched |>
   select(PERMIT_VESSEL_ID, matched_reports) |>
@@ -1626,7 +1634,7 @@ v_p__t__tn_d_weeks_gom_short_matched |>
              !is.na(rep_type.t)) |>
   head() |> 
   dim()
-# 6 39
+# 6 40
 
 ## strict compl vessels per week ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w")
@@ -1765,35 +1773,82 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 
 print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w)
 
-## There is a not matched not fishing intended declarations per week ----
+## There are only a not matched not fishing intended declarations per week ----
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_2")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-    mutate(not_fish =
-           case_when(is_c
-             any(INTENDED_FISHING_FLAG == "N" &
-           !is.na(rep_type.tn))
-               
-               
-               is_compliant_w == "yes") ~
-               n_distinct(PERMIT_VESSEL_ID),
-             .default = 0
+  mutate(not_fish_compl =
+           case_when(
+             is_compliant_w == "no" &
+               # all reports are not fishing declarations
+               all(INTENDED_FISHING_FLAG == "N" &
+                     !is.na(rep_type.tn)) ~ "yes",
+             .default = "no"
            )) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_2: 8.93 sec elapsed
 
-  filter(matched_reports == "not_matched" &
-         INTENDED_FISHING_FLAG == "N" &
-           !is.na(rep_type.tn))
-         # ,
-         # is_compliant_w == "yes") |>
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |> 
+  count(not_fish_compl)
+# 1 no             73009
+# 2 yes             2394
 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |> 
+  count(not_fish_compl)
 
-  
-#   mutate(is_compliant_w =
-#            case_when(any(matched_reports == "matched") ~
-#                        "yes",
-#                      .default = "no")) |>
-#   ungroup()
-# toc()
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |> 
+  # filter(not_fish_compl == "yes") |> 
+  filter(PERMIT_VESSEL_ID == "FL4459PW") |> 
+  arrange(WEEK_OF_YEAR) |> 
+  glimpse()
+
+## a week with no reports ----
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_3")
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(
+    no_rep_compl =
+      case_when(
+        is_compliant_w == "no" &
+          not_fish_compl == "no" &
+          # no reports
+          all(is.na(rep_type.t)) &
+          all(is.na(rep_type.tn)) ~ "yes",
+        .default = "no"
+      )
+  ) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_3: 7.41 sec elapsed
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
+  count(no_rep_compl)
+# 1 no           74935
+# 2 yes            468
+
+#   filter(PERMIT_VESSEL_ID == "FL3627NN") |>
+  # View()
+# 
+# > v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
+#   filter(PERMIT_VESSEL_ID == "FL3627NN") |>
+#   View()
+# > v_p__t__tn_d_weeks |>
+#   filter(PERMIT_VESSEL_ID == "FL3627NN") |>
+#   View()
+# > trips_info_2022 |>
+#   filter(VESSEL_ID == "330659") |>
+#   View()
+# 0
+# > trips_notifications_2022 |>
+#   filter(VESSEL_ID == "330659") |>
+#   View()
+# 0
