@@ -1863,41 +1863,16 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
     #        WEEK_OF_YEAR,
     #        date_y_m) |>
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_3_0rep <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
-  mutate(rep_type.t = tidyr::replace_na(rep_type.t, "0"),
-         rep_type.tn = tidyr::replace_na(rep_type.tn, "0")) |> 
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID,
-           WEEK_OF_YEAR,
-           date_y_m,
-           rep_type.t
-           ) |>
-  mutate(failed_launches = sum(rep_type.t == "trips"))
-
-  dplyr::add_count(rep_type.t, name = "cnt_t") |>
-  str()
-  ungroup() |> 
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID,
-           WEEK_OF_YEAR,
-           date_y_m,
-           rep_type.tn) |>
-  dplyr::add_count(rep_type.tn, name = "cnt_tn") |>
-
-
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
-  mutate(rep_type.t = tidyr::replace_na(rep_type.t, 0),
-         rep_type.tn = tidyr::replace_na(rep_type.tn, 0)) |> 
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  dplyr::add_count(rep_type.t, name = "cnt_t") |>
-  dplyr::add_count(rep_type.tn, name = "cnt_tn") |>
   mutate(
+    cnt_t  = sum(!is.na(rep_type.t)),
+    cnt_tn = sum(!is.na(rep_type.tn)),
     no_decl_compl =
       case_when(
         is_compliant_w == "no" &
@@ -1911,12 +1886,18 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 11.17 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 16.42 sec elapsed
+
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |> 
   count(no_decl_compl)
 # 1 no            75400 (w 42)
 # 2 yes               3 (w 25)
+# 1 no            73790
+# 2 yes            1613 (not NA)
 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |> 
+  View()
 # 330202 1281880
 # 382204 1299573
 
