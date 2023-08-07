@@ -525,7 +525,7 @@ dim(trips_notifications_2022_ah_6)
 # [1] 63535    34
 # [1] 67613    34
 
-trips_notifications_2022_ah_6 |> 
+trips_notifications_2022_ah_6 |>
   count(NOTIFICATION_TYPE_ID)
 # 1                    6 67613
 
@@ -1307,7 +1307,7 @@ dim(v_p__t__tne_d_weeks_21)
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
 # Noncompliant + overridden are compliant
 
-## get gom and dual vsls ---- 
+## get gom and dual vsls ----
 v_p__t__tn_d_weeks_gom <-
   v_p__t__tn_d_weeks |>
   filter(permit_sa_gom_dual %in% c("gom_only", "dual"))
@@ -1326,8 +1326,8 @@ v_p__t__tn_d_weeks_gom |>
 # 3            80   488
 # 4            81     2
 # 5            NA 29199
-# 0, 'TRIP WITH EFFORT', 
-# 80, 'TRIP UNABLE TO FISH', 
+# 0, 'TRIP WITH EFFORT',
+# 80, 'TRIP UNABLE TO FISH',
 # 81, 'TRIP NO INTENTION OF FISHING'
 
 #    ACTIVITY_TYPE INTENDED_FISHING_FLAG     n
@@ -1345,10 +1345,10 @@ v_p__t__tn_d_weeks_gom |>
 # 11            NA Y                     24375
 # 12            NA NA                     1262
 
-v_p__t__tn_d_weeks_gom |> 
-  filter(ACTIVITY_TYPE == "3") |> 
-  # head(2) |> 
-  # select(all_of(starts_with("UE"))) |> 
+v_p__t__tn_d_weeks_gom |>
+  filter(ACTIVITY_TYPE == "3") |>
+  # head(2) |>
+  # select(all_of(starts_with("UE"))) |>
   glimpse()
 # $ UE.t  <chr> "KCSPORTFISHING                "
 # $ UE.tn <chr> "KCSPORTFISHING"
@@ -1372,8 +1372,8 @@ v_p__t__tn_d_weeks_gom |>
 
 ## rm extra cols ----
 ### find empty columns ----
-names(v_p__t__tn_d_weeks_gom) |> 
-  length() 
+names(v_p__t__tn_d_weeks_gom) |>
+  length()
 # 92
 
 empty_cols <-
@@ -1383,7 +1383,7 @@ empty_cols <-
       return(unique(x))
     }
   })
-# dim(empty_cols)[2] 
+# dim(empty_cols)[2]
 # 32
 
 t_names_to_rm <-
@@ -1472,7 +1472,7 @@ dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 75524    35
 # [1] 75403    36
 
-data_overview(v_p__t__tn_d_weeks_gom_short) |> 
+data_overview(v_p__t__tn_d_weeks_gom_short) |>
   head(2)
 # VESSEL_VESSEL_ID      1351
 # PERMIT_VESSEL_ID      1351
@@ -1517,25 +1517,25 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # Caused by warning:
 # !  2 failed to parse.
 
-v_p__t__tn_d_weeks_gom_short |> 
-  select(TRIP_START_TIME.tn) |> 
-  distinct() |> 
-  arrange(desc(TRIP_START_TIME.tn)) |> 
-  rowwise() |> 
-  head(3) |> 
+v_p__t__tn_d_weeks_gom_short |>
+  select(TRIP_START_TIME.tn) |>
+  distinct() |>
+  arrange(desc(TRIP_START_TIME.tn)) |>
+  rowwise() |>
+  head(3) |>
   # count number of digits, should be 4
   # mutate(l = floor(log10(as.numeric(TRIP_START_TIME.tn))) + 1)
-  mutate(l = nchar(TRIP_START_TIME.tn)) |> 
+  mutate(l = nchar(TRIP_START_TIME.tn)) |>
   ungroup()
 #   <chr>              <int>
 # 1 601                    3
 # 2 600                    3
 # 3 2359                   4
 
-v_p__t__tn_d_weeks_gom_short |> 
+v_p__t__tn_d_weeks_gom_short |>
   filter(!(nchar(TRIP_START_TIME.tn) == 4) |
-           !(nchar(TRIP_START_TIME.t) == 4) 
-         ) |> 
+           !(nchar(TRIP_START_TIME.t) == 4)
+         ) |>
   glimpse()
 # $ TRIP_START_TIME.t    <chr> "0700", "0601", NA
 # $ TRIP_START_TIME.tn   <chr> "601", "601", "600"
@@ -1543,8 +1543,8 @@ v_p__t__tn_d_weeks_gom_short |>
 # assume the missing leading zero, can't be 6010 etc.
 #### restore ----
 v_p__t__tn_d_weeks_gom_short <-
-  v_p__t__tn_d_weeks_gom_short |> 
-  mutate(TRIP_START_TIME.tn = 
+  v_p__t__tn_d_weeks_gom_short |>
+  mutate(TRIP_START_TIME.tn =
            case_when(
            nchar(TRIP_START_TIME.tn) < 4 ~
            paste0("0", TRIP_START_TIME.tn),
@@ -1559,7 +1559,7 @@ v_p__t__tn_d_weeks_gom_short <-
 # decl trip start < or > 1h logbooks trip start
 
   # mutate(isFilter = case_when(Time == "T0" & Value > 5 ~ 1, TRUE ~ 0)) %>%
-# df <- df %>% group_by(levelled) %>% 
+# df <- df %>% group_by(levelled) %>%
 # filter(any(direction == "down"))
 
 ### at least one pair of matching declarations per week ----
@@ -1574,7 +1574,7 @@ filter_logb_for_decl_fish <- rlang::quo(
 )
 
 v_p__t__tn_d_weeks_gom_short |>
-  filter(!!filter_logb_for_decl_fish) |> 
+  filter(!!filter_logb_for_decl_fish) |>
   dim()
 # [1] 43802    35
 # [1] 43767    36
@@ -1584,7 +1584,7 @@ v_p__t__tn_d_weeks_gom_short |>
 tic("v_p__t__tn_d_weeks_gom_short_matched")
 v_p__t__tn_d_weeks_gom_short_matched <-
   v_p__t__tn_d_weeks_gom_short |>
-  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |> 
+  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
   # convert time to a Date format
   mutate(
     TRIP_START_TIME_t_hm =
@@ -1595,11 +1595,11 @@ v_p__t__tn_d_weeks_gom_short_matched <-
   # count the difference between start times t and tn
   mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
   # less than an hour difference between trip and trip notif start time
-  mutate(matched_reports = 
+  mutate(matched_reports =
            case_when(time_diff1 < 3600 ~ "matched",
                      .default = "not_matched"
-           )) |> 
-  distinct() |> 
+           )) |>
+  distinct() |>
   ungroup()
 toc()
 
@@ -1610,7 +1610,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 75524    39 without filter out not matched
 # [1] 75403    40
 
-v_p__t__tn_d_weeks_gom_short_matched |> 
+v_p__t__tn_d_weeks_gom_short_matched |>
   count(matched_reports)
 # 1 matched         35664
 # 2 not_matched     39860
@@ -1632,7 +1632,7 @@ v_p__t__tn_d_weeks_gom_short_matched |>
            INTENDED_FISHING_FLAG == 'Y' &
              matched_reports == "not_matched" &
              !is.na(rep_type.t)) |>
-  head() |> 
+  head() |>
   dim()
 # 6 40
 
@@ -1652,9 +1652,9 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w: 5.39 sec elapsed
 
-# filter(PERMIT_VESSEL_ID %in% c("FL4459MW", "FL4459PW")) |> 
+# filter(PERMIT_VESSEL_ID %in% c("FL4459MW", "FL4459PW")) |>
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   count(INTENDED_FISHING_FLAG)
 # 1 N                      4072
 # 2 Y                     68177
@@ -1674,7 +1674,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
     # WEEK_OF_YEAR,
     date_y_m,
     INTENDED_FISHING_FLAG,
-    is_compliant_w) |> 
+    is_compliant_w) |>
   glimpse()
   # write_csv("compliant_fishing_month.csv")
 
@@ -1690,14 +1690,14 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
            INTENDED_FISHING_FLAG,
            is_compliant_w) |>
   mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
-  select(-PERMIT_VESSEL_ID) |> 
-  distinct() |> 
+  select(-PERMIT_VESSEL_ID) |>
+  distinct() |>
   glimpse()
 # disregard not_matched & yes, that means there are more than 1 decl
 
 ### a good example of 2 decl per week with compliant ----
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
-  filter(date_y_m == "Feb 2022") |> 
+  filter(date_y_m == "Feb 2022") |>
          # ,
          # matched_reports == "not_matched"
          # INTENDED_FISHING_FLAG == "N"
@@ -1758,10 +1758,10 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   group_by(date_y_m,
            WEEK_OF_YEAR,
            is_compliant_w) |>
-  filter(date_y_m == 'Mar 2022') |> 
-  subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[is_compliant_w == 'yes']) |> 
-  mutate(cnt_c1 = n_distinct(PERMIT_VESSEL_ID)) |> 
-  ungroup() |> 
+  filter(date_y_m == 'Mar 2022') |>
+  subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[is_compliant_w == 'yes']) |>
+  mutate(cnt_c1 = n_distinct(PERMIT_VESSEL_ID)) |>
+  ungroup() |>
   select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   View()
@@ -1793,18 +1793,18 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_2: 8.93 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
   count(not_fish_compl)
 # 1 no             73009
 # 2 yes             2394
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
   count(not_fish_compl)
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |> 
-  # filter(not_fish_compl == "yes") |> 
-  filter(PERMIT_VESSEL_ID == "FL4459PW") |> 
-  arrange(WEEK_OF_YEAR) |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
+  # filter(not_fish_compl == "yes") |>
+  filter(PERMIT_VESSEL_ID == "FL4459PW") |>
+  arrange(WEEK_OF_YEAR) |>
   glimpse()
 
 ## a week with no reports ----
@@ -1837,7 +1837,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 
 #   filter(PERMIT_VESSEL_ID == "FL3627NN") |>
   # View()
-# 
+#
 # > v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   filter(PERMIT_VESSEL_ID == "FL3627NN") |>
 #   View()
@@ -1855,7 +1855,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 
 ## a week with a logb and no decl ----
 
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |> 
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   filter(VESSEL_VESSEL_ID == 72359,
 #          PERMIT_VESSEL_ID == "933533")
     # group_by(VESSEL_VESSEL_ID,
@@ -1871,7 +1871,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
            WEEK_OF_YEAR,
            date_y_m) |>
   dplyr::add_count(rep_type.t, name = "cnt_t") |>
-  dplyr::add_count(rep_type.tn, name = "cnt_tn") |>       
+  dplyr::add_count(rep_type.tn, name = "cnt_tn") |>
   mutate(
     no_decl_compl =
       case_when(
