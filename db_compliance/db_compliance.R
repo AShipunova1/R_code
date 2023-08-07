@@ -1852,3 +1852,33 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   filter(VESSEL_ID == "330659") |>
 #   View()
 # 0
+
+## a week with a logb and no decl ----
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4")
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(
+    add_count(rep_type.t, name = "cnt_t"),
+    add_count(rep_type.tn, name = "cnt_tn"),
+    no_decl_compl =
+      case_when(
+        is_compliant_w == "no" &
+          not_fish_compl == "no" &
+          no_rep_compl == "no" &
+          # no decl for a lgb
+          cnt_t > cnt_tn ~ "yes",
+        .default = "no"
+      )
+  ) |>
+  ungroup()
+toc()
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |> 
+  filter(VESSEL_VESSEL_ID == 72359,
+         PERMIT_VESSEL_ID == "933533") |> 
+  View()
+
