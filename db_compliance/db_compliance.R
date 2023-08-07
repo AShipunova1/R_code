@@ -1992,6 +1992,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 13.05 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 3032.68 sec elapsed rowwise
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 7.04 sec elapsed
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
   count(no_lgb_compl)
@@ -2005,9 +2006,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
   arrange(desc(no_lgb_compl)) |>
   filter(no_decl_compl == "yes" & no_lgb_compl == "yes") |>
-  count(unique(PERMIT_VESSEL_ID))
-# # A tibble: 1 × 2
-#   `unique(PERMIT_VESSEL_ID)`     n
-#   <chr>                      <int>
-# 1 FL3495RT                       5
+  # count(n_distinct(PERMIT_VESSEL_ID))
+  glimpse()
+# 0
 
