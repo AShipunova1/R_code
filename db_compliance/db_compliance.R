@@ -1854,6 +1854,15 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 # 0
 
 ## a week with a logb and no decl ----
+
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |> 
+#   filter(VESSEL_VESSEL_ID == 72359,
+#          PERMIT_VESSEL_ID == "933533")
+    # group_by(VESSEL_VESSEL_ID,
+    #        PERMIT_VESSEL_ID,
+    #        WEEK_OF_YEAR,
+    #        date_y_m) |>
+
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
@@ -1861,9 +1870,9 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
+  dplyr::add_count(rep_type.t, name = "cnt_t") |>
+  dplyr::add_count(rep_type.tn, name = "cnt_tn") |>       
   mutate(
-    add_count(rep_type.t, name = "cnt_t"),
-    add_count(rep_type.tn, name = "cnt_tn"),
     no_decl_compl =
       case_when(
         is_compliant_w == "no" &
@@ -1876,9 +1885,5 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   ) |>
   ungroup()
 toc()
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |> 
-  filter(VESSEL_VESSEL_ID == 72359,
-         PERMIT_VESSEL_ID == "933533") |> 
-  View()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 11.17 sec elapsed
 
