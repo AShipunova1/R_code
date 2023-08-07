@@ -1927,11 +1927,89 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |>
 # 1 no            73738
 # 2 yes            1665
 
-# TODO find the differnece between 4 and 4a
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |> 
+### TODO find the differnece between 4 and 4a ----
+v_yes <-
+  list(
+    v_p__t__tn_d_weeks_gom_short_matched_compl_w_4,
+    v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a
+  ) |>
+  map(function(curr_df) {
+    # browser()
+    curr_df |>
+      filter(no_decl_compl == "yes") |>
+      select(PERMIT_VESSEL_ID) |>
+      distinct() %>%
+      return()
+  })
+
+str(v_yes)
+ # $ : tibble [82 × 1] (S3: tbl_df/tbl/data.frame)
+ #  ..$ PERMIT_VESSEL_ID: chr [1:82] "FL4482RC" "1162015" "1162266" "FL6786PB" ...
+ # $ : tibble [115 × 1] (S3: tbl_df/tbl/data.frame)
+ #  ..$ PERMIT_VESSEL_ID: chr [1:115] "FL4482RC" "FL3326MC" "1271163" "1271879" ...
+
+in4 <-
+  setdiff(v_yes[[1]]$PERMIT_VESSEL_ID,
+          v_yes[[2]]$PERMIT_VESSEL_ID)
+length(in4)
+# 0
+
+in4a <-
+  setdiff(v_yes[[2]]$PERMIT_VESSEL_ID,
+          v_yes[[1]]$PERMIT_VESSEL_ID)
+
+length(in4a)
+# 33
+#  [1] "FL3326MC" "1271163"  "1271879"  "1174344"  "1211890"  "1174689" 
+#  [7] "1109181"  "1087799"  "1217823"  "1264525"  "FL6017NC" "LA2117GM"
+# [13] "FL8511RT" "FL9207ST" "FL8845ML" "FL1640RJ" "FL0957RW" "AL0364RL"
+# [19] "AL1172RG" "1076615"  "FL1383SN" "1023529"  "1310120"  "1313218" 
+# [25] "1299573"  "980844"   "FL2564MC" "FL1751SN" "FL2305NU" "FL1909RG"
+# [31] "573252"   "555530"   "592015"  
+
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |> 
+#   filter(PERMIT_VESSEL_ID %in%
+#            v_yes[[2]]$PERMIT_VESSEL_ID) |> 
+#   View()
+
+FL4482RC_4 <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
+  filter(PERMIT_VESSEL_ID == "FL3326MC") |> 
+  select(-c(cnt_t, cnt_tn))
+
+FL4482RC_4a <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |>
+  filter(PERMIT_VESSEL_ID == "FL3326MC")
+
+all.equal(FL4482RC_4, FL4482RC_4a)
+# [1] "Component “no_decl_compl”: 1 string mismatch"
+
+# library(arsenal)
+# summary(comparedf(FL4482RC_4, FL4482RC_4a))
+# Error in h(simpleError(msg, call)) : 
+#   error in evaluating the argument 'object' in selecting a method for function 'summary': Incompatible classes: <numeric> + <Interval>
+
+library(diffdf)
+diffdf(FL4482RC_4, FL4482RC_4a)
+# All rows are shown in table below
+
+  # =============================================
+  #    VARIABLE     ..ROWNUMBER..  BASE  COMPARE 
+  # ---------------------------------------------
+  #  no_decl_compl       37         no     yes   
+  # ---------------------------------------------
+
+glimpse(FL4482RC_4[37,])
+glimpse(FL4482RC_4a[37,])
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
+  filter(WEEK_OF_YEAR == 26,
+         PERMIT_VESSEL_ID == "FL3326MC") |> 
   glimpse()
-# 330202 1281880
-# 382204 1299573
+# $ cnt_t                 <int> 1, 1
+# $ cnt_tn                <int> 1, 1
+# 2 entries, 1 has t, another has a tn!
+
 
 # no report, but a decl is a "no fish" - compl ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5")
