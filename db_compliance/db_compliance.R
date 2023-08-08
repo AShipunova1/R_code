@@ -2010,6 +2010,9 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
   glimpse()
 # 0
 
+## not compliant but overriden ----
+View(compl_err_db_data)
+
 ## GOM Compliant in all categories per week ----
 
 all_not_compl_filter <-
@@ -2127,3 +2130,64 @@ v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |>
 # 1020 + 286 = 1306 compl
 
 # GOM non compliant by month ----
+
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no <-
+  v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |>
+  filter(compl_w == "no")
+
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no |> 
+  glimpse()
+# [1] 7635   12
+
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no_v_cnt <-
+  v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no |>
+  group_by(date_y_m,
+           WEEK_OF_YEAR) |>
+  add_count(n_distinct(PERMIT_VESSEL_ID), name = "vsls_nc_w") |>
+  ungroup()
+
+View(v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no_v_cnt)
+# v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no_v_cnt |
+#     filter(PERMIT_VESSEL_ID == "FL4459MW") |
+#     View()
+# v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no_v_cnt |
+#     filter(WEEK_OF_YEAR == 13) |
+#     View()
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no_v_cnt |
+    filter(WEEK_OF_YEAR == 13) |
+    select(PERMIT_VESSEL_ID) |
+    distinct() |
+    count()
+#   date_y_m  WEEK_OF_YEAR     n
+#   <yearmon>        <dbl> <int>
+# 1 Mar 2022            13   131
+# 2 Apr 2022            13   102
+
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no_v_cnt |>
+  select(PERMIT_VESSEL_ID,
+         # date_y_m,
+         WEEK_OF_YEAR) |>
+  distinct() |>
+  group_by(
+    # date_y_m,
+           WEEK_OF_YEAR) |>
+  filter(WEEK_OF_YEAR == 13) |>
+  # subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
+  mutate(cnt_vsls_w = n_distinct(PERMIT_VESSEL_ID)) |>
+  ungroup() |>
+  select(-PERMIT_VESSEL_ID) |>
+  distinct() |>
+  View()
+
+# Apr 2022
+# 13
+# 245
+
+# Mar 2022
+# 13
+# 373
+
+# 13
+# 149
+
+
