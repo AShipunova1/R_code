@@ -2058,29 +2058,139 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 #     select(comp_error_type_cd) |> 
 #     distinct()
 #     comp_error_type_cd
-# 1         DECL_NO_TRIP
+  # 1         DECL_NO_TRIP
 # 2 SUBMIT_AFTER_ARRIVAL
 # 3         TRIP_NO_DECL
 # 4   VAL_ERROR_TRIP_GOM
-# 5     VMS_DECL_NO_TRIP
+  # 5     VMS_DECL_NO_TRIP
 # 6     TRIP_BEFORE_DECL
 # 7        NO_TRIP_FOUND
 # 8                 <NA>
 
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
+#   filter(comp_error_type_cd %in% c("DECL_NO_TRIP",
+#                                    "NO_TRIP_FOUND",
+#                                    "TRIP_NO_DECL")) |>
+#   View()
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
-  filter(comp_error_type_cd %in% c("DECL_NO_TRIP",
-                                   "NO_TRIP_FOUND",
-                                   "TRIP_NO_DECL")) |>
-  View()
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
-  select(srfh_for_hire_type_id) |> 
-  distinct()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
+#   select(srfh_for_hire_type_id) |> 
+#   distinct()
 #   srfh_for_hire_type_id
 # 1                     2
 # 2                    NA
-  
+
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1")
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
+  group_by(safis_vessel_id,
+           vessel_official_nbr,
+           comp_week,
+           date_y_m) |>
+  mutate(compl_w =
+           case_when(!!all_not_compl_filter ~ "no",
+                     .default = "yes")) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1: 7.61 sec elapsed
+
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1)
+# [1] 77748    56
+
+rm_fields <-
+  c(
+    "ACTIVITY_TYPE",
+    "SERO_VESSEL_PERMIT",
+    "comp_override_dt",
+    "comp_override_user_id",
+    "comp_week_end_dt",
+    "comp_week_start_dt",
+    "DC.t",
+    "DC.tn",
+    "DE.t",
+    "DE.tn",
+    "EVENT_ID",
+    "INTENDED_FISHING_FLAG",
+    "is_comp_override", #(all 1)
+    "is_override", #(all 0)
+    "matched_compl",
+    "matched_reports",
+    "no_decl_compl",
+    "no_decl_compl_0",
+    "no_lgb_compl",
+    "no_rep_compl",
+    "not_fish_compl",
+    "NOTIFICATION_TYPE_IDs",
+    "rep_type.t",
+    "rep_type.tn",
+    "SUBMIT_METHOD",
+    "time_diff1",
+    "TRIP_END_DATE",
+    "TRIP_END_m",
+    "TRIP_END_TIME.t",
+    "TRIP_END_TIME.tn",
+    "TRIP_END_week_num",
+    "TRIP_END_y",
+    "trip_int",
+    "TRIP_START_DATE",
+    "TRIP_START_TIME_t_hm",
+    "TRIP_START_TIME_tn_hm",
+    "TRIP_START_TIME.t",
+    "TRIP_START_TIME.tn",
+    "TRIP_TYPE",
+    "UC.t",
+    "UC.tn",
+    "UE.t",
+    "UE.tn"
+  )
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 |>
+  select(-any_of(rm_fields))
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+  dim()
+
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
+# [1] 77748    13
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+  filter(compl_w == "no") |>
+  filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
+  View()
+  # select(comp_error_type_cd) |>
+  # distinct()
+# 1 DECL_NO_TRIP        
+# 2 SUBMIT_AFTER_ARRIVAL
+# 3 TRIP_NO_DECL        
+# 4 VAL_ERROR_TRIP_GOM  
+# 5 VMS_DECL_NO_TRIP    
+# 6 TRIP_BEFORE_DECL    
+# 7 NO_TRIP_FOUND       
+
+override_types <-  
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
+  filter(compl_w == "no") |>
+  group_by(comp_error_type_cd) |>
+  mutate(error_type_cmnt_list =
+           list(na.omit(unique(comp_override_cmt)))) |>
+  #
+  # filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
+  select(comp_error_type_cd, error_type_cmnt_list) |>
+  distinct() |> 
+  ungroup()
+
+# write_csv(as.data.frame(override_types),
+  # "overriden_no_compl.csv")
+
+sink("overriden_no_compl.csv")
+print(as.data.frame(override_types))
+sink()
+
+cat(capture.output(print(as.data.frame(override_types)), 
+                   file = "overriden_no_compl1.txt"))
+
+
 ## GOM Compliant in all categories per week ----
 
 all_not_compl_filter <-
