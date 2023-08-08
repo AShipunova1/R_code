@@ -2011,8 +2011,76 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
 # 0
 
 ## not compliant but overriden ----
-View(compl_err_db_data)
+compl_err_db_data_short <-
+  compl_err_db_data |>
+  select(
+    comp_error_type_cd,
+    comp_override_cmt,
+    comp_override_dt,
+    comp_override_user_id,
+    comp_week,
+    comp_week_end_dt,
+    comp_week_start_dt,
+    comp_year,
+    is_comp,
+    is_comp_override,
+    is_override,
+    safis_vessel_id,
+    vessel_official_nbr
+  ) |> 
+  distinct()
 
+override_join_by =
+  join_by(
+    safis_vessel_id == VESSEL_VESSEL_ID,
+    vessel_official_nbr == PERMIT_VESSEL_ID,
+    comp_week == WEEK_OF_YEAR,
+    comp_year == YEAR
+  )
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr <-
+  compl_err_db_data_short |>
+  filter(is_comp_override == 1) |>
+  right_join(
+    v_p__t__tn_d_weeks_gom_short_matched_compl_w_5,
+    override_join_by,
+    relationship = "many-to-many",
+    suffix = c(".o", ".c_w")
+  )
+
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5)
+# [1] 75403    46
+
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
+# [1] 77748    55
+
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |> 
+#     select(comp_error_type_cd) |> 
+#     distinct()
+#     comp_error_type_cd
+# 1         DECL_NO_TRIP
+# 2 SUBMIT_AFTER_ARRIVAL
+# 3         TRIP_NO_DECL
+# 4   VAL_ERROR_TRIP_GOM
+# 5     VMS_DECL_NO_TRIP
+# 6     TRIP_BEFORE_DECL
+# 7        NO_TRIP_FOUND
+# 8                 <NA>
+
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
+  filter(comp_error_type_cd %in% c("DECL_NO_TRIP",
+                                   "NO_TRIP_FOUND",
+                                   "TRIP_NO_DECL")) |>
+  View()
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
+  select(srfh_for_hire_type_id) |> 
+  distinct()
+#   srfh_for_hire_type_id
+# 1                     2
+# 2                    NA
+  
 ## GOM Compliant in all categories per week ----
 
 all_not_compl_filter <-
