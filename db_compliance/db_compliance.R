@@ -1894,37 +1894,37 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 # 1 no            73812
 # 2 yes            1591
 
-v_yes <-
-  list(
-    v_p__t__tn_d_weeks_gom_short_matched_compl_w_4,
-    v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a
-  ) |>
-  map(function(curr_df) {
-    # browser()
-    curr_df |>
-      filter(no_decl_compl == "yes") |>
-      select(PERMIT_VESSEL_ID) |>
-      distinct() %>%
-      return()
-  })
+# v_yes <-
+#   list(
+#     v_p__t__tn_d_weeks_gom_short_matched_compl_w_4,
+#     v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a
+#   ) |>
+#   map(function(curr_df) {
+#     # browser()
+#     curr_df |>
+#       filter(no_decl_compl == "yes") |>
+#       select(PERMIT_VESSEL_ID) |>
+#       distinct() %>%
+#       return()
+#   })
 
-str(v_yes)
+# str(v_yes)
  # $ : tibble [82 × 1] (S3: tbl_df/tbl/data.frame)
  #  ..$ PERMIT_VESSEL_ID: chr [1:82] "FL4482RC" "1162015" "1162266" "FL6786PB" ...
  # $ : tibble [115 × 1] (S3: tbl_df/tbl/data.frame)
  #  ..$ PERMIT_VESSEL_ID: chr [1:115] "FL4482RC" "FL3326MC" "1271163" "1271879" ...
 
-in4 <-
-  setdiff(v_yes[[1]]$PERMIT_VESSEL_ID,
-          v_yes[[2]]$PERMIT_VESSEL_ID)
-length(in4)
+# in4 <-
+#   setdiff(v_yes[[1]]$PERMIT_VESSEL_ID,
+#           v_yes[[2]]$PERMIT_VESSEL_ID)
+# length(in4)
 # 0
 
-in4a <-
-  setdiff(v_yes[[2]]$PERMIT_VESSEL_ID,
-          v_yes[[1]]$PERMIT_VESSEL_ID)
-
-length(in4a)
+# in4a <-
+#   setdiff(v_yes[[2]]$PERMIT_VESSEL_ID,
+#           v_yes[[1]]$PERMIT_VESSEL_ID)
+# 
+# length(in4a)
 # 34
 #  [1] "FL3326MC" "1271163"  "1271879"  "1174344"  "1211890"  "1174689" 
 #  [7] "1109181"  "1087799"  "1217823"  "1264525"  "FL6017NC" "LA2117GM"
@@ -1938,24 +1938,24 @@ length(in4a)
 #            v_yes[[2]]$PERMIT_VESSEL_ID) |> 
 #   View()
 
-FL3326MC_4 <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
-  filter(PERMIT_VESSEL_ID == "FL3326MC") |> 
-  select(-no_decl_compl_0)
-
-FL3326MC_4a <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |>
-  filter(PERMIT_VESSEL_ID == "FL3326MC")
-
+# FL3326MC_4 <-
+#   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
+#   filter(PERMIT_VESSEL_ID == "FL3326MC") |> 
+#   select(-no_decl_compl_0)
+# 
+# FL3326MC_4a <-
+#   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |>
+#   filter(PERMIT_VESSEL_ID == "FL3326MC")
+# 
 # library(diffdf)
-diffdf(FL3326MC_4, FL3326MC_4a)
+# diffdf(FL3326MC_4, FL3326MC_4a)
 # All rows are shown in table below
 
   #    VARIABLE     ..ROWNUMBER..  BASE  COMPARE 
   #  no_decl_compl       37         no     yes   
 
-glimpse(FL4482RC_4[37,])
-glimpse(FL4482RC_4a[37,])
+# glimpse(FL4482RC_4[37,])
+# glimpse(FL4482RC_4a[37,])
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
   filter(WEEK_OF_YEAR == 26,
@@ -2016,11 +2016,11 @@ compl_err_db_data_short <-
   select(
     comp_error_type_cd,
     comp_override_cmt,
-    comp_override_dt,
-    comp_override_user_id,
+    # comp_override_dt,
+    # comp_override_user_id,
     comp_week,
-    comp_week_end_dt,
-    comp_week_start_dt,
+    # comp_week_end_dt,
+    # comp_week_start_dt,
     comp_year,
     is_comp,
     is_comp_override,
@@ -2032,17 +2032,20 @@ compl_err_db_data_short <-
 
 override_join_by =
   join_by(
-    safis_vessel_id == VESSEL_VESSEL_ID,
-    vessel_official_nbr == PERMIT_VESSEL_ID,
-    comp_week == WEEK_OF_YEAR,
-    comp_year == YEAR
+    VESSEL_VESSEL_ID == safis_vessel_id,
+    PERMIT_VESSEL_ID == vessel_official_nbr,
+    WEEK_OF_YEAR == comp_week,
+    YEAR == comp_year
   )
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr <-
+compl_err_db_data_short_overr <-
   compl_err_db_data_short |>
-  filter(is_comp_override == 1) |>
-  right_join(
+  filter(is_comp_override == 1)
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr <-
+  left_join(
     v_p__t__tn_d_weeks_gom_short_matched_compl_w_5,
+    compl_err_db_data_short_overr,
     override_join_by,
     relationship = "many-to-many",
     suffix = c(".o", ".c_w")
@@ -2052,7 +2055,10 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5)
 # [1] 75403    46
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
-# [1] 77748    55
+# [1] 97679    55 all overr
+# [1] 77748    51
+
+# View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |> 
 #     select(comp_error_type_cd) |> 
@@ -2080,12 +2086,21 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 # 1                     2
 # 2                    NA
 
+all_not_compl_filter <-
+  rlang::quo(
+    matched_compl == "no" &
+      not_fish_compl == "no" &
+      no_rep_compl == "no" &
+      no_decl_compl == "no" &
+      no_lgb_compl == "no"
+  )
+
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
-  group_by(safis_vessel_id,
-           vessel_official_nbr,
-           comp_week,
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
            date_y_m) |>
   mutate(compl_w =
            case_when(!!all_not_compl_filter ~ "no",
@@ -2095,7 +2110,7 @@ toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1: 7.61 sec elapsed
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1)
-# [1] 77748    56
+# [1] 77748    52
 
 rm_fields <-
   c(
@@ -2111,7 +2126,7 @@ rm_fields <-
     "DE.tn",
     "EVENT_ID",
     "INTENDED_FISHING_FLAG",
-    "is_comp_override", #(all 1)
+    # "is_comp_override", #(all 1)
     "is_override", #(all 0)
     "matched_compl",
     "matched_reports",
@@ -2152,12 +2167,12 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
   dim()
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
-# [1] 77748    13
+# [1] 77748    14
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
-  filter(compl_w == "no") |>
-  filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
-  View()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+#   filter(compl_w == "no") |>
+#   filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
+#   View()
   # select(comp_error_type_cd) |>
   # distinct()
 # 1 DECL_NO_TRIP        
@@ -2168,70 +2183,63 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
 # 6 TRIP_BEFORE_DECL    
 # 7 NO_TRIP_FOUND       
 
-override_types <-  
+# override_types <-  
+#   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
+#   filter(compl_w == "no") |>
+#   group_by(comp_error_type_cd) |>
+#   mutate(error_type_cmnt_list =
+#            list(na.omit(unique(comp_override_cmt)))) |>
+#   #
+#   # filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
+#   select(comp_error_type_cd, error_type_cmnt_list) |>
+#   distinct() |> 
+#   ungroup()
+
+# sink("overriden_no_compl.csv")
+# print(as.data.frame(override_types))
+# sink()
+
+# cat(capture.output(print(as.data.frame(override_types)), 
+                   # file = "overriden_no_compl1.txt"))
+
+# View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short )
+
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+#     filter(compl_w == "no" & (!is.na(is_comp_override) & is_comp_override == 1)) |>
+#     glimpse()
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+  count(is_comp_override)
+# 1                1  5531
+# 2               NA 72217
+
+# total gom compl ----
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
-  filter(compl_w == "no") |>
-  group_by(comp_error_type_cd) |>
-  mutate(error_type_cmnt_list =
-           list(na.omit(unique(comp_override_cmt)))) |>
-  #
-  # filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
-  select(comp_error_type_cd, error_type_cmnt_list) |>
-  distinct() |> 
-  ungroup()
+  mutate(compl_w_total =
+           case_when(
+             compl_w == "no" &
+               (!is.na(is_comp_override) &
+                  is_comp_override == 1) ~ "yes",
+             .default = compl_w
+           ))
 
-# write_csv(as.data.frame(override_types),
-  # "overriden_no_compl.csv")
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w)
+# [1] 77748    15
 
-sink("overriden_no_compl.csv")
-print(as.data.frame(override_types))
-sink()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short <-
+#   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
+#   select(
+#     VESSEL_VESSEL_ID,
+#     PERMIT_VESSEL_ID,
+#     permit_2022_int,
+#     permit_weeks_amnt_22,
+#     WEEK_OF_YEAR,
+#     date_y_m,
+#     ends_with("compl")
+#   ) |>
+#   distinct()
 
-cat(capture.output(print(as.data.frame(override_types)), 
-                   file = "overriden_no_compl1.txt"))
-
-
-## GOM Compliant in all categories per week ----
-
-all_not_compl_filter <-
-  rlang::quo(
-    matched_compl == "no" &
-      not_fish_compl == "no" &
-      no_rep_compl == "no" &
-      no_decl_compl == "no" &
-      no_lgb_compl == "no"
-  )
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
-  select(
-    VESSEL_VESSEL_ID,
-    PERMIT_VESSEL_ID,
-    permit_2022_int,
-    permit_weeks_amnt_22,
-    WEEK_OF_YEAR,
-    date_y_m,
-    ends_with("compl")
-  ) |>
-  distinct()
-
-# dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5)
-dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short)
-# [1] 21568    11
-
-tic("v_p__t__tn_d_weeks_gom_short_matched_short_compl_w")
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_w <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short |>
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID,
-           WEEK_OF_YEAR,
-           date_y_m) |>
-  mutate(compl_w =
-           case_when(!!all_not_compl_filter ~ "no",
-                     .default = "yes")) |>
-  ungroup()
-toc()
-# v_p__t__tn_d_weeks_gom_short_matched_short_compl_w: 7.01 sec elapsed
 
 ## compliant per month ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_short_compl_m")
