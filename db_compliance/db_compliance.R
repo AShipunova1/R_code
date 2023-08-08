@@ -2163,9 +2163,6 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 |>
   select(-any_of(rm_fields))
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
-  dim()
-
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
 # [1] 77748    14
 
@@ -2202,18 +2199,13 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
 # cat(capture.output(print(as.data.frame(override_types)),
                    # file = "overriden_no_compl1.txt"))
 
-# View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short )
-
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
-#     filter(compl_w == "no" & (!is.na(is_comp_override) & is_comp_override == 1)) |>
-#     glimpse()
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
-  count(is_comp_override)
+#   count(is_comp_override)
 # 1                1  5531
 # 2               NA 72217
 
 # total gom compl ----
+# not compliant and overridden = compliant
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
   mutate(compl_w_total =
@@ -2226,19 +2218,6 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w <
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w)
 # [1] 77748    15
-
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short <-
-#   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
-#   select(
-#     VESSEL_VESSEL_ID,
-#     PERMIT_VESSEL_ID,
-#     permit_2022_int,
-#     permit_weeks_amnt_22,
-#     WEEK_OF_YEAR,
-#     date_y_m,
-#     ends_with("compl")
-#   ) |>
-#   distinct()
 
 
 ## compliant per month ----
