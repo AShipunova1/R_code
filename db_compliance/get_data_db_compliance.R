@@ -508,3 +508,54 @@ glimpse(dates_2022)
 write_rds(dates_2022,
           file.path(input_path, "dates_2022.rds"))
 
+# get override data ----
+
+compl_err_query <-
+    "SELECT
+  *
+FROM
+       srh.srfh_vessel_comp_err@secapxdv_dblk.sfsc.noaa.gov
+  INNER JOIN srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
+  USING ( srh_vessel_comp_id )
+WHERE
+  comp_year > '2020'
+"
+# common fields
+#   SRH_VESSEL_COMP_ID
+# CREATED_DT
+# CREATED_USER_ID
+# LU_DT
+# LU_USER_ID
+
+get_compl_err_data_from_db <- 
+  function(compl_err_query) {
+    compl_err_db_data_0 =
+      ROracle::dbGetQuery(con,                                       compl_err_query)
+    
+    compl_err_db_data_1 <-
+      compl_err_db_data_0 %>%
+      # remove duplicated columns
+      select(-c(CREATED_DT,
+                CREATED_USER_ID,
+                LU_DT,
+                LU_USER_ID))
+    
+    # ROracle::dbDisconnect(con)
+    
+    return(compl_err_db_data_1)
+  }
+
+# tic("get_compl_err_data_from_db()")
+# compl_err_db_data_raw <- get_compl_err_data_from_db()
+# toc()
+
+file_name_overr <-
+  file.path(input_path, "compl_err_db_data_raw.rds")
+
+compl_err_db_data_raw <-
+  read_rds_or_run(file_name_overr,   compl_err_query,
+                  get_compl_err_data_from_db)
+# 2023-08-08 run the function: 19.05 sec elapsed
+# 2023-08-08 run the function: 22.67 sec elapsed
+
+compl_err_db_data <- clean_headers(compl_err_db_data_raw)
