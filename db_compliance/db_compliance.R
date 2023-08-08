@@ -1886,7 +1886,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 11.72 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
   count(no_decl_compl_0)
 # 1 no              73738
 # 2 yes              1665
@@ -1923,43 +1923,43 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 # in4a <-
 #   setdiff(v_yes[[2]]$PERMIT_VESSEL_ID,
 #           v_yes[[1]]$PERMIT_VESSEL_ID)
-# 
+#
 # length(in4a)
 # 34
-#  [1] "FL3326MC" "1271163"  "1271879"  "1174344"  "1211890"  "1174689" 
+#  [1] "FL3326MC" "1271163"  "1271879"  "1174344"  "1211890"  "1174689"
 #  [7] "1109181"  "1087799"  "1217823"  "1264525"  "FL6017NC" "LA2117GM"
 # [13] "FL8511RT" "FL9207ST" "FL8845ML" "FL1640RJ" "FL0957RW" "AL0364RL"
-# [19] "AL1172RG" "1076615"  "FL1383SN" "1023529"  "1310120"  "1313218" 
+# [19] "AL1172RG" "1076615"  "FL1383SN" "1023529"  "1310120"  "1313218"
 # [25] "1299573"  "980844"   "FL2564MC" "FL1751SN" "FL2305NU" "FL1909RG"
-# [31] "573252"   "555530"   "592015"  
+# [31] "573252"   "555530"   "592015"
 
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |> 
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |>
 #   filter(PERMIT_VESSEL_ID %in%
-#            v_yes[[2]]$PERMIT_VESSEL_ID) |> 
+#            v_yes[[2]]$PERMIT_VESSEL_ID) |>
 #   View()
 
 # FL3326MC_4 <-
 #   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
-#   filter(PERMIT_VESSEL_ID == "FL3326MC") |> 
+#   filter(PERMIT_VESSEL_ID == "FL3326MC") |>
 #   select(-no_decl_compl_0)
-# 
+#
 # FL3326MC_4a <-
 #   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |>
 #   filter(PERMIT_VESSEL_ID == "FL3326MC")
-# 
+#
 # library(diffdf)
 # diffdf(FL3326MC_4, FL3326MC_4a)
 # All rows are shown in table below
 
-  #    VARIABLE     ..ROWNUMBER..  BASE  COMPARE 
-  #  no_decl_compl       37         no     yes   
+  #    VARIABLE     ..ROWNUMBER..  BASE  COMPARE
+  #  no_decl_compl       37         no     yes
 
 # glimpse(FL4482RC_4[37,])
 # glimpse(FL4482RC_4a[37,])
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
   filter(WEEK_OF_YEAR == 26,
-         PERMIT_VESSEL_ID == "FL3326MC") |> 
+         PERMIT_VESSEL_ID == "FL3326MC") |>
   glimpse()
 # $ cnt_t                 <int> 1, 1
 # $ cnt_tn                <int> 1, 1
@@ -1994,13 +1994,13 @@ toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 3032.68 sec elapsed rowwise
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 7.04 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
   count(no_lgb_compl)
 # 1 no           75060
 # 2 yes            343
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
-  arrange(desc(no_lgb_compl)) |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
+  arrange(desc(no_lgb_compl)) |>
   glimpse()
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
@@ -2027,7 +2027,7 @@ compl_err_db_data_short <-
     is_override,
     safis_vessel_id,
     vessel_official_nbr
-  ) |> 
+  ) |>
   distinct()
 
 override_join_by =
@@ -2060,8 +2060,8 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 
 # View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |> 
-#     select(comp_error_type_cd) |> 
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
+#     select(comp_error_type_cd) |>
 #     distinct()
 #     comp_error_type_cd
   # 1         DECL_NO_TRIP
@@ -2080,7 +2080,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 #   View()
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
-#   select(srfh_for_hire_type_id) |> 
+#   select(srfh_for_hire_type_id) |>
 #   distinct()
 #   srfh_for_hire_type_id
 # 1                     2
@@ -2163,27 +2163,27 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 |>
   select(-any_of(rm_fields))
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
   dim()
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
 # [1] 77748    14
 
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
 #   filter(compl_w == "no") |>
 #   filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
 #   View()
   # select(comp_error_type_cd) |>
   # distinct()
-# 1 DECL_NO_TRIP        
+# 1 DECL_NO_TRIP
 # 2 SUBMIT_AFTER_ARRIVAL
-# 3 TRIP_NO_DECL        
-# 4 VAL_ERROR_TRIP_GOM  
-# 5 VMS_DECL_NO_TRIP    
-# 6 TRIP_BEFORE_DECL    
-# 7 NO_TRIP_FOUND       
+# 3 TRIP_NO_DECL
+# 4 VAL_ERROR_TRIP_GOM
+# 5 VMS_DECL_NO_TRIP
+# 6 TRIP_BEFORE_DECL
+# 7 NO_TRIP_FOUND
 
-# override_types <-  
+# override_types <-
 #   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
 #   filter(compl_w == "no") |>
 #   group_by(comp_error_type_cd) |>
@@ -2192,23 +2192,23 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
 #   #
 #   # filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
 #   select(comp_error_type_cd, error_type_cmnt_list) |>
-#   distinct() |> 
+#   distinct() |>
 #   ungroup()
 
 # sink("overriden_no_compl.csv")
 # print(as.data.frame(override_types))
 # sink()
 
-# cat(capture.output(print(as.data.frame(override_types)), 
+# cat(capture.output(print(as.data.frame(override_types)),
                    # file = "overriden_no_compl1.txt"))
 
 # View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short )
 
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
 #     filter(compl_w == "no" & (!is.na(is_comp_override) & is_comp_override == 1)) |>
 #     glimpse()
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
   count(is_comp_override)
 # 1                1  5531
 # 2               NA 72217
@@ -2257,7 +2257,7 @@ toc()
 v_p__t__tn_d_weeks_gom_short_matched_short_compl_m |>
   filter(PERMIT_VESSEL_ID == "FL4463MX" &
            date_y_m == "Jun 2022") |>
-  arrange(WEEK_OF_YEAR) |> 
+  arrange(WEEK_OF_YEAR) |>
   glimpse()
 # $ WEEK_OF_YEAR     <dbl> 22, 23, 24, 25, 26
 # $ compl_w          <chr> "no", "no", "yes", "yes", "yes"
@@ -2276,14 +2276,14 @@ v_p__t__tn_d_weeks_gom_short_matched_short_compl_y <-
   ungroup()
 toc()
 
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |> 
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |>
   count(compl_y)
 # 1 no      12070
 # 2 yes      9498
 
 v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |>
-  select(PERMIT_VESSEL_ID, compl_y) |> 
-  distinct() |> 
+  select(PERMIT_VESSEL_ID, compl_y) |>
+  distinct() |>
   count(compl_y)
 # 1 no        476
 # 2 yes       875
@@ -2296,8 +2296,8 @@ v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |>
 875 * 100 / (476 + 875)
 # 64.76684 % yes
 # (the same as "new rule")
-# was 
-# 20% no 
+# was
+# 20% no
 # 80% yes
 
 # FHIER
@@ -2321,7 +2321,7 @@ v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no <-
   v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |>
   filter(compl_w == "no")
 
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no |> 
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_w_no |>
   glimpse()
 # [1] 7635   12
 
