@@ -1766,14 +1766,14 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   distinct() |>
   View()
 
-# no matched declarations, but compliant? ----
+## no matched declarations, but compliant? ----
 # There should be a logbook for every declaration of a charter or a headboat intending to fish.
 
 # print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w)
 
 print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w)
 
-## There are only a not matched not fishing intended declarations per week ----
+### There are only a not matched not fishing intended declarations per week ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_2")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
@@ -1853,7 +1853,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   View()
 # 0
 
-## a week with a logb and no decl (err, but is compliant) ----
+### a week with a logb and no decl (err, but is compliant) ----
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   filter(VESSEL_VESSEL_ID == 72359,
@@ -1965,7 +1965,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 # $ cnt_tn                <int> 1, 1
 # 2 entries, 1 has t, another has a tn! should be not compl
 
-# no report, but a decl is a "no fish" - compl ----
+### no report, but a decl is a "no fish" - compl ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
@@ -2011,92 +2011,6 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
 # 0
 
 ## GOM Compliant in all categories per week ----
-# print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5)
-
-tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_all")
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_all <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID,
-           WEEK_OF_YEAR,
-           date_y_m) |>
-  mutate(
-    compl_w =
-      case_when(
-        matched_compl == "yes" |
-          not_fish_compl == "yes" |
-          no_rep_compl == "yes" |
-          no_decl_compl == "yes" |
-          no_lgb_compl == "yes" ~ "yes",
-        .default = "no"
-      )
-  ) |>
-  ungroup()
-toc()
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_all: 203.72 sec elapsed
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_all |> 
-  count(compl_w)
-# 1 no      24381
-# 2 yes     51022
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_all |> 
-  select(PERMIT_VESSEL_ID, compl_w) |> 
-  distinct() |> 
-  count(compl_w)
-# 1 no        476
-# 2 yes      1140
-
-## GOM total compliance per year ----
-tic("v_p__t__tn_d_weeks_gom_short_matched_compl_y_all")
-v_p__t__tn_d_weeks_gom_short_matched_compl_y_all <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
-  group_by(VESSEL_VESSEL_ID,
-           PERMIT_VESSEL_ID) |> 
-  mutate(
-    compl_y =
-      case_when(
-        matched_compl == "no" &
-          not_fish_compl == "no" &
-          no_rep_compl == "no" &
-          no_decl_compl == "no" &
-          no_lgb_compl == "no" ~ "no",
-        .default = "yes"
-      )
-  ) |>
-  ungroup()
-toc()
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_y_all |> 
-  select(PERMIT_VESSEL_ID, compl_y) |> 
-  distinct() |> 
-  count(compl_y)
-# 1 no        476
-# 2 yes      1140
-
-length(unique(v_p__t__tn_d_weeks_gom_short_matched_compl_y_all$PERMIT_VESSEL_ID))
-# 1351
-476 * 100 / 1351
-# 35% no
-
-1140 * 100 / 1351
-# 84% yes
-
-# Was 80% yes and 20% no from 1495 in a year
-
-## check ----
-# View(v_p__t__tn_d_weeks_gom_short_matched_compl_y_all)
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short <-
-    v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |> 
-    select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_2022_int, permit_weeks_amnt_22, WEEK_OF_YEAR, date_y_m, ends_with("compl")) |> 
-    distinct()
-
-# dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5)
-dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short)
-# [1] 21568    11
-
-# View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short) 
 
 all_not_compl_filter <-
   rlang::quo(
@@ -2106,6 +2020,23 @@ all_not_compl_filter <-
       no_decl_compl == "no" &
       no_lgb_compl == "no"
   )
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
+  select(
+    VESSEL_VESSEL_ID,
+    PERMIT_VESSEL_ID,
+    permit_2022_int,
+    permit_weeks_amnt_22,
+    WEEK_OF_YEAR,
+    date_y_m,
+    ends_with("compl")
+  ) |>
+  distinct()
+
+# dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5)
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_short)
+# [1] 21568    11
 
 tic("v_p__t__tn_d_weeks_gom_short_matched_short_compl_w")
 v_p__t__tn_d_weeks_gom_short_matched_short_compl_w <-
@@ -2121,30 +2052,78 @@ v_p__t__tn_d_weeks_gom_short_matched_short_compl_w <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_short_compl_w: 7.01 sec elapsed
 
-  # mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |>
-  # # get the length of each list of permits
-  # mutate(all_permit_sa_gom_size = lengths(all_permit_sa_gom)) |>
-  # # if there are both sa and gom mark as dual,
-  # # otherwise keep the original permit region
-  # mutate(permit_sa_gom_dual =
-  #          case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
-  #                    .default = permit_sa_gom)) |>
-  # # remove temporary columns
-  # 
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |> 
-  group_by(PERMIT_VESSEL_ID, date_y_m) |> 
-  mutate(compl_per_m = list(na.omit(unique(compl_w))),
-         compl_m_len = lengths(compl_per_m)) |>
-  filter(compl_m_len > 1) |> 
-  ungroup() |> 
-  View()
+## compliant per month ----
+tic("v_p__t__tn_d_weeks_gom_short_matched_short_compl_m")
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_m <-
+  v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |>
+  group_by(PERMIT_VESSEL_ID, date_y_m) |>
+  mutate(compl_per_m_w = list(na.omit(unique(compl_w))),
+         compl_m_len = lengths(compl_per_m_w)) |>
+  mutate(compl_m = case_when(compl_m_len > 1 ~ "no",
+                                 compl_per_m_w == "no" ~ "no",
+                                 .default = "yes")) |>
+  ungroup()
+toc()
 
-# FL4463MX Jun
-
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |>
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_m |>
   filter(PERMIT_VESSEL_ID == "FL4463MX" &
            date_y_m == "Jun 2022") |>
   arrange(WEEK_OF_YEAR) |> 
   glimpse()
-# $ WEEK_OF_YEAR         <dbl> 22, 23, 24, 25, 26
-# $ compl_w              <chr> "no", "no", "yes", "yes", "yes"
+# $ WEEK_OF_YEAR     <dbl> 22, 23, 24, 25, 26
+# $ compl_w          <chr> "no", "no", "yes", "yes", "yes"
+# $ compl_m          <chr> "no", "no", "no", "no", "no"
+
+## GOM total compliance per year ----
+tic("v_p__t__tn_d_weeks_gom_short_matched_short_compl_m")
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_y <-
+  v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |>
+  group_by(PERMIT_VESSEL_ID) |>
+  mutate(compl_per_y_w = list(na.omit(unique(compl_w))),
+         compl_y_len = lengths(compl_per_y_w)) |>
+  mutate(compl_y = case_when(compl_y_len > 1 ~ "no",
+                                 compl_per_y_w == "no" ~ "no",
+                                 .default = "yes")) |>
+  ungroup()
+toc()
+
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |> 
+  count(compl_y)
+# 1 no      12070
+# 2 yes      9498
+
+v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |>
+  select(PERMIT_VESSEL_ID, compl_y) |> 
+  distinct() |> 
+  count(compl_y)
+# 1 no        476
+# 2 yes       875
+# 476 + 875
+# 1351
+
+476 * 100 / (476 + 875)
+# 35.23316 % no
+
+875 * 100 / (476 + 875)
+# 64.76684 % yes
+# (the same as "new rule")
+# was 
+# 20% no 
+# 80% yes
+
+# FHIER
+# 12/31/2021
+# Total Dual (SA & GOM) Permitted Vessels
+# 308
+# Total Vessels With GOM Permit Only	
+# 1021
+# 1021 + 308
+# 1329
+
+# Total Vessels	SA Only Non-compliant	SA Only Compliant	GOM Only Non-compliant	GOM Only Compliant	Dual (SA & GOM) Non-compliant	Dual (SA & GOM) Compliant
+# 3,629	932	1,368	1	1,020	22	286
+
+# 23 - not compl
+# 1020 + 286 = 1306 compl
+
+# GOM non compliant by month ----
