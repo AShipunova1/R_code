@@ -2161,10 +2161,12 @@ rm_fields <-
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 |>
-  select(-any_of(rm_fields))
+  select(-any_of(rm_fields)) |> 
+  distinct()
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
 # [1] 77748    14
+# [1] 22072    14
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
 #   filter(compl_w == "no") |>
@@ -2217,50 +2219,71 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w <
            ))
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w)
-# [1] 77748    15
+# [1] 22072    15
 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w |>
+  select(-c(
+    comp_error_type_cd,
+    comp_override_cmt,
+    is_comp,
+    is_comp_override,
+    compl_w
+  )) |> 
+  distinct()
+
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short)
+# [1] 21551    10
 
 ## compliant per month ----
-tic("v_p__t__tn_d_weeks_gom_short_matched_short_compl_m")
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_m <-
-  v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |>
+tic(
+  "v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m"
+)
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
   group_by(PERMIT_VESSEL_ID, date_y_m) |>
-  mutate(compl_per_m_w = list(na.omit(unique(compl_w))),
+  mutate(compl_per_m_w = list(na.omit(unique(compl_w_total))),
          compl_m_len = lengths(compl_per_m_w)) |>
   mutate(compl_m = case_when(compl_m_len > 1 ~ "no",
-                                 compl_per_m_w == "no" ~ "no",
-                                 .default = "yes")) |>
+                             compl_per_m_w == "no" ~ "no",
+                             .default = "yes")) |> 
   ungroup()
 toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m: 2.47 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_m |>
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m)
+# [1] 21551    13 distinct
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
   filter(PERMIT_VESSEL_ID == "FL4463MX" &
            date_y_m == "Jun 2022") |>
   arrange(WEEK_OF_YEAR) |>
+  distinct() |> 
   glimpse()
 # $ WEEK_OF_YEAR     <dbl> 22, 23, 24, 25, 26
 # $ compl_w          <chr> "no", "no", "yes", "yes", "yes"
 # $ compl_m          <chr> "no", "no", "no", "no", "no"
 
 ## GOM total compliance per year ----
-tic("v_p__t__tn_d_weeks_gom_short_matched_short_compl_m")
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_y <-
-  v_p__t__tn_d_weeks_gom_short_matched_short_compl_w |>
+tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y")
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
   group_by(PERMIT_VESSEL_ID) |>
-  mutate(compl_per_y_w = list(na.omit(unique(compl_w))),
+  mutate(compl_per_y_w = list(na.omit(unique(compl_w_total))),
          compl_y_len = lengths(compl_per_y_w)) |>
   mutate(compl_y = case_when(compl_y_len > 1 ~ "no",
                                  compl_per_y_w == "no" ~ "no",
                                  .default = "yes")) |>
   ungroup()
 toc()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y: 0.72 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |>
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y |>
   count(compl_y)
-# 1 no      12070
-# 2 yes      9498
+# 1 no      11645
+# 2 yes      9906
 
-v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |>
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y |>
   select(PERMIT_VESSEL_ID, compl_y) |>
   distinct() |>
   count(compl_y)
@@ -2278,6 +2301,18 @@ v_p__t__tn_d_weeks_gom_short_matched_short_compl_y |>
 # was
 # 20% no
 # 80% yes
+
+# w. overridden
+# 1 no        453
+# 2 yes       898
+# 898 + 453 = 1351
+
+453 * 100 / (453 + 898)
+# 33.53072 % no
+
+898 * 100 / (453 + 898)
+# 66.46928 % yes
+
 
 # FHIER
 # 12/31/2021
