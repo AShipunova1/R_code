@@ -219,6 +219,8 @@ data_overview(corresp_contact_cnts_clean) |>
 # vessel_official_number  3371
 # vesselofficial_number 3434
 
+# It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE. 
+
 ## ---- direct_contact ----
 ## ---- 1) all are voicemails ----
 get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
@@ -297,6 +299,59 @@ dim(corresp_contact_cnts_clean_direct_cnt)
 
 ## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
 # to investigation (to NEIS)
+
+## check ----
+list_to_check <- c("FL1848EY",
+                   "FL4232JY",
+                   "1246468",
+                   "FL7549EJ")
+
+test_new_egr1 <-
+  corresp_contact_cnts_clean_direct_cnt |>
+  filter(vessel_official_number %in% list_to_check) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  dim()
+# 4
+test_new_egr1[1] == 4
+# T
+
+## new requirement ----
+ # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
+two_attempts_filter <-
+  quo(contact_freq > 1 &
+        any(tolower(contacttype) == "call"))
+      # &
+      # direct_contact == "yes" &
+      # (tolower(voicemail) ==  "yes"
+      # tolower(voicemail) ==  "no" |
+      # ))
+
+emails_filter <- quo(contact_freq > 1 &
+                         ((tolower(contacttype) == "email") |
+                            (tolower(contacttype) == "other")))
+
+      
+corresp_contact_cnts_clean_direct_cnt_2atmps <-
+  corresp_contact_cnts_clean_direct_cnt |>
+  filter(!!two_attempts_filter)
+
+test_new_egr2 <-
+  corresp_contact_cnts_clean_direct_cnt_2atmps |>
+  filter(vessel_official_number %in% list_to_check) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  dim()
+
+test_new_egr2[1] == 4
+# T
+
+dim(corresp_contact_cnts_clean_direct_cnt)
+# [1] 18629    23
+dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
+# [1] 18163    23
+# dim(calls_with_direct_communication)
+# [1] 10594    23
 
 ## ---- 1) 1 call with a direct communication ----
 get_calls_with_direct_communication <-
