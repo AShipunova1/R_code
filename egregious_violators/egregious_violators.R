@@ -129,18 +129,18 @@ compl_clean_sa_non_c_not_exp <-
   # in the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
-  dplyr::filter(week_start < last_week_start) |> 
+  dplyr::filter(week_start < last_week_start) |>
   # not expired
   dplyr::filter(tolower(permit_expired) == "no")
-  
+
     # filter(vessel_official_number %in% list_to_check) |>
     # select(vessel_official_number) |>
     # distinct() |>
-    # head()  
+    # head()
     # check_new_vessels()
-# 1 FL7549EJ              
-# 2 FL4232JY              
-# 3 FL1848EY              
+# 1 FL7549EJ
+# 2 FL4232JY
+# 3 FL1848EY
 
 # dim(compl_clean_sa_non_c_not_exp)
 # [1] 10419    23
@@ -159,7 +159,7 @@ compl_clean_sa_all_weeks_non_c_short <-
                    name = "compl_weeks_amnt") |>
   dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
   dplyr::select(-week) |>
-  dplyr::distinct() |> 
+  dplyr::distinct() |>
   # all weeks were non compliant
   filter(compl_weeks_amnt == total_weeks) |>
   # all weeks are not compliant
@@ -176,7 +176,7 @@ compl_clean_sa_non_c_not_exp |>
   # [1] 9315    5
   dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
   dplyr::select(-week) |>
-  dplyr::distinct() |> 
+  dplyr::distinct() |>
   # dim()
   # [1] 1046    4
   # all weeks were non compliant
@@ -187,9 +187,9 @@ compl_clean_sa_non_c_not_exp |>
     # select(vessel_official_number) |>
     # distinct() |>
     # head()
-# 1 FL4232JY              
-# 2 FL7549EJ              
-# 3 FL1848EY              
+# 1 FL4232JY
+# 2 FL7549EJ
+# 3 FL1848EY
 
 ### add back columns needed for the output ----
 need_cols_names <- c(
@@ -204,13 +204,13 @@ need_cols_names <- c(
 compl_clean_sa_non_c_not_exp |> check_new_vessels()
 # 3
 
-compl_clean_sa_all_weeks_non_c_short |> 
+compl_clean_sa_all_weeks_non_c_short |>
     filter(vessel_official_number %in% list_to_check) |>
     select(vessel_official_number) |>
     distinct() |>
     head()
-# 1 FL4232JY              
-# 2 FL7549EJ              
+# 1 FL4232JY
+# 2 FL7549EJ
 
   # check_new_vessels()
 # 2
@@ -264,17 +264,17 @@ dim(compl_clean_sa_all_weeks_non_c)
 # "FL7703LT",
 # "1279625",
 # "565041")
-# 
+#
 # # compl_clean_sa_all_weeks_non_c |>
 # #   filter(vessel_official_number %in%
 # #            manual_no) |>
 # #   View()
-# 
+#
 # # compl_clean_sa |>
 # #   filter(vessel_official_number %in%
 # #            manual_no) |>
 # #   View()
-# 
+#
 ## ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
@@ -282,13 +282,13 @@ corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   filter(!grepl("^99999", vessel_official_number))
 
-data_overview(corresp_contact_cnts_clean) |> 
+data_overview(corresp_contact_cnts_clean) |>
   head(1)
 # vesselofficial_number   3223
 # vessel_official_number  3371
 # vesselofficial_number 3434
 
-# It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE. 
+# It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 
 ## ---- direct_contact ----
 ## ---- 1) all are voicemails ----
@@ -388,7 +388,7 @@ two_attempts_filter <-
 #         ((tolower(contacttype) == "email") |
 #            (tolower(contacttype) == "other")))
 
-      
+
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean_direct_cnt |>
   filter(!!two_attempts_filter)
@@ -405,7 +405,7 @@ dim(corresp_contact_cnts_clean_direct_cnt)
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 18163    23
 
-data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |> 
+data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |>
   head(1)
 # vesselofficial_number 2968
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
@@ -428,26 +428,26 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 #       filter(!!answered_1_plus_filter) %>%
 #       return()
 #   }
-# 
+#
 # calls_with_direct_communication <-
 #   get_calls_with_direct_communication(corresp_contact_cnts_clean_direct_cnt)
-# # TODO: out of 4 contacts for 1305207 only one is in the "contactdate_field_name 
-# 
+# # TODO: out of 4 contacts for 1305207 only one is in the "contactdate_field_name
+#
 # dim(calls_with_direct_communication)
 # # [1] 12584    23
 # # 27: [1] 10062    23
 # # [1] 10475    23
 # # [1] 10594    23
-# 
+#
 # # str(calls_with_direct_communication)
-# 
+#
 ## ---- 2) in and out emails ----
 # get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
 #   # save a filter: more than 1 email
 #   emails_filter <- quo(contact_freq > 1 &
 #                          ((tolower(contacttype) == "email") |
 #                             (tolower(contacttype) == "other")))
-# 
+#
 #   # use emails_filter for incoming
 #   incoming_2_plus_emails <-
 #     corresp_contact_cnts_clean |>
@@ -456,7 +456,7 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 #     select(vessel_official_number) |>
 #     dplyr::distinct()
 #   # 259
-# 
+#
 #   # use emails_filter for outgoing
 #   outgoing_2_plus_emails <-
 #     corresp_contact_cnts_clean |>
@@ -468,13 +468,13 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 #   #   glimpse()
 #   # 624
 #   # 712
-# 
+#
 #   # get ids wihch are in both in and out lists
 #   both_in_n_out_2_plus_email_ids <-
 #     intersect(incoming_2_plus_emails, outgoing_2_plus_emails)
 #   # 148
 #   # 173
-# 
+#
 #   # keep correspondence information only for those
 #   corresp_contact_cnts_clean_direct_cnt |>
 #     filter(
@@ -482,10 +482,10 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 #     ) %>%
 #     return()
 # }
-# 
+#
 # both_in_n_out_2_plus_emails <-
 #   get_both_in_n_out_emails(corresp_contact_cnts_clean)
-# 
+#
 # # check
 # data_overview(corresp_contact_cnts_clean) |> head(1)
 # # vesselofficialnumber  3450
@@ -493,21 +493,21 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # # 27: vesselofficial_number 3223
 # # vesselofficial_number 3371
 # # vesselofficial_number 3434
-# 
+#
 # data_overview(both_in_n_out_2_plus_emails)  |> head(1)
 # # vesselofficialnumber  147
 # # 173
 # # 27: 246
 # # 461
 # # 549
-# 
+#
 # # group_by_arr <- c("vessel_official_number", "calltype")
 # # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) |> glimpse()
-# 
+#
 # to_investigation_to_NEIS <-
 #   rbind(both_in_n_out_2_plus_emails,
 #         calls_with_direct_communication)
-# 
+#
 ## ---- look at the to_investigation_to_NEIS ----
 # data_overview(to_investigation_to_NEIS) |> head(1)
 # vesselofficialnumber  3070
@@ -545,11 +545,11 @@ corresp_contact_cnts_clean_direct_cnt_2atmps |>
   check_new_vessels()
 # 4
 
-compl_clean_sa_all_weeks_non_c |> 
+compl_clean_sa_all_weeks_non_c |>
   check_new_vessels()
 # 2
 
-  
+
 compl_corr_to_investigation1 <-
   inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps,
@@ -594,7 +594,7 @@ count_uniq_by_column(compl_corr_to_investigation1) |>
 # 97
 # vesselofficial_number 116
 
-count_uniq_by_column(compl_corr_to_investigation1) |> 
+count_uniq_by_column(compl_corr_to_investigation1) |>
   head(1)
 # vesselofficial_number 116
 
@@ -654,14 +654,14 @@ dim(date__contacttype_per_id)
 # 97
 # [1] 116   2 (2 contact attempts)
 
-compl_corr_to_investigation1 |> 
+compl_corr_to_investigation1 |>
   check_new_vessels()
 # 2
 
-date__contacttype_per_id |> 
+date__contacttype_per_id |>
   check_new_vessels()
 # 2
-  
+
 ## ---- combine output ----
 compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation1 |>
@@ -807,7 +807,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # results_with_comments <-
 #   readr::read_csv(results_with_comments_path,
 #                   col_types = cols(.default = 'c'))
-# 
+#
 # dim(results_with_comments)
 # 134 13
 
@@ -898,7 +898,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 #   filter(vessel_official_number == '1305207') |> dim()
 # [1]  1 21
 
-# setdiff(no_comments_vsls_ids$vessel_official_number, in_the_new_res_only_df) |> 
+# setdiff(no_comments_vsls_ids$vessel_official_number, in_the_new_res_only_df) |>
 #   length()
 # 1305207
 # 62
@@ -941,7 +941,7 @@ compl_corr_to_investigation1_short_dup_marked |>
 #     "not_compliant_51_plus_weeks_and_no_correspondence.R"
 #   )
 # )
-# 
+#
 # ## ---- correspondence, no compliance information ----
 # no_compl_info <-
 #   setdiff(
@@ -952,6 +952,6 @@ compl_corr_to_investigation1_short_dup_marked |>
 # # 398
 # # 136
 # # Not in compliance info!
-# 
+#
 # # grep("1131132", compl_clean$vessel_official_number)
 # # 0
