@@ -2388,3 +2388,80 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
   distinct() |>
   View()
 
+# 1) count percents - a given vsl non_compl per counted weeks total ----
+## 1a) how many weeks each vessel was present in all compliant ----
+
+weeks_per_vsl_permit_year_compl_cnt <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
+  dplyr::add_count(permit_2022_int,
+                   VESSEL_VESSEL_ID,
+                   PERMIT_VESSEL_ID,
+                   compl_w_total,
+                   # vsls_nc_w,
+                   name = "weeks_per_vessel_per_compl") %>%
+  dplyr::add_count(permit_2022_int,
+                   VESSEL_VESSEL_ID,
+                   PERMIT_VESSEL_ID,
+                   name = "total_weeks_per_vessel") %>%
+  dplyr::ungroup()
+
+weeks_per_vsl_permit_year_compl_cnt |> 
+  filter(!weeks_per_vessel_per_compl == total_weeks_per_vessel) |> 
+  dim()
+# [1] 8709   15
+
+## test 1a ----
+weeks_per_vsl_permit_year_compl_cnt %>%
+  dplyr::filter(PERMIT_VESSEL_ID == "1000042") |>
+  dplyr::select(YEAR,
+                compl_w_total,
+                # compl_m,
+                weeks_per_vessel_per_compl,
+                total_weeks_per_vessel) %>%
+  distinct()
+# 1 2022 yes 25 40
+# 2 2022 no  15 40
+
+# was
+#   year  compliant_ weeks_per_vessel_per_compl total_weeks_per_vessel
+# 1 2022 YES 50 52
+# 2 2022 NO 2 52
+
+nc_2022_sa_only_test <-
+  weeks_per_vsl_permit_year_compl_cnt %>%
+  dplyr::filter(
+    # year_permit == "2022 sa_only",
+    # compl_w_total == "no",
+    PERMIT_VESSEL_ID %in% c(
+      "VA9236AV",
+      "VA6784AD",
+      "VA4480ZY",
+      "SC9207BX",
+      "SC8907DF",
+      "SC8298DH"
+    )
+  ) %>%
+  dplyr::select(PERMIT_VESSEL_ID,
+                weeks_per_vessel_per_compl,
+                total_weeks_per_vessel) %>%
+  unique() |>
+  arrange(desc(total_weeks_per_vessel))
+
+glimpse(nc_2022_sa_only_test)
+# 0
+
+# sa only
+v_p__t__tn_d_weeks |>
+  dplyr::filter(
+    # year_permit == "2022 sa_only",
+    # compl_w_total == "no",
+    PERMIT_VESSEL_ID %in% c(
+      "VA9236AV",
+      "VA6784AD",
+      "VA4480ZY",
+      "SC9207BX",
+      "SC8907DF",
+      "SC8298DH"
+    )
+  ) %>%
+  View()
