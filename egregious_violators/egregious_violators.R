@@ -34,6 +34,9 @@ check_new_vessels <-
 # ---- Preparing compliance info ----
 
 ## ---- add permit_expired column ----
+check_new_vessels(compl_clean)
+# 4
+
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is more than a month from data_file_date than "no"
@@ -59,6 +62,9 @@ dim(compl_clean_w_permit_exp)
 # [1] "2023-08-01"
 # [1] 235509     22
 
+check_new_vessels(compl_clean_w_permit_exp)
+# 4
+
 # 185538
 # [1] 217772     22
 dim(compl_clean_w_permit_exp_last_27w)
@@ -68,7 +74,10 @@ dim(compl_clean_w_permit_exp_last_27w)
 # [1] 81153    23 189 d
 # [1] 87826    23
 
+check_new_vessels(compl_clean_w_permit_exp_last_27w)
+# 4
 ## ---- Have only SA permits, exclude those with Gulf permits ----
+
 compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
@@ -80,6 +89,9 @@ today()
 compl_clean_sa_non_compl <-
   compl_clean_sa |>
   filter(compliant_ == 'NO')
+
+check_new_vessels(compl_clean_sa_non_compl)
+# 4
 
 dim(compl_clean_sa_non_compl)
 # [1] 18205    23
@@ -117,11 +129,20 @@ compl_clean_sa_non_c_not_exp <-
   # in the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
-  dplyr::filter(week_start < last_week_start) |>
+  dplyr::filter(week_start < last_week_start) |> 
   # not expired
   dplyr::filter(tolower(permit_expired) == "no")
+  
+    # filter(vessel_official_number %in% list_to_check) |>
+    # select(vessel_official_number) |>
+    # distinct() |>
+    # head()  
+    # check_new_vessels()
+# 1 FL7549EJ              
+# 2 FL4232JY              
+# 3 FL1848EY              
 
-dim(compl_clean_sa_non_c_not_exp)
+# dim(compl_clean_sa_non_c_not_exp)
 # [1] 10419    23
 # [1] 9486   23
 # [1] 9315   23
@@ -129,8 +150,22 @@ dim(compl_clean_sa_non_c_not_exp)
 compl_clean_sa_non_c_not_exp |> check_new_vessels()
 # 3
 
-# compl_clean_sa_all_weeks_non_c_short <-
+compl_clean_sa_all_weeks_non_c_short <-
   compl_clean_sa_non_c_not_exp |>
+  dplyr::select(vessel_official_number, week, compliant_) |>
+  dplyr::add_count(vessel_official_number,
+                   name = "total_weeks") |>
+  dplyr::add_count(vessel_official_number, compliant_,
+                   name = "compl_weeks_amnt") |>
+  dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
+  dplyr::select(-week) |>
+  dplyr::distinct() |> 
+  # all weeks were non compliant
+  filter(compl_weeks_amnt == total_weeks) |>
+  # all weeks are not compliant
+  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3))
+
+compl_clean_sa_non_c_not_exp |>
   dplyr::select(vessel_official_number, week, compliant_) |>
   dplyr::add_count(vessel_official_number,
                    name = "total_weeks") |>
@@ -146,23 +181,15 @@ compl_clean_sa_non_c_not_exp |> check_new_vessels()
   # [1] 1046    4
   # all weeks were non compliant
   filter(compl_weeks_amnt == total_weeks) |>
-  # [1] 1046    4
-  # permitted for the whole period (disregard the last week)
-  # dim(compl_clean_sa_all_weeks_non_c_short)
-  # filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3))
-# number_of_weeks_for_non_compliancy 27
-# dim(compl_clean_sa_all_weeks_non_c_short)
-# 130
-# 0
-# [1] 1046    4
-# 114
-# 127 (-3)
-# 121
-
-# 13  & compl_weeks_amnt == (number_of_weeks_for_non_compliancy - 3)
-# dim(compl_clean_sa_all_weeks_non_c_short)
-# 114 - 2 (25 total weeks)
+    filter(vessel_official_number %in% list_to_check) |>
+    glimpse()
+    # FL1848EY total_weeks == 22
+    # select(vessel_official_number) |>
+    # distinct() |>
+    # head()
+# 1 FL4232JY              
+# 2 FL7549EJ              
+# 3 FL1848EY              
 
 ### add back columns needed for the output ----
 need_cols_names <- c(
@@ -176,7 +203,16 @@ need_cols_names <- c(
 )
 compl_clean_sa_non_c_not_exp |> check_new_vessels()
 # 3
-compl_clean_sa_all_weeks_non_c_short |> check_new_vessels()
+
+compl_clean_sa_all_weeks_non_c_short |> 
+    filter(vessel_official_number %in% list_to_check) |>
+    select(vessel_official_number) |>
+    distinct() |>
+    head()
+# 1 FL4232JY              
+# 2 FL7549EJ              
+
+  # check_new_vessels()
 # 2
 
 # dim(compl_clean_sa_non_c_not_exp)
