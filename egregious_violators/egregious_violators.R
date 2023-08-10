@@ -229,6 +229,28 @@ dim(compl_clean_sa_all_weeks_non_c)
 # 127
 # 121
 
+## check the last report date ----
+compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
+  compl_clean_sa_all_weeks_non_c_short |>
+  select(vessel_official_number) |>
+  distinct()
+
+# compl_clean_sa_non_c_not_exp |> 
+dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
+# [1] 121   1
+
+compl_clean_sa |>
+  filter(
+    vessel_official_number %in% compl_clean_sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
+  ) |>
+  # dim()
+  # [1] 3146   23
+  # View()
+  group_by(vessel_official_number) |> 
+  filter(tolower(compliant_) == "yes") |>
+  mutate(latest_compl = max(week_num)) |> 
+  View()
+
 # ## check the last output manually ----
 # manual_no <- c("1133962",
 # "1158893",
