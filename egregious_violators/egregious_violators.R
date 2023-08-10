@@ -105,6 +105,7 @@ dim(compl_clean_sa_non_compl)
 # [1] 15549    23
 # [1] 13992    23
 # [1] 14204    23
+# [1] 12454    23
 
 compl_clean_sa_non_compl |>
   count_uniq_by_column() |> head(1)
@@ -117,6 +118,7 @@ compl_clean_sa_non_compl |>
 # vessel_official_number 1369
 # [1] "2023-08-01"
 # vessel_official_number 1370
+# vessel_official_number 1328
 
 ## filter for egregious ----
 ### check if there is no "compliant_ == YES" since half_year_ago ----
@@ -137,16 +139,7 @@ compl_clean_sa_non_c_not_exp <-
   # not expired
   dplyr::filter(tolower(permit_expired) == "no")
 
-    # filter(vessel_official_number %in% list_to_check) |>
-    # select(vessel_official_number) |>
-    # distinct() |>
-    # head()
-    # check_new_vessels()
-# 1 FL7549EJ
-# 2 FL4232JY
-# 3 FL1848EY
-
-# dim(compl_clean_sa_non_c_not_exp)
+dim(compl_clean_sa_non_c_not_exp)
 # [1] 10419    23
 # [1] 9486   23
 # [1] 9315   23
@@ -161,13 +154,14 @@ compl_clean_sa_all_weeks_non_c_short <-
                    name = "total_weeks") |>
   dplyr::add_count(vessel_official_number, compliant_,
                    name = "compl_weeks_amnt") |>
-  dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
+  dplyr::arrange(dplyr::desc(compl_weeks_amnt),
+                 vessel_official_number) |>
   dplyr::select(-week) |>
   dplyr::distinct() |>
-  # all weeks were non compliant
-  filter(compl_weeks_amnt == total_weeks) |>
-  # all weeks are not compliant
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3))
+  # all weeks were...
+  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |> 
+  # ...non compliant
+  filter(compl_weeks_amnt == total_weeks)
 
 compl_clean_sa_non_c_not_exp |>
   dplyr::select(vessel_official_number, week, compliant_) |>
@@ -182,18 +176,13 @@ compl_clean_sa_non_c_not_exp |>
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # dim()
-  # [1] 1046    4
+  # [1] 1045    4
   # all weeks were non compliant
   filter(compl_weeks_amnt == total_weeks) |>
-    filter(vessel_official_number %in% list_to_check) |>
     glimpse()
-    # FL1848EY total_weeks == 22
-    # select(vessel_official_number) |>
-    # distinct() |>
-    # head()
-# 1 FL4232JY
-# 2 FL7549EJ
-# 3 FL1848EY
+
+dim(compl_clean_sa_all_weeks_non_c_short)
+# 121
 
 ### add back columns needed for the output ----
 need_cols_names <- c(
@@ -207,17 +196,6 @@ need_cols_names <- c(
 )
 compl_clean_sa_non_c_not_exp |> check_new_vessels()
 # 3
-
-compl_clean_sa_all_weeks_non_c_short |>
-    filter(vessel_official_number %in% list_to_check) |>
-    select(vessel_official_number) |>
-    distinct() |>
-    head()
-# 1 FL4232JY
-# 2 FL7549EJ
-
-  # check_new_vessels()
-# 2
 
 # dim(compl_clean_sa_non_c_not_exp)
 compl_clean_sa_all_weeks_non_c <-
@@ -250,57 +228,13 @@ compl_clean_sa |>
   # dim()
   # [1] 3146   23
   # View()
-  group_by(vessel_official_number) |> 
+  group_by(vessel_official_number) |>
   filter(tolower(compliant_) == "yes") |>
-  mutate(latest_compl = max(week_num)) |> 
-  View()
+  mutate(latest_compl = max(week_num)) |>
+  glimpse()
 
-# ## check the last output manually ----
-# manual_no <- c("1133962",
-# "1158893",
-# "1202614",
-# "FL6540TD",
-# "NJ3548GR",
-# "1254648",
-# "943683",
-# "1077813",
-# "1243529",
-# "1266505",
-# "1064222",
-# "FL9628RY",
-# "FL7060HK",
-# "978217",
-# "508385",
-# "FL2034JA",
-# "594390",
-# "1321667",
-# "591881",
-# "1233418",
-# "606326",
-# "FL1348GL",
-# "1254999",
-# "FL3557RC",
-# "FL1267MZ",
-# "FL6220RN",
-# "FL6900MH",
-# "FL5207CA",
-# "SC6965DN",
-# "FL4959PK",
-# "FL7207LT",
-# "FL7703LT",
-# "1279625",
-# "565041")
-#
-# # compl_clean_sa_all_weeks_non_c |>
-# #   filter(vessel_official_number %in%
-# #            manual_no) |>
-# #   View()
-#
-# # compl_clean_sa |>
-# #   filter(vessel_official_number %in%
-# #            manual_no) |>
-# #   View()
-#
+# TODO: add check for earlier weeks
+
 ## ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
@@ -314,109 +248,19 @@ data_overview(corresp_contact_cnts_clean) |>
 # vessel_official_number  3371
 # vesselofficial_number 3434
 
+# "2023-08-09"
+# Michelle
 # It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 
-## ---- direct_contact ----
-## ---- 1) all are voicemails ----
-get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
-  corresp_contact_cnts_clean |>
-    group_by(vessel_official_number) |>
-    # add a new logical column all_vm with a TRUE if all entries for voicemail column for this vessel are yeses
-    reframe(all_vm = all(tolower(voicemail) == "yes")) |>
-    # keep a row only if all_vm == TRUE
-    filter(all_vm) |>
-    # keep only one column
-    select("vessel_official_number") |>
-    dplyr::distinct() %>%
-    return()
-}
-
-all_vm_ids <- get_all_voicemails_id(corresp_contact_cnts_clean)
-dim(all_vm_ids)
-# 284
-# 27: 222
-# 134
-# 120
-
-# field_name into a var
-contactcomments_field_name <-
-  sym(find_col_name(corresp_contact_cnts_clean, ".*contact", "comments.*")[1])
-
-add_a_direct_contact_column <-
-  function(corresp_contact_cnts_clean) {
-    corresp_contact_cnts_clean |>
-      # create a new column "direct_contact" with a "yes" or "no"
-      # search comments for indicators that there was no direct contact
-      mutate(
-        direct_contact = case_when(
-          grepl("no answer", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
-          grepl("wrong number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
-          grepl("not in service", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
-          grepl(
-            "number.+is incorrect",
-            !!contactcomments_field_name,
-            ignore.case = TRUE
-          ) ~ "no",
-          grepl(
-            "the incorrect number",
-            !!contactcomments_field_name,
-            ignore.case = TRUE
-          ) ~ "no",
-          grepl(
-            "incorrect phone number",
-            !!contactcomments_field_name,
-            ignore.case = TRUE
-          ) ~ "no",
-          grepl(
-            "call could not be completed as dialed",
-            !!contactcomments_field_name,
-            ignore.case = TRUE
-          ) ~ "no",
-          vessel_official_number %in% all_vm_ids$vessel_official_number ~ "no",
-          .default = "yes"
-        )
-      ) %>%
-      return()
-
-    # filter(direct_contact == "no") |>
-    # select(vesselofficialnumber) |>
-    # dplyr::distinct() |>
-    # str()
-    # 'data.frame':	1126 obs. of  1 variable
-    # with new filters
-    # 'data.frame':	1138 obs. of  1 variable
-  }
-
-corresp_contact_cnts_clean_direct_cnt <-
-  add_a_direct_contact_column(corresp_contact_cnts_clean)
-dim(corresp_contact_cnts_clean_direct_cnt)
-# [1] 18629    23
-
-## ---- Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication. ----
-# to investigation (to NEIS)
-
-test_new_egr1 <-
-  corresp_contact_cnts_clean_direct_cnt |>
-  check_new_vessels()
-# 4
-test_new_egr1[1] == 4
-# T
-
-## new requirement ----
+## new requirement 2023-08-09 ----
 # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 
 two_attempts_filter <-
   quo(contact_freq > 1 &
         any(tolower(contacttype) == "call"))
 
-# emails_filter <-
-#   quo(contact_freq > 1 &
-#         ((tolower(contacttype) == "email") |
-#            (tolower(contacttype) == "other")))
-
-
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
-  corresp_contact_cnts_clean_direct_cnt |>
+  corresp_contact_cnts_clean |>
   filter(!!two_attempts_filter)
 
 test_new_egr2 <-
@@ -426,7 +270,7 @@ test_new_egr2 <-
 test_new_egr2[1] == 4
 # T
 
-dim(corresp_contact_cnts_clean_direct_cnt)
+dim(corresp_contact_cnts_clean)
 # [1] 18629    23
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 18163    23
@@ -437,136 +281,8 @@ data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |>
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 18163    23
 
-
-## ---- 1) 1 call with a direct communication ----
-# get_calls_with_direct_communication <-
-#   function(corresp_contact_cnts_clean_direct_cnt) {
-#     # save the long filter
-#     # more than one call
-#     answered_1_plus_filter <- quo(
-#       contact_freq > 1 &
-#         tolower(contacttype) == "call" &
-#         direct_contact == "yes" &
-#         tolower(voicemail) ==  "no"
-#     )
-#     # use the filter
-#     corresp_contact_cnts_clean_direct_cnt |>
-#       filter(!!answered_1_plus_filter) %>%
-#       return()
-#   }
-#
-# calls_with_direct_communication <-
-#   get_calls_with_direct_communication(corresp_contact_cnts_clean_direct_cnt)
-# # TODO: out of 4 contacts for 1305207 only one is in the "contactdate_field_name
-#
-# dim(calls_with_direct_communication)
-# # [1] 12584    23
-# # 27: [1] 10062    23
-# # [1] 10475    23
-# # [1] 10594    23
-#
-# # str(calls_with_direct_communication)
-#
-## ---- 2) in and out emails ----
-# get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
-#   # save a filter: more than 1 email
-#   emails_filter <- quo(contact_freq > 1 &
-#                          ((tolower(contacttype) == "email") |
-#                             (tolower(contacttype) == "other")))
-#
-#   # use emails_filter for incoming
-#   incoming_2_plus_emails <-
-#     corresp_contact_cnts_clean |>
-#     filter(!!emails_filter &
-#              tolower(calltype) == "incoming") |>
-#     select(vessel_official_number) |>
-#     dplyr::distinct()
-#   # 259
-#
-#   # use emails_filter for outgoing
-#   outgoing_2_plus_emails <-
-#     corresp_contact_cnts_clean |>
-#     filter(!!emails_filter &
-#              tolower(calltype) == "outgoing") |>
-#     select(vessel_official_number) |>
-#     dplyr::distinct()
-#   # |>
-#   #   glimpse()
-#   # 624
-#   # 712
-#
-#   # get ids wihch are in both in and out lists
-#   both_in_n_out_2_plus_email_ids <-
-#     intersect(incoming_2_plus_emails, outgoing_2_plus_emails)
-#   # 148
-#   # 173
-#
-#   # keep correspondence information only for those
-#   corresp_contact_cnts_clean_direct_cnt |>
-#     filter(
-#       vessel_official_number %in% both_in_n_out_2_plus_email_ids$vessel_official_number
-#     ) %>%
-#     return()
-# }
-#
-# both_in_n_out_2_plus_emails <-
-#   get_both_in_n_out_emails(corresp_contact_cnts_clean)
-#
-# # check
-# data_overview(corresp_contact_cnts_clean) |> head(1)
-# # vesselofficialnumber  3450
-# # 3571
-# # 27: vesselofficial_number 3223
-# # vesselofficial_number 3371
-# # vesselofficial_number 3434
-#
-# data_overview(both_in_n_out_2_plus_emails)  |> head(1)
-# # vesselofficialnumber  147
-# # 173
-# # 27: 246
-# # 461
-# # 549
-#
-# # group_by_arr <- c("vessel_official_number", "calltype")
-# # count_by_column_arr(both_in_n_out_2_plus_emails, group_by_arr) |> glimpse()
-#
-# to_investigation_to_NEIS <-
-#   rbind(both_in_n_out_2_plus_emails,
-#         calls_with_direct_communication)
-#
-## ---- look at the to_investigation_to_NEIS ----
-# data_overview(to_investigation_to_NEIS) |> head(1)
-# vesselofficialnumber  3070
-# 3170
-# 27: vesselofficial_number 2843
-# 3034
-# 2811
-
-# names(to_investigation_to_NEIS)
-# dim(to_investigation_to_NEIS)
-# [1] 14401    23
-# 27: [1] 12192    23
-# [1] 14463    23
-# [1] 15556    23
-
-# str(to_investigation_to_NEIS)
-# View(to_investigation_to_NEIS)
-# count dplyr::distinct values in each column
-# apply(to_investigation_to_NEIS, 2, function(x) length(dplyr::distinct(x))) |>
-#   as.data.frame() |> head(1)
-# vesselofficialnumber  3070
-# 3170
-
 ## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
 
-# compl_corr_to_investigation <-
-#   inner_join(
-#     to_investigation_to_NEIS,
-#     compl_clean_sa_all_weeks_non_c,
-#     by = c("vessel_official_number"),
-#     multiple = "all",
-#     relationship = "many-to-many"
-#   )
 corresp_contact_cnts_clean_direct_cnt_2atmps |>
   check_new_vessels()
 # 4
@@ -574,7 +290,6 @@ corresp_contact_cnts_clean_direct_cnt_2atmps |>
 compl_clean_sa_all_weeks_non_c |>
   check_new_vessels()
 # 2
-
 
 compl_corr_to_investigation1 <-
   inner_join(
@@ -585,30 +300,11 @@ compl_corr_to_investigation1 <-
     relationship = "many-to-many"
   )
 
-# check
-# to_investigation_to_NEIS[15,] FL3262PM
-# compl_clean_sa_all_weeks_non_c |>
-#   filter(vessel_official_number == "FL3262PM") |>
-#   dim()
-
-# dim(compl_corr_to_investigation)
-# [1] 16081    44
-# 27: 11151
-# 18093    45
-# [1] 264  26
-# [1] 264  30
-# 309
-
 dim(compl_corr_to_investigation1)
 # [1] 486  30
 # [1] 522  30
 
-# str(compl_corr_to_investigation)
-# compl_corr_to_investigation |>
-#   head() |>
-#   select(grep("official", names(compl_corr_to_investigation), value = T))
-
-## check
+# check
 count_uniq_by_column(compl_corr_to_investigation1) |>
   head(1)
 # 110
@@ -620,10 +316,6 @@ count_uniq_by_column(compl_corr_to_investigation1) |>
 # 97
 # vesselofficial_number 116
 
-count_uniq_by_column(compl_corr_to_investigation1) |>
-  head(1)
-# vesselofficial_number 116
-
 ## ---- output needed investigation ----
 # 1) create additional columns
 # 2) remove duplicated columns
@@ -633,40 +325,41 @@ count_uniq_by_column(compl_corr_to_investigation1) |>
 
 ## ----- list of contact dates and contact type in parentheses  -----
 
-# put names into vars
-contactdate_field_name <-
-  find_col_name(compl_corr_to_investigation1, "contact", "date")[1]
-contacttype_field_name <-
-  find_col_name(compl_corr_to_investigation1, "contact", "type")[1]
+# # put names into vars
+# contactdate_field_name <-
+#   find_col_name(compl_corr_to_investigation1, "contact", "date")[1]
+# contacttype_field_name <-
+#   find_col_name(compl_corr_to_investigation1, "contact", "type")[1]
+# 
+# write.csv(compl_corr_to_investigation1,
+#           file.path(
+#             my_paths$outputs,
+#             paste0(              "more_than_24_compl_corr_to_investigation1_22_23__",
+#               today(),
+#               ".csv"
+#             )
+#           ),
+#           row.names = FALSE)
+# # 435 dplyr::distinct ids
 
-write.csv(compl_corr_to_investigation1,
-          file.path(
-            my_paths$outputs,
-            paste0(              "more_than_24_compl_corr_to_investigation1_22_23__",
-              today(),
-              ".csv"
-            )
-          ),
-          row.names = FALSE)
-# 435 dplyr::distinct ids
-
-get_date_contacttype <- function(compl_corr_to_investigation1) {
-  compl_corr_to_investigation1 |>
-    # add a new column date__contacttype with contactdate and contacttype
-    mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
-    # use 2 columns only
-    select(vessel_official_number, date__contacttype) |>
-    # [1] 49903     2
-    # sort
-    arrange(vessel_official_number, date__contacttype) |>
-    dplyr::distinct() |>
-    group_by(vessel_official_number) |>
-    # [1] 1125    2
-    # for each vessel id combine all date__contacttypes separated by comma in one cell
-    summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
-    # [1] 435   2
-    return()
-}
+get_date_contacttype <-
+  function(compl_corr_to_investigation1) {
+    compl_corr_to_investigation1 |>
+      # add a new column date__contacttype with contactdate and contacttype
+      mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
+      # use 2 columns only
+      select(vessel_official_number, date__contacttype) |>
+      # [1] 49903     2
+      # sort
+      arrange(vessel_official_number, date__contacttype) |>
+      dplyr::distinct() |>
+      group_by(vessel_official_number) |>
+      # [1] 1125    2
+      # for each vessel id combine all date__contacttypes separated by comma in one cell
+      summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
+      # [1] 435   2
+      return()
+  }
 
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation1)
@@ -774,21 +467,6 @@ dim(compl_corr_to_investigation1_short_dup_marked)
 # 97
 # [1] 110  10 2 atmpts
 # [1] 116  10
-
-#### remove some? ----
-# vessels_to_remove <-
-#   read.csv(file.path(my_paths$inputs, r"(egr_violators\vessels_to_remove_04_05_2023.csv)"))
-# names(vessels_to_remove) = "vessel_official_number"
-# dim(vessels_to_remove)
-# 58
-
-# compl_corr_to_investigation1_short2 <-
-#   compl_corr_to_investigation1_short_dup_marked |>
-#   filter(!(
-#     vessel_official_number %in%
-#       vessels_to_remove$vessel_official_number
-#   ))
-# 164
 
 dim(compl_corr_to_investigation1_short_dup_marked)
 # 102
