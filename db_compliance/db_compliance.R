@@ -2313,7 +2313,6 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
 898 * 100 / (453 + 898)
 # 66.46928 % yes
 
-
 # FHIER
 # 12/31/2021
 # Total Dual (SA & GOM) Permitted Vessels
@@ -2334,25 +2333,27 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
-  filter(compl_w_total == "no")
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc <-
+#   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
+#   filter(compl_w_total == "no")
   
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc |>
-  dim()
+# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc |>
+#   dim()
 # [1] 7635   12
 # [1] 7288   10 overr
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc_v_cnt <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc |>
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt <-
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
   group_by(date_y_m,
-           WEEK_OF_YEAR) |>
+           WEEK_OF_YEAR,
+           compl_w_total) |>
   mutate(vsls_nc_w = n_distinct(PERMIT_VESSEL_ID)) |> 
-  # add_count(n_distinct(PERMIT_VESSEL_ID), name = "vsls_nc_w") |>
   ungroup()
 
-# View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc_v_cnt)
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc_v_cnt |>
+dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt)
+# [1] 21551    11
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
   filter(PERMIT_VESSEL_ID == "FL4459MW") |>
   glimpse()
 # $ WEEK_OF_YEAR         <dbl> 13, 14
@@ -2360,11 +2361,11 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
 # $ compl_w_total        <chr> "no", "no"
 # $ vsls_nc_w            <int> 97, 143
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc_v_cnt |> 
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |> 
     filter(WEEK_OF_YEAR == 13) |> 
-    View()
+    glimpse()
 
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc_v_cnt |>
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
     filter(WEEK_OF_YEAR == 13 &
              date_y_m == "Mar 2022") |>
     select(PERMIT_VESSEL_ID) |>
@@ -2383,16 +2384,21 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
   filter(WEEK_OF_YEAR == 13) |>
   # subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
   mutate(cnt_vsls_w = n_distinct(PERMIT_VESSEL_ID)) |>
+  # glimpse()
+  # Rows: 144
   ungroup() |>
   select(-PERMIT_VESSEL_ID) |>
   distinct() |>
-  View()
+  glimpse()
+# $ WEEK_OF_YEAR <dbl> 13
+# $ cnt_vsls_w   <int> 144
 
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present in all compliant ----
 
 weeks_per_vsl_permit_year_compl_cnt <-
-  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
+  v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc_v_cnt |> 
+  # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
   dplyr::add_count(permit_2022_int,
                    VESSEL_VESSEL_ID,
                    PERMIT_VESSEL_ID,
@@ -2405,10 +2411,21 @@ weeks_per_vsl_permit_year_compl_cnt <-
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
 
+View(weeks_per_vsl_permit_year_compl_cnt)
+
 weeks_per_vsl_permit_year_compl_cnt |> 
   filter(!weeks_per_vessel_per_compl == total_weeks_per_vessel) |> 
   dim()
 # [1] 8709   15
+# 0
+
+v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc_v_cnt |> 
+  filter(date_y_m == "Apr 2022") |>
+  dplyr::add_count(permit_2022_int,
+                   VESSEL_VESSEL_ID,
+                   PERMIT_VESSEL_ID,
+                   name = "total_weeks_per_vessel") %>%
+  View()
 
 ## test 1a ----
 weeks_per_vsl_permit_year_compl_cnt %>%
@@ -2465,3 +2482,9 @@ v_p__t__tn_d_weeks |>
     )
   ) %>%
   View()
+
+## 1b) percent of compl/non-compl per total weeks each vsl was present ----
+count_weeks_per_vsl_permit_year_compl_p <-
+  weeks_per_vsl_permit_year_compl_cnt %>%
+  mutate(percent_compl =
+           weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
