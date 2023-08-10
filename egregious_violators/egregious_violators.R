@@ -12,7 +12,7 @@ current_project_name <- "egregious_violators"
 current_project_path <-
   file.path(my_paths$git_r, current_project_name)
 
-source(file.path(current_project_path, "get_data.R"))
+source(file.path(current_project_path, "get_data_egregious_violators.R"))
 
 ## check ----
 check_new_vessels <-
@@ -659,3 +659,24 @@ compl_corr_to_investigation1_short_dup_marked |>
 #
 # # grep("1131132", compl_clean$vessel_official_number)
 # # 0
+
+current_project_name <- "egregious_violators"
+current_project_path <-
+  file.path(my_paths$git_r, current_project_name)
+
+# make a flat file ----
+
+"C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\get_data_egregious_violators.R"
+
+files_to_combine <-
+  c("~/R_code_github/useful_functions_module.r",
+    file.path(current_project_path, "get_data_egregious_violators.R"),
+    file.path(current_project_path, "egregious_violators.R")
+  )
+
+# run as needed
+make_a_flat_file(
+  file.path(current_project_path,   "egregious_violators_flat_file.R"),
+  files_to_combine
+)
+
