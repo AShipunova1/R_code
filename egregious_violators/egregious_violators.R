@@ -59,7 +59,7 @@ compl_clean_w_permit_exp_last_27w <-
 
 dim(compl_clean_w_permit_exp)
 # today()
-# [1] "2023-08-01"
+# [1] "2023-08-10"
 # [1] 235509     22
 
 check_new_vessels(compl_clean_w_permit_exp)
@@ -73,9 +73,11 @@ dim(compl_clean_w_permit_exp_last_27w)
 # [1] 92370    23 (7m)
 # [1] 81153    23 189 d
 # [1] 87826    23
+# [1] 74169    23
 
 check_new_vessels(compl_clean_w_permit_exp_last_27w)
 # 4
+
 ## ---- Have only SA permits, exclude those with Gulf permits ----
 
 compl_clean_sa <-
@@ -85,7 +87,9 @@ compl_clean_sa <-
 today()
 # [1] "2023-08-01"
 # [1] "2023-07-10"
-## Not "compliant_" ----
+# [1] "2023-08-10"
+
+## Not "compliant_" only ----
 compl_clean_sa_non_compl <-
   compl_clean_sa |>
   filter(compliant_ == 'NO')
