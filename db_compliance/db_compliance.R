@@ -1369,6 +1369,68 @@ v_p__t__tn_d_weeks_gom |>
 # $ rep_type.tn           <chr> "trips_notif", "trips_notif"
 
 # TODO: check for INTENDED_FISHING_FLAG again
+# check vessels_with_weird_activity ----
+vessels_with_weird_activity <-
+  c("FL9452SM",
+    "NJ2232GM",
+    "1199007",
+    "1036367",
+    "1067284",
+    "1021417",
+    "926746")
+
+length(vessels_with_weird_activity)
+# 7
+
+vessels_permits_2022_r_act <-
+  vessels_permits_2022_r |>
+  filter(PERMIT_VESSEL_ID %in% vessels_with_weird_activity)
+
+# vessels_permits_2022_r_act
+
+trips_act <-
+  t_d_w |>
+  filter(
+    VESSEL_ID %in% vessels_permits_2022_r_act$VESSEL_VESSEL_ID,
+    ACTIVITY_TYPE %in% c(8, 2, 3)
+  ) |>
+  select(-any_of(t_names_to_rm))
+
+dim(trips_act)
+# [1] 18 21
+
+dim(vessels_permits_2022_r_act)
+# [1] 42 52
+
+weird_activity_types_info_by <-
+  join_by(
+    VESSEL_VESSEL_ID == VESSEL_ID,
+    overlaps(
+      x$EFFECTIVE_DATE,
+      x$END_DATE,
+      y$TRIP_START_DATE,
+      y$TRIP_END_DATE,
+      bounds = "[)"
+    )
+  )
+
+weird_activity_types_info <-
+  full_join(
+  vessels_permits_2022_r_act,
+  trips_act,
+  weird_activity_types_info_by,
+  relationship = "many-to-many",
+  suffix = c(".v_p", ".t")
+)
+
+dim(weird_activity_types_info)
+# 55 72
+
+weird_activity_types_info |> 
+  select(PERMIT_VESSEL_ID) |> 
+  distinct() |> 
+  dim()
+# 8
 
 ## rm extra cols ----
 ### find empty columns ----
@@ -2420,21 +2482,14 @@ weeks_per_vsl_permit_year_compl_cnt <-
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
 
-View(weeks_per_vsl_permit_year_compl_cnt)
+weeks_per_vsl_permit_year_compl_cnt |> 
+  filter(PERMIT_VESSEL_ID == "FL4463MX") |> 
+  View()
 
 weeks_per_vsl_permit_year_compl_cnt |> 
-  filter(!weeks_per_vessel_per_compl == total_weeks_per_vessel) |> 
+  filter(!weeks_per_vessel_per_compl == total_weeks_per_vessel) |>
   dim()
-# [1] 8709   15
-# 0
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc_v_cnt |> 
-  filter(date_y_m == "Apr 2022") |>
-  dplyr::add_count(permit_2022_int,
-                   VESSEL_VESSEL_ID,
-                   PERMIT_VESSEL_ID,
-                   name = "total_weeks_per_vessel") %>%
-  View()
+# [1] 8709   13
 
 ## test 1a ----
 weeks_per_vsl_permit_year_compl_cnt %>%
@@ -2453,6 +2508,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 # 1 2022 YES 50 52
 # 2 2022 NO 2 52
 
+# HERE
 nc_2022_sa_only_test <-
   weeks_per_vsl_permit_year_compl_cnt %>%
   dplyr::filter(
@@ -2497,3 +2553,23 @@ count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
   mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
+
+glimpse(count_weeks_per_vsl_permit_year_compl_p)
+
+# 2) split nc percentage into 4 buckets ----
+## 2a Only non-compl and fewer cols ----
+
+print_df_names(count_weeks_per_vsl_permit_year_compl_p)
+
+count_weeks_per_vsl_permit_year_n_compl_p_short <-
+  count_weeks_per_vsl_permit_year_compl_p %>%
+  dplyr::filter(compl_w_total == "NO") %>%
+  dplyr::select(
+    PERMIT_VESSEL_ID,
+    permit_2022_int,
+    # exp_y_tot_cnt,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) %>%
+  unique()
