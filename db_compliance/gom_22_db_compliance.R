@@ -155,7 +155,7 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 
 # TODO: check if permit_id in tn mean the same as in p_v
 
-## wrong TRIP_START_TIME.tn ----
+## wrong TRIP_START_TIME.tn fix ----
 # ℹ In argument: `TRIP_START_TIME_tn_hm = parse_date_time(TRIP_START_TIME.tn,
 #   "HM")`.
 # Caused by warning:
@@ -198,13 +198,8 @@ v_p__t__tn_d_weeks_gom_short <-
 
 ## match logbooks and declarations ----
 
-# There should be a declaration for every logbook. - no
-# There should be a logbook for every declaration of a charter or headboat intending to fish. - yes
+# There should be a logbook for every declaration of a charter or headboat intending to fish.
 # decl trip start < or > 1h logbooks trip start
-
-  # mutate(isFilter = case_when(Time == "T0" & Value > 5 ~ 1, TRUE ~ 0)) %>%
-# df <- df %>% group_by(levelled) %>%
-# filter(any(direction == "down"))
 
 ### at least one pair of matching declarations per week ----
 # $ rep_type.t            <chr> "trips", "trips"
