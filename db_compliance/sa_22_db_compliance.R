@@ -230,3 +230,13 @@ year_plot_sa <-
 
 # year_plot_sa
 
+# SA compliance by month ----
+v_p__t__tne_d_weeks_sa_compl_cnt_m <-
+  v_p__t__tne_d_weeks_sa_compl_w |>
+  group_by(PERMIT_VESSEL_ID,
+           VESSEL_VESSEL_ID,
+           date_y_m) |>
+  mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
+  ungroup()
+
+View(v_p__t__tne_d_weeks_sa_compl_cnt_m)
