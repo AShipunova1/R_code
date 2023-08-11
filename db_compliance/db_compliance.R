@@ -2558,3 +2558,46 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_y %>%
 # 127+29+35+262
 # 453
 # correct
+
+# 4) cnt percents of (3) ----
+
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y <-
+  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_y %>%
+  # cnt vessels per year, permit region and compliance
+  dplyr::add_count(name = "vsls_per_y_r") %>%
+  dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_m <-
+  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_m %>%
+  # cnt vessels per year, permit region and compliance
+  dplyr::add_count(date_y_m,
+    name = "vsls_per_y_r") %>%
+  dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+
+dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y)
+# 453
+dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_m)
+# 2293
+
+### check 4 ----
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y %>%
+  # dplyr::filter(year_permit == "2022 sa_only") %>%
+  dplyr::select(percent_n_compl_rank,
+                perc_vsls_per_y_r_b) %>%
+  unique() %>%
+  dplyr::arrange(percent_n_compl_rank) %>%
+  head()
+#   percent_n_compl_rank perc_vsls_per_y_r_b
+#   <chr>                              <dbl>
+# 1 0<= & <25%                         31.0
+# 2 25<= & <50%                        13.3
+# 3 50<= & <75%                         6.59
+# 4 75<= & <=100%                      49.1
+
+# GOM new
+# 1 0<= & <25%                         28.0 
+# 2 25<= & <50%                         6.40
+# 3 50<= & <75%                         7.73
+# 4 75<= & <=100%                      57.8 
