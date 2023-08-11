@@ -196,14 +196,13 @@ v_p__t__tn_d_weeks_gom_short <-
            )
          )
 
-## match logbooks and declarations ----
+## 1) match logbooks and declarations ----
 
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
 # decl trip start < or > 1h logbooks trip start
 
 ### at least one pair of matching declarations per week ----
-# $ rep_type.t            <chr> "trips", "trips"
-# $ rep_type.tn           <chr> "trips_notif", "trips_notif"
+# non compl if there is a logbook w/o a decl
 
 filter_logb_for_decl_fish <- rlang::quo(
   rep_type.tn == "trips_notif" &
@@ -212,14 +211,15 @@ filter_logb_for_decl_fish <- rlang::quo(
   rep_type.t == "trips"
 )
 
-v_p__t__tn_d_weeks_gom_short |>
-  filter(!!filter_logb_for_decl_fish) |>
-  dim()
+# v_p__t__tn_d_weeks_gom_short |>
+#   filter(!!filter_logb_for_decl_fish) |>
+#   dim()
 # [1] 43802    35
 # [1] 43767    36
 
 #### decl trip start < or > 1h logbooks trip start ----
 
+# already matched by day
 tic("v_p__t__tn_d_weeks_gom_short_matched")
 v_p__t__tn_d_weeks_gom_short_matched <-
   v_p__t__tn_d_weeks_gom_short |>
@@ -250,13 +250,6 @@ dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 75403    40
 
 v_p__t__tn_d_weeks_gom_short_matched |>
-  count(matched_reports)
-# 1 matched         35664
-# 2 not_matched     39860
-# 1 matched         35641
-# 2 not_matched     39762
-
-v_p__t__tn_d_weeks_gom_short_matched |>
   select(PERMIT_VESSEL_ID, matched_reports) |>
   distinct() |>
   count(matched_reports)
@@ -265,15 +258,6 @@ v_p__t__tn_d_weeks_gom_short_matched |>
 
 length(unique(v_p__t__tn_d_weeks_gom_short_matched$PERMIT_VESSEL_ID))
 # [1] 1351
-
-v_p__t__tn_d_weeks_gom_short_matched |>
-  filter(rep_type.tn == "trips_notif" &
-           INTENDED_FISHING_FLAG == 'Y' &
-             matched_reports == "not_matched" &
-             !is.na(rep_type.t)) |>
-  head() |>
-  dim()
-# 6 40
 
 ## strict compl vessels per week ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w")
@@ -284,14 +268,13 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w <-
            WEEK_OF_YEAR,
            date_y_m) |>
   mutate(matched_compl =
-           case_when(any(matched_reports == "matched") ~
+           # all logbooks and decl should match for any given week
+           case_when(all(matched_reports == "matched") ~
                        "yes",
                      .default = "no")) |>
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w: 5.39 sec elapsed
-
-# filter(PERMIT_VESSEL_ID %in% c("FL4459MW", "FL4459PW")) |>
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   count(INTENDED_FISHING_FLAG)
@@ -307,8 +290,10 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 # 5 NA                    no              2917
 # 6 NA                    yes              358
 
+# check compliant_fishing_month
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
-  count(# VESSEL_VESSEL_ID,
+  count(
+    # VESSEL_VESSEL_ID,
     #     PERMIT_VESSEL_ID,
     # WEEK_OF_YEAR,
     date_y_m,
@@ -332,37 +317,33 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   glimpse()
-# disregard not_matched & yes, that means there are more than 1 decl
+# disregard "not_matched & yes", that means there are more than 1 decl
 
 ### a good example of 2 decl per week with compliant ----
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   filter(date_y_m == "Feb 2022") |>
-         # ,
-         # matched_reports == "not_matched"
-         # INTENDED_FISHING_FLAG == "N"
-         # ,
-         # matched_compl == "yes") |>
-         filter(PERMIT_VESSEL_ID == "1093374") |>
-           select(
-             VESSEL_VESSEL_ID,
-             PERMIT_VESSEL_ID,
-             WEEK_OF_YEAR,
-             date_y_m,
-             TRIP_TYPE,
-             TRIP_START_DATE,
-             TRIP_START_TIME.t,
-             ACTIVITY_TYPE,
-             SERO_VESSEL_PERMIT,
-             trip_int,
-             TRIP_START_TIME.tn,
-             INTENDED_FISHING_FLAG,
-             time_diff1,
-             matched_reports,
-             matched_compl
-           ) |>
-           distinct() |>
-           View()
+  filter(PERMIT_VESSEL_ID == "1093374") |>
+  select(
+    VESSEL_VESSEL_ID,
+    PERMIT_VESSEL_ID,
+    WEEK_OF_YEAR,
+    date_y_m,
+    TRIP_TYPE,
+    TRIP_START_DATE,
+    TRIP_START_TIME.t,
+    ACTIVITY_TYPE,
+    SERO_VESSEL_PERMIT,
+    trip_int,
+    TRIP_START_TIME.tn,
+    INTENDED_FISHING_FLAG,
+    time_diff1,
+    matched_reports,
+    matched_compl
+  ) |>
+  distinct() |>
+  View()
 
+### count vessel per month by matched_compl ----
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
@@ -379,15 +360,13 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
                n_distinct(PERMIT_VESSEL_ID),
              .default = 0
            )) |>
-  # n_distinct(PERMIT_VESSEL_ID)) |>
   select(-PERMIT_VESSEL_ID) |>
   distinct()
-# disregard not_matched & yes, that means there are more than 1 decl
+# disregard "not_matched & yes", that means there are more than 1 decl
 
 glimpse(v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w)
 
-# subset(df, levelled %in% levelled[direction == 'down'])
-
+# check vessel cnt by matched compl in Mar
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
          date_y_m,
@@ -408,11 +387,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 ## no matched declarations, but compliant? ----
 # There should be a logbook for every declaration of a charter or a headboat intending to fish.
 
-# print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w)
-
-print_df_names(v_p__t__tn_d_weeks_gom_short_matched_compl_w)
-
-### There are only a not matched not fishing intended declarations per week ----
+## 2) There are only a not matched not fishing intended declarations per week ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_2")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
@@ -438,15 +413,12 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
 # 2 yes             2394
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
-  count(not_fish_compl)
-
-v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
   # filter(not_fish_compl == "yes") |>
   filter(PERMIT_VESSEL_ID == "FL4459PW") |>
   arrange(WEEK_OF_YEAR) |>
   glimpse()
 
-## a week with no reports of any kind (compl) ----
+## 3) a week with no reports of any kind (compl) ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_3")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
@@ -492,7 +464,8 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   View()
 # 0
 
-### a week with a logb and no decl (err, but is compliant) ----
+## 4) a week with a logb and no decl (err, is non-compliant) ----
+# TODO: check in FHIER
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 #   filter(VESSEL_VESSEL_ID == 72359,
@@ -511,7 +484,8 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
         matched_compl == "no" &
           not_fish_compl == "no" &
           no_rep_compl == "no" &
-          # no decl for a lgb!is.na(rep_type.t) &
+          # no decl for a lgb
+          !is.na(rep_type.t) &
           is.na(rep_type.tn)
         # cnt_t > cnt_tn
         ~ "yes",
@@ -604,7 +578,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 # $ cnt_tn                <int> 1, 1
 # 2 entries, 1 has t, another has a tn! should be not compl
 
-### no report, but a decl is a "no fish" - compl ----
+## 5) no logbook, but a decl is a "no fish" - compl ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
@@ -622,8 +596,10 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
           # no lgb for a not fish decl
           is.na(rep_type.t) &
           !is.na(rep_type.tn)
-        # there is a decl!is.na(rep_type.tn)
+        # there is a decl
+        !is.na(rep_type.tn)
         ~ "yes",
+        # TODO: check the same week with other steps
         .default = "no"
       )
   ) |>
@@ -649,7 +625,8 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
   glimpse()
 # 0
 
-## not compliant but overriden ----
+## 6) not compliant but overridden ----
+# everything that was overridden is compliant (the whole week)
 compl_err_db_data_short <-
   compl_err_db_data |>
   select(
@@ -697,7 +674,6 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 # [1] 97679    55 all overr
 # [1] 77748    51
 
-# View(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
 #     select(comp_error_type_cd) |>
@@ -725,13 +701,16 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 # 1                     2
 # 2                    NA
 
+# HERE:
+
 all_not_compl_filter <-
   rlang::quo(
-    matched_compl == "no" &
-      not_fish_compl == "no" &
-      no_rep_compl == "no" &
-      no_decl_compl == "no" &
-      no_lgb_compl == "no"
+    # any is a no - out of compliance
+    # matched_compl == "no" &
+    #   not_fish_compl == "no" &
+    #   no_rep_compl == "no" &
+    #   no_decl_compl == "no" &
+    #   no_lgb_compl == "no"
   )
 
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1")
@@ -751,6 +730,7 @@ toc()
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1)
 # [1] 77748    52
 
+### fewer fields ----
 rm_fields <-
   c(
     "ACTIVITY_TYPE",
@@ -821,29 +801,6 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
 # 6 TRIP_BEFORE_DECL
 # 7 NO_TRIP_FOUND
 
-# override_types <-
-#   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
-#   filter(compl_w == "no") |>
-#   group_by(comp_error_type_cd) |>
-#   mutate(error_type_cmnt_list =
-#            list(na.omit(unique(comp_override_cmt)))) |>
-#   #
-#   # filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
-#   select(comp_error_type_cd, error_type_cmnt_list) |>
-#   distinct() |>
-#   ungroup()
-
-# sink("overriden_no_compl.csv")
-# print(as.data.frame(override_types))
-# sink()
-
-# cat(capture.output(print(as.data.frame(override_types)),
-                   # file = "overriden_no_compl1.txt"))
-
-# v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
-#   count(is_comp_override)
-# 1                1  5531
-# 2               NA 72217
 
 # total gom compl ----
 # not compliant and overridden = compliant
@@ -904,15 +861,17 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
 # $ compl_m          <chr> "no", "no", "no", "no", "no"
 
 ## GOM total compliance per year ----
-tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y")
+tic(
+  "v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y"
+)
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
   group_by(PERMIT_VESSEL_ID) |>
   mutate(compl_per_y_w = list(na.omit(unique(compl_w_total))),
          compl_y_len = lengths(compl_per_y_w)) |>
   mutate(compl_y = case_when(compl_y_len > 1 ~ "no",
-                                 compl_per_y_w == "no" ~ "no",
-                                 .default = "yes")) |>
+                             compl_per_y_w == "no" ~ "no",
+                             .default = "yes")) |>
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y: 0.72 sec elapsed
