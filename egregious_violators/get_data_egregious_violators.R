@@ -34,11 +34,11 @@ half_year_ago <-
 
 # half_year_ago
 # [1] "2023-01-24"
-stringr::str_glue("TO_DATE({half_year_ago}, 'yyyy-mm-dd')")
+stringr::str_glue("to_date('{half_year_ago}', 'yyyy-mm-dd')")
 # TO_DATE(2023-01-24, 'yyyy-mm-dd')
 
-# get_vessels wtih permits 2022 ----
-vessels_permits_2022_query <-
+# get_vessels with permits 2022 ----
+vessels_permits_query <-
   str_glue(
   "SELECT
   *
@@ -47,8 +47,8 @@ FROM
   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
   ON ( p.vessel_id = sero_official_number )
 WHERE
-  end_date >= to_date({half_year_ago}, 'yyyy-mm-dd')
-    OR expiration_date >= TO_DATE({half_year_ago}, 'yyyy-mm-dd'
+  end_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')
+    OR expiration_date >= to_date('{half_year_ago}', 'yyyy-mm-dd'
 )
 UNION ALL
 SELECT
@@ -58,8 +58,8 @@ FROM
   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
   ON ( p.vessel_id = coast_guard_nbr )
 WHERE
-   end_date >= TO_DATE({half_year_ago}, 'yyyy-mm-dd')
-    OR expiration_date >= TO_DATE({half_year_ago}, 'yyyy-mm-dd') UNION ALL
+   end_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')
+    OR expiration_date >= to_date('{half_year_ago}', 'yyyy-mm-dd') UNION ALL
 SELECT
   *
 FROM
@@ -67,26 +67,27 @@ FROM
   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
   ON ( p.vessel_id = state_reg_nbr )
 WHERE
-  end_date >= TO_DATE({half_year_ago}, 'yyyy-mm-dd')
-  OR expiration_date >= TO_DATE({half_year_ago}, 'yyyy-mm-dd')
-  "
-)
+  end_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')
+  OR expiration_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')
+  ")
 
-vessels_permits_2022_file_path <- file.path(input_path, "vessels_permits_2022.rds")
+vessels_permits_file_path <-
+  file.path(my_paths$inputs,
+            "../egregious_violators",
+            "vessels_permits.rds")
 
-vessels_permits_2022_fun <-
-  function(vessels_permits_2022_query) {
+vessels_permits_fun <-
+  function(vessels_permits_query) {
     return(dbGetQuery(con,
-                      vessels_permits_2022_query))
+                      vessels_permits_query))
   }
 
-vessels_permits_2022 <-
+vessels_permits <-
   read_rds_or_run(
-    vessels_permits_2022_file_path,
-    vessels_permits_2022_query,
-    vessels_permits_2022_fun
+    vessels_permits_file_path,
+    vessels_permits_query,
+    vessels_permits_fun
   )
-# 2023-07-15 run the function: 13.33 sec elapsed
 
 #
 # vessels ----
