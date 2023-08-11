@@ -2451,6 +2451,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short <-
   dplyr::select(
     PERMIT_VESSEL_ID,
     permit_2022_int,
+    date_y_m,
     weeks_per_vessel_per_compl,
     total_weeks_per_vessel,
     percent_compl
@@ -2458,5 +2459,85 @@ count_weeks_per_vsl_permit_year_n_compl_p_short <-
   distinct() |> 
   unique()
 
-View(count_weeks_per_vsl_permit_year_n_compl_p_short)
+dim(count_weeks_per_vsl_permit_year_n_compl_p_short)
 # [1] 453   5
+# [1] 2293    6 (with month)
+
+## 2b) get percentage "buckets" ----
+# percent buckets
+get_p_buckets <- function(my_df, field_name) {
+  my_df %>%
+    dplyr::mutate(
+      percent_n_compl_rank =
+        dplyr::case_when(
+          !!sym(field_name) < 25 ~ '0<= & <25%',
+          25 <= !!sym(field_name) &
+            !!sym(field_name) < 50 ~ '25<= & <50%',
+          50 <= !!sym(field_name) &
+            !!sym(field_name) < 75 ~ '50<= & <75%',
+          75 <= !!sym(field_name) ~ '75<= & <=100%'
+        )
+    ) %>%
+    return()
+}
+
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts <-
+  get_p_buckets(count_weeks_per_vsl_permit_year_n_compl_p_short,
+                "percent_compl")
+
+dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts)
+# [1] 453   6
+# [1] 2293    7 w month
+
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts |> 
+  glimpse()
+
+### test 2 ----
+# count in one bucket
+
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
+  dplyr::filter(percent_n_compl_rank == '75<= & <=100%') %>%
+  # dplyr::filter(date_y_m == "2022 sa_only") %>%
+  dplyr::count(percent_compl, 
+               # date_y_m,
+               name = "amount_of_occurences") %>%
+  # glimpse()
+#   $ percent_compl        <dbl> 75.00000, 77.27273, 77.35849, 78.26087, 78.787…
+# $ amount_of_occurences <int> 4, 11, 12, 9, 9, 2, 9, 9, 9, 9, 20, 5, 5, 21, …
+  dplyr::arrange(desc(percent_compl)) %>%
+  # sum amount_of_occurences
+  dplyr::count(wt = amount_of_occurences)
+# 1848
+
+# 3) count how many in each bucket ----
+
+# View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts)
+
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b <-
+  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
+    dplyr::add_count(year_permit,
+              percent_n_compl_rank,
+              name = "cnt_v_in_bucket")
+
+### test 3 ----
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
+  dplyr::filter(year_permit == "2022 sa_only") %>%
+  dplyr::select(year_permit,
+                percent_n_compl_rank,
+                cnt_v_in_bucket) %>%
+  unique() %>%
+  dplyr::add_count(wt = cnt_v_in_bucket, name = "total_per_y_r") %>%
+  dplyr::arrange(percent_n_compl_rank) %>%
+  str()
+# $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
+# $ cnt_v_in_bucket     : int [1:4] 399 172 85 633
+# $ total_per_y_r       : int [1:4] 1289 1289 1289 1289
+
+# "2022 sa_only"
+# 633+85+172+399
+# [1] 1289
+
+# $ cnt_v_in_bucket     : int [1:4] 399 171 85 634
+# 399 + 171 + 85 + 634
+# 1289
+# correct
