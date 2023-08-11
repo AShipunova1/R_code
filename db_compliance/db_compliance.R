@@ -2447,13 +2447,16 @@ print_df_names(count_weeks_per_vsl_permit_year_compl_p)
 
 count_weeks_per_vsl_permit_year_n_compl_p_short <-
   count_weeks_per_vsl_permit_year_compl_p %>%
-  dplyr::filter(compl_w_total == "NO") %>%
+  dplyr::filter(tolower(compl_w_total) == "no") %>%
   dplyr::select(
     PERMIT_VESSEL_ID,
     permit_2022_int,
-    # exp_y_tot_cnt,
     weeks_per_vessel_per_compl,
     total_weeks_per_vessel,
     percent_compl
   ) %>%
+  distinct() |> 
   unique()
+
+View(count_weeks_per_vsl_permit_year_n_compl_p_short)
+# [1] 453   5
