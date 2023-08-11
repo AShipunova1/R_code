@@ -172,6 +172,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 <-
   ) |>
   ungroup()
 
+
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22)
 # [1] 90766    17
 # [1] 194697     95
@@ -334,6 +335,8 @@ dim(v_p__t__tne_d_weeks_sa_compl_w_short)
 # [1] 111468     20
 
 ## a month is compliant if all weeks are compliant ----
+View(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short)
+
 tic("v_p__t__tne_d_weeks_sa_compl_w_short_m")
 v_p__t__tne_d_weeks_sa_compl_w_short_m <-
   v_p__t__tne_d_weeks_sa_compl_w_short |>
@@ -346,6 +349,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_m <-
   ungroup()
 toc()
 
+# TODO: split permit interval by weeks and months
 # View(v_p__t__tne_d_weeks_sa_compl_w_short_m)
 # filter(PERMIT_VESSEL_ID == "FL2702KR")
 # v_p__t__tne_d_weeks_sa_compl_w_short_m |>
