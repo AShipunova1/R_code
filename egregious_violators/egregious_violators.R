@@ -413,7 +413,9 @@ setdiff(date__contacttype_per_id$vessel_official_number,
 vessels_permits_participants_space <-
   vessels_permits_participants |>
   mutate(across(where(is.character),
-                ~ replace_na(., "")))
+                ~ replace_na(., ""))) |>
+  mutate(across(where(is.character),
+                ~ str_trim(.)))
 
 dim(vessels_permits_participants_space)
 # [1] 31942    38
@@ -453,15 +455,15 @@ vessels_permits_participants_short_u <-
 # [1] 7858    4
 # [1] 3302    4
 
-View(vessels_permits_participants_short_u)
+# View(vessels_permits_participants_short_u)
 
-vessels_permits_participants_short_u |> 
-  # filter(lengths(full_name) > 0) %>%
-  # unnest(full_name) %>%
-  # unnest_wider(full_name, names_sep = "_") |> 
-  rowwise() |> 
-  mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
-  View()
+# vessels_permits_participants_short_u |> 
+#   # filter(lengths(full_name) > 0) %>%
+#   # unnest(full_name) %>%
+#   # unnest_wider(full_name, names_sep = "_") |> 
+#   rowwise() |> 
+#   mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
+#   View()
  # cat()
 
 vessels_permits_participants_short_u_flat <-
@@ -474,7 +476,6 @@ data_overview(vessels_permits_participants_short_u_flat) |>
   head(1)
 # P_VESSEL_ID 3302
 
-
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
   # gdf %>% mutate(across(v1:v2, ~ .x + n))
@@ -482,22 +483,28 @@ vessels_permits_participants_short_u_flat_sp <-
     c(sero_home_port,
       full_name,
       full_address),
-    ~ str_replace(.x, "\\s+,", ",")
+    ~ str_replace_all(.x, "\\s+,", ",")
   ),
   across(
     c(sero_home_port,
       full_name,
       full_address),
-    ~ str_replace(.x, ", +$", "")
+    ~ str_replace_all(.x, ", +$", "")
+  ),
+  across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_replace_all(.x, ",,+", ",")
   ))
 # |>
 #   glimpse()
 # 
 # 
-vessels_permits_participants_short_u_flat_sp |>
-  arrange(P_VESSEL_ID) |> 
-  head() |> 
-  str()
+# vessels_permits_participants_short_u_flat_sp |>
+#   arrange(P_VESSEL_ID) |> 
+#   head() |> 
+#   str()
 
 # combine vessels_permits and date__contacttype ----
 
