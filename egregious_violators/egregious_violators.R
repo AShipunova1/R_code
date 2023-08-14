@@ -766,7 +766,68 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # setdiff(in_the_new_res_only_df, no_comments_vsls_ids$vessel_official_number)
 # 0
 
-# temp ----
+# temp 1 ----
+fhier_addr <-
+  read_csv(
+    r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\For-hire Primary Physical Address List.csv)",
+    col_types = cols(.default = 'c'),
+    name_repair = fix_names
+  )
+
+# vessel_official_number, permits, effective_date, end_date, has_sa_permits_, has_gom_permits_, assigned_permit_region_grouping, permit_holder_names, physical_address_1, physical_address_2, physical_city, physical_county, physical_state, physical_zip_code, phone_number, primary_email
+
+fhier_addr_short <-
+  fhier_addr |>
+  select(
+    vessel_official_number,
+    permit_holder_names,
+    physical_address_1,
+    physical_address_2,
+    physical_city,
+    physical_county,
+    physical_state,
+    physical_zip_code,
+    phone_number,
+    primary_email
+  ) |>
+  mutate(
+    fhier_address =
+      paste(
+        physical_address_1,
+        physical_address_2,
+        physical_city,
+        physical_county,
+        physical_state,
+        physical_zip_code
+      )
+  ) |>
+  select(
+    -c(
+      physical_address_1,
+      physical_address_2,
+      physical_city,
+      physical_county,
+      physical_state,
+      physical_zip_code
+    )
+  )
+
+res1 <-
+  right_join(
+    fhier_addr_short,
+    compl_corr_to_investigation1_short_dup_marked,
+    join_by("vessel_official_number")
+  )
+
+# View(res1)
+no_addr_vessl <-
+  c("1305388",
+    "949058",
+    "FL2555TF",
+    "MI9152BZ",
+    "NC2851DH")
+
+# temp 2 ----
 prev_res <-
   read_csv(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious violators for investigation - 2023-01-24_to_2023-08-01_comment.csv)",
            col_types = cols(.default = 'c'))
