@@ -48,7 +48,7 @@ vessel_permit_fields_part <-
       v.hull_id_nbr,
       v.owner_id,
       v.state_reg_nbr,
-      v.status,
+      v.status v_status,
       v.supplier_vessel_id,
       v.ue,
       v.vessel_id v_vessel_id,
@@ -104,7 +104,7 @@ vessels_permits_participants_query <-
   f_p.license_nbr,
   f_p.participant_id,
   f_p.permit_id,
-  f_p.status
+  f_p.status f_p_status
 FROM
        safis.full_participant@secapxdv_dblk.sfsc.noaa.gov f_p
   JOIN (",
@@ -157,3 +157,4 @@ vessels_permits_participants <-
 dim(vessels_permits_participants)
 # [1] 63928    38
 # [1] 31942    38
+
