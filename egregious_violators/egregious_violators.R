@@ -410,30 +410,6 @@ setdiff(date__contacttype_per_id$vessel_official_number,
 #   length()
 # 3185
 
-combine_cols <-
-  function(my_df, my_vector, vessel_id_field_names) {
-    browser()
-    res <-
-      my_df |>
-      mutate(across(where(is.character),
-                    ~ na_if(., " "))) |>
-      group_by(!!sym(vessel_id_field_names)) |>
-      # select(!!sym(vessel_id_field_names),
-      #        all_of(my_vector)) |>
-      list(unique(my_vector)) 
-    # |>
-      # ungroup()
-    return(res)
-  }
-
-rr1 <-
-  combine_cols(vessels_permits_participants, 
-             c(
-        "SERO_HOME_PORT_CITY",
-        "SERO_HOME_PORT_COUNTY",
-        "SERO_HOME_PORT_STATE"
-      ), vessel_id_field_names = "P_VESSEL_ID")
-
 vessels_permits_participants_space <-
   vessels_permits_participants |>
   mutate(across(where(is.character),
@@ -442,7 +418,7 @@ vessels_permits_participants_space <-
 dim(vessels_permits_participants_space)
 # [1] 31942    38
 
-vessels_permits_participants_short <-
+vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
   group_by(P_VESSEL_ID) |>
   mutate(
@@ -459,8 +435,7 @@ vessels_permits_participants_short <-
             LAST_NAME,
             NAME_SUFFIX)
     )),
-    full_address =
-      list(unique(
+    full_address = list(unique(
         paste(ADDRESS_1,
               ADDRESS_2,
               STATE,
@@ -478,35 +453,30 @@ vessels_permits_participants_short <-
 # [1] 7858    4
 # [1] 3302    4
 
-View(vessels_permits_participants_short)
-# [1] 3302    4
+View(vessels_permits_participants_short_u)
 
-# data_overview(vessels_permits_participants_short) |> 
-#   head(1)
+vessels_permits_participants_short_u |> 
+  # filter(lengths(full_name) > 0) %>%
+  # unnest(full_name) %>%
+  # unnest_wider(full_name, names_sep = "_") |> 
+  rowwise() |> 
+  mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
+  View()
+ # cat()
+
+vessels_permits_participants_short_u_flat <-
+  vessels_permits_participants_short_u |>
+  rowwise() |>
+  mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
+  ungroup()
+
+data_overview(vessels_permits_participants_short_u_flat) |> 
+  head(1)
 # P_VESSEL_ID 3302
 
-## flatten addresses ----
-vessels_permits_participants_short_u <-
-  vessels_permits_participants_short |>
-  group_by(P_VESSEL_ID) |>
-  mutate(
-    full_addresses =
-      list(unique(full_address)),
-    sero_home_ports =
-      list(unique(sero_home_port)),
-    full_names =
-      list(unique(full_name))
-  ) |>
-#   # mutate(
-#   #   full_addresses_str =
-#   #     paste(full_addresses, collapse = ','),
-#   #   sero_home_ports_str =
-#   #     paste(sero_home_ports, collapse = ','),
-#   #   full_names_str =
-#   #     paste(full_names, collapse = ',')
-#   # ) |>
-  ungroup() |>
-  distinct()
+View(vessels_permits_participants_short_u_flat)
+
+# [1] 3302    4
 
 vessels_permits_participants_short_u |> 
   arrange(P_VESSEL_ID) |> 
