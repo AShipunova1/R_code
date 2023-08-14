@@ -410,6 +410,29 @@ setdiff(date__contacttype_per_id$vessel_official_number,
 #   length()
 # 3185
 
+combine_cols <-
+  function(my_df, my_vector, vessel_id_field_names) {
+    browser()
+    res <-
+      my_df |>
+      group_by(!!sym(vessel_id_field_names)) |> 
+      select(!!sym(vessel_id_field_names),
+             all_of(my_vector)) |>
+      replace_na(" ") |>
+      list(unique()) |> 
+      ungroup()
+    return(res)
+  }
+
+rr1 <-
+  combine_cols(vessels_permits_participants, 
+             c(
+        "SERO_HOME_PORT_CITY",
+        "SERO_HOME_PORT_COUNTY",
+        "SERO_HOME_PORT_STATE"
+      ), vessel_id_field_names = "P_VESSEL_ID")
+
+
 vessels_permits_participants_short_u <-
   vessels_permits_participants |>
   group_by(P_VESSEL_ID) |>
