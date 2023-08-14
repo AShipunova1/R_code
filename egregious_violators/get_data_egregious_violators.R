@@ -12,7 +12,7 @@ csv_names_list_22_23 = c("Correspondence__08_01_2023.csv",
                          r"(FHIER_Compliance_2023__08_01_2023.csv)")
 
 data_file_date <- today()
-  # lubridate::mdy("06_22_2023") 
+  # lubridate::mdy("06_22_2023")
 
 ## ---- get csv data into variables ----
 all_inputs <- my_paths$inputs
@@ -128,11 +128,11 @@ vessels_permits_participants_file_path <-
   file.path(all_inputs,
             current_project_name,
             "vessels_permits_participants.rds")
-  
+ 
 # dir.exists(file.path(all_inputs,
             # current_project_name))
 
- 
+
 # vessels_permits_participants <-
 #   dbGetQuery(con,
 #              vessels_permits_participants_query)
@@ -148,7 +148,7 @@ vessels_permits_participants_fun <-
                       vessels_permits_participants))
   }
 
-vessels_permits_participants1 <-
+vessels_permits_participants <-
   read_rds_or_run(
     vessels_permits_participants_file_path,
     vessels_permits_participants_query,
@@ -156,4 +156,5 @@ vessels_permits_participants1 <-
   )
 # 2023-08-14 run the function: 12.84 sec elapsed
 
-dim(vessels_permits_participants1)
+dim(vessels_permits_participants)
+# [1] 63928    38
