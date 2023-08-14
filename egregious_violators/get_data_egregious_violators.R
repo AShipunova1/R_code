@@ -120,9 +120,15 @@ FROM
   )
 
 
-# cat(vessels_permits_participants_query,
-#     file =
-#       file.path(my_paths$inputs, "../vessels_permits_participants_query.sql"))
+cat(
+  vessels_permits_participants_query,
+  file =
+    file.path(
+      all_inputs,
+      current_project_name,
+      "vessels_permits_participants_query.sql"
+    )
+)
 
 vessels_permits_participants_file_path <-
   file.path(all_inputs,
