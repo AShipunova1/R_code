@@ -29,7 +29,7 @@ corresp_contact_cnts_clean0 <- temp_var[[2]]
 
 # get_vessels with permits and participants ----
 vessel_permit_where_part <-
-  "WHERE
+  "
     p.permit_status <> 'REVOKED'
       AND p.top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
                      'SC', 'CDW' )
@@ -67,8 +67,8 @@ vessel_permit_fields_part <-
 
 vessels_permits_from_part <-
 "FROM
-       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
-  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p,
+  safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
 "
 
 vessels_permits_query <-
@@ -76,19 +76,12 @@ vessels_permits_query <-
   "SELECT
   {vessel_permit_fields_part}
   {vessels_permits_from_part}
-  ON ( p.vessel_id = sero_official_number )
-  {vessel_permit_where_part}
-UNION ALL
-SELECT
-  {vessel_permit_fields_part}
-  {vessels_permits_from_part}
-  ON ( p.vessel_id = coast_guard_nbr )
-  {vessel_permit_where_part}
-UNION ALL
-SELECT
-  {vessel_permit_fields_part}
-  {vessels_permits_from_part}
-  ON ( p.vessel_id = state_reg_nbr )
+  WHERE
+    ( p.vessel_id = sero_official_number
+  OR
+    p.vessel_id = state_reg_nbr
+  OR p.vessel_id = coast_guard_nbr )
+  AND
   {vessel_permit_where_part}
   ")
 
