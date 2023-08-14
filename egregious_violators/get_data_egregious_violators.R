@@ -15,6 +15,7 @@ data_file_date <- today()
   # lubridate::mdy("06_22_2023") 
 
 ## ---- get csv data into variables ----
+all_inputs <- my_paths$inputs
 my_paths$inputs <- file.path(my_paths$inputs, "from_Fhier")
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_inputs"
 
@@ -36,13 +37,6 @@ vessel_permit_where_part <-
             OR p.end_date >= ( sysdate - ( 365 / 2 ) ) )
       AND nvl(p.end_date, p.expiration_date) IS NOT NULL
 "
-  # paste0(
-  #   "WHERE
-  # end_date >= to_date(', ",
-  # half_year_ago,
-  # "', 'yyyy-mm-dd')
-  #   OR expiration_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')"
-  # )
 
 vessel_permit_fields_part <-
   "   v.sero_home_port_city,
@@ -98,11 +92,6 @@ SELECT
   {vessel_permit_where_part}
   ")
 
-vessels_permits_participants_file_path <-
-  file.path(r"(~\R_files_local\my_inputs)",
-            "egregious_violators",
-            "vessels_permits_participants.rds")
-
 vessels_permits_participants_query <-
   paste0(
   "SELECT
@@ -134,12 +123,21 @@ FROM
 # cat(vessels_permits_participants_query,
 #     file =
 #       file.path(my_paths$inputs, "../vessels_permits_participants_query.sql"))
-  
-vessels_permits_participants <-
-  dbGetQuery(con,
-             vessels_permits_participants_query)
 
-dim(vessels_permits_participants)
+vessels_permits_participants_file_path <-
+  file.path(all_inputs,
+            current_project_name,
+            "vessels_permits_participants.rds")
+  
+# dir.exists(file.path(all_inputs,
+            # current_project_name))
+
+ 
+# vessels_permits_participants <-
+#   dbGetQuery(con,
+#              vessels_permits_participants_query)
+
+# dim(vessels_permits_participants)
 # [1] 63928    38
 
 # View(vessels_permits_participants)
@@ -152,10 +150,10 @@ vessels_permits_participants_fun <-
 
 vessels_permits_participants1 <-
   read_rds_or_run(
-    vessels_permits_file_path,
-    vessels_permits_query,
-    vessels_permits_fun
+    vessels_permits_participants_file_path,
+    vessels_permits_participants_query,
+    vessels_permits_participants_fun
   )
-# 2023-08-11 run the function: 12.87 sec elapsed
+# 2023-08-14 run the function: 12.84 sec elapsed
 
-dim(vessels_permits)
+dim(vessels_permits_participants1)
