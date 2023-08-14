@@ -80,7 +80,8 @@ vessels_permits_query <-
     ( p.vessel_id = sero_official_number
   OR
     p.vessel_id = state_reg_nbr
-  OR p.vessel_id = coast_guard_nbr )
+  OR 
+    p.vessel_id = coast_guard_nbr )
   AND
   {vessel_permit_where_part}
   ")
@@ -112,7 +113,6 @@ FROM
   ON ( to_char(license_nbr) = to_char(entity_id) )"
   )
 
-
 cat(
   vessels_permits_participants_query,
   file =
@@ -130,7 +130,6 @@ vessels_permits_participants_file_path <-
  
 # dir.exists(file.path(all_inputs,
             # current_project_name))
-
 
 # vessels_permits_participants <-
 #   dbGetQuery(con,
@@ -157,3 +156,4 @@ vessels_permits_participants <-
 
 dim(vessels_permits_participants)
 # [1] 63928    38
+# [1] 31942    38
