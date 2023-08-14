@@ -441,9 +441,27 @@ dim(vessels_permits_participants_short)
 
 ## flatten addresses ----
 vessels_permits_participants_short_u <-
-  vessels_permits_participants_short |> 
-  group_by(P_VESSEL_ID) |> 
-  mutate(full_addresses = list(na.omit(unique(full_address))))
+  vessels_permits_participants_short |>
+  group_by(P_VESSEL_ID) |>
+  mutate(
+    full_addresses =
+      list(na.omit(unique(full_address))),
+    sero_home_ports =
+      list(na.omit(unique(sero_home_port))),
+    full_names =
+      list(na.omit(unique(full_name)))
+  ) |>
+  mutate(
+    full_addresses_str =
+      paste(full_addresses, collapse = ','),
+    sero_home_ports_str =
+      paste(sero_home_ports, collapse = ','),
+    full_names_str =
+      paste(full_names, collapse = ',')
+  ) |>
+  ungroup() |>
+  distinct()
+
   # summarise(across(full_address, ~first(na.omit(.))))
       # mutate(full_addresses = paste(full_address, contacttype, sep = " ")) |>
 
