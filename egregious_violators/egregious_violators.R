@@ -159,9 +159,11 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |> 
+  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 4)) |>
   # ...non compliant
   filter(compl_weeks_amnt == total_weeks)
+
+dim(compl_clean_sa_all_weeks_non_c_short)
 
 compl_clean_sa_non_c_not_exp |>
   dplyr::select(vessel_official_number, week, compliant_) |>
@@ -178,7 +180,7 @@ compl_clean_sa_non_c_not_exp |>
   # dim()
   # [1] 1045    4
   # all weeks were non compliant
-  filter(compl_weeks_amnt == total_weeks) |>
+  # filter(compl_weeks_amnt == total_weeks) |>
     glimpse()
 
 dim(compl_clean_sa_all_weeks_non_c_short)
@@ -354,10 +356,8 @@ get_date_contacttype <-
       arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
       group_by(vessel_official_number) |>
-      # [1] 1125    2
       # for each vessel id combine all date__contacttypes separated by comma in one cell
       summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
-      # [1] 435   2
       return()
   }
 
@@ -381,7 +381,34 @@ date__contacttype_per_id |>
   check_new_vessels()
 # 2
 
-## ---- combine output ----
+# add permit and address info ----
+# print_df_names(vessels_permits_participants)
+
+vessels_permits_participants_v_ids <-
+  vessels_permits_participants |> 
+  select(P_VESSEL_ID) |> 
+  distinct()
+
+dim(vessels_permits_participants_v_ids)
+# [1] 3302    1
+# [1] 3676    1 (year ago start)
+
+setdiff(date__contacttype_per_id$vessel_official_number,
+        vessels_permits_participants_v_ids$P_VESSEL_ID
+) |> cat(sep = "', '")
+# |> 
+#   length()
+# 6
+# '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ'
+
+
+setdiff(vessels_permits_participants_v_ids$P_VESSEL_ID,
+        date__contacttype_per_id$vessel_official_number
+) |> 
+  length()
+# 3185
+
+# ---- combine output ----
 compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation1 |>
   inner_join(date__contacttype_per_id,
