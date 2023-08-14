@@ -479,7 +479,14 @@ data_overview(vessels_permits_participants_short_u_flat) |>
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
   # gdf %>% mutate(across(v1:v2, ~ .x + n))
-  mutate(across(
+  mutate(
+    across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_trim(.x)
+  ),
+    across(
     c(sero_home_port,
       full_name,
       full_address),
@@ -489,13 +496,19 @@ vessels_permits_participants_short_u_flat_sp <-
     c(sero_home_port,
       full_name,
       full_address),
-    ~ str_replace_all(.x, ", +$", "")
+    ~ str_replace_all(.x, ",,+", ",")
   ),
   across(
     c(sero_home_port,
       full_name,
       full_address),
-    ~ str_replace_all(.x, ",,+", ",")
+    ~ str_replace_all(.x, ",$", "")
+  ),
+    across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_replace_all(.x, "^,", "")
   ))
 # |>
 #   glimpse()
@@ -511,16 +524,17 @@ vessels_permits_participants_short_u_flat_sp <-
 vessels_permits_participants_date__contacttype_per_id <-
   inner_join(
     date__contacttype_per_id,
-    vessels_permits_participants_short,
+    vessels_permits_participants_short_u_flat_sp,
     join_by(vessel_official_number == P_VESSEL_ID)
   )
 
-View(vessels_permits_participants_date__contacttype_per_id)
+dim(vessels_permits_participants_date__contacttype_per_id)
+# 117
 
 # ---- combine output ----
 compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation1 |>
-  inner_join(date__contacttype_per_id,
+  inner_join(vessels_permits_participants_date__contacttype_per_id,
              by = "vessel_official_number")
 
 dim(compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id)
@@ -529,10 +543,12 @@ dim(compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_i
 # 271
 # [1] 522  31
 
-## ---- 2) remove duplicated columns ----
+## ---- 2) remove extra columns ----
 
 contactphonenumber_field_name <-
   find_col_name(compl_corr_to_investigation1, ".*contact", "number.*")[1]
+
+# print_df_names(vessels_permits_participants_date__contacttype_per_id)
 
 compl_corr_to_investigation1_short <-
   compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
@@ -545,12 +561,16 @@ compl_corr_to_investigation1_short <-
     "contactrecipientname",
     !!contactphonenumber_field_name,
     "contactemailaddress",
+    date__contacttypes, 
+    sero_home_port, 
+    full_name, 
+    full_address,
     # "week_start",
     "date__contacttypes"
   ) |>
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
-dim(compl_corr_to_investigation1_short)
+View(compl_corr_to_investigation1_short)
 # [1] 107   9
 # 27: [1] 177  10
 # [1] 105   9
@@ -757,7 +777,6 @@ result_file_path <- file.path(
     data_file_date,
     ".csv"
   ))
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious_violators_for_investigation_from_2023-01-24_to_2023-08-01.csv"
 
 readr::write_csv(
   compl_corr_to_investigation1_short_dup_marked,
