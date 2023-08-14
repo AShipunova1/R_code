@@ -159,7 +159,7 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 4)) |>
+  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
   # ...non compliant
   filter(compl_weeks_amnt == total_weeks)
 
@@ -391,7 +391,6 @@ vessels_permits_participants_v_ids <-
 
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
-# [1] 3676    1 (year ago start)
 
 setdiff(date__contacttype_per_id$vessel_official_number,
         vessels_permits_participants_v_ids$P_VESSEL_ID
@@ -399,13 +398,15 @@ setdiff(date__contacttype_per_id$vessel_official_number,
 # |> 
 #   length()
 # 6
-# '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ'
+# '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ' 
+# (wrong license_nbr in full_participants
+# or entity_id in permits,
+# check manually)
 
-
-setdiff(vessels_permits_participants_v_ids$P_VESSEL_ID,
-        date__contacttype_per_id$vessel_official_number
-) |> 
-  length()
+# setdiff(vessels_permits_participants_v_ids$P_VESSEL_ID,
+#         date__contacttype_per_id$vessel_official_number
+# ) |> 
+#   length()
 # 3185
 
 # ---- combine output ----
