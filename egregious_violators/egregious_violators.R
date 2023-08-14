@@ -443,8 +443,11 @@ dim(vessels_permits_participants_short)
 vessels_permits_participants_short_u <-
   vessels_permits_participants_short |> 
   group_by(P_VESSEL_ID) |> 
-  summarise(across(full_address, ~first(na.omit(.))))
+  mutate(full_addresses = list(na.omit(unique(full_address))))
+  # summarise(across(full_address, ~first(na.omit(.))))
       # mutate(full_addresses = paste(full_address, contacttype, sep = " ")) |>
+
+View(vessels_permits_participants_short_u)
 
 
 
