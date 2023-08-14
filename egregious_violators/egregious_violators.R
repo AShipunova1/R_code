@@ -435,6 +435,19 @@ vessels_permits_participants_short <-
 dim(vessels_permits_participants_short)
 # [1] 7858    4
 
+# data_overview(vessels_permits_participants_short) |> 
+#   head(1)
+# P_VESSEL_ID 3302
+
+## flatten addresses ----
+vessels_permits_participants_short_u <-
+  vessels_permits_participants_short |> 
+  group_by(P_VESSEL_ID) |> 
+  summarise(across(full_address, ~first(na.omit(.))))
+      # mutate(full_addresses = paste(full_address, contacttype, sep = " ")) |>
+
+
+
 # combine vessels_permits and date__contacttype ----
 
 vessels_permits_participants_date__contacttype_per_id <-
@@ -444,6 +457,7 @@ vessels_permits_participants_date__contacttype_per_id <-
     join_by(vessel_official_number == P_VESSEL_ID)
   )
 
+View(vessels_permits_participants_date__contacttype_per_id)
 
 # ---- combine output ----
 compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
