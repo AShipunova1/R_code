@@ -24,18 +24,7 @@ temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_22_23)
 compl_clean <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
 
-# get vessels and permit info from the db ----
-
-number_of_weeks_for_non_compliancy = 27
-days_in_27_weeks <- number_of_weeks_for_non_compliancy*7
-
-half_year_ago <-
-  data_file_date - days_in_27_weeks
-
-# half_year_ago
-# [1] "2023-01-24"
-stringr::str_glue("to_date('{half_year_ago}', 'yyyy-mm-dd')")
-# TO_DATE(2023-01-24, 'yyyy-mm-dd')
+# get vessels, permits and participants info from the db ----
 
 # get_vessels with permits and participants ----
 vessel_permit_where_part <-
