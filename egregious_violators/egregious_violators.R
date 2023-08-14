@@ -384,6 +384,7 @@ date__contacttype_per_id |>
 # add permit and address info ----
 # print_df_names(vessels_permits_participants)
 
+### check ----
 vessels_permits_participants_v_ids <-
   vessels_permits_participants |> 
   select(P_VESSEL_ID) |> 
@@ -408,6 +409,41 @@ setdiff(date__contacttype_per_id$vessel_official_number,
 # ) |> 
 #   length()
 # 3185
+
+vessels_permits_participants_short <-
+  vessels_permits_participants |>
+  group_by(P_VESSEL_ID) |>
+  mutate(
+    sero_home_port = paste(
+      SERO_HOME_PORT_CITY,
+      SERO_HOME_PORT_COUNTY,
+      SERO_HOME_PORT_STATE
+    ),
+    full_name = paste(FIRST_NAME,
+                      MIDDLE_NAME,
+                      LAST_NAME,
+                      NAME_SUFFIX),
+    full_address = paste(ADDRESS_1, ADDRESS_2, STATE, POSTAL_CODE)
+  ) |>
+  select(P_VESSEL_ID,
+         sero_home_port,
+         full_name,
+         full_address) |>
+  ungroup() |>
+  distinct()
+
+dim(vessels_permits_participants_short)
+# [1] 7858    4
+
+# combine vessels_permits and date__contacttype ----
+
+vessels_permits_participants_date__contacttype_per_id <-
+  inner_join(
+    date__contacttype_per_id,
+    vessels_permits_participants_short,
+    join_by(vessel_official_number == P_VESSEL_ID)
+  )
+
 
 # ---- combine output ----
 compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
