@@ -415,12 +415,14 @@ combine_cols <-
     browser()
     res <-
       my_df |>
-      group_by(!!sym(vessel_id_field_names)) |> 
-      select(!!sym(vessel_id_field_names),
-             all_of(my_vector)) |>
-      replace_na(" ") |>
-      list(unique()) |> 
-      ungroup()
+      mutate(across(where(is.character),
+                    ~ na_if(., " "))) |>
+      group_by(!!sym(vessel_id_field_names)) |>
+      # select(!!sym(vessel_id_field_names),
+      #        all_of(my_vector)) |>
+      list(unique(my_vector)) 
+    # |>
+      # ungroup()
     return(res)
   }
 
@@ -432,9 +434,15 @@ rr1 <-
         "SERO_HOME_PORT_STATE"
       ), vessel_id_field_names = "P_VESSEL_ID")
 
+vessels_permits_participants_space <-
+  vessels_permits_participants |>
+  mutate(across(where(is.character),
+                ~ replace_na(., "")))
+
+View(vessels_permits_participants_space)
 
 vessels_permits_participants_short_u <-
-  vessels_permits_participants |>
+  vessels_permits_participants_space |>
   group_by(P_VESSEL_ID) |>
   mutate(
     sero_home_port = list(unique(
@@ -467,6 +475,9 @@ vessels_permits_participants_short_u <-
 
 dim(vessels_permits_participants_short)
 # [1] 7858    4
+# [1] 3302    4
+
+View(vessels_permits_participants_short_u)
 # [1] 3302    4
 
 # data_overview(vessels_permits_participants_short) |> 
