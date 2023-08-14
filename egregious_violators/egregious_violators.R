@@ -474,13 +474,30 @@ data_overview(vessels_permits_participants_short_u_flat) |>
   head(1)
 # P_VESSEL_ID 3302
 
-View(vessels_permits_participants_short_u_flat)
 
-# [1] 3302    4
-
-vessels_permits_participants_short_u |> 
+vessels_permits_participants_short_u_flat_sp <-
+  vessels_permits_participants_short_u_flat |>
+  # gdf %>% mutate(across(v1:v2, ~ .x + n))
+  mutate(across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_replace(.x, "\\s+,", ",")
+  ),
+  across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_replace(.x, ", +$", "")
+  ))
+# |>
+#   glimpse()
+# 
+# 
+vessels_permits_participants_short_u_flat_sp |>
   arrange(P_VESSEL_ID) |> 
-  View()
+  head() |> 
+  str()
 
 # combine vessels_permits and date__contacttype ----
 
