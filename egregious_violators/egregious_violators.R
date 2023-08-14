@@ -766,6 +766,42 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # setdiff(in_the_new_res_only_df, no_comments_vsls_ids$vessel_official_number)
 # 0
 
+# temp ----
+prev_res <-
+  read_csv(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious violators for investigation - 2023-01-24_to_2023-08-01_comment.csv)",
+           col_types = cols(.default = 'c'))
+
+intersect(names(prev_res),
+          names(compl_corr_to_investigation1_short_dup_marked)) |> 
+  cat(sep = ", ")
+
+compl_corr_to_investigation1_short_dup_marked_ch <-
+  compl_corr_to_investigation1_short_dup_marked |>
+  mutate(across(everything(), as.character)) |>
+  select(
+    -c(
+      name,
+      permit_expired,
+      permitgroup,
+      permitgroupexpiration,
+      contactrecipientname,
+      contactphone_number,
+      contactemailaddress,
+      date__contacttypes,
+      duplicate_w_last_time
+    )
+  )
+# View(compl_corr_to_investigation1_short_dup_marked_ch)
+
+new_join <-
+  left_join(
+    prev_res,
+    compl_corr_to_investigation1_short_dup_marked_ch,
+    join_by(
+      vessel_official_number
+    )
+  )
+
 # output ----
 result_file_path <- file.path(
   my_paths$outputs,
@@ -778,8 +814,9 @@ result_file_path <- file.path(
     ".csv"
   ))
 
+# View(new_join)
 readr::write_csv(
-  compl_corr_to_investigation1_short_dup_marked,
+  new_join,
     # compl_corr_to_investigation1_short_output_w_comments,
   result_file_path,
   na = "")
