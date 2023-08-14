@@ -827,6 +827,15 @@ no_addr_vessl <-
     "MI9152BZ",
     "NC2851DH")
 
+res1 |> 
+  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dim()
+
+fhier_addr_short |> 
+  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dim()
+# 0
+
 # temp 2 ----
 prev_res <-
   read_csv(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious violators for investigation - 2023-01-24_to_2023-08-01_comment.csv)",
