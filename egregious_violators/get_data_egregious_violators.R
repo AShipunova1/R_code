@@ -72,12 +72,18 @@ WHERE
   ")
 
 vessels_permits_file_path <-
-  file.path(my_paths$inputs,
-            "../egregious_violators",
+  file.path(r"(~\R_files_local\my_inputs)",
+            "egregious_violators",
             "vessels_permits.rds")
 
+rr <-
+  dbGetQuery(con,
+             vessels_permits_query)
+
+View(rr)
 vessels_permits_fun <-
   function(vessels_permits_query) {
+    browser()
     return(dbGetQuery(con,
                       vessels_permits_query))
   }
@@ -88,32 +94,6 @@ vessels_permits <-
     vessels_permits_query,
     vessels_permits_fun
   )
+# 2023-08-11 run the function: 12.87 sec elapsed
 
-#
-# vessels ----
-vessels_query <-
-  "SELECT
- *
-  FROM
-    safis.vessels@secapxdv_dblk.sfsc.noaa.gov
-"
-
-vessels_file_path <- 
-  file.path(my_paths$inputs, 
-            "../egregious_violators",
-            "vessels.rds")
-
-con <- connect_to_secpr()
-
-vessels_fun <- function(vessels_query) {
-  return(dbGetQuery(con, vessels_query))
-}
-
-vessels <-
-  read_rds_or_run(
-    vessels_file_path,
-    vessels_query,
-    vessels_fun
-  )
-
-dim(vessels)
+dim(vessels_permits)
