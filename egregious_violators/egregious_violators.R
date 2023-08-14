@@ -410,20 +410,30 @@ setdiff(date__contacttype_per_id$vessel_official_number,
 #   length()
 # 3185
 
-vessels_permits_participants_short <-
+vessels_permits_participants_short_u <-
   vessels_permits_participants |>
   group_by(P_VESSEL_ID) |>
   mutate(
-    sero_home_port = paste(
-      SERO_HOME_PORT_CITY,
-      SERO_HOME_PORT_COUNTY,
-      SERO_HOME_PORT_STATE
-    ),
-    full_name = paste(FIRST_NAME,
-                      MIDDLE_NAME,
-                      LAST_NAME,
-                      NAME_SUFFIX),
-    full_address = paste(ADDRESS_1, ADDRESS_2, STATE, POSTAL_CODE)
+    sero_home_port = list(unique(
+      c(
+        SERO_HOME_PORT_CITY,
+        SERO_HOME_PORT_COUNTY,
+        SERO_HOME_PORT_STATE
+      )
+    )),
+    full_name = list(unique(
+      c(FIRST_NAME,
+        MIDDLE_NAME,
+        LAST_NAME,
+        NAME_SUFFIX)
+    )),
+    full_address =
+      list(unique(
+        c(ADDRESS_1,
+          ADDRESS_2,
+          STATE,
+          POSTAL_CODE)
+      ))
   ) |>
   select(P_VESSEL_ID,
          sero_home_port,
@@ -434,40 +444,41 @@ vessels_permits_participants_short <-
 
 dim(vessels_permits_participants_short)
 # [1] 7858    4
+# [1] 3302    4
 
 # data_overview(vessels_permits_participants_short) |> 
 #   head(1)
 # P_VESSEL_ID 3302
 
 ## flatten addresses ----
-vessels_permits_participants_short_u <-
-  vessels_permits_participants_short |>
-  group_by(P_VESSEL_ID) |>
-  mutate(
-    full_addresses =
-      list(na.omit(unique(full_address))),
-    sero_home_ports =
-      list(na.omit(unique(sero_home_port))),
-    full_names =
-      list(na.omit(unique(full_name)))
-  ) |>
-  mutate(
-    full_addresses_str =
-      paste(full_addresses, collapse = ','),
-    sero_home_ports_str =
-      paste(sero_home_ports, collapse = ','),
-    full_names_str =
-      paste(full_names, collapse = ',')
-  ) |>
-  ungroup() |>
-  distinct()
+# vessels_permits_participants_short_u <-
+#   vessels_permits_participants_short |>
+#   group_by(P_VESSEL_ID) |>
+#   mutate(
+#     full_addresses =
+#       list(na.omit(unique(full_address))),
+#     sero_home_ports =
+#       list(na.omit(unique(sero_home_port))),
+#     full_names =
+#       list(na.omit(unique(full_name)))
+#   ) |>
+#   # mutate(
+#   #   full_addresses_str =
+#   #     paste(full_addresses, collapse = ','),
+#   #   sero_home_ports_str =
+#   #     paste(sero_home_ports, collapse = ','),
+#   #   full_names_str =
+#   #     paste(full_names, collapse = ',')
+#   # ) |>
+#   ungroup() |>
+#   distinct()
 
   # summarise(across(full_address, ~first(na.omit(.))))
       # mutate(full_addresses = paste(full_address, contacttype, sep = " ")) |>
 
-View(vessels_permits_participants_short_u)
-
-
+vessels_permits_participants_short_u |> 
+  arrange(P_VESSEL_ID) |> 
+  View()
 
 # combine vessels_permits and date__contacttype ----
 
