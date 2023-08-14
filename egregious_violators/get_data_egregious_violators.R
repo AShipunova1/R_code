@@ -37,58 +37,131 @@ half_year_ago <-
 stringr::str_glue("to_date('{half_year_ago}', 'yyyy-mm-dd')")
 # TO_DATE(2023-01-24, 'yyyy-mm-dd')
 
-# get_vessels with permits 2022 ----
+# get_vessels with permits and participants ----
+vessel_permit_where_part <-
+  "WHERE
+    p.permit_status <> 'REVOKED'
+      AND p.top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
+                     'SC', 'CDW' )
+      AND ( p.expiration_date >= ( sysdate - ( 365 / 2 ) )
+            OR p.end_date >= ( sysdate - ( 365 / 2 ) ) )
+      AND nvl(p.end_date, p.expiration_date) IS NOT NULL
+"
+  # paste0(
+  #   "WHERE
+  # end_date >= to_date(', ",
+  # half_year_ago,
+  # "', 'yyyy-mm-dd')
+  #   OR expiration_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')"
+  # )
+
+vessel_permit_fields_part <-
+  "   v.sero_home_port_city,
+      v.sero_home_port_county,
+      v.sero_home_port_state,
+      v.sero_official_number,
+      v.coast_guard_nbr,
+      v.event_id,
+      v.hull_id_nbr,
+      v.owner_id,
+      v.state_reg_nbr,
+      v.status,
+      v.supplier_vessel_id,
+      v.ue,
+      v.vessel_id v_vessel_id,
+      v.vessel_name,
+      p.effective_date,
+      p.end_date,
+      p.entity_id,
+      p.expiration_date,
+      p.new_owner,
+      p.permit,
+      p.permit_status,
+      p.prior_owner,
+      p.vessel_alt_num,
+      p.vessel_id p_vessel_id
+"
+
+vessels_permits_from_part <-
+"FROM
+       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+"
+
 vessels_permits_query <-
   str_glue(
   "SELECT
-  *
-FROM
-       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
-  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  {vessel_permit_fields_part}
+  {vessels_permits_from_part}
   ON ( p.vessel_id = sero_official_number )
-WHERE
-  end_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')
-    OR expiration_date >= to_date('{half_year_ago}', 'yyyy-mm-dd'
-)
+  {vessel_permit_where_part}
 UNION ALL
 SELECT
-  *
-FROM
-       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
-  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  {vessel_permit_fields_part}
+  {vessels_permits_from_part}
   ON ( p.vessel_id = coast_guard_nbr )
-WHERE
-   end_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')
-    OR expiration_date >= to_date('{half_year_ago}', 'yyyy-mm-dd') UNION ALL
+  {vessel_permit_where_part}
+UNION ALL
 SELECT
-  *
-FROM
-       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
-  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+  {vessel_permit_fields_part}
+  {vessels_permits_from_part}
   ON ( p.vessel_id = state_reg_nbr )
-WHERE
-  end_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')
-  OR expiration_date >= to_date('{half_year_ago}', 'yyyy-mm-dd')
+  {vessel_permit_where_part}
   ")
 
-vessels_permits_file_path <-
+vessels_permits_participants_file_path <-
   file.path(r"(~\R_files_local\my_inputs)",
             "egregious_violators",
-            "vessels_permits.rds")
+            "vessels_permits_participants.rds")
 
-rr <-
+vessels_permits_participants_query <-
+  paste0(
+  "SELECT
+  v_p.*,
+
+  f_p.first_name,
+  f_p.middle_name,
+  f_p.last_name,
+  f_p.name_suffix,
+  f_p.address_1,
+  f_p.address_2,
+  f_p.state,
+  f_p.postal_code,
+  f_p.phone_nbr,
+  f_p.email,
+  f_p.license_nbr,
+  f_p.participant_id,
+  f_p.permit_id,
+  f_p.status
+FROM
+       safis.full_participant@secapxdv_dblk.sfsc.noaa.gov f_p
+  JOIN (",
+  vessels_permits_query,
+  ") v_p
+  ON ( to_char(license_nbr) = to_char(entity_id) )"
+  )
+
+
+# cat(vessels_permits_participants_query,
+#     file =
+#       file.path(my_paths$inputs, "../vessels_permits_participants_query.sql"))
+  
+vessels_permits_participants <-
   dbGetQuery(con,
-             vessels_permits_query)
+             vessels_permits_participants_query)
 
-View(rr)
-vessels_permits_fun <-
-  function(vessels_permits_query) {
-    browser()
+dim(vessels_permits_participants)
+# [1] 63928    38
+
+# View(vessels_permits_participants)
+vessels_permits_participants_fun <-
+  function(vessels_permits_participants) {
+    # browser()
     return(dbGetQuery(con,
-                      vessels_permits_query))
+                      vessels_permits_participants))
   }
 
-vessels_permits <-
+vessels_permits_participants1 <-
   read_rds_or_run(
     vessels_permits_file_path,
     vessels_permits_query,
