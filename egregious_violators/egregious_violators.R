@@ -757,6 +757,73 @@ addr_name_in_not_fhier <-
 dim(addr_name_in_not_fhier)
 39
 
+### check if the address or name missing from the db is in FHIER ----
+addr_name_in_fhier <-
+  fhier_addr__compl_corr |>
+  filter((is.na(full_name) &
+            !is.na(permit_holder_names)) |
+           is.na(full_address) &
+           !is.na(fhier_address))
+
+dim(new_addr)
+# 0
+
+### check if the address or name is a "UN" in the db is in FHIER ----
+addr_name_in_fhier <-
+  fhier_addr__compl_corr |>
+  filter((full_name == "UN" &
+            !is.na(permit_holder_names)) |
+           full_address == "UN" &
+           !is.na(fhier_address))
+
+dim(addr_name_in_fhier)
+# [1] 19 17
+
+### add info from FHIER to the results ----
+setdiff(names(vessels_permits_participants_short_u_flat_sp),
+  names(fhier_addr__compl_corr)
+)
+
+setdiff(
+  names(fhier_addr__compl_corr),
+  names(vessels_permits_participants_short_u_flat_sp)
+  )
+print_df_names(fhier_addr__compl_corr)
+
+vessels_permits_participants_short_u_flat_sp_add <-
+  vessels_permits_participants_short_u_flat_sp |>
+  left_join(
+    fhier_addr__compl_corr,
+    join_by(
+      P_VESSEL_ID == vessel_official_number,
+      sero_home_port,
+      full_name,
+      full_address
+    )
+  ) |>
+  mutate(
+    full_name =
+      case_when(
+        is.na(full_name) | full_name == "UN" ~
+          permit_holder_names,
+        .default = full_name
+      ),
+    full_address =
+      case_when(
+        is.na(full_address) | full_address == "UN" ~
+          fhier_address,
+        .default = full_address
+      )
+  ) |>
+  select(P_VESSEL_ID, sero_home_port, full_name, full_address) |>
+  distinct()
+
+library(diffdf)
+diffdf(vessels_permits_participants_short_u_flat_sp,
+       vessels_permits_participants_short_u_flat_sp_add)
+  
+  #    Variable    No of Differences 
+  #  full_address         896        
 
 
 # combine vessels_permits and date__contacttype ----
