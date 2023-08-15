@@ -757,8 +757,6 @@ dim(vessels_permits_participants)
 # [1] 63928    38
 # [1] 31942    38
 
-
-
 # Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/egregious_violators.R ----
 
 # see read.me
@@ -1186,56 +1184,55 @@ fhier_addr_short <-
     )
   )
 
+print_df_names(vessels_permits_participants_short_u_flat_sp)
+
 # join with the previous results from the db
 fhier_addr__compl_corr <-
   right_join(
     fhier_addr_short,
-    compl_corr_to_investigation1_short_dup_marked,
-    join_by("vessel_official_number")
+    vessels_permits_participants_short_u_flat_sp,
+    join_by(vessel_official_number == P_VESSEL_ID)
   )
 
 dim(fhier_addr__compl_corr)
-# [1] 117  17
-
-### check if the address or name missing from the db is in FHIER ----
-addr_name_in_fhier <-
-  fhier_addr__compl_corr |>
-  filter((is.na(full_name) &
-            !is.na(permit_holder_names)) |
-           is.na(full_address) &
-           !is.na(fhier_address))
-
-dim(new_addr)
-# 0
-
-### check if the address or name is a "UN" in the db is in FHIER ----
-addr_name_in_fhier <-
-  fhier_addr__compl_corr |>
-  filter((full_name == "UN" &
-            !is.na(permit_holder_names)) |
-           full_address == "UN" &
-           !is.na(fhier_address))
-
-dim(addr_name_in_fhier)
-# [1] 19 17
+# [1] 3302    8
 
 ### add info from FHIER to the results ----
-setdiff(names(vessels_permits_participants_short_u_flat_sp),
-  names(fhier_addr__compl_corr)
-)
 
-setdiff(
-  names(fhier_addr__compl_corr),
-  names(vessels_permits_participants_short_u_flat_sp)
-  )
+vessels_permits_participants_short_u_flat_sp_add <-
+  vessels_permits_participants_short_u_flat_sp |>
+  dplyr::left_join(
+    fhier_addr__compl_corr,
+    dplyr::join_by(
+      P_VESSEL_ID == vessel_official_number,
+      sero_home_port,
+      full_name,
+      full_address
+    )
+  ) |>
+  dplyr::mutate(
+    full_name =
+      dplyr::case_when(
+        is.na(full_name) | full_name == "UN" ~
+          permit_holder_names,
+        .default = full_name
+      ),
+    full_address =
+      dplyr::case_when(
+        is.na(full_address) | full_address == "UN" ~
+          fhier_address,
+        .default = full_address
+      )
+  ) |>
+  dplyr::select(P_VESSEL_ID, sero_home_port, full_name, full_address) |>
+  dplyr::distinct()
 
 # combine vessels_permits and date__contacttype ----
-
 vessels_permits_participants_date__contacttype_per_id <-
-  inner_join(
+  dplyr::inner_join(
     date__contacttype_per_id,
-    vessels_permits_participants_short_u_flat_sp,
-    join_by(vessel_official_number == P_VESSEL_ID)
+    vessels_permits_participants_short_u_flat_sp_add,
+    dplyr::join_by(vessel_official_number == P_VESSEL_ID)
   )
 
 dim(vessels_permits_participants_date__contacttype_per_id)
@@ -1244,11 +1241,11 @@ dim(vessels_permits_participants_date__contacttype_per_id)
 # combine all outputs ----
 compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation1 |>
-  inner_join(vessels_permits_participants_date__contacttype_per_id,
-             by = "vessel_official_number")
+  dplyr::inner_join(vessels_permits_participants_date__contacttype_per_id,
+                    by = "vessel_official_number")
 
 dim(compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id)
-# [1] 527  31
+# [1] 527  33
 
 ## 2) remove extra columns ----
 # get field names
@@ -1257,7 +1254,7 @@ contactphonenumber_field_name <-
 
 compl_corr_to_investigation1_short <-
   compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
-  select(
+  dplyr::select(
     vessel_official_number,
     name,
     permit_expired,
@@ -1290,11 +1287,11 @@ previous_egr_data_path <-
 file.exists(previous_egr_data_path)
 # T
 vessels_to_mark <-
-  read_csv(previous_egr_data_path)
+  readr::read_csv(previous_egr_data_path)
 
 vessels_to_mark_ids <-
   vessels_to_mark |>
-  select(vessel_official_number)
+  dplyr::select(vessel_official_number)
 
 # mark these vessels
 compl_corr_to_investigation1_short_dup_marked <-
