@@ -1219,15 +1219,15 @@ addr_name_in_fhier <-
 dim(addr_name_in_fhier)
 # [1] 19 17
 
-addr_name_in_not_fhier <-
-  fhier_addr__compl_corr |>
-  filter(((!is.na(full_name) | !full_name == "UN") &
-            is.na(permit_holder_names)) |
-           (!is.na(full_address) | !full_address == "UN") &
-           is.na(fhier_address))
+### add info from FHIER to the results ----
+setdiff(names(vessels_permits_participants_short_u_flat_sp),
+  names(fhier_addr__compl_corr)
+)
 
-dim(addr_name_in_not_fhier)
-39
+setdiff(
+  names(fhier_addr__compl_corr),
+  names(vessels_permits_participants_short_u_flat_sp)
+  )
 
 # combine vessels_permits and date__contacttype ----
 
