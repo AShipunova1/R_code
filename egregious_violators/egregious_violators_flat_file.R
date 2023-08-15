@@ -1316,42 +1316,6 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # vessel_official_number
 # 117
 
-# temp 2 ----
-prev_res <-
-  read_csv(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious violators for investigation - 2023-01-24_to_2023-08-01_comment.csv)",
-           col_types = cols(.default = 'c'))
-
-lubridate::intersect(names(prev_res),
-          names(compl_corr_to_investigation1_short_dup_marked)) |> 
-  cat(sep = ", ")
-
-compl_corr_to_investigation1_short_dup_marked_ch <-
-  compl_corr_to_investigation1_short_dup_marked |>
-  dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
-  select(
-    -c(
-      name,
-      permit_expired,
-      permitgroup,
-      permitgroupexpiration,
-      contactrecipientname,
-      contactphone_number,
-      contactemailaddress,
-      date__contacttypes,
-      duplicate_w_last_time
-    )
-  )
-# View(compl_corr_to_investigation1_short_dup_marked_ch)
-
-new_join <-
-  left_join(
-    prev_res,
-    compl_corr_to_investigation1_short_dup_marked_ch,
-    join_by(
-      vessel_official_number
-    )
-  )
-
 # output ----
 result_file_path <- file.path(
   my_paths$outputs,
@@ -1364,62 +1328,6 @@ result_file_path <- file.path(
     ".csv"
   ))
 
-# View(new_join)
-readr::write_csv(
-  new_join,
-    # compl_corr_to_investigation1_short_output_w_comments,
-  result_file_path,
-  na = "")
-
-compl_corr_to_investigation1_short_dup_marked |>
-  check_new_vessels()
-# 2
-# FL4232JY
-# FL7549EJ
-
-## who needs an email ----
-# source(file.path(current_project_path, "need_an_email.R"))
-
-# ## no correspondence ----
-# source(
-#   file.path(
-#     current_project_path,
-#     "not_compliant_51_plus_weeks_and_no_correspondence.R"
-#   )
-# )
-#
-# ## correspondence, no compliance information ----
-# no_compl_info <-
-#   setdiff(
-#     corresp_contact_cnts_clean$vessel_official_number,
-#     compl_clean$vessel_official_number
-#   )
-# length(no_compl_info)
-# # 398
-# # 136
-# # Not in compliance info!
-#
-# # grep("1131132", compl_clean$vessel_official_number)
-# # 0
-
-current_project_name <- "egregious_violators"
-current_project_path <-
-  file.path(my_paths$git_r, current_project_name)
-
-# make a flat file ----
-
-"C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\get_data_egregious_violators.R"
-
-files_to_combine <-
-  c("~/R_code_github/useful_functions_module.r",
-    file.path(current_project_path, "db_functions.R"),
-    file.path(current_project_path, "get_data_egregious_violators.R"),
-    file.path(current_project_path, "egregious_violators.R")
-  )
-
-# run as needed
-make_a_flat_file(
-  file.path(current_project_path,   "egregious_violators_flat_file.R"),
-  files_to_combine
-)
-
+readr::write_csv(compl_corr_to_investigation1_short_dup_marked,
+                 result_file_path,
+                 na = "")
