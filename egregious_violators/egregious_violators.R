@@ -836,6 +836,43 @@ fhier_addr_short |>
   dim()
 # 0
 
+no_addr1 <-
+  c("1066100",
+    "1069364",
+    "1209015",
+    "1266505",
+    "1316879",
+    "622813",
+    "678141",
+    "938364",
+    "996263",
+    "FL0061PZ",
+    "FL0380JY",
+    "FL0435LD",
+    "FL2153SM",
+    "FL2367PW",
+    "FL2453TE",
+    "FL3002LF",
+    "FL3017ME",
+    "FL3262PM",
+    "FL5736GJ",
+    "FL6954LD",
+    "FL7772SV",
+    "FL8077RA",
+    "FL8666CH",
+    "FL9131RJ",
+    "FL9793RU",
+    "NC9819DF")
+
+fhier_addr_short |>
+  # filter(vessel_official_number == "1308401") |>
+  filter(vessel_official_number %in% no_addr1) |>
+  select(vessel_official_number,
+         permit_holder_names, fhier_address) |>
+  write_csv("fhier_addr_short.csv")
+# 22
+
+
 # temp 2 ----
 prev_res <-
   read_csv(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious violators for investigation - 2023-01-24_to_2023-08-01_comment.csv)",
