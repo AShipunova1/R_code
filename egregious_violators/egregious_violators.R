@@ -969,6 +969,7 @@ current_project_path <-
 
 files_to_combine <-
   c("~/R_code_github/useful_functions_module.r",
+    file.path(current_project_path, "db_functions.R"),
     file.path(current_project_path, "get_data_egregious_violators.R"),
     file.path(current_project_path, "egregious_violators.R")
   )
