@@ -590,35 +590,17 @@ read_rds_or_run <-
   }
 
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/get_data_egregious_violators.R ----
+#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/db_functions.R ----
 
-# get data for egregious violators
-# Download from FHIER first
-csv_names_list_22_23 = c("Correspondence__08_01_2023.csv",
-                         r"(FHIER_Compliance_2022__08_01_2023.csv)",
-                         r"(FHIER_Compliance_2023__08_01_2023.csv)")
-
-data_file_date <- today()
-  # lubridate::mdy("06_22_2023") 
-
-## ---- get csv data into variables ----
-my_paths$inputs <- file.path(my_paths$inputs, "from_Fhier")
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_inputs"
-
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\Correspondence\Correspondence_22_23__06_22_2023.csv"
-temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_22_23)
-
-compl_clean <- temp_var[[1]]
-corresp_contact_cnts_clean0 <- temp_var[[2]]
+con = dbConnect(
+  dbDriver("Oracle"),
+  username = keyring::key_list("SECPR")[1, 2],
+  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
+  dbname = "SECPR"
+)
 
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/egregious_violators.R ----
-
-# see read.me
-
-# Get common functions
-source("~/R_code_github/useful_functions_module.r")
-
+#### from the main file:
 library(zoo)
 # library(RColorBrewer)
 
@@ -628,7 +610,165 @@ current_project_name <- "egregious_violators"
 current_project_path <-
   file.path(my_paths$git_r, current_project_name)
 
-source(file.path(current_project_path, "get_data_egregious_violators.R"))
+
+#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/get_data_egregious_violators.R ----
+
+library(lubridate)
+library(tictoc)
+library(stringr)
+
+# get data for egregious violators
+# Download from FHIER first:
+# Home / Correspondence
+# and
+# Reports / FHIER Compliance Report
+
+csv_names_list_22_23 = c("Correspondence__08_01_2023.csv",
+                         r"(FHIER_Compliance_2022__08_01_2023.csv)",
+                         r"(FHIER_Compliance_2023__08_01_2023.csv)")
+
+data_file_date <- today()
+
+## ---- get csv data into variables ----
+all_inputs <- my_paths$inputs
+my_paths$inputs <- file.path(my_paths$inputs, "from_Fhier")
+
+temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_22_23)
+
+compl_clean <- temp_var[[1]]
+corresp_contact_cnts_clean0 <- temp_var[[2]]
+
+# get vessels, permits and participants info from the db ----
+
+# get_vessels with permits and participants ----
+vessel_permit_where_part <-
+  "
+    p.permit_status <> 'REVOKED'
+      AND p.top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
+                     'SC', 'CDW' )
+      AND ( p.expiration_date >= ( sysdate - ( 365 / 2 ) )
+            OR p.end_date >= ( sysdate - ( 365 / 2 ) ) )
+      AND nvl(p.end_date, p.expiration_date) IS NOT NULL
+"
+
+vessel_permit_fields_part <-
+  "   v.sero_home_port_city,
+      v.sero_home_port_county,
+      v.sero_home_port_state,
+      v.sero_official_number,
+      v.coast_guard_nbr,
+      v.event_id,
+      v.hull_id_nbr,
+      v.owner_id,
+      v.state_reg_nbr,
+      v.status v_status,
+      v.supplier_vessel_id,
+      v.ue,
+      v.vessel_id v_vessel_id,
+      v.vessel_name,
+      p.effective_date,
+      p.end_date,
+      p.entity_id,
+      p.expiration_date,
+      p.new_owner,
+      p.permit,
+      p.permit_status,
+      p.prior_owner,
+      p.vessel_alt_num,
+      p.vessel_id p_vessel_id
+"
+
+vessels_permits_from_part <-
+"FROM
+       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p,
+  safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+"
+
+vessels_permits_query <-
+  str_glue(
+  "SELECT
+  {vessel_permit_fields_part}
+  {vessels_permits_from_part}
+  WHERE
+    ( p.vessel_id = sero_official_number
+  OR
+    p.vessel_id = state_reg_nbr
+  OR 
+    p.vessel_id = coast_guard_nbr )
+  AND
+  {vessel_permit_where_part}
+  ")
+
+vessels_permits_participants_query <-
+  paste0(
+  "SELECT
+  v_p.*,
+
+  f_p.first_name,
+  f_p.middle_name,
+  f_p.last_name,
+  f_p.name_suffix,
+  f_p.address_1,
+  f_p.address_2,
+  f_p.state,
+  f_p.postal_code,
+  f_p.phone_nbr,
+  f_p.email,
+  f_p.license_nbr,
+  f_p.participant_id,
+  f_p.permit_id,
+  f_p.status f_p_status
+FROM
+       safis.full_participant@secapxdv_dblk.sfsc.noaa.gov f_p
+  JOIN (",
+  vessels_permits_query,
+  ") v_p
+  ON ( to_char(license_nbr) = to_char(entity_id) )"
+  )
+
+cat(
+  vessels_permits_participants_query,
+  file =
+    file.path(
+      all_inputs,
+      current_project_name,
+      "vessels_permits_participants_query.sql"
+    )
+)
+
+vessels_permits_participants_file_path <-
+  file.path(all_inputs,
+            current_project_name,
+            "vessels_permits_participants.rds")
+ 
+# dim(vessels_permits_participants)
+# [1] 63928    38
+
+vessels_permits_participants_fun <-
+  function(vessels_permits_participants) {
+    return(dbGetQuery(con,
+                      vessels_permits_participants))
+  }
+
+vessels_permits_participants <-
+  read_rds_or_run(
+    vessels_permits_participants_file_path,
+    vessels_permits_participants_query,
+    vessels_permits_participants_fun
+  )
+
+dim(vessels_permits_participants)
+# [1] 63928    38
+# [1] 31942    38
+
+
+
+#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/egregious_violators.R ----
+
+# see read.me
+
+# Get common functions
+source("~/R_code_github/useful_functions_module.r")
 
 ## check ----
 check_new_vessels <-
@@ -775,9 +915,11 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |> 
+  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
   # ...non compliant
   filter(compl_weeks_amnt == total_weeks)
+
+dim(compl_clean_sa_all_weeks_non_c_short)
 
 compl_clean_sa_non_c_not_exp |>
   dplyr::select(vessel_official_number, week, compliant_) |>
@@ -794,7 +936,7 @@ compl_clean_sa_non_c_not_exp |>
   # dim()
   # [1] 1045    4
   # all weeks were non compliant
-  filter(compl_weeks_amnt == total_weeks) |>
+  # filter(compl_weeks_amnt == total_weeks) |>
     glimpse()
 
 dim(compl_clean_sa_all_weeks_non_c_short)
@@ -970,10 +1112,8 @@ get_date_contacttype <-
       arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
       group_by(vessel_official_number) |>
-      # [1] 1125    2
       # for each vessel id combine all date__contacttypes separated by comma in one cell
       summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
-      # [1] 435   2
       return()
   }
 
@@ -997,10 +1137,160 @@ date__contacttype_per_id |>
   check_new_vessels()
 # 2
 
-## ---- combine output ----
+# add permit and address info ----
+# print_df_names(vessels_permits_participants)
+
+### check ----
+vessels_permits_participants_v_ids <-
+  vessels_permits_participants |> 
+  select(P_VESSEL_ID) |> 
+  distinct()
+
+dim(vessels_permits_participants_v_ids)
+# [1] 3302    1
+
+setdiff(date__contacttype_per_id$vessel_official_number,
+        vessels_permits_participants_v_ids$P_VESSEL_ID
+) |> cat(sep = "', '")
+# |> 
+#   length()
+# 6
+# '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ' 
+# (wrong license_nbr in full_participants
+# or entity_id in permits,
+# check manually)
+
+# setdiff(vessels_permits_participants_v_ids$P_VESSEL_ID,
+#         date__contacttype_per_id$vessel_official_number
+# ) |> 
+#   length()
+# 3185
+
+vessels_permits_participants_space <-
+  vessels_permits_participants |>
+  mutate(across(where(is.character),
+                ~ replace_na(., ""))) |>
+  mutate(across(where(is.character),
+                ~ str_trim(.)))
+
+dim(vessels_permits_participants_space)
+# [1] 31942    38
+
+vessels_permits_participants_short_u <-
+  vessels_permits_participants_space |>
+  group_by(P_VESSEL_ID) |>
+  mutate(
+    sero_home_port = list(unique(
+      paste(
+        SERO_HOME_PORT_CITY,
+        SERO_HOME_PORT_COUNTY,
+        SERO_HOME_PORT_STATE
+      )
+    )),
+    full_name = list(unique(
+      paste(FIRST_NAME,
+            MIDDLE_NAME,
+            LAST_NAME,
+            NAME_SUFFIX)
+    )),
+    full_address = list(unique(
+        paste(ADDRESS_1,
+              ADDRESS_2,
+              STATE,
+              POSTAL_CODE)
+      ))
+  ) |>
+  select(P_VESSEL_ID,
+         sero_home_port,
+         full_name,
+         full_address) |>
+  ungroup() |>
+  distinct()
+
+# dim(vessels_permits_participants_short)
+# [1] 7858    4
+# [1] 3302    4
+
+# View(vessels_permits_participants_short_u)
+
+# vessels_permits_participants_short_u |> 
+#   # filter(lengths(full_name) > 0) %>%
+#   # unnest(full_name) %>%
+#   # unnest_wider(full_name, names_sep = "_") |> 
+#   rowwise() |> 
+#   mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
+#   View()
+ # cat()
+
+vessels_permits_participants_short_u_flat <-
+  vessels_permits_participants_short_u |>
+  rowwise() |>
+  mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
+  ungroup()
+
+data_overview(vessels_permits_participants_short_u_flat) |> 
+  head(1)
+# P_VESSEL_ID 3302
+
+vessels_permits_participants_short_u_flat_sp <-
+  vessels_permits_participants_short_u_flat |>
+  # gdf %>% mutate(across(v1:v2, ~ .x + n))
+  mutate(
+    across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_trim(.x)
+  ),
+    across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_replace_all(.x, "\\s+,", ",")
+  ),
+  across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_replace_all(.x, ",,+", ",")
+  ),
+  across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_replace_all(.x, ",$", "")
+  ),
+    across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    ~ str_replace_all(.x, "^,", "")
+  ))
+# |>
+#   glimpse()
+# 
+# 
+# vessels_permits_participants_short_u_flat_sp |>
+#   arrange(P_VESSEL_ID) |> 
+#   head() |> 
+#   str()
+
+# combine vessels_permits and date__contacttype ----
+
+vessels_permits_participants_date__contacttype_per_id <-
+  inner_join(
+    date__contacttype_per_id,
+    vessels_permits_participants_short_u_flat_sp,
+    join_by(vessel_official_number == P_VESSEL_ID)
+  )
+
+dim(vessels_permits_participants_date__contacttype_per_id)
+# 117
+
+# ---- combine output ----
 compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation1 |>
-  inner_join(date__contacttype_per_id,
+  inner_join(vessels_permits_participants_date__contacttype_per_id,
              by = "vessel_official_number")
 
 dim(compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id)
@@ -1009,10 +1299,12 @@ dim(compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_i
 # 271
 # [1] 522  31
 
-## ---- 2) remove duplicated columns ----
+## ---- 2) remove extra columns ----
 
 contactphonenumber_field_name <-
   find_col_name(compl_corr_to_investigation1, ".*contact", "number.*")[1]
+
+# print_df_names(vessels_permits_participants_date__contacttype_per_id)
 
 compl_corr_to_investigation1_short <-
   compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
@@ -1025,12 +1317,16 @@ compl_corr_to_investigation1_short <-
     "contactrecipientname",
     !!contactphonenumber_field_name,
     "contactemailaddress",
+    date__contacttypes, 
+    sero_home_port, 
+    full_name, 
+    full_address,
     # "week_start",
     "date__contacttypes"
   ) |>
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
-dim(compl_corr_to_investigation1_short)
+View(compl_corr_to_investigation1_short)
 # [1] 107   9
 # 27: [1] 177  10
 # [1] 105   9
@@ -1226,6 +1522,149 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # setdiff(in_the_new_res_only_df, no_comments_vsls_ids$vessel_official_number)
 # 0
 
+# temp 1 ----
+fhier_addr <-
+  read_csv(
+    r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\For-hire Primary Physical Address List.csv)",
+    col_types = cols(.default = 'c'),
+    name_repair = fix_names
+  )
+
+# vessel_official_number, permits, effective_date, end_date, has_sa_permits_, has_gom_permits_, assigned_permit_region_grouping, permit_holder_names, physical_address_1, physical_address_2, physical_city, physical_county, physical_state, physical_zip_code, phone_number, primary_email
+
+fhier_addr_short <-
+  fhier_addr |>
+  select(
+    vessel_official_number,
+    permit_holder_names,
+    physical_address_1,
+    physical_address_2,
+    physical_city,
+    physical_county,
+    physical_state,
+    physical_zip_code,
+    phone_number,
+    primary_email
+  ) |>
+  mutate(
+    fhier_address =
+      paste(
+        physical_address_1,
+        physical_address_2,
+        physical_city,
+        physical_county,
+        physical_state,
+        physical_zip_code
+      )
+  ) |>
+  select(
+    -c(
+      physical_address_1,
+      physical_address_2,
+      physical_city,
+      physical_county,
+      physical_state,
+      physical_zip_code
+    )
+  )
+
+res1 <-
+  right_join(
+    fhier_addr_short,
+    compl_corr_to_investigation1_short_dup_marked,
+    join_by("vessel_official_number")
+  )
+
+# View(res1)
+no_addr_vessl <-
+  c("1305388",
+    "949058",
+    "FL2555TF",
+    "MI9152BZ",
+    "NC2851DH")
+
+res1 |> 
+  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dim()
+
+fhier_addr_short |> 
+  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dim()
+# 0
+
+no_addr1 <-
+  c("1066100",
+    "1069364",
+    "1209015",
+    "1266505",
+    "1316879",
+    "622813",
+    "678141",
+    "938364",
+    "996263",
+    "FL0061PZ",
+    "FL0380JY",
+    "FL0435LD",
+    "FL2153SM",
+    "FL2367PW",
+    "FL2453TE",
+    "FL3002LF",
+    "FL3017ME",
+    "FL3262PM",
+    "FL5736GJ",
+    "FL6954LD",
+    "FL7772SV",
+    "FL8077RA",
+    "FL8666CH",
+    "FL9131RJ",
+    "FL9793RU",
+    "NC9819DF")
+
+fhier_addr_short |>
+  # filter(vessel_official_number == "1308401") |>
+  filter(vessel_official_number %in% no_addr1) |>
+  select(vessel_official_number,
+         permit_holder_names, fhier_address) |>
+  write_csv("fhier_addr_short.csv")
+# 22
+
+
+# temp 2 ----
+prev_res <-
+  read_csv(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious violators for investigation - 2023-01-24_to_2023-08-01_comment.csv)",
+           col_types = cols(.default = 'c'))
+
+intersect(names(prev_res),
+          names(compl_corr_to_investigation1_short_dup_marked)) |> 
+  cat(sep = ", ")
+
+compl_corr_to_investigation1_short_dup_marked_ch <-
+  compl_corr_to_investigation1_short_dup_marked |>
+  mutate(across(everything(), as.character)) |>
+  select(
+    -c(
+      name,
+      permit_expired,
+      permitgroup,
+      permitgroupexpiration,
+      contactrecipientname,
+      contactphone_number,
+      contactemailaddress,
+      date__contacttypes,
+      duplicate_w_last_time
+    )
+  )
+# View(compl_corr_to_investigation1_short_dup_marked_ch)
+
+new_join <-
+  left_join(
+    prev_res,
+    compl_corr_to_investigation1_short_dup_marked_ch,
+    join_by(
+      vessel_official_number
+    )
+  )
+
 # output ----
 result_file_path <- file.path(
   my_paths$outputs,
@@ -1237,10 +1676,10 @@ result_file_path <- file.path(
     data_file_date,
     ".csv"
   ))
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious_violators_for_investigation_from_2023-01-24_to_2023-08-01.csv"
 
+# View(new_join)
 readr::write_csv(
-  compl_corr_to_investigation1_short_dup_marked,
+  new_join,
     # compl_corr_to_investigation1_short_output_w_comments,
   result_file_path,
   na = "")
@@ -1250,4 +1689,50 @@ compl_corr_to_investigation1_short_dup_marked |>
 # 2
 # FL4232JY
 # FL7549EJ
+
+## ---- who needs an email ----
+# source(file.path(current_project_path, "need_an_email.R"))
+
+# ## ---- no correspondence ----
+# source(
+#   file.path(
+#     current_project_path,
+#     "not_compliant_51_plus_weeks_and_no_correspondence.R"
+#   )
+# )
+#
+# ## ---- correspondence, no compliance information ----
+# no_compl_info <-
+#   setdiff(
+#     corresp_contact_cnts_clean$vessel_official_number,
+#     compl_clean$vessel_official_number
+#   )
+# length(no_compl_info)
+# # 398
+# # 136
+# # Not in compliance info!
+#
+# # grep("1131132", compl_clean$vessel_official_number)
+# # 0
+
+current_project_name <- "egregious_violators"
+current_project_path <-
+  file.path(my_paths$git_r, current_project_name)
+
+# make a flat file ----
+
+"C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\get_data_egregious_violators.R"
+
+files_to_combine <-
+  c("~/R_code_github/useful_functions_module.r",
+    file.path(current_project_path, "db_functions.R"),
+    file.path(current_project_path, "get_data_egregious_violators.R"),
+    file.path(current_project_path, "egregious_violators.R")
+  )
+
+# run as needed
+make_a_flat_file(
+  file.path(current_project_path,   "egregious_violators_flat_file.R"),
+  files_to_combine
+)
 
