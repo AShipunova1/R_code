@@ -3,7 +3,7 @@
 # nolint: commented_code_linter
 # useful functions
 
-##--- start functions ---
+## start functions ---
 # How to use:
 # my_paths <- set_work_dir()
 # csv_names_list = list("report1.csv", "report2.csv")
@@ -152,7 +152,7 @@ fix_names <- function(x) {
     my_headers_case_function()
 }
 
-## ---- functions to clean FHIER compliance and correspondense reports ----
+## functions to clean FHIER compliance and correspondense reports ----
 
 # split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
 clean_weeks <- function(my_df) {
@@ -358,17 +358,17 @@ get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_2
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
 
-  # ---- specific correspondence manipulations ----
+  # specific correspondence manipulations ----
   corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
 
-  ## ---- specific compliance manipulations ----
+  ## specific compliance manipulations ----
   compl_arr <- csvs_clean1[2:length(csvs_clean1)]
 
   compl_clean <- compliance_cleaning(compl_arr)
   return(list(compl_clean, corresp_arr_contact_cnts_clean))
 }
 
-# ---- specific correspondence manipulations ----
+# specific correspondence manipulations ----
 corresp_cleaning <- function(csvs_clean1){
   corresp_arr <- csvs_clean1[[1]]
   # add a new column with a "yes" if there is a contactdate (and a "no" if not),
@@ -386,7 +386,7 @@ corresp_cleaning <- function(csvs_clean1){
   return(corresp_arr_contact_cnts_clean)
 }
 
-## ---- specific compliance manipulations ----
+## specific compliance manipulations ----
 compliance_cleaning <- function(compl_arr){
   # if it is one df already, do nothing
   compl <- compl_arr
@@ -629,7 +629,7 @@ csv_names_list_22_23 = c("Correspondence__08_01_2023.csv",
 
 data_file_date <- today()
 
-## ---- get csv data into variables ----
+## get csv data into variables ----
 all_inputs <- my_paths$inputs
 my_paths$inputs <- file.path(my_paths$inputs, "from_Fhier")
 
@@ -770,37 +770,16 @@ dim(vessels_permits_participants)
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
 
-## check ----
-check_new_vessels <-
-  function(my_df) {
-    list_to_check <-
-      c("FL1848EY",
-        "FL4232JY",
-        "1246468",
-        "FL7549EJ")
-    my_df |>
-      filter(vessel_official_number %in% list_to_check) |>
-      select(vessel_official_number) |>
-      distinct() |>
-      dim() %>%
-      return()
-  }
+# Preparing compliance info ----
 
-
-# ---- Preparing compliance info ----
-
-## ---- add permit_expired column ----
-check_new_vessels(compl_clean)
-# 4
-
+## add permit_expired column ----
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is more than a month from data_file_date than "no"
   mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                                     .default = "yes"))
 
-## ---- add year_month column ----
-
+## add year_month column ----
 number_of_weeks_for_non_compliancy = 27
 days_in_27_weeks <- number_of_weeks_for_non_compliancy*7
 
@@ -809,71 +788,31 @@ half_year_ago <-
 
 compl_clean_w_permit_exp_last_27w <-
   compl_clean_w_permit_exp |>
+  # convert
   mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last 28 weeks
   filter(year_month >= as.yearmon(half_year_ago))
 
 dim(compl_clean_w_permit_exp)
-# today()
-# [1] "2023-08-10"
-# [1] 235509     22
 
-check_new_vessels(compl_clean_w_permit_exp)
-# 4
-
-# 185538
-# [1] 217772     22
 dim(compl_clean_w_permit_exp_last_27w)
-# [1] 74809    23
-# [1] 70118    23
-# [1] 92370    23 (7m)
-# [1] 81153    23 189 d
-# [1] 87826    23
 # [1] 74169    23
 
-check_new_vessels(compl_clean_w_permit_exp_last_27w)
-# 4
-
-## ---- Have only SA permits, exclude those with Gulf permits ----
-
+## Have only SA permits, exclude those with Gulf permits ----
 compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
   filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
-
-today()
-# [1] "2023-08-01"
-# [1] "2023-07-10"
-# [1] "2023-08-10"
 
 ## Not "compliant_" only ----
 compl_clean_sa_non_compl <-
   compl_clean_sa |>
   filter(compliant_ == 'NO')
 
-check_new_vessels(compl_clean_sa_non_compl)
-# 4
-
 dim(compl_clean_sa_non_compl)
-# [1] 18205    23
-# [1] 11473    23
-# [1] 10597    23
-# [1] 12484    23
-# [1] 15549    23
-# [1] 13992    23
-# [1] 14204    23
 # [1] 12454    23
 
 compl_clean_sa_non_compl |>
   count_uniq_by_column() |> head(1)
-# vesselofficialnumber 1785
-# today()
-# "2023-06-23"
-# vessel_official_number 1573
-# [1] "2023-07-10"
-# vessel_official_number 1403
-# vessel_official_number 1369
-# [1] "2023-08-01"
-# vessel_official_number 1370
 # vessel_official_number 1328
 
 ## filter for egregious ----
@@ -881,27 +820,21 @@ compl_clean_sa_non_compl |>
 
 last_week_start <- data_file_date - 6
 
-compl_clean_sa |> check_new_vessels()
-# 4
-
 compl_clean_sa_non_c_not_exp <-
   compl_clean_sa |>
   # not compliant
   filter(tolower(compliant_) == "no") |>
   # in the last 27 week
-  dplyr::filter(week_start > half_year_ago) |>
+  dplyr::filter(week_start >= half_year_ago) |>
   # before the last week (a report's grace period)
   dplyr::filter(week_start < last_week_start) |>
   # not expired
   dplyr::filter(tolower(permit_expired) == "no")
 
 dim(compl_clean_sa_non_c_not_exp)
-# [1] 10419    23
-# [1] 9486   23
-# [1] 9315   23
 
-compl_clean_sa_non_c_not_exp |> check_new_vessels()
-# 3
+# last month (3-4 weeks) is often not taken in the account yet, e.i. there are less weeks in the compliant report than 27.
+grace_period_weeks <- 4 
 
 compl_clean_sa_all_weeks_non_c_short <-
   compl_clean_sa_non_c_not_exp |>
@@ -915,32 +848,12 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
+  filter(total_weeks >= (number_of_weeks_for_non_compliancy - grace_period_weeks)) |>
   # ...non compliant
   filter(compl_weeks_amnt == total_weeks)
 
 dim(compl_clean_sa_all_weeks_non_c_short)
-
-compl_clean_sa_non_c_not_exp |>
-  dplyr::select(vessel_official_number, week, compliant_) |>
-  dplyr::add_count(vessel_official_number,
-                   name = "total_weeks") |>
-  dplyr::add_count(vessel_official_number, compliant_,
-                   name = "compl_weeks_amnt") |>
-  # dim()
-  # [1] 9486    5
-  # [1] 9315    5
-  dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
-  dplyr::select(-week) |>
-  dplyr::distinct() |>
-  # dim()
-  # [1] 1045    4
-  # all weeks were non compliant
-  # filter(compl_weeks_amnt == total_weeks) |>
-    glimpse()
-
-dim(compl_clean_sa_all_weeks_non_c_short)
-# 121
+# [1] 128   4
 
 ### add back columns needed for the output ----
 need_cols_names <- c(
@@ -952,10 +865,7 @@ need_cols_names <- c(
   # ,
   # "week_start"
 )
-compl_clean_sa_non_c_not_exp |> check_new_vessels()
-# 3
 
-# dim(compl_clean_sa_non_c_not_exp)
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa_non_c_not_exp |>
   select(all_of(need_cols_names)) |>
@@ -964,69 +874,74 @@ compl_clean_sa_all_weeks_non_c <-
   distinct()
 
 dim(compl_clean_sa_all_weeks_non_c)
-# [1] 130   8
-# 0
-# 127
-# 121
+# 128
 
 ## check the last report date ----
+# ids only
 compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_sa_all_weeks_non_c_short |>
   select(vessel_official_number) |>
   distinct()
 
-# compl_clean_sa_non_c_not_exp |> 
 dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
-# [1] 121   1
+# [1] 128   1
 
+# the info from the full compliance info for theses ids, not only not-compliant
 compl_clean_sa |>
   filter(
     vessel_official_number %in% compl_clean_sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
-  # View()
+  # for each vessel
   group_by(vessel_official_number) |>
-  filter(tolower(compliant_) == "yes") |>
+  filter(tolower(compliant_) == "yes" &
+           # not the current month
+           year_month < as.yearmon(data_file_date)) |>
+  # get only the latest compliant weeks
   mutate(latest_compl = max(week_num)) |>
+  filter(week_num == latest_compl) |> 
+  ungroup() |> 
+  select(
+    # vessel_official_number,
+    year_month,
+    latest_compl) |>
+  distinct() |> 
   glimpse()
+# $ year_month   <yearmon> Jul 2023
+# $ latest_compl <int> 31
 
 # TODO: add check for earlier weeks
 
-## ---- Preparing Correspondence ----
+# Preparing Correspondence ----
 
-## ---- remove 999999 ----
+## remove 999999 ----
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   filter(!grepl("^99999", vessel_official_number))
 
 data_overview(corresp_contact_cnts_clean) |>
   head(1)
-# vesselofficial_number   3223
-# vessel_official_number  3371
 # vesselofficial_number 3434
 
-# "2023-08-09"
+## New correspondence requirement 2023-08-09 ----
+
 # Michelle
 # It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 
-## new requirement 2023-08-09 ----
 # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 
+# save the filter
 two_attempts_filter <-
+  # mopre than one contact
   quo(contact_freq > 1 &
+        # at least one is a call
         any(tolower(contacttype) == "call"))
 
+# use the filter
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
   filter(!!two_attempts_filter)
-
-test_new_egr2 <-
-  corresp_contact_cnts_clean_direct_cnt_2atmps |>
-  check_new_vessels()
-
-test_new_egr2[1] == 4
-# T
 
 dim(corresp_contact_cnts_clean)
 # [1] 18629    23
@@ -1036,18 +951,11 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |>
   head(1)
 # vesselofficial_number 2968
+
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
-# [1] 18163    23
+# [1] 18163    22
 
-## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
-
-corresp_contact_cnts_clean_direct_cnt_2atmps |>
-  check_new_vessels()
-# 4
-
-compl_clean_sa_all_weeks_non_c |>
-  check_new_vessels()
-# 2
+## Combine compliance information with filtered correspondence info by vessel_official_number ----
 
 compl_corr_to_investigation1 <-
   inner_join(
@@ -1059,27 +967,19 @@ compl_corr_to_investigation1 <-
   )
 
 dim(compl_corr_to_investigation1)
-# [1] 486  30
-# [1] 522  30
+# [1] 558  29
 
 # check
 count_uniq_by_column(compl_corr_to_investigation1) |>
   head(1)
-# 110
-# 107
-# 27: 177
-# vesselofficial_number 188
-# vesselofficial_number 105
-# 108
-# 97
-# vesselofficial_number 116
+# vesselofficial_number 123
 
-## ---- output needed investigation ----
+## output needed investigation ----
 # 1) create additional columns
 # 2) remove duplicated columns
 # 3) remove vessels already in the know list
 
-## ---- 1) create additional columns ----
+## 1) create additional columns ----
 
 ## ----- list of contact dates and contact type in parentheses  -----
 
@@ -1287,7 +1187,7 @@ vessels_permits_participants_date__contacttype_per_id <-
 dim(vessels_permits_participants_date__contacttype_per_id)
 # 117
 
-# ---- combine output ----
+# combine output ----
 compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
   compl_corr_to_investigation1 |>
   inner_join(vessels_permits_participants_date__contacttype_per_id,
@@ -1299,7 +1199,7 @@ dim(compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_i
 # 271
 # [1] 522  31
 
-## ---- 2) remove extra columns ----
+## 2) remove extra columns ----
 
 contactphonenumber_field_name <-
   find_col_name(compl_corr_to_investigation1, ".*contact", "number.*")[1]
@@ -1335,7 +1235,7 @@ View(compl_corr_to_investigation1_short)
 # 97
 # 116   9
 
-## ---- 3) mark vessels already in the know list ----
+## 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
 # today()
@@ -1690,10 +1590,10 @@ compl_corr_to_investigation1_short_dup_marked |>
 # FL4232JY
 # FL7549EJ
 
-## ---- who needs an email ----
+## who needs an email ----
 # source(file.path(current_project_path, "need_an_email.R"))
 
-# ## ---- no correspondence ----
+# ## no correspondence ----
 # source(
 #   file.path(
 #     current_project_path,
@@ -1701,7 +1601,7 @@ compl_corr_to_investigation1_short_dup_marked |>
 #   )
 # )
 #
-# ## ---- correspondence, no compliance information ----
+# ## correspondence, no compliance information ----
 # no_compl_info <-
 #   setdiff(
 #     corresp_contact_cnts_clean$vessel_official_number,
