@@ -689,7 +689,7 @@ vessels_permits_query <-
     ( p.vessel_id = sero_official_number
   OR
     p.vessel_id = state_reg_nbr
-  OR 
+  OR
     p.vessel_id = coast_guard_nbr )
   AND
   {vessel_permit_where_part}
@@ -736,7 +736,7 @@ vessels_permits_participants_file_path <-
   file.path(all_inputs,
             current_project_name,
             "vessels_permits_participants.rds")
- 
+
 # dim(vessels_permits_participants)
 # [1] 63928    38
 
@@ -828,7 +828,7 @@ compl_clean_sa_non_c_not_exp <-
 dim(compl_clean_sa_non_c_not_exp)
 
 # last month (3-4 weeks) is often not taken in the account yet, e.i. there are less weeks in the compliant report than 27.
-grace_period_weeks <- 4 
+grace_period_weeks <- 4
 
 compl_clean_sa_all_weeks_non_c_short <-
   compl_clean_sa_non_c_not_exp |>
@@ -894,13 +894,13 @@ compl_clean_sa |>
            year_month < as.yearmon(data_file_date)) |>
   # get only the latest compliant weeks
   dplyr::mutate(latest_compl = max(week_num)) |>
-  filter(week_num == latest_compl) |> 
-  ungroup() |> 
+  filter(week_num == latest_compl) |>
+  ungroup() |>
   select(
     # vessel_official_number,
     year_month,
     latest_compl) |>
-  distinct() |> 
+  distinct() |>
   glimpse()
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
@@ -1004,8 +1004,8 @@ dim(date__contacttype_per_id)
 # add permit and address info ----
 ### check ----
 vessels_permits_participants_v_ids <-
-  vessels_permits_participants |> 
-  select(P_VESSEL_ID) |> 
+  vessels_permits_participants |>
+  select(P_VESSEL_ID) |>
   distinct()
 
 dim(vessels_permits_participants_v_ids)
@@ -1086,7 +1086,7 @@ vessels_permits_participants_short_u_flat <-
   # back to colwise
   dplyr::ungroup()
 
-data_overview(vessels_permits_participants_short_u_flat) |> 
+data_overview(vessels_permits_participants_short_u_flat) |>
   head(1)
 # P_VESSEL_ID 3302
 
@@ -1263,9 +1263,9 @@ compl_corr_to_investigation1_short <-
     contactrecipientname,
     !!contactphonenumber_field_name,
     contactemailaddress,
-    date__contacttypes, 
-    sero_home_port, 
-    full_name, 
+    date__contacttypes,
+    sero_home_port,
+    full_name,
     full_address
   ) |>
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
