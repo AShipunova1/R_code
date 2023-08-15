@@ -722,23 +722,10 @@ FROM
   ON ( to_char(license_nbr) = to_char(entity_id) )"
   )
 
-cat(
-  vessels_permits_participants_query,
-  file =
-    file.path(
-      all_inputs,
-      current_project_name,
-      "vessels_permits_participants_query.sql"
-    )
-)
-
 vessels_permits_participants_file_path <-
   file.path(all_inputs,
             current_project_name,
             "vessels_permits_participants.rds")
-
-# dim(vessels_permits_participants)
-# [1] 63928    38
 
 vessels_permits_participants_fun <-
   function(vessels_permits_participants) {
@@ -754,7 +741,6 @@ vessels_permits_participants <-
   )
 
 dim(vessels_permits_participants)
-# [1] 63928    38
 # [1] 31942    38
 
 # Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/egregious_violators.R ----
