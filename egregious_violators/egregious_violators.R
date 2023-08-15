@@ -214,26 +214,38 @@ dim(compl_clean_sa_all_weeks_non_c)
 # 121
 
 ## check the last report date ----
+# ids only
 compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_sa_all_weeks_non_c_short |>
   select(vessel_official_number) |>
   distinct()
 
-# compl_clean_sa_non_c_not_exp |> 
 dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
-# [1] 121   1
+# [1] 128   1
 
+# check these ids in the full compliance information
 compl_clean_sa |>
   filter(
     vessel_official_number %in% compl_clean_sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
-  # View()
   group_by(vessel_official_number) |>
-  filter(tolower(compliant_) == "yes") |>
+  filter(tolower(compliant_) == "yes" &
+           # not the current month
+           year_month < as.yearmon(data_file_date)) |>
+  # get only the latest compliant weeks
   mutate(latest_compl = max(week_num)) |>
+  filter(week_num == latest_compl) |> 
+  ungroup() |> 
+  select(
+    # vessel_official_number,
+    year_month,
+    latest_compl) |>
+  distinct() |> 
   glimpse()
+# $ year_month   <yearmon> Jul 2023
+# $ latest_compl <int> 31
 
 # TODO: add check for earlier weeks
 
