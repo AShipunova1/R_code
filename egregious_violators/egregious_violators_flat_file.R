@@ -1186,7 +1186,7 @@ fhier_addr_short <-
     )
   )
 
-# join with the previous results
+# join with the previous results from the db
 fhier_addr__compl_corr <-
   right_join(
     fhier_addr_short,
@@ -1197,59 +1197,37 @@ fhier_addr__compl_corr <-
 dim(fhier_addr__compl_corr)
 # [1] 117  17
 
-no_addr_vessl <-
-  c("1305388",
-    "949058",
-    "FL2555TF",
-    "MI9152BZ",
-    "NC2851DH")
+### check if the address or name missing from the db is in FHIER ----
+addr_name_in_fhier <-
+  fhier_addr__compl_corr |>
+  filter((is.na(full_name) &
+            !is.na(permit_holder_names)) |
+           is.na(full_address) &
+           !is.na(fhier_address))
 
-res1 |> 
-  filter(vessel_official_number %in% no_addr_vessl) |> 
-  dim()
-
-fhier_addr_short |> 
-  filter(vessel_official_number %in% no_addr_vessl) |> 
-  dim()
+dim(new_addr)
 # 0
 
-no_addr1 <-
-  c("1066100",
-    "1069364",
-    "1209015",
-    "1266505",
-    "1316879",
-    "622813",
-    "678141",
-    "938364",
-    "996263",
-    "FL0061PZ",
-    "FL0380JY",
-    "FL0435LD",
-    "FL2153SM",
-    "FL2367PW",
-    "FL2453TE",
-    "FL3002LF",
-    "FL3017ME",
-    "FL3262PM",
-    "FL5736GJ",
-    "FL6954LD",
-    "FL7772SV",
-    "FL8077RA",
-    "FL8666CH",
-    "FL9131RJ",
-    "FL9793RU",
-    "NC9819DF")
+### check if the address or name is a "UN" in the db is in FHIER ----
+addr_name_in_fhier <-
+  fhier_addr__compl_corr |>
+  filter((full_name == "UN" &
+            !is.na(permit_holder_names)) |
+           full_address == "UN" &
+           !is.na(fhier_address))
 
-fhier_addr_short |>
-  # filter(vessel_official_number == "1308401") |>
-  filter(vessel_official_number %in% no_addr1) |>
-  select(vessel_official_number,
-         permit_holder_names, fhier_address) |>
-  write_csv("fhier_addr_short.csv")
-# 22
+dim(addr_name_in_fhier)
+# [1] 19 17
 
+addr_name_in_not_fhier <-
+  fhier_addr__compl_corr |>
+  filter(((!is.na(full_name) | !full_name == "UN") &
+            is.na(permit_holder_names)) |
+           (!is.na(full_address) | !full_address == "UN") &
+           is.na(fhier_address))
 
+dim(addr_name_in_not_fhier)
+39
 
 # combine vessels_permits and date__contacttype ----
 
