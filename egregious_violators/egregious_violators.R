@@ -531,6 +531,234 @@ vessels_permits_participants_short_u_flat_sp <-
 #   head() |> 
 #   str()
 
+# add permit and address info ----
+### check ----
+vessels_permits_participants_v_ids <-
+  vessels_permits_participants |> 
+  select(P_VESSEL_ID) |> 
+  distinct()
+
+dim(vessels_permits_participants_v_ids)
+# [1] 3302    1
+
+# how many vessels are missing from the db report
+setdiff(
+  date__contacttype_per_id$vessel_official_number,
+  vessels_permits_participants_v_ids$P_VESSEL_ID
+) |> cat(sep = "', '")
+# |>
+#   length()
+# 6
+# '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ'
+# (wrong license_nbr in full_participants
+# or entity_id in permits,
+# check manually)
+
+# We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
+
+# clean up the report
+vessels_permits_participants_space <-
+  vessels_permits_participants |>
+  # remove NAs
+  dplyr::mutate(dplyr::across(where(is.character),
+                ~ replace_na(., ""))) |>
+  # trim trailing spaces, and replaces all internal whitespace with a single space.
+  dplyr::mutate(dplyr::across(where(is.character),
+                ~ str_squish(.)))
+
+dim(vessels_permits_participants_space)
+# [1] 31942    38
+
+# combine info
+vessels_permits_participants_short_u <-
+  vessels_permits_participants_space |>
+  # for each vessel
+  group_by(P_VESSEL_ID) |>
+  dplyr::mutate(
+    sero_home_port = list(unique(
+      paste(
+        SERO_HOME_PORT_CITY,
+        SERO_HOME_PORT_COUNTY,
+        SERO_HOME_PORT_STATE
+      )
+    )),
+    full_name = list(unique(
+      paste(FIRST_NAME,
+            MIDDLE_NAME,
+            LAST_NAME,
+            NAME_SUFFIX)
+    )),
+    full_address = list(unique(
+        paste(ADDRESS_1,
+              ADDRESS_2,
+              STATE,
+              POSTAL_CODE)
+      ))
+  ) |>
+  # use only new columns and the vessel id
+  select(P_VESSEL_ID,
+         sero_home_port,
+         full_name,
+         full_address) |>
+  ungroup() |>
+  distinct()
+
+dim(vessels_permits_participants_short_u)
+# [1] 3302    4
+
+# convert lists in comma separated strings
+vessels_permits_participants_short_u_flat <-
+  vessels_permits_participants_short_u |>
+  dplyr::rowwise() |>
+  dplyr::mutate_if(is.list,
+            ~ paste(unlist(.),
+                    collapse = ', ')) %>%
+  # back to colwise
+  dplyr::ungroup()
+
+data_overview(vessels_permits_participants_short_u_flat) |> 
+  head(1)
+# P_VESSEL_ID 3302
+
+# clean up weird comma and space combinations
+vessels_permits_participants_short_u_flat_sp <-
+  vessels_permits_participants_short_u_flat |>
+  dplyr::mutate(
+    dplyr::across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
+    ~ stringr::str_squish(.x)
+  ),
+    dplyr::across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    # remove space characters before commas
+    ~ stringr::str_replace_all(.x, "\\s+,", ",")
+  ),
+  dplyr::across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    # replace 2+ commas with one
+    ~ stringr::str_replace_all(.x, ",,+", ",")
+  ),
+  dplyr::across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    # remove commas at the end
+    ~ stringr::str_replace_all(.x, ",$", "")
+  ),
+    dplyr::across(
+    c(sero_home_port,
+      full_name,
+      full_address),
+    # remove commas in front
+    ~ stringr::str_replace_all(.x, "^,", "")
+  ))
+
+## Manually check missing addresses ----
+
+### From FHIER ----
+# REPORTS / For-hire Primary Physical Address List
+fhier_addr <-
+  read_csv(
+    file.path(
+      all_inputs,
+      "..",
+      r"(my_outputs\egregious_violators\For-hire Primary Physical Address List.csv)"
+    ),
+    # read all as characters
+    col_types = cols(.default = 'c'),
+    # use the same function for names, see above
+    name_repair = fix_names
+  )
+
+# fewer fields
+fhier_addr_short <-
+  fhier_addr |>
+  select(
+    vessel_official_number,
+    permit_holder_names,
+    physical_address_1,
+    physical_address_2,
+    physical_city,
+    physical_county,
+    physical_state,
+    physical_zip_code,
+    phone_number,
+    primary_email
+  ) |>
+  dplyr::mutate(
+    fhier_address =
+      paste(
+        physical_address_1,
+        physical_address_2,
+        physical_city,
+        physical_county,
+        physical_state,
+        physical_zip_code
+      )
+  ) |>
+  select(
+    -c(
+      physical_address_1,
+      physical_address_2,
+      physical_city,
+      physical_county,
+      physical_state,
+      physical_zip_code
+    )
+  )
+
+# join with the previous results from the db
+fhier_addr__compl_corr <-
+  right_join(
+    fhier_addr_short,
+    compl_corr_to_investigation1_short_dup_marked,
+    join_by("vessel_official_number")
+  )
+
+dim(fhier_addr__compl_corr)
+# [1] 117  17
+
+### check if the address or name missing from the db is in FHIER ----
+addr_name_in_fhier <-
+  fhier_addr__compl_corr |>
+  filter((is.na(full_name) &
+            !is.na(permit_holder_names)) |
+           is.na(full_address) &
+           !is.na(fhier_address))
+
+dim(new_addr)
+# 0
+
+### check if the address or name is a "UN" in the db is in FHIER ----
+addr_name_in_fhier <-
+  fhier_addr__compl_corr |>
+  filter((full_name == "UN" &
+            !is.na(permit_holder_names)) |
+           full_address == "UN" &
+           !is.na(fhier_address))
+
+dim(addr_name_in_fhier)
+# [1] 19 17
+
+addr_name_in_not_fhier <-
+  fhier_addr__compl_corr |>
+  filter(((!is.na(full_name) | !full_name == "UN") &
+            is.na(permit_holder_names)) |
+           (!is.na(full_address) | !full_address == "UN") &
+           is.na(fhier_address))
+
+dim(addr_name_in_not_fhier)
+39
+
+
+
 # combine vessels_permits and date__contacttype ----
 
 vessels_permits_participants_date__contacttype_per_id <-
