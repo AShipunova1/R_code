@@ -1132,6 +1132,125 @@ vessels_permits_participants_short_u_flat_sp <-
     ~ stringr::str_replace_all(.x, "^,", "")
   ))
 
+## Manually check missing addresses ----
+
+### From FHIER ----
+# REPORTS / For-hire Primary Physical Address List
+fhier_addr <-
+  read_csv(
+    file.path(
+      all_inputs,
+      "..",
+      r"(my_outputs\egregious_violators\For-hire Primary Physical Address List.csv)"
+    ),
+    # read all as characters
+    col_types = cols(.default = 'c'),
+    # use the same function for names, see above
+    name_repair = fix_names
+  )
+
+# fewer fields
+fhier_addr_short <-
+  fhier_addr |>
+  select(
+    vessel_official_number,
+    permit_holder_names,
+    physical_address_1,
+    physical_address_2,
+    physical_city,
+    physical_county,
+    physical_state,
+    physical_zip_code,
+    phone_number,
+    primary_email
+  ) |>
+  dplyr::mutate(
+    fhier_address =
+      paste(
+        physical_address_1,
+        physical_address_2,
+        physical_city,
+        physical_county,
+        physical_state,
+        physical_zip_code
+      )
+  ) |>
+  select(
+    -c(
+      physical_address_1,
+      physical_address_2,
+      physical_city,
+      physical_county,
+      physical_state,
+      physical_zip_code
+    )
+  )
+
+# join with the previous results
+fhier_addr__compl_corr <-
+  right_join(
+    fhier_addr_short,
+    compl_corr_to_investigation1_short_dup_marked,
+    join_by("vessel_official_number")
+  )
+
+dim(fhier_addr__compl_corr)
+# [1] 117  17
+
+no_addr_vessl <-
+  c("1305388",
+    "949058",
+    "FL2555TF",
+    "MI9152BZ",
+    "NC2851DH")
+
+res1 |> 
+  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dim()
+
+fhier_addr_short |> 
+  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dim()
+# 0
+
+no_addr1 <-
+  c("1066100",
+    "1069364",
+    "1209015",
+    "1266505",
+    "1316879",
+    "622813",
+    "678141",
+    "938364",
+    "996263",
+    "FL0061PZ",
+    "FL0380JY",
+    "FL0435LD",
+    "FL2153SM",
+    "FL2367PW",
+    "FL2453TE",
+    "FL3002LF",
+    "FL3017ME",
+    "FL3262PM",
+    "FL5736GJ",
+    "FL6954LD",
+    "FL7772SV",
+    "FL8077RA",
+    "FL8666CH",
+    "FL9131RJ",
+    "FL9793RU",
+    "NC9819DF")
+
+fhier_addr_short |>
+  # filter(vessel_official_number == "1308401") |>
+  filter(vessel_official_number %in% no_addr1) |>
+  select(vessel_official_number,
+         permit_holder_names, fhier_address) |>
+  write_csv("fhier_addr_short.csv")
+# 22
+
+
+
 # combine vessels_permits and date__contacttype ----
 
 vessels_permits_participants_date__contacttype_per_id <-
