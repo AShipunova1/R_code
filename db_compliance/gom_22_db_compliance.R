@@ -1,11 +1,9 @@
-# By default all are not compliant.
+# Only not in Headboat survey
+# By default all are compliant if there are no reports.
+# By default all are compliant if there are no reports.
+# If they have submitted anything - should be a declaration and a logbook
 
 # GOM + dual compl by year ----
-# GOM must have both (1) a logbook for any fishing intended declaration, and (2) an intended fishing declaration for any logbook
-
-# There should be a declaration for every logbook.
-# There should be a logbook for every declaration of a charter or headboat intending to fish.
-# Noncompliant + overridden are compliant
 
 ## get gom and dual vsls ----
 v_p__t__tn_d_weeks_gom <-
@@ -13,7 +11,6 @@ v_p__t__tn_d_weeks_gom <-
   filter(permit_sa_gom_dual %in% c("gom_only", "dual"))
 
 dim(v_p__t__tn_d_weeks_gom)
-# [1] 75524    91
 # [1] 75403    92
 
 ## rm extra cols ----
@@ -29,7 +26,7 @@ empty_cols <-
       return(unique(x))
     }
   })
-# dim(empty_cols)[2]
+dim(empty_cols)[2]
 # 32
 
 t_names_to_rm <-
@@ -125,18 +122,12 @@ data_overview(v_p__t__tn_d_weeks_gom_short) |>
 
 v_p__t__tn_d_weeks_gom_short |>
   count(permit_sa_gom_dual)
-# 1 dual               15875
-# 2 gom_only           59649
 # 1 dual               15853
 # 2 gom_only           59550
 
 v_p__t__tn_d_weeks_gom_short |>
   count(TRIP_TYPE)
 #   TRIP_TYPE     n
-#   <chr>     <int>
-# 1 A         63121
-# 2 H         11935
-# 3 NA          468
 # 1 A         63009
 # 2 H         11926
 # 3 NA          468
@@ -144,13 +135,6 @@ v_p__t__tn_d_weeks_gom_short |>
 
 v_p__t__tn_d_weeks_gom_short |>
   count(INTENDED_FISHING_FLAG)
-
-# by <- join_by(unique_all_vessel_ids,
-# #               overlaps(x$EFFECTIVE_DATE,
-# #                        x$my_end_date,
-# #                        y$EFFECTIVE_DATE,
-# #                        y$my_end_date,
-# #                        bounds = "[)"))
 
 length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     1351
