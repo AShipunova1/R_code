@@ -273,7 +273,6 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |>
 
 # 2) if all declarations for a vessel have a matched logbook - compliant ----
 
-# old part ----
 # By week
 ## a) match logbooks and declarations ----
 
@@ -367,13 +366,6 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w: 5.89 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
-  count(INTENDED_FISHING_FLAG)
-# INTENDED_FISHING_FLAG     n
-# 1 N                      4070
-# 2 Y                     68118
-# 3 NA                     3215
- 
 # check compliant_fishing_month
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
   count(
@@ -385,7 +377,6 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
     matched_compl) |>
   dim()
 # [1] 68  4
-  # write_csv("compliant_fishing_month.csv")
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
   select(PERMIT_VESSEL_ID,
@@ -444,6 +435,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict: 0.53 sec elapsed
 
+# View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
+
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |> 
   select(PERMIT_VESSEL_ID,
          compl_y) |> 
@@ -452,8 +445,31 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
 # 1 no        832
 # 2 yes      1039
 # TODO: change, more than 1351 total vsls
+# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+  filter(PERMIT_VESSEL_ID == "FL4459PW") |>
+  select(-c(EVENT_ID,
+            tidyselect::contains("time"))) |>
+  distinct() |>
+  View()
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+  filter(PERMIT_VESSEL_ID == "FL4459PW") |>
+  select(-c(EVENT_ID,
+            tidyselect::contains("time"))) |>
+  distinct() |>
+  filter(matched_reports == "matched" &
+           matched_compl == "no") |>
+  arrange(date_y_m, WEEK_OF_YEAR) |>
+  View()
 
 # old part unchanged ----
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
+  count(INTENDED_FISHING_FLAG)
+# INTENDED_FISHING_FLAG     n
+# 1 N                      4070
+# 2 Y                     68118
+# 3 NA                     3215
          
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
