@@ -596,6 +596,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
           # no lgb for a not fish decl
           is.na(rep_type.t) &
           !is.na(rep_type.tn)
+        # HERE
         # there is a decl
         !is.na(rep_type.tn)
         ~ "yes",
