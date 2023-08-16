@@ -445,23 +445,35 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
 # 1 no        832
 # 2 yes      1039
 # TODO: change, more than 1351 total vsls
-# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
-  filter(PERMIT_VESSEL_ID == "FL4459PW") |>
-  select(-c(EVENT_ID,
-            tidyselect::contains("time"))) |>
-  distinct() |>
-  View()
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
-  filter(PERMIT_VESSEL_ID == "FL4459PW") |>
-  select(-c(EVENT_ID,
-            tidyselect::contains("time"))) |>
-  distinct() |>
-  filter(matched_reports == "matched" &
-           matched_compl == "no") |>
-  arrange(date_y_m, WEEK_OF_YEAR) |>
-  View()
+# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+#   filter(PERMIT_VESSEL_ID == "FL4459PW") |>
+#   select(-c(EVENT_ID,
+#             tidyselect::contains("time"))) |>
+#   distinct() |>
+#   View()
+# 
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+#   filter(PERMIT_VESSEL_ID == "FL4459PW") |>
+#   select(-c(EVENT_ID,
+#             tidyselect::contains("time"))) |>
+#   distinct() |>
+#   filter(matched_reports == "matched" &
+#            matched_compl == "no") |>
+#   arrange(date_y_m, WEEK_OF_YEAR) |>
+#   View()
+
+# Not strictly, but are compliant ----
+# 1) a duplicate declaration for the same trip, one has a logbook
+# 2) There are only not matched not fishing intended declarations per week
+# 3) a logb and no decl (err, but is compliant in FHIER?)
+# TODO: check in FHIER
+# 4) not compliant but overridden
+# everything that was overridden is compliant (the whole week)
+
+## 1) a duplicate declaration for the same trip, one has a logbook ----
+
 
 # old part unchanged ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
@@ -489,7 +501,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 # disregard "not_matched & yes", that means there are more than 1 decl
 
 ### a good example of 2 decl per week with compliant ----
-v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
   filter(date_y_m == "Feb 2022") |>
   filter(PERMIT_VESSEL_ID == "1093374") |>
   select(
