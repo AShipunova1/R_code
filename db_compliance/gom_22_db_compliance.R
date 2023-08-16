@@ -322,6 +322,18 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
 length(unique(v_p__t__tn_d_weeks_gom_short_matched$PERMIT_VESSEL_ID))
 # [1] 1351
 
+### prepare time cols ----
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_time <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |>
+  # convert time to a Date format
+  mutate(
+    TRIP_START_TIME_t_hm =
+      parse_date_time(TRIP_START_TIME.t, "HM"),
+    TRIP_START_TIME_tn_hm =
+      parse_date_time(TRIP_START_TIME.tn, "HM")
+  )
+
+# str(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_time)
 ## strict compl vessels per week ----
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w <-
