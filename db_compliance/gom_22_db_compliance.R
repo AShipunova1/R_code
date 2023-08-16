@@ -487,6 +487,39 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
 # no              9754
 # yes              409
 
+# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish)
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
+  filter(PERMIT_VESSEL_ID == "FL4459PW") |>
+#     not_fish_compl INTENDED_FISHING_FLAG     n
+# 1 no             N                        16
+# 2 no             Y                       102
+# 3 no             NA                        4
+# 4 yes            N                         2
+  select(
+    PERMIT_VESSEL_ID,
+    YEAR,
+    MONTH_OF_YEAR,
+    WEEK_OF_YEAR,
+    date_y_m,
+    matched_reports,
+    matched_compl,
+    compl_y,
+    not_fish_compl,
+    INTENDED_FISHING_FLAG
+  ) |>
+  add_count(not_fish_compl,
+        INTENDED_FISHING_FLAG) |> 
+  View()
+  
+# View()
+#   not_fish_compl INTENDED_FISHING_FLAG     n
+# 1 no             N                        16
+# 2 no             Y                       102
+# 3 no             NA                        4
+# 4 yes            N                         2
+
+  
 ## 2) a duplicate declaration for the same trip, one has a logbook ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |> 
