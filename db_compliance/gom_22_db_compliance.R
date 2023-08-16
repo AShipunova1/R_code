@@ -334,6 +334,22 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_time <-
   )
 
 # str(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_time)
+
+# remove grouping, even one not matched will make the vessel not compliant ----
+tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched")
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_each_rep <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_time |>
+  # count the difference between start times t and tn
+  mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
+  # less than an hour difference between trip and trip notif start time
+  mutate(matched_reports =
+           case_when(time_diff1 < 3600 ~ "matched",
+                     .default = "not_matched")) |>
+  distinct()
+toc()
+
+# str(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_each_rep)
+
 ## strict compl vessels per week ----
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w <-
