@@ -1,3 +1,5 @@
+# By default all are not compliant.
+
 # GOM + dual compl by year ----
 # GOM must have both (1) a logbook for any fishing intended declaration, and (2) an intended fishing declaration for any logbook
 
