@@ -382,7 +382,51 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
 # 5 Nov 2023  no              no                1
 # 6 NA        yes             no              468
 
+# strictly compliant by week ----
+tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict")
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(compl_w =
+           case_when(
+             compl_no_reps_w == "yes" |
+               matched_compl == "yes" ~ "yes",
+             .default = "no"
+           )) |> 
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict: 5.91 sec elapsed
 
+## same by year ----
+tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict")
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID) |>
+  mutate(compl_y =
+           case_when(
+             compl_no_reps_w == "yes" |
+               matched_compl == "yes" ~ "yes",
+             .default = "no"
+           )) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict: 0.53 sec elapsed
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |> 
+  select(PERMIT_VESSEL_ID,
+         compl_y) |> 
+  distinct() |> 
+  count(compl_y)
+# 1 no        832
+# 2 yes      1039
+# TODO: change, more than 1351 total vsls
+
+# old part unchanged ----
+         
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
          date_y_m,
