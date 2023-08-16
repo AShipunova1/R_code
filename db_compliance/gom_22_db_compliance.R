@@ -490,18 +490,15 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
 # print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish)
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
-  filter(PERMIT_VESSEL_ID == "FL4459PW") |>
+  filter(PERMIT_VESSEL_ID == "FL4459PW" &
+           WEEK_OF_YEAR == "13" &
+           date_y_m == "Mar 2022") |>
 #     not_fish_compl INTENDED_FISHING_FLAG     n
 # 1 no             N                        16
 # 2 no             Y                       102
 # 3 no             NA                        4
 # 4 yes            N                         2
   select(
-    PERMIT_VESSEL_ID,
-    YEAR,
-    MONTH_OF_YEAR,
-    WEEK_OF_YEAR,
-    date_y_m,
     matched_reports,
     matched_compl,
     compl_y,
@@ -510,16 +507,20 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
   ) |>
   add_count(not_fish_compl,
         INTENDED_FISHING_FLAG) |> 
-  View()
+  glimpse()
+# $ matched_reports       <chr> "matched", "not_matched", "not_matched"
+# $ matched_compl         <chr> "no", "no", "no"
+# $ compl_y               <chr> "no", "no", "no"
+# $ not_fish_compl        <chr> "no", "no", "no"
+# $ INTENDED_FISHING_FLAG <chr> "Y", "N", "N"
+# $ n                     <int> 1, 2, 2
   
-# View()
 #   not_fish_compl INTENDED_FISHING_FLAG     n
 # 1 no             N                        16
 # 2 no             Y                       102
 # 3 no             NA                        4
 # 4 yes            N                         2
 
-  
 ## 2) a duplicate declaration for the same trip, one has a logbook ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |> 
