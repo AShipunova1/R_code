@@ -359,6 +359,30 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
 # [1] 68  4
   # write_csv("compliant_fishing_month.csv")
 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
+  select(PERMIT_VESSEL_ID,
+         date_y_m,
+         matched_reports,
+         compl_no_reps_w,
+         matched_compl) |>
+  count(date_y_m,
+        compl_no_reps_w,
+        
+        matched_compl) |>
+  arrange(desc(matched_compl)) |> 
+  # head()
+#   date_y_m  compl_no_reps_w matched_compl     n
+#   <yearmon> <chr>           <chr>         <int>
+# 1 Jan 2022  no              yes             341
+# 2 Feb 2022  no              yes             598
+  tail()
+# 2 Dec 2022  no              no             2025
+# 3 Feb 2023  no              no                1
+# 4 Jun 2023  no              no                1
+# 5 Nov 2023  no              no                1
+# 6 NA        yes             no              468
+
+
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
          date_y_m,
