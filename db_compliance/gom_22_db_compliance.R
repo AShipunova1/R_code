@@ -198,7 +198,7 @@ v_p__t__tn_d_weeks_gom_short <-
 v_p__t__tn_d_weeks_gom_short_compl_y_1 <-
   v_p__t__tn_d_weeks_gom_short |>
   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  mutate(compliant_by_y =
+  mutate(compl_no_reps_y =
            case_when(is.na(rep_type.t) &
                        is.na(rep_type.tn) ~ "yes",
                      .default = "no")) |>
@@ -209,10 +209,10 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_y_1)
 # [1] 75403    37
 
 v_p__t__tn_d_weeks_gom_short_compl_y_1 |> 
-  select(PERMIT_VESSEL_ID, compliant_by_y) |> 
+  select(PERMIT_VESSEL_ID, compl_no_reps_y) |> 
   distinct() |> 
-  count(compliant_by_y)
-#   compliant_by_y     n
+  count(compl_no_reps_y)
+#   compl_no_reps_y     n
 #   <chr>          <int>
 # 1 no               883
 # 2 yes              468
@@ -221,27 +221,61 @@ v_p__t__tn_d_weeks_gom_short_compl_y_1 |>
 # if all are compliant - the whole year is compl
 # View(v_p__t__tn_d_weeks_gom_short_compl_y_1)
 
-# 2) if all declarations for a vessel have a logbook - compliant
+## same by week ----
+v_p__t__tn_d_weeks_gom_short |> 
+  filter(is.na(date_y_m)) |> 
+  dim()
+# [1] 468  36
+  # filter(is.na(WEEK_OF_YEAR)) |> 
+  # dim()
+# [1] 468  36
 
-# df$X4 <- with(df, X3==X1 | X3==X2)
-# v_p__t__tn_d_weeks_gom_short_compl_y_2 <-
-#   v_p__t__tn_d_weeks_gom_short_compl_y_1 |>
-#   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-#   mutate(compl2 = case_when()
-#            !is.na(rep_type.tn) & !is.na(rep_type.t)) |>
-#   ungroup()
-# 
-# v_p__t__tn_d_weeks_gom_short_compl_y_2 |> 
-#   select(PERMIT_VESSEL_ID, compliant_by_y, compl2) |> 
-#   distinct() |> 
-#   count(compl2)
-#   <lgl>  <int>
-# 1 FALSE   1234
-# 2 TRUE     597
-# 1234 + 597
+# check
+v_p__t__tn_d_weeks_gom_short_compl_y_1 |>
+  filter(is.na(WEEK_OF_YEAR)) |>
+  select(PERMIT_VESSEL_ID, compl_no_reps_y) |>
+  distinct() |>
+  count(compl_no_reps_y)
+# [1] 468  36
+# 1 yes              468 All are a yes, no reports
+
+tic("v_p__t__tn_d_weeks_gom_short_compl_w_1")
+v_p__t__tn_d_weeks_gom_short_compl_w_1 <-
+  v_p__t__tn_d_weeks_gom_short |>
+  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
+           date_y_m,
+           WEEK_OF_YEAR) |>
+  mutate(compl_no_reps_w =
+           case_when(is.na(rep_type.t) &
+                       is.na(rep_type.tn) ~ "yes",
+                     .default = "no")) |>
+  ungroup()
+toc()
+
+v_p__t__tn_d_weeks_gom_short_compl_w_1 |> 
+  select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
+           date_y_m,
+           WEEK_OF_YEAR,
+         compl_no_reps_w) |>
+  distinct() |>
+  count(date_y_m,
+        compl_no_reps_w) |> 
+  arrange(desc(compl_no_reps_w)) |> 
+  # head()
+# 1 NA        yes               468
+# 2 Sep 1970  no                  1
+# 3 Oct 2020  no                  1
+  tail()
+# 1 Oct 2022  no               1755
+# 2 Nov 2022  no               1010
+# 3 Dec 2022  no               1031
+
+
+# 2) if all declarations for a vessel have a matched logbook - compliant
 
 # old part ----
-## 1) match logbooks and declarations ----
+# By week
+## a) match logbooks and declarations ----
 
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
 # decl trip start < or > 1h logbooks trip start
