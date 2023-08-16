@@ -447,15 +447,75 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
 # TODO: change, more than 1351 total vsls
 
 # Not strictly, but are compliant ----
-# 1) a duplicate declaration for the same trip, one has a logbook
-# 2) There are only not matched not fishing intended declarations per week
+# 1) There are only not fishing intended declarations per week
+# 2) a duplicate declaration for the same trip, one has a logbook
 # 3) a logb and no decl (err, but is compliant in FHIER?)
 # TODO: check in FHIER
 # 4) not compliant but overridden
 # everything that was overridden is compliant (the whole week)
 
-## 1) a duplicate declaration for the same trip, one has a logbook ----
+# 1) There are only not fishing intended declarations per week
+tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish")
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(not_fish_compl =
+           case_when(
+             matched_compl == "no" &
+               # all reports are not fishing declarations
+               all(INTENDED_FISHING_FLAG == "N" &
+                     !is.na(rep_type.tn)
+                   ) ~ "yes",
+             .default = "no"
+           )) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish: 5.41 sec elapsed
 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |> 
+  select(PERMIT_VESSEL_ID,
+         date_y_m,
+         matched_reports,
+         compl_no_reps_w,
+         matched_compl,
+         not_fish_compl) |>
+  distinct() |> 
+  count(not_fish_compl)
+# no              9754
+# yes              409
+
+## 2) a duplicate declaration for the same trip, one has a logbook ----
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |> 
+  select(-c(UE.tn,
+            DE.tn,
+            UC.tn,
+            DC.tn)) |> 
+  # group by vessel and tn date and time (<>1), having cnt(decl) > 1
+  # TRIP_START_TIME_tn_hm <> 1h
+  group_by(
+    VESSEL_VESSEL_ID,
+    PERMIT_VESSEL_ID,
+    # TRIP_START_TIME.tn,
+    # UE.tn,
+    # DE.tn,
+    # UC.tn,
+    # DC.tn,
+    # TRIP_END_TIME.tn,
+    INTENDED_FISHING_FLAG,
+    NOTIFICATION_TYPE_IDs,
+    rep_type.tn
+  ) |> 
+    summarise(st_times = paste(unique(TRIP_START_TIME.tn),
+                               collapse = ", "),
+              end_times = paste(unique(TRIP_END_TIME.tn),
+                               collapse = ", ")) %>%
+  View()
+  glimpse()
+  mutate(case)
 
 # old part unchanged ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
