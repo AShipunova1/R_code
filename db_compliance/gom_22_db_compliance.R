@@ -221,7 +221,24 @@ v_p__t__tn_d_weeks_gom_short_compl_y_1 |>
 # if all are compliant - the whole year is compl
 # View(v_p__t__tn_d_weeks_gom_short_compl_y_1)
 
+# 2) if all declarations for a vessel have a logbook - compliant
 
+# df$X4 <- with(df, X3==X1 | X3==X2)
+# v_p__t__tn_d_weeks_gom_short_compl_y_2 <-
+#   v_p__t__tn_d_weeks_gom_short_compl_y_1 |>
+#   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+#   mutate(compl2 = case_when()
+#            !is.na(rep_type.tn) & !is.na(rep_type.t)) |>
+#   ungroup()
+# 
+# v_p__t__tn_d_weeks_gom_short_compl_y_2 |> 
+#   select(PERMIT_VESSEL_ID, compliant_by_y, compl2) |> 
+#   distinct() |> 
+#   count(compl2)
+#   <lgl>  <int>
+# 1 FALSE   1234
+# 2 TRUE     597
+# 1234 + 597
 
 # old part ----
 ## 1) match logbooks and declarations ----
