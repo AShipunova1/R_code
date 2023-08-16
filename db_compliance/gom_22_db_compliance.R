@@ -194,6 +194,36 @@ v_p__t__tn_d_weeks_gom_short <-
            )
          )
 
+# 1) all compliant if no reports ----
+v_p__t__tn_d_weeks_gom_short_compl_y_1 <-
+  v_p__t__tn_d_weeks_gom_short |>
+  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  mutate(compliant_by_y =
+           case_when(is.na(rep_type.t) &
+                       is.na(rep_type.tn) ~ "yes",
+                     .default = "no")) |>
+  ungroup()
+
+# check
+dim(v_p__t__tn_d_weeks_gom_short_compl_y_1)
+# [1] 75403    37
+
+v_p__t__tn_d_weeks_gom_short_compl_y_1 |> 
+  select(PERMIT_VESSEL_ID, compliant_by_y) |> 
+  distinct() |> 
+  count(compliant_by_y)
+#   compliant_by_y     n
+#   <chr>          <int>
+# 1 no               883
+# 2 yes              468
+# 883 + 468 = 1351 ok
+
+# if all are compliant - the whole year is compl
+# View(v_p__t__tn_d_weeks_gom_short_compl_y_1)
+
+
+
+# old part ----
 ## 1) match logbooks and declarations ----
 
 # There should be a logbook for every declaration of a charter or headboat intending to fish.
