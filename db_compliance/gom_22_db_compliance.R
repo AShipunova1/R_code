@@ -142,6 +142,7 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # TODO: check if permit_id in tn mean the same as in p_v
 
 ## wrong TRIP_START_TIME.tn fix ----
+# From error msg
 # ℹ In argument: `TRIP_START_TIME_tn_hm = parse_date_time(TRIP_START_TIME.tn,
 #   "HM")`.
 # Caused by warning:
@@ -161,6 +162,17 @@ v_p__t__tn_d_weeks_gom_short |>
 # 1 601                    3
 # 2 600                    3
 # 3 2359                   4
+
+# check if the wrong time was from VMS:
+# v_p__t__tn_d_weeks_gom |>
+#   filter(!(nchar(TRIP_START_TIME.tn) == 4) |
+#            !(nchar(TRIP_START_TIME.t) == 4)
+#          ) |>
+#   glimpse()
+# $ PERMIT_VESSEL_ID            <chr> "FL8373MZ", "FL8373MZ", "698897"
+# $ TRIP_START_TIME.tn          <chr> "601", "601", "600"
+# $ UE.tn                       <chr> "VESL", "VESL", "VMS"
+
 
 v_p__t__tn_d_weeks_gom_short |>
   filter(!(nchar(TRIP_START_TIME.tn) == 4) |
