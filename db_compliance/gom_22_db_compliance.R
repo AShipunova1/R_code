@@ -194,6 +194,22 @@ v_p__t__tn_d_weeks_gom_short <-
            )
          )
 
+# create date time columns ----
+v_p__t__tn_d_weeks_gom_short |>
+  mutate(trip_start_date_only = lubridate::date(TRIP_START_DATE)) |>
+  head() |>
+  mutate(
+    trip_start_date_time_tn =
+       # make_datetime(
+      paste(
+        lubridate::date(TRIP_START_DATE),
+          TRIP_START_TIME.tn
+      ) |> 
+      parse_date_time("ymd HM")
+  ) |> 
+  glimpse()
+
+
 # 1) all compliant if no reports ----
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
   v_p__t__tn_d_weeks_gom_short |>
