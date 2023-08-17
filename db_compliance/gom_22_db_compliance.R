@@ -503,16 +503,17 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
 
 # 1) There are only not fishing intended declarations per week
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish")
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish <-
-  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |>
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
   mutate(not_fish_compl =
            case_when(
+             # not strictly compliant
              matched_compl == "no" &
-               # all reports are not fishing declarations
+               # all reports are not fishing declarations in the week
                all(INTENDED_FISHING_FLAG == "N" &
                      !is.na(rep_type.tn)
                    ) ~ "yes",
@@ -520,9 +521,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish <-
            )) |>
   ungroup()
 toc()
-# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish: 5.41 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish: 5.41 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |> 
   select(PERMIT_VESSEL_ID,
          date_y_m,
          matched_reports,
@@ -534,9 +535,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
 # no              9754
 # yes              409
 
-# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish)
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
+# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish)
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
   filter(PERMIT_VESSEL_ID == "FL4459PW" &
            WEEK_OF_YEAR == "13" &
            date_y_m == "Mar 2022") |>
@@ -548,7 +549,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
   select(
     matched_reports,
     matched_compl,
-    compl_y,
+    compl_no_reps_w,
     not_fish_compl,
     INTENDED_FISHING_FLAG
   ) |>
@@ -569,19 +570,43 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish |>
 # 4 yes            N                         2
 
 ## 2) a duplicate declaration for the same trip, one has a logbook ----
+
+### a) find all one hour intervals ----
+
+print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
+  
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+  # group by tn per week
+    group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m,
+           NOTIFICATION_TYPE_IDs,
+           # not_fish_compl
+           rep_type.tn) |>
+  mutate(hour_bucket = 
+           case_when(
+             !is.na(WEEK_OF_YEAR) ~ trip_start_date_time_tn,
+            .default = NA 
+           )
+         ) |> 
+            # cut(trip_start_date_time_tn, 'hour')
+  head() |> 
+  glimpse()
+
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
-  select(-c(UE.tn,
-            DE.tn,
-            UC.tn,
-            DC.tn)) |>
+  # select(-c(UE.tn,
+  #           DE.tn,
+  #           UC.tn,
+  #           DC.tn)) |>
   # group by vessel and tn date and time (<>1), having cnt(decl) > 1
   # TRIP_START_TIME_tn_hm <> 1h
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
-           TRIP_START_TIME.tn,
-           TRIP_END_TIME.tn,
+           # TRIP_START_TIME.tn,
+           # TRIP_END_TIME.tn,
            WEEK_OF_YEAR,
            date_y_m,
            NOTIFICATION_TYPE_IDs,
