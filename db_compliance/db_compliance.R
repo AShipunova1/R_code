@@ -1302,7 +1302,7 @@ source(file.path(my_paths$git_r,
 # result:
 # compliance per year per vessel
 # v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22_short
-  
+
 source(file.path(my_paths$git_r,
                  current_project_name,
                  "gom_22_db_compliance.R"))
@@ -1497,7 +1497,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_m <-
     total_weeks_per_vessel,
     percent_compl
   ) %>%
-  distinct() |> 
+  distinct() |>
   unique()
 
 count_weeks_per_vsl_permit_year_n_compl_p_short_y <-
@@ -1511,7 +1511,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_y <-
     total_weeks_per_vessel,
     percent_compl
   ) %>%
-  distinct() |> 
+  distinct() |>
   unique()
 
 dim(count_weeks_per_vsl_permit_year_n_compl_p_short_y)
@@ -1550,7 +1550,7 @@ dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y)
 dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_m)
 # [1] 2293    7 w month
 
-count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y |> 
+count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y |>
   glimpse()
 
 ### test 2 ----
@@ -1559,7 +1559,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y |>
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y %>%
   dplyr::filter(percent_n_compl_rank == '75<= & <=100%') %>%
   # dplyr::filter(date_y_m == "2022 sa_only") %>%
-  dplyr::count(percent_compl, 
+  dplyr::count(percent_compl,
                # date_y_m,
                name = "amount_of_occurences") %>%
   # glimpse()
@@ -1638,10 +1638,10 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y %>%
 # 4 75<= & <=100%                      49.1
 
 # GOM new
-# 1 0<= & <25%                         28.0 
+# 1 0<= & <25%                         28.0
 # 2 25<= & <50%                         6.40
 # 3 50<= & <75%                         7.73
-# 4 75<= & <=100%                      57.8 
+# 4 75<= & <=100%                      57.8
 
 # 5) blue plots by year ----
 
@@ -1676,10 +1676,10 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   purrr::map(function(curr_year_permit) {
     # browser()
     curr_df <-
-      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y 
+      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y
     # %>%
       # dplyr::filter(year_permit == curr_year_permit)
-    
+
     total_non_compl_df <-
       curr_df %>%
       dplyr::select(perc_vsls_per_y_r_b,
@@ -1687,24 +1687,24 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
                     perc_labels,
                     vsls_per_y_r) %>%
       unique()
-    
+
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(exp_y_tot_cnt)
-    
+
     expired_permits <- curr_df %>%
       filter(perm_exp_y == "expired") %>%
       dplyr::select(exp_y_tot_cnt)
-    
+
     # See the function definition F2
     curr_title_y_p <- make_year_permit_label(curr_year_permit)
-    
+
     y_p_title <- "GOM 22"
 
     curr_blue_year_plot_title <-
-      blue_year_plot_titles %>% 
+      blue_year_plot_titles %>%
       filter(year_permit == curr_year_permit)
-    
+
     y_p_title <-
       paste0(
         curr_blue_year_plot_title$first_part,
@@ -1716,7 +1716,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
         # expired_permits$exp_y_tot_cnt,
         " Vessels)"
       )
-    
+
     one_plot <-
       ggplot(total_non_compl_df,
              aes(x = percent_n_compl_rank,
@@ -1731,9 +1731,9 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
       # y axes 0 to 100
       ylim(0, 100) +
       # size of an individual plot's title
-      theme(plot.title = 
+      theme(plot.title =
               element_text(size = 12))
-    
+
     return(one_plot)
   })
 
@@ -1757,9 +1757,9 @@ super_title = paste0(
 # )
 
 ### common y axes ----
-yleft <- textGrob("% per permit region", 
+yleft <- textGrob("% per permit region",
                   # rotate
-                  rot = 90, 
+                  rot = 90,
                   gp = gpar(fontsize = 10))
 
 p <-
