@@ -573,11 +573,15 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
 
 ### a) find all one hour intervals ----
 
-print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
+# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
   
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
-  mutate(hour_buckets =
-           cut(trip_start_date_time_tn, 'hour'),) |>
+  mutate(
+    after_interval =
+      lubridate::as.interval(3600, trip_start_date_time_tn),
+    # flip interval to get lower date first in the interval
+    before_interval = int_flip(as.interval(-3600, trip_start_date_time_tn))
+  ) |>
   str()
 
   # group by tn per week
