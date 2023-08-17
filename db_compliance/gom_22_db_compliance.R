@@ -200,30 +200,35 @@ grep("start", names(v_p__t__tn_d_weeks_gom_short),
      ignore.case = T, value = T)
 # [1] "TRIP_START_DATE"    "TRIP_START_TIME.t"  "TRIP_START_TIME.tn"
 
-v_p__t__tn_d_weeks_gom_short |>
+v_p__t__tn_d_weeks_gom_short_dt <-
+  v_p__t__tn_d_weeks_gom_short |>
+  # date only
   mutate(trip_start_date_only = 
            lubridate::date(TRIP_START_DATE)
          ) |>
   # combine start date and time for t & tn
   mutate(
+    # declarations
     trip_start_date_time_tn =
+      # convert to char
       paste(
         trip_start_date_only,
           TRIP_START_TIME.tn
       ) |> 
+      # convert to date_time
       parse_date_time("ymd HM")
   ) |> 
   mutate(
+    # logbooks
     trip_start_date_time_t =
+      # convert to char
       paste(
         trip_start_date_only,
           TRIP_START_TIME.t
       ) |> 
+      # convert to date_time
       parse_date_time("ymd HM")
-  ) |> 
-  head() |> 
-  select(contains("start")) |> 
-  glimpse()
+  )
 # 1: There was 1 warning in `mutate()`.
 # ℹ In argument: `trip_start_date_time_tn = parse_date_time(...)`.
 # Caused by warning:
@@ -233,6 +238,17 @@ v_p__t__tn_d_weeks_gom_short |>
 # Caused by warning:
 # !  29103 failed to parse. 
 
+# v_p__t__tn_d_weeks_gom_short |> 
+#     mutate(trip_start_date_only = 
+#            lubridate::date(TRIP_START_DATE)
+#          ) |>
+#   filter(trip_start_date_only == 29103) |> 
+#            str()
+
+v_p__t__tn_d_weeks_gom_short_dt |> 
+  head() |> 
+  select(contains("start")) |> 
+  glimpse()
 
 # 1) all compliant if no reports ----
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
