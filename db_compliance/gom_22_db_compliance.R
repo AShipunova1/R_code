@@ -593,13 +593,35 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup <-
            NOTIFICATION_TYPE_IDs,
            # not_fish_compl
            rep_type.tn) |>
+  add_count(trip_start_date_time_tn, name = "cnt_decl") |> 
+  ungroup()
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup |> 
+  count(cnt_decl) |> 
+  arrange(desc(n))
+#    cnt_decl     n
+#       <int> <int>
+#  1        1 53371
+#  2        2 17678
+#  3        3   711
+#  4        4   556
+#  5        5    75
+#  6        6   114
+#  7        7    28
+#  8        8    40
+#  9        9     9
+# 10       10    70
+# # ℹ 33 more rows
+
+# unique_TRIP_ID = as.data.frame(unique(joined_true$TRIP_ID))
+
   mutate(
     decl_dup =
       all(trip_start_date_time_tn %within% before_interval  |
           trip_start_date_time_tn %within% after_interval)
   )
 toc()
-  
+# all true  
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup |>
   # filter(date_y_m == "Feb 2022") |>
   # filter(PERMIT_VESSEL_ID == "1093374") |>
