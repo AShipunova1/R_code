@@ -584,7 +584,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont <-
 
 str(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont)
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont |>
+tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup")
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont |>
   # group by tn
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
@@ -593,17 +595,17 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont |>
            rep_type.tn) |>
   mutate(
     decl_dup =
-      case_when(
-        trip_start_date_time_tn %within% before_interval  |
-          trip_start_date_time_tn %within% after_interval  ~
-          "dup",
-        .default = NA
-      )
-  ) |>
-  #
-  head() |>
-  glimpse()
+      all(trip_start_date_time_tn %within% before_interval  |
+          trip_start_date_time_tn %within% after_interval)
+  )
+toc()
+  
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup |>
+  # filter(date_y_m == "Feb 2022") |>
+  # filter(PERMIT_VESSEL_ID == "1093374") |>
+  View()
 
+# HERE
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
