@@ -201,32 +201,30 @@ grep("start", names(v_p__t__tn_d_weeks_gom_short),
 v_p__t__tn_d_weeks_gom_short_dt <-
   v_p__t__tn_d_weeks_gom_short |>
   # date only
-  mutate(trip_start_date_only = 
-           lubridate::date(TRIP_START_DATE)
-         ) |>
+  mutate(trip_start_date_only =
+           lubridate::date(TRIP_START_DATE)) |>
   # combine start date and time for t & tn
   mutate(
     # declarations
     trip_start_date_time_tn =
       # convert to char
-      paste(
-        trip_start_date_only,
-          TRIP_START_TIME.tn
-      ) |> 
+      paste(trip_start_date_only,
+            TRIP_START_TIME.tn) |>
       # convert to date_time
       parse_date_time("ymd HM")
-  ) |> 
+  ) |>
   mutate(
     # logbooks
     trip_start_date_time_t =
       # convert to char
-      paste(
-        trip_start_date_only,
-          TRIP_START_TIME.t
-      ) |> 
+      paste(trip_start_date_only,
+            TRIP_START_TIME.t) |>
       # convert to date_time
       parse_date_time("ymd HM")
   )
+
+# str(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
+
 # 1: There was 1 warning in `mutate()`.
 # ℹ In argument: `trip_start_date_time_tn = parse_date_time(...)`.
 # Caused by warning:
@@ -236,15 +234,15 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 # Caused by warning:
 # !  29103 failed to parse. 
 
-v_p__t__tn_d_weeks_gom_short |>
-  mutate(trip_start_date_only =
-           lubridate::date(TRIP_START_DATE)) |>
-  filter(
-    as.integer(trip_start_date_only) %in% c(2491, 29103) |
-      as.character(TRIP_START_TIME.t) %in% c("2491", "29103") |
-      as.character(TRIP_START_TIME.tn) %in% c("2491", "29103")
-  ) |>
-  dim()
+# v_p__t__tn_d_weeks_gom_short |>
+#   mutate(trip_start_date_only =
+#            lubridate::date(TRIP_START_DATE)) |>
+#   filter(
+#     as.integer(trip_start_date_only) %in% c(2491, 29103) |
+#       as.character(TRIP_START_TIME.t) %in% c("2491", "29103") |
+#       as.character(TRIP_START_TIME.tn) %in% c("2491", "29103")
+#   ) |>
+#   dim()
 # 0
 
 # v_p__t__tn_d_weeks_gom_short_dt |> 
@@ -252,9 +250,9 @@ v_p__t__tn_d_weeks_gom_short |>
 #   select(contains("start")) |> 
 #   glimpse()
 
-# 1) all compliant if no reports ----
+# 1) all compliant if there are no reports ----
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
-  v_p__t__tn_d_weeks_gom_short |>
+  v_p__t__tn_d_weeks_gom_short_dt |>
   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   mutate(compl_no_reps_y =
            case_when(is.na(rep_type.t) &
@@ -262,9 +260,11 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
                      .default = "no")) |>
   ungroup()
 
+# str(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
+
 # check
 dim(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
-# [1] 75403    37
+# [1] 75403    40
 
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |> 
   select(PERMIT_VESSEL_ID, compl_no_reps_y) |> 
@@ -280,7 +280,7 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |>
 # View(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
 
 ## same by week ----
-v_p__t__tn_d_weeks_gom_short |> 
+v_p__t__tn_d_weeks_gom_short_dt |> 
   filter(is.na(date_y_m)) |> 
   dim()
 # [1] 468  36
@@ -299,7 +299,7 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |>
 
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts <-
-  v_p__t__tn_d_weeks_gom_short |>
+  v_p__t__tn_d_weeks_gom_short_dt |>
   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
            date_y_m,
            WEEK_OF_YEAR) |>
@@ -309,6 +309,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts <-
                      .default = "no")) |>
   ungroup()
 toc()
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts: 6.16 sec elapsed
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |> 
   select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
@@ -327,7 +328,6 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |>
 # 1 Oct 2022  no               1755
 # 2 Nov 2022  no               1010
 # 3 Dec 2022  no               1031
-
 
 # 2) if all declarations for a vessel have a matched logbook - compliant ----
 
@@ -367,7 +367,7 @@ toc()
 # v_p__t__tn_d_weeks_gom_short_matched: 5.42 sec elapsed
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched)
-# [1] 75403    41
+# [1] 75403    44
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
   select(PERMIT_VESSEL_ID, matched_reports) |>
@@ -376,26 +376,15 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
 # 1 matched           595
 # 2 not_matched      1300
 
-length(unique(v_p__t__tn_d_weeks_gom_short_matched$PERMIT_VESSEL_ID))
+length(unique(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched$PERMIT_VESSEL_ID))
 # [1] 1351
 
-### prepare time cols ----
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_time <-
-  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |>
-  # convert time to a Date format
-  mutate(
-    TRIP_START_TIME_t_hm =
-      parse_date_time(TRIP_START_TIME.t, "HM"),
-    TRIP_START_TIME_tn_hm =
-      parse_date_time(TRIP_START_TIME.tn, "HM")
-  )
+View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched)
 
-# str(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_time)
-
-# remove grouping, even one not matched will make the vessel not compliant ----
+# no grouping, even one not matched will make the vessel not compliant ----
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_each_rep <-
-  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_time |>
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
   # count the difference between start times t and tn
   mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
   # less than an hour difference between trip and trip notif start time
