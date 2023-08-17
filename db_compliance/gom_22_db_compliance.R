@@ -164,15 +164,14 @@ v_p__t__tn_d_weeks_gom_short |>
 # 3 2359                   4
 
 # check if the wrong time was from VMS:
-# v_p__t__tn_d_weeks_gom |>
-#   filter(!(nchar(TRIP_START_TIME.tn) == 4) |
-#            !(nchar(TRIP_START_TIME.t) == 4)
-#          ) |>
-#   glimpse()
+v_p__t__tn_d_weeks_gom |>
+  filter(!(nchar(TRIP_START_TIME.tn) == 4) |
+           !(nchar(TRIP_START_TIME.t) == 4)
+         ) |>
+  glimpse()
 # $ PERMIT_VESSEL_ID            <chr> "FL8373MZ", "FL8373MZ", "698897"
 # $ TRIP_START_TIME.tn          <chr> "601", "601", "600"
 # $ UE.tn                       <chr> "VESL", "VESL", "VMS"
-
 
 v_p__t__tn_d_weeks_gom_short |>
   filter(!(nchar(TRIP_START_TIME.tn) == 4) |
@@ -183,7 +182,6 @@ v_p__t__tn_d_weeks_gom_short |>
 # $ TRIP_START_TIME.tn   <chr> "601", "601", "600"
 
 # assume the missing leading zero, can't be 6010 etc.
-
 #### restore ----
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom_short |>
@@ -238,17 +236,21 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 # Caused by warning:
 # !  29103 failed to parse. 
 
-# v_p__t__tn_d_weeks_gom_short |> 
-#     mutate(trip_start_date_only = 
-#            lubridate::date(TRIP_START_DATE)
-#          ) |>
-#   filter(trip_start_date_only == 29103) |> 
-#            str()
+v_p__t__tn_d_weeks_gom_short |>
+  mutate(trip_start_date_only =
+           lubridate::date(TRIP_START_DATE)) |>
+  filter(
+    as.integer(trip_start_date_only) %in% c(2491, 29103) |
+      as.character(TRIP_START_TIME.t) %in% c("2491", "29103") |
+      as.character(TRIP_START_TIME.tn) %in% c("2491", "29103")
+  ) |>
+  dim()
+# 0
 
-v_p__t__tn_d_weeks_gom_short_dt |> 
-  head() |> 
-  select(contains("start")) |> 
-  glimpse()
+# v_p__t__tn_d_weeks_gom_short_dt |> 
+#   head() |> 
+#   select(contains("start")) |> 
+#   glimpse()
 
 # 1) all compliant if no reports ----
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
