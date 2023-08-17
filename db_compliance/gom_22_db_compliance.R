@@ -555,7 +555,19 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d |>
            WEEK_OF_YEAR == "13" &
            date_y_m == "Mar 2022") |>
   View()
-  
+ 
+print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
+ 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+  select(TRIP_START_DATE, TRIP_START_TIME.tn) |>
+  distinct() |>
+  mutate(date_time = 
+           # ymd_hms(
+           paste0(TRIP_START_DATE, TRIP_START_TIME.tn)
+         # )
+         ) |>
+  head()
+
 ## count amount of declarations ----
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d <-
@@ -564,16 +576,31 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d <-
             DE.tn,
             UC.tn,
             DC.tn)) |>
+  glimpse()
   # group by vessel and tn date and time (<>1),
   # having cnt(decl) > 1
   # TRIP_START_TIME_tn_hm <> 1h
-  mutate(hour_interval =
-           lubridate::minute(TRIP_START_TIME_tn_hm) +  TRIP_START_TIME_tn_hm) %>%
-    group_by(PERMIT_VESSEL_ID,
-             TRIP_START_DATE,
-             TRIP_START_TIME.tn,
-             hour_interval) %>%
-    summarise(count = n())
+  mutate(hour_interval_plus =
+           ymd_hm(paste0(TRIP_START_DATE, TRIP_START_TIME.tn))
+  ) |> View()
+# 
+#            lubridate::minute(TRIP_START_TIME_tn_hm) + 60*60,
+#          hour_interval_min =
+#            lubridate::minute(TRIP_START_TIME_tn_hm) - 60*60,
+#          hour_interval =
+#            hour_interval_plus + hour_interval_min) |>
+  group_by(PERMIT_VESSEL_ID,
+           TRIP_START_DATE,
+           TRIP_START_TIME.tn,
+           hour_interval) |>
+  mutate(cnts = n()) |>
+  ungroup()
+toc()
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d |>
+  filter(PERMIT_VESSEL_ID == "546932" &
+           date_y_m == "Feb 2022") |>
+  View()
 
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d |> 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d_1 <-
