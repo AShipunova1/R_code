@@ -379,22 +379,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
 length(unique(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched$PERMIT_VESSEL_ID))
 # [1] 1351
 
-View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched)
+# View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched)
 
-# no grouping, even one not matched will make the vessel not compliant ----
-tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched")
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_each_rep <-
-  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
-  # count the difference between start times t and tn
-  mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
-  # less than an hour difference between trip and trip notif start time
-  mutate(matched_reports =
-           case_when(time_diff1 < 3600 ~ "matched",
-                     .default = "not_matched")) |>
-  distinct()
-toc()
-
-# str(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_each_rep)
+# no grouping?, even one not matched will make the vessel not compliant
 
 ## strict compl vessels per week ----
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w")
@@ -412,6 +399,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w <-
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w: 5.89 sec elapsed
+
+View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w)
 
 # check compliant_fishing_month
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
@@ -466,6 +455,16 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict: 5.91 sec elapsed
 
+dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict)
+# [1] 75403    46
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |> 
+  select(PERMIT_VESSEL_ID, compl_w) |> 
+  distinct() |> 
+  count(compl_w)
+# 1 no        832
+# 2 yes      1039
+
 ## same by year ----
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict <-
@@ -492,6 +491,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
 # 1 no        832
 # 2 yes      1039
 # TODO: change, more than 1351 total vsls
+# TODO: why the same as week?
 
 # Not strictly, but are compliant ----
 # 1) There are only not fishing intended declarations per week
