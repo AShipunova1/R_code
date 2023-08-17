@@ -576,6 +576,10 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
 print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
   
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+  mutate(hour_buckets =
+           cut(trip_start_date_time_tn, 'hour'),) |>
+  str()
+
   # group by tn per week
     group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
@@ -584,13 +588,14 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
            NOTIFICATION_TYPE_IDs,
            # not_fish_compl
            rep_type.tn) |>
-  mutate(hour_bucket = 
+  mutate(hour_buckets = 
            case_when(
-             !is.na(WEEK_OF_YEAR) ~ trip_start_date_time_tn,
+             !is.na(WEEK_OF_YEAR) ~ 
+               cut(trip_start_date_time_tn, 'hour'),
             .default = NA 
            )
          ) |> 
-            # cut(trip_start_date_time_tn, 'hour')
+            # 
   head() |> 
   glimpse()
 
