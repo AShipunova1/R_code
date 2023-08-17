@@ -571,36 +571,37 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
 
 ## 2) a duplicate declaration for the same trip, one has a logbook ----
 
-### a) find all one hour intervals ----
+### a) add before and after 1 hour intervals ----
 
-# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
-  
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
   mutate(
     after_interval =
       lubridate::as.interval(3600, trip_start_date_time_tn),
     # flip interval to get lower date first in the interval
     before_interval = int_flip(as.interval(-3600, trip_start_date_time_tn))
-  ) |>
-  str()
+  )
 
-  # group by tn per week
-    group_by(VESSEL_VESSEL_ID,
+str(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont)
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont |>
+  # group by tn
+  group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
-           WEEK_OF_YEAR,
-           date_y_m,
            NOTIFICATION_TYPE_IDs,
            # not_fish_compl
            rep_type.tn) |>
-  mutate(hour_buckets = 
-           case_when(
-             !is.na(WEEK_OF_YEAR) ~ 
-               cut(trip_start_date_time_tn, 'hour'),
-            .default = NA 
-           )
-         ) |> 
-            # 
-  head() |> 
+  mutate(
+    decl_dup =
+      case_when(
+        trip_start_date_time_tn %within% before_interval  |
+          trip_start_date_time_tn %within% after_interval  ~
+          "dup",
+        .default = NA
+      )
+  ) |>
+  #
+  head() |>
   glimpse()
 
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d")
