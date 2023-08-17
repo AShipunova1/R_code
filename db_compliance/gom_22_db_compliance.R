@@ -183,6 +183,7 @@ v_p__t__tn_d_weeks_gom_short |>
 # $ TRIP_START_TIME.tn   <chr> "601", "601", "600"
 
 # assume the missing leading zero, can't be 6010 etc.
+
 #### restore ----
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom_short |>
@@ -195,19 +196,42 @@ v_p__t__tn_d_weeks_gom_short <-
          )
 
 # create date time columns ----
+grep("start", names(v_p__t__tn_d_weeks_gom_short),
+     ignore.case = T, value = T)
+# [1] "TRIP_START_DATE"    "TRIP_START_TIME.t"  "TRIP_START_TIME.tn"
+
 v_p__t__tn_d_weeks_gom_short |>
-  mutate(trip_start_date_only = lubridate::date(TRIP_START_DATE)) |>
-  head() |>
+  mutate(trip_start_date_only = 
+           lubridate::date(TRIP_START_DATE)
+         ) |>
+  # combine start date and time for t & tn
   mutate(
     trip_start_date_time_tn =
-       # make_datetime(
       paste(
-        lubridate::date(TRIP_START_DATE),
+        trip_start_date_only,
           TRIP_START_TIME.tn
       ) |> 
       parse_date_time("ymd HM")
   ) |> 
+  mutate(
+    trip_start_date_time_t =
+      paste(
+        trip_start_date_only,
+          TRIP_START_TIME.t
+      ) |> 
+      parse_date_time("ymd HM")
+  ) |> 
+  head() |> 
+  select(contains("start")) |> 
   glimpse()
+# 1: There was 1 warning in `mutate()`.
+# ℹ In argument: `trip_start_date_time_tn = parse_date_time(...)`.
+# Caused by warning:
+# !  2491 failed to parse. 
+# 2: There was 1 warning in `mutate()`.
+# ℹ In argument: `trip_start_date_time_t = parse_date_time(...)`.
+# Caused by warning:
+# !  29103 failed to parse. 
 
 
 # 1) all compliant if no reports ----
