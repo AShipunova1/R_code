@@ -202,7 +202,8 @@ v_p__t__tn_d_weeks_gom_short <-
 # create date time columns ----
 grep("start", names(v_p__t__tn_d_weeks_gom_short),
      ignore.case = T, value = T)
-# [1] "TRIP_START_DATE"    "TRIP_START_TIME.t"  "TRIP_START_TIME.tn"
+# [1] "TRIP_START_DATE"      "TRIP_START_TIME.t"    "TRIP_START_TIME.tn"  
+# [4] "TRIP_START_DATE_TIME"
 
 v_p__t__tn_d_weeks_gom_short_dt <-
   v_p__t__tn_d_weeks_gom_short |>
@@ -255,6 +256,8 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 #   head() |> 
 #   select(contains("start")) |> 
 #   glimpse()
+
+View(v_p__t__tn_d_weeks_gom_short_dt)
 
 # 1) all compliant if there are no reports ----
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
@@ -578,7 +581,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
 ## 2) a logb and no decl (err, but is compliant in FHIER?) ----
 # TODO: check in FHIER
 
-View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish)
+# View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish)
 
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
@@ -593,7 +596,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
         matched_compl == "no" &
           not_fish_compl == "no" &
           compl_w == "no" &
-          # no decl for a lgb!is.na(rep_type.t) &
+          # no decl for a lgb
+          !is.na(rep_type.t) &
           is.na(rep_type.tn) ~ "yes",
         .default = "no"
       )
@@ -604,6 +608,15 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only: 11.72 sec elapsed
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |> 
+  select(PERMIT_VESSEL_ID,
+         contains("compl")) |>
+  count(no_decl_compl)
+#     no_decl_compl     n
+#   <chr>         <int>
+# 1 no            73851
+# 2 yes            1591
 
 ## 3) not compliant but overridden ----
 # everything that was overridden is compliant (the whole week)
