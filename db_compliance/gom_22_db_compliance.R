@@ -583,6 +583,10 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
 
 # View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish)
 
+no_decl_for_a_lgb_fiter <-
+  rlang::quo(!is.na(rep_type.t) &
+               is.na(rep_type.tn))
+
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
@@ -590,18 +594,10 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(
-    no_decl_compl_0 =
-      case_when(
-        matched_compl == "no" &
-          not_fish_compl == "no" &
-          compl_w == "no" &
-          # no decl for a lgb
-          !is.na(rep_type.t) &
-          is.na(rep_type.tn) ~ "yes",
-        .default = "no"
-      )
-  ) |>
+  mutate(no_decl_compl_0 =
+           case_when(compl_w == "no" &
+                       !!no_decl_for_a_lgb_fiter ~ "yes",
+                     .default = "no")) |>
   mutate(no_decl_compl =
            case_when(all(no_decl_compl_0 == "yes") ~ "yes",
                      .default = "no")) |>
@@ -612,12 +608,12 @@ toc()
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |> 
   select(PERMIT_VESSEL_ID,
          contains("compl")) |>
-  count(no_decl_compl)
+  # count(no_decl_compl)
 #     no_decl_compl     n
 #   <chr>         <int>
 # 1 no            73851
 # 2 yes            1591
-  # count(compl_w, no_decl_compl)
+  count(compl_w, no_decl_compl)
   # compl_w no_decl_compl     n
 # 1 no      no            53908
 # 2 no      yes            1591 (new compl +)
