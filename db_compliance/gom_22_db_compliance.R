@@ -707,45 +707,70 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__ove
 
 ### a) add before and after 1 hour intervals ----
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont <-
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
   mutate(
     after_interval =
       lubridate::as.interval(3600, trip_start_date_time_tn),
     # flip interval to get lower date first in the interval
-    before_interval = int_flip(as.interval(-3600, trip_start_date_time_tn))
-  )
-
-View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont)
-
-tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup")
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup <-
-  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont |>
-  select(-c(UE.tn, DE.tn, UC.tn, DC.tn,
-            UE.t, DE.t, UC.t, DC.t,
-            EVENT_ID)) |> 
-  distinct() |> 
-  mutate(around_hour_tn = 
+    before_interval =
+      int_flip(as.interval(-3600, trip_start_date_time_tn))
+  ) |>
+  mutate(around_hour_tn_int =
            interval(int_start(before_interval),
-                    int_end(after_interval))) |> 
+                    int_end(after_interval)))
+
+### fewer fields ----
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
+  select(
+    -c(
+      after_interval,
+      before_interval,
+      TRIP_START_TIME.t,
+      TRIP_START_TIME.tn,
+      trip_start_date_only,
+      TRIP_START_TIME_t_hm,
+      TRIP_START_TIME_tn_hm,
+      time_diff1,
+      UE.tn,
+      DE.tn,
+      UC.tn,
+      DC.tn,
+      UE.t,
+      DE.t,
+      UC.t,
+      DC.t,
+      EVENT_ID
+    )) |>
+      distinct()
+
+dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short)  
+# [1] 72995    34
+
+tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup")
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short |>
   # group by tn
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            NOTIFICATION_TYPE_IDs,
-           around_hour_tn,
-           # before_interval,
-           # after_interval,
+           around_hour_tn_int,
            # not_fish_compl
            TRIP_ID.tn,
            rep_type.tn) |>
   add_count(trip_start_date_time_tn, name = "cnt_decl") |> 
   ungroup() |> 
-  filter(!is.na(around_hour_tn)) |> 
+  filter(!is.na(around_hour_tn_int)) |> 
   arrange(desc(cnt_decl))
 
-View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup)
+View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup)
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short |> 
+  filter(PERMIT_VESSEL_ID == "FL8981NK")
+
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup |> 
   count(cnt_decl) |> 
   arrange(desc(n))
 #    cnt_decl     n
@@ -771,7 +796,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup |>
   )
 toc()
 # all true  
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup |>
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup |>
   # filter(date_y_m == "Feb 2022") |>
   # filter(PERMIT_VESSEL_ID == "1093374") |>
   View()
