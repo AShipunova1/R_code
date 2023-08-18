@@ -617,6 +617,11 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |>
 #   <chr>         <int>
 # 1 no            73851
 # 2 yes            1591
+  # count(compl_w, no_decl_compl)
+  # compl_w no_decl_compl     n
+# 1 no      no            53908
+# 2 no      yes            1591 (new compl +)
+# 3 yes     no            19943
 
 ## 3) not compliant but overridden ----
 # everything that was overridden is compliant (the whole week)
