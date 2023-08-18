@@ -495,13 +495,13 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
 
 # Not strictly, but are compliant ----
 # 1) There are only not fishing intended declarations per week
-# 2) a duplicate declaration for the same trip, one has a logbook
-# 3) a logb and no decl (err, but is compliant in FHIER?)
+# 2) a logb and no decl (err, but is compliant in FHIER?)
 # TODO: check in FHIER
-# 4) not compliant but overridden
+# 3) not compliant but overridden
 # everything that was overridden is compliant (the whole week)
+# 4) a duplicate declaration for the same trip, one has a logbook
 
-# 1) There are only not fishing intended declarations per week
+## 1) There are only not fishing intended declarations per week ----
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |>
@@ -569,7 +569,86 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
 # 3 no             NA                        4
 # 4 yes            N                         2
 
-## 2) a duplicate declaration for the same trip, one has a logbook ----
+## 2) a logb and no decl (err, but is compliant in FHIER?) ----
+# TODO: check in FHIER
+
+View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish)
+
+tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only")
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           WEEK_OF_YEAR,
+           date_y_m) |>
+  mutate(
+    no_decl_compl_0 =
+      case_when(
+        matched_compl == "no" &
+          not_fish_compl == "no" &
+          compl_w == "no" &
+          # no decl for a lgb!is.na(rep_type.t) &
+          is.na(rep_type.tn) ~ "yes",
+        .default = "no"
+      )
+  ) |>
+  mutate(no_decl_compl =
+           case_when(all(no_decl_compl_0 == "yes") ~ "yes",
+                     .default = "no")) |>
+  ungroup()
+toc()
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only: 11.72 sec elapsed
+
+## 3) not compliant but overridden ----
+# everything that was overridden is compliant (the whole week)
+
+compl_err_db_data_short <-
+  compl_err_db_data |>
+  select(
+    comp_error_type_cd,
+    comp_override_cmt,
+    # comp_override_dt,
+    # comp_override_user_id,
+    comp_week,
+    # comp_week_end_dt,
+    # comp_week_start_dt,
+    comp_year,
+    is_comp,
+    is_comp_override,
+    is_override,
+    safis_vessel_id,
+    vessel_official_nbr
+  ) |>
+  distinct()
+
+override_join_by =
+  join_by(
+    VESSEL_VESSEL_ID == safis_vessel_id,
+    PERMIT_VESSEL_ID == vessel_official_nbr,
+    WEEK_OF_YEAR == comp_week,
+    YEAR == comp_year
+  )
+
+compl_err_db_data_short_overr <-
+  compl_err_db_data_short |>
+  filter(is_comp_override == 1)
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr <-
+  left_join(
+    v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only,
+    compl_err_db_data_short_overr,
+    override_join_by,
+    relationship = "many-to-many",
+    suffix = c(".o", ".c_w")
+  )
+
+dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only)
+# [1] 75442    51
+
+dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr)
+# [1] 77787    56
+
+## 4) a duplicate declaration for the same trip, one has a logbook ----
 
 ### a) add before and after 1 hour intervals ----
 
@@ -582,19 +661,34 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont <-
     before_interval = int_flip(as.interval(-3600, trip_start_date_time_tn))
   )
 
-str(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont)
+View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont)
 
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont |>
+  select(-c(UE.tn, DE.tn, UC.tn, DC.tn,
+            UE.t, DE.t, UC.t, DC.t,
+            EVENT_ID)) |> 
+  distinct() |> 
+  mutate(around_hour_tn = 
+           interval(int_start(before_interval),
+                    int_end(after_interval))) |> 
   # group by tn
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            NOTIFICATION_TYPE_IDs,
+           around_hour_tn,
+           # before_interval,
+           # after_interval,
            # not_fish_compl
+           TRIP_ID.tn,
            rep_type.tn) |>
   add_count(trip_start_date_time_tn, name = "cnt_decl") |> 
-  ungroup()
+  ungroup() |> 
+  filter(!is.na(around_hour_tn)) |> 
+  arrange(desc(cnt_decl))
+
+View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup)
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_ont_tn_dup |> 
   count(cnt_decl) |> 
