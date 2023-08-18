@@ -641,17 +641,48 @@ compl_err_db_data_short <-
   ) |>
   distinct()
 
-override_join_by =
-  join_by(
-    VESSEL_VESSEL_ID == safis_vessel_id,
-    PERMIT_VESSEL_ID == vessel_official_nbr,
-    WEEK_OF_YEAR == comp_week,
-    YEAR == comp_year
-  )
-
 compl_err_db_data_short_overr <-
   compl_err_db_data_short |>
   filter(is_comp_override == 1)
+
+compl_err_db_data_short_overr_v_ids <-
+  compl_err_db_data_short_overr |> 
+  select(vessel_official_nbr) |> 
+  distinct()
+
+dim(compl_err_db_data_short_overr_v_ids)
+# 1545
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only_v_ids <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |> 
+  select(PERMIT_VESSEL_ID) |> 
+  distinct()
+
+overr_compl_id_inters <-
+  intersect(
+    compl_err_db_data_short_overr_v_ids$vessel_official_nbr,
+    v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only_v_ids$PERMIT_VESSEL_ID
+  ) 
+# length()
+511
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |> 
+  filter(PERMIT_VESSEL_ID %in% overr_compl_id_inters) |> 
+  View()
+
+
+
+override_join_by =
+  join_by(
+    # VESSEL_VESSEL_ID == safis_vessel_id
+    # ,
+    PERMIT_VESSEL_ID == vessel_official_nbr
+    # ,
+    # WEEK_OF_YEAR == comp_week,
+    # YEAR == comp_year
+  )
+
+# View(compl_err_db_data_short_overr)
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr <-
   left_join(
@@ -662,14 +693,20 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__ove
     suffix = c(".o", ".c_w")
   )
 
-dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only)
+# dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only)
 # [1] 75442    51
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr)
 # [1] 77787    56
 
-View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr)
-
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr |> 
+  filter(
+    # !is.na(vessel_official_nbr) & 
+           is_override == 1) |> 
+  # select(is_override) |> 
+  # distinct() |> 
+  dim()
+  
 ## 4) a duplicate declaration for the same trip, one has a logbook ----
 
 ### a) add before and after 1 hour intervals ----
