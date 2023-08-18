@@ -721,6 +721,12 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int <-
                     int_end(after_interval)))
 
 ### fewer fields ----
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |> 
+  select(NOTIFICATION_TYPE_IDs) |> 
+  distinct()
+# 1 6                    
+# 2 NA                   
+
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
   select(
@@ -741,12 +747,13 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short <-
       DE.t,
       UC.t,
       DC.t,
-      EVENT_ID
+      EVENT_ID,
+      NOTIFICATION_TYPE_IDs
     )) |>
       distinct()
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short)  
-# [1] 72995    34
+# [1] 72995    33
 
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup <-
@@ -754,7 +761,6 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup <-
   # group by tn
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
-           NOTIFICATION_TYPE_IDs,
            around_hour_tn_int,
            # not_fish_compl
            TRIP_ID.tn,
@@ -767,7 +773,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup <-
 View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup)
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short |> 
-  filter(PERMIT_VESSEL_ID == "FL8981NK")
+  filter(PERMIT_VESSEL_ID == "FL8981NK") |> 
+  View()
 
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup |> 
