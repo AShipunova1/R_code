@@ -1047,7 +1047,7 @@ tn_d_w_short <-
     # TRIP_END_DATE,
     # TRIP_ID
     # ,
-    # TRIP_START_DATE_TIME,
+    TRIP_START_DATE_TIME, #empty
     # TRIP_START_DATE,
     # TRIP_TYPE
   )
