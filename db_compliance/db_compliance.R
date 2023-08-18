@@ -1071,7 +1071,7 @@ t_d_w_short <-
     -c(
       # TRIP_START_DATE,
       # TRIP_END_DATE,
-      TRIP_ID,
+      # TRIP_ID,
       # TRIP_TYPE,
       # SERO_VESSEL_PERMIT,
       GARFO_VESSEL_PERMIT,
@@ -1132,7 +1132,7 @@ tn_d_w_short <-
     STAT_ZONE,
     SYSTEM_ID,
     # TRIP_END_DATE,
-    TRIP_ID
+    # TRIP_ID
     # ,
     # TRIP_START_DATE_TIME,
     # TRIP_START_DATE,
