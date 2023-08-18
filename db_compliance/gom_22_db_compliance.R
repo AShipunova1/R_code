@@ -85,7 +85,7 @@ t_names_to_rm <-
     "TRANSMISSION_DATE",
     "TRIP_FEE",
     "TRIP_NBR",
-    "TRIP_START_DATE_TIME",
+    # "TRIP_START_DATE_TIME",
     "UC",
     "UE",
     "VALIDATING_AGENCY",
@@ -101,6 +101,7 @@ t_names_to_rm <-
 # "SUBMIT_METHOD",
 # "TRIP_END_TIME",
 # "TRIP_START_TIME",
+# TRIP_START_DATE_TIME
 
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom |>
@@ -110,10 +111,12 @@ v_p__t__tn_d_weeks_gom_short <-
 dim(v_p__t__tn_d_weeks_gom)
 # [1] 75524    91
 # [1] 75403    92
+# [1] 75442    94
 
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 75524    35
 # [1] 75403    36
+# [1] 75442    39
 
 data_overview(v_p__t__tn_d_weeks_gom_short) |>
   head(2)
@@ -122,19 +125,22 @@ data_overview(v_p__t__tn_d_weeks_gom_short) |>
 
 v_p__t__tn_d_weeks_gom_short |>
   count(permit_sa_gom_dual)
-# 1 dual               15853
-# 2 gom_only           59550
+# 1 dual               15863
+# 2 gom_only           59579
 
 v_p__t__tn_d_weeks_gom_short |>
   count(TRIP_TYPE)
 #   TRIP_TYPE     n
-# 1 A         63009
-# 2 H         11926
+# 1 A         63044
+# 2 H         11930
 # 3 NA          468
 # Activity type NA - declaration only
 
 v_p__t__tn_d_weeks_gom_short |>
   count(INTENDED_FISHING_FLAG)
+# 1 N                      4070
+# 2 Y                     68157
+# 3 NA                     3215
 
 length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     1351
@@ -647,6 +653,8 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only)
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr)
 # [1] 77787    56
+
+View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr)
 
 ## 4) a duplicate declaration for the same trip, one has a logbook ----
 
