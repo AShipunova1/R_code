@@ -666,19 +666,12 @@ overr_compl_id_inters <-
 # length()
 511
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |> 
-  filter(PERMIT_VESSEL_ID %in% overr_compl_id_inters) |> 
-  View()
-
-
-
 override_join_by =
   join_by(
-    # VESSEL_VESSEL_ID == safis_vessel_id
+    VESSEL_VESSEL_ID == safis_vessel_id,
+    PERMIT_VESSEL_ID == vessel_official_nbr,
+    WEEK_OF_YEAR == comp_week
     # ,
-    PERMIT_VESSEL_ID == vessel_official_nbr
-    # ,
-    # WEEK_OF_YEAR == comp_week,
     # YEAR == comp_year
   )
 
@@ -698,6 +691,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__ove
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr)
 # [1] 77787    56
+# [1] 82364    58
+# [1] 82307    57
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr |> 
   filter(
@@ -706,7 +701,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__ove
   # select(is_override) |> 
   # distinct() |> 
   dim()
-  
+# 0
+
 ## 4) a duplicate declaration for the same trip, one has a logbook ----
 
 ### a) add before and after 1 hour intervals ----
