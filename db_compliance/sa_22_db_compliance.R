@@ -335,8 +335,8 @@ dim(v_p__t__tne_d_weeks_sa_compl_w_short)
 # [1] 111468     20
 
 ## a month is compliant if all weeks are compliant ----
-# Setting `bounds` allows you to compute overlaps with those kinds of ranges.
 
+# Setting `bounds` allows you to compute overlaps with those kinds of ranges.
 ### add beginning and end of permit as a date ----
 v_p__t__tne_d_weeks_sa_compl_w_short_p_dates0 <-
   v_p__t__tne_d_weeks_sa_compl_w_short |>
@@ -347,12 +347,6 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates0 <-
 
 # For each value in x, this finds everywhere that value falls between ⁠[y_lower, y_upper]⁠. Equivalent to ⁠x >= y_lower, x <= y_upper⁠ by default.
 # 
-
-# by <- join_by(chromosome, between(start, start, end))
-# full_join(segments, reference, by)
-# by <- join_by(chromosome, between(y$start, x$start, x$end))
-# full_join(reference, segments, by)
-
 
 permit_dates_by <-
   join_by(between(x$COMPLETE_DATE,
@@ -386,6 +380,7 @@ toc()
 # View(v_p__t__tne_d_weeks_sa_compl_w_short_m)
 # filter(PERMIT_VESSEL_ID == "FL2702KR")
 v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
+  select(-c())
   filter(PERMIT_VESSEL_ID == "FL2702KR") |> View()
 # v_p__t__tne_d_weeks_sa_compl_w_short_m |>
 # filter(PERMIT_VESSEL_ID == "FL3310RY") |> View()
