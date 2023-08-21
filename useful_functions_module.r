@@ -233,7 +233,7 @@ aux_fun_for_dates <- function(x, date_format) {
 }
   # # Previously
   # across(a:b, mean, na.rm = TRUE)
-  # 
+  #
   # # Now
   # across(a:b, \(x) mean(x, na.rm = TRUE))
 change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
@@ -273,15 +273,15 @@ count_by_column_arr <- function(my_df, group_by_arr) {
     return()
 }
 
+count_uniq_by_column <- function(my_df) {
+  sapply(my_df, function(x) length(unique(x))) %>%
+    as.data.frame()
+}
+
 data_overview <- function(my_df) {
   summary(my_df) %>% print()
   cat("\nCount unique values in each column:")
   count_uniq_by_column(my_df)
-}
-
-count_uniq_by_column <- function(my_df) {
-  sapply(my_df, function(x) length(unique(x))) %>%
-    as.data.frame()
 }
 
 # from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
@@ -293,9 +293,9 @@ concat_unique <-
   }
 
 print_df_names <- function(my_df, names_num = 100) {
-  names(my_df) %>% 
-    head(names_num) %>% 
-    paste0(collapse = ", ") %>% 
+  names(my_df) %>%
+    head(names_num) %>%
+    paste0(collapse = ", ") %>%
     return()
 }
 
@@ -306,7 +306,10 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my
     return()
 }
 
-concat_unique_sorted <- function(x){paste0(unique(sort(x[!is.na(x)])), collapse= ", ")}
+concat_unique_sorted <-
+  function(x) {
+    paste0(unique(sort(x[!is.na(x)])), collapse = ", ")
+  }
 
 combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
   my_df %>%
@@ -509,18 +512,18 @@ legend_for_grid_arrange <- function(legend_plot) {
   return(my_legend)
 }
 
-make_a_flat_file <- 
+make_a_flat_file <-
   function(flat_file_name,
            files_to_combine_list) {
     # write to file
     sink(flat_file_name)
-    
+
     for (i in 1:length(files_to_combine_list)) {
       current_file = readLines(files_to_combine_list[i])
       cat("\n\n#### Current file:", files_to_combine_list[i], "----\n\n")
       cat(current_file, sep = "\n")
     }
-    
+
     sink()
   }
 
@@ -534,3 +537,52 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
            )) %>%
     return()
 }
+
+# read_rds_or_run <-
+#   function(my_file_path,
+#            my_data_list_of_dfs,
+#            my_function) {
+#     # browser()
+#
+#     if (file.exists(my_file_path)) {
+#       # read a binary file saved previously
+#       my_df <-
+#         readr::read_rds(my_file_path)
+#     } else {
+#       tic("run the function")
+#       my_df <-
+#         my_function(my_data_list_of_dfs)
+#       toc()
+#
+#       # write all as binary
+#       readr::write_rds(my_df,
+#                        my_file_path)
+#     }
+#
+#     return(my_df)
+#   }
+
+read_rds_or_run <-
+  function(my_file_path,
+           my_data = as.data.frame(""),
+           my_function) {
+    # browser()
+
+    if (file.exists(my_file_path)) {
+      # read a binary file saved previously
+      my_result <-
+        readr::read_rds(my_file_path)
+    } else {
+      msg_text <- paste(today(), "run the function")
+      tic(msg_text)
+      my_result <-
+        my_function(my_data)
+      toc()
+
+      # write all as binary
+      readr::write_rds(my_result,
+                       my_file_path)
+    }
+
+    return(my_result)
+  }
