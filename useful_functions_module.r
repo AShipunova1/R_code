@@ -15,6 +15,18 @@
 # corresp_contact_cnts_clean <- temp_var[[2]]
 
 #---
+# curr_wd <- getwd()
+# roracle_path <- r"(C:\Users\anna.shipunova\Software\ROracle_1.3-2\ROracle)"
+# setwd(roracle_path)
+# install.packages('ROracle')
+
+
+library('ROracle')
+drv <- dbDriver("Oracle")
+con <- dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname='XXX')
+
+dbReadTable(con, 'DUAL')
+
 
 #install.packages("tidyverse")
 library(tidyverse)
