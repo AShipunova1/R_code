@@ -335,28 +335,58 @@ dim(v_p__t__tne_d_weeks_sa_compl_w_short)
 # [1] 111468     20
 
 ## a month is compliant if all weeks are compliant ----
-v_p__t__tne_d_weeks_sa_compl_w_short |> 
-  filter(PERMIT_VESSEL_ID == "FL2702KR") |> 
-  View()
+# Setting `bounds` allows you to compute overlaps with those kinds of ranges.
 
+### add beginning and end of permit as a date ----
+v_p__t__tne_d_weeks_sa_compl_w_short_p_dates0 <-
+  v_p__t__tne_d_weeks_sa_compl_w_short |>
+  mutate(
+    permit_start = int_start(permit_2022_int),
+    permit_end = int_end(permit_2022_int)
+  )
+
+# For each value in x, this finds everywhere that value falls between ⁠[y_lower, y_upper]⁠. Equivalent to ⁠x >= y_lower, x <= y_upper⁠ by default.
+# 
+
+# by <- join_by(chromosome, between(start, start, end))
+# full_join(segments, reference, by)
+# by <- join_by(chromosome, between(y$start, x$start, x$end))
+# full_join(reference, segments, by)
+
+
+permit_dates_by <-
+  join_by(between(x$COMPLETE_DATE,
+                  y$permit_start,
+                  y$permit_end))
+
+tic("v_p__t__tne_d_weeks_sa_compl_w_short_p_dates")
+v_p__t__tne_d_weeks_sa_compl_w_short_p_dates <-
+  right_join(dates_2022_yw,
+            v_p__t__tne_d_weeks_sa_compl_w_short_p_dates0,
+            permit_dates_by,
+            suffix = c(".d", ".t"))
+toc()
+# v_p__t__tne_d_weeks_sa_compl_w_short_p_dates: 25.16 sec elapsed
 
 tic("v_p__t__tne_d_weeks_sa_compl_w_short_m")
-v_p__t__tne_d_weeks_sa_compl_w_short_m <-
-  v_p__t__tne_d_weeks_sa_compl_w_short |>
+v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m <-
+  v_p__t__tne_d_weeks_sa_compl_w_short_p_dates |>
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
-           date_y_m) |>
+           date_y_m.d) |>
   mutate(v_compliant_m =
            case_when(any(tolower(sa_compl_week) == "no") ~ "no",
                      .default = "yes")) |>
   ungroup()
 toc()
+# v_p__t__tne_d_weeks_sa_compl_w_short_m: 35.45 sec elapsed
+
 
 # TODO: split permit interval by weeks and months
 # View(v_p__t__tne_d_weeks_sa_compl_w_short_m)
 # filter(PERMIT_VESSEL_ID == "FL2702KR")
-# v_p__t__tne_d_weeks_sa_compl_w_short_m |>
-# filter(PERMIT_VESSEL_ID == "FL2702KR") |> View()
+v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
+  filter(PERMIT_VESSEL_ID == "FL2702KR") |> View()
 # v_p__t__tne_d_weeks_sa_compl_w_short_m |>
 # filter(PERMIT_VESSEL_ID == "FL3310RY") |> View()
 # v_p__t__tne_d_weeks_sa_compl_w_short_m |>
