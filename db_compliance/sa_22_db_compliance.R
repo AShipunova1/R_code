@@ -434,14 +434,6 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
 # distinct() |>
 # View()
 
-v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
-  select(starts_with("date_y_m"), v_compliant_m) |>
-  distinct() |>
-  count(date_y_m.d,
-        v_compliant_m) |>
-  arrange(date_y_m.d)
-# all yes, fixed by adding weeks to the permit int
-
 v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt <-
   v_p__t__tne_d_weeks_sa_compl_w_short |>
   group_by(PERMIT_VESSEL_ID,
@@ -450,16 +442,13 @@ v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt <-
   mutate(compl_w_cnt_m = n_distinct(WEEK_OF_YEAR)) |>
   ungroup()
 
-# dim(v_p__t__tne_d_weeks_sa_compl_w_short_m)
-# [1] 111468     21
-
-
-print_df_names(v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt)
+dim(v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt)
+# [1] 113909     22
 
 # non compliant only ----
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
+  v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt %>%
   add_count(year_permit,
             year_month,
             vessel_official_number,
