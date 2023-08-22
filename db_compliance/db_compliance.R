@@ -41,49 +41,35 @@ source(get_data_file_path)
 interval_2022 <- lubridate::interval(as.Date('2022-01-01'),
                                     as.Date('2022-12-31'))
 
-# vessels to use (from FHIER metric tracking) ----
+# vessels to use (from FHIER metric tracking, except SRHS) ----
 # dim(fhier_reports_metrics_tracking)
 # [1] 3629   13
+# dim(fhier_reports_metrics_tracking_not_srhs)
+# [1] 3560   13
 
-vessel_official_number_fhier_metrics <-
-  fhier_reports_metrics_tracking |>
-  select(vessel_official_number) |>
-  distinct()
-
-dim(vessel_official_number_fhier_metrics)
+# vessel_official_number_fhier_metrics <-
+#   fhier_reports_metrics_tracking |>
+#   select(vessel_official_number) |>
+#   distinct()
+# # 
+# dim(vessel_official_number_fhier_metrics)
 # [1] 3629    1
 
+# exclude srhs_vessels_2022 ----
 
-# exclude srhs_vessels_2022
-metrics_tracking_srhs <-
-  fhier_reports_metrics_tracking |> 
-  select(vessel_official_number, vessel_name) |>
-  full_join(srhs_vessels_2022_info,
-            join_by(vessel_name))
+srhs_metrics_tracking_v_names <-
+  intersect(srhs_vessels_2022_info$vessel_name,
+            fhier_reports_metrics_tracking$vessel_name)
 
-# dim(metrics_tracking_srhs)
-# [1] 3637    7
-dim(fhier_reports_metrics_tracking)
-setdiff(fhier_reports_metrics_tracking$vessel_name,
-        srhs_vessels_2022_info$vessel_name) |> 
-  length()
-# 2836
-
-setdiff(srhs_vessels_2022_info$vessel_name,
-        fhier_reports_metrics_tracking$vessel_name) |> 
-  length()
-# 8
-
-metrics_tracking_srhs
-
-intersect(srhs_vessels_2022_info$vessel_name,
-          fhier_reports_metrics_tracking$vessel_name) |>
-  length()
+# View(srhs_metrics_tracking_v_names)
 # 58
 
+fhier_reports_metrics_tracking_not_srhs <-
+  fhier_reports_metrics_tracking |> 
+  filter(!vessel_name %in% srhs_metrics_tracking_v_names)
 
-intersect(fhier_reports_metrics_tracking$vessel_name,
-          srhs_vessels_2022_info$vessel_name)
+dim(fhier_reports_metrics_tracking_not_srhs)
+# [1] 3560   13
 
 # vessels_permits_2022 ----
 dim(vessels_permits_2022)
@@ -102,7 +88,9 @@ dim(vessels_permits_2022_c)
 ## fhier_metrics vessels only ----
 vessels_permits_2022_c_me <-
   vessels_permits_2022_c |>
-  filter(PERMIT_VESSEL_ID %in% vessel_official_number_fhier_metrics$vessel_official_number)
+  filter(
+    PERMIT_VESSEL_ID %in% fhier_reports_metrics_tracking_not_srhs$vessel_official_number
+  )
 
 dim(vessels_permits_2022_c_me)
 # [1] 30306    51
@@ -174,6 +162,8 @@ toc()
 dim(vessels_permits_2022_r_end_date_uid)
 # [1] 20231    55
 # [1] 15152    55
+# [1] "2023-08-22"
+# [1] 14798    55
 
 ### fewer fields ----
 vessels_permits_2022_r_end_date_uid_short <-
@@ -193,6 +183,7 @@ vessels_permits_2022_r_end_date_uid_short <-
 dim(vessels_permits_2022_r_end_date_uid_short)
 # [1] 9442    8
 # [1] 6207    8
+# [1] 6073    8
 
 ## get the earliest and the latest permit dates ----
 # print_df_names(vessels_permits_2022_r_end_date_uid_short)
@@ -208,6 +199,7 @@ vessels_permits_2022_r_end_date_uid_short_mm <-
 dim(vessels_permits_2022_r_end_date_uid_short_mm)
 # [1] 9442   8
 # [1] 6207   10
+# [1] 6073    10
 
 # vessels_permits_2022_r_end_date_uid_short_mm |>
 #   filter(grepl('FL8701TB', unique_all_vessel_ids)) |> View()
@@ -248,6 +240,7 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # [1] 9433   16
 # [1] 9442   14
 # [1] 6207   16
+# [1] 6073    16
 
 ## get permit periods ----
 tic("get permit periods")
@@ -269,6 +262,7 @@ toc()
 # get permit periods: 96.22 sec elapsed
 # get permit periods: 111.64 sec elapsed
 # get permit periods: 68.61 sec elapsed
+# get permit periods: 55.53 sec elapsed
 
 ## mark dual ----
 # Dual only if GOM and SA for the same period
@@ -315,6 +309,7 @@ new_dual_ids <-
 dim(new_dual_ids)
 # [1] 275   1
 # [1] 272   1
+# [1] 271   1
 
 #### why not in new? ----
 
@@ -326,8 +321,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #   <Interval>                                       <chr>
 # 1 2022-03-02 23:00:00 EST--2023-01-30 23:00:00 EST gom_only
 # 2 2022-10-19 00:00:00 EDT--2024-01-30 23:00:00 EST sa_only
-# gom and sa periods overlap
-
+### gom and sa periods overlap ----
 
 vessels_permits_2022_r |>
   # filter(PERMIT_VESSEL_ID == "FL9004NX") |>
@@ -357,6 +351,8 @@ map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 # 2    19       19      19
 # 1   911     1781    3515
 # 2    19       19      19
+# 1   907     1769    3397 (excl. srhs)
+# 2    19       19      19
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
@@ -368,6 +364,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual$unique_a
 # 911
   # unique()
 # 272
+# 271
 
 names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
 
@@ -392,11 +389,16 @@ glimpse(reg_cnts)
  # $ : chr [1:3] "dual" "911" "272"
  # $ : chr [1:3] "gom_only" "1781" "1079"
  # $ : chr [1:3] "sa_only" "3515" "2302"
+# excl srhs
+ # $ : chr [1:3] "dual" "907" "271"
+ # $ : chr [1:3] "gom_only" "1769" "1072"
+ # $ : chr [1:3] "sa_only" "3397" "2239"
 
 ### what makes them duplicates ----
 #### in dual ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |> dim()
 # 911
+# [1] 907  19
 
 # FL3610NF 4
 
@@ -407,6 +409,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
   ) |>
   distinct() |> dim()
 # [1] 469  16
+# [1] 467  16
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
   filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
@@ -441,6 +444,7 @@ gom_sa <-
 length(gom_sa)
 # 92
 # ASK?: these will be counted in both sa and gom compliance
+# 89
 
 # end vessel_permits preparations ----
 
@@ -688,9 +692,11 @@ map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 # 1   917     2066    6459
 # 1   911     1781    3515
 # 2    19       19      19
+# 1   907     1769    3397 (excl. srhs)
 
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
 # [1] 6207   19
+# [1] 6073   19
 
 dim(trips_info_2022_int_ah_sero_w_y)
 # [1] 80967    79
@@ -860,7 +866,7 @@ tne_d_w <-
 toc()
 # tne_d_w: 0.61 sec elapsed
 dim(tne_d_w)
-# [1] 747185      17
+# [1] 747185      16
 
 ### tn by start ----
 
@@ -922,6 +928,7 @@ dim(v_p_d_w_22)
 # [1] 6459   20
 # [1] 9442   20
 # [1] 6207   20
+# [1] 6073   20 excl srhs
 
 # Count distinct weeks per vessel ----
 
@@ -1007,6 +1014,7 @@ dim(v_p_d_w_22_short)
 # [1] 8939   12
 # [1] 5554    5
 # [1] 3654    5
+# [1] 3583    5 escl srhs
 
 ## t_d ----
 # remove fields
@@ -1094,6 +1102,7 @@ dim(tn_d_w_short)
 # [1] 20466     9
 # [1] 66710    19
 # [1] 66585    21 not canc
+# [1] 66621    21 excl. srhs
 
 # join with dates_22 by week ----
 ## t & tne ----
@@ -1152,9 +1161,12 @@ dim(t_d_w_short)[1] +
 dim(tn_d_w_short)[1]
 # [1] 147688
 # 147563
+# [1] 147599
+
 dim(t__tn_d_weeks)
 # [1] 120876     86
 # [1] 120754     88
+# [1] 120795     89
 
 length(unique(t__tn_d_weeks$WEEK_OF_YEAR))
 # 53
@@ -1177,6 +1189,7 @@ dim(v_p__t__tne_d_weeks)
 # [1] 165834     14
 # [1] 165838     14
 # [1] 320962     92
+# [1] 320800     93 (excl. srhs)
 
 # VESSEL_VESSEL_ID     6913
 # PERMIT_VESSEL_ID     5462
@@ -1192,7 +1205,7 @@ v_p__t__tne_d_weeks |>
   filter(VESSEL_VESSEL_ID == "248316") |>
   dim()
 # [1] 58 14 correct
-# [1] 77 92
+# [1] 77 93
 
 ## t_tn & v_p ----
 tic("v_p__t__tn_d_weeks")
@@ -1210,6 +1223,7 @@ dim(v_p__t__tn_d_weeks)
 # [1] 45530    17
 # [1] 128369     90
 # [1] 128243     92
+# [1] 127865     93 excl srhs
 
 ### check ----
 # 1)
