@@ -679,6 +679,7 @@ get_p_buckets <- function(my_df, field_name) {
     return()
 }
 
+my_paths <- set_work_dir()
 
 
 #### Current file: ~/R_code_github/quantify_compliance/get_data.R ----
@@ -694,11 +695,22 @@ get_data_from_FHIER_csvs <- function() {
     "FHIER_Compliance_2022__05_31_2023.csv",
     "FHIER_Compliance_2023__05_31_2023.csv"
   )
+  
+  add_dir <-
+    r"(from_Fhier\FHIER Compliance\05_31_2023)"
 
   ## ---- get csv data into variables ----
-  csv_names_list <- prepare_csv_names(filenames)
-
-  # View(csv_names_list)
+  csv_names_list <-
+    filenames |>
+    map( ~ paste0(
+      # my_paths$inputs,
+                  # "/",
+                  add_dir,
+                  "/",
+                  .x))
+  
+  # map(csv_names_list, file.exists)
+  # # T
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
   # browser()
