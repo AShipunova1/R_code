@@ -416,7 +416,7 @@ toc()
 # View(v_p__t__tne_d_weeks_sa_compl_w_short_m)
 # filter(PERMIT_VESSEL_ID == "FL2702KR")
 v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
-  select(-c())
+  # select(-c())
   filter(PERMIT_VESSEL_ID == "FL2702KR") |> View()
 # v_p__t__tne_d_weeks_sa_compl_w_short_m |>
 # filter(PERMIT_VESSEL_ID == "FL3310RY") |> View()
@@ -434,12 +434,13 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
 # distinct() |>
 # View()
 
-v_p__t__tne_d_weeks_sa_compl_w_short_m |>
-  select(date_y_m, v_compliant_m) |>
-  distinct() |> 
-  count(date_y_m, v_compliant_m) |>
-  arrange(date_y_m)
-# all yes
+v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
+  select(starts_with("date_y_m"), v_compliant_m) |>
+  distinct() |>
+  count(date_y_m.d,
+        v_compliant_m) |>
+  arrange(date_y_m.d)
+# all yes, fixed by adding weeks to the permit int
 
 v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt <-
   v_p__t__tne_d_weeks_sa_compl_w_short |>
