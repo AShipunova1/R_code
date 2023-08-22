@@ -23,6 +23,7 @@ v_p__t__tne_d_weeks_sa <-
 dim(v_p__t__tne_d_weeks_sa)
 # [1] 90766    15
 # [1] 194697     92
+# [1] 194051     93 excl. srhs
 
 ## reports_exists filter ----
 reports_exists_filter <- rlang::quo(
@@ -51,6 +52,7 @@ toc()
 dim(v_p__t__tne_d_weeks_sa_compl_w)
 # [1] 90766    16
 # [1] 194697     93
+# [1] 194051     94 excl. SRHS
 
 ## count compl weeks ----
 # Do not group by year, the last week of 2021 should be counted together with 2022
@@ -65,6 +67,8 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w <-
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 # [1] 90766    16
 # [1] 194697     94
+# excl. SRHS
+# [1] 194051     95
 
 ### check compl week count ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w |>
@@ -163,6 +167,8 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short)
 # today()
 # [1] "2023-08-22"
 # [1] 114478     22
+# excl. SRHS
+# [1] 113909     22
 
 ## compliance per year ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 <-
@@ -175,12 +181,12 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 <-
   ) |>
   ungroup()
 
-
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22)
 # [1] 90766    17
 # [1] 194697     95
 # [1] 189214     24
 # [1] 114478     23
+# [1] 113909     23 (excl. SRHS)
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |> 
   count(ACTIVITY_TYPE)
@@ -201,7 +207,12 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
 # 3             8    15
 # 4            80   115
 # 5            NA 69752
-
+# excl srhs
+# 1             0 44269
+# 2             2     2
+# 3             8    15
+# 4            80   114
+# 5            NA 69509
 
 # v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
 #   # select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, all_of(starts_with("UE"))) |>
@@ -225,10 +236,11 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short <-
   ) |>
   distinct()
 
-View(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short)
+dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short)
 # [1] 5275    6
 # [1] 6627    8
 # [1] 4934    8 (metrics vsls)
+# [1] 4858    8
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short |>
   filter(compl_2022 == "yes") |>
@@ -260,6 +272,7 @@ filter(PERMIT_VESSEL_ID == "FL2698TE") |>
 length(unique(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     3956
 # 2302 (from metrics)
+# [1] 2239 excl. SRHS
 
 sa_compl_cnts <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short |>
@@ -277,6 +290,10 @@ sa_compl_cnts |>
 #   <chr>              <int>
 # 1 yes                 1234
 # 2 no                  1069
+# excl. srhs
+# 1 yes                 1229
+# 2 no                  1011
+
 
 # compl
 # 1262 * 100 / (3956)
@@ -285,14 +302,22 @@ sa_compl_cnts |>
 # 31.77452
 1234 * 100 / (1234 + 1069)
 # [1] 53.58228
+# escl. srhs
+1229 * 100 / (1229 + 1011)
+# [1] 54.86607
 
 # no
+
 # 2695 * 100 / (3956)
 # 68%
 # 2700 * 100 / (3956)
 # [1] 68.25076
 1069 * 100 / (1234 + 1069)
 # [1] 46.41772
+1011 * 100 / (1229 + 1011)
+# [1] 45.13393
+
+# Total 2240
 
 sa_compl_cnts_perc <-
   sa_compl_cnts |>
@@ -344,6 +369,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_w_short)
 # [1] 194697     22
 # [1] 189214     22 (distinct)
 # [1] 111468     20
+# [1] 113909     21
 
 ## a month is compliant if all weeks are compliant ----
 
@@ -385,7 +411,6 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m <-
   ungroup()
 toc()
 # v_p__t__tne_d_weeks_sa_compl_w_short_m: 35.45 sec elapsed
-
 
 # TODO: split permit interval by weeks and months
 # View(v_p__t__tne_d_weeks_sa_compl_w_short_m)
