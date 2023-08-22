@@ -724,8 +724,10 @@ get_data_from_FHIER_csvs <- function() {
 }
 
 get_compliance_error_definitions <- function() {
-  err_desc_filenames = c(file.path(project_dir_name, "Compliance_Error_Types_03_29_2023.csv"))
-
+  err_desc_filenames = c(file.path("from_Fhier",
+    project_dir_name, 
+    "Compliance_Error_Types_03_29_2023.csv"))
+  
   err_desc_csv_contents <-
     load_csv_names(my_paths, err_desc_filenames)
 
