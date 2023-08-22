@@ -41,7 +41,7 @@ source(get_data_file_path)
 interval_2022 <- lubridate::interval(as.Date('2022-01-01'),
                                     as.Date('2022-12-31'))
 
-# vessels to use (from FHIER metric trascking) ----
+# vessels to use (from FHIER metric tracking) ----
 # dim(fhier_reports_metrics_tracking)
 # [1] 3629   13
 
@@ -52,6 +52,38 @@ vessel_official_number_fhier_metrics <-
 
 dim(vessel_official_number_fhier_metrics)
 # [1] 3629    1
+
+
+# exclude srhs_vessels_2022
+metrics_tracking_srhs <-
+  fhier_reports_metrics_tracking |> 
+  select(vessel_official_number, vessel_name) |>
+  full_join(srhs_vessels_2022_info,
+            join_by(vessel_name))
+
+# dim(metrics_tracking_srhs)
+# [1] 3637    7
+dim(fhier_reports_metrics_tracking)
+setdiff(fhier_reports_metrics_tracking$vessel_name,
+        srhs_vessels_2022_info$vessel_name) |> 
+  length()
+# 2836
+
+setdiff(srhs_vessels_2022_info$vessel_name,
+        fhier_reports_metrics_tracking$vessel_name) |> 
+  length()
+# 8
+
+metrics_tracking_srhs
+
+intersect(srhs_vessels_2022_info$vessel_name,
+          fhier_reports_metrics_tracking$vessel_name) |>
+  length()
+# 58
+
+
+intersect(fhier_reports_metrics_tracking$vessel_name,
+          srhs_vessels_2022_info$vessel_name)
 
 # vessels_permits_2022 ----
 dim(vessels_permits_2022)
@@ -1207,6 +1239,8 @@ v_p__t__tne_d_weeks_21 <-
 dim(v_p__t__tne_d_weeks_21)
 # 0 (change 52/1 0)
 # ok
+
+# Source SA and GOM compliance ----
 
 # Run to get SA compliance
 source(file.path(my_paths$git_r,
