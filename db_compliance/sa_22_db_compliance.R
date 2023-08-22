@@ -160,6 +160,9 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short <-
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short)
 # [1] 194697     23
 # [1] 189214     23 distinct
+# today()
+# [1] "2023-08-22"
+# [1] 114478     22
 
 ## compliance per year ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 <-
@@ -177,6 +180,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22)
 # [1] 90766    17
 # [1] 194697     95
 # [1] 189214     24
+# [1] 114478     23
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |> 
   count(ACTIVITY_TYPE)
@@ -191,6 +195,13 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
 # 3             8     22
 # 4            80    215
 # 5            NA 129026
+# [1] "2023-08-22"
+# 1             0 44594
+# 2             2     2
+# 3             8    15
+# 4            80   115
+# 5            NA 69752
+
 
 # v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
 #   # select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, all_of(starts_with("UE"))) |>
@@ -214,7 +225,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short <-
   ) |>
   distinct()
 
-dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short)
+View(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short)
 # [1] 5275    6
 # [1] 6627    8
 # [1] 4934    8 (metrics vsls)
