@@ -980,6 +980,26 @@ if (exists("get_data_from_param")) {
   compl_clean_sa_vs_gom_m_int <- get_data_from_csv()
 }
 
+## get metric tracking vessel ids ----
+source(r"(~\R_code_github\get_data_from_fhier\get_metrics_tracking.R)")
+# fhier_reports_metrics_tracking
+
+## get srhs vessel ids ----
+source(r"(~/R_code_github/get_data_from_fhier/get_srhs_vessels.R)")
+# srhs_vessels_2022_info
+
+## exclude srhs vessels from metric traking ----
+fhier_reports_metrics_tracking_not_srhs_ids <-
+  map_df(
+    fhier_reports_metrics_tracking_list,
+    ~ .x |>
+      filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)
+  ) |>
+  select(vessel_official_number) |>
+  distinct()
+
+dim(fhier_reports_metrics_tracking_not_srhs_ids)
+# [1] 2981    1
 
 #### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R ----
 
@@ -999,7 +1019,7 @@ library(zoo)
 library(gridExtra)
 library(cowplot)
 
-source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
+# source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
 # remove 2023 gom_only ----
 compl_clean_sa_vs_gom_m_int_filtered <-
