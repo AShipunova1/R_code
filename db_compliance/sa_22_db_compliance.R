@@ -399,6 +399,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates <-
 toc()
 # v_p__t__tne_d_weeks_sa_compl_w_short_p_dates: 25.16 sec elapsed
 
+# the month is not compliant if at least one week is not compliant
 tic("v_p__t__tne_d_weeks_sa_compl_w_short_m")
 v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m <-
   v_p__t__tne_d_weeks_sa_compl_w_short_p_dates |>
@@ -412,27 +413,8 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m <-
 toc()
 # v_p__t__tne_d_weeks_sa_compl_w_short_m: 35.45 sec elapsed
 
-# TODO: split permit interval by weeks and months
-# View(v_p__t__tne_d_weeks_sa_compl_w_short_m)
-# filter(PERMIT_VESSEL_ID == "FL2702KR")
 v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
-  # select(-c())
   filter(PERMIT_VESSEL_ID == "FL2702KR") |> View()
-# v_p__t__tne_d_weeks_sa_compl_w_short_m |>
-# filter(PERMIT_VESSEL_ID == "FL3310RY") |> View()
-# v_p__t__tne_d_weeks_sa_compl_w_short_m |>
-# filter(date_y_m == "May 2022") |>
-# select(v_compliant_m) |>
-# |> View()
-# v_p__t__tne_d_weeks_sa_compl_w_short_m |>
-# filter(date_y_m == "May 2022") |>
-# select(v_compliant_m) |>
-# View()
-# v_p__t__tne_d_weeks_sa_compl_w_short_m |>
-# filter(date_y_m == "May 2022") |>
-# select(v_compliant_m) |>
-# distinct() |>
-# View()
 
 v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt <-
   v_p__t__tne_d_weeks_sa_compl_w_short |>
@@ -442,7 +424,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt <-
   mutate(compl_w_cnt_m = n_distinct(WEEK_OF_YEAR)) |>
   ungroup()
 
-dim(v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt)
+# View(v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt)
 # [1] 113909     22
 
 # non compliant only ----
