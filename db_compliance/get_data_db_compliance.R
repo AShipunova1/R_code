@@ -1,17 +1,6 @@
 # get data ----
 input_path <- file.path(my_paths$inputs, current_project_name)
 
-## fhier_reports_metrics_tracking ----
-
-fhier_reports_metrics_tracking_file_path <-
-  r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)\metrics_tracking_31_12_2021__21_12_2022.csv)"
-
-fhier_reports_metrics_tracking <-
-  read_csv(fhier_reports_metrics_tracking_file_path,
-           # read as character
-           col_types = cols(.default = 'c'),
-           name_repair = fix_names)
-
 ## permit ----
 file_name_permits <-
   file.path(input_path, "permit_info.rds")
@@ -560,18 +549,3 @@ compl_err_db_data_raw <-
 
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 
-# get SRHS vessels to exclude ----
-srhs_vessels_2022 <-
-  file.path(my_paths$inputs,
-            r"(from_Fhier\2022_SRHS_Vessels.xlsx)")
-
-srhs_vessels_2022_info <-
-  read_excel(
-  srhs_vessels_2022,
-  # sheet = sheet_n,
-  # use my fix_names function for col names
-  .name_repair = fix_names,
-  guess_max = 21474836,
-  # read all columns as text
-  col_types = "text"
-)
