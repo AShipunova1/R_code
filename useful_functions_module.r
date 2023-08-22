@@ -21,11 +21,12 @@
 # install.packages('ROracle')
 
 
-library('ROracle')
-drv <- dbDriver("Oracle")
-con <- dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname='XXX')
-
-dbReadTable(con, 'DUAL')
+# library('ROracle')
+# drv <- dbDriver("Oracle")
+# con <-
+#   dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname = 'XXX')
+# 
+# dbReadTable(con, 'DUAL')
 
 
 #install.packages("tidyverse")
