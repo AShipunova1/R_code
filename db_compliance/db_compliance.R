@@ -37,39 +37,21 @@ get_data_file_path <- file.path(
 )
 source(get_data_file_path)
 
+metricks_not_srhs_ids_2022 <-
+  fhier_reports_metrics_tracking_not_srhs_ids_list[[1]]
+
+dim(metricks_not_srhs_ids_2022)
+# 3571
+
 # 2022 year interval ----
 interval_2022 <- lubridate::interval(as.Date('2022-01-01'),
                                     as.Date('2022-12-31'))
 
 # vessels to use (from FHIER metric tracking, except SRHS) ----
-# dim(fhier_reports_metrics_tracking)
-# [1] 3629   13
-# dim(fhier_reports_metrics_tracking_not_srhs)
-# [1] 3560   13
-
-# vessel_official_number_fhier_metrics <-
-#   fhier_reports_metrics_tracking |>
-#   select(vessel_official_number) |>
-#   distinct()
-# # 
-# dim(vessel_official_number_fhier_metrics)
-# [1] 3629    1
-
-# exclude srhs_vessels_2022 ----
-
-srhs_metrics_tracking_v_names <-
-  intersect(srhs_vessels_2022_info$vessel_name,
-            fhier_reports_metrics_tracking$vessel_name)
-
-# View(srhs_metrics_tracking_v_names)
-# 58
-
-fhier_reports_metrics_tracking_not_srhs <-
-  fhier_reports_metrics_tracking |> 
-  filter(!vessel_name %in% srhs_metrics_tracking_v_names)
-
-dim(fhier_reports_metrics_tracking_not_srhs)
-# [1] 3560   13
+# dim(fhier_reports_metrics_tracking_not_srhs_ids)
+# 2981
+dim(metricks_not_srhs_ids_2022)
+# 3571
 
 # vessels_permits_2022 ----
 dim(vessels_permits_2022)
@@ -89,11 +71,13 @@ dim(vessels_permits_2022_c)
 vessels_permits_2022_c_me <-
   vessels_permits_2022_c |>
   filter(
-    PERMIT_VESSEL_ID %in% fhier_reports_metrics_tracking_not_srhs$vessel_official_number
+    PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$vessel_official_number
   )
 
 dim(vessels_permits_2022_c_me)
 # [1] 30306    51
+# [1] 22937    51 tracking no srsh
+# [1] 29656    51
 
 ## region permit groups ----
 vessels_permits_2022_r <-
@@ -127,6 +111,7 @@ toc()
 dim(vessels_permits_2022_r_end_date)
 # [1] 20231    53
 # [1] 15152    53
+# [1] 11468    53
 
 ## combine v ids ----
 
@@ -164,6 +149,7 @@ dim(vessels_permits_2022_r_end_date_uid)
 # [1] 15152    55
 # [1] "2023-08-22"
 # [1] 14798    55
+# [1] 11468    55
 
 ### fewer fields ----
 vessels_permits_2022_r_end_date_uid_short <-
@@ -184,6 +170,7 @@ dim(vessels_permits_2022_r_end_date_uid_short)
 # [1] 9442    8
 # [1] 6207    8
 # [1] 6073    8
+# [1] 4704    8
 
 ## get the earliest and the latest permit dates ----
 # print_df_names(vessels_permits_2022_r_end_date_uid_short)
@@ -200,6 +187,7 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm)
 # [1] 9442   8
 # [1] 6207   10
 # [1] 6073    10
+# [1] 4704   10
 
 # vessels_permits_2022_r_end_date_uid_short_mm |>
 #   filter(grepl('FL8701TB', unique_all_vessel_ids)) |> View()
@@ -241,6 +229,7 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # [1] 9442   14
 # [1] 6207   16
 # [1] 6073    16
+# [1] 4704   16
 
 ## get permit periods ----
 tic("get permit periods")
@@ -289,6 +278,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
 # [1] 9442   16
 # [1] 6207   19
+# [1] 4704   19
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   filter(grepl("FL8701TB|FL3610NF|FL9004NX", unique_all_vessel_ids)) |>
@@ -310,6 +300,7 @@ dim(new_dual_ids)
 # [1] 275   1
 # [1] 272   1
 # [1] 271   1
+# [1] 209   1
 
 #### why not in new? ----
 
@@ -353,6 +344,7 @@ map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 # 2    19       19      19
 # 1   907     1769    3397 (excl. srhs)
 # 2    19       19      19
+# 1   741     1448    2515 metricks no srhs
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
@@ -365,6 +357,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual$unique_a
   # unique()
 # 272
 # 271
+# 209
 
 names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
 
@@ -393,6 +386,10 @@ glimpse(reg_cnts)
  # $ : chr [1:3] "dual" "907" "271"
  # $ : chr [1:3] "gom_only" "1769" "1072"
  # $ : chr [1:3] "sa_only" "3397" "2239"
+# new metricks no srhs
+ # $ : chr [1:3] "dual" "741" "209"
+ # $ : chr [1:3] "gom_only" "1448" "852"
+ # $ : chr [1:3] "sa_only" "2515" "1525"
 
 ### what makes them duplicates ----
 #### in dual ----
