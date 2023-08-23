@@ -549,3 +549,7 @@ compl_err_db_data_raw <-
 
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 
+# get metric_tracking_no_srhs
+source(file.path(my_paths$git_r,
+                 "get_data_from_fhier",
+                 "metric_tracking_no_srhs.R"))
