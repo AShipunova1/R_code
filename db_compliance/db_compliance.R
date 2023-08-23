@@ -111,7 +111,7 @@ toc()
 dim(vessels_permits_2022_r_end_date)
 # [1] 20231    53
 # [1] 15152    53
-# [1] 11468    53
+# [1] 14827    53 metr
 
 ## combine v ids ----
 
@@ -149,7 +149,7 @@ dim(vessels_permits_2022_r_end_date_uid)
 # [1] 15152    55
 # [1] "2023-08-22"
 # [1] 14798    55
-# [1] 11468    55
+# [1] 14827    55
 
 ### fewer fields ----
 vessels_permits_2022_r_end_date_uid_short <-
@@ -170,7 +170,7 @@ dim(vessels_permits_2022_r_end_date_uid_short)
 # [1] 9442    8
 # [1] 6207    8
 # [1] 6073    8
-# [1] 4704    8
+# [1] 6089    8
 
 ## get the earliest and the latest permit dates ----
 # print_df_names(vessels_permits_2022_r_end_date_uid_short)
@@ -186,8 +186,8 @@ vessels_permits_2022_r_end_date_uid_short_mm <-
 dim(vessels_permits_2022_r_end_date_uid_short_mm)
 # [1] 9442   8
 # [1] 6207   10
-# [1] 6073    10
-# [1] 4704   10
+# [1] 6073   10
+# [1] 6089   10
 
 # vessels_permits_2022_r_end_date_uid_short_mm |>
 #   filter(grepl('FL8701TB', unique_all_vessel_ids)) |> View()
@@ -197,7 +197,6 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm)
 #   filter(grepl('FL9004NX', unique_all_vessel_ids)) |>
 #   View()
 # diff sa / gom
-
 
 ## add weeks and months ----
 
@@ -228,8 +227,8 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 # [1] 9433   16
 # [1] 9442   14
 # [1] 6207   16
-# [1] 6073    16
-# [1] 4704   16
+# [1] 6073   16
+# [1] 6089   16
 
 ## get permit periods ----
 tic("get permit periods")
@@ -278,7 +277,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
 # [1] 9442   16
 # [1] 6207   19
-# [1] 4704   19
+# [1] 6089   19
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   filter(grepl("FL8701TB|FL3610NF|FL9004NX", unique_all_vessel_ids)) |>
@@ -300,7 +299,6 @@ dim(new_dual_ids)
 # [1] 275   1
 # [1] 272   1
 # [1] 271   1
-# [1] 209   1
 
 #### why not in new? ----
 
@@ -312,8 +310,8 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #   <Interval>                                       <chr>
 # 1 2022-03-02 23:00:00 EST--2023-01-30 23:00:00 EST gom_only
 # 2 2022-10-19 00:00:00 EDT--2024-01-30 23:00:00 EST sa_only
-### gom and sa periods overlap ----
 
+### gom and sa periods overlap ----
 vessels_permits_2022_r |>
   # filter(PERMIT_VESSEL_ID == "FL9004NX") |>
   filter(PERMIT_VESSEL_ID == "TX6550AU") |>
@@ -341,10 +339,8 @@ map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 # 2    16       16      16
 # 2    19       19      19
 # 1   911     1781    3515
-# 2    19       19      19
 # 1   907     1769    3397 (excl. srhs)
-# 2    19       19      19
-# 1   741     1448    2515 metricks no srhs
+# 1   907     1778    3404
 
 # TODO: compare vessel_permits from db and v_permits by overlapping with interval 2022
 # adjust the query
@@ -357,7 +353,6 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual$unique_a
   # unique()
 # 272
 # 271
-# 209
 
 names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
 
@@ -387,14 +382,13 @@ glimpse(reg_cnts)
  # $ : chr [1:3] "gom_only" "1769" "1072"
  # $ : chr [1:3] "sa_only" "3397" "2239"
 # new metricks no srhs
- # $ : chr [1:3] "dual" "741" "209"
- # $ : chr [1:3] "gom_only" "1448" "852"
- # $ : chr [1:3] "sa_only" "2515" "1525"
+  # $ : chr [1:3] "dual" "907" "271"
+  # $ : chr [1:3] "gom_only" "1778" "1077"
+  # $ : chr [1:3] "sa_only" "3404" "2241"
 
 ### what makes them duplicates ----
 #### in dual ----
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |> dim()
-# 911
 # [1] 907  19
 
 # FL3610NF 4
@@ -643,13 +637,11 @@ trips_notifications_2022_ah_6_w_y <-
 trips_notifications_2022_ah_6_w_y |>
   filter(TRIP_START_week_num == 0) |>
   dim()
-# [1] 32 33
 # [1] 32 40
 
 trips_notifications_2022_ah_6_w_y |>
   filter(TRIP_START_week_num == 52) |>
   dim()
-# [1] 1132   39
 # [1] 1063   40 not cancelled
 
 ## to negative trips ----
@@ -690,10 +682,12 @@ map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list, dim)
 # 1   911     1781    3515
 # 2    19       19      19
 # 1   907     1769    3397 (excl. srhs)
+# 1   907     1778    3404
 
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
 # [1] 6207   19
 # [1] 6073   19
+# [1] 6089   19
 
 dim(trips_info_2022_int_ah_sero_w_y)
 # [1] 80967    79
@@ -926,6 +920,7 @@ dim(v_p_d_w_22)
 # [1] 9442   20
 # [1] 6207   20
 # [1] 6073   20 excl srhs
+# [1] 6089   20
 
 # Count distinct weeks per vessel ----
 
@@ -1012,6 +1007,7 @@ dim(v_p_d_w_22_short)
 # [1] 5554    5
 # [1] 3654    5
 # [1] 3583    5 escl srhs
+# [1] 3590    5
 
 ## t_d ----
 # remove fields
@@ -1187,6 +1183,7 @@ dim(v_p__t__tne_d_weeks)
 # [1] 165838     14
 # [1] 320962     92
 # [1] 320800     93 (excl. srhs)
+# [1] 320898     93
 
 # VESSEL_VESSEL_ID     6913
 # PERMIT_VESSEL_ID     5462
@@ -1221,6 +1218,7 @@ dim(v_p__t__tn_d_weeks)
 # [1] 128369     90
 # [1] 128243     92
 # [1] 127865     93 excl srhs
+# [1] 128056     93
 
 ### check ----
 # 1)
@@ -1234,7 +1232,6 @@ v_p__t__tne_d_weeks |>
 # $ n           <int> 1, 57
 # ok
 # $ n           <int> 1, 76
-
 
 # 2) check change of year weeks
 v_p__t__tne_d_weeks_21 <-
