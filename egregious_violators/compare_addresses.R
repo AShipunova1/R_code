@@ -4,16 +4,21 @@ source("~/R_code_github/useful_functions_module.r")
 
 base_path <- getwd()
 
-correctd_path <- 
-  file.path(base_path,
-            r"(..\..\R_files_local\my_outputs\egregious_violators\corrected_addr\egregious violators for investigation__2023-01-24_to_2023-08-01_c.csv)")
+correctd_path <-
+  file.path(
+    base_path,
+    r"(..\..\R_files_local\my_outputs\egregious_violators\corrected_addr\egregious violators for investigation__2023-01-24_to_2023-08-01_c.csv)"
+  )
+
 file.exists(correctd_path)
+
 corrected_csv <-
-  readr::read_csv(correctd_path,
-                  name_repair = fix_names,
-                  col_types = cols(.default = 'c'),
-                  skip = 1
-                  ) |> 
+  readr::read_csv(
+    correctd_path,
+    name_repair = fix_names,
+    col_types = cols(.default = 'c'),
+    skip = 1
+  ) |>
   distinct()
 
 # "R_files_local\my_outputs\egregious_violators\corrected_addr\egregious violators for investigation_Detail2-NED.csv"
@@ -157,90 +162,138 @@ corrected_n_fhier_short |>
 # all home ports are correct
 
 # check names ----
+# corrected_n_fhier_short |> 
+#   dplyr::mutate(first_name = replace_na(first_name, ""),
+#                 last_name = replace_na(last_name, ""),
+#                 business_name = replace_na(business_name, "")) |> 
+  
+print_df_names(corrected_n_fhier_short)
 
 corrected_n_fhier_short_w_n <-
-  corrected_n_fhier_short |> 
-  dplyr::mutate(first_name = replace_na(first_name, ""),
-                last_name = replace_na(last_name, ""),
-                business_name = replace_na(business_name, "")) |> 
-  dplyr::mutate(fhier_name = paste(first_name,
-                                 last_name)) |> 
-  dplyr::mutate(fhier_name_2 = paste(fhier_name,
-                                 business_name,
-                              sep = ", "))
+  corrected_n_fhier_short |>
+  dplyr::mutate(
+    first_name = replace_na(first_name, ""),
+    last_name = replace_na(last_name, ""),
+    business_name = replace_na(business_name, "")
+  )
 
-dim(corrected_n_fhier_short_w_n)
-# 153
+corrected_n_fhier_short_w_n_comb <-
+  corrected_n_fhier_short_w_n |>
+  # for each vessel
+  group_by(vessel_official_number) |>
+  dplyr::mutate(fhier_comb_name =
+                  list(unique(paste(
+                    first_name,
+                    last_name
+                  ))), 
+  fhier_comb_name_2 = list(unique(
+    paste(fhier_comb_name,
+          business_name)
+  ))) |>
+  ungroup() |>
+  select(
+    vessel_official_number,
+    contactrecipientname,
+    full_name,
+    fhier_comb_name,
+    fhier_comb_name_2
+  ) |>
+  # select(-c(first_name,
+  #         last_name,
+  #         business_name)) |>
+  distinct()
+
+dim(corrected_n_fhier_short_w_n_comb)
+# [1] 153  18
+# [1] 115   4
+
+# convert lists in comma separated strings
+corrected_n_fhier_short_w_n_comb_flat <-
+  corrected_n_fhier_short_w_n_comb |>
+  dplyr::rowwise() |>
+  dplyr::mutate_if(is.list,
+                   ~ paste(unlist(.),
+                           collapse = ', ')) %>%
+  # back to colwise
+  dplyr::ungroup()
+
+dim(corrected_n_fhier_short_w_n_comb_flat)
+# 115
 
 # clean up weird comma and space combinations
-corrected_n_fhier_short_w_n_clean <-
-  corrected_n_fhier_short_w_n |>
-  dplyr::mutate(
-    dplyr::across(
-      c(first_name,
-        last_name,
-        business_name,
-        fhier_name,
-        fhier_name_2),
-      # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
-      ~ stringr::str_squish(.x)
+corrected_n_fhier_short_w_n_comb_flat_clean <-
+  corrected_n_fhier_short_w_n_comb_flat |>
+  dplyr::mutate(dplyr::across(
+    c(
+      contactrecipientname,
+      full_name,
+      fhier_comb_name,
+      fhier_comb_name_2
     ),
-    dplyr::across(
-      c(first_name,
-        last_name,
-        business_name,
-        fhier_name,
-        fhier_name_2),
-      # remove space characters before commas
-      ~ stringr::str_replace_all(.x, "\\s+,", ",")
+    # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
+    ~ stringr::str_squish(.x)
+  )) |>
+  dplyr::mutate(dplyr::across(
+    c(
+      contactrecipientname,
+      full_name,
+      fhier_comb_name,
+      fhier_comb_name_2
     ),
-    dplyr::across(
-      c(first_name,
-        last_name,
-        business_name,
-        fhier_name,
-        fhier_name_2),
-      # replace 2+ commas with one
-      ~ stringr::str_replace_all(.x, ",,+", ",")
+    # remove space characters before commas
+    ~ stringr::str_replace_all(.x, "\\s+,", ",")
+  )) |>
+  dplyr::mutate(dplyr::across(
+    c(
+      contactrecipientname,
+      full_name,
+      fhier_comb_name,
+      fhier_comb_name_2
     ),
-    dplyr::across(
-      c(first_name,
-        last_name,
-        business_name,
-        fhier_name,
-        fhier_name_2),
-      # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
-      ~ stringr::str_squish(.x)
+    # replace 2+ commas with one
+    ~ stringr::str_replace_all(.x, ",,+", ",")
+  )) |>
+  dplyr::mutate(dplyr::across(
+    c(
+      contactrecipientname,
+      full_name,
+      fhier_comb_name,
+      fhier_comb_name_2
     ),
-    
-    dplyr::across(
-      c(first_name,
-        last_name,
-        business_name,
-        fhier_name,
-        fhier_name_2),
-      # remove commas at the end
-      ~ stringr::str_replace_all(.x, ",$", "")
+    # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
+    ~ stringr::str_squish(.x)
+  )) |>
+  dplyr::mutate(dplyr::across(
+    c(
+      contactrecipientname,
+      full_name,
+      fhier_comb_name,
+      fhier_comb_name_2
     ),
-    dplyr::across(
-      c(first_name,
-        last_name,
-        business_name,
-        fhier_name,
-        fhier_name_2),
-      # remove commas in front
-      ~ stringr::str_replace_all(.x, "^,", "")
+    # remove commas at the end
+    ~ stringr::str_replace_all(.x, ",$", "")
+  )) |>
+  dplyr::mutate(dplyr::across(
+    c(
+      contactrecipientname,
+      full_name,
+      fhier_comb_name,
+      fhier_comb_name_2
     ),
-    dplyr::across(
-      c(first_name,
-        last_name,
-        business_name,
-        fhier_name,
-        fhier_name_2),
-      # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
-      ~ stringr::str_squish(.x)
-    )
-  )
+    # remove commas in front
+    ~ stringr::str_replace_all(.x, "^,", "")
+  )) |>
+  dplyr::mutate(dplyr::across(
+    c(
+      contactrecipientname,
+      full_name,
+      fhier_comb_name,
+      fhier_comb_name_2
+    ),
+    # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
+    ~ stringr::str_squish(.x)
+  ))
+
 
 View(corrected_n_fhier_short_w_n_clean)
   # filter(full_name == fhier_name) |> 
@@ -253,3 +306,31 @@ View(corrected_n_fhier_short_w_n_clean)
 
 readr::write_csv(corrected_n_fhier_short_w_n_clean,
                  out_path)
+
+# compare
+corrected_n_fhier_short_w_n_clean |> 
+  filter(full_name == fhier_name) |>
+  dim()
+# 26
+
+corrected_n_fhier_short_w_n_clean |> 
+  filter(!full_name == fhier_name) |>
+  # filter(full_name == fhier_name_2) |>
+  dim()
+# 0
+# 75
+
+corrected_n_fhier_short_w_n_clean_short <-
+  corrected_n_fhier_short_w_n_clean |>
+  filter(!full_name == fhier_name) |>
+  # filter(!fhier_name_2 == fhier_name) |>
+  select(vessel_official_number,
+         # contactrecipientname,
+         full_name,
+         fhier_name,
+         fhier_name_2) |>
+  distinct()
+# |>
+
+View(corrected_n_fhier_short_w_n_clean_short)
+
