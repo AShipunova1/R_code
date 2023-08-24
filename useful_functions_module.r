@@ -610,6 +610,7 @@ empty_cols <-
   function(my_df) {
     my_df |>
       map_df(function(x) {
+        browser()
         if (length(unique(x)) == 1) {
           return(unique(x))
         }
