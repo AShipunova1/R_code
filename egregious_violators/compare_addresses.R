@@ -146,8 +146,7 @@ readr::write_csv(corrected_n_fhier_short,
                  out_path)
 # [1] 153  18
 
-# check
-# sero_home_port
+# check sero_home_port ----
 corrected_n_fhier_short |> 
   mutate(fhier_home_port = paste(sero_home_port_city,
                                  sero_home_port_county,
@@ -156,3 +155,101 @@ corrected_n_fhier_short |>
   dim()
 # 0
 # all home ports are correct
+
+# check names ----
+
+corrected_n_fhier_short_w_n <-
+  corrected_n_fhier_short |> 
+  dplyr::mutate(first_name = replace_na(first_name, ""),
+                last_name = replace_na(last_name, ""),
+                business_name = replace_na(business_name, "")) |> 
+  dplyr::mutate(fhier_name = paste(first_name,
+                                 last_name)) |> 
+  dplyr::mutate(fhier_name_2 = paste(fhier_name,
+                                 business_name,
+                              sep = ", "))
+
+dim(corrected_n_fhier_short_w_n)
+# 153
+
+# clean up weird comma and space combinations
+corrected_n_fhier_short_w_n_clean <-
+  corrected_n_fhier_short_w_n |>
+  dplyr::mutate(
+    dplyr::across(
+      c(first_name,
+        last_name,
+        business_name,
+        fhier_name,
+        fhier_name_2),
+      # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
+      ~ stringr::str_squish(.x)
+    ),
+    dplyr::across(
+      c(first_name,
+        last_name,
+        business_name,
+        fhier_name,
+        fhier_name_2),
+      # remove space characters before commas
+      ~ stringr::str_replace_all(.x, "\\s+,", ",")
+    ),
+    dplyr::across(
+      c(first_name,
+        last_name,
+        business_name,
+        fhier_name,
+        fhier_name_2),
+      # replace 2+ commas with one
+      ~ stringr::str_replace_all(.x, ",,+", ",")
+    ),
+    dplyr::across(
+      c(first_name,
+        last_name,
+        business_name,
+        fhier_name,
+        fhier_name_2),
+      # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
+      ~ stringr::str_squish(.x)
+    ),
+    
+    dplyr::across(
+      c(first_name,
+        last_name,
+        business_name,
+        fhier_name,
+        fhier_name_2),
+      # remove commas at the end
+      ~ stringr::str_replace_all(.x, ",$", "")
+    ),
+    dplyr::across(
+      c(first_name,
+        last_name,
+        business_name,
+        fhier_name,
+        fhier_name_2),
+      # remove commas in front
+      ~ stringr::str_replace_all(.x, "^,", "")
+    ),
+    dplyr::across(
+      c(first_name,
+        last_name,
+        business_name,
+        fhier_name,
+        fhier_name_2),
+      # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
+      ~ stringr::str_squish(.x)
+    )
+  )
+
+View(corrected_n_fhier_short_w_n_clean)
+  # filter(full_name == fhier_name) |> 
+# 26
+  # filter(full_name == fhier_name_2) |>
+  # dim()
+# 0
+
+View(corrected_n_fhier_short_w_n_clean)
+
+readr::write_csv(corrected_n_fhier_short_w_n_clean,
+                 out_path)
