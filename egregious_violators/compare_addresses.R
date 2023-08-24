@@ -116,5 +116,43 @@ corrected_n_fhier <-
             fhier_info,
             join_by(vessel_official_number == vessel_id))
 
-dim(corrected_n_fhier)  
+print_df_names(corrected_n_fhier)  
 # [1] 1659   26
+
+
+to_rm <- c(
+  "entity",
+  "accspparticipant",
+  "expiration_date",
+  "fishery",
+  "permit__",
+  "effective_date",
+  "end_date",
+  "permit_status"
+)
+
+# grep("email", names(corrected_n_fhier), value = T)
+
+corrected_n_fhier_short <-
+  corrected_n_fhier |>
+  select(-all_of(to_rm)) |> 
+  distinct()
+
+out_path <- 
+    file.path(base_path,
+            r"(..\..\R_files_local\my_outputs\egregious_violators\corrected_addr\compare_corrected_n_fhier_info.csv)")
+
+readr::write_csv(corrected_n_fhier_short,
+                 out_path)
+# [1] 153  18
+
+# check
+# sero_home_port
+corrected_n_fhier_short |> 
+  mutate(fhier_home_port = paste(sero_home_port_city,
+                                 sero_home_port_county,
+                                 sero_home_port_state)) |> 
+  filter(!sero_home_port == fhier_home_port) |> 
+  dim()
+# 0
+# all home ports are correct
