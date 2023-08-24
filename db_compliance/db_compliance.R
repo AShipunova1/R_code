@@ -103,6 +103,9 @@ toc()
 # add my_end_date: 25.6 sec elapsed
 # add my_end_date: 37 sec elapsed
 # add my_end_date: 20.71 sec elapsed
+# [1] "2023-08-24"
+# new comp
+# add my_end_date: 14.16 sec elapsed
 
 dim(vessels_permits_2022_r_end_date)
 # [1] 20231    53
@@ -138,6 +141,7 @@ vessels_permits_2022_r_end_date_uid <-
   ungroup()
 toc()
 # uid: 1.63 sec elapsed
+# uid: 0.75 sec elapsed
 
 dim(vessels_permits_2022_r_end_date_uid)
 # [1] 20231    55
@@ -237,6 +241,8 @@ toc()
 # get permit periods: 96.22 sec elapsed
 # get permit periods: 111.64 sec elapsed
 # get permit periods: 68.61 sec elapsed
+# new lapt
+# get permit periods: 41.16 sec elapsed
 
 ## mark dual ----
 # Dual only if GOM and SA for the same period
@@ -516,6 +522,7 @@ dim(trips_notifications_2022_ah)
 
 dim(trips_notifications_2022_ah_5_6)
 # [1] 63658    34
+# [1] 67738    34
 
 trips_notifications_2022_ah_6 <-
   trips_notifications_2022_ah_5_6 |>
@@ -781,6 +788,7 @@ t_d_w <-
    )
 toc()
 # t_d_w: 0.48 sec elapsed
+# t_d_w: 0.05 sec elapsed
 
 t_d_w |>
     filter(WEEK_OF_YEAR == 52) |>
@@ -1002,7 +1010,7 @@ dim(t_d_w_short)
 # [1] 37990     9
 # [1] 32375     9
 # [1] 32379     9
-# [1] 80978    76
+# [1] 80978    79
 
 ## tne_d ----
 
@@ -1062,6 +1070,7 @@ dim(tn_d_w_short)
 # [1] 20466     9
 # [1] 66710    19
 # [1] 66585    21 not canc
+# [1] 66621    21
 
 # join with dates_22 by week ----
 ## t & tne ----
@@ -1083,7 +1092,7 @@ toc()
 dim(t__tne_d_weeks)
 # [1] 160791     10
 # [1] 160795     10
-# [1] 314492     88
+# [1] 314492     89
 
 ## t & tn ----
 intersect(names(t_d_w_short),
@@ -1120,9 +1129,12 @@ dim(t_d_w_short)[1] +
 dim(tn_d_w_short)[1]
 # [1] 147688
 # 147563
+# [1] 147599
+
 dim(t__tn_d_weeks)
 # [1] 120876     86
 # [1] 120754     88
+# [1] 120795     89
 
 length(unique(t__tn_d_weeks$WEEK_OF_YEAR))
 # 53
@@ -1178,6 +1190,7 @@ dim(v_p__t__tn_d_weeks)
 # [1] 45530    17
 # [1] 128369     90
 # [1] 128243     92
+# [1] 128284     93
 
 ### check ----
 # 1)
@@ -1204,7 +1217,7 @@ v_p__t__tne_d_weeks_21 <-
              is.na(rep_type.tne)
          )
 
-dim(v_p__t__tne_d_weeks_21)
+dim(v_p__t__tne_d_weeks_21)[1]
 # 0 (change 52/1 0)
 # ok
 
