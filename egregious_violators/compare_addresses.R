@@ -29,11 +29,12 @@ aug_9_csv <- readr::read_csv(aug_9_res_path,
 # find and rm empty cols ----
 empty_cols_corrected_csv <-
   corrected_csv |>
-  map_df(function(x) {
-    if (length(unique(x)) == 1) {
-      return(unique(x))
-    }
-  }) |> 
+  empty_cols() |> 
+  # map_df(function(x) {
+  #   if (length(unique(x)) == 1) {
+  #     return(unique(x))
+  #   }
+  # }) |> 
   names()
 empty_cols_corrected_csv
 # 8
