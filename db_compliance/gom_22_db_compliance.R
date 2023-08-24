@@ -290,6 +290,7 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
 # check
 dim(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
 # [1] 75403    40
+# [1] 75222    42
 
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |> 
   select(PERMIT_VESSEL_ID, compl_no_reps_y) |> 
@@ -300,7 +301,10 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |>
 # 1 no               883
 # 2 yes              468
 # 883 + 468 = 1351 ok
-
+# 1 no                882
+# 2 yes               466
+# 882 + 466 = 348
+ 
 # if all are compliant - the whole year is compl
 # View(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
 
@@ -312,6 +316,7 @@ v_p__t__tn_d_weeks_gom_short_dt |>
   # filter(is.na(WEEK_OF_YEAR)) |> 
   # dim()
 # [1] 468  36
+# [1] 466  41
 
 # check
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |>
@@ -321,6 +326,7 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |>
   count(compl_no_reps_y)
 # [1] 468  36
 # 1 yes              468 All are a yes, no reports
+# 466
 
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts <-
@@ -335,6 +341,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts <-
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts: 6.16 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts: 3.95 sec elapsed
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |> 
   select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
@@ -353,6 +360,11 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |>
 # 1 Oct 2022  no               1755
 # 2 Nov 2022  no               1010
 # 3 Dec 2022  no               1031
+# today()
+# [1] "2023-08-24"
+# 1 Oct 2022  no               1747
+# 2 Nov 2022  no               1004
+# 3 Dec 2022  no               1026
 
 # 2) if all declarations for a vessel have a matched logbook - compliant ----
 
@@ -393,6 +405,7 @@ toc()
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched)
 # [1] 75403    44
+# [1] 75222    46
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
   select(PERMIT_VESSEL_ID, matched_reports) |>
@@ -400,9 +413,13 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
   count(matched_reports)
 # 1 matched           595
 # 2 not_matched      1300
+# [1] "2023-08-24"
+# 1 matched           596
+# 2 not_matched      1297
 
 length(unique(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched$PERMIT_VESSEL_ID))
 # [1] 1351
+# 1348
 
 # View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched)
 
@@ -425,7 +442,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w: 5.89 sec elapsed
 
-View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w)
+dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w)
+# [1] 75222    47
 
 # check compliant_fishing_month
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
@@ -479,9 +497,11 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict <-
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict: 5.91 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict: 3 sec elapsed
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict)
 # [1] 75403    46
+# [1] 75222    48
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |> 
   select(PERMIT_VESSEL_ID, compl_w) |> 
@@ -489,6 +509,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |>
   count(compl_w)
 # 1 no        832
 # 2 yes      1039
+# 1 no        831
+# 2 yes      1038
 
 ## same by year ----
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict")
@@ -517,6 +539,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
 # 2 yes      1039
 # TODO: change, more than 1351 total vsls
 # TODO: why the same as week?
+# 1 no        831
+# 2 yes      1038
 
 # Not strictly, but are compliant ----
 # 1) There are only not fishing intended declarations per week
@@ -547,6 +571,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish <-
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish: 5.41 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish: 3.24 sec elapsed
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |> 
   select(PERMIT_VESSEL_ID,
@@ -559,7 +584,8 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
   count(not_fish_compl)
 # no              9754
 # yes              409
-
+# 1 no              9744
+# 2 yes              408
 
 # print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish)
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
@@ -620,6 +646,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only: 11.72 sec elapsed
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only: 6.14 sec elapsed
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |> 
   select(PERMIT_VESSEL_ID,
@@ -634,6 +661,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |>
 # 1 no      no            53908
 # 2 no      yes            1591 (new compl +)
 # 3 yes     no            19943
+# 1 no      no            53676
+# 2 no      yes            1591
+# 3 yes     no            19955
 
 ## 3) not compliant but overridden ----
 # everything that was overridden is compliant (the whole week)
@@ -679,8 +709,8 @@ overr_compl_id_inters <-
     compl_err_db_data_short_overr_v_ids$vessel_official_nbr,
     v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only_v_ids$PERMIT_VESSEL_ID
   ) 
-# length()
-511
+length(overr_compl_id_inters)
+# 512
 
 override_join_by =
   join_by(
@@ -702,13 +732,15 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__ove
     suffix = c(".o", ".c_w")
   )
 
-# dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only)
+dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only)
 # [1] 75442    51
+# [1] 75222    51
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr)
 # [1] 77787    56
 # [1] 82364    58
 # [1] 82307    57
+# [1] 82188    57
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr |> 
   filter(
