@@ -768,6 +768,60 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int <-
            interval(int_start(before_interval),
                     int_end(after_interval)))
 
+# DE
+print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int)
+
+### mark duplicated declarations (tn) ----
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
+  mutate(decl_in =
+           case_when(DE.tn %within% around_hour_tn_int ~ "dup",
+                     .default = "not_d"))
+
+### find if one of duplicated decl. has a logb.
+# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup)
+# VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, permit_sa_gom_dual, permit_2022_int, permit_weeks_amnt_22, YEAR, MONTH_OF_YEAR, WEEK_OF_YEAR, date_y_m, TRIP_ID.t, TRIP_TYPE, DE.t, UE.t, DC.t, UC.t, TRIP_START_DATE, TRIP_END_DATE, TRIP_END_TIME.t, TRIP_START_TIME.t, SUBMIT_METHOD, EVENT_ID, ACTIVITY_TYPE, SERO_VESSEL_PERMIT, trip_int, TRIP_END_week_num, TRIP_END_y, TRIP_END_m, rep_type.t, TRIP_START_TIME.tn, UE.tn, DE.tn, UC.tn, DC.tn, TRIP_END_TIME.tn, TRIP_ID.tn, INTENDED_FISHING_FLAG, NOTIFICATION_TYPE_IDs, rep_type.tn, trip_start_date_only, trip_start_date_time_tn, trip_start_date_time_t, compl_no_reps_w, TRIP_START_TIME_t_hm, TRIP_START_TIME_tn_hm, time_diff1, matched_reports, matched_compl, compl_y, after_interval, before_interval, around_hour_tn_int, decl_in
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup |>
+  select(
+    VESSEL_VESSEL_ID,
+    PERMIT_VESSEL_ID,
+    TRIP_END_week_num,
+    TRIP_END_m,
+    rep_type.t,
+    rep_type.tn,
+    matched_compl,
+    compl_y,
+    decl_in
+  )
+
+dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short)
+# [1] 75222     9
+
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |> 
+#   filter(decl_in == "dup") |>
+#   # nrow(df[duplicated(df), ])
+#   mutate(cnt_dup =  sum(duplicated())
+#          
+nrow(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short[duplicated(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short), ])
+# 52295
+  
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
+  group_by_all() |>
+  count() |> 
+  glimpse()
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
+  group_by(VESSEL_VESSEL_ID,
+           PERMIT_VESSEL_ID,
+           TRIP_END_week_num,
+           TRIP_END_m) |>
+  mutate(dup_gr =
+           case_when(compl_y == "no" ~
+                       paste(decl_in)))
+  
+
 ### fewer fields ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
   select(NOTIFICATION_TYPE_IDs) |>
