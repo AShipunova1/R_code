@@ -1,6 +1,5 @@
 # Only not in Headboat survey
 # By default all are compliant if there are no reports.
-# By default all are compliant if there are no reports.
 # If they have submitted anything - should be a declaration and a logbook
 
 # GOM + dual compl by year ----
@@ -12,12 +11,13 @@ v_p__t__tn_d_weeks_gom <-
 
 dim(v_p__t__tn_d_weeks_gom)
 # [1] 75403    92
+# [1] 75442    93
 
 ## rm extra cols ----
 ### find empty columns ----
 names(v_p__t__tn_d_weeks_gom) |>
   length()
-# 92
+# 93
 
 empty_cols <-
   v_p__t__tn_d_weeks_gom |>
@@ -27,7 +27,7 @@ empty_cols <-
     }
   })
 dim(empty_cols)[2]
-# 32
+# 31
 
 t_names_to_rm <-
   c("ADDDITIONAL_FISHERMEN",
@@ -111,12 +111,12 @@ v_p__t__tn_d_weeks_gom_short <-
 dim(v_p__t__tn_d_weeks_gom)
 # [1] 75524    91
 # [1] 75403    92
-# [1] 75442    94
+# [1] 75442    93
 
 dim(v_p__t__tn_d_weeks_gom_short)
 # [1] 75524    35
 # [1] 75403    36
-# [1] 75442    39
+# [1] 75442    38
 
 data_overview(v_p__t__tn_d_weeks_gom_short) |>
   head(2)
@@ -239,7 +239,7 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 # 2: There was 1 warning in `mutate()`.
 # ℹ In argument: `trip_start_date_time_t = parse_date_time(...)`.
 # Caused by warning:
-# !  29103 failed to parse. 
+# !  29104 failed to parse. 
 
 # v_p__t__tn_d_weeks_gom_short |>
 #   mutate(trip_start_date_only =
@@ -257,7 +257,12 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 #   select(contains("start")) |> 
 #   glimpse()
 
-View(v_p__t__tn_d_weeks_gom_short_dt)
+dim(v_p__t__tn_d_weeks_gom_short_dt)
+# [1] 75442    41
+
+# check vessels (in metrics, not in srhs) ----
+v_p__t__tn_d_weeks_gom_short_dt |>
+  filter(PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$PERMIT_VESSEL_ID)
 
 # 1) all compliant if there are no reports ----
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
