@@ -54,3 +54,11 @@ print_df_names(corrected_csv1)
 
 # data_overview(aug_9_csv)
 
+join_files <-
+  full_join(
+    aug_9_csv,
+    corrected_csv1,
+    join_by(vessel_official_number),
+    # Override the default suffixes, c(".x", ".y") in not merged cols
+    suffix = c(".aug", ".cor")
+  )
