@@ -602,3 +602,17 @@ read_rds_or_run <-
 
     return(my_result)
   }
+
+# Usage:
+# select(-all_of(names(empty_cols)))
+
+empty_cols <-
+  function(my_df) {
+    my_df |>
+      map_df(function(x) {
+        if (length(unique(x)) == 1) {
+          return(unique(x))
+        }
+      }) %>%
+    return()
+  }
