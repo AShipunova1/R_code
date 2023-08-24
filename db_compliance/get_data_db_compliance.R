@@ -486,16 +486,32 @@ WHERE
 # dd.complete_date BETWEEN '01-DEC-2022' AND '31-JAN-2023'
 # TO_DATE('01-JAN-22', 'dd-mon-yy')
 
-tic("dates_2022_query")
-dates_2022 <- dbGetQuery(con,
-                         dates_2022_query)
-toc()
+dates_2022_file_path <- file.path(input_path, "dates_2022.rds")
+
+dates_2022_fun <-
+  function(dates_2022_query) {
+    return(dbGetQuery(con,
+                      dates_2022_query))
+  }
+
+dates_2022 <-
+  read_rds_or_run(
+    dates_2022_file_path,
+    dates_2022_query,
+    dates_2022_fun
+  )
+
+
+# tic("dates_2022_query")
+# dates_2022 <- dbGetQuery(con,
+#                          dates_2022_query)
+# toc()
 
 glimpse(dates_2022)
 # Rows: 427
 
-write_rds(dates_2022,
-          file.path(input_path, "dates_2022.rds"))
+# write_rds(dates_2022,
+#           file.path(input_path, "dates_2022.rds"))
 
 # get override data ----
 
