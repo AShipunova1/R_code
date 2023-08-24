@@ -25,6 +25,9 @@ library(readxl)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_name <- "db_compliance"
+
+# err msg if no connection, but keep running
+# try(con <- connect_to_secpr())
 con <- connect_to_secpr()
 
 # get data ----
