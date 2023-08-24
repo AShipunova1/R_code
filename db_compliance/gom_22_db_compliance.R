@@ -209,7 +209,7 @@ v_p__t__tn_d_weeks_gom_short <-
 # create date time columns ----
 grep("start", names(v_p__t__tn_d_weeks_gom_short),
      ignore.case = T, value = T)
-# [1] "TRIP_START_DATE"      "TRIP_START_TIME.t"    "TRIP_START_TIME.tn"  
+# [1] "TRIP_START_DATE"      "TRIP_START_TIME.t"    "TRIP_START_TIME.tn"
 # [4] "TRIP_START_DATE_TIME"
 
 v_p__t__tn_d_weeks_gom_short_dt <-
@@ -242,11 +242,11 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 # 1: There was 1 warning in `mutate()`.
 # ℹ In argument: `trip_start_date_time_tn = parse_date_time(...)`.
 # Caused by warning:
-# !  2491 failed to parse. 
+# !  2491 failed to parse.
 # 2: There was 1 warning in `mutate()`.
 # ℹ In argument: `trip_start_date_time_t = parse_date_time(...)`.
 # Caused by warning:
-# !  29104 failed to parse. 
+# !  29104 failed to parse.
 
 # v_p__t__tn_d_weeks_gom_short |>
 #   mutate(trip_start_date_only =
@@ -259,9 +259,9 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 #   dim()
 # 0
 
-# v_p__t__tn_d_weeks_gom_short_dt |> 
-#   head() |> 
-#   select(contains("start")) |> 
+# v_p__t__tn_d_weeks_gom_short_dt |>
+#   head() |>
+#   select(contains("start")) |>
 #   glimpse()
 
 dim(v_p__t__tn_d_weeks_gom_short_dt)
@@ -270,7 +270,7 @@ dim(v_p__t__tn_d_weeks_gom_short_dt)
 
 # check vessels (in metrics, not in srhs) ----
 v_p__t__tn_d_weeks_gom_short_dt |>
-  filter(!PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$vessel_official_number) |> 
+  filter(!PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$vessel_official_number) |>
   dim()
 # 0
 # ok
@@ -292,9 +292,9 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
 # [1] 75403    40
 # [1] 75222    42
 
-v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |> 
-  select(PERMIT_VESSEL_ID, compl_no_reps_y) |> 
-  distinct() |> 
+v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |>
+  select(PERMIT_VESSEL_ID, compl_no_reps_y) |>
+  distinct() |>
   count(compl_no_reps_y)
 #   compl_no_reps_y     n
 #   <chr>          <int>
@@ -304,16 +304,16 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |>
 # 1 no                882
 # 2 yes               466
 # 882 + 466 = 348
- 
+
 # if all are compliant - the whole year is compl
 # View(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
 
 ## same by week ----
-v_p__t__tn_d_weeks_gom_short_dt |> 
-  filter(is.na(date_y_m)) |> 
+v_p__t__tn_d_weeks_gom_short_dt |>
+  filter(is.na(date_y_m)) |>
   dim()
 # [1] 468  36
-  # filter(is.na(WEEK_OF_YEAR)) |> 
+  # filter(is.na(WEEK_OF_YEAR)) |>
   # dim()
 # [1] 468  36
 # [1] 466  41
@@ -343,15 +343,15 @@ toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts: 6.16 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts: 3.95 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |>
   select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
            date_y_m,
            WEEK_OF_YEAR,
          compl_no_reps_w) |>
   distinct() |>
   count(date_y_m,
-        compl_no_reps_w) |> 
-  arrange(desc(compl_no_reps_w)) |> 
+        compl_no_reps_w) |>
+  arrange(desc(compl_no_reps_w)) |>
   # head()
 # 1 NA        yes               468
 # 2 Sep 1970  no                  1
@@ -465,9 +465,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
          matched_compl) |>
   count(date_y_m,
         compl_no_reps_w,
-        
+
         matched_compl) |>
-  arrange(desc(matched_compl)) |> 
+  arrange(desc(matched_compl)) |>
   # head()
 #   date_y_m  compl_no_reps_w matched_compl     n
 #   <yearmon> <chr>           <chr>         <int>
@@ -493,7 +493,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict <-
              compl_no_reps_w == "yes" |
                matched_compl == "yes" ~ "yes",
              .default = "no"
-           )) |> 
+           )) |>
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict: 5.91 sec elapsed
@@ -503,9 +503,9 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict)
 # [1] 75403    46
 # [1] 75222    48
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |> 
-  select(PERMIT_VESSEL_ID, compl_w) |> 
-  distinct() |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |>
+  select(PERMIT_VESSEL_ID, compl_w) |>
+  distinct() |>
   count(compl_w)
 # 1 no        832
 # 2 yes      1039
@@ -530,10 +530,10 @@ toc()
 
 # View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
   select(PERMIT_VESSEL_ID,
-         compl_y) |> 
-  distinct() |> 
+         compl_y) |>
+  distinct() |>
   count(compl_y)
 # 1 no        832
 # 2 yes      1039
@@ -573,14 +573,14 @@ toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish: 5.41 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish: 3.24 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
   select(PERMIT_VESSEL_ID,
          date_y_m,
          matched_reports,
          compl_no_reps_w,
          matched_compl,
          not_fish_compl) |>
-  distinct() |> 
+  distinct() |>
   count(not_fish_compl)
 # no              9754
 # yes              409
@@ -605,7 +605,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
     INTENDED_FISHING_FLAG
   ) |>
   add_count(not_fish_compl,
-        INTENDED_FISHING_FLAG) |> 
+        INTENDED_FISHING_FLAG) |>
   glimpse()
 # $ matched_reports       <chr> "matched", "not_matched", "not_matched"
 # $ matched_compl         <chr> "no", "no", "no"
@@ -613,7 +613,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
 # $ not_fish_compl        <chr> "no", "no", "no"
 # $ INTENDED_FISHING_FLAG <chr> "Y", "N", "N"
 # $ n                     <int> 1, 2, 2
-  
+
 #   not_fish_compl INTENDED_FISHING_FLAG     n
 # 1 no             N                        16
 # 2 no             Y                       102
@@ -648,7 +648,7 @@ toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only: 11.72 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only: 6.14 sec elapsed
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |>
   select(PERMIT_VESSEL_ID,
          contains("compl")) |>
   # count(no_decl_compl)
@@ -692,23 +692,23 @@ compl_err_db_data_short_overr <-
   filter(is_comp_override == 1)
 
 compl_err_db_data_short_overr_v_ids <-
-  compl_err_db_data_short_overr |> 
-  select(vessel_official_nbr) |> 
+  compl_err_db_data_short_overr |>
+  select(vessel_official_nbr) |>
   distinct()
 
 dim(compl_err_db_data_short_overr_v_ids)
 # 1545
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only_v_ids <-
-  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |> 
-  select(PERMIT_VESSEL_ID) |> 
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only |>
+  select(PERMIT_VESSEL_ID) |>
   distinct()
 
 overr_compl_id_inters <-
   intersect(
     compl_err_db_data_short_overr_v_ids$vessel_official_nbr,
     v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only_v_ids$PERMIT_VESSEL_ID
-  ) 
+  )
 length(overr_compl_id_inters)
 # 512
 
@@ -742,12 +742,12 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only_
 # [1] 82307    57
 # [1] 82188    57
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr |>
   filter(
-    # !is.na(vessel_official_nbr) & 
-           is_override == 1) |> 
-  # select(is_override) |> 
-  # distinct() |> 
+    # !is.na(vessel_official_nbr) &
+           is_override == 1) |>
+  # select(is_override) |>
+  # distinct() |>
   dim()
 # 0
 
@@ -769,11 +769,11 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int <-
                     int_end(after_interval)))
 
 ### fewer fields ----
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |> 
-  select(NOTIFICATION_TYPE_IDs) |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
+  select(NOTIFICATION_TYPE_IDs) |>
   distinct()
-# 1 6                    
-# 2 NA                   
+# 1 6
+# 2 NA
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
@@ -800,7 +800,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short <-
     )) |>
       distinct()
 
-dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short)  
+dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short)
 # [1] 72995    33
 
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup")
@@ -813,20 +813,20 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup <-
            # not_fish_compl
            TRIP_ID.tn,
            rep_type.tn) |>
-  add_count(trip_start_date_time_tn, name = "cnt_decl") |> 
-  ungroup() |> 
-  filter(!is.na(around_hour_tn_int)) |> 
+  add_count(trip_start_date_time_tn, name = "cnt_decl") |>
+  ungroup() |>
+  filter(!is.na(around_hour_tn_int)) |>
   arrange(desc(cnt_decl))
 
 View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup)
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short |> 
-  filter(PERMIT_VESSEL_ID == "FL8981NK") |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short |>
+  filter(PERMIT_VESSEL_ID == "FL8981NK") |>
   View()
 
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup |> 
-  count(cnt_decl) |> 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup |>
+  count(cnt_decl) |>
   arrange(desc(n))
 #    cnt_decl     n
 #       <int> <int>
@@ -850,7 +850,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup |>
           trip_start_date_time_tn %within% after_interval)
   )
 toc()
-# all true  
+# all true
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup |>
   # filter(date_y_m == "Feb 2022") |>
   # filter(PERMIT_VESSEL_ID == "1093374") |>
@@ -880,7 +880,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
                      collapse = ", "),
     end_times = paste(unique(TRIP_END_TIME.tn),
                       collapse = ", ")
-  ) |> 
+  ) |>
   ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d: 1.51 sec elapsed
@@ -890,13 +890,13 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d |>
            WEEK_OF_YEAR == "13" &
            date_y_m == "Mar 2022") |>
   View()
- 
+
 print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
- 
+
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
   select(TRIP_START_DATE, TRIP_START_TIME.tn) |>
   distinct() |>
-  mutate(date_time = 
+  mutate(date_time =
            # ymd_hms(
            paste0(TRIP_START_DATE, TRIP_START_TIME.tn)
          # )
@@ -918,7 +918,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d <-
   mutate(hour_interval_plus =
            ymd_hm(paste0(TRIP_START_DATE, TRIP_START_TIME.tn))
   ) |> View()
-# 
+#
 #            lubridate::minute(TRIP_START_TIME_tn_hm) + 60*60,
 #          hour_interval_min =
 #            lubridate::minute(TRIP_START_TIME_tn_hm) - 60*60,
@@ -937,9 +937,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d |>
            date_y_m == "Feb 2022") |>
   View()
 
-# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d |> 
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d |>
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d_1 <-
-  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d |> 
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d |>
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            TRIP_START_TIME.tn,
@@ -954,7 +954,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d_1 <-
                      collapse = ", "),
     end_times = paste(unique(TRIP_END_TIME.tn),
                       collapse = ", ")
-  ) |> 
+  ) |>
   ungroup()
 toc()
 
@@ -966,7 +966,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
 # 1 N                      4070
 # 2 Y                     68118
 # 3 NA                     3215
-         
+
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   select(PERMIT_VESSEL_ID,
          date_y_m,
