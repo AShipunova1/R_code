@@ -558,7 +558,8 @@ file_name_overr <-
   file.path(input_path, "compl_err_db_data_raw.rds")
 
 compl_err_db_data_raw <-
-  read_rds_or_run(file_name_overr,   compl_err_query,
+  read_rds_or_run(file_name_overr,
+                  compl_err_query,
                   get_compl_err_data_from_db)
 # 2023-08-08 run the function: 19.05 sec elapsed
 # 2023-08-08 run the function: 22.67 sec elapsed
