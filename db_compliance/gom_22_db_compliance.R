@@ -134,16 +134,23 @@ v_p__t__tn_d_weeks_gom_short |>
 # 1 A         63044
 # 2 H         11930
 # 3 NA          468
-# Activity type NA - declaration only
+# 1 A         63173
+# 2 H         11583
+# 3 NA          466
 
+# Activity type NA - declaration only
 v_p__t__tn_d_weeks_gom_short |>
   count(INTENDED_FISHING_FLAG)
 # 1 N                      4070
 # 2 Y                     68157
 # 3 NA                     3215
+# 1 N                      4072
+# 2 Y                     67937
+# 3 NA                     3213
 
 length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # PERMIT_VESSEL_ID     1351
+# 1348
 
 # TODO: check if permit_id in tn mean the same as in p_v
 
@@ -259,10 +266,14 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 
 dim(v_p__t__tn_d_weeks_gom_short_dt)
 # [1] 75442    41
+# [1] 75222    41
 
 # check vessels (in metrics, not in srhs) ----
 v_p__t__tn_d_weeks_gom_short_dt |>
-  filter(PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$PERMIT_VESSEL_ID)
+  filter(!PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$vessel_official_number) |> 
+  dim()
+# 0
+# ok
 
 # 1) all compliant if there are no reports ----
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
