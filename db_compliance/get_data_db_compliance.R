@@ -1,17 +1,6 @@
 # get data ----
 input_path <- file.path(my_paths$inputs, current_project_name)
 
-## fhier_reports_metrics_tracking ----
-
-fhier_reports_metrics_tracking_file_path <-
-  r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)\metrics_tracking_31_12_2021__21_12_2022.csv)"
-
-fhier_reports_metrics_tracking <-
-  read_csv(fhier_reports_metrics_tracking_file_path,
-           # read as character
-           col_types = cols(.default = 'c'),
-           name_repair = fix_names)
-
 ## permit ----
 file_name_permits <-
   file.path(input_path, "permit_info.rds")
@@ -559,3 +548,8 @@ compl_err_db_data_raw <-
 # 2023-08-08 run the function: 22.67 sec elapsed
 
 compl_err_db_data <- clean_headers(compl_err_db_data_raw)
+
+# get metric_tracking_no_srhs
+source(file.path(my_paths$git_r,
+                 "get_data_from_fhier",
+                 "metric_tracking_no_srhs.R"))
