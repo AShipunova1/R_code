@@ -769,7 +769,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int <-
                     int_end(after_interval)))
 
 # DE
-print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int)
+# print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int)
 
 ### mark duplicated declarations (tn) ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup <-
@@ -794,33 +794,64 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short <-
     matched_compl,
     compl_y,
     decl_in
-  )
+  ) |> 
+  distinct()
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short)
 # [1] 75222     9
+# [1] 22927     9 distinct
 
-# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |> 
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
 #   filter(decl_in == "dup") |>
 #   # nrow(df[duplicated(df), ])
-#   mutate(cnt_dup =  sum(duplicated())
+#   mutate(cnt_dup =
+#            sum(duplicated(PERMIT_VESSEL_ID))) |> 
+#   glimpse()
 #          
+
 nrow(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short[duplicated(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short), ])
 # 52295
+# 0 after distinct
   
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
-  group_by_all() |>
-  count() |> 
-  glimpse()
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
+#   group_by_all() |>
+#   count() |> 
+#   filter(n > 1) |> 
+#   dim()
+# 0
 
-v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_decl_list_u <-
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            TRIP_END_week_num,
            TRIP_END_m) |>
-  mutate(dup_gr =
-           case_when(compl_y == "no" ~
-                       paste(decl_in)))
+  mutate(decl_list = list(unique(decl_in))) |> 
+  select(-decl_in) |> 
+  ungroup() |> 
+  distinct()
+  # mutate(decl_list = list(decl_in))
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_decl_list |> 
+  ungroup() |> 
+  filter(compl_y == "no" & decl_in == "dup") |> 
+  select(PERMIT_VESSEL_ID) |> 
+  distinct() |> 
+  head(10)
+#  1 FL4459PW        
+#  2 1113943         
+#  3 FL7878RH        
+#  4 1256149         
+#  5 1250946         
+#  6 1256962         
+#  7 1208771         
+#  8 FL7418GW        
+#  9 FL4749LH        
+# 10 FL6306PD        
+
+View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_decl_list_u)
   
+# TODO: how to find if one of them has a logbook - than all dupl tns give compl
 
 ### fewer fields ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
