@@ -4,17 +4,17 @@ source("~/R_code_github/useful_functions_module.r")
 
 base_path <- getwd()
 
-correctd_path <-
+corrected_path <-
   file.path(
     base_path,
     r"(..\..\R_files_local\my_outputs\egregious_violators\corrected_addr\egregious violators for investigation__2023-01-24_to_2023-08-01_c.csv)"
   )
 
-file.exists(correctd_path)
+file.exists(corrected_path)
 
 corrected_csv <-
   readr::read_csv(
-    correctd_path,
+    corrected_path,
     name_repair = fix_names,
     col_types = cols(.default = 'c'),
     skip = 1
@@ -23,7 +23,7 @@ corrected_csv <-
 
 # "R_files_local\my_outputs\egregious_violators\corrected_addr\egregious violators for investigation_Detail2-NED.csv"
 
-aug_9_res_path <- 
+aug_9_res_path <-
   file.path(base_path,
             r"(../../R_files_local\my_outputs\egregious_violators\egregious_violators_for_investigation_from_2023-02-07_to_2023-08-15_addr.csv)")
 
@@ -38,8 +38,7 @@ aug_9_csv <-
 # FHIER info from Reports \ SERO Permits
 ""
 
-
-fhier_info_path <- 
+fhier_info_path <-
   file.path(base_path,
             r"(../../\R_files_local\my_inputs\from_Fhier\SERO Permits.csv)")
 
@@ -51,7 +50,7 @@ fhier_info <-
                   name_repair = fix_names,
                   col_types = cols(.default = 'c'))
 
-# dim(fhier_info)
+View(fhier_info)
 # [1] 138557     19
 
 # shorten ----
@@ -72,7 +71,7 @@ fields_to_use <-
 
 corrected_csv1 <-
   corrected_csv |>
-  select(all_of(fields_to_use)) |> 
+  select(all_of(fields_to_use)) |>
   distinct()
 
 short_dfs <-
@@ -85,7 +84,7 @@ short_dfs <-
 map(short_dfs,
        dim)
 # [1] 97 10
-# 
+#
 # [[2]]
 # [1] 117   8
 
@@ -121,7 +120,7 @@ corrected_n_fhier <-
             fhier_info,
             join_by(vessel_official_number == vessel_id))
 
-print_df_names(corrected_n_fhier)  
+print_df_names(corrected_n_fhier)
 # [1] 1659   26
 
 
@@ -140,10 +139,10 @@ to_rm <- c(
 
 corrected_n_fhier_short <-
   corrected_n_fhier |>
-  select(-all_of(to_rm)) |> 
+  select(-all_of(to_rm)) |>
   distinct()
 
-out_path <- 
+out_path <-
     file.path(base_path,
             r"(..\..\R_files_local\my_outputs\egregious_violators\corrected_addr\compare_corrected_n_fhier_info.csv)")
 
@@ -152,21 +151,21 @@ readr::write_csv(corrected_n_fhier_short,
 # [1] 153  18
 
 # check sero_home_port ----
-corrected_n_fhier_short |> 
+corrected_n_fhier_short |>
   mutate(fhier_home_port = paste(sero_home_port_city,
                                  sero_home_port_county,
-                                 sero_home_port_state)) |> 
-  filter(!sero_home_port == fhier_home_port) |> 
+                                 sero_home_port_state)) |>
+  filter(!sero_home_port == fhier_home_port) |>
   dim()
 # 0
 # all home ports are correct
 
 # check names ----
-# corrected_n_fhier_short |> 
+# corrected_n_fhier_short |>
 #   dplyr::mutate(first_name = replace_na(first_name, ""),
 #                 last_name = replace_na(last_name, ""),
-#                 business_name = replace_na(business_name, "")) |> 
-  
+#                 business_name = replace_na(business_name, "")) |>
+
 print_df_names(corrected_n_fhier_short)
 
 corrected_n_fhier_short_w_n <-
@@ -185,7 +184,7 @@ corrected_n_fhier_short_w_n_comb <-
                   list(unique(paste(
                     first_name,
                     last_name
-                  ))), 
+                  ))),
   fhier_comb_name_2 = list(unique(
     paste(fhier_comb_name,
           business_name)
@@ -296,7 +295,7 @@ corrected_n_fhier_short_w_n_comb_flat_clean <-
 
 
 View(corrected_n_fhier_short_w_n_clean)
-  # filter(full_name == fhier_name) |> 
+  # filter(full_name == fhier_name) |>
 # 26
   # filter(full_name == fhier_name_2) |>
   # dim()
@@ -308,12 +307,12 @@ readr::write_csv(corrected_n_fhier_short_w_n_clean,
                  out_path)
 
 # compare
-corrected_n_fhier_short_w_n_clean |> 
+corrected_n_fhier_short_w_n_clean |>
   filter(full_name == fhier_name) |>
   dim()
 # 26
 
-corrected_n_fhier_short_w_n_clean |> 
+corrected_n_fhier_short_w_n_clean |>
   filter(!full_name == fhier_name) |>
   # filter(full_name == fhier_name_2) |>
   dim()
