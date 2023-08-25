@@ -750,13 +750,14 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__ove
   # distinct() |>
   dim()
 # 0
+# no added
 
 ## 4) a duplicate declaration for the same trip, one has a logbook ----
 
 ### a) add before and after 1 hour intervals ----
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int <-
-  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
+  v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr |>
   mutate(
     after_interval =
       lubridate::as.interval(3600, trip_start_date_time_tn),
@@ -849,9 +850,18 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_dec
 #  9 FL4749LH        
 # 10 FL6306PD        
 
-View(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_decl_list_u)
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_decl_list_u
   
 # TODO: how to find if one of them has a logbook - than all dupl tns give compl
+
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |> 
+  filter(PERMIT_VESSEL_ID == "FL4459PW" &
+           TRIP_END_week_num == 24) |> 
+  View()
+
+
+# v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int
+
 
 ### fewer fields ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
@@ -1042,6 +1052,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d_1 <-
   ) |>
   ungroup()
 toc()
+
+# 
+
 
 
 # old part unchanged ----
