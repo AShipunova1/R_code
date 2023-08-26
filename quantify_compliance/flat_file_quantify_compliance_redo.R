@@ -1,3 +1,4 @@
+library(zoo)
 #### Current file: ~/R_code_github/useful_functions_module.r ----
 
 # nolint: commented_code_linter
@@ -999,7 +1000,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
   distinct()
 
 dim(fhier_reports_metrics_tracking_not_srhs_ids)
-# [1] 2981    1
+# [1] 4063    1
 
 #### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R ----
 
@@ -1015,7 +1016,6 @@ dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # 2023
 # dual + SA
 library(grid)
-library(zoo)
 library(gridExtra)
 library(cowplot)
 
