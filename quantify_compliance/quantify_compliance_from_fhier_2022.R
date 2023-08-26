@@ -16,20 +16,29 @@ library(cowplot)
 
 source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
+# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+compl_clean_sa_vs_gom_m_int_1 <-
+  compl_clean_sa_vs_gom_m_int |>
+  filter(
+    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
+  )
+
 # remove 2023 gom_only ----
 compl_clean_sa_vs_gom_m_int_filtered <-
   # from get_data
-  compl_clean_sa_vs_gom_m_int %>%
+  compl_clean_sa_vs_gom_m_int_1 %>%
   filter(!(year == '2023' & permit_sa_gom == "gom_only"))
 
 # save vsl count for future checks ----
 
 count_all_vessels <-
-  compl_clean_sa_vs_gom_m_int %>%
+  compl_clean_sa_vs_gom_m_int_1 %>%
   select(vessel_official_number) %>%
   unique() %>%
   dim()
 # 4017 vessels
+count_all_vessels[1]
+# 3776    
 
 count_not_gom23_vessels <-
 compl_clean_sa_vs_gom_m_int_filtered %>%
@@ -37,9 +46,11 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   unique() %>%
   dim()
 # 3887 vessels
+count_not_gom23_vessels[1]
+# 3658
 
 vessels_compl_or_not_per_y_r_all <-
-  compl_clean_sa_vs_gom_m_int %>%
+  compl_clean_sa_vs_gom_m_int_1 %>%
   select(vessel_official_number,
          compliant_,
          year,
@@ -60,6 +71,15 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 #  YES        2022 sa_only   1617
 #  NO         2023 sa_dual   1628
 #  YES        2023 sa_dual   2125
+
+# metrics
+# vessels_compl_or_not_per_y_r_not_gom23
+# 1 NO         2022 gom_dual   290
+# 2 YES        2022 gom_dual  1298
+# 3 NO         2022 sa_only   1263
+# 4 YES        2022 sa_only   1602
+# 5 NO         2023 sa_dual   1615
+# 6 YES        2023 sa_dual   2111
 
 # by Year: ----
 ## year add total ----
