@@ -1387,5 +1387,14 @@ files_to_combine <-
   )
 
 # run as needed
-make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
+# make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
 
+# Add 
+# from quantify_compliance start
+# to the flat file:
+library(zoo)
+library(gridExtra)
+library(cowplot)
+
+# source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
