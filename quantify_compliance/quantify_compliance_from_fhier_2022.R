@@ -258,6 +258,8 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   head()
 # 1       1617 YES
 # 2       1289 NO
+# 1       1602 YES       
+# 2       1263 NO        
 
 compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::filter(year_permit == "2022 sa_only") %>%
@@ -300,6 +302,15 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 # 1707 + 472
 # 2179
 
+# [1] "2023-08-26"
+#   tota_vsl_m compliant_ perm_exp_y
+#        <int> <chr>      <chr>     
+# 1       1694 YES        active    
+# 2       1694 NO         active    
+# 3        451 NO         expired   
+# 4        451 YES        expired   
+# 1694+451 = 2145
+
 ## add total cnts ----
 # active vs expired per year, permit, compl, permit expiration
 
@@ -339,6 +350,9 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
          cnt_y_p_e) %>%
   unique() %>%
   dplyr::mutate(perc_c_nc = cnt_y_p_c * 100 / total_vsl_y)
+
+dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
+# [1] 11  7
 
 ## red/green plots for compl vs. non compl vessels per year ----
 
@@ -479,7 +493,8 @@ count_weeks_per_vsl_permit_year_compl_p <-
   mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
-# View(count_weeks_per_vsl_permit_year_compl_p)
+dim(count_weeks_per_vsl_permit_year_compl_p)
+# [1] 185251     32
 
 # test
 count_weeks_per_vsl_permit_year_compl_p %>%
@@ -488,6 +503,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
   unique() %>%
   dim()
 # [1] 2178
+# 2145    
 
 count_weeks_per_vsl_permit_year_compl_p %>%
   filter(permit_sa_gom == "sa_only",
@@ -498,6 +514,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
 # 1289    Non compliant vsl
   dim()
 # [1] 26466 non compliant weeks
+# [1] 25662     1
 
 ### test 1b ----
 count_weeks_per_vsl_permit_year_compl_p %>%
@@ -560,6 +577,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
   # sum amount_of_occurences
   dplyr::count(wt = amount_of_occurences)
 # 634
+# 615
 
 # 3) count how many in each bucket ----
 
@@ -584,6 +602,11 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
 # $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
 # $ cnt_v_in_bucket     : int [1:4] 399 172 85 633
 # $ total_per_y_r       : int [1:4] 1289 1289 1289 1289
+
+ # $ year_permit         : chr [1:4] "2022 sa_only" "2022 sa_only" "2022 sa_only" "2022 sa_only"
+ # $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
+ # $ cnt_v_in_bucket     : int [1:4] 398 168 82 615
+ # $ total_per_y_r       : int [1:4] 1263 1263 1263 1263
 
 # "2022 sa_only"
 # 633+85+172+399
@@ -619,6 +642,10 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
 # 2 25<= & <50%                        13.3
 # 3 50<= & <75%                         6.59
 # 4 75<= & <=100%                      49.1
+# 1 0<= & <25%                         31.5 
+# 2 25<= & <50%                        13.3 
+# 3 50<= & <75%                         6.49
+# 4 75<= & <=100%                      48.7 
 
 # 5) blue plots by year ----
 
@@ -988,7 +1015,8 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
               percent_n_compl_rank,
               name = "cnt_v_in_bucket")
 
-# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
+dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
+# [1] 11489    12
 
 # check by counting in a different way
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
@@ -1016,6 +1044,8 @@ test_compare_with <-
 # 
 # 45 nc vsls in "Jan 2022 gom_dual"
 # 45 * 100 / 1192 = 3.8%
+
+# 688   
 
 # still true?
 test_res <-
@@ -1087,6 +1117,8 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
 # check
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 # [1] 11766    15
+# [1] 11489    15
+
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 # [1] 107  12
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
@@ -1325,7 +1357,7 @@ all_plots_w_titles_list %>%
                              ".png")
     
     file_path <-
-      r"(quantify_compliance\jun_21_2023\per_month)"
+      r"(quantify_compliance\08_26_2023\per_month)"
     
     # file.path adds the correct concatenation
     file_full_name <- file.path(my_paths$outputs,
@@ -1339,7 +1371,7 @@ all_plots_w_titles_list %>%
   })
 
 # [[1]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
 
 # ==
 # make a flat file ----
