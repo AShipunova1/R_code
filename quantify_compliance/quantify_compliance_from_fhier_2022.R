@@ -1382,9 +1382,10 @@ files_to_combine <-
     "~/R_code_github/useful_functions_module.r",
     file.path(dir_to_comb, "quantify_compliance_functions.R"),
     file.path(dir_to_comb, "get_data.R"),
+    r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
     file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R")
   )
 
 # run as needed
-# make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
+make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
 
