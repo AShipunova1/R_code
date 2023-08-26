@@ -103,6 +103,10 @@ compl_clean_sa_vs_gom_m_int_filtered_tot %>%
 # 1 2022 sa_only        2178
 # 2 2022 gom_dual       1495
 # 3 2023 sa_dual        2236
+               
+# 1 2022 sa_only         2145
+# 2 2022 gom_dual        1304
+# 3 2023 sa_dual         2220
 
 ## expired or not? ----
 end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
@@ -239,33 +243,8 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
                   dplyr::n_distinct(perm_exp_y) == dplyr::n_distinct(.$perm_exp_y)) %>%
   dplyr::filter(shared == TRUE) %>%
   dplyr::arrange(vessel_official_number) %>%
-  dplyr::glimpse()
-# $ year_permit            <chr> "2022 sa_only", "2022 sa_only"
-# $ total_vsl_y             <int> 2178, 2178
-# $ perm_exp_y             <chr> "active", "expired"
-# $ vessel_official_number <chr> "FL7825PU", "FL7825PU"
-# $ is_compl_or_both       <chr> "NO", "YES"
-# $ shared                 <lgl> TRUE, TRUE
-
-# ERR: perm_exp_y             <chr> "active", "expired"
-# ERR: is_compl_or_both       <chr> "NO", "YES"
-
-test_FL7825PU <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
-  filter(vessel_official_number == "FL7825PU")
-
-data_overview(test_FL7825PU)
-# permitgroupexpiration        2
-# compliant_                   2
-# permit_groupexpiration       2
-
-test_FL7825PU %>%
-  select(permit_sa_gom, year_permit, permitgroupexpiration) %>%
-  unique()
-#   permit_sa_gom year_permit  permitgroupexpiration
-# 1 sa_only       2022 sa_only 2022-05-31 00:00:00
-# 2 sa_only       2022 sa_only 2024-05-31 00:00:00
-# TODO: redo all when fixed
+  dim()
+# 0
 
 ### check total_vsl_y vs. sum_cnts (should be equal, see dbl FL7825PU above) ----
 compl_clean_sa_vs_gom_m_int_filtered %>%
