@@ -495,3 +495,11 @@ pims_n_corrected |>
 # [1] 13  4
 # all the same
 # ?adist
+
+
+out_path1 <-
+    file.path(base_path,
+            r"(..\..\R_files_local\my_outputs\egregious_violators\corrected_addr\compare_corrected_and_pims_info.csv)")
+
+readr::write_csv(pims_n_corrected,
+                 out_path1)
