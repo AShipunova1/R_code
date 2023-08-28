@@ -24,13 +24,17 @@ compl_clean_sa_vs_gom_m_int_1 <-
   )
 
 # remove 2023 gom_only ----
+remove_23_gom <- function(my_df) {
+  my_df |>
+    filter(!(year == '2023' & permit_sa_gom == "gom_only")) %>%
+    return()
+}
+
 compl_clean_sa_vs_gom_m_int_filtered <-
   # from get_data
-  compl_clean_sa_vs_gom_m_int_1 %>%
-  filter(!(year == '2023' & permit_sa_gom == "gom_only"))
+  remove_23_gom(compl_clean_sa_vs_gom_m_int_1)
 
 # save vsl count for future checks ----
-
 count_all_vessels <-
   compl_clean_sa_vs_gom_m_int_1 %>%
   select(vessel_official_number) %>%
