@@ -412,6 +412,36 @@ pims_n_corrected |>
 # 13
 # all 13 ports are the same
   
-pims_n_corrected |> 
- filter(!is.na(HAILING_PORT_CITY)) |> 
-select(HAILING_PORT_CITY, sero_home_port)
+## check if the address is the same ----
+pims_n_corrected_addr <-
+  pims_n_corrected |>
+  rowwise() |> 
+  filter(grepl(ADDRESS,
+               full_address,
+               ignore.case = TRUE)) |>
+  ungroup()
+  
+dim(pims_n_corrected_addr)
+# 12 
+# out of 13
+  
+pims_n_corrected_addr |>
+  select(vessel_official_number,
+         full_address,
+         ADDRESS, 
+         ADDRESS_STATE) |> 
+  distinct() |> 
+  View()
+
+## check if the name is the same ----
+pims_n_corrected |>
+  # filter(!is.na(HAILING_PORT_CITY)) |>
+  rowwise() |> 
+  filter(grepl(ENTITY_NAME,
+               sero_home_port,
+               ignore.case = TRUE)) |>
+  ungroup() |> View()
+  dim()
+# 13
+# all 13 ports are the same
+  
