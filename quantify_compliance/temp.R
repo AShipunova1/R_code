@@ -209,17 +209,30 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
 
 ### get cnts for compl, no compl, or both per month with exp ----
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
-  dplyr::group_by(year_permit, perm_exp_y) %>%
-  unique() %>%
-  # exclude vessel id
-  dplyr::select(-vessel_official_number) %>%
-  # count grouped by onther columns
-  dplyr::add_count(year_permit, perm_exp_y, is_compl_or_both,
-            name = "compl_or_not_cnt") %>%
-  unique() %>%
-  dplyr::ungroup()
+cnts_for_compl <-
+  function(my_df, group_by_cols, cols_to_cnt) {
+    my_df %>%
+      dplyr::group_by_at(group_by_cols) %>%
+      unique() %>%
+      # exclude vessel id
+      dplyr::select(-vessel_official_number) %>%
+      # count grouped by onther columns
+      dplyr::add_count(!!!syms(cols_to_cnt),
+                       name = "compl_or_not_cnt") %>%
+      unique() %>%
+      dplyr::ungroup() %>%
+      return()
+  }
+
+group_by_cols <- c("year_permit", "perm_exp_y")
+cols_to_cnt <- c("year_permit", "perm_exp_y", "is_compl_or_both")
+
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt1 <-
+  cnts_for_compl(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long, group_by_cols, cols_to_cnt)  
+   
+all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt,
+          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt1)
+# T
 
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 
