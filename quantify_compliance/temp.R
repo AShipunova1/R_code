@@ -138,14 +138,27 @@ expired_or_not <- function(my_df) {
     return()
 }
 
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y1 <-
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y <-
   expired_or_not(compl_clean_sa_vs_gom_m_int_filtered_tot)
 
-all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y,
-          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y1)
-T
 ## count expiration by year, permit ----
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt <-
+count_expiration_by <- function(my_df, group_by_var) {
+  my_df %>%
+  dplyr::group_by_at(group_by_var) %>%
+  # count distinct vessels per group
+  dplyr::mutate(exp_y_tot_cnt = n_distinct(vessel_official_number)) %>%
+    return()
+}
+
+group_by_var = c("year_permit", "perm_exp_y")
+
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt1 <-
+  count_expiration_by(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y,
+                      group_by_var)
+
+all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt,
+          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt1)
+T
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y %>%
   dplyr::group_by(year_permit, perm_exp_y) %>%
   # count distinct vessels per group
