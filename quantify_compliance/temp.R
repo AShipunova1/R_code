@@ -89,15 +89,22 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 ## year add total ----
 # (both compl. and not, a vsl can be in both)
 
-compl_clean_sa_vs_gom_m_int_filtered_tot <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
-  # group by per year and permit
-  dplyr::group_by(year_permit) %>%
-  # cnt distinct vessels in each group
-  dplyr::mutate(total_vsl_y = 
-                  dplyr::n_distinct(vessel_official_number)) %>%
-  dplyr::ungroup()
+add_total_cnt <- function(my_df, group_by_col) {
+  my_df %>%
+    # group by per year and permit
+    dplyr::group_by_at(group_by_col) %>%
+    # cnt distinct vessels in each group
+    dplyr::mutate(total_vsl_y =
+                    dplyr::n_distinct(vessel_official_number)) %>%
+    dplyr::ungroup() %>%
+    return()
+}
 
+compl_clean_sa_vs_gom_m_int_filtered_tot1 <-
+  add_total_cnt(compl_clean_sa_vs_gom_m_int_filtered, "year_permit")
+
+all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot,
+          compl_clean_sa_vs_gom_m_int_filtered_tot1)
 # check
 compl_clean_sa_vs_gom_m_int_filtered_tot %>%
   select(year_permit, total_vsl_y) %>%
