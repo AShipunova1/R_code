@@ -415,6 +415,7 @@ pims_n_corrected |>
 ## check if the address is the same ----
 pims_n_corrected_addr <-
   pims_n_corrected |>
+  filter(!is.na(HAILING_PORT_CITY)) |>
   rowwise() |> 
   filter(grepl(ADDRESS,
                full_address,
@@ -422,7 +423,7 @@ pims_n_corrected_addr <-
   ungroup()
   
 dim(pims_n_corrected_addr)
-# 12 
+# 12 (one is the full address is.na)
 # out of 13
   
 pims_n_corrected_addr |>
