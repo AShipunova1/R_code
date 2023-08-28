@@ -1,5 +1,8 @@
 # get data for logbooks comparison
 
+source("~/R_code_github/useful_functions_module.r")
+
+my_paths <- set_work_dir()
 # see read.me.R
 # Survey data:
 # https://drive.google.com/drive/folders/1D1ksBarjJzvbmqWa5cEE-k0s6ZJi0VAM
@@ -17,24 +20,24 @@ my_add_path <- "logbooks_compare"
 extract_to_dir <- file.path(my_paths$inputs, my_add_path, "survey_05_to_12_2022")
 
 extract_zipped_survey_data <- function() {
-  # get a list of zip archive file names 
-  list.files(path = file.path(my_paths$inputs, my_add_path, "survey_zip"), 
+  # get a list of zip archive file names
+  list.files(path = file.path(my_paths$inputs, my_add_path, "survey_zip"),
              pattern = "*zip",
              full.names = TRUE) %>%
   # unzip all of them
-    map(~unzip(.x, 
+    map(~unzip(.x,
                # to see what's in the archive without extracting
                # list = T,
                exdir = extract_to_dir))
 
 }
 # Use once
-# extract_zipped_survey_data()
-
+extract_zipped_survey_data()
+#
 ## ---- read survey data from SAS format ----
 # read all sas files in all sub directories
 sas_file_list <-
-  list.files(path = file.path(extract_to_dir), 
+  list.files(path = file.path(extract_to_dir),
            pattern = "*.sas7bdat",
            recursive = TRUE,
            full.names = TRUE)
@@ -59,7 +62,7 @@ poss_read_sas = possibly(
 
 # todo: test
 poss_read_sas1 <- function(x) {
-  f = possibly(function() haven::read_sas(x, .name_repair = fix_names), 
+  f = possibly(function() haven::read_sas(x, .name_repair = fix_names),
                otherwise = x)
                # otherwise = paste("Error in : ", x))
   f()
@@ -70,7 +73,7 @@ str(sas_file_list)
 survey_data_df <-
   sas_file_list %>%
   # use "_df" to combine all into one df
-    map_df(~poss_read_sas(.x) %>% 
+    map_df(~poss_read_sas(.x) %>%
              # convert all columns to char to use in bind
              mutate(across(.fns = as.character))) %>%
   # Re-convert character columns
@@ -83,7 +86,7 @@ survey_data_df <-
 add_file_names_to_the_df <- function() {
   sas_file_list %>%
   # use "_df" to combine all into one df
-  map_df(~poss_read_sas(.x) %>% 
+  map_df(~poss_read_sas(.x) %>%
            # convert all columns to char to use in bind
            mutate(across(.fns = as.character)) %>%
            # add file name
@@ -130,16 +133,16 @@ data_overview(survey_data_df_w_fnames_split[[1]])
 # ---- write the survey df to a csv ----
 # data_overview(survey_data_df)
 
-otput_csv_file <- file.path(my_paths$inputs, 
-                            r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)") 
-write.csv(survey_data_df, 
+otput_csv_file <- file.path(my_paths$inputs,
+                            r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)")
+write.csv(survey_data_df,
           file = otput_csv_file, row.names = F)
 
 ## ---- write the list of survey dfs into csvs ----
 survey_data_df_w_fnames_split_clean %>%
   # Apply a function to each element of a vector, and its index
-  purrr::imap(~write.csv(.x, 
-                         file.path(my_paths$inputs, 
+  purrr::imap(~write.csv(.x,
+                         file.path(my_paths$inputs,
                                    "logbooks_compare",
                                    paste0(.y, ".csv")
                                    ),
@@ -149,7 +152,7 @@ survey_data_df_w_fnames_split_clean %>%
 ## ---- read sas files into a list of tibbles ----
 # use sas_file_list_short_names as names for the list of dfs
 sas_file_list_short_names <-
-  list.files(path = file.path(extract_to_dir), 
+  list.files(path = file.path(extract_to_dir),
              pattern = "*.sas7bdat",
              recursive = TRUE,
              full.names = FALSE)
@@ -174,9 +177,9 @@ str(all_sas_names)
 ## ---- read sas files by category into a list of tibbles ----
 file_categories <- list("ref", "aga", "i1_", "i2_", "i3_")
 
-file_lists_by_cat <- 
+file_lists_by_cat <-
   map(file_categories,
-      ~list.files(path = file.path(extract_to_dir), 
+      ~list.files(path = file.path(extract_to_dir),
                   pattern = paste0(., "*"),
                   recursive = TRUE,
                   full.names = TRUE)
@@ -191,7 +194,7 @@ file_lists_by_cat <-
 read_by_category <-
   file_lists_by_cat %>%
   map(function(x) {
-    x %>% 
+    x %>%
       map(poss_read_sas) %>%
       ## name the df as its file
       setNames(tools::file_path_sans_ext(basename(x)))
@@ -210,14 +213,14 @@ View(read_by_category_df1)
 
 
 sas_file_list_ref <-
-  list.files(path = file.path(extract_to_dir), 
+  list.files(path = file.path(extract_to_dir),
              pattern = "ref*",
              recursive = TRUE,
              full.names = TRUE)
 
 survey_data_list_cat <-
   sas_file_list %>%
-  
+
   map(~poss_read_sas(.x))
 
 # ===
@@ -228,19 +231,19 @@ fhier_logbooks_path_add <- "logbooks_from_fhier"
 
 # all logbooks, by month, not all fields
 load_all_fhier_logbooks <- function() {
-  fhier_logbooks <- 
+  fhier_logbooks <-
     list.files(path = file.path(my_paths$inputs,
-                                fhier_logbooks_path_add), 
+                                fhier_logbooks_path_add),
                pattern = "*.csv",
                full.names = TRUE)  %>%
     map_df(~read_csv(.x,
                      name_repair = fix_names,
-                     show_col_types = FALSE) %>% 
+                     show_col_types = FALSE) %>%
              mutate(across(.fns = as.character))) %>%
     # Re-convert character columns
     # guess integer types for whole numbers
     type_convert(guess_integer = TRUE)
-  
+
   return(fhier_logbooks)
 }
 
