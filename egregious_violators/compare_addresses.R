@@ -333,7 +333,7 @@ corrected_n_fhier_short_w_n_clean_short <-
 
 View(corrected_n_fhier_short_w_n_clean_short)
 
-# read 
+# read PIMS csv ----
 # https://www.fisheries.noaa.gov/southeast/resources-fishing/frequent-freedom-information-act-requests-southeast-region
 
 "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\FOIA+Vessels+All.csv"
@@ -342,6 +342,68 @@ all_permits_url <- "https://noaa-sero.s3.amazonaws.com/drop-files/pims/FOIA+Vess
   
 all_permits_from_web <- read_csv(all_permits_url)
 
-print_df_names(all_permits_from_web)
+glimpse(all_permits_from_web)
 
- 
+# short all_permits_from_web ----
+# print_df_names(all_permits_from_web)
+all_permits_from_web_short <-
+  all_permits_from_web |>
+  select(
+    -c(
+      REQMIT_ID,
+      SER_ID,
+      PERMIT_STATUS_LOOKUP_ID,
+      TRANSACTION_TYPE_LOOKUP_ID,
+      # OFFICIAL_NUMBER,
+      # VESSEL_NAME,
+      # HAILING_PORT_CITY,
+      HAILING_PORT_STATE_LOOKUP_ID,
+      # VESSEL_STATE,
+      ENTITY_ID,
+      # ENTITY_NAME,
+      ADDRESS_TYPE_LOOKUP_ID,
+      # ADDRESS,
+      # CITY,
+      # POSTAL_CODE,
+      STATE_LOOKUP_ID,
+      # ADDRESS_STATE,
+      FISHERY_TYPE_ID,
+      PERMIT_EFFECTIVE_DATE,
+      PERMIT_EXPIRATION_DATE,
+      PERMIT_TERMINATION_DATE,
+      PERMIT_END_DATE,
+      FISHERY_NAME_ABBR
+    )
+  ) |>
+  distinct()
+dim(all_permits_from_web)
+# [1] 1000   23
+
+dim(all_permits_from_web_short)
+# [1] 463   9
+
+# compare pims and corrected_csv1 ----
+glimpse(corrected_csv1)
+
+pims_n_corrected <-
+  left_join(corrected_csv1,
+             all_permits_from_web_short,
+             join_by(vessel_official_number == OFFICIAL_NUMBER))
+
+pims_n_corrected |> 
+  dim()
+# [1] 97 18
+
+pims_n_corrected |> 
+ filter(!is.na(REQMIT_ID)) |> 
+ dim()
+# [1] 46 32
+# Not all vsls are in the pims csv
+
+## check if the port is the same ----
+
+pims_n_corrected |> 
+ filter(!is.na(REQMIT_ID)) |> 
+    filter(grepl(HAILING_PORT_CITY, sero_home_port)) |> 
+  View()
+  
