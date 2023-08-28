@@ -400,34 +400,37 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y1 <-
     group_by_cols2
   )
   
-all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y,
-          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y1)
-T
-
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
-  # remove NAs
-  dplyr::filter(stats::complete.cases(is_compl_or_both)) %>%
-  dplyr::mutate(
-    compl_or_not =
-      dplyr::case_when(is_compl_or_both == "YES" ~
-                         "compliant",
-                       .default = "non_compliant")
-  ) %>%
-  dplyr::group_by(year_permit, compl_or_not) %>%
-  # add counts by compliant
-  dplyr::mutate(cnt_y_p_c = sum(compl_or_not_cnt)) %>%
-  dplyr::ungroup() %>%
-  # add counts by permit expiration
-  dplyr::group_by(year_permit, perm_exp_y) %>%
-  dplyr::mutate(cnt_y_p_e = sum(compl_or_not_cnt)) %>%
-  dplyr::ungroup()
-
 # check cnts
 # compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
 #   # remove NAs
 #   filter(year_permit == '2022 gom_dual' & perm_exp_y == 'expired') %>% View()
 
 ## add percents of total ----
+add_percents_of_total <- function(my_df, select_cols)
+{
+  my_df %>%
+    dplyr::select(all_of(select_cols)) %>%
+    unique() %>%
+    dplyr::mutate(perc_c_nc = cnt_y_p_c * 100 / total_vsl_y) %>%
+    return()
+}
+
+select_cols <- c(
+  "year_permit",
+  "total_vsl_y",
+  "perm_exp_y",
+  "compl_or_not",
+  "cnt_y_p_c",
+  "cnt_y_p_e"
+)
+
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc1 <-
+  add_percents_of_total(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y,
+                        select_cols)
+
+all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc,
+          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc1)
+T
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y %>%
