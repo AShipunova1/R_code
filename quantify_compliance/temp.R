@@ -100,11 +100,9 @@ add_total_cnt <- function(my_df, group_by_col) {
     return()
 }
 
-compl_clean_sa_vs_gom_m_int_filtered_tot1 <-
+compl_clean_sa_vs_gom_m_int_filtered_tot <-
   add_total_cnt(compl_clean_sa_vs_gom_m_int_filtered, "year_permit")
 
-all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot,
-          compl_clean_sa_vs_gom_m_int_filtered_tot1)
 # check
 compl_clean_sa_vs_gom_m_int_filtered_tot %>%
   select(year_permit, total_vsl_y) %>%
@@ -123,17 +121,29 @@ compl_clean_sa_vs_gom_m_int_filtered_tot %>%
 end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
 # str(end_of_2022)
 
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot %>%
-  # get difference in days
-  dplyr::mutate(exp_w_end_diff_y =
-           as.numeric(as.Date(permitgroupexpiration) -
-                        end_of_2022)) %>%
-  # create a column 
-  dplyr::mutate(perm_exp_y =
-           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
-                     exp_w_end_diff_y > 0 ~ "active"))
+expired_or_not <- function(my_df) {
+  my_df %>%
+    # get difference in days
+    dplyr::mutate(exp_w_end_diff_y =
+                    as.numeric(as.Date(permitgroupexpiration) -
+                                 end_of_2022)) %>%
+    # create a column
+    dplyr::mutate(
+      perm_exp_y =
+        dplyr::case_when(
+          exp_w_end_diff_y <= 0 ~ "expired",
+          exp_w_end_diff_y > 0 ~ "active"
+        )
+    ) %>%
+    return()
+}
 
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y1 <-
+  expired_or_not(compl_clean_sa_vs_gom_m_int_filtered_tot)
+
+all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y,
+          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y1)
+T
 ## count expiration by year, permit ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y %>%
