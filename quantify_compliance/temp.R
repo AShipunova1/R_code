@@ -424,24 +424,9 @@ select_cols <- c(
   "cnt_y_p_e"
 )
 
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc1 <-
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
   add_percents_of_total(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y,
                         select_cols)
-
-all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc,
-          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc1)
-T
-
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y %>%
-  dplyr::select(year_permit,
-         total_vsl_y,
-         perm_exp_y,
-         compl_or_not,
-         cnt_y_p_c,
-         cnt_y_p_e) %>%
-  unique() %>%
-  dplyr::mutate(perc_c_nc = cnt_y_p_c * 100 / total_vsl_y)
 
 dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 # [1] 11  7
