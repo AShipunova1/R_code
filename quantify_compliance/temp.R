@@ -152,17 +152,9 @@ count_expiration_by <- function(my_df, group_by_var) {
 
 group_by_var = c("year_permit", "perm_exp_y")
 
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt1 <-
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt <-
   count_expiration_by(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y,
                       group_by_var)
-
-all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt,
-          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt1)
-T
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y %>%
-  dplyr::group_by(year_permit, perm_exp_y) %>%
-  # count distinct vessels per group
-  dplyr::mutate(exp_y_tot_cnt = n_distinct(vessel_official_number))
 
 ## fewer fields ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short <-
@@ -179,6 +171,30 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short <-
 ## get compl_counts ----
 ### get compl, no compl, or both per year ----
 
+get_compl_by <- function(my_df, group_by_for_compl) {
+  my_df %>%
+    dplyr::group_by_at(group_by_for_compl) %>%
+    # can unique, because we are looking at vessels, not weeks
+    unique() %>%
+    # more columns, a column per vessel
+    tidyr::pivot_wider(
+      names_from = vessel_official_number,
+      values_from = compliant_,
+      # make it "NO_YES" if both
+      values_fn = ~ paste0(sort(.x), collapse = "_")
+    ) %>%
+    dplyr::ungroup() %>%
+    return()
+}
+
+group_by_for_compl = vars(-c("vessel_official_number", "compliant_"))
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide1 <-
+  get_compl_by(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short,
+               group_by_for_compl)
+
+all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide,
+          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide1)
+T
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short %>%
   # group_by everything but
