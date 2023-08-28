@@ -1373,6 +1373,27 @@ all_plots_w_titles_list %>%
 # [[1]]
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
 
+# Above compliance metrics, to assess pre and post VMS requirement or vs increase in VMS
+# compliance (just Gulf + dual permitted vessels; assess Feb 2022 (=pre-VMS), March 2022 (VMS implementation), and Sept 2022 (when 80% vessels had a registered VMS))
+
+compl_clean_sa_vs_gom_m_int_filtered |> 
+  select(year_month) |> 
+  distinct()
+  
+compl_clean_sa_vs_gom_m_int_filtered_vms <-
+  compl_clean_sa_vs_gom_m_int_filtered %>%
+  filter(year_permit == "2022_gom_dual" &
+           year_month %in% c("Feb 2022",
+                             "Mar 2022",
+                             "Sep 2022")) |>
+  # group by per year and permit
+  dplyr::group_by(year_month) %>%
+  # cnt distinct vessels in each group
+  dplyr::mutate(total_vsl_y = 
+                  dplyr::n_distinct(vessel_official_number)) %>%
+  dplyr::ungroup()
+
+
 # ==
 # make a flat file ----
 dir_to_comb <- "~/R_code_github/quantify_compliance"
@@ -1398,3 +1419,4 @@ library(cowplot)
 
 # source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
+
