@@ -434,14 +434,63 @@ pims_n_corrected_addr |>
   View()
 
 ## check if the name is the same ----
-pims_n_corrected |>
-  # filter(!is.na(HAILING_PORT_CITY)) |>
-  rowwise() |> 
-  filter(grepl(ENTITY_NAME,
-               sero_home_port,
-               ignore.case = TRUE)) |>
-  ungroup() |> View()
-  dim()
-# 13
-# all 13 ports are the same
+include_name_filter <-
+  rlang::quo(grepl(ENTITY_NAME,
+               full_name,
+               ignore.case = TRUE))
   
+pims_n_corrected_name <-
+  pims_n_corrected |>
+  rowwise() |>
+  filter(!!include_name_filter) |>
+  ungroup()
+
+dim(pims_n_corrected_name)
+# 7
+# out of 13
+  
+pims_n_corrected_name |>
+  select(vessel_official_number,
+         contactrecipientname,
+         full_name,
+         ENTITY_NAME) |> 
+  View()
+
+pims_n_corrected |>
+  select(vessel_official_number,
+         contactrecipientname,
+         full_name,
+         ENTITY_NAME) |>
+  rowwise() |>
+  filter(!(!!include_name_filter)) |>
+  ungroup() |>
+  View()
+  dim()
+# 6
+
+# agrepl(
+#   pattern,
+#   x,
+#   max.distance = 0.1,
+#   costs = NULL,
+#   ignore.case = FALSE,
+#   fixed = TRUE,
+#   useBytes = FALSE
+# )
+
+pims_n_corrected |>
+  select(vessel_official_number,
+         contactrecipientname,
+         full_name,
+         ENTITY_NAME) |>
+  filter(!is.na(ENTITY_NAME)) |> 
+  rowwise() |>
+  filter(agrepl(ENTITY_NAME,
+                full_name,
+                max.distance = 0.3,
+                ignore.case = TRUE)) |>
+  ungroup() |>
+  dim()
+# [1] 13  4
+# all the same
+# ?adist
