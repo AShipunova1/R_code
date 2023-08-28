@@ -195,17 +195,24 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
 
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
 
+cols_names <-
+  c("year_permit", "total_vsl_y", "perm_exp_y", "exp_y_tot_cnt")
+
 ### count compl, no compl, or both per year, permit, active status ----
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long2 <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide %>%
   # turn back to a longer format, vessel ids in one column
-  pivot_longer(
+  tidyr::pivot_longer(
     # all other columns are vessel ids, use them as a names
-    cols = -c(year_permit, total_vsl_y, perm_exp_y, exp_y_tot_cnt),
+    # cols = -c(year_permit, total_vsl_y, perm_exp_y, exp_y_tot_cnt),
+    cols = !any_of(cols_names),
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
 
+all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long,
+          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long2)
+T
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
 
 ### get cnts for compl, no compl, or both per month with exp ----
@@ -227,13 +234,9 @@ cnts_for_compl <-
 group_by_cols <- c("year_permit", "perm_exp_y")
 cols_to_cnt <- c("year_permit", "perm_exp_y", "is_compl_or_both")
 
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt1 <-
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt <-
   cnts_for_compl(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long, group_by_cols, cols_to_cnt)  
    
-all.equal(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt,
-          compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt1)
-# T
-
 # View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
 
 #### check counts ----
