@@ -395,15 +395,23 @@ pims_n_corrected |>
 # [1] 97 18
 
 pims_n_corrected |> 
- filter(!is.na(REQMIT_ID)) |> 
+ filter(!is.na(HAILING_PORT_CITY)) |> 
  dim()
-# [1] 46 32
+# [1] 13 18
 # Not all vsls are in the pims csv
 
 ## check if the port is the same ----
-
-pims_n_corrected |> 
- filter(!is.na(REQMIT_ID)) |> 
-    filter(grepl(HAILING_PORT_CITY, sero_home_port)) |> 
-  View()
+pims_n_corrected |>
+  filter(!is.na(HAILING_PORT_CITY)) |>
+  rowwise() |> 
+  filter(grepl(HAILING_PORT_CITY,
+               sero_home_port,
+               ignore.case = TRUE)) |>
+  ungroup() |> View()
+  dim()
+# 13
+# all 13 ports are the same
   
+pims_n_corrected |> 
+ filter(!is.na(HAILING_PORT_CITY)) |> 
+select(HAILING_PORT_CITY, sero_home_port)
