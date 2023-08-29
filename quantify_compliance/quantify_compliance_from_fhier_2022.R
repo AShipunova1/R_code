@@ -1451,6 +1451,47 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long <-
 dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long)
 # [1] 7554    7
 
+### get cnts for compl, no compl, or both per month with exp ----
+group_by_cols <- c("year_month", "perm_exp_y")
+cols_to_cnt <- c("year_month", "perm_exp_y", "is_compl_or_both")
+
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt <-
+  cnts_for_compl(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long, group_by_cols, cols_to_cnt)  
+
+dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt)
+# [1] 23  7
+
+### check if a vessel is compliant and not at the same time ----
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long %>%
+  dplyr::filter(!is.na(is_compl_or_both)) %>%
+  dplyr::group_by(vessel_official_number) %>%
+  dplyr::mutate(shared = 
+                  dplyr::n_distinct(is_compl_or_both) == dplyr::n_distinct(.$is_compl_or_both)) %>%
+  dplyr::filter(shared == TRUE) %>%
+  glimpse()
+# $ year_month             <yearmon> Sep 2022, Mar 2022, Feb 2022
+# $ total_vsl_y            <int> 1144, 1031, 1034
+# $ perm_exp_y             <chr> "expired", "expired", "expired"
+# $ exp_y_tot_cnt          <int> 62, 108, 112
+# $ vessel_official_number <chr> "657209", "657209", "657209"
+# $ is_compl_or_both       <chr> "YES", "NO_YES", "NO"
+# $ shared                 <lgl> TRUE, TRUE, TRUE
+
+  # dim()
+# 3
+# TODO: fix
+
+### check if a vessel permit is expired and not in the same time ----
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long %>%
+  dplyr::filter(!is.na(is_compl_or_both)) %>%
+  dplyr::group_by(vessel_official_number) %>%
+  dplyr::mutate(shared = 
+                  dplyr::n_distinct(perm_exp_y) == dplyr::n_distinct(.$perm_exp_y)) %>%
+  dplyr::filter(shared == TRUE) %>%
+  dplyr::arrange(vessel_official_number) %>%
+  dim()
+# 0 ok
+
 # ==
 # make a flat file ----
 dir_to_comb <- "~/R_code_github/quantify_compliance"
