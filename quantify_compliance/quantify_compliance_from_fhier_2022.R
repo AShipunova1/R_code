@@ -1637,6 +1637,53 @@ weeks_per_vsl_year_month_vms_compl_cnt <-
 dim(weeks_per_vsl_year_month_vms_compl_cnt)
 # [1] 12677    31
 
+## 1b) percent of compl/non-compl per total weeks each vsl was present ----
+weeks_per_vsl_year_month_vms_compl_cnt_perc <-
+  weeks_per_vsl_year_month_vms_compl_cnt %>%
+  mutate(percent_compl =
+           weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
+
+View(weeks_per_vsl_year_month_vms_compl_cnt_perc)
+# [1] 12677    32
+
+# check
+weeks_per_vsl_year_month_vms_compl_cnt_perc %>%
+  filter(vessel_official_number == "FL3327TJ") %>%
+  select(
+    year_month,
+    compliant_,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) %>%
+  unique() %>%
+  glimpse()
+# $ year_month                 <yearmon> Sep 2022, Sep 2022
+# $ compliant_                 <chr> "NO", "YES"
+# $ weeks_per_vessel_per_compl <int> 1, 3
+# $ total_weeks_per_vessel     <int> 4, 4
+# $ percent_compl              <dbl> 25, 75
+
+# 2) split nc percentage into 4 buckets ----
+## 2a Only non-compl and fewer cols ----
+
+weeks_per_vsl_year_month_vms_compl_cnt_perc_short <-
+  weeks_per_vsl_year_month_vms_compl_cnt_perc %>%
+  dplyr::filter(compliant_ == "NO") %>%
+  dplyr::select(
+    year_month,
+    vessel_official_number,
+    perm_exp_y,
+    exp_y_tot_cnt,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) %>%
+  unique()
+
+dim(weeks_per_vsl_year_month_vms_compl_cnt_perc_short)
+# [1] 159   7
+
 # ==
 # make a flat file ----
 dir_to_comb <- "~/R_code_github/quantify_compliance"
