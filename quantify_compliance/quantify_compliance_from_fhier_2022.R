@@ -1565,6 +1565,7 @@ dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot
 gg_all_c_vs_nc_plots_vms <-
   compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot_perc$year_month %>%
   unique() %>%
+  sort() %>%
   # repeat for each year_month
   purrr::map(function(curr_year_month) {
     # browser()
@@ -1617,9 +1618,9 @@ main_title = "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
 # combine plots for 2022
 grid.arrange(
-  gg_all_c_vs_nc_plots_vms[[3]],
-  gg_all_c_vs_nc_plots_vms[[2]],
   gg_all_c_vs_nc_plots_vms[[1]],
+  gg_all_c_vs_nc_plots_vms[[2]],
+  gg_all_c_vs_nc_plots_vms[[3]],
   top = main_title
 )
 # class(gg_all_c_vs_nc_plots_vms)
@@ -1762,6 +1763,84 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc %>%
 # 4 50<= & <75%                         12.8
 # 5 50<= & <75%                         13.3
 # 6 50<= & <75%                         11.5
+
+# 5) blue plots by year ----
+
+blue_year_plot_titles <-
+  data.frame(
+    first_part = c(
+      "GOM + Dual Permitted Vessels\n("
+    )
+  )
+
+gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
+  weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc$year_month %>%
+  unique() %>%
+  sort() %>%
+  # repeat for each year_permit
+  purrr::map(function(year_month) {
+    # browser()
+    curr_df <-
+      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+      dplyr::filter(year_permit == curr_year_permit)
+    
+    total_non_compl_df <-
+      curr_df %>%
+      dplyr::select(perc_vsls_per_y_r_b,
+                    percent_n_compl_rank,
+                    perc_labels,
+                    vsls_per_y_r) %>%
+      unique()
+    
+    active_permits <- curr_df %>%
+      dplyr::filter(perm_exp_y == "active") %>%
+      dplyr::select(exp_y_tot_cnt)
+    
+    expired_permits <- curr_df %>%
+      filter(perm_exp_y == "expired") %>%
+      dplyr::select(exp_y_tot_cnt)
+    
+    # See the function definition F2
+    curr_title_y_p <- make_year_permit_label(curr_year_permit)
+
+    curr_blue_year_plot_title <-
+      blue_year_plot_titles %>% 
+      filter(year_permit == curr_year_permit)
+    
+    y_p_title <-
+      paste0(
+        curr_blue_year_plot_title$first_part,
+        "Total Non-Compliant = ",
+        total_non_compl_df$vsls_per_y_r,
+        " Vessels; Acitve permits = ",
+        active_permits$exp_y_tot_cnt,
+        # "; Expired permits: ",
+        # expired_permits$exp_y_tot_cnt,
+        " Vessels)"
+      )
+    
+    one_plot <-
+      ggplot(total_non_compl_df,
+             aes(x = percent_n_compl_rank,
+                 y = perc_vsls_per_y_r_b)) +
+      geom_col(fill = "deepskyblue") +
+      labs(title = y_p_title,
+           x = "",
+           y = "% nc vsls per year & permit") +
+      # text on bars
+      geom_text(aes(label = perc_labels),
+                position = position_stack(vjust = 0.5)) +
+      # y axes 0 to 100
+      ylim(0, 100) +
+      # size of an individual plot's title
+      theme(plot.title = 
+              element_text(size = 12))
+    
+    return(one_plot)
+  })
+
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]]
+
 
 # ==
 # make a flat file ----
