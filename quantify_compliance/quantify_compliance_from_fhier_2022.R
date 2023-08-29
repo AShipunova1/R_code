@@ -1389,11 +1389,67 @@ compl_clean_sa_vs_gom_m_int_filtered_vms <-
 dim(compl_clean_sa_vs_gom_m_int_filtered_vms)
 # [1] 12677    25
 
-# View(compl_clean_sa_vs_gom_m_int_filtered_vms)
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt <-
-  add_total_cnt(compl_clean_sa_vs_gom_m_int_filtered_vms, "year_month")
+  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_filtered_vms, "year_month")
+# glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt)
 
-# View(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt)
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt %>%
+  select(year_month, total_vsl_y) %>%
+  unique()
+# 1 Sep 2022          1144
+# 2 Mar 2022          1031
+# 3 Feb 2022          1034
+
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp <-
+  expired_or_not(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt)
+
+# glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp)
+
+group_by_var = c("year_month", "perm_exp_y")
+
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt <-
+  count_expiration_by(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp,
+                      group_by_var)
+
+# dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt)
+
+## fewer fields ----
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short <-
+  compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt %>%
+  dplyr::select(vessel_official_number,
+         year_permit,
+         year_month,
+         compliant_,
+         total_vsl_y,
+         perm_exp_y,
+         exp_y_tot_cnt) %>%
+  # can unique, because already counted
+  unique()
+
+dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short)
+# [1] 3319    7
+
+## get compl_counts ----
+### get compl, no compl, or both per period ----
+group_by_for_compl = vars(-c("vessel_official_number", "compliant_"))
+
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide <-
+  get_compl_by(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short,
+               group_by_for_compl)
+
+dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide)
+# [1]    6 1264
+
+### count compl, no compl, or both per period, permit, active status ----
+cols_names <-
+  c("year_permit", "year_month", "total_vsl_y", "perm_exp_y", "exp_y_tot_cnt")
+
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long <-
+  count_by_cols(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide,
+                cols_names)
+
+dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long)
+# [1] 7554    7
 
 # ==
 # make a flat file ----
