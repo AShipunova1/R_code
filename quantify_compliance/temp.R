@@ -242,7 +242,8 @@ cols_to_cnt <- c("year_permit", "perm_exp_y", "is_compl_or_both")
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt <-
   cnts_for_compl(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long, group_by_cols, cols_to_cnt)  
    
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
+dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
+# [1] 22  6
 
 #### check counts ----
 # print_df_names(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt)
@@ -256,16 +257,19 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
   # get sums
   dplyr::mutate(sum_cnts = sum(compl_or_not_cnt)) %>%
   dplyr::filter(!total_vsl_y == sum_cnts) %>%
-  unique() %>%
-  dplyr::group_by(is_compl_or_both) %>%
-  dplyr::mutate(sum_compl_or_not_cnt = sum(compl_or_not_cnt)) %>%
-  dplyr::select(is_compl_or_both, sum_compl_or_not_cnt) %>%
-  unique() %>%
-  dplyr::glimpse()
+  dim()
+# 0 OK
+  # unique() %>%
+  # dplyr::group_by(is_compl_or_both) %>%
+  # dplyr::mutate(sum_compl_or_not_cnt = sum(compl_or_not_cnt)) %>%
+  # dplyr::select(is_compl_or_both, sum_compl_or_not_cnt) %>%
+  # unique() %>%
+  # dplyr::glimpse()
 # $ is_compl_or_both     <chr> "YES", "NO", "NO_YES"
 # $ sum_compl_or_not_cnt <int> 890, 562, 727
 # 890 + 562 + 727
 # [1] 2179
+# 0
 
 ### One vessel in 2 groups ----
 # The number should be the same as the total number we got earlier. It is not, which means One vessel is in 2 perm_exp_y groups, has both expired and not expired permit in 2022.
