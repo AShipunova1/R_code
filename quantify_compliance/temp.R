@@ -89,7 +89,7 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 ## year add total ----
 # (both compl. and not, a vsl can be in both)
 
-add_total_cnt <- function(my_df, group_by_col) {
+add_total_cnt_in_gr <- function(my_df, group_by_col) {
   my_df %>%
     # group by per year and permit
     dplyr::group_by_at(group_by_col) %>%
@@ -101,7 +101,7 @@ add_total_cnt <- function(my_df, group_by_col) {
 }
 
 compl_clean_sa_vs_gom_m_int_filtered_tot <-
-  add_total_cnt(compl_clean_sa_vs_gom_m_int_filtered, "year_permit")
+  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_filtered, "year_permit")
 
 # check
 compl_clean_sa_vs_gom_m_int_filtered_tot %>%
@@ -193,7 +193,8 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
   get_compl_by(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short,
                group_by_for_compl)
 
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
+dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
+# [1]    6 3662
 
 ### count compl, no compl, or both per year, permit, active status ----
 
