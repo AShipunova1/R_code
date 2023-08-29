@@ -1623,6 +1623,20 @@ grid.arrange(
   top = main_title
 )
 # class(gg_all_c_vs_nc_plots_vms)
+
+# Non compliant only ----
+# 1) count percents - a given vsl non_compl per counted weeks total ----
+## 1a) how many weeks each vessel was present ----
+weeks_per_vsl_year_month_vms_compl_cnt <-
+  compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt |> 
+  # compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
+  dplyr::add_count(year_month, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  dplyr::add_count(year_month, vessel_official_number, name = "total_weeks_per_vessel") %>%
+  dplyr::ungroup()
+
+dim(weeks_per_vsl_year_month_vms_compl_cnt)
+# [1] 12677    31
+
 # ==
 # make a flat file ----
 dir_to_comb <- "~/R_code_github/quantify_compliance"
