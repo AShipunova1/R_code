@@ -1,0 +1,1 @@
+# Determine what level of the fishery is part time via declarations and VMS positions (e.g., from Jessica - number of fishing trips vs non-fishing trips). I would look at # of gulf + dual permitted vessels who declared charter/headboat fishing intended trips vs total # of permitted vessels, for 2022.
