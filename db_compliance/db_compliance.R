@@ -40,12 +40,6 @@ get_data_file_path <- file.path(
 )
 source(get_data_file_path)
 
-metricks_not_srhs_ids_2022 <-
-  fhier_reports_metrics_tracking_not_srhs_ids_list[[1]]
-
-dim(metricks_not_srhs_ids_2022)
-# 3571
-
 # 2022 year interval ----
 interval_2022 <- lubridate::interval(as.Date('2022-01-01'),
                                     as.Date('2022-12-31'))
@@ -58,16 +52,6 @@ dim(metricks_not_srhs_ids_2022)
 
 # vessels_permits_2022 ----
 dim(vessels_permits_2022)
-# [1] 40474    51
-
-## weird headers ----
-# print_df_names(vessels_permits_2022)
-vessels_permits_2022_c <-
-  vessels_permits_2022 |>
-  rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
-  rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
-
-dim(vessels_permits_2022_c)
 # [1] 40474    51
 
 ## fhier_metrics vessels only ----

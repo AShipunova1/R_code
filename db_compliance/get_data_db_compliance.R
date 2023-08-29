@@ -571,3 +571,21 @@ compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 source(file.path(my_paths$git_r,
                  "get_data_from_fhier",
                  "metric_tracking_no_srhs.R"))
+
+# Clean vessels ----
+metricks_not_srhs_ids_2022 <-
+  fhier_reports_metrics_tracking_not_srhs_ids_list[[1]]
+
+dim(metricks_not_srhs_ids_2022)
+# [1] 3571    1
+
+## weird headers ----
+# print_df_names(vessels_permits_2022)
+vessels_permits_2022_c <-
+  vessels_permits_2022 |>
+  rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
+  rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
+
+dim(vessels_permits_2022_c)
+# [1] 40474    51
+ 
