@@ -598,3 +598,8 @@ vessels_permits_2022_c_me <-
 
 dim(vessels_permits_2022_c_me)
 # [1] 29656    51
+
+## region permit groups ----
+vessels_permits_2022_r <-
+  vessels_permits_2022_c_me |>
+  separate_permits_into_3_groups(permit_group_field_name = "TOP")
