@@ -1541,9 +1541,88 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot <-
     group_by_exp_cols
   )
 
-glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot)
+dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot)
 # [1] 17 10
 
+## add percents of total ----
+select_cols <- c(
+  "year_month",
+  "total_vsl_y",
+  "perm_exp_y",
+  "compl_or_not",
+  "cnt_y_p_c",
+  "cnt_y_p_e"
+)
+
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot_perc <-
+  add_percents_of_total(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot,
+                        select_cols)
+
+dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot_perc)
+# [1] 12  7
+
+# plots VMS:
+gg_all_c_vs_nc_plots_vms <-
+  compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot_perc$year_month %>%
+  unique() %>%
+  # repeat for each year_month
+  purrr::map(function(curr_year_month) {
+    # browser()
+    curr_df <-
+      compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot_perc %>%
+      dplyr::filter(year_month == curr_year_month)
+    
+    # See function definition F2
+    y_r_title <-
+      make_year_permit_label(curr_year_month)
+    
+    total_vsls <- unique(curr_df$total_vsl_y)
+    
+    active_permits <- curr_df %>%
+      dplyr::filter(perm_exp_y == "active") %>%
+      dplyr::select(cnt_y_p_e) %>%
+      unique()
+    
+    expired_permits <- curr_df %>%
+      dplyr::filter(perm_exp_y == "expired") %>%
+      dplyr::select(cnt_y_p_e) %>%
+      unique()
+    
+    current_title <-
+      paste0(
+        "GOM + Dual",
+        " ",
+        curr_year_month,
+        " (Total Permitted: ",
+        total_vsls,
+        "; Expired Permits: ",
+        expired_permits$cnt_y_p_e,
+        ")"
+      )
+    
+    one_plot <-
+      curr_df %>%
+      dplyr::select(compl_or_not, perc_c_nc) %>%
+      unique() %>%
+      # See function definition F2
+      make_one_plot_compl_vs_non_compl(current_title,
+                                       is_compliant = "compl_or_not",
+                                       percent = "perc_c_nc")
+    
+    return(one_plot)
+    
+  })
+
+main_title = "Percent Compliant vs. Noncompliant SEFHIER Vessels"
+
+# combine plots for 2022
+grid.arrange(
+  gg_all_c_vs_nc_plots_vms[[3]],
+  gg_all_c_vs_nc_plots_vms[[2]],
+  gg_all_c_vs_nc_plots_vms[[1]],
+  top = main_title
+)
+# class(gg_all_c_vs_nc_plots_vms)
 # ==
 # make a flat file ----
 dir_to_comb <- "~/R_code_github/quantify_compliance"
