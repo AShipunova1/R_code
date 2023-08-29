@@ -589,3 +589,12 @@ vessels_permits_2022_c <-
 dim(vessels_permits_2022_c)
 # [1] 40474    51
  
+## fhier_metrics vessels only ----
+vessels_permits_2022_c_me <-
+  vessels_permits_2022_c |>
+  filter(
+    PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$vessel_official_number
+  )
+
+dim(vessels_permits_2022_c_me)
+# [1] 29656    51

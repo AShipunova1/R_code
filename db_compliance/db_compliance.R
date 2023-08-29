@@ -54,14 +54,14 @@ dim(metricks_not_srhs_ids_2022)
 dim(vessels_permits_2022)
 # [1] 40474    51
 
-## fhier_metrics vessels only ----
-vessels_permits_2022_c_me <-
-  vessels_permits_2022_c |>
-  filter(
-    PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$vessel_official_number
-  )
-
-dim(vessels_permits_2022_c_me)
+# ## fhier_metrics vessels only ----
+# vessels_permits_2022_c_me <-
+#   vessels_permits_2022_c |>
+#   filter(
+#     PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$vessel_official_number
+#   )
+# 
+# dim(vessels_permits_2022_c_me)
 # [1] 30306    51
 # [1] 22937    51 tracking no srsh
 # [1] 29656    51
