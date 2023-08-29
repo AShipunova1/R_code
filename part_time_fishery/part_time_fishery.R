@@ -13,11 +13,13 @@ try(con <- connect_to_secpr())
 # get data ----
 db_compliance_dir_name <- "db_compliance"
 
-get_data_file_path <- file.path(
+db_compliance_get_data_file_path <- file.path(
   my_paths$git_r,
   db_compliance_dir_name,
   paste0("get_data_",
          db_compliance_dir_name,
          ".R")
 )
-source(get_data_file_path)
+
+source(db_compliance_get_data_file_path)
+
