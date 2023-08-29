@@ -1736,6 +1736,32 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b %>%
 # $ cnt_v_in_bucket      <int> 26, 32, 26, 6, 8, 6, 15, 20, 20
 # $ total_per_period     <int> 159, 159, 159, 159, 159, 159, 159, 159, 159
 
+# 4) cnt percents of (3) ----
+# View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b)
+
+weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
+  weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b %>%
+  # cnt vessels per period and compliance
+  dplyr::add_count(year_month, 
+                   name = "vsls_per_y_r") %>%
+  dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+
+### check 4 ----
+weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc %>%
+  # dplyr::filter(year_permit == "2022 sa_only") %>%
+  dplyr::select(percent_n_compl_rank,
+                perc_vsls_per_y_r_b) %>%
+  unique() %>%
+  dplyr::arrange(percent_n_compl_rank) %>%
+  head()
+
+# 1 25<= & <50%                         55.3
+# 2 25<= & <50%                         53.3
+# 3 25<= & <50%                         50  
+# 4 50<= & <75%                         12.8
+# 5 50<= & <75%                         13.3
+# 6 50<= & <75%                         11.5
 
 # ==
 # make a flat file ----
