@@ -23,3 +23,20 @@ db_compliance_get_data_file_path <- file.path(
 
 source(db_compliance_get_data_file_path)
 
+source(file.path(my_paths$git_r,
+                 db_compliance_dir_name,
+                 "clean_data_db_compliance.R"))
+
+
+# v_p_d_w_22_short
+# t_d_w_short
+# tne_d_w_short
+# tn_d_w_short
+
+# (e.g., from Jessica - number of fishing trips vs non-fishing trips). 
+# total # of permitted vessels
+# gulf + dual permitted vessels 
+# who declared charter/headboat fishing intended trips
+
+View(v_p_d_w_22_short)
+# get gulf_dual 2022 ----
