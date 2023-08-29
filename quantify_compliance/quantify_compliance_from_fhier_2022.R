@@ -1492,6 +1492,58 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long %>%
   dim()
 # 0 ok
 
+### check total_vsl_y vs. sum_cnts ----
+compl_clean_sa_vs_gom_m_int_filtered_vms %>%
+  # dplyr::filter(year_permit == "2022 sa_only") %>%
+  dplyr::group_by(compliant_) %>%
+  dplyr::mutate(tota_vsl_m = 
+                  dplyr::n_distinct(vessel_official_number)) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(tota_vsl_m, compliant_) %>%
+  unique() %>%
+  head()
+# 1       1249 YES       
+# 2        117 NO        
+# 1249 + 117 = 1366
+# TODO: what to compare with?
+
+compl_clean_sa_vs_gom_m_int_filtered_vms %>%
+  # dplyr::filter(year_permit == "2022 sa_only") %>%
+  dplyr::mutate(exp_w_end_diff_y =
+           as.numeric(as.Date(permitgroupexpiration) -
+                        end_of_2022)) %>%
+  mutate(perm_exp_y =
+           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+                     exp_w_end_diff_y > 0 ~ "active")) %>%
+  group_by(perm_exp_y) %>%
+    dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(tota_vsl_m, compliant_, perm_exp_y) %>%
+  unique() %>%
+  head()
+# 1       1140 YES        active    
+# 2        119 YES        expired   
+# 3       1140 NO         active    
+# 4        119 NO         expired   
+# 1140 + 119
+# 1259
+# TODO: what does it mean?
+
+## add total cnts ----
+# active vs expired per year, permit, compl, permit expiration
+group_by_compl_cols <- c("year_month", "compl_or_not")
+group_by_exp_cols <- c("year_month", "perm_exp_y")
+
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot <-
+  add_total_cnts(
+    compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt,
+    group_by_compl_cols,
+    group_by_exp_cols
+  )
+
+glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot)
+# [1] 17 10
+
 # ==
 # make a flat file ----
 dir_to_comb <- "~/R_code_github/quantify_compliance"
