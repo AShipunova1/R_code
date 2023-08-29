@@ -1,5 +1,6 @@
 # get data ----
-input_path <- file.path(my_paths$inputs, current_project_name)
+# input_path <- file.path(my_paths$inputs, current_project_name)
+input_path <- file.path(my_paths$inputs, "db_compliance")
 
 ## permit ----
 file_name_permits <-
