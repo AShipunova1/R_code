@@ -1379,20 +1379,21 @@ all_plots_w_titles_list %>%
 compl_clean_sa_vs_gom_m_int_filtered |> 
   select(year_month) |> 
   distinct()
-  
+# dim(compl_clean_sa_vs_gom_m_int_filtered)
 compl_clean_sa_vs_gom_m_int_filtered_vms <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
-  filter(year_permit == "2022_gom_dual" &
+  filter(year_permit == "2022 gom_dual" &
            year_month %in% c("Feb 2022",
                              "Mar 2022",
-                             "Sep 2022")) |>
-  # group by per year and permit
-  dplyr::group_by(year_month) %>%
-  # cnt distinct vessels in each group
-  dplyr::mutate(total_vsl_y = 
-                  dplyr::n_distinct(vessel_official_number)) %>%
-  dplyr::ungroup()
+                             "Sep 2022"))
+dim(compl_clean_sa_vs_gom_m_int_filtered_vms)
+# [1] 12677    25
 
+# View(compl_clean_sa_vs_gom_m_int_filtered_vms)
+compl_clean_sa_vs_gom_m_int_filtered_vms_cnt <-
+  add_total_cnt(compl_clean_sa_vs_gom_m_int_filtered_vms, "year_month")
+
+# View(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt)
 
 # ==
 # make a flat file ----
