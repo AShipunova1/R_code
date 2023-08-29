@@ -374,7 +374,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 # active vs expired per year, permit, compl, permit expiration
 
 add_total_cnts <-
-  function(my_df, group_by_cols1, group_by_cols2) {
+  function(my_df, group_by_compl_cols, group_by_exp_cols) {
     my_df %>%
       # remove NAs
       dplyr::filter(stats::complete.cases(is_compl_or_both)) %>%
@@ -384,12 +384,12 @@ add_total_cnts <-
                              "compliant",
                            .default = "non_compliant")
       ) %>%
-      dplyr::group_by_at(group_by_cols1) %>%
+      dplyr::group_by_at(group_by_compl_cols) %>%
       # add counts by compliant
       dplyr::mutate(cnt_y_p_c = sum(compl_or_not_cnt)) %>%
       dplyr::ungroup() %>%
       # add counts by permit expiration
-      dplyr::group_by_at(group_by_cols2) %>%
+      dplyr::group_by_at(group_by_exp_cols) %>%
       dplyr::mutate(cnt_y_p_e = sum(compl_or_not_cnt)) %>%
       dplyr::ungroup() %>%
       return()
@@ -398,7 +398,7 @@ add_total_cnts <-
 group_by_cols1 <- c("year_permit", "compl_or_not")
 group_by_cols2 <- c("year_permit", "perm_exp_y")
 
-compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y1 <-
+compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y <-
   add_total_cnts(
     compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt,
     group_by_cols1,
