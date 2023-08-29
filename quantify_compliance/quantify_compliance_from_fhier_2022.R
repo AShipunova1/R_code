@@ -1684,6 +1684,35 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short <-
 dim(weeks_per_vsl_year_month_vms_compl_cnt_perc_short)
 # [1] 159   7
 
+## 2b) get percentage "buckets" ----
+# View(count_weeks_per_vsl_permit_year_n_compl_p_short_y_p)
+
+# See the function definition F2
+weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts <-
+  get_p_buckets(weeks_per_vsl_year_month_vms_compl_cnt_perc_short,
+                "percent_compl")
+
+View(weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts)
+# [1] 159   8
+
+### test 2 ----
+# count in one bucket
+weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
+  dplyr::filter(percent_n_compl_rank == '75<= & <=100%') %>%
+  dplyr::filter(year_month == "Mar 2022") %>%
+  dplyr::count(percent_compl, year_month,
+        name = "amount_of_occurences") %>%
+  dplyr::arrange(desc(percent_compl)) %>% 
+  # glimpse()
+# $ percent_compl        <dbl> 100, 75
+# $ year_month           <yearmon> Mar 2022, Mar 2022
+# $ amount_of_occurences <int> 18, 2
+
+  # sum amount_of_occurences
+  dplyr::count(wt = amount_of_occurences)
+# 55 all
+# 20 March
+
 # ==
 # make a flat file ----
 dir_to_comb <- "~/R_code_github/quantify_compliance"
