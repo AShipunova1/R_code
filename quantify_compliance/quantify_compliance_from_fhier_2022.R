@@ -1713,6 +1713,30 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
 # 55 all
 # 20 March
 
+# 3) count how many in each bucket ----
+
+weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b <-
+  weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
+    dplyr::add_count(year_month,
+              percent_n_compl_rank,
+              name = "cnt_v_in_bucket")
+
+### test 3 ----
+weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b %>%
+  # dplyr::filter(year_permit == "2022 sa_only") %>%
+  dplyr::select(year_month,
+                percent_n_compl_rank,
+                cnt_v_in_bucket) %>%
+  unique() %>%
+  dplyr::add_count(wt = cnt_v_in_bucket, name = "total_per_period") %>%
+  dplyr::arrange(percent_n_compl_rank) %>%
+  glimpse()
+# $ year_month           <yearmon> Sep 2022, Mar 2022, Feb 2022, Sep 2022, Mar 202…
+# $ percent_n_compl_rank <chr> "25<= & <50%", "25<= & <50%", "25<= & <50%", "50<= …
+# $ cnt_v_in_bucket      <int> 26, 32, 26, 6, 8, 6, 15, 20, 20
+# $ total_per_period     <int> 159, 159, 159, 159, 159, 159, 159, 159, 159
+
+
 # ==
 # make a flat file ----
 dir_to_comb <- "~/R_code_github/quantify_compliance"
