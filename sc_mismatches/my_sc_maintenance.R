@@ -69,7 +69,6 @@ sc_to_fh_diff <-
 identical(sort(mismatched_officialnumbers_SCvsFHIER$Official_number),
           sort(sc_to_fh_diff))
 # T
-
 # check if not in sc report at all ----
 not_it_fhier_sc_report <-
   setdiff(
@@ -84,44 +83,39 @@ not_it_fhier_sc_report <-
 length(not_it_fhier_sc_report)
 # 4
 
-# write to files ----
-project_dir_name <- "mismatched fields SC"
 
-output_file_path <- 
-  file.path(
+#create output files - use these to update FHIER maintenance list ----
+## make output file names ----
+project_dir_name <- "mismatched fields SC"
+output_file_names <- c("remove_from_FHIER",
+                       "enable_in_FHIER",
+                       "add_to_FHIER")
+
+output_file_path_list <-
+  output_file_names |>
+  map(~ file.path(
     my_paths$outputs,
     project_dir_name,
-    str_glue(
-    "{output_file_name}_{today()}.csv"
+    str_glue("{.x}_{today()}.csv")
   ))
 
-#create output file - use these to update FHIER maintenance list
-output_file_name = "###"
+output_file_path_list <-
+  setNames(output_file_path_list, output_file_names)    
 
+## write files ----
 write_csv(
   mismatched_officialnumbers_FHIERvsSC,
+  output_file_path_list$remove_from_FHIER
 ) #remove from FHIER, bc no longer permitted
 
 write_csv(
   mismatched_officialnumbers_SCvsFHIER,
-  file.path(
-    my_paths$outputs,
-    project_dir_name,
-    paste0("enable_in_FHIER_",
-    today(),
-    ".csv")
-  )
+  output_file_path_list$enable_in_FHIER
 ) #enable in FHIER, as newly permitted
 
 write_csv(
-  not_it_fhier_sc_report,
-  file.path(
-    my_paths$outputs,
-    project_dir_name,
-    "add_to_FHIER_",
-    today(),
-    ".csv"
-  )
+  as.data.frame(not_it_fhier_sc_report),
+  output_file_path_list$add_to_FHIER
 ) #add to FHIER, as newly permitted
 
 
