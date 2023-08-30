@@ -26,7 +26,7 @@ compl_clean_sa_vs_gom_m_int_1 <-
 # remove 2023 gom_only ----
 remove_23_gom <- function(my_df) {
   my_df |>
-    filter(!(year == '2023' & permit_sa_gom == "gom_only")) %>%
+    filter(!(year == "2023" & permit_sa_gom == "gom_only")) %>%
     return()
 }
 
@@ -45,7 +45,7 @@ count_all_vessels[1]
 # 3776
 
 count_not_gom23_vessels <-
-compl_clean_sa_vs_gom_m_int_filtered %>%
+  compl_clean_sa_vs_gom_m_int_filtered %>%
   select(vessel_official_number) %>%
   unique() %>%
   dim()
@@ -91,11 +91,11 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 
 add_total_cnt_in_gr <- function(my_df, group_by_col) {
   my_df %>%
-  # group by per year and permit
+    # group by per year and permit
     dplyr::group_by_at(group_by_col) %>%
-  # cnt distinct vessels in each group
-  dplyr::mutate(total_vsl_y =
-                  dplyr::n_distinct(vessel_official_number)) %>%
+    # cnt distinct vessels in each group
+    dplyr::mutate(total_vsl_y =
+                    dplyr::n_distinct(vessel_official_number)) %>%
     dplyr::ungroup() %>%
     return()
 }
@@ -119,21 +119,18 @@ compl_clean_sa_vs_gom_m_int_filtered_tot %>%
 
 ## expired or not? ----
 end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
-# str(end_of_2022)
 
 expired_or_not <- function(my_df) {
   my_df %>%
-  # get difference in days
-  dplyr::mutate(exp_w_end_diff_y =
-           as.numeric(as.Date(permitgroupexpiration) -
-                        end_of_2022)) %>%
-  # create a column
+    # get difference in days
+    dplyr::mutate(exp_w_end_diff_y =
+                    as.numeric(as.Date(permitgroupexpiration) -
+                                 end_of_2022)) %>%
+    # create a column
     dplyr::mutate(
       perm_exp_y =
-        dplyr::case_when(
-          exp_w_end_diff_y <= 0 ~ "expired",
-          exp_w_end_diff_y > 0 ~ "active"
-        )
+        dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
+                         exp_w_end_diff_y > 0 ~ "active")
     ) %>%
     return()
 }
@@ -144,13 +141,13 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y <-
 ## count expiration by year, permit ----
 count_expiration_by <- function(my_df, group_by_var) {
   my_df %>%
-  dplyr::group_by_at(group_by_var) %>%
-  # count distinct vessels per group
-  dplyr::mutate(exp_y_tot_cnt = n_distinct(vessel_official_number)) %>%
+    dplyr::group_by_at(group_by_var) %>%
+    # count distinct vessels per group
+    dplyr::mutate(exp_y_tot_cnt = n_distinct(vessel_official_number)) %>%
     return()
 }
 
-group_by_var = c("year_permit", "perm_exp_y")
+group_by_var <- c("year_permit", "perm_exp_y")
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt <-
   count_expiration_by(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y,
@@ -159,12 +156,14 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt <-
 ## fewer fields ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
-  dplyr::select(vessel_official_number,
-         year_permit,
-         compliant_,
-         total_vsl_y,
-         perm_exp_y,
-         exp_y_tot_cnt) %>%
+  dplyr::select(
+    vessel_official_number,
+    year_permit,
+    compliant_,
+    total_vsl_y,
+    perm_exp_y,
+    exp_y_tot_cnt
+  ) %>%
   # can unique, because already counted
   unique()
 
@@ -174,18 +173,20 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short <-
 get_compl_by <- function(my_df, group_by_for_compl) {
   my_df %>%
     dplyr::group_by_at(group_by_for_compl) %>%
-  # can unique, because we are looking at vessels, not weeks
-  unique() %>%
-  # more columns, a column per vessel
-  tidyr::pivot_wider(
-    names_from = vessel_official_number,
-    values_from = compliant_,
-    # make it "NO_YES" if both
-    values_fn = ~ paste0(sort(.x), collapse = "_")
-  ) %>%
-  dplyr::ungroup()
+    # can unique, because we are looking at vessels, not weeks
+    unique() %>%
+    # more columns, a column per vessel
+    tidyr::pivot_wider(
+      names_from = vessel_official_number,
+      values_from = compliant_,
+      # make it "NO_YES" if both
+      values_fn = ~ paste0(sort(.x), collapse = "_")
+    ) %>%
+    dplyr::ungroup() %>%
+    return()
+}
 
-group_by_for_compl = vars(-c("vessel_official_number", "compliant_"))
+group_by_for_compl <- vars(-c("vessel_official_number", "compliant_"))
 
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
   get_compl_by(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short,
@@ -199,12 +200,12 @@ dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
 count_by_cols <- function(my_df,
                           cols_names) {
   my_df %>%
-  # turn back to a longer format, vessel ids in one column
+    # turn back to a longer format, vessel ids in one column
     tidyr::pivot_longer(
       # all other columns are vessel ids, use them as names
       cols = !any_of(cols_names),
-    values_to = "is_compl_or_both",
-    names_to = "vessel_official_number"
+      values_to = "is_compl_or_both",
+      names_to = "vessel_official_number"
     ) %>%
     return()
 }
@@ -216,20 +217,18 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
   count_by_cols(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide,
                 cols_names)
 
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long)
-
 ### get cnts for compl, no compl, or both per month with exp ----
 cnts_for_compl <-
   function(my_df, group_by_cols, cols_to_cnt) {
     my_df %>%
       dplyr::group_by_at(group_by_cols) %>%
-  unique() %>%
-  # exclude vessel id
-  dplyr::select(-vessel_official_number) %>%
-  # count grouped by onther columns
+      unique() %>%
+      # exclude vessel id
+      dplyr::select(-vessel_official_number) %>%
+      # count grouped by onther columns
       dplyr::add_count(!!!syms(cols_to_cnt),
-            name = "compl_or_not_cnt") %>%
-  unique() %>%
+                       name = "compl_or_not_cnt") %>%
+      unique() %>%
       dplyr::ungroup() %>%
       return()
   }
@@ -257,12 +256,12 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
   dplyr::filter(!total_vsl_y == sum_cnts) %>%
   dim()
 # 0 OK
-  # unique() %>%
-  # dplyr::group_by(is_compl_or_both) %>%
-  # dplyr::mutate(sum_compl_or_not_cnt = sum(compl_or_not_cnt)) %>%
-  # dplyr::select(is_compl_or_both, sum_compl_or_not_cnt) %>%
-  # unique() %>%
-  # dplyr::glimpse()
+# unique() %>%
+# dplyr::group_by(is_compl_or_both) %>%
+# dplyr::mutate(sum_compl_or_not_cnt = sum(compl_or_not_cnt)) %>%
+# dplyr::select(is_compl_or_both, sum_compl_or_not_cnt) %>%
+# unique() %>%
+# dplyr::glimpse()
 # $ is_compl_or_both     <chr> "YES", "NO", "NO_YES"
 # $ sum_compl_or_not_cnt <int> 890, 562, 727
 # 890 + 562 + 727
@@ -289,7 +288,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
                   dplyr::n_distinct(is_compl_or_both) == dplyr::n_distinct(.$is_compl_or_both)) %>%
   dplyr::filter(shared == TRUE) %>%
   dim()
-  # dplyr::glimpse()
+# dplyr::glimpse()
 # 0 - OK
 
 # check if a vessel permit is expired and not in the same time
@@ -321,17 +320,16 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::filter(year_permit == "2022 sa_only") %>%
   dplyr::mutate(exp_w_end_diff_y =
-           as.numeric(as.Date(permitgroupexpiration) -
-                        end_of_2022)) %>%
+                  as.numeric(as.Date(permitgroupexpiration) -
+                               end_of_2022)) %>%
   mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # group_by(compliant_, perm_exp_y) %>%
   # group_by(compliant_) %>%
   group_by(perm_exp_y) %>%
-# 1707 + 472
-# [1] 2179
-
+  # 1707 + 472
+  # [1] 2179
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
   dplyr::ungroup() %>%
   dplyr::select(tota_vsl_m, compliant_, perm_exp_y) %>%
@@ -374,21 +372,21 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 add_total_cnts <-
   function(my_df, group_by_compl_cols, group_by_exp_cols) {
     my_df %>%
-  # remove NAs
-  dplyr::filter(stats::complete.cases(is_compl_or_both)) %>%
-  dplyr::mutate(
-    compl_or_not =
-      dplyr::case_when(is_compl_or_both == "YES" ~
-                         "compliant",
-                       .default = "non_compliant")
-  ) %>%
+      # remove NAs
+      dplyr::filter(stats::complete.cases(is_compl_or_both)) %>%
+      dplyr::mutate(
+        compl_or_not =
+          dplyr::case_when(is_compl_or_both == "YES" ~
+                             "compliant",
+                           .default = "non_compliant")
+      ) %>%
       dplyr::group_by_at(group_by_compl_cols) %>%
-  # add counts by compliant
-  dplyr::mutate(cnt_y_p_c = sum(compl_or_not_cnt)) %>%
-  dplyr::ungroup() %>%
-  # add counts by permit expiration
+      # add counts by compliant
+      dplyr::mutate(cnt_y_p_c = sum(compl_or_not_cnt)) %>%
+      dplyr::ungroup() %>%
+      # add counts by permit expiration
       dplyr::group_by_at(group_by_exp_cols) %>%
-  dplyr::mutate(cnt_y_p_e = sum(compl_or_not_cnt)) %>%
+      dplyr::mutate(cnt_y_p_e = sum(compl_or_not_cnt)) %>%
       dplyr::ungroup() %>%
       return()
   }
@@ -409,14 +407,14 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y <-
 #   filter(year_permit == '2022 gom_dual' & perm_exp_y == 'expired') %>% View()
 
 ## add percents of total ----
-add_percents_of_total <- function(my_df, select_cols)
-{
-  my_df %>%
-    dplyr::select(all_of(select_cols)) %>%
-    unique() %>%
-    dplyr::mutate(perc_c_nc = cnt_y_p_c * 100 / total_vsl_y) %>%
-    return()
-}
+add_percents_of_total <-
+  function(my_df, select_cols) {
+    my_df %>%
+      dplyr::select(all_of(select_cols)) %>%
+      unique() %>%
+      dplyr::mutate(perc_c_nc = cnt_y_p_c * 100 / total_vsl_y) %>%
+      return()
+  }
 
 select_cols <- c(
   "year_permit",
@@ -444,11 +442,10 @@ title_permits <- data.frame(
                   "2023 sa_dual"),
   second_part = c("Permitted Vessels",
                   "Permitted Vessels",
-                  "Permitted Vessels"
-                  # "Permitted SEFHIER Vessels"
-                  )
+                  "Permitted Vessels")
 )
 
+# "Permitted SEFHIER Vessels"
 
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
@@ -476,8 +473,8 @@ gg_all_c_vs_nc_plots <-
       dplyr::select(cnt_y_p_e) %>%
       unique()
 
-# 1st figure title: "SA Only Permitted Vessels (Total Permitted: 2178; Expired Permits: 472)"
-# 2nd figure title: "GOM + Dual Permitted Vessels (Total Permitted: 1495; Expired Permits: 303)"
+    # 1st figure title: "SA Only Permitted Vessels (Total Permitted: 2178; Expired Permits: 472)"
+    # 2nd figure title: "GOM + Dual Permitted Vessels (Total Permitted: 1495; Expired Permits: 303)"
 
     curr_title_permit <-
       title_permits %>%
@@ -515,12 +512,12 @@ gg_all_c_vs_nc_plots[[3]]
 gg_all_c_vs_nc_plots[[1]]
 gg_all_c_vs_nc_plots[[2]]
 
-main_title = "Percent Compliant vs. Noncompliant SEFHIER Vessels"
+main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
 # combine plots for 2022
 grid.arrange(gg_all_c_vs_nc_plots[[1]],
-  gg_all_c_vs_nc_plots[[2]],
-  top = main_title)
+             gg_all_c_vs_nc_plots[[2]],
+             top = main_title)
 
 # Non compliant only ----
 
@@ -529,17 +526,25 @@ grid.arrange(gg_all_c_vs_nc_plots[[1]],
 ## 1a) how many weeks each vessel was present ----
 weeks_per_vsl_permit_year_compl_cnt <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
-  dplyr::add_count(year_permit, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
-  dplyr::add_count(year_permit, vessel_official_number, name = "total_weeks_per_vessel") %>%
+  dplyr::add_count(year_permit,
+                   vessel_official_number,
+                   compliant_,
+                   name = "weeks_per_vessel_per_compl") %>%
+  dplyr::add_count(year_permit,
+                   vessel_official_number,
+                   name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
 
 # View(weeks_per_vsl_permit_year_compl_cnt)
 
 ## test 1a ----
 weeks_per_vsl_permit_year_compl_cnt %>%
- dplyr::filter(vessel_official_number == "1000042" &
-          year == "2022") %>%
- dplyr::select(year, compliant_, weeks_per_vessel_per_compl, total_weeks_per_vessel) %>%
+  dplyr::filter(vessel_official_number == "1000042" &
+                  year == "2022") %>%
+  dplyr::select(year,
+                compliant_,
+                weeks_per_vessel_per_compl,
+                total_weeks_per_vessel) %>%
   unique()
 #   year  compliant_ weeks_per_vessel_per_compl total_weeks_per_vessel
 # 1 2022 YES 50 52
@@ -548,14 +553,14 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 nc_2022_sa_only_test <-
   weeks_per_vsl_permit_year_compl_cnt %>%
   dplyr::filter(year_permit == "2022 sa_only",
-         compliant_ == "NO") %>%
+                compliant_ == "NO") %>%
   dplyr::select(vessel_official_number,
-         weeks_per_vessel_per_compl,
-         total_weeks_per_vessel) %>%
+                weeks_per_vessel_per_compl,
+                total_weeks_per_vessel) %>%
   unique()
 
 head(nc_2022_sa_only_test)
-            # weeks_per_vessel_per…¹ total_weeks_per_vessel
+# weeks_per_vessel_per…¹ total_weeks_per_vessel
 # 1 VA9236AV 52 52
 # 2 VA6784AD 24 24
 # 3 VA4480ZY 44 44
@@ -564,12 +569,14 @@ head(nc_2022_sa_only_test)
 # 6 SC8298DH 45 45
 
 weeks_per_vsl_permit_year_compl_cnt %>%
-  dplyr::filter(year_permit == "2022 sa_only",
-         compliant_ == "YES",
-         vessel_official_number == "SC8907DF") %>%
+  dplyr::filter(
+    year_permit == "2022 sa_only",
+    compliant_ == "YES",
+    vessel_official_number == "SC8907DF"
+  ) %>%
   dplyr::select(vessel_official_number,
-         weeks_per_vessel_per_compl,
-         total_weeks_per_vessel) %>%
+                weeks_per_vessel_per_compl,
+                total_weeks_per_vessel) %>%
   unique() %>%
   dplyr::glimpse()
 # 26  40
@@ -598,7 +605,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
          compliant_ == "NO") %>%
   select(vessel_official_number) %>%
   # unique() %>%
-# 1289    Non compliant vsl
+  # 1289    Non compliant vsl
   dim()
 # [1] 26466 non compliant weeks
 # [1] 25662     1
@@ -641,9 +648,9 @@ count_weeks_per_vsl_permit_year_n_compl_p_short <-
 
 # str(count_weeks_per_vsl_permit_year_n_compl_p_short)
 # tibble [3,221 × 7] (S3: tbl_df/tbl/data.frame)
- # $ weeks_per_vessel_per_compl: int [1:3221] 52 24 44 26 14 45 5 41 52 27 ...
- # $ total_weeks_per_vessel    : int [1:3221] 52 24 44 50 40 45 41 45 52 52 ...
- # $ percent_compl             : num [1:3221] 100 100 100 52 35 ...
+# $ weeks_per_vessel_per_compl: int [1:3221] 52 24 44 26 14 45 5 41 52 27 ...
+# $ total_weeks_per_vessel    : int [1:3221] 52 24 44 50 40 45 41 45 52 52 ...
+# $ percent_compl             : num [1:3221] 100 100 100 52 35 ...
 
 ## 2b) get percentage "buckets" ----
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_y_p)
@@ -656,10 +663,10 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts <-
 ### test 2 ----
 # count in one bucket
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
-  dplyr::filter(percent_n_compl_rank == '75<= & <=100%') %>%
+  dplyr::filter(percent_n_compl_rank == "75<= & <=100%") %>%
   dplyr::filter(year_permit == "2022 sa_only") %>%
   dplyr::count(percent_compl, year_permit,
-        name = "amount_of_occurences") %>%
+               name = "amount_of_occurences") %>%
   dplyr::arrange(desc(percent_compl)) %>%
   # sum amount_of_occurences
   dplyr::count(wt = amount_of_occurences)
@@ -672,9 +679,9 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
 
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
-    dplyr::add_count(year_permit,
-              percent_n_compl_rank,
-              name = "cnt_v_in_bucket")
+  dplyr::add_count(year_permit,
+                   percent_n_compl_rank,
+                   name = "cnt_v_in_bucket")
 
 ### test 3 ----
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
@@ -690,10 +697,10 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
 # $ cnt_v_in_bucket     : int [1:4] 399 172 85 633
 # $ total_per_y_r       : int [1:4] 1289 1289 1289 1289
 
- # $ year_permit         : chr [1:4] "2022 sa_only" "2022 sa_only" "2022 sa_only" "2022 sa_only"
- # $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
- # $ cnt_v_in_bucket     : int [1:4] 398 168 82 615
- # $ total_per_y_r       : int [1:4] 1263 1263 1263 1263
+# $ year_permit         : chr [1:4] "2022 sa_only" "2022 sa_only" "2022 sa_only" "2022 sa_only"
+# $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
+# $ cnt_v_in_bucket     : int [1:4] 398 168 82 615
+# $ total_per_y_r       : int [1:4] 1263 1263 1263 1263
 
 # "2022 sa_only"
 # 633+85+172+399
@@ -829,7 +836,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]]
 
 ## plot 2022 ----
 ndash <- "\u2013"
-super_title = paste0(
+super_title <- paste0(
   "2022: % Non-Compliant Vessels Missing <25%, 25%", ndash, "49.9%, 50%", ndash, "74.9%, >=75% of their reports"
 )
 
@@ -853,7 +860,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map( ~ .x + labs(x = NULL, y = NULL))
+  map(~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -862,14 +869,14 @@ plot_perc_22 <- gridExtra::grid.arrange(
 
 ## SA23 ----
 
-super_title = "% of non-compliant vessels (2023)"
+super_title <- "% of non-compliant vessels (2023)"
 
 
 gridExtra::grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]],
-             top = super_title
-             # ,
-             # bottom = footnote
-             )
+                        top = super_title
+                        )
+                        # ,
+                        # bottom = footnote
 
 # Per month, region ----
 # super_title_per_m = "% non-compliant weeks per month for non-compliant vessels by permit type (2022)"
@@ -906,15 +913,15 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
   # add a column with difference in days
   dplyr::mutate(exp_w_end_diff =
-           as.numeric(as.Date(permitgroupexpiration) - week_start + 1))
+                  as.numeric(as.Date(permitgroupexpiration) - week_start + 1))
 
 ## expired or not? ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-           case_when(exp_w_end_diff < 0 ~ "expired",
-                     exp_w_end_diff >= 0 ~ "active"))
+                  case_when(exp_w_end_diff < 0 ~ "expired",
+                            exp_w_end_diff >= 0 ~ "active"))
 
 ## count if vessel is expired or not by year, permit and month  ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
@@ -928,14 +935,14 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   dplyr::filter(year == "2022") %>%
   dplyr::select(year_permit,
-         year_month,
-         perm_exp_m,
-         exp_m_tot_cnt,
-         total_vsl_m) %>%
+                year_month,
+                perm_exp_m,
+                exp_m_tot_cnt,
+                total_vsl_m) %>%
   unique() %>%
   dplyr::arrange(year_permit, year_month) %>%
   tail()
-  # year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
+# year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
 #   <chr>        <yearmon>  <chr>              <int>       <int>
 # 1 2022 sa_only Oct 2022   active              1721        1722
 # 2 2022 sa_only Oct 2022   expired                1        1722
@@ -994,7 +1001,7 @@ count_weeks_per_vsl_permit_year_compl_month <-
 
 # test
 count_weeks_per_vsl_permit_year_compl_month %>%
-    # select(year_permit, year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
+  # select(year_permit, year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
   # unique() %>%
   filter(year_month == "Dec 2022") %>%
   glimpse()
@@ -1009,7 +1016,7 @@ count_weeks_per_vsl_permit_year_compl_month %>%
 
 # test
 count_weeks_per_vsl_permit_year_compl_month %>%
-filter(year_permit == "2022 sa_only" &
+  filter(year_permit == "2022 sa_only" &
            compliant_ == "NO") %>%
   select(vessel_official_number,
          compliant_,
@@ -1027,7 +1034,7 @@ filter(year_permit == "2022 sa_only" &
 count_weeks_per_vsl_permit_year_compl_m_p <-
   count_weeks_per_vsl_permit_year_compl_month %>%
   dplyr::mutate(percent_compl_m =
-           weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_per_compl_m)
+                  weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_per_compl_m)
 
 ### test 1, by month ----
 count_weeks_per_vsl_permit_year_compl_m_p %>%
@@ -1080,11 +1087,11 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b <-
 
 ### check 2, by month ----
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b %>%
-  filter(percent_n_compl_rank == '75<= & <=100%') %>%
+  filter(percent_n_compl_rank == "75<= & <=100%") %>%
   filter(year_permit == "2022 sa_only" &
            vessel_official_number == "VA9236AV") %>%
   dplyr::add_count(percent_compl_m, year_permit,
-        name = "amount_of_occurences") %>%
+                   name = "amount_of_occurences") %>%
   # sort in the descending order
   dplyr::arrange(desc(percent_compl_m)) %>%
   # sum
@@ -1097,10 +1104,10 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b %>%
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
   count_weeks_per_vsl_permit_year_compl_m_p_nc_b %>%
-    dplyr::add_count(year_permit,
-              year_month,
-              percent_n_compl_rank,
-              name = "cnt_v_in_bucket")
+  dplyr::add_count(year_permit,
+                   year_month,
+                   percent_n_compl_rank,
+                   name = "cnt_v_in_bucket")
 
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 # [1] 11489    12
@@ -1108,10 +1115,10 @@ dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 # check by counting in a different way
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   dplyr::group_by(year_permit,
-           year_month,
-           percent_n_compl_rank) %>%
+                  year_month,
+                  percent_n_compl_rank) %>%
   dplyr::mutate(cnt_v_in_bucket1 =
-           dplyr::n_distinct(vessel_official_number)) %>%
+                  dplyr::n_distinct(vessel_official_number)) %>%
   dplyr::filter(!(cnt_v_in_bucket == cnt_v_in_bucket1)) %>%
   dim()
 # 0 - correct, no difference
@@ -1222,11 +1229,12 @@ sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_
 
 ### make titles ----
 get_year_permit_titles <- function(permit, year) {
-      paste0("% of non-compliant ",
-             permit,
-             " Permitted vessels by month",
-             " (", year, ")"
-             ) %>%
+  paste0("% of non-compliant ",
+         permit,
+         " Permitted vessels by month",
+         " (",
+         year,
+         ")") %>%
     return()
 }
 
@@ -1249,12 +1257,11 @@ get_expired_permit_numbers <- function(curr_data) {
     filter(perm_exp_m == "expired") %>%
     unique()
 
-  res = exp_filt$exp_m_tot_cnt
+  res <- exp_filt$exp_m_tot_cnt
 
   # if filter(perm_exp_m == "expired") returned nothing
-  if (dim(exp_filt)[1] == 0)
-  {
-      res = 0
+  if (dim(exp_filt)[1] == 0) {
+    res <- 0
   }
 
   return(res)
@@ -1316,6 +1323,7 @@ get_one_plot_by_month <-
 gg_month_nc_perc <-
   sorted_year_permits %>%
   purrr::map(
+
     # for each year and permit pull a df from the list
     function(current_year_permit) {
       # browser()
@@ -1333,9 +1341,8 @@ gg_month_nc_perc <-
         sort() %>%
         # run the function for each month
         # see the function definition F2
-        purrr::map( ~ get_one_plot_by_month(curr_df,
-                                            curr_year_month = .))
-
+        purrr::map(~ get_one_plot_by_month(curr_df,
+                                           curr_year_month = .))
       # add correct names instead of 1, 2...
       names(list_of_plots) <-
         sort(curr_year_months$year_month)
@@ -1374,8 +1381,9 @@ y_left <- textGrob("% per 'bucket'",
                    rot = 90,
                    gp = gpar(fontsize = 10))
 
-x_bottom <- textGrob("'buckets' - distibution of % of non compliant weeks per vessel",
-                  gp = gpar(fontsize = 10))
+x_bottom <-
+  textGrob("'buckets' - distibution of % of non compliant weeks per vessel",
+           gp = gpar(fontsize = 10))
 
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
