@@ -2,7 +2,7 @@ library(zoo)
 
 source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
-# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids ----
 compl_clean_sa_vs_gom_m_int_1 <-
   compl_clean_sa_vs_gom_m_int |>
   filter(
@@ -40,8 +40,11 @@ compl_clean_sa_vs_gom_m_int_filtered_2022_gom |>
 # 808
 
 compl_clean_sa_vs_gom_m_int_filtered_2022_gom |> 
-  # has a declaration
-  filter(gom_permitteddeclarations__ == 0) |> 
+  group_by(vessel_official_number) |> 
+  add_count(wt = gom_permitteddeclarations__) |> 
+  filter(n == 0) |> 
   select(vessel_official_number) |> 
   distinct() |> 
   dim()
+# 496   
+# 496 + 808 = 1304 ok
