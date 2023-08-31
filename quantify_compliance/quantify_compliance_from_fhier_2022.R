@@ -2013,6 +2013,119 @@ grid.arrange(gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_
              gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc[[3]],
              top = main_blue_title)
 
+# Create a read.me file with numbers of total, active and expired ----
+year_permit_cnts <-
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
+  unique() %>%
+  sort() |>
+  # repeat for each year_permit
+  purrr::map_df(function(curr_year_permit) {
+    # browser()
+    curr_df <-
+      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
+      dplyr::filter(year_permit == curr_year_permit)
+    
+    total_vsls <- unique(curr_df$total_vsl_y)
+    
+    active_permits <- curr_df %>%
+      dplyr::filter(perm_exp_y == "active") %>%
+      dplyr::select(cnt_y_p_e) %>%
+      unique()
+    
+    expired_permits <- curr_df %>%
+      dplyr::filter(perm_exp_y == "expired") %>%
+      dplyr::select(cnt_y_p_e) %>%
+      unique()
+    
+    out_df <- as.data.frame(c(curr_year_permit, total_vsls, active_permits, expired_permits))
+    names(out_df) <- c("year_permit", "total", "active_permits", "expired_permits")
+    
+    return(out_df)
+  })
+
+View(year_permit_cnts)
+
+2 )
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
+  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
+  unique() %>%
+  sort() %>%
+  # repeat for each year_permit
+  purrr::map(function(curr_year_permit) {
+    # browser()
+    curr_df <-
+      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+      dplyr::filter(year_permit == curr_year_permit)
+
+    total_non_compl_df <-
+      curr_df %>%
+      dplyr::select(perc_vsls_per_y_r_b,
+                    percent_n_compl_rank,
+                    perc_labels,
+                    vsls_per_y_r) %>%
+      unique()
+
+    active_permits <- curr_df %>%
+      dplyr::filter(perm_exp_y == "active") %>%
+      dplyr::select(exp_y_tot_cnt)
+
+    expired_permits <- curr_df %>%
+      filter(perm_exp_y == "expired") %>%
+      dplyr::select(exp_y_tot_cnt)
+
+3)
+get_one_plot_by_month <-
+  function(my_df, curr_year_month) {
+    # browser()
+    curr_data <- my_df %>%
+      filter(year_month == curr_year_month)
+
+    curr_month_name <- unique(curr_data$month_only)
+
+    curr_year_permit <- unique(curr_data$year_permit)
+
+    curr_tot_v_per_m_y_r <- unique(curr_data$cnt_vsl_m_compl)
+
+    curr_m_tot_active <- curr_data %>%
+      filter(perm_exp_m == "active") %>%
+      select(exp_m_tot_cnt) %>%
+      unique()
+
+    # see function definition F2
+    cnt_expired <- get_expired_permit_numbers(curr_data)
+
+# 3a) month
+    gg_month_nc_perc <-
+  sorted_year_permits %>%
+  purrr::map(
+    # for each year and permit pull a df from the list
+    function(current_year_permit) {
+      # browser()
+      curr_df <-
+        count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[[current_year_permit]]
+
+      curr_year_months <-
+        curr_df %>%
+        dplyr::select(year_month) %>%
+        unique() %>%
+        as.data.frame()
+
+      list_of_plots <-
+        curr_year_months$year_month %>%
+        sort() %>%
+        # run the function for each month
+        # see the function definition F2
+        purrr::map(~ get_one_plot_by_month(curr_df,
+                                            curr_year_month = .))
+      # add correct names instead of 1, 2...
+      names(list_of_plots) <-
+        sort(curr_year_months$year_month)
+
+      # put the name and the plots into a list to return
+      res <- list(current_year_permit, list_of_plots)
+      return(res)
+    })
+
 
 # ==
 # make a flat file ----
