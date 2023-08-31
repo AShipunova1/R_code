@@ -1132,7 +1132,8 @@ test_compare_with <-
   filter(year_month == "Jan 2022") %>%
   filter(compliant_ == "NO") %>%
   select(vessel_official_number) %>%
-  unique() %>% dim()
+  unique() %>%
+  dim()
 # total 703 nc vsls in "Jan 2022 sa_only"
 # tot 1635 in Jan 2022
 #
@@ -1147,7 +1148,8 @@ test_res <-
   filter(year_permit == "2022 sa_only") %>%
   filter(year_month == "Jan 2022") %>%
   select(vessel_official_number) %>%
-  unique() %>% dim()
+  unique() %>%
+  dim()
 #  703 1
 
 test_compare_with[1] == test_res[1]
@@ -1323,7 +1325,6 @@ get_one_plot_by_month <-
 gg_month_nc_perc <-
   sorted_year_permits %>%
   purrr::map(
-
     # for each year and permit pull a df from the list
     function(current_year_permit) {
       # browser()
@@ -1342,7 +1343,7 @@ gg_month_nc_perc <-
         # run the function for each month
         # see the function definition F2
         purrr::map(~ get_one_plot_by_month(curr_df,
-                                           curr_year_month = .))
+                                            curr_year_month = .))
       # add correct names instead of 1, 2...
       names(list_of_plots) <-
         sort(curr_year_months$year_month)
@@ -1500,7 +1501,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp <-
 
 # glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp)
 
-group_by_var = c("year_month", "perm_exp_y")
+group_by_var <- c("year_month", "perm_exp_y")
 
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt <-
   count_expiration_by(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp,
@@ -1511,13 +1512,15 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt <-
 ## fewer fields ----
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short <-
   compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt %>%
-  dplyr::select(vessel_official_number,
-         year_permit,
-         year_month,
-         compliant_,
-         total_vsl_y,
-         perm_exp_y,
-         exp_y_tot_cnt) %>%
+  dplyr::select(
+    vessel_official_number,
+    year_permit,
+    year_month,
+    compliant_,
+    total_vsl_y,
+    perm_exp_y,
+    exp_y_tot_cnt
+  ) %>%
   # can unique, because already counted
   unique()
 
@@ -1526,7 +1529,7 @@ dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short)
 
 ## get compl_counts ----
 ### get compl, no compl, or both per period ----
-group_by_for_compl = vars(-c("vessel_official_number", "compliant_"))
+group_by_for_compl <- vars(-c("vessel_official_number", "compliant_"))
 
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide <-
   get_compl_by(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short,
@@ -1605,13 +1608,13 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
 compl_clean_sa_vs_gom_m_int_filtered_vms %>%
   # dplyr::filter(year_permit == "2022 sa_only") %>%
   dplyr::mutate(exp_w_end_diff_y =
-           as.numeric(as.Date(permitgroupexpiration) -
-                        end_of_2022)) %>%
+                  as.numeric(as.Date(permitgroupexpiration) -
+                               end_of_2022)) %>%
   mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   group_by(perm_exp_y) %>%
-    dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
+  dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
   dplyr::ungroup() %>%
   dplyr::select(tota_vsl_m, compliant_, perm_exp_y) %>%
   unique() %>%
@@ -1709,7 +1712,7 @@ gg_all_c_vs_nc_plots_vms <-
 
   })
 
-main_title = "Percent Compliant vs. Noncompliant SEFHIER Vessels"
+main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
 # combine plots for 2022
 grid.arrange(
@@ -1794,15 +1797,15 @@ View(weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts)
 ### test 2 ----
 # count in one bucket
 weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
-  dplyr::filter(percent_n_compl_rank == '75<= & <=100%') %>%
+  dplyr::filter(percent_n_compl_rank == "75<= & <=100%") %>%
   dplyr::filter(year_month == "Mar 2022") %>%
   dplyr::count(percent_compl, year_month,
-        name = "amount_of_occurences") %>%
+               name = "amount_of_occurences") %>%
   dplyr::arrange(desc(percent_compl)) %>%
-  # glimpse()
-# $ percent_compl        <dbl> 100, 75
-# $ year_month           <yearmon> Mar 2022, Mar 2022
-# $ amount_of_occurences <int> 18, 2
+  glimpse()
+  # $ percent_compl        <dbl> 100, 75
+  # $ year_month           <yearmon> Mar 2022, Mar 2022
+  # $ amount_of_occurences <int> 18, 2
 
   # sum amount_of_occurences
   dplyr::count(wt = amount_of_occurences)
@@ -1811,22 +1814,22 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
 
 # 3) count how many in each bucket ----
 
-weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b <-
-  weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
+  weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b <-
+    weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
     dplyr::add_count(year_month,
-              percent_n_compl_rank,
-              name = "cnt_v_in_bucket")
+                     percent_n_compl_rank,
+                     name = "cnt_v_in_bucket")
 
 ### test 3 ----
-weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b %>%
-  # dplyr::filter(year_permit == "2022 sa_only") %>%
-  dplyr::select(year_month,
-                percent_n_compl_rank,
-                cnt_v_in_bucket) %>%
-  unique() %>%
-  dplyr::add_count(wt = cnt_v_in_bucket, name = "total_per_period") %>%
-  dplyr::arrange(percent_n_compl_rank) %>%
-  glimpse()
+  weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b %>%
+    # dplyr::filter(year_permit == "2022 sa_only") %>%
+    dplyr::select(year_month,
+                  percent_n_compl_rank,
+                  cnt_v_in_bucket) %>%
+    unique() %>%
+    dplyr::add_count(wt = cnt_v_in_bucket, name = "total_per_period") %>%
+    dplyr::arrange(percent_n_compl_rank) %>%
+    glimpse()
 # $ year_month           <yearmon> Sep 2022, Mar 2022, Feb 2022, Sep 2022, Mar 202…
 # $ percent_n_compl_rank <chr> "25<= & <50%", "25<= & <50%", "25<= & <50%", "50<= …
 # $ cnt_v_in_bucket      <int> 26, 32, 26, 6, 8, 6, 15, 20, 20
@@ -1899,8 +1902,8 @@ gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
     # curr_title_y_p <- make_year_month_label(curr_year_month)
 
     # curr_blue_year_plot_title <-
-      # blue_year_plot_titles %>%
-      # filter(year_month == curr_year_month)
+    # blue_year_plot_titles %>%
+    # filter(year_month == curr_year_month)
 
     y_p_title <-
       paste0(
