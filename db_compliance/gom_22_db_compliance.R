@@ -772,6 +772,9 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int <-
 # DE
 # print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int)
 
+v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |> 
+  View()
+
 ### mark duplicated declarations (tn) ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
