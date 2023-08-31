@@ -1534,12 +1534,13 @@ all_plots_w_titles_list %>%
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
 
 # Above compliance metrics, to assess pre and post VMS requirement or vs increase in VMS
-# compliance (just Gulf + dual permitted vessels; assess Feb 2022 (=pre-VMS), March 2022 (VMS implementation), and Sept 2022 (when 80% vessels had a registered VMS))
+# compliance (just Gulf + dual permitted vessels; assess Feb 2022 (=pre-t), March 2022 (VMS implementation), and Sept 2022 (when 80% vessels had a registered VMS))
 
 compl_clean_sa_vs_gom_m_int_filtered |>
   select(year_month) |>
   distinct()
 # dim(compl_clean_sa_vs_gom_m_int_filtered)
+
 compl_clean_sa_vs_gom_m_int_filtered_vms <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
   filter(year_permit == "2022 gom_dual" &
@@ -1751,16 +1752,23 @@ gg_all_c_vs_nc_plots_vms <-
       dplyr::select(cnt_y_p_e) %>%
       unique()
 
+    # current_title <-
+    #   paste0(
+    #     "GOM + Dual",
+    #     " ",
+    #     curr_year_month,
+    #     " (Total Permitted: ",
+    #     total_vsls,
+    #     "; Expired Permits: ",
+    #     expired_permits$cnt_y_p_e,
+    #     ")"
+    #   )
+
     current_title <-
       paste0(
         "GOM + Dual",
         " ",
-        curr_year_month,
-        " (Total Permitted: ",
-        total_vsls,
-        "; Expired Permits: ",
-        expired_permits$cnt_y_p_e,
-        ")"
+        curr_year_month
       )
 
     one_plot <-
@@ -1770,10 +1778,10 @@ gg_all_c_vs_nc_plots_vms <-
       # See function definition F2
       make_one_plot_compl_vs_non_compl(current_title,
                                        is_compliant = "compl_or_not",
-                                       percent = "perc_c_nc")
+                                       percent = "perc_c_nc",
+                                       percent_label_pos = 0.7)
 
     return(one_plot)
-
   })
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
