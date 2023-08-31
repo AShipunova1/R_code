@@ -2046,7 +2046,7 @@ year_permit_cnts <-
 
 View(year_permit_cnts)
 
-# 2 )
+# 2 ) - not needed, gets non compliant numbers
 count_year1 <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
   unique() %>%
@@ -2092,72 +2092,91 @@ all.equal(year_permit_cnts, count_year1)
 # [1] "Component “total”: Mean relative difference: 0.4411713"
 
 # 3) by month
-read_me_counts_by_month <-
-  function(my_df, curr_year_month) {
-    # browser()
-    curr_data <- my_df %>%
-      filter(year_month == curr_year_month)
+counts_by_month_read_me <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
+  group_by(year_month, year_permit, perm_exp_m) |>
+  mutate(permit_cnt_m =
+           n_distinct(vessel_official_number)) |>
+  ungroup() |>
+  select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>
+  distinct()
 
-    curr_month_name <- unique(curr_data$month_only)
+print_df_names(counts_by_month_read_me)
 
-    curr_year_permit <- unique(curr_data$year_permit)
+counts_by_month_read_me |> 
+  pivot_wider( 
+            id_cols = c(year_permit, year_month, total_vsl_m),
+              names_from = perm_exp_m,
+            values_from = permit_cnt_m) |> 
+  View()
 
-    curr_tot_v_per_m_y_r <- unique(curr_data$cnt_vsl_m_compl)
-
-    curr_m_tot_active <- curr_data %>%
-      filter(perm_exp_m == "active") %>%
-      select(exp_m_tot_cnt) %>%
-      unique()
-
-    # see function definition F2
-    # special function to return 0 if there are no expired (insted of '')
-    cnt_expired <- get_expired_permit_numbers(curr_data)
-    
-    out_df <-
-      as.data.frame(c(curr_year_permit,
-        curr_month_name,
-        curr_tot_v_per_m_y_r,
-        curr_m_tot_active,
-        cnt_expired
-      ))
-    names(out_df) <-
-      c("year_permit", "month", "total", "active_permits", "expired_permits")
-    
-    return(out_df)
-}
-
-# 3a) month
-month_nc_perc <-
-  sorted_year_permits %>%
-  purrr::map(# for each year and permit pull a df from the list
-    function(current_year_permit) {
-      # browser()
-      curr_df <-
-        count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[[current_year_permit]]
-      
-      curr_year_months <-
-        curr_df %>%
-        dplyr::select(year_month) %>%
-        unique() %>%
-        as.data.frame()
-      
-      list_of_results <-
-        curr_year_months$year_month %>%
-        sort() %>%
-        # run the function for each month
-        # see the function definition F2
-        purrr::map(~ read_me_counts_by_month(curr_df,
-                                              curr_year_month = .))
-      # add correct names instead of 1, 2...
-      names(list_of_results) <-
-        sort(curr_year_months$year_month)
-      
-      # put the name and the counts into a list to return
-      res <- list(current_year_permit, list_of_results)
-      return(res)
-    })
-
-View(month_nc_perc)
+# read_me_counts_by_month <-
+#   function(my_df, curr_year_month) {
+#     # browser()
+#     curr_data <- my_df %>%
+#       filter(year_month == curr_year_month)
+# 
+#     curr_month_name <- unique(curr_data$month_only)
+# 
+#     curr_year_permit <- unique(curr_data$year_permit)
+# 
+#     curr_tot_v_per_m_y_r <- unique(curr_data$cnt_vsl_m_compl)
+# 
+#     curr_m_tot_active <- curr_data %>%
+#       filter(perm_exp_m == "active") %>%
+#       select(exp_m_tot_cnt) %>%
+#       unique()
+# 
+#     # see function definition F2
+#     # special function to return 0 if there are no expired (insted of '')
+#     cnt_expired <- get_expired_permit_numbers(curr_data)
+#     
+#     out_df <-
+#       as.data.frame(c(curr_year_permit,
+#         curr_month_name,
+#         curr_tot_v_per_m_y_r,
+#         curr_m_tot_active,
+#         cnt_expired
+#       ))
+#     names(out_df) <-
+#       c("year_permit", "month", "total", "active_permits", "expired_permits")
+#     
+#     return(out_df)
+# }
+# 
+# # 3a) month
+# month_nc_perc <-
+#   sorted_year_permits %>%
+#   purrr::map(# for each year and permit pull a df from the list
+#     function(current_year_permit) {
+#       # browser()
+#       curr_df <-
+#         count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[[current_year_permit]]
+#       
+#       curr_year_months <-
+#         curr_df %>%
+#         dplyr::select(year_month) %>%
+#         unique() %>%
+#         as.data.frame()
+#       
+#       list_of_results <-
+#         curr_year_months$year_month %>%
+#         sort() %>%
+#         # run the function for each month
+#         # see the function definition F2
+#         purrr::map(~ read_me_counts_by_month(curr_df,
+#                                               curr_year_month = .))
+#       # add correct names instead of 1, 2...
+#       names(list_of_results) <-
+#         sort(curr_year_months$year_month)
+#       
+#       # put the name and the counts into a list to return
+#       res <- list(current_year_permit, list_of_results)
+#       return(res)
+#     })
+# 
+# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+# View(month_nc_perc)
 
 # ==
 # make a flat file ----
