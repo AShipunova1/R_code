@@ -891,6 +891,8 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_m <-
   dplyr::mutate(total_vsl_m = n_distinct(vessel_official_number)) %>%
   dplyr::ungroup()
 
+# View(compl_clean_sa_vs_gom_m_int_filtered)
+
 ### test tot month ----
 compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
   dplyr::filter(year == "2022") %>%
@@ -905,6 +907,13 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
 # 5 2022 gom_dual Dec 2022          1131
 # 6 2022 sa_only  Dec 2022          1657
 # numbers are as before, ok
+# 1 2022 gom_dual Oct 2022          1144
+# 2 2022 sa_only  Oct 2022          1695
+# 3 2022 gom_dual Nov 2022          1138
+# 4 2022 sa_only  Nov 2022          1656
+# 5 2022 gom_dual Dec 2022          1123
+# 6 2022 sa_only  Dec 2022          1647
+
 
 ## add the difference between expiration and week_start----
 
@@ -951,6 +960,28 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 # 5 2022 sa_only Dec 2022   active              1656        1657
 # 6 2022 sa_only Dec 2022   expired                1        1657
 # compare with the text for tot month above
+
+#### how many are expired ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |> 
+  filter(perm_exp_m == "expired") |> 
+  select(perm_exp_m, exp_m_tot_cnt) |> 
+  distinct()
+# 1 expired                1
+
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |> 
+  # filter(perm_exp_m == "expired" &
+  #          !year_month == "Dec 2022") |> 
+  # glimpse()
+  filter(vessel_official_number == "1000164" &
+           year_month == "Nov 2022") |> 
+  View()
+
+#### check if expired and active permit is in the same month
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
+  group_by(vessel_official_number, year_month) |>
+  mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
+                                   collapse = " & ")) |> 
+  View()
 
 ## cnt disrtinct total vessels per year, permit, month, compl ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
