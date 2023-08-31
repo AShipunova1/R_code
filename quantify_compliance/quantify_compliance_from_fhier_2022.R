@@ -2125,7 +2125,9 @@ View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_pe
 
 counts_by_year_read_me_clean <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
+  select(-perc_c_nc) |> 
   tidyr::pivot_wider(
+    # not needed, by default used all but names and values columns
     # id_cols = -c("perm_exp_y", "perm_exp_y"),
     names_from = perm_exp_y,
     values_from = cnt_y_p_e,
@@ -2133,9 +2135,8 @@ counts_by_year_read_me_clean <-
     values_fill = 0
   ) |>
   tidyr::pivot_wider(
-    names_from = perm_exp_y,
-    values_from = cnt_y_p_e,
-    names_glue = "{perm_exp_y}_permits",
+    names_from = compl_or_not,
+    values_from = cnt_y_p_c,
     values_fill = 0
   ) |>
   View()
