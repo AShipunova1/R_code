@@ -2014,6 +2014,7 @@ grid.arrange(gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_
              top = main_blue_title)
 
 # Create a read.me file with numbers of total, active and expired ----
+## by year ----
 year_permit_cnts <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
@@ -2091,7 +2092,8 @@ glimpse(count_year1)
 all.equal(year_permit_cnts, count_year1)
 # [1] "Component “total”: Mean relative difference: 0.4411713"
 
-# 3) by month
+## 3) by month ----
+# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
 counts_by_month_read_me <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
   group_by(year_month, year_permit, perm_exp_m) |>
@@ -2101,9 +2103,10 @@ counts_by_month_read_me <-
   select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>
   distinct()
 
-print_df_names(counts_by_month_read_me)
+# print_df_names(counts_by_month_read_me)
 
-counts_by_month_read_me |>
+counts_by_month_read_me_clean <-
+  counts_by_month_read_me |>
   tidyr::pivot_wider(
     id_cols = c(year_permit, year_month, total_vsl_m),
     names_from = perm_exp_m,
@@ -2111,9 +2114,32 @@ counts_by_month_read_me |>
     names_glue = "{perm_exp_m}_permits",
     values_fill = 0
   ) |>
-  # mutate(expired = tidyr::replace_na(expired, 0)) |> 
-  arrange(year_month) |> 
+  arrange(year_month)
+
+View(counts_by_month_read_me_clean)
+
+## by year another way ----
+View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
+
+# 38
+
+counts_by_year_read_me_clean <-
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
+  tidyr::pivot_wider(
+    # id_cols = -c("perm_exp_y", "perm_exp_y"),
+    names_from = perm_exp_y,
+    values_from = cnt_y_p_e,
+    names_glue = "{perm_exp_y}_permits",
+    values_fill = 0
+  ) |>
+  tidyr::pivot_wider(
+    names_from = perm_exp_y,
+    values_from = cnt_y_p_e,
+    names_glue = "{perm_exp_y}_permits",
+    values_fill = 0
+  ) |>
   View()
+
 
 # read_me_counts_by_month <-
 #   function(my_df, curr_year_month) {
