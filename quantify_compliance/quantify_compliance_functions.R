@@ -75,7 +75,8 @@ make_one_plot_compl_vs_non_compl <-
            current_title = "",
            is_compliant = "is_compliant",
            percent = "percent",
-           no_legend = FALSE) {
+           no_legend = FALSE,
+           percent_label_pos = 0.5) {
     # browser()
     one_plot <-
       my_df %>%
@@ -87,7 +88,8 @@ make_one_plot_compl_vs_non_compl <-
       geom_text(aes(label =
                       paste0(round(!!sym(percent), 1), "%")),
                 # in the middle of the bar
-                position = position_stack(vjust = 0.5)) +
+                position = 
+                  position_stack(vjust = percent_label_pos)) +
       # no x and y titles for individual plots
       labs(title = current_title,
            x = "",
