@@ -932,6 +932,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
                   case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
+## Keep active only ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
   filter(perm_exp_m == "active")
@@ -986,6 +987,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
   select(perm_exp_m, exp_m_tot_cnt) |> 
   distinct()
 # 1 expired                1
+# 0
 
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |> 
   # filter(perm_exp_m == "expired" &
@@ -993,14 +995,17 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
   # glimpse()
   filter(vessel_official_number == "1000164" &
            year_month == "Nov 2022") |> 
-  View()
+  dim()
+# 0
 
 #### check if expired and active permit is in the same month
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
-  group_by(vessel_official_number, year_month) |>
-  mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
-                                   collapse = " & ")) |> 
-  View()
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
+#   group_by(vessel_official_number, year_month) |>
+#   mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
+#                                    collapse = " & ")) |> 
+#   filter(grepl("&", active_or_expired)) |> 
+#   dim()
+  # 0
 
 ## cnt disrtinct total vessels per year, permit, month, compl ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
