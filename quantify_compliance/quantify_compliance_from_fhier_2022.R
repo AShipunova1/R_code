@@ -2125,7 +2125,11 @@ View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_pe
 
 counts_by_year_read_me_clean <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
-  select(-perc_c_nc) |> 
+  select(-perc_c_nc) |>
+  distinct() |>
+  tidyr::pivot_wider(names_from = compl_or_not,
+                     values_from = cnt_y_p_c,
+                     values_fill = 0) |>
   tidyr::pivot_wider(
     # not needed, by default used all but names and values columns
     # id_cols = -c("perm_exp_y", "perm_exp_y"),
@@ -2133,82 +2137,11 @@ counts_by_year_read_me_clean <-
     values_from = cnt_y_p_e,
     names_glue = "{perm_exp_y}_permits",
     values_fill = 0
-  ) |>
-  tidyr::pivot_wider(
-    names_from = compl_or_not,
-    values_from = cnt_y_p_c,
-    values_fill = 0
-  ) |>
-  View()
+  )
 
+glimpse(counts_by_year_read_me_clean)
 
-# read_me_counts_by_month <-
-#   function(my_df, curr_year_month) {
-#     # browser()
-#     curr_data <- my_df %>%
-#       filter(year_month == curr_year_month)
-# 
-#     curr_month_name <- unique(curr_data$month_only)
-# 
-#     curr_year_permit <- unique(curr_data$year_permit)
-# 
-#     curr_tot_v_per_m_y_r <- unique(curr_data$cnt_vsl_m_compl)
-# 
-#     curr_m_tot_active <- curr_data %>%
-#       filter(perm_exp_m == "active") %>%
-#       select(exp_m_tot_cnt) %>%
-#       unique()
-# 
-#     # see function definition F2
-#     # special function to return 0 if there are no expired (insted of '')
-#     cnt_expired <- get_expired_permit_numbers(curr_data)
-#     
-#     out_df <-
-#       as.data.frame(c(curr_year_permit,
-#         curr_month_name,
-#         curr_tot_v_per_m_y_r,
-#         curr_m_tot_active,
-#         cnt_expired
-#       ))
-#     names(out_df) <-
-#       c("year_permit", "month", "total", "active_permits", "expired_permits")
-#     
-#     return(out_df)
-# }
-# 
-# # 3a) month
-# month_nc_perc <-
-#   sorted_year_permits %>%
-#   purrr::map(# for each year and permit pull a df from the list
-#     function(current_year_permit) {
-#       # browser()
-#       curr_df <-
-#         count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[[current_year_permit]]
-#       
-#       curr_year_months <-
-#         curr_df %>%
-#         dplyr::select(year_month) %>%
-#         unique() %>%
-#         as.data.frame()
-#       
-#       list_of_results <-
-#         curr_year_months$year_month %>%
-#         sort() %>%
-#         # run the function for each month
-#         # see the function definition F2
-#         purrr::map(~ read_me_counts_by_month(curr_df,
-#                                               curr_year_month = .))
-#       # add correct names instead of 1, 2...
-#       names(list_of_results) <-
-#         sort(curr_year_months$year_month)
-#       
-#       # put the name and the counts into a list to return
-#       res <- list(current_year_permit, list_of_results)
-#       return(res)
-#     })
-# 
-# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
-# View(month_nc_perc)
+# TODO: why 2 "2023 sa_dual"?
 
 # ==
 # make a flat file ----
