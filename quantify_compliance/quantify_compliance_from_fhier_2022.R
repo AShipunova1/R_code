@@ -2036,7 +2036,8 @@ year_permit_cnts <-
       dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(cnt_y_p_e) %>%
       unique()
-    
+
+      # TODO: add compliant, not compliant
     out_df <- as.data.frame(c(curr_year_permit, total_vsls, active_permits, expired_permits))
     names(out_df) <- c("year_permit", "total", "active_permits", "expired_permits")
     
@@ -2045,33 +2046,50 @@ year_permit_cnts <-
 
 View(year_permit_cnts)
 
-2 )
-gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
+# 2 )
+count_year1 <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
   unique() %>%
   sort() %>%
   # repeat for each year_permit
-  purrr::map(function(curr_year_permit) {
-    # browser()
+  purrr::map_df(function(curr_year_permit) {
     curr_df <-
       count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
       dplyr::filter(year_permit == curr_year_permit)
-
+    
     total_non_compl_df <-
       curr_df %>%
-      dplyr::select(perc_vsls_per_y_r_b,
-                    percent_n_compl_rank,
-                    perc_labels,
-                    vsls_per_y_r) %>%
-      unique()
-
+      dplyr::select(vsls_per_y_r) %>%
+      distinct()
+    browser()
+    
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
-      dplyr::select(exp_y_tot_cnt)
-
+      dplyr::select(exp_y_tot_cnt) |>
+      distinct()
+    
     expired_permits <- curr_df %>%
       filter(perm_exp_y == "expired") %>%
-      dplyr::select(exp_y_tot_cnt)
+      dplyr::select(exp_y_tot_cnt) |>
+      distinct()
+    
+    out_df <-
+      as.data.frame(c(
+        curr_year_permit,
+        total_non_compl_df,
+        active_permits,
+        expired_permits
+      ))
+    names(out_df) <-
+      c("year_permit", "total", "active_permits", "expired_permits")
+    
+    return(out_df)
+  })
+
+glimpse(year_permit_cnts)
+glimpse(count_year1)
+all.equal(year_permit_cnts, count_year1)
+# [1] "Component “total”: Mean relative difference: 0.4411713"
 
 3)
 get_one_plot_by_month <-
