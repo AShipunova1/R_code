@@ -2091,8 +2091,8 @@ glimpse(count_year1)
 all.equal(year_permit_cnts, count_year1)
 # [1] "Component “total”: Mean relative difference: 0.4411713"
 
-3)
-get_one_plot_by_month <-
+# 3) by month
+read_me_counts_by_month <-
   function(my_df, curr_year_month) {
     # browser()
     curr_data <- my_df %>%
@@ -2110,40 +2110,54 @@ get_one_plot_by_month <-
       unique()
 
     # see function definition F2
+    # special function to return 0 if there are no expired (insted of '')
     cnt_expired <- get_expired_permit_numbers(curr_data)
+    
+    out_df <-
+      as.data.frame(c(curr_year_permit,
+        curr_month_name,
+        curr_tot_v_per_m_y_r,
+        curr_m_tot_active,
+        cnt_expired
+      ))
+    names(out_df) <-
+      c("year_permit", "month", "total", "active_permits", "expired_permits")
+    
+    return(out_df)
+}
 
 # 3a) month
-    gg_month_nc_perc <-
+month_nc_perc <-
   sorted_year_permits %>%
-  purrr::map(
-    # for each year and permit pull a df from the list
+  purrr::map(# for each year and permit pull a df from the list
     function(current_year_permit) {
       # browser()
       curr_df <-
         count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[[current_year_permit]]
-
+      
       curr_year_months <-
         curr_df %>%
         dplyr::select(year_month) %>%
         unique() %>%
         as.data.frame()
-
-      list_of_plots <-
+      
+      list_of_results <-
         curr_year_months$year_month %>%
         sort() %>%
         # run the function for each month
         # see the function definition F2
-        purrr::map(~ get_one_plot_by_month(curr_df,
-                                            curr_year_month = .))
+        purrr::map(~ read_me_counts_by_month(curr_df,
+                                              curr_year_month = .))
       # add correct names instead of 1, 2...
-      names(list_of_plots) <-
+      names(list_of_results) <-
         sort(curr_year_months$year_month)
-
-      # put the name and the plots into a list to return
-      res <- list(current_year_permit, list_of_plots)
+      
+      # put the name and the counts into a list to return
+      res <- list(current_year_permit, list_of_results)
       return(res)
     })
 
+View(month_nc_perc)
 
 # ==
 # make a flat file ----
