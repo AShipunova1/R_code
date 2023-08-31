@@ -932,9 +932,19 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
                   case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
+  filter(perm_exp_m == "active")
+
+dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+# [1] 185251     28
+
+dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp)
+# [1] 185199     28
+
 ## count if vessel is expired or not by year, permit and month  ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp %>%
   dplyr::group_by(year_permit, year_month, perm_exp_m) %>%
   # add a column counting distinct vessels per group
   dplyr::mutate(exp_m_tot_cnt = n_distinct(vessel_official_number)) %>%
@@ -950,7 +960,8 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
                 total_vsl_m) %>%
   unique() %>%
   dplyr::arrange(year_permit, year_month) %>%
-  tail()
+  tail() |> 
+  glimpse()
 # year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
 #   <chr>        <yearmon>  <chr>              <int>       <int>
 # 1 2022 sa_only Oct 2022   active              1721        1722
@@ -960,6 +971,14 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 # 5 2022 sa_only Dec 2022   active              1656        1657
 # 6 2022 sa_only Dec 2022   expired                1        1657
 # compare with the text for tot month above
+# rm exp
+# $ year_permit   <chr> "2022 sa_only", "2022 sa_only", "2022 sa_only", "2022 sa_only", "…
+# $ year_month    <yearmon> Jul 2022, Aug 2022, Sep 2022, Oct 2022, Nov 2022, Dec 2022
+# $ perm_exp_m    <chr> "active", "active", "active", "active", "active", "active"
+# $ exp_m_tot_cnt <int> 1745, 1755, 1708, 1694, 1655, 1646
+# $ total_vsl_m   <int> 1746, 1756, 1709, 1695, 1656, 1647
+
+# from now on use exp_m_tot_cnt instead of total_vsl_m
 
 #### how many are expired ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |> 
