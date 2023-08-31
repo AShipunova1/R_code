@@ -2103,11 +2103,16 @@ counts_by_month_read_me <-
 
 print_df_names(counts_by_month_read_me)
 
-counts_by_month_read_me |> 
-  pivot_wider( 
-            id_cols = c(year_permit, year_month, total_vsl_m),
-              names_from = perm_exp_m,
-            values_from = permit_cnt_m) |> 
+counts_by_month_read_me |>
+  tidyr::pivot_wider(
+    id_cols = c(year_permit, year_month, total_vsl_m),
+    names_from = perm_exp_m,
+    values_from = permit_cnt_m,
+    names_glue = "{perm_exp_m}_permits",
+    values_fill = 0
+  ) |>
+  # mutate(expired = tidyr::replace_na(expired, 0)) |> 
+  arrange(year_month) |> 
   View()
 
 # read_me_counts_by_month <-
