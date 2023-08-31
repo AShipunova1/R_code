@@ -1039,6 +1039,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 # $ cnt_vsl_m_compl <int> 1057, 703, 1173, 45
 # 1057 + 703 = 1760 is more than total. Some vessels can be both in a month, if compliance differs by week. For this analysis I used vessels having at least one week in the month  non-compliant.
 # If we are going to use "yes only" than redo "yes, no, no_yes" division as for a year above.
+# $ cnt_vsl_m_compl <int> 1052, 688, 1004, 42
 
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
@@ -1166,6 +1167,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
 
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 # [1] 11489    12
+# [1] 11477    12
 
 # check by counting in a different way
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
@@ -1269,9 +1271,12 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 # [1] 11766    15
 # [1] 11489    15
+# [1] 11477    15
 
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 # [1] 107  12
+# [1] 95 12
+
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 
 ### split the df by year_permit into a list ----
@@ -1344,16 +1349,17 @@ get_one_plot_by_month <-
     # see function definition F2
     cnt_expired <- get_expired_permit_numbers(curr_data)
 
-    curr_title <- paste0(
-      curr_month_name,
-      " (",
-      curr_tot_v_per_m_y_r,
-      " vsls; ",
-      curr_m_tot_active$exp_m_tot_cnt,
-      " act. p.; ",
-      cnt_expired,
-      " exp. p.)"
-    )
+    # curr_title <- paste0(
+    #   curr_month_name,
+    #   " (",
+    #   curr_tot_v_per_m_y_r,
+    #   " vsls; ",
+    #   curr_m_tot_active$exp_m_tot_cnt,
+    #   " act. p.; ",
+    #   cnt_expired,
+    #   " exp. p.)"
+    # )
+    curr_title <- curr_month_name
 
     one_plot <-
       ggplot(curr_data,
@@ -1411,10 +1417,10 @@ gg_month_nc_perc <-
 # check
 # test_df <-
 #   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[["2022 sa_only"]]
-#
+# 
 # get_one_plot_by_month(test_df,
 #                       curr_year_month = "Aug 2022")
-
+# 
 # gg_month_nc_perc[[1]][[2]]
 
 footnote_text <- "In parenthesis are 1) # of non compliant vessels per month; 2) total active permits per month; 3) total expired permits per month;"
@@ -1453,11 +1459,12 @@ all_plots_w_titles_list <-
     curr_super_title <- year_permit_titles[[curr_year_permit]]
 
     # add a subtitle
-    whole_title <-
-      paste0(curr_super_title,
-             # new line
-             "\n",
-             footnote_text)
+    whole_title <- curr_super_title
+    # whole_title <-
+    #   paste0(curr_super_title,
+    #          # new line
+    #          "\n",
+    #          footnote_text)
 
     all_plots_per_year_region <-
       gridExtra::arrangeGrob(
@@ -1477,9 +1484,6 @@ all_plots_w_titles_list <-
   })
 
 # warnings()
-# ...
-# 22: Removed 1 rows containing missing values (`geom_text()`).
-# 23: Removed 1 rows containing missing values (`geom_col()`).
 
 # draw one plot to test
 gridExtra::grid.arrange(all_plots_w_titles_list[[2]][[2]])
