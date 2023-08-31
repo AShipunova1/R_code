@@ -481,16 +481,20 @@ gg_all_c_vs_nc_plots <-
       filter(year_permit == curr_year_permit)
 
     current_title <-
-      paste0(
-        curr_title_permit$title,
-        " ",
-        curr_title_permit$second_part,
-        " (Active Permits: ",
-        active_permits$cnt_y_p_e,
-        "; Expired Permits: ",
-        expired_permits$cnt_y_p_e,
-        ")"
-      )
+      paste(curr_title_permit$title,
+             curr_title_permit$second_part)
+
+    # current_title <-
+    #   paste0(
+    #     curr_title_permit$title,
+    #     " ",
+    #     curr_title_permit$second_part,
+    #     " (Active Permits: ",
+    #     active_permits$cnt_y_p_e,
+    #     "; Expired Permits: ",
+    #     expired_permits$cnt_y_p_e,
+    #     ")"
+    #   )
 
     one_plot <-
       curr_df %>%
@@ -515,8 +519,8 @@ gg_all_c_vs_nc_plots[[2]]
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
 # combine plots for 2022
-grid.arrange(gg_all_c_vs_nc_plots[[1]],
-             gg_all_c_vs_nc_plots[[2]],
+grid.arrange(gg_all_c_vs_nc_plots[[3]],
+             # gg_all_c_vs_nc_plots[[2]],
              top = main_title)
 
 # Non compliant only ----
@@ -1124,7 +1128,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc <-
     perm_exp_m,
     exp_m_tot_cnt,
     cnt_vsl_m_compl,
-    total_vsl_m,
+    # total_vsl_m,
     weeks_per_vessel_per_compl_m,
     total_weeks_per_vessel_per_compl_m,
     percent_compl_m,
@@ -1132,6 +1136,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc <-
   ) %>%
   unique()
 
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc)
 ## 2b) Month: get percentage "buckets" ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b <-
@@ -1139,7 +1144,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b <-
   get_p_buckets(count_weeks_per_vsl_permit_year_compl_m_p_nc,
                 "percent_compl_m")
 
-# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
+View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 
 ### check 2, by month ----
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b %>%
@@ -1512,7 +1517,7 @@ all_plots_w_titles_list %>%
                              ".png")
 
     file_path <-
-      r"(quantify_compliance\08_26_2023\per_month)"
+      r"(quantify_compliance\08_31_2023\per_month)"
 
     # file.path adds the correct concatenation
     file_full_name <- file.path(my_paths$outputs,
