@@ -965,7 +965,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
                 total_vsl_m) %>%
   unique() %>%
   dplyr::arrange(year_permit, year_month) %>%
-  tail() |> 
+  tail() |>
   glimpse()
 # year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
 #   <chr>        <yearmon>  <chr>              <int>       <int>
@@ -986,19 +986,19 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 # from now on use exp_m_tot_cnt instead of total_vsl_m
 
 #### how many are expired ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |> 
-  filter(perm_exp_m == "expired") |> 
-  select(perm_exp_m, exp_m_tot_cnt) |> 
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
+  filter(perm_exp_m == "expired") |>
+  select(perm_exp_m, exp_m_tot_cnt) |>
   distinct()
 # 1 expired                1
 # 0
 
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |> 
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
   # filter(perm_exp_m == "expired" &
-  #          !year_month == "Dec 2022") |> 
+  #          !year_month == "Dec 2022") |>
   # glimpse()
   filter(vessel_official_number == "1000164" &
-           year_month == "Nov 2022") |> 
+           year_month == "Nov 2022") |>
   dim()
 # 0
 
@@ -1006,8 +1006,8 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 # compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
 #   group_by(vessel_official_number, year_month) |>
 #   mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
-#                                    collapse = " & ")) |> 
-#   filter(grepl("&", active_or_expired)) |> 
+#                                    collapse = " & ")) |>
+#   filter(grepl("&", active_or_expired)) |>
 #   dim()
   # 0
 
@@ -1422,10 +1422,10 @@ gg_month_nc_perc <-
 # check
 # test_df <-
 #   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[["2022 sa_only"]]
-# 
+#
 # get_one_plot_by_month(test_df,
 #                       curr_year_month = "Aug 2022")
-# 
+#
 # gg_month_nc_perc[[1]][[2]]
 
 footnote_text <- "In parenthesis are 1) # of non compliant vessels per month; 2) total active permits per month; 3) total expired permits per month;"
@@ -1780,7 +1780,7 @@ gg_all_c_vs_nc_plots_vms <-
         total_vsls,
         ")"
       )
-    
+
     one_plot <-
       curr_df %>%
       dplyr::select(compl_or_not, perc_c_nc) %>%
@@ -1823,7 +1823,7 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc <-
   mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
-View(weeks_per_vsl_year_month_vms_compl_cnt_perc)
+dim(weeks_per_vsl_year_month_vms_compl_cnt_perc)
 # [1] 12677    32
 
 # check
@@ -1872,7 +1872,7 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts <-
   get_p_buckets(weeks_per_vsl_year_month_vms_compl_cnt_perc_short,
                 "percent_compl")
 
-View(weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts)
+dim(weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts)
 # [1] 159   8
 
 ### test 2 ----
@@ -1883,7 +1883,7 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
   dplyr::count(percent_compl, year_month,
                name = "amount_of_occurences") %>%
   dplyr::arrange(desc(percent_compl)) %>%
-  glimpse()
+  # glimpse()
   # $ percent_compl        <dbl> 100, 75
   # $ year_month           <yearmon> Mar 2022, Mar 2022
   # $ amount_of_occurences <int> 18, 2
@@ -2050,14 +2050,14 @@ year_permit_cnts <-
     curr_df <-
       compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
       dplyr::filter(year_permit == curr_year_permit)
-    
+
     total_vsls <- unique(curr_df$total_vsl_y)
-    
+
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(cnt_y_p_e) %>%
       unique()
-    
+
     expired_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(cnt_y_p_e) %>%
@@ -2066,7 +2066,7 @@ year_permit_cnts <-
       # TODO: add compliant, not compliant
     out_df <- as.data.frame(c(curr_year_permit, total_vsls, active_permits, expired_permits))
     names(out_df) <- c("year_permit", "total", "active_permits", "expired_permits")
-    
+
     return(out_df)
   })
 
@@ -2082,23 +2082,23 @@ count_year1 <-
     curr_df <-
       count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
       dplyr::filter(year_permit == curr_year_permit)
-    
+
     total_non_compl_df <-
       curr_df %>%
       dplyr::select(vsls_per_y_r) %>%
       distinct()
     browser()
-    
+
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(exp_y_tot_cnt) |>
       distinct()
-    
+
     expired_permits <- curr_df %>%
       filter(perm_exp_y == "expired") %>%
       dplyr::select(exp_y_tot_cnt) |>
       distinct()
-    
+
     out_df <-
       as.data.frame(c(
         curr_year_permit,
@@ -2108,7 +2108,7 @@ count_year1 <-
       ))
     names(out_df) <-
       c("year_permit", "total", "active_permits", "expired_permits")
-    
+
     return(out_df)
   })
 
