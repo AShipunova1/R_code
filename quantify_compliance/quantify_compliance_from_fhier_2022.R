@@ -1516,6 +1516,26 @@ save_plots_list_to_files <-
     )
   }
 
+plot_dir <-
+  function(curr_dir_name) {
+    if (!dir.exists(curr_dir_name)) {
+      dir.create(curr_dir_name)
+    }
+  }
+
+"C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\08_31_2023"
+"C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\2023-09-01\per_month"
+
+plot_file_path <-
+  file.path(my_paths$outputs, "quantify_compliance", today())
+# create dir if doesn't exists
+plot_dir(plot_file_path)
+
+# add dir
+plot_file_path <-
+  file.path(plot_file_path, "per_month")
+plot_dir(plot_file_path)
+
 all_plots_w_titles_list %>%
   # repeat for each element of the list
   purrr::map(function(curr_plot_list) {
@@ -1523,12 +1543,8 @@ all_plots_w_titles_list %>%
                              "_percent_distribution_per_month",
                              ".png")
 
-    file_path <-
-      r"(quantify_compliance\08_31_2023\per_month)"
-
     # file.path adds the correct concatenation
-    file_full_name <- file.path(my_paths$outputs,
-                                file_path,
+    file_full_name <- file.path(plot_file_path,
                                 file_name_base)
 
     # see the function definition F2
@@ -1536,6 +1552,8 @@ all_plots_w_titles_list %>%
                              # plots
                              curr_plot_list[[2]])
   })
+
+# "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance/2023-09-01/per_month/2023 sa_dual_percent_distribution_per_month.png"
 
 # [[1]]
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
