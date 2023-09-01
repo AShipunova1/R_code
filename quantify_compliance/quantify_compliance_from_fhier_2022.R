@@ -1764,13 +1764,23 @@ gg_all_c_vs_nc_plots_vms <-
     #     ")"
     #   )
 
+    # current_title <-
+    #   paste0(
+    #     "GOM + Dual",
+    #     " ",
+    #     curr_year_month
+    #   )
+
     current_title <-
       paste0(
         "GOM + Dual",
         " ",
-        curr_year_month
+        curr_year_month,
+        " (Total Permitted: ",
+        total_vsls,
+        ")"
       )
-
+    
     one_plot <-
       curr_df %>%
       dplyr::select(compl_or_not, perc_c_nc) %>%
