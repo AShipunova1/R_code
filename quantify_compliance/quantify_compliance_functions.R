@@ -117,8 +117,8 @@ make_one_plot_compl_vs_non_compl <-
     # +
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
 
-    label_percent <- my_df$perc_c_nc
-      # paste0(round(!!sym(percent), 1), "%")
+    label_percent <- map(my_df$perc_c_nc,
+                          ~ paste0(round(.x, 1), "%"))
                    
     # Add percent numbers on the bars
     one_plot <-
