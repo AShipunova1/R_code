@@ -117,12 +117,15 @@ make_one_plot_compl_vs_non_compl <-
     # +
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
 
+    label_percent <- my_df$perc_c_nc
+      # paste0(round(!!sym(percent), 1), "%")
+                   
     # Add percent numbers on the bars
     one_plot <-
       one_plot + annotate("text",
                           x = 1:2,
                           y = 20,
-                          label = "Some text")
+                          label = label_percent)
     
     # geom_text(aes(label =
     #                 paste0(round(!!sym(percent), 1), "%")),
