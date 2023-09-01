@@ -1144,7 +1144,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b <-
   get_p_buckets(count_weeks_per_vsl_permit_year_compl_m_p_nc,
                 "percent_compl_m")
 
-View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 
 ### check 2, by month ----
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b %>%
@@ -1364,7 +1364,7 @@ get_one_plot_by_month <-
     #   cnt_expired,
     #   " exp. p.)"
     # )
-    
+
     # curr_title <- curr_month_name
 
     curr_title <- paste0(
@@ -1516,25 +1516,18 @@ save_plots_list_to_files <-
     )
   }
 
-plot_dir <-
-  function(curr_dir_name) {
-    if (!dir.exists(curr_dir_name)) {
-      dir.create(curr_dir_name)
-    }
-  }
-
-"C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\08_31_2023"
-"C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\2023-09-01\per_month"
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\08_31_2023"
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\2023-09-01\per_month"
 
 plot_file_path <-
   file.path(my_paths$outputs, "quantify_compliance", today())
 # create dir if doesn't exists
-plot_dir(plot_file_path)
+create_dir_if_not(plot_file_path)
 
 # add dir
 plot_file_path <-
   file.path(plot_file_path, "per_month")
-plot_dir(plot_file_path)
+create_dir_if_not(plot_file_path)
 
 all_plots_w_titles_list %>%
   # repeat for each element of the list
@@ -2104,7 +2097,7 @@ year_permit_cnts <-
     return(out_df)
   })
 
-View(year_permit_cnts)
+# View(year_permit_cnts)
 
 # 2 ) - not needed, gets non compliant numbers
 count_year1 <-
@@ -2121,7 +2114,7 @@ count_year1 <-
       curr_df %>%
       dplyr::select(vsls_per_y_r) %>%
       distinct()
-    browser()
+    # browser()
 
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
@@ -2175,10 +2168,10 @@ counts_by_month_read_me_clean <-
   ) |>
   arrange(year_month)
 
-View(counts_by_month_read_me_clean)
+# View(counts_by_month_read_me_clean)
 
 ## by year another way ----
-View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
+# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 
 # 38
 
