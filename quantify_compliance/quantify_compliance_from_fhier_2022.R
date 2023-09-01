@@ -809,8 +809,8 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
         curr_blue_year_plot_title$first_part,
         "Total Non-Compliant = ",
         total_non_compl_df$vsls_per_y_r,
-        " Vessels; Acitve permits = ",
-        active_permits$exp_y_tot_cnt,
+        # " Vessels; Acitve permits = ",
+        # active_permits$exp_y_tot_cnt,
         # "; Expired permits: ",
         # expired_permits$exp_y_tot_cnt,
         " Vessels)"
@@ -1364,8 +1364,15 @@ get_one_plot_by_month <-
     #   cnt_expired,
     #   " exp. p.)"
     # )
-    curr_title <- curr_month_name
+    
+    # curr_title <- curr_month_name
 
+    curr_title <- paste0(
+      curr_month_name,
+      " (",
+      curr_tot_v_per_m_y_r,
+      " total non-compliant vsls)"
+      )
     one_plot <-
       ggplot(curr_data,
              aes(x = percent_n_compl_rank,
@@ -1996,6 +2003,14 @@ gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
     #     active_permits$exp_y_tot_cnt,
     #     "; Expired permits: ",
     #     expired_permits$exp_y_tot_cnt,
+    #     " Vessels)"
+    #   )
+
+    # y_p_title <-
+    #   paste0(
+    #     curr_year_month,
+    #     " (Total Non-Compliant = ",
+    #     total_non_compl_df$vsls_per_y_r,
     #     " Vessels)"
     #   )
 
