@@ -84,12 +84,16 @@ make_one_plot_compl_vs_non_compl <-
                  y = !!sym(percent),
                  fill = !!sym(is_compliant))) +
       geom_col() +
-      # Add percent numbers on the bars
-      geom_text(aes(label =
-                      paste0(round(!!sym(percent), 1), "%")),
-                # in the middle of the bar
-                position = 
-                  position_stack(vjust = percent_label_pos)) +
+      # # Add percent numbers on the bars
+      #     one_plot <-
+      # one_plot + annotate("text", x = 4, y = 25, label = "Some text")
+      # 
+      # geom_text(aes(label =
+      #                 paste0(round(!!sym(percent), 1), "%")),
+      #           # in the middle of the bar
+      #           position = 
+      #             position_stack(vjust = percent_label_pos)
+      #           ) +
       # no x and y titles for individual plots
       labs(title = current_title,
            x = "",
