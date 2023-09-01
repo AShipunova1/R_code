@@ -87,9 +87,13 @@ make_one_plot_compl_vs_non_compl <-
       # Add percent numbers on the bars
       geom_text(aes(label =
                       paste0(round(!!sym(percent), 1), "%")),
+                nudge_y = -0.5
+                # ,
                 # in the middle of the bar
-                position = 
-                  position_stack(vjust = percent_label_pos)) +
+                # position = 
+                  # position_fill(vjust = percent_label_pos)) +
+                  # position_stack(vjust = percent_label_pos)
+                ) +
       # no x and y titles for individual plots
       labs(title = current_title,
            x = "",

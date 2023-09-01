@@ -1778,8 +1778,10 @@ gg_all_c_vs_nc_plots_vms <-
       # See function definition F2
       make_one_plot_compl_vs_non_compl(current_title,
                                        is_compliant = "compl_or_not",
-                                       percent = "perc_c_nc",
-                                       percent_label_pos = 0.7)
+                                       percent = "perc_c_nc"
+                                       # ,
+                                       # percent_label_pos = 1
+                                       )
 
     return(one_plot)
   })
