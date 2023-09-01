@@ -617,3 +617,10 @@ empty_cols <-
       }) %>%
     return()
   }
+
+create_dir_if_not <-
+  function(curr_dir_name) {
+    if (!dir.exists(curr_dir_name)) {
+      dir.create(curr_dir_name)
+    }
+  }
