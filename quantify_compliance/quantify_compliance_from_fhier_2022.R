@@ -16,6 +16,11 @@ library(cowplot)
 
 source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
+plot_file_path <-
+  file.path(my_paths$outputs, "quantify_compliance", today())
+# create dir if doesn't exists
+create_dir_if_not(plot_file_path)
+
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
   compl_clean_sa_vs_gom_m_int |>
@@ -1519,11 +1524,6 @@ save_plots_list_to_files <-
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\08_31_2023"
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\2023-09-01\per_month"
 
-plot_file_path <-
-  file.path(my_paths$outputs, "quantify_compliance", today())
-# create dir if doesn't exists
-create_dir_if_not(plot_file_path)
-
 # add dir
 plot_file_path <-
   file.path(plot_file_path, "per_month")
@@ -1782,22 +1782,22 @@ gg_all_c_vs_nc_plots_vms <-
     #     ")"
     #   )
 
-    # current_title <-
-    #   paste0(
-    #     "GOM + Dual",
-    #     " ",
-    #     curr_year_month
-    #   )
-
     current_title <-
       paste0(
         "GOM + Dual",
         " ",
-        curr_year_month,
-        " (Total Permitted: ",
-        total_vsls,
-        ")"
+        curr_year_month
       )
+
+    # current_title <-
+    #   paste0(
+    #     "GOM + Dual",
+    #     " ",
+    #     curr_year_month,
+    #     " (Total Permitted: ",
+    #     total_vsls,
+    #     ")"
+    #   )
 
     one_plot <-
       curr_df %>%
@@ -1822,6 +1822,25 @@ grid.arrange(
   top = main_title
 )
 # class(gg_all_c_vs_nc_plots_vms)
+
+# vms_plot_file_path <-
+#   file.path(plot_file_path, "vms")
+# create_dir_if_not(vms_plot_file_path)
+# 
+# ## save VMS green and red plots ----
+# gg_all_c_vs_nc_plots_vms |>
+#   map(function(current_plot) {
+#     # create a clean_name
+#     # browser()
+#     clean_name <-
+#       stringr::str_replace_all(current_plot$labels$title,
+#                                "[^a_zA-z0-9]+", "_")
+#     save_plots_list_to_files(file.path(vms_plot_file_path,
+#                                        paste0(clean_name, ".png")),
+#                              # plots
+#                              current_plot)
+#   })
+
 
 # Non compliant only ----
 # 1) count percents - a given vsl non_compl per counted weeks total ----
