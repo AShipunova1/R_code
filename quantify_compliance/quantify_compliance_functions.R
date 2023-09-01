@@ -76,7 +76,8 @@ make_one_plot_compl_vs_non_compl <-
            is_compliant = "is_compliant",
            percent = "percent",
            no_legend = FALSE,
-           percent_label_pos = 0.5) {
+           percent_label_pos = 0.5,
+           default_percen_labels = TRUE) {
     # browser()
     one_plot <-
       my_df %>%
@@ -121,18 +122,25 @@ make_one_plot_compl_vs_non_compl <-
                           ~ paste0(round(.x, 1), "%"))
                    
     # Add percent numbers on the bars
-    one_plot <-
-      one_plot + annotate("text",
-                          x = 1:2,
-                          y = 20,
-                          label = label_percent)
+    if (default_percen_labels) {
+      one_plot <-
+        one_plot +
+        geom_text(aes(label =
+                        paste0(round(!!sym(
+                          percent
+                        ), 1), "%")),
+                  # in the middle of the bar
+                  position =
+                    position_stack(vjust = percent_label_pos))
+      
+    } else {
+      one_plot <-
+        one_plot + annotate("text",
+                            x = 1:2,
+                            y = 20,
+                            label = label_percent)
+    }
     
-    # geom_text(aes(label =
-    #                 paste0(round(!!sym(percent), 1), "%")),
-    #           # in the middle of the bar
-    #           position =
-    #             position_stack(vjust = percent_label_pos)
-    #           ) +
     
     
     # to use with grid arrange multiple plots
