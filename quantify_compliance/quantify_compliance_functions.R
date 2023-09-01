@@ -117,12 +117,27 @@ make_one_plot_compl_vs_non_compl <-
     # +
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
 
+    # Add percent numbers on the bars
+    one_plot <-
+      one_plot + annotate("text",
+                          x = 1:2,
+                          y = 20,
+                          label = "Some text")
+    
+    # geom_text(aes(label =
+    #                 paste0(round(!!sym(percent), 1), "%")),
+    #           # in the middle of the bar
+    #           position =
+    #             position_stack(vjust = percent_label_pos)
+    #           ) +
+    
+    
     # to use with grid arrange multiple plots
     if (no_legend) {
       one_plot <- one_plot +
         theme(legend.position = "none")
     }
-
+    
     return(one_plot)
   }
 
