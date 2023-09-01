@@ -1986,15 +1986,23 @@ gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
     # blue_year_plot_titles %>%
     # filter(year_month == curr_year_month)
 
+    # y_p_title <-
+    #   paste0(
+    #     curr_year_month,
+    #     " (Total Non-Compliant = ",
+    #     total_non_compl_df$vsls_per_y_r,
+    #     " Vessels; Acitve permits = ",
+    #     active_permits$exp_y_tot_cnt,
+    #     "; Expired permits: ",
+    #     expired_permits$exp_y_tot_cnt,
+    #     " Vessels)"
+    #   )
+
     y_p_title <-
       paste0(
         curr_year_month,
         " (Total Non-Compliant = ",
         total_non_compl_df$vsls_per_y_r,
-        " Vessels; Acitve permits = ",
-        active_permits$exp_y_tot_cnt,
-        "; Expired permits: ",
-        expired_permits$exp_y_tot_cnt,
         " Vessels)"
       )
 
