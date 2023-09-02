@@ -1623,12 +1623,13 @@ test_plot <-
              color = percent_n_compl_rank)) +
   # geom_point(aes(color = percent_n_compl_rank)) +
   geom_point() +
-  geom_line() +
+  geom_line(group = test_df$percent_n_compl_rank) +
   theme_bw() +
   labs(size = "Groups of percentage",
        x = "Month",
        y = "Percent vessels in each group",
        title = "Distiibution of weeks when a vessel was non compliant")
+
   # xlim(1, length(month_labels)) +
   # scale_x_continuous(n.breaks = length(month_labels),
                      # labels = month_labels)
@@ -1639,9 +1640,6 @@ test_plot <-
   # scale_size_area("Groups of percentage")
 
 test_plot
-  # scale_fill_manual(values = mypalette)
-# geom_point(aes(fill = percent_n_compl_rank))
-# , shape = 21, colour = "black"
 
   geom_col(fill = "skyblue") +
   labs(title = curr_title,
