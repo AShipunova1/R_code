@@ -1628,21 +1628,16 @@ test_plot <-
        y = "Percent vessels in each group",
        title = "Distiibution of weeks when a vessel was non compliant") +
   # text on dots
-  geom_text(aes(label = perc_labels))
+  geom_text(aes(label = perc_labels)) +
+  scale_y_continuous(breaks = seq(0, 100, by = 10))
+  # scale_y_continuous(n.breaks = 100)
+
 
   # xlim(1, length(month_labels)) +
   # scale_x_continuous(n.breaks = length(month_labels),
                      # labels = month_labels)
 
-  # xlab("Month") +
-  # ylab("Percent vessels in each group") +
-  # ggtitle("Distiibution of weeks when a vessel was non compliant") +
-  # scale_size_area("Groups of percentage")
-
 test_plot
-  # scale_fill_manual(values = mypalette)
-# geom_point(aes(fill = percent_n_compl_rank))
-# , shape = 21, colour = "black"
 
   geom_col(fill = "skyblue") +
   labs(title = curr_title,
