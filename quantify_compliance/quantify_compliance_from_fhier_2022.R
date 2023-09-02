@@ -1615,11 +1615,16 @@ month_labels_all <-
   factor(test_df$year_month,
          labels = format(month_unique, "%b"))
 
+View(test_df)
+
 test_plot <-
   test_df |>
-  # ggplot(iris, aes(fct_reorder(Species, Sepal.Width), Sepal.Width)) +
-  ggplot(aes(x = year_month,
+  # ggplot(aes(as.character(year), avg, 
+              # group=as.character(treatment), 
+              # colour=as.character(treatment))) +
+  ggplot(aes(x = fct_rev(month_labels_all),
              y = perc_vsls_per_y_r_b,
+             group = percent_n_compl_rank,
              color = percent_n_compl_rank)) +
   # geom_point(aes(color = percent_n_compl_rank)) +
   geom_point() +
@@ -1629,9 +1634,17 @@ test_plot <-
        x = "Month",
        y = "Percent vessels in each group",
        title = "Distiibution of weeks when a vessel was non compliant") +
-    theme(axis.text.x = element_text(angle = 90))
+  theme(axis.text.x = element_text(angle = 45)) +
+  geom_text(aes(label = perc_labels)
+            # ,
+            # position = position_stack(vjust = 0.5)
+            )
 
 test_plot
+test_df |> 
+  filter(perc_labels == "4.9%") |> 
+  View()
+
 
   geom_col(fill = "skyblue") +
   labs(title = curr_title,
