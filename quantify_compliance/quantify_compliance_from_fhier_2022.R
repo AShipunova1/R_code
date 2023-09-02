@@ -1016,7 +1016,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 #   dim()
   # 0
 
-## cnt disrtinct total vessels per year, permit, month, compl ----
+## cnt distinct total vessels per year, permit, month, compl ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   dplyr::group_by(year_permit, year_month, compliant_) %>%
@@ -1269,7 +1269,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
     )
   ) %>%
   # can unique, because all counts by vessel are done already
-  unique()
+  distinct()
 
 ### add column with Month name only (for plotting) ----
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
@@ -1525,9 +1525,9 @@ save_plots_list_to_files <-
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\2023-09-01\per_month"
 
 # add dir
-plot_file_path <-
+plot_file_path_m <-
   file.path(plot_file_path, "per_month")
-create_dir_if_not(plot_file_path)
+create_dir_if_not(plot_file_path_m)
 
 all_plots_w_titles_list %>%
   # repeat for each element of the list
@@ -1537,7 +1537,7 @@ all_plots_w_titles_list %>%
                              ".png")
 
     # file.path adds the correct concatenation
-    file_full_name <- file.path(plot_file_path,
+    file_full_name <- file.path(plot_file_path_m,
                                 file_name_base)
 
     # see the function definition F2
@@ -1591,6 +1591,32 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt <-
                       group_by_var)
 
 # dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt)
+
+## Month, blue plots with dots ----
+test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r$`2022 gom_dual`
+               
+test_plot <-
+  test_df |>
+  ggplot(
+         aes(x = year_month,
+             y = perc_vsls_per_y_r_b)) +
+  geom_point()
+
+  geom_col(fill = "skyblue") +
+  labs(title = curr_title,
+       # no labels for axes
+       x = "",
+       y = "") +
+  # text on each bar
+  geom_text(aes(label = perc_labels),
+            # posintion - middle
+            position = position_stack(vjust = 0.5)) +
+  # Y axes 0 to 100
+  ylim(0, 100) +
+  # size of an individual plot's title
+  theme(plot.title =
+          element_text(size = 10))
+
 
 ## fewer fields ----
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short <-
