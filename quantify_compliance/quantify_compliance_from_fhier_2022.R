@@ -1615,6 +1615,8 @@ month_labels_all <-
   factor(test_df$year_month,
          labels = format(month_unique, "%b"))
 
+pecent_names <- paste0(seq(0, 100, by = 10), "%")
+
 test_plot <-
   test_df |>
   ggplot(aes(x = year_month,
@@ -1629,9 +1631,9 @@ test_plot <-
        title = "Distiibution of weeks when a vessel was non compliant") +
   # text on dots
   geom_text(aes(label = perc_labels)) +
-  scale_y_continuous(breaks = seq(0, 100, by = 10))
+  scale_y_continuous(breaks = seq(0, 100, by = 10),
+                     labels = pecent_names)
   # scale_y_continuous(n.breaks = 100)
-
 
   # xlim(1, length(month_labels)) +
   # scale_x_continuous(n.breaks = length(month_labels),
