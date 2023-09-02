@@ -1603,6 +1603,12 @@ mypalette = viridis(q_colors, option = "D")
 names(mypalette) <- test_df_percent_n_compl_rank
 mypalette
 
+month_labels <- 
+  test_df$year_month |> 
+  unique() |> 
+  # length() |> 
+  sort()
+
 test_plot <-
   test_df |>
   ggplot(aes(x = year_month,
@@ -1610,11 +1616,20 @@ test_plot <-
              color = percent_n_compl_rank)) +
   # geom_point(aes(color = percent_n_compl_rank)) +
   geom_point() +
-  geom_line() + 
+  geom_line() +
   theme_bw() +
-  xlab("Month") +
-  ylab("Percent vessels in each group") +
-  ggtitle("Distiibution of weeks when a vessel was non compliant")
+  labs(size = "Groups of percentage",
+       x = "Month",
+       y = "Percent vessels in each group",
+       title = "Distiibution of weeks when a vessel was non compliant") +
+  # scale_x_continuous(breaks = seq(1, 12, by = 1))
+  scale_x_continuous(n.breaks = length(month_labels),
+                     labels = month_labels)
+
+  # xlab("Month") +
+  # ylab("Percent vessels in each group") +
+  # ggtitle("Distiibution of weeks when a vessel was non compliant") +
+  # scale_size_area("Groups of percentage")
 
 test_plot
   # scale_fill_manual(values = mypalette)
