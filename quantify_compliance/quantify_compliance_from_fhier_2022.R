@@ -1613,6 +1613,7 @@ month_labels <-
 
 test_plot <-
   test_df |>
+  # ggplot(iris, aes(fct_reorder(Species, Sepal.Width), Sepal.Width)) +
   ggplot(aes(x = year_month,
              y = perc_vsls_per_y_r_b,
              color = percent_n_compl_rank)) +
