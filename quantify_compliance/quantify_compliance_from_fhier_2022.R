@@ -1611,11 +1611,10 @@ test_plot <-
   # geom_point(aes(color = percent_n_compl_rank)) +
   geom_point() +
   geom_line() + 
-  theme_bw()
-
-  # geom_point()
-# +
-  # scale_colour_manual(values=c("skyblue2","dodgerblue3","darkblue", "red"))
+  theme_bw() +
+  xlab("Month") +
+  ylab("Percent vessels in each group") +
+  ggtitle("Distiibution of weeks when a vessel was non compliant")
 
 test_plot
   # scale_fill_manual(values = mypalette)
