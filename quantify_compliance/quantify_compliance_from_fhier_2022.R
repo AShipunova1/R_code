@@ -1611,10 +1611,14 @@ month_labels <-
   factor(month_unique,
          labels = format(month_unique, "%b"))
 
+month_labels_all <-
+  factor(test_df$year_month,
+         labels = format(month_unique, "%b"))
+
 test_plot <-
   test_df |>
   # ggplot(iris, aes(fct_reorder(Species, Sepal.Width), Sepal.Width)) +
-  ggplot(aes(x = year_month,
+  ggplot(aes(x = fct_rev(month_labels_all),
              y = perc_vsls_per_y_r_b,
              color = percent_n_compl_rank)) +
   # geom_point(aes(color = percent_n_compl_rank)) +
@@ -1624,10 +1628,10 @@ test_plot <-
   labs(size = "Groups of percentage",
        x = "Month",
        y = "Percent vessels in each group",
-       title = "Distiibution of weeks when a vessel was non compliant") +
-  # scale_x_continuous(breaks = seq(1, 12, by = 1))
-  scale_x_continuous(n.breaks = length(month_labels),
-                     labels = month_labels)
+       title = "Distiibution of weeks when a vessel was non compliant")
+  # xlim(1, length(month_labels)) +
+  # scale_x_continuous(n.breaks = length(month_labels),
+                     # labels = month_labels)
 
   # xlab("Month") +
   # ylab("Percent vessels in each group") +
