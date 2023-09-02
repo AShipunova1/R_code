@@ -1594,7 +1594,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt <-
 
 ## Month, blue plots with dots ----
 test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r$`2022 gom_dual`
-               
+
 test_df_percent_n_compl_rank <- sort(unique(test_df$percent_n_compl_rank))
 q_colors = length(test_df_percent_n_compl_rank)
 library(viridis)
@@ -1615,36 +1615,31 @@ month_labels_all <-
   factor(test_df$year_month,
          labels = format(month_unique, "%b"))
 
-View(test_df)
-
 test_plot <-
   test_df |>
-  # ggplot(aes(as.character(year), avg, 
-              # group=as.character(treatment), 
-              # colour=as.character(treatment))) +
-  ggplot(aes(x = fct_rev(month_labels_all),
+  ggplot(aes(x = year_month,
              y = perc_vsls_per_y_r_b,
-             group = percent_n_compl_rank,
              color = percent_n_compl_rank)) +
-  # geom_point(aes(color = percent_n_compl_rank)) +
   geom_point() +
   geom_line() +
   theme_bw() +
   labs(size = "Groups of percentage",
        x = "Month",
        y = "Percent vessels in each group",
-       title = "Distiibution of weeks when a vessel was non compliant") +
-  theme(axis.text.x = element_text(angle = 45)) +
-  geom_text(aes(label = perc_labels)
-            # ,
-            # position = position_stack(vjust = 0.5)
-            )
+       title = "Distiibution of weeks when a vessel was non compliant")
+  # xlim(1, length(month_labels)) +
+  # scale_x_continuous(n.breaks = length(month_labels),
+                     # labels = month_labels)
+
+  # xlab("Month") +
+  # ylab("Percent vessels in each group") +
+  # ggtitle("Distiibution of weeks when a vessel was non compliant") +
+  # scale_size_area("Groups of percentage")
 
 test_plot
-test_df |> 
-  filter(perc_labels == "4.9%") |> 
-  View()
-
+  # scale_fill_manual(values = mypalette)
+# geom_point(aes(fill = percent_n_compl_rank))
+# , shape = 21, colour = "black"
 
   geom_col(fill = "skyblue") +
   labs(title = curr_title,
