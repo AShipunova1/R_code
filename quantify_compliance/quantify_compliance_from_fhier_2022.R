@@ -1603,11 +1603,13 @@ mypalette = viridis(q_colors, option = "D")
 names(mypalette) <- test_df_percent_n_compl_rank
 mypalette
 
-month_labels <- 
+month_unique <- 
   test_df$year_month |> 
-  unique() |> 
-  # length() |> 
-  sort()
+  unique() 
+
+month_labels <-
+  factor(month_unique,
+         labels = format(month_unique, "%b"))
 
 test_plot <-
   test_df |>
