@@ -1619,21 +1619,25 @@ pecent_names <- paste0(seq(0, 100, by = 10), "%")
 
 test_plot <-
   test_df |>
-  ggplot(aes(x = year_month,
+  ggplot(aes(
+    # x = year_month,
+             x = as.Date(year_month),
              y = perc_vsls_per_y_r_b,
              color = percent_n_compl_rank)) +
   geom_point() +
   geom_line() +
   theme_bw() +
   labs(size = "Groups of percentage",
-       x = "Month",
+       x = "Month of 2022",
        y = "Percent vessels in each group",
-       title = "Distiibution of weeks when a vessel was non compliant") +
+       title = "Distribution of weeks when a vessel was non compliant") +
   # text on dots
   geom_text(aes(label = perc_labels)) +
   scale_y_continuous(breaks = seq(0, 100, by = 10),
-                     labels = pecent_names)
-  # scale_y_continuous(n.breaks = 100)
+                     labels = pecent_names) +
+  # scale_x_discrete(format(month_unique, "%b"))
+  # scale_x_discrete(month_unique)
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")
 
   # xlim(1, length(month_labels)) +
   # scale_x_continuous(n.breaks = length(month_labels),
