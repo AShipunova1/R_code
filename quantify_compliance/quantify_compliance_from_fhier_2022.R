@@ -1595,12 +1595,28 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt <-
 ## Month, blue plots with dots ----
 test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r$`2022 gom_dual`
                
+test_df_percent_n_compl_rank <- sort(unique(test_df$percent_n_compl_rank))
+q_colors = length(test_df_percent_n_compl_rank)
+library(viridis)
+mypalette = viridis(q_colors, option = "D")
+# mypalette <- rainbow(length(gom_all_cnt_indexes))
+names(mypalette) <- test_df_percent_n_compl_rank
+mypalette
+
 test_plot <-
   test_df |>
-  ggplot(
-         aes(x = year_month,
+  ggplot(aes(x = year_month,
              y = perc_vsls_per_y_r_b)) +
-  geom_point()
+  geom_point(aes(color = percent_n_compl_rank))
+
+  # geom_point()
+# +
+  # scale_colour_manual(values=c("skyblue2","dodgerblue3","darkblue", "red"))
+
+test_plot
+  # scale_fill_manual(values = mypalette)
+# geom_point(aes(fill = percent_n_compl_rank))
+# , shape = 21, colour = "black"
 
   geom_col(fill = "skyblue") +
   labs(title = curr_title,
