@@ -1606,8 +1606,12 @@ mypalette
 test_plot <-
   test_df |>
   ggplot(aes(x = year_month,
-             y = perc_vsls_per_y_r_b)) +
-  geom_point(aes(color = percent_n_compl_rank))
+             y = perc_vsls_per_y_r_b,
+             color = percent_n_compl_rank)) +
+  # geom_point(aes(color = percent_n_compl_rank)) +
+  geom_point() +
+  geom_line() + 
+  theme_bw()
 
   # geom_point()
 # +
