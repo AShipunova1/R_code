@@ -1626,7 +1626,10 @@ test_plot <-
   labs(size = "Groups of percentage",
        x = "Month",
        y = "Percent vessels in each group",
-       title = "Distiibution of weeks when a vessel was non compliant")
+       title = "Distiibution of weeks when a vessel was non compliant") +
+  # text on dots
+  geom_text(aes(label = perc_labels))
+
   # xlim(1, length(month_labels)) +
   # scale_x_continuous(n.breaks = length(month_labels),
                      # labels = month_labels)
