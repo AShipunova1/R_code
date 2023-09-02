@@ -1629,13 +1629,14 @@ test_plot <-
   theme_bw() +
   labs(size = "Groups of percentage",
        x = "Month of 2022",
-       y = "Percent vessels in each group",
+       y = "How many weeks are non-compliant in month",
        title = "Distribution of number of weeks when a vessel was non compliant") +
   # text on dots
   geom_text(aes(label = perc_labels)) +
   scale_y_continuous(breaks = seq(0, 100, by = 10),
                      labels = pecent_names) +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b")
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  guides(color = guide_legend(title = "% groups"))
 
 test_plot
 
