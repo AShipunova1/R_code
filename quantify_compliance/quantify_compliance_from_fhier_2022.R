@@ -729,7 +729,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc <-
   dplyr::add_count(year_permit,
                    name = "vsls_per_y_r") %>%
   dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
-  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 0), "%"))
 
 ### check 4 ----
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
@@ -1228,7 +1228,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p <-
   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   # percent vessels per year, region, bucket
   dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / cnt_vsl_m_compl) %>%
-  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 0), "%"))
 
 ### test 4, by month ----
 
@@ -1592,30 +1592,61 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt <-
 
 # dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt)
 
-## Month, blue plots with dots ----
+## Month, line plots with dots ----
 test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r$`2022 gom_dual`
 
-test_df_percent_n_compl_rank <- sort(unique(test_df$percent_n_compl_rank))
-q_colors = length(test_df_percent_n_compl_rank)
-library(viridis)
-mypalette = viridis(q_colors, option = "D")
-# mypalette <- rainbow(length(gom_all_cnt_indexes))
-names(mypalette) <- test_df_percent_n_compl_rank
-mypalette
-
-month_unique <- 
-  test_df$year_month |> 
-  unique() 
-
-month_labels <-
-  factor(month_unique,
-         labels = format(month_unique, "%b"))
-
-month_labels_all <-
-  factor(test_df$year_month,
-         labels = format(month_unique, "%b"))
-
+# test_df_percent_n_compl_rank <- sort(unique(test_df$percent_n_compl_rank))
+# q_colors = length(test_df_percent_n_compl_rank)
+# library(viridis)
+# mypalette = viridis(q_colors, option = "D")
+# # mypalette <- rainbow(length(gom_all_cnt_indexes))
+# names(mypalette) <- test_df_percent_n_compl_rank
+# mypalette
+# 
+# month_unique <- 
+#   test_df$year_month |> 
+#   unique() 
+# 
+# month_labels <-
+#   factor(month_unique,
+#          labels = format(month_unique, "%b"))
+# 
+# month_labels_all <-
+#   factor(test_df$year_month,
+#          labels = format(month_unique, "%b"))
+# 
 pecent_names <- paste0(seq(0, 100, by = 10), "%")
+
+test_df |> 
+  # filter(year_month == "Oct 2022") |> 
+    filter(percent_n_compl_rank == "0<= & <25%") |> 
+  print_df()
+
+test_df |>
+  select(
+    year_permit,
+    year_month,
+    cnt_vsl_m_compl,
+    compliant_,
+    percent_n_compl_rank,
+    cnt_v_in_bucket,
+    perc_vsls_per_y_r_b,
+    perc_labels
+  ) |>
+  filter(percent_n_compl_rank == "0<= & <25%") ->
+  short_0_25_bucket_gom_22
+
+# short_0_25_bucket_gom_22 |> 
+#   select(year_permit,
+#     year_month,
+#     compliant_,
+#     percent_n_compl_rank,
+#     cnt_vsl_m_compl,
+#     cnt_v_in_bucket,
+#     perc_vsls_per_y_r_b,
+#     perc_labels) |> 
+#     arrange(year_month) |>
+#   write_csv("bucket0_25_gom22.csv")
 
 test_plot <-
   test_df |>
@@ -1629,14 +1660,15 @@ test_plot <-
   theme_bw() +
   labs(size = "Groups of percentage",
        x = "Month of 2022",
-       y = "How many weeks are non-compliant in month",
-       title = "Distribution of number of weeks when a vessel was non compliant") +
+       y = "How many weeks are non-compliant in month (%)",
+       title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)") +
   # text on dots
   geom_text(aes(label = perc_labels)) +
   scale_y_continuous(breaks = seq(0, 100, by = 10),
                      labels = pecent_names) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  guides(color = guide_legend(title = "% groups"))
+  guides(color = guide_legend(title = "% groups")) +
+  ylim(0, 100)
 
 test_plot
 
@@ -2011,7 +2043,7 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
   dplyr::add_count(year_month,
                    name = "vsls_per_y_r") %>%
   dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
-  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 0), "%"))
 
 ### check 4 ----
 weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc %>%
