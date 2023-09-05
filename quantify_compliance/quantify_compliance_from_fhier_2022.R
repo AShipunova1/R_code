@@ -1166,6 +1166,14 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b %>%
 # $ amount_of_occurences         <int> 12, 12, 12, 12, 12, 12, 12, 12…
 # $ n                            <int> 144, 144, 144, 144, 144, 144, …
 
+### add 2 buckets ----
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b2 <-
+  # Use F2 to see the function definition
+  get_2_buckets(count_weeks_per_vsl_permit_year_compl_m_p_nc,
+                "percent_compl_m")
+
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b2)
+
 ## 3) Month: count how many in each bucket ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
@@ -1178,6 +1186,15 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 # [1] 11489    12
 # [1] 11477    12
+
+### 2 buckets ----
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2 <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b2 %>%
+  dplyr::add_count(year_permit,
+                   year_month,
+                   percent_non_compl_2_buckets,
+                   name = "cnt_v_in_bucket2")
+
 
 # check by counting in a different way
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
@@ -1230,6 +1247,16 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p <-
   dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / cnt_vsl_m_compl) %>%
   dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 0), "%"))
 
+### 2 buckets ----
+# print_df_names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2)
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2 %>%
+  # percent vessels per year, region, bucket
+  dplyr::mutate(perc_vsls_per_m_b2 = cnt_v_in_bucket2 * 100 / cnt_vsl_m_compl) %>%
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_m_b2, 0), "%"))
+
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p)
+
 ### test 4, by month ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
@@ -1271,9 +1298,24 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
   # can unique, because all counts by vessel are done already
   distinct()
 
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short <-
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p |> 
+    select(
+    -c(
+      vessel_official_number,
+      weeks_per_vessel_per_compl_m,
+      total_weeks_per_vessel_per_compl_m,
+      percent_compl_m
+    )
+  ) %>%
+  # can unique, because all counts by vessel are done already
+  distinct()
+
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short)
+
 ### add column with Month name only (for plotting) ----
-count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
-  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short %>%
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short2 <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short %>%
   # remove a space and following digits
   dplyr::mutate(month_only = str_replace(year_month, " \\d+", ""))
 
@@ -1287,12 +1329,15 @@ dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 # [1] 107  12
 # [1] 95 12
 
+dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short)
+# [1] 58 10
+
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 
 ### split the df by year_permit into a list ----
-count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r <-
-  split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short,
-        as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short$year_permit))
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2 <-
+  split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short,
+        as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short$year_permit))
 
 ### get used year_permits ----
 sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r) %>%
@@ -1593,7 +1638,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt <-
 # dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt)
 
 ## Month, line plots with dots ----
-test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r$`2022 gom_dual`
+test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual`
 
 # test_df_percent_n_compl_rank <- sort(unique(test_df$percent_n_compl_rank))
 # q_colors = length(test_df_percent_n_compl_rank)
@@ -1616,6 +1661,8 @@ test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r$`
 #          labels = format(month_unique, "%b"))
 # 
 pecent_names <- paste0(seq(0, 100, by = 10), "%")
+
+View(test_df)
 
 test_df50 <-
   test_df |>
