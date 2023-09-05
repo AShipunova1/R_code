@@ -1617,6 +1617,42 @@ test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r$`
 # 
 pecent_names <- paste0(seq(0, 100, by = 10), "%")
 
+test_df50 <-
+  test_df |>
+  mutate(buckets2 =
+           case_when(
+             perc_vsls_per_y_r_b < 50 ~ "right",
+             perc_vsls_per_y_r_b >= 50 ~ "wrong"
+           ))
+
+test_df50 |> 
+  filter(year_month == "Jan 2022",
+         buckets2 == "right") |> 
+  View()
+
+test_df50 |> 
+  group_by(year_month, buckets2) |>
+  mutate(perc_in_buckets2 =
+           sum(percent_n_compl_rank, na.rm = T)) |>
+  ungroup() |>
+  select(
+    year_permit,
+    year_month,
+    perm_exp_m,
+    exp_m_tot_cnt,
+    cnt_vsl_m_compl,
+    compliant_,
+    # percent_n_compl_rank,
+    # cnt_v_in_bucket,
+    # perc_vsls_per_y_r_b,
+    # perc_labels,
+    month_only,
+    buckets2
+  ) |>
+  distinct()
+
+View(test_df50)
+
 test_df |> 
   # filter(year_month == "Oct 2022") |> 
     filter(percent_n_compl_rank == "0<= & <25%") |> 
@@ -1649,11 +1685,12 @@ test_df |>
 #   write_csv("bucket0_25_gom22.csv")
 
 test_plot <-
-  test_df |>
+  test_df50 |>
   ggplot(aes(
     x = as.Date(year_month),
-    y = perc_vsls_per_y_r_b,
-    color = percent_n_compl_rank
+    y =
+    # y = perc_vsls_per_y_r_b,
+    color = buckets2
   )) +
   geom_point() +
   geom_line() +
@@ -1663,7 +1700,7 @@ test_plot <-
        y = "How many weeks are non-compliant in month (%)",
        title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)") +
   # text on dots
-  geom_text(aes(label = perc_labels)) +
+  # geom_text(aes(label = perc_labels)) +
   scale_y_continuous(breaks = seq(0, 100, by = 10),
                      labels = pecent_names) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -1671,6 +1708,21 @@ test_plot <-
   ylim(0, 100)
 
 test_plot
+# print_df_names(test_df50)
+
+test_df50 |> select(
+  year_permit,
+  year_month,
+  compliant_,
+  exp_m_tot_cnt,
+  cnt_vsl_m_compl,
+  cnt_v_in_bucket,
+  perc_vsls_per_y_r_b,
+  buckets2
+) |>
+  arrange(year_month)
+# |>
+#   write_csv("month_with_numbers_gom_22.csv")
 
 ## fewer fields ----
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short <-
