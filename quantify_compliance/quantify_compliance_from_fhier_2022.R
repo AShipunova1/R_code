@@ -1476,15 +1476,6 @@ gg_month_nc_perc <-
       return(res)
     })
 
-# check
-# test_df <-
-#   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r[["2022 sa_only"]]
-#
-# get_one_plot_by_month(test_df,
-#                       curr_year_month = "Aug 2022")
-#
-# gg_month_nc_perc[[1]][[2]]
-
 footnote_text <- "In parenthesis are 1) # of non compliant vessels per month; 2) total active permits per month; 3) total expired permits per month;"
 
 # footnote <- textGrob(
@@ -1662,82 +1653,21 @@ test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$
 # 
 pecent_names <- paste0(seq(0, 100, by = 10), "%")
 
-View(test_df)
-
-test_df50 <-
-  test_df |>
-  mutate(buckets2 =
-           case_when(
-             perc_vsls_per_y_r_b < 50 ~ "right",
-             perc_vsls_per_y_r_b >= 50 ~ "wrong"
-           ))
-
-test_df50 |> 
-  filter(year_month == "Jan 2022",
-         buckets2 == "right") |> 
-  View()
-
-test_df50 |> 
-  group_by(year_month, buckets2) |>
-  mutate(perc_in_buckets2 =
-           sum(percent_n_compl_rank, na.rm = T)) |>
-  ungroup() |>
-  select(
-    year_permit,
-    year_month,
-    perm_exp_m,
-    exp_m_tot_cnt,
-    cnt_vsl_m_compl,
-    compliant_,
-    # percent_n_compl_rank,
-    # cnt_v_in_bucket,
-    # perc_vsls_per_y_r_b,
-    # perc_labels,
-    month_only,
-    buckets2
-  ) |>
-  distinct()
-
-View(test_df50)
+glimpse(test_df)
+# [1] 24 10
 
 test_df |> 
-  # filter(year_month == "Oct 2022") |> 
-    filter(percent_n_compl_rank == "0<= & <25%") |> 
-  print_df()
-
-test_df |>
-  select(
-    year_permit,
-    year_month,
-    cnt_vsl_m_compl,
-    compliant_,
-    percent_n_compl_rank,
-    cnt_v_in_bucket,
-    perc_vsls_per_y_r_b,
-    perc_labels
-  ) |>
-  filter(percent_n_compl_rank == "0<= & <25%") ->
-  short_0_25_bucket_gom_22
-
-# short_0_25_bucket_gom_22 |> 
-#   select(year_permit,
-#     year_month,
-#     compliant_,
-#     percent_n_compl_rank,
-#     cnt_vsl_m_compl,
-#     cnt_v_in_bucket,
-#     perc_vsls_per_y_r_b,
-#     perc_labels) |> 
-#     arrange(year_month) |>
-#   write_csv("bucket0_25_gom22.csv")
+  filter(year_month == "Jan 2022",
+         percent_non_compl_2_buckets == "okay") |> 
+  View()
 
 test_plot <-
-  test_df50 |>
+  test_df |>
+  filter(percent_non_compl_2_buckets == "okay") |>
   ggplot(aes(
     x = as.Date(year_month),
-    y =
-    # y = perc_vsls_per_y_r_b,
-    color = buckets2
+    y = perc_vsls_per_m_b2,
+    color = percent_non_compl_2_buckets
   )) +
   geom_point() +
   geom_line() +
