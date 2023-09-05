@@ -169,3 +169,15 @@ get_p_buckets <- function(my_df, field_name) {
     return()
 }
 
+# percent buckets by 50%
+get_2_buckets <- function(my_df, field_name) {
+  my_df %>%
+    dplyr::mutate(
+      percent_non_compl_2_buckets =
+        dplyr::case_when(
+          !!sym(field_name) < 50 ~ 'okay',
+          50 <= !!sym(field_name) ~ 'wrong'
+        )
+    ) %>%
+    return()
+}
