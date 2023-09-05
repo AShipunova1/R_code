@@ -175,8 +175,9 @@ get_2_buckets <- function(my_df, field_name) {
     dplyr::mutate(
       percent_non_compl_2_buckets =
         dplyr::case_when(
-          !!sym(field_name) < 50 ~ 'okay',
-          50 <= !!sym(field_name) ~ 'wrong'
+          # nc weeks 
+          !!sym(field_name) < 50 ~ '< 50%',
+          50 <= !!sym(field_name) ~ '>= 50%'
         )
     ) %>%
     return()
