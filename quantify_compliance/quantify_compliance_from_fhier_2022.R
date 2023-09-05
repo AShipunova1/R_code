@@ -1314,6 +1314,11 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p |>
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short)
 
 ### add column with Month name only (for plotting) ----
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short %>%
+  # remove a space and following digits
+  dplyr::mutate(month_only = str_replace(year_month, " \\d+", ""))
+
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short2 <-
   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short %>%
   # remove a space and following digits
@@ -1335,6 +1340,10 @@ dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short)
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 
 ### split the df by year_permit into a list ----
+count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r <-
+  split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short,
+        as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short$year_permit))
+
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2 <-
   split(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short,
         as.factor(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short$year_permit))
@@ -1656,14 +1665,9 @@ pecent_names <- paste0(seq(0, 100, by = 10), "%")
 glimpse(test_df)
 # [1] 24 10
 
-test_df |> 
-  filter(year_month == "Jan 2022",
-         percent_non_compl_2_buckets == "okay") |> 
-  View()
-
 test_plot <-
   test_df |>
-  filter(percent_non_compl_2_buckets == "okay") |>
+  filter(percent_non_compl_2_buckets == "< 50%") |>
   ggplot(aes(
     x = as.Date(year_month),
     y = perc_vsls_per_m_b2,
@@ -1674,30 +1678,87 @@ test_plot <-
   theme_bw() +
   labs(size = "Groups of percentage",
        x = "Month of 2022",
-       y = "How many weeks are non-compliant in month (%)",
+       y = "Percent of non-compliant vessels been non-compliant less than half a month",
        title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)") +
   # text on dots
   # geom_text(aes(label = perc_labels)) +
   scale_y_continuous(breaks = seq(0, 100, by = 10),
                      labels = pecent_names) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  guides(color = guide_legend(title = "% groups")) +
+  guides(color = guide_legend(title = "nc weeks")) +
   ylim(0, 100)
 
 test_plot
-# print_df_names(test_df50)
+# print_df_names(test_df)
 
-test_df50 |> select(
+max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
+
+min_max_val <-
+  test_df |>
+  group_by(percent_non_compl_2_buckets) |>
+  mutate(
+    max_dot_y = max(perc_vsls_per_m_b2),
+    min_dot_y = min(perc_vsls_per_m_b2)
+  ) |>
+  ungroup() |>
+  mutate(
+    max_dot_month =
+      case_when(
+        perc_vsls_per_m_b2 == max_dot_y &
+          percent_non_compl_2_buckets == "< 50%" ~ year_month
+      ),
+    min_dot_month =
+      case_when(
+        perc_vsls_per_m_b2 == min_dot_y &
+          percent_non_compl_2_buckets == "< 50%" ~ year_month
+      )
+  ) |>
+  mutate(
+    max_dot_text =
+      case_when(
+        !is.na(max_dot_month) ~ str_glue(max_min_text)
+      ),
+    min_dot_text =
+      case_when(
+        !is.na(min_dot_month) ~ str_glue(max_min_text)
+      )
+  )
+
+test_plot +
+  annotate(
+    "text",
+    x = as.Date(min_max_val$max_dot_month),
+    y = min_max_val$max_dot_y,
+    # mean of reports_cnts, rounded to 2 decimals
+    label = min_max_val$max_dot_text
+    # ,
+    # color = "red",
+    # angle = 90
+  ) +
+  annotate(
+    "text",
+    x = as.Date(min_max_val$min_dot_month),
+    y = min_max_val$min_dot_y,
+    # mean of reports_cnts, rounded to 2 decimals
+    label = min_max_val$min_dot_text
+    # ,
+    # color = "red",
+    # angle = 90
+  )
+
+test_df |> select(
   year_permit,
   year_month,
   compliant_,
+  # perm_exp_m,
   exp_m_tot_cnt,
   cnt_vsl_m_compl,
-  cnt_v_in_bucket,
-  perc_vsls_per_y_r_b,
-  buckets2
+  cnt_v_in_bucket2,
+  perc_vsls_per_m_b2,
+  percent_non_compl_2_buckets
 ) |>
-  arrange(year_month)
+  arrange(year_month) |>
+  View()
 # |>
 #   write_csv("month_with_numbers_gom_22.csv")
 
