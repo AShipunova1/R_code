@@ -103,7 +103,7 @@ make_one_plot_compl_vs_non_compl <-
         # use custom colors
         values =
           c(
-            "compliant" = "lightgreen",
+            "compliant" = "blue",
             "non_compliant" = "red"
           ),
         # Legend title
