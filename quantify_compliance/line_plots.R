@@ -28,26 +28,30 @@ glimpse(test_df)
 
 test_plot <-
   test_df |>
-  filter(percent_non_compl_2_buckets == "< 50%") |> View()
+  filter(percent_non_compl_2_buckets == "< 50%") |>
+  # |> View()
   ggplot(aes(
     x = as.Date(year_month),
-    y = perc_vsls_per_m_b2,
+    y = cnt_v_in_bucket2,
     color = percent_non_compl_2_buckets
   )) +
   geom_point() +
   geom_line() +
   theme_bw() +
   labs(size = "Groups of percentage",
-       x = "Month of 2022",
-       y = "Percent of non-compliant vessels been non-compliant less than half a month",
-       title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)") +
+       x = "Months (2022)",
+       y = "Number of Non-Compliant Vessels That Were Compliant More Than 50%",
+       # y = "Percent of non-compliant vessels been non-compliant less than half a month",
+       # title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)") +
+       title = "The Number of Non-Compliant Vessels Each Month That Were Compliant More Than 50% of a Month in 2022") +
   # text on dots
-  # geom_text(aes(label = perc_labels)) +
-  scale_y_continuous(breaks = seq(0, 100, by = 10),
-                     labels = pecent_names) +
+  geom_text(aes(label = cnt_v_in_bucket2), vjust = 1.2) +
+  # scale_y_continuous(breaks = seq(0, 100, by = 10),
+  # labels = pecent_names) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  guides(color = guide_legend(title = "nc weeks")) +
-  ylim(0, 100)
+  theme(legend.position = "none")
+# guides(color = guide_legend(title = "nc weeks")) +
+# ylim(0, 100)
 
 test_plot
 # print_df_names(test_df)
