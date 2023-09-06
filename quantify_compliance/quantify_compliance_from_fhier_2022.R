@@ -92,9 +92,28 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 5 NO         2023 sa_dual   1615
 # 6 YES        2023 sa_dual   2111
 
+# quantify_compliance_from_fhier_year ----
+source(file.path(
+  my_paths$git_r,
+  project_name,
+  "quantify_compliance_from_fhier_year.R"
+))
 
+# quantify_compliance_from_fhier_month ----
+source(
+  file.path(
+    my_paths$git_r,
+    project_name,
+    "quantify_compliance_from_fhier_month.R"
+  )
+)
 
-source(file.path(my_paths$git_r, project_name, "quantify_compliance_start.R"))
+# quantify_compliance_from_fhier_vms ----
+source(file.path(
+  my_paths$git_r,
+  project_name,
+  "quantify_compliance_from_fhier_vms.R"
+))
 
 
 # Create a read.me file with numbers of total, active and expired ----
