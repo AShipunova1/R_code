@@ -38,22 +38,30 @@ test_plot <-
   geom_point() +
   geom_line() +
   theme_bw() +
-  labs(size = "Groups of percentage",
-       x = "Months (2022)",
-       y = "Number of Non-Compliant Vessels That Were Compliant More Than 50%",
-       # y = "Percent of non-compliant vessels been non-compliant less than half a month",
-       # title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)") +
-       title = "The Number of Non-Compliant Vessels Each Month That Were Compliant More Than 50% of a Month in 2022") +
   # text on dots
-  geom_text(aes(label = cnt_v_in_bucket2), vjust = 1.2) +
+  geom_text(aes(label = cnt_v_in_bucket2), vjust = -0.3) +
+  geom_text(aes(label = cnt_vsl_m_compl),
+            vjust = 1.3,
+            color = "blue") +
   # scale_y_continuous(breaks = seq(0, 100, by = 10),
   # labels = pecent_names) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  labs(size = "Groups of percentage",
+       x = "Months (2022)",
+       y = "Number of Vessels"
+       # y = "Number of Non-Compliant Vessels That Were Compliant More Than 50%",
+       # y = "Percent of non-compliant vessels been non-compliant less than half a month",
+       # title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)")
+       ) +
+  labs(title = "The Number of Non-Compliant Vessels Each Month\nThat Were Compliant More Than 50% of a Month in 2022") +
+  # theme(plot.title = element_text(lineheight = 0.9)) +
+  labs(caption = "(The blue number is a total number of non-compliant vessels per month.)")
 # guides(color = guide_legend(title = "nc weeks")) +
 # ylim(0, 100)
 
 test_plot
+
 # print_df_names(test_df)
 
 max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
