@@ -15,6 +15,22 @@
 # corresp_contact_cnts_clean <- temp_var[[2]]
 
 #---
+# curr_wd <- getwd()
+# roracle_path <- r"(C:\Users\anna.shipunova\Software\ROracle_1.3-2\ROracle)"
+# setwd(roracle_path)
+# install.packages('ROracle')
+
+# library('ROracle')
+# drv <- dbDriver("Oracle")
+# con <- dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname='XXX')
+
+# library('ROracle')
+# drv <- dbDriver("Oracle")
+# con <-
+#   dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname = 'XXX')
+# 
+# dbReadTable(con, 'DUAL')
+
 
 #install.packages("tidyverse")
 library(tidyverse)
@@ -585,4 +601,26 @@ read_rds_or_run <-
     }
 
     return(my_result)
+  }
+
+# Usage:
+# select(-all_of(names(empty_cols)))
+
+empty_cols <-
+  function(my_df) {
+    my_df |>
+      map_df(function(x) {
+        browser()
+        if (length(unique(x)) == 1) {
+          return(unique(x))
+        }
+      }) %>%
+    return()
+  }
+
+create_dir_if_not <-
+  function(curr_dir_name) {
+    if (!dir.exists(curr_dir_name)) {
+      dir.create(curr_dir_name)
+    }
   }

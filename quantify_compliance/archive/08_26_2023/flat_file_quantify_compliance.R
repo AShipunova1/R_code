@@ -1,10 +1,3 @@
-# quantify_compliance start
-library(zoo)
-library(gridExtra)
-library(cowplot)
-
-# source("~/R_code_github/useful_functions_module.r")
-
 #### Current file: ~/R_code_github/useful_functions_module.r ----
 
 # nolint: commented_code_linter
@@ -24,22 +17,6 @@ library(cowplot)
 # corresp_contact_cnts_clean <- temp_var[[2]]
 
 #---
-# curr_wd <- getwd()
-# roracle_path <- r"(C:\Users\anna.shipunova\Software\ROracle_1.3-2\ROracle)"
-# setwd(roracle_path)
-# install.packages('ROracle')
-
-# library('ROracle')
-# drv <- dbDriver("Oracle")
-# con <- dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname='XXX')
-
-# library('ROracle')
-# drv <- dbDriver("Oracle")
-# con <-
-#   dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname = 'XXX')
-# 
-# dbReadTable(con, 'DUAL')
-
 
 #install.packages("tidyverse")
 library(tidyverse)
@@ -258,7 +235,7 @@ aux_fun_for_dates <- function(x, date_format) {
 }
   # # Previously
   # across(a:b, mean, na.rm = TRUE)
-  #
+  # 
   # # Now
   # across(a:b, \(x) mean(x, na.rm = TRUE))
 change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
@@ -298,15 +275,15 @@ count_by_column_arr <- function(my_df, group_by_arr) {
     return()
 }
 
-count_uniq_by_column <- function(my_df) {
-  sapply(my_df, function(x) length(unique(x))) %>%
-    as.data.frame()
-}
-
 data_overview <- function(my_df) {
   summary(my_df) %>% print()
   cat("\nCount unique values in each column:")
   count_uniq_by_column(my_df)
+}
+
+count_uniq_by_column <- function(my_df) {
+  sapply(my_df, function(x) length(unique(x))) %>%
+    as.data.frame()
 }
 
 # from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
@@ -318,9 +295,9 @@ concat_unique <-
   }
 
 print_df_names <- function(my_df, names_num = 100) {
-  names(my_df) %>%
-    head(names_num) %>%
-    paste0(collapse = ", ") %>%
+  names(my_df) %>% 
+    head(names_num) %>% 
+    paste0(collapse = ", ") %>% 
     return()
 }
 
@@ -331,10 +308,7 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my
     return()
 }
 
-concat_unique_sorted <-
-  function(x) {
-    paste0(unique(sort(x[!is.na(x)])), collapse = ", ")
-  }
+concat_unique_sorted <- function(x){paste0(unique(sort(x[!is.na(x)])), collapse= ", ")}
 
 combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
   my_df %>%
@@ -537,18 +511,18 @@ legend_for_grid_arrange <- function(legend_plot) {
   return(my_legend)
 }
 
-make_a_flat_file <-
+make_a_flat_file <- 
   function(flat_file_name,
            files_to_combine_list) {
     # write to file
     sink(flat_file_name)
-
+    
     for (i in 1:length(files_to_combine_list)) {
       current_file = readLines(files_to_combine_list[i])
-      cat("\n\n#### Current file:", files_to_combine_list[i], "----\n\n")
+      cat("\n\n#### Current file:", files_to_combine_list[i], "\n\n")
       cat(current_file, sep = "\n")
     }
-
+    
     sink()
   }
 
@@ -563,71 +537,6 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
     return()
 }
 
-# read_rds_or_run <-
-#   function(my_file_path,
-#            my_data_list_of_dfs,
-#            my_function) {
-#     # browser()
-#
-#     if (file.exists(my_file_path)) {
-#       # read a binary file saved previously
-#       my_df <-
-#         readr::read_rds(my_file_path)
-#     } else {
-#       tic("run the function")
-#       my_df <-
-#         my_function(my_data_list_of_dfs)
-#       toc()
-#
-#       # write all as binary
-#       readr::write_rds(my_df,
-#                        my_file_path)
-#     }
-#
-#     return(my_df)
-#   }
-
-read_rds_or_run <-
-  function(my_file_path,
-           my_data = as.data.frame(""),
-           my_function) {
-    # browser()
-
-    if (file.exists(my_file_path)) {
-      # read a binary file saved previously
-      my_result <-
-        readr::read_rds(my_file_path)
-    } else {
-      msg_text <- paste(today(), "run the function")
-      tic(msg_text)
-      my_result <-
-        my_function(my_data)
-      toc()
-
-      # write all as binary
-      readr::write_rds(my_result,
-                       my_file_path)
-    }
-
-    return(my_result)
-  }
-
-# Usage:
-# select(-all_of(names(empty_cols)))
-
-empty_cols <-
-  function(my_df) {
-    my_df |>
-      map_df(function(x) {
-        browser()
-        if (length(unique(x)) == 1) {
-          return(unique(x))
-        }
-      }) %>%
-    return()
-  }
-
-my_paths <- set_work_dir()
 
 #### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_functions.R ----
 
@@ -774,13 +683,10 @@ get_p_buckets <- function(my_df, field_name) {
 
 #### Current file: ~/R_code_github/quantify_compliance/get_data.R ----
 
-# this file is called from quantify_compliance.R
-
 library(tictoc)
 
-project_dir_name <- "FHIER Compliance"
-
 # Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
+project_dir_name <- "FHIER Compliance"
 
 # get data from csvs ----
 get_data_from_FHIER_csvs <- function() {
@@ -1061,54 +967,6 @@ if (exists("get_data_from_param")) {
 }
 
 
-#### Current file: ~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R ----
-
-source(file.path(my_paths$git_r,
-                 "get_data_from_fhier",
-                 "get_metrics_tracking.R"))
-
-source(file.path(my_paths$git_r,
-                 "get_data_from_fhier",
-                 "get_srhs_vessels.R"))
-
-## exclude srhs vessels from metric traking ----
-fhier_reports_metrics_tracking_not_srhs_ids <-
-  map_df(
-    fhier_reports_metrics_tracking_list,
-    ~ .x |>
-      filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)
-  ) |>
-  select(vessel_official_number) |>
-  distinct()
-
-dim(fhier_reports_metrics_tracking_not_srhs_ids)
-# [1] 2981    1
-# browser()
-fhier_reports_metrics_tracking_not_srhs_ids_list <-
-  map(
-    fhier_reports_metrics_tracking_list,
-    ~ .x |>
-      filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__) |>
-      select(vessel_official_number) |>
-      distinct()
-  )
-
-# check
-map(fhier_reports_metrics_tracking_list, dim)
-# [[1]]
-# [1] 3634   13
-# 
-# [[2]]
-# [1] 3460   13
-
-map(fhier_reports_metrics_tracking_not_srhs_ids_list, dim)
-# [[1]]
-# [1] 3571    1
-# 
-# [[2]]
-# [1] 3399    1
-
-
 #### Current file: ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_2022.R ----
 
 # Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
@@ -1129,29 +987,20 @@ library(cowplot)
 
 source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
-# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
-compl_clean_sa_vs_gom_m_int_1 <-
-  compl_clean_sa_vs_gom_m_int |>
-  filter(
-    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
-  )
-
 # remove 2023 gom_only ----
 compl_clean_sa_vs_gom_m_int_filtered <-
   # from get_data
-  compl_clean_sa_vs_gom_m_int_1 %>%
+  compl_clean_sa_vs_gom_m_int %>%
   filter(!(year == '2023' & permit_sa_gom == "gom_only"))
 
 # save vsl count for future checks ----
 
 count_all_vessels <-
-  compl_clean_sa_vs_gom_m_int_1 %>%
+  compl_clean_sa_vs_gom_m_int %>%
   select(vessel_official_number) %>%
   unique() %>%
   dim()
 # 4017 vessels
-count_all_vessels[1]
-# 3776    
 
 count_not_gom23_vessels <-
 compl_clean_sa_vs_gom_m_int_filtered %>%
@@ -1159,11 +1008,9 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   unique() %>%
   dim()
 # 3887 vessels
-count_not_gom23_vessels[1]
-# 3658
 
 vessels_compl_or_not_per_y_r_all <-
-  compl_clean_sa_vs_gom_m_int_1 %>%
+  compl_clean_sa_vs_gom_m_int %>%
   select(vessel_official_number,
          compliant_,
          year,
@@ -1184,15 +1031,6 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 #  YES        2022 sa_only   1617
 #  NO         2023 sa_dual   1628
 #  YES        2023 sa_dual   2125
-
-# metrics
-# vessels_compl_or_not_per_y_r_not_gom23
-# 1 NO         2022 gom_dual   290
-# 2 YES        2022 gom_dual  1298
-# 3 NO         2022 sa_only   1263
-# 4 YES        2022 sa_only   1602
-# 5 NO         2023 sa_dual   1615
-# 6 YES        2023 sa_dual   2111
 
 # by Year: ----
 ## year add total ----
@@ -1216,10 +1054,6 @@ compl_clean_sa_vs_gom_m_int_filtered_tot %>%
 # 1 2022 sa_only        2178
 # 2 2022 gom_dual       1495
 # 3 2023 sa_dual        2236
-               
-# 1 2022 sa_only         2145
-# 2 2022 gom_dual        1304
-# 3 2023 sa_dual         2220
 
 ## expired or not? ----
 end_of_2022 <- as.Date("12/31/2022", format = "%m/%d/%Y")
@@ -1356,8 +1190,33 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
                   dplyr::n_distinct(perm_exp_y) == dplyr::n_distinct(.$perm_exp_y)) %>%
   dplyr::filter(shared == TRUE) %>%
   dplyr::arrange(vessel_official_number) %>%
-  dim()
-# 0
+  dplyr::glimpse()
+# $ year_permit            <chr> "2022 sa_only", "2022 sa_only"
+# $ total_vsl_y             <int> 2178, 2178
+# $ perm_exp_y             <chr> "active", "expired"
+# $ vessel_official_number <chr> "FL7825PU", "FL7825PU"
+# $ is_compl_or_both       <chr> "NO", "YES"
+# $ shared                 <lgl> TRUE, TRUE
+
+# ERR: perm_exp_y             <chr> "active", "expired"
+# ERR: is_compl_or_both       <chr> "NO", "YES"
+
+test_FL7825PU <-
+  compl_clean_sa_vs_gom_m_int_filtered %>%
+  filter(vessel_official_number == "FL7825PU")
+
+data_overview(test_FL7825PU)
+# permitgroupexpiration        2
+# compliant_                   2
+# permit_groupexpiration       2
+
+test_FL7825PU %>%
+  select(permit_sa_gom, year_permit, permitgroupexpiration) %>%
+  unique()
+#   permit_sa_gom year_permit  permitgroupexpiration
+# 1 sa_only       2022 sa_only 2022-05-31 00:00:00
+# 2 sa_only       2022 sa_only 2024-05-31 00:00:00
+# TODO: redo all when fixed
 
 ### check total_vsl_y vs. sum_cnts (should be equal, see dbl FL7825PU above) ----
 compl_clean_sa_vs_gom_m_int_filtered %>%
@@ -1371,8 +1230,6 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   head()
 # 1       1617 YES
 # 2       1289 NO
-# 1       1602 YES       
-# 2       1263 NO        
 
 compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::filter(year_permit == "2022 sa_only") %>%
@@ -1415,15 +1272,6 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 # 1707 + 472
 # 2179
 
-# [1] "2023-08-26"
-#   tota_vsl_m compliant_ perm_exp_y
-#        <int> <chr>      <chr>     
-# 1       1694 YES        active    
-# 2       1694 NO         active    
-# 3        451 NO         expired   
-# 4        451 YES        expired   
-# 1694+451 = 2145
-
 ## add total cnts ----
 # active vs expired per year, permit, compl, permit expiration
 
@@ -1463,9 +1311,6 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
          cnt_y_p_e) %>%
   unique() %>%
   dplyr::mutate(perc_c_nc = cnt_y_p_c * 100 / total_vsl_y)
-
-dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
-# [1] 11  7
 
 ## red/green plots for compl vs. non compl vessels per year ----
 
@@ -1606,8 +1451,7 @@ count_weeks_per_vsl_permit_year_compl_p <-
   mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
-dim(count_weeks_per_vsl_permit_year_compl_p)
-# [1] 185251     32
+# View(count_weeks_per_vsl_permit_year_compl_p)
 
 # test
 count_weeks_per_vsl_permit_year_compl_p %>%
@@ -1616,7 +1460,6 @@ count_weeks_per_vsl_permit_year_compl_p %>%
   unique() %>%
   dim()
 # [1] 2178
-# 2145    
 
 count_weeks_per_vsl_permit_year_compl_p %>%
   filter(permit_sa_gom == "sa_only",
@@ -1627,7 +1470,6 @@ count_weeks_per_vsl_permit_year_compl_p %>%
 # 1289    Non compliant vsl
   dim()
 # [1] 26466 non compliant weeks
-# [1] 25662     1
 
 ### test 1b ----
 count_weeks_per_vsl_permit_year_compl_p %>%
@@ -1690,7 +1532,6 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
   # sum amount_of_occurences
   dplyr::count(wt = amount_of_occurences)
 # 634
-# 615
 
 # 3) count how many in each bucket ----
 
@@ -1715,11 +1556,6 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
 # $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
 # $ cnt_v_in_bucket     : int [1:4] 399 172 85 633
 # $ total_per_y_r       : int [1:4] 1289 1289 1289 1289
-
- # $ year_permit         : chr [1:4] "2022 sa_only" "2022 sa_only" "2022 sa_only" "2022 sa_only"
- # $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
- # $ cnt_v_in_bucket     : int [1:4] 398 168 82 615
- # $ total_per_y_r       : int [1:4] 1263 1263 1263 1263
 
 # "2022 sa_only"
 # 633+85+172+399
@@ -1755,10 +1591,6 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
 # 2 25<= & <50%                        13.3
 # 3 50<= & <75%                         6.59
 # 4 75<= & <=100%                      49.1
-# 1 0<= & <25%                         31.5 
-# 2 25<= & <50%                        13.3 
-# 3 50<= & <75%                         6.49
-# 4 75<= & <=100%                      48.7 
 
 # 5) blue plots by year ----
 
@@ -1925,9 +1757,9 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
 # 6 2022 sa_only  Dec 2022          1657
 # numbers are as before, ok
 
-## add the difference between expiration and week_start----
+## add the difference between expiration and week_start ----
 
-# If we use a week_end, than a vessel which ends near the end of year will have its last week expired.
+# If we use a week_end, then a vessel which ends near the end of year will have its last week expired.
 compl_clean_sa_vs_gom_m_int_c_exp_diff <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
   # add a column with difference in days
@@ -2128,8 +1960,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
               percent_n_compl_rank,
               name = "cnt_v_in_bucket")
 
-dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
-# [1] 11489    12
+# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 
 # check by counting in a different way
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
@@ -2157,8 +1988,6 @@ test_compare_with <-
 # 
 # 45 nc vsls in "Jan 2022 gom_dual"
 # 45 * 100 / 1192 = 3.8%
-
-# 688   
 
 # still true?
 test_res <-
@@ -2230,8 +2059,6 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
 # check
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 # [1] 11766    15
-# [1] 11489    15
-
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 # [1] 107  12
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
@@ -2470,7 +2297,7 @@ all_plots_w_titles_list %>%
                              ".png")
     
     file_path <-
-      r"(quantify_compliance\08_26_2023\per_month)"
+      r"(quantify_compliance\jun_21_2023\per_month)"
     
     # file.path adds the correct concatenation
     file_full_name <- file.path(my_paths$outputs,
@@ -2484,7 +2311,7 @@ all_plots_w_titles_list %>%
   })
 
 # [[1]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\jun_21_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
 
 # ==
 # make a flat file ----
@@ -2495,10 +2322,9 @@ files_to_combine <-
     "~/R_code_github/useful_functions_module.r",
     file.path(dir_to_comb, "quantify_compliance_functions.R"),
     file.path(dir_to_comb, "get_data.R"),
-    r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
     file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R")
   )
 
 # run as needed
-# make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
-# 
+make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
+

@@ -75,7 +75,9 @@ make_one_plot_compl_vs_non_compl <-
            current_title = "",
            is_compliant = "is_compliant",
            percent = "percent",
-           no_legend = FALSE) {
+           no_legend = FALSE,
+           percent_label_pos = 0.5,
+           default_percen_labels = TRUE) {
     # browser()
     one_plot <-
       my_df %>%
@@ -83,11 +85,16 @@ make_one_plot_compl_vs_non_compl <-
                  y = !!sym(percent),
                  fill = !!sym(is_compliant))) +
       geom_col() +
-      # Add percent numbers on the bars
-      geom_text(aes(label =
-                      paste0(round(!!sym(percent), 1), "%")),
-                # in the middle of the bar
-                position = position_stack(vjust = 0.5)) +
+      # # Add percent numbers on the bars
+      #     one_plot <-
+      # one_plot + annotate("text", x = 4, y = 25, label = "Some text")
+      # 
+      # geom_text(aes(label =
+      #                 paste0(round(!!sym(percent), 1), "%")),
+      #           # in the middle of the bar
+      #           position = 
+      #             position_stack(vjust = percent_label_pos)
+      #           ) +
       # no x and y titles for individual plots
       labs(title = current_title,
            x = "",
@@ -96,7 +103,7 @@ make_one_plot_compl_vs_non_compl <-
         # use custom colors
         values =
           c(
-            "compliant" = "lightgreen",
+            "compliant" = "blue",
             "non_compliant" = "red"
           ),
         # Legend title
@@ -111,12 +118,37 @@ make_one_plot_compl_vs_non_compl <-
     # +
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
 
+    label_percent <- map(my_df$perc_c_nc,
+                          ~ paste0(round(.x, 1), "%"))
+                   
+    # Add percent numbers on the bars
+    if (default_percen_labels) {
+      one_plot <-
+        one_plot +
+        geom_text(aes(label =
+                        paste0(round(!!sym(
+                          percent
+                        ), 1), "%")),
+                  # in the middle of the bar
+                  position =
+                    position_stack(vjust = percent_label_pos))
+      
+    } else {
+      one_plot <-
+        one_plot + annotate("text",
+                            x = 1:2,
+                            y = 20,
+                            label = label_percent)
+    }
+    
+    
+    
     # to use with grid arrange multiple plots
     if (no_legend) {
       one_plot <- one_plot +
         theme(legend.position = "none")
     }
-
+    
     return(one_plot)
   }
 
@@ -137,3 +169,16 @@ get_p_buckets <- function(my_df, field_name) {
     return()
 }
 
+# percent buckets by 50%
+get_2_buckets <- function(my_df, field_name) {
+  my_df %>%
+    dplyr::mutate(
+      percent_non_compl_2_buckets =
+        dplyr::case_when(
+          # nc weeks 
+          !!sym(field_name) < 50 ~ '< 50%',
+          50 <= !!sym(field_name) ~ '>= 50%'
+        )
+    ) %>%
+    return()
+}
