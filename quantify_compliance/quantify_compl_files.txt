@@ -1,3 +1,5 @@
+archive/
+flat_file_quantify_compliance.R
 get_data.R
 new_functions.R
 quantify_compl_files.txt
