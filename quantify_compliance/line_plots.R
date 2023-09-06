@@ -62,6 +62,32 @@ test_plot <-
 
 test_plot
 
+plot_file_path_m <-
+  file.path(plot_file_path, "per_month")
+create_dir_if_not(plot_file_path_m)
+
+plot_file_path_lines <-
+  file.path(plot_file_path, "line_plots")
+create_dir_if_not(plot_file_path_lines)
+
+file_full_name <- file.path(plot_file_path_lines,
+                            "gom_2022_mostly_right.png")
+
+# see the function definition F2
+save_plots_list_to_files(file_full_name,
+                         # plots
+                         test_plot)
+
+
+test_df |> 
+  filter(year_month == "Jan 2022") |> 
+  View()
+
+count_weeks_per_vsl_permit_year_compl_m_p_nc |> 
+  filter(year_month == "Jun 2022" &
+             year_permit == "2022 gom_dual" &
+             percent_compl_m < 50) |> 
+  summarise(n_distinct(vessel_official_number))
 # print_df_names(test_df)
 
 max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
