@@ -78,7 +78,6 @@ save_plots_list_to_files(file_full_name,
                          # plots
                          test_plot)
 
-
 test_df |> 
   filter(year_month == "Jan 2022") |> 
   View()
@@ -160,3 +159,9 @@ test_df |> select(
   View()
 # |>
 #   write_csv("month_with_numbers_gom_22.csv")
+
+count_weeks_per_vsl_permit_year_compl_m_p_nc |>
+  filter(year_month == "May 2022" &
+           year_permit == "2022 gom_dual" &
+           percent_compl_m < 50) |>
+  View()
