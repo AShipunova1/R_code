@@ -800,3 +800,19 @@ gridExtra::grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cn
                         )
                         # ,
                         # bottom = footnote
+
+# part time fishery ----
+compl_clean_sa_vs_gom_m_int_1 |>
+  filter(year_permit == "2022 gom_dual") |>
+  summarise(n_distinct(vessel_official_number))
+
+compl_clean_sa_vs_gom_m_int_1 |>
+  filter(year_permit == "2022 gom_dual") |>
+  filter(gom_permitteddeclarations__ > 0) |>
+  summarise(n_distinct(vessel_official_number))
+
+# 808 * 100 / 1304
+# 61.96319
+
+# write_csv(compl_clean_sa_vs_gom_m_int_1,
+#           "compl_clean_sa_vs_gom_m_int_1.csv")
