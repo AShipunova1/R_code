@@ -550,7 +550,7 @@ write_to_1_flat_file <-
     sink(flat_file_name, append = TRUE)
     
     current_file_text = readLines(file_name_to_write)
-    cat("\n\n#### Current file: ", file_name_to_write, " ----\n\n")
+    cat("\n\n#### Current file:", file_name_to_write, "----\n\n")
     cat(current_file_text, sep = "\n")
     # sink()
   }
