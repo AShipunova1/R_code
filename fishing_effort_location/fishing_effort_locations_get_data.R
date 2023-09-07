@@ -7,11 +7,11 @@ data_from_db <- function() {
     password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
     dbname = "SECPR"
   )
-  
+
   # fishing charter trips only
   # 2022
   # sero_vessel_permit
-  
+
   request_query <- "SELECT distinct
     trip_start_date,
     trip_end_date,
@@ -40,26 +40,26 @@ WHERE
   AND TRIP_END_DATE <= TO_DATE('31-DEC-22', 'dd-mon-yy')
   AND trip_type_name = 'CHARTER'
   AND sero_vessel_permit IS NOT NULL"
-  
+
   db_data = dbGetQuery(con,
                        request_query)
-  
+
   # data_overview(db_data)
-  
+
   area_data_query <-
     "select * from SAFIS.AREAS_FISHED@secapxdv_dblk.sfsc.noaa.gov
   where state in ('FL', 'US')
 "
-  
+
   db_area_data = dbGetQuery(con,
                             area_data_query)
-  
+
   dbDisconnect(con)
-  
+
   db_data_w_area <- full_join(db_area_data, db_data)
   # Joining with `by = join_by(AREA_CODE, SUB_AREA_CODE,
   # LOCAL_AREA_CODE)`
-  
+
   return(db_data_w_area)
 }
 
@@ -68,7 +68,7 @@ WHERE
 # toc()
 # 110.58 sec
 
-# 
+#
 # dim(db_data_w_area)
 # 'data.frame':	306261 obs. of  19 variables
 # [1] 254689     32  (May 25)
@@ -109,7 +109,7 @@ mapview(gom_all)
 # gom_only <- st_difference(atmx_eez_shp, sa_shp)
 # gom_only <- st_difference(atmx_eez_shp, sa_shp$geometry)
 # Warning message:
-# attribute variables are assumed to be spatially constant throughout all geometries 
+# attribute variables are assumed to be spatially constant throughout all geometries
 # mapview(gom_only,
         # legend = F)
 
@@ -121,13 +121,13 @@ mapview(gom_all)
 # gom_protrac_shp <- read_shapefile(r"(gom\protrac_nad83\protrac_nad83.shp)")
 # mapview(gom_protrac_shp)
 
-# Sys.setenv(SHAPE_RESTORE_SHX = "YES")
+Sys.setenv(SHAPE_RESTORE_SHX = "YES")
 # works Atlantic + GOM:
-# atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
+atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
 # mapview(atmx_eez_shp, legend = F)
-# mapview(atmx_eez_shp, legend = F) +
-  # mapview(sa_shp) +
-  # mapview(gom_reef_shp)
+mapview(atmx_eez_shp, legend = F) +
+mapview(sa_shp) +
+mapview(gom_reef_shp)
 # gom_depth_shp <- read_shapefile("gom/w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
 # plot(gom_depth_shp)
 
@@ -156,4 +156,4 @@ mapview(gom_all)
 ### fl_state_w_counties ----
 fl_state_w_counties_shp <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
 
-# mapview(fl_state_w_counties)
+mapview(fl_state_w_counties_shp)
