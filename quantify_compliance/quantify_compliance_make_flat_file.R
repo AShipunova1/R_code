@@ -29,19 +29,19 @@ write_to_1_flat_file(flat_file_name, current_file_name)
 current_file_name <- r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)"
 write_to_1_flat_file(flat_file_name, current_file_name)
 
-cat(
-plot_file_path <-
-  file.path(my_paths$outputs, "quantify_compliance", today())
-# create dir if doesn't exists
-create_dir_if_not(plot_file_path)
+cat('plot_file_path <-
+  file.path(my_paths$outputs, "quantify_compliance", today()))', sep = "\n")
+cat('create_dir_if_not(plot_file_path))', sep = "\n")
 
+cat('
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
   compl_clean_sa_vs_gom_m_int |>
   filter(
     vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
-  )
+  )', sep = "\n")
 
+cat('
 # remove 2023 gom_only ----
 remove_23_gom <- function(my_df) {
   my_df |>
@@ -103,6 +103,7 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 4 YES        2022 sa_only   1602
 # 5 NO         2023 sa_dual   1615
 # 6 YES        2023 sa_dual   2111
+', sep = "\n")
 
 # year ----
 source(file.path(
