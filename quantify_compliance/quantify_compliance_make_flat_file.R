@@ -106,174 +106,29 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 ', sep = "\n")
 
 # year ----
-source(file.path(
-  my_paths$git_r,
-  project_name,
+current_file_name = file.path(
+  dir_to_comb,
   "quantify_compliance_from_fhier_year.R"
-))
+)
+write_to_1_flat_file(flat_file_name, current_file_name)
 
 # month ----
-source(
-  file.path(
-    my_paths$git_r,
-    project_name,
-    "quantify_compliance_from_fhier_month.R"
-  )
+current_file_name = file.path(
+  dir_to_comb,
+  "quantify_compliance_from_fhier_month.R"
 )
+write_to_1_flat_file(flat_file_name, current_file_name)
+
+# line_plots ----
+current_file_name = file.path(dir_to_comb, "quantify_compliance_from_fhier_line_plots.R")
+write_to_1_flat_file(flat_file_name, current_file_name)
 
 # vms ----
-source(file.path(
-  my_paths$git_r,
-  project_name,
+current_file_name = file.path(
+  dir_to_comb,
   "quantify_compliance_from_fhier_vms.R"
-))
+)
+write_to_1_flat_file(flat_file_name, current_file_name)
 
-
-# Create a read.me file with numbers of total, active and expired ----
-## by year ----
-year_permit_cnts <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
-  unique() %>%
-  sort() |>
-  # repeat for each year_permit
-  purrr::map_df(function(curr_year_permit) {
-    # browser()
-    curr_df <-
-      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
-      dplyr::filter(year_permit == curr_year_permit)
-
-    total_vsls <- unique(curr_df$total_vsl_y)
-
-    active_permits <- curr_df %>%
-      dplyr::filter(perm_exp_y == "active") %>%
-      dplyr::select(cnt_y_p_e) %>%
-      unique()
-
-    expired_permits <- curr_df %>%
-      dplyr::filter(perm_exp_y == "expired") %>%
-      dplyr::select(cnt_y_p_e) %>%
-      unique()
-
-      # TODO: add compliant, not compliant
-    out_df <- as.data.frame(c(curr_year_permit, total_vsls, active_permits, expired_permits))
-    names(out_df) <- c("year_permit", "total", "active_permits", "expired_permits")
-
-    return(out_df)
-  })
-
-# View(year_permit_cnts)
-
-# 2 ) - not needed, gets non compliant numbers
-count_year1 <-
-  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
-  unique() %>%
-  sort() %>%
-  # repeat for each year_permit
-  purrr::map_df(function(curr_year_permit) {
-    curr_df <-
-      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
-      dplyr::filter(year_permit == curr_year_permit)
-
-    total_non_compl_df <-
-      curr_df %>%
-      dplyr::select(vsls_per_y_r) %>%
-      distinct()
-    # browser()
-
-    active_permits <- curr_df %>%
-      dplyr::filter(perm_exp_y == "active") %>%
-      dplyr::select(exp_y_tot_cnt) |>
-      distinct()
-
-    expired_permits <- curr_df %>%
-      filter(perm_exp_y == "expired") %>%
-      dplyr::select(exp_y_tot_cnt) |>
-      distinct()
-
-    out_df <-
-      as.data.frame(c(
-        curr_year_permit,
-        total_non_compl_df,
-        active_permits,
-        expired_permits
-      ))
-    names(out_df) <-
-      c("year_permit", "total", "active_permits", "expired_permits")
-
-    return(out_df)
-  })
-
-glimpse(year_permit_cnts)
-glimpse(count_year1)
-all.equal(year_permit_cnts, count_year1)
-# [1] "Component “total”: Mean relative difference: 0.4411713"
-
-## 3) by month ----
-# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
-counts_by_month_read_me <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
-  group_by(year_month, year_permit, perm_exp_m) |>
-  mutate(permit_cnt_m =
-           n_distinct(vessel_official_number)) |>
-  ungroup() |>
-  select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>
-  distinct()
-
-# print_df_names(counts_by_month_read_me)
-
-counts_by_month_read_me_clean <-
-  counts_by_month_read_me |>
-  tidyr::pivot_wider(
-    id_cols = c(year_permit, year_month, total_vsl_m),
-    names_from = perm_exp_m,
-    values_from = permit_cnt_m,
-    names_glue = "{perm_exp_m}_permits",
-    values_fill = 0
-  ) |>
-  arrange(year_month)
-
-# View(counts_by_month_read_me_clean)
-
-## by year another way ----
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
-
-# 38
-
-counts_by_year_read_me_clean <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
-  select(-perc_c_nc) |>
-  distinct() |>
-  tidyr::pivot_wider(names_from = compl_or_not,
-                     values_from = cnt_y_p_c,
-                     values_fill = 0) |>
-  tidyr::pivot_wider(
-    # not needed, by default used all but names and values columns
-    # id_cols = -c("perm_exp_y", "perm_exp_y"),
-    names_from = perm_exp_y,
-    values_from = cnt_y_p_e,
-    names_glue = "{perm_exp_y}_permits",
-    values_fill = 0
-  )
-
-glimpse(counts_by_year_read_me_clean)
-
-# TODO: why 2 "2023 sa_dual"?
-
-# ==
-# make a flat file ----
-
-files_to_combine <-
-  c(
-    "~/R_code_github/useful_functions_module.r",
-    file.path(dir_to_comb, "quantify_compliance_functions.R"),
-    file.path(dir_to_comb, "get_data.R"),
-    r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R"),
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_year.R"),
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_month.R"),
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_line_plots.R"),
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_vms.R")
-  )
-
-
+# close the file
 sink()
