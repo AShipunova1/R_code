@@ -1,3 +1,5 @@
+# quantify_compliance_start.R
+
 # Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
 
 # Michelle Masi
@@ -16,7 +18,16 @@ library(cowplot)
 
 project_name <- "quantify_compliance"
 
-source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
+# source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
+
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+
+source("~/R_code_github/quantify_compliance/quantify_compliance_functions.R")
+source("~/R_code_github/quantify_compliance/get_data.R")
+
+source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
+# fhier_reports_metrics_tracking_not_srhs_ids
 
 plot_file_path <-
   file.path(my_paths$outputs, "quantify_compliance", today())
@@ -256,7 +267,11 @@ files_to_combine <-
     file.path(dir_to_comb, "quantify_compliance_functions.R"),
     file.path(dir_to_comb, "get_data.R"),
     r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R")
+    file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R"),
+    file.path(dir_to_comb, "quantify_compliance_from_fhier_year.R"),
+    file.path(dir_to_comb, "quantify_compliance_from_fhier_month.R"),
+    file.path(dir_to_comb, "quantify_compliance_from_fhier_line_plots.R"),
+    file.path(dir_to_comb, "quantify_compliance_from_fhier_vms.R")
   )
 
 # run as needed
