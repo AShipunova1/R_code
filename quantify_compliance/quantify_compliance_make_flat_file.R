@@ -5,7 +5,7 @@ flat_file_name <-
   file.path(dir_to_comb, "flat_file_quantify_compliance.R")
 sink(flat_file_name, append = TRUE)
     
-cat("\n\n#### add-ons ---- \n\n")
+cat("\n\n#### add-ons 1 ---- \n\n")
 cat("library(grid)",  sep = "\n")
 cat('library(zoo)', sep = "\n")
 cat('library(gridExtra)', sep = "\n")
@@ -16,14 +16,20 @@ cat('project_name <- "quantify_compliance"', sep = "\n")
 current_file_name = "~/R_code_github/useful_functions_module.r"
 write_to_1_flat_file(flat_file_name, current_file_name)
 
-my_paths <- set_work_dir()
+cat("\n\n#### add-ons 2 ---- \n\n")
 
-source("~/R_code_github/quantify_compliance/quantify_compliance_functions.R")
-source("~/R_code_github/quantify_compliance/get_data.R")
+cat('my_paths <- set_work_dir()', sep = "\n")
 
-source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
-# fhier_reports_metrics_tracking_not_srhs_ids
+current_file_name <- "~/R_code_github/quantify_compliance/quantify_compliance_functions.R"
+write_to_1_flat_file(flat_file_name, current_file_name)
 
+current_file_name <- "~/R_code_github/quantify_compliance/get_data.R"
+write_to_1_flat_file(flat_file_name, current_file_name)
+
+current_file_name <- r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)"
+write_to_1_flat_file(flat_file_name, current_file_name)
+
+cat(
 plot_file_path <-
   file.path(my_paths$outputs, "quantify_compliance", today())
 # create dir if doesn't exists
