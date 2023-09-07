@@ -543,6 +543,18 @@ make_a_flat_file <-
     sink()
   }
 
+write_to_1_flat_file <-
+  function(flat_file_name,
+           file_name_to_write) {
+    # write to file
+    sink(flat_file_name, append = TRUE)
+    
+    current_file_text = readLines(file_name_to_write)
+    cat("\n\n#### Current file: ", file_name_to_write, " ----\n\n")
+    cat(current_file_text, sep = "\n")
+    # sink()
+  }
+
 separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
   my_df %>%
   mutate(permit_sa_gom =
