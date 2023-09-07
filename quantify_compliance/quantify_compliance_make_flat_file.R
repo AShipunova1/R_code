@@ -1,4 +1,6 @@
 # quantify_compliance_make_flat_file.R
+source("~/R_code_github/useful_functions_module.r")
+
 dir_to_comb <- "~/R_code_github/quantify_compliance"
 
 flat_file_name <-
