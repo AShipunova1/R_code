@@ -84,7 +84,25 @@ db_data_w_area_file_path <-
 
 db_data_w_area <- read_csv(db_data_w_area_file_path)
 
-## ---- get other geographical data ----
+# Data from FHIER ----
+# Reports / SAFIS Efforts Extended
+
+add_path <- r"(from_Fhier\SAFIS Efforts Extended)"
+full_path_to_files <-
+  file.path(my_paths$inputs,
+            add_path)
+
+csv_names_list <-
+  list.files(path = full_path_to_files,
+             pattern = "SAFIS EFFORTS EXTENDED *",
+             full.names = T)
+
+safis_efforts_extended_2022 <-
+  load_csv_names(NULL, csv_names_list)
+
+View(safis_efforts_extended_2022)
+
+# get other geographical data ----
 read_shapefile <- function(filename) {
   shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
 
