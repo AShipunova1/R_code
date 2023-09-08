@@ -28,6 +28,7 @@
 library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
+library(leaflet)
 library(tictoc) #benchmarking
 
 source("~/R_code_github/useful_functions_module.r")
@@ -331,7 +332,52 @@ toc()
 # gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1: 695.34 sec elapsed
 # 695.34/60 = 11.589m
 
+dim(gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1)
+# [1] 42866    26
 
+tic("gom_points_n_shape")
+gom_points_n_shape <-
+  mapview(
+    all_gom_sf,
+    col.regions = "#F4E3FF",
+    alpha.regions = 0.2,
+    layer.name = "Gulf of Mexico",
+    legend = FALSE
+  ) +
+  mapview(gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1,
+          legend = F,
+          clusterOptions = markerClusterOptions())
+toc()
+# gom_points_n_shape: 13.22 sec elapsed
+
+## image with clusters -----
+tic("gom_clusters_shape")
+# leaflet_20
+gom_clusters_shape <-
+  leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
+  addTiles() |>
+  addMarkers(# ~ long,
+    #           ~ lat,
+    #           popup = ~ as.character(mag),
+    # label = ~ as.character(mag)
+    clusterOptions = markerClusterOptions()) |>
+  addPolygons(data = all_gom_sf,
+              weight = 5,
+              col = "#F4E3FF") |>
+  fitBounds(-97.8, 23.8, -80.4, 31.1
+    # lng1 = all_gom_sf_bbox$xmin,
+    #         lat1 = all_gom_sf_bbox$ymin,
+    #         lng2 = all_gom_sf_bbox$xmax,
+    #         lat2 = all_gom_sf_bbox$ymax,
+            )
+# all_gom_sf_bbox |> str()
+#   setView(lng = -106.363590,
+#           lat = 31.968483,
+#           zoom = 11)
+
+# all_gom_sf_bbox$xmin
+
+toc()
 
 
 # SA ----
