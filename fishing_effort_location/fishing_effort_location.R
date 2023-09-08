@@ -168,6 +168,10 @@ gom_state_waters_only_sf <-
   # st_intersection
 # mapview(gom_state_waters_only)
 
+all_gom_sf <-
+  st_union(gom_state_waters_only_sf,
+           gom_fed)
+
 all_gom <-
   mapview(gom_state_waters_only_sf,
           color = "lightblue") +
@@ -179,10 +183,10 @@ mapview(db_data_w_area_short_good_coord_sf)
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\fishing_trips_GOM_2022\all_fishing_spots.png"
 
 db_data_w_area_short_good_coord_sf__sea <-
-  with_st_intersection(db_data_w_area_short_good_coord_sf, all_gom)
-# Error in geos_op2_geom("intersection", x, y, ...) :
-# st_crs(x) == st_crs(y) is not TRUE
+  with_st_intersection(db_data_w_area_short_good_coord_sf, all_gom_sf)
+# too long, get a subset first
 
+# SA ----
 ### with st_intersection ----
 # get only the points inside the SA EEZ by intersection
 db_data_w_area_report_sa_eez_sf <-
