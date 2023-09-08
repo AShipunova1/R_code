@@ -164,7 +164,7 @@ fl_counties_map <-
 #   mapview(gom_fed)
 
 gom_state_waters_only_sf <-
-  st_difference(gom_reef_shp, gom_all)
+  st_difference(gom_reef_shp, gom_fed)
   # st_intersection
 # mapview(gom_state_waters_only)
 
@@ -172,13 +172,33 @@ all_gom_sf <-
   st_union(gom_state_waters_only_sf,
            gom_fed)
 
+
 all_gom <-
   mapview(gom_state_waters_only_sf,
           color = "lightblue") +
   mapview(gom_fed)
   # fl_counties_map +
 
-# all_gom
+# show all boundaries ----
+
+fl_counties_map
+
+tic("all_waters")
+all_waters <-
+  mapview(gom_state_waters_only_sf,
+          # color = "lightblue",
+          legend = F) +
+  mapview(gom_fed,
+          legend = F) +
+  mapview(fl_state_w_counties_shp,
+          color = "lightgreen",
+          legend = F) +
+  mapview(sa_shp,
+          # color = "red",
+          legend = F)
+toc()
+# all_waters: 42.79 sec elapsed
+
 mapview(db_data_w_area_short_good_coord_sf)
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\fishing_trips_GOM_2022\all_fishing_spots.png"
 
