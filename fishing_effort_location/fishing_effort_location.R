@@ -92,6 +92,7 @@ with_st_difference <- function(points_sf, polygons_sf) {
   return(res)
 }
 
+## From db ----
 all_points <- dim(db_data_w_area)[1]
 # 254689
 #  75536 u
@@ -125,7 +126,6 @@ fields_list <-
 "LONGITUDE",
 "FISHING_GEAR_DEPTH")
 
-# GOM ----
 dim(db_data_w_area)
 # [1] 75536    30
 
@@ -151,12 +151,42 @@ dim(db_data_w_area_short_good_coord)
 # [1] 74520    18
 # [1] 74504    18 -abs(LONGITUDE)
 
-# convert to sf
+### convert to sf ----
 db_data_w_area_short_good_coord_sf <-
   my_to_sf(db_data_w_area_short_good_coord)
 
-dim(db_data_w_area_short_good_coord_sf)
+# mapview(db_data_w_area_short_good_coord_sf,
+#         legend = F)
 # [1] 74520    19
+
+## From FHIER ----
+# View(safis_efforts_extended_2022_short)
+
+safis_efforts_extended_2022_short_good <-
+  safis_efforts_extended_2022_short |>
+  dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE),
+                LATITUDE = as.numeric(LATITUDE)) |>
+  # all LONG should be negative
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  # keep only full sets of coordinates
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  distinct()
+
+dim(safis_efforts_extended_2022_short)
+# [1] 97970    17
+
+dim(safis_efforts_extended_2022_short_good)
+# [1] 97547    17
+
+### convert to sf from FHIER ----
+safis_efforts_extended_2022_short_good_sf <-
+  my_to_sf(safis_efforts_extended_2022_short_good)
+
+# tic("mapview safis_efforts_extended_2022_short_good_sf")
+# mapview(safis_efforts_extended_2022_short_good_sf,
+#         legend = F)
+# toc()
+# mapview safis_efforts_extended_2022_short_good_sf: 7.76 sec elapsed
 
 # shapes ----
 fl_counties_map <-
@@ -175,7 +205,6 @@ all_gom_sf <-
   st_union(gom_state_waters_only_sf,
            gom_fed)
 
-
 all_gom <-
   mapview(gom_state_waters_only_sf,
           color = "lightblue") +
@@ -184,29 +213,29 @@ all_gom <-
 
 # show all boundaries ----
 
-fl_counties_map
+# fl_counties_map
 
-tic("all_waters")
-all_waters <-
-  mapview(gom_state_waters_only_sf,
-          # color = "lightblue",
-          legend = F) +
-  mapview(gom_fed,
-          legend = F) +
-  mapview(fl_state_w_counties_shp,
-          color = "lightgreen",
-          legend = F) +
-  mapview(sa_shp,
-          # color = "red",
-          legend = F)
-toc()
+# tic("all_waters")
+# all_waters <-
+#   mapview(gom_state_waters_only_sf,
+#           # color = "lightblue",
+#           legend = F) +
+#   mapview(gom_fed,
+#           legend = F) +
+#   mapview(fl_state_w_counties_shp,
+#           color = "lightgreen",
+#           legend = F) +
+#   mapview(sa_shp,
+#           # color = "red",
+#           legend = F)
+# toc()
 # all_waters: 42.79 sec elapsed
 
-mapview(db_data_w_area_short_good_coord_sf)
+# mapview(db_data_w_area_short_good_coord_sf)
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\fishing_trips_GOM_2022\all_fishing_spots.png"
 
-db_data_w_area_short_good_coord_sf__sea <-
-  with_st_intersection(db_data_w_area_short_good_coord_sf, all_gom_sf)
+# db_data_w_area_short_good_coord_sf__sea <-
+#   with_st_intersection(db_data_w_area_short_good_coord_sf, all_gom_sf)
 # too long, get a subset first
 
 # SA ----
