@@ -98,15 +98,52 @@ csv_names_list <-
              full.names = T)
 
 safis_efforts_extended_2022 <-
-  load_csv_names_in_one_df(NULL, csv_names_list)
+  load_csv_names_in_one_df(NULL, csv_names_list) |>
+  distinct()
 
-# View(safis_efforts_extended_2022)
+dim(safis_efforts_extended_2022)
 # [1] 101038     42
+# [1] 97970    42 distinct()
 
-safis_efforts_extended_2022_short0 <-
+## clean fhier data ----
+# safis_efforts_extended_2022_short0 <-
+#   safis_efforts_extended_2022 |>
+#   select(-all_of(names(empty_cols)))
+# dim(safis_efforts_extended_2022_short0)
+
+rm_columns <- c("ANYTHING_CAUGHT_FLAG",
+"COMMON_NAME",
+"DC",
+"DE",
+"FISHING_HOURS",
+"GEAR_CATEGORY_CODE",
+"GEAR_CATEGORY_NAME",
+"GEAR_CODE",
+"GEAR_DESC",
+"GEAR_NAME",
+"GEAR_SIZE",
+"GEAR_TYPE_CODE",
+"GEAR_TYPE_NAME",
+"GEARS_FISHING",
+"HOURS_DAYS_FLAG",
+"IN_STATE",
+"LMA_CODE",
+"MESH_RING_LENGTH",
+"MESH_RING_WIDTH",
+"RIG_CODE",
+"SPECIES_ITIS",
+"STRETCH_SIZE",
+"SUPPLIER_EFFCAT_ID",
+"UC",
+"UE"
+)
+
+safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
-  select(-all_of(names(empty_cols)))
-dim(safis_efforts_extended_2022_short0)
+  select(-all_of(rm_columns)) |>
+  distinct()
+dim(safis_efforts_extended_2022_short)
+# [1] 97970    17
 
 # get other geographical data ----
 read_shapefile <- function(filename) {
