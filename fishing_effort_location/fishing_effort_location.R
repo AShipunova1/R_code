@@ -259,6 +259,43 @@ toc()
 dim(gom_safis_efforts_extended_2022_short_good_sf_crop)
 # [1] 68190    18
 
+## get only points on GOM maps ----
+tic("gom_safis_efforts_extended_2022_short_good_sf_crop_inters")
+gom_safis_efforts_extended_2022_short_good_sf_crop_inters <-
+  with_st_intersection(safis_efforts_extended_2022_short_good_sf,
+          all_gom_sf)
+toc()
+# gom_safis_efforts_extended_2022_short_good_sf_crop_inters: 722.62 sec elapsed
+# 722.62/60 = 722.62 m
+
+# str(safis_efforts_extended_2022_short_good_sf)
+# sfc_POINT of length 97547
+# str(all_gom_sf)
+#   ..- attr(*, "class")= chr [1:3] "XY" "MULTIPOLYGON" "sfg"
+
+st_intersection_faster <- function(x, y, ...) {
+  #faster replacement for st_intersection(x, y,...)
+
+  y_subset <-
+    st_intersects(x, y) %>%
+    unlist() %>%
+    unique() %>%
+    sort() %>%
+    {
+      y[., ]
+    }
+
+  st_intersection(x, y_subset, ...)
+}
+
+tic("gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1")
+gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1 <-
+  st_intersection_faster(safis_efforts_extended_2022_short_good_sf,
+          all_gom_sf)
+toc()
+# gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1: 695.34 sec elapsed
+# 695.34/60 = 11.589m
+
 # SA ----
 ### with st_intersection ----
 # get only the points inside the SA EEZ by intersection
