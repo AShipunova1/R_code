@@ -100,8 +100,13 @@ csv_names_list <-
 safis_efforts_extended_2022 <-
   load_csv_names_in_one_df(NULL, csv_names_list)
 
-View(safis_efforts_extended_2022)
+# View(safis_efforts_extended_2022)
 # [1] 101038     42
+
+safis_efforts_extended_2022_short0 <-
+  safis_efforts_extended_2022 |>
+  select(-all_of(names(empty_cols)))
+dim(safis_efforts_extended_2022_short0)
 
 # get other geographical data ----
 read_shapefile <- function(filename) {
