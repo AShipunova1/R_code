@@ -213,6 +213,16 @@ all_gom <-
 
 # show all boundaries ----
 
+tic("all_waters_sf")
+all_waters_sf <-
+  st_union(gom_state_waters_only_sf,
+           gom_fed,
+           fl_state_w_counties_shp,
+           sa_shp)
+toc()
+# all_waters_sf: 0.78 sec elapsed
+
+
 # fl_counties_map
 
 # tic("all_waters")
@@ -237,6 +247,31 @@ all_gom <-
 # db_data_w_area_short_good_coord_sf__sea <-
 #   with_st_intersection(db_data_w_area_short_good_coord_sf, all_gom_sf)
 # too long, get a subset first
+
+# subset by Big box ----
+# Michelle: I think we need to allow trips that occur anywhere in the GOM, with the eastern lat border being like a big line down the Atlantic Ocean at Bermuda. Does that make sense? Southern Border could be at Cuba. The Northern Border needs to extend up through Maine - since we require reporting no matter where they fish. Basically just a big box, regardless of Council jurisdiction.
+# Jessica: I like the big box without council jurisdiction and then I am going to assume we will just plot those trips for vessels with GOM permits?  This should show the Council how many GOM vessels also fish in other regions as well as where they are fishing in the Gulf.
+
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+tic("safis_efforts_extended_2022_short_good_sf_crop_big")
+safis_efforts_extended_2022_short_good_sf_crop_big <-
+  st_crop(safis_efforts_extended_2022_short_good_sf,
+          big_bounding_box)
+toc()
+# safis_efforts_extended_2022_short_good_sf_crop_big: 0.89 sec elapsed
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big)
+# [1] 95720    18
+
+tic("mapview(safis_efforts_extended_2022_short_good_sf_crop_big)")
+mapview(safis_efforts_extended_2022_short_good_sf_crop_big)
+toc()
 
 # GOM ----
 ## get gom boundaries ----
@@ -295,6 +330,9 @@ gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1 <-
 toc()
 # gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1: 695.34 sec elapsed
 # 695.34/60 = 11.589m
+
+
+
 
 # SA ----
 ### with st_intersection ----
