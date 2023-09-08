@@ -253,7 +253,12 @@ all_gom_sf_bounding_box <- c(
 )
 # all_gom_sf_bounding_box["xmin"]
 
-# safis_efforts_extended_2022_short_good_sf
+# tic("st_crop(safis_efforts_extended_2022_short_good_sf")
+gom_safis_efforts_extended_2022_short_good_sf <-
+  st_crop(safis_efforts_extended_2022_short_good_sf,
+          all_gom_sf_bounding_box)
+# toc()
+mapview(gom_safis_efforts_extended_2022_short_good_sf)
 
 # SA ----
 ### with st_intersection ----
