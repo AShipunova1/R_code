@@ -137,18 +137,19 @@ db_data_w_area_short <-
 dim(db_data_w_area_short)
 # [1] 75536    18
 
-print_df_names(db_data_w_area_short)
+# print_df_names(db_data_w_area_short)
 
 db_data_w_area_short_good_coord <-
   db_data_w_area_short %>%
-  distinct() %>%
   # all LONG should be negative
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   # keep only full sets of coordinates
-  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE))
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  distinct()
 
 dim(db_data_w_area_short_good_coord)
 # [1] 74520    18
+# [1] 74504    18 -abs(LONGITUDE)
 
 # convert to sf
 db_data_w_area_short_good_coord_sf <-
