@@ -240,50 +240,23 @@ all_gom <-
 
 # GOM ----
 ## get gom boundaries ----
-# st_geometry(all_gom_sf)
-# all_gom_sf_bounding_box
-# Bounding box:  xmin: -97.79954 ymin: 23.82323 xmax: -80.38471 ymax: 31.07779
-
 all_gom_sf_bbox <-
   st_bbox(all_gom_sf)
 
-## subset data by all_gom_sf_bounding_box
-# all_gom_sf_bounding_box <- c(
-#   xmin = -97.79954,
-#   ymin = 23.82323,
-#   xmax = -80.38471,
-#   ymax = 31.07779
-# )
-# all_gom_sf_bounding_box["xmin"]
+## subset data by all_gom_sf_bounding_box ----
+dim(safis_efforts_extended_2022_short_good_sf)
+# [1] 97547    18
 
 tic("st_crop(safis_efforts_extended_2022_short_good_sf")
-gom_safis_efforts_extended_2022_short_good_sf <-
+gom_safis_efforts_extended_2022_short_good_sf_crop <-
   st_crop(safis_efforts_extended_2022_short_good_sf,
-          all_gom_sf_bounding_box)
+          all_gom_sf_bbox)
 toc()
 # st_crop(safis_efforts_extended_2022_short_good_sf: 0.5 sec elapsed
 
 # mapview(gom_safis_efforts_extended_2022_short_good_sf)
 
-# tic("st_intersection(safis_efforts_extended_2022_short_good_sf")
-# gom_safis_efforts_extended_2022_short_good_sf <-
-#   st_intersection(safis_efforts_extended_2022_short_good_sf,
-#           all_gom_sf)
-# toc()
-# too long
-
-tic("st_intersection(safis_efforts_extended_2022_short_good_sf")
-gom_safis_efforts_extended_2022_short_good_sf_cr2 <-
-    st_crop(safis_efforts_extended_2022_short_good_sf,
-          all_gom_sf_bbox)
-  # st_intersection(safis_efforts_extended_2022_short_good_sf,
-  #         all_gom_sf_bbox)
-toc()
-
-dim(gom_safis_efforts_extended_2022_short_good_sf)
-# [1] 68190    18
-
-dim(gom_safis_efforts_extended_2022_short_good_sf_cr2)
+dim(gom_safis_efforts_extended_2022_short_good_sf_crop)
 # [1] 68190    18
 
 # SA ----
