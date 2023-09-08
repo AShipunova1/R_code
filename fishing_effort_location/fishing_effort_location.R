@@ -364,7 +364,7 @@ gom_clusters_shape <-
   addPolygons(data = all_gom_sf,
               weight = 5,
               col = "#F4E3FF") |>
-  fitBounds(-97.8, 23.8, -80.4, 31.1
+  flyToBounds(-97.8, 23.8, -80.4, 31.1
     # lng1 = all_gom_sf_bbox$xmin,
     #         lat1 = all_gom_sf_bbox$ymin,
     #         lng2 = all_gom_sf_bbox$xmax,
