@@ -102,8 +102,8 @@ gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
 
 gom_fed <- read_shapefile(r"(gom\GOM_FedWatersBoundary\MSA_FMC_GOM_FedWaters.shp)")
 
-plot(gom_fed)
-mapview(gom_fed)
+# plot(gom_fed)
+# mapview(gom_fed)
 
 # doesn't work:
 # gom_only <- st_difference(atmx_eez_shp, sa_shp)
@@ -125,9 +125,14 @@ Sys.setenv(SHAPE_RESTORE_SHX = "YES")
 # works Atlantic + GOM:
 atmx_eez_shp <- read_shapefile(r"(atmx_eez/atmx_eez.shp)")
 # mapview(atmx_eez_shp, legend = F)
-mapview(atmx_eez_shp, legend = F) +
-mapview(sa_shp) +
-mapview(gom_reef_shp)
+
+tic("all_atlantic_n_gom_map")
+all_atlantic_n_gom_map <-
+  mapview(atmx_eez_shp, legend = F) +
+  mapview(sa_shp) +
+  mapview(gom_reef_shp)
+toc()
+
 # gom_depth_shp <- read_shapefile("gom/w98e78n31s18_isobath_selected_5-4000m/w98e78n31s18_isobath_selected_5-4000m.shp")
 # plot(gom_depth_shp)
 
