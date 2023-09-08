@@ -238,6 +238,23 @@ all_gom <-
 #   with_st_intersection(db_data_w_area_short_good_coord_sf, all_gom_sf)
 # too long, get a subset first
 
+# GOM ----
+## get gom boundaries ----
+st_geometry(all_gom_sf)
+# all_gom_sf_bounding_box
+# Bounding box:  xmin: -97.79954 ymin: 23.82323 xmax: -80.38471 ymax: 31.07779
+
+## subset data by all_gom_sf_bounding_box
+all_gom_sf_bounding_box <- c(
+  xmin = -97.79954,
+  ymin = 23.82323,
+  xmax = -80.38471,
+  ymax = 31.07779
+)
+# all_gom_sf_bounding_box["xmin"]
+
+# safis_efforts_extended_2022_short_good_sf
+
 # SA ----
 ### with st_intersection ----
 # get only the points inside the SA EEZ by intersection
