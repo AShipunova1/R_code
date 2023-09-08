@@ -28,7 +28,7 @@
 # drv <- dbDriver("Oracle")
 # con <-
 #   dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname = 'XXX')
-# 
+#
 # dbReadTable(con, 'DUAL')
 
 
@@ -121,6 +121,33 @@ load_csv_names <- function(my_paths, csv_names_list) {
 
   return(contents)
 }
+
+load_csv_names_in_one_df <-
+  function(path_to_files, csv_names_list) {
+    # browser()
+    myfiles <- csv_names_list
+    # add input directory path in front of each file name if provided
+    if (length(path_to_files) > 0) {
+      myfiles <-
+        lapply(csv_names_list, function(x)
+          file.path(path_to_files, x))
+    }
+    # read all csv files into one df
+    csv_content <-
+      map_df(myfiles,
+             function(file_name) {
+               readr::read_csv(
+                 file_name,
+                 col_types = cols(.default = 'c'),
+                 trim_ws = T,
+                 na = c("", "NA", "NaN"),
+                 name_repair = "universal"
+               )
+             })
+
+    return(csv_content)
+  }
+
 
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   my_inputs <- my_paths$inputs
@@ -548,7 +575,7 @@ write_to_1_flat_file <-
            file_name_to_write) {
     # write to file
     sink(flat_file_name, append = TRUE)
-    
+
     current_file_text = readLines(file_name_to_write)
     cat("\n\n#### Current file:", file_name_to_write, "----\n\n")
     cat(current_file_text, sep = "\n")
