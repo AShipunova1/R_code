@@ -351,29 +351,32 @@ toc()
 # gom_points_n_shape: 13.22 sec elapsed
 
 ## image with clusters -----
-image_with_clusters <- function() {
+image_with_clusters_base <- function() {
   tic("gom_clusters_shape")
-  gom_clusters_shape <-
+  gom_clusters_shape_base <-
     leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
     addTiles() |>
-    # addCircles(~long, ~lat, ~10^mag/5, stroke = F, group = "f_locations") |>
-  # addPolygons(data = outline, lng = ~long, lat = ~lat,
-    # fill = F, weight = 2, color = "#FFFFCC", group = "Outline") %>%
-    addCircleMarkers(
-      clusterOptions =
-        markerClusterOptions(JS(js_cluster_polygons))) |>
     addPolygons(data = all_gom_sf,
                 weight = 5,
                 col = "#F4E3FF") |>
-    flyToBounds(-97.8, 23.8, -80.4, 31.1
-                # lng1 = all_gom_sf_bbox$xmin,
-                #         lat1 = all_gom_sf_bbox$ymin,
-                #         lng2 = all_gom_sf_bbox$xmax,
-                #         lat2 = all_gom_sf_bbox$ymax,
-                )
-                toc()
-                return(gom_clusters_shape)
+    flyToBounds(-97.8, 23.8, -80.4, 31.1)
+  toc()
+  return(gom_clusters_shape_base)
 }
+
+map_base <- image_with_clusters_base()
+
+map_base |>
+  htmlwidgets::onRender("
+    function(el, x) {
+      var myMap = this;
+      myMap.on('baselayerchange',
+        function (e) {
+          myMap.setView([48.85, 2.35], 5);
+        })
+    }")
+
+
 
 js_cluster_polygons <-
   function(cluster) {
