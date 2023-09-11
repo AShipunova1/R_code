@@ -361,8 +361,7 @@ image_with_clusters <- function() {
     # fill = F, weight = 2, color = "#FFFFCC", group = "Outline") %>%
     addCircleMarkers(
       clusterOptions =
-        markerClusterOptions()) |>
-    onRender(js_cluster_polygons) |>
+        markerClusterOptions(JS(js_cluster_polygons))) |>
     addPolygons(data = all_gom_sf,
                 weight = 5,
                 col = "#F4E3FF") |>
@@ -377,7 +376,7 @@ image_with_clusters <- function() {
 }
 
 js_cluster_polygons <-
-  function(el, x) {
+  function(cluster) {
     # JS(
     "
 # function(cluster) {
@@ -403,10 +402,34 @@ js_cluster_polygons <-
     # )
   }
 
-library(htmlwidgets)
-
 image_with_clusters()
 # JSON.stringify(coverages)
+
+
+l <- leaflet() %>% setView(0,0,3)
+
+esri <- grep("^Esri", providers, value = TRUE)
+
+for (provider in esri) {
+  l <- l %>% addProviderTiles(provider, group = provider)
+}
+
+l %>%
+  addLayersControl(baseGroups = names(esri),
+    options = layersControlOptions(collapsed = FALSE)) %>%
+  addMiniMap(tiles = esri[[1]], toggleDisplay = TRUE,
+    position = "bottomleft") %>%
+  htmlwidgets::onRender("
+    function(el, x) {
+      var myMap = this;
+      myMap.on('baselayerchange',
+        function (e) {
+          myMap.minimap.changeLayer(L.tileLayer.provider(e.name));
+        })
+    }")
+
+
+
 # SA ----
 ### with st_intersection ----
 # get only the points inside the SA EEZ by intersection
