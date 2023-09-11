@@ -357,6 +357,8 @@ image_with_clusters_base <- function() {
   gom_clusters_shape_base <-
     leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
     addTiles() |>
+    addCircleMarkers(clusterOptions =
+                       markerClusterOptions()) |>
     addPolygons(data = all_gom_sf,
                 weight = 5,
                 col = "#F4E3FF") |>
@@ -375,15 +377,25 @@ map_base |>
     showCoverageOnHover: false
   }).addTo(myMap);
   var coverages = new L.LayerGroup();
+  mcg.on('animationend', function() {
 
-      //myMap.on('baselayerchange',
-    //    function (e) {
-          myMap.setView([48.85, 2.35], 5);
-      //  }
-  //)
+  coverages.clearLayers();
+
+  mcg._featureGroup.eachLayer(function(layer) {
+    if (layer instanceof L.MarkerCluster && layer.getChildCount() > 2) {
+      coverages.addLayer(L.polygon(layer.getConvexHull()));
+
+    }
+    coverages.addTo(map);
+  });
+});
+
+for (var i = 0; i < 50; i += 1) {
+  L.marker(getRandomLatLng()).addTo(mcg);
+}
+mcg.fire('animationend');
+
     }")
-
-
 
 js_cluster_polygons <-
   function(cluster) {
