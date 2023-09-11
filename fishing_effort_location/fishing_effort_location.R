@@ -364,14 +364,14 @@ image_with_clusters <- function() {
         markerClusterOptions(
                 iconCreateFunction = JS(
         "function(cluster) {
-        // getConvexHull())
-        	var latLngBounds = cluster.getBounds();
-
+          // getConvexHull())
+          //	var latLngBounds = cluster.getBounds();
+        	var latLngConvex = cluster.getConvexHull();
           // addLayer(L.polygon(cluster.getConvexHull()));
           var sum = 55;
           var children = cluster.getAllChildMarkers();
          return new L.DivIcon({
-              html: '<div style=\"background-color: rgb(111,198,204); opacity : 0.7\"><span>' + JSON.stringify(latLngBounds) + '</div><span>',
+              html: '<div style=\"background-color: rgb(111,198,204); opacity : 0.7\"><span>' + JSON.stringify(latLngConvex) + '</div><span>',
               className: 'marker-cluster'
                                                });
                                            }"
