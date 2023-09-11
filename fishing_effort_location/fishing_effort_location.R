@@ -351,35 +351,54 @@ toc()
 # gom_points_n_shape: 13.22 sec elapsed
 
 ## image with clusters -----
+image_with_clusters <- function() {
+  tic("gom_clusters_shape")
+  gom_clusters_shape <-
+    leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
+    addTiles() |>
+    addCircleMarkers(# ~ long,
+      #           ~ lat,
+      #           popup = ~ as.character(mag),
+      # label = ~ as.character(mag)
+      clusterOptions =
+        markerClusterOptions()) |>
+    addPolygons(data = all_gom_sf,
+                weight = 5,
+                col = "#F4E3FF") |>
+    flyToBounds(-97.8, 23.8, -80.4, 31.1
+                # lng1 = all_gom_sf_bbox$xmin,
+                #         lat1 = all_gom_sf_bbox$ymin,
+                #         lng2 = all_gom_sf_bbox$xmax,
+                #         lat2 = all_gom_sf_bbox$ymax,
+                )
+                toc()
+                return(gom_clusters_shape)
+}
+
+image_with_clusters()
+
 tic("gom_clusters_shape")
 gom_clusters_shape <-
   leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
   addTiles() |>
-  # addCircleMarkers(# ~ long,
+  addCircleMarkers(# ~ long,
     #           ~ lat,
     #           popup = ~ as.character(mag),
     # label = ~ as.character(mag)
-  addCMarkers(
     clusterOptions =
-      markerClusterOptions(removeOutsideVisibleBounds = FALSE)) |>
+      markerClusterOptions(showCoverageOnHover = FALSE,
+        removeOutsideVisibleBounds = TRUE)) |>
   addPolygons(data = all_gom_sf,
               weight = 5,
-              col = "#F4E3FF")
-# |>
-  # flyToBounds(-97.8, 23.8, -80.4, 31.1
+              col = "#F4E3FF") |>
+  flyToBounds(-97.8, 23.8, -80.4, 31.1
     # lng1 = all_gom_sf_bbox$xmin,
     #         lat1 = all_gom_sf_bbox$ymin,
     #         lng2 = all_gom_sf_bbox$xmax,
     #         lat2 = all_gom_sf_bbox$ymax,
-            # )
-# all_gom_sf_bbox |> str()
-#   setView(lng = -106.363590,
-#           lat = 31.968483,
-#           zoom = 11)
-
-# all_gom_sf_bbox$xmin
+            )
 toc()
-
+# removeOutsideVisibleBounds
 gom_clusters_shape
 
 
