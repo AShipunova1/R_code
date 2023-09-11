@@ -30,6 +30,7 @@ library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
 library(leaflet)
 library(tictoc) #benchmarking
+library(htmlwidgets) # add js script to leaflets
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -370,10 +371,16 @@ map_base |>
   htmlwidgets::onRender("
     function(el, x) {
       var myMap = this;
-      myMap.on('baselayerchange',
-        function (e) {
+      var mcg = L.markerClusterGroup({
+    showCoverageOnHover: false
+  }).addTo(myMap);
+  var coverages = new L.LayerGroup();
+
+      //myMap.on('baselayerchange',
+    //    function (e) {
           myMap.setView([48.85, 2.35], 5);
-        })
+      //  }
+  //)
     }")
 
 
