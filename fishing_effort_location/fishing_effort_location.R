@@ -361,7 +361,22 @@ image_with_clusters <- function() {
       #           popup = ~ as.character(mag),
       # label = ~ as.character(mag)
       clusterOptions =
-        markerClusterOptions()) |>
+        markerClusterOptions(
+                iconCreateFunction = JS(
+        "function(cluster) {
+          var children = cluster.getAllChildMarkers();
+         var sum = 0;
+         for (var i = 0; i < children.length; i++) {
+            sum += children[i].options.popup;
+          console.log(children[i])
+        }
+         return new L.DivIcon({
+              html: '<div style=\"background-color: rgb(111,198,204); opacity : 0.7\"><span>' + sum + '</div><span>',
+              className: 'marker-cluster'
+                                               });
+                                           }"
+      )
+        )) |>
     addPolygons(data = all_gom_sf,
                 weight = 5,
                 col = "#F4E3FF") |>
