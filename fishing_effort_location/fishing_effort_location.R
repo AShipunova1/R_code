@@ -364,14 +364,17 @@ image_with_clusters <- function() {
         markerClusterOptions(
                 iconCreateFunction = JS(
         "function(cluster) {
+        var coverages = new L.LayerGroup();
+        coverages.clearLayers();
+        coverages.addLayer(L.polygon(cluster.getConvexHull()));
           // getConvexHull())
           //	var latLngBounds = cluster.getBounds();
         	var latLngConvex = cluster.getConvexHull();
-          // addLayer(L.polygon(cluster.getConvexHull()));
+          // L.addLayer(L.polygon(cluster.getConvexHull()));
           var sum = 55;
           var children = cluster.getAllChildMarkers();
          return new L.DivIcon({
-              html: '<div style=\"background-color: rgb(111,198,204); opacity : 0.7\"><span>' + JSON.stringify(latLngConvex) + '</div><span>',
+              html: '<div style=\"background-color: rgb(111,198,204); opacity : 0.7\"><span>' + JSON.stringify(coverages) + '</div><span>',
               className: 'marker-cluster'
                                                });
                                            }"
@@ -391,7 +394,7 @@ image_with_clusters <- function() {
 }
 
 image_with_clusters()
-
+# JSON.stringify(coverages)
 # SA ----
 ### with st_intersection ----
 # get only the points inside the SA EEZ by intersection
