@@ -356,14 +356,31 @@ image_with_clusters <- function() {
   gom_clusters_shape <-
     leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
     addTiles() |>
-    addCircleMarkers(# ~ long,
-      #           ~ lat,
-      #           popup = ~ as.character(mag),
-      # label = ~ as.character(mag)
+    # addCircles(~long, ~lat, ~10^mag/5, stroke = F, group = "f_locations") |>
+  # addPolygons(data = outline, lng = ~long, lat = ~lat,
+    # fill = F, weight = 2, color = "#FFFFCC", group = "Outline") %>%
+    addCircleMarkers(
       clusterOptions =
-        markerClusterOptions(
-                iconCreateFunction = JS(
-        "function(cluster) {
+        markerClusterOptions()) |>
+    onRender(js_cluster_polygons) |>
+    addPolygons(data = all_gom_sf,
+                weight = 5,
+                col = "#F4E3FF") |>
+    flyToBounds(-97.8, 23.8, -80.4, 31.1
+                # lng1 = all_gom_sf_bbox$xmin,
+                #         lat1 = all_gom_sf_bbox$ymin,
+                #         lng2 = all_gom_sf_bbox$xmax,
+                #         lat2 = all_gom_sf_bbox$ymax,
+                )
+                toc()
+                return(gom_clusters_shape)
+}
+
+js_cluster_polygons <-
+  function(el, x) {
+    # JS(
+    "
+# function(cluster) {
         cluster._showCoverage({ layer: cluster })
         //var coverages = new L.LayerGroup();
         // coverages.clearLayers();
@@ -381,21 +398,12 @@ image_with_clusters <- function() {
               html: '<div style=\"background-color: rgb(111,198,204); opacity : 0.7\"><span>' + JSON.stringify(coverages) + '</div><span>',
               className: 'marker-cluster'
                                                });
-                                           }"
-      )
-        )) |>
-    addPolygons(data = all_gom_sf,
-                weight = 5,
-                col = "#F4E3FF") |>
-    flyToBounds(-97.8, 23.8, -80.4, 31.1
-                # lng1 = all_gom_sf_bbox$xmin,
-                #         lat1 = all_gom_sf_bbox$ymin,
-                #         lng2 = all_gom_sf_bbox$xmax,
-                #         lat2 = all_gom_sf_bbox$ymax,
-                )
-                toc()
-                return(gom_clusters_shape)
-}
+                                           # }
+    "
+    # )
+  }
+
+library(htmlwidgets)
 
 image_with_clusters()
 # JSON.stringify(coverages)
