@@ -367,17 +367,23 @@ image_with_clusters_base <- function() {
 
 map_base <- image_with_clusters_base()
 
-marker_js <- JS("function(cluster) {
-                  var html = '<div style=\"background-color:rgba(201, 242, 155)\"><span>' + cluster.getChildCount() + '</div><span>'
+marker_js <- JS(
+  "function(cluster) {
+                  var html = '<div style=\"background-color:rgba(0,128,0)\"><span>' + cluster.getChildCount() + '</div><span>'
                   return new L.DivIcon({html: html, className: 'marker-cluster'});
-}")
-
+}"
+)
 
 map_base |>
     addCircleMarkers(clusterOptions =
                          markerClusterOptions(
           iconCreateFunction = marker_js
                        ))
+
+map_base |>
+ addGraticule(interval = 1 / 60 * 10, style = list(color = "#FF0000", weight = 1))
+
+
 
 # baselayerchange
 map_base |>
