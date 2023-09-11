@@ -483,6 +483,7 @@ get_lat_ten_min <- function(gis_lat) {
 }
 
 get_lon_ten_min <- function(gis_lon) {
+  browser()
   res <- get_lat_ten_min(abs(gis_lon))
   if (gis_lon < 0) {
     res * -1
@@ -515,17 +516,34 @@ lat_lon_data_short <-
   sf::st_drop_geometry() |>
   select(LATITUDE,
          LONGITUDE,
-         TRIP_ID)
+         TRIP_ID) |>
+  distinct()
 
-data_overview(lat_lon_data_short)
-# [1] 42866     3
+lat_lon_data_uniq_coord <-
+  lat_lon_data |>
+  sf::st_drop_geometry() |>
+  # na.omit() |>
+  select(LATITUDE,
+         LONGITUDE) |>
+  distinct()
+
+dim(lat_lon_data_uniq_coord)
+# [1] 35762     2
+
+dim(lat_lon_data_short)
+# [1] 42865     3
 # LATITUDE  31996
 # LONGITUDE 32220
 
+lat_lon_data_uniq_coord |> head(10) |>
+# res1 <-
+  get_ten_min_coords()
 
-res1 <-
-  get_ten_min_coords(lat_lon_data_short)
-
+ten_min_df <-
+  my_df |>
+  mutate(ten_min_lat = get_lat_ten_min(as.numeric(my_df$LATITUDE)))
+# ,
+#          ten_min_lon = get_lon_ten_min(as.numeric(my_df$LONGITUDE)))
 
 # SA ----
 ### with st_intersection ----
