@@ -357,10 +357,6 @@ image_with_clusters_base <- function() {
   gom_clusters_shape_base <-
     leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
     addTiles() |>
-    addCircleMarkers(clusterOptions =
-                         markerClusterOptions(
-          iconCreateFunction = marker_js
-                       )) |>
     addPolygons(data = all_gom_sf,
                 weight = 5,
                 col = "#F4E3FF") |>
@@ -369,13 +365,19 @@ image_with_clusters_base <- function() {
   return(gom_clusters_shape_base)
 }
 
+map_base <- image_with_clusters_base()
+
 marker_js <- JS("function(cluster) {
-                  var html = '<div style=\"background-color:rgba(77,77,77,0.5)\"><span>' + cluster.getChildCount() + '</div><span>'
+                  var html = '<div style=\"background-color:rgba(201, 242, 155)\"><span>' + cluster.getChildCount() + '</div><span>'
                   return new L.DivIcon({html: html, className: 'marker-cluster'});
 }")
 
 
-map_base <- image_with_clusters_base()
+map_base |>
+    addCircleMarkers(clusterOptions =
+                         markerClusterOptions(
+          iconCreateFunction = marker_js
+                       ))
 
 # baselayerchange
 map_base |>
