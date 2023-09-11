@@ -272,9 +272,9 @@ toc()
 dim(safis_efforts_extended_2022_short_good_sf_crop_big)
 # [1] 95720    18
 
-tic("mapview(safis_efforts_extended_2022_short_good_sf_crop_big)")
-mapview(safis_efforts_extended_2022_short_good_sf_crop_big)
-toc()
+# tic("mapview(safis_efforts_extended_2022_short_good_sf_crop_big)")
+# mapview(safis_efforts_extended_2022_short_good_sf_crop_big)
+# toc()
 
 # GOM ----
 ## get gom boundaries ----
@@ -363,7 +363,8 @@ image_with_clusters_base <- function(lat_lon_data) {
     addPolygons(data = all_gom_sf,
                 weight = 5,
                 col = "#F4E3FF") |>
-    flyToBounds(-97.8, 23.8, -80.4, 31.1)
+    flyToBounds(-97.8, 23.8, -80.4, 31.1) |>
+    setView(-89, 29, zoom = 5)
   toc()
   return(gom_clusters_shape_base)
 }
@@ -483,7 +484,6 @@ get_lat_ten_min <- function(gis_lat) {
 }
 
 get_lon_ten_min <- function(gis_lon) {
-  browser()
   res <- get_lat_ten_min(abs(gis_lon))
   if (gis_lon < 0) {
     res * -1
@@ -491,24 +491,15 @@ get_lon_ten_min <- function(gis_lon) {
 }
 
 get_ten_min_coords <- function(my_df) {
-  browser()
-  ten_min_coords <- data.frame(NA, NA, NA)
-  names(ten_min_coords) <- c("coord_name", "lat", "lon")
+  ten_min_df <-
+    my_df |>
+    mutate(
+      ten_min_lat = get_lat_ten_min(as.numeric(my_df$LATITUDE)),
+      ten_min_lon =
+        -1 * abs(get_lat_ten_min(as.numeric(my_df$LONGITUDE)))
+    )
 
-  for (i in 1:nrow(my_df)) {
-    l_row <- my_df[i, ]
-    # link3 <- l_row[1]
-    gis_lat <- l_row[2]
-    gis_lon <- l_row[3]
-
-    ten_min_lat <- get_lat_ten_min(as.numeric(gis_lat))
-    ten_min_lon <- get_lon_ten_min(as.numeric(gis_lon))
-    temp_df <- data.frame("ten_min", ten_min_lat, ten_min_lon)
-
-    ten_min_coords[nrow(ten_min_coords) + 1, ] <- temp_df
-  }
-  res <- ten_min_coords[complete.cases(ten_min_coords), ]
-  distinct(res)
+  distinct(ten_min_df)
 }
 
 lat_lon_data_short <-
@@ -516,18 +507,20 @@ lat_lon_data_short <-
   sf::st_drop_geometry() |>
   select(LATITUDE,
          LONGITUDE,
-         TRIP_ID) |>
-  distinct()
+         TRIP_ID)
+# |>
+  # distinct()
 
-lat_lon_data_uniq_coord <-
+lat_lon_data_coord <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
   # na.omit() |>
   select(LATITUDE,
-         LONGITUDE) |>
-  distinct()
+         LONGITUDE)
+# |>
+  # distinct()
 
-dim(lat_lon_data_uniq_coord)
+# dim(lat_lon_data_uniq_coord)
 # [1] 35762     2
 
 dim(lat_lon_data_short)
@@ -535,15 +528,33 @@ dim(lat_lon_data_short)
 # LATITUDE  31996
 # LONGITUDE 32220
 
-lat_lon_data_uniq_coord |> head(10) |>
-# res1 <-
+lat_lon_data_uniq_coord_ten_min <-
+  lat_lon_data_coord |>
+  # head(10) |>
   get_ten_min_coords()
 
-ten_min_df <-
-  my_df |>
-  mutate(ten_min_lat = get_lat_ten_min(as.numeric(my_df$LATITUDE)))
-# ,
-#          ten_min_lon = get_lon_ten_min(as.numeric(my_df$LONGITUDE)))
+lat_lon_data_uniq_coord_ten_min_short <-
+  lat_lon_data_uniq_coord_ten_min |>
+  select(ten_min_lat, ten_min_lon)
+# |>
+  # distinct() |>
+  # dim()
+# [1] 1295    2
+
+lat_lon_data_uniq_coord_ten_min_short <-
+  lat_lon_data_uniq_coord_ten_min_short |>
+  rename(LATITUDE = ten_min_lat,
+         LONGITUDE = ten_min_lon)
+
+map_base <-
+  image_with_clusters_base(lat_lon_data_uniq_coord_ten_min_short)
+
+map_base |>
+  addCircleMarkers(clusterOptions =
+                     markerClusterOptions(iconCreateFunction =                                            marker_js)) |>
+  addGraticule(interval = 1 / 60 * 10,
+               style = list(color = "#FF0000", weight = 1))
+
 
 # SA ----
 ### with st_intersection ----
