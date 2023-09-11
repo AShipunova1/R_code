@@ -387,7 +387,6 @@ map_base |>
  addGraticule(interval = 1 / 60 * 10, style = list(color = "#FF0000", weight = 1))
 
 
-
 # baselayerchange
 map_base |>
   htmlwidgets::onRender("
@@ -490,12 +489,13 @@ get_lon_ten_min <- function(gis_lon) {
   }
 }
 
-get_ten_min_coords <- function(db_data) {
+get_ten_min_coords <- function(my_df) {
+  browser()
   ten_min_coords <- data.frame(NA, NA, NA)
   names(ten_min_coords) <- c("coord_name", "lat", "lon")
 
-  for (i in 1:nrow(db_data)) {
-    l_row <- db_data[i, ]
+  for (i in 1:nrow(my_df)) {
+    l_row <- my_df[i, ]
     # link3 <- l_row[1]
     gis_lat <- l_row[2]
     gis_lon <- l_row[3]
@@ -510,6 +510,21 @@ get_ten_min_coords <- function(db_data) {
   distinct(res)
 }
 
+lat_lon_data_short <-
+  lat_lon_data |>
+  sf::st_drop_geometry() |>
+  select(LATITUDE,
+         LONGITUDE,
+         TRIP_ID)
+
+data_overview(lat_lon_data_short)
+# [1] 42866     3
+# LATITUDE  31996
+# LONGITUDE 32220
+
+
+res1 <-
+  get_ten_min_coords(lat_lon_data_short)
 
 
 # SA ----
@@ -1018,6 +1033,7 @@ write_csv(
 # mapview(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
 # Report csv ----
+# convert sf to a df
 my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
