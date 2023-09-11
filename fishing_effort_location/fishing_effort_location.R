@@ -30,7 +30,8 @@ library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
 library(leaflet)
 library(tictoc) #benchmarking
-library(htmlwidgets) # add js script to leaflets
+# library(htmlwidgets) # add js script to leaflets
+library(stringi) # add characters
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -352,10 +353,12 @@ toc()
 # gom_points_n_shape: 13.22 sec elapsed
 
 ## image with clusters -----
-image_with_clusters_base <- function() {
+lat_lon_data <- gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1
+
+image_with_clusters_base <- function(lat_lon_data) {
   tic("gom_clusters_shape")
   gom_clusters_shape_base <-
-    leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
+    leaflet(data = lat_lon_data) |>
     addTiles() |>
     addPolygons(data = all_gom_sf,
                 weight = 5,
@@ -365,11 +368,11 @@ image_with_clusters_base <- function() {
   return(gom_clusters_shape_base)
 }
 
-map_base <- image_with_clusters_base()
+map_base <- image_with_clusters_base(lat_lon_data)
 
 marker_js <- JS(
   "function(cluster) {
-                  var html = '<div style=\"background-color:rgba(0,128,0)\"><span>' + cluster.getChildCount() + '</div><span>'
+                  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + cluster.getChildCount() + '</div><span>'
                   return new L.DivIcon({html: html, className: 'marker-cluster'});
 }"
 )
@@ -449,6 +452,63 @@ l %>%
           myMap.minimap.changeLayer(L.tileLayer.provider(e.name));
         })
     }")
+
+# add functions for ten_min ----
+
+get_degree <- function(gis_coord) {
+  floor(abs(gis_coord))
+}
+
+get_minute <- function(gis_coord) {
+  dd <- abs(gis_coord) %% 1
+  minute <- floor(dd * 60)
+}
+
+convert_to_ten_min <- function(minute) {
+  floor(minute/10) * 10
+}
+
+convert_to_decimal_degree <- function(dm_num) {
+  degree <- as.numeric(substr(as.character(dm_num), 1, 2))
+  dd <- as.numeric(substr(as.character(dm_num), 3, 4)) / 60
+  degree + dd
+}
+
+get_lat_ten_min <- function(gis_lat) {
+  deg <- get_degree(gis_lat)
+  minute <- get_minute(gis_lat)
+  ten_min_num <- convert_to_ten_min(minute)
+  dm_num <-
+    paste(deg, stringi::stri_pad_left(ten_min_num, 2, 0), sep = "")
+  convert_to_decimal_degree(dm_num)
+}
+
+get_lon_ten_min <- function(gis_lon) {
+  res <- get_lat_ten_min(abs(gis_lon))
+  if (gis_lon < 0) {
+    res * -1
+  }
+}
+
+get_ten_min_coords <- function(db_data) {
+  ten_min_coords <- data.frame(NA, NA, NA)
+  names(ten_min_coords) <- c("coord_name", "lat", "lon")
+
+  for (i in 1:nrow(db_data)) {
+    l_row <- db_data[i, ]
+    # link3 <- l_row[1]
+    gis_lat <- l_row[2]
+    gis_lon <- l_row[3]
+
+    ten_min_lat <- get_lat_ten_min(as.numeric(gis_lat))
+    ten_min_lon <- get_lon_ten_min(as.numeric(gis_lon))
+    temp_df <- data.frame("ten_min", ten_min_lat, ten_min_lon)
+
+    ten_min_coords[nrow(ten_min_coords) + 1, ] <- temp_df
+  }
+  res <- ten_min_coords[complete.cases(ten_min_coords), ]
+  distinct(res)
+}
 
 
 
