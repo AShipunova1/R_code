@@ -364,13 +364,17 @@ image_with_clusters <- function() {
         markerClusterOptions(
                 iconCreateFunction = JS(
         "function(cluster) {
-        var coverages = new L.LayerGroup();
-        coverages.clearLayers();
-        coverages.addLayer(L.polygon(cluster.getConvexHull()));
+        cluster._showCoverage({ layer: cluster })
+        //var coverages = new L.LayerGroup();
+        // coverages.clearLayers();
+        //coverages.addLayer(L.polygon(cluster.getConvexHull()));
+
           // getConvexHull())
           //	var latLngBounds = cluster.getBounds();
         	var latLngConvex = cluster.getConvexHull();
           // L.addLayer(L.polygon(cluster.getConvexHull()));
+
+
           var sum = 55;
           var children = cluster.getAllChildMarkers();
          return new L.DivIcon({
