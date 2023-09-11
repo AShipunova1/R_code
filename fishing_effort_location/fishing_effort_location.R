@@ -358,7 +358,9 @@ image_with_clusters_base <- function() {
     leaflet(data = gom_safis_efforts_extended_2022_short_good_sf_crop_inters_1) |>
     addTiles() |>
     addCircleMarkers(clusterOptions =
-                       markerClusterOptions()) |>
+                         markerClusterOptions(
+          iconCreateFunction = marker_js
+                       )) |>
     addPolygons(data = all_gom_sf,
                 weight = 5,
                 col = "#F4E3FF") |>
@@ -367,33 +369,23 @@ image_with_clusters_base <- function() {
   return(gom_clusters_shape_base)
 }
 
+marker_js <- JS("function(cluster) {
+                  var html = '<div style=\"background-color:rgba(77,77,77,0.5)\"><span>' + cluster.getChildCount() + '</div><span>'
+                  return new L.DivIcon({html: html, className: 'marker-cluster'});
+}")
+
+
 map_base <- image_with_clusters_base()
 
+# baselayerchange
 map_base |>
   htmlwidgets::onRender("
-    function(el, x) {
+    function(e, x) {
       var myMap = this;
-      var mcg = L.markerClusterGroup({
-    showCoverageOnHover: false
-  }).addTo(myMap);
-  var coverages = new L.LayerGroup();
-  mcg.on('animationend', function() {
 
-  coverages.clearLayers();
+			this._shownPolygon = new L.Polygon(e.layer.getConvexHull(), this.options.polygonOptions);
+			myMap.addLayer(this._shownPolygon);
 
-  mcg._featureGroup.eachLayer(function(layer) {
-    if (layer instanceof L.MarkerCluster && layer.getChildCount() > 2) {
-      coverages.addLayer(L.polygon(layer.getConvexHull()));
-
-    }
-    coverages.addTo(map);
-  });
-});
-
-for (var i = 0; i < 50; i += 1) {
-  L.marker(getRandomLatLng()).addTo(mcg);
-}
-mcg.fire('animationend');
 
     }")
 
