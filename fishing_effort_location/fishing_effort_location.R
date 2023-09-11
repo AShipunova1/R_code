@@ -364,12 +364,10 @@ image_with_clusters <- function() {
         markerClusterOptions(
                 iconCreateFunction = JS(
         "function(cluster) {
+        // getConvexHull())
+        	var latLngBounds = cluster.getBounds();
+          var sum = 55
           var children = cluster.getAllChildMarkers();
-         var sum = 0;
-         for (var i = 0; i < children.length; i++) {
-            sum += children[i].options.popup;
-          console.log(children[i])
-        }
          return new L.DivIcon({
               html: '<div style=\"background-color: rgb(111,198,204); opacity : 0.7\"><span>' + sum + '</div><span>',
               className: 'marker-cluster'
