@@ -326,12 +326,14 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big)
 # mapview(safis_efforts_extended_2022_short_good_sf_crop_big)
 # toc()
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df <-
+# convert back to df ----
+safis_efforts_extended_2022_short_good_sf_crop_big_df <-
   safis_efforts_extended_2022_short_good_sf_crop_big |>
-  sf::st_drop_geometry() |>
-  select(LATITUDE,
-         LONGITUDE,
-         TRIP_ID)
+  sf::st_drop_geometry()
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_df)
+# [1] 95720     17
+
 # use metricks only vessels ----
 source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
 # fhier_reports_metrics_tracking_not_srhs_ids
