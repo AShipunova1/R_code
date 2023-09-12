@@ -343,7 +343,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min <-
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min)
 # [1] 95720     5
 
-# save counts and remove duplicate locations  ----
+# save counts ----
 
 ## check ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min |>
@@ -371,6 +371,19 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts <-
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts)
 # [1] 95720     4
+
+# remove duplicate locations  ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts_u <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts |>
+  select(-c(TRIP_ID)) |>
+  distinct()
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts_u)
+# [1] 2755    3
+#   ten_min_lat ten_min_lon location_cnts
+#         <dbl>       <dbl>         <int>
+# 1        28         -80             367
+# 2        27.7       -83.2           139
 
 # GOM ----
 ## get gom boundaries ----
