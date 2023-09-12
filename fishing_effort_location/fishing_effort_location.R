@@ -558,36 +558,53 @@ map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_go
 # save counts ----
 ## check ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  select(-c(LATITUDE, LONGITUDE)) |>
-  count(ten_min_lat, ten_min_lon) |>
-  arrange(desc(n)) |>
-  head()
+  map(
+    function(permit_df) {
+      permit_df |>
+      select(-c(LATITUDE, LONGITUDE)) |>
+      count(ten_min_lat, ten_min_lon) |>
+      arrange(desc(n)) |>
+      head(2)
+    }
+  )
+# $gom_dual
+# # A tibble: 6 × 3
+#   ten_min_lat ten_min_lon     n
+#         <dbl>       <dbl> <int>
+# 1        30.2       -87.5  2122
+# 2        30.3       -86.5  1245
+#
+# sa_only
+# # A tibble: 6 × 3
 #   ten_min_lat ten_min_lon     n
 #         <dbl>       <dbl> <int>
 # 1        24.8       -80.5  2885
 # 2        24.5       -81.7  2730
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min |>
-  select(-c(LATITUDE, LONGITUDE, TRIP_ID)) |>
-  count(ten_min_lat, ten_min_lon) |>
-  arrange(desc(n)) |>
-  head()
-# same
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
+  map(function(permit_df) {
+    permit_df |>
+      select(-c(LATITUDE, LONGITUDE)) |>
+      dplyr::add_count(ten_min_lat, ten_min_lon,
+                       name = "location_cnts")
+  })
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min |>
-  select(-c(LATITUDE, LONGITUDE)) |>
-  dplyr::add_count(ten_min_lat, ten_min_lon,
-                   name = "location_cnts")
-
-dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts)
-# [1] 95720     4
+map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts, dim)
+#   gom_dual sa_only
+#      <int>   <int>
+# 1    41455   70261
+# 2        7       7
+# 111716
 
 # remove duplicate locations  ----
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts_u <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts |>
-  select(-c(TRIP_ID)) |>
-  distinct()
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
+  map(function(permit_df) {
+    permit_df |>
+      select(-c(TRIP_ID)) |>
+      distinct()
+  })
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts_u)
 # [1] 2755    3
