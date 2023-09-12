@@ -661,18 +661,52 @@ image_with_clusters_base <- function(lat_lon_data) {
 map_base_gom_vessels_sf <- image_with_clusters_base(gom_vessels_sf)
 
 ## markers for map_base_gom_vessels_sf ----
-marker_js_gom_vessels <- JS(
+###
+# leaflet(quakes) %>% addTiles() %>% addMarkers(
+#   options = markerOptions(mag = ~mag),
+#   clusterOptions = markerClusterOptions(
+#   iconCreateFunction=JS("function (cluster) {
+#     var markers = cluster.getAllChildMarkers();
+#     var sum = 0;
+#     for (i = 0; i < markers.length; i++) {
+#       sum += Number(markers[i].options.mag);
+# //      sum += 1;
+#     }
+#     return new L.DivIcon({ html: '<div><span>' + sum + '</span></div>'});
+#   }")
+#   )
+# )
+
+###
+
+marker_js_gom_vessels_green <- JS(
   "function(cluster) {
                   var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + cluster.getChildCount() + '</div><span>'
                   return new L.DivIcon({html: html, className: 'marker-cluster'});
 }"
 )
 
-map_base |>
-    addCircleMarkers(clusterOptions =
-                         markerClusterOptions(
-          iconCreateFunction = marker_js
-                       ))
+cnts_marker_js <- JS(
+  "function(cluster) {
+    var markers = cluster.getAllChildMarkers().options.location_cnts;
+
+// return new L.DivIcon({ html: '<div><span>' + sum + '</span></div>'});
+  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' +
+  'markers' +
+  '</div><span>'
+  return new L.DivIcon({html: html, className: 'marker-cluster'}   );
+}"
+)
+
+# environment(map_base_gom_vessels_sf[["preRenderHook"]])[["data"]][["location_cnts"]]
+
+map_base_gom_vessels_sf |>
+addCircleMarkers(
+  options =
+    pathOptions(loc_cnts = ~location_cnts),
+  clusterOptions =
+    markerClusterOptions(iconCreateFunction = cnts_marker_js)
+)
 
 ## add ten minute grid gom vessels ----
 map_base |>
