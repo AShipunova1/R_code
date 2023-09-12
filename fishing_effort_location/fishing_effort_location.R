@@ -650,7 +650,24 @@ gom_vessels_sf <- my_to_sf(gom_vessels)
 dim(gom_vessels_sf)
 # [1] 1369    4
 
+image_with_clusters_base <- function(lat_lon_data) {
+  tic("gom_clusters_shape")
+  gom_clusters_shape_base <-
+    leaflet(data = lat_lon_data) |>
+    addTiles() |>
+    addPolygons(data = all_gom_sf,
+                weight = 5,
+                col = "#F4E3FF") |>
+    flyToBounds(-97.8, 23.8, -80.4, 31.1) |>
+    setView(-89, 29, zoom = 5)
+  toc()
+  return(gom_clusters_shape_base)
+}
 
+map_base_gom_vessels_sf <- image_with_clusters_base(gom_vessels_sf)
+# gom_clusters_shape: 0.18 sec elapsed
+
+map_base_gom_vessels_sf
 
 # GOM area ----
 ## get gom boundaries ----
