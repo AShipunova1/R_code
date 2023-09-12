@@ -32,6 +32,8 @@ library(leaflet)
 library(tictoc) #benchmarking
 # library(htmlwidgets) # add js script to leaflets
 library(stringi) # add characters
+library(htmltools)
+library(htmlwidgets)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -420,7 +422,7 @@ dim(permits_from_pims_active)
 ## add permits to coordinates ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits <-
   left_join(
-    safis_efforts_extended_2022_short_good_sf_crop_big_short_df,
+    safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks,
     permits_from_pims_active,
     join_by(VESSEL_OFFICIAL_NBR == vessel_official_number),
     relationship = "many-to-many"
@@ -428,6 +430,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits <-
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits)
 # [1] 284785     29
+# [1] 282522     29
 
 # check status ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
@@ -506,6 +509,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] 111716      5
+# [1] 109577      5
 
 # print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE, permit_sa_gom"
@@ -613,9 +617,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
       distinct()
   })
 
-dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts_u)
 # [1] 2755    3
-
 #   ten_min_lat ten_min_lon location_cnts
 #         <dbl>       <dbl>         <int>
 # 1        28         -80             367
@@ -626,6 +628,7 @@ map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_go
 #   gom_dual sa_only
 #      <int>   <int>
 # 1     1369    2377
+# 1     1369    2344
 
 # GOM vessels ----
 
@@ -786,6 +789,8 @@ short_example_3 |>
 # 740
 # 142+319+279
 # [1] 740
+  # distinct() |>
+# [1] 564   2
 
 dim(short_example_3_cnts)
 # [1] 740   9
@@ -826,8 +831,20 @@ short_example_3_cnts_short_lbl <-
              " trips"
            ))
 
+my_text <-
+  "Numbers on round circles show an amount of unique locations in this cluster.</br>
+Clicking on one circle will zoom in and show individual fishing locations.
+</br>
+Rectangular labels show coordinates on the ten minute grid and an amount of trips in this square."
+
+rr <-
+  htmltools::tags$div(htmltools::HTML(paste0('<span>',
+                       my_text,
+                       '</span>')))
+
 # str(short_example_3_cnts_short_tm_sf)
-leaflet(short_example_3_cnts_short_lbl) |>
+map_leaflet_short_example <-
+  leaflet(short_example_3_cnts_short_lbl) |>
   addTiles() |>
   addCircleMarkers(clusterOptions = markerClusterOptions()) |>
   addMarkers(
@@ -841,7 +858,15 @@ leaflet(short_example_3_cnts_short_lbl) |>
     interval = 1 / 60 * 10,
                style = list(color = "grey", weight = 1)) |>
     # flyToBounds(-82.9, 27.65, -82.6, 27.85) |>
-    setView(-82.75, 27.8, zoom = 11)
+    setView(-82.75, 27.8, zoom = 11) |>
+    addControl(rr, position = "bottomleft")
+
+map_leaflet_short_example
+
+# uncomment to run
+# htmlwidgets::saveWidget(map_leaflet_short_example,
+#                         file =
+#                           r"(my_outputs\fishing_trips_GOM_2022\map_leaflet_short_example.html)")
 
 # mapview(short_example_3_cnts_short_tm_sf)
 leaflet(data = short_example_3_cnts_short_tm_sf) |>
