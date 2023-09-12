@@ -158,6 +158,28 @@ leaflet(data_df) %>% addTiles() %>%
   m %>% addGraticule(interval = 1 / 60 * 10, style = list(color = "#FF0000", weight = 1))
 }
 
+create_map_w_circles_green_red <- function(data_df) {
+  leaflet(data_df) %>% addTiles() %>%
+    addCircleMarkers(
+      ~ lon,
+      ~ lat,
+      clusterOptions = markerClusterOptions(),
+      radius = ~ ifelse(coord_name == "ten_min", 7, 4),
+      color = ~ ifelse(coord_name == "ten_min", "green", "red"),
+      stroke = FALSE,
+      fillOpacity = 0.5,
+      label = paste(
+        data_df$coord_name,
+        round(data_df$lat, 3),
+        round(data_df$lon, 3),
+        sep = "_"
+      )
+    ) -> m
+  m %>% addGraticule(interval = 1 / 60 * 10,
+                     style = list(color = "grey", weight = 1))
+}
+
+
 create_map_w_drop_markers <- function(data_df) {
   icons <- awesomeIcons(
     icon = 'ios-close',
@@ -183,7 +205,7 @@ create_map <- function(data_df) {
   m %>% addGraticule(interval = 1 / 60 * 10, style = list(color = "#FF0000", weight = 1))
 }
 
-example_short <- function() {
+small_example_df <- function() {
   de1 <- list(
     c("230201202L170080004", 42.46667, -70.54000),
     c("230201205F850220002", 40.85000, -70.38667),
@@ -196,7 +218,15 @@ example_short <- function() {
   small_df <- as.data.frame(de2)
   names(small_df) <- c("coord_name", "lat", "lon")
   num_columns <- c("lat", "lon")
-  small_df[, num_columns] <- lapply(num_columns, function(x) as.numeric(small_df[[x]]))
+  small_df[, num_columns] <-
+    lapply(num_columns, function(x)
+      as.numeric(small_df[[x]]))
+  return(small_df)
+}
+
+small_df <- small_example_df()
+
+example_short <- function(small_df) {
   tm_c <- get_ten_min_coords(small_df)
 
   full_df <- rbind(small_df, tm_c)
@@ -222,3 +252,7 @@ example_db <- function() {
 # link3 <- '000201001H620020003'
 
 example_short()
+
+create_map_w_drop_markers()
+
+small_df
