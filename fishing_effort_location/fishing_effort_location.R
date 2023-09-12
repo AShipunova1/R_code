@@ -710,7 +710,8 @@ cnts_sum_marker_js <- JS(
     for (i = 0; i < markers.length; i++) {
       sum += Number(markers[i].options.location_cnts);
     }
-    return new L.DivIcon({ html: '<div><span>' + sum + '</span></div>'});
+  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + sum + '</div><span>'
+  return new L.DivIcon({html: html, className: 'marker-cluster'});
   }"
 )
 
