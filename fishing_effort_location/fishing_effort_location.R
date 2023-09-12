@@ -703,16 +703,8 @@ cnts_marker_js <- JS(
 }"
 )
 
-# environment(map_base_gom_vessels_sf[["preRenderHook"]])[["data"]][["location_cnts"]]
-
-# leaflet(map_base_gom_vessels_sf_15) %>%
-#   addTiles() %>%
-map_base_gom_vessels_sf_15 |>
-  addMarkers(
-  options = markerOptions(location_cnts = ~location_cnts),
-  clusterOptions = markerClusterOptions(
-    iconCreateFunction = JS(
-      "function (cluster) {
+cnts_sum_marker_js <- JS(
+  "function(cluster) {
     var markers = cluster.getAllChildMarkers();
     var sum = 0;
     for (i = 0; i < markers.length; i++) {
@@ -720,10 +712,18 @@ map_base_gom_vessels_sf_15 |>
     }
     return new L.DivIcon({ html: '<div><span>' + sum + '</span></div>'});
   }"
-    )
-  )
 )
 
+# environment(map_base_gom_vessels_sf[["preRenderHook"]])[["data"]][["location_cnts"]]
+
+# label = ~htmlEscape(Name)
+map_base_gom_vessels_sf_15 |>
+  addMarkers(
+  options = markerOptions(location_cnts = ~location_cnts),
+  clusterOptions = markerClusterOptions(
+    iconCreateFunction = cnts_sum_marker_js
+  )
+)
 
 map_base_gom_vessels_sf |>
 addCircleMarkers(
