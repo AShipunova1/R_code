@@ -137,6 +137,7 @@ get_ten_min_coords <- function(my_df) {
     my_df |>
     mutate(
       ten_min_lat = get_lat_ten_min(as.numeric(my_df$LATITUDE)),
+      # All lon should be negative, bc we know it is all in America
       ten_min_lon =
         -1 * abs(get_lat_ten_min(as.numeric(my_df$LONGITUDE)))
     )
@@ -340,12 +341,36 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min <-
   get_ten_min_coords(safis_efforts_extended_2022_short_good_sf_crop_big_short_df)
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min)
-# [1] 95705     5
+# [1] 95720     5
 
 # save counts and remove duplicate locations  ----
-# safis_efforts_extended_2022_short_good_sf_crop_big_short_df |>
-#   count(LATITUDE, LONGITUDE)
 
+## check ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min |>
+  select(-c(LATITUDE, LONGITUDE)) |>
+  count(ten_min_lat, ten_min_lon) |>
+  arrange(desc(n)) |>
+  head()
+#   ten_min_lat ten_min_lon     n
+#         <dbl>       <dbl> <int>
+# 1        24.8       -80.5  2885
+# 2        24.5       -81.7  2730
+
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min |>
+  select(-c(LATITUDE, LONGITUDE, TRIP_ID)) |>
+  count(ten_min_lat, ten_min_lon) |>
+  arrange(desc(n)) |>
+  head()
+# same
+
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min |>
+  select(-c(LATITUDE, LONGITUDE)) |>
+  dplyr::add_count(ten_min_lat, ten_min_lon,
+                   name = "location_cnts")
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts)
+# [1] 95720     4
 
 # GOM ----
 ## get gom boundaries ----
