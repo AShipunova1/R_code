@@ -748,22 +748,103 @@ gom_vessels_sf_example3 <-
   gom_vessels_sf |>
   filter(location_cnts %in% c("475", "839", "961"))
 
-short_example_3 <-
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
-  filter(ten_min_lat == gom_vessels_sf_example3$LATITUDE &
-           ten_min_lon == gom_vessels_sf_example3$LONGITUDE)
+print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
 
-glimpse(short_example_3)
+short_example_3 <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  filter(
+    round(ten_min_lat, digits = 1) ==
+      round(gom_vessels_sf_example3$LATITUDE,
+            digits = 1) &
+      round(ten_min_lon, digits = 1) ==
+      round(gom_vessels_sf_example3$LONGITUDE,
+            digits = 1)
+  )
+
+dim(short_example_3)
+# 740
 
 short_example_3_cnts <-
   short_example_3 |>
     group_by(ten_min_lat, ten_min_lon) |>
-    add_count()
+    add_count(name = "ten_min_cnts")
+
+dim(short_example_3_cnts)
+# [1] 740   9
+
+short_example_3_cnts_short <-
+  short_example_3_cnts |>
+  select(-c(VESSEL_OFFICIAL_NBR,
+            permit_sa_gom,
+            permit_region,
+            TRIP_ID)) |>
+  distinct()
+
+dim(short_example_3_cnts_short)
+# [1] 564   5
+
+short_example_3_cnts_short |>
+  select(-c(LATITUDE, LONGITUDE)) |>
+  distinct()
+# ok
 #     ten_min_lat ten_min_lon     n
 #         <dbl>       <dbl> <int>
 # 1        27.7       -82.7   279
 # 2        27.8       -82.8   142
 # 3        27.8       -82.7   319
+
+str(short_example_3_cnts_short)
+
+short_example_3_cnts_short_ll_sf <-
+  short_example_3_cnts_short |>
+      sf::st_as_sf(
+      # field names to use
+      coords = c("LONGITUDE",
+                 "LATITUDE"),
+      # use crs from sa_shp
+      crs = sf::st_crs(sa_shp),
+      # keep LAT/LONG
+      remove = FALSE
+    )
+
+short_example_3_cnts_short_tm_sf <-
+  short_example_3_cnts_short |>
+  # select(-c(ten_min_lat, ten_min_lon)) |>
+  select(-c(LONGITUDE, LONGITUDE)) |>
+      sf::st_as_sf(
+      # field names to use
+      coords = c("ten_min_lon",
+                 "ten_min_lat"),
+      # use crs from sa_shp
+      crs = sf::st_crs(sa_shp),
+      # keep LAT/LONG
+      remove = FALSE
+    )
+
+leaflet(short_example_3_cnts_short_ll_sf) |>
+  addTiles() |>
+  addCircleMarkers(clusterOptions = markerClusterOptions()) |>
+  addMarkers(
+    short_example_3_cnts_short_tm_sf,
+    lat = ~ ten_min_lat,
+    lng = ~ ten_min_lon,
+    label = ~ ten_min_cnts,
+    labelOptions = labelOptions(noHide = T)
+  ) |>
+  addGraticule(
+    interval = 1 / 60 * 10,
+               style = list(color = "grey", weight = 1))
+
+
+
+# mapview(short_example_3_cnts_short_tm_sf)
+leaflet(data = short_example_3_cnts_short_tm_sf) |>
+  addTiles() |>
+    addCircleMarkers(short_example_3_cnts_short_tm_sf,
+                     radius = 10,
+                     color = "blue",
+                     label = ten_min_cnts,
+                     clusterOptions = markerClusterOptions())
 
 
 ### all points ----
