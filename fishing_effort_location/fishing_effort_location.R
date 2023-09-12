@@ -660,6 +660,11 @@ image_with_clusters_base <- function(lat_lon_data) {
 
 map_base_gom_vessels_sf <- image_with_clusters_base(gom_vessels_sf)
 
+map_base_gom_vessels_sf_15 <-
+  gom_vessels_sf |>
+  head(15) |>
+  image_with_clusters_base()
+
 ## markers for map_base_gom_vessels_sf ----
 ###
 # leaflet(quakes) %>% addTiles() %>% addMarkers(
@@ -699,6 +704,26 @@ cnts_marker_js <- JS(
 )
 
 # environment(map_base_gom_vessels_sf[["preRenderHook"]])[["data"]][["location_cnts"]]
+
+# leaflet(map_base_gom_vessels_sf_15) %>%
+#   addTiles() %>%
+map_base_gom_vessels_sf_15 |>
+  addMarkers(
+  options = markerOptions(location_cnts = ~location_cnts),
+  clusterOptions = markerClusterOptions(
+    iconCreateFunction = JS(
+      "function (cluster) {
+    var markers = cluster.getAllChildMarkers();
+    var sum = 0;
+    for (i = 0; i < markers.length; i++) {
+      sum += Number(markers[i].options.location_cnts);
+    }
+    return new L.DivIcon({ html: '<div><span>' + sum + '</span></div>'});
+  }"
+    )
+  )
+)
+
 
 map_base_gom_vessels_sf |>
 addCircleMarkers(
