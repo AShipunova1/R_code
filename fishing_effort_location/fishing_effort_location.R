@@ -769,6 +769,24 @@ short_example_3_cnts <-
     group_by(ten_min_lat, ten_min_lon) |>
     add_count(name = "ten_min_cnts")
 
+short_example_3 |>
+  dplyr::count(ten_min_lat, ten_min_lon) |>
+  dplyr::count(wt = n)
+# 740
+
+short_example_3 |>
+  select(TRIP_ID) |>
+  distinct() |>
+  dim()
+# 740 (distinct and w/o)
+
+short_example_3 |>
+  select(LATITUDE, LONGITUDE) |>
+  dim()
+# 740
+# 142+319+279
+# [1] 740
+
 dim(short_example_3_cnts)
 # [1] 740   9
 
@@ -797,30 +815,41 @@ str(short_example_3_cnts_short)
 
 short_example_3_cnts_short_ll_sf <-
   short_example_3_cnts_short |>
-      sf::st_as_sf(
-      # field names to use
-      coords = c("LONGITUDE",
-                 "LATITUDE"),
-      # use crs from sa_shp
-      crs = sf::st_crs(sa_shp),
-      # keep LAT/LONG
-      remove = FALSE
-    )
+  # add coordinates labels
+  mutate(ten_min_lbl =
+           paste0(
+             round(ten_min_lat, 1),
+             ", ",
+             round(ten_min_lon, 1),
+             ": ",
+             round(ten_min_cnts, 1),
+             " trips"
+           )) |>
+  sf::st_as_sf(
+    # field names to use
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    # use crs from sa_shp
+    crs = sf::st_crs(sa_shp),
+    # keep LAT/LONG
+    remove = FALSE
+  )
 
 short_example_3_cnts_short_tm_sf <-
   short_example_3_cnts_short |>
-  # select(-c(ten_min_lat, ten_min_lon)) |>
+  # remove cols
   select(-c(LONGITUDE, LONGITUDE)) |>
-      sf::st_as_sf(
-      # field names to use
-      coords = c("ten_min_lon",
-                 "ten_min_lat"),
-      # use crs from sa_shp
-      crs = sf::st_crs(sa_shp),
-      # keep LAT/LONG
-      remove = FALSE
-    )
+  sf::st_as_sf(
+    # field names to use
+    coords = c("ten_min_lon",
+               "ten_min_lat"),
+    # use crs from sa_shp
+    crs = sf::st_crs(sa_shp),
+    # keep LAT/LONG
+    remove = FALSE
+  )
 
+# str(short_example_3_cnts_short_tm_sf)
 leaflet(short_example_3_cnts_short_ll_sf) |>
   addTiles() |>
   addCircleMarkers(clusterOptions = markerClusterOptions()) |>
@@ -828,14 +857,14 @@ leaflet(short_example_3_cnts_short_ll_sf) |>
     short_example_3_cnts_short_tm_sf,
     lat = ~ ten_min_lat,
     lng = ~ ten_min_lon,
-    label = ~ ten_min_cnts,
+    label = ~ ten_min_lbl,
     labelOptions = labelOptions(noHide = T)
   ) |>
   addGraticule(
     interval = 1 / 60 * 10,
-               style = list(color = "grey", weight = 1))
-
-
+               style = list(color = "grey", weight = 1)) |>
+    # flyToBounds(-82.9, 27.65, -82.6, 27.85) |>
+    setView(-82.75, 27.8, zoom = 11)
 
 # mapview(short_example_3_cnts_short_tm_sf)
 leaflet(data = short_example_3_cnts_short_tm_sf) |>
