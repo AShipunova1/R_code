@@ -494,8 +494,11 @@ map_base |>
           iconCreateFunction = marker_js
                        ))
 
+# add ten minute grid ----
 map_base |>
- addGraticule(interval = 1 / 60 * 10, style = list(color = "#FF0000", weight = 1))
+ addGraticule(interval = 1 / 60 * 10,
+              style = list(color = "grey", weight = 1))
+              # style = list(color = "#FF0000", weight = 1))
 
 
 # baselayerchange
