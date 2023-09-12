@@ -332,6 +332,23 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df <-
   select(LATITUDE,
          LONGITUDE,
          TRIP_ID)
+# use metricks only vessels ----
+source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
+# fhier_reports_metrics_tracking_not_srhs_ids
+# print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_df)
+
+# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_df |>
+  filter(
+    VESSEL_OFFICIAL_NBR %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
+  )
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks)
+# [1] 93581    17
+
+# add permit info ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df)
 # [1] 95720     3
