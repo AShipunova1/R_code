@@ -448,17 +448,116 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
          # LONGITUDE,
          # TRIP_ID)
 
-# convert to ten_min ----
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min <-
-  get_ten_min_coords(safis_efforts_extended_2022_short_good_sf_crop_big_short_df)
+# add permit region ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
+  separate_permits_into_3_groups(permit_group_field_name = "permit_code")
 
-dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min)
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
+# [1] 284785     30
+
+### check names ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
+  filter(!VESSEL_NAME == vessel_name) |>
+  select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
+  distinct() |>
+  head()
+#   <chr>               <chr>        <chr>
+# 1 1212782             NO DOUBT     "NO DOUBT 2"
+# 2 614579              L & H        "L "
+# 3 FL2570PG            C&D BOATS 09 "C"
+# 4 FL3143RA            F-N-OFF II   "F"
+# 5 FL0334RY            REEL-AXING   "REEL"
+# 6 1162015             REEL-ALITY   "REEL"
+
+### shorten ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
+  select(
+    -c(
+      VESSEL_NAME,
+      TRIP_START_DATE,
+      EFFORT_SEQ,
+      AREA_CODE,
+      SUB_AREA_CODE,
+      AREA_NAME,
+      SUB_AREA_NAME,
+      AREA_REGION,
+      AREA_STATE,
+      DISTANCE_CODE,
+      DISTANCE_NAME,
+      LOCAL_AREA_CODE,
+      LOCAL_AREA_NAME,
+      permit_code,
+      permit_num,
+      reqmit_id,
+      type,
+      request_type,
+      status,
+      vessel_name,
+      status_date,
+      effective_date,
+      expiration_date,
+      end_date,
+      term_date
+    )
+  ) |>
+  distinct()
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
+# [1] 111716      5
+
+# print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
+# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE, permit_sa_gom"
+
+# convert to ten_min ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min <-
+  get_ten_min_coords(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
 # [1] 95720     5
+# [1] 284785     32 (with permit)
+# [1] 111716      7 (fewer columns)
+
+# split by permit ----
+## add permit_name_col ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min |>
+  mutate(
+    permit_region =
+      case_when(
+        permit_sa_gom == "gom_only"
+        | permit_sa_gom == "dual" ~
+          "gom_dual",
+        permit_sa_gom == "sa_only" ~
+          "sa_only"
+      )
+  )
+
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list <-
+  split(
+    safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm,
+    as.factor(
+      safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm$permit_region
+    )
+  )
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm)
+# [1] 111716      8
+
+map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list,
+       dim)
+#   gom_dual sa_only
+#      <int>   <int>
+# 1    41455   70261
+# 2        8       8
+
+# 41455 + 70261 = 111716
+# ok
 
 # save counts ----
-
 ## check ----
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min |>
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   select(-c(LATITUDE, LONGITUDE)) |>
   count(ten_min_lat, ten_min_lon) |>
   arrange(desc(n)) |>
