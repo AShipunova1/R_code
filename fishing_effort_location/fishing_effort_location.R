@@ -813,7 +813,7 @@ short_example_3_cnts_short |>
 
 str(short_example_3_cnts_short)
 
-short_example_3_cnts_short_ll_sf <-
+short_example_3_cnts_short_lbl <-
   short_example_3_cnts_short |>
   # add coordinates labels
   mutate(ten_min_lbl =
@@ -824,37 +824,14 @@ short_example_3_cnts_short_ll_sf <-
              ": ",
              round(ten_min_cnts, 1),
              " trips"
-           )) |>
-  sf::st_as_sf(
-    # field names to use
-    coords = c("LONGITUDE",
-               "LATITUDE"),
-    # use crs from sa_shp
-    crs = sf::st_crs(sa_shp),
-    # keep LAT/LONG
-    remove = FALSE
-  )
-
-short_example_3_cnts_short_tm_sf <-
-  short_example_3_cnts_short |>
-  # remove cols
-  select(-c(LONGITUDE, LONGITUDE)) |>
-  sf::st_as_sf(
-    # field names to use
-    coords = c("ten_min_lon",
-               "ten_min_lat"),
-    # use crs from sa_shp
-    crs = sf::st_crs(sa_shp),
-    # keep LAT/LONG
-    remove = FALSE
-  )
+           ))
 
 # str(short_example_3_cnts_short_tm_sf)
-leaflet(short_example_3_cnts_short_ll_sf) |>
+leaflet(short_example_3_cnts_short_lbl) |>
   addTiles() |>
   addCircleMarkers(clusterOptions = markerClusterOptions()) |>
   addMarkers(
-    short_example_3_cnts_short_tm_sf,
+    short_example_3_cnts_short,
     lat = ~ ten_min_lat,
     lng = ~ ten_min_lon,
     label = ~ ten_min_lbl,
