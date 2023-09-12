@@ -729,12 +729,12 @@ map_base_gom_vessels_sf_15 |>
 # works with circle markers
 map_base_gom_vessels_sf_15 |>
   addCircleMarkers(
-  options = pathOptions(location_cnts = ~location_cnts),
-  label = ~location_cnts,
-  clusterOptions = markerClusterOptions(
-    iconCreateFunction = cnts_sum_marker_js
+    options = pathOptions(location_cnts = ~ location_cnts),
+    label = ~ location_cnts,
+    labelOptions = labelOptions(noHide = T),
+    clusterOptions =
+      markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
   )
-)
 
 map_base_gom_vessels_sf |>
 addCircleMarkers(
