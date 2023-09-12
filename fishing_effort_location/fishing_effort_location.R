@@ -732,11 +732,41 @@ map_base_gom_vessels_sf_15 |>
   addCircleMarkers(
     options = pathOptions(location_cnts = ~ location_cnts),
     label = ~ location_cnts,
+    # labels always on
     labelOptions = labelOptions(noHide = T),
+    # sum of cnts on green circles
     clusterOptions =
       markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
-  )
+  ) |>
+  # ten min grid
+  addGraticule(interval = 1 / 60 * 10,
+               style = list(color = "grey", weight = 1))
 
+# example with lat long vs ten min ----
+
+gom_vessels_sf_example3 <-
+  gom_vessels_sf |>
+  filter(location_cnts %in% c("475", "839", "961"))
+
+short_example_3 <-
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  filter(ten_min_lat == gom_vessels_sf_example3$LATITUDE &
+           ten_min_lon == gom_vessels_sf_example3$LONGITUDE)
+
+glimpse(short_example_3)
+
+short_example_3_cnts <-
+  short_example_3 |>
+    group_by(ten_min_lat, ten_min_lon) |>
+    add_count()
+#     ten_min_lat ten_min_lon     n
+#         <dbl>       <dbl> <int>
+# 1        27.7       -82.7   279
+# 2        27.8       -82.8   142
+# 3        27.8       -82.7   319
+
+
+### all points ----
 map_base_gom_vessels_sf |>
 addCircleMarkers(
   options =
