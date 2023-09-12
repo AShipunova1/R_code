@@ -585,7 +585,9 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(LATITUDE, LONGITUDE)) |>
+      select(-c(LATITUDE, LONGITUDE,
+                permit_sa_gom,
+                permit_region)) |>
       dplyr::add_count(ten_min_lat, ten_min_lon,
                        name = "location_cnts")
   })
@@ -594,26 +596,63 @@ map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_go
 #   gom_dual sa_only
 #      <int>   <int>
 # 1    41455   70261
-# 2        7       7
 # 111716
 
 # remove duplicate locations  ----
+
+print_df_names(
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts[[1]]
+)
+# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, ten_min_lat, ten_min_lon, location_cnts"
+
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(TRIP_ID)) |>
+      select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
       distinct()
   })
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min_cnts_u)
 # [1] 2755    3
+
 #   ten_min_lat ten_min_lon location_cnts
 #         <dbl>       <dbl>         <int>
 # 1        28         -80             367
 # 2        27.7       -83.2           139
 
-# GOM ----
+map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u,
+       dim)
+#   gom_dual sa_only
+#      <int>   <int>
+# 1     1369    2377
+
+# GOM vessels ----
+
+# prepare sf ----
+gom_vessels <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual
+
+dim(gom_vessels)
+# [1] 1369    3
+
+#   ten_min_lat ten_min_lon location_cnts
+#         <dbl>       <dbl>         <int>
+# 1        27.7       -83.2           135
+# 2        27.5       -83.3            83
+
+names(gom_vessels) <-
+  c("LATITUDE", "LONGITUDE",
+    "location_cnts")
+
+gom_vessels_sf <- my_to_sf(gom_vessels)
+
+dim(gom_vessels_sf)
+# [1] 1369    4
+
+
+
+# GOM area ----
 ## get gom boundaries ----
 all_gom_sf_bbox <-
   st_bbox(all_gom_sf)
