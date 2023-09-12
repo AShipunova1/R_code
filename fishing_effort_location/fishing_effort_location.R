@@ -717,9 +717,19 @@ cnts_sum_marker_js <- JS(
 # environment(map_base_gom_vessels_sf[["preRenderHook"]])[["data"]][["location_cnts"]]
 
 # label = ~htmlEscape(Name)
+# works
 map_base_gom_vessels_sf_15 |>
   addMarkers(
   options = markerOptions(location_cnts = ~location_cnts),
+  clusterOptions = markerClusterOptions(
+    iconCreateFunction = cnts_sum_marker_js
+  )
+)
+
+# works with circle markers
+map_base_gom_vessels_sf_15 |>
+  addCircleMarkers(
+  options = pathOptions(location_cnts = ~location_cnts),
   clusterOptions = markerClusterOptions(
     iconCreateFunction = cnts_sum_marker_js
   )
