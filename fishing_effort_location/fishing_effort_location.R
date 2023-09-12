@@ -629,7 +629,7 @@ map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_go
 
 # GOM vessels ----
 
-# prepare sf ----
+## prepare sf ----
 gom_vessels <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual
 
@@ -650,24 +650,37 @@ gom_vessels_sf <- my_to_sf(gom_vessels)
 dim(gom_vessels_sf)
 # [1] 1369    4
 
+## base map gom vessels ----
 image_with_clusters_base <- function(lat_lon_data) {
-  tic("gom_clusters_shape")
   gom_clusters_shape_base <-
     leaflet(data = lat_lon_data) |>
-    addTiles() |>
-    addPolygons(data = all_gom_sf,
-                weight = 5,
-                col = "#F4E3FF") |>
-    flyToBounds(-97.8, 23.8, -80.4, 31.1) |>
-    setView(-89, 29, zoom = 5)
-  toc()
+    addTiles()
   return(gom_clusters_shape_base)
 }
 
 map_base_gom_vessels_sf <- image_with_clusters_base(gom_vessels_sf)
-# gom_clusters_shape: 0.18 sec elapsed
 
-map_base_gom_vessels_sf
+## markers for map_base_gom_vessels_sf ----
+marker_js_gom_vessels <- JS(
+  "function(cluster) {
+                  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + cluster.getChildCount() + '</div><span>'
+                  return new L.DivIcon({html: html, className: 'marker-cluster'});
+}"
+)
+
+map_base |>
+    addCircleMarkers(clusterOptions =
+                         markerClusterOptions(
+          iconCreateFunction = marker_js
+                       ))
+
+## add ten minute grid gom vessels ----
+map_base |>
+ addGraticule(interval = 1 / 60 * 10,
+              style = list(color = "grey", weight = 1))
+# red
+              # style = list(color = "#FF0000", weight = 1))
+
 
 # GOM area ----
 ## get gom boundaries ----
