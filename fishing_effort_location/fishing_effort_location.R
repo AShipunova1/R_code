@@ -95,6 +95,18 @@ with_st_difference <- function(points_sf, polygons_sf) {
   return(res)
 }
 
+get_ten_min_coords <- function(my_df) {
+  ten_min_df <-
+    my_df |>
+    mutate(
+      ten_min_lat = get_lat_ten_min(as.numeric(my_df$LATITUDE)),
+      ten_min_lon =
+        -1 * abs(get_lat_ten_min(as.numeric(my_df$LONGITUDE)))
+    )
+  return(ten_min_df)
+  # distinct(ten_min_df)
+}
+
 ## From db ----
 all_points <- dim(db_data_w_area)[1]
 # 254689
