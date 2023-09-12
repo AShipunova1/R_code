@@ -95,6 +95,43 @@ with_st_difference <- function(points_sf, polygons_sf) {
   return(res)
 }
 
+## functions for ten_min ----
+
+get_degree <- function(gis_coord) {
+  floor(abs(gis_coord))
+}
+
+get_minute <- function(gis_coord) {
+  dd <- abs(gis_coord) %% 1
+  minute <- floor(dd * 60)
+}
+
+convert_to_ten_min <- function(minute) {
+  floor(minute/10) * 10
+}
+
+convert_to_decimal_degree <- function(dm_num) {
+  degree <- as.numeric(substr(as.character(dm_num), 1, 2))
+  dd <- as.numeric(substr(as.character(dm_num), 3, 4)) / 60
+  degree + dd
+}
+
+get_lat_ten_min <- function(gis_lat) {
+  deg <- get_degree(gis_lat)
+  minute <- get_minute(gis_lat)
+  ten_min_num <- convert_to_ten_min(minute)
+  dm_num <-
+    paste(deg, stringi::stri_pad_left(ten_min_num, 2, 0), sep = "")
+  convert_to_decimal_degree(dm_num)
+}
+
+# get_lon_ten_min <- function(gis_lon) {
+#   res <- get_lat_ten_min(abs(gis_lon))
+#   if (gis_lon < 0) {
+#     res * -1
+#   }
+# }
+
 get_ten_min_coords <- function(my_df) {
   ten_min_df <-
     my_df |>
@@ -288,6 +325,28 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big)
 # mapview(safis_efforts_extended_2022_short_good_sf_crop_big)
 # toc()
 
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df <-
+  safis_efforts_extended_2022_short_good_sf_crop_big |>
+  sf::st_drop_geometry() |>
+  select(LATITUDE,
+         LONGITUDE,
+         TRIP_ID)
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df)
+# [1] 95720     3
+
+# convert to ten_min ----
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min <-
+  get_ten_min_coords(safis_efforts_extended_2022_short_good_sf_crop_big_short_df)
+
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_ten_min)
+# [1] 95705     5
+
+# save counts and remove duplicate locations  ----
+# safis_efforts_extended_2022_short_good_sf_crop_big_short_df |>
+#   count(LATITUDE, LONGITUDE)
+
+
 # GOM ----
 ## get gom boundaries ----
 all_gom_sf_bbox <-
@@ -310,6 +369,7 @@ dim(gom_safis_efforts_extended_2022_short_good_sf_crop)
 # [1] 68190    18
 
 ## get only points on GOM maps ----
+
 tic("gom_safis_efforts_extended_2022_short_good_sf_crop_inters")
 gom_safis_efforts_extended_2022_short_good_sf_crop_inters <-
   with_st_intersection(safis_efforts_extended_2022_short_good_sf,
@@ -464,55 +524,6 @@ l %>%
           myMap.minimap.changeLayer(L.tileLayer.provider(e.name));
         })
     }")
-
-# add functions for ten_min ----
-
-get_degree <- function(gis_coord) {
-  floor(abs(gis_coord))
-}
-
-get_minute <- function(gis_coord) {
-  dd <- abs(gis_coord) %% 1
-  minute <- floor(dd * 60)
-}
-
-convert_to_ten_min <- function(minute) {
-  floor(minute/10) * 10
-}
-
-convert_to_decimal_degree <- function(dm_num) {
-  degree <- as.numeric(substr(as.character(dm_num), 1, 2))
-  dd <- as.numeric(substr(as.character(dm_num), 3, 4)) / 60
-  degree + dd
-}
-
-get_lat_ten_min <- function(gis_lat) {
-  deg <- get_degree(gis_lat)
-  minute <- get_minute(gis_lat)
-  ten_min_num <- convert_to_ten_min(minute)
-  dm_num <-
-    paste(deg, stringi::stri_pad_left(ten_min_num, 2, 0), sep = "")
-  convert_to_decimal_degree(dm_num)
-}
-
-get_lon_ten_min <- function(gis_lon) {
-  res <- get_lat_ten_min(abs(gis_lon))
-  if (gis_lon < 0) {
-    res * -1
-  }
-}
-
-get_ten_min_coords <- function(my_df) {
-  ten_min_df <-
-    my_df |>
-    mutate(
-      ten_min_lat = get_lat_ten_min(as.numeric(my_df$LATITUDE)),
-      ten_min_lon =
-        -1 * abs(get_lat_ten_min(as.numeric(my_df$LONGITUDE)))
-    )
-
-  distinct(ten_min_df)
-}
 
 lat_lon_data_short <-
   lat_lon_data |>
