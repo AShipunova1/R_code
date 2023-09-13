@@ -448,17 +448,6 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(LATITUDE, LONGITUDE,
-                permit_sa_gom,
-                permit_region)) |>
-      dplyr::add_count(ten_min_lat, ten_min_lon,
-                       name = "trip_ids_cnts")
-  })
-
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2 <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(function(permit_df) {
-    permit_df |>
       select(-c(permit_sa_gom,
                 permit_region)) |>
       dplyr::add_count(ten_min_lat, ten_min_lon,
@@ -468,7 +457,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
       ungroup()
   })
 
-View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2$gom_dual)
+# View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2$gom_dual)
 
 map_df(
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts,
@@ -478,10 +467,10 @@ map_df(
 #      <int>   <int>
 # 1    41455   68122
  # |> rowSums()
-# [1] 109577     10
+# [1] 109577     16
 # ok (== safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_total)
 
-# remove duplicate locations  ----
+# remove duplicate locations (shorten) ----
 
 # print_df_names(
 #   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts[[1]]
@@ -492,7 +481,8 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
+      select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR,
+                LATITUDE, LONGITUDE)) |>
       distinct()
   })
 
@@ -506,29 +496,29 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
 
 ## prepare sf ----
 gom_vessels <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual |>
+  mutate(cnt_label =
+           paste0("loc: ", location_cnts_u,
+                  "; trips: ",  trip_ids_cnts))
+
 
 dim(gom_vessels)
 # [1] 1369    3
 
-# head(gom_vessels, 2)
-#   ten_min_lat ten_min_lon location_cnts
-#         <dbl>       <dbl>         <int>
-# 1        27.7       -83.2           135
-# 2        27.5       -83.3            83
-
-# names(gom_vessels) <-
-#   c("LATITUDE", "LONGITUDE",
-#     "location_cnts")
+head(gom_vessels, 10)
+  # ten_min_lat ten_min_lon trip_ids_cnts location_cnts_u
+# 4        27.5       -83.2           121             119
+# 5        27.8       -82.8           475             454
+# 6        27.7       -82.7           839             562
 
 ## base map gom vessels ----
 image_with_clusters_base <-
   function(lat_lon_data) {
-  gom_clusters_shape_base <-
-    leaflet(data = lat_lon_data) |>
-    addTiles()
-  return(gom_clusters_shape_base)
-}
+    gom_clusters_shape_base <-
+      leaflet(data = lat_lon_data) |>
+      addTiles()
+    return(gom_clusters_shape_base)
+  }
 
 map_base_gom_vessels <- image_with_clusters_base(gom_vessels)
 
@@ -551,26 +541,31 @@ cnts_sum_marker_js <- JS(
     var markers = cluster.getAllChildMarkers();
     var sum = 0;
     for (i = 0; i < markers.length; i++) {
-      sum += Number(markers[i].options.location_cnts);
+      sum += Number(markers[i].options.location_cnts_u);
     }
   var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + sum + '</div><span>'
   return new L.DivIcon({html: html, className: 'marker-cluster'});
   }"
 )
 
-# environment(map_base_gom_vessels_sf[["preRenderHook"]])[["data"]][["location_cnts"]]
+# Where are the data
+# View(map_base_gom_vessels_15)
+# environment(map_base_gom_vessels_15[["preRenderHook"]])[["data"]][["location_cnts_u"]]
 
-# label = ~htmlEscape(Name)
 # works
-View(map_base_gom_vessels_15)
 map_base_gom_vessels_15 |>
   addMarkers(
     lat = ~ ten_min_lat,
     lng = ~ ten_min_lon,
+    label = ~ cnt_label,
+    # label = ~ location_cnts_u,
+    labelOptions = labelOptions(noHide = T),
     options =
-      markerOptions(location_cnts = ~ location_cnts),
+      markerOptions(trip_ids_cnts = ~trip_ids_cnts,
+                    location_cnts_u = ~location_cnts_u),
     clusterOptions = markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
   )
+
 
 # works with circle markers
 map_base_gom_vessels_sf_15 |>
