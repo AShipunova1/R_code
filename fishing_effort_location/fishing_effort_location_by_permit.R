@@ -485,7 +485,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
 #      <int>   <int>
 # 1     1369    2344
 
-# GOM vessels ----
+# GOM permits / vessels ----
 
 ## prepare sf ----
 gom_vessels <-
@@ -494,32 +494,29 @@ gom_vessels <-
 dim(gom_vessels)
 # [1] 1369    3
 
+# head(gom_vessels, 2)
 #   ten_min_lat ten_min_lon location_cnts
 #         <dbl>       <dbl>         <int>
 # 1        27.7       -83.2           135
 # 2        27.5       -83.3            83
 
-names(gom_vessels) <-
-  c("LATITUDE", "LONGITUDE",
-    "location_cnts")
-
-gom_vessels_sf <- my_to_sf(gom_vessels)
-
-dim(gom_vessels_sf)
-# [1] 1369    4
+# names(gom_vessels) <-
+#   c("LATITUDE", "LONGITUDE",
+#     "location_cnts")
 
 ## base map gom vessels ----
-image_with_clusters_base <- function(lat_lon_data) {
+image_with_clusters_base <-
+  function(lat_lon_data) {
   gom_clusters_shape_base <-
     leaflet(data = lat_lon_data) |>
     addTiles()
   return(gom_clusters_shape_base)
 }
 
-map_base_gom_vessels_sf <- image_with_clusters_base(gom_vessels_sf)
+map_base_gom_vessels <- image_with_clusters_base(gom_vessels)
 
-map_base_gom_vessels_sf_15 <-
-  gom_vessels_sf |>
+map_base_gom_vessels_15 <-
+  gom_vessels |>
   head(15) |>
   image_with_clusters_base()
 
