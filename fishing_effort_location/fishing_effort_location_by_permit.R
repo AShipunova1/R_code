@@ -523,65 +523,6 @@ head(gom_vessels, 10)
 # 5        27.8       -82.8           475             454
 # 6        27.7       -82.7           839             562
 
-## base map gom vessels ----
-image_with_clusters_base <-
-  function(lat_lon_data) {
-    gom_clusters_shape_base <-
-      leaflet(data = lat_lon_data) |>
-      addTiles()
-    return(gom_clusters_shape_base)
-  }
-
-map_base_gom_vessels <- image_with_clusters_base(gom_vessels)
-
-map_base_gom_vessels_15 <-
-  gom_vessels |>
-  head(15) |>
-  image_with_clusters_base()
-
-## markers for map_base_gom_vessels ----
-
-marker_js_gom_vessels_green <- JS(
-  "function(cluster) {
-                  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + cluster.getChildCount() + '</div><span>'
-                  return new L.DivIcon({html: html, className: 'marker-cluster'});
-}"
-)
-
-cnts_sum_marker_js <- JS(
-  "function(cluster) {
-    var markers = cluster.getAllChildMarkers();
-    var sum = 0;
-    for (i = 0; i < markers.length; i++) {
-      sum += Number(markers[i].options.location_cnts_u);
-    }
-  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + sum + '</div><span>'
-  return new L.DivIcon({html: html, className: 'marker-cluster'});
-  }"
-)
-
-# Where are the data
-# View(map_base_gom_vessels_15)
-# environment(map_base_gom_vessels_15[["preRenderHook"]])[["data"]][["location_cnts_u"]]
-
-# works
-map_base_gom_vessels_15 |>
-  addMarkers(
-    lat = ~ ten_min_lat,
-    lng = ~ ten_min_lon,
-    label = ~ cnt_label,
-    # label = ~ location_cnts_u,
-    labelOptions = labelOptions(noHide = T),
-    options =
-      markerOptions(trip_ids_cnts = ~trip_ids_cnts,
-                    location_cnts_u = ~location_cnts_u),
-    clusterOptions = markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
-  ) |>
-  # ten min grid
-  addGraticule(interval = 1 / 60 * 10,
-               style = list(color = "grey", weight = 1))
-
-
 # example with lat long vs ten min ----
 # ~Saint Petersburg
 gom_vessels_example_3loc <-
@@ -704,7 +645,67 @@ map_leaflet_short_example
 # https://drive.google.com/file/d/1lO9a3nbH1g8AZu41yXdyCNHYhsCe58sZ/view?usp=drive_link
 
 # all points ----
-# cnt_label
+## base map gom vessels ----
+image_with_clusters_base <-
+  function(lat_lon_data) {
+    gom_clusters_shape_base <-
+      leaflet(data = lat_lon_data) |>
+      addTiles()
+    return(gom_clusters_shape_base)
+  }
+
+map_base_gom_vessels <- image_with_clusters_base(gom_vessels)
+
+# small test map
+map_base_gom_vessels_15 <-
+  gom_vessels |>
+  head(15) |>
+  image_with_clusters_base()
+
+## markers for map_base_gom_vessels ----
+
+marker_js_gom_vessels_green <- JS(
+  "function(cluster) {
+                  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + cluster.getChildCount() + '</div><span>'
+                  return new L.DivIcon({html: html, className: 'marker-cluster'});
+}"
+)
+
+cnts_sum_marker_js <- JS(
+  "function(cluster) {
+    var markers = cluster.getAllChildMarkers();
+    var sum = 0;
+    for (i = 0; i < markers.length; i++) {
+      sum += Number(markers[i].options.location_cnts_u);
+    }
+  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + sum + '</div><span>'
+  return new L.DivIcon({html: html, className: 'marker-cluster'});
+  }"
+)
+
+# Where are the data
+# View(map_base_gom_vessels_15)
+# environment(map_base_gom_vessels_15[["preRenderHook"]])[["data"]][["location_cnts_u"]]
+
+# small working test ----
+map_base_gom_vessels_15 |>
+  addMarkers(
+    lat = ~ ten_min_lat,
+    lng = ~ ten_min_lon,
+    label = ~ cnt_label,
+    # label = ~ location_cnts_u,
+    labelOptions = labelOptions(noHide = T),
+    options =
+      markerOptions(trip_ids_cnts = ~trip_ids_cnts,
+                    location_cnts_u = ~location_cnts_u),
+    clusterOptions = markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
+  ) |>
+  # ten min grid
+  addGraticule(interval = 1 / 60 * 10,
+               style = list(color = "grey", weight = 1))
+
+
+## texts on map ----
 my_text_all_points <-
   "Numbers on green circles show an amount of unique locations in this cluster.</br>
 On mouse hover it will show the clustered area.</br>
@@ -713,7 +714,7 @@ On mouse hover rectangular labels show coordinates on the ten minute grid,
 # of trips and # of unique locations in this square."
 
 # print_df_names(gom_vessels)
-# [1] "ten_min_lat, ten_min_lon, trip_ids_cnts, location_cnts_u, cnt_label"
+# [1] "ten_min_lat, ten_min_lon, trip_ids_cnts, location_cnts_u, cnt_label, ten_min_lbl"
 
 my_text_all_points_html <-
   htmltools::tags$div(htmltools::HTML(paste0('<span>',
@@ -722,15 +723,11 @@ my_text_all_points_html <-
 
 # font-size: 0.875em; /* 14px/16=0.875em */
 my_title_all_points <-
-  "<p style=font-size: LARGE>
-Fishing locations rounded to ten minutes for GOM and dual permitted vessels in 2022<br>
+  '<span style=font-size: LARGE>
+Fishing locations rounded to ten minutes for GOM and dual permitted vessels in 2022</span><br>
 <span style=font-size: small>
 <strong>NB</strong>.
-Not all trips has valid coordinates, hence not shown here</span></p>"
-
-comment_style <- tags$style(HTML(".comment {
-    font-size: large;
-}"))
+Not all trips has valid coordinates, hence not shown here</span>'
 
 tag_map_title <- tags$style(HTML(
   ".leaflet-control.comment {
@@ -787,5 +784,7 @@ map_base_gom_vessels_w_markers <-
 
 map_base_gom_vessels_w_markers
 
-
-
+# uncomment to run
+# htmlwidgets::saveWidget(map_base_gom_vessels_w_markers,
+#                         file =
+#                           r"(my_outputs\fishing_effort_location\09_2023\small_example\map_leaflet_gom_permit_all.html)")
