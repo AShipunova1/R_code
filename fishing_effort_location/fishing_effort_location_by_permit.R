@@ -442,6 +442,8 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
 # 1        24.8       -80.5  2863
 # 2        24.5       -81.7  2701
 
+# View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list)
+
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   map(function(permit_df) {
@@ -450,8 +452,23 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
                 permit_sa_gom,
                 permit_region)) |>
       dplyr::add_count(ten_min_lat, ten_min_lon,
-                       name = "location_cnts")
+                       name = "trip_ids_cnts")
   })
+
+safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2 <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
+  map(function(permit_df) {
+    permit_df |>
+      select(-c(permit_sa_gom,
+                permit_region)) |>
+      dplyr::add_count(ten_min_lat, ten_min_lon,
+                       name = "trip_ids_cnts") |>
+      group_by(ten_min_lat, ten_min_lon) |>
+      mutate(location_cnts_u = (n_distinct(LATITUDE, LONGITUDE))) |>
+      ungroup()
+  })
+
+View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2$gom_dual)
 
 map_df(
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts,
@@ -520,41 +537,12 @@ map_base_gom_vessels_15 <-
   head(15) |>
   image_with_clusters_base()
 
-## markers for map_base_gom_vessels_sf ----
-###
-# leaflet(quakes) %>% addTiles() %>% addMarkers(
-#   options = markerOptions(mag = ~mag),
-#   clusterOptions = markerClusterOptions(
-#   iconCreateFunction=JS("function (cluster) {
-#     var markers = cluster.getAllChildMarkers();
-#     var sum = 0;
-#     for (i = 0; i < markers.length; i++) {
-#       sum += Number(markers[i].options.mag);
-# //      sum += 1;
-#     }
-#     return new L.DivIcon({ html: '<div><span>' + sum + '</span></div>'});
-#   }")
-#   )
-# )
-
-###
+## markers for map_base_gom_vessels ----
 
 marker_js_gom_vessels_green <- JS(
   "function(cluster) {
                   var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' + cluster.getChildCount() + '</div><span>'
                   return new L.DivIcon({html: html, className: 'marker-cluster'});
-}"
-)
-
-cnts_marker_js <- JS(
-  "function(cluster) {
-    var markers = cluster.getAllChildMarkers().options.location_cnts;
-
-// return new L.DivIcon({ html: '<div><span>' + sum + '</span></div>'});
-  var html = '<div style=\"background-color:rgba(144, 238, 144)\"><span>' +
-  'markers' +
-  '</div><span>'
-  return new L.DivIcon({html: html, className: 'marker-cluster'}   );
 }"
 )
 
@@ -574,13 +562,15 @@ cnts_sum_marker_js <- JS(
 
 # label = ~htmlEscape(Name)
 # works
-map_base_gom_vessels_sf_15 |>
+View(map_base_gom_vessels_15)
+map_base_gom_vessels_15 |>
   addMarkers(
-  options = markerOptions(location_cnts = ~location_cnts),
-  clusterOptions = markerClusterOptions(
-    iconCreateFunction = cnts_sum_marker_js
+    lat = ~ ten_min_lat,
+    lng = ~ ten_min_lon,
+    options =
+      markerOptions(location_cnts = ~ location_cnts),
+    clusterOptions = markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
   )
-)
 
 # works with circle markers
 map_base_gom_vessels_sf_15 |>
