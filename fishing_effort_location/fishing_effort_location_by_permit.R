@@ -499,11 +499,23 @@ gom_vessels <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual |>
   mutate(cnt_label =
            paste0("loc: ", location_cnts_u,
-                  "; trips: ",  trip_ids_cnts))
-
+                  "; trips: ",  trip_ids_cnts)) |>
+  mutate(
+    ten_min_lbl =
+      paste0(
+        round(ten_min_lat, 1),
+        ", ",
+        round(ten_min_lon, 1),
+        "; ",
+        "trips: ",
+        trip_ids_cnts,
+        "; loc: ",
+        location_cnts_u
+      )
+  )
 
 dim(gom_vessels)
-# [1] 1369    3
+# [1] 1369    6
 
 head(gom_vessels, 10)
   # ten_min_lat ten_min_lon trip_ids_cnts location_cnts_u
@@ -705,14 +717,16 @@ On mouse hover rectangular labels show coordinates on the ten minute grid,
 
 my_text_all_points_html <-
   htmltools::tags$div(htmltools::HTML(paste0('<span>',
-                                             my_text,
+                                             my_text_all_points,
                                              '</span>')))
 
 # font-size: 0.875em; /* 14px/16=0.875em */
-my_title_all_points <- "<p style=font-size:4vw> Fishing locations rounded to ten minutes for GOM and dual permitted vessels in 2022</p>
-<p style=font-size:2vw>
+my_title_all_points <-
+  "<p style=font-size: LARGE>
+Fishing locations rounded to ten minutes for GOM and dual permitted vessels in 2022<br>
+<span style=font-size: small>
 <strong>NB</strong>.
-Not all trips has valid coordinates, hence not shown here</p>"
+Not all trips has valid coordinates, hence not shown here</span></p>"
 
 comment_style <- tags$style(HTML(".comment {
     font-size: large;
@@ -745,7 +759,7 @@ map_base_gom_vessels_w_markers <-
     # get data from gom_vessels df
     lat = ~ ten_min_lat,
     lng = ~ ten_min_lon,
-    label = ~ cnt_label,
+    label = ~ ten_min_lbl,
     options =
       # put data from gom_vessels df in the options to use with JS
       pathOptions(
