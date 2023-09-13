@@ -1181,7 +1181,7 @@ plot_file_path <-
   file.path(my_paths$outputs, "quantify_compliance", today())
 create_dir_if_not(plot_file_path)
 
-# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids ----
 compl_clean_sa_vs_gom_m_int_1 <-
   compl_clean_sa_vs_gom_m_int |>
   filter(
