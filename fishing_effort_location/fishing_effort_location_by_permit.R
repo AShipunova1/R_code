@@ -608,7 +608,7 @@ my_text <-
 Clicking on one circle will zoom in and show individual fishing locations.
 </br>
 Rectangular labels show coordinates on the ten minute grid,
-# of trips and # of unique locations in this square."
+# of trips and # of unique locations in this ten minute square."
 
 rr <-
   htmltools::tags$div(htmltools::HTML(paste0('<span>',
@@ -711,7 +711,7 @@ my_text_all_points <-
 On mouse hover it will show the clustered area.</br>
 Blue circles are points on the ten minute grid.</br>
 On mouse hover rectangular labels show coordinates on the ten minute grid,
-# of trips and # of unique locations in this square."
+# of trips and # of unique locations in this ten minute square."
 
 # print_df_names(gom_vessels)
 # [1] "ten_min_lat, ten_min_lon, trip_ids_cnts, location_cnts_u, cnt_label, ten_min_lbl"
@@ -746,9 +746,7 @@ tag_map_title <- tags$style(HTML(
   }
 "))
 
-my_title_all_points_html <- tags$div(
-  tag_map_title, HTML(my_title_all_points)
-)
+my_title_all_points_html <- tags$div(tag_map_title, HTML(my_title_all_points))
 
 map_base_gom_vessels_w_markers <-
   map_base_gom_vessels |>
@@ -766,25 +764,64 @@ map_base_gom_vessels_w_markers <-
     clusterOptions =
       markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
   ) |>
-  # add ten min grid
-  # addGraticule(interval = 1 / 60 * 10,
-  #              style = list(color = "grey", weight = 1)) |>
-  # flyToBounds(-82.9, 27.65, -82.6, 27.85) |>
-  # setView(-82.75, 27.8, zoom = 11) |>
+  fitBounds( ~ min(ten_min_lon),
+             ~ min(ten_min_lat),
+             ~ max(ten_min_lon),
+             ~ max(ten_min_lat)) |>
+  setView(
+    lng = mean(gom_vessels$ten_min_lon),
+    lat = mean(gom_vessels$ten_min_lat),
+    zoom = 4
+  ) |>
+  addRectangles(
+    lng1 = big_bounding_box[["xmin"]],
+    lat1 = big_bounding_box[["ymin"]],
+    lng2 = big_bounding_box[["xmax"]],
+    lat2 = big_bounding_box[["ymax"]],
+    fill = FALSE,
+    dashArray = 10,
+    1,
+    10,
+    weight = 0.7
+  )
+
+# map_base_gom_vessels_w_markers
+
+map_base_gom_vessels_w_markers_with_text <-
+  map_base_gom_vessels_w_markers |>
   # add the explanation text at the bottom
   addControl(my_text_all_points_html,
              position = "bottomleft") |>
   # add title
   addControl(my_title_all_points_html,
-             position = "topright")
+             position = "topright") |>
+  # big bounding box
+  addPopups(big_bounding_box[["xmax"]],
+            big_bounding_box[["ymax"]],
+            "Allowed coordinates")
 
-    # addControl(my_title_all_points_html,
+map_base_gom_vessels_w_markers_with_text
+
+  # add ten min grid
+  # addGraticule(interval = 1 / 60 * 10,
+  #              style = list(color = "grey", weight = 1)) |>
+  # flyToBounds(-82.9, 27.65, -82.6, 27.85) |>
+  # setView(-82.75, 27.8, zoom = 11) |>
+# addControl(my_title_all_points_html,
   #            position = "topright",
   #            className = "map-title")
 
-map_base_gom_vessels_w_markers
 
 # uncomment to run
 # htmlwidgets::saveWidget(map_base_gom_vessels_w_markers,
 #                         file =
-#                           r"(my_outputs\fishing_effort_location\09_2023\small_example\map_leaflet_gom_permit_all.html)")
+#                           r"(my_outputs\fishing_effort_location\09_2023\map_leaflet_gom_permit_all.html)")
+
+# big_bounding_box <- c(
+#    xmin = -97.79954,
+#    ymin = 21.521757, #Cuba
+#    xmax = -64.790337, #Bermuda
+#    ymax = 49 #Canada
+#  )
+
+# str(big_bounding_box["xmin"])
