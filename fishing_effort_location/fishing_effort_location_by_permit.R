@@ -708,8 +708,9 @@ my_text_all_points_html <-
                                              my_text,
                                              '</span>')))
 
-my_title_all_points <- "Fishing locations rounded to ten minutes for GOM and dual permitted vessels in 2022.</br>
-<p class='comment'>
+# font-size: 0.875em; /* 14px/16=0.875em */
+my_title_all_points <- "<p style=font-size:4vw> Fishing locations rounded to ten minutes for GOM and dual permitted vessels in 2022</p>
+<p style=font-size:2vw>
 <strong>NB</strong>.
 Not all trips has valid coordinates, hence not shown here</p>"
 
@@ -764,8 +765,11 @@ map_base_gom_vessels_w_markers <-
              position = "bottomleft") |>
   # add title
   addControl(my_title_all_points_html,
-             position = "topright",
-             className = "map-title")
+             position = "topright")
+
+    # addControl(my_title_all_points_html,
+  #            position = "topright",
+  #            className = "map-title")
 
 map_base_gom_vessels_w_markers
 
