@@ -564,73 +564,54 @@ map_base_gom_vessels_15 |>
       markerOptions(trip_ids_cnts = ~trip_ids_cnts,
                     location_cnts_u = ~location_cnts_u),
     clusterOptions = markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
-  )
-
-
-# works with circle markers
-map_base_gom_vessels_sf_15 |>
-  addCircleMarkers(
-    options = pathOptions(location_cnts = ~ location_cnts),
-    label = ~ location_cnts,
-    # labels always on
-    labelOptions = labelOptions(noHide = T),
-    # sum of cnts on green circles
-    clusterOptions =
-      markerClusterOptions(iconCreateFunction = cnts_sum_marker_js)
   ) |>
   # ten min grid
   addGraticule(interval = 1 / 60 * 10,
                style = list(color = "grey", weight = 1))
 
+
 # example with lat long vs ten min ----
+# ~Saint Petersburg
+gom_vessels_example_3loc <-
+  gom_vessels |>
+  filter(trip_ids_cnts %in% c("475", "839", "961"))
 
-gom_vessels_sf_example3 <-
-  gom_vessels_sf |>
-  filter(location_cnts %in% c("475", "839", "961"))
-
-print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
-
-short_example_3 <-
+short_example_3loc <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
   filter(
     round(ten_min_lat, digits = 1) ==
-      round(gom_vessels_sf_example3$LATITUDE,
+      round(gom_vessels_example_3loc$ten_min_lat,
             digits = 1) &
       round(ten_min_lon, digits = 1) ==
-      round(gom_vessels_sf_example3$LONGITUDE,
+      round(gom_vessels_example_3loc$ten_min_lon,
             digits = 1)
   )
 
-dim(short_example_3)
-# 740
+dim(short_example_3loc)
+# 740 8
 
 short_example_3_cnts <-
-  short_example_3 |>
-    group_by(ten_min_lat, ten_min_lon) |>
-    add_count(name = "ten_min_cnts")
+  short_example_3loc |>
+  dplyr::add_count(ten_min_lat, ten_min_lon,
+                   name = "trip_ids_cnts") |>
+  group_by(ten_min_lat, ten_min_lon) |>
+  mutate(location_cnts_u = (n_distinct(LATITUDE, LONGITUDE))) |>
+  ungroup()
 
-short_example_3 |>
-  dplyr::count(ten_min_lat, ten_min_lon) |>
-  dplyr::count(wt = n)
-# 740
-
-short_example_3 |>
-  select(TRIP_ID) |>
-  distinct() |>
-  dim()
-# 740 (distinct and w/o)
-
-short_example_3 |>
+short_example_3_cnts |>
   select(LATITUDE, LONGITUDE) |>
   dim()
 # 740
+
 # 142+319+279
 # [1] 740
   # distinct() |>
 # [1] 564   2
 
 dim(short_example_3_cnts)
-# [1] 740   9
+# [1] 740   10
+
+glimpse(short_example_3_cnts)
 
 short_example_3_cnts_short <-
   short_example_3_cnts |>
@@ -645,15 +626,14 @@ dim(short_example_3_cnts_short)
 
 short_example_3_cnts_short |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  distinct()
+  distinct() |>
+  arrange(trip_ids_cnts)
 # ok
-#     ten_min_lat ten_min_lon     n
-#         <dbl>       <dbl> <int>
-# 1        27.7       -82.7   279
-# 2        27.8       -82.8   142
-# 3        27.8       -82.7   319
-
-str(short_example_3_cnts_short)
+#   ten_min_lat ten_min_lon trip_ids_cnts location_cnts_u
+#         <dbl>       <dbl>         <int>           <int>
+# 1        27.8       -82.8           142             142
+# 2        27.7       -82.7           279             211
+# 3        27.8       -82.7           319             211
 
 short_example_3_cnts_short_lbl <-
   short_example_3_cnts_short |>
@@ -663,27 +643,32 @@ short_example_3_cnts_short_lbl <-
              round(ten_min_lat, 1),
              ", ",
              round(ten_min_lon, 1),
-             ": ",
-             round(ten_min_cnts, 1),
-             " trips"
+             "; ",
+             round(trip_ids_cnts, 1),
+             " trps; ",
+             round(location_cnts_u, 1),
+             " loc"
            ))
 
 my_text <-
   "Numbers on round circles show an amount of unique locations in this cluster.</br>
 Clicking on one circle will zoom in and show individual fishing locations.
 </br>
-Rectangular labels show coordinates on the ten minute grid and an amount of trips in this square."
+Rectangular labels show coordinates on the ten minute grid,
+# of trips and # of unique locations in this square."
 
 rr <-
   htmltools::tags$div(htmltools::HTML(paste0('<span>',
                        my_text,
                        '</span>')))
 
-# str(short_example_3_cnts_short_tm_sf)
 map_leaflet_short_example <-
   leaflet(short_example_3_cnts_short_lbl) |>
   addTiles() |>
-  addCircleMarkers(clusterOptions = markerClusterOptions()) |>
+  addCircleMarkers(
+    lat = ~ LATITUDE,
+    lng = ~ LONGITUDE,
+    clusterOptions = markerClusterOptions()) |>
   addMarkers(
     short_example_3_cnts_short,
     lat = ~ ten_min_lat,
