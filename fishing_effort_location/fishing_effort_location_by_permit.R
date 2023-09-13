@@ -694,9 +694,10 @@ map_leaflet_short_example
 # all points ----
 # cnt_label
 my_text_all_points <-
-  "Numbers on round circles show an amount of unique locations in this cluster.</br>
+  "Numbers on green circles show an amount of unique locations in this cluster.</br>
 On mouse hover it will show the clustered area.</br>
-Rectangular labels show coordinates on the ten minute grid,
+Blue circles are points on the ten minute grid.</br>
+On mouse hover rectangular labels show coordinates on the ten minute grid,
 # of trips and # of unique locations in this square."
 
 # print_df_names(gom_vessels)
@@ -706,12 +707,46 @@ my_text_all_points_html <-
   htmltools::tags$div(htmltools::HTML(paste0('<span>',
                                              my_text,
                                              '</span>')))
-map_base_gom_vessels |>
+
+my_title_all_points <- "Fishing locations rounded to ten minutes for GOM and dual permitted vessels in 2022.</br>
+<p class='comment'>
+<strong>NB</strong>.
+Not all trips has valid coordinates, hence not shown here</p>"
+
+comment_style <- tags$style(HTML(".comment {
+    font-size: large;
+}"))
+
+tag_map_title <- tags$style(HTML(
+  ".leaflet-control.comment {
+    font-size: small;
+  }
+  .leaflet-control.map-title {
+    //transform: translate(-50%, 20%);
+    //position: fixed !important;
+    //left: 50%;
+    //text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    background: rgba(255,255,255,0.75);
+    //font-weight: bold;
+    font-size: Large;
+  }
+"))
+
+my_title_all_points_html <- tags$div(
+  tag_map_title, HTML(my_title_all_points)
+)
+
+map_base_gom_vessels_w_markers <-
+  map_base_gom_vessels |>
   addCircleMarkers(
+    # get data from gom_vessels df
     lat = ~ ten_min_lat,
     lng = ~ ten_min_lon,
     label = ~ cnt_label,
     options =
+      # put data from gom_vessels df in the options to use with JS
       pathOptions(
         trip_ids_cnts = ~ trip_ids_cnts,
         location_cnts_u = ~ location_cnts_u
@@ -724,7 +759,15 @@ map_base_gom_vessels |>
   #              style = list(color = "grey", weight = 1)) |>
   # flyToBounds(-82.9, 27.65, -82.6, 27.85) |>
   # setView(-82.75, 27.8, zoom = 11) |>
+  # add the explanation text at the bottom
   addControl(my_text_all_points_html,
-             position = "bottomleft")
+             position = "bottomleft") |>
+  # add title
+  addControl(my_title_all_points_html,
+             position = "topright",
+             className = "map-title")
+
+map_base_gom_vessels_w_markers
+
 
 
