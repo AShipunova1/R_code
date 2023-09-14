@@ -77,9 +77,13 @@ dbDisconnect(con)
 
 cat(normalizePath(c(R.home(), tempdir())), sep = "\n")
 
-file_addr <- file.path(getwd(),
-                       r"(my_inputs\from_db\safis\{current_table_name}.csv)",
-                       fsep = "\\")
+file_addr <-
+  normalizePath(c(getwd(),
+                r"(my_inputs\from_db\safis\{current_table_name}.csv)"),
+                winslash = "\\")
+# file.path(getwd(),
+  #                      r"(my_inputs\from_db\safis\{current_table_name}.csv)",
+  #                      fsep = "\\")
         # "C:\\Users\\anna.shipunova\\Documents\\R_files_local\\my_inputs\\from_db\\safis\\{current_table_name}.csv";
 
 create_file_with_queries <-
@@ -87,9 +91,18 @@ create_file_with_queries <-
 
     cat(current_table_name)
     cat(" \n")
+
+    current_table_file_name <-
+      stringr::str_glue(r"(my_inputs\from_db\safis\{current_table_name}.csv)")
+
+    file_addr <-
+      normalizePath(c(getwd(),
+                              current_table_file_name,
+                              winslash = "\\"))
+
     request_query <-
       stringr::str_glue(
-        'spool {file_addr}
+        'spool {file_addr[[2]]}
         select /*+ parallel */* from
         safis.{current_table_name}@secapxdv_dblk.sfsc.noaa.gov;
 spool off;
@@ -99,12 +112,12 @@ spool off;
     return(request_query)
   }
 
-set term off
-set feed off
-set sqlformat csv
-spool out.csv
-select /*+ parallel */* from t;
-spool off
+# set term off
+# set feed off
+# set sqlformat csv
+# spool out.csv
+# select /*+ parallel */* from t;
+# spool off
 
 
 safis_tables_sql <-
