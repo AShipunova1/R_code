@@ -838,44 +838,79 @@ short_example_3_cnts_short |> glimpse()
 
 short_example_3_cnts_short_lat_lon_only <-
   short_example_3_cnts_short |>
-  select(LATITUDE, LONGITUDE) |>
+  select(trip_ids_cnts, LATITUDE, LONGITUDE) |>
   distinct()
 
 dim(short_example_3_cnts_short_lat_lon_only)
-# [1] 564   2
+# [1] 564   3
 
-map_bounds <-
-  c(
-    left = -82.9,
-    bottom = 27.8,
-    right = -82.6,
-    top = 27.6
-  )
-# flyToBounds(-82.9, 27.65, -82.6, 27.85) |>
-    # setView(-82.75, 27.8, zoom = 11) |>
+library(sf)
+library(dplyr)
+library(ggplot2)
 
-coords.map <- ggmap::get_stamenmap(map_bounds, zoom = 7, maptype = "toner-lite")
-# To next adding the logic for rendering the heat map
+# read in GOM trip ticket grid
+GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
+  group_by(StatZone) %>% summarise()
+# Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
+# Geodetic CRS:  WGS 84
 
-names(short_example_3_cnts_short_lat_lon_only) <-
-  tolower(names(short_example_3_cnts_short_lat_lon_only))
+# create GOM 1x1 minute grid
+grid <-
+  st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60) %>%
+  st_as_sf() %>%
+  mutate(cell_id = 1:nrow(.))
 
-coords.map <- ggmap(coords.map, extent = "device", legend = "none")
+st_agr(GOMsf) = st_agr(grid) = "constant"
 
-coords.map <-
-  coords.map + ggplot2::stat_density2d(
-    data = short_example_3_cnts_short_lat_lon_only,
-    aes(
-      x = longitude,
-      y = latitude,
-      fill = after_stat(level),
-      alpha = after_stat(level)
-    ),
-    geom = "polygon"
-  )
+#### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
+effort <- short_example_3_cnts_short_lat_lon_only %>%
+  # join 1x1 minute grid
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
+           crs = st_crs(GOMsf)) %>%
+  st_join(grid, join = st_nearest_feature)
 
-coords.map <-
-  coords.map + ggplot2::scale_fill_gradientn(colours = rev(brewer.pal(7, "Spectral")))
+View(effort)
 
-coords.map <- coords.map + theme_bw()
-ggsave(filename = "./coords.png")
+# sum trips by grid cell
+heat.plt = data.frame(effort) %>%
+  group_by(cell_id) %>%
+  summarise(trip_ids_cnts = sum(trip_ids_cnts)) %>%
+  inner_join(grid, by = "cell_id")
+
+glimpse(heat.plt)
+# [1] 119   3
+
+# heat map
+map_trips <-
+  ggplot() +
+  geom_sf(data = heat.plt,
+          aes(geometry = x, fill = trip_ids_cnts),
+          colour = NA) +
+  geom_sf(data = GOMsf, fill = NA) +
+  geom_sf_text(data = GOMsf,
+               aes(geometry = geometry, label = StatZone),
+               size = 3.5) +
+  labs(
+    x = "",
+    y = "",
+    fill = "",
+    caption = "Heat map of SEFHIER trips (1 min. resolution)."
+  ) +
+  theme_bw() +
+  scale_fill_gradient2(
+    name = "total trips",
+    labels = scales::comma,
+    high = "red",
+    trans = "log1p",
+    limits = c(2, NA),
+    oob = scales::oob_keep
+  ) +
+  theme(
+    legend.position = "top",
+    legend.justification = "left",
+    legend.key.width = unit(3, "cm"),
+    plot.caption = element_text(hjust = 0)
+  ) +
+  guides(fill = guide_colourbar(title.position = "top"))
+
+map_trips
