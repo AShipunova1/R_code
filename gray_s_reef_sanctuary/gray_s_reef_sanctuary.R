@@ -17,19 +17,17 @@
 # setup ----
 
 # library(zoo) #date manipulations
-# library(sf) #Create sf object to work with coordinates
-# library(mapview) #View spatial objects interactively
-# library(leaflet)
-# library(tictoc) #benchmarking
+library(sf) #Create sf object to work with coordinates
+library(mapview) #View spatial objects interactively
+library(leaflet)
+library(tictoc) #benchmarking
 # # library(htmlwidgets) # add js script to leaflets
 # library(stringi) # add characters
 # library(htmltools)
-# library(htmlwidgets)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_name <- "gray_s_reef_sanctuary"
-
 fishing_effort_location_project_name <- "fishing_effort_location"
 
 source(
@@ -37,5 +35,13 @@ source(
     my_paths$git_r,
     fishing_effort_location_project_name,
     "fishing_effort_locations_get_data.R"
+  )
+)
+
+source(
+  file.path(
+    my_paths$git_r,
+    current_project_name,
+    "prep_safis_efforts_extended_gray_s_reef_sanctuary.R"
   )
 )
