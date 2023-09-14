@@ -116,13 +116,14 @@ permits_from_fhier <-
 # Rows: 138917 Columns: 19
 
 ### keep only permits not expired before 2022 - FILTER ----
+# View(permits_from_fhier)
 permits_from_fhier_active <-
   permits_from_fhier |>
-  filter(expiration_date > '2022-01-01' |
-           end_date > '2022-01-01')
+  filter(expiration_date > '01/01/2022' |
+           end_date > '01/01/2022')
 
 dim(permits_from_fhier_active)
-# [1] 17141    13
+# [1] 138917     19
 
 ## add permits to coordinates ----
 safis_efforts_extended_all_short_good_sf_crop_big_short_df_permits <-
