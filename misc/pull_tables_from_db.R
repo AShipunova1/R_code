@@ -75,8 +75,12 @@ dbDisconnect(con)
 # current_table_name <- "VALID_PORTS"
 # getwd()
 
+cat(normalizePath(c(R.home(), tempdir())), sep = "\n")
+
 file_addr <- file.path(getwd(),
-                       r"(my_inputs\from_db\safis\{current_table_name}.csv)")
+                       r"(my_inputs\from_db\safis\{current_table_name}.csv)",
+                       fsep = "\\")
+        # "C:\\Users\\anna.shipunova\\Documents\\R_files_local\\my_inputs\\from_db\\safis\\{current_table_name}.csv";
 
 create_file_with_queries <-
   function(current_table_name) {
@@ -85,14 +89,23 @@ create_file_with_queries <-
     cat(" \n")
     request_query <-
       stringr::str_glue(
-        'spool "C:\\Users\\anna.shipunova\\Documents\\R_files_local\\my_inputs\\from_db\\safis\\{current_table_name}.csv";
-select * from safis.{current_table_name}@secapxdv_dblk.sfsc.noaa.gov;
+        'spool {file_addr}
+        select /*+ parallel */* from
+        safis.{current_table_name}@secapxdv_dblk.sfsc.noaa.gov;
 spool off;
 '
       )
 
     return(request_query)
   }
+
+set term off
+set feed off
+set sqlformat csv
+spool out.csv
+select /*+ parallel */* from t;
+spool off
+
 
 safis_tables_sql <-
   map(table_names, create_file_with_queries)
