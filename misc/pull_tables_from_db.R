@@ -70,40 +70,39 @@ map(table_names, data_from_db)
 
 dbDisconnect(con)
 
-# create a query file ----
+# through oracle sql script ----
 # Run in sql developer @"...\download_tables.sql"
+
 # current_table_name <- "VALID_PORTS"
 # getwd()
 
-cat(normalizePath(c(R.home(), tempdir())), sep = "\n")
-
+## create a query sql ----
 file_addr <-
   normalizePath(c(getwd(),
                 r"(my_inputs\from_db\safis\{current_table_name}.csv)"),
                 winslash = "\\")
-# file.path(getwd(),
-  #                      r"(my_inputs\from_db\safis\{current_table_name}.csv)",
-  #                      fsep = "\\")
-        # "C:\\Users\\anna.shipunova\\Documents\\R_files_local\\my_inputs\\from_db\\safis\\{current_table_name}.csv";
 
-create_file_with_queries <-
+create_a_query_for_one_table <-
   function(current_table_name) {
-
     cat(current_table_name)
     cat(" \n")
 
     current_table_file_name <-
       stringr::str_glue(r"(my_inputs\from_db\safis\{current_table_name}.csv)")
 
+    # Convert file paths to canonical form
     file_addr <-
-      normalizePath(c(getwd(),
-                              current_table_file_name,
-                              winslash = "\\"))
+      normalizePath(c(
+        "~",
+        current_table_file_name,
+        winslash = "\\",
+        mustWork = FALSE
+      ))
 
     request_query <-
       stringr::str_glue(
-        'spool {file_addr[[2]]}
-        select /*+ parallel */* from
+        'spool "{file_addr[[2]]}"
+SELECT /*+ parallel */* FROM
         safis.{current_table_name}@secapxdv_dblk.sfsc.noaa.gov;
 spool off;
 '
@@ -112,26 +111,30 @@ spool off;
     return(request_query)
   }
 
-# set term off
-# set feed off
-# set sqlformat csv
-# spool out.csv
-# select /*+ parallel */* from t;
-# spool off
-
-
+### create queries for all tables ----
 safis_tables_sql <-
-  map(table_names, create_file_with_queries)
+  map(table_names, create_a_query_for_one_table)
 
-str(safis_tables_sql)
+# str(safis_tables_sql)
 
-sql_file_path <- file.path("my_inputs/from_db/safis_tables_queries.sql")
+## write a file ----
 
-sink(sql_file_path)
-# walk, not map, to supress nulls
+sql_query_file_path <-
+  file.path("my_inputs/from_db/safis_tables_queries12.sql")
+
+### open the file ----
+sink(sql_query_file_path)
+
+# add to the top of the sql file
+writeLines(c("set term off",
+             "set feed off",
+             "set sqlformat csv"))
+
+# walk, not map, to suppress nulls
 # walk() returns the input .x (invisibly).  The return value of .f() is ignored
-
 purrr::walk(safis_tables_sql,
             \(curr_line) cat(curr_line, sep = "\n\n"))
+
+### close the output file ----
 sink()
 
