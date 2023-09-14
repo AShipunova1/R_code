@@ -663,3 +663,24 @@ create_dir_if_not <-
       dir.create(curr_dir_name)
     }
   }
+
+# sf functions ----
+# convert to sf shortcut
+my_to_sf <- function(my_df) {
+  my_df %>%
+    # convert to sf
+    sf::st_as_sf(
+      # field names to use
+      coords = c("LONGITUDE",
+                 "LATITUDE"),
+      # use crs from sa_shp
+      crs = sf::st_crs(sa_shp),
+      # keep LAT/LONG, to save in a file
+      remove = FALSE
+    ) %>%
+    return()
+}
+
+# to avoid this error:
+#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
+sf::sf_use_s2(FALSE)
