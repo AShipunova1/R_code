@@ -1,4 +1,3 @@
-# download and safe db safis
 con = dbConnect(
   dbDriver("Oracle"),
   username = keyring::key_list("SECPR")[1, 2],
@@ -6,27 +5,7 @@ con = dbConnect(
   dbname = "SECPR"
 )
 
-# current_table <- "VALID_PORTS"
-data_from_db <- function(current_table) {
-  cut(current_table)
-  request_query <-
-    str_glue("select * from safis.{current_table}@secapxdv_dblk.sfsc.noaa.gov"
-)
-
-  db_data = dbGetQuery(con,
-                       request_query)
-
-  # View(db_data)
-  # getwd()
-  # "select * from safis.SUBMIT_METHOD@secapxdv_dblk.sfsc.noaa.gov"
-  # phone <- "([2-9][0-9]{2})[- .]([0-9]{3})[- .]([0-9]{4})"
-
-  csv_path <- file.path("my_inputs/from_db/safis",
-                        paste0(current_table,
-                        ".csv"))
-  write_csv(db_data, csv_path)
-}
-
+# download and safe db safis ----
 table_names <-
   c("ADDL_ELEMENTS",
     "ADDRESSES",
@@ -65,13 +44,39 @@ table_names <-
     "VTRACK_NOTIFICATIONS",
     "VTRACK_TRIPS")
 
+# through R ----
+# current_table <- "VALID_PORTS"
+data_from_db <- function(current_table) {
+  cut(current_table)
+  request_query <-
+    str_glue("select * from safis.{current_table}@secapxdv_dblk.sfsc.noaa.gov"
+)
+
+  db_data = dbGetQuery(con,
+                       request_query)
+
+  # View(db_data)
+  # getwd()
+  # "select * from safis.SUBMIT_METHOD@secapxdv_dblk.sfsc.noaa.gov"
+  # phone <- "([2-9][0-9]{2})[- .]([0-9]{3})[- .]([0-9]{4})"
+
+  csv_path <- file.path("my_inputs/from_db/safis",
+                        paste0(current_table,
+                        ".csv"))
+  write_csv(db_data, csv_path)
+}
+
 map(table_names, data_from_db)
 
 dbDisconnect(con)
 
-current_table_name <- "VALID_PORTS"
+# create a query file ----
+# Run in sql developer @"...\download_tables.sql"
+# current_table_name <- "VALID_PORTS"
+# getwd()
 
-file_addr <- r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_db\safis\{current_table_name}.csv)"
+file_addr <- file.path(getwd(),
+                       r"(my_inputs\from_db\safis\{current_table_name}.csv)")
 
 create_file_with_queries <-
   function(current_table_name) {
