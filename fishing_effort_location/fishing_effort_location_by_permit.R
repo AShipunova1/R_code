@@ -864,6 +864,18 @@ glimpse(for_heatmap_lat_lon_cnts_only)
 
 # View(for_heatmap_lat_lon_trip_only)
 
+# crop by shape ----
+# all_gom_sf
+#
+# for_heatmap_lat_lon_cnts_only_sf <-
+#   my_to_sf(for_heatmap_lat_lon_cnts_only)
+#
+# tic("for_heatmap_lat_lon_cnts_only_sf_cropped")
+# for_heatmap_lat_lon_cnts_only_sf_cropped <-
+#   with_st_intersection(for_heatmap_lat_lon_cnts_only_sf,
+#           all_gom_sf)
+# toc()
+
 # dim(short_example_3_cnts_short_lat_lon_only)
 # [1] 564   3
 
@@ -876,6 +888,15 @@ effort <- for_heatmap_lat_lon_cnts_only %>%
            crs = st_crs(GOMsf)) %>%
   st_join(grid, join = st_nearest_feature)
 toc()
+
+# class(effort)
+## crop by the shape ----
+tic("effort_cropped")
+effort_cropped <-
+  with_st_intersection(effort,
+          GOMsf)
+toc()
+
 
 # sum trips by grid cell
 heat.plt = data.frame(effort) %>%
@@ -907,10 +928,11 @@ map_trips <-
     name = "total trips",
     labels = scales::comma,
     low = "red", mid = "white", high = "blue",
-    trans = "log2",
+    trans = "log2"
+    # ,
     # trans = "log1p",
-    limits = c(2, NA),
-    oob = scales::oob_keep
+    # limits = c(2, NA),
+    # oob = scales::oob_keep
   ) +
   theme(
     legend.position = "top",
@@ -922,3 +944,4 @@ map_trips <-
   guides(fill = guide_colourbar(title.position = "top"))
 
 map_trips
+
