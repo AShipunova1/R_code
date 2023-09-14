@@ -87,23 +87,32 @@ db_data_w_area <- read_csv(db_data_w_area_file_path)
 # Data from FHIER ----
 # Reports / SAFIS Efforts Extended
 
+upload_effort_files <- function(add_path) {
+  full_path_to_files <-
+    file.path(my_paths$inputs,
+              add_path)
+
+  csv_names_list <-
+    list.files(path = full_path_to_files,
+               pattern = "SAFIS EFFORTS EXTENDED *",
+               full.names = T)
+
+  efforts_extended <-
+    load_csv_names_in_one_df(NULL, csv_names_list) |>
+    distinct()
+
+  return(efforts_extended)
+}
+
+## 2022 ----
 add_path <- r"(from_Fhier\SAFIS Efforts Extended)"
-full_path_to_files <-
-  file.path(my_paths$inputs,
-            add_path)
-
-csv_names_list <-
-  list.files(path = full_path_to_files,
-             pattern = "SAFIS EFFORTS EXTENDED *",
-             full.names = T)
-
-safis_efforts_extended_2022 <-
-  load_csv_names_in_one_df(NULL, csv_names_list) |>
-  distinct()
+safis_efforts_extended_2022 <- upload_effort_files(add_path)
 
 dim(safis_efforts_extended_2022)
 # [1] 101038     42
 # [1] 97970    42 distinct()
+
+## 2023 ----
 
 ## clean fhier data ----
 # safis_efforts_extended_2022_short0 <-
