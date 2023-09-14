@@ -832,21 +832,9 @@ library(ggplot2)
 library(ggmap)
 library(RColorBrewer)
 
-short_example_3_cnts_short |> glimpse()
-
-# Latitude,Longitude
-
-short_example_3_cnts_short_lat_lon_only <-
-  short_example_3_cnts_short |>
-  select(trip_ids_cnts, LATITUDE, LONGITUDE) |>
-  distinct()
-
-dim(short_example_3_cnts_short_lat_lon_only)
-# [1] 564   3
-
-library(sf)
-library(dplyr)
-library(ggplot2)
+# library(sf)
+# library(dplyr)
+# library(ggplot2)
 
 # read in GOM trip ticket grid
 GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
@@ -856,25 +844,43 @@ GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
 
 # create GOM 1x1 minute grid
 grid <-
-  st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60) %>%
+  sf::st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60) %>%
   st_as_sf() %>%
   mutate(cell_id = 1:nrow(.))
 
 st_agr(GOMsf) = st_agr(grid) = "constant"
 
+# data
+# short_example_3_cnts_short |> glimpse()
+# glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
+
+for_heatmap_lat_lon_cnts_only <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual |>
+  select(location_cnts_u, LATITUDE, LONGITUDE) |>
+  distinct()
+
+glimpse(for_heatmap_lat_lon_cnts_only)
+# [1] 32985     3
+
+# View(for_heatmap_lat_lon_trip_only)
+
+# dim(short_example_3_cnts_short_lat_lon_only)
+# [1] 564   3
+
 #### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
-effort <- short_example_3_cnts_short_lat_lon_only %>%
+
+tic("effort")
+effort <- for_heatmap_lat_lon_cnts_only %>%
   # join 1x1 minute grid
   st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
            crs = st_crs(GOMsf)) %>%
   st_join(grid, join = st_nearest_feature)
-
-View(effort)
+toc()
 
 # sum trips by grid cell
 heat.plt = data.frame(effort) %>%
   group_by(cell_id) %>%
-  summarise(trip_ids_cnts = sum(trip_ids_cnts)) %>%
+  summarise(location_cnts_u = sum(location_cnts_u)) %>%
   inner_join(grid, by = "cell_id")
 
 glimpse(heat.plt)
@@ -884,7 +890,7 @@ glimpse(heat.plt)
 map_trips <-
   ggplot() +
   geom_sf(data = heat.plt,
-          aes(geometry = x, fill = trip_ids_cnts),
+          aes(geometry = x, fill = location_cnts_u),
           colour = NA) +
   geom_sf(data = GOMsf, fill = NA) +
   geom_sf_text(data = GOMsf,
@@ -900,7 +906,8 @@ map_trips <-
   scale_fill_gradient2(
     name = "total trips",
     labels = scales::comma,
-    high = "red",
+    low = "red", mid = "white", high = "blue",
+    # high = "red",
     trans = "log1p",
     limits = c(2, NA),
     oob = scales::oob_keep
