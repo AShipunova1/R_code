@@ -58,29 +58,9 @@ dim(safis_efforts_extended_all_short)
 dim(safis_efforts_extended_all_short_good)
 # [1] 139771     17
 
-# From FHIER ----
-
-safis_efforts_extended_all_short_good <-
-  safis_efforts_extended_all_short |>
-  dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE),
-                LATITUDE = as.numeric(LATITUDE)) |>
-  # all LONG should be negative
-  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-  # keep only full sets of coordinates
-  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
-
-dim(safis_efforts_extended_all_short)
-# [1] 97970    17
-
-dim(safis_efforts_extended_all_short_good)
-# [1] 97547    17
-
 ### convert to sf from FHIER ----
 safis_efforts_extended_all_short_good_sf <-
   my_to_sf(safis_efforts_extended_all_short_good)
-
-# show all boundaries ----
 
 # subset by Big box ----
 # Michelle: I think we need to allow trips that occur anywhere in the GOM, with the eastern lat border being like a big line down the Atlantic Ocean at Bermuda. Does that make sense? Southern Border could be at Cuba. The Northern Border needs to extend up through Maine - since we require reporting no matter where they fish. Basically just a big box, regardless of Council jurisdiction.
@@ -101,7 +81,7 @@ toc()
 # safis_efforts_extended_all_short_good_sf_crop_big: 0.89 sec elapsed
 
 dim(safis_efforts_extended_all_short_good_sf_crop_big)
-# [1] 95720    18
+# [1] 137761     18
 
 # convert back to df ----
 safis_efforts_extended_all_short_good_sf_crop_big_df <-
@@ -109,9 +89,9 @@ safis_efforts_extended_all_short_good_sf_crop_big_df <-
   sf::st_drop_geometry()
 
 dim(safis_efforts_extended_all_short_good_sf_crop_big_df)
-# [1] 95720     17
+# [1] 137761     17
 
-# use metriks only vessels not in SRHS ----
+# use metrics only vessels not in SRHS ----
 source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
 # fhier_reports_metrics_tracking_not_srhs_ids
 
@@ -123,81 +103,32 @@ safis_efforts_extended_all_short_good_sf_crop_big_df_in_metricks <-
   )
 
 dim(safis_efforts_extended_all_short_good_sf_crop_big_df_in_metricks)
-# [1] 93581    17
+# [1] 134918     17
 
 # add permit info ----
 ## prepare permit info ----
-get_permit_data_from_PIMS_csv <- function() {
+# Reports / SERO Permits
+permit_file_path = r"(my_inputs\from_Fhier\SERO Permits_09_14_2023.csv)"
 
-  permit_names_list = r"(other\Permits_2023-03-29_1611_active.csv)"
-
-  active_permits_from_pims_raw <-
-    load_csv_names(my_paths, permit_names_list)
-  # View(active_permits_from_pims[[1]])
-  # glimpse(active_permits_from_pims_raw[[1]])
-
-  # clean_headers
-  active_permits_from_pims_temp1 <-
-    active_permits_from_pims_raw[[1]] %>%
-    clean_headers()
-
-  # separate columns
-  active_permits_from_pims_temp2 <-
-    active_permits_from_pims_temp1 %>%
-    separate_wider_delim(permit__,
-                         "-",
-                         names = c("permit_code", "permit_num"),
-                         too_many = "merge") %>%
-    separate_wider_regex(
-      cols = vessel_or_dealer,
-      patterns = c(
-        vessel_official_number = "[A-Za-z0-9]+",
-        " */* ",
-        vessel_name = "[A-Za-z0-9 ]+"
-      ),
-      too_few = "align_start"
-    )
-
-  # correct dates format
-
-  # get a list of field names ends with "_date"
-  ends_with_date_fields <-
-    grep("_date", names(active_permits_from_pims_temp2), value = TRUE)
-
-  # convert to date
-  active_permits_from_pims <-
-    change_fields_arr_to_dates(active_permits_from_pims_temp2,
-                               ends_with_date_fields,
-                               "%m/%d/%Y")
-
-  # test
-  active_permits_from_pims %>%
-    select(status_date) %>%
-    arrange(desc(status_date)) %>% unique() %>% head()
-  # correct
-  # str(active_permits_from_pims)
-
-  return(active_permits_from_pims)
-}
-
-permits_from_pims <- get_permit_data_from_PIMS_csv()
-dim(permits_from_pims)
-# [1] 23900    13
+permits_from_fhier <-
+  read_csv(permit_file_path,
+           name_repair = fix_names)
+# Rows: 138917 Columns: 19
 
 ### keep only permits not expired before 2022 - FILTER ----
-permits_from_pims_active <-
-  permits_from_pims |>
+permits_from_fhier_active <-
+  permits_from_fhier |>
   filter(expiration_date > '2022-01-01' |
            end_date > '2022-01-01')
 
-dim(permits_from_pims_active)
+dim(permits_from_fhier_active)
 # [1] 17141    13
 
 ## add permits to coordinates ----
 safis_efforts_extended_all_short_good_sf_crop_big_short_df_permits <-
   left_join(
     safis_efforts_extended_all_short_good_sf_crop_big_df_in_metricks,
-    permits_from_pims_active,
+    permits_from_fhier_active,
     join_by(VESSEL_OFFICIAL_NBR == vessel_official_number),
     relationship = "many-to-many"
   )
