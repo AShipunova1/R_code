@@ -825,3 +825,57 @@ map_base_gom_vessels_w_markers_with_text
 #  )
 
 # str(big_bounding_box["xmin"])
+
+
+# heatmap ----
+library(ggplot2)
+library(ggmap)
+library(RColorBrewer)
+
+short_example_3_cnts_short |> glimpse()
+
+# Latitude,Longitude
+
+short_example_3_cnts_short_lat_lon_only <-
+  short_example_3_cnts_short |>
+  select(LATITUDE, LONGITUDE) |>
+  distinct()
+
+dim(short_example_3_cnts_short_lat_lon_only)
+# [1] 564   2
+
+map_bounds <-
+  c(
+    left = -82.9,
+    bottom = 27.8,
+    right = -82.6,
+    top = 27.6
+  )
+# flyToBounds(-82.9, 27.65, -82.6, 27.85) |>
+    # setView(-82.75, 27.8, zoom = 11) |>
+
+coords.map <- ggmap::get_stamenmap(map_bounds, zoom = 7, maptype = "toner-lite")
+# To next adding the logic for rendering the heat map
+
+names(short_example_3_cnts_short_lat_lon_only) <-
+  tolower(names(short_example_3_cnts_short_lat_lon_only))
+
+coords.map <- ggmap(coords.map, extent = "device", legend = "none")
+
+coords.map <-
+  coords.map + ggplot2::stat_density2d(
+    data = short_example_3_cnts_short_lat_lon_only,
+    aes(
+      x = longitude,
+      y = latitude,
+      fill = after_stat(level),
+      alpha = after_stat(level)
+    ),
+    geom = "polygon"
+  )
+
+coords.map <-
+  coords.map + ggplot2::scale_fill_gradientn(colours = rev(brewer.pal(7, "Spectral")))
+
+coords.map <- coords.map + theme_bw()
+ggsave(filename = "./coords.png")
