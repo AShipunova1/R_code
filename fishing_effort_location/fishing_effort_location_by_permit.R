@@ -844,7 +844,7 @@ GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
 
 # create GOM 1x1 minute grid
 grid <-
-  sf::st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60) %>%
+  sf::st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60 * 5) %>%
   st_as_sf() %>%
   mutate(cell_id = 1:nrow(.))
 
@@ -907,15 +907,16 @@ map_trips <-
     name = "total trips",
     labels = scales::comma,
     low = "red", mid = "white", high = "blue",
-    # high = "red",
-    trans = "log1p",
+    trans = "log2",
+    # trans = "log1p",
     limits = c(2, NA),
     oob = scales::oob_keep
   ) +
   theme(
     legend.position = "top",
     legend.justification = "left",
-    legend.key.width = unit(3, "cm"),
+    legend.key.width = unit(0.7, "npc"),
+    # legend.key.width = unit(3, "cm"),
     plot.caption = element_text(hjust = 0)
   ) +
   guides(fill = guide_colourbar(title.position = "top"))
