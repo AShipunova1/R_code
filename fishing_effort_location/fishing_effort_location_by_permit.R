@@ -922,18 +922,25 @@ str(effort_cropped2)
  # $ geometry       :sfc_POINT of length 29230; first list element:  'XY' num [1:2] -81.7 24.6
 
 # sum trips by grid cell
-heat.plt = data.frame(effort_cropped) %>%
+heat.plt <- data.frame(effort_cropped) %>%
   group_by(cell_id) %>%
   summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
   # summarise(location_cnts_u = sum(location_cnts_u)) %>%
   inner_join(grid, by = "cell_id")
 # [1] 119   3
 
+# heat.plt3 <- data.frame(effort_cropped)
+      # add_count(LATITUDE, LONGITUDE,
+      #                  name = "lat_lon_cnt")
 
-heat.plt = data.frame(effort_cropped) %>%
+heat.plt3 <-
+  data.frame(effort_cropped) %>%
   group_by(cell_id) %>%
-  count(LATITUDE, LONGITUDE, name = "location_cnts")
+  dplyr::count(LATITUDE, LONGITUDE, name = "location_cnts")
 
+glimpse(heat.plt3)
+
+max(heat.plt3$location_cnts)
   # summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
   # summarise(location_cnts_u = sum(location_cnts_u)) %>%
   inner_join(grid, by = "cell_id")
