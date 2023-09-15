@@ -994,7 +994,23 @@ heat.plt_no_rule3 <-
             relationship = "many-to-many") |>
   inner_join(data.frame(grid))
 
+heat.plt_no_rule3_all_dots <-
+  effort_cropped |>
+  sf::st_drop_geometry() |>
+  full_join(effort_cropped_short_cnt,
+            join_by("cell_id", "TRIP_ID"),
+            relationship = "many-to-many") |>
+  inner_join(data.frame(grid))
+
+# View(heat.plt_no_rule3_all_dots)
 # heat map
+heat.plt_no_rule3_all_dots
+map_trips_no_3_base <-
+  ggplot() +
+  geom_sf(data = heat.plt_no_rule3,
+          aes(geometry = x, fill = trip_id_cnt),
+          colour = NA)
+
 map_trips_no_3_base <-
   ggplot() +
   geom_sf(data = heat.plt_no_rule3,
@@ -1088,11 +1104,15 @@ make_map_trips <-
   guides(fill = guide_colourbar(title.position = "top"))
 }
 
-make_map_trips(map_trip_base,
-           shape_data,
-           total_trips_title)
+map_trips_rule_3 <-
+  make_map_trips(map_trips_base,
+           st_union_GOMsf,
+           "total trips (if more than 3)")
 
-
+map_trips_no_rule_3 <-
+  make_map_trips(map_trips_base_no_rule_3,
+           st_union_GOMsf,
+           "total trips")
 
 
 map_trips <-
