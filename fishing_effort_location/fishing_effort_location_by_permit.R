@@ -34,6 +34,9 @@ library(tictoc) #benchmarking
 library(stringi) # add characters
 library(htmltools)
 library(htmlwidgets)
+library(ggplot2)
+library(ggmap)
+library(RColorBrewer)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -650,7 +653,8 @@ map_leaflet_short_example <-
     setView(-82.75, 27.8, zoom = 11) |>
     addControl(rr, position = "bottomleft")
 
-map_leaflet_short_example
+# uncomment to run
+# map_leaflet_short_example
 
 # uncomment to run
 # htmlwidgets::saveWidget(map_leaflet_short_example,
@@ -842,13 +846,6 @@ map_base_gom_vessels_w_markers_with_text
 
 
 # heatmap ----
-library(ggplot2)
-library(ggmap)
-library(RColorBrewer)
-
-# library(sf)
-# library(dplyr)
-# library(ggplot2)
 
 # read in GOM trip ticket grid
 GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
@@ -1004,12 +1001,6 @@ heat.plt_no_rule3_all_dots <-
 
 # View(heat.plt_no_rule3_all_dots)
 # heat map
-heat.plt_no_rule3_all_dots
-map_trips_no_3_base <-
-  ggplot() +
-  geom_sf(data = heat.plt_no_rule3,
-          aes(geometry = x, fill = trip_id_cnt),
-          colour = NA)
 
 map_trips_no_3_base <-
   ggplot() +
@@ -1065,52 +1056,60 @@ str(GOMsf)
 
 ## make a plot ----
 make_map_trips <-
-  function(map_trip_base,
+  function(map_trip_base_data,
            shape_data,
            total_trips_title) {
-  map_trips <-
-  map_trips_base +
-  geom_sf(data = shape_data, fill = NA) +
-  # geom_sf_text(data = GOMsf,
-  #              aes(geometry = geometry,
-  #                  label = StatZone),
-  #              size = 3.5) +
-  labs(
-    x = "",
-    y = "",
-    fill = "",
-    caption = "Heat map of SEFHIER trips (5 min. resolution)."
-  ) +
-  theme_bw() +
-  scale_fill_gradient2(
-    # name = "total trips",
-    # name = "total trips (if more than 3)",
-    name = total_trips_title,
-    labels = scales::comma,
-    low = "red", mid = "purple", high = "blue",
-    # trans = "log2",
-    trans = "log1p",
-    limits = c(1, max(heat.plt$trip_id_cnt))
-    # ,
-    # oob = scales::oob_keep
-  ) +
-  theme(
-    legend.position = "top",
-    legend.justification = "left",
-    legend.key.width = unit(1, "npc"),
-    # legend.key.width = unit(3, "cm"),
-    plot.caption = element_text(hjust = 0)
-  ) +
-  guides(fill = guide_colourbar(title.position = "top"))
-}
+    map_trips <-
+      ggplot() +
+      geom_sf(data = map_trip_base_data,
+              aes(geometry = x,
+                  fill = trip_id_cnt),
+              colour = NA) +
+      geom_sf(data = shape_data, fill = NA) +
+      # geom_sf_text(data = GOMsf,
+      #              aes(geometry = geometry,
+      #                  label = StatZone),
+      #              size = 3.5) +
+      labs(
+        x = "",
+        y = "",
+        fill = "",
+        caption = "Heat map of SEFHIER trips (5 min. resolution)."
+      ) +
+      theme_bw() +
+      scale_fill_gradient2(
+        # name = "total trips",
+        # name = "total trips (if more than 3)",
+        name = total_trips_title,
+        labels = scales::comma,
+        low = "red",
+        mid = "purple",
+        high = "blue",
+        # trans = "log2",
+        trans = "log1p",
+        limits = c(1, max(heat.plt$trip_id_cnt))
+        # ,
+        # oob = scales::oob_keep
+      ) +
+      theme(
+        legend.position = "top",
+        legend.justification = "left",
+        legend.key.width = unit(0.9, "npc"),
+        # legend.key.width = unit(3, "cm"),
+        plot.caption = element_text(hjust = 0)
+      ) +
+      guides(fill = guide_colourbar(title.position = "top"))
+
+    return(map_trips)
+  }
 
 map_trips_rule_3 <-
-  make_map_trips(map_trips_base,
+  make_map_trips(heat.plt,
            st_union_GOMsf,
            "total trips (if more than 3)")
 
 map_trips_no_rule_3 <-
-  make_map_trips(map_trips_base_no_rule_3,
+  make_map_trips(heat.plt_no_rule3_all_dots,
            st_union_GOMsf,
            "total trips")
 
