@@ -958,19 +958,36 @@ glimpse(effort_cropped_short_cnt_rule3_df)
 glimpse(grid)
 
 ### join grid and add dropped columns ----
-heat.plt <- effort_cropped |>
+effort_cropped_cnt <- effort_cropped |>
   left_join(effort_cropped_short_cnt_rule3_df,
-            join_by("cell_id", "TRIP_ID")) |>
-  st_join(grid, by = "cell_id")
+            join_by("cell_id", "TRIP_ID"),
+            relationship = "many-to-many")
+
+dim(effort_cropped_cnt)
+# [1] 35828     7
+# [1] "TRIP_ID, LATITUDE, LONGITUDE, cell_id, StatZone, geometry, trip_id_cnt"
+
+effort_cropped_cnt_short <-
+  effort_cropped_cnt |>
+  select(-c(LATITUDE, LONGITUDE))
+# dim(effort_cropped_cnt_short)
+# [1] 35828     5
+
+heat.plt <-
+  effort_cropped_cnt_short |>
+  # have to use data.frame, to avoid
+  # Error: y should not have class sf; for spatial joins, use st_join
+  inner_join(data.frame(grid))
+# Joining with `by = join_by(cell_id)`
 
 dim(heat.plt)
-# [1] 1734462      10
+# [1] 35828     6
 
 # heat map
 map_trips <-
   ggplot() +
   geom_sf(data = heat.plt,
-          aes(geometry = x, fill = location_cnts_u),
+          aes(geometry = x, fill = trip_id_cnt),
           colour = NA) +
   geom_sf(data = GOMsf, fill = NA) +
   geom_sf_text(data = GOMsf,
