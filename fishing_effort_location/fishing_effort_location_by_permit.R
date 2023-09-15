@@ -984,10 +984,17 @@ dim(heat.plt)
 # [1] 35828     6
 # [1] 33883     6 (rule3)
 
+heat.plt_no_rule3 <-
+  effort_cropped |>
+  left_join(effort_cropped_short_cnt_rule3_df,
+            join_by("cell_id", "TRIP_ID"),
+            relationship = "many-to-many") |>
+inner_join(data.frame(grid))
+
 # heat map
-map_trips <-
+map_trips_no_3 <-
   ggplot() +
-  geom_sf(data = heat.plt,
+  geom_sf(data = heat.plt_no_rule3,
           aes(geometry = x, fill = trip_id_cnt),
           colour = NA) +
   geom_sf(data = GOMsf, fill = NA) +
@@ -1003,7 +1010,8 @@ map_trips <-
   ) +
   theme_bw() +
   scale_fill_gradient2(
-    name = "total trips (if more than 3)",
+    name = "total trips",
+    # name = "total trips (if more than 3)",
     labels = scales::comma,
     low = "red", mid = "purple", high = "blue",
     # trans = "log2",
@@ -1021,5 +1029,5 @@ map_trips <-
   ) +
   guides(fill = guide_colourbar(title.position = "top"))
 
-map_trips
+map_trips_no_3
 
