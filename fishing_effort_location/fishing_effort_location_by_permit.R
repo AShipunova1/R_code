@@ -955,6 +955,37 @@ toc()
 # class(effort_cropped)
 
 ## count trip ids by grid cell ----
+effort_cropped_trip_cnt <-
+  effort_vsl_cropped |>
+  sf::st_drop_geometry() |>
+  select(cell_id, TRIP_ID) |>
+  count(cell_id, name = "trip_id_cnt")
+
+effort_cropped_trip_cnt |>
+  filter(cell_id == 1864)
+# 1    1864         236
+
+
+effort_cropped_vsl_cnt <-
+  effort_vsl_cropped |>
+  sf::st_drop_geometry() |>
+  select(cell_id, VESSEL_OFFICIAL_NBR) |>
+  count(cell_id, name = "vsl_cnt")
+
+effort_vsl_cropped |>
+  sf::st_drop_geometry() |>
+  select(cell_id, VESSEL_OFFICIAL_NBR) |>
+  group_by(cell_id) |>
+  count(n_distinct(VESSEL_OFFICIAL_NBR)) |>
+  filter(n > 2)
+
+effort_cropped_vsl_cnt |>
+  filter(cell_id == 1864)
+
+
+glimpse(effort_cropped_trip_cnt)
+
+# works
 effort_cropped_short_cnt <-
   effort_cropped |>
   select(cell_id, TRIP_ID) |>
@@ -981,7 +1012,7 @@ effort_vsl_cropped_short_vsl_cnt <-
   select(cell_id, VESSEL_OFFICIAL_NBR) |>
   add_count(cell_id, name = "vsl_cnt")
 
-data_overview(effort_vsl_cropped)
+# data_overview(effort_vsl_cropped)
 
 # glimpse(effort_cropped_short_cnt)
 # [1] 35822     4
