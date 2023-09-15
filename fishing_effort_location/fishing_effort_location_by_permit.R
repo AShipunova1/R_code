@@ -845,7 +845,7 @@ map_base_gom_vessels_w_markers_with_text
 # str(big_bounding_box["xmin"])
 
 
-# heatmap ----
+# Heatmap ----
 
 # read in GOM trip ticket grid
 GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
@@ -856,10 +856,17 @@ GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
 # str(GOMsf)
 
 # create GOM 5x5 minute grid
-grid <-
-  sf::st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60 * 5) %>%
-  st_as_sf() %>%
-  mutate(cell_id = 1:nrow(.))
+min_grid <-
+  function(minute_num = 1) {
+    grid <-
+      sf::st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60 * minute_num) %>%
+      st_as_sf() %>%
+      mutate(cell_id = 1:nrow(.))
+
+    return(grid)
+  }
+
+grid <- min_grid(5)
 
 st_agr(GOMsf) = st_agr(grid) = "constant"
 
