@@ -523,6 +523,20 @@ head(gom_vessels, 10)
 # 5        27.8       -82.8           475             454
 # 6        27.7       -82.7           839             562
 
+# max(gom_vessels$location_cnts_u)
+# [1] 1846
+
+# max(gom_vessels$trip_ids_cnts)
+# [1] 2122
+
+dim(gom_vessels)
+# [1] 1369    6
+
+gom_vessels |>
+  filter(gom_vessels$trip_ids_cnts > 2) |>
+  dim()
+# [1] 770   6
+
 # example with lat long vs ten min ----
 # ~Saint Petersburg
 gom_vessels_example_3loc <-
@@ -915,15 +929,16 @@ heat.plt = data.frame(effort_cropped) %>%
   inner_join(grid, by = "cell_id")
 # [1] 119   3
 
-heat.plt2 = data.frame(effort_cropped2) %>%
+
+heat.plt = data.frame(effort_cropped) %>%
   group_by(cell_id) %>%
-  summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
+  count(LATITUDE, LONGITUDE, name = "location_cnts")
+
+  # summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
   # summarise(location_cnts_u = sum(location_cnts_u)) %>%
   inner_join(grid, by = "cell_id")
 
-all.equal(heat.plt, heat.plt2)
-# T
-
+max(heat.plt$location_cnts)
 max_cnt <- max(heat.plt$location_cnts_u)
 # 963
 min_cnt <- min(heat.plt$location_cnts_u)
