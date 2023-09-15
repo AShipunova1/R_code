@@ -856,6 +856,8 @@ GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
 # Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
 # Geodetic CRS:  WGS 84
 
+# str(GOMsf)
+
 # create GOM 5x5 minute grid
 grid <-
   sf::st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60 * 5) %>%
@@ -980,6 +982,7 @@ heat.plt <-
   inner_join(data.frame(grid))
 # Joining with `by = join_by(cell_id)`
 
+# mapview(grid)
 dim(heat.plt)
 # [1] 35828     6
 # [1] 33883     6 (rule3)
@@ -989,19 +992,69 @@ heat.plt_no_rule3 <-
   left_join(effort_cropped_short_cnt_rule3_df,
             join_by("cell_id", "TRIP_ID"),
             relationship = "many-to-many") |>
-inner_join(data.frame(grid))
+  inner_join(data.frame(grid))
 
 # heat map
-map_trips_no_3 <-
+map_trips_no_3_base <-
   ggplot() +
   geom_sf(data = heat.plt_no_rule3,
           aes(geometry = x, fill = trip_id_cnt),
-          colour = NA) +
-  geom_sf(data = GOMsf, fill = NA) +
-  geom_sf_text(data = GOMsf,
-               aes(geometry = geometry,
-                   label = StatZone),
-               size = 3.5) +
+          colour = NA)
+
+map_trips_base_no_grid <-
+  ggplot() +
+  geom_sf(data = effort_cropped_cnt_short,
+          aes(geometry = x, fill = trip_id_cnt),
+          colour = NA)
+
+map_trips_base <-
+  ggplot() +
+  geom_sf(data = heat.plt,
+          aes(geometry = x, fill = trip_id_cnt),
+          colour = NA)
+
+GOMsf1 <-
+  GOMsf |>
+  select(-StatZone)
+
+nc_g = st_geometry(GOMsf)
+# plot(st_convex_hull(nc_g))
+# plot(GOMsf)
+tic("st_combine(GOMsf)")
+comb_res <- st_combine(GOMsf)
+toc()
+tic("comb_res plot")
+plot(comb_res)
+toc()
+
+tic("st_union(GOMsf)")
+plot(st_union(GOMsf))
+toc()
+
+### remove internal boundaries from the shape file ----
+
+tic("st_union(GOMsf)")
+st_union_GOMsf <- st_union(GOMsf)
+toc()
+# st_union(GOMsf): 21.59 sec elapsed
+
+str(GOMsf)
+# sf [21 × 2] (S3: sf/tbl_df/tbl/data.frame)
+#  $ StatZone: num [1:21] 1 2 3 4 5 6 7 8 9 10 ...
+#  $ geometry:sfc_GEOMETRY of length 21; first list element: List of 6
+
+# str(st_union_GOMsf)
+# sfc_MULTIPOLYGON of length 1; first list element: List of 15
+#  $ :List of 21234
+
+map_trips <-
+  map_trips_base +
+  # use GOMsf to show StatZones
+  geom_sf(data = st_union_GOMsf, fill = NA) +
+  # geom_sf_text(data = GOMsf,
+  #              aes(geometry = geometry,
+  #                  label = StatZone),
+  #              size = 3.5) +
   labs(
     x = "",
     y = "",
@@ -1010,8 +1063,8 @@ map_trips_no_3 <-
   ) +
   theme_bw() +
   scale_fill_gradient2(
-    name = "total trips",
-    # name = "total trips (if more than 3)",
+    # name = "total trips",
+    name = "total trips (if more than 3)",
     labels = scales::comma,
     low = "red", mid = "purple", high = "blue",
     # trans = "log2",
@@ -1029,5 +1082,6 @@ map_trips_no_3 <-
   ) +
   guides(fill = guide_colourbar(title.position = "top"))
 
-map_trips_no_3
+map_trips
+
 
