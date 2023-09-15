@@ -906,14 +906,14 @@ effort_cropped2 <-
 toc()
 # effort_cropped2: 0.44 sec elapsed
 
-class(effort_cropped)
+# class(effort_cropped)
 
-## get counts ----
+## count trip ids by grid cell ----
 effort_cropped_short_cnt <-
   effort_cropped |>
   select(cell_id, TRIP_ID) |>
   # group_by(cell_id) |>
-  add_count(cell_id)
+  add_count(cell_id, name = "trip_id_cnt")
 
 glimpse(effort_cropped_short_cnt)
 # [1] 35822     4
@@ -922,82 +922,49 @@ glimpse(effort_cropped_short_cnt)
 #   filter(cell_id == 1864) |>
 #   glimpse()
 
-min(effort_cropped_short_cnt$n)
+min(effort_cropped_short_cnt$trip_id_cnt)
 # 1
-max(effort_cropped_short_cnt$n)
+max(effort_cropped_short_cnt$trip_id_cnt)
 # 1209
 
 dim(effort_cropped_short_cnt)
 # [1] 35822     4
 
-effort_cropped_short_cnt |>
-  filter(n > 2) |>
-  dim()
-# [1] 33877     4
-
-effort_cropped_short_cnt |>
+effort_cropped_short_cnt_rule3_df <-
+  effort_cropped_short_cnt |>
   sf::st_drop_geometry() |>
-  count(n) |>
-  select(n, nn) |>
-  head()
+  filter(trip_id_cnt > 2)
+
+# glimpse(effort_cropped_short_cnt_rule3_df)
+# [1] 33877     3
+
+# effort_cropped_short_cnt |>
+#   sf::st_drop_geometry() |>
+#   count(n) |>
+#   select(n, nn) |>
+#   head()
 # 1     1  1051
 # 2     2   894
 
-  # dplyr::add_count(ten_min_lat, ten_min_lon,
-  #                  name = "trip_ids_cnts") |>
-  # group_by(ten_min_lat, ten_min_lon) |>
+effort_cropped |>
+  sf::st_drop_geometry() |>
+  select(TRIP_ID, cell_id) |>
+  distinct() |>
+  dim()
+# [1] 35819     2
 
-# sum trips by grid cell
+glimpse(effort_cropped)
+glimpse(effort_cropped_short_cnt_rule3_df)
+glimpse(grid)
+
+### join grid and add dropped columns ----
 heat.plt <- effort_cropped |>
-  # dplyr::add_count(ten_min_lat, ten_min_lon,
-  #                  name = "trip_ids_cnts") |>
-  # group_by(ten_min_lat, ten_min_lon) |>
-  group_by(cell_id) |>
-  count(TRIP_ID)
-  # summarise(trip_cnt = sum(TRIP_ID))
-  # summarise(total_count = n(), .groups = 'drop')
+  left_join(effort_cropped_short_cnt_rule3_df,
+            join_by("cell_id", "TRIP_ID")) |>
+  st_join(grid, by = "cell_id")
 
-  # mutate(location_cnts_u = (n_distinct(LATITUDE, LONGITUDE)))
-
-  # group_by(cell_id) %>%
-  # summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
-  # summarise(location_cnts_u = sum(location_cnts_u)) %>%
-  inner_join(grid, by = "cell_id")
-# [1] 119   3
-
-
-# heat.plt3 <- data.frame(effort_cropped)
-      # add_count(LATITUDE, LONGITUDE,
-      #                  name = "lat_lon_cnt")
-
-heat.plt3 <-
-  data.frame(effort_cropped) %>%
-  group_by(cell_id, LATITUDE, LONGITUDE) %>%
-  # dplyr::count(LATITUDE, LONGITUDE, name = "location_cnts")
-  summarise(location_cnts = n())
-
-glimpse(heat.plt3)
-
-max(heat.plt3$location_cnts)
-  # summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
-  # summarise(location_cnts_u = sum(location_cnts_u)) %>%
-  inner_join(grid, by = "cell_id")
-
-max(heat.plt$location_cnts)
-max_cnt <- max(heat.plt$location_cnts_u)
-# 963
-min_cnt <- min(heat.plt$location_cnts_u)
-# 1
-
-heat.plt_rule3 <-
-  heat.plt |>
-  filter(heat.plt$location_cnts_u > 2)
-# dim(heat.plt)
-# [1] 2827    3
-#
-# dim(heat.plt_rule3)
-# [1] 1306    3
-
+dim(heat.plt)
+# [1] 1734462      10
 
 # heat map
 map_trips <-
