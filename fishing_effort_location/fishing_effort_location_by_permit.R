@@ -961,30 +961,49 @@ effort_cropped_short_cnt <-
   # group_by(cell_id) |>
   add_count(cell_id, name = "trip_id_cnt")
 
+
+effort_cropped_short_cnt1 <-
+  effort_cropped |>
+  # select(cell_id, TRIP_ID) |>
+  group_by(cell_id) |>
+  mutate(trip_id_cnt = n())
+
+setdiff(effort_cropped_short_cnt$trip_id_cnt,
+        effort_cropped_short_cnt1$trip_id_cnt)
+# 0
+
+setdiff(effort_cropped_short_cnt1$trip_id_cnt,
+        effort_cropped_short_cnt$trip_id_cnt)
+# 0
+
 effort_vsl_cropped_short_vsl_cnt <-
   effort_vsl_cropped |>
-  select(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
-  add_count(VESSEL_OFFICIAL_NBR, name = "vsl_cnt")
+  select(cell_id, VESSEL_OFFICIAL_NBR) |>
+  add_count(cell_id, name = "vsl_cnt")
 
-glimpse(effort_cropped_short_cnt)
+# glimpse(effort_cropped_short_cnt)
+# [1] 35822     4
+
+dim(effort_vsl_cropped_short_vsl_cnt)
 # [1] 35822     4
 
 effort_vsl_cropped_short_vsl_cnt |>
   filter(vsl_cnt < 3) |>
-  glimpse()
-# 72
+  head()
+# 1945
 
 # effort_cropped_short_cnt |>
 #   filter(cell_id == 1864) |>
 #   glimpse()
 
+effort_vsl_cropped_short_vsl_cnt |>
+  filter(cell_id == 1861) |>
+  glimpse()
 
+effort_cropped_both_counts <-
+  effort_cropped_short_cnt |>
+  inner_join(effort_vsl_cropped_short_vsl_cnt)
 
-
-min(effort_cropped_short_cnt$trip_id_cnt)
-# 1
-max(effort_cropped_short_cnt$trip_id_cnt)
-# 1209
 
 dim(effort_cropped_short_cnt)
 # [1] 35822     4
