@@ -856,7 +856,7 @@ GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
 # Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
 # Geodetic CRS:  WGS 84
 
-# create GOM 1x1 minute grid
+# create GOM 5x5 minute grid
 grid <-
   sf::st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60 * 5) %>%
   st_as_sf() %>%
@@ -868,23 +868,20 @@ st_agr(GOMsf) = st_agr(grid) = "constant"
 # short_example_3_cnts_short |> glimpse()
 # glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
 
-for_heatmap_lat_lon_cnts_only <-
+glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual)
+
+for_heatmap_lat_lon_trips_only <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual |>
-  select(location_cnts_u, LATITUDE, LONGITUDE) |>
+  select(TRIP_ID, LATITUDE, LONGITUDE) |>
   distinct()
 
-glimpse(for_heatmap_lat_lon_cnts_only)
-# [1] 32985     3
-
-# View(for_heatmap_lat_lon_trip_only)
-
-# dim(short_example_3_cnts_short_lat_lon_only)
-# [1] 564   3
+glimpse(for_heatmap_lat_lon_trips_only)
+# Rows: 41,455
 
 #### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
 
 tic("effort")
-effort <- for_heatmap_lat_lon_cnts_only %>%
+effort <- for_heatmap_lat_lon_trips_only %>%
   # join n minute grid
   st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
            crs = st_crs(GOMsf),
@@ -893,6 +890,7 @@ effort <- for_heatmap_lat_lon_cnts_only %>%
 toc()
 
 # class(effort)
+
 ## crop by the shape ----
 effort_cropped <-
   with_st_intersection(effort,
@@ -908,26 +906,45 @@ effort_cropped2 <-
 toc()
 # effort_cropped2: 0.44 sec elapsed
 
-all.equal(effort_cropped |>
-            arrange(cell_id, LATITUDE, LONGITUDE),
-          effort_cropped2 |>
-            arrange(cell_id, LATITUDE, LONGITUDE))
-# [1000] "Component 6: Component 165: target is XY, current is numeric"
-#  [ reached getOption("max.print") -- omitted 174390 entries ]
+class(effort_cropped)
 
-str(effort_cropped2)
-# sf [29,230 × 6] (S3: sf/tbl_df/tbl/data.frame)
-# sf [29,230 × 6] (S3: sf/tbl_df/tbl/data.frame)
- # $ geometry       :sfc_POINT of length 29230; first list element:  'XY' num [1:2] -83.2 27.8
- # $ geometry       :sfc_POINT of length 29230; first list element:  'XY' num [1:2] -81.7 24.6
+## get counts ----
+effort_cropped_short_cnt <-
+  effort_cropped |>
+  select(cell_id, TRIP_ID) |>
+  # group_by(cell_id) |>
+  add_count(cell_id)
+
+glimpse(effort_cropped_short_cnt)
+# [1] 35822     4
+
+effort_cropped_short_cnt |>
+  filter(cell_id == 1864) |>
+  View()
+
+
+  # dplyr::add_count(ten_min_lat, ten_min_lon,
+  #                  name = "trip_ids_cnts") |>
+  # group_by(ten_min_lat, ten_min_lon) |>
 
 # sum trips by grid cell
-heat.plt <- data.frame(effort_cropped) %>%
-  group_by(cell_id) %>%
-  summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
+heat.plt <- effort_cropped |>
+  # dplyr::add_count(ten_min_lat, ten_min_lon,
+  #                  name = "trip_ids_cnts") |>
+  # group_by(ten_min_lat, ten_min_lon) |>
+  group_by(cell_id) |>
+  count(TRIP_ID)
+  # summarise(trip_cnt = sum(TRIP_ID))
+  # summarise(total_count = n(), .groups = 'drop')
+
+  # mutate(location_cnts_u = (n_distinct(LATITUDE, LONGITUDE)))
+
+  # group_by(cell_id) %>%
+  # summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
   # summarise(location_cnts_u = sum(location_cnts_u)) %>%
   inner_join(grid, by = "cell_id")
 # [1] 119   3
+
 
 # heat.plt3 <- data.frame(effort_cropped)
       # add_count(LATITUDE, LONGITUDE,
@@ -935,8 +952,9 @@ heat.plt <- data.frame(effort_cropped) %>%
 
 heat.plt3 <-
   data.frame(effort_cropped) %>%
-  group_by(cell_id) %>%
-  dplyr::count(LATITUDE, LONGITUDE, name = "location_cnts")
+  group_by(cell_id, LATITUDE, LONGITUDE) %>%
+  # dplyr::count(LATITUDE, LONGITUDE, name = "location_cnts")
+  summarise(location_cnts = n())
 
 glimpse(heat.plt3)
 
