@@ -1001,11 +1001,35 @@ map_trips_no_3_base <-
           aes(geometry = x, fill = trip_id_cnt),
           colour = NA)
 
+map_trips_base_no_grid <-
+  ggplot() +
+  geom_sf(data = effort_cropped_cnt_short,
+          aes(geometry = x, fill = trip_id_cnt),
+          colour = NA)
+
 map_trips_base <-
   ggplot() +
   geom_sf(data = heat.plt,
           aes(geometry = x, fill = trip_id_cnt),
           colour = NA)
+
+GOMsf1 <-
+  GOMsf |>
+  select(-StatZone)
+
+nc_g = st_geometry(GOMsf)
+# plot(st_convex_hull(nc_g))
+# plot(GOMsf)
+tic("st_combine(GOMsf)")
+comb_res <- st_combine(GOMsf)
+toc()
+tic("comb_res plot")
+plot(comb_res)
+toc()
+
+tic("st_union(GOMsf)")
+plot(st_union(GOMsf))
+toc()
 
 ### remove internal boundaries from the shape file ----
 
@@ -1014,7 +1038,7 @@ st_union_GOMsf <- st_union(GOMsf)
 toc()
 # st_union(GOMsf): 21.59 sec elapsed
 
-# str(GOMsf)
+str(GOMsf)
 # sf [21 × 2] (S3: sf/tbl_df/tbl/data.frame)
 #  $ StatZone: num [1:21] 1 2 3 4 5 6 7 8 9 10 ...
 #  $ geometry:sfc_GEOMETRY of length 21; first list element: List of 6
@@ -1023,72 +1047,91 @@ toc()
 # sfc_MULTIPOLYGON of length 1; first list element: List of 15
 #  $ :List of 21234
 
-labels_and_titles <- function(tot_trips_title, min_limit) {
+## make a plot ----
+make_map_trips <-
+  function(map_trip_base,
+           shape_data,
+           total_trips_title) {
+  map_trips <-
+  map_trips_base +
+  geom_sf(data = shape_data, fill = NA) +
+  # geom_sf_text(data = GOMsf,
+  #              aes(geometry = geometry,
+  #                  label = StatZone),
+  #              size = 3.5) +
   labs(
     x = "",
     y = "",
     fill = "",
     caption = "Heat map of SEFHIER trips (5 min. resolution)."
   ) +
-    theme_bw() +
-    scale_fill_gradient2(
-      # name = "total trips",
-      name = tot_trips_title,
-      labels = scales::comma,
-      low = "red",
-      mid = "purple",
-      high = "blue",
-      # trans = "log2",
-      trans = "log1p",
-      limits = c(min_limit, max(heat.plt$trip_id_cnt)),
-      guide = "legend"
-        # ggplot2::guides(fill =
-                    # ggplot2::guide_colourbar(title.position = "top"))
-      # ,
-      # oob = scales::oob_keep
-    ) +
-    theme(
-      legend.position = "top",
-      legend.justification = "left",
-      legend.key.width = unit(1, "npc"),
-      # legend.key.width = unit(3, "cm"),
-      plot.caption = element_text(hjust = 0)
-    )
-     # scale_colour_continuous(guide = "colorbar",
-     #                         title.position = "top")
+  theme_bw() +
+  scale_fill_gradient2(
+    # name = "total trips",
+    # name = "total trips (if more than 3)",
+    name = total_trips_title,
+    labels = scales::comma,
+    low = "red", mid = "purple", high = "blue",
+    # trans = "log2",
+    trans = "log1p",
+    limits = c(1, max(heat.plt$trip_id_cnt))
+    # ,
+    # oob = scales::oob_keep
+  ) +
+  theme(
+    legend.position = "top",
+    legend.justification = "left",
+    legend.key.width = unit(1, "npc"),
+    # legend.key.width = unit(3, "cm"),
+    plot.caption = element_text(hjust = 0)
+  ) +
+  guides(fill = guide_colourbar(title.position = "top"))
 }
 
-tot_trips_titles =  "total trips"
+make_map_trips(map_trip_base,
+           shape_data,
+           total_trips_title)
 
-tot_trips_titles_rule_3 = "total trips (if more than 3)"
 
-map_trips_no_stat_zones <-
-  map_trips_base +
-  # use GOMsf instead of st_union_GOMsf to show StatZones
+
+
+map_trips <-
+  # rule of 3
+  # map_trips_base +
+  # all points
+  map_trips_no_3_base +
+  # use GOMsf to show StatZones
   geom_sf(data = st_union_GOMsf, fill = NA) +
   # geom_sf_text(data = GOMsf,
   #              aes(geometry = geometry,
   #                  label = StatZone),
   #              size = 3.5) +
-  # ggplot2::guides(fill =
-  #                   ggplot2::guide_colourbar(title.position = "top")) +
-  labels_and_titles(tot_trips_titles_rule_3, 3)
+  labs(
+    x = "",
+    y = "",
+    fill = "",
+    caption = "Heat map of SEFHIER trips (5 min. resolution)."
+  ) +
+  theme_bw() +
+  scale_fill_gradient2(
+    # name = "total trips",
+    name = "total trips (if more than 3)",
+    labels = scales::comma,
+    low = "red", mid = "purple", high = "blue",
+    # trans = "log2",
+    trans = "log1p",
+    limits = c(1, max(heat.plt$trip_id_cnt))
+    # ,
+    # oob = scales::oob_keep
+  ) +
+  theme(
+    legend.position = "top",
+    legend.justification = "left",
+    legend.key.width = unit(1, "npc"),
+    # legend.key.width = unit(3, "cm"),
+    plot.caption = element_text(hjust = 0)
+  ) +
+  guides(fill = guide_colourbar(title.position = "top"))
 
-map_trips_no_stat_zones
-
-map_trips_no_stat_zones_no_rule_3 <-
-  map_trips_no_3_base +
-  # use GOMsf instead of st_union_GOMsf to show StatZones
-  geom_sf(data = st_union_GOMsf, fill = NA) +
-  labels_and_titles(tot_trips_titles, 1)
-
-map_trips_no_stat_zones_no_rule_3
-
-g <- guide_legend(title.position = "top")
-
-# g <- guide_legend("title")
-# p + guides(colour = g, size = g, shape = g)
-
-map_trips_no_stat_zones_no_rule_3 +
-  guides(fill = g)
+map_trips
 
