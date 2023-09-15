@@ -918,10 +918,30 @@ effort_cropped_short_cnt <-
 glimpse(effort_cropped_short_cnt)
 # [1] 35822     4
 
-effort_cropped_short_cnt |>
-  filter(cell_id == 1864) |>
-  View()
+# effort_cropped_short_cnt |>
+#   filter(cell_id == 1864) |>
+#   glimpse()
 
+min(effort_cropped_short_cnt$n)
+# 1
+max(effort_cropped_short_cnt$n)
+# 1209
+
+dim(effort_cropped_short_cnt)
+# [1] 35822     4
+
+effort_cropped_short_cnt |>
+  filter(n > 2) |>
+  dim()
+# [1] 33877     4
+
+effort_cropped_short_cnt |>
+  sf::st_drop_geometry() |>
+  count(n) |>
+  select(n, nn) |>
+  head()
+# 1     1  1051
+# 2     2   894
 
   # dplyr::add_count(ten_min_lat, ten_min_lon,
   #                  name = "trip_ids_cnts") |>
