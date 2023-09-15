@@ -870,42 +870,82 @@ grid <- min_grid(5)
 
 st_agr(GOMsf) = st_agr(grid) = "constant"
 
-# data
+### remove internal boundaries from the shape file ----
+
+tic("st_union(GOMsf)")
+st_union_GOMsf <- st_union(GOMsf)
+toc()
+# st_union(GOMsf): 21.59 sec elapsed
+
+# str(GOMsf)
+# sf [21 × 2] (S3: sf/tbl_df/tbl/data.frame)
+#  $ StatZone: num [1:21] 1 2 3 4 5 6 7 8 9 10 ...
+#  $ geometry:sfc_GEOMETRY of length 21; first list element: List of 6
+
+# str(st_union_GOMsf)
+# sfc_MULTIPOLYGON of length 1; first list element: List of 15
+#  $ :List of 21234
+
+## heatmap data ----
+
+
 # short_example_3_cnts_short |> glimpse()
-# glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
+glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
 
-glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual)
+# glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual)
 
-for_heatmap_lat_lon_trips_only <-
+# for_heatmap_lat_lon_trips_only <-
+#   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual |>
+#   select(TRIP_ID, LATITUDE, LONGITUDE) |>
+#   distinct()
+
+# glimpse(for_heatmap_lat_lon_trips_only)
+# Rows: 41,455
+
+for_heatmap_lat_lon_trips_vessels_only <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual |>
-  select(TRIP_ID, LATITUDE, LONGITUDE) |>
+  select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
-glimpse(for_heatmap_lat_lon_trips_only)
+# dim(for_heatmap_lat_lon_trips_vessels_only)
 # Rows: 41,455
 
 #### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
 
-tic("effort")
-effort <- for_heatmap_lat_lon_trips_only %>%
-  # join n minute grid
-  st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
-           crs = st_crs(GOMsf),
-           remove = FALSE) %>%
-  st_join(grid, join = st_nearest_feature)
-toc()
+df_join_grid <-
+  function(my_df) {
+    my_df |>
+      # join n minute grid
+      st_as_sf(
+        coords = c("LONGITUDE", "LATITUDE"),
+        crs = st_crs(GOMsf)) |>
+        # ,
+        # remove = FALSE) %>%
+        st_join(grid, join = st_nearest_feature) %>%
+          return()
+        }
 
-# class(effort)
+# tic("effort")
+# effort <- df_join_grid(for_heatmap_lat_lon_trips_only)
+# toc()
+# effort: 0.75 sec elapsed
+
+tic("effort_vsl")
+effort_vsl <- df_join_grid(for_heatmap_lat_lon_trips_vessels_only)
+toc()
+# effort_vsl: 0.62 sec elapsed
+
+# class(effort_vsl)
 
 ## crop by the shape ----
-effort_cropped <-
-  with_st_intersection(effort,
-          GOMsf)
+# effort_cropped <-
+#   with_st_intersection(effort,
+#           GOMsf)
 # effort_cropped: 81.51 sec elapsed
 
-tic("effort_cropped2")
-effort_cropped2 <-
-  effort |>
+tic("effort_vsl_cropped")
+effort_vsl_cropped <-
+  effort_vsl |>
   st_join(GOMsf, left = FALSE) %>%
   mutate(LONGITUDE = st_coordinates(.)[, 1],
          LATITUDE = st_coordinates(.)[, 2])
@@ -921,12 +961,25 @@ effort_cropped_short_cnt <-
   # group_by(cell_id) |>
   add_count(cell_id, name = "trip_id_cnt")
 
+effort_vsl_cropped_short_vsl_cnt <-
+  effort_vsl_cropped |>
+  select(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  add_count(VESSEL_OFFICIAL_NBR, name = "vsl_cnt")
+
 glimpse(effort_cropped_short_cnt)
 # [1] 35822     4
+
+effort_vsl_cropped_short_vsl_cnt |>
+  filter(vsl_cnt < 3) |>
+  glimpse()
+# 72
 
 # effort_cropped_short_cnt |>
 #   filter(cell_id == 1864) |>
 #   glimpse()
+
+
+
 
 min(effort_cropped_short_cnt$trip_id_cnt)
 # 1
@@ -1027,39 +1080,6 @@ map_trips_base <-
           aes(geometry = x, fill = trip_id_cnt),
           colour = NA)
 
-GOMsf1 <-
-  GOMsf |>
-  select(-StatZone)
-
-nc_g = st_geometry(GOMsf)
-# plot(st_convex_hull(nc_g))
-# plot(GOMsf)
-tic("st_combine(GOMsf)")
-comb_res <- st_combine(GOMsf)
-toc()
-tic("comb_res plot")
-plot(comb_res)
-toc()
-
-tic("st_union(GOMsf)")
-plot(st_union(GOMsf))
-toc()
-
-### remove internal boundaries from the shape file ----
-
-tic("st_union(GOMsf)")
-st_union_GOMsf <- st_union(GOMsf)
-toc()
-# st_union(GOMsf): 21.59 sec elapsed
-
-str(GOMsf)
-# sf [21 × 2] (S3: sf/tbl_df/tbl/data.frame)
-#  $ StatZone: num [1:21] 1 2 3 4 5 6 7 8 9 10 ...
-#  $ geometry:sfc_GEOMETRY of length 21; first list element: List of 6
-
-# str(st_union_GOMsf)
-# sfc_MULTIPOLYGON of length 1; first list element: List of 15
-#  $ :List of 21234
 
 ## make a plot ----
 make_map_trips <-
