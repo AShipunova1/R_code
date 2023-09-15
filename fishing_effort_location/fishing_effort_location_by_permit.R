@@ -954,148 +954,49 @@ toc()
 
 # class(effort_cropped)
 
-## count trip ids by grid cell ----
-effort_cropped_trip_cnt <-
-  effort_vsl_cropped |>
-  sf::st_drop_geometry() |>
-  select(cell_id, TRIP_ID) |>
-  count(cell_id, name = "trip_id_cnt")
-
-effort_cropped_trip_cnt |>
-  filter(cell_id == 1864)
-# 1    1864         236
-
-
-effort_cropped_vsl_cnt <-
-  effort_vsl_cropped |>
-  sf::st_drop_geometry() |>
-  select(cell_id, VESSEL_OFFICIAL_NBR) |>
-  count(cell_id, name = "vsl_cnt")
-
-effort_vsl_cropped |>
-  sf::st_drop_geometry() |>
-  select(cell_id, VESSEL_OFFICIAL_NBR) |>
-  group_by(cell_id) |>
-  count(n_distinct(VESSEL_OFFICIAL_NBR)) |>
-  filter(n > 2)
-
-effort_cropped_vsl_cnt |>
-  filter(cell_id == 1864)
-
-
+## count trip ids and vessels by grid cell ----
 effort_vsl_cropped_cnt2 <-
   effort_vsl_cropped |>
-  sf::st_drop_geometry() |>
+  # sf::st_drop_geometry() |>
   group_by(cell_id) |>
   mutate(vsl_cnt = n_distinct(VESSEL_OFFICIAL_NBR),
-         trip_id_cnt = n_distinct(TRIP_ID))
+         trip_id_cnt = n_distinct(TRIP_ID)) |>
+  ungroup()
 # [1] 35822     8
 
+# check
 effort_vsl_cropped_cnt2 |>
+  sf::st_drop_geometry() |>
   filter(cell_id == 1864) |>
-  glimpse()
-
-# works
-effort_cropped_short_cnt <-
-  effort_cropped |>
-  select(cell_id, TRIP_ID) |>
-  # group_by(cell_id) |>
-  add_count(cell_id, name = "trip_id_cnt")
-
-
-effort_cropped_short_cnt1 <-
-  effort_cropped |>
-  # select(cell_id, TRIP_ID) |>
-  group_by(cell_id) |>
-  mutate(trip_id_cnt = n())
-
-setdiff(effort_cropped_short_cnt$trip_id_cnt,
-        effort_cropped_short_cnt1$trip_id_cnt)
-# 0
-
-setdiff(effort_cropped_short_cnt1$trip_id_cnt,
-        effort_cropped_short_cnt$trip_id_cnt)
-# 0
-
-effort_vsl_cropped_short_vsl_cnt <-
-  effort_vsl_cropped |>
-  select(cell_id, VESSEL_OFFICIAL_NBR) |>
-  add_count(cell_id, name = "vsl_cnt")
-
-# data_overview(effort_vsl_cropped)
-
-# glimpse(effort_cropped_short_cnt)
-# [1] 35822     4
-
-dim(effort_vsl_cropped_short_vsl_cnt)
-# [1] 35822     4
-
-effort_vsl_cropped_short_vsl_cnt |>
-  filter(vsl_cnt < 3) |>
-  head()
-# 1945
-
-# effort_cropped_short_cnt |>
-#   filter(cell_id == 1864) |>
-#   glimpse()
-
-effort_vsl_cropped_short_vsl_cnt |>
-  filter(cell_id == 1861) |>
-  glimpse()
-
-effort_cropped_both_counts <-
-  effort_cropped_short_cnt |>
-  inner_join(effort_vsl_cropped_short_vsl_cnt)
-
-
-dim(effort_cropped_short_cnt)
-# [1] 35822     4
-
-effort_cropped_short_cnt_rule3_df <-
-  effort_cropped_short_cnt |>
-  sf::st_drop_geometry() |>
-  filter(trip_id_cnt > 2)
-
-# glimpse(effort_cropped_short_cnt_rule3_df)
-# [1] 33877     3
-
-# effort_cropped_short_cnt |>
-#   sf::st_drop_geometry() |>
-#   count(n) |>
-#   select(n, nn) |>
-#   head()
-# 1     1  1051
-# 2     2   894
-
-effort_cropped |>
-  sf::st_drop_geometry() |>
-  select(TRIP_ID, cell_id) |>
+  select(vsl_cnt, trip_id_cnt) |>
   distinct() |>
-  dim()
-# [1] 35819     2
+  glimpse()
+# vsl_cnt     <int> 11
+# trip_id_cnt <int> 236
 
-glimpse(effort_cropped)
-glimpse(effort_cropped_short_cnt_rule3_df)
-glimpse(grid)
+# class(effort_vsl_cropped_cnt2)
 
-### join grid and add dropped columns ----
-effort_cropped_cnt <- effort_cropped |>
-  right_join(effort_cropped_short_cnt_rule3_df,
-            join_by("cell_id", "TRIP_ID"),
-            relationship = "many-to-many")
+dim(effort_vsl_cropped_cnt2)
+# [1] 35822     9
 
-dim(effort_cropped_cnt)
-# [1] 35828     7
-# [1] "TRIP_ID, LATITUDE, LONGITUDE, cell_id, StatZone, geometry, trip_id_cnt"
+effort_cropped_short_cnt_rule3 <-
+  effort_vsl_cropped_cnt2 |>
+  filter(vsl_cnt > 2)
 
-effort_cropped_cnt_short <-
-  effort_cropped_cnt |>
-  select(-c(LATITUDE, LONGITUDE))
-# dim(effort_cropped_cnt_short)
-# [1] 35828     5
+dim(effort_cropped_short_cnt_rule3)
+# [1] 31981     9
+
+print_df_names(effort_cropped_short_cnt_rule3)
+
+effort_cropped_short_cnt_rule3_short <-
+  effort_cropped_short_cnt_rule3 |>
+  select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
+
+dim(effort_cropped_short_cnt_rule3_short)
+# [1] 31981     5
 
 heat.plt <-
-  effort_cropped_cnt_short |>
+  effort_cropped_short_cnt_rule3_short |>
   # have to use data.frame, to avoid
   # Error: y should not have class sf; for spatial joins, use st_join
   inner_join(data.frame(grid))
@@ -1105,43 +1006,7 @@ heat.plt <-
 dim(heat.plt)
 # [1] 35828     6
 # [1] 33883     6 (rule3)
-
-heat.plt_no_rule3 <-
-  effort_cropped |>
-  left_join(effort_cropped_short_cnt_rule3_df,
-            join_by("cell_id", "TRIP_ID"),
-            relationship = "many-to-many") |>
-  inner_join(data.frame(grid))
-
-heat.plt_no_rule3_all_dots <-
-  effort_cropped |>
-  sf::st_drop_geometry() |>
-  full_join(effort_cropped_short_cnt,
-            join_by("cell_id", "TRIP_ID"),
-            relationship = "many-to-many") |>
-  inner_join(data.frame(grid))
-
-# View(heat.plt_no_rule3_all_dots)
-# heat map
-
-map_trips_no_3_base <-
-  ggplot() +
-  geom_sf(data = heat.plt_no_rule3,
-          aes(geometry = x, fill = trip_id_cnt),
-          colour = NA)
-
-map_trips_base_no_grid <-
-  ggplot() +
-  geom_sf(data = effort_cropped_cnt_short,
-          aes(geometry = x, fill = trip_id_cnt),
-          colour = NA)
-
-map_trips_base <-
-  ggplot() +
-  geom_sf(data = heat.plt,
-          aes(geometry = x, fill = trip_id_cnt),
-          colour = NA)
-
+# [1] 31981     6
 
 ## make a plot ----
 make_map_trips <-
@@ -1183,7 +1048,7 @@ make_map_trips <-
       theme(
         legend.position = "top",
         legend.justification = "left",
-        legend.key.width = unit(0.9, "npc"),
+        legend.key.width = unit(1.3, "npc"),
         # legend.key.width = unit(3, "cm"),
         plot.caption = element_text(hjust = 0)
       ) +
@@ -1197,10 +1062,12 @@ map_trips_rule_3 <-
            st_union_GOMsf,
            "total trips (if more than 3)")
 
-map_trips_no_rule_3 <-
-  make_map_trips(heat.plt_no_rule3_all_dots,
-           st_union_GOMsf,
-           "total trips")
+map_trips_rule_3
+
+# map_trips_no_rule_3 <-
+#   make_map_trips(heat.plt_no_rule3_all_dots,
+#            st_union_GOMsf,
+#            "total trips")
 
 
 map_trips <-
