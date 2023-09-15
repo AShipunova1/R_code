@@ -983,7 +983,17 @@ effort_cropped_vsl_cnt |>
   filter(cell_id == 1864)
 
 
-glimpse(effort_cropped_trip_cnt)
+effort_vsl_cropped_cnt2 <-
+  effort_vsl_cropped |>
+  sf::st_drop_geometry() |>
+  group_by(cell_id) |>
+  mutate(vsl_cnt = n_distinct(VESSEL_OFFICIAL_NBR),
+         trip_id_cnt = n_distinct(TRIP_ID))
+# [1] 35822     8
+
+effort_vsl_cropped_cnt2 |>
+  filter(cell_id == 1864) |>
+  glimpse()
 
 # works
 effort_cropped_short_cnt <-
