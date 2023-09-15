@@ -959,7 +959,7 @@ glimpse(grid)
 
 ### join grid and add dropped columns ----
 effort_cropped_cnt <- effort_cropped |>
-  left_join(effort_cropped_short_cnt_rule3_df,
+  right_join(effort_cropped_short_cnt_rule3_df,
             join_by("cell_id", "TRIP_ID"),
             relationship = "many-to-many")
 
@@ -982,6 +982,7 @@ heat.plt <-
 
 dim(heat.plt)
 # [1] 35828     6
+# [1] 33883     6 (rule3)
 
 # heat map
 map_trips <-
@@ -991,28 +992,30 @@ map_trips <-
           colour = NA) +
   geom_sf(data = GOMsf, fill = NA) +
   geom_sf_text(data = GOMsf,
-               aes(geometry = geometry, label = StatZone),
+               aes(geometry = geometry,
+                   label = StatZone),
                size = 3.5) +
   labs(
     x = "",
     y = "",
     fill = "",
-    caption = "Heat map of SEFHIER trips (1 min. resolution)."
+    caption = "Heat map of SEFHIER trips (5 min. resolution)."
   ) +
   theme_bw() +
   scale_fill_gradient2(
-    name = "total trips",
+    name = "total trips (if more than 3)",
     labels = scales::comma,
-    low = "red", mid = "lightblue", high = "blue",
-    trans = "log2",
-    # trans = "log1p",
-    limits = c(1, max_cnt),
+    low = "red", mid = "purple", high = "blue",
+    # trans = "log2",
+    trans = "log1p",
+    limits = c(3, max(heat.plt$trip_id_cnt))
+    # ,
     # oob = scales::oob_keep
   ) +
   theme(
     legend.position = "top",
     legend.justification = "left",
-    legend.key.width = unit(0.7, "npc"),
+    legend.key.width = unit(0.8, "npc"),
     # legend.key.width = unit(3, "cm"),
     plot.caption = element_text(hjust = 0)
   ) +
