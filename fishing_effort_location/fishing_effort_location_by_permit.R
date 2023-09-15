@@ -981,6 +981,8 @@ effort_vsl_cropped_short_vsl_cnt <-
   select(cell_id, VESSEL_OFFICIAL_NBR) |>
   add_count(cell_id, name = "vsl_cnt")
 
+data_overview(effort_vsl_cropped)
+
 # glimpse(effort_cropped_short_cnt)
 # [1] 35822     4
 
