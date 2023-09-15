@@ -907,20 +907,37 @@ str(effort_cropped2)
  # $ geometry       :sfc_POINT of length 29230; first list element:  'XY' num [1:2] -83.2 27.8
  # $ geometry       :sfc_POINT of length 29230; first list element:  'XY' num [1:2] -81.7 24.6
 
-
-
 # sum trips by grid cell
 heat.plt = data.frame(effort_cropped) %>%
   group_by(cell_id) %>%
   summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
+  # summarise(location_cnts_u = sum(location_cnts_u)) %>%
+  inner_join(grid, by = "cell_id")
+# [1] 119   3
 
+heat.plt2 = data.frame(effort_cropped2) %>%
+  group_by(cell_id) %>%
+  summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
   # summarise(location_cnts_u = sum(location_cnts_u)) %>%
   inner_join(grid, by = "cell_id")
 
-glimpse(heat.plt)
-# [1] 119   3
+all.equal(heat.plt, heat.plt2)
+# T
 
-View(heat.plt)
+max_cnt <- max(heat.plt$location_cnts_u)
+# 963
+min_cnt <- min(heat.plt$location_cnts_u)
+# 1
+
+heat.plt_rule3 <-
+  heat.plt |>
+  filter(heat.plt$location_cnts_u > 2)
+# dim(heat.plt)
+# [1] 2827    3
+#
+# dim(heat.plt_rule3)
+# [1] 1306    3
+
 
 # heat map
 map_trips <-
@@ -942,10 +959,10 @@ map_trips <-
   scale_fill_gradient2(
     name = "total trips",
     labels = scales::comma,
-    low = "red", mid = "white", high = "blue",
+    low = "red", mid = "lightblue", high = "blue",
     trans = "log2",
     # trans = "log1p",
-    limits = c(1, NA),
+    limits = c(1, max_cnt),
     # oob = scales::oob_keep
   ) +
   theme(
