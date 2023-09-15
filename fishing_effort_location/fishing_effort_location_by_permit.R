@@ -864,18 +864,6 @@ glimpse(for_heatmap_lat_lon_cnts_only)
 
 # View(for_heatmap_lat_lon_trip_only)
 
-# crop by shape ----
-# all_gom_sf
-#
-# for_heatmap_lat_lon_cnts_only_sf <-
-#   my_to_sf(for_heatmap_lat_lon_cnts_only)
-#
-# tic("for_heatmap_lat_lon_cnts_only_sf_cropped")
-# for_heatmap_lat_lon_cnts_only_sf_cropped <-
-#   with_st_intersection(for_heatmap_lat_lon_cnts_only_sf,
-#           all_gom_sf)
-# toc()
-
 # dim(short_example_3_cnts_short_lat_lon_only)
 # [1] 564   3
 
@@ -883,29 +871,56 @@ glimpse(for_heatmap_lat_lon_cnts_only)
 
 tic("effort")
 effort <- for_heatmap_lat_lon_cnts_only %>%
-  # join 1x1 minute grid
+  # join n minute grid
   st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
-           crs = st_crs(GOMsf)) %>%
+           crs = st_crs(GOMsf),
+           remove = FALSE) %>%
   st_join(grid, join = st_nearest_feature)
 toc()
 
 # class(effort)
 ## crop by the shape ----
-tic("effort_cropped")
 effort_cropped <-
   with_st_intersection(effort,
           GOMsf)
+# effort_cropped: 81.51 sec elapsed
+
+tic("effort_cropped2")
+effort_cropped2 <-
+  effort |>
+  st_join(GOMsf, left = FALSE) %>%
+  mutate(LONGITUDE = st_coordinates(.)[, 1],
+         LATITUDE = st_coordinates(.)[, 2])
 toc()
+# effort_cropped2: 0.44 sec elapsed
+
+all.equal(effort_cropped |>
+            arrange(cell_id, LATITUDE, LONGITUDE),
+          effort_cropped2 |>
+            arrange(cell_id, LATITUDE, LONGITUDE))
+# [1000] "Component 6: Component 165: target is XY, current is numeric"
+#  [ reached getOption("max.print") -- omitted 174390 entries ]
+
+str(effort_cropped2)
+# sf [29,230 × 6] (S3: sf/tbl_df/tbl/data.frame)
+# sf [29,230 × 6] (S3: sf/tbl_df/tbl/data.frame)
+ # $ geometry       :sfc_POINT of length 29230; first list element:  'XY' num [1:2] -83.2 27.8
+ # $ geometry       :sfc_POINT of length 29230; first list element:  'XY' num [1:2] -81.7 24.6
+
 
 
 # sum trips by grid cell
-heat.plt = data.frame(effort) %>%
+heat.plt = data.frame(effort_cropped) %>%
   group_by(cell_id) %>%
-  summarise(location_cnts_u = sum(location_cnts_u)) %>%
+  summarise(location_cnts_u = n_distinct(LATITUDE, LONGITUDE)) %>%
+
+  # summarise(location_cnts_u = sum(location_cnts_u)) %>%
   inner_join(grid, by = "cell_id")
 
 glimpse(heat.plt)
 # [1] 119   3
+
+View(heat.plt)
 
 # heat map
 map_trips <-
@@ -928,10 +943,9 @@ map_trips <-
     name = "total trips",
     labels = scales::comma,
     low = "red", mid = "white", high = "blue",
-    trans = "log2"
-    # ,
+    trans = "log2",
     # trans = "log1p",
-    # limits = c(2, NA),
+    limits = c(1, NA),
     # oob = scales::oob_keep
   ) +
   theme(
