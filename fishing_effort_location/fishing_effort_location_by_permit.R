@@ -1224,7 +1224,7 @@ plot_zone_cnt <-
           high = "blue",
           # trans = "log2",
           trans = "log1p",
-          limits = c(1, max_num)
+          limits = c(min_num, max_num)
           # ,
           # oob = scales::oob_keep
         ) +
@@ -1238,22 +1238,12 @@ plot_zone_cnt <-
         guides(fill = guide_colourbar(title.position = "top"))
     }
 
-for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short |>
-  # dim()
-# [1] 35822     4
+# shape_data = gomshp_zone_cnt
+# total_cnt_title = "total reporting vessels"
+# cnts_col_name = "vsl_cnt_stat_zone"
+# caption_text = "Heat map of SEFHIER trips. 2022. GoM permitted vessels."
 
-  distinct() |>
-  dim()
-  # [1] 29230     4
-
-
-shape_data = gomshp_zone_cnt
-total_cnt_title = "total reporting vessels"
-cnts_col_name = "vsl_cnt_stat_zone"
-caption_text = "Heat map of SEFHIER trips. 2022. GoM permitted vessels."
-
-
-map_trips_stat_zone <-
+map_vsls_stat_zone <-
   plot_zone_cnt(
     gomshp_zone_cnt,
     "total reporting vessels",
@@ -1261,6 +1251,13 @@ map_trips_stat_zone <-
     caption_text = "Heat map of SEFHIER reporting vessels. 2022. GoM permitted only."
   )
 
+# map_vsls_stat_zone
+
+map_trips_stat_zone <-
+  plot_zone_cnt(gomshp_zone_cnt,
+                "total trips",
+                "trip_id_cnt_stat_zone",
+                caption_text = "Heat map of SEFHIER trips by stat zones. 2022. GoM permitted vessels only.")
+
 map_trips_stat_zone
 #
-
