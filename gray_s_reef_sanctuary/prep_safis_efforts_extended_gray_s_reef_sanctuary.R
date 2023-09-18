@@ -93,27 +93,41 @@ leaflet_safis_efforts_extended_all_short_good_sf_sanct <-
   safis_efforts_extended_all_short_good_sf_sanct |>
   leaflet() |>
   addTiles() |>
-  addCircleMarkers(
+  addMarkers(
     lat = ~ LATITUDE,
     lng = ~ LONGITUDE,
     label = ~ paste(LATITUDE, LONGITUDE)
   ) |>
-  # setView(
-  #   lng = mean(gom_vessels$ten_min_lon),
-  #   lat = mean(gom_vessels$ten_min_lat),
-  #   zoom = 4
+  setView(
+    lng = mean(safis_efforts_extended_all_short_good_sf_sanct$LONGITUDE),
+    lat = mean(safis_efforts_extended_all_short_good_sf_sanct$LATITUDE),
+    zoom = 10
+  ) |>
+  # addRectangles(
+  #   lng1 = sanctuary_bounding_box[["xmin"]],
+  #   lat1 = sanctuary_bounding_box[["ymin"]],
+  #   lng2 = sanctuary_bounding_box[["xmax"]],
+  #   lat2 = sanctuary_bounding_box[["ymax"]],
+  #   fill = FALSE,
+  #   dashArray = 10,
+  #   1,
+  #   10,
+  #   weight = 0.7
   # ) |>
-  addRectangles(
-    lng1 = sanctuary_bounding_box[["xmin"]],
-    lat1 = sanctuary_bounding_box[["ymin"]],
-    lng2 = sanctuary_bounding_box[["xmax"]],
-    lat2 = sanctuary_bounding_box[["ymax"]],
-    fill = FALSE,
+    addRectangles(
+    lng1 = research_area_bounding_box[["xmin"]],
+    lat1 = research_area_bounding_box[["ymin"]],
+    lng2 = research_area_bounding_box[["xmax"]],
+    lat2 = research_area_bounding_box[["ymax"]],
+    fillColor = "#ffcccb",
+    fillOpacity = 0.2,
     dashArray = 10,
     1,
     10,
     weight = 0.7
   )
+
+leaflet_safis_efforts_extended_all_short_good_sf_sanct
 
 # here - old ----
 
