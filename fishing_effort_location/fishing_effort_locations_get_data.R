@@ -154,7 +154,7 @@ rm_columns <- c("ANYTHING_CAUGHT_FLAG",
 
 safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
-  select(-all_of(rm_columns)) |>
+  select(-any_of(rm_columns)) |>
   distinct()
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
@@ -236,4 +236,4 @@ toc()
 ### fl_state_w_counties ----
 fl_state_w_counties_shp <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
 
-mapview(fl_state_w_counties_shp)
+# mapview(fl_state_w_counties_shp)
