@@ -35,7 +35,7 @@ rm_columns <- c("ANYTHING_CAUGHT_FLAG",
 
 safis_efforts_extended_all_short <-
   safis_efforts_extended_all |>
-  select(-all_of(rm_columns)) |>
+  select(-any_of(rm_columns)) |>
   distinct()
 
 dim(safis_efforts_extended_all_short)
@@ -62,26 +62,60 @@ dim(safis_efforts_extended_all_short_good)
 safis_efforts_extended_all_short_good_sf <-
   my_to_sf(safis_efforts_extended_all_short_good)
 
-# subset by Big box ----
-# Michelle: I think we need to allow trips that occur anywhere in the GOM, with the eastern lat border being like a big line down the Atlantic Ocean at Bermuda. Does that make sense? Southern Border could be at Cuba. The Northern Border needs to extend up through Maine - since we require reporting no matter where they fish. Basically just a big box, regardless of Council jurisdiction.
-# Jessica: I like the big box without council jurisdiction and then I am going to assume we will just plot those trips for vessels with GOM permits?  This should show the Council how many GOM vessels also fish in other regions as well as where they are fishing in the Gulf.
+# subset by grays sanctuary ----
+# Sanctuary Boundaries (DD)
+sanctuary_bounding_box <- c(
+   xmin = -80.921200,
+   ymin = 31.362732,
+   xmax = -80.828145,
+   ymax = 31.421064
+ )
+tic("safis_efforts_extended_all_short_good_sf_sanct")
+safis_efforts_extended_all_short_good_sf_sanct <-
+  st_crop(safis_efforts_extended_all_short_good_sf,
+          sanctuary_bounding_box)
+toc()
+# safis_efforts_extended_all_short_good_sf_sanct: 0.26 sec elapsed
 
-big_bounding_box <- c(
-   xmin = -97.79954,
-   ymin = 21.521757, #Cuba
-   xmax = -64.790337, #Bermuda
-   ymax = 49 #Canada
+glimpse(safis_efforts_extended_all_short_good_sf_sanct)
+# 1
+
+# Research Area Boundaries (DD)
+research_area_bounding_box <- c(
+   xmin = -80.921200,
+   ymin = 31.362732,
+   xmax = -80.828145,
+   ymax = 31.384444
  )
 
-tic("safis_efforts_extended_all_short_good_sf_crop_big")
-safis_efforts_extended_all_short_good_sf_crop_big <-
-  st_crop(safis_efforts_extended_all_short_good_sf,
-          big_bounding_box)
-toc()
-# safis_efforts_extended_all_short_good_sf_crop_big: 0.89 sec elapsed
+# mapview(safis_efforts_extended_all_short_good_sf_sanct)
+leaflet_safis_efforts_extended_all_short_good_sf_sanct <-
+  safis_efforts_extended_all_short_good_sf_sanct |>
+  leaflet() |>
+  addTiles() |>
+  addCircleMarkers(
+    lat = ~ LATITUDE,
+    lng = ~ LONGITUDE,
+    label = ~ paste(LATITUDE, LONGITUDE)
+  ) |>
+  # setView(
+  #   lng = mean(gom_vessels$ten_min_lon),
+  #   lat = mean(gom_vessels$ten_min_lat),
+  #   zoom = 4
+  # ) |>
+  addRectangles(
+    lng1 = sanctuary_bounding_box[["xmin"]],
+    lat1 = sanctuary_bounding_box[["ymin"]],
+    lng2 = sanctuary_bounding_box[["xmax"]],
+    lat2 = sanctuary_bounding_box[["ymax"]],
+    fill = FALSE,
+    dashArray = 10,
+    1,
+    10,
+    weight = 0.7
+  )
 
-dim(safis_efforts_extended_all_short_good_sf_crop_big)
-# [1] 137761     18
+# here - old ----
 
 # convert back to df ----
 safis_efforts_extended_all_short_good_sf_crop_big_df <-
@@ -90,6 +124,7 @@ safis_efforts_extended_all_short_good_sf_crop_big_df <-
 
 dim(safis_efforts_extended_all_short_good_sf_crop_big_df)
 # [1] 137761     17
+
 
 # use metrics only vessels not in SRHS ----
 source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
