@@ -105,7 +105,7 @@ upload_effort_files <- function(add_path) {
 }
 
 ## 2022 ----
-add_path <- r"(from_Fhier\SAFIS Efforts Extended)"
+add_path <- r"(from_Fhier\SAFIS Efforts Extended\2022__09_08_2023)"
 safis_efforts_extended_2022 <- upload_effort_files(add_path)
 
 dim(safis_efforts_extended_2022)
@@ -113,7 +113,7 @@ dim(safis_efforts_extended_2022)
 # [1] 97970    42 distinct()
 
 ## 2023 ----
-add_path <- r"(from_Fhier\SAFIS Efforts Extended\2023)"
+add_path <- r"(from_Fhier\SAFIS Efforts Extended\2023__09_13_2023)"
 safis_efforts_extended_2023 <- upload_effort_files(add_path)
 
 dim(safis_efforts_extended_2023)
