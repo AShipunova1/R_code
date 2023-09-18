@@ -146,12 +146,19 @@ get_ten_min_coords <- function(my_df) {
 ## From FHIER ----
 # View(safis_efforts_extended_2022_short)
 
-safis_efforts_extended_2022_short_good <-
+safis_efforts_extended_2022_short_good_all_coords <-
   safis_efforts_extended_2022_short |>
   dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE),
                 LATITUDE = as.numeric(LATITUDE)) |>
   # all LONG should be negative
-  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) |>
+  distinct()
+
+dim(safis_efforts_extended_2022_short_good_all_coords)
+# [1] 97970    17
+
+safis_efforts_extended_2022_short_good <-
+  safis_efforts_extended_2022_short_good_all_coords |>
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   distinct()
@@ -1064,12 +1071,12 @@ make_map_trips <-
   }
 
 max_num3 <- max(heat.plt$trip_id_cnt)
-map_trips_rule_3 <-
-  make_map_trips(heat.plt,
-           st_union_GOMsf,
-           "total trips",
-           max_num = max_num3,
-           caption_text = "Heat map of SEFHIER trips (5 min. resolution). 2022. GoM permitted vessels. Only squares with more than 3 reporting vessels are shown. ")
+# map_trips_rule_3 <-
+#   make_map_trips(heat.plt,
+#            st_union_GOMsf,
+#            "total trips",
+#            max_num = max_num3,
+#            caption_text = "Heat map of SEFHIER trips (5 min. resolution). 2022. GoM permitted vessels. Only squares with more than 3 reporting vessels are shown. ")
 
 # map_trips_rule_3
 
