@@ -2,7 +2,7 @@
 
 fhier_reports_metrics_tracking_file_names <-
   c("Detail_Report_12312021_12312022__08_23_2023.csv",
-    "Detail_Report_12312022_12312023__08_23_2023")
+    "Detail_Report_12312022_12312023__08_23_2023.csv")
 
 common_dir <-
   r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))"
