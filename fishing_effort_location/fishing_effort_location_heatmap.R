@@ -101,20 +101,40 @@ toc()
 #           GOMsf)
 # effort_cropped: 81.51 sec elapsed
 
+crop_by_shape <-
+  function(my_sf) {
+    my_sf |>
+      st_join(GOMsf, left = FALSE) %>%
+      mutate(LONGITUDE = st_coordinates(.)[, 1],
+             LATITUDE = st_coordinates(.)[, 2]) %>%
+      return()
+  }
+
 tic("effort_vsl_cropped")
-effort_vsl_cropped <-
-  effort_vsl |>
-  st_join(GOMsf, left = FALSE) %>%
-  mutate(LONGITUDE = st_coordinates(.)[, 1],
-         LATITUDE = st_coordinates(.)[, 2])
+effort_vsl_cropped <- crop_by_shape(effort_vsl)
 toc()
 # effort_cropped2: 0.44 sec elapsed
+dim(effort_vsl_cropped)
+# [1] 35822     7
 
 # class(effort_cropped)
 
 # print_df_names(effort_vsl_cropped)
 
 ## count trip ids and vessels by grid cell ----
+add_vsl_and_trip_cnts <-
+  function(my_df) {
+    my_df |>
+      group_by(cell_id) |>
+      mutate(vsl_cnt = n_distinct(VESSEL_OFFICIAL_NBR),
+             trip_id_cnt = n_distinct(TRIP_ID)) |>
+      ungroup() %>%
+      return()
+  }
+
+effort_vsl_cropped_cnt2_1 <-
+ add_vsl_and_trip_cnts(effort_vsl_cropped)
+
 effort_vsl_cropped_cnt2 <-
   effort_vsl_cropped |>
   # sf::st_drop_geometry() |>
@@ -123,6 +143,10 @@ effort_vsl_cropped_cnt2 <-
          trip_id_cnt = n_distinct(TRIP_ID)) |>
   ungroup()
 # [1] 35822     8
+
+# all.equal(effort_vsl_cropped_cnt2_1,
+#           effort_vsl_cropped_cnt2)
+# T
 
 # check
 effort_vsl_cropped_cnt2 |>
@@ -420,7 +444,7 @@ map_trips_stat_zone <-
 # map_trips_stat_zone
 #
 
-# repeat separately for charter and headboat ----
+# Repeat separately for charter and headboat ----
 
 # Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they selected that in the logbook.
 
@@ -435,24 +459,32 @@ my_vessels_trips <-
 str(my_vessels_trips)
 # chr [1:626] "FL9312NA" "FL6074MJ" "FL4038KN" "FL0957RW" "FL4521RU" "994360" ...
 
-my_vessel_ids <- unique(my_vessels_trips$VESSEL_OFFICIAL_NBR)
 
-full_length <- length(unique(my_vessels_trips$VESSEL_OFFICIAL_NBR))
+### create a db query with chunks, otherwise Oracle error ----
+
+my_vessels_ids_u <- unique(my_vessels_trips$VESSEL_OFFICIAL_NBR)
+
+full_length <- length(my_vessels_ids_u)
 # 626
 
 max_chunk_num <- 3
 
+# repeat max_chunk_num times
 all_ch <-
   lapply(1:max_chunk_num, function(i) {
+    # count the current start and end
     one_chunk_length <- ceiling(full_length / max_chunk_num)
     current_end <- one_chunk_length * i
     current_start <- current_end - one_chunk_length
-    my_vessel_ids$VESSEL_OFFICIAL_NBR[current_start:current_end] |>
+
+    # pull the chunk from start to end
+    my_vessels_ids_u[current_start:current_end] |>
+      # and paste in into a comma separated string
       paste0(collapse = "', '")
   })
 
-# tail(all_ch[[3]])
-# tail(my_vessel_ids$VESSEL_OFFICIAL_NBR)
+tail(all_ch[[3]])
+tail(my_vessels_ids_u)
 # str(all_ch)
 # tibble [626 × 1] (S3: tbl_df/tbl/data.frame)
 
@@ -467,7 +499,7 @@ collect_parts <-
 
 # cat(collect_parts)
 
-get_trip_type_data_from_db <- function(vessel_ids_str) {
+get_trip_type_data_from_db <- function() {
   # browser()
   con = dbConnect(
     dbDriver("Oracle"),
@@ -479,6 +511,7 @@ get_trip_type_data_from_db <- function(vessel_ids_str) {
   request_query <-
     paste0(
       "SELECT distinct
+      trip_id,
     vessel_official_nbr,
     trip_type_name
 FROM
@@ -492,8 +525,8 @@ collect_parts,
 ")"
     )
 
-# nchar(request_query)
-# [1] 523009
+  # nchar(request_query)
+  # [1] 523009
 
   # cat(request_query)
 
@@ -508,9 +541,67 @@ collect_parts,
 tic("trip_type_data_from_db")
 trip_type_data_from_db <- get_trip_type_data_from_db()
 toc()
-# data_overview(trip_type_data_from_db)
-# VESSEL_OFFICIAL_NBR 618
-# TRIP_TYPE_NAME        2
+# trip_type_data_from_db: 9.46 sec elapsed
 
-trip_type_data_from_db |>
-  filter()
+# data_overview(trip_type_data_from_db)
+# TRIP_ID             47702
+# VESSEL_OFFICIAL_NBR 618
+
+# glimpse(my_vessels_trips)
+
+glimpse(trip_type_data_from_db)
+# Rows: 47,702
+
+## keep only trips we have in our original data ----
+trip_type_data_from_db_by_t_id <-
+  trip_type_data_from_db |>
+  filter(TRIP_ID %in% my_vessels_trips$TRIP_ID) |>
+  distinct()
+
+glimpse(trip_type_data_from_db_by_t_id)
+# Rows: 39,977
+
+## add trip_type data to the original data ----
+trip_type_data_from_db_by_t_id <-
+  mutate(trip_type_data_from_db_by_t_id,
+       TRIP_ID = as.character(TRIP_ID))
+
+trip_type_data_from_db_by_t_id_types <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  left_join(trip_type_data_from_db_by_t_id)
+# Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+## separate by trip type ----
+trip_type_data_from_db_by_t_id_types_l <-
+  trip_type_data_from_db_by_t_id_types |>
+  split(as.factor(trip_type_data_from_db_by_t_id_types$TRIP_TYPE_NAME)) |>
+  # remove extra columns in each df
+  map(\(x)
+      x |>
+        dplyr::select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
+        distinct())
+
+
+# glimpse(trip_type_data_from_db_by_t_id_types)
+# List of 2
+#  $ CHARTER :'data.frame':	39835 obs. of  3 variables:
+#  $ HEADBOAT:'data.frame':	142 obs. of  3 variables:
+
+# str(trip_type_data_from_db_by_t_id_types_l)
+
+## create 5 min heatmaps for both trip types ----
+# trip_type_data_from_db_by_t_id_types_l
+
+tic("effort_t_type")
+effort_t_type <-
+  map(trip_type_data_from_db_by_t_id_types_l, df_join_grid)
+toc()
+# effort_t_type: 0.7 sec elapsed
+# dim(effort_t_type)
+
+tic("effort_t_type_cropped")
+effort_t_type_cropped <- map(effort_t_type, crop_by_shape)
+toc()
+# effort_t_type_cropped: 1.04 sec elapsed
+
+str(effort_t_type_cropped)
