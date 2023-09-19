@@ -426,13 +426,21 @@ map_trips_stat_zone <-
 
 ## get trip_type data ----
 
-my_vessels <-
-  unique(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual$VESSEL_OFFICIAL_NBR)
+my_vessels_trips <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  select(VESSEL_OFFICIAL_NBR,
+         TRIP_ID) |>
+  distinct()
 
+View(my_vessels_trips)
 # str(my_vessels)
  # chr [1:626] "FL9312NA" "FL6074MJ" "FL4038KN" "FL0957RW" "FL4521RU" "994360" ...
 
-my_vessels_str <- paste0(my_vessels, collapse = "', '")
+my_vessels_str <-
+  my_vessels_trips |>
+  select(VESSEL_OFFICIAL_NBR) |>
+  distinct() |>
+  paste0(my_vessels, collapse = "', '")
 
 get_trip_type_data_from_db <- function() {
   browser()
