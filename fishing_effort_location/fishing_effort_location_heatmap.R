@@ -447,10 +447,7 @@ get_trip_type_data_from_db <- function() {
     paste0(
       "SELECT distinct
     vessel_official_nbr,
-    activity_type_name,
-    trip_type_name,
-    latitude,
-    longitude,
+    trip_type_name
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk.sfsc.noaa.gov
 WHERE
