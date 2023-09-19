@@ -436,14 +436,19 @@ View(my_vessels_trips)
 # str(my_vessels)
  # chr [1:626] "FL9312NA" "FL6074MJ" "FL4038KN" "FL0957RW" "FL4521RU" "994360" ...
 
-my_vessels_str <-
-  my_vessels_trips |>
-  select(VESSEL_OFFICIAL_NBR) |>
-  distinct() |>
-  paste0(my_vessels, collapse = "', '")
+my_str <-
+  names(my_vessels_trips) |>
+  # An anonymous function, e.g. ⁠\(x) x + 1⁠ or function(x) x + 1.
+  purrr::map(function(current_col_name)
+             {
+               my_vessels_trips |>
+                 select(all_of(current_col_name)) |>
+                 distinct() |>
+                 paste0(collapse = "', '")
+  })
 
 get_trip_type_data_from_db <- function() {
-  browser()
+  # browser()
   con = dbConnect(
     dbDriver("Oracle"),
     username = keyring::key_list("SECPR")[1, 2],
@@ -462,7 +467,10 @@ WHERE
   trip_type in ('H', 'A')
   AND TRIP_START_DATE >= TO_DATE('01-JAN-22', 'dd-mon-yy')
   AND vessel_official_nbr in ('",
-my_vessels_str,
+my_str[[1]],
+"')
+  AND trip_id in ('",
+my_str[[2]],
 "')
   "
     )
