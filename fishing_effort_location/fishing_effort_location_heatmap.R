@@ -451,14 +451,35 @@ my_str <-
 # my_str[[2]],
 # "')
 
-# library(stringr)
-tensiSplit <- function(string, size) {
-  str_extract_all(string, paste0('.{1,', size, '}'))
-}
 
-rr <- tensiSplit(my_str[[1]], 10)
-View(rr)
-get_trip_type_data_from_db <- function() {
+# vessel_ids_str <-
+my_vessel_ids <-
+  my_vessels_trips |>
+  select(VESSEL_OFFICIAL_NBR) |>
+  distinct()
+
+full_length <- length(my_vessel_ids$VESSEL_OFFICIAL_NBR)
+# 626
+
+max_chunk_num <- 3
+
+all_ch <-
+  lapply(1:max_chunk_num, function(i) {
+    one_chunk_length <- ceiling(full_length / max_chunk_num)
+    current_end <- one_chunk_length * i
+    current_start <- current_end - one_chunk_length
+    my_vessel_ids$VESSEL_OFFICIAL_NBR[current_start:current_end]
+  })
+
+tail(all_ch[[3]])
+tail(my_vessel_ids$VESSEL_OFFICIAL_NBR)
+str(all_ch)
+# tibble [626 × 1] (S3: tbl_df/tbl/data.frame)
+
+                 # paste0(collapse = "', '")
+
+
+get_trip_type_data_from_db <- function(vessel_ids_str) {
   # browser()
   con = dbConnect(
     dbDriver("Oracle"),
@@ -479,7 +500,7 @@ WHERE
   trip_type in ('H', 'A')
   AND TRIP_START_DATE >= TO_DATE('01-JAN-22', 'dd-mon-yy')
   AND vessel_official_nbr in ('",
-my_str[[1]],
+vessel_ids_str,
 "')
   "
     )
