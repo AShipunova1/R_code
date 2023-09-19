@@ -447,6 +447,10 @@ my_str <-
                  paste0(collapse = "', '")
   })
 
+#   AND trip_id in ('",
+# my_str[[2]],
+# "')
+
 get_trip_type_data_from_db <- function() {
   # browser()
   con = dbConnect(
@@ -458,6 +462,7 @@ get_trip_type_data_from_db <- function() {
 
   request_query <-
     paste0(
+
       "SELECT distinct
     vessel_official_nbr,
     trip_type_name
@@ -469,11 +474,11 @@ WHERE
   AND vessel_official_nbr in ('",
 my_str[[1]],
 "')
-  AND trip_id in ('",
-my_str[[2]],
-"')
   "
     )
+
+#   nchar(request_query)
+# [1] 523009
 
   db_data = dbGetQuery(con,
                        request_query)
