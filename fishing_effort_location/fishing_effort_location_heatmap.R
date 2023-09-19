@@ -451,6 +451,13 @@ my_str <-
 # my_str[[2]],
 # "')
 
+# library(stringr)
+tensiSplit <- function(string, size) {
+  str_extract_all(string, paste0('.{1,', size, '}'))
+}
+
+rr <- tensiSplit(my_str[[1]], 10)
+View(rr)
 get_trip_type_data_from_db <- function() {
   # browser()
   con = dbConnect(
