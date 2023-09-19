@@ -190,8 +190,9 @@ make_map_trips <-
            shape_data,
            total_trips_title,
            trip_cnt_name,
-           caption_text = "Heat map of SEFHIER trips (5 min. resolution).") {
-
+           caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
+           print_stat_zone = NULL) {
+    # browser()
     max_num <- max(map_trip_base_data[[trip_cnt_name]])
     map_trips <-
       ggplot() +
@@ -199,11 +200,20 @@ make_map_trips <-
               aes(geometry = x,
                   fill = !!sym(trip_cnt_name)),
               colour = NA) +
-      geom_sf(data = shape_data, fill = NA) +
-      geom_sf_text(data = shape_data,
-                   aes(geometry = geometry,
-                       label = StatZone),
-                   size = 3.5) +
+      geom_sf(data = shape_data, fill = NA)
+
+    # test for an optional argument
+    if (!missing(print_stat_zone)) {
+      map_trips <-
+        map_trips +
+        geom_sf_text(data = shape_data,
+                     aes(geometry = geometry,
+                         label = StatZone),
+                     size = 3.5)
+    }
+
+    map_trips <-
+        map_trips +
       labs(
         x = "",
         y = "",
@@ -622,3 +632,19 @@ effort_t_type_cropped_cnt_join_grid <-
 
 # print_df_names(effort_t_type_cropped_cnt_join_grid$CHARTER)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, cell_id, StatZone, LONGITUDE, LATITUDE, vsl_cnt, trip_id_cnt, x"
+
+# effort_t_type_cropped_cnt_join_grid$CHARTER
+
+map_trips_types <-
+  names(effort_t_type_cropped_cnt_join_grid) |>
+  map(
+    \(charter_headb) make_map_trips(
+      effort_t_type_cropped_cnt_join_grid[[charter_headb]],
+      shape_data = st_union_GOMsf,
+      total_trips_title = "total trips",
+      trip_cnt_name = "trip_id_cnt",
+      caption_text = str_glue("Heat map of SEFHIER {tolower(charter_headb)} trips (5 min. resolution). 2022. GoM permitted vessels.")
+    )
+  )
+
+map_trips_types[[2]]
