@@ -132,21 +132,11 @@ add_vsl_and_trip_cnts <-
       return()
   }
 
-effort_vsl_cropped_cnt2_1 <-
+effort_vsl_cropped_cnt2 <-
  add_vsl_and_trip_cnts(effort_vsl_cropped)
 
-effort_vsl_cropped_cnt2 <-
-  effort_vsl_cropped |>
-  # sf::st_drop_geometry() |>
-  group_by(cell_id) |>
-  mutate(vsl_cnt = n_distinct(VESSEL_OFFICIAL_NBR),
-         trip_id_cnt = n_distinct(TRIP_ID)) |>
-  ungroup()
+dim(effort_vsl_cropped_cnt2)
 # [1] 35822     8
-
-# all.equal(effort_vsl_cropped_cnt2_1,
-#           effort_vsl_cropped_cnt2)
-# T
 
 # check
 effort_vsl_cropped_cnt2 |>
