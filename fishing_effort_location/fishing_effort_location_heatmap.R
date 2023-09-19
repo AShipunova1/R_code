@@ -468,16 +468,25 @@ all_ch <-
     one_chunk_length <- ceiling(full_length / max_chunk_num)
     current_end <- one_chunk_length * i
     current_start <- current_end - one_chunk_length
-    my_vessel_ids$VESSEL_OFFICIAL_NBR[current_start:current_end]
+    my_vessel_ids$VESSEL_OFFICIAL_NBR[current_start:current_end] |>
+      paste0(collapse = "', '")
   })
 
-tail(all_ch[[3]])
-tail(my_vessel_ids$VESSEL_OFFICIAL_NBR)
-str(all_ch)
+# tail(all_ch[[3]])
+# tail(my_vessel_ids$VESSEL_OFFICIAL_NBR)
+# str(all_ch)
 # tibble [626 × 1] (S3: tbl_df/tbl/data.frame)
 
                  # paste0(collapse = "', '")
 
+vsl_id_q_part <-
+  all_ch |>
+  map(\(one_chunk) str_glue("vessel_official_nbr in ('{one_chunk}')"))
+
+collect_parts <-
+  paste(vsl_id_q_part, collapse = ' OR ')
+
+# cat(collect_parts)
 
 get_trip_type_data_from_db <- function(vessel_ids_str) {
   # browser()
@@ -490,7 +499,6 @@ get_trip_type_data_from_db <- function(vessel_ids_str) {
 
   request_query <-
     paste0(
-
       "SELECT distinct
     vessel_official_nbr,
     trip_type_name
@@ -499,14 +507,16 @@ FROM
 WHERE
   trip_type in ('H', 'A')
   AND TRIP_START_DATE >= TO_DATE('01-JAN-22', 'dd-mon-yy')
-  AND vessel_official_nbr in ('",
-vessel_ids_str,
-"')
-  "
+  AND (
+  ",
+collect_parts,
+")"
     )
 
-#   nchar(request_query)
+# nchar(request_query)
 # [1] 523009
+
+  # cat(request_query)
 
   db_data = dbGetQuery(con,
                        request_query)
@@ -519,5 +529,7 @@ vessel_ids_str,
 tic("trip_type_data_from_db")
 trip_type_data_from_db <- get_trip_type_data_from_db()
 toc()
-# data_overview(db_data)
+# data_overview(trip_type_data_from_db)
+# VESSEL_OFFICIAL_NBR 618
+# TRIP_TYPE_NAME        2
 
