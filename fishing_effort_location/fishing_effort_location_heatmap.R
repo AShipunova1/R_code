@@ -595,3 +595,30 @@ toc()
 # effort_t_type_cropped: 1.04 sec elapsed
 
 str(effort_t_type_cropped)
+
+effort_t_type_cropped_cnt <- map(effort_t_type_cropped, add_vsl_and_trip_cnts)
+
+map_df(effort_t_type_cropped_cnt, dim)
+#   CHARTER HEADBOAT
+#     <int>    <int>
+# 1   34696       13
+# 2       9        9
+
+# data_overview(effort_t_type_cropped_cnt$CHARTER)
+# cell_id              2785
+
+# View(grid)
+
+### join with min grid ----
+effort_t_type_cropped_cnt_join_grid <-
+  map(effort_t_type_cropped_cnt,
+      \(x)
+      # have to use data.frame, to avoid
+      # Error: y should not have class sf; for spatial joins, use st_join
+      inner_join(x, data.frame(grid),
+                 by = join_by(cell_id)
+)
+      )
+
+# print_df_names(effort_t_type_cropped_cnt_join_grid$CHARTER)
+# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, cell_id, StatZone, LONGITUDE, LATITUDE, vsl_cnt, trip_id_cnt, x"
