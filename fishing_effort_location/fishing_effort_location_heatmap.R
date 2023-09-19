@@ -432,33 +432,12 @@ my_vessels_trips <-
          TRIP_ID) |>
   distinct()
 
-View(my_vessels_trips)
-# str(my_vessels)
- # chr [1:626] "FL9312NA" "FL6074MJ" "FL4038KN" "FL0957RW" "FL4521RU" "994360" ...
+str(my_vessels_trips)
+# chr [1:626] "FL9312NA" "FL6074MJ" "FL4038KN" "FL0957RW" "FL4521RU" "994360" ...
 
-my_str <-
-  names(my_vessels_trips) |>
-  # An anonymous function, e.g. ⁠\(x) x + 1⁠ or function(x) x + 1.
-  purrr::map(function(current_col_name)
-             {
-               my_vessels_trips |>
-                 select(all_of(current_col_name)) |>
-                 distinct() |>
-                 paste0(collapse = "', '")
-  })
+my_vessel_ids <- unique(my_vessels_trips$VESSEL_OFFICIAL_NBR)
 
-#   AND trip_id in ('",
-# my_str[[2]],
-# "')
-
-
-# vessel_ids_str <-
-my_vessel_ids <-
-  my_vessels_trips |>
-  select(VESSEL_OFFICIAL_NBR) |>
-  distinct()
-
-full_length <- length(my_vessel_ids$VESSEL_OFFICIAL_NBR)
+full_length <- length(unique(my_vessels_trips$VESSEL_OFFICIAL_NBR))
 # 626
 
 max_chunk_num <- 3
@@ -533,3 +512,5 @@ toc()
 # VESSEL_OFFICIAL_NBR 618
 # TRIP_TYPE_NAME        2
 
+trip_type_data_from_db |>
+  filter()
