@@ -6,7 +6,7 @@ library(ggmap)
 # Heatmap ----
 
 # read in GOM trip ticket grid
-GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
+GOMsf = sf::read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
   group_by(StatZone) %>% summarise()
 # Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
 # Geodetic CRS:  WGS 84
@@ -17,8 +17,9 @@ GOMsf = read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
 min_grid <-
   function(minute_num = 1) {
     grid <-
-      sf::st_make_grid(x = st_bbox(GOMsf), cellsize = 1 / 60 * minute_num) %>%
-      st_as_sf() %>%
+      sf::st_make_grid(x = sf::st_bbox(GOMsf),
+                       cellsize = 1 / 60 * minute_num) %>%
+      sf::st_as_sf() %>%
       mutate(cell_id = 1:nrow(.))
 
     return(grid)
@@ -26,12 +27,12 @@ min_grid <-
 
 grid <- min_grid(5)
 
-st_agr(GOMsf) = st_agr(grid) = "constant"
+sf::st_agr(GOMsf) = sf::st_agr(grid) = "constant"
 
 ### remove internal boundaries from the shape file ----
 
 tic("st_union(GOMsf)")
-st_union_GOMsf <- st_union(GOMsf)
+st_union_GOMsf <- sf::st_union(GOMsf)
 toc()
 # st_union(GOMsf): 21.59 sec elapsed
 
