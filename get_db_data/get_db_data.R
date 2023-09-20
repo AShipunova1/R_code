@@ -106,51 +106,74 @@ dim(trips_info)
 # latitude/longitude ----
 # select * from safis.EFFORTS@secapxdv_dblk.sfsc.noaa.gov;
 
-my_temp_q <- "select * from (
-SELECT
-  *
+trip_coord_query <- "
+  SELECT
+  trip_id,
+  area_code,
+  sub_area_code,
+  distance_code,
+  fishing_hours,
+  latitude,
+  longitude,
+  local_area_code,
+  in_state,
+  avg_depth_in_fathoms,
+  e.de e_de,
+  e.ue e_ue,
+  e.dc e_dc,
+  e.uc e_uc,
+  anything_caught_flag,
+  depth,
+  minimum_bottom_depth,
+  maximum_bottom_depth,
+  fishing_gear_depth,
+  ten_minute_square_list,
+  trip_type,
+  supplier_trip_id,
+  days_at_sea,
+  t.de t_de,
+  t.ue t_ue,
+  t.dc t_dc,
+  t.uc t_uc,
+  vessel_id,
+  cf_permit_id,
+  trip_start_date,
+  port,
+  state,
+  trip_end_date,
+  trip_end_time,
+  trip_start_time,
+  submit_method,
+  activity_type,
+  end_port,
+  start_port,
+  sero_vessel_permit,
+  sea_time
 FROM
-       safis.efforts@secapxdv_dblk.sfsc.noaa.gov
-  JOIN safis.trips@secapxdv_dblk.sfsc.noaa.gov
+       safis.efforts@secapxdv_dblk.sfsc.noaa.gov e
+  JOIN safis.trips@secapxdv_dblk.sfsc.noaa.gov t
   USING ( trip_id )
-  )
-  where ROWNUM <= 5
-"
-
-my_temp <- dbGetQuery(con,
-             my_temp_q)
-
-dim(my_temp)
-# [1]   5 196
-write_csv(my_temp, "trip_effort_fields.csv")
-
-trips_file_name <-
-    file.path(input_path, "trips.rds")
-
-trips_query <-
-  "SELECT
-  *
-FROM
-  safis.efforts@secapxdv_dblk.sfsc.noaa.gov
 WHERE
   ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND CURRENT_DATE
   )
-ORDER BY
-  trip_end_date DESC
 "
 
-trips_fun <- function(trips_query) {
+trip_coord_file_name <-
+    file.path(input_path, "trip_coord.rds")
+
+trip_coord_fun <- function(trip_coord_query) {
   return(dbGetQuery(con,
-             trips_query))
+             trip_coord_query))
 }
 
-trips_info <-
-  read_rds_or_run(trips_file_name,
-                  trips_query,
-                  trips_fun
+trip_coord_info <-
+  read_rds_or_run(trip_coord_file_name,
+                  trip_coord_query,
+                  trip_coord_fun
                   )
-
-
+# 2023-09-20 run the function: 30.94 sec elapsed
+dim(trip_coord_info)
+# [1] 141350     41
 
 # DNF reports
 # get trip neg ----
