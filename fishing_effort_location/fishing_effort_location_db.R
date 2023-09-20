@@ -16,12 +16,36 @@ toc()
 # print_df_names(all_get_db_data_result_l)
 # mv_sero_fh_permits_his, trips_info, trip_coord_info, trip_neg_2022, trips_notifications_2022, vessels_permits, dates_2022, compl_err_db_data
 
-# trip_coord_info <-
+trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
   head()
+
+trip_coord_info1 <-
+  trip_coord_info |>
+  select_if(function(x)
+    !(all(is.na(x)) & !all(is.null(x))))
+
+dim(trip_coord_info1)
+
+  map(\(x) !all(is.na(x) | x == '' ))
+
+  allmisscols <- sapply(dt, function(x) all(is.na(x) | x == '' ))
+
+  dplyr::filter()
+
+  Filter(function(x)
+    !all(is.na(x)) & !all(is.null(x)) & !all(x) == "" & !all(x) == 0,
+    trip_coord_info)
+
+dim(trip_coord_info1)
+
 Filter(function(x)
-  !all(is.na(x)),
-  head(all_get_db_data_result_l[["trip_coord_info"]]))
+  !all(is.na(x))
+  &
+    !all(is.null(x)),
+  head(all_get_db_data_result_l[["trip_coord_info"]])) |>
+  dim()
+# 6 32
 
   # filter(function(x)!all(is.na(x)), mydf)
   map_df(function(x) {
