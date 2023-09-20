@@ -94,12 +94,63 @@ trips_info <-
                   trips_fun
                   )
 
-
 # 2023-09-20 run the function: 33.02 sec elapsed
 
 dim(trips_info)
 # [1] 98528    72 2022
-# [1] 142037     72 2021-
+# [1] 142037     72 2021--
+
+# grep("long", names(trips_info), ignore.case = T, value = T)
+# 0
+
+# latitude/longitude ----
+# select * from safis.EFFORTS@secapxdv_dblk.sfsc.noaa.gov;
+
+my_temp_q <- "select * from (
+SELECT
+  *
+FROM
+       safis.efforts@secapxdv_dblk.sfsc.noaa.gov
+  JOIN safis.trips@secapxdv_dblk.sfsc.noaa.gov
+  USING ( trip_id )
+  )
+  where ROWNUM <= 5
+"
+
+my_temp <- dbGetQuery(con,
+             my_temp_q)
+
+dim(my_temp)
+# [1]   5 196
+write_csv(my_temp, "trip_effort_fields.csv")
+
+trips_file_name <-
+    file.path(input_path, "trips.rds")
+
+trips_query <-
+  "SELECT
+  *
+FROM
+  safis.efforts@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND CURRENT_DATE
+  )
+ORDER BY
+  trip_end_date DESC
+"
+
+trips_fun <- function(trips_query) {
+  return(dbGetQuery(con,
+             trips_query))
+}
+
+trips_info <-
+  read_rds_or_run(trips_file_name,
+                  trips_query,
+                  trips_fun
+                  )
+
+
 
 # DNF reports
 # get trip neg ----
