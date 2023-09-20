@@ -142,7 +142,7 @@ effort_t_type_cropped_cnt_join_grid <-
 )
       )
 
-# print_df_names(effort_t_type_cropped_cnt_join_grid$CHARTER)
+# print_df_names(effort_t_type_cropped_cnt_join_grid$A)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, cell_id, StatZone, LONGITUDE, LATITUDE, vsl_cnt, trip_id_cnt, x"
 
 # effort_t_type_cropped_cnt_join_grid$CHARTER
@@ -159,5 +159,5 @@ map_trips_types <-
     )
   )
 
-map_trips_types[[2]]
+map_trips_types[[1]]
 
