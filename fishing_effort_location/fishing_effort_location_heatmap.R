@@ -75,12 +75,12 @@ df_join_grid <-
   function(my_df) {
     my_df |>
       # join n minute grid
-      st_as_sf(
+      sf::st_as_sf(
         coords = c("LONGITUDE", "LATITUDE"),
-        crs = st_crs(GOMsf)) |>
+        crs = sf::st_crs(GOMsf)) |>
         # ,
         # remove = FALSE) %>%
-        st_join(grid, join = st_nearest_feature) %>%
+        sf::st_join(grid, join = sf::st_nearest_feature) %>%
           return()
         }
 
@@ -105,9 +105,9 @@ toc()
 crop_by_shape <-
   function(my_sf) {
     my_sf |>
-      st_join(GOMsf, left = FALSE) %>%
-      mutate(LONGITUDE = st_coordinates(.)[, 1],
-             LATITUDE = st_coordinates(.)[, 2]) %>%
+      sf::st_join(GOMsf, left = FALSE) %>%
+      dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
+             LATITUDE = sf::st_coordinates(.)[, 2]) %>%
       return()
   }
 
