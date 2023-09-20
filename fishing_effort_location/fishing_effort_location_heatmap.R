@@ -508,6 +508,16 @@ get_trip_type_data_from_db <- function() {
     dbname = "SECPR"
   )
 
+  "
+DECLARE
+  str varchar2(32767);
+BEGIN
+  str := 'Very-very-...-very-very-very-very-very-very long string value';
+  update t1 set col1 = str;
+END;
+/
+"
+
   request_query <-
     paste0(
       "SELECT distinct
