@@ -3,6 +3,7 @@
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_name <- "get_db_data"
+input_path <- file.path(my_paths$inputs, current_project_name)
 
 # err msg if no connection, but keep running
 try(con <- connect_to_secpr())
@@ -10,8 +11,6 @@ try(con <- connect_to_secpr())
 
 # get data from db ----
 # RDS (R Data Serialization) files are a common format for saving R objects in RStudio, and they allow you to preserve the state of an object between R sessions.
-
-input_path <- file.path(my_paths$inputs, current_project_name)
 
 ## permit ----
 file_name_permits <-
@@ -34,7 +33,8 @@ get_permit_info <-
   function() {
       read_rds_or_run(file_name_permits,
                       mv_sero_fh_permits_his_query,
-                      permit_info_fun)
+                      permit_info_fun,
+                      force_from_db)
   }
 # 2023-09-20 run the function: 40.74 sec elapsed
 
@@ -91,7 +91,8 @@ get_trips_info <-
   function() {
       read_rds_or_run(trips_file_name,
                       trips_query,
-                      trips_fun)
+                      trips_fun,
+                      force_from_db)
   }
 # 2023-09-20 run the function: 33.02 sec elapsed
 
@@ -165,7 +166,8 @@ get_trip_coord_info <-
   function() {
       read_rds_or_run(trip_coord_file_name,
                       trip_coord_query,
-                      trip_coord_fun)
+                      trip_coord_fun,
+                      force_from_db)
   }
 
 # 2023-09-20 run the function: 30.94 sec elapsed
@@ -201,7 +203,8 @@ get_trip_neg_2022 <-
   function() {
     read_rds_or_run(trip_neg_2022_file_path,
                     trip_neg_2022_query,
-                    trip_neg_2022_fun)
+                    trip_neg_2022_fun,
+                    force_from_db)
   }
 # run the function: 98.23 sec elapsed
 
@@ -235,7 +238,8 @@ get_trips_notifications_2022 <-
     read_rds_or_run(
       trips_notifications_2022_file_path,
       trips_notifications_2022_query,
-      trips_notifications_2022_fun
+      trips_notifications_2022_fun,
+      force_from_db
     )
   }
 # 2023-07-15 run the function: 13.41 sec elapsed
@@ -287,7 +291,8 @@ get_vessels_permits <-
   function() {
     read_rds_or_run(vessels_permits_file_path,
                     vessels_permits_query,
-                    vessels_permits_fun)
+                    vessels_permits_fun,
+                    force_from_db)
   }
 # 2023-09-20 run the function: 14.08 sec elapsed
 
@@ -390,7 +395,8 @@ dates_2022_fun <-
 get_dates_2022 <- function() {
   read_rds_or_run(dates_2022_file_path,
                   dates_2022_query,
-                  dates_2022_fun)
+                  dates_2022_fun,
+                  force_from_db)
 }
 
 # get override data ----
@@ -434,7 +440,8 @@ get_compl_err_db_data <- function() {
   compl_err_db_data_raw <-
     read_rds_or_run(file_name_overr,
                     compl_err_query,
-                    get_compl_err_data_from_db)
+                    get_compl_err_data_from_db,
+                    force_from_db)
   # 2023-09-20 run the function: 14.99 sec elapsed
 
   compl_err_db_data <- clean_headers(compl_err_db_data_raw)
@@ -503,9 +510,11 @@ run_all_get_db_data <-
     return(result_l)
   }
 
-tic("run_all_get_db_data()")
-all_get_db_data_result_l <- run_all_get_db_data()
-toc()
+force_from_db <- NULL
+# force_from_db <- "YES"
+# tic("run_all_get_db_data(force_from_db)")
+# all_get_db_data_result_l <- run_all_get_db_data()
+# toc()
 # reading RDS
 # run_all_get_db_data(): 1.69 sec elapsed
 
@@ -513,10 +522,16 @@ toc()
 # 'data.frame':	99832 obs. of  38 variables:
 
 ### check ----
-names(all_get_db_data_result_l) |>
-  map(\(df_name) {
-    c(df_name, dim(all_get_db_data_result_l[[df_name]]))
-  })
+# names(all_get_db_data_result_l) |>
+#   map(\(df_name) {
+#     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
+#   })
+
+force_from_db <- "NULL"
+dates_2022_1 <- get_dates_2022()
+all.equal(dates_2022_1,
+          dates_2022)
+
 
 # close the db connection ----
 try(ROracle::dbDisconnect(con))
