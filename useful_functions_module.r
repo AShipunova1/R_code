@@ -38,6 +38,7 @@ library(magrittr)
 library(readxl)  # reading in .xlsx
 library(rbenchmark)
 library(ROracle)
+library(tictoc)
 
 # Do not show warnings about groups
 options(dplyr.summarise.inform = FALSE)
