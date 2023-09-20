@@ -517,6 +517,8 @@ force_from_db <- NULL
 # toc()
 # reading RDS
 # run_all_get_db_data(): 1.69 sec elapsed
+# reading from db
+# run_all_get_db_data(): 259.81 sec elapsed ~ 4 min
 
 # str(all_get_db_data_result_l[["compl_err_db_data"]])
 # 'data.frame':	99832 obs. of  38 variables:
