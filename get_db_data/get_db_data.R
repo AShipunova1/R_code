@@ -32,15 +32,11 @@ permit_info_fun <-
 
 get_permit_info <-
   function() {
-    mv_sero_fh_permits_his <-
       read_rds_or_run(file_name_permits,
                       mv_sero_fh_permits_his_query,
                       permit_info_fun)
   }
 # 2023-09-20 run the function: 40.74 sec elapsed
-
-dim(mv_sero_fh_permits_his)
-# [1] 183204     22
 
 ### permit + vessel from db ----
 # permit_vessel_query_exp21_query <-
@@ -91,17 +87,13 @@ trips_fun <- function(trips_query) {
              trips_query))
 }
 
-trips_info <-
-  read_rds_or_run(trips_file_name,
-                  trips_query,
-                  trips_fun
-                  )
-
+get_trips_info <-
+  function() {
+      read_rds_or_run(trips_file_name,
+                      trips_query,
+                      trips_fun)
+  }
 # 2023-09-20 run the function: 33.02 sec elapsed
-
-dim(trips_info)
-# [1] 98528    72 2022
-# [1] 142037     72 2021--
 
 # grep("long", names(trips_info), ignore.case = T, value = T)
 # 0
@@ -169,14 +161,14 @@ trip_coord_fun <- function(trip_coord_query) {
              trip_coord_query))
 }
 
-trip_coord_info <-
-  read_rds_or_run(trip_coord_file_name,
-                  trip_coord_query,
-                  trip_coord_fun
-                  )
+get_trip_coord_info <-
+  function() {
+      read_rds_or_run(trip_coord_file_name,
+                      trip_coord_query,
+                      trip_coord_fun)
+  }
+
 # 2023-09-20 run the function: 30.94 sec elapsed
-dim(trip_coord_info)
-# [1] 141350     41
 
 # DNF reports
 # get trip neg ----
@@ -467,7 +459,21 @@ source(file.path(my_paths$git_r,
 # 4063
 
 # --- main ----
-get_permit_info()
+mv_sero_fh_permits_his <- get_permit_info()
+dim(mv_sero_fh_permits_his)
+# [1] 183204     22
+
+trips_info <-
+  get_trips_info()
+dim(trips_info)
+# [1] 98528    72 2022
+# [1] 142037     72 2021--
+
+trip_coord_info <- get_trip_coord_info()
+dim(trip_coord_info)
+# [1] 141350     41
+
+
 
 try(ROracle::dbDisconnect(con))
 
