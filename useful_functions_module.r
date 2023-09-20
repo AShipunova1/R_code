@@ -653,17 +653,24 @@ read_rds_or_run <-
 
 # Usage:
 # select(-all_of(names(empty_cols)))
+# empty_cols <-
+#   function(my_df) {
+#     my_df |>
+#       map_df(function(x) {
+#         browser()
+#         if (length(unique(x)) == 1) {
+#           return(unique(x))
+#         }
+#       }) %>%
+#     return()
+#   }
 
-empty_cols <-
+remove_empty_cols <-
   function(my_df) {
     my_df |>
-      map_df(function(x) {
-        browser()
-        if (length(unique(x)) == 1) {
-          return(unique(x))
-        }
-      }) %>%
-    return()
+      dplyr::select_if(function(x)
+        !(all(is.na(x)) & !all(is.null(x)))) %>%
+      return()
   }
 
 create_dir_if_not <-
