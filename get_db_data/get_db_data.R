@@ -222,24 +222,23 @@ WHERE
 trips_notifications_2022_file_path <-
   file.path(input_path, "trips_notifications_2022.rds")
 
-trips_notifications_2022_fun <- function(trips_notifications_2022_query) {
-  return(dbGetQuery(con, trips_notifications_2022_query))
-}
+trips_notifications_2022_fun <-
+  function(trips_notifications_2022_query) {
+    return(dbGetQuery(con, trips_notifications_2022_query))
+  }
 # trips_notifications_query: 52.08 sec elapsed
 # 97279
 # trips_notifications_query: 7.65 sec elapsed
 
-trips_notifications_2022 <-
-  read_rds_or_run(
-    trips_notifications_2022_file_path,
-    trips_notifications_2022_query,
-    trips_notifications_2022_fun
-  )
+get_trips_notifications_2022 <-
+  function() {
+    read_rds_or_run(
+      trips_notifications_2022_file_path,
+      trips_notifications_2022_query,
+      trips_notifications_2022_fun
+    )
+  }
 # 2023-07-15 run the function: 13.41 sec elapsed
-
-dim(trips_notifications_2022)
-# Rows: 129,701
-# [1] 70056    33
 
 # get_vessels with permits 2021-- ----
 
@@ -472,6 +471,12 @@ dim(trip_neg_2022)
 # Rows: 1,495,929
 # [1] 746087     12
 # [1] 747173     12
+
+trips_notifications_2022 <- get_trips_notifications_2022()
+dim(trips_notifications_2022)
+# Rows: 129,701
+# [1] 70056    33
+
 
 try(ROracle::dbDisconnect(con))
 
