@@ -53,8 +53,14 @@ get_username <- function(){
     return(as.character(Sys.info()["user"]))
 }
 
-# set working directories
-  # change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
+# set working directories ----
+
+get_current_file_directory <-
+  function() {
+    dirname(rstudioapi::getSourceEditorContext()$path)
+  }
+
+# change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
   # then you can use it in the code like my_paths$input etc.
 set_work_dir <- function() {
   setwd("~/")
@@ -629,7 +635,7 @@ read_rds_or_run <-
       my_result <-
         readr::read_rds(my_file_path)
     } else {
-      msg_text <- paste(today(), "run the function")
+      msg_text <- paste(today(), "run for ", my_file_path)
       tic(msg_text)
       my_result <-
         my_function(my_data)
