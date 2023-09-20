@@ -9,6 +9,7 @@ try(con <- connect_to_secpr())
 # con <- connect_to_secpr()
 
 # get data from db ----
+# RDS (R Data Serialization) files are a common format for saving R objects in RStudio, and they allow you to preserve the state of an object between R sessions.
 
 input_path <- file.path(my_paths$inputs, current_project_name)
 
@@ -29,11 +30,13 @@ permit_info_fun <-
 
   }
 
-mv_sero_fh_permits_his <-
-  read_rds_or_run(file_name_permits,
-                  mv_sero_fh_permits_his_query,
-                  permit_info_fun
-                  )
+get_permit_info <-
+  function() {
+    mv_sero_fh_permits_his <-
+      read_rds_or_run(file_name_permits,
+                      mv_sero_fh_permits_his_query,
+                      permit_info_fun)
+  }
 # 2023-09-20 run the function: 40.74 sec elapsed
 
 dim(mv_sero_fh_permits_his)
@@ -195,7 +198,7 @@ WHERE
 
 trip_neg_2022_fun <-
   function(trip_neg_2022_query) {
-    return(dbGetQuery(con, trip_neg_query_2022))
+    return(dbGetQuery(con, trip_neg_2022_query))
   }
 
 # trip_neg_query_2022: 201.21 sec elapsed
@@ -462,3 +465,9 @@ source(file.path(my_paths$git_r,
 
 # dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # 4063
+
+# --- main ----
+get_permit_info()
+
+try(ROracle::dbDisconnect(con))
+
