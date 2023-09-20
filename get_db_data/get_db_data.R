@@ -512,7 +512,7 @@ run_all_get_db_data <-
 
 force_from_db <- NULL
 # force_from_db <- "YES"
-# tic("run_all_get_db_data(force_from_db)")
+# tic("run_all_get_db_data()")
 # all_get_db_data_result_l <- run_all_get_db_data()
 # toc()
 # reading RDS
@@ -527,10 +527,8 @@ force_from_db <- NULL
 #     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
 #   })
 
-force_from_db <- "NULL"
-dates_2022_1 <- get_dates_2022()
-all.equal(dates_2022_1,
-          dates_2022)
+# force_from_db <- "NULL"
+# dates_2022 <- get_dates_2022()
 
 
 # close the db connection ----
