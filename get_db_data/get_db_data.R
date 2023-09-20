@@ -197,18 +197,13 @@ trip_neg_2022_fun <-
 # trip_neg_query_2022: 60.06 sec elapsed
 # trip_neg_query_2022: 89.38 sec elapsed
 
-trip_neg_2022 <-
-  read_rds_or_run(trip_neg_2022_file_path,
-                  trip_neg_2022_query,
-                  trip_neg_2022_fun
-                  )
+get_trip_neg_2022 <-
+  function() {
+    read_rds_or_run(trip_neg_2022_file_path,
+                    trip_neg_2022_query,
+                    trip_neg_2022_fun)
+  }
 # run the function: 98.23 sec elapsed
-
-
-dim(trip_neg_2022)
-# Rows: 1,495,929
-# [1] 746087     12
-# [1] 747173     12
 
 # Declarations
 # trips_notifications ----
@@ -463,8 +458,7 @@ mv_sero_fh_permits_his <- get_permit_info()
 dim(mv_sero_fh_permits_his)
 # [1] 183204     22
 
-trips_info <-
-  get_trips_info()
+trips_info <- get_trips_info()
 dim(trips_info)
 # [1] 98528    72 2022
 # [1] 142037     72 2021--
@@ -473,7 +467,11 @@ trip_coord_info <- get_trip_coord_info()
 dim(trip_coord_info)
 # [1] 141350     41
 
-
+trip_neg_2022 <- get_trip_neg_2022()
+dim(trip_neg_2022)
+# Rows: 1,495,929
+# [1] 746087     12
+# [1] 747173     12
 
 try(ROracle::dbDisconnect(con))
 
