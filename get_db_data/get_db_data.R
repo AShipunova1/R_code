@@ -283,12 +283,12 @@ vessels_permits_fun <-
                       vessels_permits_query))
   }
 
-vessels_permits <-
-  read_rds_or_run(
-    vessels_permits_file_path,
-    vessels_permits_query,
-    vessels_permits_fun
-  )
+get_vessels_permits <-
+  function() {
+    read_rds_or_run(vessels_permits_file_path,
+                    vessels_permits_query,
+                    vessels_permits_fun)
+  }
 # 2023-09-20 run the function: 14.08 sec elapsed
 
 # find \\0 column ----
@@ -454,29 +454,33 @@ source(file.path(my_paths$git_r,
 
 # --- main ----
 mv_sero_fh_permits_his <- get_permit_info()
-dim(mv_sero_fh_permits_his)
+# dim(mv_sero_fh_permits_his)
 # [1] 183204     22
 
 trips_info <- get_trips_info()
-dim(trips_info)
+# dim(trips_info)
 # [1] 98528    72 2022
 # [1] 142037     72 2021--
 
 trip_coord_info <- get_trip_coord_info()
-dim(trip_coord_info)
+# dim(trip_coord_info)
 # [1] 141350     41
 
 trip_neg_2022 <- get_trip_neg_2022()
-dim(trip_neg_2022)
+# dim(trip_neg_2022)
 # Rows: 1,495,929
 # [1] 746087     12
 # [1] 747173     12
 
 trips_notifications_2022 <- get_trips_notifications_2022()
-dim(trips_notifications_2022)
+# dim(trips_notifications_2022)
 # Rows: 129,701
 # [1] 70056    33
 
+vessels_permits <- get_vessels_permits()
+# dim(vessels_permits)
+# [1] 78438    51
 
+# close the db connection ----
 try(ROracle::dbDisconnect(con))
 
