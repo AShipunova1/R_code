@@ -1,4 +1,7 @@
 # setup ----
+# TODO: separate and source functions from
+# "R_code_github\fishing_effort_location\fishing_effort_location_by_permit.R"
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_dir_path <- get_current_file_directory()
@@ -29,6 +32,7 @@ print_(trip_coord_info)
 
 # Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they selected that in the logbook.
 
+## filter 2022 ----
 trip_coord_info_2022 <-
   trip_coord_info |>
   filter(TRIP_START_DATE > "2021-12-31" &
@@ -37,81 +41,93 @@ trip_coord_info_2022 <-
 dim(trip_coord_info_2022)
 # [1] 96821    39
 
-data_overview(trip_coord_info_2022)
+# data_overview(trip_coord_info_2022)
 # TRIP_ID             96702
 # VESSEL_ID            1939
 
-rm_cols <- c()
+## shorten ----
+rm_cols <- c("TRIP_ID",
+"LATITUDE",
+"LONGITUDE",
+"TRIP_TYPE",
+"VESSEL_ID",
+"TRIP_START_DATE",
+"TRIP_END_DATE")
 
-# glimpse(my_vessels_trips)
-
-glimpse(trip_type_data_from_db)
-# Rows: 47,702
-
-## keep only trips we have in our original data ----
-trip_type_data_from_db_by_t_id <-
-  trip_type_data_from_db |>
-  filter(TRIP_ID %in% my_vessels_trips$TRIP_ID) |>
+trip_coord_info_2022_short <-
+  trip_coord_info_2022 |>
+  select(all_of(rm_cols)) |>
   distinct()
 
-glimpse(trip_type_data_from_db_by_t_id)
-# Rows: 39,977
+dim(trip_coord_info_2022_short)
+# [1] 96785     7
 
-## add trip_type data to the original data ----
-trip_type_data_from_db_by_t_id <-
-  mutate(trip_type_data_from_db_by_t_id,
-       TRIP_ID = as.character(TRIP_ID))
-
-trip_type_data_from_db_by_t_id_types <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
-  left_join(trip_type_data_from_db_by_t_id)
-# Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
+## only good lat long ----
+trip_coord_info_2022_short_coord <-
+  trip_coord_info_2022_short |>
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  distinct()
 
 ## separate by trip type ----
-trip_type_data_from_db_by_t_id_types_l <-
-  trip_type_data_from_db_by_t_id_types |>
-  split(as.factor(trip_type_data_from_db_by_t_id_types$TRIP_TYPE_NAME)) |>
+trip_coord_info_2022_short_types_l <-
+  trip_coord_info_2022_short_coord |>
+  split(as.factor(trip_coord_info_2022_short$TRIP_TYPE)) |>
   # remove extra columns in each df
   map(\(x)
       x |>
-        dplyr::select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
+        dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE) |>
         distinct())
 
-
-# glimpse(trip_type_data_from_db_by_t_id_types)
+str(trip_coord_info_2022_short_types_l)
 # List of 2
-#  $ CHARTER :'data.frame':	39835 obs. of  3 variables:
-#  $ HEADBOAT:'data.frame':	142 obs. of  3 variables:
-
-# str(trip_type_data_from_db_by_t_id_types_l)
+#  $ A :'data.frame':	94560 obs. of  4 variables:
+#  $ H:'data.frame':	1823  obs. of  4 variables:
 
 ## create 5 min heatmaps for both trip types ----
 # trip_type_data_from_db_by_t_id_types_l
 
 tic("effort_t_type")
 effort_t_type <-
-  map(trip_type_data_from_db_by_t_id_types_l, df_join_grid)
+  map(trip_coord_info_2022_short_types_l, df_join_grid)
 toc()
-# effort_t_type: 0.7 sec elapsed
-# dim(effort_t_type)
+# effort_t_type: 1.66 sec elapsed
 
 tic("effort_t_type_cropped")
 effort_t_type_cropped <- map(effort_t_type, crop_by_shape)
 toc()
 # effort_t_type_cropped: 1.04 sec elapsed
 
-str(effort_t_type_cropped)
+# str(effort_t_type_cropped)
 
-effort_t_type_cropped_cnt <- map(effort_t_type_cropped, add_vsl_and_trip_cnts)
+effort_t_type_cropped_cnt <-
+  effort_t_type_cropped |>
+  map(
+    \(x)
+    x |>
+      group_by(cell_id) |>
+      mutate(
+        vsl_cnt = n_distinct(VESSEL_ID),
+        trip_id_cnt = n_distinct(TRIP_ID)
+      ) |>
+      ungroup()
+  )
 
 map_df(effort_t_type_cropped_cnt, dim)
 #   CHARTER HEADBOAT
-#     <int>    <int>
-# 1   34696       13
-# 2       9        9
+#       A     H
+# 1 35786   663
+# 2     9     9
 
-# data_overview(effort_t_type_cropped_cnt$CHARTER)
-# cell_id              2785
+# map_df(effort_t_type_cropped_cnt, data_overview)
+
+data_overview(effort_t_type_cropped_cnt$A)
+# TRIP_ID     35777
+# VESSEL_ID     819
+# cell_id      3110
+data_overview(effort_t_type_cropped_cnt$H)
+# TRIP_ID     663
+# VESSEL_ID   263
+# cell_id     359
 
 # View(grid)
 
