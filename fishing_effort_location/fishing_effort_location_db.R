@@ -16,4 +16,14 @@ toc()
 # print_df_names(all_get_db_data_result_l)
 # mv_sero_fh_permits_his, trips_info, trip_coord_info, trip_neg_2022, trips_notifications_2022, vessels_permits, dates_2022, compl_err_db_data
 
-# all_get_db_data_result_l[[df_name]]
+trip_coord_info_1 <-
+  all_get_db_data_result_l[["trip_coord_info"]] |>
+  select(-all_of(names(empty_cols)))
+
+names(all_get_db_data_result_l[["trip_coord_info"]]) |>
+  length()
+# 51
+
+names(trip_coord_info_1) |>
+  length()
+# 51
