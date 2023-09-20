@@ -21,7 +21,127 @@ trip_coord_info <-
   remove_empty_cols() |>
   filter(TRIP_TYPE %in% c("A", "H"))
 
-dim(trip_coord_info)
+print_(trip_coord_info)
 # [1] 139504     39
+# TRIP_ID, AREA_CODE, SUB_AREA_CODE, DISTANCE_CODE, FISHING_HOURS, LATITUDE, LONGITUDE, LOCAL_AREA_CODE, IN_STATE, AVG_DEPTH_IN_FATHOMS, E_DE, E_UE, E_DC, E_UC, ANYTHING_CAUGHT_FLAG, DEPTH, MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, FISHING_GEAR_DEPTH, TRIP_TYPE, SUPPLIER_TRIP_ID, DAYS_AT_SEA, T_DE, T_UE, T_DC, T_UC, VESSEL_ID, CF_PERMIT_ID, TRIP_START_DATE, PORT, STATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME, SUBMIT_METHOD, ACTIVITY_TYPE, END_PORT, START_PORT, SERO_VESSEL_PERMIT
 
-#
+# Heatmap separately for charter and headboat ----
+
+# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they selected that in the logbook.
+
+trip_coord_info_2022 <-
+  trip_coord_info |>
+  filter(TRIP_START_DATE > "2021-12-31" &
+           TRIP_START_DATE  <= "2022-12-31")
+
+dim(trip_coord_info_2022)
+# [1] 96821    39
+
+data_overview(trip_coord_info_2022)
+# TRIP_ID             96702
+# VESSEL_ID            1939
+
+rm_cols <- c()
+
+# glimpse(my_vessels_trips)
+
+glimpse(trip_type_data_from_db)
+# Rows: 47,702
+
+## keep only trips we have in our original data ----
+trip_type_data_from_db_by_t_id <-
+  trip_type_data_from_db |>
+  filter(TRIP_ID %in% my_vessels_trips$TRIP_ID) |>
+  distinct()
+
+glimpse(trip_type_data_from_db_by_t_id)
+# Rows: 39,977
+
+## add trip_type data to the original data ----
+trip_type_data_from_db_by_t_id <-
+  mutate(trip_type_data_from_db_by_t_id,
+       TRIP_ID = as.character(TRIP_ID))
+
+trip_type_data_from_db_by_t_id_types <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  left_join(trip_type_data_from_db_by_t_id)
+# Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+## separate by trip type ----
+trip_type_data_from_db_by_t_id_types_l <-
+  trip_type_data_from_db_by_t_id_types |>
+  split(as.factor(trip_type_data_from_db_by_t_id_types$TRIP_TYPE_NAME)) |>
+  # remove extra columns in each df
+  map(\(x)
+      x |>
+        dplyr::select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
+        distinct())
+
+
+# glimpse(trip_type_data_from_db_by_t_id_types)
+# List of 2
+#  $ CHARTER :'data.frame':	39835 obs. of  3 variables:
+#  $ HEADBOAT:'data.frame':	142 obs. of  3 variables:
+
+# str(trip_type_data_from_db_by_t_id_types_l)
+
+## create 5 min heatmaps for both trip types ----
+# trip_type_data_from_db_by_t_id_types_l
+
+tic("effort_t_type")
+effort_t_type <-
+  map(trip_type_data_from_db_by_t_id_types_l, df_join_grid)
+toc()
+# effort_t_type: 0.7 sec elapsed
+# dim(effort_t_type)
+
+tic("effort_t_type_cropped")
+effort_t_type_cropped <- map(effort_t_type, crop_by_shape)
+toc()
+# effort_t_type_cropped: 1.04 sec elapsed
+
+str(effort_t_type_cropped)
+
+effort_t_type_cropped_cnt <- map(effort_t_type_cropped, add_vsl_and_trip_cnts)
+
+map_df(effort_t_type_cropped_cnt, dim)
+#   CHARTER HEADBOAT
+#     <int>    <int>
+# 1   34696       13
+# 2       9        9
+
+# data_overview(effort_t_type_cropped_cnt$CHARTER)
+# cell_id              2785
+
+# View(grid)
+
+### join with min grid ----
+effort_t_type_cropped_cnt_join_grid <-
+  map(effort_t_type_cropped_cnt,
+      \(x)
+      # have to use data.frame, to avoid
+      # Error: y should not have class sf; for spatial joins, use st_join
+      inner_join(x, data.frame(grid),
+                 by = join_by(cell_id)
+)
+      )
+
+# print_df_names(effort_t_type_cropped_cnt_join_grid$CHARTER)
+# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, cell_id, StatZone, LONGITUDE, LATITUDE, vsl_cnt, trip_id_cnt, x"
+
+# effort_t_type_cropped_cnt_join_grid$CHARTER
+
+map_trips_types <-
+  names(effort_t_type_cropped_cnt_join_grid) |>
+  map(
+    \(charter_headb) make_map_trips(
+      effort_t_type_cropped_cnt_join_grid[[charter_headb]],
+      shape_data = st_union_GOMsf,
+      total_trips_title = "total trips",
+      trip_cnt_name = "trip_id_cnt",
+      caption_text = str_glue("Heat map of SEFHIER {tolower(charter_headb)} trips (5 min. resolution). 2022. GoM permitted vessels.")
+    )
+  )
+
+map_trips_types[[2]]
+
