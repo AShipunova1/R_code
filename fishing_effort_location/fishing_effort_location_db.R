@@ -16,14 +16,21 @@ toc()
 # print_df_names(all_get_db_data_result_l)
 # mv_sero_fh_permits_his, trips_info, trip_coord_info, trip_neg_2022, trips_notifications_2022, vessels_permits, dates_2022, compl_err_db_data
 
-trip_coord_info_1 <-
+# trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
+  head()
+Filter(function(x)
+  !all(is.na(x)),
+  head(all_get_db_data_result_l[["trip_coord_info"]]))
+
+  # filter(function(x)!all(is.na(x)), mydf)
+  map_df(function(x) {
+    # browser()
+    if (!all(is.na(x))) {
+      return(unique(x))
+    }
+  })
+
   select(-all_of(names(empty_cols)))
 
-names(all_get_db_data_result_l[["trip_coord_info"]]) |>
-  length()
-# 51
-
-names(trip_coord_info_1) |>
-  length()
-# 51
+dim(trip_coord_info)
