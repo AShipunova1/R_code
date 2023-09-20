@@ -387,17 +387,11 @@ dates_2022_fun <-
                       dates_2022_query))
   }
 
-dates_2022 <-
-  read_rds_or_run(
-    dates_2022_file_path,
-    dates_2022_query,
-    dates_2022_fun
-  )
-
-
-glimpse(dates_2022)
-# Rows: 427
-
+get_dates_2022 <- function() {
+  read_rds_or_run(dates_2022_file_path,
+                  dates_2022_query,
+                  dates_2022_fun)
+}
 
 # get override data ----
 compl_err_query <-
@@ -436,13 +430,17 @@ get_compl_err_data_from_db <-
 file_name_overr <-
   file.path(input_path, "compl_err_db_data_raw.rds")
 
-compl_err_db_data_raw <-
-  read_rds_or_run(file_name_overr,
-                  compl_err_query,
-                  get_compl_err_data_from_db)
-# 2023-09-20 run the function: 14.99 sec elapsed
+get_compl_err_db_data <- function() {
+  compl_err_db_data_raw <-
+    read_rds_or_run(file_name_overr,
+                    compl_err_query,
+                    get_compl_err_data_from_db)
+  # 2023-09-20 run the function: 14.99 sec elapsed
 
-compl_err_db_data <- clean_headers(compl_err_db_data_raw)
+  compl_err_db_data <- clean_headers(compl_err_db_data_raw)
+
+  return(compl_err_db_data)
+}
 
 # get metric_tracking_no_srhs ----
 source(file.path(my_paths$git_r,
@@ -453,33 +451,72 @@ source(file.path(my_paths$git_r,
 # 4063
 
 # --- main ----
-mv_sero_fh_permits_his <- get_permit_info()
-# dim(mv_sero_fh_permits_his)
-# [1] 183204     22
+run_all_get_db_data <-
+  function() {
+    # browser()
+    result_l = list()
 
-trips_info <- get_trips_info()
-# dim(trips_info)
-# [1] 98528    72 2022
-# [1] 142037     72 2021--
+    mv_sero_fh_permits_his <- get_permit_info()
+    result_l[["mv_sero_fh_permits_his"]] <- mv_sero_fh_permits_his
+    # dim(mv_sero_fh_permits_his)
+    # [1] 183204     22
 
-trip_coord_info <- get_trip_coord_info()
-# dim(trip_coord_info)
-# [1] 141350     41
+    trips_info <- get_trips_info()
+    result_l[["trips_info"]] <- trips_info
+    # dim(trips_info)
+    # [1] 98528    72 2022
+    # [1] 142037     72 2021--
 
-trip_neg_2022 <- get_trip_neg_2022()
-# dim(trip_neg_2022)
-# Rows: 1,495,929
-# [1] 746087     12
-# [1] 747173     12
+    trip_coord_info <- get_trip_coord_info()
+    result_l[["trip_coord_info"]] <- trip_coord_info
+    # dim(trip_coord_info)
+    # [1] 141350     41
 
-trips_notifications_2022 <- get_trips_notifications_2022()
-# dim(trips_notifications_2022)
-# Rows: 129,701
-# [1] 70056    33
+    trip_neg_2022 <- get_trip_neg_2022()
+    result_l[["trip_neg_2022"]] <- trip_neg_2022
+    # dim(trip_neg_2022)
+    # Rows: 1,495,929
+    # [1] 746087     12
+    # [1] 747173     12
 
-vessels_permits <- get_vessels_permits()
-# dim(vessels_permits)
-# [1] 78438    51
+    trips_notifications_2022 <- get_trips_notifications_2022()
+    result_l[["trips_notifications_2022"]] <- trips_notifications_2022
+    # dim(trips_notifications_2022)
+    # Rows: 129,701
+    # [1] 70056    33
+
+    vessels_permits <- get_vessels_permits()
+    result_l[["vessels_permits"]] <- vessels_permits
+    # dim(vessels_permits)
+    # [1] 78438    51
+
+    dates_2022 <- get_dates_2022()
+    result_l[["dates_2022"]] <- dates_2022
+    # dim(dates_2022)
+    # 427 4
+
+    compl_err_db_data <- get_compl_err_db_data()
+    result_l[["compl_err_db_data"]] <- compl_err_db_data
+    # dim(compl_err_db_data)
+    # [1] 99832    38
+
+    return(result_l)
+  }
+
+tic("run_all_get_db_data()")
+all_get_db_data_result_l <- run_all_get_db_data()
+toc()
+# reading RDS
+# run_all_get_db_data(): 1.69 sec elapsed
+
+# str(all_get_db_data_result_l[["compl_err_db_data"]])
+# 'data.frame':	99832 obs. of  38 variables:
+
+### check ----
+names(all_get_db_data_result_l) |>
+  map(\(df_name) {
+    c(df_name, dim(all_get_db_data_result_l[[df_name]]))
+  })
 
 # close the db connection ----
 try(ROracle::dbDisconnect(con))
