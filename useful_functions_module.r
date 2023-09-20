@@ -627,15 +627,17 @@ separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "per
 read_rds_or_run <-
   function(my_file_path,
            my_data = as.data.frame(""),
-           my_function) {
+           my_function,
+           force_from_db = NULL) {
     # browser()
 
-    if (file.exists(my_file_path)) {
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
       # read a binary file saved previously
       my_result <-
         readr::read_rds(my_file_path)
     } else {
-      msg_text <- paste(today(), "run for ", my_file_path)
+      msg_text <- paste(today(), "run for", basename(my_file_path))
       tic(msg_text)
       my_result <-
         my_function(my_data)
