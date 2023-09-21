@@ -218,7 +218,13 @@ sum(all_dfs_dim[1,])
 # 95280 # gom + dual vs sa_only
 
 ## create 5 min heatmaps for both trip types ----
-# trip_type_data_from_db_by_t_id_types_l
+# get functions and GOMsf ----
+source(
+  file.path(
+    my_paths$git_r,
+    r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
+  )
+)
 
 tic("effort_t_type")
 effort_t_type <-
@@ -247,10 +253,9 @@ effort_t_type_cropped_cnt <-
   )
 
 map_df(effort_t_type_cropped_cnt, dim)
-#   CHARTER HEADBOAT
-#       A     H
-# 1 35786   663
-# 2     9     9
+#   CHARTER.gom_dual HEADBOAT.gom_dual CHARTER.sa_only HEADBOAT.sa_only
+# 1            34315               285            1781                0
+# 2                9                 9               9                9
 
 # map_df(effort_t_type_cropped_cnt, data_overview)
 
@@ -262,6 +267,14 @@ data_overview(effort_t_type_cropped_cnt$H)
 # TRIP_ID     663
 # VESSEL_ID   263
 # cell_id     359
+data_overview(effort_t_type_cropped_cnt$CHARTER.gom_dual)
+# TRIP_ID     34307
+# VESSEL_ID     709
+# cell_id      3069
+data_overview(effort_t_type_cropped_cnt$HEADBOAT.gom_dual)
+# TRIP_ID     285
+# VESSEL_ID    21
+# cell_id      67
 
 # View(grid)
 
@@ -284,13 +297,18 @@ effort_t_type_cropped_cnt_join_grid <-
 map_trips_types <-
   names(effort_t_type_cropped_cnt_join_grid) |>
   map(
-    \(charter_headb) make_map_trips(
+    function(charter_headb) {
+      # browser()
+      trip_type_name_0 <- stringr::str_split(charter_headb, "\\.")
+      trip_type_name <- tolower(trip_type_name_0[[1]][[1]])
+      make_map_trips(
       effort_t_type_cropped_cnt_join_grid[[charter_headb]],
       shape_data = st_union_GOMsf,
       total_trips_title = "total trips",
       trip_cnt_name = "trip_id_cnt",
-      caption_text = str_glue("Heat map of SEFHIER {tolower(charter_headb)} trips (5 min. resolution). 2022. GoM permitted vessels.")
-    )
+      caption_text = str_glue("Heat map of SEFHIER {trip_type_name} trips (5 min. resolution). 2022. GoM and dual permitted vessels"),
+      unit_num = 1.3
+    )}
   )
 
 map_trips_types[[1]]
