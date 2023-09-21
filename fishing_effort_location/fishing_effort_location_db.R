@@ -68,6 +68,15 @@ trip_coord_info_2022_short_coord <-
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   distinct()
 
+## rename trip_types to names ----
+trip_coord_info_2022_short_coord_t_names <-
+  trip_coord_info_2022_short_coord |>
+  mutate(TRIP_TYPE = ifelse(TRIP_TYPE == "A",
+                            "CHARTER",
+                            "HEADBOAT"))
+
+# glimpse(trip_coord_info_2022_short_coord_t_names)
+
 ## add permit info ----
 ### remove empty cols ----
 vessels_permits_clean <-
@@ -98,28 +107,26 @@ dim(vessels_permits_clean_gr7_2022)
 # [1] 47973    50
 
 # combine permit ----
-vessels_permits_clean_gr7_2022 |>
+vessels_permits_clean_gr7_2022_all_permits <-
+  vessels_permits_clean_gr7_2022 |>
   group_by(VESSEL_VESSEL_ID) |>
-    # head() |>
   mutate(all_permits = toString(unique(TOP))) |>
   ungroup() |>
   select(VESSEL_VESSEL_ID, all_permits) |>
   distinct()
+
   # data_overview()
 # VESSEL_VESSEL_ID 4493
 # all_permits       56
 
-
 ### join with effort ----
 trip_coord_info_2022_short_vessels_permits <-
   trip_coord_info_2022_short |>
-  left_join(vessels_permits_clean_gr7_2022,
-            join_by(VESSEL_ID == VESSEL_VESSEL_ID),
-            relationship = "many-to-many")
-
+  left_join(vessels_permits_clean_gr7_2022_all_permits,
+            join_by(VESSEL_ID == VESSEL_VESSEL_ID))
 
 dim(trip_coord_info_2022_short_vessels_permits)
-# [1] 1389674      56
+# [1] 96785     8
 
 ### filter permit effective by trip start ? ----
 # not used until answered
@@ -131,40 +138,16 @@ dim(trip_coord_info_2022_short_vessels_permits_eff_p)
 # [1] 1181296      56
 
 ## add permit region
-# trip_coord_info_2022_short_vessels_permits_region <-
+trip_coord_info_2022_short_vessels_permits_region <-
   trip_coord_info_2022_short_vessels_permits |>
-  group_by(VESSEL_ID) |>
-    # head() |>
-  mutate(Block1 = toString(TOP)) %>%
-#
-#   mutate(
-#     all_tops = c(TOP)
-#     # not_gom = which(!grepl("RCG|HRCG|CHG|HCHG", TOP)),
-#     # not_sa = which(!grepl("CDW|CHS|SC", TOP))
-#     ) |>
-    View()
-
-
-  # ,
-
-
-    permit_sa_gom =
-           case_when(
-             !grepl("RCG|HRCG|CHG|HCHG", TOP) ~ "sa_only",
-             !grepl("CDW|CHS|SC", TOP) ~ "gom_only",
-             .default = "dual"
-           )) |>
-  ungroup() |>
-  select(permit_sa_gom) |>
-  distinct()
-  separate_permits_into_3_groups(permit_group_field_name = "TOP")
+  separate_permits_into_3_groups(permit_group_field_name = "all_permits")
 
 data_overview(trip_coord_info_2022_short_vessels_permits_region)
-# [1] 1389674      57
+# permit_sa_gom       3
 
 ### remove extra permit and vessel columns ----
-# print_df_names(trip_coord_info_2022_short_vessels_permits_region)
-# [1] "TRIP_ID, LATITUDE, LONGITUDE, TRIP_TYPE, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, PERMIT_VESSEL_ID, ENTITY_ID, EXPIRATION_DATE, PERMIT_GROUP, TOP, PERMIT, EFFECTIVE_DATE, END_DATE, INITIAL_EFF_DATE, GRP_EFF_DATE, LAST_EXPIRATION_DATE, TM_ORDER, TM_TOP_ORDER, PRIOR_OWNER, NEW_OWNER, GRP_PRIOR_OWNER, APPLICATION_ID, PERMIT_STATUS, VESSEL_ALT_NUM, MIN_PERIOD, MAX_PERIOD, TOP_NAME, COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE, HULL_ID_NBR, COAST_GUARD_NBR, STATE_REG_NBR, REGISTERING_STATE, VESSEL_NAME, PASSENGER_CAPACITY, YEAR_BUILT, UPDATE_DATE, PRIMARY_GEAR, OWNER_ID, EVENT_ID, DE, UE, DC, UC, STATUS, SER_ID, UPDATED_FLAG, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER, permit_sa_gom"
+print_df_names(trip_coord_info_2022_short_vessels_permits_region)
+# [1] "TRIP_ID, LATITUDE, LONGITUDE, TRIP_TYPE, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, all_permits, permit_sa_gom"
 
 trip_coord_info_2022_short_vessels_permits_region_short <-
   trip_coord_info_2022_short_vessels_permits_region |>
@@ -175,17 +158,15 @@ trip_coord_info_2022_short_vessels_permits_region_short <-
       "LONGITUDE",
       "TRIP_TYPE",
       "VESSEL_ID",
-      "TRIP_START_DATE",
-      "TRIP_END_DATE",
       "permit_sa_gom"
     )
   )) |>
   distinct()
 
 dim(trip_coord_info_2022_short_vessels_permits_region_short)
-# [1] 111619      8
+# [1] 96785     6
 
-## separate by trip type ----
+## separate by trip and permit_region type ----
 trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l <-
   trip_coord_info_2022_short_vessels_permits_region_short |>
   split(list(trip_coord_info_2022_short_vessels_permits_region_short$TRIP_TYPE,
@@ -196,14 +177,21 @@ trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l <-
         dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE, permit_sa_gom) |>
         distinct())
 
-str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l)
+# str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l)
 # List of 2
 #  $ A :'data.frame':	94962 obs. of  4 variables:
 #  $ H:'data.frame':	1823  obs. of  4 variables:
 
-str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l)
+all_dfs_dim <-
+  map_df(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l, dim)
 # List of 4
- # $ A.gom_only:'data.frame':	50472 obs. of  5 variables:
+#   A.dual H.dual A.gom_only H.gom_only A.sa_only H.sa_only
+#    <int>  <int>      <int>      <int>     <int>     <int>
+# 1  14627    207      35845        295     44490      1321
+# 2      5      5          5          5         5         5
+
+sum(all_dfs_dim[1,])
+# 96785 # the same as before, ok
 
 ## create 5 min heatmaps for both trip types ----
 # trip_type_data_from_db_by_t_id_types_l
