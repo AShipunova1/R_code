@@ -67,15 +67,6 @@ dim(effort_vsl_cropped)
 # print_df_names(effort_vsl_cropped)
 
 ## count trip ids and vessels by grid cell ----
-add_vsl_and_trip_cnts <-
-  function(my_df, vessel_id_name = "VESSEL_OFFICIAL_NBR") {
-    my_df |>
-      group_by(cell_id) |>
-      mutate(vsl_cnt = n_distinct(!!sym(vessel_id_name)),
-             trip_id_cnt = n_distinct(TRIP_ID)) |>
-      ungroup() %>%
-      return()
-  }
 
 effort_vsl_cropped_cnt2 <-
  add_vsl_and_trip_cnts(effort_vsl_cropped)
@@ -130,65 +121,6 @@ dim(heat.plt)
 # [1] 31981     6
 
 ## make a plot ----
-make_map_trips <-
-  function(map_trip_base_data,
-           shape_data,
-           total_trips_title,
-           trip_cnt_name,
-           caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
-           print_stat_zone = NULL) {
-    # browser()
-    max_num <- max(map_trip_base_data[[trip_cnt_name]])
-    map_trips <-
-      ggplot() +
-      geom_sf(data = map_trip_base_data,
-              aes(geometry = x,
-                  fill = !!sym(trip_cnt_name)),
-              colour = NA) +
-      geom_sf(data = shape_data, fill = NA)
-
-    # test for an optional argument
-    if (!missing(print_stat_zone)) {
-      map_trips <-
-        map_trips +
-        geom_sf_text(data = shape_data,
-                     aes(geometry = geometry,
-                         label = StatZone),
-                     size = 3.5)
-    }
-
-    map_trips <-
-        map_trips +
-      labs(
-        x = "",
-        y = "",
-        fill = "",
-        caption = caption_text
-      ) +
-      theme_bw() +
-      scale_fill_gradient2(
-        name = total_trips_title,
-        labels = scales::comma,
-        low = "red",
-        mid = "purple",
-        high = "blue",
-        # trans = "log2",
-        trans = "log1p",
-        limits = c(1, max_num)
-        # ,
-        # oob = scales::oob_keep
-      ) +
-      theme(
-        legend.position = "top",
-        legend.justification = "left",
-        legend.key.width = unit(0.9, "npc"),
-        # legend.key.width = unit(3, "cm"),
-        plot.caption = element_text(hjust = 0)
-      ) +
-      guides(fill = guide_colourbar(title.position = "top"))
-
-    return(map_trips)
-  }
 
 max_num3 <- max(heat.plt$trip_id_cnt)
 # map_trips_rule_3 <-
