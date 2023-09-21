@@ -146,14 +146,14 @@ trip_coord_info_2022_short_coord_t_names <-
 
 # glimpse(trip_coord_info_2022_short_coord_t_names)
 
-### join with effort ----
-trip_coord_info_2022_short_vessels_permits <-
-  trip_coord_info_2022_short |>
-  left_join(vessels_permits_clean_gr7_2022_all_permits,
+## Join permits with effort ----
+trip_coord_info_2022_short_vessels_permits_region <-
+  trip_coord_info_2022_short_coord_t_names |>
+  left_join(vessels_permits_clean_gr7_2022_region2,
             join_by(VESSEL_ID == VESSEL_VESSEL_ID))
 
-dim(trip_coord_info_2022_short_vessels_permits)
-# [1] 96785     8
+dim(trip_coord_info_2022_short_vessels_permits_region)
+# [1] 96383     9
 
 ### filter permit effective by trip start ? ----
 # not used until answered
@@ -165,8 +165,8 @@ dim(trip_coord_info_2022_short_vessels_permits)
 # [1] 1181296      56
 
 ### remove extra permit and vessel columns ----
-print_df_names(trip_coord_info_2022_short_vessels_permits_region)
-# [1] "TRIP_ID, LATITUDE, LONGITUDE, TRIP_TYPE, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, all_permits, permit_sa_gom"
+# print_df_names(trip_coord_info_2022_short_vessels_permits)
+# [1] "TRIP_ID, LATITUDE, LONGITUDE, TRIP_TYPE, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, all_permits, permit_22"
 
 trip_coord_info_2022_short_vessels_permits_region_short <-
   trip_coord_info_2022_short_vessels_permits_region |>
@@ -177,24 +177,30 @@ trip_coord_info_2022_short_vessels_permits_region_short <-
       "LONGITUDE",
       "TRIP_TYPE",
       "VESSEL_ID",
-      "permit_sa_gom"
+      "permit_22"
     )
   )) |>
   distinct()
 
 dim(trip_coord_info_2022_short_vessels_permits_region_short)
-# [1] 96785     6
+# [1] 96383     6
 
 ## separate by trip and permit_region type ----
-trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l <-
+trip_coord_info_2022_short_vessels_permits_region_short__l <-
   trip_coord_info_2022_short_vessels_permits_region_short |>
-  split(list(trip_coord_info_2022_short_vessels_permits_region_short$TRIP_TYPE,
-                       trip_coord_info_2022_short_vessels_permits_region_short$permit_sa_gom)) |>
+  split(
+    list(
+      trip_coord_info_2022_short_vessels_permits_region_short$TRIP_TYPE,
+      trip_coord_info_2022_short_vessels_permits_region_short$permit_22
+    )
+  ) |>
   # remove extra columns in each df
-  map(\(x)
-      x |>
-        dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE, permit_sa_gom) |>
-        distinct())
+  map(
+    \(x)
+    x |>
+      dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE) |>
+      distinct()
+  )
 
 # str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l)
 # List of 2
@@ -202,25 +208,21 @@ trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l <-
 #  $ H:'data.frame':	1823  obs. of  4 variables:
 
 all_dfs_dim <-
-  map_df(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l, dim)
-# List of 4
-#   A.dual H.dual A.gom_only H.gom_only A.sa_only H.sa_only
-#    <int>  <int>      <int>      <int>     <int>     <int>
-# 1  14627    207      35845        295     44490      1321
-# 2      5      5          5          5         5         5
+  map_df(trip_coord_info_2022_short_vessels_permits_region_short__l, dim)
+#   CHARTER.gom_dual HEADBOAT.gom_dual CHARTER.sa_only HEADBOAT.sa_only
+# 1            50280               500           43306             1194
+# 2                4                 4               4                4
 
 sum(all_dfs_dim[1,])
-# 96785 # the same as before, ok
-
-# combine permits into 2 groups; for 2022 gom+dual, sa_only
-trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l_
+# 96785 # the same as before, ok if separate gual, gom and sa
+# 95280 # gom + dual vs sa_only
 
 ## create 5 min heatmaps for both trip types ----
 # trip_type_data_from_db_by_t_id_types_l
 
 tic("effort_t_type")
 effort_t_type <-
-  map(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l, df_join_grid)
+  map(trip_coord_info_2022_short_vessels_permits_region_short__l, df_join_grid)
 toc()
 # effort_t_type: 1.66 sec elapsed
 
