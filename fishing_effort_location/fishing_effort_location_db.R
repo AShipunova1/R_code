@@ -100,26 +100,67 @@ dim(vessels_permits_clean_gr7_2022)
 ### join with effort ----
 trip_coord_info_2022_short_vessels_permits <-
   trip_coord_info_2022_short |>
-  left_join(vessels_permits_clean_gr7,
+  left_join(vessels_permits_clean_gr7_2022,
             join_by(VESSEL_ID == VESSEL_VESSEL_ID),
             relationship = "many-to-many")
 
 
-View(trip_coord_info_2022_short_vessels_permits)
+dim(trip_coord_info_2022_short_vessels_permits)
+# [1] 1389674      56
+
+### filter permit effective by trip start ? ----
+# not used until answered
+trip_coord_info_2022_short_vessels_permits_eff_p <-
+  trip_coord_info_2022_short_vessels_permits |>
+  filter(TRIP_START_DATE >= EFFECTIVE_DATE)
+
+dim(trip_coord_info_2022_short_vessels_permits_eff_p)
+# [1] 1181296      56
+
+## add permit region
+trip_coord_info_2022_short_vessels_permits_region <-
+  trip_coord_info_2022_short_vessels_permits |>
+  separate_permits_into_3_groups(permit_group_field_name = "TOP")
+
+dim(trip_coord_info_2022_short_vessels_permits_region)
+# [1] 1389674      57
+
+### remove extra permit and vessel columns ----
+# print_df_names(trip_coord_info_2022_short_vessels_permits_region)
+# [1] "TRIP_ID, LATITUDE, LONGITUDE, TRIP_TYPE, VESSEL_ID, TRIP_START_DATE, TRIP_END_DATE, PERMIT_VESSEL_ID, ENTITY_ID, EXPIRATION_DATE, PERMIT_GROUP, TOP, PERMIT, EFFECTIVE_DATE, END_DATE, INITIAL_EFF_DATE, GRP_EFF_DATE, LAST_EXPIRATION_DATE, TM_ORDER, TM_TOP_ORDER, PRIOR_OWNER, NEW_OWNER, GRP_PRIOR_OWNER, APPLICATION_ID, PERMIT_STATUS, VESSEL_ALT_NUM, MIN_PERIOD, MAX_PERIOD, TOP_NAME, COUNTY_CODE, STATE_CODE, ENTRY_DATE, SUPPLIER_VESSEL_ID, PORT_CODE, HULL_ID_NBR, COAST_GUARD_NBR, STATE_REG_NBR, REGISTERING_STATE, VESSEL_NAME, PASSENGER_CAPACITY, YEAR_BUILT, UPDATE_DATE, PRIMARY_GEAR, OWNER_ID, EVENT_ID, DE, UE, DC, UC, STATUS, SER_ID, UPDATED_FLAG, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER, permit_sa_gom"
+
+trip_coord_info_2022_short_vessels_permits_region_short <-
+  trip_coord_info_2022_short_vessels_permits_region |>
+  select(all_of(
+    c(
+      "TRIP_ID",
+      "LATITUDE",
+      "LONGITUDE",
+      "TRIP_TYPE",
+      "VESSEL_ID",
+      "TRIP_START_DATE",
+      "TRIP_END_DATE",
+      "permit_sa_gom"
+    )
+  )) |>
+  distinct()
+
+dim(trip_coord_info_2022_short_vessels_permits_region_short)
+# [1] 111619      8
 
 ## separate by trip type ----
-trip_coord_info_2022_short_types_l <-
-  trip_coord_info_2022_short_coord |>
-  split(as.factor(trip_coord_info_2022_short$TRIP_TYPE)) |>
+trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l <-
+  trip_coord_info_2022_short_vessels_permits_region_short |>
+  split(as.factor(trip_coord_info_2022_short_vessels_permits_region_short$TRIP_TYPE)) |>
   # remove extra columns in each df
   map(\(x)
       x |>
-        dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE) |>
+        dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE, permit_sa_gom) |>
         distinct())
 
-str(trip_coord_info_2022_short_types_l)
+str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l)
 # List of 2
-#  $ A :'data.frame':	94560 obs. of  4 variables:
+#  $ A :'data.frame':	94962 obs. of  4 variables:
 #  $ H:'data.frame':	1823  obs. of  4 variables:
 
 ## create 5 min heatmaps for both trip types ----
