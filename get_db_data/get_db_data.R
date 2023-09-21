@@ -292,7 +292,8 @@ get_vessels_permits <-
     read_rds_or_run(vessels_permits_file_path,
                     vessels_permits_query,
                     vessels_permits_fun,
-                    force_from_db)
+                    force_from_db) |>
+      vessels_permits_id_clean()
   }
 # 2023-09-20 run the function: 14.08 sec elapsed
 
