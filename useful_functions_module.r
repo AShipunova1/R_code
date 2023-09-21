@@ -700,3 +700,13 @@ my_to_sf <- function(my_df) {
 # to avoid this error:
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
 sf::sf_use_s2(FALSE)
+
+# to use on download from db
+vessels_permits_id_clean <-
+  function(my_df) {
+    vessels_permits <-
+      my_df |>
+      rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
+      rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
+    return(vessels_permits)
+  }
