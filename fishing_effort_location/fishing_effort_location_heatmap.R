@@ -5,45 +5,12 @@ library(ggmap)
 
 # Heatmap ----
 
-# read in GOM trip ticket grid
-GOMsf = sf::read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
-  group_by(StatZone) %>% summarise()
-# Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
-# Geodetic CRS:  WGS 84
-
-# str(GOMsf)
-
-# create GOM 5x5 minute grid
-min_grid <-
-  function(minute_num = 1) {
-    grid <-
-      sf::st_make_grid(x = sf::st_bbox(GOMsf),
-                       cellsize = 1 / 60 * minute_num) %>%
-      sf::st_as_sf() %>%
-      mutate(cell_id = 1:nrow(.))
-
-    return(grid)
-  }
-
-grid <- min_grid(5)
-
-sf::st_agr(GOMsf) = sf::st_agr(grid) = "constant"
-
-### remove internal boundaries from the shape file ----
-
-tic("st_union(GOMsf)")
-st_union_GOMsf <- sf::st_union(GOMsf)
-toc()
-# st_union(GOMsf): 21.59 sec elapsed
-
-# str(GOMsf)
-# sf [21 × 2] (S3: sf/tbl_df/tbl/data.frame)
-#  $ StatZone: num [1:21] 1 2 3 4 5 6 7 8 9 10 ...
-#  $ geometry:sfc_GEOMETRY of length 21; first list element: List of 6
-
-# str(st_union_GOMsf)
-# sfc_MULTIPOLYGON of length 1; first list element: List of 15
-#  $ :List of 21234
+source(
+  file.path(
+    my_paths$git_r,
+    r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
+  )
+)
 
 ## heatmap data ----
 
@@ -70,20 +37,6 @@ for_heatmap_lat_lon_trips_vessels_only <-
 
 #### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
 
-## by n min grid ----
-df_join_grid <-
-  function(my_df) {
-    my_df |>
-      # join n minute grid
-      sf::st_as_sf(
-        coords = c("LONGITUDE", "LATITUDE"),
-        crs = sf::st_crs(GOMsf)) |>
-        # ,
-        # remove = FALSE) %>%
-        sf::st_join(grid, join = sf::st_nearest_feature) %>%
-          return()
-        }
-
 # tic("effort")
 # effort <- df_join_grid(for_heatmap_lat_lon_trips_only)
 # toc()
@@ -102,15 +55,6 @@ toc()
 #           GOMsf)
 # effort_cropped: 81.51 sec elapsed
 
-crop_by_shape <-
-  function(my_sf) {
-    my_sf |>
-      sf::st_join(GOMsf, left = FALSE) %>%
-      dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
-             LATITUDE = sf::st_coordinates(.)[, 2]) %>%
-      return()
-  }
-
 tic("effort_vsl_cropped")
 effort_vsl_cropped <- crop_by_shape(effort_vsl)
 toc()
@@ -124,10 +68,10 @@ dim(effort_vsl_cropped)
 
 ## count trip ids and vessels by grid cell ----
 add_vsl_and_trip_cnts <-
-  function(my_df) {
+  function(my_df, vessel_id_name = "VESSEL_OFFICIAL_NBR") {
     my_df |>
       group_by(cell_id) |>
-      mutate(vsl_cnt = n_distinct(VESSEL_OFFICIAL_NBR),
+      mutate(vsl_cnt = n_distinct(!!sym(vessel_id_name)),
              trip_id_cnt = n_distinct(TRIP_ID)) |>
       ungroup() %>%
       return()
