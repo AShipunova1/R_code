@@ -97,6 +97,19 @@ vessels_permits_clean_gr7_2022 <-
 dim(vessels_permits_clean_gr7_2022)
 # [1] 47973    50
 
+# combine permit ----
+vessels_permits_clean_gr7_2022 |>
+  group_by(VESSEL_VESSEL_ID) |>
+    # head() |>
+  mutate(all_permits = toString(unique(TOP))) |>
+  ungroup() |>
+  select(VESSEL_VESSEL_ID, all_permits) |>
+  distinct()
+  # data_overview()
+# VESSEL_VESSEL_ID 4493
+# all_permits       56
+
+
 ### join with effort ----
 trip_coord_info_2022_short_vessels_permits <-
   trip_coord_info_2022_short |>
@@ -118,11 +131,35 @@ dim(trip_coord_info_2022_short_vessels_permits_eff_p)
 # [1] 1181296      56
 
 ## add permit region
-trip_coord_info_2022_short_vessels_permits_region <-
+# trip_coord_info_2022_short_vessels_permits_region <-
   trip_coord_info_2022_short_vessels_permits |>
+  group_by(VESSEL_ID) |>
+    # head() |>
+  mutate(Block1 = toString(TOP)) %>%
+#
+#   mutate(
+#     all_tops = c(TOP)
+#     # not_gom = which(!grepl("RCG|HRCG|CHG|HCHG", TOP)),
+#     # not_sa = which(!grepl("CDW|CHS|SC", TOP))
+#     ) |>
+    View()
+
+
+  # ,
+
+
+    permit_sa_gom =
+           case_when(
+             !grepl("RCG|HRCG|CHG|HCHG", TOP) ~ "sa_only",
+             !grepl("CDW|CHS|SC", TOP) ~ "gom_only",
+             .default = "dual"
+           )) |>
+  ungroup() |>
+  select(permit_sa_gom) |>
+  distinct()
   separate_permits_into_3_groups(permit_group_field_name = "TOP")
 
-dim(trip_coord_info_2022_short_vessels_permits_region)
+data_overview(trip_coord_info_2022_short_vessels_permits_region)
 # [1] 1389674      57
 
 ### remove extra permit and vessel columns ----
@@ -149,9 +186,10 @@ dim(trip_coord_info_2022_short_vessels_permits_region_short)
 # [1] 111619      8
 
 ## separate by trip type ----
-trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l <-
+trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l <-
   trip_coord_info_2022_short_vessels_permits_region_short |>
-  split(as.factor(trip_coord_info_2022_short_vessels_permits_region_short$TRIP_TYPE)) |>
+  split(list(trip_coord_info_2022_short_vessels_permits_region_short$TRIP_TYPE,
+                       trip_coord_info_2022_short_vessels_permits_region_short$permit_sa_gom)) |>
   # remove extra columns in each df
   map(\(x)
       x |>
@@ -162,6 +200,10 @@ str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l)
 # List of 2
 #  $ A :'data.frame':	94962 obs. of  4 variables:
 #  $ H:'data.frame':	1823  obs. of  4 variables:
+
+str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l)
+# List of 4
+ # $ A.gom_only:'data.frame':	50472 obs. of  5 variables:
 
 ## create 5 min heatmaps for both trip types ----
 # trip_type_data_from_db_by_t_id_types_l
