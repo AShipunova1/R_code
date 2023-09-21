@@ -24,11 +24,11 @@ trip_coord_info <-
   remove_empty_cols() |>
   filter(TRIP_TYPE %in% c("A", "H"))
 
-print_(trip_coord_info)
+dim(trip_coord_info)
 # [1] 139504     39
 # TRIP_ID, AREA_CODE, SUB_AREA_CODE, DISTANCE_CODE, FISHING_HOURS, LATITUDE, LONGITUDE, LOCAL_AREA_CODE, IN_STATE, AVG_DEPTH_IN_FATHOMS, E_DE, E_UE, E_DC, E_UC, ANYTHING_CAUGHT_FLAG, DEPTH, MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, FISHING_GEAR_DEPTH, TRIP_TYPE, SUPPLIER_TRIP_ID, DAYS_AT_SEA, T_DE, T_UE, T_DC, T_UC, VESSEL_ID, CF_PERMIT_ID, TRIP_START_DATE, PORT, STATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME, SUBMIT_METHOD, ACTIVITY_TYPE, END_PORT, START_PORT, SERO_VESSEL_PERMIT
 
-# Heatmap separately for charter and headboat ----
+# Heatmaps for charter and headboat separately ----
 
 # Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they selected that in the logbook.
 
@@ -67,6 +67,45 @@ trip_coord_info_2022_short_coord <-
   trip_coord_info_2022_short |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   distinct()
+
+## add permit info ----
+### remove empty cols ----
+vessels_permits_clean <-
+  all_get_db_data_result_l[["vessels_permits"]] |>
+  remove_empty_cols()
+
+dim(all_get_db_data_result_l[["vessels_permits"]])
+# [1] 78438    51
+
+# View(vessels_permits_clean)
+# [1] 78438    50
+
+### keep only group 7 permits ----
+vessels_permits_clean_gr7 <-
+  vessels_permits_clean |>
+  filter(PERMIT_GROUP == 7)
+
+dim(vessels_permits_clean_gr7)
+# [1] 61153    50
+
+### permits effective in 2022 ----
+vessels_permits_clean_gr7_2022 <-
+  vessels_permits_clean_gr7 |>
+  filter(EFFECTIVE_DATE <=
+           as.Date('2022-12-31'))
+
+dim(vessels_permits_clean_gr7_2022)
+# [1] 47973    50
+
+### join with effort ----
+trip_coord_info_2022_short_vessels_permits <-
+  trip_coord_info_2022_short |>
+  left_join(vessels_permits_clean_gr7,
+            join_by(VESSEL_ID == VESSEL_VESSEL_ID),
+            relationship = "many-to-many")
+
+
+View(trip_coord_info_2022_short_vessels_permits)
 
 ## separate by trip type ----
 trip_coord_info_2022_short_types_l <-
