@@ -682,7 +682,7 @@ create_dir_if_not <-
 
 # sf functions ----
 # convert to sf shortcut
-my_to_sf <- function(my_df) {
+my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) {
   my_df %>%
     # convert to sf
     sf::st_as_sf(
@@ -690,7 +690,7 @@ my_to_sf <- function(my_df) {
       coords = c("LONGITUDE",
                  "LATITUDE"),
       # use crs from sa_shp
-      crs = sf::st_crs(sa_shp),
+      crs = my_crs,
       # keep LAT/LONG, to save in a file
       remove = FALSE
     ) %>%
