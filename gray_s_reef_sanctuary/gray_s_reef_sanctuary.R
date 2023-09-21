@@ -15,28 +15,35 @@
 # Southeast	31.362732° N	80.828145° W
 
 # setup ----
-
-# library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
 library(leaflet)
 library(tictoc) #benchmarking
-# # library(htmlwidgets) # add js script to leaflets
-# library(stringi) # add characters
-# library(htmltools)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-current_project_name <- "gray_s_reef_sanctuary"
-fishing_effort_location_project_name <- "fishing_effort_location"
+current_project_dir_path <- get_current_file_directory()
 
-source(
-  file.path(
-    my_paths$git_r,
-    fishing_effort_location_project_name,
-    "fishing_effort_locations_get_data.R"
-  )
-)
+# get data ----
+# "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
+source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
+
+tic("run_all_get_db_data()")
+all_get_db_data_result_l <- run_all_get_db_data()
+toc()
+# run_all_get_db_data(): 2.27 sec elapsed (from csv)
+
+# prepare data ----
+# current_project_name <- "gray_s_reef_sanctuary"
+# fishing_effort_location_project_name <- "fishing_effort_location"
+
+# source(
+#   file.path(
+#     my_paths$git_r,
+#     fishing_effort_location_project_name,
+#     "fishing_effort_locations_get_data.R"
+#   )
+# )
 
 source(
   file.path(
