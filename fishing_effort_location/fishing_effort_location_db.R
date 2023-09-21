@@ -16,6 +16,7 @@ toc()
 # run_all_get_db_data(): 2.27 sec elapsed (from csv)
 
 # prepare data ----
+## prepare trip coord data ----
 # print_df_names(all_get_db_data_result_l)
 # mv_sero_fh_permits_his, trips_info, trip_coord_info, trip_neg_2022, trips_notifications_2022, vessels_permits, dates_2022, compl_err_db_data
 
@@ -27,6 +28,74 @@ trip_coord_info <-
 dim(trip_coord_info)
 # [1] 139504     39
 # TRIP_ID, AREA_CODE, SUB_AREA_CODE, DISTANCE_CODE, FISHING_HOURS, LATITUDE, LONGITUDE, LOCAL_AREA_CODE, IN_STATE, AVG_DEPTH_IN_FATHOMS, E_DE, E_UE, E_DC, E_UC, ANYTHING_CAUGHT_FLAG, DEPTH, MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, FISHING_GEAR_DEPTH, TRIP_TYPE, SUPPLIER_TRIP_ID, DAYS_AT_SEA, T_DE, T_UE, T_DC, T_UC, VESSEL_ID, CF_PERMIT_ID, TRIP_START_DATE, PORT, STATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME, SUBMIT_METHOD, ACTIVITY_TYPE, END_PORT, START_PORT, SERO_VESSEL_PERMIT
+
+## prepare permit info ----
+### remove empty cols ----
+vessels_permits_clean <-
+  all_get_db_data_result_l[["vessels_permits"]] |>
+  remove_empty_cols()
+
+dim(all_get_db_data_result_l[["vessels_permits"]])
+# [1] 78438    51
+
+# View(vessels_permits_clean)
+# [1] 78438    50
+
+### keep only group 7 permits ----
+vessels_permits_clean_gr7 <-
+  vessels_permits_clean |>
+  filter(PERMIT_GROUP == 7)
+
+dim(vessels_permits_clean_gr7)
+# [1] 61153    50
+
+### permits effective in 2022 ----
+vessels_permits_clean_gr7_2022 <-
+  vessels_permits_clean_gr7 |>
+  filter(EFFECTIVE_DATE <=
+           as.Date('2022-12-31'))
+
+dim(vessels_permits_clean_gr7_2022)
+# [1] 47973    50
+
+## add permit regions ----
+### combine tops  ----
+vessels_permits_clean_gr7_2022_all_permits <-
+  vessels_permits_clean_gr7_2022 |>
+  group_by(VESSEL_VESSEL_ID) |>
+  mutate(all_permits = toString(unique(TOP))) |>
+  ungroup() |>
+  select(VESSEL_VESSEL_ID, all_permits) |>
+  distinct()
+
+# data_overview(vessels_permits_clean_gr7_2022_all_permits)
+# VESSEL_VESSEL_ID 4493
+# all_permits       56
+
+### add permit region ----
+vessels_permits_clean_gr7_2022_region <-
+  vessels_permits_clean_gr7_2022_all_permits |>
+  separate_permits_into_3_groups(permit_group_field_name = "all_permits")
+
+dim(vessels_permits_clean_gr7_2022_region)
+# [1] 4493    3
+
+data_overview(vessels_permits_clean_gr7_2022_region)
+# VESSEL_VESSEL_ID 4493
+# all_permits        56
+# permit_sa_gom       3
+
+### combine permits into 2 groups; for 2022 gom+dual, sa_only ----
+vessels_permits_clean_gr7_2022_region2 <-
+  vessels_permits_clean_gr7_2022_region |>
+  mutate(permit_22 =
+           case_when(permit_sa_gom == "sa_only" ~ "sa_only",
+                     .default = "gom_dual")) |>
+  select(-permit_sa_gom) |>
+  distinct()
+
+dim(vessels_permits_clean_gr7_2022_region2)
+# [1] 4493    3
 
 # Heatmaps for charter and headboat separately ----
 
@@ -77,48 +146,6 @@ trip_coord_info_2022_short_coord_t_names <-
 
 # glimpse(trip_coord_info_2022_short_coord_t_names)
 
-## add permit info ----
-### remove empty cols ----
-vessels_permits_clean <-
-  all_get_db_data_result_l[["vessels_permits"]] |>
-  remove_empty_cols()
-
-dim(all_get_db_data_result_l[["vessels_permits"]])
-# [1] 78438    51
-
-# View(vessels_permits_clean)
-# [1] 78438    50
-
-### keep only group 7 permits ----
-vessels_permits_clean_gr7 <-
-  vessels_permits_clean |>
-  filter(PERMIT_GROUP == 7)
-
-dim(vessels_permits_clean_gr7)
-# [1] 61153    50
-
-### permits effective in 2022 ----
-vessels_permits_clean_gr7_2022 <-
-  vessels_permits_clean_gr7 |>
-  filter(EFFECTIVE_DATE <=
-           as.Date('2022-12-31'))
-
-dim(vessels_permits_clean_gr7_2022)
-# [1] 47973    50
-
-# combine permit ----
-vessels_permits_clean_gr7_2022_all_permits <-
-  vessels_permits_clean_gr7_2022 |>
-  group_by(VESSEL_VESSEL_ID) |>
-  mutate(all_permits = toString(unique(TOP))) |>
-  ungroup() |>
-  select(VESSEL_VESSEL_ID, all_permits) |>
-  distinct()
-
-  # data_overview()
-# VESSEL_VESSEL_ID 4493
-# all_permits       56
-
 ### join with effort ----
 trip_coord_info_2022_short_vessels_permits <-
   trip_coord_info_2022_short |>
@@ -130,20 +157,12 @@ dim(trip_coord_info_2022_short_vessels_permits)
 
 ### filter permit effective by trip start ? ----
 # not used until answered
-trip_coord_info_2022_short_vessels_permits_eff_p <-
-  trip_coord_info_2022_short_vessels_permits |>
-  filter(TRIP_START_DATE >= EFFECTIVE_DATE)
-
-dim(trip_coord_info_2022_short_vessels_permits_eff_p)
+# trip_coord_info_2022_short_vessels_permits_eff_p <-
+#   trip_coord_info_2022_short_vessels_permits |>
+#   filter(TRIP_START_DATE >= EFFECTIVE_DATE)
+#
+# dim(trip_coord_info_2022_short_vessels_permits_eff_p)
 # [1] 1181296      56
-
-## add permit region
-trip_coord_info_2022_short_vessels_permits_region <-
-  trip_coord_info_2022_short_vessels_permits |>
-  separate_permits_into_3_groups(permit_group_field_name = "all_permits")
-
-data_overview(trip_coord_info_2022_short_vessels_permits_region)
-# permit_sa_gom       3
 
 ### remove extra permit and vessel columns ----
 print_df_names(trip_coord_info_2022_short_vessels_permits_region)
@@ -193,12 +212,15 @@ all_dfs_dim <-
 sum(all_dfs_dim[1,])
 # 96785 # the same as before, ok
 
+# combine permits into 2 groups; for 2022 gom+dual, sa_only
+trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l_
+
 ## create 5 min heatmaps for both trip types ----
 # trip_type_data_from_db_by_t_id_types_l
 
 tic("effort_t_type")
 effort_t_type <-
-  map(trip_coord_info_2022_short_types_l, df_join_grid)
+  map(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_p__l, df_join_grid)
 toc()
 # effort_t_type: 1.66 sec elapsed
 
