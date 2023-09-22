@@ -43,13 +43,23 @@ coordInfo_summ1 <-
   tidyr::separate(Freq, c("stat_name", "sta_val"), " *: *",
                   extra = "merge")
 
-View(coordInfo_summ1)
+# View(coordInfo_summ1)
 
+coordInfo_summ2 <-
+  coordInfo_summ1 |>
+  distinct() |>
+  pivot_wider(names_from = stat_name,
+              id_cols = Var2,
+              values_from = sta_val) |>
+  # mutate_if(is.character, trimws) |>
+  mutate(field_name = trimws(Var2),
+         .before = 1,
+         .keep = "unused")
 
+coordInfo_summ2 |>
+  filter(is.na(Mode)) |>
+  View()
 
-  dplyr::group_by(Var1, Var2) %>%
-  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-  dplyr::filter(n > 1L)
 
 
 # errors in geo data ----
