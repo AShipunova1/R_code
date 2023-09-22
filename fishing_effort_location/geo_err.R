@@ -1,4 +1,51 @@
-library(sp)
+# setup ----
+
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+current_project_dir_path <- get_current_file_directory()
+
+# get data ----
+# "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
+source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
+
+tic("run_all_get_db_data()")
+all_get_db_data_result_l <- run_all_get_db_data()
+toc()
+# run_all_get_db_data(): 2.27 sec elapsed (from csv)
+
+trip_coord_info <-
+  all_get_db_data_result_l[["trip_coord_info"]] |>
+  remove_empty_cols()
+
+dim(trip_coord_info)
+# [1] 141350     39
+
+# data_overview(trip_coord_info)
+
+coordInfo_summ <- summary(trip_coord_info) |>
+  as.data.frame()
+
+
+coordInfo_summ_compact <-
+  coordInfo_summ |>
+  select(-Var1) |>
+  tidyr::pivot_wider(names_from = Var2,
+              # number of vessels
+              values_from = Freq,
+              values_fn = list)
+
+coordInfo_summ_compact$FISHING_HOURS
+
+  str_split_fixed(coordInfo_summ$Freq, " *: *", 2) |> head()
+
+coordInfo_summ |>
+
+
+  dplyr::group_by(Var1, Var2) %>%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L)
+
+
 # errors in geo data ----
 # 1) a sign
 # 2) on land
@@ -23,7 +70,6 @@ library(sp)
 # Max.   : 90.00   Max.   : 137.59
 
 # ===
-# data_overview(db_data)
 
 lat_long_to_map <- function(my_df, my_title) {
   my_df %>%
@@ -42,7 +88,7 @@ lat_long_to_map <- function(my_df, my_title) {
 }
 
 # 1) a sign ----
-## positive_long ---- 
+## positive_long ----
 positive_long <-
   db_data %>%
   filter(LONGITUDE > 0)
@@ -50,14 +96,14 @@ positive_long <-
 dim(positive_long)
 # 49777
 
-#     LATITUDE        LONGITUDE      
-# Min.   :-87.30   Min.   :-117.25  
-# 1st Qu.: 26.10   1st Qu.: -83.57  
-# Median : 29.00   Median : -81.01  
-# Mean   : 28.88   Mean   : -50.88  
-# 3rd Qu.: 30.16   3rd Qu.: -75.85  
-# Max.   : 90.00   Max.   : 137.59  
-# NA's   :1277     NA's   :1277     
+#     LATITUDE        LONGITUDE
+# Min.   :-87.30   Min.   :-117.25
+# 1st Qu.: 26.10   1st Qu.: -83.57
+# Median : 29.00   Median : -81.01
+# Mean   : 28.88   Mean   : -50.88
+# 3rd Qu.: 30.16   3rd Qu.: -75.85
+# Max.   : 90.00   Max.   : 137.59
+# NA's   :1277     NA's   :1277
 
 ## negative latitude ----
 negative_lat <-
@@ -65,7 +111,7 @@ negative_lat <-
   filter(LATITUDE <= 0)
 
 dim(negative_lat)
-# 120  
+# 120
 
 negative_lat %>% select(LATITUDE, LONGITUDE) %>% unique()
 glimpse(negative_lat)
@@ -92,9 +138,9 @@ coords_off_boundaries <-
   filter(!between(abs(LATITUDE), 23, 37) |
            !between(abs(LONGITUDE), 71, 98))
 
-coords_off_boundaries %>% 
+coords_off_boundaries %>%
   count(LATITUDE, LONGITUDE) %>%
-  arrange(n) %>% tail() 
+  arrange(n) %>% tail()
      # LATITUDE LONGITUDE   n
 # 2253 38.61667 -74.48333 107
 # 2254 83.00000  27.00000 125
@@ -103,9 +149,9 @@ coords_off_boundaries %>%
 # 2257 39.81874 -74.07497 326
 # 2258 41.58291 -70.38649 410
 
-coords_off_boundaries %>% 
+coords_off_boundaries %>%
   # dim()
-  # 11357    
+  # 11357
   select(LATITUDE, LONGITUDE) %>% unique() %>%
   lat_long_to_map('coords_off_boundaries')
 
@@ -121,8 +167,8 @@ corrected_data <-
   # remove all entries with missing coords
   filter(complete.cases(.))
 
-# corrected_data_sf <- to_sf(corrected_data) 
-corrected_data_sf <- 
+# corrected_data_sf <- to_sf(corrected_data)
+corrected_data_sf <-
   corrected_data %>%
     st_as_sf(coords = c("LONGITUDE",
                         "LATITUDE"),
@@ -160,7 +206,7 @@ st_crs(gom_shp)
 # [1] "L.CRS.EPSG3857"
 
 # in_sa <- st_intersection(corrected_data_sf, sa_shp)
-# attribute variables are assumed to be spatially constant throughout all geometries 
+# attribute variables are assumed to be spatially constant throughout all geometries
 
 # st_crs(corrected_data_sf)
 # st_crs(sa_shp)
@@ -172,7 +218,7 @@ st_crs(gom_shp)
 
 minus_sa <- st_difference(corrected_data_sf, sa_shp)
 # Warning message:
-# attribute variables are assumed to be spatially constant throughout all geometries 
+# attribute variables are assumed to be spatially constant throughout all geometries
 
 mapview(minus_sa)
 
@@ -222,17 +268,17 @@ corrected_data_short_sf <-
 # str(corrected_data_short_sf)
 # Classes ‘sf’ and 'data.frame':	11998 obs. of  6 variables:
 
-# st_difference(corrected_data_short_sf, 
+# st_difference(corrected_data_short_sf,
 #               st_union(st_combine(c(gom_shp, sa_shp))))
 
 union_shp <- st_union(gom_shp, sa_shp)
 # although coordinates are longitude/latitude, st_union assumes that they are planar
 # Warning message:
-# attribute variables are assumed to be spatially constant throughout all geometries 
+# attribute variables are assumed to be spatially constant throughout all geometries
 
 plot(union_shp)
 
-# st_difference(corrected_data_short_sf, 
+# st_difference(corrected_data_short_sf,
 #               st_union(st_combine(c(gom_shp, sa_shp))))
 
 corrected_data_short_minus_union_shp <-
