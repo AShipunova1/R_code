@@ -198,6 +198,8 @@ db_data_w_area_short_good_coord <-
   db_data_w_area_short %>%
   # all LONG should be negative
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  # all LAT should be positive
+  dplyr::mutate(LATITUDE = abs(LATITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   distinct()
