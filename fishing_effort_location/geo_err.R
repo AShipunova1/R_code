@@ -28,7 +28,6 @@ dim(trip_coord_info)
 coordInfo_summ <- summary(trip_coord_info) |>
   as.data.frame()
 
-
 coordInfo_summ_compact <-
   coordInfo_summ |>
   select(-Var1) |>
@@ -37,7 +36,7 @@ coordInfo_summ_compact <-
               values_from = Freq,
               values_fn = list)
 
-coordInfo_summ_compact$FISHING_HOURS
+# coordInfo_summ_compact$FISHING_HOURS
 
 # str_split_fixed(coordInfo_summ$Freq, " *: *", 2) |> head()
 
@@ -61,7 +60,7 @@ coordInfo_summ2 <-
 
 names(coordInfo_summ2) <- fix_names(names(coordInfo_summ2))
 
-print_df_names(coordInfo_summ2)
+# print_df_names(coordInfo_summ2)
 
 coordInfo_summ2_short <-
   coordInfo_summ2 |>
@@ -79,7 +78,12 @@ weird_stats <-
   filter(field_name %in%
            c("FISHING_HOURS", "LATITUDE", "LONGITUDE", "TRIP_END_DATE"))
 
-glimpse(weird_stats)
+# head(weird_stats)
+#   field_name    min                        max                        na_s
+# 1 FISHING_HOURS "0.000  "                  "4920.640  "                NA
+# 2 LATITUDE      "-87.30  "                 "90.00  "                  "580  "
+# 3 LONGITUDE     "-117.25  "                "137.59  "                 "580  "
+# 4 TRIP_END_DATE "1969-08-17 00:00:00.00  " "2023-09-19 00:00:00.00  "  NA
 
 # errors in geo data ----
 # 1) a sign
@@ -121,10 +125,35 @@ lat_long_to_map <- function(my_df, my_title = "my_title") {
     ) %>% return()
 }
 
-trip_coord_info |>
-  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+sa_shp <-
+  sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
+
+trip_coord_info_map <-
+  trip_coord_info |>
+  select(LONGITUDE, LATITUDE) |>
   distinct() |>
-  lat_long_to_map(my_title = "all points")
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  mutate(label_lat_lon = paste(round(LATITUDE, 0),
+                       round(LONGITUDE, 0)
+                       )
+  ) |>
+  # head() |>
+#   dim()
+# [1] 116246      2
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = sf::st_crs(sa_shp))
+
+mapview::mapview(trip_coord_info_map,
+                     # colors according a chosen column
+    zcol = "label_lat_lon",
+    # palette to choose colors from
+    col.regions = viridisLite::turbo,
+    layer.name = 'label_lat_lon',
+    # transparency
+    alpha = 0.3,
+    legend = FALSE
+)
 
 # 1) a sign ----
 ## positive_long ----
