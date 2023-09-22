@@ -1,0 +1,488 @@
+---
+title: "Geo errors"
+date: today
+output:
+  html_document
+format:
+  html:
+    toc: true
+    # toc-depth: 2
+    css: styles.css
+    code-overflow: wrap
+    # code-fold: true
+    code-summary: "Show the code"
+    code-line-numbers: true
+---
+
+## Setup
+```{r setup}
+# setup ----
+library(mapview)
+
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+current_project_dir_path <- get_current_file_directory()
+```
+
+```{r get data}
+# get data ----
+# "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
+source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
+
+tic("run_all_get_db_data()")
+all_get_db_data_result_l <- run_all_get_db_data()
+toc()
+# run_all_get_db_data(): 2.27 sec elapsed (from csv)
+
+trip_coord_info <-
+  all_get_db_data_result_l[["trip_coord_info"]] |>
+  remove_empty_cols()
+```
+
+## Statistics
+```{r statistics}
+
+# statistics ----
+
+dim(trip_coord_info)
+# [1] 141350     39
+
+# data_overview(trip_coord_info)
+
+coordInfo_summ <- summary(trip_coord_info) |>
+  as.data.frame()
+
+coordInfo_summ_compact <-
+  coordInfo_summ |>
+  select(-Var1) |>
+  tidyr::pivot_wider(names_from = Var2,
+              # number of vessels
+              values_from = Freq,
+              values_fn = list)
+
+# coordInfo_summ_compact$FISHING_HOURS
+
+# str_split_fixed(coordInfo_summ$Freq, " *: *", 2) |> head()
+
+coordInfo_summ1 <-
+  coordInfo_summ |>
+  tidyr::separate(Freq, c("stat_name", "sta_val"), " *: *",
+                  extra = "merge")
+
+# View(coordInfo_summ1)
+
+coordInfo_summ2 <-
+  coordInfo_summ1 |>
+  distinct() |>
+  pivot_wider(names_from = stat_name,
+              id_cols = Var2,
+              values_from = sta_val) |>
+  # mutate_if(is.character, trimws) |>
+  mutate(field_name = trimws(Var2),
+         .before = 1,
+         .keep = "unused")
+
+names(coordInfo_summ2) <- fix_names(names(coordInfo_summ2))
+
+# print_df_names(coordInfo_summ2)
+
+coordInfo_summ2_short <-
+  coordInfo_summ2 |>
+  filter(is.na(mode)) |>
+  select(field_name, min, max, na_s) |>
+  distinct()
+
+# View(coordInfo_summ2_short)
+
+# coordInfo_summ2_short$field_name |> cat(sep = ", ")
+# TRIP_ID, FISHING_HOURS, LATITUDE, LONGITUDE, AVG_DEPTH_IN_FATHOMS, E_DE, E_DC, DEPTH, MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, FISHING_GEAR_DEPTH, DAYS_AT_SEA, T_DE, T_DC, VESSEL_ID, CF_PERMIT_ID, TRIP_START_DATE, TRIP_END_DATE, ACTIVITY_TYPE, SERO_VESSEL_PERMIT
+
+weird_stats <-
+  coordInfo_summ2_short |>
+  filter(field_name %in%
+           c("FISHING_HOURS", "LATITUDE", "LONGITUDE", "TRIP_END_DATE"))
+
+head(weird_stats)
+#   field_name    min                        max                        na_s
+# 1 FISHING_HOURS "0.000  "                  "4920.640  "                NA
+# 2 LATITUDE      "-87.30  "                 "90.00  "                  "580  "
+# 3 LONGITUDE     "-117.25  "                "137.59  "                 "580  "
+# 4 TRIP_END_DATE "1969-08-17 00:00:00.00  " "2023-09-19 00:00:00.00  "  NA
+
+```
+
+# errors in geo data ----
+# 1) a sign
+# 2) on land
+# 3) outside boundaries
+# 3a) if 28 north - see the wrong long?
+# 4) wrong depth
+# 5) missing coords
+# filter(complete.cases(.)) %>%
+# 6) area codes?
+# AREA_CODE               91
+# SUB_AREA_CODE           56
+# DISTANCE_CODE_NAME       5
+# LOCAL_AREA_CODE         46
+
+# ===
+# fathom, old English measure of length, now standardized at 6 feet (1.83 metre), which has long been used as a nautical unit of depth.
+
+# ===
+# LATITUDE      NA's   :1198
+# LATITUDE        LONGITUDE
+# Min.   :-87.30   Min.   :-117.25
+# Max.   : 90.00   Max.   : 137.59
+
+## Map function
+```{r map function}
+sa_shp <-
+  sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
+
+gom_shp <- 
+  sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\ReefFish_EFH_GOM.shp)")
+
+lat_long_to_map <- function(my_df, my_title = "my_title", legend = TRUE) {
+  my_df %>%
+    # save info to show on the map
+    dplyr::mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+    # convert to sf
+    # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
+    sf::st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+                 crs = sf::st_crs(sa_shp)) %>%
+    mapview::mapview(
+      col.regions = viridisLite::turbo,
+      layer.name = my_title,
+      legend = legend
+    ) %>% return()
+}
+
+```
+
+## Map all points
+```{r map all points}
+
+trip_coord_info_map_data <-
+  trip_coord_info |>
+  select(LONGITUDE, LATITUDE) |>
+  distinct() |>
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  mutate(label_lat_lon = paste(round(LATITUDE, 0),
+                       round(LONGITUDE, 0)
+                       )
+  ) |>
+  # head() |>
+#   dim()
+# [1] 116246      2
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = sf::st_crs(sa_shp))
+
+trip_coord_info_map <-
+  trip_coord_info_map_data |>
+  mapview::mapview(
+    # colors according a chosen column
+    zcol = "label_lat_lon",
+    # palette to choose colors from
+    col.regions = viridisLite::turbo,
+    layer.name = 'label_lat_lon',
+    # transparency
+    alpha = 0.3,
+    legend = FALSE
+  )
+```
+
+## Sign
+### Positive longitude
+```{r Sign}
+# 1) a sign ----
+## positive_long ----
+positive_long <-
+  trip_coord_info %>%
+  filter(LONGITUDE > 0)
+
+dim(positive_long)
+
+#     LATITUDE        LONGITUDE
+# Min.   :-87.30   Min.   :-117.25
+# 1st Qu.: 26.10   1st Qu.: -83.57
+# Median : 29.00   Median : -81.01
+# Mean   : 28.88   Mean   : -50.88
+# 3rd Qu.: 30.16   3rd Qu.: -75.85
+# Max.   : 90.00   Max.   : 137.59
+# NA's   :1277     NA's   :1277
+
+positive_long_map <-
+  positive_long |> 
+  select(LATITUDE, LONGITUDE) |> 
+  lat_long_to_map('Positive longitude', legend = FALSE)
+
+# positive_long_map@map
+
+```
+
+### Negative latitude
+```{r negative latitude}
+### negative latitude ----
+negative_lat <-
+  trip_coord_info %>%
+  filter(LATITUDE <= 0)
+
+dim(negative_lat)
+# 120
+
+negative_lat %>% select(LATITUDE, LONGITUDE) %>% distinct()
+glimpse(negative_lat)
+negative_lat %>% count(LATITUDE, LONGITUDE)
+# LATITUDE LONGITUDE  n
+# 1 -87.30000  29.30000  2
+# 2 -83.97695  29.15705 11
+# 3 -76.76466  55.33196  3
+# 4 -41.40274 -14.40965  2
+# 5 -30.00000  86.00000 93
+# 6 -27.85917 137.58650  4
+# 7   0.00000   0.00000  5
+```
+
+
+### Negative latitude mapped
+```{r Wrong sign mapped}
+negative_lat_c_subset <-
+  negative_lat %>%
+  select(LATITUDE, LONGITUDE)
+
+neg_lat_map <-
+  lat_long_to_map(negative_lat_c_subset, 'Negative latitude')
+  
+# neg_lat_map@map
+
+```
+
+## Outside boundaries
+```{r outside boundaries}
+## 3) outside boundaries ----
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+trip_coord_info_sf <-
+  trip_coord_info |>
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = sf::st_crs(sa_shp))
+
+# trip_coord_info_sf_outside_big_box <-
+#     trip_coord_info_sf |>
+#       # sf::st_join(GOMsf, left = FALSE) %>%
+#       dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
+#              LATITUDE = sf::st_coordinates(.)[, 2])
+
+trip_coord_info_crop_big_sf <-
+  sf::st_crop(trip_coord_info_sf,
+              big_bounding_box)
+
+not_in <-
+  lengths(sf::st_intersects(trip_coord_info_sf, trip_coord_info_crop_big_sf)) > 0
+
+ocean = !not_in
+
+# length(ocean)
+# dim(trip_coord_info_sf)
+
+trip_coord_info_sf_out <-
+  trip_coord_info_sf |>
+  # filter(hwy > 16) %>% 
+  filter(lengths(sf::st_intersects(trip_coord_info_sf, trip_coord_info_crop_big_sf)) == 0)
+  
+dim(trip_coord_info_sf_inside)
+# [1] 125242     38
+
+dim(trip_coord_info_sf_out)
+# [1] 15528    38
+
+mapview::mapview(trip_coord_info_sf_out)
+
+# lat_long_to_map('coords_off_boundaries')
+```
+
+## On land
+### Shape files maps
+```{r 2) on land}
+## 2) on land ----
+  # trip_coord_info_crop_big_sf
+
+# corrected_data_map <- corrected_data_sf %>% mapview()
+# View(corrected_data_map)
+# 11998
+
+### shape files maps ----
+m_s <- mapview(sa_shp,
+               layer.name = "South Altlantic",
+               legend = FALSE)
+m_g <- mapview(gom_shp,
+               layer.name = "Gulf of Mexico",
+               legend = FALSE)
+
+# st_crs(m_s)
+# Coordinate Reference System: NA
+# st_crs(corrected_data_sf)
+# Coordinate Reference System:
+    # ID["EPSG",4269]]
+
+# st_crs(sa_shp)
+# st_crs(gom_shp)
+# Coordinate Reference System:
+#   User input: NAD83
+    # ID["EPSG",4269]]
+
+# identical(st_crs(sa_shp),
+# st_crs(gom_shp)
+# )
+# TRUE
+# m_s@map$x$options$crs
+# $crsClass
+# [1] "L.CRS.EPSG3857"
+
+# in_sa <- st_intersection(corrected_data_sf, sa_shp)
+# attribute variables are assumed to be spatially constant throughout all geometries
+
+# st_crs(corrected_data_sf)
+# st_crs(sa_shp)
+
+# mapview(minus_map)
+# subset
+# mapview(corrected_data_sf[sa_shp, ])
+# lat_lon_data[shapefile_data, ]
+
+# crop_by_shape <-
+#   function(my_sf) {
+#     my_sf |>
+#       sf::st_join(GOMsf, left = FALSE) %>%
+#       dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
+#              LATITUDE = sf::st_coordinates(.)[, 2]) %>%
+#       return()
+#   }
+
+# minus_sa <-
+#   trip_coord_info_crop_big_sf |>
+#   sf::st_join(sa_shp, left = FALSE) |>
+#   dplyr::mutate(
+#     LONGITUDE = sf::st_coordinates(.)[, 1],
+#     LATITUDE = sf::st_coordinates(.)[, 2]
+#   )
+  # sf::st_difference(trip_coord_info_crop_big_sf, sa_shp)
+# Warning message:
+# attribute variables are assumed to be spatially constant throughout all geometries
+
+mapview(minus_sa)
+
+sf_use_s2(FALSE)
+# Spherical geometry (s2) switched off
+
+# minus_gom <- st_difference(corrected_data_sf, gom_shp)
+# although coordinates are longitude/latitude, st_difference
+# assumes that they are planar
+# in_gom <- st_intersection(corrected_data_sf, gom_shp)
+
+dim(minus_sa)
+# [1] 44023    20
+
+# minus_sa_gom <- st_difference(gom_shp, minus_sa)
+minus_sa_gom2 <- st_difference(minus_sa, gom_shp)
+
+# p <- poly2nb(st_make_valid(shp))
+
+mm <- mapview(minus_sa_gom2, color = "green")
+
+View(minus_sa_gom2)
+
+mm + m_g + m_s
+# m_s is still resent?
+
+# A helper function that erases all of y from x: ----
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+
+names(corrected_data) %>% paste0(collapse = ", ")
+
+corrected_data_short_sf <-
+  corrected_data %>%
+  select(
+    TRIP_START_DATE,
+    TRIP_END_DATE,
+    LATITUDE,
+    LONGITUDE,
+    MINIMUM_BOTTOM_DEPTH,
+    MAXIMUM_BOTTOM_DEPTH,
+    FISHING_GEAR_DEPTH
+  ) %>%
+  st_as_sf(coords = c("LONGITUDE",
+                      "LATITUDE"),
+           crs = st_crs(sa_shp))
+
+# str(corrected_data_short_sf)
+# Classes ‘sf’ and 'data.frame':	11998 obs. of  6 variables:
+
+# st_difference(corrected_data_short_sf,
+#               st_union(st_combine(c(gom_shp, sa_shp))))
+
+union_shp <- st_union(gom_shp, sa_shp)
+# although coordinates are longitude/latitude, st_union assumes that they are planar
+# Warning message:
+# attribute variables are assumed to be spatially constant throughout all geometries
+
+plot(union_shp)
+
+# st_difference(corrected_data_short_sf,
+#               st_union(st_combine(c(gom_shp, sa_shp))))
+
+corrected_data_short_minus_union_shp <-
+  st_difference(corrected_data_short_sf, union_shp)
+# although coordinates are longitude/latitude, st_difference
+# assumes that they are planar
+
+# write_csv(corrected_data_short_minus_union_shp, "short_minus_sa_gom.csv")
+
+m_minus <- mapview(corrected_data_short_minus_union_shp, color = "green")
+# View(corrected_data_short_minus_union_shp)
+
+m_minus + mapview(union_shp)
+
+# minus sa again? ----
+
+all_minus_sa <-
+  st_difference(corrected_data_short_minus_union_shp, sa_shp)
+
+write_csv(all_minus_sa, "all_minus_sa.csv")
+
+m_all_minus_sa <-
+  mapview(
+    all_minus_sa,
+    col.regions = "green",
+    layer.name = 'Not in GOM or SA',
+    alpha = 0.3,
+    cex = 1
+  )
+
+m_all_minus_sa + union_shp
+# ===
+
+# FL ---
+# https://catalog.data.gov/dataset/tiger-line-shapefile-2019-state-florida-current-place-state-based/resource/fcf74536-aeab-4ed1-a9df-06daf29a527b
+
+fl_shp <- read_shapefile("tl_2019_12_place_FL/tl_2019_12_place.shp")
+
+st_crs(fl_shp)
+    # ID["EPSG",4269]]
+
+on_land <- st_intersection(corrected_data_short_sf, fl_shp)
+dim(on_land)
+# [1] 3660   22
+
+m_l <- mapview(on_land)
+```
+
