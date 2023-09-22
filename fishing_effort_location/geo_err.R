@@ -36,9 +36,15 @@ coordInfo_summ_compact <-
 
 coordInfo_summ_compact$FISHING_HOURS
 
-  str_split_fixed(coordInfo_summ$Freq, " *: *", 2) |> head()
+# str_split_fixed(coordInfo_summ$Freq, " *: *", 2) |> head()
 
-coordInfo_summ |>
+coordInfo_summ1 <-
+  coordInfo_summ |>
+  tidyr::separate(Freq, c("stat_name", "sta_val"), " *: *",
+                  extra = "merge")
+
+View(coordInfo_summ1)
+
 
 
   dplyr::group_by(Var1, Var2) %>%
