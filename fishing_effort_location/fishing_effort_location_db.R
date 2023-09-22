@@ -131,6 +131,8 @@ trip_coord_info_2022_short <-
 dim(trip_coord_info_2022_short)
 # [1] 96785     7
 
+# write_csv(trip_coord_info_2022_short, "trip_coord_info_2022_short.csv")
+
 ## only good lat long ----
 trip_coord_info_2022_short_coord <-
   trip_coord_info_2022_short |>
@@ -144,7 +146,7 @@ trip_coord_info_2022_short_coord_t_names <-
                             "CHARTER",
                             "HEADBOAT"))
 
-# glimpse(trip_coord_info_2022_short_coord_t_names)
+# write_csv(trip_coord_info_2022_short_coord_t_names, "trip_coord_info_2022_short_coord_t_names.csv")
 
 ## Join permits with effort ----
 trip_coord_info_2022_short_vessels_permits_region <-
@@ -259,24 +261,33 @@ map_df(effort_t_type_cropped_cnt, dim)
 
 # map_df(effort_t_type_cropped_cnt, data_overview)
 
-data_overview(effort_t_type_cropped_cnt$A)
+# data_overview(effort_t_type_cropped_cnt$A)
 # TRIP_ID     35777
 # VESSEL_ID     819
 # cell_id      3110
-data_overview(effort_t_type_cropped_cnt$H)
+# data_overview(effort_t_type_cropped_cnt$H)
 # TRIP_ID     663
 # VESSEL_ID   263
 # cell_id     359
-data_overview(effort_t_type_cropped_cnt$CHARTER.gom_dual)
+# data_overview(effort_t_type_cropped_cnt$CHARTER.gom_dual)
 # TRIP_ID     34307
 # VESSEL_ID     709
 # cell_id      3069
-data_overview(effort_t_type_cropped_cnt$HEADBOAT.gom_dual)
+# data_overview(effort_t_type_cropped_cnt$HEADBOAT.gom_dual)
 # TRIP_ID     285
 # VESSEL_ID    21
 # cell_id      67
 
 # View(grid)
+
+
+
+# map(names(effort_t_type_cropped_cnt),
+#     \(type_reg) {
+#       effort_t_type_cropped_cnt[[type_reg]] |>
+#         sf::st_drop_geometry() |>
+#         write_csv(paste0(type_reg, ".csv"))
+#     })
 
 ### join with min grid ----
 effort_t_type_cropped_cnt_join_grid <-
