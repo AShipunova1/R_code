@@ -1,4 +1,5 @@
 # setup ----
+library(mapview)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -16,6 +17,8 @@ toc()
 trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
   remove_empty_cols()
+
+# statistics ----
 
 dim(trip_coord_info)
 # [1] 141350     39
@@ -66,9 +69,17 @@ coordInfo_summ2_short <-
   select(field_name, min, max, na_s) |>
   distinct()
 
-View(coordInfo_summ2_short)
+# View(coordInfo_summ2_short)
 
+# coordInfo_summ2_short$field_name |> cat(sep = ", ")
+# TRIP_ID, FISHING_HOURS, LATITUDE, LONGITUDE, AVG_DEPTH_IN_FATHOMS, E_DE, E_DC, DEPTH, MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, FISHING_GEAR_DEPTH, DAYS_AT_SEA, T_DE, T_DC, VESSEL_ID, CF_PERMIT_ID, TRIP_START_DATE, TRIP_END_DATE, ACTIVITY_TYPE, SERO_VESSEL_PERMIT
 
+weird_stats <-
+  coordInfo_summ2_short |>
+  filter(field_name %in%
+           c("FISHING_HOURS", "LATITUDE", "LONGITUDE", "TRIP_END_DATE"))
+
+glimpse(weird_stats)
 
 # errors in geo data ----
 # 1) a sign
@@ -95,21 +106,25 @@ View(coordInfo_summ2_short)
 
 # ===
 
-lat_long_to_map <- function(my_df, my_title) {
+lat_long_to_map <- function(my_df, my_title = "my_title") {
   my_df %>%
     # save info to show on the map
-    mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+    dplyr::mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
     # convert to sf
     # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
-    st_as_sf(coords = c("LONGITUDE",
-                        "LATITUDE"),
-             crs = st_crs(sa_shp)) %>%
-    mapview(
+    sf::st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE")) %>%
+    mapview::mapview(
       col.regions = viridisLite::turbo,
       layer.name = my_title,
       legend = TRUE
     ) %>% return()
 }
+
+trip_coord_info |>
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  distinct() |>
+  lat_long_to_map(my_title = "all points")
 
 # 1) a sign ----
 ## positive_long ----
