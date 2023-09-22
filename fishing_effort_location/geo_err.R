@@ -56,9 +56,17 @@ coordInfo_summ2 <-
          .before = 1,
          .keep = "unused")
 
-coordInfo_summ2 |>
-  filter(is.na(Mode)) |>
-  View()
+names(coordInfo_summ2) <- fix_names(names(coordInfo_summ2))
+
+print_df_names(coordInfo_summ2)
+
+coordInfo_summ2_short <-
+  coordInfo_summ2 |>
+  filter(is.na(mode)) |>
+  select(field_name, min, max, na_s) |>
+  distinct()
+
+View(coordInfo_summ2_short)
 
 
 
