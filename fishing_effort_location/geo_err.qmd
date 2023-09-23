@@ -21,6 +21,9 @@ library(mapview)
 library(ggplot2)
 library(ggmap)
 
+library(rnaturalearth)
+library(rnaturalearthdata)
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_dir_path <-
@@ -41,6 +44,11 @@ toc()
 trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
   remove_empty_cols()
+
+world_coast <-
+  rnaturalearth::ne_coastline(returnclass = "sf")
+# class(world_coast)
+
 ```
 
 ## Statistics
@@ -310,25 +318,6 @@ dim(trip_coord_info_crop_big_sf)
 
 dim(trip_coord_info_sf_out)
 str(trip_coord_info_sf_out)
-
-# nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-# ggplot(nc) +
-#   geom_sf(aes(fill = AREA))
-
-# Plot the map. group = group connects the points in the correct order
-# ggplot(data = worldmap, aes(x = long, y = lat, group = group)) +
-#   geom_polygon()
-
-# Equivalent to:
-
-library("rnaturalearth")
-library("rnaturalearthdata")
-
-world_coast <-
-rnaturalearth::ne_coastline(returnclass = "sf")
-# worldmap <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
-class(world_coast)
-
 
 # map_vsl_zone <-
 ggplot() +
