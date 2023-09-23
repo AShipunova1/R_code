@@ -257,10 +257,9 @@ dim(positive_long)
 positive_long_map <-
   positive_long |> 
   select(LATITUDE, LONGITUDE) |> 
-  
-  lat_long_to_map('Positive longitude', legend = FALSE)
+  lat_long_to_map_plot('Positive longitude')
 
-# positive_long_map@map
+positive_long_map
 
 ```
 
