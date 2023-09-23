@@ -21,7 +21,9 @@ library(mapview)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-current_project_dir_path <- get_current_file_directory()
+current_project_dir_path <-
+  file.path(my_paths$git_r, "fishing_effort_location")
+
 ```
 
 ```{r get data}
@@ -269,12 +271,18 @@ big_bounding_box <- c(
    ymax = 49 #Canada
  )
 
-trip_coord_info_sf <-
+trip_coord_info_short_sf <-
   trip_coord_info |>
+  select(LATITUDE, LONGITUDE) |> 
+  distinct() |> 
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   sf::st_as_sf(coords = c("LONGITUDE",
                           "LATITUDE"),
                crs = sf::st_crs(sa_shp))
+
+
+str(trip_coord_info_short_sf)
+# [1] 116246      1
 
 # trip_coord_info_sf_outside_big_box <-
 #     trip_coord_info_sf |>
@@ -283,31 +291,29 @@ trip_coord_info_sf <-
 #              LATITUDE = sf::st_coordinates(.)[, 2])
 
 trip_coord_info_crop_big_sf <-
-  sf::st_crop(trip_coord_info_sf,
+  sf::st_crop(trip_coord_info_short_sf,
               big_bounding_box)
 
-not_in <-
-  lengths(sf::st_intersects(trip_coord_info_sf, trip_coord_info_crop_big_sf)) > 0
-
-ocean = !not_in
-
-# length(ocean)
-# dim(trip_coord_info_sf)
+dim(trip_coord_info_crop_big_sf)
+# [1] 111572      1
 
 trip_coord_info_sf_out <-
-  trip_coord_info_sf |>
-  # filter(hwy > 16) %>% 
-  filter(lengths(sf::st_intersects(trip_coord_info_sf, trip_coord_info_crop_big_sf)) == 0)
-  
-dim(trip_coord_info_sf_inside)
-# [1] 125242     38
+  trip_coord_info_short_sf |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
+  ) == 0)
+
+dim(trip_coord_info_crop_big_sf)
+# [1] 111572      1
 
 dim(trip_coord_info_sf_out)
-# [1] 15528    38
+# dim(trip_coord_info_sf_out)
 
-mapview::mapview(trip_coord_info_sf_out)
+rectangular_big_box_view <- mapview::viewExtent(trip_coord_info_crop_big_sf)
 
-# lat_long_to_map('coords_off_boundaries')
+mapview::mapview(trip_coord_info_sf_out) +
+  rectangular_big_box_view
+
 ```
 
 ## On land
