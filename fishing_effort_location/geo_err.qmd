@@ -156,8 +156,24 @@ gom_shp <-
 
 federal_state_waters_shp <-
 sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
+glimpse(federal_state_waters_shp)
+# [1] 40  7
 
-# mapview(federal_state_waters_shp)
+# bbox <-
+#   st_bbox(big_bounding_box, 
+#           crs = st_crs(federal_state_waters_shp)) |> 
+#   st_as_sfc()
+
+# mapview(bbox)
+
+federal_state_waters_shp_east <-
+    sf::st_crop(federal_state_waters_shp,
+              big_bounding_box)
+
+str(federal_state_waters_shp)
+# [1] 0 7
+
+# mapview(federal_state_waters_shp_east)
 
 lat_long_to_map <- 
   function(my_df, my_title = "my_title", legend = TRUE) {
