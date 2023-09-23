@@ -18,6 +18,8 @@ format:
 ```{r setup}
 # setup ----
 library(mapview)
+library(ggplot2)
+library(ggmap)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
