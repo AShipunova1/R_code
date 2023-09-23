@@ -154,6 +154,11 @@ sa_shp <-
 gom_shp <- 
   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\ReefFish_EFH_GOM.shp)")
 
+federal_state_waters_shp <-
+sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
+
+# mapview(federal_state_waters_shp)
+
 lat_long_to_map <- 
   function(my_df, my_title = "my_title", legend = TRUE) {
   my_df %>%
@@ -400,6 +405,8 @@ m_s <- mapview(sa_shp,
 m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
+
+
 ```
 
 ### Inside SA and GOM
@@ -434,14 +441,18 @@ toc()
 
 # mapview(minus_sa) +
 #   mapview(sa_shp)
+
+tic("minus_gom")
+minus_sa_gom <-
+  # trip_coord_info_crop_big_sf |>
+  st_filter(minus_sa,
+            st_union(in_gom), .predicate = st_disjoint)
+toc()
+# minus_gom: 15.84 sec elapsed
   
-  
-      sf::st_join(sa_shp, left = FALSE) %>%
-  str()
-      dplyr::mutate(
-        LONGITUDE = sf::st_coordinates(.)[, 1],
-        LATITUDE = sf::st_coordinates(.)[, 2]
-      ) %>%
+mapview(minus_sa_gom) +
+  mapview(sa_shp, fill = "lightgreen") +
+  mapview(gom_shp, fill = "lightgreen")
 
  # sf::st_difference(trip_coord_info_crop_big_sf, sa_shp)
 # Warning message:
