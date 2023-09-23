@@ -185,9 +185,9 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt <-
 
 View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
 
-for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
-  filter(vsl_cnt_stat_zone < 3) |>
-  write_csv("state_zone_less_2_vsl.csv")
+# for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
+#   filter(vsl_cnt_stat_zone < 3) |>
+#   write_csv("state_zone_less_2_vsl.csv")
 
 # check
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
