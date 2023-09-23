@@ -434,3 +434,16 @@ ggplot() +
     color = "red",
     fill = NA
   )
+
+ggplot() +
+  ggplot2::geom_sf(data = world_coast) +
+  ggplot2::geom_sf(data = trip_coord_info_map_data,
+                       color = "blue")
+
+ggplot() +
+  ggplot2::geom_sf(data = world_coast) +
+  ggplot2::geom_sf(data = trip_coord_info_map_data,
+                       color = "blue")
+# +
+  # geom_sf_label(data = trip_coord_info_map_data,
+  #               mapping = aes(label = label_lat_lon))
