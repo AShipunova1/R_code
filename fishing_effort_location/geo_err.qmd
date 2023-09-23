@@ -309,12 +309,41 @@ dim(trip_coord_info_crop_big_sf)
 # [1] 111572      1
 
 dim(trip_coord_info_sf_out)
-# dim(trip_coord_info_sf_out)
+str(trip_coord_info_sf_out)
 
-rectangular_big_box_view <- mapview::viewExtent(trip_coord_info_crop_big_sf)
+# nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+# ggplot(nc) +
+#   geom_sf(aes(fill = AREA))
 
-mapview::mapview(trip_coord_info_sf_out) +
-  rectangular_big_box_view
+# Plot the map. group = group connects the points in the correct order
+# ggplot(data = worldmap, aes(x = long, y = lat, group = group)) +
+#   geom_polygon()
+
+# Equivalent to:
+
+worldmap <- map_data("world")
+
+# map_vsl_zone <-
+ggplot(worldmap) +
+  geom_map(data = worldmap,
+           map = worldmap,
+           aes(x = long, y = lat, map_id = region)) +
+  # ggplot2::ggplot(worldmap) +
+  ggplot2::geom_sf(data = trip_coord_info_sf_out)
+
+  # ,
+              #                   fill = !!sym(trip_cnt_name)),
+  #         colour = NA) +
+  # geom_sf_text(data = shape_data,
+  #              aes(geometry = geometry,
+  #                  label = StatZone),
+  #              size = 3.5) +
+  # 
+
+# rectangular_big_box_view <- mapview::viewExtent(trip_coord_info_crop_big_sf)
+# 
+# mapview::mapview(trip_coord_info_sf_out) +
+#   rectangular_big_box_view
 
 ```
 
