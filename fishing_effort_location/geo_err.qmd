@@ -401,44 +401,14 @@ m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
 
-# st_crs(m_s)
-# Coordinate Reference System: NA
-# st_crs(corrected_data_sf)
-# Coordinate Reference System:
-    # ID["EPSG",4269]]
-
-# st_crs(sa_shp)
-# st_crs(gom_shp)
-# Coordinate Reference System:
-#   User input: NAD83
-    # ID["EPSG",4269]]
-
-# identical(st_crs(sa_shp),
-# st_crs(gom_shp)
-# )
-# TRUE
-# m_s@map$x$options$crs
-# $crsClass
-# [1] "L.CRS.EPSG3857"
-
-in_sa <- 
-  trip_coord_info_crop_big_sf |> 
-  sf::st_join(sa_shp, left = FALSE) %>%
-      dplyr::mutate(
-        LONGITUDE = sf::st_coordinates(.)[, 1],
-        LATITUDE = sf::st_coordinates(.)[, 2]
-      )
 # too slow:
   # sf::st_intersection(trip_coord_info_crop_big_sf, sa_shp)
 
+in_sa <-
+  crop_by_shape(trip_coord_info_crop_big_sf, sa_shp)
 # dim(in_sa)
 # [1] 32846     5
 
-in_sa1 <-
-  crop_by_shape(trip_coord_info_crop_big_sf, sa_shp)
-
-all.equal(in_sa1,in_sa)
-T
 # attribute variables are assumed to be spatially constant throughout all geometries
 
 # st_crs(corrected_data_sf)
