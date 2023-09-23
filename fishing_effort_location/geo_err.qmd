@@ -146,8 +146,8 @@ head(weird_stats)
 # Min.   :-87.30   Min.   :-117.25
 # Max.   : 90.00   Max.   : 137.59
 
-## Map function
-```{r map function}
+## Map functions
+```{r map functions}
 sa_shp <-
   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
 
@@ -194,6 +194,18 @@ lat_long_to_map_plot <-
       return(map_plot)
     
   }
+
+crop_by_shape <-
+  function(my_sf, shape) {
+    my_sf |>
+      sf::st_join(shape, left = FALSE) %>%
+      dplyr::mutate(
+        LONGITUDE = sf::st_coordinates(.)[, 1],
+        LATITUDE = sf::st_coordinates(.)[, 2]
+      ) %>%
+      return()
+  }
+
 
 ```
 
@@ -409,7 +421,24 @@ m_g <- mapview(gom_shp,
 # $crsClass
 # [1] "L.CRS.EPSG3857"
 
-# in_sa <- st_intersection(corrected_data_sf, sa_shp)
+in_sa <- 
+  trip_coord_info_crop_big_sf |> 
+  sf::st_join(sa_shp, left = FALSE) %>%
+      dplyr::mutate(
+        LONGITUDE = sf::st_coordinates(.)[, 1],
+        LATITUDE = sf::st_coordinates(.)[, 2]
+      )
+# too slow:
+  # sf::st_intersection(trip_coord_info_crop_big_sf, sa_shp)
+
+# dim(in_sa)
+# [1] 32846     5
+
+in_sa1 <-
+  crop_by_shape(trip_coord_info_crop_big_sf, sa_shp)
+
+all.equal(in_sa1,in_sa)
+T
 # attribute variables are assumed to be spatially constant throughout all geometries
 
 # st_crs(corrected_data_sf)
