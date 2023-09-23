@@ -184,11 +184,14 @@ lat_long_to_map_plot <-
                               "LATITUDE"),
                    crs = sf::st_crs(sa_shp))
     
-    ggplot() +
+    map_plot <-
+      ggplot() +
       ggplot2::geom_sf(data = world_coast) +
       ggplot2::geom_sf(data = my_df_sf,
-                       color = "blue") %>%
-      return()
+                       color = "blue") +
+      ggplot2::ggtitle(my_title)
+    
+      return(map_plot)
     
   }
 
@@ -203,24 +206,16 @@ trip_coord_info_map_data <-
   distinct() |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   mutate(label_lat_lon = paste(round(LATITUDE, 0),
-                       round(LONGITUDE, 0)
-                       )
-  ) |>
-  # head() |>
-#   dim()
-# [1] 116246      2
-  sf::st_as_sf(coords = c("LONGITUDE",
-                          "LATITUDE"),
-               crs = sf::st_crs(sa_shp))
+                               round(LONGITUDE, 0)))
+  # dim()
+  # [1] 116246      3
 
 trip_coord_info_plot <-
-  ggplot() +
-  ggplot2::geom_sf(data = world_coast) +
-  ggplot2::geom_sf(data = trip_coord_info_map_data,
-                       color = "blue")
-
+  lat_long_to_map_plot(trip_coord_info_map_data,
+                       "All coordinates")
 trip_coord_info_plot
-# trip_coord_info_map <-
+
+# trip_coord_info_mapview <-
 #   trip_coord_info_map_data |>
 #   mapview::mapview(
 #     # colors according a chosen column
@@ -294,9 +289,9 @@ negative_lat_c_subset <-
   select(LATITUDE, LONGITUDE)
 
 neg_lat_map <-
-  lat_long_to_map(negative_lat_c_subset, 'Negative latitude')
+  lat_long_to_map_plot(negative_lat_c_subset, 'Negative latitude')
   
-# neg_lat_map@map
+neg_lat_map
 
 ```
 
