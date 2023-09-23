@@ -341,10 +341,12 @@ dim(trip_coord_info_crop_big_sf)
 # [1] 111572      1
 
 dim(trip_coord_info_sf_out)
+# [1] 4674    1
+
 str(trip_coord_info_sf_out)
 
-# map_vsl_zone <-
-ggplot() +
+out_of_boxmap_plot <-
+  ggplot() +
   ggplot2::geom_sf(data = world_coast) +
   ggplot2::geom_sf(data = trip_coord_info_sf_out,
                        color = "blue") +
@@ -357,7 +359,10 @@ ggplot() +
     ),
     color = "red",
     fill = NA
-  )
+  ) +
+  ggplot2::ggtitle("Points outside of the big box")
+
+out_of_boxmap_plot
 
 # rectangular_big_box_view <- mapview::viewExtent(trip_coord_info_crop_big_sf)
 # 
