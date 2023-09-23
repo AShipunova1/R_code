@@ -332,17 +332,19 @@ class(world_coast)
 
 # map_vsl_zone <-
 ggplot() +
-  ggplot2::geom_sf(world_coast) +
-  ggplot2::geom_sf(data = trip_coord_info_sf_out)
-
-  # ,
-              #                   fill = !!sym(trip_cnt_name)),
-  #         colour = NA) +
-  # geom_sf_text(data = shape_data,
-  #              aes(geometry = geometry,
-  #                  label = StatZone),
-  #              size = 3.5) +
-  # 
+  ggplot2::geom_sf(data = world_coast) +
+  ggplot2::geom_sf(data = trip_coord_info_sf_out,
+                       color = "blue") +
+  geom_rect(
+    aes(
+      xmin = big_bounding_box[["xmin"]],
+      xmax = big_bounding_box[["xmax"]],
+      ymin = big_bounding_box[["ymin"]],
+      ymax = big_bounding_box[["ymax"]]
+    ),
+    color = "red",
+    fill = NA
+  )
 
 # rectangular_big_box_view <- mapview::viewExtent(trip_coord_info_crop_big_sf)
 # 

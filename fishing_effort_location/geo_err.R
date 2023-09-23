@@ -412,3 +412,25 @@ ggplot() + geom_sf(data = world1) +
     ggplot2::geom_sf(data = trip_coord_info_sf_out,
                    colour = "blue",
                    fill = "lightblue")
+
+
+bbxmin <- big_bounding_box$xmin
+bbxmax <- big_bounding_box$xmax
+bbymin <- big_bounding_box$ymin
+bbymax <- big_bounding_box$ymax
+
+
+ggplot() +
+  ggplot2::geom_sf(data = world_coast) +
+  ggplot2::geom_sf(data = trip_coord_info_sf_out,
+                       color = "blue") +
+  geom_rect(
+    aes(
+      xmin = big_bounding_box[["xmin"]],
+      xmax = big_bounding_box[["xmax"]],
+      ymin = big_bounding_box[["ymin"]],
+      ymax = big_bounding_box[["ymax"]]
+    ),
+    color = "red",
+    fill = NA
+  )
