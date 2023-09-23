@@ -393,3 +393,22 @@ dim(on_land)
 # [1] 3660   22
 
 m_l <- mapview(on_land)
+# ====
+world_coast <-
+rnaturalearth::ne_coastline()
+# worldmap <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
+plot(world_coast)
+
+ggplot() +
+  ggplot2::geom_sf(data = world_coast) +
+  ggplot2::geom_sf(data = trip_coord_info_sf_out,
+                   colour = "blue",
+                   transpa)
+
+
+library(maps)
+world1 <- sf::st_as_sf(map('world', plot = FALSE, fill = TRUE))
+ggplot() + geom_sf(data = world1) +
+    ggplot2::geom_sf(data = trip_coord_info_sf_out,
+                   colour = "blue",
+                   fill = "lightblue")
