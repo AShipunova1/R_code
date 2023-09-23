@@ -154,7 +154,8 @@ sa_shp <-
 gom_shp <- 
   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\ReefFish_EFH_GOM.shp)")
 
-lat_long_to_map <- function(my_df, my_title = "my_title", legend = TRUE) {
+lat_long_to_map <- 
+  function(my_df, my_title = "my_title", legend = TRUE) {
   my_df %>%
     # save info to show on the map
     dplyr::mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
@@ -169,6 +170,27 @@ lat_long_to_map <- function(my_df, my_title = "my_title", legend = TRUE) {
       legend = legend
     ) %>% return()
 }
+
+lat_long_to_map_plot <-
+  function(my_df,
+           my_title = "my_title") {
+    my_df_sf <-
+      my_df %>%
+      # save info to show on the map
+      dplyr::mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+      # convert to sf
+      # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
+      sf::st_as_sf(coords = c("LONGITUDE",
+                              "LATITUDE"),
+                   crs = sf::st_crs(sa_shp))
+    
+    ggplot() +
+      ggplot2::geom_sf(data = world_coast) +
+      ggplot2::geom_sf(data = my_df_sf,
+                       color = "blue") %>%
+      return()
+    
+  }
 
 ```
 
@@ -191,18 +213,25 @@ trip_coord_info_map_data <-
                           "LATITUDE"),
                crs = sf::st_crs(sa_shp))
 
-trip_coord_info_map <-
-  trip_coord_info_map_data |>
-  mapview::mapview(
-    # colors according a chosen column
-    zcol = "label_lat_lon",
-    # palette to choose colors from
-    col.regions = viridisLite::turbo,
-    layer.name = 'label_lat_lon',
-    # transparency
-    alpha = 0.3,
-    legend = FALSE
-  )
+trip_coord_info_plot <-
+  ggplot() +
+  ggplot2::geom_sf(data = world_coast) +
+  ggplot2::geom_sf(data = trip_coord_info_map_data,
+                       color = "blue")
+
+trip_coord_info_plot
+# trip_coord_info_map <-
+#   trip_coord_info_map_data |>
+#   mapview::mapview(
+#     # colors according a chosen column
+#     zcol = "label_lat_lon",
+#     # palette to choose colors from
+#     col.regions = viridisLite::turbo,
+#     layer.name = 'label_lat_lon',
+#     # transparency
+#     alpha = 0.3,
+#     legend = FALSE
+#   )
 ```
 
 ## Sign
@@ -228,6 +257,7 @@ dim(positive_long)
 positive_long_map <-
   positive_long |> 
   select(LATITUDE, LONGITUDE) |> 
+  
   lat_long_to_map('Positive longitude', legend = FALSE)
 
 # positive_long_map@map
