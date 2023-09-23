@@ -400,66 +400,63 @@ m_s <- mapview(sa_shp,
 m_g <- mapview(gom_shp,
                layer.name = "Gulf of Mexico",
                legend = FALSE)
+```
 
+### Inside SA and GOM
+```{r inside sa and gom}
+### Inside SA and GOM ----
 # too slow:
   # sf::st_intersection(trip_coord_info_crop_big_sf, sa_shp)
 
 in_sa <-
   crop_by_shape(trip_coord_info_crop_big_sf, sa_shp)
-# dim(in_sa)
+
+dim(in_sa)
 # [1] 32846     5
 
-# attribute variables are assumed to be spatially constant throughout all geometries
+in_gom <-
+  crop_by_shape(trip_coord_info_crop_big_sf, gom_shp)
 
-# st_crs(corrected_data_sf)
-# st_crs(sa_shp)
+dim(in_gom)
+# [1] 37312     5
+```
 
-# mapview(minus_map)
-# subset
-# mapview(corrected_data_sf[sa_shp, ])
-# lat_lon_data[shapefile_data, ]
+### Not in SA and GOM
+```{r not in sa and gom}
+### not in sa and gom ----
+tic("minus_sa")
+minus_sa <-
+  # trip_coord_info_crop_big_sf |>
+  st_filter(trip_coord_info_crop_big_sf,
+            st_union(in_sa), .predicate = st_disjoint)
+toc()
+# minus_sa: 15.3 sec elapsed
 
-# crop_by_shape <-
-#   function(my_sf) {
-#     my_sf |>
-#       sf::st_join(GOMsf, left = FALSE) %>%
-#       dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
-#              LATITUDE = sf::st_coordinates(.)[, 2]) %>%
-#       return()
-#   }
+# mapview(minus_sa) +
+#   mapview(sa_shp)
+  
+  
+      sf::st_join(sa_shp, left = FALSE) %>%
+  str()
+      dplyr::mutate(
+        LONGITUDE = sf::st_coordinates(.)[, 1],
+        LATITUDE = sf::st_coordinates(.)[, 2]
+      ) %>%
 
-# minus_sa <-
-#   trip_coord_info_crop_big_sf |>
-#   sf::st_join(sa_shp, left = FALSE) |>
-#   dplyr::mutate(
-#     LONGITUDE = sf::st_coordinates(.)[, 1],
-#     LATITUDE = sf::st_coordinates(.)[, 2]
-#   )
-  # sf::st_difference(trip_coord_info_crop_big_sf, sa_shp)
+ # sf::st_difference(trip_coord_info_crop_big_sf, sa_shp)
 # Warning message:
 # attribute variables are assumed to be spatially constant throughout all geometries
 
-mapview(minus_sa)
-
-sf_use_s2(FALSE)
+# sf_use_s2(FALSE)
 # Spherical geometry (s2) switched off
-
+# 
 # minus_gom <- st_difference(corrected_data_sf, gom_shp)
-# although coordinates are longitude/latitude, st_difference
-# assumes that they are planar
-# in_gom <- st_intersection(corrected_data_sf, gom_shp)
 
 dim(minus_sa)
 # [1] 44023    20
 
 # minus_sa_gom <- st_difference(gom_shp, minus_sa)
 minus_sa_gom2 <- st_difference(minus_sa, gom_shp)
-
-# p <- poly2nb(st_make_valid(shp))
-
-mm <- mapview(minus_sa_gom2, color = "green")
-
-View(minus_sa_gom2)
 
 mm + m_g + m_s
 # m_s is still resent?
