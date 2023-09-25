@@ -31,6 +31,7 @@ current_project_dir_path <-
 
 ```
 
+# Get data
 ```{r get data}
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
@@ -148,16 +149,22 @@ head(weird_stats)
 
 ## Map functions
 ```{r map functions}
-sa_shp <-
-  sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
+# sa_shp <-
+#   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
+# 
+# gom_shp <- 
+#   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\ReefFish_EFH_GOM.shp)")
 
-gom_shp <- 
-  sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\ReefFish_EFH_GOM.shp)")
-
-federal_state_waters_shp <-
-sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
-dim(federal_state_waters_shp)
+"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\federal_and_state_waters_east\FederalandStat_east selection.shp"
+# federal_state_waters_shp <-
+# sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
+# dim(federal_state_waters_shp)
 # [1] 40  7
+
+federal_state_waters_east_shp <-
+sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)")
+dim(federal_state_waters_east_shp)
+# 1 7
 
 # bbox <-
 #   st_bbox(big_bounding_box, 
@@ -416,15 +423,6 @@ out_of_boxmap_plot
 # corrected_data_map <- corrected_data_sf %>% mapview()
 # View(corrected_data_map)
 # 11998
-
-### shape files maps ----
-m_s <- mapview(sa_shp,
-               layer.name = "South Altlantic",
-               legend = FALSE)
-m_g <- mapview(gom_shp,
-               layer.name = "Gulf of Mexico",
-               legend = FALSE)
-
 
 ```
 
