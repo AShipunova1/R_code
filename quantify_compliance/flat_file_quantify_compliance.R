@@ -743,6 +743,8 @@ make_one_plot_compl_vs_non_compl <-
                  y = !!sym(percent),
                  fill = !!sym(is_compliant))) +
       geom_col() +
+      theme(axis.text.x = element_text(size = 15),
+            axis.text.y = element_text(size = 15)) +
       # # Add percent numbers on the bars
       #     one_plot <-
       # one_plot + annotate("text", x = 4, y = 25, label = "Some text")
@@ -761,8 +763,8 @@ make_one_plot_compl_vs_non_compl <-
         # use custom colors
         values =
           c(
-            "compliant" = "blue",
-            "non_compliant" = "red"
+            "compliant" = "skyblue1",
+            "non_compliant" = "#0570B0"
           ),
         # Legend title
         name = "Is compliant?",
@@ -789,7 +791,8 @@ make_one_plot_compl_vs_non_compl <-
                         ), 1), "%")),
                   # in the middle of the bar
                   position =
-                    position_stack(vjust = percent_label_pos))
+                    position_stack(vjust = percent_label_pos),
+                  size = 20)
       
     } else {
       one_plot <-
@@ -2001,7 +2004,8 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
            y = "% nc vsls per year & permit") +
       # text on bars
       geom_text(aes(label = perc_labels),
-                position = position_stack(vjust = 0.5)) +
+                position = position_stack(vjust = 0.5),
+                size = 20) +
       # y axes 0 to 100
       ylim(0, 100) +
       # size of an individual plot's title
@@ -2818,7 +2822,7 @@ test_plot <-
   geom_text(aes(label = cnt_v_in_bucket2), vjust = -0.3) +
   geom_text(aes(label = cnt_vsl_m_compl),
             vjust = 1.3,
-            color = "blue") +
+            color = "skyblue1") +
   # scale_y_continuous(breaks = seq(0, 100, by = 10),
   # labels = pecent_names) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -2906,7 +2910,7 @@ test_plot +
     # mean of reports_cnts, rounded to 2 decimals
     label = min_max_val$max_dot_text
     # ,
-    # color = "red",
+    # color = "#0570B0",
     # angle = 90
   ) +
   annotate(
@@ -2916,7 +2920,7 @@ test_plot +
     # mean of reports_cnts, rounded to 2 decimals
     label = min_max_val$min_dot_text
     # ,
-    # color = "red",
+    # color = "#0570B0",
     # angle = 90
   )
 
