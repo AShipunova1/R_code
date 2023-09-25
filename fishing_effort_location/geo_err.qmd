@@ -160,9 +160,9 @@ head(weird_stats)
 # dim(federal_state_waters_shp)
 # [1] 40  7
 
-# federal_state_waters_east_shp <-
-# sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)")
-# dim(federal_state_waters_east_shp)
+federal_state_waters_east_shp <-
+sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)")
+dim(federal_state_waters_east_shp)
 # 1 7
 
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\USMaritimeLimi_ExportFeature_east\USMaritimeLimi_ExportFeature_east.shp"
@@ -463,20 +463,66 @@ trip_coord_info_sf_in <-
 dim(trip_coord_info_sf_in)
 # [1] 111572      1
 
-
-
 trip_coord_info_sf_in_all <-
   trip_coord_info_short_sf |>
   filter(lengths(
     sf::st_intersects(trip_coord_info_short_sf, USMaritimeLimi_ExportFeature_east_shp)
   ) > 0)
 
+sf::st_bbox(USMaritimeLimi_ExportFeature_east_shp)
+#      xmin      ymin      xmax      ymax 
+# -97.15469  23.81794 -65.69948  45.07451 
+# mapview(federal_state_waters_east_shp)
+# View(USMaritimeLimi_ExportFeature_east_shp)
 
+
+# federal_state_waters_east_shp$geometry |> 
+#   str()
+# sfc_POLYGON of length 1; first list element: List of 36988
+# ...
+ # - attr(*, "class")= chr [1:3] "XY" "POLYGON" "sfg"
+
+# USMaritimeLimi_ExportFeature_east_shp$geometry[[4]]
+# MULTILINESTRING ((-73.47384 40.18069, -73.46701 40.18175, -73.45811 40.18326, -73.44925 40.18488, ...
+
+# View(trip_coord_info_crop_big_sf)
 # too slow:
 tic("in_sa_gom_inters")
 in_sa_gom_inters <-
   sf::st_intersection(trip_coord_info_crop_big_sf, USMaritimeLimitsNBoundaries_shp)
 toc()
+
+sf::st_crs(federal_state_waters_east_shp)
+  # User input: WGS 84 / World Mercator 
+    # ID["EPSG",3395]]
+
+sf::st_crs(trip_coord_info_crop_big_sf)
+    # ID["EPSG",4326]]
+
+# ---
+trip_coord_info_short_sf1 <-
+  trip_coord_info |>
+  select(LATITUDE, LONGITUDE) |>
+  distinct() |>
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = sf::st_crs(federal_state_waters_east_shp)
+  )
+
+trip_coord_info_crop_big_sf1 <-
+  sf::st_crop(trip_coord_info_short_sf1,
+              big_bounding_box)
+
+# ----
+tic("in_sa_gom_diff")
+in_sa_gom_diff <-
+  sf::st_difference(trip_coord_info_crop_big_sf1, federal_state_waters_east_shp)
+toc()
+dim(in_sa_gom_diff)
+
+
 
 dim(in_sa_gom_inters)
 
