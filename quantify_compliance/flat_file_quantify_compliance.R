@@ -746,7 +746,7 @@ make_one_plot_compl_vs_non_compl <-
            no_legend = FALSE,
            percent_label_pos = 0.5,
            default_percen_labels = TRUE,
-           geom_text_size = text_sizes[["geom_text_size"]],
+           geom_text_size = text_sizes[["geom_text_size"]]
            ) {
     # browser()
     one_plot <-
@@ -1678,7 +1678,69 @@ gg_all_c_vs_nc_plots <-
       # See function definition F2
       make_one_plot_compl_vs_non_compl(current_title,
                                        is_compliant = "compl_or_not",
-                                       percent = "perc_c_nc")
+                                       percent = "perc_c_nc",
+                                       geom_text_size = 7)
+
+    return(one_plot)
+
+  })
+
+#   with
+#       make_one_plot_compl_vs_non_compl(current_title,
+#                                        is_compliant = "compl_or_not",
+#                                        percent = "perc_c_nc",
+#                                        geom_text_size = 7,
+#                                        no_legend = F)
+
+
+# repeat with no legend
+gg_all_c_vs_nc_plots_no_legend <-
+  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
+  unique() %>%
+  # repeat for each year_permit
+  purrr::map(function(curr_year_permit) {
+    # browser()
+    curr_df <-
+      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
+      dplyr::filter(year_permit == curr_year_permit)
+
+    # See function definition F2
+    y_r_title <-
+      make_year_permit_label(curr_year_permit)
+
+    total_vsls <- unique(curr_df$total_vsl_y)
+
+    active_permits <- curr_df %>%
+      dplyr::filter(perm_exp_y == "active") %>%
+      dplyr::select(cnt_y_p_e) %>%
+      unique()
+
+    expired_permits <- curr_df %>%
+      dplyr::filter(perm_exp_y == "expired") %>%
+      dplyr::select(cnt_y_p_e) %>%
+      unique()
+
+    # 1st figure title: "SA Only Permitted Vessels (Total Permitted: 2178; Expired Permits: 472)"
+    # 2nd figure title: "GOM + Dual Permitted Vessels (Total Permitted: 1495; Expired Permits: 303)"
+
+    curr_title_permit <-
+      title_permits %>%
+      filter(year_permit == curr_year_permit)
+
+    current_title <-
+      paste(curr_title_permit$title,
+             curr_title_permit$second_part)
+
+    one_plot <-
+      curr_df %>%
+      dplyr::select(compl_or_not, perc_c_nc) %>%
+      unique() %>%
+      # See function definition F2
+      make_one_plot_compl_vs_non_compl(current_title,
+                                       is_compliant = "compl_or_not",
+                                       percent = "perc_c_nc",
+                                       geom_text_size = 7,
+                                       no_legend = T)
 
     return(one_plot)
 
@@ -1688,15 +1750,20 @@ gg_all_c_vs_nc_plots <-
 # gg_all_c_vs_nc_plots[[3]]
 
 # 2022
+# sa
 # gg_all_c_vs_nc_plots[[1]]
-gg_all_c_vs_nc_plots[[2]]
+# gom
+# gg_all_c_vs_nc_plots_no_legend[[2]]
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
+is_compliant_legend <- legend_for_grid_arrange(gg_all_c_vs_nc_plots[[1]])
+
 # combine plots for 2022
-grid.arrange(gg_all_c_vs_nc_plots[[1]],
-             # gg_all_c_vs_nc_plots[[2]],
-             top = main_title)
+grid.arrange(gg_all_c_vs_nc_plots_no_legend[[2]],
+             gg_all_c_vs_nc_plots_no_legend[[1]],
+             right = is_compliant_legend,
+             nrow = 1)
 
 grid.arrange(gg_all_c_vs_nc_plots[[2]],
              top = main_title)
@@ -2782,7 +2849,7 @@ all_plots_w_titles_list %>%
 #### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_line_plots.R  ----
 
 ## Month, line plots with dots ----
-test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual`
+line_df_22_gom <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual`
 
 # test_df_percent_n_compl_rank <- sort(unique(test_df$percent_n_compl_rank))
 # q_colors = length(test_df_percent_n_compl_rank)
