@@ -1,4 +1,5 @@
 # data are from "by_permit"
+# run "R_code_github\fishing_effort_location\fishing_effort_location_by_permit.R" first
 library(ggplot2)
 library(ggmap)
 # library(RColorBrewer)
@@ -15,7 +16,8 @@ source(
 ## heatmap data ----
 
 # short_example_3_cnts_short |> glimpse()
-glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
+dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
+# [1] 41455     8
 
 # glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual)
 
@@ -32,7 +34,7 @@ for_heatmap_lat_lon_trips_vessels_only <-
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
-# dim(for_heatmap_lat_lon_trips_vessels_only)
+dim(for_heatmap_lat_lon_trips_vessels_only)
 # Rows: 41,455
 
 #### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
@@ -72,7 +74,7 @@ effort_vsl_cropped_cnt2 <-
  add_vsl_and_trip_cnts(effort_vsl_cropped)
 
 dim(effort_vsl_cropped_cnt2)
-# [1] 35822     8
+# [1] 35822     9
 
 # check
 effort_vsl_cropped_cnt2 |>
@@ -89,16 +91,26 @@ effort_vsl_cropped_cnt2 |>
 dim(effort_vsl_cropped_cnt2)
 # [1] 35822     9
 
-effort_cropped_short_cnt_rule3 <-
-  effort_vsl_cropped_cnt2 |>
-  filter(vsl_cnt > 2)
+# effort_cropped_short_cnt_rule3 <-
+#   effort_vsl_cropped_cnt2 |>
+#   filter(vsl_cnt > 2)
 
-dim(effort_cropped_short_cnt_rule3)
+# dim(effort_cropped_short_cnt_rule3)
 # [1] 31981     9
 
 ## remove extra columns ----
-print_df_names(effort_cropped_short_cnt_rule3)
+# print_df_names(effort_cropped_short_cnt_rule3)
+# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, cell_id, StatZone, LONGITUDE, LATITUDE, vsl_cnt, trip_id_cnt"
 
+### no rule3 ----
+effort_cropped_short_cnt2_short <-
+  effort_vsl_cropped_cnt2 |>
+  select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
+
+dim(effort_cropped_short_cnt2_short)
+# [1] 35822     5
+
+### with rule 3 ----
 effort_cropped_short_cnt_rule3_short <-
   effort_cropped_short_cnt_rule3 |>
   select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
@@ -107,7 +119,8 @@ dim(effort_cropped_short_cnt_rule3_short)
 # [1] 31981     5
 
 ## join with min grid ----
-heat.plt <-
+### rule 3 ----
+heat.plt_rule3 <-
   effort_cropped_short_cnt_rule3_short |>
   # have to use data.frame, to avoid
   # Error: y should not have class sf; for spatial joins, use st_join
@@ -115,14 +128,24 @@ heat.plt <-
 # Joining with `by = join_by(cell_id)`
 
 # mapview(grid)
-dim(heat.plt)
+dim(heat.plt_rule3)
 # [1] 35828     6
 # [1] 33883     6 (rule3)
 # [1] 31981     6
 
+### no rule 3 ----
+heat.plt <-
+  effort_cropped_short_cnt2_short |>
+  # have to use data.frame, to avoid
+  # Error: y should not have class sf; for spatial joins, use st_join
+  inner_join(data.frame(grid))
+# Joining with `by = join_by(cell_id)`
+
 ## make a plot ----
 
 max_num3 <- max(heat.plt$trip_id_cnt)
+# 1209
+
 # map_trips_rule_3 <-
 #   make_map_trips(heat.plt,
 #            st_union_GOMsf,
@@ -131,11 +154,25 @@ max_num3 <- max(heat.plt$trip_id_cnt)
 #            caption_text = "Heat map of SEFHIER trips (5 min. resolution). 2022. GoM permitted vessels. Only squares with more than 3 reporting vessels are shown. ")
 
 # map_trips_rule_3
-
+print_df_names(heat.plt)
 map_trips_no_rule_3 <-
-  make_map_trips(heat.plt_no_rule3_all_dots,
+  make_map_trips(heat.plt,
            st_union_GOMsf,
-           "total trips")
+           "total trips",
+           trip_cnt_name = "trip_id_cnt",
+           unit_num = 0.8)
+
+map_trips_no_rule_3
+
+# make_map_trips <-
+#   function(map_trip_base_data,
+#            shape_data,
+#            total_trips_title,
+#            trip_cnt_name,
+#            caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
+#            unit_num = 1,
+#            print_stat_zone = NULL
+#            ) {
 
 
 ## by zone ----
