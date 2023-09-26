@@ -158,8 +158,7 @@ make_map_trips <-
         legend.title = element_text(size =
                                       text_sizes[["legend_title_text_size"]]),
         legend.text = element_text(size =
-                                     text_sizes[["legend_text_text_size"]]),
-
+                                     text_sizes[["legend_text_text_size"]]), # for charter heatmap use 7
         plot.caption = element_text(hjust = 0,
                                     size = text_sizes[["plot_caption_text_size"]]),
     axis.text.x =
