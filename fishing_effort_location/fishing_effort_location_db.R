@@ -319,10 +319,10 @@ map_trips_types <-
       shape_data = st_union_GOMsf,
       total_trips_title = "total trips",
       trip_cnt_name = "trip_id_cnt",
-      caption_text = str_glue("Heat map of SEFHIER {trip_type_name} trips (5 min. resolution). 2022. GoM and dual permitted vessels"),
-      unit_num = 1.3
+      caption_text = str_glue("Heat map of SEFHIER {trip_type_name} trips (5 min. resolution).\n 2022. GoM and dual permitted vessels"),
+      unit_num = 0.8
     )}
   )
 
-map_trips_types[[1]]
+map_trips_types[[2]]
 
