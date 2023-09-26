@@ -1,3 +1,18 @@
+# plot text sizes ----
+text_sizes <- list(
+  geom_text_size = 7,
+  plot_title_text_size = 10,
+  axis_title_text_size = 9,
+  axis_text_x_size = 13,
+  axis_text_y_size = 13,
+  plot_caption_text_size = 13,
+  legend_title_text_size = 9,
+  legend_text_text_size = 8,
+  ### common axes for Months ----
+  y_left_fontsize = 10
+)
+
+
 # read in GOM trip ticket grid
 GOMsf <-
   sf::read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
