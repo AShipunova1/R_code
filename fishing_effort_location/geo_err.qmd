@@ -54,7 +54,6 @@ world_coast <-
 
 ## Statistics
 ```{r statistics}
-
 # statistics ----
 
 dim(trip_coord_info)
@@ -122,6 +121,23 @@ head(weird_stats)
 # 3 LONGITUDE     "-117.25  "                "137.59  "                 "580  "
 # 4 TRIP_END_DATE "1969-08-17 00:00:00.00  " "2023-09-19 00:00:00.00  "  NA
 
+```
+
+```{r}
+# t_UE, E_UE
+trip_coord_info |> 
+  filter(!trimws(T_UE) == trimws(E_UE)) |> 
+  glimpse()
+# Rows: 119,735
+
+trip_coord_info_vendors <-
+  trip_coord_info |>
+  group_by(TRIP_ID) |>
+  # mutate(all_permits = toString(unique(TOP))) |>
+  mutate(vendor_trip = toString(unique(T_UE)),
+         vendor_effort = toString(unique(E_UE)))
+
+View(trip_coord_info_vendors)
 ```
 
 ## General comments
