@@ -211,9 +211,12 @@ trip_coord_info_2022_short_vessels_permits_region_short__l <-
 
 all_dfs_dim <-
   map_df(trip_coord_info_2022_short_vessels_permits_region_short__l, dim)
-#   CHARTER.gom_dual HEADBOAT.gom_dual CHARTER.sa_only HEADBOAT.sa_only
-# 1            50280               500           43306             1194
-# 2                4                 4               4                4
+
+glimpse(all_dfs_dim)
+# $ CHARTER.gom_dual  <int> 50280, 4
+# $ HEADBOAT.gom_dual <int> 500, 4
+# $ CHARTER.sa_only   <int> 43306, 4
+# $ HEADBOAT.sa_only  <int> 1194, 4
 
 sum(all_dfs_dim[1,])
 # 96785 # the same as before, ok if separate gual, gom and sa
@@ -227,6 +230,7 @@ source(
     r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
   )
 )
+# st_union(GOMsf): 21.5 sec elapsed
 
 tic("effort_t_type")
 effort_t_type <-
@@ -254,10 +258,12 @@ effort_t_type_cropped_cnt <-
       ungroup()
   )
 
-map_df(effort_t_type_cropped_cnt, dim)
-#   CHARTER.gom_dual HEADBOAT.gom_dual CHARTER.sa_only HEADBOAT.sa_only
-# 1            34315               285            1781                0
-# 2                9                 9               9                9
+map_df(effort_t_type_cropped_cnt, dim) |>
+  glimpse()
+# $ CHARTER.gom_dual  <int> 34315, 9
+# $ HEADBOAT.gom_dual <int> 285, 9
+# $ CHARTER.sa_only   <int> 1781, 9
+# $ HEADBOAT.sa_only  <int> 0, 9
 
 # map_df(effort_t_type_cropped_cnt, data_overview)
 
@@ -280,8 +286,6 @@ map_df(effort_t_type_cropped_cnt, dim)
 
 # View(grid)
 
-
-
 # map(names(effort_t_type_cropped_cnt),
 #     \(type_reg) {
 #       effort_t_type_cropped_cnt[[type_reg]] |>
@@ -296,9 +300,7 @@ effort_t_type_cropped_cnt_join_grid <-
       # have to use data.frame, to avoid
       # Error: y should not have class sf; for spatial joins, use st_join
       inner_join(x, data.frame(grid),
-                 by = join_by(cell_id)
-)
-      )
+                 by = join_by(cell_id)))
 
 # print_df_names(effort_t_type_cropped_cnt_join_grid$A)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, cell_id, StatZone, LONGITUDE, LATITUDE, vsl_cnt, trip_id_cnt, x"
@@ -322,5 +324,5 @@ map_trips_types <-
     )}
   )
 
-# map_trips_types[[1]]
+map_trips_types[[1]]
 
