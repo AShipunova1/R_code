@@ -9,7 +9,7 @@ format:
     # toc-depth: 2
     css: styles.css
     code-overflow: wrap
-    # code-fold: true
+    code-fold: true
     code-summary: "Show the code"
     code-line-numbers: true
 ---
@@ -124,6 +124,8 @@ head(weird_stats)
 
 ```
 
+## General comments
+```{r general comments}
 # errors in geo data ----
 # 1) a sign
 # 2) on land
@@ -146,6 +148,8 @@ head(weird_stats)
 # LATITUDE        LONGITUDE
 # Min.   :-87.30   Min.   :-117.25
 # Max.   : 90.00   Max.   : 137.59
+
+```
 
 ## Map functions
 ```{r map functions}
@@ -199,8 +203,8 @@ USMaritimeLimi_ExportFeature_east_shp <-
 
 
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP\USMaritimeLimitsNBoundaries.shp"
-# USMaritimeLimitsNBoundaries_shp <-
-# sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP\USMaritimeLimitsNBoundaries.shp)")
+USMaritimeLimitsNBoundaries_shp <-
+sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP\USMaritimeLimitsNBoundaries.shp)")
 # dim(USMaritimeLimitsNBoundaries_shp)
 
 # mapview(USMaritimeLimitsNBoundaries_shp)
@@ -516,12 +520,12 @@ trip_coord_info_crop_big_sf1 <-
               big_bounding_box)
 
 # ----
-tic("in_sa_gom_diff")
-in_sa_gom_diff <-
-  sf::st_difference(trip_coord_info_crop_big_sf1, federal_state_waters_east_shp)
-toc()
-dim(trip_coord_info_crop_big_sf1)
-str(in_sa_gom_diff)
+# tic("in_sa_gom_diff")
+# in_sa_gom_diff <-
+#   sf::st_difference(trip_coord_info_crop_big_sf1, federal_state_waters_east_shp)
+# toc()
+# dim(trip_coord_info_crop_big_sf1)
+# str(in_sa_gom_diff)
 # [1] 111572      7  - nothing is deleted! But columns added
 
 # in_sa_gom_diff: 22673.05 sec elapsed
