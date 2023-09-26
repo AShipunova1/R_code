@@ -306,6 +306,14 @@ effort_t_type_cropped_cnt_join_grid <-
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, cell_id, StatZone, LONGITUDE, LATITUDE, vsl_cnt, trip_id_cnt, x"
 
 # effort_t_type_cropped_cnt_join_grid$CHARTER
+map_df(effort_t_type_cropped_cnt_join_grid, dim) |>
+  glimpse()
+
+data_overview(effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual)
+
+effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual |>
+  select(LATITUDE, LONGITUDE) |>
+  distinct()
 
 map_trips_types <-
   names(effort_t_type_cropped_cnt_join_grid) |>
@@ -320,9 +328,9 @@ map_trips_types <-
       total_trips_title = "total trips",
       trip_cnt_name = "trip_id_cnt",
       caption_text = str_glue("Heat map of SEFHIER {trip_type_name} trips (5 min. resolution).\n 2022. GoM and dual permitted vessels"),
-      unit_num = 0.8
+      unit_num = 0.95
     )}
   )
 
-map_trips_types[[2]]
+map_trips_types[[1]]
 
