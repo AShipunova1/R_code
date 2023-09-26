@@ -134,8 +134,11 @@ trip_coord_info_vendors <-
   trip_coord_info |>
   group_by(TRIP_ID) |>
   # mutate(all_permits = toString(unique(TOP))) |>
-  mutate(vendor_trip = toString(unique(T_UE)),
-         vendor_effort = toString(unique(E_UE)))
+  # mutate(vendor_trip = toString(unique(T_UE)),
+         # vendor_effort = toString(unique(E_UE))) |> 
+  mutate(vendor_trip = case_when(tolower(T_UE) == "vms" ~ "vms",
+                                 tolower(T_UE) %in% c("vesl", "bluefin") ~ "vesl"
+  ))
 
 View(trip_coord_info_vendors)
 ```
