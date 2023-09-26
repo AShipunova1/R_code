@@ -520,9 +520,14 @@ tic("in_sa_gom_diff")
 in_sa_gom_diff <-
   sf::st_difference(trip_coord_info_crop_big_sf1, federal_state_waters_east_shp)
 toc()
-dim(in_sa_gom_diff)
+dim(trip_coord_info_crop_big_sf1)
+str(in_sa_gom_diff)
+# [1] 111572      7  - nothing is deleted! But columns added
 
+# in_sa_gom_diff: 22673.05 sec elapsed
+# 22673.05 / 60 / 60 = 6h
 
+mapview(in_sa_gom_diff)
 
 dim(in_sa_gom_inters)
 
