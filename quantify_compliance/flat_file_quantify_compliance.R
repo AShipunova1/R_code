@@ -658,6 +658,16 @@ my_paths <- set_work_dir()
 
 # quantify_compliance_functions
 
+text_sizes <- list(
+  geom_text_size = 15,
+  plot_title_text_size = 10,
+  axis_title_text_size = 9,
+  axis_text_x_size = 15,
+  axis_text_y_size = 15,
+  ### common axes for Months ----
+  y_left_fontsize = 10
+)
+
 get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
   # browser()
     my_df %>%
@@ -735,7 +745,9 @@ make_one_plot_compl_vs_non_compl <-
            percent = "percent",
            no_legend = FALSE,
            percent_label_pos = 0.5,
-           default_percen_labels = TRUE) {
+           default_percen_labels = TRUE,
+           geom_text_size = text_sizes[["geom_text_size"]],
+           ) {
     # browser()
     one_plot <-
       my_df %>%
@@ -743,8 +755,10 @@ make_one_plot_compl_vs_non_compl <-
                  y = !!sym(percent),
                  fill = !!sym(is_compliant))) +
       geom_col() +
-      theme(axis.text.x = element_text(size = 15),
-            axis.text.y = element_text(size = 15)) +
+      theme(axis.text.x = 
+              element_text(size = text_sizes[["axis_text_x_size"]]),
+            axis.text.y = 
+              element_text(size = text_sizes[["axis_text_y_size"]])) +
       # # Add percent numbers on the bars
       #     one_plot <-
       # one_plot + annotate("text", x = 4, y = 25, label = "Some text")
@@ -792,7 +806,7 @@ make_one_plot_compl_vs_non_compl <-
                   # in the middle of the bar
                   position =
                     position_stack(vjust = percent_label_pos),
-                  size = 20)
+                  size = geom_text_size)
       
     } else {
       one_plot <-
@@ -1486,6 +1500,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   head()
 # 1       1617 YES
 # 2       1289 NO
+
 # 1       1602 YES
 # 2       1263 NO
 
@@ -1604,7 +1619,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
 dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 # [1] 11  7
 
-## red/green plots for compl vs. non compl vessels per year ----
+## plots (red/green) for compl vs. non compl vessels per year ----
 
 title_permits <- data.frame(
   # title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
@@ -1656,18 +1671,6 @@ gg_all_c_vs_nc_plots <-
       paste(curr_title_permit$title,
              curr_title_permit$second_part)
 
-    # current_title <-
-    #   paste0(
-    #     curr_title_permit$title,
-    #     " ",
-    #     curr_title_permit$second_part,
-    #     " (Active Permits: ",
-    #     active_permits$cnt_y_p_e,
-    #     "; Expired Permits: ",
-    #     expired_permits$cnt_y_p_e,
-    #     ")"
-    #   )
-
     one_plot <-
       curr_df %>%
       dplyr::select(compl_or_not, perc_c_nc) %>%
@@ -1686,7 +1689,7 @@ gg_all_c_vs_nc_plots <-
 
 # 2022
 # gg_all_c_vs_nc_plots[[1]]
-# gg_all_c_vs_nc_plots[[2]]
+gg_all_c_vs_nc_plots[[2]]
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
