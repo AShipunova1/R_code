@@ -6,8 +6,8 @@ text_sizes <- list(
   axis_text_x_size = 13,
   axis_text_y_size = 13,
   plot_caption_text_size = 13,
-  legend_title_text_size = 9,
-  legend_text_text_size = 8,
+  legend_title_text_size = 10,
+  legend_text_text_size = 10,
   ### common axes for Months ----
   y_left_fontsize = 10
 )
@@ -155,8 +155,17 @@ make_map_trips <-
         legend.position = "top",
         legend.justification = "left",
         legend.key.width = unit(unit_num, "npc"),
-        # legend.key.width = unit(3, "cm"),
-        plot.caption = element_text(hjust = 0)
+        legend.title = element_text(size =
+                                      text_sizes[["legend_title_text_size"]]),
+        legend.text = element_text(size =
+                                     text_sizes[["legend_text_text_size"]]),
+
+        plot.caption = element_text(hjust = 0,
+                                    size = text_sizes[["plot_caption_text_size"]]),
+    axis.text.x =
+      element_text(size = text_sizes[["axis_text_x_size"]]),
+axis.text.y =
+      element_text(size = text_sizes[["axis_text_y_size"]])
       ) +
       guides(fill = guide_colourbar(title.position = "top"))
 
