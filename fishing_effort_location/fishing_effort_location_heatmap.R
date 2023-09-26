@@ -160,13 +160,14 @@ map_trips_no_rule_3 <-
            st_union_GOMsf,
            "total trips",
            trip_cnt_name = "trip_id_cnt",
-           unit_num = 0.8)
+           unit_num = 1.2)
 
 map_trips_no_rule_3
 
 # make_map_trips <-
 #   function(map_trip_base_data,
 #            shape_data,
+
 #            total_trips_title,
 #            trip_cnt_name,
 #            caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
