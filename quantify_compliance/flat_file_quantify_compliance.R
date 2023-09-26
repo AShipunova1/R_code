@@ -659,11 +659,12 @@ my_paths <- set_work_dir()
 # quantify_compliance_functions
 
 text_sizes <- list(
-  geom_text_size = 15,
+  geom_text_size = 7,
   plot_title_text_size = 10,
   axis_title_text_size = 9,
   axis_text_x_size = 15,
   axis_text_y_size = 15,
+  plot_caption_text_size = 12,
   ### common axes for Months ----
   y_left_fontsize = 10
 )
@@ -2075,7 +2076,8 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
       # text on bars
       geom_text(aes(label = perc_labels),
                 position = position_stack(vjust = 0.5),
-                size = 20) +
+                size = text_sizes[["geom_text_size"]]
+) +
       # y axes 0 to 100
       ylim(0, 100) +
       # size of an individual plot's title
@@ -2873,13 +2875,17 @@ line_df_22_gom <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_shor
 # 
 pecent_names <- paste0(seq(0, 100, by = 10), "%")
 
-glimpse(test_df)
+dim(line_df_22_gom)
 # [1] 24 10
 
-test_plot <-
-  test_df |>
+geom_text_size = text_sizes[["geom_text_size"]]
+geom_text_size <- 5
+axis_title_size <- text_sizes[["axis_text_x_size"]]
+axis_title_size <- 12
+  
+line_df_22_gom_good_plot <-
+  line_df_22_gom |>
   filter(percent_non_compl_2_buckets == "< 50%") |>
-  # |> View()
   ggplot(aes(
     x = as.Date(year_month),
     y = cnt_v_in_bucket2,
@@ -2889,28 +2895,37 @@ test_plot <-
   geom_line() +
   theme_bw() +
   # text on dots
-  geom_text(aes(label = cnt_v_in_bucket2), vjust = -0.3) +
-  geom_text(aes(label = cnt_vsl_m_compl),
-            vjust = 1.3,
-            color = "skyblue1") +
-  # scale_y_continuous(breaks = seq(0, 100, by = 10),
-  # labels = pecent_names) +
+  # on top
+  geom_text(aes(label = cnt_v_in_bucket2),
+            vjust = -0.3,
+            size = geom_text_size) +
+  # under the dot
+  geom_text(
+    aes(label = cnt_vsl_m_compl),
+    vjust = 1.3,
+    color = "skyblue1",
+    size = geom_text_size
+  ) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  theme(legend.position = "none") +
+  theme(
+    legend.position = "none",
+    plot.caption =
+      element_text(size = text_sizes[["plot_caption_text_size"]]),
+    axis.text.x =
+      element_text(size = axis_title_size),
+    axis.text.y =
+      element_text(size = axis_title_size)
+  ) +
   labs(size = "Groups of percentage",
        x = "Months (2022)",
-       y = "Number of Vessels"
-       # y = "Number of Non-Compliant Vessels That Were Compliant More Than 50%",
-       # y = "Percent of non-compliant vessels been non-compliant less than half a month",
-       # title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)")
-       ) +
+       y = "Number of Vessels") +
   labs(title = "The Number of Non-Compliant Vessels Each Month\nThat Were Compliant More Than 50% of a Month in 2022") +
   # theme(plot.title = element_text(lineheight = 0.9)) +
   labs(caption = "(The blue number is a total number of non-compliant vessels per month.)")
 # guides(color = guide_legend(title = "nc weeks")) +
 # ylim(0, 100)
 
-test_plot
+line_df_22_gom_good_plot
 
 plot_file_path_m <-
   file.path(plot_file_path, "per_month")
