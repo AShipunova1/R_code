@@ -179,6 +179,7 @@ trip_coord_info_effort_vendors_cnt |>
 
 #dim [1] 263   2
 
+tic("trip_coord_info_vendors3")
 trip_coord_info_vendors3 <-
   trip_coord_info |>
   group_by(TRIP_ID) |>
@@ -191,11 +192,29 @@ trip_coord_info_vendors3 <-
     trimws(tolower(E_UE)) == "vms" ~ "vms",
     trimws(tolower(E_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
-  ))
+  )) |> 
+  ungroup()
+toc()
+# trip_coord_info_vendors3: 160.77 sec elapsed
+# 160.77/60 = 2.6795m
 
-
+# View(trip_coord_info_vendors3)
 # TODO: check t_UE diff E_UE
 # View(trip_coord_info_vendors)
+
+trip_coord_info_vendors3 |>
+  filter(trimws(tolower(E_UE)) == "safis") |>
+  filter(!vendor_trip_cat == vendor_effort_cat) |> 
+  select(T_UE, E_UE, vendor_trip_cat, vendor_effort_cat) |> 
+  mutate(T_UE = trimws(T_UE),
+         E_UE = trimws(E_UE)) |> 
+  distinct()
+# |> 
+#   glimpse()
+# VESL	  SAFIS	vesl	etrips	
+# Bluefin	SAFIS	vesl	etrips
+
+# Because E_UE has "SAFIS" for both vesl	etrips, I will use T_UE
 ```
 
 ## General comments
