@@ -324,7 +324,11 @@ lat_long_to_map <-
 
 lat_long_to_map_plot <-
   function(my_df,
-           my_title = "my_title") {
+           my_title = "my_title",
+           label_columns = NA) {
+    
+    browser()
+    
     my_df_sf <-
       my_df %>%
       # save info to show on the map
@@ -340,9 +344,21 @@ lat_long_to_map_plot <-
       ggplot2::geom_sf(data = world_coast) +
       ggplot2::geom_sf(data = my_df_sf,
                        color = "blue") +
-      ggplot2::ggtitle(my_title)
+      ggplot2::ggtitle(my_title) +
+      ggplot2::geom_sf_text(data = my_df_sf,
+                            aes(label = vendor_trip_cat))
     
-      return(map_plot)
+    # if (!is.na(label_columns)) {
+      # map_plot <-
+        # map_plot +
+        # ggplot2::geom_sf_label(aes(label = vendor_trip_cat))
+        # ggplot2::geom_text(aes(x = LONGITUDE,
+        #                        y = LATITUDE,
+        #                        label = my_df[[label_columns]]))
+    # }
+                           # 
+                           # position = position_dodge(width = 0.9)
+    return(map_plot)
     
   }
 
@@ -392,16 +408,17 @@ trip_coord_info_plot
 #   )
 ```
 
-## Sign
+## Sign errors
 ### Positive longitude
 ```{r Sign}
 # 1) a sign ----
 ## positive_long ----
 positive_long <-
-  trip_coord_info %>%
+  trip_coord_info_vendors3 %>%
   filter(LONGITUDE > 0)
 
 dim(positive_long)
+# [1] 15418    41
 
 #     LATITUDE        LONGITUDE
 # Min.   :-87.30   Min.   :-117.25
@@ -413,9 +430,10 @@ dim(positive_long)
 # NA's   :1277     NA's   :1277
 
 positive_long_map <-
-  positive_long |> 
-  select(LATITUDE, LONGITUDE) |> 
-  lat_long_to_map_plot('Positive longitude')
+  positive_long |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  lat_long_to_map_plot(my_title = 'Positive longitude',
+                       label_columns = "vendor_trip_cat")
 
 positive_long_map
 
