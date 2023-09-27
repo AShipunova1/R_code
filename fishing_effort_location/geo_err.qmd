@@ -327,6 +327,7 @@ lat_long_to_map_plot <-
            my_title = "my_title",
            label_column = NA) {
     
+    
     # browser()
     
     my_df_sf <-
@@ -344,20 +345,15 @@ lat_long_to_map_plot <-
       ggplot2::geom_sf(data = world_coast) +
       ggplot2::geom_sf(data = my_df_sf,
                        color = "blue") +
-      ggplot2::ggtitle(my_title) +
-      ggplot2::geom_sf_text(data = my_df_sf,
-                            aes(label = !!sym(label_column)))
+      ggplot2::ggtitle(my_title)
     
-    # if (!is.na(label_columns)) {
-      # map_plot <-
-        # map_plot +
-        # ggplot2::geom_sf_label(aes(label = vendor_trip_cat))
-        # ggplot2::geom_text(aes(x = LONGITUDE,
-        #                        y = LATITUDE,
-        #                        label = my_df[[label_columns]]))
-    # }
-                           # 
-                           # position = position_dodge(width = 0.9)
+    if (!is.na(label_column)) {
+      map_plot <-
+        map_plot +
+        ggplot2::geom_sf_text(data = my_df_sf,
+                              aes(label = !!sym(label_column)))
+    }
+    
     return(map_plot)
     
   }
