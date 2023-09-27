@@ -126,8 +126,8 @@ head(weird_stats)
 ## Prepare vendor columns
 ```{r prepare vendor columns}
 # t_UE, E_UE
-trip_coord_info |> 
-  filter(!trimws(T_UE) == trimws(E_UE)) |> 
+trip_coord_info |>
+  filter(!trimws(T_UE) == trimws(E_UE)) |>
   glimpse()
 # Rows: 119,735
 
@@ -139,40 +139,40 @@ trip_coord_info_vendors <-
          vendor_effort = toString(unique(E_UE))) |>
   ungroup()
 
-trip_coord_info_vendors |> 
-  select(vendor_trip, vendor_effort) |> 
-  distinct() |> 
+trip_coord_info_vendors |>
+  select(vendor_trip, vendor_effort) |>
+  distinct() |>
   dim()
 # [1] 971   2
 
 trip_coord_info_trip_vendors_cnt <-
-  trip_coord_info_vendors |> 
-  select(vendor_trip) |> 
-  mutate(vendor_trip = trimws(tolower(vendor_trip))) |> 
-  add_count(vendor_trip) |> 
+  trip_coord_info_vendors |>
+  select(vendor_trip) |>
+  mutate(vendor_trip = trimws(tolower(vendor_trip))) |>
+  add_count(vendor_trip) |>
   distinct()
-  
+
 dim(trip_coord_info_trip_vendors_cnt)
 # 678
 
-trip_coord_info_trip_vendors_cnt |> 
+trip_coord_info_trip_vendors_cnt |>
   arrange(desc(n)) |>
-  head() 
+  head()
 # vesl	77275			
 # vms	15160			
 # ray rosher	1032			
 # captgreg9982	653		
 
 trip_coord_info_effort_vendors_cnt <-
-  trip_coord_info_vendors |> 
-  select(vendor_effort) |> 
-  mutate(vendor_effort = trimws(tolower(vendor_effort))) |> 
-  add_count(vendor_effort) |> 
+  trip_coord_info_vendors |>
+  select(vendor_effort) |>
+  mutate(vendor_effort = trimws(tolower(vendor_effort))) |>
+  add_count(vendor_effort) |>
   distinct()
 
-trip_coord_info_effort_vendors_cnt |> 
+trip_coord_info_effort_vendors_cnt |>
   arrange(desc(n)) |>
-  head() 
+  head()
 # safis	119734			
 # vms	15160			
 # vesl	1880			
@@ -188,12 +188,12 @@ trip_coord_info_vendors3 <-
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
-  )) |> 
+  )) |>
     mutate(vendor_effort_cat = case_when(
     trimws(tolower(E_UE)) == "vms" ~ "vms",
     trimws(tolower(E_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
-  )) |> 
+  )) |>
   ungroup()
 toc()
 # trip_coord_info_vendors3: 160.77 sec elapsed
@@ -205,12 +205,12 @@ toc()
 
 trip_coord_info_vendors3 |>
   filter(trimws(tolower(E_UE)) == "safis") |>
-  filter(!vendor_trip_cat == vendor_effort_cat) |> 
-  select(T_UE, E_UE, vendor_trip_cat, vendor_effort_cat) |> 
+  filter(!vendor_trip_cat == vendor_effort_cat) |>
+  select(T_UE, E_UE, vendor_trip_cat, vendor_effort_cat) |>
   mutate(T_UE = trimws(T_UE),
-         E_UE = trimws(E_UE)) |> 
+         E_UE = trimws(E_UE)) |>
   distinct()
-# |> 
+# |>
 #   glimpse()
 # VESL	  SAFIS	vesl	etrips	
 # Bluefin	SAFIS	vesl	etrips
@@ -249,8 +249,8 @@ trip_coord_info_vendors3 |>
 ```{r map functions}
 # sa_shp <-
 #   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
-# 
-# gom_shp <- 
+#
+# gom_shp <-
 #   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\ReefFish_EFH_GOM.shp)")
 
 # federal_state_waters_shp <-
@@ -273,15 +273,15 @@ str(USMaritimeLimi_ExportFeature_shp)
 
 # class(USMaritimeLimi_ExportFeature_shp)
 USMaritimeLimi_ExportFeature_east_shp <-
-  USMaritimeLimi_ExportFeature_shp |> 
+  USMaritimeLimi_ExportFeature_shp |>
   filter(REGION == "Atlantic Coast and Gulf of Mexico")
 
 # mapview(USMaritimeLimi_ExportFeature_east_shp)
 # [1] 49 17
 
 # bbox <-
-#   st_bbox(big_bounding_box, 
-#           crs = st_crs(federal_state_waters_shp)) |> 
+#   st_bbox(big_bounding_box,
+#           crs = st_crs(federal_state_waters_shp)) |>
 #   st_as_sfc()
 
 # mapview(bbox)
@@ -289,7 +289,7 @@ USMaritimeLimi_ExportFeature_east_shp <-
 # federal_state_waters_shp_east <-
 #     sf::st_crop(federal_state_waters_shp,
 #               big_bounding_box)
-# 
+#
 # str(federal_state_waters_shp)
 # [1] 0 7
 
@@ -306,7 +306,7 @@ sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundarie
 
 my_crs <- sf::st_crs(USMaritimeLimitsNBoundaries_shp)
 
-lat_long_to_map <- 
+lat_long_to_map <-
   function(my_df, my_title = "my_title", legend = TRUE) {
   my_df %>%
     # save info to show on the map
@@ -327,10 +327,10 @@ lat_long_to_map_plot <-
   function(my_df,
            my_title = "my_title",
            label_column = NA) {
-    
-    
+
+
     # browser()
-    
+
     my_df_sf <-
       my_df %>%
       # save info to show on the map
@@ -340,23 +340,23 @@ lat_long_to_map_plot <-
       sf::st_as_sf(coords = c("LONGITUDE",
                               "LATITUDE"),
                    crs = my_crs)
-    
+
     map_plot <-
       ggplot() +
       ggplot2::geom_sf(data = world_coast) +
       ggplot2::geom_sf(data = my_df_sf,
                        color = "blue") +
       ggplot2::ggtitle(my_title)
-    
+
     if (!is.na(label_column)) {
       map_plot <-
         map_plot +
         ggplot2::geom_sf_text(data = my_df_sf,
                               aes(label = !!sym(label_column)))
     }
-    
+
     return(map_plot)
-    
+
   }
 
 crop_by_shape <-
@@ -406,6 +406,18 @@ trip_coord_info_plot
 ```
 
 ## Sign errors
+```{r count vendors}
+trip_coord_info_vendors3 |>
+  select(TRIP_ID, vendor_trip_cat) |>
+  count(vendor_trip_cat)
+
+# all vendors
+# etrips	47731			
+# vesl	77352			
+# vms	16267		
+```
+
+
 ### Positive longitude
 ```{r Sign}
 # 1) a sign ----
@@ -433,13 +445,27 @@ positive_long_map <-
 
 # label_column = "vendor_trip_cat"
 
+positive_long_map
+
+```
+```{r positive longitude table}
+
 positive_long |>
-  count(vendor_trip_cat) |> 
+    select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  count(vendor_trip_cat) |>
   distinct()
+
+# count vendor_trip_cat
 # etrips	89			
 # vesl	15329		
 
-positive_long_map
+# count(vendor_trip_cat, year_start)
+positive_long |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat, TRIP_START_DATE) |>
+  mutate(year_start = year(TRIP_START_DATE)) |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
+  count(vendor_trip_cat, year_start) |>
+  distinct()
 
 ```
 
@@ -455,7 +481,7 @@ dim(negative_lat)
 
 negative_lat %>%
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |> 
+  count(vendor_trip_cat) |>
   distinct()
 # etrips	2			
 # vesl	26		
@@ -483,7 +509,7 @@ negative_lat_c_subset <-
 
 neg_lat_map <-
   lat_long_to_map_plot(negative_lat_c_subset, 'Negative latitude')
-  
+
 neg_lat_map
 
 ```
@@ -563,26 +589,26 @@ out_of_boxmap_plot <-
 
 out_of_boxmap_plot
 
-str(out_of_boxmap_plot)
+# str(out_of_boxmap_plot)
 # rectangular_big_box_view <- mapview::viewExtent(trip_coord_info_crop_big_sf)
-# 
+#
 # mapview::mapview(trip_coord_info_sf_out) +
 #   rectangular_big_box_view
 
 ```
 ```{r out of box cnts}
-trip_coord_info_sf_out |> 
-  sf::st_drop_geometry() |> 
+trip_coord_info_sf_out |>
+  sf::st_drop_geometry() |>
   count(vendor_trip_cat)
 
 # etrips	151			
 # vesl	4524		
-  
+
 # negative_lat %>%
 #   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-#   count(vendor_trip_cat) |> 
+#   count(vendor_trip_cat) |>
 #   distinct()
-  
+
 ```
 
 ## On land
@@ -617,13 +643,13 @@ trip_coord_info_sf_in_all <-
   ) > 0)
 
 sf::st_bbox(USMaritimeLimi_ExportFeature_east_shp)
-#      xmin      ymin      xmax      ymax 
-# -97.15469  23.81794 -65.69948  45.07451 
+#      xmin      ymin      xmax      ymax
+# -97.15469  23.81794 -65.69948  45.07451
 # mapview(federal_state_waters_east_shp)
 # View(USMaritimeLimi_ExportFeature_east_shp)
 
 
-# federal_state_waters_east_shp$geometry |> 
+# federal_state_waters_east_shp$geometry |>
 #   str()
 # sfc_POLYGON of length 1; first list element: List of 36988
 # ...
@@ -640,7 +666,7 @@ in_sa_gom_inters <-
 toc()
 
 sf::st_crs(federal_state_waters_east_shp)
-  # User input: WGS 84 / World Mercator 
+  # User input: WGS 84 / World Mercator
     # ID["EPSG",3395]]
 
 sf::st_crs(trip_coord_info_crop_big_sf)
@@ -695,7 +721,7 @@ str(minus_sa_gom)
 
 # mapview(in_sa_gom_inters)
 # all.equal(sf::st_crs(trip_coord_info_crop_big_sf),
-            # User input: WGS 84 / World Mercator 
+            # User input: WGS 84 / World Mercator
 
 # sf::st_crs(USMaritimeLimitsNBoundaries_shp))
 
@@ -706,16 +732,16 @@ str(minus_sa_gom)
 # in_sa_gom: 3.1 sec elapsed
 
 dim(in_sa_gom)
-# 
+#
 # in_sa <-
 #   crop_by_shape(trip_coord_info_crop_big_sf, federal_state_waters_east_shp)
-# 
+#
 # dim(in_sa)
 # # [1] 32846     5
-# 
+#
 # in_gom <-
 #   crop_by_shape(trip_coord_info_crop_big_sf, gom_shp)
-# 
+#
 # dim(in_gom)
 # [1] 37312     5
 ```
@@ -724,7 +750,7 @@ dim(in_sa_gom)
 ```{r not in sa and gom}
 ### not in sa and gom ----
 
-# stop here 
+# stop here
 tic("minus_sa_gom")
 minus_sa_gom <-
   # trip_coord_info_crop_big_sf |>
@@ -746,7 +772,7 @@ minus_sa_gom <-
             st_union(in_gom), .predicate = st_disjoint)
 toc()
 # minus_gom: 15.84 sec elapsed
-  
+
 mapview(minus_sa_gom) +
   mapview(sa_shp, fill = "lightgreen") +
   mapview(gom_shp, fill = "lightgreen")
@@ -757,7 +783,7 @@ mapview(minus_sa_gom) +
 
 # sf_use_s2(FALSE)
 # Spherical geometry (s2) switched off
-# 
+#
 # minus_gom <- st_difference(corrected_data_sf, gom_shp)
 
 dim(minus_sa)
