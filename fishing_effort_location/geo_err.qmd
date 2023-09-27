@@ -14,7 +14,7 @@ format:
     code-line-numbers: true
 ---
 
-## Setup
+# Setup
 ```{r setup}
 # setup ----
 library(mapview)
@@ -52,7 +52,7 @@ world_coast <-
 
 ```
 
-## Statistics
+# Statistics
 ```{r statistics}
 # statistics ----
 
@@ -123,7 +123,7 @@ head(weird_stats)
 
 ```
 
-## Prepare vendor columns
+# Prepare vendor columns
 ```{r prepare vendor columns}
 # t_UE, E_UE
 trip_coord_info |>
@@ -133,7 +133,7 @@ trip_coord_info |>
 
 trip_coord_info_vendors <-
   trip_coord_info |>
-  group_by(TRIP_ID) |>
+  group_by(LATITUDE, LONGITUDE) |>
   # mutate(all_permits = toString(unique(TOP))) |>
   mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
@@ -183,7 +183,7 @@ trip_coord_info_effort_vendors_cnt |>
 tic("trip_coord_info_vendors3")
 trip_coord_info_vendors3 <-
   trip_coord_info |>
-  group_by(TRIP_ID) |>
+  group_by(LATITUDE, LONGITUDE) |>
   mutate(vendor_trip_cat = case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
@@ -218,7 +218,7 @@ trip_coord_info_vendors3 |>
 # Because E_UE has "SAFIS" for both vesl	etrips, I will use T_UE
 ```
 
-## General comments
+# General comments
 ```{r general comments}
 # errors in geo data ----
 # 1) a sign
@@ -245,7 +245,7 @@ trip_coord_info_vendors3 |>
 
 ```
 
-## Map functions
+# Map functions
 ```{r map functions}
 # sa_shp <-
 #   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
@@ -373,7 +373,7 @@ crop_by_shape <-
 
 ```
 
-## Map all points
+# Map all points
 ```{r map all points}
 
 trip_coord_info_map_data <-
@@ -405,11 +405,19 @@ trip_coord_info_plot
 #   )
 ```
 
-## Sign errors
+# Count vendors
 ```{r count vendors}
 trip_coord_info_vendors3 |>
-  select(TRIP_ID, vendor_trip_cat) |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat)
+
+trip_coord_info_vendors3 <-
+  trip_coord_info_vendors3 |> 
+  mutate(year_start = year(TRIP_START_DATE))
+
+trip_coord_info_vendors3 |> 
+  select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
+  count(vendor_trip_cat, year_start)
 
 # all vendors
 # etrips	47731			
@@ -417,8 +425,9 @@ trip_coord_info_vendors3 |>
 # vms	16267		
 ```
 
+# Sign errors
 
-### Positive longitude
+## Positive longitude
 ```{r Sign}
 # 1) a sign ----
 ## positive_long ----
@@ -426,7 +435,7 @@ positive_long <-
   trip_coord_info_vendors3 %>%
   filter(LONGITUDE > 0)
 
-dim(positive_long)
+# dim(positive_long)
 # [1] 15418    41
 
 #     LATITUDE        LONGITUDE
@@ -448,6 +457,8 @@ positive_long_map <-
 positive_long_map
 
 ```
+
+### Positive longitude table
 ```{r positive longitude table}
 
 positive_long |>
@@ -461,22 +472,19 @@ positive_long |>
 
 # count(vendor_trip_cat, year_start)
 positive_long |>
-  select(LATITUDE, LONGITUDE, vendor_trip_cat, TRIP_START_DATE) |>
-  mutate(year_start = year(TRIP_START_DATE)) |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   count(vendor_trip_cat, year_start) |>
   distinct()
 
 ```
-
-### Negative latitude
+## Negative latitude
 ```{r negative latitude}
 ### negative latitude ----
 negative_lat <-
   trip_coord_info_vendors3 %>%
   filter(LATITUDE <= 0)
 
-dim(negative_lat)
+# dim(negative_lat)
 # 120
 
 negative_lat %>%
@@ -486,10 +494,16 @@ negative_lat %>%
 # etrips	2			
 # vesl	26		
 
+negative_lat %>%
+  select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
+  count(vendor_trip_cat, year_start) |>
+  distinct()
+
+
 # dim(negative_lat)
 # [1] 28 41
 
-negative_lat %>% count(LATITUDE, LONGITUDE)
+# negative_lat %>% count(LATITUDE, LONGITUDE)
 # LATITUDE LONGITUDE  n
 # 1 -87.30000  29.30000  2
 # 2 -83.97695  29.15705 11
@@ -514,7 +528,7 @@ neg_lat_map
 
 ```
 
-## Outside boundaries
+# Outside boundaries
 ```{r outside boundaries}
 ## 3) outside boundaries ----
 
@@ -527,7 +541,7 @@ big_bounding_box <- c(
 
 trip_coord_info_short_sf <-
   trip_coord_info_vendors3 |>
-  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   distinct() |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   sf::st_as_sf(
@@ -550,7 +564,7 @@ trip_coord_info_crop_big_sf <-
   sf::st_crop(trip_coord_info_short_sf,
               big_bounding_box)
 
-dim(trip_coord_info_crop_big_sf)
+# dim(trip_coord_info_crop_big_sf)
 # [1] 111572      1
 # [1] 111576      2
 
@@ -560,11 +574,11 @@ trip_coord_info_sf_out <-
     sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
   ) == 0)
 
-dim(trip_coord_info_crop_big_sf)
+# dim(trip_coord_info_crop_big_sf)
 # [1] 111572      1
 # [1] 111576      2 with vendor
 
-dim(trip_coord_info_sf_out)
+# dim(trip_coord_info_sf_out)
 # [1] 4674    1
 # [1] 4675    2 with vendor
 
@@ -596,10 +610,12 @@ out_of_boxmap_plot
 #   rectangular_big_box_view
 
 ```
-```{r out of box cnts}
+
+## Out of box table
+```{r Out of box table}
 trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
-  count(vendor_trip_cat)
+  count(vendor_trip_cat, year_start)
 
 # etrips	151			
 # vesl	4524		
@@ -610,9 +626,25 @@ trip_coord_info_sf_out |>
 #   distinct()
 
 ```
+# Weird FISHING_HOURS
+```{r Weird FISHING_HOURS}
+trip_coord_info_vendors3 |>
+  select(TRIP_ID, FISHING_HOURS, year_start, vendor_trip_cat)
+```
 
-## On land
-### Shape files maps
+# Weird TRIP_END_DATE
+```{r Weird TRIP_END_DATE}
+trip_coord_info_vendors3 |>
+  select(TRIP_ID, TRIP_END_DATE, year_start, vendor_trip_cat) |> 
+  distinct() |> 
+  filter(year(TRIP_END_DATE) < 2021) |> 
+  arrange(TRIP_END_DATE) |> 
+  select(-TRIP_ID)
+  
+```
+
+# On land
+## Shape files maps
 ```{r 2) on land}
 ## 2) on land ----
   # trip_coord_info_crop_big_sf
