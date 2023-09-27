@@ -428,9 +428,14 @@ dim(positive_long)
 positive_long_map <-
   positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  lat_long_to_map_plot(my_title = 'Positive longitude',
-                       label_column = "vendor_trip_cat")
+  lat_long_to_map_plot(my_title = 'Positive longitude')
 
+# label_column = "vendor_trip_cat"
+
+positive_long |>
+  count(vendor_trip_cat) |> 
+  distinct()
+  
 positive_long_map
 
 ```
