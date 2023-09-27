@@ -1,7 +1,7 @@
 # get SRHS vessels to exclude ----
 srhs_vessels_2022 <-
-  file.path(my_paths$inputs,
-            r"(from_Fhier\2022_SRHS_Vessels_08_18_2023.xlsx)")
+  r"(~\Official documents\srhs_boats\2022_SRHS_Vessels_08_18_2023.xlsx)"
+# "C:\Users\anna.shipunova\Documents\Official documents\srhs_boats\2022_SRHS_Vessels_08_18_2023.xlsx"
 
 srhs_vessels_2022_info <-
   read_excel(
