@@ -123,7 +123,8 @@ head(weird_stats)
 
 ```
 
-```{r}
+## Prepare vendor columns
+```{r prepare vendor columns}
 # t_UE, E_UE
 trip_coord_info |> 
   filter(!trimws(T_UE) == trimws(E_UE)) |> 
@@ -435,7 +436,9 @@ positive_long_map <-
 positive_long |>
   count(vendor_trip_cat) |> 
   distinct()
-  
+# etrips	89			
+# vesl	15329		
+
 positive_long_map
 
 ```
@@ -444,14 +447,22 @@ positive_long_map
 ```{r negative latitude}
 ### negative latitude ----
 negative_lat <-
-  trip_coord_info %>%
+  trip_coord_info_vendors3 %>%
   filter(LATITUDE <= 0)
 
 dim(negative_lat)
 # 120
 
-negative_lat %>% select(LATITUDE, LONGITUDE) %>% distinct()
-glimpse(negative_lat)
+negative_lat %>%
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  count(vendor_trip_cat) |> 
+  distinct()
+# etrips	2			
+# vesl	26		
+
+# dim(negative_lat)
+# [1] 28 41
+
 negative_lat %>% count(LATITUDE, LONGITUDE)
 # LATITUDE LONGITUDE  n
 # 1 -87.30000  29.30000  2
@@ -480,6 +491,7 @@ neg_lat_map
 ## Outside boundaries
 ```{r outside boundaries}
 ## 3) outside boundaries ----
+
 big_bounding_box <- c(
    xmin = -97.79954,
    ymin = 21.521757, #Cuba
@@ -488,8 +500,8 @@ big_bounding_box <- c(
  )
 
 trip_coord_info_short_sf <-
-  trip_coord_info |>
-  select(LATITUDE, LONGITUDE) |>
+  trip_coord_info_vendors3 |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   distinct() |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   sf::st_as_sf(
@@ -498,8 +510,9 @@ trip_coord_info_short_sf <-
     crs = my_crs
   )
 
-str(trip_coord_info_short_sf)
+dim(trip_coord_info_short_sf)
 # [1] 116246      1
+# [1] 116251      2 w vendor_trip_cat
 
 # trip_coord_info_sf_outside_big_box <-
 #     trip_coord_info_sf |>
@@ -513,6 +526,7 @@ trip_coord_info_crop_big_sf <-
 
 dim(trip_coord_info_crop_big_sf)
 # [1] 111572      1
+# [1] 111576      2
 
 trip_coord_info_sf_out <-
   trip_coord_info_short_sf |>
@@ -522,11 +536,13 @@ trip_coord_info_sf_out <-
 
 dim(trip_coord_info_crop_big_sf)
 # [1] 111572      1
+# [1] 111576      2 with vendor
 
 dim(trip_coord_info_sf_out)
 # [1] 4674    1
+# [1] 4675    2 with vendor
 
-str(trip_coord_info_sf_out)
+# str(trip_coord_info_sf_out)
 
 out_of_boxmap_plot <-
   ggplot() +
@@ -547,11 +563,26 @@ out_of_boxmap_plot <-
 
 out_of_boxmap_plot
 
+str(out_of_boxmap_plot)
 # rectangular_big_box_view <- mapview::viewExtent(trip_coord_info_crop_big_sf)
 # 
 # mapview::mapview(trip_coord_info_sf_out) +
 #   rectangular_big_box_view
 
+```
+```{r out of box cnts}
+trip_coord_info_sf_out |> 
+  sf::st_drop_geometry() |> 
+  count(vendor_trip_cat)
+
+# etrips	151			
+# vesl	4524		
+  
+# negative_lat %>%
+#   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+#   count(vendor_trip_cat) |> 
+#   distinct()
+  
 ```
 
 ## On land
