@@ -2997,17 +2997,17 @@ line_df_22_gom_monthly_nc_percent_plot <-
     color = "blue"
   )) +
   geom_point(color = "blue",
-             size = 5) +
+             size = 4) +
   geom_line(color = "blue",
             linewidth = 1) +
   theme_bw() +
   # text under the dot
   geom_text(
-    aes(label = paste0(round(percent_of_total, 0), "%")),
+    aes(label = paste0(round(percent_of_total, 1), "%")),
     # vjust = -0.4,
-    hjust = -0.5,
+    hjust = -0.3,
     color = "blue",
-    size = geom_text_size
+    size = 6
   ) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
   theme(
@@ -3019,11 +3019,16 @@ line_df_22_gom_monthly_nc_percent_plot <-
   ) +
   labs(x = "Months (2022)",
        y = "Number of Vessels") +
-  labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") 
+  labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") +
+  expand_limits(x = as.Date("12/31/22", "%m/%d/%y"))
+# 
+#   coord_cartesian(xlim = c(as.Date(year_month), NA))
+
+# dates <- c("02/27/92", "02/27/92", "01/14/92", "02/28/92", "02/01/92")
+# as.Date(dates, "%m/%d/%y")
+
 
 line_df_22_gom_monthly_nc_percent_plot
-
-
 
 # save to files ----
 
