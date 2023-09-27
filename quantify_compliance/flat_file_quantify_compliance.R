@@ -2927,6 +2927,45 @@ line_df_22_gom_good_plot <-
 
 line_df_22_gom_good_plot
 
+# GOM non compliant by month ----
+line_df_22_gom_monthly_nc_plot <-
+  line_df_22_gom |>
+  # filter(percent_non_compl_2_buckets == "< 50%") |>
+  ggplot(aes(
+    x = as.Date(year_month),
+    y = cnt_vsl_m_compl,
+    color = "blue"
+  )) +
+  geom_point(color = "blue",
+             size = 5) +
+  geom_line(color = "blue",
+            linewidth = 1) +
+  theme_bw() +
+  # text under the dot
+  geom_text(
+    aes(label = cnt_vsl_m_compl),
+    # vjust = -0.4,
+    hjust = -0.5,
+    color = "blue",
+    size = geom_text_size
+  ) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(
+    legend.position = "none",
+    axis.text.x =
+      element_text(size = axis_title_size),
+    axis.text.y =
+      element_text(size = axis_title_size)
+  ) +
+  labs(x = "Months (2022)",
+       y = "Number of Vessels") +
+  labs(title = "The Number of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") 
+
+
+line_df_22_gom_monthly_nc_plot
+
+# save to files ----
+
 plot_file_path_m <-
   file.path(plot_file_path, "per_month")
 create_dir_if_not(plot_file_path_m)
