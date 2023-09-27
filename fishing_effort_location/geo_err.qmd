@@ -325,9 +325,9 @@ lat_long_to_map <-
 lat_long_to_map_plot <-
   function(my_df,
            my_title = "my_title",
-           label_columns = NA) {
+           label_column = NA) {
     
-    browser()
+    # browser()
     
     my_df_sf <-
       my_df %>%
@@ -346,7 +346,7 @@ lat_long_to_map_plot <-
                        color = "blue") +
       ggplot2::ggtitle(my_title) +
       ggplot2::geom_sf_text(data = my_df_sf,
-                            aes(label = vendor_trip_cat))
+                            aes(label = !!sym(label_column)))
     
     # if (!is.na(label_columns)) {
       # map_plot <-
@@ -433,7 +433,7 @@ positive_long_map <-
   positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   lat_long_to_map_plot(my_title = 'Positive longitude',
-                       label_columns = "vendor_trip_cat")
+                       label_column = "vendor_trip_cat")
 
 positive_long_map
 
