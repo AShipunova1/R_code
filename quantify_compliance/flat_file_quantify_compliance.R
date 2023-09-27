@@ -2964,6 +2964,67 @@ line_df_22_gom_monthly_nc_plot <-
 
 line_df_22_gom_monthly_nc_plot
 
+# GOM non compliant by month percent of total ----
+
+count_weeks_per_vsl_permit_year_compl_m_p_2022_gom <-
+  count_weeks_per_vsl_permit_year_compl_m_p |>
+  filter(year_permit == "2022 gom_dual")
+
+count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short <-
+  count_weeks_per_vsl_permit_year_compl_m_p_2022_gom |>
+  select(year_month,
+         total_vsl_m,
+         cnt_vsl_m_compl,
+         compliant_) |>
+  distinct()
+
+View(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short)
+# [1] 24  4
+
+count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent <-
+  count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short |>
+  group_by(year_month) |>
+  mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m)
+
+glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent)
+
+line_df_22_gom_monthly_nc_percent_plot <-
+  count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent |>
+  filter(compliant_ == "NO") |> 
+  ggplot(aes(
+    x = as.Date(year_month),
+    y = percent_of_total,
+    color = "blue"
+  )) +
+  geom_point(color = "blue",
+             size = 5) +
+  geom_line(color = "blue",
+            linewidth = 1) +
+  theme_bw() +
+  # text under the dot
+  geom_text(
+    aes(label = paste0(round(percent_of_total, 0), "%")),
+    # vjust = -0.4,
+    hjust = -0.5,
+    color = "blue",
+    size = geom_text_size
+  ) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(
+    legend.position = "none",
+    axis.text.x =
+      element_text(size = axis_title_size),
+    axis.text.y =
+      element_text(size = axis_title_size)
+  ) +
+  labs(x = "Months (2022)",
+       y = "Number of Vessels") +
+  labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") 
+
+line_df_22_gom_monthly_nc_percent_plot
+
+
+
 # save to files ----
 
 plot_file_path_m <-
