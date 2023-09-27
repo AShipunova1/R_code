@@ -3,6 +3,8 @@ title: "Geo errors"
 date: today
 output:
   html_document
+execute:
+  warning: false
 format:
   html:
     toc: true
