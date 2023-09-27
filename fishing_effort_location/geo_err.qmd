@@ -8,7 +8,7 @@ execute:
 format:
   html:
     toc: true
-    # toc-depth: 2
+    toc-depth: 2
     css: styles.css
     code-overflow: wrap
     code-fold: true
@@ -17,6 +17,7 @@ format:
 ---
 
 # Setup
+
 ```{r setup}
 # setup ----
 library(mapview)
@@ -34,6 +35,7 @@ current_project_dir_path <-
 ```
 
 # Get data
+
 ```{r get data}
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
@@ -55,6 +57,7 @@ world_coast <-
 ```
 
 # Statistics
+
 ```{r statistics}
 # statistics ----
 
@@ -126,11 +129,12 @@ head(weird_stats)
 ```
 
 # Prepare vendor columns
+
 ```{r prepare vendor columns}
 # t_UE, E_UE
-trip_coord_info |>
-  filter(!trimws(T_UE) == trimws(E_UE)) |>
-  glimpse()
+# trip_coord_info |>
+#   filter(!trimws(T_UE) == trimws(E_UE)) |>
+#   glimpse()
 # Rows: 119,735
 
 trip_coord_info_vendors <-
@@ -221,6 +225,7 @@ trip_coord_info_vendors3 |>
 ```
 
 # General comments
+
 ```{r general comments}
 # errors in geo data ----
 # 1) a sign
@@ -248,6 +253,7 @@ trip_coord_info_vendors3 |>
 ```
 
 # Map functions
+
 ```{r map functions}
 # sa_shp <-
 #   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
@@ -270,7 +276,7 @@ dim(federal_state_waters_east_shp)
 USMaritimeLimi_ExportFeature_shp <-
 sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)")
 
-str(USMaritimeLimi_ExportFeature_shp)
+# str(USMaritimeLimi_ExportFeature_shp)
 # [1] 260  17
 
 # class(USMaritimeLimi_ExportFeature_shp)
@@ -376,6 +382,7 @@ crop_by_shape <-
 ```
 
 # Map all points
+
 ```{r map all points}
 
 trip_coord_info_map_data <-
@@ -408,6 +415,7 @@ trip_coord_info_plot
 ```
 
 # Count vendors
+
 ```{r count vendors}
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
@@ -430,6 +438,7 @@ trip_coord_info_vendors3 |>
 # Sign errors
 
 ## Positive longitude
+
 ```{r Sign}
 # 1) a sign ----
 ## positive_long ----
@@ -461,6 +470,7 @@ positive_long_map
 ```
 
 ### Positive longitude table
+
 ```{r positive longitude table}
 
 positive_long |>
@@ -479,7 +489,9 @@ positive_long |>
   distinct()
 
 ```
+
 ## Negative latitude
+
 ```{r negative latitude}
 ### negative latitude ----
 negative_lat <-
@@ -516,8 +528,8 @@ negative_lat %>%
 # 7   0.00000   0.00000  5
 ```
 
-
 ### Negative latitude mapped
+
 ```{r Wrong sign mapped}
 negative_lat_c_subset <-
   negative_lat %>%
@@ -531,6 +543,7 @@ neg_lat_map
 ```
 
 # Outside boundaries
+
 ```{r outside boundaries}
 ## 3) outside boundaries ----
 
@@ -614,6 +627,7 @@ out_of_boxmap_plot
 ```
 
 ## Out of box table
+
 ```{r Out of box table}
 trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
@@ -628,25 +642,48 @@ trip_coord_info_sf_out |>
 #   distinct()
 
 ```
+
 # Weird FISHING_HOURS
+
 ```{r Weird FISHING_HOURS}
 trip_coord_info_vendors3 |>
-  select(TRIP_ID, FISHING_HOURS, year_start, vendor_trip_cat)
+  select(TRIP_ID, FISHING_HOURS, year_start, vendor_trip_cat) |>
+  distinct() |>
+  dplyr::filter((FISHING_HOURS < 1) | (FISHING_HOURS > (7 * 24))) |>
+  mutate(
+    fishing_hours_cat =
+      case_when(
+        FISHING_HOURS < 1 ~ "FISHING_HOURS < 1",
+        FISHING_HOURS > (7 * 24) ~ "FISHING_HOURS > 1 week"
+      )
+  ) |>
+  arrange(FISHING_HOURS) |>
+  select(-TRIP_ID) |>
+  count(fishing_hours_cat, year_start, vendor_trip_cat)
+
+
 ```
 
 # Weird TRIP_END_DATE
+
 ```{r Weird TRIP_END_DATE}
+#| class-output: striped
+#| tbl-cap: Astronomical object
+
 trip_coord_info_vendors3 |>
   select(TRIP_ID, TRIP_END_DATE, year_start, vendor_trip_cat) |> 
   distinct() |> 
   filter(year(TRIP_END_DATE) < 2021) |> 
   arrange(TRIP_END_DATE) |> 
   select(-TRIP_ID)
-  
+
+
 ```
 
 # On land
+
 ## Shape files maps
+
 ```{r 2) on land}
 ## 2) on land ----
   # trip_coord_info_crop_big_sf
@@ -658,6 +695,7 @@ trip_coord_info_vendors3 |>
 ```
 
 ### Inside SA and GOM
+
 ```{r inside sa and gom}
 ### Inside SA and GOM ----
 
@@ -781,6 +819,7 @@ dim(in_sa_gom)
 ```
 
 ### Not in SA and GOM
+
 ```{r not in sa and gom}
 ### not in sa and gom ----
 
@@ -910,4 +949,3 @@ dim(on_land)
 
 m_l <- mapview(on_land)
 ```
-
