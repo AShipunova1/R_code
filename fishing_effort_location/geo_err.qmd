@@ -667,6 +667,8 @@ trip_coord_info_vendors3 |>
 # Weird TRIP_END_DATE
 
 ```{r Weird TRIP_END_DATE}
+#| class: my_table
+
 #| class-output: striped
 #| tbl-cap: Astronomical object
 

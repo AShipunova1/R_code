@@ -1,8 +1,16 @@
-<!-- table css -->
-.my_table {
-  border: 3px solid red
-
-  <!-- font-weight: bold; -->
+.test {
+  background-color: lightgreen;
 }
 
+/* table css --> */
+.my_table {
+  background-color: lightblue;
+/*   <!-- border: 3px solid red --> */
 
+   /* <!-- font-weight: bold; --> */
+}
+
+.styled-output .cell-output {
+  background-color: lightgreen;
+  border-radius: 4px;
+}
