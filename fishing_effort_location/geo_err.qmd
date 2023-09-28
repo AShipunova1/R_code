@@ -302,7 +302,44 @@ sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\Federala
 #  $ geometry  :sfc_POLYGON of length 1; first list element: List of 36988
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\USMaritimeLimi_ExportFeature_east\USMaritimeLimi_ExportFeature_east.shp"
 
-for (i in 1:20) {
+federal_state_waters_east_t_shp <-
+sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)",
+            type = 7
+            )
+st_geometry(federal_state_waters_east_t_shp)
+  # Projected CRS: WGS 84 / World Mercator
+```
+
+
+```{r map functions federal_state_waters_east_1_shp}
+
+for (i in 0:20) {
+  federal_state_waters_east_1_shp <-
+sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)",
+    # quiet = TRUE,
+    type = i)
+    
+  cat(i, ":", "\n", sep = "")
+  st_geometry(federal_state_waters_east_1_shp)
+}
+# 0 : sfc_POLYGON sfc (0--4)
+# 5 : sfc_MULTILINESTRING sfc 
+# 6 : sfc_MULTIPOLYGON sfc 
+# 7 : sfc_GEOMETRYCOLLECTION sfc 
+# 8 : sfc_POLYGON sfc 
+# 9 : sfc_POLYGON sfc 
+# 10 : sfc_CURVEPOLYGON sfc 
+# 11 : sfc_POLYGON sfc 
+# 12 : sfc_MULTISURFACE sfc 
+# 13 : sfc_POLYGON sfc 
+# 14 : sfc_POLYGON sfc 
+# 15 : sfc_POLYHEDRALSURFACE sfc 
+
+```
+
+
+```{r map functions diff types}
+for (i in 0:20) {
   USMaritimeLimi_ExportFeature_q_shp <-
   sf::read_sf(
     r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)",
@@ -313,6 +350,17 @@ for (i in 1:20) {
   cat(i, ":", class(st_geometry(USMaritimeLimi_ExportFeature_q_shp)), "\n", sep = " ")
 }
 
+USMaritimeLimi_ExportFeature_t_shp <-
+  sf::read_sf(
+    r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)",
+    query = "SELECT * FROM \"USMaritimeLimitsNBoundaries\" WHERE REGION = 'Atlantic Coast and Gulf of Mexico'",
+    type = 0)
+st_geometry(USMaritimeLimi_ExportFeature_t_shp)
+# Geodetic CRS:  WGS 84
+# First 5 geometries:
+# LINESTRING (-96.92403 25.97565, -96.92429 25.97...
+
+# 0 : sfc_MULTILINESTRING sfc 
 # 1 : sfc_GEOMETRY sfc (--4)
 # 5 : sfc_MULTILINESTRING sfc 
 # 6 : sfc_GEOMETRY sfc 
@@ -327,10 +375,18 @@ for (i in 1:20) {
 
  # $ _ogr_geometry_:sfc_GEOMETRY of length 49; first list element:  'XY' num [1:2197, 1:2] -96.9 -96.9 -96.9 -96.9 -96.9 ...
 
-class(st_geometry(USMaritimeLimi_ExportFeature_q_shp))
+# class(st_geometry(USMaritimeLimi_ExportFeature_q_shp))
 # [1] "sfc_MULTILINESTRING" "sfc"     type 0, 5
 # [1] "sfc_GEOMETRY" "sfc"            type 1--4, 6
 # [1] "sfc_GEOMETRYCOLLECTION" "sfc"  type 7                 
+
+par(mfrow=c(1,2),mar=c(0,0,1,0))
+mls = st_multilinestring(list(matrix(c(0,0,0,1,1,1,0,0),,2,byrow=TRUE)))
+x = st_polygonize(mls)
+plot(mls, col = 'grey')
+title("multilinestring")
+plot(x, col = 'grey')
+title("polygon")
 
 ```
 
