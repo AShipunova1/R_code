@@ -9,7 +9,7 @@ format:
   html:
     toc: true
     toc-depth: 2
-    css: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/style.css
+    css: style.css
     code-overflow: wrap
     code-fold: true
     code-summary: "Show the code"
@@ -24,8 +24,10 @@ library(mapview)
 library(ggplot2)
 library(ggmap)
 
-library(rnaturalearth)
-library(rnaturalearthdata)
+# library(rnaturalearth)
+# library(rnaturalearthdata)
+
+library(knitr)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -36,7 +38,7 @@ current_project_dir_path <-
 
 # Get data
 
-```{r get data}
+```{r get data results='hide', message=FALSE, warning=FALSE}
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
 source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))

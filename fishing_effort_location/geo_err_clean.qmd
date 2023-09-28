@@ -32,10 +32,7 @@ current_project_dir_path <-
 
 ```
 
-# Get data
-```{r get data}
-#| include: false
-
+```{r get data, results='hide', message=FALSE, warning=FALSE}
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
 source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
@@ -51,7 +48,7 @@ trip_coord_info <-
 
 world_coast <-
   rnaturalearth::ne_coastline(returnclass = "sf")
-# class(world_coast)
+class(world_coast)
 
 ```
 
