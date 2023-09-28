@@ -18,7 +18,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Setup
 ```{r setup}
 #| include: false
 # setup ----
@@ -35,6 +34,8 @@ current_project_dir_path <-
 
 # Get data
 ```{r get data}
+#| include: false
+
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
 source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
@@ -57,7 +58,6 @@ world_coast <-
 # Statistics
 ```{r statistics}
 # statistics ----
-
 dim(trip_coord_info)
 # [1] 141350     39
 
@@ -125,6 +125,26 @@ head(weird_stats)
 # 2 LATITUDE      "-87.30  "                 "90.00  "                  "580  "
 # 3 LONGITUDE     "-117.25  "                "137.59  "                 "580  "
 # 4 TRIP_END_DATE "1969-08-17 00:00:00.00  " "2023-09-19 00:00:00.00  "  NA
+```
+
+
+```{r statistics weird_stats 2}
+rmarkdown::paged_table(head(weird_stats))
+
 
 ```
 
+```{r statistics weird_stats 3, results='asis'}
+library(knitr)
+kable(head(weird_stats), caption = "results='asis'")
+
+
+```
+
+
+```{r statistics weird_stats 4}
+library(knitr)
+kable(head(weird_stats), caption = "UUUH")
+
+
+```
