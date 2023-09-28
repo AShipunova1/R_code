@@ -167,7 +167,9 @@ dim(trip_coord_info_trip_vendors_cnt)
 
 trip_coord_info_trip_vendors_cnt |>
   arrange(desc(n)) |>
-  head()
+  head() |> 
+  kable(caption = "trip_coord_info_trip_vendors_cnt")
+
 # vesl	77275			
 # vms	15160			
 # ray rosher	1032			
@@ -182,7 +184,8 @@ trip_coord_info_effort_vendors_cnt <-
 
 trip_coord_info_effort_vendors_cnt |>
   arrange(desc(n)) |>
-  head()
+  head() |> 
+  kable(caption = "trip_coord_info_effort_vendors_cnt")
 # safis	119734			
 # vms	15160			
 # vesl	1880			
@@ -219,7 +222,8 @@ trip_coord_info_vendors3 |>
   select(T_UE, E_UE, vendor_trip_cat, vendor_effort_cat) |>
   mutate(T_UE = trimws(T_UE),
          E_UE = trimws(E_UE)) |>
-  distinct()
+  distinct() |> 
+  kable(caption = "T_UE diff with E_UE")
 # |>
 #   glimpse()
 # VESL	  SAFIS	vesl	etrips	
@@ -431,7 +435,8 @@ trip_coord_info_vendors3 <-
 
 trip_coord_info_vendors3 |> 
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start)
+  count(vendor_trip_cat, year_start) |> 
+  kable(caption = "count(vendor_trip_cat, year_start)")
 
 # all vendors
 # etrips	47731			
@@ -480,7 +485,8 @@ positive_long_map
 positive_long |>
     select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
-  distinct()
+  distinct() |> 
+  kable(caption = "positive_long: vendor_trip_cat")
 
 # count vendor_trip_cat
 # etrips	89			
@@ -490,7 +496,8 @@ positive_long |>
 positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   count(vendor_trip_cat, year_start) |>
-  distinct()
+  distinct() |> 
+  kable(caption = "positive_long: count(vendor_trip_cat, year_start)")
 
 ```
 
@@ -508,14 +515,16 @@ negative_lat <-
 negative_lat %>%
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
-  distinct()
+  distinct() |> 
+  kable(caption = "negative_lat: count(vendor_trip_cat)")
 # etrips	2			
 # vesl	26		
 
 negative_lat %>%
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   count(vendor_trip_cat, year_start) |>
-  distinct()
+  distinct() |> 
+  kable(caption = "negative_lat: count(vendor_trip_cat, year_start)")
 
 
 # dim(negative_lat)
@@ -635,7 +644,8 @@ out_of_boxmap_plot
 ```{r Out of box table}
 trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
-  count(vendor_trip_cat, year_start)
+  count(vendor_trip_cat, year_start) |> 
+  kable(caption = "Out of box: count(vendor_trip_cat, year_start)")
 
 # etrips	151			
 # vesl	4524		
@@ -663,7 +673,8 @@ trip_coord_info_vendors3 |>
   ) |>
   arrange(FISHING_HOURS) |>
   select(-TRIP_ID) |>
-  count(fishing_hours_cat, year_start, vendor_trip_cat)
+  count(fishing_hours_cat, year_start, vendor_trip_cat) |> 
+  kable(caption = "fishing_hours_cat, year_start, vendor_trip_cat")
 
 
 ```
@@ -681,8 +692,8 @@ trip_coord_info_vendors3 |>
   distinct() |> 
   filter(year(TRIP_END_DATE) < 2021) |> 
   arrange(TRIP_END_DATE) |> 
-  select(-TRIP_ID)
-
+  select(-TRIP_ID) |> 
+  kable(caption = "Weird TRIP_END_DATE")
 
 ```
 
