@@ -312,15 +312,14 @@ st_geometry(federal_state_waters_east_t_shp)
 
 
 ```{r map functions federal_state_waters_east_1_shp}
-
 for (i in 0:20) {
   federal_state_waters_east_1_shp <-
 sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)",
     # quiet = TRUE,
     type = i)
     
-  cat(i, ":", "\n", sep = "")
-  st_geometry(federal_state_waters_east_1_shp)
+  # cat(i, ":", "\n", sep = "")
+  # st_geometry(federal_state_waters_east_1_shp)
 }
 # 0 : sfc_POLYGON sfc (0--4)
 # 5 : sfc_MULTILINESTRING sfc 
@@ -334,6 +333,75 @@ sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\Federala
 # 13 : sfc_POLYGON sfc 
 # 14 : sfc_POLYGON sfc 
 # 15 : sfc_POLYHEDRALSURFACE sfc 
+
+# str(federal_state_waters_east_1_shp)
+#  $ geometry  :sfc_POLYGON of length 1; first list element: List of 36988
+
+federal_state_waters_east_t_shp <-
+  sf::read_sf(
+    r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)",
+    # quiet = TRUE,
+    type = 5
+  )
+
+federal_state_waters_east_t_shp_p <-
+  federal_state_waters_east_t_shp |> 
+  st_polygonize()
+
+st_geometry(federal_state_waters_east_t_shp_p)
+# Geometry set for 1 feature 
+# Geometry type: GEOMETRYCOLLECTION
+# Dimension:     XY
+# Bounding box:  xmin: -10880870 ymin: 2713990 xmax: -7313632 ymax: 5621448
+# Projected CRS: WGS 84 / World Mercator
+# GEOMETRYCOLLECTION (POLYGON ((-7489910 5621439,...
+
+# mapview(federal_state_waters_east_t_shp_p)
+```
+
+
+```{r intersection federal_state_waters_east_t_shp_p}
+# sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
+# sf::st_crs(sp_points) = 4326 # Give the points a coordinate reference system (CRS)
+# sp_points = sf::st_transform(sp_points, 
+                             # crs = sf::st_crs(countries)) # Match the point and polygon CRS
+# class(st_geometry(USMaritimeLimi_ExportFeature_east_shp))
+# [1] "sfc_MULTILINESTRING" "sfc"                
+
+trip_coord_info_short_sf1 <-
+  trip_coord_info_vendors3 |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
+  distinct() |>
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = sf::st_crs(federal_state_waters_east_t_shp_p)
+  )
+
+  # User input: WGS 84 / World Mercator 
+
+# str(trip_coord_info_short_sf1)
+#  $ geometry       :sfc_POINT of length 117259; first list element:  'XY' num [1:2] -77.5 34.1
+
+trip_coord_info_sf_out1 <-
+  trip_coord_info_short_sf1 |>
+  filter(lengths(
+    sf::st_intersects(
+      trip_coord_info_short_sf1,
+      federal_state_waters_east_t_shp_p
+    )
+  ) > 0)
+
+str(trip_coord_info_sf_out1)
+# sf [0 × 3] (S3: sf/tbl_df/tbl/data.frame)
+
+# 0
+# sf [117,259 × 3] (S3: sf/tbl_df/tbl/data.frame)
+
+ # $ geometry       :sfc_POINT of length 117259; first list element:  'XY' num [1:2] -77.5 34.1
+
+-77.5 34.1
 
 ```
 
@@ -377,8 +445,15 @@ st_geometry(USMaritimeLimi_ExportFeature_t_shp_p1)
 # First 5 geometries:
 # LINESTRING (-96.92403 25.97565, -96.92429 25.97...
 
-str(USMaritimeLimi_ExportFeature_t_shp_p1)
-
+# mapview(USMaritimeLimi_ExportFeature_t_shp_p1)
+# map_plot1 <-
+#       ggplot() +
+#       ggplot2::geom_sf(data = world_coast) +
+#       ggplot2::geom_sf(data = USMaritimeLimi_ExportFeature_t_shp_p1,
+#                        color = "blue") +
+#       ggplot2::ggtitle("USMaritimeLimi_ExportFeature_t_shp_p1 lines merged")
+# 
+# map_plot1
 # USMaritimeLimi_ExportFeature_t_shp_p2 <-
 #   USMaritimeLimi_ExportFeature_t_shp_p1 |> 
 #   st_polygonize()
@@ -538,24 +613,45 @@ countries = World %>%
            name == "Iran") #Picking three countries in the world
 str(countries)
 
+st_geometry(federal_state_waters_east_t_shp_p)
+
 pnts = data.frame(
   name = c("Point1", "Point2", "Point3", "Point4"),
   latitude = c(34, 35, 36, 37),
   longitude = c(63, 65, 62.5, 66.5)
 ) #Picking random points
 
-sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
-sf::st_crs(sp_points) = 4326 # Give the points a coordinate reference system (CRS)
-sp_points = sf::st_transform(sp_points, 
-                             crs = sf::st_crs(countries)) # Match the point and polygon CRS
+pnts1 = data.frame(
+  name = c("Point1", "Point2"),
+  latitude = c(34.1, 28.6),
+  longitude = c(-77.8, -87.2)
+) #Picking random points
 
-tm_shape(countries) +
+sp_points1 =
+  sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
+sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
+sp_points1 = sf::st_transform(sp_points1,
+                              crs =
+                                sf::st_crs(federal_state_waters_east_t_shp_p)) # Match the point and polygon CRS
+
+tm_shape(federal_state_waters_east_t_shp_p) +
   tm_borders() +
-  tm_text('name') +
-  tm_shape(sp_points) +
-  tm_dots(col = 'red', size = 1.2) +
-  tm_text('name', ymod = 1) #Creates the map below
+  tm_shape(sp_points1) +
+  tm_dots(col = 'red', size = 2)
 
+# working example:
+# sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
+# sf::st_crs(sp_points) = 4326 # Give the points a coordinate reference system (CRS)
+# sp_points = sf::st_transform(sp_points, 
+#                              crs = sf::st_crs(countries)) # Match the point and polygon CRS
+# 
+# tm_shape(countries) +
+#   tm_borders() +
+#   tm_text('name') +
+#   tm_shape(sp_points) +
+#   tm_dots(col = 'red', size = 1.2) +
+#   tm_text('name', ymod = 1) #Creates the map below
+# 
 
 ```
 
