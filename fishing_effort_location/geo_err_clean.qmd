@@ -14,16 +14,20 @@ format:
     code-fold: true
     code-summary: "Show the code"
     code-line-numbers: true
-editor_options: 
-  chunk_output_type: console
 ---
 
-```{r setup}
-#| include: false
+# Setup
+
+```{r setup, results='hide', message=FALSE, warning=FALSE}
 # setup ----
 library(mapview)
 library(ggplot2)
 library(ggmap)
+
+# library(rnaturalearth)
+# library(rnaturalearthdata)
+
+library(knitr)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -31,6 +35,8 @@ current_project_dir_path <-
   file.path(my_paths$git_r, "fishing_effort_location")
 
 ```
+
+# Get data
 
 ```{r get data, results='hide', message=FALSE, warning=FALSE}
 # get data ----
@@ -48,14 +54,16 @@ trip_coord_info <-
 
 world_coast <-
   rnaturalearth::ne_coastline(returnclass = "sf")
-class(world_coast)
+# class(world_coast)
 
 ```
 
 # Statistics
+
 ```{r statistics}
 # statistics ----
-dim(trip_coord_info)
+
+# dim(trip_coord_info)
 # [1] 141350     39
 
 # data_overview(trip_coord_info)
@@ -107,41 +115,19 @@ coordInfo_summ2_short <-
 
 # coordInfo_summ2_short$field_name |> cat(sep = ", ")
 # TRIP_ID, FISHING_HOURS, LATITUDE, LONGITUDE, AVG_DEPTH_IN_FATHOMS, E_DE, E_DC, DEPTH, MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, FISHING_GEAR_DEPTH, DAYS_AT_SEA, T_DE, T_DC, VESSEL_ID, CF_PERMIT_ID, TRIP_START_DATE, TRIP_END_DATE, ACTIVITY_TYPE, SERO_VESSEL_PERMIT
-```
 
-## Weird stats
-```{r statistics weird_stats}
 weird_stats <-
   coordInfo_summ2_short |>
   filter(field_name %in%
            c("FISHING_HOURS", "LATITUDE", "LONGITUDE", "TRIP_END_DATE"))
 
-head(weird_stats)
+head(weird_stats) |> 
+    kable(caption = "weird_stats")
+
 #   field_name    min                        max                        na_s
 # 1 FISHING_HOURS "0.000  "                  "4920.640  "                NA
 # 2 LATITUDE      "-87.30  "                 "90.00  "                  "580  "
 # 3 LONGITUDE     "-117.25  "                "137.59  "                 "580  "
 # 4 TRIP_END_DATE "1969-08-17 00:00:00.00  " "2023-09-19 00:00:00.00  "  NA
-```
-
-
-```{r statistics weird_stats 2}
-rmarkdown::paged_table(head(weird_stats))
-
-
-```
-
-```{r statistics weird_stats 3, results='asis'}
-library(knitr)
-kable(head(weird_stats), caption = "results='asis'")
-
-
-```
-
-
-```{r statistics weird_stats 4}
-library(knitr)
-kable(head(weird_stats), caption = "UUUH")
-
 
 ```

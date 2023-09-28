@@ -18,7 +18,7 @@ format:
 
 # Setup
 
-```{r setup}
+```{r setup, results='hide', message=FALSE, warning=FALSE}}
 # setup ----
 library(mapview)
 library(ggplot2)
@@ -38,7 +38,7 @@ current_project_dir_path <-
 
 # Get data
 
-```{r get data results='hide', message=FALSE, warning=FALSE}
+```{r get data, results='hide', message=FALSE, warning=FALSE}
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
 source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
@@ -63,7 +63,7 @@ world_coast <-
 ```{r statistics}
 # statistics ----
 
-dim(trip_coord_info)
+# dim(trip_coord_info)
 # [1] 141350     39
 
 # data_overview(trip_coord_info)
@@ -121,7 +121,9 @@ weird_stats <-
   filter(field_name %in%
            c("FISHING_HOURS", "LATITUDE", "LONGITUDE", "TRIP_END_DATE"))
 
-head(weird_stats)
+head(weird_stats) |> 
+    kable(caption = "weird_stats")
+
 #   field_name    min                        max                        na_s
 # 1 FISHING_HOURS "0.000  "                  "4920.640  "                NA
 # 2 LATITUDE      "-87.30  "                 "90.00  "                  "580  "
