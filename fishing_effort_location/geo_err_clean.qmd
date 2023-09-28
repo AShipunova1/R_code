@@ -9,11 +9,13 @@ format:
   html:
     toc: true
     toc-depth: 2
-    css: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/style.css
+    css: style.css
     code-overflow: wrap
     code-fold: true
     code-summary: "Show the code"
     code-line-numbers: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Setup
@@ -110,7 +112,10 @@ coordInfo_summ2_short <-
 
 # coordInfo_summ2_short$field_name |> cat(sep = ", ")
 # TRIP_ID, FISHING_HOURS, LATITUDE, LONGITUDE, AVG_DEPTH_IN_FATHOMS, E_DE, E_DC, DEPTH, MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, FISHING_GEAR_DEPTH, DAYS_AT_SEA, T_DE, T_DC, VESSEL_ID, CF_PERMIT_ID, TRIP_START_DATE, TRIP_END_DATE, ACTIVITY_TYPE, SERO_VESSEL_PERMIT
+```
 
+## Weird stats
+```{r statistics weird_stats}
 weird_stats <-
   coordInfo_summ2_short |>
   filter(field_name %in%
