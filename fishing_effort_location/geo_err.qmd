@@ -9,7 +9,7 @@ format:
   html:
     toc: true
     toc-depth: 2
-    css: styles.css
+    css: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/style.css
     code-overflow: wrap
     code-fold: true
     code-summary: "Show the code"

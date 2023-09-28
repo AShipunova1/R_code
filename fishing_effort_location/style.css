@@ -3,14 +3,15 @@
 }
 
 /* table css --> */
-.my_table {
+.styled-output .my_table {
   background-color: lightblue;
 /*   <!-- border: 3px solid red --> */
 
    /* <!-- font-weight: bold; --> */
 }
 
-.styled-output .cell-output {
+.cell-output {
   background-color: lightgreen;
   border-radius: 4px;
+  border: 3px solid;
 }
