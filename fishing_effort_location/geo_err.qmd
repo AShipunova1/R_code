@@ -631,13 +631,28 @@ sp_points1 =
   sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
 sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
 sp_points1 = sf::st_transform(sp_points1,
-                              crs =
-                                sf::st_crs(federal_state_waters_east_t_shp_p)) # Match the point and polygon CRS
+                              crs =                                sf::st_crs(federal_state_waters_east_t_shp_p)) # Match the point and polygon CRS
 
 tm_shape(federal_state_waters_east_t_shp_p) +
   tm_borders() +
   tm_shape(sp_points1) +
   tm_dots(col = 'red', size = 2)
+
+# sf::st_crs(trip_coord_info_sf_in)
+    # ID["EPSG",4326]]
+
+trip_coord_info_sf_in_points =
+  sf::st_transform(trip_coord_info_sf_in,
+                   crs =                              sf::st_crs(federal_state_waters_east_t_shp_p)) # Match the point and polygon CRS
+
+tm_shape(federal_state_waters_east_t_shp_p) +
+  tm_borders() +
+  tm_shape(trip_coord_info_sf_in_points) +
+  tm_dots(col = 'red', size = 1.2)
+
+# str(trip_coord_info_sf_in_points)
+# sf [112,364 × 3] (S3: sf/tbl_df/tbl/data.frame)
+#  $ geometry       :sfc_POINT of length 112364; first list element:  'XY' num [1:2] -8622392 4016501
 
 # working example:
 # sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
@@ -870,6 +885,12 @@ trip_coord_info_sf_out <-
   filter(lengths(
     sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
   ) == 0)
+
+trip_coord_info_sf_in <-
+  trip_coord_info_short_sf |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
+  ) > 0)
 
 # dim(trip_coord_info_crop_big_sf)
 # [1] 111572      1
