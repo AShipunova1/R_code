@@ -291,15 +291,51 @@ federal_state_waters_east_shp <-
 sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)")
 # dim(federal_state_waters_east_shp)
 # 1 7
-
+# str(federal_state_waters_east_shp)
+# sf [1 × 7] (S3: sf/tbl_df/tbl/data.frame)
+#  $ Jurisdicti: chr "Alabama"
+#  $ area_mi2  : num 1054
+#  $ area_km2  : num 2729
+#  $ area_nm2  : num 796
+#  $ Shape_Leng: num 198982845
+#  $ Shape_Area: num 2313621826810
+#  $ geometry  :sfc_POLYGON of length 1; first list element: List of 36988
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\USMaritimeLimi_ExportFeature_east\USMaritimeLimi_ExportFeature_east.shp"
 
-USMaritimeLimi_ExportFeature_shp <-
-sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)")
+for (i in 1:20) {
+  USMaritimeLimi_ExportFeature_q_shp <-
+  sf::read_sf(
+    r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)",
+    # quiet = TRUE,
+    query = "SELECT * FROM \"USMaritimeLimitsNBoundaries\" WHERE REGION = 'Atlantic Coast and Gulf of Mexico'",
+    type = i)
+    
+  cat(i, ":", class(st_geometry(USMaritimeLimi_ExportFeature_q_shp)), "\n", sep = " ")
+}
 
-# str(USMaritimeLimi_ExportFeature_shp)
-# [1] 260  17
+# 1 : sfc_GEOMETRY sfc (--4)
+# 5 : sfc_MULTILINESTRING sfc 
+# 6 : sfc_GEOMETRY sfc 
+# 7 : sfc_GEOMETRYCOLLECTION sfc 
+# 8 : sfc_GEOMETRY sfc (--10)
+# 11 : sfc_MULTICURVE sfc 
+# 12 : sfc_GEOMETRY sfc (--)
 
+# str(USMaritimeLimi_ExportFeature_q_shp)
+# [1] 260  17 all
+# [1] 49 17 query
+
+ # $ _ogr_geometry_:sfc_GEOMETRY of length 49; first list element:  'XY' num [1:2197, 1:2] -96.9 -96.9 -96.9 -96.9 -96.9 ...
+
+class(st_geometry(USMaritimeLimi_ExportFeature_q_shp))
+# [1] "sfc_MULTILINESTRING" "sfc"     type 0, 5
+# [1] "sfc_GEOMETRY" "sfc"            type 1--4, 6
+# [1] "sfc_GEOMETRYCOLLECTION" "sfc"  type 7                 
+
+```
+
+
+```{r map functions more}
 # class(USMaritimeLimi_ExportFeature_shp)
 USMaritimeLimi_ExportFeature_east_shp <-
   USMaritimeLimi_ExportFeature_shp |>
@@ -401,6 +437,42 @@ crop_by_shape <-
 
 
 ```
+# Test polygons and points intersection
+```{r Test polygons and points intersection}
+library(tmap)
+
+class(st_geometry(USMaritimeLimi_ExportFeature_east_shp))
+# [1] "sfc_MULTILINESTRING" "sfc"                
+
+type = 1
+data(World) # free dataset that will load
+countries = World %>%
+  filter(name == "Afghanistan" | 
+           name == "Turkmenistan" |
+           name == "Iran") #Picking three countries in the world
+str(countries)
+
+pnts = data.frame(
+  name = c("Point1", "Point2", "Point3", "Point4"),
+  latitude = c(34, 35, 36, 37),
+  longitude = c(63, 65, 62.5, 66.5)
+) #Picking random points
+
+sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
+sf::st_crs(sp_points) = 4326 # Give the points a coordinate reference system (CRS)
+sp_points = sf::st_transform(sp_points, 
+                             crs = sf::st_crs(countries)) # Match the point and polygon CRS
+
+tm_shape(countries) +
+  tm_borders() +
+  tm_text('name') +
+  tm_shape(sp_points) +
+  tm_dots(col = 'red', size = 1.2) +
+  tm_text('name', ymod = 1) #Creates the map below
+
+
+```
+
 
 # Map all points
 
