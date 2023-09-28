@@ -650,6 +650,23 @@ tm_shape(federal_state_waters_east_t_shp_p) +
   tm_shape(trip_coord_info_sf_in_points) +
   tm_dots(col = 'red', size = 1.2)
 
+# tic("in_sa_gom_diff")
+# in_sa_gom_diff <-
+#   sf::st_difference(trip_coord_info_sf_in_points, federal_state_waters_east_t_shp_p)
+# toc()
+# too long
+
+tic("inters_1")
+inters_1 <-
+  trip_coord_info_sf_in_points |>
+  filter(lengths(
+    sf::st_intersects(
+      trip_coord_info_sf_in_points,
+      federal_state_waters_east_t_shp_p
+    )
+  ) == 0)
+toc()
+
 # str(trip_coord_info_sf_in_points)
 # sf [112,364 × 3] (S3: sf/tbl_df/tbl/data.frame)
 #  $ geometry       :sfc_POINT of length 112364; first list element:  'XY' num [1:2] -8622392 4016501
