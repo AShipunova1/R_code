@@ -353,9 +353,38 @@ for (i in 0:20) {
 USMaritimeLimi_ExportFeature_t_shp <-
   sf::read_sf(
     r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)",
-    query = "SELECT * FROM \"USMaritimeLimitsNBoundaries\" WHERE REGION = 'Atlantic Coast and Gulf of Mexico'",
-    type = 0)
+    query = "SELECT OBJECTID
+BOUND_ID
+ FROM \"USMaritimeLimitsNBoundaries\" WHERE REGION = 'Atlantic Coast and Gulf of Mexico'",
+type = 0
+  )
 st_geometry(USMaritimeLimi_ExportFeature_t_shp)
+
+# USMaritimeLimi_ExportFeature_t_shp_p <-
+#   st_polygonize(USMaritimeLimi_ExportFeature_t_shp)
+# 
+# st_geometry(USMaritimeLimi_ExportFeature_t_shp_p)
+# GEOMETRYCOLLECTION EMPTY
+
+USMaritimeLimi_ExportFeature_t_shp_p1 <-
+  st_line_merge(USMaritimeLimi_ExportFeature_t_shp) |> 
+
+st_geometry(USMaritimeLimi_ExportFeature_t_shp_p1)
+# Geometry type: GEOMETRY
+# Dimension:     XY
+# Bounding box:  xmin: -97.15469 ymin: 23.81794 xmax: -65.69948 ymax: 45.07451
+# Geodetic CRS:  WGS 84
+# First 5 geometries:
+# LINESTRING (-96.92403 25.97565, -96.92429 25.97...
+
+str(USMaritimeLimi_ExportFeature_t_shp_p1)
+
+# USMaritimeLimi_ExportFeature_t_shp_p2 <-
+#   USMaritimeLimi_ExportFeature_t_shp_p1 |> 
+#   st_polygonize()
+# err
+
+
 # Geodetic CRS:  WGS 84
 # First 5 geometries:
 # LINESTRING (-96.92403 25.97565, -96.92429 25.97...
@@ -380,13 +409,14 @@ st_geometry(USMaritimeLimi_ExportFeature_t_shp)
 # [1] "sfc_GEOMETRY" "sfc"            type 1--4, 6
 # [1] "sfc_GEOMETRYCOLLECTION" "sfc"  type 7                 
 
-par(mfrow=c(1,2),mar=c(0,0,1,0))
-mls = st_multilinestring(list(matrix(c(0,0,0,1,1,1,0,0),,2,byrow=TRUE)))
-x = st_polygonize(mls)
-plot(mls, col = 'grey')
-title("multilinestring")
-plot(x, col = 'grey')
-title("polygon")
+# par(mfrow = c(1, 2), mar = c(0, 0, 1, 0))
+# mls = st_multilinestring(list(matrix(c(0, 0, 0, 1, 1, 1, 0, 0), , 2, byrow =
+#                                        TRUE)))
+# x = st_polygonize(mls)
+# plot(mls, col = 'grey')
+# title("multilinestring")
+# plot(x, col = 'grey')
+# title("polygon")
 
 ```
 
