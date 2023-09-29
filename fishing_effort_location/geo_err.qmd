@@ -670,6 +670,7 @@ trip_coord_info_sf_in <-
   filter(lengths(
     sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
   ) > 0)
+
 tic("sf::st_transform in")
 trip_coord_info_sf_in_1 <-
   sf::st_transform(trip_coord_info_sf_in,
@@ -709,14 +710,11 @@ toc()
 
 ```
 
-
 ```{r On land polygons and points intersection plot, cache=TRUE}
 gg + geom_sf(data = in_land_inters,
              color = "blue")
 
 ```
-
-
 
 ## Shape files maps
 ```
