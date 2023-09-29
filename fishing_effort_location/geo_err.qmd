@@ -296,15 +296,18 @@ lat_long_to_map <-
     ) %>% return()
 }
 
+library(rnaturalearth)
+world_coast <-
+  rnaturalearth::ne_coastline(returnclass = 'sf')
+
 lat_long_to_map_plot <-
   function(my_df,
-           coast_map = coast_map,
            my_title = "my_title",
+           coast_map = world_coast,
            label_column = NA) {
-
-
     # browser()
 
+    my_crs <- sf::st_crs(coast_map)
     my_df_sf <-
       my_df %>%
       # save info to show on the map
@@ -347,134 +350,6 @@ crop_by_shape <-
 
 ```
 
-# Test polygons and points intersection
-```{r Test polygons and points intersection}
-us_bb <- counties(filter_by = big_bounding_box)
-# sf::st_crs(us_bb)
-    # ID["EPSG",4269]]
-
-tic("sf::st_union(us_bb)")
-us_bb_border <- sf::st_union(us_bb)
-toc()
-# sf::st_union(us_bb): 16.58 sec elapsed
-
-# str(us_bb_border)
-gg <- ggplot()
-gg <- gg + geom_sf(
-  data = us_bb_border,
-  color = "black",
-  fill = "white",
-  size = 0.25
-)
-gg
-```
-
-
-```{r Test polygons and points intersection, add points}
-pnts1 = data.frame(
-  name = c("Point1", "Point2", "Point3"),
-  latitude = c(34.1, 28.6, 35),
-  longitude = c(-77.8, -87.2, -90)
-)
-
-sp_points1 =
-  sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
-sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
-sp_points1 = sf::st_transform(sp_points1,
-                              crs =                                sf::st_crs(us_bb_border)) # Match the point and polygon CRS
-
-# trip_coord_info_sf_in_points =
-#   sf::st_transform(trip_coord_info_sf_in,
-#                    crs =                              sf::st_crs(us_bb)) # Match the point and polygon CRS
-
-gg + geom_sf(data = sp_points1)
-```
-
-
-```{r Test polygons and points intersection 1}
-
-tic("sf::st_intersection")
-rr_inters <- sf::st_intersection(sp_points1, us_bb_border)
-toc()
-
-# str(rr_inters)
-#  $ name    : chr  "Point1" "Point3"
-
-tic("sf::st_difference")
-rr_diff <- sf::st_difference(sp_points1, us_bb_border)
-toc()
-
-str(rr_diff)
- # $ name    : chr "Point2"
-
-gg + geom_sf(data = rr_inters)
-
-```
-
-
-```{r Test polygons and points intersection}
-type = 1
-data(World) # free dataset that will load
-countries_us = World |> 
-  filter(name == "United States") 
-
-# st_geometry(countries_us)
-# Geometry type: MULTIPOLYGON
-
-# str(countries_us)
-
-sp_points1 =
-  sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
-sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
-sp_points2 = sf::st_transform(sp_points1,
-                              crs =                                sf::st_crs(countries_us)) # Match the point and polygon CRS
-
-tm_shape(countries_us) +
-  tm_borders() +
-  tm_shape(sp_points2) +
-  tm_dots(col = 'red', size = 2)
-
-
-# ---
-
-# tic("in_sa_gom_diff")
-# in_sa_gom_diff <-
-#   sf::st_difference(trip_coord_info_sf_in_points, federal_state_waters_east_t_shp_p)
-# toc()
-# too long
-
-# tic("inters_1")
-# inters_1 <-
-#   trip_coord_info_sf_in_points |>
-#   filter(lengths(
-#     sf::st_intersects(
-#       trip_coord_info_sf_in_points,
-#       federal_state_waters_east_t_shp_p
-#     )
-#   ) == 0)
-# toc()
-# to slow
-# str(trip_coord_info_sf_in_points)
-# sf [112,364 × 3] (S3: sf/tbl_df/tbl/data.frame)
-#  $ geometry       :sfc_POINT of length 112364; first list element:  'XY' num [1:2] -8622392 4016501
-
-# working example:
-# sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
-# sf::st_crs(sp_points) = 4326 # Give the points a coordinate reference system (CRS)
-# sp_points = sf::st_transform(sp_points,
-#                              crs = sf::st_crs(countries)) # Match the point and polygon CRS
-
-# tm_shape(countries) +
-#   tm_borders() +
-#   tm_text('name') +
-#   tm_shape(sp_points) +
-#   tm_dots(col = 'red', size = 1.2) +
-#   tm_text('name', ymod = 1) #Creates the map below
-# 
-
-```
-
-
 # Map all points
 
 ```{r map all points}
@@ -491,21 +366,8 @@ trip_coord_info_map_data <-
 
 trip_coord_info_plot <-
   lat_long_to_map_plot(trip_coord_info_map_data,
-                       "All coordinates")
+                       my_title = "All coordinates")
 trip_coord_info_plot
-
-# trip_coord_info_mapview <-
-#   trip_coord_info_map_data |>
-#   mapview::mapview(
-#     # colors according a chosen column
-#     zcol = "label_lat_lon",
-#     # palette to choose colors from
-#     col.regions = viridisLite::turbo,
-#     layer.name = 'label_lat_lon',
-#     # transparency
-#     alpha = 0.3,
-#     legend = FALSE
-#   )
 ```
 
 # Count vendors
@@ -690,12 +552,6 @@ trip_coord_info_sf_out <-
     sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
   ) == 0)
 
-trip_coord_info_sf_in <-
-  trip_coord_info_short_sf |>
-  filter(lengths(
-    sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
-  ) > 0)
-
 # dim(trip_coord_info_crop_big_sf)
 # [1] 111572      1
 # [1] 111576      2 with vendor
@@ -792,6 +648,106 @@ trip_coord_info_vendors3 |>
 ```
 
 # On land
+# Test polygons and points intersection
+```{r Test polygons and points intersection}
+us_bb <- counties(filter_by = big_bounding_box)
+# sf::st_crs(us_bb)
+    # ID["EPSG",4269]]
+
+tic("sf::st_union(us_bb)")
+us_bb_border <- sf::st_union(us_bb)
+toc()
+# sf::st_union(us_bb): 16.58 sec elapsed
+
+# str(us_bb_border)
+gg <- ggplot()
+gg <- gg + geom_sf(
+  data = us_bb_border,
+  color = "black",
+  fill = "white",
+  size = 0.25
+)
+gg
+```
+
+
+```{r Test polygons and points intersection, add points}
+pnts1 = data.frame(
+  name = c("Point1", "Point2", "Point3"),
+  latitude = c(34.1, 28.6, 35),
+  longitude = c(-77.8, -87.2, -90)
+)
+
+sp_points1 =
+  sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
+sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
+sp_points1 = sf::st_transform(sp_points1,
+                              crs =                                sf::st_crs(us_bb_border)) # Match the point and polygon CRS
+
+# trip_coord_info_sf_in_points =
+#   sf::st_transform(trip_coord_info_sf_in,
+#                    crs =                              sf::st_crs(us_bb)) # Match the point and polygon CRS
+
+gg + geom_sf(data = sp_points1)
+```
+
+
+```{r Test polygons and points intersection 1}
+
+tic("sf::st_intersection")
+rr_inters <- sf::st_intersection(sp_points1, us_bb_border)
+toc()
+
+# str(rr_inters)
+#  $ name    : chr  "Point1" "Point3"
+
+tic("sf::st_difference")
+rr_diff <- sf::st_difference(sp_points1, us_bb_border)
+toc()
+
+str(rr_diff)
+ # $ name    : chr "Point2"
+
+gg + geom_sf(data = rr_inters)
+
+```
+
+
+```{r Test polygons and points intersection}
+trip_coord_info_sf_in <-
+  trip_coord_info_short_sf |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
+  ) > 0)
+
+# ---
+
+tic("in_land")
+in_sa_gom_diff <-
+  sf::st_difference(trip_coord_info_sf_in, us_bb_border)
+toc()
+# too long
+
+# tic("inters_1")
+# inters_1 <-
+#   trip_coord_info_sf_in_points |>
+#   filter(lengths(
+#     sf::st_intersects(
+#       trip_coord_info_sf_in_points,
+#       federal_state_waters_east_t_shp_p
+#     )
+#   ) == 0)
+# toc()
+# to slow
+# str(trip_coord_info_sf_in_points)
+# sf [112,364 × 3] (S3: sf/tbl_df/tbl/data.frame)
+#  $ geometry       :sfc_POINT of length 112364; first list element:  'XY' num [1:2] -8622392 4016501
+
+
+
+```
+
+
 
 ## Shape files maps
 
