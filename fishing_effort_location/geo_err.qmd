@@ -668,6 +668,7 @@ gg <- gg + geom_sf(
 # gg
 ```
 
+## On land polygons and points intersection
 ```{r On land polygons and points intersection}
 trip_coord_info_sf_in <-
   trip_coord_info_short_sf |>
@@ -794,8 +795,8 @@ log.txt <- tic.log(format = TRUE)
 # tic.clearlog()
 ```
 
-
 ## Not in SA and GOM
+### Exclude sa and gom from us_bb
 ```{r exclude sa and gom from us_bb}
 
 tic("sa_shp and us_bb difference")
@@ -816,6 +817,7 @@ not_sa_st_waters_gg <-
 # str(not_sa_st_waters)
 ```
 
+### GOMsf, sa_shp and us_bb difference
 ```{r GOMsf_1, sa_shp and us_bb difference}
 tic("GOMsf_1 and not_sa_st_waters difference")
 not_st_waters <-
@@ -833,13 +835,45 @@ log.txt <- tic.log(format = TRUE)
 # writeLines(unlist(log.txt))
 # tic.clearlog()
 
-ggplot() +
+tic("not_st_waters_gg")
+not_st_waters_gg <-
+  ggplot() +
   ggplot2::geom_sf(data = not_st_waters,
                    color = "red")
+toc(log = TRUE, quiet = TRUE)
 ```
 
+```{r}
 
+tic("in_land_inters_1")
+in_land_inters_1 <-
+  trip_coord_info_sf_in_1 |>
+  filter(lengths(
+    sf::st_intersects(
+      trip_coord_info_sf_in_1,
+      not_st_waters
+    )
+  ) > 0)
+toc(log = TRUE, quiet = TRUE)
+# log.txt <- tic.log(format = TRUE)
+# writeLines(unlist(log.txt))
+# in_land_inters: 6.92 sec elapsed
+# tic.clearlog()
 
+tic()
+not_st_waters_gg_points <-
+  not_st_waters_gg +
+  ggplot2::geom_sf(data = in_land_inters_1,
+                   color = "blue")
+toc(log = TRUE, quiet = TRUE)
+# log.txt <- tic.log(format = TRUE)
+# writeLines(unlist(log.txt))
+# 20.82 sec elapsed
+# tic.clearlog()
+
+not_st_waters_gg_points
+
+```
 
 
 ```{r not in sa and gom}
