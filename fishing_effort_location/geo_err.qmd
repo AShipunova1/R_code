@@ -779,11 +779,40 @@ ggplot() +
 
 ```
 
-### Not in SA and GOM
+### make the same crs for us_bb_border and sa_shp
+```{r make the same crs for us_bb_border and sa_shp}
+# results='hide', message=FALSE, output = FALSE
+tic("sf::st_transform sa_shp")
+sa_shp_1 <-
+  sf::st_transform(sa_shp,
+                   crs =
+                     sf::st_crs(us_bb_border)) # Match the crs
+toc(log = TRUE, quiet = TRUE)
+log.txt <- tic.log(format = TRUE)
+
+# writeLines(unlist(log.txt))
+# tic.clearlog()
+```
+
+
+## Not in SA and GOM
 ```{r exclude sa and gom from us_bb}
 
+tic("sa_shp and us_bb difference")
+not_sa_st_waters <-
+  sf::st_difference(us_bb_border,
+                    sa_shp)
+toc(log = TRUE, quiet = TRUE)
+# GOMsf_1 and us_bb intersection: 1.66 sec elapsed
+log.txt <- tic.log(format = TRUE)
+# writeLines(unlist(log.txt))
+# tic.clearlog()
 
+ggplot() +
+  ggplot2::geom_sf(data = not_sa_st_waters,
+                   color = "red")
 
+# str(not_sa_st_waters)
 ```
 
 
