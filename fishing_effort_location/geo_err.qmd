@@ -644,7 +644,8 @@ trip_coord_info_vendors3 |>
 # On land
 # Test polygons and points intersection
 ```{r Test polygons and points intersection, cache=TRUE}
-us_bb <- counties(filter_by = big_bounding_box)
+us_bb <-
+  tigris::counties(filter_by = big_bounding_box, progress_bar = FALSE)
 # sf::st_crs(us_bb)
     # ID["EPSG",4269]]
 
@@ -717,21 +718,76 @@ gg + geom_sf(data = in_land_inters,
 ```
 
 ## Shape files maps
+```{r get GOMsf}
+path_to_GOMsf <-
+  file.path(my_paths$inputs, 
+            r"(..\GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)")
+
+# file.exists(path_to_GOMsf)
+# T
+
+tic("read_GOMsf")
+GOMsf <-
+  sf::read_sf(path_to_GOMsf) %>%
+  group_by(StatZone) %>%
+  summarise()
+toc()
 ```
 
 
+```{r remove state zones from GOMsf}
+# str(GOMsf)
+tic("sf::st_union(GOMsf)")
+GOMsf_u <- sf::st_union(GOMsf)
 toc()
+```
+
+### make the same crs for us_bb_border and GOMsf
+```{r make the same crs for us_bb_border and GOMsf}
+tic("sf::st_transform GOMsf")
+GOMsf_1 <-
+  sf::st_transform(GOMsf,
+                   crs =
+                     sf::st_crs(us_bb_border)) # Match the crs
+toc()
+# sf::st_transform GOMsf: 46.21 sec elapsed
+
+```
 
 
-
-
+```{r check if us_bb_border has state water GOMsf}
+# tic("us and gom inters")
+# GOMsf_u__us_bb <-
+#   GOMsf_u_1 |>
+#   filter(lengths(
+#     sf::st_intersects(GOMsf_u_1, us_bb_border)
+#   ) > 0)
+#   # no applicable method for 'filter' applied to an object of class "c('sfc_MULTIPOLYGON', 'sfc')"
+# 
 # toc()
 
+tic("GOMsf_1 and us_bb intersection")
+st_waters <-
+  sf::st_intersection(us_bb_border,
+                      GOMsf_1)
+toc()
+# GOMsf_1 and us_bb intersection: 1.66 sec elapsed
+
+tic("GOMsf_1 and us_bb difference")
+not_st_waters <-
+  sf::st_difference(us_bb_border,
+                      GOMsf_1)
 toc()
 
+mapview(not_st_waters)
+# str(st_waters)
 
+# mapview(st_waters)
+# empty
 
-
+# mapview(us_bb_border) +
+#   mapview(GOMsf,
+#           col.regions = "red")
 
 ```
 
