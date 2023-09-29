@@ -62,7 +62,7 @@ world_coast <-
 
 # Statistics
 
-```{r statistics}
+```{r statistics, cache=TRUE}
 # statistics ----
 
 # dim(trip_coord_info)
@@ -136,7 +136,7 @@ head(weird_stats) |>
 
 # Prepare vendor columns
 
-```{r prepare vendor columns}
+```{r prepare vendor columns, cache=TRUE}
 # t_UE, E_UE
 # trip_coord_info |>
 #   filter(!trimws(T_UE) == trimws(E_UE)) |>
@@ -249,7 +249,7 @@ compare_trip_and_effort_vendors <-
 
 # General comments
 
-```{r general comments}
+```{r general comments, cache=TRUE}
 # errors in geo data ----
 # 1) a sign
 # 2) on land
@@ -352,7 +352,7 @@ crop_by_shape <-
 
 # Map all points
 
-```{r map all points}
+```{r map all points, cache=TRUE}
 
 trip_coord_info_map_data <-
   trip_coord_info |>
@@ -372,7 +372,7 @@ trip_coord_info_plot
 
 # Count vendors
 
-```{r count vendors}
+```{r count vendors, cache=TRUE}
 trip_coord_info_vendors3 <-
   trip_coord_info_vendors3_trip |> 
   mutate(year_start = year(TRIP_START_DATE))
