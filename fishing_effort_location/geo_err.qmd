@@ -517,26 +517,23 @@ big_bounding_box <- c(
    ymax = 49 #Canada
  )
 
-trip_coord_info_short_sf <-
+trip_coord_info_vendors3_short <-
   trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   distinct() |>
-  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  sf::st_as_sf(
-    coords = c("LONGITUDE",
-               "LATITUDE"),
-    crs = my_crs
-  )
+  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE))
+
+my_crs <- sf::st_crs(world_coast)
+trip_coord_info_short_sf <-
+  trip_coord_info_vendors3_short |>
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = my_crs)
 
 # dim(trip_coord_info_short_sf)
 # [1] 116246      1
 # [1] 116251      2 w vendor_trip_cat
-
-# trip_coord_info_sf_outside_big_box <-
-#     trip_coord_info_sf |>
-#       # sf::st_join(GOMsf, left = FALSE) %>%
-#       dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
-#              LATITUDE = sf::st_coordinates(.)[, 2])
+# [1] 117259      3
 
 trip_coord_info_crop_big_sf <-
   sf::st_crop(trip_coord_info_short_sf,
