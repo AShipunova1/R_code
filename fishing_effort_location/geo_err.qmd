@@ -18,7 +18,7 @@ format:
 
 # Setup
 
-```{r setup, results='hide', message=FALSE, warning=FALSE}
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE}
 # setup ----
 library(mapview)
 library(ggplot2)
@@ -26,9 +26,7 @@ library(ggmap)
 library(tigris)
 tigris_use_cache = TRUE
 
-# library(rnaturalearth)
-# library(rnaturalearthdata)
-
+library(rnaturalearth) #coastline
 library(knitr)
 
 source("~/R_code_github/useful_functions_module.r")
@@ -40,7 +38,7 @@ current_project_dir_path <-
 
 # Get data
 
-```{r get data, results='hide', message=FALSE, warning=FALSE}
+```{r get data, cache=TRUE, include=FALSE}
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
 source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
@@ -296,7 +294,6 @@ lat_long_to_map <-
     ) %>% return()
 }
 
-library(rnaturalearth)
 world_coast <-
   rnaturalearth::ne_coastline(returnclass = 'sf')
 
@@ -646,7 +643,7 @@ trip_coord_info_vendors3 |>
 
 # On land
 # Test polygons and points intersection
-```{r Test polygons and points intersection}
+```{r Test polygons and points intersection, cache=TRUE}
 us_bb <- counties(filter_by = big_bounding_box)
 # sf::st_crs(us_bb)
     # ID["EPSG",4269]]
@@ -710,7 +707,7 @@ gg <- gg + geom_sf(
 ```
 
 
-```{r On land polygons and points intersection}
+```{r On land polygons and points intersection, cache=TRUE}
 trip_coord_info_sf_in <-
   trip_coord_info_short_sf |>
   filter(lengths(
@@ -756,7 +753,7 @@ toc()
 ```
 
 
-```{r On land polygons and points intersection plot}
+```{r On land polygons and points intersection plot, cache=TRUE}
 gg + geom_sf(data = in_land_inters,
              color = "blue")
 
@@ -771,6 +768,7 @@ gg + geom_sf(data = in_land_inters,
   # trip_coord_info_crop_big_sf
 
 # corrected_data_map <- corrected_data_sf %>% mapview()
+
 # View(corrected_data_map)
 # 11998
 
