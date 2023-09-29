@@ -696,6 +696,18 @@ path_to_sa <-
 sa_shp <- sf::read_sf(path_to_sa)
 ```
 
+```{r}
+atl_admn_path <-
+  file.path(my_paths$inputs,
+            r"(shapefiles\atl_admn\atl_admn.shp)")
+
+# file.exists(atl_admn_path)
+
+atl_admn_shp <- sf::read_sf(atl_admn_path)
+
+mapview(atl_admn_shp)
+```
+
 ### make the same crs for us_bb_border and GOMsf
 ```{r make the same crs for us_bb_border and GOMsf}
 # results='hide', message=FALSE, output = FALSE
@@ -724,26 +736,26 @@ log.txt <- tic.log(format = TRUE)
 # tic.clearlog()
 ```
 
-
 ## Not in SA and GOM
-### Exclude sa and gom from us_bb
-```{r exclude sa and gom from us_bb}
+### Exclude gom from us_bb
+```{r exclude gom from us_bb}
 
-tic("sa_shp and us_bb difference")
-not_sa_st_waters <-
-  sf::st_difference(us_bb_border,
-                    sa_shp)
+tic("GOM and us_bb intersection")
+gom_st_waters <-
+  sf::st_intersection(us_bb_border,
+                    GOMsf_1)
 toc(log = TRUE, quiet = TRUE)
 # GOMsf_1 and us_bb intersection: 1.66 sec elapsed
-log.txt <- tic.log(format = TRUE)
+# log.txt <- tic.log(format = TRUE)
 # writeLines(unlist(log.txt))
 # tic.clearlog()
 
-not_sa_st_waters_gg <-
+gom_st_waters_gg <-
   ggplot() +
-  ggplot2::geom_sf(data = not_sa_st_waters,
+  ggplot2::geom_sf(data = not_gom_st_waters,
                    color = "red")
 
+gom_st_waters_gg
 # str(not_sa_st_waters)
 ```
 
