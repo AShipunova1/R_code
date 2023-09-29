@@ -668,59 +668,6 @@ gg <- gg + geom_sf(
 # gg
 ```
 
-## On land polygons and points intersection
-```{r On land polygons and points intersection}
-trip_coord_info_sf_in <-
-  trip_coord_info_short_sf |>
-  filter(lengths(
-    sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
-  ) > 0)
-
-tic("sf::st_transform in")
-trip_coord_info_sf_in_1 <-
-  sf::st_transform(trip_coord_info_sf_in,
-                                            crs =                                sf::st_crs(us_bb_border)) # Match the crs
-toc(log = TRUE, quiet = TRUE)
-
-# tic("in_land")
-# in_sa_gom_diff <-
-#   sf::st_difference(trip_coord_info_sf_in_1,
-#                     us_bb_border)
-# toc(log = TRUE, quiet = TRUE)
-# in_land: 520.7 sec elapsed
-# 520.7/60 = 8.678333 min
-
-# dim(in_sa_gom_diff)
-# [1] 55254     3
-
-# tic("in_land_inters")
-# in_land_inters <-
-#   sf::st_intersection(trip_coord_info_sf_in_1,
-#                     us_bb_border)
-# toc(log = TRUE, quiet = TRUE)
-
-tic("in_land_inters")
-in_land_inters <-
-  trip_coord_info_sf_in_1 |>
-  filter(lengths(
-    sf::st_intersects(
-      trip_coord_info_sf_in_1,
-      us_bb_border
-    )
-  ) > 0)
-toc(log = TRUE, quiet = TRUE)
-# in_land_inters: 1.2 sec elapsed
-# dim(in_land_inters)
-# [1] 57110     3
-
-```
-
-```{r On land polygons and points intersection plot}
-gg + geom_sf(data = in_land_inters,
-             color = "blue")
-
-```
-
 # Check if state waters are included
 ## Shapefile GOM
 ```{r get GOMsf}
@@ -990,3 +937,57 @@ dim(on_land)
 
 m_l <- mapview(on_land)
 ```
+
+## On land polygons and points intersection(incl. state waters)
+```{r On land polygons and points intersection}
+trip_coord_info_sf_in <-
+  trip_coord_info_short_sf |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
+  ) > 0)
+
+tic("sf::st_transform in")
+trip_coord_info_sf_in_1 <-
+  sf::st_transform(trip_coord_info_sf_in,
+                                            crs =                                sf::st_crs(us_bb_border)) # Match the crs
+toc(log = TRUE, quiet = TRUE)
+
+# tic("in_land")
+# in_sa_gom_diff <-
+#   sf::st_difference(trip_coord_info_sf_in_1,
+#                     us_bb_border)
+# toc(log = TRUE, quiet = TRUE)
+# in_land: 520.7 sec elapsed
+# 520.7/60 = 8.678333 min
+
+# dim(in_sa_gom_diff)
+# [1] 55254     3
+
+# tic("in_land_inters")
+# in_land_inters <-
+#   sf::st_intersection(trip_coord_info_sf_in_1,
+#                     us_bb_border)
+# toc(log = TRUE, quiet = TRUE)
+
+tic("in_land_inters")
+in_land_inters <-
+  trip_coord_info_sf_in_1 |>
+  filter(lengths(
+    sf::st_intersects(
+      trip_coord_info_sf_in_1,
+      us_bb_border
+    )
+  ) > 0)
+toc(log = TRUE, quiet = TRUE)
+# in_land_inters: 1.2 sec elapsed
+# dim(in_land_inters)
+# [1] 57110     3
+
+```
+
+```{r On land polygons and points intersection plot}
+gg + geom_sf(data = in_land_inters,
+             color = "blue")
+
+```
+
