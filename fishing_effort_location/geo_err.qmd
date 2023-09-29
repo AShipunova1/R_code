@@ -664,66 +664,74 @@ gg <- gg + geom_sf(
   fill = "white",
   size = 0.25
 )
-gg
+# gg
 ```
 
 
 ```{r Test polygons and points intersection, add points}
-pnts1 = data.frame(
-  name = c("Point1", "Point2", "Point3"),
-  latitude = c(34.1, 28.6, 35),
-  longitude = c(-77.8, -87.2, -90)
-)
-
-sp_points1 =
-  sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
-sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
-sp_points1 = sf::st_transform(sp_points1,
-                              crs =                                sf::st_crs(us_bb_border)) # Match the point and polygon CRS
-
+# pnts1 = data.frame(
+#   name = c("Point1", "Point2", "Point3"),
+#   latitude = c(34.1, 28.6, 35),
+#   longitude = c(-77.8, -87.2, -90)
+# )
+# 
+# sp_points1 =
+#   sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
+# sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
+# sp_points1 = sf::st_transform(sp_points1,
+#                               crs =                                sf::st_crs(us_bb_border)) # Match the point and polygon CRS
+# 
 # trip_coord_info_sf_in_points =
 #   sf::st_transform(trip_coord_info_sf_in,
 #                    crs =                              sf::st_crs(us_bb)) # Match the point and polygon CRS
 
-gg + geom_sf(data = sp_points1)
+# gg + geom_sf(data = sp_points1)
 ```
 
 
 ```{r Test polygons and points intersection 1}
 
-tic("sf::st_intersection")
-rr_inters <- sf::st_intersection(sp_points1, us_bb_border)
-toc()
+# tic("sf::st_intersection")
+# rr_inters <- sf::st_intersection(sp_points1, us_bb_border)
+# toc()
 
 # str(rr_inters)
 #  $ name    : chr  "Point1" "Point3"
 
-tic("sf::st_difference")
-rr_diff <- sf::st_difference(sp_points1, us_bb_border)
-toc()
-
-str(rr_diff)
+# tic("sf::st_difference")
+# rr_diff <- sf::st_difference(sp_points1, us_bb_border)
+# toc()
+# 
+# str(rr_diff)
  # $ name    : chr "Point2"
 
-gg + geom_sf(data = rr_inters)
+# gg + geom_sf(data = rr_inters)
 
 ```
 
 
-```{r Test polygons and points intersection}
+```{r On land polygons and points intersection}
 trip_coord_info_sf_in <-
   trip_coord_info_short_sf |>
   filter(lengths(
     sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
   ) > 0)
-
-# ---
+tic("sf::st_transform in")
+trip_coord_info_sf_in_1 <-
+  sf::st_transform(trip_coord_info_sf_in,
+                                            crs =                                sf::st_crs(us_bb_border)) # Match the crs
+toc()
 
 tic("in_land")
 in_sa_gom_diff <-
-  sf::st_difference(trip_coord_info_sf_in, us_bb_border)
+  sf::st_difference(trip_coord_info_sf_in_1,
+                    us_bb_border)
 toc()
-# too long
+# in_land: 520.7 sec elapsed
+# 520.7/60 = 8.678333 min
+
+# dim(in_sa_gom_diff)
+# [1] 55254     3
 
 # tic("inters_1")
 # inters_1 <-
@@ -736,11 +744,15 @@ toc()
 #   ) == 0)
 # toc()
 # to slow
+
 # str(trip_coord_info_sf_in_points)
 # sf [112,364 × 3] (S3: sf/tbl_df/tbl/data.frame)
 #  $ geometry       :sfc_POINT of length 112364; first list element:  'XY' num [1:2] -8622392 4016501
+```
 
 
+```{r On land polygons and points intersection plot}
+gg + geom_sf(data = in_sa_gom_diff)
 
 ```
 
@@ -801,11 +813,11 @@ in_sa_gom_inters <-
   sf::st_intersection(trip_coord_info_crop_big_sf, USMaritimeLimitsNBoundaries_shp)
 toc()
 
-sf::st_crs(federal_state_waters_east_shp)
+# sf::st_crs(federal_state_waters_east_shp)
   # User input: WGS 84 / World Mercator
     # ID["EPSG",3395]]
 
-sf::st_crs(trip_coord_info_crop_big_sf)
+# sf::st_crs(trip_coord_info_crop_big_sf)
     # ID["EPSG",4326]]
 
 # ---
