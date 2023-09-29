@@ -5,6 +5,7 @@ output:
   html_document
 execute:
   warning: false
+  cache: true
 format:
   html:
     toc: true
@@ -18,7 +19,7 @@ format:
 
 # Setup
 
-```{r no cache setup, results='hide', message=FALSE, warning=FALSE}
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE}
 # setup ----
 library(mapview)
 library(ggplot2)
@@ -38,7 +39,7 @@ current_project_dir_path <-
 
 # Get data
 
-```{r get data, cache=TRUE, include=FALSE}
+```{r get data, include=FALSE}
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
 source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
@@ -60,7 +61,7 @@ world_coast <-
 
 # Statistics
 
-```{r statistics, cache=TRUE}
+```{r statistics}
 # statistics ----
 
 # dim(trip_coord_info)
@@ -134,7 +135,7 @@ head(weird_stats) |>
 
 # Prepare vendor columns
 
-```{r prepare vendor columns, cache=TRUE}
+```{r prepare vendor columns}
 # t_UE, E_UE
 # trip_coord_info |>
 #   filter(!trimws(T_UE) == trimws(E_UE)) |>
@@ -247,7 +248,7 @@ compare_trip_and_effort_vendors <-
 
 # General comments
 
-```{r general comments, cache=TRUE}
+```{r general comments}
 # errors in geo data ----
 # 1) a sign
 # 2) on land
@@ -349,7 +350,7 @@ crop_by_shape <-
 
 # Map all points
 
-```{r map all points, cache=TRUE}
+```{r map all points}
 
 trip_coord_info_map_data <-
   trip_coord_info |>
@@ -369,7 +370,7 @@ trip_coord_info_plot
 
 # Count vendors
 
-```{r count vendors, cache=TRUE}
+```{r count vendors}
 trip_coord_info_vendors3 <-
   trip_coord_info_vendors3_trip |> 
   mutate(year_start = year(TRIP_START_DATE))
@@ -643,7 +644,7 @@ trip_coord_info_vendors3 |>
 
 # On land
 # Test polygons and points intersection
-```{r Test polygons and points intersection, cache=TRUE}
+```{r Test polygons and points intersection}
 us_bb <-
   tigris::counties(filter_by = big_bounding_box, progress_bar = FALSE)
 # sf::st_crs(us_bb)
@@ -665,7 +666,7 @@ gg <- gg + geom_sf(
 # gg
 ```
 
-```{r On land polygons and points intersection, cache=TRUE}
+```{r On land polygons and points intersection}
 trip_coord_info_sf_in <-
   trip_coord_info_short_sf |>
   filter(lengths(
@@ -711,7 +712,7 @@ toc(log = TRUE, quiet = TRUE)
 
 ```
 
-```{r On land polygons and points intersection plot, cache=TRUE}
+```{r On land polygons and points intersection plot}
 gg + geom_sf(data = in_land_inters,
              color = "blue")
 
@@ -743,7 +744,7 @@ toc(log = TRUE, quiet = TRUE)
 ```
 
 ### make the same crs for us_bb_border and GOMsf
-```{r make the same crs for us_bb_border and GOMsf, cache=TRUE}
+```{r make the same crs for us_bb_border and GOMsf}
 # results='hide', message=FALSE, output = FALSE
 # tic("sf::st_transform GOMsf")
 # GOMsf_1 <-
@@ -777,7 +778,6 @@ ggplot() +
 
 ```{r not in sa and gom}
 ### not in sa and gom ----
-
 
 tic("minus_gom")
 minus_sa_gom <-
