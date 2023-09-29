@@ -808,12 +808,37 @@ log.txt <- tic.log(format = TRUE)
 # writeLines(unlist(log.txt))
 # tic.clearlog()
 
-ggplot() +
+not_sa_st_waters_gg <-
+  ggplot() +
   ggplot2::geom_sf(data = not_sa_st_waters,
                    color = "red")
 
 # str(not_sa_st_waters)
 ```
+
+```{r GOMsf_1, sa_shp and us_bb difference}
+tic("GOMsf_1 and not_sa_st_waters difference")
+not_st_waters <-
+  sf::st_difference(not_sa_st_waters,
+                    GOMsf_1)
+toc(log = TRUE, quiet = TRUE)
+# GOMsf_1 and not_sa_st_waters difference: 8.36 sec elapsed
+
+# str(not_st_waters)
+# sfc_MULTIPOLYGON of length 84; first list element: List of 1160
+#  $ :List of 6
+#   ..$ : num [1:86930, 1:2] -97.3 -97.3 -97.3 -97.3 -97.4 ...
+
+log.txt <- tic.log(format = TRUE)
+# writeLines(unlist(log.txt))
+# tic.clearlog()
+
+ggplot() +
+  ggplot2::geom_sf(data = not_st_waters,
+                   color = "red")
+```
+
+
 
 
 
