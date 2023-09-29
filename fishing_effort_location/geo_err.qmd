@@ -743,13 +743,6 @@ toc(log = TRUE, quiet = TRUE)
 ```
 
 ### make the same crs for us_bb_border and GOMsf
-```{r make the same crs for us_bb_border and GOMsf}
-tic("sf::st_transform GOMsf")
-GOMsf_1 <-
-  sf::st_transform(GOMsf,
-                   crs =
-                     sf::st_crs(us_bb_border)) # Match the crs
-toc()
 ```{r make the same crs for us_bb_border and GOMsf, cache=TRUE}
 # results='hide', message=FALSE, output = FALSE
 # tic("sf::st_transform GOMsf")
@@ -759,20 +752,6 @@ toc()
 #                      sf::st_crs(us_bb_border)) # Match the crs
 # toc(log = TRUE, quiet = TRUE)
 # sf::st_transform GOMsf: 46.21 sec elapsed
-
-```
-
-
-```{r check if us_bb_border has state water GOMsf}
-# tic("us and gom inters")
-# GOMsf_u__us_bb <-
-#   GOMsf_u_1 |>
-#   filter(lengths(
-#     sf::st_intersects(GOMsf_u_1, us_bb_border)
-#   ) > 0)
-#   # no applicable method for 'filter' applied to an object of class "c('sfc_MULTIPOLYGON', 'sfc')"
-# 
-# toc()
 
 tic("GOMsf_1 and us_bb intersection")
 st_waters <-
@@ -785,30 +764,12 @@ log.txt <- tic.log(format = TRUE)
 # tic.clearlog()
 ```
 
-tic("GOMsf_1 and us_bb difference")
-not_st_waters <-
-  sf::st_difference(us_bb_border,
-                      GOMsf_1)
-toc()
 
 ```{r check if us_bb_border has state water GOMsf}
 
 ggplot() +
   ggplot2::geom_sf(data = st_waters,
                    color = "red")
-
-# ggplot() +
-#   ggplot2::geom_sf(data = us_bb_border) +
-#   ggplot2::geom_sf(data = GOMsf,
-#                    color = "blue") +
-#   ggplot2::ggtitle("US map includes state waters")
-
-# mapview(st_waters)
-# empty
-
-# mapview(us_bb_border) +
-#   mapview(GOMsf,
-#           col.regions = "red")
 
 ```
 
