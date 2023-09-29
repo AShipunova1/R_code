@@ -718,7 +718,7 @@ gg + geom_sf(data = in_land_inters,
 
 ```
 
-## Shape files maps
+## Shapefile GOM
 ```{r get GOMsf}
 path_to_GOMsf <-
   file.path(my_paths$inputs, 
@@ -735,23 +735,15 @@ GOMsf <-
 toc(log = TRUE, quiet = TRUE)
 ```
 
-
-```{r remove state zones from GOMsf}
-# str(GOMsf)
-tic("sf::st_union(GOMsf)")
-GOMsf_u <- sf::st_union(GOMsf)
-toc(log = TRUE, quiet = TRUE)
-```
-
 ### make the same crs for us_bb_border and GOMsf
 ```{r make the same crs for us_bb_border and GOMsf}
 # results='hide', message=FALSE, output = FALSE
-# tic("sf::st_transform GOMsf")
-# GOMsf_1 <-
-#   sf::st_transform(GOMsf,
-#                    crs =
-#                      sf::st_crs(us_bb_border)) # Match the crs
-# toc(log = TRUE, quiet = TRUE)
+tic("sf::st_transform GOMsf")
+GOMsf_1 <-
+  sf::st_transform(GOMsf,
+                   crs =
+                     sf::st_crs(us_bb_border)) # Match the crs
+toc(log = TRUE, quiet = TRUE)
 # sf::st_transform GOMsf: 46.21 sec elapsed
 
 tic("GOMsf_1 and us_bb intersection")
@@ -765,8 +757,7 @@ log.txt <- tic.log(format = TRUE)
 # tic.clearlog()
 ```
 
-
-```{r check if us_bb_border has state water GOMsf}
+```{r plot us_bb_border has state water GOMsf}
 
 ggplot() +
   ggplot2::geom_sf(data = st_waters,
