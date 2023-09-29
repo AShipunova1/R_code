@@ -350,6 +350,8 @@ crop_by_shape <-
 # Test polygons and points intersection
 ```{r Test polygons and points intersection}
 us_bb <- counties(filter_by = big_bounding_box)
+# sf::st_crs(us_bb)
+    # ID["EPSG",4269]]
 
 tic("sf::st_union(us_bb)")
 us_bb_border <- sf::st_union(us_bb)
@@ -365,6 +367,28 @@ gg <- gg + geom_sf(
   size = 0.25
 )
 gg
+```
+
+
+```{r Test polygons and points intersection, add points}
+pnts1 = data.frame(
+  name = c("Point1", "Point2"),
+  latitude = c(34.1, 28.6),
+  longitude = c(-77.8, -87.2)
+)
+
+sp_points1 =
+  sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
+sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
+sp_points1 = sf::st_transform(sp_points1,
+                              crs =                                sf::st_crs(us_bb_border)) # Match the point and polygon CRS
+
+# trip_coord_info_sf_in_points =
+#   sf::st_transform(trip_coord_info_sf_in,
+#                    crs =                              sf::st_crs(us_bb)) # Match the point and polygon CRS
+
+gg + geom_sf(data = sp_points1)
+
 ```
 
 
