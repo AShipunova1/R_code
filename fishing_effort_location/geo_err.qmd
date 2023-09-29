@@ -779,8 +779,15 @@ not_st_waters <-
                       GOMsf_1)
 toc()
 
-mapview(not_st_waters)
-# str(st_waters)
+ggplot() +
+  ggplot2::geom_sf(data = st_waters,
+                   color = "red")
+
+# ggplot() +
+#   ggplot2::geom_sf(data = us_bb_border) +
+#   ggplot2::geom_sf(data = GOMsf,
+#                    color = "blue") +
+#   ggplot2::ggtitle("US map includes state waters")
 
 # mapview(st_waters)
 # empty
