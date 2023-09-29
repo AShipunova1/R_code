@@ -722,37 +722,43 @@ trip_coord_info_sf_in_1 <-
                                             crs =                                sf::st_crs(us_bb_border)) # Match the crs
 toc()
 
-tic("in_land")
-in_sa_gom_diff <-
-  sf::st_difference(trip_coord_info_sf_in_1,
-                    us_bb_border)
-toc()
+# tic("in_land")
+# in_sa_gom_diff <-
+#   sf::st_difference(trip_coord_info_sf_in_1,
+#                     us_bb_border)
+# toc()
 # in_land: 520.7 sec elapsed
 # 520.7/60 = 8.678333 min
 
 # dim(in_sa_gom_diff)
 # [1] 55254     3
 
-# tic("inters_1")
-# inters_1 <-
-#   trip_coord_info_sf_in_points |>
-#   filter(lengths(
-#     sf::st_intersects(
-#       trip_coord_info_sf_in_points,
-#       federal_state_waters_east_t_shp_p
-#     )
-#   ) == 0)
+# tic("in_land_inters")
+# in_land_inters <-
+#   sf::st_intersection(trip_coord_info_sf_in_1,
+#                     us_bb_border)
 # toc()
-# to slow
 
-# str(trip_coord_info_sf_in_points)
-# sf [112,364 × 3] (S3: sf/tbl_df/tbl/data.frame)
-#  $ geometry       :sfc_POINT of length 112364; first list element:  'XY' num [1:2] -8622392 4016501
+tic("in_land_inters")
+in_land_inters <-
+  trip_coord_info_sf_in_1 |>
+  filter(lengths(
+    sf::st_intersects(
+      trip_coord_info_sf_in_1,
+      us_bb_border
+    )
+  ) > 0)
+toc()
+# in_land_inters: 1.2 sec elapsed
+# dim(in_land_inters)
+# [1] 57110     3
+
 ```
 
 
 ```{r On land polygons and points intersection plot}
-gg + geom_sf(data = in_sa_gom_diff)
+gg + geom_sf(data = in_land_inters,
+             color = "blue")
 
 ```
 
