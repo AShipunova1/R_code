@@ -1,6 +1,8 @@
 ---
 title: "Geo errors"
 date: today
+project:
+  lib-dir: ..
 output:
   html_document
 execute:
@@ -643,8 +645,8 @@ trip_coord_info_vendors3 |>
 ```
 
 # On land
-# Test polygons and points intersection
-```{r Test polygons and points intersection}
+## Get the US borders
+```{r Get the US borders}
 us_bb <-
   tigris::counties(filter_by = big_bounding_box, progress_bar = FALSE)
 # sf::st_crs(us_bb)
@@ -718,6 +720,7 @@ gg + geom_sf(data = in_land_inters,
 
 ```
 
+# Check if state waters are included
 ## Shapefile GOM
 ```{r get GOMsf}
 path_to_GOMsf <-
@@ -733,6 +736,17 @@ GOMsf <-
   group_by(StatZone) %>%
   summarise()
 toc(log = TRUE, quiet = TRUE)
+```
+
+## Shapefile SA
+```{r get Shapefile SA}
+path_to_sa <-
+  file.path(my_paths$inputs,
+            r"(shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
+
+# file.exists(path_to_sa)
+
+sa_shp <- sf::read_sf(path_to_sa)
 ```
 
 ### make the same crs for us_bb_border and GOMsf
@@ -766,6 +780,13 @@ ggplot() +
 ```
 
 ### Not in SA and GOM
+```{r exclude sa and gom from us_bb}
+
+
+
+```
+
+
 
 ```{r not in sa and gom}
 ### not in sa and gom ----
