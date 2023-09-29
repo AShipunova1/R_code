@@ -23,6 +23,8 @@ format:
 library(mapview)
 library(ggplot2)
 library(ggmap)
+library(tigris)
+tigris_use_cache = TRUE
 
 # library(rnaturalearth)
 # library(rnaturalearthdata)
@@ -651,21 +653,26 @@ tm_shape(federal_state_waters_east_t_shp_p) +
   tm_dots(col = 'red', size = 1.2)
 
 # ---
-library(tigris)
-tigris_use_cache = TRUE
 us_bb <- counties(filter_by = big_bounding_box)
 
-# str(us_all)
+tic("sf::st_union(us_bb)")
+us_bb_border <- sf::st_union(us_bb)
+toc()
+# sf::st_union(us_bb): 16.58 sec elapsed
+
+# str(us_bb_border)
 gg <- ggplot()
 gg <- gg + geom_sf(
-  data = us_bb,
+  data = us_bb_border,
   color = "black",
   fill = "white",
   size = 0.25
 )
 gg
+```
 
 
+```{r Test polygons and points intersection}
 type = 1
 data(World) # free dataset that will load
 countries_us = World |> 
