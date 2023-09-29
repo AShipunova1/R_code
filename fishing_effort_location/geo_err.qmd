@@ -278,261 +278,6 @@ compare_trip_and_effort_vendors <-
 # Map functions
 
 ```{r map functions}
-# sa_shp <-
-#   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\SA_EEZ_off_states.shp)")
-#
-# gom_shp <-
-#   sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\osa_n_gom\ReefFish_EFH_GOM.shp)")
-
-# federal_state_waters_shp <-
-# sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
-# dim(federal_state_waters_shp)
-# [1] 40  7
-
-federal_state_waters_east_shp <-
-sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)")
-# dim(federal_state_waters_east_shp)
-# 1 7
-# str(federal_state_waters_east_shp)
-# sf [1 × 7] (S3: sf/tbl_df/tbl/data.frame)
-#  $ Jurisdicti: chr "Alabama"
-#  $ area_mi2  : num 1054
-#  $ area_km2  : num 2729
-#  $ area_nm2  : num 796
-#  $ Shape_Leng: num 198982845
-#  $ Shape_Area: num 2313621826810
-#  $ geometry  :sfc_POLYGON of length 1; first list element: List of 36988
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\USMaritimeLimi_ExportFeature_east\USMaritimeLimi_ExportFeature_east.shp"
-
-federal_state_waters_east_t_shp <-
-sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)",
-            type = 7
-            )
-sf::st_geometry(federal_state_waters_east_t_shp)
-  # Projected CRS: WGS 84 / World Mercator
-```
-
-
-```{r map functions federal_state_waters_east_1_shp}
-for (i in 0:20) {
-  federal_state_waters_east_1_shp <-
-sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)",
-    # quiet = TRUE,
-    type = i)
-    
-  # cat(i, ":", "\n", sep = "")
-  # st_geometry(federal_state_waters_east_1_shp)
-}
-# 0 : sfc_POLYGON sfc (0--4)
-# 5 : sfc_MULTILINESTRING sfc 
-# 6 : sfc_MULTIPOLYGON sfc 
-# 7 : sfc_GEOMETRYCOLLECTION sfc 
-# 8 : sfc_POLYGON sfc 
-# 9 : sfc_POLYGON sfc 
-# 10 : sfc_CURVEPOLYGON sfc 
-# 11 : sfc_POLYGON sfc 
-# 12 : sfc_MULTISURFACE sfc 
-# 13 : sfc_POLYGON sfc 
-# 14 : sfc_POLYGON sfc 
-# 15 : sfc_POLYHEDRALSURFACE sfc 
-
-# str(federal_state_waters_east_1_shp)
-#  $ geometry  :sfc_POLYGON of length 1; first list element: List of 36988
-
-federal_state_waters_east_t_shp <-
-  sf::read_sf(
-    r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)",
-    # quiet = TRUE,
-    type = 5
-  )
-
-# federal_state_waters_east_t_shp_p <-
-#   federal_state_waters_east_t_shp |> 
-#   st_polygonize()
-
-# st_geometry(federal_state_waters_east_t_shp_p)
-# Geometry set for 1 feature 
-# Geometry type: GEOMETRYCOLLECTION
-# Dimension:     XY
-# Bounding box:  xmin: -10880870 ymin: 2713990 xmax: -7313632 ymax: 5621448
-# Projected CRS: WGS 84 / World Mercator
-# GEOMETRYCOLLECTION (POLYGON ((-7489910 5621439,...
-
-# mapview(federal_state_waters_east_t_shp_p)
-```
-
-
-```{r intersection federal_state_waters_east_t_shp_p}
-# sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
-# sf::st_crs(sp_points) = 4326 # Give the points a coordinate reference system (CRS)
-# sp_points = sf::st_transform(sp_points, 
-                             # crs = sf::st_crs(countries)) # Match the point and polygon CRS
-# class(st_geometry(USMaritimeLimi_ExportFeature_east_shp))
-# [1] "sfc_MULTILINESTRING" "sfc"                
-
-trip_coord_info_short_sf1 <-
-  trip_coord_info_vendors3 |>
-  select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  distinct() |>
-  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  sf::st_as_sf(
-    coords = c("LONGITUDE",
-               "LATITUDE"),
-    crs = sf::st_crs(federal_state_waters_east_t_shp_p)
-  )
-
-  # User input: WGS 84 / World Mercator 
-
-# str(trip_coord_info_short_sf1)
-#  $ geometry       :sfc_POINT of length 117259; first list element:  'XY' num [1:2] -77.5 34.1
-
-trip_coord_info_sf_out1 <-
-  trip_coord_info_short_sf1 |>
-  filter(lengths(
-    sf::st_intersects(
-      trip_coord_info_short_sf1,
-      federal_state_waters_east_t_shp_p
-    )
-  ) > 0)
-
-str(trip_coord_info_sf_out1)
-# sf [0 × 3] (S3: sf/tbl_df/tbl/data.frame)
-
-# 0
-# sf [117,259 × 3] (S3: sf/tbl_df/tbl/data.frame)
-
- # $ geometry       :sfc_POINT of length 117259; first list element:  'XY' num [1:2] -77.5 34.1
-
-# -77.5 34.1
-
-```
-
-
-```{r map functions diff types}
-for (i in 0:20) {
-  USMaritimeLimi_ExportFeature_q_shp <-
-  sf::read_sf(
-    r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)",
-    # quiet = TRUE,
-    query = "SELECT * FROM \"USMaritimeLimitsNBoundaries\" WHERE REGION = 'Atlantic Coast and Gulf of Mexico'",
-    type = i)
-    
-  cat(i, ":", class(st_geometry(USMaritimeLimi_ExportFeature_q_shp)), "\n", sep = " ")
-}
-
-USMaritimeLimi_ExportFeature_t_shp <-
-  sf::read_sf(
-    r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)",
-    query = "SELECT OBJECTID
-BOUND_ID
- FROM \"USMaritimeLimitsNBoundaries\" WHERE REGION = 'Atlantic Coast and Gulf of Mexico'",
-type = 0
-  )
-st_geometry(USMaritimeLimi_ExportFeature_t_shp)
-
-# USMaritimeLimi_ExportFeature_t_shp_p <-
-#   st_polygonize(USMaritimeLimi_ExportFeature_t_shp)
-# 
-# st_geometry(USMaritimeLimi_ExportFeature_t_shp_p)
-# GEOMETRYCOLLECTION EMPTY
-
-USMaritimeLimi_ExportFeature_t_shp_p1 <-
-  st_line_merge(USMaritimeLimi_ExportFeature_t_shp) |> 
-
-st_geometry(USMaritimeLimi_ExportFeature_t_shp_p1)
-# Geometry type: GEOMETRY
-# Dimension:     XY
-# Bounding box:  xmin: -97.15469 ymin: 23.81794 xmax: -65.69948 ymax: 45.07451
-# Geodetic CRS:  WGS 84
-# First 5 geometries:
-# LINESTRING (-96.92403 25.97565, -96.92429 25.97...
-
-# mapview(USMaritimeLimi_ExportFeature_t_shp_p1)
-# map_plot1 <-
-#       ggplot() +
-#       ggplot2::geom_sf(data = world_coast) +
-#       ggplot2::geom_sf(data = USMaritimeLimi_ExportFeature_t_shp_p1,
-#                        color = "blue") +
-#       ggplot2::ggtitle("USMaritimeLimi_ExportFeature_t_shp_p1 lines merged")
-# 
-# map_plot1
-# USMaritimeLimi_ExportFeature_t_shp_p2 <-
-#   USMaritimeLimi_ExportFeature_t_shp_p1 |> 
-#   st_polygonize()
-# err
-
-
-# Geodetic CRS:  WGS 84
-# First 5 geometries:
-# LINESTRING (-96.92403 25.97565, -96.92429 25.97...
-
-# 0 : sfc_MULTILINESTRING sfc 
-# 1 : sfc_GEOMETRY sfc (--4)
-# 5 : sfc_MULTILINESTRING sfc 
-# 6 : sfc_GEOMETRY sfc 
-# 7 : sfc_GEOMETRYCOLLECTION sfc 
-# 8 : sfc_GEOMETRY sfc (--10)
-# 11 : sfc_MULTICURVE sfc 
-# 12 : sfc_GEOMETRY sfc (--)
-
-# str(USMaritimeLimi_ExportFeature_q_shp)
-# [1] 260  17 all
-# [1] 49 17 query
-
- # $ _ogr_geometry_:sfc_GEOMETRY of length 49; first list element:  'XY' num [1:2197, 1:2] -96.9 -96.9 -96.9 -96.9 -96.9 ...
-
-# class(st_geometry(USMaritimeLimi_ExportFeature_q_shp))
-# [1] "sfc_MULTILINESTRING" "sfc"     type 0, 5
-# [1] "sfc_GEOMETRY" "sfc"            type 1--4, 6
-# [1] "sfc_GEOMETRYCOLLECTION" "sfc"  type 7                 
-
-# par(mfrow = c(1, 2), mar = c(0, 0, 1, 0))
-# mls = st_multilinestring(list(matrix(c(0, 0, 0, 1, 1, 1, 0, 0), , 2, byrow =
-#                                        TRUE)))
-# x = st_polygonize(mls)
-# plot(mls, col = 'grey')
-# title("multilinestring")
-# plot(x, col = 'grey')
-# title("polygon")
-
-```
-
-
-```{r map functions more}
-# class(USMaritimeLimi_ExportFeature_shp)
-USMaritimeLimi_ExportFeature_east_shp <-
-  USMaritimeLimi_ExportFeature_shp |>
-  filter(REGION == "Atlantic Coast and Gulf of Mexico")
-
-# mapview(USMaritimeLimi_ExportFeature_east_shp)
-# [1] 49 17
-
-# bbox <-
-#   st_bbox(big_bounding_box,
-#           crs = st_crs(federal_state_waters_shp)) |>
-#   st_as_sfc()
-
-# mapview(bbox)
-
-# federal_state_waters_shp_east <-
-#     sf::st_crop(federal_state_waters_shp,
-#               big_bounding_box)
-#
-# str(federal_state_waters_shp)
-# [1] 0 7
-
-# mapview(federal_state_waters_shp_east)
-
-
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP\USMaritimeLimitsNBoundaries.shp"
-USMaritimeLimitsNBoundaries_shp <-
-sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\USMaritimeLimitsAndBoundariesSHP\USMaritimeLimitsNBoundaries.shp)")
-# dim(USMaritimeLimitsNBoundaries_shp)
-
-# mapview(USMaritimeLimitsNBoundaries_shp)
-# [1] 62 17
-
-my_crs <- sf::st_crs(USMaritimeLimitsNBoundaries_shp)
 
 lat_long_to_map <-
   function(my_df, my_title = "my_title", legend = TRUE) {
@@ -553,6 +298,7 @@ lat_long_to_map <-
 
 lat_long_to_map_plot <-
   function(my_df,
+           coast_map = coast_map,
            my_title = "my_title",
            label_column = NA) {
 
@@ -571,7 +317,7 @@ lat_long_to_map_plot <-
 
     map_plot <-
       ggplot() +
-      ggplot2::geom_sf(data = world_coast) +
+      ggplot2::geom_sf(data = coast_map) +
       ggplot2::geom_sf(data = my_df_sf,
                        color = "blue") +
       ggplot2::ggtitle(my_title)
@@ -600,6 +346,7 @@ crop_by_shape <-
 
 
 ```
+
 # Test polygons and points intersection
 ```{r Test polygons and points intersection}
 library(tmap)
