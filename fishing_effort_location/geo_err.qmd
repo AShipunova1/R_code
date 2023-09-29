@@ -306,7 +306,7 @@ federal_state_waters_east_t_shp <-
 sf::read_sf(r"(~\R_files_local\my_inputs\shapefiles\FederalandStat_east\FederalandStat_east.shp)",
             type = 7
             )
-st_geometry(federal_state_waters_east_t_shp)
+sf::st_geometry(federal_state_waters_east_t_shp)
   # Projected CRS: WGS 84 / World Mercator
 ```
 
@@ -344,11 +344,11 @@ federal_state_waters_east_t_shp <-
     type = 5
   )
 
-federal_state_waters_east_t_shp_p <-
-  federal_state_waters_east_t_shp |> 
-  st_polygonize()
+# federal_state_waters_east_t_shp_p <-
+#   federal_state_waters_east_t_shp |> 
+#   st_polygonize()
 
-st_geometry(federal_state_waters_east_t_shp_p)
+# st_geometry(federal_state_waters_east_t_shp_p)
 # Geometry set for 1 feature 
 # Geometry type: GEOMETRYCOLLECTION
 # Dimension:     XY
@@ -401,7 +401,7 @@ str(trip_coord_info_sf_out1)
 
  # $ geometry       :sfc_POINT of length 117259; first list element:  'XY' num [1:2] -77.5 34.1
 
--77.5 34.1
+# -77.5 34.1
 
 ```
 
@@ -602,7 +602,7 @@ crop_by_shape <-
 ```{r Test polygons and points intersection}
 library(tmap)
 
-class(st_geometry(USMaritimeLimi_ExportFeature_east_shp))
+# class(st_geometry(USMaritimeLimi_ExportFeature_east_shp))
 # [1] "sfc_MULTILINESTRING" "sfc"                
 
 type = 1
@@ -611,9 +611,9 @@ countries = World %>%
   filter(name == "Afghanistan" | 
            name == "Turkmenistan" |
            name == "Iran") #Picking three countries in the world
-str(countries)
+# str(countries)
 
-st_geometry(federal_state_waters_east_t_shp_p)
+# st_geometry(federal_state_waters_east_t_shp_p)
 
 pnts = data.frame(
   name = c("Point1", "Point2", "Point3", "Point4"),
@@ -650,39 +650,62 @@ tm_shape(federal_state_waters_east_t_shp_p) +
   tm_shape(trip_coord_info_sf_in_points) +
   tm_dots(col = 'red', size = 1.2)
 
+# ---
+type = 1
+data(World) # free dataset that will load
+countries_us = World |> 
+  filter(name == "United States") 
+
+# st_geometry(countries_us)
+# Geometry type: MULTIPOLYGON
+
+sp_points1 =
+  sf::st_as_sf(pnts1, coords = c('longitude', "latitude")) # make points spatial
+sf::st_crs(sp_points1) = 4326 # Give the points a coordinate reference system (CRS)
+sp_points2 = sf::st_transform(sp_points1,
+                              crs =                                sf::st_crs(countries_us)) # Match the point and polygon CRS
+
+tm_shape(countries_us) +
+  tm_borders() +
+  tm_shape(sp_points2) +
+  tm_dots(col = 'red', size = 2)
+
+
+# ---
+
 # tic("in_sa_gom_diff")
 # in_sa_gom_diff <-
 #   sf::st_difference(trip_coord_info_sf_in_points, federal_state_waters_east_t_shp_p)
 # toc()
 # too long
 
-tic("inters_1")
-inters_1 <-
-  trip_coord_info_sf_in_points |>
-  filter(lengths(
-    sf::st_intersects(
-      trip_coord_info_sf_in_points,
-      federal_state_waters_east_t_shp_p
-    )
-  ) == 0)
-toc()
-
+# tic("inters_1")
+# inters_1 <-
+#   trip_coord_info_sf_in_points |>
+#   filter(lengths(
+#     sf::st_intersects(
+#       trip_coord_info_sf_in_points,
+#       federal_state_waters_east_t_shp_p
+#     )
+#   ) == 0)
+# toc()
+# to slow
 # str(trip_coord_info_sf_in_points)
 # sf [112,364 × 3] (S3: sf/tbl_df/tbl/data.frame)
 #  $ geometry       :sfc_POINT of length 112364; first list element:  'XY' num [1:2] -8622392 4016501
 
 # working example:
-# sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
-# sf::st_crs(sp_points) = 4326 # Give the points a coordinate reference system (CRS)
-# sp_points = sf::st_transform(sp_points, 
-#                              crs = sf::st_crs(countries)) # Match the point and polygon CRS
-# 
-# tm_shape(countries) +
-#   tm_borders() +
-#   tm_text('name') +
-#   tm_shape(sp_points) +
-#   tm_dots(col = 'red', size = 1.2) +
-#   tm_text('name', ymod = 1) #Creates the map below
+sp_points = sf::st_as_sf(pnts, coords = c('longitude', "latitude")) # make points spatial
+sf::st_crs(sp_points) = 4326 # Give the points a coordinate reference system (CRS)
+sp_points = sf::st_transform(sp_points,
+                             crs = sf::st_crs(countries)) # Match the point and polygon CRS
+
+tm_shape(countries) +
+  tm_borders() +
+  tm_text('name') +
+  tm_shape(sp_points) +
+  tm_dots(col = 'red', size = 1.2) +
+  tm_text('name', ymod = 1) #Creates the map below
 # 
 
 ```
