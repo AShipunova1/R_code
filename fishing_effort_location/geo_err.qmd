@@ -668,8 +668,7 @@ gg <- gg + geom_sf(
 # gg
 ```
 
-# Check if state waters are included
-## Shapefile GOM
+## get Shapefile GOM
 ```{r get GOMsf}
 path_to_GOMsf <-
   file.path(my_paths$inputs, 
@@ -686,7 +685,7 @@ GOMsf <-
 toc(log = TRUE, quiet = TRUE)
 ```
 
-## Shapefile SA
+## Get Shapefile SA
 ```{r get Shapefile SA}
 path_to_sa <-
   file.path(my_paths$inputs,
@@ -708,23 +707,6 @@ GOMsf_1 <-
 toc(log = TRUE, quiet = TRUE)
 # sf::st_transform GOMsf: 46.21 sec elapsed
 
-tic("GOMsf_1 and us_bb intersection")
-st_waters <-
-  sf::st_intersection(us_bb_border,
-                      GOMsf_1)
-toc(log = TRUE, quiet = TRUE)
-# GOMsf_1 and us_bb intersection: 1.66 sec elapsed
-log.txt <- tic.log(format = TRUE)
-# writeLines(unlist(log.txt))
-# tic.clearlog()
-```
-
-```{r plot us_bb_border has state water GOMsf}
-
-ggplot() +
-  ggplot2::geom_sf(data = st_waters,
-                   color = "red")
-
 ```
 
 ### make the same crs for us_bb_border and sa_shp
@@ -741,6 +723,7 @@ log.txt <- tic.log(format = TRUE)
 # writeLines(unlist(log.txt))
 # tic.clearlog()
 ```
+
 
 ## Not in SA and GOM
 ### Exclude sa and gom from us_bb
@@ -990,4 +973,28 @@ gg + geom_sf(data = in_land_inters,
              color = "blue")
 
 ```
+
+## GOMsf_1 and us_bb intersection
+```{r GOMsf_1 and us_bb intersection}
+tic("GOMsf_1 and us_bb intersection")
+st_waters <-
+  sf::st_intersection(us_bb_border,
+                      GOMsf_1)
+toc(log = TRUE, quiet = TRUE)
+# GOMsf_1 and us_bb intersection: 1.66 sec elapsed
+log.txt <- tic.log(format = TRUE)
+# writeLines(unlist(log.txt))
+# tic.clearlog()
+
+```
+
+
+```{r plot us_bb_border has state water GOMsf}
+
+ggplot() +
+  ggplot2::geom_sf(data = st_waters,
+                   color = "red")
+
+```
+
 
