@@ -719,140 +719,22 @@ gg + geom_sf(data = in_land_inters,
 
 
 ## Shape files maps
-
-```{r 2) on land}
-## 2) on land ----
-  # trip_coord_info_crop_big_sf
-
-# corrected_data_map <- corrected_data_sf %>% mapview()
-
-# View(corrected_data_map)
-# 11998
-
 ```
 
-### Inside SA and GOM
 
-```{r inside sa and gom}
-### Inside SA and GOM ----
-
-trip_coord_info_sf_in <-
-  trip_coord_info_short_sf |>
-  filter(lengths(
-    sf::st_intersects(trip_coord_info_short_sf, trip_coord_info_crop_big_sf)
-  ) > 0)
-
-# dim(trip_coord_info_sf_in)
-# [1] 111572      1
-
-trip_coord_info_sf_in_all <-
-  trip_coord_info_short_sf |>
-  filter(lengths(
-    sf::st_intersects(trip_coord_info_short_sf, USMaritimeLimi_ExportFeature_east_shp)
-  ) > 0)
-
-sf::st_bbox(USMaritimeLimi_ExportFeature_east_shp)
-#      xmin      ymin      xmax      ymax
-# -97.15469  23.81794 -65.69948  45.07451
-# mapview(federal_state_waters_east_shp)
-# View(USMaritimeLimi_ExportFeature_east_shp)
-
-
-# federal_state_waters_east_shp$geometry |>
-#   str()
-# sfc_POLYGON of length 1; first list element: List of 36988
-# ...
- # - attr(*, "class")= chr [1:3] "XY" "POLYGON" "sfg"
-
-# USMaritimeLimi_ExportFeature_east_shp$geometry[[4]]
-# MULTILINESTRING ((-73.47384 40.18069, -73.46701 40.18175, -73.45811 40.18326, -73.44925 40.18488, ...
-
-# View(trip_coord_info_crop_big_sf)
-# too slow:
-tic("in_sa_gom_inters")
-in_sa_gom_inters <-
-  sf::st_intersection(trip_coord_info_crop_big_sf, USMaritimeLimitsNBoundaries_shp)
 toc()
 
-# sf::st_crs(federal_state_waters_east_shp)
-  # User input: WGS 84 / World Mercator
-    # ID["EPSG",3395]]
 
-# sf::st_crs(trip_coord_info_crop_big_sf)
-    # ID["EPSG",4326]]
 
-# ---
-trip_coord_info_short_sf1 <-
-  trip_coord_info |>
-  select(LATITUDE, LONGITUDE) |>
-  distinct() |>
-  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  sf::st_as_sf(
-    coords = c("LONGITUDE",
-               "LATITUDE"),
-    crs = sf::st_crs(federal_state_waters_east_shp)
-  )
 
-trip_coord_info_crop_big_sf1 <-
-  sf::st_crop(trip_coord_info_short_sf1,
-              big_bounding_box)
-
-# ----
-# tic("in_sa_gom_diff")
-# in_sa_gom_diff <-
-#   sf::st_difference(trip_coord_info_crop_big_sf1, federal_state_waters_east_shp)
 # toc()
-# dim(trip_coord_info_crop_big_sf1)
-# str(in_sa_gom_diff)
-# [1] 111572      7  - nothing is deleted! But columns added
 
-# in_sa_gom_diff: 22673.05 sec elapsed
-# 22673.05 / 60 / 60 = 6h
-
-# mapview(in_sa_gom_diff)
-
-# dim(in_sa_gom_inters)
-
-# str(USMaritimeLimitsNBoundaries_shp)
-
-dim(trip_coord_info_crop_big_sf)
-# [1] 111572      1
-
-tic("minus_sa_gom")
-minus_sa_gom <-
-  # trip_coord_info_crop_big_sf |>
-  sf::st_filter(trip_coord_info_crop_big_sf,
-                sf::st_union(in_sa_gom),
-                .predicate = sf::st_disjoint)
 toc()
-str(minus_sa_gom)
 
 
-# mapview(in_sa_gom_inters)
-# all.equal(sf::st_crs(trip_coord_info_crop_big_sf),
-            # User input: WGS 84 / World Mercator
 
-# sf::st_crs(USMaritimeLimitsNBoundaries_shp))
 
-# tic("in_sa_gom")
-# in_sa_gom <-
-#   crop_by_shape(trip_coord_info_crop_big_sf, USMaritimeLimitsNBoundaries_shp)
-# toc()
-# in_sa_gom: 3.1 sec elapsed
 
-dim(in_sa_gom)
-#
-# in_sa <-
-#   crop_by_shape(trip_coord_info_crop_big_sf, federal_state_waters_east_shp)
-#
-# dim(in_sa)
-# # [1] 32846     5
-#
-# in_gom <-
-#   crop_by_shape(trip_coord_info_crop_big_sf, gom_shp)
-#
-# dim(in_gom)
-# [1] 37312     5
 ```
 
 ### Not in SA and GOM
@@ -860,20 +742,6 @@ dim(in_sa_gom)
 ```{r not in sa and gom}
 ### not in sa and gom ----
 
-# stop here
-tic("minus_sa_gom")
-minus_sa_gom <-
-  # trip_coord_info_crop_big_sf |>
-  sf::st_filter(trip_coord_info_crop_big_sf,
-                sf::st_union(in_sa_gom),
-                .predicate = sf::st_disjoint)
-toc()
-str(minus_sa_gom)
-# 0 1
-# minus_sa_gom: 2.09 sec elapsed
-
-mapview(minus_sa_gom) +
-  mapview(sa_shp)
 
 tic("minus_gom")
 minus_sa_gom <-
