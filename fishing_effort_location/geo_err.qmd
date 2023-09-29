@@ -45,7 +45,7 @@ source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
 
 tic("run_all_get_db_data()")
 all_get_db_data_result_l <- run_all_get_db_data()
-toc()
+toc(log = TRUE, quiet = TRUE)
 # run_all_get_db_data(): 2.27 sec elapsed (from csv)
 
 trip_coord_info <-
@@ -203,7 +203,7 @@ trip_coord_info_vendors3_trip <-
     .default = "etrips"
   )) |>
   ungroup()
-toc()
+toc(log = TRUE, quiet = TRUE)
 
 compare_trip_and_effort_vendors <-
   function() {
@@ -218,7 +218,7 @@ compare_trip_and_effort_vendors <-
         )
       ) |>
       ungroup()
-    toc()
+    toc(log = TRUE, quiet = TRUE)
     # trip_coord_info_vendors3: 160.77 sec elapsed
     # 160.77/60 = 2.6795m
     
@@ -651,7 +651,7 @@ us_bb <-
 
 tic("sf::st_union(us_bb)")
 us_bb_border <- sf::st_union(us_bb)
-toc()
+toc(log = TRUE, quiet = TRUE)
 # sf::st_union(us_bb): 16.58 sec elapsed
 
 # str(us_bb_border)
@@ -676,13 +676,13 @@ tic("sf::st_transform in")
 trip_coord_info_sf_in_1 <-
   sf::st_transform(trip_coord_info_sf_in,
                                             crs =                                sf::st_crs(us_bb_border)) # Match the crs
-toc()
+toc(log = TRUE, quiet = TRUE)
 
 # tic("in_land")
 # in_sa_gom_diff <-
 #   sf::st_difference(trip_coord_info_sf_in_1,
 #                     us_bb_border)
-# toc()
+# toc(log = TRUE, quiet = TRUE)
 # in_land: 520.7 sec elapsed
 # 520.7/60 = 8.678333 min
 
@@ -693,7 +693,7 @@ toc()
 # in_land_inters <-
 #   sf::st_intersection(trip_coord_info_sf_in_1,
 #                     us_bb_border)
-# toc()
+# toc(log = TRUE, quiet = TRUE)
 
 tic("in_land_inters")
 in_land_inters <-
@@ -704,7 +704,7 @@ in_land_inters <-
       us_bb_border
     )
   ) > 0)
-toc()
+toc(log = TRUE, quiet = TRUE)
 # in_land_inters: 1.2 sec elapsed
 # dim(in_land_inters)
 # [1] 57110     3
@@ -731,7 +731,7 @@ GOMsf <-
   sf::read_sf(path_to_GOMsf) %>%
   group_by(StatZone) %>%
   summarise()
-toc()
+toc(log = TRUE, quiet = TRUE)
 ```
 
 
@@ -739,7 +739,7 @@ toc()
 # str(GOMsf)
 tic("sf::st_union(GOMsf)")
 GOMsf_u <- sf::st_union(GOMsf)
-toc()
+toc(log = TRUE, quiet = TRUE)
 ```
 
 ### make the same crs for us_bb_border and GOMsf
@@ -750,6 +750,14 @@ GOMsf_1 <-
                    crs =
                      sf::st_crs(us_bb_border)) # Match the crs
 toc()
+```{r make the same crs for us_bb_border and GOMsf, cache=TRUE}
+# results='hide', message=FALSE, output = FALSE
+# tic("sf::st_transform GOMsf")
+# GOMsf_1 <-
+#   sf::st_transform(GOMsf,
+#                    crs =
+#                      sf::st_crs(us_bb_border)) # Match the crs
+# toc(log = TRUE, quiet = TRUE)
 # sf::st_transform GOMsf: 46.21 sec elapsed
 
 ```
@@ -770,14 +778,20 @@ tic("GOMsf_1 and us_bb intersection")
 st_waters <-
   sf::st_intersection(us_bb_border,
                       GOMsf_1)
-toc()
+toc(log = TRUE, quiet = TRUE)
 # GOMsf_1 and us_bb intersection: 1.66 sec elapsed
+log.txt <- tic.log(format = TRUE)
+# writeLines(unlist(log.txt))
+# tic.clearlog()
+```
 
 tic("GOMsf_1 and us_bb difference")
 not_st_waters <-
   sf::st_difference(us_bb_border,
                       GOMsf_1)
 toc()
+
+```{r check if us_bb_border has state water GOMsf}
 
 ggplot() +
   ggplot2::geom_sf(data = st_waters,
@@ -809,7 +823,7 @@ minus_sa_gom <-
   # trip_coord_info_crop_big_sf |>
   st_filter(minus_sa,
             st_union(in_gom), .predicate = st_disjoint)
-toc()
+toc(log = TRUE, quiet = TRUE)
 # minus_gom: 15.84 sec elapsed
 
 mapview(minus_sa_gom) +
