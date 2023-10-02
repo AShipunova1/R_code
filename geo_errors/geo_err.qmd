@@ -721,7 +721,7 @@ gg <- gg + geom_sf(
   fill = "white",
   size = 0.25
 )
-# gg
+gg
 ```
 
 ## get Shapefile all waters
@@ -787,6 +787,26 @@ federal_state_w_sf_east <-
 # [1] 21  7
 
 ```
+
+### Make the same crs for us_bb_border and state waters
+```{r Make the same crs for us_bb_border and state waters}
+# results='hide', message=FALSE, output = FALSE
+tic("sf::st_transform state w")
+federal_state_w_sf_east_trans <-
+  sf::st_transform(federal_state_w_sf_east,
+                   crs =
+                     us_bb_border_crs) # Match the crs
+toc(log = TRUE, quiet = TRUE)
+
+log.txt <- tic.log(format = TRUE)
+
+writeLines(unlist(log.txt))
+# sf::st_transform state w: 197.39 sec elapsed
+
+tic.clearlog()
+
+```
+
 
 ## get Shapefile GOM
 ```{r get GOMsf}
