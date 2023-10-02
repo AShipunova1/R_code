@@ -34,8 +34,9 @@ library(knitr)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-current_project_dir_path <-
-  file.path(my_paths$git_r, "fishing_effort_location")
+current_project_dir_path <- 
+  # get_current_file_directory()
+  file.path(my_paths$git_r, "geo_errors")
 
 ```
 
@@ -244,7 +245,7 @@ compare_trip_and_effort_vendors <-
 
 
 # run ones:
-  # compare_trip_and_effort_vendors
+  # compare_trip_and_effort_vendors()
 # Because E_UE has "SAFIS" for both vesl	etrips, I will use T_UE
 ```
 
@@ -431,7 +432,6 @@ positive_long_map
 ### Positive longitude table
 
 ```{r positive longitude table}
-
 positive_long |>
     select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
@@ -448,7 +448,29 @@ positive_long |>
   count(vendor_trip_cat, year_start) |>
   distinct() |> 
   kable(caption = "positive_long: count(vendor_trip_cat, year_start)")
+```
 
+
+```{r positive longitude VESL only}
+# positive_longitude_report <- function() {
+  
+  positive_long_vesl <-
+    trip_coord_info_vendors3 |>
+    filter(LONGITUDE > 0) |>
+    filter(vendor_trip_cat == "vesl")
+  
+  positive_long_vesl_map <-
+    positive_long_vesl |>
+    select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+    distinct() |>
+    lat_long_to_map_plot(my_title = 'Positive longitude (VESL)')
+  
+  positive_long_vesl_map
+  
+  write_csv(positive_long_vesl, "positive_long_vesl.csv")
+# }
+
+# positive_longitude_report()
 ```
 
 ## Negative latitude
@@ -735,6 +757,11 @@ log.txt <- tic.log(format = TRUE)
 # writeLines(unlist(log.txt))
 # tic.clearlog()
 ```
+
+
+
+
+
 
 ## Not in SA and GOM
 ### Exclude gom from us_bb
