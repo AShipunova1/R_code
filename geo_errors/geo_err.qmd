@@ -465,7 +465,8 @@ positive_longitude_report <- function() {
     distinct() |>
     lat_long_to_map_plot(my_title = 'Positive longitude (VESL)')
   
-  positive_long_vesl_map
+  ggsave("positive_long_vesl_map.png",
+    plot = positive_long_vesl_map)
   
   write_csv(positive_long_vesl, "positive_long_vesl.csv")
 }
