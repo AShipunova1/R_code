@@ -549,6 +549,20 @@ negative_lat %>%
 ### Negative latitude mapped
 
 ```{r Wrong sign mapped}
+negative_lat_fixed <-
+  negative_lat |> 
+  select(LATITUDE, LONGITUDE) |> 
+  mutate(LATITUDE = abs(LATITUDE),
+         LONGITUDE = -abs(LONGITUDE))
+
+neg_lat_pos_long_fixed_map <-
+  lat_long_to_map_plot(negative_lat_fixed, 'Negative latitude,  fixed') +
+  red_bounding_box
+
+neg_lat_pos_long_fixed_map
+```
+
+```{r negative latitude fixed mapped}
 negative_lat_c_subset <-
   negative_lat %>%
   select(LATITUDE, LONGITUDE)
