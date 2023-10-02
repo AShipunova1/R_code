@@ -829,6 +829,24 @@ toc(log = TRUE, quiet = TRUE)
 ### trips and state intersection
 ```{r not_st_waters}
 
+# mapview(trip_coord_info_crop_big_sf)
+tic("trip_coord_info_sf_instate")
+trip_coord_info_sf_instate <-
+  trip_coord_info_crop_big_sf_trans |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_crop_big_sf_trans,
+                      federal_state_w_sf_east_trans)
+  ) > 0)
+toc(log = TRUE, quiet = TRUE)
+
+log.txt <- tic.log(format = TRUE)
+writeLines(unlist(log.txt))
+
+tic.clearlog()
+# trip_coord_info_sf_instate: 1.03 sec elapsed
+mapview(trip_coord_info_sf_instate)
+
+```
 
 ## get Shapefile GOM
 ```{r get GOMsf}
