@@ -721,7 +721,7 @@ gg <- gg + geom_sf(
   fill = "white",
   size = 0.25
 )
-gg
+# gg
 ```
 
 ## get Shapefile all waters
@@ -779,9 +779,9 @@ east_coat_states <- c(
   # User input: WGS 84 / World Mercator 
 #     ID["EPSG",3395]]
 
-federal_state_w_sf_east <-
-  federal_state_w_sf |>
-  filter(Jurisdicti %in% east_coat_states)
+# federal_state_w_sf_east <-
+#   federal_state_w_sf |>
+#   filter(Jurisdicti %in% east_coat_states)
 # 
 # mapview(federal_state_w_sf_east)
 # [1] 21  7
@@ -798,14 +798,36 @@ federal_state_w_sf_east_trans <-
                      us_bb_border_crs) # Match the crs
 toc(log = TRUE, quiet = TRUE)
 
-log.txt <- tic.log(format = TRUE)
+# log.txt <- tic.log(format = TRUE)
 
-writeLines(unlist(log.txt))
+# writeLines(unlist(log.txt))
 # sf::st_transform state w: 197.39 sec elapsed
 
-tic.clearlog()
+# tic.clearlog()
 
 ```
+
+```{r Make the same crs for us_bb_border and state waters}
+# results='hide', message=FALSE, output = FALSE
+tic("sf::st_transform trip_coord_info_crop_big_sf")
+trip_coord_info_crop_big_sf_trans <-
+  sf::st_transform(trip_coord_info_crop_big_sf,
+                   crs =
+                     us_bb_border_crs) # Match the crs
+toc(log = TRUE, quiet = TRUE)
+
+# log.txt <- tic.log(format = TRUE)
+# # 
+# writeLines(unlist(log.txt))
+# sf::st_transform trip_coord_info_crop_big_sf: 14.42 sec elapsed
+
+# tic.clearlog()
+
+```
+
+
+### trips and state intersection
+```{r not_st_waters}
 
 
 ## get Shapefile GOM
