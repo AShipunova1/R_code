@@ -710,6 +710,9 @@ us_bb_border <- sf::st_union(us_bb)
 toc(log = TRUE, quiet = TRUE)
 # sf::st_union(us_bb): 16.58 sec elapsed
 
+us_bb_border_crs <- 
+  sf::st_crs(us_bb_border)
+
 # str(us_bb_border)
 gg <- ggplot()
 gg <- gg + geom_sf(
@@ -768,7 +771,7 @@ tic("sf::st_transform GOMsf")
 GOMsf_1 <-
   sf::st_transform(GOMsf,
                    crs =
-                     sf::st_crs(us_bb_border)) # Match the crs
+                     us_bb_border_crs) # Match the crs
 toc(log = TRUE, quiet = TRUE)
 # sf::st_transform GOMsf: 46.21 sec elapsed
 
@@ -781,7 +784,7 @@ tic("sf::st_transform sa_shp")
 sa_shp_1 <-
   sf::st_transform(sa_shp,
                    crs =
-                     sf::st_crs(us_bb_border)) # Match the crs
+                     us_bb_border_crs) # Match the crs
 toc(log = TRUE, quiet = TRUE)
 log.txt <- tic.log(format = TRUE)
 
@@ -1002,7 +1005,7 @@ trip_coord_info_sf_in <-
 tic("sf::st_transform in")
 trip_coord_info_sf_in_1 <-
   sf::st_transform(trip_coord_info_sf_in,
-                                            crs =                                sf::st_crs(us_bb_border)) # Match the crs
+                                            crs =                                us_bb_border_crs) # Match the crs
 toc(log = TRUE, quiet = TRUE)
 
 # tic("in_land")
