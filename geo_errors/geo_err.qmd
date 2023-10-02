@@ -348,6 +348,24 @@ crop_by_shape <-
       return()
   }
 
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+red_bounding_box <-
+  geom_rect(
+    aes(
+      xmin = big_bounding_box[["xmin"]],
+      xmax = big_bounding_box[["xmax"]],
+      ymin = big_bounding_box[["ymin"]],
+      ymax = big_bounding_box[["ymax"]]
+    ),
+    color = "red",
+    fill = NA
+  )
 
 ```
 
