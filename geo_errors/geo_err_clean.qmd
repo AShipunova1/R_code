@@ -5,6 +5,7 @@ output:
   html_document
 execute:
   warning: false
+  cache: true
 format:
   html:
     toc: true
@@ -18,7 +19,7 @@ format:
 
 # Setup
 
-```{r setup, results='hide', message=FALSE, warning=FALSE}
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE}
 # setup ----
 library(mapview)
 library(ggplot2)
@@ -26,9 +27,7 @@ library(ggmap)
 library(tigris)
 tigris_use_cache = TRUE
 
-# library(rnaturalearth)
-# library(rnaturalearthdata)
-
+library(rnaturalearth) #coastline
 library(knitr)
 
 source("~/R_code_github/useful_functions_module.r")
@@ -40,14 +39,14 @@ current_project_dir_path <-
 
 # Get data
 
-```{r get data, results='hide', message=FALSE, warning=FALSE}
+```{r get data, include=FALSE}
 # get data ----
 # "C:\Users\anna.shipunova\Documents\R_code_github\get_db_data\get_db_data.R"
 source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
 
 tic("run_all_get_db_data()")
 all_get_db_data_result_l <- run_all_get_db_data()
-toc()
+toc(log = TRUE, quiet = TRUE)
 # run_all_get_db_data(): 2.27 sec elapsed (from csv)
 
 trip_coord_info <-
@@ -195,7 +194,7 @@ trip_coord_info_effort_vendors_cnt |>
 
 #dim [1] 263   2
 
-# tic("trip_coord_info_vendors3_trip")
+tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
   group_by(LATITUDE, LONGITUDE) |>
@@ -205,11 +204,11 @@ trip_coord_info_vendors3_trip <-
     .default = "etrips"
   )) |>
   ungroup()
-# toc()
+toc(log = TRUE, quiet = TRUE)
 
 compare_trip_and_effort_vendors <-
   function() {
-    # tic("trip_coord_info_vendors3_trip_eff")
+    tic("trip_coord_info_vendors3_trip_eff")
     trip_coord_info_vendors3_trip_eff <-
       trip_coord_info_vendors3_trip |>
       mutate(
@@ -220,7 +219,7 @@ compare_trip_and_effort_vendors <-
         )
       ) |>
       ungroup()
-    # toc()
+    toc(log = TRUE, quiet = TRUE)
     # trip_coord_info_vendors3: 160.77 sec elapsed
     # 160.77/60 = 2.6795m
     
@@ -296,7 +295,6 @@ lat_long_to_map <-
     ) %>% return()
 }
 
-library(rnaturalearth)
 world_coast <-
   rnaturalearth::ne_coastline(returnclass = 'sf')
 
