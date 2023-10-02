@@ -452,7 +452,7 @@ positive_long |>
 
 
 ```{r positive longitude VESL only}
-# positive_longitude_report <- function() {
+positive_longitude_report <- function() {
   
   positive_long_vesl <-
     trip_coord_info_vendors3 |>
@@ -468,7 +468,7 @@ positive_long |>
   positive_long_vesl_map
   
   write_csv(positive_long_vesl, "positive_long_vesl.csv")
-# }
+}
 
 # positive_longitude_report()
 ```
