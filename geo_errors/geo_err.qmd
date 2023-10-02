@@ -446,6 +446,18 @@ positive_long_map <-
 positive_long_map
 ```
 
+## Positive longitude, corrected
+```{r Positive longitude, corrected}
+positive_long_corrected_map <-
+  positive_long |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  mutate(LONGITUDE = -abs(LONGITUDE)) |> 
+  lat_long_to_map_plot(my_title = 'Positive longitude, corrected')
+
+# label_column = "vendor_trip_cat"
+
+positive_long_corrected_map +
+  red_bounding_box
 
 ```
 
