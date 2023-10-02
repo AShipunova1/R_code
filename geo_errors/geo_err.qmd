@@ -724,6 +724,70 @@ gg <- gg + geom_sf(
 # gg
 ```
 
+## get Shapefile all waters
+```{r get GOMsf}
+path_to_federal_state_w <-
+  file.path(my_paths$inputs, 
+            r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
+
+file.exists(path_to_federal_state_w)
+# T
+
+tic("federal_state_w_sf")
+federal_state_w_sf <-
+  sf::read_sf(path_to_federal_state_w)
+toc(log = TRUE, quiet = TRUE)
+
+rr <-
+federal_state_w_sf |> 
+  sf::st_drop_geometry()
+
+rr$Jurisdicti |> 
+  cat(sep = ", ")
+east_coat_states <- c(
+  "Alabama",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Mississippi",
+  "New Hampshire",
+  "New Jersey",
+  "New York",
+  "North Carolina",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "Texas",
+  "Virginia",
+  "Washington DC"
+)
+# nc_sql = st_read(system.file("shape/nc.shp", package="sf"),
+#                      query = "SELECT NAME, SID74, FIPS FROM \"nc\" WHERE BIR74 > 20000")
+
+# Jurisdicti
+# log.txt <- tic.log(format = TRUE)
+# 
+# writeLines(unlist(log.txt))
+# tic.clearlog()
+
+# sf::st_crs(federal_state_w_sf)
+  # User input: WGS 84 / World Mercator 
+#     ID["EPSG",3395]]
+
+federal_state_w_sf_east <-
+  federal_state_w_sf |>
+  filter(Jurisdicti %in% east_coat_states)
+# 
+# mapview(federal_state_w_sf_east)
+# [1] 21  7
+
+```
+
 ## get Shapefile GOM
 ```{r get GOMsf}
 path_to_GOMsf <-
