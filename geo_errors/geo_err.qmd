@@ -779,11 +779,11 @@ east_coat_states <- c(
   # User input: WGS 84 / World Mercator 
 #     ID["EPSG",3395]]
 
-# federal_state_w_sf_east <-
-#   federal_state_w_sf |>
-#   filter(Jurisdicti %in% east_coat_states)
-# 
-# mapview(federal_state_w_sf_east)
+federal_state_w_sf_east <-
+  federal_state_w_sf |>
+  filter(Jurisdicti %in% east_coat_states)
+
+mapview(federal_state_w_sf_east)
 # [1] 21  7
 
 ```
@@ -805,6 +805,10 @@ toc(log = TRUE, quiet = TRUE)
 
 # tic.clearlog()
 
+dim(federal_state_w_sf_east_trans)
+# 20
+class(federal_state_w_sf_east_trans)
+# sf, df
 ```
 
 ```{r Make the same crs for us_bb_border and state waters}
@@ -822,6 +826,45 @@ toc(log = TRUE, quiet = TRUE)
 # sf::st_transform trip_coord_info_crop_big_sf: 14.42 sec elapsed
 
 # tic.clearlog()
+
+```
+
+### usa_bb and state intersection
+```{r not_st_waters}
+# class(us_bb_border)
+# [1] "sfc_MULTIPOLYGON" "sfc"             
+# dim(federal_state_w_sf_east_trans)
+# [1] 112364      3
+# 
+# "sf"         "tbl_df"     "tbl"       
+# [4] "data.frame"
+
+us_bb_border_sf <- sf::st_sf(us_bb_border)
+# dim(us_bb_border_sf)
+# 1
+# [1] "sf"         "data.frame"
+
+mapview(federal_state_w_sf_east_trans) +
+  mapview(us_bb_border_sf)
+
+tic("trip_coord_info_sf_instate")
+land_bb <-
+  us_bb_border_sf |> 
+  filter(lengths(
+    sf::st_intersects(us_bb_border_sf,
+                      federal_state_w_sf_east_trans)
+  ) > 0)
+
+  # sf::st_difference(us_bb_border,
+  #                   federal_state_w_sf_east_trans)
+toc(log = TRUE, quiet = TRUE)
+
+log.txt <- tic.log(format = TRUE)
+writeLines(unlist(log.txt))
+
+tic.clearlog()
+mapview(land_bb) +
+  mapview(federal_state_w_sf_east_trans)
 
 ```
 
