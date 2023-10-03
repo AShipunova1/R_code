@@ -724,6 +724,56 @@ gg <- gg + geom_sf(
 # gg
 ```
 ## get Shapefile USMaritimeLimitsNBoundaries
+```{r get Coastal_County_Divisions_for_Shoreline_Cleanup_Operations}
+path_to_coastal <-
+  file.path(
+            r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\Coastal_County_Divisions_for_Shoreline_Cleanup_Operations\Coastal_County_Divisions_for_Shoreline_Cleanup_Operations.shp)")
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\Coastal_County_Divisions_for_Shoreline_Cleanup_Operations\Coastal_County_Divisions_for_Shoreline_Cleanup_Operations.shp"
+
+file.exists(path_to_coastal)
+
+tic("coastal_sf")
+coastal_sf <-
+  sf::read_sf(path_to_coastal)
+toc(log = TRUE, quiet = TRUE)
+
+coastal_df <-
+  coastal_sf |>
+  sf::st_drop_geometry()
+
+# print_df_names(coastal_df)
+coastal_df$STATE |>
+  unique() |>
+  cat(sep = ", ")
+# TX, LA, AL, FL, GA, SC, Puerto Rico, Virgin Islands, MS, MA
+
+mapview(coastal_sf)
+
+tic("sf::st_transform coastal_sf")
+coastal_sf_trans <-
+  coastal_sf |> 
+  sf::st_transform(coastal_sf,
+                   crs =
+                     us_bb_border_crs) # Match the crs
+toc(log = TRUE, quiet = TRUE)
+
+# mapview(coastal_sf_trans)
+# [1] 326   9
+
+res1 <-
+  us_bb_border_sf |>
+  filter(lengths(
+    sf::st_intersects(us_bb_border_sf,
+                      coastal_sf_trans)
+  ) == 0)
+mapview(res1)
+
+
+# print_df_names(us_maritime_df)
+```
+
+
+## get Shapefile USMaritimeLimitsNBoundaries
 ```{r get USMaritimeLimitsNBoundaries}
 path_to_us_maritime <-
   file.path(my_paths$inputs, 
@@ -763,7 +813,7 @@ res <-
     sf::st_intersects(trip_coord_info_crop_big_sf_trans,
                       us_maritime_sf_east_trans)
   ) > 0)
-dim(res)
+# dim(res)
 
 # print_df_names(us_maritime_df)
 ```
