@@ -723,6 +723,50 @@ gg <- gg + geom_sf(
 )
 # gg
 ```
+## get Shapefile USMaritimeLimitsNBoundaries
+```{r get USMaritimeLimitsNBoundaries}
+path_to_us_maritime <-
+  file.path(my_paths$inputs, 
+            r"(shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)")
+
+file.exists(path_to_us_maritime)
+
+tic("us_maritime_sf")
+us_maritime_sf <-
+  sf::read_sf(path_to_us_maritime)
+toc(log = TRUE, quiet = TRUE)
+
+us_maritime_df <-
+  us_maritime_sf |>
+  sf::st_drop_geometry()
+
+us_maritime_df$REGION |> 
+  cat(sep = ", ")
+# Atlantic Coast and Gulf of Mexico
+
+us_maritime_sf_east <-
+  us_maritime_sf |>
+  filter(REGION == "Atlantic Coast and Gulf of Mexico")
+
+mapview(us_maritime_sf_east)
+
+tic("sf::st_transform us_maritime_sf_east_trans")
+us_maritime_sf_east_trans <-
+  sf::st_transform(us_maritime_sf_east,
+                   crs =
+                     us_bb_border_crs) # Match the crs
+toc(log = TRUE, quiet = TRUE)
+
+res <-
+  trip_coord_info_crop_big_sf_trans |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_crop_big_sf_trans,
+                      us_maritime_sf_east_trans)
+  ) > 0)
+dim(res)
+
+# print_df_names(us_maritime_df)
+```
 
 ## get Shapefile all waters
 ```{r get GOMsf}
@@ -844,6 +888,14 @@ us_bb_border_sf <- sf::st_sf(us_bb_border)
 # 1
 # [1] "sf"         "data.frame"
 
+minu1 <-
+  us_bb_border_sf |>
+  filter(lengths(
+    sf::st_intersects(us_bb_border_sf,
+                      federal_state_w_sf_east_trans)
+  ) == 0)
+str(minu1)
+# 0
 mapview(federal_state_w_sf_east_trans) +
   mapview(us_bb_border_sf)
 
