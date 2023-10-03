@@ -697,6 +697,55 @@ trip_coord_info_vendors3 |>
 
 ```
 
+```{r count vessels with bad vesl coords}
+positive_long_vesl_ll <-
+  positive_long_vesl |>
+    select(LATITUDE, LONGITUDE) |>
+    distinct()
+
+dim(positive_long_vesl_ll)
+# [1] 4517    2
+
+positive_long_vesl_cnts <-
+  positive_long_vesl |>
+  select(LATITUDE, LONGITUDE, VESSEL_ID) |>
+  add_count(VESSEL_ID, name = "vesl_bad_vsl_cnt") |> 
+  distinct() |> 
+  arrange(desc(vesl_bad_vsl_cnt))
+
+all_vesl_cnts <-
+  trip_coord_info |>
+  select(LATITUDE, LONGITUDE, VESSEL_ID) |>
+  filter(VESSEL_ID %in% positive_long_vesl_cnts$VESSEL_ID) |>
+  add_count(VESSEL_ID, name = "all_bad_vsl_cnt") |>
+  distinct() |>
+  arrange(desc(all_bad_vsl_cnt))
+
+positive_long_vesl_cnts_short <-
+  positive_long_vesl_cnts |> 
+  select(VESSEL_ID, vesl_bad_vsl_cnt) |> 
+  distinct()
+
+all_vesl_cnts_short <-
+  all_vesl_cnts |>
+  select(VESSEL_ID, all_bad_vsl_cnt) |>
+  distinct()
+
+join_vesl_cnts <-
+  left_join(all_vesl_cnts_short,
+            positive_long_vesl_cnts_short)
+
+dim(join_vesl_cnts)
+  # [1] 336   3
+
+
+join_vesl_cnts |> 
+  mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt)) |> 
+  filter(cnt_diff < 2) |> 
+  View()
+
+```
+
 # On land
 ## Get the US borders
 ```{r Get the US borders}
@@ -737,6 +786,7 @@ coastal_sf <-
   sf::read_sf(path_to_coastal)
 toc(log = TRUE, quiet = TRUE)
 
+str(coastal_sf)
 coastal_df <-
   coastal_sf |>
   sf::st_drop_geometry()
@@ -747,7 +797,7 @@ coastal_df$STATE |>
   cat(sep = ", ")
 # TX, LA, AL, FL, GA, SC, Puerto Rico, Virgin Islands, MS, MA
 
-mapview(coastal_sf)
+# mapview(coastal_sf)
 
 tic("sf::st_transform coastal_sf")
 coastal_sf_trans <-
@@ -757,7 +807,7 @@ coastal_sf_trans <-
                      us_bb_border_crs) # Match the crs
 toc(log = TRUE, quiet = TRUE)
 
-# mapview(coastal_sf_trans)
+str(coastal_sf_trans)
 # [1] 326   9
 
 res1 <-
@@ -766,8 +816,8 @@ res1 <-
     sf::st_intersects(us_bb_border_sf,
                       coastal_sf_trans)
   ) == 0)
-mapview(res1)
-
+# mapview(res1)
+coastal_sf
 
 # print_df_names(us_maritime_df)
 ```
