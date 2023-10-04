@@ -1493,12 +1493,29 @@ plot_us <-
 
 
 ```{r usa map to polygons}
-polys <- usa_sf %>% 
-  dplyr::group_by(group) %>% 
-  dplyr::summarise() %>%
-  st_cast("POLYGON")
+# us_polys <- usa_sf %>%
+#   dplyr::group_by(region) %>%
+#   dplyr::summarise() %>%
+  # st_cast("POLYGON")
+# |> 
+  # st_convex_hull()
+  # stat_sf_coordinates()
+  # sf::st_cast("POLYGON", ids = group)
+# |>
+#   st_cast("MULTIPOLYGON")
 
-str(polys)
+# us_polys <- usa %>%
+  us_polys1 <- st_sf(
+  aggregate(
+    usa_sf$geometry,
+    list(usa_sf$group),
+    function(g){
+       st_cast(st_combine(g),"POLYGON")
+    }
+   ))
+
+
+plot(us_polys1)
 
 ```
 
@@ -1513,13 +1530,13 @@ trip_coord_info_map_data_sf <-
 trip_coord_info_map_data_sf_inland <-
   trip_coord_info_map_data_sf |>
   filter(lengths(
-    sf::st_intersects(trip_coord_info_map_data_sf, usa_sf)
+    sf::st_intersects(trip_coord_info_map_data_sf, us_polys)
   ) > 0)
 
-tic("trip_coord_info_map_data_sf_inland")
-trip_coord_info_map_data_sf_inters <-
-  sf::st_intersection(trip_coord_info_map_data_sf, usa_sf)
-toc()
+# tic("trip_coord_info_map_data_sf_inland")
+# trip_coord_info_map_data_sf_inters <-
+#   sf::st_intersection(trip_coord_info_map_data_sf, usa_sf)
+# toc()
 
 dim(trip_coord_info_map_data_sf_inters)
 # 0
