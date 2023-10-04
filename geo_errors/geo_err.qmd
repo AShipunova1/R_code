@@ -1492,18 +1492,59 @@ plot_us <-
 ```
 
 
+```{r usa map to polygons}
+polys <- usa_sf %>% 
+  dplyr::group_by(group) %>% 
+  dplyr::summarise() %>%
+  st_cast("POLYGON")
+
+str(polys)
+
+```
+
+
 ```{r map_data intersection with points}
-join_vesl_cnts_no_diff_ll_sf1 <-
-  join_vesl_cnts_no_diff_ll_sf |>
+trip_coord_info_map_data_sf <-
+  trip_coord_info_map_data |>
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = my_crs)
+
+trip_coord_info_map_data_sf_inland <-
+  trip_coord_info_map_data_sf |>
   filter(lengths(
-    sf::st_intersects(join_vesl_cnts_no_diff_ll_sf, usa_sf)
-  ) == 0)
+    sf::st_intersects(trip_coord_info_map_data_sf, usa_sf)
+  ) > 0)
 
-dim(join_vesl_cnts_no_diff_ll_sf1)
-# [1] 3934    4
+tic("trip_coord_info_map_data_sf_inland")
+trip_coord_info_map_data_sf_inters <-
+  sf::st_intersection(trip_coord_info_map_data_sf, usa_sf)
+toc()
 
+dim(trip_coord_info_map_data_sf_inters)
+# 0
+sf::st_crs(usa_sf)
+sf::st_crs(trip_coord_info_map_data_sf)
+  # User input: +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+
+# [1] 116246      2
+dim(trip_coord_info_map_data_sf_inland)
+# 0
+sf::st_geometry(usa_sf)
+# Geometry set for 7243 features 
+# Geometry type: POINT
+sf::st_geometry(trip_coord_info_map_data_sf)
+# Geometry set for 116246 features 
+# Geometry type: POINT
+# Dimension:     XY
+
+
+```
+
+
+```{r plot intersection with points}
 plot_us +
-      ggplot2::geom_sf(data = join_vesl_cnts_no_diff_ll_sf1,
+      ggplot2::geom_sf(data = trip_coord_info_map_data_sf,
                        color = "blue") 
 
 ```
