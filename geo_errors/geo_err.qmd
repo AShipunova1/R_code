@@ -700,6 +700,7 @@ trip_coord_info_vendors3 |>
 
 ```
 
+# Count vessels with bad vesl coords
 ```{r count vessels with bad vesl coords}
 positive_long_vesl_ll <-
   positive_long_vesl |>
@@ -755,7 +756,7 @@ glimpse(join_vesl_cnts_no_diff)
 
 ```
 
-
+## join_vesl_cnts_no_diff_ll coordinates
 ```{r convert coords}
 join_vesl_cnts_no_diff_ll <-
   trip_coord_info |>
@@ -763,9 +764,12 @@ join_vesl_cnts_no_diff_ll <-
   filter(VESSEL_ID %in% join_vesl_cnts_no_diff$VESSEL_ID) |> 
   distinct()
 
+# write_csv(join_vesl_cnts_no_diff_ll,
+#           "join_vesl_cnts_no_diff_ll.csv")
+
 join_vesl_cnts_no_diff_ll |> 
   # head(20) |> 
-  View()
+  glimpse()
 
 vesl_no_diff_bounding_box <-
   geom_rect(
@@ -787,14 +791,26 @@ join_vesl_cnts_no_diff_ll_sf <-
                remove = FALSE)
 
 join_vesl_cnts_no_diff_ll_sf_l <-
-join_vesl_cnts_no_diff_ll_sf |> 
+  join_vesl_cnts_no_diff_ll_sf |> 
   mutate(labl = paste(LATITUDE, LONGITUDE))
 
+glimpse(join_vesl_cnts_no_diff_ll_sf_l)
+```
+
+## map join_vesl_cnts_no_diff_ll
+```{r map join_vesl_cnts_no_diff_ll}
 join_vesl_cnts_no_diff_ll_sf_l |> 
   leaflet() %>%
   addTiles() %>%
   addMarkers(
-    label = paste(LATITUDE, LONGITUDE)
+    label = paste(
+      join_vesl_cnts_no_diff_ll_sf_l$LATITUDE,
+      join_vesl_cnts_no_diff_ll_sf_l$LONGITUDE,
+      sep = ", "
+    ),
+    # lat_long_area_clean$POINT,
+    # labelOptions = labelOptions(noHide = T),
+    clusterOptions = markerClusterOptions()
   )
 
 map_plot <-
