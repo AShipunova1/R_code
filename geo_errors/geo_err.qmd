@@ -26,11 +26,14 @@ format:
 library(mapview)
 library(ggplot2)
 library(ggmap)
+library(leaflet)
 library(tigris)
 tigris_use_cache = TRUE
 
 library(rnaturalearth) #coastline
 library(knitr)
+library(maps)
+library(mapdata)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -774,6 +777,24 @@ vesl_no_diff_bounding_box <-
     ),
     color = "purple",
     fill = NA
+  )
+
+join_vesl_cnts_no_diff_ll_sf <-
+  join_vesl_cnts_no_diff_ll |> 
+    sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = my_crs,
+               remove = FALSE)
+
+join_vesl_cnts_no_diff_ll_sf_l <-
+join_vesl_cnts_no_diff_ll_sf |> 
+  mutate(labl = paste(LATITUDE, LONGITUDE))
+
+join_vesl_cnts_no_diff_ll_sf_l |> 
+  leaflet() %>%
+  addTiles() %>%
+  addMarkers(
+    label = paste(LATITUDE, LONGITUDE)
   )
 
 map_plot <-
