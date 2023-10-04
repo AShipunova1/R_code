@@ -738,12 +738,51 @@ join_vesl_cnts <-
 dim(join_vesl_cnts)
   # [1] 336   3
 
-
 join_vesl_cnts |> 
+  filter(vesl_bad_vsl_cnt > 3) |> 
+  dim()
+# [1] 231   3
+
+join_vesl_cnts_no_diff <-
+  join_vesl_cnts |> 
   mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt)) |> 
-  filter(cnt_diff < 2) |> 
+  filter(cnt_diff < 3)
+dim(join_vesl_cnts_no_diff)
+# 161
+
+```
+
+
+```{r convert coords}
+join_vesl_cnts_no_diff_ll <-
+  trip_coord_info |>
+  select(LATITUDE, LONGITUDE, VESSEL_ID) |>
+  filter(VESSEL_ID %in% join_vesl_cnts_no_diff$VESSEL_ID) |> 
+  distinct()
+
+join_vesl_cnts_no_diff_ll |> 
+  # head(20) |> 
   View()
 
+vesl_no_diff_bounding_box <-
+  geom_rect(
+    aes(
+      xmin = min(join_vesl_cnts_no_diff_ll$LONGITUDE),
+      xmax = max(join_vesl_cnts_no_diff_ll$LONGITUDE),
+      ymin = min(join_vesl_cnts_no_diff_ll$LATITUDE),
+      ymax = max(join_vesl_cnts_no_diff_ll$LATITUDE)
+    ),
+    color = "purple",
+    fill = NA
+  )
+
+map_plot <-
+  ggplot() +
+  ggplot2::geom_sf(data = world_coast) +
+  vesl_no_diff_bounding_box +
+  ggplot2::ggtitle("join_vesl_cnts_no_diff_ll")
+
+map_plot
 ```
 
 # On land
