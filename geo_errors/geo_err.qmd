@@ -372,9 +372,9 @@ red_bounding_box <-
 
 ```
 
-# Map all points
+# Map all available points
 
-```{r map all points}
+```{r map all available points}
 
 trip_coord_info_map_data <-
   trip_coord_info |>
@@ -551,7 +551,20 @@ negative_lat %>%
 
 ### Negative latitude mapped
 
-```{r Wrong sign mapped}
+```{r Negative latitude mapped}
+
+negative_lat_c_subset <-
+  negative_lat %>%
+  select(LATITUDE, LONGITUDE)
+
+neg_lat_map <-
+  lat_long_to_map_plot(negative_lat_c_subset, 'Negative latitude')
+
+neg_lat_map
+
+```
+
+```{r negative latitude fixed mapped}
 negative_lat_fixed <-
   negative_lat |> 
   select(LATITUDE, LONGITUDE) |> 
@@ -563,17 +576,6 @@ neg_lat_pos_long_fixed_map <-
   red_bounding_box
 
 neg_lat_pos_long_fixed_map
-```
-
-```{r negative latitude fixed mapped}
-negative_lat_c_subset <-
-  negative_lat %>%
-  select(LATITUDE, LONGITUDE)
-
-neg_lat_map <-
-  lat_long_to_map_plot(negative_lat_c_subset, 'Negative latitude')
-
-neg_lat_map
 
 ```
 
