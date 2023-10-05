@@ -27,8 +27,6 @@ library(mapview)
 library(ggplot2)
 library(ggmap)
 library(leaflet)
-library(tigris)
-tigris_use_cache = TRUE
 
 library(rnaturalearth) #coastline
 library(knitr)
@@ -699,5 +697,131 @@ trip_coord_info_vendors3 |>
   arrange(TRIP_END_DATE) |> 
   select(-TRIP_ID) |> 
   kable(caption = "Weird TRIP_END_DATE")
+
+```
+
+# On land
+
+## US map_data
+```{r map_data}
+usa <- map_data("usa")
+
+# print_df_names(usa)
+# [1] "long, lat, group, order, region, subregion"
+
+# usa$region |> unique()
+#  [1] "main"              "martha's vineyard" "nantucket island" 
+#  [4] "manhattan"         "staten island"     "long island"      
+#  [7] "san juan island"   "lopez island"      "orcas island"     
+# [10] "whidbey island"   
+# > 
+
+# usa$subregion |> unique()
+# na
+# class(usa)
+
+# [1] "data.frame"
+
+usa_sf <-
+  usa |>
+  sf::st_as_sf(coords = c("long",
+                          "lat"),
+               crs = my_crs)
+
+plot_us <-
+  ggplot() +
+  geom_polygon(
+    data = usa,
+    aes(x = long, y = lat, group = group),
+    fill = NA,
+    color = "green"
+  ) +
+  coord_fixed(1.3)
+```
+
+### US map to polygons
+```{r usa map to polygons}
+# us_polys <- usa_sf %>%
+#   dplyr::group_by(region) %>%
+#   dplyr::summarise() %>%
+  # sf::st_cast("POLYGON")
+# |> 
+  # sf::st_convex_hull()
+  # stat_sf_coordinates()
+  # sf::st_cast("POLYGON", ids = group)
+# |>
+#   sf::st_cast("MULTIPOLYGON")
+
+# us_polys <- usa %>%
+  us_polys1 <- sf::st_sf(
+  aggregate(
+    usa_sf$geometry,
+    list(usa_sf$group),
+    function(g){
+       sf::st_cast(sf::st_combine(g), "POLYGON")
+    }
+   ))
+
+# str(us_polys1)
+plot(us_polys1)
+
+# sf::st_union
+```
+
+
+```{r usa map to polygons 2}
+polygon_usa <- usa %>%
+  sf::st_as_sf(coords = c("long", "lat"), crs = my_crs) %>%
+  group_by(region) %>%
+  summarise(geometry = sf::st_combine(geometry)) %>%
+  sf::st_cast("POLYGON")
+
+plot(polygon_usa)
+```
+
+
+## Map_data intersection with points
+```{r map_data intersection with points}
+trip_coord_info_map_data_sf <-
+  trip_coord_info_map_data |>
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = my_crs)
+
+trip_coord_info_map_data_sf_inland <-
+  trip_coord_info_map_data_sf |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_map_data_sf, polygon_usa)
+  ) > 0)
+
+# tic("trip_coord_info_map_data_sf_inland")
+# trip_coord_info_map_data_sf_inters <-
+#   sf::st_intersection(trip_coord_info_map_data_sf, usa_sf)
+# toc()
+
+dim(trip_coord_info_map_data_sf_inland)
+# [1] 10169     2
+
+# sf::st_crs(usa_sf)
+# sf::st_crs(trip_coord_info_map_data_sf)
+  # User input: +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+
+# [1] 116246      2
+# sf::st_geometry(usa_sf)
+# Geometry set for 7243 features 
+# Geometry type: POINT
+# sf::st_geometry(trip_coord_info_map_data_sf_inland)
+# Geometry set for 116246 features 
+# Geometry type: POINT
+# Dimension:     XY
+
+# str(trip_coord_info_map_data_sf_inland)
+```
+
+## Points on land map
+```{r plot intersection with points}
+plot_us +
+      ggplot2::geom_sf(data = trip_coord_info_map_data_sf_inland,
+                       color = "blue") 
 
 ```
