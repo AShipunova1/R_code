@@ -1,6 +1,8 @@
 ---
 title: "Geo errors"
 date: today
+project:
+  lib-dir: ..
 output:
   html_document
 execute:
@@ -24,16 +26,20 @@ format:
 library(mapview)
 library(ggplot2)
 library(ggmap)
+library(leaflet)
 library(tigris)
 tigris_use_cache = TRUE
 
 library(rnaturalearth) #coastline
 library(knitr)
+library(maps)
+library(mapdata)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-current_project_dir_path <-
-  file.path(my_paths$git_r, "fishing_effort_location")
+current_project_dir_path <- 
+  # get_current_file_directory()
+  file.path(my_paths$git_r, "geo_errors")
 
 ```
 
@@ -242,7 +248,7 @@ compare_trip_and_effort_vendors <-
 
 
 # run ones:
-  # compare_trip_and_effort_vendors
+  # compare_trip_and_effort_vendors()
 # Because E_UE has "SAFIS" for both vesl	etrips, I will use T_UE
 ```
 
@@ -345,12 +351,30 @@ crop_by_shape <-
       return()
   }
 
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+red_bounding_box <-
+  geom_rect(
+    aes(
+      xmin = big_bounding_box[["xmin"]],
+      xmax = big_bounding_box[["xmax"]],
+      ymin = big_bounding_box[["ymin"]],
+      ymax = big_bounding_box[["ymax"]]
+    ),
+    color = "red",
+    fill = NA
+  )
 
 ```
 
-# Map all points
+# Map all available points
 
-```{r map all points}
+```{r map all available points}
 
 trip_coord_info_map_data <-
   trip_coord_info |>
@@ -423,13 +447,26 @@ positive_long_map <-
 # label_column = "vendor_trip_cat"
 
 positive_long_map
+```
+
+## Positive longitude, corrected
+```{r Positive longitude, corrected}
+positive_long_corrected_map <-
+  positive_long |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  mutate(LONGITUDE = -abs(LONGITUDE)) |> 
+  lat_long_to_map_plot(my_title = 'Positive longitude, corrected')
+
+# label_column = "vendor_trip_cat"
+
+positive_long_corrected_map +
+  red_bounding_box
 
 ```
 
 ### Positive longitude table
 
 ```{r positive longitude table}
-
 positive_long |>
     select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
@@ -446,7 +483,30 @@ positive_long |>
   count(vendor_trip_cat, year_start) |>
   distinct() |> 
   kable(caption = "positive_long: count(vendor_trip_cat, year_start)")
+```
 
+
+```{r positive longitude VESL only}
+positive_longitude_report <- function() {
+  
+  positive_long_vesl <-
+    trip_coord_info_vendors3 |>
+    filter(LONGITUDE > 0) |>
+    filter(vendor_trip_cat == "vesl")
+  
+  positive_long_vesl_map <-
+    positive_long_vesl |>
+    select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+    distinct() |>
+    lat_long_to_map_plot(my_title = 'Positive longitude (VESL)')
+  
+  ggsave("positive_long_vesl_map.png",
+    plot = positive_long_vesl_map)
+  
+  write_csv(positive_long_vesl, "positive_long_vesl.csv")
+}
+
+# positive_longitude_report()
 ```
 
 ## Negative latitude
@@ -491,7 +551,8 @@ negative_lat %>%
 
 ### Negative latitude mapped
 
-```{r Wrong sign mapped}
+```{r Negative latitude mapped}
+
 negative_lat_c_subset <-
   negative_lat %>%
   select(LATITUDE, LONGITUDE)
@@ -503,17 +564,25 @@ neg_lat_map
 
 ```
 
+```{r negative latitude fixed mapped}
+negative_lat_fixed <-
+  negative_lat |> 
+  select(LATITUDE, LONGITUDE) |> 
+  mutate(LATITUDE = abs(LATITUDE),
+         LONGITUDE = -abs(LONGITUDE))
+
+neg_lat_pos_long_fixed_map <-
+  lat_long_to_map_plot(negative_lat_fixed, 'Negative latitude,  fixed') +
+  red_bounding_box
+
+neg_lat_pos_long_fixed_map
+
+```
+
 # Outside boundaries
 
 ```{r outside boundaries}
 ## 3) outside boundaries ----
-
-big_bounding_box <- c(
-   xmin = -97.79954,
-   ymin = 21.521757, #Cuba
-   xmax = -64.790337, #Bermuda
-   ymax = 49 #Canada
- )
 
 trip_coord_info_vendors3_short <-
   trip_coord_info_vendors3 |>
@@ -562,16 +631,7 @@ out_of_boxmap_plot <-
   ggplot2::geom_sf(data = world_coast) +
   ggplot2::geom_sf(data = trip_coord_info_sf_out,
                        color = "blue") +
-  geom_rect(
-    aes(
-      xmin = big_bounding_box[["xmin"]],
-      xmax = big_bounding_box[["xmax"]],
-      ymin = big_bounding_box[["ymin"]],
-      ymax = big_bounding_box[["ymax"]]
-    ),
-    color = "red",
-    fill = NA
-  ) +
+  red_bounding_box +
   ggplot2::ggtitle("Points outside of the big box")
 
 out_of_boxmap_plot
