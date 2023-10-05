@@ -142,6 +142,7 @@ head(weird_stats) |>
 # Prepare vendor columns
 
 ```{r prepare vendor columns}
+# r prepare vendor columns ----
 # t_UE, E_UE
 # trip_coord_info |>
 #   filter(!trimws(T_UE) == trimws(E_UE)) |>
@@ -255,7 +256,8 @@ compare_trip_and_effort_vendors <-
 # General comments
 
 ```{r general comments}
-# errors in geo data ----
+# r general comments ----
+# errors in geo data
 # 1) a sign
 # 2) on land
 # 3) outside boundaries
@@ -283,7 +285,7 @@ compare_trip_and_effort_vendors <-
 # Map functions
 
 ```{r map functions}
-
+# r map functions ----
 lat_long_to_map <-
   function(my_df, my_title = "my_title", legend = TRUE) {
   my_df %>%
@@ -375,7 +377,7 @@ red_bounding_box <-
 # Map all available points
 
 ```{r map all available points}
-
+# r map all available points ----
 trip_coord_info_map_data <-
   trip_coord_info |>
   select(LONGITUDE, LATITUDE) |>
@@ -395,6 +397,8 @@ trip_coord_info_plot
 # Count vendors
 
 ```{r count vendors}
+# r count vendors ----
+
 trip_coord_info_vendors3 <-
   trip_coord_info_vendors3_trip |> 
   mutate(year_start = year(TRIP_START_DATE))
@@ -451,6 +455,8 @@ positive_long_map
 
 ## Positive longitude, corrected
 ```{r Positive longitude, corrected}
+## r Positive longitude, corrected ----
+
 positive_long_corrected_map <-
   positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
@@ -467,6 +473,8 @@ positive_long_corrected_map +
 ### Positive longitude table
 
 ```{r positive longitude table}
+### r positive longitude table ----
+
 positive_long |>
     select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
@@ -485,8 +493,10 @@ positive_long |>
   kable(caption = "positive_long: count(vendor_trip_cat, year_start)")
 ```
 
-
+### positive longitude VESL only
 ```{r positive longitude VESL only}
+### r positive longitude VESL only ----
+
 positive_longitude_report <- function() {
   
   positive_long_vesl <-
@@ -504,15 +514,17 @@ positive_longitude_report <- function() {
     plot = positive_long_vesl_map)
   
   write_csv(positive_long_vesl, "positive_long_vesl.csv")
+  
+  return(positive_long_vesl)
 }
 
-# positive_longitude_report()
+positive_long_vesl <- positive_longitude_report()
 ```
 
 ## Negative latitude
 
 ```{r negative latitude}
-### negative latitude ----
+## negative latitude ----
 negative_lat <-
   trip_coord_info_vendors3 %>%
   filter(LATITUDE <= 0)
@@ -552,6 +564,7 @@ negative_lat %>%
 ### Negative latitude mapped
 
 ```{r Negative latitude mapped}
+### r Negative latitude mapped ----
 
 negative_lat_c_subset <-
   negative_lat %>%
@@ -563,8 +576,9 @@ neg_lat_map <-
 neg_lat_map
 
 ```
-
+### negative latitude fixed mapped
 ```{r negative latitude fixed mapped}
+### r negative latitude fixed mapped ----
 negative_lat_fixed <-
   negative_lat |> 
   select(LATITUDE, LONGITUDE) |> 
@@ -582,7 +596,7 @@ neg_lat_pos_long_fixed_map
 # Outside boundaries
 
 ```{r outside boundaries}
-## 3) outside boundaries ----
+# 3) outside boundaries ----
 
 trip_coord_info_vendors3_short <-
   trip_coord_info_vendors3 |>
@@ -647,6 +661,7 @@ out_of_boxmap_plot
 ## Out of box table
 
 ```{r Out of box table}
+## r Out of box table ----
 trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
   count(vendor_trip_cat, year_start) |> 
@@ -665,6 +680,8 @@ trip_coord_info_sf_out |>
 # Weird FISHING_HOURS
 
 ```{r Weird FISHING_HOURS}
+# r Weird FISHING_HOURS ----
+
 trip_coord_info_vendors3 |>
   select(TRIP_ID, FISHING_HOURS, year_start, vendor_trip_cat) |>
   distinct() |>
@@ -687,6 +704,7 @@ trip_coord_info_vendors3 |>
 # Weird TRIP_END_DATE
 
 ```{r Weird TRIP_END_DATE}
+# r Weird TRIP_END_DATE ----
 #| class: my_table
 
 #| class-output: striped
@@ -704,6 +722,7 @@ trip_coord_info_vendors3 |>
 
 # Count vessels with bad vesl coords
 ```{r count vessels with bad vesl coords}
+# r count vessels with bad vesl coords ----
 positive_long_vesl_ll <-
   positive_long_vesl |>
     select(LATITUDE, LONGITUDE) |>
@@ -758,8 +777,10 @@ glimpse(join_vesl_cnts_no_diff)
 
 ```
 
-## join_vesl_cnts_no_diff_ll coordinates
-```{r convert coords}
+## r convert join_vesl_cnts_no_diff_ll coords
+```{r convert join_vesl_cnts_no_diff_ll coords}
+## r convert join_vesl_cnts_no_diff_ll coords ----
+
 join_vesl_cnts_no_diff_ll <-
   trip_coord_info |>
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
@@ -801,6 +822,8 @@ glimpse(join_vesl_cnts_no_diff_ll_sf_l)
 
 ## map join_vesl_cnts_no_diff_ll
 ```{r map join_vesl_cnts_no_diff_ll}
+## r map join_vesl_cnts_no_diff_ll ----
+
 join_vesl_cnts_no_diff_ll_sf_l |> 
   leaflet() %>%
   addTiles() %>%
@@ -825,13 +848,15 @@ map_plot
 ```
 
 ```{r}
-join_vesl_cnts_no_diff_ll_sf
+# join_vesl_cnts_no_diff_ll_sf
 ```
 
 # On land
 
 ## Get the US borders
 ```{r Get the US borders}
+# On land ----
+## r Get the US borders ----
 us_bb <-
   tigris::counties(filter_by = big_bounding_box, progress_bar = FALSE)
 # sf::st_crs(us_bb)
@@ -855,8 +880,10 @@ gg <- gg + geom_sf(
 )
 # gg
 ```
-## get Shapefile USMaritimeLimitsNBoundaries
+## get Shapefile Coastal_County_Divisions_for_Shoreline_Cleanup_Operations
 ```{r get Coastal_County_Divisions_for_Shoreline_Cleanup_Operations}
+## r get Coastal_County_Divisions_for_Shoreline_Cleanup_Operations ----
+
 path_to_coastal <-
   file.path(
             r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\shapefiles\Coastal_County_Divisions_for_Shoreline_Cleanup_Operations\Coastal_County_Divisions_for_Shoreline_Cleanup_Operations.shp)")
@@ -908,6 +935,8 @@ coastal_sf
 
 ## get Shapefile USMaritimeLimitsNBoundaries
 ```{r get USMaritimeLimitsNBoundaries}
+## r get USMaritimeLimitsNBoundaries ----
+
 path_to_us_maritime <-
   file.path(my_paths$inputs, 
             r"(shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)")
@@ -952,7 +981,9 @@ res <-
 ```
 
 ## get Shapefile all waters
-```{r get GOMsf}
+```{r get Shapefile all waters}
+## r get Shapefile all waters ----
+
 path_to_federal_state_w <-
   file.path(my_paths$inputs, 
             r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
@@ -1015,8 +1046,10 @@ mapview(federal_state_w_sf_east)
 
 ```
 
-### Make the same crs for us_bb_border and state waters
-```{r Make the same crs for us_bb_border and state waters}
+### Make the same crs for us_bb_border and federal_state_w_sf_east
+```{r Make the same crs for us_bb_border and federal_state_w_sf_east}
+### r Make the same crs for us_bb_border and federal_state_w_sf_east ----
+
 # results='hide', message=FALSE, output = FALSE
 tic("sf::st_transform state w")
 federal_state_w_sf_east_trans <-
@@ -1038,7 +1071,10 @@ class(federal_state_w_sf_east_trans)
 # sf, df
 ```
 
-```{r Make the same crs for us_bb_border and state waters}
+### Make the same crs for us_bb_border and trip_coord_info_crop_big_sf
+```{r Make the same crs for us_bb_border and trip_coord_info_crop_big_sf}
+### r Make the same crs for us_bb_border and trip_coord_info_crop_big_sf ----
+
 # results='hide', message=FALSE, output = FALSE
 tic("sf::st_transform trip_coord_info_crop_big_sf")
 trip_coord_info_crop_big_sf_trans <-
@@ -1057,7 +1093,9 @@ toc(log = TRUE, quiet = TRUE)
 ```
 
 ### usa_bb and state intersection
-```{r not_st_waters}
+```{r usa_bb and state intersection}
+### r usa_bb and state intersection ----
+
 # class(us_bb_border)
 # [1] "sfc_MULTIPOLYGON" "sfc"             
 # dim(federal_state_w_sf_east_trans)
@@ -1105,7 +1143,8 @@ mapview(land_bb) +
 
 
 ### trips and state intersection
-```{r not_st_waters}
+```{r trips and state intersection}
+### r trips and state intersection ----
 
 # mapview(trip_coord_info_crop_big_sf)
 tic("trip_coord_info_sf_instate")
@@ -1396,8 +1435,10 @@ dim(on_land)
 m_l <- mapview(on_land)
 ```
 
-## On land polygons and points intersection(incl. state waters)
-```{r On land polygons and points intersection}
+## On land polygons and points intersection (incl. state waters)
+```{r On land polygons and points intersection (incl. state waters)}
+## On land polygons and points intersection (incl. state waters) ----
+
 trip_coord_info_sf_in <-
   trip_coord_info_short_sf |>
   filter(lengths(
@@ -1444,6 +1485,7 @@ toc(log = TRUE, quiet = TRUE)
 ```
 
 ```{r On land polygons and points intersection plot}
+### r On land polygons and points intersection plot ----
 gg + geom_sf(data = in_land_inters,
              color = "blue")
 
@@ -1451,6 +1493,7 @@ gg + geom_sf(data = in_land_inters,
 
 ## GOMsf_1 and us_bb intersection
 ```{r GOMsf_1 and us_bb intersection}
+## r GOMsf_1 and us_bb intersection ----
 tic("GOMsf_1 and us_bb intersection")
 st_waters <-
   sf::st_intersection(us_bb_border,
@@ -1465,7 +1508,7 @@ log.txt <- tic.log(format = TRUE)
 
 
 ```{r plot us_bb_border has state water GOMsf}
-
+## r GOMsf_1 and us_bb intersection ----
 ggplot() +
   ggplot2::geom_sf(data = sf::st_waters,
                    color = "red")
@@ -1474,6 +1517,8 @@ ggplot() +
 
 ## US map_data
 ```{r map_data}
+## r map_data ----
+
 usa <- map_data("usa")
 
 print_df_names(usa)
@@ -1509,8 +1554,9 @@ plot_us <-
   coord_fixed(1.3)
 ```
 
-
+## r usa map to polygons
 ```{r usa map to polygons}
+## r usa map to polygons ----
 # us_polys <- usa_sf %>%
 #   dplyr::group_by(region) %>%
 #   dplyr::summarise() %>%
@@ -1538,8 +1584,9 @@ plot(us_polys1)
 # sf::st_union
 ```
 
-
+#### r usa map to polygons 2
 ```{r usa map to polygons 2}
+#### r usa map to polygons 2 ----
 polygon_usa <- usa %>%
   sf::st_as_sf(coords = c("long", "lat"), crs = my_crs) %>%
   group_by(region) %>%
@@ -1551,6 +1598,7 @@ plot(polygon_usa)
 
 ## r map_data intersection with points
 ```{r map_data intersection with points}
+## r map_data intersection with points ----
 trip_coord_info_map_data_sf <-
   trip_coord_info_map_data |>
   sf::st_as_sf(coords = c("LONGITUDE",
@@ -1586,7 +1634,10 @@ sf::st_geometry(trip_coord_info_map_data_sf_inland)
 
 str(trip_coord_info_map_data_sf_inland)
 ```
-```{r}
+
+### plot trip_coord_info_map_data_sf_inland
+```{r plot trip_coord_info_map_data_sf_inland}
+### plot trip_coord_info_map_data_sf_inland ----
   ggplot() +
   geom_sf(
     data = trip_coord_info_map_data_sf_inland,
@@ -1597,10 +1648,12 @@ str(trip_coord_info_map_data_sf_inland)
 
 ```
 
-
+### r plot intersection with points
 ```{r plot intersection with points}
+### r plot intersection with points ----
 plot_us +
       ggplot2::geom_sf(data = trip_coord_info_map_data_sf_inland,
-                       color = "blue") 
+                       color = "blue") +
+  us_bb_border
 
 ```
