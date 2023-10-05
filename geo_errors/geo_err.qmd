@@ -993,7 +993,7 @@ east_coat_states <- c(
   "Virginia",
   "Washington DC"
 )
-# nc_sql = st_read(system.file("shape/nc.shp", package="sf"),
+# nc_sql = sf::st_read(system.file("shape/nc.shp", package="sf"),
 #                      query = "SELECT NAME, SID74, FIPS FROM \"nc\" WHERE BIR74 > 20000")
 
 # Jurisdicti
@@ -1287,8 +1287,8 @@ not_st_waters_gg_points
 tic("minus_gom")
 minus_sa_gom <-
   # trip_coord_info_crop_big_sf |>
-  st_filter(minus_sa,
-            st_union(in_gom), .predicate = st_disjoint)
+  sf::st_filter(minus_sa,
+            sf::st_union(in_gom), .predicate = sf::st_disjoint)
 toc(log = TRUE, quiet = TRUE)
 # minus_gom: 15.84 sec elapsed
 
@@ -1303,19 +1303,19 @@ mapview(minus_sa_gom) +
 # sf_use_s2(FALSE)
 # Spherical geometry (s2) switched off
 #
-# minus_gom <- st_difference(corrected_data_sf, gom_shp)
+# minus_gom <- sf::st_difference(corrected_data_sf, gom_shp)
 
 dim(minus_sa)
 # [1] 44023    20
 
-# minus_sa_gom <- st_difference(gom_shp, minus_sa)
-minus_sa_gom2 <- st_difference(minus_sa, gom_shp)
+# minus_sa_gom <- sf::st_difference(gom_shp, minus_sa)
+minus_sa_gom2 <- sf::st_difference(minus_sa, gom_shp)
 
 mm + m_g + m_s
 # m_s is still resent?
 
 # A helper function that erases all of y from x: ----
-st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+st_erase = function(x, y) sf::st_difference(x, sf::st_union(sf::st_combine(y)))
 
 names(corrected_data) %>% paste0(collapse = ", ")
 
@@ -1330,29 +1330,29 @@ corrected_data_short_sf <-
     MAXIMUM_BOTTOM_DEPTH,
     FISHING_GEAR_DEPTH
   ) %>%
-  st_as_sf(coords = c("LONGITUDE",
+  sf::st_as_sf(coords = c("LONGITUDE",
                       "LATITUDE"),
-           crs = st_crs(sa_shp))
+           crs = sf::st_crs(sa_shp))
 
 # str(corrected_data_short_sf)
 # Classes ‘sf’ and 'data.frame':	11998 obs. of  6 variables:
 
-# st_difference(corrected_data_short_sf,
-#               st_union(st_combine(c(gom_shp, sa_shp))))
+# sf::st_difference(corrected_data_short_sf,
+#               sf::st_union(sf::st_combine(c(gom_shp, sa_shp))))
 
-union_shp <- st_union(gom_shp, sa_shp)
-# although coordinates are longitude/latitude, st_union assumes that they are planar
+union_shp <- sf::st_union(gom_shp, sa_shp)
+# although coordinates are longitude/latitude, sf::st_union assumes that they are planar
 # Warning message:
 # attribute variables are assumed to be spatially constant throughout all geometries
 
 plot(union_shp)
 
-# st_difference(corrected_data_short_sf,
-#               st_union(st_combine(c(gom_shp, sa_shp))))
+# sf::st_difference(corrected_data_short_sf,
+#               sf::st_union(sf::st_combine(c(gom_shp, sa_shp))))
 
 corrected_data_short_minus_union_shp <-
-  st_difference(corrected_data_short_sf, union_shp)
-# although coordinates are longitude/latitude, st_difference
+  sf::st_difference(corrected_data_short_sf, union_shp)
+# although coordinates are longitude/latitude, sf::st_difference
 # assumes that they are planar
 
 # write_csv(corrected_data_short_minus_union_shp, "short_minus_sa_gom.csv")
@@ -1365,7 +1365,7 @@ m_minus + mapview(union_shp)
 # minus sa again? ----
 
 all_minus_sa <-
-  st_difference(corrected_data_short_minus_union_shp, sa_shp)
+  sf::st_difference(corrected_data_short_minus_union_shp, sa_shp)
 
 write_csv(all_minus_sa, "all_minus_sa.csv")
 
@@ -1386,10 +1386,10 @@ m_all_minus_sa + union_shp
 
 fl_shp <- read_shapefile("tl_2019_12_place_FL/tl_2019_12_place.shp")
 
-st_crs(fl_shp)
+sf::st_crs(fl_shp)
     # ID["EPSG",4269]]
 
-on_land <- st_intersection(corrected_data_short_sf, fl_shp)
+on_land <- sf::st_intersection(corrected_data_short_sf, fl_shp)
 dim(on_land)
 # [1] 3660   22
 
@@ -1467,12 +1467,12 @@ log.txt <- tic.log(format = TRUE)
 ```{r plot us_bb_border has state water GOMsf}
 
 ggplot() +
-  ggplot2::geom_sf(data = st_waters,
+  ggplot2::geom_sf(data = sf::st_waters,
                    color = "red")
 
 ```
 
-
+## US map_data
 ```{r map_data}
 usa <- map_data("usa")
 
@@ -1514,42 +1514,42 @@ plot_us <-
 # us_polys <- usa_sf %>%
 #   dplyr::group_by(region) %>%
 #   dplyr::summarise() %>%
-  # st_cast("POLYGON")
+  # sf::st_cast("POLYGON")
 # |> 
-  # st_convex_hull()
+  # sf::st_convex_hull()
   # stat_sf_coordinates()
   # sf::st_cast("POLYGON", ids = group)
 # |>
-#   st_cast("MULTIPOLYGON")
+#   sf::st_cast("MULTIPOLYGON")
 
 # us_polys <- usa %>%
-  us_polys1 <- st_sf(
+  us_polys1 <- sf::st_sf(
   aggregate(
     usa_sf$geometry,
     list(usa_sf$group),
     function(g){
-       st_cast(st_combine(g), "POLYGON")
+       sf::st_cast(sf::st_combine(g), "POLYGON")
     }
    ))
 
 str(us_polys1)
 plot(us_polys1)
 
-# st_union
+# sf::st_union
 ```
 
 
 ```{r usa map to polygons 2}
 polygon_usa <- usa %>%
-  st_as_sf(coords = c("long", "lat"), crs = my_crs) %>%
+  sf::st_as_sf(coords = c("long", "lat"), crs = my_crs) %>%
   group_by(region) %>%
-  summarise(geometry = st_combine(geometry)) %>%
-  st_cast("POLYGON")
+  summarise(geometry = sf::st_combine(geometry)) %>%
+  sf::st_cast("POLYGON")
 
 plot(polygon_usa)
 ```
 
-
+## r map_data intersection with points
 ```{r map_data intersection with points}
 trip_coord_info_map_data_sf <-
   trip_coord_info_map_data |>
