@@ -655,3 +655,8 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short <-
   distinct()
 # A tibble: 3,512 × 3
 
+## plot join_vesl_cnts_no_diff_all_wrong_vsls ----
+
+mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short,
+        xcol = "LATITUDE",
+        ycol = "LONGITUDE")
