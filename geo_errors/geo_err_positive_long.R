@@ -666,9 +666,13 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short_fix <-
 
 ## plot join_vesl_cnts_no_diff_all_wrong_vsls ----
 
-# join_vesl_cnts_no_diff_all_wrong_vsls_short_sf <-
-#   join_vesl_cnts_no_diff_all_wrong_vsls_short |>
-#   sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 6326)
+join_vesl_cnts_no_diff_all_wrong_vsls_short_sf <-
+  join_vesl_cnts_no_diff_all_wrong_vsls_short |>
+  sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_sf,
+        zcol = "VESSEL_ID")
+
 
 data_overview(join_vesl_cnts_no_diff_all_wrong_vsls_short)
  #    LATITUDE        LONGITUDE        VESSEL_ID
@@ -769,12 +773,15 @@ vessels_124_coord_freq_von <-
 # View(vessels_124_coord_freq_von)
 
 ### map vessels_124_coord_freq_von ----
-# TODO: add total trip counts
+# TODO: add total trip countsght
 vessels_124_coord_freq_von_sf <-
   vessels_124_coord_freq_von |>
   sf::st_as_sf(coords = c("LONGITUDE",
                         "LATITUDE"),
                  crs = 4326)
 
+
 vessels_124_coord_freq_von_sf |>
   mapview(zcol = "coord_freq")
+
+sf::st_geometry(vessels_124_coord_freq_von_sf)
