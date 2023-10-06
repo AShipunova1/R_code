@@ -25,6 +25,8 @@ all_get_db_data_result_l <- run_all_get_db_data()
 toc(log = TRUE, quiet = TRUE)
 # run_all_get_db_data(): 2.27 sec elapsed (from csv)
 
+# View(all_get_db_data_result_l)
+
 trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
   remove_empty_cols()
@@ -664,6 +666,18 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short_fix <-
 
 ## plot join_vesl_cnts_no_diff_all_wrong_vsls ----
 
+# join_vesl_cnts_no_diff_all_wrong_vsls_short_sf <-
+#   join_vesl_cnts_no_diff_all_wrong_vsls_short |>
+#   sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 6326)
+
+data_overview(join_vesl_cnts_no_diff_all_wrong_vsls_short)
+ #    LATITUDE        LONGITUDE        VESSEL_ID
+ # Min.   :-83.98   Min.   :  1.47   Min.   : 84633
+ # 1st Qu.: 27.14   1st Qu.: 81.44   1st Qu.:247428
+ # Median : 29.48   Median : 85.51   Median :326607
+ # Mean   : 27.79   Mean   : 74.19   Mean   :291283
+ # 3rd Qu.: 30.08   3rd Qu.: 86.35   3rd Qu.:329344
+ # Max.   : 88.00   Max.   :100.00   Max.   :398142
 # mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short,
 #         xcol = "LATITUDE",
 #         ycol = "LONGITUDE")
@@ -672,5 +686,95 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short_sf <-
   join_vesl_cnts_no_diff_all_wrong_vsls_short_fix |>
   sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
 
-mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_sf)
+mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_sf,
+        zcol = "VESSEL_ID")
 
+# all crs ----
+# https://inbo.github.io/tutorials/tutorials/spatial_crs_coding/
+proj_db <- system.file("proj/proj.db", package = "sf")
+  # For dynamically linked PROJ, provide the path to proj.db yourself:
+  # if (proj_db == "") proj_db <- proj_db_path
+crs_table <- sf::read_sf(proj_db, "crs_view") # extracts the "crs_view" table
+subset(crs_table, grepl("Belg|Ostend", name) & auth_name == "EPSG")[2:5]
+
+subset(crs_table, auth_name == "EPSG")[2:5]
+# # A tibble: 7,344 × 4
+#    auth_name code  name      type
+#    <chr>     <chr> <chr>     <chr>
+#  1 EPSG      3819  HD1909    geographic 2D
+#  2 EPSG      3821  TWD67     geographic 2D
+
+# check the vessels ----
+vessel_ids_124 <-
+  join_vesl_cnts_no_diff_all_wrong_vsls_short_fix$VESSEL_ID |>
+  unique()
+
+length(vessel_ids_124)
+# 124
+
+trip_coord_info |>
+  filter(VESSEL_ID %in% vessel_ids_124) |>
+  glimpse()
+head(vessel_ids_124)
+
+## get vessel o number  ----
+vessel_permits_info <-
+  all_get_db_data_result_l[["vessels_permits"]] |>
+  remove_empty_cols()
+
+vessel_permits_info_124 <-
+  vessel_permits_info |>
+  filter(VESSEL_VESSEL_ID %in% vessel_ids_124)
+
+dim(vessel_permits_info_124)
+# [1] 1878   50
+
+data_overview(vessel_permits_info_124)
+# PERMIT_VESSEL_ID      123
+
+setdiff(vessel_ids_124,
+        vessel_permits_info_124$VESSEL_VESSEL_ID)
+# [1] 328366
+# TODO: why there is a trip info, but not vessel/permit?
+
+View(vessel_permits_info_124)
+
+vessel_permits_info_124 |>
+  select(SERO_HOME_PORT_STATE) |>
+  distinct() |>
+  glimpse()
+
+# Rows: 10
+# $ SERO_HOME_PORT_STATE <chr> "FL", "AL", "NJ", "MS", "NC", "GA", "TX", "LA", …
+# how many coords per vessel ----
+vessels_124_coord_freq <-
+  join_vesl_cnts_no_diff_all_wrong_vsls_short_fix |>
+  add_count(VESSEL_ID, name = "coord_freq") |>
+  arrange(desc(coord_freq)) |> glimpse()
+# 124
+# $ VESSEL_ID <int> 249248, 329344, 169199, 328889, 170137, 248214, 329371, 247…
+# $ n         <int> 188, 172, 169, 137, 134, 130, 126, 123, 118, 103, 103, 100,…
+
+## add vessel o number ----
+
+vessels_124_coord_freq_von <-
+  vessel_permits_info_124 |>
+  select(VESSEL_VESSEL_ID,
+         PERMIT_VESSEL_ID) |>
+  distinct() |>
+  right_join(vessels_124_coord_freq,
+             join_by(VESSEL_VESSEL_ID == VESSEL_ID),
+             relationship = "many-to-many")
+
+# View(vessels_124_coord_freq_von)
+
+### map vessels_124_coord_freq_von ----
+# TODO: add total trip counts
+vessels_124_coord_freq_von_sf <-
+  vessels_124_coord_freq_von |>
+  sf::st_as_sf(coords = c("LONGITUDE",
+                        "LATITUDE"),
+                 crs = 4326)
+
+vessels_124_coord_freq_von_sf |>
+  mapview(zcol = "coord_freq")
