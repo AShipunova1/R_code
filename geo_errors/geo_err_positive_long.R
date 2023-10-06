@@ -520,20 +520,28 @@ join_vesl_cnts_no_diff_all_freq |>
 
 # result: 124 vessels have all they reported coordinates wrong (vesl, positive longitude)
 
-
-
-# test independance ----
-test <- chisq.test(join_vesl_cnts_no_diff_all$all_bad_vsl_cnt,
-                         join_vesl_cnts_no_diff_all$vesl_bad_vsl_cnt)
-test
-# X-squared = 24982, df = 18975, p-value < 0.00000000000000022
-test1 <-
-  stats::chisq.test(
+# test independence ----
+test <-
+  chisq.test(
     join_vesl_cnts_no_diff_all$all_bad_vsl_cnt,
     join_vesl_cnts_no_diff_all$vesl_bad_vsl_cnt
   )
+test
+# X-squared = 24982, df = 18975, p-value < 0.00000000000000022
 test$observed |> glimpse()
 test$expected |> glimpse()
+
+test1 <-
+  stats::chisq.test(
+    join_vesl_cnts_no_diff_all$vesl_bad_vsl_cnt,
+    join_vesl_cnts_no_diff_all$all_bad_vsl_cnt
+  )
+# Warning message:
+# In stats::chisq.test(join_vesl_cnts_no_diff_all$vesl_bad_vsl_cnt,  :
+#   Chi-squared approximation may be incorrect
+test1
+# same as test
+
 
 
 
