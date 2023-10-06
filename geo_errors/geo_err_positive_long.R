@@ -655,8 +655,22 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short <-
   distinct()
 # A tibble: 3,512 × 3
 
+# join_vesl_cnts_no_diff_all_wrong_vsls_short lon to negative ----
+join_vesl_cnts_no_diff_all_wrong_vsls_short_fix <-
+  join_vesl_cnts_no_diff_all_wrong_vsls_short |>
+  mutate(LONGITUDE = -abs(LONGITUDE))
+
+# check vessel_ids ----
+
 ## plot join_vesl_cnts_no_diff_all_wrong_vsls ----
 
-mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short,
-        xcol = "LATITUDE",
-        ycol = "LONGITUDE")
+# mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short,
+#         xcol = "LATITUDE",
+#         ycol = "LONGITUDE")
+
+join_vesl_cnts_no_diff_all_wrong_vsls_short_sf <-
+  join_vesl_cnts_no_diff_all_wrong_vsls_short_fix |>
+  sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_sf)
+
