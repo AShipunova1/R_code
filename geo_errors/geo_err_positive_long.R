@@ -495,7 +495,12 @@ join_vesl_cnts_no_diff_all |>
   arrange(cnt_diff) |>
   glimpse()
 
-# get the distribution of cnt differencies ----
+ggplot(join_vesl_cnts_no_diff_all) +
+  aes(x = cnt_diff) +
+  geom_bar() +
+  theme(legend.position = "none")
+
+# get the distribution of cnt differences ----
 join_vesl_cnts_no_diff_all_freq <-
   join_vesl_cnts_no_diff_all |>
   group_by(cnt_diff) %>%
@@ -507,14 +512,15 @@ join_vesl_cnts_no_diff_all_freq |>
   select(cnt_diff, cnt_diff_freq) |>
   distinct() |>
   glimpse()
+# Rows: 99
 # cnt_diff      <int> 0, 1, 2, 3, 4, 7, 16, 10, 9, 6, 12, 47, 34,…
 # $ cnt_diff_freq <int> 124, 23, 14, 9, 7, 6, 5, 4, 4, 4, 4, 3, 3,
 
+# summary(join_vesl_cnts_no_diff_all_freq)
+
 # result: 124 vessels have all they reported coordinates wrong (vesl, positive longitude)
-ggplot(join_vesl_cnts_no_diff_all) +
-  aes(x = cnt_diff) +
-  geom_bar() +
-  theme(legend.position = "none")
+
+
 
 # test independance ----
 test <- chisq.test(join_vesl_cnts_no_diff_all$all_bad_vsl_cnt,
