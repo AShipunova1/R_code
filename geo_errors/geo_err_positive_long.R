@@ -390,6 +390,7 @@ positive_long_vesl_ll <-
 dim(positive_long_vesl_ll)
 # [1] 4517    2
 
+# how many positive lon entries for each vsl ----
 positive_long_vesl_cnts <-
   positive_long_vesl |>
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
@@ -397,6 +398,7 @@ positive_long_vesl_cnts <-
   distinct() |>
   arrange(desc(vesl_bad_vsl_cnt))
 
+# cnt all entries for the same vessels ----
 all_vesl_cnts <-
   trip_coord_info |>
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
@@ -415,6 +417,7 @@ all_vesl_cnts_short <-
   select(VESSEL_ID, all_bad_vsl_cnt) |>
   distinct()
 
+# join both cnts ----
 join_vesl_cnts <-
   left_join(all_vesl_cnts_short,
             positive_long_vesl_cnts_short)
@@ -427,12 +430,115 @@ join_vesl_cnts |>
   dim()
 # [1] 231   3
 
-join_vesl_cnts_no_diff <-
+# check the difference between total and positive lon cnts ----
+join_vesl_cnts_no_diff_all <-
   join_vesl_cnts |>
-  mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt)) |>
+  mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt))
+
+join_vesl_cnts_no_diff <-
+ join_vesl_cnts_no_diff_all |>
   filter(cnt_diff < 3)
 glimpse(join_vesl_cnts_no_diff)
 # 161
+
+ggplot(join_vesl_cnts,
+       aes(factor(all_bad_vsl_cnt),
+           vesl_bad_vsl_cnt)) +
+  geom_boxplot() +
+  geom_smooth(
+    method = "lm",
+    se = FALSE,
+    color = "lightblue",
+    aes(group = 1)
+  ) +
+  geom_smooth(
+    method = "gam",
+    se = FALSE,
+    color = "purple",
+    aes(group = 1)
+  ) +
+
+  labs(title = "Positive lon entries vs total entries, by vessel",
+       x = "")
+# +
+#   theme(# turn x text
+#     axis.text.x = element_text(angle = 45))
+
+# find the model ----
+sim1_mod <- lm(vesl_bad_vsl_cnt ~ all_bad_vsl_cnt, data = join_vesl_cnts)
+best <- coef(sim1_mod)
+# (Intercept) vesl_bad_vsl_cnt
+# 42.9004745        0.7912089
+# best[[1]]
+# best <- optim(c(0, 0), measure_distance, data = sim1)
+# best$par
+#> [1] 4.222248 2.051204
+
+ggplot(join_vesl_cnts,
+       aes(all_bad_vsl_cnt,
+           vesl_bad_vsl_cnt)) +
+  geom_point(size = 2, colour = "grey30") +
+  geom_abline(intercept = best[[1]],
+              slope = best[[2]],
+              color = "green")
+
+#  is bad depends on total? ----
+# https://statsandr.com/blog/chi-square-test-of-independence-in-r/
+ggplot(join_vesl_cnts) +
+  aes(x = all_bad_vsl_cnt,
+      fill = factor(vesl_bad_vsl_cnt)) +
+  geom_bar() +
+  theme(legend.position = "none")
+
+# plot the difference ----
+join_vesl_cnts_no_diff_all |>
+  arrange(cnt_diff) |>
+  glimpse()
+
+# get the distribution of cnt differencies ----
+join_vesl_cnts_no_diff_all_freq <-
+  join_vesl_cnts_no_diff_all |>
+  group_by(cnt_diff) %>%
+  mutate(cnt_diff_freq = n()) %>%
+  ungroup() |>
+  arrange(desc(cnt_diff_freq))
+
+join_vesl_cnts_no_diff_all_freq |>
+  select(cnt_diff, cnt_diff_freq) |>
+  distinct() |>
+  glimpse()
+# cnt_diff      <int> 0, 1, 2, 3, 4, 7, 16, 10, 9, 6, 12, 47, 34,…
+# $ cnt_diff_freq <int> 124, 23, 14, 9, 7, 6, 5, 4, 4, 4, 4, 3, 3,
+
+# result: 124 vessels have all they reported coordinates wrong (vesl, positive longitude)
+ggplot(join_vesl_cnts_no_diff_all) +
+  aes(x = cnt_diff) +
+  geom_bar() +
+  theme(legend.position = "none")
+
+# test independance ----
+test <- chisq.test(join_vesl_cnts_no_diff_all$all_bad_vsl_cnt,
+                         join_vesl_cnts_no_diff_all$vesl_bad_vsl_cnt)
+test
+# X-squared = 24982, df = 18975, p-value < 0.00000000000000022
+test1 <-
+  stats::chisq.test(
+    join_vesl_cnts_no_diff_all$all_bad_vsl_cnt,
+    join_vesl_cnts_no_diff_all$vesl_bad_vsl_cnt
+  )
+test$observed |> glimpse()
+test$expected |> glimpse()
+
+
+
+# plot all_bad_vsl_cnt vs. vesl_bad_vsl_cnt ----
+ggplot(join_vesl_cnts,
+       aes(x = all_bad_vsl_cnt,
+           y = vesl_bad_vsl_cnt)) +
+  # geom_col(position = "dodge")
+  geom_point()
+
+# plot how many vessels have positive long ----
 
 ## r convert join_vesl_cnts_no_diff_ll coords ----
 
