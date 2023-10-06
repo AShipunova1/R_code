@@ -616,7 +616,42 @@ map_plot <-
   vesl_no_diff_bounding_box +
   ggplot2::ggtitle("join_vesl_cnts_no_diff_ll")
 
-map_plot
+# map_plot
 
 # join_vesl_cnts_no_diff_ll_sf
+
+# get vessel ids for "all entries are wrong" ----
+join_vesl_cnts_no_diff_all_wrong <-
+  join_vesl_cnts_no_diff_all |>
+  filter(cnt_diff == 0)
+
+glimpse(join_vesl_cnts_no_diff_all_wrong)
+# $ VESSEL_ID        <int> 295040, 249248, 329371, 169199, 84633, 172960, 170137,…
+# $ all_bad_vsl_cnt  <int> 514, 235, 227, 214, 199, 193, 186, 183, 179, 175, 173,…
+
+# one vessel coords ----
+coords_295040 <-
+  positive_long_vesl |>
+  filter(VESSEL_ID == "295040")
+
+View(coords_295040)
+
+coords_295040$E_DE |>
+  format(format = '%m/%d/%Y') |>
+  unique() |>
+  glimpse()
+ # chr [1:28] "07/02/2022" "03/14/2022" "04/15/2022" "05/02/2022" "05/04/2022" ...
+
+
+join_vesl_cnts_no_diff_all_wrong_vsls <-
+  positive_long_vesl |>
+  filter(VESSEL_ID %in% join_vesl_cnts_no_diff_all_wrong$VESSEL_ID)
+dim(join_vesl_cnts_no_diff_all_wrong_vsls)
+# [1] 8996   41
+
+join_vesl_cnts_no_diff_all_wrong_vsls_short <-
+  join_vesl_cnts_no_diff_all_wrong_vsls |>
+  select(LATITUDE, LONGITUDE, VESSEL_ID) |>
+  distinct()
+# A tibble: 3,512 × 3
 
