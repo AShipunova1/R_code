@@ -745,7 +745,12 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box <-
 
 mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
 
+on_land_pos_lon_fixed <-
+  crop_by_shape(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box,
+                ne_10m_land_sf_bb)
 
+dim(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
+mapview(on_land_pos_lon_fixed)
 
 # all crs ----
 # https://inbo.github.io/tutorials/tutorials/spatial_crs_coding/
