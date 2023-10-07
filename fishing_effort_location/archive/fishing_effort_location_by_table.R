@@ -23,7 +23,7 @@ db_data_w_area_short <-
     AREA_DISPLAY_NAME,
     DISTANCE_CODE_NAME,
     REGION
-  ) %>% 
+  ) %>%
   unique()
 
 dim(db_data_w_area_short)
@@ -53,7 +53,7 @@ data_overview(db_data_w_area_report_minus_gom)
 # db_data_w_area %>%
   # filter(is.na(AREA_CODE)) %>% dim()
 # 504
-# db_data_w_area_report_minus_gom %>% 
+# db_data_w_area_report_minus_gom %>%
    # filter(is.na(AREA_CODE)) %>% dim()
 # 0
 
@@ -66,13 +66,13 @@ db_data_w_area_report_minus_gom %<>%
 ## find codes ----
 # names(db_data_w_area_report_minus_gom)
 # db_data_w_area_report_minus_gom %>%
-  # filter(AREA_CODE == "001") %>% 
+  # filter(AREA_CODE == "001") %>%
   # select(# AREA_NAME,
     # SUB_AREA_CODE,
     # AREA_CODE,
     # DISTANCE_CODE_NAME,
     # REGION
-    # ) %>% 
+    # ) %>%
   # filter(is.na(AREA_CODE)) %>%
   # 0
   # unique() %>%
@@ -81,14 +81,14 @@ db_data_w_area_report_minus_gom %<>%
 # %>%
   # dim()
   # View()
-# 1 0000         
-# 2 0001         
-# 3 0008         
-# 4 0009 
+# 1 0000
+# 2 0001
+# 3 0008
+# 4 0009
 # REGION
-# 1 NA            
+# 1 NA
 # 2 SOUTH ATLANTIC
-# 3 UNKNOWN  
+# 3 UNKNOWN
 # Bahamas 186
 
 ### FL sub-areas SA ----
@@ -125,32 +125,32 @@ dim(sub1_fl_sub_areas)
 
 dim(sub2_not_fl_sub_areas)
 # [1] 125389     21
-# 40177    
+# 40177
 
 # 10824 + 125389 = 136213
 # 40177 + 3866 = 44043
 # dim(db_data_w_area_report_minus_gom) - in gom sub areas
-# 45269    
+# 45269
 # (AREA_CODE %in% names(sa_sub_area_codes)
 # [1] 14788    21
 
 dim(db_data_w_area_report_minus_gom)
 # [1] 140177     21
-# 45269    
+# 45269
 
 db_data_w_area_report_minus_gom_fl_sa <-
   rbind(sub1_fl_sub_areas, sub2_not_fl_sub_areas)
 
 dim(db_data_w_area_report_minus_gom_fl_sa)
 # [1] 136213     21
-# 44043    
+# 44043
 
 to_mapview <- function(my_df) {
   my_df %>%
     select(LATITUDE, LONGITUDE, row_id) %>%
     my_to_sf() %>% mapview() + sa_shp
 }
-# db_data_w_area_report_minus_gom_fl_sa %>% 
+# db_data_w_area_report_minus_gom_fl_sa %>%
 #   select(LATITUDE, LONGITUDE, row_id) %>%
 #   my_to_sf() %>% mapview() + sa_shp
 
@@ -158,7 +158,7 @@ to_mapview <- function(my_df) {
 area_codes_to_remove <- paste0("00", c(3:9))
 area_codes_to_remove_part2 <- paste0("0", c(10:19))
 
-# db_data_w_area_report_minus_gom_fl_sa %>% 
+# db_data_w_area_report_minus_gom_fl_sa %>%
   # filter(AREA_CODE %in% c("015", "052")) %>% View()
 
 # db_data_w_area_report_minus_gom_fl_sa %>% select(AREA_CODE) %>% unique %>% arrange(AREA_CODE) %>% View()
@@ -176,14 +176,14 @@ db_data_w_area_report_minus_gom_stat_areas <-
 
 # db_data_w_area_report_minus_gom_stat_areas %>%
 #   select(AREA_CODE) %>% unique() %>%
-#   arrange(AREA_CODE) %>% 
+#   arrange(AREA_CODE) %>%
 #   View()
 # 052?
 # dim(db_data_w_area_report_minus_gom_stat_areas)
 # [1] 130232     21
 # [1] 127553     21 (codes 10:)
 
-# 36366    
+# 36366
 # [1] 26004    19
 # [1] 25542    20
 # no 000
@@ -196,7 +196,7 @@ db_data_w_area_report_minus_gom_stat_areas <-
 db_data_w_area_report_minus_gom_stat_not0 <-
   filter(db_data_w_area_report_minus_gom_stat_areas,
          !(AREA_CODE %in% c("000", "OFF", "OFU")))
-  
+
 db_data_w_area_report_minus_gom_stat_no_area <-
   filter(db_data_w_area_report_minus_gom_stat_areas,
          AREA_CODE %in% c("000", "OFF", "OFU"))
@@ -214,7 +214,7 @@ fl_counties_sa <- c(
     "Palm Beach",
     "Saint Johns",
     "Saint Lucie",
-    "Volusia", 
+    "Volusia",
     "Monroe") #has GOM too, remove separately
 
 # create a filter
@@ -232,7 +232,7 @@ sub1_fl_counties <-
   filter(!!filter_fl_counties)
 dim(sub1_fl_counties)
 # [1] 42949    21
-# 14291    
+# 14291
 
 # save what is not in florida
 db_data_w_area_report_minus_gom_stat_no_area_not_fl <-
@@ -242,11 +242,11 @@ db_data_w_area_report_minus_gom_stat_no_area_not_fl <-
 dim(db_data_w_area_report_minus_gom_stat_no_area_not_fl)
 # [1] 23440    21
 # 23440 + 42949 = 66389
-# 8565   
+# 8565
 
 # dim(db_data_w_area_report_minus_gom_stat_no_area)
 
-sub1_fl_counties %>% 
+sub1_fl_counties %>%
   # View()
   count(END_PORT_COUNTY)
 # 11
@@ -320,7 +320,7 @@ good_coords_monroe_sf_minus_gom_df <-
   # remove the geometry field
   sf::st_drop_geometry(good_coords_monroe_sf_minus_gom) %>%
   # remove the rest of sf columns
-  select(-c("Area_SqKm", "Perim_M")) 
+  select(-c("Area_SqKm", "Perim_M"))
 
 dim(good_coords_monroe_sf_minus_gom_df)
 # [1] 22558     3
@@ -375,7 +375,7 @@ write_csv(db_data_w_area_report_table_cleaned,
 # TODO: check below
 ## combine SA areas ----
 db_data_w_area_report_minus_gom <-
-  db_data_w_area_report_minus_gom_sub1 %>% 
+  db_data_w_area_report_minus_gom_sub1 %>%
   rbind(db_data_w_area_report_minus_gom_sub2) %>%
   rbind(db_data_w_area_report_minus_gom_sub3) %>%
   rbind(db_data_w_area_report_minus_gom_sub4)
@@ -410,3 +410,5 @@ db_data_w_area_report_minus_gom_sf <-
 mapview(db_data_w_area_report_minus_gom_sf) + sa_shp +
   gom_reef_shp + fl_state_w_counties_shp
 
+# ===
+sf::sf_extSoftVersion()
