@@ -280,14 +280,22 @@ big_bounding_box_bathy <-
 toc()
 # File already exists ; loading 'marmap_coord_-97.79954;21.521757;-64.790337;49_res_1.csv'
 # getNOAA.bathy: 7.53 sec elapsed
+# str(big_bounding_box_bathy)
+# 'bathy' num [1:1980, 1:1648] 11.6 7.25 12.92 18.19 16.49 ...
+#  - attr(*, "dimnames")=List of 2
+#   ..$ : chr [1:1980] "-97.8200242718447" "-97.8033289466584" "-97.7866336214721" "-97.7699382962858" ...
+#   ..$ : chr [1:1648] "21.5" "21.5166970248937" "21.5333940497875" "21.5500910746812" ...
 
-plot(
-  big_bounding_box_bathy,
-  image = TRUE
-  # deep = -6000,
-  # shallow = 0,
-  # step = 1000
-)
+# ?deep
+marmap::plot.bathy(big_bounding_box_bathy, n = 1,
+                   drawlabels = TRUE)
+# plot(
+#   big_bounding_box_bathy,
+#   image = TRUE
+#   # deep = -6000,
+#   # shallow = 0,
+#   # step = 1000
+# )
 
 
 # r map all available points ----
