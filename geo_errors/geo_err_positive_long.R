@@ -989,20 +989,19 @@ corrected_coords_good_only_id_all_info <-
 #                 zcol_name = "PERMIT_VESSEL_ID")
 
 beatCol <-
-  colorFactor(palette = 'RdYlGn',
-              corrected_coords_good_only_id_all_info$PERMIT_VESSEL_ID)
+  colorFactor(palette = 'viridis',
+              factor(corrected_coords_good_only_id_all_info$coord_by_vsl_cnt))
 
-leaflet(data = corrected_coords_good_only_id_all_info) %>%
+radius = ~sqrt(BeatHome*50)
+
+good_fix_map <-
+  leaflet(data = corrected_coords_good_only_id_all_info) %>%
   addTiles() %>%
   addCircleMarkers(
-    options = pathOptions(coord_by_vsl_cnt = ~ coord_by_vsl_cnt),
-    label = ~ coord_by_vsl_cnt,
-    color = ~ beatCol(PERMIT_VESSEL_ID)
+    data = corrected_coords_good_only_id_all_info,
+    lat = ~ LATITUDE,
+    lng = ~ LONGITUDE,
+    label = ~ PERMIT_VESSEL_ID,
+    color = ~ beatCol(coord_by_vsl_cnt),
+    radius = 2
   )
-# beatCol <- colorFactor(palette = 'RdYlGn', last$BeatHomeLvl)
-# color = ~beatCol(BeatHomeLvl)
-# addCircleMarkers(~long, ~lat,
-#     popup = ~ as.character(mag),
-#     label = ~ as.character(mag),
-#     color = ~ ifelse(depth > 300, "red", "green")
-#   )
