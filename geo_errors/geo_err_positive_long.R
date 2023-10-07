@@ -893,3 +893,8 @@ dplyr::setdiff(corrected_coords_good$VESSEL_ID,
 both_bad_and_good_vsls_p_v_info <-
   vessel_permits_info |>
   filter(VESSEL_VESSEL_ID %in% both_bad_and_good_vsls)
+
+both_bad_and_good_vsls_p_v_ids <-
+  both_bad_and_good_vsls_p_v_info |>
+  select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  distinct()
