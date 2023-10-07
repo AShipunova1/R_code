@@ -670,9 +670,9 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short_sf <-
   join_vesl_cnts_no_diff_all_wrong_vsls_short |>
   sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
 
-mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_sf,
+positive_lon_points_map <-
+  mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_sf,
         zcol = "VESSEL_ID")
-
 
 data_overview(join_vesl_cnts_no_diff_all_wrong_vsls_short)
  #    LATITUDE        LONGITUDE        VESSEL_ID
@@ -682,16 +682,45 @@ data_overview(join_vesl_cnts_no_diff_all_wrong_vsls_short)
  # Mean   : 27.79   Mean   : 74.19   Mean   :291283
  # 3rd Qu.: 30.08   3rd Qu.: 86.35   3rd Qu.:329344
  # Max.   : 88.00   Max.   :100.00   Max.   :398142
-# mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short,
-#         xcol = "LATITUDE",
-#         ycol = "LONGITUDE")
 
-join_vesl_cnts_no_diff_all_wrong_vsls_short_sf <-
+join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf <-
   join_vesl_cnts_no_diff_all_wrong_vsls_short_fix |>
   sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
 
-mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_sf,
-        zcol = "VESSEL_ID")
+positive_lon_points_fix_map <-
+  mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf,
+          zcol = "VESSEL_ID")
+
+# mapview add the big box ----
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+mapview_line <- function(coord_names) {
+  y = c(big_bounding_box[["ymin"]],
+        big_bounding_box[["ymax"]])
+  x = c(big_bounding_box[["xmin"]],
+        big_bounding_box[["xmax"]])
+
+  pts = matrix(0, 2, 2)
+  pts[, 1] = x
+  pts[, 2] = y
+
+  m_line <-
+    sf::st_sfc(sf::st_linestring(pts), crs = 4326)
+
+  return(m_line)
+  }
+
+left_side_line <-
+
+
+positive_lon_points_map +
+  mapview(ls)
+
 
 # all crs ----
 # https://inbo.github.io/tutorials/tutorials/spatial_crs_coding/
@@ -773,7 +802,7 @@ vessels_124_coord_freq_von <-
 # View(vessels_124_coord_freq_von)
 
 ### map vessels_124_coord_freq_von ----
-# TODO: add total trip countsght
+# TODO: add total trip counts
 vessels_124_coord_freq_von_sf <-
   vessels_124_coord_freq_von |>
   sf::st_as_sf(coords = c("LONGITUDE",
@@ -785,3 +814,6 @@ vessels_124_coord_freq_von_sf |>
   mapview(zcol = "coord_freq")
 
 sf::st_geometry(vessels_124_coord_freq_von_sf)
+
+# TODO: histogram err freq by vessel
+# separate correctable positive lon ----
