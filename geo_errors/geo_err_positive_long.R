@@ -692,41 +692,6 @@ positive_lon_points_fix_map <-
           zcol = "VESSEL_ID")
 
 # mapview add the big box ----
-big_bounding_box <- c(
-   xmin = -97.79954,
-   ymin = 21.521757, #Cuba
-   xmax = -64.790337, #Bermuda
-   ymax = 49 #Canada
- )
-
-mapview_line <-
-  function(coord_names = c("xmin", "xmax", "ymin", "ymax")) {
-
-  st_as_sf(coords = c(x, y), crs = 4326)
-
-   xmin_name <- coord_names[[1]]
-   xmax_name <- coord_names[[2]]
-   ymin_name <- coord_names[[3]]
-   ymax_name <- coord_names[[4]]
-
-  y = c(big_bounding_box[[ymin_name]],
-        big_bounding_box[[ymax_name]])
-  x = c(big_bounding_box[[xmin_name]],
-        big_bounding_box[[xmax_name]])
-
-  pts = matrix(0, 2, 2)
-  pts[, 1] = x
-  pts[, 2] = y
-
-  m_line <-
-    sf::st_sfc(sf::st_linestring(pts), crs = 4326)
-
-  return(m_line)
-  }
-
-my_bbox = st_bbox(c(xmin = xmin, xmax = xmax,
-                    ymin = ymin, ymax = ymax),
-                  crs = 4326)
 big_box_map <- sf::st_bbox(
   c(
     xmin = big_bounding_box[["xmin"]],
