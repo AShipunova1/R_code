@@ -846,3 +846,16 @@ on_land_pos_lon_fixed <-
 dim(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
 mapview(on_land_pos_lon_fixed)
 
+## at see ----
+
+at_see_pos_lon_fixed <-
+  crop_by_shape(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box,
+                ne_10m_ocean_sf_bb)
+
+# mapview(at_see_pos_lon_fixed)
+str(at_see_pos_lon_fixed)
+# sf [2,598 × 7] (S3: sf/tbl_df/tbl/data.frame)
+
+corrected_coords <-
+  sf::st_drop_geometry(at_see_pos_lon_fixed) |>
+  select(VESSEL_ID, LONGITUDE, LATITUDE)
