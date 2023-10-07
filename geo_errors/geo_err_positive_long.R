@@ -312,6 +312,7 @@ toc()
 str(sf_big_bounding_box_bathy)
 
 #  example ----
+# https://stackoverflow.com/questions/73582299/creating-bathymetric-lines-from-getnoaa-bathy-and-add-them-to-ggplot-how-do-i-h
 # Get bathymetric data
 bat <- getNOAA.bathy(-12, -5, 35, 44, res = 4, keep = TRUE)
 bat_xyz <- as.xyz(bat)
