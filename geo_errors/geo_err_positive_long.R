@@ -699,11 +699,18 @@ big_bounding_box <- c(
    ymax = 49 #Canada
  )
 
-mapview_line <- function(coord_names) {
-  y = c(big_bounding_box[["ymin"]],
-        big_bounding_box[["ymax"]])
-  x = c(big_bounding_box[["xmin"]],
-        big_bounding_box[["xmax"]])
+mapview_line <-
+  function(coord_names = c("xmin", "xmax", "ymin", "ymax")) {
+
+   xmin_name <- coord_names[[1]]
+   xmax_name <- coord_names[[2]]
+   ymin_name <- coord_names[[3]]
+   ymax_name <- coord_names[[4]]
+
+  y = c(big_bounding_box[[ymin_name]],
+        big_bounding_box[[ymax_name]])
+  x = c(big_bounding_box[[xmin_name]],
+        big_bounding_box[[xmax_name]])
 
   pts = matrix(0, 2, 2)
   pts[, 1] = x
@@ -715,11 +722,11 @@ mapview_line <- function(coord_names) {
   return(m_line)
   }
 
-left_side_line <-
+left_side_line <- mapview_line()
 
 
 positive_lon_points_map +
-  mapview(ls)
+  mapview(left_side_line)
 
 
 # all crs ----
