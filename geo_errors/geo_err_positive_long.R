@@ -263,60 +263,6 @@ red_bounding_box <-
     color = "red",
     fill = NA
   )
-
-library(marmap)
-# marmap::getNOAA.bathy()
-tic("getNOAA.bathy")
-big_bounding_box_bathy <-
-  marmap::getNOAA.bathy(
-  lon1 = big_bounding_box[["xmax"]], #-20,
-  lon2 = big_bounding_box[["xmin"]], #-90,
-  lat1 = big_bounding_box[["ymax"]], #50,
-  lat2 = big_bounding_box[["ymin"]], #20,
-  resolution = 1,
-  keep = TRUE,
-  path = r"(geo_errors_additional)"
-)
-toc()
-# File already exists ; loading 'marmap_coord_-97.79954;21.521757;-64.790337;49_res_1.csv'
-# getNOAA.bathy: 7.53 sec elapsed
-# str(big_bounding_box_bathy)
-# 'bathy' num [1:1980, 1:1648] 11.6 7.25 12.92 18.19 16.49 ...
-#  - attr(*, "dimnames")=List of 2
-#   ..$ : chr [1:1980] "-97.8200242718447" "-97.8033289466584" "-97.7866336214721" "-97.7699382962858" ...
-#   ..$ : chr [1:1648] "21.5" "21.5166970248937" "21.5333940497875" "21.5500910746812" ...
-
-# ?deep
-marmap::plot.bathy(big_bounding_box_bathy, n = 1,
-                   drawlabels = TRUE)
-# plot(
-#   big_bounding_box_bathy,
-#   image = TRUE
-#   # deep = -6000,
-#   # shallow = 0,
-#   # step = 1000
-# )
-
-sp_big_bounding_box_bathy <-
-  as.SpatialGridDataFrame(big_bounding_box_bathy)
-
-str(sp_big_bounding_box_bathy)
-# Formal class 'SpatialGridDataFrame' [package "sp"] with 4 slots
-
-tic("sf_big_bounding_box_bathy")
-sf_big_bounding_box_bathy <-
-  sf::st_as_sf(sp_big_bounding_box_bathy, remove = F, crs = crs4326)
-toc()
-# sf_big_bounding_box_bathy: 46.59 sec elapsed
-
-str(sf_big_bounding_box_bathy)
-
-#  example ----
-# https://stackoverflow.com/questions/73582299/creating-bathymetric-lines-from-getnoaa-bathy-and-add-them-to-ggplot-how-do-i-h
-# Get bathymetric data
-bat <- getNOAA.bathy(-12, -5, 35, 44, res = 4, keep = TRUE)
-bat_xyz <- as.xyz(bat)
-
 # ===
 ne_10m_land_sf <-
   sf::read_sf(r"(my_inputs\shapefiles\ne_10m_land\ne_10m_land.shp)")
