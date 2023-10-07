@@ -181,21 +181,42 @@ crs4326 <- 4326
 my_crs <- crs4326
 
 lat_long_to_map <-
-  function(my_df, my_title = "my_title", legend = TRUE) {
-  my_df %>%
-    # save info to show on the map
-    dplyr::mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
-    # convert to sf
-    # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
-    sf::st_as_sf(coords = c("LONGITUDE",
-                        "LATITUDE"),
-                 crs = my_crs) %>%
-    mapview::mapview(
-      col.regions = viridisLite::turbo,
-      layer.name = my_title,
-      legend = legend
-    ) %>% return()
-}
+  function(my_df, my_title = "my_title", legend = TRUE,
+           zcol_name = "") {
+
+    my_sf <-
+      my_df %>%
+      # save info to show on the map
+      dplyr::mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+      # convert to sf
+      # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
+      sf::st_as_sf(coords = c("LONGITUDE",
+                              "LATITUDE"),
+                   crs = my_crs)
+
+    if (length(zcol_name) > 0) {
+      my_map <-
+        my_sf |>
+        mapview::mapview(
+          col.regions = viridisLite::turbo,
+          layer.name = my_title,
+          legend = legend,
+          zcol = zcol_name
+        )
+
+    } else {
+      my_map <-
+        my_sf |>
+        mapview::mapview(
+          col.regions = viridisLite::turbo,
+          layer.name = my_title,
+          legend = legend
+        )
+
+    }
+
+    return(my_map)
+  }
 
 world_coast <-
   rnaturalearth::ne_coastline(returnclass = 'sf')
@@ -933,6 +954,55 @@ mapview(both_bad_and_good_vsls_p_v_ids_all_info_sf,
         legend = FALSE)
 
 # pull all info by vessel_ids ----
+info_by_vsl_ids <- function(vsl_id_lists) {
+
+  p_v_info <-
+    vessel_permits_info |>
+    filter(VESSEL_VESSEL_ID %in% vsl_id_lists)
+
+  p_v_ids <-
+    p_v_info |>
+    select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+    distinct()
+
+  # get coords for both_bad_and_good_vsls
+
+  p_v_ids_all_info <-
+    trip_coord_info |>
+    right_join(p_v_ids,
+               join_by(VESSEL_ID ==
+                         VESSEL_VESSEL_ID)) |>
+    select(PERMIT_VESSEL_ID, VESSEL_ID,
+           LATITUDE, LONGITUDE)
+
+  return(p_v_ids_all_info)
+}
 
 # map good ----
-lat_long_to_map(corrected_coords_good_only_id)
+corrected_coords_good_only_id_all_info <-
+  info_by_vsl_ids(corrected_coords_good_only_id) |>
+  add_count(PERMIT_VESSEL_ID, VESSEL_ID,
+            name = "coord_by_vsl_cnt") |>
+  mutate(LONGITUDE = -abs(LONGITUDE))
+
+# lat_long_to_map(corrected_coords_good_only_id_all_info,
+#                 zcol_name = "PERMIT_VESSEL_ID")
+
+beatCol <-
+  colorFactor(palette = 'RdYlGn',
+              corrected_coords_good_only_id_all_info$PERMIT_VESSEL_ID)
+
+leaflet(data = corrected_coords_good_only_id_all_info) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    options = pathOptions(coord_by_vsl_cnt = ~ coord_by_vsl_cnt),
+    label = ~ coord_by_vsl_cnt,
+    color = ~ beatCol(PERMIT_VESSEL_ID)
+  )
+# beatCol <- colorFactor(palette = 'RdYlGn', last$BeatHomeLvl)
+# color = ~beatCol(BeatHomeLvl)
+# addCircleMarkers(~long, ~lat,
+#     popup = ~ as.character(mag),
+#     label = ~ as.character(mag),
+#     color = ~ ifelse(depth > 300, "red", "green")
+#   )
