@@ -297,6 +297,17 @@ marmap::plot.bathy(big_bounding_box_bathy, n = 1,
 #   # step = 1000
 # )
 
+sp_big_bounding_box_bathy <-
+  as.SpatialGridDataFrame(big_bounding_box_bathy)
+
+str(sp_big_bounding_box_bathy)
+# Formal class 'SpatialGridDataFrame' [package "sp"] with 4 slots
+
+tic("sf_big_bounding_box_bathy")
+sf_big_bounding_box_bathy <-
+  sf::st_as_sf(sp_big_bounding_box_bathy)
+toc()
+# sf_big_bounding_box_bathy: 46.59 sec elapsed
 
 # r map all available points ----
 trip_coord_info_map_data <-
