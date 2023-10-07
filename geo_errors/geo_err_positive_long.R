@@ -702,6 +702,8 @@ big_bounding_box <- c(
 mapview_line <-
   function(coord_names = c("xmin", "xmax", "ymin", "ymax")) {
 
+  st_as_sf(coords = c(x, y), crs = 4326)
+
    xmin_name <- coord_names[[1]]
    xmax_name <- coord_names[[2]]
    ymin_name <- coord_names[[3]]
@@ -722,11 +724,21 @@ mapview_line <-
   return(m_line)
   }
 
-left_side_line <- mapview_line()
+my_bbox = st_bbox(c(xmin = xmin, xmax = xmax,
+                    ymin = ymin, ymax = ymax),
+                  crs = 4326)
+big_box_map <- sf::st_bbox(
+  c(
+    xmin = big_bounding_box[["xmin"]],
+    xmax = big_bounding_box[["xmax"]],
+    ymin = big_bounding_box[["ymin"]],
+    ymax = big_bounding_box[["ymax"]]
+  ),
+  crs = 4326
+)
 
-
-positive_lon_points_map +
-  mapview(left_side_line)
+positive_lon_points_fix_map +
+  big_box_map
 
 
 # all crs ----
