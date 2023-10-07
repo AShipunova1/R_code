@@ -880,14 +880,19 @@ both_bad_and_good_vsls <-
   dplyr::intersect(corrected_bad$VESSEL_ID,
             corrected_coords_good$VESSEL_ID)
 
+length(both_bad_and_good_vsls)
+# 64
+
 dplyr::setdiff(corrected_bad$VESSEL_ID,
             corrected_coords_good$VESSEL_ID) |>
   length()
 # 13
 
-dplyr::setdiff(corrected_coords_good$VESSEL_ID,
-               corrected_bad$VESSEL_ID) |>
-  length()
+corrected_coords_good_only_id <-
+  dplyr::setdiff(corrected_coords_good$VESSEL_ID,
+               corrected_bad$VESSEL_ID)
+
+length(corrected_coords_good_only_id)
 # 47
 
 both_bad_and_good_vsls_p_v_info <-
@@ -898,3 +903,36 @@ both_bad_and_good_vsls_p_v_ids <-
   both_bad_and_good_vsls_p_v_info |>
   select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   distinct()
+
+## get coords for both_bad_and_good_vsls ----
+# print_df_names(both_bad_and_good_vsls_p_v_ids_all_info)
+# [1] "PERMIT_VESSEL_ID, VESSEL_ID, LATITUDE, LONGITUDE"
+
+both_bad_and_good_vsls_p_v_ids_all_info <-
+  trip_coord_info |>
+  right_join(both_bad_and_good_vsls_p_v_ids,
+             join_by(VESSEL_ID ==
+                       VESSEL_VESSEL_ID)) |>
+  select(PERMIT_VESSEL_ID, VESSEL_ID,
+         LATITUDE, LONGITUDE)
+
+glimpse(both_bad_and_good_vsls_p_v_ids_all_info)
+# [1] 5672    4
+
+both_bad_and_good_vsls_p_v_ids_all_info_sf <-
+  both_bad_and_good_vsls_p_v_ids_all_info |>
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = crs4326)
+
+
+# lat_long_to_map(both_bad_and_good_vsls_p_v_ids_all_info)
+
+mapview(both_bad_and_good_vsls_p_v_ids_all_info_sf,
+        zcol = "PERMIT_VESSEL_ID",
+        legend = FALSE)
+
+# pull all info by vessel_ids ----
+
+# map good ----
+lat_long_to_map(corrected_coords_good_only_id)
