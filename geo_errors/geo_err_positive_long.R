@@ -178,6 +178,7 @@ toc(log = TRUE, quiet = TRUE)
 
 # r map functions ----
 crs4326 <- 4326
+my_crs <- crs4326
 
 lat_long_to_map <-
   function(my_df, my_title = "my_title", legend = TRUE) {
@@ -856,6 +857,21 @@ at_see_pos_lon_fixed <-
 str(at_see_pos_lon_fixed)
 # sf [2,598 × 7] (S3: sf/tbl_df/tbl/data.frame)
 
-corrected_coords <-
+corrected_coords_good <-
   sf::st_drop_geometry(at_see_pos_lon_fixed) |>
   select(VESSEL_ID, LONGITUDE, LATITUDE)
+
+corrected_bad <-
+  setdiff(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix,
+          corrected_coords_good)
+
+dim(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix)
+# [1] 3512    3
+
+dim(corrected_coords_good)
+# [1] 2598    3
+
+dim(corrected_bad)
+# [1] 914   3
+
+# correct
