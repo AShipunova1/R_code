@@ -990,18 +990,33 @@ corrected_coords_good_only_id_all_info <-
 
 beatCol <-
   colorFactor(palette = 'viridis',
-              factor(corrected_coords_good_only_id_all_info$coord_by_vsl_cnt))
+              factor(corrected_coords_good_only_id_all_info$PERMIT_VESSEL_ID))
 
-radius = ~sqrt(BeatHome*50)
+# radius = ~sqrt(BeatHome*50)
+dim(corrected_coords_good_only_id_all_info)
+# [1] 2361    5
+
+corrected_coords_good_only_id_all_info_u <-
+  corrected_coords_good_only_id_all_info |>
+  distinct()
+
+dim(corrected_coords_good_only_id_all_info_u)
+# [1] 417   5
 
 good_fix_map <-
-  leaflet(data = corrected_coords_good_only_id_all_info) %>%
+  leaflet(data = corrected_coords_good_only_id_all_info_u) %>%
   addTiles() %>%
   addCircleMarkers(
-    data = corrected_coords_good_only_id_all_info,
+    data = corrected_coords_good_only_id_all_info_u,
     lat = ~ LATITUDE,
     lng = ~ LONGITUDE,
-    label = ~ PERMIT_VESSEL_ID,
-    color = ~ beatCol(coord_by_vsl_cnt),
-    radius = 2
+    label = ~ paste(PERMIT_VESSEL_ID, coord_by_vsl_cnt,
+                     sep = ": "),
+    color = ~ beatCol(PERMIT_VESSEL_ID),
+    radius = ~ coord_by_vsl_cnt * 0.05,
+    markerClusterOptions()
+    # ,
+    # labelOptions = labelOptions(noHide = T)
   )
+
+good_fix_map
