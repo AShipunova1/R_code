@@ -862,7 +862,7 @@ corrected_coords_good <-
   select(VESSEL_ID, LONGITUDE, LATITUDE)
 
 corrected_bad <-
-  setdiff(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix,
+  dplyr::setdiff(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix,
           corrected_coords_good)
 
 dim(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix)
@@ -875,3 +875,21 @@ dim(corrected_bad)
 # [1] 914   3
 
 # correct
+
+both_bad_and_good_vsls <-
+  dplyr::intersect(corrected_bad$VESSEL_ID,
+            corrected_coords_good$VESSEL_ID)
+
+dplyr::setdiff(corrected_bad$VESSEL_ID,
+            corrected_coords_good$VESSEL_ID) |>
+  length()
+# 13
+
+dplyr::setdiff(corrected_coords_good$VESSEL_ID,
+               corrected_bad$VESSEL_ID) |>
+  length()
+# 47
+
+both_bad_and_good_vsls_p_v_info <-
+  vessel_permits_info |>
+  filter(VESSEL_VESSEL_ID %in% both_bad_and_good_vsls)
