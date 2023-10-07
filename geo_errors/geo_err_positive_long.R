@@ -176,6 +176,8 @@ trip_coord_info_vendors3_trip <-
 toc(log = TRUE, quiet = TRUE)
 
 # r map functions ----
+crs4326 <- 4326
+
 lat_long_to_map <-
   function(my_df, my_title = "my_title", legend = TRUE) {
   my_df %>%
@@ -668,7 +670,7 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short_fix <-
 
 join_vesl_cnts_no_diff_all_wrong_vsls_short_sf <-
   join_vesl_cnts_no_diff_all_wrong_vsls_short |>
-  sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+  sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = crs4326)
 
 positive_lon_points_map <-
   mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_sf,
@@ -685,7 +687,7 @@ data_overview(join_vesl_cnts_no_diff_all_wrong_vsls_short)
 
 join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf <-
   join_vesl_cnts_no_diff_all_wrong_vsls_short_fix |>
-  sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+  sf::st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = crs4326)
 
 positive_lon_points_fix_map <-
   mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf,
@@ -699,7 +701,7 @@ big_box_map <- sf::st_bbox(
     ymin = big_bounding_box[["ymin"]],
     ymax = big_bounding_box[["ymax"]]
   ),
-  crs = 4326
+  crs = crs4326
 )
 
 positive_lon_points_fix_map +
@@ -791,7 +793,7 @@ vessels_124_coord_freq_von_sf <-
   vessels_124_coord_freq_von |>
   sf::st_as_sf(coords = c("LONGITUDE",
                         "LATITUDE"),
-                 crs = 4326)
+                 crs = crs4326)
 
 
 vessels_124_coord_freq_von_sf |>
