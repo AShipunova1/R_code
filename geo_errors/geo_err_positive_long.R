@@ -305,9 +305,35 @@ str(sp_big_bounding_box_bathy)
 
 tic("sf_big_bounding_box_bathy")
 sf_big_bounding_box_bathy <-
-  sf::st_as_sf(sp_big_bounding_box_bathy)
+  sf::st_as_sf(sp_big_bounding_box_bathy, remove = F, crs = crs4326)
 toc()
 # sf_big_bounding_box_bathy: 46.59 sec elapsed
+
+str(sf_big_bounding_box_bathy)
+
+#  example ----
+# Get bathymetric data
+bat <- getNOAA.bathy(-12, -5, 35, 44, res = 4, keep = TRUE)
+bat_xyz <- as.xyz(bat)
+
+# Import country data
+country <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Plot using ggplot and sf
+ggplot() +
+  geom_sf(data = country) +
+  geom_tile(data = bat_xyz, aes(x = V1, y = V2, fill = V3)) +
+  geom_contour(data = bat_xyz,
+               aes(x = V1, y = V2, z = V3),
+               binwidth = 100, color = "grey85", size = 0.1) +
+  geom_contour(data = bat_xyz,
+               aes(x = V1, y = V2, z = V3),
+               breaks = -200, color = "grey85", size = 0.5) +
+  geom_sf(data = country) +
+  coord_sf(xlim = c(-12, -5),
+           ylim = c(35, 44)) +
+  labs(x = "Longitude", y = "Latitude", fill = "Depth (m)") +
+  theme_minimal()
 
 # r map all available points ----
 trip_coord_info_map_data <-
