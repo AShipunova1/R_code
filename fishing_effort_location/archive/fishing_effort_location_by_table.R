@@ -410,5 +410,3 @@ db_data_w_area_report_minus_gom_sf <-
 mapview(db_data_w_area_report_minus_gom_sf) + sa_shp +
   gom_reef_shp + fl_state_w_counties_shp
 
-# ===
-sf::sf_extSoftVersion()
