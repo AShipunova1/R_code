@@ -317,7 +317,21 @@ str(sf_big_bounding_box_bathy)
 bat <- getNOAA.bathy(-12, -5, 35, 44, res = 4, keep = TRUE)
 bat_xyz <- as.xyz(bat)
 
-# Import country data
+# ===
+ne_10m_land_sf <-
+  sf::read_sf(r"(my_inputs\shapefiles\ne_10m_land\ne_10m_land.shp)")
+
+sf::st_geometry(ne_10m_land_sf)
+# Geodetic CRS:  WGS 84
+# Geometry type: MULTIPOLYGON
+
+ne_10m_land_sf_bb <-
+  sf::st_crop(ne_10m_land_sf,
+              big_bounding_box)
+# plot(ne_10m_land_sf_bb)
+
+
+# Import country data ----
 country <- ne_countries(scale = "medium", returnclass = "sf")
 
 # Plot using ggplot and sf
