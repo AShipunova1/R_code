@@ -704,9 +704,14 @@ big_box_map <- sf::st_bbox(
   crs = crs4326
 )
 
-positive_lon_points_fix_map +
-  big_box_map
+# positive_lon_points_fix_map +
+#   big_box_map
 
+# separate fixable coords ----
+join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box <-
+  sf::st_crop(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf, big_bounding_box)
+
+mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
 
 # all crs ----
 # https://inbo.github.io/tutorials/tutorials/spatial_crs_coding/
