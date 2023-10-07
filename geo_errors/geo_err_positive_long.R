@@ -263,7 +263,7 @@ red_bounding_box <-
     color = "red",
     fill = NA
   )
-# ===
+# get land map ----
 ne_10m_land_sf <-
   sf::read_sf(r"(my_inputs\shapefiles\ne_10m_land\ne_10m_land.shp)")
 
@@ -276,6 +276,16 @@ ne_10m_land_sf_bb <-
               big_bounding_box)
 # plot(ne_10m_land_sf_bb)
 
+# get ocean map ne ----
+ne_10m_ocean_sf <-
+  sf::read_sf(r"(my_inputs\shapefiles\ne_10m_ocean\ne_10m_ocean.shp)")
+
+ne_10m_ocean_sf_bb <-
+  sf::st_crop(ne_10m_ocean_sf,
+              big_bounding_box)
+
+# sf::st_crs(ne_10m_ocean_sf_bb)
+    # ID["EPSG",4326]]
 
 # Import country data ----
 country <- ne_countries(scale = "medium", returnclass = "sf")
@@ -748,6 +758,9 @@ mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
 on_land_pos_lon_fixed <-
   crop_by_shape(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box,
                 ne_10m_land_sf_bb)
+
+# sf::st_crs(ne_10m_land_sf_bb)
+#     ID["EPSG",4326]]
 
 dim(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
 mapview(on_land_pos_lon_fixed)
