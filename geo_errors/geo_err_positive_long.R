@@ -264,6 +264,32 @@ red_bounding_box <-
     fill = NA
   )
 
+library(marmap)
+# marmap::getNOAA.bathy()
+tic("getNOAA.bathy")
+big_bounding_box_bathy <-
+  marmap::getNOAA.bathy(
+  lon1 = big_bounding_box[["xmax"]], #-20,
+  lon2 = big_bounding_box[["xmin"]], #-90,
+  lat1 = big_bounding_box[["ymax"]], #50,
+  lat2 = big_bounding_box[["ymin"]], #20,
+  resolution = 1,
+  keep = TRUE,
+  path = r"(geo_errors_additional)"
+)
+toc()
+# File already exists ; loading 'marmap_coord_-97.79954;21.521757;-64.790337;49_res_1.csv'
+# getNOAA.bathy: 7.53 sec elapsed
+
+plot(
+  big_bounding_box_bathy,
+  image = TRUE
+  # deep = -6000,
+  # shallow = 0,
+  # step = 1000
+)
+
+
 # r map all available points ----
 trip_coord_info_map_data <-
   trip_coord_info |>
@@ -712,6 +738,8 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box <-
   sf::st_crop(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf, big_bounding_box)
 
 mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
+
+
 
 # all crs ----
 # https://inbo.github.io/tutorials/tutorials/spatial_crs_coding/
