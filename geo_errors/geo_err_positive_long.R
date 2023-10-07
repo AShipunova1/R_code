@@ -10,6 +10,7 @@ library(rnaturalearth) #coastline
 library(knitr)
 library(maps)
 library(mapdata)
+library(sf)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -289,22 +290,6 @@ ne_10m_ocean_sf_bb <-
 
 # Import country data ----
 country <- ne_countries(scale = "medium", returnclass = "sf")
-
-# Plot using ggplot and sf
-ggplot() +
-  geom_sf(data = country) +
-  geom_tile(data = bat_xyz, aes(x = V1, y = V2, fill = V3)) +
-  geom_contour(data = bat_xyz,
-               aes(x = V1, y = V2, z = V3),
-               binwidth = 100, color = "grey85", size = 0.1) +
-  geom_contour(data = bat_xyz,
-               aes(x = V1, y = V2, z = V3),
-               breaks = -200, color = "grey85", size = 0.5) +
-  geom_sf(data = country) +
-  coord_sf(xlim = c(-12, -5),
-           ylim = c(35, 44)) +
-  labs(x = "Longitude", y = "Latitude", fill = "Depth (m)") +
-  theme_minimal()
 
 # r map all available points ----
 trip_coord_info_map_data <-
@@ -749,21 +734,6 @@ big_box_map <- sf::st_bbox(
 # positive_lon_points_fix_map +
 #   big_box_map
 
-# separate fixable coords ----
-join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box <-
-  sf::st_crop(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf, big_bounding_box)
-
-mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
-
-on_land_pos_lon_fixed <-
-  crop_by_shape(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box,
-                ne_10m_land_sf_bb)
-
-# sf::st_crs(ne_10m_land_sf_bb)
-#     ID["EPSG",4326]]
-
-dim(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
-mapview(on_land_pos_lon_fixed)
 
 # all crs ----
 # https://inbo.github.io/tutorials/tutorials/spatial_crs_coding/
@@ -860,3 +830,19 @@ sf::st_geometry(vessels_124_coord_freq_von_sf)
 
 # TODO: histogram err freq by vessel
 # separate correctable positive lon ----
+
+join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box <-
+  sf::st_crop(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf, big_bounding_box)
+
+mapview(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
+
+on_land_pos_lon_fixed <-
+  crop_by_shape(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box,
+                ne_10m_land_sf_bb)
+
+# sf::st_crs(ne_10m_land_sf_bb)
+#     ID["EPSG",4326]]
+
+dim(join_vesl_cnts_no_diff_all_wrong_vsls_short_fix_sf_in_box)
+mapview(on_land_pos_lon_fixed)
+
