@@ -32,8 +32,18 @@ trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
   remove_empty_cols()
 
-# r prepare vendor columns ----
+## get vessel o. number  ----
+vessel_permits_info <-
+  all_get_db_data_result_l[["vessels_permits"]] |>
+  remove_empty_cols()
 
+# keep only id info ---
+vessel_permits_ids <-
+  vessel_permits_info |>
+  select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
+  distinct()
+
+# r prepare vendor columns ----
 trip_coord_info_vendors <-
   trip_coord_info |>
   group_by(LATITUDE, LONGITUDE) |>
@@ -55,10 +65,6 @@ trip_coord_info_vendors3_trip <-
 toc(log = TRUE, quiet = TRUE)
 # print_toc_log()
 # trip_coord_info_vendors3_trip: 71.47 sec elapsed
-
-trip_coord_info_vendors3 <-
-  trip_coord_info_vendors3_trip |>
-  mutate(year_start = year(TRIP_START_DATE))
 
 ## positive_long ----
 positive_long <-
