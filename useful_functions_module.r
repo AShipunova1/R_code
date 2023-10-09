@@ -710,3 +710,12 @@ vessels_permits_id_clean <-
       rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
     return(vessels_permits)
   }
+
+# to use with toc(log = TRUE, quiet = TRUE)
+print_toc_log <- function(variables) {
+  log.txt <- tic.log(format = TRUE)
+
+  writeLines(unlist(log.txt))
+  tic.clearlog()
+
+}
