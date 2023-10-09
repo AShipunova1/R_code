@@ -1,16 +1,16 @@
-# setup ----
-library(mapview)
-library(ggplot2)
-library(ggmap)
-library(leaflet)
-library(tigris)
-tigris_use_cache = TRUE
-
-library(rnaturalearth) #coastline
-library(knitr)
-library(maps)
-library(mapdata)
-library(sf)
+# # setup ----
+# library(mapview)
+# library(ggplot2)
+# library(ggmap)
+# library(leaflet)
+# library(tigris)
+# tigris_use_cache = TRUE
+#
+# library(rnaturalearth) #coastline
+# library(knitr)
+# library(maps)
+# library(mapdata)
+# library(sf)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -32,6 +32,29 @@ trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
   remove_empty_cols()
 
+# r prepare vendor columns ----
+
+trip_coord_info_vendors <-
+  trip_coord_info |>
+  group_by(LATITUDE, LONGITUDE) |>
+  # mutate(all_permits = toString(unique(TOP))) |>
+  mutate(vendor_trip = toString(unique(T_UE)),
+         vendor_effort = toString(unique(E_UE))) |>
+  ungroup()
+
+tic("trip_coord_info_vendors3_trip")
+trip_coord_info_vendors3_trip <-
+  trip_coord_info |>
+  group_by(LATITUDE, LONGITUDE) |>
+  mutate(vendor_trip_cat = case_when(
+    trimws(tolower(T_UE)) == "vms" ~ "vms",
+    trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
+    .default = "etrips"
+  )) |>
+  ungroup()
+toc(log = TRUE, quiet = TRUE)
+
+#====
 world_coast <-
   rnaturalearth::ne_coastline(returnclass = "sf")
 # class(world_coast)
@@ -1022,4 +1045,6 @@ good_fix_map <-
 # good_fix_map
 
 # report ----
+  # good, bad, both
+  # vsls, trips, locations, owners
 
