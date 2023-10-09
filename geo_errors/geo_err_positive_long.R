@@ -53,6 +53,17 @@ trip_coord_info_vendors3_trip <-
   )) |>
   ungroup()
 toc(log = TRUE, quiet = TRUE)
+# print_toc_log()
+# trip_coord_info_vendors3_trip: 71.47 sec elapsed
+
+trip_coord_info_vendors3 <-
+  trip_coord_info_vendors3_trip |>
+  mutate(year_start = year(TRIP_START_DATE))
+
+## positive_long ----
+positive_long <-
+  trip_coord_info_vendors3 %>%
+  filter(LONGITUDE > 0)
 
 #====
 world_coast <-
