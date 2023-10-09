@@ -71,6 +71,29 @@ positive_long <-
   trip_coord_info_vendors3 %>%
   filter(LONGITUDE > 0)
 
+# cnt err per vessel, compare with total lgb ----
+trip_coord_info_short <-
+  trip_coord_info |>
+  select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
+  distinct()
+
+trip_coord_info_short_cnt_coord_per_vsl <-
+  trip_coord_info_short |>
+  select(-TRIP_ID) |>
+  add_count(LATITUDE, LONGITUDE, name = "total_coords_per_vsl")
+head(trip_coord_info_short_cnt_coord_per_vsl)
+
+trip_coord_info_short_cnt_total_trips_per_vsl <-
+  trip_coord_info_short |>
+  select(-c(LATITUDE, LONGITUDE)) |>
+  count(VESSEL_ID, name = "total_trips_by_vsl")
+
+
+# find fixable coords ----
+# change the sign,
+# good: inside the bb, not on land
+
+
 #====
 world_coast <-
   rnaturalearth::ne_coastline(returnclass = "sf")
