@@ -989,7 +989,7 @@ corrected_coords_good_only_id_all_info <-
 #                 zcol_name = "PERMIT_VESSEL_ID")
 
 beatCol <-
-  colorFactor(palette = 'viridis',
+  colorFactor(palette = 'plasma',
               factor(corrected_coords_good_only_id_all_info$PERMIT_VESSEL_ID))
 
 # radius = ~sqrt(BeatHome*50)
@@ -1019,4 +1019,7 @@ good_fix_map <-
     # labelOptions = labelOptions(noHide = T)
   )
 
-good_fix_map
+# good_fix_map
+
+# report ----
+
