@@ -246,12 +246,20 @@ str(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl)
 # find fixable coords ----
 # change the sign,
 # good: inside the bb, not on land
-## r Positive longitude, corrected ----
+## Positive longitude, corrected ----
 
 positive_long_corrected <-
   positive_long |>
   select(VESSEL_ID, LATITUDE, LONGITUDE, vendor_trip_cat) |>
   mutate(LONGITUDE = -abs(LONGITUDE))
+
+positive_long_corrected_vsl_ids <-
+  positive_long_corrected |>
+  select(VESSEL_ID) |>
+  distinct()
+
+dim(positive_long_corrected_vsl_ids)
+# [1] 350   1
 
 positive_long_corrected_sf <-
   positive_long_corrected |>
@@ -275,7 +283,7 @@ positive_long_corrected_sf_good <-
   ) > 0)
 # mapview(positive_long_corrected_sf_good)
 
-# bad ----
+# bad sf ----
 positive_long_corrected_sf_bad <-
   positive_long_corrected_sf |>
   filter(lengths(
@@ -307,21 +315,25 @@ dim(positive_long_corrected_bad_vsl_ids)
 # vsl ids both good and bad ----
 both <-
   dplyr::intersect(positive_long_corrected_good_vsl_ids,
-                 positive_long_corrected_bad_vsl_id)
+                 positive_long_corrected_bad_vsl_ids)
 # 129
 
 good_only <-
   dplyr::setdiff(positive_long_corrected_good_vsl_ids,
-                 positive_long_corrected_bad_vsl_id)
+                 positive_long_corrected_bad_vsl_ids)
 # dim(good_only)
 # 174
 
 bad_only <-
-    dplyr::setdiff(positive_long_corrected_bad_vsl_id,
+    dplyr::setdiff(positive_long_corrected_bad_vsl_ids,
                    positive_long_corrected_good_vsl_ids)
 
 # dim(bad_only)
 # 47
+
+# > 47+174+129
+# [1] 350
+# ok, same as positive_long_corrected_vsl_ids
 
 # bad only vsl and counts ----
 trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
@@ -330,20 +342,20 @@ trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
   glimpse()
 # 'data.frame':	907 obs. of  4 variables:
 
-poslonbad =
+pos_lon_bad <-
 trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
   filter(VESSEL_ID %in% bad_only$VESSEL_ID) |>
   arrange(desc(pos_lon_trips_by_vsl))
 
-totbad =
+tot_bad <-
 trip_coord_info_short_cnt_total_trips_per_vsl |>
     filter(VESSEL_ID %in% bad_only$VESSEL_ID) |>
   arrange(desc(total_trips_by_vsl))
-glimpse(totbad)
+# glimpse(tot_bad)
 
 bad_cnt_join <-
-full_join(totbad,
-          poslonbad) |>
+full_join(tot_bad,
+          pos_lon_bad) |>
   mutate(cnt_diff = total_trips_by_vsl - pos_lon_trips_by_vsl,
          wrong_perc = pos_lon_trips_by_vsl * 100 / total_trips_by_vsl)
 # Joining with `by = join_by(VESSEL_ID)`
@@ -359,39 +371,55 @@ lattice::histogram(~ cnt_diff, data = bad_cnt_join,
 #      xlab = "Waiting Time (in minutes)")
 
 # check both good and bad ----
-bothtot =
-trip_coord_info_short_cnt_total_trips_per_vsl |>
-    filter(VESSEL_ID %in% both$VESSEL_ID) |>
+both_tot <-
+  trip_coord_info_short_cnt_total_trips_per_vsl |>
+  filter(VESSEL_ID %in% both$VESSEL_ID) |>
   arrange(desc(total_trips_by_vsl))
 
-positive_long_corrected_sf_bad_both <-
-  positive_long_corrected_sf_bad |>
-  filter(VESSEL_ID %in% both$VESSEL_ID)
+head(both_tot, 3)
+#   VESSEL_ID total_trips_by_vsl
+# 1    326154                532
+# 2    390420                268
+# 3    247478                257
+
+
+## add coords to total cnts ----
+both_tot_w_coords <-
+  trip_coord_info_short |>
+  right_join(both_tot)
+
+head(both_tot_w_coords, 3)
+#   LATITUDE LONGITUDE  TRIP_ID VESSEL_ID total_trips_by_vsl
+# 1    24.00     80.00 66960181    247243                 94
+# 2    29.58     87.23 59404746    247478                257
+# 3    29.00     86.00 59406159    174924                216
+
 
 # mapview(positive_long_corrected_sf_bad_both) +
   # big_box_map
 
-glimpse(positive_long_corrected_sf_bad_both)
-# str(positive_long_corrected_sf_good)
-positive_long_corrected_sf_bad_both_marl_coord <-
-  positive_long_corrected_sf_bad_both |>
+positive_long_corrected_sf_good_pairs <-
+  positive_long_corrected_sf_good |>
+  mutate(coord_pair = paste(LATITUDE, LONGITUDE))
+
+# glimpse(positive_long_corrected_sf_good_pairs)
+
+both_tot_w_coords_mark <-
+  both_tot_w_coords |>
   mutate(
-    good_coord =
+    coord_pair = paste(LATITUDE, LONGITUDE),
+    coord_mark =
       case_when(
-        LATITUDE %in% positive_long_corrected_sf_good$LATITUDE &
-          LONGITUDE %in% positive_long_corrected_sf_good$LONGITUDE
+        coord_pair %in% positive_long_corrected_sf_good_pairs$coord_pair
         ~ "good",
         .default = "wrong"
       )
   )
 
-glimpse(positive_long_corrected_sf_bad_both_marl_coord)
+View(both_tot_w_coords_mark)
 
-positive_long_corrected_sf_bad_both_marl_coord |>
-  # group_by(VESSEL_ID) |>
-  # mutate(good_coord_cnt_per_vsl = n(good_coord)) |> glimpse()
-
-  add_count(VESSEL_ID, good_coord) %>%
+both_tot_w_coords_mark |>
+  count(VESSEL_ID, coord_mark) %>%
   arrange(VESSEL_ID) |>
   View()
   group_by(VESSEL_ID) %>%
@@ -408,7 +436,7 @@ trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
   arrange(desc(pos_lon_trips_by_vsl))
 
 bothjoin =
-  full_join(bothtot,
+  full_join(both_tot,
             bothpos) |>
     mutate(cnt_diff = total_trips_by_vsl - pos_lon_trips_by_vsl,
          wrong_perc = pos_lon_trips_by_vsl * 100 / total_trips_by_vsl)
@@ -420,6 +448,7 @@ lattice::histogram( ~ cnt_diff,
                     data = bothjoin,
                     xlab = "Total trips number minus positive longitude trips number",
                     main = "How many trips report wrong longitude most of the time")
+
 
 #====
 # class(world_coast)
