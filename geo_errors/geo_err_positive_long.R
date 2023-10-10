@@ -404,9 +404,21 @@ positive_long_corrected_sf_good_pairs <-
 
 # glimpse(positive_long_corrected_sf_good_pairs)
 
-both_tot_w_coords_mark <-
+both_tot_w_coords__and_good_pairs <-
   trip_coord_info_short_both_tot_w_coords |>
-  mutate(
+  mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
+  full_join(positive_long_corrected_sf_good_pairs,
+            join_by(VESSEL_ID,
+                    coord_pair),
+            relationship = "many-to-many",
+            suffix = c("_tot", "_corr_good"))
+
+dim(both_tot_w_coords__and_good_pairs)
+# [1] 24095    10
+
+glimpse(both_tot_w_coords__and_good_pairs)
+
+mutate(
     coord_pair = paste(LATITUDE, LONGITUDE),
     coord_mark =
       case_when(
@@ -430,7 +442,7 @@ trip_coord_info_short_both_tot_w_coords |>
   filter(VESSEL_ID == "98435") |>
   glimpse()
 
-both_tot_w_coords_mark |>
+both_tot_w_coords__and_good_pairs |>
   select(VESSEL_ID, coord_mark) %>%
   distinct() |>
   arrange(VESSEL_ID) |>
