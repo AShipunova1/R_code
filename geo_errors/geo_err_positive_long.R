@@ -91,7 +91,7 @@ positive_long <-
   trip_coord_info_vendors3 %>%
   filter(LONGITUDE > 0)
 
-# get maps ----
+# maps functions and help ----
 crs4326 <- 4326
 
 big_bounding_box <- c(
@@ -112,6 +112,15 @@ red_bounding_box <-
     color = "red",
     fill = NA
   )
+
+map_plot <-
+  function(coast_map, my_df_sf, my_title) {
+    ggplot() +
+      ggplot2::geom_sf(data = coast_map) +
+      ggplot2::geom_sf(data = my_df_sf,
+                       color = "blue") +
+      ggplot2::ggtitle(my_title)
+  }
 
 # get land map ----
 ne_10m_land_sf <-
@@ -221,6 +230,32 @@ str(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl)
 # find fixable coords ----
 # change the sign,
 # good: inside the bb, not on land
+## r Positive longitude, corrected ----
+
+positive_long_corrected <-
+  positive_long |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  mutate(LONGITUDE = -abs(LONGITUDE))
+
+positive_long_corrected_sf <-
+  positive_long_corrected |>
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = crs4326,
+    remove = FALSE
+  )
+
+positive_long_corrected_map <-
+  positive_long_corrected_sf |>
+  lat_long_to_map_plot(my_title = 'Positive longitude, corrected') +
+  red_bounding_box
+
+# good: inside the bb, not on land
+positive_long_corrected |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_short_sf, ne_10m_ocean_sf_bb)
+  ) == 0)
 
 
 #====
