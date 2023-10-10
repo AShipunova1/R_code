@@ -349,6 +349,31 @@ lattice::histogram(~ cnt_diff, data = bad_cnt_join,
 #      main = "Waiting Time between Eruptions",
 #      xlab = "Waiting Time (in minutes)")
 
+# check both good  and bad ----
+bothtot =
+trip_coord_info_short_cnt_total_trips_per_vsl |>
+    filter(VESSEL_ID %in% both$VESSEL_ID) |>
+  arrange(desc(total_trips_by_vsl))
+
+bothpos =
+trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
+    filter(VESSEL_ID %in% both$VESSEL_ID) |>
+  arrange(desc(pos_lon_trips_by_vsl))
+
+bothjoin =
+  full_join(bothtot,
+            bothpos) |>
+    mutate(cnt_diff = total_trips_by_vsl - pos_lon_trips_by_vsl,
+         wrong_perc = pos_lon_trips_by_vsl * 100 / total_trips_by_vsl)
+# Joining with `by = join_by(VESSEL_ID)`
+
+View(bothjoin)
+
+lattice::histogram( ~ cnt_diff,
+                    data = bothjoin,
+                    xlab = "Total trips number minus positive longitude trips number",
+                    main = "How many trips report wrong longitude most of the time")
+
 #====
 # class(world_coast)
 
