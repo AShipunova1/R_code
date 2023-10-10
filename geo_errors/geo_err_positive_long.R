@@ -476,9 +476,22 @@ both_tot_w_coords__and_good_pairs_mark |>
 # 1       good 73
 # 2      wrong  1
 
-both_tot_w_coords__and_good_pairs_mark |>
-  count(VESSEL_ID, coord_mark) |>
-  View()
+both_tot_w_coords__and_good_pairs_mark_cnts <-
+  both_tot_w_coords__and_good_pairs_mark |>
+  count(VESSEL_ID, coord_mark,
+        name = "count_marks_per_vsl") |>
+  pivot_wider(id_cols = VESSEL_ID,
+              names_from = coord_mark,
+              values_from = count_marks_per_vsl) |>
+  group_by(VESSEL_ID) |>
+  mutate(tot = good + wrong) |>
+  ungroup()
+
+  both_tot_w_coords__and_good_pairs_mark |>
+  add_count(VESSEL_ID, coord_mark,
+        name = "count_marks_per_vsl") |>
+    View()
+
 
 positive_long_corrected_sf_bad |>
   # filter(VESSEL_ID == "162619") |>
