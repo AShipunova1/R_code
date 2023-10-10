@@ -476,7 +476,7 @@ both_tot_w_coords__and_good_pairs_mark |>
 # 1       good 73
 # 2      wrong  1
 
-both_tot_w_coords__and_good_pairs_mark_cnts <-
+both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
   both_tot_w_coords__and_good_pairs_mark |>
   count(VESSEL_ID, coord_mark,
         name = "count_marks_per_vsl") |>
@@ -487,7 +487,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts <-
   mutate(tot = good + wrong) |>
   ungroup()
 
-both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
+both_tot_w_coords__and_good_pairs_mark_cnts <-
   both_tot_w_coords__and_good_pairs_mark |>
   add_count(VESSEL_ID, coord_mark,
             name = "count_marks_per_vsl") |>
@@ -495,7 +495,10 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
          total_trips_by_vsl,
          coord_mark,
          count_marks_per_vsl) |>
-  distinct() |>
+  distinct()
+
+both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
+  both_tot_w_coords__and_good_pairs_mark_cnts |>
   pivot_wider(
               names_from = coord_mark,
               values_from = count_marks_per_vsl)
@@ -513,6 +516,32 @@ head(both_tot_w_coords__and_good_pairs_mark_cnts_wide, 3)
 #       <int>              <int> <int> <int> <int>
 # 1    247243                 94    86     8    94
 # 2    247478                257   250     7   257
+
+## add proportion of good over bad coords ----
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_perc_g <-
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  group_by(VESSEL_ID) |>
+  mutate(good_percent =
+           good * 100 / total_trips_by_vsl) |>
+  ungroup()
+
+lattice::histogram( ~ good , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
+                    xlab = "Good trip coordinates where vessels have both good and wrong coordinates")
+
+lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
+                    xlab = "Wrong trip coordinates where vessels have both good and wrong coordinates")
+
+## plot good/wrong cnts ----
+glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
+ggplot(
+  both_tot_w_coords__and_good_pairs_mark_cnts,
+  aes(fill = coord_mark,
+      y = count_marks_per_vsl,
+      x = factor(total_trips_by_vsl))
+) +
+  geom_bar(position = "stack", stat = "identity")
+
+# stop here ----
 
 positive_long_corrected_sf_bad |>
   # filter(VESSEL_ID == "162619") |>
@@ -546,7 +575,6 @@ trip_coord_info_short_both_tot_w_coords |>
 # $ TRIP_ID            <dbl> 60654242
 # $ total_trips_by_vsl <int> 74
 
-# stop here ----
 both_tot_w_coords__and_good_pairs_mark |>
   select(VESSEL_ID, coord_mark) %>%
   distinct() |>
