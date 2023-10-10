@@ -7,7 +7,7 @@
 # tigris_use_cache = TRUE
 #
 # library(rnaturalearth) #coastline
-# library(knitr)
+library(knitr)
 # library(maps)
 # library(mapdata)
 # library(sf)
@@ -66,12 +66,34 @@ toc(log = TRUE, quiet = TRUE)
 # print_toc_log()
 # trip_coord_info_vendors3_trip: 71.47 sec elapsed
 
+trip_coord_info_vendors3 <-
+  trip_coord_info_vendors3_trip |>
+  mutate(year_start = year(TRIP_START_DATE))
+
+trip_coord_info_vendors3 |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  count(vendor_trip_cat) |>
+  kable(caption = "ALL: count(vendor_trip_cat)")
+
+trip_coord_info_vendors3 |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
+  count(vendor_trip_cat, year_start) |>
+  kable(caption = "ALL: count(vendor_trip_cat, year_start)")
+
+# all vendors
+# etrips	47731
+# vesl	77352
+# vms	16267
+
+
 ## positive_long ----
 positive_long <-
   trip_coord_info_vendors3 %>%
   filter(LONGITUDE > 0)
 
 # get maps ----
+crs4326 <- 4326
+
 big_bounding_box <- c(
    xmin = -97.79954,
    ymin = 21.521757, #Cuba
@@ -90,11 +112,12 @@ red_bounding_box <-
     color = "red",
     fill = NA
   )
+
 # get land map ----
 ne_10m_land_sf <-
   sf::read_sf(r"(my_inputs\shapefiles\ne_10m_land\ne_10m_land.shp)")
 
-sf::st_geometry(ne_10m_land_sf)
+# sf::st_geometry(ne_10m_land_sf)
 # Geodetic CRS:  WGS 84
 # Geometry type: MULTIPOLYGON
 
@@ -114,33 +137,52 @@ ne_10m_ocean_sf_bb <-
 # sf::st_crs(ne_10m_ocean_sf_bb)
     # ID["EPSG",4326]]
 
+# prepare data ----
+trip_coord_info_short <-
+  trip_coord_info |>
+  select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
+  distinct()
+
+trip_coord_info_short_sf <-
+  trip_coord_info_short |>
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE)) |>
+  sf::st_as_sf(coords = c("LONGITUDE",
+                          "LATITUDE"),
+               crs = crs4326)
 
 # cnt err per vessel, compare with total lgb ----
 ## cnt all ----
-trip_coord_info_short <-
-  trip_coord_info |>
-  select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
-  distinct()
 
 trip_coord_info_short_cnt_coord_per_vsl <-
   trip_coord_info_short |>
   select(-TRIP_ID) |>
   add_count(LATITUDE, LONGITUDE, name = "total_coords_per_vsl")
-head(trip_coord_info_short_cnt_coord_per_vsl)
+# head(trip_coord_info_short_cnt_coord_per_vsl)
 
 trip_coord_info_short_cnt_total_trips_per_vsl <-
   trip_coord_info_short |>
   select(-c(LATITUDE, LONGITUDE)) |>
   count(VESSEL_ID, name = "total_trips_by_vsl")
+
+# all wrong points ----
+
+trip_coord_info_sf_out <-
+  trip_coord_info_short_sf |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_short_sf, ne_10m_ocean_sf_bb)
+  ) == 0)
+
+dim(trip_coord_info_short_sf)
+# [1] 140748      3
+
+dim(trip_coord_info_sf_out)
+# [1] 35061     3
 
 ## cnt all errors ----
-trip_coord_info_short <-
-  trip_coord_info |>
-  select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
-  distinct()
+trip_coord_info_sf_out_cnt_coord_per_vsl <-
+  trip_coord_info_sf_out |>
 
-trip_coord_info_short_cnt_coord_per_vsl <-
-  trip_coord_info_short |>
+
   select(-TRIP_ID) |>
   add_count(LATITUDE, LONGITUDE, name = "total_coords_per_vsl")
 head(trip_coord_info_short_cnt_coord_per_vsl)
@@ -149,7 +191,6 @@ trip_coord_info_short_cnt_total_trips_per_vsl <-
   trip_coord_info_short |>
   select(-c(LATITUDE, LONGITUDE)) |>
   count(VESSEL_ID, name = "total_trips_by_vsl")
-
 
 # find fixable coords ----
 # change the sign,
