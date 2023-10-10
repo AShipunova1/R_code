@@ -384,11 +384,11 @@ head(both_tot, 3)
 
 
 ## add coords to total cnts ----
-both_tot_w_coords <-
+trip_coord_info_short_both_tot_w_coords <-
   trip_coord_info_short |>
   right_join(both_tot)
 
-head(both_tot_w_coords, 3)
+head(trip_coord_info_short_both_tot_w_coords, 3)
 #   LATITUDE LONGITUDE  TRIP_ID VESSEL_ID total_trips_by_vsl
 # 1    24.00     80.00 66960181    247243                 94
 # 2    29.58     87.23 59404746    247478                257
@@ -405,7 +405,7 @@ positive_long_corrected_sf_good_pairs <-
 # glimpse(positive_long_corrected_sf_good_pairs)
 
 both_tot_w_coords_mark <-
-  both_tot_w_coords |>
+  trip_coord_info_short_both_tot_w_coords |>
   mutate(
     coord_pair = paste(LATITUDE, LONGITUDE),
     coord_mark =
@@ -416,10 +416,23 @@ both_tot_w_coords_mark <-
       )
   )
 
-View(both_tot_w_coords_mark)
+# glimpse(both_tot_w_coords_mark)
+positive_long_corrected_sf_good_pairs |>
+  filter(VESSEL_ID == "98435") |>
+  glimpse()
 
 both_tot_w_coords_mark |>
-  count(VESSEL_ID, coord_mark) %>%
+  filter(VESSEL_ID == "98435") |>
+  glimpse()
+
+
+trip_coord_info_short_both_tot_w_coords |>
+  filter(VESSEL_ID == "98435") |>
+  glimpse()
+
+both_tot_w_coords_mark |>
+  select(VESSEL_ID, coord_mark) %>%
+  distinct() |>
   arrange(VESSEL_ID) |>
   View()
   group_by(VESSEL_ID) %>%
