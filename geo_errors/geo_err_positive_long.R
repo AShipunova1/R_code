@@ -178,22 +178,23 @@ trip_coord_info_sf_out <-
 dim(trip_coord_info_short_sf)
 # [1] 140748      3
 
-dim(trip_coord_info_sf_out)
+str(trip_coord_info_sf_out)
 # [1] 35061     3
 
 ## cnt all errors ----
 trip_coord_info_sf_out_cnt_coord_per_vsl <-
   trip_coord_info_sf_out |>
-
-
+  sf::st_drop_geometry() |>
   select(-TRIP_ID) |>
-  add_count(LATITUDE, LONGITUDE, name = "total_coords_per_vsl")
-head(trip_coord_info_short_cnt_coord_per_vsl)
+  add_count(LATITUDE, LONGITUDE, name = "wrong_coords_per_vsl")
+head(trip_coord_info_sf_out_cnt_coord_per_vsl)
 
-trip_coord_info_short_cnt_total_trips_per_vsl <-
-  trip_coord_info_short |>
+trip_coord_info_sf_out_cnt_total_trips_per_vsl <-
+  trip_coord_info_sf_out |>
+  sf::st_drop_geometry() |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "total_trips_by_vsl")
+  count(VESSEL_ID, name = "wrong_trips_by_vsl")
+str(trip_coord_info_sf_out_cnt_total_trips_per_vsl)
 
 # find fixable coords ----
 # change the sign,
