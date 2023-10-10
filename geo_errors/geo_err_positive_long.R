@@ -487,11 +487,31 @@ both_tot_w_coords__and_good_pairs_mark_cnts <-
   mutate(tot = good + wrong) |>
   ungroup()
 
+both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   both_tot_w_coords__and_good_pairs_mark |>
   add_count(VESSEL_ID, coord_mark,
-        name = "count_marks_per_vsl") |>
-    View()
+            name = "count_marks_per_vsl") |>
+  select(VESSEL_ID,
+         total_trips_by_vsl,
+         coord_mark,
+         count_marks_per_vsl) |>
+  distinct() |>
+  pivot_wider(
+              names_from = coord_mark,
+              values_from = count_marks_per_vsl) |>
+  group_by(VESSEL_ID) |>
+  mutate(tot = good + wrong) |>
+  ungroup()
 
+### check tot cnts ----
+# both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  # filter(!total_trips_by_vsl == tot)
+# 0 ok
+head(both_tot_w_coords__and_good_pairs_mark_cnts_wide, 3)
+#   VESSEL_ID total_trips_by_vsl  good wrong   tot
+#       <int>              <int> <int> <int> <int>
+# 1    247243                 94    86     8    94
+# 2    247478                257   250     7   257
 
 positive_long_corrected_sf_bad |>
   # filter(VESSEL_ID == "162619") |>
