@@ -382,7 +382,6 @@ head(both_tot, 3)
 # 2    390420                268
 # 3    247478                257
 
-
 ## add coords to total cnts ----
 trip_coord_info_short_both_tot_w_coords <-
   trip_coord_info_short |>
@@ -394,59 +393,68 @@ head(trip_coord_info_short_both_tot_w_coords, 3)
 # 2    29.58     87.23 59404746    247478                257
 # 3    29.00     86.00 59406159    174924                216
 
-
 # mapview(positive_long_corrected_sf_bad_both) +
   # big_box_map
 
-positive_long_corrected_sf_good_pairs <-
-  positive_long_corrected_sf_good |>
-  mutate(coord_pair = paste(LATITUDE, LONGITUDE))
+## prepare good_sf: not corrected, add a col ----
 
-# glimpse(positive_long_corrected_sf_good_pairs)
+positive_long__good_pairs <-
+  positive_long |>
+  filter(VESSEL_ID %in% positive_long_corrected_good_vsl_ids$VESSEL_ID) |>
+  mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
+  select(VESSEL_ID, TRIP_ID, LATITUDE, LONGITUDE, vendor_trip_cat, year_start, coord_pair)
 
+dim(positive_long__good_pairs)
+# [1] 14026     7
+
+# join all info and positive lon good ----
 both_tot_w_coords__and_good_pairs <-
   trip_coord_info_short_both_tot_w_coords |>
   mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
-  full_join(positive_long_corrected_sf_good_pairs,
+  # left_join to get all trips in the "both" category only
+  # and add info from positive_long__good_pairs where "good"
+  left_join(positive_long__good_pairs,
             join_by(VESSEL_ID,
-                    coord_pair),
+                    coord_pair,
+                    TRIP_ID),
             relationship = "many-to-many",
             suffix = c("_tot", "_corr_good"))
 
 dim(both_tot_w_coords__and_good_pairs)
 # [1] 24095    10
+# [1] 440476     10
+# [1] 16402    10 full_j
+# [1] 11871    10
 
 glimpse(both_tot_w_coords__and_good_pairs)
 
-mutate(
-    coord_pair = paste(LATITUDE, LONGITUDE),
-    coord_mark =
-      case_when(
-        coord_pair %in% positive_long_corrected_sf_good_pairs$coord_pair
-        ~ "good",
-        .default = "wrong"
-      )
-  )
-
-# glimpse(both_tot_w_coords_mark)
-positive_long_corrected_sf_good_pairs |>
-  filter(VESSEL_ID == "98435") |>
-  glimpse()
-
-both_tot_w_coords_mark |>
-  filter(VESSEL_ID == "98435") |>
-  glimpse()
-
-
-trip_coord_info_short_both_tot_w_coords |>
-  filter(VESSEL_ID == "98435") |>
-  glimpse()
-
 both_tot_w_coords__and_good_pairs |>
+  filter(is.na(LATITUDE_tot)) |>
+  glimpse()
+# 0
+
+both_tot_w_coords__and_good_pairs_mark <-
+  both_tot_w_coords__and_good_pairs |>
+  mutate(coord_mark =
+           case_when(is.na(LATITUDE_corr_good)
+                     ~ "wrong",
+                     .default = "good"))
+
+glimpse(both_tot_w_coords__and_good_pairs_mark)
+
+# should be both good and wrong marks for each vsl
+
+both_tot_w_coords__and_good_pairs_mark |>
+  filter(VESSEL_ID == "162619") |>
+  count(coord_mark)
+# 1       good 74
+
+
+both_tot_w_coords__and_good_pairs_mark |>
   select(VESSEL_ID, coord_mark) %>%
   distinct() |>
   arrange(VESSEL_ID) |>
-  View()
+  head()
   group_by(VESSEL_ID) %>%
   mutate(n = prop.table(n)) %>%
   ungroup %>%
