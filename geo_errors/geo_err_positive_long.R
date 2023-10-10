@@ -498,10 +498,11 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   distinct() |>
   pivot_wider(
               names_from = coord_mark,
-              values_from = count_marks_per_vsl) |>
-  group_by(VESSEL_ID) |>
-  mutate(tot = good + wrong) |>
-  ungroup()
+              values_from = count_marks_per_vsl)
+# |>
+  # group_by(VESSEL_ID) |>
+  # mutate(tot = good + wrong) |>
+  # ungroup()
 
 ### check tot cnts ----
 # both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
