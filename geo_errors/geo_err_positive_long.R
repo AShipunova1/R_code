@@ -71,7 +71,69 @@ positive_long <-
   trip_coord_info_vendors3 %>%
   filter(LONGITUDE > 0)
 
+# get maps ----
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+red_bounding_box <-
+  geom_rect(
+    aes(
+      xmin = big_bounding_box[["xmin"]],
+      xmax = big_bounding_box[["xmax"]],
+      ymin = big_bounding_box[["ymin"]],
+      ymax = big_bounding_box[["ymax"]]
+    ),
+    color = "red",
+    fill = NA
+  )
+# get land map ----
+ne_10m_land_sf <-
+  sf::read_sf(r"(my_inputs\shapefiles\ne_10m_land\ne_10m_land.shp)")
+
+sf::st_geometry(ne_10m_land_sf)
+# Geodetic CRS:  WGS 84
+# Geometry type: MULTIPOLYGON
+
+ne_10m_land_sf_bb <-
+  sf::st_crop(ne_10m_land_sf,
+              big_bounding_box)
+# plot(ne_10m_land_sf_bb)
+
+# get ocean map ne ----
+ne_10m_ocean_sf <-
+  sf::read_sf(r"(my_inputs\shapefiles\ne_10m_ocean\ne_10m_ocean.shp)")
+
+ne_10m_ocean_sf_bb <-
+  sf::st_crop(ne_10m_ocean_sf,
+              big_bounding_box)
+
+# sf::st_crs(ne_10m_ocean_sf_bb)
+    # ID["EPSG",4326]]
+
+
 # cnt err per vessel, compare with total lgb ----
+## cnt all ----
+trip_coord_info_short <-
+  trip_coord_info |>
+  select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
+  distinct()
+
+trip_coord_info_short_cnt_coord_per_vsl <-
+  trip_coord_info_short |>
+  select(-TRIP_ID) |>
+  add_count(LATITUDE, LONGITUDE, name = "total_coords_per_vsl")
+head(trip_coord_info_short_cnt_coord_per_vsl)
+
+trip_coord_info_short_cnt_total_trips_per_vsl <-
+  trip_coord_info_short |>
+  select(-c(LATITUDE, LONGITUDE)) |>
+  count(VESSEL_ID, name = "total_trips_by_vsl")
+
+## cnt all errors ----
 trip_coord_info_short <-
   trip_coord_info |>
   select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
