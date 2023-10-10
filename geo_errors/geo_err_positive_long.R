@@ -1,5 +1,5 @@
 # # setup ----
-# library(mapview)
+library(mapview)
 # library(ggplot2)
 # library(ggmap)
 # library(leaflet)
@@ -91,6 +91,10 @@ positive_long <-
   trip_coord_info_vendors3 %>%
   filter(LONGITUDE > 0)
 
+# world_coast map ----
+world_coast <-
+  rnaturalearth::ne_coastline(returnclass = "sf")
+
 # maps functions and help ----
 crs4326 <- 4326
 
@@ -114,13 +118,14 @@ red_bounding_box <-
   )
 
 map_plot <-
-  function(coast_map, my_df_sf, my_title) {
+  function(my_df_sf, coast_map = world_coast, my_title) {
     ggplot() +
       ggplot2::geom_sf(data = coast_map) +
       ggplot2::geom_sf(data = my_df_sf,
                        color = "blue") +
       ggplot2::ggtitle(my_title)
   }
+
 
 # get land map ----
 ne_10m_land_sf <-
@@ -234,7 +239,7 @@ str(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl)
 
 positive_long_corrected <-
   positive_long |>
-  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  select(VESSEL_ID, LATITUDE, LONGITUDE, vendor_trip_cat) |>
   mutate(LONGITUDE = -abs(LONGITUDE))
 
 positive_long_corrected_sf <-
@@ -248,19 +253,73 @@ positive_long_corrected_sf <-
 
 positive_long_corrected_map <-
   positive_long_corrected_sf |>
-  lat_long_to_map_plot(my_title = 'Positive longitude, corrected') +
+  map_plot(my_title = 'Positive longitude, corrected') +
   red_bounding_box
 
-# good: inside the bb, not on land
-positive_long_corrected |>
+# good: inside the bb, not on land ----
+positive_long_corrected_sf_good <-
+  positive_long_corrected_sf |>
   filter(lengths(
-    sf::st_intersects(trip_coord_info_short_sf, ne_10m_ocean_sf_bb)
+    sf::st_intersects(positive_long_corrected_sf, ne_10m_ocean_sf_bb)
+  ) > 0)
+# mapview(positive_long_corrected_sf_good)
+
+# bad ----
+positive_long_corrected_sf_bad <-
+  positive_long_corrected_sf |>
+  filter(lengths(
+    sf::st_intersects(positive_long_corrected_sf, ne_10m_ocean_sf_bb)
   ) == 0)
+
+# mapview(positive_long_corrected_sf_bad)
+# good vessels ----
+positive_long_corrected_good_vsl_ids <-
+  positive_long_corrected_sf_good |>
+  sf::st_drop_geometry() |>
+  select(VESSEL_ID) |>
+  distinct()
+
+positive_long_corrected_good_vsl_ids |> dim()
+# [1] 303   1
+
+# bad vessels ----
+
+positive_long_corrected_bad_vsl_ids <-
+  positive_long_corrected_sf_bad |>
+  sf::st_drop_geometry() |>
+  select(VESSEL_ID) |>
+  distinct()
+
+dim(positive_long_corrected_bad_vsl_ids)
+# [1] 176   1
+
+# vsl ids both good and bad ----
+both <-
+  dplyr::intersect(positive_long_corrected_good_vsl_ids,
+                 positive_long_corrected_bad_vsl_id)
+# 129
+
+good_only <-
+  dplyr::setdiff(positive_long_corrected_good_vsl_ids,
+                 positive_long_corrected_bad_vsl_id)
+# dim(good_only)
+# 174
+
+bad_only <-
+    dplyr::setdiff(positive_long_corrected_bad_vsl_id,
+                   positive_long_corrected_good_vsl_ids)
+
+# dim(bad_only)
+# 47
+
+# bad only vsl and counts ----
+trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
+  filter(VESSEL_ID %in% bad_only$VESSEL_ID) |>
+  str()
+# 'data.frame':	907 obs. of  4 variables:
 
 
 #====
-world_coast <-
-  rnaturalearth::ne_coastline(returnclass = "sf")
 # class(world_coast)
 
 # statistics ----
