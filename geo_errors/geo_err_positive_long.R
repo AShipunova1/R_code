@@ -146,9 +146,12 @@ trip_coord_info_short <-
 trip_coord_info_short_sf <-
   trip_coord_info_short |>
   filter(!is.na(LATITUDE) & !is.na(LONGITUDE)) |>
-  sf::st_as_sf(coords = c("LONGITUDE",
-                          "LATITUDE"),
-               crs = crs4326)
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = crs4326,
+    remove = FALSE
+  )
 
 # cnt err per vessel, compare with total lgb ----
 ## cnt all ----
