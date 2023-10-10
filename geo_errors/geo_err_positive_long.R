@@ -196,6 +196,28 @@ trip_coord_info_sf_out_cnt_total_trips_per_vsl <-
   count(VESSEL_ID, name = "wrong_trips_by_vsl")
 str(trip_coord_info_sf_out_cnt_total_trips_per_vsl)
 
+# cnt positive lon ----
+trip_coord_info_sf_pos_lon_cnt_coord_per_vsl <-
+  trip_coord_info_sf_out |>
+  sf::st_drop_geometry() |>
+  select(-TRIP_ID) |>
+  filter(LONGITUDE > 0) |>
+  add_count(LATITUDE, LONGITUDE, name = "pos_lon_per_vsl") |>
+  distinct()
+# head(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl)
+#   LATITUDE LONGITUDE VESSEL_ID pos_lon_per_vsl
+# 1 24.00000  82.00000    326229             121
+# 2 32.85700  78.53200    397126               1
+# 3 24.00000  80.00000    247243              84
+
+trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl <-
+  trip_coord_info_sf_out |>
+  sf::st_drop_geometry() |>
+  filter(LONGITUDE > 0) |>
+  select(-c(LATITUDE, LONGITUDE)) |>
+  count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
+str(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl)
+
 # find fixable coords ----
 # change the sign,
 # good: inside the bb, not on land
