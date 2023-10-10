@@ -315,9 +315,39 @@ bad_only <-
 # bad only vsl and counts ----
 trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
   filter(VESSEL_ID %in% bad_only$VESSEL_ID) |>
-  str()
+  arrange(desc(pos_lon_per_vsl)) |>
+  glimpse()
 # 'data.frame':	907 obs. of  4 variables:
 
+poslonbad =
+trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
+  filter(VESSEL_ID %in% bad_only$VESSEL_ID) |>
+  arrange(desc(pos_lon_trips_by_vsl))
+
+  glimpse()
+
+totbad =
+trip_coord_info_short_cnt_total_trips_per_vsl |>
+    filter(VESSEL_ID %in% bad_only$VESSEL_ID) |>
+  arrange(desc(total_trips_by_vsl))
+glimpse()
+
+bad_cnt_join <-
+full_join(totbad,
+          poslonbad) |>
+  mutate(cnt_diff = total_trips_by_vsl - pos_lon_trips_by_vsl,
+         wrong_perc = pos_lon_trips_by_vsl * 100 / total_trips_by_vsl)
+# Joining with `by = join_by(VESSEL_ID)`
+
+lattice::histogram(~ cnt_diff, data = bad_cnt_join,
+          xlab = "Difference between total and wrong trip coordinates")
+
+# hist(bad_cnt_join$cnt_diff,
+#      main = "Difference between total and wrong trip coordinates",
+#      xlab = "Count difference")
+# hist(faithful$waiting,
+#      main = "Waiting Time between Eruptions",
+#      xlab = "Waiting Time (in minutes)")
 
 #====
 # class(world_coast)
