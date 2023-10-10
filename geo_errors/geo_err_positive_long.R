@@ -117,6 +117,17 @@ red_bounding_box <-
     fill = NA
   )
 
+## mapview the big box ----
+big_box_map <- sf::st_bbox(
+  c(
+    xmin = big_bounding_box[["xmin"]],
+    xmax = big_bounding_box[["xmax"]],
+    ymin = big_bounding_box[["ymin"]],
+    ymax = big_bounding_box[["ymax"]]
+  ),
+  crs = crs4326
+)
+
 map_plot <-
   function(my_df_sf, coast_map = world_coast, my_title) {
     ggplot() +
