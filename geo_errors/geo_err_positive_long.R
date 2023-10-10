@@ -335,13 +335,11 @@ trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
   filter(VESSEL_ID %in% bad_only$VESSEL_ID) |>
   arrange(desc(pos_lon_trips_by_vsl))
 
-  glimpse()
-
 totbad =
 trip_coord_info_short_cnt_total_trips_per_vsl |>
     filter(VESSEL_ID %in% bad_only$VESSEL_ID) |>
   arrange(desc(total_trips_by_vsl))
-glimpse()
+glimpse(totbad)
 
 bad_cnt_join <-
 full_join(totbad,
@@ -360,11 +358,49 @@ lattice::histogram(~ cnt_diff, data = bad_cnt_join,
 #      main = "Waiting Time between Eruptions",
 #      xlab = "Waiting Time (in minutes)")
 
-# check both good  and bad ----
+# check both good and bad ----
 bothtot =
 trip_coord_info_short_cnt_total_trips_per_vsl |>
     filter(VESSEL_ID %in% both$VESSEL_ID) |>
   arrange(desc(total_trips_by_vsl))
+
+positive_long_corrected_sf_bad_both <-
+  positive_long_corrected_sf_bad |>
+  filter(VESSEL_ID %in% both$VESSEL_ID)
+
+# mapview(positive_long_corrected_sf_bad_both) +
+  # big_box_map
+
+glimpse(positive_long_corrected_sf_bad_both)
+# str(positive_long_corrected_sf_good)
+positive_long_corrected_sf_bad_both_marl_coord <-
+  positive_long_corrected_sf_bad_both |>
+  mutate(
+    good_coord =
+      case_when(
+        LATITUDE %in% positive_long_corrected_sf_good$LATITUDE &
+          LONGITUDE %in% positive_long_corrected_sf_good$LONGITUDE
+        ~ "good",
+        .default = "wrong"
+      )
+  )
+
+glimpse(positive_long_corrected_sf_bad_both_marl_coord)
+
+positive_long_corrected_sf_bad_both_marl_coord |>
+  # group_by(VESSEL_ID) |>
+  # mutate(good_coord_cnt_per_vsl = n(good_coord)) |> glimpse()
+
+  add_count(VESSEL_ID, good_coord) %>%
+  arrange(VESSEL_ID) |>
+  View()
+  group_by(VESSEL_ID) %>%
+  mutate(n = prop.table(n)) %>%
+  ungroup %>%
+  pivot_wider(names_from = good_coord, values_from = n, names_prefix = 'Freq_') |>
+  glimpse()
+
+
 
 bothpos =
 trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
