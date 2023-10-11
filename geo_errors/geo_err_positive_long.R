@@ -666,7 +666,30 @@ ggsave(file.path(good_wrong_coords_dir, "line_2_plot.png"),
 # guides(color = guide_legend(title = "nc weeks")) +
 # ylim(0, 100)
 
+## bad vs wrong line plot ----
+line_2_plot_2 <-
+both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  # ggplot(aes(date, value01, colour = variable)) +
+  # geom_line()
+  # ggplot(aes(x = reorder(good, bad_over_good),
+  ggplot(aes(x = good,
+             y = wrong)) +
+  geom_line(colour = "green") +
+  geom_point() +
+  geom_text(aes(label = good),
+            vjust = 1.3,
+            color = "green") +
+  geom_text(aes(label = wrong),
+            vjust = -1.3,
+            color = "blue") +
+  theme_bw() +
+  labs(title = "Is there a correlation between\ngood (green) and wrong (blue) number of coordinates?",
+       caption = "For vessels having both wrong and good coordinates and at least one positive lon error") +
+  theme(axis.text.x = element_blank())
 
+line_2_plot_2
+
+histog
 # stop here ----
 
 positive_long_corrected_sf_bad |>
