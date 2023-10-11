@@ -499,13 +499,18 @@ both_tot_w_coords__and_good_pairs_mark_cnts <-
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   both_tot_w_coords__and_good_pairs_mark_cnts |>
-  pivot_wider(
-              names_from = coord_mark,
-              values_from = count_marks_per_vsl)
-# |>
-  # group_by(VESSEL_ID) |>
-  # mutate(tot = good + wrong) |>
-  # ungroup()
+  pivot_wider(names_from = coord_mark,
+              values_from = count_marks_per_vsl) |>
+  group_by(VESSEL_ID) |>
+  mutate(good_up = good / wrong,
+         wrong_up = wrong / good) |>
+  ungroup()
+
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_long <-
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  pivot_longer(c(good, wrong),
+               names_to = "coord_mark",
+               values_to = "mark_cnt")
 
 ### check tot cnts ----
 # both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
@@ -534,18 +539,21 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
 ## plot good/wrong cnts ----
 glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
-make_both_sort_by_tot_plot <-
-  function(order_by = "total_trips_by_vsl", ordered_name = "total number of trips") {
+make_both_sorted_plot <-
+  function(my_df,
+           order_by = "total_trips_by_vsl",
+           ordered_name = "total number of trips",
+           ycol = "count_marks_per_vsl") {
     title_all = stringr::str_glue(
       " Good and wrong coordinates ordered by {ordered_name}\n For vessels having both and at least one positive lon error"
     )
 
-    both_sort_by_tot_plot <-
+    both_sorted_plot <-
+      my_df |>
       ggplot(
-        both_tot_w_coords__and_good_pairs_mark_cnts,
         aes(
           fill = coord_mark,
-          y = count_marks_per_vsl,
+          y = !!sym(ycol),
           x = reorder(VESSEL_ID,
                       as.integer(factor(!!sym(
                         order_by
@@ -561,12 +569,31 @@ make_both_sort_by_tot_plot <-
       ) +
       theme(axis.text.x = element_blank())
 
-    return(both_sort_by_tot_plot)
+    return(both_sorted_plot)
   }
 
-both_sort_by_total <- make_both_sort_by_tot_plot()
+both_sort_by_total <-
+  make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts)
+head(both_tot_w_coords__and_good_pairs_mark_cnts, 3)
 
-# pp
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_p <-
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  group_by(VESSEL_ID) |>
+  mutate(good_over_bad = round(good / wrong, 2),
+         bad_over_good = round(wrong / good, 2)) |>
+  ungroup()
+
+glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_p)
+
+# both_sorted_by_good_plot <-
+
+make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts_wide_p,
+                        order_by = "good_over_bad",
+                        ordered_name = "good coordinates",
+                        ycol = "total_trips_by_vsl")
+
+both_sorted_by_good_plot
+
 good_wrong_coords_dir <-
   r"(my_outputs\geo_errors\good_wrong_coords)"
 
