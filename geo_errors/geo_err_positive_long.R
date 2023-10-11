@@ -534,22 +534,39 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
 ## plot good/wrong cnts ----
 glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
-both_sort_by_tot_plot <-
-  ggplot(
-  both_tot_w_coords__and_good_pairs_mark_cnts,
-  aes(fill = coord_mark,
-      y = count_marks_per_vsl,
-      x = reorder(VESSEL_ID,
-                  as.integer(factor(total_trips_by_vsl)),
-                  FUN = min)
-  )) +
-  geom_bar(position = "stack", stat = "identity") +
-  labs(
-    title = " Good and wrong coordinates ordered by total trips\n For vessels having both and at least one positive lon error",
-    x = "Vessels sorted by total number of trips",
-    y = "Trips per vessel") +
-  theme(axis.text.x = element_blank())
+make_both_sort_by_tot_plot <-
+  function(order_by = "total_trips_by_vsl", ordered_name = "total number of trips") {
+    title_all = stringr::str_glue(
+      " Good and wrong coordinates ordered by {ordered_name}\n For vessels having both and at least one positive lon error"
+    )
 
+    both_sort_by_tot_plot <-
+      ggplot(
+        both_tot_w_coords__and_good_pairs_mark_cnts,
+        aes(
+          fill = coord_mark,
+          y = count_marks_per_vsl,
+          x = reorder(VESSEL_ID,
+                      as.integer(factor(!!sym(
+                        order_by
+                      ))),
+                      FUN = min)
+        )
+      ) +
+      geom_bar(position = "stack", stat = "identity") +
+      labs(
+        title = title_all,
+        x = stringr::str_glue("Vessels sorted by {ordered_name}"),
+        y = "Trips per vessel"
+      ) +
+      theme(axis.text.x = element_blank())
+
+    return(both_sort_by_tot_plot)
+  }
+
+both_sort_by_total <- make_both_sort_by_tot_plot()
+
+# pp
 good_wrong_coords_dir <-
   r"(my_outputs\geo_errors\good_wrong_coords)"
 
