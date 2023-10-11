@@ -626,18 +626,13 @@ glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
     # ggplot(aes(date, value01, colour = variable)) +
   # geom_line()
-  ggplot(aes(
-    # x = good,
-        x = order(good_over_bad),
-    y = total_trips_by_vsl
-    # x = reorder(VESSEL_ID,
-    #                   as.integer(factor(good_over_bad)),
-    #                   FUN = min),
-    # y = count_marks_per_vsl,
-    # color = coord_mark
-  )) +
+    ggplot(aes(x = order(good_over_bad),
+               y = total_trips_by_vsl)) +
+    geom_line(colour = "red") +
   # geom_point() +
-  geom_line()
+    geom_line(aes(x = order(bad_over_good),
+               y = total_trips_by_vsl),
+              colour = "blue")
 
   +
   theme_bw() +
