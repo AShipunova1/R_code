@@ -648,7 +648,7 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
 ```
 
 ## plot good/wrong cnts for "both" ----
-
+### make_both_sorted_plot function
 ```{r plot good/wrong cnts for "both" }
 ## plot good/wrong cnts for "both" ----
 # glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
@@ -686,12 +686,20 @@ make_both_sorted_plot <-
 
     return(both_sorted_plot)
   }
+```
 
+### plot good/wrong cnts for "both" by total
+```{r plot good/wrong cnts for "both" by total}
+## plot good/wrong cnts for "both" by total ----
 both_sort_by_total <-
   make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts)
 
 # glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
+```
 
+### plot good/wrong cnts for "both" by good
+```{r plot good/wrong cnts for "both" by good}
+### plot good/wrong cnts for "both" by good ----
 both_sorted_by_good_plot <-
   make_both_sorted_plot(
     both_tot_w_coords__and_good_pairs_mark_cnts_wide_long,
