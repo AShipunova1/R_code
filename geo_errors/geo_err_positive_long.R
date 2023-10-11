@@ -620,6 +620,49 @@ ggsave(file.path(good_wrong_coords_dir, "both_sorted_by_wrong_plot.png"),
        # height = 4,
        dpi = 600)
 
+# line plots ----
+glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+# l1p <-
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+    # ggplot(aes(date, value01, colour = variable)) +
+  # geom_line()
+  ggplot(aes(
+    # x = good,
+        x = order(good_over_bad),
+    y = total_trips_by_vsl
+    # x = reorder(VESSEL_ID,
+    #                   as.integer(factor(good_over_bad)),
+    #                   FUN = min),
+    # y = count_marks_per_vsl,
+    # color = coord_mark
+  )) +
+  # geom_point() +
+  geom_line()
+
+  +
+  theme_bw() +
+  # text on dots
+  geom_text(aes(label = cnt_v_in_bucket2), vjust = -0.3) +
+  geom_text(aes(label = cnt_vsl_m_compl),
+            vjust = 1.3,
+            color = "blue") +
+  # scale_y_continuous(breaks = seq(0, 100, by = 10),
+  # labels = pecent_names) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(legend.position = "none") +
+  labs(size = "Groups of percentage",
+       x = "Months (2022)",
+       y = "Number of Vessels"
+       # y = "Number of Non-Compliant Vessels That Were Compliant More Than 50%",
+       # y = "Percent of non-compliant vessels been non-compliant less than half a month",
+       # title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)")
+       ) +
+  labs(title = "The Number of Non-Compliant Vessels Each Month\nThat Were Compliant More Than 50% of a Month in 2022") +
+  # theme(plot.title = element_text(lineheight = 0.9)) +
+  labs(caption = "(The blue number is a total number of non-compliant vessels per month.)")
+# guides(color = guide_legend(title = "nc weeks")) +
+# ylim(0, 100)
+
 
 # stop here ----
 
