@@ -1,8 +1,8 @@
 ---
-title: "Geo errors"
+title: "Geo errors: positive longitudes"
 date: today
-project:
-  lib-dir: ..
+# project:
+#   lib-dir: ..
 output:
   html_document
 execute:
@@ -24,22 +24,11 @@ format:
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE}
 # setup ----
 library(mapview)
-# library(ggplot2)
-# library(ggmap)
-# library(leaflet)
-# library(tigris)
-# tigris_use_cache = TRUE
-#
-# library(rnaturalearth) #coastline
 library(knitr)
-# library(maps)
-# library(mapdata)
-# library(sf)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_dir_path <-
-  # get_current_file_directory()
   file.path(my_paths$git_r, "geo_errors")
 ```
 
@@ -649,7 +638,7 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
 
 ## plot good/wrong cnts for "both" ----
 ### make_both_sorted_plot function
-```{r plot good/wrong cnts for "both" }
+```{r plot good/wrong cnts for both}
 ## plot good/wrong cnts for "both" ----
 # glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
@@ -689,16 +678,17 @@ make_both_sorted_plot <-
 ```
 
 ### plot good/wrong cnts for "both" by total
-```{r plot good/wrong cnts for "both" by total}
+```{r plot good/wrong cnts for both by total}
 ## plot good/wrong cnts for "both" by total ----
 both_sort_by_total <-
   make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts)
 
 # glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
+both_sort_by_total
 ```
 
 ### plot good/wrong cnts for "both" by good
-```{r plot good/wrong cnts for "both" by good}
+```{r plot good/wrong cnts for both by good}
 ### plot good/wrong cnts for "both" by good ----
 both_sorted_by_good_plot <-
   make_both_sorted_plot(
