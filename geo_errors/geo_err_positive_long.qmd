@@ -134,8 +134,11 @@ map_plot <-
 ## get land map
 ```{r get land map}
 ## get land map ----
+land_shp_f_path <- file.path(my_paths$inputs,
+                             r"(shapefiles\ne_10m_land\ne_10m_land.shp)")
+
 ne_10m_land_sf <-
-  sf::read_sf(r"(my_inputs\shapefiles\ne_10m_land\ne_10m_land.shp)")
+  sf::read_sf(land_shp_f_path)
 
 # sf::st_geometry(ne_10m_land_sf)
 # Geodetic CRS:  WGS 84
@@ -150,8 +153,11 @@ ne_10m_land_sf_bb <-
 ## get ocean map ne 
 ```{r get ocean map}
 ## get ocean map ne ----
+ocean_shp_f_path <- file.path(my_paths$inputs,
+                             r"(shapefiles\ne_10m_ocean\ne_10m_ocean.shp)")
+
 ne_10m_ocean_sf <-
-  sf::read_sf(r"(my_inputs\shapefiles\ne_10m_ocean\ne_10m_ocean.shp)")
+  sf::read_sf(ocean_shp_f_path)
 
 ne_10m_ocean_sf_bb <-
   sf::st_crop(ne_10m_ocean_sf,
@@ -337,7 +343,11 @@ positive_long_corrected_vsl_ids <-
 
 dim(positive_long_corrected_vsl_ids)
 # [1] 350   1
+```
 
+### Positive longitude, corrected to sf
+```{r Positive longitude, corrected to sf}
+### Positive longitude, corrected to sf ----
 positive_long_corrected_sf <-
   positive_long_corrected |>
   sf::st_as_sf(
@@ -352,23 +362,43 @@ positive_long_corrected_map <-
   map_plot(my_title = 'Positive longitude, corrected') +
   red_bounding_box
 
-# good: inside the bb, not on land ----
+positive_long_corrected_map
+```
+
+## good: inside the bb, not on land
+```{r good: inside the bb, not on land}
+## good: inside the bb, not on land ----
 positive_long_corrected_sf_good <-
   positive_long_corrected_sf |>
   filter(lengths(
     sf::st_intersects(positive_long_corrected_sf, ne_10m_ocean_sf_bb)
   ) > 0)
 # mapview(positive_long_corrected_sf_good)
+ggplot() +
+  ggplot2::geom_sf(data = ne_10m_land_sf_bb) +
+  ggplot2::geom_sf(data = positive_long_corrected_sf_good,
+                   color = "blue") +
+  ggplot2::ggtitle("Corrected points on land inside the bog box")
+  
 glimpse(positive_long_corrected_sf_good)
+```
 
-# bad sf ----
+## bad sf
+```{r bad sf}
+## bad sf ----
 positive_long_corrected_sf_bad <-
   positive_long_corrected_sf |>
   filter(lengths(
     sf::st_intersects(positive_long_corrected_sf, ne_10m_ocean_sf_bb)
   ) == 0)
 
-# mapview(positive_long_corrected_sf_bad)
+positive_long_corrected_sf_bad |> 
+  map_plot(my_title = 'Positive longitude, corrected, but on land or out of the bb') +
+  red_bounding_box
+```
+
+
+```{r bad sf}
 # good vessels ----
 positive_long_corrected_good_vsl_ids <-
   positive_long_corrected_sf_good |>
