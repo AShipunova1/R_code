@@ -397,9 +397,10 @@ positive_long_corrected_sf_bad |>
   red_bounding_box
 ```
 
+## good vessels
 
-```{r bad sf}
-# good vessels ----
+```{r good vessels}
+## good vessels ----
 positive_long_corrected_good_vsl_ids <-
   positive_long_corrected_sf_good |>
   sf::st_drop_geometry() |>
@@ -413,9 +414,11 @@ positive_long_corrected_good_vsl_ids |> dim()
 
 # positive_long_corrected_good_vsl_ids |>
 #   filter(VESSEL_ID == "162619")
+```
 
-
-# bad vessels ----
+## bad vessels
+```{r bad vessels}
+## bad vessels ----
 
 positive_long_corrected_bad_vsl_ids <-
   positive_long_corrected_sf_bad |>
@@ -425,19 +428,33 @@ positive_long_corrected_bad_vsl_ids <-
 
 dim(positive_long_corrected_bad_vsl_ids)
 # [1] 176   1
+```
 
-# vsl ids both good and bad ----
+## vsl ids both good and bad
+```{r vsl ids both good and bad}
+## vsl ids both good and bad ----
 both <-
   dplyr::intersect(positive_long_corrected_good_vsl_ids$VESSEL_ID,
                  positive_long_corrected_bad_vsl_ids$VESSEL_ID)
 length(both)
 # 129
 
+```
+
+## vsl ids good only
+```{r vsl ids good only}
+## vsl ids good only ----
+
 good_only <-
   dplyr::setdiff(positive_long_corrected_good_vsl_ids$VESSEL_ID,
                  positive_long_corrected_bad_vsl_ids$VESSEL_ID)
 length(good_only)
 # 174
+```
+
+## vsl ids bad only
+```{r vsl ids bad only}
+## vsl ids bad only ----
 
 bad_only <-
     dplyr::setdiff(positive_long_corrected_bad_vsl_ids$VESSEL_ID,
@@ -449,7 +466,10 @@ length(bad_only)
 # > 47+174+129
 # [1] 350
 # ok, same as positive_long_corrected_vsl_ids
+```
 
+# bad only vsl and counts
+```{r bad only vsl and counts}
 # bad only vsl and counts ----
 trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
@@ -475,17 +495,18 @@ full_join(tot_bad,
   mutate(cnt_diff = total_trips_by_vsl - pos_lon_trips_by_vsl,
          wrong_perc = pos_lon_trips_by_vsl * 100 / total_trips_by_vsl)
 # Joining with `by = join_by(VESSEL_ID)`
+```
+
+### histogram bad vs. total
+```{r histogram bad vs. total}
+### histogram bad vs. total ----
 
 lattice::histogram(~ cnt_diff, data = bad_cnt_join,
           xlab = "Difference between total and wrong trip coordinates")
+```
 
-# hist(bad_cnt_join$cnt_diff,
-#      main = "Difference between total and wrong trip coordinates",
-#      xlab = "Count difference")
-# hist(faithful$waiting,
-#      main = "Waiting Time between Eruptions",
-#      xlab = "Waiting Time (in minutes)")
-
+# check both good and bad
+```{r check both good and bad}
 # check both good and bad ----
 both_tot <-
   trip_coord_info_short_cnt_total_trips_per_vsl |>
@@ -500,7 +521,11 @@ head(both_tot, 3)
 # 1    326154                532
 # 2    390420                268
 # 3    247478                257
+```
 
+## add coords to total cnts
+
+```{r add coords to total cnts}
 ## add coords to total cnts ----
 trip_coord_info_short_both_tot_w_coords <-
   trip_coord_info_short |>
@@ -512,34 +537,23 @@ head(trip_coord_info_short_both_tot_w_coords, 3)
 # 2    29.58     87.23 59404746    247478                257
 # 3    29.00     86.00 59406159    174924                216
 
-# mapview(positive_long_corrected_sf_bad_both) +
-  # big_box_map
-
+```
+## prepare good_sf: not corrected, add a col ----
+```{r prepare good_sf: not corrected, add a col}
 ## prepare good_sf: not corrected, add a col ----
 
 positive_long_corrected_good_vsl_ids_coord_pair <-
   positive_long_corrected_good_vsl_ids |>
   mutate(coord_pair = paste(LATITUDE, -LONGITUDE))
 
-# glimpse(positive_long_corrected_good_vsl_ids_coord_pair)
-# positive_long__good_pairs <-
-  # positive_long |>
-    # mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
-  # right_join(positive_long_corrected_good_vsl_ids_coord_pair,
-             # by = join_by(LATITUDE, VESSEL_ID, coord_pair, TRIP_ID))
-# exclude corrected longitude
-# Joining with `by = join_by(LATITUDE, LONGITUDE, VESSEL_ID, vendor_trip_cat, coord_pair)`
-
-# glimpse(positive_long__good_pairs)
-
-#   filter(VESSEL_ID %in% positive_long_corrected_good_vsl_ids$VESSEL_ID) |>
-#   mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
-#   select(VESSEL_ID, TRIP_ID, LATITUDE, LONGITUDE, vendor_trip_cat, year_start, coord_pair)
-#
 # dim(positive_long__good_pairs)
 # # [1] 14026     7
+```
 
-# join all info and positive lon good ----
+## join all info and positive lon good ----
+
+```{r join all info and positive lon good}
+## join all info and positive lon good ----
 both_tot_w_coords__and_good_pairs <-
   trip_coord_info_short_both_tot_w_coords |>
   mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
@@ -560,11 +574,11 @@ dim(both_tot_w_coords__and_good_pairs)
 # [1] 11866     8
 
 glimpse(both_tot_w_coords__and_good_pairs)
+```
 
-both_tot_w_coords__and_good_pairs |>
-  filter(is.na(LATITUDE_tot)) |>
-  glimpse()
-# 0
+### add good/wrong mark
+```{r add good/wrong mark}
+## add good/wrong mark ----
 
 both_tot_w_coords__and_good_pairs_mark <-
   both_tot_w_coords__and_good_pairs |>
@@ -574,8 +588,11 @@ both_tot_w_coords__and_good_pairs_mark <-
                      .default = "good"))
 
 glimpse(both_tot_w_coords__and_good_pairs_mark)
+```
 
-# should be both good and wrong marks for each vsl ----
+### should be both good and wrong marks for each vsl ----
+```{r should be both good and wrong marks for each vsl}
+### should be both good and wrong marks for each vsl ----
 
 both_tot_w_coords__and_good_pairs_mark |>
   filter(VESSEL_ID == "162619") |>
@@ -618,33 +635,22 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_long <-
   pivot_longer(c(good, wrong),
                names_to = "coord_mark",
                values_to = "count_marks_per_vsl")
+```
 
-### check tot cnts ----
-# both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-  # filter(!total_trips_by_vsl == tot)
-# 0 ok
-head(both_tot_w_coords__and_good_pairs_mark_cnts_wide, 3)
-#   VESSEL_ID total_trips_by_vsl  good wrong   tot
-#       <int>              <int> <int> <int> <int>
-# 1    247243                 94    86     8    94
-# 2    247478                257   250     7   257
-
-# ## add proportion of good over bad coords ----
-# both_tot_w_coords__and_good_pairs_mark_cnts_wide_perc_g <-
-#   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-#   group_by(VESSEL_ID) |>
-#   mutate(good_percent =
-#            good * 100 / total_trips_by_vsl) |>
-#   ungroup()
-
-## histogram ----
+## histogram for "both"
+```{r}
+## histogram for "both" ----
 lattice::histogram( ~ good , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
                     xlab = "Good trip coordinates where vessels have both good and wrong coordinates")
 
 lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
                     xlab = "Wrong trip coordinates where vessels have both good and wrong coordinates")
+```
 
-## plot good/wrong cnts ----
+## plot good/wrong cnts for "both" ----
+
+```{r plot good/wrong cnts for "both" }
+## plot good/wrong cnts for "both" ----
 # glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
 make_both_sorted_plot <-
@@ -694,91 +700,40 @@ both_sorted_by_good_plot <-
   )
 
 both_sorted_by_good_plot
+```
 
+### both_sorted_by_wrong_plot
+```{r both_sorted_by_wrong_plot }
 both_sorted_by_wrong_plot <-
   make_both_sorted_plot(
     both_tot_w_coords__and_good_pairs_mark_cnts_wide_long,
     order_by = "bad_over_good",
     ordered_name = "wrong coordinates"
   )
+```
 
-good_wrong_coords_dir <-
-  r"(my_outputs\geo_errors\good_wrong_coords)"
-
-ggsave(file.path(good_wrong_coords_dir, "both_sort_by_total.png"),
-       plot = both_sort_by_tot_plot,
-       units = "in",
-       width = 7,
-       # height = 4,
-       dpi = 600)
-
-
-ggsave(file.path(good_wrong_coords_dir, "both_sorted_by_good_plot.png"),
-       plot = both_sorted_by_good_plot,
-       units = "in",
-       width = 7,
-       # height = 4,
-       dpi = 600)
-
-ggsave(file.path(good_wrong_coords_dir, "both_sorted_by_wrong_plot.png"),
-       plot = both_sorted_by_wrong_plot,
-       units = "in",
-       width = 7,
-       # height = 4,
-       dpi = 600)
-
-# line plots ----
+## line plot: good vs. total
+```{r line plot: good vs. total}
+## line plot: good vs. total ----
 # glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
 line_2_plot <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-    # ggplot(aes(date, value01, colour = variable)) +
-  # geom_line()
     ggplot(aes(x = order(good_over_bad),
                y = total_trips_by_vsl)) +
     geom_line(colour = "red") +
-  # geom_point() +
     geom_line(aes(x = order(bad_over_good),
                y = total_trips_by_vsl),
               colour = "blue") +
   theme_bw() +
   labs(title = "Is there a correlation between\ngood (red), wrong (blue) and total number (y) of coordinates?",
        caption = "For vessels having both wrong and good coordinates and at least one positive lon error")
+```
 
-ggsave(file.path(good_wrong_coords_dir, "line_2_plot.png"),
-       plot = line_2_plot,
-       units = "in",
-       width = 7,
-       # height = 4,
-       dpi = 600)
-  # +
-  # # text on dots
-  # geom_text(aes(label = cnt_v_in_bucket2), vjust = -0.3) +
-  # geom_text(aes(label = cnt_vsl_m_compl),
-            # vjust = 1.3,
-            # color = "blue") +
-  # scale_y_continuous(breaks = seq(0, 100, by = 10),
-  # labels = pecent_names) +
-  # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  # theme(legend.position = "none") +
-  # labs(size = "Groups of percentage",
-  #      x = "Months (2022)",
-  #      y = "Number of Vessels"
-       # y = "Number of Non-Compliant Vessels That Were Compliant More Than 50%",
-       # y = "Percent of non-compliant vessels been non-compliant less than half a month",
-       # title = "Distribution of number of weeks when a vessel was non compliant (2022 GOM + dual)")
-       # ) +
-  # labs(title = "The Number of Non-Compliant Vessels Each Month\nThat Were Compliant More Than 50% of a Month in 2022") +
-  # # theme(plot.title = element_text(lineheight = 0.9)) +
-  # labs(caption = "(The blue number is a total number of non-compliant vessels per month.)")
-# guides(color = guide_legend(title = "nc weeks")) +
-# ylim(0, 100)
-
+## bad vs wrong line plot
+```{r bad vs wrong line plot}
 ## bad vs wrong line plot ----
 line_2_plot_2 <-
 both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-  # ggplot(aes(date, value01, colour = variable)) +
-  # geom_line()
-  # ggplot(aes(x = reorder(good, bad_over_good),
   ggplot(aes(x = good,
              y = wrong)) +
   geom_line(colour = "green") +
@@ -795,15 +750,19 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
   theme(axis.text.x = element_blank())
 
 line_2_plot_2
+```
+
+## histogram good_over_bad
+```{r histogram good_over_bad}
 ## histogram good_over_bad ----
 lattice::histogram( ~ good_over_bad,
                     data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
                     xlab = "good_over_bad",
                     main = "good_over_bad")
 
-f <- r"(..\R_code_github\geo_errors\geo_err_positive_long.R)"
-file.exists(f)
 
-knitr::spin(r"(..\R_code_github\geo_errors\geo_err_positive_long.R)", knit = FALSE)
 ```
 
+# What to do about the positive lon error.
+1) For vessels in "good_only" category bulk change the longitude sign to a minus.
+2) For the rest, can we ask them to correct the errors?
