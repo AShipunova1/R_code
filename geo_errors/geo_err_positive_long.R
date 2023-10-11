@@ -694,3 +694,8 @@ lattice::histogram( ~ good_over_bad,
                     xlab = "good_over_bad",
                     main = "good_over_bad")
 
+f <- r"(..\R_code_github\geo_errors\geo_err_positive_long.R)"
+file.exists(f)
+
+# knitr::spin(r"(..\R_code_github\geo_errors\geo_err_positive_long.R)", knit = FALSE)
+#
