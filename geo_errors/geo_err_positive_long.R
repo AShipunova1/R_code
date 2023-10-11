@@ -502,15 +502,15 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   pivot_wider(names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
   group_by(VESSEL_ID) |>
-  mutate(good_up = good / wrong,
-         wrong_up = wrong / good) |>
+  mutate(good_over_bad = round(good / wrong, 2),
+         bad_over_good = round(wrong / good, 2)) |>
   ungroup()
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_long <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
   pivot_longer(c(good, wrong),
                names_to = "coord_mark",
-               values_to = "mark_cnt")
+               values_to = "count_marks_per_vsl")
 
 ### check tot cnts ----
 # both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
@@ -522,14 +522,15 @@ head(both_tot_w_coords__and_good_pairs_mark_cnts_wide, 3)
 # 1    247243                 94    86     8    94
 # 2    247478                257   250     7   257
 
-## add proportion of good over bad coords ----
-both_tot_w_coords__and_good_pairs_mark_cnts_wide_perc_g <-
-  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-  group_by(VESSEL_ID) |>
-  mutate(good_percent =
-           good * 100 / total_trips_by_vsl) |>
-  ungroup()
+# ## add proportion of good over bad coords ----
+# both_tot_w_coords__and_good_pairs_mark_cnts_wide_perc_g <-
+#   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+#   group_by(VESSEL_ID) |>
+#   mutate(good_percent =
+#            good * 100 / total_trips_by_vsl) |>
+#   ungroup()
 
+## histogram ----
 lattice::histogram( ~ good , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
                     xlab = "Good trip coordinates where vessels have both good and wrong coordinates")
 
@@ -537,13 +538,14 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
                     xlab = "Wrong trip coordinates where vessels have both good and wrong coordinates")
 
 ## plot good/wrong cnts ----
-glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
+# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
 make_both_sorted_plot <-
   function(my_df,
            order_by = "total_trips_by_vsl",
            ordered_name = "total number of trips",
-           ycol = "count_marks_per_vsl") {
+           ycol = "count_marks_per_vsl",
+           y_title = ycol) {
     title_all = stringr::str_glue(
       " Good and wrong coordinates ordered by {ordered_name}\n For vessels having both and at least one positive lon error"
     )
@@ -565,7 +567,7 @@ make_both_sorted_plot <-
       labs(
         title = title_all,
         x = stringr::str_glue("Vessels sorted by {ordered_name}"),
-        y = "Trips per vessel"
+        y = y_title
       ) +
       theme(axis.text.x = element_blank())
 
@@ -574,25 +576,24 @@ make_both_sorted_plot <-
 
 both_sort_by_total <-
   make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts)
-head(both_tot_w_coords__and_good_pairs_mark_cnts, 3)
 
-both_tot_w_coords__and_good_pairs_mark_cnts_wide_p <-
-  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-  group_by(VESSEL_ID) |>
-  mutate(good_over_bad = round(good / wrong, 2),
-         bad_over_good = round(wrong / good, 2)) |>
-  ungroup()
+# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
 
-glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_p)
-
-# both_sorted_by_good_plot <-
-
-make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts_wide_p,
-                        order_by = "good_over_bad",
-                        ordered_name = "good coordinates",
-                        ycol = "total_trips_by_vsl")
+both_sorted_by_good_plot <-
+  make_both_sorted_plot(
+    both_tot_w_coords__and_good_pairs_mark_cnts_wide_long,
+    order_by = "good_over_bad",
+    ordered_name = "good coordinates"
+  )
 
 both_sorted_by_good_plot
+
+both_sorted_by_wrong_plot <-
+  make_both_sorted_plot(
+    both_tot_w_coords__and_good_pairs_mark_cnts_wide_long,
+    order_by = "bad_over_good",
+    ordered_name = "wrong coordinates"
+  )
 
 good_wrong_coords_dir <-
   r"(my_outputs\geo_errors\good_wrong_coords)"
@@ -603,6 +604,23 @@ ggsave(file.path(good_wrong_coords_dir, "both_sort_by_total.png"),
        width = 7,
        # height = 4,
        dpi = 600)
+
+
+ggsave(file.path(good_wrong_coords_dir, "both_sorted_by_good_plot.png"),
+       plot = both_sorted_by_good_plot,
+       units = "in",
+       width = 7,
+       # height = 4,
+       dpi = 600)
+
+ggsave(file.path(good_wrong_coords_dir, "both_sorted_by_wrong_plot.png"),
+       plot = both_sorted_by_wrong_plot,
+       units = "in",
+       width = 7,
+       # height = 4,
+       dpi = 600)
+
+
 # stop here ----
 
 positive_long_corrected_sf_bad |>
