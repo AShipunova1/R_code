@@ -688,8 +688,12 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
   theme(axis.text.x = element_blank())
 
 line_2_plot_2
+## histogram good_over_bad ----
+lattice::histogram( ~ good_over_bad,
+                    data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
+                    xlab = "good_over_bad",
+                    main = "good_over_bad")
 
-histog
 # stop here ----
 
 positive_long_corrected_sf_bad |>
