@@ -26,7 +26,6 @@ permit_info_fun <-
     dbGetQuery(con,
                mv_sero_fh_permits_his_query) %>%
       return()
-
   }
 
 get_permit_info <-
@@ -66,7 +65,6 @@ get_permit_info <-
 
 # Logbooks
 # get trips info ----
-
 trips_file_name <-
     file.path(input_path, "trips.rds")
 
@@ -251,8 +249,9 @@ dates_filter <- " (end_date >= TO_DATE('01-JAN-21', 'dd-mon-yy')
   AND effective_date <= CURRENT_DATE
 "
 
+# use "dates_filter" in all parts of the union
 vessels_permits_query <-
-  str_glue("SELECT
+  stringr::str_glue("SELECT
   *
 FROM
        srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
@@ -421,7 +420,7 @@ WHERE
 get_compl_err_data_from_db <-
   function(compl_err_query) {
     compl_err_db_data_0 =
-      ROracle::dbGetQuery(con,                                       compl_err_query)
+      ROracle::dbGetQuery(con, compl_err_query)
 
     compl_err_db_data_1 <-
       compl_err_db_data_0 %>%
@@ -462,6 +461,7 @@ source(file.path(my_paths$git_r,
 run_all_get_db_data <-
   function() {
     # browser()
+    # a variable to keep all the results
     result_l = list()
 
     mv_sero_fh_permits_his <- get_permit_info()
@@ -511,11 +511,15 @@ run_all_get_db_data <-
     return(result_l)
   }
 
-force_from_db <- NULL
+force_from_db <- NULL # read data from files if exist
 # force_from_db <- "YES"
+
+# How to use:
 # tic("run_all_get_db_data()")
 # all_get_db_data_result_l <- run_all_get_db_data()
 # toc()
+
+# Benchmark:
 # reading RDS
 # run_all_get_db_data(): 1.69 sec elapsed
 # reading from db
@@ -525,6 +529,7 @@ force_from_db <- NULL
 # 'data.frame':	99832 obs. of  38 variables:
 
 ### check ----
+# # for each df print its name and dim()
 # names(all_get_db_data_result_l) |>
 #   map(\(df_name) {
 #     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
