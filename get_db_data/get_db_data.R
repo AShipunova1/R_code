@@ -690,7 +690,7 @@ run_all_get_db_data <-
   }
 
 force_from_db <- NULL # read data from files if exist
-force_from_db <- "YES"
+# force_from_db <- "YES"
 
 # How to use:
 tic("run_all_get_db_data()")
