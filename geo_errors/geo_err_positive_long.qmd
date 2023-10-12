@@ -387,9 +387,13 @@ ggplot() +
   ggplot2::geom_sf(data = positive_long_corrected_sf_good,
                    color = "blue") +
   ggplot2::ggtitle("Corrected points on land inside the bog box")
-  
-glimpse(positive_long_corrected_sf_good) |> 
-    knitr::kable(caption = "glimpse positive_long_corrected_sf_good")
+```
+
+### positive_long_corrected_sf_good
+```{r good: glimpse positive_long_corrected_sf_good}
+positive_long_corrected_sf_good |>
+  head() |>
+  knitr::kable(caption = "glimpse positive_long_corrected_sf_good")
 
 ```
 
@@ -484,7 +488,7 @@ length(bad_only)
 trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
   arrange(desc(pos_lon_per_vsl)) |>
-  glimpse() |> 
+  head() |> 
   knitr::kable(caption = "glimpse bad only vsl and counts")
 
 # 'data.frame':	907 obs. of  4 variables:
@@ -595,7 +599,7 @@ dim(both_tot_w_coords__and_good_pairs)
 # [1] 11866     8
 
 both_tot_w_coords__and_good_pairs |> 
-  glimpse() |> 
+  head() |> 
   knitr::kable(caption = "glimpse the corrected join")
 
 ```
@@ -612,7 +616,7 @@ both_tot_w_coords__and_good_pairs_mark <-
                      .default = "good"))
 
 both_tot_w_coords__and_good_pairs_mark |>
-  glimpse() |>
+  head() |>
   knitr::kable(caption = "glimpse good/wrong marks")
 
 ```
