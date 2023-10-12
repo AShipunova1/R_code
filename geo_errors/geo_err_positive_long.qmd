@@ -190,12 +190,12 @@ trip_coord_info_vendors3 <-
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
-  kable(caption = "ALL: count(vendor_trip_cat)")
+  knitr::kable(caption = "ALL: count(vendor_trip_cat)")
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   count(vendor_trip_cat, year_start) |>
-  kable(caption = "ALL: count(vendor_trip_cat, year_start)")
+  knitr::kable(caption = "ALL: count(vendor_trip_cat, year_start)")
 
 # all vendors
 # etrips	47731
@@ -463,7 +463,9 @@ length(bad_only)
 trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
   arrange(desc(pos_lon_per_vsl)) |>
-  glimpse()
+  glimpse() |> 
+  knitr::kable(caption = "glimpse bad only vsl and counts")
+
 # 'data.frame':	907 obs. of  4 variables:
 
 pos_lon_bad <-
@@ -490,8 +492,11 @@ full_join(tot_bad,
 ```{r histogram bad vs. total}
 ### histogram bad vs. total ----
 
-lattice::histogram(~ cnt_diff, data = bad_cnt_join,
-          xlab = "Difference between total and wrong trip coordinates")
+lattice::histogram(~ cnt_diff, 
+                   data = bad_cnt_join,
+                   x_breaks <- c(-3, -1.5, 0, 1.5, 3),
+          xlab = "Difference between total and wrong trip coordinates",
+          main = "Most of the vessels in this category have all coordinates reported incorrectly")
 ```
 
 # check both good and bad
@@ -505,7 +510,10 @@ both_tot <-
 dim(both_tot)
 # [1] 129   2
 
-head(both_tot, 3)
+head(both_tot, 3) |> 
+  knitr::kable(caption = "glimpse total_trips_by_vsl")
+
+
 #   VESSEL_ID total_trips_by_vsl
 # 1    326154                532
 # 2    390420                268
@@ -520,14 +528,17 @@ trip_coord_info_short_both_tot_w_coords <-
   trip_coord_info_short |>
   right_join(both_tot)
 
-head(trip_coord_info_short_both_tot_w_coords, 3)
+trip_coord_info_short_both_tot_w_coords |> 
+  head(3) |> 
+  knitr::kable()
+
 #   LATITUDE LONGITUDE  TRIP_ID VESSEL_ID total_trips_by_vsl
 # 1    24.00     80.00 66960181    247243                 94
 # 2    29.58     87.23 59404746    247478                257
 # 3    29.00     86.00 59406159    174924                216
 
 ```
-## prepare good_sf: not corrected, add a col ----
+## prepare good_sf: not corrected, add a col
 ```{r prepare good_sf: not corrected, add a col}
 ## prepare good_sf: not corrected, add a col ----
 
@@ -539,7 +550,7 @@ positive_long_corrected_good_vsl_ids_coord_pair <-
 # # [1] 14026     7
 ```
 
-## join all info and positive lon good ----
+## join all info and positive lon good
 
 ```{r join all info and positive lon good}
 ## join all info and positive lon good ----
@@ -562,7 +573,10 @@ dim(both_tot_w_coords__and_good_pairs)
 # [1] 11871    10
 # [1] 11866     8
 
-glimpse(both_tot_w_coords__and_good_pairs)
+both_tot_w_coords__and_good_pairs |> 
+  glimpse |> 
+  knitr::kable(caption = "glimpse the corrected join")
+
 ```
 
 ### add good/wrong mark
@@ -576,7 +590,10 @@ both_tot_w_coords__and_good_pairs_mark <-
                      ~ "wrong",
                      .default = "good"))
 
-glimpse(both_tot_w_coords__and_good_pairs_mark)
+both_tot_w_coords__and_good_pairs_mark |>
+  glimpse() |>
+  knitr::kable(caption = "glimpse good/wrong marks")
+
 ```
 
 ### should be both good and wrong marks for each vsl ----
@@ -585,7 +602,8 @@ glimpse(both_tot_w_coords__and_good_pairs_mark)
 
 both_tot_w_coords__and_good_pairs_mark |>
   filter(VESSEL_ID == "162619") |>
-  count(coord_mark)
+  count(coord_mark) |> 
+  knitr::kable(caption = "Test one vessel")
 # 1       good 73
 # 2      wrong  1
 
