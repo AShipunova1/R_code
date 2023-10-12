@@ -1,6 +1,165 @@
+# help functions ----
+
+library(tidyverse)
+library(magrittr)
+library(readxl)  # reading in .xlsx
+library(rbenchmark)
+library(ROracle)
+library(tictoc)
+
+# Do not show warnings about groups
+options(dplyr.summarise.inform = FALSE)
+# Turn off the scientific notation
+options(scipen = 999)
+
+# Use my function in case we want to change the case in all functions
+my_headers_case_function <- tolower
+
+# current user name
+get_username <- function(){
+    return(as.character(Sys.info()["user"]))
+}
+
+# set working directories ----
+
+get_current_file_directory <-
+  function() {
+    dirname(rstudioapi::getSourceEditorContext()$path)
+  }
+
+# change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
+  # then you can use it in the code like my_paths$input etc.
+set_work_dir <- function() {
+  setwd("~/")
+  base_dir <- getwd()
+
+  # for others
+  add_dir <- ""
+  # for Anna's computer
+  if (get_username() == "anna.shipunova") {
+    add_dir <- "R_files_local/test_dir"
+  }
+
+  # add an empty or Anna's folder in front
+  main_r_dir <- file.path(add_dir, "SEFHIER/R code")
+
+  in_dir <- "Inputs"
+  # file.path instead of paste, because it provides correct concatenation, "\" or "/" etc.
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+  out_dir <- "Outputs"
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  # git_r_dir <- "R_code_github"
+  # full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  setwd(file.path(base_dir, main_r_dir))
+
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir) #,
+                   #"git_r" = full_path_to_r_git_dir)
+  return(my_paths)
+}
+
+set_work_dir_local <- function() {
+  setwd("~/")
+  base_dir <- getwd()
+  main_r_dir <- "R_files_local"
+
+  in_dir <- "my_inputs"
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+  out_dir <- "my_outputs"
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  git_r_dir <- "R_code_github"
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  setwd(file.path(base_dir, main_r_dir))
+
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
+  return(my_paths)
+}
+
+if (get_username() == "anna.shipunova") {
+  set_work_dir <- set_work_dir_local
+}
+
+# to use in a function,
+# e.g. read_csv(name_repair = fix_names)
+fix_names <- function(x) {
+  x %>%
+    # remove dots
+    str_replace_all("\\.", "") %>%
+    # all not letters and numbers to underscores
+    str_replace_all("[^A-z0-9]", "_") %>%
+    # letters only in the beginning
+    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
+    # tolower
+    my_headers_case_function()
+}
+
+connect_to_secpr <- function() {
+  # usage:
+  # con <- connect_to_secpr()
+  my_username <- keyring::key_list("SECPR")[1, 2]
+  con = dbConnect(
+    dbDriver("Oracle"),
+    username = my_username,
+    password = keyring::key_get("SECPR",
+                                my_username),
+    dbname = "SECPR"
+  )
+  return(con)
+}
+
+read_rds_or_run <-
+  function(my_file_path,
+           my_data = as.data.frame(""),
+           my_function,
+           force_from_db = NULL) {
+    # browser()
+
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
+      # read a binary file saved previously
+      my_result <-
+        readr::read_rds(my_file_path)
+    } else {
+      msg_text <- paste(today(), "run for", basename(my_file_path))
+      tic(msg_text)
+      my_result <-
+        my_function(my_data)
+      toc()
+
+      # write all as binary
+      readr::write_rds(my_result,
+                       my_file_path)
+    }
+
+    return(my_result)
+  }
+
+# to use on download from db
+vessels_permits_id_clean <-
+  function(my_df) {
+    vessels_permits <-
+      my_df |>
+      rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
+      rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
+    return(vessels_permits)
+  }
+
+clean_headers <- function(my_df) {
+  colnames(my_df) %<>%
+    fix_names()
+  return(my_df)
+}
+
 # setup ----
 
-source("~/R_code_github/useful_functions_module.r")
+# source("~/R_code_github/useful_functions_module.r")
+
 my_paths <- set_work_dir()
 current_project_name <- "get_db_data"
 input_path <- file.path(my_paths$inputs, current_project_name)
@@ -512,12 +671,12 @@ run_all_get_db_data <-
   }
 
 force_from_db <- NULL # read data from files if exist
-# force_from_db <- "YES"
+force_from_db <- "YES"
 
 # How to use:
-# tic("run_all_get_db_data()")
-# all_get_db_data_result_l <- run_all_get_db_data()
-# toc()
+tic("run_all_get_db_data()")
+all_get_db_data_result_l <- run_all_get_db_data()
+toc()
 
 # Benchmark:
 # reading RDS
@@ -529,11 +688,11 @@ force_from_db <- NULL # read data from files if exist
 # 'data.frame':	99832 obs. of  38 variables:
 
 ### check ----
-# # for each df print its name and dim()
-# names(all_get_db_data_result_l) |>
-#   map(\(df_name) {
-#     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
-#   })
+# for each df print its name and dim()
+names(all_get_db_data_result_l) |>
+  map(\(df_name) {
+    c(df_name, dim(all_get_db_data_result_l[[df_name]]))
+  })
 
 # force_from_db <- "NULL"
 # dates_2022 <- get_dates_2022()
