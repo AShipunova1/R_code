@@ -158,7 +158,7 @@ clean_headers <- function(my_df) {
 
 # setup ----
 
-# source("~/R_code_github/useful_functions_module.r")
+source("~/R_code_github/useful_functions_module.r")
 
 my_paths <- set_work_dir()
 current_project_name <- "get_db_data"
@@ -609,9 +609,27 @@ get_compl_err_db_data <- function() {
 }
 
 # get metric_tracking_no_srhs ----
+
 source(file.path(my_paths$git_r,
                  "get_data_from_fhier",
                  "metric_tracking_no_srhs.R"))
+
+flat_file_name <- "make_metric_tracking_no_srhs.R"
+files_to_combine_list <-
+  c(
+    file.path(my_paths$git_r,
+                 "get_data_from_fhier",
+                 "get_srhs_vessels.R"),
+    file.path(my_paths$git_r,
+                 "get_data_from_fhier",
+                 "get_metrics_tracking.R"),
+    file.path(my_paths$git_r,
+                 "get_data_from_fhier",
+                 "metric_tracking_no_srhs.R")
+  )
+
+make_a_flat_file(flat_file_name,
+           files_to_combine_list)
 
 # dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # 4063
@@ -689,10 +707,10 @@ toc()
 
 ### check ----
 # for each df print its name and dim()
-names(all_get_db_data_result_l) |>
-  map(\(df_name) {
-    c(df_name, dim(all_get_db_data_result_l[[df_name]]))
-  })
+# names(all_get_db_data_result_l) |>
+#   map(\(df_name) {
+#     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
+#   })
 
 # force_from_db <- "NULL"
 # dates_2022 <- get_dates_2022()
