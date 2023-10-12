@@ -566,7 +566,18 @@ bad_cnt_join_diff_groups |>
     0,
     max(bad_cnt_join_diff_groups$total_trips_by_vsl),
     by = 10
-  ))
+  )) +
+  # scale_color_discrete(
+  #   name = 'Difference between total and positive longitude trips',
+  #   labels = c('<= 5', '>5')
+  # ) +
+  theme(legend.justification = c(1, 0),
+        legend.position = c(1, 0)) +
+  scale_color_manual(
+    name = 'Difference between total and wrong trips',
+    values = c("green", "blue"))
+
+
 ```
 
 
