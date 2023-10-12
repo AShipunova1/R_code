@@ -516,17 +516,32 @@ head(bad_cnt_join) |>
   knitr::kable(caption = "bad only vsl, compare with total trips")
 ```
 
+### bad vs. total by diff
+```{r bad vs. total by diff}
+### bad vs. total by diff ----
+
+bad_cnt_join_diff_groups <- 
+  bad_cnt_join |> 
+  # create two bins [0,4) and [4,max differences
+  mutate(my_group = base::findInterval(cnt_diff, c(0, 4)))
+  
+bad_cnt_join_diff_groups |> 
+  count(my_group) |> 
+  head() |> 
+  knitr::kable(caption = "Group 1: difference between total and wrong coordinates is < 4")
+
+# my_group
+# <int>
+# n
+# <int>
+# 1	1	20		
+# 2	2	26
+```
+
 ### plot bad vs. total
 ```{r plot bad vs. total}
 ### plot bad vs. total ----
-
-bad_cnt_join |> 
-    # mutate(new_range=cut(A, breaks = seq(min(A),max(A)), by = 999)) %>%
-  # group_by(gr = cut(B, breaks = seq(0, 1, by = 0.05))) %>% 
-#   x <- 2:18
-# v <- c(5, 10, 15) # create two bins [5,10) and [10,15)
-# cbind(x, findInterval(x, v))
-  mutate(my_group = findInterval(cnt_diff, c(0, 3))) |> 
+bad_cnt_join_diff_groups |> 
   ggplot(aes(x = total_trips_by_vsl,
              y = pos_lon_trips_by_vsl)) +
   geom_line(aes(colour = factor(my_group))) +
