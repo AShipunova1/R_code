@@ -260,7 +260,8 @@ trip_coord_info_sf_out <-
 dim(trip_coord_info_short_sf)
 # [1] 140748      3
 
-str(trip_coord_info_sf_out)
+str(trip_coord_info_sf_out) |> 
+  knitr::kable(caption = "Coordinates outside of the bb and / or on land")
 # [1] 35061     3
 ```
 
@@ -298,8 +299,8 @@ trip_coord_info_sf_pos_lon_cnt_coord_per_vsl <-
   add_count(LATITUDE, LONGITUDE, name = "pos_lon_per_vsl") |>
   distinct()
 
-head(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl) |> 
-      knitr::kable(caption = "glimpse count unique pos_lon coordinates per_vsl")
+head(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl) |>
+  knitr::kable(caption = "glimpse count unique pos_lon coordinates per_vsl")
 
 #   LATITUDE LONGITUDE VESSEL_ID pos_lon_per_vsl
 # 1 24.00000  82.00000    326229             121
@@ -514,7 +515,7 @@ full_join(tot_bad,
 
 lattice::histogram(~ cnt_diff, 
                    data = bad_cnt_join,
-                   x_breaks <- c(-3, -1.5, 0, 1.5, 3),
+                   # x_breaks <- c(-3, -1.5, 0, 1.5, 3),
           xlab = "Difference between total and wrong trip coordinates",
           main = "Most of the vessels in this category have all coordinates reported incorrectly")
 ```
@@ -594,7 +595,7 @@ dim(both_tot_w_coords__and_good_pairs)
 # [1] 11866     8
 
 both_tot_w_coords__and_good_pairs |> 
-  glimpse |> 
+  glimpse() |> 
   knitr::kable(caption = "glimpse the corrected join")
 
 ```
