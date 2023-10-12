@@ -512,6 +512,9 @@ full_join(tot_bad,
          wrong_perc = pos_lon_trips_by_vsl * 100 / total_trips_by_vsl)
 # Joining with `by = join_by(VESSEL_ID)`
 
+# bad_cnt_join |> 
+#   arrange(cnt_diff)
+
 head(bad_cnt_join) |> 
   knitr::kable(caption = "bad only vsl, compare with total trips")
 ```
@@ -523,12 +526,12 @@ head(bad_cnt_join) |>
 bad_cnt_join_diff_groups <- 
   bad_cnt_join |> 
   # create two bins [0,4) and [4,max differences
-  mutate(my_group = base::findInterval(cnt_diff, c(0, 4)))
+  mutate(my_group = base::findInterval(cnt_diff, c(0, 6)))
   
 bad_cnt_join_diff_groups |> 
   count(my_group) |> 
   head() |> 
-  knitr::kable(caption = "Group 1: difference between total and wrong coordinates is < 4")
+  knitr::kable(caption = "Group 1: difference between total and wrong coordinates is <= 5")
 
 # my_group
 # <int>
@@ -551,8 +554,27 @@ bad_cnt_join_diff_groups |>
             color = "green") +
   theme_bw() +
   labs(title = "Correlation between\nlogbooks with wrong coordinates and total logbooks #",
-       caption = "For vessels having only uncorrectable positive loingitude coordinates") +
-  theme(axis.text.x = element_blank())
+       caption = "For vessels having only uncorrectable positive loingitude coordinates. Green numbers show the difference")
+# +
+#   theme(axis.text.x = element_blank())
+```
+
+
+```{r plot bad vs. total group 1}
+bad_cnt_join_diff_groups_1 <-
+  bad_cnt_join_diff_groups |>
+  filter(my_group == 1)
+
+bad_cnt_join_diff_groups_1 |>
+  ggplot(aes(x = factor(total_trips_by_vsl),
+             y = factor(pos_lon_trips_by_vsl))) +
+  geom_point(color = "darkgreen") +
+  geom_text(aes(label = cnt_diff),
+            vjust = 1.3,
+            color = "green") +
+  theme_bw() +
+  labs(title = "Number of logbooks with wrong coordinates and total logbooks",
+       caption = "For vessels having only uncorrectable positive loingitude coordinates. Green numbers show the difference")
 
 
 ```
