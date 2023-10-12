@@ -612,24 +612,25 @@ get_compl_err_db_data <- function() {
 
 source(file.path(my_paths$git_r,
                  "get_data_from_fhier",
-                 "metric_tracking_no_srhs.R"))
+                 # "metric_tracking_no_srhs.R"))
+                 "make_metric_tracking_no_srhs_flat.R"))
 
-flat_file_name <- "make_metric_tracking_no_srhs.R"
-files_to_combine_list <-
-  c(
-    file.path(my_paths$git_r,
-                 "get_data_from_fhier",
-                 "get_srhs_vessels.R"),
-    file.path(my_paths$git_r,
-                 "get_data_from_fhier",
-                 "get_metrics_tracking.R"),
-    file.path(my_paths$git_r,
-                 "get_data_from_fhier",
-                 "metric_tracking_no_srhs.R")
-  )
-
-make_a_flat_file(flat_file_name,
-           files_to_combine_list)
+# flat_file_name <- "make_metric_tracking_no_srhs.R"
+# files_to_combine_list <-
+#   c(
+#     file.path(my_paths$git_r,
+#                  "get_data_from_fhier",
+#                  "get_srhs_vessels.R"),
+#     file.path(my_paths$git_r,
+#                  "get_data_from_fhier",
+#                  "get_metrics_tracking.R"),
+#     file.path(my_paths$git_r,
+#                  "get_data_from_fhier",
+#                  "metric_tracking_no_srhs.R")
+#   )
+#
+# make_a_flat_file(flat_file_name,
+#            files_to_combine_list)
 
 # dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # 4063
