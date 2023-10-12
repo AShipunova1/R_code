@@ -264,24 +264,6 @@ str(trip_coord_info_sf_out)
 # [1] 35061     3
 ```
 
-## cnt all errors
-```{r cnt all errors}
-## cnt all errors ----
-trip_coord_info_sf_out_cnt_coord_per_vsl <-
-  trip_coord_info_sf_out |>
-  sf::st_drop_geometry() |>
-  select(-TRIP_ID) |>
-  add_count(LATITUDE, LONGITUDE, name = "wrong_coords_per_vsl")
-head(trip_coord_info_sf_out_cnt_coord_per_vsl)
-
-trip_coord_info_sf_out_cnt_total_trips_per_vsl <-
-  trip_coord_info_sf_out |>
-  sf::st_drop_geometry() |>
-  select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "wrong_trips_by_vsl")
-str(trip_coord_info_sf_out_cnt_total_trips_per_vsl)
-```
-
 # cnt positive lon
 ```{r cnt positive lon}
 # cnt positive lon ----
@@ -292,7 +274,10 @@ trip_coord_info_sf_pos_lon_cnt_coord_per_vsl <-
   filter(LONGITUDE > 0) |>
   add_count(LATITUDE, LONGITUDE, name = "pos_lon_per_vsl") |>
   distinct()
-head(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl)
+
+head(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl) |> 
+      knitr::kable(caption = "glimpse count unique pos_lon coordinates per_vsl")
+
 #   LATITUDE LONGITUDE VESSEL_ID pos_lon_per_vsl
 # 1 24.00000  82.00000    326229             121
 # 2 32.85700  78.53200    397126               1
@@ -305,7 +290,17 @@ trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl <-
   select(-c(LATITUDE, LONGITUDE)) |>
   count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
 
-head(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl)
+head(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl) |> 
+        knitr::kable(caption = "glimpse count pos_lon trips per vsl")
+
+compare_cnts <-
+  trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
+  full_join(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl)
+
+head(compare_cnts) |>
+  knitr::kable(caption = "glimpse counts of individual coordinates and trips")
+
+
 ```
 
 # find fixable coords
@@ -369,7 +364,9 @@ ggplot() +
                    color = "blue") +
   ggplot2::ggtitle("Corrected points on land inside the bog box")
   
-glimpse(positive_long_corrected_sf_good)
+glimpse(positive_long_corrected_sf_good) |> 
+    knitr::kable(caption = "glimpse positive_long_corrected_sf_good")
+
 ```
 
 ## bad sf
