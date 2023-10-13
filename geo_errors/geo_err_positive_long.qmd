@@ -944,8 +944,8 @@ plot(mod1)
 
 ```
 
-
-```{r investigate lm bad vs. total for both cat low # no groups}
+## investigate lm bad vs. total for both cat low num no groups
+```{r investigate lm bad vs. total for both cat low num no groups}
 lm.tw <-
   lm(
     total_trips_by_vsl ~ wrong,
@@ -959,8 +959,9 @@ boxplot(lm.tw[['residuals']],
         main = 'Boxplot: Residuals', ylab = 'residual value')
 ```
 
-
-```{r plot bad vs. total for both cat low # lm}
+#### plot bad vs. total for both cat low num lm
+```{r plot bad vs. total for both cat low num lm}
+#### plot bad vs. total for both cat low num lm ----
 plot(lm.tw)
 
 ```
@@ -969,8 +970,8 @@ plot(lm.tw)
 
 
 ### make_both_sorted_plot function
-```{r plot good/wrong cnts for both}
-## plot good/wrong cnts for "both" ----
+```{r make_both_sorted_plot function}
+## make_both_sorted_plot function ----
 # glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
 make_both_sorted_plot <-
