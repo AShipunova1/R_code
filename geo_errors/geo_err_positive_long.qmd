@@ -706,7 +706,7 @@ both_tot_w_coords__and_good_pairs_mark |>
 
 ```
 
-### should be both good and wrong marks for each vsl ----
+### should be both good and wrong marks for each vsl
 ```{r should be both good and wrong marks for each vsl}
 ### should be both good and wrong marks for each vsl ----
 
@@ -829,8 +829,8 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
 ```
 
 
-### plot bad vs. total for both cat low #
-```{r plot bad vs. total for both cat low #}
+### plot bad vs total for both cat low 
+```{r plot bad vs total for both cat low}
 ### plot bad vs. total for both cat low # ----
 # keep only vessels with number of uncorrectable trip coords > 35
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low <- 
@@ -873,9 +873,10 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
 
 
 ### plot bad vs. total for both cat low # no groups
-```{r plot bad vs. total for both cat low # no groups}
-### plot bad vs. total for both cat low # no groups----
-both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
+```{r plot bad vs total for both cat low num, no groups}
+### plot bad vs. total for both cat low # no groups ----
+plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low <- 
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
   ggplot(aes(y = total_trips_by_vsl,
              x = wrong)) +
   geom_line() +
@@ -897,6 +898,24 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
     max(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$total_trips_by_vsl),
     by = 10
   ))
+
+
+p.smoothedmaxes <-
+  ggplot_build(plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low)$data[[3]] %>%
+  group_by(group) %>%
+  mutate(xmean = mean(x)) %>%
+  filter(x == max(x))
+
+plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low +
+  geom_text(
+    data = p.smoothedmaxes,
+    mapping = aes(x = x, y = y, label = round(y, 2)),
+    col = p.smoothedmaxes$colour,
+    nudge_y = 7,
+    inherit.aes = FALSE
+  )
+
+  
 ```
 
 
