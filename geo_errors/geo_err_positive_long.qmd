@@ -899,15 +899,16 @@ plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low <-
     by = 10
   ))
 
-
+# View(ggplot_build(plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low)$data)
 p.smoothedmaxes <-
-  ggplot_build(plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low)$data[[3]] %>%
+  ggplot_build(plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low)$data[[4]] %>%
   group_by(group) %>%
   mutate(xmean = mean(x)) %>%
   filter(x == max(x))
 
 plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low +
-  geom_text(
+  geom_label(
+    label = "lm", 
     data = p.smoothedmaxes,
     mapping = aes(x = x, y = y, label = round(y, 2)),
     col = p.smoothedmaxes$colour,
