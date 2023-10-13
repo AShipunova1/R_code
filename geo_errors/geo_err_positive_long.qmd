@@ -575,9 +575,8 @@ bad_cnt_join_diff_groups |>
         legend.position = c(1, 0)) +
   scale_color_manual(
     name = 'Difference between total and wrong trips',
-    values = c("green", "blue"))
-
-
+    values = c("green", "blue"),
+    labels = c('<= 5', '>5'))
 ```
 
 
@@ -648,6 +647,7 @@ trip_coord_info_short_both_tot_w_coords |>
 # 3    29.00     86.00 59406159    174924                216
 
 ```
+
 ## prepare good_sf: not corrected, add a col
 ```{r prepare good_sf: not corrected, add a col}
 ## prepare good_sf: not corrected, add a col ----
@@ -751,7 +751,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_long <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
   pivot_longer(c(good, wrong),
                names_to = "coord_mark",
-               values_to = "count_marks_per_vsl")
+               values_to = "count_marks_per_vsl") # trip cnt
 ```
 
 ## histogram for "both"
@@ -765,6 +765,66 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
 ```
 
 ## plot good/wrong cnts for "both" ----
+
+```{r bad vs. total by diff}
+### bad vs. total by diff ----
+
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups <- 
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  # cnt trips difference tot - bad
+  mutate(cnt_diff_b = total_trips_by_vsl - wrong) |> 
+  # create two bins [0,4) and [4,max differences
+  mutate(my_group_b = base::findInterval(cnt_diff_b, c(0, 6)))
+  
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |> 
+  count(my_group_b) |> 
+  head() |> 
+  knitr::kable(caption = "Group 1: difference between total and wrong coordinates is <= 5")
+
+# my_group
+# <int>
+# n
+# <int>
+# 1	1	26		
+# 2	2	105
+```
+```{r plot bad vs. total  for both cat }
+### plot bad vs. total for both cat ----
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
+  ggplot(aes(y = total_trips_by_vsl,
+             x = wrong)) +
+  geom_line(aes(colour = factor(my_group_b))) +
+  geom_point(color = "darkgreen") +
+  geom_text(aes(label = cnt_diff_b),
+            vjust = 1.3,
+            color = "green") +
+  # geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() +
+  labs(title = "Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors) divided by difference <= or > 5",
+       caption = "For vessels having both good and uncorrectable positive loingitude coordinates.\nGreen numbers show the difference") +
+  theme(legend.position = "bottom") +
+  scale_x_continuous(breaks = seq(
+    0,
+    max(bad_cnt_join_diff_groups$wrong),
+    by = 10
+  )) +
+  scale_y_continuous(breaks = seq(
+    0,
+    max(bad_cnt_join_diff_groups$total_trips_by_vsl),
+    by = 10
+  )) +
+  # scale_color_discrete(
+  #   name = 'Difference between total and positive longitude trips',
+  #   labels = c('<= 5', '>5')
+  # ) +
+  theme(legend.justification = c(1, 0),
+        legend.position = c(1, 0)) +
+  scale_color_manual(
+    name = 'Difference between total and wrong trips',
+    values = c("green", "blue"),
+    labels = c('<= 5', '>5'))
+```
+
 ### make_both_sorted_plot function
 ```{r plot good/wrong cnts for both}
 ## plot good/wrong cnts for "both" ----
