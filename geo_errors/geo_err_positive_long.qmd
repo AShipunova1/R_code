@@ -829,8 +829,12 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
 ### plot bad vs. total for both cat low #
 ```{r plot bad vs. total for both cat low #}
 ### plot bad vs. total for both cat low # ----
-both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
-  filter(wrong > 35) |> 
+# keep only vessels with number of uncorrectable trip coords > 35
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low <- 
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
+  filter(wrong > 35)
+
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |> 
   ggplot(aes(y = total_trips_by_vsl,
              x = wrong)) +
   geom_line(aes(colour = factor(my_group_b))) +
@@ -867,8 +871,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
 ### plot bad vs. total for both cat low # no groups
 ```{r plot bad vs. total for both cat low # no groups}
 ### plot bad vs. total for both cat low # no groups----
-both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
-  filter(wrong > 35) |> 
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
   ggplot(aes(y = total_trips_by_vsl,
              x = wrong)) +
   geom_line() +
@@ -893,9 +896,33 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
 ```
 
 
-```{r plot bad vs. total for both cat low # no groups}
-lm.tw <- lm(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$total_trips_by_vsl ~ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$wrong)
+```{r plot bad vs. total for both cat 1}
+plot(both_tot_w_coords__and_good_pairs_mark_cnts_wide$wrong,
+       both_tot_w_coords__and_good_pairs_mark_cnts_wide$total_trips_by_vsl)
 
+wrong_c = scale(both_tot_w_coords__and_good_pairs_mark_cnts_wide$wrong, center = TRUE, scale = FALSE)
+mod1 = lm(formula = total_trips_by_vsl ~ wrong_c, data = both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+summary(mod1)
+
+```
+
+
+```{r investigate lm bad vs. total for both cat low # no groups}
+lm.tw <-
+  lm(
+    total_trips_by_vsl ~ wrong,
+    data = both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low
+  )
+
+anova(lm.tw)
+confint(lm.tw)
+
+boxplot(lm.tw[['residuals']], 
+        main = 'Boxplot: Residuals', ylab = 'residual value')
+```
+
+
+```{r plot bad vs. total for both cat low # lm}
 plot(lm.tw)
 
 ```
