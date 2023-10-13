@@ -966,9 +966,6 @@ plot(lm.tw)
 
 ```
 
-
-
-
 ### make_both_sorted_plot function
 ```{r make_both_sorted_plot function}
 ## make_both_sorted_plot function ----
@@ -1057,6 +1054,8 @@ line_2_plot <-
   theme_bw() +
   labs(title = "Is there a correlation between\ngood (red), wrong (blue) and total number (y) of coordinates?",
        caption = "For vessels having both wrong and good coordinates and at least one positive lon error")
+
+# line_2_plot
 ```
 
 ## bad vs wrong line plot
