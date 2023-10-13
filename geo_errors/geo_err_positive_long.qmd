@@ -903,6 +903,16 @@ plot(both_tot_w_coords__and_good_pairs_mark_cnts_wide$wrong,
 wrong_c = scale(both_tot_w_coords__and_good_pairs_mark_cnts_wide$wrong, center = TRUE, scale = FALSE)
 mod1 = lm(formula = total_trips_by_vsl ~ wrong_c, data = both_tot_w_coords__and_good_pairs_mark_cnts_wide)
 summary(mod1)
+boxplot(mod1$residuals)
+```
+
+
+```{r plot bad vs. total for both cat lm2}
+mod2 <- 
+  lm(formula = total_trips_by_vsl ~ wrong, 
+     data = both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+summary(mod2)
+boxplot(mod2$residuals)
 
 ```
 
