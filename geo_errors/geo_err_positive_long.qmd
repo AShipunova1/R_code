@@ -776,7 +776,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
   # cnt trips difference tot - bad
   mutate(cnt_diff_b = total_trips_by_vsl - wrong) |> 
-  # create two bins [0,4) and [4,max differences
+  # create two bins [0,40) and [40,max differences
   mutate(my_group_b = base::findInterval(cnt_diff_b, c(0, 40)))
   
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |> 
@@ -890,6 +890,13 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
     max(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$total_trips_by_vsl),
     by = 10
   ))
+```
+
+
+```{r plot bad vs. total for both cat low # no groups}
+lm.tw <- lm(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$total_trips_by_vsl ~ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$wrong)
+
+plot(lm.tw)
 
 ```
 
