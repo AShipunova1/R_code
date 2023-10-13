@@ -764,11 +764,12 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
                     xlab = "Wrong trip coordinates where vessels have both good and wrong coordinates")
 ```
 
-## plot good/wrong cnts for "both" ----
-
-```{r bad vs. total by diff for both}
-### bad vs. total by diff for both ----
-
+## plot good/wrong cnts for "both" w groups
+```{r bad vs. total by diff for both w groups}
+### bad vs. total by diff for both w groups ----
+group_boundary_both <-
+  mean(both_tot_w_coords__and_good_pairs_mark_cnts_wide$wrong) |>
+  round(0)
 summary(both_tot_w_coords__and_good_pairs_mark_cnts_wide) |> 
   knitr::kable(caption = "summary")
 
@@ -777,12 +778,12 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups <-
   # cnt trips difference tot - bad
   mutate(cnt_diff_b = total_trips_by_vsl - wrong) |> 
   # create two bins [0,40) and [40,max differences
-  mutate(my_group_b = base::findInterval(cnt_diff_b, c(0, 40)))
+  mutate(my_group_b = base::findInterval(cnt_diff_b, c(0, group_boundary_both)))
   
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |> 
   count(my_group_b) |> 
   head() |> 
-  knitr::kable(caption = "Group 1: difference between total and wrong coordinates is <= 5")
+  knitr::kable(caption = paste0("Group 1: difference between total and wrong coordinates is <= ", group_boundary_both))
 
 # my_group
 # <int>
@@ -804,7 +805,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
             color = "green") +
   # geom_smooth(method = "lm", se = FALSE) +
   theme_bw() +
-  labs(title = "Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors) divided by difference <= or > 35 (~mean)",
+  labs(title = str_glue("Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors) divided by difference <= or > {group_boundary_both} (~mean)"),
        caption = "For vessels having both good and uncorrectable positive loingitude coordinates.\nGreen numbers show the difference") +
   theme(legend.position = "bottom") +
   scale_x_continuous(breaks = seq(
@@ -822,7 +823,9 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
   scale_color_manual(
     name = 'Difference between total and wrong trips',
     values = c("green", "blue"),
-    labels = c('<= 35', '>35'))
+    labels = c(str_glue('<= {group_boundary_both}'), 
+               str_glue('> {group_boundary_both}'))
+  )
 ```
 
 
@@ -832,7 +835,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
 # keep only vessels with number of uncorrectable trip coords > 35
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low <- 
   both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
-  filter(wrong > 35)
+  filter(wrong > group_boundary_both)
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |> 
   ggplot(aes(y = total_trips_by_vsl,
@@ -844,7 +847,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
             color = "green") +
   # geom_smooth(method = "lm", se = FALSE) +
   theme_bw() +
-  labs(title = "Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors) divided by difference <= or > 35 (~mean)\nWhere wrong trps # > 35",
+  labs(title = str_glue("Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors) divided by difference <= or > {group_boundary_both} (~mean)\nWhere wrong trps # > {group_boundary_both}"),
        caption = "For vessels having both good and uncorrectable positive loingitude coordinates.\nGreen numbers show the difference") +
   theme(legend.position = "bottom") +
   scale_x_continuous(breaks = seq(
@@ -862,7 +865,8 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
   scale_color_manual(
     name = 'Difference between total and wrong trips',
     values = c("green", "blue"),
-    labels = c('<= 35', '>35'))
+    labels = c(str_glue('<= {group_boundary_both}'),
+               str_glue('> {group_boundary_both}')))
 ```
 
 
@@ -881,7 +885,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
             color = "green") +
   geom_smooth(method = "lm", se = FALSE) +
   theme_bw() +
-  labs(title = "Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors)\nWhere wrong trps # > 35",
+  labs(title = stringr::str_glue("Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors)\nWhere wrong trps # > {group_boundary_both}"),
        caption = "For vessels having both good and uncorrectable positive loingitude coordinates.\nGreen numbers show the difference") +
   scale_x_continuous(breaks = seq(
     0,
@@ -913,6 +917,10 @@ mod2 <-
      data = both_tot_w_coords__and_good_pairs_mark_cnts_wide)
 summary(mod2)
 boxplot(mod2$residuals)
+plot(mod1)
+# Notice the points form a curve instead of a straight line. Normal QQ plots that look like this usually mean your sample data are skewed.
+
+
 
 ```
 
