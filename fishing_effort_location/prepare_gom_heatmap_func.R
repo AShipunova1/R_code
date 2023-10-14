@@ -12,8 +12,118 @@ text_sizes <- list(
   y_left_fontsize = 10
 )
 
+# read in sa shp ----
+# F2 in RStudio will show the function definition, when the cursor is on the name.
+sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
+)
 
-# read in GOM trip ticket grid
+# The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
+
+states_sa <- data.frame(
+  state_name = c(
+    # "Florida", # exclude, we have it separated by county
+    "Georgia",
+    "North Carolina",
+    "South Carolina"
+  )
+)
+
+# Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
+state_tbl <- data.frame(state.abb, tolower(state.name))
+names(state_tbl) = c("state_abb", "state_name")
+
+#from the DF, only grab the SA states defined above
+sa_state_abb <-
+  # a table from above
+  state_tbl %>%
+  # get only these in our list
+  filter(state_name %in% tolower(states_sa$state_name)) %>%
+  # get abbreviations
+  select(state_abb)
+
+# # add regions to the FHIER logbook DF
+# fhier_logbooks_content_waves__sa_gom <-
+#   fhier_logbooks_content_waves_fl_county %>%
+#   # add a new column "end_port_sa_gom" with sa or gom for each state
+#   # use fix_name aux function to unify state names (lower case, no spaces etc.)
+#   mutate(end_port_sa_gom = case_when(
+#     # if a name is in our SA list - "sa", otherwise - "gom"
+#     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
+#     .default = "gom"
+#   )) %>%
+#   # go through the new column again
+#   # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
+#   # otherwise don't change
+#   mutate(end_port_sa_gom = ifelse(
+#     tolower(end_port_state) == "fl",
+#     end_port_fl_reg,
+#     end_port_sa_gom
+#   )) %>%
+#   # remove this column, we don't need it anymore
+#   select(-end_port_fl_reg)
+
+# #### test: check new cols of states and regions ----
+# fhier_logbooks_content_waves__sa_gom %>%
+#   # look at states and regions
+#   select(end_port_state, end_port_sa_gom) %>%
+#   unique() %>%
+#   glimpse()
+
+## r get Shapefile all waters ----
+path_to_federal_state_w <-
+  file.path(my_paths$inputs,
+            r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
+
+file.exists(path_to_federal_state_w)
+# T
+
+tic("federal_state_w_sf")
+federal_state_w_sf <-
+  sf::read_sf(path_to_federal_state_w)
+toc()
+
+# rr <-
+# federal_state_w_sf |>
+#   sf::st_drop_geometry()
+#
+# rr$Jurisdicti |>
+#   cat(sep = ", ")
+
+east_coat_states <- c(
+  gom = c("Florida",
+          "Texas",
+          "Louisiana"),
+  sa = c(
+  "Alabama",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Mississippi",
+  "New Hampshire",
+  "New Jersey",
+  "New York",
+  "North Carolina",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "Virginia",
+  "Washington DC")
+)
+# nc_sql = sf::st_read(system.file("shape/nc.shp", package="sf"),
+#                      query = "SELECT NAME, SID74, FIPS FROM \"nc\" WHERE BIR74 > 20000")
+
+federal_state_w_sf_east <-
+  federal_state_w_sf |>
+  filter(Jurisdicti %in% east_coat_states)
+
+# mapview(sa_shp)
+# [1] 21  7
+
+# read in GOM shp ----
 GOMsf <-
   sf::read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
   group_by(StatZone) %>%
@@ -38,6 +148,23 @@ min_grid <-
 grid <- min_grid(5)
 
 sf::st_agr(GOMsf) = sf::st_agr(grid) = "constant"
+
+# create SA 5x5 minute grid ----
+min_grid_sa_shp <-
+  function(minute_num = 1) {
+    grid <-
+      sf::st_make_grid(x = sf::st_bbox(sa_shp),
+                       cellsize = 1 / 60 * minute_num) %>%
+      sf::st_as_sf() %>%
+      mutate(cell_id = 1:nrow(.))
+
+    return(grid)
+  }
+
+grid_sa <- min_grid_sa_shp(5)
+
+sf::st_agr(sa_shp) = sf::st_agr(grid_sa) = "constant"
+
 
 ### remove internal boundaries from the shape file ----
 
