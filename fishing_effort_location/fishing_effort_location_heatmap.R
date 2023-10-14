@@ -1,5 +1,12 @@
 # data are from "by_permit"
-# run "R_code_github\fishing_effort_location\fishing_effort_location_by_permit.R" first
+
+source(
+  file.path(
+    my_paths$git_r,
+    r"(fishing_effort_location\fishing_effort_location_by_permit.R)"
+  )
+)
+
 library(ggplot2)
 library(ggmap)
 # library(RColorBrewer)
