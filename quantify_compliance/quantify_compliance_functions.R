@@ -1,5 +1,20 @@
 # quantify_compliance_functions
 
+#### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_functions.R  ----
+
+# quantify_compliance_functions
+
+text_sizes <- list(
+  geom_text_size = 7,
+  plot_title_text_size = 10,
+  axis_title_text_size = 9,
+  axis_text_x_size = 15,
+  axis_text_y_size = 15,
+  plot_caption_text_size = 12,
+  ### common axes for Months ----
+  y_left_fontsize = 10
+)
+
 get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
   # browser()
     my_df %>%
@@ -44,7 +59,7 @@ perc_plots_by_month <-
     my_df %>%
       filter(year_month == current_year_month) %>%
       ggplot(aes(non_compl_weeks, percent_nc)) +
-      geom_col(fill = "lightblue") +
+      geom_col(fill = plot_colors$nc_bucket) +
       geom_text(aes(label = paste0(percent_nc, "%")),
                 position = position_dodge(width = 0.9)
                 # ,
@@ -77,7 +92,9 @@ make_one_plot_compl_vs_non_compl <-
            percent = "percent",
            no_legend = FALSE,
            percent_label_pos = 0.5,
-           default_percen_labels = TRUE) {
+           default_percen_labels = TRUE,
+           geom_text_size = text_sizes[["geom_text_size"]]
+           ) {
     # browser()
     one_plot <-
       my_df %>%
@@ -85,6 +102,10 @@ make_one_plot_compl_vs_non_compl <-
                  y = !!sym(percent),
                  fill = !!sym(is_compliant))) +
       geom_col() +
+      theme(axis.text.x = 
+              element_text(size = text_sizes[["axis_text_x_size"]]),
+            axis.text.y = 
+              element_text(size = text_sizes[["axis_text_y_size"]])) +
       # # Add percent numbers on the bars
       #     one_plot <-
       # one_plot + annotate("text", x = 4, y = 25, label = "Some text")
@@ -103,8 +124,8 @@ make_one_plot_compl_vs_non_compl <-
         # use custom colors
         values =
           c(
-            "compliant" = "blue",
-            "non_compliant" = "red"
+            "compliant" = plot_colors[["compliant"]],
+            "non_compliant" = plot_colors[["non_compliant"]]
           ),
         # Legend title
         name = "Is compliant?",
@@ -131,7 +152,8 @@ make_one_plot_compl_vs_non_compl <-
                         ), 1), "%")),
                   # in the middle of the bar
                   position =
-                    position_stack(vjust = percent_label_pos))
+                    position_stack(vjust = percent_label_pos),
+                  size = geom_text_size)
       
     } else {
       one_plot <-
@@ -182,3 +204,4 @@ get_2_buckets <- function(my_df, field_name) {
     ) %>%
     return()
 }
+
