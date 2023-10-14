@@ -126,6 +126,7 @@ gom_line_df_22_monthly_nc_plot_l <- line_df_22_monthly_nc_plot_l[[1]]
 sa_line_df_22_monthly_nc_plot_l <- line_df_22_monthly_nc_plot_l[[2]]
 
 sa_line_df_22_monthly_nc_plot_l
+
 # GOM non compliant by month percent of total ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_2022_gom <-
@@ -205,12 +206,12 @@ plot_file_path_lines <-
 create_dir_if_not(plot_file_path_lines)
 
 file_full_name <- file.path(plot_file_path_lines,
-                            "gom_2022_mostly_right.png")
+                            "line_df_22_sa_good_plot.png")
 
 # see the function definition F2
 save_plots_list_to_files(file_full_name,
                          # plots
-                         test_plot)
+                         line_df_22_sa_good_plot)
 
 # test_df |> 
 #   filter(year_month == "Jan 2022") |> 
