@@ -34,6 +34,10 @@ plot_file_path <-
 # create dir if doesn't exists
 create_dir_if_not(plot_file_path)
 
+plot_colors <- list("compliant" = "skyblue1",
+                    "non_compliant" = "#0570B0",
+                    "nc_bucket" = "deepskyblue")
+
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
   compl_clean_sa_vs_gom_m_int |>
