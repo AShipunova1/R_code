@@ -347,17 +347,6 @@ dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_per
 
 ## red/green plots for compl vs. non compl vessels per year ----
 
-title_permits <- data.frame(
-  # title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
-  title = c("2022: SA Only", "2022: GOM + Dual", "2023: SA + Dual"),
-  year_permit = c("2022 sa_only",
-                  "2022 gom_dual",
-                  "2023 sa_dual"),
-  second_part = c("Permitted Vessels",
-                  "Permitted Vessels",
-                  "Permitted Vessels")
-)
-
 # "Permitted SEFHIER Vessels"
 
 gg_all_c_vs_nc_plots <-

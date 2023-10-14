@@ -36,7 +36,19 @@ create_dir_if_not(plot_file_path)
 
 plot_colors <- list("compliant" = "skyblue1",
                     "non_compliant" = "#0570B0",
-                    "nc_bucket" = "deepskyblue")
+                    "nc_bucket" = "deepskyblue",
+                    "non_compliant_by_month" = "blue")
+
+title_permits <- data.frame(
+  # title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
+  title = c("2022: SA Only", "2022: GOM + Dual", "2023: SA + Dual"),
+  year_permit = c("2022 sa_only",
+                  "2022 gom_dual",
+                  "2023 sa_dual"),
+  second_part = c("Permitted Vessels",
+                  "Permitted Vessels",
+                  "Permitted Vessels")
+)
 
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
