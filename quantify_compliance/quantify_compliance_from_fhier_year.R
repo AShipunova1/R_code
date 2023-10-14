@@ -426,7 +426,7 @@ gg_all_c_vs_nc_plots <-
 # gg_all_c_vs_nc_plots[[3]]
 
 # 2022
-# gg_all_c_vs_nc_plots[[1]]
+sa_only22 <- gg_all_c_vs_nc_plots[[1]]
 # gg_all_c_vs_nc_plots[[2]]
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
@@ -755,7 +755,8 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
     return(one_plot)
   })
 
-gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]]
+sa_only_22_gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <- 
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[2]]
 
 ## plot 2022 ----
 ndash <- "\u2013"

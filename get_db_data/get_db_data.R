@@ -693,9 +693,9 @@ force_from_db <- NULL # read data from files if exist
 # force_from_db <- "YES"
 
 # How to use:
-tic("run_all_get_db_data()")
-all_get_db_data_result_l <- run_all_get_db_data()
-toc()
+# tic("run_all_get_db_data()")
+# all_get_db_data_result_l <- run_all_get_db_data()
+# toc()
 
 # Benchmark:
 # reading RDS

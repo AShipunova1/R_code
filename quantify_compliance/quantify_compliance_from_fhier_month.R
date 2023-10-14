@@ -466,7 +466,12 @@ sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_
 
 ### make titles ----
 get_year_permit_titles <- function(permit, year) {
-  paste0("The Number of Non-Compliant Vessels Each Month That Were Compliant More Than 50% of a Month in ", year) |> 
+  # paste0("The Number of Non-Compliant Vessels Each Month That Were Compliant More Than 50% of a Month in ", year) |> 
+        paste0("% of non-compliant ",
+             permit,
+             " Permitted vessels by month",
+             " (", year, ")"
+             ) %>%
     # "% of non-compliant ",
     #      permit,
     #      " Permitted vessels by month",

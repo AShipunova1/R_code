@@ -258,31 +258,31 @@ glimpse(counts_by_year_read_me_clean)
 # TODO: why 2 "2023 sa_dual"?
 
 # ==
-# make a flat file ----
-dir_to_comb <- "~/R_code_github/quantify_compliance"
-
-files_to_combine <-
-  c(
-    "~/R_code_github/useful_functions_module.r",
-    file.path(dir_to_comb, "quantify_compliance_functions.R"),
-    file.path(dir_to_comb, "get_data.R"),
-    r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R"),
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_year.R"),
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_month.R"),
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_line_plots.R"),
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_vms.R")
-  )
-
-# run as needed
-# make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
-
-# Add
-# from quantify_compliance start
-# to the flat file:
-library(zoo)
-library(gridExtra)
-library(cowplot)
-
-# source("~/R_code_github/useful_functions_module.r")
-my_paths <- set_work_dir()
+# # make a flat file ----
+# dir_to_comb <- "~/R_code_github/quantify_compliance"
+# 
+# files_to_combine <-
+#   c(
+#     "~/R_code_github/useful_functions_module.r",
+#     file.path(dir_to_comb, "quantify_compliance_functions.R"),
+#     file.path(dir_to_comb, "get_data.R"),
+#     r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_year.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_month.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_line_plots.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_vms.R")
+#   )
+# 
+# # run as needed
+# # make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
+# 
+# # Add
+# # from quantify_compliance start
+# # to the flat file:
+# library(zoo)
+# library(gridExtra)
+# library(cowplot)
+# 
+# # source("~/R_code_github/useful_functions_module.r")
+# my_paths <- set_work_dir()
