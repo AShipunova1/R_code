@@ -69,43 +69,63 @@ line_df_22_gom_good_plot_l <-
 line_df_22_gom_good_plot <- line_df_22_gom_good_plot_l[[1]]
 line_df_22_sa_good_plot <- line_df_22_gom_good_plot_l[[2]]
 
-# GOM non compliant by month ----
-line_df_22_gom_monthly_nc_plot <-
-  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual` |>
+# non compliant by month ----
+line_df_22_monthly_nc_plot_l <-
+  names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2) |>
+  # count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual` |>
   # filter(percent_non_compl_2_buckets == "< 50%") |>
-  ggplot(aes(
-    x = as.Date(year_month),
-    y = cnt_vsl_m_compl,
-    color = plot_colors$non_compliant_by_month
-  )) +
-  geom_point(color = plot_colors$non_compliant_by_month,
-             size = 5) +
-  geom_line(color = plot_colors$non_compliant_by_month,
-            linewidth = 1) +
-  theme_bw() +
-  # text under the dot
-  geom_text(
-    aes(label = cnt_vsl_m_compl),
-    # vjust = -0.4,
-    hjust = -0.5,
-    color = plot_colors$non_compliant_by_month,
-    size = geom_text_size
-  ) +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  theme(
-    legend.position = "none",
-    axis.text.x =
-      element_text(size = axis_title_size),
-    axis.text.y =
-      element_text(size = axis_title_size)
-  ) +
-  labs(x = "Months (2022)",
-       y = "Number of Vessels") +
-  labs(title = str_glue("The Number of Non-Compliant {title_permits$} Permitted Vessels Each Month in 2022")) 
+  purrr::map(
+    function(line_df_permit) {
+      line_df <-
+        count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2[[line_df_permit]]
+      
+      curr_title_permit <-
+        title_permits %>%
+        filter(year_permit == line_df_permit)
+      
+      one_plot <-
+        line_df |>
+        ggplot(aes(
+          x = as.Date(year_month),
+          y = cnt_vsl_m_compl,
+          color = plot_colors$non_compliant_by_month
+        )) +
+        geom_point(color = plot_colors$non_compliant_by_month,
+                   size = 5) +
+        geom_line(color = plot_colors$non_compliant_by_month,
+                  linewidth = 1) +
+        theme_bw() +
+        # text under the dot
+        geom_text(
+          aes(label = cnt_vsl_m_compl),
+          # vjust = -0.4,
+          # hjust = -0.5,
+          # hjust = -0.2,
+          vjust = -1,
+          color = plot_colors$non_compliant_by_month,
+          size = geom_text_size
+        ) +
+        scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+        theme(
+          legend.position = "none",
+          axis.text.x =
+            element_text(size = axis_title_size),
+          axis.text.y =
+            element_text(size = axis_title_size)
+        ) +
+        labs(x = "Months (2022)",
+             y = "Number of Vessels") +
+        labs(
+          title = str_glue(
+            "The Number of Non-Compliant {curr_title_permit} Permitted Vessels Each Month in 2022"
+          )
+        )
+    })
 
+gom_line_df_22_monthly_nc_plot_l <- line_df_22_monthly_nc_plot_l[[1]]
+sa_line_df_22_monthly_nc_plot_l <- line_df_22_monthly_nc_plot_l[[2]]
 
-line_df_22_gom_monthly_nc_plot
-
+sa_line_df_22_monthly_nc_plot_l
 # GOM non compliant by month percent of total ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_2022_gom <-
