@@ -1,3 +1,6 @@
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+
 # data are from "by_permit"
 
 source(
@@ -36,13 +39,20 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_t
 # glimpse(for_heatmap_lat_lon_trips_only)
 # Rows: 41,455
 
-for_heatmap_lat_lon_trips_vessels_only <-
+# gom
+for_heatmap_lat_lon_trips_vessels_gom_only <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_only)
 # Rows: 41,455
+
+# sa
+for_heatmap_lat_lon_trips_vessels_sa_only <-
+  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$sa_only |>
+  select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
+  distinct()
 
 #### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
 
@@ -51,12 +61,23 @@ dim(for_heatmap_lat_lon_trips_vessels_only)
 # toc()
 # effort: 0.75 sec elapsed
 
-tic("effort_vsl")
-effort_vsl <- df_join_grid(for_heatmap_lat_lon_trips_vessels_only)
+tic("effort_vsl_gom")
+my_crs <- sf::st_crs(GOMsf)
+
+effort_vsl <- df_join_grid(for_heatmap_lat_lon_trips_vessels_gom_only, my_crs)
 toc()
 # effort_vsl: 0.62 sec elapsed
 
 # class(effort_vsl)
+
+tic("effort_vsl_sa")
+my_crs_sa <- sf::st_crs(sa_shp)
+
+effort_vsl <-
+  df_join_grid(for_heatmap_lat_lon_trips_vessels_sa_only,
+               my_crs = my_crs_sa)
+toc()
+
 
 ## crop by the shape ----
 # effort_cropped <-
