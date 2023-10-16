@@ -113,11 +113,19 @@ str(effort_vsl_cropped_sa)
 
 ## count trip ids and vessels by grid cell ----
 
-effort_vsl_cropped_cnt2 <-
- add_vsl_and_trip_cnts(effort_vsl_cropped)
+effort_vsl_cropped_cnt_sa_l <-
+  list(effort_vsl_cropped_gom,
+    effort_vsl_cropped_sa) |>
+  map(function(effort_vsl_cropped) {
+    add_vsl_and_trip_cnts(effort_vsl_cropped)
+  })
 
-dim(effort_vsl_cropped_cnt2)
+map(effort_vsl_cropped_cnt_sa_l, dim)
+# [[1]]
 # [1] 35822     9
+#
+# [[2]]
+# [1] 21461    10
 
 # check
 effort_vsl_cropped_cnt2 |>
