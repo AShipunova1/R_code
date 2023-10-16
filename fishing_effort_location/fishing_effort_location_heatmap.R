@@ -151,35 +151,42 @@ map(effort_cropped_short_cnt2_short_l, dim)
 # [1] 35822     5
 # [1] 21461     6
 
-### with rule 3 ----
-effort_cropped_short_cnt_rule3_short <-
-  effort_cropped_short_cnt_rule3 |>
-  select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
-
-dim(effort_cropped_short_cnt_rule3_short)
-# [1] 31981     5
-
+# ### with rule 3 ----
+# effort_cropped_short_cnt_rule3_short <-
+#   effort_cropped_short_cnt_rule3 |>
+#   select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
+#
+# dim(effort_cropped_short_cnt_rule3_short)
+# # [1] 31981     5
+#
 ## join with min grid ----
-### rule 3 ----
-heat.plt_rule3 <-
-  effort_cropped_short_cnt_rule3_short |>
+# ### rule 3 ----
+# heat.plt_rule3 <-
+#   effort_cropped_short_cnt_rule3_short |>
+#   # have to use data.frame, to avoid
+#   # Error: y should not have class sf; for spatial joins, use st_join
+#   inner_join(data.frame(grid))
+# # Joining with `by = join_by(cell_id)`
+#
+# # mapview(grid)
+# dim(heat.plt_rule3)
+# # [1] 35828     6
+# # [1] 33883     6 (rule3)
+# # [1] 31981     6
+#
+### no rule 3 ----
+heat.plt_gom <-
+  effort_cropped_short_cnt2_short_l[[1]] |>
   # have to use data.frame, to avoid
   # Error: y should not have class sf; for spatial joins, use st_join
-  inner_join(data.frame(grid))
+  inner_join(data.frame(grid_gom5))
 # Joining with `by = join_by(cell_id)`
 
-# mapview(grid)
-dim(heat.plt_rule3)
-# [1] 35828     6
-# [1] 33883     6 (rule3)
-# [1] 31981     6
-
-### no rule 3 ----
-heat.plt <-
-  effort_cropped_short_cnt2_short |>
+heat.plt_sa <-
+  effort_cropped_short_cnt2_short_l[[2]] |>
   # have to use data.frame, to avoid
   # Error: y should not have class sf; for spatial joins, use st_join
-  inner_join(data.frame(grid))
+  inner_join(data.frame(grid_sa5))
 # Joining with `by = join_by(cell_id)`
 
 ## make a plot ----
