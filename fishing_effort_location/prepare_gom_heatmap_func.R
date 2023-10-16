@@ -171,7 +171,7 @@ grid_sa <- min_grid_sa_shp(5)
 sf::st_agr(sa_shp) = sf::st_agr(grid_sa) = "constant"
 
 
-### remove internal boundaries from the shape file ----
+### remove internal boundaries from the GOM shape file ----
 
 tic("st_union(GOMsf)")
 st_union_GOMsf <- sf::st_union(GOMsf)
@@ -188,13 +188,14 @@ toc()
 #  $ :List of 21234
 
 ## by n min grid ----
+# my_crs <- sf::st_crs(GOMsf)
 df_join_grid <-
-  function(my_df) {
+  function(my_df, grid, my_crs) {
     my_df |>
       # join n minute grid
       sf::st_as_sf(
         coords = c("LONGITUDE", "LATITUDE"),
-        crs = sf::st_crs(GOMsf)) |>
+        crs = my_crs) |>
         # ,
         # remove = FALSE) %>%
         sf::st_join(grid, join = sf::st_nearest_feature) %>%
