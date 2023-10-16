@@ -95,16 +95,21 @@ toc()
 #           GOMsf)
 # effort_cropped: 81.51 sec elapsed
 
-tic("effort_vsl_cropped")
-effort_vsl_cropped <- crop_by_shape(effort_vsl)
+tic("effort_vsl_cropped_gom")
+effort_vsl_cropped_gom <- crop_by_shape(effort_vsl_gom)
 toc()
 # effort_cropped2: 0.44 sec elapsed
-dim(effort_vsl_cropped)
+
+dim(effort_vsl_cropped_gom)
 # [1] 35822     7
 
-# class(effort_cropped)
+tic("effort_vsl_cropped_sa")
+effort_vsl_cropped_sa <- crop_by_shape(effort_vsl_sa, sa_shp)
+toc()
+# effort_vsl_cropped_sa: 0.54 sec elapsed
 
-# print_df_names(effort_vsl_cropped)
+str(effort_vsl_cropped_sa)
+# [1] 21461     8
 
 ## count trip ids and vessels by grid cell ----
 
@@ -235,7 +240,7 @@ toc()
 
 tic("for_heatmap_lat_lon_trips_vessels_only_inters_gomsf")
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf <-
-  for_heatmap_lat_lon_trips_vessels_only |>
+  for_heatmap_lat_lon_trips_vessels_gom_only |>
         st_as_sf(
         coords = c("LONGITUDE", "LATITUDE"),
         crs = st_crs(GOMsf)) |>
