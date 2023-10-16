@@ -45,7 +45,7 @@ for_heatmap_lat_lon_trips_vessels_gom_only <-
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
-dim(for_heatmap_lat_lon_trips_vessels_only)
+dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # Rows: 41,455
 
 # sa
@@ -53,6 +53,9 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$sa_only |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
+
+dim(for_heatmap_lat_lon_trips_vessels_sa_only)
+# [1] 68122     4
 
 #### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
 
@@ -64,7 +67,9 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
 tic("effort_vsl_gom")
 my_crs <- sf::st_crs(GOMsf)
 
-effort_vsl <- df_join_grid(for_heatmap_lat_lon_trips_vessels_gom_only, my_crs)
+effort_vsl_gom <- df_join_grid(for_heatmap_lat_lon_trips_vessels_gom_only,
+                           grid_gom5,
+                           my_crs)
 toc()
 # effort_vsl: 0.62 sec elapsed
 
@@ -72,12 +77,17 @@ toc()
 
 tic("effort_vsl_sa")
 my_crs_sa <- sf::st_crs(sa_shp)
+# sf::st_geometry(grid_sa5)
+# Geodetic CRS:  NAD83
+# sf::st_geometry(sa_shp)
+# Geodetic CRS:  NAD83
 
-effort_vsl <-
+effort_vsl_sa <-
   df_join_grid(for_heatmap_lat_lon_trips_vessels_sa_only,
+               grid_sa5,
                my_crs = my_crs_sa)
 toc()
-
+# effort_vsl_sa: 1.22 sec elapsed
 
 ## crop by the shape ----
 # effort_cropped <-
