@@ -14,7 +14,7 @@ library(mapdata)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-current_project_dir_path <- 
+current_project_dir_path <-
   # get_current_file_directory()
   file.path(my_paths$git_r, "geo_errors")
 
@@ -101,7 +101,7 @@ weird_stats <-
   filter(field_name %in%
            c("FISHING_HOURS", "LATITUDE", "LONGITUDE", "TRIP_END_DATE"))
 
-head(weird_stats) |> 
+head(weird_stats) |>
     kable(caption = "weird_stats")
 
 #   field_name    min                        max                        na_s
@@ -146,13 +146,13 @@ trip_coord_info_trip_vendors_cnt <-
 
 trip_coord_info_trip_vendors_cnt |>
   arrange(desc(n)) |>
-  head() |> 
+  head() |>
   kable(caption = "trip_coord_info_trip_vendors_cnt")
 
-# vesl	77275			
-# vms	15160			
-# ray rosher	1032			
-# captgreg9982	653		
+# vesl	77275
+# vms	15160
+# ray rosher	1032
+# captgreg9982	653
 
 trip_coord_info_effort_vendors_cnt <-
   trip_coord_info_vendors |>
@@ -163,12 +163,12 @@ trip_coord_info_effort_vendors_cnt <-
 
 trip_coord_info_effort_vendors_cnt |>
   arrange(desc(n)) |>
-  head() |> 
+  head() |>
   kable(caption = "trip_coord_info_effort_vendors_cnt")
-# safis	119734			
-# vms	15160			
-# vesl	1880			
-# fishizzle75	283	
+# safis	119734
+# vms	15160
+# vesl	1880
+# fishizzle75	283
 
 #dim [1] 263   2
 
@@ -200,11 +200,11 @@ compare_trip_and_effort_vendors <-
     toc(log = TRUE, quiet = TRUE)
     # trip_coord_info_vendors3: 160.77 sec elapsed
     # 160.77/60 = 2.6795m
-    
+
     # View(trip_coord_info_vendors3)
     # TODO: check t_UE diff E_UE
     # View(trip_coord_info_vendors)
-    
+
     trip_coord_info_vendors3 |>
       filter(trimws(tolower(E_UE)) == "safis") |>
       filter(!vendor_trip_cat == vendor_effort_cat) |>
@@ -215,7 +215,7 @@ compare_trip_and_effort_vendors <-
       kable(caption = "T_UE diff with E_UE")
   }
 #   glimpse()
-# VESL	  SAFIS	vesl	etrips	
+# VESL	  SAFIS	vesl	etrips
 # Bluefin	SAFIS	vesl	etrips
 
 
@@ -363,24 +363,24 @@ trip_coord_info_plot
 # r count vendors ----
 
 trip_coord_info_vendors3 <-
-  trip_coord_info_vendors3_trip |> 
+  trip_coord_info_vendors3_trip |>
   mutate(year_start = year(TRIP_START_DATE))
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |> 
+  count(vendor_trip_cat) |>
   kable(caption = "ALL: count(vendor_trip_cat)")
 
 
-trip_coord_info_vendors3 |> 
+trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |> 
+  count(vendor_trip_cat, year_start) |>
   kable(caption = "ALL: count(vendor_trip_cat, year_start)")
 
 # all vendors
-# etrips	47731			
-# vesl	77352			
-# vms	16267		
+# etrips	47731
+# vesl	77352
+# vms	16267
 
 
 
@@ -418,7 +418,7 @@ positive_long_map
 positive_long_corrected_map <-
   positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  mutate(LONGITUDE = -abs(LONGITUDE)) |> 
+  mutate(LONGITUDE = -abs(LONGITUDE)) |>
   lat_long_to_map_plot(my_title = 'Positive longitude, corrected')
 
 # label_column = "vendor_trip_cat"
@@ -434,18 +434,18 @@ positive_long_corrected_map +
 positive_long |>
     select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
-  distinct() |> 
+  distinct() |>
   kable(caption = "positive_long: vendor_trip_cat")
 
 # count vendor_trip_cat
-# etrips	89			
-# vesl	15329		
+# etrips	89
+# vesl	15329
 
 # count(vendor_trip_cat, year_start)
 positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   count(vendor_trip_cat, year_start) |>
-  distinct() |> 
+  distinct() |>
   kable(caption = "positive_long: count(vendor_trip_cat, year_start)")
 
 
@@ -453,23 +453,23 @@ positive_long |>
 ### r positive longitude VESL only ----
 
 positive_longitude_report <- function() {
-  
+
   positive_long_vesl <-
     trip_coord_info_vendors3 |>
     filter(LONGITUDE > 0) |>
     filter(vendor_trip_cat == "vesl")
-  
+
   positive_long_vesl_map <-
     positive_long_vesl |>
     select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
     distinct() |>
     lat_long_to_map_plot(my_title = 'Positive longitude (VESL)')
-  
+
   ggsave("positive_long_vesl_map.png",
     plot = positive_long_vesl_map)
-  
+
   write_csv(positive_long_vesl, "positive_long_vesl.csv")
-  
+
   return(positive_long_vesl)
 }
 
@@ -488,15 +488,15 @@ negative_lat <-
 negative_lat %>%
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
-  distinct() |> 
+  distinct() |>
   kable(caption = "negative_lat: count(vendor_trip_cat)")
-# etrips	2			
-# vesl	26		
+# etrips	2
+# vesl	26
 
 negative_lat %>%
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   count(vendor_trip_cat, year_start) |>
-  distinct() |> 
+  distinct() |>
   kable(caption = "negative_lat: count(vendor_trip_cat, year_start)")
 
 
@@ -531,8 +531,8 @@ neg_lat_map
 
 ### r negative latitude fixed mapped ----
 negative_lat_fixed <-
-  negative_lat |> 
-  select(LATITUDE, LONGITUDE) |> 
+  negative_lat |>
+  select(LATITUDE, LONGITUDE) |>
   mutate(LATITUDE = abs(LATITUDE),
          LONGITUDE = -abs(LONGITUDE))
 
@@ -611,11 +611,11 @@ out_of_boxmap_plot
 ## r Out of box table ----
 trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
-  count(vendor_trip_cat, year_start) |> 
+  count(vendor_trip_cat, year_start) |>
   kable(caption = "Out of box: count(vendor_trip_cat, year_start)")
 
-# etrips	151			
-# vesl	4524		
+# etrips	151
+# vesl	4524
 
 # negative_lat %>%
 #   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
@@ -640,7 +640,7 @@ trip_coord_info_vendors3 |>
   ) |>
   arrange(FISHING_HOURS) |>
   select(-TRIP_ID) |>
-  count(fishing_hours_cat, year_start, vendor_trip_cat) |> 
+  count(fishing_hours_cat, year_start, vendor_trip_cat) |>
   kable(caption = "fishing_hours_cat, year_start, vendor_trip_cat")
 
 
@@ -654,11 +654,11 @@ trip_coord_info_vendors3 |>
 #| tbl-cap: Astronomical object
 
 trip_coord_info_vendors3 |>
-  select(TRIP_ID, TRIP_END_DATE, year_start, vendor_trip_cat) |> 
-  distinct() |> 
-  filter(year(TRIP_END_DATE) < 2021) |> 
-  arrange(TRIP_END_DATE) |> 
-  select(-TRIP_ID) |> 
+  select(TRIP_ID, TRIP_END_DATE, year_start, vendor_trip_cat) |>
+  distinct() |>
+  filter(year(TRIP_END_DATE) < 2021) |>
+  arrange(TRIP_END_DATE) |>
+  select(-TRIP_ID) |>
   kable(caption = "Weird TRIP_END_DATE")
 
 
@@ -676,8 +676,8 @@ dim(positive_long_vesl_ll)
 positive_long_vesl_cnts <-
   positive_long_vesl |>
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
-  add_count(VESSEL_ID, name = "vesl_bad_vsl_cnt") |> 
-  distinct() |> 
+  add_count(VESSEL_ID, name = "vesl_bad_vsl_cnt") |>
+  distinct() |>
   arrange(desc(vesl_bad_vsl_cnt))
 
 all_vesl_cnts <-
@@ -689,8 +689,8 @@ all_vesl_cnts <-
   arrange(desc(all_bad_vsl_cnt))
 
 positive_long_vesl_cnts_short <-
-  positive_long_vesl_cnts |> 
-  select(VESSEL_ID, vesl_bad_vsl_cnt) |> 
+  positive_long_vesl_cnts |>
+  select(VESSEL_ID, vesl_bad_vsl_cnt) |>
   distinct()
 
 all_vesl_cnts_short <-
@@ -705,14 +705,14 @@ join_vesl_cnts <-
 dim(join_vesl_cnts)
   # [1] 336   3
 
-join_vesl_cnts |> 
-  filter(vesl_bad_vsl_cnt > 3) |> 
+join_vesl_cnts |>
+  filter(vesl_bad_vsl_cnt > 3) |>
   dim()
 # [1] 231   3
 
 join_vesl_cnts_no_diff <-
-  join_vesl_cnts |> 
-  mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt)) |> 
+  join_vesl_cnts |>
+  mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt)) |>
   filter(cnt_diff < 3)
 glimpse(join_vesl_cnts_no_diff)
 # 161
@@ -725,14 +725,14 @@ glimpse(join_vesl_cnts_no_diff)
 join_vesl_cnts_no_diff_ll <-
   trip_coord_info |>
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
-  filter(VESSEL_ID %in% join_vesl_cnts_no_diff$VESSEL_ID) |> 
+  filter(VESSEL_ID %in% join_vesl_cnts_no_diff$VESSEL_ID) |>
   distinct()
 
 # write_csv(join_vesl_cnts_no_diff_ll,
 #           "join_vesl_cnts_no_diff_ll.csv")
 
-join_vesl_cnts_no_diff_ll |> 
-  # head(20) |> 
+join_vesl_cnts_no_diff_ll |>
+  # head(20) |>
   glimpse()
 
 vesl_no_diff_bounding_box <-
@@ -748,14 +748,14 @@ vesl_no_diff_bounding_box <-
   )
 
 join_vesl_cnts_no_diff_ll_sf <-
-  join_vesl_cnts_no_diff_ll |> 
+  join_vesl_cnts_no_diff_ll |>
     sf::st_as_sf(coords = c("LONGITUDE",
                           "LATITUDE"),
                crs = my_crs,
                remove = FALSE)
 
 join_vesl_cnts_no_diff_ll_sf_l <-
-  join_vesl_cnts_no_diff_ll_sf |> 
+  join_vesl_cnts_no_diff_ll_sf |>
   mutate(labl = paste(LATITUDE, LONGITUDE))
 
 glimpse(join_vesl_cnts_no_diff_ll_sf_l)
@@ -764,7 +764,7 @@ glimpse(join_vesl_cnts_no_diff_ll_sf_l)
 
 ## r map join_vesl_cnts_no_diff_ll ----
 
-join_vesl_cnts_no_diff_ll_sf_l |> 
+join_vesl_cnts_no_diff_ll_sf_l |>
   leaflet() %>%
   addTiles() %>%
   addMarkers(
@@ -804,7 +804,7 @@ us_bb_border <- sf::st_union(us_bb)
 toc(log = TRUE, quiet = TRUE)
 # sf::st_union(us_bb): 16.58 sec elapsed
 
-us_bb_border_crs <- 
+us_bb_border_crs <-
   sf::st_crs(us_bb_border)
 
 # str(us_bb_border)
@@ -848,7 +848,7 @@ coastal_df$STATE |>
 
 tic("sf::st_transform coastal_sf")
 coastal_sf_trans <-
-  coastal_sf |> 
+  coastal_sf |>
   sf::st_transform(coastal_sf,
                    crs =
                      us_bb_border_crs) # Match the crs
@@ -873,7 +873,7 @@ coastal_sf
 ## r get USMaritimeLimitsNBoundaries ----
 
 path_to_us_maritime <-
-  file.path(my_paths$inputs, 
+  file.path(my_paths$inputs,
             r"(shapefiles\USMaritimeLimitsAndBoundariesSHP_orig\USMaritimeLimitsNBoundaries.shp)")
 
 file.exists(path_to_us_maritime)
@@ -887,7 +887,7 @@ us_maritime_df <-
   us_maritime_sf |>
   sf::st_drop_geometry()
 
-us_maritime_df$REGION |> 
+us_maritime_df$REGION |>
   cat(sep = ", ")
 # Atlantic Coast and Gulf of Mexico
 
@@ -919,7 +919,7 @@ res <-
 ## r get Shapefile all waters ----
 
 path_to_federal_state_w <-
-  file.path(my_paths$inputs, 
+  file.path(my_paths$inputs,
             r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
 
 file.exists(path_to_federal_state_w)
@@ -931,10 +931,10 @@ federal_state_w_sf <-
 toc(log = TRUE, quiet = TRUE)
 
 rr <-
-federal_state_w_sf |> 
+federal_state_w_sf |>
   sf::st_drop_geometry()
 
-rr$Jurisdicti |> 
+rr$Jurisdicti |>
   cat(sep = ", ")
 east_coat_states <- c(
   "Alabama",
@@ -963,12 +963,12 @@ east_coat_states <- c(
 
 # Jurisdicti
 # log.txt <- tic.log(format = TRUE)
-# 
+#
 # writeLines(unlist(log.txt))
 # tic.clearlog()
 
 # sf::st_crs(federal_state_w_sf)
-  # User input: WGS 84 / World Mercator 
+  # User input: WGS 84 / World Mercator
 #     ID["EPSG",3395]]
 
 federal_state_w_sf_east <-
@@ -1016,7 +1016,7 @@ trip_coord_info_crop_big_sf_trans <-
 toc(log = TRUE, quiet = TRUE)
 
 # log.txt <- tic.log(format = TRUE)
-# # 
+# #
 # writeLines(unlist(log.txt))
 # sf::st_transform trip_coord_info_crop_big_sf: 14.42 sec elapsed
 
@@ -1028,11 +1028,11 @@ toc(log = TRUE, quiet = TRUE)
 ### r usa_bb and state intersection ----
 
 # class(us_bb_border)
-# [1] "sfc_MULTIPOLYGON" "sfc"             
+# [1] "sfc_MULTIPOLYGON" "sfc"
 # dim(federal_state_w_sf_east_trans)
 # [1] 112364      3
-# 
-# "sf"         "tbl_df"     "tbl"       
+#
+# "sf"         "tbl_df"     "tbl"
 # [4] "data.frame"
 
 us_bb_border_sf <- sf::st_sf(us_bb_border)
@@ -1053,7 +1053,7 @@ mapview(federal_state_w_sf_east_trans) +
 
 tic("trip_coord_info_sf_instate")
 land_bb <-
-  us_bb_border_sf |> 
+  us_bb_border_sf |>
   filter(lengths(
     sf::st_intersects(us_bb_border_sf,
                       federal_state_w_sf_east_trans)
@@ -1096,7 +1096,7 @@ mapview(trip_coord_info_sf_instate)
 
 
 path_to_GOMsf <-
-  file.path(my_paths$inputs, 
+  file.path(my_paths$inputs,
             r"(..\GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)")
 
 # file.exists(path_to_GOMsf)
@@ -1437,11 +1437,11 @@ print_df_names(usa)
 # [1] "long, lat, group, order, region, subregion"
 
 usa$region |> unique()
-#  [1] "main"              "martha's vineyard" "nantucket island" 
-#  [4] "manhattan"         "staten island"     "long island"      
-#  [7] "san juan island"   "lopez island"      "orcas island"     
-# [10] "whidbey island"   
-# > 
+#  [1] "main"              "martha's vineyard" "nantucket island"
+#  [4] "manhattan"         "staten island"     "long island"
+#  [7] "san juan island"   "lopez island"      "orcas island"
+# [10] "whidbey island"
+# >
 
 usa$subregion |> unique()
 # na
@@ -1472,7 +1472,7 @@ plot_us <-
 #   dplyr::group_by(region) %>%
 #   dplyr::summarise() %>%
   # sf::st_cast("POLYGON")
-# |> 
+# |>
   # sf::st_convex_hull()
   # stat_sf_coordinates()
   # sf::st_cast("POLYGON", ids = group)
@@ -1530,14 +1530,14 @@ dim(trip_coord_info_map_data_sf_inland)
 
 sf::st_crs(usa_sf)
 sf::st_crs(trip_coord_info_map_data_sf)
-  # User input: +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+  # User input: +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0
 
 # [1] 116246      2
 sf::st_geometry(usa_sf)
-# Geometry set for 7243 features 
+# Geometry set for 7243 features
 # Geometry type: POINT
 sf::st_geometry(trip_coord_info_map_data_sf_inland)
-# Geometry set for 116246 features 
+# Geometry set for 116246 features
 # Geometry type: POINT
 # Dimension:     XY
 
