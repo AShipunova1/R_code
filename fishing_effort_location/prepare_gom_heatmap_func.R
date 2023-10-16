@@ -222,17 +222,6 @@ add_vsl_and_trip_cnts <-
       return()
   }
 
-## count trip ids and vessels by grid cell ----
-add_vsl_and_trip_cnts <-
-  function(my_df, vessel_id_name = "VESSEL_OFFICIAL_NBR") {
-    my_df |>
-      group_by(cell_id) |>
-      mutate(vsl_cnt = n_distinct(!!sym(vessel_id_name)),
-             trip_id_cnt = n_distinct(TRIP_ID)) |>
-      ungroup() %>%
-      return()
-  }
-
 ## make a plot ----
 make_map_trips <-
   function(map_trip_base_data,
