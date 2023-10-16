@@ -203,9 +203,9 @@ df_join_grid <-
         }
 
 crop_by_shape <-
-  function(my_sf) {
+  function(my_sf, my_shp = GOMsf) {
     my_sf |>
-      sf::st_join(GOMsf, left = FALSE) %>%
+      sf::st_join(my_shp, left = FALSE) %>%
       dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
              LATITUDE = sf::st_coordinates(.)[, 2]) %>%
       return()
