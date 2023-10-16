@@ -1,3 +1,6 @@
+library(tigris)
+tigris_use_cache = TRUE
+
 # plot text sizes ----
 text_sizes <- list(
   geom_text_size = 7,
@@ -122,6 +125,51 @@ federal_state_w_sf_east <-
 
 # mapview(sa_shp)
 # [1] 21  7
+
+# coast line SA shp ----
+# us_bb <-
+#   tigris::counties(filter_by = big_bounding_box, progress_bar = FALSE)
+
+sa_states <- c("Florida",
+               "Georgia",
+               "North Carolina",
+               "South Carolina")
+us_s_shp <-
+  tigris::states(cb = TRUE)
+
+sa_s_shp <-
+  us_s_shp |>
+  filter(NAME %in% sa_states)
+
+# sa_s_shp_plot <-
+#   ggplot() +
+#   geom_sf(data = sa_s_shp)
+
+# sa_counties_shp <- tigris::counties(sa_states, cb = TRUE)
+
+# gg <- ggplot()
+# gg <- gg + geom_sf(
+#   data = sa_s_shp,
+#   color = "black",
+#   # fill = "",
+#   size = 0.25
+# )
+# gg
+
+# library(rnaturalearth) #coastline
+# library(maps)
+# library(mapdata)
+
+
+atl_shp_file <-
+  file.path(my_paths$inputs,
+            r"(shapefiles\ATL_SLA\ATL_SLA.shp)")
+
+atl_shp <-
+  sf::read_sf(atl_shp_file)
+
+ggplot() +
+  geom_sf(data = atl_shp, fill = NA)
 
 # read in GOM shp ----
 GOMsf <-
