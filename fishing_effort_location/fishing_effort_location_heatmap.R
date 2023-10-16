@@ -113,14 +113,14 @@ str(effort_vsl_cropped_sa)
 
 ## count trip ids and vessels by grid cell ----
 
-effort_vsl_cropped_cnt_sa_l <-
+effort_vsl_cropped_cnt_l <-
   list(effort_vsl_cropped_gom,
     effort_vsl_cropped_sa) |>
   map(function(effort_vsl_cropped) {
     add_vsl_and_trip_cnts(effort_vsl_cropped)
   })
 
-map(effort_vsl_cropped_cnt_sa_l, dim)
+map(effort_vsl_cropped_cnt_l, dim)
 # [[1]]
 # [1] 35822     9
 #
@@ -128,7 +128,7 @@ map(effort_vsl_cropped_cnt_sa_l, dim)
 # [1] 21461    10
 
 # check
-effort_vsl_cropped_cnt2 |>
+effort_vsl_cropped_cnt_l[[1]] |>
   sf::st_drop_geometry() |>
   filter(cell_id == 1864) |>
   select(vsl_cnt, trip_id_cnt) |>
@@ -139,27 +139,17 @@ effort_vsl_cropped_cnt2 |>
 
 # class(effort_vsl_cropped_cnt2)
 
-dim(effort_vsl_cropped_cnt2)
-# [1] 35822     9
-
-# effort_cropped_short_cnt_rule3 <-
-#   effort_vsl_cropped_cnt2 |>
-#   filter(vsl_cnt > 2)
-
-# dim(effort_cropped_short_cnt_rule3)
-# [1] 31981     9
-
-## remove extra columns ----
-# print_df_names(effort_cropped_short_cnt_rule3)
-# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, cell_id, StatZone, LONGITUDE, LATITUDE, vsl_cnt, trip_id_cnt"
-
 ### no rule3 ----
-effort_cropped_short_cnt2_short <-
-  effort_vsl_cropped_cnt2 |>
-  select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
+effort_cropped_short_cnt2_short_l <-
+  effort_vsl_cropped_cnt_l |>
+  map(function(effort_vsl_cropped_cnt) {
+    effort_vsl_cropped_cnt |>
+      select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
+  })
 
-dim(effort_cropped_short_cnt2_short)
+map(effort_cropped_short_cnt2_short_l, dim)
 # [1] 35822     5
+# [1] 21461     6
 
 ### with rule 3 ----
 effort_cropped_short_cnt_rule3_short <-
