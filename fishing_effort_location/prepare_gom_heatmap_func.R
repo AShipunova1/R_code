@@ -133,9 +133,9 @@ GOMsf <-
 
 # str(GOMsf)
 
-# create GOM 5x5 minute grid ----
+# create 5x5 minute grid ----
 min_grid <-
-  function(minute_num = 1) {
+  function(my_sf = GOMsf, minute_num = 1) {
     grid <-
       sf::st_make_grid(x = sf::st_bbox(GOMsf),
                        cellsize = 1 / 60 * minute_num) %>%
@@ -145,9 +145,14 @@ min_grid <-
     return(grid)
   }
 
-grid <- min_grid(5)
+grid_gom5 <- min_grid(GOMsf, 5)
+grid_sa5 <- min_grid(sa_shp, 5)
 
-sf::st_agr(GOMsf) = sf::st_agr(grid) = "constant"
+sf::st_agr(GOMsf) =
+  sf::st_agr(sa_shp) =
+  sf::st_agr(grid_gom5) =
+  sf::st_agr(grid_sa5) =
+  "constant"
 
 # create SA 5x5 minute grid ----
 min_grid_sa_shp <-
