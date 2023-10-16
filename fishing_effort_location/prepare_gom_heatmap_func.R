@@ -137,7 +137,7 @@ GOMsf <-
 min_grid <-
   function(my_sf = GOMsf, minute_num = 1) {
     grid <-
-      sf::st_make_grid(x = sf::st_bbox(GOMsf),
+      sf::st_make_grid(x = sf::st_bbox(my_sf),
                        cellsize = 1 / 60 * minute_num) %>%
       sf::st_as_sf() %>%
       mutate(cell_id = 1:nrow(.))
@@ -153,23 +153,6 @@ sf::st_agr(GOMsf) =
   sf::st_agr(grid_gom5) =
   sf::st_agr(grid_sa5) =
   "constant"
-
-# create SA 5x5 minute grid ----
-min_grid_sa_shp <-
-  function(minute_num = 1) {
-    grid <-
-      sf::st_make_grid(x = sf::st_bbox(sa_shp),
-                       cellsize = 1 / 60 * minute_num) %>%
-      sf::st_as_sf() %>%
-      mutate(cell_id = 1:nrow(.))
-
-    return(grid)
-  }
-
-grid_sa <- min_grid_sa_shp(5)
-
-sf::st_agr(sa_shp) = sf::st_agr(grid_sa) = "constant"
-
 
 ### remove internal boundaries from the GOM shape file ----
 
