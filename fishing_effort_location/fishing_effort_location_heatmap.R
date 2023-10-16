@@ -191,8 +191,11 @@ heat.plt_sa <-
 
 ## make a plot ----
 
-max_num3 <- max(heat.plt$trip_id_cnt)
+max_num3_gom <- max(heat.plt_gom$trip_id_cnt)
 # 1209
+
+max_num3_sa <- max(heat.plt_sa$trip_id_cnt)
+# 590
 
 # map_trips_rule_3 <-
 #   make_map_trips(heat.plt,
@@ -201,16 +204,30 @@ max_num3 <- max(heat.plt$trip_id_cnt)
 #            max_num = max_num3,
 #            caption_text = "Heat map of SEFHIER trips (5 min. resolution). 2022. GoM permitted vessels. Only squares with more than 3 reporting vessels are shown. ")
 
-# map_trips_rule_3
-print_df_names(heat.plt)
-map_trips_no_rule_3 <-
-  make_map_trips(heat.plt,
+# map_trips_no_rule_3
+# print_df_names(heat.plt_gom)
+map_trips_no_rule_3_gom <-
+  make_map_trips(heat.plt_gom,
            st_union_GOMsf,
            "total trips",
            trip_cnt_name = "trip_id_cnt",
            unit_num = 1.2)
 
-map_trips_no_rule_3
+map_trips_no_rule_3_gom
+
+
+map_trips_no_rule_3_sa <-
+  make_map_trips(heat.plt_sa,
+           sa_shp,
+           "total trips",
+           trip_cnt_name = "trip_id_cnt",
+           unit_num = 0.8)
+
+map_trips_no_rule_3_sa +
+  geom_sf(data = sa_s_shp) +
+  geom_sf_text(data = sa_s_shp,
+               label = sa_s_shp$NAME,
+               size = 3)
 
 # make_map_trips <-
 #   function(map_trip_base_data,
