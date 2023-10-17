@@ -33,11 +33,22 @@
 
 
 #install.packages("tidyverse")
+# Load the 'tidyverse' library, which is a collection of R packages for data manipulation and visualization.
 library(tidyverse)
+
+# Load the 'magrittr' library, which provides piping data and functions.
 library(magrittr)
-library(readxl)  # reading in .xlsx
+
+# Load the 'readxl' library, used for reading Excel (.xlsx) files.
+library(readxl)
+
+# Load the 'rbenchmark' library, which is used for benchmarking code performance.
 library(rbenchmark)
+
+# Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
 library(ROracle)
+
+# Load the 'tictoc' library, which allows measuring code execution time.
 library(tictoc)
 
 # Do not show warnings about groups
@@ -55,106 +66,175 @@ get_username <- function(){
 
 # set working directories ----
 
-get_current_file_directory <-
-  function() {
-    dirname(rstudioapi::getSourceEditorContext()$path)
-  }
+# Define a function named 'get_current_file_directory',
+# to obtain the directory where the script is located.
+get_current_file_directory <- function() {
+
+  # Use 'rstudioapi::getSourceEditorContext()' to access information about the currently open script
+  # Extract the 'path' from the source editor context and obtain its directory using 'dirname'
+  dirname(rstudioapi::getSourceEditorContext()$path)
+}
 
 # change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
   # then you can use it in the code like my_paths$input etc.
+# Define a function named 'set_work_dir'
 set_work_dir <- function() {
+
+  # Set the working directory to the user's home directory (~)
   setwd("~/")
   base_dir <- getwd()
 
-  # for others
+  # Initialize 'add_dir' as an empty string (for others)
   add_dir <- ""
-  # for Anna's computer
+
+  # Check if the username is "anna.shipunova" (Anna's computer)
   if (get_username() == "anna.shipunova") {
+    # Set 'add_dir' to a specific directory path for Anna
     add_dir <- "R_files_local/test_dir"
   }
 
-  # add an empty or Anna's folder in front
+  # Construct the path to the main R directory
   main_r_dir <- file.path(add_dir, "SEFHIER/R code")
 
+  # Define directory names for 'Inputs' and 'Outputs'
   in_dir <- "Inputs"
-  # file.path instead of paste, because it provides correct concatenation, "\" or "/" etc.
-  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
   out_dir <- "Outputs"
+
+  # Construct full paths to 'Inputs' and 'Outputs' directories using 'file.path'
+  # file.path is a function used to create platform-independent file paths by joining its arguments using the appropriate path separator (e.g., "\" on Windows, "/" on Unix-like systems).
+  #
+  # base_dir is the base directory obtained from the user's home directory.
+  #
+  # main_r_dir is the path to the main R directory, which may vary depending on whether the user is Anna or not.
+  #
+  # in_dir is the name of the 'Inputs' directory.
+  #
+  # So, this line effectively combines these components to create the full path to the 'Inputs' directory, ensuring that the path is correctly formatted for the user's operating system.
+
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
 
-  # git_r_dir <- "R_code_github"
-  # full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-
+  # Change the working directory to the main R directory
   setwd(file.path(base_dir, main_r_dir))
 
+  # Create a list of directory paths for 'inputs' and 'outputs'
   my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir) #,
-                   #"git_r" = full_path_to_r_git_dir)
+                   "outputs" = full_path_to_out_dir)
   return(my_paths)
 }
 
+# Define a function named 'set_work_dir_local'
+# This function sets the working directory to the user's home directory, defines paths to 'my_inputs,' 'my_outputs,' and 'R_code_github' directories, and returns these directory paths as a list. The use of file.path ensures that the path construction is platform-independent.
+
 set_work_dir_local <- function() {
+
+  # Set the working directory to the user's home directory (~)
   setwd("~/")
   base_dir <- getwd()
+
+  # Define 'main_r_dir' as "R_files_local"
   main_r_dir <- "R_files_local"
 
+  # Define 'in_dir' as "my_inputs"
   in_dir <- "my_inputs"
+
+  # Construct the full path to 'my_inputs' directory
   full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+
+  # Define 'out_dir' as "my_outputs"
   out_dir <- "my_outputs"
+
+  # Construct the full path to 'my_outputs' directory
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
 
+  # Define 'git_r_dir' as "R_code_github"
   git_r_dir <- "R_code_github"
+
+  # Construct the full path to 'R_code_github' directory
   full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
 
+  # Change the working directory to 'R_files_local'
   setwd(file.path(base_dir, main_r_dir))
 
+  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
   my_paths <- list("inputs" = full_path_to_in_dir,
                    "outputs" = full_path_to_out_dir,
                    "git_r" = full_path_to_r_git_dir)
+
+  # Return the list of directory paths
   return(my_paths)
 }
 
+# Change the behavior of the set_work_dir function based on the username. If the username matches "anna.shipunova," it reassigns set_work_dir to the set_work_dir_local function, effectively using a different directory structure for Anna compared to other users.
+
+# Check if the current username is "anna.shipunova"
 if (get_username() == "anna.shipunova") {
+  # If the condition is true, assign the 'set_work_dir_local' function to 'set_work_dir'
   set_work_dir <- set_work_dir_local
 }
 
+# Define a function named 'load_csv_names' that takes two parameters: 'my_paths' and 'csv_names_list'
 load_csv_names <- function(my_paths, csv_names_list) {
+
+  # Extract the 'inputs' directory path from 'my_paths' and store it in 'my_inputs'
   my_inputs <- my_paths$inputs
-# add input directory path in front of each file name.
+
+  # Use 'lapply' to prepend the 'my_inputs' directory path to each file name in 'csv_names_list'
+  # This creates a list of full file paths for the CSV files
   myfiles <- lapply(csv_names_list, function(x) file.path(my_inputs, x))
-  # read all csv files
-  # contents <- lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE)
+
+  # Use 'lapply' again to read all CSV files listed in 'myfiles'
+  # The 'read_csv' function from the 'readr' package is used, specifying default column types as 'c' ('character')
   contents <- lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
 
+  # Return the contents of the CSV files as a list
   return(contents)
 }
 
-load_csv_names_in_one_df <-
-  function(path_to_files, csv_names_list) {
-    # browser()
+# Define a function named 'load_csv_names_in_one_df' that takes two parameters: 'path_to_files' and 'csv_names_list'
+load_csv_names_in_one_df <- function(path_to_files, csv_names_list) {
+
+    # Initialize 'myfiles' with 'csv_names_list'
     myfiles <- csv_names_list
-    # add input directory path in front of each file name if provided
+
+    # Check if 'path_to_files' (input directory path) is provided
     if (length(path_to_files) > 0) {
-      myfiles <-
-        lapply(csv_names_list, function(x)
-          file.path(path_to_files, x))
+
+        # If provided, use 'lapply' to prepend 'path_to_files' to each file name in 'csv_names_list'
+        myfiles <- lapply(csv_names_list, function(x) file.path(path_to_files, x))
     }
-    # read all csv files into one df
-    csv_content <-
-      map_df(myfiles,
-             function(file_name) {
-               readr::read_csv(
-                 file_name,
-                 col_types = cols(.default = 'c'),
-                 trim_ws = T,
-                 na = c("", "NA", "NaN"),
-                 name_repair = "universal"
-               )
-             })
 
+    # Read all CSV files listed in 'myfiles' into a single data frame using 'map_df'
+    csv_content <- purrr::map_df(myfiles, function(file_name) {
+
+        # Use 'read_csv' from the 'readr' package to read each CSV file
+        readr::read_csv(
+            file_name,
+            col_types = cols(.default = 'c'),  # Set default column type to 'character'
+            trim_ws = TRUE,  # Trim whitespace from values
+            na = c("", "NA", "NaN"),  # Treat empty strings, "NA," and "NaN" as NA values
+            name_repair = "universal"  # Repair column names
+        )
+    })
+
+    # Return the concatenated data frame containing all CSV file contents
     return(csv_content)
-  }
+}
 
+#
+# Explanation:
+#
+# 1. The function `load_csv_names_in_one_df` takes two parameters: `path_to_files`, which is an optional input directory path, and `csv_names_list`, a list of CSV file names.
+#
+# 2. Initially, the `myfiles` variable is assigned the `csv_names_list`.
+#
+# 3. If `path_to_files` is provided (its length is greater than 0), the function uses `lapply` to prepend `path_to_files` to each file name in `csv_names_list`. This ensures that the full file paths are correctly constructed.
+#
+# 4. The `map_df` function is used to read all CSV files listed in `myfiles` and concatenate them into a single data frame (`csv_content`).
+#
+# 5. Within the `map_df` function, each CSV file is read using `read_csv` from the `readr` package. Various options are set, including the default column type as 'character', trimming whitespace, specifying NA values, and repairing column names.
+#
+# 6. Finally, the function returns the concatenated data frame containing the contents of all CSV files, making it easier to work with them as a single data structure.
 
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   my_inputs <- my_paths$inputs
