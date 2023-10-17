@@ -32,4 +32,28 @@ dim(vessels_22_sa)
 
 # compare with db_data ----
 
-all_get_db_data_result_l
+all_get_db_data_result_l$mv_sero_fh_permits_his$VESSEL_ID |>
+  unique() |>
+  intersect(vessels_22_sa$permit_vessel_id) |>
+  length()
+# [1] 2303
+
+not_in_mv_sero_fh_permits_his <-
+  setdiff(vessels_22_sa$permit_vessel_id,
+          unique(all_get_db_data_result_l$mv_sero_fh_permits_his$VESSEL_ID))
+length(not_in_mv_sero_fh_permits_his)
+# 18
+
+not_in_jeannettes <-
+  setdiff(unique(all_get_db_data_result_l$mv_sero_fh_permits_his$VESSEL_ID),
+          vessels_22_sa$permit_vessel_id)
+length(not_in_jeannettes)
+# 11749 (other years and permits)
+
+# View(all_get_db_data_result_l$vessels_permits)
+
+all_get_db_data_result_l$vessels_permits$PERMIT_VESSEL_ID |>
+  unique() |>
+  intersect(vessels_22_sa$permit_vessel_id) |>
+  length()
+# 2301
