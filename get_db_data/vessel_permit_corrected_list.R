@@ -44,17 +44,36 @@ db_df_reg_l <-
   }) |>
   rlang::set_names(use_df_names)
 
-# View(db_df_reg_l)
-mv_sero_fh_permits_his_reg <-
-  separate_permits_into_3_groups(all_get_db_data_result_l$mv_sero_fh_permits_his,
-                                 permit_group_field_name = "TOP")
+map(db_df_reg_l,
+    print_df_names)
 
+### get 2022 sa_only ----
+db_df_reg_2022_sa_only_l <-
+  use_df_names |>
+  map(function(use_df_name) {
+    db_df_reg_l[[use_df_name]] |>
+      filter(permit_sa_gom == "sa_only" &
+               EFFECTIVE_DATE >= '2022-01-01' &
+               END_DATE > '2022-12-31')
+  }) |>
+  rlang::set_names(use_df_names)
 
-all_get_db_data_result_l$mv_sero_fh_permits_his$VESSEL_ID |>
+map(db_df_reg_2022_sa_only_l, dim)
+# $mv_sero_fh_permits_his
+# [1] 6189   23
+#
+# $vessels_permits
+# [1] 12381    52
+
+# get intersection ----
+
+mv_sero_fh_permits_his_intersect <-
+  db_df_reg_2022_sa_only_l$mv_sero_fh_permits_his$VESSEL_ID |>
   unique() |>
-  intersect(vessels_22_sa$permit_vessel_id) |>
-  length()
-# [1] 2303
+  intersect(vessels_22_sa$permit_vessel_id)
+
+length(mv_sero_fh_permits_his_intersect)
+# [1] 1339
 
 not_in_mv_sero_fh_permits_his <-
   setdiff(vessels_22_sa$permit_vessel_id,
