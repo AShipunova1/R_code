@@ -23,6 +23,8 @@ all_sheets_l <- map(sheets, function(sheet_num) {
     # Read all columns as text
     col_types = "text",
 
+    guess_max = 21474836,
+
     # Use universal name repair
     .name_repair = "universal"
   )
