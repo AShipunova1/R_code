@@ -31,6 +31,24 @@ dim(vessels_22_sa)
 # [1] 2321    1
 
 # compare with db_data ----
+## prepare_db_data ----
+use_df_names <- list("mv_sero_fh_permits_his",
+                     "vessels_permits")
+### add permit region groups ----
+
+db_df_reg_l <-
+  use_df_names |>
+  map(function(use_df_name) {
+    separate_permits_into_3_groups(all_get_db_data_result_l[[use_df_name]],
+                                   permit_group_field_name = "TOP")
+  }) |>
+  rlang::set_names(use_df_names)
+
+# View(db_df_reg_l)
+mv_sero_fh_permits_his_reg <-
+  separate_permits_into_3_groups(all_get_db_data_result_l$mv_sero_fh_permits_his,
+                                 permit_group_field_name = "TOP")
+
 
 all_get_db_data_result_l$mv_sero_fh_permits_his$VESSEL_ID |>
   unique() |>
