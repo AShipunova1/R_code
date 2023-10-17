@@ -1,3 +1,4 @@
+# read Jeannette's file ----
 library(readxl)  # reading in .xlsx
 # the file is from Jeannette Oct 17 2023
 v_list_file_name <-
@@ -18,6 +19,19 @@ all_sheets_l <-
           .name_repair = "universal"
         )
       })
+
+# map(all_sheets_l, dim)
+# [[1]]
+# [1] 2216    1
+#
+# [[2]]
+# [1] 55  2
+#
+# [[3]]
+# [1] 126   1
+#
+# [[4]]
+# [1] 131   4
 
 # names(all_sheets_l[[4]])
 # names(all_sheets_l[[1]])
@@ -72,7 +86,7 @@ mv_sero_fh_permits_his_u_v_ids_all <-
 mv_sero_fh_permits_his_u_v_ids_22_sa <-
   unique(db_df_reg_2022_sa_only_l$mv_sero_fh_permits_his$VESSEL_ID)
 
-## intersetion ----
+## intersection ----
 mv_sero_fh_permits_his_intersect <-
   mv_sero_fh_permits_his_u_v_ids_22_sa |>
   intersect(vessels_22_sa$permit_vessel_id)
@@ -87,6 +101,9 @@ not_in_mv_sero_fh_permits_his_all <-
           mv_sero_fh_permits_his_u_v_ids_all)
 length(not_in_mv_sero_fh_permits_his_all)
 # 18
+
+# cat(not_in_mv_sero_fh_permits_his_all,
+#     sep = ", ")
 
 ### 2022 SA ----
 not_in_mv_sero_fh_permits_his <-
@@ -109,6 +126,7 @@ mv_sero_fh_permits_his__not_in_j <-
           vessels_22_sa$permit_vessel_id)
 length(mv_sero_fh_permits_his__not_in_j)
 # 1357
+head(mv_sero_fh_permits_his__not_in_j)
 
 # compare Jeannettes's with vessels_permits ----
 vessels_permits_u_v_ids_all <-
@@ -117,7 +135,7 @@ vessels_permits_u_v_ids_all <-
 vessels_permits_u_v_ids_22_sa <-
   unique(db_df_reg_2022_sa_only_l$vessels_permits$PERMIT_VESSEL_ID)
 
-## intersetion ----
+## intersection ----
 ### all ----
 vessels_permits_intersect_all <-
   vessels_permits_u_v_ids_all |>
