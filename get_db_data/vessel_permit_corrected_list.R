@@ -65,32 +65,101 @@ map(db_df_reg_2022_sa_only_l, dim)
 # $vessels_permits
 # [1] 12381    52
 
-# get intersection ----
+# compare Jeannettes's with mv_sero_fh_permits_his ----
+mv_sero_fh_permits_his_u_v_ids_all <-
+  unique(all_get_db_data_result_l$mv_sero_fh_permits_his$VESSEL_ID)
 
+mv_sero_fh_permits_his_u_v_ids_22_sa <-
+  unique(db_df_reg_2022_sa_only_l$mv_sero_fh_permits_his$VESSEL_ID)
+
+## intersetion ----
 mv_sero_fh_permits_his_intersect <-
-  db_df_reg_2022_sa_only_l$mv_sero_fh_permits_his$VESSEL_ID |>
-  unique() |>
+  mv_sero_fh_permits_his_u_v_ids_22_sa |>
   intersect(vessels_22_sa$permit_vessel_id)
 
 length(mv_sero_fh_permits_his_intersect)
 # [1] 1339
 
-not_in_mv_sero_fh_permits_his <-
+## in J only ----
+### all ----
+not_in_mv_sero_fh_permits_his_all <-
   setdiff(vessels_22_sa$permit_vessel_id,
-          unique(all_get_db_data_result_l$mv_sero_fh_permits_his$VESSEL_ID))
-length(not_in_mv_sero_fh_permits_his)
+          mv_sero_fh_permits_his_u_v_ids_all)
+length(not_in_mv_sero_fh_permits_his_all)
 # 18
 
-not_in_jeannettes <-
-  setdiff(unique(all_get_db_data_result_l$mv_sero_fh_permits_his$VESSEL_ID),
+### 2022 SA ----
+not_in_mv_sero_fh_permits_his <-
+  setdiff(vessels_22_sa$permit_vessel_id,
+          mv_sero_fh_permits_his_u_v_ids_22_sa)
+length(not_in_mv_sero_fh_permits_his)
+# 982
+
+## in db only ----
+### all ----
+mv_sero_fh_permits_his_all__not_in_j <-
+  setdiff(mv_sero_fh_permits_his_u_v_ids_all,
           vessels_22_sa$permit_vessel_id)
-length(not_in_jeannettes)
-# 11749 (other years and permits)
+length(mv_sero_fh_permits_his_all__not_in_j)
+# 11749
 
-# View(all_get_db_data_result_l$vessels_permits)
+### 2022 SA ----
+mv_sero_fh_permits_his__not_in_j <-
+  setdiff(mv_sero_fh_permits_his_u_v_ids_22_sa,
+          vessels_22_sa$permit_vessel_id)
+length(mv_sero_fh_permits_his__not_in_j)
+# 1357
 
-all_get_db_data_result_l$vessels_permits$PERMIT_VESSEL_ID |>
-  unique() |>
-  intersect(vessels_22_sa$permit_vessel_id) |>
-  length()
+# compare Jeannettes's with vessels_permits ----
+vessels_permits_u_v_ids_all <-
+  unique(all_get_db_data_result_l$vessels_permits$PERMIT_VESSEL_ID)
+
+vessels_permits_u_v_ids_22_sa <-
+  unique(db_df_reg_2022_sa_only_l$vessels_permits$PERMIT_VESSEL_ID)
+
+## intersetion ----
+### all ----
+vessels_permits_intersect_all <-
+  vessels_permits_u_v_ids_all |>
+  intersect(vessels_22_sa$permit_vessel_id)
+
+length(vessels_permits_intersect_all)
 # 2301
+
+### 2022 sa ----
+vessels_permits_intersect <-
+  vessels_permits_u_v_ids_22_sa |>
+  intersect(vessels_22_sa$permit_vessel_id)
+
+length(vessels_permits_intersect)
+# [1] 1339
+
+## in J only ----
+### all ----
+not_in_vessels_permits_all <-
+  setdiff(vessels_22_sa$permit_vessel_id,
+          vessels_permits_u_v_ids_all)
+length(not_in_vessels_permits_all)
+# 20
+
+### 2022 SA ----
+not_in_vessels_permits <-
+  setdiff(vessels_22_sa$permit_vessel_id,
+          vessels_permits_u_v_ids_22_sa)
+length(not_in_vessels_permits)
+# 982
+
+## in db only ----
+### all ----
+vessels_permits_all__not_in_j <-
+  setdiff(vessels_permits_u_v_ids_all,
+          vessels_22_sa$permit_vessel_id)
+length(vessels_permits_all__not_in_j)
+# 4450
+
+### 2022 SA ----
+vessels_permits__not_in_j <-
+  setdiff(vessels_permits_u_v_ids_22_sa,
+          vessels_22_sa$permit_vessel_id)
+length(vessels_permits__not_in_j)
+# 1356
