@@ -457,9 +457,9 @@ trips_notifications_2022_query <-
 FROM
   safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
   , 'dd-mon-yy') )
-  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
   , 'dd-mon-yy') )
 "
 
