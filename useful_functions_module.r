@@ -1090,23 +1090,9 @@ my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) {
 
 # ===
 
-my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) {
-  my_df %>%
-    # convert to sf
-    sf::st_as_sf(
-      # field names to use
-      coords = c("LONGITUDE",
-                 "LATITUDE"),
-      # use crs from sa_shp
-      crs = my_crs,
-      # keep LAT/LONG, to save in a file
-      remove = FALSE
-    ) %>%
-    return()
-}
-
 # to avoid this error:
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
+# Disable the use of the S2 library for spherical geometry operations in the sf package
 sf::sf_use_s2(FALSE)
 
 # to use on download from db
@@ -1121,12 +1107,18 @@ vessels_permits_id_clean <- function(my_df) {
     return(vessels_permits)
 }
 
-
+# ===
 # to use with toc(log = TRUE, quiet = TRUE)
+# Define a function named print_toc_log that takes a 'variables' parameter
+ # It's useful for monitoring and debugging code execution time when using the tic and toc functions to measure time intervals.
 print_toc_log <- function(variables) {
+  # Retrieve the log from the tic package with formatting enabled and store it in 'log.txt'
   log.txt <- tic.log(format = TRUE)
 
+  # Write the lines of 'log.txt' to the console
   writeLines(unlist(log.txt))
-  tic.clearlog()
 
+  # Clear the log, removing its contents
+  tic.clearlog()
 }
+
