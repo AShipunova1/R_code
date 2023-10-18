@@ -563,25 +563,54 @@ concat_unique <- function(x) {
   paste0(unique(x[!is.na(x)]), collapse = ", ")
 }
 
+# ===
+# Define a function 'print_df_names' to print the names of columns in a data frame.
+# This function retrieves column names, limits the number to 'names_num' (default = 100),
+# and returns them as a comma-separated string.
 print_df_names <- function(my_df, names_num = 100) {
+  # Use 'names' to get column names,
+  # 'head' to limit the number of names to 'names_num',
+  # 'paste0' to concatenate them with a comma separator, and return the result.
   names(my_df) %>%
     head(names_num) %>%
     paste0(collapse = ", ") %>%
     return()
 }
 
-combine_rows_based_on_multiple_columns_and_keep_all_unique_values <- function(my_df, group_by_arr) {
-  my_df %>%
-    group_by_at(group_by_arr) %>%
-    summarise_all(concat_unique) %>%
-    return()
-}
-
-concat_unique_sorted <-
-  function(x) {
-    paste0(unique(sort(x[!is.na(x)])), collapse = ", ")
+# ===
+# Define a function to combine rows based on multiple columns while keeping all unique values.
+# This function groups the data frame by specified columns,
+# applies 'concat_unique' to combine values in each column,
+# and returns the result.
+combine_rows_based_on_multiple_columns_and_keep_all_unique_values <-
+  function(my_df, group_by_arr) {
+    # Group the data frame by specified columns.
+    my_df %>%
+      dplyr::group_by_at(group_by_arr) %>%
+      # Summarize all columns by applying 'concat_unique' to combine unique values.
+      dplyr::summarise_all(concat_unique) %>%
+      return()
   }
 
+# ===
+# Define a function to concatenate unique values in a sorted manner.
+# This function takes a vector 'x', removes NA values, sorts the unique values,
+# and then concatenates them with a comma separator.
+concat_unique_sorted <- function(x) {
+  # Remove NA values from the input vector 'x' and store the result.
+  non_na_values <- x[!is.na(x)]
+
+  # Sort the unique values obtained from the previous step.
+  sorted_unique <- unique(sort(non_na_values))
+
+  # Concatenate the sorted unique values with a comma separator.
+  result <- paste0(sorted_unique, collapse = ", ")
+
+  # Return the concatenated result.
+  return(result)
+}
+
+# ===
 combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
   my_df %>%
     group_by_at(group_by_arr) %>%
