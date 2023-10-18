@@ -1,12 +1,20 @@
 # help functions ----
-
+# Load the 'tidyverse' library, which includes a collection of packages for data manipulation and visualization.
 library(tidyverse)
+
+# Load the 'magrittr' library, which provides piping data between functions.
 library(magrittr)
-library(readxl)  # reading in .xlsx
-library(rbenchmark)
+
+# Load the 'readxl' library, which is used for reading Excel files with the '.xlsx' extension.
+library(readxl)
+
+# Load the 'ROracle' library, which provides Oracle database access for R.
 library(ROracle)
+
+# Load the 'tictoc' library, which is used for timing code execution.
 library(tictoc)
 
+# Set an option in the 'dplyr' package to control the display of summarization information.
 # Do not show warnings about groups
 options(dplyr.summarise.inform = FALSE)
 # Turn off the scientific notation
@@ -15,165 +23,243 @@ options(scipen = 999)
 # Use my function in case we want to change the case in all functions
 my_headers_case_function <- tolower
 
-# current user name
-get_username <- function(){
+# Define a function named 'get_username' that retrieves the username of the current user.
+get_username <- function() {
+    # Use 'Sys.info()' to obtain system information and then extract the 'user' field.
+    # Convert the result to a character to ensure it's in a usable format.
     return(as.character(Sys.info()["user"]))
 }
 
 # set working directories ----
 
-get_current_file_directory <-
-  function() {
-    dirname(rstudioapi::getSourceEditorContext()$path)
-  }
+# Define a function named 'get_current_file_directory' to obtain the directory path of the current file.
+get_current_file_directory <- function() {
+    # Use the 'rstudioapi::getSourceEditorContext()' function to access the editor context in RStudio,
+    # and then extract the 'path' field to get the full path of the currently open file.
+    # Finally, use 'dirname()' to extract the directory part of the path.
+    return(dirname(rstudioapi::getSourceEditorContext()$path))
+}
 
 # change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
   # then you can use it in the code like my_paths$input etc.
 set_work_dir <- function() {
+  # Set the working directory to the user's home directory (~)
   setwd("~/")
   base_dir <- getwd()
 
-  # for others
+  # Initialize 'add_dir' as an empty string (for others)
   add_dir <- ""
-  # for Anna's computer
+
+  # Check if the username is "anna.shipunova" (Anna's computer)
   if (get_username() == "anna.shipunova") {
+    # Set 'add_dir' to a specific directory path for Anna
     add_dir <- "R_files_local/test_dir"
   }
 
-  # add an empty or Anna's folder in front
+  # Construct the path to the main R directory
   main_r_dir <- file.path(add_dir, "SEFHIER/R code")
 
+  # Define directory names for 'Inputs' and 'Outputs'
   in_dir <- "Inputs"
-  # file.path instead of paste, because it provides correct concatenation, "\" or "/" etc.
-  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
   out_dir <- "Outputs"
+
+  # Construct full paths to 'Inputs' and 'Outputs' directories using 'file.path'
+  # file.path is a function used to create platform-independent file paths by joining its arguments using the appropriate path separator (e.g., "\" on Windows, "/" on Unix-like systems).
+  #
+  # base_dir is the base directory obtained from the user's home directory.
+  #
+  # main_r_dir is the path to the main R directory, which may vary depending on whether the user is Anna or not.
+  #
+  # in_dir is the name of the 'Inputs' directory.
+  #
+  # So, this line effectively combines these components to create the full path to the 'Inputs' directory, ensuring that the path is correctly formatted for the user's operating system.
+
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
 
-  # git_r_dir <- "R_code_github"
-  # full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-
+  # Change the working directory to the main R directory
   setwd(file.path(base_dir, main_r_dir))
 
+  # Create a list of directory paths for 'inputs' and 'outputs'
   my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir) #,
-                   #"git_r" = full_path_to_r_git_dir)
+                   "outputs" = full_path_to_out_dir)
   return(my_paths)
 }
 
+# Define a function named 'set_work_dir_local'
+# This function sets the working directory to the user's home directory, defines paths to 'my_inputs,' 'my_outputs,' and 'R_code_github' directories, and returns these directory paths as a list. The use of file.path ensures that the path construction is platform-independent.
+
 set_work_dir_local <- function() {
+
+  # Set the working directory to the user's home directory (~)
   setwd("~/")
   base_dir <- getwd()
+
+  # Define 'main_r_dir' as "R_files_local"
   main_r_dir <- "R_files_local"
 
+  # Define 'in_dir' as "my_inputs"
   in_dir <- "my_inputs"
+
+  # Construct the full path to 'my_inputs' directory
   full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+
+  # Define 'out_dir' as "my_outputs"
   out_dir <- "my_outputs"
+
+  # Construct the full path to 'my_outputs' directory
   full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
 
+  # Define 'git_r_dir' as "R_code_github"
   git_r_dir <- "R_code_github"
+
+  # Construct the full path to 'R_code_github' directory
   full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
 
+  # Change the working directory to 'R_files_local'
   setwd(file.path(base_dir, main_r_dir))
 
+  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
   my_paths <- list("inputs" = full_path_to_in_dir,
                    "outputs" = full_path_to_out_dir,
                    "git_r" = full_path_to_r_git_dir)
+
+  # Return the list of directory paths
   return(my_paths)
 }
 
+# ===
+# Change the behavior of the set_work_dir function based on the username. If the username matches "anna.shipunova," it reassigns set_work_dir to the set_work_dir_local function, effectively using a different directory structure for Anna compared to other users.
+
+# Check if the current username is "anna.shipunova"
 if (get_username() == "anna.shipunova") {
+  # If the condition is true, assign the 'set_work_dir_local' function to 'set_work_dir'
   set_work_dir <- set_work_dir_local
 }
 
+# ===
+# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
 # to use in a function,
 # e.g. read_csv(name_repair = fix_names)
 fix_names <- function(x) {
+  # Use the pipe operator %>%
   x %>%
-    # remove dots
+
+    # Remove dots from column names
     str_replace_all("\\.", "") %>%
-    # all not letters and numbers to underscores
+
+    # Replace all characters that are not letters or numbers with underscores
     str_replace_all("[^A-z0-9]", "_") %>%
-    # letters only in the beginning
+
+    # Ensure that letters are only in the beginning of the column name
     str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-    # tolower
+
+    # Convert column names to lowercase using 'my_headers_case_function'
     my_headers_case_function()
 }
 
+# ====
+# Define a function named 'connect_to_secpr'.
+# It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
+# usage:
+# con <- connect_to_secpr()
 connect_to_secpr <- function() {
-  # usage:
-  # con <- connect_to_secpr()
-  my_username <- keyring::key_list("SECPR")[1, 2]
-  con = dbConnect(
-    dbDriver("Oracle"),
-    username = my_username,
-    password = keyring::key_get("SECPR",
-                                my_username),
-    dbname = "SECPR"
-  )
-  return(con)
+    # Retrieve the username associated with the "SECPR" database from the keyring.
+    my_username <- keyring::key_list("SECPR")[1, 2]
+
+    # Use 'dbConnect' to establish a database connection with the specified credentials.
+    con <- dbConnect(
+        dbDriver("Oracle"),  # Use the Oracle database driver.
+        username = my_username,  # Use the retrieved username.
+        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
+        dbname = "SECPR"  # Specify the name of the database as "SECPR."
+    )
+
+    # Return the established database connection.
+    return(con)
 }
 
-read_rds_or_run <-
-  function(my_file_path,
-           my_data = as.data.frame(""),
-           my_function,
-           force_from_db = NULL) {
-    # browser()
+# ===
+# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
+      # read a binary file saved previously
+      # write all as binary
+read_rds_or_run <- function(my_file_path,
+                            my_data = as.data.frame(""),
+                            my_function,
+                            force_from_db = NULL) {
 
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
     if (file.exists(my_file_path) &
         is.null(force_from_db)) {
-      # read a binary file saved previously
-      my_result <-
-        readr::read_rds(my_file_path)
+        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+        my_result <- readr::read_rds(my_file_path)
     } else {
-      msg_text <- paste(today(), "run for", basename(my_file_path))
-      tic(msg_text)
-      my_result <-
-        my_function(my_data)
-      toc()
+        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
+        # 1. Generate a message indicating the date and the purpose of the run.
+        msg_text <- paste(today(), "run for", basename(my_file_path))
+        tic(msg_text)  # Start timing the operation.
 
-      # write all as binary
-      readr::write_rds(my_result,
-                       my_file_path)
+        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
+        my_result <- my_function(my_data)
+
+        toc()  # Stop timing the operation.
+
+        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+        readr::write_rds(my_result,
+                         my_file_path)
     }
 
+    # Return the generated or read data.
     return(my_result)
-  }
+}
 
 # to use on download from db
-vessels_permits_id_clean <-
-  function(my_df) {
-    vessels_permits <-
-      my_df |>
-      rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
-      rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
-    return(vessels_permits)
-  }
+# to use on download from db
+# Define a function named 'vessels_permits_id_clean' to clean a dataframe.
+vessels_permits_id_clean <- function(my_df) {
+    # Create a new dataframe 'vessels_permits' by renaming two specific columns.
+    vessels_permits <- my_df |>
+        rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
+        rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
 
+    # Return the cleaned dataframe.
+    return(vessels_permits)
+}
+
+# The clean_headers function is designed to clean and fix the column names of a given dataframe (my_df).
 clean_headers <- function(my_df) {
-  colnames(my_df) %<>%
-    fix_names()
-  return(my_df)
+    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
+    colnames(my_df) %<>%
+        fix_names()
+
+    # Return the dataframe with cleaned and fixed column names.
+    return(my_df)
 }
 
 # setup ----
+# The source function is a built-in R function that loads and executes R code from an external file. It does not return any value; it simply executes the code in the specified file.
 
 source("~/R_code_github/useful_functions_module.r")
 
+# Set the working directory to the root directory "~/" and obtain its path.
 my_paths <- set_work_dir()
+
+# Define the current project name as "get_db_data."
 current_project_name <- "get_db_data"
+
+# Construct the input path by combining the 'inputs' directory from 'my_paths' with the current project name.
+# The file.path function in R is used to construct file paths in a platform-independent way. It automatically takes care of the appropriate path separator (e.g., "/" on Unix-like systems or "\" on Windows).
 input_path <- file.path(my_paths$inputs, current_project_name)
 
 # err msg if no connection, but keep running
 try(con <- connect_to_secpr())
-# con <- connect_to_secpr()
 
 # get data from db ----
 # RDS (R Data Serialization) files are a common format for saving R objects in RStudio, and they allow you to preserve the state of an object between R sessions.
 
 ## permit ----
-file_name_permits <-
-  file.path(input_path, "permit_info.rds")
+# Create a file path by combining 'input_path' with the filename "permit_info.rds."
+file_name_permits <- file.path(input_path, "permit_info.rds")
 
 mv_sero_fh_permits_his_query <-
   "select * from
@@ -401,7 +487,7 @@ get_trips_notifications_2022 <-
   }
 # 2023-07-15 run the function: 13.41 sec elapsed
 
-# get_vessels with permits 2021-- ----
+# get_vessels with permits 2021+ ----
 
 dates_filter <- " (end_date >= TO_DATE('01-JAN-21', 'dd-mon-yy')
     OR expiration_date >= TO_DATE('01-JAN-21', 'dd-mon-yy') )
