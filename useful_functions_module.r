@@ -298,8 +298,6 @@ fix_names <- function(x) {
 # It returns the modified 'my_df' with the cleaned and transformed 'week' columns, including 'week_num', 'week_start', and 'week_end'.
 
 clean_weeks <- function(my_df) {
-
-  # Use the pipe operator %>%
   my_df %>%
 
     # Separate the 'week' column using ":" as the delimiter and create new columns 'week_num' and 'week_rest'
@@ -322,8 +320,7 @@ clean_weeks <- function(my_df) {
   return(my_df)
 }
 
-
-# trim vesselofficialnumber, there are 273 white spaces in Feb 2023
+# ===
 # trim vesselofficialnumber, there are 273 white spaces in Feb 2023
 # Define a function named 'trim_all_vessel_ids_simple' with two parameters:
 # 'csvs_clean_ws' is a list of data frames to be processed,
@@ -359,6 +356,7 @@ trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
   return(csvs_clean)
 }
 
+# ===
 # cleaning, regularly done for csvs downloaded from PHIER
 # The clean_all_csvs function is defined to clean a list of CSVs (csvs) and has an optional parameter vessel_id_field_name, which specifies the column to trim.
 # It returns the list of cleaned CSVs, where each CSV has had its headers unified and the vessel ID column (if specified) trimmed for consistency.
@@ -386,7 +384,7 @@ join_same_kind_csvs <- function(csvs_list_2_plus) {
   return(result_df)
 }
 
-
+# ===
 # Combine correspondence and compliance information into one dataframe by "vesselofficialnumber" only. Not by time!
 # The join_all_csvs function is defined to perform a full join operation on two data frames: 'corresp_arr' and 'compl_arr'. It handles cases where these parameters might be lists of data frames or individual data frames.
 # It returns the resulting data frame ('result_df') containing the merged data from 'compl' and 'corresp' data frames.
@@ -422,6 +420,7 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
 # It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 
+# ===
 change_to_dates <- function(my_df, field_name, date_format) {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
   # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
@@ -436,6 +435,7 @@ change_to_dates <- function(my_df, field_name, date_format) {
   return(result_df)
 }
 
+# ===
 # The aux_fun_for_dates function is defined as a utility function to convert a given vector 'x' to POSIXct date format using the specified 'date_format'.
 aux_fun_for_dates <- function(x, date_format) {
 
@@ -508,36 +508,60 @@ add_count_contacts <- function(all_data_df_clean) {
   return(result_df)
 }
 
+# ===
 # Get frequencies for each column in the list
 # usage:
 # group_by_arr <- c("vesselofficialnumber", "contacttype")
 # count_by_column_arr(my_df, group_by_arr)
+# Define a function 'count_by_column_arr' to count the frequency of combinations of columns.
+# This function takes two arguments: my_df, which is the input data frame, and group_by_arr, which is a character vector containing the names of columns to group by.
+
 count_by_column_arr <- function(my_df, group_by_arr) {
   my_df %>%
-    arrange(group_by_arr[1]) %>%
-    group_by_at(group_by_arr) %>%
-    summarise(my_freq = n()) %>%
-    return()
+    arrange(group_by_arr[1]) %>%          # Arrange the data by the first column in 'group_by_arr'.
+    group_by_at(group_by_arr) %>%         # Group the data by the columns specified in 'group_by_arr'.
+    summarise(my_freq = n()) %>%           # Calculate the frequency of each combination.
+    return()                              # It returns the summary result.
 }
+
+# ===
+# Define a function 'count_uniq_by_column' to count the number of unique values in each column of a data frame.
+
+# Within the function, the sapply function is used to apply another function to each column of the input data frame. Specifically, it counts the number of unique values in each column using the length(unique(x)) expression, where x represents each column of the data frame.
+# The result of sapply is a vector containing the counts of unique values for each column.
+
+# It returns the resulting data frame, which provides a summary of the counts of unique values for each column in the input data frame. This information can be valuable for assessing the diversity of values within each column.
 
 count_uniq_by_column <- function(my_df) {
-  sapply(my_df, function(x) length(unique(x))) %>%
-    as.data.frame()
+  sapply(my_df, function(x) length(unique(x))) %>%  # Apply a function to each column to count unique values.
+    as.data.frame()  # Convert the result to a data frame.
 }
 
+# ===
+# The data_overview function is designed to provide an overview of a given data frame, including summary statistics and counts of unique values in each column.
+
 data_overview <- function(my_df) {
+  # Use 'summary' function to generate summary statistics and print the results.
   summary(my_df) %>% print()
+
+  # Print a header indicating the next section of the output.
   cat("\nCount unique values in each column:")
+
+  # Call the 'count_uniq_by_column' function to count unique values in each column of the data frame.
   count_uniq_by_column(my_df)
 }
+
+# ===
 
 # from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
 
-concat_unique <-
-  function(x) {
-    paste0(unique(x[!is.na(x)]), collapse = ", ")
-  }
+# Define a function 'concat_unique' to concatenate unique non-NA values from a vector x into a single character string.
+concat_unique <- function(x) {
+  # Use 'unique' to extract unique values, '!is.na(x)' to remove NA values, and 'collapse = ", "' to concatenate with a comma and space.
+  # Finally, paste0 is used to concatenate the unique non-NA values with a comma and space separator (", ").
+  paste0(unique(x[!is.na(x)]), collapse = ", ")
+}
 
 print_df_names <- function(my_df, names_num = 100) {
   names(my_df) %>%
