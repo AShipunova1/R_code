@@ -266,23 +266,27 @@ mv_sero_fh_permits_his_query <-
 srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
 "
 
-permit_info_fun <-
-  function(mv_sero_fh_permits_his_query) {
-    dbGetQuery(con,
-               mv_sero_fh_permits_his_query) %>%
-      return()
-  }
+# Define a function 'permit_info_fun' to retrieve data from the database using a specified query.
+permit_info_fun <- function(mv_sero_fh_permits_his_query) {
+  # Use 'dbGetQuery' to execute the query on the database connection 'con' and return the result.
+  result <- dbGetQuery(con, mv_sero_fh_permits_his_query)
+
+  # Return the result of the database query.
+  return(result)
+}
 
 get_permit_info <-
   function() {
-      read_rds_or_run(file_name_permits,
-                      mv_sero_fh_permits_his_query,
-                      permit_info_fun,
-                      force_from_db)
+    # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
+    read_rds_or_run(file_name_permits,
+                    mv_sero_fh_permits_his_query,
+                    permit_info_fun,
+                    force_from_db)
   }
 # 2023-09-20 run the function: 40.74 sec elapsed
 
 ### permit + vessel from db ----
+# Doesn't work
 # permit_vessel_query_exp21_query <-
 # "select * from srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
 # join safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
@@ -491,8 +495,10 @@ dates_filter <- " (end_date >= TO_DATE('01-JAN-21', 'dd-mon-yy')
     OR expiration_date >= TO_DATE('01-JAN-21', 'dd-mon-yy') )
   AND effective_date <= CURRENT_DATE
 "
+# Use that "dates_filter" in all parts of the union below.
 
-# use "dates_filter" in all parts of the union
+# The 3 part union is needed because while the permit table has only one vessel id, the vessel table has 3 different columns for that (sero_official_number, coast_guard_nbr and state_reg_nbr) and we want to join tables by all 3 in turn.
+# stringr::str_glue is a function that allows you to create strings with placeholders for variable values. It works by using curly braces {} to enclose variable names within a string.
 vessels_permits_query <-
   stringr::str_glue("SELECT
   *
@@ -539,6 +545,7 @@ get_vessels_permits <-
   }
 # 2023-09-20 run the function: 14.08 sec elapsed
 
+# an additional procedure, usually is not needed
 # find \\0 column ----
 # get vessels
 # can't because of "\\0"
@@ -660,21 +667,24 @@ WHERE
 # LU_DT
 # LU_USER_ID
 
-get_compl_err_data_from_db <-
-  function(compl_err_query) {
-    compl_err_db_data_0 =
-      ROracle::dbGetQuery(con, compl_err_query)
+# Define a function 'get_compl_err_data_from_db' to retrieve compliance error data from the database.
+get_compl_err_data_from_db <- function(compl_err_query) {
 
-    compl_err_db_data_1 <-
-      compl_err_db_data_0 %>%
-      # remove duplicated columns
-      select(-c(CREATED_DT,
-                CREATED_USER_ID,
-                LU_DT,
-                LU_USER_ID))
+  # Use 'ROracle::dbGetQuery' to execute the 'compl_err_query' on the database connection 'con'
+  # and store the result in 'compl_err_db_data_0'.
+  compl_err_db_data_0 =
+    ROracle::dbGetQuery(con, compl_err_query)
 
-    return(compl_err_db_data_1)
-  }
+  compl_err_db_data_1 <-
+    compl_err_db_data_0 %>%
+    # remove duplicated columns
+    dplyr::select(-c(CREATED_DT,
+                     CREATED_USER_ID,
+                     LU_DT,
+                     LU_USER_ID))
+
+  return(compl_err_db_data_1)
+}
 
 file_name_overr <-
   file.path(input_path, "compl_err_db_data_raw.rds")
@@ -687,6 +697,7 @@ get_compl_err_db_data <- function() {
                     force_from_db)
   # 2023-09-20 run the function: 14.99 sec elapsed
 
+  # Clean the column names of the 'compl_err_db_data_raw' data frame using the 'clean_headers' function defined above.
   compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 
   return(compl_err_db_data)
@@ -694,11 +705,17 @@ get_compl_err_db_data <- function() {
 
 # get metric_tracking_no_srhs ----
 
+# Use the 'source' function to execute an R script file located at the specified path.
 source(file.path(my_paths$git_r,
                  "get_data_from_fhier",
-                 # "metric_tracking_no_srhs.R"))
                  "make_metric_tracking_no_srhs_flat.R"))
 
+# or source separate files instead of the flat one:
+# source(file.path(my_paths$git_r,
+#                  "get_data_from_fhier",
+#                  "metric_tracking_no_srhs.R"))
+
+# How to create a flat file:
 # flat_file_name <- "make_metric_tracking_no_srhs.R"
 # files_to_combine_list <-
 #   c(
@@ -720,22 +737,27 @@ source(file.path(my_paths$git_r,
 # 4063
 
 # --- main ----
+# Define a function 'run_all_get_db_data' to fetch data from the database and store it in a result list.
+
 run_all_get_db_data <-
   function() {
-    # browser()
-    # a variable to keep all the results
+    # Initialize an empty list to store the results.
     result_l = list()
 
+    # 1) Call the 'get_permit_info' function to retrieve permit information from the database.
     mv_sero_fh_permits_his <- get_permit_info()
+
+    # 2) Store the retrieved data in the result list under the name "mv_sero_fh_permits_his."
     result_l[["mv_sero_fh_permits_his"]] <- mv_sero_fh_permits_his
     # dim(mv_sero_fh_permits_his)
     # [1] 183204     22
 
+    # Repeat the steps 1 and 2 for all other types of data using the predefined functions.
     trips_info <- get_trips_info()
     result_l[["trips_info"]] <- trips_info
     # dim(trips_info)
     # [1] 98528    72 2022
-    # [1] 142037     72 2021--
+    # [1] 142037   72 2021+
 
     trip_coord_info <- get_trip_coord_info()
     result_l[["trip_coord_info"]] <- trip_coord_info
@@ -750,7 +772,8 @@ run_all_get_db_data <-
     # [1] 747173     12
 
     trips_notifications_2022 <- get_trips_notifications_2022()
-    result_l[["trips_notifications_2022"]] <- trips_notifications_2022
+    result_l[["trips_notifications_2022"]] <-
+      trips_notifications_2022
     # dim(trips_notifications_2022)
     # Rows: 129,701
     # [1] 70056    33
@@ -777,9 +800,13 @@ force_from_db <- NULL # read data from files if exist
 # force_from_db <- "YES"
 
 # How to use:
+# Add to your code, uncomment and run:
 # tic("run_all_get_db_data()")
 # all_get_db_data_result_l <- run_all_get_db_data()
 # toc()
+
+# Then use like this, for example:
+# all_logbooks <- all_get_db_data_result_l$trips_info
 
 # Benchmark:
 # reading RDS
