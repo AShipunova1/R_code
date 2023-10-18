@@ -426,11 +426,9 @@ trip_neg_2022_query <-
   FROM
     safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('31-DEC-22'
+  ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
   , 'dd-mon-yy') )"
-  # WHERE
-  #   trip_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
-  #   OR trip_date <= TO_DATE('31-DEC-22', 'dd-mon-yy')"
+
 # 1495929
 
 trip_neg_2022_fun <-
