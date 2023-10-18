@@ -796,7 +796,7 @@ read_csv_w_eofs <- function(my_paths, csv_names_list) {
 # This function takes 'my_characters' (a character vector) as input.
 cat_filter_for_fhier <- function(my_characters) {
   # Concatenate the elements of 'my_characters' using a comma and space as the separator.
-  # Output the concatenated string to a text file named "cat_out.txt" in the 'outputs' directory.
+  # Output the concatenated string to a text file named "cat_out.txt" in the outputs directory.
   cat(my_characters,
       sep = ', ',
       file = file.path(my_paths$outputs, "cat_out.txt"))
@@ -857,23 +857,41 @@ connect_to_secpr <- function() {
     return(con)
 }
 
-
+# ===
 # usage: complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*xcompliance", "errors.*")[1]
 # TODO what if two names?
+# Define a function to find column names in a dataframe based on partial matches.
+# This function takes 'mydf' (a dataframe), 'start_part' (the start of the column name),
+# and 'end_part' (the end of the column name) as inputs.
 find_col_name <- function(mydf, start_part, end_part) {
+  # Create a regular expression pattern to search for column names that start with 'start_part'
+  # and end with 'end_part'.
   to_search <- paste0(start_part, ".*", end_part)
-  grep(to_search,
-       tolower(names(mydf)),
-       value = T)
+
+  # Use 'grep' to search for column names in lowercase that match the pattern.
+  # 'value = TRUE' returns the matching column names as a character vector.
+  matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+
+  # Return the matching column name(s) as a character vector.
+  return(matching_names)
 }
 
 # https://stackoverflow.com/questions/23986140/how-to-call-exists-without-quotation-marks
 # usage: vexists(con_psql, bogus_variable_name)
+# Define a function to check the existence of one or more variables in the current environment.
+# This function takes a variable number of arguments using '...' notation.
 vexists <- function(...) {
+  # Use 'substitute' to capture the variable names from the arguments and convert them to character vectors.
   vars <- as.character(substitute(...()))
-  sapply(vars, exists)
+
+  # Use 'sapply' to iterate over the variable names and check if each variable exists in the current environment.
+  exists_check <- sapply(vars, exists)
+
+  # Return a logical vector indicating the existence of each variable.
+  return(exists_check)
 }
 
+# ===
 # make a separate legend for grid.arrange
 legend_for_grid_arrange <- function(legend_plot) {
   # legend_plot <-
@@ -889,49 +907,74 @@ legend_for_grid_arrange <- function(legend_plot) {
   #
   # legend_plot
 
+  # Obtain the legend from a 'legend_plot' using the 'get_legend' function from the 'cowplot' package.
   my_legend <-
     cowplot::get_legend(legend_plot)
 
   return(my_legend)
 }
 
-make_a_flat_file <-
-  function(flat_file_name,
-           files_to_combine_list) {
-    # write to file
-    sink(flat_file_name)
+# ===
+# Define a function to create a flat file by combining the contents of multiple files.
+make_a_flat_file <- function(flat_file_name, files_to_combine_list) {
+  # Redirect the output to the specified 'flat_file_name'.
+  sink(flat_file_name)
 
-    for (i in 1:length(files_to_combine_list)) {
-      current_file = readLines(files_to_combine_list[i])
-      cat("\n\n#### Current file:", files_to_combine_list[i], "----\n\n")
-      cat(current_file, sep = "\n")
-    }
+  # Loop through the list of 'files_to_combine_list'.
+  for (i in 1:length(files_to_combine_list)) {
+    # Read the contents of the current file.
+    current_file <- readLines(files_to_combine_list[i])
 
-    sink()
+    # Print a header indicating the current file being processed.
+    cat("\n\n#### Current file:", files_to_combine_list[i], "----\n\n")
+
+    # Print the contents of the current file, separating lines with newline characters.
+    cat(current_file, sep = "\n")
   }
 
-write_to_1_flat_file <-
-  function(flat_file_name,
-           file_name_to_write) {
-    # write to file
-    sink(flat_file_name, append = TRUE)
-
-    current_file_text = readLines(file_name_to_write)
-    cat("\n\n#### Current file:", file_name_to_write, "----\n\n")
-    cat(current_file_text, sep = "\n")
-    # sink()
-  }
-
-separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
-  my_df %>%
-  mutate(permit_sa_gom =
-           case_when(
-             !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
-             !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
-             .default = "dual"
-           )) %>%
-    return()
+  # Restore the default output behavior.
+  sink()
 }
+
+# ===
+# Define a function to append the contents of a single file to an existing flat file.
+write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
+  # Redirect the output to the specified 'flat_file_name' and append content.
+  sink(flat_file_name, append = TRUE)
+
+  # Read the contents of the current file.
+  current_file_text <- readLines(file_name_to_write)
+
+  # Print a header indicating the current file being processed.
+  cat("\n\n#### Current file:", file_name_to_write, "----\n\n")
+
+  # Print the contents of the current file, separating lines with newline characters.
+  cat(current_file_text, sep = "\n")
+
+  # # Restore the default output behavior.
+  # sink()
+}
+
+# Function to separate permit groups into three categories based on a specified field
+separate_permits_into_3_groups <-
+  function(my_df, permit_group_field_name = "permitgroup") {
+    my_df %>%
+      # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
+      mutate(permit_sa_gom =
+               case_when(
+                 # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
+                 !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
+                 # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
+                 !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
+                 # For all other cases, assign "dual"
+                 .default = "dual"
+               )) %>%
+      # Return the modified data frame
+      return()
+  }
+
+
+# ===
 
 # read_rds_or_run <-
 #   function(my_file_path,
@@ -1006,23 +1049,47 @@ read_rds_or_run <- function(my_file_path,
 #     return()
 #   }
 
-remove_empty_cols <-
-  function(my_df) {
-    my_df |>
-      dplyr::select_if(function(x)
-        !(all(is.na(x)) & !all(is.null(x)))) %>%
-      return()
-  }
+# ===
+# Function to remove empty columns from a data frame
+remove_empty_cols <- function(my_df) {
+  my_df |>
+    # Select columns that do not meet the condition of being entirely NA or entirely NULL using 'select_if' function
+    dplyr::select_if(function(x)
+      # Check if all values in 'x' are not all NA or not all NULL
+      !(all(is.na(x)) | all(is.null(x)))) %>%
+    # Return the modified data frame
+    return()
+}
 
-create_dir_if_not <-
-  function(curr_dir_name) {
-    if (!dir.exists(curr_dir_name)) {
-      dir.create(curr_dir_name)
-    }
+# ===
+# Function to create a directory if it doesn't exist
+create_dir_if_not <- function(curr_dir_name) {
+  # Check if the directory does not exist
+  if (!dir.exists(curr_dir_name)) {
+    dir.create(curr_dir_name)  # Create the directory if it doesn't exist
   }
+}
 
+# ===
 # sf functions ----
+# ===
 # convert to sf shortcut
+# Function to convert a data frame to an sf object with specified coordinates and CRS
+my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) {
+  my_df %>%
+    sf::st_as_sf(
+      # Specify the field names to use as coordinates
+      coords = c("LONGITUDE", "LATITUDE"),
+      # Use the provided CRS (Coordinate Reference System), default to sa_shp's CRS
+      crs = my_crs,
+      # Keep the LATITUDE and LONGITUDE columns in the resulting sf object
+      remove = FALSE
+    ) %>%
+    return()
+}
+
+# ===
+
 my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) {
   my_df %>%
     # convert to sf
