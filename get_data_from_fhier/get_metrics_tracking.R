@@ -52,35 +52,49 @@ fhier_reports_metrics_tracking_file_path <-
   )
 
 # test
-purrr::map(fhier_reports_metrics_tracking_file_path,
-           file.exists)
+# Use the purrr::map function to check if files exist at the specified paths.
+# The result will be a logical vector indicating file existence for each path.
+purrr::map(fhier_reports_metrics_tracking_file_path, file.exists)
 # T
 
 # read each csv in a list of dfs
-fhier_reports_metrics_tracking_list <-
-  purrr::map(
-    fhier_reports_metrics_tracking_file_path,
-    ~ readr::read_csv(
-      .x,
-      # read as character
-      col_types = cols(.default = 'c'),
-      name_repair = fix_names
-    )
+# Use the purrr::map function to read multiple CSV files into a list of data frames.
+fhier_reports_metrics_tracking_list <- purrr::map(
+  fhier_reports_metrics_tracking_file_path,
+  # A vector of file paths to CSV files.
+  ~ readr::read_csv(
+    # The current file path being processed in the iteration.
+    .x,
+    # Specify column types; here, all columns are read as characters.
+    col_types = cols(.default = 'c'),
+    name_repair = fix_names  # Automatically repair column names to be syntactically valid.
   )
+)
 
 # check how many in diff years ----
-dplyr::setdiff(fhier_reports_metrics_tracking_list[[1]]$vessel_official_number,
-         fhier_reports_metrics_tracking_list[[2]]$vessel_official_number) |>
-  length()
+# Use the 'dplyr::setdiff' function to find the set difference between two vectors.
+# (1 minus 2)
+dplyr::setdiff(
+  fhier_reports_metrics_tracking_list[[1]]$vessel_official_number,
+  fhier_reports_metrics_tracking_list[[2]]$vessel_official_number
+) |>
+  length()  # Calculate the length of the resulting set difference.
 # [1] 669
 
-dplyr::setdiff(fhier_reports_metrics_tracking_list[[2]]$vessel_official_number,
-         fhier_reports_metrics_tracking_list[[1]]$vessel_official_number) |>
+# (2 minus 1)
+dplyr::setdiff(
+  fhier_reports_metrics_tracking_list[[2]]$vessel_official_number,
+  fhier_reports_metrics_tracking_list[[1]]$vessel_official_number
+) |>
   length()
 # [1] 493
 
 # in both years
-dplyr::intersect(fhier_reports_metrics_tracking_list[[1]]$vessel_official_number,
-         fhier_reports_metrics_tracking_list[[2]]$vessel_official_number) |>
-  length()
+# Use the 'dplyr::intersect' function to find the intersection of two vectors.
+# In this case, we're finding the common unique values between the two vectors.
+dplyr::intersect(
+  fhier_reports_metrics_tracking_list[[1]]$vessel_official_number,
+  fhier_reports_metrics_tracking_list[[2]]$vessel_official_number
+) |>
+  length()  # Calculate the length of the resulting intersection.
 # 2965
