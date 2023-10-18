@@ -611,11 +611,25 @@ concat_unique_sorted <- function(x) {
 }
 
 # ===
+# Define a function to combine rows based on multiple columns and keep all
+# unique values sorted within each group.
+# This function takes a data frame 'my_df' and a vector of column names
+# 'group_by_arr' as input.
 combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
-  my_df %>%
-    group_by_at(group_by_arr) %>%
-    summarise_all(concat_unique_sorted) %>%
-    return()
+  # Group the data frame 'my_df' by the columns specified in 'group_by_arr'.
+  # This step ensures that we create groups based on unique combinations of
+  # values in the specified columns.
+  grouped_df <- my_df %>%
+    dplyr::group_by_at(group_by_arr)
+
+  # Apply the 'concat_unique_sorted' function to all columns in each group.
+  # This function concatenates all unique values within each group and sorts
+  # them in ascending order.
+  summarized_df <- grouped_df %>%
+    dplyr::summarise_all(concat_unique_sorted)
+
+  # Return the resulting data frame 'summarized_df'.
+  return(summarized_df)
 }
 
 ## usage:
@@ -630,41 +644,69 @@ csv_names_list_22_23 = c("Correspondence.csv",
                          "FHIER_Compliance_22.csv",
                          "FHIER_Compliance_23.csv")
 
-# add my additional folder names to each filename
+# To add my additional folder names to each filename.
+
+# Define a function to prepare file names by categorizing them into two
+# subdirectories based on their prefixes.
+# This function takes a vector of 'filenames' as input.
 prepare_csv_names <- function(filenames) {
+  # Define subdirectory names for correspondence and compliance files.
   add_path_corresp <- "Correspondence"
   add_path_compl <- "FHIER Compliance"
 
+  # Use 'sapply' to process each filename in the 'filenames' vector.
   my_list <- sapply(filenames, function(x) {
-    case_when(startsWith(my_headers_case_function(x), "correspond") ~
-                file.path(add_path_corresp,  x),
-              startsWith(my_headers_case_function(x), "fhier_compliance") ~
-                file.path(add_path_compl,  x),
-              .default = file.path(add_path_compl,  x)
+    # Use 'case_when' to categorize filenames based on their prefixes.
+    # If a filename starts with "correspond," it is placed in the
+    # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
+    # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
+    # placed in the 'FHIER Compliance' subdirectory as a default.
+    case_when(
+      startsWith(my_headers_case_function(x), "correspond") ~
+        file.path(add_path_corresp,  x),
+      startsWith(my_headers_case_function(x), "fhier_compliance") ~
+        file.path(add_path_compl,  x),
+      .default = file.path(add_path_compl,  x)
     )
-  } )
-  paste(my_list) %>% as.list() %>% return()
+  })
+
+  # Convert the resulting list into a character vector and return it.
+  return(paste(my_list) %>% as.list())
 }
 
-get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) {
-  # browser()
-  # add my additional folder names
-  csv_names_list <- prepare_csv_names(filenames)
-  # read all csv files
-  csv_contents <- load_csv_names(my_paths, csv_names_list)
-# browser()
-  # unify headers, trim vesselofficialnumber, just in case
-  csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
+# ===
 
-  # ---- specific correspondence manipulations ----
-  corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
+# Define a function to retrieve compliance and correspondence data from CSV files.
+# This function takes 'my_paths' (file paths configuration), 'filenames'
+# (list of CSV file names), and 'vessel_id_field_name' (optional field name)
+# as input.
+get_compl_and_corresp_data <-
+  function(my_paths,
+           filenames = csv_names_list_22_23,
+           vessel_id_field_name = NA) {
+    # Add folder names and categorize CSV files into correspondence and compliance.
+    csv_names_list <- prepare_csv_names(filenames)
 
-  ## ---- specific compliance manipulations ----
-  compl_arr <- csvs_clean1[2:length(csvs_clean1)]
+    # Read the contents of all CSV files.
+    csv_contents <- load_csv_names(my_paths, csv_names_list)
 
-  compl_clean <- compliance_cleaning(compl_arr)
-  return(list(compl_clean, corresp_arr_contact_cnts_clean))
-}
+    # Clean and standardize headers, and trim 'vesselofficialnumber' field if needed.
+    csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
+
+    # ---- Specific correspondence manipulations ----
+    # Perform cleaning and processing specific to correspondence data.
+    corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
+
+    ## ---- Specific compliance manipulations ----
+    # Extract compliance data from the cleaned CSVs.
+    compl_arr <- csvs_clean1[2:length(csvs_clean1)]
+
+    # Clean and process compliance data.
+    compl_clean <- compliance_cleaning(compl_arr)
+
+    # Return a list containing cleaned compliance and correspondence data.
+    return(list(compl_clean, corresp_arr_contact_cnts_clean))
+  }
 
 # ---- specific correspondence manipulations ----
 corresp_cleaning <- function(csvs_clean1){
