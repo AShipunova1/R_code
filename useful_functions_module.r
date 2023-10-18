@@ -709,67 +709,100 @@ get_compl_and_corresp_data <-
   }
 
 # ---- specific correspondence manipulations ----
-corresp_cleaning <- function(csvs_clean1){
-  corresp_arr <- csvs_clean1[[1]]
-  # add a new column with a "yes" if there is a contactdate (and a "no" if not),
-  # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
-  # browser()
-  corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
-  createdon_field_name <- find_col_name(corresp_arr, "created", "on")[1]
-  contactdate_field_name <- find_col_name(corresp_arr, "contact", "date")[1]
-  # change classes from char to POSIXct
-  corresp_arr_contact_cnts %>%
-    change_to_dates(createdon_field_name, "%m/%d/%Y %H:%M") %>%
-    change_to_dates(contactdate_field_name, "%m/%d/%Y %I:%M %p") ->
-    corresp_arr_contact_cnts_clean
+# Define a function to clean and process correspondence data.
+# This function takes 'csvs_clean1' as input, which is a list containing cleaned CSV data.
+corresp_cleaning <- function(csvs_clean1) {
 
-  return(corresp_arr_contact_cnts_clean)
+  # Extract the first element (correspondence data) from the cleaned CSV list.
+  corresp_arr <- csvs_clean1[[1]]
+
+  # Add a new column 'contact_freq' with "yes" if there is a 'contactdate' (and "no" if not).
+  # Group the data by 'vesselofficialnumber' and count how many "contacts" there are for each. Save in the "contact_freq" column.
+  corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
+
+  # Find the column names for 'createdon' and 'contactdate'.
+  createdon_field_name <-
+    find_col_name(corresp_arr, "created", "on")[1]
+  contactdate_field_name <-
+    find_col_name(corresp_arr, "contact", "date")[1]
+
+  # Change the data types of 'createdon' and 'contactdate' columns to POSIXct.
+  corresp_arr_contact_cnts <-
+    change_to_dates(corresp_arr_contact_cnts,
+                    createdon_field_name,
+                    "%m/%d/%Y %H:%M")
+  corresp_arr_contact_cnts <-
+    change_to_dates(corresp_arr_contact_cnts,
+                    contactdate_field_name,
+                    "%m/%d/%Y %I:%M %p")
+
+  # Return the cleaned and processed correspondence data.
+  return(corresp_arr_contact_cnts)
 }
 
 ## ---- specific compliance manipulations ----
-compliance_cleaning <- function(compl_arr){
-  # if it is one df already, do nothing
+# Define a function to clean and process compliance data.
+# This function takes 'compl_arr' as input, which is a list of compliance dataframes.
+compliance_cleaning <- function(compl_arr) {
+  # Initialize 'compl' as the input 'compl_arr'.
+  # if it is just one df already, do nothing
   compl <- compl_arr
-  # else combine separate dataframes for all years into one
-  if (!length(compl_arr) == 1) {
+
+  # Check if it is a single dataframe, and if not, combine separate dataframes for all years into one.
+  if (length(compl_arr) > 1) {
     compl <- join_same_kind_csvs(compl_arr)
   }
 
+  # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
   permitgroupexpiration <- grep("permit.*group.*expiration",
-                           tolower(names(compl)),
-                           value = T)
+                                tolower(names(compl)),
+                                value = TRUE)
 
-  compl %>%
-    # split week column (52: 12/26/2022 - 01/01/2023) into 3 columns with proper classes, week_num (week order number), week_start and week_end
-    clean_weeks() %>%
-    # change dates classes from char to POSIXct
-    change_to_dates(permitgroupexpiration, "%m/%d/%Y") %>%
-    return()
+  # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
+  compl <- clean_weeks(compl)
+
+  # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
+  compl <- change_to_dates(compl, permitgroupexpiration, "%m/%d/%Y")
+
+  # Return the cleaned and processed compliance data.
+  return(compl)
 }
 
-# read csv file with EOF within quoted strings
+# ===
+# Define a function to read CSV files with EOFs (End of File) from a specified directory.
+# This function takes 'my_paths' (directory paths) and 'csv_names_list' (list of CSV file names) as input.
 read_csv_w_eofs <- function(my_paths, csv_names_list) {
+  # Get the input directory path from 'my_paths'.
   my_inputs <- my_paths$inputs
-  # add input directory path in front of each file name.
+
+  # Create a vector 'myfiles' that contains the full paths to each CSV file.
+  # Add the input directory path in front of each file name.
   myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))
 
-  # read csv files
+  # Read CSV files using 'fread' from the 'data.table' package with 'header = TRUE' (considering the first row as column names).
   contents <- sapply(myfiles, fread, header = TRUE)
-  # convert the first one into a data frame
-  # TODO change this function to deal with multiple files
+
+  # Convert the first CSV file into a data frame.
+  # TODO: Consider changing this function to handle multiple files.
+  # For now, it returns the first CSV file as a data frame.
   contents[, 1] %>%
     as.data.frame() %>%
     return()
 }
 
+# ===
 # To use as a filter in FHIER
+# Define a function to concatenate and output character data to a text file.
+# This function takes 'my_characters' (a character vector) as input.
 cat_filter_for_fhier <- function(my_characters) {
+  # Concatenate the elements of 'my_characters' using a comma and space as the separator.
+  # Output the concatenated string to a text file named "cat_out.txt" in the 'outputs' directory.
   cat(my_characters,
       sep = ', ',
-      file = file.path(my_paths$outputs,
-                       "cat_out.txt"))
+      file = file.path(my_paths$outputs, "cat_out.txt"))
 }
 
+# ===
 #
 # benchmarking to insert inside a function
 # browser()
