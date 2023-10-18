@@ -1,23 +1,32 @@
 ## fhier_reports_metrics_tracking ----
 
+# The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
 library(tidyverse)
 
-# help functions
+# help functions ----
 # Use my function in case we want to change the case in all functions
 my_headers_case_function <- tolower
 
+# ===
+# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
+# to use in a function,
+# e.g. read_csv(name_repair = fix_names)
 fix_names <- function(x) {
+  # Use the pipe operator %>%
   x %>%
-    # remove dots
-    stringr::str_replace_all("\\.", "") %>%
-    # all not letters and numbers to underscores
-    stringr::str_replace_all("[^A-z0-9]", "_") %>%
-    # letters only in the beginning
-    stringr::str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-    # tolower
+
+    # Remove dots from column names
+    str_replace_all("\\.", "") %>%
+
+    # Replace all characters that are not letters or numbers with underscores
+    str_replace_all("[^A-z0-9]", "_") %>%
+
+    # Ensure that letters are only in the beginning of the column name
+    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
+
+    # Convert column names to lowercase using 'my_headers_case_function'
     my_headers_case_function()
 }
-
 
 # Download from FHIER / Reports / Metrics Tracking
 # Put dates in, e.g. 01/01/2022 - 12/31/2022
@@ -32,14 +41,19 @@ common_dir <-
   r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))"
 
 # save all file names to a list
+# Create a vector named 'fhier_reports_metrics_tracking_file_path' using the purrr::map function.
+# This vector will store file paths based on the 'fhier_reports_metrics_tracking_file_names' vector.
 fhier_reports_metrics_tracking_file_path <-
-  purrr::map(fhier_reports_metrics_tracking_file_names,
-      ~ file.path(common_dir,
-                  .x))
+  purrr::map(
+    # Iterate over each element in the 'fhier_reports_metrics_tracking_file_names' vector.
+    fhier_reports_metrics_tracking_file_names,
+    # For each file name ('x'), create a file path by combining it with 'common_dir'.
+    ~ file.path(common_dir, .x)
+  )
 
 # test
 purrr::map(fhier_reports_metrics_tracking_file_path,
-    file.exists)
+           file.exists)
 # T
 
 # read each csv in a list of dfs

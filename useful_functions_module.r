@@ -274,7 +274,6 @@ clean_headers <- function(my_df) {
 # to use in a function,
 # e.g. read_csv(name_repair = fix_names)
 fix_names <- function(x) {
-
   # Use the pipe operator %>%
   x %>%
 
