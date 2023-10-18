@@ -236,27 +236,25 @@ load_csv_names_in_one_df <- function(path_to_files, csv_names_list) {
 #
 # 6. Finally, the function returns the concatenated data frame containing the contents of all CSV files, making it easier to work with them as a single data structure.
 
+# Define a function named 'load_xls_names' that takes three parameters: 'my_paths,' 'xls_names_list,' and 'sheet_n'
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
+
+  # Extract the 'inputs' directory path from 'my_paths' and store it in 'my_inputs'
   my_inputs <- my_paths$inputs
 
-  # add input directory path in front of each file name.
+  # Use 'lapply' to prepend 'my_inputs' directory path to each Excel file name in 'xls_names_list'
   myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
-  # browser()
-  # print("map:")
-  # start_time <- Sys.time()
-  ## read all files
-  contents <- map_df(myfiles,
-         ~read_excel(.x,
-                     sheet = sheet_n,
-                     .name_repair = fix_names,
-                     guess_max = 21474836,
-                     col_types = "text"))
-  # %>%
-  # , col_types = "character"
-  #   type_convert(guess_integer = TRUE)
-  # end_time <- Sys.time()
-  # print(end_time - start_time)
+  # Read Excel files listed in 'myfiles' into one data frame using 'map_df'
+  contents <- map_df(myfiles, ~read_excel(
+    .x,                           # File path
+    sheet = sheet_n,              # Sheet number to read (default is 1)
+    .name_repair = fix_names,     # Repair column names
+    guess_max = 21474836,         # Maximum number of rows to guess data types
+    col_types = "text"           # Specify all columns as 'text' type
+  ))
+
+  # Return the concatenated data frame containing data from all Excel files
   return(contents)
 }
 
