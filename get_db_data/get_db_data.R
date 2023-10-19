@@ -158,7 +158,7 @@ fix_names <- function(x) {
     my_headers_case_function()
 }
 
-# ====
+# ===
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
 # usage:
@@ -256,6 +256,39 @@ try(con <- connect_to_secpr())
 
 # get data from db ----
 # RDS (R Data Serialization) files are a common format for saving R objects in RStudio, and they allow you to preserve the state of an object between R sessions.
+
+## logbooks as in FHIER ----
+# mv_safis_trip_download
+
+# Create a file path by combining 'input_path' with the filename "mv_safis_trip_download.rds."
+file_name_permits <-
+  file.path(input_path, "mv_safis_trip_download.rds")
+
+mv_safis_trip_download_query <-
+  "select * from
+srh.mv_safis_trip_download@secapxdv_dblk.sfsc.noaa.gov
+"
+
+# Define a function 'mv_safis_trip_download_fun' to retrieve data from the database using a specified query.
+mv_safis_trip_download_fun <-
+  function(mv_safis_trip_download_query) {
+  # Use 'dbGetQuery' to execute the query on the database connection 'con' and return the result.
+  result <- dbGetQuery(con, mv_safis_trip_download_query)
+
+  # Return the result of the database query.
+  return(result)
+}
+
+get_mv_safis_trip_download <-
+  function() {
+    # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
+    read_rds_or_run(file_name_permits,
+                    mv_safis_trip_download_query,
+                    mv_safis_trip_download_fun,
+                    force_from_db)
+  }
+
+dd <- get_mv_safis_trip_download()
 
 ## permit ----
 # Create a file path by combining 'input_path' with the filename "permit_info.rds."
