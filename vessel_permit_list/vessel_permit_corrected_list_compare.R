@@ -1,75 +1,53 @@
-# read Jeannette's file ----
-library(readxl)  # reading in .xlsx
-# the file is from Jeannette Oct 17 2023
-v_list_file_name <-
-  r"(C:\Users\anna.shipunova\Documents\R_files_local\vessels_permits\SA.Permitted.Vessels.Among_revised.Lists.xlsx)"
-
-sheets <- seq(1:4)
-all_sheets_l <-
-  map(sheets,
-      function(sheet_num) {
-        read_excel(
-          v_list_file_name,
-          sheet = sheet_num,
-          # use my fix_names function for col names
-          # .name_repair = fix_names,
-          guess_max = 21474836,
-          # read all columns as text
-          col_types = "text",
-          .name_repair = "universal"
-        )
-      })
-
-# map(all_sheets_l, dim)
-# [[1]]
-# [1] 2216    1
-#
-# [[2]]
-# [1] 55  2
-#
-# [[3]]
-# [1] 126   1
-#
-# [[4]]
-# [1] 131   4
-
-# names(all_sheets_l[[4]])
-# names(all_sheets_l[[1]])
-vessels_22_sa <-
-  all_sheets_l[[4]] |>
-  filter(group %in% c(1, 3)) |>
-  select(permit_vessel_id) |>
-  rbind(all_sheets_l[[1]])
-
-dim(vessels_22_sa)
-# [1] 2321    1
-
+# start with "vessel_permit_corrected_list.R"
 # compare with db_data ----
 ## prepare_db_data ----
 use_df_names <- list("mv_sero_fh_permits_his",
                      "vessels_permits")
 ### add permit region groups ----
 
+# Create a list of data frames 'db_df_reg_l' by applying a function to each element of 'use_df_names'.
 db_df_reg_l <-
+
+  # 'use_df_names' is a character vector containing names of data frames.
   use_df_names |>
+
+  # Use the 'map' function to apply a custom function to each data frame in 'all_get_db_data_result_l'.
   map(function(use_df_name) {
+
+    # Inside the 'map' function, apply the 'separate_permits_into_3_groups' function
+    # to the corresponding data frame from 'all_get_db_data_result_l'.
     separate_permits_into_3_groups(all_get_db_data_result_l[[use_df_name]],
                                    permit_group_field_name = "TOP")
   }) |>
+
+  # Set the names of the resulting list to match the names in 'use_df_names'.
   rlang::set_names(use_df_names)
 
-map(db_df_reg_l,
-    print_df_names)
+# map(db_df_reg_l,
+#     print_df_names)
 
 ### get 2022 sa_only ----
+# Create a list of data frames 'db_df_reg_2022_sa_only_l' by applying a function to each element of 'use_df_names'.
 db_df_reg_2022_sa_only_l <-
+
+  # 'use_df_names' is a character vector containing names of data frames.
   use_df_names |>
+
+  # Use the 'map' function to apply a custom function to each data frame in 'db_df_reg_l'.
   map(function(use_df_name) {
+
+    # Inside the 'map' function, access the data frame 'db_df_reg_l[[use_df_name]]'.
     db_df_reg_l[[use_df_name]] |>
-      filter(permit_sa_gom == "sa_only" &
-               EFFECTIVE_DATE >= '2022-01-01' &
-               END_DATE > '2022-12-31')
+
+      # Use the 'filter' function to filter rows based on specific conditions.
+      filter(
+        permit_sa_gom == "sa_only" &   # Filter rows with 'permit_sa_gom' equal to "sa_only"
+        EFFECTIVE_DATE >= '2022-01-01' &  # Filter rows with 'EFFECTIVE_DATE' on or after '2022-01-01'
+        END_DATE > '2022-12-31'          # Filter rows with 'END_DATE' after '2022-12-31'
+      )
   }) |>
+
+  # Set the names of the resulting list to match the names in 'use_df_names'.
   rlang::set_names(use_df_names)
 
 map(db_df_reg_2022_sa_only_l, dim)
