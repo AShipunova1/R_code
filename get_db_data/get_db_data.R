@@ -288,7 +288,9 @@ get_mv_safis_trip_download <-
                     force_from_db)
   }
 
-dd <- get_mv_safis_trip_download()
+# to use alone:
+# mv_safis_trip_download_data <- get_mv_safis_trip_download()
+# 2023-10-19 run for mv_safis_trip_download.rds: 746.39 sec elapsed
 
 ## SEFHIER declarations as in FHIER ----
 # MV_TMS_TRIP_NOTIFICATIONS
@@ -815,6 +817,11 @@ run_all_get_db_data <-
     result_l[["mv_sero_fh_permits_his"]] <- mv_sero_fh_permits_his
     # dim(mv_sero_fh_permits_his)
     # [1] 183204     22
+
+    mv_safis_trip_download_data <- get_mv_safis_trip_download()
+    result_l[["mv_safis_trip_download"]] <- mv_safis_trip_download_data
+    # dim(mv_safis_trip_download_data)
+    # [1] 735666    149
 
     # Repeat the steps 1 and 2 for all other types of data using the predefined functions.
     trips_info <- get_trips_info()
