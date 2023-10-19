@@ -261,7 +261,7 @@ try(con <- connect_to_secpr())
 # mv_safis_trip_download
 
 # Create a file path by combining 'input_path' with the filename "mv_safis_trip_download.rds."
-file_name_permits <-
+file_name_mv_safis_trip_download <-
   file.path(input_path, "mv_safis_trip_download.rds")
 
 mv_safis_trip_download_query <-
@@ -282,7 +282,7 @@ mv_safis_trip_download_fun <-
 get_mv_safis_trip_download <-
   function() {
     # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
-    read_rds_or_run(file_name_permits,
+    read_rds_or_run(file_name_mv_safis_trip_download,
                     mv_safis_trip_download_query,
                     mv_safis_trip_download_fun,
                     force_from_db)
@@ -320,8 +320,11 @@ get_mv_tms_trip_notifications <-
                     mv_tms_trip_notifications_fun,
                     force_from_db)
   }
-# 2023-09-20 run the function: 40.74 sec elapsed
 
+# to use alone:
+# mv_tms_trip_notifications_data <-
+#   get_mv_tms_trip_notifications()
+# 2023-10-19 run for mv_tms_trip_notifications.rds: 11.04 sec elapsed
 
 ## permit ----
 # Create a file path by combining 'input_path' with the filename "permit_info.rds."
@@ -818,12 +821,21 @@ run_all_get_db_data <-
     # dim(mv_sero_fh_permits_his)
     # [1] 183204     22
 
+    # Repeat the steps 1 and 2 for all other types of data using the predefined functions.
+
     mv_safis_trip_download_data <- get_mv_safis_trip_download()
-    result_l[["mv_safis_trip_download"]] <- mv_safis_trip_download_data
+    result_l[["mv_safis_trip_download"]] <-
+      mv_safis_trip_download_data
     # dim(mv_safis_trip_download_data)
     # [1] 735666    149
 
-    # Repeat the steps 1 and 2 for all other types of data using the predefined functions.
+    mv_tms_trip_notifications_data <-
+      get_mv_tms_trip_notifications()
+    result_l[["mv_tms_trip_notifications"]] <-
+      mv_tms_trip_notifications_data
+    # dim(mv_tms_trip_notifications_data)
+    # [1] 118730     41
+
     trips_info <- get_trips_info()
     result_l[["trips_info"]] <- trips_info
     # dim(trips_info)
@@ -877,13 +889,15 @@ force_from_db <- NULL # read data from files if exist
 # toc()
 
 # Then use like this, for example:
-# all_logbooks <- all_get_db_data_result_l$trips_info
+# View(all_get_db_data_result_l)
+# mv_safis_trip_download <- all_get_db_data_result_l$mv_safis_trip_download
 
 # Benchmark:
 # reading RDS
 # run_all_get_db_data(): 1.69 sec elapsed
 # reading from db
 # run_all_get_db_data(): 259.81 sec elapsed ~ 4 min
+# run_all_get_db_data(): 606.66 sec elapsed ~ 10 min with MVs reading
 
 # str(all_get_db_data_result_l[["compl_err_db_data"]])
 # 'data.frame':	99832 obs. of  38 variables:
