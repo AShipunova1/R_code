@@ -198,5 +198,9 @@ vessels_22_sa |>
   dim()
 # [1] 2321    1
 
-# remove from FHIER results ----
-names(all_sheets_l[[2]])
+# remove wrong ids from FHIER results ----
+vessels_to_remove_from_ours <-
+  all_sheets_l$in_ours_not_jeannettes$vessel_official_number
+
+length(vessels_to_remove_from_ours)
+# 55
