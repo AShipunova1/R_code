@@ -168,16 +168,13 @@ sheet_4_temp_2[[3]] <- sheet_4_temp_2[[3]] |>
                     .default = stringr::str_replace(comments, "\\.0", "")
                   ))
 
-# head(sheet_4_temp_3)
-  # select(num, vessel_official_number, comments, grp)
-
 # Create a new data frame 'sheet_4' by binding rows from a list of data frames 'sheet_4_temp_2'.
 # The 'dplyr::bind_rows' function combines the data frames in the list into a single data frame.
 sheet_4 <- dplyr::bind_rows(sheet_4_temp_2)
 
 # put sheet_4 back to the common list
 all_sheets_l[[4]] <- sheet_4
-View(all_sheets_l[[4]])
+# View(all_sheets_l[[4]])
 
 # vessels_22_sa ----
 # Create a new data frame 'vessels_22_sa' by combining data from two sheets.
@@ -186,17 +183,19 @@ vessels_22_sa <-
   # Extract data from the fourth sheet of 'all_sheets_l' (sheet number 4).
   all_sheets_l[[4]] |>
 
-  # Filter rows where the 'group' column contains values 1 or 3.
-  filter(grp %in% c(0, 2)) |>
+  # Filter rows where the 'grp' column contains values 0 or 2.
+  dplyr::filter(grp %in% c(0, 2)) |>
 
   # Select only the 'vessel_official_number' column.
-  select(vessel_official_number) |>
+  dplyr::select(vessel_official_number) |>
 
   # Combine the filtered data with data from the first sheet (sheet number 1) of 'all_sheets_l'.
-  rbind(all_sheets_l[[1]])
+  rbind(all_sheets_l[[1]]) |>
+  # na.omit returns the object with incomplete cases removed.
+  stats::na.omit()
 
-
-dim(vessels_22_sa)
+vessels_22_sa |>
+  dim()
 # [1] 2321    1
 
 # remove from FHIER results ----
