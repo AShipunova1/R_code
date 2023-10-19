@@ -290,6 +290,37 @@ get_mv_safis_trip_download <-
 
 dd <- get_mv_safis_trip_download()
 
+## SEFHIER declarations as in FHIER ----
+# MV_TMS_TRIP_NOTIFICATIONS
+
+# Create a file path by combining 'input_path' with the filename "mv_tms_trip_notifications.rds."
+file_name_mv_tms_trip_notifications <- file.path(input_path, "mv_tms_trip_notifications.rds")
+
+mv_tms_trip_notifications_query <-
+  "select * from
+srh.mv_tms_trip_notifications@secapxdv_dblk.sfsc.noaa.gov
+"
+
+# Define a function 'mv_tms_trip_notifications_fun' to retrieve data from the database using a specified query.
+mv_tms_trip_notifications_fun <- function(mv_tms_trip_notifications_query) {
+  # Use 'dbGetQuery' to execute the query on the database connection 'con' and return the result.
+  result <- dbGetQuery(con, mv_tms_trip_notifications_query)
+
+  # Return the result of the database query.
+  return(result)
+}
+
+get_mv_tms_trip_notifications <-
+  function() {
+    # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
+    read_rds_or_run(file_name_mv_tms_trip_notifications,
+                    mv_tms_trip_notifications_query,
+                    mv_tms_trip_notifications_fun,
+                    force_from_db)
+  }
+# 2023-09-20 run the function: 40.74 sec elapsed
+
+
 ## permit ----
 # Create a file path by combining 'input_path' with the filename "permit_info.rds."
 file_name_permits <- file.path(input_path, "permit_info.rds")
