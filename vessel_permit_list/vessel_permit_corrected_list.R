@@ -116,10 +116,10 @@ names(all_sheets_l[[4]]) <- c("num",
                               "vessel_official_number-comments")
 
 #### Split comments ----
-# Create a new data frame 'temp1' by splitting the 'vessel_official_number-comments'
+# Create a new data frame 'sheet_4_temp_1' by splitting the 'vessel_official_number-comments'
 # column of the fourth data frame in 'all_sheets_l' using the 'separate_wider_delim'
 # function.
-temp1 <- all_sheets_l[[4]] |>
+sheet_4_temp_1 <- all_sheets_l[[4]] |>
   separate_wider_delim(
     "vessel_official_number-comments",  # Column to split
     delim = " - ",                     # Delimiter used for splitting
@@ -128,7 +128,57 @@ temp1 <- all_sheets_l[[4]] |>
   )
 
 
-View(temp1)
+# Create a new data frame 'sheet_4_temp_2' by performing a series of operations on the
+# data frame 'sheet_4_temp_1':
+
+# 1. Use 'group_split' to split 'sheet_4_temp_1' into multiple groups.
+#    - 'grp' parameter creates groups based on cumulative sums of NA values
+#      in each row. A new group starts when a row contains all NA values.
+#    - '.keep = TRUE' means that the grouping column is retained in each group.
+
+# 2. Use 'purrr::map_at' to apply a function to specific columns in each group.
+#    - '.at = -1' specifies the position of the columns to be operated on
+#      (all columns except the last one).
+#    - 'tail' function is applied to each specified column within each group.
+#    - '-1' indicates that the last element (row) of each column should be extracted.
+
+# View(sheet_4_temp_1)
+sheet_4_temp_2 <-
+  sheet_4_temp_1 %>%
+  group_split(grp = cumsum(rowSums(is.na(.)) == ncol(.)), .keep = TRUE) %>%
+  purrr::map_at(.at = -1, tail, -1)
+
+# change the last group columns
+# sheet_4_temp_2[[3]] |> head()
+# num vessel_official_number comments grp
+# <chr> <chr> <chr> <int>
+# 1 NA NA 99 vessels did not have the isLatest flag … 2
+# 2 1.0 NA 555341.0 2
+# 3 2.0 NA 556601.0 2
+
+# Create a new data frame 'sheet_4_temp_3' by applying mutations to the third group
+# in 'sheet_4_temp_2' using the 'dplyr::mutate' function.
+
+sheet_4_temp_2[[3]] <- sheet_4_temp_2[[3]] |>
+  dplyr::mutate(vessel_official_number =
+                  dplyr::case_when(
+                    # If 'comments' contains a space, it is Janette's comment, set 'vessel_official_number' to NA.
+                    grepl(" ", comments) ~ NA,
+                    # For all other cases, remove '.0' from 'comments' and assign it to 'vessel_official_number'.
+                    .default = stringr::str_replace(comments, "\\.0", "")
+                  ))
+
+# head(sheet_4_temp_3)
+  # select(num, vessel_official_number, comments, grp)
+
+# Create a new data frame 'sheet_4' by binding rows from a list of data frames 'sheet_4_temp_2'.
+# The 'dplyr::bind_rows' function combines the data frames in the list into a single data frame.
+sheet_4 <- dplyr::bind_rows(sheet_4_temp_2)
+
+# put sheet_4 back to the common list
+all_sheets_l[[4]] <- sheet_4
+View(all_sheets_l[[4]])
+
 # vessels_22_sa ----
 # Create a new data frame 'vessels_22_sa' by combining data from two sheets.
 vessels_22_sa <-
@@ -137,10 +187,10 @@ vessels_22_sa <-
   all_sheets_l[[4]] |>
 
   # Filter rows where the 'group' column contains values 1 or 3.
-  filter(group %in% c(1, 3)) |>
+  filter(grp %in% c(0, 2)) |>
 
-  # Select only the 'permit_vessel_id' column.
-  select(permit_vessel_id) |>
+  # Select only the 'vessel_official_number' column.
+  select(vessel_official_number) |>
 
   # Combine the filtered data with data from the first sheet (sheet number 1) of 'all_sheets_l'.
   rbind(all_sheets_l[[1]])
