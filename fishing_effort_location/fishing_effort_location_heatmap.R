@@ -271,7 +271,7 @@ map_trips_no_rule_3_sa +
 ### join data and gomsf ----
 tic("for_heatmap_lat_lon_trips_vessels_only_join_gomsf")
 for_heatmap_lat_lon_trips_vessels_only_join_gomsf <-
-  for_heatmap_lat_lon_trips_vessels_only |>
+  for_heatmap_lat_lon_trips_vessels_gom_only |>
         st_as_sf(
         coords = c("LONGITUDE", "LATITUDE"),
         crs = st_crs(GOMsf)) |>
