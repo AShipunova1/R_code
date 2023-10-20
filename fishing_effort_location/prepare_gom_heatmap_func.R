@@ -285,17 +285,43 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
 }
 
 ## count trip ids and vessels by grid cell ----
-add_vsl_and_trip_cnts <-
-  function(my_df, vessel_id_name = "VESSEL_OFFICIAL_NBR") {
-    my_df |>
-      group_by(cell_id) |>
-      mutate(vsl_cnt = n_distinct(!!sym(vessel_id_name)),
-             trip_id_cnt = n_distinct(TRIP_ID)) |>
-      ungroup() %>%
-      return()
-  }
+# Define a function 'add_vsl_and_trip_cnts' that adds vessel and trip counts to a data frame.
+# - 'my_df' is the input data frame.
+# - 'vessel_id_name' is the name of the column containing vessel IDs (default is "VESSEL_OFFICIAL_NBR").
+
+add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "VESSEL_OFFICIAL_NBR") {
+  # Group the data frame by 'cell_id'.
+  my_df |>
+    group_by(cell_id) |>
+
+  # Add columns 'vsl_cnt' and 'trip_id_cnt' with counts of distinct vessel and trip IDs.
+    # sym() take strings as input and turn them into symbols.
+    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, select, or other functions that accept column names.
+    # So, the code !!rlang::sym(vessel_id_name) effectively evaluates to the column name specified by the vessel_id_name variable in the context of a dplyr verb, allowing you to work with the column dynamically based on the variable's value.
+
+    dplyr::mutate(
+      vsl_cnt =
+        dplyr::n_distinct(!!rlang::sym(vessel_id_name)),
+      trip_id_cnt =
+        dplyr::n_distinct(TRIP_ID)
+    ) |>
+
+  # Ungroup the data frame to remove grouping and return the result.
+  dplyr::ungroup() %>%
+
+  # Return the modified data frame.
+  return()
+}
 
 ## make a plot ----
+# Define a function 'make_map_trips' to create a ggplot2 heatmap of trip data.
+# - 'map_trip_base_data' is the data containing trip information to be mapped.
+# - 'shape_data' is the shape data used for mapping.
+# - 'total_trips_title' is the title for the total trips legend.
+# - 'trip_cnt_name' is the name of the column with trip counts.
+# - 'caption_text' is the caption for the plot.
+# - 'unit_num' specifies the unit size for the legend.
+# - 'print_stat_zone' is an optional argument to include StatZone labels.
 make_map_trips <-
   function(map_trip_base_data,
            shape_data,
@@ -305,20 +331,25 @@ make_map_trips <-
            unit_num = 1,
            print_stat_zone = NULL
            ) {
-    # browser()
+    # Calculate the maximum number of trips for legend scaling.
     max_num <- max(map_trip_base_data[[trip_cnt_name]])
+
+    # Create a ggplot2 plot 'map_trips'.
     map_trips <-
       ggplot() +
+      # Add a filled heatmap using 'geom_sf'.
       geom_sf(data = map_trip_base_data,
               aes(geometry = x,
                   fill = !!sym(trip_cnt_name)),
               colour = NA) +
+      # Add the shape data with no fill.
       geom_sf(data = shape_data, fill = NA)
 
-    # test for an optional argument
+    # Check for an optional argument 'print_stat_zone'.
     if (!missing(print_stat_zone)) {
       map_trips <-
         map_trips +
+        # Add StatZone labels using 'geom_sf_text'.
         geom_sf_text(data = shape_data,
                      aes(geometry = geometry,
                          label = StatZone),
@@ -327,6 +358,7 @@ make_map_trips <-
 
     map_trips <-
         map_trips +
+      # Set plot labels and theme settings.
       labs(
         x = "",
         y = "",
@@ -334,6 +366,8 @@ make_map_trips <-
         caption = caption_text
       ) +
       theme_bw() +
+
+      # Set fill scale properties.
       scale_fill_gradient2(
         name = total_trips_title,
         labels = scales::comma,
