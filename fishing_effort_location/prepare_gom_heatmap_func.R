@@ -1,4 +1,9 @@
+# Load the 'tigris' package to access geographic data.
 library(tigris)
+
+# Set the 'tigris_use_cache' option to TRUE. This will enable caching of
+# data retrieved from the TIGER/Line Shapefiles service, which can help
+# improve data retrieval performance for future sessions.
 tigris_use_cache = TRUE
 
 # plot text sizes ----
@@ -17,22 +22,29 @@ text_sizes <- list(
 
 # read in sa shp ----
 # F2 in RStudio will show the function definition, when the cursor is on the name.
-sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
-)
+# Read a shapefile (geospatial data) from the specified file path and store it in the 'sa_shp' object.
+sa_shp <-
+  read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
 
 # The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
 
 states_sa <- data.frame(
   state_name = c(
-    # "Florida", # exclude, we have it separated by county
+    "Florida", # can exclude, if go by county
     "Georgia",
     "North Carolina",
     "South Carolina"
   )
 )
 
-# Reformat the R state df (create a DF of state abbreviations and state names as cols; 2x50)
+# Create a data frame 'state_tbl' containing state abbreviations and state names; 2x50.
+# - 'state.abb' provides state abbreviations.
+# - 'tolower(state.name)' converts state names to lowercase.
+# - The resulting data frame has two columns: 'state_abb' and 'state_name'.
 state_tbl <- data.frame(state.abb, tolower(state.name))
+
+# Rename the columns in the 'state_tbl' data frame.
+# The first column is named 'state_abb', and the second column is named 'state_name'.
 names(state_tbl) = c("state_abb", "state_name")
 
 #from the DF, only grab the SA states defined above
@@ -74,8 +86,10 @@ sa_state_abb <-
 
 ## r get Shapefile all waters ----
 path_to_federal_state_w <-
-  file.path(my_paths$inputs,
-            r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)")
+  file.path(
+    my_paths$inputs,
+    r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)"
+  )
 
 file.exists(path_to_federal_state_w)
 # T
@@ -97,28 +111,31 @@ east_coat_states <- c(
           "Texas",
           "Louisiana"),
   sa = c(
-  "Alabama",
-  "Connecticut",
-  "Delaware",
-  "Florida",
-  "Georgia",
-  "Maine",
-  "Maryland",
-  "Massachusetts",
-  "Mississippi",
-  "New Hampshire",
-  "New Jersey",
-  "New York",
-  "North Carolina",
-  "Pennsylvania",
-  "Rhode Island",
-  "South Carolina",
-  "Virginia",
-  "Washington DC")
+    "Alabama",
+    "Connecticut",
+    "Delaware",
+    "Florida",
+    "Georgia",
+    "Maine",
+    "Maryland",
+    "Massachusetts",
+    "Mississippi",
+    "New Hampshire",
+    "New Jersey",
+    "New York",
+    "North Carolina",
+    "Pennsylvania",
+    "Rhode Island",
+    "South Carolina",
+    "Virginia",
+    "Washington DC"
+  )
 )
 # nc_sql = sf::st_read(system.file("shape/nc.shp", package="sf"),
 #                      query = "SELECT NAME, SID74, FIPS FROM \"nc\" WHERE BIR74 > 20000")
 
+# Create a new data frame 'federal_state_w_sf_east' by filtering the existing data frame 'federal_state_w_sf'.
+# Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coat_states'.
 federal_state_w_sf_east <-
   federal_state_w_sf |>
   filter(Jurisdicti %in% east_coat_states)
@@ -137,15 +154,16 @@ sa_states <- c("Florida",
 us_s_shp <-
   tigris::states(cb = TRUE)
 
+# Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
 sa_s_shp <-
   us_s_shp |>
-  filter(NAME %in% sa_states)
+  filter(NAME %in% states_sa)
 
 # sa_s_shp_plot <-
 #   ggplot() +
 #   geom_sf(data = sa_s_shp)
 
-# sa_counties_shp <- tigris::counties(sa_states, cb = TRUE)
+# sa_counties_shp <- tigris::counties(states_sa, cb = TRUE)
 
 # gg <- ggplot()
 # gg <- gg + geom_sf(
@@ -165,37 +183,53 @@ atl_shp_file <-
   file.path(my_paths$inputs,
             r"(shapefiles\ATL_SLA\ATL_SLA.shp)")
 
-atl_shp <-
-  sf::read_sf(atl_shp_file)
+# Read a shapefile from the specified file path using the 'sf::read_sf' function.
+# The resulting spatial data is stored in the 'atl_shp' object.
+atl_shp <- sf::read_sf(atl_shp_file)
 
+# Create a plot using 'ggplot2' with the 'atl_shp' spatial data.
+# Use 'geom_sf' to display the shapes from 'atl_shp' with no fill (NA, i.e., transparent).
 ggplot() +
   geom_sf(data = atl_shp, fill = NA)
 
 # read in GOM shp ----
+# Read a shapefile from the specified file path using 'sf::read_sf'.
+# Then, group the resulting data by 'StatZone' and summarize it.
 GOMsf <-
   sf::read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
   group_by(StatZone) %>%
   summarise()
+
 # Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
 # Geodetic CRS:  WGS 84
 
 # str(GOMsf)
 
 # create 5x5 minute grid ----
-min_grid <-
-  function(my_sf = GOMsf, minute_num = 1) {
-    grid <-
-      sf::st_make_grid(x = sf::st_bbox(my_sf),
-                       cellsize = 1 / 60 * minute_num) %>%
-      sf::st_as_sf() %>%
-      mutate(cell_id = 1:nrow(.))
+# Define a function 'min_grid' that creates a grid of cells within the bounding box of a given spatial data frame.
+# - 'my_sf' is the input spatial data frame (default is 'GOMsf').
+# - 'minute_num' specifies the grid cell size in minutes.
 
-    return(grid)
-  }
+min_grid <- function(my_sf = GOMsf, minute_num = 1) {
+  # Create a grid of cells using 'sf::st_make_grid' within the bounding box of 'my_sf'.
+  grid <-
+    sf::st_make_grid(x = sf::st_bbox(my_sf),
+                     cellsize = 1 / 60 * minute_num) %>%
+
+    # Convert the grid to a spatial data frame using 'sf::st_as_sf'.
+    sf::st_as_sf() %>%
+
+    # Add a 'cell_id' column to the grid using 'mutate'.
+    mutate(cell_id = 1:nrow(.))
+
+  # Return the created grid.
+  return(grid)
+}
 
 grid_gom5 <- min_grid(GOMsf, 5)
 grid_sa5 <- min_grid(sa_shp, 5)
 
+# Set the aggregate attribute to "constant" for multiple spatial objects.
 sf::st_agr(GOMsf) =
   sf::st_agr(sa_shp) =
   sf::st_agr(grid_gom5) =
@@ -219,28 +253,38 @@ toc()
 #  $ :List of 21234
 
 ## by n min grid ----
-# my_crs <- sf::st_crs(GOMsf)
-df_join_grid <-
-  function(my_df, grid, my_crs) {
-    my_df |>
-      # join n minute grid
-      sf::st_as_sf(
-        coords = c("LONGITUDE", "LATITUDE"),
-        crs = my_crs) |>
-        # ,
-        # remove = FALSE) %>%
-        sf::st_join(grid, join = sf::st_nearest_feature) %>%
-          return()
-        }
+# Define a function 'df_join_grid' that joins a data frame with a grid using specified coordinates and CRS.
 
-crop_by_shape <-
-  function(my_sf, my_shp = GOMsf) {
-    my_sf |>
-      sf::st_join(my_shp, left = FALSE) %>%
-      dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
-             LATITUDE = sf::st_coordinates(.)[, 2]) %>%
-      return()
-  }
+df_join_grid <- function(my_df, grid, my_crs) {
+  # Convert 'my_df' to a spatial data frame with specified coordinates and CRS using 'sf::st_as_sf'.
+  my_df |>
+    sf::st_as_sf(
+      coords = c("LONGITUDE", "LATITUDE"),
+      crs = my_crs) |>
+
+  # Join the resulting spatial data frame with the 'grid' using the nearest feature join.
+  sf::st_join(grid, join = sf::st_nearest_feature) |>
+
+  # Return the joined data frame.
+  return()
+}
+
+# Define a function 'crop_by_shape' that crops a spatial object using another spatial object.
+# - 'my_sf' is the input spatial object to be cropped.
+# - 'my_shp' is the spatial object used for cropping (default is 'GOMsf').
+
+crop_by_shape <- function(my_sf, my_shp = GOMsf) {
+  # Join 'my_sf' with 'my_shp' to crop it, leaving only the intersecting geometries.
+  my_sf |>
+    sf::st_join(my_shp, left = FALSE) %>%
+
+  # Extract the LONGITUDE and LATITUDE coordinates from the joined spatial object.
+  dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
+         LATITUDE = sf::st_coordinates(.)[, 2]) %>%
+
+  # Return the cropped and transformed spatial object.
+  return()
+}
 
 ## count trip ids and vessels by grid cell ----
 add_vsl_and_trip_cnts <-
