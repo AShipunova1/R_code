@@ -322,58 +322,6 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks)
 # [1] 90838    73
 
 
-### check names ----
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
-  filter(!VESSEL_NAME == vessel_name) |>
-  select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
-  distinct() |>
-  head()
-#   <chr>               <chr>        <chr>
-# 1 1212782             NO DOUBT     "NO DOUBT 2"
-# 2 614579              L & H        "L "
-# 3 FL2570PG            C&D BOATS 09 "C"
-# 4 FL3143RA            F-N-OFF II   "F"
-# 5 FL0334RY            REEL-AXING   "REEL"
-# 6 1162015             REEL-ALITY   "REEL"
-
-### shorten ----
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
-  select(
-    -c(
-      VESSEL_NAME,
-      TRIP_START_DATE,
-      EFFORT_SEQ,
-      AREA_CODE,
-      SUB_AREA_CODE,
-      AREA_NAME,
-      SUB_AREA_NAME,
-      AREA_REGION,
-      AREA_STATE,
-      DISTANCE_CODE,
-      DISTANCE_NAME,
-      LOCAL_AREA_CODE,
-      LOCAL_AREA_NAME,
-      permit_code,
-      permit_num,
-      reqmit_id,
-      type,
-      request_type,
-      status,
-      vessel_name,
-      status_date,
-      effective_date,
-      expiration_date,
-      end_date,
-      term_date
-    )
-  ) |>
-  distinct()
-
-dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
-# [1] 111716      5
-# [1] 109577      5
-
 # print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE, permit_sa_gom"
 
