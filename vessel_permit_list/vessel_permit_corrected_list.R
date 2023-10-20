@@ -1,3 +1,4 @@
+# vessel_permit_corrected_list.R
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -35,7 +36,7 @@ all_sheets_l <-
              })
 
 # Check what's inside ----
-map(all_sheets_l, dim)
+# map(all_sheets_l, dim)
 # [[1]]
 # [1] 2215    1
 #
@@ -48,7 +49,7 @@ map(all_sheets_l, dim)
 # [[4]]
 # [1] 130   2
 
-map(all_sheets_l, glimpse)
+# map(all_sheets_l, glimpse)
 
 # Clean up dfs ----
 
@@ -194,13 +195,18 @@ vessels_22_sa <-
   # na.omit returns the object with incomplete cases removed.
   stats::na.omit()
 
-vessels_22_sa |>
-  dim()
+# vessels_22_sa |>
+  # dim()
 # [1] 2321    1
 
 # remove wrong ids from FHIER results ----
 vessels_to_remove_from_ours <-
   all_sheets_l$in_ours_not_jeannettes$vessel_official_number
 
-length(vessels_to_remove_from_ours)
+# length(vessels_to_remove_from_ours)
 # 55
+
+cat("all_sheets_l",
+      "vessels_22_sa",
+      "vessels_to_remove_from_ours",
+    sep = '\n')
