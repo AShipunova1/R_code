@@ -118,26 +118,6 @@ all_logbooks_db_data_2022 <-
 dim(all_logbooks_db_data_2022)
 # [1] 326670    149
 
-
-# ### Remove Not in Jeannette's list SA 2022 vessels ----
-# # Build the path to the R script 'vessel_permit_corrected_list.R' by
-# # combining the base path 'my_paths$git_r' and the script name.
-# script_path <-
-#   file.path(my_paths$git_r,
-#             "vessel_permit_list/vessel_permit_corrected_list.R")
-#
-# # Source (run) the R script using the constructed script path.
-# source(script_path)
-#
-# # Rows are filtered to exclude vessels whose 'VESSEL_OFFICIAL_NBR' is in the
-# # 'vessels_to_remove_from_ours' vector.
-# all_logbooks_db_data_rm <-
-#   all_get_db_data_result_l$mv_safis_trip_download |>
-#   filter(!VESSEL_OFFICIAL_NBR %in% vessels_to_remove_from_ours)
-#
-# dim(all_logbooks_db_data_rm)
-# # [1] 733585    149
-
 ## Remove unused columns ----
 
 # Create a new variable 'all_logbooks_db_data_2022_short' by further processing the 'all_logbooks_db_data_2022' data.
@@ -153,6 +133,32 @@ all_logbooks_db_data_2022_short <-
 
 dim(all_logbooks_db_data_2022_short)
 # [1] 94471    72
+
+## Mark sa_only vs. gom and dual for 2022 ----
+# Get vessel list from Jeanette’s comparison
+script_path <-
+  file.path(my_paths$git_r,
+            "vessel_permit_list/vessel_permit_corrected_list.R")
+
+# Source (run) the R script using the constructed script path.
+source(script_path)
+
+# Rows are filtered to keep only vessels whose 'VESSEL_OFFICIAL_NBR' is in the
+# 'vessels_22_sa' vector.
+all_logbooks_db_data_2022_short_p_region <-
+  all_logbooks_db_data_2022_short |>
+  # Use the dplyr::mutate function to add a new column 'permit_region' to the dataset
+  mutate(
+    permit_region =
+      # Use the case_when function to conditionally assign values to 'permit_region'
+      # If vessel number is in 'vessels_22_sa', set to "sa_only"
+      case_when(VESSEL_OFFICIAL_NBR %in% vessels_22_sa ~ "sa_only",
+                # For all other cases, set to "gom_and_dual"
+                .default = "gom_and_dual")
+  )
+
+dim(all_logbooks_db_data_2022_short_p_region)
+# [1] 94471    73
 
 # Data from FHIER ----
 ## Reports / SAFIS Efforts Extended ----
