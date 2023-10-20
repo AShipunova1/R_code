@@ -25,41 +25,61 @@
 
 # setup ----
 
-library(zoo) #date manipulations
-library(sf) #Create sf object to work with coordinates
-library(mapview) #View spatial objects interactively
-library(leaflet)
-library(tictoc) #benchmarking
-# library(htmlwidgets) # add js script to leaflets
-library(stringi) # add characters
-library(htmltools)
-library(htmlwidgets)
+# Load the 'zoo' package for date manipulations
+library(zoo)
 
+# Load the 'sf' package to create sf (simple features) objects for working with spatial data
+library(sf)
+
+# Load the 'mapview' package to view spatial objects interactively
+library(mapview)
+
+# Load the 'leaflet' package for creating interactive web maps
+library(leaflet)
+
+# Load the 'tictoc' package for benchmarking and measuring code execution time
+library(tictoc)
+
+# Load the 'stringi' package for manipulating and working with character strings
+library(stringi)
+
+# Load the 'htmltools' package for working with HTML content in R
+library(htmltools)
+
+# Load the 'htmlwidgets' package, which is not present in the code but may be used to add JavaScript functionality to HTML widgets
+# library(htmlwidgets)
+
+# Source an external R script that contains useful functions.
 source("~/R_code_github/useful_functions_module.r")
+
+# Set 'my_paths' by calling the 'set_work_dir' function to define working directory paths.
 my_paths <- set_work_dir()
+
+# Define the name of the current project as "fishing_effort_location."
 current_project_name <- "fishing_effort_location"
 
+# Source another external R script using 'file.path' to construct the full file path.
 source(
   file.path(
-    my_paths$git_r,
-    current_project_name,
-    "fishing_effort_locations_get_data.R"
+    my_paths$git_r,                    # Path to the git repository directory
+    current_project_name,              # Subdirectory for the current project
+    "fishing_effort_locations_get_data.R"  # Name of the R script to source
   )
 )
 
-# convert to sf shortcut
+# Define an R function 'my_to_sf' for converting a data frame to an sf object.
 my_to_sf <- function(my_df) {
   my_df %>%
-    # convert to sf
+    # Convert the data frame to an sf object using st_as_sf from the 'sf' package
     sf::st_as_sf(
-      # field names to use
-      coords = c("LONGITUDE",
-                 "LATITUDE"),
-      # use crs from sa_shp
+      # Specify the columns containing longitude and latitude as coordinates
+      coords = c("LONGITUDE", "LATITUDE"),
+      # Set the coordinate reference system (CRS) using the 'sa_shp' object
       crs = sf::st_crs(sa_shp),
-      # keep LAT/LONG, to save in a file
+      # Keep the original LATITUDE and LONGITUDE columns in the resulting sf object
       remove = FALSE
     ) %>%
+    # Return the resulting sf object
     return()
 }
 
@@ -67,33 +87,46 @@ my_to_sf <- function(my_df) {
 #   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
 sf::sf_use_s2(FALSE)
 
-# run st_intersection with benchmark
+# Define an R function 'with_st_intersection' for calculating the intersection between two spatial objects.
 with_st_intersection <- function(points_sf, polygons_sf) {
-  # browser()
-  # get param names
+  # browser()  # Uncomment this line to enable debugging using 'browser()'
+
+  # Get the parameter names for the input spatial objects
   par1 <- rlang::enexpr(points_sf)
   par2 <- rlang::enexpr(polygons_sf)
 
-  # start time
+  # Start measuring the execution time
   tic(paste0("sf::st_intersection(", par1, ", ", par2, ")"))
+
+  # Calculate the intersection between 'points_sf' and 'polygons_sf'
   res <- sf::st_intersection(points_sf, polygons_sf)
-  # print time
+
+  # Print the execution time
   toc()
+
+  # Return the result of the intersection calculation
   return(res)
 }
 
 # run st_difference with benchmark
+# Define an R function 'with_st_difference' for calculating the difference between two spatial objects.
 with_st_difference <- function(points_sf, polygons_sf) {
-  # browser()
-  # get param names
+  # browser()  # Uncomment this line to enable debugging using 'browser()'
+
+  # Get the parameter names for the input spatial objects
   par1 <- rlang::enexpr(points_sf)
   par2 <- rlang::enexpr(polygons_sf)
 
-  # start time
+  # Start measuring the execution time with a message
   tic(paste0("sf::st_difference(", par1, ", ", par2, ")"))
+
+  # Calculate the difference between 'points_sf' and 'polygons_sf'
   res <- sf::st_difference(points_sf, polygons_sf)
-  # print time
+
+  # Print the execution time
   toc()
+
+  # Return the result of the difference calculation
   return(res)
 }
 
@@ -140,10 +173,25 @@ get_ten_min_coords <- function(my_df) {
   # distinct(ten_min_df)
 }
 
+## Data from db as in FHIER ----
+# print_df_names(all_logbooks_db_data_2022_short_p_region)
+# [1] 94471    73
+
+safis_efforts_extended_2022_short_good_all_coords <-
+  all_logbooks_db_data_2022_short_p_region |>
+  dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE),
+                LATITUDE = as.numeric(LATITUDE)) |>
+  # all LONG should be negative
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) |>
+  distinct()
+
+dim(safis_efforts_extended_2022_short_good_all_coords)
+# [1] 94471    73
+
 ## From FHIER ----
 # View(safis_efforts_extended_2022_short)
 
-safis_efforts_extended_2022_short_good_all_coords <-
+safis_efforts_extended_2022_short_good_all_coords_fhier <-
   safis_efforts_extended_2022_short |>
   dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE),
                 LATITUDE = as.numeric(LATITUDE)) |>
