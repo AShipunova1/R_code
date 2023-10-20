@@ -1,4 +1,31 @@
 # get area data ----
+rm_columns <- c("ANYTHING_CAUGHT_FLAG",
+"COMMON_NAME",
+"DC",
+"DE",
+"FISHING_HOURS",
+"GEAR_CATEGORY_CODE",
+"GEAR_CATEGORY_NAME",
+"GEAR_CODE",
+"GEAR_DESC",
+"GEAR_NAME",
+"GEAR_SIZE",
+"GEAR_TYPE_CODE",
+"GEAR_TYPE_NAME",
+"GEARS_FISHING",
+"HOURS_DAYS_FLAG",
+"IN_STATE",
+"LMA_CODE",
+"MESH_RING_LENGTH",
+"MESH_RING_WIDTH",
+"RIG_CODE",
+"SPECIES_ITIS",
+"STRETCH_SIZE",
+"SUPPLIER_EFFCAT_ID",
+"UC",
+"UE"
+)
+
 # From DB ====
 
 source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
