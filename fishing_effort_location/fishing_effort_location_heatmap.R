@@ -663,4 +663,4 @@ map_trips_types <-
     )
   )
 
-map_trips_types[[1]]
+# map_trips_types[[1]]
