@@ -152,7 +152,7 @@ all_logbooks_db_data_2022_short <-
   dplyr::distinct()
 
 dim(all_logbooks_db_data_2022_short)
-# [1] 326670  134
+# [1] 94471    72
 
 # Data from FHIER ----
 ## Reports / SAFIS Efforts Extended ----
