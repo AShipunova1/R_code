@@ -11,8 +11,6 @@ flat_file_name <-
 write_to_1_flat_file(flat_file_name,
                      "~/R_code_github/useful_functions_module.r")
 
-cat(my_paths <- set_work_dir())
-
 write_to_1_flat_file(
   flat_file_name,
   file.path(
@@ -44,7 +42,5 @@ write_to_1_flat_file(
     r"(fishing_effort_location\fishing_effort_location_heatmap.R)"
   )
 )
-
-
 
 sink()
