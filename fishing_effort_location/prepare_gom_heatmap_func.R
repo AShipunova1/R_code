@@ -255,16 +255,17 @@ toc()
 
 df_join_grid <- function(my_df, grid, my_crs) {
   # Convert 'my_df' to a spatial data frame with specified coordinates and CRS using 'sf::st_as_sf'.
-  my_df |>
+  my_df_grid <-
+    my_df |>
     sf::st_as_sf(
       coords = c("LONGITUDE", "LATITUDE"),
       crs = my_crs) |>
 
   # Join the resulting spatial data frame with the 'grid' using the nearest feature join.
-  sf::st_join(grid, join = sf::st_nearest_feature) |>
+  sf::st_join(grid, join = sf::st_nearest_feature)
 
   # Return the joined data frame.
-  return()
+  return(my_df_grid)
 }
 
 # Define a function 'crop_by_shape' that crops a spatial object using another spatial object.
