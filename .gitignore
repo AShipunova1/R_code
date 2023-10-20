@@ -30,3 +30,4 @@ compare_catch/compare_catch_plots0.R
 db_compliance/dnf_2022.R
 db_compliance/RData_big
 *.sql
+fishing_effort_location/flat_file_heatmap.R
