@@ -34,34 +34,30 @@ tic("run_all_get_db_data()")
 all_get_db_data_result_l <- run_all_get_db_data()
 toc()
 
+# dim(all_get_db_data_result_l$mv_safis_trip_download)
+# [1] 735666    149
+
 # get 2022 only ----
+# Create a new variable 'all_logbooks_db_data_2022' using the pipe operator.
+# This variable will store the filtered data for the year 2022.
 all_logbooks_db_data_2022 <-
+  # Take the data from 'all_get_db_data_result_l$mv_safis_trip_download'
   all_get_db_data_result_l$mv_safis_trip_download |>
-  filter(between(
-    TRIP_START_DATE,
-    as.Date("2022-01-01"),
-    as.Date("2022-01-31")
-  ))
+
+  # Use the dplyr::filter function to filter rows based on a condition
+  dplyr::filter(
+    # Check if the 'TRIP_START_DATE' is between "2022-01-01" and "2022-12-31"
+    dplyr::between(
+      TRIP_START_DATE,                 # Column to check
+      as.Date("2022-01-01"),          # Start date for the range
+      as.Date("2022-12-31")           # End date for the range
+    )
+  )
+
+dim(all_logbooks_db_data_2022)
+# [1] 326670    149
 
 
-### Remove "Not in Jeannette's list" SA 2022 vessels ----
-# Build the path to the R script 'vessel_permit_corrected_list.R' by
-# combining the base path 'my_paths$git_r' and the script name.
-script_path <-
-  file.path(my_paths$git_r,
-            "vessel_permit_list/vessel_permit_corrected_list.R")
-
-# Source (run) the R script using the constructed script path.
-source(script_path)
-
-# Rows are filtered to exclude vessels whose 'VESSEL_OFFICIAL_NBR' is in the
-# 'vessels_to_remove_from_ours' vector.
-all_logbooks_db_data_rm <-
-  all_get_db_data_result_l$mv_safis_trip_download |>
-  filter(!VESSEL_OFFICIAL_NBR %in% vessels_to_remove_from_ours)
-
-dim(all_logbooks_db_data_rm)
-# [1] 733585    149
 # ### Remove Not in Jeannette's list SA 2022 vessels ----
 # # Build the path to the R script 'vessel_permit_corrected_list.R' by
 # # combining the base path 'my_paths$git_r' and the script name.
@@ -80,6 +76,22 @@ dim(all_logbooks_db_data_rm)
 #
 # dim(all_logbooks_db_data_rm)
 # # [1] 733585    149
+
+## Remove unused columns ----
+
+# Create a new variable 'all_logbooks_db_data_2022_short' by further processing the 'all_logbooks_db_data_2022' data.
+all_logbooks_db_data_2022_short <-
+  # Take the data from 'all_logbooks_db_data_2022'
+  all_logbooks_db_data_2022 |>
+
+  # Use dplyr::select to remove columns specified in 'rm_columns'
+  dplyr::select(-any_of(rm_columns)) |>
+
+  # Use dplyr::distinct to retain only distinct rows
+  dplyr::distinct()
+
+dim(all_logbooks_db_data_2022_short)
+# [1] 326670  134
 
 # Data from FHIER ----
 ## Reports / SAFIS Efforts Extended ----
@@ -130,33 +142,6 @@ dim(safis_efforts_extended_2023)
 #   safis_efforts_extended_2022 |>
 #   select(-all_of(names(empty_cols)))
 # dim(safis_efforts_extended_2022_short0)
-
-rm_columns <- c("ANYTHING_CAUGHT_FLAG",
-"COMMON_NAME",
-"DC",
-"DE",
-"FISHING_HOURS",
-"GEAR_CATEGORY_CODE",
-"GEAR_CATEGORY_NAME",
-"GEAR_CODE",
-"GEAR_DESC",
-"GEAR_NAME",
-"GEAR_SIZE",
-"GEAR_TYPE_CODE",
-"GEAR_TYPE_NAME",
-"GEARS_FISHING",
-"HOURS_DAYS_FLAG",
-"IN_STATE",
-"LMA_CODE",
-"MESH_RING_LENGTH",
-"MESH_RING_WIDTH",
-"RIG_CODE",
-"SPECIES_ITIS",
-"STRETCH_SIZE",
-"SUPPLIER_EFFCAT_ID",
-"UC",
-"UE"
-)
 
 safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
