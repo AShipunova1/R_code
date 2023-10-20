@@ -327,7 +327,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks)
 
 # convert to ten_min ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min <-
-  get_ten_min_coords(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
+  get_ten_min_coords(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks)
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
 # [1] 95720     5
@@ -377,16 +377,24 @@ map_df(
 
 # save counts ----
 ## check ----
+# Use the 'map' function to perform a series of operations on a list of data frames.
+
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   map(
     function(permit_df) {
+      # Perform operations on each 'permit_df' data frame within the list.
       permit_df |>
       select(-c(LATITUDE, LONGITUDE)) |>
+      # Select columns except 'LATITUDE' and 'LONGITUDE'
       count(ten_min_lat, ten_min_lon) |>
+      # Count occurrences of 'ten_min_lat' and 'ten_min_lon' combinations
       arrange(desc(n)) |>
+      # Arrange rows in descending order of the count 'n'
       head(2)
+      # Select the top 2 rows
     }
   )
+
 # $gom_dual
 # # A tibble: 6 × 3
 #   ten_min_lat ten_min_lon     n
