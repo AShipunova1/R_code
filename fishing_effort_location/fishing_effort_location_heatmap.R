@@ -57,7 +57,28 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
 dim(for_heatmap_lat_lon_trips_vessels_sa_only)
 # [1] 68122     4
 
-#### assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips ####
+### remove vessels not in Jeannette's SA list ----
+
+# Build the path to the R script 'vessel_permit_corrected_list.R' by
+# combining the base path 'my_paths$git_r' and the script name.
+script_path <-
+  file.path(my_paths$git_r,
+            "vessel_permit_list/vessel_permit_corrected_list.R")
+
+# Source (run) the R script using the constructed script path.
+source(script_path)
+
+# Rows are filtered to exclude vessels whose 'VESSEL_OFFICIAL_NBR' is in the
+# 'vessels_to_remove_from_ours' vector.
+for_heatmap_lat_lon_trips_vessels_sa_only_rm <-
+  for_heatmap_lat_lon_trips_vessels_sa_only |>
+  filter(!VESSEL_OFFICIAL_NBR %in% vessels_to_remove_from_ours)
+
+dim(for_heatmap_lat_lon_trips_vessels_sa_only_rm)
+# [1] 67983     4
+
+## add the grid ----
+# assuming data is dataframe with variables LATITUDE, LONGITUDE, and trips
 
 # tic("effort")
 # effort <- df_join_grid(for_heatmap_lat_lon_trips_only)
