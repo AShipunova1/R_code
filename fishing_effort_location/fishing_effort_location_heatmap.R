@@ -10,9 +10,8 @@ source(
   )
 )
 
-library(ggplot2)
-library(ggmap)
-# library(RColorBrewer)
+library(ggplot2) # a visualization package
+library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
 
 # Heatmap ----
 
@@ -86,36 +85,41 @@ dim(for_heatmap_lat_lon_trips_vessels_sa_only_rm)
 # effort: 0.75 sec elapsed
 
 tic("effort_vsl_gom")
+# Create a new object 'my_crs' by extracting the coordinate reference system (CRS)
+# from a spatial object 'GOMsf'.
 my_crs <- sf::st_crs(GOMsf)
-
-effort_vsl_gom <- df_join_grid(for_heatmap_lat_lon_trips_vessels_gom_only,
-                           grid_gom5,
-                           my_crs)
+# Create a new data frame 'effort_vsl_gom' by joining the data frames
+# 'for_heatmap_lat_lon_trips_vessels_gom_only' and 'grid_gom5' based on a common
+# spatial reference system defined by 'my_crs'.
+effort_vsl_gom <-
+  df_join_grid(for_heatmap_lat_lon_trips_vessels_gom_only,
+               grid_gom5,
+               my_crs)
 toc()
 # effort_vsl: 0.62 sec elapsed
 
 # class(effort_vsl)
 
 tic("effort_vsl_sa")
+# Create a new object 'my_crs_sa' by extracting the coordinate reference system (CRS)
+# from a spatial object 'sa_shp'.
 my_crs_sa <- sf::st_crs(sa_shp)
 # sf::st_geometry(grid_sa5)
 # Geodetic CRS:  NAD83
 # sf::st_geometry(sa_shp)
 # Geodetic CRS:  NAD83
 
+# Create a new data frame 'effort_vsl_sa' by joining the data frames
+# 'for_heatmap_lat_lon_trips_vessels_sa_only_rm' and 'grid_sa5' based on a
+# spatial reference system defined by 'my_crs_sa'.
 effort_vsl_sa <-
-  df_join_grid(for_heatmap_lat_lon_trips_vessels_sa_only,
+  df_join_grid(for_heatmap_lat_lon_trips_vessels_sa_only_rm,
                grid_sa5,
                my_crs = my_crs_sa)
 toc()
 # effort_vsl_sa: 1.22 sec elapsed
 
 ## crop by the shape ----
-# effort_cropped <-
-#   with_st_intersection(effort,
-#           GOMsf)
-# effort_cropped: 81.51 sec elapsed
-
 tic("effort_vsl_cropped_gom")
 effort_vsl_cropped_gom <- crop_by_shape(effort_vsl_gom)
 toc()
