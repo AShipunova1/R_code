@@ -62,6 +62,24 @@ all_logbooks_db_data_rm <-
 
 dim(all_logbooks_db_data_rm)
 # [1] 733585    149
+# ### Remove Not in Jeannette's list SA 2022 vessels ----
+# # Build the path to the R script 'vessel_permit_corrected_list.R' by
+# # combining the base path 'my_paths$git_r' and the script name.
+# script_path <-
+#   file.path(my_paths$git_r,
+#             "vessel_permit_list/vessel_permit_corrected_list.R")
+#
+# # Source (run) the R script using the constructed script path.
+# source(script_path)
+#
+# # Rows are filtered to exclude vessels whose 'VESSEL_OFFICIAL_NBR' is in the
+# # 'vessels_to_remove_from_ours' vector.
+# all_logbooks_db_data_rm <-
+#   all_get_db_data_result_l$mv_safis_trip_download |>
+#   filter(!VESSEL_OFFICIAL_NBR %in% vessels_to_remove_from_ours)
+#
+# dim(all_logbooks_db_data_rm)
+# # [1] 733585    149
 
 # Data from FHIER ----
 ## Reports / SAFIS Efforts Extended ----
