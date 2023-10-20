@@ -147,10 +147,8 @@ federal_state_w_sf_east <-
 # us_bb <-
 #   tigris::counties(filter_by = big_bounding_box, progress_bar = FALSE)
 
-sa_states <- c("Florida",
-               "Georgia",
-               "North Carolina",
-               "South Carolina")
+# Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
+# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
 us_s_shp <-
   tigris::states(cb = TRUE)
 
