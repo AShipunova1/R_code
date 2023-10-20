@@ -316,7 +316,7 @@ add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "VESSEL_OFFICIAL_NBR")
 ## make a plot ----
 # Define a function 'make_map_trips' to create a ggplot2 heatmap of trip data.
 # - 'map_trip_base_data' is the data containing trip information to be mapped.
-# - 'shape_data' is the shape data used for mapping.
+# - 'shape_data' is the shape data used as a backdrop for mapping.
 # - 'total_trips_title' is the title for the total trips legend.
 # - 'trip_cnt_name' is the name of the column with trip counts.
 # - 'caption_text' is the caption for the plot.
@@ -395,7 +395,9 @@ make_map_trips <-
 axis.text.y =
       element_text(size = text_sizes[["axis_text_y_size"]])
       ) +
+      # Add a legend guide for fill color.
       guides(fill = guide_colourbar(title.position = "top"))
 
+    # Return the created 'map_trips' plot.
     return(map_trips)
   }
