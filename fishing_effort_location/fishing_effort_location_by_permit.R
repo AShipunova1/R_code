@@ -319,21 +319,23 @@ safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks <-
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks)
 # [1] 93581    17
-# [1] 90838    73
+# [1] 90838    73 from mv
 
-
+# by permit before mv data ----
 # print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE, permit_sa_gom"
+map_by_permit_before_mv_data <- function(variables) {
 
 # convert to ten_min ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min <-
   get_ten_min_coords(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks)
 
-dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
+View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
 # [1] 95720     5
 # [1] 284785     32 (with permit)
 # [1] 111716      7 (fewer columns)
 # [1] 109577      7
+# [1] 90838    75 from mv
 
 # split by permit ----
 ## add permit_name_col ----
@@ -783,7 +785,7 @@ map_base_gom_vessels_w_markers_with_text <-
             "Allowed coordinates")
 
 map_base_gom_vessels_w_markers_with_text
-
+}
   # add ten min grid
   # addGraticule(interval = 1 / 60 * 10,
   #              style = list(color = "grey", weight = 1)) |>
