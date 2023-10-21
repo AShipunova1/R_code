@@ -311,6 +311,12 @@ map_trips_no_rule_3_sa +
 #            print_stat_zone = NULL
 #            ) {
 
+source(
+  file.path(
+    my_paths$git_r,
+    r"(fishing_effort_location\fishing_effort_location_by_permit_and_end_port.R)"
+  )
+)
 
 ## by zone ----
 
