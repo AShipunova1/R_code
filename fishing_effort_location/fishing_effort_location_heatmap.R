@@ -23,10 +23,23 @@ source(
 )
 
 ## heatmap data ----
+safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list <-
+  split(
+    safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks,
+    as.factor(
+      safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks$permit_region
+    )
+  )
 
-# short_example_3_cnts_short |> glimpse()
-dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
-# [1] 41455     8
+map(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list, dim)
+# $gom_and_dual
+# [1] 46772    73
+#
+# $sa_only
+# [1] 44066    73
+
+# dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
+# # [1] 41455     8
 
 # glimpse(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual)
 
