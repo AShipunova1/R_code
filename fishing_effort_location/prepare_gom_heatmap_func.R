@@ -155,7 +155,7 @@ us_s_shp <-
 # Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
 sa_s_shp <-
   us_s_shp |>
-  filter(NAME %in% states_sa)
+  filter(NAME %in% states_sa$state_name)
 
 # sa_s_shp_plot <-
 #   ggplot() +
