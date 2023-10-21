@@ -291,7 +291,8 @@ map_trips_no_rule_3_sa <-
            sa_shp,
            "total trips",
            trip_cnt_name = "trip_id_cnt",
-           unit_num = 0.8)
+           unit_num = 0.9,
+           legend_text_text_size = 8)
 
 map_trips_no_rule_3_sa +
   geom_sf(data = sa_s_shp) +

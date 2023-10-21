@@ -15,7 +15,7 @@ text_sizes <- list(
   axis_text_y_size = 13,
   plot_caption_text_size = 13,
   legend_title_text_size = 10,
-  legend_text_text_size = 10,
+  legend_text_text_size = 9,
   ### common axes for Months ----
   y_left_fontsize = 10
 )
@@ -330,7 +330,8 @@ make_map_trips <-
            trip_cnt_name,
            caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
            unit_num = 1,
-           print_stat_zone = NULL
+           print_stat_zone = NULL,
+           legend_text_text_size = text_sizes[["legend_text_text_size"]]
            ) {
     # Calculate the maximum number of trips for legend scaling.
     max_num <- max(map_trip_base_data[[trip_cnt_name]])
@@ -388,7 +389,7 @@ make_map_trips <-
         legend.title = element_text(size =
                                       text_sizes[["legend_title_text_size"]]),
         legend.text = element_text(size =
-                                     text_sizes[["legend_text_text_size"]]), # for charter heatmap use 7
+                                     legend_text_text_size), # for charter heatmap use 7
         plot.caption = element_text(hjust = 0,
                                     size = text_sizes[["plot_caption_text_size"]]),
     axis.text.x =
