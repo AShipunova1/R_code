@@ -37,7 +37,7 @@ coord_data_2022_short_good_sf_crop_big_df_in_metricks_list <-
   )
 
 # Use the 'map' function to apply the 'dim' function to each element in the list.
-dplyr::map(
+purrr::map(
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list,
   dim
 )
@@ -49,7 +49,7 @@ dplyr::map(
 # [1] 44066    73
 
 # for_heatmap_lat_lon_trips_only <-
-#   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_dual |>
+#   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
 #   select(TRIP_ID, LATITUDE, LONGITUDE) |>
 #   distinct()
 
@@ -58,7 +58,7 @@ dplyr::map(
 
 # gom
 for_heatmap_lat_lon_trips_vessels_gom_only <-
-  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_dual |>
+  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
@@ -474,7 +474,7 @@ map_trips_stat_zone <-
 ## get trip_type data ----
 
 my_vessels_trips <-
-  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_and_dual |>
   select(VESSEL_OFFICIAL_NBR,
          TRIP_ID) |>
   distinct()
@@ -600,7 +600,7 @@ trip_type_data_from_db_by_t_id <-
        TRIP_ID = as.character(TRIP_ID))
 
 trip_type_data_from_db_by_t_id_types <-
-  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_and_dual |>
   left_join(trip_type_data_from_db_by_t_id)
 # Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
 
