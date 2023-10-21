@@ -204,9 +204,9 @@ get_ten_min_coords <- function(my_df) {
 # print_df_names(all_logbooks_db_data_2022_short_p_region)
 # [1] 94471    73
 
-# Create a new data frame 'safis_efforts_extended_2022_short_good_all_coords' by processing the data.
+# Create a new data frame by processing the data.
 
-safis_efforts_extended_2022_short_good_all_coords <-
+coord_data_2022_short_good_all_coords <-
   all_logbooks_db_data_2022_short_p_region |>
 
   # Convert 'LONGITUDE' and 'LATITUDE' columns to numeric data types
@@ -219,13 +219,13 @@ safis_efforts_extended_2022_short_good_all_coords <-
   # Keep only distinct rows in the data frame
   distinct()
 
-dim(safis_efforts_extended_2022_short_good_all_coords)
+dim(coord_data_2022_short_good_all_coords)
 # [1] 94471    73
 
 ## From FHIER ----
-# View(safis_efforts_extended_2022_short)
+# View(coord_data_2022_short)
 #
-# safis_efforts_extended_2022_short_good_all_coords_fhier <-
+# coord_data_2022_short_good_all_coords_fhier <-
 #   # Convert 'LONGITUDE' and 'LATITUDE' columns to numeric data types
 #   dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE),
 #                 LATITUDE = as.numeric(LATITUDE)) |>
@@ -236,13 +236,13 @@ dim(safis_efforts_extended_2022_short_good_all_coords)
 #   # Keep only distinct rows in the data frame
 #   distinct()
 #
-# dim(safis_efforts_extended_2022_short_good_all_coords)
+# dim(coord_data_2022_short_good_all_coords)
 # [1] 97970    17
 
 # Keep only full sets of coordinates ----
-# Create a new data frame 'safis_efforts_extended_2022_short_good' by filtering and keeping only distinct rows.
-safis_efforts_extended_2022_short_good <-
-  safis_efforts_extended_2022_short_good_all_coords |>
+# Create a new data frame 'coord_data_2022_short_good' by filtering and keeping only distinct rows.
+coord_data_2022_short_good <-
+  coord_data_2022_short_good_all_coords |>
 
   # Use the filter function to keep rows where either 'LONGITUDE' or 'LATITUDE' is not NA
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
@@ -250,17 +250,17 @@ safis_efforts_extended_2022_short_good <-
   # Keep only distinct rows in the data frame
   distinct()
 
-dim(safis_efforts_extended_2022_short)
+dim(coord_data_2022_short)
 # [1] 97970    17 FHIER
 # [1] 97943    16 db
 
-dim(safis_efforts_extended_2022_short_good)
+dim(coord_data_2022_short_good)
 # [1] 97547    17
 # [1] 93450    73 db
 
 ### convert to sf ----
-safis_efforts_extended_2022_short_good_sf <-
-  my_to_sf(safis_efforts_extended_2022_short_good)
+coord_data_2022_short_good_sf <-
+  my_to_sf(coord_data_2022_short_good)
 
 # show all boundaries ----
 
@@ -276,28 +276,28 @@ big_bounding_box <- c(
    ymax = 49  # Maximum latitude (northern boundary, Canada)
 )
 
-tic("safis_efforts_extended_2022_short_good_sf_crop_big")
-# Create a new spatial object 'safis_efforts_extended_2022_short_good_sf_crop_big'
-# by cropping 'safis_efforts_extended_2022_short_good_sf' to the 'big_bounding_box'.
+tic("coord_data_2022_short_good_sf_crop_big")
+# Create a new spatial object 'coord_data_2022_short_good_sf_crop_big'
+# by cropping 'coord_data_2022_short_good_sf' to the 'big_bounding_box'.
 
-safis_efforts_extended_2022_short_good_sf_crop_big <-
-  sf::st_crop(safis_efforts_extended_2022_short_good_sf,  # Spatial object to be cropped
+coord_data_2022_short_good_sf_crop_big <-
+  sf::st_crop(coord_data_2022_short_good_sf,  # Spatial object to be cropped
               big_bounding_box)  # Bounding box used for cropping
 toc()
-# safis_efforts_extended_2022_short_good_sf_crop_big: 0.89 sec elapsed
+# coord_data_2022_short_good_sf_crop_big: 0.89 sec elapsed
 
-dim(safis_efforts_extended_2022_short_good_sf_crop_big)
+dim(coord_data_2022_short_good_sf_crop_big)
 # [1] 95720    18
 # [1] 91735    74
 
 # convert back to df ----
 # The sf::st_drop_geometry function is applied to the spatial object to remove its geometry, resulting in a data frame that contains only the non-geometric attributes or columns.
 
-safis_efforts_extended_2022_short_good_sf_crop_big_df <-
-  safis_efforts_extended_2022_short_good_sf_crop_big |>
+coord_data_2022_short_good_sf_crop_big_df <-
+  coord_data_2022_short_good_sf_crop_big |>
   sf::st_drop_geometry()
 
-dim(safis_efforts_extended_2022_short_good_sf_crop_big_df)
+dim(coord_data_2022_short_good_sf_crop_big_df)
 # [1] 95720     17
 
 # use metrics only vessels not in SRHS ----
@@ -305,11 +305,11 @@ source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
 # fhier_reports_metrics_tracking_not_srhs_ids
 
 ## remove ids not in fhier_reports_metrics_tracking_not_srhs_ids ----
-# Create a new data frame 'safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks'
-# by filtering 'safis_efforts_extended_2022_short_good_sf_crop_big_df' based on a condition.
+# Create a new data frame 'coord_data_2022_short_good_sf_crop_big_df_in_metricks'
+# by filtering 'coord_data_2022_short_good_sf_crop_big_df' based on a condition.
 
-safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_df |>
+coord_data_2022_short_good_sf_crop_big_df_in_metricks <-
+  coord_data_2022_short_good_sf_crop_big_df |>
 
   # Use the 'filter' function to retain rows meeting a specific condition.
   dplyr::filter(
@@ -317,20 +317,20 @@ safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks <-
     VESSEL_OFFICIAL_NBR %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
-dim(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks)
+dim(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
 # [1] 93581    17
 # [1] 90838    73 from mv
 
 # by permit before mv data ----
-# print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
+# print_df_names(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE, permit_sa_gom"
 map_by_permit_before_mv_data <- function(variables) {
 
 # convert to ten_min ----
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min <-
-  get_ten_min_coords(safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks)
+coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min <-
+  get_ten_min_coords(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
 
-View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
+View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
 # [1] 95720     5
 # [1] 284785     32 (with permit)
 # [1] 111716      7 (fewer columns)
@@ -339,8 +339,8 @@ View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_
 
 # split by permit ----
 ## add permit_name_col ----
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min |>
+coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm <-
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min |>
   mutate(
     permit_region =
       case_when(
@@ -352,20 +352,20 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
       )
   )
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list <-
+coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list <-
   split(
-    safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm,
+    coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm,
     as.factor(
-      safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm$permit_region
+      coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm$permit_region
     )
   )
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_total <-
-  dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm)[[1]]
+coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_total <-
+  dim(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm)[[1]]
 # [1] 109577      8
 
 map_df(
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list,
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list,
   dim
 )
 #   gom_dual sa_only
@@ -375,13 +375,13 @@ map_df(
 
 # rowSums()
 # [1] 109577     16
-# ok (== safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_total)
+# ok (== coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_total)
 
 # save counts ----
 ## check ----
 # Use the 'map' function to perform a series of operations on a list of data frames.
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
+coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   map(
     function(permit_df) {
       # Perform operations on each 'permit_df' data frame within the list.
@@ -411,10 +411,10 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
 # 1        24.8       -80.5  2863
 # 2        24.5       -81.7  2701
 
-# View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list)
+# View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list)
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
+coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts <-
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   map(function(permit_df) {
     permit_df |>
       select(-c(permit_sa_gom,
@@ -426,10 +426,10 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
       ungroup()
   })
 
-# View(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2$gom_dual)
+# View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2$gom_dual)
 
 map_df(
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts,
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts,
   dim
 )
 #   gom_dual sa_only
@@ -437,17 +437,17 @@ map_df(
 # 1    41455   68122
  # |> rowSums()
 # [1] 109577     16
-# ok (== safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_total)
+# ok (== coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_total)
 
 # remove duplicate locations (shorten) ----
 
 # print_df_names(
-#   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts[[1]]
+#   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts[[1]]
 # )
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, ten_min_lat, ten_min_lon, location_cnts"
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
+coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
   map(function(permit_df) {
     permit_df |>
       select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR,
@@ -455,7 +455,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
       distinct()
   })
 
-safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u |>
+coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u |>
   map_df(dim)
 #   gom_dual sa_only
 #      <int>   <int>
@@ -465,7 +465,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
 
 ## prepare df ----
 gom_vessels <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual |>
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual |>
   mutate(cnt_label =
            paste0("loc: ", location_cnts_u,
                   "; trips: ",  trip_ids_cnts)) |>
@@ -513,7 +513,7 @@ gom_vessels_example_3loc <-
   filter(trip_ids_cnts %in% c("475", "839", "961"))
 
 short_example_3loc <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
   filter(
     round(ten_min_lat, digits = 1) ==
       round(gom_vessels_example_3loc$ten_min_lat,
