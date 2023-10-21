@@ -37,7 +37,7 @@ coord_data_2022_short_good_sf_crop_big_df_in_metricks_list <-
   )
 
 # Use the 'map' function to apply the 'dim' function to each element in the list.
-map(
+dplyr::map(
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list,
   dim
 )

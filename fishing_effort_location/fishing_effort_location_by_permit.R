@@ -324,7 +324,7 @@ dim(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
 # by permit before mv data ----
 # print_df_names(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE, permit_sa_gom"
-map_by_permit_before_mv_data <- function(variables) {
+map_by_permit_before_mv_data <- function() {
 
 # convert to ten_min ----
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min <-
