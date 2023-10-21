@@ -152,7 +152,7 @@ all_logbooks_db_data_2022_short_p_region <-
     permit_region =
       # Use the case_when function to conditionally assign values to 'permit_region'
       # If vessel number is in 'vessels_22_sa', set to "sa_only"
-      case_when(VESSEL_OFFICIAL_NBR %in% vessels_22_sa ~ "sa_only",
+      case_when(VESSEL_OFFICIAL_NBR %in% vessels_22_sa$vessel_official_number ~ "sa_only",
                 # For all other cases, set to "gom_and_dual"
                 .default = "gom_and_dual")
   )
@@ -190,7 +190,7 @@ dim(safis_efforts_extended_2022)
 
 # safis_efforts_extended_2022 |> select(LOCAL_AREA_NAME) |> distinct()
 
-data_overview(safis_efforts_extended_2022)
+# data_overview(safis_efforts_extended_2022)
 # TRIP_ID              97848
 # VESSEL_OFFICIAL_NBR   1943
 # LATITUDE             69913
