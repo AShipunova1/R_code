@@ -214,7 +214,7 @@ effort_cropped_short_cnt2_short_l <-
 
 # map(effort_cropped_short_cnt2_short_l, dim)
 
-# ### with rule 3 ----
+### not used, with rule 3 ----
 # effort_cropped_short_cnt_rule3_short <-
 #   effort_cropped_short_cnt_rule3 |>
 #   select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
@@ -223,7 +223,7 @@ effort_cropped_short_cnt2_short_l <-
 # # [1] 31981     5
 #
 ## join with min grid ----
-# ### rule 3 ----
+### not used, rule 3 ----
 # heat.plt_rule3 <-
 #   effort_cropped_short_cnt_rule3_short |>
 #   # have to use data.frame, to avoid
@@ -239,12 +239,17 @@ effort_cropped_short_cnt2_short_l <-
 #
 ### no rule 3 ----
 heat.plt_gom <-
+  # Extract the first element from the list.
+  # Use the pipe operator to pass it to the next operation.
   effort_cropped_short_cnt2_short_l[[1]] |>
-  # have to use data.frame, to avoid
+  # Perform an inner join with the data frame 'grid_gom5'
+  # using a common column specified by 'join_by(cell_id)'.
+  # Store the result in the variable 'heat.plt_gom'.
+  # have to use data.frame, to avoid:
   # Error: y should not have class sf; for spatial joins, use st_join
   inner_join(data.frame(grid_gom5))
-# Joining with `by = join_by(cell_id)`
 
+# the same for SA
 heat.plt_sa <-
   effort_cropped_short_cnt2_short_l[[2]] |>
   # have to use data.frame, to avoid
@@ -256,9 +261,11 @@ heat.plt_sa <-
 
 max_num3_gom <- max(heat.plt_gom$trip_id_cnt)
 # 1209
+# 1317 mv
 
 max_num3_sa <- max(heat.plt_sa$trip_id_cnt)
 # 590
+# 561 mv
 
 # map_trips_rule_3 <-
 #   make_map_trips(heat.plt,
