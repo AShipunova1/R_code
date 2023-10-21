@@ -25,20 +25,20 @@ source(
 ## heatmap data ----
 # Split the data frame into multiple sub-data frames based on the 'permit_region' column.
 
-safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list <-
+coord_data_2022_short_good_sf_crop_big_df_in_metricks_list <-
   split(
     # Data frame to be split
-    safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks,
+    coord_data_2022_short_good_sf_crop_big_df_in_metricks,
 
     # Split based on the 'permit_region' column
     as.factor(
-      safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks$permit_region
+      coord_data_2022_short_good_sf_crop_big_df_in_metricks$permit_region
     )
   )
 
 # Use the 'map' function to apply the 'dim' function to each element in the list.
 map(
-  safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list,
+  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list,
   dim
 )
 
@@ -49,7 +49,7 @@ map(
 # [1] 44066    73
 
 # for_heatmap_lat_lon_trips_only <-
-#   safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list$gom_dual |>
+#   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_dual |>
 #   select(TRIP_ID, LATITUDE, LONGITUDE) |>
 #   distinct()
 
@@ -58,7 +58,7 @@ map(
 
 # gom
 for_heatmap_lat_lon_trips_vessels_gom_only <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list$gom_dual |>
+  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_dual |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
@@ -67,7 +67,7 @@ dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 
 # sa
 for_heatmap_lat_lon_trips_vessels_sa_only <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
+  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
@@ -474,7 +474,7 @@ map_trips_stat_zone <-
 ## get trip_type data ----
 
 my_vessels_trips <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
   select(VESSEL_OFFICIAL_NBR,
          TRIP_ID) |>
   distinct()
@@ -600,7 +600,7 @@ trip_type_data_from_db_by_t_id <-
        TRIP_ID = as.character(TRIP_ID))
 
 trip_type_data_from_db_by_t_id_types <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
+  coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
   left_join(trip_type_data_from_db_by_t_id)
 # Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
 
