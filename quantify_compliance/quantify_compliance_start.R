@@ -11,10 +11,10 @@
 # dual + GOM vs. SA
 # 2023
 # dual + SA
-library(grid)
-library(zoo)
-library(gridExtra)
-library(cowplot)
+library(grid)  # Load the 'grid' library, which provides low-level graphics functions.
+library(zoo)   # Load the 'zoo' library, which deals with time series data.
+library(gridExtra)  # Load the 'gridExtra' library for arranging and combining grid graphics.
+library(cowplot)  # Load the 'cowplot' library for creating publication-ready plots with ggplot2.
 
 project_name <- "quantify_compliance"
 
@@ -29,6 +29,11 @@ source("~/R_code_github/quantify_compliance/get_data.R")
 source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
 # fhier_reports_metrics_tracking_not_srhs_ids
 
+
+# Uses the file.path function to construct a file path. The components used are:
+# my_paths$outputs: A variable containing a directory path.
+# "quantify_compliance": A directory name to be appended to the path.
+# today(): Represents a function used to include the current date, creating a date-specific path.
 plot_file_path <-
   file.path(my_paths$outputs, "quantify_compliance", today())
 # create dir if doesn't exists
@@ -53,7 +58,7 @@ title_permits <- data.frame(
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
   compl_clean_sa_vs_gom_m_int |>
-  filter(
+  dplyr::filter(
     vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
