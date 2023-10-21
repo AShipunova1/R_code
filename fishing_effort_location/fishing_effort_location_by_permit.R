@@ -250,7 +250,7 @@ coord_data_2022_short_good <-
   # Keep only distinct rows in the data frame
   distinct()
 
-dim(coord_data_2022_short)
+dim(coord_data_2022_short_good_all_coords)
 # [1] 97970    17 FHIER
 # [1] 97943    16 db
 
