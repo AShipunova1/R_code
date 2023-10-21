@@ -49,7 +49,7 @@ map(
 # [1] 44066    73
 
 # for_heatmap_lat_lon_trips_only <-
-#   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual |>
+#   safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list$gom_dual |>
 #   select(TRIP_ID, LATITUDE, LONGITUDE) |>
 #   distinct()
 
@@ -58,7 +58,7 @@ map(
 
 # gom
 for_heatmap_lat_lon_trips_vessels_gom_only <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$gom_dual |>
+  safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list$gom_dual |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
@@ -67,7 +67,7 @@ dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 
 # sa
 for_heatmap_lat_lon_trips_vessels_sa_only <-
-  safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts$sa_only |>
+  safis_efforts_extended_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
   distinct()
 
