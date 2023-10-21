@@ -64,6 +64,7 @@ for_heatmap_lat_lon_trips_vessels_gom_only <-
 
 dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # Rows: 41,455
+# [1] 46763     4 mv
 
 # sa
 for_heatmap_lat_lon_trips_vessels_sa_only <-
@@ -73,6 +74,7 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
 
 dim(for_heatmap_lat_lon_trips_vessels_sa_only)
 # [1] 68122     4
+# [1] 44060     4
 
 ### remove vessels not in Jeannette's SA list ----
 
@@ -145,21 +147,28 @@ toc()
 
 dim(effort_vsl_cropped_gom)
 # [1] 35822     7
+# [1] 40604     7 mv
 
 tic("effort_vsl_cropped_sa")
 effort_vsl_cropped_sa <- crop_by_shape(effort_vsl_sa, sa_shp)
 toc()
 # effort_vsl_cropped_sa: 0.54 sec elapsed
 
-str(effort_vsl_cropped_sa)
+dim(effort_vsl_cropped_sa)
 # [1] 21461     8
+# [1] 20147     8 mv
 
 ## count trip ids and vessels by grid cell ----
 
+# Create a list 'effort_vsl_cropped_cnt_l' by applying 'add_vsl_and_trip_cnts' function to data frames.
+
 effort_vsl_cropped_cnt_l <-
-  list(effort_vsl_cropped_gom,
-    effort_vsl_cropped_sa) |>
-  map(function(effort_vsl_cropped) {
+  list(effort_vsl_cropped_gom, effort_vsl_cropped_sa) |>
+
+  # Use the 'map' function to apply a function to each element in the list.
+  purrr::map(function(effort_vsl_cropped) {
+
+    # Apply the 'add_vsl_and_trip_cnts' function to each 'effort_vsl_cropped' data frame.
     add_vsl_and_trip_cnts(effort_vsl_cropped)
   })
 
@@ -169,30 +178,41 @@ map(effort_vsl_cropped_cnt_l, dim)
 #
 # [[2]]
 # [1] 21461    10
+# mv data:
+# [[1]]
+# [1] 40604     9
+#
+# [[2]]
+# [1] 20147    10
 
 # check
-effort_vsl_cropped_cnt_l[[1]] |>
-  sf::st_drop_geometry() |>
-  filter(cell_id == 1864) |>
-  select(vsl_cnt, trip_id_cnt) |>
-  distinct() |>
-  glimpse()
+# effort_vsl_cropped_cnt_l[[1]] |>
+#   sf::st_drop_geometry() |>
+#   filter(cell_id == 1864) |>
+#   select(vsl_cnt, trip_id_cnt) |>
+#   distinct() |>
+#   glimpse()
 # vsl_cnt     <int> 11
 # trip_id_cnt <int> 236
 
 # class(effort_vsl_cropped_cnt2)
 
 ### no rule3 ----
+# Create a list 'effort_cropped_short_cnt2_short_l' by applying a set of operations to data frames.
+
 effort_cropped_short_cnt2_short_l <-
   effort_vsl_cropped_cnt_l |>
-  map(function(effort_vsl_cropped_cnt) {
+
+  # Use the 'map' function to apply a function to each element in the list.
+  purrr::map(function(effort_vsl_cropped_cnt) {
+
+    # Use the 'select' function to remove specific columns,
+    # 'LATITUDE', 'LONGITUDE', 'TRIP_ID', and 'VESSEL_OFFICIAL_NBR', from each data frame.
     effort_vsl_cropped_cnt |>
       select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
   })
 
-map(effort_cropped_short_cnt2_short_l, dim)
-# [1] 35822     5
-# [1] 21461     6
+# map(effort_cropped_short_cnt2_short_l, dim)
 
 # ### with rule 3 ----
 # effort_cropped_short_cnt_rule3_short <-
