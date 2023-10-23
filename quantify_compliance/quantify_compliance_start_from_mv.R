@@ -94,40 +94,43 @@ compl_clean_sa_vs_gom_m_int_1 <-
 
 # remove 2023 gom_only ----
 # The function removes rows where the 'year' column is equal to "2023" and the 'permit_sa_gom' column is equal to "gom_only." 
-remove_23_gom <- function(my_df) {
-  browser()
-  my_df |>
-    dplyr::filter(!(year == "2023" &
-                      permit_sa_gom == "gom_only")) %>%
-    return()
-}
+# remove_23_gom <- function(my_df) {
+#   my_df |>
+#     dplyr::filter(!(year == "2023" &
+#                       permit_sa_gom == "gom_only")) %>%
+#     return()
+# }
 
 names(all_logbooks_db_data_2022_short_p_region) <-
   names(all_logbooks_db_data_2022_short_p_region) |>
-  tolower()
+  my_headers_case_function()
 
+all_logbooks_db_data_2022_short_p_region <- 
+  all_logbooks_db_data_2022_short_p_region |> 
+  dplyr::rename(vessel_official_number = vessel_official_nbr)
 
-compl_clean_sa_vs_gom_m_int_filtered <-
-  # from get_data
-  remove_23_gom(compl_clean_sa_vs_gom_m_int_1)
+# compl_clean_sa_vs_gom_m_int_filtered <-
+#   # from get_data
+#   remove_23_gom(compl_clean_sa_vs_gom_m_int_1)
 
 # save vsl count for future checks ----
 count_all_vessels <-
-  compl_clean_sa_vs_gom_m_int_1 %>%
+  all_logbooks_db_data_2022_short_p_region %>%
   select(vessel_official_number) %>%
   unique() %>%
   dim()
 # 4017 vessels
 count_all_vessels[1]
 # 3776
+# 1876    
 
-count_not_gom23_vessels <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
-  select(vessel_official_number) %>%
-  unique() %>%
-  dim()
+# count_not_gom23_vessels <-
+#   compl_clean_sa_vs_gom_m_int_filtered %>%
+#   select(vessel_official_number) %>%
+#   unique() %>%
+#   dim()
 # 3887 vessels
-count_not_gom23_vessels[1]
+# count_not_gom23_vessels[1]
 # 3658
 
 vessels_compl_or_not_per_y_r_all <-
