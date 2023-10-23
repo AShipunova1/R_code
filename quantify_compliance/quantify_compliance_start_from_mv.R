@@ -18,14 +18,20 @@ library(cowplot)  # Load the 'cowplot' library for creating publication-ready pl
 
 project_name <- "quantify_compliance"
 
+# Read R Code from a File
 source("~/R_code_github/useful_functions_module.r")
 
 # Use a function defined in "useful_functions_module.r". Use F2 to see a custom functions' definition.
 my_paths <- set_work_dir()
 
+# Read R Code from a File
 source("~/R_code_github/quantify_compliance/quantify_compliance_functions.R")
+
+# old
 # source("~/R_code_github/quantify_compliance/get_data.R")
+
 # get data from db ----
+# Read R Code from a File
 source(
   file.path(
     my_paths$git_r,
@@ -38,10 +44,11 @@ source(
 # vessels_to_remove_from_ours
 # all_logbooks_db_data_2022_short_p_region
 
+# Use the 'source' function to execute R code from a file.
 source(
   file.path(
-    my_paths$git_r,
-    r"(get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
+    my_paths$git_r,  # Construct the file path using elements from 'my_paths' list.
+    r"(get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"  # Specify the file path with the script name.
   )
 )
 
@@ -74,15 +81,24 @@ title_permits <- data.frame(
 
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
-  compl_clean_sa_vs_gom_m_int |>
+  # old:
+  # compl_clean_sa_vs_gom_m_int |>
+  all_logbooks_db_data_2022_short_p_region |>
   dplyr::filter(
-    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
+    VESSEL_OFFICIAL_NBR %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
+# check
+# setdiff(all_logbooks_db_data_2022_short_p_region$VESSEL_OFFICIAL_NBR,
+        # fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number)
+
 # remove 2023 gom_only ----
+# The function removes rows where the 'year' column is equal to "2023" and the 'permit_sa_gom' column is equal to "gom_only." 
 remove_23_gom <- function(my_df) {
+  browser()
   my_df |>
-    filter(!(year == "2023" & permit_sa_gom == "gom_only")) %>%
+    dplyr::filter(!(year == "2023" &
+                      permit_sa_gom == "gom_only")) %>%
     return()
 }
 
