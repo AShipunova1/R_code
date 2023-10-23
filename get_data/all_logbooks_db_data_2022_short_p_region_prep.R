@@ -152,11 +152,11 @@ source(script_path)
 all_logbooks_db_data_2022_short_p_region <-
   all_logbooks_db_data_2022_short |>
   # Use the dplyr::mutate function to add a new column 'permit_region' to the dataset
-  mutate(
+  dplyr::mutate(
     permit_region =
       # Use the case_when function to conditionally assign values to 'permit_region'
       # If vessel number is in 'vessels_22_sa', set to "sa_only"
-      case_when(VESSEL_OFFICIAL_NBR %in% vessels_22_sa$vessel_official_number ~ "sa_only",
+      dplyr::case_when(VESSEL_OFFICIAL_NBR %in% vessels_22_sa$vessel_official_number ~ "sa_only",
                 # For all other cases, set to "gom_and_dual"
                 .default = "gom_and_dual")
   )
@@ -164,4 +164,6 @@ all_logbooks_db_data_2022_short_p_region <-
 dim(all_logbooks_db_data_2022_short_p_region)
 # [1] 94471    73
 
-print("The result is in all_logbooks_db_data_2022_short_p_region")
+# Output the objects, concatenating the representations. cat performs much less conversion than print.
+cat("all_logbooks_db_data_2022_short_p_region",
+    sep = '\n')
