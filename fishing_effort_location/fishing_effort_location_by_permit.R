@@ -73,7 +73,7 @@ my_to_sf <- function(my_df) {
     # Convert the data frame to an sf object using st_as_sf from the 'sf' package
     sf::st_as_sf(
       # Specify the columns containing longitude and latitude as coordinates
-      coords = c("LONGITUDE", "LATITUDE"),
+      coords = c("longitude", "latitude"),
       # Set the coordinate reference system (CRS) using the 'sa_shp' object
       crs = sf::st_crs(sa_shp),
       # Keep the original LATITUDE and LONGITUDE columns in the resulting sf object
@@ -209,12 +209,12 @@ get_ten_min_coords <- function(my_df) {
 coord_data_2022_short_good_all_coords <-
   all_logbooks_db_data_2022_short_p_region |>
 
-  # Convert 'LONGITUDE' and 'LATITUDE' columns to numeric data types
-  dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE),
-                LATITUDE = as.numeric(LATITUDE)) |>
+  # Convert 'longitude' and 'latitude' columns to numeric data types
+  dplyr::mutate(longitude = as.numeric(longitude),
+                latitude = as.numeric(latitude)) |>
 
-  # Ensure that all 'LONGITUDE' values are negative by taking the absolute value and negating them
-  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) |>
+  # Ensure that all 'longitude' values are negative by taking the absolute value and negating them
+  dplyr::mutate(longitude = -abs(longitude)) |>
 
   # Keep only distinct rows in the data frame
   distinct()
@@ -226,12 +226,12 @@ dim(coord_data_2022_short_good_all_coords)
 # View(coord_data_2022_short)
 #
 # coord_data_2022_short_good_all_coords_fhier <-
-#   # Convert 'LONGITUDE' and 'LATITUDE' columns to numeric data types
-#   dplyr::mutate(LONGITUDE = as.numeric(LONGITUDE),
-#                 LATITUDE = as.numeric(LATITUDE)) |>
+#   # Convert 'longitude' and 'latitude' columns to numeric data types
+#   dplyr::mutate(longitude = as.numeric(longitude),
+#                 latitude = as.numeric(latitude)) |>
 #
-#   # Ensure that all 'LONGITUDE' values are negative by taking the absolute value and negating them
-#   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) |>
+#   # Ensure that all 'longitude' values are negative by taking the absolute value and negating them
+#   dplyr::mutate(longitude = -abs(longitude)) |>
 #
 #   # Keep only distinct rows in the data frame
 #   distinct()
@@ -244,8 +244,8 @@ dim(coord_data_2022_short_good_all_coords)
 coord_data_2022_short_good <-
   coord_data_2022_short_good_all_coords |>
 
-  # Use the filter function to keep rows where either 'LONGITUDE' or 'LATITUDE' is not NA
-  dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
+  # Use the filter function to keep rows where either 'longitude' or 'latitude' is not NA
+  dplyr::filter(!is.na(longitude) | !is.na(latitude)) |>
 
   # Keep only distinct rows in the data frame
   distinct()
@@ -313,8 +313,8 @@ coord_data_2022_short_good_sf_crop_big_df_in_metricks <-
 
   # Use the 'filter' function to retain rows meeting a specific condition.
   dplyr::filter(
-    # Keep rows where the 'VESSEL_OFFICIAL_NBR' values are present in the fhier_reports_metrics_tracking_not_srhs_ids
-    VESSEL_OFFICIAL_NBR %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
+    # Keep rows where the 'vessel_official_nbr' values are present in the fhier_reports_metrics_tracking_not_srhs_ids
+    vessel_official_nbr %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
 dim(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
@@ -323,7 +323,7 @@ dim(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
 
 # by permit before mv data ----
 # print_df_names(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
-# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE, permit_sa_gom"
+# [1] "trip_id, vessel_official_nbr, latitude, longitude, permit_sa_gom"
 map_by_permit_before_mv_data <- function() {
 
 # convert to ten_min ----
@@ -386,8 +386,8 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
     function(permit_df) {
       # Perform operations on each 'permit_df' data frame within the list.
       permit_df |>
-      select(-c(LATITUDE, LONGITUDE)) |>
-      # Select columns except 'LATITUDE' and 'LONGITUDE'
+      select(-c(latitude, longitude)) |>
+      # Select columns except 'latitude' and 'longitude'
       count(ten_min_lat, ten_min_lon) |>
       # Count occurrences of 'ten_min_lat' and 'ten_min_lon' combinations
       arrange(desc(n)) |>
@@ -422,7 +422,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
       dplyr::add_count(ten_min_lat, ten_min_lon,
                        name = "trip_ids_cnts") |>
       group_by(ten_min_lat, ten_min_lon) |>
-      mutate(location_cnts_u = (n_distinct(LATITUDE, LONGITUDE))) |>
+      mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
       ungroup()
   })
 
@@ -444,14 +444,14 @@ map_df(
 # print_df_names(
 #   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts[[1]]
 # )
-# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, ten_min_lat, ten_min_lon, location_cnts"
+# [1] "TRIP_ID, vessel_official_nbr, ten_min_lat, ten_min_lon, location_cnts"
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR,
-                LATITUDE, LONGITUDE)) |>
+      select(-c(TRIP_ID, vessel_official_nbr,
+                latitude, longitude)) |>
       distinct()
   })
 
@@ -531,11 +531,11 @@ short_example_3_cnts <-
   dplyr::add_count(ten_min_lat, ten_min_lon,
                    name = "trip_ids_cnts") |>
   group_by(ten_min_lat, ten_min_lon) |>
-  mutate(location_cnts_u = (n_distinct(LATITUDE, LONGITUDE))) |>
+  mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
   ungroup()
 
 short_example_3_cnts |>
-  select(LATITUDE, LONGITUDE) |>
+  select(latitude, longitude) |>
   dim()
 # 740
 
@@ -551,7 +551,7 @@ glimpse(short_example_3_cnts)
 
 short_example_3_cnts_short <-
   short_example_3_cnts |>
-  select(-c(VESSEL_OFFICIAL_NBR,
+  select(-c(vessel_official_nbr,
             permit_sa_gom,
             permit_region,
             TRIP_ID)) |>
@@ -561,7 +561,7 @@ dim(short_example_3_cnts_short)
 # [1] 564   5
 
 short_example_3_cnts_short |>
-  select(-c(LATITUDE, LONGITUDE)) |>
+  select(-c(latitude, longitude)) |>
   distinct() |>
   arrange(trip_ids_cnts)
 # ok
@@ -602,8 +602,8 @@ map_leaflet_short_example <-
   leaflet(short_example_3_cnts_short_lbl) |>
   addTiles() |>
   addCircleMarkers(
-    lat = ~ LATITUDE,
-    lng = ~ LONGITUDE,
+    lat = ~ latitude,
+    lng = ~ longitude,
     clusterOptions = markerClusterOptions()) |>
   addMarkers(
     short_example_3_cnts_short,
