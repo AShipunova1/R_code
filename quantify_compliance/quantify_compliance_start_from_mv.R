@@ -102,6 +102,11 @@ remove_23_gom <- function(my_df) {
     return()
 }
 
+names(all_logbooks_db_data_2022_short_p_region) <-
+  names(all_logbooks_db_data_2022_short_p_region) |>
+  tolower()
+
+
 compl_clean_sa_vs_gom_m_int_filtered <-
   # from get_data
   remove_23_gom(compl_clean_sa_vs_gom_m_int_1)
