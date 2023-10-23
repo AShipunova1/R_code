@@ -89,7 +89,10 @@ rm_columns <- c("ACTIVITY_TYPE",
 
 # From DB ====
 
-source(file.path(my_paths$git_r, r"(get_db_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
+# file.exists(file.path(my_paths$git_r,
+#                       r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
+
+source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
 
 # Data from FHIER ----
 ## Reports / SAFIS Efforts Extended ----
