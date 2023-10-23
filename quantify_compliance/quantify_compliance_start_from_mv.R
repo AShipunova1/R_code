@@ -1,6 +1,6 @@
 # quantify_compliance_start_from_mv.R
 
-# Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
+# Quantify program compliance for Gulf, dual Gulf/SA and SA permitted vessels.
 
 # Michelle Masi
 # Some caveats I have run into, in trying to quantify - are that folks may be missing 1 of 100 reports (e.g.) and that makes them non-compliant at the time you pull the compliance report data
@@ -18,17 +18,34 @@ library(cowplot)  # Load the 'cowplot' library for creating publication-ready pl
 
 project_name <- "quantify_compliance"
 
-# source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
-
 source("~/R_code_github/useful_functions_module.r")
+
+# Use a function defined in "useful_functions_module.r". Use F2 to see a custom functions' definition.
 my_paths <- set_work_dir()
 
 source("~/R_code_github/quantify_compliance/quantify_compliance_functions.R")
-source("~/R_code_github/quantify_compliance/get_data.R")
+# source("~/R_code_github/quantify_compliance/get_data.R")
+# get data from db ----
+source(
+  file.path(
+    my_paths$git_r,
+    r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"
+  )
+)
+# got
+# all_sheets_l
+# vessels_22_sa
+# vessels_to_remove_from_ours
+# all_logbooks_db_data_2022_short_p_region
 
-source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
+source(
+  file.path(
+    my_paths$git_r,
+    r"(get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
+  )
+)
+
 # fhier_reports_metrics_tracking_not_srhs_ids
-
 
 # Uses the file.path function to construct a file path. The components used are:
 # my_paths$outputs: A variable containing a directory path.
