@@ -155,25 +155,36 @@ compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
     )
 
   # add year_permit column ----
-  compl_clean_sa_vs_gom_m_int_c <-
-    compl_clean_sa_vs_gom_m_int %>%
+# Create a new data frame 'compl_clean_sa_vs_gom_m_int_c' by adding a new column 'year_permit' to 'compl_clean_sa_vs_gom_m_int'. Depending on the values in the 'year' and 'permit_sa_gom' columns, different combinations of 'year' and a descriptive label are created for the 'year_permit' column using the 'paste' function. 
+compl_clean_sa_vs_gom_m_int_c <- compl_clean_sa_vs_gom_m_int %>%
+
+    # Use the 'mutate' function to add a new column 'year_permit' based on conditional logic using the 'case_when' function.
     dplyr::mutate(
       year_permit =
+
+        # The 'case_when' function is used for conditional transformations.
         dplyr::case_when(
-          year == "2022" & (permit_sa_gom == "gom_only"
-                            | permit_sa_gom =="dual") ~
+
+          # When 'year' is "2022" and 'permit_sa_gom' is "gom_only" or "dual," create a string combining 'year' and "gom_dual."
+          year == "2022" & (permit_sa_gom == "gom_only" | permit_sa_gom == "dual") ~
             paste(year, "gom_dual"),
+
+          # When 'year' is "2022" and 'permit_sa_gom' is "sa_only," create a string combining 'year' and "sa_only."
           year == "2022" & permit_sa_gom == "sa_only" ~
             paste(year, "sa_only"),
+
+          # When 'year' is "2023" and 'permit_sa_gom' is either "sa_only" or "dual," create a string combining 'year' and "sa_dual."
           year == "2023" & (permit_sa_gom %in% c("sa_only", "dual")) ~
             paste(year, "sa_dual")
         )
     )
 
 
+
   return(compl_clean_sa_vs_gom_m_int_c)
 }
 
-# get data from db ----
-source(file.path(my_paths$git_r, r"(get_db_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
+# run above functions if using csvs downloaded from FHIER
 
+# get data from db ----
+source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
