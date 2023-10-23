@@ -164,6 +164,10 @@ all_logbooks_db_data_2022_short_p_region <-
 dim(all_logbooks_db_data_2022_short_p_region)
 # [1] 94471    73
 
+names(all_logbooks_db_data_2022_short_p_region) <-
+  names(all_logbooks_db_data_2022_short_p_region) |>
+  my_headers_case_function()
+
 # Output the objects, concatenating the representations. cat performs much less conversion than print.
 cat("all_logbooks_db_data_2022_short_p_region",
     sep = '\n')
