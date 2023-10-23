@@ -180,7 +180,8 @@ compl_clean_sa_vs_gom_m_int_c <- compl_clean_sa_vs_gom_m_int %>%
   return(compl_clean_sa_vs_gom_m_int_c)
 }
 
-# run above functions if using csvs downloaded from FHIER
+# Uncomment and run above functions if using csvs downloaded from FHIER
+compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 
 
 # get data from db ----
