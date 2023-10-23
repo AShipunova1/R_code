@@ -1,9 +1,11 @@
+get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
+
 source(file.path(my_paths$git_r,
-                 "get_data_from_fhier",
+                 get_data_from_fhier_dir,
                  "get_metrics_tracking.R"))
 
 source(file.path(my_paths$git_r,
-                 "get_data_from_fhier",
+                 get_data_from_fhier_dir,
                  "get_srhs_vessels.R"))
 
 ## exclude srhs vessels from metric traking ----

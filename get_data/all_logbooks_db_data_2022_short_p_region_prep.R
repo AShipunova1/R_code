@@ -93,7 +93,7 @@ rm_columns <- c("ACTIVITY_TYPE",
 "UE",
 "UNIT_MEASURE")
 
-source(file.path(my_paths$git_r, r"(get_db_data\get_db_data.R)"))
+source(file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)"))
 
 tic("run_all_get_db_data()")
 all_get_db_data_result_l <- run_all_get_db_data()

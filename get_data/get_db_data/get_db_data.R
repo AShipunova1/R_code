@@ -237,6 +237,8 @@ clean_headers <- function(my_df) {
 }
 
 # setup ----
+get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
+
 # The source function is a built-in R function that loads and executes R code from an external file. It does not return any value; it simply executes the code in the specified file.
 
 source("~/R_code_github/useful_functions_module.r")
@@ -776,12 +778,12 @@ get_compl_err_db_data <- function() {
 
 # Use the 'source' function to execute an R script file located at the specified path.
 source(file.path(my_paths$git_r,
-                 "get_data_from_fhier",
-                 "make_metric_tracking_no_srhs_flat.R"))
+                 get_data_from_fhier_dir,
+                 "get_metrics_tracking.R"))
 
 # or source separate files instead of the flat one:
 # source(file.path(my_paths$git_r,
-#                  "get_data_from_fhier",
+#                 get_data_from_fhier_dir,
 #                  "metric_tracking_no_srhs.R"))
 
 # How to create a flat file:
@@ -789,13 +791,13 @@ source(file.path(my_paths$git_r,
 # files_to_combine_list <-
 #   c(
 #     file.path(my_paths$git_r,
-#                  "get_data_from_fhier",
+#                 get_data_from_fhier_dir,
 #                  "get_srhs_vessels.R"),
 #     file.path(my_paths$git_r,
-#                  "get_data_from_fhier",
+#                 get_data_from_fhier_dir,
 #                  "get_metrics_tracking.R"),
 #     file.path(my_paths$git_r,
-#                  "get_data_from_fhier",
+#                 get_data_from_fhier_dir,
 #                  "metric_tracking_no_srhs.R")
 #   )
 #
