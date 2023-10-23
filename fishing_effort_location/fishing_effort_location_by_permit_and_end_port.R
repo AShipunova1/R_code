@@ -3,6 +3,31 @@
 # effort_vsl_cropped_cnt_l |> View()
 # coord_data_2022_short_good_sf_crop_big_df_in_metricks_list |> View()
 
+# Split the data frame into multiple sub-data frames based on the 'permit_region' column.
+
+coord_data_2022_short_good_sf_crop_big_df_in_metricks_list <-
+  split(
+    # Data frame to be split
+    coord_data_2022_short_good_sf_crop_big_df_in_metricks,
+
+    # Split based on the 'permit_region' column
+    as.factor(
+      coord_data_2022_short_good_sf_crop_big_df_in_metricks$permit_region
+    )
+  )
+
+# Use the 'map' function to apply the 'dim' function to each element in the list.
+purrr::map(
+  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list,
+  dim
+)
+
+# $gom_and_dual
+# [1] 46772    73
+#
+# $sa_only
+# [1] 44066    73
+
 coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
   select(ACTIVITY_TYPE_NAME) |>
   distinct()
