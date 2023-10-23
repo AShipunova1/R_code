@@ -6,7 +6,6 @@ library(tictoc)
 project_dir_name <- "FHIER Compliance"
 
 # Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
-
 # get data from csvs ----
 get_data_from_FHIER_csvs <- function() {
   filenames = c(
@@ -110,8 +109,6 @@ active_permits_from_pims_temp2 <- active_permits_from_pims_temp1 %>%
 }
 
 get_data_from_csv <- function() {
-  
-  
   # uncomment to run
   compl_clean <- get_data_from_FHIER_csvs()
   # View(compl_clean)
@@ -126,7 +123,8 @@ get_data_from_csv <- function() {
   active_permits_from_pims <- get_permit_data_from_PIMS_csv()
   
   compl_clean1 <- additional_clean_up(compl_clean)
-  
+
+  cat("compl_clean_sa_vs_gom_m_int_c")  
   return(compl_clean1)
 }
 
@@ -179,12 +177,17 @@ compl_clean_sa_vs_gom_m_int_c <- compl_clean_sa_vs_gom_m_int %>%
         )
     )
 
-
-
   return(compl_clean_sa_vs_gom_m_int_c)
 }
 
 # run above functions if using csvs downloaded from FHIER
 
+
 # get data from db ----
 source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
+
+# run_all_get_db_data(): 8.56 sec elapsed                                                                            
+# all_sheets_l
+# vessels_22_sa
+# vessels_to_remove_from_ours
+# all_logbooks_db_data_2022_short_p_region
