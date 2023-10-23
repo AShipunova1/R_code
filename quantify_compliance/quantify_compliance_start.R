@@ -20,15 +20,18 @@ project_name <- "quantify_compliance"
 
 # source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
+# Read R Code from a File
 source("~/R_code_github/useful_functions_module.r")
+
+# Use a function defined in "useful_functions_module.r". Use F2 to see a custom functions' definition.
 my_paths <- set_work_dir()
 
+# Read R Code from files
 source("~/R_code_github/quantify_compliance/quantify_compliance_functions.R")
 source("~/R_code_github/quantify_compliance/get_data.R")
 
-source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
+source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
 # fhier_reports_metrics_tracking_not_srhs_ids
-
 
 # Uses the file.path function to construct a file path. The components used are:
 # my_paths$outputs: A variable containing a directory path.
@@ -57,7 +60,7 @@ title_permits <- data.frame(
 
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
-  compl_clean_sa_vs_gom_m_int |>
+  compl_clean_sa_vs_gom_m_int_c |>
   dplyr::filter(
     vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
