@@ -951,7 +951,7 @@ write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
   cat(current_file_text, sep = "\n")
 
   # # Restore the default output behavior.
-  # sink()
+  sink()
 }
 
 # Function to separate permit groups into three categories based on a specified field
