@@ -777,9 +777,11 @@ get_compl_err_db_data <- function() {
 # get metric_tracking_no_srhs ----
 
 # Use the 'source' function to execute an R script file located at the specified path.
-source(file.path(my_paths$git_r,
+get_metrics_tracking_path <-
+  file.path(my_paths$git_r,
                  get_data_from_fhier_dir,
-                 "get_metrics_tracking.R"))
+                 "get_metrics_tracking.R")
+source(get_metrics_tracking_path)
 
 # or source separate files instead of the flat one:
 # source(file.path(my_paths$git_r,
