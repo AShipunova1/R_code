@@ -372,8 +372,7 @@ make_map_trips <-
         name = total_trips_title,
         labels = scales::comma,
         trans = "log1p",
-        limits = c(1, max_num),
-        oob = scales::oob_keep
+        limits = c(1, max_num)
       ) +
       # Set fill scale properties.
       # scale_fill_gradient(
