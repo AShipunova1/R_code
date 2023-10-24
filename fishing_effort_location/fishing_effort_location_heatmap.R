@@ -1,8 +1,11 @@
+# Use the 'source' function to execute R code from a file located at the given path.
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # data are from "by_permit"
 
+# Construct the file path using elements from the 'my_paths' list.
 by_permit_path <-
   file.path(
     my_paths$git_r,
@@ -17,6 +20,7 @@ library(viridis) # additional color palettes
 
 # Heatmap ----
 
+# Construct the file path using elements from the 'my_paths' list.
 heatmap_func_path <-
   file.path(my_paths$git_r,
             r"(fishing_effort_location\prepare_gom_heatmap_func.R)")
@@ -53,9 +57,15 @@ purrr::map(
 )
 
 # gom
+# Create a new data frame 'for_heatmap_lat_lon_trips_vessels_gom_only' by applying a series of data manipulation operations.
+
 for_heatmap_lat_lon_trips_vessels_gom_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
+
+  # Select specific columns.
   select(trip_id, vessel_official_nbr, latitude, longitude) |>
+
+  # Remove duplicate rows using 'distinct'.
   distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_gom_only)
@@ -65,7 +75,9 @@ dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # sa
 for_heatmap_lat_lon_trips_vessels_sa_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
+  # Select specific columns.
   select(trip_id, vessel_official_nbr, latitude, longitude) |>
+  # Remove duplicate rows using 'distinct'.
   distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_sa_only)
@@ -292,10 +304,14 @@ map_trips_no_rule_3_sa <-
            legend_text_text_size = 7.5)
 
 map_trips_no_rule_3_sa +
-  geom_sf(data = sa_s_shp) +
-  geom_sf_text(data = sa_s_shp,
-               label = sa_s_shp$NAME,
-               size = 3)
+# Add the spatial features from 'sa_s_shp' to the plot using 'geom_sf'.
+geom_sf(data = sa_s_shp) +
+
+# Annotate the plot with text labels from 'sa_s_shp' using 'geom_sf_text'.
+geom_sf_text(data = sa_s_shp,
+               label = sa_s_shp$NAME,  # Use the 'NAME' column as labels.
+               size = 3)  # Set the size of the text labels to 3.
+
 
 # make_map_trips <-
 #   function(map_trip_base_data,
@@ -308,6 +324,7 @@ map_trips_no_rule_3_sa +
 #            print_stat_zone = NULL
 #            ) {
 
+# To get end port numbers by state ----
 permit_end_port_path <-
   file.path(
     my_paths$git_r,
