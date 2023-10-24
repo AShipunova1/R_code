@@ -368,29 +368,35 @@ make_map_trips <-
         caption = caption_text
       ) +
       # theme_bw() +
-
-      # Set fill scale properties.
-      # scale_fill_gradient(
-      scale_fill_gradient2(
-      # scale_fill_gradientn(
-      #   colours = heat.colors(100),
-        # trans = 'reverse',
+      scale_fill_viridis(
         name = total_trips_title,
         labels = scales::comma,
-        low = "yellow",
-        mid = "yellow",
-        high = "red",
-
-        # low = "red",
-        # mid = "purple",
-        # high = "blue",
-
-        # trans = "log2",
         trans = "log1p",
-        limits = c(1, max_num)
-        # ,
-        # oob = scales::oob_keep
+        limits = c(1, max_num),
+        oob = scales::oob_keep
       ) +
+      # Set fill scale properties.
+      # scale_fill_gradient(
+      # scale_fill_gradient2(
+      # # scale_fill_gradientn(
+      # #   colours = heat.colors(100),
+      #   # trans = 'reverse',
+      #   name = total_trips_title,
+      #   labels = scales::comma,
+      #   low = "yellow",
+      #   mid = "yellow",
+      #   high = "red",
+      #
+      #   # low = "red",
+      #   # mid = "purple",
+      #   # high = "blue",
+      #
+      #   # trans = "log2",
+      #   trans = "log1p",
+      #   limits = c(1, max_num)
+      #   # ,
+      #   # oob = scales::oob_keep
+      # ) +
       theme(
         legend.position = "top",
         legend.justification = "left",
