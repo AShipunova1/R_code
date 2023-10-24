@@ -13,9 +13,12 @@ flat_file_name <-
 write_to_1_flat_file(flat_file_name,
                      "~/R_code_github/useful_functions_module.r")
 
-cat(flat_file_name,
-    'my_paths <- set_work_dir()',
-    sep = "\n")
+cat(
+  'my_paths <- set_work_dir()',
+  file = flat_file_name,
+  append = TRUE,
+  sep = "\n"
+)
 
 # data are from "by_permit"
 
@@ -28,9 +31,11 @@ write_to_1_flat_file(
 )
 
 cat(
-  flat_file_name,
-  "library(ggplot2) # a visualization package",
+  paste("library(ggplot2) # a visualization package",
   "library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.",
+  sep = "\n"),
+  file = flat_file_name,
+  append = TRUE,
   sep = "\n"
 )
 
@@ -72,5 +77,5 @@ file.exists(flat_file_name)
 sink.number()
 # 0 - right
 # delete the file
-unlink(flat_file_name)
+# unlink(flat_file_name)
 #
