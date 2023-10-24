@@ -26,6 +26,23 @@ write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
+    r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"
+  )
+)
+
+write_to_1_flat_file(
+  flat_file_name,
+  file.path(
+    my_paths$git_r,
+    r"(fishing_effort_location\fishing_effort_locations_get_data.R)"
+  )
+)
+
+
+write_to_1_flat_file(
+  flat_file_name,
+  file.path(
+    my_paths$git_r,
     r"(fishing_effort_location\fishing_effort_location_by_permit.R)"
   )
 )
