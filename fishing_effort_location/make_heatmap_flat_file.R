@@ -20,7 +20,49 @@ cat(
   sep = "\n"
 )
 
-# data are from "by_permit"
+get_data_from_fhier_dir <- file.path("get_data",
+                                     "get_data_from_fhier")
+
+metrick_tracking_files <-
+  list("get_srhs_vessels.R",
+    "get_metrics_tracking.R",
+    "metric_tracking_no_srhs.R")
+
+map(metrick_tracking_files,
+    function(file_name) {
+      get_metrics_tracking_path <-
+        file.path(my_paths$git_r,
+                  get_data_from_fhier_dir,
+                  file_name)
+
+      write_to_1_flat_file(flat_file_name,
+                           get_metrics_tracking_path)
+
+    }
+)
+
+get_db_data_path <-
+  file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)")
+
+write_to_1_flat_file(
+  flat_file_name,
+  get_db_data_path
+)
+
+# Build the path to the R script 'vessel_permit_corrected_list.R' by
+# combining the base path 'my_paths$git_r' and the script name.
+script_path <-
+  file.path(my_paths$git_r,
+            "vessel_permit_list/vessel_permit_corrected_list.R")
+
+# Source (run) the R script using the constructed script path.
+# source(script_path)
+# Remove "source(script_path)" from the flat file
+
+write_to_1_flat_file(
+  flat_file_name,
+  script_path
+)
 
 write_to_1_flat_file(
   flat_file_name,
@@ -62,21 +104,6 @@ write_to_1_flat_file(
     my_paths$git_r,
     r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
   )
-)
-
-# Build the path to the R script 'vessel_permit_corrected_list.R' by
-# combining the base path 'my_paths$git_r' and the script name.
-script_path <-
-  file.path(my_paths$git_r,
-            "vessel_permit_list/vessel_permit_corrected_list.R")
-
-# Source (run) the R script using the constructed script path.
-# source(script_path)
-# Remove "source(script_path)" from the flat file
-
-write_to_1_flat_file(
-  flat_file_name,
-  script_path
 )
 
 write_to_1_flat_file(
