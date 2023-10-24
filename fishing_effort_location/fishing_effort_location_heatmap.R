@@ -12,6 +12,7 @@ source(
 
 library(ggplot2) # a visualization package
 library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
+library(viridis) # additional color palettes
 
 # Heatmap ----
 
@@ -288,7 +289,7 @@ map_trips_no_rule_3_sa <-
            "total trips",
            trip_cnt_name = "trip_id_cnt",
            unit_num = 0.9,
-           legend_text_text_size = 8)
+           legend_text_text_size = 7.5)
 
 map_trips_no_rule_3_sa +
   geom_sf(data = sa_s_shp) +
