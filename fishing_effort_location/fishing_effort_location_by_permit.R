@@ -301,7 +301,7 @@ dim(coord_data_2022_short_good_sf_crop_big_df)
 # [1] 95720     17
 
 # use metrics only vessels not in SRHS ----
-source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
+source(r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)")
 # fhier_reports_metrics_tracking_not_srhs_ids
 
 ## remove ids not in fhier_reports_metrics_tracking_not_srhs_ids ----
