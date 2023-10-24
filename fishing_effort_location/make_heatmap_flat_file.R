@@ -1,5 +1,6 @@
 # heatmap_make_flat_file.R
 # Remove all "source" lines from the flat file when done.
+# source( to #source(
 
 
 source("~/R_code_github/useful_functions_module.r")
