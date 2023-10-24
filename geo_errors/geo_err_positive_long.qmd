@@ -48,6 +48,10 @@ toc(log = TRUE, quiet = TRUE)
 trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
   remove_empty_cols()
+
+View(trip_coord_info)
+# [1] 140734     39
+
 ```
 
 ## get vessel official number
@@ -209,6 +213,14 @@ trip_coord_info_vendors3 |>
 positive_long <-
   trip_coord_info_vendors3 %>%
   filter(LONGITUDE > 0)
+
+# dim(positive_long)
+# 15478    
+
+positive_long |> 
+  select(TRIP_ID) |> 
+  distinct() |> 
+  dim()
 ```
 
 ## prepare trip info
@@ -257,8 +269,11 @@ trip_coord_info_sf_out <-
     sf::st_intersects(trip_coord_info_short_sf, ne_10m_ocean_sf_bb)
   ) == 0)
 
-dim(trip_coord_info_short_sf)
+# dim(trip_coord_info_short_sf)
 # [1] 140748      3
+
+View(trip_coord_info_sf_out)
+# [1] 34548     5
 
 str(trip_coord_info_sf_out) |> 
   knitr::kable(caption = "Coordinates outside of the bb and / or on land")
@@ -373,6 +388,16 @@ positive_long_corrected_map <-
 positive_long_corrected_map
 ```
 
+
+```{r Positive longitude, corrected, cnts}
+positive_long_corrected_sf |>
+  sf::st_drop_geometry() |>
+  select(TRIP_ID) |>
+  distinct() |>
+  dim()
+# 15472     
+```
+
 ## good: inside the bb, not on land
 ```{r good: inside the bb, not on land}
 ## good: inside the bb, not on land ----
@@ -381,12 +406,26 @@ positive_long_corrected_sf_good <-
   filter(lengths(
     sf::st_intersects(positive_long_corrected_sf, ne_10m_ocean_sf_bb)
   ) > 0)
+```
+
+
+```{r good: inside the bb, not on land, cnts}
+positive_long_corrected_sf_good |> 
+  sf::st_drop_geometry() |> 
+  select(TRIP_ID) |> 
+  distinct() |> 
+  dim()
+# 12264
+```
+
+
+```{r good: inside the bb, not on land, plot}
 # mapview(positive_long_corrected_sf_good)
 ggplot() +
   ggplot2::geom_sf(data = ne_10m_land_sf_bb) +
   ggplot2::geom_sf(data = positive_long_corrected_sf_good,
                    color = "blue") +
-  ggplot2::ggtitle("Corrected points on land inside the bog box")
+  ggplot2::ggtitle("Corrected points not on land inside the bog box")
 ```
 
 ### positive_long_corrected_sf_good
@@ -405,7 +444,20 @@ positive_long_corrected_sf_bad <-
   filter(lengths(
     sf::st_intersects(positive_long_corrected_sf, ne_10m_ocean_sf_bb)
   ) == 0)
+```
 
+
+```{r bad sf, cnts}
+positive_long_corrected_sf_bad |> 
+  sf::st_drop_geometry() |> 
+  select(TRIP_ID) |> 
+  distinct() |> 
+  dim()
+# 3208
+```
+
+
+```{r bad sf, plot}
 positive_long_corrected_sf_bad |> 
   map_plot(my_title = 'Positive longitude, corrected, but on land or out of the bb') +
   red_bounding_box
@@ -605,7 +657,7 @@ lattice::histogram(~ cnt_diff,
                    data = bad_cnt_join,
                    # x_breaks <- c(-3, -1.5, 0, 1.5, 3),
           xlab = "Difference between total and wrong trip coordinates",
-          main = "Most of the vessels in this category have all coordinates reported incorrectly")
+          main = "Most of the vessels in this category\nhave all coordinates reported incorrectly")
 ```
 
 # check both good and bad
