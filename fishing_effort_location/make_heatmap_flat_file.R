@@ -24,19 +24,19 @@ fishing_effort_location_by_permit_and_end_port_path <-
     r"(fishing_effort_location\fishing_effort_location_by_permit_and_end_port.R)"
   )
 
-file.exists(fishing_effort_location_by_permit_and_end_port_path)
-
-write_to_1_flat_file(
-  flat_file_name,
-  fishing_effort_location_by_permit_and_end_port_path
-)
-
 write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
     r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
   )
+)
+
+file.exists(fishing_effort_location_by_permit_and_end_port_path)
+
+write_to_1_flat_file(
+  flat_file_name,
+  fishing_effort_location_by_permit_and_end_port_path
 )
 
 write_to_1_flat_file(
