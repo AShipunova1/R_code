@@ -373,9 +373,14 @@ make_map_trips <-
       scale_fill_gradient2(
         name = total_trips_title,
         labels = scales::comma,
-        low = "red",
-        mid = "purple",
-        high = "blue",
+        low = "yellow",
+        mid = "red",
+        high = "darkred",
+
+        # low = "red",
+        # mid = "purple",
+        # high = "blue",
+
         # trans = "log2",
         trans = "log1p",
         limits = c(1, max_num)
