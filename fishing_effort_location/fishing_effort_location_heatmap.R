@@ -32,6 +32,25 @@ source(
 # glimpse(for_heatmap_lat_lon_trips_only)
 # Rows: 41,455
 
+# Split the data frame into multiple sub-data frames based on the 'permit_region' column.
+
+coord_data_2022_short_good_sf_crop_big_df_in_metricks_list <-
+  split(
+    # Data frame to be split
+    coord_data_2022_short_good_sf_crop_big_df_in_metricks,
+
+    # Split based on the 'permit_region' column
+    as.factor(
+      coord_data_2022_short_good_sf_crop_big_df_in_metricks$permit_region
+    )
+  )
+
+# Use the 'map' function to apply the 'dim' function to each element in the list.
+purrr::map(
+  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list,
+  dim
+)
+
 # gom
 for_heatmap_lat_lon_trips_vessels_gom_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
@@ -250,6 +269,7 @@ max_num3_sa <- max(heat.plt_sa$trip_id_cnt)
 #            max_num = max_num3,
 #            caption_text = "Heat map of SEFHIER trips (5 min. resolution). 2022. GoM permitted vessels. Only squares with more than 3 reporting vessels are shown. ")
 
+### GOM & dual 2022 ====
 # map_trips_no_rule_3
 # print_df_names(heat.plt_gom)
 map_trips_no_rule_3_gom <-
@@ -261,7 +281,7 @@ map_trips_no_rule_3_gom <-
 
 map_trips_no_rule_3_gom
 
-
+### SA 2022 ====
 map_trips_no_rule_3_sa <-
   make_map_trips(heat.plt_sa,
            sa_shp,
