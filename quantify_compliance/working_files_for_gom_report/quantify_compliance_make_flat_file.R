@@ -28,7 +28,7 @@ write_to_1_flat_file(flat_file_name, current_file_name)
 current_file_name <- "~/R_code_github/quantify_compliance/get_data.R"
 write_to_1_flat_file(flat_file_name, current_file_name)
 
-current_file_name <- r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)"
+current_file_name <- r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
 write_to_1_flat_file(flat_file_name, current_file_name)
 
 cat('plot_file_path <-
