@@ -73,7 +73,7 @@ my_to_sf <- function(my_df) {
     # Convert the data frame to an sf object using st_as_sf from the 'sf' package
     sf::st_as_sf(
       # Specify the columns containing longitude and latitude as coordinates
-      coords = c("LONGITUDE", "LATITUDE"),
+      coords = c("longitude", "latitude"),
       # Set the coordinate reference system (CRS) using the 'sa_shp' object
       crs = sf::st_crs(sa_shp),
       # Keep the original LATITUDE and LONGITUDE columns in the resulting sf object
