@@ -145,7 +145,8 @@ get_degree <- function(gis_coord) {
 get_minute <- function(gis_coord) {
   # Take the absolute value, find the fractional part, and convert to minutes.
   dd <- abs(gis_coord) %% 1
-  minute <- floor(dd * 60)
+  minutes <- floor(dd * 60)
+  return(minutes)
 }
 
 # Define an R function 'convert_to_ten_min' to convert minutes to the nearest multiple of ten.
