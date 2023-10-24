@@ -367,15 +367,18 @@ make_map_trips <-
         fill = "",
         caption = caption_text
       ) +
-      theme_bw() +
+      # theme_bw() +
 
       # Set fill scale properties.
-      scale_fill_gradient(
-      # scale_fill_gradient2(
+      # scale_fill_gradient(
+      scale_fill_gradient2(
+      # scale_fill_gradientn(
+      #   colours = heat.colors(100),
+        # trans = 'reverse',
         name = total_trips_title,
         labels = scales::comma,
         low = "yellow",
-        # mid = "red",
+        mid = "yellow",
         high = "red",
 
         # low = "red",
