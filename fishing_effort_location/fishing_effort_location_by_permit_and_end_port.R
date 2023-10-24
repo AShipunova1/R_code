@@ -29,14 +29,14 @@ purrr::map(
 # [1] 44066    73
 
 coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  select(ACTIVITY_TYPE_NAME) |>
+  select(activity_type_name) |>
   distinct()
 # 1    TRIP WITH EFFORT
 # 2                <NA>
 # 3 TRIP UNABLE TO FISH
 
 coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  select(NOTIF_LANDING_LOCATION_STATE) |>
+  select(notif_landing_location_state) |>
   distinct()
 # <NA>
 # AL
@@ -47,11 +47,11 @@ coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
 sa_end_port <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
   select(
-    TRIP_ID,
-    VESSEL_ID,
-    VESSEL_OFFICIAL_NBR,
-    END_PORT_STATE,
-    NOTIF_LANDING_LOCATION_STATE
+    trip_id,
+    vessel_id,
+    vessel_official_nbr,
+    end_port_state,
+    notif_landing_location_state
   ) |>
   distinct()
 
@@ -60,10 +60,10 @@ dim(sa_end_port)
 
 sa_end_port_cnt_vessels <-
   sa_end_port |>
-  select(VESSEL_OFFICIAL_NBR, END_PORT_STATE) |>
+  select(vessel_official_nbr, end_port_state) |>
   distinct() |>
-  filter(END_PORT_STATE %in% sa_state_abb$state_abb) |>
-  count(END_PORT_STATE)
+  filter(end_port_state %in% sa_state_abb$state_abb) |>
+  count(end_port_state)
 #   END_PORT_STATE   n
 # 1             FL 565
 # 2             GA  25
@@ -71,17 +71,17 @@ sa_end_port_cnt_vessels <-
 # 4             SC 142
 
 sa_end_port |>
-  select(VESSEL_OFFICIAL_NBR, NOTIF_LANDING_LOCATION_STATE) |>
-  filter(NOTIF_LANDING_LOCATION_STATE %in% sa_state_abb$state_abb) |>
-  count(NOTIF_LANDING_LOCATION_STATE)
+  select(vessel_official_nbr, notif_landing_location_state) |>
+  filter(notif_landing_location_state %in% sa_state_abb$state_abb) |>
+  count(notif_landing_location_state)
 # 1                           FL 688
 
 sa_end_port_cnt_trips <-
   sa_end_port |>
-  select(TRIP_ID, END_PORT_STATE) |>
+  select(trip_id, end_port_state) |>
   distinct() |>
-  filter(END_PORT_STATE %in% sa_state_abb$state_abb) |>
-  count(END_PORT_STATE)
+  filter(end_port_state %in% sa_state_abb$state_abb) |>
+  count(end_port_state)
 
 #   END_PORT_STATE     n
 # FL 27332
