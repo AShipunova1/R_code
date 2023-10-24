@@ -258,7 +258,7 @@ df_join_grid <- function(my_df, grid, my_crs) {
   my_df_grid <-
     my_df |>
     sf::st_as_sf(
-      coords = c("LONGITUDE", "LATITUDE"),
+      coords = c("longitude", "latitude"),
       crs = my_crs) |>
 
   # Join the resulting spatial data frame with the 'grid' using the nearest feature join.
@@ -277,9 +277,9 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
   my_sf |>
     sf::st_join(my_shp, left = FALSE) %>%
 
-  # Extract the LONGITUDE and LATITUDE coordinates from the joined spatial object.
-  dplyr::mutate(LONGITUDE = sf::st_coordinates(.)[, 1],
-         LATITUDE = sf::st_coordinates(.)[, 2]) %>%
+  # extract the longitude and latitude coordinates from the joined spatial object.
+  dplyr::mutate(longitude = sf::st_coordinates(.)[, 1],
+         latitude = sf::st_coordinates(.)[, 2]) %>%
 
   # Return the cropped and transformed spatial object.
   return()
@@ -288,9 +288,9 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
 ## count trip ids and vessels by grid cell ----
 # Define a function 'add_vsl_and_trip_cnts' that adds vessel and trip counts to a data frame.
 # - 'my_df' is the input data frame.
-# - 'vessel_id_name' is the name of the column containing vessel IDs (default is "VESSEL_OFFICIAL_NBR").
+# - 'vessel_id_name' is the name of the column containing vessel IDs (default is "vessel_official_nbr").
 
-add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "VESSEL_OFFICIAL_NBR") {
+add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr") {
   # Group the data frame by 'cell_id'.
   my_df |>
     group_by(cell_id) |>
@@ -304,7 +304,7 @@ add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "VESSEL_OFFICIAL_NBR")
       vsl_cnt =
         dplyr::n_distinct(!!rlang::sym(vessel_id_name)),
       trip_id_cnt =
-        dplyr::n_distinct(TRIP_ID)
+        dplyr::n_distinct(trip_id)
     ) |>
 
   # Ungroup the data frame to remove grouping and return the result.
