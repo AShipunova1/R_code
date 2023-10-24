@@ -26,7 +26,7 @@ source(
 
 # for_heatmap_lat_lon_trips_only <-
 #   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
-#   select(TRIP_ID, LATITUDE, LONGITUDE) |>
+#   select(trip_id, latitude, longitude) |>
 #   distinct()
 
 # glimpse(for_heatmap_lat_lon_trips_only)
@@ -35,7 +35,7 @@ source(
 # gom
 for_heatmap_lat_lon_trips_vessels_gom_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
-  select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
+  select(trip_id, vessel_official_nbr, latitude, longitude) |>
   distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_gom_only)
@@ -45,7 +45,7 @@ dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # sa
 for_heatmap_lat_lon_trips_vessels_sa_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
+  select(trip_id, vessel_official_nbr, latitude, longitude) |>
   distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_sa_only)
@@ -67,7 +67,7 @@ source(script_path)
 # 'vessels_to_remove_from_ours' vector.
 for_heatmap_lat_lon_trips_vessels_sa_only_rm <-
   for_heatmap_lat_lon_trips_vessels_sa_only |>
-  filter(!VESSEL_OFFICIAL_NBR %in% vessels_to_remove_from_ours)
+  filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
 
 dim(for_heatmap_lat_lon_trips_vessels_sa_only_rm)
 # [1] 67983     4
@@ -183,9 +183,9 @@ effort_cropped_short_cnt2_short_l <-
   purrr::map(function(effort_vsl_cropped_cnt) {
 
     # Use the 'select' function to remove specific columns,
-    # 'LATITUDE', 'LONGITUDE', 'TRIP_ID', and 'VESSEL_OFFICIAL_NBR', from each data frame.
+    # 'latitude', 'longitude', 'trip_id', and 'VESSEL_OFFICIAL_NBR', from each data frame.
     effort_vsl_cropped_cnt |>
-      select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
+      select(-c(latitude, longitude, trip_id, vessel_official_nbr))
   })
 
 # map(effort_cropped_short_cnt2_short_l, dim)
@@ -193,7 +193,7 @@ effort_cropped_short_cnt2_short_l <-
 ### not used, with rule 3 ----
 # effort_cropped_short_cnt_rule3_short <-
 #   effort_cropped_short_cnt_rule3 |>
-#   select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR))
+#   select(-c(latitude, longitude, trip_id, vessel_official_nbr))
 #
 # dim(effort_cropped_short_cnt_rule3_short)
 # # [1] 31981     5
@@ -301,7 +301,7 @@ tic("for_heatmap_lat_lon_trips_vessels_only_join_gomsf")
 for_heatmap_lat_lon_trips_vessels_only_join_gomsf <-
   for_heatmap_lat_lon_trips_vessels_gom_only |>
         st_as_sf(
-        coords = c("LONGITUDE", "LATITUDE"),
+        coords = c("longitude", "latitude"),
         crs = st_crs(GOMsf)) |>
         # ,
         # remove = FALSE) %>%
@@ -317,26 +317,26 @@ tic("for_heatmap_lat_lon_trips_vessels_only_inters_gomsf")
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf <-
   for_heatmap_lat_lon_trips_vessels_gom_only |>
         st_as_sf(
-        coords = c("LONGITUDE", "LATITUDE"),
+        coords = c("longitude", "latitude"),
         crs = st_crs(GOMsf)) |>
   st_join(GOMsf, left = FALSE) %>%
-  mutate(LONGITUDE = st_coordinates(.)[, 1],
-         LATITUDE = st_coordinates(.)[, 2])
+  mutate(longitude = st_coordinates(.)[, 1],
+         latitudE = st_coordinates(.)[, 2])
 toc()
 # for_heatmap_lat_lon_trips_vessels_only_join_gomsf_1: 0.5 sec elapsed
 
 # only points in GOM
 dim(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf)
 # [1] 35822     6
-# [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, geometry, StatZone, LONGITUDE, LATITUDE"
+# [1] "trip_id, vessel_official_nbr, geometry, StatZone, longitude, latitude"
 
 ### count trip ids and vessels by statZone ----
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf |>
   # sf::st_drop_geometry() |>
   group_by(StatZone) |>
-  mutate(vsl_cnt_stat_zone = n_distinct(VESSEL_OFFICIAL_NBR),
-         trip_id_cnt_stat_zone = n_distinct(TRIP_ID)) |>
+  mutate(vsl_cnt_stat_zone = n_distinct(vessel_official_nbr),
+         trip_id_cnt_stat_zone = n_distinct(trip_id)) |>
   ungroup()
 
 View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
@@ -355,7 +355,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
 ### remove extra columns ----
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
-  select(-c(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
+  select(-c(latitude, longitude, trip_id, vessel_official_nbr)) |>
   distinct() |>
   ungroup()
 
@@ -485,8 +485,8 @@ map_trips_stat_zone <-
 
 my_vessels_trips <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_and_dual |>
-  select(VESSEL_OFFICIAL_NBR,
-         TRIP_ID) |>
+  select(vessel_official_nbr,
+         trip_id) |>
   distinct()
 
 str(my_vessels_trips)
@@ -495,7 +495,7 @@ str(my_vessels_trips)
 
 ### create a db query with chunks, otherwise Oracle error ----
 
-my_vessels_ids_u <- unique(my_vessels_trips$VESSEL_OFFICIAL_NBR)
+my_vessels_ids_u <- unique(my_vessels_trips$vessel_official_nbr)
 
 full_length <- length(my_vessels_ids_u)
 # 626
@@ -598,7 +598,7 @@ glimpse(trip_type_data_from_db)
 ## keep only trips we have in our original data ----
 trip_type_data_from_db_by_t_id <-
   trip_type_data_from_db |>
-  filter(TRIP_ID %in% my_vessels_trips$TRIP_ID) |>
+  filter(trip_id %in% my_vessels_trips$trip_id) |>
   distinct()
 
 glimpse(trip_type_data_from_db_by_t_id)
@@ -607,21 +607,21 @@ glimpse(trip_type_data_from_db_by_t_id)
 ## add trip_type data to the original data ----
 trip_type_data_from_db_by_t_id <-
   mutate(trip_type_data_from_db_by_t_id,
-       TRIP_ID = as.character(TRIP_ID))
+       trip_id = as.character(trip_id))
 
 trip_type_data_from_db_by_t_id_types <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_and_dual |>
   left_join(trip_type_data_from_db_by_t_id)
-# Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
+# joining with `by = join_by(trip_id, vessel_official_nbr)`
 
 ## separate by trip type ----
 trip_type_data_from_db_by_t_id_types_l <-
   trip_type_data_from_db_by_t_id_types |>
-  split(as.factor(trip_type_data_from_db_by_t_id_types$TRIP_TYPE_NAME)) |>
+  split(as.factor(trip_type_data_from_db_by_t_id_types$trip_type_name)) |>
   # remove extra columns in each df
   map(\(x)
       x |>
-        dplyr::select(TRIP_ID, VESSEL_OFFICIAL_NBR, LATITUDE, LONGITUDE) |>
+        dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
         distinct())
 
 
