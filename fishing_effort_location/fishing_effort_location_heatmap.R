@@ -3,12 +3,13 @@ my_paths <- set_work_dir()
 
 # data are from "by_permit"
 
-source(
+by_permit_path <-
   file.path(
     my_paths$git_r,
     r"(fishing_effort_location\fishing_effort_location_by_permit.R)"
   )
-)
+
+source(by_permit_path)
 
 library(ggplot2) # a visualization package
 library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
@@ -16,12 +17,11 @@ library(viridis) # additional color palettes
 
 # Heatmap ----
 
-source(
-  file.path(
-    my_paths$git_r,
-    r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
-  )
-)
+heatmap_func_path <-
+  file.path(my_paths$git_r,
+            r"(fishing_effort_location\prepare_gom_heatmap_func.R)")
+
+source(heatmap_func_path)
 
 ## heatmap data ----
 
@@ -308,10 +308,11 @@ map_trips_no_rule_3_sa +
 #            print_stat_zone = NULL
 #            ) {
 
-source(
+permit_end_port_path <-
   file.path(
     my_paths$git_r,
     r"(fishing_effort_location\fishing_effort_location_by_permit_and_end_port.R)"
   )
-)
+
+source(permit_end_port_path)
 
