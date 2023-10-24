@@ -59,13 +59,15 @@ my_paths <- set_work_dir()
 current_project_name <- "fishing_effort_location"
 
 # Source another external R script using 'file.path' to construct the full file path.
-source(
-  file.path(
-    my_paths$git_r,                    # Path to the git repository directory
-    current_project_name,              # Subdirectory for the current project
-    "fishing_effort_locations_get_data.R"  # Name of the R script to source
-  )
-)
+get_data_path <-
+  file.path(# Path to the git repository directory
+    my_paths$git_r,
+    # Subdirectory for the current project
+    current_project_name,
+    # Name of the R script to source
+    "fishing_effort_locations_get_data.R")
+
+source(get_data_path)
 
 # Define an R function 'my_to_sf' for converting a data frame to an sf object.
 my_to_sf <- function(my_df) {
