@@ -1,3 +1,6 @@
+library(mapview)
+library(sf)
+
 # get area data ----
 rm_columns <- c("ACTIVITY_TYPE",
 "ANYTHING_CAUGHT_FLAG",
@@ -155,7 +158,7 @@ dim(safis_efforts_extended_2022_short)
 read_shapefile <- function(filename) {
   shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
 
-  x <- read_sf(shapefile_file_name)
+  x <- sf::read_sf(shapefile_file_name)
   return(x)
 }
 
