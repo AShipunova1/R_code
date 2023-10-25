@@ -12,26 +12,26 @@ flat_file_name <-
   file.path(dir_to_comb, "flat_file_heatmap.R")
 
 # ---
-# Define a custom R function 'write_to_flat_file_with_header' that adds a header and a specified file's content to a flat file.
-write_to_flat_file_with_header <-
-  function(flat_file_name, add_file_name) {
-
-    # Use 'cat' to write a header line with the current file name to 'flat_file_name'.
-  # The header is generated with 'str_glue', including the current file's name extracted from 'add_file_name'.
-  cat(
-    stringr::str_glue("#' ## Current file: {basename(add_file_name)}"),  # Create the header using 'str_glue'.
-    file = flat_file_name,  # Specify the output file.
-    append = TRUE,          # Append to an existing file if it exists.
-    sep = "\n"             # Specify a newline separator.
-  )
-
-  # Call the 'write_to_1_flat_file' function to write the contents of 'add_file_name' to 'flat_file_name'.
-  write_to_1_flat_file(flat_file_name, add_file_name)
-}
+# Define a custom R function 'write_to_1_flat_file' that adds a header and a specified file's content to a flat file.
+# write_to_flat_file_with_header <-
+  # function(flat_file_name, add_file_name) {
+  #
+  #   # Use 'cat' to write a header line with the current file name to 'flat_file_name'.
+  # # The header is generated with 'str_glue', including the current file's name extracted from 'add_file_name'.
+  # cat(
+  #   stringr::str_glue("#' ## Current file: {basename(add_file_name)}"),  # Create the header using 'str_glue'.
+  #   file = flat_file_name,  # Specify the output file.
+  #   append = TRUE,          # Append to an existing file if it exists.
+  #   sep = "\n"             # Specify a newline separator.
+  # )
+  #
+  # # Call the 'write_to_1_flat_file' function to write the contents of 'add_file_name' to 'flat_file_name'.
+  # write_to_1_flat_file(flat_file_name, add_file_name)
+# }
 
 # ===
 add_file_name <- "~/R_code_github/useful_functions_module.r"
-write_to_flat_file_with_header(flat_file_name, add_file_name)
+write_to_1_flat_file(flat_file_name, add_file_name)
 
 cat(
   'my_paths <- set_work_dir()',
@@ -57,14 +57,14 @@ map(metrick_tracking_files,
 
       # write_to_1_flat_file(flat_file_name,
       #                      get_metrics_tracking_path)
-      write_to_flat_file_with_header(flat_file_name, get_metrics_tracking_path)
+      write_to_1_flat_file(flat_file_name, get_metrics_tracking_path)
     }
 )
 
 get_db_data_path <-
   file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)")
 
-write_to_flat_file_with_header(
+write_to_1_flat_file(
   flat_file_name,
   get_db_data_path
 )
@@ -79,12 +79,12 @@ script_path <-
 # source(script_path)
 # Remove "source(script_path)" from the flat file
 
-write_to_flat_file_with_header(
+write_to_1_flat_file(
   flat_file_name,
   script_path
 )
 
-write_to_flat_file_with_header(
+write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
@@ -92,7 +92,7 @@ write_to_flat_file_with_header(
   )
 )
 
-write_to_flat_file_with_header(
+write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
@@ -101,7 +101,7 @@ write_to_flat_file_with_header(
 )
 
 
-write_to_flat_file_with_header(
+write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
@@ -118,7 +118,7 @@ cat(
   sep = "\n"
 )
 
-write_to_flat_file_with_header(
+write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
@@ -126,7 +126,7 @@ write_to_flat_file_with_header(
   )
 )
 
-write_to_flat_file_with_header(
+write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
