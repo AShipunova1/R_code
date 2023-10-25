@@ -42,6 +42,14 @@ head_flat_file_r_text_one_line <-
   # paste(head(flat_file_r_with_headers_text_one_line), collapse = "\n")
 "\n\n#' #### Current file: ~\\R_code_github\\useful_functions_module.r \n#+ Current file: ~\\R_code_github\\R_code_githubssss111\\useful_functions_module.r \n#### Current file: ~\\R_code_github\\useful_functions_module.r ----\n\n# nolint: commented_code_linter\n# useful functions"
 
+pattern <- "#[+]\\s+(\\w+?)(\\W?)([^#]+)"
+result <-
+  regmatches(head_flat_file_r_text_one_line,
+             regexec(pattern, head_flat_file_r_text_one_line))
+
+res1 <- gsub("[^A-Za-z #+]", "_", result[[1]][1])
+
+
 # flat_file_r_with_headers_text_safe_slash <-
   # gsub("(#\\+ .*)[^A-Za-z ]([^#]+)",
   gsub("#[+] (.*?)\\\\([^#]+)",
