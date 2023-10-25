@@ -24,7 +24,21 @@ flat_file_r_with_headers_text <-
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
-knitr::spin(r_file_name, knit = FALSE)
+
+tic("rmd_text")
+rmd_text <-
+  knitr::spin(text = flat_file_r_with_headers_text,
+              knit = FALSE)
+toc()
+
+# In this code, the 'knitr::stitch_rmd' function is used to create an R Markdown (Rmd) document from the provided text content ('flat_file_r_with_headers'). The resulting Rmd document is then saved to the file path specified by 'rmd_file_name'.
+
+# too slow
+# tic("stitch_rmd")
+# knitr::stitch_rmd(text = flat_file_r_with_headers_text,
+                  # output = rmd_file_name)
+
+# toc()
 
 # prepare all pieces ----
 
