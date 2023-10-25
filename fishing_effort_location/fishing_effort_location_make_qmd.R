@@ -24,7 +24,7 @@ qmd_file_name <-
 
 flat_file_r_with_headers_text <-
   gsub("^(#+ )(.+)(----)",
-       "#' \\1\\2\\n\\1\\2\\3",
+       "#' \\1\\2\\\n\\1\\2\\3",
        readLines(r_file_name))
 
 # glimpse(flat_file_r_with_headers)
@@ -92,7 +92,7 @@ cat(
 )
 
 cat(
-  rmd_contents,
+  rmd_text,
   file = qmd_file_name,
   append = TRUE,
   sep = "\n"
