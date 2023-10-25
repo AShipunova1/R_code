@@ -13,6 +13,16 @@ rmd_file_name <-
 qmd_file_name <-
   file.path(dir_to_comb, "flat_file_heatmap.qmd")
 
+# Add headers to the flat file to be converted by knitr ----
+flat_file_r_with_headers_text <-
+  gsub("^(#+ )(.+)(----)",
+       "#' \\1\\2\\n\\1\\2\\3",
+       readLines(r_file_name))
+
+# glimpse(flat_file_r_with_headers)
+ # chr [1:11952] "#' ## Current file: useful_functions_module.r" "" "" ...
+
+# convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 knitr::spin(r_file_name, knit = FALSE)
 
