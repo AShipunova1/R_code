@@ -191,10 +191,16 @@ ggplot() +
   geom_sf(data = atl_shp, fill = NA)
 
 # read in GOM shp ----
+# Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
+GOM_400fm_path <-
+  file.path(my_paths$inputs, r"(..\GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)")
+# file.exists(GOM_400fm_path)
+# T
+
 # Read a shapefile from the specified file path using 'sf::read_sf'.
 # Then, group the resulting data by 'StatZone' and summarize it.
 GOMsf <-
-  sf::read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
+  sf::read_sf(GOM_400fm_path) %>%
   group_by(StatZone) %>%
   summarise()
 
