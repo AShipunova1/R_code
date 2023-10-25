@@ -24,19 +24,31 @@ qmd_file_name <-
 # This transformation is used to adapt R script file to an R Markdown format by converting header lines to Roxygen-style comments.
 #
 
+flat_file_r_text <-
+  readLines(r_file_name)
+
+head_flat_file_r_text <-
+  head(flat_file_r_text)
+
 flat_file_r_with_headers_text <-
   gsub("^(#+ )(.+)(----)",
        "#' \\1\\2\\\n#+ \\2\\\n\\1\\2\\3",
-       readLines(r_file_name))
+       flat_file_r_text)
 
-# head(flat_file_r_with_headers_text)
+flat_file_r_with_headers_text_one_line <-
+  paste(flat_file_r_with_headers_text, collapse = "\n")
+
+head_flat_file_r_text_one_line <-
+  # paste(head(flat_file_r_with_headers_text_one_line), collapse = "\n")
+"\n\n#' #### Current file: ~\\R_code_github\\useful_functions_module.r \n#+ Current file: ~\\R_code_github\\R_code_githubssss111\\useful_functions_module.r \n#### Current file: ~\\R_code_github\\useful_functions_module.r ----\n\n# nolint: commented_code_linter\n# useful functions"
 
 # flat_file_r_with_headers_text_safe_slash <-
-#   gsub("\\([^0-9 ])",
-#        "/\\1",
-#        flat_file_r_with_headers_text)
+  # gsub("(#\\+ .*)[^A-Za-z ]([^#]+)",
+  gsub("#[+] (.*?)\\\\([^#]+)",
+        "#+ \\1$$$$\\2",
+       head_flat_file_r_text_one_line)
 
-# head(flat_file_r_with_headers_text_safe_slash)
+head_flat_file_r_text_one_line
 
 # glimpse(flat_file_r_with_headers)
  # chr [1:11952] "#' ## Current file: useful_functions_module.r" "" "" ...
