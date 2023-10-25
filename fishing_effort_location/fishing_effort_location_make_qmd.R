@@ -19,8 +19,7 @@ qmd_file_name <-
 #
 # It searches for lines that start with one or more '#' symbols followed by a space, captures the content after that, and then captures a line with "----" at the end.
 # It replaces this pattern with a modified format, adding "#'" at the beginning of the first line for headers,
-# "#+" at the beginning of the second line for chunk labels,
-# and copying the pattern on the third line to keep comments in place.
+# and copying the pattern on the second line to keep comments in place.
 # This transformation is used to adapt R script file to an R Markdown format by converting header lines to Roxygen-style comments.
 #
 
@@ -32,34 +31,8 @@ head_flat_file_r_text <-
 
 flat_file_r_with_headers_text <-
   gsub("^(#+ )(.+)(----)",
-       "#' \\1\\2\\\n#+ \\2\\\n\\1\\2\\3",
+       "#' \\1\\2\\\n\\1\\2\\3",
        flat_file_r_text)
-
-# flat_file_r_with_headers_text_one_line <-
-#   paste(flat_file_r_with_headers_text, collapse = "\n")
-#
-# head_flat_file_r_text_one_line <-
-#   # paste(head(flat_file_r_with_headers_text_one_line), collapse = "\n")
-# "\n\n#' #### Current file: ~\\R_code_github\\useful_functions_module.r \n#+ Current file: ~\\R_code_github\\R_code_githubssss111\\useful_functions_module.r \n#### Current file: ~\\R_code_github\\useful_functions_module.r ----\n\n# nolint: commented_code_linter\n# useful functions"
-#
-# pattern <- "#[+]\\s+(\\w+?)(\\W?)([^#]+)"
-# result <-
-#   regmatches(head_flat_file_r_text_one_line,
-#              regexec(pattern, head_flat_file_r_text_one_line))
-#
-# res1 <- gsub("[^A-Za-z #+]", "_", result[[1]][1])
-#
-#
-# flat_file_r_with_headers_text_safe_slash <-
-  # gsub("(#\\+ .*)[^A-Za-z ]([^#]+)",
-#   gsub("#[+] (.*?)\\\\([^#]+)",
-#         "#+ \\1$$$$\\2",
-#        head_flat_file_r_text_one_line)
-#
-# head_flat_file_r_text_one_line
-
-# glimpse(flat_file_r_with_headers)
- # chr [1:11952] "#' ## Current file: useful_functions_module.r" "" "" ...
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
