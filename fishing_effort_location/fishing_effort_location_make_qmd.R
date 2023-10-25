@@ -38,21 +38,10 @@ rmd_text <-
   knitr::spin(text = flat_file_r_with_headers_text,
               knit = FALSE)
 toc()
+# rmd_text: 0.11 sec elapsed
 
-# In this code, the 'knitr::stitch_rmd' function is used to create an R Markdown (Rmd) document from the provided text content ('flat_file_r_with_headers'). The resulting Rmd document is then saved to the file path specified by 'rmd_file_name'.
-
-# too slow
-# tic("stitch_rmd")
-# knitr::stitch_rmd(text = flat_file_r_with_headers_text,
-                  # output = rmd_file_name)
-
-# toc()
-
-# prepare all pieces ----
-
-## read the new file ----
-# Read the lines of text from the specified file into a character vector called 'rmd_contents'.
-rmd_contents <- readLines(rmd_file_name)
+# str(rmd_text)
+#  chr [1:12684] "## Current file: useful_functions_module.r" ...
 
 pre_text <- '
 ---
