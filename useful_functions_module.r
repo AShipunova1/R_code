@@ -290,7 +290,7 @@ fix_names <- function(x) {
     my_headers_case_function()
 }
 
-## ---- functions to clean FHIER compliance and correspondense reports ----
+## functions to clean FHIER compliance and correspondense reports ----
 
 # split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
 # Define a function named 'clean_weeks' that takes a data frame 'my_df' as input.
@@ -696,7 +696,7 @@ get_compl_and_corresp_data <-
     # Perform cleaning and processing specific to correspondence data.
     corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
 
-    ## ---- Specific compliance manipulations ----
+    ## Specific compliance manipulations ----
     # Extract compliance data from the cleaned CSVs.
     compl_arr <- csvs_clean1[2:length(csvs_clean1)]
 
@@ -739,7 +739,7 @@ corresp_cleaning <- function(csvs_clean1) {
   return(corresp_arr_contact_cnts)
 }
 
-## ---- specific compliance manipulations ----
+## specific compliance manipulations ----
 # Define a function to clean and process compliance data.
 # This function takes 'compl_arr' as input, which is a list of compliance dataframes.
 compliance_cleaning <- function(compl_arr) {
