@@ -914,37 +914,6 @@ legend_for_grid_arrange <- function(legend_plot) {
 }
 
 # ===
-# Define a function to create a flat file by combining the contents of multiple files.
-make_a_flat_file <- function(flat_file_name, files_to_combine_list) {
-  # Redirect the output to the specified 'flat_file_name'.
-  # Loop through the list of 'files_to_combine_list'.
-  browser()
-  for (i in 1:length(files_to_combine_list)) {
-    write_to_1_flat_file(flat_file_name, files_to_combine_list[i])
-  }
-}
-
-# make_a_flat_file <- function(flat_file_name, files_to_combine_list) {
-#   # Redirect the output to the specified 'flat_file_name'.
-#   sink(flat_file_name)
-#
-#   # Loop through the list of 'files_to_combine_list'.
-#   for (i in 1:length(files_to_combine_list)) {
-#     # Read the contents of the current file.
-#     current_file <- readLines(files_to_combine_list[i])
-#
-#     # Print a header indicating the current file being processed.
-#     cat("\n\n#### Current file:", basename(files_to_combine_list[i]), "----\n\n")
-#
-#     # Print the contents of the current file, separating lines with newline characters.
-#     cat(current_file, sep = "\n")
-#   }
-#
-#   # Restore the default output behavior.
-#   sink()
-# }
-
-# ===
 # Define a function to append the contents of a single file to an existing flat file.
 write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
   # Redirect the output to the specified 'flat_file_name' and append content.
