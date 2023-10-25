@@ -945,7 +945,7 @@ write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
   current_file_text <- readLines(file_name_to_write)
 
   # Print a header indicating the current file being processed.
-  cat("\n\n#### Current file:", file_name_to_write, "----\n\n")
+  cat("\n\n#### Current file:", basename(file_name_to_write), "----\n\n")
 
   # Print the contents of the current file, separating lines with newline characters.
   cat(current_file_text, sep = "\n")
