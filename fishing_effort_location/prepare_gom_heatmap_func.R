@@ -77,7 +77,7 @@ sa_state_abb <-
 #   # remove this column, we don't need it anymore
 #   select(-end_port_fl_reg)
 
-# #### test: check new cols of states and regions ----
+#### test: check new cols of states and regions ----
 # fhier_logbooks_content_waves__sa_gom %>%
 #   # look at states and regions
 #   select(end_port_state, end_port_sa_gom) %>%

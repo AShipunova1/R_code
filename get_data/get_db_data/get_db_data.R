@@ -617,7 +617,7 @@ get_vessels_permits <-
 # 2023-09-20 run the function: 14.08 sec elapsed
 
 # an additional procedure, usually is not needed
-# find \\0 column ----
+# find 0 column ----
 # get vessels
 # can't because of "\\0"
 # use:
