@@ -8,18 +8,7 @@ html_document:
   code-fold: true
   code-summary: "Show the code"
   code-line-numbers: true
-  date: today
+  date: today()
   execute:
     warning: false
     cache: true
-# format:
-#   html:
-#     toc: true
-#     toc-depth: 2
-#     number_sections: true
-#     css: style.css
-#     code-overflow: wrap
-#     code-fold: true
-#     code-summary: "Show the code"
-#     code-line-numbers: true
-#
