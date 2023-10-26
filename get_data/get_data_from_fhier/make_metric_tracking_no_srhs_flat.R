@@ -1,6 +1,6 @@
 library(tidyverse)
 library(readxl)
-# help functions ----
+# help functions in no srhs ----
 # Turn off the scientific notation
 options(scipen = 999)
 
@@ -12,7 +12,7 @@ get_username <- function(){
     return(as.character(Sys.info()["user"]))
 }
 
-# set working directories ----
+# set working directories for metricks project ----
 
 get_current_file_directory <-
   function() {

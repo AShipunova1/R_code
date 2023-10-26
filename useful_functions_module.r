@@ -64,7 +64,7 @@ get_username <- function(){
     return(as.character(Sys.info()["user"]))
 }
 
-# set working directories ----
+# set working directories in useful functions ----
 
 # Define a function named 'get_current_file_directory',
 # to obtain the directory where the script is located.

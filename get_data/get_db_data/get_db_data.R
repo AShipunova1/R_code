@@ -1,4 +1,4 @@
-# help functions ----
+# help functions (in get_data) ----
 # Load the 'tidyverse' library, which includes a collection of packages for data manipulation and visualization.
 library(tidyverse)
 
@@ -30,7 +30,7 @@ get_username <- function() {
     return(as.character(Sys.info()["user"]))
 }
 
-# set working directories ----
+# set working directories for get data ----
 
 # Define a function named 'get_current_file_directory' to obtain the directory path of the current file.
 get_current_file_directory <- function() {
@@ -236,7 +236,7 @@ clean_headers <- function(my_df) {
     return(my_df)
 }
 
-# setup ----
+# setup (in get data) ----
 get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
 
 # The source function is a built-in R function that loads and executes R code from an external file. It does not return any value; it simply executes the code in the specified file.
