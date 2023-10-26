@@ -101,23 +101,6 @@ toc()
 pre_text <- '
 ---
 title: "Fishing effort locations heatmap"
-date: today
-# project:
-#   lib-dir: ..
-output:
-  html_document
-execute:
-  warning: false
-  cache: true
-format:
-  html:
-    toc: true
-    toc-depth: 2
-    css: style.css
-    code-overflow: wrap
-    code-fold: true
-    code-summary: "Show the code"
-    code-line-numbers: true
 ---
 '
 
