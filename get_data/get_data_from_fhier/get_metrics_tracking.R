@@ -3,7 +3,7 @@
 # The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
 library(tidyverse)
 
-# help functions ----
+# help functions (in metric tracking) ----
 # Use my function in case we want to change the case in all functions
 my_headers_case_function <- tolower
 

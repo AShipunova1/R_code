@@ -23,7 +23,7 @@
 
 # north of 28N - EEZ only
 
-# setup ----
+# setup (fishing_effort_location) ----
 
 library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates

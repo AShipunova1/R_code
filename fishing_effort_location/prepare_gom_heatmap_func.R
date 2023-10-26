@@ -291,7 +291,7 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
   return()
 }
 
-## count trip ids and vessels by grid cell ----
+## count trip ids and vessels by grid cell function ----
 # Define a function 'add_vsl_and_trip_cnts' that adds vessel and trip counts to a data frame.
 # - 'my_df' is the input data frame.
 # - 'vessel_id_name' is the name of the column containing vessel IDs (default is "vessel_official_nbr").
@@ -320,7 +320,7 @@ add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr")
   return()
 }
 
-## make a plot ----
+## make a plot function ----
 # Define a function 'make_map_trips' to create a ggplot2 heatmap of trip data.
 # - 'map_trip_base_data' is the data containing trip information to be mapped.
 # - 'shape_data' is the shape data used as a backdrop for mapping.

@@ -23,7 +23,7 @@
 
 # north of 28N - EEZ only
 
-# setup ----
+# setup (fishing_effort_location_by_permit) ----
 
 # Load the 'zoo' package for date manipulations
 library(zoo)

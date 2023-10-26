@@ -1,4 +1,5 @@
-# setup ----
+# basename(rstudioapi::getSourceEditorContext()$path)
+# setup (fishing_effort_location_db) ----
 # TODO: separate and source functions from
 # "R_code_github\fishing_effort_location\fishing_effort_location_by_permit.R"
 

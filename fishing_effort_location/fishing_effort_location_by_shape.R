@@ -23,7 +23,8 @@
 
 # north of 28N - EEZ only
 
-# setup ----
+# basename(rstudioapi::getSourceEditorContext()$path)
+# setup (fishing_effort_location_by_shape) ----
 
 library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates
