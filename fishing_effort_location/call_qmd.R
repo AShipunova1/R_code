@@ -1,8 +1,12 @@
 # call_qmd
 library(knitr)
+library(quarto)
 options(knitr.duplicate.label = 'allow')
-options()
+# options()
 file_path <- "flat_file_heatmap.qmd"
 file.exists(file_path)
 # knitr::knit(file_path)
-rmarkdown::render(file_path, output_yaml = "../my_qmd_options.yml")
+# works:
+# rmarkdown::render(file_path, output_yaml = "../my_qmd_options.yml")
+# err:
+quarto_render(file_path) # all formats
