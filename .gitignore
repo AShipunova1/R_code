@@ -33,3 +33,5 @@ db_compliance/RData_big
 fishing_effort_location/flat_file_heatmap.R
 fishing_effort_location/flat_file_heatmap.Rmd
 fishing_effort_location/flat_file_heatmap.qmd
+
+/.quarto/
