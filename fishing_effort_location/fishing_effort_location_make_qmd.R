@@ -26,13 +26,36 @@ qmd_file_name <-
 flat_file_r_text <-
   readLines(r_file_name)
 
-head_flat_file_r_text <-
-  head(flat_file_r_text)
+# head_flat_file_r_text <-
+#   head(flat_file_r_text)
+
+set.seed(1000)
+
+pattern_to_add_md_headers <- "#' \\1\\2"
+pattern_to_add_md_chunk_labels <- "#+ \\2"
+# pattern_to_add_md_chunk_labels <- paste0("#+ \\2", sample(1:10000, 1))
+pattern_to_repeat_the_original <- "\\1\\2\\3"
+
+# "#' \\1\\2\\\n#+ \\2\\\n\\1\\2\\3"
 
 flat_file_r_with_headers_text <-
   gsub("^(#+ )(.+)(----)",
-       "#' \\1\\2\\\n\\1\\2\\3",
+       paste(pattern_to_add_md_headers,
+              pattern_to_add_md_chunk_labels,
+              pattern_to_repeat_the_original,
+              sep = "\\\n"),
        flat_file_r_text)
+
+# head(flat_file_r_with_headers_text)
+# flat_file_r_with_headers_text <-
+#   gsub("^(#+ )(.+)(----)",
+#        "#' \\1\\2\\\n\\1\\2\\3",
+#        flat_file_r_text)
+
+flat_file_r_with_headers_text <-
+  gsub("source\\(", "# source(", flat_file_r_with_headers_text)
+
+# head(flat_file_r_with_headers_text)
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
