@@ -692,7 +692,7 @@ get_compl_and_corresp_data <-
     # Clean and standardize headers, and trim 'vesselofficialnumber' field if needed.
     csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
 
-    # ---- Specific correspondence manipulations ----
+    # Specific correspondence manipulations ----
     # Perform cleaning and processing specific to correspondence data.
     corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
 
@@ -707,7 +707,7 @@ get_compl_and_corresp_data <-
     return(list(compl_clean, corresp_arr_contact_cnts_clean))
   }
 
-# ---- specific correspondence manipulations ----
+# specific correspondence manipulations ----
 # Define a function to clean and process correspondence data.
 # This function takes 'csvs_clean1' as input, which is a list containing cleaned CSV data.
 corresp_cleaning <- function(csvs_clean1) {
