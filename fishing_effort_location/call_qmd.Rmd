@@ -1,0 +1,20 @@
+# call_qmd
+```{r GlobalOptions}
+library(knitr)
+# chunk_counter()
+# library(checkmate)
+# source(r"(C:\Users\anna.shipunova\Downloads\parser.R)")
+op = options(knitr.duplicate.label = 'allow')
+#   parse_block('2+2', '', 'label = "a"')
+#   !has_error(parse_block(NULL, '','label = "a", code = "2+2"')),
+#   !has_error(parse_block(NULL, '','label = "a", file = "dummy.R"'))
+# )
+options(op)
+
+options(knitr.duplicate.label = 'allow')
+file_path <- "flat_file_heatmap.qmd"
+# file.exists(file_path)
+knitr::knit(file_path)
+# setOption('knitr.duplicate.label','allow')
+```
+
