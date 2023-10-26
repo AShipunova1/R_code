@@ -26,17 +26,9 @@ qmd_file_name <-
 flat_file_r_text <-
   readLines(r_file_name)
 
-# head_flat_file_r_text <-
-#   head(flat_file_r_text)
-
-set.seed(1000)
-
 pattern_to_add_md_headers <- "#' \\1\\2"
 pattern_to_add_md_chunk_labels <- "#+ \\2"
-# pattern_to_add_md_chunk_labels <- paste0("#+ \\2", sample(1:10000, 1))
 pattern_to_repeat_the_original <- "\\1\\2\\3"
-
-# "#' \\1\\2\\\n#+ \\2\\\n\\1\\2\\3"
 
 flat_file_r_with_headers_text <-
   gsub("^(#+ )(.+)(----)",
@@ -48,21 +40,15 @@ flat_file_r_with_headers_text <-
 
 j_test_text1 <- grep("Jeannette", flat_file_r_with_headers_text, value = T)
 
-# head(flat_file_r_with_headers_text)
-# flat_file_r_with_headers_text <-
-#   gsub("^(#+ )(.+)(----)",
-#        "#' \\1\\2\\\n\\1\\2\\3",
-#        flat_file_r_text)
-
 flat_file_r_with_headers_text <-
   gsub("source\\(", "# source(", flat_file_r_with_headers_text)
 
-# hh <- head(flat_file_r_with_headers_text)
-
-# works
-  # gsub("(#[+] )(.+)(#)",
-  #     "\\1 HHHH\\\n\\3",
-  #      hh)
+# In this code, 'flat_file_r_with_headers_text' is modified using the 'gsub' function to replace specific patterns in the text. The pattern being searched for is defined using a regular expression:
+#
+# It searches for lines starting with "#+" followed by a space and captures the content after that.
+# It captures a single quote or a slash.
+# It captures more content.
+# It captures a newline character.
 
 flat_file_r_with_headers_text <-
   gsub(
@@ -71,21 +57,9 @@ flat_file_r_with_headers_text <-
     flat_file_r_with_headers_text
   )
 
-# orginal
-# grep("Jeannette", flat_file_r_text)
-# [1] 2235 2237 3709
-# [1] "# read Jeannette's file ----"
-
-# test_text <- flat_file_r_text[2232:2237]
-
-# grep("Jeannette", flat_file_r_with_headers_text, value = T)
-# [1] "#' # read Jeannette's file \n#+ read Jeannette_s file \n#\n read Jeannette's file ----"
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
-# flat_file_r_with_headers_text[2309:2315]
-
-# grep("Jeannette", flat_file_r_with_headers_text, value = T)
 
 tic("rmd_text")
 rmd_text <-
@@ -107,7 +81,6 @@ title: "Fishing effort locations heatmap"
 # Setup
 setup_text <- "
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE}
-library(mapview)
 library(knitr)
 ```
 "
