@@ -9,4 +9,10 @@ file.exists(file_path)
 # works:
 # rmarkdown::render(file_path, output_yaml = "../my_qmd_options.yml")
 # err:
+knitr::opts_knit$set(knitr.duplicate.label = 'allow')
+knitr::opts_knit$set(knitr.progress.linenums = TRUE)
+
+knitr::opts_knit$set(global.par = TRUE)
+
 quarto_render(file_path) # all formats
+
