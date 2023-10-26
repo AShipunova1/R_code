@@ -46,6 +46,8 @@ flat_file_r_with_headers_text <-
               sep = "\\\n"),
        flat_file_r_text)
 
+j_test_text1 <- grep("Jeannette", flat_file_r_with_headers_text, value = T)
+
 # head(flat_file_r_with_headers_text)
 # flat_file_r_with_headers_text <-
 #   gsub("^(#+ )(.+)(----)",
@@ -55,10 +57,35 @@ flat_file_r_with_headers_text <-
 flat_file_r_with_headers_text <-
   gsub("source\\(", "# source(", flat_file_r_with_headers_text)
 
-# head(flat_file_r_with_headers_text)
+# hh <- head(flat_file_r_with_headers_text)
+
+# works
+  # gsub("(#[+] )(.+)(#)",
+  #     "\\1 HHHH\\\n\\3",
+  #      hh)
+
+flat_file_r_with_headers_text <-
+  gsub(
+    "(#\\+ )([^']+)(['])(.+)(\\\n)",
+    "\\1\\2_\\4\\5",
+    flat_file_r_with_headers_text
+  )
+
+# orginal
+# grep("Jeannette", flat_file_r_text)
+# [1] 2235 2237 3709
+# [1] "# read Jeannette's file ----"
+
+# test_text <- flat_file_r_text[2232:2237]
+
+# grep("Jeannette", flat_file_r_with_headers_text, value = T)
+# [1] "#' # read Jeannette's file \n#+ read Jeannette_s file \n#\n read Jeannette's file ----"
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
+# flat_file_r_with_headers_text[2309:2315]
+
+# grep("Jeannette", flat_file_r_with_headers_text, value = T)
 
 tic("rmd_text")
 rmd_text <-
