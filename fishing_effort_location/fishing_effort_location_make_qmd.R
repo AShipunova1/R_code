@@ -66,7 +66,7 @@ flat_file_r_with_headers_text <-
 
 flat_file_r_with_headers_text <-
   gsub(
-    "(#\\+ )([^']+)(['])(.+)(\\\n)",
+    "(#\\+ )([^'/]+)(['/])(.+)(\\\n)",
     "\\1\\2_\\4\\5",
     flat_file_r_with_headers_text
   )
