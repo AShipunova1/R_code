@@ -90,7 +90,8 @@ flat_file_r_with_headers_text <-
 tic("rmd_text")
 rmd_text <-
   knitr::spin(text = flat_file_r_with_headers_text,
-              knit = FALSE)
+              knit = FALSE,
+              format = 'qmd')
 toc()
 # rmd_text: 0.11 sec elapsed
 
@@ -123,7 +124,6 @@ format:
 # Setup
 setup_text <- "
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE}
-# setup ----
 library(mapview)
 library(knitr)
 ```
