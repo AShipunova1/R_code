@@ -1,4 +1,25 @@
 html_document:
   toc: true
-  toc_depth: 4
+  toc_depth: 2
   code_folding: "hide"
+  number_sections: true
+  css: "style.css"
+  code-overflow: "wrap"
+  code-fold: true
+  code-summary: "Show the code"
+  code-line-numbers: true
+  date: today
+  execute:
+    warning: false
+    cache: true
+# format:
+#   html:
+#     toc: true
+#     toc-depth: 2
+#     number_sections: true
+#     css: style.css
+#     code-overflow: wrap
+#     code-fold: true
+#     code-summary: "Show the code"
+#     code-line-numbers: true
+#
