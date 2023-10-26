@@ -63,7 +63,7 @@ dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
 dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp)
 # [1] 185199     28
 
-## expired: count if vessel is expired or not by year, permit and month  ----
+## count if vessel is expired or not by year, permit and month  ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp %>%
   dplyr::group_by(year_permit, year_month, perm_exp_m) %>%
@@ -306,7 +306,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2 <-
                    percent_non_compl_2_buckets,
                    name = "cnt_v_in_bucket2")
 
-# View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2)
+
 # check by counting in a different way
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   dplyr::group_by(year_permit,
@@ -466,18 +466,12 @@ sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_
 
 ### make titles ----
 get_year_permit_titles <- function(permit, year) {
-  # paste0("The Number of Non-Compliant Vessels Each Month That Were Compliant More Than 50% of a Month in ", year) |> 
-        paste0("% of non-compliant ",
-             permit,
-             " Permitted vessels by month",
-             " (", year, ")"
-             ) %>%
-    # "% of non-compliant ",
-    #      permit,
-    #      " Permitted vessels by month",
-    #      " (",
-    #      year,
-    #      ")") %>%
+  paste0("% of non-compliant ",
+         permit,
+         " Permitted vessels by month",
+         " (",
+         year,
+         ")") %>%
     return()
 }
 
@@ -712,4 +706,3 @@ all_plots_w_titles_list %>%
 
 # [[1]]
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
-

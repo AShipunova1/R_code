@@ -1,0 +1,1149 @@
+---
+title: "Geo errors: positive longitudes"
+date: today
+# project:
+#   lib-dir: ..
+output:
+  html_document
+execute:
+  warning: false
+  cache: true
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    css: style.css
+    code-overflow: wrap
+    code-fold: true
+    code-summary: "Show the code"
+    code-line-numbers: true
+---
+
+# Setup
+
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE}
+# setup ----
+library(mapview)
+library(knitr)
+
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+current_project_dir_path <-
+  file.path(my_paths$git_r, "geo_errors")
+```
+
+# Get data
+
+```{r get data, include=FALSE}
+# get data ----
+source(file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)"))
+
+tic("run_all_get_db_data()")
+all_get_db_data_result_l <- run_all_get_db_data()
+toc(log = TRUE, quiet = TRUE)
+# run_all_get_db_data(): 2.27 sec elapsed (from csv)
+
+# View(all_get_db_data_result_l)
+
+trip_coord_info <-
+  all_get_db_data_result_l[["trip_coord_info"]] |>
+  remove_empty_cols()
+
+View(trip_coord_info)
+# [1] 140734     39
+
+```
+
+## get vessel official number
+```{r get vessel o. number}
+## get vessel o. number  ----
+vessel_permits_info <-
+  all_get_db_data_result_l[["vessels_permits"]] |>
+  remove_empty_cols()
+```
+
+### keep only id info
+```{r ### keep only id info}
+### keep only id info ---
+vessel_permits_ids <-
+  vessel_permits_info |>
+  select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
+  distinct()
+```
+
+# maps functions and help
+```{r maps functions and help}
+# maps functions and help ----
+
+# world_coast map
+world_coast <-
+  rnaturalearth::ne_coastline(returnclass = "sf")
+
+crs4326 <- 4326
+
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+red_bounding_box <-
+  geom_rect(
+    aes(
+      xmin = big_bounding_box[["xmin"]],
+      xmax = big_bounding_box[["xmax"]],
+      ymin = big_bounding_box[["ymin"]],
+      ymax = big_bounding_box[["ymax"]]
+    ),
+    color = "red",
+    fill = NA
+  )
+```
+
+## mapview the big box
+```{r mapview the big box}
+## mapview the big box ----
+big_box_map <- sf::st_bbox(
+  c(
+    xmin = big_bounding_box[["xmin"]],
+    xmax = big_bounding_box[["xmax"]],
+    ymin = big_bounding_box[["ymin"]],
+    ymax = big_bounding_box[["ymax"]]
+  ),
+  crs = crs4326
+)
+
+map_plot <-
+  function(my_df_sf, coast_map = world_coast, my_title) {
+    ggplot() +
+      ggplot2::geom_sf(data = coast_map) +
+      ggplot2::geom_sf(data = my_df_sf,
+                       color = "blue") +
+      ggplot2::ggtitle(my_title)
+  }
+```
+
+## get land map
+```{r get land map}
+## get land map ----
+land_shp_f_path <- file.path(my_paths$inputs,
+                             r"(shapefiles\ne_10m_land\ne_10m_land.shp)")
+
+ne_10m_land_sf <-
+  sf::read_sf(land_shp_f_path)
+
+# sf::st_geometry(ne_10m_land_sf)
+# Geodetic CRS:  WGS 84
+# Geometry type: MULTIPOLYGON
+
+ne_10m_land_sf_bb <-
+  sf::st_crop(ne_10m_land_sf,
+              big_bounding_box)
+# plot(ne_10m_land_sf_bb)
+```
+
+## get ocean map ne 
+```{r get ocean map}
+## get ocean map ne ----
+ocean_shp_f_path <- file.path(my_paths$inputs,
+                             r"(shapefiles\ne_10m_ocean\ne_10m_ocean.shp)")
+
+ne_10m_ocean_sf <-
+  sf::read_sf(ocean_shp_f_path)
+
+ne_10m_ocean_sf_bb <-
+  sf::st_crop(ne_10m_ocean_sf,
+              big_bounding_box)
+
+# sf::st_crs(ne_10m_ocean_sf_bb)
+    # ID["EPSG",4326]]
+```
+
+# Prepare data
+## prepare vendor columns
+```{r prepare vendor columns}
+# Prepare data ----
+
+## r prepare vendor columns ----
+trip_coord_info_vendors <-
+  trip_coord_info |>
+  group_by(LATITUDE, LONGITUDE) |>
+  mutate(vendor_trip = toString(unique(T_UE)),
+         vendor_effort = toString(unique(E_UE))) |>
+  ungroup()
+
+tic("trip_coord_info_vendors3_trip")
+trip_coord_info_vendors3_trip <-
+  trip_coord_info |>
+  group_by(LATITUDE, LONGITUDE) |>
+  mutate(vendor_trip_cat = case_when(
+    trimws(tolower(T_UE)) == "vms" ~ "vms",
+    trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
+    .default = "etrips"
+  )) |>
+  ungroup()
+toc(log = TRUE, quiet = TRUE)
+# print_toc_log()
+# trip_coord_info_vendors3_trip: 71.47 sec elapsed
+
+trip_coord_info_vendors3 <-
+  trip_coord_info_vendors3_trip |>
+  mutate(year_start = year(TRIP_START_DATE))
+
+trip_coord_info_vendors3 |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
+  count(vendor_trip_cat) |>
+  knitr::kable(caption = "ALL: count(vendor_trip_cat)")
+
+trip_coord_info_vendors3 |>
+  select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
+  count(vendor_trip_cat, year_start) |>
+  knitr::kable(caption = "ALL: count(vendor_trip_cat, year_start)")
+
+# all vendors
+# etrips	47731
+# vesl	77352
+# vms	16267
+```
+
+## positive_long
+```{r positive_long}
+## positive_long ----
+positive_long <-
+  trip_coord_info_vendors3 %>%
+  filter(LONGITUDE > 0)
+
+# dim(positive_long)
+# 15478    
+
+positive_long |> 
+  select(TRIP_ID) |> 
+  distinct() |> 
+  dim()
+```
+
+## prepare trip info
+```{r prepare trip info}
+## prepare trip info ----
+trip_coord_info_short <-
+  trip_coord_info |>
+  select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
+  distinct()
+
+trip_coord_info_short_sf <-
+  trip_coord_info_short |>
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE)) |>
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = crs4326,
+    remove = FALSE
+  )
+```
+
+# cnt err per vessel 
+```{r cnt err per vessel}
+# cnt err per vessel, compare with total lgb ----
+## cnt all ----
+
+trip_coord_info_short_cnt_coord_per_vsl <-
+  trip_coord_info_short |>
+  select(-TRIP_ID) |>
+  add_count(LATITUDE, LONGITUDE, name = "total_coords_per_vsl")
+# head(trip_coord_info_short_cnt_coord_per_vsl)
+
+trip_coord_info_short_cnt_total_trips_per_vsl <-
+  trip_coord_info_short |>
+  select(-c(LATITUDE, LONGITUDE)) |>
+  count(VESSEL_ID, name = "total_trips_by_vsl")
+```
+
+## all wrong points
+```{r all wrong points}
+## all wrong points ----
+
+trip_coord_info_sf_out <-
+  trip_coord_info_short_sf |>
+  filter(lengths(
+    sf::st_intersects(trip_coord_info_short_sf, ne_10m_ocean_sf_bb)
+  ) == 0)
+
+# dim(trip_coord_info_short_sf)
+# [1] 140748      3
+
+View(trip_coord_info_sf_out)
+# [1] 34548     5
+
+str(trip_coord_info_sf_out) |> 
+  knitr::kable(caption = "Coordinates outside of the bb and / or on land")
+# [1] 35061     3
+```
+
+<!-- ## cnt all errors -->
+```{r cnt all errors, include=FALSE}
+# ## cnt all errors ----
+# trip_coord_info_sf_out_cnt_coord_per_vsl <-
+#   trip_coord_info_sf_out |>
+#   sf::st_drop_geometry() |>
+#   select(-TRIP_ID) |>
+#   add_count(LATITUDE, LONGITUDE, name = "wrong_coords_per_vsl")
+# 
+# head(trip_coord_info_sf_out_cnt_coord_per_vsl) |>
+#   knitr::kable(caption = "count outside of the bb coordinates per vessel")
+# 
+# trip_coord_info_sf_out_cnt_total_trips_per_vsl <-
+#   trip_coord_info_sf_out |>
+#   sf::st_drop_geometry() |>
+#   select(-c(LATITUDE, LONGITUDE)) |>
+#   count(VESSEL_ID, name = "wrong_trips_by_vsl")
+# 
+# str(trip_coord_info_sf_out_cnt_total_trips_per_vsl) |>
+#   knitr::kable(caption = "count outside of the bb trips per vessel")
+
+```
+
+# cnt positive lon
+```{r cnt positive lon}
+# cnt positive lon ----
+trip_coord_info_sf_pos_lon_cnt_coord_per_vsl <-
+  trip_coord_info_sf_out |>
+  sf::st_drop_geometry() |>
+  select(-TRIP_ID) |>
+  filter(LONGITUDE > 0) |>
+  add_count(LATITUDE, LONGITUDE, name = "pos_lon_per_vsl") |>
+  distinct()
+
+head(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl) |>
+  knitr::kable(caption = "glimpse count unique pos_lon coordinates per_vsl")
+
+#   LATITUDE LONGITUDE VESSEL_ID pos_lon_per_vsl
+# 1 24.00000  82.00000    326229             121
+# 2 32.85700  78.53200    397126               1
+# 3 24.00000  80.00000    247243              84
+
+trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl <-
+  trip_coord_info_sf_out |>
+  sf::st_drop_geometry() |>
+  filter(LONGITUDE > 0) |>
+  select(-c(LATITUDE, LONGITUDE)) |>
+  count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
+
+head(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl) |> 
+        knitr::kable(caption = "glimpse count pos_lon trips per vsl")
+
+compare_cnts <-
+  trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
+  full_join(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl)
+
+head(compare_cnts) |>
+  knitr::kable(caption = "glimpse counts of individual coordinates and trips")
+
+
+```
+
+# find fixable coords
+Change the sign,
+good: inside the bb and not on land
+
+## Positive longitude, corrected
+
+```{r Positive longitude, corrected}
+# find fixable coords ----
+# change the sign,
+# good: inside the bb, not on land
+## Positive longitude, corrected ----
+
+positive_long_corrected <-
+  positive_long |>
+  select(VESSEL_ID, LATITUDE, LONGITUDE, TRIP_ID, vendor_trip_cat) |>
+  mutate(LONGITUDE = -abs(LONGITUDE))
+
+positive_long_corrected_vsl_ids <-
+  positive_long_corrected |>
+  select(VESSEL_ID) |>
+  distinct()
+
+dim(positive_long_corrected_vsl_ids)
+# [1] 350   1
+```
+
+### Positive longitude, corrected to sf
+```{r Positive longitude, corrected to sf}
+### Positive longitude, corrected to sf ----
+positive_long_corrected_sf <-
+  positive_long_corrected |>
+  sf::st_as_sf(
+    coords = c("LONGITUDE",
+               "LATITUDE"),
+    crs = crs4326,
+    remove = FALSE
+  )
+
+positive_long_corrected_map <-
+  positive_long_corrected_sf |>
+  map_plot(my_title = 'Positive longitude, corrected') +
+  red_bounding_box
+
+positive_long_corrected_map
+```
+
+
+```{r Positive longitude, corrected, cnts}
+positive_long_corrected_sf |>
+  sf::st_drop_geometry() |>
+  select(TRIP_ID) |>
+  distinct() |>
+  dim()
+# 15472     
+```
+
+## good: inside the bb, not on land
+```{r good: inside the bb, not on land}
+## good: inside the bb, not on land ----
+positive_long_corrected_sf_good <-
+  positive_long_corrected_sf |>
+  filter(lengths(
+    sf::st_intersects(positive_long_corrected_sf, ne_10m_ocean_sf_bb)
+  ) > 0)
+```
+
+
+```{r good: inside the bb, not on land, cnts}
+positive_long_corrected_sf_good |> 
+  sf::st_drop_geometry() |> 
+  select(TRIP_ID) |> 
+  distinct() |> 
+  dim()
+# 12264
+```
+
+
+```{r good: inside the bb, not on land, plot}
+# mapview(positive_long_corrected_sf_good)
+ggplot() +
+  ggplot2::geom_sf(data = ne_10m_land_sf_bb) +
+  ggplot2::geom_sf(data = positive_long_corrected_sf_good,
+                   color = "blue") +
+  ggplot2::ggtitle("Corrected points not on land inside the bog box")
+```
+
+### positive_long_corrected_sf_good
+```{r good: glimpse positive_long_corrected_sf_good}
+positive_long_corrected_sf_good |>
+  head() |>
+  knitr::kable(caption = "glimpse positive_long_corrected_sf_good")
+
+```
+
+## bad sf
+```{r bad sf}
+## bad sf ----
+positive_long_corrected_sf_bad <-
+  positive_long_corrected_sf |>
+  filter(lengths(
+    sf::st_intersects(positive_long_corrected_sf, ne_10m_ocean_sf_bb)
+  ) == 0)
+```
+
+
+```{r bad sf, cnts}
+positive_long_corrected_sf_bad |> 
+  sf::st_drop_geometry() |> 
+  select(TRIP_ID) |> 
+  distinct() |> 
+  dim()
+# 3208
+```
+
+
+```{r bad sf, plot}
+positive_long_corrected_sf_bad |> 
+  map_plot(my_title = 'Positive longitude, corrected, but on land or out of the bb') +
+  red_bounding_box
+```
+
+## good vessels
+
+```{r good vessels}
+## good vessels ----
+positive_long_corrected_good_vsl_ids <-
+  positive_long_corrected_sf_good |>
+  sf::st_drop_geometry() |>
+  select(VESSEL_ID, LATITUDE, LONGITUDE, TRIP_ID) |>
+  distinct()
+
+positive_long_corrected_good_vsl_ids |> dim()
+# [1] 303   1 VESSEL_ID
+# [1] 3875    3 VESSEL_ID, LATITUDE, LONGITUDE
+# [1] 12186     4 VESSEL_ID, LATITUDE, LONGITUDE, TRIP_ID
+
+# positive_long_corrected_good_vsl_ids |>
+#   filter(VESSEL_ID == "162619")
+```
+
+## bad vessels
+```{r bad vessels}
+## bad vessels ----
+
+positive_long_corrected_bad_vsl_ids <-
+  positive_long_corrected_sf_bad |>
+  sf::st_drop_geometry() |>
+  select(VESSEL_ID) |>
+  distinct()
+
+dim(positive_long_corrected_bad_vsl_ids)
+# [1] 176   1
+```
+
+## vsl ids both good and bad
+```{r vsl ids both good and bad}
+## vsl ids both good and bad ----
+both <-
+  dplyr::intersect(positive_long_corrected_good_vsl_ids$VESSEL_ID,
+                 positive_long_corrected_bad_vsl_ids$VESSEL_ID)
+length(both)
+# 129
+
+```
+
+## vsl ids good only
+```{r vsl ids good only}
+## vsl ids good only ----
+
+good_only <-
+  dplyr::setdiff(positive_long_corrected_good_vsl_ids$VESSEL_ID,
+                 positive_long_corrected_bad_vsl_ids$VESSEL_ID)
+length(good_only)
+# 174
+```
+
+## vsl ids bad only
+```{r vsl ids bad only}
+## vsl ids bad only ----
+
+bad_only <-
+    dplyr::setdiff(positive_long_corrected_bad_vsl_ids$VESSEL_ID,
+                   positive_long_corrected_good_vsl_ids$VESSEL_ID)
+
+length(bad_only)
+# 47
+
+# > 47+174+129
+# [1] 350
+# ok, same as positive_long_corrected_vsl_ids
+```
+
+# bad only vsl and counts
+```{r bad only vsl and counts}
+# bad only vsl and counts ----
+# trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
+#   filter(VESSEL_ID %in% bad_only) |>
+#   arrange(desc(pos_lon_per_vsl)) |>
+#   head() |> 
+#   knitr::kable(caption = "glimpse bad only vsl and counts")
+
+# 'data.frame':	907 obs. of  4 variables:
+
+pos_lon_bad <-
+trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
+  filter(VESSEL_ID %in% bad_only) |>
+  arrange(desc(pos_lon_trips_by_vsl))
+
+tot_bad <-
+  trip_coord_info_short_cnt_total_trips_per_vsl |>
+  filter(VESSEL_ID %in% bad_only) |>
+  arrange(desc(total_trips_by_vsl))
+dim(tot_bad)
+# [1] 47  2
+
+bad_cnt_join <-
+full_join(tot_bad,
+          pos_lon_bad) |>
+  mutate(cnt_diff = total_trips_by_vsl - pos_lon_trips_by_vsl,
+         wrong_perc = pos_lon_trips_by_vsl * 100 / total_trips_by_vsl)
+# Joining with `by = join_by(VESSEL_ID)`
+
+# bad_cnt_join |> 
+#   arrange(cnt_diff)
+
+head(bad_cnt_join) |> 
+  knitr::kable(caption = "bad only vsl, compare with total trips")
+```
+
+### bad vs. total by diff
+```{r bad vs. total by diff}
+### bad vs. total by diff ----
+
+bad_cnt_join_diff_groups <- 
+  bad_cnt_join |> 
+  # create two bins [0,4) and [4,max differences
+  mutate(my_group = base::findInterval(cnt_diff, c(0, 6)))
+  
+bad_cnt_join_diff_groups |> 
+  count(my_group) |> 
+  head() |> 
+  knitr::kable(caption = "Group 1: difference between total and wrong coordinates is <= 5")
+
+# my_group
+# <int>
+# n
+# <int>
+# 1	1	20		
+# 2	2	26
+```
+
+### plot bad vs. total
+```{r plot bad vs. total}
+### plot bad vs. total ----
+bad_cnt_join_diff_groups |>
+  ggplot(aes(y = total_trips_by_vsl,
+             x = pos_lon_trips_by_vsl)) +
+  geom_line(aes(colour = factor(my_group))) +
+  geom_point(color = "darkgreen") +
+  geom_text(aes(label = cnt_diff),
+            vjust = 1.3,
+            color = "green") +
+  # geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() +
+  labs(title = "Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors) divided by difference <= or > 5",
+       caption = "For vessels having only uncorrectable positive loingitude coordinates.\nGreen numbers show the difference") +
+  theme(legend.position = "bottom") +
+  scale_x_continuous(breaks = seq(
+    0,
+    max(bad_cnt_join_diff_groups$pos_lon_trips_by_vsl),
+    by = 10
+  )) +
+  scale_y_continuous(breaks = seq(
+    0,
+    max(bad_cnt_join_diff_groups$total_trips_by_vsl),
+    by = 10
+  )) +
+  # scale_color_discrete(
+  #   name = 'Difference between total and positive longitude trips',
+  #   labels = c('<= 5', '>5')
+  # ) +
+  theme(legend.justification = c(1, 0),
+        legend.position = c(1, 0)) +
+  scale_color_manual(
+    name = 'Difference between total and wrong trips',
+    values = c("green", "blue"),
+    labels = c('<= 5', '>5'))
+```
+
+
+```{r plot bad vs. total group 1}
+bad_cnt_join_diff_groups_1 <-
+  bad_cnt_join_diff_groups |>
+  filter(my_group == 1)
+
+bad_cnt_join_diff_groups_1 |>
+  ggplot(aes(y = factor(total_trips_by_vsl),
+             x = factor(pos_lon_trips_by_vsl))) +
+  geom_point(color = "darkgreen") +
+  geom_text(aes(label = cnt_diff),
+            vjust = 1.3,
+            color = "green") +
+  theme_bw() +
+  labs(title = "Number of logbooks with wrong coordinates and total logbooks with diff <= 5",
+       caption = "For vessels having only uncorrectable positive loingitude coordinates. Green numbers show the difference")
+
+
+```
+
+### histogram bad vs. total
+```{r histogram bad vs. total}
+lattice::histogram(~ cnt_diff, 
+                   data = bad_cnt_join,
+                   # x_breaks <- c(-3, -1.5, 0, 1.5, 3),
+          xlab = "Difference between total and wrong trip coordinates",
+          main = "Most of the vessels in this category\nhave all coordinates reported incorrectly")
+```
+
+# check both good and bad
+```{r check both good and bad}
+# check both good and bad ----
+both_tot <-
+  trip_coord_info_short_cnt_total_trips_per_vsl |>
+  filter(VESSEL_ID %in% both) |>
+  arrange(desc(total_trips_by_vsl))
+
+dim(both_tot)
+# [1] 129   2
+
+head(both_tot, 3) |> 
+  knitr::kable(caption = "glimpse total_trips_by_vsl")
+
+
+#   VESSEL_ID total_trips_by_vsl
+# 1    326154                532
+# 2    390420                268
+# 3    247478                257
+```
+
+## add coords to total cnts
+
+```{r add coords to total cnts}
+## add coords to total cnts ----
+trip_coord_info_short_both_tot_w_coords <-
+  trip_coord_info_short |>
+  right_join(both_tot)
+
+trip_coord_info_short_both_tot_w_coords |> 
+  head(3) |> 
+  knitr::kable()
+
+#   LATITUDE LONGITUDE  TRIP_ID VESSEL_ID total_trips_by_vsl
+# 1    24.00     80.00 66960181    247243                 94
+# 2    29.58     87.23 59404746    247478                257
+# 3    29.00     86.00 59406159    174924                216
+
+```
+
+## prepare good_sf: not corrected, add a col
+```{r prepare good_sf: not corrected, add a col}
+## prepare good_sf: not corrected, add a col ----
+
+positive_long_corrected_good_vsl_ids_coord_pair <-
+  positive_long_corrected_good_vsl_ids |>
+  mutate(coord_pair = paste(LATITUDE, -LONGITUDE))
+
+# dim(positive_long__good_pairs)
+# # [1] 14026     7
+```
+
+## join all info and positive lon good
+
+```{r join all info and positive lon good}
+## join all info and positive lon good ----
+both_tot_w_coords__and_good_pairs <-
+  trip_coord_info_short_both_tot_w_coords |>
+  mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
+  # left_join to get all trips in the "both" category only
+  # and add info from positive_long__good_pairs where "good"
+  left_join(positive_long_corrected_good_vsl_ids_coord_pair,
+            join_by(VESSEL_ID,
+                    coord_pair,
+                    TRIP_ID),
+            relationship = "many-to-many",
+            suffix = c("_tot", "_corr_good"))
+
+dim(both_tot_w_coords__and_good_pairs)
+# [1] 24095    10
+# [1] 440476     10
+# [1] 16402    10 full_j
+# [1] 11871    10
+# [1] 11866     8
+
+both_tot_w_coords__and_good_pairs |> 
+  head() |> 
+  knitr::kable(caption = "glimpse the corrected join")
+
+```
+
+### add good/wrong mark
+```{r add good/wrong mark}
+## add good/wrong mark ----
+
+both_tot_w_coords__and_good_pairs_mark <-
+  both_tot_w_coords__and_good_pairs |>
+  mutate(coord_mark =
+           case_when(is.na(LATITUDE_corr_good)
+                     ~ "wrong",
+                     .default = "good"))
+
+both_tot_w_coords__and_good_pairs_mark |>
+  head() |>
+  knitr::kable(caption = "glimpse good/wrong marks")
+
+```
+
+### should be both good and wrong marks for each vsl
+```{r should be both good and wrong marks for each vsl}
+### should be both good and wrong marks for each vsl ----
+
+both_tot_w_coords__and_good_pairs_mark |>
+  filter(VESSEL_ID == "162619") |>
+  count(coord_mark) |> 
+  knitr::kable(caption = "Test one vessel")
+# 1       good 73
+# 2      wrong  1
+
+both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
+  both_tot_w_coords__and_good_pairs_mark |>
+  count(VESSEL_ID, coord_mark,
+        name = "count_marks_per_vsl") |>
+  pivot_wider(id_cols = VESSEL_ID,
+              names_from = coord_mark,
+              values_from = count_marks_per_vsl) |>
+  group_by(VESSEL_ID) |>
+  mutate(tot = good + wrong) |>
+  ungroup()
+
+both_tot_w_coords__and_good_pairs_mark_cnts <-
+  both_tot_w_coords__and_good_pairs_mark |>
+  add_count(VESSEL_ID, coord_mark,
+            name = "count_marks_per_vsl") |>
+  select(VESSEL_ID,
+         total_trips_by_vsl,
+         coord_mark,
+         count_marks_per_vsl) |>
+  distinct()
+
+both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
+  both_tot_w_coords__and_good_pairs_mark_cnts |>
+  pivot_wider(names_from = coord_mark,
+              values_from = count_marks_per_vsl) |>
+  group_by(VESSEL_ID) |>
+  mutate(good_over_bad = round(good / wrong, 2),
+         bad_over_good = round(wrong / good, 2)) |>
+  ungroup()
+
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_long <-
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  pivot_longer(c(good, wrong),
+               names_to = "coord_mark",
+               values_to = "count_marks_per_vsl") # trip cnt
+```
+
+## histogram for "both"
+```{r}
+## histogram for "both" ----
+lattice::histogram( ~ good , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
+                    xlab = "Good trip coordinates where vessels have both good and wrong coordinates")
+
+lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
+                    xlab = "Wrong trip coordinates where vessels have both good and wrong coordinates")
+```
+
+## plot good/wrong cnts for "both" w groups
+```{r bad vs. total by diff for both w groups}
+### bad vs. total by diff for both w groups ----
+group_boundary_both <-
+  mean(both_tot_w_coords__and_good_pairs_mark_cnts_wide$wrong) |>
+  round(0)
+summary(both_tot_w_coords__and_good_pairs_mark_cnts_wide) |> 
+  knitr::kable(caption = "summary")
+
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups <- 
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  # cnt trips difference tot - bad
+  mutate(cnt_diff_b = total_trips_by_vsl - wrong) |> 
+  # create two bins [0,40) and [40,max differences
+  mutate(my_group_b = base::findInterval(cnt_diff_b, c(0, group_boundary_both)))
+  
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |> 
+  count(my_group_b) |> 
+  head() |> 
+  knitr::kable(caption = paste0("Group 1: difference between total and wrong coordinates is <= ", group_boundary_both))
+
+# my_group
+# <int>
+# n
+# <int>
+# 1	1	69
+# 2	2	62
+```
+### plot bad vs. total for both cat
+```{r plot bad vs. total for both cat}
+### plot bad vs. total for both cat ----
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
+  ggplot(aes(y = total_trips_by_vsl,
+             x = wrong)) +
+  geom_line(aes(colour = factor(my_group_b))) +
+  geom_point(color = "darkgreen") +
+  geom_text(aes(label = cnt_diff_b),
+            vjust = 1.3,
+            color = "green") +
+  # geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() +
+  labs(title = str_glue("Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors) divided by difference <= or > {group_boundary_both} (~mean)"),
+       caption = "For vessels having both good and uncorrectable positive loingitude coordinates.\nGreen numbers show the difference") +
+  theme(legend.position = "bottom") +
+  scale_x_continuous(breaks = seq(
+    0,
+    max(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$wrong),
+    by = 10
+  )) +
+  scale_y_continuous(breaks = seq(
+    0,
+    max(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$total_trips_by_vsl),
+    by = 10
+  )) +
+  theme(legend.justification = c(1, 0),
+        legend.position = c(1, 0.73)) +
+  scale_color_manual(
+    name = 'Difference between total and wrong trips',
+    values = c("green", "blue"),
+    labels = c(str_glue('<= {group_boundary_both}'), 
+               str_glue('> {group_boundary_both}'))
+  )
+```
+
+
+### plot bad vs total for both cat low 
+```{r plot bad vs total for both cat low}
+### plot bad vs. total for both cat low # ----
+# keep only vessels with number of uncorrectable trip coords > 35
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low <- 
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |>
+  filter(wrong > group_boundary_both)
+
+both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |> 
+  ggplot(aes(y = total_trips_by_vsl,
+             x = wrong)) +
+  geom_line(aes(colour = factor(my_group_b))) +
+  geom_point(color = "darkgreen") +
+  geom_text(aes(label = cnt_diff_b),
+            vjust = 1.3,
+            color = "green") +
+  # geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() +
+  labs(title = str_glue("Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors) divided by difference <= or > {group_boundary_both} (~mean)\nWhere wrong trps # > {group_boundary_both}"),
+       caption = "For vessels having both good and uncorrectable positive loingitude coordinates.\nGreen numbers show the difference") +
+  theme(legend.position = "bottom") +
+  scale_x_continuous(breaks = seq(
+    0,
+    max(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$wrong),
+    by = 10
+  )) +
+  scale_y_continuous(breaks = seq(
+    0,
+    max(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$total_trips_by_vsl),
+    by = 10
+  )) +
+  theme(legend.justification = c(1, 0),
+        legend.position = c(1, 0.73)) +
+  scale_color_manual(
+    name = 'Difference between total and wrong trips',
+    values = c("green", "blue"),
+    labels = c(str_glue('<= {group_boundary_both}'),
+               str_glue('> {group_boundary_both}')))
+```
+
+
+
+
+### plot bad vs. total for both cat low # no groups
+```{r plot bad vs total for both cat low num, no groups}
+### plot bad vs. total for both cat low # no groups ----
+plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low <- 
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low |>
+  ggplot(aes(y = total_trips_by_vsl,
+             x = wrong)) +
+  geom_line() +
+  geom_point(color = "darkgreen") +
+  geom_text(aes(label = cnt_diff_b),
+            vjust = 1.3,
+            color = "green") +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() +
+  labs(title = stringr::str_glue("Correlation between logbooks with wrong coordinates and\ntotal logbooks (w & w/o coord errors)\nWhere wrong trps # > {group_boundary_both}"),
+       caption = "For vessels having both good and uncorrectable positive loingitude coordinates.\nGreen numbers show the difference") +
+  scale_x_continuous(breaks = seq(
+    0,
+    max(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$wrong),
+    by = 10
+  )) +
+  scale_y_continuous(breaks = seq(
+    0,
+    max(both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups$total_trips_by_vsl),
+    by = 10
+  ))
+
+# View(ggplot_build(plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low)$data)
+p.smoothedmaxes <-
+  ggplot_build(plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low)$data[[4]] %>%
+  group_by(group) %>%
+  mutate(xmean = mean(x)) %>%
+  filter(x == max(x))
+
+plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low +
+  geom_label(
+    label = "lm", 
+    data = p.smoothedmaxes,
+    mapping = aes(x = x, y = y, label = round(y, 2)),
+    col = p.smoothedmaxes$colour,
+    nudge_y = 7,
+    inherit.aes = FALSE
+  )
+
+  
+```
+
+
+```{r plot bad vs. total for both cat 1}
+plot(both_tot_w_coords__and_good_pairs_mark_cnts_wide$wrong,
+       both_tot_w_coords__and_good_pairs_mark_cnts_wide$total_trips_by_vsl)
+
+wrong_c = scale(both_tot_w_coords__and_good_pairs_mark_cnts_wide$wrong, center = TRUE, scale = FALSE)
+mod1 = lm(formula = total_trips_by_vsl ~ wrong_c, data = both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+summary(mod1)
+boxplot(mod1$residuals)
+```
+
+
+```{r plot bad vs. total for both cat lm2}
+mod2 <- 
+  lm(formula = total_trips_by_vsl ~ wrong, 
+     data = both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+summary(mod2)
+boxplot(mod2$residuals)
+plot(mod1)
+# Notice the points form a curve instead of a straight line. Normal QQ plots that look like this usually mean your sample data are skewed.
+
+
+
+```
+
+## investigate lm bad vs. total for both cat low num no groups
+```{r investigate lm bad vs. total for both cat low num no groups}
+lm.tw <-
+  lm(
+    total_trips_by_vsl ~ wrong,
+    data = both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low
+  )
+
+anova(lm.tw)
+confint(lm.tw)
+
+boxplot(lm.tw[['residuals']], 
+        main = 'Boxplot: Residuals', ylab = 'residual value')
+```
+
+#### plot bad vs. total for both cat low num lm
+```{r plot bad vs. total for both cat low num lm}
+#### plot bad vs. total for both cat low num lm ----
+plot(lm.tw)
+
+```
+
+### make_both_sorted_plot function
+```{r make_both_sorted_plot function}
+## make_both_sorted_plot function ----
+# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
+
+make_both_sorted_plot <-
+  function(my_df,
+           order_by = "total_trips_by_vsl",
+           ordered_name = "total number of trips",
+           ycol = "count_marks_per_vsl",
+           y_title = ycol) {
+    title_all = stringr::str_glue(
+      " Good and wrong coordinates ordered by {ordered_name}\n For vessels having both and at least one positive lon error"
+    )
+
+    both_sorted_plot <-
+      my_df |>
+      ggplot(
+        aes(
+          fill = coord_mark,
+          y = !!sym(ycol),
+          x = reorder(VESSEL_ID,
+                      as.integer(factor(!!sym(
+                        order_by
+                      ))),
+                      FUN = min)
+        )
+      ) +
+      geom_bar(position = "stack", stat = "identity") +
+      labs(
+        title = title_all,
+        x = stringr::str_glue("Vessels sorted by {ordered_name}"),
+        y = y_title
+      ) +
+      theme(axis.text.x = element_blank())
+
+    return(both_sorted_plot)
+  }
+```
+
+### plot good/wrong cnts for "both" by total
+```{r plot good/wrong cnts for both by total}
+## plot good/wrong cnts for "both" by total ----
+both_sort_by_total <-
+  make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts)
+
+# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
+both_sort_by_total
+```
+
+### plot good/wrong cnts for "both" by good
+```{r plot good/wrong cnts for both by good}
+### plot good/wrong cnts for "both" by good ----
+both_sorted_by_good_plot <-
+  make_both_sorted_plot(
+    both_tot_w_coords__and_good_pairs_mark_cnts_wide_long,
+    order_by = "good_over_bad",
+    ordered_name = "good coordinates"
+  )
+
+both_sorted_by_good_plot
+```
+
+### both_sorted_by_wrong_plot
+```{r both_sorted_by_wrong_plot }
+both_sorted_by_wrong_plot <-
+  make_both_sorted_plot(
+    both_tot_w_coords__and_good_pairs_mark_cnts_wide_long,
+    order_by = "bad_over_good",
+    ordered_name = "wrong coordinates"
+  )
+```
+
+## line plot: good vs. total
+```{r line plot: good vs. total}
+## line plot: good vs. total ----
+# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+line_2_plot <-
+  both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+    ggplot(aes(x = order(good_over_bad),
+               y = total_trips_by_vsl)) +
+    geom_line(colour = "red") +
+    geom_line(aes(x = order(bad_over_good),
+               y = total_trips_by_vsl),
+              colour = "blue") +
+  theme_bw() +
+  labs(title = "Is there a correlation between\ngood (red), wrong (blue) and total number (y) of coordinates?",
+       caption = "For vessels having both wrong and good coordinates and at least one positive lon error")
+
+# line_2_plot
+```
+
+## bad vs wrong line plot
+```{r bad vs wrong line plot}
+## bad vs wrong line plot ----
+line_2_plot_2 <-
+both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
+  ggplot(aes(x = good,
+             y = wrong)) +
+  geom_line(colour = "green") +
+  geom_point() +
+  geom_text(aes(label = good),
+            vjust = 1.3,
+            color = "green") +
+  geom_text(aes(label = wrong),
+            vjust = -1.3,
+            color = "blue") +
+  theme_bw() +
+  labs(title = "Is there a correlation between\ngood (green) and wrong (blue) number of coordinates?",
+       caption = "For vessels having both wrong and good coordinates and at least one positive lon error") +
+  theme(axis.text.x = element_blank())
+
+line_2_plot_2
+```
+
+## histogram good_over_bad
+```{r histogram good_over_bad}
+## histogram good_over_bad ----
+lattice::histogram( ~ good_over_bad,
+                    data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
+                    xlab = "good_over_bad",
+                    main = "good_over_bad")
+
+
+```
+
+# What to do about the positive lon error.
+1) For vessels in "good_only" category bulk change the longitude sign to a minus.
+2) For the rest, can we ask them to correct the errors?

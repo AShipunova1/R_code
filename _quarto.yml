@@ -1,0 +1,21 @@
+date: today
+knitr:
+  opts_chunk:
+    knitr.duplicate.label: 'allow'
+# project:
+#   lib-dir: ..
+output:
+  html_document
+execute:
+  warning: false
+  cache: true
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    css: style.css
+    code-overflow: wrap
+    code-fold: true
+    code-summary: "Show the code"
+    code-line-numbers: true

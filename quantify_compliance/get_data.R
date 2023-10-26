@@ -1,11 +1,11 @@
 # this file is called from quantify_compliance.R
 
+# Load the 'tictoc' library for timing operations.
 library(tictoc)
 
 project_dir_name <- "FHIER Compliance"
 
 # Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
-
 # get data from csvs ----
 get_data_from_FHIER_csvs <- function() {
   filenames = c(
@@ -22,8 +22,6 @@ get_data_from_FHIER_csvs <- function() {
   # browser()
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
-#  str(csvs_clean1)
-  # browser()
   compl_clean <- compliance_cleaning(csvs_clean1)
 
   return(compl_clean)
@@ -59,29 +57,40 @@ get_permit_data_from_PIMS_csv <- function() {
     clean_headers()
 
   # separate columns
-  active_permits_from_pims_temp2 <-
-    active_permits_from_pims_temp1 %>%
+# Use the 'separate_wider_delim' function to split the 'permit__' column in the 'active_permits_from_pims_temp1' dataframe
+# based on the delimiter "-", creating new columns 'permit_code' and 'permit_num'.
+# The 'too_many' argument is set to "merge," which means any excess columns generated during the split will be merged.
+active_permits_from_pims_temp2 <- active_permits_from_pims_temp1 %>%
     separate_wider_delim(permit__,
-                         "-",
+                         "-",                # Delimiter used for splitting
                          names = c("permit_code", "permit_num"),
                          too_many = "merge") %>%
+
+    # Use the 'separate_wider_regex' function to split the 'vessel_or_dealer' column in the resulting dataframe.
+    # This function uses regular expressions to define patterns for creating new columns.
+    # In this case, it defines patterns for 'vessel_official_number' and 'vessel_name.'
+    # The 'too_few' argument is set to "align_start," which aligns any missing columns at the start.
     separate_wider_regex(
       cols = vessel_or_dealer,
       patterns = c(
-        vessel_official_number = "[A-Za-z0-9]+",
-        " */* ",
-        vessel_name = "[A-Za-z0-9]+"
+        vessel_official_number = "[A-Za-z0-9]+",  # Regular expression for vessel official number (more than one alphanumeric character)
+        " */* ",                                  # Pattern for separating columns with slashes
+        vessel_name = "[A-Za-z0-9]+"              # Regular expression for vessel name (more than one alphanumeric character)
       ),
       too_few = "align_start"
     )
 
   # correct dates format
 
-  # get a list of field names ends with "_date"
-  ends_with_date_fields <-
-    grep("_date", names(active_permits_from_pims_temp2), value = TRUE)
+  # get a list of field names with "_date"
+  # Use the 'grep' function to find and extract column names from the 'active_permits_from_pims_temp2' dataframe
+  # that has "_date".
+  ends_with_date_fields <- grep("_date",             # Pattern to search for in column names
+                                names(active_permits_from_pims_temp2),  # Names of columns to search within
+                                value = TRUE)         # Return matching column names as values in the result.
 
-  # convert to date
+
+  # convert to the date format
   active_permits_from_pims <-
     change_fields_arr_to_dates(active_permits_from_pims_temp2,
                                ends_with_date_fields,
@@ -89,8 +98,10 @@ get_permit_data_from_PIMS_csv <- function() {
 
   # test
   active_permits_from_pims %>%
-    select(status_date) %>%
-    arrange(desc(status_date)) %>% unique() %>% head()
+    dplyr::select(status_date) %>%                 # Select 'status_date' column
+    dplyr::arrange(dplyr::desc(status_date)) %>%   # Arrange in descending order
+    distinct() %>%                               # Remove duplicate rows
+    head()                                       # Retrieve the first few rows
   # correct
   # str(active_permits_from_pims)
 
@@ -98,23 +109,23 @@ get_permit_data_from_PIMS_csv <- function() {
 }
 
 get_data_from_csv <- function() {
+  # uncomment to run
+  compl_clean <- get_data_from_FHIER_csvs()
+  # View(compl_clean)
+  dim(compl_clean)
+  # 208893     21
+  
+  ## get compliance error definitions from csvs ----
+  err_desc <- get_compliance_error_definitions()
+  
+  ## get permit data from PIMS csv ----
+  
+  active_permits_from_pims <- get_permit_data_from_PIMS_csv()
+  
+  compl_clean1 <- additional_clean_up(compl_clean)
 
-# uncomment to run
-compl_clean <- get_data_from_FHIER_csvs()
-# View(compl_clean)
-dim(compl_clean)
-# 208893     21
-
-## get compliance error definitions from csvs ----
-err_desc <- get_compliance_error_definitions()
-
-## get permit data from PIMS csv ----
-
-active_permits_from_pims <- get_permit_data_from_PIMS_csv()
-
-compl_clean1 <- additional_clean_up(compl_clean)
-
-return(compl_clean1)
+  cat("compl_clean_sa_vs_gom_m_int_c")  
+  return(compl_clean1)
 }
 
 additional_clean_up <- function(compl_clean) {
@@ -126,160 +137,58 @@ additional_clean_up <- function(compl_clean) {
   # View(compl_clean_sa_vs_gom)
 
   # ---- add columns for month and quarter ----
-  compl_clean_sa_vs_gom_m <-
-    compl_clean_sa_vs_gom %>%
-    # add month
-    mutate(year_month = as.yearmon(week_start)) %>%
-    # add quarter
-    mutate(year_quarter = as.yearqtr(week_start))
+compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
+    # Add a new column 'year_month' by extracting the year and month from the 'week_start' column
+    dplyr::mutate(year_month = zoo::as.yearmon(week_start)) %>%
+    # Add another new column 'year_quarter' by extracting the year and quarter from the 'week_start' column
+    dplyr::mutate(year_quarter = zoo::as.yearqtr(week_start))
 
   # ---- convert report numbers to numeric ----
-  compl_clean_sa_vs_gom_m_int <-
-    compl_clean_sa_vs_gom_m %>%
-    mutate(
+# Create a new data frame 'compl_clean_sa_vs_gom_m_int' by applying integer conversion to selected columns in 'compl_clean_sa_vs_gom_m'.
+  compl_clean_sa_vs_gom_m_int <- compl_clean_sa_vs_gom_m %>%
+    dplyr::mutate(
       captainreports__ = as.integer(captainreports__),
       negativereports__ = as.integer(negativereports__),
       gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
     )
 
   # add year_permit column ----
-  compl_clean_sa_vs_gom_m_int_c <-
-    compl_clean_sa_vs_gom_m_int %>%
-    mutate(
+# Create a new data frame 'compl_clean_sa_vs_gom_m_int_c' by adding a new column 'year_permit' to 'compl_clean_sa_vs_gom_m_int'. Depending on the values in the 'year' and 'permit_sa_gom' columns, different combinations of 'year' and a descriptive label are created for the 'year_permit' column using the 'paste' function. 
+compl_clean_sa_vs_gom_m_int_c <- compl_clean_sa_vs_gom_m_int %>%
+
+    # Use the 'mutate' function to add a new column 'year_permit' based on conditional logic using the 'case_when' function.
+    dplyr::mutate(
       year_permit =
-        case_when(
-          year == "2022" & (permit_sa_gom == "gom_only"
-                            | permit_sa_gom =="dual") ~
+
+        # The 'case_when' function is used for conditional transformations.
+        dplyr::case_when(
+
+          # When 'year' is "2022" and 'permit_sa_gom' is "gom_only" or "dual," create a string combining 'year' and "gom_dual."
+          year == "2022" & (permit_sa_gom == "gom_only" | permit_sa_gom == "dual") ~
             paste(year, "gom_dual"),
+
+          # When 'year' is "2022" and 'permit_sa_gom' is "sa_only," create a string combining 'year' and "sa_only."
           year == "2022" & permit_sa_gom == "sa_only" ~
             paste(year, "sa_only"),
+
+          # When 'year' is "2023" and 'permit_sa_gom' is either "sa_only" or "dual," create a string combining 'year' and "sa_dual."
           year == "2023" & (permit_sa_gom %in% c("sa_only", "dual")) ~
             paste(year, "sa_dual")
         )
     )
 
-
   return(compl_clean_sa_vs_gom_m_int_c)
 }
 
+# Uncomment and run above functions if using csvs downloaded from FHIER
+compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
+
+
 # get data from db ----
-get_permit_data_from_db <- function() {
-  # run once
-  con <- connect_to_secpr()
+source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
 
-  permit_query <-
-    "SELECT DISTINCT
-  permit,
-  top,
-  permit_status,
-  vessel_id,
-  vessel_alt_num,
-  effective_date,
-  expiration_date,
-  end_date,
-  top_name
-FROM
-  srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
-WHERE
-  effective_date > TO_DATE('01-JAN-20')
-"
-
-  permit_db_data = ROracle::dbGetQuery(con,
-                                       permit_query)
-
-  ROracle::dbDisconnect(con)
-
-  return(permit_db_data)
-}
-
-get_compl_err_data_from_db <- function() {
-  # run once
-  con <- connect_to_secpr()
-
-  compl_err_query <-
-    "SELECT
-  *
-FROM
-       srh.srfh_vessel_comp_err@secapxdv_dblk.sfsc.noaa.gov
-  INNER JOIN srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
-  USING ( srh_vessel_comp_id )
-WHERE
-  comp_year > '2021'
-"
-# common fields
-#   SRH_VESSEL_COMP_ID
-# CREATED_DT
-# CREATED_USER_ID
-# LU_DT
-# LU_USER_ID
-
-    compl_err_db_data_0 = ROracle::dbGetQuery(con,
-                                       compl_err_query)
-
-    compl_err_db_data_1 <-
-      compl_err_db_data_0 %>%
-      # remove duplicated columns
-      select(-c(CREATED_DT,
-                CREATED_USER_ID,
-                LU_DT,
-                LU_USER_ID))
-
-  ROracle::dbDisconnect(con)
-
-  return(compl_err_db_data_1)
-}
-
-get_data_from_db <- function() {
-
-## get permit data from db ----
-# to run
-permit_db_data <- get_permit_data_from_db()
-
-# str(permit_db_data)
-# 37187
-# old csv 23888
-
-# get compliance err data from db ----
-
-# uses an inner_join, keeps only entries with compl errors.
-# To get all use FULL OUTER JOIN
-
-tic("get_compl_err_data_from_db()")
-compl_err_db_data_raw <- get_compl_err_data_from_db()
-toc()
-
-# get_compl_err_data_from_db(): 47.5 sec elapsed
-# get_compl_err_data_from_db(): 22.23 sec elapsed
-
-# test for unique() fields
-all_names_len <- names(compl_err_db_data_raw) %>% length()
-uniq_names_len <-
-  names(compl_err_db_data_raw) %>% unique() %>% length()
-identical(all_names_len, uniq_names_len)
-
-# names(compl_err_db_data_raw) %>%
-  # unique() %>%
-#   # 42
-  # 38
-  # length()
-# 46
-# 38
-
-compl_err_db_data <- clean_headers(compl_err_db_data_raw)
-names(compl_err_db_data)
-
-# dim(compl_err_db_data)
-# [1] 87925    15
-# [1] 44662    38 2021+
-
-# override comments ----
-compl_err_db_data_raw %>% select(OVERRIDE_CMT, COMP_OVERRIDE_CMT) %>% unique()
-}
-
-if (exists("get_data_from_param")) {
-  if (get_data_from_param == "db") {
-    get_data_from_db()
-  }
-} else {
-  compl_clean_sa_vs_gom_m_int <- get_data_from_csv()
-}
+# run_all_get_db_data(): 8.56 sec elapsed                                                                            
+# all_sheets_l
+# vessels_22_sa
+# vessels_to_remove_from_ours
+# all_logbooks_db_data_2022_short_p_region

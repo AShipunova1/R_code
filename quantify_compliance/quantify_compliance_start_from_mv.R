@@ -1,4 +1,6 @@
-# Quantify program compliance for Gulf and dual Gulf/SA permitted vessels.
+# quantify_compliance_start_from_mv.R
+
+# Quantify program compliance for Gulf, dual Gulf/SA and SA permitted vessels.
 
 # Michelle Masi
 # Some caveats I have run into, in trying to quantify - are that folks may be missing 1 of 100 reports (e.g.) and that makes them non-compliant at the time you pull the compliance report data
@@ -9,55 +11,126 @@
 # dual + GOM vs. SA
 # 2023
 # dual + SA
-library(grid)
-library(zoo)
-library(gridExtra)
-library(cowplot)
+library(grid)  # Load the 'grid' library, which provides low-level graphics functions.
+library(zoo)   # Load the 'zoo' library, which deals with time series data.
+library(gridExtra)  # Load the 'gridExtra' library for arranging and combining grid graphics.
+library(cowplot)  # Load the 'cowplot' library for creating publication-ready plots with ggplot2.
 
 project_name <- "quantify_compliance"
 
-source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
+# Read R Code from a File
+source("~/R_code_github/useful_functions_module.r")
 
+# Use a function defined in "useful_functions_module.r". Use F2 to see a custom functions' definition.
+my_paths <- set_work_dir()
+
+# Read R Code from a File
+source("~/R_code_github/quantify_compliance/quantify_compliance_functions.R")
+
+# old
+# source("~/R_code_github/quantify_compliance/get_data.R")
+
+# get data from db ----
+# Read R Code from a File
+source(
+  file.path(
+    my_paths$git_r,
+    r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"
+  )
+)
+# got
+# all_sheets_l
+# vessels_22_sa
+# vessels_to_remove_from_ours
+# all_logbooks_db_data_2022_short_p_region
+
+# Use the 'source' function to execute R code from a file.
+source(
+  file.path(
+    my_paths$git_r,  # Construct the file path using elements from 'my_paths' list.
+    r"(get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"  # Specify the file path with the script name.
+  )
+)
+
+# fhier_reports_metrics_tracking_not_srhs_ids
+
+# Uses the file.path function to construct a file path. The components used are:
+# my_paths$outputs: A variable containing a directory path.
+# "quantify_compliance": A directory name to be appended to the path.
+# today(): Represents a function used to include the current date, creating a date-specific path.
 plot_file_path <-
   file.path(my_paths$outputs, "quantify_compliance", today())
 # create dir if doesn't exists
 create_dir_if_not(plot_file_path)
 
+plot_colors <- list("compliant" = "skyblue1",
+                    "non_compliant" = "#0570B0",
+                    "nc_bucket" = "deepskyblue",
+                    "non_compliant_by_month" = "blue")
+
+title_permits <- data.frame(
+  # title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
+  title = c("2022: SA Only", "2022: GOM + Dual", "2023: SA + Dual"),
+  year_permit = c("2022 sa_only",
+                  "2022 gom_dual",
+                  "2023 sa_dual"),
+  second_part = c("Permitted Vessels",
+                  "Permitted Vessels",
+                  "Permitted Vessels")
+)
+
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
-  compl_clean_sa_vs_gom_m_int |>
-  filter(
-    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
+  # old:
+  # compl_clean_sa_vs_gom_m_int |>
+  all_logbooks_db_data_2022_short_p_region |>
+  dplyr::filter(
+    VESSEL_OFFICIAL_NBR %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
-# remove 2023 gom_only ----
-remove_23_gom <- function(my_df) {
-  my_df |>
-    filter(!(year == "2023" & permit_sa_gom == "gom_only")) %>%
-    return()
-}
+# check
+# setdiff(all_logbooks_db_data_2022_short_p_region$VESSEL_OFFICIAL_NBR,
+        # fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number)
 
-compl_clean_sa_vs_gom_m_int_filtered <-
-  # from get_data
-  remove_23_gom(compl_clean_sa_vs_gom_m_int_1)
+# remove 2023 gom_only ----
+# The function removes rows where the 'year' column is equal to "2023" and the 'permit_sa_gom' column is equal to "gom_only." 
+# remove_23_gom <- function(my_df) {
+#   my_df |>
+#     dplyr::filter(!(year == "2023" &
+#                       permit_sa_gom == "gom_only")) %>%
+#     return()
+# }
+
+names(all_logbooks_db_data_2022_short_p_region) <-
+  names(all_logbooks_db_data_2022_short_p_region) |>
+  my_headers_case_function()
+
+all_logbooks_db_data_2022_short_p_region <- 
+  all_logbooks_db_data_2022_short_p_region |> 
+  dplyr::rename(vessel_official_number = vessel_official_nbr)
+
+# compl_clean_sa_vs_gom_m_int_filtered <-
+#   # from get_data
+#   remove_23_gom(compl_clean_sa_vs_gom_m_int_1)
 
 # save vsl count for future checks ----
 count_all_vessels <-
-  compl_clean_sa_vs_gom_m_int_1 %>%
+  all_logbooks_db_data_2022_short_p_region %>%
   select(vessel_official_number) %>%
   unique() %>%
   dim()
 # 4017 vessels
 count_all_vessels[1]
 # 3776
+# 1876    
 
-count_not_gom23_vessels <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
-  select(vessel_official_number) %>%
-  unique() %>%
-  dim()
+# count_not_gom23_vessels <-
+#   compl_clean_sa_vs_gom_m_int_filtered %>%
+#   select(vessel_official_number) %>%
+#   unique() %>%
+#   dim()
 # 3887 vessels
-count_not_gom23_vessels[1]
+# count_not_gom23_vessels[1]
 # 3658
 
 vessels_compl_or_not_per_y_r_all <-
@@ -92,14 +165,14 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 5 NO         2023 sa_dual   1615
 # 6 YES        2023 sa_dual   2111
 
-# quantify_compliance_from_fhier_year ----
+# year ----
 source(file.path(
   my_paths$git_r,
   project_name,
   "quantify_compliance_from_fhier_year.R"
 ))
 
-# quantify_compliance_from_fhier_month ----
+# month ----
 source(
   file.path(
     my_paths$git_r,
@@ -108,7 +181,7 @@ source(
   )
 )
 
-# quantify_compliance_from_fhier_vms ----
+# vms ----
 source(file.path(
   my_paths$git_r,
   project_name,
@@ -247,27 +320,31 @@ glimpse(counts_by_year_read_me_clean)
 # TODO: why 2 "2023 sa_dual"?
 
 # ==
-# make a flat file ----
-dir_to_comb <- "~/R_code_github/quantify_compliance"
-
-files_to_combine <-
-  c(
-    "~/R_code_github/useful_functions_module.r",
-    file.path(dir_to_comb, "quantify_compliance_functions.R"),
-    file.path(dir_to_comb, "get_data.R"),
-    r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
-    file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R")
-  )
-
-# run as needed
-# make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
-
-# Add
-# from quantify_compliance start
-# to the flat file:
-library(zoo)
-library(gridExtra)
-library(cowplot)
-
-# source("~/R_code_github/useful_functions_module.r")
-my_paths <- set_work_dir()
+# # make a flat file ----
+# dir_to_comb <- "~/R_code_github/quantify_compliance"
+# 
+# files_to_combine <-
+#   c(
+#     "~/R_code_github/useful_functions_module.r",
+#     file.path(dir_to_comb, "quantify_compliance_functions.R"),
+#     file.path(dir_to_comb, "get_data.R"),
+#     r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_year.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_month.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_line_plots.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_vms.R")
+#   )
+# 
+# # run as needed
+# # make_a_flat_file(file.path(dir_to_comb, "flat_file_quantify_compliance.R"), files_to_combine)
+# 
+# # Add
+# # from quantify_compliance start
+# # to the flat file:
+# library(zoo)
+# library(gridExtra)
+# library(cowplot)
+# 
+# # source("~/R_code_github/useful_functions_module.r")
+# my_paths <- set_work_dir()

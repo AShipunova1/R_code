@@ -347,6 +347,17 @@ dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_per
 
 ## red/green plots for compl vs. non compl vessels per year ----
 
+title_permits <- data.frame(
+  # title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
+  title = c("2022: SA Only", "2022: GOM + Dual", "2023: SA + Dual"),
+  year_permit = c("2022 sa_only",
+                  "2022 gom_dual",
+                  "2023 sa_dual"),
+  second_part = c("Permitted Vessels",
+                  "Permitted Vessels",
+                  "Permitted Vessels")
+)
+
 # "Permitted SEFHIER Vessels"
 
 gg_all_c_vs_nc_plots <-
@@ -415,7 +426,7 @@ gg_all_c_vs_nc_plots <-
 # gg_all_c_vs_nc_plots[[3]]
 
 # 2022
-sa_only22 <- gg_all_c_vs_nc_plots[[1]]
+# gg_all_c_vs_nc_plots[[1]]
 # gg_all_c_vs_nc_plots[[2]]
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
@@ -744,8 +755,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
     return(one_plot)
   })
 
-sa_only_22_gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <- 
-gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[2]]
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]]
 
 ## plot 2022 ----
 ndash <- "\u2013"
@@ -790,19 +800,3 @@ gridExtra::grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cn
                         )
                         # ,
                         # bottom = footnote
-
-# part time fishery ----
-compl_clean_sa_vs_gom_m_int_1 |>
-  filter(year_permit == "2022 gom_dual") |>
-  summarise(n_distinct(vessel_official_number))
-
-compl_clean_sa_vs_gom_m_int_1 |>
-  filter(year_permit == "2022 gom_dual") |>
-  filter(gom_permitteddeclarations__ > 0) |>
-  summarise(n_distinct(vessel_official_number))
-
-# 808 * 100 / 1304
-# 61.96319
-
-# write_csv(compl_clean_sa_vs_gom_m_int_1,
-#           "compl_clean_sa_vs_gom_m_int_1.csv")

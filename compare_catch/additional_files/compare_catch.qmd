@@ -599,7 +599,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
    )
 
   # By default the "no_legend" parameter is TRUE
-  if(no_legend) {
+ if (no_legend) {
     one_plot <- one_plot +
       theme(legend.position = "none")
   }
