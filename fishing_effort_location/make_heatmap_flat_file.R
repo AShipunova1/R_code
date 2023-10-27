@@ -14,7 +14,7 @@ flat_file_name <-
 # ===
 add_file_name <- "~/R_code_github/useful_functions_module.r"
 
-cat("#' ##### Prepare data",
+cat("#' %%%%% Prepare data",
     file = flat_file_name,
     append = TRUE,
     sep = "\n")
@@ -99,7 +99,7 @@ write_to_1_flat_file(
 
 cat(
   c(
-    "#' ##### Heatmap preparations",
+    "#' %%%%% Heatmap preparations",
     "library(ggplot2) # a visualization package",
     "library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data."
   ),
