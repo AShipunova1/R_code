@@ -3298,6 +3298,26 @@ federal_state_w_sf_east <-
   federal_state_w_sf |>
   filter(Jurisdicti %in% east_coat_states)
 
+# Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
+# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+us_s_shp <-
+  tigris::states(cb = TRUE, progress_bar = FALSE)
+
+# Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
+sa_s_shp <-
+  us_s_shp |>
+  filter(NAME %in% states_sa$state_name)
+
+# Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
+# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+us_s_shp <-
+  tigris::states(cb = TRUE, progress_bar = FALSE)
+
+# Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
+sa_s_shp <-
+  us_s_shp |>
+  filter(NAME %in% states_sa$state_name)
+
 # read in GOM shp ----
 # Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
 GOM_400fm_path <-
