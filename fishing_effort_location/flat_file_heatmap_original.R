@@ -3251,6 +3251,34 @@ sa_state_abb <-
   # get abbreviations
   select(state_abb)
 
+# # add regions to the FHIER logbook DF
+# fhier_logbooks_content_waves__sa_gom <-
+#   fhier_logbooks_content_waves_fl_county %>%
+#   # add a new column "end_port_sa_gom" with sa or gom for each state
+#   # use fix_name aux function to unify state names (lower case, no spaces etc.)
+#   mutate(end_port_sa_gom = case_when(
+#     # if a name is in our SA list - "sa", otherwise - "gom"
+#     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
+#     .default = "gom"
+#   )) %>%
+#   # go through the new column again
+#   # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
+#   # otherwise don't change
+#   mutate(end_port_sa_gom = ifelse(
+#     tolower(end_port_state) == "fl",
+#     end_port_fl_reg,
+#     end_port_sa_gom
+#   )) %>%
+#   # remove this column, we don't need it anymore
+#   select(-end_port_fl_reg)
+
+#### test: check new cols of states and regions ----
+# fhier_logbooks_content_waves__sa_gom %>%
+#   # look at states and regions
+#   select(end_port_state, end_port_sa_gom) %>%
+#   unique() %>%
+#   glimpse()
+
 ## r get Shapefile all waters ----
 path_to_federal_state_w <-
   file.path(
@@ -3265,6 +3293,13 @@ tic("federal_state_w_sf")
 federal_state_w_sf <-
   sf::read_sf(path_to_federal_state_w)
 toc()
+
+# rr <-
+# federal_state_w_sf |>
+#   sf::st_drop_geometry()
+#
+# rr$Jurisdicti |>
+#   cat(sep = ", ")
 
 east_coat_states <- c(
   gom = c("Florida",
@@ -3291,12 +3326,64 @@ east_coat_states <- c(
     "Washington DC"
   )
 )
+# nc_sql = sf::st_read(system.file("shape/nc.shp", package="sf"),
+#                      query = "SELECT NAME, SID74, FIPS FROM \"nc\" WHERE BIR74 > 20000")
 
 # Create a new data frame 'federal_state_w_sf_east' by filtering the existing data frame 'federal_state_w_sf'.
 # Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coat_states'.
 federal_state_w_sf_east <-
   federal_state_w_sf |>
   filter(Jurisdicti %in% east_coat_states)
+
+# mapview(sa_shp)
+# [1] 21  7
+
+# coast line SA shp ----
+# us_bb <-
+#   tigris::counties(filter_by = big_bounding_box, progress_bar = FALSE)
+
+# Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
+# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+us_s_shp <-
+  tigris::states(cb = TRUE, progress_bar = FALSE)
+
+# Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
+sa_s_shp <-
+  us_s_shp |>
+  filter(NAME %in% states_sa$state_name)
+
+# sa_s_shp_plot <-
+#   ggplot() +
+#   geom_sf(data = sa_s_shp)
+
+# sa_counties_shp <- tigris::counties(states_sa, cb = TRUE)
+
+# gg <- ggplot()
+# gg <- gg + geom_sf(
+#   data = sa_s_shp,
+#   color = "black",
+#   # fill = "",
+#   size = 0.25
+# )
+# gg
+
+# library(rnaturalearth) #coastline
+# library(maps)
+# library(mapdata)
+
+
+atl_shp_file <-
+  file.path(my_paths$inputs,
+            r"(shapefiles\ATL_SLA\ATL_SLA.shp)")
+
+# Read a shapefile from the specified file path using the 'sf::read_sf' function.
+# The resulting spatial data is stored in the 'atl_shp' object.
+atl_shp <- sf::read_sf(atl_shp_file)
+
+# Create a plot using 'ggplot2' with the 'atl_shp' spatial data.
+# Use 'geom_sf' to display the shapes from 'atl_shp' with no fill (NA, i.e., transparent).
+ggplot() +
+  geom_sf(data = atl_shp, fill = NA)
 
 # read in GOM shp ----
 # Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
@@ -3311,6 +3398,11 @@ GOMsf <-
   sf::read_sf(GOM_400fm_path) %>%
   group_by(StatZone) %>%
   summarise()
+
+# Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
+# Geodetic CRS:  WGS 84
+
+# str(GOMsf)
 
 # create 5x5 minute grid ----
 # Define a function 'min_grid' that creates a grid of cells within the bounding box of a given spatial data frame.
@@ -3349,6 +3441,15 @@ tic("st_union(GOMsf)")
 st_union_GOMsf <- sf::st_union(GOMsf)
 toc()
 # st_union(GOMsf): 21.59 sec elapsed
+
+# str(GOMsf)
+# sf [21 × 2] (S3: sf/tbl_df/tbl/data.frame)
+#  $ StatZone: num [1:21] 1 2 3 4 5 6 7 8 9 10 ...
+#  $ geometry:sfc_GEOMETRY of length 21; first list element: List of 6
+
+# str(st_union_GOMsf)
+# sfc_MULTIPOLYGON of length 1; first list element: List of 15
+#  $ :List of 21234
 
 ## by n min grid ----
 # Define a function 'df_join_grid' that joins a data frame with a grid using specified coordinates and CRS.
@@ -3474,6 +3575,28 @@ make_map_trips <-
         trans = "log1p",
         limits = c(1, max_num)
       ) +
+      # Set fill scale properties.
+      # scale_fill_gradient(
+      # scale_fill_gradient2(
+      # # scale_fill_gradientn(
+      # #   colours = heat.colors(100),
+      #   # trans = 'reverse',
+      #   name = total_trips_title,
+      #   labels = scales::comma,
+      #   low = "yellow",
+      #   mid = "yellow",
+      #   high = "red",
+      #
+      #   # low = "red",
+      #   # mid = "purple",
+      #   # high = "blue",
+      #
+      #   # trans = "log2",
+      #   trans = "log1p",
+      #   limits = c(1, max_num)
+      #   # ,
+      #   # oob = scales::oob_keep
+      # ) +
       theme(
         legend.position = "top",
         legend.justification = "left",
@@ -3501,12 +3624,44 @@ axis.text.y =
 
 # Use the 'source' function to execute R code from a file located at the given path.
 
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+
+# data are from "by_permit"
+
+# Construct the file path using elements from the 'my_paths' list.
+by_permit_path <-
+  file.path(
+    my_paths$git_r,
+    r"(fishing_effort_location\fishing_effort_location_by_permit.R)"
+  )
+
+source(by_permit_path)
+
+# rstudioapi::getSourceEditorContext()$path
 # setup for fishing_effort_location_heatmap ----
+# library(ggplot2) # a visualization package
+# library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
 library(viridis) # additional color palettes
 
 # Heatmap ----
 
+# Construct the file path using elements from the 'my_paths' list.
+heatmap_func_path <-
+  file.path(my_paths$git_r,
+            r"(fishing_effort_location\prepare_gom_heatmap_func.R)")
+
+source(heatmap_func_path)
+
 ## heatmap data ----
+
+# for_heatmap_lat_lon_trips_only <-
+#   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
+#   select(trip_id, latitude, longitude) |>
+#   distinct()
+
+# glimpse(for_heatmap_lat_lon_trips_only)
+# Rows: 41,455
 
 # Split the data frame into multiple sub-data frames based on the 'permit_region' column.
 
@@ -3783,6 +3938,17 @@ geom_sf_text(data = sa_s_shp,
                label = sa_s_shp$NAME,  # Use the 'NAME' column as labels.
                size = 3)  # Set the size of the text labels to 3.
 
+
+# make_map_trips <-
+#   function(map_trip_base_data,
+#            shape_data,
+
+#            total_trips_title,
+#            trip_cnt_name,
+#            caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
+#            unit_num = 1,
+#            print_stat_zone = NULL
+#            ) {
 
 # To get end port numbers by state ----
 permit_end_port_path <-
