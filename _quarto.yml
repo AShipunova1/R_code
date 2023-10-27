@@ -13,9 +13,17 @@ format:
   html:
     toc: true
     toc-depth: 2
+    toc-highlight: true
+    toc_float: true
+    # toc_float:
+    #   collapsed: true
+    #   smooth_scroll: true
+    # toc-title: "Content"
+    # toc-location: left
+    page-layout: full
     number-sections: true
-    css: style.css
+    # css: style.css
     code-overflow: wrap
     code-fold: true
-    code-summary: "Show the code"
+    code-summary: "Show code"
     code-line-numbers: true
