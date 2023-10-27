@@ -1769,9 +1769,15 @@ grid.arrange(gg_all_c_vs_nc_plots_no_legend[[2]],
              right = is_compliant_legend,
              nrow = 1)
 
+# sa
+grid.arrange(gg_all_c_vs_nc_plots[[1]],
+             top = main_title)
+
+# gom
 grid.arrange(gg_all_c_vs_nc_plots[[2]],
              top = main_title)
 
+# 2023 sa+dual
 grid.arrange(gg_all_c_vs_nc_plots[[3]],
              top = main_title)
 
@@ -1791,7 +1797,7 @@ weeks_per_vsl_permit_year_compl_cnt <-
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
 
-# View(weeks_per_vsl_permit_year_compl_cnt)
+View(weeks_per_vsl_permit_year_compl_cnt)
 
 ## test 1a ----
 weeks_per_vsl_permit_year_compl_cnt %>%
@@ -2090,7 +2096,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
     return(one_plot)
   })
 
-gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]]
+gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[2]]
 
 ## plot 2022 ----
 ndash <- "\u2013"
@@ -2886,8 +2892,10 @@ geom_text_size <- 5
 axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
   
-line_df_22_gom_good_plot <-
-  line_df_22_gom |>
+line_df_22_good_plot <-
+  function(my_df = line_df_22_gom) {
+  
+  my_df |>
   filter(percent_non_compl_2_buckets == "< 50%") |>
   ggplot(aes(
     x = as.Date(year_month),
@@ -2927,12 +2935,15 @@ line_df_22_gom_good_plot <-
   labs(caption = "(The blue number is a total number of non-compliant vessels per month.)")
 # guides(color = guide_legend(title = "nc weeks")) +
 # ylim(0, 100)
+  }
 
 line_df_22_gom_good_plot
 
 # GOM non compliant by month ----
-line_df_22_gom_monthly_nc_plot <-
-  line_df_22_gom |>
+line_df_22_monthly_nc_plot <-
+  function(my_df = line_df_22_gom,
+           permit_title = "GOM + Dual") {
+    my_df |>
   # filter(percent_non_compl_2_buckets == "< 50%") |>
   ggplot(aes(
     x = as.Date(year_month),
@@ -2962,8 +2973,8 @@ line_df_22_gom_monthly_nc_plot <-
   ) +
   labs(x = "Months (2022)",
        y = "Number of Vessels") +
-  labs(title = "The Number of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") 
-
+  labs(title = str_glue("The Number of Non-Compliant {permit_title} Permitted Vessels Each Month in 2022"))
+}
 
 line_df_22_gom_monthly_nc_plot
 
@@ -3001,7 +3012,8 @@ line_df_22_gom_monthly_nc_percent_plot <-
     y = percent_of_total,
     color = line_df_22_gom_monthly_nc_percent_plot_color
   )) +
-  geom_point(color = line_df_22_gom_monthly_nc_percent_plot_color,
+  geom_point(color =
+               line_df_22_gom_monthly_nc_percent_plot_color,
              size = 4) +
   geom_line(color = line_df_22_gom_monthly_nc_percent_plot_color,
             linewidth = 1) +
@@ -3049,9 +3061,9 @@ file_full_name <- file.path(plot_file_path_lines,
                             "gom_2022_mostly_right.png")
 
 # see the function definition F2
-save_plots_list_to_files(file_full_name,
-                         # plots
-                         test_plot)
+# save_plots_list_to_files(file_full_name,
+#                          # plots
+#                          test_plot)
 
 # test_df |> 
 #   filter(year_month == "Jan 2022") |> 
