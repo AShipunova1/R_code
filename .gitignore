@@ -35,4 +35,5 @@ fishing_effort_location/flat_file_heatmap.Rmd
 fishing_effort_location/flat_file_heatmap.qmd
 
 /.quarto/
-temp.*
+temp*
+*.ipynb
