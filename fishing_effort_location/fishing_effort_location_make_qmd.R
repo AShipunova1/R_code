@@ -57,6 +57,23 @@ flat_file_r_with_headers_text <-
     flat_file_r_with_headers_text
   )
 
+## Change all sections to a level lower ----
+flat_file_r_with_headers_text <-
+  gsub(
+    "(#+) ",
+    "\\1# ",
+    flat_file_r_with_headers_text
+  )
+
+## add 2 top sections ----
+flat_file_r_with_headers_text <-
+  gsub(
+    "(%%%%%+) ", # was defined in make_heatmap_flat_file.R
+    "# ",
+    flat_file_r_with_headers_text
+  )
+
+# grep("# ", flat_file_r_with_headers_text, value = T) |> head()
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
@@ -96,12 +113,14 @@ cat(
 
 # ---
 # add in front
-cat(
-  '::: {.panel-tabset}',
-  file = qmd_file_name,
-  append = TRUE,
-  sep = "\n"
-)
+
+# tabset doesn't work with TOC
+# cat(
+#   '::: {.panel-tabset}',
+#   file = qmd_file_name,
+#   append = TRUE,
+#   sep = "\n"
+# )
 
 cat(
   setup_text,
@@ -117,9 +136,10 @@ cat(
   sep = "\n"
 )
 
-cat(
-  ':::',
-  file = qmd_file_name,
-  append = TRUE,
-  sep = "\n"
-)
+# for tabset only
+# cat(
+#   ':::',
+#   file = qmd_file_name,
+#   append = TRUE,
+#   sep = "\n"
+# )
