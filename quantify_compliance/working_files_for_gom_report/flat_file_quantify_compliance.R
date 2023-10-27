@@ -1149,13 +1149,16 @@ if (exists("get_data_from_param")) {
 }
 
 
-#### Current file:  ~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R  ----
+#### Current file:  ~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R  ----
 
 source(file.path(my_paths$git_r,
+                 "get_data",
                  "get_data_from_fhier",
                  "get_metrics_tracking.R"))
 
+
 source(file.path(my_paths$git_r,
+                 "get_data",
                  "get_data_from_fhier",
                  "get_srhs_vessels.R"))
 

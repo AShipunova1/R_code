@@ -1061,13 +1061,15 @@ if (exists("get_data_from_param")) {
 }
 
 
-#### Current file: ~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R ----
+#### Current file: ~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R ----
 
 source(file.path(my_paths$git_r,
+                 "get_data",
                  "get_data_from_fhier",
                  "get_metrics_tracking.R"))
 
 source(file.path(my_paths$git_r,
+                 "get_data",
                  "get_data_from_fhier",
                  "get_srhs_vessels.R"))
 
@@ -2495,7 +2497,7 @@ files_to_combine <-
     "~/R_code_github/useful_functions_module.r",
     file.path(dir_to_comb, "quantify_compliance_functions.R"),
     file.path(dir_to_comb, "get_data.R"),
-    r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
+    r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)",
     file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R")
   )
 

@@ -982,11 +982,11 @@ if (exists("get_data_from_param")) {
 }
 
 ## get metric tracking vessel ids ----
-source(r"(~\R_code_github\get_data_from_fhier\get_metrics_tracking.R)")
+source(r"(~\R_code_github\get_data\get_data_from_fhier\get_metrics_tracking.R)")
 # fhier_reports_metrics_tracking
 
 ## get srhs vessel ids ----
-source(r"(~/R_code_github/get_data_from_fhier/get_srhs_vessels.R)")
+source(r"(~/R_code_github/get_data\get_data_from_fhier/get_srhs_vessels.R)")
 # srhs_vessels_2022_info
 
 ## exclude srhs vessels from metric traking ----
