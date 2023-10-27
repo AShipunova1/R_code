@@ -80,7 +80,7 @@ title: "Fishing effort locations heatmap"
 
 # Setup
 setup_text <- "
-```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE}
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 library(knitr)
 ```
 "
@@ -91,6 +91,15 @@ cat(
   pre_text,
   file = qmd_file_name,
   # append = TRUE,
+  sep = "\n"
+)
+
+# ---
+# add in front
+cat(
+  '::: {.panel-tabset}',
+  file = qmd_file_name,
+  append = TRUE,
   sep = "\n"
 )
 
@@ -108,3 +117,9 @@ cat(
   sep = "\n"
 )
 
+cat(
+  ':::',
+  file = qmd_file_name,
+  append = TRUE,
+  sep = "\n"
+)

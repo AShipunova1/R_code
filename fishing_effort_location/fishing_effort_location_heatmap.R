@@ -14,8 +14,10 @@ by_permit_path <-
 
 source(by_permit_path)
 
-library(ggplot2) # a visualization package
-library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
+# rstudioapi::getSourceEditorContext()$path
+# setup for fishing_effort_location_heatmap ----
+# library(ggplot2) # a visualization package
+# library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
 library(viridis) # additional color palettes
 
 # Heatmap ----
