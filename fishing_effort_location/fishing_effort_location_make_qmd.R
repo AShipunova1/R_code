@@ -4,14 +4,17 @@ source("~/R_code_github/useful_functions_module.r")
 
 dir_to_comb <- "~/R_code_github/fishing_effort_location"
 
-r_file_name <-
-  file.path(dir_to_comb, "flat_file_heatmap.R")
+file_name <- "flat_file_heatmap_clean"
+file_ext <- c("R", "Rmd", "qmd")
 
-rmd_file_name <-
-  file.path(dir_to_comb, "flat_file_heatmap.Rmd")
+# Create a list of file paths for each file extension.
+file_paths <-
+  map(file_ext,
+      ~ file.path(dir_to_comb,
+                  paste0(file_name, ".", .x)))
 
-qmd_file_name <-
-  file.path(dir_to_comb, "flat_file_heatmap.qmd")
+# Set the names of the list elements to 'file_ext'.
+names(file_paths) <- file_ext
 
 # prepare all pieces ----
 ## Add headers to the flat file to be converted by knitr ----
@@ -24,7 +27,8 @@ qmd_file_name <-
 #
 
 flat_file_r_text <-
-  readLines(r_file_name)
+  readLines(file_paths$R)
+head(flat_file_r_text)
 
 pattern_to_add_md_headers <- "#' \\1\\2"
 pattern_to_add_md_chunk_labels <- "#+ \\2"
@@ -37,8 +41,6 @@ flat_file_r_with_headers_text <-
               pattern_to_repeat_the_original,
               sep = "\\\n"),
        flat_file_r_text)
-
-j_test_text1 <- grep("Jeannette", flat_file_r_with_headers_text, value = T)
 
 flat_file_r_with_headers_text <-
   gsub("source\\(", "# source(", flat_file_r_with_headers_text)
@@ -73,8 +75,6 @@ flat_file_r_with_headers_text <-
     flat_file_r_with_headers_text
   )
 
-# grep("# ", flat_file_r_with_headers_text, value = T) |> head()
-
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
@@ -106,7 +106,7 @@ library(knitr)
 
 cat(
   pre_text,
-  file = qmd_file_name,
+  file = file_paths$qmd,
   # append = TRUE,
   sep = "\n"
 )
@@ -117,21 +117,21 @@ cat(
 # tabset doesn't work with TOC
 # cat(
 #   '::: {.panel-tabset}',
-#   file = qmd_file_name,
+#   file = file_paths$qmd,
 #   append = TRUE,
 #   sep = "\n"
 # )
 
 cat(
   setup_text,
-  file = qmd_file_name,
+  file = file_paths$qmd,
   append = TRUE,
   sep = "\n"
 )
 
 cat(
   rmd_text,
-  file = qmd_file_name,
+  file = file_paths$qmd,
   append = TRUE,
   sep = "\n"
 )
@@ -139,7 +139,7 @@ cat(
 # for tabset only
 # cat(
 #   ':::',
-#   file = qmd_file_name,
+#   file = file_paths$qmd,
 #   append = TRUE,
 #   sep = "\n"
 # )
