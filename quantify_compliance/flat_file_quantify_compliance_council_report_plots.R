@@ -2994,9 +2994,13 @@ line_df_22_sa_monthly_nc_plot
 
 # Non compliant by month percent of total ----
 
-count_weeks_per_vsl_permit_year_compl_m_p_y_r <-
-  split(count_weeks_per_vsl_permit_year_compl_m_p,
-        as.factor(count_weeks_per_vsl_permit_year_compl_m_p$year_permit))
+# Split the data frame 'count_weeks_per_vsl_permit_year_compl_m_p' into a list of data frames based on 'year_permit'.
+count_weeks_per_vsl_permit_year_compl_m_p_y_r <- split(
+  # The data frame to be split.
+  count_weeks_per_vsl_permit_year_compl_m_p,
+  # The factor variable used for splitting.
+  as.factor(count_weeks_per_vsl_permit_year_compl_m_p$year_permit)
+)
 
 count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short <-
 
@@ -3162,23 +3166,35 @@ file_full_name <- file.path(plot_file_path_lines,
 #   filter(year_month == "Jan 2022") |> 
 #   View()
 
-count_weeks_per_vsl_permit_year_compl_m_p_nc |> 
+# Pipe the 'count_weeks_per_vsl_permit_year_compl_m_p_nc' data frame into the following operations.
+count_weeks_per_vsl_permit_year_compl_m_p_nc |>
+
+  # Filter rows where 'year_month' is "Jun 2022," 'year_permit' is "2022 gom_dual," and 'percent_compl_m' is less than 50.
   filter(year_month == "Jun 2022" &
-             year_permit == "2022 gom_dual" &
-             percent_compl_m < 50) |> 
+           year_permit == "2022 gom_dual" &
+           percent_compl_m < 50) |>
+
+  # Summarize the data by counting the distinct 'vessel_official_number' values.
   summarise(n_distinct(vessel_official_number))
 # print_df_names(test_df)
 
 max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 
 min_max_val <-
+  # Group 'test_df' by 'percent_non_compl_2_buckets'.
   test_df |>
   group_by(percent_non_compl_2_buckets) |>
+
+  # Calculate the maximum and minimum values of 'perc_vsls_per_m_b2' within each group.
   mutate(
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
+
+  # Remove grouping and ungroup the data frame.
   ungroup() |>
+
+  # Determine the 'year_month' where the maximum and minimum values occur for '< 50%' 'percent_non_compl_2_buckets'.
   mutate(
     max_dot_month =
       case_when(
@@ -3191,37 +3207,13 @@ min_max_val <-
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
+
+  # Create text labels based on the presence of 'max_dot_month' and 'min_dot_month'.
   mutate(
     max_dot_text =
-      case_when(
-        !is.na(max_dot_month) ~ str_glue(max_min_text)
-      ),
+      case_when(!is.na(max_dot_month) ~ str_glue(max_min_text)),
     min_dot_text =
-      case_when(
-        !is.na(min_dot_month) ~ str_glue(max_min_text)
-      )
-  )
-
-test_plot +
-  annotate(
-    "text",
-    x = as.Date(min_max_val$max_dot_month),
-    y = min_max_val$max_dot_y,
-    # mean of reports_cnts, rounded to 2 decimals
-    label = min_max_val$max_dot_text
-    # ,
-    # color = "#0570B0",
-    # angle = 90
-  ) +
-  annotate(
-    "text",
-    x = as.Date(min_max_val$min_dot_month),
-    y = min_max_val$min_dot_y,
-    # mean of reports_cnts, rounded to 2 decimals
-    label = min_max_val$min_dot_text
-    # ,
-    # color = "#0570B0",
-    # angle = 90
+      case_when(!is.na(min_dot_month) ~ str_glue(max_min_text))
   )
 
 #### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_vms.R  ----
@@ -3230,16 +3222,19 @@ test_plot +
 # compliance (just Gulf + dual permitted vessels; assess Feb 2022 (=pre-t), March 2022 (VMS implementation), and Sept 2022 (when 80% vessels had a registered VMS))
 
 compl_clean_sa_vs_gom_m_int_filtered |>
-  select(year_month) |>
-  distinct()
+  dplyr::select(year_month) |>
+  dplyr::distinct()
 # dim(compl_clean_sa_vs_gom_m_int_filtered)
 
+# Choose 3 month (pre, in and post VMS requirement)
 compl_clean_sa_vs_gom_m_int_filtered_vms <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
-  filter(year_permit == "2022 gom_dual" &
-           year_month %in% c("Feb 2022",
-                             "Mar 2022",
-                             "Sep 2022"))
+  # Filter rows where 'year_permit' is "2022 gom_dual" and 'year_month' matches the specified values.
+  dplyr::filter(year_permit == "2022 gom_dual" &
+                  year_month %in% c("Feb 2022",
+                                    "Mar 2022",
+                                    "Sep 2022"))
+
 dim(compl_clean_sa_vs_gom_m_int_filtered_vms)
 # [1] 12677    25
 
@@ -3248,7 +3243,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt <-
 # glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt)
 
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt %>%
-  select(year_month, total_vsl_y) %>%
+  dplyr::select(year_month, total_vsl_y) %>%
   unique()
 # 1 Sep 2022          1144
 # 2 Mar 2022          1031
