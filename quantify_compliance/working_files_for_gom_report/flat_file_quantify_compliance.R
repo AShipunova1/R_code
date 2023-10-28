@@ -793,7 +793,7 @@ make_one_plot_compl_vs_non_compl <-
     # +
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
 
-    label_percent <- map(my_df$perc_c_nc,
+    label_percent <- purrr::map(my_df$perc_c_nc,
                           ~ paste0(round(.x, 1), "%"))
                    
     # Add percent numbers on the bars
@@ -1178,7 +1178,7 @@ dim(fhier_reports_metrics_tracking_not_srhs_ids)
 
 # browser()
 fhier_reports_metrics_tracking_not_srhs_ids_list <-
-  map(
+  purrr::map(
     fhier_reports_metrics_tracking_list,
     ~ .x |>
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__) |>
@@ -2124,7 +2124,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map(~ .x + labs(x = NULL, y = NULL))
+  purrr::map(~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -2771,7 +2771,7 @@ x_bottom <-
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     # get a name
     curr_year_permit <- curr_year_reg_list[[1]]
@@ -2998,17 +2998,10 @@ count_weeks_per_vsl_permit_year_compl_m_p_y_r <-
   split(count_weeks_per_vsl_permit_year_compl_m_p,
         as.factor(count_weeks_per_vsl_permit_year_compl_m_p$year_permit))
 
-# count_weeks_per_vsl_permit_year_compl_m_p_2022_gom <-
-#   count_weeks_per_vsl_permit_year_compl_m_p |>
-#   filter(year_permit == "2022 gom_dual")
-
-# count_weeks_per_vsl_permit_year_compl_m_p_2022_gom <-
-#   count_weeks_per_vsl_permit_year_compl_m_p_y_r$`2022 sa_only`
-
 count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short <-
 
   # Use the 'map' function to apply a function to each element of a list or vector.
-  map(
+  purrr::map(
     # The first argument to 'map' is a list or vector.
     count_weeks_per_vsl_permit_year_compl_m_p_y_r,
     
@@ -3020,13 +3013,13 @@ count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short <-
       df_by_permit_year |>
       
         # Select specific columns from the data frame.
-        select(year_month,
+        dplyr::select(year_month,
                total_vsl_m,
                cnt_vsl_m_compl,
                compliant_) |>
       
         # Remove duplicate rows from the data frame based on all columns.
-        distinct() %>%
+        dplyr::distinct() %>%
         
         # Return the resulting data frame. This is the final step in the data transformation.
         return()
@@ -3044,12 +3037,6 @@ map(count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short, dim)
 # [1] 10  4
 
 
-count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent <-
-  count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short |>
-  group_by(year_month) |>
-  mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m)
-
-glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent)
 
 line_df_22_gom_monthly_nc_percent_plot_color = "blue"
 
@@ -3488,7 +3475,7 @@ save_plots_list_to_files(file.path(vms_plot_file_path,
                          gg_arranged_plots_vms)
 
 # gg_all_c_vs_nc_plots_vms |>
-#   map(function(current_plot) {
+#   purrr::map(function(current_plot) {
 #     # create a clean_name
 #     # browser()
 #     clean_name <-
