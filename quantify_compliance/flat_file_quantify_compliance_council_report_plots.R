@@ -760,16 +760,6 @@ make_one_plot_compl_vs_non_compl <-
               element_text(size = text_sizes[["axis_text_x_size"]]),
             axis.text.y = 
               element_text(size = text_sizes[["axis_text_y_size"]])) +
-      # # Add percent numbers on the bars
-      #     one_plot <-
-      # one_plot + annotate("text", x = 4, y = 25, label = "Some text")
-      # 
-      # geom_text(aes(label =
-      #                 paste0(round(!!sym(percent), 1), "%")),
-      #           # in the middle of the bar
-      #           position = 
-      #             position_stack(vjust = percent_label_pos)
-      #           ) +
       # no x and y titles for individual plots
       labs(title = current_title,
            x = "",
@@ -1446,29 +1436,9 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt %>%
   dplyr::filter(!total_vsl_y == sum_cnts) %>%
   dim()
 # 0 OK
-# unique() %>%
-# dplyr::group_by(is_compl_or_both) %>%
-# dplyr::mutate(sum_compl_or_not_cnt = sum(compl_or_not_cnt)) %>%
-# dplyr::select(is_compl_or_both, sum_compl_or_not_cnt) %>%
-# unique() %>%
-# dplyr::glimpse()
-# $ is_compl_or_both     <chr> "YES", "NO", "NO_YES"
-# $ sum_compl_or_not_cnt <int> 890, 562, 727
-# 890 + 562 + 727
-# [1] 2179
-# 0
 
 ### One vessel in 2 groups ----
 # The number should be the same as the total number we got earlier. It is not, which means One vessel is in 2 perm_exp_y groups, has both expired and not expired permit in 2022.
-
-# TODO: One vessel in 2 perm_exp_y - email
-#   year_permit  tota_vsl_m sum_cnts
-#   <chr>             <int> <int>
-# 1 2022 sa_only       2178 2179
-# ...
-# https://stackoverflow.com/questions/51848578/how-to-find-values-shared-between-groups-in-a-data-frame
-# "Or you can group by val and then check whether the number of distinct exp for that val is equal to the data frame level number of distinct exp"
-#
 
 ### check if a vessel is compliant and not at the same time
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
@@ -1478,7 +1448,6 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long %>%
                   dplyr::n_distinct(is_compl_or_both) == dplyr::n_distinct(.$is_compl_or_both)) %>%
   dplyr::filter(shared == TRUE) %>%
   dim()
-# dplyr::glimpse()
 # 0 - OK
 
 # check if a vessel permit is expired and not in the same time
@@ -1689,13 +1658,6 @@ gg_all_c_vs_nc_plots <-
 
   })
 
-#   with
-#       make_one_plot_compl_vs_non_compl(current_title,
-#                                        is_compliant = "compl_or_not",
-#                                        percent = "perc_c_nc",
-#                                        geom_text_size = 7,
-#                                        no_legend = F)
-
 
 # repeat with no legend
 gg_all_c_vs_nc_plots_no_legend <-
@@ -1756,6 +1718,7 @@ gg_all_c_vs_nc_plots_no_legend <-
 # 2022
 # sa
 # gg_all_c_vs_nc_plots[[1]]
+
 # gom
 # gg_all_c_vs_nc_plots_no_legend[[2]]
 
@@ -1796,8 +1759,6 @@ weeks_per_vsl_permit_year_compl_cnt <-
                    vessel_official_number,
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
-
-View(weeks_per_vsl_permit_year_compl_cnt)
 
 ## test 1a ----
 weeks_per_vsl_permit_year_compl_cnt %>%
@@ -2167,12 +2128,6 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_m %>%
   dplyr::arrange(year_month, year_permit) %>%
   unique() %>%
   tail()
-# 1 2022 gom_dual Oct 2022          1167
-# 2 2022 sa_only  Oct 2022          1722
-# 3 2022 gom_dual Nov 2022          1152
-# 4 2022 sa_only  Nov 2022          1677
-# 5 2022 gom_dual Dec 2022          1131
-# 6 2022 sa_only  Dec 2022          1657
 # numbers are as before, ok
 # 1 2022 gom_dual Oct 2022          1144
 # 2 2022 sa_only  Oct 2022          1695
@@ -2238,6 +2193,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 # 4 2022 sa_only Nov 2022   expired                1        1677
 # 5 2022 sa_only Dec 2022   active              1656        1657
 # 6 2022 sa_only Dec 2022   expired                1        1657
+
 # compare with the text for tot month above
 # rm exp
 # $ year_permit   <chr> "2022 sa_only", "2022 sa_only", "2022 sa_only", "2022 sa_only", "…
@@ -2826,9 +2782,6 @@ save_plots_list_to_files <-
     )
   }
 
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\08_31_2023"
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\2023-09-01\per_month"
-
 # add dir
 plot_file_path_m <-
   file.path(plot_file_path, "per_month")
@@ -2851,42 +2804,16 @@ all_plots_w_titles_list %>%
                              curr_plot_list[[2]])
   })
 
-# "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance/2023-09-01/per_month/2023 sa_dual_percent_distribution_per_month.png"
-
-# [[1]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
-
-
 
 #### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_line_plots.R  ----
 
 ## Month, line plots with dots ----
-line_df_22_gom <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual`
+line_df_22_gom <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual`
 
-line_df_22_sa <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 sa_only`
+line_df_22_sa <-
+  count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 sa_only`
 
-# glimpse(line_df_22_sa)
-
-# test_df_percent_n_compl_rank <- sort(unique(test_df$percent_n_compl_rank))
-# q_colors = length(test_df_percent_n_compl_rank)
-# library(viridis)
-# mypalette = viridis(q_colors, option = "D")
-# # mypalette <- rainbow(length(gom_all_cnt_indexes))
-# names(mypalette) <- test_df_percent_n_compl_rank
-# mypalette
-# 
-# month_unique <- 
-#   test_df$year_month |> 
-#   unique() 
-# 
-# month_labels <-
-#   factor(month_unique,
-#          labels = format(month_unique, "%b"))
-# 
-# month_labels_all <-
-#   factor(test_df$year_month,
-#          labels = format(month_unique, "%b"))
-# 
 pecent_names <- paste0(seq(0, 100, by = 10), "%")
 
 dim(line_df_22_gom)
@@ -3227,29 +3154,6 @@ test_plot +
     # angle = 90
   )
 
-# test_df |> select(
-#   year_permit,
-#   year_month,
-#   compliant_,
-#   # perm_exp_m,
-#   exp_m_tot_cnt,
-#   cnt_vsl_m_compl,
-#   cnt_v_in_bucket2,
-#   perc_vsls_per_m_b2,
-#   percent_non_compl_2_buckets
-# ) |>
-#   arrange(year_month) |>
-#   View()
-# |>
-#   write_csv("month_with_numbers_gom_22.csv")
-
-# count_weeks_per_vsl_permit_year_compl_m_p_nc |>
-#   filter(year_month == "May 2022" &
-#            year_permit == "2022 gom_dual" &
-#            percent_compl_m < 50) |>
-#   View()
-
-
 #### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_vms.R  ----
 
 # Above compliance metrics, to assess pre and post VMS requirement or vs increase in VMS ----
@@ -3411,7 +3315,6 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
 # 4        119 NO         expired
 # 1140 + 119
 # 1259
-# TODO: what does it mean?
 
 ## add total cnts ----
 # active vs expired per year, permit, compl, permit expiration
