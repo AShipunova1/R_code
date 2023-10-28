@@ -3037,6 +3037,20 @@ map(count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short, dim)
 # [1] 10  4
 
 
+count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short_percent <-
+  count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short |>
+  # Use the 'map' function to apply a function to each element of a list or vector.
+  purrr::map(# The first argument to 'map' is a list or vector.
+    # The second argument to 'map' is an anonymous function that operates on each element of the list.
+    function(df_by_permit_year) {
+      # The 'df_by_permit_year' variable represents a data frame for a specific permit and year.
+      df_by_permit_year |>
+        dplyr::group_by(year_month) |>
+        # Use the 'mutate' function to add a new column 'percent_of_total' to the data frame.
+        # Calculate the 'percent_of_total' by computing the percentage of 'cnt_vsl_m_compl'
+        # relative to 'total_vsl_m' for each group of 'year_month'.
+        dplyr::mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m)
+    })
 
 line_df_22_gom_monthly_nc_percent_plot_color = "blue"
 
