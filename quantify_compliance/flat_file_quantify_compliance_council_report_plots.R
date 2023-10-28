@@ -2814,11 +2814,18 @@ line_df_22_gom <-
 line_df_22_sa <-
   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 sa_only`
 
-pecent_names <- paste0(seq(0, 100, by = 10), "%")
+# Create a character vector named 'pecent_names'.
+
+# Use the 'paste0' function to concatenate elements together.
+pecent_names <- paste0(
+  # Generate a sequence from 0 to 100 with a step of 10, and add "%" to each element.
+  seq(0, 100, by = 10), "%"
+)
 
 dim(line_df_22_gom)
 # [1] 24 10
 
+# (re)define sizes
 geom_text_size = text_sizes[["geom_text_size"]]
 geom_text_size <- 5
 axis_title_size <- text_sizes[["axis_text_x_size"]]
