@@ -3063,48 +3063,81 @@ line_df_monthly_nc_percent_plot <-
     # The second argument to 'map' is an anonymous function that operates on each element of the list.
     function(permit_year) {
       # The 'df_by_permit_year' variable represents a data frame for a specific permit and year.
-      df_by_permit_year_non_compl <- 
-        count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short_percent[[permit_year]] |> 
-        filter(compliant_ == "NO")
-
+      df_by_permit_year_non_compl <-
+        count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short_percent[[permit_year]] |>
+        # Use the 'filter' function to filter rows where 'compliant_' is equal to "NO".        
+        dplyr::filter(compliant_ == "NO")
+      
       df_by_permit_year_non_compl |>
-        ggplot(aes(
+        # Create a ggplot object for creating a line plot.
+        ggplot2::ggplot(aes(
+          # Define the x-axis as 'year_month' converted to a Date object.
           x = as.Date(year_month),
+          
+          # Define the y-axis as 'percent_of_total'.
           y = percent_of_total,
+          
+          # Define the color aesthetic for the plot using 'line_df_monthly_nc_percent_plot_color'.
           color = line_df_monthly_nc_percent_plot_color
         )) +
-        geom_point(color =
-                     line_df_monthly_nc_percent_plot_color,
+        
+        # Add points to the plot with a specific color and size.
+        geom_point(color = line_df_monthly_nc_percent_plot_color,
                    size = 4) +
+        
+        # Add a line to the plot with a specific color and line width.
         geom_line(color = line_df_monthly_nc_percent_plot_color,
                   linewidth = 1) +
+        
+        # Apply a black-and-white theme to the plot.
         theme_bw() +
-        # text under the dot
+        
+        # Add text labels above the points using 'geom_text'.
         geom_text(
-          aes(label = paste0(round(percent_of_total, 1), "%")),
+          aes(# The label for each point is the rounded 'percent_of_total' with a "%" symbol.
+            label = paste0(round(percent_of_total, 1), "%")),
           vjust = -1,
           hjust = -0.1,
-          # vjust = -0.4,
-          # hjust = -0.3,
           color = line_df_monthly_nc_percent_plot_color,
           size = 5.5
         ) +
+        
+        # Define the breaks and labels for the x-axis as well as date formatting ("%b" means short Month).
         scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+        
+        # Customize the plot theme with specific settings and predefined size.
         theme(
           legend.position = "none",
-          axis.text.x =
-            element_text(size = axis_title_size),
-          axis.text.y =
-            element_text(size = axis_title_size)
+          axis.text.x = element_text(size = axis_title_size),
+          axis.text.y = element_text(size = axis_title_size)
         ) +
+        
+        # Set plot titles and axis labels.
         labs(title = permit_year,
              x = "Months (2022)",
              y = "Proportion of Non-Compliant Vessels") +
-        # labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") +
+        
+        # Expand the x-axis limits to the end of the year 2022 to show numbers on the right of Dec.
         expand_limits(x = as.Date("12/31/22", "%m/%d/%y")) +
-        ylim(25, 44)
+        
+        # Use the 'ylim' function to define the limits of the y-axis.
+
+        ylim(
+          
+        # Calculate the lower limit by rounding up the minimum value of 'percent_of_total' and subtracting 1.
+          min(ceiling(
+          df_by_permit_year_non_compl$percent_of_total
+        )) - 1,
+        
+        # Calculate the upper limit by rounding down the maximum value of 'percent_of_total' and adding 1.
+        max(floor(
+          df_by_permit_year_non_compl$percent_of_total
+        )) + 1
+        )
     })
 
+    # print_df_names(count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short_percent$`2022 sa_only`)
+# labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") +
 # dates <- c("02/27/92", "02/27/92", "01/14/92", "02/28/92", "02/01/92")
 # as.Date(dates, "%m/%d/%y")
 
