@@ -3182,7 +3182,7 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 
 min_max_val <-
   # Group 'test_df' by 'percent_non_compl_2_buckets'.
-  test_df |>
+  line_df_22_sa |>
   group_by(percent_non_compl_2_buckets) |>
 
   # Calculate the maximum and minimum values of 'perc_vsls_per_m_b2' within each group.
