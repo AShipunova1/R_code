@@ -3414,45 +3414,46 @@ dim(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot
 # [1] 12  7
 
 # plots VMS:
+# Create a new data frame 'gg_all_c_vs_nc_plots_vms' by performing a series of operations.
 gg_all_c_vs_nc_plots_vms <-
+
+  # Start with the 'year_month' column of 'compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot_perc'.
   compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot_perc$year_month %>%
+
+  # Get unique 'year_month' values.
   unique() %>%
+
+  # Sort the 'year_month' values in ascending order.
   sort() %>%
-  # repeat for each year_month
+
+  # Use purrr::map to perform the following operations for each 'year_month'.
   purrr::map(function(curr_year_month) {
-    # browser()
+
+    # Create a data frame 'curr_df' by filtering rows with 'year_month' matching 'curr_year_month'.
     curr_df <-
       compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long_cnt_tot_perc %>%
       dplyr::filter(year_month == curr_year_month)
 
-    # See function definition F2
+    # Generate a title for the year and permit label using 'make_year_permit_label' function (See its definition by F2).
     y_r_title <-
       make_year_permit_label(curr_year_month)
 
+    # Extract unique 'total_vsl_y' values.
     total_vsls <- unique(curr_df$total_vsl_y)
 
+    # Extract unique active permits.
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(cnt_y_p_e) %>%
-      unique()
+      distinct()
 
+    # Extract unique expired permits.
     expired_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(cnt_y_p_e) %>%
-      unique()
+      distinct()
 
-    # current_title <-
-    #   paste0(
-    #     "GOM + Dual",
-    #     " ",
-    #     curr_year_month,
-    #     " (Total Permitted: ",
-    #     total_vsls,
-    #     "; Expired Permits: ",
-    #     expired_permits$cnt_y_p_e,
-    #     ")"
-    #   )
-
+    # Create a title for the current plot.
     current_title <-
       paste0(
         "GOM + Dual",
@@ -3460,30 +3461,21 @@ gg_all_c_vs_nc_plots_vms <-
         curr_year_month
       )
 
-    # current_title <-
-    #   paste0(
-    #     "GOM + Dual",
-    #     " ",
-    #     curr_year_month,
-    #     " (Total Permitted: ",
-    #     total_vsls,
-    #     ")"
-    #   )
-
+    # Create a plot for compliance vs. non-compliance using 'make_one_plot_compl_vs_non_compl' function.
     one_plot <-
       curr_df %>%
       dplyr::select(compl_or_not, perc_c_nc) %>%
-      unique() %>%
-      # See function definition F2
+      dplyr::distinct() %>%
       make_one_plot_compl_vs_non_compl(current_title,
                                        is_compliant = "compl_or_not",
                                        percent = "perc_c_nc",
                                        default_percen_labels = FALSE)
 
+    # Return the generated plot for this 'year_month'.
     return(one_plot)
   })
 
-main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
+# main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
 # combine plots for 2022
 gg_arranged_plots_vms <-
@@ -3504,26 +3496,11 @@ save_plots_list_to_files(file.path(vms_plot_file_path,
                                    "vms_3_months.png"),
                          gg_arranged_plots_vms)
 
-# gg_all_c_vs_nc_plots_vms |>
-#   purrr::map(function(current_plot) {
-#     # create a clean_name
-#     # browser()
-#     clean_name <-
-#       stringr::str_replace_all(current_plot$labels$title,
-#                                "[^a_zA-z0-9]+", "_")
-#     save_plots_list_to_files(file.path(vms_plot_file_path,
-#                                        paste0(clean_name, ".png")),
-#                              # plots
-#                              current_plot)
-#   })
-
-
 # Non compliant only ----
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present ----
 weeks_per_vsl_year_month_vms_compl_cnt <-
   compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt |>
-  # compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt %>%
   dplyr::add_count(year_month, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
   dplyr::add_count(year_month, vessel_official_number, name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
