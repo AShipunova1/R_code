@@ -2994,11 +2994,31 @@ line_df_22_sa_monthly_nc_plot
 
 # Non compliant by month percent of total ----
 
-count_weeks_per_vsl_permit_year_compl_m_p_2022_gom <-
-  count_weeks_per_vsl_permit_year_compl_m_p |>
-  filter(year_permit == "2022 gom_dual")
+count_weeks_per_vsl_permit_year_compl_m_p_y_r <-
+  split(count_weeks_per_vsl_permit_year_compl_m_p,
+        as.factor(count_weeks_per_vsl_permit_year_compl_m_p$year_permit))
 
-count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short <-
+# count_weeks_per_vsl_permit_year_compl_m_p_2022_gom <-
+#   count_weeks_per_vsl_permit_year_compl_m_p |>
+#   filter(year_permit == "2022 gom_dual")
+
+# count_weeks_per_vsl_permit_year_compl_m_p_2022_gom <-
+#   count_weeks_per_vsl_permit_year_compl_m_p_y_r$`2022 sa_only`
+
+count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short <-
+  map(count_weeks_per_vsl_permit_year_compl_m_p_y_r,
+  function(df_by_permit_year) {
+    df_by_permit_year |>
+      select(year_month,
+             total_vsl_m,
+             cnt_vsl_m_compl,
+             compliant_) |>
+      distinct() %>%
+      return()
+  })
+  
+# View(count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short)
+
   count_weeks_per_vsl_permit_year_compl_m_p_2022_gom |>
   select(year_month,
          total_vsl_m,
