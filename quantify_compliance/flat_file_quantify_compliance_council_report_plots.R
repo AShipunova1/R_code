@@ -2831,93 +2831,158 @@ geom_text_size <- 5
 axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
   
-make_line_df_22_good_2_colors_plot <-
-  function(my_df = line_df_22_gom) {
-    line_plot <-
-      my_df |>
-      filter(percent_non_compl_2_buckets == "< 50%") |>
-      ggplot(aes(
-        x = as.Date(year_month),
-        y = cnt_v_in_bucket2,
-        color = percent_non_compl_2_buckets
-      )) +
-      geom_point() +
-      geom_line() +
-      theme_bw() +
-      # text on dots
-      # on top
-      geom_text(aes(label = cnt_v_in_bucket2),
-                vjust = -0.3,
-                size = geom_text_size) +
-      # under the dot
-      geom_text(
-        aes(label = cnt_vsl_m_compl),
-        vjust = 1.3,
-        color = "skyblue1",
-        size = geom_text_size
-      ) +
-      scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-      theme(
-        legend.position = "none",
-        plot.caption =
-          element_text(size = text_sizes[["plot_caption_text_size"]]),
-        axis.text.x =
-          element_text(size = axis_title_size),
-        axis.text.y =
-          element_text(size = axis_title_size)
-      ) +
-      labs(size = "Groups of percentage",
-           x = "Months (2022)",
-           y = "Number of Vessels") +
-      labs(title = "The Number of Non-Compliant Vessels Each Month\nThat Were Compliant More Than 50% of a Month in 2022") +
-      # theme(plot.title = element_text(lineheight = 0.9)) +
-      labs(caption = "(The blue number is a total number of non-compliant vessels per month.)")
-    # guides(color = guide_legend(title = "nc weeks")) +
-    # ylim(0, 100)
-    
-    return(line_plot)
-  }
+# Define a custom R function named 'make_line_df_22_good_2_colors_plot' with an optional parameter 'my_df'.
+make_line_df_22_good_2_colors_plot <- function(my_df = line_df_22_gom) {
+
+  # Create a line plot based on the specified data frame or the default 'line_df_22_gom' data frame.
+  line_plot <-
+
+    # Use the pipe operator to chain a series of operations for 'my_df'.
+    my_df |>
+
+    # Filter rows where 'percent_non_compl_2_buckets' is "< 50%".
+    filter(percent_non_compl_2_buckets == "< 50%") |>
+
+    # Create a ggplot object for creating a line plot.
+    ggplot(aes(
+      # Define the x-axis as 'year_month' converted to a Date object.
+      x = as.Date(year_month),
+      
+      # Define the y-axis as 'cnt_v_in_bucket2'.
+      y = cnt_v_in_bucket2,
+      
+      # Define the color aesthetic using 'percent_non_compl_2_buckets'.
+      color = percent_non_compl_2_buckets
+    )) +
+
+    # Add points to the plot.
+    geom_point() +
+
+    # Add lines to the plot.
+    geom_line() +
+
+    # Apply a black-and-white theme to the plot.
+    theme_bw() +
+
+    # Add text labels above the points.
+    geom_text(
+      aes(label = cnt_v_in_bucket2),
+      vjust = -0.3,
+      size = geom_text_size
+    ) +
+
+    # Add text labels below the points with a specific color.
+    geom_text(
+      aes(label = cnt_vsl_m_compl),
+      vjust = 1.3,
+      color = "skyblue1",
+      size = geom_text_size
+    ) +
+
+    # Define the breaks and labels for the x-axis as well as date formatting.
+    scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+
+    # Customize the plot theme with specific settings.
+    theme(
+      legend.position = "none",
+      plot.caption = element_text(size = text_sizes[["plot_caption_text_size"]]),
+      axis.text.x = element_text(size = axis_title_size),
+      axis.text.y = element_text(size = axis_title_size)
+    ) +
+
+    # Set plot labels.
+    labs(
+      size = "Groups of percentage",
+      x = "Months (2022)",
+      y = "Number of Vessels"
+    ) +
+
+    # Set the plot title.
+    labs(
+      title = "The Number of Non-Compliant Vessels Each Month\nThat Were Compliant More Than 50% of a Month in 2022"
+    ) +
+
+    # Set the caption for the plot.
+    labs(caption = "(The blue number is a total number of non-compliant vessels per month.)");
+
+  # Return the 'line_plot' object.
+  return(line_plot)
+}
 
 line_df_22_good_plot_gom <- make_line_df_22_good_2_colors_plot()
-line_df_22_good_plot_sa <- make_line_df_22_good_2_colors_plot(my_df = line_df_22_sa)
+line_df_22_good_plot_sa <-
+  make_line_df_22_good_2_colors_plot(my_df = line_df_22_sa)
 
-# GOM non compliant by month ----
+# Non compliant by month ----
+
+line_plot_color = "blue"
+
+# Define a custom R function named 'make_line_df_22_monthly_nc_plot' with optional parameters 'my_df' and 'permit_title'.
 make_line_df_22_monthly_nc_plot <-
   function(my_df = line_df_22_gom,
            permit_title = "GOM + Dual") {
+    # Create a line plot based on the specified data frame or the default 'line_df_22_gom' data frame.
     my_df |>
-  # filter(percent_non_compl_2_buckets == "< 50%") |>
-  ggplot(aes(
-    x = as.Date(year_month),
-    y = cnt_vsl_m_compl,
-    color = "blue"
-  )) +
-  geom_point(color = "blue",
-             size = 5) +
-  geom_line(color = "blue",
-            linewidth = 1) +
-  theme_bw() +
-  # text under the dot
-  geom_text(
-    aes(label = cnt_vsl_m_compl),
-    vjust = -1,
-    hjust = -0.1,
-    color = "blue",
-    size = geom_text_size
-  ) +
-  ylim(400, 710) +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  theme(
-    legend.position = "none",
-    axis.text.x =
-      element_text(size = axis_title_size),
-    axis.text.y =
-      element_text(size = axis_title_size)
-  ) +
-  labs(x = "Months (2022)",
-       y = "Number of Vessels") +
-  labs(title = str_glue("The Number of Non-Compliant {permit_title} Permitted Vessels Each Month in 2022"))
-}
+      
+      # Create a ggplot object for creating a line plot.
+      ggplot(aes(
+        # Define the x-axis as 'year_month' converted to a Date object.
+        x = as.Date(year_month),
+        
+        # Define the y-axis as 'cnt_vsl_m_compl'.
+        y = cnt_vsl_m_compl,
+        
+        # Define the color aesthetic using 'line_plot_color'.
+        color = line_plot_color
+      )) +
+      
+      # Add points to the plot with a specific color and size.
+      geom_point(color = line_plot_color,
+                 size = 5) +
+      
+      # Add lines to the plot with a specific color and line width.
+      geom_line(color = line_plot_color,
+                linewidth = 1) +
+      
+      # Apply a black-and-white theme to the plot using 'theme_bw'.
+      theme_bw() +
+      
+      # Add text labels above the points.
+      geom_text(
+        aes(label = cnt_vsl_m_compl),
+        vjust = -1,
+        hjust = -0.1,
+        color = line_plot_color,
+        size = geom_text_size
+      ) +
+      
+      # Set the y-axis limits to the range of cnt_vsl_m_compl.
+      # Set the lower limit by subtracting 1 from the minimum value of 'cnt_vsl_m_compl'.
+      ggplot2::ylim(min(my_df$cnt_vsl_m_compl) - 1,
+                    # Set the upper limit by adding 10 to the maximum value of 'cnt_vsl_m_compl'.
+                    max(my_df$cnt_vsl_m_compl) + 10) +
+      
+    # Define the breaks and labels for the x-axis as well as date formatting.
+    scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+      
+      # Customize the plot theme with specific settings.
+      theme(
+        legend.position = "none",
+        axis.text.x = element_text(size = axis_title_size),
+        axis.text.y = element_text(size = axis_title_size)
+      ) +
+      
+      # Set plot labels.
+      labs(x = "Months (2022)",
+           y = "Number of Vessels") +
+      
+      # Set the plot title using 'str_glue' to incorporate the 'permit_title' parameter.
+      labs(
+        title = str_glue(
+          "The Number of Non-Compliant {permit_title} Permitted Vessels Each Month in 2022"
+        )
+      )
+  }
 
 line_df_22_gom_monthly_nc_plot <- make_line_df_22_monthly_nc_plot()
 
@@ -2988,8 +3053,6 @@ count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short_percent <-
         dplyr::ungroup()
     })
 
-line_df_monthly_nc_percent_plot_color = "blue"
-
 line_df_monthly_nc_percent_plot <-
   names(count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short_percent) |>
   # Use the 'map' function to apply a function to each element of a list or vector.
@@ -3011,16 +3074,16 @@ line_df_monthly_nc_percent_plot <-
           # Define the y-axis as 'percent_of_total'.
           y = percent_of_total,
           
-          # Define the color aesthetic for the plot using 'line_df_monthly_nc_percent_plot_color'.
-          color = line_df_monthly_nc_percent_plot_color
+          # Define the color aesthetic for the plot using 'line_plot_color'.
+          color = line_plot_color
         )) +
         
         # Add points to the plot with a specific color and size.
-        ggplot2::geom_point(color = line_df_monthly_nc_percent_plot_color,
+        ggplot2::geom_point(color = line_plot_color,
                    size = 4) +
         
         # Add a line to the plot with a specific color and line width.
-        ggplot2::geom_line(color = line_df_monthly_nc_percent_plot_color,
+        ggplot2::geom_line(color = line_plot_color,
                   linewidth = 1) +
         
         # Apply a black-and-white theme to the plot.
@@ -3032,7 +3095,7 @@ line_df_monthly_nc_percent_plot <-
             label = paste0(round(percent_of_total, 1), "%")),
           vjust = -1,
           hjust = -0.1,
-          color = line_df_monthly_nc_percent_plot_color,
+          color = line_plot_color,
           size = 5.5
         ) +
         
