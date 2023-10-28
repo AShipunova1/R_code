@@ -3052,20 +3052,20 @@ count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short_percent <-
         dplyr::mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m)
     })
 
-line_df_22_gom_monthly_nc_percent_plot_color = "blue"
+line_df_monthly_nc_percent_plot_color_color = "blue"
 
-line_df_22_gom_monthly_nc_percent_plot <-
+line_df_monthly_nc_percent_plot_color <-
   count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent |>
   filter(compliant_ == "NO") |> 
   ggplot(aes(
     x = as.Date(year_month),
     y = percent_of_total,
-    color = line_df_22_gom_monthly_nc_percent_plot_color
+    color = line_df_monthly_nc_percent_plot_color_color
   )) +
   geom_point(color =
-               line_df_22_gom_monthly_nc_percent_plot_color,
+               line_df_monthly_nc_percent_plot_color_color,
              size = 4) +
-  geom_line(color = line_df_22_gom_monthly_nc_percent_plot_color,
+  geom_line(color = line_df_monthly_nc_percent_plot_color_color,
             linewidth = 1) +
   theme_bw() +
   # text under the dot
@@ -3073,7 +3073,7 @@ line_df_22_gom_monthly_nc_percent_plot <-
     aes(label = paste0(round(percent_of_total, 1), "%")),
     # vjust = -0.4,
     hjust = -0.3,
-    color = line_df_22_gom_monthly_nc_percent_plot_color,
+    color = line_df_monthly_nc_percent_plot_color_color,
     size = 6
   ) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -3095,7 +3095,7 @@ line_df_22_gom_monthly_nc_percent_plot <-
 # as.Date(dates, "%m/%d/%y")
 
 
-line_df_22_gom_monthly_nc_percent_plot
+line_df_monthly_nc_percent_plot_color
 
 # save to files ----
 
