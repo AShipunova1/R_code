@@ -3499,19 +3499,38 @@ save_plots_list_to_files(file.path(vms_plot_file_path,
 # Non compliant only ----
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present ----
+# Create a new data frame 'weeks_per_vsl_year_month_vms_compl_cnt' by performing a series of operations.
 weeks_per_vsl_year_month_vms_compl_cnt <-
+  
+  # Start with the 'compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt' data frame.
   compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt |>
-  dplyr::add_count(year_month, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
-  dplyr::add_count(year_month, vessel_official_number, name = "total_weeks_per_vessel") %>%
+  
+  # Add a count column 'weeks_per_vessel_per_compl' that counts the number of weeks per vessel per compliance status.
+  dplyr::add_count(year_month, 
+                   vessel_official_number, 
+                   compliant_, 
+                   name = "weeks_per_vessel_per_compl") %>%
+  
+  # Add a count column 'total_weeks_per_vessel' that counts the total number of weeks per vessel.
+  dplyr::add_count(year_month, 
+                   vessel_official_number, 
+                   name = "total_weeks_per_vessel") %>%
+  
+  # Remove grouping and ungroup the data frame.
   dplyr::ungroup()
 
 dim(weeks_per_vsl_year_month_vms_compl_cnt)
 # [1] 12677    31
 
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
+
 weeks_per_vsl_year_month_vms_compl_cnt_perc <-
+
+  # Start with the 'weeks_per_vsl_year_month_vms_compl_cnt' data frame.
   weeks_per_vsl_year_month_vms_compl_cnt %>%
-  mutate(percent_compl =
+
+  # Mutate to calculate the 'percent_compl' column, which represents the percentage of compliance per vessel.
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(weeks_per_vsl_year_month_vms_compl_cnt_perc)
@@ -3643,17 +3662,27 @@ blue_year_plot_titles <-
     )
   )
 
+# Create a list of plots 'gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc' for each 'year_month'.
 gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
+
+  # Start with the 'year_month' column of 'weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc'.
   weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc$year_month %>%
+
+  # Get unique 'year_month' values.
   unique() %>%
+
+  # Sort the 'year_month' values in ascending order.
   sort() %>%
-  # repeat for each year_month
+
+  # Use purrr::map to create a plot for each 'year_month'.
   purrr::map(function(curr_year_month) {
-    # browser()
+
+    # Create a data frame 'curr_df' by filtering rows with 'year_month' matching 'curr_year_month'.
     curr_df <-
       weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc %>%
       dplyr::filter(year_month == curr_year_month)
 
+    # Extract a data frame 'total_non_compl_df' with relevant columns.
     total_non_compl_df <-
       curr_df %>%
       dplyr::select(perc_vsls_per_y_r_b,
@@ -3662,41 +3691,17 @@ gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
                     vsls_per_y_r) %>%
       unique()
 
+    # Extract active permits.
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(exp_y_tot_cnt)
 
+    # Extract expired permits.
     expired_permits <- curr_df %>%
       filter(perm_exp_y == "expired") %>%
       dplyr::select(exp_y_tot_cnt)
 
-    # See the function definition F2
-    # curr_title_y_p <- make_year_month_label(curr_year_month)
-
-    # curr_blue_year_plot_title <-
-    # blue_year_plot_titles %>%
-    # filter(year_month == curr_year_month)
-
-    # y_p_title <-
-    #   paste0(
-    #     curr_year_month,
-    #     " (Total Non-Compliant = ",
-    #     total_non_compl_df$vsls_per_y_r,
-    #     " Vessels; Acitve permits = ",
-    #     active_permits$exp_y_tot_cnt,
-    #     "; Expired permits: ",
-    #     expired_permits$exp_y_tot_cnt,
-    #     " Vessels)"
-    #   )
-
-    # y_p_title <-
-    #   paste0(
-    #     curr_year_month,
-    #     " (Total Non-Compliant = ",
-    #     total_non_compl_df$vsls_per_y_r,
-    #     " Vessels)"
-    #   )
-
+    # Create a title for the plot.
     y_p_title <-
       paste0(
         curr_year_month,
@@ -3705,6 +3710,7 @@ gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
         " Vessels)"
       )
 
+    # Create a bar plot 'one_plot' using ggplot2.
     one_plot <-
       ggplot(total_non_compl_df,
              aes(x = percent_n_compl_rank,
@@ -3713,22 +3719,24 @@ gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_perc <-
       labs(title = y_p_title,
            x = "",
            y = "") +
-      # text on bars
+      # Add labels to the bars.
       geom_text(aes(label = perc_labels),
                 position = position_stack(vjust = 0.5)) +
-      # y axes 0 to 100
+      # Set the y-axis limits from 0 to 100.
       ylim(0, 100) +
-      # size of an individual plot's title
+      # Adjust the size of the plot's title.
       theme(plot.title =
               element_text(size = 10))
 
+    # Return the generated plot for this 'year_month'.
     return(one_plot)
   })
+
 
 # main_blue_title <- "% non compliant vessels per period"
 ndash <- "\u2013"
 main_blue_title <- paste0(
-  "% Non-Compliant Vessels Missing <25%, 25%", ndash, "49.9%, 50%", ndash, "74.9%, >=75% of their reports"
+  "% Non-Compliant (VMS) Vessels Missing <25%, 25%", ndash, "49.9%, 50%", ndash, "74.9%, >=75% of their reports"
 )
 
 
