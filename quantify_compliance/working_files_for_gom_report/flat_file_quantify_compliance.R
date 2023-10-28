@@ -3006,28 +3006,43 @@ count_weeks_per_vsl_permit_year_compl_m_p_y_r <-
 #   count_weeks_per_vsl_permit_year_compl_m_p_y_r$`2022 sa_only`
 
 count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short <-
-  map(count_weeks_per_vsl_permit_year_compl_m_p_y_r,
-  function(df_by_permit_year) {
-    df_by_permit_year |>
-      select(year_month,
-             total_vsl_m,
-             cnt_vsl_m_compl,
-             compliant_) |>
-      distinct() %>%
-      return()
-  })
-  
-# View(count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short)
 
-  count_weeks_per_vsl_permit_year_compl_m_p_2022_gom |>
-  select(year_month,
-         total_vsl_m,
-         cnt_vsl_m_compl,
-         compliant_) |>
-  distinct()
+  # Use the 'map' function to apply a function to each element of a list or vector.
+  map(
+    # The first argument to 'map' is a list or vector.
+    count_weeks_per_vsl_permit_year_compl_m_p_y_r,
+    
+    # The second argument to 'map' is an anonymous function that operates on each element of the list.
+    function(df_by_permit_year) {
+      
+      # The 'df_by_permit_year' variable represents a data frame for a specific permit and year.
+      
+      df_by_permit_year |>
+      
+        # Select specific columns from the data frame.
+        select(year_month,
+               total_vsl_m,
+               cnt_vsl_m_compl,
+               compliant_) |>
+      
+        # Remove duplicate rows from the data frame based on all columns.
+        distinct() %>%
+        
+        # Return the resulting data frame. This is the final step in the data transformation.
+        return()
+    }
+  )
 
-View(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short)
+map(count_weeks_per_vsl_permit_year_compl_m_p_c_cnts_short, dim)
+# $`2022 gom_dual`
 # [1] 24  4
+# 
+# $`2022 sa_only`
+# [1] 24  4
+# 
+# $`2023 sa_dual`
+# [1] 10  4
+
 
 count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent <-
   count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short |>
