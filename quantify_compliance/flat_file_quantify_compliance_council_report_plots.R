@@ -3082,19 +3082,19 @@ line_df_monthly_nc_percent_plot <-
         )) +
         
         # Add points to the plot with a specific color and size.
-        geom_point(color = line_df_monthly_nc_percent_plot_color,
+        ggplot2::geom_point(color = line_df_monthly_nc_percent_plot_color,
                    size = 4) +
         
         # Add a line to the plot with a specific color and line width.
-        geom_line(color = line_df_monthly_nc_percent_plot_color,
+        ggplot2::geom_line(color = line_df_monthly_nc_percent_plot_color,
                   linewidth = 1) +
         
         # Apply a black-and-white theme to the plot.
-        theme_bw() +
+        ggplot2::theme_bw() +
         
         # Add text labels above the points using 'geom_text'.
-        geom_text(
-          aes(# The label for each point is the rounded 'percent_of_total' with a "%" symbol.
+        ggplot2::geom_text(
+          ggplot2::aes(# The label for each point is the rounded 'percent_of_total' with a "%" symbol.
             label = paste0(round(percent_of_total, 1), "%")),
           vjust = -1,
           hjust = -0.1,
@@ -3103,26 +3103,26 @@ line_df_monthly_nc_percent_plot <-
         ) +
         
         # Define the breaks and labels for the x-axis as well as date formatting ("%b" means short Month).
-        scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+        ggplot2::scale_x_date(date_breaks = "1 month", date_labels = "%b") +
         
         # Customize the plot theme with specific settings and predefined size.
-        theme(
+        ggplot2::theme(
           legend.position = "none",
-          axis.text.x = element_text(size = axis_title_size),
-          axis.text.y = element_text(size = axis_title_size)
+          axis.text.x = ggplot2::element_text(size = axis_title_size),
+          axis.text.y = ggplot2::element_text(size = axis_title_size)
         ) +
         
         # Set plot titles and axis labels.
-        labs(title = permit_year,
+        ggplot2::labs(title = permit_year,
              x = "Months (2022)",
              y = "Proportion of Non-Compliant Vessels") +
         
         # Expand the x-axis limits to the end of the year 2022 to show numbers on the right of Dec.
-        expand_limits(x = as.Date("12/31/22", "%m/%d/%y")) +
+        ggplot2::expand_limits(x = as.Date("12/31/22", "%m/%d/%y")) +
         
         # Use the 'ylim' function to define the limits of the y-axis.
 
-        ylim(
+        ggplot2::ylim(
           
         # Calculate the lower limit by rounding up the minimum value of 'percent_of_total' and subtracting 1.
           min(ceiling(
