@@ -24,35 +24,59 @@ functions_in_fish_eff_location_list <-
 
 # functions_in_fish_eff_location_web <- foodweb()
 
-result_func_list <-
-  data.frame(func_name = character(0),
-             is_in_code = character(0))
+# In this code, a list 'res' is created using purrr::map by applying a function to each element in 'functions_in_fish_eff_location_list'. The function prints the function name, checks if the function name appears in 'current_file_text', and returns a string representation of the unique results. The resulting list contains the information related to the function names and their presence in the 'current_file_text'.
+# f_name: This is a variable representing the name of a function that is passed as an argument to the function.
+#
+# current_file_text: This is a variable representing a text or a document that is searched for the presence of the function name.
+#
+# grepl(f_name, current_file_text): The grepl function is used to search for the presence of the function name (f_name) in the text (current_file_text). It returns a logical vector, where each element indicates whether the function name was found in the text (TRUE) or not (FALSE).
+#
+# unique(grepl(f_name, current_file_text)): This part of the code applies the unique function to the logical vector returned by grepl. It removes duplicate values, so it ensures that the result contains only unique TRUE/FALSE values. It's used to find if the function name is present at least once in the text.
+#
+# toString(unique(grepl(f_name, current_file_text))): Finally, the toString function converts the unique logical vector into a string representation. This string will be either "TRUE" if the function name was found at least once in the text or "FALSE" if it wasn't found.
+#
+# In summary, the function checks if a specific function name (f_name) is present in a given text (current_file_text) and returns a string representation of whether it was found or not. This can be used to determine the occurrence of the function name in the text.
+#
+#
 
 res <-
   map(functions_in_fish_eff_location_list, function(f_name) {
     # browser()
     # callers.of(f_name, functions_in_fish_eff_location_web)
     cat(f_name, sep = "\n")
-    cat(toString((unique(grepl(f_name, current_file_text)))), sep = "\n")
-    toString(unique(grepl(f_name, current_file_text)))
-    # res_temp <-
-    #   result_func_list |>
-    #   mutate(func_name = f_name,
-    #          is_in_code = toString(unique(grepl(f_name, current_file_text))))
-     # = toString(unique(grepl(f_name, current_file_text)))
-    # cat(f_name, sep = "\n")
-    # grep(f_name, current_file_text, value = T)
-    # return(res_temp)
+    cat(toString((unique(
+      grepl(f_name, current_file_text)
+    ))), sep = "\n")
+    # toString(unique(grepl(f_name, current_file_text)))
+    # Find all occurrences of 'f_name' in 'current_file_text' and return them as a character vector
+    # using the 'value' parameter set to TRUE in the 'grep' function.
+    grep(f_name, current_file_text, value = TRUE) |>
+      unique() |>
+      # Convert the resulting character vector into a single comma-separated string.
+      toString()
   })
 
-rr <- as.data.frame(res)
-names(rr)
-names(rr) <- unlist(functions_in_fish_eff_location_list)
-rr2 <-
-  t(rr) |>
+
+# Convert 'res' to a data frame and store it in 'res_df'
+res_df <- as.data.frame(res)
+
+# Set the column names of 'res_df' to the elements of 'functions_in_fish_eff_location_list'
+names(res_df) <- unlist(functions_in_fish_eff_location_list)
+
+# View(res_df)
+# Transpose 'res_df' and convert it to a data frame, effectively swapping rows and columns
+res_df <- t(res_df) |>
+
+  # Convert the transposed data frame to a regular data frame
   as.data.frame() |>
+
+  # Add a new column with row names to the data frame
   rownames_to_column()
 
-names(rr2) <- c("func_name", "is_in_code")
+# Set the column names of 'res_df' to "func_name" and "is_in_code"
+names(res_df) <- c("func_name", "is_in_code")
 
-View(rr2)
+res_df |>
+  filter(!is_in_code == "") |>
+  head()
+
