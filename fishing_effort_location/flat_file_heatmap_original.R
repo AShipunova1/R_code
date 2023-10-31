@@ -2788,7 +2788,7 @@ read_shapefile <- function(filename) {
 
 # https://www.fisheries.noaa.gov/resource/map/defined-fishery-management-areas-south-atlantic-states-map-gis-data
 
-sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
+sa_shp <- read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 
 # all GOM ----
@@ -3219,7 +3219,7 @@ text_sizes <- list(
 # F2 in RStudio will show the function definition, when the cursor is on the name.
 # Read a shapefile (geospatial data) from the specified file path and store it in the 'sa_shp' object.
 sa_shp <-
-  read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
+  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
 
 # The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
 

@@ -76,7 +76,7 @@ read_shapefile <- function(filename) {
 
 # see the function above, F2 in RStudio will show the function definition, when the cursor is on the name.
 sa_shp <-
-  read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
+  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
 
 # see the function above
 gom_reef_shp <-
