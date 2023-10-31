@@ -50,20 +50,23 @@ res <-
     # toString(unique(grepl(f_name, current_file_text)))
     # Find all occurrences of 'f_name' in 'current_file_text' and return them as a character vector
     # using the 'value' parameter set to TRUE in the 'grep' function.
-    grep(f_name, current_file_text, value = TRUE) |>
+    vals <-
+      grep(f_name, current_file_text, value = TRUE) |>
       unique() |>
       # Convert the resulting character vector into a single comma-separated string.
       toString()
+    cnt <- grepl(f_name, current_file_text) |> sum()
+    return(c(vals = vals, cnt = cnt))
   })
 
 
 # Convert 'res' to a data frame and store it in 'res_df'
 res_df <- as.data.frame(res)
-
+View(res_df)
 # Set the column names of 'res_df' to the elements of 'functions_in_fish_eff_location_list'
 names(res_df) <- unlist(functions_in_fish_eff_location_list)
 
-# View(res_df)
+View(res_df)
 # Transpose 'res_df' and convert it to a data frame, effectively swapping rows and columns
 res_df <- t(res_df) |>
 
@@ -73,10 +76,10 @@ res_df <- t(res_df) |>
   # Add a new column with row names to the data frame
   rownames_to_column()
 
+View(res_df)
 # Set the column names of 'res_df' to "func_name" and "is_in_code"
 names(res_df) <- c("func_name", "is_in_code")
 
 res_df |>
-  filter(!is_in_code == "") |>
-  head()
-
+  filter(!is_in_code == "")
+# 52
