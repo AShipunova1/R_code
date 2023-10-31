@@ -62,11 +62,12 @@ res <-
 
 # Convert 'res' to a data frame and store it in 'res_df'
 res_df <- as.data.frame(res)
-View(res_df)
+# View(res_df)
 # Set the column names of 'res_df' to the elements of 'functions_in_fish_eff_location_list'
 names(res_df) <- unlist(functions_in_fish_eff_location_list)
 
-View(res_df)
+# View(res_df)
+
 # Transpose 'res_df' and convert it to a data frame, effectively swapping rows and columns
 res_df <- t(res_df) |>
 
@@ -74,12 +75,20 @@ res_df <- t(res_df) |>
   as.data.frame() |>
 
   # Add a new column with row names to the data frame
-  rownames_to_column()
+  rownames_to_column(var = "func_name")
 
-View(res_df)
+# View(res_df)
 # Set the column names of 'res_df' to "func_name" and "is_in_code"
-names(res_df) <- c("func_name", "is_in_code")
+# names(res_df) <- c("func_name", "is_in_code")
 
 res_df |>
-  filter(!is_in_code == "")
-# 52
+  filter(!vals == "") |>
+  glimpse()
+# Rows: 52
+# Columns: 3
+# $ func_name <chr> "add_vsl_and_trip_cnts", "clean_headers", "connect_to_secpr", "conver…
+# $ vals      <chr> "# Define a function 'add_vsl_and_trip_cnts' that adds vessel and tri…
+# $ cnt       <chr> "5", "4", "4", "3", "3", "4", "1", "2", "4", "12", "3", "2", "2", "3"…
+
+res_df |>
+  filter(cnt == "1")
