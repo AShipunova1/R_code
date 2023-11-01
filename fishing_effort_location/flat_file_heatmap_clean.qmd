@@ -1,4 +1,3 @@
-
 ---
 title: "Fishing effort locations heatmap"
 ---
@@ -8,6 +7,9 @@ title: "Fishing effort locations heatmap"
 
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
+
+# Format R code automatically
+library(styler)
 
 ```
 
@@ -27,6 +29,11 @@ library(knitr)
 
 #install.packages("tidyverse")
 ## The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
+## ✔ dplyr     1.1.3     ✔ readr     2.1.4
+## ✔ forcats   1.0.0     ✔ stringr   1.5.0
+## ✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.3     ✔ tidyr     1.3.0
+## ✔ purrr     1.0.2
 library(tidyverse)
 
 ## Load the 'magrittr' library, which provides piping data and functions.
@@ -63,8 +70,6 @@ library(stringi)
 library(htmltools)
 
 library(viridis) ## additional color palettes
-
-library(ggplot2) ## a visualization package
 
 library(ggmap) ## extends 'ggplot2' for creating maps and working with spatial data.
 
@@ -1000,7 +1005,7 @@ my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) {
   my_df %>%
     sf::st_as_sf(
       ## Specify the field names to use as coordinates
-      coords = c("LONGITUDE", "LATITUDE"),
+      coords = c("longitude", "latitude"),
       ## Use the provided CRS (Coordinate Reference System), default to sa_shp's CRS
       crs = my_crs,
       ## Keep the LATITUDE and LONGITUDE columns in the resulting sf object
@@ -1041,6 +1046,18 @@ print_toc_log <- function(variables) {
 
   ## Clear the log, removing its contents
   tic.clearlog()
+}
+```
+
+## get geographical data function 
+
+```{r get geographical data function}
+## get geographical data function ----
+read_shapefile <- function(filename) {
+  shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
+
+  x <- sf::read_sf(shapefile_file_name)
+  return(x)
 }
 
 my_paths <- set_work_dir()
@@ -1085,26 +1102,6 @@ srhs_vessels_2022_info <-
 
 ```{r fhier_reports_metrics_tracking}
 ### fhier_reports_metrics_tracking ----
-
-## The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
-## to use in a function,
-## e.g. read_csv(name_repair = fix_names)
-fix_names <- function(x) {
-  ## Use the pipe operator %>%
-  x %>%
-
-    ## Remove dots from column names
-    str_replace_all("\\.", "") %>%
-
-    ## Replace all characters that are not letters or numbers with underscores
-    str_replace_all("[^A-z0-9]", "_") %>%
-
-    ## Ensure that letters are only in the beginning of the column name
-    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-
-    ## Convert column names to lowercase using 'my_headers_case_function'
-    my_headers_case_function()
-}
 
 ## Download from FHIER / Reports / Metrics Tracking
 ## Put dates in, e.g. 01/01/2022 - 12/31/2022
@@ -1685,87 +1682,6 @@ get_vessels_permits <-
       vessels_permits_id_clean()
   }
 ## 2023-09-20 run the function: 14.08 sec elapsed
-
-## an additional procedure, usually is not needed
-```
-
-## find 0 column 
-
-```{r find 0 column}
-## find 0 column ----
-## get vessels
-## can't because of "\\0"
-## use:
-## replace(VESSEL_NAME, chr(0), '') VESSEL_NAME,
-
-#
-## field_names <-
-##   c("VESSEL_ID",
-##     "COUNTY_CODE",
-##     "STATE_CODE",
-##     "ENTRY_DATE",
-##     "SUPPLIER_VESSEL_ID",
-##     "PORT_CODE",
-##     "HULL_ID_NBR",
-##     "COAST_GUARD_NBR",
-##     "STATE_REG_NBR",
-##     "REGISTERING_STATE",
-##     ## "VESSEL_NAME",
-##     "PASSENGER_CAPACITY",
-##     "VESSEL_TYPE",
-##     "YEAR_BUILT",
-##     "UPDATE_DATE",
-##     "PRIMARY_GEAR",
-##     "OWNER_ID",
-##     "EVENT_ID",
-##     "DE",
-##     "UE",
-##     "DC",
-##     "UC",
-##     "STATUS",
-##     "SER_ID",
-##     "UPDATED_FLAG",
-##     "SERO_HOME_PORT_CITY",
-##     "SERO_HOME_PORT_COUNTY",
-##     "SERO_HOME_PORT_STATE",
-##     "SERO_OFFICIAL_NUMBER")
-#
-## vessels_zero_query <-
-##   "select
-##   distinct {field_name}
-##   from
-##   safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
-#
-## rr <-
-##   map(field_names,
-##     function(field_name) {
-##       print(str_glue("field_name = {field_name}"))
-##       q <- str_glue(vessels_zero_query)
-##       tic("vessels_all1")
-##       vessels_all <- dbGetQuery(con,
-##                                 q)
-##       toc()
-##       return(dim(vessels_all))
-##     }
-## )
-#
-## ## \\0 err:
-## ##   field_name = VESSEL_NAME
-#
-#
-## ## distinct vessel_id ok
-## tic("vessels_all1")
-## vessels_all <- dbGetQuery(con,
-##                           vessels_zero_query)
-## toc()
-#
-#
-#
-## dim(permit_info)
-## dim(trip_neg_2022)
-## dim(trips_notifications_2022)
-## dim(trips_info_2022)
-## dim(vessels_all)
 ```
 
 ## dates_2022 
@@ -2179,14 +2095,6 @@ sheet_4_temp_2 <-
   group_split(grp = cumsum(rowSums(is.na(.)) == ncol(.)), .keep = TRUE) %>%
   purrr::map_at(.at = -1, tail, -1)
 
-## change the last group columns
-## sheet_4_temp_2[[3]] |> head()
-## num vessel_official_number comments grp
-## <chr> <chr> <chr> <int>
-## 1 NA NA 99 vessels did not have the isLatest flag … 2
-## 2 1.0 NA 555341.0 2
-## 3 2.0 NA 556601.0 2
-
 ## Create a new data frame 'sheet_4_temp_3' by applying mutations to the third group
 ## in 'sheet_4_temp_2' using the 'dplyr::mutate' function.
 
@@ -2461,51 +2369,10 @@ cat("all_logbooks_db_data_2022_short_p_region",
 ## source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
 ```
 
-## get geographical data function 
-
-```{r get geographical data function}
-## get geographical data function ----
-read_shapefile <- function(filename) {
-  shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
-
-  x <- sf::read_sf(shapefile_file_name)
-  return(x)
-}
-```
-
 ##### Current file: fishing_effort_location_by_permit.R 
 
 ```{r Current file: fishing_effort_location_by_permit.R}
 ##### Current file: fishing_effort_location_by_permit.R ----
-```
-
-## Requirements 
-
-```{r Requirements}
-## Requirements ----
-## information on location of relative fishing effort.  The relative would be looking by depth, area, and seasonally.
-## filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary.
-## --- OK boundaries
-## lat 23 : 36
-## lon -71 : -98
-## SAFMC/GMFMC boundary
-## see https://myfwc.com/fishing/saltwater/recreational/maps/
-## 83 west (federal waters) / 24'35 N, 24'33 N (state waters)
-## to get SA only:
-## filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary.
-## fields to get
-## Trip start and end date
-## Start Port: Code, Name, County and/or State, State Code, Postal Code - no
-## End Port: Code,
-## Longitude and Latitude fields:  Lat and long as specific as possible
-## - Fishing Area Code, Sub Area Code, Distance Code and Distance Code Name?
-## depth
-## south of 28N - all SA
-## OK boundaries
-## lat 23 : 28
-## lon -71 : -83
-
-## north of 28N - EEZ only
 ```
 
 ## setup (fishing_effort_location_by_permit) 
@@ -2580,6 +2447,16 @@ coord_data_2022_short_good <-
 ## [1] 93450    73 db
 ```
 
+## read in sa shp 
+
+```{r read in sa shp}
+## read in sa shp ----
+## F2 in RStudio will show the function definition, when the cursor is on the name.
+## Read a shapefile (geospatial data) from the specified file path and store it in the 'sa_shp' object.
+sa_shp <-
+  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
+```
+
 #### convert to sf 
 
 ```{r convert to sf}
@@ -2588,16 +2465,10 @@ coord_data_2022_short_good_sf <-
   my_to_sf(coord_data_2022_short_good)
 ```
 
-## show all boundaries 
+## Subset by Big box 
 
-```{r show all boundaries}
-## show all boundaries ----
-```
-
-## subset by Big box 
-
-```{r subset by Big box}
-## subset by Big box ----
+```{r Subset by Big box}
+## Subset by Big box ----
 ## Michelle: I think we need to allow trips that occur anywhere in the GOM, with the eastern lat border being like a big line down the Atlantic Ocean at Bermuda. Does that make sense? Southern Border could be at Cuba. The Northern Border needs to extend up through Maine - since we require reporting no matter where they fish. Basically just a big box, regardless of Council jurisdiction.
 ## Jessica: I like the big box without council jurisdiction and then I am going to assume we will just plot those trips for vessels with GOM permits?  This should show the Council how many GOM vessels also fish in other regions as well as where they are fishing in the Gulf.
 
@@ -2692,17 +2563,9 @@ text_sizes <- list(
 )
 ```
 
-## read in sa shp 
+The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
 
-```{r read in sa shp}
-## read in sa shp ----
-## F2 in RStudio will show the function definition, when the cursor is on the name.
-## Read a shapefile (geospatial data) from the specified file path and store it in the 'sa_shp' object.
-sa_shp <-
-  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
-
-## The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
-
+```{r}
 states_sa <- data.frame(
   state_name = c(
     "Florida", ## can exclude, if go by county
@@ -2742,7 +2605,7 @@ path_to_federal_state_w <-
     r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)"
   )
 
-file.exists(path_to_federal_state_w)
+## file.exists(path_to_federal_state_w)
 ## T
 
 tic("federal_state_w_sf")
@@ -2864,7 +2727,6 @@ sf::st_agr(GOMsf) =
 tic("st_union(GOMsf)")
 st_union_GOMsf <- sf::st_union(GOMsf)
 toc()
-## st_union(GOMsf): 21.59 sec elapsed
 ```
 
 ### Trips by n min grid 
