@@ -1,7 +1,10 @@
 date: today
 knitr:
   opts_chunk:
-    knitr.duplicate.label: 'allow'
+    tidy: 'styler'
+    tidy.opts: list(width.cutoff = 70)
+# opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+#     knitr.duplicate.label: 'allow'
 # project:
 #   lib-dir: ..
 output:
@@ -14,16 +17,17 @@ format:
     toc: true
     toc-depth: 2
     toc-highlight: true
-    toc_float: true
-    # toc_float:
-    #   collapsed: true
-    #   smooth_scroll: true
+    # toc_float: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
     # toc-title: "Content"
-    # toc-location: left
     page-layout: full
     number-sections: true
     # css: style.css
     code-overflow: wrap
     code-fold: true
+    code-tools: true
     code-summary: "Show code"
     code-line-numbers: true
+    code-block-border-left: "blue"
