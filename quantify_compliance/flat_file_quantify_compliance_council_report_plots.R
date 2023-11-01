@@ -353,9 +353,9 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- func
 # compl_clean <- temp_var[[1]]
 # corresp_clean <- temp_var[[2]]
 
-csv_names_list_22_23 = c("Correspondence.csv",
-                         "FHIER_Compliance_22.csv",
-                         "FHIER_Compliance_23.csv")
+# csv_names_list_22_23 = c("Correspondence.csv",
+                         # "FHIER_Compliance_22.csv",
+                         # "FHIER_Compliance_23.csv")
 
 # add my additional folder names to each filename
 prepare_csv_names <- function(filenames) {
@@ -863,7 +863,7 @@ project_dir_name <- "FHIER Compliance"
 # get data from csvs ----
 get_data_from_FHIER_csvs <- function() {
   filenames = c(
-    "FHIER_Compliance_2022__05_31_2023.csv",
+    "FHIERCompliance_10_2023.csv",
     "FHIER_Compliance_2023__05_31_2023.csv"
   )
 
@@ -1221,6 +1221,9 @@ count_all_vessels <-
 # 4017 vessels
 count_all_vessels[1]
 # 3776
+# [1] "2023-11-01"
+# 3790
+# today()
 
 count_not_gom23_vessels <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
@@ -1230,6 +1233,7 @@ count_not_gom23_vessels <-
 # 3887 vessels
 count_not_gom23_vessels[1]
 # 3658
+# 3669
 
 vessels_compl_or_not_per_y_r_all <-
   compl_clean_sa_vs_gom_m_int_1 %>%
@@ -1477,6 +1481,10 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
 # 1       1602 YES
 # 2       1263 NO
 
+# 1       1666 YES       
+# 2       1163 NO        
+
+
 compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::filter(year_permit == "2022 sa_only") %>%
   dplyr::mutate(exp_w_end_diff_y =
@@ -1717,10 +1725,10 @@ gg_all_c_vs_nc_plots_no_legend <-
 
 # 2022
 # sa
-# gg_all_c_vs_nc_plots[[1]]
+gg_all_c_vs_nc_plots[[1]]
 
 # gom
-# gg_all_c_vs_nc_plots_no_legend[[2]]
+gg_all_c_vs_nc_plots_no_legend[[2]]
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
@@ -2544,6 +2552,7 @@ dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 # [1] 11766    15
 # [1] 11489    15
 # [1] 11477    15
+# [1] 10732    14
 
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 # [1] 107  12
@@ -3097,10 +3106,14 @@ line_df_monthly_nc_percent_plot <-
         ggplot2::geom_text(
           ggplot2::aes(# The label for each point is the rounded 'percent_of_total' with a "%" symbol.
             label = paste0(round(percent_of_total, 1), "%")),
-          vjust = -1,
-          hjust = -0.1,
+          # for SA:
+          # vjust = -1, 
+          # hjust = -0.1,
+          # for GOM:
+          # vjust = -1, 
+          hjust = -0.5,
           color = line_plot_color,
-          size = 5.5
+          size = 5
         ) +
         
         # Define the breaks and labels for the x-axis as well as date formatting ("%b" means short Month).
@@ -3143,6 +3156,7 @@ line_df_monthly_nc_percent_plot <-
 # as.Date(dates, "%m/%d/%y")
 
 line_df_monthly_nc_percent_plot[[2]]
+line_df_monthly_nc_percent_plot[[1]]
 
 # save to files ----
 
