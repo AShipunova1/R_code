@@ -1169,7 +1169,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
   # remove duplicates
   distinct()
 
-dim(fhier_reports_metrics_tracking_not_srhs_ids)
+# dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # [1] 2981    1
 
 # the same, but result kept in a list
@@ -2429,7 +2429,7 @@ all_logbooks_db_data_2022 <-
     )
   )
 
-dim(all_logbooks_db_data_2022)
+# dim(all_logbooks_db_data_2022)
 # [1] 326670    149
 
 # Remove unused columns ----
@@ -2445,7 +2445,7 @@ all_logbooks_db_data_2022_short <-
   # Use dplyr::distinct to retain only distinct rows
   dplyr::distinct()
 
-dim(all_logbooks_db_data_2022_short)
+# dim(all_logbooks_db_data_2022_short)
 # [1] 94471    72
 
 # Mark sa_only vs. gom and dual for 2022 ----
@@ -2471,7 +2471,7 @@ all_logbooks_db_data_2022_short_p_region <-
                 .default = "gom_and_dual")
   )
 
-dim(all_logbooks_db_data_2022_short_p_region)
+# dim(all_logbooks_db_data_2022_short_p_region)
 # [1] 94471    73
 
 names(all_logbooks_db_data_2022_short_p_region) <-
@@ -2574,26 +2574,6 @@ get_data_path <-
 
 source(get_data_path)
 
-# Define an R function 'my_to_sf' for converting a data frame to an sf object.
-my_to_sf <- function(my_df) {
-  my_df %>%
-    # Convert the data frame to an sf object using st_as_sf from the 'sf' package
-    sf::st_as_sf(
-      # Specify the columns containing longitude and latitude as coordinates
-      coords = c("longitude", "latitude"),
-      # Set the coordinate reference system (CRS) using the 'sa_shp' object
-      crs = sf::st_crs(sa_shp),
-      # Keep the original LATITUDE and LONGITUDE columns in the resulting sf object
-      remove = FALSE
-    ) %>%
-    # Return the resulting sf object
-    return()
-}
-
-# to avoid this error:
-#   Loop 0 is not valid: Edge 57478 has duplicate vertex with edge 57482
-sf::sf_use_s2(FALSE)
-
 ## Data from db as in FHIER ----
 # print_df_names(all_logbooks_db_data_2022_short_p_region)
 # [1] 94471    73
@@ -2613,7 +2593,7 @@ coord_data_2022_short_good_all_coords <-
   # Keep only distinct rows in the data frame
   distinct()
 
-dim(coord_data_2022_short_good_all_coords)
+# dim(coord_data_2022_short_good_all_coords)
 # [1] 94471    73
 
 ## From FHIER ----
@@ -2644,11 +2624,11 @@ coord_data_2022_short_good <-
   # Keep only distinct rows in the data frame
   distinct()
 
-dim(coord_data_2022_short_good_all_coords)
+# dim(coord_data_2022_short_good_all_coords)
 # [1] 97970    17 FHIER
 # [1] 97943    16 db
 
-dim(coord_data_2022_short_good)
+# dim(coord_data_2022_short_good)
 # [1] 97547    17
 # [1] 93450    73 db
 
@@ -2680,7 +2660,7 @@ coord_data_2022_short_good_sf_crop_big <-
 toc()
 # coord_data_2022_short_good_sf_crop_big: 0.89 sec elapsed
 
-dim(coord_data_2022_short_good_sf_crop_big)
+# dim(coord_data_2022_short_good_sf_crop_big)
 # [1] 95720    18
 # [1] 91735    74
 
@@ -2691,7 +2671,7 @@ coord_data_2022_short_good_sf_crop_big_df <-
   coord_data_2022_short_good_sf_crop_big |>
   sf::st_drop_geometry()
 
-dim(coord_data_2022_short_good_sf_crop_big_df)
+# dim(coord_data_2022_short_good_sf_crop_big_df)
 # [1] 95720     17
 
 # use metrics only vessels not in SRHS ----
@@ -2711,7 +2691,7 @@ coord_data_2022_short_good_sf_crop_big_df_in_metricks <-
     vessel_official_nbr %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
-dim(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
+# dim(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
 # [1] 93581    17
 # [1] 90838    73 from mv
 
@@ -3088,7 +3068,7 @@ for_heatmap_lat_lon_trips_vessels_gom_only <-
   # Remove duplicate rows using 'distinct'.
   distinct()
 
-dim(for_heatmap_lat_lon_trips_vessels_gom_only)
+# dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # Rows: 41,455
 # [1] 46763     4 mv
 
@@ -3100,7 +3080,7 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
   # Remove duplicate rows using 'distinct'.
   distinct()
 
-dim(for_heatmap_lat_lon_trips_vessels_sa_only)
+# dim(for_heatmap_lat_lon_trips_vessels_sa_only)
 # [1] 68122     4
 # [1] 44060     4
 
@@ -3121,7 +3101,7 @@ for_heatmap_lat_lon_trips_vessels_sa_only_rm <-
   for_heatmap_lat_lon_trips_vessels_sa_only |>
   filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
 
-dim(for_heatmap_lat_lon_trips_vessels_sa_only_rm)
+# dim(for_heatmap_lat_lon_trips_vessels_sa_only_rm)
 # [1] 67983     4
 
 ## add the grid ----
@@ -3162,7 +3142,7 @@ effort_vsl_cropped_gom <- crop_by_shape(effort_vsl_gom)
 toc()
 # effort_cropped2: 0.44 sec elapsed
 
-dim(effort_vsl_cropped_gom)
+# dim(effort_vsl_cropped_gom)
 # [1] 35822     7
 # [1] 40604     7 mv
 
@@ -3171,7 +3151,7 @@ effort_vsl_cropped_sa <- crop_by_shape(effort_vsl_sa, sa_shp)
 toc()
 # effort_vsl_cropped_sa: 0.54 sec elapsed
 
-dim(effort_vsl_cropped_sa)
+# dim(effort_vsl_cropped_sa)
 # [1] 21461     8
 # [1] 20147     8 mv
 
