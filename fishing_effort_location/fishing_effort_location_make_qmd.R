@@ -98,7 +98,10 @@ title: "Fishing effort locations heatmap"
 # Setup
 setup_text <- "
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+
+# A general-purpose tool for dynamic report generation in R
 library(knitr)
+
 ```
 "
 
