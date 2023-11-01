@@ -1912,7 +1912,7 @@ library(ggplot2) # a visualization package
 library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
 
 
-#### Current file: prepare_gom_heatmap_func.R ----
+#### Current file: prepare_heatmap_func.R ----
 
 # Load the 'tigris' package to access geographic data.
 library(tigris)

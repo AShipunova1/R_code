@@ -228,7 +228,7 @@ sum(all_dfs_dim[1,])
 source(
   file.path(
     my_paths$git_r,
-    r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
+    r"(fishing_effort_location\prepare_heatmap_func.R)"
   )
 )
 # st_union(GOMsf): 21.5 sec elapsed

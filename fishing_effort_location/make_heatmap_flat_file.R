@@ -112,7 +112,7 @@ write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
-    r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
+    r"(fishing_effort_location\prepare_heatmap_func.R)"
   )
 )
 
