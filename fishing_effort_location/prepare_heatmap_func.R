@@ -256,7 +256,7 @@ toc()
 # sfc_MULTIPOLYGON of length 1; first list element: List of 15
 #  $ :List of 21234
 
-## by n min grid ----
+## Trips by n min grid ----
 # Define a function 'df_join_grid' that joins a data frame with a grid using specified coordinates and CRS.
 
 df_join_grid <- function(my_df, grid, my_crs) {
