@@ -3191,7 +3191,7 @@ library(ggplot2) # a visualization package
 library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
 
 
-#### Current file: prepare_gom_heatmap_func.R ----
+#### Current file: prepare_heatmap_func.R ----
 
 # Load the 'tigris' package to access geographic data.
 library(tigris)
@@ -3649,7 +3649,7 @@ library(viridis) # additional color palettes
 # Construct the file path using elements from the 'my_paths' list.
 heatmap_func_path <-
   file.path(my_paths$git_r,
-            r"(fishing_effort_location\prepare_gom_heatmap_func.R)")
+            r"(fishing_effort_location\prepare_heatmap_func.R)")
 
 source(heatmap_func_path)
 
