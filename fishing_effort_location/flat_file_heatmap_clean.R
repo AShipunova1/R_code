@@ -975,7 +975,7 @@ my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) {
   my_df %>%
     sf::st_as_sf(
       # Specify the field names to use as coordinates
-      coords = c("LONGITUDE", "LATITUDE"),
+      coords = c("longitude", "latitude"),
       # Use the provided CRS (Coordinate Reference System), default to sa_shp's CRS
       crs = my_crs,
       # Keep the LATITUDE and LONGITUDE columns in the resulting sf object
@@ -2224,6 +2224,12 @@ coord_data_2022_short_good <-
 # [1] 97547    17
 # [1] 93450    73 db
 
+# read in sa shp ----
+# F2 in RStudio will show the function definition, when the cursor is on the name.
+# Read a shapefile (geospatial data) from the specified file path and store it in the 'sa_shp' object.
+sa_shp <-
+  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
+
 ### convert to sf ----
 coord_data_2022_short_good_sf <-
   my_to_sf(coord_data_2022_short_good)
@@ -2303,13 +2309,7 @@ text_sizes <- list(
   y_left_fontsize = 10
 )
 
-# read in sa shp ----
-# F2 in RStudio will show the function definition, when the cursor is on the name.
-# Read a shapefile (geospatial data) from the specified file path and store it in the 'sa_shp' object.
-sa_shp <-
-  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
-
-# The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
+#' The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
 
 states_sa <- data.frame(
   state_name = c(
@@ -2346,7 +2346,7 @@ path_to_federal_state_w <-
     r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)"
   )
 
-file.exists(path_to_federal_state_w)
+# file.exists(path_to_federal_state_w)
 # T
 
 tic("federal_state_w_sf")
@@ -2456,7 +2456,6 @@ sf::st_agr(GOMsf) =
 tic("st_union(GOMsf)")
 st_union_GOMsf <- sf::st_union(GOMsf)
 toc()
-# st_union(GOMsf): 21.59 sec elapsed
 
 ## Trips by n min grid ----
 # Define a function 'df_join_grid' that joins a data frame with a grid using specified coordinates and CRS.
