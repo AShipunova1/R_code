@@ -102,6 +102,9 @@ setup_text <- "
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
+# Format R code automatically
+library(styler)
+
 ```
 "
 
