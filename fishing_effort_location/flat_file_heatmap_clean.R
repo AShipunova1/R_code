@@ -9,36 +9,14 @@
 ##--- start functions ---
 # How to use:
 # my_paths <- set_work_dir()
-# csv_names_list = list("report1.csv", "report2.csv")
-# xls_names_list = list("report1a.xls", "report2a.xls")
-# csv_content_1 <- load_csv_names(my_paths, csv_names_list)[[1]]
-# xls_content_1 <- load_xls_names(my_paths, xls_names_list, sheet_num = 2)[[1]]
-
-## get csv data into variables
-# temp_var <- get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23)
-# compl_clean <- temp_var[[1]]
-# corresp_contact_cnts_clean <- temp_var[[2]]
-
-#---
-# curr_wd <- getwd()
-# roracle_path <- r"(C:\Users\anna.shipunova\Software\ROracle_1.3-2\ROracle)"
-# setwd(roracle_path)
-# install.packages('ROracle')
-
-# library('ROracle')
-# drv <- dbDriver("Oracle")
-# con <- dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname='XXX')
-
-# library('ROracle')
-# drv <- dbDriver("Oracle")
-# con <-
-#   dbConnect(drv, "USER GOES HERE", "PASSWORD GOES HERE", dbname = 'XXX')
-#
-# dbReadTable(con, 'DUAL')
-
 
 #install.packages("tidyverse")
-# Load the 'tidyverse' library, which is a collection of R packages for data manipulation and visualization.
+# The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
+# ✔ dplyr     1.1.3     ✔ readr     2.1.4
+# ✔ forcats   1.0.0     ✔ stringr   1.5.0
+# ✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+# ✔ lubridate 1.9.3     ✔ tidyr     1.3.0
+# ✔ purrr     1.0.2
 library(tidyverse)
 
 # Load the 'magrittr' library, which provides piping data and functions.
@@ -55,6 +33,36 @@ library(ROracle)
 
 # Load the 'tictoc' package for benchmarking and measuring code execution time
 library(tictoc)
+
+# Load the 'mapview' package to view spatial objects interactively
+library(mapview)
+
+# Load the 'sf' package to create sf (simple features) objects for working with spatial data
+library(sf)
+
+# Load the 'zoo' package for date manipulations
+library(zoo)
+
+# Load the 'leaflet' package for creating interactive web maps
+library(leaflet)
+
+# Load the 'stringi' package for manipulating and working with character strings
+library(stringi)
+
+# Load the 'htmltools' package for working with HTML content in R
+library(htmltools)
+
+library(viridis) # additional color palettes
+
+library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
+
+# Load the 'tigris' package to access geographic data.
+library(tigris)
+
+# Set the 'tigris_use_cache' option to TRUE. This will enable caching of
+# data retrieved from the TIGER/Line Shapefiles service, which can help
+# improve data retrieval performance for future sessions.
+tigris_use_cache = TRUE
 
 # Do not show warnings about groups
 options(dplyr.summarise.inform = FALSE)
@@ -1010,6 +1018,14 @@ print_toc_log <- function(variables) {
   tic.clearlog()
 }
 
+# get geographical data function ----
+read_shapefile <- function(filename) {
+  shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
+
+  x <- sf::read_sf(shapefile_file_name)
+  return(x)
+}
+
 my_paths <- set_work_dir()
 
 #### Current file: get_srhs_vessels.R ----
@@ -1033,38 +1049,9 @@ srhs_vessels_2022_info <-
   col_types = "text"
 )
 
-
 #### Current file: get_metrics_tracking.R ----
 
 ## fhier_reports_metrics_tracking ----
-
-# The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
-library(tidyverse)
-
-# help functions (in metric tracking) ----
-# Use my function in case we want to change the case in all functions
-my_headers_case_function <- tolower
-
-# ===
-# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
-# to use in a function,
-# e.g. read_csv(name_repair = fix_names)
-fix_names <- function(x) {
-  # Use the pipe operator %>%
-  x %>%
-
-    # Remove dots from column names
-    str_replace_all("\\.", "") %>%
-
-    # Replace all characters that are not letters or numbers with underscores
-    str_replace_all("[^A-z0-9]", "_") %>%
-
-    # Ensure that letters are only in the beginning of the column name
-    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-
-    # Convert column names to lowercase using 'my_headers_case_function'
-    my_headers_case_function()
-}
 
 # Download from FHIER / Reports / Metrics Tracking
 # Put dates in, e.g. 01/01/2022 - 12/31/2022
@@ -1207,241 +1194,6 @@ purrr::map(fhier_reports_metrics_tracking_not_srhs_ids_list, dim)
 
 
 #### Current file: get_db_data.R ----
-
-# help functions (in get_data) ----
-# Load the 'tidyverse' library, which includes a collection of packages for data manipulation and visualization.
-library(tidyverse)
-
-# Load the 'magrittr' library, which provides piping data between functions.
-library(magrittr)
-
-# Load the 'readxl' library, which is used for reading Excel files with the '.xlsx' extension.
-library(readxl)
-
-# Load the 'ROracle' library, which provides Oracle database access for R.
-library(ROracle)
-
-# Set an option in the 'dplyr' package to control the display of summarization information.
-# Do not show warnings about groups
-options(dplyr.summarise.inform = FALSE)
-# Turn off the scientific notation
-options(scipen = 999)
-
-# Use my function in case we want to change the case in all functions
-my_headers_case_function <- tolower
-
-# Define a function named 'get_username' that retrieves the username of the current user.
-get_username <- function() {
-    # Use 'Sys.info()' to obtain system information and then extract the 'user' field.
-    # Convert the result to a character to ensure it's in a usable format.
-    return(as.character(Sys.info()["user"]))
-}
-
-# set working directories for get data ----
-
-# Define a function named 'get_current_file_directory' to obtain the directory path of the current file.
-get_current_file_directory <- function() {
-    # Use the 'rstudioapi::getSourceEditorContext()' function to access the editor context in RStudio,
-    # and then extract the 'path' field to get the full path of the currently open file.
-    # Finally, use 'dirname()' to extract the directory part of the path.
-    return(dirname(rstudioapi::getSourceEditorContext()$path))
-}
-
-# change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
-  # then you can use it in the code like my_paths$input etc.
-set_work_dir <- function() {
-  # Set the working directory to the user's home directory (~)
-  setwd("~/")
-  base_dir <- getwd()
-
-  # Initialize 'add_dir' as an empty string (for others)
-  add_dir <- ""
-
-  # Check if the username is "anna.shipunova" (Anna's computer)
-  if (get_username() == "anna.shipunova") {
-    # Set 'add_dir' to a specific directory path for Anna
-    add_dir <- "R_files_local/test_dir"
-  }
-
-  # Construct the path to the main R directory
-  main_r_dir <- file.path(add_dir, "SEFHIER/R code")
-
-  # Define directory names for 'Inputs' and 'Outputs'
-  in_dir <- "Inputs"
-  out_dir <- "Outputs"
-
-  # Construct full paths to 'Inputs' and 'Outputs' directories using 'file.path'
-  # file.path is a function used to create platform-independent file paths by joining its arguments using the appropriate path separator (e.g., "\" on Windows, "/" on Unix-like systems).
-  #
-  # base_dir is the base directory obtained from the user's home directory.
-  #
-  # main_r_dir is the path to the main R directory, which may vary depending on whether the user is Anna or not.
-  #
-  # in_dir is the name of the 'Inputs' directory.
-  #
-  # So, this line effectively combines these components to create the full path to the 'Inputs' directory, ensuring that the path is correctly formatted for the user's operating system.
-
-  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
-  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-
-  # Change the working directory to the main R directory
-  setwd(file.path(base_dir, main_r_dir))
-
-  # Create a list of directory paths for 'inputs' and 'outputs'
-  my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir)
-  return(my_paths)
-}
-
-# Define a function named 'set_work_dir_local'
-# This function sets the working directory to the user's home directory, defines paths to 'my_inputs,' 'my_outputs,' and 'R_code_github' directories, and returns these directory paths as a list. The use of file.path ensures that the path construction is platform-independent.
-
-set_work_dir_local <- function() {
-
-  # Set the working directory to the user's home directory (~)
-  setwd("~/")
-  base_dir <- getwd()
-
-  # Define 'main_r_dir' as "R_files_local"
-  main_r_dir <- "R_files_local"
-
-  # Define 'in_dir' as "my_inputs"
-  in_dir <- "my_inputs"
-
-  # Construct the full path to 'my_inputs' directory
-  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
-
-  # Define 'out_dir' as "my_outputs"
-  out_dir <- "my_outputs"
-
-  # Construct the full path to 'my_outputs' directory
-  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-
-  # Define 'git_r_dir' as "R_code_github"
-  git_r_dir <- "R_code_github"
-
-  # Construct the full path to 'R_code_github' directory
-  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-
-  # Change the working directory to 'R_files_local'
-  setwd(file.path(base_dir, main_r_dir))
-
-  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
-  my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir,
-                   "git_r" = full_path_to_r_git_dir)
-
-  # Return the list of directory paths
-  return(my_paths)
-}
-
-# ===
-# Change the behavior of the set_work_dir function based on the username. If the username matches "anna.shipunova," it reassigns set_work_dir to the set_work_dir_local function, effectively using a different directory structure for Anna compared to other users.
-
-# Check if the current username is "anna.shipunova"
-if (get_username() == "anna.shipunova") {
-  # If the condition is true, assign the 'set_work_dir_local' function to 'set_work_dir'
-  set_work_dir <- set_work_dir_local
-}
-
-# ===
-# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
-# to use in a function,
-# e.g. read_csv(name_repair = fix_names)
-fix_names <- function(x) {
-  # Use the pipe operator %>%
-  x %>%
-
-    # Remove dots from column names
-    str_replace_all("\\.", "") %>%
-
-    # Replace all characters that are not letters or numbers with underscores
-    str_replace_all("[^A-z0-9]", "_") %>%
-
-    # Ensure that letters are only in the beginning of the column name
-    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-
-    # Convert column names to lowercase using 'my_headers_case_function'
-    my_headers_case_function()
-}
-
-# ===
-# Define a function named 'connect_to_secpr'.
-# It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
-# usage:
-# con <- connect_to_secpr()
-connect_to_secpr <- function() {
-    # Retrieve the username associated with the "SECPR" database from the keyring.
-    my_username <- keyring::key_list("SECPR")[1, 2]
-
-    # Use 'dbConnect' to establish a database connection with the specified credentials.
-    con <- dbConnect(
-        dbDriver("Oracle"),  # Use the Oracle database driver.
-        username = my_username,  # Use the retrieved username.
-        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
-        dbname = "SECPR"  # Specify the name of the database as "SECPR."
-    )
-
-    # Return the established database connection.
-    return(con)
-}
-
-# ===
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
-      # read a binary file saved previously
-      # write all as binary
-read_rds_or_run <- function(my_file_path,
-                            my_data = as.data.frame(""),
-                            my_function,
-                            force_from_db = NULL) {
-
-    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
-    if (file.exists(my_file_path) &
-        is.null(force_from_db)) {
-        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
-        my_result <- readr::read_rds(my_file_path)
-    } else {
-        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-        # 1. Generate a message indicating the date and the purpose of the run.
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tic(msg_text)  # Start timing the operation.
-
-        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
-        my_result <- my_function(my_data)
-
-        toc()  # Stop timing the operation.
-
-        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-        readr::write_rds(my_result,
-                         my_file_path)
-    }
-
-    # Return the generated or read data.
-    return(my_result)
-}
-
-# to use on download from db
-# to use on download from db
-# Define a function named 'vessels_permits_id_clean' to clean a dataframe.
-vessels_permits_id_clean <- function(my_df) {
-    # Create a new dataframe 'vessels_permits' by renaming two specific columns.
-    vessels_permits <- my_df |>
-        rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
-        rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
-
-    # Return the cleaned dataframe.
-    return(vessels_permits)
-}
-
-# The clean_headers function is designed to clean and fix the column names of a given dataframe (my_df).
-clean_headers <- function(my_df) {
-    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
-    colnames(my_df) %<>%
-        fix_names()
-
-    # Return the dataframe with cleaned and fixed column names.
-    return(my_df)
-}
 
 # setup (in get data) ----
 get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
@@ -1820,82 +1572,6 @@ get_vessels_permits <-
   }
 # 2023-09-20 run the function: 14.08 sec elapsed
 
-# an additional procedure, usually is not needed
-# find 0 column ----
-# get vessels
-# can't because of "\\0"
-# use:
-# replace(VESSEL_NAME, chr(0), '') VESSEL_NAME,
-
-#
-# field_names <-
-#   c("VESSEL_ID",
-#     "COUNTY_CODE",
-#     "STATE_CODE",
-#     "ENTRY_DATE",
-#     "SUPPLIER_VESSEL_ID",
-#     "PORT_CODE",
-#     "HULL_ID_NBR",
-#     "COAST_GUARD_NBR",
-#     "STATE_REG_NBR",
-#     "REGISTERING_STATE",
-#     # "VESSEL_NAME",
-#     "PASSENGER_CAPACITY",
-#     "VESSEL_TYPE",
-#     "YEAR_BUILT",
-#     "UPDATE_DATE",
-#     "PRIMARY_GEAR",
-#     "OWNER_ID",
-#     "EVENT_ID",
-#     "DE",
-#     "UE",
-#     "DC",
-#     "UC",
-#     "STATUS",
-#     "SER_ID",
-#     "UPDATED_FLAG",
-#     "SERO_HOME_PORT_CITY",
-#     "SERO_HOME_PORT_COUNTY",
-#     "SERO_HOME_PORT_STATE",
-#     "SERO_OFFICIAL_NUMBER")
-#
-# vessels_zero_query <-
-#   "select
-#   distinct {field_name}
-#   from
-#   safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
-#
-# rr <-
-#   map(field_names,
-#     function(field_name) {
-#       print(str_glue("field_name = {field_name}"))
-#       q <- str_glue(vessels_zero_query)
-#       tic("vessels_all1")
-#       vessels_all <- dbGetQuery(con,
-#                                 q)
-#       toc()
-#       return(dim(vessels_all))
-#     }
-# )
-#
-# # \\0 err:
-# #   field_name = VESSEL_NAME
-#
-#
-# # distinct vessel_id ok
-# tic("vessels_all1")
-# vessels_all <- dbGetQuery(con,
-#                           vessels_zero_query)
-# toc()
-#
-#
-#
-# dim(permit_info)
-# dim(trip_neg_2022)
-# dim(trips_notifications_2022)
-# dim(trips_info_2022)
-# dim(vessels_all)
-
 # dates_2022 ----
 dates_2022_query <-
   "SELECT
@@ -2097,7 +1773,7 @@ force_from_db <- NULL # read data from files if exist
 source("~/R_code_github/useful_functions_module.r")
 
 # read Jeannette's file ----
-library(readxl)  # reading in .xlsx
+
 # the file is from Jeannette Oct 17 2023
 v_list_file_name <-
   file.path(
@@ -2242,14 +1918,6 @@ sheet_4_temp_2 <-
   sheet_4_temp_1 %>%
   group_split(grp = cumsum(rowSums(is.na(.)) == ncol(.)), .keep = TRUE) %>%
   purrr::map_at(.at = -1, tail, -1)
-
-# change the last group columns
-# sheet_4_temp_2[[3]] |> head()
-# num vessel_official_number comments grp
-# <chr> <chr> <chr> <int>
-# 1 NA NA 99 vessels did not have the isLatest flag … 2
-# 2 1.0 NA 555341.0 2
-# 3 2.0 NA 556601.0 2
 
 # Create a new data frame 'sheet_4_temp_3' by applying mutations to the third group
 # in 'sheet_4_temp_2' using the 'dplyr::mutate' function.
@@ -2485,12 +2153,6 @@ cat("all_logbooks_db_data_2022_short_p_region",
 
 #### Current file: fishing_effort_locations_get_data.R ----
 
-# Load the 'mapview' package to view spatial objects interactively
-library(mapview)
-
-# Load the 'sf' package to create sf (simple features) objects for working with spatial data
-library(sf)
-
 # get area data ----
 
 # From DB ====
@@ -2500,62 +2162,9 @@ library(sf)
 
 source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
 
-# get other geographical data ----
-read_shapefile <- function(filename) {
-  shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
-
-  x <- sf::read_sf(shapefile_file_name)
-  return(x)
-}
-
-# https://www.fisheries.noaa.gov/resource/map/defined-fishery-management-areas-south-atlantic-states-map-gis-data
-
-sa_shp <- read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
-)
-
-# all GOM ----
-gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
-
 #### Current file: fishing_effort_location_by_permit.R ----
 
-# Requirements ----
-# information on location of relative fishing effort.  The relative would be looking by depth, area, and seasonally.
-# filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary.
-# --- OK boundaries
-# lat 23 : 36
-# lon -71 : -98
-# SAFMC/GMFMC boundary
-# see https://myfwc.com/fishing/saltwater/recreational/maps/
-# 83 west (federal waters) / 24'35 N, 24'33 N (state waters)
-# to get SA only:
-# filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary.
-# fields to get
-# Trip start and end date
-# Start Port: Code, Name, County and/or State, State Code, Postal Code - no
-# End Port: Code,
-# Longitude and Latitude fields:  Lat and long as specific as possible
-# - Fishing Area Code, Sub Area Code, Distance Code and Distance Code Name?
-# depth
-# south of 28N - all SA
-# OK boundaries
-# lat 23 : 28
-# lon -71 : -83
-
-# north of 28N - EEZ only
-
 # setup (fishing_effort_location_by_permit) ----
-
-# Load the 'zoo' package for date manipulations
-library(zoo)
-
-# Load the 'leaflet' package for creating interactive web maps
-library(leaflet)
-
-# Load the 'stringi' package for manipulating and working with character strings
-library(stringi)
-
-# Load the 'htmltools' package for working with HTML content in R
-library(htmltools)
 
 # Source an external R script that contains useful functions.
 source("~/R_code_github/useful_functions_module.r")
@@ -2596,23 +2205,6 @@ coord_data_2022_short_good_all_coords <-
 # dim(coord_data_2022_short_good_all_coords)
 # [1] 94471    73
 
-## From FHIER ----
-# View(coord_data_2022_short)
-#
-# coord_data_2022_short_good_all_coords_fhier <-
-#   # Convert 'longitude' and 'latitude' columns to numeric data types
-#   dplyr::mutate(longitude = as.numeric(longitude),
-#                 latitude = as.numeric(latitude)) |>
-#
-#   # Ensure that all 'longitude' values are negative by taking the absolute value and negating them
-#   dplyr::mutate(longitude = -abs(longitude)) |>
-#
-#   # Keep only distinct rows in the data frame
-#   distinct()
-#
-# dim(coord_data_2022_short_good_all_coords)
-# [1] 97970    17
-
 # Keep only full sets of coordinates ----
 # Create a new data frame 'coord_data_2022_short_good' by filtering and keeping only distinct rows.
 coord_data_2022_short_good <-
@@ -2636,9 +2228,7 @@ coord_data_2022_short_good <-
 coord_data_2022_short_good_sf <-
   my_to_sf(coord_data_2022_short_good)
 
-# show all boundaries ----
-
-# subset by Big box ----
+# Subset by Big box ----
 # Michelle: I think we need to allow trips that occur anywhere in the GOM, with the eastern lat border being like a big line down the Atlantic Ocean at Bermuda. Does that make sense? Southern Border could be at Cuba. The Northern Border needs to extend up through Maine - since we require reporting no matter where they fish. Basically just a big box, regardless of Council jurisdiction.
 # Jessica: I like the big box without council jurisdiction and then I am going to assume we will just plot those trips for vessels with GOM permits?  This should show the Council how many GOM vessels also fish in other regions as well as where they are fishing in the Gulf.
 
@@ -2696,19 +2286,8 @@ coord_data_2022_short_good_sf_crop_big_df_in_metricks <-
 # [1] 90838    73 from mv
 
 #' %%%%% Heatmap preparations
-library(ggplot2) # a visualization package
-library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.
-
 
 #### Current file: prepare_heatmap_func.R ----
-
-# Load the 'tigris' package to access geographic data.
-library(tigris)
-
-# Set the 'tigris_use_cache' option to TRUE. This will enable caching of
-# data retrieved from the TIGER/Line Shapefiles service, which can help
-# improve data retrieval performance for future sessions.
-tigris_use_cache = TRUE
 
 # plot text sizes ----
 text_sizes <- list(
@@ -2879,7 +2458,7 @@ st_union_GOMsf <- sf::st_union(GOMsf)
 toc()
 # st_union(GOMsf): 21.59 sec elapsed
 
-## by n min grid ----
+## Trips by n min grid ----
 # Define a function 'df_join_grid' that joins a data frame with a grid using specified coordinates and CRS.
 
 df_join_grid <- function(my_df, grid, my_crs) {
@@ -3031,7 +2610,6 @@ axis.text.y =
 # Use the 'source' function to execute R code from a file located at the given path.
 
 # setup for fishing_effort_location_heatmap ----
-library(viridis) # additional color palettes
 
 # Heatmap ----
 
@@ -3154,116 +2732,3 @@ toc()
 # dim(effort_vsl_cropped_sa)
 # [1] 21461     8
 # [1] 20147     8 mv
-
-## count trip ids and vessels by grid cell ----
-
-# Create a list 'effort_vsl_cropped_cnt_l' by applying 'add_vsl_and_trip_cnts' function to data frames.
-
-effort_vsl_cropped_cnt_l <-
-  list(effort_vsl_cropped_gom, effort_vsl_cropped_sa) |>
-
-  # Use the 'map' function to apply a function to each element in the list.
-  purrr::map(function(effort_vsl_cropped) {
-
-    # Apply the 'add_vsl_and_trip_cnts' function to each 'effort_vsl_cropped' data frame.
-    add_vsl_and_trip_cnts(effort_vsl_cropped)
-  })
-
-map(effort_vsl_cropped_cnt_l, dim)
-# [[1]]
-# [1] 35822     9
-#
-# [[2]]
-# [1] 21461    10
-# mv data:
-# [[1]]
-# [1] 40604     9
-#
-# [[2]]
-# [1] 20147    10
-
-### no rule3 ----
-# Create a list 'effort_cropped_short_cnt2_short_l' by applying a set of operations to data frames.
-
-effort_cropped_short_cnt2_short_l <-
-  effort_vsl_cropped_cnt_l |>
-
-  # Use the 'map' function to apply a function to each element in the list.
-  purrr::map(function(effort_vsl_cropped_cnt) {
-
-    # Use the 'select' function to remove specific columns,
-    # 'latitude', 'longitude', 'trip_id', and 'VESSEL_OFFICIAL_NBR', from each data frame.
-    effort_vsl_cropped_cnt |>
-      select(-c(latitude, longitude, trip_id, vessel_official_nbr))
-  })
-
-# map(effort_cropped_short_cnt2_short_l, dim)
-
-### no rule 3 ----
-heat.plt_gom <-
-  # Extract the first element from the list.
-  # Use the pipe operator to pass it to the next operation.
-  effort_cropped_short_cnt2_short_l[[1]] |>
-  # Perform an inner join with the data frame 'grid_gom5'
-  # using a common column specified by 'join_by(cell_id)'.
-  # Store the result in the variable 'heat.plt_gom'.
-  # Have to use data.frame, to avoid:
-  # Error: y should not have class sf; for spatial joins, use st_join
-  inner_join(data.frame(grid_gom5))
-
-# the same for SA
-heat.plt_sa <-
-  effort_cropped_short_cnt2_short_l[[2]] |>
-  # have to use data.frame, to avoid
-  # Error: y should not have class sf; for spatial joins, use st_join
-  inner_join(data.frame(grid_sa5))
-# Joining with `by = join_by(cell_id)`
-
-## make a plot ----
-
-max_num3_gom <- max(heat.plt_gom$trip_id_cnt)
-# 1209
-# 1317 mv
-
-max_num3_sa <- max(heat.plt_sa$trip_id_cnt)
-# 590
-# 561 mv
-
-### GOM & dual 2022 ====
-map_trips_no_rule_3_gom <-
-  make_map_trips(heat.plt_gom,
-           st_union_GOMsf,
-           "total trips",
-           trip_cnt_name = "trip_id_cnt",
-           unit_num = 1.2)
-
-map_trips_no_rule_3_gom
-
-### SA 2022 ====
-map_trips_no_rule_3_sa <-
-  make_map_trips(heat.plt_sa,
-           sa_shp,
-           "total trips",
-           trip_cnt_name = "trip_id_cnt",
-           unit_num = 0.9,
-           legend_text_text_size = 7.5)
-
-map_trips_no_rule_3_sa +
-# Add the spatial features from 'sa_s_shp' to the plot using 'geom_sf'.
-geom_sf(data = sa_s_shp) +
-
-# Annotate the plot with text labels from 'sa_s_shp' using 'geom_sf_text'.
-geom_sf_text(data = sa_s_shp,
-               label = sa_s_shp$NAME,  # Use the 'NAME' column as labels.
-               size = 3)  # Set the size of the text labels to 3.
-
-
-# To get end port numbers by state ----
-permit_end_port_path <-
-  file.path(
-    my_paths$git_r,
-    r"(fishing_effort_location\fishing_effort_location_by_permit_and_end_port.R)"
-  )
-
-source(permit_end_port_path)
-
