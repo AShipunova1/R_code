@@ -2598,7 +2598,7 @@ make_map_trips <-
         # legend.position = "top",
         # legend.justification = "left",
         # legend.key.width = unit(unit_num, "npc"),
-        legend.key.height = unit(unit_num, "npc"),
+        legend.key.height = grid::unit(unit_num, "line"),
         legend.title = element_text(size =
                                       text_sizes[["legend_title_text_size"]]),
         legend.text = element_text(size =
@@ -2867,11 +2867,11 @@ map_trips_no_rule_3_gom <-
            "total trips",
            trip_cnt_name = "trip_id_cnt",
            # unit_num = 1.2
-           unit_num = 0.7,
+           unit_num = 3,
            legend_text_text_size = 6)
 
 #+ show gom heatmap
-#+ fig.width = 7, fig.fullwidth=TRUE
+#+ out.width = "90%", fig.fullwidth = TRUE
 #| column: screen-inset-shaded
 
 map_trips_no_rule_3_gom
@@ -2884,13 +2884,13 @@ map_trips_no_rule_3_sa <-
            "total trips",
            trip_cnt_name = "trip_id_cnt",
            # unit_num = 0.9,
-           unit_num = 0.4,
+           unit_num = 5,
            # legend_text_text_size = 7.5
            legend_text_text_size = 6
            )
 
 #+ show sa heatmap
-#+ fig.width = 7, fig.fullwidth=TRUE
+#+ out.width = "90%", fig.fullwidth = TRUE
 #| column: screen-inset-shaded
 
 map_trips_no_rule_3_sa +
