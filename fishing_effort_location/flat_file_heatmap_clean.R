@@ -2444,6 +2444,10 @@ min_grid <- function(my_sf = GOMsf, minute_num = 1) {
 grid_gom5 <- min_grid(GOMsf, 5)
 grid_sa5 <- min_grid(sa_shp, 5)
 
+grid_sa5 |>
+  head() |>
+  knitr::kable(caption = "grid_sa5")
+
 # Set the aggregate attribute to "constant" for multiple spatial objects.
 sf::st_agr(GOMsf) =
   sf::st_agr(sa_shp) =
@@ -2468,6 +2472,10 @@ if (file.exists(my_file_path)) {
   readr::write_rds(st_union_GOMsf,
                    my_file_path)
 }
+
+st_union_GOMsf |>
+  head() |>
+  knitr::kable(caption = "st_union_GOMsf")
 
 ## Trips by n min grid ----
 # Define a function 'df_join_grid' that joins a data frame with a grid using specified coordinates and CRS.
@@ -2621,8 +2629,6 @@ axis.text.y =
 #### Current file: fishing_effort_location_heatmap.R ----
 
 # Use the 'source' function to execute R code from a file located at the given path.
-
-# setup for fishing_effort_location_heatmap ----
 
 # Heatmap ----
 
@@ -2803,7 +2809,7 @@ effort_vsl_cropped_cnt_l$effort_vsl_cropped_sa |>
   head() |>
   knitr::kable(caption = "effort_vsl_cropped_cnt_l")
 
-### no rule3 ----
+### remove extra columns ----
 # Create a list 'effort_cropped_short_cnt2_short_l' by applying a set of operations to data frames.
 
 effort_cropped_short_cnt2_short_l <-
@@ -2824,7 +2830,7 @@ effort_cropped_short_cnt2_short_l$effort_vsl_cropped_sa |>
   head() |>
   knitr::kable(caption = "effort_vsl_cropped_cnt_l")
 
-### no rule 3 ----
+### join data with grids; no rule 3 ----
 heat.plt_gom <-
   # Extract the first element from the list.
   # Use the pipe operator to pass it to the next operation.
@@ -2846,7 +2852,7 @@ heat.plt_sa <-
 
 heat.plt_sa |>
   head() |>
-  knitr::kable(caption = "effort_vsl_cropped_cnt_l")
+  knitr::kable(caption = "heat.plt_sa")
 
 ## make a plot ----
 
@@ -2890,7 +2896,7 @@ map_trips_no_rule_3_sa <-
            )
 
 #+ show sa heatmap
-#+ out.width = "90%", fig.fullwidth = TRUE
+#+ out.width = "80%", fig.fullwidth = TRUE
 #| column: screen-inset-shaded
 
 map_trips_no_rule_3_sa +
