@@ -896,3 +896,21 @@ percent_of_never_compl_from_all_sa_2022 <-
 # [1] 22.63011 %
 
 # SA vessels 2022 vessels cnt / percent compl ----
+# count_weeks_per_vsl_permit_year_compl_p |> 
+#   View()
+
+count_weeks_per_vsl_permit_year_compl_p_short <- 
+  count_weeks_per_vsl_permit_year_compl_p |>
+  select(
+    vessel_official_number,
+    compliant_,
+    year_permit,
+    weeks_per_vessel_per_compl,
+    total_weeks_per_vessel,
+    percent_compl
+  ) |>
+  distinct()
+
+# data_overview(count_weeks_per_vsl_permit_year_compl_p_short)
+# vessel_official_number     3669
+
