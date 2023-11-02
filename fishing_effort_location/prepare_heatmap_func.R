@@ -347,7 +347,7 @@ make_map_trips <-
            total_trips_title,
            trip_cnt_name,
            caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
-           unit_num = 1,
+           unit_num = 1, # the length of the scale key
            print_stat_zone = NULL,
            legend_text_text_size = text_sizes[["legend_text_text_size"]]
            ) {
