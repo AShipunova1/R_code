@@ -2548,7 +2548,7 @@ make_map_trips <-
            total_trips_title,
            trip_cnt_name,
            caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
-           unit_num = 1,
+           unit_num = 1, # the length of the scale key
            print_stat_zone = NULL,
            legend_text_text_size = text_sizes[["legend_text_text_size"]]
            ) {
@@ -2594,9 +2594,9 @@ make_map_trips <-
         limits = c(1, max_num)
       ) +
       theme(
-        legend.position = "top",
-        legend.justification = "left",
-        legend.key.width = unit(unit_num, "npc"),
+        # legend.position = "top",
+        # legend.justification = "left",
+        # legend.key.width = unit(unit_num, "npc"),
         legend.title = element_text(size =
                                       text_sizes[["legend_title_text_size"]]),
         legend.text = element_text(size =
@@ -2866,7 +2866,9 @@ map_trips_no_rule_3_gom <-
            st_union_GOMsf,
            "total trips",
            trip_cnt_name = "trip_id_cnt",
-           unit_num = 1.2)
+           # unit_num = 1.2
+           unit_num = 0.7,
+           legend_text_text_size = 6)
 
 
 map_trips_no_rule_3_gom
@@ -2879,8 +2881,11 @@ map_trips_no_rule_3_sa <-
            sa_shp,
            "total trips",
            trip_cnt_name = "trip_id_cnt",
-           unit_num = 0.9,
-           legend_text_text_size = 7.5)
+           # unit_num = 0.9,
+           unit_num = 0.4,
+           # legend_text_text_size = 7.5
+           legend_text_text_size = 6
+           )
 
 map_trips_no_rule_3_sa +
 # Add the spatial features from 'sa_s_shp' to the plot using 'geom_sf'.
