@@ -994,17 +994,29 @@ perc_non_compl_plot_less_100_ann
 # split by group ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |> 
-  add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |> 
+  mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
+  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
+  add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
-           case_when(vessel_cnt_group == 1 ~ "<= 5 vessels (240 v)",
-                     .default = "> 5 vessels (21 v)")) |>
+           case_when(
+             vessel_cnt_group == 1 ~
+               paste0("<= 5 vessels (",
+                      vessel_cnt_group_num,
+                      " v)"),
+             .default = paste0("> 5 vessels (",
+                               vessel_cnt_group_num,
+                               " v)")
+           )) |>
   mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |> 
-  mutate(percent_group_name =
-           case_when(percent_group == 1 ~ "0--50% non compliant",
-                     percent_group == 2 ~ "50--75% non compliant",
-                     percent_group == 3 ~ "75--98% non compliant"))
+  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  mutate(
+    percent_group_name =
+      case_when(
+        percent_group == 1 ~ str_glue("0--50% non compliant ({percent_group_num} v.)"),
+        percent_group == 2 ~ str_glue("50--75% non compliant ({percent_group_num} v.)"),
+        percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)")
+      )
+  )
 
 View(count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr)
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr |> 
