@@ -2453,7 +2453,7 @@ sf::st_agr(GOMsf) =
 
 ### remove internal boundaries from the GOM shape file ----
 # to speed up the lengthy process try to read a saved one, if exists
-my_file_path <- file.paths(my_paths$outputs,
+my_file_path <- file.path(my_paths$outputs,
                            "fishing_effort_location",
                            "st_union_GOMsf.rds")
 
