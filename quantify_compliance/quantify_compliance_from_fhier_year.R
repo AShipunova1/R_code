@@ -144,6 +144,28 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
   count_by_cols(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide,
                 cols_names)
 
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long <- 
+  count_by_cols(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide,
+                c("year_permit", "total_vsl_y"))
+
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa <- 
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long |> 
+  filter(year_permit == "2022 sa_only") |> 
+  select(vessel_official_number, is_compl_or_both) |> 
+  distinct()
+
+# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa
+# 4039    
+# vessel_official_number 4039
+# is_compl_or_both          4
+
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_non_c <-
+  compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa |>
+  filter(is_compl_or_both == "NO")
+
+dim(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_non_c)
+# 512
+
 ### get cnts for compl, no compl, or both per month with exp ----
 cnts_for_compl <-
   function(my_df, group_by_cols, cols_to_cnt) {
@@ -820,3 +842,45 @@ compl_clean_sa_vs_gom_m_int_1 |>
 
 # write_csv(compl_clean_sa_vs_gom_m_int_1,
 #           "compl_clean_sa_vs_gom_m_int_1.csv")
+
+# SA vessels that never reported anything ----
+# Jessica wants to see 1 more figure for the SA, that is the proportion of SA vessels that never reported anything - whereas, your compliance for all of 2022 means of the 54% non-compliant, they may only be missing 1 week in the whole year. 
+print_df_names(count_weeks_per_vsl_permit_year_compl_p)
+
+count_weeks_per_vsl_permit_year_compl_p_non_100 <-
+  count_weeks_per_vsl_permit_year_compl_p |>
+  select(vessel_official_number,
+         compliant_,
+         year_permit,
+         percent_compl) |>
+  distinct() |>
+  filter(year_permit == "2022 sa_only" &
+           compliant_ == "NO") |>
+  filter(percent_compl == 100)
+
+dim(count_weeks_per_vsl_permit_year_compl_p_non_100)
+# 487
+
+length(unique(count_weeks_per_vsl_permit_year_compl_p$vessel_official_number))
+# 3669
+
+sa_22_non_c_vessels <-
+  count_weeks_per_vsl_permit_year_compl_p |>
+  filter(year_permit == "2022 sa_only" &
+           compliant_ == "NO") |>
+  select(vessel_official_number) |>
+  distinct()
+
+sa_22_vessels <-
+  count_weeks_per_vsl_permit_year_compl_p |>
+  filter(year_permit == "2022 sa_only") |>
+  select(vessel_official_number) |>
+  distinct()
+
+percent_of_never_compl_from_all_non_c <- 
+  dim(count_weeks_per_vsl_permit_year_compl_p_non_100)[[1]] * 100 / dim(sa_22_non_c_vessels)[[1]]
+# [1] 41.87446 %
+
+percent_of_never_compl_from_all_sa_2022 <- 
+  dim(count_weeks_per_vsl_permit_year_compl_p_non_100)[[1]] * 100 / dim(sa_22_vessels)[[1]]
+# [1] 22.63011 %
