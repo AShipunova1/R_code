@@ -1,3 +1,4 @@
+
 ---
 title: "Fishing effort locations heatmap"
 ---
@@ -2920,12 +2921,6 @@ axis.text.y =
 #### Current file: fishing_effort_location_heatmap.R ----
 
 # Use the 'source' function to execute R code from a file located at the given path.
-```
-
-## setup for fishing_effort_location_heatmap 
-
-```{r setup for fishing_effort_location_heatmap}
-# setup for fishing_effort_location_heatmap ----
 ```
 
 ## Heatmap 
