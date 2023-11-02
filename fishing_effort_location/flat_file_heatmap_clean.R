@@ -2661,6 +2661,9 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
 # [1] 68122     4
 # [1] 44060     4
 
+for_heatmap_lat_lon_trips_vessels_sa_only |>
+  knitr::kable(caption = "for_heatmap_lat_lon_trips_vessels_sa_only")
+
 ### remove vessels not in Jeannette's SA list ----
 
 # Build the path to the R script 'vessel_permit_corrected_list.R' by
@@ -2713,6 +2716,9 @@ effort_vsl_sa <-
 toc()
 # effort_vsl_sa: 1.22 sec elapsed
 
+effort_vsl_sa |>
+  knitr::kable(caption = "effort_vsl_sa")
+
 ## crop by the shape ----
 tic("effort_vsl_cropped_gom")
 effort_vsl_cropped_gom <- crop_by_shape(effort_vsl_gom)
@@ -2731,3 +2737,249 @@ toc()
 # dim(effort_vsl_cropped_sa)
 # [1] 21461     8
 # [1] 20147     8 mv
+
+
+## count trip ids and vessels by grid cell ----
+
+# Create a list 'effort_vsl_cropped_cnt_l' by applying 'add_vsl_and_trip_cnts' function to data frames.
+
+effort_vsl_cropped_cnt_l <-
+  list(effort_vsl_cropped_gom, effort_vsl_cropped_sa) |>
+
+  # Use the 'map' function to apply a function to each element in the list.
+  purrr::map(function(effort_vsl_cropped) {
+
+    # Apply the 'add_vsl_and_trip_cnts' function to each 'effort_vsl_cropped' data frame.
+    add_vsl_and_trip_cnts(effort_vsl_cropped)
+  })
+
+# map(effort_vsl_cropped_cnt_l, dim)
+# [[1]]
+# [1] 35822     9
+#
+# [[2]]
+# [1] 21461    10
+# mv data:
+# [[1]]
+# [1] 40604     9
+#
+# [[2]]
+# [1] 20147    10
+
+effort_vsl_cropped_cnt_l$effort_vsl_cropped_sa |>
+  knitr::kable(caption = "effort_vsl_cropped_cnt_l")
+
+### no rule3 ----
+# Create a list 'effort_cropped_short_cnt2_short_l' by applying a set of operations to data frames.
+
+effort_cropped_short_cnt2_short_l <-
+  effort_vsl_cropped_cnt_l |>
+
+  # Use the 'map' function to apply a function to each element in the list.
+  purrr::map(function(effort_vsl_cropped_cnt) {
+
+    # Use the 'select' function to remove specific columns,
+    # 'latitude', 'longitude', 'trip_id', and 'VESSEL_OFFICIAL_NBR', from each data frame.
+    effort_vsl_cropped_cnt |>
+      select(-c(latitude, longitude, trip_id, vessel_official_nbr))
+  })
+
+# map(effort_cropped_short_cnt2_short_l, dim)
+
+effort_cropped_short_cnt2_short_l$effort_vsl_cropped_sa |>
+  knitr::kable(caption = "effort_vsl_cropped_cnt_l")
+
+### no rule 3 ----
+heat.plt_gom <-
+  # Extract the first element from the list.
+  # Use the pipe operator to pass it to the next operation.
+  effort_cropped_short_cnt2_short_l[[1]] |>
+  # Perform an inner join with the data frame 'grid_gom5'
+  # using a common column specified by 'join_by(cell_id)'.
+  # Store the result in the variable 'heat.plt_gom'.
+  # Have to use data.frame, to avoid:
+  # Error: y should not have class sf; for spatial joins, use st_join
+  inner_join(data.frame(grid_gom5))
+
+# the same for SA
+heat.plt_sa <-
+  effort_cropped_short_cnt2_short_l[[2]] |>
+  # have to use data.frame, to avoid
+  # Error: y should not have class sf; for spatial joins, use st_join
+  inner_join(data.frame(grid_sa5))
+# Joining with `by = join_by(cell_id)`
+
+heat.plt_sa |>
+  knitr::kable(caption = "effort_vsl_cropped_cnt_l")
+
+## make a plot ----
+
+max_num3_gom <- max(heat.plt_gom$trip_id_cnt)
+# 1209
+# 1317 mv
+
+max_num3_sa <- max(heat.plt_sa$trip_id_cnt)
+# 590
+# 561 mv
+
+max_num3_sa
+
+### GOM & dual 2022 ====
+map_trips_no_rule_3_gom <-
+  make_map_trips(heat.plt_gom,
+           st_union_GOMsf,
+           "total trips",
+           trip_cnt_name = "trip_id_cnt",
+           unit_num = 1.2)
+
+map_trips_no_rule_3_gom
+
+### SA 2022 ====
+map_trips_no_rule_3_sa <-
+  make_map_trips(heat.plt_sa,
+           sa_shp,
+           "total trips",
+           trip_cnt_name = "trip_id_cnt",
+           unit_num = 0.9,
+           legend_text_text_size = 7.5)
+
+map_trips_no_rule_3_sa +
+# Add the spatial features from 'sa_s_shp' to the plot using 'geom_sf'.
+geom_sf(data = sa_s_shp) +
+
+# Annotate the plot with text labels from 'sa_s_shp' using 'geom_sf_text'.
+geom_sf_text(data = sa_s_shp,
+               label = sa_s_shp$NAME,  # Use the 'NAME' column as labels.
+               size = 3)  # Set the size of the text labels to 3.
+
+
+# To get end port numbers by state ----
+# permit_end_port_path <-
+#   file.path(
+#     my_paths$git_r,
+#     r"(fishing_effort_location\fishing_effort_location_by_permit_and_end_port.R)"
+#   )
+#
+# source(permit_end_port_path)
+
+#### Current file: fishing_effort_location_by_permit_and_end_port.R ----
+
+# fishing_effort_location_by_permit_and_end_port
+
+# effort_vsl_cropped_cnt_l |> View()
+# coord_data_2022_short_good_sf_crop_big_df_in_metricks_list |> View()
+
+# Split the data frame into multiple sub-data frames based on the 'permit_region' column.
+
+coord_data_2022_short_good_sf_crop_big_df_in_metricks_list <-
+  split(
+    # Data frame to be split
+    coord_data_2022_short_good_sf_crop_big_df_in_metricks,
+
+    # Split based on the 'permit_region' column
+    as.factor(
+      coord_data_2022_short_good_sf_crop_big_df_in_metricks$permit_region
+    )
+  )
+
+# Use the 'map' function to apply the 'dim' function to each element in the list.
+purrr::map(
+  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list,
+  dim
+)
+
+# $gom_and_dual
+# [1] 46772    73
+#
+# $sa_only
+# [1] 44066    73
+
+coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
+  select(activity_type_name) |>
+  distinct()
+# 1    TRIP WITH EFFORT
+# 2                <NA>
+# 3 TRIP UNABLE TO FISH
+
+coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
+  select(notif_landing_location_state) |>
+  distinct()
+# <NA>
+# AL
+# FL
+# TX
+# LA
+
+sa_end_port <-
+  coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
+  select(
+    trip_id,
+    vessel_id,
+    vessel_official_nbr,
+    end_port_state,
+    notif_landing_location_state
+  ) |>
+  distinct()
+
+dim(sa_end_port)
+# [1] 44009     5
+
+sa_end_port_cnt_vessels <-
+  sa_end_port |>
+  select(vessel_official_nbr, end_port_state) |>
+  distinct() |>
+  filter(end_port_state %in% sa_state_abb$state_abb) |>
+  count(end_port_state)
+#   END_PORT_STATE   n
+# 1             FL 565
+# 2             GA  25
+# 3             NC 217
+# 4             SC 142
+
+# This code snippet performs operations on the `sa_end_port` data frame to count
+# the occurrences of unique values in the 'notif_landing_location_state' column
+# that match the values in the 'state_abb' column of the 'sa_state_abb' data frame.
+
+# The `sa_end_port` data frame is piped into the 'select' function to keep only
+# the 'vessel_official_nbr' and 'notif_landing_location_state' columns.
+sa_end_port |>
+  select(vessel_official_nbr, notif_landing_location_state) |>
+
+# The 'filter' function is used to retain only the rows where
+# 'notif_landing_location_state' values are present in the 'state_abb' column of
+# the 'sa_state_abb' data frame.
+  filter(notif_landing_location_state %in% sa_state_abb$state_abb) |>
+
+# The 'count' function calculates the number of occurrences of each unique
+# 'notif_landing_location_state' value in the resulting data frame, returning the
+# count of occurrences for each state.
+  count(notif_landing_location_state)
+# 1                           FL 688
+
+# This code snippet calculates the count of unique end_port_state values in the
+# sa_end_port data frame that match the values in the 'state_abb' column of the
+# 'sa_state_abb' data frame.
+
+# The `sa_end_port` data frame is piped into the 'select' function to retain only
+# the 'trip_id' and 'end_port_state' columns.
+sa_end_port_cnt_trips <- sa_end_port |>
+  select(trip_id, end_port_state) |>
+
+# The 'distinct' function is used to retain unique rows based on the combination
+# of 'trip_id' and 'end_port_state'.
+  distinct() |>
+
+# The 'filter' function is applied to keep only rows where 'end_port_state' is
+# present in the 'state_abb' column of the 'sa_state_abb' data frame.
+  filter(end_port_state %in% sa_state_abb$state_abb) |>
+
+# Finally, the 'count' function calculates the number of occurrences of each
+# unique 'end_port_state' value in the resulting data frame, returning the count
+# of trips for each state.
+  count(end_port_state)
+
+#   END_PORT_STATE     n
+# FL 27332
+# GA   351
+# NC  7503
+# SC  5128
