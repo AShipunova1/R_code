@@ -2548,7 +2548,7 @@ make_map_trips <-
            total_trips_title,
            trip_cnt_name,
            caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
-           unit_num = 1, # the length of the scale key
+           unit_num = 1, # the width of the scale key
            print_stat_zone = NULL,
            legend_text_text_size = text_sizes[["legend_text_text_size"]]
            ) {
@@ -2584,7 +2584,8 @@ make_map_trips <-
         x = "",
         y = "",
         fill = "",
-        caption = caption_text
+        # caption = caption_text
+        title = caption_text
       ) +
       # theme_bw() +
       scale_fill_viridis(
@@ -2597,6 +2598,7 @@ make_map_trips <-
         # legend.position = "top",
         # legend.justification = "left",
         # legend.key.width = unit(unit_num, "npc"),
+        legend.key.height = unit(unit_num, "npc"),
         legend.title = element_text(size =
                                       text_sizes[["legend_title_text_size"]]),
         legend.text = element_text(size =
@@ -2859,8 +2861,6 @@ max_num3_sa <- max(heat.plt_sa$trip_id_cnt)
 max_num3_sa
 
 ### GOM & dual 2022 ====
-#| column: screen
-
 map_trips_no_rule_3_gom <-
   make_map_trips(heat.plt_gom,
            st_union_GOMsf,
@@ -2870,12 +2870,14 @@ map_trips_no_rule_3_gom <-
            unit_num = 0.7,
            legend_text_text_size = 6)
 
+#+ show gom heatmap
+#+ fig.width = 7, fig.fullwidth=TRUE
+#| column: screen-inset-shaded
 
 map_trips_no_rule_3_gom
 
 
 ### SA 2022 ====
-#| column: screen
 map_trips_no_rule_3_sa <-
   make_map_trips(heat.plt_sa,
            sa_shp,
@@ -2886,6 +2888,10 @@ map_trips_no_rule_3_sa <-
            # legend_text_text_size = 7.5
            legend_text_text_size = 6
            )
+
+#+ show sa heatmap
+#+ fig.width = 7, fig.fullwidth=TRUE
+#| column: screen-inset-shaded
 
 map_trips_no_rule_3_sa +
 # Add the spatial features from 'sa_s_shp' to the plot using 'geom_sf'.
