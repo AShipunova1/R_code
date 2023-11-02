@@ -1068,33 +1068,39 @@ ggplot(
 
 
 # split by group all ----
-count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
-  count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
+count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
+  count_weeks_per_vsl_permit_year_compl_p_short_count |>
   mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
+  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |>
   add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
-               paste0("<= 5 vessels (",
+               paste0("1--5 vessels (",
                       vessel_cnt_group_num,
                       " v)"),
-             .default = paste0("> 5 vessels (",
-                               vessel_cnt_group_num,
-                               " v)")
+             vessel_cnt_group == 2 ~
+               paste0("6--450 vessels (",
+                      vessel_cnt_group_num,
+                      " v)"),
+             vessel_cnt_group == 3 ~
+               paste0("450--500 vessels (",
+                      vessel_cnt_group_num,
+                      " v)")
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
+  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75, 99))) |>
   add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
       case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--75% non compliant ({percent_group_num} v.)"),
-        percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)")
+        percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)"),
+                percent_group == 4 ~ str_glue("98--100% non compliant({percent_group_num} v.)")
       )
   )
 
-# View(count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr)
+# View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr)
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr |> 
   count(vessel_cnt_group_name, wt = vessels_cnt)
 # 1 <= 5 vessels (240 v)    388
@@ -1150,24 +1156,56 @@ ggplot(
 # mean_wt <- data.frame(cyl = c(4, 6, 8), wt = c(2.28, 3.11, 4.00))
 # p + geom_hline(aes(yintercept = wt), mean_wt)
 print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr)
+
+labs <- 
+  labs(title = "Non compliant SA vessels (2022) number by percent of non compliant where % non compliant < 100",
+       x = "Vessel count",
+       y = "% nc vsls")
+
 p <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr |>
   ggplot(aes(x = vessels_cnt,
              y = percent_compl)) +
   geom_point(color = "darkgreen") +
   # facet_wrap(vars(vessel_cnt_group_name), scales = "free_x")
-  facet_wrap(vars(vessel_cnt_group_num, percent_group_name), labeller = "label_both")
+  facet_wrap(vars(vessel_cnt_group_num, percent_group_name), labeller = "label_both") +
+  labs
 
 
 p <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr |>
   ggplot(aes(x = vessels_cnt,
              y = percent_compl)) +
-  geom_point(color = "darkblue") +
-  facet_wrap(vars(percent_group_name), scales = "free_x")
+  geom_point(color = "darkgreen") +
+  facet_wrap(vars(percent_group_name), scales = "free_x") +
+  labs
   # facet_wrap(vars(percent_group_name))
 
-p +
-  labs(title = "Non compliant SA vessels (2022) number by percent of non compliant where % non compliant < 100",
+# facet plots for all non compliant SA 2022 ----
+labs_all <- 
+  labs(title = "Non compliant SA vessels (2022) number by percent of non compliant",
        x = "Vessel count",
        y = "% nc vsls")
+
+count_weeks_per_vsl_permit_year_compl_p_short_count_gr |> 
+  ggplot(aes(x = vessels_cnt,
+             y = percent_compl,
+             cex = vessel_cnt_group_num)) +
+  geom_point(color = "darkblue") +
+  facet_wrap(vars(vessel_cnt_group_name), scales = "free_x") +
+  labs_all
+
+count_weeks_per_vsl_permit_year_compl_p_short_count_gr |> 
+  ggplot(aes(x = vessels_cnt,
+             y = percent_compl,
+             cex = percent_group_num)) +
+  geom_point(color = "darkblue") +
+  ggplot2::facet_grid(
+    cols = vars(percent_group_name),
+    scales = "free_x",
+    # space = "free_x",
+    margins = "vessels_cnt"
+  ) +
+  # facet_wrap(vars(percent_group_name), scales = "free_x",
+  # nrow = 1) +
+  labs_all
