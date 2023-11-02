@@ -124,6 +124,14 @@ write_to_1_flat_file(
   )
 )
 
+write_to_1_flat_file(
+  flat_file_name,
+  file.path(
+    my_paths$git_r,
+    r"(fishing_effort_location\fishing_effort_location_by_permit_and_end_port.R)"
+  )
+)
+
 # sink()
 
 file.exists(flat_file_name)
