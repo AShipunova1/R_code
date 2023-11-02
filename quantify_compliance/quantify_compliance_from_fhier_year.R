@@ -847,40 +847,52 @@ compl_clean_sa_vs_gom_m_int_1 |>
 # Jessica wants to see 1 more figure for the SA, that is the proportion of SA vessels that never reported anything - whereas, your compliance for all of 2022 means of the 54% non-compliant, they may only be missing 1 week in the whole year. 
 print_df_names(count_weeks_per_vsl_permit_year_compl_p)
 
-count_weeks_per_vsl_permit_year_compl_p_non_100 <-
+count_weeks_per_vsl_permit_year_compl_p_sa_22 <-
   count_weeks_per_vsl_permit_year_compl_p |>
+  filter(year_permit == "2022 sa_only")
+
+count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100 <-
+  count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
   select(vessel_official_number,
          compliant_,
          year_permit,
          percent_compl) |>
   distinct() |>
-  filter(year_permit == "2022 sa_only" &
-           compliant_ == "NO") |>
+  filter(compliant_ == "NO") |>
   filter(percent_compl == 100)
 
-dim(count_weeks_per_vsl_permit_year_compl_p_non_100)
+dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)
 # 487
 
+# All vessels
 length(unique(count_weeks_per_vsl_permit_year_compl_p$vessel_official_number))
 # 3669
 
+# All SA 2022 vessels
+length(unique(count_weeks_per_vsl_permit_year_compl_p_sa_22$vessel_official_number))
+# 2152
+# in metrics
+# Total Vessels With SA Only
+# 2275
+# 2275 - 2152 = 123
+
 sa_22_non_c_vessels <-
-  count_weeks_per_vsl_permit_year_compl_p |>
-  filter(year_permit == "2022 sa_only" &
-           compliant_ == "NO") |>
+  count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
+  filter(compliant_ == "NO") |>
   select(vessel_official_number) |>
   distinct()
 
 sa_22_vessels <-
-  count_weeks_per_vsl_permit_year_compl_p |>
-  filter(year_permit == "2022 sa_only") |>
+  count_weeks_per_vsl_permit_year_compl_p_sa_22 |> 
   select(vessel_official_number) |>
   distinct()
 
 percent_of_never_compl_from_all_non_c <- 
-  dim(count_weeks_per_vsl_permit_year_compl_p_non_100)[[1]] * 100 / dim(sa_22_non_c_vessels)[[1]]
+  dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)[[1]] * 100 / dim(sa_22_non_c_vessels)[[1]]
 # [1] 41.87446 %
 
 percent_of_never_compl_from_all_sa_2022 <- 
-  dim(count_weeks_per_vsl_permit_year_compl_p_non_100)[[1]] * 100 / dim(sa_22_vessels)[[1]]
+  dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)[[1]] * 100 / dim(sa_22_vessels)[[1]]
 # [1] 22.63011 %
+
+# SA vessels 2022 vessels cnt / percent compl ----
