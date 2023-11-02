@@ -2743,10 +2743,27 @@ toc()
 # [1] 35822     7
 # [1] 40604     7 mv
 
+ggplot() +
+  # Add the shape data with no fill.
+  geom_sf(data = effort_vsl_sa) +
+  # Add a filled heatmap using 'sa_shp'.
+  geom_sf(data = sa_shp,
+          colour = "red",
+          fill = NA)
+
 tic("effort_vsl_cropped_sa")
 effort_vsl_cropped_sa <- crop_by_shape(effort_vsl_sa, sa_shp)
 toc()
 # effort_vsl_cropped_sa: 0.54 sec elapsed
+
+ggplot() +
+  # Add a filled heatmap using 'sa_shp'.
+  geom_sf(data = effort_vsl_cropped_sa,
+          colour = "darkred") +
+  # Add a filled heatmap using 'sa_shp'.
+  geom_sf(data = sa_shp,
+          colour = "red",
+          fill = NA)
 
 # dim(effort_vsl_cropped_sa)
 # [1] 21461     8
@@ -2842,6 +2859,8 @@ max_num3_sa <- max(heat.plt_sa$trip_id_cnt)
 max_num3_sa
 
 ### GOM & dual 2022 ====
+#| column: screen
+
 map_trips_no_rule_3_gom <-
   make_map_trips(heat.plt_gom,
            st_union_GOMsf,
@@ -2849,9 +2868,12 @@ map_trips_no_rule_3_gom <-
            trip_cnt_name = "trip_id_cnt",
            unit_num = 1.2)
 
+
 map_trips_no_rule_3_gom
 
+
 ### SA 2022 ====
+#| column: screen
 map_trips_no_rule_3_sa <-
   make_map_trips(heat.plt_sa,
            sa_shp,
@@ -2868,7 +2890,6 @@ geom_sf(data = sa_s_shp) +
 geom_sf_text(data = sa_s_shp,
                label = sa_s_shp$NAME,  # Use the 'NAME' column as labels.
                size = 3)  # Set the size of the text labels to 3.
-
 
 # To get end port numbers by state ----
 # permit_end_port_path <-
@@ -3000,3 +3021,7 @@ sa_end_port_cnt_trips <- sa_end_port |>
 # GA   351
 # NC  7503
 # SC  5128
+
+sa_end_port_cnt_trips |>
+  head() |>
+  knitr::kable(caption = "sa_end_port_cnt_trips")
