@@ -2674,6 +2674,7 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
 # [1] 44060     4
 
 for_heatmap_lat_lon_trips_vessels_sa_only |>
+  head() |>
   knitr::kable(caption = "for_heatmap_lat_lon_trips_vessels_sa_only")
 
 ### remove vessels not in Jeannette's SA list ----
@@ -2729,6 +2730,7 @@ toc()
 # effort_vsl_sa: 1.22 sec elapsed
 
 effort_vsl_sa |>
+  head() |>
   knitr::kable(caption = "effort_vsl_sa")
 
 ## crop by the shape ----
@@ -2779,6 +2781,7 @@ effort_vsl_cropped_cnt_l <-
 # [1] 20147    10
 
 effort_vsl_cropped_cnt_l$effort_vsl_cropped_sa |>
+  head() |>
   knitr::kable(caption = "effort_vsl_cropped_cnt_l")
 
 ### no rule3 ----
@@ -2799,6 +2802,7 @@ effort_cropped_short_cnt2_short_l <-
 # map(effort_cropped_short_cnt2_short_l, dim)
 
 effort_cropped_short_cnt2_short_l$effort_vsl_cropped_sa |>
+  head() |>
   knitr::kable(caption = "effort_vsl_cropped_cnt_l")
 
 ### no rule 3 ----
@@ -2822,6 +2826,7 @@ heat.plt_sa <-
 # Joining with `by = join_by(cell_id)`
 
 heat.plt_sa |>
+  head() |>
   knitr::kable(caption = "effort_vsl_cropped_cnt_l")
 
 ## make a plot ----
