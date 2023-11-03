@@ -929,7 +929,7 @@ head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
 ## add columns ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(totalt_vessels = n_distinct(vessel_official_number)) |>
+  mutate(total_vessels = n_distinct(vessel_official_number)) |>
   mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
@@ -945,14 +945,14 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
     perc_of_perc =
       case_when(
         perc_nc_100_gr == 2 ~
-          vessels_cnt * 100 / totalt_vessels,
+          vessels_cnt * 100 / total_vessels,
         perc_nc_100_gr == 1 ~
-          sum(vessels_cnt) * 100 / totalt_vessels
+          sum(vessels_cnt) * 100 / total_vessels
       )
   ) |>
   ungroup()
 
-# print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
+# View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 one_plot <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_perc |>
   select(perc_nc_100_gr,
@@ -982,11 +982,13 @@ one_plot <-
       element_text(size = text_sizes[["axis_text_y_size"]])
   ) +
   # no x and y titles for individual plots
-  labs(title = "Non compliant SA vsls in 2022",
+  labs(title = 
+         stringr::str_glue("Non compliant SA vsls in 2022 (total non compliant = {count_weeks_per_vsl_permit_year_compl_p_short_count_perc$total_vessels})"),
        y = "Non compliant in 2022 (%)",
        x = "") +
   ylim(0, 100)
 
+print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 one_plot
     
 label_percent <- purrr::map(my_df$perc_c_nc,
