@@ -934,7 +934,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
       case_when(perc_nc_100_gr == 2 ~
-                  "100% non_compliant",
+                  "100% non compliant",
                 .default = "Compliant at least once")
   ) |>
   group_by(perc_nc_100_gr) |>
@@ -970,17 +970,11 @@ one_plot <-
       c(
         "1" = "skyblue1",
         "2" = "#0570B0"
-      ))
-  one_plot
-  ,
+      ),
     # Legend title
-    name = "Is compliant 100%?",
-    labels = c("1", "2")
-  ) 
-# unique(count_weeks_per_vsl_permit_year_compl_p_short_count_perc$perc_nc_100_gr_name)
-
-one_plot
-
+    name = "Non compliant",
+    labels = unique(count_weeks_per_vsl_permit_year_compl_p_short_count_perc$perc_nc_100_gr_name)
+  ) +
   theme(
     axis.text.x =
       element_text(size = text_sizes[["axis_text_x_size"]]),
@@ -988,27 +982,10 @@ one_plot
       element_text(size = text_sizes[["axis_text_y_size"]])
   ) +
   # no x and y titles for individual plots
-  labs(title = "100% non compliant SA vsls in 2022",
-       x = "",
-       y = "") +
-  scale_fill_manual(
-    # use custom colors
-    values =
-      c(
-        "compliant" = "skyblue1",
-        "non_compliant" = "#0570B0"
-      ),
-    # Legend title
-    name = "Is compliant 100%?",
-    labels = c("Yes", "No")
-  ) +
-  # manual x axes ticks labels
-  scale_x_discrete(labels = c("Yes", "No")) +
-  # scale_y_continuous(limits = c(0, 100), labels = scales::percent)
-  # Y axes between 0 and 100
+  labs(title = "Non compliant SA vsls in 2022",
+       y = "Non compliant in 2022 (%)",
+       x = "") +
   ylim(0, 100)
-# +
-# scale_y_continuous(labels = scales::label_percent(scale = 1))
 
 one_plot
     
