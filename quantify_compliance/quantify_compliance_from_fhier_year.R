@@ -962,20 +962,17 @@ one_plot <-
   distinct() |>
   ggplot(aes(x = perc_nc_100_gr_name,
              y = round(perc_of_perc, 0),
-             fill = perc_nc_100_gr)) +
-  geom_col() 
-
-one_plot
-+
-  scale_x_discrete(labels = c("Yes", "No"))
-  
+             fill = as.factor(perc_nc_100_gr))) +
+  geom_col() +
   scale_fill_manual(
     # use custom colors
     values =
       c(
         "1" = "skyblue1",
         "2" = "#0570B0"
-      ),
+      ))
+  one_plot
+  ,
     # Legend title
     name = "Is compliant 100%?",
     labels = c("1", "2")
