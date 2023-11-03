@@ -934,8 +934,8 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
       case_when(perc_nc_100_gr == 2 ~
-                  "Non compliant all time",
-                .default = "Compliant at least once")
+                  "Never Reported",
+                .default = "Reported At Least 1 Time")
   ) |>
   group_by(perc_nc_100_gr) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
@@ -968,8 +968,10 @@ nc_sa_22_100_plot <-
     # use custom colors
     values =
       c(
-        "1" = "pink",
-        "2" = "red"
+        # "1" = "pink",
+        # "2" = "red"
+        "1" = "skyblue1",
+        "2" = "#0570B0"
       ),
     # Legend title
     name = "Non compliant",
@@ -977,6 +979,7 @@ nc_sa_22_100_plot <-
   ) +
   theme(legend.position = "none") +
   theme(
+    axis.title.y = element_text(size = text_sizes[["axis_text_y_size"]]),
     axis.text.x =
       element_text(size = text_sizes[["axis_text_x_size"]]),
     axis.text.y =
@@ -1016,8 +1019,8 @@ ggsave(
   device = "png",
   path = file.path(my_paths$outputs,
                    r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),
-  width = 40,
-  height = 20,
+  width = 20,
+  height = 10,
   units = "cm"
 )
 
