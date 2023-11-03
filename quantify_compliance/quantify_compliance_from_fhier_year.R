@@ -1489,8 +1489,9 @@ nc_sa_22_tot_100_plot <-
   ) +
   # no x and y titles for individual plots
   labs(title = 
-         stringr::str_glue("Never reported SA vsls in 2022 out of all compliant an non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc$total_vessels})"),
-       y = "Non compliant in 2022 (%)",
+         stringr::str_glue("Never reported SA vsls in 2022 out of all compliant and non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc$total_vessels})"),
+       y = "",
+       # y = "% of All Vessels",
        x = "") +
   ylim(0, 100)
 
