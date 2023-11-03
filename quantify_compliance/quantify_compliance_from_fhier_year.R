@@ -1024,6 +1024,55 @@ ggsave(
   units = "cm"
 )
 
+## 100% non compliant, less than 100 and compliant ----
+# View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
+total_vessels_c_n_nc <- 
+  count_weeks_per_vsl_permit_year_compl_p_short |> 
+  select(vessel_official_number) |> 
+  distinct() |> 
+  dim()
+# vessel_official_number     3669
+
+nc_sa_22_100_plot <-
+  count_weeks_per_vsl_permit_year_compl_p_short_count_perc |>
+  select(perc_nc_100_gr,
+         perc_nc_100_gr_name,
+         group_vsl_cnt,
+         perc_of_perc) |>
+  distinct() |>
+  ggplot(aes(x = perc_nc_100_gr_name,
+             y = round(perc_of_perc, 0),
+             fill = as.factor(perc_nc_100_gr))) +
+  geom_col() +
+  scale_fill_manual(
+    # use custom colors
+    values =
+      c(
+        # "1" = "pink",
+        # "2" = "red"
+        "1" = "skyblue1",
+        "2" = "#0570B0"
+      ),
+    # Legend title
+    name = "Non compliant",
+    labels = unique(count_weeks_per_vsl_permit_year_compl_p_short_count_perc$perc_nc_100_gr_name)
+  ) +
+  theme(legend.position = "none") +
+  theme(
+    axis.title.y = element_text(size = text_sizes[["axis_text_y_size"]]),
+    axis.text.x =
+      element_text(size = text_sizes[["axis_text_x_size"]]),
+    axis.text.y =
+      element_text(size = text_sizes[["axis_text_y_size"]])
+  ) +
+  # no x and y titles for individual plots
+  labs(title = 
+         stringr::str_glue("Non compliant SA vsls in 2022 (total non compliant = {count_weeks_per_vsl_permit_year_compl_p_short_count_perc$total_vessels})"),
+       y = "Non compliant in 2022 (%)",
+       x = "") +
+  ylim(0, 100)
+
+
 # plot(count_weeks_per_vsl_permit_year_compl_p_short_count)
 ## Less than 100% ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 <-
@@ -1360,5 +1409,112 @@ ggsave(
   units = "cm"
 )
 
-# 100% non compliant ----
-  
+# 100% non compliant out of total ----
+count_weeks_per_vsl_permit_year_compl_p_short_count_tot <- 
+  count_weeks_per_vsl_permit_year_compl_p_short |> 
+  filter(year_permit == "2022 sa_only") |> 
+  select(vessel_official_number, compliant_, percent_compl) |> 
+  dplyr::add_count(compliant_, percent_compl, name = "vessels_cnt")
+
+head(count_weeks_per_vsl_permit_year_compl_p_short_count_tot, 2)
+#   vessel_official_number compliant_ percent_compl vessels_cnt
+#   <chr>                  <chr>              <dbl>       <int>
+# 1 VI5498TB               YES                  100         990
+# 2 VA9236AV               NO                   100         487
+
+## add columns ----
+never_reported_filter <-
+  rlang::quo(perc_nc_100_gr == 2 &
+               tolower(compliant_) == "no")
+
+count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
+  count_weeks_per_vsl_permit_year_compl_p_short_count_tot |>
+  mutate(total_vessels = n_distinct(vessel_official_number)) |> 
+  # mutate(percent_compl_compl = ) |> 
+  mutate(
+    perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
+  # group_by(perc_nc_100_gr, compliant_) |> str()
+  mutate(perc_nc_100_gr_name =
+      case_when(!!never_reported_filter ~
+                  "Never Reported",
+                .default = "Reported At Least 1 Time")
+  ) |> 
+  mutate(group_100_vs_rest =
+      case_when(!!never_reported_filter ~
+                  1,
+                .default = 2)
+  ) |> 
+  group_by(perc_nc_100_gr_name) |>
+  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  select(-vessel_official_number) |>
+  distinct() |>
+  mutate(
+    perc_of_perc =
+          group_vsl_cnt * 100 / total_vessels
+  ) |>
+  ungroup()
+
+glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
+nc_sa_22_tot_100_plot <-
+  count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc |>
+  select(group_100_vs_rest,
+         perc_nc_100_gr_name,
+         group_vsl_cnt,
+         perc_of_perc) |>
+  distinct() |>
+  ggplot(aes(x = perc_nc_100_gr_name,
+             y = round(perc_of_perc, 0),
+             fill = as.factor(group_100_vs_rest))) +
+  geom_col() +
+  scale_fill_manual(
+    # use custom colors
+    values =
+      c(
+        # "1" = "pink",
+        # "2" = "red"
+        "2" = "skyblue1",
+        "1" = "#0570B0"
+      ),
+    # Legend title
+    name = "Non compliant",
+    labels = unique(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc$perc_nc_100_gr_name)
+  ) +
+  theme(legend.position = "none") +
+  theme(
+    axis.title.y = element_text(size = text_sizes[["axis_text_y_size"]]),
+    axis.text.x =
+      element_text(size = text_sizes[["axis_text_x_size"]]),
+    axis.text.y =
+      element_text(size = text_sizes[["axis_text_y_size"]])
+  ) +
+  # no x and y titles for individual plots
+  labs(title = 
+         stringr::str_glue("Never reported SA vsls in 2022 out of all compliant an non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc$total_vessels})"),
+       y = "Non compliant in 2022 (%)",
+       x = "") +
+  ylim(0, 100)
+
+# print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
+# Add percent numbers on the bars
+nc_sa_22_tot_100_plot <-
+  nc_sa_22_tot_100_plot +
+  geom_text(aes(label =
+                  paste0(round(perc_of_perc, 0), "%")),
+            # in the middle of the bar
+            position =
+              position_stack(vjust = 0.5),
+            size = text_sizes[["geom_text_size"]])
+
+nc_sa_22_tot_100_plot
+
+ggsave(
+  file = "sa_22_tot_100nc_plot.png",
+  plot = nc_sa_22_tot_100_plot,
+  device = "png",
+  path = file.path(my_paths$outputs,
+                   r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),
+  width = 20,
+  height = 10,
+  units = "cm"
+)
+
