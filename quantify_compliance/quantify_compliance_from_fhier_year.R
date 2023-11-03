@@ -1195,33 +1195,25 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   facet_wrap(vars(vessel_cnt_group_name), scales = "free_x") +
   labs_all
 
-count_weeks_per_vsl_permit_year_compl_p_short_count_gr |> 
+count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   ggplot(aes(x = vessels_cnt,
              y = percent_compl,
              cex = percent_group_num)) +
   geom_point(color = "darkblue") +
-  ggplot2::facet_grid(
-    cols = vars(percent_group_name),
-    scales = "free_x",
-    # space = "free_x",
-    margins = "vessels_cnt"
-  ) +
-  scale_x_continuous(limits = c(
-    min(
-      count_weeks_per_vsl_permit_year_compl_p_short_count_gr$vessel_cnt_group_num
-    ),
+  # ggplot2::facet_grid(
+  #   cols = vars(percent_group_name),
+  #   scales = "free_x",
+  #   space = "free_x",
+  #   margins = "vessels_cnt"
+  # ) +
+facet_wrap(vars(percent_group_name),
+           scales = "free_x",
+           nrow = 1) +
+  scale_x_continuous(breaks = seq(
+    0,
     max(
-      count_weeks_per_vsl_permit_year_compl_p_short_count_gr$vessel_cnt_group_num
-    )
-  ))
-
-#   scale_x_discrete(expand = c(0, 1)) +
-  #  scale_x_discrete(limits = c("Fair","Ideal"))
-  #   scale_x_continuous(breaks = seq(
-  #   0,
-  #   max(count_weeks_per_vsl_permit_year_compl_p_short_count_gr$percent_compl),
-  #   by = 1
-  # )) +
-  # facet_wrap(vars(percent_group_name), scales = "free_x",
-  # nrow = 1) +
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr$percent_compl
+    ),
+    by = 1
+  )) +
   labs_all
