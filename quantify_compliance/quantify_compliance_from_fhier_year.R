@@ -1084,15 +1084,14 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
              vessel_cnt_group == 3 ~
                str_glue("{vessel_cnt_group}: 451--500 vessels ({vessel_cnt_group_num} v)"),
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75, 99))) |>
+  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
   add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
       case_when(
-        percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
-        percent_group == 2 ~ str_glue("50--75% non compliant ({percent_group_num} v.)"),
-        percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)"),
-                percent_group == 4 ~ str_glue("98--100% non compliant({percent_group_num} v.)")
+        percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
+        percent_group == 2 ~ str_glue("50--98% non compliant ({percent_group_num} v.)"),
+                percent_group == 3 ~ str_glue("99--100% non compliant ({percent_group_num} v.)")
       )
   )
 
@@ -1179,9 +1178,9 @@ p <-
 
 # facet plots for all non compliant SA 2022 ----
 labs_all <- 
-  labs(title = "Non compliant SA vessels (2022) number by percent of non compliant",
+  labs(title = "Number of SA permitted vessels grouped by percent of non compliant time in 2022",
        x = "Vessel count",
-       y = "% nc vsls")
+       y = "Percent of non conmpliant in 2022")
 
 # All percents ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <- 
@@ -1191,7 +1190,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <-
          min_in_vsl_group = min(vessels_cnt)) |> 
   ungroup()
 
-View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
+# View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
 
 ## All by vessel count ---
 
@@ -1216,10 +1215,11 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
 
 ## All By percent ----
 
-count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
+plot_all_by_percent <- 
+  count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   ggplot(aes(x = vessels_cnt,
              y = percent_compl,
-             cex = percent_group_num)) +
+             cex = vessel_cnt_group_num)) +
   geom_point(color = "darkblue") +
   # ggplot2::facet_grid(
   #   cols = vars(percent_group_name),
@@ -1231,10 +1231,28 @@ facet_wrap(vars(percent_group_name),
            scales = "free_x",
            nrow = 1) +
   scale_x_continuous(breaks = seq(
-    0,
-    max(
-      count_weeks_per_vsl_permit_year_compl_p_short_count_gr$percent_compl
+    min(
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot$min_in_vsl_group
     ),
-    by = 1
+    max(
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot$max_in_vsl_group
+    ),
+    by = floor(log10(max(
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot$max_in_vsl_group)))
   )) +
   labs_all
+# +
+#   theme(legend.title = "Vsl num")
+
+plot_all_by_percent
+
+ggsave(
+  file = "sa_22_nc_perc_vsl_cnt_by_percent.png",
+  plot = plot_all_by_percent,
+  device = "png",
+  path = file.path(my_paths$outputs,
+                   r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),
+  width = 40,
+  height = 20,
+  units = "cm"
+)
