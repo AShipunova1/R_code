@@ -1240,9 +1240,8 @@ facet_wrap(vars(percent_group_name),
     by = floor(log10(max(
       count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot$max_in_vsl_group)))
   )) +
-  labs_all
-# +
-#   theme(legend.title = "Vsl num")
+  labs_all +
+  labs(cex = "Vsl num")
 
 plot_all_by_percent
 
