@@ -919,9 +919,45 @@ count_weeks_per_vsl_permit_year_compl_p_short_count <-
   filter(compliant_ == "NO") |> 
   filter(year_permit == "2022 sa_only") |> 
   select(vessel_official_number, percent_compl) |> 
-  dplyr::count(percent_compl, name = "vessels_cnt")
+  dplyr::add_count(percent_compl, name = "vessels_cnt")
 
-# head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
+head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
+
+#   function(my_df,
+           # current_title = "",
+           # is_compliant = "is_compliant",
+           # percent = "percent",
+           # no_legend = FALSE,
+           # percent_label_pos = 0.5,
+           # default_percen_labels = TRUE,
+           # geom_text_size = text_sizes[["geom_text_size"]]
+           # ) {
+
+# View(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)
+print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count)
+one_plot <-
+  count_weeks_per_vsl_permit_year_compl_p_short_count %>%
+  mutate(totalt_vessels = n_distinct(vessel_official_number)) |> 
+  select(-vessel_official_number) |> 
+  distinct() |> 
+  mutate(perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
+  group_by(perc_nc_100_gr) |>
+  mutate(perc_of_perc = 
+           case_when(
+             perc_nc_100_gr == 2 ~
+               vessels_cnt * 100 / totalt_vessels,
+             perc_nc_100_gr == 1 ~
+               sum(vessels_cnt) * 100 / totalt_vessels
+           )) |>  
+  ungroup() |> 
+  
+  # dplyr::select(compl_or_not, perc_c_nc) %>%
+  unique() %>%
+  # See function definition F2
+  make_one_plot_compl_vs_non_compl(current_title = "100% non compliant SA vsls in 2022",
+                                   is_compliant = "compl_or_not",
+                                   percent = "perc_c_nc")
+
 
 # plot(count_weeks_per_vsl_permit_year_compl_p_short_count)
 
@@ -1255,3 +1291,6 @@ ggsave(
   height = 20,
   units = "cm"
 )
+
+# 100% non compliant ----
+  
