@@ -1183,8 +1183,19 @@ labs_all <-
        x = "Vessel count",
        y = "% nc vsls")
 
-# All by vessel count ---
-count_weeks_per_vsl_permit_year_compl_p_short_count_gr |> 
+# All percents ----
+count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <- 
+  count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
+  group_by(vessel_cnt_group) |> 
+  mutate(max_in_vsl_group = max(vessels_cnt),
+         min_in_vsl_group = min(vessels_cnt)) |> 
+  ungroup()
+
+View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
+
+## All by vessel count ---
+
+count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   ggplot(aes(x = vessels_cnt,
              y = percent_compl,
              cex = vessel_cnt_group_num)) +
@@ -1192,15 +1203,19 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   facet_wrap(vars(vessel_cnt_group_name), scales = "free_x") +
   labs_all +
   scale_x_continuous(breaks = seq(
-    0,
-    max(
-      count_weeks_per_vsl_permit_year_compl_p_short_count_gr$vessels_cnt
+    min(
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot$min_in_vsl_group
     ),
-    by = 1
+    max(
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot$max_in_vsl_group
+    ),
+    by = floor(log10(max(
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot$max_in_vsl_group)))
   ))
   
 
 ## All By percent ----
+
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   ggplot(aes(x = vessels_cnt,
              y = percent_compl,
@@ -1217,9 +1232,9 @@ facet_wrap(vars(percent_group_name),
            nrow = 1) +
   scale_x_continuous(breaks = seq(
     0,
-    floor(log10(max(
+    max(
       count_weeks_per_vsl_permit_year_compl_p_short_count_gr$percent_compl
-    ))),
+    ),
     by = 1
   )) +
   labs_all
