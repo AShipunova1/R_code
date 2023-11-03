@@ -934,7 +934,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
       case_when(perc_nc_100_gr == 2 ~
-                  "100% non compliant",
+                  "Non compliant all time",
                 .default = "Compliant at least once")
   ) |>
   group_by(perc_nc_100_gr) |>
@@ -953,7 +953,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   ungroup()
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
-one_plot <-
+nc_sa_22_100_plot <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_perc |>
   select(perc_nc_100_gr,
          perc_nc_100_gr_name,
@@ -968,13 +968,14 @@ one_plot <-
     # use custom colors
     values =
       c(
-        "1" = "skyblue1",
-        "2" = "#0570B0"
+        "1" = "pink",
+        "2" = "red"
       ),
     # Legend title
     name = "Non compliant",
     labels = unique(count_weeks_per_vsl_permit_year_compl_p_short_count_perc$perc_nc_100_gr_name)
   ) +
+  theme(legend.position = "none") +
   theme(
     axis.text.x =
       element_text(size = text_sizes[["axis_text_x_size"]]),
@@ -988,46 +989,40 @@ one_plot <-
        x = "") +
   ylim(0, 100)
 
-print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
-one_plot
-    
-label_percent <- purrr::map(my_df$perc_c_nc,
-                          ~ paste0(round(.x, 1), "%"))
-                   
-    # Add percent numbers on the bars
-    if (default_percen_labels) {
-      one_plot <-
-        one_plot +
-        geom_text(aes(label =
-                        paste0(round(!!sym(
-                          percent
-                        ), 1), "%")),
-                  # in the middle of the bar
-                  position =
-                    position_stack(vjust = percent_label_pos),
-                  size = geom_text_size)
-      
-    } else {
-      one_plot <-
-        one_plot + annotate("text",
-                            x = 1:2,
-                            y = 20,
-                            label = label_percent)
-    }
+# print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
+# Add percent numbers on the bars
+nc_sa_22_100_plot <-
+  nc_sa_22_100_plot +
+  geom_text(aes(label =
+                  paste0(round(perc_of_perc, 0), "%")),
+            # in the middle of the bar
+            position =
+              position_stack(vjust = 0.5),
+            size = text_sizes[["geom_text_size"]])
 
+nc_sa_22_100_plot
+    #   
+    # } else {
+    #   one_plot <-
+    #     one_plot + annotate("text",
+    #                         x = 1:2,
+    #                         y = 20,
+    #                         label = label_percent)
+    # }
 
-#   function(my_df,
-           # current_title = "",
-           # is_compliant = "is_compliant",
-           # percent = "percent",
-           # no_legend = FALSE,
-           # percent_label_pos = 0.5,
-           # default_percen_labels = TRUE,
-           # geom_text_size = text_sizes[["geom_text_size"]]
-           # ) {
+ggsave(
+  file = "sa_22_nc_100.png",
+  plot = nc_sa_22_100_plot,
+  device = "png",
+  path = file.path(my_paths$outputs,
+                   r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),
+  width = 40,
+  height = 20,
+  units = "cm"
+)
 
 # plot(count_weeks_per_vsl_permit_year_compl_p_short_count)
-
+## Less than 100% ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
   filter(vessels_cnt < 100)
@@ -1169,12 +1164,13 @@ ggplot(
   geom_histogram(binwidth = 2)
 
 
-
 # split by group all ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |>
+  mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
+  select(-vessel_official_number) |> 
+  distinct() |> 
+  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
   add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
@@ -1285,6 +1281,7 @@ labs_all <-
        x = "Vessel count",
        y = "Percent of non conmpliant in 2022")
 
+# View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr)
 # All percents ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <- 
   count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
@@ -1293,7 +1290,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <-
          min_in_vsl_group = min(vessels_cnt)) |> 
   ungroup()
 
-# View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
+View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
 
 ## All by vessel count ---
 
@@ -1301,7 +1298,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   ggplot(aes(x = vessels_cnt,
              y = percent_compl,
              cex = vessel_cnt_group_num)) +
-  geom_point(color = "darkblue") +
+  geom_point(color = "darkred") +
   facet_wrap(vars(vessel_cnt_group_name), scales = "free_x") +
   labs_all +
   scale_x_continuous(breaks = seq(
@@ -1318,12 +1315,13 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
 
 ## All By percent ----
 
+# View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr)
 plot_all_by_percent <- 
   count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   ggplot(aes(x = vessels_cnt,
              y = percent_compl,
              cex = vessel_cnt_group_num)) +
-  geom_point(color = "darkblue") +
+  geom_point(color = "darkred") +
   # ggplot2::facet_grid(
   #   cols = vars(percent_group_name),
   #   scales = "free_x",
