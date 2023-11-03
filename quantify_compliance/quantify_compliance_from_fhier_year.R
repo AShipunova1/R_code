@@ -1206,6 +1206,22 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
     # space = "free_x",
     margins = "vessels_cnt"
   ) +
+  scale_x_continuous(limits = c(
+    min(
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr$vessel_cnt_group_num
+    ),
+    max(
+      count_weeks_per_vsl_permit_year_compl_p_short_count_gr$vessel_cnt_group_num
+    )
+  ))
+
+#   scale_x_discrete(expand = c(0, 1)) +
+  #  scale_x_discrete(limits = c("Fair","Ideal"))
+  #   scale_x_continuous(breaks = seq(
+  #   0,
+  #   max(count_weeks_per_vsl_permit_year_compl_p_short_count_gr$percent_compl),
+  #   by = 1
+  # )) +
   # facet_wrap(vars(percent_group_name), scales = "free_x",
   # nrow = 1) +
   labs_all
