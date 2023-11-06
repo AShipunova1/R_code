@@ -1018,13 +1018,7 @@ print_toc_log <- function(variables) {
   tic.clearlog()
 }
 
-# get geographical data function ----
-read_shapefile <- function(filename) {
-  shapefile_file_name <- file.path(my_paths$inputs, "shapefiles", filename)
-
-  x <- sf::read_sf(shapefile_file_name)
-  return(x)
-}
+# set working path ----
 
 my_paths <- set_work_dir()
 my_paths$inputs <- "Change to your input"
@@ -2228,9 +2222,17 @@ coord_data_2022_short_good <-
 
 # read in sa shp ----
 # F2 in RStudio will show the function definition, when the cursor is on the name.
+sa_shp_file_path <-
+    file.path(
+      my_paths$inputs,
+      r"(shapefiles\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
+    )
+
+# file.exists(sa_shp_file_path)
+
 # Read a shapefile (geospatial data) from the specified file path and store it in the 'sa_shp' object.
 sa_shp <-
-  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
+  sf::read_sf(sa_shp_file_path)
 
 ### convert to sf ----
 coord_data_2022_short_good_sf <-
@@ -2364,7 +2366,7 @@ sa_s_shp <-
 # read in GOM shp ----
 # Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
 GOM_400fm_path <-
-  file.path(my_paths$inputs, r"(..\GOM_400fm\GOM_400fm.shp)")
+  file.path(my_paths$inputs, r"(shapefiles\GOM_400fm\GOM_400fm.shp)")
 # file.exists(GOM_400fm_path)
 # T
 
