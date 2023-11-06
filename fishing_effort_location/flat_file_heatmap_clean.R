@@ -1021,8 +1021,9 @@ print_toc_log <- function(variables) {
 # set working path ----
 
 my_paths <- set_work_dir()
-my_paths$inputs <- "Change to your input"
-my_paths$outputs <- "Change to your output"
+# Change to your input and output
+my_paths$inputs <- r"(Downloads\Oct 2023\input)"
+my_paths$outputs <- r"(\Downloads\Oct 2023\output)"
 
 #### Current file: get_srhs_vessels.R ----
 
@@ -2414,20 +2415,26 @@ sf::st_agr(GOMsf) =
 
 ### remove internal boundaries from the GOM shape file ----
 # to speed up the lengthy process try to read a saved file, if exists
-my_file_path <- file.path(my_paths$outputs,
+my_file_path_local <- file.path(my_paths$outputs,
                            "fishing_effort_location",
                            "st_union_GOMsf.rds")
+my_file_path_out <- file.path(my_paths$outputs,
+                           "st_union_GOMsf.rds")
 
-if (file.exists(my_file_path)) {
-  # If the file exists, read the data from the RDS file.
-  st_union_GOMsf <- readr::read_rds(my_file_path)
+# If the file exists, read the data from the RDS file.
+if (file.exists(my_file_path_local)) {
+  current_path <- my_file_path_local
+  st_union_GOMsf <- readr::read_rds(current_path)
+} else if (file.exists(my_file_path_out)) {
+  current_path <- my_file_path_out
+  st_union_GOMsf <- readr::read_rds(current_path)
 } else {
   tic("st_union(GOMsf)")
   st_union_GOMsf <- sf::st_union(GOMsf)
   toc()
 
   readr::write_rds(st_union_GOMsf,
-                   my_file_path)
+                   my_file_path_out)
 }
 
 st_union_GOMsf |>
