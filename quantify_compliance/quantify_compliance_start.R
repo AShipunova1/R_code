@@ -134,6 +134,14 @@ source(file.path(
   "quantify_compliance_from_fhier_year.R"
 ))
 
+# year (100 % not reporting) ----
+source(file.path(
+  my_paths$git_r,
+  project_name,
+  "quantify_compliance_from_fhier_year_100_nc.R"
+))
+
+
 # month ----
 source(
   file.path(
