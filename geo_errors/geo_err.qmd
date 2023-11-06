@@ -1169,7 +1169,7 @@ mapview(trip_coord_info_sf_instate)
 ```{r get GOMsf}
 path_to_GOMsf <-
   file.path(my_paths$inputs, 
-            r"(..\GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)")
+            r"(..\GOM_400fm\GOM_400fm.shp)")
 
 # file.exists(path_to_GOMsf)
 # T

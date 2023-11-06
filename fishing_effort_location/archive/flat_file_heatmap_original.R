@@ -3388,7 +3388,7 @@ ggplot() +
 # read in GOM shp ----
 # Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
 GOM_400fm_path <-
-  file.path(my_paths$inputs, r"(..\GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)")
+  file.path(my_paths$inputs, r"(..\GOM_400fm\GOM_400fm.shp)")
 # file.exists(GOM_400fm_path)
 # T
 

@@ -28,7 +28,7 @@ dim(trip_coord_info_good)
 ### convert to sf from FHIER ----
 tic("get GOMsf")
 GOMsf <-
-  sf::read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
+  sf::read_sf(r"(GOM_400fm\GOM_400fm.shp)") %>%
   group_by(StatZone) %>%
   summarise()
 toc()
