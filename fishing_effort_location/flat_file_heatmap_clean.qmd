@@ -1,4 +1,3 @@
-
 ---
 title: "Fishing effort locations heatmap"
 ---
@@ -1063,6 +1062,8 @@ read_shapefile <- function(filename) {
 }
 
 my_paths <- set_work_dir()
+my_paths$inputs <- "Change to your input"
+my_paths$outputs <- "Change to your output"
 ```
 
 ##### Current file: get_srhs_vessels.R 
@@ -2599,57 +2600,6 @@ sa_state_abb <-
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
   select(state_abb)
-```
-
-### r get Shapefile all waters 
-
-```{r r get Shapefile all waters}
-## r get Shapefile all waters ----
-path_to_federal_state_w <-
-  file.path(
-    my_paths$inputs,
-    r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)"
-  )
-
-# file.exists(path_to_federal_state_w)
-# T
-
-tic("federal_state_w_sf")
-federal_state_w_sf <-
-  sf::read_sf(path_to_federal_state_w)
-toc()
-
-east_coat_states <- c(
-  gom = c("Florida",
-          "Texas",
-          "Louisiana"),
-  sa = c(
-    "Alabama",
-    "Connecticut",
-    "Delaware",
-    "Florida",
-    "Georgia",
-    "Maine",
-    "Maryland",
-    "Massachusetts",
-    "Mississippi",
-    "New Hampshire",
-    "New Jersey",
-    "New York",
-    "North Carolina",
-    "Pennsylvania",
-    "Rhode Island",
-    "South Carolina",
-    "Virginia",
-    "Washington DC"
-  )
-)
-
-# Create a new data frame 'federal_state_w_sf_east' by filtering the existing data frame 'federal_state_w_sf'.
-# Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coat_states'.
-federal_state_w_sf_east <-
-  federal_state_w_sf |>
-  filter(Jurisdicti %in% east_coat_states)
 
 # Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
 # The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
@@ -2678,7 +2628,7 @@ sa_s_shp <-
 # read in GOM shp ----
 # Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
 GOM_400fm_path <-
-  file.path(my_paths$inputs, r"(..\GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)")
+  file.path(my_paths$inputs, r"(..\GOM_400fm\GOM_400fm.shp)")
 # file.exists(GOM_400fm_path)
 # T
 
