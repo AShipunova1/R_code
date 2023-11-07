@@ -114,6 +114,13 @@ current_file_name = file.path(
 )
 write_to_1_flat_file(flat_file_name, current_file_name)
 
+# year 100% non compliant ----
+current_file_name = file.path(
+  dir_to_comb,
+  "quantify_compliance_from_fhier_year_100_nc.R"
+)
+write_to_1_flat_file(flat_file_name, current_file_name)
+
 # month ----
 current_file_name = file.path(
   dir_to_comb,
