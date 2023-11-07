@@ -56,7 +56,7 @@ transmission_date_ok <-
 # dplyr::select(trip_start_date, trip_end_date, transmission_date) %>% 
 #   unique() %>%
 #   head()
-# glimpse()
+# dplyr::glimpse()
 # Rows: 20
 # write.csv(file = "fhier_logbooks_wrong_dates1.csv", row.names = F)
 
@@ -125,7 +125,7 @@ fhier_logbooks_content_date_fixed %<>%
 ### Add waves
 
 fhier_logbooks_content_waves <-
-  fhier_logbooks_content_date_fixed %>% glimpse()
+  fhier_logbooks_content_date_fixed %>% dplyr::glimpse()
   # add a new column with a trip end Month
   dplyr::mutate(end_month = as.yearmon(trip_end_date2)) %>%
   # add a new column with a trip end Year
@@ -303,11 +303,11 @@ fhier_logbooks_content %>%
 
 
 
-# glimpse(fhier_logbooks_content_waves__sa_gom)
+# dplyr::glimpse(fhier_logbooks_content_waves__sa_gom)
 
 fhier_logbooks_content_waves__sa_gom %>%
   dplyr::filter(!(end_port_sa_gom %in% c("sa", "gom"))) %>%
-  glimpse()
+  dplyr::glimpse()
 # Rows: 188
 
 
@@ -355,7 +355,7 @@ not_specified_region_states_not_monroe <-
 not_specified_region_states_not_monroe %>%
   dplyr::select(vessel_official_nbr) %>% unique()
   # 1244719
-  # glimpse()
+  # dplyr::glimpse()
 not_specified_region_states_not_monroe %>%
   dplyr::select(state_name) %>% unique()
   # FLORIDA
@@ -382,7 +382,7 @@ fhier_logbooks_content_waves_fl_county %>%
   # dplyr::filter(complete.cases(.)) %>%
   # Rows: 0
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
   # write.csv(file = "fhier_logbooks_no_fl_county.csv", row.names = F)
   
 
@@ -391,7 +391,7 @@ fhier_logbooks_content_waves_fl_county %>%
 ## spp. is 0 ----
 logbooks_content %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
-  glimpse()
+  dplyr::glimpse()
 # Rows: 89
 
 # grep("common", names(logbooks_content), value = T)
@@ -409,7 +409,7 @@ logbooks_content %>%
 
 logbooks_content %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
-  glimpse()
+  dplyr::glimpse()
 # A tibble: 89 × 151
 # write.csv(file = "logbooks_content_sp0.csv", row.names = F)
 
@@ -427,7 +427,7 @@ fhier_logbooks_content_waves_fl_county %>%
   # Columns: 33
   #   dplyr::filter(complete.cases(.)) %>%
   # 0
-  glimpse()
+  dplyr::glimpse()
 
 # user_app, system
 grep("sta", names(not_specified_region), value = T)

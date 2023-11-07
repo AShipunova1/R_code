@@ -825,7 +825,7 @@ db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% glimpse()
+  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 # SA only ----
@@ -1170,7 +1170,7 @@ db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% glimpse()
+  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 ## seasonally ----

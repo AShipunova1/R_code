@@ -164,7 +164,7 @@ non_compl_gom <-
 gom_id_reports_one_week <-
   non_compl_gom %>%
   filter(week_start == "2022-12-26") %>%
-  # glimpse()
+  # dplyr::glimpse()
   # Rows: 47
   select(gom_permitteddeclarations__,
          captainreports__,
@@ -185,7 +185,7 @@ gom_id_reports_one_week_longer <-
 # %>%
 #   select(-c(vessel_official_number, compliant_))
 # %>%
-#   glimpse()
+#   dplyr::glimpse()
 
 gom_plot_1week <- 
   ggplot(gom_id_reports_one_week_longer,

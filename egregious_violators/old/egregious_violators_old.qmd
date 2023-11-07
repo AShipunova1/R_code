@@ -120,7 +120,7 @@ id_n_plus_weeks <-
 
 temp_n_compl_cnts %>%
   dplyr::arrange(desc(n)) %>%
-  glimpse()
+  dplyr::glimpse()
 
 glimpse(id_n_plus_weeks)
 # 'data.frame':	156 obs. of  2 variables
@@ -140,7 +140,7 @@ compl_clean_sa_all_weeks_cnt %>%
   dplyr::filter(compl_weeks_amnt >= number_of_weeks_for_non_compliancy) %>%
   dplyr::filter(compliant_ == 'NO') %>%
   dplyr::arrange(desc(compl_weeks_amnt), vessel_official_number) %>% 
-  glimpse()
+  dplyr::glimpse()
 
 ```
 
@@ -294,7 +294,7 @@ add_a_direct_contact_column <-
 
 corresp_contact_cnts_clean_direct_cnt <-
   add_a_direct_contact_column(corresp_contact_cnts_clean)
-# glimpse(corresp_contact_cnts_clean_direct_cnt)
+# dplyr::glimpse(corresp_contact_cnts_clean_direct_cnt)
 
 ```
 

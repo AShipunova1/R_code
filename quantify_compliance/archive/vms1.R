@@ -17,7 +17,7 @@ dim(compl_clean_sa_vs_gom_m_int_filtered_vms)
 
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt <-
   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_filtered_vms, "year_month")
-# glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt)
+# dplyr::glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt)
 
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt %>%
   select(year_month, total_vsl_y) %>%
@@ -29,7 +29,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt %>%
 compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp <-
   expired_or_not(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt)
 
-# glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp)
+# dplyr::glimpse(compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp)
 
 group_by_var <- c("year_month", "perm_exp_y")
 
@@ -96,7 +96,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms_cnt_exp_cnt_short_wide_long %>%
   dplyr::mutate(shared =
                   dplyr::n_distinct(is_compl_or_both) == dplyr::n_distinct(.$is_compl_or_both)) %>%
   dplyr::filter(shared == TRUE) %>%
-  glimpse()
+  dplyr::glimpse()
 # $ year_month             <yearmon> Sep 2022, Mar 2022, Feb 2022
 # $ total_vsl_y            <int> 1144, 1031, 1034
 # $ perm_exp_y             <chr> "expired", "expired", "expired"
@@ -327,7 +327,7 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc %>%
     percent_compl
   ) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ year_month                 <yearmon> Sep 2022, Sep 2022
 # $ compliant_                 <chr> "NO", "YES"
 # $ weeks_per_vessel_per_compl <int> 1, 3
@@ -373,7 +373,7 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
   dplyr::count(percent_compl, year_month,
                name = "amount_of_occurences") %>%
   dplyr::arrange(desc(percent_compl)) %>%
-  # glimpse()
+  # dplyr::glimpse()
   # $ percent_compl        <dbl> 100, 75
   # $ year_month           <yearmon> Mar 2022, Mar 2022
   # $ amount_of_occurences <int> 18, 2
@@ -400,7 +400,7 @@ weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts %>%
     unique() %>%
     dplyr::add_count(wt = cnt_v_in_bucket, name = "total_per_period") %>%
     dplyr::arrange(percent_n_compl_rank) %>%
-    glimpse()
+    dplyr::glimpse()
 # $ year_month           <yearmon> Sep 2022, Mar 2022, Feb 2022, Sep 2022, Mar 202…
 # $ percent_n_compl_rank <chr> "25<= & <50%", "25<= & <50%", "25<= & <50%", "50<= …
 # $ cnt_v_in_bucket      <int> 26, 32, 26, 6, 8, 6, 15, 20, 20

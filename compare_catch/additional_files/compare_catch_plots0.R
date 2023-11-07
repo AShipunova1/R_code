@@ -255,7 +255,7 @@ fhier_acl_sa_to_plot <-
   fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10) %>% 
   dplyr::ungroup()
 
-# glimpse(fhier_acl_sa_to_plot)
+# dplyr::glimpse(fhier_acl_sa_to_plot)
 
 # An overview plot
 # plot(fhier_acl_sa_to_plot)
@@ -379,7 +379,7 @@ calculate_cnt_index <- function(my_df) {
 ### GOM index ----
 fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 
-# glimpse(fhier_acl_gom_ind)
+# dplyr::glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
 #   dplyr::mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
 #   dplyr::select(wave) %>% unique()
@@ -409,7 +409,7 @@ mypalette = viridis(q_colors_gom, option = "D")
 names(mypalette) <- gom_all_cnt_indexes
 mypalette
 
-# use_wave(fhier_acl_gom_ind) %>% glimpse()
+# use_wave(fhier_acl_gom_ind) %>% dplyr::glimpse()
 
 one_plot <- plot_ind(use_wave(fhier_acl_gom_ind), "MACKEREL, SPANISH", mypalette)
 

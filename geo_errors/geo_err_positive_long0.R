@@ -109,7 +109,7 @@ head(weird_stats) |>
 # t_UE, E_UE
 # trip_coord_info |>
 #   filter(!trimws(T_UE) == trimws(E_UE)) |>
-#   glimpse()
+#   dplyr::glimpse()
 # Rows: 119,735
 
 trip_coord_info_vendors <-
@@ -546,7 +546,7 @@ ggplot(join_vesl_cnts) +
 # plot the difference ----
 join_vesl_cnts_no_diff_all |>
   dplyr::arrange(cnt_diff) |>
-  glimpse()
+  dplyr::glimpse()
 
 ggplot(join_vesl_cnts_no_diff_all) +
   aes(x = cnt_diff) +
@@ -564,7 +564,7 @@ join_vesl_cnts_no_diff_all_freq <-
 join_vesl_cnts_no_diff_all_freq |>
   select(cnt_diff, cnt_diff_freq) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # Rows: 99
 # cnt_diff      <int> 0, 1, 2, 3, 4, 7, 16, 10, 9, 6, 12, 47, 34,…
 # $ cnt_diff_freq <int> 124, 23, 14, 9, 7, 6, 5, 4, 4, 4, 4, 3, 3,
@@ -581,8 +581,8 @@ test <-
   )
 test
 # X-squared = 24982, df = 18975, p-value < 0.00000000000000022
-test$observed |> glimpse()
-test$expected |> glimpse()
+test$observed |> dplyr::glimpse()
+test$expected |> dplyr::glimpse()
 
 test1 <-
   stats::chisq.test(
@@ -620,7 +620,7 @@ join_vesl_cnts_no_diff_ll <-
 
 join_vesl_cnts_no_diff_ll |>
   # head(20) |>
-  glimpse()
+  dplyr::glimpse()
 
 vesl_no_diff_bounding_box <-
   geom_rect(
@@ -692,7 +692,7 @@ View(coords_295040)
 coords_295040$E_DE |>
   format(format = '%m/%d/%Y') |>
   unique() |>
-  glimpse()
+  dplyr::glimpse()
  # chr [1:28] "07/02/2022" "03/14/2022" "04/15/2022" "05/02/2022" "05/04/2022" ...
 
 
@@ -782,7 +782,7 @@ length(vessel_ids_124)
 
 trip_coord_info |>
   filter(VESSEL_ID %in% vessel_ids_124) |>
-  glimpse()
+  dplyr::glimpse()
 head(vessel_ids_124)
 
 ## get vessel o number  ----
@@ -810,7 +810,7 @@ View(vessel_permits_info_124)
 vessel_permits_info_124 |>
   select(SERO_HOME_PORT_STATE) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 
 # Rows: 10
 # $ SERO_HOME_PORT_STATE <chr> "FL", "AL", "NJ", "MS", "NC", "GA", "TX", "LA", …
@@ -818,7 +818,7 @@ vessel_permits_info_124 |>
 vessels_124_coord_freq <-
   join_vesl_cnts_no_diff_all_wrong_vsls_short_fix |>
   add_count(VESSEL_ID, name = "coord_freq") |>
-  dplyr::arrange(desc(coord_freq)) |> glimpse()
+  dplyr::arrange(desc(coord_freq)) |> dplyr::glimpse()
 # 124
 # $ VESSEL_ID <int> 249248, 329344, 169199, 328889, 170137, 248214, 329371, 247…
 # $ n         <int> 188, 172, 169, 137, 134, 130, 126, 123, 118, 103, 103, 100,…

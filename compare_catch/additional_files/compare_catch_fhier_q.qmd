@@ -95,7 +95,7 @@ dim(logbooks_content_transmission_date_ok)
 
 Glimpse data
 ```{r logbooks_content_transmission_date_ok}
-# glimpse(logbooks_content_transmission_date_ok)
+# dplyr::glimpse(logbooks_content_transmission_date_ok)
 ```
 ## Check the vendor
 (2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can dplyr::select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to dplyr::filter out of the data. As of about 4 months ago, Yanet should be dplyr::filtering all data to exclude vessels that did not have our permit(s).
@@ -112,11 +112,11 @@ Glimpse data
 logbooks_content %>%
   dplyr::select(starts_with("vendor")) %>%
   dplyr::filter(!grepl("vms", tolower(vendor_app_name))) %>%
-  unique() %>% glimpse()
+  unique() %>% dplyr::glimpse()
 # 9
 
 logbooks_content_transmission_date_ok %>%
-  dplyr::select(vendor_app_name) %>% unique() %>% glimpse()
+  dplyr::select(vendor_app_name) %>% unique() %>% dplyr::glimpse()
 # 6
 
 transm_before_after <- 
@@ -131,7 +131,7 @@ logbooks_content %>%
 
 transm_before_after %>% 
   dplyr::select(vendor_app_name, transmission_date, transmission_date_group) %>% 
-  # glimpse()
+  # dplyr::glimpse()
   dplyr::select(vendor_app_name, transmission_date_group) %>%
   unique()
 
@@ -205,7 +205,7 @@ fhier_dates %>%
 
 logbooks_content_transmission_date_not_vms_ok %>%
   dplyr::filter(!(end_port_sa_gom %in% c("sa", "gom"))) %>%
-  glimpse()
+  dplyr::glimpse()
 # Rows: 112
 # Rows: 188 with VMS
 ```
@@ -257,7 +257,7 @@ not_specified_region_states_not_monroe <-
 
 not_specified_region_states_not_monroe %>%
   dplyr::select(vessel_official_nbr) %>% unique()
-  # glimpse()
+  # dplyr::glimpse()
 
 not_specified_region_states_not_monroe %>%
   dplyr::select(state_name) %>% unique()
@@ -286,7 +286,7 @@ logbooks_content_transmission_date_not_vms_ok %>%
   # dplyr::filter(complete.cases(.)) %>%
   # Rows: 0
   unique() %>%
-  # glimpse()
+  # dplyr::glimpse()
   write_csv(file = "~\\fhier_logbooks_no_fl_county_not_VMS.csv")
   
 ```
@@ -298,7 +298,7 @@ logbooks_content_transmission_date_not_vms_ok %>%
 ## spp. is 0 ----
 logbooks_content_transmission_date_not_vms_ok %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
-  glimpse()
+  dplyr::glimpse()
 # Rows: 0
 # Rows: 89 with VMS
 
@@ -317,7 +317,7 @@ logbooks_content %>%
 
 logbooks_content_transmission_date_not_vms_ok %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
-  glimpse()
+  dplyr::glimpse()
 # A tibble: 89 × 151 with VMS
 # write.csv(file = "logbooks_content_sp0.csv", row.names = F)
 

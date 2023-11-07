@@ -209,7 +209,7 @@ gom_all_compl_clean_sa_vs_gom_m_int_even %>%
 #   filter(compliant_ == "YES" & even_num_rep == "odd") %>% View()
 
 gom_all_compl_clean_sa_vs_gom_m_int_even %>% 
-  filter(compliant_ == "YES" & even_num_rep == "odd") %>% head(1) %>% glimpse()
+  filter(compliant_ == "YES" & even_num_rep == "odd") %>% head(1) %>% dplyr::glimpse()
 # $ vessel_official_number      <chr> "TX3416RA"
 # $ name                        <chr> "CONTROLLED CHAOS"
 # $ permitgroup                 <chr> "(CHG)885,(RCG)836"
@@ -484,7 +484,7 @@ View(non_compl_weeks_per_year_22_sa)
 non_compl_weeks_per_year_22_sa %>%
   dplyr::mutate(nc_cnt = nc_weeks_per_vsl * nc_weeks_cnt) %>%
   count(wt = nc_cnt, name = "total_nc_22_sa_per_year") %>%
-  glimpse()
+  dplyr::glimpse()
 # 26466 - correct, see "Percent compliant per year and permit region"
 
 non_compl_weeks_per_year_22_sa %>% summarise(sum(nc_weeks_cnt))
@@ -522,7 +522,7 @@ non_compl_weeks_per_year_22_sa_perc %>%
   dplyr::mutate(nc_weeks_per_vsl_order = 
            fct_reorder(as.factor(nc_weeks_per_vsl),
                        perc)) %>% 
-  # glimpse()
+  # dplyr::glimpse()
   ggplot(aes(x = nc_weeks_per_vsl_order, y = perc)) +
   geom_col(fill = 'lightblue') +
   # ylim(0, 100) +
@@ -549,7 +549,7 @@ non_compl_weeks_per_year %>%
   # dplyr::mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
   dplyr::mutate(total_by_year_reg = sum(sum_nc_weeks_cnt_per_year_reg)) %>%
   head(1) %>% 
-  glimpse()
+  dplyr::glimpse()
 # 2022  both 3% from 
 # 117*100/3627
 # [1] 3.225806
@@ -597,7 +597,7 @@ compl_clean_sa_vs_gom_m_int_cnt_w <-
 compl_clean_sa_vs_gom_m_int_cnt_w %>% 
     filter(vessel_official_number == "MI9152BZ",
          year == "2022") %>%
-  glimpse()
+  dplyr::glimpse()
 # $ year                   <chr> "2022"
 # $ permit_sa_gom          <chr> "sa_only"
 # $ vessel_official_number <chr> "MI9152BZ"
@@ -606,12 +606,12 @@ compl_clean_sa_vs_gom_m_int_cnt_w %>%
 
 ### test one category ----
 # compl_clean_sa_vs_gom_m_int_cnt_w %>%
-#   filter(year == "2022", permit_sa_gom == "sa_only", weeks_per_vessel == 31) %>% glimpse()
+#   filter(year == "2022", permit_sa_gom == "sa_only", weeks_per_vessel == 31) %>% dplyr::glimpse()
 # # 36
 
 compl_clean_sa_vs_gom_m_int_cnt_w %>%
   filter(vessel_official_number == "1020822",
-         year == "2022") %>% glimpse()
+         year == "2022") %>% dplyr::glimpse()
 # $ compliant_             <chr> "NO", "YES"
 # $ weeks_per_vessel       <int> 19, 33
 
@@ -634,7 +634,7 @@ compl_clean_sa_vs_gom_m_int_cnt_w1 %>%
          weeks_per_vessel_per_compl,
          total_weeks_per_vessel) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                 <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl <int> 33, 19
 # $ total_weeks_per_vessel     <int> 52, 52
@@ -652,7 +652,7 @@ compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
          weeks_per_vessel_per_compl,
          total_weeks_per_vessel) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 
 compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
   filter(permit_sa_gom == "sa_only",
@@ -802,7 +802,7 @@ compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts %>%
 
 compl_clean_sa_vs_gom_m_int_cnt_w %>%
   filter(vessel_official_number == "1020822",
-         year == "2022") %>% glimpse()
+         year == "2022") %>% dplyr::glimpse()
 # $ compliant_             <chr> "NO", "YES"
 # $ weeks_per_vessel       <int> 19, 33
 
@@ -863,7 +863,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
     percent_compl
   ) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                 <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl <int> 33, 19
 # $ total_weeks_per_vessel     <int> 52, 52
@@ -985,7 +985,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_perc %>%
 #   filter(year_reg  == "2022 both" |
 #            year_reg  ==  "2022 gom_only") %>% View()
 
-# glimpse(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc)
+# dplyr::glimpse(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc)
 
 # plots ----
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
@@ -1119,7 +1119,7 @@ View(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b)
 count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
   filter(year == "2022", permit_sa_gom == "gom_only") %>%
   count(vessel_official_number, percentage_rank) %>%
-  glimpse()
+  dplyr::glimpse()
 
 count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
   filter(year == "2023", permit_sa_gom == "gom_only") %>%
@@ -1127,7 +1127,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
   dplyr::mutate(perc1 = cnt_in_bucket * 100 / vsls_per_y_r) %>%
   select(perc1, percentage_rank) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # Rows: 2
 # Columns: 2
 # $ perc1           <dbl> 33.33333, 66.66667
@@ -1160,7 +1160,7 @@ compl_clean_sa_vs_gom_m_int %>%
   filter(year == "2023",
          permit_sa_gom == "gom_only",
          compliant_ == "NO") %>%
-  count(vessel_official_number) %>% glimpse()
+  count(vessel_official_number) %>% dplyr::glimpse()
 # $ vessel_official_number <chr> "1247024", "1298355", "FL4749LH"
 # $ n                      <int> 11, 1, 1
 
@@ -1201,7 +1201,7 @@ compl_clean_sa_vs_gom_m_int_cnt_1 %>%
   filter(vessel_official_number == "1020822",
          year == "2022") %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                 <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl <int> 33, 19
   

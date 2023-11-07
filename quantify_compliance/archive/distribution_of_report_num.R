@@ -80,7 +80,7 @@ id_reports_one_week <-
   filter(week_start == "2022-12-26",
          permit == "gom",
          tolower(compliant_) == "no") %>%
-  # glimpse()
+  # dplyr::glimpse()
   # Rows: 47
   select(report_cnts, vessel_official_number)
 
@@ -157,7 +157,7 @@ sa_id_reports_one_month <-
   filter(year_month == "Feb 2022",
          permit == "sa_only",
          tolower(compliant_) == "no") %>%
-  # glimpse()
+  # dplyr::glimpse()
   select(report_cnts, vessel_official_number, week_start)
 
 glimpse(sa_id_reports_one_month)

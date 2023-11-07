@@ -31,7 +31,7 @@ v_p__t__tn_d_weeks_gom |>
   dplyr::filter(ACTIVITY_TYPE == "3") |>
   # head(2) |>
   # dplyr::select(all_of(starts_with("UE"))) |>
-  glimpse()
+  dplyr::glimpse()
 # $ UE.t  <chr> "KCSPORTFISHING                "
 # $ UE.tn <chr> "KCSPORTFISHING"
 # $ VESSEL_VESSEL_ID            <dbl> 328032
@@ -43,7 +43,7 @@ v_p__t__tn_d_weeks_gom |>
          ACTIVITY_TYPE,
          INTENDED_FISHING_FLAG,
          all_of(starts_with("rep_type"))) |>
-  glimpse()
+  dplyr::glimpse()
 # $ PERMIT_VESSEL_ID      <chr> "1114447", "FL6430PK"
 # $ ACTIVITY_TYPE         <dbl> 81, 81
 # $ INTENDED_FISHING_FLAG <chr> "Y", "N"

@@ -49,7 +49,7 @@ dim(logbooks_content_transmission_date_ok)
 
 # names(logbooks_content_transmission_date_ok)
 
-# glimpse(logbooks_content_transmission_date_ok)
+# dplyr::glimpse(logbooks_content_transmission_date_ok)
 
 ### Check the vendor ----
 # (2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can dplyr::select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to dplyr::filter out of the data. As of about 4 months ago, Yanet should be dplyr::filtering all data to exclude vessels that did not have our permit(s).
@@ -61,11 +61,11 @@ dim(logbooks_content_transmission_date_ok)
 logbooks_content %>%
   dplyr::select(starts_with("vendor")) %>%
   dplyr::filter(!grepl("vms", tolower(vendor_app_name))) %>%
-  unique() %>% glimpse()
+  unique() %>% dplyr::glimpse()
 # 9
 
 logbooks_content_transmission_date_ok %>%
-  dplyr::select(vendor_app_name) %>% unique() %>% glimpse()
+  dplyr::select(vendor_app_name) %>% unique() %>% dplyr::glimpse()
 # 6
 
 transm_before_after <-
@@ -80,7 +80,7 @@ transm_before_after <-
 
 transm_before_after %>%
   # dplyr::select(vendor_app_name, trip_de_ct, transmission_date_group) %>%
-  # glimpse()
+  # dplyr::glimpse()
   dplyr::select(vendor_app_name, transmission_date_group, sero_vessel_permit, accsp_permit_license_nbr) %>%
   # unique()
   dim()
@@ -242,7 +242,7 @@ not_specified_region_states_not_monroe %>%
     end_port,
     start_port_name
   ) %>%
-  unique() %>% glimpse()
+  unique() %>% dplyr::glimpse()
 # vessel_official_nbr     : "FL2949RP"
 # sero_vessel_permit      : "277056"
 # accsp_permit_license_nbr: "608982"
@@ -297,7 +297,7 @@ logbooks_content_transmission_date_not_vms_ok %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
   dim()
 # 0
-  # glimpse()
+  # dplyr::glimpse()
 # A tibble: 89 × 151 with VMS
 # write.csv(file = "logbooks_content_sp0.csv", row.names = F)
 

@@ -82,7 +82,7 @@ sa_state_abb <-
 #   # look at states and regions
 #   dplyr::select(end_port_state, end_port_sa_gom) %>%
 #   unique() %>%
-#   glimpse()
+#   dplyr::glimpse()
 
 ## r get Shapefile all waters ----
 path_to_federal_state_w <-

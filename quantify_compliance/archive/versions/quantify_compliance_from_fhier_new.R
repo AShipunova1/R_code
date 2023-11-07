@@ -57,7 +57,7 @@ glimpse(compl_clean_sa_vs_gom_m_int_c_short)
 compl_clean_sa_vs_gom_m_int_c_short %>%
   filter(year_region == "2023 gom_only",
          vessel_official_number == "FL4749LH") %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_              <chr> "YES", "NO"
 
 # separate vessels non-compliant at least once per year ----
@@ -360,7 +360,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
     percent_compl
   ) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                 <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl <int> 33, 19
 # $ total_weeks_per_vessel     <int> 52, 52
@@ -563,7 +563,7 @@ count_weeks_per_vsl_permit_year_compl_m <-
 #          year_month,
 #          weeks_per_vessel_per_compl_m) %>%
 #   unique() %>%
-#   glimpse()  
+#   dplyr::glimpse()  
 # $ vessel_official_number       <chr> "1247024", "1247024", "1247024", "…
 # $ compliant_                   <chr> "NO", "NO", "NO", "NO", "NO"
 # $ year_month                   <yearmon> May 2023, Apr 2023, Mar 2023, Feb …

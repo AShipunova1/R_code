@@ -517,7 +517,7 @@ fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   dplyr::select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 
 
 ## add scientific names ----
@@ -771,7 +771,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   # back to an ungrouped form
   as.data.frame()
 
-# glimpse(acl_estimate_catch_by_species_state_region_waves)
+# dplyr::glimpse(acl_estimate_catch_by_species_state_region_waves)
 
 # convert "year" and "wave" to numbers (were <chr> in acl_estimate_catch_by_species_state_region_waves)
 acl_estimate_catch_by_species_state_region_waves1 <-
@@ -1085,7 +1085,7 @@ fhier_acl_catch_by_species_region_year <-
 # test, should be sa and gom, df 2 by 6
 fhier_acl_catch_by_species_region_year %>%
   dplyr::filter(scientific_name == "SCOMBEROMORUS MACULATUS") %>%
-  glimpse()
+  dplyr::glimpse()
 
 ## split by sa_gom ----
 fhier_acl_catch_by_species_region_year_list <-

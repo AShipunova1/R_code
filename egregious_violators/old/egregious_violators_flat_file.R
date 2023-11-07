@@ -795,7 +795,7 @@ compl_clean_sa_non_c_not_exp |>
   # [1] 1045    4
   # all weeks were non compliant
   dplyr::filter(compl_weeks_amnt == total_weeks) |>
-    glimpse()
+    dplyr::glimpse()
 
 dim(compl_clean_sa_all_weeks_non_c_short)
 # 121
@@ -847,7 +847,7 @@ compl_clean_sa |>
   dplyr::group_by(vessel_official_number) |>
   dplyr::filter(tolower(compliant_) == "yes") |>
   dplyr::mutate(latest_compl = max(week_num)) |>
-  glimpse()
+  dplyr::glimpse()
 
 # TODO: add check for earlier weeks
 

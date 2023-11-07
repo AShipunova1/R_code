@@ -66,7 +66,7 @@ str(non_compliant_vessel_ids)
 compl_clean_sa_vs_gom_plus_dual_non_compl <-
   compl_clean_sa_vs_gom_plus_dual %>%
   filter(vessel_official_number %in% non_compliant_vessel_ids$vessel_official_number)
-  #   select(vessel_official_number) %>% unique() %>% glimpse()
+  #   select(vessel_official_number) %>% unique() %>% dplyr::glimpse()
   # Rows: 2,342
   
   
@@ -81,7 +81,7 @@ compl_clean_sa_vs_gom_plus_dual_non_compl_rep_cnt <-
     )
   )
 # %>% select(report_cnts) %>% unique() %>%
-#   glimpse()
+#   dplyr::glimpse()
 # $ report_cnts <int> 0, 1, 6, 14, 2, 3, 7, 21, 5, 18, 17, 8, 16, 9, 10, 4, 51, 22, 1…
 
 str(compl_clean_sa_vs_gom_plus_dual_non_compl_rep_cnt)
@@ -156,7 +156,7 @@ gom_sum_rep_by_month %>%
 
 compl_clean_sa_vs_gom_plus_dual %>%
   filter(vessel_official_number == "1000042") %>%
-  glimpse()
+  dplyr::glimpse()
 #   dim()
 
 gom_sum_rep_by_month_c <-
@@ -323,7 +323,7 @@ num_of_weeks_per_vessel2 <-
 # %>%
 # filter(vessel_official_number == "1024180")
 # %>%
-#   glimpse()
+#   dplyr::glimpse()
 
 ## check ----
 sa_non_compl %>%
@@ -342,7 +342,7 @@ sa_non_comp_week_num <-
   dplyr::arrange(vessel_official_number)
 # %>%
 # data_overview()
-# glimpse()
+# dplyr::glimpse()
 # Joining with `by = join_by(vessel_official_number)`
 # Rows: 39,863
 # Columns: 8
@@ -360,4 +360,4 @@ num_of_weeks_per_vessel %>%
   filter(vessel_official_number == "1024180")
 
 
-select(vessel_official_number, report_cnts, num_of_weeks) %>% glimpse()
+select(vessel_official_number, report_cnts, num_of_weeks) %>% dplyr::glimpse()

@@ -757,7 +757,7 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   # Rows: 1,114
   count(compliant_) %>%
   # count(gom_w_start_compl, week_start, compliant)
-  glimpse()
+  dplyr::glimpse()
 # 1067 + 47 : 100
 # 1067      : b
 

@@ -36,7 +36,7 @@ source(heatmap_func_path)
 #   dplyr::select(trip_id, latitude, longitude) |>
 #   dplyr::distinct()
 
-# glimpse(for_heatmap_lat_lon_trips_only)
+# dplyr::glimpse(for_heatmap_lat_lon_trips_only)
 # Rows: 41,455
 
 # Split the data frame into multiple sub-data frames based on the 'permit_region' column.
@@ -201,7 +201,7 @@ map(effort_vsl_cropped_cnt_l, dim)
 #   filter(cell_id == 1864) |>
 #   dplyr::select(vsl_cnt, trip_id_cnt) |>
 #   dplyr::distinct() |>
-#   glimpse()
+#   dplyr::glimpse()
 # vsl_cnt     <int> 11
 # trip_id_cnt <int> 236
 

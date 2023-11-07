@@ -827,7 +827,7 @@ get_permit_data_from_PIMS_csv <- function() {
   active_permits_from_pims_raw <-
     load_csv_names(my_paths, permit_names_list)
   # View(active_permits_from_pims[[1]])
-  # glimpse(active_permits_from_pims_raw[[1]])
+  # dplyr::glimpse(active_permits_from_pims_raw[[1]])
 
   # clean_headers
   active_permits_from_pims_temp1 <-
@@ -1642,7 +1642,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
     percent_compl
   ) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                 <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl <int> 33, 19
 # $ total_weeks_per_vessel     <int> 52, 52
@@ -2023,7 +2023,7 @@ count_weeks_per_vsl_permit_year_compl_month %>%
     # select(year_permit, year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
   # unique() %>%
   filter(year_month == "Dec 2022") %>%
-  glimpse()
+  dplyr::glimpse()
 # Rows: 11,031
 # $ compliant_                         <chr> "YES", "NO", "YES", "YES",…
 # $ total_vsl_m                        <int> 1657, 1657, 1657, 1657, 16…
@@ -2042,7 +2042,7 @@ filter(year_permit == "2022 sa_only" &
          year_month,
          weeks_per_vessel_per_compl_m) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ vessel_official_number       <chr> "VA9236AV", "VA6784AD", "VA4480…
 # $ compliant_                   <chr> "NO", "NO", "NO", "NO", "NO", "…
 # $ year_month                   <yearmon> Dec 2022, Dec 2022, Dec 202…
@@ -2069,7 +2069,7 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
   ) %>%
   unique() %>%
   dplyr::arrange(year_month) %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                         <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl_m       <int> 1, 3
 # $ total_weeks_per_vessel_per_compl_m <int> 4, 4

@@ -48,7 +48,7 @@ View(fhier_acl_catch_by_species_state_region_waves)
 
 # fhier_acl_catch_by_species_state_region_waves %>%
 #   dplyr::filter(!(species_itis_fhier == species_itis_mrip)) %>%
-#   glimpse()
+#   dplyr::glimpse()
 # dolphin
 
 ## NA counts to 0 ----
@@ -136,7 +136,7 @@ gom_top_spp <-
   fhier_spp %>%
   dplyr::filter(common_name %in% gom_top)
 
-# glimpse(gom_top_spp)
+# dplyr::glimpse(gom_top_spp)
 # 11
 
 ## an aux function to use only a wave from year_wave
@@ -165,7 +165,7 @@ fhier_acl_catch_by_species_state_region_waves_list <-
 #   # remove extra columns in each df
 #   map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
 
-# glimpse(fhier_acl_catch_by_species_state_region_waves_list)
+# dplyr::glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 
 ## 2b) Top 12 ACL spp. ----
 ### GOM Top 12 ACL spp. ----
@@ -205,7 +205,7 @@ gom_acl_top_spp_0 <-
 gom_acl_top_spp <-
   add_common_name_to_acl_top(gom_acl_top_spp_0)
 
-# glimpse(gom_acl_top_spp)
+# dplyr::glimpse(gom_acl_top_spp)
 
 ### SA Top 10 ACL spp. ----
 sa_acl_top_spp_0 <-
@@ -220,7 +220,7 @@ sa_acl_top_spp_0 <-
 sa_acl_top_spp <-
   add_common_name_to_acl_top(sa_acl_top_spp_0)
 
-# glimpse(sa_acl_top_spp)
+# dplyr::glimpse(sa_acl_top_spp)
 
 # 2) Data By wave and state ----
 # str(fhier_catch_by_species_state_region_waves)
@@ -301,7 +301,7 @@ fhier_acl_catch_by_species_region_year <-
 # test, should be sa and gom, df 2 by 6
 fhier_acl_catch_by_species_region_year %>%
   dplyr::filter(scientific_name == "SCOMBEROMORUS MACULATUS") %>%
-  glimpse()
+  dplyr::glimpse()
 
 ## split by sa_gom ----
 fhier_acl_catch_by_species_region_year_list <-
@@ -312,7 +312,7 @@ fhier_acl_catch_by_species_region_year_list <-
 # test 167760 GROUPER, BLACK ----
 fhier_acl_catch_by_species_region_year_list$sa %>%
   dplyr::filter(species_itis_fhier == '167760') %>%
-  glimpse()
+  dplyr::glimpse()
 # gom
 # fhier_cnts_by_year   <int> 2016
 # rec_acl_cnts_by_year <int> 1808
@@ -321,7 +321,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 # rec_acl_cnts_by_year <int> 262
 fhier_acl_catch_by_species_region_year_list$gom %>%
   dplyr::filter(species_itis_fhier == '167760') %>%
-  glimpse()
+  dplyr::glimpse()
 # new file and sero only gom
 # $ fhier_cnts_by_year   <int> 1731
 # $ rec_acl_cnts_by_year <int> 1894

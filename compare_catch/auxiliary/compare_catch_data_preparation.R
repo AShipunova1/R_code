@@ -225,9 +225,9 @@ fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   dplyr::select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 
-# glimpse(fhier_logbooks_content_waves__sa_gom)
+# dplyr::glimpse(fhier_logbooks_content_waves__sa_gom)
 
 ## add scientific names ----
 # grep("sci", names(fhier_logbooks_content_waves__sa_gom_dolph), value = T, ignore.case = T)
@@ -239,7 +239,7 @@ sefhier_spp <-
   dplyr::select(species_itis, scientific_name, common_name) %>%
   unique()
 
-# glimpse(sefhier_spp)
+# dplyr::glimpse(sefhier_spp)
 # 736
 
 fhier_logbooks_content_waves__sa_gom %<>%
@@ -337,7 +337,7 @@ fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name <-
            case_when(startsWith(tolower(common_name_orig), "dolphin") ~ "168791",
                      .default = species_itis_orig))
 
-# glimpse(fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name)
+# dplyr::glimpse(fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name)
 
 ### test: dolphins to ensure they now have the same common name in new "common_name" col----
 fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name %>%

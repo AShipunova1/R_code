@@ -128,7 +128,7 @@ for (i in 1:nrow(used_double_pairs_u)) {
 # naming the columns
 names(df_out) <- c("pair", "correspondence", "compliance")
 
-# glimpse(df_out)
+# dplyr::glimpse(df_out)
 
 # write.csv(df_out, file = "double_ids_check.csv", row.names = F)
 

@@ -173,7 +173,7 @@ n_map + m_s
 
 ## with depth ----
 
-# db_data %>% glimpse()
+# db_data %>% dplyr::glimpse()
 
 lat_long_dat_dep <-
   db_data %>%
@@ -558,7 +558,7 @@ lat_long_area_clean %>%
          DISTANCE_CODE_NAME) %>%
   unique() %>% 
   dplyr::arrange(AREA_CODE) %>% 
-  glimpse()
+  dplyr::glimpse()
 # Rows: 85
 
 lat_long_area_clean %>%

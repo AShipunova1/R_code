@@ -58,19 +58,19 @@ Outputs <- "Outputs/"
 #data file (1) 
 SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), sheet = "Species Only")
   # taking a quick look
-  glimpse(SEFHIER_species) #headers                                                                       
+  dplyr::glimpse(SEFHIER_species) #headers                                                                       
   #View(SEFHIER_species) #opens R data view tab
 
 #data MRIP file (2)  
   mrip_raw <- read_excel(paste(Path, Inputs, "mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx", sep = ""))
   # taking a quick look
-  glimpse(mrip_raw) #headers                                                                       
+  dplyr::glimpse(mrip_raw) #headers                                                                       
   #View(mrip_raw) #opens R data view tab
   
 #data file (3)
   SEFHIER_logbooks <- read.csv(paste(Path, Inputs, "FHIER_all_logbook_data.csv", sep = ""))
   # taking a quick look
-  glimpse(SEFHIER_logbooks) #headers                                                                       
+  dplyr::glimpse(SEFHIER_logbooks) #headers                                                                       
   #View(SEFHIER_logbooks) #opens R data view tab
   
 #---- Data processing ----     
@@ -344,9 +344,9 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # look at states and regions
       dplyr::select(end_port_state, end_port_sa_gom) %>%
       unique() %>%
-      glimpse()
+      dplyr::glimpse()
     
-    glimpse(fhier_logbooks_content_waves__sa_gom)
+    dplyr::glimpse(fhier_logbooks_content_waves__sa_gom)
     
     ## combine dolphin and dolphinfish for FHIER data ----
     fhier_logbooks_content_waves__sa_gom_dolph <-
@@ -359,7 +359,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       )
       )
     
-    glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
+    dplyr::glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
     
     ### test: dolphins ----
     fhier_logbooks_content_waves__sa_gom_dolph %>%
@@ -431,7 +431,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
       as.data.frame()
     
-    glimpse(mrip_estimate_catch_by_species_state_region_waves)
+    dplyr::glimpse(mrip_estimate_catch_by_species_state_region_waves)
     # 'data.frame':	878 obs. of  6 variables
     
     # "year" and "wave" to numbers

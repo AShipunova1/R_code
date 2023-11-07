@@ -696,7 +696,7 @@ dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p
 # 3181
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids |> 
-  dplyr::filter(!PERMIT_VESSEL_ID == SUPPLIER_VESSEL_ID.sa) |> glimpse()
+  dplyr::filter(!PERMIT_VESSEL_ID == SUPPLIER_VESSEL_ID.sa) |> dplyr::glimpse()
 # $ PERMIT_VESSEL_ID      <chr> "NC0676EK"
 # $ VESSEL_VESSEL_ID      <dbl> 383419
 # $ SUPPLIER_VESSEL_ID.sa <chr> "1292480"
@@ -722,14 +722,14 @@ dim(trips_info_2022_int_ah_w_y_dates_ids)
 # setdiff(
 #   trips_info_2022_int_ah_w_y_dates_ids$VESSEL_ID,
 #   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
-# ) |> glimpse()
+# ) |> dplyr::glimpse()
   # length()
   # 774
 # 775
 
 # trips_info_2022_int_ah_w_y_dates_ids |> 
 #   dplyr::filter(VESSEL_ID == '327558') |> 
-#   glimpse()
+#   dplyr::glimpse()
 
 setdiff(
   trips_info_2022_int_ah_w_y_dates_ids$SERO_VESSEL_PERMIT,
@@ -981,7 +981,7 @@ dim(v_p_ids_only)
 
 v_p_ids_only |> 
   dplyr::filter(!SERO_OFFICIAL_NUMBER.sa == SUPPLIER_VESSEL_ID.sa) |> 
-  glimpse()
+  dplyr::glimpse()
 # 1
 # $ PERMIT_VESSEL_ID        <chr> "NC0676EK"
 # $ SERO_OFFICIAL_NUMBER.sa <chr> "NC0676EK"
@@ -1032,9 +1032,9 @@ all_id_inters <-
   map(ii)
 
 names(all_id_inters) <- names(v_p_ids_only)
-# glimpse(all_id_inters)
+# dplyr::glimpse(all_id_inters)
 map_df(all_id_inters, length) |> 
-  glimpse()
+  dplyr::glimpse()
 # $ PERMIT_VESSEL_ID        <int> 1
 # $ SERO_OFFICIAL_NUMBER.sa <int> 1
 # $ SUPPLIER_VESSEL_ID.sa   <int> 1
@@ -1059,7 +1059,7 @@ vessels_permits_2022 |>
   dim()
 # [1] 4015   51
 
-# glimpse(vessels_permits_2022_r)
+# dplyr::glimpse(vessels_permits_2022_r)
 vessels_permits_2022_r |> 
   dplyr::filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |> 
 # 4015

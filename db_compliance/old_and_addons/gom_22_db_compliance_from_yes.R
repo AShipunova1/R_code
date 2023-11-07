@@ -180,7 +180,7 @@ v_p__t__tn_d_weeks_gom_short |>
   dplyr::filter(!(nchar(TRIP_START_TIME.tn) == 4) |
            !(nchar(TRIP_START_TIME.t) == 4)
          ) |>
-  glimpse()
+  dplyr::glimpse()
 # $ TRIP_START_TIME.t    <chr> "0700", "0601", NA
 # $ TRIP_START_TIME.tn   <chr> "601", "601", "600"
 
@@ -299,7 +299,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
     date_y_m,
     INTENDED_FISHING_FLAG,
     matched_compl) |>
-  glimpse()
+  dplyr::glimpse()
   # write_csv("compliant_fishing_month.csv")
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
@@ -316,7 +316,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   dplyr::mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # disregard "not_matched & yes", that means there are more than 1 decl
 
 ### a good example of 2 decl per week with compliant ----
@@ -416,7 +416,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
   # dplyr::filter(not_fish_compl == "yes") |>
   dplyr::filter(PERMIT_VESSEL_ID == "FL4459PW") |>
   dplyr::arrange(WEEK_OF_YEAR) |>
-  glimpse()
+  dplyr::glimpse()
 
 ## 3) a week with no reports of any kind (compl) ----
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_3")
@@ -567,13 +567,13 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
   #    VARIABLE     ..ROWNUMBER..  BASE  COMPARE
   #  no_decl_compl       37         no     yes
 
-# glimpse(FL4482RC_4[37,])
-# glimpse(FL4482RC_4a[37,])
+# dplyr::glimpse(FL4482RC_4[37,])
+# dplyr::glimpse(FL4482RC_4a[37,])
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
   dplyr::filter(WEEK_OF_YEAR == 26,
          PERMIT_VESSEL_ID == "FL3326MC") |>
-  glimpse()
+  dplyr::glimpse()
 # $ cnt_t                 <int> 1, 1
 # $ cnt_tn                <int> 1, 1
 # 2 entries, 1 has t, another has a tn! should be not compl
@@ -617,13 +617,13 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
   dplyr::arrange(desc(no_lgb_compl)) |>
-  glimpse()
+  dplyr::glimpse()
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
   dplyr::arrange(desc(no_lgb_compl)) |>
   dplyr::filter(no_decl_compl == "yes" & no_lgb_compl == "yes") |>
   # count(n_distinct(PERMIT_VESSEL_ID))
-  glimpse()
+  dplyr::glimpse()
 # 0
 
 ## 6) not compliant but overridden ----
@@ -856,7 +856,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
            date_y_m == "Jun 2022") |>
   dplyr::arrange(WEEK_OF_YEAR) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # $ WEEK_OF_YEAR     <dbl> 22, 23, 24, 25, 26
 # $ compl_w          <chr> "no", "no", "yes", "yes", "yes"
 # $ compl_m          <chr> "no", "no", "no", "no", "no"

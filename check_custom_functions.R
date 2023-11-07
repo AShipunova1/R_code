@@ -83,7 +83,7 @@ res_df <- t(res_df) |>
 
 res_df |>
   dplyr::filter(!vals == "") |>
-  glimpse()
+  dplyr::glimpse()
 # Rows: 52
 # Columns: 3
 # $ func_name <chr> "add_vsl_and_trip_cnts", "clean_headers", "connect_to_secpr", "conver…

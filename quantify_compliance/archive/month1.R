@@ -82,7 +82,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   unique() %>%
   dplyr::arrange(year_permit, year_month) %>%
   tail() |>
-  glimpse()
+  dplyr::glimpse()
 # year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
 #   <chr>        <yearmon>  <chr>              <int>       <int>
 # 1 2022 sa_only Oct 2022   active              1721        1722
@@ -112,7 +112,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
   # filter(perm_exp_m == "expired" &
   #          !year_month == "Dec 2022") |>
-  # glimpse()
+  # dplyr::glimpse()
   filter(vessel_official_number == "1000164" &
            year_month == "Nov 2022") |>
   dim()
@@ -180,7 +180,7 @@ count_weeks_per_vsl_permit_year_compl_month %>%
   # select(year_permit, year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
   # unique() %>%
   filter(year_month == "Dec 2022") %>%
-  glimpse()
+  dplyr::glimpse()
 # Rows: 11,031
 # $ compliant_                         <chr> "YES", "NO", "YES", "YES",…
 # $ total_vsl_m                        <int> 1657, 1657, 1657, 1657, 16…
@@ -199,7 +199,7 @@ count_weeks_per_vsl_permit_year_compl_month %>%
          year_month,
          weeks_per_vessel_per_compl_m) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ vessel_official_number       <chr> "VA9236AV", "VA6784AD", "VA4480…
 # $ compliant_                   <chr> "NO", "NO", "NO", "NO", "NO", "…
 # $ year_month                   <yearmon> Dec 2022, Dec 2022, Dec 202…
@@ -226,7 +226,7 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
   ) %>%
   unique() %>%
   dplyr::arrange(year_month) %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                         <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl_m       <int> 1, 3
 # $ total_weeks_per_vessel_per_compl_m <int> 4, 4

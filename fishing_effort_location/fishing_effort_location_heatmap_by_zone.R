@@ -100,7 +100,7 @@ shape_data <- gomshp_zone_cnt
 # ggplot(map.df,aes(x=long,y=lat,group=group))+
 #   geom_polygon(aes(fill=delta),color="grey20")+
 
-# glimpse(gomshp_zone_cnt)
+# dplyr::glimpse(gomshp_zone_cnt)
 # mapview(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short)
 
 plot_zone_cnt <-
@@ -294,7 +294,7 @@ toc()
 # TRIP_ID             47702
 # VESSEL_OFFICIAL_NBR 618
 
-# glimpse(my_vessels_trips)
+# dplyr::glimpse(my_vessels_trips)
 
 glimpse(trip_type_data_from_db)
 # Rows: 47,702
@@ -329,7 +329,7 @@ trip_type_data_from_db_by_t_id_types_l <-
         dplyr::distinct())
 
 
-# glimpse(trip_type_data_from_db_by_t_id_types)
+# dplyr::glimpse(trip_type_data_from_db_by_t_id_types)
 # List of 2
 #  $ CHARTER :'data.frame':	39835 obs. of  3 variables:
 #  $ HEADBOAT:'data.frame':	142 obs. of  3 variables:

@@ -45,7 +45,7 @@ View(spp_cnts_in_fhier_not_in_acl)
 
 # write_csv(spp_cnts_in_fhier_not_in_acl, "spp_cnts_in_fhier_not_in_acl.csv")
 
-# glimpse(spp_cnts_in_fhier_not_in_acl)
+# dplyr::glimpse(spp_cnts_in_fhier_not_in_acl)
 
 # test
 acl_estimate_catch_by_species_state_region_waves_renamed %>%
@@ -311,7 +311,7 @@ grep("GRUNT", acl_species_list[[1]]$COMMON_NAME, value = T)
 grep("GRUNT", toupper(fhier_common_names$common_name), value = T)
 fhier_common_names %>%
   dplyr::filter(grepl("GRUNT", toupper(common_name))) %>%
-  unique() %>% glimpse()
+  unique() %>% dplyr::glimpse()
 # 12
 
 
@@ -319,7 +319,7 @@ fhier_common_names %>%
 acl_species_list[[1]] %>%
   dplyr::filter(grepl("GRUNT", toupper(COMMON_NAME))) %>%
   dplyr::select(sp_code, COMMON_NAME) %>%
-  unique() %>% glimpse()
+  unique() %>% dplyr::glimpse()
 # 12
 
 fhier_logbooks_content %>%

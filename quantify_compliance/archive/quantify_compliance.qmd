@@ -194,7 +194,7 @@ sa_per_week <-
 
 sa_compl_clean_sa_vs_gom_plus_dual_short %>%
   filter(week_start == "2022-12-26") %>%
-  glimpse()
+  dplyr::glimpse()
 ```
 
 ##### % from the function result:

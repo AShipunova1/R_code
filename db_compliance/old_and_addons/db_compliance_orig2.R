@@ -178,7 +178,7 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 
 ## get permit periods ----
 tic("get permit periods")
-# glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
+# dplyr::glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
   dplyr::group_by(permit_sa_gom, unique_all_vessel_ids) |>
@@ -224,7 +224,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   dplyr::select(unique_all_vessel_ids,
          permit_sa_gom_dual) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # $ unique_all_vessel_ids <list> <"FL3610NF", "328460">, <"FL8701TB", …
 # $ permit_sa_gom_dual    <chr> "dual", "sa_only", "gom_only", "sa_only"
 # FL9004NX in both, but not dual, bc intervals do not overlap
@@ -256,7 +256,7 @@ dim(new_dual_ids)
 # in_new_dual_only <-
 #   setdiff(vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual__dual_ids$unique_all_vessel_ids,
 #           old_dual_v_ids$unique_all_vessel_ids)
-# glimpse(in_new_dual_only)
+# dplyr::glimpse(in_new_dual_only)
 # 10
 
 # in_new_dual_only1 <-
@@ -267,7 +267,7 @@ dim(new_dual_ids)
 # in_old_only <-
 #   setdiff(old_dual_v_ids$unique_all_vessel_ids,
 #         new_dual_ids$unique_all_vessel_ids)
-# glimpse(in_old_only)
+# dplyr::glimpse(in_old_only)
 # 82
 
 #### why not in new? ----
@@ -283,22 +283,22 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 # gom and sa periods overlap
 
 #### why not in old? ----
-# glimpse(in_new_dual_only)
+# dplyr::glimpse(in_new_dual_only)
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual |> 
 #   dplyr::filter(grepl("FL9004NX", unique_all_vessel_ids)) |>
-#   glimpse()
+#   dplyr::glimpse()
 # $ permit_sa_gom           <chr> "sa_only", "gom_only"
 
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual |> 
 #   dplyr::filter(grepl("FL9004NX", unique_all_vessel_ids)) |>
-#   glimpse()
+#   dplyr::glimpse()
 # $ permit_sa_gom               <chr> "gom_only", "sa_only"
 
 # vessels_permits_2022_r |> 
 #   # dplyr::filter(PERMIT_VESSEL_ID == "FL9004NX") |>
 #   dplyr::filter(PERMIT_VESSEL_ID == "TX6550AU") |>
 #   dplyr::distinct() |> 
-#   glimpse()
+#   dplyr::glimpse()
 
 # vessels_dual_maybe <- c("1074262",
 # "1145285",

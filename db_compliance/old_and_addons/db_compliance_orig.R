@@ -808,7 +808,7 @@ dim(vessels_by_permit_vessel__all_l_u_vsl_ids_l$sa_only)
 #     dplyr::distinct(vessels_permit_vsl_id__all_l__sa_ids$VESSEL_ID)
 #   ) %>%
 #   dplyr::distinct()
-# glimpse(not_in_vessel_trip_sa)
+# dplyr::glimpse(not_in_vessel_trip_sa)
 # # 60
  # num [1:60] 327682 248806 326294 249111 246954 ...
 
@@ -958,7 +958,7 @@ data_overview(vessels__trip_neg_22_l_sa_short)
 # vessels__trip_neg_22_l_sa_short %>%
 #   dplyr::filter(lubridate::floor_date(TRIP_DATE,
 #                                unit = "day") ==
-#            "2021-12-31") %>% glimpse()
+#            "2021-12-31") %>% dplyr::glimpse()
 # Rows: 1,006
 
 # dim(vessels__trip_neg_22_l_sa_short)
@@ -979,7 +979,7 @@ vessels__trip_neg_22_l_sa_short %>%
   dplyr::group_by(permit_vessel_id) %>%
   summarise(n_distinct(TRIP_week_num)) %>%
   # count(TRIP_week_num) %>%
-  glimpse()
+  dplyr::glimpse()
 #   $ permit_vessel_id            <chr> "03017306"
 # $ `n_distinct(TRIP_week_num)` <int> 19
 
@@ -1222,7 +1222,7 @@ vessels_permit_bind_u_one_df %>%
 # 1   379     1204    3877
 
 # vessels_permit_bind_u1$sa_only %>%
-#   head() %>% glimpse()
+#   head() %>% dplyr::glimpse()
 
 ## how many weeks the permit was in effect ----
 # Restore eff_int_sa (might be frome the csv)

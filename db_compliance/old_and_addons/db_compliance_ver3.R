@@ -183,7 +183,7 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 
 ## get permit periods ----
 tic("get permit periods")
-# glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
+# dplyr::glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
   dplyr::group_by(permit_sa_gom, unique_all_vessel_ids) |>
@@ -245,7 +245,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   dplyr::select(unique_all_vessel_ids,
          permit_sa_gom_dual) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # $ unique_all_vessel_ids <list> <"FL3610NF", "328460">, <"FL8701TB", …
 # $ permit_sa_gom_dual    <chr> "dual", "sa_only", "gom_only", "sa_only"
 # FL9004NX in both, but not dual, bc intervals do not overlap
@@ -277,7 +277,7 @@ dim(new_dual_ids)
 # in_new_dual_only <-
 #   setdiff(vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual__dual_ids$unique_all_vessel_ids,
 #           old_dual_v_ids$unique_all_vessel_ids)
-# glimpse(in_new_dual_only)
+# dplyr::glimpse(in_new_dual_only)
 # 10
 
 # in_new_dual_only1 <-
@@ -288,7 +288,7 @@ dim(new_dual_ids)
 # in_old_only <-
 #   setdiff(old_dual_v_ids$unique_all_vessel_ids,
 #         new_dual_ids$unique_all_vessel_ids)
-# glimpse(in_old_only)
+# dplyr::glimpse(in_old_only)
 # 82
 
 #### why not in new? ----
@@ -304,22 +304,22 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 # gom and sa periods overlap
 
 #### why not in old? ----
-# glimpse(in_new_dual_only)
+# dplyr::glimpse(in_new_dual_only)
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_dual |>
 #   dplyr::filter(grepl("FL9004NX", unique_all_vessel_ids)) |>
-#   glimpse()
+#   dplyr::glimpse()
 # $ permit_sa_gom           <chr> "sa_only", "gom_only"
 
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual |>
 #   dplyr::filter(grepl("FL9004NX", unique_all_vessel_ids)) |>
-#   glimpse()
+#   dplyr::glimpse()
 # $ permit_sa_gom               <chr> "gom_only", "sa_only"
 
 # vessels_permits_2022_r |>
 #   # dplyr::filter(PERMIT_VESSEL_ID == "FL9004NX") |>
 #   dplyr::filter(PERMIT_VESSEL_ID == "TX6550AU") |>
 #   dplyr::distinct() |>
-#   glimpse()
+#   dplyr::glimpse()
 
 # vessels_dual_maybe <- c("1074262",
 # "1145285",
@@ -1124,7 +1124,7 @@ t_d_w |>
          MONTH_OF_YEAR,
          date_y_m) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # [1] 7948   16
 # $ YEAR          <dbl> 2021, 2022, 2022, 2023, 2021
 # $ MONTH_OF_YEAR <dbl> 12, 1, 12, 1, NA
@@ -1150,7 +1150,7 @@ dim(t_d_w)
 ### tne ----
 # tne_d_w |>
 #   dplyr::filter(WEEK_OF_YEAR == 0) |>
-#   glimpse()
+#   dplyr::glimpse()
 # Rows: 4,202
 
 # print_df_names(trip_neg_2022_w_y_cnt_u)
@@ -1504,7 +1504,7 @@ dim(v_p__t__tn_d_weeks)
 v_p__t__tne_d_weeks |>
   dplyr::filter(PERMIT_VESSEL_ID == "VI5498TB") |>
   count(YEAR) |>
-  glimpse()
+  dplyr::glimpse()
 # now has TRIP_DATE_y
 # 58
 # $ TRIP_DATE_y <dbl> 2021, 2022
@@ -1652,7 +1652,7 @@ dim(v_p__t__tne_d_weeks_21)
 # ### check is.na(YEAR)? 381155 1024989 ----
 # v_p__t__tne_d_weeks_sa_compl_w_cnt_short |>
 #   dplyr::filter(VESSEL_VESSEL_ID == "381155") |>
-#   glimpse()
+#   dplyr::glimpse()
 # # $ VESSEL_VESSEL_ID     <dbl> 381155
 # # $ PERMIT_VESSEL_ID     <chr> "1024989"
 # # $ YEAR                 <dbl> 2022
@@ -1665,7 +1665,7 @@ dim(v_p__t__tne_d_weeks_21)
 # # compl_weeks < permit_weeks_amnt_22, why it is in compliant? Where are the other weeks (147361 1036367)
 # v_p__t__tne_d_weeks_sa_compl_w_cnt_short |>
 #   dplyr::filter(VESSEL_VESSEL_ID == "147361") |>
-#   glimpse()
+#   dplyr::glimpse()
 #
 # # $ permit_weeks_amnt_22 <dbl> 52
 # # $ compl_weeks          <int> 4
@@ -1673,7 +1673,7 @@ dim(v_p__t__tne_d_weeks_21)
 #
 # v_p__t__tne_d_weeks_sa_compl_w_cnt |>
 #   dplyr::filter(VESSEL_VESSEL_ID == "147361") |>
-#   glimpse()
+#   dplyr::glimpse()
 #
 #
 # ### check is.na(YEAR) ----
@@ -1894,7 +1894,7 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_y)
 # v_p__t__tn_d_weeks_gom_short_compl |>
 #   dplyr::filter(VESSEL_VESSEL_ID == 72359) |>
 #   dplyr::select(rep_type.t, rep_type.tn) |>
-#   glimpse()
+#   dplyr::glimpse()
 # NA both
 
 # ## rm more columns ----
@@ -2091,7 +2091,7 @@ FHIER_Compliance_2022_file_short_reg <-
   FHIER_Compliance_2022_file |>
   separate_permits_into_3_groups(permit_group_field_name = "permitgroup")
 
-# glimpse(FHIER_Compliance_2022_file_short_reg)
+# dplyr::glimpse(FHIER_Compliance_2022_file_short_reg)
 FHIER_Compliance_2022_file_short_reg_gom <-
   FHIER_Compliance_2022_file_short_reg |>
   dplyr::filter(permit_sa_gom %in% c("gom_only", "dual"))
@@ -2319,7 +2319,7 @@ vessels_permits_2022_r_end_date_uid_not_in_metrics_permit_statuses <-
     perc_permit_status_cnts =
       permit_status_cnts * 100 / total_permit_status_cnts
   )
-# glimpse(vessels_permits_2022_r_end_date_uid_not_in_metrics_permit_statuses)
+# dplyr::glimpse(vessels_permits_2022_r_end_date_uid_not_in_metrics_permit_statuses)
 
 # in metrics
 vessels_permits_2022_r_end_date_uid_in_metrics_permit_statuses <-
@@ -2404,7 +2404,7 @@ vessel_info_in_metrics_only_res |>
            as.Date('2022-12-31')) |>
   # dplyr::select(VESSEL_ID, VESSEL_ID.1) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # $ VESSEL_ID   <chr> "1139674", "1176885", "1195318"
 # $ VESSEL_ID.1 <dbl> 393431, 326994, 307565
          
@@ -2558,7 +2558,7 @@ trips_info_2022_int_ah_sero_w_y |>
 # print_df_names(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w)
 
 ### add month interval ----
-# glimpse(dates_2022)
+# dplyr::glimpse(dates_2022)
 dates_2022_m_int <-
   dates_2022_yw |> 
   dplyr::group_by(YEAR, MONTH_OF_YEAR) |>
@@ -2576,7 +2576,7 @@ dates_2022_m_int_short <-
 dates_2022_m_int_short |> 
   # dplyr::select(YEAR, MONTH_OF_YEAR, month_int) |> 
   # dplyr::distinct() |> 
-  glimpse()
+  dplyr::glimpse()
   
 v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m_int <-
   right_join(

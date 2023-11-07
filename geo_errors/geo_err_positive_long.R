@@ -347,7 +347,7 @@ length(bad_only)
 trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
   dplyr::arrange(desc(pos_lon_per_vsl)) |>
-  glimpse()
+  dplyr::glimpse()
 # 'data.frame':	907 obs. of  4 variables:
 
 pos_lon_bad <-
@@ -414,7 +414,7 @@ positive_long_corrected_good_vsl_ids_coord_pair <-
   positive_long_corrected_good_vsl_ids |>
   dplyr::mutate(coord_pair = paste(LATITUDE, -LONGITUDE))
 
-# glimpse(positive_long_corrected_good_vsl_ids_coord_pair)
+# dplyr::glimpse(positive_long_corrected_good_vsl_ids_coord_pair)
 # positive_long__good_pairs <-
   # positive_long |>
     # dplyr::mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
@@ -423,7 +423,7 @@ positive_long_corrected_good_vsl_ids_coord_pair <-
 # exclude corrected longitude
 # Joining with `by = join_by(LATITUDE, LONGITUDE, VESSEL_ID, vendor_trip_cat, coord_pair)`
 
-# glimpse(positive_long__good_pairs)
+# dplyr::glimpse(positive_long__good_pairs)
 
 #   filter(VESSEL_ID %in% positive_long_corrected_good_vsl_ids$VESSEL_ID) |>
 #   dplyr::mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
@@ -456,7 +456,7 @@ glimpse(both_tot_w_coords__and_good_pairs)
 
 both_tot_w_coords__and_good_pairs |>
   filter(is.na(LATITUDE_tot)) |>
-  glimpse()
+  dplyr::glimpse()
 # 0
 
 both_tot_w_coords__and_good_pairs_mark <-
@@ -538,7 +538,7 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
                     xlab = "Wrong trip coordinates where vessels have both good and wrong coordinates")
 
 ## plot good/wrong cnts ----
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
 make_both_sorted_plot <-
   function(my_df,
@@ -577,7 +577,7 @@ make_both_sorted_plot <-
 both_sort_by_total <-
   make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts)
 
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
 
 both_sorted_by_good_plot <-
   make_both_sorted_plot(
@@ -621,7 +621,7 @@ ggsave(file.path(good_wrong_coords_dir, "both_sorted_by_wrong_plot.png"),
        dpi = 600)
 
 # line plots ----
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
 line_2_plot <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
     # ggplot(aes(date, value01, colour = variable)) +

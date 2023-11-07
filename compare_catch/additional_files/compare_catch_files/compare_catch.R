@@ -207,7 +207,7 @@ fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   dplyr::select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 
 glimpse(fhier_logbooks_content_waves__sa_gom)
 

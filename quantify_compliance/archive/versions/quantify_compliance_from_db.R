@@ -256,7 +256,7 @@ gom22_month_names <- perc_gom_compl_err_db_data_permit_grps_short_nc_no$year_mon
   unique() %>% 
   sort()
 
-# glimpse(gom22_month_names)
+# dplyr::glimpse(gom22_month_names)
 
 gg_perc_gom_compl_err_db_data_permit_grps_short_nc_no <-
   gom22_month_names |>

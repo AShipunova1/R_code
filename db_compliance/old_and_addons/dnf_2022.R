@@ -128,7 +128,7 @@ glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
   head() |> 
   tidyr::unnest_wider(unique_all_vessel_ids, names_sep = "_") |> 
-  glimpse()
+  dplyr::glimpse()
 # ...
 # $ unique_all_vessel_ids_1 <chr> "FL4459MW", "FL4459MW", "FL445…
 # $ unique_all_vessel_ids_2 <chr> "391019", "391019", "390425", …
@@ -144,7 +144,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
 #     browser()
 #     # stringi::stri_detect_fixed()
 #     head(x, n = 1) |> 
-#       glimpse()
+#       dplyr::glimpse()
 #     # x %>%
 #   # dplyr::filter(unique_all_vessel_ids %>%
 #   #          map(str_detect, y) %>%
@@ -177,7 +177,7 @@ my_f <- function(x, y) {
   # browser()
   # stringi::stri_detect_fixed()
   # head(x, n = 1) |>
-  #   glimpse()
+  #   dplyr::glimpse()
   
   res <- map(y, function(one_j_id) {
     # browser()

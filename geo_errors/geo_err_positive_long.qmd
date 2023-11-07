@@ -1022,7 +1022,7 @@ plot(lm.tw)
 ### make_both_sorted_plot function
 ```{r make_both_sorted_plot function}
 ## make_both_sorted_plot function ----
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
 make_both_sorted_plot <-
   function(my_df,
@@ -1065,7 +1065,7 @@ make_both_sorted_plot <-
 both_sort_by_total <-
   make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts)
 
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
 both_sort_by_total
 ```
 
@@ -1095,7 +1095,7 @@ both_sorted_by_wrong_plot <-
 ## line plot: good vs. total
 ```{r line plot: good vs. total}
 ## line plot: good vs. total ----
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
 line_2_plot <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
     ggplot(aes(x = order(good_over_bad),

@@ -212,7 +212,7 @@ length(in_fhier_only)
 # VMS
 logbooks_downloaded_from_fhier %>%
   filter(supplier_trip_id %in% in_fhier_only) %>%
-  glimpse()
+  dplyr::glimpse()
 # $ activitystart_date        <chr> "06/23/2022", "06/03/2022"
 # $ activityend_date          <chr> "06/24/2022", "06/03/2021"
 # $ ue                        <chr> "VMS", "VMS"
@@ -226,7 +226,7 @@ in_db_only
 vessel_num_in_db_only <-
   trip_id_vessel_st_from_db %>%
   filter(supplier_trip_id %in% in_db_only) %>%
-  # glimpse()
+  # dplyr::glimpse()
   dplyr::mutate(vessel_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>%
   select(vessel_num)
 

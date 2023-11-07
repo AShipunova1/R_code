@@ -117,7 +117,7 @@ head(weird_stats) |>
 # t_UE, E_UE
 # trip_coord_info |>
 #   filter(!trimws(T_UE) == trimws(E_UE)) |>
-#   glimpse()
+#   dplyr::glimpse()
 # Rows: 119,735
 
 trip_coord_info_vendors <-
@@ -214,7 +214,7 @@ compare_trip_and_effort_vendors <-
       dplyr::distinct() |>
       kable(caption = "T_UE diff with E_UE")
   }
-#   glimpse()
+#   dplyr::glimpse()
 # VESL	  SAFIS	vesl	etrips
 # Bluefin	SAFIS	vesl	etrips
 
@@ -733,7 +733,7 @@ join_vesl_cnts_no_diff_ll <-
 
 join_vesl_cnts_no_diff_ll |>
   # head(20) |>
-  glimpse()
+  dplyr::glimpse()
 
 vesl_no_diff_bounding_box <-
   geom_rect(

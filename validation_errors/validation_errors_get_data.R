@@ -68,7 +68,7 @@ dim(from_fhier)
 
 # View(from_fhier)
 
-from_fhier %>% clean_headers() %>% glimpse()
+from_fhier %>% clean_headers() %>% dplyr::glimpse()
 # Arrival, Edit.Trip, Overridden
 # arrival, edit_trip, overridden
 

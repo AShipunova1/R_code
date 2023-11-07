@@ -363,7 +363,7 @@ get_permit_data_from_PIMS_csv <- function() {
   active_permits_from_pims_raw <-
     load_csv_names(my_paths, permit_names_list)
   # View(active_permits_from_pims[[1]])
-  # glimpse(active_permits_from_pims_raw[[1]])
+  # dplyr::glimpse(active_permits_from_pims_raw[[1]])
 
   # clean_headers
   active_permits_from_pims_temp1 <-
@@ -1420,7 +1420,7 @@ db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% glimpse()
+  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 # SA only ----
@@ -1765,7 +1765,7 @@ db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% glimpse()
+  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 ## seasonally ----

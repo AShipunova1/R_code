@@ -485,9 +485,9 @@ fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   dplyr::select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 
-# glimpse(fhier_logbooks_content_waves__sa_gom)
+# dplyr::glimpse(fhier_logbooks_content_waves__sa_gom)
 
 ## combine dolphin and dolphinfish for FHIER data ----
 fhier_logbooks_content_waves__sa_gom_dolph <-
@@ -499,7 +499,7 @@ fhier_logbooks_content_waves__sa_gom_dolph <-
     common_name_orig
   ))
 
-# glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
+# dplyr::glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
 
 ### test: dolphins to ensure they now have the same common name in new "common_name" col----
 fhier_logbooks_content_waves__sa_gom_dolph %>%
@@ -606,7 +606,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   # back to an ungrouped form
   as.data.frame()
 
-# glimpse(acl_estimate_catch_by_species_state_region_waves)
+# dplyr::glimpse(acl_estimate_catch_by_species_state_region_waves)
 # 'data.frame':	878 obs. of  6 variables
 
 # convert "year" and "wave" to numbers (were <chr> in acl_estimate_catch_by_species_state_region_waves)

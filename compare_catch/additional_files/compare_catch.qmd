@@ -285,7 +285,7 @@ fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
   dplyr::select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 
 ```
 
@@ -610,9 +610,9 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
 
 ## Prepare data for ploting
 
-#### glimpse(fhier_mrip_catch_by_species_state_region_waves)
+#### dplyr::glimpse(fhier_mrip_catch_by_species_state_region_waves)
 
-```{r glimpse(fhier_mrip_catch_by_species_state_region_waves) }
+```{r dplyr::glimpse(fhier_mrip_catch_by_species_state_region_waves) }
 
 glimpse(fhier_mrip_catch_by_species_state_region_waves)
 # Rows: 6,327

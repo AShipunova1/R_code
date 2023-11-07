@@ -887,7 +887,7 @@ compl_clean_sa |>
     year_month,
     latest_compl) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
 

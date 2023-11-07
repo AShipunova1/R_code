@@ -3,11 +3,11 @@
 # keep only 2 or more correspondence with no direct contact, check manually?
 
 # compliance_clean <- compl_w_non_compliant_weeks
-# glimpse(compliance_clean)
+# dplyr::glimpse(compliance_clean)
 
 # correspondence with contact frequency and direct_contact column
 corresp_clean <- corresp_contact_cnts_clean_direct_cnt
-# glimpse(corresp_clean)
+# dplyr::glimpse(corresp_clean)
 
 get_2_plus_contacts <- function(corresp_clean) {
   corresp_clean %>%

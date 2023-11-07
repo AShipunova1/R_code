@@ -25,7 +25,7 @@
 
 compl_clean_short_sa_vs_gom %>%
   filter(permit == "sa_only") %>%
-  filter(tolower(compliant_) == "yes") %>% glimpse()
+  filter(tolower(compliant_) == "yes") %>% dplyr::glimpse()
 # negativereports__ == 7
 
 
@@ -120,7 +120,7 @@ compl_clean_short_sa_vs_gom <-
   separate_permits_into_3_groups(compl_clean_short)
 
 # test permit separation ----
-# glimpse(compl_clean_short_sa_vs_gom)
+# dplyr::glimpse(compl_clean_short_sa_vs_gom)
 compl_clean_short_sa_vs_gom %>%
   filter(permit == "sa_only" &
            grepl("G", permitgroup)) %>% head()
@@ -153,7 +153,7 @@ gom_or_dual_vessel_id <-
   unique()
 # 1518
 
-intersect(sa_only_vessel_id, gom_or_dual_vessel_id) %>% glimpse()
+intersect(sa_only_vessel_id, gom_or_dual_vessel_id) %>% dplyr::glimpse()
 # 0
 
 ### SA compliant & no reports:
@@ -181,7 +181,7 @@ sa_compliant__no_reports <-
 
 
 # %>%
-# glimpse()
+# dplyr::glimpse()
 # ---- compare permits in pims anf fhier compliance ----
 str(sa_only_vessel_id)
 str(active_permits_from_pims)

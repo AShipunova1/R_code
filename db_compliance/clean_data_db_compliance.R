@@ -194,7 +194,7 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 
 ## get permit periods ----
 tic("get permit periods")
-# glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
+# dplyr::glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
   dplyr::group_by(permit_sa_gom, unique_all_vessel_ids) |>
@@ -247,7 +247,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   dplyr::select(unique_all_vessel_ids,
          permit_sa_gom_dual) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # $ unique_all_vessel_ids <list> <"FL3610NF", "328460">, <"FL8701TB", …
 # $ permit_sa_gom_dual    <chr> "dual", "sa_only", "gom_only", "sa_only"
 # FL9004NX in both, but not dual, bc intervals do not overlap
@@ -279,7 +279,7 @@ vessels_permits_2022_r |>
   # dplyr::filter(PERMIT_VESSEL_ID == "FL9004NX") |>
   dplyr::filter(PERMIT_VESSEL_ID == "TX6550AU") |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # $ TOP                   <chr> "CDW", "CHS", "CHG", "RCG"
 # $ END_DATE              <dttm> 2022-07-31, 2022-07-31, 2023-07-31, 2023-07-31
 # $ permit_sa_gom         <chr> "sa_only", "sa_only", "gom_only", "gom_only"
@@ -367,7 +367,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
   dplyr::filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
-  glimpse()
+  dplyr::glimpse()
 # $ permit_sa_gom           <chr> "sa_only", "gom_only", "sa_only", "gom_only"
 # $ permit_2022_int         <Interval> 2021-12-31 19:00:00 EST--2022-12-30 19:00:00 EST,…
 # $ permit_sa_gom_dual      <chr> "dual", "dual", "dual", "dual"
@@ -782,7 +782,7 @@ t_d_w |>
          MONTH_OF_YEAR,
          date_y_m) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # [1] 7948   16
 # $ YEAR          <dbl> 2021, 2022, 2022, 2023, 2021
 # $ MONTH_OF_YEAR <dbl> 12, 1, 12, 1, NA
@@ -1191,7 +1191,7 @@ dim(v_p__t__tn_d_weeks)
 v_p__t__tne_d_weeks |>
   dplyr::filter(PERMIT_VESSEL_ID == "VI5498TB") |>
   count(YEAR) |>
-  glimpse()
+  dplyr::glimpse()
 # now has TRIP_DATE_y
 # 58
 # $ TRIP_DATE_y <dbl> 2021, 2022

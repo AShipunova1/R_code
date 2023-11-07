@@ -141,7 +141,7 @@ from_fhier_data_by_ym_22 <-
   # NAs to 0
   mutate(pending = coalesce(pending, 0)) %>%
   mutate(total = overridden + pending)
-# %>% glimpse()
+# %>% dplyr::glimpse()
 
 ## Join db and fhier data ----
 # make the same types
@@ -251,7 +251,7 @@ db_n_fhier_data_ok_short1 %>%
 # grep("ass", names(from_fhier_data_22), value = T)
 # singleassignment
 from_fhier_data_22 %>%
-  select(singleassignment) %>% unique() %>% glimpse()
+  select(singleassignment) %>% unique() %>% dplyr::glimpse()
 # Validation trip Assignment
 
 # View(db_n_fhier_data_ok_short1)
@@ -277,7 +277,7 @@ db_n_fhier_data_ok_short1 %>%
 
 db_n_fhier_data_ok %>%
   filter(asg_info == "Unassigned" &
-           arr_year_month >= "Jan 2022") %>% glimpse()
+           arr_year_month >= "Jan 2022") %>% dplyr::glimpse()
 # %>% dim()
 # [1] 4962   56
 

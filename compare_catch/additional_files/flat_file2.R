@@ -140,7 +140,7 @@ fhier_acl_catch_by_species_region_year_list <-
 # test 167760 GROUPER, BLACK ----
 fhier_acl_catch_by_species_region_year_list$sa %>%
   dplyr::filter(species_itis == '167760') %>%
-  glimpse()
+  dplyr::glimpse()
 # gom
 # fhier_cnts_by_year   <int> 2016
 # rec_acl_cnts_by_year <int> 1808

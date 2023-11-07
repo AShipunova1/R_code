@@ -164,7 +164,7 @@ View(compl_data_sa_2022_m_short_tot_ov_long)
 #          tota_vsl_m,
 #          is_compl_overridden) %>%
 #   filter(complete.cases(is_compl_overridden)) %>%
-#   glimpse()
+#   dplyr::glimpse()
 
 # compl_data_sa_2022_m_short_tot_ov_long %>% 
 #   select(month_name,
@@ -349,7 +349,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt %>%
   filter(month_name == "Jan" &
            !(is_compl_or_both == "YES")) %>%
   dplyr::mutate(m_sum = sum(compl_or_not_cnt)) %>%
-  glimpse()
+  dplyr::glimpse()
 # $ exp_1_m          <chr> "more_t_1m", "more_t_1m", "less_t_1m"
 # $ month_name       <chr> "Jan", "Jan", "Jan"
 # $ month_num        <chr> "01", "01", "01"
@@ -377,7 +377,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t <-
 
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t %>% 
   filter(month_name == "Jan") %>% 
-  glimpse()
+  dplyr::glimpse()
 # $ exp_1_m          <chr> "more_t_1m", "less_t_1m"
 # $ month_name       <chr> "Jan", "Jan"
 # $ month_num        <chr> "01", "01"

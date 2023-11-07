@@ -260,7 +260,7 @@ effort_t_type_cropped_cnt <-
   )
 
 map_df(effort_t_type_cropped_cnt, dim) |>
-  glimpse()
+  dplyr::glimpse()
 # $ CHARTER.gom_dual  <int> 34315, 9
 # $ HEADBOAT.gom_dual <int> 285, 9
 # $ CHARTER.sa_only   <int> 1781, 9
@@ -308,7 +308,7 @@ effort_t_type_cropped_cnt_join_grid <-
 
 # effort_t_type_cropped_cnt_join_grid$CHARTER
 map_df(effort_t_type_cropped_cnt_join_grid, dim) |>
-  glimpse()
+  dplyr::glimpse()
 
 data_overview(effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual)
 

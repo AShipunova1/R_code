@@ -94,7 +94,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
   dplyr::filter(PERMIT_VESSEL_ID == "FL4459MW") |>
-  glimpse()
+  dplyr::glimpse()
 # $ WEEK_OF_YEAR         <dbl> 13, 14
 # $ date_y_m             <yearmon> Apr 2022, Apr 2022
 # $ compl_w_total        <chr> "no", "no"
@@ -103,7 +103,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
     dplyr::filter(WEEK_OF_YEAR == 13) |>
     head() |>
-    glimpse()
+    dplyr::glimpse()
 # $ PERMIT_VESSEL_ID     "FL4459MW", "FL4459PW", "FL4482NJ", "FL4482NJ", "FL3…
 # $ MONTH_OF_YEAR        4, 3, 3, 4, 3, 4
 # $ WEEK_OF_YEAR         13, 13, 13, 13, 13, 13
@@ -132,12 +132,12 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
   dplyr::filter(WEEK_OF_YEAR == 13) |>
   # subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
   dplyr::mutate(cnt_vsls_w = n_distinct(PERMIT_VESSEL_ID)) |>
-  # glimpse()
+  # dplyr::glimpse()
   # Rows: 418
   dplyr::ungroup() |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
   dplyr::distinct() |>
-  glimpse()
+  dplyr::glimpse()
 # $ WEEK_OF_YEAR  <dbl> 13, 13
 # $ compl_w_total <chr> "no", "yes"
 # $ cnt_vsls_w    <int> 144, 274
@@ -303,7 +303,7 @@ dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_m)
 # [1] 2293    7 w month
 
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y |>
-  glimpse()
+  dplyr::glimpse()
 
 ### test 2 ----
 # count in one bucket
@@ -314,7 +314,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y %>%
   dplyr::count(percent_compl,
                # date_y_m,
                name = "amount_of_occurences") %>%
-  # glimpse()
+  # dplyr::glimpse()
 #   $ percent_compl        <dbl> 75.00000, 77.27273, 77.35849, 78.26087, 78.787…
 # $ amount_of_occurences <int> 4, 11, 12, 9, 9, 2, 9, 9, 9, 9, 20, 5, 5, 21, …
   dplyr::arrange(desc(percent_compl)) %>%

@@ -181,7 +181,7 @@ compl_clean_sa_non_c_not_exp |>
   # [1] 1045    4
   # all weeks were non compliant
   # dplyr::filter(compl_weeks_amnt == total_weeks) |>
-    glimpse()
+    dplyr::glimpse()
 
 dim(compl_clean_sa_all_weeks_non_c_short)
 # 121
@@ -243,7 +243,7 @@ compl_clean_sa |>
     year_month,
     latest_compl) |>
   dplyr::distinct() |> 
-  glimpse()
+  dplyr::glimpse()
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
 
@@ -523,7 +523,7 @@ vessels_permits_participants_short_u_flat_sp <-
     ~ str_replace_all(.x, "^,", "")
   ))
 # |>
-#   glimpse()
+#   dplyr::glimpse()
 # 
 # 
 # vessels_permits_participants_short_u_flat_sp |>
