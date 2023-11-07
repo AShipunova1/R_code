@@ -1,9 +1,6 @@
 # quantify_compliance_functions
 
-#### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_functions.R  ----
-
-# quantify_compliance_functions
-
+# Create a list called 'text_sizes' that contains named elements with different font sizes.
 text_sizes <- list(
   geom_text_size = 7,
   plot_title_text_size = 10,
@@ -15,13 +12,32 @@ text_sizes <- list(
   y_left_fontsize = 10
 )
 
+# Define a function named 'get_non_compl_week_counts_percent' that accepts two arguments: 'my_df' (a data frame) and 'vessel_id_col_name' (a column name).
+# 
+# Start a pipeline to apply subsequent operations to the 'my_df' data frame.
+# 
+# Count the number of non-compliant weeks per vessel for each 'year_month' using 'count' from the dplyr package. The '!!sym()' function is used to interpret 'vessel_id_col_name' as a symbol.
+# 
+# Count the occurrence of unique combinations of 'year_month' and 'nc_weeks_per_vessl_m'.
+# 
+# Pivot the data to have a wide format, creating a column for each value of 'nc_weeks_per_vessl_m' in each 'year_month'.
+# 
+# Calculate the total number of non-compliant vessels per month by summing columns 2 to 6.
+# 
+# Reshape the data into a long format, with a row for each 'non_compl_weeks' and its count in a month.
+# 
+# Calculate the percentage of non-compliant vessels in a month, rounding the result to two decimal places.
+# 
+# Return the resulting data frame, which represents non-compliant week counts and percentages.
+# 
+
 get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
   # browser()
     my_df %>%
-    # how many non_compliant weeks per vessel this month
+    # Count the number of non-compliant weeks per vessel for each year_month.
     count(year_month, !!sym(vessel_id_col_name),
           name = "nc_weeks_per_vessl_m") %>%
-    # nc weeks per month
+    # Count the occurrence of each unique combination of year_month and nc_weeks_per_vessl_m.
     count(year_month, nc_weeks_per_vessl_m,
           name = "occurence_in_month") %>%
     # turn amount of nc weeks into headers, to have one row per year_month
@@ -29,13 +45,14 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
                 # number of vessels
                 values_from = occurence_in_month,
                 values_fill = 0) %>%
-    # sum nc by month to get Total
+    # Calculate the total number of non-compliant vessels per month.
     mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
-    # turn to have num of weeks per month in a row
+
+    # Reshape the data to have a row for each 'non_compl_weeks' and its count in a month.
     pivot_longer(-c(year_month, total_nc_vsl_per_month),
                  names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>%
-    # count percentage
+    # Calculate the percentage of non-compliant vessels in a month.
     mutate(percent_nc = round(
       100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
       digits = 2
