@@ -50,7 +50,7 @@ fhier_info <-
                   name_repair = fix_names,
                   col_types = cols(.default = 'c'))
 
-View(fhier_info)
+# View(fhier_info)
 # [1] 138557     19
 
 # shorten ----
@@ -111,7 +111,7 @@ csvs_joined_diff <-
 dim(csvs_joined_diff)
 # [1] 57 16
 
-View(csvs_joined_diff)
+# View(csvs_joined_diff)
 
 # compare fhier_info with corrected
 # print_df_names(fhier_info)
@@ -294,14 +294,14 @@ corrected_n_fhier_short_w_n_comb_flat_clean <-
   ))
 
 
-View(corrected_n_fhier_short_w_n_clean)
+# View(corrected_n_fhier_short_w_n_clean)
   # dplyr::filter(full_name == fhier_name) |>
 # 26
   # dplyr::filter(full_name == fhier_name_2) |>
   # dim()
 # 0
 
-View(corrected_n_fhier_short_w_n_clean)
+# View(corrected_n_fhier_short_w_n_clean)
 
 readr::write_csv(corrected_n_fhier_short_w_n_clean,
                  out_path)
@@ -331,7 +331,7 @@ corrected_n_fhier_short_w_n_clean_short <-
   dplyr::distinct()
 # |>
 
-View(corrected_n_fhier_short_w_n_clean_short)
+# View(corrected_n_fhier_short_w_n_clean_short)
 
 # read PIMS csv ----
 # https://www.fisheries.noaa.gov/southeast/resources-fishing/frequent-freedom-information-act-requests-southeast-region

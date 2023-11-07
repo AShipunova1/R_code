@@ -7,7 +7,7 @@ data_overview(passengers_from_db)
 
 
 # check diff between logbook csv and db ----
-View(fhier_logbooks_content)
+# View(fhier_logbooks_content)
 fhier_logbooks_content %>%
   filter(trip_de >= "2022-01-01 00:00:00") %>%
   select(trip_id) %>% str()

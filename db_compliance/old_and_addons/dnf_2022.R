@@ -3,7 +3,7 @@
 
 # View(trip_neg_2022_w_y)
 # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
-View(vessels_permits_2022_r)
+# View(vessels_permits_2022_r)
 v_p_tne <-
   vessels_permits_2022_r |>
   dplyr::filter(!permit_sa_gom == "sa_only") |>
@@ -17,7 +17,7 @@ v_p_tne <-
 #   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
 # ) |>
 
-View(v_p_tne)
+# View(v_p_tne)
 # [1] 58349    51
 # [1] 210168     66 (w all permits)
 
@@ -30,7 +30,7 @@ vessels__trip_neg_22 <-
     suffix = c(".v", ".tneg")
   )
 
-View(vessels__trip_neg_22)
+# View(vessels__trip_neg_22)
 
 vessels__trip_neg_22 |>
   dplyr::filter(PERMIT_GROUP == 7) |>
@@ -282,7 +282,7 @@ v_p_gom1__j <-
     join_by(unique_all_vessel_ids_1 == VESSEL_OFFICIAL_NUMBER_GOMDNF)
   )
 
-View(v_p_gom1__j)
+# View(v_p_gom1__j)
 v_p_gom1__j |>
   dplyr::select(unique_all_vessel_ids_1) |>
   dplyr::distinct() |>
@@ -636,7 +636,7 @@ all_cnts_from_v__tne_2 <-
   dbGetQuery(con, v__tne_query_2)
 # 3
 
-View(all_cnts_from_v__tne_2)
+# View(all_cnts_from_v__tne_2)
 
 all_cnts_from_v__tne_2 |> 
 select(SERO_OFFICIAL_NUMBER) |> 

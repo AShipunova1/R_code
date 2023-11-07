@@ -60,7 +60,7 @@ compl_data_sa_2022_m_short_tot <-
   dplyr::mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
   dplyr::ungroup()
 
-View(compl_data_sa_2022_m_short_tot)
+# View(compl_data_sa_2022_m_short_tot)
 
 # check
 # compl_data_sa_2022_m_short_tot %>% 
@@ -155,7 +155,7 @@ compl_data_sa_2022_m_short_tot_ov_long <-
     names_to = "vessel_official_number"
   )
 
-View(compl_data_sa_2022_m_short_tot_ov_long)
+# View(compl_data_sa_2022_m_short_tot_ov_long)
 
 # add compl counts
 # compl_data_sa_2022_m_short_tot_ov_long %>%
@@ -359,7 +359,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt %>%
 # $ m_sum            <int> 703, 703, 703
 # 703 non-c - correct
 
-View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
+# View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
 
 ## get total compl counts per month ----
 # print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
@@ -390,7 +390,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t %>%
 # 1560+75 == 1635
 # What is a 100%? per expiration or total per month?
 
-View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t)
+# View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t)
 
 # get percentage per month, exp ----
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc <-

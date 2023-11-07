@@ -687,7 +687,7 @@ coords_295040 <-
   positive_long_vesl |>
   filter(VESSEL_ID == "295040")
 
-View(coords_295040)
+# View(coords_295040)
 
 coords_295040$E_DE |>
   format(format = '%m/%d/%Y') |>
@@ -805,7 +805,7 @@ setdiff(vessel_ids_124,
 # [1] 328366
 # TODO: why there is a trip info, but not vessel/permit?
 
-View(vessel_permits_info_124)
+# View(vessel_permits_info_124)
 
 vessel_permits_info_124 |>
   select(SERO_HOME_PORT_STATE) |>

@@ -755,7 +755,7 @@ intersect(
 #                        y$my_end_date,
 #                        bounds = "[)"))
 
-View(trips_info_2022_int_ah)
+# View(trips_info_2022_int_ah)
 # hm
 t__t_n <-
   full_join(
@@ -771,7 +771,7 @@ t__t_n <-
 # dim(trips_notifications_2022_ah_fish_6)[1]
 # [1] 159693
 
-View(t__t_n)
+# View(t__t_n)
 # [1] 122585     39
 
 # rm extra cols ----
@@ -2612,7 +2612,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w <-
 toc()
 # v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w: 3.94 sec elapsed
 
-View(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w)
+# View(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w)
 v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_non_compl <-
   v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w |>
   dplyr::filter(is_compliant_w == "no")

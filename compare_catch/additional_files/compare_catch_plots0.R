@@ -550,7 +550,7 @@ gom_acl_top_to_plot <-
 # 'data.frame':	225 obs. of  7 variables:
 
 gom_acl_top_to_plot_longer <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
-View(gom_acl_top_to_plot_longer)
+# View(gom_acl_top_to_plot_longer)
 
 ### GOM plots for each common name from the top 10 ----
 plots_acl_top_gom <- purrr::map(unique(gom_acl_top_to_plot_longer$common_name),

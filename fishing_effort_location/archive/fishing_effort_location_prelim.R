@@ -198,7 +198,7 @@ sub1_fl_sub_areas <-
       return()
   })
 
-View(sub1_fl_sub_areas)
+# View(sub1_fl_sub_areas)
 # [1] 10824    21
 
 sub2_not_fl_sub_areas <-

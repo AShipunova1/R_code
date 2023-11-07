@@ -43,7 +43,7 @@ fhier_acl_catch_by_species_state_region_waves <-
     suffix = c("_fhier", "_mrip")
   )
 
-View(fhier_acl_catch_by_species_state_region_waves)
+# View(fhier_acl_catch_by_species_state_region_waves)
 # [1] 5738   11
 
 # fhier_acl_catch_by_species_state_region_waves %>%
@@ -373,7 +373,7 @@ for (i in 1:length(my_st_names)) {
     state_year_has_rec_acl_data_list_new[state_abbr] <- state_year_has_rec_acl_data_list[state_abbr]
   }
 }
-View(state_year_has_rec_acl_data_list_new)
+# View(state_year_has_rec_acl_data_list_new)
 
 # View(state_year_has_rec_acl_data_list_new)
 # str(fhier_acl_catch_by_species_state_year)

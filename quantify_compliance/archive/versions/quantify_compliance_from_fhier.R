@@ -117,7 +117,7 @@ sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   # don't show if no data
   filter(non_compl_in_month > 0)
 
-View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
+# View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
 
 ## SA only plots ----
 ### one plot ----
@@ -287,7 +287,7 @@ perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22 <-
                                     "vessel_official_number") %>% 
   filter(non_compl_in_month > 0)
 
-View(perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22)
+# View(perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22)
 
 ## GOM + dual 22 csv plots ----
 ### one plot
@@ -437,7 +437,7 @@ count_weeks_per_permit_year <-
     dplyr::count(vessel_official_number, year, permit_sa_gom,
         name = "nc_weeks_per_vsl")
 
-View(count_weeks_per_permit_year)
+# View(count_weeks_per_permit_year)
 
 non_compl_weeks_per_year <-
   count_weeks_per_permit_year %>%
@@ -455,7 +455,7 @@ perc_non_compl_weeks_per_year <-
   dplyr::arrange(perc) %>%
   dplyr::mutate(perc_labels = paste0(round(perc, 1), "%"))
 
-View(perc_non_compl_weeks_per_year)
+# View(perc_non_compl_weeks_per_year)
 
 ### test one category ----
 count_weeks_per_permit_year %>% filter(year == "2022", permit_sa_gom == "sa_only", nc_weeks_per_vsl == 31) %>% dim()
@@ -479,7 +479,7 @@ non_compl_weeks_per_year_22_sa %>% dplyr::count(wt = nc_weeks_cnt)
 # 1   117 (22 both)
 # 1289 (22 sa)
 
-View(non_compl_weeks_per_year_22_sa)
+# View(non_compl_weeks_per_year_22_sa)
 
 non_compl_weeks_per_year_22_sa %>%
   dplyr::mutate(nc_cnt = nc_weeks_per_vsl * nc_weeks_cnt) %>%
@@ -490,7 +490,7 @@ non_compl_weeks_per_year_22_sa %>%
 non_compl_weeks_per_year_22_sa %>% summarise(sum(nc_weeks_cnt))
 # 1289 (22 sa)
 
-View(non_compl_weeks_per_year_22_sa)
+# View(non_compl_weeks_per_year_22_sa)
 
 non_compl_weeks_per_year_22_sa_perc <-
   non_compl_weeks_per_year_22_sa %>%
@@ -498,7 +498,7 @@ non_compl_weeks_per_year_22_sa_perc <-
   dplyr::arrange(desc(perc)) %>%
   dplyr::mutate(perc_labels = paste0(round(perc, 1), "%"))
 
-View(non_compl_weeks_per_year_22_sa_perc)
+# View(non_compl_weeks_per_year_22_sa_perc)
 #   `sum(nc_weeks_per_vsl)`
 #                     <int>
 # 1                    1378
@@ -761,7 +761,7 @@ labels <- c('0-25', '25-50', '50-75')
 # length(labels)
 cuts <- cut(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short$percent_compl, breaks = breaks, labels = labels)
 cars <- cbind(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short, cuts)
-View(cars)
+# View(cars)
 
 # ---
 percent_compl_limits <-
@@ -777,7 +777,7 @@ cuts <-
 compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts <-
   cbind(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short, cuts)
 
-View(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts)
+# View(compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts)
 
 compl_clean_sa_vs_gom_m_int_cnt_w1_perc_short_cuts %>% 
   filter(cuts == '81-100') %>% 
@@ -1068,7 +1068,7 @@ count_weeks_per_vsl_permit_year_compl_p_short %>%
   dim()
 # 2441 ok
 
-View(count_weeks_per_vsl_permit_year_compl_p_short)
+# View(count_weeks_per_vsl_permit_year_compl_p_short)
 
 # 2) split nc_percentage into 4 buckets 
 
@@ -1113,7 +1113,7 @@ count(year, wt = n)
 # 1 2022   1593
 # 2 2023   1631
 
-View(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b)
+# View(count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b)
 
 # 4) cnt percents of (3)
 count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%

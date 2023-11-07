@@ -49,7 +49,7 @@ trip_coord_info <-
   all_get_db_data_result_l[["trip_coord_info"]] |>
   remove_empty_cols()
 
-View(trip_coord_info)
+# View(trip_coord_info)
 # [1] 140734     39
 
 ```
@@ -272,7 +272,7 @@ trip_coord_info_sf_out <-
 # dim(trip_coord_info_short_sf)
 # [1] 140748      3
 
-View(trip_coord_info_sf_out)
+# View(trip_coord_info_sf_out)
 # [1] 34548     5
 
 str(trip_coord_info_sf_out) |> 

@@ -748,7 +748,7 @@ trips_info_2022_int_ah_w_y_sero <-
 # Join dates_2022 and everything ----
 # get_v_ids and dates only
 
-View(dates_2022)
+# View(dates_2022)
 ## p_v ----
 
 ### split all permit intervals by day ? ----
@@ -1086,7 +1086,7 @@ dim(t__tne__dates_w_cnt_t_tne_short)
 # [1] 838720     23
 # [1] 823051     23
 
-View(t__tne__dates_w_cnt_t_tne_short)
+# View(t__tne__dates_w_cnt_t_tne_short)
 
 ## Compare week counts t/tne ----
 
@@ -1335,7 +1335,7 @@ v_p_t_tne_dates_cnts__t_and_tne <-
   dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::mutate(t_and_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
 
-View(v_p_t_tne_dates_cnts__t_and_tne)
+# View(v_p_t_tne_dates_cnts__t_and_tne)
 # [1] 5575   43
 
 # df2 <- 

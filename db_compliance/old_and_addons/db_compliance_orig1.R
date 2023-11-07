@@ -1098,7 +1098,7 @@ vessels_permits_2022_r_end_date_w_y |>
 #   dim()
 # )
 
-View(vessels_permits_2022_r_end_date_l_overlap_join)
+# View(vessels_permits_2022_r_end_date_l_overlap_join)
 vessels_permits_2022_r_end_date_l_overlap_join |>
   dplyr::filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
 # 1574   
@@ -1231,7 +1231,7 @@ v_p_t_tne_dates_cnts__t_and_tne <-
   dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::mutate(t_and_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
 
-View(v_p_t_tne_dates_cnts__t_and_tne)
+# View(v_p_t_tne_dates_cnts__t_and_tne)
 # [1] 5575   43
 
 # df2 <- 

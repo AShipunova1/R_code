@@ -371,7 +371,7 @@ sa_10_spp <-
   fhier_common_names %>%
   dplyr::filter(common_name %in% sa_10)
 
-View(sa_10_spp)
+# View(sa_10_spp)
 # intersect(sa_10, fhier_common_names$common_name)
 
 gom_10 <- c(
@@ -391,7 +391,7 @@ gom_10_spp <-
   fhier_common_names %>%
   dplyr::filter(common_name %in% gom_10)
 
-View(gom_10_spp)
+# View(gom_10_spp)
   
 
 ## A function to make a plot by spp. ----

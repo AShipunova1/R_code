@@ -499,7 +499,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <-
          min_in_vsl_group = min(vessels_cnt)) |> 
   dplyr::ungroup()
 
-View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
+# View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
 
 ## All by vessel count ---
 

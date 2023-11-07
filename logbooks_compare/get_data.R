@@ -202,14 +202,14 @@ read_by_category <-
 )
 
 str(read_by_category)
-View(read_by_category)
+# View(read_by_category)
 
 # each category in a df
 read_by_category_df1 <-
   file_lists_by_cat %>%
   purrr::map(~map_df(.x, poss_read_sas))
 
-View(read_by_category_df1)
+# View(read_by_category_df1)
 
 
 sas_file_list_ref <-

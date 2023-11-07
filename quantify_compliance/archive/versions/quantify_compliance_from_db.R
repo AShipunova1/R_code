@@ -21,7 +21,7 @@ compl_err_db_data_permit_grps <-
   separate_permits_into_3_groups(compl_err_db_data_m,
                                  "permit_group")
   
-View(compl_err_db_data_permit_grps)
+# View(compl_err_db_data_permit_grps)
 
 # SA only ----
 
@@ -42,7 +42,7 @@ sa_compl_err_db_data_permit_grps <-
 dim(sa_compl_err_db_data_permit_grps)
 # [1] 39270    40
 
-View(sa_compl_err_db_data_permit_grps)
+# View(sa_compl_err_db_data_permit_grps)
 
 ### SA errors distribution ----
 sa_compl_err_db_data_permit_grps %>% dplyr::count(comp_error_type_cd)

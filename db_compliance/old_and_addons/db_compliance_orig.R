@@ -988,7 +988,7 @@ vessels__trip_neg_22_l_sa_short_weeks_per_vessel <-
   dplyr::group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
   summarise(tot_weeks = n_distinct(TRIP_week_num))
 
-View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
+# View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
 # 1709
 # 1714
 
@@ -1119,7 +1119,7 @@ vessels__trips_22_l_sa_short_all_dates_t_start %>%
 # 4 NA 51 NA 2021
 # 5 NA  1 NA 2023
 
-View(vessels__trips_22_l_sa_short_all_dates_t_start)
+# View(vessels__trips_22_l_sa_short_all_dates_t_start)
 
 #### keeping all columns ----
 vessels__trips_22_l_sa_short_all_dates_t_start_all_cols <-
@@ -1486,7 +1486,7 @@ vessels__t_tne_sa_tne_in_t_cnt_temp %>%
   # tail() %>%
   View()
 
-View(vessels__t_tne_sa_tne_in_t_cnt)
+# View(vessels__t_tne_sa_tne_in_t_cnt)
 
 # temp ----
 
@@ -1663,7 +1663,7 @@ join_v_p__t_tne <-
             tne)
 # Joining with `by = join_by(SERO_OFFICIAL_NUMBER)`
 
-View(join_v_p__t_tne)
+# View(join_v_p__t_tne)
 
 # TODO: if SERO_OFFICIAL_NUMBER is NA, use an alternative id
 
@@ -1973,7 +1973,7 @@ vessels__trip_neg_22_l_sa_short__dates |>
   dim()
 # 52, 2
 
-View(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
+# View(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
 vessels__trips_22_l_sa_short_all_dates_t_start_all_cols |>
   dplyr::select(WEEK_OF_YEAR, YEAR) |>
   dplyr::distinct() |>
@@ -1986,7 +1986,7 @@ v_p_t_tne_dates_join <-
     vessels__trip_neg_22_l_sa_short__dates
   )
 # Joining with `by = join_by(permit_vessel_id, YEAR, WEEK_OF_YEAR)`
-View(v_p_t_tne_dates_join)
+# View(v_p_t_tne_dates_join)
 
 v_p_t_tne_dates_join |> dplyr::filter(permit_vessel_id == "1020057") |>
   dplyr::filter(is.na(TRIP_START_week_num) & is.na(TRIP_week_num))
@@ -2157,7 +2157,7 @@ dplyr::full_join(
 )
 toc()
 # v_p_t_tne_dates_join_week_cnts__p22: 0.44 sec elapsed
-View(v_p_t_tne_dates_join_week_cnts__p22)
+# View(v_p_t_tne_dates_join_week_cnts__p22)
 
 # v_p_t_tne_dates_join_week_cnts__p22: 0.44 sec elapsed
 
@@ -2186,4 +2186,4 @@ v_p_t_tne_dates_join_week_cnts__p22_short <-
   ) |>
   dplyr::distinct()
 
-View(v_p_t_tne_dates_join_week_cnts__p22_short)
+# View(v_p_t_tne_dates_join_week_cnts__p22_short)

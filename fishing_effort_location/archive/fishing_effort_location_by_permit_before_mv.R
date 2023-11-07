@@ -7,7 +7,7 @@ map_by_permit_before_mv_data <- function() {
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min <-
   get_ten_min_coords(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
 
-View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
+# View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
 # [1] 95720     5
 # [1] 284785     32 (with permit)
 # [1] 111716      7 (fewer columns)

@@ -260,7 +260,7 @@ data_from_fhier_GOM %>%
   View()
 
 ## check gom_landing_2022 ----
-View(data_from_db2)
+# View(data_from_db2)
 
 # where safis_vessel_id = '328952'
 #     order by end_date desc;
@@ -668,7 +668,7 @@ data_from_db_more_fields_end_p_s_by_trip_p <-
   unique() %>% 
   dplyr::mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
 
-View(data_from_db_more_fields_end_p_s_by_trip_p)
+# View(data_from_db_more_fields_end_p_s_by_trip_p)
 # percentage is very close
 
 # data_from_db_more_fields_end_p_s_by_trip_p
@@ -740,7 +740,7 @@ gom_fhier1_list_t <-
                       )
              )
 
-View(gom_fhier1_list_t)
+# View(gom_fhier1_list_t)
 
 compare_perc_db_fhier0 <-
   data_from_db_more_fields_end_p_s_by_trip_p %>%

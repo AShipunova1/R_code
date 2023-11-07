@@ -231,7 +231,7 @@ vessels_cnt_per_year_reg_compl_tot_perc <-
 # %>% 
 #   dplyr::mutate(perc_labels = paste0(round(percent_compl, 1), "%"))
 
-View(vessels_cnt_per_year_reg_compl_tot_perc)
+# View(vessels_cnt_per_year_reg_compl_tot_perc)
 
 # vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
 #   purrr::map(function(curr_year_region) {
@@ -580,7 +580,7 @@ grid.arrange(grobs =
 
 # Per month, region ----
 # test
-View(compl_clean_sa_vs_gom_m_int_c)
+# View(compl_clean_sa_vs_gom_m_int_c)
 
 compl_clean_sa_vs_gom_m_int_c %>%
   dplyr::add_count(year_region,
@@ -609,7 +609,7 @@ count_weeks_per_vsl_permit_year_compl_month <-
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")
   
-View(count_weeks_per_vsl_permit_year_compl_month)
+# View(count_weeks_per_vsl_permit_year_compl_month)
 
 # test
 count_weeks_per_vsl_permit_year_compl_month %>%
@@ -779,7 +779,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%
 # T
 
 ## 4) Month: cnt percents of (3) ----
-View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot)
+# View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot)
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p <-
   nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%

@@ -141,7 +141,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short <-
          compliant_) |>
   dplyr::distinct()
 
-View(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short)
+# View(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short)
 # [1] 24  4
 
 count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent <-

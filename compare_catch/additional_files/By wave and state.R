@@ -20,7 +20,7 @@ fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom <-
       })
 
 names(fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom) <- c("sa", "gom")
-View(fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom)
+# View(fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom)
 
 
 # all.equal(state_wave_list_state_sedar,

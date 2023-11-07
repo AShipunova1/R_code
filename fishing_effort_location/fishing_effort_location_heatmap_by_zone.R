@@ -43,7 +43,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt <-
          trip_id_cnt_stat_zone = n_distinct(trip_id)) |>
   dplyr::ungroup()
 
-View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
+# View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
 
 # for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
 #   filter(vsl_cnt_stat_zone < 3) |>

@@ -877,7 +877,7 @@ compl_corr_to_investigation1_short <-
   ) |>
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
-View(compl_corr_to_investigation1_short)
+# View(compl_corr_to_investigation1_short)
 # [1] 107   9
 # 27: [1] 177  10
 # [1] 105   9

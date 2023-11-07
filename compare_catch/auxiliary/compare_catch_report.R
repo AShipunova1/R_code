@@ -75,7 +75,7 @@ report_file_path2_states <- file.path(my_paths$outputs,
 
 ## 1a) SEDAR lists ----
 # c("sa", "gom")
-View(state_wave_has_rec_acl_data_list_state_sedar)
+# View(state_wave_has_rec_acl_data_list_state_sedar)
 
 map(names(state_wave_has_rec_acl_data_list_state_sedar),
     function(sa_or_gom) {

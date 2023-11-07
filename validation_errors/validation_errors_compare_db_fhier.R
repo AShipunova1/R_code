@@ -47,7 +47,7 @@ by_year_month <- function(my_df, fields_to_select_list) {
 db_pending_by_year_month <-
   by_year_month(dat_pending_date, c("trip_report_id", "arr_year_month"))
 
-View(db_pending_by_year_month)
+# View(db_pending_by_year_month)
 # A tibble: 17 × 2
 
 by_year_month_wide <- function(my_df, fields_to_select_list) {
@@ -368,7 +368,7 @@ db_unas_sys_err_f_ym <-
     by = join_by(arr_year_month)
   )
 
-View(db_unas_sys_err_f_ym)
+# View(db_unas_sys_err_f_ym)
 
 # TODO: repeat for captain_name
 
@@ -467,7 +467,7 @@ db_n_fhier_data_22_ok_cnts <-
 
 #### In FHIER too ====
 # filter(db_n_fhier_data_22_ok_cnts, !is.na(overrideuser)) %>% View()
-View(db_n_fhier_data_22_ok_cnts)
+# View(db_n_fhier_data_22_ok_cnts)
 # tail()
 
 param_in_both <-
@@ -565,7 +565,7 @@ setnames(
     'total_fhier'
   )
 )
-View(db_unas_param_f_ym)
+# View(db_unas_param_f_ym)
 
 ### Apr 2022 ====
 apr_unas_both <-

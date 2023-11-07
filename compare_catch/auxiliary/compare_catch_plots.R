@@ -996,7 +996,7 @@ state_wave_rec_acl_top_list <-
           return()
       })
 
-View(state_wave_rec_acl_top_list)
+# View(state_wave_rec_acl_top_list)
 state_wave_rec_acl_top_list[["FL"]] %>%
   dplyr::select(scientific_name) %>% unique() %>% dim()
 # 18
@@ -1253,7 +1253,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 #   dplyr::select(common_name_fhier)
 # )
 
-View(fhier_acl_catch_by_species_state_year_list)
+# View(fhier_acl_catch_by_species_state_year_list)
 
 state_year_plots_sedar <-
   # has rec_acl data
@@ -1486,7 +1486,7 @@ grid.arrange(grobs = state_year_plots,
 
 
 #### 0 counts? ----
-View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
+# View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   dplyr::filter(fhier_quantity_by_4 == 0 &

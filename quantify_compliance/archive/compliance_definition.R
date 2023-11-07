@@ -77,7 +77,7 @@ compl_clean_short_sa_vs_gom %>%
 # ====
 source(r"(~\R_code_github\quantify_compliance\quantify_compliance_start.R)")
 
-View(compl_clean_sa_vs_gom_plus_dual)
+# View(compl_clean_sa_vs_gom_plus_dual)
 compl_clean_short <-
   compl_clean_sa_vs_gom_plus_dual %>%
   select(
@@ -199,7 +199,7 @@ g_permits_types <-
   select(permit_code, type) %>% unique()
 # 14
 
-View(g_permits_types)
+# View(g_permits_types)
 
 g_permits_from_sa_only %>%
   select(permit_code, type) %>%
