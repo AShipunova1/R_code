@@ -629,7 +629,7 @@ x_bottom <-
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     # get a name
     curr_year_permit <- curr_year_reg_list[[1]]

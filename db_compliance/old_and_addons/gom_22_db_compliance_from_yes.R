@@ -512,7 +512,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 #     v_p__t__tn_d_weeks_gom_short_matched_compl_w_4,
 #     v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a
 #   ) |>
-#   map(function(curr_df) {
+#   purrr::map(function(curr_df) {
 #     # browser()
 #     curr_df |>
 #       dplyr::filter(no_decl_compl == "yes") |>

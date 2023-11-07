@@ -192,7 +192,7 @@ vessels_cnt_per_year_reg_compl_tot_perc <-
 View(vessels_cnt_per_year_reg_compl_tot_perc)
 
 # vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
-#   map(function(curr_year_region) {
+#   purrr::map(function(curr_year_region) {
 #     browser()
 #     vessels_cnt_per_year_reg_compl_tot_perc %>%
 #       filter(year_region == curr_year_region) %>%
@@ -248,7 +248,7 @@ plots_for_c_vs_nc_vsls <- function(my_df, y_r_title) {
 
 gg_all_c_vs_nc_plots <-
 vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
-  map(function(curr_year_region) {
+  purrr::map(function(curr_year_region) {
     # browser()
     curr_df <-    
     vessels_cnt_per_year_reg_compl_tot_perc %>%
@@ -456,7 +456,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_region %>%
   unique() %>%
   sort() %>% 
-  map(function(curr_year_region) {
+  purrr::map(function(curr_year_region) {
     # browser()
     total_non_compl_df <-
       count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
@@ -790,7 +790,7 @@ get_one_plot_by_month <-
 
 gg_month_nc_perc <-
   sorted_year_regions %>%
-  map(
+  purrr::map(
     function(current_year_region) {
       # browser()
       curr_df <-
@@ -807,7 +807,7 @@ gg_month_nc_perc <-
         sort() %>%
         # repeat the function for each year_month
         # see the function definition F2
-        map(~ get_one_plot_by_month(curr_df,
+        purrr::map(~ get_one_plot_by_month(curr_df,
                                     curr_year_month = .))
       
       # add correct names instead of 1, 2...
@@ -829,7 +829,7 @@ super_title = "Percent distribution of non compliant vessels per year, month & r
 all_plots <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     super_title <- paste(super_title,
                          curr_year_reg_list[[1]])

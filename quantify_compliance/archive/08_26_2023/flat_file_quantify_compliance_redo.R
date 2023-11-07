@@ -703,14 +703,14 @@ get_data_from_FHIER_csvs <- function() {
   ## ---- get csv data into variables ----
   csv_names_list <-
     filenames |>
-    map( ~ paste0(
+    purrr::map( ~ paste0(
       # my_paths$inputs,
                   # "/",
                   add_dir,
                   "/",
                   .x))
   
-  # map(csv_names_list, file.exists)
+  # purrr::map(csv_names_list, file.exists)
   # # T
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
@@ -1745,7 +1745,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map( ~ .x + labs(x = NULL, y = NULL))
+  purrr::map( ~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -2267,7 +2267,7 @@ x_bottom <- textGrob("'buckets' - distibution of % of non compliant weeks per ve
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     # get a name
     curr_year_permit <- curr_year_reg_list[[1]]

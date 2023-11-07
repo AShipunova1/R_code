@@ -147,14 +147,14 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
 #       dplyr::glimpse()
 #     # x %>%
 #   # dplyr::filter(unique_all_vessel_ids %>%
-#   #          map(str_detect, y) %>%
+#   #          purrr::map(str_detect, y) %>%
 #   #          map_lgl(any))
 #   #   ! `pattern` must be a string, not a list.
   # }
 
 # purrr::pmap(x, y, my_f(x, y)) |> str()
 
-# map(y, function() {unique_all_vessel_ids })
+# purrr::map(y, function() {unique_all_vessel_ids })
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
   head() |> 
   dplyr::filter(unique_all_vessel_ids %>%
@@ -179,23 +179,23 @@ my_f <- function(x, y) {
   # head(x, n = 1) |>
   #   dplyr::glimpse()
   
-  res <- map(y, function(one_j_id) {
+  res <- purrr::map(y, function(one_j_id) {
     # browser()
-    map(x$unique_all_vessel_ids,
+    purrr::map(x$unique_all_vessel_ids,
         function(unique_all_vessel_id) {
           # browser()
           stringr::str_detect(unique_all_vessel_id, one_j_id) %>%
             return()
         })
   })
-  # map(0:1, function(x)
+  # purrr::map(0:1, function(x)
   #   purrr::map_df(0:7,function(y)
   # dplyr::intersect,
   # x$unique_all_vessel_ids)
   
   # x %>%
   # dplyr::filter(unique_all_vessel_ids %>%
-  #          map(str_detect, y) %>%
+  #          purrr::map(str_detect, y) %>%
   #          map_lgl(any))
   #   ! `pattern` must be a string, not a list.
   
@@ -360,7 +360,7 @@ trip_neg_query_templ <-
   in ('{all_29_ids}')"
 
 # res_q <-
-#   map_chr(field_names[,1], str_interp, string = trip_neg_query_templ)
+#   purrr::map_chr(field_names[,1], str_interp, string = trip_neg_query_templ)
 
 # stringr::str_glue(
 #   "My name is {field_names[1,]}, ",
@@ -375,7 +375,7 @@ stringr::str_glue("SELECT *
   in ('{all_29_ids}')")
 
 # field_names |> 
-  # map(~)
+  # purrr::map(~)
 
 
 in_j_only_t_neg <-

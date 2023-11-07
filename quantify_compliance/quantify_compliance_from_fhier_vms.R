@@ -281,7 +281,7 @@ save_plots_list_to_files(file.path(vms_plot_file_path,
                          gg_arranged_plots_vms)
 
 # gg_all_c_vs_nc_plots_vms |>
-#   map(function(current_plot) {
+#   purrr::map(function(current_plot) {
 #     # create a clean_name
 #     # browser()
 #     clean_name <-

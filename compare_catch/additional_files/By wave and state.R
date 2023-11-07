@@ -1,11 +1,11 @@
 # separate by sa, gom top acl ---
 fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom <-
   # drop "NOT-SPECIFIED"
-  map(c("sa", "gom"),
+  purrr::map(c("sa", "gom"),
       function(current_sa_gom) {
         # browser()
         fhier_acl_catch_by_species_state_region_waves_states_list[[current_sa_gom]] %>%
-          map(function(current_df) {
+          purrr::map(function(current_df) {
             current_df %>%
               
               dplyr::filter(if (current_sa_gom == "gom") {
@@ -29,7 +29,7 @@ View(fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_go
 
 state_wave_has_rec_acl_data_list_state_top_mrip <-
   fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom %>%
-  map(remove_no_mrip_cnts)
+  purrr::map(remove_no_mrip_cnts)
 
 # View(state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL)
 # state_wave_has_rec_acl_data_list_state_top_mrip$sa$NC %>%
@@ -97,7 +97,7 @@ save_plot_to_file <-
 
 state_wave_plots_rec_acl_top <-
   # for each region
-  map(c("sa", "gom"),
+  purrr::map(c("sa", "gom"),
       function(current_sa_gom) {
         # get spp list
         current_top_spp <- get_current_acl_list(current_sa_gom)
@@ -105,7 +105,7 @@ state_wave_plots_rec_acl_top <-
         current_st_df_list <-
           state_wave_has_rec_acl_data_list_state_top_mrip[[current_sa_gom]]
         # make_one_state_plot for each state in that region (for all spp from the list)
-        map(
+        purrr::map(
           names(current_st_df_list),
           ~ make_one_state_plot(.x,
                                 current_st_df_list,

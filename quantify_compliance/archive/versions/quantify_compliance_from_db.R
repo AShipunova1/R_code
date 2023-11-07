@@ -120,7 +120,7 @@ month_names <- sa_compl_err_db_data_permit_grps_nc_perc_short$year_month %>%
 
 gg_sa_compl_err_db_data_permit_grps_nc_perc <-
   month_names |>
-  map(
+  purrr::map(
     \(current_year_month)
     perc_plots_by_month(
       sa_compl_err_db_data_permit_grps_nc_perc_short,
@@ -260,7 +260,7 @@ gom22_month_names <- perc_gom_compl_err_db_data_permit_grps_short_nc_no$year_mon
 
 gg_perc_gom_compl_err_db_data_permit_grps_short_nc_no <-
   gom22_month_names |>
-  map(
+  purrr::map(
     \(current_year_month)
     perc_plots_by_month(
       perc_gom_compl_err_db_data_permit_grps_short_nc_no,

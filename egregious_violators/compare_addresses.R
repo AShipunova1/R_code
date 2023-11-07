@@ -77,7 +77,7 @@ corrected_csv1 <-
 short_dfs <-
   list(aug_9_csv,
        corrected_csv) |>
-  map( ~ .x |>
+  purrr::map( ~ .x |>
          dplyr::select(any_of(fields_to_use)) |>
          dplyr::distinct())
 

@@ -225,7 +225,7 @@ plot(fhier_acl_gom_to_plot)
 # plot_by_spp("MACKEREL, SPANISH", fhier_acl_gom_to_plot)
 
 ### GOM plots for each common name from the top 10 ----
-plots10_gom <- map(unique(fhier_acl_gom_to_plot$common_name),
+plots10_gom <- purrr::map(unique(fhier_acl_gom_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_gom_to_plot)}
                )
@@ -261,7 +261,7 @@ fhier_acl_sa_to_plot <-
 # plot(fhier_acl_sa_to_plot)
 
            # for each common name from the top 10
-sa_plots10 <- map(unique(fhier_acl_sa_to_plot$common_name),
+sa_plots10 <- purrr::map(unique(fhier_acl_sa_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_sa_to_plot)}
                )
@@ -326,7 +326,7 @@ The smaller the bar is the closer the ACL estmates are to the FHIER counts.",
 )
 
 ## plot_ind function ----
-# map(unique(fhier_acl_gom_ind$common_name)
+# purrr::map(unique(fhier_acl_gom_ind$common_name)
 
 plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   # browser()
@@ -413,7 +413,7 @@ mypalette
 
 one_plot <- plot_ind(use_wave(fhier_acl_gom_ind), "MACKEREL, SPANISH", mypalette)
 
-gom_ind_plots <- map(unique(fhier_acl_gom_ind$common_name),
+gom_ind_plots <- purrr::map(unique(fhier_acl_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_ind(use_wave(fhier_acl_gom_ind), x, mypalette)}
                )
@@ -444,7 +444,7 @@ names(mypalette) <- sa_all_cnt_indexes
 mypalette
 # mypalette %>% unique()
 
-sa_ind_plots <- map(unique(fhier_acl_sa_ind$common_name),
+sa_ind_plots <- purrr::map(unique(fhier_acl_sa_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_ind(use_wave(fhier_acl_sa_ind), x, mypalette)}
                )
@@ -553,7 +553,7 @@ gom_acl_top_to_plot_longer <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
 View(gom_acl_top_to_plot_longer)
 
 ### GOM plots for each common name from the top 10 ----
-plots_acl_top_gom <- map(unique(gom_acl_top_to_plot_longer$common_name),
+plots_acl_top_gom <- purrr::map(unique(gom_acl_top_to_plot_longer$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, gom_acl_top_to_plot_longer)}
                )
@@ -604,7 +604,7 @@ sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 
 
 ### sa plots for each common name from the top ACL spp ----
-plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name),
+plots_acl_top_sa <- purrr::map(unique(sa_acl_top_to_plot_longer$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, sa_acl_top_to_plot_longer)}
                )

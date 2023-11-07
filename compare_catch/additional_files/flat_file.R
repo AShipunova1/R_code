@@ -235,9 +235,9 @@ load_acl_data <- function() {
 
   # add prefix to each file name if needed
   # acl_csv_names_list <-
-  #   map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
+  #   purrr::map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
   # acl_xls_names_list <-
-  # map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
+  # purrr::map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
 
   # use functions from above
   acl_species_list <-

@@ -1023,7 +1023,7 @@ sa_acl_top_spp <-
 fhier_acl_catch_by_species_state_region_waves_states_list <-
   fhier_acl_catch_by_species_state_region_waves_list %>%
     # for each DF from the list
-    map(function(current_df) {
+    purrr::map(function(current_df) {
     current_df %>%
       split(as.factor(current_df$state))
   })
@@ -1115,5 +1115,5 @@ fhier_acl_catch_by_species_state_year_list <-
   ungroup %>%
   split(as.factor(fhier_acl_catch_by_species_state_year$state)) %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-"state")))
+  purrr::map(.f = list(. %>% dplyr::select(-"state")))
 

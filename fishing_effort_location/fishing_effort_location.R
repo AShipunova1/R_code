@@ -565,7 +565,7 @@ map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_go
 # save counts ----
 ## check ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(
+  purrr::map(
     function(permit_df) {
       permit_df |>
       dplyr::select(-c(LATITUDE, LONGITUDE)) |>
@@ -590,7 +590,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
 
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(function(permit_df) {
+  purrr::map(function(permit_df) {
     permit_df |>
       dplyr::select(-c(LATITUDE, LONGITUDE,
                 permit_sa_gom,
@@ -614,7 +614,7 @@ print_df_names(
 
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
-  map(function(permit_df) {
+  purrr::map(function(permit_df) {
     permit_df |>
       dplyr::select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
       dplyr::distinct()

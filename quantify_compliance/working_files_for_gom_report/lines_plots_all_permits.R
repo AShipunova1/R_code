@@ -7,7 +7,7 @@ pecent_names <- paste0(seq(0, 100, by = 10), "%")
 
 line_plots_3 <- 
   year_permits |> 
-  map(function(current_year_permit) {
+  purrr::map(function(current_year_permit) {
     # browser()
     current_df <-
       count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2[[current_year_permit]]

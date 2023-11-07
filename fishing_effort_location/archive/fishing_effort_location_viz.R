@@ -273,7 +273,7 @@ mapview_q <- function(my_df, points_num, q_name) {
 points_num <- 1000
 
 maps_q <-
-  map(names(lat_long_dat_dep_q_list),
+  purrr::map(names(lat_long_dat_dep_q_list),
       function(q_name) {
         # browser()
         m_n <- mapview_q(lat_long_dat_dep_q_list[[q_name]],
@@ -284,7 +284,7 @@ maps_q <-
 
 maps_q[[4]]
 
-# map(lat_long_dat_dep_q_list,
+# purrr::map(lat_long_dat_dep_q_list,
 #     function(x) {dim(x)})
 # $`2022 Q1`
 # [1] 35207    24

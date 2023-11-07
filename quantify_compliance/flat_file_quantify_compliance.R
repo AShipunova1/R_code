@@ -1228,7 +1228,7 @@ make_one_plot_compl_vs_non_compl <-
     # +
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
 
-    label_percent <- map(my_df$perc_c_nc,
+    label_percent <- purrr::map(my_df$perc_c_nc,
                           ~ paste0(round(.x, 1), "%"))
                    
     # Add percent numbers on the bars
@@ -2453,7 +2453,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map(~ .x + labs(x = NULL, y = NULL))
+  purrr::map(~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -3804,7 +3804,7 @@ x_bottom <-
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     # get a name
     curr_year_permit <- curr_year_reg_list[[1]]
@@ -4346,7 +4346,7 @@ save_plots_list_to_files(file.path(vms_plot_file_path,
                          gg_arranged_plots_vms)
 
 # gg_all_c_vs_nc_plots_vms |>
-#   map(function(current_plot) {
+#   purrr::map(function(current_plot) {
 #     # create a clean_name
 #     # browser()
 #     clean_name <-
@@ -5948,7 +5948,7 @@ make_one_plot_compl_vs_non_compl <-
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
     
     # Create a 'label_percent' vector by applying the rounding and '%' symbol to 'perc_c_nc' column
-    label_percent <- map(my_df$perc_c_nc,
+    label_percent <- purrr::map(my_df$perc_c_nc,
                          ~ paste0(round(.x, 1), "%"))
     
     # Conditionally add percent numbers to the bars based on 'default_percent_labels'
@@ -7186,7 +7186,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map(~ .x + labs(x = NULL, y = NULL))
+  purrr::map(~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -8537,7 +8537,7 @@ x_bottom <-
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     # get a name
     curr_year_permit <- curr_year_reg_list[[1]]
@@ -9079,7 +9079,7 @@ save_plots_list_to_files(file.path(vms_plot_file_path,
                          gg_arranged_plots_vms)
 
 # gg_all_c_vs_nc_plots_vms |>
-#   map(function(current_plot) {
+#   purrr::map(function(current_plot) {
 #     # create a clean_name
 #     # browser()
 #     clean_name <-
@@ -10681,7 +10681,7 @@ make_one_plot_compl_vs_non_compl <-
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
     
     # Create a 'label_percent' vector by applying the rounding and '%' symbol to 'perc_c_nc' column
-    label_percent <- map(my_df$perc_c_nc,
+    label_percent <- purrr::map(my_df$perc_c_nc,
                          ~ paste0(round(.x, 1), "%"))
     
     # Conditionally add percent numbers to the bars based on 'default_percent_labels'
@@ -11921,7 +11921,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map(~ .x + labs(x = NULL, y = NULL))
+  purrr::map(~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -13272,7 +13272,7 @@ x_bottom <-
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     # get a name
     curr_year_permit <- curr_year_reg_list[[1]]
@@ -13814,7 +13814,7 @@ save_plots_list_to_files(file.path(vms_plot_file_path,
                          gg_arranged_plots_vms)
 
 # gg_all_c_vs_nc_plots_vms |>
-#   map(function(current_plot) {
+#   purrr::map(function(current_plot) {
 #     # create a clean_name
 #     # browser()
 #     clean_name <-
@@ -15416,7 +15416,7 @@ make_one_plot_compl_vs_non_compl <-
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
     
     # Create a 'label_percent' vector by applying the rounding and '%' symbol to 'perc_c_nc' column
-    label_percent <- map(my_df$perc_c_nc,
+    label_percent <- purrr::map(my_df$perc_c_nc,
                          ~ paste0(round(.x, 1), "%"))
     
     # Conditionally add percent numbers to the bars based on 'default_percent_labels'
@@ -16656,7 +16656,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map(~ .x + labs(x = NULL, y = NULL))
+  purrr::map(~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -18007,7 +18007,7 @@ x_bottom <-
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     # get a name
     curr_year_permit <- curr_year_reg_list[[1]]
@@ -18549,7 +18549,7 @@ save_plots_list_to_files(file.path(vms_plot_file_path,
                          gg_arranged_plots_vms)
 
 # gg_all_c_vs_nc_plots_vms |>
-#   map(function(current_plot) {
+#   purrr::map(function(current_plot) {
 #     # create a clean_name
 #     # browser()
 #     clean_name <-

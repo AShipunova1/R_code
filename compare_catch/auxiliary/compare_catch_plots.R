@@ -303,7 +303,7 @@ spp_to_plot_gom <- fhier_acl_gom_to_plot$common_name_fhier %>%
   # na.omit()
   na.exclude()
 
-plots10_gom <- map(spp_to_plot_gom,
+plots10_gom <- purrr::map(spp_to_plot_gom,
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(com_name) {plot_by_spp(fhier_acl_gom_to_plot, com_name)}
                )
@@ -338,7 +338,7 @@ fhier_acl_sa_to_plot <-
 # plot(fhier_acl_sa_to_plot)
 
            # for each common name from the top 10
-sa_plots10 <- map(unique(fhier_acl_sa_to_plot$common_name_fhier),
+sa_plots10 <- purrr::map(unique(fhier_acl_sa_to_plot$common_name_fhier),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(com_name) {plot_by_spp(fhier_acl_sa_to_plot, com_name)}
                )
@@ -402,7 +402,7 @@ The smaller the bar is the closer the ACL estmates are to the FHIER counts.",
 )
 
 ## plot_ind function ----
-# map(unique(fhier_acl_gom_ind$common_name)
+# purrr::map(unique(fhier_acl_gom_ind$common_name)
 
 plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   # browser()
@@ -497,7 +497,7 @@ mypalette
 
 one_plot <- plot_ind(fhier_acl_gom_ind, "MACKEREL, SPANISH", mypalette)
 
-gom_ind_plots <- map(unique(fhier_acl_gom_ind$common_name_fhier),
+gom_ind_plots <- purrr::map(unique(fhier_acl_gom_ind$common_name_fhier),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_ind(fhier_acl_gom_ind, x, mypalette)}
                )
@@ -528,7 +528,7 @@ names(mypalette) <- sa_all_cnt_indexes
 mypalette
 # mypalette %>% unique()
 
-sa_ind_plots <- map(unique(fhier_acl_sa_ind$common_name_fhier),
+sa_ind_plots <- purrr::map(unique(fhier_acl_sa_ind$common_name_fhier),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_ind(fhier_acl_sa_ind, x, mypalette)}
                )
@@ -642,7 +642,7 @@ spp_to_plot_gom_acl_top <- gom_acl_top_to_plot_longer$common_name_fhier %>%
   unique() %>%
   na.exclude()
 
-plots_acl_top_gom <- map(spp_to_plot_gom_acl_top,
+plots_acl_top_gom <- purrr::map(spp_to_plot_gom_acl_top,
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(com_name) {plot_by_spp(gom_acl_top_to_plot_longer, com_name)}
                )
@@ -704,7 +704,7 @@ plots_acl_top_sa <-
   unique(sa_acl_top_to_plot_longer$common_name_fhier) %>%
   # all names except NA
   na.exclude() %>%
-  map(# run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
+  purrr::map(# run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
     function(com_name) {
       plot_by_spp(sa_acl_top_to_plot_longer, com_name)
     })
@@ -744,14 +744,14 @@ region_waves_gom_long_wave_list <-
     )
   ) %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-one_of("state", "wave"))))
+  purrr::map(.f = list(. %>% dplyr::select(-one_of("state", "wave"))))
 
 # View(region_waves_gom_long_wave_list)
 my_reg <- "GOM"
 
 plots_region_waves_gom_long_wave_list <-
   names(region_waves_gom_long_wave_list) %>%
-  map(function(wave_num) {
+  purrr::map(function(wave_num) {
     # browser()
     region_waves_gom_long_wave_list[[wave_num]] %>%
       unique() %>%
@@ -767,7 +767,7 @@ plots_region_waves_gom_long_wave_list <-
 # plots_region_waves_gom_long_wave_list[[4]]
 
 names(region_waves_gom_long_wave_list) %>%
-  map(function(wave_num) {
+  purrr::map(function(wave_num) {
     ggsave(
       paste0(my_reg, wave_num, "w.pdf"),
       plots_region_waves_gom_long_wave_list[[as.numeric(wave_num)]],
@@ -788,14 +788,14 @@ region_waves_sa_long_wave_list <-
     )
   ) %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-one_of("state", "wave"))))
+  purrr::map(.f = list(. %>% dplyr::select(-one_of("state", "wave"))))
 
 # View(region_waves_sa_long_wave_list)
 my_reg <- "SA"
 
 plots_region_waves_sa_long_wave_list <-
   names(region_waves_sa_long_wave_list) %>%
-  map(function(wave_num) {
+  purrr::map(function(wave_num) {
     # browser()
     region_waves_sa_long_wave_list[[wave_num]] %>%
       unique() %>%
@@ -811,7 +811,7 @@ plots_region_waves_sa_long_wave_list <-
 plots_region_waves_sa_long_wave_list[[1]]
 # ggsave("1a.png", plots_region_waves_sa_long_wave_list[[1]])
 names(region_waves_sa_long_wave_list) %>%
-  map(function(wave_num) {
+  purrr::map(function(wave_num) {
     # browser()
     ggsave(
       paste0(my_reg, wave_num, "w.pdf"),
@@ -828,11 +828,11 @@ names(region_waves_sa_long_wave_list) %>%
 
 state_wave_list_state_sedar <-
   # drop "NOT-SPECIFIED"
-  map(c("sa", "gom"),
+  purrr::map(c("sa", "gom"),
       function(current_sa_gom) {
         # browser()
         fhier_acl_catch_by_species_state_region_waves_states_list[[current_sa_gom]] %>%
-          map(function(current_df) {
+          purrr::map(function(current_df) {
             current_df %>%
               
               dplyr::filter(if (current_sa_gom == "gom") {
@@ -851,7 +851,7 @@ names(state_wave_list_state_sedar) <- c("sa", "gom")
 
 state_wave_has_rec_acl_data_list_state_sedar <-
   state_wave_list_state_sedar %>%
-  map(remove_no_mrip_cnts)
+  purrr::map(remove_no_mrip_cnts)
 
 # View(state_wave_has_rec_acl_data_list_state_sedar$gom$AL)
 state_wave_has_rec_acl_data_list_state_sedar$gom$AL %>%
@@ -864,7 +864,7 @@ each_state_to_plot <- function(my_df, spp_list) {
   one_st_to_plot <-
     fhier_acl_to_plot_format(my_df)
   
-  plots_top <- map(spp_list$common_name_fhier,
+  plots_top <- purrr::map(spp_list$common_name_fhier,
                    # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                    function(com_name) {
                      plot_by_spp(one_st_to_plot, com_name)
@@ -961,7 +961,7 @@ make_one_state_plot <-
 
 state_wave_plots_sedar <-
   # for each region
-  map(c("sa", "gom"),
+  purrr::map(c("sa", "gom"),
       function(current_sa_gom) {
         # get spp list
         current_top_spp <- get_current_sedar_list(current_sa_gom)
@@ -969,7 +969,7 @@ state_wave_plots_sedar <-
         current_st_df_list <-
           state_wave_has_rec_acl_data_list_state_sedar[[current_sa_gom]]
         # make_one_state_plot for each state in that region (for all spp from the list)
-        map(
+        purrr::map(
           names(current_st_df_list),
           ~ make_one_state_plot(.x,
                                 current_st_df_list,
@@ -985,7 +985,7 @@ state_wave_plots_sedar <-
 ## 2) By wave and state 2b) Recreational ACL tops ----
 ### all top ----
 state_wave_rec_acl_top_list <-
-  map(state_wave_has_rec_acl_data_list_new,
+  purrr::map(state_wave_has_rec_acl_data_list_new,
       function(by_state_df) {
         # browser()
         by_state_df %>%
@@ -1005,7 +1005,7 @@ state_wave_plots_mrip_top <-
   # has rec_acl data
     names(state_wave_rec_acl_top_list) %>%
   # repeat for each state
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     super_title_state_mrip = paste0(state_abbr, ". Top ACL species counts by state. 2022")
     # browser()
     # get data for this state
@@ -1038,11 +1038,11 @@ gridExtra::grid.arrange(
 ### by 12 top MRIP separate by sa and gom ----
 state_wave_list_state_top_mrip <-
   # drop "NOT-SPECIFIED"
-  map(c("sa", "gom"),
+  purrr::map(c("sa", "gom"),
       function(current_sa_gom) {
         # browser()
         fhier_acl_catch_by_species_state_region_waves_states_list[[current_sa_gom]] %>%
-          map(function(current_df) {
+          purrr::map(function(current_df) {
             current_df %>%
               
               dplyr::filter(if (current_sa_gom == "gom") {
@@ -1061,7 +1061,7 @@ names(state_wave_list_state_top_mrip) <- c("sa", "gom")
 
 state_wave_has_rec_acl_data_list_state_top_mrip <-
   state_wave_list_state_top_mrip %>%
-  map(remove_no_mrip_cnts)
+  purrr::map(remove_no_mrip_cnts)
 
 # View(state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL)
 state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL %>%
@@ -1074,7 +1074,7 @@ state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL %>%
 #   one_st_to_plot <-
 #     fhier_acl_to_plot_format(my_df)
 #   
-#   plots_top <- map(spp_list$common_name,
+#   plots_top <- purrr::map(spp_list$common_name,
 #                    # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
 #                    function(com_name) {
 #                      plot_by_spp(one_st_to_plot, com_name)
@@ -1138,7 +1138,7 @@ get_current_top_mrip_list <- function(current_sa_gom) {
 
 state_wave_plots_top_mrip <-
   # for each region
-  map(c("sa", "gom"),
+  purrr::map(c("sa", "gom"),
       function(current_sa_gom) {
         # get spp list
         current_top_spp <- get_current_top_mrip_list(current_sa_gom)
@@ -1146,7 +1146,7 @@ state_wave_plots_top_mrip <-
         current_st_df_list <-
           state_wave_has_rec_acl_data_list_state_top_mrip[[current_sa_gom]]
         # make_one_state_plot for each state in that region (for all spp from the list)
-        map(
+        purrr::map(
           names(current_st_df_list),
           ~ make_one_state_plot(.x,
                                 current_st_df_list,
@@ -1259,7 +1259,7 @@ state_year_plots_sedar <-
   # has rec_acl data
     names(state_year_has_rec_acl_data_list_new) %>%
   # repeat for each state
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       # keep only spp in the SEDAR spp lists
@@ -1321,7 +1321,7 @@ state_year_top_rec_acl_plots_2k <-
   small_st %>%
     # names(state_year_has_rec_acl_data_list_new) %>%
   # repeat for each state
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
 #   # keep only top r_acl cnts
@@ -1342,7 +1342,7 @@ state_year_top_rec_acl_plots_4k <-
   big_st %>%
     # names(state_year_has_rec_acl_data_list_new) %>%
   # repeat for each state
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
 #   # keep only top r_acl cnts
@@ -1393,7 +1393,7 @@ state_year_plots_mrip_top <-
   # has rec_acl data
     names(state_year_has_rec_acl_data_list_new) %>%
   # repeat for each state
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       # keep only spp in the SEDAR spp lists
@@ -1433,7 +1433,7 @@ state_year_plots_mrip_top <-
   # has rec_acl data
     names(state_year_has_rec_acl_data_list_new) %>%
   # repeat for each state
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       # keep only spp in the SEDAR spp lists
@@ -1470,7 +1470,7 @@ plot_by_time(fhier_acl_catch_by_species_state_year_list$AL, "AL", sort_field = "
 state_year_plots <-
   names(state_year_has_rec_acl_data_list_new) %>%
   # repeat for each state
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       plot_by_time(my_title = state_abbr, sort_field = "rec_acl_cnts_by_year", show_counts = F, show_com_names = FALSE)

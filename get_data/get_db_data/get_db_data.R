@@ -662,7 +662,7 @@ get_vessels_permits <-
 #   safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
 #
 # rr <-
-#   map(field_names,
+#   purrr::map(field_names,
 #     function(field_name) {
 #       print(str_glue("field_name = {field_name}"))
 #       q <- str_glue(vessels_zero_query)
@@ -909,7 +909,7 @@ force_from_db <- NULL # read data from files if exist
 ### check ----
 # for each df print its name and dim()
 # names(all_get_db_data_result_l) |>
-#   map(\(df_name) {
+#   purrr::map(\(df_name) {
 #     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
 #   })
 

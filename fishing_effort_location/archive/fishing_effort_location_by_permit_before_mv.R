@@ -59,7 +59,7 @@ map_df(
 # Use the 'map' function to perform a series of operations on a list of data frames.
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(
+  purrr::map(
     function(permit_df) {
       # Perform operations on each 'permit_df' data frame within the list.
       permit_df |>
@@ -92,7 +92,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(function(permit_df) {
+  purrr::map(function(permit_df) {
     permit_df |>
       dplyr::select(-c(permit_sa_gom,
                 permit_region)) |>
@@ -125,7 +125,7 @@ map_df(
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
-  map(function(permit_df) {
+  purrr::map(function(permit_df) {
     permit_df |>
       dplyr::select(-c(TRIP_ID, vessel_official_nbr,
                 latitude, longitude)) |>

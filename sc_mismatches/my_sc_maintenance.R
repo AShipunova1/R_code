@@ -93,7 +93,7 @@ output_file_names <- c("remove_from_FHIER",
 
 output_file_path_list <-
   output_file_names |>
-  map(~ file.path(
+  purrr::map(~ file.path(
     my_paths$outputs,
     project_dir_name,
     str_glue("{.x}_{today()}.csv")

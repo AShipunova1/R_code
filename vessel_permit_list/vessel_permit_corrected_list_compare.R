@@ -12,7 +12,7 @@ db_df_reg_l <-
   use_df_names |>
 
   # Use the 'map' function to apply a custom function to each data frame in 'all_get_db_data_result_l'.
-  map(function(use_df_name) {
+  purrr::map(function(use_df_name) {
 
     # Inside the 'map' function, apply the 'separate_permits_into_3_groups' function
     # to the corresponding data frame from 'all_get_db_data_result_l'.
@@ -23,7 +23,7 @@ db_df_reg_l <-
   # Set the names of the resulting list to match the names in 'use_df_names'.
   rlang::set_names(use_df_names)
 
-# map(db_df_reg_l,
+# purrr::map(db_df_reg_l,
 #     print_df_names)
 
 ### get 2022 sa_only ----
@@ -34,7 +34,7 @@ db_df_reg_2022_sa_only_l <-
   use_df_names |>
 
   # Use the 'map' function to apply a custom function to each data frame in 'db_df_reg_l'.
-  map(function(use_df_name) {
+  purrr::map(function(use_df_name) {
 
     # Inside the 'map' function, access the data frame 'db_df_reg_l[[use_df_name]]'.
     db_df_reg_l[[use_df_name]] |>

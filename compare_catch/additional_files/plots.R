@@ -890,7 +890,7 @@ plot_vy_spp <- function(com_name, no_legend = TRUE) {
 }
 
 plots10 <-
-  map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp)
+  purrr::map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp)
 
 super_title = "The top 9 most abundant FHIER species by waves"
 
@@ -930,7 +930,7 @@ plot(fhier_mrip_gom_to_plot)
 ### 10 gom plots ----
 # plot_vy_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot) ----
 
-plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
+plots10 <- purrr::map(unique(fhier_mrip_gom_to_plot$common_name),
                function(x) {
                  plot_vy_spp(x, fhier_mrip_gom_to_plot)
                })
@@ -975,7 +975,7 @@ plot(fhier_mrip_sa_to_plot)
 ### 10 sa plots ----
 # plot_vy_spp("BASS, BLACK SEA", fhier_mrip_sa_to_plot)
 
-plots10 <- map(unique(fhier_mrip_sa_to_plot$common_name),
+plots10 <- purrr::map(unique(fhier_mrip_sa_to_plot$common_name),
                function(x) {
                  plot_vy_spp(x, fhier_mrip_sa_to_plot)
                })

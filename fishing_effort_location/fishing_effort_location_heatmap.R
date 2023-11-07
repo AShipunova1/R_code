@@ -222,7 +222,7 @@ effort_cropped_short_cnt2_short_l <-
       dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr))
   })
 
-# map(effort_cropped_short_cnt2_short_l, dim)
+# purrr::map(effort_cropped_short_cnt2_short_l, dim)
 
 ### not used, with rule 3 ----
 # effort_cropped_short_cnt_rule3_short <-

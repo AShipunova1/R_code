@@ -9,7 +9,7 @@ file_ext <- c("R", "Rmd", "qmd")
 
 # Create a list of file paths for each file extension.
 file_paths <-
-  map(file_ext,
+  purrr::map(file_ext,
       ~ file.path(dir_to_comb,
                   paste0(file_name, ".", .x)))
 

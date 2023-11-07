@@ -163,7 +163,7 @@ fhier_acl_catch_by_species_state_region_waves_list <-
   split(as.factor(fhier_acl_catch_by_species_state_region_waves$sa_gom)) 
 # %>%
 #   # remove extra columns in each df
-#   map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
+#   purrr::map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
 
 # dplyr::glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 
@@ -231,7 +231,7 @@ sa_acl_top_spp <-
 
 fhier_acl_catch_by_species_state_region_waves_states_list <-
   fhier_acl_catch_by_species_state_region_waves_list %>%
-  map(function(current_df) {
+  purrr::map(function(current_df) {
     # browser()
     current_df %>%
       split(as.factor(current_df$state))
@@ -357,7 +357,7 @@ fhier_acl_catch_by_species_state_year_list <-
   ungroup %>%
   split(as.factor(fhier_acl_catch_by_species_state_year$state)) %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-"state")))
+  purrr::map(.f = list(. %>% dplyr::select(-"state")))
 
 state_year_has_rec_acl_data_list <-     fhier_acl_catch_by_species_state_year_list
 # str(state_year_has_rec_acl_data_list)

@@ -55,7 +55,7 @@ fhier_acl_catch_by_species_state_region_waves_list <-
   # split by sa_gom column
   split(as.factor(fhier_acl_catch_by_species_state_region_waves$sa_gom)) %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
+  purrr::map(.f = list(. %>% dplyr::select(-one_of("year", "sa_gom"))))
 
 glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 
@@ -105,7 +105,7 @@ fhier_acl_catch_by_species_state_region_waves_states_list <-
   fhier_acl_catch_by_species_state_region_waves %>%
   split(as.factor(fhier_acl_catch_by_species_state_region_waves$state)) %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-"state")))
+  purrr::map(.f = list(. %>% dplyr::select(-"state")))
 
 names(fhier_acl_catch_by_species_state_region_waves_states_list[[2]])
 
@@ -135,7 +135,7 @@ fhier_acl_catch_by_species_region_year_list <-
   ungroup %>%
   split(as.factor(fhier_acl_catch_by_species_region_year$sa_gom)) %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-"sa_gom")))
+  purrr::map(.f = list(. %>% dplyr::select(-"sa_gom")))
 
 # test 167760 GROUPER, BLACK ----
 fhier_acl_catch_by_species_region_year_list$sa %>%
@@ -181,7 +181,7 @@ fhier_acl_catch_by_species_state_year_list <-
   ungroup %>%
   split(as.factor(fhier_acl_catch_by_species_state_year$state)) %>%
   # remove extra columns in each df
-  map(.f = list(. %>% dplyr::select(-"state")))
+  purrr::map(.f = list(. %>% dplyr::select(-"state")))
 
 state_year_has_rec_acl_data_list <-
   fhier_acl_catch_by_species_state_year_list

@@ -116,7 +116,7 @@ fhier_catch_spp %>%
  # 2 GRUNT, WHITE                169059            69394
 
 # not_in_rec_acl$common_name %>%
-#   map(function(x) {
+#   purrr::map(function(x) {
 #     browser()
 #     # grep("(.)"x)
 #   })

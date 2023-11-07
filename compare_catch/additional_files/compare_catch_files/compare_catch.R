@@ -539,7 +539,7 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot <-
   # split by sa_gom column
     split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom)) %>%
   # remove extra columns in each df
-    map(
+    purrr::map(
       .f = list(. %>% dplyr::select(-one_of("year", "wave", "sa_gom")
                                     )
                 )
@@ -735,7 +735,7 @@ plot(fhier_mrip_gom_to_plot)
 # plot_by_spp("MACKEREL, SPANISH", fhier_mrip_gom_to_plot)
 
            # for each common name from the top 10
-plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
+plots10 <- purrr::map(unique(fhier_mrip_gom_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_gom_to_plot)}
                )
@@ -773,7 +773,7 @@ glimpse(fhier_mrip_sa_to_plot)
 plot(fhier_mrip_sa_to_plot)
 
            # for each common name from the top 10
-plots10 <- map(unique(fhier_mrip_sa_to_plot$common_name),
+plots10 <- purrr::map(unique(fhier_mrip_sa_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_mrip_sa_to_plot)}
                )
@@ -846,7 +846,7 @@ ggplot(
 
 plot(fhier_mrip_gom_ind)
 
-# map(unique(fhier_mrip_gom_ind$common_name)
+# purrr::map(unique(fhier_mrip_gom_ind$common_name)
 plot_ind <- function(my_df, com_n) {
   my_df %>%
     dplyr::filter(common_name == com_n) %>%
@@ -857,7 +857,7 @@ plot_ind <- function(my_df, com_n) {
     ylim(-1, 1)
 }
 
-gom_ind_plots <- map(unique(fhier_mrip_gom_ind$common_name),
+gom_ind_plots <- purrr::map(unique(fhier_mrip_gom_ind$common_name),
     function(com_n) {
       # head(x)
       # plot_by_spp(x, fhier_mrip_gom_to_plot)

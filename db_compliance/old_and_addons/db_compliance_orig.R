@@ -219,7 +219,7 @@ str(check_1)
 
 check_2 <-
   permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(
+  purrr::map(
     ~ .x %>%
       dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
       dplyr::distinct() %>%
@@ -235,7 +235,7 @@ map_df(check_2, dim)
 
 check_3 <-
   permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(
+  purrr::map(
     ~ .x %>%
       dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
       dplyr::distinct() %>%
@@ -252,7 +252,7 @@ map_df(check_3, dim)
 # get all vessel_ids for permits ----
 permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
   permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map(
+  purrr::map(
     ~ .x %>%
       dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
       tidyr::pivot_longer(
@@ -270,13 +270,13 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
 # join by different vessel ids, then bind together and unique
 vessels_permit_vsl_id_coast_g <-
   permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
-  map(~ .x %>%
+  purrr::map(~ .x %>%
         inner_join(vessels_all,
                    join_by(permit_vessel_id == COAST_GUARD_NBR)))
 
 vessels_permit_vsl_id_state_n <-
   permit_info_r_l_overlap_join1_w_dual_22__list_ids %>%
-  map(~ .x %>%
+  purrr::map(~ .x %>%
         inner_join(vessels_all,
                    join_by(permit_vessel_id == STATE_REG_NBR)))
 
@@ -589,7 +589,7 @@ file_path_vessels_permit_bind_u <- file.path(
 my_function_vessels_permit_bind_u_one_df <-
   function(vessels_permit_bind) {
     vessels_permit_bind %>%
-      map(~ .x %>%
+      purrr::map(~ .x %>%
             dplyr::group_by(VESSEL_ID.v) %>%
             dplyr::summarise_all(coalesce_by_column)) %>%
       return()
@@ -776,7 +776,7 @@ vessels_by_permit_vessel__all_l_u_vsl_ids <-
 
 vessels_by_permit_vessel__all_l_u_vsl_ids_l <-
   vessels_by_permit_vessel__all_l_u %>%
-  map( ~ .x %>%
+  purrr::map( ~ .x %>%
             dplyr::select(VESSEL_ID) %>%
             dplyr::distinct())
 
@@ -831,7 +831,7 @@ glimpse(not_in_vessel_trip_gom)
 
 vessels__trip_notif_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
-  map(
+  purrr::map(
     ~ .x %>%
       dplyr::distinct() %>%
       inner_join(
@@ -855,7 +855,7 @@ vessels__trip_notif_22_l <-
 
 vessels__trip_neg_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
-  map(
+  purrr::map(
     ~ .x %>%
       dplyr::distinct() %>%
       inner_join(
@@ -881,7 +881,7 @@ vessels__trip_neg_22_l %>%
 
 vessels__trips_22_l <-
   vessels_by_permit_vessel__all_l_u %>%
-  map(
+  purrr::map(
     ~ .x %>%
       dplyr::distinct() %>%
       inner_join(
@@ -1922,7 +1922,7 @@ str(vessels_all_ids)
 
 vessels_all__v_id_names_l <-
   vessels_all__v_id_names |>
-  map(
+  purrr::map(
       function(id_name) {
         vessels_all_ids[id_name] |>
           dplyr::distinct()

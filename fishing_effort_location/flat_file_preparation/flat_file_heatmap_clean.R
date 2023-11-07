@@ -1751,7 +1751,7 @@ force_from_db <- NULL # read data from files if exist
 ### check ----
 # for each df print its name and dim()
 # names(all_get_db_data_result_l) |>
-#   map(\(df_name) {
+#   purrr::map(\(df_name) {
 #     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
 #   })
 
@@ -1803,7 +1803,7 @@ all_sheets_l <-
              })
 
 # Check what's inside ----
-# map(all_sheets_l, dim)
+# purrr::map(all_sheets_l, dim)
 # [[1]]
 # [1] 2215    1
 #
@@ -1816,7 +1816,7 @@ all_sheets_l <-
 # [[4]]
 # [1] 130   2
 
-# map(all_sheets_l, glimpse)
+# purrr::map(all_sheets_l, glimpse)
 
 # Clean up dfs ----
 
@@ -2756,7 +2756,7 @@ effort_vsl_cropped_cnt_l <-
     add_vsl_and_trip_cnts(effort_vsl_cropped)
   })
 
-# map(effort_vsl_cropped_cnt_l, dim)
+# purrr::map(effort_vsl_cropped_cnt_l, dim)
 # [[1]]
 # [1] 35822     9
 #
@@ -2788,7 +2788,7 @@ effort_cropped_short_cnt2_short_l <-
       dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr))
   })
 
-# map(effort_cropped_short_cnt2_short_l, dim)
+# purrr::map(effort_cropped_short_cnt2_short_l, dim)
 
 effort_cropped_short_cnt2_short_l$effort_vsl_cropped_sa |>
   head() |>

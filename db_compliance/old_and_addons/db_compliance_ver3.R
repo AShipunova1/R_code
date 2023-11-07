@@ -506,7 +506,7 @@ names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
 reg_cnts <-
   # "dual"     "gom_only" "sa_only"
   names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list) |>
-  map(function(reg_name) {
+  purrr::map(function(reg_name) {
     curr_ids <-
       vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list[[reg_name]]$unique_all_vessel_ids
     l <- length(curr_ids)

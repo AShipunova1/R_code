@@ -198,7 +198,7 @@ trip_coord_info_2022_short_vessels_permits_region_short__l <-
     )
   ) |>
   # remove extra columns in each df
-  map(
+  purrr::map(
     \(x)
     x |>
       dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE) |>
@@ -235,12 +235,12 @@ source(
 
 tic("effort_t_type")
 effort_t_type <-
-  map(trip_coord_info_2022_short_vessels_permits_region_short__l, df_join_grid)
+  purrr::map(trip_coord_info_2022_short_vessels_permits_region_short__l, df_join_grid)
 toc()
 # effort_t_type: 1.66 sec elapsed
 
 tic("effort_t_type_cropped")
-effort_t_type_cropped <- map(effort_t_type, crop_by_shape)
+effort_t_type_cropped <- purrr::map(effort_t_type, crop_by_shape)
 toc()
 # effort_t_type_cropped: 1.04 sec elapsed
 
@@ -248,7 +248,7 @@ toc()
 
 effort_t_type_cropped_cnt <-
   effort_t_type_cropped |>
-  map(
+  purrr::map(
     \(x)
     x |>
       dplyr::group_by(cell_id) |>
@@ -287,7 +287,7 @@ map_df(effort_t_type_cropped_cnt, dim) |>
 
 # View(grid)
 
-# map(names(effort_t_type_cropped_cnt),
+# purrr::map(names(effort_t_type_cropped_cnt),
 #     \(type_reg) {
 #       effort_t_type_cropped_cnt[[type_reg]] |>
 #         sf::st_drop_geometry() |>
@@ -296,7 +296,7 @@ map_df(effort_t_type_cropped_cnt, dim) |>
 
 ### join with min grid ----
 effort_t_type_cropped_cnt_join_grid <-
-  map(effort_t_type_cropped_cnt,
+  purrr::map(effort_t_type_cropped_cnt,
       \(x)
       # have to use data.frame, to avoid
       # Error: y should not have class sf; for spatial joins, use st_join
@@ -318,7 +318,7 @@ effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual |>
 
 map_trips_types <-
   names(effort_t_type_cropped_cnt_join_grid) |>
-  map(
+  purrr::map(
     function(charter_headb) {
       # browser()
       trip_type_name_0 <- stringr::str_split(charter_headb, "\\.")

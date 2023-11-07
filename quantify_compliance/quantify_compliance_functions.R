@@ -223,7 +223,7 @@ make_one_plot_compl_vs_non_compl <-
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
     
     # Create a 'label_percent' vector by applying the rounding and '%' symbol to 'perc_c_nc' column
-    label_percent <- map(my_df$perc_c_nc,
+    label_percent <- purrr::map(my_df$perc_c_nc,
                          ~ paste0(round(.x, 1), "%"))
     
     # Conditionally add percent numbers to the bars based on 'default_percent_labels'

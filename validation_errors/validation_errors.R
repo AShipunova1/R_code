@@ -449,7 +449,7 @@ db_data_22_plus_overr_wide_tot_transposed_short <-
 
 # names(db_data_22_plus_overr_wide_tot_transposed_short)
 all_plots_p <-
-  map(db_data_22_plus_overr_wide_tot_transposed_short,
+  purrr::map(db_data_22_plus_overr_wide_tot_transposed_short,
       get_plot_for_1param)
 
 # all_plots[1]
@@ -496,7 +496,7 @@ grid.arrange(
 # plots by numbers ----
 
 all_plots_n <-
-  map(db_data_22_plus_overr_wide_tot_transposed_short,
+  purrr::map(db_data_22_plus_overr_wide_tot_transposed_short,
       function(x) {
         get_plot_for_1param(x, no_legend = TRUE, percent = FALSE)
       })
@@ -564,7 +564,7 @@ db_data_22_plus_overr_only_wide_transposed_short <-
 #### plots by numbers for overridden ----
 
 all_plots_n_overridden <-
-  map(db_data_22_plus_overr_only_wide_transposed_short,
+  purrr::map(db_data_22_plus_overr_only_wide_transposed_short,
       function(x) {
         get_plot_for_1param(
           x,
@@ -605,7 +605,7 @@ db_data_22_plus_pending_only_wide_transposed_short <-
 #### plots by numbers for overridden and pending ----
 
 all_plots_n_pending <-
-  map(db_data_22_plus_pending_only_wide_transposed_short,
+  purrr::map(db_data_22_plus_pending_only_wide_transposed_short,
       function(x) {
         get_plot_for_1param(
           x,

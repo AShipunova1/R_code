@@ -82,7 +82,7 @@ map(names(state_wave_has_rec_acl_data_list_state_sedar),
       # browser()
       current_df_list <-
         state_wave_has_rec_acl_data_list_state_sedar[[sa_or_gom]]
-      map(names(current_df_list),
+      purrr::map(names(current_df_list),
           function(current_state_abbr) {
             sheet_name = paste("2.1a wave state SEDAR", sa_or_gom, current_state_abbr)
             # browser()
@@ -103,7 +103,7 @@ map(names(state_wave_has_rec_acl_data_list_state_top_mrip),
       # browser()
       current_df_list <-
         state_wave_has_rec_acl_data_list_state_top_mrip[[sa_or_gom]]
-      map(names(current_df_list),
+      purrr::map(names(current_df_list),
           function(current_state_abbr) {
             sheet_name = paste("2 2b wave state top MRIP", sa_or_gom, current_state_abbr)
             # browser()
@@ -117,14 +117,14 @@ map(names(state_wave_has_rec_acl_data_list_state_top_mrip),
 
 wave_sate_all_fhier_spp <-
   fhier_acl_catch_by_species_state_region_waves_states_list %>%
-  map(remove_no_mrip_cnts)
+  purrr::map(remove_no_mrip_cnts)
 
 map(names(wave_sate_all_fhier_spp),
     function(sa_or_gom) {
       # browser()
       current_df_list <-
         wave_sate_all_fhier_spp[[sa_or_gom]]
-      map(names(current_df_list),
+      purrr::map(names(current_df_list),
           function(current_state_abbr) {
             sheet_name = paste("2 3c wave st", current_state_abbr, toupper(sa_or_gom), "All FHIER spp.")
             # browser()
@@ -187,7 +187,7 @@ state_year_sedar <-
   # has rec_acl data
   names(state_year_has_rec_acl_data_list_new) %>%
   # repeat for each state
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     sheet_name <-
       paste("4 1a year", state_abbr, "SEDAR spp.")
     
@@ -203,7 +203,7 @@ state_year_sedar <-
 
 # 2b) MRIP / Recreational ACL tops;
 names(state_year_has_rec_acl_data_list_new) %>%
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     sheet_name <-
       paste("4.2b year", state_abbr, "top MRIP")
     # get data for this state
@@ -219,7 +219,7 @@ names(state_year_has_rec_acl_data_list_new) %>%
 
 ## 3c) All FHIER spp ----
 names(state_year_has_rec_acl_data_list_new) %>%
-  map(function(state_abbr) {
+  purrr::map(function(state_abbr) {
     sheet_name <-
       paste("4 3c year", state_abbr, "all species")
     # get data for this state

@@ -1087,7 +1087,7 @@ dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # [1] 2981    1
 # browser()
 fhier_reports_metrics_tracking_not_srhs_ids_list <-
-  map(
+  purrr::map(
     fhier_reports_metrics_tracking_list,
     ~ .x |>
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__) |>
@@ -1881,7 +1881,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map( ~ .x + labs(x = NULL, y = NULL))
+  purrr::map( ~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -2408,7 +2408,7 @@ x_bottom <- textGrob("'buckets' - distibution of % of non compliant weeks per ve
 all_plots_w_titles_list <-
   gg_month_nc_perc %>%
   # repeat for each entry
-  map(function(curr_year_reg_list) {
+  purrr::map(function(curr_year_reg_list) {
     # browser()
     # get a name
     curr_year_permit <- curr_year_reg_list[[1]]

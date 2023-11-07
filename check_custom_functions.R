@@ -40,7 +40,7 @@ functions_in_fish_eff_location_list <-
 #
 
 res <-
-  map(functions_in_fish_eff_location_list, function(f_name) {
+  purrr::map(functions_in_fish_eff_location_list, function(f_name) {
     # browser()
     # callers.of(f_name, functions_in_fish_eff_location_web)
     cat(f_name, sep = "\n")

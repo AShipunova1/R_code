@@ -129,7 +129,7 @@ View(sa_compl_clean_sa_vs_gom_m_int_non_c_perc)
 
 gg_sa_compl_clean_sa_vs_gom_m_int_non_c_perc <-
   unique(sa_compl_clean_sa_vs_gom_m_int_non_c_perc$year_month) |>
-  map(
+  purrr::map(
     \(current_year_month)
     perc_plots_by_month(
       sa_compl_clean_sa_vs_gom_m_int_non_c_perc,
@@ -158,7 +158,7 @@ sa_compl_clean_sa_vs_gom_m_int_nc_no_perc <-
 
 gg_sa_compl_clean_sa_vs_gom_m_int_nc_no_perc <-
   unique(sa_compl_clean_sa_vs_gom_m_int_nc_no_perc$year_month) |>
-  map(
+  purrr::map(
     \(current_year_month)
     perc_plots_by_month(
       sa_compl_clean_sa_vs_gom_m_int_nc_no_perc,
@@ -299,7 +299,7 @@ View(perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22)
 
 gg_perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22 <-
   unique(perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22$year_month) |>
-  map(
+  purrr::map(
     \(current_year_month)
     perc_plots_by_month(
       perc_gom_d_compl_clean_sa_vs_gom_m_int_nc_no_22,
@@ -399,7 +399,7 @@ compl_percent_per_permit_year_spl1 <-
 ## make all plots ----
 all_gg_compl_percent_per_permit_year_spl <-
   names(compl_percent_per_permit_year_spl1) %>%
-  map(function(year_region) {
+  purrr::map(function(year_region) {
     # browser()
     total_non_compl_df <-
       compl_percent_per_permit_year_spl1[[year_region]] %>% 
@@ -991,7 +991,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_perc %>%
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_perc$year_reg %>%
   unique() %>%
-  map(function(curr_year_region) {
+  purrr::map(function(curr_year_region) {
     # browser()
     total_non_compl_df <-
       count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_perc %>%

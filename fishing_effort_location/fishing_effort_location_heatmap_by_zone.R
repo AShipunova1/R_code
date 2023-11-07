@@ -229,7 +229,7 @@ tail(my_vessels_ids_u)
 
 vsl_id_q_part <-
   all_ch |>
-  map(\(one_chunk) str_glue("vessel_official_nbr in ('{one_chunk}')"))
+  purrr::map(\(one_chunk) str_glue("vessel_official_nbr in ('{one_chunk}')"))
 
 collect_parts <-
   paste(vsl_id_q_part, collapse = ' OR ')
@@ -323,7 +323,7 @@ trip_type_data_from_db_by_t_id_types_l <-
   trip_type_data_from_db_by_t_id_types |>
   split(as.factor(trip_type_data_from_db_by_t_id_types$trip_type_name)) |>
   # remove extra columns in each df
-  map(\(x)
+  purrr::map(\(x)
       x |>
         dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
         dplyr::distinct())
@@ -341,19 +341,19 @@ trip_type_data_from_db_by_t_id_types_l <-
 
 tic("effort_t_type")
 effort_t_type <-
-  map(trip_type_data_from_db_by_t_id_types_l, df_join_grid)
+  purrr::map(trip_type_data_from_db_by_t_id_types_l, df_join_grid)
 toc()
 # effort_t_type: 0.7 sec elapsed
 # dim(effort_t_type)
 
 tic("effort_t_type_cropped")
-effort_t_type_cropped <- map(effort_t_type, crop_by_shape)
+effort_t_type_cropped <- purrr::map(effort_t_type, crop_by_shape)
 toc()
 # effort_t_type_cropped: 1.04 sec elapsed
 
 str(effort_t_type_cropped)
 
-effort_t_type_cropped_cnt <- map(effort_t_type_cropped, add_vsl_and_trip_cnts)
+effort_t_type_cropped_cnt <- purrr::map(effort_t_type_cropped, add_vsl_and_trip_cnts)
 
 map_df(effort_t_type_cropped_cnt, dim)
 #   CHARTER HEADBOAT
@@ -368,7 +368,7 @@ map_df(effort_t_type_cropped_cnt, dim)
 
 ### join with min grid ----
 effort_t_type_cropped_cnt_join_grid <-
-  map(effort_t_type_cropped_cnt,
+  purrr::map(effort_t_type_cropped_cnt,
       \(x)
       # have to use data.frame, to avoid
       # Error: y should not have class sf; for spatial joins, use st_join
@@ -384,7 +384,7 @@ effort_t_type_cropped_cnt_join_grid <-
 
 map_trips_types <-
   names(effort_t_type_cropped_cnt_join_grid) |>
-  map(
+  purrr::map(
     \(charter_headb) make_map_trips(
       effort_t_type_cropped_cnt_join_grid[[charter_headb]],
       shape_data = st_union_GOMsf,

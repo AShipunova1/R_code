@@ -436,7 +436,7 @@ vessels_permits_2022 <-
 #   safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
 #
 # rr <-
-#   map(field_names,
+#   purrr::map(field_names,
 #     function(field_name) {
 #       print(str_glue("field_name = {field_name}"))
 #       q <- str_glue(vessels_zero_query)

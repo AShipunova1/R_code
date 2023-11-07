@@ -484,7 +484,7 @@ names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
 reg_cnts <-
   # "dual"     "gom_only" "sa_only" 
   names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list) |>
-  map(function(reg_name) {
+  purrr::map(function(reg_name) {
     curr_ids <-
       vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list[[reg_name]]$unique_all_vessel_ids
     l <- length(curr_ids)
@@ -808,7 +808,7 @@ my_f <- function(curr_permit_region) {
 }
 
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates <-
-  # map(l_names, my_f)
+  # purrr::map(l_names, my_f)
 
 # names(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates) <- l_names
 
@@ -1186,7 +1186,7 @@ length(t_tne_ids)
 
 sa_v_p_short_22_w_amnt_all_ids_wide |>
   dplyr::select(starts_with("unique_all_vessel_ids")) |>
-  map(function(ids) {
+  purrr::map(function(ids) {
     intersect(ids,
               t__tne__dates_w_cnt_t_tne_short$VESSEL_ID) |>
       length() %>%
