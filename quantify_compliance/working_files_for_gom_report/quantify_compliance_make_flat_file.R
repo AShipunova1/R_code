@@ -129,7 +129,12 @@ current_file_name = file.path(
 write_to_1_flat_file(flat_file_name, current_file_name)
 
 # line_plots ----
-current_file_name = file.path(dir_to_comb, "quantify_compliance_from_fhier_line_plots.R")
+current_file_name <-
+  file.path(
+    dir_to_comb,
+    "working_files_for_gom_report",
+    "quantify_compliance_from_fhier_line_plots.R"
+  )
 write_to_1_flat_file(flat_file_name, current_file_name)
 
 # vms ----
