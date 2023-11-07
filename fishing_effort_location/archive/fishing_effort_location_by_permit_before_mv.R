@@ -133,7 +133,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
   })
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u |>
-  map_df(dim)
+  purrr::map_df(dim)
 #   gom_dual sa_only
 #      <int>   <int>
 # 1     1369    2344

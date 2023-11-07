@@ -616,7 +616,7 @@ get_state_waters_sa_sf <- function() {
 
   sa_fl_state_w_counties_names <-
     as.data.frame(fl_counties_sa)[[1]] %>%
-    map_df(function(fl_county) {
+    purrr::map_df(function(fl_county) {
       # browser()
       sa_county <-
         fl_state_w_counties_names_df %>%
@@ -960,7 +960,7 @@ get_state_waters_sa_sf <- function() {
 
   sa_fl_state_w_counties_names <-
     as.data.frame(fl_counties_sa)[[1]] %>%
-    map_df(function(fl_county) {
+    purrr::map_df(function(fl_county) {
       # browser()
       sa_county <-
         fl_state_w_counties_names_df %>%

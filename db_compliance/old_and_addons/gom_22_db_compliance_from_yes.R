@@ -22,7 +22,7 @@ names(v_p__t__tn_d_weeks_gom) |>
 
 empty_cols <-
   v_p__t__tn_d_weeks_gom |>
-  map_df(function(x) {
+  purrr::map_df(function(x) {
     if (length(unique(x)) == 1) {
       return(unique(x))
     }

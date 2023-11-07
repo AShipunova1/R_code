@@ -73,7 +73,7 @@ str(sas_file_list)
 survey_data_df <-
   sas_file_list %>%
   # use "_df" to combine all into one df
-    map_df(~poss_read_sas(.x) %>%
+    purrr::map_df(~poss_read_sas(.x) %>%
              # convert all columns to char to use in bind
              dplyr::mutate(across(.fns = as.character))) %>%
   # Re-convert character columns
@@ -86,7 +86,7 @@ survey_data_df <-
 add_file_names_to_the_df <- function() {
   sas_file_list %>%
   # use "_df" to combine all into one df
-  map_df(~poss_read_sas(.x) %>%
+  purrr::map_df(~poss_read_sas(.x) %>%
            # convert all columns to char to use in bind
            dplyr::mutate(across(.fns = as.character)) %>%
            # add file name
@@ -236,7 +236,7 @@ load_all_fhier_logbooks <- function() {
                                 fhier_logbooks_path_add),
                pattern = "*.csv",
                full.names = TRUE)  %>%
-    map_df(~read_csv(.x,
+    purrr::map_df(~read_csv(.x,
                      name_repair = fix_names,
                      show_col_types = FALSE) %>%
              dplyr::mutate(across(.fns = as.character))) %>%

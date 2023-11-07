@@ -141,7 +141,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # print("map:")
   # start_time <- Sys.time()
   ## read all files
-  contents <- map_df(myfiles,
+  contents <- purrr::map_df(myfiles,
          ~read_excel(.x,
                      sheet = sheet_n,
                      .name_repair = fix_names,
@@ -473,7 +473,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
+#   purrr::map_df(my_df, my_fun)
 # }
 #
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
@@ -482,7 +482,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #                             columns = c('test', 'elapsed', 'relative')
 # )
 #
-# map_df(my_df, function(x) length(unique(x)))
+# purrr::map_df(my_df, function(x) length(unique(x)))
 # to compare:
 # time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
@@ -618,7 +618,7 @@ read_rds_or_run <-
 empty_cols <-
   function(my_df) {
     my_df |>
-      map_df(function(x) {
+      purrr::map_df(function(x) {
         browser()
         if (length(unique(x)) == 1) {
           return(unique(x))
@@ -1073,7 +1073,7 @@ source(file.path(my_paths$git_r,
 
 ## exclude srhs vessels from metric traking ----
 fhier_reports_metrics_tracking_not_srhs_ids <-
-  map_df(
+  purrr::map_df(
     fhier_reports_metrics_tracking_list,
     ~ .x |>
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)

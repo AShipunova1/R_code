@@ -1133,7 +1133,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list |>
       dplyr::filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
       dplyr::distinct()
   }) |>
-  map_df(dim)
+  purrr::map_df(dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1   367      950     257
@@ -1148,7 +1148,7 @@ dd <-
       dplyr::distinct()
   })
 
-# map_df(dd, dim)
+# purrr::map_df(dd, dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1   203      570       0

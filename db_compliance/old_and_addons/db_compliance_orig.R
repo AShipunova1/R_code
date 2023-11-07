@@ -206,7 +206,7 @@ permit_info_r_l_overlap_join1_w_dual_22__list <-
 ## check the diff ----
 check_1 <-
   permit_info_r_l_overlap_join1_w_dual_22__list %>%
-  map_df(
+  purrr::map_df(
     ~ .x %>%
       dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
       dplyr::filter(!(VESSEL_ALT_NUM.sa == VESSEL_ALT_NUM.gom))
@@ -484,7 +484,7 @@ map_df(vessels_by_permit_vessel__all_l_u, dim)
 # 2    30       30      30
 
 uniq_permit_vsl_ids <-
-  map_df(
+  purrr::map_df(
   vessels_by_permit_vessel__all_l_u,
   ~ .x %>%
     dplyr::select(permit_vessel_id) %>%
@@ -770,7 +770,7 @@ trip_notifications_2022_ah_w_y_vsl_ids <-
 
 vessels_by_permit_vessel__all_l_u_vsl_ids <-
   vessels_by_permit_vessel__all_l_u %>%
-  map_df( ~ .x %>%
+  purrr::map_df( ~ .x %>%
             dplyr::select(VESSEL_ID) %>%
             dplyr::distinct())
 
@@ -843,7 +843,7 @@ vessels__trip_notif_22_l <-
   )
 
 # vessels__trip_notif_22_l %>%
-#   map_df(dim)
+#   purrr::map_df(dim)
 #    dual gom_only sa_only
 # 1 38464    95585    1250
 # 2    62       62      62
@@ -867,7 +867,7 @@ vessels__trip_neg_22_l <-
   )
 
 vessels__trip_neg_22_l %>%
-  map_df(dim)
+  purrr::map_df(dim)
 #    dual gom_only sa_only
 #   <int>    <int>   <int>
 # 1 41272    56506  795944
@@ -893,7 +893,7 @@ vessels__trips_22_l <-
   )
 
 # vessels__trips_22_l %>%
-#   map_df(dim)
+#   purrr::map_df(dim)
 #    dual gom_only sa_only
 # 1 31108    75776  107751
 # 1 14905    41172   47421
@@ -1214,7 +1214,7 @@ WHERE
 # dim(vessels_permit_bind_u1)
 # vessels_permit_bind
 vessels_permit_bind_u_one_df %>%
-  map_df(dim)
+  purrr::map_df(dim)
 #    dual gom_only sa_only
 # 1   378     1204    3877
 # 2    48       48      48

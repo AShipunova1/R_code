@@ -231,7 +231,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
   # Read Excel files listed in 'myfiles' into one data frame using 'map_df'
-  contents <- map_df(myfiles, ~read_excel(
+  contents <- purrr::map_df(myfiles, ~read_excel(
     .x,                           # File path
     sheet = sheet_n,              # Sheet number to read (default is 1)
     .name_repair = fix_names,     # Repair column names
@@ -806,7 +806,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
+#   purrr::map_df(my_df, my_fun)
 # }
 #
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
@@ -815,7 +815,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #                             columns = c('test', 'elapsed', 'relative')
 # )
 #
-# map_df(my_df, function(x) length(unique(x)))
+# purrr::map_df(my_df, function(x) length(unique(x)))
 # to compare:
 # time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
@@ -1000,7 +1000,7 @@ read_rds_or_run <- function(my_file_path,
 # empty_cols <-
 #   function(my_df) {
 #     my_df |>
-#       map_df(function(x) {
+#       purrr::map_df(function(x) {
 #         browser()
 #         if (length(unique(x)) == 1) {
 #           return(unique(x))
@@ -4863,7 +4863,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
   # Read Excel files listed in 'myfiles' into one data frame using 'map_df'
-  contents <- map_df(myfiles, ~read_excel(
+  contents <- purrr::map_df(myfiles, ~read_excel(
     .x,                           # File path
     sheet = sheet_n,              # Sheet number to read (default is 1)
     .name_repair = fix_names,     # Repair column names
@@ -5438,7 +5438,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
+#   purrr::map_df(my_df, my_fun)
 # }
 #
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
@@ -5447,7 +5447,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #                             columns = c('test', 'elapsed', 'relative')
 # )
 #
-# map_df(my_df, function(x) length(unique(x)))
+# purrr::map_df(my_df, function(x) length(unique(x)))
 # to compare:
 # time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
@@ -5632,7 +5632,7 @@ read_rds_or_run <- function(my_file_path,
 # empty_cols <-
 #   function(my_df) {
 #     my_df |>
-#       map_df(function(x) {
+#       purrr::map_df(function(x) {
 #         browser()
 #         if (length(unique(x)) == 1) {
 #           return(unique(x))
@@ -9596,7 +9596,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
   # Read Excel files listed in 'myfiles' into one data frame using 'map_df'
-  contents <- map_df(myfiles, ~read_excel(
+  contents <- purrr::map_df(myfiles, ~read_excel(
     .x,                           # File path
     sheet = sheet_n,              # Sheet number to read (default is 1)
     .name_repair = fix_names,     # Repair column names
@@ -10171,7 +10171,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
+#   purrr::map_df(my_df, my_fun)
 # }
 #
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
@@ -10180,7 +10180,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #                             columns = c('test', 'elapsed', 'relative')
 # )
 #
-# map_df(my_df, function(x) length(unique(x)))
+# purrr::map_df(my_df, function(x) length(unique(x)))
 # to compare:
 # time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
@@ -10365,7 +10365,7 @@ read_rds_or_run <- function(my_file_path,
 # empty_cols <-
 #   function(my_df) {
 #     my_df |>
-#       map_df(function(x) {
+#       purrr::map_df(function(x) {
 #         browser()
 #         if (length(unique(x)) == 1) {
 #           return(unique(x))
@@ -14331,7 +14331,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
   # Read Excel files listed in 'myfiles' into one data frame using 'map_df'
-  contents <- map_df(myfiles, ~read_excel(
+  contents <- purrr::map_df(myfiles, ~read_excel(
     .x,                           # File path
     sheet = sheet_n,              # Sheet number to read (default is 1)
     .name_repair = fix_names,     # Repair column names
@@ -14906,7 +14906,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
+#   purrr::map_df(my_df, my_fun)
 # }
 #
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
@@ -14915,7 +14915,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #                             columns = c('test', 'elapsed', 'relative')
 # )
 #
-# map_df(my_df, function(x) length(unique(x)))
+# purrr::map_df(my_df, function(x) length(unique(x)))
 # to compare:
 # time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
@@ -15100,7 +15100,7 @@ read_rds_or_run <- function(my_file_path,
 # empty_cols <-
 #   function(my_df) {
 #     my_df |>
-#       map_df(function(x) {
+#       purrr::map_df(function(x) {
 #         browser()
 #         if (length(unique(x)) == 1) {
 #           return(unique(x))

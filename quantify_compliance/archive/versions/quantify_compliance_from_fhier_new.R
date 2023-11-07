@@ -87,7 +87,7 @@ all_compl_vs_non_compl_per_year_cnt_list[["2023 gom_only"]] %>%
 
 compl_only <-
   names(all_compl_vs_non_compl_per_year_cnt_list) %>% 
-  map_df(
+  purrr::map_df(
     function(current_year_region) {
       # browser()
       curr_df <-

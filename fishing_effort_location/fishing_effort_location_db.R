@@ -211,7 +211,7 @@ trip_coord_info_2022_short_vessels_permits_region_short__l <-
 #  $ H:'data.frame':	1823  obs. of  4 variables:
 
 all_dfs_dim <-
-  map_df(trip_coord_info_2022_short_vessels_permits_region_short__l, dim)
+  purrr::map_df(trip_coord_info_2022_short_vessels_permits_region_short__l, dim)
 
 glimpse(all_dfs_dim)
 # $ CHARTER.gom_dual  <int> 50280, 4
@@ -266,7 +266,7 @@ map_df(effort_t_type_cropped_cnt, dim) |>
 # $ CHARTER.sa_only   <int> 1781, 9
 # $ HEADBOAT.sa_only  <int> 0, 9
 
-# map_df(effort_t_type_cropped_cnt, data_overview)
+# purrr::map_df(effort_t_type_cropped_cnt, data_overview)
 
 # data_overview(effort_t_type_cropped_cnt$A)
 # TRIP_ID     35777

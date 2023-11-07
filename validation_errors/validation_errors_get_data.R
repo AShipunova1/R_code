@@ -57,7 +57,7 @@ f_name_n <-
 # read both csvs to R
 from_fhier <-
   c(f_name_y, f_name_n) %>%
-  map_df(~ read_csv(.x, col_types = cols(.default = "c")))
+  purrr::map_df(~ read_csv(.x, col_types = cols(.default = "c")))
 
 # dim(from_fhier_y)
 # [1] 4697   18

@@ -118,7 +118,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # print("map:")
   # start_time <- Sys.time()
   ## read all files
-  contents <- map_df(myfiles,
+  contents <- purrr::map_df(myfiles,
          ~read_excel(.x,
                      sheet = sheet_n,
                      .name_repair = fix_names,
@@ -450,7 +450,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
+#   purrr::map_df(my_df, my_fun)
 # }
 #
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
@@ -459,7 +459,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #                             columns = c('test', 'elapsed', 'relative')
 # )
 #
-# map_df(my_df, function(x) length(unique(x)))
+# purrr::map_df(my_df, function(x) length(unique(x)))
 # to compare:
 # time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 

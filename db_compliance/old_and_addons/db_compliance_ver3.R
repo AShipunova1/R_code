@@ -353,7 +353,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
 #   split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y$permit_sa_gom))
 #
-# map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l, dim)
+# purrr::map_df(vessels_permits_2022_r_end_date_uid_short_mm_w_y_l, dim)
 # #   gom_only sa_only
 # # 1     2525    6908
 # # 2       16      16

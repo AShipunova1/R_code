@@ -207,7 +207,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
     lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
   ## read all files
-  contents <- map_df(
+  contents <- purrr::map_df(
     myfiles,
     ~ read_excel(
       # file name
