@@ -1620,7 +1620,7 @@ compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 
 
 # get data from db ----
-source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
+# source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
 
 # run_all_get_db_data(): 8.56 sec elapsed                                                                            
 # all_sheets_l
@@ -1637,13 +1637,13 @@ get_metrics_tracking_path <-
   file.path(my_paths$git_r,
             get_data_from_fhier_dir,
             "get_metrics_tracking.R")
-source(get_metrics_tracking_path)
+# source(get_metrics_tracking_path)
 
 get_srhs_vessels_path <-
   file.path(my_paths$git_r,
             get_data_from_fhier_dir,
             "get_srhs_vessels.R")
-source(get_srhs_vessels_path)
+# source(get_srhs_vessels_path)
 
 ## exclude srhs vessels from metric traking ----
 fhier_reports_metrics_tracking_not_srhs_ids <-

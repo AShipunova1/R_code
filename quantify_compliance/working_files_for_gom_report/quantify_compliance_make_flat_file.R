@@ -148,7 +148,13 @@ write_to_1_flat_file(flat_file_name, current_file_name)
 # close the file
 sink()
 
-# Remove all "source" lines from the flat file when done.
+# Remove all "source" lines from the flat file when done. ----
 # source( to #source(
+# Read the content of a flat file specified by 'flat_file_name' and store it in 'flat_file_content'
 flat_file_content <- readr::read_lines(flat_file_name)
 
+# Create a new variable 'flat_file_content_1' by replacing instances of "source(" with "# source(" in 'flat_file_content'
+flat_file_content_1 <- 
+  gsub("source\\(", "# source(", flat_file_content)
+
+cat(flat_file_content_1, file = flat_file_name, sep = "\n")
