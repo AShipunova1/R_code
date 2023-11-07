@@ -4,7 +4,7 @@
 # View(fhier_acl_catch_by_species_state_region_waves)
 spp_cnts_in_fhier_not_in_acl <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(
+  dplyr::select(
     species_itis_fhier,
     # species_itis_mrip,
     common_name_fhier,
@@ -20,16 +20,16 @@ spp_cnts_in_fhier_not_in_acl <-
     fhier_cnts = sum(fhier_quantity_by_4),
     rec_acl_cnts = sum(rec_acl_estimate_catch_by_4)
   ) %>%
-  select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
+  dplyr::select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
   unique() %>%
   dplyr::filter(rec_acl_cnts == 0) %>%
-  select(-c(rec_acl_cnts)) %>%
+  dplyr::select(-c(rec_acl_cnts)) %>%
   dplyr::filter(!(fhier_cnts == 0)) %>%
     arrange(desc(fhier_cnts)) %>%
   ungroup()
 # %>%
 # head(20)
-# select(common_name)
+# dplyr::select(common_name)
 # ungroup() %>%
 # str()
 # 628
@@ -62,7 +62,7 @@ acl_estimate_2022 %>%
 # spp from separate ds ----
 fhier_catch_spp <-
   fhier_catch_by_species_state_region_waves %>%
-  select(scientific_name, common_name, species_itis, fhier_quantity_by_4) %>%
+  dplyr::select(scientific_name, common_name, species_itis, fhier_quantity_by_4) %>%
   group_by(scientific_name) %>%
   summarise(fhier_cnts = sum(fhier_quantity_by_4)) %>%
   ungroup() %>%
@@ -77,7 +77,7 @@ head(fhier_catch_spp, 5)
 
 rec_acl_estimate_2022_spp <-
   acl_estimate_2022 %>%
-  select(new_sci, new_com, itis_code, ab1) %>%
+  dplyr::select(new_sci, new_com, itis_code, ab1) %>%
   group_by(new_sci) %>%
   summarise(rec_acl_cnts = sum(ab1)) %>%
   ungroup() %>%
@@ -130,7 +130,7 @@ rec_acl_estimate_2022_spp %>%
 rec_acl_estimate_2022_spp %>%
   dplyr::filter(grepl('atlantic croaker', new_com))
 
-rec_acl_spp_full <- select(acl_estimate,
+rec_acl_spp_full <- dplyr::select(acl_estimate,
        c(species,
        species_code,
        sp_code,
@@ -232,7 +232,7 @@ rec_acl_spp %>%
 
 # rec_acl_spp %>%
 #   dplyr::filter(grepl('triggerf', new_com, ignore.case = T)) %>%
-#   select(new_com, new_sci, itis_code, FAMILY, GROUP_NAME) %>%
+#   dplyr::select(new_com, new_sci, itis_code, FAMILY, GROUP_NAME) %>%
 #   write_csv(
 #     "temp.csv"
 #   )
@@ -281,7 +281,7 @@ acl_species_list[[1]] %>%
 # acl_species_list[[1]] %>%
 acl_estimate_2022 %>%
   dplyr::filter(new_com == "scup") %>%
-  select(itis_code) %>%
+  dplyr::select(itis_code) %>%
   unique()
 # 169182   
 
@@ -296,7 +296,7 @@ grep("permit", names(fhier_logbooks_content), value = T) %>% paste0(collapse = "
 
 # fhier_logbooks_content %>%
 #   dplyr::filter(catch_species_itis == "169059") %>%
-#   select(trip_id, supplier_trip_id, trip_start_date_time, trip_de, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, dea_permit_id) %>%
+#   dplyr::select(trip_id, supplier_trip_id, trip_start_date_time, trip_de, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, dea_permit_id) %>%
 #   unique() %>% 
 #   arrange(trip_de, trip_start_date_time) %>%
 #   write_csv("169059_itis_date_permit.csv")
@@ -318,13 +318,13 @@ fhier_common_names %>%
 # names(acl_species_list[[1]])
 acl_species_list[[1]] %>%
   dplyr::filter(grepl("GRUNT", toupper(COMMON_NAME))) %>%
-  select(sp_code, COMMON_NAME) %>%
+  dplyr::select(sp_code, COMMON_NAME) %>%
   unique() %>% glimpse()
 # 12
 
 fhier_logbooks_content %>%
   dplyr::filter(grepl("GRUNT", toupper(common_name))) %>%
-    select(catch_species_itis, common_name) %>%
+    dplyr::select(catch_species_itis, common_name) %>%
   unique() %>% write_csv("fhier_grunt_temp.csv") 
   # head(12)
 
@@ -332,7 +332,7 @@ fhier_logbooks_content %>%
 # names(acl_estimate_2022)
 acl_estimate_2022 %>%
   dplyr::filter(grepl("GRUNT", toupper(new_com))) %>%
-    select(itis_code, new_com) %>%
+    dplyr::select(itis_code, new_com) %>%
   unique() %>% write_csv("acl_grunt_temp.csv")
   # head()
 # 4

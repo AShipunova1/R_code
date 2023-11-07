@@ -167,7 +167,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
   fhier_common_names <-
   fhier_logbooks_content %>%
   # names()
-  select(catch_species_itis, common_name) %>%
+  dplyr::select(catch_species_itis, common_name) %>%
   unique()
 
   
@@ -191,11 +191,11 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec <- mrip_raw_CBT_Gulf_and_SA_noSRHS %>% dplyr::filter(NEW_MODE %in% c(2, 3, 5)) 
     
     #----MRIP scientific species list ----
-    MRIP_scientific_species_list <- mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec %>% select(NEW_SCI) %>% unique()
+    MRIP_scientific_species_list <- mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec %>% dplyr::select(NEW_SCI) %>% unique()
     
     
 #----Grab just scientific names from SEFHIER_species.xlsx file ----
-    SEFHIER_scientific_names <- SEFHIER_species %>% select(SCIENTIFIC_NAME)
+    SEFHIER_scientific_names <- SEFHIER_species %>% dplyr::select(SCIENTIFIC_NAME)
 
 
 ## prepare FHIER logbook data ----
@@ -281,7 +281,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # data_overview()
       # 37 counties
       # vessel_official_number          1096
-      select(end_port_fl_reg) %>%
+      dplyr::select(end_port_fl_reg) %>%
       table()
     # using only end_port_counties
     #    gom NOT-SPECIFIED            sa 
@@ -316,7 +316,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # get only these in our list
       dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
       # get abbreviations
-      select(state_abb)
+      dplyr::select(state_abb)
     
     fhier_logbooks_content_waves__sa_gom <-
       fhier_logbooks_content_waves_fl_county %>%
@@ -336,13 +336,13 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
         end_port_sa_gom
       )) %>%
       # remove this column, we don't need it anymore
-      select(-end_port_fl_reg)
+      dplyr::select(-end_port_fl_reg)
     
     #| classes: test
     ## test: states and regions ----
     fhier_logbooks_content_waves__sa_gom %>%
       # look at states and regions
-      select(end_port_state, end_port_sa_gom) %>%
+      dplyr::select(end_port_state, end_port_sa_gom) %>%
       unique() %>%
       glimpse()
     
@@ -364,15 +364,15 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     ### test: dolphins ----
     fhier_logbooks_content_waves__sa_gom_dolph %>%
       dplyr::filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
-      select(common_name_orig, common_name) %>% unique()
+      dplyr::select(common_name_orig, common_name) %>% unique()
     # ---
     
     ## calculate catch ----
     
     fhier_catch_by_species_state_region_waves <-  
       fhier_logbooks_content_waves__sa_gom %>%
-      # select only relevant columns
-      select(
+      # dplyr::select only relevant columns
+      dplyr::select(
         catch_species_itis,
         end_port_state,
         end_port_sa_gom,
@@ -398,7 +398,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     test_species_itis <-
       fhier_logbooks_content %>%
       dplyr::filter(tolower(common_name) == "mackerel, spanish") %>%
-      select(catch_species_itis) %>%
+      dplyr::select(catch_species_itis) %>%
       unique() %>%
       # get a string, not a df
       use_series(catch_species_itis)
@@ -422,8 +422,8 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     
     mrip_estimate_catch_by_species_state_region_waves <-
       mrip_estimate %>%
-      # select the relevan columns only
-      select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
+      # dplyr::select the relevan columns only
+      dplyr::select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
       # group by all except the counts
       group_by(itis_code, new_sta, sub_reg, year, wave) %>%
       # save the sum of "ab1" for each group in "mrip_estimate_catch_by_4"
@@ -449,7 +449,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
              # put the new column after sub_reg (by default at the end)
              .after = sub_reg) %>%
       # drop sub_reg
-      select(-sub_reg)
+      dplyr::select(-sub_reg)
     
     ## rename fields ----
     

@@ -485,9 +485,9 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
       ## Exclude SRHS vessels:
       ## Filter rows where 'vessel_official_number' is not in 'uscg__' column of 'srhs_vessels_2022_info'
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__) |>
-      ## Select only the 'vessel_official_number' column
-      select(vessel_official_number) |>
-      ## Remove duplicate values from the selected column
+      ## dplyr::select only the 'vessel_official_number' column
+      dplyr::select(vessel_official_number) |>
+      ## Remove duplicate values from the dplyr::selected column
       distinct()
   )
 
@@ -712,10 +712,10 @@ get_trips_info <-
 
 ```{r latitude_longitude}
 ## latitude/longitude ----
-## select * from safis.EFFORTS@secapxdv_dblk.sfsc.noaa.gov;
+## dplyr::select * from safis.EFFORTS@secapxdv_dblk.sfsc.noaa.gov;
 
 trip_coord_query <- "
-  SELECT
+  dplyr::select
   trip_id,
   area_code,
   sub_area_code,
@@ -1499,7 +1499,7 @@ vessels_22_sa <-
   ## Filter rows where the 'grp' column contains values 0 or 2.
   dplyr::filter(grp %in% c(0, 2)) |>
 
-  ## Select only the 'vessel_official_number' column.
+  ## dplyr::select only the 'vessel_official_number' column.
   dplyr::select(vessel_official_number) |>
 
   ## Combine the filtered data with data from the first sheet (sheet number 1) of 'all_sheets_l'.
@@ -1870,7 +1870,7 @@ dim(safis_efforts_extended_2022)
 ## [1] 101038     42
 ## [1] 97970    42 distinct()
 
-## safis_efforts_extended_2022 |> select(LOCAL_AREA_NAME) |> distinct()
+## safis_efforts_extended_2022 |> dplyr::select(LOCAL_AREA_NAME) |> distinct()
 
 ## data_overview(safis_efforts_extended_2022)
 ## TRIP_ID              97848
@@ -1897,12 +1897,12 @@ dim(safis_efforts_extended_2023)
 #### clean fhier effort data ----
 ## safis_efforts_extended_2022_short0 <-
 ##   safis_efforts_extended_2022 |>
-##   select(-all_of(names(empty_cols)))
+##   dplyr::select(-all_of(names(empty_cols)))
 ## dim(safis_efforts_extended_2022_short0)
 
 safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
-  select(-any_of(rm_columns)) |>
+  dplyr::select(-any_of(rm_columns)) |>
   distinct()
 dim(safis_efforts_extended_2022_short)
 ## [1] 97970    17
@@ -2450,7 +2450,7 @@ sa_state_abb <-
   ## get only these in our list
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   ## get abbreviations
-  select(state_abb)
+  dplyr::select(state_abb)
 ```
 
 ### r get Shapefile all waters 
@@ -2644,7 +2644,7 @@ add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr")
 
   ## Add columns 'vsl_cnt' and 'trip_id_cnt' with counts of distinct vessel and trip IDs.
     ## sym() take strings as input and turn them into symbols.
-    ## The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, select, or other functions that accept column names.
+    ## The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, dplyr::select, or other functions that accept column names.
     ## So, the code !!rlang::sym(vessel_id_name) effectively evaluates to the column name specified by the vessel_id_name variable in the context of a dplyr verb, allowing you to work with the column dynamically based on the variable's value.
 
     dplyr::mutate(
@@ -2799,8 +2799,8 @@ purrr::map(
 for_heatmap_lat_lon_trips_vessels_gom_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
 
-  ## Select specific columns.
-  select(trip_id, vessel_official_nbr, latitude, longitude) |>
+  ## dplyr::select specific columns.
+  dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
 
   ## Remove duplicate rows using 'distinct'.
   distinct()
@@ -2812,8 +2812,8 @@ dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 ## sa
 for_heatmap_lat_lon_trips_vessels_sa_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  ## Select specific columns.
-  select(trip_id, vessel_official_nbr, latitude, longitude) |>
+  ## dplyr::select specific columns.
+  dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
   ## Remove duplicate rows using 'distinct'.
   distinct()
 
@@ -2951,7 +2951,7 @@ effort_cropped_short_cnt2_short_l <-
     ## Use the 'select' function to remove specific columns,
     ## 'latitude', 'longitude', 'trip_id', and 'VESSEL_OFFICIAL_NBR', from each data frame.
     effort_vsl_cropped_cnt |>
-      select(-c(latitude, longitude, trip_id, vessel_official_nbr))
+      dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr))
   })
 
 ## map(effort_cropped_short_cnt2_short_l, dim)

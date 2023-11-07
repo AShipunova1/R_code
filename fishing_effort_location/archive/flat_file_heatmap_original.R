@@ -347,7 +347,7 @@ trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
     # Convert 'col_name_to_trim' to a symbol using 'sym' from tidyverse
     col_name_to_trim_s <- rlang::sym(col_name_to_trim)
 
-    # Trim leading and trailing white spaces in the selected column
+    # Trim leading and trailing white spaces in the dplyr::selected column
     # Hard code vessel_official_number as vessel id
     x %>%
       dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
@@ -466,7 +466,7 @@ aux_fun_for_dates <- function(x, date_format) {
 # }
 
 # The change_fields_arr_to_dates function is defined to convert multiple columns specified in 'field_names_arr' in the input data frame ('my_df') to POSIXct date format using the provided 'date_format'.
-# Inside the function, it uses the mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
+# Inside the function, it uses the mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are dplyr::selected.
 
 # Within the across function, it applies the as.POSIXct function to each column ('x') in 'field_names_arr' using the provided 'date_format'. This step converts the values in these columns to POSIXct date format.
 # It returns the 'result_df', which is the input data frame with the specified columns converted to dates according to the specified 'date_format'.
@@ -1018,7 +1018,7 @@ read_rds_or_run <- function(my_file_path,
 
 
 # Usage:
-# select(-all_of(names(empty_cols)))
+# dplyr::select(-all_of(names(empty_cols)))
 # empty_cols <-
 #   function(my_df) {
 #     my_df |>
@@ -1035,7 +1035,7 @@ read_rds_or_run <- function(my_file_path,
 # Function to remove empty columns from a data frame
 remove_empty_cols <- function(my_df) {
   my_df |>
-    # Select columns that do not meet the condition of being entirely NA or entirely NULL using 'select_if' function
+    # dplyr::select columns that do not meet the condition of being entirely NA or entirely NULL using 'select_if' function
     dplyr::select_if(function(x)
       # Check if all values in 'x' are not all NA or not all NULL
       !(all(is.na(x)) | all(is.null(x)))) %>%
@@ -1277,9 +1277,9 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
       # Exclude SRHS vessels:
       # Filter rows where 'vessel_official_number' is not in 'uscg__' column of 'srhs_vessels_2022_info'
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__) |>
-      # Select only the 'vessel_official_number' column
-      select(vessel_official_number) |>
-      # Remove duplicate values from the selected column
+      # dplyr::select only the 'vessel_official_number' column
+      dplyr::select(vessel_official_number) |>
+      # Remove duplicate values from the dplyr::selected column
       distinct()
   )
 
@@ -1723,10 +1723,10 @@ get_trips_info <-
 # 0
 
 # latitude/longitude ----
-# select * from safis.EFFORTS@secapxdv_dblk.sfsc.noaa.gov;
+# dplyr::select * from safis.EFFORTS@secapxdv_dblk.sfsc.noaa.gov;
 
 trip_coord_query <- "
-  SELECT
+  dplyr::select
   trip_id,
   area_code,
   sub_area_code,
@@ -2418,7 +2418,7 @@ vessels_22_sa <-
   # Filter rows where the 'grp' column contains values 0 or 2.
   dplyr::filter(grp %in% c(0, 2)) |>
 
-  # Select only the 'vessel_official_number' column.
+  # dplyr::select only the 'vessel_official_number' column.
   dplyr::select(vessel_official_number) |>
 
   # Combine the filtered data with data from the first sheet (sheet number 1) of 'all_sheets_l'.
@@ -2749,7 +2749,7 @@ dim(safis_efforts_extended_2022)
 # [1] 101038     42
 # [1] 97970    42 distinct()
 
-# safis_efforts_extended_2022 |> select(LOCAL_AREA_NAME) |> distinct()
+# safis_efforts_extended_2022 |> dplyr::select(LOCAL_AREA_NAME) |> distinct()
 
 # data_overview(safis_efforts_extended_2022)
 # TRIP_ID              97848
@@ -2768,12 +2768,12 @@ dim(safis_efforts_extended_2023)
 ### clean fhier effort data ----
 # safis_efforts_extended_2022_short0 <-
 #   safis_efforts_extended_2022 |>
-#   select(-all_of(names(empty_cols)))
+#   dplyr::select(-all_of(names(empty_cols)))
 # dim(safis_efforts_extended_2022_short0)
 
 safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
-  select(-any_of(rm_columns)) |>
+  dplyr::select(-any_of(rm_columns)) |>
   distinct()
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
@@ -3249,7 +3249,7 @@ sa_state_abb <-
   # get only these in our list
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
-  select(state_abb)
+  dplyr::select(state_abb)
 
 # # add regions to the FHIER logbook DF
 # fhier_logbooks_content_waves__sa_gom <-
@@ -3270,12 +3270,12 @@ sa_state_abb <-
 #     end_port_sa_gom
 #   )) %>%
 #   # remove this column, we don't need it anymore
-#   select(-end_port_fl_reg)
+#   dplyr::select(-end_port_fl_reg)
 
 #### test: check new cols of states and regions ----
 # fhier_logbooks_content_waves__sa_gom %>%
 #   # look at states and regions
-#   select(end_port_state, end_port_sa_gom) %>%
+#   dplyr::select(end_port_state, end_port_sa_gom) %>%
 #   unique() %>%
 #   glimpse()
 
@@ -3498,7 +3498,7 @@ add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr")
 
   # Add columns 'vsl_cnt' and 'trip_id_cnt' with counts of distinct vessel and trip IDs.
     # sym() take strings as input and turn them into symbols.
-    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, select, or other functions that accept column names.
+    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, dplyr::select, or other functions that accept column names.
     # So, the code !!rlang::sym(vessel_id_name) effectively evaluates to the column name specified by the vessel_id_name variable in the context of a dplyr verb, allowing you to work with the column dynamically based on the variable's value.
 
     dplyr::mutate(
@@ -3657,7 +3657,7 @@ source(heatmap_func_path)
 
 # for_heatmap_lat_lon_trips_only <-
 #   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
-#   select(trip_id, latitude, longitude) |>
+#   dplyr::select(trip_id, latitude, longitude) |>
 #   distinct()
 
 # glimpse(for_heatmap_lat_lon_trips_only)
@@ -3688,8 +3688,8 @@ purrr::map(
 for_heatmap_lat_lon_trips_vessels_gom_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
 
-  # Select specific columns.
-  select(trip_id, vessel_official_nbr, latitude, longitude) |>
+  # dplyr::select specific columns.
+  dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
 
   # Remove duplicate rows using 'distinct'.
   distinct()
@@ -3701,8 +3701,8 @@ dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # sa
 for_heatmap_lat_lon_trips_vessels_sa_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  # Select specific columns.
-  select(trip_id, vessel_official_nbr, latitude, longitude) |>
+  # dplyr::select specific columns.
+  dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
   # Remove duplicate rows using 'distinct'.
   distinct()
 
@@ -3823,7 +3823,7 @@ map(effort_vsl_cropped_cnt_l, dim)
 # effort_vsl_cropped_cnt_l[[1]] |>
 #   sf::st_drop_geometry() |>
 #   filter(cell_id == 1864) |>
-#   select(vsl_cnt, trip_id_cnt) |>
+#   dplyr::select(vsl_cnt, trip_id_cnt) |>
 #   distinct() |>
 #   glimpse()
 # vsl_cnt     <int> 11
@@ -3843,7 +3843,7 @@ effort_cropped_short_cnt2_short_l <-
     # Use the 'select' function to remove specific columns,
     # 'latitude', 'longitude', 'trip_id', and 'VESSEL_OFFICIAL_NBR', from each data frame.
     effort_vsl_cropped_cnt |>
-      select(-c(latitude, longitude, trip_id, vessel_official_nbr))
+      dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr))
   })
 
 # map(effort_cropped_short_cnt2_short_l, dim)
@@ -3851,7 +3851,7 @@ effort_cropped_short_cnt2_short_l <-
 ### not used, with rule 3 ----
 # effort_cropped_short_cnt_rule3_short <-
 #   effort_cropped_short_cnt_rule3 |>
-#   select(-c(latitude, longitude, trip_id, vessel_official_nbr))
+#   dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr))
 #
 # dim(effort_cropped_short_cnt_rule3_short)
 # # [1] 31981     5

@@ -33,7 +33,7 @@ source(heatmap_func_path)
 
 # for_heatmap_lat_lon_trips_only <-
 #   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
-#   select(trip_id, latitude, longitude) |>
+#   dplyr::select(trip_id, latitude, longitude) |>
 #   distinct()
 
 # glimpse(for_heatmap_lat_lon_trips_only)
@@ -64,8 +64,8 @@ purrr::map(
 for_heatmap_lat_lon_trips_vessels_gom_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
 
-  # Select specific columns.
-  select(trip_id, vessel_official_nbr, latitude, longitude) |>
+  # dplyr::select specific columns.
+  dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
 
   # Remove duplicate rows using 'distinct'.
   distinct()
@@ -77,8 +77,8 @@ dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # sa
 for_heatmap_lat_lon_trips_vessels_sa_only <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  # Select specific columns.
-  select(trip_id, vessel_official_nbr, latitude, longitude) |>
+  # dplyr::select specific columns.
+  dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
   # Remove duplicate rows using 'distinct'.
   distinct()
 
@@ -199,7 +199,7 @@ map(effort_vsl_cropped_cnt_l, dim)
 # effort_vsl_cropped_cnt_l[[1]] |>
 #   sf::st_drop_geometry() |>
 #   filter(cell_id == 1864) |>
-#   select(vsl_cnt, trip_id_cnt) |>
+#   dplyr::select(vsl_cnt, trip_id_cnt) |>
 #   distinct() |>
 #   glimpse()
 # vsl_cnt     <int> 11
@@ -219,7 +219,7 @@ effort_cropped_short_cnt2_short_l <-
     # Use the 'select' function to remove specific columns,
     # 'latitude', 'longitude', 'trip_id', and 'VESSEL_OFFICIAL_NBR', from each data frame.
     effort_vsl_cropped_cnt |>
-      select(-c(latitude, longitude, trip_id, vessel_official_nbr))
+      dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr))
   })
 
 # map(effort_cropped_short_cnt2_short_l, dim)
@@ -227,7 +227,7 @@ effort_cropped_short_cnt2_short_l <-
 ### not used, with rule 3 ----
 # effort_cropped_short_cnt_rule3_short <-
 #   effort_cropped_short_cnt_rule3 |>
-#   select(-c(latitude, longitude, trip_id, vessel_official_nbr))
+#   dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr))
 #
 # dim(effort_cropped_short_cnt_rule3_short)
 # # [1] 31981     5

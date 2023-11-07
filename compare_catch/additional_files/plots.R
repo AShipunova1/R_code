@@ -14,7 +14,7 @@ fhier_catch_by_species_state_region_waves_common_names <-
 
 create_30_top_df <- function(mydf, count_field_name) {
   mydf %>%
-    select(sa_gom, common_name, {
+    dplyr::select(sa_gom, common_name, {
       {
         count_field_name
       }
@@ -68,7 +68,7 @@ make_plot_catch_by_spp(fhier_30, "cnts1")
 make_plot_catch_by_spp(mrip_30, "cnts1")
 
 fhier_catch_by_species_state_region_waves_common_names %>%
-  select(sa_gom, common_name, fhier_catch_by_4) %>%
+  dplyr::select(sa_gom, common_name, fhier_catch_by_4) %>%
   group_by(sa_gom, common_name) %>%
   summarise(cnts1 = sum(fhier_catch_by_4)) %>%
   as.data.frame() %>%
@@ -169,7 +169,7 @@ mrip_and_fhier_w_names %>%
 glimpse(mrip_and_fhier_w_names)
 mrip_and_fhier_w_common_names <-
   mrip_and_fhier_w_names %>%
-  select(
+  dplyr::select(
     fhier_quantity_by_species,
     mrip_estimate_catch_by_species,
     common_name,
@@ -181,7 +181,7 @@ data_overview(mrip_and_fhier)
 # look at common names for the biggest catch
 mrip_and_fhier_w_names %>%
   dplyr::filter(fhier_quantity_by_species > 100000) %>%
-  select(common_name,
+  dplyr::select(common_name,
          # COMMON_NAME.y,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species)
@@ -191,7 +191,7 @@ mrip_and_fhier_w_names %>%
 mrip_and_fhier %>%
   rename("fhier_cnt" = "fhier_quantity_by_species",
          "mrip_cnt" = "mrip_estimate_catch_by_species") %>%
-  select(-species_itis) %>%
+  dplyr::select(-species_itis) %>%
   # dplyr::filter(mrip_cnt < 10000000) %>%
   dplyr::filter(mrip_cnt < 20000) %>%
   boxplot()
@@ -367,7 +367,7 @@ get_long_mrip_and_fhier_short_values_n <-
         values_to = "CATCH_CNT"
       ) %>%
       # use only the new columns
-      select(species_itis, AGENCY, CATCH_CNT) %>%
+      dplyr::select(species_itis, AGENCY, CATCH_CNT) %>%
       # remove lines where one or another agency doesn't have counts for this species
       drop_na() %>%
       unique()
@@ -435,7 +435,7 @@ to_plot_10 <- right_join(
   n_most_frequent_fhier_10,
   by = c(mrip_and_fhier_itis_field_name, "fhier_quantity_by_species")
 ) %>%
-  select(common_name.x,
+  dplyr::select(common_name.x,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species)
 
@@ -456,7 +456,7 @@ fhier_to_ten <-
 plot_top_10_sep <- function() {
   fhier_top_only_plot <-
     to_plot_10 %>%
-    select(common_name, fhier_quantity_by_species) %>%
+    dplyr::select(common_name, fhier_quantity_by_species) %>%
     ggplot(aes(
       x = fhier_quantity_by_species ,
       y = reorder(common_name,
@@ -473,7 +473,7 @@ plot_top_10_sep <- function() {
   
   mrip_top_only_plot <-
     to_plot_10 %>%
-    select(common_name, mrip_estimate_catch_by_species) %>%
+    dplyr::select(common_name, mrip_estimate_catch_by_species) %>%
     ggplot(aes(
       x = mrip_estimate_catch_by_species,
       y = reorder(common_name,
@@ -544,7 +544,7 @@ plot_fhier_50_most_ab_species <-
       n_most_frequent_fhier_50,
       by = c("species_itis", "fhier_quantity_by_species")
     ) %>%
-      select(common_name,
+      dplyr::select(common_name,
              fhier_quantity_by_species,
              mrip_estimate_catch_by_species)
     
@@ -554,7 +554,7 @@ plot_fhier_50_most_ab_species <-
     
     fhier_top_50_only_plot <-
       to_plot_50 %>%
-      select(common_name, fhier_quantity_by_species) %>%
+      dplyr::select(common_name, fhier_quantity_by_species) %>%
       ggplot(aes(
         x = fhier_quantity_by_species,
         y = reorder(common_name,
@@ -572,7 +572,7 @@ plot_fhier_50_most_ab_species <-
     
     mrip_top_50_only_plot <-
       to_plot_50 %>%
-      select(common_name, mrip_estimate_catch_by_species) %>%
+      dplyr::select(common_name, mrip_estimate_catch_by_species) %>%
       ggplot(aes(
         x = mrip_estimate_catch_by_species,
         y = reorder(common_name,
@@ -652,7 +652,7 @@ get_long_form <-
         values_to = "CATCH_CNT"
       ) %>%
       # use only the new columns
-      select(COMMON_NAME, AGENCY, CATCH_CNT) %>%
+      dplyr::select(COMMON_NAME, AGENCY, CATCH_CNT) %>%
       unique()
     
     return(long_to_plot)
@@ -701,7 +701,7 @@ write.csv(to_plot_10, file = r"(C:\Users\anna.shipunova\Documents\R_files_local\
 
 plot_10_most_frequent_both <-
   to_plot_10 %>%
-  select(common_name.x,
+  dplyr::select(common_name.x,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species) %>%
   ggplot(aes(
@@ -743,7 +743,7 @@ to_plot_50 <- right_join(
   by = c(mrip_and_fhier_itis_field_name, "fhier_quantity_by_species")
 ) %>%
   # by = c("species_itis", "fhier_quantity_by_species")) %>%
-  select(common_name.x,
+  dplyr::select(common_name.x,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species)
 
@@ -753,7 +753,7 @@ fhier_to_50 <-
 
 top_50_both_plot <-
   to_plot_50 %>%
-  select(common_name.x,
+  dplyr::select(common_name.x,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species) %>%
   ggplot(aes(
@@ -847,7 +847,7 @@ fhier_mrip_gom_to_plot <-
                names_to = "AGENCY",
                values_to = "CATCH_CNT") %>%
   # use only the new columns
-  select(year_wave, common_name.x, species_itis, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, common_name.x, species_itis, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -916,7 +916,7 @@ fhier_mrip_gom_to_plot <-
                names_to = "AGENCY",
                values_to = "CATCH_CNT") %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -964,7 +964,7 @@ fhier_mrip_sa_to_plot <-
                names_to = "AGENCY",
                values_to = "CATCH_CNT") %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 

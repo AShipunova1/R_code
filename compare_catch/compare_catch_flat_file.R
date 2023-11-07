@@ -382,7 +382,7 @@ fhier_logbooks_content_waves <-
 #| classes: test
 #### test: show the new columns ----
 fhier_logbooks_content_waves %>%
-  select(end_month, end_year, end_month_num, end_wave) %>%
+  dplyr::select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
   # sort by end_month_num
   arrange(end_month_num)
@@ -455,7 +455,7 @@ fhier_logbooks_content_waves_fl_county %>%
   # data_overview()
   # 37 counties
   # vessel_official_number          1096
-  select(end_port_fl_reg) %>%
+  dplyr::select(end_port_fl_reg) %>%
     table()
 
 ## Other states to regions ----
@@ -489,7 +489,7 @@ sa_state_abb <-
   # get only these in our list
   dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
-  select(state_abb)
+  dplyr::select(state_abb)
 
 # add regions to the FHIER logbook DF
 fhier_logbooks_content_waves__sa_gom <-
@@ -510,12 +510,12 @@ fhier_logbooks_content_waves__sa_gom <-
     end_port_sa_gom
   )) %>%
   # remove this column, we don't need it anymore
-  select(-end_port_fl_reg)
+  dplyr::select(-end_port_fl_reg)
 
 #### test: check new cols of states and regions ----
 fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
-  select(end_port_state, end_port_sa_gom) %>%
+  dplyr::select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
   glimpse()
 
@@ -524,7 +524,7 @@ fhier_logbooks_content_waves__sa_gom %>%
 
 sefhier_spp <-
   sefhier_sp_all %>%
-  select(species_itis, scientific_name, common_name) %>%
+  dplyr::select(species_itis, scientific_name, common_name) %>%
   unique()
 
 fhier_logbooks_content_waves__sa_gom %<>%
@@ -540,7 +540,7 @@ full_join(fhier_logbooks_content_waves__sa_gom,
 # check if sci name is a NA
 fhier_catch_by_species_state_region_waves_w_spp %>%
   dplyr::filter(is.na(scientific_name)) %>%
-  select(species_itis, common_name, reported_quantity) %>%
+  dplyr::select(species_itis, common_name, reported_quantity) %>%
   group_by(species_itis, common_name) %>%
   summarise(sum_cnt = sum(reported_quantity)) %>%
   ungroup() %>%
@@ -559,7 +559,7 @@ grep("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, val
 # 3 in FHIER
 fhier_catch_by_species_state_region_waves_w_spp %>%
   dplyr::filter(grepl("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
-  select(common_name, species_itis, scientific_name) %>%
+  dplyr::select(common_name, species_itis, scientific_name) %>%
   unique()
 #   common_name      species_itis scientific_name
 # 1 DOLPHINFISH      168790       CORYPHAENA
@@ -572,7 +572,7 @@ grep("CORYPHAENA", acl_estimate$new_sci, value = T, ignore.case = T) %>%
 # [1] "Coryphaena hippurus"
 acl_estimate %>%
   dplyr::filter(grepl("CORYPHAENA", acl_estimate$new_sci, ignore.case = T)) %>%
-  select(new_sci, new_com, itis_code) %>%
+  dplyr::select(new_sci, new_com, itis_code) %>%
   unique()
 #   new_sci             new_com itis_code
 # 1 Coryphaena hippurus dolphin NA
@@ -609,18 +609,18 @@ fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name <-
 fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name %>%
   # dplyr::filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
   dplyr::filter(startsWith(tolower(common_name_orig), "dolphin")) %>%
-  select(species_itis, common_name_orig, common_name, scientific_name) %>% unique()
+  dplyr::select(species_itis, common_name_orig, common_name, scientific_name) %>% unique()
 
 # remove orig columns
 fhier_catch_by_species_state_region_waves_w_spp <-
 fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name %>%
-  select(-ends_with("_orig"))
+  dplyr::select(-ends_with("_orig"))
 
 ### add sci name for FLOUNDERS, PARALICHTHYS for FHIER data ----
 
 fhier_catch_by_species_state_region_waves_w_spp %>%
   dplyr::filter(grepl("FLOUNDERS", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
-  select(common_name, species_itis, scientific_name) %>%
+  dplyr::select(common_name, species_itis, scientific_name) %>%
   unique()
 #   common_name             species_itis scientific_name
 # 1 FLOUNDERS, PARALICHTHYS 172734       NA
@@ -636,7 +636,7 @@ fhier_logbooks_content_waves__sa_gom_fla <-
 #### test: FLOUNDERS ----
 fhier_logbooks_content_waves__sa_gom_fla %>%
   dplyr::filter(grepl("FLOUNDERS", fhier_logbooks_content_waves__sa_gom_fla$common_name, ignore.case = T)) %>%
-  select(common_name, species_itis, scientific_name) %>%
+  dplyr::select(common_name, species_itis, scientific_name) %>%
   unique()
 #   common_name             species_itis scientific_name
 # 1 FLOUNDERS, PARALICHTHYS 172734       PARALICHTHYS
@@ -646,8 +646,8 @@ fhier_logbooks_content_waves__sa_gom_fla %>%
 #select only relevant columns from FHIER logbooks DF, and group all cols by reported quantity
 fhier_catch_by_species_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom_fla %>%
-  # select only relevant columns
-  select(
+  # dplyr::select only relevant columns
+  dplyr::select(
     scientific_name,
     species_itis,
     common_name,
@@ -681,7 +681,7 @@ test_species_name <-
   fhier_catch_by_species_state_region_waves %>%
   # dplyr::filter(tolower(common_name) == "mackerel, spanish") %>%
   dplyr::filter(tolower(scientific_name) == "scomberomorus maculatus") %>%
-  select(scientific_name) %>%
+  dplyr::select(scientific_name) %>%
   unique() %>%
   # get a string, not a df
   use_series(scientific_name)
@@ -716,7 +716,7 @@ acl_estimate_2022 <-
   dplyr::filter(sub_reg %in% c(6, 7)) %>%
   # Exclude the SRHS survey according to Dominique and Mike May 1, 2023
   dplyr::filter(!(ds == "SRHS")) %>%
-  # select(new_mode) %>% unique()
+  # dplyr::select(new_mode) %>% unique()
   # the "new_mode" column only has options 1,3 & 4 remaining
   # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
@@ -729,7 +729,7 @@ acl_estimate_2022 %<>%
 
 #### check FL sa_gom ----
 acl_estimate_2022 %>%
-  select(new_sta, sub_reg, fl_reg) %>% unique() %>%
+  dplyr::select(new_sta, sub_reg, fl_reg) %>% unique() %>%
   dplyr::filter(new_sta %in% c("FLE", "FLW"))
 #   new_sta sub_reg fl_reg
 # 1 FLE     6       5
@@ -748,8 +748,8 @@ acl_estimate_2022 %<>%
 ## Get MRIP counts ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
-  # select the relevant columns only
-  select(new_sci,
+  # dplyr::select the relevant columns only
+  dplyr::select(new_sci,
          itis_code,
          new_com,
          state,
@@ -789,7 +789,7 @@ acl_estimate_catch_by_species_state_region_waves <-
                             # put the new column after sub_reg (by default at the end)
                             .after = sub_reg) %>%
   # drop sub_reg
-  select(-sub_reg)
+  dplyr::select(-sub_reg)
 
 ### make a test acl cnts DF of just one sp.----
 
@@ -877,7 +877,7 @@ identical(names(fhier_catch_by_species_state_region_waves_renamed)[1:7],
 ## fhier_spp data to a separate DF ----
 fhier_spp <-
   fhier_catch_by_species_state_region_waves_renamed %>%
-  select(species_itis, common_name, scientific_name) %>%
+  dplyr::select(species_itis, common_name, scientific_name) %>%
   unique()
 
 ## Join Fhier and ACL DFs ----
@@ -987,7 +987,7 @@ fhier_acl_catch_by_species_state_region_waves_list <-
 # the default is to get 12 top, could be changed by providing "top_num"
 get_acl_top_cnts <- function(my_df, top_num = 12) {
   my_df %>%
-    select(new_sci, rec_acl_estimate_catch_by_4) %>%
+    dplyr::select(new_sci, rec_acl_estimate_catch_by_4) %>%
     group_by(new_sci) %>%
     # sum again grouped by scientific name only
     summarise(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
@@ -1056,7 +1056,7 @@ new_group_counts <- function(my_df) {
   ) %>%
     ungroup() %>%
     # remove columns that we used for summing
-    select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
+    dplyr::select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
     # keep only the rows where species_itis_fhier or scientific_name is not an NA
     dplyr::filter(!is.na(species_itis_fhier)) %>%
     dplyr::filter(!is.na(scientific_name)) %>%
@@ -1069,7 +1069,7 @@ new_group_counts <- function(my_df) {
 
 fhier_acl_catch_by_species_region_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-    select(
+    dplyr::select(
     species_itis_fhier,
     common_name_fhier,
     scientific_name,
@@ -1096,7 +1096,7 @@ fhier_acl_catch_by_species_region_year_list <-
 # 4) Data By year and state ----
 fhier_acl_catch_by_species_state_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(
+  dplyr::select(
     species_itis_fhier,
     scientific_name,
     common_name_fhier,

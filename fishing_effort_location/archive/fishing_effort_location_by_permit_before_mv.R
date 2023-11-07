@@ -63,14 +63,14 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
     function(permit_df) {
       # Perform operations on each 'permit_df' data frame within the list.
       permit_df |>
-      select(-c(latitude, longitude)) |>
-      # Select columns except 'latitude' and 'longitude'
+      dplyr::select(-c(latitude, longitude)) |>
+      # dplyr::select columns except 'latitude' and 'longitude'
       count(ten_min_lat, ten_min_lon) |>
       # Count occurrences of 'ten_min_lat' and 'ten_min_lon' combinations
       arrange(desc(n)) |>
       # Arrange rows in descending order of the count 'n'
       head(2)
-      # Select the top 2 rows
+      # dplyr::select the top 2 rows
     }
   )
 
@@ -94,7 +94,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(permit_sa_gom,
+      dplyr::select(-c(permit_sa_gom,
                 permit_region)) |>
       dplyr::add_count(ten_min_lat, ten_min_lon,
                        name = "trip_ids_cnts") |>
@@ -127,7 +127,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(TRIP_ID, vessel_official_nbr,
+      dplyr::select(-c(TRIP_ID, vessel_official_nbr,
                 latitude, longitude)) |>
       distinct()
   })
@@ -212,7 +212,7 @@ short_example_3_cnts <-
   ungroup()
 
 short_example_3_cnts |>
-  select(latitude, longitude) |>
+  dplyr::select(latitude, longitude) |>
   dim()
 # 740
 
@@ -228,7 +228,7 @@ glimpse(short_example_3_cnts)
 
 short_example_3_cnts_short <-
   short_example_3_cnts |>
-  select(-c(vessel_official_nbr,
+  dplyr::select(-c(vessel_official_nbr,
             permit_sa_gom,
             permit_region,
             TRIP_ID)) |>
@@ -238,7 +238,7 @@ dim(short_example_3_cnts_short)
 # [1] 564   5
 
 short_example_3_cnts_short |>
-  select(-c(latitude, longitude)) |>
+  dplyr::select(-c(latitude, longitude)) |>
   distinct() |>
   arrange(trip_ids_cnts)
 # ok

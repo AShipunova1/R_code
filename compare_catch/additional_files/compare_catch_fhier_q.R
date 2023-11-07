@@ -21,7 +21,7 @@ source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 # ```{r Transmission year}
 
 # fhier_logbooks_content_waves__sa_gom %>%
-#   select(trip_de, transmission_date) %>% unique()
+#   dplyr::select(trip_de, transmission_date) %>% unique()
 
 # grep("transm", names(fhier_logbooks_content_waves__sa_gom), value = T)
 
@@ -39,7 +39,7 @@ logbooks_content_transmission_date_ok <-
            # or NAs
            is.na(trip_de_ct)) %>%
   # rm an extra column
-  select(-`1`)
+  dplyr::select(-`1`)
 
 dim(logbooks_content_transmission_trip_de_ct)
 # [1] 320024    161
@@ -52,20 +52,20 @@ dim(logbooks_content_transmission_date_ok)
 # glimpse(logbooks_content_transmission_date_ok)
 
 ### Check the vendor ----
-# (2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to dplyr::filter out of the data. As of about 4 months ago, Yanet should be dplyr::filtering all data to exclude vessels that did not have our permit(s).
+# (2) check the vendor. If it’s VMS, there’s not a lot we can do to ask the vendor to resolve but we can of course ask the auditing team to call the user for corrections. If it’s eTrips, we need to see if the vessel has our permits. Since a user can dplyr::select any vessel in eTrips, it means we sometimes were getting reports from vessels that did not have our permit and so we’re no getting our questions. These we just need to dplyr::filter out of the data. As of about 4 months ago, Yanet should be dplyr::filtering all data to exclude vessels that did not have our permit(s).
 
 # find the field
 # grep("vendor", names(logbooks_content), value = T)
 # [1] "vendor_app_name" "vendor_platform"
 
 logbooks_content %>%
-  select(starts_with("vendor")) %>%
+  dplyr::select(starts_with("vendor")) %>%
   dplyr::filter(!grepl("vms", tolower(vendor_app_name))) %>%
   unique() %>% glimpse()
 # 9
 
 logbooks_content_transmission_date_ok %>%
-  select(vendor_app_name) %>% unique() %>% glimpse()
+  dplyr::select(vendor_app_name) %>% unique() %>% glimpse()
 # 6
 
 transm_before_after <-
@@ -79,9 +79,9 @@ transm_before_after <-
   )
 
 transm_before_after %>%
-  # select(vendor_app_name, trip_de_ct, transmission_date_group) %>%
+  # dplyr::select(vendor_app_name, trip_de_ct, transmission_date_group) %>%
   # glimpse()
-  select(vendor_app_name, transmission_date_group, sero_vessel_permit, accsp_permit_license_nbr) %>%
+  dplyr::select(vendor_app_name, transmission_date_group, sero_vessel_permit, accsp_permit_license_nbr) %>%
   # unique()
   dim()
 # [1] 320021      4
@@ -90,7 +90,7 @@ transm_before_after %>%
 transm_before_after %>%
   # having SERO permit
   dplyr::filter(!is.na(sero_vessel_permit)) %>%
-  select(
+  dplyr::select(
     vendor_app_name,
     transmission_date_group
   ) %>%
@@ -137,7 +137,7 @@ dim(logbooks_content_transmission_date_not_vms_ok)
 ## Wrong dates ----
 fhier_dates <-
   logbooks_content_transmission_date_not_vms_ok %>%
-  select(grep(
+  dplyr::select(grep(
     "date",
     names(logbooks_content_transmission_date_not_vms_ok),
     value = T
@@ -194,7 +194,7 @@ not_specified_region <-
 
 not_specified_region_states <-
   not_specified_region %>%
-  select(
+  dplyr::select(
     vessel_official_nbr,
     trip_id,
     trip_de,
@@ -233,7 +233,7 @@ not_specified_region_states_not_monroe <-
 
 not_specified_region_states_not_monroe %>%
   dplyr::filter(trip_de_ct >= "2022-01-01") %>%
-  select(
+  dplyr::select(
     vessel_official_nbr,
     sero_vessel_permit,
     accsp_permit_license_nbr,
@@ -284,12 +284,12 @@ logbooks_content_transmission_date_not_vms_ok %>%
 
 logbooks_content_transmission_date_not_vms_ok %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
-  select(common_name) %>% unique()
+  dplyr::select(common_name) %>% unique()
 # NA VMS
 
 logbooks_content %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
-  select(trip_start_date) %>% unique() %>% 
+  dplyr::select(trip_start_date) %>% unique() %>% 
   dim()
 # 70
 
@@ -304,6 +304,6 @@ logbooks_content_transmission_date_not_vms_ok %>%
 # logbooks_content %>%
 #   dplyr::filter(!!sym(itis_field_name) == "0") %>%
 #   # head()
-#   select(vessel_official_nbr) %>% unique() %>%
+#   dplyr::select(vessel_official_nbr) %>% unique() %>%
 #   dim()
 # 11

@@ -848,7 +848,7 @@ need_cols_names <- c(
 
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa_non_c_not_exp |>
-  select(all_of(need_cols_names)) |>
+  dplyr::select(all_of(need_cols_names)) |>
   inner_join(compl_clean_sa_all_weeks_non_c_short) |>
 # Joining with `by = join_by(vessel_official_number)`
   distinct()
@@ -860,7 +860,7 @@ dim(compl_clean_sa_all_weeks_non_c)
 # ids only
 compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_sa_all_weeks_non_c_short |>
-  select(vessel_official_number) |>
+  dplyr::select(vessel_official_number) |>
   distinct()
 
 dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
@@ -882,7 +882,7 @@ compl_clean_sa |>
   dplyr::mutate(latest_compl = max(week_num)) |>
   dplyr::filter(week_num == latest_compl) |>
   ungroup() |>
-  select(
+  dplyr::select(
     # vessel_official_number,
     year_month,
     latest_compl) |>
@@ -969,7 +969,7 @@ get_date_contacttype <-
       # add a new column date__contacttype with combined contactdate and contacttype
       dplyr::mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
       # use 2 columns only
-      select(vessel_official_number, date__contacttype) |>
+      dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
       # sort
       dplyr::arrange(vessel_official_number, date__contacttype) |>
@@ -991,7 +991,7 @@ dim(date__contacttype_per_id)
 ### check ----
 vessels_permits_participants_v_ids <-
   vessels_permits_participants |>
-  select(P_VESSEL_ID) |>
+  dplyr::select(P_VESSEL_ID) |>
   distinct()
 
 dim(vessels_permits_participants_v_ids)
@@ -1052,7 +1052,7 @@ vessels_permits_participants_short_u <-
       ))
   ) |>
   # use only new columns and the vessel id
-  select(P_VESSEL_ID,
+  dplyr::select(P_VESSEL_ID,
          sero_home_port,
          full_name,
          full_address) |>
@@ -1136,7 +1136,7 @@ fhier_addr <-
 # fewer fields
 fhier_addr_short <-
   fhier_addr |>
-  select(
+  dplyr::select(
     vessel_official_number,
     permit_holder_names,
     physical_address_1,
@@ -1159,7 +1159,7 @@ fhier_addr_short <-
         physical_zip_code
       )
   ) |>
-  select(
+  dplyr::select(
     -c(
       physical_address_1,
       physical_address_2,

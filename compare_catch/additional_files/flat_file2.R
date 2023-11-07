@@ -44,7 +44,7 @@ use_wave <- function(my_df) {
     separate_wider_delim(year_wave,
                          delim = "_",
                          names = c("year", "wave")) %>%
-    select(-year) %>%
+    dplyr::select(-year) %>%
     return()
 }
 
@@ -65,7 +65,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
   dplyr::filter(sa_gom == "gom") %>%
-  select(species_itis, acl_estimate_catch_by_4) %>%
+  dplyr::select(species_itis, acl_estimate_catch_by_4) %>%
   group_by(species_itis) %>%
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
   # sort
@@ -81,7 +81,7 @@ gom_acl_top_common_names <-
 sa_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
   dplyr::filter(sa_gom == "sa") %>%
-  select(species_itis, acl_estimate_catch_by_4) %>%
+  dplyr::select(species_itis, acl_estimate_catch_by_4) %>%
   group_by(species_itis) %>%
   # sum the counts by species
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
@@ -114,8 +114,8 @@ names(fhier_acl_catch_by_species_state_region_waves)
 
 fhier_acl_catch_by_species_region_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(-c(state, wave, year)) %>%
-  # select(species_itis,
+  dplyr::select(-c(state, wave, year)) %>%
+  # dplyr::select(species_itis,
   #        common_name,
   #        sa_gom,
   #        fhier_quantity_by_4,
@@ -160,7 +160,7 @@ acl_estimate_2022 %>%
 
 fhier_acl_catch_by_species_state_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(species_itis,
+  dplyr::select(species_itis,
          common_name,
          state,
          fhier_quantity_by_4,
@@ -172,7 +172,7 @@ fhier_acl_catch_by_species_state_year <-
     fhier_sum_cnts = sum(fhier_quantity_by_4),
     rec_acl_sum_cnts = sum(acl_estimate_catch_by_4)
   ) %>%
-  select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
+  dplyr::select(-c(fhier_quantity_by_4, acl_estimate_catch_by_4)) %>%
   unique()
 
 ## split by state ----

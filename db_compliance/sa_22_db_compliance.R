@@ -73,7 +73,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 ### check compl week count ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w |>
   dplyr::filter(PERMIT_VESSEL_ID == "FL4430NN") |>
-  select(WEEK_OF_YEAR, date_y_m, all_of(starts_with("rep_type")), compl_w_cnt) |>
+  dplyr::select(WEEK_OF_YEAR, date_y_m, all_of(starts_with("rep_type")), compl_w_cnt) |>
     distinct() |>
     dim()
 # 14 distinct weeks
@@ -159,7 +159,7 @@ rm_columns <-
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w |> 
-  select(-any_of(rm_columns)) |> 
+  dplyr::select(-any_of(rm_columns)) |> 
   distinct()
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short)
 # [1] 194697     23
@@ -215,8 +215,8 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
 # 5            NA 69509
 
 # v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
-#   # select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, all_of(starts_with("UE"))) |>
-#   select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, UE.t) |>
+#   # dplyr::select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, all_of(starts_with("UE"))) |>
+#   dplyr::select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, UE.t) |>
 #   distinct() |>
 #   dplyr::filter(ACTIVITY_TYPE %in% c("2", "8")) |>
 #   head(10)
@@ -224,7 +224,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
 ### fewer columns ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
-  select(
+  dplyr::select(
     PERMIT_VESSEL_ID,
     permit_2022_int,
     permit_weeks_amnt_22,
@@ -276,13 +276,13 @@ length(unique(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short$PERMIT_VESS
 
 sa_compl_cnts <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          compl_2022) |>
   distinct() |>
   add_count(compl_2022, name = "total_compl_y")
 
 sa_compl_cnts |>
-  select(compl_2022, total_compl_y) |>
+  dplyr::select(compl_2022, total_compl_y) |>
   distinct()
 # 2 no                  2700
 # 1 yes                 1257
@@ -322,7 +322,7 @@ sa_compl_cnts |>
 sa_compl_cnts_perc <-
   sa_compl_cnts |>
   mutate(total_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
-  select(-PERMIT_VESSEL_ID) |>
+  dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   group_by(compl_2022) |>
   mutate(compl_perc =
@@ -362,7 +362,7 @@ year_plot_sa <-
 # SA compliance by month ----
 v_p__t__tne_d_weeks_sa_compl_w_short <-
   v_p__t__tne_d_weeks_sa_compl_w |> 
-  select(-any_of(rm_columns)) |> 
+  dplyr::select(-any_of(rm_columns)) |> 
   distinct()
 
 dim(v_p__t__tne_d_weeks_sa_compl_w_short)
@@ -444,7 +444,7 @@ count_weeks_per_vsl_permit_year_compl_month <-
 
 # test
 count_weeks_per_vsl_permit_year_compl_month %>% 
-    # select(year_permit, year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
+    # dplyr::select(year_permit, year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
   # unique() %>%
   dplyr::filter(year_month == "Dec 2022") %>%
   glimpse()
@@ -461,7 +461,7 @@ count_weeks_per_vsl_permit_year_compl_month %>%
 count_weeks_per_vsl_permit_year_compl_month %>%
 filter(year_permit == "2022 sa_only" &
            compliant_ == "NO") %>%
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          compliant_,
          year_month,
          weeks_per_vessel_per_compl_m) %>%
@@ -483,7 +483,7 @@ count_weeks_per_vsl_permit_year_compl_m_p <-
 count_weeks_per_vsl_permit_year_compl_m_p %>%
   dplyr::filter(year_month == "Dec 2022") %>% 
   dplyr::filter(vessel_official_number == "NJ8126HN") %>%
-  select(
+  dplyr::select(
     vessel_official_number,
     year_month,
     compliant_,
@@ -504,7 +504,7 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
 count_weeks_per_vsl_permit_year_compl_m_p_nc <-
   count_weeks_per_vsl_permit_year_compl_m_p %>%
   dplyr::filter(compliant_ == "NO") %>%
-  select(
+  dplyr::select(
     year_permit,
     year_month,
     vessel_official_number,
@@ -573,7 +573,7 @@ test_compare_with <-
   dplyr::filter(year_permit == "2022 sa_only") %>%
   dplyr::filter(year_month == "Jan 2022") %>%
   dplyr::filter(compliant_ == "NO") %>%
-  select(vessel_official_number) %>%
+  dplyr::select(vessel_official_number) %>%
   unique() %>% dim()
 # total 703 nc vsls in "Jan 2022 sa_only"
 # tot 1635 in Jan 2022
@@ -586,7 +586,7 @@ test_res <-
   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b %>%
   dplyr::filter(year_permit == "2022 sa_only") %>%
   dplyr::filter(year_month == "Jan 2022") %>%
-  select(vessel_official_number) %>%
+  dplyr::select(vessel_official_number) %>%
   unique() %>% dim()
 #  703 1
 
@@ -606,7 +606,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p <-
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
   dplyr::filter(year_permit == "2022 sa_only") %>%
   dplyr::filter(year_month == "Dec 2022") %>%
-  select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
+  dplyr::select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
   unique() %>%
   arrange(percent_n_compl_rank) %>%
   head()
@@ -631,7 +631,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
   count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
-  select(
+  dplyr::select(
     -c(
       vessel_official_number,
       weeks_per_vessel_per_compl_m,
@@ -719,7 +719,7 @@ get_one_plot_by_month <-
     
     curr_m_tot_active <- curr_data %>%
       dplyr::filter(perm_exp_m == "active") %>%
-      select(exp_m_tot_cnt) %>%
+      dplyr::select(exp_m_tot_cnt) %>%
       unique()
 
     # see function definition F2

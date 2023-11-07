@@ -40,7 +40,7 @@ plot_by_time <-
       my_df %>%
       # make "common_name_fhier" a factor to keep an order by desc(rec_acl_cnts_by_year)
       mutate(common_name_fhier = reorder(common_name_fhier, desc(!!sym(sort_field)))) %>%
-      select(-starts_with("species_itis")) %>%
+      dplyr::select(-starts_with("species_itis")) %>%
       to_long_format() %>%
       ggplot(aes(CATCH_CNT, common_name_fhier, fill = ORIGIN)) +
       scale_fill_manual(values = c("Rec_ACL" = "deepskyblue", "FHIER" = "red")) +
@@ -153,7 +153,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   identical(
     fhier_test_cnts %>%
               dplyr::filter(sa_gom == "gom") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
@@ -167,7 +167,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   identical(
     acl_test_cnts %>%
               dplyr::filter(sa_gom == "sa") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
@@ -199,7 +199,7 @@ dim(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar)
 # 179 new file and sero only
 # 163 - combined dolphins
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
-  select(common_name_fhier) %>% unique() %>% dim()
+  dplyr::select(common_name_fhier) %>% unique() %>% dim()
 # 11
 # 9
 
@@ -212,12 +212,12 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   dplyr::filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-  select(mackerel_fhier_cnt) %>%
+  dplyr::select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
               dplyr::filter(sa_gom == "sa") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
@@ -226,12 +226,12 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
   dplyr::filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-  select(mackerel_fhier_cnt) %>%
+  dplyr::select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
               dplyr::filter(sa_gom == "gom") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
@@ -240,12 +240,12 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   dplyr::filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
-  select(mackerel_acl_cnt) %>%
+  dplyr::select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
   identical(
     acl_test_cnts %>%
               dplyr::filter(sa_gom == "sa") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
@@ -254,12 +254,12 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
   dplyr::filter(scientific_name == test_species_name) %>%
   group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
-    select(mackerel_acl_cnt) %>%
+    dplyr::select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
   identical(
     acl_test_cnts %>%
               dplyr::filter(sa_gom == "gom") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 # TRUE
@@ -279,7 +279,7 @@ fhier_acl_to_plot_format <- function(my_df) {
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(wave, species_itis_fhier, common_name_fhier, ORIGIN, CATCH_CNT) %>%
+  dplyr::select(wave, species_itis_fhier, common_name_fhier, ORIGIN, CATCH_CNT) %>%
     group_by(wave, species_itis_fhier, common_name_fhier, ORIGIN) %>%
     summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
     return()
@@ -443,8 +443,8 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
 calculate_cnt_index <- function(my_df) {
   # browser()
   my_df %>%
-    select(wave, common_name_fhier, fhier_quantity_by_4, rec_acl_estimate_catch_by_4) %>%
-    # select(-c(state, species_itis_fhier, species_itis_mrip)) %>%
+    dplyr::select(wave, common_name_fhier, fhier_quantity_by_4, rec_acl_estimate_catch_by_4) %>%
+    # dplyr::select(-c(state, species_itis_fhier, species_itis_mrip)) %>%
     mutate_all( ~ replace_na(., 0)) %>%
     group_by(wave, common_name_fhier) %>%
     # aggregate counts by states
@@ -466,7 +466,7 @@ fhier_acl_gom_ind <- calculate_cnt_index( fhier_acl_catch_by_species_state_regio
 # glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
 #   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
-#   select(wave) %>% unique()
+#   dplyr::select(wave) %>% unique()
 # 
 # fhier_acl_gom_ind <-
 #   fhier_acl_gom_ind %>%
@@ -476,9 +476,9 @@ fhier_acl_gom_ind <- calculate_cnt_index( fhier_acl_catch_by_species_state_regio
 #     # cols_remove = F,
 #     names = c("year", "wave")
 #   ) %>%
-#   select(-year)
+#   dplyr::select(-year)
 # # %>%
-#   # select(year_wave, wave) %>% unique()
+#   # dplyr::select(year_wave, wave) %>% unique()
 # 
 # strsplit("2022_1", "_")[[1]][[2]]
 
@@ -692,7 +692,7 @@ sa_acl_top_to_plot %>%
   identical(
     sa_acl_top_spp %>%
       dplyr::filter(scientific_name == test_species_name) %>%
-      select(acl_count) %>%
+      dplyr::select(acl_count) %>%
       use_series(acl_count)
   )
 # T
@@ -855,7 +855,7 @@ state_wave_has_rec_acl_data_list_state_sedar <-
 
 # View(state_wave_has_rec_acl_data_list_state_sedar$gom$AL)
 state_wave_has_rec_acl_data_list_state_sedar$gom$AL %>%
-  select(scientific_name) %>% unique() %>% dim()
+  dplyr::select(scientific_name) %>% unique() %>% dim()
 # sa$NC 9
 # $gom$AL 11
 
@@ -998,7 +998,7 @@ state_wave_rec_acl_top_list <-
 
 View(state_wave_rec_acl_top_list)
 state_wave_rec_acl_top_list[["FL"]] %>%
-  select(scientific_name) %>% unique() %>% dim()
+  dplyr::select(scientific_name) %>% unique() %>% dim()
 # 18
 
 state_wave_plots_mrip_top <-
@@ -1065,7 +1065,7 @@ state_wave_has_rec_acl_data_list_state_top_mrip <-
 
 # View(state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL)
 state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL %>%
-  select(scientific_name) %>% unique() %>% dim()
+  dplyr::select(scientific_name) %>% unique() %>% dim()
 # sa$NC 9
 # $gom$AL 11
 
@@ -1208,11 +1208,11 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 
 ### overview plots ----
 fhier_acl_catch_by_species_region_year_list$gom %>%
-  select(-common_name_fhier) %>%
+  dplyr::select(-common_name_fhier) %>%
   plot(main = "GOM by year")
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  select(-common_name_fhier) %>%
+  dplyr::select(-common_name_fhier) %>%
   plot(main = "SA by year")
 
 ## 3) By year and region 3c) All FHIER spp ----
@@ -1233,11 +1233,11 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 
 ### overview plots ----
 fhier_acl_catch_by_species_region_year_list$gom %>%
-  select(-common_name_fhier) %>%
+  dplyr::select(-common_name_fhier) %>%
   plot(main = "GOM by year")
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  select(-common_name_fhier) %>%
+  dplyr::select(-common_name_fhier) %>%
   plot(main = "SA by year")
 
 # 4) By year and state ----
@@ -1250,7 +1250,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 #       |
 #         (species_itis %in% sa_top_spp$species_itis)
 #     ) %>%
-#   select(common_name_fhier)
+#   dplyr::select(common_name_fhier)
 # )
 
 View(fhier_acl_catch_by_species_state_year_list)

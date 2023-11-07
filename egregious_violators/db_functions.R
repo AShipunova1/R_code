@@ -102,7 +102,7 @@ get_permit_expirations_by_vessel <- function() {
   permit_info <- dbGetQuery(con,
                             permit_info_query)
   
-  permit_info %>% select(VESSEL_ID) %>% unique() %>% str()
+  permit_info %>% dplyr::select(VESSEL_ID) %>% unique() %>% str()
   # 11
   
   setdiff(vessel_ids_not_in_compl, permit_info$VESSEL_ID)

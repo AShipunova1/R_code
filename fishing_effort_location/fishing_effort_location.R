@@ -186,7 +186,7 @@ dim(db_data_w_area)
 
 db_data_w_area_short <-
   db_data_w_area |>
-  select(all_of(fields_list)) |>
+  dplyr::select(all_of(fields_list)) |>
   unique()
 
 dim(db_data_w_area_short)
@@ -401,7 +401,7 @@ get_permit_data_from_PIMS_csv <- function() {
 
   # test
   active_permits_from_pims %>%
-    select(status_date) %>%
+    dplyr::select(status_date) %>%
     arrange(desc(status_date)) %>% unique() %>% head()
   # correct
   # str(active_permits_from_pims)
@@ -437,7 +437,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits)
 
 # check status ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
-  select(status) |>
+  dplyr::select(status) |>
   distinct()
 # # A tibble: 6 × 1
 #   status
@@ -450,7 +450,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
 
 # shorten ----
  # |>
-  # select(LATITUDE,
+  # dplyr::select(LATITUDE,
          # LONGITUDE,
          # TRIP_ID)
 
@@ -465,7 +465,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
 ### check names ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
   filter(!VESSEL_NAME == vessel_name) |>
-  select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
   distinct() |>
   head()
 #   <chr>               <chr>        <chr>
@@ -479,7 +479,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
 ### shorten ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
-  select(
+  dplyr::select(
     -c(
       VESSEL_NAME,
       TRIP_START_DATE,
@@ -568,7 +568,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
   map(
     function(permit_df) {
       permit_df |>
-      select(-c(LATITUDE, LONGITUDE)) |>
+      dplyr::select(-c(LATITUDE, LONGITUDE)) |>
       count(ten_min_lat, ten_min_lon) |>
       arrange(desc(n)) |>
       head(2)
@@ -592,7 +592,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(LATITUDE, LONGITUDE,
+      dplyr::select(-c(LATITUDE, LONGITUDE,
                 permit_sa_gom,
                 permit_region)) |>
       dplyr::add_count(ten_min_lat, ten_min_lon,
@@ -616,7 +616,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
   map(function(permit_df) {
     permit_df |>
-      select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
+      dplyr::select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
       distinct()
   })
 
@@ -781,13 +781,13 @@ short_example_3 |>
 # 740
 
 short_example_3 |>
-  select(TRIP_ID) |>
+  dplyr::select(TRIP_ID) |>
   distinct() |>
   dim()
 # 740 (distinct and w/o)
 
 short_example_3 |>
-  select(LATITUDE, LONGITUDE) |>
+  dplyr::select(LATITUDE, LONGITUDE) |>
   dim()
 # 740
 # 142+319+279
@@ -800,7 +800,7 @@ dim(short_example_3_cnts)
 
 short_example_3_cnts_short <-
   short_example_3_cnts |>
-  select(-c(VESSEL_OFFICIAL_NBR,
+  dplyr::select(-c(VESSEL_OFFICIAL_NBR,
             permit_sa_gom,
             permit_region,
             TRIP_ID)) |>
@@ -810,7 +810,7 @@ dim(short_example_3_cnts_short)
 # [1] 564   5
 
 short_example_3_cnts_short |>
-  select(-c(LATITUDE, LONGITUDE)) |>
+  dplyr::select(-c(LATITUDE, LONGITUDE)) |>
   distinct()
 # ok
 #     ten_min_lat ten_min_lon     n
@@ -1082,7 +1082,7 @@ l %>%
 lat_lon_data_short <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
-  select(LATITUDE,
+  dplyr::select(LATITUDE,
          LONGITUDE,
          TRIP_ID)
 # |>
@@ -1092,7 +1092,7 @@ lat_lon_data_coord <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
   # na.omit() |>
-  select(LATITUDE,
+  dplyr::select(LATITUDE,
          LONGITUDE)
 # |>
   # distinct()
@@ -1112,7 +1112,7 @@ lat_lon_data_uniq_coord_ten_min <-
 
 lat_lon_data_uniq_coord_ten_min_short <-
   lat_lon_data_uniq_coord_ten_min |>
-  select(ten_min_lat, ten_min_lon)
+  dplyr::select(ten_min_lat, ten_min_lon)
 # |>
   # distinct() |>
   # dim()
@@ -1299,9 +1299,9 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(all_of(fields_list)
+    dplyr::select(all_of(fields_list)
            # )
-    # select(
+    # dplyr::select(
     #   TRIP_START_DATE,
     #   TRIP_END_DATE,
     #   START_PORT,
@@ -1456,7 +1456,7 @@ db_data_w_area_no_mex_uniq <-
 # keep fewer columns ----
 db_data_w_area_report_short <-
   db_data_w_area_no_mex_uniq %>%
-  select(all_of(fields_list))
+  dplyr::select(all_of(fields_list))
 
 dim(db_data_w_area_report_short)
 # 45315 10
@@ -1644,9 +1644,9 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(all_of(fields_list)
+    dplyr::select(all_of(fields_list)
            # )
-    # select(
+    # dplyr::select(
     #   TRIP_START_DATE,
     #   TRIP_END_DATE,
     #   START_PORT,

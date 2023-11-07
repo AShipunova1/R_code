@@ -100,7 +100,7 @@ get_num_of_non_compliant_weeks <-
     # browser()
     compl_clean_sa_non_compl %>%
       # use only 2 columns
-      select(vessel_official_number, week) %>%
+      dplyr::select(vessel_official_number, week) %>%
       # sort
       arrange(vessel_official_number, week) %>%
       distinct() %>%
@@ -128,14 +128,14 @@ glimpse(id_n_plus_weeks)
 # All weeks in the last 6 m are "non-compliance" ----
 compl_clean_sa_all_weeks_cnt <- 
   compl_clean_sa %>% 
-  select(vessel_official_number, week, compliant_) %>% 
+  dplyr::select(vessel_official_number, week, compliant_) %>% 
   add_count(vessel_official_number,
             name = "total_weeks") %>%
   add_count(vessel_official_number, compliant_,
             name = "compl_weeks_amnt")
 
 compl_clean_sa_all_weeks_cnt %>%
-  select(-week) %>% 
+  dplyr::select(-week) %>% 
   dplyr::distinct() %>% 
   dplyr::filter(compl_weeks_amnt >= number_of_weeks_for_non_compliancy) %>%
   dplyr::filter(compliant_ == 'NO') %>%
@@ -163,7 +163,7 @@ get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
     )) == "no")) %>%
     # leave only those with all weeks are non compliant
     dplyr::filter(all_weeks_non_compl) %>%
-    select(vessel_official_number) %>%
+    dplyr::select(vessel_official_number) %>%
     unique() %>%
     return()
 }
@@ -240,7 +240,7 @@ get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
     # keep a row only if all_vm == TRUE
     dplyr::filter(all_vm) %>%
     # keep only one column
-    select("vessel_official_number") %>%
+    dplyr::select("vessel_official_number") %>%
     unique() %>%
     return()
 }
@@ -338,7 +338,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
     corresp_contact_cnts_clean %>%
     dplyr::filter(!!emails_filter &
              tolower(calltype) == "incoming") %>%
-    select(vessel_official_number) %>%
+    dplyr::select(vessel_official_number) %>%
     unique()
   # 259
   
@@ -347,7 +347,7 @@ get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
     corresp_contact_cnts_clean %>%
     dplyr::filter(!!emails_filter &
              tolower(calltype) == "outgoing") %>%
-    select(vessel_official_number) %>%
+    dplyr::select(vessel_official_number) %>%
     unique()
 
   # get ids wihch are in both in and out lists
@@ -430,7 +430,7 @@ get_date_contacttype <- function(compl_corr_to_investigation) {
     # add a new column date__contacttype with contactdate and contacttype
     mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) %>%
     # use 2 columns only
-    select(vessel_official_number, date__contacttype) %>%
+    dplyr::select(vessel_official_number, date__contacttype) %>%
     # [1] 49903     2
     # sort
     arrange(vessel_official_number, date__contacttype) %>%
@@ -467,7 +467,7 @@ contactphonenumber_field_name <-
 
 # names(compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id)
 compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id %>%
-  select(
+  dplyr::select(
     "vessel_official_number",
     "name",
     "permit_expired",
@@ -521,7 +521,7 @@ glimpse(compl_corr_to_investigation_short_output)
 # test compl_corr_to_investigation_short_output non compliant weeks number ----
 week_start_1 <-
   compl_corr_to_investigation_short_output %>%
-  select(week_start) %>%
+  dplyr::select(week_start) %>%
   # count commas
   mutate(week_amount = str_count(week_start, ",") + 1) %>%
   filter(week_amount < 27)

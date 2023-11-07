@@ -137,7 +137,7 @@ dim(db_data_w_area)
 
 db_data_w_area_short <-
   db_data_w_area |>
-  select(all_of(fields_list)) |>
+  dplyr::select(all_of(fields_list)) |>
   unique()
 
 dim(db_data_w_area_short)
@@ -487,7 +487,7 @@ l %>%
 lat_lon_data_short <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
-  select(LATITUDE,
+  dplyr::select(LATITUDE,
          LONGITUDE,
          TRIP_ID)
 # |>
@@ -497,7 +497,7 @@ lat_lon_data_coord <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
   # na.omit() |>
-  select(LATITUDE,
+  dplyr::select(LATITUDE,
          LONGITUDE)
 # |>
   # distinct()
@@ -517,7 +517,7 @@ lat_lon_data_uniq_coord_ten_min <-
 
 lat_lon_data_uniq_coord_ten_min_short <-
   lat_lon_data_uniq_coord_ten_min |>
-  select(ten_min_lat, ten_min_lon)
+  dplyr::select(ten_min_lat, ten_min_lon)
 # |>
   # distinct() |>
   # dim()
@@ -704,9 +704,9 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(all_of(fields_list)
+    dplyr::select(all_of(fields_list)
            # )
-    # select(
+    # dplyr::select(
     #   TRIP_START_DATE,
     #   TRIP_END_DATE,
     #   START_PORT,
@@ -861,7 +861,7 @@ db_data_w_area_no_mex_uniq <-
 # keep fewer columns ----
 db_data_w_area_report_short <-
   db_data_w_area_no_mex_uniq %>%
-  select(all_of(fields_list))
+  dplyr::select(all_of(fields_list))
 
 dim(db_data_w_area_report_short)
 # 45315 10
@@ -1049,9 +1049,9 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(all_of(fields_list)
+    dplyr::select(all_of(fields_list)
            # )
-    # select(
+    # dplyr::select(
     #   TRIP_START_DATE,
     #   TRIP_END_DATE,
     #   START_PORT,

@@ -54,7 +54,7 @@ sa_state_abb <-
   # get only these in our list
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
-  select(state_abb)
+  dplyr::select(state_abb)
 
 # # add regions to the FHIER logbook DF
 # fhier_logbooks_content_waves__sa_gom <-
@@ -75,12 +75,12 @@ sa_state_abb <-
 #     end_port_sa_gom
 #   )) %>%
 #   # remove this column, we don't need it anymore
-#   select(-end_port_fl_reg)
+#   dplyr::select(-end_port_fl_reg)
 
 #### test: check new cols of states and regions ----
 # fhier_logbooks_content_waves__sa_gom %>%
 #   # look at states and regions
-#   select(end_port_state, end_port_sa_gom) %>%
+#   dplyr::select(end_port_state, end_port_sa_gom) %>%
 #   unique() %>%
 #   glimpse()
 
@@ -315,7 +315,7 @@ add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr")
 
   # Add columns 'vsl_cnt' and 'trip_id_cnt' with counts of distinct vessel and trip IDs.
     # sym() take strings as input and turn them into symbols.
-    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, select, or other functions that accept column names.
+    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, dplyr::select, or other functions that accept column names.
     # So, the code !!rlang::sym(vessel_id_name) effectively evaluates to the column name specified by the vessel_id_name variable in the context of a dplyr verb, allowing you to work with the column dynamically based on the variable's value.
 
     dplyr::mutate(

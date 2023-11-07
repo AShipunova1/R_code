@@ -34,21 +34,21 @@ View(vessels__trip_neg_22)
 
 vessels__trip_neg_22 |>
   dplyr::filter(PERMIT_GROUP == 7) |>
-  select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   distinct() |>
   dim()
 # [1] 1975    2 vessels
 
 vessels__trip_neg_22 |>
   dplyr::filter(PERMIT_GROUP == 7) |>
-  select(TRIP_ID) |>
+  dplyr::select(TRIP_ID) |>
   distinct() |>
   dim()
 # 410054      
 
 vessels__trip_neg_22 |>
   dplyr::filter(PERMIT_GROUP == 7) |>
-  select(TRIP_ID, permit_sa_gom) |>
+  dplyr::select(TRIP_ID, permit_sa_gom) |>
   distinct() |>
   count(permit_sa_gom)
 # 1      gom_only  34321
@@ -68,26 +68,26 @@ print_df_names(v_p_tne__dual)
 
 v_p_tne__dual |>
   # dplyr::filter(PERMIT_GROUP == 7) |>
-  select(TRIP_ID) |>
+  dplyr::select(TRIP_ID) |>
   distinct() |>
   dim()
 # [1] 410943      1
 
 v_p_tne__dual |>
   # dplyr::filter(PERMIT_GROUP == 7) |>
-  select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   distinct() |>
   dim()
 # [1] 1979    2
 
 
 v_p_tne__dual |>
-  select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   distinct() |>
   count
 
 v_p_tne__dual |>
-  select(TRIP_ID, permit_sa_gom) |>
+  dplyr::select(TRIP_ID, permit_sa_gom) |>
   distinct() |>
   count(permit_sa_gom)
 #   permit_sa_gom      n
@@ -284,7 +284,7 @@ v_p_gom1__j <-
 
 View(v_p_gom1__j)
 v_p_gom1__j |>
-  select(unique_all_vessel_ids_1) |>
+  dplyr::select(unique_all_vessel_ids_1) |>
   distinct() |>
   dim()
 # [1] 1009    1
@@ -385,7 +385,7 @@ in_j_only_t_neg <-
 create_p_v_22_query <-
   "CREATE PRIVATE TEMPORARY TABLE ora$ptt_p_v ON COMMIT PRESERVE DEFINITION
   AS
-    SELECT DISTINCT
+    dplyr::select DISTINCT
       p.vessel_id AS p_vessel_id,
       entity_id,
       expiration_date,
@@ -516,7 +516,7 @@ sum(all_in_j_only_t_neg_all$TOTAL_DNF)
 # 1064902
 # 400
 
-# SELECT
+# dplyr::select
 #   count(distinct trip_id)
 # FROM
 #        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
@@ -680,7 +680,7 @@ all_cnts_from_v__tne_query_btw |>
 # 45710
 
 all_cnts_from_v__tne_query_btw |> 
-  select(SERO_OFFICIAL_NUMBER) |> 
+  dplyr::select(SERO_OFFICIAL_NUMBER) |> 
   distinct() |> 
   dim()
 # 351
@@ -717,7 +717,7 @@ data_overview(fhier_cnts_g_d)
 
 fhier_cnts_g_d_short <-
   fhier_cnts_g_d |> 
-  select(
+  dplyr::select(
     vessel_official_number,
     vessel_name,
     effective_date,
@@ -739,7 +739,7 @@ dim(fhier_cnts_g_d_short_not_exp)
 
 fhier_cnts_g_d_short_vessel_ids <-
   fhier_cnts_g_d_short |> 
-  select(vessel_official_number) |> 
+  dplyr::select(vessel_official_number) |> 
   distinct()
 
 intersect(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF,

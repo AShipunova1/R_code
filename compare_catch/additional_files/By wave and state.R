@@ -33,7 +33,7 @@ state_wave_has_rec_acl_data_list_state_top_mrip <-
 
 # View(state_wave_has_rec_acl_data_list_state_top_mrip$gom$AL)
 # state_wave_has_rec_acl_data_list_state_top_mrip$sa$NC %>%
-#   select(scientific_name) %>% unique() %>% dim()
+#   dplyr::select(scientific_name) %>% unique() %>% dim()
 # sa$NC 12
 # $gom$AL 11
 

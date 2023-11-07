@@ -30,7 +30,7 @@ v_p__t__tn_d_weeks_gom |>
 v_p__t__tn_d_weeks_gom |>
   dplyr::filter(ACTIVITY_TYPE == "3") |>
   # head(2) |>
-  # select(all_of(starts_with("UE"))) |>
+  # dplyr::select(all_of(starts_with("UE"))) |>
   glimpse()
 # $ UE.t  <chr> "KCSPORTFISHING                "
 # $ UE.tn <chr> "KCSPORTFISHING"
@@ -39,7 +39,7 @@ v_p__t__tn_d_weeks_gom |>
 
 v_p__t__tn_d_weeks_gom |>
   dplyr::filter(ACTIVITY_TYPE == "81") |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          ACTIVITY_TYPE,
          INTENDED_FISHING_FLAG,
          all_of(starts_with("rep_type"))) |>
@@ -76,7 +76,7 @@ trips_act <-
     VESSEL_ID %in% vessels_permits_2022_r_act$VESSEL_VESSEL_ID,
     ACTIVITY_TYPE %in% c(8, 2, 3)
   ) |>
-  select(-any_of(t_names_to_rm))
+  dplyr::select(-any_of(t_names_to_rm))
 
 dim(trips_act)
 # [1] 18 21
@@ -148,7 +148,7 @@ dim(weird_activity_types_info12)
 
 # weird_activity_types_info |> 
 weird_activity_types_info12 |> 
-  select(PERMIT_VESSEL_ID) |> 
+  dplyr::select(PERMIT_VESSEL_ID) |> 
   distinct() |> 
   head(10)
 # 8 (7 + NA)
@@ -167,7 +167,7 @@ weird_activity_types_info12 |>
 # 127190 vessel_id
 trips_info_2022_int_dur |>
   dplyr::filter(VESSEL_ID == "127190") |>
-  select(TRIP_START_DATE,
+  dplyr::select(TRIP_START_DATE,
          TRIP_END_DATE) |>
   distinct() |>
   arrange(TRIP_START_DATE) |> 
@@ -214,7 +214,7 @@ rm_cols <-
 
 weird_activity_types_info_short12 <-
   weird_activity_types_info12 |> 
-  select(-any_of(rm_cols)) |> 
+  dplyr::select(-any_of(rm_cols)) |> 
   distinct()
 
 dim(weird_activity_types_info_short12)
@@ -250,7 +250,7 @@ dim(weird_activity_types_info_short12)
 # weird_activity_types_info_short |> 
 # weird_activity_types_info_short_act |> 
 weird_activity_types_info_short12 |> 
-  select(PERMIT_VESSEL_ID) |>
+  dplyr::select(PERMIT_VESSEL_ID) |>
   distinct() |>
   head(10)
 # 6
@@ -265,7 +265,7 @@ write_csv(
 )
 
 weird_activity_types_info_short12 |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          EFFECTIVE_DATE,
          EXPIRATION_DATE,
          TRIP_START_DATE,

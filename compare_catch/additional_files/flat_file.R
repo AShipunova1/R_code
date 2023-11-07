@@ -301,7 +301,7 @@ fhier_logbooks_content <-
   mutate(reported_quantity = as.integer(reported_quantity))
 
 ## view the result
-# fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
+# fhier_logbooks_content %>% dplyr::select(starts_with("trip")) %>% str()
 
 ### fix wrong dates ----
 fhier_logbooks_content_date_fixed_tmp <-
@@ -349,7 +349,7 @@ fhier_logbooks_content_waves <-
 #| classes: test
 # test: show the new columns ----
 fhier_logbooks_content_waves %>%
-  select(end_month, end_year, end_month_num, end_wave) %>%
+  dplyr::select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
   # sort by end_month_num
   arrange(end_month_num)
@@ -424,7 +424,7 @@ fhier_logbooks_content_waves_fl_county %>%
   # data_overview()
   # 37 counties
   # vessel_official_number          1096
-  select(end_port_fl_reg) %>%
+  dplyr::select(end_port_fl_reg) %>%
   table()
 
 ## now convert the Other states' counties to regions ----
@@ -457,7 +457,7 @@ sa_state_abb <-
   # get only these in our list
   dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
-  select(state_abb)
+  dplyr::select(state_abb)
 
 # add regions to the FHIER logbook DF
 fhier_logbooks_content_waves__sa_gom <-
@@ -478,12 +478,12 @@ fhier_logbooks_content_waves__sa_gom <-
     end_port_sa_gom
   )) %>%
   # remove this column, we don't need it anymore
-  select(-end_port_fl_reg)
+  dplyr::select(-end_port_fl_reg)
 
 ## test: check new cols of states and regions ----
 fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
-  select(end_port_state, end_port_sa_gom) %>%
+  dplyr::select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
   glimpse()
 
@@ -504,7 +504,7 @@ fhier_logbooks_content_waves__sa_gom_dolph <-
 ### test: dolphins to ensure they now have the same common name in new "common_name" col----
 fhier_logbooks_content_waves__sa_gom_dolph %>%
   dplyr::filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
-  select(common_name_orig, common_name) %>% unique()
+  dplyr::select(common_name_orig, common_name) %>% unique()
 # ---
 
 ## calculate catch ----
@@ -512,8 +512,8 @@ fhier_logbooks_content_waves__sa_gom_dolph %>%
 #select only relevant columns from FHIER logbooks DF, and group all cols by reported quantity
 fhier_catch_by_species_state_region_waves <-
   fhier_logbooks_content_waves__sa_gom_dolph %>%
-  # select only relevant columns
-  select(
+  # dplyr::select only relevant columns
+  dplyr::select(
     catch_species_itis,
     common_name,
     end_port_state,
@@ -543,7 +543,7 @@ fhier_catch_by_species_state_region_waves <-
 test_species_itis <-
   fhier_logbooks_content %>%
   dplyr::filter(tolower(common_name) == "mackerel, spanish") %>%
-  select(catch_species_itis) %>%
+  dplyr::select(catch_species_itis) %>%
   unique() %>%
   # get a string, not a df
   use_series(catch_species_itis)
@@ -581,7 +581,7 @@ acl_estimate_2022 <-
   dplyr::filter(sub_reg %in% c(6, 7)) %>%
   # Exclude the SRHS survey according to Dominique and Mike May 1, 2023
   dplyr::filter(!(ds == "SRHS")) %>%
-  # select(new_mode) %>% unique()
+  # dplyr::select(new_mode) %>% unique()
   # the "new_mode" column only has options 1,3 & 4 remaining
   # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
@@ -598,8 +598,8 @@ dim(acl_estimate_2022)
 ### sum catch by state, region and wave ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_2022 %>%
-  # select the relevant columns only
-  select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
+  # dplyr::select the relevant columns only
+  dplyr::select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
   # group by all except the counts
   group_by(itis_code, new_sta, sub_reg, year, wave) %>%
   # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
@@ -629,7 +629,7 @@ acl_estimate_catch_by_species_state_region_waves <-
     .after = sub_reg
   ) %>%
   # drop sub_reg
-  select(-sub_reg)
+  dplyr::select(-sub_reg)
 
 ### make a test acl cnts DF of just one sp.----
 # names(acl_estimate_catch_by_species_state_region_waves)
@@ -703,7 +703,7 @@ identical(
 fhier_common_names <-
   fhier_logbooks_content %>%
   # names()
-  select(catch_species_itis, common_name) %>%
+  dplyr::select(catch_species_itis, common_name) %>%
   unique()
 
 # add column names

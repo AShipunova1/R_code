@@ -31,7 +31,7 @@ get_all_not_direct_contact_id <- function(corr_2_plus_contact) {
     reframe(all_dc = all(tolower(direct_contact) == "no")) %>%
     # keep these only
     filter(all_dc) %>%
-    select(vessel_official_number) %>%
+    dplyr::select(vessel_official_number) %>%
     unique() %>%
     return()
 }
@@ -71,7 +71,7 @@ compl_clean_w_permit_exp <-
   compl_clean %>%
   mutate(permit_expired = case_when(permitgroupexpiration > Sys.Date() ~ "no",
                                     .default = "yes")) %>%
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          permit_expired,
          permitgroup,
          permitgroupexpiration) %>%
@@ -122,7 +122,7 @@ setdiff(
 # TODO: grep, setdiff and delete not "vessel_official_number"
 email_s_needed_to_csv_short_sorted_w_permit_info1 <-
   email_s_needed_to_csv_short_sorted_w_permit_info %>%
-  select(-vesselofficial_number)
+  dplyr::select(-vesselofficial_number)
 
 names(email_s_needed_to_csv_short_sorted_w_permit_info1)
 glimpse(email_s_needed_to_csv_short_sorted_w_permit_info1)

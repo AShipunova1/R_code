@@ -105,7 +105,7 @@ t_names_to_rm <-
 
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom |>
-  select(-any_of(t_names_to_rm)) |>
+  dplyr::select(-any_of(t_names_to_rm)) |>
   distinct()
 
 dim(v_p__t__tn_d_weeks_gom)
@@ -162,7 +162,7 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 # !  2 failed to parse.
 
 v_p__t__tn_d_weeks_gom_short |>
-  select(TRIP_START_TIME.tn) |>
+  dplyr::select(TRIP_START_TIME.tn) |>
   distinct() |>
   arrange(desc(TRIP_START_TIME.tn)) |>
   rowwise() |>
@@ -250,7 +250,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched)
 # [1] 75403    40
 
 v_p__t__tn_d_weeks_gom_short_matched |>
-  select(PERMIT_VESSEL_ID, matched_reports) |>
+  dplyr::select(PERMIT_VESSEL_ID, matched_reports) |>
   distinct() |>
   count(matched_reports)
 # 1 matched           595
@@ -303,7 +303,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   # write_csv("compliant_fishing_month.csv")
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          date_y_m,
          matched_reports,
          INTENDED_FISHING_FLAG,
@@ -314,7 +314,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
            INTENDED_FISHING_FLAG,
            matched_compl) |>
   mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
-  select(-PERMIT_VESSEL_ID) |>
+  dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   glimpse()
 # disregard "not_matched & yes", that means there are more than 1 decl
@@ -323,7 +323,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   dplyr::filter(date_y_m == "Feb 2022") |>
   dplyr::filter(PERMIT_VESSEL_ID == "1093374") |>
-  select(
+  dplyr::select(
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
     WEEK_OF_YEAR,
@@ -346,7 +346,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 ### count vessel per month by matched_compl ----
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          date_y_m,
          WEEK_OF_YEAR,
          matched_compl) |>
@@ -360,7 +360,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
                n_distinct(PERMIT_VESSEL_ID),
              .default = 0
            )) |>
-  select(-PERMIT_VESSEL_ID) |>
+  dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct()
 # disregard "not_matched & yes", that means there are more than 1 decl
 
@@ -368,7 +368,7 @@ glimpse(v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w)
 
 # check vessel cnt by matched compl in Mar
 v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          date_y_m,
          WEEK_OF_YEAR,
          matched_compl) |>
@@ -380,7 +380,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
   mutate(cnt_c1 = n_distinct(PERMIT_VESSEL_ID)) |>
   ungroup() |>
-  select(-PERMIT_VESSEL_ID) |>
+  dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   View()
 
@@ -516,7 +516,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 #     # browser()
 #     curr_df |>
 #       dplyr::filter(no_decl_compl == "yes") |>
-#       select(PERMIT_VESSEL_ID) |>
+#       dplyr::select(PERMIT_VESSEL_ID) |>
 #       distinct() %>%
 #       return()
 #   })
@@ -554,7 +554,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 # FL3326MC_4 <-
 #   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 #   dplyr::filter(PERMIT_VESSEL_ID == "FL3326MC") |>
-#   select(-no_decl_compl_0)
+#   dplyr::select(-no_decl_compl_0)
 #
 # FL3326MC_4a <-
 #   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4a |>
@@ -630,7 +630,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
 # everything that was overridden is compliant (the whole week)
 compl_err_db_data_short <-
   compl_err_db_data |>
-  select(
+  dplyr::select(
     comp_error_type_cd,
     comp_override_cmt,
     # comp_override_dt,
@@ -677,7 +677,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
-#     select(comp_error_type_cd) |>
+#     dplyr::select(comp_error_type_cd) |>
 #     distinct()
 #     comp_error_type_cd
   # 1         DECL_NO_TRIP
@@ -696,7 +696,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr)
 #   View()
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
-#   select(srfh_for_hire_type_id) |>
+#   dplyr::select(srfh_for_hire_type_id) |>
 #   distinct()
 #   srfh_for_hire_type_id
 # 1                     2
@@ -781,7 +781,7 @@ rm_fields <-
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 |>
-  select(-any_of(rm_fields)) |>
+  dplyr::select(-any_of(rm_fields)) |>
   distinct()
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
@@ -792,7 +792,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
 #   dplyr::filter(compl_w == "no") |>
 #   dplyr::filter(comp_error_type_cd == "SUBMIT_AFTER_ARRIVAL") |>
 #   View()
-  # select(comp_error_type_cd) |>
+  # dplyr::select(comp_error_type_cd) |>
   # distinct()
 # 1 DECL_NO_TRIP
 # 2 SUBMIT_AFTER_ARRIVAL
@@ -820,7 +820,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w |>
-  select(-c(
+  dplyr::select(-c(
     comp_error_type_cd,
     comp_override_cmt,
     is_comp,
@@ -883,7 +883,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
 # 2 yes      9906
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y |>
-  select(PERMIT_VESSEL_ID, compl_y) |>
+  dplyr::select(PERMIT_VESSEL_ID, compl_y) |>
   distinct() |>
   count(compl_y)
 # 1 no        476

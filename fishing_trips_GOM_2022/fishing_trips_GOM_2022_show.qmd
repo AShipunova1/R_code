@@ -26,10 +26,10 @@ Ken Brennan has requested the 2022 number of fishing intended trips with effort 
 # data base questions
 # udp.v_sero_oth_prm_period_his@secpr_dblk
 # 1) what are end_date, expiration_date, last_expiration_date
-# 2) select distinct permit_status from
+# 2) dplyr::select distinct permit_status from
           # udp.v_sero_oth_prm_period_his@secpr_dblk;
 # -- MV_SAFIS_GOM_VESSELS
-# select distinct permit_status
+# dplyr::select distinct permit_status
 # "PERMIT_STATUS"
 # "EXPIRED"
 # "TERMINATED"
@@ -45,7 +45,7 @@ Ken Brennan has requested the 2022 number of fishing intended trips with effort 
 
 # 3) 
 # data_from_db %>% 
-#     select(ACTIVITY_TYPE_NAME) %>% unique()
+#     dplyr::select(ACTIVITY_TYPE_NAME) %>% unique()
 # 1 TRIP WITH EFFORT
 # 2 TRIP UNABLE TO FISH
 # Do we need 2?
@@ -170,7 +170,7 @@ fl_counties <- list(
 data_from_fhier_GOM_fl_counties <-
   data_from_fhier_GOM %>% 
   filter(ARRIVAL_PORT_STATE == "FL") %>% 
-  select(ARRIVAL_PORT_COUNTY) %>% 
+  dplyr::select(ARRIVAL_PORT_COUNTY) %>% 
   unique()
 
 str(data_from_fhier_GOM_fl_counties)

@@ -35,9 +35,9 @@ names(db_data)
 # depth
 
 db_data %>%
-  select(AREA_CODE) %>%
+  dplyr::select(AREA_CODE) %>%
 # 
-#     select(AREA_CODE, SUB_AREA_CODE, LOCAL_AREA_CODE, DISTANCE_CODE_NAME) %>%
+#     dplyr::select(AREA_CODE, SUB_AREA_CODE, LOCAL_AREA_CODE, DISTANCE_CODE_NAME) %>%
   unique()
   # View()
 
@@ -54,7 +54,7 @@ sum(a$n)
 # 253941
 
 lat_long <- db_data %>%
-  select(LATITUDE, LONGITUDE, TRIP_START_DATE)
+  dplyr::select(LATITUDE, LONGITUDE, TRIP_START_DATE)
 
 # plot(sa_shp)
 # plot(gom_shp)
@@ -147,7 +147,7 @@ lat_long3 <- db_data %>%
   mutate(ROW_ID = row_number()) %>%
   mutate(TRIP_START_DAY_M =
            format(TRIP_START_DATE, "%m")) %>%
-  select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
+  dplyr::select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
 
 # str(lat_long3)
 
@@ -199,7 +199,7 @@ points_num <- 1000
 
 clean_lat_long_subset <-
   lat_long_dat_dep %>%
-  select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH) %>%
+  dplyr::select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH) %>%
   clean_lat_long(points_num)
 
 n_map <-
@@ -239,7 +239,7 @@ lat_long_dat_dep_q_list <-
 mapview_q <- function(my_df, points_num, q_name) {
   clean_lat_long_subset <-
     my_df %>%
-    select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH,
+    dplyr::select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH,
            YEAR_QUARTER) %>%
     clean_lat_long(points_num)
   
@@ -301,7 +301,7 @@ maps_q[[4]]
 map(lat_long_dat_dep_q_list,
     function(x) {
       x %>%
-        select(LATITUDE, LONGITUDE) %>%
+        dplyr::select(LATITUDE, LONGITUDE) %>%
         filter(complete.cases(.)) %>%
         unique() %>%
         dim()
@@ -347,7 +347,7 @@ lat_long_area <-
   # labels are a month only
   mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  select(
+  dplyr::select(
     LATITUDE,
     LONGITUDE,
     TRIP_START_M,
@@ -367,7 +367,7 @@ dim(lat_long_area_clean)[1]
 # 6359
 
 lat_long_area_clean %>%
-  select(AREA_NAME, REGION) %>% 
+  dplyr::select(AREA_NAME, REGION) %>% 
   filter(grepl("MEX", AREA_NAME) | grepl("GOM", AREA_NAME)) %>% 
   unique() 
 
@@ -552,7 +552,7 @@ lat_long_area_leaflet_w_clusters <-
 lat_long_area_leaflet_w_clusters
 ## check different area options ----
 lat_long_area_clean %>%
-  select(AREA_NAME,
+  dplyr::select(AREA_NAME,
          SUB_AREA_NAME,
          AREA_CODE,
          DISTANCE_CODE_NAME) %>%
@@ -562,7 +562,7 @@ lat_long_area_clean %>%
 # Rows: 85
 
 lat_long_area_clean %>%
-  select(AREA_NAME,
+  dplyr::select(AREA_NAME,
          SUB_AREA_NAME,
          AREA_CODE) %>%
   unique() %>% 
@@ -571,7 +571,7 @@ lat_long_area_clean %>%
 # Rows: 47
 
 lat_long_area_clean %>%
-  select(AREA_NAME,
+  dplyr::select(AREA_NAME,
          AREA_CODE) %>%
   unique() %>% 
   arrange(AREA_CODE) %>% 
@@ -579,7 +579,7 @@ lat_long_area_clean %>%
 # 26
 
 lat_long_area_clean %>%
-  select(AREA_NAME,
+  dplyr::select(AREA_NAME,
          AREA_CODE) %>%
   filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
   filter(!grepl("TAMPA", AREA_NAME)) %>% 

@@ -71,14 +71,14 @@ fields_to_use <-
 
 corrected_csv1 <-
   corrected_csv |>
-  select(all_of(fields_to_use)) |>
+  dplyr::select(all_of(fields_to_use)) |>
   distinct()
 
 short_dfs <-
   list(aug_9_csv,
        corrected_csv) |>
   map( ~ .x |>
-         select(any_of(fields_to_use)) |>
+         dplyr::select(any_of(fields_to_use)) |>
          distinct())
 
 map(short_dfs,
@@ -139,7 +139,7 @@ to_rm <- c(
 
 corrected_n_fhier_short <-
   corrected_n_fhier |>
-  select(-all_of(to_rm)) |>
+  dplyr::select(-all_of(to_rm)) |>
   distinct()
 
 out_path <-
@@ -190,14 +190,14 @@ corrected_n_fhier_short_w_n_comb <-
           business_name)
   ))) |>
   ungroup() |>
-  select(
+  dplyr::select(
     vessel_official_number,
     contactrecipientname,
     full_name,
     fhier_comb_name,
     fhier_comb_name_2
   ) |>
-  # select(-c(first_name,
+  # dplyr::select(-c(first_name,
   #         last_name,
   #         business_name)) |>
   distinct()
@@ -323,7 +323,7 @@ corrected_n_fhier_short_w_n_clean_short <-
   corrected_n_fhier_short_w_n_clean |>
   dplyr::filter(!full_name == fhier_name) |>
   # dplyr::filter(!fhier_name_2 == fhier_name) |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          # contactrecipientname,
          full_name,
          fhier_name,
@@ -348,7 +348,7 @@ glimpse(all_permits_from_web)
 # print_df_names(all_permits_from_web)
 all_permits_from_web_short <-
   all_permits_from_web |>
-  select(
+  dplyr::select(
     -c(
       REQMIT_ID,
       SER_ID,
@@ -427,7 +427,7 @@ dim(pims_n_corrected_addr)
 # out of 13
   
 pims_n_corrected_addr |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          full_address,
          ADDRESS, 
          ADDRESS_STATE) |> 
@@ -451,14 +451,14 @@ dim(pims_n_corrected_name)
 # out of 13
   
 pims_n_corrected_name |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          contactrecipientname,
          full_name,
          ENTITY_NAME) |> 
   View()
 
 pims_n_corrected |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          contactrecipientname,
          full_name,
          ENTITY_NAME) |>
@@ -480,7 +480,7 @@ pims_n_corrected |>
 # )
 
 pims_n_corrected |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          contactrecipientname,
          full_name,
          ENTITY_NAME) |>

@@ -57,7 +57,7 @@ vessels_permits_2022_r_end_date <-
                        max(END_DATE,                                     EXPIRATION_DATE,
                            na.rm = T)
            )) %>%
-  # select(-c(END_DATE,
+  # dplyr::select(-c(END_DATE,
             # EXPIRATION_DATE)) %>%
   dplyr::ungroup() |>
   distinct()
@@ -116,7 +116,7 @@ dim(vessels_permits_2022_r_end_date_uid)
 ### fewer fields ----
 vessels_permits_2022_r_end_date_uid_short <-
   vessels_permits_2022_r_end_date_uid |>
-  select(
+  dplyr::select(
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
     EFFECTIVE_DATE,
@@ -233,7 +233,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
            case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
                      .default = permit_sa_gom)) |>
   # remove temporary columns
-  select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
+  dplyr::select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
   ungroup()
 
 ### check ----
@@ -244,7 +244,7 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   dplyr::filter(grepl("FL8701TB|FL3610NF|FL9004NX", unique_all_vessel_ids)) |>
-  select(unique_all_vessel_ids,
+  dplyr::select(unique_all_vessel_ids,
          permit_sa_gom_dual) |>
   distinct() |>
   glimpse()
@@ -255,7 +255,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 new_dual_ids <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   dplyr::filter(permit_sa_gom_dual == "dual") |>
-  select(unique_all_vessel_ids) |>
+  dplyr::select(unique_all_vessel_ids) |>
   distinct()
 
 dim(new_dual_ids)
@@ -267,7 +267,7 @@ dim(new_dual_ids)
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
   dplyr::filter(grepl("FL2995SR", unique_all_vessel_ids)) |>
-  select(eff_int, permit_sa_gom_dual) |>
+  dplyr::select(eff_int, permit_sa_gom_dual) |>
   head()
   # eff_int                            permit_sa_gom_dual
 #   <Interval>                                       <chr>
@@ -357,7 +357,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |> dim()
 # FL3610NF 4
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
-  select(-starts_with("EXPIRATION_DATE"),
+  dplyr::select(-starts_with("EXPIRATION_DATE"),
     -starts_with("END_DATE"),
     -permit_sa_gom
   ) |>
@@ -429,7 +429,7 @@ trips_info_2022_int_dur <-
 
 ### check trips_info_2022_int ----
 trips_info_2022_int %>%
-  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
+  dplyr::select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
   dim()
 # [1] 98528     3
 
@@ -454,7 +454,7 @@ trips_info_2022_int_ah_sero <-
 
 ## trip types A and H trip_notif ----
 trips_notifications_2022 %>%
-   # select(TRIP_TYPE) %>% distinct()
+   # dplyr::select(TRIP_TYPE) %>% distinct()
    count(TRIP_TYPE)
 #   TRIP_TYPE     n
 # 1         A 55328
@@ -720,7 +720,7 @@ dates_2022_yw <-
 trips_info_2022_int_ah_sero_w_y |>
   dplyr::filter(TRIP_START_y %in% c("2021", "2022") &
            TRIP_START_m == "Jan 2022") |>
-  select(TRIP_START_y,
+  dplyr::select(TRIP_START_y,
          TRIP_START_m,
          TRIP_START_week_num) |>
   distinct() |>
@@ -750,7 +750,7 @@ dim(dates_2022_yw)
 
 dates_2022_w <-
   dates_2022_yw |>
-  select(-COMPLETE_DATE) |>
+  dplyr::select(-COMPLETE_DATE) |>
   distinct()
 
 dim(dates_2022_w)
@@ -778,7 +778,7 @@ toc()
 
 t_d_w |>
     dplyr::filter(WEEK_OF_YEAR == 52) |>
-  select(YEAR,
+  dplyr::select(YEAR,
          MONTH_OF_YEAR,
          date_y_m) |>
   distinct() |>
@@ -951,7 +951,7 @@ dim(v_p_d_w_22)
 
 v_p_d_w_22_short <-
   v_p_d_w_22 |>
-  select(
+  dplyr::select(
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
     permit_sa_gom_dual,
@@ -978,7 +978,7 @@ dim(v_p_d_w_22_short)
 # remove fields
 t_d_w_short <-
   t_d_w |>
-  select(
+  dplyr::select(
     -c(
       # TRIP_START_DATE,
       # TRIP_END_DATE,
@@ -1007,7 +1007,7 @@ dim(t_d_w_short)
 # print_df_names(tne_d_w)
 tne_d_w_short <-
   tne_d_w |>
-  select(-c(TRIP_DATE, TRIP_ID)) |>
+  dplyr::select(-c(TRIP_DATE, TRIP_ID)) |>
   distinct() |>
   mutate(rep_type = "trips_neg")
 
@@ -1020,7 +1020,7 @@ dim(tne_d_w_short)
 # remove fields
 tn_d_w_short <-
   tn_d_w |>
-  select(-c(
+  dplyr::select(-c(
     ARRIVAL_PORT,
     CANCEL_FLAG,
     DEA_PERMIT_SOLD_NOTIFICATION,

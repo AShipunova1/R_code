@@ -52,14 +52,14 @@ View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
 # check
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
     sf::st_drop_geometry() |>
-    select(vsl_cnt_stat_zone) |>
+    dplyr::select(vsl_cnt_stat_zone) |>
     distinct() |>
     arrange(vsl_cnt_stat_zone)
 
 ### remove extra columns ----
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
-  select(-c(latitude, longitude, trip_id, vessel_official_nbr)) |>
+  dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr)) |>
   distinct() |>
   ungroup()
 
@@ -183,13 +183,13 @@ map_trips_stat_zone <-
 
 # Repeat separately for charter and headboat ----
 
-# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they selected that in the logbook.
+# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they dplyr::selected that in the logbook.
 
 ## get trip_type data ----
 
 my_vessels_trips <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_and_dual |>
-  select(vessel_official_nbr,
+  dplyr::select(vessel_official_nbr,
          trip_id) |>
   distinct()
 

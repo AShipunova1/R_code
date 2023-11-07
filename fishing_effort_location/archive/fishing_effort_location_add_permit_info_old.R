@@ -45,7 +45,7 @@ get_permit_data_from_PIMS_csv <- function() {
 
   # test
   active_permits_from_pims %>%
-    select(status_date) %>%
+    dplyr::select(status_date) %>%
     arrange(desc(status_date)) %>% unique() %>% head()
   # correct
   # str(active_permits_from_pims)
@@ -81,7 +81,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits)
 
 # check status ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
-  select(status) |>
+  dplyr::select(status) |>
   distinct()
 # # A tibble: 6 × 1
 #   status
@@ -104,7 +104,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
 ### check names ----
 # safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
 #   filter(!VESSEL_NAME == vessel_name) |>
-#   select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
+#   dplyr::select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
 #   distinct() |>
 #   head()
 #   <chr>               <chr>        <chr>
@@ -118,7 +118,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
 ### shorten ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
-  select(
+  dplyr::select(
     -c(
       VESSEL_NAME,
       TRIP_START_DATE,

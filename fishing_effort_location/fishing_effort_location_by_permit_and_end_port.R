@@ -29,14 +29,14 @@ purrr::map(
 # [1] 44066    73
 
 coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  select(activity_type_name) |>
+  dplyr::select(activity_type_name) |>
   distinct()
 # 1    TRIP WITH EFFORT
 # 2                <NA>
 # 3 TRIP UNABLE TO FISH
 
 coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  select(notif_landing_location_state) |>
+  dplyr::select(notif_landing_location_state) |>
   distinct()
 # <NA>
 # AL
@@ -46,7 +46,7 @@ coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
 
 sa_end_port <-
   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
-  select(
+  dplyr::select(
     trip_id,
     vessel_id,
     vessel_official_nbr,
@@ -60,7 +60,7 @@ dim(sa_end_port)
 
 sa_end_port_cnt_vessels <-
   sa_end_port |>
-  select(vessel_official_nbr, end_port_state) |>
+  dplyr::select(vessel_official_nbr, end_port_state) |>
   distinct() |>
   filter(end_port_state %in% sa_state_abb$state_abb) |>
   count(end_port_state)
@@ -77,7 +77,7 @@ sa_end_port_cnt_vessels <-
 # The `sa_end_port` data frame is piped into the 'select' function to keep only
 # the 'vessel_official_nbr' and 'notif_landing_location_state' columns.
 sa_end_port |>
-  select(vessel_official_nbr, notif_landing_location_state) |>
+  dplyr::select(vessel_official_nbr, notif_landing_location_state) |>
 
 # The 'filter' function is used to retain only the rows where
 # 'notif_landing_location_state' values are present in the 'state_abb' column of
@@ -97,7 +97,7 @@ sa_end_port |>
 # The `sa_end_port` data frame is piped into the 'select' function to retain only
 # the 'trip_id' and 'end_port_state' columns.
 sa_end_port_cnt_trips <- sa_end_port |>
-  select(trip_id, end_port_state) |>
+  dplyr::select(trip_id, end_port_state) |>
 
 # The 'distinct' function is used to retain unique rows based on the combination
 # of 'trip_id' and 'end_port_state'.

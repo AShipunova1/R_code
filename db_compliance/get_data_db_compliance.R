@@ -541,7 +541,7 @@ get_compl_err_data_from_db <-
     compl_err_db_data_1 <-
       compl_err_db_data_0 %>%
       # remove duplicated columns
-      select(-c(CREATED_DT,
+      dplyr::select(-c(CREATED_DT,
                 CREATED_USER_ID,
                 LU_DT,
                 LU_USER_ID))

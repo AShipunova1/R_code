@@ -114,13 +114,13 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
     dplyr::filter(WEEK_OF_YEAR == 13 &
              date_y_m == "Mar 2022") |>
-    select(PERMIT_VESSEL_ID) |>
+    dplyr::select(PERMIT_VESSEL_ID) |>
     distinct() |>
     count()
 # 373
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          # date_y_m,
          WEEK_OF_YEAR,
          compl_w_total) |>
@@ -135,7 +135,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
   # glimpse()
   # Rows: 418
   ungroup() |>
-  select(-PERMIT_VESSEL_ID) |>
+  dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   glimpse()
 # $ WEEK_OF_YEAR  <dbl> 13, 13

@@ -87,7 +87,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   identical(
     fhier_test_cnts %>%
               dplyr::filter(sa_gom == "gom") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
@@ -101,7 +101,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   identical(
     acl_test_cnts %>%
               dplyr::filter(sa_gom == "sa") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
@@ -128,7 +128,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # 228 (new list)
 # 206 with combined dolphins
 
-# fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>% select(common_name) %>% unique()
+# fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>% dplyr::select(common_name) %>% unique()
 
 #| classes: test
 
@@ -140,12 +140,12 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-  select(mackerel_fhier_cnt) %>%
+  dplyr::select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
               dplyr::filter(sa_gom == "sa") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
@@ -155,12 +155,12 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-  select(mackerel_fhier_cnt) %>%
+  dplyr::select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
               dplyr::filter(sa_gom == "gom") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
@@ -169,12 +169,12 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
-  select(mackerel_acl_cnt) %>%
+  dplyr::select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
   identical(
     acl_test_cnts %>%
               dplyr::filter(sa_gom == "sa") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
@@ -183,12 +183,12 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
-    select(mackerel_acl_cnt) %>%
+    dplyr::select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>%
   identical(
     acl_test_cnts %>%
               dplyr::filter(sa_gom == "gom") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
@@ -208,7 +208,7 @@ fhier_acl_to_plot_format <- function(my_df) {
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
+  dplyr::select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
     group_by(wave, species_itis, common_name, ORIGIN) %>%
     summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
     return()
@@ -362,7 +362,7 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
 ## calculate_cnt_index function ----
 calculate_cnt_index <- function(my_df) {
   my_df %>%
-    select(-c(state, species_itis)) %>%
+    dplyr::select(-c(state, species_itis)) %>%
     mutate_all( ~ replace_na(., 0)) %>%
     group_by(year_wave, common_name) %>%
     # aggregate counts by states
@@ -382,7 +382,7 @@ fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region
 # glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
 #   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
-#   select(wave) %>% unique()
+#   dplyr::select(wave) %>% unique()
 # 
 # fhier_acl_gom_ind <-
 #   fhier_acl_gom_ind %>%
@@ -392,9 +392,9 @@ fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region
 #     # cols_remove = F,
 #     names = c("year", "wave")
 #   ) %>%
-#   select(-year)
+#   dplyr::select(-year)
 # # %>%
-#   # select(year_wave, wave) %>% unique()
+#   # dplyr::select(year_wave, wave) %>% unique()
 # 
 # strsplit("2022_1", "_")[[1]][[2]]
 
@@ -669,7 +669,7 @@ my_df_long <-
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(common_name, ORIGIN, CATCH_CNT) %>%
+  dplyr::select(common_name, ORIGIN, CATCH_CNT) %>%
     group_by(common_name, ORIGIN) %>%
     summarise(CATCH_CNT = sum(CATCH_CNT))
 

@@ -66,7 +66,7 @@ vessels_permits_clean_gr7_2022_all_permits <-
   group_by(VESSEL_VESSEL_ID) |>
   mutate(all_permits = toString(unique(TOP))) |>
   ungroup() |>
-  select(VESSEL_VESSEL_ID, all_permits) |>
+  dplyr::select(VESSEL_VESSEL_ID, all_permits) |>
   distinct()
 
 # data_overview(vessels_permits_clean_gr7_2022_all_permits)
@@ -92,7 +92,7 @@ vessels_permits_clean_gr7_2022_region2 <-
   mutate(permit_22 =
            case_when(permit_sa_gom == "sa_only" ~ "sa_only",
                      .default = "gom_dual")) |>
-  select(-permit_sa_gom) |>
+  dplyr::select(-permit_sa_gom) |>
   distinct()
 
 dim(vessels_permits_clean_gr7_2022_region2)
@@ -100,7 +100,7 @@ dim(vessels_permits_clean_gr7_2022_region2)
 
 # Heatmaps for charter and headboat separately ----
 
-# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they selected that in the logbook.
+# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they dplyr::selected that in the logbook.
 
 ## filter 2022 ----
 trip_coord_info_2022 <-
@@ -126,7 +126,7 @@ rm_cols <- c("TRIP_ID",
 
 trip_coord_info_2022_short <-
   trip_coord_info_2022 |>
-  select(all_of(rm_cols)) |>
+  dplyr::select(all_of(rm_cols)) |>
   distinct()
 
 dim(trip_coord_info_2022_short)
@@ -173,7 +173,7 @@ dim(trip_coord_info_2022_short_vessels_permits_region)
 
 trip_coord_info_2022_short_vessels_permits_region_short <-
   trip_coord_info_2022_short_vessels_permits_region |>
-  select(all_of(
+  dplyr::select(all_of(
     c(
       "TRIP_ID",
       "LATITUDE",
@@ -313,7 +313,7 @@ map_df(effort_t_type_cropped_cnt_join_grid, dim) |>
 data_overview(effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual)
 
 effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual |>
-  select(LATITUDE, LONGITUDE) |>
+  dplyr::select(LATITUDE, LONGITUDE) |>
   distinct()
 
 map_trips_types <-

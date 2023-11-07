@@ -28,7 +28,7 @@ source("~/R_code_github/compare_catch/auxiliary/compare_catch_data_preparation.R
 ## separate fhier_spp data ----
 fhier_spp <-
   fhier_catch_by_species_state_region_waves_renamed %>%
-  select(species_itis, common_name, scientific_name) %>%
+  dplyr::select(species_itis, common_name, scientific_name) %>%
   unique()
 # dim(fhier_spp)
 # [1] 748   3
@@ -146,7 +146,7 @@ use_wave <- function(my_df) {
     separate_wider_delim(year_wave,
                          delim = "_",
                          names = c("year", "wave")) %>%
-    select(-year) %>%
+    dplyr::select(-year) %>%
     return()
 }
 
@@ -174,7 +174,7 @@ fhier_acl_catch_by_species_state_region_waves_list <-
 # the common manipulation for both "GOM" and "SA"
 get_acl_top_cnts <- function(my_df, top_num = 12) {
   my_df %>%
-    select(new_sci, rec_acl_estimate_catch_by_4) %>%
+    dplyr::select(new_sci, rec_acl_estimate_catch_by_4) %>%
     group_by(new_sci) %>%
     summarise(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
     # sort
@@ -273,7 +273,7 @@ new_group_counts <- function(my_df) {
   ) %>%
     ungroup() %>%
     # remove columns that we used for summing
-    select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
+    dplyr::select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
     # keep only the rows where species_itis_fhier or scientific_name is not an NA
     dplyr::filter(!is.na(species_itis_fhier)) %>%
     dplyr::filter(!is.na(scientific_name)) %>%
@@ -286,7 +286,7 @@ names(fhier_acl_catch_by_species_state_region_waves)
 
 fhier_acl_catch_by_species_region_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-    select(
+    dplyr::select(
     species_itis_fhier,
     common_name_fhier,
     scientific_name,
@@ -339,7 +339,7 @@ acl_estimate_2022 %>%
 
 fhier_acl_catch_by_species_state_year <-
   fhier_acl_catch_by_species_state_region_waves %>%
-  select(
+  dplyr::select(
     species_itis_fhier,
     scientific_name,
     common_name_fhier,

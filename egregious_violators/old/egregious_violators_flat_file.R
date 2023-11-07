@@ -640,7 +640,7 @@ check_new_vessels <-
         "FL7549EJ")
     my_df |>
       dplyr::filter(vessel_official_number %in% list_to_check) |>
-      select(vessel_official_number) |>
+      dplyr::select(vessel_official_number) |>
       distinct() |>
       dim() %>%
       return()
@@ -816,7 +816,7 @@ compl_clean_sa_non_c_not_exp |> check_new_vessels()
 # dim(compl_clean_sa_non_c_not_exp)
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa_non_c_not_exp |>
-  select(all_of(need_cols_names)) |>
+  dplyr::select(all_of(need_cols_names)) |>
   inner_join(compl_clean_sa_all_weeks_non_c_short) |>
 # Joining with `by = join_by(vessel_official_number)`
   distinct()
@@ -830,7 +830,7 @@ dim(compl_clean_sa_all_weeks_non_c)
 ## check the last report date ----
 compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_sa_all_weeks_non_c_short |>
-  select(vessel_official_number) |>
+  dplyr::select(vessel_official_number) |>
   distinct()
 
 # compl_clean_sa_non_c_not_exp |> 
@@ -964,7 +964,7 @@ get_date_contacttype <-
       # add a new column date__contacttype with contactdate and contacttype
       mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
       # use 2 columns only
-      select(vessel_official_number, date__contacttype) |>
+      dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
       # sort
       arrange(vessel_official_number, date__contacttype) |>
@@ -1016,7 +1016,7 @@ contactphonenumber_field_name <-
 
 compl_corr_to_investigation1_short <-
   compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
-  select(
+  dplyr::select(
     "vessel_official_number",
     "name",
     "permit_expired",
@@ -1062,7 +1062,7 @@ vessels_to_mark <-
 vessels_to_mark_ids <-
   vessels_to_mark |>
   # dplyr::filter(tolower(`Contacted 2x?`) == 'yes') |>
-  select(vessel_official_number)
+  dplyr::select(vessel_official_number)
 
 # mark these vessels
 compl_corr_to_investigation1_short_dup_marked <-
@@ -1207,7 +1207,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 
 # no_comments_vsls_ids <-
 #   no_comments_vsls |>
-#   select(vessel_official_number)
+#   dplyr::select(vessel_official_number)
 # dim(no_comments_vsls_ids)
 # 62
 

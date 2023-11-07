@@ -45,7 +45,7 @@ safis_clean <-
 double_names_pairs <-
   safis_clean %>%
   dplyr::filter(coastguard != statereg) %>%
-  select(coastguard, statereg) %>%
+  dplyr::select(coastguard, statereg) %>%
   unique()
 # dim(double_names_pairs)
 # [1] 138507      2
@@ -100,14 +100,14 @@ for (i in 1:nrow(used_double_pairs_u)) {
   # look up in correspondence
   in_corr <- corresp_clean %>%
     dplyr::filter(grepl(pair, vesselofficialnumber)) %>%
-    select(vesselofficialnumber) %>%
-    # select(vesselofficialnumber, contact_freq) %>%
+    dplyr::select(vesselofficialnumber) %>%
+    # dplyr::select(vesselofficialnumber, contact_freq) %>%
     unique()
   
   # look up in compliance
   in_compl <- compl_clean %>%
     dplyr::filter(grepl(pair, vesselofficialnumber)) %>%
-    select(vesselofficialnumber) %>%
+    dplyr::select(vesselofficialnumber) %>%
     unique()
   
   # some combinations are too general

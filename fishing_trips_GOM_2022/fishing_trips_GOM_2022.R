@@ -11,10 +11,10 @@
 # data base questions
 # udp.v_sero_oth_prm_period_his@secpr_dblk
 # 1) what are end_date, expiration_date, last_expiration_date
-# 2) select distinct permit_status from
+# 2) dplyr::select distinct permit_status from
           # udp.v_sero_oth_prm_period_his@secpr_dblk;
 # -- MV_SAFIS_GOM_VESSELS
-# select distinct permit_status
+# dplyr::select distinct permit_status
 # "PERMIT_STATUS"
 # "EXPIRED"
 # "TERMINATED"
@@ -133,7 +133,7 @@ fl_counties <- list(
 data_from_fhier_GOM_fl_counties <-
   data_from_fhier_GOM %>% 
   filter(ARRIVAL_PORT_STATE == "FL") %>% 
-  select(ARRIVAL_PORT_COUNTY) %>% 
+  dplyr::select(ARRIVAL_PORT_COUNTY) %>% 
   unique()
 
 str(data_from_fhier_GOM_fl_counties)
@@ -190,7 +190,7 @@ data_from_db4 <-
 # 1104
 
 data_from_db2 %>% 
-    select(ACTIVITY_TYPE_NAME) %>% unique()
+    dplyr::select(ACTIVITY_TYPE_NAME) %>% unique()
 # 1    TRIP WITH EFFORT
 # 2 TRIP UNABLE TO FISH
 
@@ -244,7 +244,7 @@ data_from_db_missing_vessels <-
 # 876
 
 data_from_db_missing_vessels %>% 
-  select(SERO_OFFICIAL_NUMBER) %>% 
+  dplyr::select(SERO_OFFICIAL_NUMBER) %>% 
   unique() %>% 
   write_csv("data_from_db_missing_vessels_sero_off_nbr.csv")
   # paste0(collapse = ", ") %>% cat()
@@ -267,7 +267,7 @@ View(data_from_db2)
 #     328952	DOUBLE O	16-MAY-22	31-OCT-23	MAILED
 # 328952	DOUBLE O	01-OCT-21	12-MAY-22	TRANSFERRED
 
-# SELECT DISTINCT
+# dplyr::select DISTINCT
 # t.sero_vessel_permit,
 # gom.end_date
 # from gom_landing_2022
@@ -411,7 +411,7 @@ str(check_missing_vsls1)
 # 'data.frame':	275 obs. of  100 variables:
 
 check_missing_vsls1 %>%
-  select(
+  dplyr::select(
     SERO_OFFICIAL_NUMBER,
     COAST_GUARD_NBR,
     STATE_REG_NBR,
@@ -442,7 +442,7 @@ check_missing_vsls1 %>%
 ### check permits for fhier only ----
 vessel_ids0 <- 'FL9013MV'
 vessel_ids <- check_missing_vsls1 %>%
-  select(
+  dplyr::select(
     SERO_OFFICIAL_NUMBER
   ) %>%
   unique() %>% 
@@ -499,7 +499,7 @@ data_from_fhier_GOM %>%
 
 data_from_fhier_GOM %>% 
   filter(VESSEL_NAME %in% in_fhier_only_name) %>% 
-  select(VESSEL_OFFICIAL_NUMBER) %>% 
+  dplyr::select(VESSEL_OFFICIAL_NUMBER) %>% 
   unique()
 
 ## rm AND trunc(t.trip_start_date) BETWEEN trunc(gom.effective_date) AND trunc(gom.end_date) ----
@@ -531,7 +531,7 @@ data_overview(data_from_fhier_GOM)
 
 ### check dates ----
 data_from_fhier_GOM %>% 
-    select(TRIP_START_DATE) %>% 
+    dplyr::select(TRIP_START_DATE) %>% 
     unique() %>% 
     arrange(TRIP_START_DATE) %>% 
     tail()
@@ -596,7 +596,7 @@ length(in_db_only_names_diff5)
 # 'data.frame':	16342 obs. of  22 variables:
 
 data_from_db4 %>%
-  select(SERO_OFFICIAL_NUMBER, END_PORT_STATE) %>%
+  dplyr::select(SERO_OFFICIAL_NUMBER, END_PORT_STATE) %>%
   count(END_PORT_STATE)
 #    END_PORT_STATE     n
 # 1              AL  2074
@@ -624,7 +624,7 @@ data_from_db4 %>%
 # View(data_from_db_more_fields)
 
 data_from_db_more_fields %>% 
-  select(TRIP_ID, END_PORT_STATE) %>%
+  dplyr::select(TRIP_ID, END_PORT_STATE) %>%
   unique() %>% 
   count(END_PORT_STATE)
 
@@ -633,7 +633,7 @@ data_from_db_more_fields %>%
 data_from_db_more_fields_end_p_s_by_trip <-
   data_from_db_more_fields %>%
   filter(END_PORT_STATE %in% gom_state_abbr) %>%
-  select(TRIP_ID, END_PORT_STATE) %>%
+  dplyr::select(TRIP_ID, END_PORT_STATE) %>%
   unique()
 
 dim(data_from_db_more_fields_end_p_s_by_trip)
@@ -650,7 +650,7 @@ data_from_db_more_fields_end_p_s_by_trip %>%
 
 data_from_db_more_fields %>% 
   filter(NOTIF_LANDING_LOCATION_STATE %in% gom_state_abbr) %>%
-  select(TRIP_ID, NOTIF_LANDING_LOCATION_STATE) %>%
+  dplyr::select(TRIP_ID, NOTIF_LANDING_LOCATION_STATE) %>%
   unique() %>% 
   count(NOTIF_LANDING_LOCATION_STATE)
   # NOTIF_LANDING_LOCATION_STATE     n
@@ -664,7 +664,7 @@ data_from_db_more_fields %>%
 data_from_db_more_fields_end_p_s_by_trip_p <-
   data_from_db_more_fields_end_p_s_by_trip %>%
   add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
-  select(END_PORT_STATE, trip_by_state_num) %>% 
+  dplyr::select(END_PORT_STATE, trip_by_state_num) %>% 
   unique() %>% 
   mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
 
@@ -687,7 +687,7 @@ gom_fhier1 <-
 # %>% 
 
 # purrr::map(rlang::set_names(c("trip_by_state_num", "perc_st")),
-#            ~ select(df, starts_with(.x)))
+#            ~ dplyr::select(df, starts_with(.x)))
 
 # gom_state_abbr %>% 
 names(gom_fhier1) %>% 
@@ -695,7 +695,7 @@ names(gom_fhier1) %>%
     function(curr_name) {
       gom_fhier1      
     
-           # ~ select(gom_fhier1, grepl(.x)))
+           # ~ dplyr::select(gom_fhier1, grepl(.x)))
 })
 
 names(gom_fhier1) %>% 
@@ -759,7 +759,7 @@ compare_perc_db_fhier1 <-
 
 compare_perc_db_fhier <-
   compare_perc_db_fhier1 %>%
-  select(-starts_with("header_state"))
+  dplyr::select(-starts_with("header_state"))
 
 names(compare_perc_db_fhier) <-
   c("END_PORT_STATE", "trip_by_state_num", "perc_st", "rounded_percent_db", "rounded_percent_fhier", "total_fhier")
@@ -794,7 +794,7 @@ data_from_db_more_fields_gom0 <-
   ))
   
 data_from_db_more_fields_gom0 %>% 
-  select(END_PORT_COUNTY, END_PORT_STATE, fl_county_gom) %>% 
+  dplyr::select(END_PORT_COUNTY, END_PORT_STATE, fl_county_gom) %>% 
   filter(END_PORT_STATE == "FL" & fl_county_gom == 'not_gom') %>% 
   unique() %>% 
   head()
@@ -816,10 +816,10 @@ dim(data_from_db_more_fields_gom1)
 
 data_from_db_more_fields_gom1_p <-
   data_from_db_more_fields_gom1 %>%
-  select(TRIP_ID, END_PORT_STATE) %>%
+  dplyr::select(TRIP_ID, END_PORT_STATE) %>%
   unique() %>% 
   add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
-  select(END_PORT_STATE, trip_by_state_num) %>% 
+  dplyr::select(END_PORT_STATE, trip_by_state_num) %>% 
   unique() %>% 
   mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
 

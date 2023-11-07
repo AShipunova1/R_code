@@ -125,7 +125,7 @@ dim(safis_efforts_extended_2022)
 # [1] 101038     42
 # [1] 97970    42 distinct()
 
-# safis_efforts_extended_2022 |> select(LOCAL_AREA_NAME) |> distinct()
+# safis_efforts_extended_2022 |> dplyr::select(LOCAL_AREA_NAME) |> distinct()
 
 # data_overview(safis_efforts_extended_2022)
 # TRIP_ID              97848
@@ -144,12 +144,12 @@ dim(safis_efforts_extended_2023)
 ### clean fhier effort data ----
 # safis_efforts_extended_2022_short0 <-
 #   safis_efforts_extended_2022 |>
-#   select(-all_of(names(empty_cols)))
+#   dplyr::select(-all_of(names(empty_cols)))
 # dim(safis_efforts_extended_2022_short0)
 
 safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
-  select(-any_of(rm_columns)) |>
+  dplyr::select(-any_of(rm_columns)) |>
   distinct()
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17

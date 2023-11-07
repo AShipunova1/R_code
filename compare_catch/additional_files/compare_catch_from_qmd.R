@@ -36,7 +36,7 @@ fhier_logbooks_content <-
   mutate(reported_quantity = as.integer(reported_quantity))
 
 # view
-fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
+fhier_logbooks_content %>% dplyr::select(starts_with("trip")) %>% str()
 
 fhier_logbooks_content_date_fixed_tmp <-
   fhier_logbooks_content %>%
@@ -78,7 +78,7 @@ fhier_logbooks_content_waves <-
 
 ## show the new columns ----
 fhier_logbooks_content_waves %>%
-  select(end_month, end_year, end_month_num, end_wave) %>%
+  dplyr::select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
   # sort by end_month_num
   arrange(end_month_num)
@@ -145,7 +145,7 @@ fhier_logbooks_content_waves_fl_county %>%
   arrange(end_port_county) %>%
   distinct() %>%
   # 37 counties
-  select(end_port_fl_reg) %>%
+  dplyr::select(end_port_fl_reg) %>%
   # what else is in the new column beside sa and gom
   dplyr::filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
 
@@ -172,7 +172,7 @@ sa_state_abb <-
   # get only these in our list
   dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
-  select(state_abb)
+  dplyr::select(state_abb)
 
 fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
@@ -192,12 +192,12 @@ fhier_logbooks_content_waves__sa_gom <-
     end_port_sa_gom
   )) %>%
   # remove this column, we don't need it anymore
-  select(-end_port_fl_reg)
+  dplyr::select(-end_port_fl_reg)
 
 #| classes: test
 fhier_logbooks_content_waves__sa_gom %>%
   # look at states and regions
-  select(end_port_state, end_port_sa_gom) %>%
+  dplyr::select(end_port_state, end_port_sa_gom) %>%
   unique() %>%
   glimpse()
 
@@ -205,8 +205,8 @@ glimpse(fhier_logbooks_content_waves__sa_gom)
 
 fhier_catch_by_species_state_region_waves <-  
   fhier_logbooks_content_waves__sa_gom %>%
-  # select only relevant columns
-  select(
+  # dplyr::select only relevant columns
+  dplyr::select(
     catch_species_itis,
     end_port_state,
     end_port_sa_gom,
@@ -242,8 +242,8 @@ mrip_estimate %<>%
 
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate %>%
-  # select the relevan columns only
-  select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
+  # dplyr::select the relevan columns only
+  dplyr::select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
   # group by all except the counts
   group_by(itis_code, new_sta, sub_reg, year, wave) %>%
   # save the sum of "ab1" for each group in "mrip_estimate_catch_by_4"
@@ -269,7 +269,7 @@ mrip_estimate_catch_by_species_state_region_waves <-
                             # put the new column after sub_reg (by default at the end)
                             .after = sub_reg) %>%
   # drop sub_reg
-  select(-sub_reg)
+  dplyr::select(-sub_reg)
 
 ## common field names ----
 wave_data_names_common <- c("species_itis",
@@ -345,11 +345,11 @@ fhier_mrip_catch_by_species_state_region_waves %>%
   group_by(species_itis, sa_gom) %>%
   summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
-## select common names and itis in a separate data frame ----
+## dplyr::select common names and itis in a separate data frame ----
 fhier_common_names <-
   fhier_logbooks_content %>%
   # names()
-  select(catch_species_itis, common_name) %>%
+  dplyr::select(catch_species_itis, common_name) %>%
   unique()
 
 ## add column names ----
@@ -549,7 +549,7 @@ fhier_mrip_gom_to_plot <-
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -596,7 +596,7 @@ fhier_mrip_sa_to_plot <-
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -647,8 +647,8 @@ n_most_frequent_fhier_10_list_no_na <-
   fhier_mrip_catch_by_species_state_region_waves_no_na_list %>%
   # repeat for each region (SA and GOM)
   map(function(x) {x %>%
-      # select ITIS and counts
-      select(species_itis, fhier_catch_by_4) %>%
+      # dplyr::select ITIS and counts
+      dplyr::select(species_itis, fhier_catch_by_4) %>%
       group_by(species_itis) %>%
       # add a new column with a sum of counts for each spp.
       summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
@@ -691,7 +691,7 @@ fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot <-
 glimpse(fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot)
 
 fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$sa %>%
-  select(species_itis) %>% unique()
+  dplyr::select(species_itis) %>% unique()
 # 58
 n_most_frequent_fhier_10_list_no_na$sa
 setdiff(n_most_frequent_fhier_10_list_no_na$sa$species_itis,
@@ -708,7 +708,7 @@ inner_join(fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$sa,
         n_most_frequent_fhier_10_list_no_na$sa)
 
 tmp1 %>%
-  select(species_itis) %>% unique()
+  dplyr::select(species_itis) %>% unique()
 # 10
 
 #| classes: test
@@ -761,13 +761,13 @@ fhier_mrip_gom__no_na_to_plot <-
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
 glimpse(fhier_mrip_gom__no_na_to_plot)
 
-# fhier_mrip_gom__no_na_to_plot %>% select(species_itis) %>% unique()
+# fhier_mrip_gom__no_na_to_plot %>% dplyr::select(species_itis) %>% unique()
 # 10
 
 ## an overview plot ----
@@ -775,7 +775,7 @@ plot(fhier_mrip_gom__no_na_to_plot)
 
 # plot_by_spp("BASS, BLACK SEA", fhier_mrip_gom__no_na_to_plot)
 # fhier_mrip_gom__no_na_to_plot %>%
-#   select(common_name) %>% unique()
+#   dplyr::select(common_name) %>% unique()
 # 10
 
            # for each common name from the top 10
@@ -814,13 +814,13 @@ fhier_mrip_sa__no_na_to_plot <-
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
 glimpse(fhier_mrip_sa__no_na_to_plot)
 # fhier_mrip_sa__no_na_to_plot %>%
-#   select(species_itis) %>% unique()
+#   dplyr::select(species_itis) %>% unique()
 # 10
 
 ## An overview plot ----

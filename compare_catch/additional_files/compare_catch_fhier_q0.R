@@ -50,10 +50,10 @@ transmission_date_ok <-
       trip_end_date > "2023-04-01"
   ) %>%
   dplyr::filter(transmission_date_ct > "2022-01-01") %>%
-  select(-`1`)
+  dplyr::select(-`1`)
 
 # transmission_date_ok %>%
-# select(trip_start_date, trip_end_date, transmission_date) %>% 
+# dplyr::select(trip_start_date, trip_end_date, transmission_date) %>% 
 #   unique() %>%
 #   head()
 # glimpse()
@@ -92,7 +92,7 @@ fhier_logbooks_content <-
   mutate(reported_quantity = as.integer(reported_quantity))
 
 # head
-fhier_logbooks_content %>% select(starts_with("trip")) %>% str()
+fhier_logbooks_content %>% dplyr::select(starts_with("trip")) %>% str()
 
 #### Fix typos
 
@@ -202,7 +202,7 @@ fhier_logbooks_content_waves_fl_county %>%
   arrange(end_port_county) %>%
   distinct() %>%
   # 37 counties
-  select(end_port_fl_reg) %>%
+  dplyr::select(end_port_fl_reg) %>%
   # what else is in the new column beside sa and gom
   dplyr::filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
 
@@ -232,7 +232,7 @@ sa_state_abb <-
   # get only these in our list
   dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
-  select(state_abb)
+  dplyr::select(state_abb)
 #### Add sa/gom to states
 
 fhier_logbooks_content_waves__sa_gom <-
@@ -253,7 +253,7 @@ fhier_logbooks_content_waves__sa_gom <-
     end_port_sa_gom
   )) %>%
   # remove this column, we don't need it anymore
-  select(-end_port_fl_reg)
+  dplyr::select(-end_port_fl_reg)
 
 
 
@@ -264,7 +264,7 @@ glimpse(logbooks_content)
 
 fhier_dates <-
   fhier_logbooks_content %>%
-  select(grep("date", names(fhier_logbooks_content), value = T))
+  dplyr::select(grep("date", names(fhier_logbooks_content), value = T))
 
 max(fhier_dates$trip_start_date_time)
 # [1] "2023-06-13 08:00:00 EDT"
@@ -318,7 +318,7 @@ not_specified_region <-
 
 not_specified_region_states <-
   not_specified_region %>%
-  select(
+  dplyr::select(
     vessel_official_nbr,
     trip_id,
     in_state,
@@ -353,19 +353,19 @@ not_specified_region_states_not_monroe <-
            start_port_county != "MONROE")
 
 not_specified_region_states_not_monroe %>%
-  select(vessel_official_nbr) %>% unique()
+  dplyr::select(vessel_official_nbr) %>% unique()
   # 1244719
   # glimpse()
 not_specified_region_states_not_monroe %>%
-  select(state_name) %>% unique()
+  dplyr::select(state_name) %>% unique()
   # FLORIDA
 
 not_specified_region_states_not_monroe %>%
-  select(end_port) %>% unique()
+  dplyr::select(end_port) %>% unique()
   # 100999
 
 not_specified_region_states_not_monroe %>%
-  select(start_port_name) %>% unique()
+  dplyr::select(start_port_name) %>% unique()
 # FLORIDA(STATE)
 
 
@@ -375,7 +375,7 @@ not_specified_region_states_not_monroe %>%
 fhier_logbooks_content_waves_fl_county %>%
   dplyr::filter(state_name == 'FLORIDA') %>%
   dplyr::filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>%
-  select(-c(`1`)) %>%
+  dplyr::select(-c(`1`)) %>%
   # dplyr::filter(!all(is.na(.))) %>%
   #   Rows: 112
   # Columns: 159
@@ -399,12 +399,12 @@ logbooks_content %>%
 
 logbooks_content %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
-  select(common_name) %>% unique()
+  dplyr::select(common_name) %>% unique()
 # NA
 
 logbooks_content %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
-  select(trip_start_date) %>% unique()
+  dplyr::select(trip_start_date) %>% unique()
 # 70
 
 logbooks_content %>%
@@ -416,12 +416,12 @@ logbooks_content %>%
 logbooks_content %>%
   dplyr::filter(!!sym(itis_field_name) == "0") %>%
   # head()
-  select(vessel_official_nbr) %>% unique()
+  dplyr::select(vessel_official_nbr) %>% unique()
 
 
 
 fhier_logbooks_content_waves_fl_county %>%
-  select(starts_with("notif"), user_app) %>%
+  dplyr::select(starts_with("notif"), user_app) %>%
   unique() %>%
   # Rows: 47,242
   # Columns: 33
@@ -436,7 +436,7 @@ grep("accsp", names(not_specified_region), value = T)
 
 not_specified_region %>%
   dplyr::filter(state_name == "FLORIDA") %>%
-  select(starts_with("notif"),
+  dplyr::select(starts_with("notif"),
          user_app,
          accsp_permit_license_nbr) %>%
   unique() %>%
