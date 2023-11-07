@@ -1,6 +1,7 @@
 # quantify_compliance_make_flat_file.R
 
 source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
 
 dir_to_comb <- "~/R_code_github/quantify_compliance"
 
@@ -29,7 +30,23 @@ write_to_1_flat_file(flat_file_name, current_file_name)
 current_file_name <- "~/R_code_github/quantify_compliance/get_data.R"
 write_to_1_flat_file(flat_file_name, current_file_name)
 
-current_file_name <- r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
+get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
+current_file_name <-
+  file.path(my_paths$git_r,
+            get_data_from_fhier_dir,
+            "get_metrics_tracking.R")
+write_to_1_flat_file(flat_file_name, current_file_name)
+
+current_file_name <-
+  file.path(my_paths$git_r,
+            get_data_from_fhier_dir,
+            "get_srhs_vessels.R")
+write_to_1_flat_file(flat_file_name, current_file_name)
+
+current_file_name <-
+  file.path(my_paths$git_r,
+            get_data_from_fhier_dir,
+            "metric_tracking_no_srhs.R")
 write_to_1_flat_file(flat_file_name, current_file_name)
 
 cat('plot_file_path <-
@@ -157,4 +174,5 @@ flat_file_content <- readr::read_lines(flat_file_name)
 flat_file_content_1 <- 
   gsub("source\\(", "# source(", flat_file_content)
 
+# Write the contents of 'flat_file_content_1' back to the original flat file specified by 'flat_file_name'
 cat(flat_file_content_1, file = flat_file_name, sep = "\n")
