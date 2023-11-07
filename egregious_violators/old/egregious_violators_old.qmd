@@ -47,7 +47,7 @@ compl_clean_w_permit_exp <-
   compl_clean %>%
   # if permit group expiration is more than a month from data_file_date than "no"
   dplyr::mutate(permit_expired =
-           case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
+           dplyr::case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                      .default = "yes"))
 
 ```
@@ -261,7 +261,7 @@ add_a_direct_contact_column <-
       # create a new column "direct_contact" with a "yes" or "no"
       # search comments for indicators that there was no direct contact
       dplyr::mutate(
-        direct_contact = case_when(
+        direct_contact = dplyr::case_when(
           grepl("no answer", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
           grepl("wrong number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
           grepl("not in service", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",

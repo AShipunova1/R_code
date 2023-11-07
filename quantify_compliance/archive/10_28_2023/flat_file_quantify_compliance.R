@@ -673,7 +673,7 @@ prepare_csv_names <- function(filenames) {
     # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
     # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
     # placed in the 'FHIER Compliance' subdirectory as a default.
-    case_when(
+    dplyr::case_when(
       startsWith(my_headers_case_function(x), "correspond") ~
         file.path(add_path_corresp,  x),
       startsWith(my_headers_case_function(x), "fhier_compliance") ~
@@ -951,7 +951,7 @@ separate_permits_into_3_groups <-
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
       dplyr::mutate(permit_sa_gom =
-               case_when(
+               dplyr::case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
                  # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
@@ -1909,7 +1909,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   dplyr::mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%
@@ -2534,7 +2534,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-                  case_when(exp_w_end_diff < 0 ~ "expired",
+                  dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
 ## Keep active only ----

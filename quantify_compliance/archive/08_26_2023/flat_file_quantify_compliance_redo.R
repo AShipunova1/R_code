@@ -336,7 +336,7 @@ prepare_csv_names <- function(filenames) {
   add_path_compl <- "FHIER Compliance"
 
   my_list <- sapply(filenames, function(x) {
-    case_when(startsWith(my_headers_case_function(x), "correspond") ~
+    dplyr::case_when(startsWith(my_headers_case_function(x), "correspond") ~
                 file.path(add_path_corresp,  x),
               startsWith(my_headers_case_function(x), "fhier_compliance") ~
                 file.path(add_path_compl,  x),
@@ -530,7 +530,7 @@ make_a_flat_file <-
 separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
   my_df %>%
   dplyr::mutate(permit_sa_gom =
-           case_when(
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
              !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
              .default = "dual"
@@ -844,7 +844,7 @@ additional_clean_up <- function(compl_clean) {
     compl_clean_sa_vs_gom_m_int %>%
     dplyr::mutate(
       year_permit =
-        case_when(
+        dplyr::case_when(
           year == "2022" & (permit_sa_gom == "gom_only"
                             | permit_sa_gom =="dual") ~
             paste(year, "gom_dual"),
@@ -1271,7 +1271,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
            as.numeric(as.Date(permitgroupexpiration) -
                         end_of_2022)) %>%
   dplyr::mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%
@@ -1805,7 +1805,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-           case_when(exp_w_end_diff < 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                      exp_w_end_diff >= 0 ~ "active"))
 
 ## count if vessel is expired or not by year, permit and month  ----

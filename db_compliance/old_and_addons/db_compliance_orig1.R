@@ -82,7 +82,7 @@ vessels_permits_2022_r_end_date <-
   vessels_permits_2022_r_short |>
   rowwise() |> 
   dplyr::mutate(my_end_date =
-           case_when((END_DATE < EFFECTIVE_DATE) &
+           dplyr::case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
                      ~ EXPIRATION_DATE,
                      .default =
@@ -196,7 +196,7 @@ vessels_permits_2022 %>%
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual <-
   vessels_permits_2022_r_end_date_l_overlap_join %>%
   dplyr::mutate(permit_sa_gom =
-           case_when(
+           dplyr::case_when(
              !is.na(permit_sa_gom.sa) &
                !is.na(permit_sa_gom.gom) ~ "dual",
              .default =

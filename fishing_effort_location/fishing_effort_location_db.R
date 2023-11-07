@@ -90,7 +90,7 @@ data_overview(vessels_permits_clean_gr7_2022_region)
 vessels_permits_clean_gr7_2022_region2 <-
   vessels_permits_clean_gr7_2022_region |>
   dplyr::mutate(permit_22 =
-           case_when(permit_sa_gom == "sa_only" ~ "sa_only",
+           dplyr::case_when(permit_sa_gom == "sa_only" ~ "sa_only",
                      .default = "gom_dual")) |>
   dplyr::select(-permit_sa_gom) |>
   dplyr::distinct()

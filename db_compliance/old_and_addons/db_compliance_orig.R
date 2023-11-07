@@ -65,7 +65,7 @@ permit_info_r_short <-
     permit_sa_gom
   ) %>%
   dplyr::mutate(my_end_date =
-           case_when((END_DATE < EFFECTIVE_DATE) &
+           dplyr::case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
                      ~ EXPIRATION_DATE,
                      .default =
@@ -126,7 +126,7 @@ permit_info_r %>%
 permit_info_r_l_overlap_join1_w_dual <-
   permit_info_r_l_overlap_join1 %>%
   dplyr::mutate(permit_sa_gom =
-           case_when(
+           dplyr::case_when(
              !is.na(permit_sa_gom.sa) &
                !is.na(permit_sa_gom.gom) ~ "dual",
              .default =
@@ -1460,7 +1460,7 @@ vessels__t_tne_sa_tne_in_t_cnt <-
   vessels__t_tne_sa %>%
   dplyr::mutate(
     neg_in_t =
-      case_when(
+      dplyr::case_when(
         dplyr::between(TRIP_DATE,
                        TRIP_START_DATE,
                        TRIP_END_DATE) ~ "both_t__tne",

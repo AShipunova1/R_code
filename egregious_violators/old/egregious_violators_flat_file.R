@@ -338,7 +338,7 @@ prepare_csv_names <- function(filenames) {
   add_path_compl <- "FHIER Compliance"
 
   my_list <- sapply(filenames, function(x) {
-    case_when(startsWith(my_headers_case_function(x), "correspond") ~
+    dplyr::case_when(startsWith(my_headers_case_function(x), "correspond") ~
                 file.path(add_path_corresp,  x),
               startsWith(my_headers_case_function(x), "fhier_compliance") ~
                 file.path(add_path_compl,  x),
@@ -532,7 +532,7 @@ make_a_flat_file <-
 separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
   my_df %>%
   dplyr::mutate(permit_sa_gom =
-           case_when(
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
              !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
              .default = "dual"
@@ -656,7 +656,7 @@ check_new_vessels(compl_clean)
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is more than a month from data_file_date than "no"
-  dplyr::mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
+  dplyr::mutate(permit_expired = dplyr::case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                                     .default = "yes"))
 
 ## ---- add year_month column ----
@@ -1069,7 +1069,7 @@ compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
   dplyr::mutate(
     duplicate_w_last_time =
-      case_when(
+      dplyr::case_when(
         vessel_official_number %in%
           vessels_to_mark_ids$vessel_official_number ~ "duplicate",
         .default = "new"

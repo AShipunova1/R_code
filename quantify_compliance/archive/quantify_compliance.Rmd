@@ -42,7 +42,7 @@ SA:  CDW, CHS, SC
 compl_clean_sa_vs_gom_plus_dual_0 <-
   compl_clean %>%
   dplyr::mutate(permit =
-           case_when(
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              .default = "gom"
            ))
@@ -242,14 +242,14 @@ percent_plot <- function(my_df,
     ))
   
   # rename column names for titles
-  my_title <- case_when(
+  my_title <- dplyr::case_when(
     time_period == "year" ~ "Annual",
     time_period == "year_month" ~ "Monthly",
     time_period == "week_start" ~ "Weekly"
   )
   
   # rename column names for x labels
-  my_x_lab <- case_when(
+  my_x_lab <- dplyr::case_when(
     time_period == "year" ~ "year",
     time_period == "year_month" ~ "month",
     time_period == "week_start" ~ "week"

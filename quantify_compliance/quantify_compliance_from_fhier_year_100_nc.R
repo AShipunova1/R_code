@@ -90,7 +90,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
-      case_when(perc_nc_100_gr == 2 ~
+      dplyr::case_when(perc_nc_100_gr == 2 ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |>
@@ -100,7 +100,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   dplyr::distinct() |>
   mutate(
     perc_of_perc =
-      case_when(
+      dplyr::case_when(
         perc_nc_100_gr == 2 ~
           vessels_cnt * 100 / total_vessels,
         perc_nc_100_gr == 1 ~
@@ -305,7 +305,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
                       vessel_cnt_group_num,
@@ -318,7 +318,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--75% non compliant ({percent_group_num} v.)"),
         percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)")
@@ -384,7 +384,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                str_glue("{vessel_cnt_group}: 1--5 vessels ({vessel_cnt_group_num} v)"),
              vessel_cnt_group == 2 ~
@@ -396,7 +396,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--98% non compliant ({percent_group_num} v.)"),
                 percent_group == 3 ~ str_glue("99--100% non compliant ({percent_group_num} v.)")
@@ -592,12 +592,12 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   # dplyr::group_by(perc_nc_100_gr, compliant_) |> str()
   mutate(perc_nc_100_gr_name =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |> 
   mutate(group_100_vs_rest =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   1,
                 .default = 2)
   ) |> 

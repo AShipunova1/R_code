@@ -104,7 +104,7 @@ compl_clean_short <-
 
 err_desc_used <-
   err_desc %>%
-  dplyr::mutate(affects_compliancy = case_when(
+  dplyr::mutate(affects_compliancy = dplyr::case_when(
     grepl("check", enabled_, ignore.case = TRUE) &
       grepl("check", overridable_, ignore.case = TRUE) ~ "YES",
     .default = "NO"

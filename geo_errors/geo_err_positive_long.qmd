@@ -177,7 +177,7 @@ tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
   dplyr::group_by(LATITUDE, LONGITUDE) |>
-  dplyr::mutate(vendor_trip_cat = case_when(
+  dplyr::mutate(vendor_trip_cat = dplyr::case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
@@ -748,7 +748,7 @@ both_tot_w_coords__and_good_pairs |>
 both_tot_w_coords__and_good_pairs_mark <-
   both_tot_w_coords__and_good_pairs |>
   dplyr::mutate(coord_mark =
-           case_when(is.na(LATITUDE_corr_good)
+           dplyr::case_when(is.na(LATITUDE_corr_good)
                      ~ "wrong",
                      .default = "good"))
 

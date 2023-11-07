@@ -532,7 +532,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min |>
   dplyr::mutate(
     permit_region =
-      case_when(
+      dplyr::case_when(
         permit_sa_gom == "gom_only"
         | permit_sa_gom == "dual" ~
           "gom_dual",

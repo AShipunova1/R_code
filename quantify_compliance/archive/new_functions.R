@@ -326,7 +326,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
            as.numeric(as.Date(permitgroupexpiration) -
                         end_of_2022)) %>%
   dplyr::mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%
@@ -908,7 +908,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-           case_when(exp_w_end_diff < 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                      exp_w_end_diff >= 0 ~ "active"))
 
 ## count if vessel is expired or not by year, permit and month  ----

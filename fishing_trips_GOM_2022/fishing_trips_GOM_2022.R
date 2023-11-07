@@ -788,7 +788,7 @@ print_df_names(data_from_db_more_fields)
 data_from_db_more_fields_gom0 <-
   data_from_db_more_fields %>%
   filter(END_PORT_STATE %in% gom_state_abbr) %>%
-  dplyr::mutate(fl_county_gom = case_when(
+  dplyr::mutate(fl_county_gom = dplyr::case_when(
     toupper(END_PORT_COUNTY) %in% toupper(fl_counties$GOM) ~ "fl_county_gom",
     .default = 'not_gom'
   ))

@@ -49,7 +49,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-                  case_when(exp_w_end_diff < 0 ~ "expired",
+                  dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
 ## Keep active only ----

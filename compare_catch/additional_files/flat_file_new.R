@@ -426,7 +426,7 @@ fhier_logbooks_content_waves_fl_county <-
   fhier_logbooks_content_waves %>%
   # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
   dplyr::mutate(
-    end_port_fl_reg = case_when(
+    end_port_fl_reg = dplyr::case_when(
       # check in the list
       # if there is no end county, use the start
       fix_names(start_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
@@ -488,7 +488,7 @@ fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
   # add a new column "end_port_sa_gom" with sa or gom for each state
   # use fix_name aux function to unify state names (lower case, no spaces etc.)
-  dplyr::mutate(end_port_sa_gom = case_when(
+  dplyr::mutate(end_port_sa_gom = dplyr::case_when(
     # if a name is in our SA list - "sa", otherwise - "gom"
     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
     .default = "gom"
@@ -567,12 +567,12 @@ fhier_catch_by_species_state_region_waves_w_spp_dolph <-
   # "save" the original column
   rename(common_name_orig = common_name) %>%
   # rename all DOLPHINs to "DOLPHIN"
-  dplyr::mutate(common_name = case_when(startsWith(tolower(common_name_orig), "dolphin") ~ "DOLPHIN",
+  dplyr::mutate(common_name = dplyr::case_when(startsWith(tolower(common_name_orig), "dolphin") ~ "DOLPHIN",
                                  .default = common_name_orig)) %>%
   # the same for scientific names
   rename(scientific_name_orig = scientific_name) %>%
   # as in MRIP
-    dplyr::mutate(scientific_name = case_when(startsWith(
+    dplyr::mutate(scientific_name = dplyr::case_when(startsWith(
     tolower(scientific_name_orig), "coryphaena"
   ) ~ "CORYPHAENA HIPPURUS",
   .default = scientific_name_orig))
@@ -711,7 +711,7 @@ acl_estimate_2022 %>%
 # to compare with FHIER
 
 acl_estimate_2022 %<>%
-  dplyr::mutate(state = case_when(new_sta %in% c("FLE", "FLW") ~ "FL",
+  dplyr::mutate(state = dplyr::case_when(new_sta %in% c("FLE", "FLW") ~ "FL",
                            .default = new_sta))
 
 #### test: just for checking we actually dplyr::filtered the raw data ----
@@ -760,7 +760,7 @@ acl_estimate_catch_by_species_state_region_waves1 <-
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_catch_by_species_state_region_waves1 %>%
   # change a 6 to "sa" and a 7 "gom", leave everything else in place
-  dplyr::mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
+  dplyr::mutate(sa_gom = dplyr::case_when(sub_reg == "6" ~ "sa",
                             sub_reg == "7" ~ "gom",
                             .default = sub_reg),
                             # put the new column after sub_reg (by default at the end)

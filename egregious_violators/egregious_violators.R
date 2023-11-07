@@ -40,7 +40,7 @@ check_new_vessels(compl_clean)
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is more than a month from data_file_date than "no"
-  dplyr::mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
+  dplyr::mutate(permit_expired = dplyr::case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                                     .default = "yes"))
 
 ## ---- add year_month column ----
@@ -803,13 +803,13 @@ vessels_permits_participants_short_u_flat_sp_add <-
   ) |>
   dplyr::mutate(
     full_name =
-      case_when(
+      dplyr::case_when(
         is.na(full_name) | full_name == "UN" ~
           permit_holder_names,
         .default = full_name
       ),
     full_address =
-      case_when(
+      dplyr::case_when(
         is.na(full_address) | full_address == "UN" ~
           fhier_address,
         .default = full_address
@@ -916,7 +916,7 @@ compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
   dplyr::mutate(
     duplicate_w_last_time =
-      case_when(
+      dplyr::case_when(
         vessel_official_number %in%
           vessels_to_mark_ids$vessel_official_number ~ "duplicate",
         .default = "new"

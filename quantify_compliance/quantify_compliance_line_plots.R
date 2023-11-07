@@ -236,23 +236,23 @@ min_max_val <-
   dplyr::ungroup() |>
   mutate(
     max_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == max_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       ),
     min_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == min_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
   mutate(
     max_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
       ),
     min_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(min_dot_month) ~ str_glue(max_min_text)
       )
   )

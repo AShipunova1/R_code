@@ -176,7 +176,7 @@ tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
   dplyr::group_by(LATITUDE, LONGITUDE) |>
-  dplyr::mutate(vendor_trip_cat = case_when(
+  dplyr::mutate(vendor_trip_cat = dplyr::case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
@@ -190,7 +190,7 @@ compare_trip_and_effort_vendors <-
     trip_coord_info_vendors3_trip_eff <-
       trip_coord_info_vendors3_trip |>
       dplyr::mutate(
-        vendor_effort_cat = case_when(
+        vendor_effort_cat = dplyr::case_when(
           trimws(tolower(E_UE)) == "vms" ~ "vms",
           trimws(tolower(E_UE)) %in% c("vesl", "bluefin") ~ "vesl",
           .default = "etrips"
@@ -633,7 +633,7 @@ trip_coord_info_vendors3 |>
   dplyr::filter((FISHING_HOURS < 1) | (FISHING_HOURS > (7 * 24))) |>
   dplyr::mutate(
     fishing_hours_cat =
-      case_when(
+      dplyr::case_when(
         FISHING_HOURS < 1 ~ "FISHING_HOURS < 1",
         FISHING_HOURS > (7 * 24) ~ "FISHING_HOURS > 1 week"
       )

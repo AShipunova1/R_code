@@ -133,7 +133,7 @@ from_fhier_data %>%
 from_fhier_data_by_ym_22 <-
   from_fhier_data_22 %>%
   select(edit_trip, overridden, arr_year_month) %>%
-  mutate(overridden = case_when(overridden == "N" ~ "pending",
+  mutate(overridden = dplyr::case_when(overridden == "N" ~ "pending",
                                 overridden == "Y" ~ "overridden")) %>%
   dplyr::group_by(overridden, arr_year_month) %>%
   summarise(n = n()) %>%
@@ -257,7 +257,7 @@ from_fhier_data_22 %>%
 # View(db_n_fhier_data_ok_short1)
 
 db_n_fhier_data_ok_short1 %>%
-  mutate(assignment = case_when(
+  mutate(assignment = dplyr::case_when(
     startsWith(asg_info, 'System: Error fixed on') ~ 'System: Error fixed',
     .default = asg_info
   )) %>%

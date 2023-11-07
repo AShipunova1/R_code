@@ -178,7 +178,7 @@ intersect(species_in_fhier_sp_list, species_in_mrip) %>% str()
 # mrip_estimate_catch_1 <-
 #   mrip_estimate_catch %>%
 #     dplyr::mutate(PERMITREGION = 
-#            case_when(SUB_REG == "6" ~ "SA",
+#            dplyr::case_when(SUB_REG == "6" ~ "SA",
 #                      SUB_REG == "7" ~ "GOM"
 #                     )
 #            ) %>%

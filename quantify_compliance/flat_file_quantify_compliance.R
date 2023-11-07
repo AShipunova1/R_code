@@ -644,7 +644,7 @@ prepare_csv_names <- function(filenames) {
     # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
     # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
     # placed in the 'FHIER Compliance' subdirectory as a default.
-    case_when(
+    dplyr::case_when(
       startsWith(my_headers_case_function(x), "correspond") ~
         file.path(add_path_corresp,  x),
       startsWith(my_headers_case_function(x), "fhier_compliance") ~
@@ -921,7 +921,7 @@ separate_permits_into_3_groups <-
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
       dplyr::mutate(permit_sa_gom =
-               case_when(
+               dplyr::case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
                  # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
@@ -1916,7 +1916,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   dplyr::mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%
@@ -2583,7 +2583,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
-      case_when(perc_nc_100_gr == 2 ~
+      dplyr::case_when(perc_nc_100_gr == 2 ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |>
@@ -2593,7 +2593,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   dplyr::distinct() |>
   dplyr::mutate(
     perc_of_perc =
-      case_when(
+      dplyr::case_when(
         perc_nc_100_gr == 2 ~
           vessels_cnt * 100 / total_vessels,
         perc_nc_100_gr == 1 ~
@@ -2798,7 +2798,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
                       vessel_cnt_group_num,
@@ -2811,7 +2811,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--75% non compliant ({percent_group_num} v.)"),
         percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)")
@@ -2877,7 +2877,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                str_glue("{vessel_cnt_group}: 1--5 vessels ({vessel_cnt_group_num} v)"),
              vessel_cnt_group == 2 ~
@@ -2889,7 +2889,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--98% non compliant ({percent_group_num} v.)"),
                 percent_group == 3 ~ str_glue("99--100% non compliant ({percent_group_num} v.)")
@@ -3085,12 +3085,12 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   # dplyr::group_by(perc_nc_100_gr, compliant_) |> str()
   dplyr::mutate(perc_nc_100_gr_name =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |> 
   dplyr::mutate(group_100_vs_rest =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   1,
                 .default = 2)
   ) |> 
@@ -3224,7 +3224,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-                  case_when(exp_w_end_diff < 0 ~ "expired",
+                  dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
 ## Keep active only ----
@@ -3995,23 +3995,23 @@ min_max_val <-
   dplyr::ungroup() |>
   dplyr::mutate(
     max_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == max_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       ),
     min_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == min_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
   dplyr::mutate(
     max_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
       ),
     min_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(min_dot_month) ~ str_glue(max_min_text)
       )
   )
@@ -4206,7 +4206,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   dplyr::mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   dplyr::group_by(perm_exp_y) %>%
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
@@ -5276,7 +5276,7 @@ prepare_csv_names <- function(filenames) {
     # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
     # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
     # placed in the 'FHIER Compliance' subdirectory as a default.
-    case_when(
+    dplyr::case_when(
       startsWith(my_headers_case_function(x), "correspond") ~
         file.path(add_path_corresp,  x),
       startsWith(my_headers_case_function(x), "fhier_compliance") ~
@@ -5553,7 +5553,7 @@ separate_permits_into_3_groups <-
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
       dplyr::mutate(permit_sa_gom =
-               case_when(
+               dplyr::case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
                  # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
@@ -6649,7 +6649,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   dplyr::mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%
@@ -7316,7 +7316,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
-      case_when(perc_nc_100_gr == 2 ~
+      dplyr::case_when(perc_nc_100_gr == 2 ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |>
@@ -7326,7 +7326,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   dplyr::distinct() |>
   dplyr::mutate(
     perc_of_perc =
-      case_when(
+      dplyr::case_when(
         perc_nc_100_gr == 2 ~
           vessels_cnt * 100 / total_vessels,
         perc_nc_100_gr == 1 ~
@@ -7531,7 +7531,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
                       vessel_cnt_group_num,
@@ -7544,7 +7544,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--75% non compliant ({percent_group_num} v.)"),
         percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)")
@@ -7610,7 +7610,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                str_glue("{vessel_cnt_group}: 1--5 vessels ({vessel_cnt_group_num} v)"),
              vessel_cnt_group == 2 ~
@@ -7622,7 +7622,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--98% non compliant ({percent_group_num} v.)"),
                 percent_group == 3 ~ str_glue("99--100% non compliant ({percent_group_num} v.)")
@@ -7818,12 +7818,12 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   # dplyr::group_by(perc_nc_100_gr, compliant_) |> str()
   dplyr::mutate(perc_nc_100_gr_name =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |> 
   dplyr::mutate(group_100_vs_rest =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   1,
                 .default = 2)
   ) |> 
@@ -7957,7 +7957,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-                  case_when(exp_w_end_diff < 0 ~ "expired",
+                  dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
 ## Keep active only ----
@@ -8728,23 +8728,23 @@ min_max_val <-
   dplyr::ungroup() |>
   dplyr::mutate(
     max_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == max_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       ),
     min_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == min_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
   dplyr::mutate(
     max_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
       ),
     min_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(min_dot_month) ~ str_glue(max_min_text)
       )
   )
@@ -8939,7 +8939,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   dplyr::mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   dplyr::group_by(perm_exp_y) %>%
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
@@ -10009,7 +10009,7 @@ prepare_csv_names <- function(filenames) {
     # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
     # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
     # placed in the 'FHIER Compliance' subdirectory as a default.
-    case_when(
+    dplyr::case_when(
       startsWith(my_headers_case_function(x), "correspond") ~
         file.path(add_path_corresp,  x),
       startsWith(my_headers_case_function(x), "fhier_compliance") ~
@@ -10286,7 +10286,7 @@ separate_permits_into_3_groups <-
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
       dplyr::mutate(permit_sa_gom =
-               case_when(
+               dplyr::case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
                  # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
@@ -11384,7 +11384,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   dplyr::mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%
@@ -12051,7 +12051,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
-      case_when(perc_nc_100_gr == 2 ~
+      dplyr::case_when(perc_nc_100_gr == 2 ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |>
@@ -12061,7 +12061,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   dplyr::distinct() |>
   dplyr::mutate(
     perc_of_perc =
-      case_when(
+      dplyr::case_when(
         perc_nc_100_gr == 2 ~
           vessels_cnt * 100 / total_vessels,
         perc_nc_100_gr == 1 ~
@@ -12266,7 +12266,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
                       vessel_cnt_group_num,
@@ -12279,7 +12279,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--75% non compliant ({percent_group_num} v.)"),
         percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)")
@@ -12345,7 +12345,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                str_glue("{vessel_cnt_group}: 1--5 vessels ({vessel_cnt_group_num} v)"),
              vessel_cnt_group == 2 ~
@@ -12357,7 +12357,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--98% non compliant ({percent_group_num} v.)"),
                 percent_group == 3 ~ str_glue("99--100% non compliant ({percent_group_num} v.)")
@@ -12553,12 +12553,12 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   # dplyr::group_by(perc_nc_100_gr, compliant_) |> str()
   mutate(perc_nc_100_gr_name =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |> 
   mutate(group_100_vs_rest =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   1,
                 .default = 2)
   ) |> 
@@ -12692,7 +12692,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-                  case_when(exp_w_end_diff < 0 ~ "expired",
+                  dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
 ## Keep active only ----
@@ -13463,23 +13463,23 @@ min_max_val <-
   dplyr::ungroup() |>
   mutate(
     max_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == max_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       ),
     min_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == min_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
   mutate(
     max_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
       ),
     min_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(min_dot_month) ~ str_glue(max_min_text)
       )
   )
@@ -13674,7 +13674,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   dplyr::group_by(perm_exp_y) %>%
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
@@ -14744,7 +14744,7 @@ prepare_csv_names <- function(filenames) {
     # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
     # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
     # placed in the 'FHIER Compliance' subdirectory as a default.
-    case_when(
+    dplyr::case_when(
       startsWith(my_headers_case_function(x), "correspond") ~
         file.path(add_path_corresp,  x),
       startsWith(my_headers_case_function(x), "fhier_compliance") ~
@@ -15021,7 +15021,7 @@ separate_permits_into_3_groups <-
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
       mutate(permit_sa_gom =
-               case_when(
+               dplyr::case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
                  # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
@@ -16119,7 +16119,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%
@@ -16786,7 +16786,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
-      case_when(perc_nc_100_gr == 2 ~
+      dplyr::case_when(perc_nc_100_gr == 2 ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |>
@@ -16796,7 +16796,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   dplyr::distinct() |>
   mutate(
     perc_of_perc =
-      case_when(
+      dplyr::case_when(
         perc_nc_100_gr == 2 ~
           vessels_cnt * 100 / total_vessels,
         perc_nc_100_gr == 1 ~
@@ -17001,7 +17001,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
                       vessel_cnt_group_num,
@@ -17014,7 +17014,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--75% non compliant ({percent_group_num} v.)"),
         percent_group == 3 ~ str_glue("75--98% non compliant({percent_group_num} v.)")
@@ -17080,7 +17080,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
-           case_when(
+           dplyr::case_when(
              vessel_cnt_group == 1 ~
                str_glue("{vessel_cnt_group}: 1--5 vessels ({vessel_cnt_group_num} v)"),
              vessel_cnt_group == 2 ~
@@ -17092,7 +17092,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
-      case_when(
+      dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
         percent_group == 2 ~ str_glue("50--98% non compliant ({percent_group_num} v.)"),
                 percent_group == 3 ~ str_glue("99--100% non compliant ({percent_group_num} v.)")
@@ -17288,12 +17288,12 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   # dplyr::group_by(perc_nc_100_gr, compliant_) |> str()
   mutate(perc_nc_100_gr_name =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |> 
   mutate(group_100_vs_rest =
-      case_when(!!never_reported_filter ~
+      dplyr::case_when(!!never_reported_filter ~
                   1,
                 .default = 2)
   ) |> 
@@ -17427,7 +17427,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-                  case_when(exp_w_end_diff < 0 ~ "expired",
+                  dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
 ## Keep active only ----
@@ -18198,23 +18198,23 @@ min_max_val <-
   dplyr::ungroup() |>
   mutate(
     max_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == max_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       ),
     min_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == min_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
   mutate(
     max_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
       ),
     min_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(min_dot_month) ~ str_glue(max_min_text)
       )
   )
@@ -18409,7 +18409,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   dplyr::group_by(perm_exp_y) %>%
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%

@@ -272,7 +272,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%

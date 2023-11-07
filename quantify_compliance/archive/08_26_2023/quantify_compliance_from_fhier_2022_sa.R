@@ -231,7 +231,7 @@ compl_data_sa_2022_m_exp_diff <-
   dplyr::mutate(exp_w_end_diff =
            as.numeric(as.Date(permitgroupexpiration) - week_end + 1)) %>% 
   dplyr::mutate(exp_1_m = 
-           case_when(exp_w_end_diff <= 31 ~ "less_t_1m",
+           dplyr::case_when(exp_w_end_diff <= 31 ~ "less_t_1m",
                      exp_w_end_diff > 31 ~ "more_t_1m"))
 
 # select(permitgroupexpiration, week_end, exp_w_end_diff) %>% 
@@ -249,7 +249,7 @@ compl_data_sa_2022_m_exp_diff_m <-
            interval(as.Date(year_month),
                     as.Date(permitgroupexpiration)) %/% months(1)) %>%
   dplyr::mutate(exp_1_m =
-           case_when(
+           dplyr::case_when(
              exp_w_end_diff_m <= 1 ~ "less_t_1m",
              exp_w_end_diff_m > 1 ~ "more_t_1m"
            ))

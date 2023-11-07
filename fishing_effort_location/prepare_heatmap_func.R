@@ -61,7 +61,7 @@ sa_state_abb <-
 #   fhier_logbooks_content_waves_fl_county %>%
 #   # add a new column "end_port_sa_gom" with sa or gom for each state
 #   # use fix_name aux function to unify state names (lower case, no spaces etc.)
-#   dplyr::mutate(end_port_sa_gom = case_when(
+#   dplyr::mutate(end_port_sa_gom = dplyr::case_when(
 #     # if a name is in our SA list - "sa", otherwise - "gom"
 #     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
 #     .default = "gom"

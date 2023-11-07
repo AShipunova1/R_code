@@ -893,13 +893,13 @@ percent_plot <- function(my_df, time_period, region) {
       fill = key
     ))
   
-  my_title <- case_when(
+  my_title <- dplyr::case_when(
     time_period == "year" ~ "Annual",
     time_period == "year_month" ~ "Monthly",
     time_period == "week_start" ~ "Weekly"
   )
   
-  my_x_lab <- case_when(
+  my_x_lab <- dplyr::case_when(
     time_period == "year" ~ "year",
     time_period == "year_month" ~ "month",
     time_period == "week_start" ~ "week"

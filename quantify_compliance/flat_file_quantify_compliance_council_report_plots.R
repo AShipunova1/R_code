@@ -363,7 +363,7 @@ prepare_csv_names <- function(filenames) {
   add_path_compl <- "FHIER Compliance"
 
   my_list <- sapply(filenames, function(x) {
-    case_when(startsWith(my_headers_case_function(x), "correspond") ~
+    dplyr::case_when(startsWith(my_headers_case_function(x), "correspond") ~
                 file.path(add_path_corresp,  x),
               startsWith(my_headers_case_function(x), "fhier_compliance") ~
                 file.path(add_path_compl,  x),
@@ -569,7 +569,7 @@ write_to_1_flat_file <-
 separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
   my_df %>%
   mutate(permit_sa_gom =
-           case_when(
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
              !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
              .default = "dual"
@@ -1001,7 +1001,7 @@ additional_clean_up <- function(compl_clean) {
     compl_clean_sa_vs_gom_m_int %>%
     mutate(
       year_permit =
-        case_when(
+        dplyr::case_when(
           year == "2022" & (permit_sa_gom == "gom_only"
                             | permit_sa_gom =="dual") ~
             paste(year, "gom_dual"),
@@ -1491,7 +1491,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # dplyr::group_by(compliant_, perm_exp_y) %>%
   # dplyr::group_by(compliant_) %>%
@@ -2159,7 +2159,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
   # add a column
   dplyr::mutate(perm_exp_m =
-                  case_when(exp_w_end_diff < 0 ~ "expired",
+                  dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
 
 ## Keep active only ----
@@ -3211,12 +3211,12 @@ min_max_val <-
   # Determine the 'year_month' where the maximum and minimum values occur for '< 50%' 'percent_non_compl_2_buckets'.
   mutate(
     max_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == max_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       ),
     min_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == min_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
@@ -3225,9 +3225,9 @@ min_max_val <-
   # Create text labels based on the presence of 'max_dot_month' and 'min_dot_month'.
   mutate(
     max_dot_text =
-      case_when(!is.na(max_dot_month) ~ str_glue(max_min_text)),
+      dplyr::case_when(!is.na(max_dot_month) ~ str_glue(max_min_text)),
     min_dot_text =
-      case_when(!is.na(min_dot_month) ~ str_glue(max_min_text))
+      dplyr::case_when(!is.na(min_dot_month) ~ str_glue(max_min_text))
   )
 
 #### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_vms.R  ----
@@ -3380,7 +3380,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   dplyr::group_by(perm_exp_y) %>%
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%

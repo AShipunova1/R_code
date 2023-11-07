@@ -901,7 +901,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_y_p_cuts <-
   count_weeks_per_vsl_permit_year_compl_p_short_y_p %>%
   dplyr::mutate(
     percentage_rank =
-      case_when(
+      dplyr::case_when(
         percent_compl < 25 ~ '0-24%',
         25 <= percent_compl &
           percent_compl < 50 ~ '25-49%',

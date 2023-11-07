@@ -40,7 +40,7 @@ v_p__t__tne_d_weeks_sa_compl_w <-
            date_y_m,
            YEAR) |>
   # not compliant if both reports (trips and t negative) are absent
-  dplyr::mutate(sa_compl_week = case_when(!!reports_exists_filter ~
+  dplyr::mutate(sa_compl_week = dplyr::case_when(!!reports_exists_filter ~
                                 "yes",
                               .default = "no")) |>
   dplyr::ungroup()
@@ -174,7 +174,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short)
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_short |>
   dplyr::mutate(compl_2022 =
-           case_when(
+           dplyr::case_when(
     !!reports_exists_filter &
       compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
            .default = "no")
@@ -407,7 +407,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m <-
            VESSEL_VESSEL_ID,
            date_y_m.d) |>
   dplyr::mutate(v_compliant_m =
-           case_when(any(tolower(sa_compl_week) == "no") ~ "no",
+           dplyr::case_when(any(tolower(sa_compl_week) == "no") ~ "no",
                      .default = "yes")) |>
   dplyr::ungroup()
 toc()

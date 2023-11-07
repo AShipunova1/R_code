@@ -72,7 +72,7 @@ transm_before_after <-
   logbooks_content_transmission_date_ok %>%
   dplyr::mutate(
     transmission_date_group =
-      case_when(
+      dplyr::case_when(
         trip_de_ct < "2022-01-01" ~ "before Jan 2022",
         trip_de_ct > "2022-01-01" ~ "after Jan 2022"
       )

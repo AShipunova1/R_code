@@ -58,7 +58,7 @@ vessels_permits_2022_r_end_date <-
   vessels_permits_2022_r |>
   rowwise() |>
   dplyr::mutate(my_end_date =
-           case_when((END_DATE < EFFECTIVE_DATE) &
+           dplyr::case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
                      ~ EXPIRATION_DATE,
                      .default =
@@ -230,7 +230,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
   # if there are both sa and gom mark as dual,
   # otherwise keep the original permit region
   dplyr::mutate(permit_sa_gom_dual =
-           case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
+           dplyr::case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
                      .default = permit_sa_gom)) |>
   # remove temporary columns
   dplyr::select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
@@ -414,7 +414,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual <-
 #   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
 #   dplyr::mutate(permit_sa_gom =
-#            case_when(
+#            dplyr::case_when(
 #              !is.na(permit_sa_gom.sa) &
 #                !is.na(permit_sa_gom.gom) ~ "dual",
 #              .default =
@@ -1048,7 +1048,7 @@ dates_2022_yw0 |>
 dates_2022_yw <-
   dates_2022_yw0 |>
   dplyr::mutate(WEEK_OF_YEAR =
-    case_when(
+    dplyr::case_when(
       YEAR == 2022 &
       MONTH_OF_YEAR == 1 &
         date_y_m == "Jan 2022" &
@@ -1703,7 +1703,7 @@ v_p__t__tne_d_weeks_sa_compl <-
            WEEK_OF_YEAR,
            date_y_m,
            YEAR) |>
-  dplyr::mutate(sa_compl_week = case_when(is.na(rep_type.t) &
+  dplyr::mutate(sa_compl_week = dplyr::case_when(is.na(rep_type.t) &
                                 is.na(rep_type.tne) ~
                                 "no",
                               .default = "yes")) |>
@@ -1736,7 +1736,7 @@ reports_exists <- rlang::quo(
 v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w |>
   dplyr::mutate(compl_2022 =
-           case_when(
+           dplyr::case_when(
     !!reports_exists &
       compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
            .default = "no")
@@ -1921,7 +1921,7 @@ v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
            permit_2022_int) |>
   # View()
   dplyr::mutate(is_compliant_y =
-           case_when(non_na_count.t < non_na_count.tn
+           dplyr::case_when(non_na_count.t < non_na_count.tn
                      ~ "no",
                      .default = "yes")) |>
   dplyr::ungroup()
@@ -1933,7 +1933,7 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 #   v_p__t__tn_d_weeks_gom_short_compl_short |>
 #   dplyr::group_by(PERMIT_VESSEL_ID, permit_2022_int) |>
 #   dplyr::mutate(is_compliant_y =
-#            case_when(non_na_count.t == non_na_count.tn ~
+#            dplyr::case_when(non_na_count.t == non_na_count.tn ~
 #                        "yes",
 #                      .default = "no")) |>
 #   dplyr::ungroup()
@@ -2496,7 +2496,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w <-
            WEEK_OF_YEAR,
            date_y_m) |>
   dplyr::mutate(is_compliant_w =
-           case_when(non_na_count.t < non_na_count.tn ~
+           dplyr::case_when(non_na_count.t < non_na_count.tn ~
                        "no",
                      .default = "yes")) |>
   dplyr::ungroup()
@@ -2516,7 +2516,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m <-
            # WEEK_OF_YEAR,
            date_y_m) |>
   dplyr::mutate(is_compliant_m =
-           case_when(any(is_compliant_w == "no") ~
+           dplyr::case_when(any(is_compliant_w == "no") ~
                        "no",
                      .default = "yes")) |>
   dplyr::ungroup() |> 

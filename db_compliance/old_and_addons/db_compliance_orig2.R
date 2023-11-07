@@ -55,7 +55,7 @@ vessels_permits_2022_r_end_date <-
   vessels_permits_2022_r |>
   rowwise() |> 
   dplyr::mutate(my_end_date =
-           case_when((END_DATE < EFFECTIVE_DATE) &
+           dplyr::case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
                      ~ EXPIRATION_DATE,
                      .default =
@@ -209,7 +209,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
   # if there are both sa and gom mark as dual,
   # otherwise keep the original permit region
   dplyr::mutate(permit_sa_gom_dual =
-           case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
+           dplyr::case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
                      .default = permit_sa_gom)) |>
   # remove temporary columns
   dplyr::select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
@@ -393,7 +393,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual <-
 #   vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join %>%
 #   dplyr::mutate(permit_sa_gom =
-#            case_when(
+#            dplyr::case_when(
 #              !is.na(permit_sa_gom.sa) &
 #                !is.na(permit_sa_gom.gom) ~ "dual",
 #              .default =
