@@ -835,7 +835,6 @@ cat_filter_for_fhier <- function(my_characters) {
 # to compare:
 # time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
 
-# ====
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
 # usage:
