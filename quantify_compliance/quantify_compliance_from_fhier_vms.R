@@ -259,7 +259,7 @@ gg_all_c_vs_nc_plots_vms <-
     return(one_plot)
   })
 
-main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
+main_title_vms <- "Percent Compliant vs. Noncompliant SEFHIER Vessels (VMS)"
 
 # combine plots for 2022
 gg_arranged_plots_vms <-
@@ -267,7 +267,7 @@ gg_arranged_plots_vms <-
     gg_all_c_vs_nc_plots_vms[[1]],
     gg_all_c_vs_nc_plots_vms[[2]],
     gg_all_c_vs_nc_plots_vms[[3]],
-    top = main_title
+    top = main_title_vms
   )
 # class(gg_all_c_vs_nc_plots_vms)
 
