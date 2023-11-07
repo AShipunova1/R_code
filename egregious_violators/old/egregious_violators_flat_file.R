@@ -521,7 +521,7 @@ make_a_flat_file <-
     sink(flat_file_name)
 
     for (i in 1:length(files_to_combine_list)) {
-      current_file = readr::readlines(files_to_combine_list[i])
+      current_file = readr::read_lines(files_to_combine_list[i])
       cat("\n\n#### Current file:", files_to_combine_list[i], "----\n\n")
       cat(current_file, sep = "\n")
     }

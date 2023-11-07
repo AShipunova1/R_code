@@ -546,7 +546,7 @@ make_a_flat_file <-
     sink(flat_file_name)
 
     for (i in 1:length(files_to_combine_list)) {
-      current_file = readr::readlines(files_to_combine_list[i])
+      current_file = readr::read_lines(files_to_combine_list[i])
       cat("\n\n#### Current file:", files_to_combine_list[i], "----\n\n")
       cat(current_file, sep = "\n")
     }
@@ -560,7 +560,7 @@ write_to_1_flat_file <-
     # write to file
     sink(flat_file_name, append = TRUE)
     
-    current_file_text = readr::readlines(file_name_to_write)
+    current_file_text = readr::read_lines(file_name_to_write)
     cat("\n\n#### Current file: ", file_name_to_write, " ----\n\n")
     cat(current_file_text, sep = "\n")
     # sink()

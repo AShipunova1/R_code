@@ -150,4 +150,5 @@ sink()
 
 # Remove all "source" lines from the flat file when done.
 # source( to #source(
-readr::readlines()
+flat_file_content <- readr::read_lines(flat_file_name)
+
