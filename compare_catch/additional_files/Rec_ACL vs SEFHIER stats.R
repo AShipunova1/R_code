@@ -27,9 +27,9 @@
       # 4 = Ocean > 10 mi (WFL only) 
       # 5 = Inland"	CHAR
       
-      # Use DS column to filter out SRHS (headboat)
+      # Use DS column to dplyr::filter out SRHS (headboat)
       
-      # Use "new mode" column to filter out private and shore modes (private = rec; 
+      # Use "new mode" column to dplyr::filter out private and shore modes (private = rec; 
       #            shore mode = private rec fishing from shore)
       # # new_mode = recorded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
       
@@ -38,7 +38,7 @@
   # (3) SEFHIER all logbooks file (from FHIER report) 
         # need the ports from the logbook file to interjoin to the catch file 
           #- using the trip ID or something. 
-          #That way you'd know where they landed the catch, for filtering by area to compare to MRIP
+          #That way you'd know where they landed the catch, for dplyr::filtering by area to compare to MRIP
   
 #general set up:
 #load required packages; or install first if necessary 
@@ -176,7 +176,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     
 #MRIP data processing ----  
 #filter MRIP data for just 2022 
-  mrip_raw_2022 <- mrip_raw %>% filter(year == "2022")  
+  mrip_raw_2022 <- mrip_raw %>% dplyr::filter(year == "2022")  
     #check
     dim(mrip_raw)
     # [1] 347379 67
@@ -184,11 +184,11 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     # [1] 8332   67
     
 #filter MRIP 2022 raw data for just regions 6 & 7 (Gulf and SA, respectively) ----
-    mrip_raw_CBT_Gulf_and_SA <- mrip_raw_2022 %>% filter(SUB_REG %in% c(6, 7))
+    mrip_raw_CBT_Gulf_and_SA <- mrip_raw_2022 %>% dplyr::filter(SUB_REG %in% c(6, 7))
   #filter out SRHS data
-    mrip_raw_CBT_Gulf_and_SA_noSRHS <- mrip_raw_CBT_Gulf_and_SA %>% filter(DS != "SRHS")
+    mrip_raw_CBT_Gulf_and_SA_noSRHS <- mrip_raw_CBT_Gulf_and_SA %>% dplyr::filter(DS != "SRHS")
   #filter out private and shore modes
-    mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec <- mrip_raw_CBT_Gulf_and_SA_noSRHS %>% filter(NEW_MODE %in% c(2, 3, 5)) 
+    mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec <- mrip_raw_CBT_Gulf_and_SA_noSRHS %>% dplyr::filter(NEW_MODE %in% c(2, 3, 5)) 
     
     #----MRIP scientific species list ----
     MRIP_scientific_species_list <- mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec %>% select(NEW_SCI) %>% unique()
@@ -274,7 +274,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     ## test: check regions ----
     fhier_logbooks_content_waves_fl_county %>%
       # get FL only
-      filter(end_port_state == "FL") %>%
+      dplyr::filter(end_port_state == "FL") %>%
       # sort by county
       arrange(end_port_county) %>%
       distinct() %>%
@@ -290,7 +290,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     #           gom NOT-SPECIFIED            sa 
     #        201703           112         30152 
     # what else is in the new column beside sa and gom
-    # filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
+    # dplyr::filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
     
     # NOT-SPECIFIED
     
@@ -314,7 +314,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # a default R table
       state_tbl %>%
       # get only these in our list
-      filter(state_name %in% tolower(states_sa$state_name)) %>%
+      dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
       # get abbreviations
       select(state_abb)
     
@@ -363,7 +363,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     
     ### test: dolphins ----
     fhier_logbooks_content_waves__sa_gom_dolph %>%
-      filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
+      dplyr::filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
       select(common_name_orig, common_name) %>% unique()
     # ---
     
@@ -397,7 +397,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     ### test: cnts for 1 sp. ----
     test_species_itis <-
       fhier_logbooks_content %>%
-      filter(tolower(common_name) == "mackerel, spanish") %>%
+      dplyr::filter(tolower(common_name) == "mackerel, spanish") %>%
       select(catch_species_itis) %>%
       unique() %>%
       # get a string, not a df
@@ -406,7 +406,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     fhier_test_cnts <-
       fhier_catch_by_species_state_region_waves %>%
       # get the same species
-      filter(catch_species_itis == test_species_itis) %>%
+      dplyr::filter(catch_species_itis == test_species_itis) %>%
       # group by region
       group_by(catch_species_itis, end_port_sa_gom) %>%
       # sum the FHIER catch

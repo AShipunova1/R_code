@@ -47,7 +47,7 @@ View(fhier_acl_catch_by_species_state_region_waves)
 # [1] 5738   11
 
 # fhier_acl_catch_by_species_state_region_waves %>%
-#   filter(!(species_itis_fhier == species_itis_mrip)) %>%
+#   dplyr::filter(!(species_itis_fhier == species_itis_mrip)) %>%
 #   glimpse()
 # dolphin
 
@@ -65,7 +65,7 @@ fhier_acl_catch_by_species_state_region_waves %<>%
 ### test join ----
 # look at the first 20 entries for mackerel spanish
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(scientific_name == test_species_name) %>% head(20)
+  dplyr::filter(scientific_name == test_species_name) %>% head(20)
 
 #| classes: test
 ### test one sp in MRIP ----
@@ -74,9 +74,9 @@ fhier_acl_catch_by_species_state_region_waves %>%
 #### compare the saved numbers with those in the join, they should be the same ----
 # names(fhier_acl_catch_by_species_state_region_waves)
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(scientific_name == test_species_name) %>%
+  dplyr::filter(scientific_name == test_species_name) %>%
 # 
-#   filter(species_itis == test_species_itis) %>%
+#   dplyr::filter(species_itis == test_species_itis) %>%
   group_by(scientific_name, sa_gom) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
@@ -86,7 +86,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
 # fhier_test_cnts
 
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(scientific_name == test_species_name) %>%
+  dplyr::filter(scientific_name == test_species_name) %>%
   group_by(scientific_name, sa_gom) %>%
   summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_acl_cnt) %>%
@@ -115,7 +115,7 @@ grep(
 
 sa_top_spp <-
   fhier_spp %>%
-  filter(common_name %in% sa_top)
+  dplyr::filter(common_name %in% sa_top)
 # 11
 
 gom_top <- c(
@@ -134,7 +134,7 @@ gom_top <- c(
 
 gom_top_spp <-
   fhier_spp %>%
-  filter(common_name %in% gom_top)
+  dplyr::filter(common_name %in% gom_top)
 
 # glimpse(gom_top_spp)
 # 11
@@ -195,7 +195,7 @@ add_common_name_to_acl_top <- function(my_df) {
 
 gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
-  filter(sa_gom == "gom") %>% 
+  dplyr::filter(sa_gom == "gom") %>% 
   get_acl_top_cnts()
 
 # rename the column for future use
@@ -210,7 +210,7 @@ gom_acl_top_spp <-
 ### SA Top 10 ACL spp. ----
 sa_acl_top_spp_0 <-
   acl_estimate_catch_by_species_state_region_waves %>%
-  filter(sa_gom == "sa") %>%
+  dplyr::filter(sa_gom == "sa") %>%
   get_acl_top_cnts()
 
 # rename the column for future use
@@ -275,8 +275,8 @@ new_group_counts <- function(my_df) {
     # remove columns that we used for summing
     select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
     # keep only the rows where species_itis_fhier or scientific_name is not an NA
-    filter(!is.na(species_itis_fhier)) %>%
-    filter(!is.na(scientific_name)) %>%
+    dplyr::filter(!is.na(species_itis_fhier)) %>%
+    dplyr::filter(!is.na(scientific_name)) %>%
     unique() %>%
     return()
 }
@@ -300,7 +300,7 @@ fhier_acl_catch_by_species_region_year <-
 
 # test, should be sa and gom, df 2 by 6
 fhier_acl_catch_by_species_region_year %>%
-  filter(scientific_name == "SCOMBEROMORUS MACULATUS") %>%
+  dplyr::filter(scientific_name == "SCOMBEROMORUS MACULATUS") %>%
   glimpse()
 
 ## split by sa_gom ----
@@ -311,7 +311,7 @@ fhier_acl_catch_by_species_region_year_list <-
 
 # test 167760 GROUPER, BLACK ----
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  filter(species_itis_fhier == '167760') %>%
+  dplyr::filter(species_itis_fhier == '167760') %>%
   glimpse()
 # gom
 # fhier_cnts_by_year   <int> 2016
@@ -320,7 +320,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 # fhier_cnts_by_year   <int> 140
 # rec_acl_cnts_by_year <int> 262
 fhier_acl_catch_by_species_region_year_list$gom %>%
-  filter(species_itis_fhier == '167760') %>%
+  dplyr::filter(species_itis_fhier == '167760') %>%
   glimpse()
 # new file and sero only gom
 # $ fhier_cnts_by_year   <int> 1731
@@ -330,7 +330,7 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
 # $ rec_acl_cnts_by_year <int> 259
 
 acl_estimate_2022 %>%
-  filter(new_sci == 'MYCTEROPERCA BONACI') %>%
+  dplyr::filter(new_sci == 'MYCTEROPERCA BONACI') %>%
   group_by(new_sci, new_moden, year, sub_reg) %>%
   summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
 # same

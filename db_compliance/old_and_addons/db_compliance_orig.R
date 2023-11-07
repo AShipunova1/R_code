@@ -142,7 +142,7 @@ permit_info_r_l_overlap_join1_w_dual %>%
 # all 3
 
 # to get dual in the overlapping period:
-# filter(!is.na(permit_sa_gom.sa))
+# dplyr::filter(!is.na(permit_sa_gom.sa))
 
 interval_2022 = lubridate::interval(as.Date('2022-01-01'),
                                     as.Date('2022-12-31'))
@@ -158,7 +158,7 @@ permit_info_r_l_overlap_join1_w_dual_22 <-
                           my_end_date.sa)
   ) %>%
   #   mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
-  filter(int_overlaps(eff_int_gom,
+  dplyr::filter(int_overlaps(eff_int_gom,
                       interval_2022) |
            int_overlaps(eff_int_sa,
                       interval_2022)
@@ -171,7 +171,7 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
 # all 3
 
 permit_info_r_l_overlap_join1_w_dual_22 %>%
-  filter(permit_sa_gom == "dual") %>%
+  dplyr::filter(permit_sa_gom == "dual") %>%
   select(VESSEL_ID) %>%
   distinct() %>%
   dim()
@@ -180,19 +180,19 @@ permit_info_r_l_overlap_join1_w_dual_22 %>%
 
 permit_info_r_l_overlap_join1_w_dual_22 %>%
   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-  filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
+  dplyr::filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa)) %>%
   dim()
 # 652
 
 permit_info_r_l_overlap_join1_w_dual_22 %>%
   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-  filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom)) %>%
+  dplyr::filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom)) %>%
   dim()
 # 356
 
 # permit_info_r_l_overlap_join1_w_dual_22 %>%
 #   select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-#   filter(!(VESSEL_ALT_NUM.gom == VESSEL_ALT_NUM.sa)) %>%
+#   dplyr::filter(!(VESSEL_ALT_NUM.gom == VESSEL_ALT_NUM.sa)) %>%
 #   dim()
 # 0
 
@@ -209,7 +209,7 @@ check_1 <-
   map_df(
     ~ .x %>%
       select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-      filter(!(VESSEL_ALT_NUM.sa == VESSEL_ALT_NUM.gom))
+      dplyr::filter(!(VESSEL_ALT_NUM.sa == VESSEL_ALT_NUM.gom))
   )
 str(check_1)
 # 0
@@ -223,7 +223,7 @@ check_2 <-
     ~ .x %>%
       select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
       distinct() %>%
-      filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom))
+      dplyr::filter(!(VESSEL_ID == VESSEL_ALT_NUM.gom))
   )
 
 map_df(check_2, dim)
@@ -239,7 +239,7 @@ check_3 <-
     ~ .x %>%
       select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
       distinct() %>%
-      filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa))
+      dplyr::filter(!(VESSEL_ID == VESSEL_ALT_NUM.sa))
   )
 
 map_df(check_3, dim)
@@ -328,22 +328,22 @@ vessels_by_permit_vessel_num <-
 # [1] "1304296"  "NA"       "FL6437NY" "1176885"
 
 # permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>%
-#     filter(VESSEL_ID == '1304296') %>% View()
+#     dplyr::filter(VESSEL_ID == '1304296') %>% View()
 # # alt_num.sa DL5161AM
 #
 # permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>%
-#     filter(VESSEL_ID == 'FL6437NY') %>% View()
+#     dplyr::filter(VESSEL_ID == 'FL6437NY') %>% View()
 
 # FL6437NY
 # 2015-09-01 EDT--2022-06-02 EDT
 # VESSEL SOLD
 
 # permit_info_r_l_overlap_join1_w_dual_22__list$sa_only %>%
-#     filter(VESSEL_ID == '1176885') %>% View()
+#     dplyr::filter(VESSEL_ID == '1176885') %>% View()
 # alt num FL0668PV 2021-05-01 EDT--2022-03-31 EDT
 
 # vessels_permit_vsl_id__all_l$sa_only %>%
-#   filter(vessel_id == '1304296' |
+#   dplyr::filter(vessel_id == '1304296' |
 #            VESSEL_ID == '1304296' |
 #            COAST_GUARD_NBR == '1304296' |
 #            STATE_REG_NBR == '1304296'
@@ -352,7 +352,7 @@ vessels_by_permit_vessel_num <-
 # # 0
 
 # vessels_permit_vsl_id__all_l$sa_only %>%
-#   filter(permit_vessel_id == 'DL5161AM') %>%
+#   dplyr::filter(permit_vessel_id == 'DL5161AM') %>%
 #   View()
 # 1
 # SERO_OFFICIAL_NUMBER is NULL
@@ -361,7 +361,7 @@ vessels_by_permit_vessel_num <-
 # clean up vessels_permit_vsl_id__all ----
 # vessels_permit_vsl_id__all %>%
 #   count(permit_vessel_id) %>%
-#   filter(n > 1) %>%
+#   dplyr::filter(n > 1) %>%
 # head()
 # # 29
  # 1 1023478       2
@@ -372,7 +372,7 @@ vessels_by_permit_vessel_num <-
  # 6 16250027      2
 
 # vessels_permit_vsl_id__all %>%
-#   filter(permit_vessel_id == '1023478') %>%
+#   dplyr::filter(permit_vessel_id == '1023478') %>%
 #   dim()
 # [1]  2 30
 
@@ -388,7 +388,7 @@ coalesce_by_column <- function(df) {
 ### test coalesce_by_column ----
 vessels_permit_vsl_id__all_2 <-
   vessels_permit_vsl_id__all %>%
-  filter(permit_vessel_id == '1023478') %>%
+  dplyr::filter(permit_vessel_id == '1023478') %>%
   group_by(permit_vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
 
@@ -396,7 +396,7 @@ vessels_permit_vsl_id__all_2 <-
 
 vessels_permit_vsl_id__all_0 <-
   vessels_permit_vsl_id__all %>%
-  filter(permit_vessel_id == '1023478')
+  dplyr::filter(permit_vessel_id == '1023478')
 
 all.equal(vessels_permit_vsl_id__all_2,
           vessels_permit_vsl_id__all_0[1,])
@@ -561,17 +561,17 @@ map_df(vessels_permit_bind, dim)
 
 # vessels_permit_bind_u_test_0 <-
 #   vessels_permit_bind$gom_only %>%
-#   filter(SERO_OFFICIAL_NUMBER == 'FL4203RB')
+#   dplyr::filter(SERO_OFFICIAL_NUMBER == 'FL4203RB')
 #
 # vessels_permit_bind_u_test <-
 #   vessels_permit_bind$gom_only %>%
-#   filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
+#   dplyr::filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
 #   group_by(SERO_OFFICIAL_NUMBER) %>%
 #   dplyr::summarise_all(coalesce_by_column)
 #
 # vessels_permit_bind_u_test2 <-
 #   vessels_permit_bind$gom_only %>%
-#   filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
+#   dplyr::filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
 #   group_by(VESSEL_ID.v) %>%
 #   dplyr::summarise_all(coalesce_by_column)
 #
@@ -643,7 +643,7 @@ trips_info_2022_int %>%
 ## trip types A and H trips ----
 trips_info_2022_int_ah <-
   trips_info_2022_int %>%
-  filter(TRIP_TYPE %in% c("A", "H"))
+  dplyr::filter(TRIP_TYPE %in% c("A", "H"))
 
 ## trip types A and H trip_notif ----
 trip_notifications_2022 %>%
@@ -656,7 +656,7 @@ trip_notifications_2022 %>%
 
 trip_notifications_2022_ah <-
   trip_notifications_2022 %>%
-  filter(TRIP_TYPE %in% c("A", "H"))
+  dplyr::filter(TRIP_TYPE %in% c("A", "H"))
 
 # add week num ----
 ## to trips ----
@@ -936,7 +936,7 @@ dates_2022_short <-
 ## neg trips per week per vessel ----
 vessels__trip_neg_22_l_sa_short <-
   vessels__trip_neg_22_l$sa_only %>%
-  filter(!lubridate::floor_date(TRIP_DATE,
+  dplyr::filter(!lubridate::floor_date(TRIP_DATE,
                                 unit = "day") ==
            "2021-12-31") %>%
   select(permit_vessel_id,
@@ -956,7 +956,7 @@ data_overview(vessels__trip_neg_22_l_sa_short)
 
 ### remove neg trips on 2021-12-31 ----
 # vessels__trip_neg_22_l_sa_short %>%
-#   filter(lubridate::floor_date(TRIP_DATE,
+#   dplyr::filter(lubridate::floor_date(TRIP_DATE,
 #                                unit = "day") ==
 #            "2021-12-31") %>% glimpse()
 # Rows: 1,006
@@ -973,7 +973,7 @@ data_overview(vessels__trip_neg_22_l_sa_short)
 #   View()
 
 vessels__trip_neg_22_l_sa_short %>%
-  filter(permit_vessel_id == '03017306') %>%
+  dplyr::filter(permit_vessel_id == '03017306') %>%
   select(permit_vessel_id, TRIP_week_num) %>%
   distinct() %>%
   group_by(permit_vessel_id) %>%
@@ -998,8 +998,8 @@ View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
 
 vessels__trip_notif_22_l_sa_short <-
   vessels__trip_notif_22_l$sa_only %>%
-  filter(TRIP_START_y %in% c('2021', '2022')) %>%
-  filter(TRIP_END_y %in% c('2022', '2023')) %>%
+  dplyr::filter(TRIP_START_y %in% c('2021', '2022')) %>%
+  dplyr::filter(TRIP_END_y %in% c('2022', '2023')) %>%
   select(permit_vessel_id,
          TRIP_START_week_num,
          TRIP_END_week_num,
@@ -1034,8 +1034,8 @@ dim(vessels__trip_notif_22_l_sa_vessels_trips)
 
 vessels__trips_22_l_sa_short <-
   vessels__trips_22_l$sa_only %>%
-  filter(TRIP_START_y %in% c('2021', '2022')) %>%
-  filter(TRIP_END_y %in% c('2022', '2023')) %>%
+  dplyr::filter(TRIP_START_y %in% c('2021', '2022')) %>%
+  dplyr::filter(TRIP_END_y %in% c('2022', '2023')) %>%
   select(permit_vessel_id,
          TRIP_START_week_num,
          TRIP_END_week_num,
@@ -1083,7 +1083,7 @@ dim(vessels_trips_and_notif_by_week)
 
 # same by notif weeks
 # vessels_trips_and_notif_by_week %>%
-#   filter(is.na(TRIP_END_week_num)) %>%
+#   dplyr::filter(is.na(TRIP_END_week_num)) %>%
 #   dim()
 # 0
 
@@ -1113,7 +1113,7 @@ dim(vessels__trips_22_l_sa_short_all_dates_t_start)
 # [1] 19461     5
 
 vessels__trips_22_l_sa_short_all_dates_t_start %>%
-  filter(is.na(permit_vessel_id))
+  dplyr::filter(is.na(permit_vessel_id))
 # A tibble: 10 × 5
 # ...
 # 4 NA 51 NA 2021
@@ -1140,7 +1140,7 @@ dim(vessels__trips_22_l_sa_short_all_dates_t_start_all_cols)
 # [1] 19451     7
 
 vessels__trips_22_l_sa_short_all_dates_t_start_all_cols %>%
-  filter(is.na(permit_vessel_id))
+  dplyr::filter(is.na(permit_vessel_id))
 # 0
 # data_overview(vessels__trips_22_l_sa_short_all_dates_all_cols)
 
@@ -1160,14 +1160,14 @@ dim(vessels__trip_notif_22_l_sa_short_all_dates_t_start)
 # [1] 232   5
 
 vessels__trip_notif_22_l_sa_short_all_dates_t_start %>%
-  filter(is.na(permit_vessel_id))
+  dplyr::filter(is.na(permit_vessel_id))
 # 11
 # ...
 # 5 NA 52 NA 2021
 # 6 NA  1 NA 2023
 
 # vessels__trip_notif_22_l_sa_short_all_dates_t_start %>%
-#   filter(TRIP_START_week_num == 47)
+#   dplyr::filter(TRIP_START_week_num == 47)
 
 ## join trip neg and dates ----
 by_start_t_neg = join_by(TRIP_DATE_y == YEAR,
@@ -1185,7 +1185,7 @@ dim(vessels__trip_neg_22_l_sa_short_all_dates_t_start)
 # [1] 65818     4
 
 vessels__trip_neg_22_l_sa_short_all_dates_t_start %>%
-  filter(is.na(permit_vessel_id))
+  dplyr::filter(is.na(permit_vessel_id))
 # 11
  # 5 NA NA 52 2021
  # 6 NA NA  1 2023
@@ -1255,7 +1255,7 @@ dim(vessels_permit_bind_u1_sa_w_p_short)
 
 ### an err ----
 # vessels_permit_bind_u1_sa_w_p_short %>%
-#    filter(!VESSEL_ID == VESSEL_ID.p) %>% View()
+#    dplyr::filter(!VESSEL_ID == VESSEL_ID.p) %>% View()
 # [1]  1 42
 #   VESSEL_ID.v VESSEL_ID TOP.sa PERMIT.sa EFFECTIVE_DATE.sa
 #         <dbl> <chr>     <chr>  <chr>     <dttm>
@@ -1305,17 +1305,17 @@ dim(vessels__trip_neg_22_l_sa_weeks_cnt_u)
 
 ### check ids ----
 vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
-  filter(!permit_vessel_id == SUPPLIER_VESSEL_ID) %>%
+  dplyr::filter(!permit_vessel_id == SUPPLIER_VESSEL_ID) %>%
   dim()
 # [1] 58  5
 
 vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
-  filter(!permit_vessel_id == SERO_OFFICIAL_NUMBER) %>%
+  dplyr::filter(!permit_vessel_id == SERO_OFFICIAL_NUMBER) %>%
   dim()
 # [1] 58  5
 
 vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
-  filter(!SUPPLIER_VESSEL_ID == SERO_OFFICIAL_NUMBER)
+  dplyr::filter(!SUPPLIER_VESSEL_ID == SERO_OFFICIAL_NUMBER)
 #   VESSEL_ID permit_vessel_id SUPPLIER_VESSEL_ID SERO_OFFICIAL_NUMBER
 # 1    383419 NC0676EK         1292480            NC0676EK
 # 2    390281 FL0416RM         FL0416RM           504660
@@ -1334,7 +1334,7 @@ vessels__trip_notif_22_l_sa_weeks_cnt_u <-
 
 # View(vessels__trip_notif_22_l_sa_weeks_cnt_u)
 vessels__trip_notif_22_l_sa_weeks_cnt_u %>%
-   filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
+   dplyr::filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
    dim()
 # [1] 0 6
 # ok
@@ -1350,7 +1350,7 @@ vessels__trips_22_l_sa_weeks_cnt_u <-
 
 # View(vessels__trips_22_l_sa_weeks_cnt_u)
 vessels__trips_22_l_sa_weeks_cnt_u %>%
-   filter(!distinct_start_weeks_t == distinct_end_weeks_t) %>%
+   dplyr::filter(!distinct_start_weeks_t == distinct_end_weeks_t) %>%
    dim()
 # 27
 
@@ -1420,7 +1420,7 @@ full_join(
 ### check, there should be no doubles? ----
 vessels__t_tne_sa_tne_in_t_short <-
   vessels__t_tne_sa %>%
-  filter(dplyr::between(TRIP_DATE, TRIP_START_DATE, TRIP_END_DATE)) %>%
+  dplyr::filter(dplyr::between(TRIP_DATE, TRIP_START_DATE, TRIP_END_DATE)) %>%
   select(TRIP_DATE,
          TRIP_START_DATE,
          TRIP_END_DATE,
@@ -1480,8 +1480,8 @@ toc()
 # vessels__t_tne_sa_tne_in_t_cnt unique: 322.19 sec elapsed
 
 vessels__t_tne_sa_tne_in_t_cnt_temp %>%
-  # filter(neg_in_t == "both_t__tne") %>%
-  filter(neg_in_t == "unknown") %>%
+  # dplyr::filter(neg_in_t == "both_t__tne") %>%
+  dplyr::filter(neg_in_t == "unknown") %>%
   # Rows: 5,095
   # tail() %>%
   View()
@@ -1493,12 +1493,12 @@ View(vessels__t_tne_sa_tne_in_t_cnt)
 # # vessels__t_tne_sa_tne_in_t_cnt distinct: 0.53 sec elapsed
 # # vessels__t_tne_sa_tne_in_t_cnt unique: 322.19 sec elapsed
 # vessels__t_tne_sa_tne_in_t_cnt_temp %>%
-#       filter(neg_in_t == "both_t__tne") %>%
+#       dplyr::filter(neg_in_t == "both_t__tne") %>%
 #     select(TRIP_week_num, TRIP_END_week_num) %>%
 #     distinct() %>%
 #   # Rows: 5,095
 #   # tail() %>%
-#   filter(!TRIP_week_num == TRIP_END_week_num) %>% dim()
+#   dplyr::filter(!TRIP_week_num == TRIP_END_week_num) %>% dim()
 # # 45
 #
 # # count total report number for trips + trip_neg ----
@@ -1631,13 +1631,13 @@ vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks <-
 
 v_p <-
   vessels_permit_bind_u1_sa_w_p_short_weeks |>
-  filter(!if_any(everything(), is.na))
+  dplyr::filter(!if_any(everything(), is.na))
 
 t <- vessels__trips_22_l_sa_weeks_cnt_u_weeks |>
-  filter(!if_any(everything(), is.na))
+  dplyr::filter(!if_any(everything(), is.na))
 
 tne <- vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks |>
-  filter(!if_any(everything(), is.na))
+  dplyr::filter(!if_any(everything(), is.na))
 
 dim(vessels__trip_neg_22_l_sa_weeks_cnt_u_weeks)
 # 1656
@@ -1745,7 +1745,7 @@ trip_neg_2022_w_y__v_ids <-
 
 trips_info_2022_int_ah_w_y__v_ids <-
   trips_info_2022_int_ah_w_y |>
-  filter(!is.na(SERO_VESSEL_PERMIT)) |>
+  dplyr::filter(!is.na(SERO_VESSEL_PERMIT)) |>
   select(VESSEL_ID) |>
   distinct()
 
@@ -1754,7 +1754,7 @@ dim(trips_info_2022_int_ah_w_y__v_ids)
 
 trips_info_2022_int_ah_w_y__v_ids_all <-
   trips_info_2022_int_ah_w_y |>
-  # filter(!is.na(SERO_VESSEL_PERMIT)) |>
+  # dplyr::filter(!is.na(SERO_VESSEL_PERMIT)) |>
   select(VESSEL_ID) |>
   distinct()
 
@@ -1988,18 +1988,18 @@ v_p_t_tne_dates_join <-
 # Joining with `by = join_by(permit_vessel_id, YEAR, WEEK_OF_YEAR)`
 View(v_p_t_tne_dates_join)
 
-v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |>
-  filter(is.na(TRIP_START_week_num) & is.na(TRIP_week_num))
+v_p_t_tne_dates_join |> dplyr::filter(permit_vessel_id == "1020057") |>
+  dplyr::filter(is.na(TRIP_START_week_num) & is.na(TRIP_week_num))
 # 0
 
-v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |>
-       filter(!is.na(TRIP_START_week_num) & !is.na(TRIP_week_num)) |>
+v_p_t_tne_dates_join |> dplyr::filter(permit_vessel_id == "1020057") |>
+       dplyr::filter(!is.na(TRIP_START_week_num) & !is.na(TRIP_week_num)) |>
   View()
 
 # check weeks and reports or dnfs (= t and tne)
 
-v_p_t_tne_dates_join |> filter(permit_vessel_id == "1020057") |>
-       filter(is.na(TRIP_START_week_num)) |>
+v_p_t_tne_dates_join |> dplyr::filter(permit_vessel_id == "1020057") |>
+       dplyr::filter(is.na(TRIP_START_week_num)) |>
   select(WEEK_OF_YEAR, YEAR) |>
   distinct() |>
   View()
@@ -2053,7 +2053,7 @@ print_df_names(v_p_t_tne_dates_join)
 # permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short <-
 #   permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p |> 
 #   dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, weeks_perm) |> 
-#   # filter()
+#   # dplyr::filter()
 #   dplyr::distinct()
 # 
 # data_overview(permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short)
@@ -2065,12 +2065,12 @@ print_df_names(v_p_t_tne_dates_join)
 # # weeks_perm         192
 # 
 # permit_info_r_l_overlap_join1_w_dual_22__list__sa_w_p_short |> 
-#   filter(weeks_perm > 53) |> 
+#   dplyr::filter(weeks_perm > 53) |> 
 #   distinct() |> 
 #   View()
 
 # permit_info_r_l_overlap_join1_w_dual_22__list$sa_only |> 
-#     filter(VESSEL_ID == 'FL7957JL') |> View()
+#     dplyr::filter(VESSEL_ID == 'FL7957JL') |> View()
 # SELECT j.*, weeks_perm
 # tic("v_p_t_tne_dates_join__p sql")
 # v_p_t_tne_dates_join__p_sql <-
@@ -2162,11 +2162,11 @@ View(v_p_t_tne_dates_join_week_cnts__p22)
 # v_p_t_tne_dates_join_week_cnts__p22: 0.44 sec elapsed
 
 v_p_t_tne_dates_join_week_cnts__p22 |> 
-   filter(weeks_perm_2022_amnt > total_WEEK_OF_YEAR) |> 
+   dplyr::filter(weeks_perm_2022_amnt > total_WEEK_OF_YEAR) |> 
    View()
 
 v_p_t_tne_dates_join_week_cnts__p22 |> 
-    filter(permit_vessel_id == '1020057') |> dim()
+    dplyr::filter(permit_vessel_id == '1020057') |> dim()
 # 104
 
 

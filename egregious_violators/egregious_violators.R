@@ -23,7 +23,7 @@ check_new_vessels <-
         "1246468",
         "FL7549EJ")
     my_df |>
-      filter(vessel_official_number %in% list_to_check) |>
+      dplyr::filter(vessel_official_number %in% list_to_check) |>
       select(vessel_official_number) |>
       distinct() |>
       dim() %>%
@@ -55,7 +55,7 @@ compl_clean_w_permit_exp_last_27w <-
   compl_clean_w_permit_exp |>
   mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last 28 weeks
-  filter(year_month >= as.yearmon(half_year_ago))
+  dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
 dim(compl_clean_w_permit_exp)
 # today()
@@ -82,7 +82,7 @@ check_new_vessels(compl_clean_w_permit_exp_last_27w)
 
 compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
-  filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+  dplyr::filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 today()
 # [1] "2023-08-01"
@@ -92,7 +92,7 @@ today()
 ## Not "compliant_" only ----
 compl_clean_sa_non_compl <-
   compl_clean_sa |>
-  filter(compliant_ == 'NO')
+  dplyr::filter(compliant_ == 'NO')
 
 check_new_vessels(compl_clean_sa_non_compl)
 # 4
@@ -120,7 +120,7 @@ compl_clean_sa_non_compl |>
 # vessel_official_number 1370
 # vessel_official_number 1328
 
-## filter for egregious ----
+## dplyr::filter for egregious ----
 ### check if there is no "compliant_ == YES" since half_year_ago ----
 
 last_week_start <- data_file_date - 6
@@ -131,7 +131,7 @@ compl_clean_sa |> check_new_vessels()
 compl_clean_sa_non_c_not_exp <-
   compl_clean_sa |>
   # not compliant
-  filter(tolower(compliant_) == "no") |>
+  dplyr::filter(tolower(compliant_) == "no") |>
   # in the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
@@ -159,9 +159,9 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
+  dplyr::filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
   # ...non compliant
-  filter(compl_weeks_amnt == total_weeks)
+  dplyr::filter(compl_weeks_amnt == total_weeks)
 
 dim(compl_clean_sa_all_weeks_non_c_short)
 
@@ -180,7 +180,7 @@ compl_clean_sa_non_c_not_exp |>
   # dim()
   # [1] 1045    4
   # all weeks were non compliant
-  # filter(compl_weeks_amnt == total_weeks) |>
+  # dplyr::filter(compl_weeks_amnt == total_weeks) |>
     glimpse()
 
 dim(compl_clean_sa_all_weeks_non_c_short)
@@ -225,18 +225,18 @@ dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
 
 # check these ids in the full compliance information
 compl_clean_sa |>
-  filter(
+  dplyr::filter(
     vessel_official_number %in% compl_clean_sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
   group_by(vessel_official_number) |>
-  filter(tolower(compliant_) == "yes" &
+  dplyr::filter(tolower(compliant_) == "yes" &
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
   # get only the latest compliant weeks
   mutate(latest_compl = max(week_num)) |>
-  filter(week_num == latest_compl) |> 
+  dplyr::filter(week_num == latest_compl) |> 
   ungroup() |> 
   select(
     # vessel_official_number,
@@ -254,7 +254,7 @@ compl_clean_sa |>
 ## ---- remove 999999 ----
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
-  filter(!grepl("^99999", vessel_official_number))
+  dplyr::filter(!grepl("^99999", vessel_official_number))
 
 data_overview(corresp_contact_cnts_clean) |>
   head(1)
@@ -275,7 +275,7 @@ two_attempts_filter <-
 
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
-  filter(!!two_attempts_filter)
+  dplyr::filter(!!two_attempts_filter)
 
 test_new_egr2 <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
@@ -295,7 +295,7 @@ data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |>
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 18163    23
 
-## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
+## ---- Combine compliance information with dplyr::filtered correspondence info by vesselofficialnumber ----
 
 corresp_contact_cnts_clean_direct_cnt_2atmps |>
   check_new_vessels()
@@ -380,7 +380,7 @@ dim(date__contacttype_per_id)
 # 107
 # 27: 177
 # 188   2
-# 105   2 (the new filter)
+# 105   2 (the new dplyr::filter)
 # 108
 # 97
 # [1] 116   2 (2 contact attempts)
@@ -470,7 +470,7 @@ vessels_permits_participants_short_u <-
 # View(vessels_permits_participants_short_u)
 
 # vessels_permits_participants_short_u |> 
-#   # filter(lengths(full_name) > 0) %>%
+#   # dplyr::filter(lengths(full_name) > 0) %>%
 #   # unnest(full_name) %>%
 #   # unnest_wider(full_name, names_sep = "_") |> 
 #   rowwise() |> 
@@ -728,7 +728,7 @@ dim(fhier_addr__compl_corr)
 ### check if the address or name missing from the db is in FHIER ----
 addr_name_in_fhier <-
   fhier_addr__compl_corr |>
-  filter((is.na(full_name) &
+  dplyr::filter((is.na(full_name) &
             !is.na(permit_holder_names)) |
            is.na(full_address) &
            !is.na(fhier_address))
@@ -739,7 +739,7 @@ dim(new_addr)
 ### check if the address or name is a "UN" in the db is in FHIER ----
 addr_name_in_fhier <-
   fhier_addr__compl_corr |>
-  filter((full_name == "UN" &
+  dplyr::filter((full_name == "UN" &
             !is.na(permit_holder_names)) |
            full_address == "UN" &
            !is.na(fhier_address))
@@ -749,7 +749,7 @@ dim(addr_name_in_fhier)
 
 addr_name_in_not_fhier <-
   fhier_addr__compl_corr |>
-  filter(((!is.na(full_name) | !full_name == "UN") &
+  dplyr::filter(((!is.na(full_name) | !full_name == "UN") &
             is.na(permit_holder_names)) |
            (!is.na(full_address) | !full_address == "UN") &
            is.na(fhier_address))
@@ -760,7 +760,7 @@ dim(addr_name_in_not_fhier)
 ### check if the address or name missing from the db is in FHIER ----
 addr_name_in_fhier <-
   fhier_addr__compl_corr |>
-  filter((is.na(full_name) &
+  dplyr::filter((is.na(full_name) &
             !is.na(permit_holder_names)) |
            is.na(full_address) &
            !is.na(fhier_address))
@@ -771,7 +771,7 @@ dim(new_addr)
 ### check if the address or name is a "UN" in the db is in FHIER ----
 addr_name_in_fhier <-
   fhier_addr__compl_corr |>
-  filter((full_name == "UN" &
+  dplyr::filter((full_name == "UN" &
             !is.na(permit_holder_names)) |
            full_address == "UN" &
            !is.na(fhier_address))
@@ -908,7 +908,7 @@ vessels_to_mark <-
 
 vessels_to_mark_ids <-
   vessels_to_mark |>
-  # filter(tolower(`Contacted 2x?`) == 'yes') |>
+  # dplyr::filter(tolower(`Contacted 2x?`) == 'yes') |>
   select(vessel_official_number)
 
 # mark these vessels
@@ -986,7 +986,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 #         compl_corr_to_investigation1_short_dup_marked$vessel_official_number) |>
 #   length()
 # 68
-# 35 (new filter)
+# 35 (new dplyr::filter)
 # 67
 # 71
 # in_the_new_res_only <-
@@ -1040,7 +1040,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 #### check no comments ----
 # no_comments_vsls <-
 #   compl_corr_to_investigation1_short_output_w_comments |>
-#   filter(is.na(
+#   dplyr::filter(is.na(
 #     `Confirmed Egregious? (missing past 6 months, 2 contacts with at least 1 call)`
 #   ))
 # # |>
@@ -1059,10 +1059,10 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # 62
 
 # no_comments_vsls_ids |>
-#   filter(vessel_official_number == '1305207') |> dim()
+#   dplyr::filter(vessel_official_number == '1305207') |> dim()
 # 1
 # compl_corr_to_investigation1_short_output_w_comments |>
-#   filter(vessel_official_number == '1305207') |> dim()
+#   dplyr::filter(vessel_official_number == '1305207') |> dim()
 # [1]  1 21
 
 # setdiff(no_comments_vsls_ids$vessel_official_number, in_the_new_res_only_df) |>
@@ -1135,11 +1135,11 @@ no_addr_vessl <-
     "NC2851DH")
 
 res1 |> 
-  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dplyr::filter(vessel_official_number %in% no_addr_vessl) |> 
   dim()
 
 fhier_addr_short |> 
-  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dplyr::filter(vessel_official_number %in% no_addr_vessl) |> 
   dim()
 # 0
 
@@ -1172,8 +1172,8 @@ no_addr1 <-
     "NC9819DF")
 
 fhier_addr_short |>
-  # filter(vessel_official_number == "1308401") |>
-  filter(vessel_official_number %in% no_addr1) |>
+  # dplyr::filter(vessel_official_number == "1308401") |>
+  dplyr::filter(vessel_official_number %in% no_addr1) |>
   select(vessel_official_number,
          permit_holder_names, fhier_address) |>
   write_csv("fhier_addr_short.csv")

@@ -34,9 +34,9 @@
 # 4 = Ocean > 10 mi (WFL only)
 # 5 = Inland"	CHAR
 
-# Use DS column to filter out SRHS (headboat)
+# Use DS column to dplyr::filter out SRHS (headboat)
 
-# Use "new mode" column to filter out private and shore modes (private = rec;
+# Use "new mode" column to dplyr::filter out private and shore modes (private = rec;
 #            shore mode = private rec fishing from shore)
 # new_mode = recorded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
 
@@ -331,7 +331,7 @@ fhier_logbooks_content_date_fixed <-
 
 ### keep only 2022 ---- note: year() is a fxn from package "tidyverse"
 fhier_logbooks_content_date_fixed %<>%
-  filter(year(trip_end_date) == "2022")
+  dplyr::filter(year(trip_end_date) == "2022")
 
 ## add waves column to FHIER DF----
 fhier_logbooks_content_waves <-
@@ -417,7 +417,7 @@ fhier_logbooks_content_waves_fl_county <-
 ## test: check Florida regions ----
 fhier_logbooks_content_waves_fl_county %>%
   # get FL only
-  filter(end_port_state == "FL") %>%
+  dplyr::filter(end_port_state == "FL") %>%
   # sort by county
   arrange(end_port_county) %>%
   distinct() %>%
@@ -455,7 +455,7 @@ sa_state_abb <-
   # a table from above
   state_tbl %>%
   # get only these in our list
-  filter(state_name %in% tolower(states_sa$state_name)) %>%
+  dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
   select(state_abb)
 
@@ -503,7 +503,7 @@ fhier_logbooks_content_waves__sa_gom_dolph <-
 
 ### test: dolphins to ensure they now have the same common name in new "common_name" col----
 fhier_logbooks_content_waves__sa_gom_dolph %>%
-  filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
+  dplyr::filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
   select(common_name_orig, common_name) %>% unique()
 # ---
 
@@ -541,7 +541,7 @@ fhier_catch_by_species_state_region_waves <-
 ### test: cnts for 1 sp. ----
 test_species_itis <-
   fhier_logbooks_content %>%
-  filter(tolower(common_name) == "mackerel, spanish") %>%
+  dplyr::filter(tolower(common_name) == "mackerel, spanish") %>%
   select(catch_species_itis) %>%
   unique() %>%
   # get a string, not a df
@@ -551,7 +551,7 @@ test_species_itis <-
 fhier_test_cnts <-
   fhier_catch_by_species_state_region_waves %>%
   # get the same species
-  filter(catch_species_itis == test_species_itis) %>%
+  dplyr::filter(catch_species_itis == test_species_itis) %>%
   # group by region
   group_by(catch_species_itis, end_port_sa_gom) %>%
   # sum the FHIER catch
@@ -571,22 +571,22 @@ acl_estimate %<>%
 
 # str(acl_estimate)
 
-### filtering ----
+### dplyr::filtering ----
 acl_estimate_2022 <-
   acl_estimate %>%
-  filter(year == "2022") %>%
-  # filtering here for just SA (6) and Gulf (7) sub regions
-  filter(sub_reg %in% c(6, 7)) %>%
+  dplyr::filter(year == "2022") %>%
+  # dplyr::filtering here for just SA (6) and Gulf (7) sub regions
+  dplyr::filter(sub_reg %in% c(6, 7)) %>%
   # Exclude the SRHS survey according to Dominique and Mike May 1, 2023
-  filter(!(ds == "SRHS")) %>%
+  dplyr::filter(!(ds == "SRHS")) %>%
   # select(new_mode) %>% unique()
   # the "new_mode" column only has options 1,3 & 4 remaining
   # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
   # new_moden		alpha description of ‘new_mode’
-  filter(new_mode %in% c(2, 3, 5))
+  dplyr::filter(new_mode %in% c(2, 3, 5))
 
-#just for checking we actually filtered the raw data
+#just for checking we actually dplyr::filtered the raw data
   # View(acl_estimate)
   dim(acl_estimate)
   # [1] 347379 67
@@ -634,7 +634,7 @@ acl_estimate_catch_by_species_state_region_waves <-
 acl_test_cnts <-
   acl_estimate_catch_by_species_state_region_waves %>%
   # get one species
-  filter(itis_code == test_species_itis) %>%
+  dplyr::filter(itis_code == test_species_itis) %>%
   # group by region
   group_by(itis_code, sa_gom) %>%
   # sum the ACL catch
@@ -730,7 +730,7 @@ fhier_acl_catch_by_species_state_region_waves %<>%
 ### test join ----
 # look at the first 20 entries for mackerel spanish
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(species_itis == test_species_itis) %>% head(20)
+  dplyr::filter(species_itis == test_species_itis) %>% head(20)
 
 ### test one sp in MRIP ----
 
@@ -738,14 +738,14 @@ fhier_acl_catch_by_species_state_region_waves %>%
 #### compare the saved numbers with those in the join, they should be the same ----
 
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(species_itis == test_species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis, sa_gom) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(fhier_test_cnts$mackerel_fhier_cnt)  #[1] TRUE
 
 fhier_acl_catch_by_species_state_region_waves %>%
-  filter(species_itis == test_species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis, sa_gom) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_acl_cnt) %>%

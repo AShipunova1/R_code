@@ -15,7 +15,7 @@ sa_top <- c(
 
 sa_top_spp <-
   fhier_common_names %>%
-  filter(common_name %in% sa_top)
+  dplyr::filter(common_name %in% sa_top)
 
 gom_top <- c(
   "AMBERJACK, GREATER",
@@ -33,7 +33,7 @@ gom_top <- c(
 
 gom_top_spp <-
   fhier_common_names %>%
-  filter(common_name %in% gom_top)
+  dplyr::filter(common_name %in% gom_top)
 
 glimpse(gom_top_spp)
 
@@ -64,7 +64,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list)
 ### GOM Top 12 ACL spp. ----
 gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
-  filter(sa_gom == "gom") %>%
+  dplyr::filter(sa_gom == "gom") %>%
   select(species_itis, acl_estimate_catch_by_4) %>%
   group_by(species_itis) %>%
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
@@ -75,12 +75,12 @@ gom_acl_top_spp <-
 gom_acl_top_common_names <-
   fhier_common_names %>%
   # keep the subset only
-  filter(species_itis %in% gom_acl_top_spp$species_itis)
+  dplyr::filter(species_itis %in% gom_acl_top_spp$species_itis)
 
 ### SA Top 10 ACL spp. ----
 sa_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
-  filter(sa_gom == "sa") %>%
+  dplyr::filter(sa_gom == "sa") %>%
   select(species_itis, acl_estimate_catch_by_4) %>%
   group_by(species_itis) %>%
   # sum the counts by species
@@ -93,7 +93,7 @@ sa_acl_top_spp <-
 sa_acl_top_common_names <-
   fhier_common_names %>%
   # keep the subset only
-  filter(species_itis %in% sa_acl_top_spp$species_itis)
+  dplyr::filter(species_itis %in% sa_acl_top_spp$species_itis)
 
 # 2) Data By wave and state ----
 # str(fhier_catch_by_species_state_region_waves)
@@ -139,7 +139,7 @@ fhier_acl_catch_by_species_region_year_list <-
 
 # test 167760 GROUPER, BLACK ----
 fhier_acl_catch_by_species_region_year_list$sa %>%
-  filter(species_itis == '167760') %>%
+  dplyr::filter(species_itis == '167760') %>%
   glimpse()
 # gom
 # fhier_cnts_by_year   <int> 2016
@@ -149,7 +149,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 # rec_acl_cnts_by_year <int> 262
 
 acl_estimate_2022 %>%
-  filter(itis_code == '167760') %>%
+  dplyr::filter(itis_code == '167760') %>%
   group_by(itis_code, new_moden, year, sub_reg) %>%
   summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
 # 2070

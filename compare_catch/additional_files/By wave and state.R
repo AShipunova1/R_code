@@ -8,7 +8,7 @@ fhier_acl_catch_by_species_state_region_waves_states_list_acl_top_spp_sa_gom <-
           map(function(current_df) {
             current_df %>%
               
-              filter(if (current_sa_gom == "gom") {
+              dplyr::filter(if (current_sa_gom == "gom") {
                 scientific_name %in% gom_acl_top_spp$scientific_name
               }
               else if (current_sa_gom == "sa") {

@@ -10,7 +10,7 @@ fhier_catch_by_species_state_region_waves_common_names <-
              by = join_by(species_itis))
 
 # fhier_catch_by_species_state_region_waves_common_names %>%
-#   filter(common_name == "CROAKER, ATLANTIC")
+#   dplyr::filter(common_name == "CROAKER, ATLANTIC")
 
 create_30_top_df <- function(mydf, count_field_name) {
   mydf %>%
@@ -153,7 +153,7 @@ mrip_and_fhier_w_names <-
 ## ---- data overview ----
 # MRIP numbers are much bigger
 mrip_and_fhier_w_names %>%
-  filter(mrip_estimate_catch_by_species > 1000) %>% dim()
+  dplyr::filter(mrip_estimate_catch_by_species > 1000) %>% dim()
 # 100000: 125
 # 10000 : 182
 # 1000  : 221
@@ -161,7 +161,7 @@ mrip_and_fhier_w_names %>%
 
 # Only few FHIER species have counts > 100000
 mrip_and_fhier_w_names %>%
-  filter(fhier_quantity_by_species > 1000) %>% dim()
+  dplyr::filter(fhier_quantity_by_species > 1000) %>% dim()
 # 100000: 10
 # 10000 : 35
 # 1000  : 97
@@ -180,7 +180,7 @@ data_overview(mrip_and_fhier)
 
 # look at common names for the biggest catch
 mrip_and_fhier_w_names %>%
-  filter(fhier_quantity_by_species > 100000) %>%
+  dplyr::filter(fhier_quantity_by_species > 100000) %>%
   select(common_name,
          # COMMON_NAME.y,
          fhier_quantity_by_species,
@@ -192,8 +192,8 @@ mrip_and_fhier %>%
   rename("fhier_cnt" = "fhier_quantity_by_species",
          "mrip_cnt" = "mrip_estimate_catch_by_species") %>%
   select(-species_itis) %>%
-  # filter(mrip_cnt < 10000000) %>%
-  filter(mrip_cnt < 20000) %>%
+  # dplyr::filter(mrip_cnt < 10000000) %>%
+  dplyr::filter(mrip_cnt < 20000) %>%
   boxplot()
 
 ## ---- plot catch by species (3) ----
@@ -866,7 +866,7 @@ plot_vy_spp <- function(com_name, no_legend = TRUE) {
   
   one_plot <-
     fhier_mrip_gom_to_plot %>%
-    filter(common_name.x == !!com_name) %>%
+    dplyr::filter(common_name.x == !!com_name) %>%
     ggplot(aes(x = year_wave,
                y = CATCH_CNT,
                fill = AGENCY)) +

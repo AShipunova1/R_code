@@ -8,7 +8,7 @@ source("~/R_code_github/compare_catch/auxiliary/get_data.R")
 
 logbooks_content_sero <-
   logbooks_content %>%
-  filter(!is.na(sero_vessel_permit))
+  dplyr::filter(!is.na(sero_vessel_permit))
 # dim(logbooks_content)
 # 346022
 # dim(logbooks_content_sero)
@@ -68,7 +68,7 @@ fhier_logbooks_content_date_fixed <-
 
 fhier_logbooks_content_date_fixed_2022 <-
   fhier_logbooks_content_date_fixed %>%
-  filter(year(trip_end_date) == "2022")
+  dplyr::filter(year(trip_end_date) == "2022")
 
 fhier_logbooks_content_waves <-
   fhier_logbooks_content_date_fixed_2022 %>%
@@ -151,7 +151,7 @@ fhier_logbooks_content_waves_fl_county <-
 ## test: check regions ----
 fhier_logbooks_content_waves_fl_county %>%
   # get FL only
-  filter(end_port_state == "FL") %>%
+  dplyr::filter(end_port_state == "FL") %>%
   # sort by county
   arrange(end_port_county) %>%
   distinct() %>%
@@ -167,7 +167,7 @@ fhier_logbooks_content_waves_fl_county %>%
 #           gom NOT-SPECIFIED            sa 
 #        201703           112         30152 
   # what else is in the new column beside sa and gom
-  # filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
+  # dplyr::filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
 
 # NOT-SPECIFIED
 
@@ -195,7 +195,7 @@ sa_state_abb <-
   # a default R table
   state_tbl %>%
   # get only these in our list
-  filter(state_name %in% tolower(states_sa$state_name)) %>%
+  dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
   select(state_abb)
 
@@ -265,7 +265,7 @@ full_join(fhier_logbooks_content_waves__sa_gom,
 
 # check if sci name is a NA
 fhier_catch_by_species_state_region_waves_w_spp %>%
-  filter(is.na(scientific_name)) %>%
+  dplyr::filter(is.na(scientific_name)) %>%
   select(species_itis, common_name, reported_quantity) %>% 
   group_by(species_itis, common_name) %>% 
   summarise(sum_cnt = sum(reported_quantity)) %>%
@@ -290,7 +290,7 @@ grep("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, val
 
 # 3 in FHIER
 fhier_catch_by_species_state_region_waves_w_spp %>%
-  filter(grepl("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
+  dplyr::filter(grepl("DOLPHIN", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
   select(common_name, species_itis, scientific_name) %>%
   unique()
 #   common_name      species_itis scientific_name     
@@ -303,7 +303,7 @@ grep("CORYPHAENA", acl_estimate$new_sci, value = T, ignore.case = T) %>%
   unique()
 # [1] "Coryphaena hippurus"
 acl_estimate %>%
-  filter(grepl("CORYPHAENA", acl_estimate$new_sci, ignore.case = T)) %>%
+  dplyr::filter(grepl("CORYPHAENA", acl_estimate$new_sci, ignore.case = T)) %>%
   select(new_sci, new_com, itis_code) %>%
   unique()
 #   new_sci             new_com itis_code
@@ -341,8 +341,8 @@ fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name <-
 
 ### test: dolphins to ensure they now have the same common name in new "common_name" col----
 fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name %>%
-  # filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
-  filter(startsWith(tolower(common_name_orig), "dolphin")) %>%
+  # dplyr::filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
+  dplyr::filter(startsWith(tolower(common_name_orig), "dolphin")) %>%
   select(species_itis, common_name_orig, common_name, scientific_name) %>% unique()
 
 # remove orig columns
@@ -357,7 +357,7 @@ fhier_catch_by_species_state_region_waves_w_spp_dolph_com_name %>%
 ### add sci name for FLOUNDERS, PARALICHTHYS for FHIER data ----
 
 fhier_catch_by_species_state_region_waves_w_spp %>%
-  filter(grepl("FLOUNDERS", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
+  dplyr::filter(grepl("FLOUNDERS", fhier_catch_by_species_state_region_waves_w_spp$common_name, ignore.case = T)) %>%
   select(common_name, species_itis, scientific_name) %>%
   unique()
 #   common_name             species_itis scientific_name
@@ -373,7 +373,7 @@ fhier_logbooks_content_waves__sa_gom_fla <-
 
 #### test: FLOUNDERS ----
 fhier_logbooks_content_waves__sa_gom_fla %>%
-  filter(grepl("FLOUNDERS", fhier_logbooks_content_waves__sa_gom_fla$common_name, ignore.case = T)) %>%
+  dplyr::filter(grepl("FLOUNDERS", fhier_logbooks_content_waves__sa_gom_fla$common_name, ignore.case = T)) %>%
   select(common_name, species_itis, scientific_name) %>%
   unique()
 #   common_name             species_itis scientific_name
@@ -417,8 +417,8 @@ fhier_catch_by_species_state_region_waves <-
 ### test: cnts for 1 sp. ----
 test_species_name <-
   fhier_catch_by_species_state_region_waves %>%
-  # filter(tolower(common_name) == "mackerel, spanish") %>%
-  filter(tolower(scientific_name) == "scomberomorus maculatus") %>%
+  # dplyr::filter(tolower(common_name) == "mackerel, spanish") %>%
+  dplyr::filter(tolower(scientific_name) == "scomberomorus maculatus") %>%
   select(scientific_name) %>%
   unique() %>%
   # get a string, not a df
@@ -427,7 +427,7 @@ test_species_name <-
 fhier_test_cnts <-
   fhier_catch_by_species_state_region_waves %>%
   # get the same species
-  filter(scientific_name == test_species_name) %>%
+  dplyr::filter(scientific_name == test_species_name) %>%
   # group by region
   group_by(scientific_name, end_port_sa_gom) %>%
   # sum the FHIER catch
@@ -446,20 +446,20 @@ acl_estimate %<>%
 
 # str(acl_estimate)
 
-### MRIP data filtering ----
+### MRIP data dplyr::filtering ----
 acl_estimate_2022 <-
   acl_estimate %>%
-  filter(year == "2022") %>%
-  # filtering here for just SA (6) and Gulf (7) sub regions
-  filter(sub_reg %in% c(6, 7)) %>%
+  dplyr::filter(year == "2022") %>%
+  # dplyr::filtering here for just SA (6) and Gulf (7) sub regions
+  dplyr::filter(sub_reg %in% c(6, 7)) %>%
   # Exclude the SRHS survey according to Dominique and Mike May 1
-  filter(!(ds == "SRHS")) %>%
+  dplyr::filter(!(ds == "SRHS")) %>%
   # select(new_mode) %>% unique()
   # the "new_mode" column only has options 1,3 & 4 remaining
   # -	New variable ‘agg_moden’ divides all estimates into for-hire (cbt, hbt, or cbt/hbt) or private (private or shore) mode fishing
   # new_mode	recoded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
   # new_moden		alpha description of ‘new_mode’
-  filter(new_mode %in% c(2, 3, 5))
+  dplyr::filter(new_mode %in% c(2, 3, 5))
 
 # View(acl_estimate)
 dim(acl_estimate)
@@ -485,7 +485,7 @@ acl_estimate_2022 %<>%
 #### check FL sa_gom ----
 acl_estimate_2022 %>%
   select(new_sta, sub_reg, fl_reg) %>% unique() %>%
-  filter(new_sta %in% c("FLE", "FLW"))
+  dplyr::filter(new_sta %in% c("FLE", "FLW"))
 #   new_sta sub_reg fl_reg
 # 1 FLE     6       5     
 # 2 FLE     6       4     
@@ -558,7 +558,7 @@ acl_estimate_catch_by_species_state_region_waves <-
 acl_test_cnts <-
   acl_estimate_catch_by_species_state_region_waves %>%
   # get one species
-  filter(tolower(new_sci) == "scomberomorus maculatus") %>%
+  dplyr::filter(tolower(new_sci) == "scomberomorus maculatus") %>%
   # group by region
   group_by(new_sci, sa_gom) %>%
   # sum the ACL catch

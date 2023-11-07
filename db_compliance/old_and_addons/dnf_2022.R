@@ -6,7 +6,7 @@
 View(vessels_permits_2022_r)
 v_p_tne <-
   vessels_permits_2022_r |>
-  filter(!permit_sa_gom == "sa_only") |>
+  dplyr::filter(!permit_sa_gom == "sa_only") |>
   # dim()
   # 9776
   inner_join(trip_neg_2022_w_y,
@@ -33,21 +33,21 @@ vessels__trip_neg_22 <-
 View(vessels__trip_neg_22)
 
 vessels__trip_neg_22 |>
-  filter(PERMIT_GROUP == 7) |>
+  dplyr::filter(PERMIT_GROUP == 7) |>
   select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   distinct() |>
   dim()
 # [1] 1975    2 vessels
 
 vessels__trip_neg_22 |>
-  filter(PERMIT_GROUP == 7) |>
+  dplyr::filter(PERMIT_GROUP == 7) |>
   select(TRIP_ID) |>
   distinct() |>
   dim()
 # 410054      
 
 vessels__trip_neg_22 |>
-  filter(PERMIT_GROUP == 7) |>
+  dplyr::filter(PERMIT_GROUP == 7) |>
   select(TRIP_ID, permit_sa_gom) |>
   distinct() |>
   count(permit_sa_gom)
@@ -67,14 +67,14 @@ v_p_tne__dual <-
 print_df_names(v_p_tne__dual)
 
 v_p_tne__dual |>
-  # filter(PERMIT_GROUP == 7) |>
+  # dplyr::filter(PERMIT_GROUP == 7) |>
   select(TRIP_ID) |>
   distinct() |>
   dim()
 # [1] 410943      1
 
 v_p_tne__dual |>
-  # filter(PERMIT_GROUP == 7) |>
+  # dplyr::filter(PERMIT_GROUP == 7) |>
   select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   distinct() |>
   dim()
@@ -103,11 +103,11 @@ v_p_tne__dual |>
 # VA2668BK
 
 v_p_tne__dual |> 
-  filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
+  dplyr::filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
   View()
 
 v_p_tne |> 
-  filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
+  dplyr::filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
   View()
 
 check_j_ids_f_name <- r"(~\R_files_local\jennys_code\output\GOMvesselsDNFreports.xlsx)"
@@ -146,7 +146,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
 #     head(x, n = 1) |> 
 #       glimpse()
 #     # x %>%
-#   # filter(unique_all_vessel_ids %>%
+#   # dplyr::filter(unique_all_vessel_ids %>%
 #   #          map(str_detect, y) %>%
 #   #          map_lgl(any))
 #   #   ! `pattern` must be a string, not a list.
@@ -157,7 +157,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
 # map(y, function() {unique_all_vessel_ids })
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
   head() |> 
-  filter(unique_all_vessel_ids %>%
+  dplyr::filter(unique_all_vessel_ids %>%
            purrr::pmap(check_j_ids)
            # purrr::pmap(str_detect, "Lannister|Stark") 
          # %>%
@@ -194,7 +194,7 @@ my_f <- function(x, y) {
   # x$unique_all_vessel_ids)
   
   # x %>%
-  # filter(unique_all_vessel_ids %>%
+  # dplyr::filter(unique_all_vessel_ids %>%
   #          map(str_detect, y) %>%
   #          map_lgl(any))
   #   ! `pattern` must be a string, not a list.
@@ -671,7 +671,7 @@ all_cnts_from_v__tne_query_btw <-
 
 str(all_cnts_from_v__tne_query_btw)
 all_cnts_from_v__tne_query_btw |> 
-  filter(SERO_OFFICIAL_NUMBER == 'FL0094NN')
+  dplyr::filter(SERO_OFFICIAL_NUMBER == 'FL0094NN')
 
 sum(all_cnts_from_v__tne_query_btw$TOTAL_TRIP_IDS)
 # 45710
@@ -688,7 +688,7 @@ all_cnts_from_v__tne_query_btw |>
 
 # detailed_report from FHIER ----
 fhier_cnts_file <-
-  r"(~\R_files_local\jennys_code\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source).xlsx)"
+  r"(~\R_files_local\jennys_code\Detail Report - via Valid and Renewable Permits dplyr::filter (SERO_NEW Source).xlsx)"
 
 file.exists(fhier_cnts_file)
 # T
@@ -706,7 +706,7 @@ glimpse(fhier_cnts)
 
 fhier_cnts_g_d <-
   fhier_cnts |> 
-  filter(gom_permits_ == "Y")
+  dplyr::filter(gom_permits_ == "Y")
 
 data_overview(fhier_cnts_g_d)
 # vessel_official_number                        1327
@@ -733,7 +733,7 @@ fhier_cnts_g_d_short <-
 # [1] 1327    9
 fhier_cnts_g_d_short_not_exp <-
   fhier_cnts_g_d_short |> 
-  filter(end_date <= as.Date('2022-12-31'))
+  dplyr::filter(end_date <= as.Date('2022-12-31'))
 dim(fhier_cnts_g_d_short_not_exp)
 # 277
 

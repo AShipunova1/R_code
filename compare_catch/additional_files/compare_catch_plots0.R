@@ -36,7 +36,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
  one_plot <-
   my_df %>%
     # only get the com name from the parameters
-    filter(common_name == !!com_name) %>%
+    dplyr::filter(common_name == !!com_name) %>%
   ggplot(
          aes(x = wave,
              y = CATCH_CNT,
@@ -80,13 +80,13 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
 #### GOM fhier test ----
 # names(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis == test_species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
-              filter(sa_gom == "gom") %>%
+              dplyr::filter(sa_gom == "gom") %>%
               select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
@@ -94,13 +94,13 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 #### SA sa_acl test ----
 
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis == test_species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
       use_series(mackerel_acl_cnt) %>%
   identical(
     acl_test_cnts %>%
-              filter(sa_gom == "sa") %>%
+              dplyr::filter(sa_gom == "sa") %>%
               select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
@@ -108,9 +108,9 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 ## keep only entries for spp. in the top ten list, separately for each region ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis %in% gom_top_spp$species_itis)
+  dplyr::filter(species_itis %in% gom_top_spp$species_itis)
 # 231  
-# filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
+# dplyr::filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
 # Rows: 217
 # str(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 # ?'data.frame':	196 obs. of  6 variables
@@ -118,7 +118,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis %in% sa_top_spp$species_itis) %>%
+  dplyr::filter(species_itis %in% sa_top_spp$species_itis) %>%
   mutate()
   
 glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
@@ -137,14 +137,14 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 
 #### test SA, FHIER counts ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-  filter(species_itis == test_species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
-              filter(sa_gom == "sa") %>%
+              dplyr::filter(sa_gom == "sa") %>%
               select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
@@ -152,42 +152,42 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
 # GOM, FHIER counts
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == test_species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
-              filter(sa_gom == "gom") %>%
+              dplyr::filter(sa_gom == "gom") %>%
               select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
 # SA, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-  filter(species_itis == test_species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
   identical(
     acl_test_cnts %>%
-              filter(sa_gom == "sa") %>%
+              dplyr::filter(sa_gom == "sa") %>%
               select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
 # GOM, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == test_species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
   group_by(species_itis) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
     select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>%
   identical(
     acl_test_cnts %>%
-              filter(sa_gom == "gom") %>%
+              dplyr::filter(sa_gom == "gom") %>%
               select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
@@ -332,7 +332,7 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   # browser()
   one_ind_plot <-
     my_df %>%
-    filter(common_name == com_n) %>%
+    dplyr::filter(common_name == com_n) %>%
     ggplot(aes(x = wave,
                y = cnt_index,
                fill = as.factor(cnt_index)
@@ -560,7 +560,7 @@ plots_acl_top_gom <- map(unique(gom_acl_top_to_plot_longer$common_name),
 
 # plots_acl_top_gom[[2]]
 # both_by_to_acl %>%
-#   filter(common_name == 'RUNNER, BLUE' &
+#   dplyr::filter(common_name == 'RUNNER, BLUE' &
 #            wave == 1)
 
 # Title for all plots together
@@ -596,10 +596,10 @@ sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 # test the longer format transformation ----
 # View(sa_acl_top_to_plot)
 # sa_acl_top_to_plot %>% 
-#   filter(species_itis == '173138') %>%
+#   dplyr::filter(species_itis == '173138') %>%
 # count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
 # # 41469 
-# filter(sa_acl_top_spp, species_itis == '173138')
+# dplyr::filter(sa_acl_top_spp, species_itis == '173138')
 # # 41469 
 
 

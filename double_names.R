@@ -44,7 +44,7 @@ safis_clean <-
 
 double_names_pairs <-
   safis_clean %>%
-  filter(coastguard != statereg) %>%
+  dplyr::filter(coastguard != statereg) %>%
   select(coastguard, statereg) %>%
   unique()
 # dim(double_names_pairs)
@@ -60,21 +60,21 @@ compl_clean <- temp_var[[1]]
 corresp_clean <- temp_var[[2]]
 
 used_doube_pairs <- double_names_pairs %>%
-  filter(coastguard %in% compl_clean$vesselofficialnumber &
+  dplyr::filter(coastguard %in% compl_clean$vesselofficialnumber &
            statereg != "-")
 # 97
 
 used_doube_pairs <- double_names_pairs %>%
-  filter(statereg %in% compl_clean$vesselofficialnumber &
+  dplyr::filter(statereg %in% compl_clean$vesselofficialnumber &
            coastguard != "-") %>% add_row(used_doube_pairs)
 # 103
 
 used_doube_pairs <- double_names_pairs %>%
-  filter(coastguard %in% corresp_clean$vesselofficialnumber &
+  dplyr::filter(coastguard %in% corresp_clean$vesselofficialnumber &
            statereg != "-") %>% add_row(used_doube_pairs)
 # 185
 used_doube_pairs <- double_names_pairs %>%
-  filter(statereg %in% corresp_clean$vesselofficialnumber &
+  dplyr::filter(statereg %in% corresp_clean$vesselofficialnumber &
            coastguard != "-") %>% add_row(used_doube_pairs)
 # 205
 
@@ -99,14 +99,14 @@ for (i in 1:nrow(used_double_pairs_u)) {
   
   # look up in correspondence
   in_corr <- corresp_clean %>%
-    filter(grepl(pair, vesselofficialnumber)) %>%
+    dplyr::filter(grepl(pair, vesselofficialnumber)) %>%
     select(vesselofficialnumber) %>%
     # select(vesselofficialnumber, contact_freq) %>%
     unique()
   
   # look up in compliance
   in_compl <- compl_clean %>%
-    filter(grepl(pair, vesselofficialnumber)) %>%
+    dplyr::filter(grepl(pair, vesselofficialnumber)) %>%
     select(vesselofficialnumber) %>%
     unique()
   

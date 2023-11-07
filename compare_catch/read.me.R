@@ -22,7 +22,7 @@
 # new_mode	2=headboat, 3=charterboat, 5=charter/headboat
 # new_moden		alpha description of ‘new_mode’
 # surveys ?
-# filter(!(ds == "SRHS"))
+# dplyr::filter(!(ds == "SRHS"))
 # change NAs to 0
 
 ## 1) FHIER data FHIER / Reports / Species Count by Disposition

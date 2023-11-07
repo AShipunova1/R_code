@@ -82,7 +82,7 @@ res_df <- t(res_df) |>
 # names(res_df) <- c("func_name", "is_in_code")
 
 res_df |>
-  filter(!vals == "") |>
+  dplyr::filter(!vals == "") |>
   glimpse()
 # Rows: 52
 # Columns: 3
@@ -91,4 +91,4 @@ res_df |>
 # $ cnt       <chr> "5", "4", "4", "3", "3", "4", "1", "2", "4", "12", "3", "2", "2", "3"…
 
 res_df |>
-  filter(cnt == "1")
+  dplyr::filter(cnt == "1")

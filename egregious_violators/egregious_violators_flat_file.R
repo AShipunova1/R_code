@@ -418,7 +418,7 @@ read_csv_w_eofs <- function(my_paths, csv_names_list) {
     return()
 }
 
-# To use as a filter in FHIER
+# To use as a dplyr::filter in FHIER
 cat_filter_for_fhier <- function(my_characters) {
   cat(my_characters,
       sep = ', ',
@@ -771,7 +771,7 @@ compl_clean_w_permit_exp_last_27w <-
   # convert
   dplyr::mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last 28 weeks
-  filter(year_month >= as.yearmon(half_year_ago))
+  dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
 dim(compl_clean_w_permit_exp)
 
@@ -781,12 +781,12 @@ dim(compl_clean_w_permit_exp_last_27w)
 ## Have only SA permits, exclude those with Gulf permits ----
 compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
-  filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+  dplyr::filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 ## Not "compliant_" only ----
 compl_clean_sa_non_compl <-
   compl_clean_sa |>
-  filter(compliant_ == 'NO')
+  dplyr::filter(compliant_ == 'NO')
 
 dim(compl_clean_sa_non_compl)
 # [1] 12454    23
@@ -795,7 +795,7 @@ compl_clean_sa_non_compl |>
   count_uniq_by_column() |> head(1)
 # vessel_official_number 1328
 
-## filter for egregious ----
+## dplyr::filter for egregious ----
 ### check if there is no "compliant_ == YES" since half_year_ago ----
 
 last_week_start <- data_file_date - 6
@@ -803,7 +803,7 @@ last_week_start <- data_file_date - 6
 compl_clean_sa_non_c_not_exp <-
   compl_clean_sa |>
   # not compliant
-  filter(tolower(compliant_) == "no") |>
+  dplyr::filter(tolower(compliant_) == "no") |>
   # in the last 27 week
   dplyr::filter(week_start >= half_year_ago) |>
   # before the last week (a report's grace period)
@@ -828,9 +828,9 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - grace_period_weeks)) |>
+  dplyr::filter(total_weeks >= (number_of_weeks_for_non_compliancy - grace_period_weeks)) |>
   # ...non compliant
-  filter(compl_weeks_amnt == total_weeks)
+  dplyr::filter(compl_weeks_amnt == total_weeks)
 
 dim(compl_clean_sa_all_weeks_non_c_short)
 # [1] 128   4
@@ -868,19 +868,19 @@ dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
 
 # the info from the full compliance info for theses ids, not only not-compliant
 compl_clean_sa |>
-  filter(
+  dplyr::filter(
     vessel_official_number %in% compl_clean_sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
   # for each vessel
   group_by(vessel_official_number) |>
-  filter(tolower(compliant_) == "yes" &
+  dplyr::filter(tolower(compliant_) == "yes" &
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
   # get only the latest compliant weeks
   dplyr::mutate(latest_compl = max(week_num)) |>
-  filter(week_num == latest_compl) |>
+  dplyr::filter(week_num == latest_compl) |>
   ungroup() |>
   select(
     # vessel_official_number,
@@ -898,7 +898,7 @@ compl_clean_sa |>
 ## remove 999999 ----
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
-  filter(!grepl("^99999", vessel_official_number))
+  dplyr::filter(!grepl("^99999", vessel_official_number))
 
 data_overview(corresp_contact_cnts_clean) |>
   head(1)
@@ -911,17 +911,17 @@ data_overview(corresp_contact_cnts_clean) |>
 
 # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 
-# save the filter
+# save the dplyr::filter
 two_attempts_filter <-
   # mopre than one contact
   quo(contact_freq > 1 &
         # at least one is a call
         any(tolower(contacttype) == "call"))
 
-# use the filter
+# use the dplyr::filter
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
-  filter(!!two_attempts_filter)
+  dplyr::filter(!!two_attempts_filter)
 
 dim(corresp_contact_cnts_clean)
 # [1] 18629    23
@@ -935,7 +935,7 @@ data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |>
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 18163    22
 
-# Combine compliance information with filtered correspondence info by vessel_official_number ----
+# Combine compliance information with dplyr::filtered correspondence info by vessel_official_number ----
 
 compl_corr_to_investigation1 <-
   inner_join(

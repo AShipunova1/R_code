@@ -22,9 +22,9 @@ spp_cnts_in_fhier_not_in_acl <-
   ) %>%
   select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
   unique() %>%
-  filter(rec_acl_cnts == 0) %>%
+  dplyr::filter(rec_acl_cnts == 0) %>%
   select(-c(rec_acl_cnts)) %>%
-  filter(!(fhier_cnts == 0)) %>%
+  dplyr::filter(!(fhier_cnts == 0)) %>%
     arrange(desc(fhier_cnts)) %>%
   ungroup()
 # %>%
@@ -36,7 +36,7 @@ spp_cnts_in_fhier_not_in_acl <-
 
 View(spp_cnts_in_fhier_not_in_acl)
 # 908
-  # filter(!(fhier_cnts == 0)) %>%
+  # dplyr::filter(!(fhier_cnts == 0)) %>%
 # 592
 # without
     # species_itis_mrip,
@@ -49,14 +49,14 @@ View(spp_cnts_in_fhier_not_in_acl)
 
 # test
 acl_estimate_catch_by_species_state_region_waves_renamed %>%
-  filter(toupper(scientific_name) == "SCOMBER COLIAS")
+  dplyr::filter(toupper(scientific_name) == "SCOMBER COLIAS")
 
 acl_estimate_2022 %>%
-  filter(toupper(new_sci) == "SCOMBER COLIAS") %>% dim()
+  dplyr::filter(toupper(new_sci) == "SCOMBER COLIAS") %>% dim()
 0
 
 acl_estimate_2022 %>%
-  filter(toupper(new_sci) == "MICROPOGONIAS UNDULATUS") %>% dim()
+  dplyr::filter(toupper(new_sci) == "MICROPOGONIAS UNDULATUS") %>% dim()
 0
 
 # spp from separate ds ----
@@ -97,7 +97,7 @@ spp_join <-
           na_matches = "never")
 
 # spp_join %>%
-#   filter(is.na(species_itis))
+#   dplyr::filter(is.na(species_itis))
 
 glimpse(spp_join)
 
@@ -105,13 +105,13 @@ glimpse(spp_join)
 not_in_rec_acl <-
   spp_join %>%
   arrange(desc(fhier_cnts)) %>%
-  filter(is.na(scientific_name))
+  dplyr::filter(is.na(scientific_name))
 
 str(not_in_rec_acl)
 # 5
 
 fhier_catch_spp %>%
-  filter(grepl('GRUNT, WHITE', common_name))
+  dplyr::filter(grepl('GRUNT, WHITE', common_name))
  # 1 GRUNT, WHITE                613026           104954
  # 2 GRUNT, WHITE                169059            69394
 
@@ -125,10 +125,10 @@ fhier_catch_spp %>%
 # write_csv(not_in_rec_acl, "not_in_rec_acl.csv")
 
 rec_acl_estimate_2022_spp %>%
-  filter(grepl('dolphin', new_com))
+  dplyr::filter(grepl('dolphin', new_com))
 
 rec_acl_estimate_2022_spp %>%
-  filter(grepl('atlantic croaker', new_com))
+  dplyr::filter(grepl('atlantic croaker', new_com))
 
 rec_acl_spp_full <- select(acl_estimate,
        c(species,
@@ -140,7 +140,7 @@ rec_acl_spp_full <- select(acl_estimate,
 
 # names(acl_species_list[[1]])
 # acl_species_list[[1]] %>%
-  # filter(grepl('SCOMBER', SCIENTIFIC_NAME)) %>% View()
+  # dplyr::filter(grepl('SCOMBER', SCIENTIFIC_NAME)) %>% View()
 
 rec_acl_spp <-
   rec_acl_spp_full %>%
@@ -151,99 +151,99 @@ rec_acl_spp <-
   
 # View(rec_acl_spp)
 rec_acl_spp %>%
-  # filter(is.na(sp_code.x))
-  filter(is.na(sp_code.x) | is.na(sp_code.y))
+  # dplyr::filter(is.na(sp_code.x))
+  dplyr::filter(is.na(sp_code.x) | is.na(sp_code.y))
 # A tibble: 1,682 × 16
 # A tibble: 1,683 × 16
 
 rec_acl_spp %>%
-  filter(grepl('ATLANTIC CROAKER', COMMON_NAME))
+  dplyr::filter(grepl('ATLANTIC CROAKER', COMMON_NAME))
 # sp_code.x == NA
 
 # GRUNTS, HAEMULIDAE (FAMILY)
 rec_acl_spp %>%
-  filter(grepl('GRUNT', COMMON_NAME)) %>%
+  dplyr::filter(grepl('GRUNT', COMMON_NAME)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('Micropogon', new_sci, ignore.case = T))
+  dplyr::filter(grepl('Micropogon', new_sci, ignore.case = T))
 # %>%
 #   View()
 
 rec_acl_spp %>%
-  filter(grepl('TUNA', COMMON_NAME, ignore.case = T)) %>%
+  dplyr::filter(grepl('TUNA', COMMON_NAME, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('ATLANTIC', new_com, ignore.case = T)) %>%
+  dplyr::filter(grepl('ATLANTIC', new_com, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('sard', new_com, ignore.case = T)) %>%
+  dplyr::filter(grepl('sard', new_com, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('Pleuronectes', SCIENTIFIC_NAME, ignore.case = T)) %>%
+  dplyr::filter(grepl('Pleuronectes', SCIENTIFIC_NAME, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('Paralichthys', SCIENTIFIC_NAME, ignore.case = T)) %>%
+  dplyr::filter(grepl('Paralichthys', SCIENTIFIC_NAME, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('flounder', COMMON_NAME, ignore.case = T)) %>%
+  dplyr::filter(grepl('flounder', COMMON_NAME, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('summer', new_com, ignore.case = T)) %>%
+  dplyr::filter(grepl('summer', new_com, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('Trachipteridae', SCIENTIFIC_NAME, ignore.case = T)) %>%
+  dplyr::filter(grepl('Trachipteridae', SCIENTIFIC_NAME, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('seatrout', COMMON_NAME, ignore.case = T)) %>%
+  dplyr::filter(grepl('seatrout', COMMON_NAME, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('spotted', new_com, ignore.case = T)) %>%
+  dplyr::filter(grepl('spotted', new_com, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('Cynoscion', SCIENTIFIC_NAME, ignore.case = T)) %>%
+  dplyr::filter(grepl('Cynoscion', SCIENTIFIC_NAME, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('Cynoscion', new_sci, ignore.case = T)) %>%
+  dplyr::filter(grepl('Cynoscion', new_sci, ignore.case = T)) %>%
   View()
 
 rec_acl_spp %>%
-  filter(grepl('triggerf', new_com, ignore.case = T)) %>%
+  dplyr::filter(grepl('triggerf', new_com, ignore.case = T)) %>%
   View()
 
 # triggerfishes
 # filefishes
 
 rec_acl_spp %>%
-  filter(grepl('filefi', new_com, ignore.case = T)) %>%
+  dplyr::filter(grepl('filefi', new_com, ignore.case = T)) %>%
   View()
 # 0
 
 # rec_acl_spp %>%
-#   filter(grepl('triggerf', new_com, ignore.case = T)) %>%
+#   dplyr::filter(grepl('triggerf', new_com, ignore.case = T)) %>%
 #   select(new_com, new_sci, itis_code, FAMILY, GROUP_NAME) %>%
 #   write_csv(
 #     "temp.csv"
 #   )
 
 spp_join %>%
-  # filter(itis_code == '173138')
-  filter(itis_code == '173139')
+  # dplyr::filter(itis_code == '173138')
+  dplyr::filter(itis_code == '173139')
 
 # Rhizoprionodon
 rec_acl_spp %>%
-  filter(grepl('Rhizoprionodon', SCIENTIFIC_NAME, ignore.case = T)) %>%
+  dplyr::filter(grepl('Rhizoprionodon', SCIENTIFIC_NAME, ignore.case = T)) %>%
   View()
 
 # ---
@@ -280,13 +280,13 @@ acl_species_list[[1]] %>%
 # TODO compare species_itis if names are similar
 # acl_species_list[[1]] %>%
 acl_estimate_2022 %>%
-  filter(new_com == "scup") %>%
+  dplyr::filter(new_com == "scup") %>%
   select(itis_code) %>%
   unique()
 # 169182   
 
 acl_estimate_2022 %>%
-  filter(new_com == "scup") %>%
+  dplyr::filter(new_com == "scup") %>%
   count(ab1)
 
 names(acl_estimate_2022)
@@ -295,7 +295,7 @@ names(acl_estimate_2022)
 grep("permit", names(fhier_logbooks_content), value = T) %>% paste0(collapse = ", ")
 
 # fhier_logbooks_content %>%
-#   filter(catch_species_itis == "169059") %>%
+#   dplyr::filter(catch_species_itis == "169059") %>%
 #   select(trip_id, supplier_trip_id, trip_start_date_time, trip_de, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, dea_permit_id) %>%
 #   unique() %>% 
 #   arrange(trip_de, trip_start_date_time) %>%
@@ -310,20 +310,20 @@ grep("GRUNT", acl_species_list[[1]]$COMMON_NAME, value = T)
 
 grep("GRUNT", toupper(fhier_common_names$common_name), value = T)
 fhier_common_names %>%
-  filter(grepl("GRUNT", toupper(common_name))) %>%
+  dplyr::filter(grepl("GRUNT", toupper(common_name))) %>%
   unique() %>% glimpse()
 # 12
 
 
 # names(acl_species_list[[1]])
 acl_species_list[[1]] %>%
-  filter(grepl("GRUNT", toupper(COMMON_NAME))) %>%
+  dplyr::filter(grepl("GRUNT", toupper(COMMON_NAME))) %>%
   select(sp_code, COMMON_NAME) %>%
   unique() %>% glimpse()
 # 12
 
 fhier_logbooks_content %>%
-  filter(grepl("GRUNT", toupper(common_name))) %>%
+  dplyr::filter(grepl("GRUNT", toupper(common_name))) %>%
     select(catch_species_itis, common_name) %>%
   unique() %>% write_csv("fhier_grunt_temp.csv") 
   # head(12)
@@ -331,7 +331,7 @@ fhier_logbooks_content %>%
 
 # names(acl_estimate_2022)
 acl_estimate_2022 %>%
-  filter(grepl("GRUNT", toupper(new_com))) %>%
+  dplyr::filter(grepl("GRUNT", toupper(new_com))) %>%
     select(itis_code, new_com) %>%
   unique() %>% write_csv("acl_grunt_temp.csv")
   # head()

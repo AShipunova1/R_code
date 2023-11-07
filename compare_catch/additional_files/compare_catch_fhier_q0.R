@@ -43,13 +43,13 @@ logbooks_content_dates_ct <-
 
 transmission_date_ok <-
   logbooks_content_dates_ct %>%
-  filter(
+  dplyr::filter(
     trip_start_date < "2022-01-01" |
       trip_start_date > "2023-04-01" |
       trip_end_date < "2022-01-01" |
       trip_end_date > "2023-04-01"
   ) %>%
-  filter(transmission_date_ct > "2022-01-01") %>%
+  dplyr::filter(transmission_date_ct > "2022-01-01") %>%
   select(-`1`)
 
 # transmission_date_ok %>%
@@ -120,7 +120,7 @@ fhier_logbooks_content_date_fixed <-
 #### Use only 2022 data
 
 fhier_logbooks_content_date_fixed %<>%
-  filter(year(trip_end_date) == "2022")
+  dplyr::filter(year(trip_end_date) == "2022")
 
 ### Add waves
 
@@ -197,14 +197,14 @@ fhier_logbooks_content_waves_fl_county <-
 
 fhier_logbooks_content_waves_fl_county %>%
   # get FL only
-  filter(end_port_state == "FL") %>%
+  dplyr::filter(end_port_state == "FL") %>%
   # sort by county
   arrange(end_port_county) %>%
   distinct() %>%
   # 37 counties
   select(end_port_fl_reg) %>%
   # what else is in the new column beside sa and gom
-  filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
+  dplyr::filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
 
 # NOT-SPECIFIED
 
@@ -230,7 +230,7 @@ sa_state_abb <-
   # a default R table
   state_tbl %>%
   # get only these in our list
-  filter(state_name %in% tolower(states_sa$state_name)) %>%
+  dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
   select(state_abb)
 #### Add sa/gom to states
@@ -276,13 +276,13 @@ min(fhier_dates$trip_end_date_time)
 # [1] "1969-08-17 12:30:00 EDT"
 
 fhier_dates %>%
-  filter(trip_start_date_time < "2022-01-01" |
+  dplyr::filter(trip_start_date_time < "2022-01-01" |
            trip_start_date_time > "2023-04-01") %>%
   head(1)
 # 1
 
 fhier_dates %>%
-  filter(trip_end_date_time < "2022-01-01" |
+  dplyr::filter(trip_end_date_time < "2022-01-01" |
            trip_end_date_time > "2023-04-01")  %>%
   head()
 # 34
@@ -291,7 +291,7 @@ fhier_dates %>%
 
 
 fhier_logbooks_content %>%
-  filter(
+  dplyr::filter(
     trip_start_date_time < "2022-01-01" |
       trip_start_date_time > "2023-04-01" |
       trip_end_date_time < "2022-01-01" |
@@ -306,7 +306,7 @@ fhier_logbooks_content %>%
 # glimpse(fhier_logbooks_content_waves__sa_gom)
 
 fhier_logbooks_content_waves__sa_gom %>%
-  filter(!(end_port_sa_gom %in% c("sa", "gom"))) %>%
+  dplyr::filter(!(end_port_sa_gom %in% c("sa", "gom"))) %>%
   glimpse()
 # Rows: 188
 
@@ -314,7 +314,7 @@ fhier_logbooks_content_waves__sa_gom %>%
 
 not_specified_region <-
   fhier_logbooks_content_waves__sa_gom %>%
-  filter(!(end_port_sa_gom %in% c("sa", "gom")))
+  dplyr::filter(!(end_port_sa_gom %in% c("sa", "gom")))
 
 not_specified_region_states <-
   not_specified_region %>%
@@ -349,7 +349,7 @@ head(not_specified_region_states)
 
 not_specified_region_states_not_monroe <-
   not_specified_region_states %>%
-  filter(end_port_county == "NOT-SPECIFIED" &
+  dplyr::filter(end_port_county == "NOT-SPECIFIED" &
            start_port_county != "MONROE")
 
 not_specified_region_states_not_monroe %>%
@@ -373,13 +373,13 @@ not_specified_region_states_not_monroe %>%
 
 
 fhier_logbooks_content_waves_fl_county %>%
-  filter(state_name == 'FLORIDA') %>%
-  filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>%
+  dplyr::filter(state_name == 'FLORIDA') %>%
+  dplyr::filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>%
   select(-c(`1`)) %>%
-  # filter(!all(is.na(.))) %>%
+  # dplyr::filter(!all(is.na(.))) %>%
   #   Rows: 112
   # Columns: 159
-  # filter(complete.cases(.)) %>%
+  # dplyr::filter(complete.cases(.)) %>%
   # Rows: 0
   unique() %>%
   glimpse()
@@ -390,7 +390,7 @@ fhier_logbooks_content_waves_fl_county %>%
 
 ## spp. is 0 ----
 logbooks_content %>%
-  filter(!!sym(itis_field_name) == "0") %>%
+  dplyr::filter(!!sym(itis_field_name) == "0") %>%
   glimpse()
 # Rows: 89
 
@@ -398,23 +398,23 @@ logbooks_content %>%
 # common_name
 
 logbooks_content %>%
-  filter(!!sym(itis_field_name) == "0") %>%
+  dplyr::filter(!!sym(itis_field_name) == "0") %>%
   select(common_name) %>% unique()
 # NA
 
 logbooks_content %>%
-  filter(!!sym(itis_field_name) == "0") %>%
+  dplyr::filter(!!sym(itis_field_name) == "0") %>%
   select(trip_start_date) %>% unique()
 # 70
 
 logbooks_content %>%
-  filter(!!sym(itis_field_name) == "0") %>%
+  dplyr::filter(!!sym(itis_field_name) == "0") %>%
   glimpse()
 # A tibble: 89 × 151
 # write.csv(file = "logbooks_content_sp0.csv", row.names = F)
 
 logbooks_content %>%
-  filter(!!sym(itis_field_name) == "0") %>%
+  dplyr::filter(!!sym(itis_field_name) == "0") %>%
   # head()
   select(vessel_official_nbr) %>% unique()
 
@@ -425,7 +425,7 @@ fhier_logbooks_content_waves_fl_county %>%
   unique() %>%
   # Rows: 47,242
   # Columns: 33
-  #   filter(complete.cases(.)) %>%
+  #   dplyr::filter(complete.cases(.)) %>%
   # 0
   glimpse()
 
@@ -435,7 +435,7 @@ grep("sta", names(not_specified_region), value = T)
 grep("accsp", names(not_specified_region), value = T)
 
 not_specified_region %>%
-  filter(state_name == "FLORIDA") %>%
+  dplyr::filter(state_name == "FLORIDA") %>%
   select(starts_with("notif"),
          user_app,
          accsp_permit_license_nbr) %>%

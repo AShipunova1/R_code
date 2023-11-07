@@ -102,7 +102,7 @@ csvs_joined <-
 
 csvs_joined_diff <-
   csvs_joined |>
-  filter(
+  dplyr::filter(
     !sero_home_port.aug == sero_home_port.cor |
       !full_name.aug == full_name.cor |
       !full_address.aug == full_address.cor
@@ -155,7 +155,7 @@ corrected_n_fhier_short |>
   mutate(fhier_home_port = paste(sero_home_port_city,
                                  sero_home_port_county,
                                  sero_home_port_state)) |>
-  filter(!sero_home_port == fhier_home_port) |>
+  dplyr::filter(!sero_home_port == fhier_home_port) |>
   dim()
 # 0
 # all home ports are correct
@@ -295,9 +295,9 @@ corrected_n_fhier_short_w_n_comb_flat_clean <-
 
 
 View(corrected_n_fhier_short_w_n_clean)
-  # filter(full_name == fhier_name) |>
+  # dplyr::filter(full_name == fhier_name) |>
 # 26
-  # filter(full_name == fhier_name_2) |>
+  # dplyr::filter(full_name == fhier_name_2) |>
   # dim()
 # 0
 
@@ -308,21 +308,21 @@ readr::write_csv(corrected_n_fhier_short_w_n_clean,
 
 # compare
 corrected_n_fhier_short_w_n_clean |>
-  filter(full_name == fhier_name) |>
+  dplyr::filter(full_name == fhier_name) |>
   dim()
 # 26
 
 corrected_n_fhier_short_w_n_clean |>
-  filter(!full_name == fhier_name) |>
-  # filter(full_name == fhier_name_2) |>
+  dplyr::filter(!full_name == fhier_name) |>
+  # dplyr::filter(full_name == fhier_name_2) |>
   dim()
 # 0
 # 75
 
 corrected_n_fhier_short_w_n_clean_short <-
   corrected_n_fhier_short_w_n_clean |>
-  filter(!full_name == fhier_name) |>
-  # filter(!fhier_name_2 == fhier_name) |>
+  dplyr::filter(!full_name == fhier_name) |>
+  # dplyr::filter(!fhier_name_2 == fhier_name) |>
   select(vessel_official_number,
          # contactrecipientname,
          full_name,
@@ -395,16 +395,16 @@ pims_n_corrected |>
 # [1] 97 18
 
 pims_n_corrected |> 
- filter(!is.na(HAILING_PORT_CITY)) |> 
+ dplyr::filter(!is.na(HAILING_PORT_CITY)) |> 
  dim()
 # [1] 13 18
 # Not all vsls are in the pims csv
 
 ## check if the port is the same ----
 pims_n_corrected |>
-  filter(!is.na(HAILING_PORT_CITY)) |>
+  dplyr::filter(!is.na(HAILING_PORT_CITY)) |>
   rowwise() |> 
-  filter(grepl(HAILING_PORT_CITY,
+  dplyr::filter(grepl(HAILING_PORT_CITY,
                sero_home_port,
                ignore.case = TRUE)) |>
   ungroup() |> View()
@@ -415,9 +415,9 @@ pims_n_corrected |>
 ## check if the address is the same ----
 pims_n_corrected_addr <-
   pims_n_corrected |>
-  filter(!is.na(HAILING_PORT_CITY)) |>
+  dplyr::filter(!is.na(HAILING_PORT_CITY)) |>
   rowwise() |> 
-  filter(grepl(ADDRESS,
+  dplyr::filter(grepl(ADDRESS,
                full_address,
                ignore.case = TRUE)) |>
   ungroup()
@@ -443,7 +443,7 @@ include_name_filter <-
 pims_n_corrected_name <-
   pims_n_corrected |>
   rowwise() |>
-  filter(!!include_name_filter) |>
+  dplyr::filter(!!include_name_filter) |>
   ungroup()
 
 dim(pims_n_corrected_name)
@@ -463,7 +463,7 @@ pims_n_corrected |>
          full_name,
          ENTITY_NAME) |>
   rowwise() |>
-  filter(!(!!include_name_filter)) |>
+  dplyr::filter(!(!!include_name_filter)) |>
   ungroup() |>
   View()
   dim()
@@ -484,9 +484,9 @@ pims_n_corrected |>
          contactrecipientname,
          full_name,
          ENTITY_NAME) |>
-  filter(!is.na(ENTITY_NAME)) |> 
+  dplyr::filter(!is.na(ENTITY_NAME)) |> 
   rowwise() |>
-  filter(agrepl(ENTITY_NAME,
+  dplyr::filter(agrepl(ENTITY_NAME,
                 full_name,
                 max.distance = 0.3,
                 ignore.case = TRUE)) |>

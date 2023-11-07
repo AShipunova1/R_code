@@ -28,7 +28,7 @@ v_p__t__tn_d_weeks_gom |>
 # 12            NA NA                     1262
 
 v_p__t__tn_d_weeks_gom |>
-  filter(ACTIVITY_TYPE == "3") |>
+  dplyr::filter(ACTIVITY_TYPE == "3") |>
   # head(2) |>
   # select(all_of(starts_with("UE"))) |>
   glimpse()
@@ -38,7 +38,7 @@ v_p__t__tn_d_weeks_gom |>
 # $ PERMIT_VESSEL_ID            <chr> "FL9452SM"
 
 v_p__t__tn_d_weeks_gom |>
-  filter(ACTIVITY_TYPE == "81") |>
+  dplyr::filter(ACTIVITY_TYPE == "81") |>
   select(PERMIT_VESSEL_ID,
          ACTIVITY_TYPE,
          INTENDED_FISHING_FLAG,
@@ -66,13 +66,13 @@ length(vessels_with_weird_activity)
 
 vessels_permits_2022_r_act <-
   vessels_permits_2022_r |>
-  filter(PERMIT_VESSEL_ID %in% vessels_with_weird_activity)
+  dplyr::filter(PERMIT_VESSEL_ID %in% vessels_with_weird_activity)
 
 # vessels_permits_2022_r_act
 
 trips_act <-
   t_d_w |>
-  filter(
+  dplyr::filter(
     VESSEL_ID %in% vessels_permits_2022_r_act$VESSEL_VESSEL_ID,
     ACTIVITY_TYPE %in% c(8, 2, 3)
   ) |>
@@ -166,7 +166,7 @@ weird_activity_types_info12 |>
 # 926746 Permit
 # 127190 vessel_id
 trips_info_2022_int_dur |>
-  filter(VESSEL_ID == "127190") |>
+  dplyr::filter(VESSEL_ID == "127190") |>
   select(TRIP_START_DATE,
          TRIP_END_DATE) |>
   distinct() |>
@@ -174,7 +174,7 @@ trips_info_2022_int_dur |>
   View()
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |> 
-  filter(PERMIT_VESSEL_ID == "926746") |> 
+  dplyr::filter(PERMIT_VESSEL_ID == "926746") |> 
   View()
 # 2021-12-31 19:00:00 EST--2022-01-30 23:00:00 EST
 
@@ -220,13 +220,13 @@ weird_activity_types_info_short12 <-
 dim(weird_activity_types_info_short12)
   # dim()
   # 34 41
-  # filter(!is.na(TRIP_ID))
+  # dplyr::filter(!is.na(TRIP_ID))
   # 23 41
   # 22
 
 # weird_activity_types_info_short_act <-
 #   weird_activity_types_info_short12 |> 
-#   filter(!is.na(ACTIVITY_TYPE))
+#   dplyr::filter(!is.na(ACTIVITY_TYPE))
 
 # dim(weird_activity_types_info_short_act)
 # 22
@@ -237,7 +237,7 @@ dim(weird_activity_types_info_short12)
 
 # weird_activity_types_info_short_no_trips <-
 #   weird_activity_types_info_short |> 
-#   filter(PERMIT_VESSEL_ID %in% c("1199007",
+#   dplyr::filter(PERMIT_VESSEL_ID %in% c("1199007",
 #                                  "926746"))
 
 # dim(weird_activity_types_info_short)

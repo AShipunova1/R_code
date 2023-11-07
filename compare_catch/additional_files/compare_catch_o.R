@@ -196,7 +196,7 @@ mrip_and_fhier <-
 head(mrip_and_fhier, 3)
 
 mrip_and_fhier %>%
-  filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
+  dplyr::filter(mrip_estimate_catch_by_species <= fhier_quantity_by_species) %>% str()
 # 15 
 
 source("~/R_code_github/compare_catch/plots.R")

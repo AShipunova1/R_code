@@ -146,7 +146,7 @@ map(c("sa", "gom"),
       top_list <- get(paste0(sa_or_gom, "_top_spp"))
 
       fhier_acl_catch_by_species_region_year_list[[sa_or_gom]] %>%
-        filter(scientific_name %in% top_list$scientific_name) %>%
+        dplyr::filter(scientific_name %in% top_list$scientific_name) %>%
         add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
     })
 
@@ -158,7 +158,7 @@ sheet_name <- paste("3 2b year", sa_or_gom,  "top MRIP")
 
 fhier_acl_catch_by_species_region_year_list$sa %>%
   # keep only top r_acl cnts
-  filter(rec_acl_cnts_by_year > my_limit) %>%
+  dplyr::filter(rec_acl_cnts_by_year > my_limit) %>%
   add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
 
 ### GOM ----
@@ -168,7 +168,7 @@ sheet_name <- paste("3 2b year", sa_or_gom,  "top MRIP")
 
 fhier_acl_catch_by_species_region_year_list$gom %>%
   # keep only top r_acl cnts
-  filter(rec_acl_cnts_by_year > my_limit) %>%
+  dplyr::filter(rec_acl_cnts_by_year > my_limit) %>%
   add_to_report_xls(sheet_name, report_file_path = report_file_path_year)
 
 ## 3c) All FHIER spp ----
@@ -194,7 +194,7 @@ state_year_sedar <-
     # get data for this state
     fhier_acl_catch_by_species_state_year_list[[state_abbr]] %>%
       # keep only spp in the SEDAR spp lists
-      filter(
+      dplyr::filter(
         scientific_name %in% gom_top_spp$scientific_name |
           scientific_name %in% sa_top_spp$scientific_name
       ) %>%
@@ -209,7 +209,7 @@ names(state_year_has_rec_acl_data_list_new) %>%
     # get data for this state
     state_year_has_rec_acl_data_list_new[[state_abbr]] %>%
       # keep only top r_acl cnts
-            filter(
+            dplyr::filter(
         scientific_name %in% gom_acl_top_spp$scientific_name |
           scientific_name %in% sa_acl_top_spp$scientific_name
       ) %>%
