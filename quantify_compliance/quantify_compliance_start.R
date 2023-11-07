@@ -159,6 +159,7 @@ source(quantify_compliance_from_fhier_vms_path)
 
 # Create a read.me file with numbers of total, active and expired ----
 ## by year ----
+# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc defined in quantify_compliance_from_fhier_year.R
 year_permit_cnts <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
@@ -191,49 +192,49 @@ year_permit_cnts <-
 
 # View(year_permit_cnts)
 
-# 2 ) - not needed, gets non compliant numbers
-count_year1 <-
-  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
-  unique() %>%
-  sort() %>%
-  # repeat for each year_permit
-  purrr::map_df(function(curr_year_permit) {
-    curr_df <-
-      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
-      dplyr::filter(year_permit == curr_year_permit)
+# # 2 ) - not needed, gets non compliant numbers
+# count_year1 <-
+#   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
+#   unique() %>%
+#   sort() %>%
+#   # repeat for each year_permit
+#   purrr::map_df(function(curr_year_permit) {
+#     curr_df <-
+#       count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+#       dplyr::filter(year_permit == curr_year_permit)
+# 
+#     total_non_compl_df <-
+#       curr_df %>%
+#       dplyr::select(vsls_per_y_r) %>%
+#       dplyr::distinct()
+#     # browser()
+# 
+#     active_permits <- curr_df %>%
+#       dplyr::filter(perm_exp_y == "active") %>%
+#       dplyr::select(exp_y_tot_cnt) |>
+#       dplyr::distinct()
+# 
+#     expired_permits <- curr_df %>%
+#       dplyr::filter(perm_exp_y == "expired") %>%
+#       dplyr::select(exp_y_tot_cnt) |>
+#       dplyr::distinct()
+# 
+#     out_df <-
+#       as.data.frame(c(
+#         curr_year_permit,
+#         total_non_compl_df,
+#         active_permits,
+#         expired_permits
+#       ))
+#     names(out_df) <-
+#       c("year_permit", "total", "active_permits", "expired_permits")
+# 
+#     return(out_df)
+#   })
 
-    total_non_compl_df <-
-      curr_df %>%
-      dplyr::select(vsls_per_y_r) %>%
-      dplyr::distinct()
-    # browser()
-
-    active_permits <- curr_df %>%
-      dplyr::filter(perm_exp_y == "active") %>%
-      dplyr::select(exp_y_tot_cnt) |>
-      dplyr::distinct()
-
-    expired_permits <- curr_df %>%
-      dplyr::filter(perm_exp_y == "expired") %>%
-      dplyr::select(exp_y_tot_cnt) |>
-      dplyr::distinct()
-
-    out_df <-
-      as.data.frame(c(
-        curr_year_permit,
-        total_non_compl_df,
-        active_permits,
-        expired_permits
-      ))
-    names(out_df) <-
-      c("year_permit", "total", "active_permits", "expired_permits")
-
-    return(out_df)
-  })
-
-glimpse(year_permit_cnts)
-glimpse(count_year1)
-all.equal(year_permit_cnts, count_year1)
+# glimpse(year_permit_cnts)
+# glimpse(count_year1)
+# all.equal(year_permit_cnts, count_year1)
 # [1] "Component “total”: Mean relative difference: 0.4411713"
 
 ## 3) by month ----
