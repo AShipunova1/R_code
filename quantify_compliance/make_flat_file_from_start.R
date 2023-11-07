@@ -178,30 +178,37 @@ cat('
 # Create a read.me file with numbers of total, active and expired ----
 ## by year ----
 # compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc defined in quantify_compliance_from_fhier_year.R
+# Create a new dataset "year_permit_cnts" by performing a series of operations.
+
 year_permit_cnts <-
+  # Extract unique "year_permit" values from the specified column and sort them.
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
   sort() |>
-  # repeat for each year_permit
+
+  # For each unique "year_permit", apply a function using "purrr::map_df".
   purrr::map_df(function(curr_year_permit) {
-    # browser()
+    # Create a subset "curr_df" of the original dataset for the current "year_permit".
     curr_df <-
       compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
       dplyr::filter(year_permit == curr_year_permit)
 
+    # Extract unique "total_vsl_y" values for the current "year_permit".
     total_vsls <- unique(curr_df$total_vsl_y)
 
+    # Extract and create a subset of data for "active" permits.
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(cnt_y_p_e) %>%
       unique()
 
+    # Extract and create a subset of data for "expired" permits.
     expired_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(cnt_y_p_e) %>%
       unique()
 
-      # TODO: add compliant, not compliant
+    # Create a data frame "out_df" with relevant information.
     out_df <- as.data.frame(c(curr_year_permit, total_vsls, active_permits, expired_permits))
     names(out_df) <- c("year_permit", "total", "active_permits", "expired_permits")
 
