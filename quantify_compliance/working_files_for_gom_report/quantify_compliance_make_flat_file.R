@@ -32,8 +32,8 @@ current_file_name <- r"(~\R_code_github\get_data\get_data_from_fhier\metric_trac
 write_to_1_flat_file(flat_file_name, current_file_name)
 
 cat('plot_file_path <-
-  file.path(my_paths$outputs, "quantify_compliance", today()))', sep = "\n")
-cat('create_dir_if_not(plot_file_path))', sep = "\n")
+  file.path(my_paths$outputs, "quantify_compliance", today())', sep = "\n")
+cat('create_dir_if_not(plot_file_path)', sep = "\n")
 
 cat('
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
