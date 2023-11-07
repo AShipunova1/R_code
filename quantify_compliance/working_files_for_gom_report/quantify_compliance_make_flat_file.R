@@ -1,4 +1,5 @@
 # quantify_compliance_make_flat_file.R
+
 source("~/R_code_github/useful_functions_module.r")
 
 dir_to_comb <- "~/R_code_github/quantify_compliance"
@@ -146,3 +147,7 @@ write_to_1_flat_file(flat_file_name, current_file_name)
 
 # close the file
 sink()
+
+# Remove all "source" lines from the flat file when done.
+# source( to #source(
+readr::readlines()

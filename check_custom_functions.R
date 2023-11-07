@@ -2,7 +2,7 @@ file_to_check_path <- "~/R_code_github/fishing_effort_location/flat_file_heatmap
 # Get by rstudioapi::getSourceEditorContext()$path
 
 current_file_text <-
-  readLines(file_to_check_path)
+  readr::readlines(file_to_check_path)
 
 # str(current_file_text)
 #  chr [1:3760] "#' %%%%% Prepare data" "" "" ...

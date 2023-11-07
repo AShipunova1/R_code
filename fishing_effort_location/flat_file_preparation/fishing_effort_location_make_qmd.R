@@ -27,7 +27,7 @@ names(file_paths) <- file_ext
 #
 
 flat_file_r_text <-
-  readLines(file_paths$R)
+  readr::readlines(file_paths$R)
 head(flat_file_r_text)
 
 # In this code, 'flat_file_r_text' is modified using the 'gsub' function to replace specific patterns in the text. The pattern being searched for is defined using a regular expression.

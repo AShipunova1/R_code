@@ -839,7 +839,7 @@ write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
   sink(flat_file_name, append = TRUE)
 
   # Read the contents of the current file.
-  current_file_text <- readLines(file_name_to_write)
+  current_file_text <- readr::readlines(file_name_to_write)
 
   # Print a header indicating the current file being processed.
   cat("\n\n#### Current file:", basename(file_name_to_write), "----\n\n")

@@ -933,7 +933,7 @@ write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
   sink(flat_file_name, append = TRUE)
 
   # Read the contents of the current file.
-  current_file_text <- readLines(file_name_to_write)
+  current_file_text <- readr::readlines(file_name_to_write)
 
   # Print a header indicating the current file being processed.
   cat("\n\n#### Current file:", basename(file_name_to_write), "----\n\n")
@@ -1595,8 +1595,8 @@ purrr::map(fhier_reports_metrics_tracking_not_srhs_ids_list, dim)
 # [[2]]
 # [1] 3399    1
 plot_file_path <-
-  file.path(my_paths$outputs, "quantify_compliance", today()))
-create_dir_if_not(plot_file_path))
+  file.path(my_paths$outputs, "quantify_compliance", today())
+create_dir_if_not(plot_file_path)
 
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int_1 <-
