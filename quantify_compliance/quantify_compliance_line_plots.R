@@ -146,7 +146,7 @@ View(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short)
 
 count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent <-
   count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short |>
-  group_by(year_month) |>
+  dplyr::group_by(year_month) |>
   mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m)
 
 glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent)
@@ -228,7 +228,7 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 
 min_max_val <-
   test_df |>
-  group_by(percent_non_compl_2_buckets) |>
+  dplyr::group_by(percent_non_compl_2_buckets) |>
   mutate(
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)

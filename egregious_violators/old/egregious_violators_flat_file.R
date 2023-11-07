@@ -461,7 +461,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_df(my_df, function(x) length(unique(x)))
 # to compare:
-# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+# time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
 connect_to_secpr <- function() {
   # usage:
@@ -844,7 +844,7 @@ compl_clean_sa |>
   # dim()
   # [1] 3146   23
   # View()
-  group_by(vessel_official_number) |>
+  dplyr::group_by(vessel_official_number) |>
   dplyr::filter(tolower(compliant_) == "yes") |>
   dplyr::mutate(latest_compl = max(week_num)) |>
   glimpse()
@@ -969,7 +969,7 @@ get_date_contacttype <-
       # sort
       arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
-      group_by(vessel_official_number) |>
+      dplyr::group_by(vessel_official_number) |>
       # [1] 1125    2
       # for each vessel id combine all date__contacttypes separated by comma in one cell
       summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%

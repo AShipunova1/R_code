@@ -48,7 +48,7 @@ compl_data_sa_2022_m_short_compl_vs_nc_per_m %>%
 compl_data_sa_2022_m_short_total_vsl_m_check <- 
   compl_data_sa_2022_m_short %>%
   # Applying group_by & summarise
-  group_by(month_num) %>%
+  dplyr::group_by(month_num) %>%
   summarise(count = n_distinct(vessel_official_number))
 
 # View(compl_data_sa_2022_m_short_total_vsl_m_check)
@@ -56,7 +56,7 @@ compl_data_sa_2022_m_short_total_vsl_m_check <-
 compl_data_sa_2022_m_short_tot <-
   compl_data_sa_2022_m_short %>%
   # Applying group_by & summarise
-  group_by(month_num) %>%
+  dplyr::group_by(month_num) %>%
   dplyr::mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
   dplyr::ungroup()
 
@@ -87,7 +87,7 @@ names(compl_data_sa_2022_m_short_tot)
 
 compl_data_sa_2022_m_short_tot_ov <-
   compl_data_sa_2022_m_short_tot %>%
-    group_by(month_num) %>%
+    dplyr::group_by(month_num) %>%
   dplyr::mutate(compl_overr = paste(compliant_, overridden_, sep = "_"))
 
 # check
@@ -172,7 +172,7 @@ View(compl_data_sa_2022_m_short_tot_ov_long)
 #          tota_vsl_m,
 #          is_compl_overridden) %>%
 #   filter(complete.cases(is_compl_overridden)) %>%
-#     group_by(month_num) %>%
+#     dplyr::group_by(month_num) %>%
 #   summarise(n = n()) %>%
 #   dplyr::mutate(Freq = n/sum(n)) %>% View()
 
@@ -180,7 +180,7 @@ View(compl_data_sa_2022_m_short_tot_ov_long)
 compl_data_sa_2022_m_short_tot_ov_cnt_c_o <-
   compl_data_sa_2022_m_short_tot_ov_long %>%
   filter(is_compl_overridden == "NO_NO") %>%
-  group_by(month_num) %>%
+  dplyr::group_by(month_num) %>%
   dplyr::mutate(count_no_no = n_distinct(vessel_official_number)) %>% 
   dplyr::ungroup()
 
@@ -261,7 +261,7 @@ compl_data_sa_2022_m_exp_diff_m <-
 # add total vessels per month ----
 compl_data_sa_2022_m_exp_diff_m_tot <-
   compl_data_sa_2022_m_exp_diff_m %>%
-  group_by(month_num) %>%
+  dplyr::group_by(month_num) %>%
   dplyr::mutate(distinct_vsls_m = n_distinct(vessel_official_number))
 
 ## fewer columns ----
@@ -336,7 +336,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long <-
 ## get compl, no compl, or both per month with exp ----
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long %>%
-  group_by(month_num) %>%
+  dplyr::group_by(month_num) %>%
   unique() %>%
   select(-vessel_official_number) %>%
   add_count(month_name, exp_1_m, is_compl_or_both,
@@ -365,7 +365,7 @@ View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
 # print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt %>%
-  group_by(month_num, exp_1_m) %>%
+  dplyr::group_by(month_num, exp_1_m) %>%
   pivot_wider(names_from = is_compl_or_both, values_from = compl_or_not_cnt) %>%
   select(-`NA`) %>% 
   replace(is.na(.), 0) %>% 

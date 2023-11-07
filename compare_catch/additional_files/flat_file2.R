@@ -66,7 +66,7 @@ gom_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
   dplyr::filter(sa_gom == "gom") %>%
   dplyr::select(species_itis, acl_estimate_catch_by_4) %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
   # sort
   arrange(desc(acl_count)) %>%
@@ -82,7 +82,7 @@ sa_acl_top_spp <-
   acl_estimate_catch_by_species_state_region_waves %>%
   dplyr::filter(sa_gom == "sa") %>%
   dplyr::select(species_itis, acl_estimate_catch_by_4) %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   # sum the counts by species
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
   # sort
@@ -120,7 +120,7 @@ fhier_acl_catch_by_species_region_year <-
   #        sa_gom,
   #        fhier_quantity_by_4,
   #        acl_estimate_catch_by_4) %>%
-  group_by(species_itis,
+  dplyr::group_by(species_itis,
            common_name,
            sa_gom) %>%
   summarise(
@@ -150,7 +150,7 @@ fhier_acl_catch_by_species_region_year_list$sa %>%
 
 acl_estimate_2022 %>%
   dplyr::filter(itis_code == '167760') %>%
-  group_by(itis_code, new_moden, year, sub_reg) %>%
+  dplyr::group_by(itis_code, new_moden, year, sub_reg) %>%
   summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
 # 2070
 # correct (262 + 1808)
@@ -165,7 +165,7 @@ fhier_acl_catch_by_species_state_year <-
          state,
          fhier_quantity_by_4,
          acl_estimate_catch_by_4) %>%
-  group_by(species_itis,
+  dplyr::group_by(species_itis,
            common_name,
            state) %>%
   dplyr::mutate(

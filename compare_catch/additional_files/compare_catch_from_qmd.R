@@ -215,7 +215,7 @@ fhier_catch_by_species_state_region_waves <-
     reported_quantity
   ) %>%
   # group by all of them but "reported_quantity"
-  group_by(
+  dplyr::group_by(
     catch_species_itis,
     end_port_state,
     end_port_sa_gom,
@@ -233,7 +233,7 @@ fhier_catch_by_species_state_region_waves %>%
   # get the same species
   dplyr::filter(catch_species_itis == "167687") %>%
   # group by region
-  group_by(catch_species_itis, end_port_sa_gom) %>%
+  dplyr::group_by(catch_species_itis, end_port_sa_gom) %>%
   # sum the FHIER catch
   summarise(bass_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE))
 
@@ -245,7 +245,7 @@ mrip_estimate_catch_by_species_state_region_waves <-
   # dplyr::select the relevan columns only
   dplyr::select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
   # group by all except the counts
-  group_by(itis_code, new_sta, sub_reg, year, wave) %>%
+  dplyr::group_by(itis_code, new_sta, sub_reg, year, wave) %>%
   # save the sum of "ab1" for each group in "mrip_estimate_catch_by_4"
   # remove NAs
   summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
@@ -318,7 +318,7 @@ mrip_estimate_catch_by_species_state_region_waves %>%
   # get one species
   dplyr::filter(species_itis == "167687") %>%
   # group by region
-  group_by(species_itis, sa_gom) %>%
+  dplyr::group_by(species_itis, sa_gom) %>%
   # sum the MRIP catch
   summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
@@ -328,7 +328,7 @@ fhier_catch_by_species_state_region_waves %>%
   # get the same species
   dplyr::filter(species_itis == "167687") %>%
   # group by region
-  group_by(species_itis, sa_gom) %>%
+  dplyr::group_by(species_itis, sa_gom) %>%
   # sum the FHIER catch
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
@@ -337,12 +337,12 @@ fhier_catch_by_species_state_region_waves %>%
 ## compare the above numbers with those in the join, they should be the same ----
 fhier_mrip_catch_by_species_state_region_waves %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis, sa_gom) %>%
+  dplyr::group_by(species_itis, sa_gom) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
 fhier_mrip_catch_by_species_state_region_waves %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis, sa_gom) %>%
+  dplyr::group_by(species_itis, sa_gom) %>%
   summarise(bass_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
 ## dplyr::select common names and itis in a separate data frame ----
@@ -475,13 +475,13 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot)
 ## GOM ----
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot$gom %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
 ## SA ----
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
 ## keep only entries for spp. in the top ten list, ----
@@ -513,25 +513,25 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10)
 ## SA, FHIER counts ----
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
 ## GOM, FHIER counts ----
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE))
 
 ## SA, MRIP counts ----
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
 ## GOM, MRIP counts ----
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(bass_fhier_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE))
 
 # numbers OK
@@ -649,7 +649,7 @@ n_most_frequent_fhier_10_list_no_na <-
   map(function(x) {x %>%
       # dplyr::select ITIS and counts
       dplyr::select(species_itis, fhier_catch_by_4) %>%
-      group_by(species_itis) %>%
+      dplyr::group_by(species_itis) %>%
       # add a new column with a sum of counts for each spp.
       summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
       # sort in the discending order
@@ -719,7 +719,7 @@ tmp1 %>%
 ## GOM ----
 fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$gom %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(bass_gom_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE),
             bass_gom_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)
             )
@@ -727,7 +727,7 @@ fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$gom %>%
 ## SA ----
 fhier_mrip_catch_by_species_state_region_waves_no_na_for_plot$sa %>%
   dplyr::filter(species_itis == "167687") %>%
-  group_by(species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(bass_sa_fhier_cnt = sum(fhier_catch_by_4, na.rm = TRUE),
             bass_sa_mrip_cnt = sum(mrip_estimate_catch_by_4, na.rm = TRUE)
             )

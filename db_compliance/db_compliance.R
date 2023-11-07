@@ -83,7 +83,7 @@ source(file.path(my_paths$git_r,
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
-  group_by(date_y_m,
+  dplyr::group_by(date_y_m,
            WEEK_OF_YEAR,
            compl_w_total) |>
   dplyr::mutate(vsls_nc_w = n_distinct(PERMIT_VESSEL_ID)) |>
@@ -125,7 +125,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
          WEEK_OF_YEAR,
          compl_w_total) |>
   dplyr::distinct() |>
-  group_by(
+  dplyr::group_by(
     # date_y_m,
            WEEK_OF_YEAR,
            compl_w_total) |>

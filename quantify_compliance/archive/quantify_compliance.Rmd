@@ -134,7 +134,7 @@ get_time_period_col_name <- function(my_df) {
 ```{r percent_by_time_period fun}
 percent_by_time_period <- function(my_df, time_period_field_name) {
   my_df %>%
-    group_by(!!sym(time_period_field_name)) %>%
+    dplyr::group_by(!!sym(time_period_field_name)) %>%
     summarize(
       count = n(),
       percent_yes = my_percent(sum(compliant_ == "YES"), count),
@@ -179,7 +179,7 @@ percent_yes = **58.2**
 ```{r step by step, class.source="bg-success"}
 sa_compl_clean_sa_vs_gom_plus_dual_short %>%
   filter(week_start == "2022-12-26") %>%
-  group_by(compliant_, week_start) %>%
+  dplyr::group_by(compliant_, week_start) %>%
   summarise(count = n())
 ```
 
@@ -198,7 +198,7 @@ Percent of a "YES" for this week is **58.2**
 ```{r, class.source="bg-success"}
 sa_compl_clean_sa_vs_gom_plus_dual_short %>%
   filter(week_start == "2022-12-26") %>%
-  group_by(week_start) %>%
+  dplyr::group_by(week_start) %>%
   summarise(count = n(),
       percent_yes = my_percent(sum(compliant_ == "YES"), count),
       percent_no = my_percent(sum(compliant_ == "NO"), count) # the same as "100 - percent_yes"

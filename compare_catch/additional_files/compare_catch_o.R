@@ -78,7 +78,7 @@ fhier_species_count_by_disposition_sp <-
 fhier_quantity_by_species <-
   fhier_species_count_by_disposition_sp %>%
   dplyr::select(SP_CODE, REPORTEDQUANTITY) %>% 
-  group_by(SP_CODE) %>% 
+  dplyr::group_by(SP_CODE) %>% 
   summarise(fhier_quantity_by_species = sum(REPORTEDQUANTITY))
 # head(fhier_quantity_by_species, 10)
 
@@ -86,7 +86,7 @@ fhier_quantity_by_species <-
 fhier_quantity_by_species_and_permit <-
   fhier_species_count_by_disposition_sp %>%
   dplyr::select(PERMITREGION, SP_CODE, REPORTEDQUANTITY) %>% 
-  group_by(SP_CODE, PERMITREGION) %>% 
+  dplyr::group_by(SP_CODE, PERMITREGION) %>% 
   summarise(fhier_quantity_by_species_and_permit = sum(REPORTEDQUANTITY))
 # head(fhier_quantity_by_species_and_permit, 10)
 
@@ -118,7 +118,7 @@ mrip_estimate_small <-
 
 mrip_estimate_catch_by_species_and_region <-
   mrip_estimate_small %>%
-        group_by(ITIS_CODE, SUB_REG) %>% 
+        dplyr::group_by(ITIS_CODE, SUB_REG) %>% 
     summarise(mrip_estimate_catch_by_species_and_region = sum(CATCH_CNT))
 head(mrip_estimate_catch_by_species_and_region, 5)
 
@@ -128,7 +128,7 @@ head(mrip_estimate_catch_by_species_and_region, 5)
 mrip_estimate_catch_by_species <-
   mrip_estimate_small %>%
   dplyr::select(ITIS_CODE, CATCH_CNT) %>% 
-  group_by(ITIS_CODE) %>% 
+  dplyr::group_by(ITIS_CODE) %>% 
   summarise(mrip_estimate_catch_by_species = sum(CATCH_CNT))
 head(mrip_estimate_catch_by_species, 2)
 

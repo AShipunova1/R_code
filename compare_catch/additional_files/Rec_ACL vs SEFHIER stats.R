@@ -381,7 +381,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
         reported_quantity
       ) %>%
       # group by all of them but "reported_quantity"
-      group_by(
+      dplyr::group_by(
         catch_species_itis,
         end_port_state,
         end_port_sa_gom,
@@ -408,7 +408,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # get the same species
       dplyr::filter(catch_species_itis == test_species_itis) %>%
       # group by region
-      group_by(catch_species_itis, end_port_sa_gom) %>%
+      dplyr::group_by(catch_species_itis, end_port_sa_gom) %>%
       # sum the FHIER catch
       summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
       as.data.frame()
@@ -425,7 +425,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # dplyr::select the relevan columns only
       dplyr::select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
       # group by all except the counts
-      group_by(itis_code, new_sta, sub_reg, year, wave) %>%
+      dplyr::group_by(itis_code, new_sta, sub_reg, year, wave) %>%
       # save the sum of "ab1" for each group in "mrip_estimate_catch_by_4"
       # remove NAs
       summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%

@@ -486,7 +486,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_df(my_df, function(x) length(unique(x)))
 # to compare:
-# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+# time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
 connect_to_secpr <- function() {
   # usage:
@@ -1493,9 +1493,9 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
-  # group_by(compliant_, perm_exp_y) %>%
-  # group_by(compliant_) %>%
-  group_by(perm_exp_y) %>%
+  # dplyr::group_by(compliant_, perm_exp_y) %>%
+  # dplyr::group_by(compliant_) %>%
+  dplyr::group_by(perm_exp_y) %>%
   # 1707 + 472
   # [1] 2179
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
@@ -2231,7 +2231,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 
 #### check if expired and active permit is in the same month
 # compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
-#   group_by(vessel_official_number, year_month) |>
+#   dplyr::group_by(vessel_official_number, year_month) |>
 #   mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
 #                                    collapse = " & ")) |>
 #   filter(grepl("&", active_or_expired)) |>
@@ -3197,7 +3197,7 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 min_max_val <-
   # Group 'test_df' by 'percent_non_compl_2_buckets'.
   line_df_22_sa |>
-  group_by(percent_non_compl_2_buckets) |>
+  dplyr::group_by(percent_non_compl_2_buckets) |>
 
   # Calculate the maximum and minimum values of 'perc_vsls_per_m_b2' within each group.
   mutate(
@@ -3382,7 +3382,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
   mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
-  group_by(perm_exp_y) %>%
+  dplyr::group_by(perm_exp_y) %>%
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
   dplyr::ungroup() %>%
   dplyr::select(tota_vsl_m, compliant_, perm_exp_y) %>%

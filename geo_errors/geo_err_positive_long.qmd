@@ -168,7 +168,7 @@ ne_10m_ocean_sf_bb <-
 ## r prepare vendor columns ----
 trip_coord_info_vendors <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
   dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
   dplyr::ungroup()
@@ -176,7 +176,7 @@ trip_coord_info_vendors <-
 tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
   dplyr::mutate(vendor_trip_cat = case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
@@ -776,7 +776,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
   pivot_wider(id_cols = VESSEL_ID,
               names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
-  group_by(VESSEL_ID) |>
+  dplyr::group_by(VESSEL_ID) |>
   dplyr::mutate(tot = good + wrong) |>
   dplyr::ungroup()
 
@@ -794,7 +794,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   both_tot_w_coords__and_good_pairs_mark_cnts |>
   pivot_wider(names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
-  group_by(VESSEL_ID) |>
+  dplyr::group_by(VESSEL_ID) |>
   dplyr::mutate(good_over_bad = round(good / wrong, 2),
          bad_over_good = round(wrong / good, 2)) |>
   dplyr::ungroup()
@@ -955,7 +955,7 @@ plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low <-
 # View(ggplot_build(plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low)$data)
 p.smoothedmaxes <-
   ggplot_build(plot_both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups_low)$data[[4]] %>%
-  group_by(group) %>%
+  dplyr::group_by(group) %>%
   dplyr::mutate(xmean = mean(x)) %>%
   filter(x == max(x))
 

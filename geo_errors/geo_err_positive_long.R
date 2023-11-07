@@ -46,7 +46,7 @@ vessel_permits_ids <-
 # r prepare vendor columns ----
 trip_coord_info_vendors <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
   # dplyr::mutate(all_permits = toString(unique(TOP))) |>
   dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
@@ -55,7 +55,7 @@ trip_coord_info_vendors <-
 tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
   dplyr::mutate(vendor_trip_cat = case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
@@ -483,7 +483,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
   pivot_wider(id_cols = VESSEL_ID,
               names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
-  group_by(VESSEL_ID) |>
+  dplyr::group_by(VESSEL_ID) |>
   dplyr::mutate(tot = good + wrong) |>
   dplyr::ungroup()
 
@@ -501,7 +501,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   both_tot_w_coords__and_good_pairs_mark_cnts |>
   pivot_wider(names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
-  group_by(VESSEL_ID) |>
+  dplyr::group_by(VESSEL_ID) |>
   dplyr::mutate(good_over_bad = round(good / wrong, 2),
          bad_over_good = round(wrong / good, 2)) |>
   dplyr::ungroup()
@@ -525,7 +525,7 @@ head(both_tot_w_coords__and_good_pairs_mark_cnts_wide, 3)
 # ## add proportion of good over bad coords ----
 # both_tot_w_coords__and_good_pairs_mark_cnts_wide_perc_g <-
 #   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-#   group_by(VESSEL_ID) |>
+#   dplyr::group_by(VESSEL_ID) |>
 #   dplyr::mutate(good_percent =
 #            good * 100 / total_trips_by_vsl) |>
 #   dplyr::ungroup()

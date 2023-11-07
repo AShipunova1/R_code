@@ -114,7 +114,7 @@ head(weird_stats) |>
 
 trip_coord_info_vendors <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
   # dplyr::mutate(all_permits = toString(unique(TOP))) |>
   dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
@@ -167,7 +167,7 @@ trip_coord_info_effort_vendors_cnt |>
 tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
   dplyr::mutate(vendor_trip_cat = case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
@@ -556,7 +556,7 @@ ggplot(join_vesl_cnts_no_diff_all) +
 # get the distribution of cnt differences ----
 join_vesl_cnts_no_diff_all_freq <-
   join_vesl_cnts_no_diff_all |>
-  group_by(cnt_diff) %>%
+  dplyr::group_by(cnt_diff) %>%
   dplyr::mutate(cnt_diff_freq = n()) %>%
   dplyr::ungroup() |>
   arrange(desc(cnt_diff_freq))

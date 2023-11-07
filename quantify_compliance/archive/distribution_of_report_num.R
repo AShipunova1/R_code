@@ -134,7 +134,7 @@ compl_clean_sa_vs_gom_plus_dual_rep_cnt_gom_non_compl <-
 
 monthly_count_density_plots <-
   compl_clean_sa_vs_gom_plus_dual_rep_cnt_gom_non_compl %>%
-  group_by(year_month) %>%
+  dplyr::group_by(year_month) %>%
   group_map(.f = ~ density_plot(.x,
                                 .x$year_month),
             # keep year_month (the grouping variable)
@@ -192,7 +192,7 @@ compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl <-
   select(report_cnts, vessel_official_number, year_month, week_start)
 
 # compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl %>%
-# group_by(year_month) %>%
+# dplyr::group_by(year_month) %>%
 
 my_colors = c('Mean' = 'red',
               'Num of weeks' = 'deepskyblue')
@@ -227,7 +227,7 @@ sa_density_plot <- function(my_df) {
 
 monthly_count_density_plots <-
   compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl %>%
-  group_by(year_month) %>%
+  dplyr::group_by(year_month) %>%
   group_map(.f = ~ sa_density_plot(.x),
             # keep year_month (the grouping variable)
             .keep = TRUE)

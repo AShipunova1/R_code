@@ -752,7 +752,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_df(my_df, function(x) length(unique(x)))
 # to compare:
-# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+# time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
 # ====
 # Define a function named 'connect_to_secpr'.
@@ -2375,7 +2375,7 @@ GOM_400fm_path <-
 # Then, group the resulting data by 'StatZone' and summarize it.
 GOMsf <-
   sf::read_sf(GOM_400fm_path) %>%
-  group_by(StatZone) %>%
+  dplyr::group_by(StatZone) %>%
   summarise()
 
 # create 5x5 minute grid ----
@@ -2484,7 +2484,7 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
 add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr") {
   # Group the data frame by 'cell_id'.
   my_df |>
-    group_by(cell_id) |>
+    dplyr::group_by(cell_id) |>
 
   # Add columns 'vsl_cnt' and 'trip_id_cnt' with counts of distinct vessel and trip IDs.
     # sym() take strings as input and turn them into symbols.

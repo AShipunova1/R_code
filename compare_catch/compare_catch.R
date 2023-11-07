@@ -77,7 +77,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
   dplyr::filter(scientific_name == test_species_name) %>%
 # 
 #   dplyr::filter(species_itis == test_species_itis) %>%
-  group_by(scientific_name, sa_gom) %>%
+  dplyr::group_by(scientific_name, sa_gom) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(fhier_test_cnts$mackerel_fhier_cnt)
@@ -87,7 +87,7 @@ fhier_acl_catch_by_species_state_region_waves %>%
 
 fhier_acl_catch_by_species_state_region_waves %>%
   dplyr::filter(scientific_name == test_species_name) %>%
-  group_by(scientific_name, sa_gom) %>%
+  dplyr::group_by(scientific_name, sa_gom) %>%
   summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_acl_cnt) %>%
   identical(acl_test_cnts$mackerel_acl_cnt)
@@ -175,7 +175,7 @@ fhier_acl_catch_by_species_state_region_waves_list <-
 get_acl_top_cnts <- function(my_df, top_num = 12) {
   my_df %>%
     dplyr::select(new_sci, rec_acl_estimate_catch_by_4) %>%
-    group_by(new_sci) %>%
+    dplyr::group_by(new_sci) %>%
     summarise(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
     # sort
     arrange(desc(acl_count)) %>%
@@ -294,7 +294,7 @@ fhier_acl_catch_by_species_region_year <-
     fhier_quantity_by_4,
     rec_acl_estimate_catch_by_4
   ) %>%
-  group_by(scientific_name,
+  dplyr::group_by(scientific_name,
          sa_gom) %>%
   new_group_counts()
 
@@ -331,7 +331,7 @@ fhier_acl_catch_by_species_region_year_list$gom %>%
 
 acl_estimate_2022 %>%
   dplyr::filter(new_sci == 'MYCTEROPERCA BONACI') %>%
-  group_by(new_sci, new_moden, year, sub_reg) %>%
+  dplyr::group_by(new_sci, new_moden, year, sub_reg) %>%
   summarise(GROUPER_BLACK_cnts_2022 = sum(ab1))
 # same
 
@@ -347,7 +347,7 @@ fhier_acl_catch_by_species_state_year <-
     fhier_quantity_by_4,
     rec_acl_estimate_catch_by_4
   ) %>%
-  group_by(scientific_name,
+  dplyr::group_by(scientific_name,
            state) %>%
   new_group_counts()
 

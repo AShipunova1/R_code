@@ -147,7 +147,7 @@ plot_by_spp <- function(my_df, com_name, no_legend = TRUE) {
 # names(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   dplyr::filter(scientific_name == test_species_name) %>%
-  group_by(scientific_name) %>%
+  dplyr::group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
@@ -161,7 +161,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
   dplyr::filter(scientific_name == test_species_name) %>%
-  group_by(scientific_name) %>%
+  dplyr::group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
       use_series(mackerel_acl_cnt) %>%
   identical(
@@ -210,7 +210,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
 #### test SA, FHIER counts ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   dplyr::filter(scientific_name == test_species_name) %>%
-  group_by(scientific_name) %>%
+  dplyr::group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   dplyr::select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
@@ -224,7 +224,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
 # GOM, FHIER counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
   dplyr::filter(scientific_name == test_species_name) %>%
-  group_by(scientific_name) %>%
+  dplyr::group_by(scientific_name) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   dplyr::select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
@@ -238,7 +238,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
 # SA, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
   dplyr::filter(scientific_name == test_species_name) %>%
-  group_by(scientific_name) %>%
+  dplyr::group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   dplyr::select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
@@ -252,7 +252,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa_sedar %>%
 # GOM, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom_top_sedar %>%
   dplyr::filter(scientific_name == test_species_name) %>%
-  group_by(scientific_name) %>%
+  dplyr::group_by(scientific_name) %>%
   summarise(mackerel_acl_cnt = sum(rec_acl_estimate_catch_by_4, na.rm = TRUE)) %>%
     dplyr::select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
@@ -280,7 +280,7 @@ fhier_acl_to_plot_format <- function(my_df) {
   ) %>%
   # use only the new columns
   dplyr::select(wave, species_itis_fhier, common_name_fhier, ORIGIN, CATCH_CNT) %>%
-    group_by(wave, species_itis_fhier, common_name_fhier, ORIGIN) %>%
+    dplyr::group_by(wave, species_itis_fhier, common_name_fhier, ORIGIN) %>%
     summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
     return()
 }
@@ -446,7 +446,7 @@ calculate_cnt_index <- function(my_df) {
     dplyr::select(wave, common_name_fhier, fhier_quantity_by_4, rec_acl_estimate_catch_by_4) %>%
     # dplyr::select(-c(state, species_itis_fhier, species_itis_mrip)) %>%
     dplyr::mutate_all( ~ replace_na(., 0)) %>%
-    group_by(wave, common_name_fhier) %>%
+    dplyr::group_by(wave, common_name_fhier) %>%
     # aggregate counts by states
     summarise(
       fhier_cnts = sum(fhier_quantity_by_4),

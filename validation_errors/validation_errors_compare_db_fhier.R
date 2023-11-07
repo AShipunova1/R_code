@@ -10,7 +10,7 @@ source("~/R_code_github/validation_errors/validation_errors_get_data.r")
 by_year <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(arr_year) %>%
+    dplyr::group_by(arr_year) %>%
     summarise(n = n()) %>%
     return()
 }
@@ -32,14 +32,14 @@ by_year(dat_pending_date, c("trip_report_id", "arr_year"))
 
 dat_pending_date %>%
   select(trip_report_id, overridden, arr_year) %>%
-  group_by(overridden, arr_year) %>%
+  dplyr::group_by(overridden, arr_year) %>%
   summarise(n = n())
 
 ### From db by year_month ====
 by_year_month <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(arr_year_month) %>%
+    dplyr::group_by(arr_year_month) %>%
     summarise(n = n()) %>%
     return()
 }
@@ -53,7 +53,7 @@ View(db_pending_by_year_month)
 by_year_month_wide <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(overridden, arr_year_month) %>%
+    dplyr::group_by(overridden, arr_year_month) %>%
     summarise(n = n()) %>%
     # A tibble: 23 × 3
     # dplyr::ungroup() %>%
@@ -119,7 +119,7 @@ data_overview(from_fhier_data_22)
 # names(from_fhier_data)
 from_fhier_data %>%
   select(edit_trip, overridden, arr_year) %>%
-  group_by(arr_year) %>%
+  dplyr::group_by(arr_year) %>%
   summarise(n = n())
 # arr_year     n
 #   <chr>    <int>
@@ -135,7 +135,7 @@ from_fhier_data_by_ym_22 <-
   select(edit_trip, overridden, arr_year_month) %>%
   mutate(overridden = case_when(overridden == "N" ~ "pending",
                                 overridden == "Y" ~ "overridden")) %>%
-  group_by(overridden, arr_year_month) %>%
+  dplyr::group_by(overridden, arr_year_month) %>%
   summarise(n = n()) %>%
   pivot_wider(names_from = overridden, values_from = n) %>%   # A tibble: 21 × 3
   # NAs to 0
@@ -387,7 +387,7 @@ glimpse(dat_pending_data_22)
 db_by_y_m_asg_param_overr <-
   dat_pending_data_22 %>%
   select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
-  group_by(arr_year_month, asg_info, val_param_name, overridden) %>%
+  dplyr::group_by(arr_year_month, asg_info, val_param_name, overridden) %>%
   summarise(n = n()) %>%
   dplyr::ungroup()
 # %>%
@@ -397,7 +397,7 @@ db_by_y_m_asg_param_overr <-
 db_by_y_m_param_overr <-
   dat_pending_data_22 %>%
   select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
-  group_by(arr_year_month, val_param_name, overridden) %>%
+  dplyr::group_by(arr_year_month, val_param_name, overridden) %>%
   summarise(n = n()) %>%
   dplyr::ungroup()
 # %>%
@@ -460,7 +460,7 @@ db_n_fhier_data_22_ok_cnts <-
   db_n_fhier_data_22_ok %>%
   select(trip_report_id, all_of(fields_to_select_list3)) %>%
   arrange(arr_year_month) %>%
-  group_by(across(all_of(fields_to_select_list3))) %>%
+  dplyr::group_by(across(all_of(fields_to_select_list3))) %>%
   summarise(n = n()) %>%
   dplyr::ungroup() %>%
   arrange(arr_year_month)

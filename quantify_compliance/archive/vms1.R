@@ -143,7 +143,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
   dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
-  group_by(perm_exp_y) %>%
+  dplyr::group_by(perm_exp_y) %>%
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
   dplyr::ungroup() %>%
   dplyr::select(tota_vsl_m, compliant_, perm_exp_y) %>%

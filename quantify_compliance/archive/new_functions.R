@@ -328,9 +328,9 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
-  # group_by(compliant_, perm_exp_y) %>%
-  # group_by(compliant_) %>%
-  group_by(perm_exp_y) %>%
+  # dplyr::group_by(compliant_, perm_exp_y) %>%
+  # dplyr::group_by(compliant_) %>%
+  dplyr::group_by(perm_exp_y) %>%
 # 1707 + 472
 # [1] 2179
 

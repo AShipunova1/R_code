@@ -523,7 +523,7 @@ fhier_catch_by_species_state_region_waves <-
     reported_quantity
   ) %>%
   # group by all of them but "reported_quantity"
-  group_by(
+  dplyr::group_by(
     catch_species_itis,
     common_name,
     end_port_state,
@@ -554,7 +554,7 @@ fhier_test_cnts <-
   # get the same species
   dplyr::filter(catch_species_itis == test_species_itis) %>%
   # group by region
-  group_by(catch_species_itis, end_port_sa_gom) %>%
+  dplyr::group_by(catch_species_itis, end_port_sa_gom) %>%
   # sum the FHIER catch
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   as.data.frame()
@@ -601,7 +601,7 @@ acl_estimate_catch_by_species_state_region_waves <-
   # dplyr::select the relevant columns only
   dplyr::select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
   # group by all except the counts
-  group_by(itis_code, new_sta, sub_reg, year, wave) %>%
+  dplyr::group_by(itis_code, new_sta, sub_reg, year, wave) %>%
   # save the sum of "ab1" for each group in "acl_estimate_catch_by_4"
   # remove NAs
   summarise(acl_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
@@ -638,7 +638,7 @@ acl_test_cnts <-
   # get one species
   dplyr::filter(itis_code == test_species_itis) %>%
   # group by region
-  group_by(itis_code, sa_gom) %>%
+  dplyr::group_by(itis_code, sa_gom) %>%
   # sum the ACL catch
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   as.data.frame()
@@ -741,14 +741,14 @@ fhier_acl_catch_by_species_state_region_waves %>%
 
 fhier_acl_catch_by_species_state_region_waves %>%
   dplyr::filter(species_itis == test_species_itis) %>%
-  group_by(species_itis, sa_gom) %>%
+  dplyr::group_by(species_itis, sa_gom) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(fhier_test_cnts$mackerel_fhier_cnt)  #[1] TRUE
 
 fhier_acl_catch_by_species_state_region_waves %>%
   dplyr::filter(species_itis == test_species_itis) %>%
-  group_by(species_itis, sa_gom) %>%
+  dplyr::group_by(species_itis, sa_gom) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_acl_cnt) %>%
   identical(acl_test_cnts$mackerel_acl_cnt)  #[1] TRUE

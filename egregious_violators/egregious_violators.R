@@ -230,7 +230,7 @@ compl_clean_sa |>
   ) |>
   # dim()
   # [1] 3146   23
-  group_by(vessel_official_number) |>
+  dplyr::group_by(vessel_official_number) |>
   dplyr::filter(tolower(compliant_) == "yes" &
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
@@ -367,7 +367,7 @@ get_date_contacttype <-
       # sort
       arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
-      group_by(vessel_official_number) |>
+      dplyr::group_by(vessel_official_number) |>
       # for each vessel id combine all date__contacttypes separated by comma in one cell
       summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
       return()
@@ -434,7 +434,7 @@ dim(vessels_permits_participants_space)
 
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
-  group_by(P_VESSEL_ID) |>
+  dplyr::group_by(P_VESSEL_ID) |>
   dplyr::mutate(
     sero_home_port = list(unique(
       paste(
@@ -573,7 +573,7 @@ dim(vessels_permits_participants_space)
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
   # for each vessel
-  group_by(P_VESSEL_ID) |>
+  dplyr::group_by(P_VESSEL_ID) |>
   dplyr::mutate(
     sero_home_port = list(unique(
       paste(

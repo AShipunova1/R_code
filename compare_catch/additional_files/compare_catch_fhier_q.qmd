@@ -138,7 +138,7 @@ transm_before_after %>%
 # count how many in each group
 transm_before_after %>% 
   dplyr::select(vendor_app_name, transmission_date_group) %>%
-  group_by(vendor_app_name, transmission_date_group) %>%
+  dplyr::group_by(vendor_app_name, transmission_date_group) %>%
   summarise(n = n())
 # transmission_date is NA for all vendors except "VMS"
 

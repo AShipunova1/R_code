@@ -389,7 +389,7 @@ coalesce_by_column <- function(df) {
 vessels_permit_vsl_id__all_2 <-
   vessels_permit_vsl_id__all %>%
   dplyr::filter(permit_vessel_id == '1023478') %>%
-  group_by(permit_vessel_id) %>%
+  dplyr::group_by(permit_vessel_id) %>%
   dplyr::summarise_all(coalesce_by_column)
 
 # View(vessels_permit_vsl_id__all_2)
@@ -411,7 +411,7 @@ all.equal(vessels_permit_vsl_id__all_2,
 
 # vessels_by_permit_vessel__all_u <-
 #   vessels_permit_vsl_id__all %>%
-#   group_by(permit_vessel_id) %>%
+#   dplyr::group_by(permit_vessel_id) %>%
 #   dplyr::summarise_all(coalesce_by_column)
 
 # # View(vessels_permit_vsl_id__all_l)
@@ -566,13 +566,13 @@ map_df(vessels_permit_bind, dim)
 # vessels_permit_bind_u_test <-
 #   vessels_permit_bind$gom_only %>%
 #   dplyr::filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
-#   group_by(SERO_OFFICIAL_NUMBER) %>%
+#   dplyr::group_by(SERO_OFFICIAL_NUMBER) %>%
 #   dplyr::summarise_all(coalesce_by_column)
 #
 # vessels_permit_bind_u_test2 <-
 #   vessels_permit_bind$gom_only %>%
 #   dplyr::filter(SERO_OFFICIAL_NUMBER == 'FL4203RB') %>%
-#   group_by(VESSEL_ID.v) %>%
+#   dplyr::group_by(VESSEL_ID.v) %>%
 #   dplyr::summarise_all(coalesce_by_column)
 #
 # View(vessels_permit_bind_u_test_0)
@@ -590,7 +590,7 @@ my_function_vessels_permit_bind_u_one_df <-
   function(vessels_permit_bind) {
     vessels_permit_bind %>%
       map(~ .x %>%
-            group_by(VESSEL_ID.v) %>%
+            dplyr::group_by(VESSEL_ID.v) %>%
             dplyr::summarise_all(coalesce_by_column)) %>%
       return()
   }
@@ -976,7 +976,7 @@ vessels__trip_neg_22_l_sa_short %>%
   dplyr::filter(permit_vessel_id == '03017306') %>%
   dplyr::select(permit_vessel_id, TRIP_week_num) %>%
   dplyr::distinct() %>%
-  group_by(permit_vessel_id) %>%
+  dplyr::group_by(permit_vessel_id) %>%
   summarise(n_distinct(TRIP_week_num)) %>%
   # count(TRIP_week_num) %>%
   glimpse()
@@ -985,7 +985,7 @@ vessels__trip_neg_22_l_sa_short %>%
 
 vessels__trip_neg_22_l_sa_short_weeks_per_vessel <-
   vessels__trip_neg_22_l_sa_short %>%
-  group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
+  dplyr::group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
   summarise(tot_weeks = n_distinct(TRIP_week_num))
 
 View(vessels__trip_neg_22_l_sa_short_weeks_per_vessel)
@@ -1010,7 +1010,7 @@ vessels__trip_notif_22_l_sa_short <-
 # str(vessels__trip_notif_22_l_sa_short)
 vessels__trip_notif_22_l_sa_vessels_trips <-
   vessels__trip_notif_22_l_sa_short %>%
-  group_by(permit_vessel_id) %>%
+  dplyr::group_by(permit_vessel_id) %>%
   summarise(
     tot_start_weeks =
       n_distinct(TRIP_START_week_num),
@@ -1045,7 +1045,7 @@ vessels__trips_22_l_sa_short <-
 
 vessels__trips_22_l_sa_weeks_per_vessel <-
   vessels__trips_22_l_sa_short %>%
-  group_by(permit_vessel_id) %>%
+  dplyr::group_by(permit_vessel_id) %>%
   summarise(
     tot_start_weeks =
       n_distinct(TRIP_START_week_num),
@@ -1286,7 +1286,7 @@ dim(vessels_permit_bind_u1_sa_w_p_short)
 
 # vessels__trip_neg_22_l_sa_weeks_cnt <-
 #   vessels__trip_neg_22_l$sa_only %>%
-#   group_by(VESSEL_ID, permit_vessel_id) %>%
+#   dplyr::group_by(VESSEL_ID, permit_vessel_id) %>%
 #   dplyr::mutate(distinct_weeks = n_distinct(TRIP_week_num))
 #
 # vessels__trip_neg_22_l_sa_weeks_cnt %>%
@@ -1297,7 +1297,7 @@ dim(vessels_permit_bind_u1_sa_w_p_short)
 
 vessels__trip_neg_22_l_sa_weeks_cnt_u <-
   vessels__trip_neg_22_l$sa_only %>%
-  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
+  dplyr::group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
   summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
 dim(vessels__trip_neg_22_l_sa_weeks_cnt_u)
@@ -1328,7 +1328,7 @@ vessels__trip_neg_22_l_sa_weeks_cnt_u %>%
 ## trip_notif weeks count per vessel ----
 vessels__trip_notif_22_l_sa_weeks_cnt_u <-
   vessels__trip_notif_22_l$sa_only %>%
-  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
+  dplyr::group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
   summarise(distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
             distinct_end_weeks_tn = n_distinct(TRIP_END_week_num))
 
@@ -1343,7 +1343,7 @@ vessels__trip_notif_22_l_sa_weeks_cnt_u %>%
 
 vessels__trips_22_l_sa_weeks_cnt_u <-
   vessels__trips_22_l$sa_only %>%
-  group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
+  dplyr::group_by(VESSEL_ID, permit_vessel_id, SUPPLIER_VESSEL_ID, SERO_OFFICIAL_NUMBER) %>%
   summarise(distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
             distinct_end_weeks_t = n_distinct(TRIP_END_week_num)) %>%
   dplyr::mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
@@ -2008,7 +2008,7 @@ v_p_t_tne_dates_join |> dplyr::filter(permit_vessel_id == "1020057") |>
 
 v_p_t_tne_dates_join_week_cnts <-
   v_p_t_tne_dates_join |>
-  group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) |>
+  dplyr::group_by(permit_vessel_id, SUPPLIER_VESSEL_ID) |>
   dplyr::mutate(
     total_WEEK_OF_YEAR = n_distinct(WEEK_OF_YEAR),
     tne_only =

@@ -138,7 +138,7 @@ dim(vessels_permits_2022_r_end_date_uid_short)
 # print_df_names(vessels_permits_2022_r_end_date_uid_short)
 vessels_permits_2022_r_end_date_uid_short_mm <-
   vessels_permits_2022_r_end_date_uid_short |>
-  group_by(unique_all_vessel_ids, permit_sa_gom) |>
+  dplyr::group_by(unique_all_vessel_ids, permit_sa_gom) |>
   dplyr::mutate(
     min_permit_eff_date = min(EFFECTIVE_DATE),
     max_permit_end_date = max(my_end_date)
@@ -197,7 +197,7 @@ tic("get permit periods")
 # glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
-  group_by(permit_sa_gom, unique_all_vessel_ids) |>
+  dplyr::group_by(permit_sa_gom, unique_all_vessel_ids) |>
   dplyr::mutate(eff_int =
            lubridate::interval(min_permit_eff_date,
                                max_permit_end_date)) |>
@@ -222,7 +222,7 @@ toc()
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |>
   # for each vessel and permit in effect interval
-  group_by(unique_all_vessel_ids, eff_int, permit_2022_int) |>
+  dplyr::group_by(unique_all_vessel_ids, eff_int, permit_2022_int) |>
   # create a list of all permit regions
   dplyr::mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |>
   # get the length of each list of permits
@@ -488,7 +488,7 @@ trips_notifications_2022_ah |>
 # 5/6
 trips_notifications_2022_ah_5_6 <-
   trips_notifications_2022_ah |>
-  group_by(
+  dplyr::group_by(
     TRIP_TYPE,
     VESSEL_ID,
     TRIP_START_DATE,
@@ -893,7 +893,7 @@ dim(v_p_d_w_22)
 #
 # trip_neg_2022_w_y_cnt_u <-
 #   trip_neg_2022_w_y |>
-#   group_by(VESSEL_ID) %>%
+#   dplyr::group_by(VESSEL_ID) %>%
 #   dplyr::mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |>
 #   dplyr::ungroup()
 #
@@ -906,7 +906,7 @@ dim(v_p_d_w_22)
 # ## trip_notif weeks count per vessel ----
 # trips_notifications_2022_ah_6_w_y_cnt_u <-
 #   trips_notifications_2022_ah_6_w_y |>
-#   group_by(VESSEL_ID) |>
+#   dplyr::group_by(VESSEL_ID) |>
 #   dplyr::mutate(
 #     distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
 #     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
@@ -926,7 +926,7 @@ dim(v_p_d_w_22)
 # ## trips weeks count per vessel ----
 # trips_info_2022_int_ah_sero_w_y_weeks_cnt_u <-
 #   trips_info_2022_int_ah_sero_w_y %>%
-#     group_by(VESSEL_ID) %>%
+#     dplyr::group_by(VESSEL_ID) %>%
 #       dplyr::mutate(
 #         distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
 #         distinct_end_weeks_t = n_distinct(TRIP_END_week_num)

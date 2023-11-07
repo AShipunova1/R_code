@@ -201,7 +201,7 @@ GOM_400fm_path <-
 # Then, group the resulting data by 'StatZone' and summarize it.
 GOMsf <-
   sf::read_sf(GOM_400fm_path) %>%
-  group_by(StatZone) %>%
+  dplyr::group_by(StatZone) %>%
   summarise()
 
 # Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
@@ -311,7 +311,7 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
 add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr") {
   # Group the data frame by 'cell_id'.
   my_df |>
-    group_by(cell_id) |>
+    dplyr::group_by(cell_id) |>
 
   # Add columns 'vsl_cnt' and 'trip_id_cnt' with counts of distinct vessel and trip IDs.
     # sym() take strings as input and turn them into symbols.

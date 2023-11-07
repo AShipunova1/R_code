@@ -179,7 +179,7 @@ corrected_n_fhier_short_w_n <-
 corrected_n_fhier_short_w_n_comb <-
   corrected_n_fhier_short_w_n |>
   # for each vessel
-  group_by(vessel_official_number) |>
+  dplyr::group_by(vessel_official_number) |>
   dplyr::mutate(fhier_comb_name =
                   list(unique(paste(
                     first_name,

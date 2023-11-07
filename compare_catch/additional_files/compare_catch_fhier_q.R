@@ -94,7 +94,7 @@ transm_before_after %>%
     vendor_app_name,
     transmission_date_group
   ) %>%
-  group_by(
+  dplyr::group_by(
     vendor_app_name,
     transmission_date_group
   ) %>%

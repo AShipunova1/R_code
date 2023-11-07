@@ -122,7 +122,7 @@ head(weird_stats) |>
 
 trip_coord_info_vendors <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
   # dplyr::mutate(all_permits = toString(unique(TOP))) |>
   dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
@@ -175,7 +175,7 @@ trip_coord_info_effort_vendors_cnt |>
 tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
   dplyr::mutate(vendor_trip_cat = case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
@@ -1105,7 +1105,7 @@ path_to_GOMsf <-
 tic("read_GOMsf")
 GOMsf <-
   sf::read_sf(path_to_GOMsf) %>%
-  group_by(StatZone) %>%
+  dplyr::group_by(StatZone) %>%
   summarise()
 toc(log = TRUE, quiet = TRUE)
 
@@ -1499,7 +1499,7 @@ plot(us_polys1)
 #### r usa map to polygons 2 ----
 polygon_usa <- usa %>%
   sf::st_as_sf(coords = c("long", "lat"), crs = my_crs) %>%
-  group_by(region) %>%
+  dplyr::group_by(region) %>%
   summarise(geometry = sf::st_combine(geometry)) %>%
   sf::st_cast("POLYGON")
 

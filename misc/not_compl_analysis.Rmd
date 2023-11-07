@@ -8,7 +8,7 @@ get list of not compliant
 
 ```{r}
   all_data_df_cleen %>%
-    group_by(vesselofficialnumber) %>%
+    dplyr::group_by(vesselofficialnumber) %>%
     summarise(not_compl = any(compliant == "NO")) %>%
     filter(not_compl) %>% 
     select(vesselofficialnumber) ->
@@ -24,7 +24,7 @@ glimpse(not_compl_vsl_22_23)
 ```{r}
   all_data_df_cleen %>%
     filter(vesselofficialnumber %in% not_compl_vsl_22_23$vesselofficialnumber) %>%
-    #  group_by(vesselofficialnumber) %>%
+    #  dplyr::group_by(vesselofficialnumber) %>%
     select(vesselofficialnumber,
            compliant,
            week_num,
@@ -45,7 +45,7 @@ glimpse(not_compl_vsl_22_23_data)
 Group by count of multiple columns and get total counts
 ```{r}
 not_compl_vsl_22_23_data_yes_no_cnts <- not_compl_vsl_22_23_data %>% 
-  group_by(vesselofficialnumber, compliant) %>% 
+  dplyr::group_by(vesselofficialnumber, compliant) %>% 
   summarise(total_count=n(), .groups = 'drop') %>%
   as.data.frame()
 

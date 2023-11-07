@@ -94,7 +94,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |>
-  group_by(perc_nc_100_gr) |>
+  dplyr::group_by(perc_nc_100_gr) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
   dplyr::distinct() |>
@@ -494,7 +494,7 @@ labs_all <-
 # All percents ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <- 
   count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
-  group_by(vessel_cnt_group) |> 
+  dplyr::group_by(vessel_cnt_group) |> 
   mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
   dplyr::ungroup()
@@ -590,7 +590,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
   # mutate(percent_compl_compl = ) |> 
   mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
-  # group_by(perc_nc_100_gr, compliant_) |> str()
+  # dplyr::group_by(perc_nc_100_gr, compliant_) |> str()
   mutate(perc_nc_100_gr_name =
       case_when(!!never_reported_filter ~
                   "Never Reported",
@@ -601,7 +601,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
                   1,
                 .default = 2)
   ) |> 
-  group_by(perc_nc_100_gr_name) |>
+  dplyr::group_by(perc_nc_100_gr_name) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
   dplyr::distinct() |>

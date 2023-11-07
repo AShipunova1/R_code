@@ -132,7 +132,7 @@ get_time_period_col_name <- function(my_df) {
 
 total_counts <- function(time_period_name) {
   compl_clean_sa_vs_gom_plus_dual_short %>% 
-  group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
+  dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
   summarise(total_count = n()) %>%
   as.data.frame()
 }
@@ -148,7 +148,7 @@ head(compl_clean_sa_vs_gom_plus_dual_all_q)
 count_compliant_yes <- function(time_period_name) {
   compl_clean_sa_vs_gom_plus_dual_short %>% 
   filter(tolower(compliant_) == "yes") %>%
-  group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
+  dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
   summarise(compliant_yes = n()) %>%
   as.data.frame()
 }
@@ -192,7 +192,7 @@ compl_clean_sa_vs_gom_plus_dual_y_t <-
 percent_by_time_period <- function(joined_df) {
   time_period_name <- get_time_period_col_name(joined_df)
   joined_df %>%
-    group_by(vessel_official_number, permit, !!sym(time_period_name)) %>%
+    dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>%
     summarise(percent_yes = compliant_yes * 100 / total_count,
               percent_no = 100 - percent_yes)
 }

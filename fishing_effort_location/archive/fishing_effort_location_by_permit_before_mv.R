@@ -98,7 +98,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
                 permit_region)) |>
       dplyr::add_count(ten_min_lat, ten_min_lon,
                        name = "trip_ids_cnts") |>
-      group_by(ten_min_lat, ten_min_lon) |>
+      dplyr::group_by(ten_min_lat, ten_min_lon) |>
       dplyr::mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
       dplyr::ungroup()
   })
@@ -207,7 +207,7 @@ short_example_3_cnts <-
   short_example_3loc |>
   dplyr::add_count(ten_min_lat, ten_min_lon,
                    name = "trip_ids_cnts") |>
-  group_by(ten_min_lat, ten_min_lon) |>
+  dplyr::group_by(ten_min_lat, ten_min_lon) |>
   dplyr::mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
   dplyr::ungroup()
 

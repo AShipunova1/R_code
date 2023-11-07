@@ -157,7 +157,7 @@ compliant_field_name <-
 
 get_all_weeks_not_compliance_id <- function(compl_clean_sa) {
   compl_clean_sa %>%
-    group_by(vessel_official_number) %>%
+    dplyr::group_by(vessel_official_number) %>%
     reframe(all_weeks_non_compl = all(tolower(!!sym(
       compliant_field_name
     )) == "no")) %>%
@@ -234,7 +234,7 @@ data_overview(corresp_contact_cnts_clean)
 ```{r 1) all are voicemails }
 get_all_voicemails_id <- function(corresp_contact_cnts_clean) {
   corresp_contact_cnts_clean %>%
-    group_by(vessel_official_number) %>%
+    dplyr::group_by(vessel_official_number) %>%
     # add a new logical column all_vm with a TRUE if all entries for voicemail column for this vessel are yeses
     reframe(all_vm = all(tolower(voicemail) == "yes")) %>%
     # keep a row only if all_vm == TRUE
@@ -435,7 +435,7 @@ get_date_contacttype <- function(compl_corr_to_investigation) {
     # sort
     arrange(vessel_official_number, date__contacttype) %>%
     unique() %>%
-    group_by(vessel_official_number) %>%
+    dplyr::group_by(vessel_official_number) %>%
     # [1] 1125    2
     # for each vessel id combine all date__contacttypes separated by comma in one cell
     summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%

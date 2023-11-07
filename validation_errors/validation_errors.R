@@ -14,7 +14,7 @@ source("~/R_code_github/validation_errors/validation_errors_get_data.r")
 by_year <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(arr_year) %>%
+    dplyr::group_by(arr_year) %>%
     summarise(n = n()) %>%
     return()
 }
@@ -31,14 +31,14 @@ by_year(dat_pending_date, c("trip_report_id", "arr_year"))
 
 dat_pending_date %>%
   select(trip_report_id, overridden, arr_year) %>%
-  group_by(overridden, arr_year) %>%
+  dplyr::group_by(overridden, arr_year) %>%
   summarise(n = n())
 
 ### From db by year_month ====
 by_year_month <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(arr_year_month) %>%
+    dplyr::group_by(arr_year_month) %>%
     summarise(n = n()) %>%
     return()
 }
@@ -52,7 +52,7 @@ db_pending_by_year_month <-
 by_year_month_wide <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(overridden, arr_year_month) %>%
+    dplyr::group_by(overridden, arr_year_month) %>%
     summarise(n = n()) %>%
     # A tibble: 23 × 3
     # dplyr::ungroup() %>%

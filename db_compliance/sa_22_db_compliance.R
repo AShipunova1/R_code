@@ -34,7 +34,7 @@ reports_exists_filter <- rlang::quo(
 tic("v_p__t__tne_d_weeks_sa_compl")
 v_p__t__tne_d_weeks_sa_compl_w <-
   v_p__t__tne_d_weeks_sa |>
-  group_by(PERMIT_VESSEL_ID,
+  dplyr::group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m,
@@ -59,7 +59,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_w)
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w <-
   v_p__t__tne_d_weeks_sa_compl_w |>
-  group_by(PERMIT_VESSEL_ID,
+  dplyr::group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID) |>
   dplyr::mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
   dplyr::ungroup()
@@ -324,7 +324,7 @@ sa_compl_cnts_perc <-
   dplyr::mutate(total_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
   dplyr::distinct() |>
-  group_by(compl_2022) |>
+  dplyr::group_by(compl_2022) |>
   dplyr::mutate(compl_perc =
            total_compl_y * 100 / (total_vsls)) |>
   dplyr::ungroup()
@@ -403,7 +403,7 @@ toc()
 tic("v_p__t__tne_d_weeks_sa_compl_w_short_m")
 v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m <-
   v_p__t__tne_d_weeks_sa_compl_w_short_p_dates |>
-  group_by(PERMIT_VESSEL_ID,
+  dplyr::group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
            date_y_m.d) |>
   dplyr::mutate(v_compliant_m =
@@ -418,7 +418,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m |>
 
 v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt <-
   v_p__t__tne_d_weeks_sa_compl_w_short |>
-  group_by(PERMIT_VESSEL_ID,
+  dplyr::group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
            date_y_m) |>
   dplyr::mutate(compl_w_cnt_m = n_distinct(WEEK_OF_YEAR)) |>

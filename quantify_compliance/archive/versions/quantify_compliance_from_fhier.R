@@ -424,7 +424,7 @@ grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
 
 # Percent nc weeks per year and region ----
 # df <- data %>% 
-#   group_by(answer) %>% # Variable to be transformed
+#   dplyr::group_by(answer) %>% # Variable to be transformed
 #   count() %>% 
 #   dplyr::ungroup() %>% 
 #   dplyr::mutate(perc = `n` / sum(`n`)) %>% 
@@ -449,7 +449,7 @@ non_compl_weeks_per_year <-
 
 perc_non_compl_weeks_per_year <-
   non_compl_weeks_per_year %>%
-  group_by(year, permit_sa_gom) %>%
+  dplyr::group_by(year, permit_sa_gom) %>%
   dplyr::mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>%
   dplyr::mutate(perc = nc_weeks_cnt * 100 / sum(nc_weeks_cnt)) %>%
   arrange(perc) %>%
@@ -544,7 +544,7 @@ non_compl_weeks_per_year_22_sa_perc %>%
 
 ## get percents ---- 
 non_compl_weeks_per_year %>%
-  group_by(year, permit_sa_gom) %>%
+  dplyr::group_by(year, permit_sa_gom) %>%
   dplyr::mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>%
   # dplyr::mutate(perc = `nc_weeks_cnt` / sum(`nc_weeks_cnt`)) %>%
   dplyr::mutate(total_by_year_reg = sum(sum_nc_weeks_cnt_per_year_reg)) %>%
@@ -934,7 +934,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b <-
 # test
     # View()
     #add_count(percentage_rank, year_reg, amount_of_occurences) %>% 
-  #       group_by(percentage_rank, year_reg) %>% 
+  #       dplyr::group_by(percentage_rank, year_reg) %>% 
   # summarise(n = n()) %>% 
 
 count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>% 

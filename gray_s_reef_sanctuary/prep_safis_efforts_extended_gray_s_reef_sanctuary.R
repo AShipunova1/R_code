@@ -29,7 +29,7 @@ dim(trip_coord_info_good)
 tic("get GOMsf")
 GOMsf <-
   sf::read_sf(r"(GOM_400fm\GOM_400fm.shp)") %>%
-  group_by(StatZone) %>%
+  dplyr::group_by(StatZone) %>%
   summarise()
 toc()
 

@@ -19,7 +19,7 @@ create_30_top_df <- function(mydf, count_field_name) {
         count_field_name
       }
     }) %>%
-    group_by(sa_gom, common_name) %>%
+    dplyr::group_by(sa_gom, common_name) %>%
     summarise(cnts1 = sum(!!sym(count_field_name))) %>%
     as.data.frame() %>%
     arrange(desc(cnts1)) %>%
@@ -69,7 +69,7 @@ make_plot_catch_by_spp(mrip_30, "cnts1")
 
 fhier_catch_by_species_state_region_waves_common_names %>%
   dplyr::select(sa_gom, common_name, fhier_catch_by_4) %>%
-  group_by(sa_gom, common_name) %>%
+  dplyr::group_by(sa_gom, common_name) %>%
   summarise(cnts1 = sum(fhier_catch_by_4)) %>%
   as.data.frame() %>%
   arrange(desc(cnts1)) %>%

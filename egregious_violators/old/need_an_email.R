@@ -26,7 +26,7 @@ corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
 
 get_all_not_direct_contact_id <- function(corr_2_plus_contact) {
   corr_2_plus_contact %>%
-    group_by(vessel_official_number) %>%
+    dplyr::group_by(vessel_official_number) %>%
     # add a new column all_dc with TRUE if all are not direct contacts
     reframe(all_dc = all(tolower(direct_contact) == "no")) %>%
     # keep these only

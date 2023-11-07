@@ -426,7 +426,7 @@ trip_neg_2022_w_y <-
 # print_df_names(trip_neg_2022_w_y)
 trip_neg_2022_w_y_cnt_u <-
   trip_neg_2022_w_y |>
-  group_by(VESSEL_ID) %>%
+  dplyr::group_by(VESSEL_ID) %>%
   summarise(distinct_weeks_ne = n_distinct(TRIP_week_num))
 
 dim(trip_neg_2022_w_y_cnt_u)
@@ -436,7 +436,7 @@ dim(trip_neg_2022_w_y_cnt_u)
 ## trip_notif weeks count per vessel ----
 trip_notifications_2022_ah_w_y_cnt_u <-
   trip_notifications_2022_ah_w_y |>
-  group_by(VESSEL_ID) |>
+  dplyr::group_by(VESSEL_ID) |>
   summarise(
     distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
@@ -458,7 +458,7 @@ trip_notifications_2022_ah_w_y_cnt_u %>%
 trips_info_2022_int_ah_w_y_weeks_cnt_u <-
   trips_info_2022_int_ah_w_y %>%
     # browser()
-    group_by(VESSEL_ID) %>%
+    dplyr::group_by(VESSEL_ID) %>%
       summarise(
         distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
         distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
@@ -1179,7 +1179,7 @@ v_p_t_tne_dates_cnts__no_t__no_tne <-
   dplyr::filter(!is.na(PERMIT_VESSEL_ID) | !is.na(VESSEL_VESSEL_ID)) |>
   # no t or tne
   dplyr::filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
-  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
 
 dim(v_p_t_tne_dates_cnts__no_t__no_tne)
@@ -1195,7 +1195,7 @@ v_p_t_tne_dates_cnts__t_xor_tne <-
   dplyr::filter((is.na(TRIP_ID.t) | is.na(TRIP_ID.tne)) &
            # but not both are absent
            !(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne))) |>
-           group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+           dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
            dplyr::mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
          
 # a <- NA
@@ -1228,7 +1228,7 @@ v_p_t_tne_dates_cnts__t_and_tne <-
   dplyr::filter(!is.na(PERMIT_VESSEL_ID) | !is.na(VESSEL_VESSEL_ID)) |>
   # t and tne
   dplyr::filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
-  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::mutate(t_and_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
 
 View(v_p_t_tne_dates_cnts__t_and_tne)
@@ -1245,7 +1245,7 @@ View(v_p_t_tne_dates_cnts__t_and_tne)
   # left_join(dt1,
   #           dt1 %>% 
   #                dplyr::filter(x2==1) %>%
-  #                group_by(x) %>%
+  #                dplyr::group_by(x) %>%
   #                summarise(a=mean(y)), by='x') %>%
   #                dplyr::mutate(z=y/a)%>%
   #                head()
@@ -1262,7 +1262,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
     v_p_t_tne_dates_w_v_p |>
       # no t or tne
       dplyr::filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
-      group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+      dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
       dplyr::ungroup()
   )
@@ -1279,7 +1279,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
         (is.na(TRIP_ID.t) | is.na(TRIP_ID.tne)) &
         !(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne))
         ) |>
-      group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+      dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
       dplyr::ungroup()
   )
@@ -1294,7 +1294,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
     v_p_t_tne_dates_w_v_p__cnts__t_tne |>
       # t and tne
       dplyr::filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
-      group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+      dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(t_and_tne_weeks_amnt =
                n_distinct(WEEK_OF_YEAR, YEAR)) |>
       dplyr::ungroup()

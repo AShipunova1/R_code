@@ -93,7 +93,7 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 
 min_max_val <-
   test_df |>
-  group_by(percent_non_compl_2_buckets) |>
+  dplyr::group_by(percent_non_compl_2_buckets) |>
   mutate(
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)

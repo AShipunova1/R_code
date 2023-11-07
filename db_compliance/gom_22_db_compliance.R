@@ -278,7 +278,7 @@ v_p__t__tn_d_weeks_gom_short_dt |>
 # 1) all compliant if there are no reports ----
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
   v_p__t__tn_d_weeks_gom_short_dt |>
-  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::mutate(compl_no_reps_y =
            case_when(is.na(rep_type.t) &
                        is.na(rep_type.tn) ~ "yes",
@@ -331,7 +331,7 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts |>
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts <-
   v_p__t__tn_d_weeks_gom_short_dt |>
-  group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
+  dplyr::group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
            date_y_m,
            WEEK_OF_YEAR) |>
   dplyr::mutate(compl_no_reps_w =
@@ -383,7 +383,7 @@ tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched")
 # v_p__t__tn_d_weeks_gom_short_matched <-
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |>
-  group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
+  dplyr::group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
   # convert time to a Date format
   dplyr::mutate(
     TRIP_START_TIME_t_hm =
@@ -429,7 +429,7 @@ length(unique(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched$PERMIT_VESSE
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -484,7 +484,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -516,7 +516,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |>
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID) |>
   dplyr::mutate(compl_y =
            case_when(
@@ -554,7 +554,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -632,7 +632,7 @@ no_decl_for_a_lgb_fiter <-
 tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -826,7 +826,7 @@ nrow(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_shor
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_decl_list_u <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            TRIP_END_week_num,
            TRIP_END_m) |>
@@ -905,7 +905,7 @@ tic("v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup")
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_short |>
   # group by tn
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            around_hour_tn_int,
            # not_fish_compl
@@ -964,7 +964,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
   #           DC.tn)) |>
   # group by vessel and tn date and time (<>1), having cnt(decl) > 1
   # TRIP_START_TIME_tn_hm <> 1h
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            # TRIP_START_TIME.tn,
            # TRIP_END_TIME.tn,
@@ -1022,7 +1022,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d <-
 #            lubridate::minute(TRIP_START_TIME_tn_hm) - 60*60,
 #          hour_interval =
 #            hour_interval_plus + hour_interval_min) |>
-  group_by(PERMIT_VESSEL_ID,
+  dplyr::group_by(PERMIT_VESSEL_ID,
            TRIP_START_DATE,
            TRIP_START_TIME.tn,
            hour_interval) |>
@@ -1038,7 +1038,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d |>
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d |>
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d_1 <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            TRIP_START_TIME.tn,
            TRIP_END_TIME.tn,
@@ -1075,7 +1075,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
          INTENDED_FISHING_FLAG,
          matched_compl) |>
   dplyr::distinct() |>
-  group_by(date_y_m,
+  dplyr::group_by(date_y_m,
            matched_reports,
            INTENDED_FISHING_FLAG,
            matched_compl) |>
@@ -1117,7 +1117,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
          WEEK_OF_YEAR,
          matched_compl) |>
   dplyr::distinct() |>
-  group_by(date_y_m,
+  dplyr::group_by(date_y_m,
            WEEK_OF_YEAR,
            matched_compl) |>
   dplyr::mutate(cnt_vsls =
@@ -1139,7 +1139,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
          WEEK_OF_YEAR,
          matched_compl) |>
   dplyr::distinct() |>
-  group_by(date_y_m,
+  dplyr::group_by(date_y_m,
            WEEK_OF_YEAR,
            matched_compl) |>
   dplyr::filter(date_y_m == 'Mar 2022') |>
@@ -1157,7 +1157,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_2")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -1188,7 +1188,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_3")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -1240,7 +1240,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_4")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -1348,7 +1348,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -1483,7 +1483,7 @@ all_not_compl_filter <-
 tic("v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1")
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr |>
-  group_by(VESSEL_VESSEL_ID,
+  dplyr::group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
@@ -1604,7 +1604,7 @@ tic(
 )
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
-  group_by(PERMIT_VESSEL_ID, date_y_m) |>
+  dplyr::group_by(PERMIT_VESSEL_ID, date_y_m) |>
   dplyr::mutate(compl_per_m_w = list(na.omit(unique(compl_w_total))),
          compl_m_len = lengths(compl_per_m_w)) |>
   dplyr::mutate(compl_m = case_when(compl_m_len > 1 ~ "no",
@@ -1633,7 +1633,7 @@ tic(
 )
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
-  group_by(PERMIT_VESSEL_ID) |>
+  dplyr::group_by(PERMIT_VESSEL_ID) |>
   dplyr::mutate(compl_per_y_w = list(na.omit(unique(compl_w_total))),
          compl_y_len = lengths(compl_per_y_w)) |>
   dplyr::mutate(compl_y = case_when(compl_y_len > 1 ~ "no",

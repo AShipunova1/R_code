@@ -846,7 +846,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_df(my_df, function(x) length(unique(x)))
 # to compare:
-# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+# time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
 # ====
 # Define a function named 'connect_to_secpr'.
@@ -1911,9 +1911,9 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
-  # group_by(compliant_, perm_exp_y) %>%
-  # group_by(compliant_) %>%
-  group_by(perm_exp_y) %>%
+  # dplyr::group_by(compliant_, perm_exp_y) %>%
+  # dplyr::group_by(compliant_) %>%
+  dplyr::group_by(perm_exp_y) %>%
   # 1707 + 472
   # [1] 2179
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
@@ -2605,7 +2605,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 
 #### check if expired and active permit is in the same month
 # compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
-#   group_by(vessel_official_number, year_month) |>
+#   dplyr::group_by(vessel_official_number, year_month) |>
 #   dplyr::mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
 #                                    collapse = " & ")) |>
 #   filter(grepl("&", active_or_expired)) |>
