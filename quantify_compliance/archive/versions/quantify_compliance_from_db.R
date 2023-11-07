@@ -14,7 +14,7 @@ source("~/R_code_github/quantify_compliance/quantify_compliance_functions.R")
 # add year_month ----
 compl_err_db_data_m <-
   compl_err_db_data %>%
-  mutate(year_month = as.yearmon(comp_week_start_dt))
+  dplyr::mutate(year_month = as.yearmon(comp_week_start_dt))
 
 # ---- separate SA and GOM permits ----
 compl_err_db_data_permit_grps <-
@@ -285,5 +285,5 @@ compl_err_db_data_permit_grps %>% count(permit_sa_gom, is_comp)
 # 6       sa_only       1  2558
 
 compl_err_db_data_permit_grps %>% 
-  mutate(nc_no = is_comp | is_comp_override) %>% 
+  dplyr::mutate(nc_no = is_comp | is_comp_override) %>% 
   count(permit_sa_gom, nc_no)

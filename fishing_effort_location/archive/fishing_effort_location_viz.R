@@ -97,7 +97,7 @@ m_s <- mapview(
 #     unique() %>%
 #     head(my_limit) %>%
 #     # all LONG should be negative
-#     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+#     dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
 #     # remove wrong coords
 #     filter(between(LATITUDE, 23, 28) &
 #              between(LONGITUDE, -83, -71)) %>%
@@ -132,7 +132,7 @@ to_sf <- function(my_df) {
 
 # n_map <-
 #   clean_lat_long_subset %>%
-#   mutate(point = paste(LATITUDE, LONGITUDE)) %>%
+#   dplyr::mutate(point = paste(LATITUDE, LONGITUDE)) %>%
 #   to_sf() %>%
 #   mapview(zcol = "point",
 #           # col.regions = my_colors,
@@ -144,8 +144,8 @@ to_sf <- function(my_df) {
 # --- with dates ----
 # View(db_data)
 lat_long3 <- db_data %>%
-  mutate(ROW_ID = row_number()) %>%
-  mutate(TRIP_START_DAY_M =
+  dplyr::mutate(ROW_ID = row_number()) %>%
+  dplyr::mutate(TRIP_START_DAY_M =
            format(TRIP_START_DATE, "%m")) %>%
   dplyr::select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
 
@@ -158,8 +158,8 @@ clean_lat_long_subset3 <-
 
 n_map <-
   clean_lat_long_subset3 %>%
-  # mutate(point = paste(LATITUDE, LONGITUDE, TRIP_START_DAY_M)) %>%
-  mutate(point = TRIP_START_DAY_M) %>%
+  # dplyr::mutate(point = paste(LATITUDE, LONGITUDE, TRIP_START_DAY_M)) %>%
+  dplyr::mutate(point = TRIP_START_DAY_M) %>%
   to_sf() %>%
   mapview(zcol = "point",
           col.regions = viridisLite::turbo,
@@ -178,22 +178,22 @@ n_map + m_s
 lat_long_dat_dep <-
   db_data %>%
   # labels are a month only
-  mutate(TRIP_START_M =
+  dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
   # compute on a data frame a row-at-a-time
   rowwise() %>%
   # get avg bottom depth
-  mutate(AVG_BOTTOM_DEPTH = mean(c(
+  dplyr::mutate(AVG_BOTTOM_DEPTH = mean(c(
     MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH
   ), na.rm = T)) %>%
   ungroup() %>%
   # choose the first not na
   # gives the same result as AVG_BOTTOM_DEPTH
-  mutate(AVG_DEPTH = coalesce(AVG_BOTTOM_DEPTH,
+  dplyr::mutate(AVG_DEPTH = coalesce(AVG_BOTTOM_DEPTH,
                               FISHING_GEAR_DEPTH,
                               DEPTH)) %>%
   # 0 instead of NA
-  mutate(AVG_DEPTH = replace_na(AVG_DEPTH, 0))
+  dplyr::mutate(AVG_DEPTH = replace_na(AVG_DEPTH, 0))
 
 points_num <- 1000
 
@@ -205,7 +205,7 @@ clean_lat_long_subset <-
 n_map <-
   clean_lat_long_subset %>%
   # save info to show on the map
-  mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+  dplyr::mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
   # convert to sf
   # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
   to_sf() %>%
@@ -229,8 +229,8 @@ n_map + m_s
 lat_long_dat_dep_q <-
   lat_long_dat_dep %>%
   # add quarter
-  mutate(YEAR_QUARTER = as.yearqtr(TRIP_START_DATE)) %>%
-  mutate(QUARTER = format(YEAR_QUARTER, "%q"))
+  dplyr::mutate(YEAR_QUARTER = as.yearqtr(TRIP_START_DATE)) %>%
+  dplyr::mutate(QUARTER = format(YEAR_QUARTER, "%q"))
 
 lat_long_dat_dep_q_list <-
   split(lat_long_dat_dep_q,
@@ -245,7 +245,7 @@ mapview_q <- function(my_df, points_num, q_name) {
   
   n_map <-
     clean_lat_long_subset %>%
-    mutate(POINT = paste(LATITUDE, LONGITUDE, YEAR_QUARTER,
+    dplyr::mutate(POINT = paste(LATITUDE, LONGITUDE, YEAR_QUARTER,
                          sep = ", ")) %>%
     to_sf() %>%
     mapview(
@@ -345,7 +345,7 @@ dim(db_data_w_area)[1]
 lat_long_area <-
   db_data_w_area %>%
   # labels are a month only
-  mutate(TRIP_START_M =
+  dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
   dplyr::select(
     LATITUDE,
@@ -378,7 +378,7 @@ lat_long_area_clean_no_gom <-
 
 lat_long_area_clean_sf <-
   lat_long_area_clean_no_gom %>%
-  mutate(
+  dplyr::mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,
@@ -439,12 +439,12 @@ sa_areas_minus_gom %>%
 lat_long_month_depth <-
   db_data_w_area %>%
   # labels are a month only
-  mutate(TRIP_START_M =
+  dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
   # compute on a data frame a row-at-a-time
   rowwise() %>%
   # get avg bottom depth for labels
-  mutate(AVG_DEPTH = mean(
+  dplyr::mutate(AVG_DEPTH = mean(
     c(
       MINIMUM_BOTTOM_DEPTH,
       MAXIMUM_BOTTOM_DEPTH,
@@ -455,7 +455,7 @@ lat_long_month_depth <-
   # return to the default colwise operations
   ungroup() %>%
   # combine a label
-  mutate(
+  dplyr::mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,
@@ -512,7 +512,7 @@ browseURL(png_fl)
 ## clusters ----
 lat_long_area_for_leaflet <-
   clean_lat_long(lat_long_area, all_points) %>%
-  mutate(
+  dplyr::mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,

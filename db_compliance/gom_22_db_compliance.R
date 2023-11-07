@@ -168,8 +168,8 @@ v_p__t__tn_d_weeks_gom_short |>
   rowwise() |>
   head(3) |>
   # count number of digits, should be 4
-  # mutate(l = floor(log10(as.numeric(TRIP_START_TIME.tn))) + 1)
-  mutate(l = nchar(TRIP_START_TIME.tn)) |>
+  # dplyr::mutate(l = floor(log10(as.numeric(TRIP_START_TIME.tn))) + 1)
+  dplyr::mutate(l = nchar(TRIP_START_TIME.tn)) |>
   ungroup()
 #   <chr>              <int>
 # 1 601                    3
@@ -198,7 +198,7 @@ v_p__t__tn_d_weeks_gom_short |>
 #### restore ----
 v_p__t__tn_d_weeks_gom_short <-
   v_p__t__tn_d_weeks_gom_short |>
-  mutate(TRIP_START_TIME.tn =
+  dplyr::mutate(TRIP_START_TIME.tn =
            case_when(
            nchar(TRIP_START_TIME.tn) < 4 ~
            paste0("0", TRIP_START_TIME.tn),
@@ -215,10 +215,10 @@ grep("start", names(v_p__t__tn_d_weeks_gom_short),
 v_p__t__tn_d_weeks_gom_short_dt <-
   v_p__t__tn_d_weeks_gom_short |>
   # date only
-  mutate(trip_start_date_only =
+  dplyr::mutate(trip_start_date_only =
            lubridate::date(TRIP_START_DATE)) |>
   # combine start date and time for t & tn
-  mutate(
+  dplyr::mutate(
     # declarations
     trip_start_date_time_tn =
       # convert to char
@@ -227,7 +227,7 @@ v_p__t__tn_d_weeks_gom_short_dt <-
       # convert to date_time
       parse_date_time("ymd HM")
   ) |>
-  mutate(
+  dplyr::mutate(
     # logbooks
     trip_start_date_time_t =
       # convert to char
@@ -249,7 +249,7 @@ v_p__t__tn_d_weeks_gom_short_dt <-
 # !  29104 failed to parse.
 
 # v_p__t__tn_d_weeks_gom_short |>
-#   mutate(trip_start_date_only =
+#   dplyr::mutate(trip_start_date_only =
 #            lubridate::date(TRIP_START_DATE)) |>
 #   dplyr::filter(
 #     as.integer(trip_start_date_only) %in% c(2491, 29103) |
@@ -279,7 +279,7 @@ v_p__t__tn_d_weeks_gom_short_dt |>
 v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
   v_p__t__tn_d_weeks_gom_short_dt |>
   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  mutate(compl_no_reps_y =
+  dplyr::mutate(compl_no_reps_y =
            case_when(is.na(rep_type.t) &
                        is.na(rep_type.tn) ~ "yes",
                      .default = "no")) |>
@@ -334,7 +334,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts <-
   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID,
            date_y_m,
            WEEK_OF_YEAR) |>
-  mutate(compl_no_reps_w =
+  dplyr::mutate(compl_no_reps_w =
            case_when(is.na(rep_type.t) &
                        is.na(rep_type.tn) ~ "yes",
                      .default = "no")) |>
@@ -385,16 +385,16 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts |>
   group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
   # convert time to a Date format
-  mutate(
+  dplyr::mutate(
     TRIP_START_TIME_t_hm =
       parse_date_time(TRIP_START_TIME.t, "HM"),
     TRIP_START_TIME_tn_hm =
       parse_date_time(TRIP_START_TIME.tn, "HM")
   ) |>
   # count the difference between start times t and tn
-  mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
+  dplyr::mutate(time_diff1 = abs(TRIP_START_TIME_t_hm - (TRIP_START_TIME_tn_hm))) |>
   # less than an hour difference between trip and trip notif start time
-  mutate(matched_reports =
+  dplyr::mutate(matched_reports =
            case_when(time_diff1 < 3600 ~ "matched",
                      .default = "not_matched"
            )) |>
@@ -433,7 +433,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(matched_compl =
+  dplyr::mutate(matched_compl =
            # all logbooks and decl should match for any given week
            case_when(all(matched_reports == "matched") ~
                        "yes",
@@ -488,7 +488,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(compl_w =
+  dplyr::mutate(compl_w =
            case_when(
              compl_no_reps_w == "yes" |
                matched_compl == "yes" ~ "yes",
@@ -518,7 +518,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w |>
   group_by(VESSEL_VESSEL_ID,
            PERMIT_VESSEL_ID) |>
-  mutate(compl_y =
+  dplyr::mutate(compl_y =
            case_when(
              compl_no_reps_w == "yes" |
                matched_compl == "yes" ~ "yes",
@@ -558,7 +558,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(not_fish_compl =
+  dplyr::mutate(not_fish_compl =
            case_when(
              # not strictly compliant
              matched_compl == "no" &
@@ -636,11 +636,11 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(no_decl_compl_0 =
+  dplyr::mutate(no_decl_compl_0 =
            case_when(compl_w == "no" &
                        !!no_decl_for_a_lgb_fiter ~ "yes",
                      .default = "no")) |>
-  mutate(no_decl_compl =
+  dplyr::mutate(no_decl_compl =
            case_when(all(no_decl_compl_0 == "yes") ~ "yes",
                      .default = "no")) |>
   ungroup()
@@ -758,14 +758,14 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__ove
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only__overr |>
-  mutate(
+  dplyr::mutate(
     after_interval =
       lubridate::as.interval(3600, trip_start_date_time_tn),
     # flip interval to get lower date first in the interval
     before_interval =
       int_flip(as.interval(-3600, trip_start_date_time_tn))
   ) |>
-  mutate(around_hour_tn_int =
+  dplyr::mutate(around_hour_tn_int =
            interval(int_start(before_interval),
                     int_end(after_interval)))
 
@@ -778,7 +778,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
 ### mark duplicated declarations (tn) ----
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup <-
   v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int |>
-  mutate(decl_in =
+  dplyr::mutate(decl_in =
            case_when(DE.tn %within% around_hour_tn_int ~ "dup",
                      .default = "not_d"))
 
@@ -808,7 +808,7 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short |>
 #   dplyr::filter(decl_in == "dup") |>
 #   # nrow(df[duplicated(df), ])
-#   mutate(cnt_dup =
+#   dplyr::mutate(cnt_dup =
 #            sum(duplicated(PERMIT_VESSEL_ID))) |> 
 #   glimpse()
 #          
@@ -830,11 +830,11 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_dec
            PERMIT_VESSEL_ID,
            TRIP_END_week_num,
            TRIP_END_m) |>
-  mutate(decl_list = list(unique(decl_in))) |> 
+  dplyr::mutate(decl_list = list(unique(decl_in))) |> 
   dplyr::select(-decl_in) |> 
   ungroup() |> 
   distinct()
-  # mutate(decl_list = list(decl_in))
+  # dplyr::mutate(decl_list = list(decl_in))
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_decl_list |> 
   ungroup() |> 
@@ -942,7 +942,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup |>
 
 # unique_TRIP_ID = as.data.frame(unique(joined_true$TRIP_ID))
 
-  mutate(
+  dplyr::mutate(
     decl_dup =
       all(trip_start_date_time_tn %within% before_interval  |
           trip_start_date_time_tn %within% after_interval)
@@ -973,7 +973,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
            NOTIFICATION_TYPE_IDs,
            # not_fish_compl
            rep_type.tn) |>
-  mutate(
+  dplyr::mutate(
     st_times = paste(unique(TRIP_START_TIME.tn),
                      collapse = ", "),
     end_times = paste(unique(TRIP_END_TIME.tn),
@@ -994,7 +994,7 @@ print_df_names(v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict)
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict |>
   dplyr::select(TRIP_START_DATE, TRIP_START_TIME.tn) |>
   distinct() |>
-  mutate(date_time =
+  dplyr::mutate(date_time =
            # ymd_hms(
            paste0(TRIP_START_DATE, TRIP_START_TIME.tn)
          # )
@@ -1013,7 +1013,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d <-
   # group by vessel and tn date and time (<>1),
   # having cnt(decl) > 1
   # TRIP_START_TIME_tn_hm <> 1h
-  mutate(hour_interval_plus =
+  dplyr::mutate(hour_interval_plus =
            ymd_hm(paste0(TRIP_START_DATE, TRIP_START_TIME.tn))
   ) |> View()
 #
@@ -1026,7 +1026,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d <-
            TRIP_START_DATE,
            TRIP_START_TIME.tn,
            hour_interval) |>
-  mutate(cnts = n()) |>
+  dplyr::mutate(cnts = n()) |>
   ungroup()
 toc()
 
@@ -1047,7 +1047,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d_1 <-
            NOTIFICATION_TYPE_IDs,
            # not_fish_compl
            rep_type.tn) |>
-  mutate(
+  dplyr::mutate(
     st_times = paste(unique(TRIP_START_TIME.tn),
                      collapse = ", "),
     end_times = paste(unique(TRIP_END_TIME.tn),
@@ -1079,7 +1079,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
            matched_reports,
            INTENDED_FISHING_FLAG,
            matched_compl) |>
-  mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
+  dplyr::mutate(cnt_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   glimpse()
@@ -1120,7 +1120,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_cnt_vsls_w <-
   group_by(date_y_m,
            WEEK_OF_YEAR,
            matched_compl) |>
-  mutate(cnt_vsls =
+  dplyr::mutate(cnt_vsls =
            case_when(
              any(matched_compl == "yes") ~
                n_distinct(PERMIT_VESSEL_ID),
@@ -1144,7 +1144,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
            matched_compl) |>
   dplyr::filter(date_y_m == 'Mar 2022') |>
   subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
-  mutate(cnt_c1 = n_distinct(PERMIT_VESSEL_ID)) |>
+  dplyr::mutate(cnt_c1 = n_distinct(PERMIT_VESSEL_ID)) |>
   ungroup() |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
@@ -1161,7 +1161,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(not_fish_compl =
+  dplyr::mutate(not_fish_compl =
            case_when(
              matched_compl == "no" &
                # all reports are not fishing declarations
@@ -1192,7 +1192,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(
+  dplyr::mutate(
     no_rep_compl =
       case_when(
         matched_compl == "no" &
@@ -1244,7 +1244,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(
+  dplyr::mutate(
     no_decl_compl_0 =
       case_when(
         matched_compl == "no" &
@@ -1258,7 +1258,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
         .default = "no"
       )
   ) |>
-  mutate(no_decl_compl =
+  dplyr::mutate(no_decl_compl =
            case_when(all(no_decl_compl_0 == "yes") ~ "yes",
                      .default = "no")) |>
   ungroup()
@@ -1352,7 +1352,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(
+  dplyr::mutate(
     no_lgb_compl =
       case_when(
         matched_compl == "no" &
@@ -1487,7 +1487,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 <-
            PERMIT_VESSEL_ID,
            WEEK_OF_YEAR,
            date_y_m) |>
-  mutate(compl_w =
+  dplyr::mutate(compl_w =
            case_when(!!all_not_compl_filter ~ "no",
                      .default = "yes")) |>
   ungroup()
@@ -1573,7 +1573,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short)
 # not compliant and overridden = compliant
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short |>
-  mutate(compl_w_total =
+  dplyr::mutate(compl_w_total =
            case_when(
              compl_w == "no" &
                (!is.na(is_comp_override) &
@@ -1605,9 +1605,9 @@ tic(
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
   group_by(PERMIT_VESSEL_ID, date_y_m) |>
-  mutate(compl_per_m_w = list(na.omit(unique(compl_w_total))),
+  dplyr::mutate(compl_per_m_w = list(na.omit(unique(compl_w_total))),
          compl_m_len = lengths(compl_per_m_w)) |>
-  mutate(compl_m = case_when(compl_m_len > 1 ~ "no",
+  dplyr::mutate(compl_m = case_when(compl_m_len > 1 ~ "no",
                              compl_per_m_w == "no" ~ "no",
                              .default = "yes")) |>
   ungroup()
@@ -1634,9 +1634,9 @@ tic(
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
   group_by(PERMIT_VESSEL_ID) |>
-  mutate(compl_per_y_w = list(na.omit(unique(compl_w_total))),
+  dplyr::mutate(compl_per_y_w = list(na.omit(unique(compl_w_total))),
          compl_y_len = lengths(compl_per_y_w)) |>
-  mutate(compl_y = case_when(compl_y_len > 1 ~ "no",
+  dplyr::mutate(compl_y = case_when(compl_y_len > 1 ~ "no",
                              compl_per_y_w == "no" ~ "no",
                              .default = "yes")) |>
   ungroup()

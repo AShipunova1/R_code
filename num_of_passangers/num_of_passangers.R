@@ -97,7 +97,7 @@ str(trip_id_vessel_st_from_db)
 # is the diff by port? no
 str(in_db_only)
 # trip_id_vessel_st_from_db %<>%
-#   mutate(TRIP_ID = as.numeric(TRIP_ID))
+#   dplyr::mutate(TRIP_ID = as.numeric(TRIP_ID))
 trip_id_vessel_st_from_db %>%
   filter(TRIP_ID %in% in_db_only) %>%
   select(STATE_NAME) %>% unique()
@@ -118,7 +118,7 @@ head(in_db_only)
 vessel_nbr_trips_indb_only <-
   trip_id_vessel_st_from_db %>%
   filter(trip_id %in% in_db_only) %>%
-  mutate(vessel_off_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>% 
+  dplyr::mutate(vessel_off_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>% 
   # select(STATE_REG_NBR, COAST_GUARD_NBR) %>% 
   select(vessel_off_num) %>%
     unique() 
@@ -227,7 +227,7 @@ vessel_num_in_db_only <-
   trip_id_vessel_st_from_db %>%
   filter(supplier_trip_id %in% in_db_only) %>%
   # glimpse()
-  mutate(vessel_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>%
+  dplyr::mutate(vessel_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>%
   select(vessel_num)
 
 str(vessel_num_in_db_only)

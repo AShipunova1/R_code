@@ -28,7 +28,7 @@ source("~/R_code_github/compare_catch/compare_catch_data_preparation.R")
 logbooks_content_transmission_trip_de_ct <-
   fhier_logbooks_content_waves__sa_gom %>%
   # convert to a date format
-  mutate(trip_de_ct =
+  dplyr::mutate(trip_de_ct =
            as.POSIXct(trip_de,
                       format = "%Y-%m-%d %H:%M:%S"))
 
@@ -70,7 +70,7 @@ logbooks_content_transmission_date_ok %>%
 
 transm_before_after <-
   logbooks_content_transmission_date_ok %>%
-  mutate(
+  dplyr::mutate(
     transmission_date_group =
       case_when(
         trip_de_ct < "2022-01-01" ~ "before Jan 2022",

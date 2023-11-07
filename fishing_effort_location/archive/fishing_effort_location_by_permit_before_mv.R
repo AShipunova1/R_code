@@ -18,7 +18,7 @@ View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
 ## add permit_name_col ----
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min |>
-  mutate(
+  dplyr::mutate(
     permit_region =
       case_when(
         permit_sa_gom == "gom_only"
@@ -99,7 +99,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
       dplyr::add_count(ten_min_lat, ten_min_lon,
                        name = "trip_ids_cnts") |>
       group_by(ten_min_lat, ten_min_lon) |>
-      mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
+      dplyr::mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
       ungroup()
   })
 
@@ -143,10 +143,10 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
 ## prepare df ----
 gom_vessels <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual |>
-  mutate(cnt_label =
+  dplyr::mutate(cnt_label =
            paste0("loc: ", location_cnts_u,
                   "; trips: ",  trip_ids_cnts)) |>
-  mutate(
+  dplyr::mutate(
     ten_min_lbl =
       paste0(
         round(ten_min_lat, 1),
@@ -208,7 +208,7 @@ short_example_3_cnts <-
   dplyr::add_count(ten_min_lat, ten_min_lon,
                    name = "trip_ids_cnts") |>
   group_by(ten_min_lat, ten_min_lon) |>
-  mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
+  dplyr::mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
   ungroup()
 
 short_example_3_cnts |>
@@ -251,7 +251,7 @@ short_example_3_cnts_short |>
 short_example_3_cnts_short_lbl <-
   short_example_3_cnts_short |>
   # add coordinates labels
-  mutate(ten_min_lbl =
+  dplyr::mutate(ten_min_lbl =
            paste0(
              round(ten_min_lat, 1),
              ", ",

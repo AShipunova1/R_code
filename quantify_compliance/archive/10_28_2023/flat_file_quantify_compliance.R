@@ -429,13 +429,13 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 # The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
 #
-# Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
+# Inside the function, it uses the dplyr::mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
 # It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 
 # ===
 change_to_dates <- function(my_df, field_name, date_format) {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
-  # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
+  # Within the dplyr::mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
   result_df <- my_df %>%
     dplyr::mutate({
       {
@@ -466,15 +466,15 @@ aux_fun_for_dates <- function(x, date_format) {
   # across(a:b, \(x) mean(x, na.rm = TRUE))
 # change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
 #   my_df %>%
-#     mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+#     dplyr::mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
 #
-#     # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+#     # dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
 #                                         # format = date_format)) %>%
 #     return()
 # }
 
 # The change_fields_arr_to_dates function is defined to convert multiple columns specified in 'field_names_arr' in the input data frame ('my_df') to POSIXct date format using the provided 'date_format'.
-# Inside the function, it uses the mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
+# Inside the function, it uses the dplyr::mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
 
 # Within the across function, it applies the as.POSIXct function to each column ('x') in 'field_names_arr' using the provided 'date_format'. This step converts the values in these columns to POSIXct date format.
 # It returns the 'result_df', which is the input data frame with the specified columns converted to dates according to the specified 'date_format'.
@@ -950,7 +950,7 @@ separate_permits_into_3_groups <-
   function(my_df, permit_group_field_name = "permitgroup") {
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
-      mutate(permit_sa_gom =
+      dplyr::mutate(permit_sa_gom =
                case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
@@ -1153,13 +1153,13 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
                 values_from = occurence_in_month,
                 values_fill = 0) %>%
     # sum nc by month to get Total
-    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    dplyr::mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
     # turn to have num of weeks per month in a row
     pivot_longer(-c(year_month, total_nc_vsl_per_month),
                  names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>%
     # count percentage
-    mutate(percent_nc = round(
+    dplyr::mutate(percent_nc = round(
       100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
       digits = 2
     )) %>%
@@ -1908,7 +1908,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(exp_w_end_diff_y =
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
-  mutate(perm_exp_y =
+  dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # group_by(compliant_, perm_exp_y) %>%
@@ -2169,7 +2169,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(count_weeks_per_vsl_permit_year_compl_p)
@@ -2606,7 +2606,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 #### check if expired and active permit is in the same month
 # compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
 #   group_by(vessel_official_number, year_month) |>
-#   mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
+#   dplyr::mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
 #                                    collapse = " & ")) |>
 #   filter(grepl("&", active_or_expired)) |>
 #   dim()

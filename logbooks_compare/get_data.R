@@ -75,7 +75,7 @@ survey_data_df <-
   # use "_df" to combine all into one df
     map_df(~poss_read_sas(.x) %>%
              # convert all columns to char to use in bind
-             mutate(across(.fns = as.character))) %>%
+             dplyr::mutate(across(.fns = as.character))) %>%
   # Re-convert character columns
   # guess integer types for whole numbers
   type_convert(guess_integer = TRUE)
@@ -88,9 +88,9 @@ add_file_names_to_the_df <- function() {
   # use "_df" to combine all into one df
   map_df(~poss_read_sas(.x) %>%
            # convert all columns to char to use in bind
-           mutate(across(.fns = as.character)) %>%
+           dplyr::mutate(across(.fns = as.character)) %>%
            # add file name
-           mutate(FILE_NAME = tools::file_path_sans_ext(basename(.x)))
+           dplyr::mutate(FILE_NAME = tools::file_path_sans_ext(basename(.x)))
   ) %>%
   # Re-convert character columns
   # guess integer types for whole numbers
@@ -239,7 +239,7 @@ load_all_fhier_logbooks <- function() {
     map_df(~read_csv(.x,
                      name_repair = fix_names,
                      show_col_types = FALSE) %>%
-             mutate(across(.fns = as.character))) %>%
+             dplyr::mutate(across(.fns = as.character))) %>%
     # Re-convert character columns
     # guess integer types for whole numbers
     type_convert(guess_integer = TRUE)
@@ -261,7 +261,7 @@ fhier_all_logbook_data_csv <-
             ) %>%
     read_csv(name_repair = fix_names,
            show_col_types = FALSE) %>%
-    # mutate(across(.fns = as.character))
+    # dplyr::mutate(across(.fns = as.character))
 # %>%
     # Re-convert character columns
     # guess integer types for whole numbers

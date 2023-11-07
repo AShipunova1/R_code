@@ -43,7 +43,7 @@ vesl_override_cmts <-
 
 override_cmts_data_sep_cmts <-
   override_cmts_data %>%
-  mutate(comment_group = case_when(
+  dplyr::mutate(comment_group = case_when(
     grepl("vesl", COMP_OVERRIDE_CMT,
           ignore.case = T) ~ "vesl_comment",
     grepl("ETRIPS", COMP_OVERRIDE_CMT,

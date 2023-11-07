@@ -242,7 +242,7 @@ all.equal(year_permit_cnts, count_year1)
 counts_by_month_read_me <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
   group_by(year_month, year_permit, perm_exp_m) |>
-  mutate(permit_cnt_m =
+  dplyr::mutate(permit_cnt_m =
            n_distinct(vessel_official_number)) |>
   ungroup() |>
   dplyr::select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>

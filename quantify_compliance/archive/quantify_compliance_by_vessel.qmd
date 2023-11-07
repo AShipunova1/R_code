@@ -50,7 +50,7 @@ SA: CDW, CHS, SC
 ```{r separate into 2 groups: SA vs GOM + dual}
 compl_clean_sa_vs_gom_plus_dual_0 <-
   compl_clean %>%
-  mutate(permit =
+  dplyr::mutate(permit =
            case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              .default = "gom"
@@ -64,9 +64,9 @@ glimpse(compl_clean_sa_vs_gom_plus_dual_0)
 compl_clean_sa_vs_gom_plus_dual <-
   compl_clean_sa_vs_gom_plus_dual_0 %>%
   # add month
-  mutate(year_month = as.yearmon(week_start)) %>%
+  dplyr::mutate(year_month = as.yearmon(week_start)) %>%
   # add quarter
-  mutate(year_quarter = as.yearqtr(week_start))
+  dplyr::mutate(year_quarter = as.yearqtr(week_start))
 
 ```
 

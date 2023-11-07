@@ -180,8 +180,8 @@ trim_all_vessel_ids_simple <-
       col_name_to_trim_s <- sym(col_name_to_trim)
       # Hard code vessel_official_number as vessel id
       x %>%
-        mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
-        # mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
+        dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+        # dplyr::mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
         return()
     })
     return(csvs_clean)
@@ -223,7 +223,7 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 change_to_dates <- function(my_df, field_name, date_format) {
   my_df %>%
-    mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+    dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
     format = date_format)) %>%
     return()
 }
@@ -240,9 +240,9 @@ aux_fun_for_dates <- function(x, date_format) {
   # across(a:b, \(x) mean(x, na.rm = TRUE))
 change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
   my_df %>%
-    mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+    dplyr::mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
 
-    # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+    # dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
                                         # format = date_format)) %>%
     return()
 }
@@ -257,7 +257,7 @@ add_count_contacts <- function(all_data_df_clean) {
   all_data_df_clean %>%
     # add a new column with a "yes" if there is a contactdate (and a "no" if not)
     # TODO: as.factor
-    mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
+    dplyr::mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
     # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
     add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
     return()
@@ -531,7 +531,7 @@ make_a_flat_file <-
 
 separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
   my_df %>%
-  mutate(permit_sa_gom =
+  dplyr::mutate(permit_sa_gom =
            case_when(
              !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
              !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
@@ -656,7 +656,7 @@ check_new_vessels(compl_clean)
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is more than a month from data_file_date than "no"
-  mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
+  dplyr::mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                                     .default = "yes"))
 
 ## ---- add year_month column ----
@@ -669,7 +669,7 @@ half_year_ago <-
 
 compl_clean_w_permit_exp_last_27w <-
   compl_clean_w_permit_exp |>
-  mutate(year_month = as.yearmon(week_start)) |>
+  dplyr::mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last 28 weeks
   dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
@@ -846,7 +846,7 @@ compl_clean_sa |>
   # View()
   group_by(vessel_official_number) |>
   dplyr::filter(tolower(compliant_) == "yes") |>
-  mutate(latest_compl = max(week_num)) |>
+  dplyr::mutate(latest_compl = max(week_num)) |>
   glimpse()
 
 # TODO: add check for earlier weeks
@@ -962,7 +962,7 @@ get_date_contacttype <-
   function(compl_corr_to_investigation1) {
     compl_corr_to_investigation1 |>
       # add a new column date__contacttype with contactdate and contacttype
-      mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
+      dplyr::mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
       # use 2 columns only
       dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
@@ -1067,7 +1067,7 @@ vessels_to_mark_ids <-
 # mark these vessels
 compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
-  mutate(
+  dplyr::mutate(
     duplicate_w_last_time =
       case_when(
         vessel_official_number %in%

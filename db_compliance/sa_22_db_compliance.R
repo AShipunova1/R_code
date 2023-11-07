@@ -40,7 +40,7 @@ v_p__t__tne_d_weeks_sa_compl_w <-
            date_y_m,
            YEAR) |>
   # not compliant if both reports (trips and t negative) are absent
-  mutate(sa_compl_week = case_when(!!reports_exists_filter ~
+  dplyr::mutate(sa_compl_week = case_when(!!reports_exists_filter ~
                                 "yes",
                               .default = "no")) |>
   ungroup()
@@ -61,7 +61,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w <-
   v_p__t__tne_d_weeks_sa_compl_w |>
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID) |>
-  mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
+  dplyr::mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
   ungroup()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
@@ -173,7 +173,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short)
 ## compliance per year ----
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_short |>
-  mutate(compl_2022 =
+  dplyr::mutate(compl_2022 =
            case_when(
     !!reports_exists_filter &
       compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
@@ -321,11 +321,11 @@ sa_compl_cnts |>
 
 sa_compl_cnts_perc <-
   sa_compl_cnts |>
-  mutate(total_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
+  dplyr::mutate(total_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   group_by(compl_2022) |>
-  mutate(compl_perc =
+  dplyr::mutate(compl_perc =
            total_compl_y * 100 / (total_vsls)) |>
   ungroup()
 
@@ -377,7 +377,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_w_short)
 ### add beginning and end of permit as a date ----
 v_p__t__tne_d_weeks_sa_compl_w_short_p_dates0 <-
   v_p__t__tne_d_weeks_sa_compl_w_short |>
-  mutate(
+  dplyr::mutate(
     permit_start = int_start(permit_2022_int),
     permit_end = int_end(permit_2022_int)
   )
@@ -406,7 +406,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m <-
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
            date_y_m.d) |>
-  mutate(v_compliant_m =
+  dplyr::mutate(v_compliant_m =
            case_when(any(tolower(sa_compl_week) == "no") ~ "no",
                      .default = "yes")) |>
   ungroup()
@@ -421,7 +421,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt <-
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID,
            date_y_m) |>
-  mutate(compl_w_cnt_m = n_distinct(WEEK_OF_YEAR)) |>
+  dplyr::mutate(compl_w_cnt_m = n_distinct(WEEK_OF_YEAR)) |>
   ungroup()
 
 # View(v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt)

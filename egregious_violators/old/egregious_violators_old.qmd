@@ -46,7 +46,7 @@ source(file.path(current_project_path, "get_data.R"))
 compl_clean_w_permit_exp <-
   compl_clean %>%
   # if permit group expiration is more than a month from data_file_date than "no"
-  mutate(permit_expired =
+  dplyr::mutate(permit_expired =
            case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                      .default = "yes"))
 
@@ -63,7 +63,7 @@ half_year_ago <-
 
 compl_clean_w_permit_exp_last_27w <-
   compl_clean_w_permit_exp %>%
-  mutate(year_month = as.yearmon(week_start)) %>%
+  dplyr::mutate(year_month = as.yearmon(week_start)) %>%
   # keep entries for the last 28 weeks
   dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
@@ -260,7 +260,7 @@ add_a_direct_contact_column <-
     corresp_contact_cnts_clean %>%
       # create a new column "direct_contact" with a "yes" or "no"
       # search comments for indicators that there was no direct contact
-      mutate(
+      dplyr::mutate(
         direct_contact = case_when(
           grepl("no answer", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
           grepl("wrong number", !!contactcomments_field_name, ignore.case = TRUE) ~ "no",
@@ -428,7 +428,7 @@ contacttype_field_name <-
 get_date_contacttype <- function(compl_corr_to_investigation) {
   compl_corr_to_investigation %>%
     # add a new column date__contacttype with contactdate and contacttype
-    mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) %>%
+    dplyr::mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) %>%
     # use 2 columns only
     dplyr::select(vessel_official_number, date__contacttype) %>%
     # [1] 49903     2
@@ -523,7 +523,7 @@ week_start_1 <-
   compl_corr_to_investigation_short_output %>%
   dplyr::select(week_start) %>%
   # count commas
-  mutate(week_amount = str_count(week_start, ",") + 1) %>%
+  dplyr::mutate(week_amount = str_count(week_start, ",") + 1) %>%
   filter(week_amount < 27)
   
 dim(week_start_1)[[1]] == 0

@@ -55,7 +55,7 @@ View(fhier_acl_catch_by_species_state_region_waves)
 # change NAs to 0 where one or another agency doesn't have counts for this species
 # fhier_acl_catch_by_species_state_region_waves_0 <-
 fhier_acl_catch_by_species_state_region_waves %<>%
-  mutate(
+  dplyr::mutate(
     fhier_quantity_by_4 =
       replace_na(fhier_quantity_by_4, 0),
     rec_acl_estimate_catch_by_4 =
@@ -267,7 +267,7 @@ remove_no_mrip_cnts <- function(my_df_list) {
 new_group_counts <- function(my_df) {
   my_df %>%
   # sum counts by a new group
-  mutate(
+  dplyr::mutate(
     fhier_cnts_by_year = sum(fhier_quantity_by_4),
     rec_acl_cnts_by_year = sum(rec_acl_estimate_catch_by_4)
   ) %>%

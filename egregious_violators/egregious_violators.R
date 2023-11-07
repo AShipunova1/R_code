@@ -40,7 +40,7 @@ check_new_vessels(compl_clean)
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is more than a month from data_file_date than "no"
-  mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
+  dplyr::mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                                     .default = "yes"))
 
 ## ---- add year_month column ----
@@ -53,7 +53,7 @@ half_year_ago <-
 
 compl_clean_w_permit_exp_last_27w <-
   compl_clean_w_permit_exp |>
-  mutate(year_month = as.yearmon(week_start)) |>
+  dplyr::mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last 28 weeks
   dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
@@ -235,7 +235,7 @@ compl_clean_sa |>
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
   # get only the latest compliant weeks
-  mutate(latest_compl = max(week_num)) |>
+  dplyr::mutate(latest_compl = max(week_num)) |>
   dplyr::filter(week_num == latest_compl) |> 
   ungroup() |> 
   dplyr::select(
@@ -360,7 +360,7 @@ get_date_contacttype <-
   function(compl_corr_to_investigation1) {
     compl_corr_to_investigation1 |>
       # add a new column date__contacttype with contactdate and contacttype
-      mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
+      dplyr::mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
       # use 2 columns only
       dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
@@ -424,9 +424,9 @@ setdiff(date__contacttype_per_id$vessel_official_number,
 
 vessels_permits_participants_space <-
   vessels_permits_participants |>
-  mutate(across(where(is.character),
+  dplyr::mutate(across(where(is.character),
                 ~ replace_na(., ""))) |>
-  mutate(across(where(is.character),
+  dplyr::mutate(across(where(is.character),
                 ~ str_trim(.)))
 
 dim(vessels_permits_participants_space)
@@ -435,7 +435,7 @@ dim(vessels_permits_participants_space)
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
   group_by(P_VESSEL_ID) |>
-  mutate(
+  dplyr::mutate(
     sero_home_port = list(unique(
       paste(
         SERO_HOME_PORT_CITY,
@@ -474,14 +474,14 @@ vessels_permits_participants_short_u <-
 #   # unnest(full_name) %>%
 #   # unnest_wider(full_name, names_sep = "_") |> 
 #   rowwise() |> 
-#   mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
+#   dplyr::mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
 #   View()
  # cat()
 
 vessels_permits_participants_short_u_flat <-
   vessels_permits_participants_short_u |>
   rowwise() |>
-  mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
+  dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
   ungroup()
 
 data_overview(vessels_permits_participants_short_u_flat) |> 
@@ -490,8 +490,8 @@ data_overview(vessels_permits_participants_short_u_flat) |>
 
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
-  # gdf %>% mutate(across(v1:v2, ~ .x + n))
-  mutate(
+  # gdf %>% dplyr::mutate(across(v1:v2, ~ .x + n))
+  dplyr::mutate(
     across(
     c(sero_home_port,
       full_name,
@@ -801,7 +801,7 @@ vessels_permits_participants_short_u_flat_sp_add <-
       full_address
     )
   ) |>
-  mutate(
+  dplyr::mutate(
     full_name =
       case_when(
         is.na(full_name) | full_name == "UN" ~
@@ -914,7 +914,7 @@ vessels_to_mark_ids <-
 # mark these vessels
 compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
-  mutate(
+  dplyr::mutate(
     duplicate_w_last_time =
       case_when(
         vessel_official_number %in%
@@ -1097,7 +1097,7 @@ fhier_addr_short <-
     phone_number,
     primary_email
   ) |>
-  mutate(
+  dplyr::mutate(
     fhier_address =
       paste(
         physical_address_1,
@@ -1191,7 +1191,7 @@ intersect(names(prev_res),
 
 compl_corr_to_investigation1_short_dup_marked_ch <-
   compl_corr_to_investigation1_short_dup_marked |>
-  mutate(across(everything(), as.character)) |>
+  dplyr::mutate(across(everything(), as.character)) |>
   dplyr::select(
     -c(
       name,

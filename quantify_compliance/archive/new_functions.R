@@ -325,7 +325,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(exp_w_end_diff_y =
            as.numeric(as.Date(permitgroupexpiration) -
                         end_of_2022)) %>%
-  mutate(perm_exp_y =
+  dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # group_by(compliant_, perm_exp_y) %>%
@@ -572,7 +572,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(count_weeks_per_vsl_permit_year_compl_p)

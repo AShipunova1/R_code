@@ -137,7 +137,7 @@ get_lat_ten_min <- function(gis_lat) {
 get_ten_min_coords <- function(my_df) {
   ten_min_df <-
     my_df |>
-    mutate(
+    dplyr::mutate(
       ten_min_lat = get_lat_ten_min(as.numeric(my_df$LATITUDE)),
       # All lon should be negative, bc we know it is all in America
       ten_min_lon =
@@ -530,7 +530,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_t
 ## add permit_name_col ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min |>
-  mutate(
+  dplyr::mutate(
     permit_region =
       case_when(
         permit_sa_gom == "gom_only"
@@ -824,7 +824,7 @@ str(short_example_3_cnts_short)
 short_example_3_cnts_short_lbl <-
   short_example_3_cnts_short |>
   # add coordinates labels
-  mutate(ten_min_lbl =
+  dplyr::mutate(ten_min_lbl =
            paste0(
              round(ten_min_lat, 1),
              ", ",

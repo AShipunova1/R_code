@@ -104,7 +104,7 @@ compl_clean_short <-
 
 err_desc_used <-
   err_desc %>%
-  mutate(affects_compliancy = case_when(
+  dplyr::mutate(affects_compliancy = case_when(
     grepl("check", enabled_, ignore.case = TRUE) &
       grepl("check", overridable_, ignore.case = TRUE) ~ "YES",
     .default = "NO"
@@ -234,7 +234,7 @@ combined_permits <-
 gom_permits_from_sa_only_short2 <-
   gom_permits_from_sa_only %>%
   select(vessel_official_number, c("effective_date", "expiration_date")) %>%
-  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
+  dplyr::mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
 
 # Dot notation
 # --- combine dates ---
@@ -257,7 +257,7 @@ combined_permit_dates <-
 gom_permits_from_sa_only_short <-
   gom_permits_from_sa_only %>%
   select(vessel_official_number, permit_code, effective_date, expiration_date) %>%
-  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
+  dplyr::mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
 
 # str(gom_permits_from_sa_only_short)
 
@@ -280,7 +280,7 @@ gom_permits_from_sa_only_all <-
 gom_permits_from_sa_only_short_all <-
   gom_permits_from_sa_only_all %>%
   select(vessel_official_number, permit_code, effective_date, expiration_date) %>%
-  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
+  dplyr::mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
 
 gom_permits_from_sa_only_short_all_combined <-
   gom_permits_from_sa_only_short_all %>%

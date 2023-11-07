@@ -28,17 +28,17 @@ vessel_id_field_name <-
 fhier_logbooks_content <-
   logbooks_content  %>%
   # create a new column
-  mutate(trip_start_date_time =
+  dplyr::mutate(trip_start_date_time =
     # trip start: combine a date without time, a space and a time
     paste(substr(trip_start_date, 1, 10),
     trip_start_time)) %>%
   # Same for the trip end
-  mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
+  dplyr::mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
   # change the new column types to a date
   change_to_dates("trip_start_date_time", "%Y-%m-%d %H%M") %>%
   change_to_dates("trip_end_date_time", "%Y-%m-%d %H%M") %>%
   # change the column type to a number
-  mutate(reported_quantity = as.integer(reported_quantity))
+  dplyr::mutate(reported_quantity = as.integer(reported_quantity))
 
 # view
 fhier_logbooks_content %>% dplyr::select(starts_with("trip")) %>% str()
@@ -46,7 +46,7 @@ fhier_logbooks_content %>% dplyr::select(starts_with("trip")) %>% str()
 fhier_logbooks_content_date_fixed_tmp <-
   fhier_logbooks_content %>%
   # if a "trip_end_date" is before 2020 - use "notif_trip_end_date" column instead
-  mutate(trip_end_date1 = ifelse(
+  dplyr::mutate(trip_end_date1 = ifelse(
     trip_end_date < "2020-01-01",
     notif_trip_end_date,
     trip_end_date
@@ -55,7 +55,7 @@ fhier_logbooks_content_date_fixed_tmp <-
 fhier_logbooks_content_date_fixed <-
   fhier_logbooks_content_date_fixed_tmp %>%
   # manually change the wrong value
-  mutate(trip_end_date2 = ifelse(
+  dplyr::mutate(trip_end_date2 = ifelse(
     # find it
     grepl("1992", fhier_logbooks_content_date_fixed_tmp$trip_end_date1),
     # change it
@@ -70,14 +70,14 @@ fhier_logbooks_content_date_fixed %<>%
 fhier_logbooks_content_waves <-
   fhier_logbooks_content_date_fixed %>%
   # add a new column with a trip end Month
-  mutate(end_month = as.yearmon(trip_end_date2)) %>%
+  dplyr::mutate(end_month = as.yearmon(trip_end_date2)) %>%
   # add a new column with a trip end Year
-  mutate(end_year =
+  dplyr::mutate(end_year =
            year(trip_end_date2)) %>%
   # add a new column with a number for each trip end Month
-  mutate(end_month_num = month(trip_end_date2)) %>%
+  dplyr::mutate(end_month_num = month(trip_end_date2)) %>%
   # add a new column with a Wave
-  mutate(end_wave  = floor((end_month_num + 1) / 2))
+  dplyr::mutate(end_wave  = floor((end_month_num + 1) / 2))
 
 #| classes: test
 
@@ -133,7 +133,7 @@ fl_counties <- list(
 fhier_logbooks_content_waves_fl_county <-
   fhier_logbooks_content_waves %>%
   # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
-  mutate(
+  dplyr::mutate(
     end_port_fl_reg = case_when(
       # check in the list
       fix_names(end_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
@@ -185,7 +185,7 @@ fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
   # add a new column "end_port_sa_gom" with sa or gom for each state
   # use fix_name aux function to unify state names (lower case, no spaces etc.)
-  mutate(end_port_sa_gom = case_when(
+  dplyr::mutate(end_port_sa_gom = case_when(
     # if a name is in our SA list - "sa", otherwise - "gom"
     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
     .default = "gom"
@@ -193,7 +193,7 @@ fhier_logbooks_content_waves__sa_gom <-
   # go through the new column again
   # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
   # otherwise don't change
-  mutate(end_port_sa_gom = ifelse(
+  dplyr::mutate(end_port_sa_gom = ifelse(
     tolower(end_port_state) == "fl",
     end_port_fl_reg,
     end_port_sa_gom
@@ -215,7 +215,7 @@ glimpse(fhier_logbooks_content_waves__sa_gom)
 fhier_logbooks_content_waves__sa_gom_dolph <-
   fhier_logbooks_content_waves__sa_gom %>%
   rename(common_name_orig = common_name) %>%
-  mutate(common_name = if_else(
+  dplyr::mutate(common_name = if_else(
     tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
     "DOLPHIN",
     common_name_orig
@@ -279,7 +279,7 @@ fhier_test_cnts <-
 ## MRIP ----
 
 mrip_estimate %<>%
-  mutate(ab1 = as.integer(ab1))
+  dplyr::mutate(ab1 = as.integer(ab1))
 
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate %>%
@@ -298,13 +298,13 @@ glimpse(mrip_estimate_catch_by_species_state_region_waves)
 # "year" and "wave" to numbers
 mrip_estimate_catch_by_species_state_region_waves1 <-
   mrip_estimate_catch_by_species_state_region_waves %>%
-  mutate(year = as.double(year)) %>%
-  mutate(wave = as.double(wave))
+  dplyr::mutate(year = as.double(year)) %>%
+  dplyr::mutate(wave = as.double(wave))
 
 mrip_estimate_catch_by_species_state_region_waves <-
   mrip_estimate_catch_by_species_state_region_waves1 %>%
   # change a 6 to "sa" and a 7 "gom", leave everything else in place
-  mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
+  dplyr::mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
                             sub_reg == "7" ~ "gom",
                             .default = sub_reg),
                             # put the new column after sub_reg (by default at the end)
@@ -522,7 +522,7 @@ glimpse(fhier_mrip_catch_by_species_state_region_waves)
 
 ## make a new column "year_wave" ----
 fhier_mrip_catch_by_species_state_region_waves_tmp1 <-
-  mutate(fhier_mrip_catch_by_species_state_region_waves,
+  dplyr::mutate(fhier_mrip_catch_by_species_state_region_waves,
          year_wave = paste(year, wave, sep = "_"))
 
 ## Add the fhier_common_names we made earlier ----
@@ -594,7 +594,7 @@ fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 <-
 fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot$sa %>%
   dplyr::filter(species_itis %in% sa_top_spp$species_itis) %>%
-  mutate()
+  dplyr::mutate()
   
 glimpse(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_sa10)
 # Rows: 300
@@ -705,7 +705,7 @@ glimpse(fhier_mrip_gom_to_plot)
 fhier_mrip_gom_to_plot_0 <-
   fhier_mrip_to_plot_format(fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10) %>%
   # change NAs to 0 where one or another agency doesn't have counts for this species
-  mutate_all(~replace_na(., 0))
+  dplyr::mutate_all(~replace_na(., 0))
 
 # all.equal(fhier_mrip_gom_to_plot_0, fhier_mrip_gom_to_plot_0a)
 
@@ -799,28 +799,28 @@ grid.arrange(grobs = plots10,
 fhier_mrip_gom_ind <-
   fhier_mrip_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
   dplyr::select(-c(state, species_itis)) %>%
-  mutate_all(~ replace_na(., 0)) %>%
+  dplyr::mutate_all(~ replace_na(., 0)) %>%
   group_by(year_wave, common_name) %>%
   # aggregate counts by states
   summarise(fhier_cnts = sum(fhier_quantity_by_4),
             mrip_cnts = sum(mrip_estimate_catch_by_4 )) %>%
-  mutate(
+  dplyr::mutate(
     cnt_index = (mrip_cnts - fhier_cnts) /
       (mrip_cnts + fhier_cnts)
   ) %>%
-  mutate(cnt_index = round(cnt_index, 2)) %>%
+  dplyr::mutate(cnt_index = round(cnt_index, 2)) %>%
   # head()
-  # mutate(m_f_ratio = round(mrip_estimate_catch_by_4 / fhier_quantity_by_4, 2))
+  # dplyr::mutate(m_f_ratio = round(mrip_estimate_catch_by_4 / fhier_quantity_by_4, 2))
   # x = fct_rev(fct_reorder(common_name,
   #                                  !!sym(count_field_name),
   #                                  .fun = max)),
-  mutate(common_name_order = fct_reorder(
+  dplyr::mutate(common_name_order = fct_reorder(
     common_name,
     (mrip_cnts + fhier_cnts),
   )) %>%
-  # mutate(date_order = order(year_wave)
+  # dplyr::mutate(date_order = order(year_wave)
   # )
-  mutate(dates_index = as.factor(year_wave),
+  dplyr::mutate(dates_index = as.factor(year_wave),
     year_wave = factor(year_wave, levels = unique(dates_index))
   )
 

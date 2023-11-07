@@ -299,7 +299,7 @@ str(by_week)
 ## ---- by month ----
 compl_clean_sa_vs_gom_plus_dual__months <-
   compl_clean_sa_vs_gom_plus_dual %>%
-  mutate(
+  dplyr::mutate(
     month_w_start = format(week_start, "%m"),
     month_w_end = format(week_end, "%m"),
     year_month_w_start = floor_date(week_start),
@@ -337,7 +337,7 @@ compl_clean_sa_vs_gom_plus_dual__weeks <-
 ## ---- the proportion by quarter ----
 compl_clean_sa_vs_gom_plus_dual_q <-
   compl_clean_sa_vs_gom_plus_dual %>%
-  mutate(year_quarter = as.yearqtr(week_start)) %>%
+  dplyr::mutate(year_quarter = as.yearqtr(week_start)) %>%
   group_by(permit,
            year_quarter) %>%
   summarise(compl_by_not = (sum(tolower(compliant_) == "yes")) /
@@ -354,7 +354,7 @@ p1 + geom_point()
 # sa * 10 for visibility
 by_month_w_start_10 <-
   by_month_w_start %>%
-  mutate(sa_multiple_10 = if_else(startsWith(permit,  'sa'), compl_by_not * 10, compl_by_not))
+  dplyr::mutate(sa_multiple_10 = if_else(startsWith(permit,  'sa'), compl_by_not * 10, compl_by_not))
 
 tail(by_month_w_start_10)
 
@@ -367,7 +367,7 @@ p2 + geom_point()
 # using year_month, SA * 10
 p3 <-
   compl_clean_sa_vs_gom_plus_dual_y_m %>%
-  mutate(sa_multiple_10 = if_else(startsWith(permit, 'sa'),
+  dplyr::mutate(sa_multiple_10 = if_else(startsWith(permit, 'sa'),
                                   compl_by_not * 10,
                                   compl_by_not)) %>%
   ggplot(aes(x = year_month,
@@ -383,7 +383,7 @@ p3 + geom_point() +
 
 compl_clean_sa_vs_gom_plus_dual_y_by_10 <-
   compl_clean_sa_vs_gom_plus_dual_y %>%
-  mutate(sa_multiple_10 = if_else(startsWith(permit, 'sa'),
+  dplyr::mutate(sa_multiple_10 = if_else(startsWith(permit, 'sa'),
                                   compl_by_not * 10,
                                   compl_by_not))
 min_compl_by_not = min(compl_clean_sa_vs_gom_plus_dual_y_by_10$sa_multiple_10)
@@ -423,7 +423,7 @@ compl_clean_sa_vs_gom_plus_dual %>%
 p5 <-
   compl_clean_sa_vs_gom_plus_dual__weeks %>%
   filter(week_start < "2023-02-20") %>%
-  mutate(sa_multiple_10 = if_else(startsWith(permit, 'sa'),
+  dplyr::mutate(sa_multiple_10 = if_else(startsWith(permit, 'sa'),
                                   compl_by_not * 10,
                                   compl_by_not)) %>%
   ggplot(aes(x = week_start,
@@ -441,7 +441,7 @@ p5 + geom_point() +
 
 p6 <-
   compl_clean_sa_vs_gom_plus_dual_q %>%
-  mutate(sa_multiple_10 = if_else(startsWith(permit, 'sa'),
+  dplyr::mutate(sa_multiple_10 = if_else(startsWith(permit, 'sa'),
                                   compl_by_not * 10,
                                   compl_by_not)) %>%
   ggplot(aes(x = year_quarter,
@@ -767,7 +767,7 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
 # gom_compl_clean_sa_vs_gom_plus_dual_short %>%
 #   add_count(vessel_official_number, name = 'count') %>%
 #   group_by(vessel_official_number) %>%
-#   mutate(percent_yes = 100 * mean(compliant_),
+#   dplyr::mutate(percent_yes = 100 * mean(compliant_),
 #          percent_no = 100 - percent_yes) %>%  head()
 # ungroup
 

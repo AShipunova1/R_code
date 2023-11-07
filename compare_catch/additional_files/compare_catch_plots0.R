@@ -119,7 +119,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
   dplyr::filter(species_itis %in% sa_top_spp$species_itis) %>%
-  mutate()
+  dplyr::mutate()
   
 glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # Rows: 300
@@ -363,16 +363,16 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
 calculate_cnt_index <- function(my_df) {
   my_df %>%
     dplyr::select(-c(state, species_itis)) %>%
-    mutate_all( ~ replace_na(., 0)) %>%
+    dplyr::mutate_all( ~ replace_na(., 0)) %>%
     group_by(year_wave, common_name) %>%
     # aggregate counts by states
     summarise(
       fhier_cnts = sum(fhier_quantity_by_4),
       acl_cnts = sum(acl_estimate_catch_by_4)
     ) %>%
-    mutate(cnt_index = (acl_cnts - fhier_cnts) /
+    dplyr::mutate(cnt_index = (acl_cnts - fhier_cnts) /
              (acl_cnts + fhier_cnts)) %>%
-    mutate(cnt_index = round(cnt_index, 2)) %>%
+    dplyr::mutate(cnt_index = round(cnt_index, 2)) %>%
     return()
 }
 
@@ -381,7 +381,7 @@ fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region
 
 # glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
-#   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
+#   dplyr::mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
 #   dplyr::select(wave) %>% unique()
 # 
 # fhier_acl_gom_ind <-

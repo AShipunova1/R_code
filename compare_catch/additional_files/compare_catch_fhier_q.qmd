@@ -48,7 +48,7 @@ grep("transm", names(fhier_logbooks_content_waves__sa_gom), value = T)
 logbooks_content_transmission_date_ct <-
   fhier_logbooks_content_waves__sa_gom %>%
   # convert to a date format
-  mutate(transmission_date_ct =
+  dplyr::mutate(transmission_date_ct =
            as.POSIXct(transmission_date,
                       format = "%Y-%m-%d %H:%M:%S"))
 
@@ -60,7 +60,7 @@ grep("start",
 
 logbooks_content_dates_ct <-
   logbooks_content_transmission_date_ct %>%
-  mutate(
+  dplyr::mutate(
     trip_start_date_ct = as.POSIXct(trip_start_date, format = "%Y-%m-%d %H:%M:%S"),
     trip_end_date_ct = as.POSIXct(trip_end_date, format = "%Y-%m-%d %H:%M:%S")
   )
@@ -121,7 +121,7 @@ logbooks_content_transmission_date_ok %>%
 
 transm_before_after <- 
 logbooks_content %>%
-  mutate(
+  dplyr::mutate(
     transmission_date_group =
       case_when(
         transmission_date < "2022-01-01" ~ "before Jan 2022",

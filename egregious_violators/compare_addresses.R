@@ -152,7 +152,7 @@ readr::write_csv(corrected_n_fhier_short,
 
 # check sero_home_port ----
 corrected_n_fhier_short |>
-  mutate(fhier_home_port = paste(sero_home_port_city,
+  dplyr::mutate(fhier_home_port = paste(sero_home_port_city,
                                  sero_home_port_county,
                                  sero_home_port_state)) |>
   dplyr::filter(!sero_home_port == fhier_home_port) |>

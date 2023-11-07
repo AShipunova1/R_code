@@ -138,7 +138,7 @@ trim_all_vessel_ids_simple <-
       # Hard code vessel_official_number as vessel id
       x %>%
         # trim white spaces from the column
-        mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+        dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
         return()
     })
     return(csvs_clean)
@@ -303,7 +303,7 @@ vessel_id_field_name <-
 # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 change_to_dates <- function(my_df, field_name, date_format) {
   my_df %>%
-    mutate({
+    dplyr::mutate({
       {
         field_name
       }
@@ -315,23 +315,23 @@ change_to_dates <- function(my_df, field_name, date_format) {
 fhier_logbooks_content <-
   logbooks_content_sero %>%
   # create a new column
-  mutate(trip_start_date_time =
+  dplyr::mutate(trip_start_date_time =
            # trip start: combine a date without time, a space and a time
            paste(substr(trip_start_date, 1, 10),
                  trip_start_time)) %>%
   # Same for the trip end
-  mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
+  dplyr::mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
   # change the new column types to a date using the function from above
   change_to_dates("trip_start_date_time", "%Y-%m-%d %H%M") %>%
   change_to_dates("trip_end_date_time", "%Y-%m-%d %H%M") %>%
   # change this column type to a number
-  mutate(reported_quantity = as.integer(reported_quantity))
+  dplyr::mutate(reported_quantity = as.integer(reported_quantity))
 
 ### fix wrong dates ----
 fhier_logbooks_content_date_fixed_tmp <-
   fhier_logbooks_content %>%
   # if a "trip_end_date" is before 2020 - use "notif_trip_end_date" column instead
-  mutate(trip_end_date1 = ifelse(
+  dplyr::mutate(trip_end_date1 = ifelse(
     trip_end_date < "2020-01-01",
     notif_trip_end_date,
     trip_end_date
@@ -341,7 +341,7 @@ fhier_logbooks_content_date_fixed_tmp <-
 fhier_logbooks_content_date_fixed <-
   fhier_logbooks_content_date_fixed_tmp %>%
   # manually change the wrong value
-  mutate(trip_end_date2 = ifelse(
+  dplyr::mutate(trip_end_date2 = ifelse(
     # find it
     grepl(
       "1992",
@@ -361,14 +361,14 @@ fhier_logbooks_content_date_fixed %<>%
 fhier_logbooks_content_waves <-
   fhier_logbooks_content_date_fixed %>%
   # add a new column with a trip end Month
-  mutate(end_month = as.yearmon(trip_end_date2)) %>%
+  dplyr::mutate(end_month = as.yearmon(trip_end_date2)) %>%
   # add a new column with a trip end Year
-  mutate(end_year =
+  dplyr::mutate(end_year =
            year(trip_end_date2)) %>%
   # add a new column with a number for each trip end Month
-  mutate(end_month_num = month(trip_end_date2)) %>%
+  dplyr::mutate(end_month_num = month(trip_end_date2)) %>%
   # add a new column with a Wave number
-  mutate(end_wave  = floor((end_month_num + 1) / 2))
+  dplyr::mutate(end_wave  = floor((end_month_num + 1) / 2))
 
 #| classes: test
 #### test: show the new columns ----
@@ -425,7 +425,7 @@ fl_counties <- list(
 fhier_logbooks_content_waves_fl_county <-
   fhier_logbooks_content_waves %>%
   # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
-  mutate(
+  dplyr::mutate(
     end_port_fl_reg = case_when(
       # check in the list
       # if there is no end county, use the start
@@ -488,7 +488,7 @@ fhier_logbooks_content_waves__sa_gom <-
   fhier_logbooks_content_waves_fl_county %>%
   # add a new column "end_port_sa_gom" with sa or gom for each state
   # use fix_name aux function to unify state names (lower case, no spaces etc.)
-  mutate(end_port_sa_gom = case_when(
+  dplyr::mutate(end_port_sa_gom = case_when(
     # if a name is in our SA list - "sa", otherwise - "gom"
     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
     .default = "gom"
@@ -496,7 +496,7 @@ fhier_logbooks_content_waves__sa_gom <-
   # go through the new column again
   # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
   # otherwise don't change
-  mutate(end_port_sa_gom = ifelse(
+  dplyr::mutate(end_port_sa_gom = ifelse(
     tolower(end_port_state) == "fl",
     end_port_fl_reg,
     end_port_sa_gom
@@ -567,12 +567,12 @@ fhier_catch_by_species_state_region_waves_w_spp_dolph <-
   # "save" the original column
   rename(common_name_orig = common_name) %>%
   # rename all DOLPHINs to "DOLPHIN"
-  mutate(common_name = case_when(startsWith(tolower(common_name_orig), "dolphin") ~ "DOLPHIN",
+  dplyr::mutate(common_name = case_when(startsWith(tolower(common_name_orig), "dolphin") ~ "DOLPHIN",
                                  .default = common_name_orig)) %>%
   # the same for scientific names
   rename(scientific_name_orig = scientific_name) %>%
   # as in MRIP
-    mutate(scientific_name = case_when(startsWith(
+    dplyr::mutate(scientific_name = case_when(startsWith(
     tolower(scientific_name_orig), "coryphaena"
   ) ~ "CORYPHAENA HIPPURUS",
   .default = scientific_name_orig))
@@ -598,7 +598,7 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
 
 fhier_logbooks_content_waves__sa_gom_fla <-
   fhier_catch_by_species_state_region_waves_w_spp %>%
-  mutate(scientific_name = ifelse(
+  dplyr::mutate(scientific_name = ifelse(
     is.na(scientific_name) & species_itis == "172734",
     "PARALICHTHYS",
     scientific_name
@@ -673,7 +673,7 @@ fhier_test_cnts <-
 acl_estimate %<>%
   # using ab1 for catch counts
   # convert to numbers
-  mutate(ab1 = as.integer(ab1))
+  dplyr::mutate(ab1 = as.integer(ab1))
 
 # str(acl_estimate)
 
@@ -694,7 +694,7 @@ acl_estimate_2022 <-
 
 ## change case for scientific_names to the same as in FHIER ----
 acl_estimate_2022 %<>%
-  mutate(new_sci = toupper(new_sci))
+  dplyr::mutate(new_sci = toupper(new_sci))
 
 #### check FL sa_gom ----
 acl_estimate_2022 %>%
@@ -711,7 +711,7 @@ acl_estimate_2022 %>%
 # to compare with FHIER
 
 acl_estimate_2022 %<>%
-  mutate(state = case_when(new_sta %in% c("FLE", "FLW") ~ "FL",
+  dplyr::mutate(state = case_when(new_sta %in% c("FLE", "FLW") ~ "FL",
                            .default = new_sta))
 
 #### test: just for checking we actually dplyr::filtered the raw data ----
@@ -753,14 +753,14 @@ acl_estimate_catch_by_species_state_region_waves <-
 # convert "year" and "wave" to numbers (were <chr> in acl_estimate_catch_by_species_state_region_waves)
 acl_estimate_catch_by_species_state_region_waves1 <-
   acl_estimate_catch_by_species_state_region_waves %>%
-  mutate(year = as.double(year)) %>%
-  mutate(wave = as.double(wave))
+  dplyr::mutate(year = as.double(year)) %>%
+  dplyr::mutate(wave = as.double(wave))
 
 ## change regions to the same format as in FHIER ----
 acl_estimate_catch_by_species_state_region_waves <-
   acl_estimate_catch_by_species_state_region_waves1 %>%
   # change a 6 to "sa" and a 7 "gom", leave everything else in place
-  mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
+  dplyr::mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
                             sub_reg == "7" ~ "gom",
                             .default = sub_reg),
                             # put the new column after sub_reg (by default at the end)
@@ -872,7 +872,7 @@ fhier_acl_catch_by_species_state_region_waves <-
 ## Change NA counts to 0 ----
 # change NAs to 0 where one or another agency doesn't have counts for this species (discussed if it is better than simply remove the entries)
 fhier_acl_catch_by_species_state_region_waves %<>%
-  mutate(
+  dplyr::mutate(
     fhier_quantity_by_4 =
       replace_na(fhier_quantity_by_4, 0),
     acl_estimate_catch_by_4 =

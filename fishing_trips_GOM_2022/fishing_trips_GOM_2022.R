@@ -666,7 +666,7 @@ data_from_db_more_fields_end_p_s_by_trip_p <-
   add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
   dplyr::select(END_PORT_STATE, trip_by_state_num) %>% 
   unique() %>% 
-  mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
+  dplyr::mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
 
 View(data_from_db_more_fields_end_p_s_by_trip_p)
 # percentage is very close
@@ -729,7 +729,7 @@ glimpse(gom_fhier1_list_t$Round)
 
 gom_fhier1_list_t <-
   purrr::map(gom_fhier1_list_t,
-             ~ mutate(.x,
+             ~ dplyr::mutate(.x,
                       # gsub(pattern, replacement, x, ignore.case = FALSE...)
                       # remove any of:
                       state_abbr = gsub("Total |Rounded | Pct",
@@ -788,7 +788,7 @@ print_df_names(data_from_db_more_fields)
 data_from_db_more_fields_gom0 <-
   data_from_db_more_fields %>%
   filter(END_PORT_STATE %in% gom_state_abbr) %>%
-  mutate(fl_county_gom = case_when(
+  dplyr::mutate(fl_county_gom = case_when(
     toupper(END_PORT_COUNTY) %in% toupper(fl_counties$GOM) ~ "fl_county_gom",
     .default = 'not_gom'
   ))
@@ -821,7 +821,7 @@ data_from_db_more_fields_gom1_p <-
   add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
   dplyr::select(END_PORT_STATE, trip_by_state_num) %>% 
   unique() %>% 
-  mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
+  dplyr::mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
 
 # write_csv(data_from_db_more_fields_gom1_p,
 #          "data_from_db_more_fields_gom1_p.csv")

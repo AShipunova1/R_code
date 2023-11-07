@@ -25,7 +25,7 @@ source("~/R_code_github/quantify_compliance/get_data.R")
 ### ---- separate into 3 groups ----
 separate_permits_into_3_groups <- function(compl_clean) {
   compl_clean %>%
-  mutate(permit =
+  dplyr::mutate(permit =
            case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
@@ -42,7 +42,7 @@ compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
 ### ---- 2 groups: sa_only vs. gulf + dual ----
 compl_clean_sa_vs_gom_plus_dual_0 <-
   compl_clean %>%
-  mutate(permit =
+  dplyr::mutate(permit =
            case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              .default = "gom"
@@ -52,9 +52,9 @@ compl_clean_sa_vs_gom_plus_dual_0 <-
 compl_clean_sa_vs_gom_plus_dual <-
   compl_clean_sa_vs_gom_plus_dual_0 %>%
   # add month
-  mutate(year_month = as.yearmon(week_start)) %>%
+  dplyr::mutate(year_month = as.yearmon(week_start)) %>%
   # add quarter
-  mutate(year_quarter = as.yearqtr(week_start))
+  dplyr::mutate(year_quarter = as.yearqtr(week_start))
 
 ## ---- convert report numbers to numeric ----
 compl_clean_sa_vs_gom_plus_dual$captainreports__ <-

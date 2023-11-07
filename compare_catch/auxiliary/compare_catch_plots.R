@@ -39,7 +39,7 @@ plot_by_time <-
     one_plot_by_year <-
       my_df %>%
       # make "common_name_fhier" a factor to keep an order by desc(rec_acl_cnts_by_year)
-      mutate(common_name_fhier = reorder(common_name_fhier, desc(!!sym(sort_field)))) %>%
+      dplyr::mutate(common_name_fhier = reorder(common_name_fhier, desc(!!sym(sort_field)))) %>%
       dplyr::select(-starts_with("species_itis")) %>%
       to_long_format() %>%
       ggplot(aes(CATCH_CNT, common_name_fhier, fill = ORIGIN)) +
@@ -445,16 +445,16 @@ calculate_cnt_index <- function(my_df) {
   my_df %>%
     dplyr::select(wave, common_name_fhier, fhier_quantity_by_4, rec_acl_estimate_catch_by_4) %>%
     # dplyr::select(-c(state, species_itis_fhier, species_itis_mrip)) %>%
-    mutate_all( ~ replace_na(., 0)) %>%
+    dplyr::mutate_all( ~ replace_na(., 0)) %>%
     group_by(wave, common_name_fhier) %>%
     # aggregate counts by states
     summarise(
       fhier_cnts = sum(fhier_quantity_by_4),
       acl_cnts = sum(rec_acl_estimate_catch_by_4)
     ) %>%
-    mutate(cnt_index = (acl_cnts - fhier_cnts) /
+    dplyr::mutate(cnt_index = (acl_cnts - fhier_cnts) /
              (acl_cnts + fhier_cnts)) %>%
-    mutate(cnt_index = round(cnt_index, 2)) %>%
+    dplyr::mutate(cnt_index = round(cnt_index, 2)) %>%
     return()
 }
 
@@ -465,7 +465,7 @@ fhier_acl_gom_ind <- calculate_cnt_index( fhier_acl_catch_by_species_state_regio
 
 # glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
-#   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
+#   dplyr::mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
 #   dplyr::select(wave) %>% unique()
 # 
 # fhier_acl_gom_ind <-

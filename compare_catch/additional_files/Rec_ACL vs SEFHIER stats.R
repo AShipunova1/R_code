@@ -127,8 +127,8 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
         col_name_to_trim_s <- sym(col_name_to_trim)
         # Hard code vessel_official_number as vessel id
         x %>%
-          mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
-          # mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
+          dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+          # dplyr::mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
           return()
       })
       return(csvs_clean)
@@ -143,7 +143,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
   # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
   change_to_dates <- function(my_df, field_name, date_format) {
     my_df %>%
-      mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+      dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
                                           format = date_format)) %>%
       return()
   }
@@ -151,17 +151,17 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
   #Now, need to modify dates and times to appropriate R format
   SEFHIER_logbooks  %>%
     # create a new column
-    mutate(trip_start_date_time =
+    dplyr::mutate(trip_start_date_time =
              # trip start: combine a date without time, a space and a time
              paste(substr(trip_start_date, 1, 10),
                    trip_start_time)) %>%
     # Same for the trip end
-    mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
+    dplyr::mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
     # change the new column types to a date
     change_to_dates("trip_start_date_time", "%Y-%m-%d %H%M") %>%
     change_to_dates("trip_end_date_time", "%Y-%m-%d %H%M") %>%
     # change the column type to a number
-    mutate(reported_quantity = as.integer(reported_quantity))
+    dplyr::mutate(reported_quantity = as.integer(reported_quantity))
   
   #Did not modify date fields in all logbook data
   fhier_common_names <-
@@ -258,7 +258,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     fhier_logbooks_content_waves_fl_county <-
       fhier_logbooks_content_waves %>%
       # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
-      mutate(
+      dplyr::mutate(
         end_port_fl_reg = case_when(
           # check in the list
           # if there is no end county, use the start
@@ -322,7 +322,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       fhier_logbooks_content_waves_fl_county %>%
       # add a new column "end_port_sa_gom" with sa or gom for each state
       # use fix_name aux function to unify state names (lower case, no spaces etc.)
-      mutate(end_port_sa_gom = case_when(
+      dplyr::mutate(end_port_sa_gom = case_when(
         # if a name is in our SA list - "sa", otherwise - "gom"
         fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
         .default = "gom"
@@ -330,7 +330,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # go through the new column again
       # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
       # otherwise don't change
-      mutate(end_port_sa_gom = ifelse(
+      dplyr::mutate(end_port_sa_gom = ifelse(
         tolower(end_port_state) == "fl",
         end_port_fl_reg,
         end_port_sa_gom
@@ -352,7 +352,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     fhier_logbooks_content_waves__sa_gom_dolph <-
       fhier_logbooks_content_waves__sa_gom %>%
       rename(common_name_orig = common_name) %>%
-      mutate(common_name = if_else(
+      dplyr::mutate(common_name = if_else(
         tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
         "DOLPHIN",
         common_name_orig
@@ -418,7 +418,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     ## MRIP ----
     
     mrip_estimate %<>%
-      mutate(ab1 = as.integer(ab1))
+      dplyr::mutate(ab1 = as.integer(ab1))
     
     mrip_estimate_catch_by_species_state_region_waves <-
       mrip_estimate %>%
@@ -437,13 +437,13 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     # "year" and "wave" to numbers
     mrip_estimate_catch_by_species_state_region_waves1 <-
       mrip_estimate_catch_by_species_state_region_waves %>%
-      mutate(year = as.double(year)) %>%
-      mutate(wave = as.double(wave))
+      dplyr::mutate(year = as.double(year)) %>%
+      dplyr::mutate(wave = as.double(wave))
     
     mrip_estimate_catch_by_species_state_region_waves <-
       mrip_estimate_catch_by_species_state_region_waves1 %>%
       # change a 6 to "sa" and a 7 "gom", leave everything else in place
-      mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
+      dplyr::mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
                                 sub_reg == "7" ~ "gom",
                                 .default = sub_reg),
              # put the new column after sub_reg (by default at the end)

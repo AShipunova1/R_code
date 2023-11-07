@@ -64,7 +64,7 @@ dim(vessels_permits_clean_gr7_2022)
 vessels_permits_clean_gr7_2022_all_permits <-
   vessels_permits_clean_gr7_2022 |>
   group_by(VESSEL_VESSEL_ID) |>
-  mutate(all_permits = toString(unique(TOP))) |>
+  dplyr::mutate(all_permits = toString(unique(TOP))) |>
   ungroup() |>
   dplyr::select(VESSEL_VESSEL_ID, all_permits) |>
   distinct()
@@ -89,7 +89,7 @@ data_overview(vessels_permits_clean_gr7_2022_region)
 ### combine permits into 2 groups; for 2022 gom+dual, sa_only ----
 vessels_permits_clean_gr7_2022_region2 <-
   vessels_permits_clean_gr7_2022_region |>
-  mutate(permit_22 =
+  dplyr::mutate(permit_22 =
            case_when(permit_sa_gom == "sa_only" ~ "sa_only",
                      .default = "gom_dual")) |>
   dplyr::select(-permit_sa_gom) |>
@@ -143,7 +143,7 @@ trip_coord_info_2022_short_coord <-
 ## rename trip_types to names ----
 trip_coord_info_2022_short_coord_t_names <-
   trip_coord_info_2022_short_coord |>
-  mutate(TRIP_TYPE = ifelse(TRIP_TYPE == "A",
+  dplyr::mutate(TRIP_TYPE = ifelse(TRIP_TYPE == "A",
                             "CHARTER",
                             "HEADBOAT"))
 
@@ -252,7 +252,7 @@ effort_t_type_cropped_cnt <-
     \(x)
     x |>
       group_by(cell_id) |>
-      mutate(
+      dplyr::mutate(
         vsl_cnt = n_distinct(VESSEL_ID),
         trip_id_cnt = n_distinct(TRIP_ID)
       ) |>

@@ -181,8 +181,8 @@ trim_all_vessel_ids_simple <-
       col_name_to_trim_s <- sym(col_name_to_trim)
       # Hard code vessel_official_number as vessel id
       x %>%
-        mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
-        # mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
+        dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+        # dplyr::mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
         return()
     })
     return(csvs_clean)
@@ -224,7 +224,7 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 change_to_dates <- function(my_df, field_name, date_format) {
   my_df %>%
-    mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+    dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
     format = date_format)) %>%
     return()
 }
@@ -241,9 +241,9 @@ aux_fun_for_dates <- function(x, date_format) {
   # across(a:b, \(x) mean(x, na.rm = TRUE))
 change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
   my_df %>%
-    mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+    dplyr::mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
 
-    # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+    # dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
                                         # format = date_format)) %>%
     return()
 }
@@ -258,7 +258,7 @@ add_count_contacts <- function(all_data_df_clean) {
   all_data_df_clean %>%
     # add a new column with a "yes" if there is a contactdate (and a "no" if not)
     # TODO: as.factor
-    mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
+    dplyr::mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
     # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
     add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
     return()
@@ -529,7 +529,7 @@ make_a_flat_file <-
 
 separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
   my_df %>%
-  mutate(permit_sa_gom =
+  dplyr::mutate(permit_sa_gom =
            case_when(
              !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
              !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
@@ -558,13 +558,13 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
                 values_from = occurence_in_month,
                 values_fill = 0) %>%
     # sum nc by month to get Total
-    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    dplyr::mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
     # turn to have num of weeks per month in a row
     pivot_longer(-c(year_month, total_nc_vsl_per_month),
                  names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>%
     # count percentage
-    mutate(percent_nc = round(
+    dplyr::mutate(percent_nc = round(
       100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
       digits = 2
     )) %>%
@@ -826,14 +826,14 @@ additional_clean_up <- function(compl_clean) {
   compl_clean_sa_vs_gom_m <-
     compl_clean_sa_vs_gom %>%
     # add month
-    mutate(year_month = as.yearmon(week_start)) %>%
+    dplyr::mutate(year_month = as.yearmon(week_start)) %>%
     # add quarter
-    mutate(year_quarter = as.yearqtr(week_start))
+    dplyr::mutate(year_quarter = as.yearqtr(week_start))
 
   # ---- convert report numbers to numeric ----
   compl_clean_sa_vs_gom_m_int <-
     compl_clean_sa_vs_gom_m %>%
-    mutate(
+    dplyr::mutate(
       captainreports__ = as.integer(captainreports__),
       negativereports__ = as.integer(negativereports__),
       gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
@@ -842,7 +842,7 @@ additional_clean_up <- function(compl_clean) {
   # add year_permit column ----
   compl_clean_sa_vs_gom_m_int_c <-
     compl_clean_sa_vs_gom_m_int %>%
-    mutate(
+    dplyr::mutate(
       year_permit =
         case_when(
           year == "2022" & (permit_sa_gom == "gom_only"
@@ -1270,7 +1270,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(exp_w_end_diff_y =
            as.numeric(as.Date(permitgroupexpiration) -
                         end_of_2022)) %>%
-  mutate(perm_exp_y =
+  dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # group_by(compliant_, perm_exp_y) %>%
@@ -1482,7 +1482,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 # View(count_weeks_per_vsl_permit_year_compl_p)

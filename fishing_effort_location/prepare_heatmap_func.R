@@ -61,7 +61,7 @@ sa_state_abb <-
 #   fhier_logbooks_content_waves_fl_county %>%
 #   # add a new column "end_port_sa_gom" with sa or gom for each state
 #   # use fix_name aux function to unify state names (lower case, no spaces etc.)
-#   mutate(end_port_sa_gom = case_when(
+#   dplyr::mutate(end_port_sa_gom = case_when(
 #     # if a name is in our SA list - "sa", otherwise - "gom"
 #     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
 #     .default = "gom"
@@ -69,7 +69,7 @@ sa_state_abb <-
 #   # go through the new column again
 #   # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
 #   # otherwise don't change
-#   mutate(end_port_sa_gom = ifelse(
+#   dplyr::mutate(end_port_sa_gom = ifelse(
 #     tolower(end_port_state) == "fl",
 #     end_port_fl_reg,
 #     end_port_sa_gom
@@ -224,7 +224,7 @@ min_grid <- function(my_sf = GOMsf, minute_num = 1) {
     sf::st_as_sf() %>%
 
     # Add a 'cell_id' column to the grid using 'mutate'.
-    mutate(cell_id = 1:nrow(.))
+    dplyr::mutate(cell_id = 1:nrow(.))
 
   # Return the created grid.
   return(grid)
@@ -315,7 +315,7 @@ add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr")
 
   # Add columns 'vsl_cnt' and 'trip_id_cnt' with counts of distinct vessel and trip IDs.
     # sym() take strings as input and turn them into symbols.
-    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, dplyr::select, or other functions that accept column names.
+    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like dplyr::mutate, dplyr::select, or other functions that accept column names.
     # So, the code !!rlang::sym(vessel_id_name) effectively evaluates to the column name specified by the vessel_id_name variable in the context of a dplyr verb, allowing you to work with the column dynamically based on the variable's value.
 
     dplyr::mutate(

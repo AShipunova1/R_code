@@ -16,7 +16,7 @@ spp_cnts_in_fhier_not_in_acl <-
   ) %>%
   group_by(scientific_name,
            sa_gom) %>%
-  mutate(
+  dplyr::mutate(
     fhier_cnts = sum(fhier_quantity_by_4),
     rec_acl_cnts = sum(rec_acl_estimate_catch_by_4)
   ) %>%

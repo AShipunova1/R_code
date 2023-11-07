@@ -181,7 +181,7 @@ gom_id_reports_one_week_longer <-
                         logb),
                names_to = "report_type",
                values_to = "report_count") %>% 
-  mutate(id_compl = paste(vessel_official_number, compliant_, sep = "_"))
+  dplyr::mutate(id_compl = paste(vessel_official_number, compliant_, sep = "_"))
 # %>%
 #   select(-c(vessel_official_number, compliant_))
 # %>%
@@ -210,7 +210,7 @@ gom_id_reports_one_week_l_d <-
   gom_id_reports_one_week %>%
   rename(decl = gom_permitteddeclarations__,
          logb = captainreports__) %>%
-  mutate(logb_decl = as.numeric(logb) - as.numeric(decl))
+  dplyr::mutate(logb_decl = as.numeric(logb) - as.numeric(decl))
 
 
 # compl_clean_sa_vs_gom_plus_dual_short %>%

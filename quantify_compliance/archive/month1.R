@@ -121,7 +121,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 #### check if expired and active permit is in the same month
 # compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
 #   group_by(vessel_official_number, year_month) |>
-#   mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
+#   dplyr::mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
 #                                    collapse = " & ")) |>
 #   filter(grepl("&", active_or_expired)) |>
 #   dim()

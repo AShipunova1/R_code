@@ -81,7 +81,7 @@ vessels_permits_2022_r_short <-
 vessels_permits_2022_r_end_date <-
   vessels_permits_2022_r_short |>
   rowwise() |> 
-  mutate(my_end_date =
+  dplyr::mutate(my_end_date =
            case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
                      ~ EXPIRATION_DATE,
@@ -107,7 +107,7 @@ vessels_permits_2022_r_end_date <-
 
 vessels_permits_2022_r_end_date_w_y <-
 vessels_permits_2022_r_end_date |>
-    mutate(
+    dplyr::mutate(
     EFFECTIVE_DATE_week_num =
       strftime(EFFECTIVE_DATE, format = "%U"),
     my_end_week_num =
@@ -121,7 +121,7 @@ vessels_permits_2022_r_end_date |>
     my_end_m =
       zoo::as.yearmon(my_end_date)
   ) %>%
-  mutate(
+  dplyr::mutate(
     EFFECTIVE_DATE_week_num =
       as.double(EFFECTIVE_DATE_week_num),
     my_end_week_num =
@@ -195,7 +195,7 @@ vessels_permits_2022 %>%
 ### add "dual" to intervals ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual <-
   vessels_permits_2022_r_end_date_l_overlap_join %>%
-  mutate(permit_sa_gom =
+  dplyr::mutate(permit_sa_gom =
            case_when(
              !is.na(permit_sa_gom.sa) &
                !is.na(permit_sa_gom.gom) ~ "dual",
@@ -225,7 +225,7 @@ dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
 tic("vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22")
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual %>%
-  mutate(
+  dplyr::mutate(
     eff_int_gom =
       lubridate::interval(EFFECTIVE_DATE.gom,
                           my_end_date.gom),
@@ -233,7 +233,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 <-
       lubridate::interval(EFFECTIVE_DATE.sa,
                           my_end_date.sa)
   ) %>% 
-  #   mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
+  #   dplyr::mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
   dplyr::filter(int_overlaps(eff_int_gom,
                       interval_2022) |
            int_overlaps(eff_int_sa,
@@ -295,7 +295,7 @@ map_df(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list, dim)
 
 trips_info_2022_int <-
   trips_info_2022 %>%
-  mutate(trip_int =
+  dplyr::mutate(trip_int =
            lubridate::interval(
              lubridate::floor_date(TRIP_START_DATE,
                                    unit = "day"),
@@ -349,7 +349,7 @@ trip_notifications_2022_ah <-
 
 trips_info_2022_int_ah_w_y <-
   trips_info_2022_int_ah %>%
-  mutate(
+  dplyr::mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
     TRIP_END_week_num =
@@ -363,7 +363,7 @@ trips_info_2022_int_ah_w_y <-
     TRIP_END_m =
       zoo::as.yearmon(TRIP_END_DATE)
   ) %>%
-  mutate(
+  dplyr::mutate(
     TRIP_START_week_num =
       as.double(TRIP_START_week_num),
     TRIP_END_week_num =
@@ -375,7 +375,7 @@ trips_info_2022_int_ah_w_y <-
 ## to trip notifications ----
 trip_notifications_2022_ah_w_y <-
   trip_notifications_2022_ah %>%
-  mutate(
+  dplyr::mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
     TRIP_END_week_num =
@@ -389,7 +389,7 @@ trip_notifications_2022_ah_w_y <-
     TRIP_END_m =
       zoo::as.yearmon(TRIP_END_DATE)
   ) %>%
-  mutate(
+  dplyr::mutate(
     TRIP_START_week_num =
       as.double(TRIP_START_week_num),
     TRIP_END_week_num =
@@ -400,7 +400,7 @@ trip_notifications_2022_ah_w_y <-
 # print_df_names(trip_neg_2022)
 trip_neg_2022_w_y <-
   trip_neg_2022 %>%
-  mutate(
+  dplyr::mutate(
     TRIP_week_num =
       strftime(TRIP_DATE, format = "%U"),
     TRIP_DATE_y =
@@ -408,7 +408,7 @@ trip_neg_2022_w_y <-
     TRIP_DATE_m =
       zoo::as.yearmon(TRIP_DATE)
   ) %>%
-  mutate(TRIP_week_num =
+  dplyr::mutate(TRIP_week_num =
            as.double(TRIP_week_num))
 
 # results:
@@ -463,7 +463,7 @@ trips_info_2022_int_ah_w_y_weeks_cnt_u <-
         distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
         distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
       ) %>%
-      mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
+      dplyr::mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
 
 dim(trips_info_2022_int_ah_w_y_weeks_cnt_u)
 # [1] 1110    7
@@ -659,10 +659,10 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates$sa_only |>
   # remove gom, keep sa only
   dplyr::select(-ends_with("gom")) |> 
-  mutate(permit_2022 =
+  dplyr::mutate(permit_2022 =
            lubridate::intersect(eff_int_sa,
                                 interval_2022)) |>
-  mutate(weeks_perm_2022_amnt =
+  dplyr::mutate(weeks_perm_2022_amnt =
            (permit_2022 / lubridate::dweeks(1)) |>
            round()) |>
   distinct()
@@ -991,7 +991,7 @@ v_p_ids_only |>
 
 # v_p_ids <-
 #   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
-#   mutate(distinct_id = 
+#   dplyr::mutate(distinct_id = 
 #            dplyr::select(    PERMIT_VESSEL_ID,
 #     SERO_OFFICIAL_NUMBER.sa,
 #     SUPPLIER_VESSEL_ID.sa,
@@ -1180,7 +1180,7 @@ v_p_t_tne_dates_cnts__no_t__no_tne <-
   # no t or tne
   dplyr::filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
+  dplyr::mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
 
 dim(v_p_t_tne_dates_cnts__no_t__no_tne)
 # [1] 2402   43
@@ -1196,7 +1196,7 @@ v_p_t_tne_dates_cnts__t_xor_tne <-
            # but not both are absent
            !(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne))) |>
            group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-           mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
+           dplyr::mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
          
 # a <- NA
 # a0 <- NA
@@ -1229,14 +1229,14 @@ v_p_t_tne_dates_cnts__t_and_tne <-
   # t and tne
   dplyr::filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
   group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  mutate(t_and_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
+  dplyr::mutate(t_and_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR))
 
 View(v_p_t_tne_dates_cnts__t_and_tne)
 # [1] 5575   43
 
 # df2 <- 
   # df %>%
-  # mutate(x = if_else(B > 100, A, A),
+  # dplyr::mutate(x = if_else(B > 100, A, A),
   #        Xi = if_else(B > 100,  x*0.1 + A, A),
   #        Xii = if_else(B > 100,  x*0.5 + A, A),
   #        Xiii = if_else(B > 100,  x*0.9 + A, A))
@@ -1247,7 +1247,7 @@ View(v_p_t_tne_dates_cnts__t_and_tne)
   #                dplyr::filter(x2==1) %>%
   #                group_by(x) %>%
   #                summarise(a=mean(y)), by='x') %>%
-  #                mutate(z=y/a)%>%
+  #                dplyr::mutate(z=y/a)%>%
   #                head()
 
 v_p_t_tne_dates_w_v_p <-
@@ -1263,7 +1263,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
       # no t or tne
       dplyr::filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-      mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
+      dplyr::mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
       ungroup()
   )
 dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
@@ -1280,7 +1280,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
         !(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne))
         ) |>
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-      mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
+      dplyr::mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
       ungroup()
   )
 
@@ -1295,7 +1295,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
       # t and tne
       dplyr::filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |>
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-      mutate(t_and_tne_weeks_amnt =
+      dplyr::mutate(t_and_tne_weeks_amnt =
                n_distinct(WEEK_OF_YEAR, YEAR)) |>
       ungroup()
   )

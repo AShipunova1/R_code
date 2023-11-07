@@ -5,7 +5,7 @@ source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 # add year_region column ----
 compl_clean_sa_vs_gom_m_int_c <-
   compl_clean_sa_vs_gom_m_int %>%
-  mutate(year_region = 
+  dplyr::mutate(year_region = 
            paste(year, permit_sa_gom))
 
 # functions
@@ -169,7 +169,7 @@ vessels_cnt_per_year_reg_compl_tot <-
   vessels_cnt_per_year_reg_compl %>% 
   # compute on a data frame a row-at-a-time
   dplyr::rowwise() %>%
-  mutate(total_vsl_ids_per_y_r = sum(compl_vsls, non_compl_vsls)) %>% 
+  dplyr::mutate(total_vsl_ids_per_y_r = sum(compl_vsls, non_compl_vsls)) %>% 
   # return to the default colwise operations
   dplyr::ungroup()
 
@@ -184,10 +184,10 @@ names(vessels_cnt_per_year_reg_compl_tot)
 
 vessels_cnt_per_year_reg_compl_tot_perc <-
   vessels_cnt_per_year_reg_compl_tot %>% 
-  mutate(percent_compl = compl_vsls * 100 / total_vsl_ids_per_y_r) %>% 
-  mutate(percent_non_compl = non_compl_vsls * 100 / total_vsl_ids_per_y_r)
+  dplyr::mutate(percent_compl = compl_vsls * 100 / total_vsl_ids_per_y_r) %>% 
+  dplyr::mutate(percent_non_compl = non_compl_vsls * 100 / total_vsl_ids_per_y_r)
 # %>% 
-#   mutate(perc_labels = paste0(round(percent_compl, 1), "%"))
+#   dplyr::mutate(perc_labels = paste0(round(percent_compl, 1), "%"))
 
 View(vessels_cnt_per_year_reg_compl_tot_perc)
 
@@ -323,7 +323,7 @@ count_weeks_per_vsl_permit_year_compl %>%
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   count_weeks_per_vsl_permit_year_compl %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 # View(count_weeks_per_vsl_permit_year_compl_p)
@@ -432,8 +432,8 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
   add_count(year_region, name = "vsls_per_y_r") %>%
-  mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
-  mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+  dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
 
 ### test 4 ----
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
@@ -595,7 +595,7 @@ count_weeks_per_vsl_permit_year_compl_m_tot %>%
 
 count_weeks_per_vsl_permit_year_compl_m_tot_p <-
   count_weeks_per_vsl_permit_year_compl_m_tot %>%
-  mutate(percent_compl_m =
+  dplyr::mutate(percent_compl_m =
            weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_m)
 
 ### test 1, by month ----
@@ -711,8 +711,8 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p <-
   # add_count(year_region, 
   #           year_month,
   #           name = "vsls_per_y_r_m") %>% View()
-  mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / tot_v_per_m_y_r) %>%
-  mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
+  dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / tot_v_per_m_y_r) %>%
+  dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
 
 ### test 4, by month ----
 

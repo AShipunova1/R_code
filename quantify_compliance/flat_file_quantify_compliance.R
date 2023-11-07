@@ -400,13 +400,13 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 # The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
 #
-# Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
+# Inside the function, it uses the dplyr::mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
 # It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 
 # ===
 change_to_dates <- function(my_df, field_name, date_format) {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
-  # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
+  # Within the dplyr::mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
   result_df <- my_df %>%
     dplyr::mutate({
       {
@@ -437,15 +437,15 @@ aux_fun_for_dates <- function(x, date_format) {
   # across(a:b, \(x) mean(x, na.rm = TRUE))
 # change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
 #   my_df %>%
-#     mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+#     dplyr::mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
 #
-#     # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+#     # dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
 #                                         # format = date_format)) %>%
 #     return()
 # }
 
 # The change_fields_arr_to_dates function is defined to convert multiple columns specified in 'field_names_arr' in the input data frame ('my_df') to POSIXct date format using the provided 'date_format'.
-# Inside the function, it uses the mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
+# Inside the function, it uses the dplyr::mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
 
 # Within the across function, it applies the as.POSIXct function to each column ('x') in 'field_names_arr' using the provided 'date_format'. This step converts the values in these columns to POSIXct date format.
 # It returns the 'result_df', which is the input data frame with the specified columns converted to dates according to the specified 'date_format'.
@@ -920,7 +920,7 @@ separate_permits_into_3_groups <-
   function(my_df, permit_group_field_name = "permitgroup") {
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
-      mutate(permit_sa_gom =
+      dplyr::mutate(permit_sa_gom =
                case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
@@ -1119,13 +1119,13 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
                 values_from = occurence_in_month,
                 values_fill = 0) %>%
     # sum nc by month to get Total
-    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    dplyr::mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
     # turn to have num of weeks per month in a row
     pivot_longer(-c(year_month, total_nc_vsl_per_month),
                  names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>%
     # count percentage
-    mutate(percent_nc = round(
+    dplyr::mutate(percent_nc = round(
       100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
       digits = 2
     )) %>%
@@ -1915,7 +1915,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(exp_w_end_diff_y =
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
-  mutate(perm_exp_y =
+  dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # group_by(compliant_, perm_exp_y) %>%
@@ -2176,7 +2176,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(count_weeks_per_vsl_permit_year_compl_p)
@@ -2579,8 +2579,8 @@ head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
 ## add columns ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(total_vessels = n_distinct(vessel_official_number)) |>
-  mutate(
+  dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
       case_when(perc_nc_100_gr == 2 ~
@@ -2588,10 +2588,10 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
                 .default = "Reported At Least 1 Time")
   ) |>
   group_by(perc_nc_100_gr) |>
-  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
   distinct() |>
-  mutate(
+  dplyr::mutate(
     perc_of_perc =
       case_when(
         perc_nc_100_gr == 2 ~
@@ -2794,10 +2794,10 @@ perc_non_compl_plot_less_100_ann
 # split by group ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
-  mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
+  dplyr::mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
+  dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
-  mutate(vessel_cnt_group_name =
+  dplyr::mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
@@ -2807,9 +2807,9 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
                                vessel_cnt_group_num,
                                " v)")
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
+  dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
   add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
-  mutate(
+  dplyr::mutate(
     percent_group_name =
       case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
@@ -2869,14 +2869,14 @@ ggplot(
 # split by group all ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |> 
   distinct() |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
+  dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
   add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
-  mutate(vessel_cnt_group_name =
+  dplyr::mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
                str_glue("{vessel_cnt_group}: 1--5 vessels ({vessel_cnt_group_num} v)"),
@@ -2885,9 +2885,9 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
              vessel_cnt_group == 3 ~
                str_glue("{vessel_cnt_group}: 451--500 vessels ({vessel_cnt_group_num} v)"),
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
+  dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
   add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
-  mutate(
+  dplyr::mutate(
     percent_group_name =
       case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
@@ -2988,7 +2988,7 @@ labs_all <-
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <- 
   count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   group_by(vessel_cnt_group) |> 
-  mutate(max_in_vsl_group = max(vessels_cnt),
+  dplyr::mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
   ungroup()
 
@@ -3079,26 +3079,26 @@ never_reported_filter <-
 
 count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_tot |>
-  mutate(total_vessels = n_distinct(vessel_official_number)) |> 
-  # mutate(percent_compl_compl = ) |> 
-  mutate(
+  dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |> 
+  # dplyr::mutate(percent_compl_compl = ) |> 
+  dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   # group_by(perc_nc_100_gr, compliant_) |> str()
-  mutate(perc_nc_100_gr_name =
+  dplyr::mutate(perc_nc_100_gr_name =
       case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |> 
-  mutate(group_100_vs_rest =
+  dplyr::mutate(group_100_vs_rest =
       case_when(!!never_reported_filter ~
                   1,
                 .default = 2)
   ) |> 
   group_by(perc_nc_100_gr_name) |>
-  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
   distinct() |>
-  mutate(
+  dplyr::mutate(
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
   ) |>
@@ -3296,7 +3296,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 #### check if expired and active permit is in the same month
 # compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
 #   group_by(vessel_official_number, year_month) |>
-#   mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
+#   dplyr::mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
 #                                    collapse = " & ")) |>
 #   dplyr::filter(grepl("&", active_or_expired)) |>
 #   dim()
@@ -3988,12 +3988,12 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 min_max_val <-
   test_df |>
   group_by(percent_non_compl_2_buckets) |>
-  mutate(
+  dplyr::mutate(
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
   ungroup() |>
-  mutate(
+  dplyr::mutate(
     max_dot_month =
       case_when(
         perc_vsls_per_m_b2 == max_dot_y &
@@ -4005,7 +4005,7 @@ min_max_val <-
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
-  mutate(
+  dplyr::mutate(
     max_dot_text =
       case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
@@ -4205,7 +4205,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
   dplyr::mutate(exp_w_end_diff_y =
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
-  mutate(perm_exp_y =
+  dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   group_by(perm_exp_y) %>%
@@ -4375,7 +4375,7 @@ dim(weeks_per_vsl_year_month_vms_compl_cnt)
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 weeks_per_vsl_year_month_vms_compl_cnt_perc <-
   weeks_per_vsl_year_month_vms_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(weeks_per_vsl_year_month_vms_compl_cnt_perc)
@@ -5032,13 +5032,13 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 # The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
 #
-# Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
+# Inside the function, it uses the dplyr::mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
 # It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 
 # ===
 change_to_dates <- function(my_df, field_name, date_format) {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
-  # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
+  # Within the dplyr::mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
   result_df <- my_df %>%
     dplyr::mutate({
       {
@@ -5069,15 +5069,15 @@ aux_fun_for_dates <- function(x, date_format) {
   # across(a:b, \(x) mean(x, na.rm = TRUE))
 # change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
 #   my_df %>%
-#     mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+#     dplyr::mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
 #
-#     # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+#     # dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
 #                                         # format = date_format)) %>%
 #     return()
 # }
 
 # The change_fields_arr_to_dates function is defined to convert multiple columns specified in 'field_names_arr' in the input data frame ('my_df') to POSIXct date format using the provided 'date_format'.
-# Inside the function, it uses the mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
+# Inside the function, it uses the dplyr::mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
 
 # Within the across function, it applies the as.POSIXct function to each column ('x') in 'field_names_arr' using the provided 'date_format'. This step converts the values in these columns to POSIXct date format.
 # It returns the 'result_df', which is the input data frame with the specified columns converted to dates according to the specified 'date_format'.
@@ -5552,7 +5552,7 @@ separate_permits_into_3_groups <-
   function(my_df, permit_group_field_name = "permitgroup") {
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
-      mutate(permit_sa_gom =
+      dplyr::mutate(permit_sa_gom =
                case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
@@ -5771,14 +5771,14 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
                 values_from = occurence_in_month,
                 values_fill = 0) %>%
     # Calculate the total number of non-compliant vessels per month.
-    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    dplyr::mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
 
     # Reshape the data to have a row for each 'non_compl_weeks' and its count in a month.
     pivot_longer(-c(year_month, total_nc_vsl_per_month),
                  names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>%
     # Calculate the percentage of non-compliant vessels in a month.
-    mutate(percent_nc = round(
+    dplyr::mutate(percent_nc = round(
       100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
       digits = 2
     )) %>%
@@ -6648,7 +6648,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(exp_w_end_diff_y =
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
-  mutate(perm_exp_y =
+  dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # group_by(compliant_, perm_exp_y) %>%
@@ -6909,7 +6909,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(count_weeks_per_vsl_permit_year_compl_p)
@@ -7312,8 +7312,8 @@ head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
 ## add columns ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(total_vessels = n_distinct(vessel_official_number)) |>
-  mutate(
+  dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
       case_when(perc_nc_100_gr == 2 ~
@@ -7321,10 +7321,10 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
                 .default = "Reported At Least 1 Time")
   ) |>
   group_by(perc_nc_100_gr) |>
-  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
   distinct() |>
-  mutate(
+  dplyr::mutate(
     perc_of_perc =
       case_when(
         perc_nc_100_gr == 2 ~
@@ -7527,10 +7527,10 @@ perc_non_compl_plot_less_100_ann
 # split by group ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
-  mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
+  dplyr::mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
+  dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
-  mutate(vessel_cnt_group_name =
+  dplyr::mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
@@ -7540,9 +7540,9 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
                                vessel_cnt_group_num,
                                " v)")
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
+  dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
   add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
-  mutate(
+  dplyr::mutate(
     percent_group_name =
       case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
@@ -7602,14 +7602,14 @@ ggplot(
 # split by group all ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |> 
   distinct() |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
+  dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
   add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
-  mutate(vessel_cnt_group_name =
+  dplyr::mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
                str_glue("{vessel_cnt_group}: 1--5 vessels ({vessel_cnt_group_num} v)"),
@@ -7618,9 +7618,9 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
              vessel_cnt_group == 3 ~
                str_glue("{vessel_cnt_group}: 451--500 vessels ({vessel_cnt_group_num} v)"),
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
+  dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
   add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
-  mutate(
+  dplyr::mutate(
     percent_group_name =
       case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
@@ -7721,7 +7721,7 @@ labs_all <-
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <- 
   count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   group_by(vessel_cnt_group) |> 
-  mutate(max_in_vsl_group = max(vessels_cnt),
+  dplyr::mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
   ungroup()
 
@@ -7812,26 +7812,26 @@ never_reported_filter <-
 
 count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_tot |>
-  mutate(total_vessels = n_distinct(vessel_official_number)) |> 
-  # mutate(percent_compl_compl = ) |> 
-  mutate(
+  dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |> 
+  # dplyr::mutate(percent_compl_compl = ) |> 
+  dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   # group_by(perc_nc_100_gr, compliant_) |> str()
-  mutate(perc_nc_100_gr_name =
+  dplyr::mutate(perc_nc_100_gr_name =
       case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |> 
-  mutate(group_100_vs_rest =
+  dplyr::mutate(group_100_vs_rest =
       case_when(!!never_reported_filter ~
                   1,
                 .default = 2)
   ) |> 
   group_by(perc_nc_100_gr_name) |>
-  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
   distinct() |>
-  mutate(
+  dplyr::mutate(
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
   ) |>
@@ -8029,7 +8029,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 #### check if expired and active permit is in the same month
 # compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
 #   group_by(vessel_official_number, year_month) |>
-#   mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
+#   dplyr::mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
 #                                    collapse = " & ")) |>
 #   dplyr::filter(grepl("&", active_or_expired)) |>
 #   dim()
@@ -8721,12 +8721,12 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 min_max_val <-
   test_df |>
   group_by(percent_non_compl_2_buckets) |>
-  mutate(
+  dplyr::mutate(
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
   ungroup() |>
-  mutate(
+  dplyr::mutate(
     max_dot_month =
       case_when(
         perc_vsls_per_m_b2 == max_dot_y &
@@ -8738,7 +8738,7 @@ min_max_val <-
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
-  mutate(
+  dplyr::mutate(
     max_dot_text =
       case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
@@ -8938,7 +8938,7 @@ compl_clean_sa_vs_gom_m_int_filtered_vms %>%
   dplyr::mutate(exp_w_end_diff_y =
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
-  mutate(perm_exp_y =
+  dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   group_by(perm_exp_y) %>%
@@ -9108,7 +9108,7 @@ dim(weeks_per_vsl_year_month_vms_compl_cnt)
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 weeks_per_vsl_year_month_vms_compl_cnt_perc <-
   weeks_per_vsl_year_month_vms_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(weeks_per_vsl_year_month_vms_compl_cnt_perc)
@@ -9765,13 +9765,13 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
 # The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
 #
-# Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
+# Inside the function, it uses the dplyr::mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
 # It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 
 # ===
 change_to_dates <- function(my_df, field_name, date_format) {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
-  # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
+  # Within the dplyr::mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
   result_df <- my_df %>%
     dplyr::mutate({
       {
@@ -9802,15 +9802,15 @@ aux_fun_for_dates <- function(x, date_format) {
   # across(a:b, \(x) mean(x, na.rm = TRUE))
 # change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
 #   my_df %>%
-#     mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+#     dplyr::mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
 #
-#     # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+#     # dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
 #                                         # format = date_format)) %>%
 #     return()
 # }
 
 # The change_fields_arr_to_dates function is defined to convert multiple columns specified in 'field_names_arr' in the input data frame ('my_df') to POSIXct date format using the provided 'date_format'.
-# Inside the function, it uses the mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
+# Inside the function, it uses the dplyr::mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
 
 # Within the across function, it applies the as.POSIXct function to each column ('x') in 'field_names_arr' using the provided 'date_format'. This step converts the values in these columns to POSIXct date format.
 # It returns the 'result_df', which is the input data frame with the specified columns converted to dates according to the specified 'date_format'.
@@ -10285,7 +10285,7 @@ separate_permits_into_3_groups <-
   function(my_df, permit_group_field_name = "permitgroup") {
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
-      mutate(permit_sa_gom =
+      dplyr::mutate(permit_sa_gom =
                case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
@@ -10504,14 +10504,14 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
                 values_from = occurence_in_month,
                 values_fill = 0) %>%
     # Calculate the total number of non-compliant vessels per month.
-    mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
+    dplyr::mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
 
     # Reshape the data to have a row for each 'non_compl_weeks' and its count in a month.
     pivot_longer(-c(year_month, total_nc_vsl_per_month),
                  names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>%
     # Calculate the percentage of non-compliant vessels in a month.
-    mutate(percent_nc = round(
+    dplyr::mutate(percent_nc = round(
       100 * as.integer(non_compl_in_month) / total_nc_vsl_per_month,
       digits = 2
     )) %>%
@@ -11383,7 +11383,7 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(exp_w_end_diff_y =
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
-  mutate(perm_exp_y =
+  dplyr::mutate(perm_exp_y =
            case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
   # group_by(compliant_, perm_exp_y) %>%
@@ -11644,7 +11644,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(count_weeks_per_vsl_permit_year_compl_p)
@@ -12047,8 +12047,8 @@ head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
 ## add columns ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(total_vessels = n_distinct(vessel_official_number)) |>
-  mutate(
+  dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
       case_when(perc_nc_100_gr == 2 ~
@@ -12056,10 +12056,10 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
                 .default = "Reported At Least 1 Time")
   ) |>
   group_by(perc_nc_100_gr) |>
-  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
   distinct() |>
-  mutate(
+  dplyr::mutate(
     perc_of_perc =
       case_when(
         perc_nc_100_gr == 2 ~
@@ -12262,10 +12262,10 @@ perc_non_compl_plot_less_100_ann
 # split by group ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
-  mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
+  dplyr::mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
+  dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
-  mutate(vessel_cnt_group_name =
+  dplyr::mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
@@ -12275,9 +12275,9 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
                                vessel_cnt_group_num,
                                " v)")
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
+  dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
   add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
-  mutate(
+  dplyr::mutate(
     percent_group_name =
       case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
@@ -12337,10 +12337,10 @@ ggplot(
 # split by group all ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |> 
   distinct() |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
+  dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
   add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>

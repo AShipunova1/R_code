@@ -143,7 +143,7 @@ rename_all_field_names <- function() {
 #   if(file.exists(port_coords_file_name)) {
 #     read_csv(port_coords_file_name,
 #                      show_col_types = FALSE) %>% 
-#              mutate(across(.fns = as.character))
+#              dplyr::mutate(across(.fns = as.character))
 #   }
 # }
 # port_coords <- read_port_coords()

@@ -168,7 +168,7 @@ fhier_acl_catch_by_species_state_year <-
   group_by(species_itis,
            common_name,
            state) %>%
-  mutate(
+  dplyr::mutate(
     fhier_sum_cnts = sum(fhier_quantity_by_4),
     rec_acl_sum_cnts = sum(acl_estimate_catch_by_4)
   ) %>%

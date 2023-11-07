@@ -76,8 +76,8 @@ coordInfo_summ2 <-
   pivot_wider(names_from = stat_name,
               id_cols = Var2,
               values_from = sta_val) |>
-  # mutate_if(is.character, trimws) |>
-  mutate(field_name = trimws(Var2),
+  # dplyr::mutate_if(is.character, trimws) |>
+  dplyr::mutate(field_name = trimws(Var2),
          .before = 1,
          .keep = "unused")
 
@@ -123,8 +123,8 @@ head(weird_stats) |>
 trip_coord_info_vendors <-
   trip_coord_info |>
   group_by(LATITUDE, LONGITUDE) |>
-  # mutate(all_permits = toString(unique(TOP))) |>
-  mutate(vendor_trip = toString(unique(T_UE)),
+  # dplyr::mutate(all_permits = toString(unique(TOP))) |>
+  dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
   ungroup()
 
@@ -137,7 +137,7 @@ trip_coord_info_vendors <-
 trip_coord_info_trip_vendors_cnt <-
   trip_coord_info_vendors |>
   dplyr::select(vendor_trip) |>
-  mutate(vendor_trip = trimws(tolower(vendor_trip))) |>
+  dplyr::mutate(vendor_trip = trimws(tolower(vendor_trip))) |>
   add_count(vendor_trip) |>
   distinct()
 
@@ -157,7 +157,7 @@ trip_coord_info_trip_vendors_cnt |>
 trip_coord_info_effort_vendors_cnt <-
   trip_coord_info_vendors |>
   dplyr::select(vendor_effort) |>
-  mutate(vendor_effort = trimws(tolower(vendor_effort))) |>
+  dplyr::mutate(vendor_effort = trimws(tolower(vendor_effort))) |>
   add_count(vendor_effort) |>
   distinct()
 
@@ -176,7 +176,7 @@ tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
   group_by(LATITUDE, LONGITUDE) |>
-  mutate(vendor_trip_cat = case_when(
+  dplyr::mutate(vendor_trip_cat = case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
@@ -189,7 +189,7 @@ compare_trip_and_effort_vendors <-
     tic("trip_coord_info_vendors3_trip_eff")
     trip_coord_info_vendors3_trip_eff <-
       trip_coord_info_vendors3_trip |>
-      mutate(
+      dplyr::mutate(
         vendor_effort_cat = case_when(
           trimws(tolower(E_UE)) == "vms" ~ "vms",
           trimws(tolower(E_UE)) %in% c("vesl", "bluefin") ~ "vesl",
@@ -209,7 +209,7 @@ compare_trip_and_effort_vendors <-
       filter(trimws(tolower(E_UE)) == "safis") |>
       filter(!vendor_trip_cat == vendor_effort_cat) |>
       dplyr::select(T_UE, E_UE, vendor_trip_cat, vendor_effort_cat) |>
-      mutate(T_UE = trimws(T_UE),
+      dplyr::mutate(T_UE = trimws(T_UE),
              E_UE = trimws(E_UE)) |>
       distinct() |>
       kable(caption = "T_UE diff with E_UE")
@@ -348,7 +348,7 @@ trip_coord_info_map_data <-
   dplyr::select(LONGITUDE, LATITUDE) |>
   distinct() |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  mutate(label_lat_lon = paste(round(LATITUDE, 0),
+  dplyr::mutate(label_lat_lon = paste(round(LATITUDE, 0),
                                round(LONGITUDE, 0)))
   # dim()
   # [1] 116246      3
@@ -364,7 +364,7 @@ trip_coord_info_plot
 
 trip_coord_info_vendors3 <-
   trip_coord_info_vendors3_trip |>
-  mutate(year_start = year(TRIP_START_DATE))
+  dplyr::mutate(year_start = year(TRIP_START_DATE))
 
 trip_coord_info_vendors3 |>
   dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
@@ -418,7 +418,7 @@ positive_long_map
 positive_long_corrected_map <-
   positive_long |>
   dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  mutate(LONGITUDE = -abs(LONGITUDE)) |>
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) |>
   lat_long_to_map_plot(my_title = 'Positive longitude, corrected')
 
 # label_column = "vendor_trip_cat"
@@ -533,7 +533,7 @@ neg_lat_map
 negative_lat_fixed <-
   negative_lat |>
   dplyr::select(LATITUDE, LONGITUDE) |>
-  mutate(LATITUDE = abs(LATITUDE),
+  dplyr::mutate(LATITUDE = abs(LATITUDE),
          LONGITUDE = -abs(LONGITUDE))
 
 neg_lat_pos_long_fixed_map <-
@@ -631,7 +631,7 @@ trip_coord_info_vendors3 |>
   dplyr::select(TRIP_ID, FISHING_HOURS, year_start, vendor_trip_cat) |>
   distinct() |>
   dplyr::filter((FISHING_HOURS < 1) | (FISHING_HOURS > (7 * 24))) |>
-  mutate(
+  dplyr::mutate(
     fishing_hours_cat =
       case_when(
         FISHING_HOURS < 1 ~ "FISHING_HOURS < 1",
@@ -712,7 +712,7 @@ join_vesl_cnts |>
 
 join_vesl_cnts_no_diff <-
   join_vesl_cnts |>
-  mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt)) |>
+  dplyr::mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt)) |>
   filter(cnt_diff < 3)
 glimpse(join_vesl_cnts_no_diff)
 # 161
@@ -756,7 +756,7 @@ join_vesl_cnts_no_diff_ll_sf <-
 
 join_vesl_cnts_no_diff_ll_sf_l <-
   join_vesl_cnts_no_diff_ll_sf |>
-  mutate(labl = paste(LATITUDE, LONGITUDE))
+  dplyr::mutate(labl = paste(LATITUDE, LONGITUDE))
 
 glimpse(join_vesl_cnts_no_diff_ll_sf_l)
 

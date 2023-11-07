@@ -57,7 +57,7 @@ compl_data_sa_2022_m_short_tot <-
   compl_data_sa_2022_m_short %>%
   # Applying group_by & summarise
   group_by(month_num) %>%
-  mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
+  dplyr::mutate(tota_vsl_m = n_distinct(vessel_official_number)) %>% 
   ungroup()
 
 View(compl_data_sa_2022_m_short_tot)
@@ -88,7 +88,7 @@ names(compl_data_sa_2022_m_short_tot)
 compl_data_sa_2022_m_short_tot_ov <-
   compl_data_sa_2022_m_short_tot %>%
     group_by(month_num) %>%
-  mutate(compl_overr = paste(compliant_, overridden_, sep = "_"))
+  dplyr::mutate(compl_overr = paste(compliant_, overridden_, sep = "_"))
 
 # check
 compl_clean_sa_vs_gom_m_int_c %>%
@@ -174,14 +174,14 @@ View(compl_data_sa_2022_m_short_tot_ov_long)
 #   filter(complete.cases(is_compl_overridden)) %>%
 #     group_by(month_num) %>%
 #   summarise(n = n()) %>%
-#   mutate(Freq = n/sum(n)) %>% View()
+#   dplyr::mutate(Freq = n/sum(n)) %>% View()
 
 # count uniq vessel ids with "no" for compl and "no" for "overidden?" per month ----
 compl_data_sa_2022_m_short_tot_ov_cnt_c_o <-
   compl_data_sa_2022_m_short_tot_ov_long %>%
   filter(is_compl_overridden == "NO_NO") %>%
   group_by(month_num) %>%
-  mutate(count_no_no = n_distinct(vessel_official_number)) %>% 
+  dplyr::mutate(count_no_no = n_distinct(vessel_official_number)) %>% 
   ungroup()
 
 # names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o)
@@ -202,14 +202,14 @@ names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no)
 # add percentage to no_no ----
 compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p <-
   compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no %>% 
-  mutate(percent_no_no = count_no_no * 100 / tota_vsl_m)
+  dplyr::mutate(percent_no_no = count_no_no * 100 / tota_vsl_m)
 
 # plot no_no ----
 # names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p)
 compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p %>%
   arrange(month_num) %>%
-  mutate(month_name_tot = paste(month_name, tota_vsl_m)) %>%
-  mutate(month_name_order = fct_reorder(month_name_tot,
+  dplyr::mutate(month_name_tot = paste(month_name, tota_vsl_m)) %>%
+  dplyr::mutate(month_name_order = fct_reorder(month_name_tot,
                                         as.numeric(month_num))) %>%
   ggplot(aes(x = month_name_order,
              y = percent_no_no)) +
@@ -228,9 +228,9 @@ compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p %>%
 ## expire before_current_month by weeks ----
 compl_data_sa_2022_m_exp_diff <-
   compl_data_sa_2022_m %>%
-  mutate(exp_w_end_diff =
+  dplyr::mutate(exp_w_end_diff =
            as.numeric(as.Date(permitgroupexpiration) - week_end + 1)) %>% 
-  mutate(exp_1_m = 
+  dplyr::mutate(exp_1_m = 
            case_when(exp_w_end_diff <= 31 ~ "less_t_1m",
                      exp_w_end_diff > 31 ~ "more_t_1m"))
 
@@ -245,10 +245,10 @@ compl_data_sa_2022_m_exp_diff <-
 # diff in month ----
 compl_data_sa_2022_m_exp_diff_m <-
   compl_data_sa_2022_m %>%
-  mutate(exp_w_end_diff_m =
+  dplyr::mutate(exp_w_end_diff_m =
            interval(as.Date(year_month),
                     as.Date(permitgroupexpiration)) %/% months(1)) %>%
-  mutate(exp_1_m =
+  dplyr::mutate(exp_1_m =
            case_when(
              exp_w_end_diff_m <= 1 ~ "less_t_1m",
              exp_w_end_diff_m > 1 ~ "more_t_1m"
@@ -262,7 +262,7 @@ compl_data_sa_2022_m_exp_diff_m <-
 compl_data_sa_2022_m_exp_diff_m_tot <-
   compl_data_sa_2022_m_exp_diff_m %>%
   group_by(month_num) %>%
-  mutate(distinct_vsls_m = n_distinct(vessel_official_number))
+  dplyr::mutate(distinct_vsls_m = n_distinct(vessel_official_number))
 
 ## fewer columns ----
 compl_data_sa_2022_m_exp_diff_m_tot_short <-
@@ -348,7 +348,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt <-
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt %>%
   filter(month_name == "Jan" &
            !(is_compl_or_both == "YES")) %>%
-  mutate(m_sum = sum(compl_or_not_cnt)) %>%
+  dplyr::mutate(m_sum = sum(compl_or_not_cnt)) %>%
   glimpse()
 # $ exp_1_m          <chr> "more_t_1m", "more_t_1m", "less_t_1m"
 # $ month_name       <chr> "Jan", "Jan", "Jan"
@@ -369,7 +369,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t <-
   pivot_wider(names_from = is_compl_or_both, values_from = compl_or_not_cnt) %>%
   select(-`NA`) %>% 
   replace(is.na(.), 0) %>% 
-  mutate(
+  dplyr::mutate(
     total_vsls_m_exp = sum(YES, NO, NO_YES),
     not_compl_m_exp = sum(NO, NO_YES)
   ) %>% 
@@ -395,7 +395,7 @@ View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t)
 # get percentage per month, exp ----
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t %>%
-  mutate(
+  dplyr::mutate(
     percent_yes = YES * 100 / total_vsls_m_exp,
     percent_tot_not = not_compl_m_exp * 100 / total_vsls_m_exp,
     percent_no = NO * 100 / total_vsls_m_exp,
@@ -417,11 +417,11 @@ print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t
 
 plot_perc_compl_per_m <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t_perc %>%
-  mutate(month_name_tot = paste0(month_name,
+  dplyr::mutate(month_name_tot = paste0(month_name,
                                  " (",
                                  distinct_vsls_m,
                                  ")")) %>%
-  mutate(month_name_order = fct_reorder(month_name_tot,
+  dplyr::mutate(month_name_order = fct_reorder(month_name_tot,
                                         as.numeric(month_num))) %>%
   ggplot(aes(x = month_name_order,
              y = percent_tot_not,

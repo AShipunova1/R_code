@@ -24,7 +24,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf <-
         coords = c("longitude", "latitude"),
         crs = st_crs(GOMsf)) |>
   st_join(GOMsf, left = FALSE) %>%
-  mutate(longitude = st_coordinates(.)[, 1],
+  dplyr::mutate(longitude = st_coordinates(.)[, 1],
          latitude = st_coordinates(.)[, 2])
 toc()
 # for_heatmap_lat_lon_trips_vessels_only_join_gomsf_1: 0.5 sec elapsed
@@ -39,7 +39,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf |>
   # sf::st_drop_geometry() |>
   group_by(StatZone) |>
-  mutate(vsl_cnt_stat_zone = n_distinct(vessel_official_nbr),
+  dplyr::mutate(vsl_cnt_stat_zone = n_distinct(vessel_official_nbr),
          trip_id_cnt_stat_zone = n_distinct(trip_id)) |>
   ungroup()
 
@@ -310,7 +310,7 @@ glimpse(trip_type_data_from_db_by_t_id)
 
 ## add trip_type data to the original data ----
 trip_type_data_from_db_by_t_id <-
-  mutate(trip_type_data_from_db_by_t_id,
+  dplyr::mutate(trip_type_data_from_db_by_t_id,
        trip_id = as.character(trip_id))
 
 trip_type_data_from_db_by_t_id_types <-

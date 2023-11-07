@@ -28,7 +28,7 @@ source(r"(~\R_code_github\quantify_compliance\quantify_compliance_start.R)")
 str(compl_clean_sa_vs_gom_plus_dual)
 compl_clean_sa_vs_gom_plus_dual_rep_cnt <-
   compl_clean_sa_vs_gom_plus_dual %>%
-  mutate(
+  dplyr::mutate(
     report_cnts = ifelse(
       permit == "sa_only",
       captainreports__ + negativereports__,

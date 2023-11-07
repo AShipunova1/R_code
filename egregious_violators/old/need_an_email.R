@@ -69,7 +69,7 @@ names(email_s_needed_to_csv_short_sorted)
 
 compl_clean_w_permit_exp <-
   compl_clean %>%
-  mutate(permit_expired = case_when(permitgroupexpiration > Sys.Date() ~ "no",
+  dplyr::mutate(permit_expired = case_when(permitgroupexpiration > Sys.Date() ~ "no",
                                     .default = "yes")) %>%
   dplyr::select(vessel_official_number,
          permit_expired,

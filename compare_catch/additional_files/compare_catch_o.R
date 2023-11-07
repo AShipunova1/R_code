@@ -53,7 +53,7 @@ sp_code__species_itis <-
 ## ---- add sp_code to FHIER data ---- 
 # convert fhier_species_count_by_disposition$SPECIESITIS to char
 fhier_species_count_by_disposition %<>%
-  mutate(SPECIESITIS = as.character(SPECIESITIS))
+  dplyr::mutate(SPECIESITIS = as.character(SPECIESITIS))
 
 fhier_species_count_by_disposition_sp_all <-
   inner_join(sp_code__species_itis, 
@@ -95,7 +95,7 @@ fhier_quantity_by_species_and_permit <-
 ## ---- convert TOT_CAT to integers ----
 # TOT_CAT : chr  "1,111,111" "11,111"
 mrip_estimate %<>%
-  mutate(TOT_CAT = TOT_CAT %>% 
+  dplyr::mutate(TOT_CAT = TOT_CAT %>% 
            str_replace_all(",", "") %>% 
            as.integer()
          )
@@ -177,7 +177,7 @@ intersect(species_in_fhier_sp_list, species_in_mrip) %>% str()
 ## ---- if use by region/landing ----
 # mrip_estimate_catch_1 <-
 #   mrip_estimate_catch %>%
-#     mutate(PERMITREGION = 
+#     dplyr::mutate(PERMITREGION = 
 #            case_when(SUB_REG == "6" ~ "SA",
 #                      SUB_REG == "7" ~ "GOM"
 #                     )

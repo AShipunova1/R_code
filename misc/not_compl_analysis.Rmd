@@ -37,7 +37,7 @@ glimpse(not_compl_vsl_22_23_data)
 add a column
 ```{r}
 not_compl_vsl_22_23_data %<>%
-  mutate(year_week = paste0(year, "_", week_num))
+  dplyr::mutate(year_week = paste0(year, "_", week_num))
 
 glimpse(not_compl_vsl_22_23_data)
 ```
@@ -83,7 +83,7 @@ glimpse(not_compl_vsl_22_23_data_w_cnts_1)
 plot
 ```{r}
 not_compl_vsl_22_23_data_w_cnts_1 %>% 
-  mutate(order = fct_reorder(as.factor(week_num), year)) %>% 
+  dplyr::mutate(order = fct_reorder(as.factor(week_num), year)) %>% 
   ggplot(aes(x = order,
              y = reorder(vesselofficialnumber, 
                          as.integer(factor(total_count)), FUN = min), 

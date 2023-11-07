@@ -212,22 +212,22 @@ MAX_QUANTITY_BY_SPECIES <-
 mrip_and_fhier_short_values <-
   # mrip_and_fhier_w_names %>%
   mrip_and_fhier %>%
-  # mutate(species_itis  = ifelse(species_itis  >= MIN_species_itis , species_itis , NA)) %>%
-  mutate(
+  # dplyr::mutate(species_itis  = ifelse(species_itis  >= MIN_species_itis , species_itis , NA)) %>%
+  dplyr::mutate(
     fhier_quantity_by_species_short = ifelse(
       fhier_quantity_by_species <= MAX_QUANTITY_BY_SPECIES,
       fhier_quantity_by_species,
       NA
     )
   ) %>%
-  mutate(
+  dplyr::mutate(
     mrip_estimate_catch_by_species_short = ifelse(
       mrip_estimate_catch_by_species <= MAX_QUANTITY_BY_SPECIES,
       mrip_estimate_catch_by_species,
       NA
     )
   )
-# mutate(order = fct_reorder(as.factor(species_itis ), common_name)) %>%
+# dplyr::mutate(order = fct_reorder(as.factor(species_itis ), common_name)) %>%
 str(mrip_and_fhier_short_values)
 
 # counts_plot <-
@@ -268,7 +268,7 @@ str(mrip_and_fhier_short_values)
 mrip_and_fhier_uni <-
   mrip_and_fhier %>%
   arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
-  mutate(
+  dplyr::mutate(
     cnt_index = (mrip_estimate_catch_by_species - fhier_quantity_by_species) /
       (mrip_estimate_catch_by_species + fhier_quantity_by_species)
     # * 2
@@ -277,7 +277,7 @@ plot(mrip_and_fhier_uni$cnt_index,
      unlist(mrip_and_fhier_uni[species_itis]))
 # , ylim = c(MIN_species_itis , max(mrip_and_fhier_uni[species_itis] )))
 
-# mutate(order = fct_reorder(as.factor(week_num), year)) %>%
+# dplyr::mutate(order = fct_reorder(as.factor(week_num), year)) %>%
 # ggplot(aes(x = order,
 # y = reorder(vesselofficialnumber,
 # as.integer(factor(total_count)), FUN = min),
@@ -285,7 +285,7 @@ plot(mrip_and_fhier_uni$cnt_index,
 ## ---- index plot with ggplot ----
 counts_plot_ind <-
   mrip_and_fhier_uni %>%
-  mutate(order = fct_reorder(
+  dplyr::mutate(order = fct_reorder(
     as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species),
     species_itis
   )) %>%
@@ -313,16 +313,16 @@ counts_plot_ind
 ## ---- index plot / 10 with ggplot ----
 mrip_and_fhier_uni_10 <-
   mrip_and_fhier %>%
-  mutate(mrip_estimate_catch_by_species = mrip_estimate_catch_by_species / 10) %>%
+  dplyr::mutate(mrip_estimate_catch_by_species = mrip_estimate_catch_by_species / 10) %>%
   arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
-  mutate(
+  dplyr::mutate(
     cnt_index = (mrip_estimate_catch_by_species - fhier_quantity_by_species) /
       (mrip_estimate_catch_by_species + fhier_quantity_by_species)
     # * 2
   )
 counts_plot_ind_10 <-
   mrip_and_fhier_uni_10 %>%
-  mutate(order = fct_reorder(
+  dplyr::mutate(order = fct_reorder(
     as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species),
     species_itis
   )) %>%
@@ -353,7 +353,7 @@ get_long_mrip_and_fhier_short_values_n <-
     long_mrip_and_fhier_short_values <-
       mrip_and_fhier_short_values %>%
       # MRIP count ~ 10 times bigger
-      mutate(mrip_estimate_catch_by_species_by_n =
+      dplyr::mutate(mrip_estimate_catch_by_species_by_n =
                mrip_estimate_catch_by_species / n) %>%
       rename(
         c("MRIP" = "mrip_estimate_catch_by_species_by_n",
@@ -427,7 +427,7 @@ n_most_frequent_fhier_10 <- get_n_most_frequent_fhier(10)
 
 str(n_most_frequent_fhier_10)
 # mrip_and_fhier_w_names %<>%
-#   mutate(species_itis = as.character(species_itis))
+#   dplyr::mutate(species_itis = as.character(species_itis))
 
 names(mrip_and_fhier_w_names)
 to_plot_10 <- right_join(
@@ -667,7 +667,7 @@ to_plot_long <-
 # keep the common_name order by fhier counts in the plot
 to_plot_long_s <-
   to_plot_long %>%
-  mutate(
+  dplyr::mutate(
     c_n_index = as.factor(COMMON_NAME),
     COMMON_NAME = factor(COMMON_NAME, levels = unique(c_n_index))
   )
@@ -799,7 +799,7 @@ min_fhier = min(to_plot_50$fhier_quantity_by_species)
 
 mrip_estimate_catch_by_species_state_region_waves %>% plot()
 mutate(x_col = paste(new_com, sub_reg, wave, sep = "_")) %>%
-  # mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_4), itis_cod)
+  # dplyr::mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_4), itis_cod)
   #        ) %>%
   # str()
   ggplot(

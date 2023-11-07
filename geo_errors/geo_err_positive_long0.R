@@ -71,8 +71,8 @@ coordInfo_summ2 <-
   pivot_wider(names_from = stat_name,
               id_cols = Var2,
               values_from = sta_val) |>
-  # mutate_if(is.character, trimws) |>
-  mutate(field_name = trimws(Var2),
+  # dplyr::mutate_if(is.character, trimws) |>
+  dplyr::mutate(field_name = trimws(Var2),
          .before = 1,
          .keep = "unused")
 
@@ -115,8 +115,8 @@ head(weird_stats) |>
 trip_coord_info_vendors <-
   trip_coord_info |>
   group_by(LATITUDE, LONGITUDE) |>
-  # mutate(all_permits = toString(unique(TOP))) |>
-  mutate(vendor_trip = toString(unique(T_UE)),
+  # dplyr::mutate(all_permits = toString(unique(TOP))) |>
+  dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
   ungroup()
 
@@ -129,7 +129,7 @@ trip_coord_info_vendors <-
 trip_coord_info_trip_vendors_cnt <-
   trip_coord_info_vendors |>
   select(vendor_trip) |>
-  mutate(vendor_trip = trimws(tolower(vendor_trip))) |>
+  dplyr::mutate(vendor_trip = trimws(tolower(vendor_trip))) |>
   add_count(vendor_trip) |>
   distinct()
 
@@ -149,7 +149,7 @@ trip_coord_info_trip_vendors_cnt |>
 trip_coord_info_effort_vendors_cnt <-
   trip_coord_info_vendors |>
   select(vendor_effort) |>
-  mutate(vendor_effort = trimws(tolower(vendor_effort))) |>
+  dplyr::mutate(vendor_effort = trimws(tolower(vendor_effort))) |>
   add_count(vendor_effort) |>
   distinct()
 
@@ -168,7 +168,7 @@ tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
   group_by(LATITUDE, LONGITUDE) |>
-  mutate(vendor_trip_cat = case_when(
+  dplyr::mutate(vendor_trip_cat = case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
@@ -319,7 +319,7 @@ trip_coord_info_map_data <-
   select(LONGITUDE, LATITUDE) |>
   distinct() |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  mutate(label_lat_lon = paste(round(LATITUDE, 0),
+  dplyr::mutate(label_lat_lon = paste(round(LATITUDE, 0),
                                round(LONGITUDE, 0)))
   # dim()
   # [1] 116246      3
@@ -333,7 +333,7 @@ trip_coord_info_plot
 
 trip_coord_info_vendors3 <-
   trip_coord_info_vendors3_trip |>
-  mutate(year_start = year(TRIP_START_DATE))
+  dplyr::mutate(year_start = year(TRIP_START_DATE))
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
@@ -382,7 +382,7 @@ positive_long_map
 positive_long_corrected_map <-
   positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  mutate(LONGITUDE = -abs(LONGITUDE)) |>
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) |>
   lat_long_to_map_plot(my_title = 'Positive longitude, corrected')
 
 # label_column = "vendor_trip_cat"
@@ -486,7 +486,7 @@ join_vesl_cnts |>
 # check the difference between total and positive lon cnts ----
 join_vesl_cnts_no_diff_all <-
   join_vesl_cnts |>
-  mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt))
+  dplyr::mutate(cnt_diff = abs(all_bad_vsl_cnt - vesl_bad_vsl_cnt))
 
 join_vesl_cnts_no_diff <-
  join_vesl_cnts_no_diff_all |>
@@ -557,7 +557,7 @@ ggplot(join_vesl_cnts_no_diff_all) +
 join_vesl_cnts_no_diff_all_freq <-
   join_vesl_cnts_no_diff_all |>
   group_by(cnt_diff) %>%
-  mutate(cnt_diff_freq = n()) %>%
+  dplyr::mutate(cnt_diff_freq = n()) %>%
   ungroup() |>
   arrange(desc(cnt_diff_freq))
 
@@ -643,7 +643,7 @@ join_vesl_cnts_no_diff_ll_sf <-
 
 join_vesl_cnts_no_diff_ll_sf_l <-
   join_vesl_cnts_no_diff_ll_sf |>
-  mutate(labl = paste(LATITUDE, LONGITUDE))
+  dplyr::mutate(labl = paste(LATITUDE, LONGITUDE))
 
 glimpse(join_vesl_cnts_no_diff_ll_sf_l)
 
@@ -711,7 +711,7 @@ join_vesl_cnts_no_diff_all_wrong_vsls_short <-
 # join_vesl_cnts_no_diff_all_wrong_vsls_short lon to negative ----
 join_vesl_cnts_no_diff_all_wrong_vsls_short_fix <-
   join_vesl_cnts_no_diff_all_wrong_vsls_short |>
-  mutate(LONGITUDE = -abs(LONGITUDE))
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE))
 
 # check vessel_ids ----
 
@@ -983,7 +983,7 @@ corrected_coords_good_only_id_all_info <-
   info_by_vsl_ids(corrected_coords_good_only_id) |>
   add_count(PERMIT_VESSEL_ID, VESSEL_ID,
             name = "coord_by_vsl_cnt") |>
-  mutate(LONGITUDE = -abs(LONGITUDE))
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE))
 
 # lat_long_to_map(corrected_coords_good_only_id_all_info,
 #                 zcol_name = "PERMIT_VESSEL_ID")

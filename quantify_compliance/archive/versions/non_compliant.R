@@ -73,7 +73,7 @@ compl_clean_sa_vs_gom_plus_dual_non_compl <-
 ## ---- count reports ----
 compl_clean_sa_vs_gom_plus_dual_non_compl_rep_cnt <-
   compl_clean_sa_vs_gom_plus_dual_non_compl %>%
-  mutate(
+  dplyr::mutate(
     report_cnts = ifelse(
       permit == "sa_only",
       captainreports__ + negativereports__,
@@ -134,9 +134,9 @@ head(gom_sum_rep_by_month)
   # is_compl = list(sort(unique(compliant_)))
   # ) %>%
   # as.data.frame() %>%
-  # mutate(non_compl = length(is_compl)
-  #        mutate(non_compl = length(is_compl)
-  #               # mutate(non_compl = ifelse(length(is_compl) > 1 | tolower(is_compl) == "no",
+  # dplyr::mutate(non_compl = length(is_compl)
+  #        dplyr::mutate(non_compl = length(is_compl)
+  #               # dplyr::mutate(non_compl = ifelse(length(is_compl) > 1 | tolower(is_compl) == "no",
   #               #                           "non_compl", "yes")
 data_overview(gom_sum_rep_by_month)
 # 6196            
@@ -161,7 +161,7 @@ compl_clean_sa_vs_gom_plus_dual %>%
 
 gom_sum_rep_by_month_c <-
   gom_sum_rep_by_month %>%
-  mutate(is_compl = ifelse(
+  dplyr::mutate(is_compl = ifelse(
     compliant_ == "YES",
     "compl", "non_compl"
     )

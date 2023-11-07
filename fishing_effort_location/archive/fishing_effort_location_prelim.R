@@ -484,7 +484,7 @@ mapview(db_data_w_area_report_minus_gom_sf) + sa_shp +
 db_data_w_area_report <-
   db_data_w_area %>%
   # all LONG should be negative
-  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   dplyr::select(
     TRIP_START_DATE,
     TRIP_END_DATE,
@@ -688,9 +688,9 @@ toc()
 # mapview(db_data_w_area_report_sf_28_s)
 # mapview(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
-db_data_w_area_report_sf_28_s_char <- mutate(db_data_w_area_report_sf_28_s,
+db_data_w_area_report_sf_28_s_char <- dplyr::mutate(db_data_w_area_report_sf_28_s,
          across(everything(), as.character))
-db_data_w_area_report_28_s_sa_counties_no_gom_sf_char <- mutate(db_data_w_area_report_28_s_sa_counties_no_gom_sf,
+db_data_w_area_report_28_s_sa_counties_no_gom_sf_char <- dplyr::mutate(db_data_w_area_report_28_s_sa_counties_no_gom_sf,
          across(everything(), as.character))
 
 # anti_join(x, y, by = NULL, copy = FALSE, ...)

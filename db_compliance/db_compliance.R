@@ -86,7 +86,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
   group_by(date_y_m,
            WEEK_OF_YEAR,
            compl_w_total) |>
-  mutate(vsls_nc_w = n_distinct(PERMIT_VESSEL_ID)) |>
+  dplyr::mutate(vsls_nc_w = n_distinct(PERMIT_VESSEL_ID)) |>
   ungroup()
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt)
@@ -131,7 +131,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
            compl_w_total) |>
   dplyr::filter(WEEK_OF_YEAR == 13) |>
   # subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
-  mutate(cnt_vsls_w = n_distinct(PERMIT_VESSEL_ID)) |>
+  dplyr::mutate(cnt_vsls_w = n_distinct(PERMIT_VESSEL_ID)) |>
   # glimpse()
   # Rows: 418
   ungroup() |>
@@ -228,7 +228,7 @@ v_p__t__tn_d_weeks |>
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p)

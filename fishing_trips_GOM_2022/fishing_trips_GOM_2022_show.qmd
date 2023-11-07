@@ -349,7 +349,7 @@ glimpse(gom_fhier1_list_t$Round)
 # clean headers
 gom_fhier1_list_t <-
   purrr::map(gom_fhier1_list_t,
-          ~ mutate(.x,
+          ~ dplyr::mutate(.x,
           # gsub(pattern, replacement, x, ignore.case = FALSE...)
           # remove any of:
           state_abbr = gsub("Total |Rounded | Pct",
