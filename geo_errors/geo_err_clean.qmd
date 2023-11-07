@@ -98,7 +98,7 @@ coordInfo_summ1 <-
 coordInfo_summ2 <-
   coordInfo_summ1 |>
   dplyr::distinct() |>
-  pivot_wider(names_from = stat_name,
+  tidyr::pivot_wider(names_from = stat_name,
               id_cols = Var2,
               values_from = sta_val) |>
   # dplyr::mutate_if(is.character, trimws) |>

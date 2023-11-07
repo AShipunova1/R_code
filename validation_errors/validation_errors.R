@@ -56,7 +56,7 @@ by_year_month_wide <- function(my_df, fields_to_select_list) {
     summarise(n = n()) %>%
     # A tibble: 23 × 3
     # dplyr::ungroup() %>%
-    pivot_wider(names_from = overridden, values_from = n) %>%
+    tidyr::pivot_wider(names_from = overridden, values_from = n) %>%
     # NAs to 0
     mutate(pending = coalesce(pending, 0),
            overridden = coalesce(overridden, 0)) %>%
@@ -138,7 +138,7 @@ db_data_22_plus <-
 #   # [1] 48571    18
 #   count(val_param_name, arr_year_month) %>%
 #   dplyr::arrange(arr_year_month) %>%
-#   pivot_wider(names_from = arr_year_month, values_from = n) %>%
+#   tidyr::pivot_wider(names_from = arr_year_month, values_from = n) %>%
 #   as.data.frame() %>%
 #   write.xlsx(
 #     file.path(
@@ -165,17 +165,17 @@ db_data_22_plus_overr %>%
   #   dplyr::group_by(n, name, arr_year_month) %>%
   # dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
   # dplyr::filter(n > 1L)
-  pivot_wider(names_from = arr_year_month,
+  tidyr::pivot_wider(names_from = arr_year_month,
               values_from = value) %>%
     str()
 
 
   # pivot_longer(-c(Species,num,ID)) %>%
-  # pivot_wider(names_from = ID,values_from=value)
+  # tidyr::pivot_wider(names_from = ID,values_from=value)
 
 db_data_22_plus_overr_wide <-
   db_data_22_plus_overr %>%
-  pivot_wider(names_from = c(arr_year_month, overridden),
+  tidyr::pivot_wider(names_from = c(arr_year_month, overridden),
               values_from = n) %>%
   as.data.frame()
 
@@ -526,7 +526,7 @@ transform_to_plot <- function(my_df) {
     mutate(arr_year_month =
              format(arr_year_month, "%m-%y")) %>%
     select(-overridden) %>%
-    pivot_wider(names_from = c(arr_year_month),
+    tidyr::pivot_wider(names_from = c(arr_year_month),
                 values_from = n) %>%
     # count total by row in all columns except param names
     mutate(total_by_param = rowSums(.[2:dim(.)[2]], na.rm = TRUE)) %>%

@@ -57,7 +57,7 @@ by_year_month_wide <- function(my_df, fields_to_select_list) {
     summarise(n = n()) %>%
     # A tibble: 23 × 3
     # dplyr::ungroup() %>%
-    pivot_wider(names_from = overridden, values_from = n) %>%
+    tidyr::pivot_wider(names_from = overridden, values_from = n) %>%
     # NAs to 0
     mutate(pending = coalesce(pending, 0),
            overridden = coalesce(overridden, 0)) %>%
@@ -137,7 +137,7 @@ from_fhier_data_by_ym_22 <-
                                 overridden == "Y" ~ "overridden")) %>%
   dplyr::group_by(overridden, arr_year_month) %>%
   summarise(n = n()) %>%
-  pivot_wider(names_from = overridden, values_from = n) %>%   # A tibble: 21 × 3
+  tidyr::pivot_wider(names_from = overridden, values_from = n) %>%   # A tibble: 21 × 3
   # NAs to 0
   mutate(pending = coalesce(pending, 0)) %>%
   mutate(total = overridden + pending)

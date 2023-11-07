@@ -366,7 +366,7 @@ View(compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt)
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt_c_t <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt %>%
   dplyr::group_by(month_num, exp_1_m) %>%
-  pivot_wider(names_from = is_compl_or_both, values_from = compl_or_not_cnt) %>%
+  tidyr::pivot_wider(names_from = is_compl_or_both, values_from = compl_or_not_cnt) %>%
   select(-`NA`) %>% 
   replace(is.na(.), 0) %>% 
   dplyr::mutate(

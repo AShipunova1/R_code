@@ -480,7 +480,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
   both_tot_w_coords__and_good_pairs_mark |>
   count(VESSEL_ID, coord_mark,
         name = "count_marks_per_vsl") |>
-  pivot_wider(id_cols = VESSEL_ID,
+  tidyr::pivot_wider(id_cols = VESSEL_ID,
               names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
   dplyr::group_by(VESSEL_ID) |>
@@ -499,7 +499,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts <-
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   both_tot_w_coords__and_good_pairs_mark_cnts |>
-  pivot_wider(names_from = coord_mark,
+  tidyr::pivot_wider(names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
   dplyr::group_by(VESSEL_ID) |>
   dplyr::mutate(good_over_bad = round(good / wrong, 2),
