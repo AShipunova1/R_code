@@ -262,33 +262,47 @@ make_one_plot_compl_vs_non_compl <-
   }
 
 # percent buckets
+# Define a function named 'get_p_buckets' with two parameters 'my_df' and 'field_name'.
+# Depending on the range in which the field_name value falls, the corresponding bucket label is assigned to each row in the percent_n_compl_rank column.
 get_p_buckets <- function(my_df, field_name) {
-  my_df %>%
+
+  # Modify 'my_df' by adding a new column 'percent_n_compl_rank' using 'mutate' from dplyr
+  # The column values are determined based on the 'field_name' value using 'case_when'
+  my_df %>% 
     dplyr::mutate(
-      percent_n_compl_rank =
+      # Create a new column 'percent_n_compl_rank'
+      percent_n_compl_rank = 
         dplyr::case_when(
+          # Use '!!sym(field_name)' to dynamically refer to 'field_name' within the context of 'my_df'
+          # If 'field_name' < 25, set 'percent_n_compl_rank' to '0<= & <25%', etc.
           !!sym(field_name) < 25 ~ '0<= & <25%',
-          25 <= !!sym(field_name) &
-            !!sym(field_name) < 50 ~ '25<= & <50%',
-          50 <= !!sym(field_name) &
-            !!sym(field_name) < 75 ~ '50<= & <75%',
+          25 <= !!sym(field_name) & !!sym(field_name) < 50 ~ '25<= & <50%',
+          50 <= !!sym(field_name) & !!sym(field_name) < 75 ~ '50<= & <75%',
           75 <= !!sym(field_name) ~ '75<= & <=100%'
         )
-    ) %>%
+    ) %>% 
+    # Return the modified data frame
     return()
 }
 
 # percent buckets by 50%
+# Define a function named 'get_2_buckets' with two parameters 'my_df' and 'field_name'
 get_2_buckets <- function(my_df, field_name) {
+  # Modify 'my_df' by adding a new column 'percent_non_compl_2_buckets' using 'mutate' from dplyr
   my_df %>%
+    # Use 'dplyr::mutate' to create or modify columns in 'my_df'
     dplyr::mutate(
+
+      # Create a new column 'percent_non_compl_2_buckets'
       percent_non_compl_2_buckets =
         dplyr::case_when(
-          # nc weeks 
+          # Use '!!sym(field_name)' to dynamically refer to 'field_name' within the context of 'my_df'
+          # If 'field_name' < 50, set 'percent_non_compl_2_buckets' to '< 50%'       
           !!sym(field_name) < 50 ~ '< 50%',
+          # If 'field_name' is greater than or equal to 50, set 'percent_non_compl_2_buckets' to '>= 50%'
           50 <= !!sym(field_name) ~ '>= 50%'
-        )
-    ) %>%
+        )) %>%
+    # Return the modified data frame
     return()
 }
 
