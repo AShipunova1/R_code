@@ -677,7 +677,7 @@ fhier_mrip_to_plot_format <- function(my_df) {
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_quantity_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(MRIP,
              FHIER),
     names_to = "AGENCY",

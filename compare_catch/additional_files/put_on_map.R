@@ -18,7 +18,7 @@ mrip_fhier_by_state_long <-
   rename(c("MRIP" = "mrip_estimate_catch_by_species",
            "FHIER" = "fhier_quantity_by_sp_n_state10")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(MRIP,
              FHIER),
     names_to = "AGENCY",

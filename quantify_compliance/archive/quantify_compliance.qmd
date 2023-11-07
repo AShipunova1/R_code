@@ -272,7 +272,7 @@ percent_plot <- function(my_df,
   # make a plot
   percent_p <-
     my_df %>%
-    pivot_longer(
+    tidyr::pivot_longer(
       # which columns to pivot
       starts_with("percent"),
       # pivot column names go to a new "key" column

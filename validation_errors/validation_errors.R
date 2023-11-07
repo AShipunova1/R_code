@@ -161,7 +161,7 @@ db_data_22_plus_overr <-
 names(db_data_22_plus_overr)
 
 db_data_22_plus_overr %>%
-  pivot_longer(c(val_param_name, overridden)) %>%
+  tidyr::pivot_longer(c(val_param_name, overridden)) %>%
   #   dplyr::group_by(n, name, arr_year_month) %>%
   # dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
   # dplyr::filter(n > 1L)
@@ -170,7 +170,7 @@ db_data_22_plus_overr %>%
     str()
 
 
-  # pivot_longer(-c(Species,num,ID)) %>%
+  # tidyr::pivot_longer(-c(Species,num,ID)) %>%
   # tidyr::pivot_wider(names_from = ID,values_from=value)
 
 db_data_22_plus_overr_wide <-

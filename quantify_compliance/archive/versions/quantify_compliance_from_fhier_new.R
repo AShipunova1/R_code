@@ -203,7 +203,7 @@ r1 <-
   vessels_cnt_per_year_reg_compl_tot_perc %>%
   filter(year_region == "2022 both") %>%
   # select(compl_vsls, non_compl_vsls) %>%
-  pivot_longer(cols = c(percent_compl,
+  tidyr::pivot_longer(cols = c(percent_compl,
                         percent_non_compl),
                names_to = "is_compliant",
                values_to = "percent")
@@ -253,7 +253,7 @@ vessels_cnt_per_year_reg_compl_tot_perc$year_region %>%
     curr_df <-    
     vessels_cnt_per_year_reg_compl_tot_perc %>%
       filter(year_region == curr_year_region) %>%
-  pivot_longer(cols = c(percent_compl,
+  tidyr::pivot_longer(cols = c(percent_compl,
                         percent_non_compl),
                names_to = "is_compliant",
                values_to = "percent")

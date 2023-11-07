@@ -686,7 +686,7 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
     # sum nc by month to get Total
     mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
     # turn to have num of weeks per month in a row
-    pivot_longer(-c(year_month, total_nc_vsl_per_month),
+    tidyr::pivot_longer(-c(year_month, total_nc_vsl_per_month),
                  names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>%
     # count percentage

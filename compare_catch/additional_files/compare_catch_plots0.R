@@ -201,7 +201,7 @@ fhier_acl_to_plot_format <- function(my_df) {
   rename(c("ACL" = "acl_estimate_catch_by_4",
            "FHIER" = "fhier_quantity_by_4")) %>%
   # reformat to a long format to have fhier and acl data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(ACL,
              FHIER),
     names_to = "ORIGIN",
@@ -662,7 +662,7 @@ my_df_long <-
   rename(c("ACL" = "rec_acl_sum_cnts",
            "FHIER" = "fhier_sum_cnts")) %>%
   # reformat to a long format to have fhier and acl data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(ACL,
              FHIER),
     names_to = "ORIGIN",

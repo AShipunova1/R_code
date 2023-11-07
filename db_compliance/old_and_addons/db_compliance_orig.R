@@ -255,7 +255,7 @@ permit_info_r_l_overlap_join1_w_dual_22__list_ids <-
   map(
     ~ .x %>%
       dplyr::select(VESSEL_ID, VESSEL_ALT_NUM.sa, VESSEL_ALT_NUM.gom) %>%
-      pivot_longer(
+      tidyr::pivot_longer(
         cols = c(VESSEL_ID,
                  VESSEL_ALT_NUM.sa,
                  VESSEL_ALT_NUM.gom),

@@ -801,7 +801,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_long <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-  pivot_longer(c(good, wrong),
+  tidyr::pivot_longer(c(good, wrong),
                names_to = "coord_mark",
                values_to = "count_marks_per_vsl") # trip cnt
 ```

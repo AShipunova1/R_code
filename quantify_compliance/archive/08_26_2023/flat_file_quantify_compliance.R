@@ -559,7 +559,7 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
     # sum nc by month to get Total
     dplyr::mutate(total_nc_vsl_per_month = rowSums(.[2:6])) %>%
     # turn to have num of weeks per month in a row
-    pivot_longer(-c(year_month, total_nc_vsl_per_month),
+    tidyr::pivot_longer(-c(year_month, total_nc_vsl_per_month),
                  names_to = "non_compl_weeks",
                  values_to = "non_compl_in_month") %>%
     # count percentage
@@ -1113,7 +1113,7 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide %>%
   # turn back to a longer format, vessel ids in one column
-  pivot_longer(
+  tidyr::pivot_longer(
     # all other columns are vessel ids, use them as a names
     cols = -c(year_permit, total_vsl_y, perm_exp_y, exp_y_tot_cnt),
     values_to = "is_compl_or_both",

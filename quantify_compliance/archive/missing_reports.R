@@ -177,7 +177,7 @@ gom_id_reports_one_week_longer <-
   gom_id_reports_one_week %>%
   rename(decl = gom_permitteddeclarations__,
          logb = captainreports__) %>%
-  pivot_longer(cols = c(decl,
+  tidyr::pivot_longer(cols = c(decl,
                         logb),
                names_to = "report_type",
                values_to = "report_count") %>% 

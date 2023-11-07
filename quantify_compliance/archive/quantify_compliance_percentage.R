@@ -120,7 +120,7 @@ head(percent_by_quarter)
 ## gom ----
 percent_by_quarter %>% 
   filter(permit == "gom") %>%
-  pivot_longer(starts_with("quarter"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  tidyr::pivot_longer(starts_with("quarter"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
   filter(vessel_official_number == "1000042") %>%
   # head(100) %>%
   ggplot(aes(
@@ -140,7 +140,7 @@ percent_by_quarter %>%
 head(percent_by_year)
 percent_by_year %>% 
   filter(permit == "gom") %>%
-  pivot_longer(starts_with("year_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  tidyr::pivot_longer(starts_with("year_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
   filter(vessel_official_number == "1000042") %>%
   # head(100) %>%
   ggplot(aes(
@@ -154,7 +154,7 @@ percent_by_year %>%
 head(percent_by_month)
 percent_by_month %>% 
   filter(permit == "gom") %>%
-  pivot_longer(starts_with("month_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  tidyr::pivot_longer(starts_with("month_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
   filter(vessel_official_number == "1000042") %>%
   # head(100) %>%
   ggplot(aes(
@@ -171,7 +171,7 @@ percent_by_month %>%
 month_p <-
   percent_by_month %>% 
     filter(permit == "gom") %>%
-    pivot_longer(starts_with("month_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+    tidyr::pivot_longer(starts_with("month_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
     filter(vessel_official_number == "1000042") %>%
     # head(100) %>%
     ggplot(aes(
@@ -190,7 +190,7 @@ month_p <-
 quarter_p <-
   percent_by_quarter %>% 
   filter(permit == "gom") %>%
-  pivot_longer(starts_with("quarter_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  tidyr::pivot_longer(starts_with("quarter_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
   filter(vessel_official_number == "1000042") %>%
   # head(100) %>%
   ggplot(aes(
@@ -206,7 +206,7 @@ quarter_p <-
 year_p <-
   percent_by_year %>% 
   filter(permit == "gom") %>%
-  pivot_longer(starts_with("year_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  tidyr::pivot_longer(starts_with("year_percent"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
   filter(vessel_official_number == "1000042") %>%
   # head(100) %>%
   ggplot(aes(
@@ -257,7 +257,7 @@ head(percent_by_quarter)
 
 percent_by_quarter %>% 
   filter(permit == "gom") %>%
-  pivot_longer(starts_with("quarter"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
+  tidyr::pivot_longer(starts_with("quarter"), names_to = "yes_or_no", values_to = "compliance_percent") %>%
   head(100) %>%
   ggplot(aes(x = year_quarter,
              y = reorder(vessel_official_number, 
@@ -473,7 +473,7 @@ gom_w_start_compl <-
   filter(permit == "gom") %>%
   select(compliant_, week_start, year_month, year_quarter, year) %>%
   # gather(key, val, compliant_)
-  pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+  tidyr::pivot_longer("compliant_", names_to = "key", values_to = "compliant")
 head(gom_w_start_compl)
 
 ## ---- week ----
@@ -578,7 +578,7 @@ sa_only_w_start_compl <-
   compl_clean_sa_vs_gom_plus_dual %>%
   filter(permit == "sa_only") %>%
   select(compliant_, week_start, year_month, year_quarter, year) %>%
-  pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+  tidyr::pivot_longer("compliant_", names_to = "key", values_to = "compliant")
 
 sa_only_plot <- function(sa_only_w_start_compl, time_period) {
   counts_by_period <-
@@ -647,7 +647,7 @@ gom_w_start_compl <-
   compl_clean_sa_vs_gom_plus_dual %>%
   filter(permit == "gom") %>%
   select(compliant_, week_start, year_month, year_quarter, year) %>%
-  pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+  tidyr::pivot_longer("compliant_", names_to = "key", values_to = "compliant")
 
 gom_plot <- function(gom_w_start_compl, time_period) {
   counts_by_period <-
@@ -731,7 +731,7 @@ compl_clean_sa_vs_gom_plus_dual_short <-
     year
   )
 
-# pivot_longer("compliant_", names_to = "key", values_to = "compliant")
+# tidyr::pivot_longer("compliant_", names_to = "key", values_to = "compliant")
 
 gom_compl_clean_sa_vs_gom_plus_dual_short <-
   filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "gom")
@@ -869,7 +869,7 @@ sa_per_week <-
 
 # sa_per_year_long <-
 #   sa_per_year %>%
-#   pivot_longer(starts_with("percent"),
+#   tidyr::pivot_longer(starts_with("percent"),
 #                names_to = "key",
 #                values_to = "percent")
 
@@ -884,7 +884,7 @@ cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"
 percent_plot <- function(my_df, time_period, region) {
   percent_p <-
     my_df %>%
-    pivot_longer(starts_with("percent"),
+    tidyr::pivot_longer(starts_with("percent"),
                  names_to = "key",
                  values_to = "percent") %>%
     ggplot(aes(

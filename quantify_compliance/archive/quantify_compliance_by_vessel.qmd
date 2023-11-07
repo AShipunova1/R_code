@@ -220,7 +220,7 @@ plot_by_time <-
     time_period_title <- my_title(time_period_name)
     my_df %>%
       filter(permit == permit_gr) %>%
-      pivot_longer(starts_with("percent"),
+      tidyr::pivot_longer(starts_with("percent"),
                    names_to = "yes_or_no",
                    values_to = "compliance_percent") %>%
       filter(vessel_official_number == vessel_id) %>%

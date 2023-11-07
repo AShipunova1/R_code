@@ -145,7 +145,7 @@ compl_data_sa_2022_m_short_tot_ov_wide %>%
 
 compl_data_sa_2022_m_short_tot_ov_long <-
   compl_data_sa_2022_m_short_tot_ov_wide %>%
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = -c(compliant_,
               overridden_,
               month_name,
@@ -325,7 +325,7 @@ compl_data_sa_2022_m %>%
 # print_df_names(compl_data_sa_2022_m_exp_diff_m_tot_short_wide, 6)
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long <-
   compl_data_sa_2022_m_exp_diff_m_tot_short_wide %>%
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = -c(exp_1_m, month_name, month_num, distinct_vsls_m),
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"

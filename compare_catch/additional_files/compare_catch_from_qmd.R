@@ -542,7 +542,7 @@ fhier_mrip_gom_to_plot <-
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(MRIP,
              FHIER),
     names_to = "AGENCY",
@@ -589,7 +589,7 @@ fhier_mrip_sa_to_plot <-
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(MRIP,
              FHIER),
     names_to = "AGENCY",
@@ -754,7 +754,7 @@ fhier_mrip_gom__no_na_to_plot <-
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(MRIP,
              FHIER),
     names_to = "AGENCY",
@@ -807,7 +807,7 @@ fhier_mrip_sa__no_na_to_plot <-
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(MRIP,
              FHIER),
     names_to = "AGENCY",
