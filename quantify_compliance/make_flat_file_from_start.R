@@ -304,3 +304,12 @@ counts_by_year_read_me_clean <-
 
 glimpse(counts_by_year_read_me_clean)
 ',  sep = "\n")
+
+sink()
+file.exists(flat_file_name)
+# T
+sink.number()
+# 0 - right
+# delete the file
+# unlink(flat_file_name)
+#
