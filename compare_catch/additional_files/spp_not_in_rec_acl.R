@@ -26,11 +26,11 @@ spp_cnts_in_fhier_not_in_acl <-
   dplyr::select(-c(rec_acl_cnts)) %>%
   dplyr::filter(!(fhier_cnts == 0)) %>%
     arrange(desc(fhier_cnts)) %>%
-  ungroup()
+  dplyr::ungroup()
 # %>%
 # head(20)
 # dplyr::select(common_name)
-# ungroup() %>%
+# dplyr::ungroup() %>%
 # str()
 # 628
 
@@ -65,7 +65,7 @@ fhier_catch_spp <-
   dplyr::select(scientific_name, common_name, species_itis, fhier_quantity_by_4) %>%
   group_by(scientific_name) %>%
   summarise(fhier_cnts = sum(fhier_quantity_by_4)) %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   arrange(desc(fhier_cnts)) %>%
   unique()
 
@@ -80,7 +80,7 @@ rec_acl_estimate_2022_spp <-
   dplyr::select(new_sci, new_com, itis_code, ab1) %>%
   group_by(new_sci) %>%
   summarise(rec_acl_cnts = sum(ab1)) %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   arrange(desc(rec_acl_cnts))
 
 head(rec_acl_estimate_2022_spp, 5)

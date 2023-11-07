@@ -87,7 +87,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
            WEEK_OF_YEAR,
            compl_w_total) |>
   dplyr::mutate(vsls_nc_w = n_distinct(PERMIT_VESSEL_ID)) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt)
 # [1] 21551    11
@@ -134,7 +134,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
   dplyr::mutate(cnt_vsls_w = n_distinct(PERMIT_VESSEL_ID)) |>
   # glimpse()
   # Rows: 418
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   glimpse()

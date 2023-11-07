@@ -56,7 +56,7 @@ by_year_month_wide <- function(my_df, fields_to_select_list) {
     group_by(overridden, arr_year_month) %>%
     summarise(n = n()) %>%
     # A tibble: 23 × 3
-    # ungroup() %>%
+    # dplyr::ungroup() %>%
     pivot_wider(names_from = overridden, values_from = n) %>%
     # NAs to 0
     mutate(pending = coalesce(pending, 0),
@@ -389,7 +389,7 @@ db_by_y_m_asg_param_overr <-
   select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
   group_by(arr_year_month, asg_info, val_param_name, overridden) %>%
   summarise(n = n()) %>%
-  ungroup()
+  dplyr::ungroup()
 # %>%
 #   str()
 # tibble [3,931 × 5] (S3: tbl_df/tbl/data.frame)
@@ -399,7 +399,7 @@ db_by_y_m_param_overr <-
   select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
   group_by(arr_year_month, val_param_name, overridden) %>%
   summarise(n = n()) %>%
-  ungroup()
+  dplyr::ungroup()
 # %>%
 # str()
 # tibble [254 × 4] (S3: tbl_df/tbl/data.frame)
@@ -462,7 +462,7 @@ db_n_fhier_data_22_ok_cnts <-
   arrange(arr_year_month) %>%
   group_by(across(all_of(fields_to_select_list3))) %>%
   summarise(n = n()) %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   arrange(arr_year_month)
 
 #### In FHIER too ====

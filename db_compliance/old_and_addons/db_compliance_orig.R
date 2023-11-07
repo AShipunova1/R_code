@@ -1522,7 +1522,7 @@ View(vessels__t_tne_sa_tne_in_t_cnt)
 #     distinct_end_weeks_t =
 #       dplyr::n_distinct(TRIP_END_week_num[!neg_in_t == 'tne'])
 #   ) %>%
-#   ungroup()
+#   dplyr::ungroup()
 #
 #   summarize(
 #
@@ -2024,7 +2024,7 @@ v_p_t_tne_dates_join_week_cnts <-
     no_t_tne = sum(is.na(TRIP_START_week_num) &
                      is.na(TRIP_week_num))
   ) |> 
-  ungroup()
+  dplyr::ungroup()
 
 # View(x1)
        # ,

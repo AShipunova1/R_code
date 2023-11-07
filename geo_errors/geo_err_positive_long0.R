@@ -118,7 +118,7 @@ trip_coord_info_vendors <-
   # dplyr::mutate(all_permits = toString(unique(TOP))) |>
   dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
-  ungroup()
+  dplyr::ungroup()
 
 # trip_coord_info_vendors |>
 #   select(vendor_trip, vendor_effort) |>
@@ -173,7 +173,7 @@ trip_coord_info_vendors3_trip <-
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
   )) |>
-  ungroup()
+  dplyr::ungroup()
 toc(log = TRUE, quiet = TRUE)
 
 # r map functions ----
@@ -558,7 +558,7 @@ join_vesl_cnts_no_diff_all_freq <-
   join_vesl_cnts_no_diff_all |>
   group_by(cnt_diff) %>%
   dplyr::mutate(cnt_diff_freq = n()) %>%
-  ungroup() |>
+  dplyr::ungroup() |>
   arrange(desc(cnt_diff_freq))
 
 join_vesl_cnts_no_diff_all_freq |>

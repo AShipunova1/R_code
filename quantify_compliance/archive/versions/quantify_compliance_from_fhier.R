@@ -426,7 +426,7 @@ grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
 # df <- data %>% 
 #   group_by(answer) %>% # Variable to be transformed
 #   count() %>% 
-#   ungroup() %>% 
+#   dplyr::ungroup() %>% 
 #   dplyr::mutate(perc = `n` / sum(`n`)) %>% 
 #   arrange(perc) %>%
 #   dplyr::mutate(labels = scales::percent(perc))

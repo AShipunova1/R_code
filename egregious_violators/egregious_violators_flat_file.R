@@ -881,7 +881,7 @@ compl_clean_sa |>
   # get only the latest compliant weeks
   dplyr::mutate(latest_compl = max(week_num)) |>
   dplyr::filter(week_num == latest_compl) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::select(
     # vessel_official_number,
     year_month,
@@ -1056,7 +1056,7 @@ vessels_permits_participants_short_u <-
          sero_home_port,
          full_name,
          full_address) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   distinct()
 
 dim(vessels_permits_participants_short_u)

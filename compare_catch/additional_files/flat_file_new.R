@@ -533,7 +533,7 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
   dplyr::select(species_itis, common_name, reported_quantity) %>%
   group_by(species_itis, common_name) %>%
   summarise(sum_cnt = sum(reported_quantity)) %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   arrange(desc(sum_cnt)) %>%
   head()
 # 1 172734       FLOUNDERS, PARALICHTHYS    3007

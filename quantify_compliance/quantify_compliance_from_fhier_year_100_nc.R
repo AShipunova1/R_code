@@ -107,7 +107,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
           sum(vessels_cnt) * 100 / total_vessels
       )
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 nc_sa_22_100_plot <-
@@ -497,7 +497,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <-
   group_by(vessel_cnt_group) |> 
   mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
-  ungroup()
+  dplyr::ungroup()
 
 View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
 
@@ -609,7 +609,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
 nc_sa_22_tot_100_plot <-

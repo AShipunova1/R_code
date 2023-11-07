@@ -1264,7 +1264,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
       dplyr::filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
-      ungroup()
+      dplyr::ungroup()
   )
 dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
 # [1] 825393     43
@@ -1281,7 +1281,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
         ) |>
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
-      ungroup()
+      dplyr::ungroup()
   )
 
 dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
@@ -1297,7 +1297,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(t_and_tne_weeks_amnt =
                n_distinct(WEEK_OF_YEAR, YEAR)) |>
-      ungroup()
+      dplyr::ungroup()
   )
 
 ### check numbers ----

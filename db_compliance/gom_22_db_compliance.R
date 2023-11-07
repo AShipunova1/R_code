@@ -170,7 +170,7 @@ v_p__t__tn_d_weeks_gom_short |>
   # count number of digits, should be 4
   # dplyr::mutate(l = floor(log10(as.numeric(TRIP_START_TIME.tn))) + 1)
   dplyr::mutate(l = nchar(TRIP_START_TIME.tn)) |>
-  ungroup()
+  dplyr::ungroup()
 #   <chr>              <int>
 # 1 601                    3
 # 2 600                    3
@@ -283,7 +283,7 @@ v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts <-
            case_when(is.na(rep_type.t) &
                        is.na(rep_type.tn) ~ "yes",
                      .default = "no")) |>
-  ungroup()
+  dplyr::ungroup()
 
 # str(v_p__t__tn_d_weeks_gom_short_compl_y_no_rprts)
 
@@ -338,7 +338,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts <-
            case_when(is.na(rep_type.t) &
                        is.na(rep_type.tn) ~ "yes",
                      .default = "no")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts: 6.16 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts: 3.95 sec elapsed
@@ -399,7 +399,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched <-
                      .default = "not_matched"
            )) |>
   distinct() |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched: 5.42 sec elapsed
 
@@ -438,7 +438,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w <-
            case_when(all(matched_reports == "matched") ~
                        "yes",
                      .default = "no")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w: 5.89 sec elapsed
 
@@ -494,7 +494,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict <-
                matched_compl == "yes" ~ "yes",
              .default = "no"
            )) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict: 5.91 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w_strict: 3 sec elapsed
@@ -524,7 +524,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict <-
                matched_compl == "yes" ~ "yes",
              .default = "no"
            )) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict: 0.53 sec elapsed
 
@@ -568,7 +568,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish <-
                    ) ~ "yes",
              .default = "no"
            )) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish: 5.41 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y__no_fish: 3.24 sec elapsed
@@ -643,7 +643,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only <-
   dplyr::mutate(no_decl_compl =
            case_when(all(no_decl_compl_0 == "yes") ~ "yes",
                      .default = "no")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only: 11.72 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish__logb_only: 6.14 sec elapsed
@@ -832,12 +832,12 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_dec
            TRIP_END_m) |>
   dplyr::mutate(decl_list = list(unique(decl_in))) |> 
   dplyr::select(-decl_in) |> 
-  ungroup() |> 
+  dplyr::ungroup() |> 
   distinct()
   # dplyr::mutate(decl_list = list(decl_in))
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_dup_short_decl_list |> 
-  ungroup() |> 
+  dplyr::ungroup() |> 
   dplyr::filter(compl_y == "no" & decl_in == "dup") |> 
   dplyr::select(PERMIT_VESSEL_ID) |> 
   distinct() |> 
@@ -912,7 +912,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup <-
            TRIP_ID.tn,
            rep_type.tn) |>
   add_count(trip_start_date_time_tn, name = "cnt_decl") |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::filter(!is.na(around_hour_tn_int)) |>
   arrange(desc(cnt_decl))
 
@@ -979,7 +979,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d <-
     end_times = paste(unique(TRIP_END_TIME.tn),
                       collapse = ", ")
   ) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d: 1.51 sec elapsed
 
@@ -1027,7 +1027,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d <-
            TRIP_START_TIME.tn,
            hour_interval) |>
   dplyr::mutate(cnts = n()) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 
 v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_cnt_d |>
@@ -1053,7 +1053,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_dup_d_1 <-
     end_times = paste(unique(TRIP_END_TIME.tn),
                       collapse = ", ")
   ) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 
 # 
@@ -1145,7 +1145,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w |>
   dplyr::filter(date_y_m == 'Mar 2022') |>
   subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
   dplyr::mutate(cnt_c1 = n_distinct(PERMIT_VESSEL_ID)) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
   distinct() |>
   View()
@@ -1169,7 +1169,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 <-
                      !is.na(rep_type.tn)) ~ "yes",
              .default = "no"
            )) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_2: 8.93 sec elapsed
 
@@ -1203,7 +1203,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_3 <-
         .default = "no"
       )
   ) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_3: 7.41 sec elapsed
 
@@ -1261,7 +1261,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_4 <-
   dplyr::mutate(no_decl_compl =
            case_when(all(no_decl_compl_0 == "yes") ~ "yes",
                      .default = "no")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_4: 11.72 sec elapsed
 
@@ -1370,7 +1370,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 <-
         .default = "no"
       )
   ) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 13.05 sec elapsed
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5: 3032.68 sec elapsed rowwise
@@ -1490,7 +1490,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1 <-
   dplyr::mutate(compl_w =
            case_when(!!all_not_compl_filter ~ "no",
                      .default = "yes")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1: 7.61 sec elapsed
 
@@ -1610,7 +1610,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
   dplyr::mutate(compl_m = case_when(compl_m_len > 1 ~ "no",
                              compl_per_m_w == "no" ~ "no",
                              .default = "yes")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m: 2.47 sec elapsed
 
@@ -1639,7 +1639,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
   dplyr::mutate(compl_y = case_when(compl_y_len > 1 ~ "no",
                              compl_per_y_w == "no" ~ "no",
                              .default = "yes")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_y: 0.72 sec elapsed
 

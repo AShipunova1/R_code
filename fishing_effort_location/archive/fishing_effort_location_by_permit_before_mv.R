@@ -100,7 +100,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
                        name = "trip_ids_cnts") |>
       group_by(ten_min_lat, ten_min_lon) |>
       dplyr::mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
-      ungroup()
+      dplyr::ungroup()
   })
 
 # View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2$gom_dual)
@@ -209,7 +209,7 @@ short_example_3_cnts <-
                    name = "trip_ids_cnts") |>
   group_by(ten_min_lat, ten_min_lon) |>
   dplyr::mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
-  ungroup()
+  dplyr::ungroup()
 
 short_example_3_cnts |>
   dplyr::select(latitude, longitude) |>

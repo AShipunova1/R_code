@@ -2244,7 +2244,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   dplyr::group_by(year_permit, year_month, compliant_) %>%
   # add a column
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
@@ -3206,7 +3206,7 @@ min_max_val <-
   ) |>
 
   # Remove grouping and ungroup the data frame.
-  ungroup() |>
+  dplyr::ungroup() |>
 
   # Determine the 'year_month' where the maximum and minimum values occur for '< 50%' 'percent_non_compl_2_buckets'.
   mutate(

@@ -65,7 +65,7 @@ vessels_permits_clean_gr7_2022_all_permits <-
   vessels_permits_clean_gr7_2022 |>
   group_by(VESSEL_VESSEL_ID) |>
   dplyr::mutate(all_permits = toString(unique(TOP))) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::select(VESSEL_VESSEL_ID, all_permits) |>
   distinct()
 
@@ -256,7 +256,7 @@ effort_t_type_cropped_cnt <-
         vsl_cnt = n_distinct(VESSEL_ID),
         trip_id_cnt = n_distinct(TRIP_ID)
       ) |>
-      ungroup()
+      dplyr::ungroup()
   )
 
 map_df(effort_t_type_cropped_cnt, dim) |>

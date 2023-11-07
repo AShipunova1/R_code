@@ -127,7 +127,7 @@ fhier_acl_catch_by_species_region_year <-
     fhier_cnts_by_year = sum(fhier_quantity_by_4),
     rec_acl_cnts_by_year = sum(acl_estimate_catch_by_4)
   ) %>%
-  ungroup()
+  dplyr::ungroup()
 
 ## split by sa_gom ----
 fhier_acl_catch_by_species_region_year_list <-

@@ -103,7 +103,7 @@ vessels_permits_2022_r_end_date_uid <-
     )
   )) |>
   dplyr::mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # uid: 1.63 sec elapsed
 
@@ -137,7 +137,7 @@ vessels_permits_2022_r_end_date_uid_short_mm <-
     min_permit_eff_date = min(EFFECTIVE_DATE),
     max_permit_end_date = max(my_end_date)
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(vessels_permits_2022_r_end_date_uid_short_mm)
 # [1] 9442   8
@@ -194,7 +194,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
            lubridate::intersect(eff_int,
                                 interval_2022)) |>
 
-  ungroup()
+  dplyr::ungroup()
 toc()
 # get permit periods: 46.29 sec elapsed
 # get permit periods: 48.8 sec elapsed
@@ -212,7 +212,7 @@ toc()
 #   rowwise() |>
 #   dplyr::mutate(month_in_permit_names =
 #            list(month.abb[min_permit_eff_date:max_permit_end_date])) |>
-#   ungroup()
+#   dplyr::ungroup()
 # toc()
 
 ## mark dual ----
@@ -234,7 +234,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
                      .default = permit_sa_gom)) |>
   # remove temporary columns
   dplyr::select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
-  ungroup()
+  dplyr::ungroup()
 
 ### check ----
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
@@ -422,7 +422,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #                                permit_sa_gom.gom)
 #
 #            )) |>
-#   ungroup()
+#   dplyr::ungroup()
 #
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
 #   dplyr::select(permit_sa_gom) %>%
@@ -723,7 +723,7 @@ trips_notifications_2022_ah_fish_5_6 <-
   ) |>
   dplyr::mutate(NOTIFICATION_TYPE_IDs =
               toString(unique(NOTIFICATION_TYPE_ID))) |> 
-  ungroup()
+  dplyr::ungroup()
 
 dim(trips_notifications_2022_ah_fish)
 # [1] 62742    33
@@ -1247,7 +1247,7 @@ dim(v_p_d_w_22)
 #   trip_neg_2022_w_y |>
 #   group_by(VESSEL_ID) %>%
 #   dplyr::mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |>
-#   ungroup()
+#   dplyr::ungroup()
 #
 # dim(trip_neg_2022_w_y_cnt_u)
 # # [1] 1709    5
@@ -1630,7 +1630,7 @@ dim(v_p__t__tne_d_weeks_21)
 #   v_p__t__tne_d_weeks_sa_compl |>
 #   group_by(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID, YEAR, compliant) |>
 #   dplyr::mutate(compl_weeks = if_else(compliant == "yes",  n_distinct(WEEK_OF_YEAR), 0)) |>
-#   ungroup()
+#   dplyr::ungroup()
 #
 # dim(v_p__t__tne_d_weeks_sa_compl_w_cnt)
 # # [1] 23704    16
@@ -1707,7 +1707,7 @@ v_p__t__tne_d_weeks_sa_compl <-
                                 is.na(rep_type.tne) ~
                                 "no",
                               .default = "yes")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tne_d_weeks_sa_compl: 28.39 sec elapsed
 
@@ -1724,7 +1724,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w <-
            # date_y_m,
            sa_compl_week) |>
   dplyr::mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 # [1] 90766    16
@@ -1741,7 +1741,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22 <-
       compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
            .default = "no")
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_compl22)
 # [1] 90766    17
@@ -1805,7 +1805,7 @@ sa_compl_cnts_perc <-
   group_by(compl_2022) |>
   dplyr::mutate(compl_perc =
            total_compl_y * 100 / (total_vsls)) |>
-  ungroup()
+  dplyr::ungroup()
 
 # (was 41% yes vs. 59% no from 2178 vessels)
 # print_df_names(sa_compl_cnts_perc)
@@ -1882,7 +1882,7 @@ v_p__t__tn_d_weeks_gom_short_compl_y <-
            permit_2022_int) |>
   dplyr::mutate(non_na_count.t = sum(!is.na(rep_type.t)),
             non_na_count.tn = sum(!is.na(rep_type.tn))) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_y)
 # [1] 22090    13
@@ -1924,7 +1924,7 @@ v_p__t__tn_d_weeks_gom_short_compl_short_compl_y <-
            case_when(non_na_count.t < non_na_count.tn
                      ~ "no",
                      .default = "yes")) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 # [1] 21470    14
@@ -1936,7 +1936,7 @@ dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 #            case_when(non_na_count.t == non_na_count.tn ~
 #                        "yes",
 #                      .default = "no")) |>
-#   ungroup()
+#   dplyr::ungroup()
 
 # dim(v_p__t__tn_d_weeks_gom_short_compl_short_compl_y)
 # [1] 1643    9
@@ -2013,7 +2013,7 @@ gom_compl_cnts_perc <-
   group_by(is_compliant_y) |>
   dplyr::mutate(compl_perc =
            total_compl_y_GOM * 100 / (total_vsls)) |>
-  ungroup()
+  dplyr::ungroup()
 
 
 # print_df_names(sa_compl_cnts_perc)
@@ -2462,7 +2462,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts <-
            date_y_m) |>
   dplyr::mutate(non_na_count.t = sum(!is.na(rep_type.t)),
          non_na_count.tn = sum(!is.na(rep_type.tn))) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts)
 # [1] 20349    13
@@ -2499,7 +2499,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w <-
            case_when(non_na_count.t < non_na_count.tn ~
                        "no",
                      .default = "yes")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # 5.12 sec elapsed
 
@@ -2519,7 +2519,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_m <-
            case_when(any(is_compliant_w == "no") ~
                        "no",
                      .default = "yes")) |>
-  ungroup() |> 
+  dplyr::ungroup() |> 
   distinct()
 toc()
 # GOM compl per month from weeks: 1.7 sec elapsed
@@ -2567,7 +2567,7 @@ dates_2022_m_int <-
              min(COMPLETE_DATE),
              max(COMPLETE_DATE)
            )) |> 
-  ungroup()
+  dplyr::ungroup()
 
 dates_2022_m_int_short <-
   dates_2022_m_int |> 
@@ -2608,7 +2608,7 @@ v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w <-
            date_y_m) |>
   dplyr::mutate(permit_weeks_month_amnt_22 =
            round(permit_2022_int / lubridate::dweeks(1))) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tn_d_weeks_gom_short_in_p_t_tn_cnts_compl_w_cnt_w: 3.94 sec elapsed
 

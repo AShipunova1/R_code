@@ -50,7 +50,7 @@ trip_coord_info_vendors <-
   # dplyr::mutate(all_permits = toString(unique(TOP))) |>
   dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
-  ungroup()
+  dplyr::ungroup()
 
 tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
@@ -61,7 +61,7 @@ trip_coord_info_vendors3_trip <-
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
   )) |>
-  ungroup()
+  dplyr::ungroup()
 toc(log = TRUE, quiet = TRUE)
 # print_toc_log()
 # trip_coord_info_vendors3_trip: 71.47 sec elapsed
@@ -485,7 +485,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
               values_from = count_marks_per_vsl) |>
   group_by(VESSEL_ID) |>
   dplyr::mutate(tot = good + wrong) |>
-  ungroup()
+  dplyr::ungroup()
 
 both_tot_w_coords__and_good_pairs_mark_cnts <-
   both_tot_w_coords__and_good_pairs_mark |>
@@ -504,7 +504,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   group_by(VESSEL_ID) |>
   dplyr::mutate(good_over_bad = round(good / wrong, 2),
          bad_over_good = round(wrong / good, 2)) |>
-  ungroup()
+  dplyr::ungroup()
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_long <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
@@ -528,7 +528,7 @@ head(both_tot_w_coords__and_good_pairs_mark_cnts_wide, 3)
 #   group_by(VESSEL_ID) |>
 #   dplyr::mutate(good_percent =
 #            good * 100 / total_trips_by_vsl) |>
-#   ungroup()
+#   dplyr::ungroup()
 
 ## histogram ----
 lattice::histogram( ~ good , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,

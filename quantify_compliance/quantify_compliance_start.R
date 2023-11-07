@@ -244,7 +244,7 @@ counts_by_month_read_me <-
   group_by(year_month, year_permit, perm_exp_m) |>
   dplyr::mutate(permit_cnt_m =
            n_distinct(vessel_official_number)) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>
   distinct()
 

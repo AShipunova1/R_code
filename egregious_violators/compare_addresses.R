@@ -189,7 +189,7 @@ corrected_n_fhier_short_w_n_comb <-
     paste(fhier_comb_name,
           business_name)
   ))) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::select(
     vessel_official_number,
     contactrecipientname,
@@ -407,7 +407,7 @@ pims_n_corrected |>
   dplyr::filter(grepl(HAILING_PORT_CITY,
                sero_home_port,
                ignore.case = TRUE)) |>
-  ungroup() |> View()
+  dplyr::ungroup() |> View()
   dim()
 # 13
 # all 13 ports are the same
@@ -420,7 +420,7 @@ pims_n_corrected_addr <-
   dplyr::filter(grepl(ADDRESS,
                full_address,
                ignore.case = TRUE)) |>
-  ungroup()
+  dplyr::ungroup()
   
 dim(pims_n_corrected_addr)
 # 12 (one is the full address is.na)
@@ -444,7 +444,7 @@ pims_n_corrected_name <-
   pims_n_corrected |>
   rowwise() |>
   dplyr::filter(!!include_name_filter) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(pims_n_corrected_name)
 # 7
@@ -464,7 +464,7 @@ pims_n_corrected |>
          ENTITY_NAME) |>
   rowwise() |>
   dplyr::filter(!(!!include_name_filter)) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   View()
   dim()
 # 6
@@ -490,7 +490,7 @@ pims_n_corrected |>
                 full_name,
                 max.distance = 0.3,
                 ignore.case = TRUE)) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dim()
 # [1] 13  4
 # all the same

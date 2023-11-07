@@ -101,7 +101,7 @@ vessels_permits_2022_r_end_date_uid <-
     )
   )) |>
   dplyr::mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # uid: 1.63 sec elapsed
 # uid: 0.75 sec elapsed
@@ -143,7 +143,7 @@ vessels_permits_2022_r_end_date_uid_short_mm <-
     min_permit_eff_date = min(EFFECTIVE_DATE),
     max_permit_end_date = max(my_end_date)
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(vessels_permits_2022_r_end_date_uid_short_mm)
 # [1] 9442   8
@@ -205,7 +205,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
            lubridate::intersect(eff_int,
                                 interval_2022)) |>
 
-  ungroup()
+  dplyr::ungroup()
 toc()
 # get permit periods: 46.29 sec elapsed
 # get permit periods: 48.8 sec elapsed
@@ -234,7 +234,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
                      .default = permit_sa_gom)) |>
   # remove temporary columns
   dplyr::select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
-  ungroup()
+  dplyr::ungroup()
 
 ### check ----
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
@@ -498,7 +498,7 @@ trips_notifications_2022_ah_5_6 <-
   ) |>
   dplyr::mutate(NOTIFICATION_TYPE_IDs =
               toString(unique(NOTIFICATION_TYPE_ID))) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(trips_notifications_2022_ah)
 # [1] 63658    33
@@ -895,7 +895,7 @@ dim(v_p_d_w_22)
 #   trip_neg_2022_w_y |>
 #   group_by(VESSEL_ID) %>%
 #   dplyr::mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |>
-#   ungroup()
+#   dplyr::ungroup()
 #
 # dim(trip_neg_2022_w_y_cnt_u)
 # # [1] 1709    5

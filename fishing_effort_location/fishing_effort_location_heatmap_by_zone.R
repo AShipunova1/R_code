@@ -41,7 +41,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt <-
   group_by(StatZone) |>
   dplyr::mutate(vsl_cnt_stat_zone = n_distinct(vessel_official_nbr),
          trip_id_cnt_stat_zone = n_distinct(trip_id)) |>
-  ungroup()
+  dplyr::ungroup()
 
 View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
 
@@ -61,7 +61,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
   dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr)) |>
   distinct() |>
-  ungroup()
+  dplyr::ungroup()
 
 # View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short)
 # [1] 35822     4

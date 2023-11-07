@@ -312,7 +312,7 @@ num_of_weeks_per_vessel <-
   group_by(vessel_official_number) %>%
   summarise(num_of_weeks = n())
 # %>%
-#   ungroup() %>% str()
+#   dplyr::ungroup() %>% str()
 
 # A tibble: 1,849 × 2
 

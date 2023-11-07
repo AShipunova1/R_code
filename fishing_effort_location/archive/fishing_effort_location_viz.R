@@ -186,7 +186,7 @@ lat_long_dat_dep <-
   dplyr::mutate(AVG_BOTTOM_DEPTH = mean(c(
     MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH
   ), na.rm = T)) %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   # choose the first not na
   # gives the same result as AVG_BOTTOM_DEPTH
   dplyr::mutate(AVG_DEPTH = coalesce(AVG_BOTTOM_DEPTH,
@@ -453,7 +453,7 @@ lat_long_month_depth <-
     na.rm = TRUE
   )) %>%
   # return to the default colwise operations
-  ungroup() %>%
+  dplyr::ungroup() %>%
   # combine a label
   dplyr::mutate(
     POINT = paste(

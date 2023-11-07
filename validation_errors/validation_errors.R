@@ -55,7 +55,7 @@ by_year_month_wide <- function(my_df, fields_to_select_list) {
     group_by(overridden, arr_year_month) %>%
     summarise(n = n()) %>%
     # A tibble: 23 × 3
-    # ungroup() %>%
+    # dplyr::ungroup() %>%
     pivot_wider(names_from = overridden, values_from = n) %>%
     # NAs to 0
     mutate(pending = coalesce(pending, 0),

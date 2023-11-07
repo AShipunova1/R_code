@@ -25,7 +25,7 @@ mrip_fhier_by_state_long <-
     values_to = "CATCH_CNT"
   ) %>% 
   dplyr::mutate(name_cnts = paste(new_sta, AGENCY, CATCH_CNT)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 # mrip_fhier_by_state_long %>% head()
 

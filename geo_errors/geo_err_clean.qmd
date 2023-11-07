@@ -152,7 +152,7 @@ trip_coord_info_vendors <-
   # dplyr::mutate(all_permits = toString(unique(TOP))) |>
   dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
-  ungroup()
+  dplyr::ungroup()
 
 # trip_coord_info_vendors |>
 #   select(vendor_trip, vendor_effort) |>
@@ -207,7 +207,7 @@ trip_coord_info_vendors3_trip <-
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
   )) |>
-  ungroup()
+  dplyr::ungroup()
 toc(log = TRUE, quiet = TRUE)
 
 compare_trip_and_effort_vendors <-
@@ -222,7 +222,7 @@ compare_trip_and_effort_vendors <-
           .default = "etrips"
         )
       ) |>
-      ungroup()
+      dplyr::ungroup()
     toc(log = TRUE, quiet = TRUE)
     # trip_coord_info_vendors3: 160.77 sec elapsed
     # 160.77/60 = 2.6795m

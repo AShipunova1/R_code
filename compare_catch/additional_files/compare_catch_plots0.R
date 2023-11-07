@@ -253,7 +253,7 @@ grid.arrange(grobs = plots10_gom,
 
 fhier_acl_sa_to_plot <-
   fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10) %>% 
-  ungroup()
+  dplyr::ungroup()
 
 # glimpse(fhier_acl_sa_to_plot)
 

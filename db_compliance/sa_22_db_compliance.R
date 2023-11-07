@@ -43,7 +43,7 @@ v_p__t__tne_d_weeks_sa_compl_w <-
   dplyr::mutate(sa_compl_week = case_when(!!reports_exists_filter ~
                                 "yes",
                               .default = "no")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tne_d_weeks_sa_compl: 28.39 sec elapsed
 # v_p__t__tne_d_weeks_sa_compl: 22.39 sec elapsed
@@ -62,7 +62,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w <-
   group_by(PERMIT_VESSEL_ID,
            VESSEL_VESSEL_ID) |>
   dplyr::mutate(compl_w_cnt = n_distinct(WEEK_OF_YEAR)) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 # [1] 90766    16
@@ -179,7 +179,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 <-
       compl_w_cnt >= permit_weeks_amnt_22 ~ "yes",
            .default = "no")
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22)
 # [1] 90766    17
@@ -327,7 +327,7 @@ sa_compl_cnts_perc <-
   group_by(compl_2022) |>
   dplyr::mutate(compl_perc =
            total_compl_y * 100 / (total_vsls)) |>
-  ungroup()
+  dplyr::ungroup()
 
 # (was 41% yes vs. 59% no from 2178 vessels)
 # print_df_names(sa_compl_cnts_perc)
@@ -409,7 +409,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_p_dates_m <-
   dplyr::mutate(v_compliant_m =
            case_when(any(tolower(sa_compl_week) == "no") ~ "no",
                      .default = "yes")) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # v_p__t__tne_d_weeks_sa_compl_w_short_m: 35.45 sec elapsed
 
@@ -422,7 +422,7 @@ v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt <-
            VESSEL_VESSEL_ID,
            date_y_m) |>
   dplyr::mutate(compl_w_cnt_m = n_distinct(WEEK_OF_YEAR)) |>
-  ungroup()
+  dplyr::ungroup()
 
 # View(v_p__t__tne_d_weeks_sa_compl_w_short_m_cnt)
 # [1] 113909     22

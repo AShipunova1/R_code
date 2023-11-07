@@ -2600,7 +2600,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
           sum(vessels_cnt) * 100 / total_vessels
       )
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 nc_sa_22_100_plot <-
@@ -2990,7 +2990,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <-
   group_by(vessel_cnt_group) |> 
   dplyr::mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
-  ungroup()
+  dplyr::ungroup()
 
 View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
 
@@ -3102,7 +3102,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
 nc_sa_22_tot_100_plot <-
@@ -3308,7 +3308,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   dplyr::group_by(year_permit, year_month, compliant_) %>%
   # add a column
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
@@ -3992,7 +3992,7 @@ min_max_val <-
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::mutate(
     max_dot_month =
       case_when(
@@ -7333,7 +7333,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
           sum(vessels_cnt) * 100 / total_vessels
       )
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 nc_sa_22_100_plot <-
@@ -7723,7 +7723,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <-
   group_by(vessel_cnt_group) |> 
   dplyr::mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
-  ungroup()
+  dplyr::ungroup()
 
 View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
 
@@ -7835,7 +7835,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
 nc_sa_22_tot_100_plot <-
@@ -8041,7 +8041,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   dplyr::group_by(year_permit, year_month, compliant_) %>%
   # add a column
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
@@ -8725,7 +8725,7 @@ min_max_val <-
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dplyr::mutate(
     max_dot_month =
       case_when(
@@ -12068,7 +12068,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
           sum(vessels_cnt) * 100 / total_vessels
       )
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 nc_sa_22_100_plot <-
@@ -12458,7 +12458,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <-
   group_by(vessel_cnt_group) |> 
   mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
-  ungroup()
+  dplyr::ungroup()
 
 View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
 
@@ -12570,7 +12570,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
 nc_sa_22_tot_100_plot <-
@@ -12776,7 +12776,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   dplyr::group_by(year_permit, year_month, compliant_) %>%
   # add a column
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
@@ -13460,7 +13460,7 @@ min_max_val <-
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   mutate(
     max_dot_month =
       case_when(
@@ -16803,7 +16803,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
           sum(vessels_cnt) * 100 / total_vessels
       )
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 nc_sa_22_100_plot <-
@@ -17193,7 +17193,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <-
   group_by(vessel_cnt_group) |> 
   mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
-  ungroup()
+  dplyr::ungroup()
 
 View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot)
 
@@ -17305,7 +17305,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
 nc_sa_22_tot_100_plot <-
@@ -17511,7 +17511,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   dplyr::group_by(year_permit, year_month, compliant_) %>%
   # add a column
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
@@ -18195,7 +18195,7 @@ min_max_val <-
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   mutate(
     max_dot_month =
       case_when(

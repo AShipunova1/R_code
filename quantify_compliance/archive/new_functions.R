@@ -946,7 +946,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   dplyr::group_by(year_permit, year_month, compliant_) %>%
   # add a column
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")

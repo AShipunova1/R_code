@@ -98,7 +98,7 @@ min_max_val <-
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   mutate(
     max_dot_month =
       case_when(

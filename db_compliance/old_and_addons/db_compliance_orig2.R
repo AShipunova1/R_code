@@ -100,7 +100,7 @@ vessels_permits_2022_r_end_date_uid <-
     )
   )) |>
   dplyr::mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
-  ungroup()
+  dplyr::ungroup()
 toc()
 # uid: 1.63 sec elapsed
 
@@ -132,7 +132,7 @@ vessels_permits_2022_r_end_date_uid_short_mm <-
     min_permit_eff_date = min(EFFECTIVE_DATE),
     max_permit_end_date = max(my_end_date)
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(vessels_permits_2022_r_end_date_uid_short_mm)
 # [1] 9442   8
@@ -185,7 +185,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   dplyr::mutate(eff_int =
            lubridate::interval(min_permit_eff_date,
                                max_permit_end_date)) |> 
-  ungroup()
+  dplyr::ungroup()
 toc()
 # get permit periods: 46.29 sec elapsed
 # get permit periods: 48.8 sec elapsed
@@ -213,7 +213,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
                      .default = permit_sa_gom)) |>
   # remove temporary columns
   dplyr::select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
-  ungroup()
+  dplyr::ungroup()
 
 ### check ----
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
@@ -401,7 +401,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 #                                permit_sa_gom.gom)
 # 
 #            )) |> 
-#   ungroup()
+#   dplyr::ungroup()
 # 
 # vessels_permits_2022_r_end_date_uid_short_mm_w_y_l_overlap_join_w_dual %>%
 #   dplyr::select(permit_sa_gom) %>%
@@ -975,7 +975,7 @@ sa_v_p_short_22_w_amnt <-
   group_by(unique_all_vessel_ids) |>
   dplyr::mutate(week_amnt =
            time_length(eff_int_22, "week")) |> 
-  ungroup()
+  dplyr::ungroup()
 
 dim(sa_v_p_short_22_w_amnt)
 # [1] 3956    4
@@ -1368,7 +1368,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
       dplyr::filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(no_t_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
-      ungroup()
+      dplyr::ungroup()
   )
 dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
 # [1] 825393     43
@@ -1385,7 +1385,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
         ) |>
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(t_xor_tne_weeks_amnt = n_distinct(WEEK_OF_YEAR, YEAR)) |>
-      ungroup()
+      dplyr::ungroup()
   )
 
 dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
@@ -1401,7 +1401,7 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne <-
       group_by(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
       dplyr::mutate(t_and_tne_weeks_amnt =
                n_distinct(WEEK_OF_YEAR, YEAR)) |>
-      ungroup()
+      dplyr::ungroup()
   )
 
 ### check numbers ----

@@ -543,7 +543,7 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
   dplyr::select(species_itis, common_name, reported_quantity) %>%
   group_by(species_itis, common_name) %>%
   summarise(sum_cnt = sum(reported_quantity)) %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   arrange(desc(sum_cnt)) %>%
   head()
 # 1 172734       FLOUNDERS, PARALICHTHYS    3007
@@ -1054,7 +1054,7 @@ new_group_counts <- function(my_df) {
     fhier_cnts_by_year = sum(fhier_quantity_by_4),
     rec_acl_cnts_by_year = sum(rec_acl_estimate_catch_by_4)
   ) %>%
-    ungroup() %>%
+    dplyr::ungroup() %>%
     # remove columns that we used for summing
     dplyr::select(-c(fhier_quantity_by_4, rec_acl_estimate_catch_by_4)) %>%
     # keep only the rows where species_itis_fhier or scientific_name is not an NA
