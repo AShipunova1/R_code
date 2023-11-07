@@ -254,7 +254,7 @@ gg_all_c_vs_nc_plots_vms <-
       make_one_plot_compl_vs_non_compl(current_title,
                                        is_compliant = "compl_or_not",
                                        percent = "perc_c_nc",
-                                       default_percen_labels = FALSE)
+                                       default_percent_labels = FALSE)
 
     return(one_plot)
   })

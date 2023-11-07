@@ -1215,7 +1215,7 @@ make_one_plot_compl_vs_non_compl <-
            percent = "percent",
            no_legend = FALSE,
            percent_label_pos = 0.5,
-           default_percen_labels = TRUE,
+           default_percent_labels = TRUE,
            geom_text_size = text_sizes[["geom_text_size"]]
            ) {
     # browser()
@@ -1266,7 +1266,7 @@ make_one_plot_compl_vs_non_compl <-
                           ~ paste0(round(.x, 1), "%"))
                    
     # Add percent numbers on the bars
-    if (default_percen_labels) {
+    if (default_percent_labels) {
       one_plot <-
         one_plot +
         geom_text(aes(label =
