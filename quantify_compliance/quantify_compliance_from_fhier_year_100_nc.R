@@ -4,19 +4,34 @@
 # Jessica wants to see 1 more figure for the SA, that is the proportion of SA vessels that never reported anything - whereas, your compliance for all of 2022 means of the 54% non-compliant, they may only be missing 1 week in the whole year. 
 print_df_names(count_weeks_per_vsl_permit_year_compl_p)
 
+# Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_sa_22' by filtering an existing data frame.
+# Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p' to the next operation.
+# The filter function is used to select rows where the column year_permit is equal to "2022 sa_only". The result is a filtered data frame for the specified year and permit condition.
 count_weeks_per_vsl_permit_year_compl_p_sa_22 <-
   count_weeks_per_vsl_permit_year_compl_p |>
-  filter(year_permit == "2022 sa_only")
+  dplyr::filter(year_permit == "2022 sa_only")
 
+# Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100'
+# by applying a series of operations to the existing data frame
 count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100 <-
+  
+  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_22' to the next operation
   count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
-  select(vessel_official_number,
-         compliant_,
-         year_permit,
-         percent_compl) |>
+  
+  # Select specific columns from the data frame
+  dplyr::select(vessel_official_number,
+                compliant_,
+                year_permit,
+                percent_compl) |>
+  
+  # Remove duplicate rows
   dplyr::distinct() |>
-  filter(compliant_ == "NO") |>
-  filter(percent_compl == 100)
+  
+  # Filter the data frame to select rows where 'compliant_' is "NO"
+  dplyr::filter(compliant_ == "NO") |>
+  
+  # Further filter the data frame to select rows where 'percent_compl' is equal to 100
+  dplyr::filter(percent_compl == 100)
 
 dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)
 # 487
@@ -28,37 +43,70 @@ length(unique(count_weeks_per_vsl_permit_year_compl_p$vessel_official_number))
 # All SA 2022 vessels
 length(unique(count_weeks_per_vsl_permit_year_compl_p_sa_22$vessel_official_number))
 # 2152
-# in metrics
+# in metrics:
 # Total Vessels With SA Only
 # 2275
-# 2275 - 2152 = 123
+# 2275 - 2152 = 123?
 
-sa_22_non_c_vessels <-
+# Create a new data frame 'sa_22_non_c_vessels' by applying a series of operations to the existing data frame
+sa_22_non_c_vessels <- 
+
+  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_22' to the next operation
   count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
-  filter(compliant_ == "NO") |>
-  select(vessel_official_number) |>
+  
+  # Filter the data frame to select rows where 'compliant_' is "NO"
+  dplyr::filter(compliant_ == "NO") |>
+  
+  # Select a specific column 'vessel_official_number'
+  dplyr::select(vessel_official_number) |>
+  
+  # Remove duplicate rows
   dplyr::distinct()
 
-sa_22_vessels <-
-  count_weeks_per_vsl_permit_year_compl_p_sa_22 |> 
-  select(vessel_official_number) |>
+# Create a new data frame 'sa_22_vessels' by applying a series of operations to the existing data frame
+sa_22_vessels <- 
+
+  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_22' to the next operation
+  count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
+  
+  # Select a specific column 'vessel_official_number'
+  dplyr::select(vessel_official_number) |>
+  
+  # Remove duplicate rows
   dplyr::distinct()
 
+# Calculate the percentage of never compliant entries from all non-compliant entries
+
+# Calculate the total number of non-compliant entries that are never compliant
+# by multiplying the number of rows in 'count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100'
+# with 100 and dividing it by the number of rows in 'sa_22_non_c_vessels'
 percent_of_never_compl_from_all_non_c <- 
   dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)[[1]] * 100 / dim(sa_22_non_c_vessels)[[1]]
 # [1] 41.87446 %
 
+# Calculate the percentage of never compliant entries from all entries in 2022
+# In this code, the variable percent_of_never_compl_from_all_sa_2022 is calculated by dividing the number of rows in the data frame count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100 (representing non-compliant entries that are never compliant) by the number of rows in the data frame sa_22_vessels (representing all entries in the year 2022) and then multiplying the result by 100 to obtain the percentage of never compliant entries from all entries in 2022.
+
+# Calculate the total number of non-compliant entries that are never compliant
+# by multiplying the number of rows in 'count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100'
+# with 100 and dividing it by the number of rows in 'sa_22_vessels'
 percent_of_never_compl_from_all_sa_2022 <- 
   dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)[[1]] * 100 / dim(sa_22_vessels)[[1]]
 # [1] 22.63011 %
 
 # SA vessels 2022 vessels cnt / percent compl ----
-# count_weeks_per_vsl_permit_year_compl_p |> 
-#   View()
+
+# Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_short' 
+# by applying a series of operations to the existing data frame
+
+# The data frame count_weeks_per_vsl_permit_year_compl_p is passed to the next operation using the pipe operator.
+# Specific columns are selected using the select function from dplyr.
+# Duplicate rows are removed using the distinct function.
+# The result is a data frame with a subset of columns from the original data frame, and duplicate rows are eliminated.
 
 count_weeks_per_vsl_permit_year_compl_p_short <- 
   count_weeks_per_vsl_permit_year_compl_p |>
-  select(
+  dplyr::select(
     vessel_official_number,
     compliant_,
     year_permit,
@@ -71,23 +119,32 @@ count_weeks_per_vsl_permit_year_compl_p_short <-
 # data_overview(count_weeks_per_vsl_permit_year_compl_p_short)
 # vessel_official_number     3669
 
+# Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_short_count' 
+# by applying a series of operations to the existing data frame 'count_weeks_per_vsl_permit_year_compl_p_short'
 count_weeks_per_vsl_permit_year_compl_p_short_count <- 
-  count_weeks_per_vsl_permit_year_compl_p_short |> 
-  filter(compliant_ == "NO") |> 
-  filter(year_permit == "2022 sa_only") |> 
-  select(vessel_official_number, percent_compl) |> 
+
+  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_short' to the next operation
+  count_weeks_per_vsl_permit_year_compl_p_short |>
+  
+  # Filter the data frame to select rows where 'compliant_' is "NO"
+  dplyr::filter(compliant_ == "NO") |>
+  
+  # Further filter the data frame to select rows where 'year_permit' is "2022 sa_only"
+  dplyr::filter(year_permit == "2022 sa_only") |>
+  
+  # Select specific columns 'vessel_official_number' and 'percent_compl'
+  dplyr::select(vessel_official_number, percent_compl) |>
+  
+  # Add a count column 'vessels_cnt' based on the 'percent_compl' values
   dplyr::add_count(percent_compl, name = "vessels_cnt")
 
 head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
 
-# View(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)
-# print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count)
-
 ## add columns ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(total_vessels = n_distinct(vessel_official_number)) |>
-  mutate(
+  dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100)),
     perc_nc_100_gr_name =
       dplyr::case_when(perc_nc_100_gr == 2 ~
@@ -95,10 +152,10 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
                 .default = "Reported At Least 1 Time")
   ) |>
   dplyr::group_by(perc_nc_100_gr) |>
-  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
-  select(-vessel_official_number) |>
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  dplyr::select(-vessel_official_number) |>
   dplyr::distinct() |>
-  mutate(
+  dplyr::mutate(
     perc_of_perc =
       dplyr::case_when(
         perc_nc_100_gr == 2 ~
@@ -112,7 +169,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 nc_sa_22_100_plot <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_perc |>
-  select(perc_nc_100_gr,
+  dplyr::select(perc_nc_100_gr,
          perc_nc_100_gr_name,
          group_vsl_cnt,
          perc_of_perc) |>
@@ -185,14 +242,14 @@ ggsave(
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 total_vessels_c_n_nc <- 
   count_weeks_per_vsl_permit_year_compl_p_short |> 
-  select(vessel_official_number) |> 
+  dplyr::select(vessel_official_number) |> 
   dplyr::distinct() |> 
   dim()
 # vessel_official_number     3669
 
 nc_sa_22_100_plot <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_perc |>
-  select(perc_nc_100_gr,
+  dplyr::select(perc_nc_100_gr,
          perc_nc_100_gr_name,
          group_vsl_cnt,
          perc_of_perc) |>
@@ -234,7 +291,7 @@ nc_sa_22_100_plot <-
 ## Less than 100% ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  filter(vessels_cnt < 100)
+  dplyr::filter(vessels_cnt < 100)
 
 
 perc_non_compl_plot_less_100 <-
@@ -301,10 +358,10 @@ perc_non_compl_plot_less_100_ann
 # split by group ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
-  mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
+  dplyr::mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
+  dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
   dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
-  mutate(vessel_cnt_group_name =
+  dplyr::mutate(vessel_cnt_group_name =
            dplyr::case_when(
              vessel_cnt_group == 1 ~
                paste0("<= 5 vessels (",
@@ -314,9 +371,9 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
                                vessel_cnt_group_num,
                                " v)")
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
+  dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
-  mutate(
+  dplyr::mutate(
     percent_group_name =
       dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant ({percent_group_num} v.)"),
@@ -376,14 +433,14 @@ ggplot(
 # split by group all ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
-  mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
-  select(-vessel_official_number) |> 
+  dplyr::mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
+  dplyr::select(-vessel_official_number) |> 
   dplyr::distinct() |> 
-  mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
+  dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
   dplyr::add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
-  mutate(vessel_cnt_group_name =
+  dplyr::mutate(vessel_cnt_group_name =
            dplyr::case_when(
              vessel_cnt_group == 1 ~
                str_glue("{vessel_cnt_group}: 1--5 vessels ({vessel_cnt_group_num} v)"),
@@ -392,9 +449,9 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
              vessel_cnt_group == 3 ~
                str_glue("{vessel_cnt_group}: 451--500 vessels ({vessel_cnt_group_num} v)"),
            )) |>
-  mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
+  dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
   dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
-  mutate(
+  dplyr::mutate(
     percent_group_name =
       dplyr::case_when(
         percent_group == 1 ~ str_glue("1--50% non compliant  ({percent_group_num} v.)"),
@@ -495,7 +552,7 @@ labs_all <-
 count_weeks_per_vsl_permit_year_compl_p_short_count_gr_for_plot <- 
   count_weeks_per_vsl_permit_year_compl_p_short_count_gr |>
   dplyr::group_by(vessel_cnt_group) |> 
-  mutate(max_in_vsl_group = max(vessels_cnt),
+  dplyr::mutate(max_in_vsl_group = max(vessels_cnt),
          min_in_vsl_group = min(vessels_cnt)) |> 
   dplyr::ungroup()
 
@@ -569,8 +626,8 @@ ggsave(
 # 100% non compliant out of total ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_tot <- 
   count_weeks_per_vsl_permit_year_compl_p_short |> 
-  filter(year_permit == "2022 sa_only") |> 
-  select(vessel_official_number, compliant_, percent_compl) |> 
+  dplyr::filter(year_permit == "2022 sa_only") |> 
+  dplyr::select(vessel_official_number, compliant_, percent_compl) |> 
   dplyr::add_count(compliant_, percent_compl, name = "vessels_cnt")
 
 head(count_weeks_per_vsl_permit_year_compl_p_short_count_tot, 2)
@@ -586,26 +643,26 @@ never_reported_filter <-
 
 count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_tot |>
-  mutate(total_vessels = n_distinct(vessel_official_number)) |> 
-  # mutate(percent_compl_compl = ) |> 
-  mutate(
+  dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |> 
+  # dplyr::mutate(percent_compl_compl = ) |> 
+  dplyr::mutate(
     perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   # dplyr::group_by(perc_nc_100_gr, compliant_) |> str()
-  mutate(perc_nc_100_gr_name =
+  dplyr::mutate(perc_nc_100_gr_name =
       dplyr::case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |> 
-  mutate(group_100_vs_rest =
+  dplyr::mutate(group_100_vs_rest =
       dplyr::case_when(!!never_reported_filter ~
                   1,
                 .default = 2)
   ) |> 
   dplyr::group_by(perc_nc_100_gr_name) |>
-  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
-  select(-vessel_official_number) |>
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  dplyr::select(-vessel_official_number) |>
   dplyr::distinct() |>
-  mutate(
+  dplyr::mutate(
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
   ) |>
@@ -614,7 +671,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
 nc_sa_22_tot_100_plot <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc |>
-  select(group_100_vs_rest,
+  dplyr::select(group_100_vs_rest,
          perc_nc_100_gr_name,
          group_vsl_cnt,
          perc_of_perc) |>
