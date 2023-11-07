@@ -151,7 +151,7 @@ db_data_w_area_short_good_coord <-
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(db_data_w_area_short_good_coord)
 # [1] 74520    18
@@ -176,7 +176,7 @@ safis_efforts_extended_2022_short_good <-
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
@@ -491,7 +491,7 @@ lat_lon_data_short <-
          LONGITUDE,
          TRIP_ID)
 # |>
-  # distinct()
+  # dplyr::distinct()
 
 lat_lon_data_coord <-
   lat_lon_data |>
@@ -500,7 +500,7 @@ lat_lon_data_coord <-
   dplyr::select(LATITUDE,
          LONGITUDE)
 # |>
-  # distinct()
+  # dplyr::distinct()
 
 # dim(lat_lon_data_uniq_coord)
 # [1] 35762     2
@@ -519,7 +519,7 @@ lat_lon_data_uniq_coord_ten_min_short <-
   lat_lon_data_uniq_coord_ten_min |>
   dplyr::select(ten_min_lat, ten_min_lon)
 # |>
-  # distinct() |>
+  # dplyr::distinct() |>
   # dim()
 # [1] 1295    2
 

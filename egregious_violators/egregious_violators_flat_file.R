@@ -851,7 +851,7 @@ compl_clean_sa_all_weeks_non_c <-
   dplyr::select(all_of(need_cols_names)) |>
   inner_join(compl_clean_sa_all_weeks_non_c_short) |>
 # Joining with `by = join_by(vessel_official_number)`
-  distinct()
+  dplyr::distinct()
 
 dim(compl_clean_sa_all_weeks_non_c)
 # 128
@@ -861,7 +861,7 @@ dim(compl_clean_sa_all_weeks_non_c)
 compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_sa_all_weeks_non_c_short |>
   dplyr::select(vessel_official_number) |>
-  distinct()
+  dplyr::distinct()
 
 dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
 # [1] 128   1
@@ -886,7 +886,7 @@ compl_clean_sa |>
     # vessel_official_number,
     year_month,
     latest_compl) |>
-  distinct() |>
+  dplyr::distinct() |>
   glimpse()
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
@@ -992,7 +992,7 @@ dim(date__contacttype_per_id)
 vessels_permits_participants_v_ids <-
   vessels_permits_participants |>
   dplyr::select(P_VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
@@ -1057,7 +1057,7 @@ vessels_permits_participants_short_u <-
          full_name,
          full_address) |>
   dplyr::ungroup() |>
-  distinct()
+  dplyr::distinct()
 
 dim(vessels_permits_participants_short_u)
 # [1] 3302    4

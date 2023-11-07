@@ -103,7 +103,7 @@ active_permits_from_pims_temp2 <- active_permits_from_pims_temp1 %>%
   active_permits_from_pims %>%
     dplyr::select(status_date) %>%                 # Select 'status_date' column
     dplyr::arrange(dplyr::desc(status_date)) %>%   # Arrange in descending order
-    distinct() %>%                               # Remove duplicate rows
+    dplyr::distinct() %>%                               # Remove duplicate rows
     head()                                       # Retrieve the first few rows
   # correct
   # str(active_permits_from_pims)

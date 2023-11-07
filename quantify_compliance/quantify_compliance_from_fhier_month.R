@@ -105,7 +105,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
   filter(perm_exp_m == "expired") |>
   select(perm_exp_m, exp_m_tot_cnt) |>
-  distinct()
+  dplyr::distinct()
 # 1 expired                1
 # 0
 
@@ -407,7 +407,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
     )
   ) %>%
   # can unique, because all counts by vessel are done already
-  distinct()
+  dplyr::distinct()
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short <-
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p |> 
@@ -420,7 +420,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p |>
     )
   ) %>%
   # can unique, because all counts by vessel are done already
-  distinct()
+  dplyr::distinct()
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short)
 

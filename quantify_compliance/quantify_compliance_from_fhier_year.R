@@ -116,7 +116,7 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
     compliant_,
     total_vsl_y
   ) |>
-  distinct() |>
+  dplyr::distinct() |>
   get_compl_by(group_by_for_compl)
 
 dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
@@ -152,7 +152,7 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa <-
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long |> 
   filter(year_permit == "2022 sa_only") |> 
   select(vessel_official_number, is_compl_or_both) |> 
-  distinct()
+  dplyr::distinct()
 
 # compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa
 # 4039    

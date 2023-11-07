@@ -35,21 +35,21 @@ View(vessels__trip_neg_22)
 vessels__trip_neg_22 |>
   dplyr::filter(PERMIT_GROUP == 7) |>
   dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 1975    2 vessels
 
 vessels__trip_neg_22 |>
   dplyr::filter(PERMIT_GROUP == 7) |>
   dplyr::select(TRIP_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # 410054      
 
 vessels__trip_neg_22 |>
   dplyr::filter(PERMIT_GROUP == 7) |>
   dplyr::select(TRIP_ID, permit_sa_gom) |>
-  distinct() |>
+  dplyr::distinct() |>
   count(permit_sa_gom)
 # 1      gom_only  34321
 # 2       sa_only 392199
@@ -69,26 +69,26 @@ print_df_names(v_p_tne__dual)
 v_p_tne__dual |>
   # dplyr::filter(PERMIT_GROUP == 7) |>
   dplyr::select(TRIP_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 410943      1
 
 v_p_tne__dual |>
   # dplyr::filter(PERMIT_GROUP == 7) |>
   dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 1979    2
 
 
 v_p_tne__dual |>
   dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   count
 
 v_p_tne__dual |>
   dplyr::select(TRIP_ID, permit_sa_gom) |>
-  distinct() |>
+  dplyr::distinct() |>
   count(permit_sa_gom)
 #   permit_sa_gom      n
 #   <chr>          <int>
@@ -285,7 +285,7 @@ v_p_gom1__j <-
 View(v_p_gom1__j)
 v_p_gom1__j |>
   dplyr::select(unique_all_vessel_ids_1) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 1009    1
 ok
@@ -314,7 +314,7 @@ dim(check_j_ids)
 
 v_p_gom_dual_1__j |> 
 select(unique_all_vessel_ids_1) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 1298    1
 # 
@@ -500,7 +500,7 @@ str(in_j_only_t_neg_all501_)
 # compbine results ----
 all_in_j_only_t_neg_all <-
   rbind(in_j_only_t_neg_all1,                                   in_j_only_t_neg_all501_) |> 
-  distinct()
+  dplyr::distinct()
 
 dim(all_in_j_only_t_neg_all)
 286
@@ -550,7 +550,7 @@ all_cnts_from_v_tne <-
 
 all_cnts_from_v_tne |> 
 select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 351   
 
@@ -591,7 +591,7 @@ all_cnts_from_v__tne_1_500 <-
 
 all_cnts_from_v__tne_1_500 |> 
 select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 112
 # 177
@@ -640,7 +640,7 @@ View(all_cnts_from_v__tne_2)
 
 all_cnts_from_v__tne_2 |> 
 select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 3
 
@@ -681,7 +681,7 @@ all_cnts_from_v__tne_query_btw |>
 
 all_cnts_from_v__tne_query_btw |> 
   dplyr::select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 351
 # not 0 in db - 288
@@ -728,7 +728,7 @@ fhier_cnts_g_d_short <-
     permit_grouping_region,
     total_did_not_fish_reports
   ) |>
-  distinct()
+  dplyr::distinct()
 
 # [1] 1327    9
 fhier_cnts_g_d_short_not_exp <-
@@ -740,7 +740,7 @@ dim(fhier_cnts_g_d_short_not_exp)
 fhier_cnts_g_d_short_vessel_ids <-
   fhier_cnts_g_d_short |> 
   dplyr::select(vessel_official_number) |> 
-  distinct()
+  dplyr::distinct()
 
 intersect(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF,
         fhier_cnts_g_d_short_vessel_ids$vessel_official_number) |> 
@@ -802,7 +802,7 @@ all_cnts_from_v__tne_query_all <-
 
 all_cnts_from_v__tne_query_all |> 
 select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 289
 

@@ -1081,7 +1081,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)
   ) |>
   select(vessel_official_number) |>
-  distinct()
+  dplyr::distinct()
 
 dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # [1] 2981    1
@@ -1092,7 +1092,7 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
     ~ .x |>
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__) |>
       select(vessel_official_number) |>
-      distinct()
+      dplyr::distinct()
   )
 
 # check

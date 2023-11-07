@@ -206,18 +206,18 @@ count_year1 <-
     total_non_compl_df <-
       curr_df %>%
       dplyr::select(vsls_per_y_r) %>%
-      distinct()
+      dplyr::distinct()
     # browser()
 
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(exp_y_tot_cnt) |>
-      distinct()
+      dplyr::distinct()
 
     expired_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(exp_y_tot_cnt) |>
-      distinct()
+      dplyr::distinct()
 
     out_df <-
       as.data.frame(c(
@@ -246,7 +246,7 @@ counts_by_month_read_me <-
            n_distinct(vessel_official_number)) |>
   dplyr::ungroup() |>
   dplyr::select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>
-  distinct()
+  dplyr::distinct()
 
 # print_df_names(counts_by_month_read_me)
 
@@ -271,7 +271,7 @@ counts_by_month_read_me_clean <-
 counts_by_year_read_me_clean <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
   dplyr::select(-perc_c_nc) |>
-  distinct() |>
+  dplyr::distinct() |>
   tidyr::pivot_wider(names_from = compl_or_not,
                      values_from = cnt_y_p_c,
                      values_fill = 0) |>

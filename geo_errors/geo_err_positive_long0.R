@@ -67,7 +67,7 @@ coordInfo_summ1 <-
 
 coordInfo_summ2 <-
   coordInfo_summ1 |>
-  distinct() |>
+  dplyr::distinct() |>
   pivot_wider(names_from = stat_name,
               id_cols = Var2,
               values_from = sta_val) |>
@@ -84,7 +84,7 @@ coordInfo_summ2_short <-
   coordInfo_summ2 |>
   filter(is.na(mode)) |>
   select(field_name, min, max, na_s) |>
-  distinct()
+  dplyr::distinct()
 
 # View(coordInfo_summ2_short)
 
@@ -122,7 +122,7 @@ trip_coord_info_vendors <-
 
 # trip_coord_info_vendors |>
 #   select(vendor_trip, vendor_effort) |>
-#   distinct() |>
+#   dplyr::distinct() |>
 #   dim()
 # [1] 971   2
 
@@ -131,7 +131,7 @@ trip_coord_info_trip_vendors_cnt <-
   select(vendor_trip) |>
   dplyr::mutate(vendor_trip = trimws(tolower(vendor_trip))) |>
   add_count(vendor_trip) |>
-  distinct()
+  dplyr::distinct()
 
 # dim(trip_coord_info_trip_vendors_cnt)
 # 678
@@ -151,7 +151,7 @@ trip_coord_info_effort_vendors_cnt <-
   select(vendor_effort) |>
   dplyr::mutate(vendor_effort = trimws(tolower(vendor_effort))) |>
   add_count(vendor_effort) |>
-  distinct()
+  dplyr::distinct()
 
 trip_coord_info_effort_vendors_cnt |>
   arrange(desc(n)) |>
@@ -317,7 +317,7 @@ country <- ne_countries(scale = "medium", returnclass = "sf")
 trip_coord_info_map_data <-
   trip_coord_info |>
   select(LONGITUDE, LATITUDE) |>
-  distinct() |>
+  dplyr::distinct() |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
   dplyr::mutate(label_lat_lon = paste(round(LATITUDE, 0),
                                round(LONGITUDE, 0)))
@@ -395,7 +395,7 @@ positive_long_corrected_map +
 positive_long |>
     select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
   count(vendor_trip_cat) |>
-  distinct() |>
+  dplyr::distinct() |>
   kable(caption = "positive_long: vendor_trip_cat")
 
 # count vendor_trip_cat
@@ -406,7 +406,7 @@ positive_long |>
 positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
   count(vendor_trip_cat, year_start) |>
-  distinct() |>
+  dplyr::distinct() |>
   kable(caption = "positive_long: count(vendor_trip_cat, year_start)")
 
 ### r positive longitude VESL only ----
@@ -421,7 +421,7 @@ positive_longitude_report <- function() {
   # positive_long_vesl_map <-
   #   positive_long_vesl |>
   #   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  #   distinct() |>
+  #   dplyr::distinct() |>
   #   lat_long_to_map_plot(my_title = 'Positive longitude (VESL)')
   #
   # ggsave("positive_long_vesl_map.png",
@@ -438,7 +438,7 @@ positive_long_vesl <- positive_longitude_report()
 positive_long_vesl_ll <-
   positive_long_vesl |>
     select(LATITUDE, LONGITUDE) |>
-    distinct()
+    dplyr::distinct()
 
 dim(positive_long_vesl_ll)
 # [1] 4517    2
@@ -448,7 +448,7 @@ positive_long_vesl_cnts <-
   positive_long_vesl |>
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
   add_count(VESSEL_ID, name = "vesl_bad_vsl_cnt") |>
-  distinct() |>
+  dplyr::distinct() |>
   arrange(desc(vesl_bad_vsl_cnt))
 
 # cnt all entries for the same vessels ----
@@ -457,18 +457,18 @@ all_vesl_cnts <-
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
   filter(VESSEL_ID %in% positive_long_vesl_cnts$VESSEL_ID) |>
   add_count(VESSEL_ID, name = "all_bad_vsl_cnt") |>
-  distinct() |>
+  dplyr::distinct() |>
   arrange(desc(all_bad_vsl_cnt))
 
 positive_long_vesl_cnts_short <-
   positive_long_vesl_cnts |>
   select(VESSEL_ID, vesl_bad_vsl_cnt) |>
-  distinct()
+  dplyr::distinct()
 
 all_vesl_cnts_short <-
   all_vesl_cnts |>
   select(VESSEL_ID, all_bad_vsl_cnt) |>
-  distinct()
+  dplyr::distinct()
 
 # join both cnts ----
 join_vesl_cnts <-
@@ -563,7 +563,7 @@ join_vesl_cnts_no_diff_all_freq <-
 
 join_vesl_cnts_no_diff_all_freq |>
   select(cnt_diff, cnt_diff_freq) |>
-  distinct() |>
+  dplyr::distinct() |>
   glimpse()
 # Rows: 99
 # cnt_diff      <int> 0, 1, 2, 3, 4, 7, 16, 10, 9, 6, 12, 47, 34,…
@@ -613,7 +613,7 @@ join_vesl_cnts_no_diff_ll <-
   trip_coord_info |>
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
   filter(VESSEL_ID %in% join_vesl_cnts_no_diff$VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 # write_csv(join_vesl_cnts_no_diff_ll,
 #           "join_vesl_cnts_no_diff_ll.csv")
@@ -705,7 +705,7 @@ dim(join_vesl_cnts_no_diff_all_wrong_vsls)
 join_vesl_cnts_no_diff_all_wrong_vsls_short <-
   join_vesl_cnts_no_diff_all_wrong_vsls |>
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 # A tibble: 3,512 × 3
 
 # join_vesl_cnts_no_diff_all_wrong_vsls_short lon to negative ----
@@ -809,7 +809,7 @@ View(vessel_permits_info_124)
 
 vessel_permits_info_124 |>
   select(SERO_HOME_PORT_STATE) |>
-  distinct() |>
+  dplyr::distinct() |>
   glimpse()
 
 # Rows: 10
@@ -829,7 +829,7 @@ vessels_124_coord_freq_von <-
   vessel_permits_info_124 |>
   select(VESSEL_VESSEL_ID,
          PERMIT_VESSEL_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   right_join(vessels_124_coord_freq,
              join_by(VESSEL_VESSEL_ID == VESSEL_ID),
              relationship = "many-to-many")
@@ -923,7 +923,7 @@ both_bad_and_good_vsls_p_v_info <-
 both_bad_and_good_vsls_p_v_ids <-
   both_bad_and_good_vsls_p_v_info |>
   select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 ## get coords for both_bad_and_good_vsls ----
 # print_df_names(both_bad_and_good_vsls_p_v_ids_all_info)
@@ -963,7 +963,7 @@ info_by_vsl_ids <- function(vsl_id_lists) {
   p_v_ids <-
     p_v_info |>
     select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-    distinct()
+    dplyr::distinct()
 
   # get coords for both_bad_and_good_vsls
 
@@ -998,7 +998,7 @@ dim(corrected_coords_good_only_id_all_info)
 
 corrected_coords_good_only_id_all_info_u <-
   corrected_coords_good_only_id_all_info |>
-  distinct()
+  dplyr::distinct()
 
 dim(corrected_coords_good_only_id_all_info_u)
 # [1] 417   5

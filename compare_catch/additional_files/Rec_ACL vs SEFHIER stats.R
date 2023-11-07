@@ -277,7 +277,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       dplyr::filter(end_port_state == "FL") %>%
       # sort by county
       arrange(end_port_county) %>%
-      distinct() %>%
+      dplyr::distinct() %>%
       # data_overview()
       # 37 counties
       # vessel_official_number          1096

@@ -65,7 +65,7 @@ vessels_permits_2022_r_short <-
     EXPIRATION_DATE,
     permit_sa_gom
   ) |>
-  distinct()
+  dplyr::distinct()
 
 # dim(vessels_permits_2022_r)
 # [1] 40474    52
@@ -91,7 +91,7 @@ vessels_permits_2022_r_end_date <-
            )) %>%
   # dplyr::select(-c(END_DATE,
             # EXPIRATION_DATE)) %>%
-  distinct()
+  dplyr::distinct()
 
 # vessels_permits_2022_r_end_date |> 
 #   dplyr::filter(SERO_OFFICIAL_NUMBER == 'FL8701TB') |> View()
@@ -174,7 +174,7 @@ dim(vessels_permits_2022_r_end_date_l_overlap_join)
 
 vessels_permits_2022_r_end_date_l_overlap_join %>%
   dplyr::select(VESSEL_VESSEL_ID) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   dim()
 # dplyr::select(PERMIT_VESSEL_ID) %>%
 # [1] 5461    1
@@ -188,7 +188,7 @@ vessels_permits_2022 %>%
   dplyr::select(QCSJ_C000000000300000,
          QCSJ_C000000000300001,
          VESSEL_ALT_NUM) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   dim()
 # [1] 5462    1
 
@@ -207,7 +207,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual <-
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual %>%
   dplyr::select(permit_sa_gom) %>%
-  distinct()
+  dplyr::distinct()
 # all 3
 
 dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual)
@@ -245,7 +245,7 @@ toc()
 #### check ----
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
   dplyr::select(permit_sa_gom) %>%
-  distinct()
+  dplyr::distinct()
 # all 3
 
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
@@ -258,7 +258,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 %>%
   dplyr::filter(permit_sa_gom == "dual") %>%
   # dplyr::select(VESSEL_VESSEL_ID) %>%
   dplyr::select(PERMIT_VESSEL_ID) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   dim()
 # 379
 # 353
@@ -317,7 +317,7 @@ trips_info_2022_int_ah <-
 # Trip notifications (= declarations) ----
 ## trip types A and H trip_notif ----
 trip_notifications_2022 %>%
-   dplyr::select(TRIP_TYPE) %>% distinct()
+   dplyr::select(TRIP_TYPE) %>% dplyr::distinct()
 #     TRIP_TYPE
 # 1           H
 # 3           A
@@ -479,7 +479,7 @@ trips_info_2022_int_ah_w_y_weeks_cnt_u %>%
 trips_info_2022_int_ah_w_y_sero <-
   trips_info_2022_int_ah_w_y |>
   dplyr::filter(!is.na(SERO_VESSEL_PERMIT)) |>
-  distinct()
+  dplyr::distinct()
 
 # no:
 # trip_notifications_2022_ah_w_y_dates |>  dplyr::filter(!is.na(SERO_VESSEL_PERMIT)) |> dim()
@@ -513,7 +513,7 @@ my_f <- function(curr_permit_region) {
 
   curr_permit_s_g_all <- curr_df |>
     dplyr::select(permit_sa_gom) |>
-    distinct()
+    dplyr::distinct()
   
   # treat dual as gom for 2022
   if (curr_permit_s_g_all == "dual") {
@@ -584,12 +584,12 @@ trips_info_2022_int_ah_w_y_dates <-
 trips_info_2022_int_ah_w_y_dates_ids <-
   trips_info_2022_int_ah_w_y_dates |>
   dplyr::select(VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 trips_info_2022_int_ah_w_y_ids <-
   trips_info_2022_int_ah_w_y_sero |>
   dplyr::select(VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 setdiff(trips_info_2022_int_ah_w_y_ids, trips_info_2022_int_ah_w_y_dates_ids)
 # 0
@@ -665,7 +665,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 <
   dplyr::mutate(weeks_perm_2022_amnt =
            (permit_2022 / lubridate::dweeks(1)) |>
            round()) |>
-  distinct()
+  dplyr::distinct()
 
 # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 min(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22$weeks_perm_2022_amnt, na.rm = T)
@@ -689,7 +689,7 @@ max(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids <-
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |> 
   dplyr::select(contains("vessel")) |> 
-  distinct()
+  dplyr::distinct()
 
 dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids)
 # [1] 3182    4
@@ -714,7 +714,7 @@ trips_info_2022_int_ah_w_y_dates_ids <-
   trips_info_2022_int_ah_w_y_dates |>
   dplyr::filter(!is.na(SERO_VESSEL_PERMIT)) |> 
   dplyr::select(contains("vessel")) |>
-  distinct()
+  dplyr::distinct()
 
 dim(trips_info_2022_int_ah_w_y_dates_ids)
 # [1] 2244    3
@@ -752,7 +752,7 @@ setdiff(
 trip_neg_2022_w_y_dates_ids <-
   trip_neg_2022_w_y_dates |>
   dplyr::select(contains("vessel")) |>
-  distinct()
+  dplyr::distinct()
 
 # tail(trip_neg_2022_w_y_dates_ids)
 # [1] 3415    1
@@ -861,7 +861,7 @@ t__tne__dates_w_cnt_t_tne_short <-
     max_weeks_cnt_t,
     distinct_weeks_ne
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(t__tne__dates)
 # [1] 838720     95
@@ -885,7 +885,7 @@ dim(t__tne__dates_w_cnt_t_tne_short)
 t__tne__dates_w_cnt_t_tne_short |>
   dplyr::filter(!is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |> 
   dplyr::select(VESSEL_ID) |>
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # [1] 5971   23
 # [1] 515   1 dplyr::select(VESSEL_ID) |>
@@ -895,7 +895,7 @@ t__tne__dates_w_cnt_t_tne_short |>
 t__tne__dates_w_cnt_t_tne_short |>
   dplyr::filter(!is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |>
   dplyr::select(VESSEL_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 91099    23
 # [1] 1834    1 dplyr::select(VESSEL_ID) |>
@@ -906,7 +906,7 @@ t__tne__dates_w_cnt_t_tne_short |>
 t__tne__dates_w_cnt_t_tne_short |>
   dplyr::filter(is.na(TRIP_ID.t) & !is.na(TRIP_ID.tne)) |> 
   dplyr::select(VESSEL_ID) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # [1] 741588     23
 # [1] 3412    1   dplyr::select(VESSEL_ID) |> 
@@ -916,7 +916,7 @@ t__tne__dates_w_cnt_t_tne_short |>
 t__tne__dates_w_cnt_t_tne_short |>
   dplyr::filter(is.na(TRIP_ID.t) & is.na(TRIP_ID.tne)) |> 
   dplyr::select(VESSEL_ID) |> 
-  distinct()
+  dplyr::distinct()
 # 1 NA
 
 # 1834 + 515 + 3412
@@ -931,7 +931,7 @@ t__tne__dates_w_cnt_t_tne_short |>
 # vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_short <-
 #   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
 #   dplyr::select(contains("VESSEL"), weeks_perm_2022_amnt) |>
-#   distinct()
+#   dplyr::distinct()
 
 # dim(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22)
 # [1] 3615   22
@@ -949,10 +949,10 @@ v_p_t_tne_dates_by = join_by(YEAR,
             COMPLETE_DATE,
             PERMIT_VESSEL_ID == VESSEL_ID)
 
-# df %>% distinct(var1, var2, .keep_all = TRUE)
+# df %>% dplyr::distinct(var1, var2, .keep_all = TRUE)
 v_p_ids <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
-  distinct(
+  dplyr::distinct(
     PERMIT_VESSEL_ID,
     SERO_OFFICIAL_NUMBER.sa,
     SUPPLIER_VESSEL_ID.sa,
@@ -969,7 +969,7 @@ dim(v_p_ids)
 
 v_p_ids_only <-
   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |>
-  distinct(
+  dplyr::distinct(
     PERMIT_VESSEL_ID,
     SERO_OFFICIAL_NUMBER.sa,
     SUPPLIER_VESSEL_ID.sa,
@@ -998,13 +998,13 @@ v_p_ids_only |>
 #     VESSEL_ALT_NUM.sa,
 #     VESSEL_VESSEL_ID
 # ) |> 
-#   distinct(
+#   dplyr::distinct(
 #   ) |> as.list()
 #   )  |> str()
 
 # t__tne__dates_w_cnt_t_tne_short ids
 t__tne__dates_w_cnt_t_tne_short_v_ids <-
-  distinct(t__tne__dates_w_cnt_t_tne_short, VESSEL_ID)
+  dplyr::distinct(t__tne__dates_w_cnt_t_tne_short, VESSEL_ID)
 dim(t__tne__dates_w_cnt_t_tne_short_v_ids)
 # 3880
 
@@ -1055,7 +1055,7 @@ str(ids_in_t_tne)
 print_df_names(vessels_permits_2022)
 vessels_permits_2022 |> 
   dplyr::filter(QCSJ_C000000000300001 %in% ids_in_t_tne) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # [1] 4015   51
 
@@ -1065,14 +1065,14 @@ vessels_permits_2022_r |>
 # 4015
   dplyr::filter(permit_sa_gom == 'sa_only') |> 
 # [1] 1524   52
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 
 vessels_permits_2022_r_short |>
   dplyr::filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
 # 1838   
   dplyr::filter(permit_sa_gom == 'sa_only') |> 
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 564  11
 
@@ -1081,7 +1081,7 @@ vessels_permits_2022_r_end_date |>
 # 1838   
   dplyr::filter(permit_sa_gom == 'sa_only') |> 
 # [1] 564  11
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 
 vessels_permits_2022_r_end_date_w_y |>
@@ -1089,12 +1089,12 @@ vessels_permits_2022_r_end_date_w_y |>
 # 1838   
   dplyr::filter(permit_sa_gom == 'sa_only') |>
 # 564
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 
 # vessels_permits_2022_r_end_date_l |> 
 #   map(~    dplyr::filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
-#   distinct() |>
+#   dplyr::distinct() |>
 #   dim()
 # )
 
@@ -1104,7 +1104,7 @@ vessels_permits_2022_r_end_date_l_overlap_join |>
 # 1574   
   dplyr::filter(permit_sa_gom.sa == 'sa_only') |>
   # [1] 624  34
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual |>
@@ -1114,7 +1114,7 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual |>
 # 624
   dplyr::filter(permit_sa_gom == 'sa_only') |>
   # 257  
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
@@ -1124,14 +1124,14 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22 |>
 # 624
   dplyr::filter(permit_sa_gom == 'sa_only') |>
   # 257  
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list |>
   map(function(curr_df) {
     curr_df |>
       dplyr::filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
-      distinct()
+      dplyr::distinct()
   }) |>
   map_df(dim)
 #    dual gom_only sa_only
@@ -1145,7 +1145,7 @@ dd <-
   map(function(curr_df) {
     curr_df |>
       dplyr::filter(VESSEL_VESSEL_ID %in% ids_in_t_tne) |>
-      distinct()
+      dplyr::distinct()
   })
 
 # map_df(dd, dim)
@@ -1308,14 +1308,14 @@ dim(v_p_t_tne_dates_w_v_p__cnts__t_tne)
 v_p_t_tne_dates_w_v_p__cnts__t_tne |>
   dplyr::select(contains("vessel_id")) |>
   # dplyr::select(contains("vessel")) |> # [1] 8322    5
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # 7059 3
 
 v_p_t_tne_dates_w_v_p |>
   # dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::select(contains("vessel_id")) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 7059    3
 
@@ -1323,27 +1323,27 @@ v_p_t_tne_dates_w_v_p__cnts__t_tne |>
   # dplyr::select(VESSEL_VESSEL_ID) |>  # [1] 5603    1
   # dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::select(contains("vessel_id")) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 7059    3
 
 v_p_t_tne_dates |>
   # dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::select(contains("vessel_id")) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # 7060 3
 
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22 |> 
   # dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
   dplyr::select(contains("vessel_id")) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # 3181 3
 
 t__tne__dates_w_cnt_t_tne_short |>
   dplyr::select(contains("vessel_id")) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # 3880
 

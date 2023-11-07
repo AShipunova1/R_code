@@ -129,7 +129,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
     permit_df |>
       dplyr::select(-c(TRIP_ID, vessel_official_nbr,
                 latitude, longitude)) |>
-      distinct()
+      dplyr::distinct()
   })
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u |>
@@ -218,7 +218,7 @@ short_example_3_cnts |>
 
 # 142+319+279
 # [1] 740
-  # distinct() |>
+  # dplyr::distinct() |>
 # [1] 564   2
 
 dim(short_example_3_cnts)
@@ -232,14 +232,14 @@ short_example_3_cnts_short <-
             permit_sa_gom,
             permit_region,
             TRIP_ID)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(short_example_3_cnts_short)
 # [1] 564   5
 
 short_example_3_cnts_short |>
   dplyr::select(-c(latitude, longitude)) |>
-  distinct() |>
+  dplyr::distinct() |>
   arrange(trip_ids_cnts)
 # ok
 #   ten_min_lat ten_min_lon trip_ids_cnts location_cnts_u

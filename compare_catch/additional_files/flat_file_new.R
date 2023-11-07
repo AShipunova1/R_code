@@ -444,7 +444,7 @@ fhier_logbooks_content_waves_fl_county %>%
   dplyr::filter(end_port_state == "FL") %>%
   # sort by county
   arrange(end_port_county) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   # data_overview()
   # 37 counties
   # vessel_official_number          1096

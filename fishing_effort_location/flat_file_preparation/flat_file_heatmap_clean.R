@@ -1151,7 +1151,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
   # keep only the vessel_official_numbers, remove all other columns
   dplyr::select(vessel_official_number) |>
   # remove duplicates
-  distinct()
+  dplyr::distinct()
 
 # dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # [1] 2981    1
@@ -1169,7 +1169,7 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
       # dplyr::select only the 'vessel_official_number' column
       dplyr::select(vessel_official_number) |>
       # Remove duplicate values from the dplyr::selected column
-      distinct()
+      dplyr::distinct()
   )
 
 
@@ -2197,7 +2197,7 @@ coord_data_2022_short_good_all_coords <-
   dplyr::mutate(longitude = -abs(longitude)) |>
 
   # Keep only distinct rows in the data frame
-  distinct()
+  dplyr::distinct()
 
 # dim(coord_data_2022_short_good_all_coords)
 # [1] 94471    73
@@ -2211,7 +2211,7 @@ coord_data_2022_short_good <-
   dplyr::filter(!is.na(longitude) | !is.na(latitude)) |>
 
   # Keep only distinct rows in the data frame
-  distinct()
+  dplyr::distinct()
 
 # dim(coord_data_2022_short_good_all_coords)
 # [1] 97970    17 FHIER
@@ -2627,7 +2627,7 @@ for_heatmap_lat_lon_trips_vessels_gom_only <-
   dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
 
   # Remove duplicate rows using 'distinct'.
-  distinct()
+  dplyr::distinct()
 
 # dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # Rows: 41,455
@@ -2639,7 +2639,7 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
   # dplyr::select specific columns.
   dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
   # Remove duplicate rows using 'distinct'.
-  distinct()
+  dplyr::distinct()
 
 # dim(for_heatmap_lat_lon_trips_vessels_sa_only)
 # [1] 68122     4
@@ -2915,14 +2915,14 @@ purrr::map(
 
 coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
   dplyr::select(activity_type_name) |>
-  distinct()
+  dplyr::distinct()
 # 1    TRIP WITH EFFORT
 # 2                <NA>
 # 3 TRIP UNABLE TO FISH
 
 coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$sa_only |>
   dplyr::select(notif_landing_location_state) |>
-  distinct()
+  dplyr::distinct()
 # <NA>
 # AL
 # FL
@@ -2938,7 +2938,7 @@ sa_end_port <-
     end_port_state,
     notif_landing_location_state
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(sa_end_port)
 # [1] 44009     5
@@ -2946,7 +2946,7 @@ dim(sa_end_port)
 sa_end_port_cnt_vessels <-
   sa_end_port |>
   dplyr::select(vessel_official_nbr, end_port_state) |>
-  distinct() |>
+  dplyr::distinct() |>
   filter(end_port_state %in% sa_state_abb$state_abb) |>
   count(end_port_state)
 #   END_PORT_STATE   n
@@ -2986,7 +2986,7 @@ sa_end_port_cnt_trips <- sa_end_port |>
 
 # The 'distinct' function is used to retain unique rows based on the combination
 # of 'trip_id' and 'end_port_state'.
-  distinct() |>
+  dplyr::distinct() |>
 
 # The 'filter' function is applied to keep only rows where 'end_port_state' is
 # present in the 'state_abb' column of the 'sa_state_abb' data frame.

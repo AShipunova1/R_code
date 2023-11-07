@@ -51,7 +51,7 @@ dim(v_p_d_w_22_short_gom)
 v_p_d_w_22_short_gom_total_vsls <-
   v_p_d_w_22_short_gom |> 
   select(PERMIT_VESSEL_ID) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 
 v_p_d_w_22_short_gom_total_vsls
@@ -75,7 +75,7 @@ dim(v_p__tn)
 
 v_p__tn |> 
   select(PERMIT_VESSEL_ID) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 865   
 

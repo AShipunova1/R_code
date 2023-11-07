@@ -1460,7 +1460,7 @@ all_plots_w_titles_list %>%
 
 compl_clean_sa_vs_gom_m_int_filtered |>
   select(year_month) |>
-  distinct()
+  dplyr::distinct()
 
 compl_clean_sa_vs_gom_m_int_filtered_vms <-
   compl_clean_sa_vs_gom_m_int_filtered %>%

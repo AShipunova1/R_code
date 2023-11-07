@@ -143,7 +143,7 @@ fhier_logbooks_content_waves_fl_county %>%
   dplyr::filter(end_port_state == "FL") %>%
   # sort by county
   arrange(end_port_county) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   # 37 counties
   dplyr::select(end_port_fl_reg) %>%
   # what else is in the new column beside sa and gom

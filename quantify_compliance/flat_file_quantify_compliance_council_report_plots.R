@@ -1160,7 +1160,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)
   ) |>
   select(vessel_official_number) |>
-  distinct()
+  dplyr::distinct()
 
 dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # [1] 2981    1
@@ -1173,7 +1173,7 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
     ~ .x |>
       filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__) |>
       select(vessel_official_number) |>
-      distinct()
+      dplyr::distinct()
   )
 
 # check
@@ -2216,7 +2216,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
   filter(perm_exp_m == "expired") |>
   select(perm_exp_m, exp_m_tot_cnt) |>
-  distinct()
+  dplyr::distinct()
 # 1 expired                1
 # 0
 
@@ -2519,7 +2519,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
     )
   ) %>%
   # can unique, because all counts by vessel are done already
-  distinct()
+  dplyr::distinct()
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short <-
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p |> 
@@ -2532,7 +2532,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p |>
     )
   ) %>%
   # can unique, because all counts by vessel are done already
-  distinct()
+  dplyr::distinct()
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short)
 
@@ -3459,13 +3459,13 @@ gg_all_c_vs_nc_plots_vms <-
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(cnt_y_p_e) %>%
-      distinct()
+      dplyr::distinct()
 
     # Extract unique expired permits.
     expired_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(cnt_y_p_e) %>%
-      distinct()
+      dplyr::distinct()
 
     # Create a title for the current plot.
     current_title <-

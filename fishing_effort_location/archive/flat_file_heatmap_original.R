@@ -1262,7 +1262,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
   # keep only the vessel_official_numbers, remove all other columns
   dplyr::select(vessel_official_number) |>
   # remove duplicates
-  distinct()
+  dplyr::distinct()
 
 dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # [1] 2981    1
@@ -1280,7 +1280,7 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
       # dplyr::select only the 'vessel_official_number' column
       dplyr::select(vessel_official_number) |>
       # Remove duplicate values from the dplyr::selected column
-      distinct()
+      dplyr::distinct()
   )
 
 
@@ -2736,7 +2736,7 @@ upload_effort_files <- function(add_path) {
 
   efforts_extended <-
     load_csv_names_in_one_df(NULL, csv_names_list) |>
-    distinct()
+    dplyr::distinct()
 
   return(efforts_extended)
 }
@@ -2747,9 +2747,9 @@ safis_efforts_extended_2022 <- upload_effort_files(add_path)
 
 dim(safis_efforts_extended_2022)
 # [1] 101038     42
-# [1] 97970    42 distinct()
+# [1] 97970    42 dplyr::distinct()
 
-# safis_efforts_extended_2022 |> dplyr::select(LOCAL_AREA_NAME) |> distinct()
+# safis_efforts_extended_2022 |> dplyr::select(LOCAL_AREA_NAME) |> dplyr::distinct()
 
 # data_overview(safis_efforts_extended_2022)
 # TRIP_ID              97848
@@ -2774,7 +2774,7 @@ dim(safis_efforts_extended_2023)
 safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
   dplyr::select(-any_of(rm_columns)) |>
-  distinct()
+  dplyr::distinct()
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
 
@@ -3082,7 +3082,7 @@ coord_data_2022_short_good_all_coords <-
   dplyr::mutate(longitude = -abs(longitude)) |>
 
   # Keep only distinct rows in the data frame
-  distinct()
+  dplyr::distinct()
 
 dim(coord_data_2022_short_good_all_coords)
 # [1] 94471    73
@@ -3099,7 +3099,7 @@ dim(coord_data_2022_short_good_all_coords)
 #   dplyr::mutate(longitude = -abs(longitude)) |>
 #
 #   # Keep only distinct rows in the data frame
-#   distinct()
+#   dplyr::distinct()
 #
 # dim(coord_data_2022_short_good_all_coords)
 # [1] 97970    17
@@ -3113,7 +3113,7 @@ coord_data_2022_short_good <-
   dplyr::filter(!is.na(longitude) | !is.na(latitude)) |>
 
   # Keep only distinct rows in the data frame
-  distinct()
+  dplyr::distinct()
 
 dim(coord_data_2022_short_good_all_coords)
 # [1] 97970    17 FHIER
@@ -3658,7 +3658,7 @@ source(heatmap_func_path)
 # for_heatmap_lat_lon_trips_only <-
 #   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
 #   dplyr::select(trip_id, latitude, longitude) |>
-#   distinct()
+#   dplyr::distinct()
 
 # glimpse(for_heatmap_lat_lon_trips_only)
 # Rows: 41,455
@@ -3692,7 +3692,7 @@ for_heatmap_lat_lon_trips_vessels_gom_only <-
   dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
 
   # Remove duplicate rows using 'distinct'.
-  distinct()
+  dplyr::distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # Rows: 41,455
@@ -3704,7 +3704,7 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
   # dplyr::select specific columns.
   dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
   # Remove duplicate rows using 'distinct'.
-  distinct()
+  dplyr::distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_sa_only)
 # [1] 68122     4
@@ -3824,7 +3824,7 @@ map(effort_vsl_cropped_cnt_l, dim)
 #   sf::st_drop_geometry() |>
 #   filter(cell_id == 1864) |>
 #   dplyr::select(vsl_cnt, trip_id_cnt) |>
-#   distinct() |>
+#   dplyr::distinct() |>
 #   glimpse()
 # vsl_cnt     <int> 11
 # trip_id_cnt <int> 236

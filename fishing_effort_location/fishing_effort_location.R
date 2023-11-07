@@ -144,7 +144,7 @@ get_ten_min_coords <- function(my_df) {
         -1 * abs(get_lat_ten_min(as.numeric(my_df$LONGITUDE)))
     )
   return(ten_min_df)
-  # distinct(ten_min_df)
+  # dplyr::distinct(ten_min_df)
 }
 
 ## From db ----
@@ -202,7 +202,7 @@ db_data_w_area_short_good_coord <-
   dplyr::mutate(LATITUDE = abs(LATITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(db_data_w_area_short_good_coord)
 # [1] 74520    18
@@ -227,7 +227,7 @@ safis_efforts_extended_2022_short_good <-
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
@@ -438,7 +438,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits)
 # check status ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
   dplyr::select(status) |>
-  distinct()
+  dplyr::distinct()
 # # A tibble: 6 × 1
 #   status
 #   <chr>
@@ -466,7 +466,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
   filter(!VESSEL_NAME == vessel_name) |>
   dplyr::select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
-  distinct() |>
+  dplyr::distinct() |>
   head()
 #   <chr>               <chr>        <chr>
 # 1 1212782             NO DOUBT     "NO DOUBT 2"
@@ -508,7 +508,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short
       term_date
     )
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] 111716      5
@@ -617,7 +617,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
   map(function(permit_df) {
     permit_df |>
       dplyr::select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
-      distinct()
+      dplyr::distinct()
   })
 
 # [1] 2755    3
@@ -782,7 +782,7 @@ short_example_3 |>
 
 short_example_3 |>
   dplyr::select(TRIP_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # 740 (distinct and w/o)
 
@@ -792,7 +792,7 @@ short_example_3 |>
 # 740
 # 142+319+279
 # [1] 740
-  # distinct() |>
+  # dplyr::distinct() |>
 # [1] 564   2
 
 dim(short_example_3_cnts)
@@ -804,14 +804,14 @@ short_example_3_cnts_short <-
             permit_sa_gom,
             permit_region,
             TRIP_ID)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(short_example_3_cnts_short)
 # [1] 564   5
 
 short_example_3_cnts_short |>
   dplyr::select(-c(LATITUDE, LONGITUDE)) |>
-  distinct()
+  dplyr::distinct()
 # ok
 #     ten_min_lat ten_min_lon     n
 #         <dbl>       <dbl> <int>
@@ -1086,7 +1086,7 @@ lat_lon_data_short <-
          LONGITUDE,
          TRIP_ID)
 # |>
-  # distinct()
+  # dplyr::distinct()
 
 lat_lon_data_coord <-
   lat_lon_data |>
@@ -1095,7 +1095,7 @@ lat_lon_data_coord <-
   dplyr::select(LATITUDE,
          LONGITUDE)
 # |>
-  # distinct()
+  # dplyr::distinct()
 
 # dim(lat_lon_data_uniq_coord)
 # [1] 35762     2
@@ -1114,7 +1114,7 @@ lat_lon_data_uniq_coord_ten_min_short <-
   lat_lon_data_uniq_coord_ten_min |>
   dplyr::select(ten_min_lat, ten_min_lon)
 # |>
-  # distinct() |>
+  # dplyr::distinct() |>
   # dim()
 # [1] 1295    2
 

@@ -115,7 +115,7 @@ weird_activity_types_info1 <-
   relationship = "many-to-many",
   suffix = c(".v_p", ".t")
 ) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   arrange(PERMIT_VESSEL_ID)
 
 dim(weird_activity_types_info1)
@@ -129,7 +129,7 @@ weird_activity_types_info2 <-
   relationship = "many-to-many",
   suffix = c(".v_p", ".t")
 ) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   arrange(PERMIT_VESSEL_ID)
 
 dim(weird_activity_types_info2)
@@ -149,7 +149,7 @@ dim(weird_activity_types_info12)
 # weird_activity_types_info |> 
 weird_activity_types_info12 |> 
   dplyr::select(PERMIT_VESSEL_ID) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   head(10)
 # 8 (7 + NA)
 # 5
@@ -169,7 +169,7 @@ trips_info_2022_int_dur |>
   dplyr::filter(VESSEL_ID == "127190") |>
   dplyr::select(TRIP_START_DATE,
          TRIP_END_DATE) |>
-  distinct() |>
+  dplyr::distinct() |>
   arrange(TRIP_START_DATE) |> 
   View()
 
@@ -215,7 +215,7 @@ rm_cols <-
 weird_activity_types_info_short12 <-
   weird_activity_types_info12 |> 
   dplyr::select(-any_of(rm_cols)) |> 
-  distinct()
+  dplyr::distinct()
 
 dim(weird_activity_types_info_short12)
   # dim()
@@ -251,7 +251,7 @@ dim(weird_activity_types_info_short12)
 # weird_activity_types_info_short_act |> 
 weird_activity_types_info_short12 |> 
   dplyr::select(PERMIT_VESSEL_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   head(10)
 # 6
 
@@ -270,7 +270,7 @@ weird_activity_types_info_short12 |>
          EXPIRATION_DATE,
          TRIP_START_DATE,
          TRIP_END_DATE) |>
-  distinct() |>
+  dplyr::distinct() |>
   write_csv(
     file.path(
       my_paths$outputs,

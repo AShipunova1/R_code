@@ -14,7 +14,7 @@ count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100 <-
          compliant_,
          year_permit,
          percent_compl) |>
-  distinct() |>
+  dplyr::distinct() |>
   filter(compliant_ == "NO") |>
   filter(percent_compl == 100)
 
@@ -37,12 +37,12 @@ sa_22_non_c_vessels <-
   count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
   filter(compliant_ == "NO") |>
   select(vessel_official_number) |>
-  distinct()
+  dplyr::distinct()
 
 sa_22_vessels <-
   count_weeks_per_vsl_permit_year_compl_p_sa_22 |> 
   select(vessel_official_number) |>
-  distinct()
+  dplyr::distinct()
 
 percent_of_never_compl_from_all_non_c <- 
   dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)[[1]] * 100 / dim(sa_22_non_c_vessels)[[1]]
@@ -66,7 +66,7 @@ count_weeks_per_vsl_permit_year_compl_p_short <-
     total_weeks_per_vessel,
     percent_compl
   ) |>
-  distinct()
+  dplyr::distinct()
 
 # data_overview(count_weeks_per_vsl_permit_year_compl_p_short)
 # vessel_official_number     3669
@@ -97,7 +97,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
   group_by(perc_nc_100_gr) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
-  distinct() |>
+  dplyr::distinct() |>
   mutate(
     perc_of_perc =
       case_when(
@@ -116,7 +116,7 @@ nc_sa_22_100_plot <-
          perc_nc_100_gr_name,
          group_vsl_cnt,
          perc_of_perc) |>
-  distinct() |>
+  dplyr::distinct() |>
   ggplot(aes(x = perc_nc_100_gr_name,
              y = round(perc_of_perc, 0),
              fill = as.factor(perc_nc_100_gr))) +
@@ -186,7 +186,7 @@ ggsave(
 total_vessels_c_n_nc <- 
   count_weeks_per_vsl_permit_year_compl_p_short |> 
   select(vessel_official_number) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # vessel_official_number     3669
 
@@ -196,7 +196,7 @@ nc_sa_22_100_plot <-
          perc_nc_100_gr_name,
          group_vsl_cnt,
          perc_of_perc) |>
-  distinct() |>
+  dplyr::distinct() |>
   ggplot(aes(x = perc_nc_100_gr_name,
              y = round(perc_of_perc, 0),
              fill = as.factor(perc_nc_100_gr))) +
@@ -378,7 +378,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
   mutate(vessels_cnt_tot = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
   add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
@@ -604,7 +604,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
   group_by(perc_nc_100_gr_name) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   select(-vessel_official_number) |>
-  distinct() |>
+  dplyr::distinct() |>
   mutate(
     perc_of_perc =
           group_vsl_cnt * 100 / total_vessels
@@ -618,7 +618,7 @@ nc_sa_22_tot_100_plot <-
          perc_nc_100_gr_name,
          group_vsl_cnt,
          perc_of_perc) |>
-  distinct() |>
+  dplyr::distinct() |>
   ggplot(aes(x = perc_nc_100_gr_name,
              y = round(perc_of_perc, 0),
              fill = as.factor(group_100_vs_rest))) +

@@ -67,7 +67,7 @@ vessels_permits_clean_gr7_2022_all_permits <-
   dplyr::mutate(all_permits = toString(unique(TOP))) |>
   dplyr::ungroup() |>
   dplyr::select(VESSEL_VESSEL_ID, all_permits) |>
-  distinct()
+  dplyr::distinct()
 
 # data_overview(vessels_permits_clean_gr7_2022_all_permits)
 # VESSEL_VESSEL_ID 4493
@@ -93,7 +93,7 @@ vessels_permits_clean_gr7_2022_region2 <-
            case_when(permit_sa_gom == "sa_only" ~ "sa_only",
                      .default = "gom_dual")) |>
   dplyr::select(-permit_sa_gom) |>
-  distinct()
+  dplyr::distinct()
 
 dim(vessels_permits_clean_gr7_2022_region2)
 # [1] 4493    3
@@ -127,7 +127,7 @@ rm_cols <- c("TRIP_ID",
 trip_coord_info_2022_short <-
   trip_coord_info_2022 |>
   dplyr::select(all_of(rm_cols)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(trip_coord_info_2022_short)
 # [1] 96785     7
@@ -138,7 +138,7 @@ dim(trip_coord_info_2022_short)
 trip_coord_info_2022_short_coord <-
   trip_coord_info_2022_short |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 ## rename trip_types to names ----
 trip_coord_info_2022_short_coord_t_names <-
@@ -183,7 +183,7 @@ trip_coord_info_2022_short_vessels_permits_region_short <-
       "permit_22"
     )
   )) |>
-  distinct()
+  dplyr::distinct()
 
 dim(trip_coord_info_2022_short_vessels_permits_region_short)
 # [1] 96383     6
@@ -202,7 +202,7 @@ trip_coord_info_2022_short_vessels_permits_region_short__l <-
     \(x)
     x |>
       dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE) |>
-      distinct()
+      dplyr::distinct()
   )
 
 # str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l)
@@ -314,7 +314,7 @@ data_overview(effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual)
 
 effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual |>
   dplyr::select(LATITUDE, LONGITUDE) |>
-  distinct()
+  dplyr::distinct()
 
 map_trips_types <-
   names(effort_t_type_cropped_cnt_join_grid) |>

@@ -103,7 +103,7 @@ get_num_of_non_compliant_weeks <-
       dplyr::select(vessel_official_number, week) %>%
       # sort
       arrange(vessel_official_number, week) %>%
-      distinct() %>%
+      dplyr::distinct() %>%
       # add a column with counts
       count(vessel_official_number) %>%
       # save an intermediate result for checking

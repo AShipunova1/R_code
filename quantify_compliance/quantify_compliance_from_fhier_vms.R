@@ -3,7 +3,7 @@
 
 compl_clean_sa_vs_gom_m_int_filtered |>
   select(year_month) |>
-  distinct()
+  dplyr::distinct()
 # dim(compl_clean_sa_vs_gom_m_int_filtered)
 
 compl_clean_sa_vs_gom_m_int_filtered_vms <-

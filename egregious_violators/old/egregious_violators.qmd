@@ -133,7 +133,7 @@ compl_clean_sa_all_weeks_non_c <-
   dplyr::select(dplyr::all_of(need_cols_names)) |>
   dplyr::inner_join(compl_clean_sa_all_weeks_non_c_short) |>
   # Default Joining with `by = join_by(vessel_official_number)`
-  distinct()
+  dplyr::distinct()
 
 ```
 # Preparing Correspondence

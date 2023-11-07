@@ -112,7 +112,7 @@ upload_effort_files <- function(add_path) {
 
   efforts_extended <-
     load_csv_names_in_one_df(NULL, csv_names_list) |>
-    distinct()
+    dplyr::distinct()
 
   return(efforts_extended)
 }
@@ -123,9 +123,9 @@ safis_efforts_extended_2022 <- upload_effort_files(add_path)
 
 dim(safis_efforts_extended_2022)
 # [1] 101038     42
-# [1] 97970    42 distinct()
+# [1] 97970    42 dplyr::distinct()
 
-# safis_efforts_extended_2022 |> dplyr::select(LOCAL_AREA_NAME) |> distinct()
+# safis_efforts_extended_2022 |> dplyr::select(LOCAL_AREA_NAME) |> dplyr::distinct()
 
 # data_overview(safis_efforts_extended_2022)
 # TRIP_ID              97848
@@ -150,7 +150,7 @@ dim(safis_efforts_extended_2023)
 safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
   dplyr::select(-any_of(rm_columns)) |>
-  distinct()
+  dplyr::distinct()
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
 

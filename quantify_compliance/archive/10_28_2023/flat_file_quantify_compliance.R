@@ -1434,7 +1434,7 @@ active_permits_from_pims_temp2 <- active_permits_from_pims_temp1 %>%
   active_permits_from_pims %>%
     dplyr::select(status_date) %>%                 # Select 'status_date' column
     dplyr::arrange(dplyr::desc(status_date)) %>%   # Arrange in descending order
-    distinct() %>%                               # Remove duplicate rows
+    dplyr::distinct() %>%                               # Remove duplicate rows
     head()                                       # Retrieve the first few rows
   # correct
   # str(active_permits_from_pims)
@@ -1557,7 +1557,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
   # keep only the vessel_official_numbers, remove all other columns
   dplyr::select(vessel_official_number) |>
   # remove duplicates
-  distinct()
+  dplyr::distinct()
 
 dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # [1] 2981    1
@@ -1575,7 +1575,7 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
       # Select only the 'vessel_official_number' column
       select(vessel_official_number) |>
       # Remove duplicate values from the selected column
-      distinct()
+      dplyr::distinct()
   )
 
 
@@ -2590,7 +2590,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
   filter(perm_exp_m == "expired") |>
   select(perm_exp_m, exp_m_tot_cnt) |>
-  distinct()
+  dplyr::distinct()
 # 1 expired                1
 # 0
 
@@ -2892,7 +2892,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short <-
     )
   ) %>%
   # can unique, because all counts by vessel are done already
-  distinct()
+  dplyr::distinct()
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short <-
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p |> 
@@ -2905,7 +2905,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p |>
     )
   ) %>%
   # can unique, because all counts by vessel are done already
-  distinct()
+  dplyr::distinct()
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short)
 

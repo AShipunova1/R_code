@@ -82,7 +82,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits)
 # check status ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
   dplyr::select(status) |>
-  distinct()
+  dplyr::distinct()
 # # A tibble: 6 × 1
 #   status
 #   <chr>
@@ -105,7 +105,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
 # safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
 #   filter(!VESSEL_NAME == vessel_name) |>
 #   dplyr::select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
-#   distinct() |>
+#   dplyr::distinct() |>
 #   head()
 #   <chr>               <chr>        <chr>
 # 1 1212782             NO DOUBT     "NO DOUBT 2"
@@ -147,7 +147,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short
       term_date
     )
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] 111716      5

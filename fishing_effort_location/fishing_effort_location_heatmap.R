@@ -34,7 +34,7 @@ source(heatmap_func_path)
 # for_heatmap_lat_lon_trips_only <-
 #   coord_data_2022_short_good_sf_crop_big_df_in_metricks_list$gom_and_dual |>
 #   dplyr::select(trip_id, latitude, longitude) |>
-#   distinct()
+#   dplyr::distinct()
 
 # glimpse(for_heatmap_lat_lon_trips_only)
 # Rows: 41,455
@@ -68,7 +68,7 @@ for_heatmap_lat_lon_trips_vessels_gom_only <-
   dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
 
   # Remove duplicate rows using 'distinct'.
-  distinct()
+  dplyr::distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_gom_only)
 # Rows: 41,455
@@ -80,7 +80,7 @@ for_heatmap_lat_lon_trips_vessels_sa_only <-
   # dplyr::select specific columns.
   dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
   # Remove duplicate rows using 'distinct'.
-  distinct()
+  dplyr::distinct()
 
 dim(for_heatmap_lat_lon_trips_vessels_sa_only)
 # [1] 68122     4
@@ -200,7 +200,7 @@ map(effort_vsl_cropped_cnt_l, dim)
 #   sf::st_drop_geometry() |>
 #   filter(cell_id == 1864) |>
 #   dplyr::select(vsl_cnt, trip_id_cnt) |>
-#   distinct() |>
+#   dplyr::distinct() |>
 #   glimpse()
 # vsl_cnt     <int> 11
 # trip_id_cnt <int> 236

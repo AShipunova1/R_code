@@ -74,7 +74,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w)
 v_p__t__tne_d_weeks_sa_compl_cnt_w |>
   dplyr::filter(PERMIT_VESSEL_ID == "FL4430NN") |>
   dplyr::select(WEEK_OF_YEAR, date_y_m, all_of(starts_with("rep_type")), compl_w_cnt) |>
-    distinct() |>
+    dplyr::distinct() |>
     dim()
 # 14 distinct weeks
 # 17 rows bc some weeks are in 2 month, e.g. 48 in Nov 2022 and Dec 2022
@@ -160,7 +160,7 @@ rm_columns <-
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w |> 
   dplyr::select(-any_of(rm_columns)) |> 
-  distinct()
+  dplyr::distinct()
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short)
 # [1] 194697     23
 # [1] 189214     23 distinct
@@ -217,7 +217,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
 # v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |>
 #   # dplyr::select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, all_of(starts_with("UE"))) |>
 #   dplyr::select(PERMIT_VESSEL_ID, ACTIVITY_TYPE, UE.t) |>
-#   distinct() |>
+#   dplyr::distinct() |>
 #   dplyr::filter(ACTIVITY_TYPE %in% c("2", "8")) |>
 #   head(10)
 
@@ -234,7 +234,7 @@ v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short <-
     rep_type.t,
     rep_type.tne
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short)
 # [1] 5275    6
@@ -278,12 +278,12 @@ sa_compl_cnts <-
   v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22_short |>
   dplyr::select(PERMIT_VESSEL_ID,
          compl_2022) |>
-  distinct() |>
+  dplyr::distinct() |>
   add_count(compl_2022, name = "total_compl_y")
 
 sa_compl_cnts |>
   dplyr::select(compl_2022, total_compl_y) |>
-  distinct()
+  dplyr::distinct()
 # 2 no                  2700
 # 1 yes                 1257
 #   compl_2022 total_compl_y
@@ -323,7 +323,7 @@ sa_compl_cnts_perc <-
   sa_compl_cnts |>
   dplyr::mutate(total_vsls = n_distinct(PERMIT_VESSEL_ID)) |>
   dplyr::select(-PERMIT_VESSEL_ID) |>
-  distinct() |>
+  dplyr::distinct() |>
   group_by(compl_2022) |>
   dplyr::mutate(compl_perc =
            total_compl_y * 100 / (total_vsls)) |>
@@ -363,7 +363,7 @@ year_plot_sa <-
 v_p__t__tne_d_weeks_sa_compl_w_short <-
   v_p__t__tne_d_weeks_sa_compl_w |> 
   dplyr::select(-any_of(rm_columns)) |> 
-  distinct()
+  dplyr::distinct()
 
 dim(v_p__t__tne_d_weeks_sa_compl_w_short)
 # [1] 194697     22

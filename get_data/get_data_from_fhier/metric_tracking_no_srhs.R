@@ -25,7 +25,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
   # keep only the vessel_official_numbers, remove all other columns
   dplyr::select(vessel_official_number) |>
   # remove duplicates
-  distinct()
+  dplyr::distinct()
 
 dim(fhier_reports_metrics_tracking_not_srhs_ids)
 # [1] 2981    1
@@ -43,7 +43,7 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
       # Select only the 'vessel_official_number' column
       select(vessel_official_number) |>
       # Remove duplicate values from the selected column
-      distinct()
+      dplyr::distinct()
   )
 
 

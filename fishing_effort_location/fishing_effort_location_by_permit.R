@@ -220,7 +220,7 @@ coord_data_2022_short_good_all_coords <-
   dplyr::mutate(longitude = -abs(longitude)) |>
 
   # Keep only distinct rows in the data frame
-  distinct()
+  dplyr::distinct()
 
 dim(coord_data_2022_short_good_all_coords)
 # [1] 94471    73
@@ -237,7 +237,7 @@ dim(coord_data_2022_short_good_all_coords)
 #   dplyr::mutate(longitude = -abs(longitude)) |>
 #
 #   # Keep only distinct rows in the data frame
-#   distinct()
+#   dplyr::distinct()
 #
 # dim(coord_data_2022_short_good_all_coords)
 # [1] 97970    17
@@ -251,7 +251,7 @@ coord_data_2022_short_good <-
   dplyr::filter(!is.na(longitude) | !is.na(latitude)) |>
 
   # Keep only distinct rows in the data frame
-  distinct()
+  dplyr::distinct()
 
 dim(coord_data_2022_short_good_all_coords)
 # [1] 97970    17 FHIER

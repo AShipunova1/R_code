@@ -641,7 +641,7 @@ check_new_vessels <-
     my_df |>
       dplyr::filter(vessel_official_number %in% list_to_check) |>
       dplyr::select(vessel_official_number) |>
-      distinct() |>
+      dplyr::distinct() |>
       dim() %>%
       return()
   }
@@ -819,7 +819,7 @@ compl_clean_sa_all_weeks_non_c <-
   dplyr::select(all_of(need_cols_names)) |>
   inner_join(compl_clean_sa_all_weeks_non_c_short) |>
 # Joining with `by = join_by(vessel_official_number)`
-  distinct()
+  dplyr::distinct()
 
 dim(compl_clean_sa_all_weeks_non_c)
 # [1] 130   8
@@ -831,7 +831,7 @@ dim(compl_clean_sa_all_weeks_non_c)
 compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_sa_all_weeks_non_c_short |>
   dplyr::select(vessel_official_number) |>
-  distinct()
+  dplyr::distinct()
 
 # compl_clean_sa_non_c_not_exp |> 
 dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)

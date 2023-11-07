@@ -53,14 +53,14 @@ View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
     sf::st_drop_geometry() |>
     dplyr::select(vsl_cnt_stat_zone) |>
-    distinct() |>
+    dplyr::distinct() |>
     arrange(vsl_cnt_stat_zone)
 
 ### remove extra columns ----
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
   dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr)) |>
-  distinct() |>
+  dplyr::distinct() |>
   dplyr::ungroup()
 
 # View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short)
@@ -80,7 +80,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short_rule3 <-
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short_df <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short |>
   sf::st_drop_geometry() |>
-  distinct()
+  dplyr::distinct()
 # 21
 
 # class(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short_df)
@@ -191,7 +191,7 @@ my_vessels_trips <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_and_dual |>
   dplyr::select(vessel_official_nbr,
          trip_id) |>
-  distinct()
+  dplyr::distinct()
 
 str(my_vessels_trips)
 # chr [1:626] "FL9312NA" "FL6074MJ" "FL4038KN" "FL0957RW" "FL4521RU" "994360" ...
@@ -303,7 +303,7 @@ glimpse(trip_type_data_from_db)
 trip_type_data_from_db_by_t_id <-
   trip_type_data_from_db |>
   filter(trip_id %in% my_vessels_trips$trip_id) |>
-  distinct()
+  dplyr::distinct()
 
 glimpse(trip_type_data_from_db_by_t_id)
 # Rows: 39,977
@@ -326,7 +326,7 @@ trip_type_data_from_db_by_t_id_types_l <-
   map(\(x)
       x |>
         dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
-        distinct())
+        dplyr::distinct())
 
 
 # glimpse(trip_type_data_from_db_by_t_id_types)

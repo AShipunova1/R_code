@@ -41,7 +41,7 @@ vessel_permits_info <-
 vessel_permits_ids <-
   vessel_permits_info |>
   select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 # r prepare vendor columns ----
 trip_coord_info_vendors <-
@@ -166,7 +166,7 @@ ne_10m_ocean_sf_bb <-
 trip_coord_info_short <-
   trip_coord_info |>
   select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 trip_coord_info_short_sf <-
   trip_coord_info_short |>
@@ -228,7 +228,7 @@ trip_coord_info_sf_pos_lon_cnt_coord_per_vsl <-
   select(-TRIP_ID) |>
   filter(LONGITUDE > 0) |>
   add_count(LATITUDE, LONGITUDE, name = "pos_lon_per_vsl") |>
-  distinct()
+  dplyr::distinct()
 # head(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl)
 #   LATITUDE LONGITUDE VESSEL_ID pos_lon_per_vsl
 # 1 24.00000  82.00000    326229             121
@@ -256,7 +256,7 @@ positive_long_corrected <-
 positive_long_corrected_vsl_ids <-
   positive_long_corrected |>
   select(VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 dim(positive_long_corrected_vsl_ids)
 # [1] 350   1
@@ -297,7 +297,7 @@ positive_long_corrected_good_vsl_ids <-
   positive_long_corrected_sf_good |>
   sf::st_drop_geometry() |>
   select(VESSEL_ID, LATITUDE, LONGITUDE, TRIP_ID) |>
-  distinct()
+  dplyr::distinct()
 
 positive_long_corrected_good_vsl_ids |> dim()
 # [1] 303   1 VESSEL_ID
@@ -314,7 +314,7 @@ positive_long_corrected_bad_vsl_ids <-
   positive_long_corrected_sf_bad |>
   sf::st_drop_geometry() |>
   select(VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 dim(positive_long_corrected_bad_vsl_ids)
 # [1] 176   1
@@ -495,7 +495,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts <-
          total_trips_by_vsl,
          coord_mark,
          count_marks_per_vsl) |>
-  distinct()
+  dplyr::distinct()
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   both_tot_w_coords__and_good_pairs_mark_cnts |>

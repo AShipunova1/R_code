@@ -19,7 +19,7 @@ corrected_csv <-
     col_types = cols(.default = 'c'),
     skip = 1
   ) |>
-  distinct()
+  dplyr::distinct()
 
 # "R_files_local\my_outputs\egregious_violators\corrected_addr\egregious violators for investigation_Detail2-NED.csv"
 
@@ -72,14 +72,14 @@ fields_to_use <-
 corrected_csv1 <-
   corrected_csv |>
   dplyr::select(all_of(fields_to_use)) |>
-  distinct()
+  dplyr::distinct()
 
 short_dfs <-
   list(aug_9_csv,
        corrected_csv) |>
   map( ~ .x |>
          dplyr::select(any_of(fields_to_use)) |>
-         distinct())
+         dplyr::distinct())
 
 map(short_dfs,
        dim)
@@ -140,7 +140,7 @@ to_rm <- c(
 corrected_n_fhier_short <-
   corrected_n_fhier |>
   dplyr::select(-all_of(to_rm)) |>
-  distinct()
+  dplyr::distinct()
 
 out_path <-
     file.path(base_path,
@@ -200,7 +200,7 @@ corrected_n_fhier_short_w_n_comb <-
   # dplyr::select(-c(first_name,
   #         last_name,
   #         business_name)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(corrected_n_fhier_short_w_n_comb)
 # [1] 153  18
@@ -328,7 +328,7 @@ corrected_n_fhier_short_w_n_clean_short <-
          full_name,
          fhier_name,
          fhier_name_2) |>
-  distinct()
+  dplyr::distinct()
 # |>
 
 View(corrected_n_fhier_short_w_n_clean_short)
@@ -375,7 +375,7 @@ all_permits_from_web_short <-
       FISHERY_NAME_ABBR
     )
   ) |>
-  distinct()
+  dplyr::distinct()
 dim(all_permits_from_web)
 # [1] 1000   23
 
@@ -431,7 +431,7 @@ pims_n_corrected_addr |>
          full_address,
          ADDRESS, 
          ADDRESS_STATE) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   View()
 
 ## check if the name is the same ----
