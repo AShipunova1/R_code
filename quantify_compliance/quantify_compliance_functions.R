@@ -60,47 +60,96 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
     return()
 }
 
+# Define a function called 'perc_plots_by_month' that takes two arguments:
+# 1. 'my_df': A data frame.
+# 2. 'current_year_month': The specific year_month for which to create a percentage plot.
 perc_plots_by_month <-
   function(my_df, current_year_month) {
+    # Uncomment the following line to enable debugging using the 'browser()' function.
     # browser()
-    # month_title = current_year_month
+
+    # Extract the total number of non-compliant vessels for the specified year_month.
     total_nc_vsl_per_month <-
       my_df %>%
       filter(year_month == current_year_month) %>%
       select(total_nc_vsl_per_month) %>%
       unique()
 
-    # month_title = paste0(current_year_month, " Total non-compliant vessels: ", total_nc_vsl_per_month[[1]])
-    month_title = paste0(current_year_month, ": ", total_nc_vsl_per_month[[1]], " total nc vsls")
-
+    # Create a title for the plot indicating the current year_month and total non-compliant vessels.
+    month_title <-
+      paste0(current_year_month,
+             ": ",
+             total_nc_vsl_per_month[[1]],
+             " total nc vsls")
+    
     my_df %>%
+      # Filter the data frame to include only rows for the specified year_month.
       filter(year_month == current_year_month) %>%
       ggplot(aes(non_compl_weeks, percent_nc)) +
+      
+      # Create a column plot with custom fill color.
       geom_col(fill = plot_colors$nc_bucket) +
+      
+      # Add text labels to the bars with the percentage values.
       geom_text(aes(label = paste0(percent_nc, "%")),
                 position = position_dodge(width = 0.9)
-                # ,
-                # vjust = -0.5
                 ) +
-      theme(plot.title = element_text(size = 10),
-            axis.title = element_text(size = 9)
-            ) +
+      
+      # Customize the plot's title and axis title text sizes. 
+      # Use the values from the 'text_sizes' list to specify the text sizes.
+      theme(plot.title = text_sizes$plot_title_text_size,
+            axis.title = text_sizes$axis_title_text_size
+      ) +
+
+      # Set the y-axis limits to be between 0 and 100.
       ylim(0, 100) +
+
+      # Set plot labels, including the dynamic 'month_title'.
       labs(title = month_title,
-           # x = "",
-           x = "Num of nc weeks",
+           # x-axis label.
+           x = "Num of nc weeks",  
+           # y-axis label.
            y = "") %>%
-      # TODO: axes text
+      
       return()
   }
 
+# Define a function called 'make_year_permit_label' that takes a single argument, 'curr_year_permit'.
+# This function takes a string ('curr_year_permit') and performs a series of text transformations on it:
+# It replaces the substring "_dual" with " + dual" using the 'stringr::str_replace' function.
+# It replaces underscores ("_") with spaces using 'stringr::str_replace'.
+# It converts the entire string to uppercase using 'toupper'.
+# The resulting modified string is then returned by the function.
+
 make_year_permit_label <- function(curr_year_permit) {
-  curr_year_permit %>%
+    curr_year_permit %>%
+    
+    # Replace "_dual" with " + dual".
     stringr::str_replace("_dual", " + dual") %>%
+    
+    # Replace underscores ("_") with spaces.
     stringr::str_replace("_", " ") %>%
+    
+    # Convert the entire string to uppercase.
     toupper() %>%
+    
+    # Return the resulting modified string.
     return()
 }
+
+# Define a function called 'make_one_plot_compl_vs_non_compl' that takes several arguments.
+# This function is designed to create a plot comparing compliant vs. non-compliant data. It takes various arguments for customization:
+# 
+# 'my_df': The data frame containing the data.
+# 'current_title': The title for the plot.
+# 'is_compliant': The column name for the 'is_compliant' data.
+# 'percent': The column name for the percentage data.
+# 'no_legend': A flag to control whether to display a legend.
+# 'percent_label_pos': The position of the percentage labels.
+# 'default_percent_labels': A flag to control the default display of percentage labels.
+# 'geom_text_size': The font size for text labels on the plot.
+# The function then creates a ggplot plot, customizes various plot elements, and adds percentage labels to the bars. It returns the resulting plot for further use.
+# 
 
 make_one_plot_compl_vs_non_compl <-
   function(my_df,
@@ -109,7 +158,7 @@ make_one_plot_compl_vs_non_compl <-
            percent = "percent",
            no_legend = FALSE,
            percent_label_pos = 0.5,
-           default_percen_labels = TRUE,
+           default_percent_labels = TRUE,
            geom_text_size = text_sizes[["geom_text_size"]]
            ) {
     # browser()
@@ -160,7 +209,7 @@ make_one_plot_compl_vs_non_compl <-
                           ~ paste0(round(.x, 1), "%"))
                    
     # Add percent numbers on the bars
-    if (default_percen_labels) {
+    if (default_percent_labels) {
       one_plot <-
         one_plot +
         geom_text(aes(label =
