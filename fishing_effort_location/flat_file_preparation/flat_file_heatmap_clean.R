@@ -1022,8 +1022,8 @@ print_toc_log <- function(variables) {
 
 my_paths <- set_work_dir()
 # Change to your input and output
-my_paths$inputs <- r"(Downloads\Oct 2023\input)"
-my_paths$outputs <- r"(\Downloads\Oct 2023\output)"
+# my_paths$inputs <- r"(Downloads\Oct 2023\input)"
+# my_paths$outputs <- r"(\Downloads\Oct 2023\output)"
 
 #### Current file: get_srhs_vessels.R ----
 
