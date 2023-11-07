@@ -50,7 +50,7 @@ vessels__trip_neg_22 |>
   dplyr::filter(PERMIT_GROUP == 7) |>
   dplyr::select(TRIP_ID, permit_sa_gom) |>
   dplyr::distinct() |>
-  count(permit_sa_gom)
+  dplyr::count(permit_sa_gom)
 # 1      gom_only  34321
 # 2       sa_only 392199
 
@@ -89,7 +89,7 @@ v_p_tne__dual |>
 v_p_tne__dual |>
   dplyr::select(TRIP_ID, permit_sa_gom) |>
   dplyr::distinct() |>
-  count(permit_sa_gom)
+  dplyr::count(permit_sa_gom)
 #   permit_sa_gom      n
 #   <chr>          <int>
 # 1 dual           15747
@@ -517,7 +517,7 @@ sum(all_in_j_only_t_neg_all$TOTAL_DNF)
 # 400
 
 # dplyr::select
-#   count(distinct trip_id)
+#   dplyr::count(distinct trip_id)
 # FROM
 #        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
 #   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -530,7 +530,7 @@ sum(all_in_j_only_t_neg_all$TOTAL_DNF)
 v__tne_query <-
   stringr::str_glue("SELECT
   distinct sero_official_number,
-  count(trip_id) as total_dnf
+  dplyr::count(trip_id) as total_dnf
   FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -572,7 +572,7 @@ sum(all_cnts_from_v_tne$TOTAL_DNF)
 v__tne_query_1_500 <-
   stringr::str_glue("SELECT
   sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -620,7 +620,7 @@ list_of_names_str <- paste0(list_of_names, collapse = "', '")
 v__tne_query_2 <-
   stringr::str_glue("SELECT
   sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -652,7 +652,7 @@ v__tne_query_btw <-
   stringr::str_glue("
 SELECT
 sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -676,7 +676,7 @@ all_cnts_from_v__tne_query_btw |>
 sum(all_cnts_from_v__tne_query_btw$TOTAL_TRIP_IDS)
 # 45710
 all_cnts_from_v__tne_query_btw |> 
-  count(wt = TOTAL_TRIP_IDS)
+  dplyr::count(wt = TOTAL_TRIP_IDS)
 # 45710
 
 all_cnts_from_v__tne_query_btw |> 
@@ -771,7 +771,7 @@ fhier_and_db <-
 v__tne_query_all <-
   stringr::str_glue("SELECT
   sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -783,7 +783,7 @@ WHERE
 union all
 SELECT
   sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne

@@ -401,13 +401,13 @@ glimpse(compare_perc_db_fhier)
 ## Get total ----
 # DB:
 compare_perc_db_fhier %>%
-  count(wt = trip_by_state_num)
+  dplyr::count(wt = trip_by_state_num)
 #       n
 # 1 53504
 
 # FHIER:
 compare_perc_db_fhier %>%
-  count(wt = total_fhier)
+  dplyr::count(wt = total_fhier)
 #       n
 # 1 57116
 

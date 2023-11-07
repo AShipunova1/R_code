@@ -405,14 +405,14 @@ trip_coord_info_vendors3 <-
 
 trip_coord_info_vendors3 |>
   dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |> 
-  kable(caption = "ALL: count(vendor_trip_cat)")
+  dplyr::count(vendor_trip_cat) |> 
+  kable(caption = "ALL: dplyr::count(vendor_trip_cat)")
 
 
 trip_coord_info_vendors3 |> 
   dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |> 
-  kable(caption = "ALL: count(vendor_trip_cat, year_start)")
+  dplyr::count(vendor_trip_cat, year_start) |> 
+  kable(caption = "ALL: dplyr::count(vendor_trip_cat, year_start)")
 
 # all vendors
 # etrips	47731			
@@ -477,7 +477,7 @@ positive_long_corrected_map +
 
 positive_long |>
     dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |>
+  dplyr::count(vendor_trip_cat) |>
   dplyr::distinct() |> 
   kable(caption = "positive_long: vendor_trip_cat")
 
@@ -485,12 +485,12 @@ positive_long |>
 # etrips	89			
 # vesl	15329		
 
-# count(vendor_trip_cat, year_start)
+# dplyr::count(vendor_trip_cat, year_start)
 positive_long |>
   dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |>
+  dplyr::count(vendor_trip_cat, year_start) |>
   dplyr::distinct() |> 
-  kable(caption = "positive_long: count(vendor_trip_cat, year_start)")
+  kable(caption = "positive_long: dplyr::count(vendor_trip_cat, year_start)")
 ```
 
 ### positive longitude VESL only
@@ -534,23 +534,23 @@ negative_lat <-
 
 negative_lat %>%
   dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |>
+  dplyr::count(vendor_trip_cat) |>
   dplyr::distinct() |> 
-  kable(caption = "negative_lat: count(vendor_trip_cat)")
+  kable(caption = "negative_lat: dplyr::count(vendor_trip_cat)")
 # etrips	2			
 # vesl	26		
 
 negative_lat %>%
   dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |>
+  dplyr::count(vendor_trip_cat, year_start) |>
   dplyr::distinct() |> 
-  kable(caption = "negative_lat: count(vendor_trip_cat, year_start)")
+  kable(caption = "negative_lat: dplyr::count(vendor_trip_cat, year_start)")
 
 
 # dim(negative_lat)
 # [1] 28 41
 
-# negative_lat %>% count(LATITUDE, LONGITUDE)
+# negative_lat %>% dplyr::count(LATITUDE, LONGITUDE)
 # LATITUDE LONGITUDE  n
 # 1 -87.30000  29.30000  2
 # 2 -83.97695  29.15705 11
@@ -664,15 +664,15 @@ out_of_boxmap_plot
 ## r Out of box table ----
 trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
-  count(vendor_trip_cat, year_start) |> 
-  kable(caption = "Out of box: count(vendor_trip_cat, year_start)")
+  dplyr::count(vendor_trip_cat, year_start) |> 
+  kable(caption = "Out of box: dplyr::count(vendor_trip_cat, year_start)")
 
 # etrips	151			
 # vesl	4524		
 
 # negative_lat %>%
 #   dplyr::select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-#   count(vendor_trip_cat) |>
+#   dplyr::count(vendor_trip_cat) |>
 #   dplyr::distinct()
 
 ```
@@ -695,7 +695,7 @@ trip_coord_info_vendors3 |>
   ) |>
   dplyr::arrange(FISHING_HOURS) |>
   dplyr::select(-TRIP_ID) |>
-  count(fishing_hours_cat, year_start, vendor_trip_cat) |> 
+  dplyr::count(fishing_hours_cat, year_start, vendor_trip_cat) |> 
   kable(caption = "fishing_hours_cat, year_start, vendor_trip_cat")
 
 

@@ -1,6 +1,6 @@
 ## check activity type ----
 v_p__t__tn_d_weeks_gom |>
-  count(ACTIVITY_TYPE, INTENDED_FISHING_FLAG)
+  dplyr::count(ACTIVITY_TYPE, INTENDED_FISHING_FLAG)
 #   ACTIVITY_TYPE     n
 #           <dbl> <int>
 # 1             0 45834

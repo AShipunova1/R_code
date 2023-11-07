@@ -360,7 +360,7 @@ vessels_by_permit_vessel_num <-
 
 # clean up vessels_permit_vsl_id__all ----
 # vessels_permit_vsl_id__all %>%
-#   count(permit_vessel_id) %>%
+#   dplyr::count(permit_vessel_id) %>%
 #   dplyr::filter(n > 1) %>%
 # head()
 # # 29
@@ -978,7 +978,7 @@ vessels__trip_neg_22_l_sa_short %>%
   dplyr::distinct() %>%
   dplyr::group_by(permit_vessel_id) %>%
   summarise(n_distinct(TRIP_week_num)) %>%
-  # count(TRIP_week_num) %>%
+  # dplyr::count(TRIP_week_num) %>%
   dplyr::glimpse()
 #   $ permit_vessel_id            <chr> "03017306"
 # $ `n_distinct(TRIP_week_num)` <int> 19

@@ -37,7 +37,7 @@ compl_data_sa_2022_m_short <-
 # permit_groupexpiration: chr [1:190] "06/30/2023" "08/31/2023" "09/30/2023" "05/31/2024" ...
 #  $ permitgroupexpiration : POSIXct[1:190], format: "2023-06-30"
 
-  #79 count(compliant_, year, permit_sa_gom)
+  #79 dplyr::count(compliant_, year, permit_sa_gom)
 
 compl_data_sa_2022_m_short_compl_vs_nc_per_m %>% 
     select(compliant_, overridden_, month_name, month_num, compl_overr_v) %>%

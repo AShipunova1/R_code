@@ -24,7 +24,7 @@ count_vessels <-
 
 count_weeks <-
   compl_clean_sa_vs_gom_m_int %>% 
-  count(compliant_, year, permit_sa_gom)
+  dplyr::count(compliant_, year, permit_sa_gom)
 # ...
 # 5 NO         2023  gom_only         13
 # 6 NO         2023  sa_only       11793
@@ -36,7 +36,7 @@ vessels_compl_or_not_per_y_r <-
   compl_clean_sa_vs_gom_m_int %>%
   select(vessel_official_number, compliant_, year, permit_sa_gom) %>%
   unique() %>%
-  count(compliant_, year, permit_sa_gom)
+  dplyr::count(compliant_, year, permit_sa_gom)
 # vessels
 # 5 NO         2023  gom_only          3
 # 6 NO         2023  sa_only        1384
@@ -123,7 +123,7 @@ compl_only %>%
 
 compl_only %>% 
   filter(year_region == "2023 gom_only") %>% 
-  count(compliant_)
+  dplyr::count(compliant_)
 # 1 YES          995
 
 compl_only_cnts <-
@@ -394,11 +394,11 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts <-
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>% 
   filter(percent_n_compl_rank == '75-100%') %>%
   filter(year_region == "2023 sa_only") %>%
-  count(percent_compl, year_region,
+  dplyr::count(percent_compl, year_region,
         name = "amount_of_occurences") %>%
   dplyr::arrange(desc(percent_compl)) %>% 
   # View()
-  count(wt = amount_of_occurences)
+  dplyr::count(wt = amount_of_occurences)
 # 499
 
 # 3) count how many in each bucket ----

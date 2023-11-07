@@ -81,13 +81,13 @@ vessels_compl_or_not_per_y_r_all <-
          year,
          permit_sa_gom) %>%
   unique() %>%
-  count(compliant_, year, permit_sa_gom)
+  dplyr::count(compliant_, year, permit_sa_gom)
 
 vessels_compl_or_not_per_y_r_not_gom23 <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
   select(vessel_official_number, compliant_, year_permit) %>%
   unique() %>%
-  count(compliant_, year_permit) %>%
+  dplyr::count(compliant_, year_permit) %>%
   dplyr::arrange(year_permit, compliant_)
 # vessels
 #  NO         2022 gom_dual   304

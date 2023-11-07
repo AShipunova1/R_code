@@ -193,13 +193,13 @@ trip_coord_info_vendors3 <-
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |>
-  knitr::kable(caption = "ALL: count(vendor_trip_cat)")
+  dplyr::count(vendor_trip_cat) |>
+  knitr::kable(caption = "ALL: dplyr::count(vendor_trip_cat)")
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |>
-  knitr::kable(caption = "ALL: count(vendor_trip_cat, year_start)")
+  dplyr::count(vendor_trip_cat, year_start) |>
+  knitr::kable(caption = "ALL: dplyr::count(vendor_trip_cat, year_start)")
 
 # all vendors
 # etrips	47731
@@ -256,7 +256,7 @@ trip_coord_info_short_cnt_coord_per_vsl <-
 trip_coord_info_short_cnt_total_trips_per_vsl <-
   trip_coord_info_short |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "total_trips_by_vsl")
+  dplyr::count(VESSEL_ID, name = "total_trips_by_vsl")
 ```
 
 ## all wrong points
@@ -296,7 +296,7 @@ str(trip_coord_info_sf_out) |>
 #   trip_coord_info_sf_out |>
 #   sf::st_drop_geometry() |>
 #   select(-c(LATITUDE, LONGITUDE)) |>
-#   count(VESSEL_ID, name = "wrong_trips_by_vsl")
+#   dplyr::count(VESSEL_ID, name = "wrong_trips_by_vsl")
 # 
 # str(trip_coord_info_sf_out_cnt_total_trips_per_vsl) |>
 #   knitr::kable(caption = "count outside of the bb trips per vessel")
@@ -327,7 +327,7 @@ trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl <-
   sf::st_drop_geometry() |>
   filter(LONGITUDE > 0) |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
+  dplyr::count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
 
 head(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl) |> 
         knitr::kable(caption = "glimpse count pos_lon trips per vsl")
@@ -581,7 +581,7 @@ bad_cnt_join_diff_groups <-
   dplyr::mutate(my_group = base::findInterval(cnt_diff, c(0, 6)))
   
 bad_cnt_join_diff_groups |> 
-  count(my_group) |> 
+  dplyr::count(my_group) |> 
   head() |> 
   knitr::kable(caption = "Group 1: difference between total and wrong coordinates is <= 5")
 
@@ -764,14 +764,14 @@ both_tot_w_coords__and_good_pairs_mark |>
 
 both_tot_w_coords__and_good_pairs_mark |>
   filter(VESSEL_ID == "162619") |>
-  count(coord_mark) |> 
+  dplyr::count(coord_mark) |> 
   knitr::kable(caption = "Test one vessel")
 # 1       good 73
 # 2      wrong  1
 
 both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
   both_tot_w_coords__and_good_pairs_mark |>
-  count(VESSEL_ID, coord_mark,
+  dplyr::count(VESSEL_ID, coord_mark,
         name = "count_marks_per_vsl") |>
   tidyr::pivot_wider(id_cols = VESSEL_ID,
               names_from = coord_mark,
@@ -833,7 +833,7 @@ both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups <-
   dplyr::mutate(my_group_b = base::findInterval(cnt_diff_b, c(0, group_boundary_both)))
   
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_groups |> 
-  count(my_group_b) |> 
+  dplyr::count(my_group_b) |> 
   head() |> 
   knitr::kable(caption = paste0("Group 1: difference between total and wrong coordinates is <= ", group_boundary_both))
 

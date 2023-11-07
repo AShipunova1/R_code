@@ -248,7 +248,7 @@ dim(db_data_w_area_report_minus_gom_stat_no_area_not_fl)
 
 sub1_fl_counties %>%
   # View()
-  count(END_PORT_COUNTY)
+  dplyr::count(END_PORT_COUNTY)
 # 11
 # ...
 # 8 MONROE          27476

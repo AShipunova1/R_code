@@ -72,13 +72,13 @@ trip_coord_info_vendors3 <-
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |>
-  kable(caption = "ALL: count(vendor_trip_cat)")
+  dplyr::count(vendor_trip_cat) |>
+  kable(caption = "ALL: dplyr::count(vendor_trip_cat)")
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |>
-  kable(caption = "ALL: count(vendor_trip_cat, year_start)")
+  dplyr::count(vendor_trip_cat, year_start) |>
+  kable(caption = "ALL: dplyr::count(vendor_trip_cat, year_start)")
 
 # all vendors
 # etrips	47731
@@ -190,7 +190,7 @@ trip_coord_info_short_cnt_coord_per_vsl <-
 trip_coord_info_short_cnt_total_trips_per_vsl <-
   trip_coord_info_short |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "total_trips_by_vsl")
+  dplyr::count(VESSEL_ID, name = "total_trips_by_vsl")
 
 # all wrong points ----
 
@@ -218,7 +218,7 @@ trip_coord_info_sf_out_cnt_total_trips_per_vsl <-
   trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "wrong_trips_by_vsl")
+  dplyr::count(VESSEL_ID, name = "wrong_trips_by_vsl")
 str(trip_coord_info_sf_out_cnt_total_trips_per_vsl)
 
 # cnt positive lon ----
@@ -240,7 +240,7 @@ trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl <-
   sf::st_drop_geometry() |>
   filter(LONGITUDE > 0) |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
+  dplyr::count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
 str(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl)
 
 # find fixable coords ----
@@ -472,13 +472,13 @@ glimpse(both_tot_w_coords__and_good_pairs_mark)
 
 both_tot_w_coords__and_good_pairs_mark |>
   filter(VESSEL_ID == "162619") |>
-  count(coord_mark)
+  dplyr::count(coord_mark)
 # 1       good 73
 # 2      wrong  1
 
 both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
   both_tot_w_coords__and_good_pairs_mark |>
-  count(VESSEL_ID, coord_mark,
+  dplyr::count(VESSEL_ID, coord_mark,
         name = "count_marks_per_vsl") |>
   tidyr::pivot_wider(id_cols = VESSEL_ID,
               names_from = coord_mark,

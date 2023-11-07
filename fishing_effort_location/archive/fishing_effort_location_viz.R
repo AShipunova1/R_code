@@ -43,7 +43,7 @@ db_data %>%
 
 # VENDOR_APP_NAME ----
 a <- db_data %>% 
-  count(VENDOR_APP_NAME)
+  dplyr::count(VENDOR_APP_NAME)
 # 1 BLUEFIN DATA ACCSP SDK  33560
 # 2          ETRIPS ONLINE   1185
 # 3        ETRIPS/MOBILE 2  82207

@@ -45,7 +45,7 @@ dim(sa_compl_err_db_data_permit_grps)
 View(sa_compl_err_db_data_permit_grps)
 
 ### SA errors distribution ----
-sa_compl_err_db_data_permit_grps %>% count(comp_error_type_cd)
+sa_compl_err_db_data_permit_grps %>% dplyr::count(comp_error_type_cd)
 # 1      NO_TRIP_FOUND 39270
 # NO_TRIP_FOUND	= NO REPORT
 #   error_type_wo_desc     n
@@ -59,9 +59,9 @@ sa_compl_err_db_data_permit_grps_nc <-
   filter(is_comp == 0) %>% 
   filter(is_comp_override == 0) %>% 
   filter(year_month == "Dec 2022") %>%
-  count(vessel_official_nbr, name = "id_n") %>%
+  dplyr::count(vessel_official_nbr, name = "id_n") %>%
   # how many non_compliant this month
-  count(id_n, name = "non_compl_weeks_in_month")
+  dplyr::count(id_n, name = "non_compl_weeks_in_month")
 #   id_n non_compl_weeks_in_month
 # 1    1                       15
 # 2    2                       19
@@ -176,7 +176,7 @@ dim(gom_compl_err_db_data_permit_grps)
 # [1] 2810   40
 
 gom_compl_err_db_data_permit_grps %>%
-  count(comp_error_type_cd)
+  dplyr::count(comp_error_type_cd)
 #     comp_error_type_cd    n
 # 1         DECL_NO_TRIP  761
 # 2        NO_TRIP_FOUND 3456
@@ -223,7 +223,7 @@ dim(gom_compl_err_db_data_permit_grps_short_nc_no)
 # Columns: 12
 
 gom_compl_err_db_data_permit_grps_short %>% 
-  count(comp_error_type_cd)
+  dplyr::count(comp_error_type_cd)
 #     comp_error_type_cd    n
 # 1         DECL_NO_TRIP  761
 # 2        NO_TRIP_FOUND 3456
@@ -234,7 +234,7 @@ gom_compl_err_db_data_permit_grps_short %>%
 # 7     VMS_DECL_NO_TRIP   95
 
 gom_compl_err_db_data_permit_grps_short_nc_no %>% 
-    count(comp_error_type_cd)
+    dplyr::count(comp_error_type_cd)
 # 1      NO_TRIP_FOUND 613 
 # TODO: why sa err?
 
@@ -275,7 +275,7 @@ grid.arrange(grobs =
              ncol = 4)
 
 # percent of non_compliant and compliant ----
-compl_err_db_data_permit_grps %>% count(permit_sa_gom, is_comp)
+compl_err_db_data_permit_grps %>% dplyr::count(permit_sa_gom, is_comp)
 #   permit_sa_gom is_comp     n
 # 1          both       0  3453
 # 2          both       1   611
@@ -286,4 +286,4 @@ compl_err_db_data_permit_grps %>% count(permit_sa_gom, is_comp)
 
 compl_err_db_data_permit_grps %>% 
   dplyr::mutate(nc_no = is_comp | is_comp_override) %>% 
-  count(permit_sa_gom, nc_no)
+  dplyr::count(permit_sa_gom, nc_no)

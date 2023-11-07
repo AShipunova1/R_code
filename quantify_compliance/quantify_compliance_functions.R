@@ -35,10 +35,10 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
   # browser()
     my_df %>%
     # Count the number of non-compliant weeks per vessel for each year_month.
-    count(year_month, !!sym(vessel_id_col_name),
+    dplyr::count(year_month, !!sym(vessel_id_col_name),
           name = "nc_weeks_per_vessl_m") %>%
     # Count the occurrence of each unique combination of year_month and nc_weeks_per_vessl_m.
-    count(year_month, nc_weeks_per_vessl_m,
+    dplyr::count(year_month, nc_weeks_per_vessl_m,
           name = "occurence_in_month") %>%
     # turn amount of nc weeks into headers, to have one row per year_month
     tidyr::pivot_wider(names_from = nc_weeks_per_vessl_m,

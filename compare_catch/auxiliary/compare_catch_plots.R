@@ -687,7 +687,7 @@ sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 # test the longer format transformation ----
 sa_acl_top_to_plot %>%
   dplyr::filter(scientific_name == test_species_name) %>%
-  count(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
+  dplyr::count(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
   use_series(acl_count) %>%
   identical(
     sa_acl_top_spp %>%
@@ -1491,7 +1491,7 @@ View(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
   dplyr::filter(fhier_quantity_by_4 == 0 &
            rec_acl_estimate_catch_by_4 == 0) %>%
-  count(scientific_name)
+  dplyr::count(scientific_name)
   # scientific_name  n
 # 1       167793  1 sand perch
 # 2       168559  2 bluefish
@@ -1500,7 +1500,7 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
 # 5         <NA> 40
 # common_name is NA
 
-#   count(scientific_name)
+#   dplyr::count(scientific_name)
 #          scientific_name  n
 # 1 ANISOTREMUS VIRGINICUS  1
 # 2           CARANX RUBER  3

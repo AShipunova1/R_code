@@ -287,7 +287,7 @@ acl_estimate_2022 %>%
 
 acl_estimate_2022 %>%
   dplyr::filter(new_com == "scup") %>%
-  count(ab1)
+  dplyr::count(ab1)
 
 names(acl_estimate_2022)
 

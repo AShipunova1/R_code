@@ -597,7 +597,7 @@ length(in_db_only_names_diff5)
 
 data_from_db4 %>%
   dplyr::select(SERO_OFFICIAL_NUMBER, END_PORT_STATE) %>%
-  count(END_PORT_STATE)
+  dplyr::count(END_PORT_STATE)
 #    END_PORT_STATE     n
 # 1              AL  2074
 # 2              DE    39
@@ -626,7 +626,7 @@ data_from_db4 %>%
 data_from_db_more_fields %>% 
   dplyr::select(TRIP_ID, END_PORT_STATE) %>%
   unique() %>% 
-  count(END_PORT_STATE)
+  dplyr::count(END_PORT_STATE)
 
 # View(gom_trip_notifications_by_arrival_port_state_summary)
 
@@ -640,7 +640,7 @@ dim(data_from_db_more_fields_end_p_s_by_trip)
 # 53504
 
 data_from_db_more_fields_end_p_s_by_trip %>% 
-  count(END_PORT_STATE)
+  dplyr::count(END_PORT_STATE)
 #   END_PORT_STATE     n
 # 1             AL  8398
 # 2             FL 38180
@@ -652,7 +652,7 @@ data_from_db_more_fields %>%
   filter(NOTIF_LANDING_LOCATION_STATE %in% gom_state_abbr) %>%
   dplyr::select(TRIP_ID, NOTIF_LANDING_LOCATION_STATE) %>%
   unique() %>% 
-  count(NOTIF_LANDING_LOCATION_STATE)
+  dplyr::count(NOTIF_LANDING_LOCATION_STATE)
   # NOTIF_LANDING_LOCATION_STATE     n
 # 1                           AL  7322
 # 2                           FL 22471
@@ -767,11 +767,11 @@ names(compare_perc_db_fhier) <-
 # View(compare_perc_db_fhier)
 
 compare_perc_db_fhier %>%
-  count(wt = trip_by_state_num)
+  dplyr::count(wt = trip_by_state_num)
 #       n
 # 1 53504
 compare_perc_db_fhier %>%
-  count(wt = total_fhier)
+  dplyr::count(wt = total_fhier)
 #       n
 # 1 57116
 

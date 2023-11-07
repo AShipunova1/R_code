@@ -624,7 +624,7 @@ trips_info_2022_int_ah_sero <-
 ## trip types A and H trip_notif ----
 trips_notifications_2022 %>%
    # dplyr::select(TRIP_TYPE) %>% dplyr::distinct()
-   count(TRIP_TYPE)
+   dplyr::count(TRIP_TYPE)
 #   TRIP_TYPE     n
 # 1         A 55328
 # 2         C   202
@@ -644,7 +644,7 @@ dim(trips_notifications_2022_ah)
 ## intended fishing declarations ----
 
 trips_notifications_2022_ah |>
-  count(INTENDED_FISHING_FLAG)
+  dplyr::count(INTENDED_FISHING_FLAG)
 #   INTENDED_FISHING_FLAG     n
 # 1                     N  4080
 # 2                     Y 62742
@@ -655,7 +655,7 @@ trips_notifications_2022_ah |>
   # dplyr::distinct() |> 
   # dim()
   # write_csv("INTENDED_FISHING_FLAG_is_na.csv")
-  count(SYSTEM_ID)
+  dplyr::count(SYSTEM_ID)
 # 1    ETRIPS 916
 
 print_df_names(trips_notifications_2022_ah)
@@ -702,7 +702,7 @@ dim(trips_notifications_2022_ah_fish)
 
 ## not cancelled ----
 trips_notifications_2022_ah_fish |>
-  count(NOTIFICATION_TYPE_ID)
+  dplyr::count(NOTIFICATION_TYPE_ID)
 #   NOTIFICATION_TYPE_ID     n
 # 1                    5    38
 # 2                    6 62704
@@ -1503,7 +1503,7 @@ dim(v_p__t__tn_d_weeks)
 # 1)
 v_p__t__tne_d_weeks |>
   dplyr::filter(PERMIT_VESSEL_ID == "VI5498TB") |>
-  count(YEAR) |>
+  dplyr::count(YEAR) |>
   dplyr::glimpse()
 # now has TRIP_DATE_y
 # 58
@@ -1549,7 +1549,7 @@ dim(v_p__t__tne_d_weeks_21)
 #   dplyr::select(PERMIT_VESSEL_ID, WEEK_OF_YEAR) |>
 #   dplyr::distinct() |>
 #   # 14
-#   # count(PERMIT_VESSEL_ID)
+#   # dplyr::count(PERMIT_VESSEL_ID)
 # # 1 FL4430NN            14
 #   dplyr::group_by(PERMIT_VESSEL_ID) |>
 #   dplyr::mutate(compl_weeks =
@@ -1966,7 +1966,7 @@ v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
 v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
   dplyr::select(PERMIT_VESSEL_ID, is_compliant_y) |>
   dplyr::distinct() |>
-  count(is_compliant_y)
+  dplyr::count(is_compliant_y)
 # 1 no               625
 # 2 yes              972
 # new rule
@@ -2162,7 +2162,7 @@ dim(fhier_metrics)
 fhier_metrics |>
   dplyr::select(vessel_official_number) |>
   dplyr::distinct() |>
-  count()
+  dplyr::count()
 # 1  3526
 
 # View(fhier_metrics)
@@ -2170,7 +2170,7 @@ fhier_metrics |>
   dplyr::select(vessel_official_number,
          permit_grouping_region) |>
   dplyr::distinct() |>
-  count(permit_grouping_region)
+  dplyr::count(permit_grouping_region)
 #   permit_grouping_region     n
 #   <chr>                  <int>
 # 1 GOM                     1323
@@ -2187,7 +2187,7 @@ fhier_metrics_r |>
   dplyr::select(vessel_official_number,
          permit_sa_gom) |>
   dplyr::distinct() |>
-  count(permit_sa_gom)
+  dplyr::count(permit_sa_gom)
 # 1 dual            304
 # 2 gom_only       1019
 # 3 sa_only        2203
@@ -2312,7 +2312,7 @@ vessels_permits_2022_r_end_date_uid_not_in_metrics_permit_statuses <-
     permit_sa_gom
   ) |>
   dplyr::distinct() |>
-  count(PERMIT_STATUS, name = "permit_status_cnts") |>
+  dplyr::count(PERMIT_STATUS, name = "permit_status_cnts") |>
   dplyr::mutate(
     total_permit_status_cnts =
       sum(permit_status_cnts),
@@ -2335,7 +2335,7 @@ vessels_permits_2022_r_end_date_uid_in_metrics_permit_statuses <-
     permit_sa_gom
   ) |> 
   dplyr::distinct() |> 
-  count(PERMIT_STATUS, name = "permit_status_cnts") |>
+  dplyr::count(PERMIT_STATUS, name = "permit_status_cnts") |>
   dplyr::mutate(total_permit_status_cnts = 
            sum(permit_status_cnts),
          perc_permit_status_cnts = 
@@ -2411,7 +2411,7 @@ vessel_info_in_metrics_only_res |>
 trips_info_2022 |> 
   dplyr::filter(VESSEL_ID %in% 
            c(393431, 326994, 307565)) |> 
-  count(VESSEL_ID)
+  dplyr::count(VESSEL_ID)
 #     VESSEL_ID n
 # 1    326994 1
 # 2    393431 6
@@ -2419,7 +2419,7 @@ trips_info_2022 |>
 trip_neg_2022 |> 
   dplyr::filter(VESSEL_ID %in% 
            c(393431, 326994, 307565)) |> 
-  count(VESSEL_ID)
+  dplyr::count(VESSEL_ID)
 #   VESSEL_ID   n
 # 1    326994 304
 # 2    393431 177
@@ -2435,7 +2435,7 @@ vessels_permits_2022_r |>
 trips_notifications_2022 |> 
   dplyr::filter(VESSEL_ID %in% 
            c(393431, 326994, 307565)) |> 
-  count(VESSEL_ID)
+  dplyr::count(VESSEL_ID)
 0
 
 # ===

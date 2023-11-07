@@ -65,7 +65,7 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
       permit_df |>
       dplyr::select(-c(latitude, longitude)) |>
       # dplyr::select columns except 'latitude' and 'longitude'
-      count(ten_min_lat, ten_min_lon) |>
+      dplyr::count(ten_min_lat, ten_min_lon) |>
       # Count occurrences of 'ten_min_lat' and 'ten_min_lon' combinations
       dplyr::arrange(desc(n)) |>
       # Arrange rows in descending order of the count 'n'

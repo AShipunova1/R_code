@@ -455,7 +455,7 @@ trips_info_2022_int_ah_sero <-
 ## trip types A and H trip_notif ----
 trips_notifications_2022 %>%
    # dplyr::select(TRIP_TYPE) %>% dplyr::distinct()
-   count(TRIP_TYPE)
+   dplyr::count(TRIP_TYPE)
 #   TRIP_TYPE     n
 # 1         A 55328
 # 2         C   202
@@ -474,7 +474,7 @@ dim(trips_notifications_2022_ah)
 
 ## not cancelled ----
 trips_notifications_2022_ah |>
-  count(NOTIFICATION_TYPE_ID)
+  dplyr::count(NOTIFICATION_TYPE_ID)
 #   NOTIFICATION_TYPE_ID     n
 # 1                    5   109
 # 2                    6 63549
@@ -517,7 +517,7 @@ dim(trips_notifications_2022_ah_6)
 # [1] 67613    34
 
 trips_notifications_2022_ah_6 |>
-  count(NOTIFICATION_TYPE_ID)
+  dplyr::count(NOTIFICATION_TYPE_ID)
 # 1                    6 67613
 
 # add week num ----
@@ -1190,7 +1190,7 @@ dim(v_p__t__tn_d_weeks)
 # 1)
 v_p__t__tne_d_weeks |>
   dplyr::filter(PERMIT_VESSEL_ID == "VI5498TB") |>
-  count(YEAR) |>
+  dplyr::count(YEAR) |>
   dplyr::glimpse()
 # now has TRIP_DATE_y
 # 58

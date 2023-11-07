@@ -116,7 +116,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
              date_y_m == "Mar 2022") |>
     dplyr::select(PERMIT_VESSEL_ID) |>
     dplyr::distinct() |>
-    count()
+    dplyr::count()
 # 373
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>

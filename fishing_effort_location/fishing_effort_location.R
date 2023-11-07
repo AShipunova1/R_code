@@ -569,7 +569,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
     function(permit_df) {
       permit_df |>
       dplyr::select(-c(LATITUDE, LONGITUDE)) |>
-      count(ten_min_lat, ten_min_lon) |>
+      dplyr::count(ten_min_lat, ten_min_lon) |>
       dplyr::arrange(desc(n)) |>
       head(2)
     }
@@ -1408,19 +1408,19 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 ## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 # by end_port, depth, month ---
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
+  dplyr::count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 # SA only ----
@@ -1753,19 +1753,19 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 ## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 # by end_port, depth, month ---
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
+  dplyr::count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 ## seasonally ----

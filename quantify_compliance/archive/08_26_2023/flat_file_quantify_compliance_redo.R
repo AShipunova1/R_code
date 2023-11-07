@@ -547,10 +547,10 @@ get_non_compl_week_counts_percent <- function(my_df, vessel_id_col_name) {
   # browser()
     my_df %>%
     # how many non_compliant weeks per vessel this month
-    count(year_month, !!sym(vessel_id_col_name),
+    dplyr::count(year_month, !!sym(vessel_id_col_name),
           name = "nc_weeks_per_vessl_m") %>%
     # nc weeks per month
-    count(year_month, nc_weeks_per_vessl_m,
+    dplyr::count(year_month, nc_weeks_per_vessl_m,
           name = "occurence_in_month") %>%
     # turn amount of nc weeks into headers, to have one row per year_month
     tidyr::pivot_wider(names_from = nc_weeks_per_vessl_m,
@@ -1050,13 +1050,13 @@ vessels_compl_or_not_per_y_r_all <-
          year,
          permit_sa_gom) %>%
   unique() %>%
-  count(compliant_, year, permit_sa_gom)
+  dplyr::count(compliant_, year, permit_sa_gom)
 
 vessels_compl_or_not_per_y_r_not_gom23 <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
   select(vessel_official_number, compliant_, year_permit) %>%
   unique() %>%
-  count(compliant_, year_permit) %>%
+  dplyr::count(compliant_, year_permit) %>%
   dplyr::arrange(year_permit, compliant_)
 # vessels
 #  NO         2022 gom_dual   304

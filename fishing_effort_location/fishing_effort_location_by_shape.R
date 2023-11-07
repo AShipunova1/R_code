@@ -813,19 +813,19 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 ## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 # by end_port, depth, month ---
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
+  dplyr::count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 # SA only ----
@@ -1158,19 +1158,19 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 ## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 # by end_port, depth, month ---
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
+  dplyr::count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 ## seasonally ----

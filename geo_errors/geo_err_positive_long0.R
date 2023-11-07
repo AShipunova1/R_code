@@ -337,13 +337,13 @@ trip_coord_info_vendors3 <-
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |>
-  kable(caption = "ALL: count(vendor_trip_cat)")
+  dplyr::count(vendor_trip_cat) |>
+  kable(caption = "ALL: dplyr::count(vendor_trip_cat)")
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |>
-  kable(caption = "ALL: count(vendor_trip_cat, year_start)")
+  dplyr::count(vendor_trip_cat, year_start) |>
+  kable(caption = "ALL: dplyr::count(vendor_trip_cat, year_start)")
 
 # all vendors
 # etrips	47731
@@ -394,7 +394,7 @@ positive_long_corrected_map +
 
 positive_long |>
     select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |>
+  dplyr::count(vendor_trip_cat) |>
   dplyr::distinct() |>
   kable(caption = "positive_long: vendor_trip_cat")
 
@@ -402,12 +402,12 @@ positive_long |>
 # etrips	89
 # vesl	15329
 
-# count(vendor_trip_cat, year_start)
+# dplyr::count(vendor_trip_cat, year_start)
 positive_long |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |>
+  dplyr::count(vendor_trip_cat, year_start) |>
   dplyr::distinct() |>
-  kable(caption = "positive_long: count(vendor_trip_cat, year_start)")
+  kable(caption = "positive_long: dplyr::count(vendor_trip_cat, year_start)")
 
 ### r positive longitude VESL only ----
 

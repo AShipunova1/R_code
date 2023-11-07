@@ -136,7 +136,7 @@ db_data_22_plus <-
 # db_data_22_plus %>%
 #   # dim()
 #   # [1] 48571    18
-#   count(val_param_name, arr_year_month) %>%
+#   dplyr::count(val_param_name, arr_year_month) %>%
 #   dplyr::arrange(arr_year_month) %>%
 #   tidyr::pivot_wider(names_from = arr_year_month, values_from = n) %>%
 #   as.data.frame() %>%
@@ -156,7 +156,7 @@ db_data_22_plus <-
 
 db_data_22_plus_overr <-
   db_data_22_plus %>%
-  count(arr_year_month, val_param_name, overridden)
+  dplyr::count(arr_year_month, val_param_name, overridden)
 
 names(db_data_22_plus_overr)
 

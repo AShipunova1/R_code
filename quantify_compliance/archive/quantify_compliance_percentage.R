@@ -478,7 +478,7 @@ head(gom_w_start_compl)
 
 ## ---- week ----
 gom_w_start_compl_weekly <-
-  count(gom_w_start_compl, week_start, compliant)
+  dplyr::count(gom_w_start_compl, week_start, compliant)
 
 head(gom_w_start_compl_weekly)
 # [1] 120   3
@@ -492,19 +492,19 @@ head(gom_w_start_compl_weekly)
 
 gom_w_start_compl_monthly <-
   gom_w_start_compl %>%
-  count(year_month, compliant)
+  dplyr::count(year_month, compliant)
 
 ## ---- quarter ----
 
 gom_w_start_compl_quarterly <-
   gom_w_start_compl %>%
-  count(year_quarter, compliant)
+  dplyr::count(year_quarter, compliant)
 
 ## ---- year ----
 
 gom_w_start_compl_yearly <-
   gom_w_start_compl %>%
-  count(year, compliant)
+  dplyr::count(year, compliant)
 
 ## ---- individual plots  ----
 ## ---- gom_week ----
@@ -549,7 +549,7 @@ gom_quarter + geom_bar(position = "dodge", stat = "identity") +
 gom_plot <- function(gom_w_start_compl, time_period) {
   # browser()
   counts_by_period <-
-    count(gom_w_start_compl, !!sym(time_period), compliant)
+    dplyr::count(gom_w_start_compl, !!sym(time_period), compliant)
   
   gom_p <-
     counts_by_period %>%
@@ -582,7 +582,7 @@ sa_only_w_start_compl <-
 
 sa_only_plot <- function(sa_only_w_start_compl, time_period) {
   counts_by_period <-
-    count(sa_only_w_start_compl, !!sym(time_period), compliant)
+    dplyr::count(sa_only_w_start_compl, !!sym(time_period), compliant)
   
   sa_only_p <-
     counts_by_period %>%
@@ -651,7 +651,7 @@ gom_w_start_compl <-
 
 gom_plot <- function(gom_w_start_compl, time_period) {
   counts_by_period <-
-    count(gom_w_start_compl, !!sym(time_period), compliant)
+    dplyr::count(gom_w_start_compl, !!sym(time_period), compliant)
   
   gom_p <-
     counts_by_period %>%
@@ -755,8 +755,8 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
   filter(week_start == "2022-12-26") %>%
   # select(vessel_official_number) %>% unique() %>%
   # Rows: 1,114
-  count(compliant_) %>%
-  # count(gom_w_start_compl, week_start, compliant)
+  dplyr::count(compliant_) %>%
+  # dplyr::count(gom_w_start_compl, week_start, compliant)
   dplyr::glimpse()
 # 1067 + 47 : 100
 # 1067      : b

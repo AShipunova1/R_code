@@ -2948,7 +2948,7 @@ sa_end_port_cnt_vessels <-
   dplyr::select(vessel_official_nbr, end_port_state) |>
   dplyr::distinct() |>
   filter(end_port_state %in% sa_state_abb$state_abb) |>
-  count(end_port_state)
+  dplyr::count(end_port_state)
 #   END_PORT_STATE   n
 # 1             FL 565
 # 2             GA  25
@@ -2972,7 +2972,7 @@ sa_end_port |>
 # The 'count' function calculates the number of occurrences of each unique
 # 'notif_landing_location_state' value in the resulting data frame, returning the
 # count of occurrences for each state.
-  count(notif_landing_location_state)
+  dplyr::count(notif_landing_location_state)
 # 1                           FL 688
 
 # This code snippet calculates the count of unique end_port_state values in the
@@ -2995,7 +2995,7 @@ sa_end_port_cnt_trips <- sa_end_port |>
 # Finally, the 'count' function calculates the number of occurrences of each
 # unique 'end_port_state' value in the resulting data frame, returning the count
 # of trips for each state.
-  count(end_port_state)
+  dplyr::count(end_port_state)
 
 #   END_PORT_STATE     n
 # FL 27332

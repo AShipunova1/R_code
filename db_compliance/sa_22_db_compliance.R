@@ -189,7 +189,7 @@ dim(v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22)
 # [1] 113909     23 (excl. SRHS)
 
 v_p__t__tne_d_weeks_sa_compl_cnt_w_short_compl22 |> 
-  count(ACTIVITY_TYPE)
+  dplyr::count(ACTIVITY_TYPE)
 # 1             0  64007
 # 2             2      7
 # 3             8     22

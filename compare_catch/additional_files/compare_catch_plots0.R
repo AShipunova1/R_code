@@ -597,7 +597,7 @@ sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 # View(sa_acl_top_to_plot)
 # sa_acl_top_to_plot %>% 
 #   dplyr::filter(species_itis == '173138') %>%
-# count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
+# dplyr::count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
 # # 41469 
 # dplyr::filter(sa_acl_top_spp, species_itis == '173138')
 # # 41469 

@@ -160,7 +160,7 @@ glimpse(in_a_and_not_in_compl_counts)
 # in_a_and_not_in_compl_counts %>%
 #   select(vessel_official_number, permitgroup, week_end) %>%
 #   unique() %>%
-#   count(week_end) %>% 
+#   dplyr::count(week_end) %>% 
 #   View()
 
 # Difference between FHIER Compliance report and compliance counts
