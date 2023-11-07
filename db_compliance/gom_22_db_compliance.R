@@ -604,7 +604,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_w__no_fish |>
     not_fish_compl,
     INTENDED_FISHING_FLAG
   ) |>
-  add_count(not_fish_compl,
+  dplyr::add_count(not_fish_compl,
         INTENDED_FISHING_FLAG) |>
   dplyr::glimpse()
 # $ matched_reports       <chr> "matched", "not_matched", "not_matched"
@@ -911,7 +911,7 @@ v_p__t__tn_d_weeks_gom_short_compl_w_no_rprts_matched_y_strict_int_tn_dup <-
            # not_fish_compl
            TRIP_ID.tn,
            rep_type.tn) |>
-  add_count(trip_start_date_time_tn, name = "cnt_decl") |>
+  dplyr::add_count(trip_start_date_time_tn, name = "cnt_decl") |>
   dplyr::ungroup() |>
   dplyr::filter(!is.na(around_hour_tn_int)) |>
   dplyr::arrange(desc(cnt_decl))

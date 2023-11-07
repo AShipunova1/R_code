@@ -624,8 +624,8 @@ compl_clean %>%
 
 compl_clean_sa_vs_gom_m_int_cnt_w1 <-
   compl_clean_sa_vs_gom_m_int %>%
-  add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
-  add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
+  dplyr::add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  dplyr::add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
 
 compl_clean_sa_vs_gom_m_int_cnt_w1 %>%
   filter(vessel_official_number == "1020822",
@@ -820,8 +820,8 @@ compl_clean %>%
 ## 1a) how many weeks each vessel was present ----
 count_weeks_per_vsl_permit_year_compl <-
   compl_clean_sa_vs_gom_m_int %>%
-  add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
-  add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
+  dplyr::add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  dplyr::add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
 
 # View(count_weeks_per_vsl_permit_year_compl)
 
@@ -927,7 +927,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
 # 3) count how many in each bucket ----
 count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b <-  
   count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
-    add_count(year_reg, 
+    dplyr::add_count(year_reg, 
               percentage_rank,
               name = "cnt_in_bucket")
 
@@ -941,7 +941,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
    filter(year_reg == "2022 both") %>%
       select(year_reg, percentage_rank, cnt_in_bucket) %>%
       unique() %>% 
-  add_count(wt = cnt_in_bucket, name = "total_per_y_r") %>% 
+  dplyr::add_count(wt = cnt_in_bucket, name = "total_per_y_r") %>% 
     View()  
 # "2022 both"
 # 12+17+85+3
@@ -955,7 +955,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot <-
          cnt_in_bucket) %>%
   unique() %>%
   # total cnt per year, region
-  add_count(year_reg, wt = cnt_in_bucket, name = "total_per_y_r")
+  dplyr::add_count(year_reg, wt = cnt_in_bucket, name = "total_per_y_r")
 # %>%
 #   filter(year_reg == "2022 both")
   
@@ -964,7 +964,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot <-
 # 4) cnt percents of (3) ----
 count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_perc <-
   count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
-  add_count(year, permit_sa_gom, name = "vsls_per_y_r") %>%
+  dplyr::add_count(year, permit_sa_gom, name = "vsls_per_y_r") %>%
   dplyr::mutate(perc_vsls_per_y_r_b = cnt_in_bucket * 100 / vsls_per_y_r) %>%
   dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
 
@@ -1123,7 +1123,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
 
 count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b %>%
   filter(year == "2023", permit_sa_gom == "gom_only") %>%
-  add_count(year, permit_sa_gom, name = "vsls_per_y_r") %>%
+  dplyr::add_count(year, permit_sa_gom, name = "vsls_per_y_r") %>%
   dplyr::mutate(perc1 = cnt_in_bucket * 100 / vsls_per_y_r) %>%
   select(perc1, percentage_rank) %>%
   unique() %>%
@@ -1177,12 +1177,12 @@ compl_clean_sa_vs_gom_m_int_cnt_1 <-
          permit_sa_gom,
          vessel_official_number,
          compliant_) %>%
-  add_count(year,
+  dplyr::add_count(year,
             permit_sa_gom,
             vessel_official_number,
             compliant_,
             name = "weeks_per_vessel_per_compl_per_y") %>%
-  add_count(year,
+  dplyr::add_count(year,
             permit_sa_gom,
             vessel_official_number,
             name = "total_weeks_per_vessel_per_y")
@@ -1206,7 +1206,7 @@ compl_clean_sa_vs_gom_m_int_cnt_1 %>%
 # $ weeks_per_vessel_per_compl <int> 33, 19
   
 
-  # add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  # dplyr::add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
   # filter(compliant_ == "NO",
   #        year == "2022",
   #        permit_sa_gom == "gom_only") %>%
@@ -1214,7 +1214,7 @@ compl_clean_sa_vs_gom_m_int_cnt_1 %>%
 
 # count_weeks_per_vsl_permit_year_compl <-
 #   compl_clean_sa_vs_gom_m_int %>%
-#   add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+#   dplyr::add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
 
 compl_clean_sa_vs_gom_m_int_cnt_1 %>% 
   select(vessel_official_number) %>% 

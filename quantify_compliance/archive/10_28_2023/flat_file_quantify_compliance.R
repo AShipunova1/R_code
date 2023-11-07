@@ -2649,13 +2649,13 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             compliant_,
             name = "weeks_per_vessel_per_compl_m") %>%
   ungroup %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")

@@ -164,7 +164,7 @@ trip_coord_info_trip_vendors_cnt <-
   trip_coord_info_vendors |>
   select(vendor_trip) |>
   dplyr::mutate(vendor_trip = trimws(tolower(vendor_trip))) |>
-  add_count(vendor_trip) |>
+  dplyr::add_count(vendor_trip) |>
   dplyr::distinct()
 
 # dim(trip_coord_info_trip_vendors_cnt)
@@ -184,7 +184,7 @@ trip_coord_info_effort_vendors_cnt <-
   trip_coord_info_vendors |>
   select(vendor_effort) |>
   dplyr::mutate(vendor_effort = trimws(tolower(vendor_effort))) |>
-  add_count(vendor_effort) |>
+  dplyr::add_count(vendor_effort) |>
   dplyr::distinct()
 
 trip_coord_info_effort_vendors_cnt |>

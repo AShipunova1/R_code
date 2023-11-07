@@ -163,7 +163,7 @@ compl_only %>%
 
 compl_only_cnts <-
   compl_only %>% 
-  add_count(year_region, compliant_, name = "compl_vsls") %>% 
+  dplyr::add_count(year_region, compliant_, name = "compl_vsls") %>% 
   select(-c(vessel_official_number, compliant_)) %>% 
   unique()
 
@@ -174,7 +174,7 @@ tail(compl_only_cnts)
 
 non_compl_only_cnts <-
   non_compl_vessel_ids_per_y_r %>%
-  add_count(year_region, name = "non_compl_vsls") %>%
+  dplyr::add_count(year_region, name = "non_compl_vsls") %>%
   select(-vessel_official_number) %>%
   unique()
 
@@ -333,8 +333,8 @@ grid.arrange(grobs = gg_all_c_vs_nc_plots,
 ## 1a) how many weeks each vessel was present ----
 count_weeks_per_vsl_permit_year_compl <-
   compl_clean_sa_vs_gom_m_int_c %>%
-  add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
-  add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
+  dplyr::add_count(year, permit_sa_gom, vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl") %>%
+  dplyr::add_count(year, permit_sa_gom, vessel_official_number, name = "total_weeks_per_vessel")
 
 # View(count_weeks_per_vsl_permit_year_compl)
 ```
@@ -482,7 +482,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
 
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b <-  
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
-    add_count(year_region, 
+    dplyr::add_count(year_region, 
               percent_n_compl_rank,
               name = "cnt_v_in_bucket")
 
@@ -491,7 +491,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
    filter(year_region == "2022 both") %>%
       select(year_region, percent_n_compl_rank, cnt_v_in_bucket) %>%
       unique() %>% 
-  add_count(wt = cnt_v_in_bucket, name = "total_per_y_r") %>% 
+  dplyr::add_count(wt = cnt_v_in_bucket, name = "total_per_y_r") %>% 
     str()  
  # $ percent_n_compl_rank: chr [1:4] "75-100%" "25-49%" "0-24%" "50-74%"
  # $ cnt_v_in_bucket     : int [1:4] 12 17 85 3
@@ -506,7 +506,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
 
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
-  add_count(year_region, name = "vsls_per_y_r") %>%
+  dplyr::add_count(year_region, name = "vsls_per_y_r") %>%
   dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
   dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
 
@@ -583,7 +583,7 @@ grid.arrange(grobs =
 View(compl_clean_sa_vs_gom_m_int_c)
 
 compl_clean_sa_vs_gom_m_int_c %>%
-  add_count(year_region,
+  dplyr::add_count(year_region,
             year_month,
             vessel_official_number,
             compliant_,
@@ -599,12 +599,12 @@ compl_clean_sa_vs_gom_m_int_c %>%
 
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c %>%
-  add_count(year_region,
+  dplyr::add_count(year_region,
             year_month,
             vessel_official_number,
             compliant_,
             name = "weeks_per_vessel_per_compl_m") %>%
-  add_count(year_region,
+  dplyr::add_count(year_region,
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")
@@ -626,7 +626,7 @@ count_weeks_per_vsl_permit_year_compl_month %>%
 
 count_weeks_per_vsl_permit_year_compl_m <-
   compl_clean_sa_vs_gom_m_int_c %>%
-  add_count(year_region, year_month,
+  dplyr::add_count(year_region, year_month,
             vessel_official_number, compliant_, name = "weeks_per_vessel_per_compl_m")
 
 # test
@@ -646,7 +646,7 @@ count_weeks_per_vsl_permit_year_compl_m <-
   
 count_weeks_per_vsl_permit_year_compl_m_tot <-
   count_weeks_per_vsl_permit_year_compl_m %>%
-  add_count(year_region,
+  dplyr::add_count(year_region,
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_m")
@@ -719,10 +719,10 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>%
   filter(percent_n_compl_rank == '75-100%') %>%
   filter(year_region == "2023 gom_only" &
            vessel_official_number == "1247024") %>%
-  add_count(percent_compl_m, year_region,
+  dplyr::add_count(percent_compl_m, year_region,
         name = "amount_of_occurences") %>%
   dplyr::arrange(desc(percent_compl_m)) %>% 
-  add_count(wt = amount_of_occurences) %>% 
+  dplyr::add_count(wt = amount_of_occurences) %>% 
   View()
 # 3
 
@@ -730,7 +730,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>%
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b <-  
   nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>%
-    add_count(year_region, 
+    dplyr::add_count(year_region, 
               year_month,
               percent_n_compl_rank,
               name = "cnt_v_in_bucket")
@@ -742,7 +742,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot <-
          percent_n_compl_rank,
          cnt_v_in_bucket) %>%
   unique() %>%
-  add_count(year_month, year_region, wt = cnt_v_in_bucket,
+  dplyr::add_count(year_month, year_region, wt = cnt_v_in_bucket,
             name = "tot_v_per_m_y_r")
 
 ### tests 3, by month ----
@@ -783,7 +783,7 @@ View(nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot)
 
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p <-
   nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%
-  # add_count(year_region, 
+  # dplyr::add_count(year_region, 
   #           year_month,
   #           name = "vsls_per_y_r_m") %>% View()
   dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / tot_v_per_m_y_r) %>%

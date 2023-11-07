@@ -129,9 +129,9 @@ glimpse(id_n_plus_weeks)
 compl_clean_sa_all_weeks_cnt <- 
   compl_clean_sa %>% 
   dplyr::select(vessel_official_number, week, compliant_) %>% 
-  add_count(vessel_official_number,
+  dplyr::add_count(vessel_official_number,
             name = "total_weeks") %>%
-  add_count(vessel_official_number, compliant_,
+  dplyr::add_count(vessel_official_number, compliant_,
             name = "compl_weeks_amnt")
 
 compl_clean_sa_all_weeks_cnt %>%

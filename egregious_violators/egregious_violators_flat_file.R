@@ -255,7 +255,7 @@ add_count_contacts <- function(all_data_df_clean) {
     # TODO: as.factor
     dplyr::mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
     # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
-    add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
+    dplyr::add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
     return()
 }
 

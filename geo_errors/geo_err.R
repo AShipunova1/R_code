@@ -138,7 +138,7 @@ trip_coord_info_trip_vendors_cnt <-
   trip_coord_info_vendors |>
   dplyr::select(vendor_trip) |>
   dplyr::mutate(vendor_trip = trimws(tolower(vendor_trip))) |>
-  add_count(vendor_trip) |>
+  dplyr::add_count(vendor_trip) |>
   dplyr::distinct()
 
 # dim(trip_coord_info_trip_vendors_cnt)
@@ -158,7 +158,7 @@ trip_coord_info_effort_vendors_cnt <-
   trip_coord_info_vendors |>
   dplyr::select(vendor_effort) |>
   dplyr::mutate(vendor_effort = trimws(tolower(vendor_effort))) |>
-  add_count(vendor_effort) |>
+  dplyr::add_count(vendor_effort) |>
   dplyr::distinct()
 
 trip_coord_info_effort_vendors_cnt |>
@@ -676,7 +676,7 @@ dim(positive_long_vesl_ll)
 positive_long_vesl_cnts <-
   positive_long_vesl |>
   dplyr::select(LATITUDE, LONGITUDE, VESSEL_ID) |>
-  add_count(VESSEL_ID, name = "vesl_bad_vsl_cnt") |>
+  dplyr::add_count(VESSEL_ID, name = "vesl_bad_vsl_cnt") |>
   dplyr::distinct() |>
   dplyr::arrange(desc(vesl_bad_vsl_cnt))
 
@@ -684,7 +684,7 @@ all_vesl_cnts <-
   trip_coord_info |>
   dplyr::select(LATITUDE, LONGITUDE, VESSEL_ID) |>
   filter(VESSEL_ID %in% positive_long_vesl_cnts$VESSEL_ID) |>
-  add_count(VESSEL_ID, name = "all_bad_vsl_cnt") |>
+  dplyr::add_count(VESSEL_ID, name = "all_bad_vsl_cnt") |>
   dplyr::distinct() |>
   dplyr::arrange(desc(all_bad_vsl_cnt))
 

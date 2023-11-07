@@ -1775,7 +1775,7 @@ sa_compl_cnts <-
   dplyr::select(PERMIT_VESSEL_ID,
          compl_2022) |>
   dplyr::distinct() |>
-  add_count(compl_2022, name = "total_compl_y")
+  dplyr::add_count(compl_2022, name = "total_compl_y")
 # 1 no          2695
 # 2 yes         1262
 
@@ -2001,7 +2001,7 @@ gom_compl_cnts <-
   v_p__t__tn_d_weeks_gom_short_compl_short_compl_y |>
   dplyr::select(PERMIT_VESSEL_ID, is_compliant_y) |>
   dplyr::distinct() |>
-  add_count(is_compliant_y, name = "total_compl_y_GOM")
+  dplyr::add_count(is_compliant_y, name = "total_compl_y_GOM")
 
 # print_df_names(gom_compl_cnts)
 

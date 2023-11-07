@@ -259,7 +259,7 @@ add_count_contacts <- function(all_data_df_clean) {
     # TODO: as.factor
     dplyr::mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
     # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
-    add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
+    dplyr::add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
     return()
 }
 
@@ -1839,13 +1839,13 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             compliant_,
             name = "weeks_per_vessel_per_compl_m") %>%
   ungroup %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")

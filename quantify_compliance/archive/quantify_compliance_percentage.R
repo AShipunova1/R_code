@@ -765,7 +765,7 @@ gom_compl_clean_sa_vs_gom_plus_dual_short %>%
 # [1] 95.78097
 
 # gom_compl_clean_sa_vs_gom_plus_dual_short %>%
-#   add_count(vessel_official_number, name = 'count') %>%
+#   dplyr::add_count(vessel_official_number, name = 'count') %>%
 #   dplyr::group_by(vessel_official_number) %>%
 #   dplyr::mutate(percent_yes = 100 * mean(compliant_),
 #          percent_no = 100 - percent_yes) %>%  head()

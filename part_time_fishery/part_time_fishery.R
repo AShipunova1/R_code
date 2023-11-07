@@ -41,7 +41,7 @@ compl_clean_sa_vs_gom_m_int_filtered_2022_gom |>
 
 compl_clean_sa_vs_gom_m_int_filtered_2022_gom |> 
   dplyr::group_by(vessel_official_number) |> 
-  add_count(wt = gom_permitteddeclarations__) |> 
+  dplyr::add_count(wt = gom_permitteddeclarations__) |> 
   filter(n == 0) |> 
   select(vessel_official_number) |> 
   dplyr::distinct() |> 

@@ -969,7 +969,7 @@ data_overview(vessels__trip_neg_22_l_sa_short)
 # vessels__trip_neg_22_l_sa_short %>%
 #   dplyr::select(permit_vessel_id, SUPPLIER_VESSEL_ID, TRIP_week_num) %>%
 #   dplyr::distinct() %>%
-#   add_count(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
+#   dplyr::add_count(permit_vessel_id, SUPPLIER_VESSEL_ID) %>%
 #   View()
 
 vessels__trip_neg_22_l_sa_short %>%

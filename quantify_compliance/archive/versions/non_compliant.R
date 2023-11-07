@@ -319,7 +319,7 @@ num_of_weeks_per_vessel <-
 num_of_weeks_per_vessel2 <-
   sa_non_compl %>%
   select(vessel_official_number, week_start) %>%
-  add_count(vessel_official_number, name = "num_of_weeks")
+  dplyr::add_count(vessel_official_number, name = "num_of_weeks")
 # %>%
 # filter(vessel_official_number == "1024180")
 # %>%

@@ -663,7 +663,7 @@ data_from_db_more_fields %>%
 
 data_from_db_more_fields_end_p_s_by_trip_p <-
   data_from_db_more_fields_end_p_s_by_trip %>%
-  add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
+  dplyr::add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
   dplyr::select(END_PORT_STATE, trip_by_state_num) %>% 
   unique() %>% 
   dplyr::mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))
@@ -818,7 +818,7 @@ data_from_db_more_fields_gom1_p <-
   data_from_db_more_fields_gom1 %>%
   dplyr::select(TRIP_ID, END_PORT_STATE) %>%
   unique() %>% 
-  add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
+  dplyr::add_count(END_PORT_STATE, name = "trip_by_state_num") %>%
   dplyr::select(END_PORT_STATE, trip_by_state_num) %>% 
   unique() %>% 
   dplyr::mutate(perc_st = trip_by_state_num * 100 / sum(trip_by_state_num))

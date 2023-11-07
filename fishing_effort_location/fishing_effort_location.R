@@ -773,7 +773,7 @@ dim(short_example_3)
 short_example_3_cnts <-
   short_example_3 |>
     dplyr::group_by(ten_min_lat, ten_min_lon) |>
-    add_count(name = "ten_min_cnts")
+    dplyr::add_count(name = "ten_min_cnts")
 
 short_example_3 |>
   dplyr::count(ten_min_lat, ten_min_lon) |>

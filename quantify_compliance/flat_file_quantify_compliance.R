@@ -2796,7 +2796,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
   dplyr::mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
-  add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
+  dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
@@ -2808,7 +2808,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
                                " v)")
            )) |>
   dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
       case_when(
@@ -2873,7 +2873,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   select(-vessel_official_number) |> 
   dplyr::distinct() |> 
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
-  add_count(vessel_cnt_group, 
+  dplyr::add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
@@ -2886,7 +2886,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
                str_glue("{vessel_cnt_group}: 451--500 vessels ({vessel_cnt_group_num} v)"),
            )) |>
   dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
       case_when(
@@ -3339,13 +3339,13 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             compliant_,
             name = "weeks_per_vessel_per_compl_m") %>%
   ungroup %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")
@@ -7529,7 +7529,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
   dplyr::mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
-  add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
+  dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
@@ -7541,7 +7541,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
                                " v)")
            )) |>
   dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
       case_when(
@@ -7606,7 +7606,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   select(-vessel_official_number) |> 
   dplyr::distinct() |> 
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
-  add_count(vessel_cnt_group, 
+  dplyr::add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
@@ -7619,7 +7619,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
                str_glue("{vessel_cnt_group}: 451--500 vessels ({vessel_cnt_group_num} v)"),
            )) |>
   dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
       case_when(
@@ -8072,13 +8072,13 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             compliant_,
             name = "weeks_per_vessel_per_compl_m") %>%
   ungroup %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")
@@ -12264,7 +12264,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
   dplyr::mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
-  add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
+  dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   dplyr::mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
@@ -12276,7 +12276,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
                                " v)")
            )) |>
   dplyr::mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   dplyr::mutate(
     percent_group_name =
       case_when(
@@ -12341,7 +12341,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   select(-vessel_official_number) |> 
   dplyr::distinct() |> 
   dplyr::mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
-  add_count(vessel_cnt_group, 
+  dplyr::add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
@@ -12354,7 +12354,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
                str_glue("{vessel_cnt_group}: 451--500 vessels ({vessel_cnt_group_num} v)"),
            )) |>
   mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
       case_when(
@@ -12807,13 +12807,13 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             compliant_,
             name = "weeks_per_vessel_per_compl_m") %>%
   ungroup %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")
@@ -16999,7 +16999,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 |>
   mutate(vessels_cnt_tot = sum(vessels_cnt)) |> 
   mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6))) |>
-  add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
+  dplyr::add_count(vessel_cnt_group, wt = vessels_cnt, name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
            case_when(
              vessel_cnt_group == 1 ~
@@ -17011,7 +17011,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr <-
                                " v)")
            )) |>
   mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 75))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
       case_when(
@@ -17076,7 +17076,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
   select(-vessel_official_number) |> 
   dplyr::distinct() |> 
   mutate(vessel_cnt_group = base::findInterval(vessels_cnt, c(0, 6, 450))) |> 
-  add_count(vessel_cnt_group, 
+  dplyr::add_count(vessel_cnt_group, 
             wt = vessels_cnt, 
             name = "vessel_cnt_group_num") |>
   mutate(vessel_cnt_group_name =
@@ -17089,7 +17089,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_gr <-
                str_glue("{vessel_cnt_group}: 451--500 vessels ({vessel_cnt_group_num} v)"),
            )) |>
   mutate(percent_group = base::findInterval(percent_compl, c(0, 50, 99))) |>
-  add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
+  dplyr::add_count(percent_group, wt = vessels_cnt, name = "percent_group_num") |>
   mutate(
     percent_group_name =
       case_when(
@@ -17542,13 +17542,13 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             compliant_,
             name = "weeks_per_vessel_per_compl_m") %>%
   ungroup %>%
-  add_count(year_permit,
+  dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
             name = "total_weeks_per_vessel_per_compl_m")

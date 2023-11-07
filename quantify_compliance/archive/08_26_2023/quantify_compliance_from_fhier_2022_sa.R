@@ -339,7 +339,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide_long_compl_cnt <-
   dplyr::group_by(month_num) %>%
   unique() %>%
   select(-vessel_official_number) %>%
-  add_count(month_name, exp_1_m, is_compl_or_both,
+  dplyr::add_count(month_name, exp_1_m, is_compl_or_both,
             name = "compl_or_not_cnt") %>% 
   unique() %>% 
   dplyr::ungroup()
