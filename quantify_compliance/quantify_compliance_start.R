@@ -128,35 +128,34 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 6 YES        2023 sa_dual   2111
 
 # year ----
-source(file.path(
+quantify_compliance_from_fhier_year_path <- file.path(
   my_paths$git_r,
   project_name,
   "quantify_compliance_from_fhier_year.R"
-))
+)
+source(quantify_compliance_from_fhier_year_path)
 
 # year (100 % not reporting) ----
-source(file.path(
-  my_paths$git_r,
-  project_name,
-  "quantify_compliance_from_fhier_year_100_nc.R"
-))
+quantify_compliance_from_fhier_year_100_nc_path <-
+  file.path(my_paths$git_r,
+            project_name,
+            "quantify_compliance_from_fhier_year_100_nc.R")
+source(quantify_compliance_from_fhier_year_100_nc_path)
 
 # month ----
-source(
-  file.path(
-    my_paths$git_r,
-    project_name,
-    "quantify_compliance_from_fhier_month.R"
-  )
-)
+quantify_compliance_from_fhier_month_path <-
+  file.path(my_paths$git_r,
+            project_name,
+            "quantify_compliance_from_fhier_month.R")
+
+source(quantify_compliance_from_fhier_month_path)
 
 # vms ----
-source(file.path(
-  my_paths$git_r,
-  project_name,
-  "quantify_compliance_from_fhier_vms.R"
-))
-
+quantify_compliance_from_fhier_vms_path <-
+  file.path(my_paths$git_r,
+            project_name,
+            "quantify_compliance_from_fhier_vms.R")
+source(quantify_compliance_from_fhier_vms_path)
 
 # Create a read.me file with numbers of total, active and expired ----
 ## by year ----
