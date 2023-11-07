@@ -138,6 +138,8 @@ make_year_permit_label <- function(curr_year_permit) {
 }
 
 # Define a function called 'make_one_plot_compl_vs_non_compl' that takes several arguments.
+# This function generates a bar plot using ggplot2, where the bars represent compliance percentages. It has several optional parameters, allowing you to customize the appearance of the plot, including the title, color scheme, axis labels, and whether to display a legend. The function also offers the option to display percent labels on the bars.
+
 # This function is designed to create a plot comparing compliant vs. non-compliant data. It takes various arguments for customization:
 # 
 # 'my_df': The data frame containing the data.
@@ -160,66 +162,84 @@ make_one_plot_compl_vs_non_compl <-
            percent_label_pos = 0.5,
            default_percent_labels = TRUE,
            geom_text_size = text_sizes[["geom_text_size"]]
-           ) {
-    # browser()
+  ) {
+    
     one_plot <-
       my_df %>%
-      ggplot(aes(x = !!sym(is_compliant),
-                 y = !!sym(percent),
-                 fill = !!sym(is_compliant))) +
+      # ggplot(): Initializes a new ggplot object.
+      # aes(): Specifies the aesthetics (aesthetics mapping) for the plot.
+      # x = !!sym(is_compliant): Maps the x - axis to a variable specified by the value of is_compliant. The !!sym() syntax is used to unquote is_compliant, allowing it to be evaluated within the context of the ggplot.
+      # fill = !!sym(is_compliant): Maps the fill (color) aesthetic to the same variable as the x-axis, based on the compliance status. 
+      # Again, !!sym() is used to unquote is_compliant.
+
+      ggplot(aes(
+        x = !!sym(is_compliant),
+        y = !!sym(percent),
+        fill = !!sym(is_compliant)
+      )) +
+      # Add a column/bar plot
       geom_col() +
-      theme(axis.text.x = 
-              element_text(size = text_sizes[["axis_text_x_size"]]),
-            axis.text.y = 
-              element_text(size = text_sizes[["axis_text_y_size"]])) +
+      theme(
+        axis.text.x =
+          element_text(size = text_sizes[["axis_text_x_size"]]),
+        axis.text.y =
+          element_text(size = text_sizes[["axis_text_y_size"]])
+      ) +
       # # Add percent numbers on the bars
       #     one_plot <-
       # one_plot + annotate("text", x = 4, y = 25, label = "Some text")
-      # 
+      #
       # geom_text(aes(label =
       #                 paste0(round(!!sym(percent), 1), "%")),
       #           # in the middle of the bar
-      #           position = 
+      #           position =
       #             position_stack(vjust = percent_label_pos)
       #           ) +
       # no x and y titles for individual plots
-      labs(title = current_title,
-           x = "",
-           y = "") +
+    
+    # Set the plot title and remove x and y axis labels
+    labs(title = current_title,
+         x = "",
+         y = "") +
+      
+      # Define manual color fill scale
       scale_fill_manual(
         # use custom colors
         values =
-          c(
-            "compliant" = plot_colors[["compliant"]],
-            "non_compliant" = plot_colors[["non_compliant"]]
-          ),
+          c("compliant" = plot_colors[["compliant"]],
+            "non_compliant" = plot_colors[["non_compliant"]]),
         # Legend title
         name = "Is compliant?",
+        # Legend labels
         labels = c("Yes", "No")
       ) +
-      # manual x axes ticks labels
+      
+      # Define manual x-axis tick labels
       scale_x_discrete(labels = c("Yes", "No")) +
       # scale_y_continuous(limits = c(0, 100), labels = scales::percent)
-      # Y axes between 0 and 100
+      # Set the y-axis limits between 0 and 100
       ylim(0, 100)
     # +
     # scale_y_continuous(labels = scales::label_percent(scale = 1))
-
+    
+    # Create a 'label_percent' vector by applying the rounding and '%' symbol to 'perc_c_nc' column
     label_percent <- map(my_df$perc_c_nc,
-                          ~ paste0(round(.x, 1), "%"))
-                   
-    # Add percent numbers on the bars
+                         ~ paste0(round(.x, 1), "%"))
+    
+    # Conditionally add percent numbers to the bars based on 'default_percent_labels'
     if (default_percent_labels) {
       one_plot <-
         one_plot +
-        geom_text(aes(label =
-                        paste0(round(!!sym(
-                          percent
-                        ), 1), "%")),
-                  # in the middle of the bar
-                  position =
-                    position_stack(vjust = percent_label_pos),
-                  size = geom_text_size)
+        geom_text(
+          aes(label =
+                paste0(round(!!sym(
+                  percent
+                ), 1), "%")),
+          # in the middle of the bar
+          position =
+            position_stack(vjust = percent_label_pos),
+          size = geom_text_size
+        )
       
     } else {
       one_plot <-
@@ -230,13 +250,14 @@ make_one_plot_compl_vs_non_compl <-
     }
     
     
-    
+    # Conditionally remove the legend from the plot based on 'no_legend'
     # to use with grid arrange multiple plots
     if (no_legend) {
       one_plot <- one_plot +
         theme(legend.position = "none")
     }
     
+    # Return the 'one_plot' as the result of the function
     return(one_plot)
   }
 
