@@ -339,7 +339,7 @@ num_of_weeks_per_vessel2 %>%
 sa_non_comp_week_num <-
   left_join(sa_non_compl,
             num_of_weeks_per_vessel) %>%
-  arrange(vessel_official_number)
+  dplyr::arrange(vessel_official_number)
 # %>%
 # data_overview()
 # glimpse()

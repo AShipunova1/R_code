@@ -25,7 +25,7 @@ spp_cnts_in_fhier_not_in_acl <-
   dplyr::filter(rec_acl_cnts == 0) %>%
   dplyr::select(-c(rec_acl_cnts)) %>%
   dplyr::filter(!(fhier_cnts == 0)) %>%
-    arrange(desc(fhier_cnts)) %>%
+    dplyr::arrange(desc(fhier_cnts)) %>%
   dplyr::ungroup()
 # %>%
 # head(20)
@@ -66,7 +66,7 @@ fhier_catch_spp <-
   dplyr::group_by(scientific_name) %>%
   summarise(fhier_cnts = sum(fhier_quantity_by_4)) %>%
   dplyr::ungroup() %>%
-  arrange(desc(fhier_cnts)) %>%
+  dplyr::arrange(desc(fhier_cnts)) %>%
   unique()
 
 head(fhier_catch_spp, 5)
@@ -81,7 +81,7 @@ rec_acl_estimate_2022_spp <-
   dplyr::group_by(new_sci) %>%
   summarise(rec_acl_cnts = sum(ab1)) %>%
   dplyr::ungroup() %>%
-  arrange(desc(rec_acl_cnts))
+  dplyr::arrange(desc(rec_acl_cnts))
 
 head(rec_acl_estimate_2022_spp, 5)
 
@@ -104,7 +104,7 @@ glimpse(spp_join)
 ## spp by fhier count if not in rec acl ----
 not_in_rec_acl <-
   spp_join %>%
-  arrange(desc(fhier_cnts)) %>%
+  dplyr::arrange(desc(fhier_cnts)) %>%
   dplyr::filter(is.na(scientific_name))
 
 str(not_in_rec_acl)
@@ -298,7 +298,7 @@ grep("permit", names(fhier_logbooks_content), value = T) %>% paste0(collapse = "
 #   dplyr::filter(catch_species_itis == "169059") %>%
 #   dplyr::select(trip_id, supplier_trip_id, trip_start_date_time, trip_de, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, dea_permit_id) %>%
 #   unique() %>% 
-#   arrange(trip_de, trip_start_date_time) %>%
+#   dplyr::arrange(trip_de, trip_start_date_time) %>%
 #   write_csv("169059_itis_date_permit.csv")
 
 

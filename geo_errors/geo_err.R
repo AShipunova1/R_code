@@ -145,7 +145,7 @@ trip_coord_info_trip_vendors_cnt <-
 # 678
 
 trip_coord_info_trip_vendors_cnt |>
-  arrange(desc(n)) |>
+  dplyr::arrange(desc(n)) |>
   head() |>
   kable(caption = "trip_coord_info_trip_vendors_cnt")
 
@@ -162,7 +162,7 @@ trip_coord_info_effort_vendors_cnt <-
   dplyr::distinct()
 
 trip_coord_info_effort_vendors_cnt |>
-  arrange(desc(n)) |>
+  dplyr::arrange(desc(n)) |>
   head() |>
   kable(caption = "trip_coord_info_effort_vendors_cnt")
 # safis	119734
@@ -638,7 +638,7 @@ trip_coord_info_vendors3 |>
         FISHING_HOURS > (7 * 24) ~ "FISHING_HOURS > 1 week"
       )
   ) |>
-  arrange(FISHING_HOURS) |>
+  dplyr::arrange(FISHING_HOURS) |>
   dplyr::select(-TRIP_ID) |>
   count(fishing_hours_cat, year_start, vendor_trip_cat) |>
   kable(caption = "fishing_hours_cat, year_start, vendor_trip_cat")
@@ -657,7 +657,7 @@ trip_coord_info_vendors3 |>
   dplyr::select(TRIP_ID, TRIP_END_DATE, year_start, vendor_trip_cat) |>
   dplyr::distinct() |>
   filter(year(TRIP_END_DATE) < 2021) |>
-  arrange(TRIP_END_DATE) |>
+  dplyr::arrange(TRIP_END_DATE) |>
   dplyr::select(-TRIP_ID) |>
   kable(caption = "Weird TRIP_END_DATE")
 
@@ -678,7 +678,7 @@ positive_long_vesl_cnts <-
   dplyr::select(LATITUDE, LONGITUDE, VESSEL_ID) |>
   add_count(VESSEL_ID, name = "vesl_bad_vsl_cnt") |>
   dplyr::distinct() |>
-  arrange(desc(vesl_bad_vsl_cnt))
+  dplyr::arrange(desc(vesl_bad_vsl_cnt))
 
 all_vesl_cnts <-
   trip_coord_info |>
@@ -686,7 +686,7 @@ all_vesl_cnts <-
   filter(VESSEL_ID %in% positive_long_vesl_cnts$VESSEL_ID) |>
   add_count(VESSEL_ID, name = "all_bad_vsl_cnt") |>
   dplyr::distinct() |>
-  arrange(desc(all_bad_vsl_cnt))
+  dplyr::arrange(desc(all_bad_vsl_cnt))
 
 positive_long_vesl_cnts_short <-
   positive_long_vesl_cnts |>

@@ -204,7 +204,7 @@ nc_2022_sa_only_test <-
                 weeks_per_vessel_per_compl,
                 total_weeks_per_vessel) %>%
   unique() |>
-  arrange(desc(total_weeks_per_vessel))
+  dplyr::arrange(desc(total_weeks_per_vessel))
 
 glimpse(nc_2022_sa_only_test)
 # 0

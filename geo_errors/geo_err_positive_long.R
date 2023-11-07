@@ -346,19 +346,19 @@ length(bad_only)
 # bad only vsl and counts ----
 trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
-  arrange(desc(pos_lon_per_vsl)) |>
+  dplyr::arrange(desc(pos_lon_per_vsl)) |>
   glimpse()
 # 'data.frame':	907 obs. of  4 variables:
 
 pos_lon_bad <-
 trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
-  arrange(desc(pos_lon_trips_by_vsl))
+  dplyr::arrange(desc(pos_lon_trips_by_vsl))
 
 tot_bad <-
 trip_coord_info_short_cnt_total_trips_per_vsl |>
     filter(VESSEL_ID %in% bad_only) |>
-  arrange(desc(total_trips_by_vsl))
+  dplyr::arrange(desc(total_trips_by_vsl))
 dim(tot_bad)
 # [1] 47  2
 
@@ -383,7 +383,7 @@ lattice::histogram(~ cnt_diff, data = bad_cnt_join,
 both_tot <-
   trip_coord_info_short_cnt_total_trips_per_vsl |>
   filter(VESSEL_ID %in% both) |>
-  arrange(desc(total_trips_by_vsl))
+  dplyr::arrange(desc(total_trips_by_vsl))
 
 dim(both_tot)
 # [1] 129   2

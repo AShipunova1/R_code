@@ -60,7 +60,7 @@ by_year_month_wide <- function(my_df, fields_to_select_list) {
     # NAs to 0
     mutate(pending = coalesce(pending, 0),
            overridden = coalesce(overridden, 0)) %>%
-    arrange(arr_year_month) %>%
+    dplyr::arrange(arr_year_month) %>%
     # tail()
     mutate(total = overridden + pending) %>%
     return()
@@ -137,7 +137,7 @@ db_data_22_plus <-
 #   # dim()
 #   # [1] 48571    18
 #   count(val_param_name, arr_year_month) %>%
-#   arrange(arr_year_month) %>%
+#   dplyr::arrange(arr_year_month) %>%
 #   pivot_wider(names_from = arr_year_month, values_from = n) %>%
 #   as.data.frame() %>%
 #   write.xlsx(
@@ -202,7 +202,7 @@ db_data_22_plus_overr_wide_tot <-
   db_data_22_plus_overr_wide %>% 
   # add total, exclude param names
   mutate(total_by_param = rowSums(.[2:23], na.rm = TRUE)) %>%
-  arrange(desc(total_by_param))
+  dplyr::arrange(desc(total_by_param))
 
 # [1,]
 names(db_data_22_plus_overr_wide_tot)
@@ -531,7 +531,7 @@ transform_to_plot <- function(my_df) {
     # count total by row in all columns except param names
     mutate(total_by_param = rowSums(.[2:dim(.)[2]], na.rm = TRUE)) %>%
     # sort
-    arrange(desc(total_by_param)) %>%
+    dplyr::arrange(desc(total_by_param)) %>%
     # transpose
     t() %>%
     as.data.frame() %>%

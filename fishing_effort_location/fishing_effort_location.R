@@ -402,7 +402,7 @@ get_permit_data_from_PIMS_csv <- function() {
   # test
   active_permits_from_pims %>%
     dplyr::select(status_date) %>%
-    arrange(desc(status_date)) %>% unique() %>% head()
+    dplyr::arrange(desc(status_date)) %>% unique() %>% head()
   # correct
   # str(active_permits_from_pims)
 
@@ -570,7 +570,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
       permit_df |>
       dplyr::select(-c(LATITUDE, LONGITUDE)) |>
       count(ten_min_lat, ten_min_lon) |>
-      arrange(desc(n)) |>
+      dplyr::arrange(desc(n)) |>
       head(2)
     }
   )

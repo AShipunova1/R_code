@@ -428,7 +428,7 @@ grid.arrange(grobs = all_gg_compl_percent_per_permit_year_spl,
 #   count() %>% 
 #   dplyr::ungroup() %>% 
 #   dplyr::mutate(perc = `n` / sum(`n`)) %>% 
-#   arrange(perc) %>%
+#   dplyr::arrange(perc) %>%
 #   dplyr::mutate(labels = scales::percent(perc))
 
 count_weeks_per_permit_year <-
@@ -443,7 +443,7 @@ non_compl_weeks_per_year <-
   count_weeks_per_permit_year %>%
   count(year, permit_sa_gom, nc_weeks_per_vsl,
         name = "nc_weeks_cnt") %>% 
-  arrange(nc_weeks_per_vsl)
+  dplyr::arrange(nc_weeks_per_vsl)
   
 # View(non_compl_weeks_per_year)
 
@@ -452,7 +452,7 @@ perc_non_compl_weeks_per_year <-
   dplyr::group_by(year, permit_sa_gom) %>%
   dplyr::mutate(sum_nc_weeks_cnt_per_year_reg = sum(`nc_weeks_cnt`)) %>%
   dplyr::mutate(perc = nc_weeks_cnt * 100 / sum(nc_weeks_cnt)) %>%
-  arrange(perc) %>%
+  dplyr::arrange(perc) %>%
   dplyr::mutate(perc_labels = paste0(round(perc, 1), "%"))
 
 View(perc_non_compl_weeks_per_year)
@@ -495,7 +495,7 @@ View(non_compl_weeks_per_year_22_sa)
 non_compl_weeks_per_year_22_sa_perc <-
   non_compl_weeks_per_year_22_sa %>%
   dplyr::mutate(perc = nc_weeks_cnt * 100 / sum(nc_weeks_cnt)) %>%
-  arrange(desc(perc)) %>%
+  dplyr::arrange(desc(perc)) %>%
   dplyr::mutate(perc_labels = paste0(round(perc, 1), "%"))
 
 View(non_compl_weeks_per_year_22_sa_perc)
@@ -671,7 +671,7 @@ compl_clean_sa_vs_gom_m_int_cnt_w1_perc %>%
   ) %>%
   unique() %>%
   count(percent_compl, name = "cnt_percent_nc") %>%
-  arrange(desc(cnt_percent_nc)) %>%
+  dplyr::arrange(desc(cnt_percent_nc)) %>%
   # count(wt = cnt_percent_nc)
   # 1289 - total nc weeks
   dplyr::mutate(pp = cnt_percent_nc * 100 / sum(cnt_percent_nc)) %>%
@@ -919,7 +919,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_cuts %>%
   filter(year_reg == "2023 sa_only") %>% 
   count(percent_compl, year_reg,
         name = "amount_of_occurences") %>%
-  arrange(desc(percent_compl)) %>% 
+  dplyr::arrange(desc(percent_compl)) %>% 
   View()
   count(wt = amount_of_occurences)
 # 499

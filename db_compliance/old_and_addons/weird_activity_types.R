@@ -116,7 +116,7 @@ weird_activity_types_info1 <-
   suffix = c(".v_p", ".t")
 ) |> 
   dplyr::distinct() |> 
-  arrange(PERMIT_VESSEL_ID)
+  dplyr::arrange(PERMIT_VESSEL_ID)
 
 dim(weird_activity_types_info1)
 # [1] 10 72
@@ -130,7 +130,7 @@ weird_activity_types_info2 <-
   suffix = c(".v_p", ".t")
 ) |> 
   dplyr::distinct() |> 
-  arrange(PERMIT_VESSEL_ID)
+  dplyr::arrange(PERMIT_VESSEL_ID)
 
 dim(weird_activity_types_info2)
 # [1] 22 72
@@ -170,7 +170,7 @@ trips_info_2022_int_dur |>
   dplyr::select(TRIP_START_DATE,
          TRIP_END_DATE) |>
   dplyr::distinct() |>
-  arrange(TRIP_START_DATE) |> 
+  dplyr::arrange(TRIP_START_DATE) |> 
   View()
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |> 

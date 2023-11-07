@@ -269,7 +269,7 @@ add_count_contacts <- function(all_data_df_clean) {
 # count_by_column_arr(my_df, group_by_arr)
 count_by_column_arr <- function(my_df, group_by_arr) {
   my_df %>%
-    arrange(group_by_arr[1]) %>%
+    dplyr::arrange(group_by_arr[1]) %>%
     group_by_at(group_by_arr) %>%
     summarise(my_freq = n()) %>%
     return()
@@ -772,7 +772,7 @@ get_permit_data_from_PIMS_csv <- function() {
   # test
   active_permits_from_pims %>%
     select(status_date) %>%
-    arrange(desc(status_date)) %>% unique() %>% head()
+    dplyr::arrange(desc(status_date)) %>% unique() %>% head()
   # correct
   # str(active_permits_from_pims)
 
@@ -1023,7 +1023,7 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
   select(vessel_official_number, compliant_, year_permit) %>%
   unique() %>%
   count(compliant_, year_permit) %>%
-  arrange(year_permit, compliant_)
+  dplyr::arrange(year_permit, compliant_)
 # vessels
 #  NO         2022 gom_dual   304
 #  YES        2022 gom_dual  1482
@@ -1900,7 +1900,7 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
     percent_compl_m
   ) %>%
   unique() %>%
-  arrange(year_month) %>%
+  dplyr::arrange(year_month) %>%
   glimpse()
 # $ compliant_                         <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl_m       <int> 1, 3
@@ -2016,7 +2016,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
   filter(year_month == "Dec 2022") %>%
   select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
   unique() %>%
-  arrange(percent_n_compl_rank) %>%
+  dplyr::arrange(percent_n_compl_rank) %>%
   head()
 # Dec 2022
 # 1 25<= & <50%                         2.30

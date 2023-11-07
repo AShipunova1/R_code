@@ -539,7 +539,7 @@ length(bad_only)
 # bad only vsl and counts ----
 # trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
 #   filter(VESSEL_ID %in% bad_only) |>
-#   arrange(desc(pos_lon_per_vsl)) |>
+#   dplyr::arrange(desc(pos_lon_per_vsl)) |>
 #   head() |> 
 #   knitr::kable(caption = "glimpse bad only vsl and counts")
 
@@ -548,12 +548,12 @@ length(bad_only)
 pos_lon_bad <-
 trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
-  arrange(desc(pos_lon_trips_by_vsl))
+  dplyr::arrange(desc(pos_lon_trips_by_vsl))
 
 tot_bad <-
   trip_coord_info_short_cnt_total_trips_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
-  arrange(desc(total_trips_by_vsl))
+  dplyr::arrange(desc(total_trips_by_vsl))
 dim(tot_bad)
 # [1] 47  2
 
@@ -565,7 +565,7 @@ full_join(tot_bad,
 # Joining with `by = join_by(VESSEL_ID)`
 
 # bad_cnt_join |> 
-#   arrange(cnt_diff)
+#   dplyr::arrange(cnt_diff)
 
 head(bad_cnt_join) |> 
   knitr::kable(caption = "bad only vsl, compare with total trips")
@@ -666,7 +666,7 @@ lattice::histogram(~ cnt_diff,
 both_tot <-
   trip_coord_info_short_cnt_total_trips_per_vsl |>
   filter(VESSEL_ID %in% both) |>
-  arrange(desc(total_trips_by_vsl))
+  dplyr::arrange(desc(total_trips_by_vsl))
 
 dim(both_tot)
 # [1] 129   2

@@ -112,7 +112,7 @@ err_desc_used <-
 
 # err_desc_used %>%
 # filter(grepl("check", enabled_, ignore.case = TRUE)) %>%
-# arrange(overridable_) %>% View()
+# dplyr::arrange(overridable_) %>% View()
 
 # === separate by permit ====
 
@@ -190,7 +190,7 @@ g_permits_from_sa_only <-
   inner_join(active_permits_from_pims, sa_only_vessel_id) %>%
   filter(grepl("g", tolower(permit_code))) %>%
   select(vessel_official_number, permit_code, type, ends_with("date")) %>%
-  arrange(expiration_date)
+  dplyr::arrange(expiration_date)
 # %>% View()
 # filter(expiration_date > "2021-01-01")
 
@@ -203,7 +203,7 @@ View(g_permits_types)
 
 g_permits_from_sa_only %>%
   select(permit_code, type) %>%
-  arrange(type) %>%
+  dplyr::arrange(type) %>%
   unique()
 # GOM
 # CHG: Gulf Charter/headboat For Coastal Migratory Pelagic Fish
@@ -217,7 +217,7 @@ gom_permits_from_sa_only <-
   # 24
   filter(effective_date < "2023-02-23") %>%
   # 12
-  arrange(effective_date)
+  dplyr::arrange(effective_date)
   # filter(year(effective_date) == 2022)
   # 7
 
@@ -275,7 +275,7 @@ combined_permit_date <-
 gom_permits_from_sa_only_all <-
   g_permits_from_sa_only %>%
   filter(permit_code %in% c("CHG", "RCG")) %>%
-  arrange(effective_date)
+  dplyr::arrange(effective_date)
 
 gom_permits_from_sa_only_short_all <-
   gom_permits_from_sa_only_all %>%

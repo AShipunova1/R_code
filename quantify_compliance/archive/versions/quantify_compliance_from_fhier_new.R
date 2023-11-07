@@ -396,7 +396,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
   filter(year_region == "2023 sa_only") %>%
   count(percent_compl, year_region,
         name = "amount_of_occurences") %>%
-  arrange(desc(percent_compl)) %>% 
+  dplyr::arrange(desc(percent_compl)) %>% 
   # View()
   count(wt = amount_of_occurences)
 # 499
@@ -441,7 +441,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
   filter(year_region == "2023 gom_only") %>%
   select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
   unique() %>%
-  arrange(percent_n_compl_rank) %>% 
+  dplyr::arrange(percent_n_compl_rank) %>% 
   head()
 #   percent_n_compl_rank perc_vsls_per_y_r_b
 #   <chr>                              <dbl>
@@ -588,7 +588,7 @@ count_weeks_per_vsl_permit_year_compl_m_tot %>%
     total_weeks_per_vessel_m
   ) %>%
   unique() %>%
-  arrange(year_month) %>% 
+  dplyr::arrange(year_month) %>% 
   View()
 
 ## 1) Month: percent compl weeks per vsl per month ----
@@ -612,7 +612,7 @@ count_weeks_per_vsl_permit_year_compl_m_tot_p %>%
     percent_compl_m
   ) %>%
   unique() %>%
-  arrange(year_month) %>% 
+  dplyr::arrange(year_month) %>% 
   View()
 
 ## 2a) Month: Only non-compl and fewer cols ----
@@ -646,7 +646,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b %>%
            vessel_official_number == "1247024") %>%
   add_count(percent_compl_m, year_region,
         name = "amount_of_occurences") %>%
-  arrange(desc(percent_compl_m)) %>% 
+  dplyr::arrange(desc(percent_compl_m)) %>% 
   add_count(wt = amount_of_occurences) %>% 
   View()
 # 3
@@ -694,7 +694,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b %>%
 nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot %>%
   filter(year_region == "2022 both") %>%
   filter(year_month == "Jan 2022") %>%
-  arrange(percent_n_compl_rank) %>% 
+  dplyr::arrange(percent_n_compl_rank) %>% 
   str()
  # $ percent_n_compl_rank: chr [1:3] "0-24%" "25-49%" "75-100%"
  # $ cnt_v_in_bucket     : int [1:3] 9 6 20
@@ -723,7 +723,7 @@ nc_count_weeks_per_vsl_permit_year_compl_m_tot_p_sort_b_cnt_in_b_tot_p %>%
   filter(year_month == "Jan 2022") %>%
   select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
   unique() %>%
-  arrange(percent_n_compl_rank) %>% 
+  dplyr::arrange(percent_n_compl_rank) %>% 
   head()
 #   percent_n_compl_rank perc_vsls_per_y_r_b
 # 1 0-24%                               25.7

@@ -76,7 +76,7 @@ glimpse(compl_clean_sa_vs_gom_plus_dual)
 
 compl_clean_sa_vs_gom_plus_dual %>%
   select(vessel_official_number, compliant_, week, permit, year_month, year) %>%
-  # arrange(year, week, permit, vessel_official_number) %>%
+  # dplyr::arrange(year, week, permit, vessel_official_number) %>%
   head()
 
 ```

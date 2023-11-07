@@ -104,7 +104,7 @@ trip_id_vessel_st_from_db %>%
 
 fhier_logbooks_content %>%
   select(start_port_state) %>%
-  arrange(start_port_state) %>%
+  dplyr::arrange(start_port_state) %>%
   unique()
 # 17
 # NJ              

@@ -67,7 +67,7 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
   select(vessel_official_number, compliant_, year_permit) %>%
   unique() %>%
   count(compliant_, year_permit) %>%
-  arrange(year_permit, compliant_)
+  dplyr::arrange(year_permit, compliant_)
 # vessels
 #  NO         2022 gom_dual   304
 #  YES        2022 gom_dual  1482
@@ -1037,7 +1037,7 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
     percent_compl_m
   ) %>%
   unique() %>%
-  arrange(year_month) %>%
+  dplyr::arrange(year_month) %>%
   glimpse()
 # $ compliant_                         <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl_m       <int> 1, 3
@@ -1156,7 +1156,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
   filter(year_month == "Dec 2022") %>%
   select(percent_n_compl_rank, perc_vsls_per_y_r_b) %>%
   unique() %>%
-  arrange(percent_n_compl_rank) %>%
+  dplyr::arrange(percent_n_compl_rank) %>%
   head()
 # Dec 2022
 # 1 25<= & <50%                         2.30

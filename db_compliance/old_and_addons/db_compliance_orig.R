@@ -708,7 +708,7 @@ trips_info_2022_int_ah_w_y <-
 
 # trips_info_2022_int_ah_w_y %>%
 #   dplyr::select(starts_with("TRIP")) %>%
-#   arrange(TRIP_START_DATE) %>%
+#   dplyr::arrange(TRIP_START_DATE) %>%
 #   View()
 
 ## to trip notifications ----
@@ -737,7 +737,7 @@ trip_notifications_2022_ah_w_y <-
 
 # trip_notifications_2022_ah_w_y %>%
 #   dplyr::select(starts_with("TRIP")) %>%
-#   arrange(TRIP_START_DATE) %>%
+#   dplyr::arrange(TRIP_START_DATE) %>%
 #   View()
 
 ## to negative trips ----
@@ -757,7 +757,7 @@ trip_neg_2022_w_y <-
 
 trip_neg_2022_w_y %>%
   dplyr::select(starts_with("TRIP")) %>%
-  arrange(TRIP_DATE) %>%
+  dplyr::arrange(TRIP_DATE) %>%
   View()
 
 # vessels and trip_notifications ----

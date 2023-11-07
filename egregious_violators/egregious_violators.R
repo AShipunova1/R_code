@@ -365,7 +365,7 @@ get_date_contacttype <-
       dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
       # sort
-      arrange(vessel_official_number, date__contacttype) |>
+      dplyr::arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
       dplyr::group_by(vessel_official_number) |>
       # for each vessel id combine all date__contacttypes separated by comma in one cell
@@ -527,7 +527,7 @@ vessels_permits_participants_short_u_flat_sp <-
 # 
 # 
 # vessels_permits_participants_short_u_flat_sp |>
-#   arrange(P_VESSEL_ID) |> 
+#   dplyr::arrange(P_VESSEL_ID) |> 
 #   head() |> 
 #   str()
 

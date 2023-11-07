@@ -171,7 +171,7 @@ trip_coord_info_trip_vendors_cnt <-
 # 678
 
 trip_coord_info_trip_vendors_cnt |>
-  arrange(desc(n)) |>
+  dplyr::arrange(desc(n)) |>
   head() |> 
   kable(caption = "trip_coord_info_trip_vendors_cnt")
 
@@ -188,7 +188,7 @@ trip_coord_info_effort_vendors_cnt <-
   dplyr::distinct()
 
 trip_coord_info_effort_vendors_cnt |>
-  arrange(desc(n)) |>
+  dplyr::arrange(desc(n)) |>
   head() |> 
   kable(caption = "trip_coord_info_effort_vendors_cnt")
 # safis	119734			
@@ -675,7 +675,7 @@ trip_coord_info_vendors3 |>
         FISHING_HOURS > (7 * 24) ~ "FISHING_HOURS > 1 week"
       )
   ) |>
-  arrange(FISHING_HOURS) |>
+  dplyr::arrange(FISHING_HOURS) |>
   select(-TRIP_ID) |>
   count(fishing_hours_cat, year_start, vendor_trip_cat) |> 
   kable(caption = "fishing_hours_cat, year_start, vendor_trip_cat")
@@ -695,7 +695,7 @@ trip_coord_info_vendors3 |>
   select(TRIP_ID, TRIP_END_DATE, year_start, vendor_trip_cat) |> 
   dplyr::distinct() |> 
   filter(year(TRIP_END_DATE) < 2021) |> 
-  arrange(TRIP_END_DATE) |> 
+  dplyr::arrange(TRIP_END_DATE) |> 
   select(-TRIP_ID) |> 
   kable(caption = "Weird TRIP_END_DATE")
 

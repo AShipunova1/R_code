@@ -46,7 +46,7 @@ get_permit_data_from_PIMS_csv <- function() {
   # test
   active_permits_from_pims %>%
     dplyr::select(status_date) %>%
-    arrange(desc(status_date)) %>% unique() %>% head()
+    dplyr::arrange(desc(status_date)) %>% unique() %>% head()
   # correct
   # str(active_permits_from_pims)
 

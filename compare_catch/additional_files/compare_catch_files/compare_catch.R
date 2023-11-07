@@ -86,7 +86,7 @@ fhier_logbooks_content_waves %>%
   dplyr::select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
   # sort by end_month_num
-  arrange(end_month_num)
+  dplyr::arrange(end_month_num)
 
 # Florida counties by region (from the Internet) ----
 fl_counties <- list(
@@ -148,7 +148,7 @@ fhier_logbooks_content_waves_fl_county %>%
   # get FL only
   dplyr::filter(end_port_state == "FL") %>%
   # sort by county
-  arrange(end_port_county) %>%
+  dplyr::arrange(end_port_county) %>%
   dplyr::distinct() %>%
   # 37 counties
   dplyr::select(end_port_fl_reg) %>%
@@ -714,11 +714,11 @@ glimpse(fhier_mrip_gom_to_plot_0)
 ## test: compare drop_na and 0 ----
 all.equal(
   fhier_mrip_gom_to_plot_0 %>%
-    arrange(species_itis, year_wave, AGENCY) %>%
+    dplyr::arrange(species_itis, year_wave, AGENCY) %>%
     slice(1:300)
   ,
   fhier_mrip_gom_to_plot %>%
-    arrange(species_itis, year_wave, AGENCY) %>%
+    dplyr::arrange(species_itis, year_wave, AGENCY) %>%
     slice(1:300)
   )
 
@@ -901,7 +901,7 @@ fhier_mrip_gom_ind1 <-
   # plot()
   
   # as.data.frame() %>%
-  # arrange(year_wave)
+  # dplyr::arrange(year_wave)
 
 plot(fhier_mrip_gom_ind1$year_wave,
      fhier_mrip_gom_ind1$cnt_index)

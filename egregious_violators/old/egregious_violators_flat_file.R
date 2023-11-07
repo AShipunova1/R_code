@@ -269,7 +269,7 @@ add_count_contacts <- function(all_data_df_clean) {
 # count_by_column_arr(my_df, group_by_arr)
 count_by_column_arr <- function(my_df, group_by_arr) {
   my_df %>%
-    arrange(group_by_arr[1]) %>%
+    dplyr::arrange(group_by_arr[1]) %>%
     group_by_at(group_by_arr) %>%
     summarise(my_freq = n()) %>%
     return()
@@ -967,7 +967,7 @@ get_date_contacttype <-
       dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
       # sort
-      arrange(vessel_official_number, date__contacttype) |>
+      dplyr::arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
       dplyr::group_by(vessel_official_number) |>
       # [1] 1125    2

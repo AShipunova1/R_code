@@ -290,7 +290,7 @@ test_plot +
 #   perc_vsls_per_m_b2,
 #   percent_non_compl_2_buckets
 # ) |>
-#   arrange(year_month) |>
+#   dplyr::arrange(year_month) |>
 #   View()
 # |>
 #   write_csv("month_with_numbers_gom_22.csv")

@@ -164,7 +164,7 @@ length(unique(v_p__t__tn_d_weeks_gom$PERMIT_VESSEL_ID))
 v_p__t__tn_d_weeks_gom_short |>
   dplyr::select(TRIP_START_TIME.tn) |>
   dplyr::distinct() |>
-  arrange(desc(TRIP_START_TIME.tn)) |>
+  dplyr::arrange(desc(TRIP_START_TIME.tn)) |>
   rowwise() |>
   head(3) |>
   # count number of digits, should be 4
@@ -415,7 +415,7 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_2 |>
   # dplyr::filter(not_fish_compl == "yes") |>
   dplyr::filter(PERMIT_VESSEL_ID == "FL4459PW") |>
-  arrange(WEEK_OF_YEAR) |>
+  dplyr::arrange(WEEK_OF_YEAR) |>
   glimpse()
 
 ## 3) a week with no reports of any kind (compl) ----
@@ -616,11 +616,11 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
 # 2 yes            343
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
-  arrange(desc(no_lgb_compl)) |>
+  dplyr::arrange(desc(no_lgb_compl)) |>
   glimpse()
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5 |>
-  arrange(desc(no_lgb_compl)) |>
+  dplyr::arrange(desc(no_lgb_compl)) |>
   dplyr::filter(no_decl_compl == "yes" & no_lgb_compl == "yes") |>
   # count(n_distinct(PERMIT_VESSEL_ID))
   glimpse()
@@ -854,7 +854,7 @@ dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_m |>
   dplyr::filter(PERMIT_VESSEL_ID == "FL4463MX" &
            date_y_m == "Jun 2022") |>
-  arrange(WEEK_OF_YEAR) |>
+  dplyr::arrange(WEEK_OF_YEAR) |>
   dplyr::distinct() |>
   glimpse()
 # $ WEEK_OF_YEAR     <dbl> 22, 23, 24, 25, 26

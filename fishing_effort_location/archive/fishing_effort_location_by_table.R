@@ -76,8 +76,8 @@ db_data_w_area_report_minus_gom %<>%
   # filter(is.na(AREA_CODE)) %>%
   # 0
   # unique() %>%
-  # arrange(SUB_AREA_CODE)
-    # arrange(AREA_CODE)
+  # dplyr::arrange(SUB_AREA_CODE)
+    # dplyr::arrange(AREA_CODE)
 # %>%
   # dim()
   # View()
@@ -161,7 +161,7 @@ area_codes_to_remove_part2 <- paste0("0", c(10:19))
 # db_data_w_area_report_minus_gom_fl_sa %>%
   # filter(AREA_CODE %in% c("015", "052")) %>% View()
 
-# db_data_w_area_report_minus_gom_fl_sa %>% dplyr::select(AREA_CODE) %>% unique %>% arrange(AREA_CODE) %>% View()
+# db_data_w_area_report_minus_gom_fl_sa %>% dplyr::select(AREA_CODE) %>% unique %>% dplyr::arrange(AREA_CODE) %>% View()
 # length(area_codes_to_keep)
 # 122
 
@@ -176,7 +176,7 @@ db_data_w_area_report_minus_gom_stat_areas <-
 
 # db_data_w_area_report_minus_gom_stat_areas %>%
 #   dplyr::select(AREA_CODE) %>% unique() %>%
-#   arrange(AREA_CODE) %>%
+#   dplyr::arrange(AREA_CODE) %>%
 #   View()
 # 052?
 # dim(db_data_w_area_report_minus_gom_stat_areas)

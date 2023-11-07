@@ -276,7 +276,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # get FL only
       dplyr::filter(end_port_state == "FL") %>%
       # sort by county
-      arrange(end_port_county) %>%
+      dplyr::arrange(end_port_county) %>%
       dplyr::distinct() %>%
       # data_overview()
       # 37 counties

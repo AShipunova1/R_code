@@ -352,7 +352,7 @@ fhier_logbooks_content_waves %>%
   dplyr::select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
   # sort by end_month_num
-  arrange(end_month_num)
+  dplyr::arrange(end_month_num)
 
 ## add region info ----
 # Create variable that organize Florida counties into Gulf or SA regions (from the Internet) ----
@@ -419,7 +419,7 @@ fhier_logbooks_content_waves_fl_county %>%
   # get FL only
   dplyr::filter(end_port_state == "FL") %>%
   # sort by county
-  arrange(end_port_county) %>%
+  dplyr::arrange(end_port_county) %>%
   dplyr::distinct() %>%
   # data_overview()
   # 37 counties

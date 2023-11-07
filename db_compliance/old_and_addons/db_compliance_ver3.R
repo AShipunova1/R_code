@@ -1066,7 +1066,7 @@ trips_info_2022_int_ah_sero_w_y |>
          TRIP_START_m,
          TRIP_START_week_num) |>
   dplyr::distinct() |>
-  arrange(TRIP_START_y,
+  dplyr::arrange(TRIP_START_y,
          TRIP_START_m,
          TRIP_START_week_num) |>
   head()

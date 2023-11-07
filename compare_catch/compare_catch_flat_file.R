@@ -385,7 +385,7 @@ fhier_logbooks_content_waves %>%
   dplyr::select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
   # sort by end_month_num
-  arrange(end_month_num)
+  dplyr::arrange(end_month_num)
 
 # Florida counties by region (from the Internet) ----
 fl_counties <- list(
@@ -450,7 +450,7 @@ fhier_logbooks_content_waves_fl_county %>%
   # get FL only
   dplyr::filter(end_port_state == "FL") %>%
   # sort by county
-  arrange(end_port_county) %>%
+  dplyr::arrange(end_port_county) %>%
   dplyr::distinct() %>%
   # data_overview()
   # 37 counties
@@ -544,7 +544,7 @@ fhier_catch_by_species_state_region_waves_w_spp %>%
   dplyr::group_by(species_itis, common_name) %>%
   summarise(sum_cnt = sum(reported_quantity)) %>%
   dplyr::ungroup() %>%
-  arrange(desc(sum_cnt)) %>%
+  dplyr::arrange(desc(sum_cnt)) %>%
   head()
 # 1 172734       FLOUNDERS, PARALICHTHYS    3007
 # Taxonomic Serial No.: 172734
@@ -992,7 +992,7 @@ get_acl_top_cnts <- function(my_df, top_num = 12) {
     # sum again grouped by scientific name only
     summarise(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
     # sort
-    arrange(desc(acl_count)) %>%
+    dplyr::arrange(desc(acl_count)) %>%
     head(top_num) %>%
     return()
 }

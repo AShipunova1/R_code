@@ -178,7 +178,7 @@ get_acl_top_cnts <- function(my_df, top_num = 12) {
     dplyr::group_by(new_sci) %>%
     summarise(acl_count = sum(rec_acl_estimate_catch_by_4)) %>%
     # sort
-    arrange(desc(acl_count)) %>%
+    dplyr::arrange(desc(acl_count)) %>%
     head(top_num) %>%
     return()
 }

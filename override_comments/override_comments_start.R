@@ -71,7 +71,7 @@ write_csv(override_cmts_data_sep_cmts,
 
 override_cmts_data_sep_cmts_other <-
   override_cmts_data_sep_cmts %>% 
-  arrange(desc(COMP_WEEK_END_DT)) %>% 
+  dplyr::arrange(desc(COMP_WEEK_END_DT)) %>% 
   filter(comment_group == "")
 
 override_cmts_data_sep_cmts_other %>% 

@@ -54,7 +54,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
     sf::st_drop_geometry() |>
     dplyr::select(vsl_cnt_stat_zone) |>
     dplyr::distinct() |>
-    arrange(vsl_cnt_stat_zone)
+    dplyr::arrange(vsl_cnt_stat_zone)
 
 ### remove extra columns ----
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short <-

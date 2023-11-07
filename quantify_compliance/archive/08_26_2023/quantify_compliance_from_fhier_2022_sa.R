@@ -121,7 +121,7 @@ compl_data_sa_2022_m_short_tot_ov %>%
   filter(vessel_official_number == "SC9087BU") %>% View()
 
 compl_data_sa_2022_m_short_tot_ov_wide %>% 
-  arrange(month_num) %>%
+  dplyr::arrange(month_num) %>%
   select(month_name, SC9087BU) %>%
   filter(complete.cases(SC9087BU)) %>% 
   tail(10)
@@ -207,7 +207,7 @@ compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p <-
 # plot no_no ----
 # names(compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p)
 compl_data_sa_2022_m_short_tot_ov_cnt_c_o_no_no_p %>%
-  arrange(month_num) %>%
+  dplyr::arrange(month_num) %>%
   dplyr::mutate(month_name_tot = paste(month_name, tota_vsl_m)) %>%
   dplyr::mutate(month_name_order = fct_reorder(month_name_tot,
                                         as.numeric(month_num))) %>%
@@ -294,7 +294,7 @@ compl_data_sa_2022_m_exp_diff_m_tot_short_wide <-
 
 ### check compl_data_sa_2022_m_exp_diff_m_short_wide ----
 compl_data_sa_2022_m_exp_diff_m_tot_short_wide %>%
-  arrange(month_num) %>%
+  dplyr::arrange(month_num) %>%
   select(month_name, SC9087BU) %>%
   filter(complete.cases(SC9087BU)) %>% 
   tail(10)
@@ -310,7 +310,7 @@ compl_data_sa_2022_m %>%
   select(vessel_official_number, compliant_, month_name, month_num) %>%
   unique() %>%
   filter(vessel_official_number == "SC9087BU") %>%
-  arrange(month_num) %>%
+  dplyr::arrange(month_num) %>%
   tail(10)
 #  3 SC9087BU               YES        July       07
 #  4 SC9087BU               NO         August     08

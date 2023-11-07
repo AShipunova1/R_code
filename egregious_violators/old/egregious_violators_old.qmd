@@ -102,7 +102,7 @@ get_num_of_non_compliant_weeks <-
       # use only 2 columns
       dplyr::select(vessel_official_number, week) %>%
       # sort
-      arrange(vessel_official_number, week) %>%
+      dplyr::arrange(vessel_official_number, week) %>%
       dplyr::distinct() %>%
       # add a column with counts
       count(vessel_official_number) %>%
@@ -119,7 +119,7 @@ id_n_plus_weeks <-
   get_num_of_non_compliant_weeks(compl_clean_sa_non_compl)
 
 temp_n_compl_cnts %>%
-  arrange(desc(n)) %>%
+  dplyr::arrange(desc(n)) %>%
   glimpse()
 
 glimpse(id_n_plus_weeks)
@@ -139,7 +139,7 @@ compl_clean_sa_all_weeks_cnt %>%
   dplyr::distinct() %>% 
   dplyr::filter(compl_weeks_amnt >= number_of_weeks_for_non_compliancy) %>%
   dplyr::filter(compliant_ == 'NO') %>%
-  arrange(desc(compl_weeks_amnt), vessel_official_number) %>% 
+  dplyr::arrange(desc(compl_weeks_amnt), vessel_official_number) %>% 
   glimpse()
 
 ```
@@ -433,7 +433,7 @@ get_date_contacttype <- function(compl_corr_to_investigation) {
     dplyr::select(vessel_official_number, date__contacttype) %>%
     # [1] 49903     2
     # sort
-    arrange(vessel_official_number, date__contacttype) %>%
+    dplyr::arrange(vessel_official_number, date__contacttype) %>%
     unique() %>%
     dplyr::group_by(vessel_official_number) %>%
     # [1] 1125    2

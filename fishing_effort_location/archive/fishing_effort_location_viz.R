@@ -557,7 +557,7 @@ lat_long_area_clean %>%
          AREA_CODE,
          DISTANCE_CODE_NAME) %>%
   unique() %>% 
-  arrange(AREA_CODE) %>% 
+  dplyr::arrange(AREA_CODE) %>% 
   glimpse()
 # Rows: 85
 
@@ -566,7 +566,7 @@ lat_long_area_clean %>%
          SUB_AREA_NAME,
          AREA_CODE) %>%
   unique() %>% 
-  arrange(AREA_CODE) %>% 
+  dplyr::arrange(AREA_CODE) %>% 
   View()
 # Rows: 47
 
@@ -574,7 +574,7 @@ lat_long_area_clean %>%
   dplyr::select(AREA_NAME,
          AREA_CODE) %>%
   unique() %>% 
-  arrange(AREA_CODE) %>% 
+  dplyr::arrange(AREA_CODE) %>% 
   View()
 # 26
 
@@ -585,7 +585,7 @@ lat_long_area_clean %>%
   filter(!grepl("TAMPA", AREA_NAME)) %>% 
   filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
   unique() %>% 
-  arrange(AREA_CODE) %>% 
+  dplyr::arrange(AREA_CODE) %>% 
   View()
   # write_csv("area_code_name.csv")
 

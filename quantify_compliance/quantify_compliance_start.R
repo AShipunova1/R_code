@@ -109,7 +109,7 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
   dplyr::select(vessel_official_number, compliant_, year_permit) %>%
   unique() %>%
   count(compliant_, year_permit) %>%
-  arrange(year_permit, compliant_)
+  dplyr::arrange(year_permit, compliant_)
 # vessels
 #  NO         2022 gom_dual   304
 #  YES        2022 gom_dual  1482
@@ -259,7 +259,7 @@ counts_by_month_read_me_clean <-
     names_glue = "{perm_exp_m}_permits",
     values_fill = 0
   ) |>
-  arrange(year_month)
+  dplyr::arrange(year_month)
 
 # View(counts_by_month_read_me_clean)
 

@@ -22,7 +22,7 @@ create_30_top_df <- function(mydf, count_field_name) {
     dplyr::group_by(sa_gom, common_name) %>%
     summarise(cnts1 = sum(!!sym(count_field_name))) %>%
     as.data.frame() %>%
-    arrange(desc(cnts1)) %>%
+    dplyr::arrange(desc(cnts1)) %>%
     slice(1:30) %>%
     return()
 }
@@ -72,7 +72,7 @@ fhier_catch_by_species_state_region_waves_common_names %>%
   dplyr::group_by(sa_gom, common_name) %>%
   summarise(cnts1 = sum(fhier_catch_by_4)) %>%
   as.data.frame() %>%
-  arrange(desc(cnts1)) %>%
+  dplyr::arrange(desc(cnts1)) %>%
   slice(1:30) %>%
   # %>%
   # ggplot(corr.m, aes(x = reorder(miRNA, -value), y = value, fill = variable)) +
@@ -267,7 +267,7 @@ str(mrip_and_fhier_short_values)
 ## ---- plot catch by species by an index (4) ----
 mrip_and_fhier_uni <-
   mrip_and_fhier %>%
-  arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
+  dplyr::arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
   dplyr::mutate(
     cnt_index = (mrip_estimate_catch_by_species - fhier_quantity_by_species) /
       (mrip_estimate_catch_by_species + fhier_quantity_by_species)
@@ -314,7 +314,7 @@ counts_plot_ind
 mrip_and_fhier_uni_10 <-
   mrip_and_fhier %>%
   dplyr::mutate(mrip_estimate_catch_by_species = mrip_estimate_catch_by_species / 10) %>%
-  arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
+  dplyr::arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
   dplyr::mutate(
     cnt_index = (mrip_estimate_catch_by_species - fhier_quantity_by_species) /
       (mrip_estimate_catch_by_species + fhier_quantity_by_species)
@@ -661,7 +661,7 @@ get_long_form <-
 ## ---- order by fhier counts ----
 to_plot_long <-
   to_plot_10 %>%
-  arrange(fhier_quantity_by_species) %>%
+  dplyr::arrange(fhier_quantity_by_species) %>%
   get_long_form()
 
 # keep the common_name order by fhier counts in the plot

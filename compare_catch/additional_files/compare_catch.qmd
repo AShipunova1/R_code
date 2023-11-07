@@ -135,7 +135,7 @@ fhier_logbooks_content_waves %>%
   dplyr::select(end_month, end_year, end_month_num, end_wave) %>%
   unique() %>%
   # sort by end_month_num
-  arrange(end_month_num)
+  dplyr::arrange(end_month_num)
 
 ```
 
@@ -208,7 +208,7 @@ fhier_logbooks_content_waves_fl_county %>%
   # get FL only
   dplyr::filter(end_port_state == "FL") %>%
   # sort by county
-  arrange(end_port_county) %>%
+  dplyr::arrange(end_port_county) %>%
   dplyr::distinct() %>%
   # 37 counties
   dplyr::select(end_port_fl_reg) %>%
@@ -920,7 +920,7 @@ n_most_frequent_fhier_10_list_no_na <-
       # add a new column with a sum of counts for each spp.
       summarise(fhier_catch_by_spp = sum(fhier_catch_by_4, na.rm = TRUE)) %>%
       # sort in the discending order
-      arrange(desc(fhier_catch_by_spp)) %>%
+      dplyr::arrange(desc(fhier_catch_by_spp)) %>%
       # get the top 10
       head(10)
 })

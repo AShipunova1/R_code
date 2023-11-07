@@ -69,7 +69,7 @@ gom_acl_top_spp <-
   dplyr::group_by(species_itis) %>%
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
   # sort
-  arrange(desc(acl_count)) %>%
+  dplyr::arrange(desc(acl_count)) %>%
   head(12)
 
 gom_acl_top_common_names <-
@@ -86,7 +86,7 @@ sa_acl_top_spp <-
   # sum the counts by species
   summarise(acl_count = sum(acl_estimate_catch_by_4)) %>%
   # sort
-  arrange(desc(acl_count)) %>%
+  dplyr::arrange(desc(acl_count)) %>%
   head(12)
 # head(14) 12 fits better in one plot
 

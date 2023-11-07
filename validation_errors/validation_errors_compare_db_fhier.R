@@ -61,7 +61,7 @@ by_year_month_wide <- function(my_df, fields_to_select_list) {
     # NAs to 0
     mutate(pending = coalesce(pending, 0),
            overridden = coalesce(overridden, 0)) %>%
-    arrange(arr_year_month) %>%
+    dplyr::arrange(arr_year_month) %>%
     # tail()
     mutate(total = overridden + pending) %>%
     return()
@@ -112,7 +112,7 @@ data_overview(from_fhier_data_22)
 
 # dim(from_fhier_data_22)
 # [1] 4184   21
-# from_fhier_data_22 %>% select(arrival) %>% arrange(arrival) %>% head(2)
+# from_fhier_data_22 %>% select(arrival) %>% dplyr::arrange(arrival) %>% head(2)
 # 1 2022-01-01 00:00:00
 
 ### FHIER by year ----
@@ -245,7 +245,7 @@ dim(db_n_fhier_data_ok_short1)
 db_n_fhier_data_ok_short1 %>%
   # data_overview()
   filter(is_enabled == 1) %>%
-  select(asg_info) %>% unique() %>% arrange(asg_info)
+  select(asg_info) %>% unique() %>% dplyr::arrange(asg_info)
 
 ### check assignments ----
 # grep("ass", names(from_fhier_data_22), value = T)
@@ -263,7 +263,7 @@ db_n_fhier_data_ok_short1 %>%
   )) %>%
   select(assignment) %>%
   unique() %>%
-  arrange(assignment)
+  dplyr::arrange(assignment)
 #           assignment
 # 1       ALICIA BRETON
 # 2          CHRIS ISOM
@@ -333,7 +333,7 @@ db_unas_en_f_ym <-
     from_fhier_data_by_ym_22,
     by = join_by(arr_year_month)
   ) %>%
-  arrange(arr_year_month)
+  dplyr::arrange(arr_year_month)
 
 # names(db_unas_f_ym) %>% paste0(sep = "', '", collapse = "") %>% cat()
 
@@ -459,11 +459,11 @@ fields_to_select_list3 = (
 db_n_fhier_data_22_ok_cnts <-
   db_n_fhier_data_22_ok %>%
   select(trip_report_id, all_of(fields_to_select_list3)) %>%
-  arrange(arr_year_month) %>%
+  dplyr::arrange(arr_year_month) %>%
   dplyr::group_by(across(all_of(fields_to_select_list3))) %>%
   summarise(n = n()) %>%
   dplyr::ungroup() %>%
-  arrange(arr_year_month)
+  dplyr::arrange(arr_year_month)
 
 #### In FHIER too ====
 # filter(db_n_fhier_data_22_ok_cnts, !is.na(overrideuser)) %>% View()

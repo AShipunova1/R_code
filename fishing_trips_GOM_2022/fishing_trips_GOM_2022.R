@@ -533,7 +533,7 @@ data_overview(data_from_fhier_GOM)
 data_from_fhier_GOM %>% 
     dplyr::select(TRIP_START_DATE) %>% 
     unique() %>% 
-    arrange(TRIP_START_DATE) %>% 
+    dplyr::arrange(TRIP_START_DATE) %>% 
     tail()
 # 6 12/31/2022     
 # head()

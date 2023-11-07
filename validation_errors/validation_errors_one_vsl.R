@@ -6,7 +6,7 @@ dat_pending_date$val_param_yr %>% unique()
 dat_pending_date_od_all <-
   dat_pending_date %>%
   filter(official_number == 'FL4673SY') %>%
-  arrange(arrival_date)
+  dplyr::arrange(arrival_date)
 # 73
 
 dat_pending_date_od_all %>%
@@ -23,7 +23,7 @@ dat_pending_date_od_apr <-
   dat_pending_date %>%
   filter(official_number == 'FL4673SY',
          arrival_date > '2023-04-04') %>%
-  arrange(arrival_date)
+  dplyr::arrange(arrival_date)
 # %>%
 
 # write_csv(dat_pending_date_od_apr, "~/dat_pending_date_od_apr.csv")
@@ -33,7 +33,7 @@ from_fhier_data_od_all <-
   from_fhier_data %>%
   filter(vesselofficialnumber == 'FL4673SY') %>%
   # select(arrival) %>% unique() %>%
-  arrange(arrival)
+  dplyr::arrange(arrival)
 # 68
 # Feb-22
 
@@ -211,7 +211,7 @@ db_n_fhier_data_all_od <-
   db_n_fhier_data_ok %>%
   filter(official_number == 'FL4673SY') %>%
   # select(arrival) %>% unique() %>%
-  arrange(arrival)
+  dplyr::arrange(arrival)
 
 dim(db_n_fhier_data_all_od)
 # [1] 91 55

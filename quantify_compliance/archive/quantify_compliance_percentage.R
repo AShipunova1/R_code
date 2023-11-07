@@ -842,7 +842,7 @@ percent_by_time_period <- function(my_df, time_period_field_name) {
 compl_clean_sa_vs_gom_plus_dual %>%
   filter(permit == "sa_only") %>%
   select(vessel_official_number, compliant_, week, year) %>%
-  arrange(vessel_official_number, year, week) %>%
+  dplyr::arrange(vessel_official_number, year, week) %>%
   tail()
 sa_per_year <-
   percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year")

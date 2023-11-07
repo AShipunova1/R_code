@@ -137,7 +137,7 @@ trip_coord_info_trip_vendors_cnt <-
 # 678
 
 trip_coord_info_trip_vendors_cnt |>
-  arrange(desc(n)) |>
+  dplyr::arrange(desc(n)) |>
   head() |>
   kable(caption = "trip_coord_info_trip_vendors_cnt")
 
@@ -154,7 +154,7 @@ trip_coord_info_effort_vendors_cnt <-
   dplyr::distinct()
 
 trip_coord_info_effort_vendors_cnt |>
-  arrange(desc(n)) |>
+  dplyr::arrange(desc(n)) |>
   head() |>
   kable(caption = "trip_coord_info_effort_vendors_cnt")
 # safis	119734
@@ -449,7 +449,7 @@ positive_long_vesl_cnts <-
   select(LATITUDE, LONGITUDE, VESSEL_ID) |>
   add_count(VESSEL_ID, name = "vesl_bad_vsl_cnt") |>
   dplyr::distinct() |>
-  arrange(desc(vesl_bad_vsl_cnt))
+  dplyr::arrange(desc(vesl_bad_vsl_cnt))
 
 # cnt all entries for the same vessels ----
 all_vesl_cnts <-
@@ -458,7 +458,7 @@ all_vesl_cnts <-
   filter(VESSEL_ID %in% positive_long_vesl_cnts$VESSEL_ID) |>
   add_count(VESSEL_ID, name = "all_bad_vsl_cnt") |>
   dplyr::distinct() |>
-  arrange(desc(all_bad_vsl_cnt))
+  dplyr::arrange(desc(all_bad_vsl_cnt))
 
 positive_long_vesl_cnts_short <-
   positive_long_vesl_cnts |>
@@ -545,7 +545,7 @@ ggplot(join_vesl_cnts) +
 
 # plot the difference ----
 join_vesl_cnts_no_diff_all |>
-  arrange(cnt_diff) |>
+  dplyr::arrange(cnt_diff) |>
   glimpse()
 
 ggplot(join_vesl_cnts_no_diff_all) +
@@ -559,7 +559,7 @@ join_vesl_cnts_no_diff_all_freq <-
   dplyr::group_by(cnt_diff) %>%
   dplyr::mutate(cnt_diff_freq = n()) %>%
   dplyr::ungroup() |>
-  arrange(desc(cnt_diff_freq))
+  dplyr::arrange(desc(cnt_diff_freq))
 
 join_vesl_cnts_no_diff_all_freq |>
   select(cnt_diff, cnt_diff_freq) |>
@@ -818,7 +818,7 @@ vessel_permits_info_124 |>
 vessels_124_coord_freq <-
   join_vesl_cnts_no_diff_all_wrong_vsls_short_fix |>
   add_count(VESSEL_ID, name = "coord_freq") |>
-  arrange(desc(coord_freq)) |> glimpse()
+  dplyr::arrange(desc(coord_freq)) |> glimpse()
 # 124
 # $ VESSEL_ID <int> 249248, 329344, 169199, 328889, 170137, 248214, 329371, 247…
 # $ n         <int> 188, 172, 169, 137, 134, 130, 126, 123, 118, 103, 103, 100,…
