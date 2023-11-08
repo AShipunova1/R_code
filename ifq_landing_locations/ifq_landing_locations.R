@@ -169,5 +169,25 @@ input_data_convert_dms %>%
   # remove_0_cols() |> 
   glimpse()
 
+# shorten ---
+keep_fields_list <-
+  c(
+    "OID_",
+    "converted_dms_lat",
+    "converted_dms_lon",
+    "USER_NYEAR",
+    "USER_UseCount",
+    "X",
+    "Y"
+  )
+
+input_data_convert_dms_short <- 
+  input_data_convert_dms |> 
+  select(all_of(keep_fields_list)) |> 
+  distinct()
+  
+# dim(input_data_convert_dms_short)
+  # [1] 3418    7
+
 # By year, map all the landing locations - so we can see the growth of time. 
 # By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
