@@ -39,8 +39,26 @@ write_to_1_flat_file(flat_file_name, current_file_name)
 current_file_name = "~/R_code_github/quantify_compliance/get_data.R"
 write_to_1_flat_file(flat_file_name, current_file_name)
 
-current_file_name = r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
+get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
+
+current_file_name <-
+  file.path(my_paths$git_r,
+            get_data_from_fhier_dir,
+            "get_metrics_tracking.R")
 write_to_1_flat_file(flat_file_name, current_file_name)
+
+current_file_name <-
+  file.path(my_paths$git_r,
+            get_data_from_fhier_dir,
+            "get_srhs_vessels.R")
+write_to_1_flat_file(flat_file_name, current_file_name)
+
+current_file_name <-
+  file.path(my_paths$git_r,
+            get_data_from_fhier_dir,
+            "metric_tracking_no_srhs.R")
+write_to_1_flat_file(flat_file_name, current_file_name)
+
 
 cat("\n\n#### add-ons 3 ---- \n\n")
 cat('
@@ -313,6 +331,19 @@ glimpse(counts_by_year_read_me_clean)
 ',  sep = "\n")
 
 sink()
+
+# Remove all "source" lines from the flat file when done. ----
+# source( to #source(
+# Read the content of a flat file specified by 'flat_file_name' and store it in 'flat_file_content'
+flat_file_content <- readr::read_lines(flat_file_name)
+
+# Create a new variable 'flat_file_content_1' by replacing instances of "source(" with "# source(" in 'flat_file_content'
+flat_file_content_1 <- 
+  gsub("source\\(", "# source(", flat_file_content)
+
+# Write the contents of 'flat_file_content_1' back to the original flat file specified by 'flat_file_name'
+cat(flat_file_content_1, file = flat_file_name, sep = "\n")
+
 file.exists(flat_file_name)
 # T
 sink.number()
@@ -320,3 +351,4 @@ sink.number()
 # delete the file
 # unlink(flat_file_name)
 #
+
