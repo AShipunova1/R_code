@@ -189,5 +189,62 @@ input_data_convert_dms_short <-
 # dim(input_data_convert_dms_short)
   # [1] 3418    7
 
+View(input_data_convert_dms_short)
+input_data_convert_dms_short |> 
+    select(OID_, USER_UseCount, USER_NYEAR) |> 
+    group_by(USER_NYEAR) |> 
+    count(wt = USER_UseCount) |> 
+    tail()
+# 1       2018  7469
+# 2       2019  7836
+# 3       2020  7222
+# 4       2021  6568
+# 5       2022  5510
+# 6       2023 82233
+
+# same result for
+input_data_convert_dms_short |> 
+    select(USER_UseCount, USER_NYEAR) |> 
+    count(USER_NYEAR, wt = USER_UseCount) |> 
+    tail()
+
+# head()
+# 1       1899    43
+# 2       2010  5434
+# 3       2011  6042
+# 4       2012  7081
+# 5       2013  6811
+# 6       2014 11279
+
+input_data_convert_dms_short |> 
+    select(OID_, USER_NYEAR) |> 
+    count(USER_NYEAR) |> 
+    head()
+
+# 1       1899    25
+# 2       2010   207
+# 3       2011   213
+# 4       2012   219
+# 5       2013   223
+
+input_data_convert_dms_short |>
+  filter(USER_NYEAR == 1899) |>
+  select(OID_, USER_UseCount, USER_NYEAR) |>
+  distinct() |> 
+  count(wt = USER_UseCount)
+# 43
+
+
+input_data_convert_dms_short |> 
+    select(OID_, USER_NYEAR) |> 
+    count(USER_NYEAR) |> 
+    tail()
+# 1       2018   265
+# 2       2019   268
+# 3       2020   256
+# 4       2021   258
+# 5       2022   244
+# 6       2023   229
+
 # By year, map all the landing locations - so we can see the growth of time. 
 # By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
