@@ -42,6 +42,7 @@ convert_dms_to_dd_nw <-
     
     # browser()
     if (grepl("^-", one_dms_coord)) {
+      # use abs to remove "-"
       one_dms_coord = abs(as.double(one_dms_coord))
     }
     
@@ -81,10 +82,6 @@ input_data_convert_dms <-
   dplyr::rowwise() |>
   dplyr::mutate(
     converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
-    # use abs to remove "-"
-    # postitve_long =
-    #   case_when(grepl("^-", USER_LONGITUDE) ~ abs(as.double(USER_LONGITUDE)),
-    #             .default = USER_LONGITUDE),
     converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)
   ) |>
   dplyr::ungroup()
@@ -92,14 +89,25 @@ input_data_convert_dms <-
 toc()
 # input_data_convert_dms: 0.06 sec elapsed
 
-input_data[4, ] |>
-  select(USER_LONGITUDE) |>
-  # 1 87 43.49
-  as.double()
-
 glimpse(input_data_convert_dms)
 
-USER_FK_LANDING_LOCATION_ID
+# check if given lat/lon is different from geocoded ----
+# USER_LATITUDE, USER_LONGITUDE, X, Y, OID_, USER_FK_LANDING_LOCATION_ID
+## compare user_coord with geocoded ----
+# print_df_names(input_data_convert_dms)
+input_data_convert_dms |>
+  filter(
+    !round(abs(X), 2) == round(converted_dms_lon, 2) |
+      !round(abs(Y), 2) == round(converted_dms_lat, 2)
+  ) |>
+  select(X, converted_dms_lon,
+         Y, converted_dms_lat) |>
+  distinct() |>
+  dim()
+# 63
+# 58 if round to 1 digit
+
+# USER_FK_LANDING_LOCATION_ID
 # 2128	27° 54.478' N	97° 07.991' W
 # 27° 54' 478"
 # = 27° + 54'/60 + 478"/3600
@@ -109,5 +117,3 @@ USER_FK_LANDING_LOCATION_ID
 # = 97° + 07'/60 + 991"/3600
 # = 97.391944°
 
-# check if given lat/lon is different from geocoded ----
-# USER_LATITUDE, USER_LONGITUDE, x, y, OID_, USER_FK_LANDING_LOCATION_ID
