@@ -246,5 +246,11 @@ input_data_convert_dms_short |>
 # 5       2022   244
 # 6       2023   229
 
+input_data_convert_dms_short |> 
+    add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |> 
+    filter(USER_NYEAR == 1899) |> 
+  View()
+
+
 # By year, map all the landing locations - so we can see the growth of time. 
 # By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
