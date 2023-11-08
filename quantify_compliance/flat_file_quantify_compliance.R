@@ -8,6 +8,9 @@ library(cowplot)  # Load the 'cowplot' library for creating publication-ready pl
 
 
 
+                                                                                                                            
+
+
 #### Current file: useful_functions_module.r ----
 
 # nolint: commented_code_linter
@@ -1117,7 +1120,10 @@ print_toc_log <- function(variables) {
 
 # Use a function defined in "useful_functions_module.r". Use F2 to see a custom functions definition.
 my_paths <- set_work_dir()
-
+my_paths$inputs <-
+  r"(C:\Users\anna.shipunova\Downloads\input-20231108T141445Z-001\input)"
+my_paths$outputs <- 
+  r"(C:\Users\anna.shipunova\Downloads\input-20231108T141445Z-001\output)"
 
 
 #### Current file: quantify_compliance_functions.R ----
@@ -1430,8 +1436,6 @@ get_2_buckets <- function(my_df, field_name) {
     return()
 }
 
-
-
 #### Current file: get_data.R ----
 
 # this file is called from quantify_compliance.R
@@ -1622,15 +1626,149 @@ compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
 # Uncomment and run above functions if using csvs downloaded from FHIER
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 
-
 # get data from db ----
-source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
+# source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
 
 # run_all_get_db_data(): 8.56 sec elapsed                                                                            
 # all_sheets_l
 # vessels_22_sa
 # vessels_to_remove_from_ours
 # all_logbooks_db_data_2022_short_p_region
+
+
+                                                                                                                            
+
+
+#### Current file: get_metrics_tracking.R ----
+
+## fhier_reports_metrics_tracking ----
+
+# The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
+library(tidyverse)
+
+# help functions (in metric tracking) ----
+# Use my function in case we want to change the case in all functions
+my_headers_case_function <- tolower
+
+# ===
+# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
+# to use in a function,
+# e.g. read_csv(name_repair = fix_names)
+fix_names <- function(x) {
+  # Use the pipe operator %>%
+  x %>%
+
+    # Remove dots from column names
+    str_replace_all("\\.", "") %>%
+
+    # Replace all characters that are not letters or numbers with underscores
+    str_replace_all("[^A-z0-9]", "_") %>%
+
+    # Ensure that letters are only in the beginning of the column name
+    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
+
+    # Convert column names to lowercase using 'my_headers_case_function'
+    my_headers_case_function()
+}
+
+# Download from FHIER / Reports / Metrics Tracking
+# Put dates in, e.g. 01/01/2022 - 12/31/2022
+# Click search
+# Under "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)	" section below click "Actions", then "Download"
+
+fhier_reports_metrics_tracking_file_names <-
+  c("Detail_Report_12312021_12312022__08_23_2023.csv",
+    "Detail_Report_12312022_12312023__08_23_2023.csv")
+
+common_dir <-
+  r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))"
+
+# save all file names to a list
+# Create a vector named 'fhier_reports_metrics_tracking_file_path' using the purrr::map function.
+# This vector will store file paths based on the 'fhier_reports_metrics_tracking_file_names' vector.
+fhier_reports_metrics_tracking_file_path <-
+  purrr::map(
+    # Iterate over each element in the 'fhier_reports_metrics_tracking_file_names' vector.
+    fhier_reports_metrics_tracking_file_names,
+    # For each file name ('x'), create a file path by combining it with 'common_dir'.
+    ~ file.path(common_dir, .x)
+  )
+
+# test
+# Use the purrr::map function to check if files exist at the specified paths.
+# The result will be a logical vector indicating file existence for each path.
+purrr::map(fhier_reports_metrics_tracking_file_path, file.exists)
+# T
+
+# read each csv in a list of dfs
+# Use the purrr::map function to read multiple CSV files into a list of data frames.
+fhier_reports_metrics_tracking_list <- purrr::map(
+  fhier_reports_metrics_tracking_file_path,
+  # A vector of file paths to CSV files.
+  ~ readr::read_csv(
+    # The current file path being processed in the iteration.
+    .x,
+    # Specify column types; here, all columns are read as characters.
+    col_types = cols(.default = 'c'),
+    name_repair = fix_names  # Automatically repair column names to be syntactically valid.
+  )
+)
+
+# check how many in diff years ----
+# Use the 'dplyr::setdiff' function to find the set difference between two vectors.
+# (1 minus 2)
+dplyr::setdiff(
+  fhier_reports_metrics_tracking_list[[1]]$vessel_official_number,
+  fhier_reports_metrics_tracking_list[[2]]$vessel_official_number
+) |>
+  length()  # Calculate the length of the resulting set difference.
+# [1] 669
+
+# (2 minus 1)
+dplyr::setdiff(
+  fhier_reports_metrics_tracking_list[[2]]$vessel_official_number,
+  fhier_reports_metrics_tracking_list[[1]]$vessel_official_number
+) |>
+  length()
+# [1] 493
+
+# in both years
+# Use the 'dplyr::intersect' function to find the intersection of two vectors.
+# In this case, we're finding the common unique values between the two vectors.
+dplyr::intersect(
+  fhier_reports_metrics_tracking_list[[1]]$vessel_official_number,
+  fhier_reports_metrics_tracking_list[[2]]$vessel_official_number
+) |>
+  length()  # Calculate the length of the resulting intersection.
+# 2965
+
+
+                                                                                                                            
+
+
+#### Current file: get_srhs_vessels.R ----
+
+# get SRHS vessels to exclude ----
+# The file is provided by Kenneth Brennan
+
+srhs_vessels_2022 <-
+  r"(~\Official documents\srhs_boats\2022_SRHS_Vessels_08_18_2023.xlsx)"
+
+srhs_vessels_2022_info <-
+  read_excel(
+  srhs_vessels_2022,
+  # add the sheet name if needed and uncomment the next line
+  # sheet = sheet_n,
+  # use my fix_names function for col names
+  .name_repair = fix_names,
+  # if omitted, the algorithm uses only the few first lines and sometimes guesses it wrong
+  guess_max = 21474836,
+  # read all columns as text
+  col_types = "text"
+)
+
+
+                                                                                                                            
 
 
 #### Current file: metric_tracking_no_srhs.R ----
@@ -1641,13 +1779,13 @@ get_metrics_tracking_path <-
   file.path(my_paths$git_r,
             get_data_from_fhier_dir,
             "get_metrics_tracking.R")
-source(get_metrics_tracking_path)
+# source(get_metrics_tracking_path)
 
 get_srhs_vessels_path <-
   file.path(my_paths$git_r,
             get_data_from_fhier_dir,
             "get_srhs_vessels.R")
-source(get_srhs_vessels_path)
+# source(get_srhs_vessels_path)
 
 ## exclude srhs vessels from metric traking ----
 fhier_reports_metrics_tracking_not_srhs_ids <-
@@ -1798,6 +1936,9 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 5 NO         2023 sa_dual   1615
 # 6 YES        2023 sa_dual   2111
 
+
+
+                                                                                                                            
 
 
 #### Current file: quantify_compliance_from_fhier_year.R ----
@@ -2647,6 +2788,9 @@ compl_clean_sa_vs_gom_m_int_1 |>
 # write_csv(compl_clean_sa_vs_gom_m_int_1,
 #           "compl_clean_sa_vs_gom_m_int_1.csv")
 
+
+
+                                                                                                                            
 
 
 #### Current file: quantify_compliance_from_fhier_year_100_nc.R ----
@@ -3593,6 +3737,9 @@ ggsave(
 
 
 
+                                                                                                                            
+
+
 #### Current file: quantify_compliance_from_fhier_month.R ----
 
 # Per month, region ----
@@ -4280,9 +4427,6 @@ save_plots_list_to_files <-
     )
   }
 
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\08_31_2023"
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\2023-09-01\per_month"
-
 # add dir
 plot_file_path_m <-
   file.path(plot_file_path, "per_month")
@@ -4310,6 +4454,9 @@ all_plots_w_titles_list %>%
 # [[1]]
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
 
+
+
+                                                                                                                            
 
 
 #### Current file: quantify_compliance_from_fhier_vms.R ----
@@ -4860,30 +5007,37 @@ grid.arrange(gg_weeks_per_vsl_year_month_vms_compl_cnt_perc_short_cuts_cnt_in_b_
 # Create a read.me file with numbers of total, active and expired ----
 ## by year ----
 # compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc defined in quantify_compliance_from_fhier_year.R
+# Create a new dataset "year_permit_cnts" by performing a series of operations.
+
 year_permit_cnts <-
+  # Extract unique "year_permit" values from the specified column and sort them.
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
   sort() |>
-  # repeat for each year_permit
+
+  # For each unique "year_permit", apply a function using "purrr::map_df".
   purrr::map_df(function(curr_year_permit) {
-    # browser()
+    # Create a subset "curr_df" of the original dataset for the current "year_permit".
     curr_df <-
       compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
       dplyr::filter(year_permit == curr_year_permit)
 
+    # Extract unique "total_vsl_y" values for the current "year_permit".
     total_vsls <- unique(curr_df$total_vsl_y)
 
+    # Extract and create a subset of data for "active" permits.
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(cnt_y_p_e) %>%
       unique()
 
+    # Extract and create a subset of data for "expired" permits.
     expired_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(cnt_y_p_e) %>%
       unique()
 
-      # TODO: add compliant, not compliant
+    # Create a data frame "out_df" with relevant information.
     out_df <- as.data.frame(c(curr_year_permit, total_vsls, active_permits, expired_permits))
     names(out_df) <- c("year_permit", "total", "active_permits", "expired_permits")
 
