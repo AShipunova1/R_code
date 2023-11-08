@@ -117,3 +117,22 @@ input_data_convert_dms |>
 # = 97° + 07'/60 + 991"/3600
 # = 97.391944°
 
+# fix ----
+input_data_convert_dms |>
+  filter(X == 0) |> 
+  dim()
+# 8
+
+input_data_convert_dms |>
+  # remove_empty_cols() |>
+  dplyr::select_if(function(x) {
+    # Check if all values in 'x' are not all NA or not all NULL!(all(is.na(x)) |
+    all(is.null(x)))
+})|>
+  filter(X == 0) |>
+  mutate(x_a = NA,
+         a = coalesce(x_a, converted_dms_lon)) |>
+  View()
+
+# By year, map all the landing locations - so we can see the growth of time. 
+# By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
