@@ -33,21 +33,34 @@ input_data |>
   glimpse()
 
 
-res <-
-  strsplit("27° 54.478'",
-           "\\D+")
-
-# str(res)
-# List of 1
-
 # North West coords only
+one_dms_coord <- "27° 54.478'"
+
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
-    res <-
-      strsplit("27° 54.478'",
-               "(\\d+)\D+(\\d+)\\.(\\d+)\D+")
+    digits_only_list <-
+      strsplit(one_dms_coord,
+               "\\D+")
     
+    degrees <-
+      digits_only_list[[1]][1] |>
+      as.integer()
+    
+    minutes <-
+      digits_only_list[[1]][2] |>
+      as.integer()
+    
+    seconds <-
+      digits_only_list[[1]][3] |>
+      as.integer()
+    
+    dd_coord <-
+      degrees + minutes / 60 + seconds / 3600
+    
+    return(dd_coord)
   }
+
+convert_dms_to_dd_nw("97° 07' 991")
 
 USER_FK_LANDING_LOCATION_ID
 # 2128	27° 54.478' N	97° 07.991' W
