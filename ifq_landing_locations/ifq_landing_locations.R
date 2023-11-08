@@ -107,6 +107,28 @@ input_data_convert_dms |>
 # 63
 # 58 if round to 1 digit
 
+input_data_convert_dms |>
+  filter(
+    !round(abs(DisplayX), 2) == round(converted_dms_lon, 2) |
+      !round(abs(DisplayY), 2) == round(converted_dms_lat, 2)
+  ) |>
+    select(X, DisplayX, converted_dms_lon,
+         Y, DisplayY, converted_dms_lat) |>
+  distinct() |>
+  dim()
+# [1] 65  4
+
+input_data_convert_dms |>
+  filter(
+    !round(DisplayX, 2) == round(X, 2) |
+      !round(DisplayY, 2) == round(Y, 2)
+  ) |>
+    select(X, DisplayX, converted_dms_lon,
+         Y, DisplayY, converted_dms_lat) |>
+  distinct() |> 
+  dim()
+# [1] 13  6
+
 # USER_FK_LANDING_LOCATION_ID
 # 2128	27° 54.478' N	97° 07.991' W
 # 27° 54' 478"
@@ -133,11 +155,13 @@ Filter(function(x)!all(is.na(x)), input_data_convert_dms) |> dim()
 # Filter(function(x)!all(is.na(x)), input_data_convert_dms) |> dim()
 # [1] 3418   64
 
-  # remove_empty_cols() |>
-  dplyr::select_if(function(x) {
-    # Check if all values in 'x' are not all NA or not all NULL!(all(is.na(x)) |
-    !all(is.null(x))
-}) |>
+not_all_na <- function(x) any(!is.na(x))
+not_any_na <- function(x) all(!is.na(x))
+input_data_convert_dms %>% select(where(not_all_na)) |> dim()
+# [1] 3418   64
+
+input_data_convert_dms %>% 
+  remove_empty_cols() |>
   # filter(X == 0) |>
   # mutate(x_a = NA,
   #        a = coalesce(x_a, converted_dms_lon)) |>
