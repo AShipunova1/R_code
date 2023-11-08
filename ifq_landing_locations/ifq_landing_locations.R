@@ -123,15 +123,24 @@ input_data_convert_dms |>
   dim()
 # 8
 
-input_data_convert_dms |>
+
+dim(input_data_convert_dms)
+Filter(function(x)!all(is.na(x)), input_data_convert_dms) |> dim()
+
+# dim(input_data_convert_dms)
+# [1] 3418   82
+# 
+# Filter(function(x)!all(is.na(x)), input_data_convert_dms) |> dim()
+# [1] 3418   64
+
   # remove_empty_cols() |>
   dplyr::select_if(function(x) {
     # Check if all values in 'x' are not all NA or not all NULL!(all(is.na(x)) |
-    all(is.null(x)))
-})|>
-  filter(X == 0) |>
-  mutate(x_a = NA,
-         a = coalesce(x_a, converted_dms_lon)) |>
+    !all(is.null(x))
+}) |>
+  # filter(X == 0) |>
+  # mutate(x_a = NA,
+  #        a = coalesce(x_a, converted_dms_lon)) |>
   View()
 
 # By year, map all the landing locations - so we can see the growth of time. 
