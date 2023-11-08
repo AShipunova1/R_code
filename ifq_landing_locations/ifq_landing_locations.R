@@ -32,35 +32,47 @@ input_data |>
   distinct() |>
   glimpse()
 
+input_data_convert_dms <- 
+  input_data |>
+  mutate(converted_dms_lat = convert_dms_to_dd_nw())
 
-# North West coords only
-one_dms_coord <- "27° 54.478'"
+# test
+one_dms_coord = "97° 07'991" 
+one_dms_coord2 = "-82.149261"
 
+# Assuming North West coords only in our data
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
-    digits_only_list <-
-      strsplit(one_dms_coord,
-               "\\D+")
-    
-    degrees <-
-      digits_only_list[[1]][1] |>
-      as.integer()
-    
-    minutes <-
-      digits_only_list[[1]][2] |>
-      as.integer()
-    
-    seconds <-
-      digits_only_list[[1]][3] |>
-      as.integer()
-    
-    dd_coord <-
-      degrees + minutes / 60 + seconds / 3600
+    if (grepl(" ", one_dms_coord)) {
+
+      digits_only_list <-
+        strsplit(one_dms_coord,
+                 "\\D+")
+      
+      degrees <-
+        digits_only_list[[1]][1] |>
+        as.integer()
+      
+      minutes <-
+        digits_only_list[[1]][2] |>
+        as.integer()
+      
+      seconds <-
+        digits_only_list[[1]][3] |>
+        as.integer()
+      
+      dd_coord <-
+        degrees + minutes / 60 + seconds / 3600
+      
+    } else {
+      dd_coord <- as.double(one_dms_coord)
+    }
     
     return(dd_coord)
   }
 
 convert_dms_to_dd_nw("97° 07' 991")
+convert_dms_to_dd_nw("-82.149261")
 
 USER_FK_LANDING_LOCATION_ID
 # 2128	27° 54.478' N	97° 07.991' W
