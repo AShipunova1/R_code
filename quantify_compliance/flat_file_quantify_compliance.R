@@ -6,11 +6,6 @@ library(zoo)   # Load the 'zoo' library, which deals with time series data.
 library(gridExtra)  # Load the 'gridExtra' library for arranging and combining grid graphics.
 library(cowplot)  # Load the 'cowplot' library for creating publication-ready plots with ggplot2.
 
-
-
-                                                                                                                            
-
-
 #### Current file: useful_functions_module.r ----
 
 # nolint: commented_code_linter
@@ -1681,7 +1676,8 @@ fhier_reports_metrics_tracking_file_names <-
     "Detail_Report_12312022_12312023__08_23_2023.csv")
 
 common_dir <-
-  r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))"
+  file.path(my_paths$inputs,
+  r"(from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))")
 
 # save all file names to a list
 # Create a vector named 'fhier_reports_metrics_tracking_file_path' using the purrr::map function.
@@ -1743,9 +1739,6 @@ dplyr::intersect(
 # 2965
 
 
-                                                                                                                            
-
-
 #### Current file: get_srhs_vessels.R ----
 
 # get SRHS vessels to exclude ----
@@ -1754,22 +1747,24 @@ dplyr::intersect(
 srhs_vessels_2022 <-
   r"(~\Official documents\srhs_boats\2022_SRHS_Vessels_08_18_2023.xlsx)"
 
+if (!file.exists(srhs_vessels_2022)) {
+  srhs_vessels_2022 <-
+    file.path(my_paths$inputs,
+              "2022_SRHS_Vessels_08_18_2023.xlsx")
+}
+
 srhs_vessels_2022_info <-
   read_excel(
-  srhs_vessels_2022,
-  # add the sheet name if needed and uncomment the next line
-  # sheet = sheet_n,
-  # use my fix_names function for col names
-  .name_repair = fix_names,
-  # if omitted, the algorithm uses only the few first lines and sometimes guesses it wrong
-  guess_max = 21474836,
-  # read all columns as text
-  col_types = "text"
-)
-
-
-                                                                                                                            
-
+    srhs_vessels_2022,
+    # add the sheet name if needed and uncomment the next line
+    # sheet = sheet_n,
+    # use my fix_names function for col names
+    .name_repair = fix_names,
+    # if guess_max is omitted, the algorithm uses only the few first lines and sometimes guesses it wrong
+    guess_max = 21474836,
+    # read all columns as text
+    col_types = "text"
+  )
 
 #### Current file: metric_tracking_no_srhs.R ----
 
@@ -1820,7 +1815,6 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
       # Remove duplicate values from the selected column
       dplyr::distinct()
   )
-
 
 # check
 # Use 'map' to apply the 'dim' function to each data frame in 'fhier_reports_metrics_tracking_list'
@@ -1935,10 +1929,6 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 4 YES        2022 sa_only   1602
 # 5 NO         2023 sa_dual   1615
 # 6 YES        2023 sa_dual   2111
-
-
-
-                                                                                                                            
 
 
 #### Current file: quantify_compliance_from_fhier_year.R ----
