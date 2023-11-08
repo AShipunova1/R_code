@@ -754,7 +754,7 @@ gom_vessels_sf_example3 <-
   gom_vessels_sf |>
   filter(location_cnts %in% c("475", "839", "961"))
 
-print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
+# print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
 
 short_example_3 <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>

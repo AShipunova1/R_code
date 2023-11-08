@@ -788,7 +788,7 @@ setdiff(
   names(fhier_addr__compl_corr),
   names(vessels_permits_participants_short_u_flat_sp)
   )
-print_df_names(fhier_addr__compl_corr)
+# print_df_names(fhier_addr__compl_corr)
 
 vessels_permits_participants_short_u_flat_sp_add <-
   vessels_permits_participants_short_u_flat_sp |>

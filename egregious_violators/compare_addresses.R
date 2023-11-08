@@ -120,7 +120,7 @@ corrected_n_fhier <-
             fhier_info,
             join_by(vessel_official_number == vessel_id))
 
-print_df_names(corrected_n_fhier)
+# print_df_names(corrected_n_fhier)
 # [1] 1659   26
 
 
@@ -166,7 +166,7 @@ corrected_n_fhier_short |>
 #                 last_name = replace_na(last_name, ""),
 #                 business_name = replace_na(business_name, "")) |>
 
-print_df_names(corrected_n_fhier_short)
+# print_df_names(corrected_n_fhier_short)
 
 corrected_n_fhier_short_w_n <-
   corrected_n_fhier_short |>
