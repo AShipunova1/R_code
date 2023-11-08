@@ -2789,7 +2789,7 @@ compl_clean_sa_vs_gom_m_int_1 |>
 
 # SA vessels that never reported anything ----
 # Jessica wants to see 1 more figure for the SA, that is the proportion of SA vessels that never reported anything - whereas, your compliance for all of 2022 means of the 54% non-compliant, they may only be missing 1 week in the whole year. 
-print_df_names(count_weeks_per_vsl_permit_year_compl_p)
+# print_df_names(count_weeks_per_vsl_permit_year_compl_p)
 
 # Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_sa_22' by filtering an existing data frame.
 # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p' to the next operation.
