@@ -1039,6 +1039,19 @@ remove_empty_cols <- function(my_df) {
     return()
 }
 
+remove_0_cols <- function(my_df) {
+  browser()
+  not_all_0 <- function(x)
+  {
+    any(!x == 0)
+  }
+  
+  my_df |>
+    select(where(not_all_0)) %>%
+    return()
+}
+
+
 # ===
 # Function to create a directory if it doesn't exist
 create_dir_if_not <- function(curr_dir_name) {
