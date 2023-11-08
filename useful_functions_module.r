@@ -1028,12 +1028,14 @@ read_rds_or_run <- function(my_file_path,
 # ===
 # Function to remove empty columns from a data frame
 remove_empty_cols <- function(my_df) {
+  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
+  not_all_na <- function(x) any(!is.na(x))
+
   my_df |>
-    # Select columns that do not meet the condition of being entirely NA or entirely NULL using 'select_if' function
-    dplyr::select_if(function(x)
-      # Check if all values in 'x' are not all NA or not all NULL
-      !(all(is.na(x)) | all(is.null(x)))) %>%
-    # Return the modified data frame
+    # Select columns from "my_df" where the result of the "not_all_na" function is true,
+    # i.e., select columns that have at least one non-NA value.
+    select(where(not_all_na)) %>%
+    # Return the modified data frame, which contains only the selected columns.
     return()
 }
 
