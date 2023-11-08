@@ -32,10 +32,6 @@ input_data |>
   distinct() |>
   glimpse()
 
-input_data_convert_dms <- 
-  input_data |>
-  mutate(converted_dms_lat = convert_dms_to_dd_nw())
-
 # test
 one_dms_coord = "97° 07'991" 
 one_dms_coord2 = "-82.149261"
@@ -73,6 +69,13 @@ convert_dms_to_dd_nw <-
 
 convert_dms_to_dd_nw("97° 07' 991")
 convert_dms_to_dd_nw("-82.149261")
+
+input_data_convert_dms <- 
+  input_data |>
+  mutate(converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
+         converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE))
+
+
 
 USER_FK_LANDING_LOCATION_ID
 # 2128	27° 54.478' N	97° 07.991' W
