@@ -99,8 +99,16 @@ my_paths <- set_work_dir()
 # get SRHS vessels to exclude ----
 # The file is provided by Kenneth Brennan
 
+file_name <- "2022_SRHS_Vessels_08_18_2023.xlsx"
 srhs_vessels_2022 <-
-  r"(~\Official documents\srhs_boats\2022_SRHS_Vessels_08_18_2023.xlsx)"
+  file.path(file_name,
+  r"(~\Official documents\srhs_boats)")
+
+if (!file.exists(srhs_vessels_2022)) {
+  srhs_vessels_2022 <-
+    file.path(my_paths$inputs,
+              file_name)
+}
 
 srhs_vessels_2022_info <-
   read_excel(
@@ -130,7 +138,8 @@ fhier_reports_metrics_tracking_file_names <-
     "Detail_Report_12312022_12312023__08_23_2023.csv")
 
 common_dir <-
-  r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))"
+  file.path(my_paths$inputs,
+  r"(from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))")
 
 # save all file names to a list
 fhier_reports_metrics_tracking_file_path <-
