@@ -40,10 +40,12 @@ one_dms_coord2 = "-82.149261"
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
     
+    minus = FALSE
     # browser()
     if (grepl("^-", one_dms_coord)) {
       # use abs to remove "-"
       one_dms_coord = abs(as.double(one_dms_coord))
+      minus = TRUE
     }
     
     if (grepl("[^0-9.]", one_dms_coord)) {
@@ -70,6 +72,9 @@ convert_dms_to_dd_nw <-
       dd_coord <- as.double(one_dms_coord)
     }
     
+    if (minus) {
+      dd_coord = -abs(dd_coord)
+    }
     return(dd_coord)
   }
 
