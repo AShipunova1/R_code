@@ -39,13 +39,17 @@ one_dms_coord2 = "-82.149261"
 # Assuming North West coords only in our data
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
-    # browser()
-    if (grepl("[^0-9.]", one_dms_coord)) {
     
+    # browser()
+    if (grepl("^-", one_dms_coord)) {
+      one_dms_coord = abs(as.double(one_dms_coord))
+    }
+    
+    if (grepl("[^0-9.]", one_dms_coord)) {
       digits_only_list <-
         strsplit(one_dms_coord,
                  "\\D+")
-
+      
       degrees <-
         digits_only_list[[1]][1] |>
         as.integer()
@@ -74,15 +78,26 @@ convert_dms_to_dd_nw <-
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
   input_data |>
-  dplyr::rowwise() |> 
-  dplyr::mutate(converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
-         converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)) |> 
+  dplyr::rowwise() |>
+  dplyr::mutate(
+    converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
+    # use abs to remove "-"
+    # postitve_long =
+    #   case_when(grepl("^-", USER_LONGITUDE) ~ abs(as.double(USER_LONGITUDE)),
+    #             .default = USER_LONGITUDE),
+    converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)
+  ) |>
   dplyr::ungroup()
 
 toc()
 # input_data_convert_dms: 0.06 sec elapsed
 
-str(input_data_convert_dms)
+input_data[4, ] |>
+  select(USER_LONGITUDE) |>
+  # 1 87 43.49
+  as.double()
+
+glimpse(input_data_convert_dms)
 
 USER_FK_LANDING_LOCATION_ID
 # 2128	27° 54.478' N	97° 07.991' W
