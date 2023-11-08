@@ -38,7 +38,8 @@ fhier_reports_metrics_tracking_file_names <-
     "Detail_Report_12312022_12312023__08_23_2023.csv")
 
 common_dir <-
-  r"(~\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))"
+  file.path(my_paths$inputs,
+  r"(from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))")
 
 # save all file names to a list
 # Create a vector named 'fhier_reports_metrics_tracking_file_path' using the purrr::map function.
