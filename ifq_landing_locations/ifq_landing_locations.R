@@ -162,10 +162,12 @@ input_data_convert_dms %>% select(where(not_all_na)) |> dim()
 
 input_data_convert_dms %>% 
   remove_empty_cols() |>
-  # filter(X == 0) |>
-  # mutate(x_a = NA,
-  #        a = coalesce(x_a, converted_dms_lon)) |>
-  View()
+  filter(X == 0) |>
+  mutate(x_a = NA,
+         a = coalesce(x_a, converted_dms_lon)) |>
+  remove_empty_cols() |>
+  # remove_0_cols() |> 
+  glimpse()
 
 # By year, map all the landing locations - so we can see the growth of time. 
 # By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
