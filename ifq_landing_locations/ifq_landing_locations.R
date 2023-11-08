@@ -40,7 +40,7 @@ one_dms_coord2 = "-82.149261"
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
     # browser()
-    if (grepl(" ", one_dms_coord)) {
+    if (grepl("[^0-9.]", one_dms_coord)) {
     
       digits_only_list <-
         strsplit(one_dms_coord,
@@ -74,18 +74,15 @@ convert_dms_to_dd_nw <-
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
   input_data |>
-  rowwise() |> 
-  mutate(converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
-         converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE))
+  dplyr::rowwise() |> 
+  dplyr::mutate(converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
+         converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)) |> 
+  dplyr::ungroup()
 
 toc()
-# 
-# ℹ In argument: `converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE)`.
-# ℹ In row 210.
-# ! NAs introduced by coercion
-# input_data[210,] |> 
-#   select(USER_LATITUDE)
-# 1 28-57.476N   
+# input_data_convert_dms: 0.06 sec elapsed
+
+str(input_data_convert_dms)
 
 USER_FK_LANDING_LOCATION_ID
 # 2128	27° 54.478' N	97° 07.991' W
