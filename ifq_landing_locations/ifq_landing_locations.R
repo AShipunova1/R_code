@@ -358,9 +358,11 @@ input_data_convert_dms_short_clean_short <-
 
 input_data_convert_dms_short_clean_short_cnt <- 
   input_data_convert_dms_short_clean_short |> 
+  mutate(use_lat_round = round(use_lat, 4),
+         use_lon_round = round(use_lon, 4)) |> 
   add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
-  add_count(use_lat, use_lon, wt = USER_UseCount, name = "total_place_cnt") |> 
-  add_count(USER_NYEAR, use_lat, use_lon, wt = USER_UseCount, name = "count_by_year_and_coord")
+  add_count(use_lat_round, use_lon_round, wt = USER_UseCount, name = "total_place_cnt") |> 
+  add_count(USER_NYEAR, use_lat_round, use_lon_round, wt = USER_UseCount, name = "count_by_year_and_coord")
 
 input_data_convert_dms_short_clean_short_cnt |> 
   filter(USER_NYEAR == 1899) |>
@@ -371,10 +373,7 @@ input_data_convert_dms_short_clean_short_cnt |>
   dim()
 # leav cnts and unique
 
-# By year, map all the landing locations ----
-# - so we can see the growth of time. 
-# print_df_names(input_data_convert_dms_short_clean_short_cnt)
-
+# make sf ----
 input_data_convert_dms_short_clean_short_cnt_sf <-
   input_data_convert_dms_short_clean_short_cnt |>
   mutate(
@@ -483,7 +482,11 @@ if (file.exists(my_file_path_local)) {
 # input_data_convert_dms_short_clean |>
 #   filter(use_lat == use_lon) |>
 #   View()
+# By year, map all the landing locations ----
+# - so we can see the growth of time. 
+# print_df_names(input_data_convert_dms_short_clean_short_cnt)
 
+## plot_by_year ---- 
 plot_by_year <-
   ggplot() +
   # geom_sf(data = st_union_GOMsf) +
@@ -522,73 +525,16 @@ ggsave(
   
 # By year, map the landing location with somehow displaying which locations are used the most. ----
 # I think we can do this with color coding.
-
-# mapview_by_year <-
-  # mapview::mapview() +
-  # geom_sf(data = st_union_GOMsf) +
-  # geom_sf(data = south_states_shp) +
-  # geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
-  #         mapping = aes(size = count_by_year_and_coord))
-
-# lat_long_area_clean_map <-
-input_data_convert_dms_short_clean_short_cnt_sf %>%
-  mapview::mapview(
-    # colors according a chosen column
-    # zcol = "count_by_year_and_coord",
-    zcol = "total_place_cnt",
-    # palette to choose colors from
+input_data_convert_dms_short_clean_short_cnt_sf |>
+  mutate(my_label =
+           str_glue("{use_addr}; # = {total_place_cnt}")) |>
+  mapview(
+    zcol = "my_label",
+    cex = "total_place_cnt",
+    alpha = 0.3,
     col.regions = viridisLite::turbo,
-    layer.name = 'Counts by year and place',
-    # transparency
-    # alpha = 0.1,
-    # legend = FALSE
-  ) 
-  # south_states_shp
-
-mapview(
-  input_data_convert_dms_short_clean_short_cnt_sf,
-  zcol = "use_addr",
-  cex = "total_place_cnt",
-  alpha = 0.3,
-  col.regions = viridisLite::turbo,
-  legend = FALSE,
-  layer.name = 'Counts by year and place'
-) 
-# %>%
-  # addStaticLabels(label = input_data_convert_dms_short_clean_short_cnt_sf$use_addr,
-  #                 # noHide = TRUE,
-  #                 direction = 'top',
-  #                 # textOnly = TRUE,
-  #                 textsize = "3px")
-
-mapview(
-  input_data_convert_dms_short_clean_short_cnt_sf,
-  col.regions = viridisLite::turbo,
-  layer.name = 'Counts by year and place',
-  zcol = "total_place_cnt"
-  # ,
-  # cex = "total_place_cnt"
-  # alpha = 0.3,
-  # legend = FALSE,
-  # layer.name = mrip_fhier_by_state_df$common_name[1]
-) 
-# %>%
-  leafem::addStaticLabels(label = input_data_convert_dms_short_clean_short_cnt_sf$use_addr)
-                          # ,
-                  # noHide = TRUE,
-                  # direction = 'top',
-                  # textOnly = TRUE,
-                  # textsize = "10px")
-
-  
-leaflet(input_data_convert_dms_short_clean_short_cnt_sf) %>%
-  addTiles() %>%
-  addCircleMarkers(
-    label = ~ use_addr,
-    # radius = ~ total_place_cnt,
-    # clusterOptions = markerClusterOptions(),
-    # fillColor =  ~ total_place_cnt,
-    color =  ~ total_place_cnt
+    legend = FALSE,
+    layer.name = 'Counts by year and place'
   )
 
   # addLabelOnlyMarkers(label = ~use_addr)
