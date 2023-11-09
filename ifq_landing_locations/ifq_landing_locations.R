@@ -35,20 +35,8 @@ input_data <-
 
 str(input_data)
 # problems(input_data)
-# # A tibble: 2 × 5
-#     row   col expected actual file                                                      
-#   <int> <int> <chr>    <chr>  <chr>                                                     
-# 1  2739    68 a double TX     C:/Users/anna.shipunova/Documents/R_files_…
-
-# data_overview(input_data)
-# print_df_names(input_data)
 
 # fill in empty ----
-
-# test
-# one_dms_coord = "97° 07'991" 
-# one_dms_coord2 = "-82.149261"
-# one_dms_coord3 = "-83.029 W"
 
 # Assuming North West coords only in our data
 convert_dms_to_dd_nw <- 
@@ -98,9 +86,14 @@ convert_dms_to_dd_nw <-
     return(dd_coord)
   }
 
-# convert_dms_to_dd_nw("97° 07'991")
-# convert_dms_to_dd_nw("-82.149261")
-# convert_dms_to_dd_nw("-83.029 W")
+# test
+# one_dms_coord = "97° 07'991" 
+# one_dms_coord2 = "-82.149261"
+# one_dms_coord3 = "-83.029 W"
+
+# convert_dms_to_dd_nw(one_dms_coord)
+# convert_dms_to_dd_nw(one_dms_coord2)
+# convert_dms_to_dd_nw(one_dms_coord3)
 # convert_dms_to_dd_nw("29.136 N")
 
 tic("input_data_convert_dms")
@@ -121,7 +114,7 @@ glimpse(input_data_convert_dms)
 # check if given lat/lon is different from geocoded ----
 # USER_LATITUDE, USER_LONGITUDE, X, Y, OID_, USER_FK_LANDING_LOCATION_ID
 ## compare user_coord with geocoded ----
-# print_df_names(input_data_convert_dms)
+
 input_data_convert_dms |>
   filter(
     !round(abs(X), 2) == round(abs(converted_dms_lon), 2) |
@@ -162,18 +155,8 @@ input_data_convert_dms |>
   dim()
 # [1] 13  6
 
-# USER_FK_LANDING_LOCATION_ID
-# 2128	27° 54.478' N	97° 07.991' W
-# 27° 54' 478"
-# = 27° + 54'/60 + 478"/3600
-# = 28.032778°
-# 
-# 97° 07' 991"
-# = 97° + 07'/60 + 991"/3600
-# = 97.391944°
-
-# check ExInfo
-# ExInfo—A collection of strings from the input that could not be matched to any part of an address and were used to score or penalize the result.
+# check ExInfo and missing coords ----
+# ExInfo — A collection of strings from the input that could not be matched to any part of an address and were used to score or penalize the result.
 input_data_convert_dms |>
   filter(!is.na(ExInfo)) |>
   remove_empty_cols() |>
@@ -202,16 +185,12 @@ input_data_convert_dms |>
   dim()
 # [1] 67 11
 
-
-# fix ----
 input_data_convert_dms |>
   filter(X == 0) |> 
   dim()
 # 8
 
-
-Filter(function(x)!all(is.na(x)), input_data_convert_dms) |> dim()
-
+# remove empty columns ----
 # dim(input_data_convert_dms)
 # [1] 3418   82
 # 
@@ -517,12 +496,6 @@ ggsave(
   units = "cm"
 )
 
-  # ggplot2$facet_grid(lat_grouped ~ year_fct) + 
-  # geom_sf_text(data = south_states_shp,
-  #              label = south_states_shp$NAME,  # Use the 'NAME' column as labels.
-  #              size = 3)  # Set the size of the text labels to 3.
-
-  
 # By year, map the landing location with somehow displaying which locations are used the most. ----
 # I think we can do this with color coding.
 input_data_convert_dms_short_clean_short_cnt_sf |>
