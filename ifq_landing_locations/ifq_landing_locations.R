@@ -1,10 +1,7 @@
 # setup for ifq_landing_locations ----
-
-# Needed for mapping
-# if (!require(ggmap)) {
-#   install.packages("ggmap")
-#   library(ggmap)
-# }
+library(leaflet)
+library(mapview)
+library(leafem)
 
 ## Load the 'tigris' package to access geographic data.
 library(tigris)
@@ -361,12 +358,18 @@ input_data_convert_dms_short_clean_short <-
 
 input_data_convert_dms_short_clean_short_cnt <- 
   input_data_convert_dms_short_clean_short |> 
-  add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |> 
+  add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
+  add_count(use_lat, use_lon, wt = USER_UseCount, name = "total_place_cnt") |> 
   add_count(USER_NYEAR, use_lat, use_lon, wt = USER_UseCount, name = "count_by_year_and_coord")
 
 input_data_convert_dms_short_clean_short_cnt |> 
   filter(USER_NYEAR == 1899) |>
   glimpse()
+
+input_data_convert_dms_short_clean_short_cnt |>
+  distinct() |> 
+  dim()
+# leav cnts and unique
 
 # By year, map all the landing locations ----
 # - so we can see the growth of time. 
@@ -468,8 +471,8 @@ if (file.exists(my_file_path_local)) {
 }
 
 
-mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
-  south_states_shp
+# mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
+#   south_states_shp
 
 # err oid 2898 + lat = lon
 
@@ -492,6 +495,7 @@ plot_by_year <-
              ncol = 3) +
   ggtitle("IFQ Landing Locations") +
   theme(legend.position = "bottom") + 
+  # count_by_year_and_coord
   guides(size = guide_legend(title = "Counts by year and place"))
 
 plot_by_year
@@ -516,31 +520,80 @@ ggsave(
   #              size = 3)  # Set the size of the text labels to 3.
 
   
-  # geom_sf(data = df_selected, 
-  #               mapping = aes(color = lat_grouped)) + 
-  # 
-  # facet_grid(lat_grouped ~ year) + 
-
-
 # By year, map the landing location with somehow displaying which locations are used the most. ----
 # I think we can do this with color coding.
 
-plot_by_year <-
-  ggplot() +
+# mapview_by_year <-
+  # mapview::mapview() +
   # geom_sf(data = st_union_GOMsf) +
   # geom_sf(data = south_states_shp) +
-  geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
-          mapping = aes(size = count_by_year_and_coord))
+  # geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
+  #         mapping = aes(size = count_by_year_and_coord))
 
-lat_long_area_clean_map <-
-  lat_long_area_clean_sf %>%
-  mapview(
+# lat_long_area_clean_map <-
+input_data_convert_dms_short_clean_short_cnt_sf %>%
+  mapview::mapview(
     # colors according a chosen column
-    zcol = "AREA_NAME",
+    # zcol = "count_by_year_and_coord",
+    zcol = "total_place_cnt",
     # palette to choose colors from
     col.regions = viridisLite::turbo,
-    layer.name = 'AREA_NAME',
+    layer.name = 'Counts by year and place',
     # transparency
-    alpha = 0.3,
-    legend = FALSE
+    # alpha = 0.1,
+    # legend = FALSE
+  ) 
+  # south_states_shp
+
+mapview(
+  input_data_convert_dms_short_clean_short_cnt_sf,
+  zcol = "use_addr",
+  cex = "total_place_cnt",
+  alpha = 0.3,
+  col.regions = viridisLite::turbo,
+  legend = FALSE,
+  layer.name = 'Counts by year and place'
+) 
+# %>%
+  # addStaticLabels(label = input_data_convert_dms_short_clean_short_cnt_sf$use_addr,
+  #                 # noHide = TRUE,
+  #                 direction = 'top',
+  #                 # textOnly = TRUE,
+  #                 textsize = "3px")
+
+mapview(
+  input_data_convert_dms_short_clean_short_cnt_sf,
+  col.regions = viridisLite::turbo,
+  layer.name = 'Counts by year and place',
+  zcol = "total_place_cnt"
+  # ,
+  # cex = "total_place_cnt"
+  # alpha = 0.3,
+  # legend = FALSE,
+  # layer.name = mrip_fhier_by_state_df$common_name[1]
+) 
+# %>%
+  leafem::addStaticLabels(label = input_data_convert_dms_short_clean_short_cnt_sf$use_addr)
+                          # ,
+                  # noHide = TRUE,
+                  # direction = 'top',
+                  # textOnly = TRUE,
+                  # textsize = "10px")
+
+  
+leaflet(input_data_convert_dms_short_clean_short_cnt_sf) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    label = ~ use_addr,
+    # radius = ~ total_place_cnt,
+    # clusterOptions = markerClusterOptions(),
+    # fillColor =  ~ total_place_cnt,
+    color =  ~ total_place_cnt
   )
+
+  # addLabelOnlyMarkers(label = ~use_addr)
+                      # , 
+                      # labelOptions = labelOptions(noHide = T,
+                      #                             direction = 'top',
+                      #                             textOnly = T))
+
