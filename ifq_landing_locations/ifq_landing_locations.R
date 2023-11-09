@@ -40,7 +40,7 @@ input_data |>
 # Assuming North West coords only in our data
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
-    browser()
+    # browser()
     minus = FALSE
     
     # remove "W and N" at the end
@@ -51,6 +51,7 @@ convert_dms_to_dd_nw <-
     if (grepl("^-", one_dms_coord)) {
       # use abs to remove "-"
       one_dms_coord = abs(as.double(one_dms_coord))
+      # keep a record
       minus = TRUE
     }
     
@@ -97,8 +98,8 @@ convert_dms_to_dd_nw <-
 # 29.136 N
 # -83.029 W
 
-convert_dms_to_dd_nw("-83.029 W")
-convert_dms_to_dd_nw("29.136 N")
+# convert_dms_to_dd_nw("-83.029 W")
+# convert_dms_to_dd_nw("29.136 N")
 
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
