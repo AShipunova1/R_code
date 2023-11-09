@@ -387,12 +387,12 @@ glimpse(input_data_convert_dms_short_clean_short_cnt_sf)
 south_east_coast_states <- c(
   "Alabama",
   # "Connecticut",
-  "Delaware",
+  # "Delaware",
   "Florida",
   "Georgia",
   "Louisiana",
   # "Maine",
-  "Maryland",
+  # "Maryland",
   # "Massachusetts",
   "Mississippi",
   # "New Hampshire",
@@ -402,9 +402,10 @@ south_east_coast_states <- c(
   # "Pennsylvania",
   # "Rhode Island",
   "South Carolina",
-  "Texas",
-  "Virginia",
-  "Washington DC"
+  "Texas"
+  # ,
+  # "Virginia",
+  # "Washington DC"
 )
 
 ## us ----
@@ -434,13 +435,45 @@ GOM_400fm_path <-
 
 ## Read a shapefile from the specified file path using 'sf::read_sf'.
 ## Then, group the resulting data by 'StatZone' and summarize it.
-GOMsf <-
-  sf::read_sf(GOM_400fm_path) %>%
-  dplyr::group_by(StatZone) %>%
-  summarise()
+GOMsf_all <-
+  sf::read_sf(GOM_400fm_path)
+# %>%
+#   dplyr::group_by(StatZone) %>%
+#   summarise()
+
+# glimpse(GOMsf)
+
+my_file_path_local <- file.path(my_paths$outputs,
+                           "fishing_effort_location",
+                           "st_union_GOMsf.rds")
+my_file_path_out <- file.path(my_paths$outputs,
+                           "st_union_GOMsf.rds")
+
+# If the file exists, read the data from the RDS file.
+if (file.exists(my_file_path_local)) {
+  current_path <- my_file_path_local
+  st_union_GOMsf <- readr::read_rds(current_path)
+} else if (file.exists(my_file_path_out)) {
+  current_path <- my_file_path_out
+  st_union_GOMsf <- readr::read_rds(current_path)
+} else {
+  tic("st_union(GOMsf)")
+  st_union_GOMsf <- sf::st_union(GOMsf)
+  toc()
+
+  readr::write_rds(st_union_GOMsf,
+                   my_file_path_out)
+}
+
 
 ggplot() + 
-  geom_sf(data = sweden) + 
+  # geom_sf(data = st_union_GOMsf) + 
+  geom_sf(data = south_states_shp) + 
+  geom_sf_text(data = south_states_shp,
+               label = south_states_shp$NAME,  # Use the 'NAME' column as labels.
+               size = 3)  # Set the size of the text labels to 3.
+
+  
   geom_sf(data = df_selected, 
                 mapping = aes(color = lat_grouped)) + 
   
