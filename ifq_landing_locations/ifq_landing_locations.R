@@ -12,16 +12,23 @@ current_project_dir_name <- basename(current_project_dir_path)
 # 2) upload the result to R
 input_data_file_path <-
   file.path(my_paths$inputs,
-            r"(ifq_landing_locations\IFQ_Landing_Location_Use_geocoded.csv)")
+            r"(ifq_landing_locations\IFQ_Landing_Location_Use_geocoded_ex.csv)")
 
-input_data <- readr::read_csv(input_data_file_path)
+# input_data <- readr::read_csv(input_data_file_path)
+input_data <-
+  read.csv(
+    input_data_file_path,
+    header = TRUE,
+    stringsAsFactors = FALSE,
+    fileEncoding = "latin1"
+  )
 
+str(input_data)
 # problems(input_data)
 # # A tibble: 2 × 5
 #     row   col expected actual file                                                      
 #   <int> <int> <chr>    <chr>  <chr>                                                     
-# 1  1264    68 a double TX     C:/Users/anna.shipunova/Documents/R_files_local/my_inputs…
-# 2  1264    78 a double TX     C:/Users/anna.shipunova/Documents/R_files_local/my_inputs…
+# 1  2739    68 a double TX     C:/Users/anna.shipunova/Documents/R_files_…
 
 # data_overview(input_data)
 # print_df_names(input_data)
@@ -33,6 +40,8 @@ input_data |>
          USER_LONGITUDE) |> 
   distinct() |>
   glimpse()
+# $ USER_LATITUDE  <chr> "27\xb0 54.478' N"
+# $ USER_LONGITUDE <chr> "97\xb0 07.991' W"
 
 # test
 # one_dms_coord = "97° 07'991" 
@@ -87,8 +96,17 @@ convert_dms_to_dd_nw <-
     return(dd_coord)
   }
 
-# convert_dms_to_dd_nw("97° 07'991")
+convert_dms_to_dd_nw("97° 07'991")
 # convert_dms_to_dd_nw("-82.149261")
+
+# input_data[64, ] |>
+#   select(USER_LATITUDE,
+#          USER_LONGITUDE,
+#          "USER_NYEAR",
+#          "USER_UseCount",
+#          "X",
+#          "Y")
+# 1 "27\xb0 47.420' N" "82\xb0 46.500…       2012            25 -82.8  27.8
 
 # input_data[1099, ] |>
 #   select(USER_LATITUDE,
@@ -102,6 +120,14 @@ convert_dms_to_dd_nw <-
 
 # convert_dms_to_dd_nw("-83.029 W")
 # convert_dms_to_dd_nw("29.136 N")
+
+input_data[64,] |>
+  dplyr::rowwise() |>
+  dplyr::mutate(
+    converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
+    converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)
+  ) |>
+  dplyr::ungroup()
 
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
