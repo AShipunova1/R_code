@@ -1,4 +1,11 @@
 # setup for ifq_landing_locations ----
+
+# Needed for mapping
+# if (!require(ggmap)) {
+#   install.packages("ggmap")
+#   library(ggmap)
+# }
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_dir_path <-
@@ -7,6 +14,7 @@ current_project_dir_name <- basename(current_project_dir_path)
 
 # get data for ifq_landing_locations ----
 # 1) convert addresses from the original csv to coordinates with ARCgis
+# or use tidygeocoder
 # 2) manually (google search) add corrected_addr	corrected_lat	corrected_long if ExInfo is not NA (where possible)
 # 2) upload the result to R
 input_data_file_path <-
@@ -353,4 +361,27 @@ input_data_convert_dms_short_clean_short_cnt |>
   glimpse()
 
 # By year, map all the landing locations - so we can see the growth of time. 
+print_df_names(input_data_convert_dms_short_clean_short_cnt)
+
+input_data_convert_dms_short_clean_short_cnt_sf <-
+  input_data_convert_dms_short_clean_short_cnt |>
+  mutate(
+    year_fct = factor(USER_NYEAR)
+  ) |>
+  sf::st_as_sf(
+    coords = c("use_lon", "use_lat"),
+    crs = 4326,
+    na.fail = FALSE
+  )
+
+glimpse(input_data_convert_dms_short_clean_short_cnt_sf)
+
+ggplot() + 
+  geom_sf(data = sweden) + 
+  geom_sf(data = df_selected, 
+                mapping = aes(color = lat_grouped)) + 
+  
+  facet_grid(lat_grouped ~ year) + 
+
+
 # By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
