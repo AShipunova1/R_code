@@ -445,24 +445,31 @@ if (file.exists(my_file_path_local)) {
 #   south_states_shp
 
 ## plot_by_year ---- 
-plot_by_year <-
-  ggplot() +
-  # geom_sf(data = st_union_GOMsf) +
-  # geom_sf(data = south_states_shp) +
+# Create a new variable 'plot_by_year'.
+plot_by_year <- ggplot() +  # Initialize a ggplot object.
+  
+  # Add a spatial feature layer to the plot using 'geom_sf' and 'input_data_convert_dms_short_clean_short_cnt_sf' as data.
+  # Map the size aesthetic to 'count_by_year_and_coord'.
   geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
           mapping = aes(size = count_by_year_and_coord)) +
-  facet_wrap(vars(year_fct),
-             # scales = "free_x",
-             ncol = 3) +
+  
+  # Create facets based on year, arranging them in a 3-column layout.
+  facet_wrap(vars(year_fct), ncol = 3) +
+  
   ggtitle("IFQ Landing Locations") +
-  theme(legend.position = "bottom") + 
-  # count_by_year_and_coord
+  
+  theme(legend.position = "bottom") +
+  
+  # Customize the legend for the size aesthetic.
   guides(size = guide_legend(title = "Counts by year and place"))
 
 plot_by_year
 
 output_file_name <- 
   "facets_by_year.png"
+
+# output_file_name <- 
+#   "facets_by_year_w_states.png"
 
 ggsave(
   file = output_file_name,
@@ -477,6 +484,12 @@ ggsave(
 
 # By year, map the landing location with somehow displaying which locations are used the most. ----
 # I think we can do this with color coding.
+
+# zcol = "my_label",  # Use the 'my_label' column for labeling map points.
+# cex = "total_place_cnt",  # Control the size of map points based on 'total_place_cnt'.
+# alpha = 0.3,  # Set the transparency of map points to 0.3 (partially transparent).
+# col.regions = viridisLite::turbo,  # Define the color palette for map points using 'turbo' from 'viridisLite'.
+
 input_data_convert_dms_short_clean_short_cnt_sf |>
   mutate(my_label =
            str_glue("{use_addr}; # = {total_place_cnt}")) |>
