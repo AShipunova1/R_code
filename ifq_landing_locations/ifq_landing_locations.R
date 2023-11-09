@@ -487,10 +487,9 @@ ggplot() +
   # geom_sf(data = south_states_shp) + 
   geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
                         mapping = aes(size = count_by_year_and_coord)) +
-  facet_wrap(vars(year_fct)
-             # ,
+  facet_wrap(vars(year_fct),
            # scales = "free_x",
-           # ncol = 1
+           ncol = 3
            ) 
 # +
 
