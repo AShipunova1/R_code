@@ -470,10 +470,9 @@ ggplot() +
   # geom_sf(data = st_union_GOMsf) + 
   # geom_sf(data = south_states_shp) + 
   geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf) + 
-  facet_wrap(vars(USER_NYEAR)
-             # ,
+  facet_wrap(vars(year_fct),
            # scales = "free_x",
-           # nrow = 1
+           ncol = 1
            ) 
 # +
 
