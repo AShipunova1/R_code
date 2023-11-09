@@ -361,14 +361,16 @@ input_data_convert_dms_short_clean_short <-
 
 input_data_convert_dms_short_clean_short_cnt <- 
   input_data_convert_dms_short_clean_short |> 
-  add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y")
+  add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |> 
+  add_count(USER_NYEAR, use_lat, use_lon, wt = USER_UseCount, name = "count_by_year_and_coord")
 
 input_data_convert_dms_short_clean_short_cnt |> 
   filter(USER_NYEAR == 1899) |>
   glimpse()
 
-# By year, map all the landing locations - so we can see the growth of time. 
-print_df_names(input_data_convert_dms_short_clean_short_cnt)
+# By year, map all the landing locations ----
+# - so we can see the growth of time. 
+# print_df_names(input_data_convert_dms_short_clean_short_cnt)
 
 input_data_convert_dms_short_clean_short_cnt_sf <-
   input_data_convert_dms_short_clean_short_cnt |>
@@ -483,7 +485,8 @@ mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
 ggplot() + 
   # geom_sf(data = st_union_GOMsf) + 
   # geom_sf(data = south_states_shp) + 
-  geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf) + 
+  geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
+                        mapping = aes(size = count_by_year_and_coord)) +
   facet_wrap(vars(year_fct)
              # ,
            # scales = "free_x",
