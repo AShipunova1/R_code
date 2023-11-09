@@ -537,9 +537,10 @@ input_data_convert_dms_short_clean_short_cnt_sf |>
     layer.name = 'Counts by year and place'
   )
 
-  # addLabelOnlyMarkers(label = ~use_addr)
-                      # , 
-                      # labelOptions = labelOptions(noHide = T,
-                      #                             direction = 'top',
-                      #                             textOnly = T))
-
+# check missing addresses ----
+input_data_convert_dms_short_clean |>
+  filter(is.na(X) | is.na(Y)) |>
+  filter(is.na(converted_dms_lat) | is.na(converted_dms_lon)) |>
+  remove_empty_cols() |>
+  select(USER_NYEAR, USER_UseCount) |>
+  head()
