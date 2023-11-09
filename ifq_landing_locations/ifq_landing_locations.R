@@ -308,7 +308,7 @@ input_data_convert_dms_short_clean <-
     use_lon =
       dplyr::coalesce(corrected_long,
                       Y,
-                      converted_dms_lon),
+                      -abs(converted_dms_lon)),
     # can't use coalesce, bc corrected_addr can be ""
     use_addr =
       case_when(
@@ -469,6 +469,12 @@ if (file.exists(my_file_path_local)) {
 mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
   south_states_shp
 
+# err oid 2898 + lat = lon
+
+input_data_convert_dms_short_clean |> 
+  filter(OID_ == 2898) |> 
+  View()
+  
 ggplot() + 
   # geom_sf(data = st_union_GOMsf) + 
   # geom_sf(data = south_states_shp) + 
