@@ -276,21 +276,31 @@ input_data_convert_dms_short <-
 
 # input_data_convert_dms_short |> 
 #   glimpse()
-input_data_convert_dms_short_clean <- 
+input_data_convert_dms_short_clean <-
   input_data_convert_dms_short |>
-  mutate(use_lat =
-           dplyr::coalesce(corrected_lat,
-                           Y,
-                           converted_dms_lat),
-         use_lon =
-           dplyr::coalesce(corrected_long,
-                           Y,
-                           converted_dms_lon),
-         # can't use coalesce, bc corrected_addr can be ""
-         use_addr =
-           case_when(!is.na(corrected_addr) &
-                       !corrected_addr == "" ~ corrected_addr,
-                     .default = Place_addr)
+  mutate(
+    X = case_when(X == 0 ~ NA,
+    .default = X),
+    Y = case_when(Y == 0 ~ NA,
+    .default = Y
+  )
+  ) |>
+  mutate(
+    use_lat =
+      dplyr::coalesce(corrected_lat,
+                      Y,
+                      converted_dms_lat),
+    use_lon =
+      dplyr::coalesce(corrected_long,
+                      Y,
+                      converted_dms_lon),
+    # can't use coalesce, bc corrected_addr can be ""
+    use_addr =
+      case_when(
+        !is.na(corrected_addr) &
+          !corrected_addr == "" ~ corrected_addr,
+        .default = Place_addr
+      )
   )
 
 # input_data_convert_dms_short |> 
@@ -298,6 +308,30 @@ input_data_convert_dms_short_clean <-
 #   rowwise() |> 
 #   mutate(ll = length(corrected_addr)) |> 
 #   glimpse()
+
+# test
+input_data_convert_dms_short_clean |>
+  filter(corrected_addr == "") |>
+  glimpse()
+
+input_data_convert_dms_short |>
+  filter(X == 0) |>
+  glimpse()
+# $ OID_              <int> 194, 664, 695, 1368, 2511, 2898, 3122, 3157
+# $ Place_addr        <chr> "", "", "", "", "", "", "", ""
+# $ corrected_addr    <chr> "", "", "", "", "", "", "", ""
+# $ corrected_lat     <dbl> NA, NA, NA, NA, NA, NA, NA, NA
+# $ corrected_long    <dbl> NA, NA, NA, NA, NA, NA, NA, NA
+# $ Y                 <dbl> 0, 0, 0, 0, 0, 0, 0, 0
+# $ converted_dms_lat <dbl> 28.03278, 28.03278, 28.03278, NA, NA, 28.03278, NA, NA
+# $ X                 <dbl> 0, 0, 0, 0, 0, 0, 0, 0
+# $ converted_dms_lon <dbl> 97.39194, 97.39194, 97.39194, NA, NA, 97.39194, NA, NA
+# $ USER_NYEAR        <int> 2015, 2016, 2018, 2014, 2020, 2020, 2013, 2015
+# $ USER_UseCount     <int> 4, 1, 3, 136, 1, 3, 40, 28
+
+input_data_convert_dms_short_clean |>
+  filter(OID_ == 194) |>
+  glimpse()
 
 # print_df_names(input_data_convert_dms_short_clean)
 # Don't unique, bc counts could be the same
