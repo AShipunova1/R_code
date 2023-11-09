@@ -481,17 +481,34 @@ mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
 #   filter(use_lat == use_lon) |>
 #   View()
 
-  
-ggplot() + 
-  # geom_sf(data = st_union_GOMsf) + 
-  # geom_sf(data = south_states_shp) + 
+plot_by_year <-
+  ggplot() +
+  # geom_sf(data = st_union_GOMsf) +
+  # geom_sf(data = south_states_shp) +
   geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
-                        mapping = aes(size = count_by_year_and_coord)) +
+          mapping = aes(size = count_by_year_and_coord)) +
   facet_wrap(vars(year_fct),
-           # scales = "free_x",
-           ncol = 3
-           ) 
-# +
+             # scales = "free_x",
+             ncol = 3) +
+  ggtitle("IFQ Landing Locations") +
+  theme(legend.position = "bottom") + 
+  guides(size = guide_legend(title = "Counts by year and place"))
+
+plot_by_year
+
+output_file_name <- 
+  "facets_by_year.png"
+
+ggsave(
+  file = output_file_name,
+  plot = plot_by_year,
+  device = "png",
+  path = file.path(my_paths$outputs,
+                   current_project_dir_name),
+  width = 30,
+  height = 20,
+  units = "cm"
+)
 
   # ggplot2$facet_grid(lat_grouped ~ year_fct) + 
   # geom_sf_text(data = south_states_shp,
@@ -505,4 +522,25 @@ ggplot() +
   # facet_grid(lat_grouped ~ year) + 
 
 
-# By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
+# By year, map the landing location with somehow displaying which locations are used the most. ----
+# I think we can do this with color coding.
+
+plot_by_year <-
+  ggplot() +
+  # geom_sf(data = st_union_GOMsf) +
+  # geom_sf(data = south_states_shp) +
+  geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
+          mapping = aes(size = count_by_year_and_coord))
+
+lat_long_area_clean_map <-
+  lat_long_area_clean_sf %>%
+  mapview(
+    # colors according a chosen column
+    zcol = "AREA_NAME",
+    # palette to choose colors from
+    col.regions = viridisLite::turbo,
+    layer.name = 'AREA_NAME',
+    # transparency
+    alpha = 0.3,
+    legend = FALSE
+  )
