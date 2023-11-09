@@ -202,7 +202,7 @@ input_data_convert_dms |>
   ) |>
   distinct() |>
   filter(!USER_ZIP == Postal) |> 
-  View()
+  dim()
 # [1] 67 11
 
 
@@ -468,16 +468,25 @@ if (file.exists(my_file_path_local)) {
 
 ggplot() + 
   # geom_sf(data = st_union_GOMsf) + 
-  geom_sf(data = south_states_shp) + 
-  geom_sf_text(data = south_states_shp,
-               label = south_states_shp$NAME,  # Use the 'NAME' column as labels.
-               size = 3)  # Set the size of the text labels to 3.
+  # geom_sf(data = south_states_shp) + 
+  geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf) + 
+  facet_wrap(vars(USER_NYEAR)
+             # ,
+           # scales = "free_x",
+           # nrow = 1
+           ) 
+# +
+
+  # ggplot2$facet_grid(lat_grouped ~ year_fct) + 
+  # geom_sf_text(data = south_states_shp,
+  #              label = south_states_shp$NAME,  # Use the 'NAME' column as labels.
+  #              size = 3)  # Set the size of the text labels to 3.
 
   
-  geom_sf(data = df_selected, 
-                mapping = aes(color = lat_grouped)) + 
-  
-  facet_grid(lat_grouped ~ year) + 
+  # geom_sf(data = df_selected, 
+  #               mapping = aes(color = lat_grouped)) + 
+  # 
+  # facet_grid(lat_grouped ~ year) + 
 
 
 # By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
