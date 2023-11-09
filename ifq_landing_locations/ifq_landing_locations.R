@@ -1,7 +1,7 @@
 # setup for ifq_landing_locations ----
-library(leaflet)
+# library(leaflet)
+# Load the 'mapview' library for interactive viewing of spatial data.
 library(mapview)
-library(leafem)
 
 ## Load the 'tigris' package to access geographic data.
 library(tigris)
@@ -11,6 +11,13 @@ library(tigris)
 tigris_use_cache = TRUE
 
 source("~/R_code_github/useful_functions_module.r")
+
+# my_paths <- set_work_dir(): Calls a custom function set_work_dir() to set the working directories.
+# 
+# current_project_dir_path <- get_current_file_directory(): Calls the get_current_file_directory() function to retrieve the path of the current R project's directory and assigns it to the variable current_project_dir_path.
+# 
+# current_project_dir_name <- basename(current_project_dir_path): Uses the basename() function to extract the name of the current R project's directory from the current_project_dir_path and stores it in the variable current_project_dir_name.
+
 my_paths <- set_work_dir()
 current_project_dir_path <-
   get_current_file_directory()
@@ -18,13 +25,16 @@ current_project_dir_name <- basename(current_project_dir_path)
 
 # get data for ifq_landing_locations ----
 # 1) convert addresses from the original csv to coordinates with ARCgis
-# or use tidygeocoder
-# 2) manually (google search) add corrected_addr	corrected_lat	corrected_long if ExInfo is not NA (where possible)
+# or use tidygeocoder;
+# 2) manually (google search) add corrected_addr,	corrected_lat and	corrected_long if ExInfo is not NA (where possible);
 # 2) upload the result to R
 input_data_file_path <-
   file.path(my_paths$inputs,
             r"(ifq_landing_locations\IFQ_Landing_Location_Use_geocoded_ex.csv)")
 
+# file.exists(input_data_file_path)
+
+# 'header = TRUE' indicates that the first row of the CSV file contains column names.
 input_data <-
   read.csv(
     input_data_file_path,
@@ -36,12 +46,12 @@ input_data <-
 str(input_data)
 # problems(input_data)
 
-# fill in empty ----
-
+# unify user coordinate format ----
 # Assuming North West coords only in our data
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
     # browser()
+    # a flag to keep negative info
     minus = FALSE
     
     # remove "W and N" at the end
@@ -56,6 +66,8 @@ convert_dms_to_dd_nw <-
       minus = TRUE
     }
     
+    # In this code, the if statement is used to check whether the variable one_dms_coord contains any characters that are not digits (0-9) or periods (.) using the grepl() function. If such characters are found, the code proceeds to split the one_dms_coord string into a list of substrings that contain only digits and periods. The strsplit() function is used for this purpose, and it splits the string at one or more non-digit characters, which is specified by the regular expression "\D+". The resulting substrings are stored in the digits_only_list.
+
     if (grepl("[^0-9.]", one_dms_coord)) {
       digits_only_list <-
         strsplit(one_dms_coord,
@@ -77,9 +89,11 @@ convert_dms_to_dd_nw <-
         degrees + minutes / 60 + seconds / 3600
       
     } else {
+      # here if already in the DD format
       dd_coord <- as.double(one_dms_coord)
     }
-    
+
+    # restore the sign if deleted 
     if (minus) {
       dd_coord = -abs(dd_coord)
     }
@@ -96,6 +110,7 @@ convert_dms_to_dd_nw <-
 # convert_dms_to_dd_nw(one_dms_coord3)
 # convert_dms_to_dd_nw("29.136 N")
 
+## convert all input coord format ----
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
   input_data |>
@@ -156,16 +171,17 @@ input_data_convert_dms |>
 # [1] 13  6
 
 # check ExInfo and missing coords ----
+#   print_df_names(input_data_convert_dms)
+# [1] "OID_, Loc_name, Status, Score, Match_type, Match_addr, LongLabel, ShortLabel, Addr_type, PlaceName, Place_addr, Rank, AddNum, AddNumFrom, AddNumTo, AddRange, Side, StPreDir, StName, StType, StDir, StAddr, Nbrhd, City, MetroArea, Subregion, Region, RegionAbbr, Postal, PostalExt, Country, CntryName, LangCode, Distance, X, Y, DisplayX, DisplayY, Xmin, Xmax, Ymin, Ymax, ExInfo, IN_Address, IN_City, IN_Region, IN_Postal, USER_NYEAR, USER_FK_LANDING_LOCATION_ID, USER_LATITUDE, USER_LONGITUDE, USER_STREET, USER_CITY, USER_STATE, USER_ZIP, USER_UseCount, USER_Field10, converted_dms_lat, converted_dms_lon"
+
 # ExInfo — A collection of strings from the input that could not be matched to any part of an address and were used to score or penalize the result.
 input_data_convert_dms |>
-  filter(!is.na(ExInfo)) |>
+  filter(!is.na(ExInfo)) |> 
+  filter(!ExInfo == "") |>
   remove_empty_cols() |>
   distinct() |> 
   # dim()
-# [1] 466  59
-#   print_df_names()
-# [1] "OID_, Loc_name, Status, Score, Match_type, Match_addr, LongLabel, ShortLabel, Addr_type, PlaceName, Place_addr, Rank, AddNum, AddNumFrom, AddNumTo, AddRange, Side, StPreDir, StName, StType, StDir, StAddr, Nbrhd, City, MetroArea, Subregion, Region, RegionAbbr, Postal, PostalExt, Country, CntryName, LangCode, Distance, X, Y, DisplayX, DisplayY, Xmin, Xmax, Ymin, Ymax, ExInfo, IN_Address, IN_City, IN_Region, IN_Postal, USER_NYEAR, USER_FK_LANDING_LOCATION_ID, USER_LATITUDE, USER_LONGITUDE, USER_STREET, USER_CITY, USER_STATE, USER_ZIP, USER_UseCount, USER_Field10, converted_dms_lat, converted_dms_lon"
-  # Loc_name == "World"
+# [1] 466  66
   select(
     Place_addr,
     ExInfo,
@@ -214,6 +230,7 @@ input_data_convert_dms_short <-
 # dim(input_data_convert_dms_short)
   # [1] 3418    10
 
+# check
 # input_data_convert_dms_short |>
 #   filter(USER_NYEAR == 1899) |>
 #   select(OID_, USER_UseCount, USER_NYEAR) |>
@@ -227,6 +244,8 @@ input_data_convert_dms_short <-
 #   glimpse()
 
 # clean df ----
+# In summary, the code takes the 'input_data_convert_dms_short' data frame, makes several modifications to it using the 'mutate' function, and creates three new columns: 'use_lat', 'use_lon', and 'use_addr'. These new columns are generated based on specific conditions or by choosing the first non-NA value from a set of columns using 'coalesce'. The resulting data frame is stored in 'input_data_convert_dms_short_clean'.
+
 input_data_convert_dms_short_clean <-
   input_data_convert_dms_short |>
   mutate(
@@ -278,7 +297,7 @@ input_data_convert_dms_short |>
 #   filter(OID_ == 194) |>
 #   glimpse()
 
-# Don't unique, bc counts could be the same
+# Don't unique yet, bc counts could be the same
 input_data_convert_dms_short_clean_short <-
   input_data_convert_dms_short_clean |>
   select(OID_, use_lat, use_lon, USER_NYEAR, USER_UseCount, use_addr)
@@ -287,6 +306,8 @@ input_data_convert_dms_short_clean_short <-
 # [1] 3418    6
 
 # add counts ----
+# In summary, the code takes the 'input_data_convert_dms_short_clean_short' data frame, adds two new columns ('use_lat_round' and 'use_lon_round') by rounding the 'use_lat' and 'use_lon' columns, and then applies three 'add_count' operations to calculate counts based on different groupings of columns. The results are stored in the 'input_data_convert_dms_short_clean_short_cnt' data frame.
+
 input_data_convert_dms_short_clean_short_cnt <-
   input_data_convert_dms_short_clean_short |>
   mutate(use_lat_round = round(use_lat, 4),
@@ -323,6 +344,8 @@ input_data_convert_dms_short_clean_short_cnt_short <-
 # print_df_names(input_data_convert_dms_short_clean_short_cnt)
 
 # make sf ----
+# In summary, the code takes the 'input_data_convert_dms_short_clean_short_cnt_short' data frame, adds a new factor column 'year_fct' based on the 'USER_NYEAR' column, and then converts the resulting data frame into a spatial object using the 'sf' package. The spatial object is defined with coordinates based on 'use_lon_round' and 'use_lat_round', and it uses the EPSG 4326 CRS (WGS 84). NA values are allowed in the spatial object. The final result is stored in 'input_data_convert_dms_short_clean_short_cnt_sf'.
+
 input_data_convert_dms_short_clean_short_cnt_sf <-
   input_data_convert_dms_short_clean_short_cnt_short |>
   mutate(
@@ -361,14 +384,14 @@ south_east_coast_states <- c(
   # "Washington DC"
 )
 
-## us ----
-## Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
-## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+## us maps ----
+# The code loads U.S. state boundary shapefile data using the 'tigris' package, and the resulting spatial data is stored in the 'us_s_shp' variable as a simple feature (sf) object. The progress bar is disabled during the data loading process.
+# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+
 us_s_shp <-
   tigris::states(cb = TRUE, progress_bar = FALSE)
 
 ## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
-# View(us_s_shp)
 south_states_shp <-
   us_s_shp |>
   filter(NAME %in% south_east_coast_states)
@@ -390,9 +413,6 @@ GOM_400fm_path <-
 ## Then, group the resulting data by 'StatZone' and summarize it.
 GOMsf_all <-
   sf::read_sf(GOM_400fm_path)
-# %>%
-#   dplyr::group_by(StatZone) %>%
-#   summarise()
 
 # glimpse(GOMsf)
 
@@ -402,7 +422,7 @@ my_file_path_local <- file.path(my_paths$outputs,
 my_file_path_out <- file.path(my_paths$outputs,
                            "st_union_GOMsf.rds")
 
-# If the file exists, read the data from the RDS file.
+# If the file exists, read the data from the RDS file (to speed it up).
 if (file.exists(my_file_path_local)) {
   current_path <- my_file_path_local
   st_union_GOMsf <- readr::read_rds(current_path)
@@ -410,10 +430,12 @@ if (file.exists(my_file_path_local)) {
   current_path <- my_file_path_out
   st_union_GOMsf <- readr::read_rds(current_path)
 } else {
+  # Start measuring the time it takes to perform the operation and display a message.
   tic("st_union(GOMsf)")
   st_union_GOMsf <- sf::st_union(GOMsf)
+  # Stop measuring time and display the elapsed time.
   toc()
-
+  
   readr::write_rds(st_union_GOMsf,
                    my_file_path_out)
 }
@@ -421,19 +443,6 @@ if (file.exists(my_file_path_local)) {
 
 # mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
 #   south_states_shp
-
-# err oid 2898 + lat = lon
-
-# input_data_convert_dms_short_clean |> 
-#   filter(OID_ == 2898) |> 
-#   View()
-
-# input_data_convert_dms_short_clean |>
-#   filter(use_lat == use_lon) |>
-#   View()
-# By year, map all the landing locations ----
-# - so we can see the growth of time. 
-# print_df_names(input_data_convert_dms_short_clean_short_cnt)
 
 ## plot_by_year ---- 
 plot_by_year <-
