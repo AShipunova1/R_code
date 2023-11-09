@@ -466,6 +466,9 @@ if (file.exists(my_file_path_local)) {
 }
 
 
+mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
+  south_states_shp
+
 ggplot() + 
   # geom_sf(data = st_union_GOMsf) + 
   # geom_sf(data = south_states_shp) + 
