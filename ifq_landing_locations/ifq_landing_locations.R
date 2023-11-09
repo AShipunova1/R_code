@@ -339,13 +339,16 @@ input_data_convert_dms_short_clean_short <-
   input_data_convert_dms_short_clean |>
   select(OID_, use_lat, use_lon, USER_NYEAR, USER_UseCount, use_addr)
 
-glimpse(input_data_convert_dms_short_clean_short)
+# glimpse(input_data_convert_dms_short_clean_short)
 # [1] 3418    6
 
 # add counts ----
 
-input_data_convert_dms_short_clean_short |> 
-  add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
+input_data_convert_dms_short_clean_short_cnt <- 
+  input_data_convert_dms_short_clean_short |> 
+  add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y")
+
+input_data_convert_dms_short_clean_short_cnt |> 
   filter(USER_NYEAR == 1899) |>
   glimpse()
 
