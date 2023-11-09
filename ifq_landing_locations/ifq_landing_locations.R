@@ -7,14 +7,12 @@ current_project_dir_name <- basename(current_project_dir_path)
 
 # get data for ifq_landing_locations ----
 # 1) convert addresses from the original csv to coordinates with ARCgis
-# 2) manually (google search) add corrected_addr	corrected_lat	corrected_long
-# if ExInfo is not NA (where possible)
+# 2) manually (google search) add corrected_addr	corrected_lat	corrected_long if ExInfo is not NA (where possible)
 # 2) upload the result to R
 input_data_file_path <-
   file.path(my_paths$inputs,
             r"(ifq_landing_locations\IFQ_Landing_Location_Use_geocoded_ex.csv)")
 
-# input_data <- readr::read_csv(input_data_file_path)
 input_data <-
   read.csv(
     input_data_file_path,
@@ -34,14 +32,6 @@ str(input_data)
 # print_df_names(input_data)
 
 # fill in empty ----
-input_data |>
-  filter(USER_FK_LANDING_LOCATION_ID == "2128") |>
-  select(USER_LATITUDE,
-         USER_LONGITUDE) |> 
-  distinct() |>
-  glimpse()
-# $ USER_LATITUDE  <chr> "27\xb0 54.478' N"
-# $ USER_LONGITUDE <chr> "97\xb0 07.991' W"
 
 # test
 # one_dms_coord = "97° 07'991" 
@@ -96,38 +86,10 @@ convert_dms_to_dd_nw <-
     return(dd_coord)
   }
 
-convert_dms_to_dd_nw("97° 07'991")
+# convert_dms_to_dd_nw("97° 07'991")
 # convert_dms_to_dd_nw("-82.149261")
-
-# input_data[64, ] |>
-#   select(USER_LATITUDE,
-#          USER_LONGITUDE,
-#          "USER_NYEAR",
-#          "USER_UseCount",
-#          "X",
-#          "Y")
-# 1 "27\xb0 47.420' N" "82\xb0 46.500…       2012            25 -82.8  27.8
-
-# input_data[1099, ] |>
-#   select(USER_LATITUDE,
-#          USER_LONGITUDE,
-#          "USER_NYEAR",
-#          "USER_UseCount",
-#          "X",
-#          "Y")
-# 29.136 N
-# -83.029 W
-
 # convert_dms_to_dd_nw("-83.029 W")
 # convert_dms_to_dd_nw("29.136 N")
-
-input_data[64,] |>
-  dplyr::rowwise() |>
-  dplyr::mutate(
-    converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
-    converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)
-  ) |>
-  dplyr::ungroup()
 
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
@@ -140,7 +102,7 @@ input_data_convert_dms <-
   dplyr::ungroup()
 
 toc()
-# input_data_convert_dms: 0.06 sec elapsed
+# input_data_convert_dms: 0.2 sec elapsed
 
 glimpse(input_data_convert_dms)
 
@@ -170,7 +132,7 @@ input_data_convert_dms |>
   distinct() |>
   dim()
 # [1] 65  6
-View(input_data_convert_dms)
+# View(input_data_convert_dms)
 # Fields:
 # https://pro.arcgis.com/en/pro-app/latest/help/data/geocoding/what-is-included-in-the-geocoded-results-.htm#:~:text=The%20DisplayX%20and%20DisplayY%20values,.%2C%20Redlands%2C%20CA%2092373.
 
@@ -236,7 +198,6 @@ input_data_convert_dms |>
 # 8
 
 
-dim(input_data_convert_dms)
 Filter(function(x)!all(is.na(x)), input_data_convert_dms) |> dim()
 
 # dim(input_data_convert_dms)
@@ -263,83 +224,58 @@ input_data_convert_dms %>%
 keep_fields_list <-
   c(
     "OID_",
+    "Place_addr",
+    "corrected_addr",
+    "corrected_lat",
+    "corrected_long",
+    "Y",
     "converted_dms_lat",
+    "X",
     "converted_dms_lon",
     "USER_NYEAR",
-    "USER_UseCount",
-    "X",
-    "Y"
+    "USER_UseCount"
   )
 
+# print_df_names(input_data_convert_dms)
 input_data_convert_dms_short <- 
   input_data_convert_dms |> 
   select(all_of(keep_fields_list)) |> 
   distinct()
   
 # dim(input_data_convert_dms_short)
-  # [1] 3418    7
+  # [1] 3418    10
 
-View(input_data_convert_dms_short)
-input_data_convert_dms_short |> 
-    select(OID_, USER_UseCount, USER_NYEAR) |> 
-    group_by(USER_NYEAR) |> 
-    count(wt = USER_UseCount) |> 
-    tail()
-# 1       2018  7469
-# 2       2019  7836
-# 3       2020  7222
-# 4       2021  6568
-# 5       2022  5510
-# 6       2023 82233
-
-# same result for
-input_data_convert_dms_short |> 
-    select(USER_UseCount, USER_NYEAR) |> 
-    count(USER_NYEAR, wt = USER_UseCount) |> 
-    tail()
-
-# head()
+# View(input_data_convert_dms_short)
+# input_data_convert_dms_short |> 
+#     select(OID_, USER_UseCount, USER_NYEAR) |> 
+#     group_by(USER_NYEAR) |> 
+#     count(wt = USER_UseCount) |> 
+#     head(3)
 # 1       1899    43
 # 2       2010  5434
 # 3       2011  6042
-# 4       2012  7081
-# 5       2013  6811
-# 6       2014 11279
 
-input_data_convert_dms_short |> 
-    select(OID_, USER_NYEAR) |> 
-    count(USER_NYEAR) |> 
-    head()
+# same result for
+# input_data_convert_dms_short |> 
+#     select(USER_UseCount, USER_NYEAR) |> 
+#     count(USER_NYEAR, wt = USER_UseCount) |> 
+#     head(3)
 
-# 1       1899    25
-# 2       2010   207
-# 3       2011   213
-# 4       2012   219
-# 5       2013   223
-
-input_data_convert_dms_short |>
-  filter(USER_NYEAR == 1899) |>
-  select(OID_, USER_UseCount, USER_NYEAR) |>
-  distinct() |> 
-  count(wt = USER_UseCount)
+# input_data_convert_dms_short |>
+#   filter(USER_NYEAR == 1899) |>
+#   select(OID_, USER_UseCount, USER_NYEAR) |>
+#   distinct() |> 
+#   count(wt = USER_UseCount)
 # 43
 
 
-input_data_convert_dms_short |> 
-    select(OID_, USER_NYEAR) |> 
-    count(USER_NYEAR) |> 
-    tail()
-# 1       2018   265
-# 2       2019   268
-# 3       2020   256
-# 4       2021   258
-# 5       2022   244
-# 6       2023   229
+# input_data_convert_dms_short |> 
+#     add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |> 
+#     filter(USER_NYEAR == 1899) |> 
+#   glimpse()
 
-input_data_convert_dms_short |> 
-    add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |> 
-    filter(USER_NYEAR == 1899) |> 
-  View()
+# input_data_convert_dms_short |> 
+#   glimpse()
 
 
 # By year, map all the landing locations - so we can see the growth of time. 
