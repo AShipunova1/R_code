@@ -190,28 +190,7 @@ input_data_convert_dms |>
   dim()
 # 8
 
-# remove empty columns ----
-# dim(input_data_convert_dms)
-# [1] 3418   82
-# 
-# Filter(function(x)!all(is.na(x)), input_data_convert_dms) |> dim()
-# [1] 3418   64
-
-not_all_na <- function(x) any(!is.na(x))
-not_any_na <- function(x) all(!is.na(x))
-input_data_convert_dms %>% select(where(not_all_na)) |> dim()
-# [1] 3418   64
-
-input_data_convert_dms %>% 
-  remove_empty_cols() |>
-  filter(X == 0) |>
-  mutate(x_a = NA,
-         a = coalesce(x_a, converted_dms_lon)) |>
-  remove_empty_cols() |>
-  # remove_0_cols() |> 
-  glimpse()
-
-# shorten ---
+# shorten ----
 keep_fields_list <-
   c(
     "OID_",
@@ -227,7 +206,6 @@ keep_fields_list <-
     "USER_UseCount"
   )
 
-# print_df_names(input_data_convert_dms)
 input_data_convert_dms_short <- 
   input_data_convert_dms |> 
   select(all_of(keep_fields_list)) |> 
@@ -236,22 +214,6 @@ input_data_convert_dms_short <-
 # dim(input_data_convert_dms_short)
   # [1] 3418    10
 
-# View(input_data_convert_dms_short)
-# input_data_convert_dms_short |> 
-#     select(OID_, USER_UseCount, USER_NYEAR) |> 
-#     group_by(USER_NYEAR) |> 
-#     count(wt = USER_UseCount) |> 
-#     head(3)
-# 1       1899    43
-# 2       2010  5434
-# 3       2011  6042
-
-# same result for
-# input_data_convert_dms_short |> 
-#     select(USER_UseCount, USER_NYEAR) |> 
-#     count(USER_NYEAR, wt = USER_UseCount) |> 
-#     head(3)
-
 # input_data_convert_dms_short |>
 #   filter(USER_NYEAR == 1899) |>
 #   select(OID_, USER_UseCount, USER_NYEAR) |>
@@ -259,14 +221,12 @@ input_data_convert_dms_short <-
 #   count(wt = USER_UseCount)
 # 43
 
-
 # input_data_convert_dms_short |> 
 #     add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |> 
 #     filter(USER_NYEAR == 1899) |> 
 #   glimpse()
 
-# input_data_convert_dms_short |> 
-#   glimpse()
+# clean df ----
 input_data_convert_dms_short_clean <-
   input_data_convert_dms_short |>
   mutate(
@@ -294,12 +254,6 @@ input_data_convert_dms_short_clean <-
       )
   )
 
-# input_data_convert_dms_short |> 
-#   filter(corrected_addr == "") |> 
-#   rowwise() |> 
-#   mutate(ll = length(corrected_addr)) |> 
-#   glimpse()
-
 # test
 input_data_convert_dms_short_clean |>
   filter(corrected_addr == "") |>
@@ -320,11 +274,10 @@ input_data_convert_dms_short |>
 # $ USER_NYEAR        <int> 2015, 2016, 2018, 2014, 2020, 2020, 2013, 2015
 # $ USER_UseCount     <int> 4, 1, 3, 136, 1, 3, 40, 28
 
-input_data_convert_dms_short_clean |>
-  filter(OID_ == 194) |>
-  glimpse()
+# input_data_convert_dms_short_clean |>
+#   filter(OID_ == 194) |>
+#   glimpse()
 
-# print_df_names(input_data_convert_dms_short_clean)
 # Don't unique, bc counts could be the same
 input_data_convert_dms_short_clean_short <-
   input_data_convert_dms_short_clean |>
@@ -334,37 +287,54 @@ input_data_convert_dms_short_clean_short <-
 # [1] 3418    6
 
 # add counts ----
-
-input_data_convert_dms_short_clean_short_cnt <- 
-  input_data_convert_dms_short_clean_short |> 
+input_data_convert_dms_short_clean_short_cnt <-
+  input_data_convert_dms_short_clean_short |>
   mutate(use_lat_round = round(use_lat, 4),
-         use_lon_round = round(use_lon, 4)) |> 
+         use_lon_round = round(use_lon, 4)) |>
   add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
-  add_count(use_lat_round, use_lon_round, wt = USER_UseCount, name = "total_place_cnt") |> 
-  add_count(USER_NYEAR, use_lat_round, use_lon_round, wt = USER_UseCount, name = "count_by_year_and_coord")
+  add_count(use_lat_round, use_lon_round, wt = USER_UseCount, name = "total_place_cnt") |>
+  add_count(USER_NYEAR,
+            use_lat_round,
+            use_lon_round,
+            wt = USER_UseCount,
+            name = "count_by_year_and_coord")
 
 input_data_convert_dms_short_clean_short_cnt |> 
   filter(USER_NYEAR == 1899) |>
   glimpse()
 
-input_data_convert_dms_short_clean_short_cnt |>
-  distinct() |> 
-  dim()
-# leav cnts and unique
+# leave cnts and unique ----
+input_data_convert_dms_short_clean_short_cnt_short <- 
+  input_data_convert_dms_short_clean_short_cnt |>
+  select(
+    use_lat_round,
+    use_lon_round,
+    count_by_year_and_coord,
+    total_use_count_y,
+    total_place_cnt,
+    use_addr,
+    USER_NYEAR
+  ) |>
+  distinct()
+# |>
+#   dim()
+# 3190    
+
+# print_df_names(input_data_convert_dms_short_clean_short_cnt)
 
 # make sf ----
 input_data_convert_dms_short_clean_short_cnt_sf <-
-  input_data_convert_dms_short_clean_short_cnt |>
+  input_data_convert_dms_short_clean_short_cnt_short |>
   mutate(
     year_fct = factor(USER_NYEAR)
   ) |>
   sf::st_as_sf(
-    coords = c("use_lon", "use_lat"),
+    coords = c("use_lon_round", "use_lat_round"),
     crs = 4326,
     na.fail = FALSE
   )
 
-glimpse(input_data_convert_dms_short_clean_short_cnt_sf)
+# glimpse(input_data_convert_dms_short_clean_short_cnt_sf)
 
 # get shapes ----
 south_east_coast_states <- c(
