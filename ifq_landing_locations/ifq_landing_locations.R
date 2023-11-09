@@ -6,6 +6,13 @@
 #   library(ggmap)
 # }
 
+## Load the 'tigris' package to access geographic data.
+library(tigris)
+## Set the 'tigris_use_cache' option to TRUE. This will enable caching of
+## data retrieved from the TIGER/Line Shapefiles service, which can help
+## improve data retrieval performance for future sessions.
+tigris_use_cache = TRUE
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_dir_path <-
@@ -375,6 +382,62 @@ input_data_convert_dms_short_clean_short_cnt_sf <-
   )
 
 glimpse(input_data_convert_dms_short_clean_short_cnt_sf)
+
+# get shapes ----
+south_east_coast_states <- c(
+  "Alabama",
+  # "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Louisiana",
+  # "Maine",
+  "Maryland",
+  # "Massachusetts",
+  "Mississippi",
+  # "New Hampshire",
+  # "New Jersey",
+  # "New York",
+  "North Carolina",
+  # "Pennsylvania",
+  # "Rhode Island",
+  "South Carolina",
+  "Texas",
+  "Virginia",
+  "Washington DC"
+)
+
+## us ----
+## Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
+## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+us_s_shp <-
+  tigris::states(cb = TRUE, progress_bar = FALSE)
+
+## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
+# View(us_s_shp)
+south_states_shp <-
+  us_s_shp |>
+  filter(NAME %in% south_east_coast_states)
+
+# View(south_states_shp)
+
+# str(south_east_coast_states)
+
+## read in GOM shp ----
+## Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
+GOM_400fm_path <-
+  file.path(my_paths$inputs,
+                      r"(shapefiles\GOM_400fm\GOM_400fm.shp)")
+
+# file.exists(GOM_400fm_path)
+# T
+
+## Read a shapefile from the specified file path using 'sf::read_sf'.
+## Then, group the resulting data by 'StatZone' and summarize it.
+GOMsf <-
+  sf::read_sf(GOM_400fm_path) %>%
+  dplyr::group_by(StatZone) %>%
+  summarise()
 
 ggplot() + 
   geom_sf(data = sweden) + 
