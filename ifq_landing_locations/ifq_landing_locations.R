@@ -40,12 +40,12 @@ input_data |>
 # Assuming North West coords only in our data
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
-    # browser()    
+    browser()
     minus = FALSE
     
-    # remove "W" at the end
-    if (grepl("^-.+W$", one_dms_coord)) {
-      one_dms_coord = sub("(^-.+)[A-Z]+$", "\\1", one_dms_coord)
+    # remove "W and N" at the end
+    if (grepl("^-*[0-9.]+\\s*[A-z]+$", one_dms_coord)) {
+      one_dms_coord = sub("^(-*[0-9.]+)\\s*[A-z]+$", "\\1", one_dms_coord)
     }
 
     if (grepl("^-", one_dms_coord)) {
@@ -87,17 +87,18 @@ convert_dms_to_dd_nw <-
 # convert_dms_to_dd_nw("97° 07'991")
 # convert_dms_to_dd_nw("-82.149261")
 
-input_data[1099, ] |>
-  select(USER_LATITUDE,
-         USER_LONGITUDE,
-         "USER_NYEAR",
-         "USER_UseCount",
-         "X",
-         "Y")
+# input_data[1099, ] |>
+#   select(USER_LATITUDE,
+#          USER_LONGITUDE,
+#          "USER_NYEAR",
+#          "USER_UseCount",
+#          "X",
+#          "Y")
 # 29.136 N
 # -83.029 W
 
-# convert_dms_to_dd_nw("-83.029 W")
+convert_dms_to_dd_nw("-83.029 W")
+convert_dms_to_dd_nw("29.136 N")
 
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
