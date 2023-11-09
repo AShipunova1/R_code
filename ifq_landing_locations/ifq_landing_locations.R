@@ -33,15 +33,21 @@ input_data |>
   glimpse()
 
 # test
-one_dms_coord = "97° 07'991" 
-one_dms_coord2 = "-82.149261"
+# one_dms_coord = "97° 07'991" 
+# one_dms_coord2 = "-82.149261"
+# one_dms_coord3 = "-83.029 W"
 
 # Assuming North West coords only in our data
 convert_dms_to_dd_nw <- 
   function(one_dms_coord) {
-    
+    # browser()    
     minus = FALSE
-    # browser()
+    
+    # remove "W" at the end
+    if (grepl("^-.+W$", one_dms_coord)) {
+      one_dms_coord = sub("(^-.+)[A-Z]+$", "\\1", one_dms_coord)
+    }
+
     if (grepl("^-", one_dms_coord)) {
       # use abs to remove "-"
       one_dms_coord = abs(as.double(one_dms_coord))
@@ -78,8 +84,20 @@ convert_dms_to_dd_nw <-
     return(dd_coord)
   }
 
-# convert_dms_to_dd_nw("97° 07' 991")
+# convert_dms_to_dd_nw("97° 07'991")
 # convert_dms_to_dd_nw("-82.149261")
+
+input_data[1099, ] |>
+  select(USER_LATITUDE,
+         USER_LONGITUDE,
+         "USER_NYEAR",
+         "USER_UseCount",
+         "X",
+         "Y")
+# 29.136 N
+# -83.029 W
+
+# convert_dms_to_dd_nw("-83.029 W")
 
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
