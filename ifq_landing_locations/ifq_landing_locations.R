@@ -276,7 +276,44 @@ input_data_convert_dms_short <-
 
 # input_data_convert_dms_short |> 
 #   glimpse()
+input_data_convert_dms_short_clean <- 
+  input_data_convert_dms_short |>
+  mutate(use_lat =
+           dplyr::coalesce(corrected_lat,
+                           Y,
+                           converted_dms_lat),
+         use_lon =
+           dplyr::coalesce(corrected_long,
+                           Y,
+                           converted_dms_lon),
+         # can't use coalesce, bc corrected_addr can be ""
+         use_addr =
+           case_when(!is.na(corrected_addr) &
+                       !corrected_addr == "" ~ corrected_addr,
+                     .default = Place_addr)
+  )
 
+# input_data_convert_dms_short |> 
+#   filter(corrected_addr == "") |> 
+#   rowwise() |> 
+#   mutate(ll = length(corrected_addr)) |> 
+#   glimpse()
+
+# print_df_names(input_data_convert_dms_short_clean)
+# Don't unique, bc counts could be the same
+input_data_convert_dms_short_clean_short <-
+  input_data_convert_dms_short_clean |>
+  select(OID_, use_lat, use_lon, USER_NYEAR, USER_UseCount, use_addr)
+
+glimpse(input_data_convert_dms_short_clean_short)
+# [1] 3418    6
+
+# add counts ----
+
+input_data_convert_dms_short_clean_short |> 
+  add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
+  filter(USER_NYEAR == 1899) |>
+  glimpse()
 
 # By year, map all the landing locations - so we can see the growth of time. 
 # By year, map the landing location with somehow displaying which locations are used the most.  I think we can do this with color coding.
