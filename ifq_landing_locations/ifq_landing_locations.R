@@ -307,7 +307,7 @@ input_data_convert_dms_short_clean <-
                       converted_dms_lat),
     use_lon =
       dplyr::coalesce(corrected_long,
-                      Y,
+                      X,
                       -abs(converted_dms_lon)),
     # can't use coalesce, bc corrected_addr can be ""
     use_addr =
@@ -471,9 +471,14 @@ mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
 
 # err oid 2898 + lat = lon
 
-input_data_convert_dms_short_clean |> 
-  filter(OID_ == 2898) |> 
-  View()
+# input_data_convert_dms_short_clean |> 
+#   filter(OID_ == 2898) |> 
+#   View()
+
+# input_data_convert_dms_short_clean |>
+#   filter(use_lat == use_lon) |>
+#   View()
+
   
 ggplot() + 
   # geom_sf(data = st_union_GOMsf) + 
