@@ -43,7 +43,11 @@ input_data <-
     fileEncoding = "latin1"
   )
 
-str(input_data)
+dim(input_data)
+# [1] 3418   83
+
+dim(input_data_raw_esri)
+# [1] 3418   14
 # problems(input_data)
 
 # unify user coordinate format ----
@@ -109,6 +113,20 @@ convert_dms_to_dd_nw <-
 # convert_dms_to_dd_nw(one_dms_coord2)
 # convert_dms_to_dd_nw(one_dms_coord3)
 # convert_dms_to_dd_nw("29.136 N")
+input_data_from_arcgis <- input_data
+input_data <- 
+  input_data_raw_esri |> 
+  select(-c(X, address...12, STREET, CITY, STATE, ZIP)) |>
+  rename(USER_NYEAR = NYEAR,
+         USER_FK_LANDING_LOCATION_ID = FK_LANDING_LOCATION_ID,
+         USER_LATITUDE = LATITUDE, 
+         USER_LONGITUDE = LONGITUDE,
+         USER_UseCount = UseCount,
+         USER_address = address...11,
+         Y = lat,
+         X = long
+         )
+# rename(iris, petal_length = Petal.Length)
 
 ## convert all input coord format ----
 tic("input_data_convert_dms")
@@ -141,16 +159,18 @@ input_data_convert_dms |>
   dim()
 # 63  4
 # 58 if round to 1 digit
+# from tidy
+# [1] 65  4
 
-input_data_convert_dms |>
-  filter(
-    !round(abs(DisplayX), 2) == round(abs(converted_dms_lon), 2) |
-      !round(DisplayY, 2) == round(converted_dms_lat, 2)
-  ) |>
-    select(X, DisplayX, converted_dms_lon,
-         Y, DisplayY, converted_dms_lat) |>
-  distinct() |>
-  dim()
+# input_data_convert_dms |>
+#   filter(
+#     !round(abs(DisplayX), 2) == round(abs(converted_dms_lon), 2) |
+#       !round(DisplayY, 2) == round(converted_dms_lat, 2)
+#   ) |>
+#     select(X, DisplayX, converted_dms_lon,
+#          Y, DisplayY, converted_dms_lat) |>
+#   distinct() |>
+#   dim()
 # [1] 65  6
 # View(input_data_convert_dms)
 # Fields:
@@ -159,15 +179,15 @@ input_data_convert_dms |>
 # DisplayX—The display x-coordinate of an address returned in the spatial reference of the locator. The display x-coordinate is returned in spatial reference WGS84 (WKID 4326) by the ArcGIS World Geocoding Service. For matches to PointAddress or Subddress as indicated in the Addr_type field and PointAddress role-based locators, this value represents the x-coordinate value of the building rooftop or parcel centroid for the address. It differs from the primary x-value, which represents the x-coordinate of the side of street location or the street entry for an address. However, there are exceptions, as some data sources used by the ArcGIS World Geocoding Service only provide the rooftop location of PointAddress and Subaddress features. In other cases, only the street-side location is available for some PointAddress and Subaddress features. For such cases, the X and DisplayX values are equivalent. For all other Addr_type matches and locators, this value is equal to the x-value.
 
 # compare geocoded coords
-input_data_convert_dms |>
-  filter(
-    !round(DisplayX, 2) == round(X, 2) |
-      !round(DisplayY, 2) == round(Y, 2)
-  ) |>
-    select(X, DisplayX, converted_dms_lon,
-         Y, DisplayY, converted_dms_lat) |>
-  distinct() |> 
-  dim()
+# input_data_convert_dms |>
+#   filter(
+#     !round(DisplayX, 2) == round(X, 2) |
+#       !round(DisplayY, 2) == round(Y, 2)
+#   ) |>
+#     select(X, DisplayX, converted_dms_lon,
+#          Y, DisplayY, converted_dms_lat) |>
+#   distinct() |> 
+#   dim()
 # [1] 13  6
 
 # check ExInfo and missing coords ----
@@ -510,7 +530,7 @@ input_data_convert_dms_short_clean |>
   select(USER_NYEAR, USER_UseCount) |>
   head()
 
-# try tidygeocoder
+# try tidygeocoder ----
 if (!require(tidygeocoder)) {
   install.packages("tidygeocoder")
   library(tidygeocoder)
@@ -573,7 +593,7 @@ lat_longs |>
   View()
 # diff in 3rd digit
 
-# test with another method
+## test with another method ----
 
 tic("geocode6_esri")
 lat_longs_esri <- input_data_raw %>%
@@ -602,3 +622,43 @@ lat_longs_esri |>
          lat, long, Y, X.y, OID_, Place_addr) |> 
   View()
 # the diff in 4-5 digit
+
+# with tidygeocoder ----
+tic("geocode_esri")
+get_lat_lon_by_addr <-
+  function(input_df) {
+    input_data_raw_esri <- input_df %>%
+      dplyr::mutate(address = paste(STREET,
+                                    CITY,
+                                    STATE,
+                                    ZIP,
+                                    sep = ", ")) |>
+      tidygeocoder::geocode(address = address,
+                            return_addresses = TRUE,
+                            method = 'arcgis')
+    return(input_data_raw_esri)
+  }
+toc()
+# Passing 558 addresses to the ArcGIS single address geocoder
+# [===========================================] 558/558 (100%) Elapsed:  4m Remaining:  0s
+# geocode_esri: 268.83 sec elapsed
+
+esri_rds_file_path <-
+  file.path(my_paths$inputs,
+            r"(ifq_landing_locations\input_data_raw_esri.rds)")
+
+# readr::write_rds(input_data_raw_esri,
+#                  esri_rds_file_path)
+
+input_data_raw_esri <-
+  read_rds_or_run(esri_rds_file_path,
+                  my_data = input_data_raw,
+                  get_lat_lon_by_addr)
+
+# dim(input_data_raw_esri)
+# [1] 3418   14
+
+# input_data_raw_esri |> 
+#   filter(!address...11 == address...12) |> 
+#   glimpse()
+# FK_LANDING_LOCATION_ID == 1
