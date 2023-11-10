@@ -122,7 +122,7 @@ input_data <-
          USER_LATITUDE = LATITUDE, 
          USER_LONGITUDE = LONGITUDE,
          USER_UseCount = UseCount,
-         USER_address = address...11,
+         IN_Address = address...11,
          Y = lat,
          X = long
          )
@@ -231,6 +231,7 @@ keep_fields_list <-
   c(
     "OID_",
     "Place_addr",
+    "IN_Address",
     "corrected_addr",
     "corrected_lat",
     "corrected_long",
@@ -244,18 +245,22 @@ keep_fields_list <-
 
 input_data_convert_dms_short <- 
   input_data_convert_dms |> 
-  select(all_of(keep_fields_list)) |> 
-  distinct()
+  select(any_of(keep_fields_list))
+# |> 
+#   distinct()
   
-# dim(input_data_convert_dms_short)
+dim(input_data_convert_dms_short)
   # [1] 3418    10
+# [1] 3400    7 from tidygeocoder, can't distinct yet!
+# [1] 3418    7
 
 # check
-# input_data_convert_dms_short |>
-#   filter(USER_NYEAR == 1899) |>
-#   select(OID_, USER_UseCount, USER_NYEAR) |>
-#   distinct() |> 
-#   count(wt = USER_UseCount)
+input_data_convert_dms_short |>
+  filter(USER_NYEAR == 1899) |>
+  select(USER_UseCount, USER_NYEAR) |>
+  # select(OID_, USER_UseCount, USER_NYEAR) |>
+  # distinct() |>
+  count(wt = USER_UseCount)
 # 43
 
 # input_data_convert_dms_short |> 
@@ -277,20 +282,22 @@ input_data_convert_dms_short_clean <-
   ) |>
   mutate(
     use_lat =
-      dplyr::coalesce(corrected_lat,
+      dplyr::coalesce(
+        # corrected_lat,
                       Y,
                       converted_dms_lat),
     use_lon =
-      dplyr::coalesce(corrected_long,
+      dplyr::coalesce(
+        # corrected_long,
                       X,
                       -abs(converted_dms_lon)),
     # can't use coalesce, bc corrected_addr can be ""
-    use_addr =
-      case_when(
-        !is.na(corrected_addr) &
-          !corrected_addr == "" ~ corrected_addr,
-        .default = Place_addr
-      )
+    use_addr = IN_Address
+      # case_when(
+      #   !is.na(corrected_addr) &
+      #     !corrected_addr == "" ~ corrected_addr,
+      #   .default = Place_addr
+      # )
   )
 
 # test
@@ -301,6 +308,8 @@ input_data_convert_dms_short_clean |>
 input_data_convert_dms_short |>
   filter(X == 0) |>
   glimpse()
+# TODO: compare missing values with ARCgis result
+
 # $ OID_              <int> 194, 664, 695, 1368, 2511, 2898, 3122, 3157
 # $ Place_addr        <chr> "", "", "", "", "", "", "", ""
 # $ corrected_addr    <chr> "", "", "", "", "", "", "", ""
@@ -320,9 +329,18 @@ input_data_convert_dms_short |>
 # Don't unique yet, bc counts could be the same
 input_data_convert_dms_short_clean_short <-
   input_data_convert_dms_short_clean |>
-  select(OID_, use_lat, use_lon, USER_NYEAR, USER_UseCount, use_addr)
+  select(any_of(
+    c(
+      "OID_",
+      "use_lat",
+      "use_lon",
+      "USER_NYEAR",
+      "USER_UseCount",
+      "use_addr"
+    )
+  ))
 
-# glimpse(input_data_convert_dms_short_clean_short)
+# dim(input_data_convert_dms_short_clean_short)
 # [1] 3418    6
 
 # add counts ----
@@ -340,6 +358,10 @@ input_data_convert_dms_short_clean_short_cnt <-
             wt = USER_UseCount,
             name = "count_by_year_and_coord")
 
+# input_data_convert_dms_short_clean_short_cnt |> 
+#   filter(use_lon_round > 0)
+# 0
+
 input_data_convert_dms_short_clean_short_cnt |> 
   filter(USER_NYEAR == 1899) |>
   glimpse()
@@ -355,11 +377,12 @@ input_data_convert_dms_short_clean_short_cnt_short <-
     total_place_cnt,
     use_addr,
     USER_NYEAR
-  ) |>
+  ) |> 
   distinct()
-# |>
-#   dim()
+
+dim(input_data_convert_dms_short_clean_short_cnt_short)
 # 3190    
+# [1] 3312    7 tgeo
 
 # print_df_names(input_data_convert_dms_short_clean_short_cnt)
 
@@ -484,9 +507,10 @@ plot_by_year <- ggplot() +  # Initialize a ggplot object.
   guides(size = guide_legend(title = "Counts by year and place"))
 
 plot_by_year
+# TODO: check the diff with arcGIS
 
 output_file_name <- 
-  "facets_by_year.png"
+  "facets_by_year_tidygeo.png"
 
 # output_file_name <- 
 #   "facets_by_year_w_states.png"
