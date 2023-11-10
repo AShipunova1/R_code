@@ -47,7 +47,8 @@ dim(input_data)
 # [1] 3418   83
 
 dim(input_data_raw_esri)
-# [1] 3418   14
+# [1] 3418   14 / 22 (all)
+
 # problems(input_data)
 
 # unify user coordinate format ----
@@ -114,19 +115,22 @@ convert_dms_to_dd_nw <-
 # convert_dms_to_dd_nw(one_dms_coord3)
 # convert_dms_to_dd_nw("29.136 N")
 input_data_from_arcgis <- input_data
+
+# print_df_names(input_data_raw_esri)
+# [1] "NYEAR, FK_LANDING_LOCATION_ID, LATITUDE, LONGITUDE, STREET, CITY, STATE, ZIP, UseCount, X, my_address, address, lat, long, arcgis_address, score, location.x, location.y, extent.xmin, extent.ymin, extent.xmax, extent.ymax"
+
 input_data <- 
   input_data_raw_esri |> 
-  select(-c(X, address...12, STREET, CITY, STATE, ZIP)) |>
+  select(-c(X, my_address, STREET, CITY, STATE, ZIP)) |>
   rename(USER_NYEAR = NYEAR,
          USER_FK_LANDING_LOCATION_ID = FK_LANDING_LOCATION_ID,
          USER_LATITUDE = LATITUDE, 
          USER_LONGITUDE = LONGITUDE,
          USER_UseCount = UseCount,
-         IN_Address = address...11,
+         IN_Address = address,
          Y = lat,
          X = long
          )
-# rename(iris, petal_length = Petal.Length)
 
 ## convert all input coord format ----
 tic("input_data_convert_dms")
@@ -138,7 +142,6 @@ input_data_convert_dms <-
     converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)
   ) |>
   dplyr::ungroup()
-
 toc()
 # input_data_convert_dms: 0.2 sec elapsed
 
@@ -308,7 +311,14 @@ input_data_convert_dms_short_clean |>
 input_data_convert_dms_short |>
   filter(X == 0) |>
   glimpse()
-# TODO: compare missing values with ARCgis result
+
+# compare missing values with ARCgis result ----
+# use arcgis_address vs my_address diff
+# split to strit, city, state (FL in input vs Florida), zip and compare separately
+
+input_data_convert_dms |>
+  filter(!tolower(IN_Address) == tolower(arcgis_address)) |> 
+  View()
 
 # $ OID_              <int> 194, 664, 695, 1368, 2511, 2898, 3122, 3157
 # $ Place_addr        <chr> "", "", "", "", "", "", "", ""
@@ -648,21 +658,20 @@ lat_longs_esri |>
 # the diff in 4-5 digit
 
 # with tidygeocoder ----
-tic("geocode_esri")
 get_lat_lon_by_addr <-
   function(input_df) {
     input_data_raw_esri <- input_df %>%
-      dplyr::mutate(address = paste(STREET,
+      dplyr::mutate(my_address = paste(STREET,
                                     CITY,
                                     STATE,
                                     ZIP,
                                     sep = ", ")) |>
-      tidygeocoder::geocode(address = address,
+      tidygeocoder::geocode(address = my_address,
                             return_addresses = TRUE,
-                            method = 'arcgis')
+                            method = 'arcgis',
+                            full_results = TRUE)
     return(input_data_raw_esri)
   }
-toc()
 # Passing 558 addresses to the ArcGIS single address geocoder
 # [===========================================] 558/558 (100%) Elapsed:  4m Remaining:  0s
 # geocode_esri: 268.83 sec elapsed
@@ -674,10 +683,20 @@ esri_rds_file_path <-
 # readr::write_rds(input_data_raw_esri,
 #                  esri_rds_file_path)
 
+
+# aa <- 
+#   input_data_raw |> 
+#   head() |> 
+#   # glimpse() |> 
+#   get_lat_lon_by_addr()
+# 
+# View(aa)
+
 input_data_raw_esri <-
   read_rds_or_run(esri_rds_file_path,
                   my_data = input_data_raw,
                   get_lat_lon_by_addr)
+# 2023-11-10 run for input_data_raw_esri.rds: 262.95 sec elapsed
 
 # dim(input_data_raw_esri)
 # [1] 3418   14
