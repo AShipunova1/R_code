@@ -366,47 +366,6 @@ input_data_convert_dms_short_clean |>
 # [1] "OID_, Loc_name, Status, Score, Match_type, Match_addr, LongLabel, ShortLabel, Addr_type, PlaceName, Place_addr, Rank, AddNum, AddNumFrom, AddNumTo, AddRange, Side, StPreDir, StName, StType, StDir, StAddr, Nbrhd, City, MetroArea, Subregion, Region, RegionAbbr, Postal, PostalExt, Country, CntryName, LangCode, Distance, X, Y, DisplayX, DisplayY, Xmin, Xmax, Ymin, Ymax, ExInfo, IN_Address, IN_City, IN_Region, IN_Postal, USER_NYEAR, USER_FK_LANDING_LOCATION_ID, USER_LATITUDE, USER_LONGITUDE, USER_STREET, USER_CITY, USER_STATE, USER_ZIP, USER_UseCount, USER_Field10, converted_dms_lat, converted_dms_lon"
 
 
-# clean df from tidygeo ----
-# In summary, the code takes the 'input_data_convert_dms_short' data frame, makes several modifications to it using the 'mutate' function, and creates three new columns: 'use_lat', 'use_lon', and 'use_addr'. These new columns are generated based on specific conditions or by choosing the first non-NA value from a set of columns using 'coalesce'. The resulting data frame is stored in 'input_data_convert_dms_short_clean'.
-
-input_data_convert_dms_short_clean <-
-  input_data_convert_dms_short |>
-  mutate(
-    X = case_when(X == 0 ~ NA,
-    .default = X),
-    Y = case_when(Y == 0 ~ NA,
-    .default = Y
-  )
-  ) |>
-  mutate(
-    use_lat =
-      dplyr::coalesce(
-        # corrected_lat,
-                      Y,
-                      converted_dms_lat),
-    use_lon =
-      dplyr::coalesce(
-        # corrected_long,
-                      X,
-                      -abs(converted_dms_lon)),
-    # can't use coalesce, bc corrected_addr can be ""
-    use_addr = IN_Address
-      # case_when(
-      #   !is.na(corrected_addr) &
-      #     !corrected_addr == "" ~ corrected_addr,
-      #   .default = Place_addr
-      # )
-  )
-
-# test
-input_data_convert_dms_short_clean |>
-  filter(corrected_addr == "") |>
-  glimpse()
-
-input_data_convert_dms_short |>
-  filter(X == 0) |>
-  glimpse()
-
 # compare missing values with ARCgis result ----
 
 # check arcgis_address vs my_address diff ----
