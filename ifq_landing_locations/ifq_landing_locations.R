@@ -685,50 +685,6 @@ south_states_shp <-
 
 # str(south_east_coast_states)
 
-## read in GOM shp ----
-## Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
-GOM_400fm_path <-
-  file.path(my_paths$inputs,
-                      r"(shapefiles\GOM_400fm\GOM_400fm.shp)")
-
-# file.exists(GOM_400fm_path)
-# T
-
-## Read a shapefile from the specified file path using 'sf::read_sf'.
-## Then, group the resulting data by 'StatZone' and summarize it.
-GOMsf_all <-
-  sf::read_sf(GOM_400fm_path)
-
-# glimpse(GOMsf)
-
-my_file_path_local <- file.path(my_paths$outputs,
-                           "fishing_effort_location",
-                           "st_union_GOMsf.rds")
-my_file_path_out <- file.path(my_paths$outputs,
-                           "st_union_GOMsf.rds")
-
-# If the file exists, read the data from the RDS file (to speed it up).
-if (file.exists(my_file_path_local)) {
-  current_path <- my_file_path_local
-  st_union_GOMsf <- readr::read_rds(current_path)
-} else if (file.exists(my_file_path_out)) {
-  current_path <- my_file_path_out
-  st_union_GOMsf <- readr::read_rds(current_path)
-} else {
-  # Start measuring the time it takes to perform the operation and display a message.
-  tic("st_union(GOMsf)")
-  st_union_GOMsf <- sf::st_union(GOMsf)
-  # Stop measuring time and display the elapsed time.
-  toc()
-  
-  readr::write_rds(st_union_GOMsf,
-                   my_file_path_out)
-}
-
-
-# mapview::mapview(input_data_convert_dms_short_clean_short_cnt_sf) +
-#   south_states_shp
-
 ## plot_by_year ---- 
 # Create a new variable 'plot_by_year'.
 plot_by_year <- ggplot() +  # Initialize a ggplot object.
