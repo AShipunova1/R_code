@@ -75,7 +75,6 @@ input_data_raw_esri <-
 # dim(input_data_raw_esri)
 # [1] 3418   14
 
-
 get_lat_lon_by_addr_nominatim <-
   function(input_df) {
     input_data_raw_nominatim <- input_df %>%
@@ -102,6 +101,9 @@ input_data_raw_nominatim <-
 # [===================================] 555/555 (100%) Elapsed: 10m Remaining:  0s
 
 # 2023-11-13 run for input_data_raw_nominatim.rds: 573.09 sec elapsed
+
+dim(input_data_raw_nominatim)
+# [1] 3418   28
 
 # rename tidygeo input ----
 # to be the same as from ARCgis
