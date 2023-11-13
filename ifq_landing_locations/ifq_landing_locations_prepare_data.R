@@ -8,13 +8,20 @@
 no_addded_coords_filter <-
   rlang::quo(is.na(X) | is.na(Y))
 
-input_data_raw_nominatim_converted_no_coord1 <- 
-  input_data_raw_nominatim_converted |> 
-  filter(!!no_addded_coords_filter)
+input_data_raw_nominatim_converted_has_coords <-
+  input_data_raw_nominatim_converted |>
+  mutate(has_coords =
+           case_when(!!no_addded_coords_filter ~ "no_xy",
+                     .default = "yes_xy"))
 
-all.equal(input_data_raw_nominatim_converted_no_coord,
-          input_data_raw_nominatim_converted_no_coord1)
-# T
+input_data_raw_nominatim_converted_no_coord <- 
+  input_data_raw_nominatim_converted_has_coords |> 
+  filter(has_coords == "no_xy")
+
+# install.packages("diffdf")
+library(diffdf)
+diffdf(input_data_raw_nominatim_converted_no_coord1, input_data_raw_nominatim_converted_no_coord)
+
 # dim(input_data_raw_nominatim_converted_no_coord)
 # Rows: 1,307
 # Columns: 29
@@ -100,6 +107,10 @@ View(join_nominatim_n_arcgis_add_coord)
 
 
 ### merge back ----
-input_data_raw_nominatim_converted |> 
+input_data_raw_nominatim_converted_has_coords |> 
+  input_data_raw_nominatim_converted_no_coord <- 
+  input_data_raw_nominatim_converted |> 
+  filter(!!no_addded_coords_filter)
+
   filter()
 join_nominatim_n_arcgis_add_coord
