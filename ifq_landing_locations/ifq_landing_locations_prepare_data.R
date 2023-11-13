@@ -14,17 +14,14 @@ input_data_raw_nominatim_converted_has_coords <-
            case_when(!!no_addded_coords_filter ~ "no_xy",
                      .default = "yes_xy"))
 
+### no coords ----
 input_data_raw_nominatim_converted_no_coord <- 
   input_data_raw_nominatim_converted_has_coords |> 
   filter(has_coords == "no_xy")
 
-# install.packages("diffdf")
-library(diffdf)
-diffdf(input_data_raw_nominatim_converted_no_coord1, input_data_raw_nominatim_converted_no_coord)
-
 # dim(input_data_raw_nominatim_converted_no_coord)
 # Rows: 1,307
-# Columns: 29
+# Columns: 30
 
 input_data_raw_nominatim_converted_no_coord |> 
   select(-USER_NYEAR) |> 
@@ -66,15 +63,17 @@ join_nominatim_n_arcgis <-
   )
 
 dim(join_nominatim_n_arcgis)
-# [1] 1307   89
+# [1] 1307   90
 
 join_nominatim_n_arcgis <- 
   join_nominatim_n_arcgis |>
   remove_empty_cols() |>
   distinct()
-# [1] 1307   76
 
-print_df_names(join_nominatim_n_arcgis)
+dim(join_nominatim_n_arcgis)
+# [1] 1307   77
+
+#### no coords clean up ----
 
 join_nominatim_n_arcgis_add_coord <- 
   join_nominatim_n_arcgis |> 
@@ -103,8 +102,55 @@ join_nominatim_n_arcgis_add_coord <-
       )
   )
 
-View(join_nominatim_n_arcgis_add_coord)
+dim(join_nominatim_n_arcgis_add_coord)
+# [1] 1307   82
 
+#### "has coords" clean up ----
+# add use_ columns to the "good" part
+input_data_raw_nominatim_converted_coord <- 
+  input_data_raw_nominatim_converted_has_coords |> 
+  filter(has_coords == "yes_xy")
+
+input_data_raw_nominatim_converted_coord |> dim()
+# [1] 2111   30
+
+# display_name
+# [1] "13725, Tram Avenue, Bayou La Batre, Mobile County, Alabama, 36509, United States"
+# [2] "Scenic Highway 98, Destin, Okaloosa County, Florida, 32541, United States"
+
+input_data_raw_nominatim_converted_coord_clean <-
+  input_data_raw_nominatim_converted_coord |>
+  mutate(
+    X = case_when(X == 0 ~ NA,
+    .default = X),
+    Y = case_when(Y == 0 ~ NA,
+    .default = Y
+  )
+  ) |>
+  mutate(
+    use_lat =
+      dplyr::coalesce(
+        # corrected_lat,
+                      Y,
+                      converted_dms_lat),
+    use_lon =
+      dplyr::coalesce(
+        # corrected_long,
+                      X,
+                      -abs(converted_dms_lon)),
+    use_addr = paste(USER_STREET, USER_CITY, USER_STATE, USER_ZIP, sep = ", ")
+  )
+
+# test
+# input_data_raw_nominatim_converted_coord_clean |>
+#   filter(use_addr == "") |>
+#   dim()
+# 0
+
+# input_data_raw_nominatim_converted_coord_clean |>
+#   filter(X == 0) |>
+#   dim()
+# 0
 
 ### merge back ----
 input_data_raw_nominatim_converted_has_coords |> 
