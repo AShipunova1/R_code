@@ -644,43 +644,6 @@ input_data_convert_dms_short_clean_short_cnt_sf <-
 
 # glimpse(input_data_convert_dms_short_clean_short_cnt_sf)
 
-# get shapes ----
-south_east_coast_states <- c(
-  "Alabama",
-  # "Connecticut",
-  # "Delaware",
-  "Florida",
-  "Georgia",
-  "Louisiana",
-  # "Maine",
-  # "Maryland",
-  # "Massachusetts",
-  "Mississippi",
-  # "New Hampshire",
-  # "New Jersey",
-  # "New York",
-  "North Carolina",
-  # "Pennsylvania",
-  # "Rhode Island",
-  "South Carolina",
-  "Texas"
-  # ,
-  # "Virginia",
-  # "Washington DC"
-)
-
-## us maps ----
-# The code loads U.S. state boundary shapefile data using the 'tigris' package, and the resulting spatial data is stored in the 'us_s_shp' variable as a simple feature (sf) object. The progress bar is disabled during the data loading process.
-# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
-
-us_s_shp <-
-  tigris::states(cb = TRUE, progress_bar = FALSE)
-
-## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
-south_states_shp <-
-  us_s_shp |>
-  filter(NAME %in% south_east_coast_states)
-
 # View(south_states_shp)
 
 # str(south_east_coast_states)
