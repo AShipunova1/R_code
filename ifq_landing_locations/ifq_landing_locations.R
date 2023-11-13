@@ -142,6 +142,10 @@ test_data_path <- file.path(my_paths$git_r,
 
 # source(test_data_path)
 
+# add missing coords to input_data_raw_nominatim_converted ----
+input_data_raw_nominatim_converted |> 
+  filter(is.na(X) | is.na(Y))
+
 # shorten ----
 keep_fields_list_arcgis <-
   c(
