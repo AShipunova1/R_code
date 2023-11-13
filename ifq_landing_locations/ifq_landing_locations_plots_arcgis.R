@@ -2,7 +2,8 @@
 # In summary, the code takes the 'input_data_convert_dms_short_clean_short_cnt_short' data frame, adds a new factor column 'year_fct' based on the 'USER_NYEAR' column, and then converts the resulting data frame into a spatial object using the 'sf' package. The spatial object is defined with coordinates based on 'use_lon_round' and 'use_lat_round', and it uses the EPSG 4326 CRS (WGS 84). NA values are allowed in the spatial object. The final result is stored in 'input_data_convert_dms_short_clean_short_cnt_sf'.
 
 input_data_convert_dms_short_clean_short_cnt_sf <-
-  input_data_convert_dms_short_clean_short_cnt_short |>
+  input_data_convert_dms_short_clean_short_cnt |> 
+  # input_data_convert_dms_short_clean_short_cnt_short |>
   mutate(
     year_fct = factor(USER_NYEAR)
   ) |>
@@ -39,7 +40,7 @@ plot_by_year
 # toc()
 # 
 output_file_name <- 
-  "facets_by_year_w_gom_shp.png"
+  "facets_by_year_w_gom_shp_tidy_geo.png"
 
 # output_file_name <- 
 #   "facets_by_year_w_states.png"
