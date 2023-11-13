@@ -3,6 +3,12 @@
 # Load the 'mapview' library for interactive viewing of spatial data.
 library(mapview)
 
+if (!require(tidygeocoder)) {
+  install.packages("tidygeocoder")
+  library(tidygeocoder)
+}
+help(tidygeocoder)
+
 ## Load the 'tigris' package to access geographic data.
 library(tigris)
 ## Set the 'tigris_use_cache' option to TRUE. This will enable caching of
@@ -25,9 +31,11 @@ current_project_dir_name <- basename(current_project_dir_path)
 
 # get data for ifq_landing_locations ----
 # 1) convert addresses from the original csv to coordinates with ARCgis
-# or use tidygeocoder;
+# or 
+# 1a) use tidygeocoder;
 # 2) manually (google search) add corrected_addr,	corrected_lat and	corrected_long if ExInfo is not NA (where possible);
-# 2) upload the result to R
+
+# upload the arcGIS result to R ----
 input_data_file_path <-
   file.path(my_paths$inputs,
             r"(ifq_landing_locations\IFQ_Landing_Location_Use_geocoded_ex.csv)")
@@ -615,12 +623,6 @@ input_data_convert_dms_short_clean |>
   head()
 
 # try tidygeocoder ----
-if (!require(tidygeocoder)) {
-  install.packages("tidygeocoder")
-  library(tidygeocoder)
-}
-help(tidygeocoder)
-
 raw_input_data_file_path <-
   file.path(my_paths$inputs,
             r"(ifq_landing_locations\IFQ_Landing_Location_Use.csv)")
@@ -707,7 +709,8 @@ lat_longs_esri |>
   View()
 # the diff in 4-5 digit
 
-# with tidygeocoder ----
+# 1a) get raw data and convert with tidygeocoder ----
+
 get_lat_lon_by_addr <-
   function(input_df) {
     input_data_raw_esri <- input_df %>%
