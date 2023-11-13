@@ -292,9 +292,9 @@ plot_by_year <- ggplot() +  # Initialize a ggplot object.
   
   # Add a spatial feature layer to the plot using 'geom_sf' and 'input_data_convert_dms_short_clean_short_cnt_sf' as data.
   # Map the size aesthetic to 'count_by_year_and_coord'.
+  geom_sf(data = st_union_GOMsf) +
   geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
-          mapping = aes(size = count_by_year_and_coord)) +
-  
+          mapping = aes(size = count_by_year_and_coord)) + 
   # Create facets based on year, arranging them in a 3-column layout.
   facet_wrap(vars(year_fct), ncol = 3) +
   
@@ -305,10 +305,12 @@ plot_by_year <- ggplot() +  # Initialize a ggplot object.
   # Customize the legend for the size aesthetic.
   guides(size = guide_legend(title = "Counts by year and place"))
 
+# tic("plot_by_year")
 plot_by_year
+toc()
 
 output_file_name <- 
-  "facets_by_year.png"
+  "facets_by_year_w_gom_shp.png"
 
 # output_file_name <- 
 #   "facets_by_year_w_states.png"
