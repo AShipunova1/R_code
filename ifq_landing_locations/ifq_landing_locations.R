@@ -7,7 +7,7 @@ if (!require(tidygeocoder)) {
   install.packages("tidygeocoder")
   library(tidygeocoder)
 }
-help(tidygeocoder)
+# help(tidygeocoder)
 
 ## Load the 'tigris' package to access geographic data.
 library(tigris)
@@ -38,6 +38,8 @@ get_data_path <- file.path(my_paths$git_r,
 # file.exists(get_data_path)
 
 source(get_data_path)
+dim(input_data)
+# [1] 3418   83
 
 # unify user coordinate format ----
 # Assuming North West coords only in our data
@@ -94,19 +96,17 @@ convert_dms_to_dd_nw <-
   }
 
 # test
-# one_dms_coord = "97° 07'991" 
+one_dms_coord = "97° 07'991"
 # one_dms_coord2 = "-82.149261"
 # one_dms_coord3 = "-83.029 W"
 
-# convert_dms_to_dd_nw(one_dms_coord)
+convert_dms_to_dd_nw(one_dms_coord)
 # convert_dms_to_dd_nw(one_dms_coord2)
 # convert_dms_to_dd_nw(one_dms_coord3)
 # convert_dms_to_dd_nw("29.136 N")
 
 # print_df_names(input_data_raw_esri)
 # [1] "NYEAR, FK_LANDING_LOCATION_ID, LATITUDE, LONGITUDE, STREET, CITY, STATE, ZIP, UseCount, X, my_address, address, lat, long, arcgis_address, score, location.x, location.y, extent.xmin, extent.ymin, extent.xmax, extent.ymax"
-
-input_data_from_arcgis <- input_data
 
 ## convert all user input coord format ----
 tic("input_data_convert_dms")
@@ -123,8 +123,18 @@ toc()
 
 glimpse(input_data_convert_dms)
 
+# test arcgis data
+test_data_path <- file.path(my_paths$git_r,
+                 current_project_dir_name,
+                 "ifq_landing_locations_test_arcgis.R")
+
+
+# file.exists(test_data_path)
+
+# source(test_data_path)
+
 # shorten ----
-keep_fields_list <-
+keep_fields_list_arcgis <-
   c(
     "OID_",
     "Place_addr",
@@ -141,23 +151,23 @@ keep_fields_list <-
 
 input_data_convert_dms_short <- 
   input_data_convert_dms |> 
-  select(any_of(keep_fields_list)) |> 
+  select(any_of(keep_fields_list_arcgis)) |> 
   distinct()
   
 # dim(input_data_convert_dms_short)
-  # [1] 3418    10
+  # [1] 3418    11
 
 # check
 # input_data_convert_dms_short |>
 #   filter(USER_NYEAR == 1899) |>
 #   select(OID_, USER_UseCount, USER_NYEAR) |>
-#   distinct() |> 
+#   distinct() |>
 #   count(wt = USER_UseCount)
 # 43
 
-# input_data_convert_dms_short |> 
-#     add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |> 
-#     filter(USER_NYEAR == 1899) |> 
+# input_data_convert_dms_short |>
+#     add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
+#     filter(USER_NYEAR == 1899) |>
 #   glimpse()
 
 # clean ARCgis df ----
