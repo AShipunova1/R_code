@@ -56,6 +56,14 @@ input_data_convert_dms_short |>
 #   filter(OID_ == 194) |>
 #   glimpse()
 
+# Don't unique yet, bc counts could be the same
+input_data_convert_dms_short_clean_short <-
+  input_data_convert_dms_short_clean |>
+  select(OID_, use_lat, use_lon, USER_NYEAR, USER_UseCount, use_addr)
+
+# glimpse(input_data_convert_dms_short_clean_short)
+# [1] 3418    6
+
 
 # from tidygeo ----
 
@@ -208,16 +216,30 @@ input_data_raw_nominatim_converted_coord_clean <-
 # 0
 
 ### merge back ----
-good_c_names <- names(input_data_raw_nominatim_converted_coord_clean)
-bad_c_names <- names(join_nominatim_n_arcgis_add_coord)
+# good_c_names <- names(input_data_raw_nominatim_converted_coord_clean)
+# bad_c_names <- names(join_nominatim_n_arcgis_add_coord)
+# 
+# setdiff(good_c_names, bad_c_names)
+# 
+# setdiff(bad_c_names, good_c_names)
 
-setdiff(good_c_names, bad_c_names)
+input_data_raw_nominatim_converted_coord_short <-
+  list(
+    input_data_raw_nominatim_converted_coord_clean,
+    join_nominatim_n_arcgis_add_coord
+  ) |>
+  map_df(\(mydf) {
+    mydf |>
+      select(
+        USER_FK_LANDING_LOCATION_ID,
+        use_lat,
+        use_lon,
+        USER_NYEAR,
+        USER_UseCount,
+        use_addr
+      )
+  })
 
-setdiff(bad_c_names, good_c_names)
+dim(input_data_raw_nominatim_converted_coord_short)
+# [1] 3418    6
 
-rbind(input_data_raw_nominatim_converted_coord_clean)
-input_data_raw_nominatim_converted_has_coords |> 
-  input_data_raw_nominatim_converted_no_coord <- 
-
-  filter()
-join_nominatim_n_arcgis_add_coord
