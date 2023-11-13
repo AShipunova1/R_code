@@ -200,6 +200,37 @@ join_nominatim_n_arcgis <-
 # [1] 1307   76
 
 print_df_names(join_nominatim_n_arcgis)
+
+join_nominatim_n_arcgis_add_coord <- 
+  join_nominatim_n_arcgis |> 
+  mutate(
+    X = case_when(X_arc == 0 ~ NA,
+    .default = X_arc),
+    Y = case_when(Y_arc == 0 ~ NA,
+    .default = Y_arc
+  )
+  ) |>
+  mutate(
+    use_lat =
+      dplyr::coalesce(corrected_lat,
+                      Y,
+                      converted_dms_lat),
+    use_lon =
+      dplyr::coalesce(corrected_long,
+                      X,
+                      -abs(converted_dms_lon)),
+    # can't use coalesce, bc corrected_addr can be ""
+    use_addr =
+      case_when(
+        !is.na(corrected_addr) &
+          !corrected_addr == "" ~ corrected_addr,
+        .default = Place_addr
+      )
+  )
+
+View(join_nominatim_n_arcgis_add_coord)
+
+
 # shorten ----
 keep_fields_list_arcgis <-
   c(
