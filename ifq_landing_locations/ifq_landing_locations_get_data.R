@@ -66,18 +66,6 @@ esri_rds_file_path <-
   file.path(my_paths$inputs,
             r"(ifq_landing_locations\input_data_raw_esri.rds)")
 
-# readr::write_rds(input_data_raw_esri,
-#                  esri_rds_file_path)
-
-
-# aa <- 
-#   input_data_raw |> 
-#   head() |> 
-#   # glimpse() |> 
-#   get_lat_lon_by_addr()
-# 
-# View(aa)
-
 input_data_raw_esri <-
   read_rds_or_run(esri_rds_file_path,
                   my_data = input_data_raw,
@@ -88,39 +76,65 @@ input_data_raw_esri <-
 # [1] 3418   14
 
 
-get_lat_lon_by_addr_Nominatim <-
+get_lat_lon_by_addr_nominatim <-
   function(input_df) {
-    input_data_raw_esri <- input_df %>%
-      dplyr::mutate(my_address = paste(STREET,
-                                    CITY,
-                                    STATE,
-                                    ZIP,
-                                    sep = ", ")) |>
-      tidygeocoder::geocode(address = my_address,
-                            return_addresses = TRUE,
-                            method = 'arcgis',
-                            full_results = TRUE)
-    return(input_data_raw_esri)
+    input_data_raw_nominatim <- input_df %>%
+      tidygeocoder::geocode(
+        street = "STREET",
+        city = "CITY",
+        state = "STATE",
+        postalcode = "ZIP",
+        return_addresses = TRUE,
+        full_results = TRUE
+      )
+    return(input_data_raw_nominatim)
   }
 
+nominatim_rds_file_path <-
+  file.path(my_paths$inputs,
+            r"(ifq_landing_locations\input_data_raw_nominatim.rds)")
 
-# input_data_raw_esri |> 
-#   filter(!address...11 == address...12) |> 
-#   glimpse()
-# FK_LANDING_LOCATION_ID == 1
+input_data_raw_nominatim <-
+  read_rds_or_run(nominatim_rds_file_path,
+                  my_data = input_data_raw,
+                  get_lat_lon_by_addr_nominatim)
+# Passing 555 addresses to the Nominatim single address geocoder
+# [===================================] 555/555 (100%) Elapsed: 10m Remaining:  0s
 
-# input_data <- 
-#   input_data_raw_esri |> 
-#   select(-c(X, my_address)) |>
-#   rename(USER_NYEAR = NYEAR,
-#          USER_FK_LANDING_LOCATION_ID = FK_LANDING_LOCATION_ID,
-#          USER_LATITUDE = LATITUDE, 
-#          USER_LONGITUDE = LONGITUDE,
-#          USER_UseCount = UseCount,
-#          IN_Address = address,
-#          Y = lat,
-#          X = long
-#          )
+# 2023-11-13 run for input_data_raw_nominatim.rds: 573.09 sec elapsed
+
+# rename tidygeo input ----
+# to be the same as from ARCgis
+# View(input_data_raw_nominatim)
+input_data_raw_esri_renamed <-
+  input_data_raw_esri |>
+  select(-c(X, my_address)) |>
+  rename(USER_NYEAR = NYEAR,
+         USER_FK_LANDING_LOCATION_ID = FK_LANDING_LOCATION_ID,
+         USER_LATITUDE = LATITUDE,
+         USER_LONGITUDE = LONGITUDE,
+         USER_UseCount = UseCount,
+         IN_Address = address,
+         Y = lat,
+         X = long
+         )
+ 
+# print_df_names(input_data_raw_nominatim)
+input_data_raw_nominatim_renamed <-
+  input_data_raw_nominatim |>
+  select(-c(X)) |>
+  rename(USER_NYEAR = NYEAR,
+         USER_FK_LANDING_LOCATION_ID = FK_LANDING_LOCATION_ID,
+         USER_LATITUDE = LATITUDE,
+         USER_LONGITUDE = LONGITUDE,
+         USER_STREET = STREET,
+         USER_CITY = CITY,
+         USER_STATE = STATE,
+         USER_ZIP = ZIP,
+         USER_UseCount = UseCount,
+         Y = lat,
+         X = long
+  )
 
 # get shapes ----
 south_east_coast_states <- c(
