@@ -27,6 +27,88 @@ dim(input_data)
 
 # using tidygeocoder ----
 
+raw_input_data_file_path <-
+  file.path(my_paths$inputs,
+            r"(ifq_landing_locations\IFQ_Landing_Location_Use.csv)")
+
+input_data_raw <-
+  read.csv(
+    raw_input_data_file_path,
+    header = TRUE,
+    stringsAsFactors = FALSE,
+    fileEncoding = "latin1"
+  )
+
+print_df_names(input_data_raw)
+# [1] "NYEAR, FK_LANDING_LOCATION_ID, LATITUDE, LONGITUDE, STREET, CITY, STATE, ZIP, UseCount, X"
+# 
+# [1] 3418   10
+
+get_lat_lon_by_addr_esri <-
+  function(input_df) {
+    input_data_raw_esri <- input_df %>%
+      dplyr::mutate(my_address = paste(STREET,
+                                    CITY,
+                                    STATE,
+                                    ZIP,
+                                    sep = ", ")) |>
+      tidygeocoder::geocode(address = my_address,
+                            return_addresses = TRUE,
+                            method = 'arcgis',
+                            full_results = TRUE)
+    return(input_data_raw_esri)
+  }
+# Passing 558 addresses to the ArcGIS single address geocoder
+# [===========================================] 558/558 (100%) Elapsed:  4m Remaining:  0s
+# geocode_esri: 268.83 sec elapsed
+
+esri_rds_file_path <-
+  file.path(my_paths$inputs,
+            r"(ifq_landing_locations\input_data_raw_esri.rds)")
+
+# readr::write_rds(input_data_raw_esri,
+#                  esri_rds_file_path)
+
+
+# aa <- 
+#   input_data_raw |> 
+#   head() |> 
+#   # glimpse() |> 
+#   get_lat_lon_by_addr()
+# 
+# View(aa)
+
+input_data_raw_esri <-
+  read_rds_or_run(esri_rds_file_path,
+                  my_data = input_data_raw,
+                  get_lat_lon_by_addr)
+# 2023-11-10 run for input_data_raw_esri.rds: 262.95 sec elapsed
+
+# dim(input_data_raw_esri)
+# [1] 3418   14
+
+
+get_lat_lon_by_addr_Nominatim <-
+  function(input_df) {
+    input_data_raw_esri <- input_df %>%
+      dplyr::mutate(my_address = paste(STREET,
+                                    CITY,
+                                    STATE,
+                                    ZIP,
+                                    sep = ", ")) |>
+      tidygeocoder::geocode(address = my_address,
+                            return_addresses = TRUE,
+                            method = 'arcgis',
+                            full_results = TRUE)
+    return(input_data_raw_esri)
+  }
+
+
+# input_data_raw_esri |> 
+#   filter(!address...11 == address...12) |> 
+#   glimpse()
+# FK_LANDING_LOCATION_ID == 1
+
 # input_data <- 
 #   input_data_raw_esri |> 
 #   select(-c(X, my_address)) |>
