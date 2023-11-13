@@ -121,6 +121,11 @@ unify_all_user_input_coords <- function(input_data) {
     dplyr::ungroup()
 }
 
+# data from arcGIS
+input_data_convert_dms <-
+  unify_all_user_input_coords(input_data)
+
+# data from tidygeo
 tic("input_data_convert_dms")
 input_data_raw_nominatim_converted <- 
   unify_all_user_input_coords(input_data_raw_nominatim_renamed)
@@ -142,6 +147,7 @@ test_data_path <- file.path(my_paths$git_r,
 
 # source(test_data_path)
 
+# prepare_data ----
 prepare_data_path <-
   file.path(my_paths$git_r,
             current_project_dir_name,
@@ -150,37 +156,19 @@ prepare_data_path <-
 
 # file.exists(prepare_data_path)
 
-# source(prepare_data_path)
-
-# shorten ----
-keep_fields_list_arcgis <-
-  c(
-    "OID_",
-    "Place_addr",
-    "corrected_addr",
-    "corrected_lat",
-    "corrected_long",
-    "Y",
-    "converted_dms_lat",
-    "X",
-    "converted_dms_lon",
-    "USER_NYEAR",
-    "USER_UseCount"
-  )
-
-input_data_convert_dms_short <- 
-  input_data_convert_dms |> 
-  select(any_of(keep_fields_list_arcgis)) |> 
-  distinct()
-  
-# dim(input_data_convert_dms_short)
-  # [1] 3418    11
+source(prepare_data_path)
 
 # check
-# input_data_convert_dms_short |>
+input_data_convert_dms_short |>
+  filter(USER_NYEAR == 1899) |>
+  select(OID_, USER_UseCount, USER_NYEAR) |>
+  distinct() |>
+  count(wt = USER_UseCount)
+# 43
+
+# input_data_raw_nominatim_converted_coord_short |> 
 #   filter(USER_NYEAR == 1899) |>
-#   select(OID_, USER_UseCount, USER_NYEAR) |>
-#   distinct() |>
+#   select(USER_UseCount, USER_NYEAR) |>
 #   count(wt = USER_UseCount)
 # 43
 
@@ -189,13 +177,18 @@ input_data_convert_dms_short <-
 #     filter(USER_NYEAR == 1899) |>
 #   glimpse()
 
+# input_data_raw_nominatim_converted_coord_short |>
+#   add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
+#   filter(USER_NYEAR == 1899) |>
+#   glimpse()
 
 # add counts ----
 # In summary, the code takes the 'input_data_convert_dms_short_clean_short' data frame, adds two new columns ('use_lat_round' and 'use_lon_round') by rounding the 'use_lat' and 'use_lon' columns, and then applies three 'add_count' operations to calculate counts based on different groupings of columns. The results are stored in the 'input_data_convert_dms_short_clean_short_cnt' data frame.
 
+# input_data_convert_dms_short_clean_short_cnt_tidy_geo <-
+#   input_data_raw_nominatim_converted_coord_short |> 
 input_data_convert_dms_short_clean_short_cnt <-
-  input_data_raw_nominatim_converted_coord_short |> 
-  # input_data_convert_dms_short_clean_short |>
+  input_data_convert_dms_short_clean_short |>
   mutate(use_lat_round = round(use_lat, 4),
          use_lon_round = round(use_lon, 4)) |>
   add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
@@ -206,9 +199,9 @@ input_data_convert_dms_short_clean_short_cnt <-
             wt = USER_UseCount,
             name = "count_by_year_and_coord")
 
-# input_data_convert_dms_short_clean_short_cnt |> 
-#   filter(USER_NYEAR == 1899) |>
-#   glimpse()
+input_data_convert_dms_short_clean_short_cnt |>
+  filter(USER_NYEAR == 1899) |>
+  glimpse()
 
 # leave only cnts and unique ----
 input_data_convert_dms_short_clean_short_cnt_short <- 
