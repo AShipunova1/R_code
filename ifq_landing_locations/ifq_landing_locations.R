@@ -122,12 +122,15 @@ unify_all_user_input_coords <- function(input_data) {
 }
 
 tic("input_data_convert_dms")
-unify_all_user_input_coords(input_data_raw_nominatim)
+input_data_raw_nominatim_converted <- 
+  unify_all_user_input_coords(input_data_raw_nominatim_renamed)
 toc()
-# input_data_convert_dms: 0.2 sec elapsed
+# input_data_convert_dms: 0.39 sec elapsed
 
-glimpse(input_data_convert_dms)
-
+# glimpse(input_data_raw_nominatim_converted)
+# input_data_raw_nominatim_converted |> 
+#   filter(USER_FK_LANDING_LOCATION_ID == 57) |> 
+#   View()
 
 # test arcgis data
 test_data_path <- file.path(my_paths$git_r,
