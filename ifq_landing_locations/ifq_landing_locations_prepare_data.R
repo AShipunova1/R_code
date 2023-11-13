@@ -5,10 +5,16 @@
 # from tidygeo ----
 
 ## add missing coords to input_data_raw_nominatim_converted ----
-input_data_raw_nominatim_converted_no_coord <- 
-  input_data_raw_nominatim_converted |> 
-  filter(is.na(X) | is.na(Y))
+no_addded_coords_filter <-
+  rlang::quo(is.na(X) | is.na(Y))
 
+input_data_raw_nominatim_converted_no_coord1 <- 
+  input_data_raw_nominatim_converted |> 
+  filter(!!no_addded_coords_filter)
+
+all.equal(input_data_raw_nominatim_converted_no_coord,
+          input_data_raw_nominatim_converted_no_coord1)
+# T
 # dim(input_data_raw_nominatim_converted_no_coord)
 # Rows: 1,307
 # Columns: 29
@@ -93,3 +99,7 @@ join_nominatim_n_arcgis_add_coord <-
 View(join_nominatim_n_arcgis_add_coord)
 
 
+### merge back ----
+input_data_raw_nominatim_converted |> 
+  filter()
+join_nominatim_n_arcgis_add_coord
