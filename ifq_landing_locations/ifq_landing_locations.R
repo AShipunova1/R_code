@@ -38,8 +38,12 @@ get_data_path <- file.path(my_paths$git_r,
 # file.exists(get_data_path)
 
 source(get_data_path)
-dim(input_data)
+# dim(input_data)
 # [1] 3418   83
+# dim(input_data_raw_esri)
+# [1] 3418   22
+# dim(input_data_raw_nominatim)
+# [1] 3418   28
 
 # unify user coordinate format ----
 # Assuming North West coords only in our data
@@ -105,23 +109,25 @@ convert_dms_to_dd_nw(one_dms_coord)
 # convert_dms_to_dd_nw(one_dms_coord3)
 # convert_dms_to_dd_nw("29.136 N")
 
-# print_df_names(input_data_raw_esri)
-# [1] "NYEAR, FK_LANDING_LOCATION_ID, LATITUDE, LONGITUDE, STREET, CITY, STATE, ZIP, UseCount, X, my_address, address, lat, long, arcgis_address, score, location.x, location.y, extent.xmin, extent.ymin, extent.xmax, extent.ymax"
-
 ## convert all user input coord format ----
+unify_all_user_input_coords <- function(input_data) {
+  input_data_convert_dms <-
+    input_data |>
+    dplyr::rowwise() |>
+    dplyr::mutate(
+      converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
+      converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)
+    ) |>
+    dplyr::ungroup()
+}
+
 tic("input_data_convert_dms")
-input_data_convert_dms <- 
-  input_data |>
-  dplyr::rowwise() |>
-  dplyr::mutate(
-    converted_dms_lat = convert_dms_to_dd_nw(USER_LATITUDE),
-    converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)
-  ) |>
-  dplyr::ungroup()
+unify_all_user_input_coords(input_data_raw_nominatim)
 toc()
 # input_data_convert_dms: 0.2 sec elapsed
 
 glimpse(input_data_convert_dms)
+
 
 # test arcgis data
 test_data_path <- file.path(my_paths$git_r,
