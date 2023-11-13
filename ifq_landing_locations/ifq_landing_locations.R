@@ -320,6 +320,45 @@ input_data_convert_dms |>
   filter(!tolower(IN_Address) == tolower(arcgis_address)) |> 
   View()
 
+
+stringr::str_split_fixed(before$type, "_and_", 2)
+
+in_address_sep <- 
+  stringr::str_split(input_data_convert_dms$IN_Address, ",",
+                     simplify = TRUE) |> 
+  as.data.frame()
+
+
+head(in_address_sep, 2)
+# names(in_address_sep) <- c("in_street",
+#                            "in_city",
+#                            "in_state",
+#                            "in_zip",
+#                            "V5")
+
+clean_addr <- 
+  function(addr_str) {
+    return(trimws(tolower(addr_str)))
+  }
+
+map(in_address_sep$V5, length) |> 
+  head()
+# 1
+
+in_address_sep |> 
+  rowwise() |> 
+  mutate(
+    # v5_len = length(trimws(V5))
+    in_city_sep = case_when(length(trimws(V5)) > 1 ~ clean_addr(V3),
+                                .default = clean_addr(V2)),
+    in_state_sep = case_when(length(trimws(V5)) > 1 ~ clean_addr(V4),
+                                .default = clean_addr(V3)),
+    in_zip_sep = case_when(length(trimws(V5)) > 1 ~ clean_addr(V5),
+                                .default = clean_addr(V4))
+  ) |> 
+  ungroup()
+
+
 # $ OID_              <int> 194, 664, 695, 1368, 2511, 2898, 3122, 3157
 # $ Place_addr        <chr> "", "", "", "", "", "", "", ""
 # $ corrected_addr    <chr> "", "", "", "", "", "", "", ""
