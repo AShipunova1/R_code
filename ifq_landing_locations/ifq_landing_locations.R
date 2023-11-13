@@ -345,7 +345,13 @@ map(in_address_sep$V5, length) |>
   head()
 # 1
 
-in_address_sep |> 
+names(state.abb) <- state.name
+names(state.name) <- state.abb
+state.name["FL"]
+
+tic("in_address_sep_clean")
+in_address_sep_clean <- 
+  in_address_sep |> 
   rowwise() |> 
   mutate(
     # v5_len = length(trimws(V5))
@@ -356,9 +362,14 @@ in_address_sep |>
     in_zip_sep = case_when(length(trimws(V5)) > 1 ~ clean_addr(V5),
                                 .default = clean_addr(V4))
   ) |> 
-  ungroup()
+  ungroup() |> 
+  rename(in_street_sep = V1) |> 
+  select(-starts_with("V"))
+toc()
+# in_address_sep_clean: 8.24 sec elapsed
 
-
+head(in_address_sep_clean, 2)
+state.abb |> head()
 # $ OID_              <int> 194, 664, 695, 1368, 2511, 2898, 3122, 3157
 # $ Place_addr        <chr> "", "", "", "", "", "", "", ""
 # $ corrected_addr    <chr> "", "", "", "", "", "", "", ""
