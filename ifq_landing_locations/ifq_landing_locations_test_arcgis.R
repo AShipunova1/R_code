@@ -80,3 +80,11 @@ input_data_convert_dms |>
   filter(X == 0) |> 
   dim()
 # [1]  8 85
+
+# check missing addresses (arcgis) ----
+input_data_convert_dms_short_clean |>
+  filter(is.na(X) | is.na(Y)) |>
+  filter(is.na(converted_dms_lat) | is.na(converted_dms_lon)) |>
+  remove_empty_cols() |>
+  select(USER_NYEAR, USER_UseCount) |>
+  head()
