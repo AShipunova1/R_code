@@ -142,6 +142,16 @@ test_data_path <- file.path(my_paths$git_r,
 
 # source(test_data_path)
 
+prepare_data_path <-
+  file.path(my_paths$git_r,
+            current_project_dir_name,
+            "ifq_landing_locations_prepare_data.R")
+
+
+# file.exists(prepare_data_path)
+
+# source(prepare_data_path)
+
 # shorten ----
 keep_fields_list_arcgis <-
   c(
