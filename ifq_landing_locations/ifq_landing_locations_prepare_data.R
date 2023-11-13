@@ -3,6 +3,30 @@
 
 # from arcGIS Pro ----
 # clean ARCgis df
+# shorten ----
+keep_fields_list_arcgis <-
+  c(
+    "OID_",
+    "Place_addr",
+    "corrected_addr",
+    "corrected_lat",
+    "corrected_long",
+    "Y",
+    "converted_dms_lat",
+    "X",
+    "converted_dms_lon",
+    "USER_NYEAR",
+    "USER_UseCount"
+  )
+
+input_data_convert_dms_short <- 
+  input_data_convert_dms |> 
+  select(any_of(keep_fields_list_arcgis)) |> 
+  distinct()
+  
+# dim(input_data_convert_dms_short)
+  # [1] 3418    11
+
 # In summary, the code takes the 'input_data_convert_dms_short' data frame, makes several modifications to it using the 'mutate' function, and creates three new columns: 'use_lat', 'use_lon', and 'use_addr'. These new columns are generated based on specific conditions or by choosing the first non-NA value from a set of columns using 'coalesce'. The resulting data frame is stored in 'input_data_convert_dms_short_clean'.
 
 input_data_convert_dms_short_clean <-
