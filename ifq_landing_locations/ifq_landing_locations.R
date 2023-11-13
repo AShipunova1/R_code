@@ -30,34 +30,14 @@ current_project_dir_path <-
 current_project_dir_name <- basename(current_project_dir_path)
 
 # get data for ifq_landing_locations ----
-# 1) convert addresses from the original csv to coordinates with ARCgis
-# or 
-# 1a) use tidygeocoder;
-# 2) manually (google search) add corrected_addr,	corrected_lat and	corrected_long if ExInfo is not NA (where possible);
+get_data_path <- file.path(my_paths$git_r,
+                 current_project_dir_name,
+                 "ifq_landing_locations_get_data.R")
 
-# upload the arcGIS result to R ----
-input_data_file_path <-
-  file.path(my_paths$inputs,
-            r"(ifq_landing_locations\IFQ_Landing_Location_Use_geocoded_ex.csv)")
 
-# file.exists(input_data_file_path)
+# file.exists(get_data_path)
 
-# 'header = TRUE' indicates that the first row of the CSV file contains column names.
-input_data <-
-  read.csv(
-    input_data_file_path,
-    header = TRUE,
-    stringsAsFactors = FALSE,
-    fileEncoding = "latin1"
-  )
-
-dim(input_data)
-# [1] 3418   83
-
-dim(input_data_raw_esri)
-# [1] 3418   14 / 22 (all)
-
-# problems(input_data)
+source(get_data_path)
 
 # unify user coordinate format ----
 # Assuming North West coords only in our data
@@ -122,94 +102,13 @@ convert_dms_to_dd_nw <-
 # convert_dms_to_dd_nw(one_dms_coord2)
 # convert_dms_to_dd_nw(one_dms_coord3)
 # convert_dms_to_dd_nw("29.136 N")
-input_data_from_arcgis <- input_data
 
 # print_df_names(input_data_raw_esri)
 # [1] "NYEAR, FK_LANDING_LOCATION_ID, LATITUDE, LONGITUDE, STREET, CITY, STATE, ZIP, UseCount, X, my_address, address, lat, long, arcgis_address, score, location.x, location.y, extent.xmin, extent.ymin, extent.xmax, extent.ymax"
 
-input_data_file_path <-
-  file.path(my_paths$inputs,
-            r"(ifq_landing_locations\IFQ_Landing_Location_Use_geocoded_ex.csv)")
+input_data_from_arcgis <- input_data
 
-# file.exists(input_data_file_path)
-
-# 'header = TRUE' indicates that the first row of the CSV file contains column names.
-input_data <-
-  read.csv(
-    input_data_file_path,
-    header = TRUE,
-    stringsAsFactors = FALSE,
-    fileEncoding = "latin1"
-  )
-
-str(input_data)
-# problems(input_data)
-
-# unify user coordinate format ----
-# Assuming North West coords only in our data
-convert_dms_to_dd_nw <- 
-  function(one_dms_coord) {
-    # browser()
-    # a flag to keep negative info
-    minus = FALSE
-    
-    # remove "W and N" at the end
-    if (grepl("^-*[0-9.]+\\s*[A-z]+$", one_dms_coord)) {
-      one_dms_coord = sub("^(-*[0-9.]+)\\s*[A-z]+$", "\\1", one_dms_coord)
-    }
-
-    if (grepl("^-", one_dms_coord)) {
-      # use abs to remove "-"
-      one_dms_coord = abs(as.double(one_dms_coord))
-      # keep a record
-      minus = TRUE
-    }
-    
-    # In this code, the if statement is used to check whether the variable one_dms_coord contains any characters that are not digits (0-9) or periods (.) using the grepl() function. If such characters are found, the code proceeds to split the one_dms_coord string into a list of substrings that contain only digits and periods. The strsplit() function is used for this purpose, and it splits the string at one or more non-digit characters, which is specified by the regular expression "\D+". The resulting substrings are stored in the digits_only_list.
-
-    if (grepl("[^0-9.]", one_dms_coord)) {
-      digits_only_list <-
-        strsplit(one_dms_coord,
-                 "\\D+")
-      
-      degrees <-
-        digits_only_list[[1]][1] |>
-        as.integer()
-      
-      minutes <-
-        digits_only_list[[1]][2] |>
-        as.integer()
-      
-      seconds <-
-        digits_only_list[[1]][3] |>
-        as.integer()
-      
-      dd_coord <-
-        degrees + minutes / 60 + seconds / 3600
-      
-    } else {
-      # here if already in the DD format
-      dd_coord <- as.double(one_dms_coord)
-    }
-
-    # restore the sign if deleted 
-    if (minus) {
-      dd_coord = -abs(dd_coord)
-    }
-    return(dd_coord)
-  }
-
-# test
-# one_dms_coord = "97° 07'991" 
-# one_dms_coord2 = "-82.149261"
-# one_dms_coord3 = "-83.029 W"
-
-# convert_dms_to_dd_nw(one_dms_coord)
-# convert_dms_to_dd_nw(one_dms_coord2)
-# convert_dms_to_dd_nw(one_dms_coord3)
-# convert_dms_to_dd_nw("29.136 N")
-
-## convert all input coord format ----
+## convert all user input coord format ----
 tic("input_data_convert_dms")
 input_data_convert_dms <- 
   input_data |>
@@ -219,7 +118,6 @@ input_data_convert_dms <-
     converted_dms_lon = convert_dms_to_dd_nw(USER_LONGITUDE)
   ) |>
   dplyr::ungroup()
-
 toc()
 # input_data_convert_dms: 0.2 sec elapsed
 
@@ -609,10 +507,11 @@ input_data_convert_dms_short_clean |>
   select(USER_NYEAR, USER_UseCount) |>
   head()
 
-# ====
+# 
+# using tidygeocoder ----
 input_data <- 
   input_data_raw_esri |> 
-  select(-c(X, my_address, STREET, CITY, STATE, ZIP)) |>
+  select(-c(X, my_address)) |>
   rename(USER_NYEAR = NYEAR,
          USER_FK_LANDING_LOCATION_ID = FK_LANDING_LOCATION_ID,
          USER_LATITUDE = LATITUDE, 
