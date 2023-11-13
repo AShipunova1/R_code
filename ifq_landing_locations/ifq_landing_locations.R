@@ -190,7 +190,16 @@ join_nominatim_n_arcgis <-
     suffix = c("_osm", "_arc")
   )
 
-View(join_nominatim_n_arcgis)
+dim(join_nominatim_n_arcgis)
+# [1] 1307   89
+
+join_nominatim_n_arcgis <- 
+  join_nominatim_n_arcgis |>
+  remove_empty_cols() |>
+  distinct()
+# [1] 1307   76
+
+print_df_names(join_nominatim_n_arcgis)
 # shorten ----
 keep_fields_list_arcgis <-
   c(
