@@ -1,11 +1,12 @@
 #### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_line_plots.R  ----
+# run after quantify_compliance_from_fhier_month.R
 
 ## Month, line plots with dots ----
 # line_df_22_gom <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual`
 
 # line_df_22_sa <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 sa_only`
 
-pecent_names <- paste0(seq(0, 100, by = 10), "%")
+percent_names <- paste0(seq(0, 100, by = 10), "%")
 
 # dim(line_df_22_gom)
 # [1] 24 10

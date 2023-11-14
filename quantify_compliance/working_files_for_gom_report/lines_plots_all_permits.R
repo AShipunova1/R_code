@@ -3,7 +3,7 @@ year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2)
 
-pecent_names <- paste0(seq(0, 100, by = 10), "%")
+percent_names <- paste0(seq(0, 100, by = 10), "%")
 
 line_plots_3 <- 
   year_permits |> 
