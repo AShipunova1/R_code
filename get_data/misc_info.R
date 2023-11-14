@@ -80,8 +80,8 @@ sa_council_states <-
 
 # prepare state names and abbs ----
 # have to save first, to use the original once as names
-# my_state_abb <- mutate_all(tolower(state.abb))
-# my_state_name <- state.name
-# names(my_state_abb) <- tolower(state.name)
-# names(my_state_name) <- tolower(state.abb)
-#
+my_state_abb <- state.abb
+my_state_name <- state.name
+names(my_state_abb) <- tolower(state.name)
+names(my_state_name) <- tolower(state.abb)
+
