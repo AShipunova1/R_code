@@ -7,6 +7,7 @@
 keep_fields_list_arcgis <-
   c(
     "OID_",
+    "USER_FK_LANDING_LOCATION_ID",
     "Place_addr",
     "corrected_addr",
     "corrected_lat",
@@ -83,7 +84,15 @@ input_data_convert_dms_short |>
 # Don't unique yet, bc counts could be the same
 input_data_convert_dms_short_clean_short <-
   input_data_convert_dms_short_clean |>
-  select(OID_, use_lat, use_lon, USER_NYEAR, USER_UseCount, use_addr)
+  select(
+    OID_,
+    USER_FK_LANDING_LOCATION_ID,
+    use_lat,
+    use_lon,
+    USER_NYEAR,
+    USER_UseCount,
+    use_addr
+  )
 
 # glimpse(input_data_convert_dms_short_clean_short)
 # [1] 3418    6
