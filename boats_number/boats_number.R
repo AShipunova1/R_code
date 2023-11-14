@@ -19,13 +19,22 @@ all_logbooks_db_data_2022_short_p_region_short <-
   select(vessel_id,
          vessel_official_nbr,
          permit_region,
+         start_port_name,
+         end_port_name,
          start_port,
          end_port) |>
   distinct()
 
+all_logbooks_db_data_2022_short_p_region_short |>
+  filter(!start_port == end_port &
+           start_port_name == end_port_name) |>
+  View()
+# 2
+
 # how many SEFHIER vessels start at a different location than they end; ----
 all_logbooks_db_data_2022_short_p_region_short |>
-  filter(!start_port == end_port) |>
+  # filter(!start_port == end_port) |>
+  filter(!start_port_name == end_port_name) |>
   select(vessel_id,
          vessel_official_nbr,
          permit_region) |>
@@ -35,6 +44,9 @@ all_logbooks_db_data_2022_short_p_region_short |>
   count(permit_region)
 # 1  gom_and_dual 198
 # 2       sa_only 199
+# by name:
+# 1  gom_and_dual 198
+# 2       sa_only 197
 
 # if keep ports:
 # dim()
