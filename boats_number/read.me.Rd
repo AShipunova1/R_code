@@ -3,6 +3,13 @@
 
 \title{}
 \date{}
+(Anna) Information to highlight movement patterns of the Gulf for-hire fleet;
+how many SEFHIER vessels start at a different location than they end;
+how many vessels have variable landing locations (i.e., in the winter they are in one state while in the summer they fish in another);  we should look at this by quarter, to start - for some seasonality.
+quantify the # of vessels who fish in both the gulf and S Atl. ;
+look at permit homeport vs where they take trip.
+
+
 The number of boats participating in each fishery;
 do the top species;
 do vessels and # trips;
