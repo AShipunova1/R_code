@@ -48,7 +48,7 @@ plot_by_year_arcgis <-
   plot_by_year(input_data_convert_dms_short_clean_short_cnt_sf)
 
 plot_by_year_tidygeo <-
-  plot_by_year(input_data_convert_dms_short_clean_short_cnt_tidy_geo_to_plot)
+  plot_by_year(input_data_convert_dms_short_clean_short_cnt_tidy_geo_to_plot_sf)
 
 # save plots to files ----
 save_plots_to_files <-
@@ -56,7 +56,7 @@ save_plots_to_files <-
            plot_name) {
     ggplot2::ggsave(
       file = output_file_name,
-      plot = plot_by_year,
+      plot = plot_name,
       device = "png",
       path = file.path(my_paths$outputs,
                        current_project_dir_name),
