@@ -259,7 +259,6 @@ input_data_convert_dms_short_clean_short_cnt_tidy_geo |>
   # select(starts_with("u")) |> 
   glimpse()
 
-
 # leave only cnts and unique ----
 cnts_only <-
   c(
@@ -280,168 +279,14 @@ dim(input_data_convert_dms_short_clean_short_cnt_short)
 # 3190    
 # [1] 3282    7 from tydigeo
 
+input_data_convert_dms_short_clean_short_cnt_to_plot <-
+  input_data_convert_dms_short_clean_short_cnt |>
+  select(all_of(cnts_only)) |>
+  distinct()
+
+input_data_convert_dms_short_clean_short_cnt_tidy_geo_to_plot <- 
+  input_data_convert_dms_short_clean_short_cnt_tidy_geo |> 
+  select(all_of(cnts_only)) |>
+  distinct()
+
 # print_df_names(input_data_convert_dms_short_clean_short_cnt)
-
-
-# compare missing values with ARCgis result ----
-
-# check arcgis_address vs my_address diff ----
-# split to strit, city, state (FL in input vs Florida), zip and compare separately
-
-input_data_convert_dms |>
-  filter(!tolower(IN_Address) == tolower(arcgis_address)) |> 
-  View()
-
-
-in_address_sep <- 
-  stringr::str_split(input_data_convert_dms$IN_Address, ",",
-                     simplify = TRUE) |> 
-  as.data.frame()
-
-
-head(in_address_sep, 2)
-# names(in_address_sep) <- c("in_street",
-#                            "in_city",
-#                            "in_state",
-#                            "in_zip",
-#                            "V5")
-
-clean_addr <- 
-  function(addr_str) {
-    return(trimws(tolower(addr_str)))
-  }
-
-map(in_address_sep$V5, length) |> 
-  head()
-# 1
-
-names(state.abb) <- state.name
-names(state.name) <- state.abb
-state.name["FL"]
-
-tic("in_address_sep_clean")
-in_address_sep_clean <- 
-  in_address_sep |> 
-  rowwise() |> 
-  mutate(
-    # v5_len = length(trimws(V5))
-    in_city_sep = case_when(length(trimws(V5)) > 1 ~ clean_addr(V3),
-                                .default = clean_addr(V2)),
-    in_state_sep = case_when(length(trimws(V5)) > 1 ~ clean_addr(V4),
-                                .default = clean_addr(V3)),
-    in_zip_sep = case_when(length(trimws(V5)) > 1 ~ clean_addr(V5),
-                                .default = clean_addr(V4))
-  ) |> 
-  ungroup() |> 
-  rename(in_street_sep = V1) |> 
-  select(-starts_with("V"))
-toc()
-# in_address_sep_clean: 8.24 sec elapsed
-
-head(in_address_sep_clean, 2)
-
-# $ OID_              <int> 194, 664, 695, 1368, 2511, 2898, 3122, 3157
-# $ Place_addr        <chr> "", "", "", "", "", "", "", ""
-# $ corrected_addr    <chr> "", "", "", "", "", "", "", ""
-# $ corrected_lat     <dbl> NA, NA, NA, NA, NA, NA, NA, NA
-# $ corrected_long    <dbl> NA, NA, NA, NA, NA, NA, NA, NA
-# $ Y                 <dbl> 0, 0, 0, 0, 0, 0, 0, 0
-# $ converted_dms_lat <dbl> 28.03278, 28.03278, 28.03278, NA, NA, 28.03278, NA, NA
-# $ X                 <dbl> 0, 0, 0, 0, 0, 0, 0, 0
-# $ converted_dms_lon <dbl> 97.39194, 97.39194, 97.39194, NA, NA, 97.39194, NA, NA
-# $ USER_NYEAR        <int> 2015, 2016, 2018, 2014, 2020, 2020, 2013, 2015
-# $ USER_UseCount     <int> 4, 1, 3, 136, 1, 3, 40, 28
-
-# input_data_convert_dms_short_clean |>
-#   filter(OID_ == 194) |>
-#   glimpse()
-
-
-# make sf ----
-# In summary, the code takes the 'input_data_convert_dms_short_clean_short_cnt_short' data frame, adds a new factor column 'year_fct' based on the 'USER_NYEAR' column, and then converts the resulting data frame into a spatial object using the 'sf' package. The spatial object is defined with coordinates based on 'use_lon_round' and 'use_lat_round', and it uses the EPSG 4326 CRS (WGS 84). NA values are allowed in the spatial object. The final result is stored in 'input_data_convert_dms_short_clean_short_cnt_sf'.
-
-input_data_convert_dms_short_clean_short_cnt_sf <-
-  input_data_convert_dms_short_clean_short_cnt_short |>
-  mutate(
-    year_fct = factor(USER_NYEAR)
-  ) |>
-  sf::st_as_sf(
-    coords = c("use_lon_round", "use_lat_round"),
-    crs = 4326,
-    na.fail = FALSE
-  )
-
-# glimpse(input_data_convert_dms_short_clean_short_cnt_sf)
-
-# View(south_states_shp)
-
-# str(south_east_coast_states)
-
-## plot_by_year ---- 
-# Create a new variable 'plot_by_year'.
-plot_by_year <- ggplot() +  # Initialize a ggplot object.
-  geom_sf(data = st_union_GOMsf)
-  # Add a spatial feature layer to the plot using 'geom_sf' and 'input_data_convert_dms_short_clean_short_cnt_sf' as data.
-  # Map the size aesthetic to 'count_by_year_and_coord'.
-  geom_sf(data = input_data_convert_dms_short_clean_short_cnt_sf,
-          mapping = aes(size = count_by_year_and_coord),
-          colour = "red") +
-  
-  # Create facets based on year, arranging them in a 3-column layout.
-  facet_wrap(vars(year_fct), ncol = 3) +
-  
-  ggtitle("IFQ Landing Locations") +
-  
-  theme(legend.position = "bottom") +
-  
-  # Customize the legend for the size aesthetic.
-  guides(size = guide_legend(title = "Counts by year and place"))
-
-plot_by_year
-# TODO: check the diff with arcGIS
-
-output_file_name <- 
-  "facets_by_year_tidygeo.png"
-
-# output_file_name <- 
-#   "facets_by_year_w_states.png"
-
-ggsave(
-  file = output_file_name,
-  plot = plot_by_year,
-  device = "png",
-  path = file.path(my_paths$outputs,
-                   current_project_dir_name),
-  width = 30,
-  height = 20,
-  units = "cm"
-)
-
-# By year, map the landing location with somehow displaying which locations are used the most. ----
-# I think we can do this with color coding.
-
-# zcol = "my_label",  # Use the 'my_label' column for labeling map points.
-# cex = "total_place_cnt",  # Control the size of map points based on 'total_place_cnt'.
-# alpha = 0.3,  # Set the transparency of map points to 0.3 (partially transparent).
-# col.regions = viridisLite::turbo,  # Define the color palette for map points using 'turbo' from 'viridisLite'.
-
-input_data_convert_dms_short_clean_short_cnt_sf |>
-  mutate(my_label =
-           str_glue("{use_addr}; # = {total_place_cnt}")) |>
-  mapview(
-    zcol = "my_label",
-    cex = "total_place_cnt",
-    alpha = 0.3,
-    col.regions = viridisLite::turbo,
-    legend = FALSE,
-    layer.name = 'Counts by year and place'
-  )
-
-# check missing addresses ----
-input_data_convert_dms_short_clean |>
-  filter(is.na(X) | is.na(Y)) |>
-  filter(is.na(converted_dms_lat) | is.na(converted_dms_lon)) |>
-  remove_empty_cols() |>
-  select(USER_NYEAR, USER_UseCount) |>
-  head()
-
