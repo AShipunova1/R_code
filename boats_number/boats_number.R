@@ -105,12 +105,44 @@ all_logbooks_db_data_2022_short_p_region_port <-
   select(vessel_id,
          vessel_official_nbr,
          permit_region,
-         contains("port")) |>
+         contains("port"),
+         -starts_with("notif")) |>
   remove_empty_cols() |>
   distinct()
 
-glimpse(all_logbooks_db_data_2022_short_p_region_port)
+dim(all_logbooks_db_data_2022_short_p_region_port)
 # [1] 3579   19
+# [1] 3011   11 -starts_with("notif")
 
-# look at permit home port vs where they take trip.
+all_logbooks_db_data_2022_short_p_region_port |>
+  select(start_port_state) |>
+  distinct() |>
+  head(2)
+
+names(state.abb) <- state.name
+names(state.name) <- state.abb
+
+all_logbooks_db_data_2022_short_p_region_port |>
+  mutate(
+    start_port_state_name = state.abb[start_port_state]
+  ) |>
+  glimpse()
+
+state.abb[tolower("FL")]
+
+  mutate(
+    start_port_reg =
+      case_when(
+        tolower(state.name[start_port_state]) %in% tolower(sa_council_states) ~
+          "sa_state",
+        tolower(state.name[start_port_state]) %in% tolower(east_coat_states$gom) ~
+          "gom_state"
+      )
+    # diff_reg = case_when(!start_port_state == end_port_state)
+  ) |>
+  glimpse()
+
+
+
+# look at permit home port vs where they take trip. ----
 
