@@ -1,4 +1,4 @@
-east_coat_states <- c(
+east_coat_states <- list(
   gom = c("Alabama",
           "Florida",
           "Louisiana",
@@ -28,7 +28,7 @@ east_coat_states <- c(
 
 # Florida counties by region (from the Internet)
 fl_counties <- list(
-  "SA" = c(
+  "sa" = c(
     "Brevard",
     "Broward",
     "Duval",
@@ -42,7 +42,7 @@ fl_counties <- list(
     "St. Lucie",
     "Volusia"
   ),
-  "GOM" = c(
+  "gom" = c(
     "Bay",
     "Charlotte",
     "Citrus",
@@ -71,9 +71,17 @@ fl_counties <- list(
 # The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
 
 sa_council_states <-
-  state_name = c(
+  c(
     "Florida", # should be separated by county
     "Georgia",
     "North Carolina",
-    "South Carolina",
+    "South Carolina"
   )
+
+# prepare state names and abbs ----
+# have to save first, to use the original once as names
+# my_state_abb <- mutate_all(tolower(state.abb))
+# my_state_name <- state.name
+# names(my_state_abb) <- tolower(state.name)
+# names(my_state_name) <- tolower(state.abb)
+#
