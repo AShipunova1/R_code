@@ -145,6 +145,29 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
 
 glimpse(all_logbooks_db_data_2022_short_p_region_port_states)
 
+all_logbooks_db_data_2022_short_p_region_port_states |>
+  filter(tolower(start_port_state_name) == "florida") |>
+  select(start_port_county) |>
+  distinct() |>
+  paste(sep = ",\n")
+
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
+  all_logbooks_db_data_2022_short_p_region_port_states |>
+  mutate(
+    start_port_fl_reg =
+      case_when(
+        tolower(start_port_state_name) == "florida" &
+          tolower(start_port_county) %in% tolower(fl_counties$gom) ~
+          "gom_county",
+        .default = "sa_county"
+      )
+  )
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
+  filter(start_port_fl_reg == "gom_county") |>
+  View()
+
 
 
 # look at permit home port vs where they take trip. ----
