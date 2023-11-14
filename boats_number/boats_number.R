@@ -96,25 +96,18 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   filter(vessel_official_nbr == 1000042) |>
   View()
 
-## with unite ----
+# quantify the # of vessels who fish in both the gulf and S Atl. ;
+all_logbooks_db_data_2022_short_p_region_port <-
+  all_logbooks_db_data_2022_short_p_region |>
+  select(vessel_id,
+         vessel_official_nbr,
+         permit_region,
+         contains("port")) |>
+  remove_empty_cols() |>
+  distinct()
 
-all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_u <-
-  all_logbooks_db_data_2022_short_p_region_short |>
-  group_by(vessel_id, vessel_official_nbr) |>
-  # mutate(
-  tidyr::unite(all_start_ports,
-               start_port,
-               remove = FALSE,
-               sep = ",") |>
-  glimpse()
+glimpse(all_logbooks_db_data_2022_short_p_region_port)
+# [1] 3579   19
 
-,
-tidyr::unite(all_end_ports, end_port,
-             remove = FALSE, sep = ",")
-|>
-  mutate(
-    all_start_ports_num = length(str_split(all_start_ports, ",")),
-    all_end_ports_num   = length(str_split(all_end_ports, ","))
-  ) |>
-  ungroup()
+# look at permit home port vs where they take trip.
 
