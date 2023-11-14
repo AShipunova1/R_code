@@ -38,7 +38,8 @@ get_data_path <- file.path(my_paths$git_r,
 # file.exists(get_data_path)
 
 source(get_data_path)
-# dim(input_data)
+# from arcGIS
+# dim(input_data) 
 # [1] 3418   83
 # dim(input_data_raw_esri)
 # [1] 3418   22
@@ -126,11 +127,8 @@ input_data_convert_dms <-
   unify_all_user_input_coords(input_data)
 
 # data from tidygeo
-tic("input_data_convert_dms")
 input_data_raw_nominatim_converted <- 
   unify_all_user_input_coords(input_data_raw_nominatim_renamed)
-toc()
-# input_data_convert_dms: 0.39 sec elapsed
 
 # glimpse(input_data_raw_nominatim_converted)
 # input_data_raw_nominatim_converted |> 
@@ -173,35 +171,94 @@ input_data_convert_dms_short |>
 # 43
 
 # input_data_convert_dms_short |>
-#     add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
-#     filter(USER_NYEAR == 1899) |>
+#   add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
+#   filter(USER_NYEAR == 1899) |>
 #   glimpse()
 
 # input_data_raw_nominatim_converted_coord_short |>
-#   add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
+#   add_count(USER_NYEAR,
+#             wt = USER_UseCount,
+#             name = "total_use_count_y") |>
 #   filter(USER_NYEAR == 1899) |>
 #   glimpse()
 
 # add counts ----
 # In summary, the code takes the 'input_data_convert_dms_short_clean_short' data frame, adds two new columns ('use_lat_round' and 'use_lon_round') by rounding the 'use_lat' and 'use_lon' columns, and then applies three 'add_count' operations to calculate counts based on different groupings of columns. The results are stored in the 'input_data_convert_dms_short_clean_short_cnt' data frame.
 
-# input_data_convert_dms_short_clean_short_cnt_tidy_geo <-
-#   input_data_raw_nominatim_converted_coord_short |> 
-input_data_convert_dms_short_clean_short_cnt <-
-  input_data_convert_dms_short_clean_short |>
-  mutate(use_lat_round = round(use_lat, 4),
-         use_lon_round = round(use_lon, 4)) |>
-  add_count(USER_NYEAR, wt = USER_UseCount, name = "total_use_count_y") |>
-  add_count(use_lat_round, use_lon_round, wt = USER_UseCount, name = "total_place_cnt") |>
-  add_count(USER_NYEAR,
-            use_lat_round,
-            use_lon_round,
-            wt = USER_UseCount,
-            name = "count_by_year_and_coord")
+add_counts <- function(my_df) {
+  my_df_cnts <- 
+  my_df |>
+    mutate(use_lat_round = round(use_lat, 4),
+           use_lon_round = round(use_lon, 4)) |>
+    # add_count(USER_NYEAR, 
+    #           wt = USER_UseCount, 
+    #           name = "total_use_count_y") |>
+    add_count(use_lat_round, 
+              use_lon_round, 
+              wt = USER_UseCount, 
+              name = "total_place_cnt") |>
+    add_count(USER_NYEAR,
+              use_lat_round,
+              use_lon_round,
+              wt = USER_UseCount,
+              name = "count_by_year_and_coord")
+  return(my_df_cnts)
+}
 
+# arcgis
+input_data_convert_dms_short_clean_short_cnt <-
+  add_counts(input_data_convert_dms_short_clean_short)
+
+# tidygeo
+input_data_convert_dms_short_clean_short_cnt_tidy_geo <-
+  add_counts(input_data_raw_nominatim_converted_coord_short)
+
+# check
 input_data_convert_dms_short_clean_short_cnt |>
-  filter(USER_NYEAR == 1899) |>
+  filter(count_by_year_and_coord == 50) |>
   glimpse()
+
+test_arc207 <- 
+  input_data_convert_dms_short_clean_short_cnt |>
+  filter(USER_FK_LANDING_LOCATION_ID == 207) |>
+  arrange(USER_NYEAR) |>
+  select(-OID_)
+glimpse(test_arc207)
+# Rows: 14
+# Columns: 12
+
+test_geo207 <- 
+  input_data_convert_dms_short_clean_short_cnt_tidy_geo |>
+  filter(USER_FK_LANDING_LOCATION_ID == 207) |>
+  arrange(USER_NYEAR)
+
+glimpse(test_geo207)
+# Rows: 14
+# Columns: 11
+
+diffdf::diffdf(test_arc207,
+               test_geo207)
+# total_use_count_y       14        4693   82233  
+
+test_arc207[14,] |> 
+  glimpse()
+
+test_geo207[14,] |> 
+  glimpse()
+
+# ---
+input_data_convert_dms_short_clean_short_cnt |>
+  filter(USER_NYEAR == 1899 &
+           USER_FK_LANDING_LOCATION_ID == 108) |>
+  # select(starts_with("u")) |> 
+  glimpse()
+
+input_data_convert_dms_short_clean_short_cnt_tidy_geo |>
+  filter(USER_NYEAR == 1899 &
+           USER_FK_LANDING_LOCATION_ID == 108) |>
+  # select(starts_with("u")) |> 
+  glimpse()
+
 
 # leave only cnts and unique ----
 input_data_convert_dms_short_clean_short_cnt_short <- 
@@ -210,7 +267,7 @@ input_data_convert_dms_short_clean_short_cnt_short <-
     use_lat_round,
     use_lon_round,
     count_by_year_and_coord,
-    total_use_count_y,
+    # total_use_count_y,
     total_place_cnt,
     use_addr,
     USER_NYEAR
