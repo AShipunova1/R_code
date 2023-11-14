@@ -290,3 +290,13 @@ input_data_convert_dms_short_clean_short_cnt_tidy_geo_to_plot <-
   distinct()
 
 # print_df_names(input_data_convert_dms_short_clean_short_cnt)
+
+# plots ----
+get_plotting_path <- file.path(my_paths$git_r,
+                 current_project_dir_name,
+                 "ifq_landing_locations_plots.R")
+
+
+file.exists(get_plotting_path)
+
+source(get_plotting_path)
