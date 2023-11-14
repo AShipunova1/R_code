@@ -182,6 +182,7 @@ line_df_22_gom_monthly_nc_percent_plot <-
     axis.text.y =
       element_text(size = axis_title_size)
   ) +
+  ylim(0, 50) +
   labs(x = "Months (2022)",
        y = "Proportion of Non-Compliant Vessels") +
   # labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") +
