@@ -31,6 +31,12 @@ all_logbooks_db_data_2022_short_p_region_short |>
   View()
 # 2
 
+# all_logbooks_db_data_2022_short_p_region_short |>
+#   filter(start_port == end_port &
+#            !start_port_name == end_port_name) |>
+# str()
+# 0
+
 # how many SEFHIER vessels start at a different location than they end; ----
 all_logbooks_db_data_2022_short_p_region_short |>
   # filter(!start_port == end_port) |>
@@ -65,16 +71,22 @@ all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl <-
          all_end_ports_num   = length(str_split(all_end_ports, ","))) |>
   ungroup()
 
+all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl <-
+  all_logbooks_db_data_2022_short_p_region_short |>
+  group_by(vessel_id, vessel_official_nbr) |>
+  mutate(all_start_port_names = toString(unique(start_port_name)),
+         all_end_port_names   = toString(unique(end_port_name))) |>
+  mutate(all_start_port_names_num = length(str_split(all_start_port_names, ",")),
+         all_end_port_names_num   = length(str_split(all_end_port_names, ","))) |>
+  ungroup()
 
 all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
   # View()
   filter(all_start_ports_num > 1) |>
-  glimpse()
+  dim()
+# [1] 1890    9
 
-  # filter(!start_port == end_port)
-  # select(vessel_id,
-  #        vessel_official_nbr,
-  #        permit_region) |>
-  # distinct() |>
-
-
+all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
+  # View()
+  filter(all_start_port_names_num > 1) |>
+  dim()
