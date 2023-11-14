@@ -21,7 +21,7 @@ test_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$
 #   factor(test_df$year_month,
 #          labels = format(month_unique, "%b"))
 # 
-pecent_names <- paste0(seq(0, 100, by = 10), "%")
+percent_names <- paste0(seq(0, 100, by = 10), "%")
 
 glimpse(test_df)
 # [1] 24 10
@@ -44,7 +44,7 @@ test_plot <-
             vjust = 1.3,
             color = "blue") +
   # scale_y_continuous(breaks = seq(0, 100, by = 10),
-  # labels = pecent_names) +
+  # labels = percent_names) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
   theme(legend.position = "none") +
   labs(size = "Groups of percentage",
