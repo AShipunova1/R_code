@@ -34,7 +34,7 @@ plot_by_year <- function(my_sf) {
     # Create facets based on year, arranging them in a 3-column layout.
     facet_wrap(vars(year_fct), ncol = 3) +
     
-    ggtitle("IFQ Landing Locations (arcgis)") +
+    ggtitle("IFQ Landing Locations") +
     
     theme(legend.position = "bottom") +
     
@@ -50,24 +50,37 @@ plot_by_year_arcgis <-
 plot_by_year_tidygeo <-
   plot_by_year(input_data_convert_dms_short_clean_short_cnt_tidy_geo_to_plot)
 
-# 
+# save plots to files ----
+save_plots_to_files <-
+  function(output_file_name,
+           plot_name) {
+    ggplot2::ggsave(
+      file = output_file_name,
+      plot = plot_by_year,
+      device = "png",
+      path = file.path(my_paths$outputs,
+                       current_project_dir_name),
+      width = 30,
+      height = 20,
+      units = "cm"
+    )
+  }
+
 output_file_name <- 
   "facets_by_year_w_gom_shp_arcgis_red.png"
-  # "facets_by_year_w_gom_shp_tidy_geo.png"
+
+save_plots_to_files(output_file_name,
+                    plot_by_year_arcgis)
+
+output_file_name <- 
+  "facets_by_year_w_gom_shp_tidy_geo_red.png"
+
+save_plots_to_files(output_file_name,
+                    plot_by_year_tidygeo)
 
 # output_file_name <- 
 #   "facets_by_year_w_states.png"
 
-ggsave(
-  file = output_file_name,
-  plot = plot_by_year,
-  device = "png",
-  path = file.path(my_paths$outputs,
-                   current_project_dir_name),
-  width = 30,
-  height = 20,
-  units = "cm"
-)
 
 # By year, map the landing location with somehow displaying which locations are used the most. ----
 # I think we can do this with color coding.
@@ -77,14 +90,17 @@ ggsave(
 # alpha = 0.3,  # Set the transparency of map points to 0.3 (partially transparent).
 # col.regions = viridisLite::turbo,  # Define the color palette for map points using 'turbo' from 'viridisLite'.
 
-input_data_convert_dms_short_clean_short_cnt_sf |>
-  mutate(my_label =
-           str_glue("{use_addr}; # = {total_place_cnt}")) |>
-  mapview(
-    zcol = "my_label",
-    cex = "total_place_cnt",
-    alpha = 0.3,
-    col.regions = viridisLite::turbo,
-    legend = FALSE,
-    layer.name = 'Counts by year and place'
-  )
+my_sf <- input_data_convert_dms_short_clean_short_cnt_sf
+mapview_html <- function(my_sf) {
+  my_sf |>
+    mutate(my_label =
+             str_glue("{use_addr}; # = {total_place_cnt}")) |>
+    mapview(
+      zcol = "my_label",
+      cex = "total_place_cnt",
+      alpha = 0.3,
+      col.regions = viridisLite::turbo,
+      legend = FALSE,
+      layer.name = 'Counts by year and place'
+    )
+}
