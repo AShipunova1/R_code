@@ -236,8 +236,8 @@ glimpse(test_geo207)
 # Rows: 14
 # Columns: 11
 
-diffdf::diffdf(test_arc207,
-               test_geo207)
+# diffdf::diffdf(test_arc207,
+               # test_geo207)
 # total_use_count_y       14        4693   82233  
 
 test_arc207[14,] |> 
@@ -297,6 +297,6 @@ get_plotting_path <- file.path(my_paths$git_r,
                  "ifq_landing_locations_plots.R")
 
 
-file.exists(get_plotting_path)
+# file.exists(get_plotting_path)
 
 source(get_plotting_path)
