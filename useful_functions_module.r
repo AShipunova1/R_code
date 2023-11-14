@@ -1045,7 +1045,7 @@ remove_0_cols <- function(my_df) {
   {
     any(!x == 0)
   }
-  
+
   my_df |>
     select(where(not_all_0)) %>%
     return()
@@ -1113,3 +1113,15 @@ print_toc_log <- function(variables) {
   tic.clearlog()
 }
 
+# ===
+save_plot_to_file <-
+  function(file_full_name,
+           plot_name) {
+    ggplot2::ggsave(
+      file_full_name,
+      plot_name,
+      width = 30,
+      height = 20,
+      units = "cm"
+    )
+  }
