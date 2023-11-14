@@ -3107,11 +3107,11 @@ line_df_monthly_nc_percent_plot <-
           ggplot2::aes(# The label for each point is the rounded 'percent_of_total' with a "%" symbol.
             label = paste0(round(percent_of_total, 1), "%")),
           # for SA:
-          # vjust = -1, 
-          # hjust = -0.1,
+          vjust = -1,
+          hjust = -0.1,
           # for GOM:
           # vjust = -1, 
-          hjust = -0.5,
+          # hjust = -0.5,
           color = line_plot_color,
           size = 5
         ) +
@@ -3125,7 +3125,6 @@ line_df_monthly_nc_percent_plot <-
           axis.text.x = ggplot2::element_text(size = axis_title_size),
           axis.text.y = ggplot2::element_text(size = axis_title_size)
         ) +
-        
         # Set plot titles and axis labels.
         ggplot2::labs(title = permit_year,
              x = "Months (2022)",
@@ -3139,10 +3138,10 @@ line_df_monthly_nc_percent_plot <-
         ggplot2::ylim(
           
         # Calculate the lower limit by rounding up the minimum value of 'percent_of_total' and subtracting 1.
-          min(ceiling(
-          df_by_permit_year_non_compl$percent_of_total
-        )) - 1,
-        
+        #   min(ceiling(
+        #   df_by_permit_year_non_compl$percent_of_total
+        # )) - 1,
+        0,        
         # Calculate the upper limit by rounding down the maximum value of 'percent_of_total' and adding 1.
         max(floor(
           df_by_permit_year_non_compl$percent_of_total
@@ -3155,7 +3154,9 @@ line_df_monthly_nc_percent_plot <-
 # dates <- c("02/27/92", "02/27/92", "01/14/92", "02/28/92", "02/01/92")
 # as.Date(dates, "%m/%d/%y")
 
+# sa
 line_df_monthly_nc_percent_plot[[2]]
+# gom
 line_df_monthly_nc_percent_plot[[1]]
 
 # save to files ----
@@ -3170,6 +3171,21 @@ create_dir_if_not(plot_file_path_lines)
 
 file_full_name <- file.path(plot_file_path_lines,
                             "gom_2022_mostly_right.png")
+
+# save_plot_to_file(file.path(plot_file_path_m, "sa_nc_month_percent.png"),
+                  # line_df_monthly_nc_percent_plot[[2]])
+
+file_full_name <- file.path(plot_file_path_lines,
+                            "sa_nc_month_percent.png")
+plot_name <- line_df_monthly_nc_percent_plot[[2]]                     
+ggplot2::ggsave(
+  file_full_name,
+  plot_name,
+  width = 23,
+  height = 23,
+  units = "cm"
+)
+
 
 # see the function definition F2
 # save_plots_list_to_files(file_full_name,
