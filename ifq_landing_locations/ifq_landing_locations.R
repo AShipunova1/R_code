@@ -261,17 +261,19 @@ input_data_convert_dms_short_clean_short_cnt_tidy_geo |>
 
 
 # leave only cnts and unique ----
-input_data_convert_dms_short_clean_short_cnt_short <- 
+cnts_only <-
+  c(
+    "use_lat_round",
+    "use_lon_round",
+    "count_by_year_and_coord",
+    "total_place_cnt",
+    "use_addr",
+    "USER_NYEAR"
+  )
+
+input_data_convert_dms_short_clean_short_cnt_short <-
   input_data_convert_dms_short_clean_short_cnt |>
-  select(
-    use_lat_round,
-    use_lon_round,
-    count_by_year_and_coord,
-    # total_use_count_y,
-    total_place_cnt,
-    use_addr,
-    USER_NYEAR
-  ) |>
+  select(all_of(cnts_only)) |>
   distinct()
 
 dim(input_data_convert_dms_short_clean_short_cnt_short)
