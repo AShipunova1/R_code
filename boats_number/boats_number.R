@@ -12,23 +12,39 @@ source(file.path(my_paths$git_r,
 # ls()
 
 # View(all_logbooks_db_data_2022_short_p_region)
+
+# shorten ----
+all_logbooks_db_data_2022_short_p_region_short <-
+  all_logbooks_db_data_2022_short_p_region |>
+  select(vessel_id,
+         vessel_official_nbr,
+         permit_region,
+         start_port,
+         end_port) |>
+  distinct()
+
 # how many SEFHIER vessels start at a different location than they end; ----
-all_logbooks_db_data_2022_short_p_region |>
+all_logbooks_db_data_2022_short_p_region_short |>
   filter(!start_port == end_port) |>
   select(vessel_id,
          vessel_official_nbr,
          permit_region) |>
   distinct() |>
-  # glimpse()
+  # dim()
   # Rows: 397
   count(permit_region)
 # 1  gom_and_dual 198
 # 2       sa_only 199
 
+# if keep ports:
+# dim()
+# 499
+# 1  gom_and_dual 273
+# 2       sa_only 226
+
 # how many vessels have variable landing locations (i.e., in the winter they are in one state while in the summer they fish in another); ----
 
 all_logbooks_db_data_2022_short_p_region |>
-  filter(!start_port == end_port) |>
   select(vessel_id,
          vessel_official_nbr,
          permit_region) |>
