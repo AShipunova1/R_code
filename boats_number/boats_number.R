@@ -125,22 +125,25 @@ names(state.name) <- state.abb
 # my_state_name[tolower("FL")]
 # "Florida"
 
-all_logbooks_db_data_2022_short_p_region_port |>
+all_logbooks_db_data_2022_short_p_region_port_states <-
+  all_logbooks_db_data_2022_short_p_region_port |>
   mutate(
     start_port_state_name = my_state_name[tolower(start_port_state)],
     end_port_state_name   = my_state_name[tolower(end_port_state)]
-  )
+  ) |>
   mutate(
     start_port_reg =
       case_when(
-        tolower(my_state_name[tolower(start_port_state)]) %in% tolower(sa_council_states) ~
-          "sa_state",
-        tolower(my_state_name[tolower(start_port_state)]) %in% tolower(east_coat_states$gom) ~
-          "gom_state"
+        tolower(start_port_state_name) %in% tolower(sa_council_states) ~
+          "sa_council_state",
+        tolower(end_port_state_name) %in% tolower(east_coat_states$gom) ~
+          "gom_state",
+        .default = "sa_state"
       )
     # diff_reg = case_when(!start_port_state == end_port_state)
-  ) |>
-  glimpse()
+  )
+
+glimpse(all_logbooks_db_data_2022_short_p_region_port_states)
 
 
 
