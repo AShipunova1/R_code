@@ -5,6 +5,9 @@ current_project_dir_path <-
 current_project_dir_name <- basename(current_project_dir_path)
 
 source(file.path(my_paths$git_r,
+                 r"(get_data\misc_info.R)"))
+
+source(file.path(my_paths$git_r,
                  r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
 
 # all_get_db_data_result_l
