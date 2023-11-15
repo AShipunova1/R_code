@@ -279,27 +279,87 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_p
 # glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter)
 
 # quantify the # of vessels who fish in both the gulf and S Atl.  ----
-all_logbooks_db_data_2022_short_p_region_port <-
-  all_logbooks_db_data_2022_short_p_region |>
-  select(vessel_id,
-         vessel_official_nbr,
-         permit_region,
-         contains("port"),
-         -starts_with("notif")) |>
-  remove_empty_cols() |>
-  distinct()
+ports_path <- file.path(my_paths$outputs,
+                        r"(from_db\ports.csv)")
+# file.exists(ports_path)
+all_ports <-
+  readr::read_csv(ports_path)
+# Rows: 159 Columns: 15
+# print_df_names(all_ports)
 
-all.equal(all_logbooks_db_data_2022_short_p_region_port_fields_all,
-          all_logbooks_db_data_2022_short_p_region_port)
-T
-dim(all_logbooks_db_data_2022_short_p_region_port)
-# [1] 3579   19
-# [1] 3011   11 -starts_with("notif")
+get_lat_lon_by_addr_nominatim <-
+  function(input_df) {
+    input_data_raw_nominatim <- input_df %>%
+      tidygeocoder::geocode(
+        street = "ADD_STR1",
+        city = "CITY",
+        state = "STATE",
+        postalcode = "ZIP",
+        return_addresses = TRUE,
+        full_results = TRUE
+      )
+    return(input_data_raw_nominatim)
+  }
 
-all_logbooks_db_data_2022_short_p_region_port |>
+current_project_dir_name_input_dir <-
+  file.path(my_paths$inputs,
+            current_project_dir_name)
+create_dir_if_not(current_project_dir_name_input_dir)
+
+nominatim_rds_file_path <-
+  file.path(current_project_dir_name_input_dir,
+            "port_addr_to_coords1.rds")
+
+input_data_raw_nominatim <-
+  read_rds_or_run(nominatim_rds_file_path,
+                  my_data = all_ports,
+                  get_lat_lon_by_addr_nominatim)
+# Passing 157 addresses to the Nominatim single address geocoder
+# [===================================] 157/157 (100%) Elapsed:  3m Remaining:  0s
+# 2023-11-15 run for port_addr_to_coords.rds: 162.14 sec elapsed
+plots_nominatim <- input_data_raw_nominatim
+
+plots_nominatim_sf <-
+  plots_nominatim |>
+  # mutate(year_fct = factor(USER_NYEAR)) |>
+    sf::st_as_sf(
+      coords = c("long", "lat"),
+      crs = 4326,
+      na.fail = FALSE
+    )
+
+plots_nominatim_sf_short <-
+  plots_nominatim_sf |>
+  select(PORT_ID, PORT_NUM, STATE, display_name, geometry)
+
+# PORT_ID, PORT_NUM, PORT_NAME, ADD_STR1, ADD_STR2, ADD_STR3, CITY, STATE, ZIP, PHONE1, PHONE2, IS_ACTIVE, LU_USER_CODE, LU, AREA_ID, street, city, state, postalcode, place_id, licence, osm_type, osm_id, class, type, place_rank, importance, addresstype, name, display_name, boundingbox, geometry
+
+plots_nominatim_sf_short |>
+  filter(STATE == 'FL') |>
+  mapview::mapview()
+
+## us maps ----
+# The code loads U.S. state boundary shapefile data using the 'tigris' package, and the resulting spatial data is stored in the 'us_s_shp' variable as a simple feature (sf) object. The progress bar is disabled during the data loading process.
+# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+
+us_s_shp <-
+  tigris::states(cb = TRUE, progress_bar = FALSE)
+
+## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
+south_states_shp <-
+  us_s_shp |>
+  filter(NAME %in% south_east_coast_states)
+
+# ---
+
+dim(all_logbooks_db_data_2022_short_p_region_port_fields_all)
+# [1] 3011   11
+
+all_logbooks_db_data_2022_short_p_region_port_fields_all |>
   select(start_port_state) |>
   distinct() |>
   head(2)
+# "FL", "DE"
 
 names(state.abb) <- state.name
 names(state.name) <- state.abb
@@ -308,7 +368,7 @@ names(state.name) <- state.abb
 # "Florida"
 
 all_logbooks_db_data_2022_short_p_region_port_states <-
-  all_logbooks_db_data_2022_short_p_region_port |>
+  all_logbooks_db_data_2022_short_p_region_port_fields_all |>
   mutate(
     start_port_state_name = my_state_name[tolower(start_port_state)],
     end_port_state_name   = my_state_name[tolower(end_port_state)]
@@ -327,11 +387,12 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
 
 glimpse(all_logbooks_db_data_2022_short_p_region_port_states)
 
-all_logbooks_db_data_2022_short_p_region_port_states |>
-  filter(tolower(start_port_state_name) == "florida") |>
-  select(start_port_county) |>
-  distinct() |>
-  paste(sep = ",\n")
+# check
+# all_logbooks_db_data_2022_short_p_region_port_states |>
+#   filter(tolower(start_port_state_name) == "florida") |>
+#   select(start_port_county) |>
+#   distinct() |>
+#   paste(sep = ",\n")
 
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
@@ -348,9 +409,9 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
   filter(start_port_fl_reg == "gom_county") |>
-  glimpse()
+  View()
 
-
+View(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg)
 
 # look at permit home port vs where they take trip. ----
 
