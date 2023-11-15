@@ -287,10 +287,11 @@ all_ports <-
 # Rows: 159 Columns: 15
 # print_df_names(all_ports)
 
-get_lat_lon_by_addr_nominatim <-
-  function(input_df) {
+get_lat_lon_by_addr <-
+  function(input_df, method = "osm") {
     input_data_raw_nominatim <- input_df %>%
       tidygeocoder::geocode(
+        method = method,
         street = "ADD_STR1",
         city = "CITY",
         state = "STATE",
@@ -306,9 +307,15 @@ current_project_dir_name_input_dir <-
             current_project_dir_name)
 create_dir_if_not(current_project_dir_name_input_dir)
 
-nominatim_rds_file_path <-
+nominatim_rds_file_path_census <-
   file.path(current_project_dir_name_input_dir,
-            "port_addr_to_coords1.rds")
+            "port_addr_to_coords_census.rds")
+
+plots_census <-
+  get_lat_lon_by_addr(all_ports, 'census')
+# Passing 157 addresses to the US Census batch geocoder
+# Query completed in: 2.1 seconds
+View(plots_census)
 
 input_data_raw_nominatim <-
   read_rds_or_run(nominatim_rds_file_path,
@@ -337,6 +344,30 @@ plots_nominatim_sf_short <-
 plots_nominatim_sf_short |>
   filter(STATE == 'FL') |>
   mapview::mapview()
+
+# install.packages("MazamaLocationUtils")
+# add counties to port info
+library(MazamaLocationUtils)
+
+# test
+# input_data_raw_census |> head(1) |>
+#   select(lat, long)
+# location_getCensusBlock(
+#   longitude = -81.8,
+#   latitude = 24.6 ,
+#   censusYear = 2020,
+#   verbose = TRUE
+# )
+
+plots_census
+# $stateCode
+# [1] "FL"
+#
+# $countyName
+# [1] "Monroe"
+#
+# $censusBlock
+# [1] "120879721001001"
 
 ## us maps ----
 # The code loads U.S. state boundary shapefile data using the 'tigris' package, and the resulting spatial data is stored in the 'us_s_shp' variable as a simple feature (sf) object. The progress bar is disabled during the data loading process.
