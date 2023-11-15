@@ -287,6 +287,43 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
   filter(vessel_official_nbr == "1057052") |>
   View()
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
+  filter(vessel_official_nbr == "1057052") |>
+  group_by_at(group_by_vector) |>
+  # group_by(trip_start_year_quarter) %>%
+  mutate(change_VAR =
+           coalesce(
+           setdiff(all_start_ports_by_q[1], all_start_ports_by_q[2]),
+           setdiff(all_start_ports_by_q[1], all_start_ports_by_q[3]),
+           setdiff(all_start_ports_by_q[1], all_start_ports_by_q[4]),
+           setdiff(all_start_ports_by_q[2], all_start_ports_by_q[3]),
+           setdiff(all_start_ports_by_q[2], all_start_ports_by_q[4]),
+           setdiff(all_start_ports_by_q[3], all_start_ports_by_q[4])
+           )
+  ) %>%
+  ungroup() |>
+  head(2)
+
+  mutate(
+    first_bbb =
+      case_when(all_start_ports_by_q )
+
+      any(flag != 'bbb' & order == 1),
+    subsequent_not_bbb = any(flag == 'bbb' & order != 1),
+    has_changed = if_else(first_bbb &
+                            subsequent_not_bbb, 'yes', 'no')
+  )
+
+  mutate(changed =
+           case_when(any(diff(
+             all_start_ports_by_q
+           ) != 0) ~ 1,
+           #No change
+           TRUE ~ 0)) |>
+  str()
+
+
 # ---
 
 
