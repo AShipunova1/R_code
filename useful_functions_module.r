@@ -1002,8 +1002,11 @@ read_rds_or_run <- function(my_file_path,
         toc()  # Stop timing the operation.
 
         # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+        # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+        try(
         readr::write_rds(my_result,
                          my_file_path)
+        )
     }
 
     # Return the generated or read data.
