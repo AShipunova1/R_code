@@ -143,9 +143,11 @@ all_logbooks_db_data_2022_short_p_region_short |>
 
 # how many vessels have variable landing locations (i.e., in the winter they are in one state while in the summer they fish in another); ----
 
-add_all_port_string <- function(my_df) {
+add_all_port_string <-
+  function(my_df,
+           group_by_vector = c("vessel_id", "vessel_official_nbr")) {
   my_df |>
-    group_by(vessel_id, vessel_official_nbr) |>
+    group_by_at(group_by_vector) |>
     mutate(all_start_ports = toString(unique(start_port)),
            all_end_ports   = toString(unique(end_port))) |>
     mutate(
@@ -162,20 +164,22 @@ all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl <-
 dim(all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl)
 # [1] 3011   11
 
-add_all_port_name_string <- function(my_df) {
-  my_df |>
-    group_by(vessel_id, vessel_official_nbr) |>
-    mutate(
-      all_start_port_names = toString(unique(start_port_name)),
-      all_end_port_names   = toString(unique(end_port_name))
-    ) |>
-    mutate(
-      all_start_port_names_num = length(str_split(all_start_port_names, ",")),
-      all_end_port_names_num   = length(str_split(all_end_port_names, ","))
-    ) |>
-    ungroup() %>%
-    return()
-}
+add_all_port_name_string <-
+  function(my_df,
+           group_by_vector = c("vessel_id", "vessel_official_nbr")) {
+    my_df |>
+      group_by_at(group_by_vector) |>
+      mutate(
+        all_start_port_names = toString(unique(start_port_name)),
+        all_end_port_names   = toString(unique(end_port_name))
+      ) |>
+      mutate(
+        all_start_port_names_num = length(str_split(all_start_port_names, ",")),
+        all_end_port_names_num   = length(str_split(all_end_port_names, ","))
+      ) |>
+      ungroup() %>%
+      return()
+  }
 
 all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl <-
   add_all_port_name_string(all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl)
@@ -201,11 +205,12 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
 all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
   filter(permit_region == "gom_and_dual" &
            all_end_ports_num > 1) |>
-  View()
+  glimpse()
 # dim()
 # [1] 1890   11
 
 ## we should look at this by quarter, to start - for some seasonality. ----
+# one port in one q and diff in another
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port |>
@@ -221,14 +226,27 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
 dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
 # [1] 6604   13
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
-  add_all_port_string() |>
-  add_all_port_name_string() |>
+group_by_vector_yq <-
+  c("vessel_id",
+    "vessel_official_nbr",
+    "trip_start_year_quarter")
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_vsl_q <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+  add_all_port_string(group_by_vector_yq) |>
+  add_all_port_name_string(group_by_vector_yq) |>
   remove_empty_cols() |>
-  distinct() |>
-  dim()
+  distinct()
+
+dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_vsl_q)
 # [1] 6604   21
 
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_vsl_q |>
+  filter(permit_region == "gom_and_dual" &
+           all_end_ports_num > 1) |>
+  arrange(vessel_id) |>
+  View()
+# [1] 1449   21
 
 # quantify the # of vessels who fish in both the gulf and S Atl. ;
 all_logbooks_db_data_2022_short_p_region_port <-
