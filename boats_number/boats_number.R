@@ -212,7 +212,7 @@ all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port <-
 # [1] 1030   11
 
 ## we should look at this by quarter, to start - for some seasonality. ----
-# one port in one q and diff in another
+### trips and quarter fields ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port |>
   select(
@@ -227,47 +227,8 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
 dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
 # [1] 6604   13
 
-# m4_daily %>%
-#     group_by(id) %>%
-#     summarise_by_time(
-#         .date_var = date,
-#         .by       = "month", # Setup for monthly aggregation
-#         # Summarization
-#         value  = first(value)
-#     )
-
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
-  dplyr::group_by(vessel_id,
-                  vessel_official_nbr,
-                  start_port,
-                  trip_start_quarter_num) |>
-  dplyr::arrange(trip_start_quarter_num,
-                 .by_group = TRUE) %>%
-  dplyr::summarize(cnt_start_port_qu = n()) |>
-  dplyr::filter(cnt_start_port_qu > 1) |>
-  dplyr::arrange(vessel_official_nbr) |>
-  dplyr::ungroup() |>
-  glimpse()
-
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
-  filter(vessel_official_nbr == "1055255") |>
-  head(2)
-
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
-  dplyr::group_by(vessel_id,
-                  vessel_official_nbr,
-                  start_port,
-                  trip_start_quarter_num) |>
-  dplyr::arrange(trip_start_quarter_num,
-                 .by_group = TRUE) %>%
-  dplyr::mutate(cnt_start_port_qu = n()) |>
-  dplyr::filter(cnt_start_port_qu > 1) |>
-  dplyr::arrange(vessel_official_nbr, trip_start_quarter_num) |>
-  dplyr::ungroup() |>
-  filter(vessel_official_nbr == "1057052") |>
-  View()
-
 # a quarter is the same, a port - diff
+### lists of start and end ports by quarter ----
 group_by_vector <-
   c("vessel_id",
     "vessel_official_nbr",
@@ -280,10 +241,12 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
            all_end_ports_by_q   = toString(unique(sort(end_port)))) |>
   ungroup()
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
-  filter(vessel_official_nbr == "1057052") |>
-  glimpse()
+# test
+# all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
+#   filter(vessel_official_nbr == "1057052") |>
+#   glimpse()
 
+### count port groups (lists) ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
   group_by(vessel_official_nbr) |>
@@ -293,17 +256,19 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
   ) |>
   ungroup()
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
-    filter(vessel_official_nbr == "1057052") |>
-  glimpse()
+# test
+# all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
+#     filter(vessel_official_nbr == "1057052") |>
+#   glimpse()
+#
+# all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
+#   filter(count_start_ports_by_q > 1) |>
+#   arrange(trip_start_year_quarter) |>
+#   filter(permit_region == "gom_and_dual") |>
+#   filter(vessel_id == "328032") |>
+#   glimpse()
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
-  filter(count_start_ports_by_q > 1) |>
-  arrange(trip_start_year_quarter) |>
-  filter(permit_region == "gom_and_dual") |>
-  filter(vessel_id == "328032") |>
-  glimpse()
-
+### if a num of lists of ports by quarter > 1, than ports are different from Q to Q ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
   filter(count_start_ports_by_q > 1 |
@@ -311,11 +276,9 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_p
   arrange(vessel_official_nbr, trip_start_year_quarter) |>
   filter(permit_region == "gom_and_dual")
 
-glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter)
-# ---
+# glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter)
 
-
-# quantify the # of vessels who fish in both the gulf and S Atl. ;
+# quantify the # of vessels who fish in both the gulf and S Atl.  ----
 all_logbooks_db_data_2022_short_p_region_port <-
   all_logbooks_db_data_2022_short_p_region |>
   select(vessel_id,
