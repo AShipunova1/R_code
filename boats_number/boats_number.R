@@ -213,9 +213,52 @@ all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port <-
 
 ## we should look at this by quarter, to start - for some seasonality. ----
 # one port in one q and diff in another
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port |>
+  select(
+    port_fields_all(),
+    -starts_with("notif"),
+    c(trip_start_year_quarter,
+      trip_start_quarter_num)
+  ) |>
+  remove_empty_cols() |>
+  distinct()
 
-all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port |>
-  glimpse()
+dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
+# [1] 6604   13
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+  add_all_port_string() |>
+  add_all_port_name_string() |>
+  filter(permit_region == "gom_and_dual" &
+           all_end_ports_num > 1)
+
+dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port)
+# [1] 3078   21
+
+# all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port |>
+# count(start_port_name, trip_start_year_quarter) |>
+#   distinct() |>
+#   head()
+# 1 AAND B MARINA   2022 Q1                     1
+# 2 AAND B MARINA   2022 Q2                     1
+# 3 AAND B MARINA   2022 Q3                     1
+# 4 AAND B MARINA   2022 Q4                     2
+# 5 APALACHICOLA    2022 Q2                     2
+# 6 APALACHICOLA    2022 Q3                     2
+
+group_by_vector <- c("vessel_id")
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port |>
+  group_by_at(group_by_vector) |>
+  mutate(
+    start_port_names_by_q = toString(unique(start_port_name)),
+    end_port_names_by_q   = toString(unique(end_port_name))
+  ) |>
+  ungroup() |>
+  View()
+
 
 # quantify the # of vessels who fish in both the gulf and S Atl. ;
 all_logbooks_db_data_2022_short_p_region_port <-
