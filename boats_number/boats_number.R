@@ -84,6 +84,7 @@ dim(all_logbooks_db_data_2022_short_p_region_port_fields_all)
 # [1] 3011   11
 
 ## add date columns ----
+tic("all_logbooks_db_data_2022_short_p_region_dates")
 all_logbooks_db_data_2022_short_p_region_dates <-
   all_logbooks_db_data_2022_short_p_region |>
   dplyr::mutate(
@@ -99,11 +100,23 @@ all_logbooks_db_data_2022_short_p_region_dates <-
       zoo::as.yearmon(trip_start_date),
     trip_end_m =
       zoo::as.yearmon(trip_end_date),
-    year_quarter = as.yearqtr(trip_start_date),
-    quarter = format(year_quarter, "%q")
+    trip_start_year_quarter = as.yearqtr(trip_start_date),
+    trip_start_quarter_num =
+      format(trip_start_year_quarter, "%q")
   )
+toc()
+# all_logbooks_db_data_2022_short_p_region_dates: 2.94 sec elapsed
 
-# View(all_logbooks_db_data_2022_short_p_region_dates)
+all_logbooks_db_data_2022_short_p_region_dates_trip_port <-
+  all_logbooks_db_data_2022_short_p_region_dates |>
+  select(port_fields_all(),
+         -starts_with("notif"),
+         starts_with("trip_")) |>
+  remove_empty_cols() |>
+  distinct()
+
+dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port)
+# [1] 94366    27
 
 # how many SEFHIER vessels start at a different location than they end; ----
 all_logbooks_db_data_2022_short_p_region_short |>
@@ -129,8 +142,6 @@ all_logbooks_db_data_2022_short_p_region_short |>
 # 2       sa_only 226
 
 # how many vessels have variable landing locations (i.e., in the winter they are in one state while in the summer they fish in another); ----
-
-# we should look at this by quarter, to start - for some seasonality.
 
 all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl <-
   all_logbooks_db_data_2022_short_p_region_short |>
@@ -172,6 +183,21 @@ all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
 # dim()
 # [1] 1890   11
 
+## we should look at this by quarter, to start - for some seasonality. ----
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port |>
+  select(
+    port_fields_all(),
+    -starts_with("notif"),
+    c(trip_start_year_quarter,
+      trip_start_quarter_num)
+  ) |>
+  remove_empty_cols() |>
+  distinct()
+
+dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
+# [1] 6604   13
 
 
 # quantify the # of vessels who fish in both the gulf and S Atl. ;
