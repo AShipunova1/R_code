@@ -286,44 +286,52 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
   filter(vessel_official_nbr == "1057052") |>
-  View()
+  glimpse()
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
-  filter(vessel_official_nbr == "1057052") |>
-  group_by_at(group_by_vector) |>
-  # group_by(trip_start_year_quarter) %>%
-  mutate(change_VAR =
-           coalesce(
-           setdiff(all_start_ports_by_q[1], all_start_ports_by_q[2]),
-           setdiff(all_start_ports_by_q[1], all_start_ports_by_q[3]),
-           setdiff(all_start_ports_by_q[1], all_start_ports_by_q[4]),
-           setdiff(all_start_ports_by_q[2], all_start_ports_by_q[3]),
-           setdiff(all_start_ports_by_q[2], all_start_ports_by_q[4]),
-           setdiff(all_start_ports_by_q[3], all_start_ports_by_q[4])
-           )
-  ) %>%
+small_1057052 <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
+  select(
+    vessel_official_nbr,
+    trip_start_year_quarter,
+    # all_start_ports_by_q,
+    all_end_ports_by_q,
+    # all_start_ports_by_q_num,
+    all_end_ports_by_q_num
+  ) |>
+  distinct() |>
+  filter(vessel_official_nbr == "1057052")
+
+glimpse(small_1057052)
+str(small_1057052$all_end_ports_by_q)
+
+
+# cor.test(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q$all_start_ports_by_q,
+         # all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q$trip_start_year_quarter)
+
+small_1057052 |>
+  group_by(vessel_official_nbr) |>
+  mutate(all_q_end_ports = list(unique(all_end_ports_by_q)),
+         all_q_end_ports_num = length(unique(all_q_end_ports))) |>
   ungroup() |>
-  head(2)
+  glimpse()
 
-  mutate(
-    first_bbb =
-      case_when(all_start_ports_by_q )
+my_list <- list(c("363719, 492851, 362409"), "362409")
+length(my_list)
 
-      any(flag != 'bbb' & order == 1),
-    subsequent_not_bbb = any(flag == 'bbb' & order != 1),
-    has_changed = if_else(first_bbb &
-                            subsequent_not_bbb, 'yes', 'no')
+# ---
+delay <-
+  small_1057052 |>
+  group_by(vessel_official_nbr) |>
+  summarize(
+    count = n_distinct(all_end_ports_by_q)
+    # dist = mean(distance, na.rm = TRUE),
+    # delay = mean(arr_delay, na.rm = TRUE)
   )
-
-  mutate(changed =
-           case_when(any(diff(
-             all_start_ports_by_q
-           ) != 0) ~ 1,
-           #No change
-           TRUE ~ 0)) |>
-  str()
+delay <- filter(delay, count > 20, dest != "HNL")
 
 
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) + geom_point(aes(size =
+                                                                            count), alpha = 1 / 3) + geom_smooth(se = FALSE)
 # ---
 
 
