@@ -264,8 +264,30 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
   dplyr::filter(cnt_start_port_qu > 1) |>
   dplyr::arrange(vessel_official_nbr, trip_start_quarter_num) |>
   dplyr::ungroup() |>
-  filter(vessel_official_nbr == "1055255") |>
+  filter(vessel_official_nbr == "1057052") |>
   View()
+
+# a quarter is the same, a port - diff
+group_by_vector <-
+  c("vessel_id",
+    "vessel_official_nbr",
+    "trip_start_quarter_num")
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+    group_by_at(group_by_vector) |>
+    mutate(all_start_ports_by_q = toString(unique(start_port)),
+           all_end_ports_by_q   = toString(unique(end_port))) |>
+    mutate(
+      all_start_ports_by_q_num = length(str_split(all_start_ports_by_q, ",")),
+      all_end_ports_by_q_num   = length(str_split(all_end_ports_by_q, ","))
+    ) |>
+  ungroup()
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
+  filter(vessel_official_nbr == "1057052") |>
+  View()
+# ---
 
 
 
