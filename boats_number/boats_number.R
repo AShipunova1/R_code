@@ -200,17 +200,22 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
 
 all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   filter(vessel_official_nbr == 1000042) |>
-  View()
-
-all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
-  filter(permit_region == "gom_and_dual" &
-           all_end_ports_num > 1) |>
   glimpse()
-# dim()
+
+all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port <-
+  all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
+  filter(permit_region == "gom_and_dual" &
+           all_end_ports_num > 1)
+
+# dim(all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port)
 # [1] 1890   11
+# [1] 1030   11
 
 ## we should look at this by quarter, to start - for some seasonality. ----
 # one port in one q and diff in another
+
+all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
+  glimpse()
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port |>
@@ -245,7 +250,7 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_vsl_q |>
   filter(permit_region == "gom_and_dual" &
            all_end_ports_num > 1) |>
   arrange(vessel_id) |>
-  View()
+  glimpse()
 # [1] 1449   21
 
 # quantify the # of vessels who fish in both the gulf and S Atl. ;
@@ -315,7 +320,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
   filter(start_port_fl_reg == "gom_county") |>
-  View()
+  glimpse()
 
 
 
