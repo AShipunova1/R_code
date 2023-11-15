@@ -3122,8 +3122,9 @@ line_df_monthly_nc_percent_plot <-
         # Customize the plot theme with specific settings and predefined size.
         ggplot2::theme(
           legend.position = "none",
-          axis.text.x = ggplot2::element_text(size = axis_title_size),
-          axis.text.y = ggplot2::element_text(size = axis_title_size)
+          axis.title = ggplot2::element_text(size = text_sizes[["axis_title_text_size"]] + 7),
+          axis.text.x = ggplot2::element_text(size = text_sizes[["axis_text_x_size"]] - 2),
+          axis.text.y = ggplot2::element_text(size = text_sizes[["axis_text_y_size"]] - 2)
         ) +
         # Set plot titles and axis labels.
         ggplot2::labs(title = permit_year,
@@ -3169,8 +3170,8 @@ plot_file_path_lines <-
   file.path(plot_file_path, "line_plots")
 create_dir_if_not(plot_file_path_lines)
 
-file_full_name <- file.path(plot_file_path_lines,
-                            "gom_2022_mostly_right.png")
+# file_full_name <- file.path(plot_file_path_lines,
+                            # "gom_2022_mostly_right.png")
 
 # save_plot_to_file(file.path(plot_file_path_m, "sa_nc_month_percent.png"),
                   # line_df_monthly_nc_percent_plot[[2]])
