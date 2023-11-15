@@ -304,51 +304,15 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
   filter(vessel_id == "328032") |>
   glimpse()
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
-  filter(count_start_ports_by_q > 1) |>
-  arrange(trip_start_year_quarter) |>
-  filter(permit_region == "gom_and_dual") |>
-  ggplot(mapping =
-           aes(x = trip_start_year_quarter,
-               y = all_start_ports_by_q)) +
-  geom_point(aes(size =
-                   count_start_ports_by_q), alpha = 1 / 3) +
-  geom_smooth(se = FALSE)
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
+  filter(count_start_ports_by_q > 1 |
+           count_end_ports_by_q > 1) |>
+  arrange(vessel_official_nbr, trip_start_year_quarter) |>
+  filter(permit_region == "gom_and_dual")
+
+glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter)
 # ---
-# count_start_ports_by_q = n_distinct(all_start_ports_by_q),
-
-
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port <-
-  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
-  add_all_port_string() |>
-  add_all_port_name_string() |>
-  filter(permit_region == "gom_and_dual" &
-           all_end_ports_num > 1)
-
-dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port)
-# [1] 3078   21
-
-# all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port |>
-# count(start_port_name, trip_start_year_quarter) |>
-#   distinct() |>
-#   head()
-# 1 AAND B MARINA   2022 Q1                     1
-# 2 AAND B MARINA   2022 Q2                     1
-# 3 AAND B MARINA   2022 Q3                     1
-# 4 AAND B MARINA   2022 Q4                     2
-# 5 APALACHICOLA    2022 Q2                     2
-# 6 APALACHICOLA    2022 Q3                     2
-
-group_by_vector <- c("vessel_id")
-
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port |>
-  group_by_at(group_by_vector) |>
-  mutate(
-    start_port_names_by_q = toString(unique(start_port_name)),
-    end_port_names_by_q   = toString(unique(end_port_name))
-  ) |>
-  ungroup() |>
-  View()
 
 
 # quantify the # of vessels who fish in both the gulf and S Atl. ;
