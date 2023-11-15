@@ -276,8 +276,8 @@ group_by_vector <-
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
     group_by_at(group_by_vector) |>
-    mutate(all_start_ports_by_q = toString(unique(start_port)),
-           all_end_ports_by_q   = toString(unique(end_port))) |>
+    mutate(all_start_ports_by_q = toString(unique(sort(start_port))),
+           all_end_ports_by_q   = toString(unique(sort(end_port)))) |>
   ungroup()
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
@@ -295,8 +295,14 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
     filter(vessel_official_nbr == "1057052") |>
-  View()
+  glimpse()
 
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
+  filter(count_start_ports_by_q > 1) |>
+  arrange(trip_start_year_quarter) |>
+  filter(permit_region == "gom_and_dual") |>
+  filter(vessel_id == "328032") |>
+  View()
 
 small_1057052 <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
