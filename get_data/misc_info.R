@@ -1,3 +1,14 @@
+south_east_coast_states <- c(
+  "Alabama",
+  "Florida",
+  "Georgia",
+  "Louisiana",
+  "Mississippi",
+  "North Carolina",
+  "South Carolina",
+  "Texas"
+)
+
 east_coat_states <- list(
   gom = c("Alabama",
           "Florida",
