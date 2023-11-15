@@ -227,6 +227,33 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
 dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
 # [1] 6604   13
 
+# m4_daily %>%
+#     group_by(id) %>%
+#     summarise_by_time(
+#         .date_var = date,
+#         .by       = "month", # Setup for monthly aggregation
+#         # Summarization
+#         value  = first(value)
+#     )
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+  dplyr::group_by(vessel_id,
+                  vessel_official_nbr,
+                  start_port,
+                  trip_start_quarter_num) |>
+  dplyr::arrange(trip_start_quarter_num,
+                 .by_group = TRUE) %>%
+  dplyr::summarize(cnt_start_port_qu = n()) |>
+  dplyr::filter(cnt_start_port_qu > 1) |>
+  dplyr::arrange(vessel_official_nbr) |>
+  dplyr::ungroup() |>
+  View()
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+  filter(vessel_official_nbr == "1055255") |>
+  View()
+
+
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
   add_all_port_string() |>
