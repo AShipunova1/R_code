@@ -278,15 +278,25 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
     group_by_at(group_by_vector) |>
     mutate(all_start_ports_by_q = toString(unique(start_port)),
            all_end_ports_by_q   = toString(unique(end_port))) |>
-    mutate(
-      all_start_ports_by_q_num = length(str_split(all_start_ports_by_q, ",")),
-      all_end_ports_by_q_num   = length(str_split(all_end_ports_by_q, ","))
-    ) |>
   ungroup()
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
   filter(vessel_official_nbr == "1057052") |>
   glimpse()
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
+  group_by(vessel_official_nbr) |>
+  mutate(
+    count_start_ports_by_q = n_distinct(all_start_ports_by_q),
+    count_end_ports_by_q   = n_distinct(all_end_ports_by_q)
+  ) |>
+  ungroup()
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
+    filter(vessel_official_nbr == "1057052") |>
+  View()
+
 
 small_1057052 <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
@@ -319,14 +329,17 @@ my_list <- list(c("363719, 492851, 362409"), "362409")
 length(my_list)
 
 # ---
+# works
 delay <-
   small_1057052 |>
   group_by(vessel_official_nbr) |>
-  summarize(
+  mutate(
     count = n_distinct(all_end_ports_by_q)
     # dist = mean(distance, na.rm = TRUE),
     # delay = mean(arr_delay, na.rm = TRUE)
   )
+
+delay |> View()
 delay <- filter(delay, count > 20, dest != "HNL")
 
 
