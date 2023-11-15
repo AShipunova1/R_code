@@ -289,6 +289,9 @@ all_logbooks_db_data_2022_short_p_region_port <-
   remove_empty_cols() |>
   distinct()
 
+all.equal(all_logbooks_db_data_2022_short_p_region_port_fields_all,
+          all_logbooks_db_data_2022_short_p_region_port)
+T
 dim(all_logbooks_db_data_2022_short_p_region_port)
 # [1] 3579   19
 # [1] 3011   11 -starts_with("notif")
