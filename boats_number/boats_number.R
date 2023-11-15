@@ -1,3 +1,4 @@
+library(zoo)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_dir_path <-
@@ -14,31 +15,95 @@ source(file.path(my_paths$git_r,
 # all_logbooks_db_data_2022_short_p_region
 # ls()
 
-# View(all_logbooks_db_data_2022_short_p_region)
+print_df_names(all_logbooks_db_data_2022_short_p_region)
+# [1] "trip_id, trip_type_name, vessel_id, vessel_official_nbr, vessel_name, trip_start_date, trip_end_date, state, state_name, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, activity_type_name, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, vendor_app_name, vendor_platform, trip_de, trip_ue, trip_dc, trip_uc, area_code, sub_area_code, distance_code, distance_code_name, local_area_code, latitude, longitude, effort_de, effort_ue, effort_dc, effort_uc, catch_uc, user_app, notif_seq, notif_type, notif_accsp_system_id, notif_accsp_permit_id, notif_trip_type, notif_trip_type_name, notif_trip_start_date, notif_trip_start_time, notif_trip_end_date, notif_trip_end_time, notif_start_port, notif_start_port_name, notif_start_port_county, notif_start_port_state, notif_end_port, notif_end_port_name, notif_end_port_county, notif_end_port_state, notif_cancel_flag, notif_email_sent, notif_intended_fishing_flag, notif_gear_type, notif_landing_location, notif_landing_location_name, notif_landing_location_city, notif_landing_location_county, notif_landing_location_state, notif_stat_zone, notif_ue, notif_de, notif_uc, notif_dc, permit_region"
 
 # shorten ----
+port_fields_short <-
+  c(
+    "vessel_id",
+    "vessel_official_nbr",
+    "permit_region",
+    "start_port_name",
+    "end_port_name",
+    "start_port",
+    "end_port"
+  )
+
 all_logbooks_db_data_2022_short_p_region_short <-
   all_logbooks_db_data_2022_short_p_region |>
-  select(vessel_id,
-         vessel_official_nbr,
-         permit_region,
-         start_port_name,
-         end_port_name,
-         start_port,
-         end_port) |>
+  select(all_of(port_fields_short)) |>
+  remove_empty_cols() |>
   distinct()
+
+dim(all_logbooks_db_data_2022_short_p_region_short)
+# [1] 3011    7
 
 all_logbooks_db_data_2022_short_p_region_short |>
   filter(!start_port == end_port &
            start_port_name == end_port_name) |>
   glimpse()
 # 2
+# $ vessel_id           <int> 326764, 254794
+# $ vessel_official_nbr <chr> "NC8438DJ", "FL0291MX"
+# $ permit_region       <chr> "sa_only", "sa_only"
+# $ start_port_name     <chr> "WRIGHTSVILLE BEACH", "KEYS FISHERIES"
+# $ end_port_name       <chr> "WRIGHTSVILLE BEACH", "KEYS FISHERIES"
+# $ start_port          <chr> "361133", "118530"
+# $ end_port            <chr> "362333", "111949"
 
 # all_logbooks_db_data_2022_short_p_region_short |>
 #   filter(start_port == end_port &
 #            !start_port_name == end_port_name) |>
 # str()
 # 0
+my_vars <- function() {
+  c(any_of(c("name", "species")), ends_with("color"))
+}
+
+port_fields_all <-
+  function(variables) {
+    c(all_of(c(
+      "vessel_id",
+      "vessel_official_nbr",
+      "permit_region"
+    )),
+    contains("port")
+    # ,
+    # -starts_with("notif")
+    )
+  }
+
+all_logbooks_db_data_2022_short_p_region_port_fields_all <-
+  all_logbooks_db_data_2022_short_p_region |>
+  select(port_fields_all(), -starts_with("notif")) |>
+  remove_empty_cols() |>
+  distinct()
+
+dim(all_logbooks_db_data_2022_short_p_region_port_fields_all)
+# [1] 3011   11
+
+## add date columns ----
+all_logbooks_db_data_2022_short_p_region_dates <-
+  all_logbooks_db_data_2022_short_p_region |>
+  dplyr::mutate(
+    trip_start_week_num =
+      strftime(trip_start_date, format = "%u"),
+    trip_end_week_num =
+      strftime(trip_end_date, format = "%u"),
+    trip_start_y =
+      year(trip_start_date),
+    trip_end_y =
+      year(trip_end_date),
+    trip_start_m =
+      zoo::as.yearmon(trip_start_date),
+    trip_end_m =
+      zoo::as.yearmon(trip_end_date),
+    year_quarter = as.yearqtr(trip_start_date),
+    quarter = format(year_quarter, "%q")
+  )
+
+# View(all_logbooks_db_data_2022_short_p_region_dates)
 
 # how many SEFHIER vessels start at a different location than they end; ----
 all_logbooks_db_data_2022_short_p_region_short |>
@@ -65,6 +130,8 @@ all_logbooks_db_data_2022_short_p_region_short |>
 
 # how many vessels have variable landing locations (i.e., in the winter they are in one state while in the summer they fish in another); ----
 
+# we should look at this by quarter, to start - for some seasonality.
+
 all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl <-
   all_logbooks_db_data_2022_short_p_region_short |>
   group_by(vessel_id, vessel_official_nbr) |>
@@ -83,7 +150,6 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl <-
          all_end_port_names_num   = length(str_split(all_end_port_names, ","))) |>
   ungroup()
 
-?unite()
 all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
   # View()
   filter(all_start_ports_num > 1) |>
@@ -98,6 +164,15 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
 all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   filter(vessel_official_nbr == 1000042) |>
   View()
+
+all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
+  filter(permit_region == "gom_and_dual" &
+           all_end_ports_num > 1) |>
+  View()
+# dim()
+# [1] 1890   11
+
+
 
 # quantify the # of vessels who fish in both the gulf and S Atl. ;
 all_logbooks_db_data_2022_short_p_region_port <-
