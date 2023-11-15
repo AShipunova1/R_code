@@ -304,6 +304,16 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
   filter(vessel_id == "328032") |>
   glimpse()
 
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
+  filter(count_start_ports_by_q > 1) |>
+  arrange(trip_start_year_quarter) |>
+  filter(permit_region == "gom_and_dual") |>
+  ggplot(mapping =
+           aes(x = trip_start_year_quarter,
+               y = all_start_ports_by_q)) +
+  geom_point(aes(size =
+                   count_start_ports_by_q), alpha = 1 / 3) +
+  geom_smooth(se = FALSE)
 # ---
 # count_start_ports_by_q = n_distinct(all_start_ports_by_q),
 
