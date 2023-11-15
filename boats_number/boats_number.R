@@ -247,11 +247,26 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
   dplyr::filter(cnt_start_port_qu > 1) |>
   dplyr::arrange(vessel_official_nbr) |>
   dplyr::ungroup() |>
-  View()
+  glimpse()
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
   filter(vessel_official_nbr == "1055255") |>
+  head(2)
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+  dplyr::group_by(vessel_id,
+                  vessel_official_nbr,
+                  start_port,
+                  trip_start_quarter_num) |>
+  dplyr::arrange(trip_start_quarter_num,
+                 .by_group = TRUE) %>%
+  dplyr::mutate(cnt_start_port_qu = n()) |>
+  dplyr::filter(cnt_start_port_qu > 1) |>
+  dplyr::arrange(vessel_official_nbr, trip_start_quarter_num) |>
+  dplyr::ungroup() |>
+  filter(vessel_official_nbr == "1055255") |>
   View()
+
 
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port <-
