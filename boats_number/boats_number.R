@@ -302,57 +302,10 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
   arrange(trip_start_year_quarter) |>
   filter(permit_region == "gom_and_dual") |>
   filter(vessel_id == "328032") |>
-  View()
-
-small_1057052 <-
-  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
-  select(
-    vessel_official_nbr,
-    trip_start_year_quarter,
-    # all_start_ports_by_q,
-    all_end_ports_by_q,
-    # all_start_ports_by_q_num,
-    all_end_ports_by_q_num
-  ) |>
-  distinct() |>
-  filter(vessel_official_nbr == "1057052")
-
-glimpse(small_1057052)
-str(small_1057052$all_end_ports_by_q)
-
-
-# cor.test(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q$all_start_ports_by_q,
-         # all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q$trip_start_year_quarter)
-
-small_1057052 |>
-  group_by(vessel_official_nbr) |>
-  mutate(all_q_end_ports = list(unique(all_end_ports_by_q)),
-         all_q_end_ports_num = length(unique(all_q_end_ports))) |>
-  ungroup() |>
   glimpse()
 
-my_list <- list(c("363719, 492851, 362409"), "362409")
-length(my_list)
-
 # ---
-# works
-delay <-
-  small_1057052 |>
-  group_by(vessel_official_nbr) |>
-  mutate(
-    count = n_distinct(all_end_ports_by_q)
-    # dist = mean(distance, na.rm = TRUE),
-    # delay = mean(arr_delay, na.rm = TRUE)
-  )
-
-delay |> View()
-delay <- filter(delay, count > 20, dest != "HNL")
-
-
-ggplot(data = delay, mapping = aes(x = dist, y = delay)) + geom_point(aes(size =
-                                                                            count), alpha = 1 / 3) + geom_smooth(se = FALSE)
-# ---
-
+# count_start_ports_by_q = n_distinct(all_start_ports_by_q),
 
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_mult_port <-
