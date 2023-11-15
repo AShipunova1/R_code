@@ -307,15 +307,9 @@ current_project_dir_name_input_dir <-
             current_project_dir_name)
 create_dir_if_not(current_project_dir_name_input_dir)
 
-nominatim_rds_file_path_census <-
+nominatim_rds_file_path <-
   file.path(current_project_dir_name_input_dir,
-            "port_addr_to_coords_census.rds")
-
-plots_census <-
-  get_lat_lon_by_addr(all_ports, 'census')
-# Passing 157 addresses to the US Census batch geocoder
-# Query completed in: 2.1 seconds
-View(plots_census)
+            "port_addr_to_coords.rds")
 
 input_data_raw_nominatim <-
   read_rds_or_run(nominatim_rds_file_path,
@@ -342,8 +336,36 @@ plots_nominatim_sf_short <-
 # PORT_ID, PORT_NUM, PORT_NAME, ADD_STR1, ADD_STR2, ADD_STR3, CITY, STATE, ZIP, PHONE1, PHONE2, IS_ACTIVE, LU_USER_CODE, LU, AREA_ID, street, city, state, postalcode, place_id, licence, osm_type, osm_id, class, type, place_rank, importance, addresstype, name, display_name, boundingbox, geometry
 
 plots_nominatim_sf_short |>
-  filter(STATE == 'FL') |>
+  filter(STATE == "FL") |>
   mapview::mapview()
+# 99 5
+
+# by census ----
+nominatim_rds_file_path_census <-
+  file.path(current_project_dir_name_input_dir,
+            "port_addr_to_coords_census.rds")
+
+plots_census <-
+  get_lat_lon_by_addr(all_ports, 'census')
+# Passing 157 addresses to the US Census batch geocoder
+# Query completed in: 2.1 seconds
+glimpse(plots_census)
+
+plots_census_short <-
+  plots_census |>
+  select(PORT_ID, PORT_NUM, STATE, matched_address, long, lat)
+
+plots_census_sf <-
+  plots_census_short |>
+  sf::st_as_sf(coords = c("long", "lat"),
+               crs = 4326,
+               na.fail = FALSE)
+
+plots_census_sf |>
+  filter(STATE == "FL") |>
+  mapview::mapview()
+# [1] 99  5
+
 
 # install.packages("MazamaLocationUtils")
 # add counties to port info
@@ -359,7 +381,26 @@ library(MazamaLocationUtils)
 #   verbose = TRUE
 # )
 
-plots_census
+plots_census_short_c <-
+  plots_census_short |>
+  filter(STATE == "FL") |>
+  filter(!is.na(long) &
+           !is.na(lat)) |>
+  # head() |>
+  rowwise() |>
+  mutate(rr =
+           try({list(
+             location_getCensusBlock(
+               longitude = as.double(long),
+               latitude = as.double(lat),
+               censusYear = 2020,
+               verbose = TRUE
+             )[[2]]
+           )}, silent = TRUE)) |>
+  ungroup()
+# ! `rr` must return compatible vectors across groups.
+
+View(plots_census_short_c)
 # $stateCode
 # [1] "FL"
 #
