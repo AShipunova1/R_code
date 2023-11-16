@@ -1115,10 +1115,10 @@ print_toc_log <- function(variables) {
 
 # Use a function defined in "useful_functions_module.r". Use F2 to see a custom functions definition.
 my_paths <- set_work_dir()
-my_paths$inputs <-
-  r"(C:\Users\anna.shipunova\Downloads\input-20231108T141445Z-001\input)"
-my_paths$outputs <- 
-  r"(C:\Users\anna.shipunova\Downloads\input-20231108T141445Z-001\output)"
+# my_paths$inputs <-
+#   r"(C:\Users\anna.shipunova\Downloads\input-20231108T141445Z-001\input)"
+# my_paths$outputs <- 
+#   r"(C:\Users\anna.shipunova\Downloads\input-20231108T141445Z-001\output)"
 
 
 #### Current file: quantify_compliance_functions.R ----
@@ -1677,7 +1677,9 @@ fhier_reports_metrics_tracking_file_names <-
 
 common_dir <-
   file.path(my_paths$inputs,
-  r"(from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source))")
+  "from_Fhier",
+  "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)"
+  )
 
 # save all file names to a list
 # Create a vector named 'fhier_reports_metrics_tracking_file_path' using the purrr::map function.
