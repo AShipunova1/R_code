@@ -438,8 +438,7 @@ all_logbooks_db_data_2022_short_p_region_port_region <-
       end_port_name,
       end_port_county,
       end_port_state,
-      permit_region,
-      -starts_with("notif")
+      permit_region
     ) |>
   remove_empty_cols() |>
   distinct()
