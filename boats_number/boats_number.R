@@ -148,8 +148,8 @@ add_all_port_string <-
            group_by_vector = c("vessel_id", "vessel_official_nbr")) {
   my_df |>
     group_by_at(group_by_vector) |>
-    mutate(all_start_ports = toString(unique(start_port)),
-           all_end_ports   = toString(unique(end_port))) |>
+    mutate(all_start_ports = toString(unique(sort(start_port))),
+           all_end_ports   = toString(unique(sort(end_port)))) |>
     mutate(
       all_start_ports_num = length(str_split(all_start_ports, ",")),
       all_end_ports_num   = length(str_split(all_end_ports, ","))
@@ -170,8 +170,8 @@ add_all_port_name_string <-
     my_df |>
       group_by_at(group_by_vector) |>
       mutate(
-        all_start_port_names = toString(unique(start_port_name)),
-        all_end_port_names   = toString(unique(end_port_name))
+        all_start_port_names = toString(unique(sort(start_port_name))),
+        all_end_port_names   = toString(unique(sort(end_port_name)))
       ) |>
       mutate(
         all_start_port_names_num = length(str_split(all_start_port_names, ",")),
@@ -506,7 +506,6 @@ dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 #   glimpse()
 # 0
 
-
 # all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
 #     filter(one_start_port_marker == "gom") |>
 #     select(vessel_official_nbr, contains("start")) |>
@@ -538,15 +537,52 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
   ) |>
   distinct()
 
-dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
+data_overview(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
 # [1] 3011   14
+# vessel_official_nbr   1876
+# start_port             536
+# start_port_name        531
+
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   count(one_start_port_marker)
-# 1                   gom  554
-# 2                    sa 1078
-# 3                  <NA> 1379
+# 1                   gom 1657
+# 2                    sa 1354
 
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt <-
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  select(vessel_official_nbr,
+         one_start_port_marker) |>
+  distinct() |>
+  group_by(vessel_official_nbr) |>
+  mutate(
+    vessel_one_start_port_marker =
+      toString(unique(sort(
+        one_start_port_marker
+      ))),
+    vessel_one_start_port_marker_num =
+      length(str_split(vessel_one_start_port_marker, ","))
+  ) |>
+  ungroup()
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short <-
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
+  select(
+    vessel_official_nbr,
+    vessel_one_start_port_marker_num
+  ) |>
+  distinct()
+
+# vessel_official_nbr              1876
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short |>
+  count(multi_start = vessel_one_start_port_marker_num > 1)
+#   multi_start     n
+#   <lgl>       <int>
+# 1 FALSE        1723
+# 2 TRUE          153
+
+# 1723 + 153
+# 1876
 
 # look at permit home port vs where they take trip. ----
 
