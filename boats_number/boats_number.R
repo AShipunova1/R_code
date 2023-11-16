@@ -286,7 +286,7 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 <-
          start_port_name) |>
   distinct()
 
-View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3)
+# View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3)
 # [1] 6317    3
 # vessel_official_nbr     1876
 # trip_start_year_quarter    4
@@ -294,6 +294,18 @@ View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3)
 
 ### melt and decast the table ----
 # one row per vessel
+# In summary, the code transforms the data from a long to a wide format, spreading the values from the 'start_port_name' column across columns named by 'trip_start_year_quarter', and aggregating multiple values into a comma-separated string.
+
+# The pivot_wider() function from the tidyr package is used to reshape the data.
+# It takes the 'vessel_official_nbr' column as the identifier columns,
+# and then it spreads the values from the 'trip_start_year_quarter' column into
+# separate columns, with the corresponding values being taken from the
+# 'start_port_name' column.
+# The values_fn parameter is specified to define how to handle multiple
+# values that may exist for a combination of 'vessel_official_nbr' and
+# 'trip_start_year_quarter'. In this case, unique values are sorted and
+# concatenated into a comma-separated string.
+
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 |>
   pivot_wider(
@@ -303,24 +315,37 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider <-
     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
   )
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider |>
-  head() |>
+### add column for the same or diff ----
+# It starts by using the rowwise() function to apply subsequent operations
+# to each row individually, ensuring that calculations are row-wise.
+
+# The mutate() function is then used to create a new column 'same'.
+# This column is assigned the result of a logical comparison:
+# It checks if the number of distinct values in all columns that start with '2022'
+# is equal to 1, indicating that all these columns have the same value for a given row.
+# The ungroup() function is then applied to remove the grouping structure
+# introduced by rowwise().
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider |>
   rowwise() |>
-  mutate(same = n_distinct(unlist(across(starts_with('2022'),
-        ~ as.character(.x)))) == 1) %>%
+  mutate(same = n_distinct(unlist(across(
+    starts_with('2022'),
+    ~ as.character(.x)
+  ))) == 1) |>
   ungroup
 
-  map(\(curr_row) {
-    browser()
-    length(unique(sort(curr_row))) == 1
-  })
-  # apply(df[cols_to_test], 1, function(x) length(unique(x)) == 1)
+# vessel_official_nbr 1876
+# 2022 Q3              484
+# 2022 Q4              356
+# 2022 Q2              488
+# 2022 Q1              290
 
-quarter_names <- list(`2022 Q3`, `2022 Q4`, `2022 Q2`, `2022 Q1`)
-
-# Convenience function to paste together multiple columns into one.
-
-
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
+  select(vessel_official_nbr, same) |>
+  count(same)
+# 1 FALSE  1421 (incl. NAs)
+# 2 TRUE    455
 
 # quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ports_path <- file.path(my_paths$outputs,
