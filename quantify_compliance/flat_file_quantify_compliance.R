@@ -2942,7 +2942,7 @@ head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
 # The 'perc_of_perc' column is calculated based on 'perc_nc_100_gr' values.
 # The data frame is ungrouped.
 
-count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
+count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
   dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |>
   # Add columns 'perc_nc_100_gr' and 'perc_nc_100_gr_name' based on 'percent_compl' values
@@ -2954,7 +2954,10 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
                 .default = "Reported At Least 1 Time")
   ) |>
   dplyr::group_by(perc_nc_100_gr) |>
-  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) 
+
+count_weeks_per_vsl_permit_year_compl_p_short_count_perc <- 
+  count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep
   dplyr::select(-vessel_official_number) |>
   dplyr::distinct() |>
   # Calculate the 'perc_of_perc' based on 'perc_nc_100_gr' values
