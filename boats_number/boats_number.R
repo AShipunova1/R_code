@@ -232,6 +232,10 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
 
 dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
 # [1] 6604   13
+# vessel_official_nbr     1876
+# permit_region              2
+# start_port               536
+# start_port_name          531
 
 # a quarter is the same, a port - diff
 ### lists of start and end ports by quarter ----
@@ -277,12 +281,50 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
 ### if a num of lists of ports by quarter > 1, than ports are different from Q to Q ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
-  filter(count_start_ports_by_q > 1 |
-           count_end_ports_by_q > 1) |>
-  arrange(vessel_official_nbr, trip_start_year_quarter) |>
-  filter(permit_region == "gom_and_dual")
+  mutate(same_start_p =
+           case_when(count_start_ports_by_q > 1 ~
+                       "no",
+                     .default = "yes")) |>
+  mutate(same_end_p =
+           case_when(count_end_ports_by_q > 1 ~
+                       "no",
+                     .default = "yes")) |>
+  arrange(vessel_official_nbr, trip_start_year_quarter)
+# filter(permit_region == "gom_and_dual")
 
 # glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter)
+# [1] 6604   19
+# all
+# vessel_official_nbr     1876
+# permit_region              2
+# start_port               536
+# start_port_name          531
+
+# gom
+# vessel_official_nbr     498
+# permit_region             2
+# start_port              364
+# start_port_name         360
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter |>
+  select(vessel_official_nbr,
+         permit_region,
+         same_start_p,
+         same_end_p) |>
+  distinct() |>
+  count(permit_region, same_start_p)
+#   permit_region same_start_p     n
+#   <chr>         <chr>        <int>
+# 1 gom_and_dual  no            1079
+# 2 gom_and_dual  yes           2070
+# 3 sa_only       no             932
+# 4 sa_only       yes           2523
+
+# distinct()
+# 1 gom_and_dual  no             182
+# 2 gom_and_dual  yes            609
+# 3 sa_only       no             191
+# 4 sa_only       yes            894
 
 ## different locations with a combine table ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 <-
@@ -349,6 +391,7 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff <-
 # 2022 Q2              488
 # 2022 Q1              290
 
+### count same or diff by permit_region ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
   count(permit_region, same)
 #   permit_region same      n
@@ -358,8 +401,6 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
 # 3 sa_only       FALSE   852
 # 4 sa_only       TRUE    233
 
-
-  data_overview()
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
   select(vessel_official_nbr, same) |>
   count(same)
