@@ -562,25 +562,33 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 # 3       sa_only                   gom  216
 # 4       sa_only                    sa 1013
 
+find_multi_region_vessels <-
+  function(my_df, select_vector) {
+    my_df |>
+      select(all_of(select_vector)) |>
+      distinct() |>
+      group_by(vessel_official_nbr) |>
+      mutate(
+        vessel_one_start_port_marker =
+          toString(unique(sort(
+            one_start_port_marker
+          ))),
+        vessel_one_start_port_marker_num =
+          length(str_split(vessel_one_start_port_marker, ","))
+      ) |>
+      ungroup() %>%
+      return()
+  }
 
 select_vessel_mark_only <-
   c("vessel_official_nbr",
     "one_start_port_marker")
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt <-
-  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
-  select(all_of(select_vessel_mark_only)) |>
-  distinct() |>
-  group_by(vessel_official_nbr) |>
-  mutate(
-    vessel_one_start_port_marker =
-      toString(unique(sort(
-        one_start_port_marker
-      ))),
-    vessel_one_start_port_marker_num =
-      length(str_split(vessel_one_start_port_marker, ","))
-  ) |>
-  ungroup()
+  find_multi_region_vessels(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short, select_vessel_mark_only)
+
+all.equal(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt,
+          all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt1)
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
