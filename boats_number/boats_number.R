@@ -446,69 +446,6 @@ all_logbooks_db_data_2022_short_p_region_port_region <-
 # dim(all_logbooks_db_data_2022_short_p_region_port_region)
 # [1] 3011   11
 
-
-## read in GOM shp ----
-## Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
-GOM_400fm_path <-
-  file.path(my_paths$inputs,
-                      r"(shapefiles\GOM_400fm\GOM_400fm.shp)")
-
-# file.exists(GOM_400fm_path)
-# T
-
-## Read a shapefile from the specified file path using 'sf::read_sf'.
-## Then, group the resulting data by 'StatZone' and summarize it.
-GOMsf_all <-
-  sf::read_sf(GOM_400fm_path)
-
-mapview::mapview(GOMsf_all)
-
-
-# ---
-
-dim(all_logbooks_db_data_2022_short_p_region_port_fields_all)
-# [1] 3011   11
-
-all_logbooks_db_data_2022_short_p_region_port_region |>
-  select(start_port_state) |>
-  distinct() |>
-  head(2)
-# "FL", "DE"
-
-names(state.abb) <- state.name
-names(state.name) <- state.abb
-
-# my_state_name[tolower("FL")]
-# "Florida"
-
-all_logbooks_db_data_2022_short_p_region_port_states <-
-  all_logbooks_db_data_2022_short_p_region_port_region |>
-  mutate(
-    start_port_state_name = my_state_name[tolower(start_port_state)],
-    end_port_state_name   = my_state_name[tolower(end_port_state)]
-  ) |>
-  mutate(
-    start_port_reg =
-      case_when(
-        tolower(start_port_state_name) %in% tolower(sa_council_states) ~
-          "sa_council_state",
-        tolower(end_port_state_name) %in% tolower(east_coat_states$gom) ~
-          "gom_state",
-        .default = "sa_state"
-      )
-    # diff_reg = case_when(!start_port_state == end_port_state)
-  )
-
-dim(all_logbooks_db_data_2022_short_p_region_port_states)
-# [1] 3011   14
-
-# check
-# all_logbooks_db_data_2022_short_p_region_port_states |>
-#   filter(tolower(start_port_state_name) == "florida") |>
-#   select(start_port_county) |>
-#   distinct() |>
-#   paste(sep = ",\n")
-
 ### if FL divide by county ----
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
   all_logbooks_db_data_2022_short_p_region_port_states |>
@@ -529,7 +466,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
 
 glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg)
 
-# create one_port_marker ----
+### create one_port_marker ----
 # if Monroe, FL divide by vessel permit_region
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
