@@ -217,7 +217,7 @@ all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port <-
 # [1] 1890   11
 # [1] 1030   11
 
-## we should look at this by quarter, to start - for some seasonality. ----
+## by quarter, to start - for some seasonality. ----
 ### trips and quarter fields ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port |>
@@ -259,7 +259,13 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
 ### count port groups (lists) ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
-  group_by(vessel_official_nbr) |>
+  select(vessel_official_nbr,
+         permit_region,
+         trip_start_year_quarter,
+         all_start_ports_by_q,
+         all_end_ports_by_q) |>
+  distinct() |>
+  group_by(vessel_official_nbr, permit_region) |>
   mutate(
     count_start_ports_by_q = n_distinct(all_start_ports_by_q),
     count_end_ports_by_q   = n_distinct(all_end_ports_by_q)
@@ -379,12 +385,22 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider <-
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider |>
   rowwise() |>
+  mutate(all_start_ports_num =
+           n_distinct(unlist(across(
+             starts_with('2022')
+           ))),
+         all_start_ports =
+           list(paste(unique(sort(unlist(across(
+             starts_with('2022')
+           )))),
+           sep = ","))) |> View()
   mutate(same = n_distinct(unlist(across(
     starts_with('2022'),
     ~ as.character(.x)
   ))) == 1) |>
   ungroup()
 
+View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff)
 # vessel_official_nbr 1876
 # 2022 Q3              484
 # 2022 Q4              356
