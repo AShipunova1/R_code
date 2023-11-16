@@ -638,4 +638,69 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p |>
 # 4 sa_only       TRUE          144
 
 # look at permit home port vs where they take trip. ----
+## prepare home_port data ----
+all_get_db_data_result_l |>
+  print_df_names()
 
+all_get_db_data_result_l$vessels_permits |>
+  print_df_names()
+
+vessel_permit_port_info <-
+  all_get_db_data_result_l$vessels_permits |>
+  select(
+    PERMIT_VESSEL_ID,
+    TOP,
+    VESSEL_VESSEL_ID,
+    PORT_CODE,
+    SERO_HOME_PORT_CITY,
+    SERO_HOME_PORT_COUNTY,
+    SERO_HOME_PORT_STATE,
+    SERO_OFFICIAL_NUMBER
+  ) |>
+  remove_empty_cols() |>
+  distinct()
+
+glimpse(vessel_permit_port_info)
+# [1] 16143     8
+# SERO_OFFICIAL_NUMBER  6762
+# PORT_CODE              158
+# SERO_HOME_PORT_CITY    941
+#
+
+# all dual, because all years?
+vessel_permit_port_info_perm_reg <-
+  vessel_permit_port_info |>
+  mutate(all_permits = toString(unique(sort(TOP)))) |>
+  separate_permits_into_3_groups(permit_group_field_name = "all_permits")
+
+vessel_permit_port_info_perm_reg_short <-
+  vessel_permit_port_info_perm_reg |>
+  select(-c(TOP, all_permits)) |>
+  distinct()
+
+vessel_permit_port_info_perm_reg_short |>
+  data_overview()
+# [1] 6763    8
+# SERO_OFFICIAL_NUMBER  6762
+# SERO_HOME_PORT_CITY    941
+# permit_sa_gom            1 ?
+
+vessel_permit_port_info_perm_reg_short |>
+  filter(is.na(PORT_CODE) |
+           PORT_CODE == "00000") |>
+  dim()
+# [1] 5957    8
+
+# vessel_permit_port_info_perm_reg_short |>
+#  filter(!PERMIT_VESSEL_ID == SERO_OFFICIAL_NUMBER) |>
+#    glimpse()
+# Rows: 1
+# Columns: 8
+# $ PERMIT_VESSEL_ID      <chr> "FL2310RW"
+# $ VESSEL_VESSEL_ID      <dbl> 280699
+# $ PORT_CODE             <chr> NA
+# $ SERO_HOME_PORT_CITY   <chr> "PORT CANAVERAL"
+# $ SERO_HOME_PORT_COUNTY <chr> "BREVARD"
+# $ SERO_HOME_PORT_STATE  <chr> "FL"
+# $ SERO_OFFICIAL_NUMBER  <chr> "1000164"
+# $ permit_sa_gom         <chr> "dual"
