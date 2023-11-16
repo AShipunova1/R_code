@@ -537,7 +537,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
   ) |>
   distinct()
 
-data_overview(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
+# data_overview(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
 # [1] 3011   14
 # vessel_official_nbr   1876
 # start_port             536
@@ -563,11 +563,13 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 # 4       sa_only                    sa 1013
 
 find_multi_region_vessels <-
-  function(my_df, select_vector) {
+  function(my_df,
+           select_vector,
+           group_by_vector = c("vessel_official_nbr")) {
     my_df |>
       select(all_of(select_vector)) |>
       distinct() |>
-      group_by(vessel_official_nbr) |>
+      group_by_at(group_by_vector) |>
       mutate(
         vessel_one_start_port_marker =
           toString(unique(sort(
@@ -584,11 +586,15 @@ select_vessel_mark_only <-
   c("vessel_official_nbr",
     "one_start_port_marker")
 
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt <-
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt3 <-
   find_multi_region_vessels(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short, select_vessel_mark_only)
 
-all.equal(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt,
-          all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt1)
+View(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt3)
+
+diffdf::diffdf(
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt3, all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt)
+   # permit_region
+
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
@@ -610,6 +616,12 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_shor
 # 1876
 
 ### count multi start by vessel permit ----
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p <-
+  find_multi_region_vessels(
+    all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short,
+    c(select_vessel_mark_only, "permit_region")
+  )
+glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p)
 
 # look at permit home port vs where they take trip. ----
 
