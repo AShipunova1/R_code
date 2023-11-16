@@ -2941,7 +2941,6 @@ head(count_weeks_per_vsl_permit_year_compl_p_short_count, 2)
 # Duplicate rows are removed.
 # The 'perc_of_perc' column is calculated based on 'perc_nc_100_gr' values.
 # The data frame is ungrouped.
-
 count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep <-
   count_weeks_per_vsl_permit_year_compl_p_short_count |>
   dplyr::mutate(total_vessels = n_distinct(vessel_official_number)) |>
@@ -2954,10 +2953,12 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep <-
                 .default = "Reported At Least 1 Time")
   ) |>
   dplyr::group_by(perc_nc_100_gr) |>
-  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) 
+  dplyr::mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |> 
+  ungroup()
 
-count_weeks_per_vsl_permit_year_compl_p_short_count_perc <- 
-  count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep
+count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
+  count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep |>
+  dplyr::group_by(perc_nc_100_gr) |>
   dplyr::select(-vessel_official_number) |>
   dplyr::distinct() |>
   # Calculate the 'perc_of_perc' based on 'perc_nc_100_gr' values
@@ -3141,6 +3142,102 @@ nc_sa_22_100_plot <-
   ylim(0, 100)
 
 # plot(count_weeks_per_vsl_permit_year_compl_p_short_count)
+
+# 100 % nc check active permits ----
+# To check that, I would pull the list of those 23% SA SEFHIER vessels who never reported in 2022. Then I would check that against a list (pulled today) of 2023 permitted SA SEFHIER vessels, to see how many of the 23% of SA SEFHIER vessels who never reported still have a permit in 2023 (as of the date you pull 2023 permit data, anyway). 
+
+count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep |> glimpse()
+# [1] 1163    7
+
+count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep |>
+  filter(perc_nc_100_gr_name == "Never Reported") |>
+  select(vessel_official_number, total_vessels, group_vsl_cnt) |>
+  distinct() |> 
+  glimpse()
+ # Length:487             
+# total_vessels = 1163
+# group_vsl_cnt = 487  
+
+never_reported_vessels <-
+  count_weeks_per_vsl_permit_year_compl_p_short_count_perc_sep |>
+  filter(perc_nc_100_gr_name == "Never Reported") |>
+  select(vessel_official_number) |> 
+  distinct()
+
+dim(never_reported_vessels)
+# [1] 487   1
+
+# print_df_names(never_reported_vessels)
+# print_df_names(vessels_permits_id_clean(vessels_permits))
+never_reported_vessels_permits <-
+  left_join(never_reported_vessels,
+            vessels_permits_id_clean(vessels_permits),
+            join_by(vessel_official_number == PERMIT_VESSEL_ID))
+
+data_overview(never_reported_vessels_permits)
+# [1] 4396   51
+
+never_reported_vessels_permits_exp <-
+  never_reported_vessels_permits |>
+  select(
+    vessel_official_number,
+    tidyselect::contains("expir"),
+    tidyselect::contains("end")
+  ) |>
+  distinct()
+
+print_df_names(never_reported_vessels_permits_exp)
+# [1] 846   4
+
+never_reported_vessels_permits_exp_active23 <-
+  never_reported_vessels_permits_exp |>
+  mutate(
+    last_exp_in_22 =
+      case_when(LAST_EXPIRATION_DATE > "2022-12-31" ~ "active23",
+                .default = "exp"),
+    exp_in_22 =
+      case_when(EXPIRATION_DATE > "2022-12-31" ~ "active23",
+                .default = "exp"),
+    end_in_22 =
+      case_when(END_DATE > "2022-12-31" ~ "active23",
+                .default = "exp")
+  )
+
+never_reported_vessels_permits_exp_active23 |> 
+  select(vessel_official_number,
+         # exp_in_22) |>
+  # [1] 594   2
+         last_exp_in_22) |>
+  # [1] 496   2
+  # end_in_22) |>
+  # [1] 565   2
+    # tidyselect::ends_with("22")) |> 
+# [1] 619   4
+  distinct() |> 
+  dim()
+
+never_reported_vessels_permits_exp_active23_short <-
+  never_reported_vessels_permits_exp_active23 |>
+  select(vessel_official_number,
+         last_exp_in_22) |>
+  distinct()
+  
+never_reported_vessels_permits_exp_active23_short |> 
+  count(last_exp_in_22) |> 
+# 1 active23         215
+# 2 exp              281
+
+write_csv(
+  never_reported_vessels_permits_exp,
+  file.path(
+    my_paths$outputs,
+    "quantify_compliance",
+    "never_reported_vessels_permits_expiration.csv"
+  )
+)
+
+
+
 ## Less than 100% ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 <- 
   # Filter the data frame based on a condition
