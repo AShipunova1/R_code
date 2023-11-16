@@ -425,6 +425,28 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
 
 # quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ## add a gom vs sa marker to ports ----
+all_logbooks_db_data_2022_short_p_region_port_region <-
+  all_logbooks_db_data_2022_short_p_region |>
+  select(
+      vessel_id,
+      vessel_official_nbr,
+      start_port,
+      start_port_name,
+      start_port_county,
+      start_port_state,
+      end_port,
+      end_port_name,
+      end_port_county,
+      end_port_state,
+      permit_region,
+      -starts_with("notif")
+    ) |>
+  remove_empty_cols() |>
+  distinct()
+
+# dim(all_logbooks_db_data_2022_short_p_region_port_region)
+# [1] 3011   11
+
 
 # install.packages("MazamaLocationUtils")
 # add counties to port info
