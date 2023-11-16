@@ -292,14 +292,35 @@ View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3)
 # trip_start_year_quarter    4
 # start_port_name          531
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 |>
+### melt and decast the table ----
+# one row per vessel
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 |>
   pivot_wider(
     id_cols = vessel_official_nbr,
     names_from = trip_start_year_quarter,
     values_from = start_port_name,
     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
-  ) |>
-  View()
+  )
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider |>
+  head() |>
+  rowwise() |>
+  mutate(same = n_distinct(unlist(across(starts_with('2022'),
+        ~ as.character(.x)))) == 1) %>%
+  ungroup
+
+  map(\(curr_row) {
+    browser()
+    length(unique(sort(curr_row))) == 1
+  })
+  # apply(df[cols_to_test], 1, function(x) length(unique(x)) == 1)
+
+quarter_names <- list(`2022 Q3`, `2022 Q4`, `2022 Q2`, `2022 Q1`)
+
+# Convenience function to paste together multiple columns into one.
+
+
 
 # quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ports_path <- file.path(my_paths$outputs,
