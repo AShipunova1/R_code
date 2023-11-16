@@ -639,8 +639,8 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p |>
 
 # look at permit home port vs where they take trip. ----
 ## prepare home_port data ----
-all_get_db_data_result_l |>
-  print_df_names()
+# all_get_db_data_result_l |>
+#   print_df_names()
 
 # all_get_db_data_result_l$vessels_permits |>
   # print_df_names()
@@ -666,12 +666,13 @@ glimpse(vessel_permit_port_info)
 # PORT_CODE              158
 # SERO_HOME_PORT_CITY    941
 #
-
-# # all dual, because all years?
 # vessel_permit_port_info_perm_reg <-
 #   vessel_permit_port_info |>
+#   group_by(VESSEL_VESSEL_ID) |>
 #   mutate(all_permits = toString(unique(sort(TOP)))) |>
 #   separate_permits_into_3_groups(permit_group_field_name = "all_permits")
+#
+# View(vessel_permit_port_info_perm_reg)
 #
 # vessel_permit_port_info_perm_reg_short <-
 #   vessel_permit_port_info_perm_reg |>
@@ -704,3 +705,32 @@ glimpse(vessel_permit_port_info)
 # $ SERO_HOME_PORT_STATE  <chr> "FL"
 # $ SERO_OFFICIAL_NUMBER  <chr> "1000164"
 # $ permit_sa_gom         <chr> "dual"
+
+print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
+
+join_vessel_and_trip <-
+  left_join(
+    all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start,
+    vessel_permit_port_info,
+    join_by(vessel_id == VESSEL_VESSEL_ID),
+    relationship = "many-to-many"
+  )
+
+join_vessel_and_trip_pe <-
+  join_vessel_and_trip |>
+  group_by(vessel_id) |>
+  mutate(all_permits = toString(unique(sort(TOP)))) |>
+  separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
+  select(-c(TOP, all_permits)) |>
+  distinct()
+
+# vessel_id             1876
+# vessel_official_nbr   1876
+# all_permits             24
+# permit_sa_gom            3
+
+dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
+# [1] 3011   16
+
+dim(join_vessel_and_trip_pe)
+# [1] 3011   22
