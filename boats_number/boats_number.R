@@ -545,14 +545,31 @@ data_overview(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_
 
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  select(vessel_official_nbr, one_start_port_marker) |>
+  distinct() |>
   count(one_start_port_marker)
-# 1                   gom 1657
-# 2                    sa 1354
+# 1                   gom 1000
+# 2                    sa 1029
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  select(vessel_official_nbr,
+         permit_region,
+         one_start_port_marker) |>
+  distinct() |>
+  count(permit_region, one_start_port_marker)
+# 1  gom_and_dual                   gom  784
+# 2  gom_and_dual                    sa   16
+# 3       sa_only                   gom  216
+# 4       sa_only                    sa 1013
+
+
+select_vessel_mark_only <-
+  c("vessel_official_nbr",
+    "one_start_port_marker")
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
-  select(vessel_official_nbr,
-         one_start_port_marker) |>
+  select(all_of(select_vessel_mark_only)) |>
   distinct() |>
   group_by(vessel_official_nbr) |>
   mutate(
@@ -583,6 +600,8 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_shor
 
 # 1723 + 153
 # 1876
+
+### count multi start by vessel permit ----
 
 # look at permit home port vs where they take trip. ----
 
