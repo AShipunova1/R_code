@@ -198,6 +198,12 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   dim()
 # 0
 
+data_overview(all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl)
+# vessel_official_nbr      1876
+# permit_region               2
+# start_port_name           531
+
+
 all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   filter(vessel_official_nbr == 1000042) |>
   glimpse()
@@ -282,6 +288,7 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_p
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
   select(vessel_official_nbr,
+         permit_region,
          trip_start_year_quarter,
          start_port_name) |>
   distinct()
@@ -309,11 +316,12 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 <-
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 |>
   pivot_wider(
-    id_cols = vessel_official_nbr,
+    id_cols = c(vessel_official_nbr, permit_region),
     names_from = trip_start_year_quarter,
     values_from = start_port_name,
     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
   )
+# glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider)
 
 ### add column for the same or diff ----
 # It starts by using the rowwise() function to apply subsequent operations
@@ -333,7 +341,7 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff <-
     starts_with('2022'),
     ~ as.character(.x)
   ))) == 1) |>
-  ungroup
+  ungroup()
 
 # vessel_official_nbr 1876
 # 2022 Q3              484
@@ -341,6 +349,17 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff <-
 # 2022 Q2              488
 # 2022 Q1              290
 
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
+  count(permit_region, same)
+#   permit_region same      n
+#   <chr>         <lgl> <int>
+# 1 gom_and_dual  FALSE   569
+# 2 gom_and_dual  TRUE    222
+# 3 sa_only       FALSE   852
+# 4 sa_only       TRUE    233
+
+
+  data_overview()
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
   select(vessel_official_nbr, same) |>
   count(same)
