@@ -642,8 +642,8 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p |>
 all_get_db_data_result_l |>
   print_df_names()
 
-all_get_db_data_result_l$vessels_permits |>
-  print_df_names()
+# all_get_db_data_result_l$vessels_permits |>
+  # print_df_names()
 
 vessel_permit_port_info <-
   all_get_db_data_result_l$vessels_permits |>
@@ -651,7 +651,7 @@ vessel_permit_port_info <-
     PERMIT_VESSEL_ID,
     TOP,
     VESSEL_VESSEL_ID,
-    PORT_CODE,
+    # PORT_CODE, mostly empty
     SERO_HOME_PORT_CITY,
     SERO_HOME_PORT_COUNTY,
     SERO_HOME_PORT_STATE,
@@ -667,28 +667,28 @@ glimpse(vessel_permit_port_info)
 # SERO_HOME_PORT_CITY    941
 #
 
-# all dual, because all years?
-vessel_permit_port_info_perm_reg <-
-  vessel_permit_port_info |>
-  mutate(all_permits = toString(unique(sort(TOP)))) |>
-  separate_permits_into_3_groups(permit_group_field_name = "all_permits")
-
-vessel_permit_port_info_perm_reg_short <-
-  vessel_permit_port_info_perm_reg |>
-  select(-c(TOP, all_permits)) |>
-  distinct()
-
-vessel_permit_port_info_perm_reg_short |>
-  data_overview()
+# # all dual, because all years?
+# vessel_permit_port_info_perm_reg <-
+#   vessel_permit_port_info |>
+#   mutate(all_permits = toString(unique(sort(TOP)))) |>
+#   separate_permits_into_3_groups(permit_group_field_name = "all_permits")
+#
+# vessel_permit_port_info_perm_reg_short <-
+#   vessel_permit_port_info_perm_reg |>
+#   select(-c(TOP, all_permits)) |>
+#   distinct()
+#
+# vessel_permit_port_info_perm_reg_short |>
+#   data_overview()
 # [1] 6763    8
 # SERO_OFFICIAL_NUMBER  6762
 # SERO_HOME_PORT_CITY    941
 # permit_sa_gom            1 ?
 
-vessel_permit_port_info_perm_reg_short |>
-  filter(is.na(PORT_CODE) |
-           PORT_CODE == "00000") |>
-  dim()
+# vessel_permit_port_info_perm_reg_short |>
+#   filter(is.na(PORT_CODE) |
+#            PORT_CODE == "00000") |>
+#   dim()
 # [1] 5957    8
 
 # vessel_permit_port_info_perm_reg_short |>
