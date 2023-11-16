@@ -469,7 +469,7 @@ mapview::mapview(GOMsf_all)
 dim(all_logbooks_db_data_2022_short_p_region_port_fields_all)
 # [1] 3011   11
 
-all_logbooks_db_data_2022_short_p_region_port_fields_all |>
+all_logbooks_db_data_2022_short_p_region_port_region |>
   select(start_port_state) |>
   distinct() |>
   head(2)
@@ -482,7 +482,7 @@ names(state.name) <- state.abb
 # "Florida"
 
 all_logbooks_db_data_2022_short_p_region_port_states <-
-  all_logbooks_db_data_2022_short_p_region_port_fields_all |>
+  all_logbooks_db_data_2022_short_p_region_port_region |>
   mutate(
     start_port_state_name = my_state_name[tolower(start_port_state)],
     end_port_state_name   = my_state_name[tolower(end_port_state)]
@@ -499,7 +499,8 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
     # diff_reg = case_when(!start_port_state == end_port_state)
   )
 
-glimpse(all_logbooks_db_data_2022_short_p_region_port_states)
+dim(all_logbooks_db_data_2022_short_p_region_port_states)
+# [1] 3011   14
 
 # check
 # all_logbooks_db_data_2022_short_p_region_port_states |>
@@ -508,7 +509,7 @@ glimpse(all_logbooks_db_data_2022_short_p_region_port_states)
 #   distinct() |>
 #   paste(sep = ",\n")
 
-
+### if FL divide by county ----
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
   all_logbooks_db_data_2022_short_p_region_port_states |>
   mutate(
@@ -523,9 +524,49 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
   filter(start_port_fl_reg == "gom_county") |>
-  View()
+  dim()
+# [1] 844  15
 
-View(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg)
+glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg)
+
+# create one_port_marker ----
+# if Monroe, FL divide by vessel permit_region
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
+  mutate(
+    one_start_port_marker =
+      case_when(
+        start_port_county == "MONROE" &
+          permit_region == "gom_and_dual" ~
+          "gom",
+        start_port_county == "MONROE" &
+          permit_region == "sa_only" ~
+          "sa",
+        start_port_state == "FL" &
+          start_port_fl_reg == "gom_county" ~
+          "gom",
+        start_port_state == "FL" &
+          start_port_fl_reg == "sa_county" ~
+          "sa",
+        start_port_reg == "gom_council_state" ~
+          "gom",
+        start_port_reg == "sa_council_state" ~
+          "sa",
+        .default = NA
+      )
+  )
+
+dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
+# [1] 3011   16
+
+# check
+# all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
+#     filter(one_start_port_marker == "gom") |>
+#     select(vessel_official_nbr, contains("start")) |>
+#     distinct() |>
+#     glimpse()
+
+# filter(start_port_county == "MONROE") |>
 
 # look at permit home port vs where they take trip. ----
 
