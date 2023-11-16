@@ -586,15 +586,8 @@ select_vessel_mark_only <-
   c("vessel_official_nbr",
     "one_start_port_marker")
 
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt3 <-
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt <-
   find_multi_region_vessels(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short, select_vessel_mark_only)
-
-View(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt3)
-
-diffdf::diffdf(
-  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt3, all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt)
-   # permit_region
-
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
@@ -619,9 +612,30 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_shor
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p <-
   find_multi_region_vessels(
     all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short,
-    c(select_vessel_mark_only, "permit_region")
+    select_vector = c(select_vessel_mark_only, "permit_region"),
+    group_by_vector = c("vessel_official_nbr", "permit_region")
   )
-glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p)
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p |>
+  # glimpse()
+  select(
+    vessel_official_nbr,
+    permit_region,
+    vessel_one_start_port_marker_num
+  ) |>
+  distinct() |>
+# vessel_official_nbr              1876
+  count(permit_region,
+        multi_start = vessel_one_start_port_marker_num > 1)
+#   count(wt = n)
+# 1  1876
+
+#   permit_region multi_start     n
+#   <chr>         <lgl>       <int>
+# 1 gom_and_dual  FALSE         782
+# 2 gom_and_dual  TRUE            9
+# 3 sa_only       FALSE         941
+# 4 sa_only       TRUE          144
 
 # look at permit home port vs where they take trip. ----
 
