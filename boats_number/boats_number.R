@@ -278,6 +278,29 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_p
 
 # glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter)
 
+## different locations with a combine table ----
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+  select(vessel_official_nbr,
+         trip_start_year_quarter,
+         start_port_name) |>
+  distinct()
+
+View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3)
+# [1] 6317    3
+# vessel_official_nbr     1876
+# trip_start_year_quarter    4
+# start_port_name          531
+
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 |>
+  pivot_wider(
+    id_cols = vessel_official_nbr,
+    names_from = trip_start_year_quarter,
+    values_from = start_port_name,
+    values_fn = ~ paste(unique(sort(.x)), collapse = ",")
+  ) |>
+  View()
+
 # quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ports_path <- file.path(my_paths$outputs,
                         r"(from_db\ports.csv)")
