@@ -311,17 +311,17 @@ nominatim_rds_file_path <-
   file.path(current_project_dir_name_input_dir,
             "port_addr_to_coords.rds")
 
-input_data_raw_nominatim <-
+ports_nominatim <-
   read_rds_or_run(nominatim_rds_file_path,
                   my_data = all_ports,
                   get_lat_lon_by_addr_nominatim)
 # Passing 157 addresses to the Nominatim single address geocoder
 # [===================================] 157/157 (100%) Elapsed:  3m Remaining:  0s
 # 2023-11-15 run for port_addr_to_coords.rds: 162.14 sec elapsed
-plots_nominatim <- input_data_raw_nominatim
+
 
 plots_nominatim_sf <-
-  plots_nominatim |>
+  ports_nominatim |>
   # mutate(year_fct = factor(USER_NYEAR)) |>
     sf::st_as_sf(
       coords = c("long", "lat"),
@@ -340,7 +340,7 @@ plots_nominatim_sf_short |>
   mapview::mapview()
 # 99 5
 
-# by census ----
+## by census ----
 nominatim_rds_file_path_census <-
   file.path(current_project_dir_name_input_dir,
             "port_addr_to_coords_census.rds")
@@ -381,26 +381,25 @@ library(MazamaLocationUtils)
 #   verbose = TRUE
 # )
 
-plots_census_short_c <-
+tic("plots_census_short_c_all")
+plots_census_short_c_all <-
   plots_census_short |>
-  filter(STATE == "FL") |>
+  # filter(STATE == "FL") |>
   filter(!is.na(long) &
            !is.na(lat)) |>
   # head() |>
   rowwise() |>
   mutate(rr =
-           try({list(
-             location_getCensusBlock(
-               longitude = as.double(long),
-               latitude = as.double(lat),
-               censusYear = 2020,
-               verbose = TRUE
-             )[[2]]
-           )}, silent = TRUE)) |>
+           location_getCensusBlock(
+             longitude = as.double(long),
+             latitude = as.double(lat),
+             censusYear = 2020,
+             verbose = TRUE
+           )[[2]]) |>
   ungroup()
-# ! `rr` must return compatible vectors across groups.
+toc()
 
-View(plots_census_short_c)
+dim(plots_census_short_c)
 # $stateCode
 # [1] "FL"
 #
@@ -410,17 +409,58 @@ View(plots_census_short_c)
 # $censusBlock
 # [1] "120879721001001"
 
-## us maps ----
-# The code loads U.S. state boundary shapefile data using the 'tigris' package, and the resulting spatial data is stored in the 'us_s_shp' variable as a simple feature (sf) object. The progress bar is disabled during the data loading process.
-# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+ports_nominatim_short <-
+  ports_nominatim |>
+  select(PORT_ID, PORT_NUM, STATE, display_name, long, lat)
 
-us_s_shp <-
-  tigris::states(cb = TRUE, progress_bar = FALSE)
+dim(ports_nominatim_short)
+# [1] 159   6
 
-## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
-south_states_shp <-
-  us_s_shp |>
-  filter(NAME %in% south_east_coast_states)
+tic("ports_nominatim_c_all")
+ports_nominatim_short_c_all <-
+  ports_nominatim_short |>
+  filter(!is.na(long) &
+           !is.na(lat)) |>
+  rowwise() |>
+  mutate(county =
+           location_getCensusBlock(
+             longitude = as.double(long),
+             latitude = as.double(lat),
+             censusYear = 2020,
+             verbose = TRUE
+           )[[2]]) |>
+  ungroup()
+toc()
+# ports_nominatim_c_all: 7.44 sec elapsed
+dim(ports_nominatim_short_c_all)
+# [1] 119   7
+
+ports_nominatim_short_c_all_mapv <-
+  ports_nominatim_short_c_all |>
+  filter(STATE == "FL" &
+           county == "Monroe County") |>
+  sf::st_as_sf(coords = c("long", "lat"),
+               crs = 4326,
+               na.fail = FALSE) |>
+  mapview::mapview()
+
+## read in GOM shp ----
+## Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
+GOM_400fm_path <-
+  file.path(my_paths$inputs,
+                      r"(shapefiles\GOM_400fm\GOM_400fm.shp)")
+
+# file.exists(GOM_400fm_path)
+# T
+
+## Read a shapefile from the specified file path using 'sf::read_sf'.
+## Then, group the resulting data by 'StatZone' and summarize it.
+GOMsf_all <-
+  sf::read_sf(GOM_400fm_path)
+
+mapview::mapview(GOMsf_all) +
+  ports_nominatim_short_c_all_mapv
+
 
 # ---
 
