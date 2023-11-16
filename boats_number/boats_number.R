@@ -447,83 +447,6 @@ all_logbooks_db_data_2022_short_p_region_port_region <-
 # [1] 3011   11
 
 
-# install.packages("MazamaLocationUtils")
-# add counties to port info
-library(MazamaLocationUtils)
-
-# test
-# input_data_raw_census |> head(1) |>
-#   select(lat, long)
-# location_getCensusBlock(
-#   longitude = -81.8,
-#   latitude = 24.6 ,
-#   censusYear = 2020,
-#   verbose = TRUE
-# )
-
-tic("plots_census_short_c_all")
-plots_census_short_c_all <-
-  plots_census_short |>
-  # filter(STATE == "FL") |>
-  filter(!is.na(long) &
-           !is.na(lat)) |>
-  # head() |>
-  rowwise() |>
-  mutate(rr =
-           location_getCensusBlock(
-             longitude = as.double(long),
-             latitude = as.double(lat),
-             censusYear = 2020,
-             verbose = TRUE
-           )[[2]]) |>
-  ungroup()
-toc()
-
-dim(plots_census_short_c)
-# $stateCode
-# [1] "FL"
-#
-# $countyName
-# [1] "Monroe"
-#
-# $censusBlock
-# [1] "120879721001001"
-
-ports_nominatim_short <-
-  ports_nominatim |>
-  select(PORT_ID, PORT_NUM, STATE, display_name, long, lat)
-
-dim(ports_nominatim_short)
-# [1] 159   6
-
-tic("ports_nominatim_c_all")
-ports_nominatim_short_c_all <-
-  ports_nominatim_short |>
-  filter(!is.na(long) &
-           !is.na(lat)) |>
-  rowwise() |>
-  mutate(county =
-           location_getCensusBlock(
-             longitude = as.double(long),
-             latitude = as.double(lat),
-             censusYear = 2020,
-             verbose = TRUE
-           )[[2]]) |>
-  ungroup()
-toc()
-# ports_nominatim_c_all: 7.44 sec elapsed
-dim(ports_nominatim_short_c_all)
-# [1] 119   7
-
-ports_nominatim_short_c_all_mapv <-
-  ports_nominatim_short_c_all |>
-  filter(STATE == "FL" &
-           county == "Monroe County") |>
-  sf::st_as_sf(coords = c("long", "lat"),
-               crs = 4326,
-               na.fail = FALSE) |>
-  mapview::mapview()
-
 ## read in GOM shp ----
 ## Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
 GOM_400fm_path <-
@@ -538,8 +461,7 @@ GOM_400fm_path <-
 GOMsf_all <-
   sf::read_sf(GOM_400fm_path)
 
-mapview::mapview(GOMsf_all) +
-  ports_nominatim_short_c_all_mapv
+mapview::mapview(GOMsf_all)
 
 
 # ---
