@@ -485,9 +485,11 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
         start_port_state == "FL" &
           start_port_fl_reg == "sa_county" ~
           "sa",
-        start_port_reg == "gom_council_state" ~
+        start_port_reg %in% c("gom_council_state",
+                              "gom_state") ~
           "gom",
-        start_port_reg == "sa_council_state" ~
+        start_port_reg %in% c("sa_council_state",
+                              "sa_state") ~
           "sa",
         .default = NA
       )
@@ -498,12 +500,53 @@ dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 
 # check
 # all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
+#   filter(is.na(one_start_port_marker)) |>
+#   # select(start_port_reg) |>
+#   # distinct() |>
+#   glimpse()
+# 0
+
+
+# all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
 #     filter(one_start_port_marker == "gom") |>
 #     select(vessel_official_nbr, contains("start")) |>
 #     distinct() |>
 #     glimpse()
 
 # filter(start_port_county == "MONROE") |>
+
+### count vessels having both one_start_port_markers to find the # of vessels who fish in both the gulf and S Atl.  ----
+#### rm start_port_reg and start_port_fl_reg ----
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
+  select(
+    vessel_id,
+    vessel_official_nbr,
+    start_port,
+    start_port_name,
+    start_port_county,
+    start_port_state,
+    end_port,
+    end_port_name,
+    end_port_county,
+    end_port_state,
+    permit_region,
+    start_port_state_name,
+    end_port_state_name,
+    one_start_port_marker
+  ) |>
+  distinct()
+
+dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
+# [1] 3011   14
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  count(one_start_port_marker)
+# 1                   gom  554
+# 2                    sa 1078
+# 3                  <NA> 1379
+
 
 # look at permit home port vs where they take trip. ----
 
