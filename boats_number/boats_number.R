@@ -706,11 +706,11 @@ glimpse(vessel_permit_port_info)
 # $ SERO_OFFICIAL_NUMBER  <chr> "1000164"
 # $ permit_sa_gom         <chr> "dual"
 
-print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
+# print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 
 join_vessel_and_trip <-
   left_join(
-    all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start,
+    all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short,
     vessel_permit_port_info,
     join_by(vessel_id == VESSEL_VESSEL_ID),
     relationship = "many-to-many"
@@ -729,8 +729,14 @@ join_vessel_and_trip_pe <-
 # all_permits             24
 # permit_sa_gom            3
 
-dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
-# [1] 3011   16
+dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
+# [1] 3011   14
 
 dim(join_vessel_and_trip_pe)
-# [1] 3011   22
+# [1] 3011   20
+
+# check permit_regions
+join_vessel_and_trip_pe |>
+  filter(!permit_region == permit_sa_gom) |>
+  glimpse()
+
