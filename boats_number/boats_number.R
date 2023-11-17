@@ -850,3 +850,28 @@ join_vessel_and_trip_port_diff_short <-
          starts_with("diff")) |>
   distinct()
 
+join_vessel_and_trip_port_diff_short |>
+  count(diff_start_port_state)
+# 1 no                     2501
+# 2 yes                      90
+
+# names(join_vessel_and_trip_port_diff_short)
+cols  <- 1:ncol(join_vessel_and_trip_port_diff_short)
+
+combs <-
+  unlist(sapply(cols[-1], function(x) {
+    # browser()
+    asplit(combn(cols, m = x), 2)
+  }), recursive = FALSE)
+
+combs <-
+  combs[1:ncol(join_vessel_and_trip_port_diff_short) - 1]
+
+lapply(combs, function(x) {
+  browser()
+  join_vessel_and_trip_port_diff_short <<-
+    join_vessel_and_trip_port_diff_short %>%
+    mutate(!!paste0(x, collapse = "/") :=
+             # as.numeric(rowSums(df[, x]) == length(x))
+             count(x))
+})
