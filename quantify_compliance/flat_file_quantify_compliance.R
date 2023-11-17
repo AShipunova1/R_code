@@ -3256,17 +3256,30 @@ inp_phier_csv_path <-
 
 inp_phier_csv <- read_csv(inp_phier_csv_path)
 
-setdiff(never_reported_vessels_permits$vessel_official_number,
+have_active_permit_2023 <- 
+  intersect(never_reported_vessels_permits$vessel_official_number,
+        inp_phier_csv$`Vessel Official Number`
+        ) |> 
+  length()
+# 215
+
+  setdiff(never_reported_vessels_permits$vessel_official_number,
         inp_phier_csv$`Vessel Official Number`
         ) |> 
   length()
 # 272
 
-intersect(never_reported_vessels_permits$vessel_official_number,
-        inp_phier_csv$`Vessel Official Number`
-        ) |> 
+#### % ----
+# 1 active23         215
+# 2 exp              281
+
+all_never_rep <- 
+  never_reported_vessels_permits$vessel_official_number |> 
+  unique() |> 
   length()
-# 215
+
+have_active_permit_2023 * 100 / all_never_rep
+# 44%
 
 ## Less than 100% ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 <- 
