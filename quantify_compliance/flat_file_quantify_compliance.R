@@ -3174,23 +3174,32 @@ never_reported_vessels_permits <-
             vessels_permits_id_clean(vessels_permits),
             join_by(vessel_official_number == PERMIT_VESSEL_ID))
 
-data_overview(never_reported_vessels_permits)
+# dim(never_reported_vessels_permits)
 # [1] 4396   51
 
 never_reported_vessels_permits_exp <-
   never_reported_vessels_permits |>
   select(
     vessel_official_number,
+    EFFECTIVE_DATE,
     tidyselect::contains("expir"),
     tidyselect::contains("end")
   ) |>
   distinct()
 
-print_df_names(never_reported_vessels_permits_exp)
+dim(never_reported_vessels_permits_exp)
 # [1] 846   4
+# [1] 856   5
+
+# Jeannette's:
+  #   req.permit_effective_date <= '2023-12-31'
+  # AND req.permit_termination_date >= '2023-01-01'
+  # AND ( req.permit_end_date IS NULL
+  #       OR req.permit_end_date >= '2023-01-01' )
 
 never_reported_vessels_permits_exp_active23 <-
   never_reported_vessels_permits_exp |>
+  filter(EFFECTIVE_DATE <= '2023-12-31') |> 
   mutate(
     last_exp_in_22 =
       case_when(LAST_EXPIRATION_DATE > "2022-12-31" ~ "active23",
@@ -3223,7 +3232,7 @@ never_reported_vessels_permits_exp_active23_short <-
   distinct()
   
 never_reported_vessels_permits_exp_active23_short |> 
-  count(last_exp_in_22) |> 
+  count(last_exp_in_22)
 # 1 active23         215
 # 2 exp              281
 
