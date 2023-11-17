@@ -671,7 +671,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p |>
 # 3 sa_only       FALSE         941
 # 4 sa_only       TRUE          144
 
-# look at permit home port vs where they take trip. ----
+# look at permit home port vs where they take trip ----
 ## prepare home_port data ----
 # all_get_db_data_result_l |>
 #   print_df_names()
@@ -698,7 +698,7 @@ vessel_permit_port_info <-
 # SERO_HOME_PORT_CITY    809
 
 
-### add permit region ----
+### add permit and vessel info ----
 # should do here, before the join, bc if there are empty rows after merge sa_only is wrongly assigned
 
 vessel_permit_port_info_perm_reg <-
@@ -749,7 +749,7 @@ dim(join_vessel_and_trip)
 dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
 # [1] 3011   14
 
-# check permit_regions
+### check permit_regions ----
 join_vessel_and_trip |>
   filter(!permit_region == permit_sa_gom) |>
   select(permit_region, permit_sa_gom) |>
@@ -779,11 +779,74 @@ join_vessel_and_trip |>
 join_vessel_and_trip |>
   filter(permit_region == "sa_only" &
            permit_sa_gom == "gom_only") |>
-  View()
+  glimpse()
 # FL1921PM
 # PIMS:
 # Home port
 # PENSACOLA, FL
 # dual
 
+# vessel_id, vessel_official_nbr, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, permit_region, start_port_state_name, end_port_state_name, one_start_port_marker, PERMIT_VESSEL_ID, permit_sa_gom, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER
+
+tic("join_vessel_and_trip_port_diff")
+join_vessel_and_trip_port_diff <-
+  join_vessel_and_trip |>
+  group_by(vessel_official_nbr) |>
+  mutate(
+    diff_start_port_state =
+      case_when(
+        !tolower(start_port_state) == tolower(SERO_HOME_PORT_STATE) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_start_port_county =
+      case_when(
+        !tolower(start_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_start_port_name_or_city =
+      case_when(
+        !tolower(start_port_name) == tolower(SERO_HOME_PORT_CITY) ~
+          "yes",
+        .default = "no"
+      )
+  ) |>
+  mutate(
+    diff_end_port_state =
+      case_when(
+        !tolower(end_port_state) == tolower(SERO_HOME_PORT_STATE) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_end_port_county =
+      case_when(
+        !tolower(end_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_end_port_name_or_city =
+      case_when(
+        !tolower(end_port_name) == tolower(SERO_HOME_PORT_CITY) ~
+          "yes",
+        .default = "no"
+      )
+  ) |>
+  ungroup()
+toc()
+# join_vessel_and_trip_port_diff: 1.74 sec elapsed
+
+join_vessel_and_trip_port_diff |>
+  select(vessel_official_nbr,
+         starts_with("diff")) |>
+  distinct() |>
+  dim()
+# [1] 2591    7
+
+
+join_vessel_and_trip_port_diff_short <-
+  join_vessel_and_trip_port_diff |>
+  select(vessel_official_nbr,
+         starts_with("diff")) |>
+  distinct()
 
