@@ -855,7 +855,6 @@ join_vessel_and_trip_port_diff_short |>
 # 1 no                     2501
 # 2 yes                      90
 
-# names(join_vessel_and_trip_port_diff_short)
 cols  <- 1:ncol(join_vessel_and_trip_port_diff_short)
 
 combs <-
@@ -866,12 +865,23 @@ combs <-
 
 combs <-
   combs[1:ncol(join_vessel_and_trip_port_diff_short) - 1]
+# ----
+my_col_names <- names(join_vessel_and_trip_port_diff_short)
+combs1 <-
+  combn(my_col_names, 2) |>
+  as.data.frame()
 
-lapply(combs, function(x) {
-  browser()
-  join_vessel_and_trip_port_diff_short <<-
-    join_vessel_and_trip_port_diff_short %>%
-    mutate(!!paste0(x, collapse = "/") :=
-             # as.numeric(rowSums(df[, x]) == length(x))
-             count(x))
-})
+str(combs1)
+combs1_short <-
+  combs1[1:ncol(join_vessel_and_trip_port_diff_short) - 1]
+
+combs1_short_cnts <-
+  combs1_short |>
+  map(\(curr_col_names) {
+    # browser()
+    join_vessel_and_trip_port_diff_short |>
+      select(paste(curr_col_names, sep = ",")) |>
+      count(!!sym(curr_col_names[[2]]))
+  })
+
+combs1_short_cnts
