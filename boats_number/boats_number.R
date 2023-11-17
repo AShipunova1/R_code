@@ -732,7 +732,11 @@ join_vessel_and_trip_pe <-
   mutate(all_permits = toString(unique(sort(TOP)))) |>
   separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
   select(-c(TOP, all_permits)) |>
-  distinct()
+  distinct() |>
+  ungroup()
+
+dim(join_vessel_and_trip_pe)
+# [1] 3011   20
 
 # vessel_id             1876
 # vessel_official_nbr   1876
@@ -742,11 +746,17 @@ join_vessel_and_trip_pe <-
 dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
 # [1] 3011   14
 
-dim(join_vessel_and_trip_pe)
-# [1] 3011   20
-
 # check permit_regions
 join_vessel_and_trip_pe |>
   filter(!permit_region == permit_sa_gom) |>
-  glimpse()
+  select(permit_region, permit_sa_gom) |>
+  distinct() |>
+  arrange(permit_region) |>
+  head()
+#   permit_region permit_sa_gom
+# 1 gom_and_dual  dual
+# 2 gom_and_dual  gom_only
+# 3 gom_and_dual  sa_only
+# 4 sa_only       dual
+# 5 sa_only       gom_only
 
