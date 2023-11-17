@@ -720,12 +720,14 @@ vessel_permit_port_info_perm_reg <-
   remove_empty_cols() |>
   distinct()
 
-data_overview(vessel_permit_port_info_perm_reg)
+# data_overview(vessel_permit_port_info_perm_reg)
 # [1] 5220    7
 # VESSEL_VESSEL_ID      5220
 
-vessel_permit_port_info_perm_reg |>
-  filter()
+# vessel_permit_port_info_perm_reg |>
+#   filter(permit_sa_gom == "sa_only") |>
+#   distinct() |>
+#   View()
 
 # print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 
@@ -733,11 +735,10 @@ join_vessel_and_trip <-
   left_join(
     all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short,
     vessel_permit_port_info_perm_reg,
-    join_by(vessel_id == VESSEL_VESSEL_ID),
-    relationship = "many-to-many"
+    join_by(vessel_id == VESSEL_VESSEL_ID)
   )
 
-data_overview(join_vessel_and_trip)
+dim(join_vessel_and_trip)
 # [1] 3011   20
 
 # vessel_id             1876
@@ -753,8 +754,7 @@ join_vessel_and_trip |>
   filter(!permit_region == permit_sa_gom) |>
   select(permit_region, permit_sa_gom) |>
   distinct() |>
-  arrange(permit_region) |>
-  head()
+  arrange(permit_region)
 #   permit_region permit_sa_gom
 # 1  gom_and_dual          dual
 # 2  gom_and_dual      gom_only
@@ -764,7 +764,26 @@ join_vessel_and_trip |>
 # 5       sa_only      gom_only
 
 # TODO: compare regions, why diff
-join_vessel_and_trip_pe |>
+join_vessel_and_trip |>
   filter(permit_region == "gom_and_dual" &
            permit_sa_gom == "sa_only") |>
+  glimpse()
+# 6
+
+join_vessel_and_trip |>
+  filter(permit_region == "sa_only" &
+           permit_sa_gom == "dual") |>
+  dim()
+# 40
+
+join_vessel_and_trip |>
+  filter(permit_region == "sa_only" &
+           permit_sa_gom == "gom_only") |>
   View()
+# FL1921PM
+# PIMS:
+# Home port
+# PENSACOLA, FL
+# dual
+
+
