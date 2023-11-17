@@ -676,87 +676,95 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p |>
 # all_get_db_data_result_l |>
 #   print_df_names()
 
-all_get_db_data_result_l$vessels_permits |>
-  print_df_names()
+# all_get_db_data_result_l$vessels_permits |>
+  # print_df_names()
 
 vessel_permit_port_info <-
   all_get_db_data_result_l$vessels_permits |>
-  filter(LAST_EXPIRATION_DATE > "2022-12-31" |
-           END_DATE > "2022-12-31" |
-           EXPIRATION_DATE > "2022-12-31") |>
-  select(
-    PERMIT_VESSEL_ID,
-    TOP,
-    VESSEL_VESSEL_ID,
-    # PORT_CODE, mostly empty
-    SERO_HOME_PORT_CITY,
-    SERO_HOME_PORT_COUNTY,
-    SERO_HOME_PORT_STATE,
-    SERO_OFFICIAL_NUMBER
-  ) |>
-  remove_empty_cols() |>
-  distinct()
+  # active permits in 2022
+  filter(
+    LAST_EXPIRATION_DATE > "2022-12-31" |
+      END_DATE > "2022-12-31" |
+      EXPIRATION_DATE > "2022-12-31"
+  )
 
-# dim(vessel_permit_port_info)
 # [1] 16143     8
 # SERO_OFFICIAL_NUMBER  6762
 # PORT_CODE              158
 # SERO_HOME_PORT_CITY    941
 # with exp_date:
-# [1] 12238     7
+# [1] 12238     8
 # SERO_OFFICIAL_NUMBER  5220
 # SERO_HOME_PORT_CITY    809
 
-# vessel_permit_port_info_perm_reg <-
-#   vessel_permit_port_info |>
-#   group_by(VESSEL_VESSEL_ID) |>
-#   mutate(all_permits = toString(unique(sort(TOP)))) |>
-#   separate_permits_into_3_groups(permit_group_field_name = "all_permits")
-#
-# View(vessel_permit_port_info_perm_reg)
-#
+
+### add permit region ----
+# should do here, before the join, bc if there are empty rows after merge sa_only is wrongly assigned
+
+vessel_permit_port_info_perm_reg <-
+  vessel_permit_port_info |>
+  group_by(VESSEL_VESSEL_ID) |>
+  mutate(all_permits = toString(unique(sort(TOP)))) |>
+  separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
+    select(
+    PERMIT_VESSEL_ID,
+    VESSEL_VESSEL_ID,
+    # PORT_CODE, mostly empty
+    permit_sa_gom,
+    SERO_HOME_PORT_CITY,
+    SERO_HOME_PORT_COUNTY,
+    SERO_HOME_PORT_STATE,
+    SERO_OFFICIAL_NUMBER
+  ) |>
+  ungroup() |>
+  remove_empty_cols() |>
+  distinct()
+
+data_overview(vessel_permit_port_info_perm_reg)
+# [1] 5220    7
+# VESSEL_VESSEL_ID      5220
+
+vessel_permit_port_info_perm_reg |>
+  filter()
 
 # print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 
 join_vessel_and_trip <-
   left_join(
     all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short,
-    vessel_permit_port_info,
+    vessel_permit_port_info_perm_reg,
     join_by(vessel_id == VESSEL_VESSEL_ID),
     relationship = "many-to-many"
   )
 
-join_vessel_and_trip_pe <-
-  join_vessel_and_trip |>
-  group_by(vessel_id) |>
-  mutate(all_permits = toString(unique(sort(TOP)))) |>
-  separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
-  select(-c(TOP, all_permits)) |>
-  distinct() |>
-  ungroup()
-
-dim(join_vessel_and_trip_pe)
+data_overview(join_vessel_and_trip)
 # [1] 3011   20
 
 # vessel_id             1876
 # vessel_official_nbr   1876
-# all_permits             24
-# permit_sa_gom            3
+# permit_sa_gom            4
+# SERO_OFFICIAL_NUMBER  1785
 
 dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
 # [1] 3011   14
 
 # check permit_regions
-join_vessel_and_trip_pe |>
+join_vessel_and_trip |>
   filter(!permit_region == permit_sa_gom) |>
   select(permit_region, permit_sa_gom) |>
   distinct() |>
   arrange(permit_region) |>
   head()
 #   permit_region permit_sa_gom
-# 1 gom_and_dual  dual
-# 2 gom_and_dual  gom_only
-# 3 gom_and_dual  sa_only
-# 4 sa_only       dual
-# 5 sa_only       gom_only
+# 1  gom_and_dual          dual
+# 2  gom_and_dual      gom_only
 
+# 3  gom_and_dual       sa_only
+# 4       sa_only          dual
+# 5       sa_only      gom_only
+
+# TODO: compare regions, why diff
+join_vessel_and_trip_pe |>
+  filter(permit_region == "gom_and_dual" &
+           permit_sa_gom == "sa_only") |>
+  View()
