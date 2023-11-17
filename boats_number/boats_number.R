@@ -393,14 +393,14 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff <-
            list(paste(unique(sort(unlist(across(
              starts_with('2022')
            )))),
-           sep = ","))) |> View()
+           sep = ","))) |>
   mutate(same = n_distinct(unlist(across(
     starts_with('2022'),
     ~ as.character(.x)
   ))) == 1) |>
   ungroup()
 
-View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff)
+# View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff)
 # vessel_official_nbr 1876
 # 2022 Q3              484
 # 2022 Q4              356
@@ -445,6 +445,40 @@ all_logbooks_db_data_2022_short_p_region_port_region <-
 
 # dim(all_logbooks_db_data_2022_short_p_region_port_region)
 # [1] 3011   11
+
+### add full state name ----
+all_logbooks_db_data_2022_short_p_region_port_region |>
+  select(start_port_state) |>
+  distinct() |>
+  head(2)
+# "FL", "DE"
+
+names(state.abb) <- state.name
+names(state.name) <- state.abb
+
+# my_state_name[tolower("FL")]
+# "Florida"
+
+all_logbooks_db_data_2022_short_p_region_port_states <-
+  all_logbooks_db_data_2022_short_p_region_port_region |>
+  mutate(
+    start_port_state_name = my_state_name[tolower(start_port_state)],
+    end_port_state_name   = my_state_name[tolower(end_port_state)]
+  ) |>
+  mutate(
+    start_port_reg =
+      case_when(
+        tolower(start_port_state_name) %in% tolower(sa_council_states) ~
+          "sa_council_state",
+        tolower(end_port_state_name) %in% tolower(east_coat_states$gom) ~
+          "gom_state",
+        .default = "sa_state"
+      )
+    # diff_reg = case_when(!start_port_state == end_port_state)
+  )
+
+dim(all_logbooks_db_data_2022_short_p_region_port_states)
+# [1] 3011   14
 
 ### if FL divide by county ----
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
@@ -642,11 +676,14 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p |>
 # all_get_db_data_result_l |>
 #   print_df_names()
 
-# all_get_db_data_result_l$vessels_permits |>
-  # print_df_names()
+all_get_db_data_result_l$vessels_permits |>
+  print_df_names()
 
 vessel_permit_port_info <-
   all_get_db_data_result_l$vessels_permits |>
+  filter(LAST_EXPIRATION_DATE > "2022-12-31" |
+           END_DATE > "2022-12-31" |
+           EXPIRATION_DATE > "2022-12-31") |>
   select(
     PERMIT_VESSEL_ID,
     TOP,
@@ -660,12 +697,16 @@ vessel_permit_port_info <-
   remove_empty_cols() |>
   distinct()
 
-glimpse(vessel_permit_port_info)
+# dim(vessel_permit_port_info)
 # [1] 16143     8
 # SERO_OFFICIAL_NUMBER  6762
 # PORT_CODE              158
 # SERO_HOME_PORT_CITY    941
-#
+# with exp_date:
+# [1] 12238     7
+# SERO_OFFICIAL_NUMBER  5220
+# SERO_HOME_PORT_CITY    809
+
 # vessel_permit_port_info_perm_reg <-
 #   vessel_permit_port_info |>
 #   group_by(VESSEL_VESSEL_ID) |>
@@ -674,37 +715,6 @@ glimpse(vessel_permit_port_info)
 #
 # View(vessel_permit_port_info_perm_reg)
 #
-# vessel_permit_port_info_perm_reg_short <-
-#   vessel_permit_port_info_perm_reg |>
-#   select(-c(TOP, all_permits)) |>
-#   distinct()
-#
-# vessel_permit_port_info_perm_reg_short |>
-#   data_overview()
-# [1] 6763    8
-# SERO_OFFICIAL_NUMBER  6762
-# SERO_HOME_PORT_CITY    941
-# permit_sa_gom            1 ?
-
-# vessel_permit_port_info_perm_reg_short |>
-#   filter(is.na(PORT_CODE) |
-#            PORT_CODE == "00000") |>
-#   dim()
-# [1] 5957    8
-
-# vessel_permit_port_info_perm_reg_short |>
-#  filter(!PERMIT_VESSEL_ID == SERO_OFFICIAL_NUMBER) |>
-#    glimpse()
-# Rows: 1
-# Columns: 8
-# $ PERMIT_VESSEL_ID      <chr> "FL2310RW"
-# $ VESSEL_VESSEL_ID      <dbl> 280699
-# $ PORT_CODE             <chr> NA
-# $ SERO_HOME_PORT_CITY   <chr> "PORT CANAVERAL"
-# $ SERO_HOME_PORT_COUNTY <chr> "BREVARD"
-# $ SERO_HOME_PORT_STATE  <chr> "FL"
-# $ SERO_OFFICIAL_NUMBER  <chr> "1000164"
-# $ permit_sa_gom         <chr> "dual"
 
 # print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 
