@@ -865,7 +865,8 @@ combs <-
 
 combs <-
   combs[1:ncol(join_vessel_and_trip_port_diff_short) - 1]
-# ----
+
+
 my_col_names <- names(join_vessel_and_trip_port_diff_short)
 combs1 <-
   combn(my_col_names, 2) |>
@@ -885,3 +886,12 @@ combs1_short_cnts <-
   })
 
 combs1_short_cnts
+
+## the same with permit region ----
+join_vessel_and_trip_port_diff_short |>
+  left_join(join_vessel_and_trip_port_diff) |>
+  glimpse()
+# Joining with `by = join_by(vessel_official_nbr, diff_start_port_state,
+# diff_start_port_county, diff_start_port_name_or_city, diff_end_port_state,
+# diff_end_port_county, diff_end_port_name_or_city)`
+# Rows: 3,011
