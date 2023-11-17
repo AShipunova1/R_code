@@ -855,19 +855,8 @@ join_vessel_and_trip_port_diff_short |>
 # 1 no                     2501
 # 2 yes                      90
 
-cols  <- 1:ncol(join_vessel_and_trip_port_diff_short)
-
-combs <-
-  unlist(sapply(cols[-1], function(x) {
-    # browser()
-    asplit(combn(cols, m = x), 2)
-  }), recursive = FALSE)
-
-combs <-
-  combs[1:ncol(join_vessel_and_trip_port_diff_short) - 1]
-
-
 my_col_names <- names(join_vessel_and_trip_port_diff_short)
+
 combs1 <-
   combn(my_col_names, 2) |>
   as.data.frame()
@@ -888,10 +877,49 @@ combs1_short_cnts <-
 combs1_short_cnts
 
 ## the same with permit region ----
-join_vessel_and_trip_port_diff_short |>
-  left_join(join_vessel_and_trip_port_diff) |>
-  glimpse()
-# Joining with `by = join_by(vessel_official_nbr, diff_start_port_state,
-# diff_start_port_county, diff_start_port_name_or_city, diff_end_port_state,
-# diff_end_port_county, diff_end_port_name_or_city)`
-# Rows: 3,011
+join_vessel_and_trip_port_diff_short_perm <-
+  join_vessel_and_trip_port_diff |>
+  select(vessel_official_nbr,
+         permit_region,
+         starts_with("diff")) |>
+  distinct()
+
+join_vessel_and_trip_port_diff_short_perm |>
+  count(diff_start_port_state)
+# 1 no                     2501
+# 2 yes                      90
+
+my_col_names <- names(join_vessel_and_trip_port_diff_short_perm)
+
+combs2 <-
+  combn(my_col_names, 3) |>
+  as.data.frame()
+
+dif_cols_num <-
+  grep("diff", my_col_names) |>  length()
+
+combs2_short <-
+  combs2[1:dif_cols_num]
+
+# View(combs2_short)
+
+combs2_short_cnts <-
+  combs2_short |>
+
+  # Use 'map' to apply a function to each element of 'combs2_short'
+  map(\(curr_col_names) {
+
+    # Use 'join_vessel_and_trip_port_diff_short' as the data source
+    join_vessel_and_trip_port_diff_short |>
+
+      # Select columns specified by 'curr_col_names' and separate them with ","
+      select(paste(curr_col_names, sep = ",")) |>
+
+      # Count occurrences of unique combinations of the second and third columns
+      count(!!sym(curr_col_names[[2]]),
+            !!sym(curr_col_names[[3]]))
+  })
+
+
+combs2_short_cnts
+
