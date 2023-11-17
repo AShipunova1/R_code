@@ -3245,7 +3245,28 @@ write_csv(
   )
 )
 
+### compare with metric tracking for 2023 ----
 
+inp_phier_csv_path <-
+  file.path(
+    my_paths$inputs,
+    "quantify_compliance",
+    "vessels_by_for-hire_only_permit_region_totals_-_raw_data_via_valid_and_renewable_permits_(sero_new_source)_11_17_23.csv"
+  )
+
+inp_phier_csv <- read_csv(inp_phier_csv_path)
+
+setdiff(never_reported_vessels_permits$vessel_official_number,
+        inp_phier_csv$`Vessel Official Number`
+        ) |> 
+  length()
+# 272
+
+intersect(never_reported_vessels_permits$vessel_official_number,
+        inp_phier_csv$`Vessel Official Number`
+        ) |> 
+  length()
+# 215
 
 ## Less than 100% ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_less_100 <- 
