@@ -10,6 +10,8 @@ knitr:
 #   lib-dir: ..
 output:
   html_document
+project:
+  execute-dir: project
 execute:
   warning: false
   cache: true
