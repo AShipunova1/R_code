@@ -18,18 +18,40 @@ library(styler)
 library(zoo)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
+```
+
+
+```{r}
 current_project_dir_path <-
   get_current_file_directory()
-current_project_dir_name <- basename(current_project_dir_path)
+```
 
+
+```{r}
+current_project_dir_name <- basename(current_project_dir_path)
+```
+
+
+```{r}
 misc_info_path <-
   file.path(my_paths$git_r,
             r"(get_data\misc_info.R)")
-source(misc_info_path)
+```
 
+
+```{r}
+source(misc_info_path)
+```
+
+
+```{r}
 all_logb_path <-
   file.path(my_paths$git_r,
             r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)")
+```
+
+
+```{r}
 source(all_logb_path)
 
 # all_get_db_data_result_l
