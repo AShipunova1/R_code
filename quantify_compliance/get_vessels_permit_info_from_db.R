@@ -41,6 +41,15 @@ vessels_permits <-
   dbGetQuery(con,
              vessels_permits_query)
 toc()
+# get vessels_permits: 23.75 sec elapsed
 
 dim(vessels_permits)
 # [1] 81162    51
+
+my_file_path <- 
+  file.path(my_paths$inputs,
+            "quantify_compliance",
+            "vessels_permits.rds")
+
+readr::write_rds(vessels_permits,
+                 my_file_path)
