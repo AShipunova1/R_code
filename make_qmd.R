@@ -108,9 +108,9 @@ flat_file_r_text <-
 # add "pretty" table output (add kable to glimpse)
 flat_file_r_text <-
   gsub(
-    "^ *[^#] +(glimpse\\(\\S*\\))", # was in the original .R
-    '\\1 |>
-knitr::kable(caption = "")',
+    "(^ *[^#] +)(glimpse\\(\\S*\\))", # was in the original .R
+    '\\1\\2 |>
+\\1knitr::kable(caption = "")',
     flat_file_r_text
   )
 
