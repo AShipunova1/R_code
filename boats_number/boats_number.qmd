@@ -4,6 +4,8 @@ title: "Boats number"
 
 
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+# Determine the path of the executing script
+library(this.path)
 
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
@@ -22,13 +24,8 @@ my_paths <- set_work_dir()
 
 
 ```{r}
-current_project_dir_path <-
-  get_current_file_directory()
-```
+current_project_dir_name <- this.path::this.dir()
 
-
-```{r}
-current_project_dir_name <- basename(current_project_dir_path)
 ```
 
 
