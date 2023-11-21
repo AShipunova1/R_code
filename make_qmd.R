@@ -4,11 +4,11 @@ my_paths <- set_work_dir()
 
 dir_to_comb <-
   file.path(my_paths$git_r,
-            "boats_number")
+            curent_project_name)
 
 dir.exists(dir_to_comb)
 
-file_name <- "boats_number"
+file_name <- curent_project_name
 file_ext <- c("R", "Rmd", "qmd")
 
 # Create a list of file paths for each file extension.
@@ -108,11 +108,10 @@ toc()
 # str(rmd_text)
 #  chr [1:12684] "## Current file: useful_functions_module.r" ...
 
-pre_text <- '
+pre_text <- stringr::str_glue('---
+title: {curent_project_name}
 ---
-title: "Boats number"
----
-'
+')
 
 # Setup
 setup_text <- "
