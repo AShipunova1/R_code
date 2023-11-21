@@ -2,6 +2,7 @@ library(zoo)
 # Determine the path of the executing script
 library(this.path)
 
+# setup current pro----
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -290,7 +291,7 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
 #   filter(vessel_id == "328032") |>
 #   glimpse()
 
-### if a num of lists of ports by quarter > 1, than ports are different from Q to Q ----
+### if a num of lists of ports by quarter grater than 1, then ports are different from Q to Q ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
   mutate(same_start_p =
@@ -853,6 +854,7 @@ join_vessel_and_trip_port_diff |>
 join_vessel_and_trip_port_diff_short <-
   join_vessel_and_trip_port_diff |>
   select(vessel_official_nbr,
+         permit_region,
          starts_with("diff")) |>
   distinct()
 
