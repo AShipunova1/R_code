@@ -17,8 +17,12 @@ execute:
   cache: true
 format:
   html:
+    theme: Cerulean
+    # Readable
+    highlight: tango
+    df-print: kable
     toc: true
-    toc-depth: 2
+    toc-depth: 3
     toc-highlight: true
     # toc_float: true
     toc_float:
