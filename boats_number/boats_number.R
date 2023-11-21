@@ -1,12 +1,11 @@
 library(zoo)
+# Determine the path of the executing script
+library(this.path)
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-current_project_dir_path <-
-  tryCatch(get_current_file_directory(),
-           finally =
-  r"(C:\Users\anna.shipunova\Documents\R_code_github\boats_number)")
-  #
-current_project_dir_name <- basename(current_project_dir_path)
+
+current_project_dir_name <- this.path::this.dir()
 
 misc_info_path <-
   file.path(my_paths$git_r,
