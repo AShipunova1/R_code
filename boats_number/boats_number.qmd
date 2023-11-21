@@ -1,11 +1,8 @@
 ---
-title: "Boats number"
+title: boats_number
 ---
 
-
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
-# Determine the path of the executing script
-library(this.path)
 
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
@@ -18,44 +15,29 @@ library(styler)
 
 ```{r}
 library(zoo)
+# Determine the path of the executing script
+library(this.path)
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
-```
 
-
-```{r}
 current_project_dir_name <- this.path::this.dir()
 
-```
-
-
-```{r}
 misc_info_path <-
   file.path(my_paths$git_r,
             r"(get_data\misc_info.R)")
-```
-
-
-```{r}
 source(misc_info_path)
-```
 
-
-```{r}
 all_logb_path <-
   file.path(my_paths$git_r,
             r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)")
-```
-
-
-```{r}
 source(all_logb_path)
 
 # all_get_db_data_result_l
 # all_logbooks_db_data_2022_short_p_region
 # ls()
 
-# print_df_names(all_logbooks_db_data_2022_short_p_region)
+print_df_names(all_logbooks_db_data_2022_short_p_region)
 # [1] "trip_id, trip_type_name, vessel_id, vessel_official_nbr, vessel_name, trip_start_date, trip_end_date, state, state_name, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, activity_type_name, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, vendor_app_name, vendor_platform, trip_de, trip_ue, trip_dc, trip_uc, area_code, sub_area_code, distance_code, distance_code_name, local_area_code, latitude, longitude, effort_de, effort_ue, effort_dc, effort_uc, catch_uc, user_app, notif_seq, notif_type, notif_accsp_system_id, notif_accsp_permit_id, notif_trip_type, notif_trip_type_name, notif_trip_start_date, notif_trip_start_time, notif_trip_end_date, notif_trip_end_time, notif_start_port, notif_start_port_name, notif_start_port_county, notif_start_port_state, notif_end_port, notif_end_port_name, notif_end_port_county, notif_end_port_state, notif_cancel_flag, notif_email_sent, notif_intended_fishing_flag, notif_gear_type, notif_landing_location, notif_landing_location_name, notif_landing_location_city, notif_landing_location_county, notif_landing_location_state, notif_stat_zone, notif_ue, notif_de, notif_uc, notif_dc, permit_region"
 ```
 
@@ -359,10 +341,10 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
 #   glimpse()
 ```
 
-#### if a num of lists of ports by quarter > 1, than ports are different from Q to Q 
+#### if a num of lists of ports by quarter grater than 1, then ports are different from Q to Q 
 
-```{r if a num of lists of ports by quarter > 1, than ports are different from Q to Q}
-### if a num of lists of ports by quarter > 1, than ports are different from Q to Q ----
+```{r if a num of lists of ports by quarter grater than 1, then ports are different from Q to Q}
+### if a num of lists of ports by quarter grater than 1, then ports are different from Q to Q ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
   mutate(same_start_p =
@@ -991,6 +973,7 @@ join_vessel_and_trip_port_diff |>
 join_vessel_and_trip_port_diff_short <-
   join_vessel_and_trip_port_diff |>
   select(vessel_official_nbr,
+         permit_region,
          starts_with("diff")) |>
   distinct()
 
