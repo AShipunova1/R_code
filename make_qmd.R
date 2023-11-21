@@ -1,3 +1,7 @@
+# change dir name!
+curent_project_name <- readline(prompt = "Print you project name: ")
+  # "boats_number"
+
 # setup ----
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
