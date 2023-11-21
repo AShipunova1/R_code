@@ -2,6 +2,11 @@
 curent_project_name <- readline(prompt = "Print you project name: ")
   # "boats_number"
 
+# Manually add
+# |>
+#   knitr::kable(caption = "My Caption")
+# for pretty tables
+
 # setup ----
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -39,6 +44,7 @@ flat_file_r_text <-
 head(flat_file_r_text)
 
 # In this code, 'flat_file_r_text' is modified using the 'gsub' function to replace specific patterns in the text. The pattern being searched for is defined using a regular expression.
+# It automatically makes chunk titles
 
 flat_file_r_text <-
   gsub(
@@ -59,8 +65,9 @@ flat_file_r_text <-
               sep = "\\\n"),
        flat_file_r_text)
 
-flat_file_r_text <-
-  gsub("source\\(", "# source(", flat_file_r_text)
+# comment out sourcing for flat files
+# flat_file_r_text <-
+  # gsub("source\\(", "# source(", flat_file_r_text)
 
 # It searches for lines starting with "#+" followed by a space and captures the content after that.
 # It captures a single quote or a slash.
