@@ -2,7 +2,10 @@ library(zoo)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 current_project_dir_path <-
-  get_current_file_directory()
+  tryCatch(get_current_file_directory(),
+           finally =
+  r"(C:\Users\anna.shipunova\Documents\R_code_github\boats_number)")
+  #
 current_project_dir_name <- basename(current_project_dir_path)
 
 misc_info_path <-
