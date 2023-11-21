@@ -1,8 +1,9 @@
+# setup current project ----
 library(zoo)
 # Determine the path of the executing script
 library(this.path)
 
-# setup current pro----
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
