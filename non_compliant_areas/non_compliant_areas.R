@@ -118,6 +118,36 @@ print_df_names(vessels_permits_home_port)
 # [1] 6762    4
 # [1] 4729    4 date filters
 
+## Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
+## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+us_s_shp <-
+  tigris::states(cb = TRUE, progress_bar = FALSE)
+
+## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
+sa_s_shp <-
+  us_s_shp |>
+  filter(NAME %in% states_sa$state_name)
+
+## Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
+## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+us_s_shp <-
+  tigris::states(cb = TRUE, progress_bar = FALSE)
+
+misc_info_path <- file.path(my_paths$git_r,
+               r"(get_data\misc_info.R)")
+
+source(misc_info_path)
+
+## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
+south_east_coast_states_shp <-
+  us_s_shp |>
+  filter(NAME %in% south_east_coast_states)
+
+tigris_crs <- sf::st_crs(south_east_coast_states_shp)
+# User input: NAD83 
+# ID["EPSG",4269]]
+crs4326 <- 4326
+
 ## add lat/lon ----
 tic("vessels_permits_home_port_lat_longs")
 vessels_permits_home_port_lat_longs <- 
@@ -152,6 +182,8 @@ vessels_permits_home_port_lat_longs_sh <-
   vessels_permits_home_port_lat_longs |>
   select(-c(city, county, state))
 
+dim(vessels_permits_home_port_lat_longs_sh)
+# [1] 4729    6
 
 # add home port ----
 
