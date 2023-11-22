@@ -76,10 +76,10 @@ source(script_path)
 
 # Rows are filtered to exclude vessels whose 'VESSEL_OFFICIAL_NBR' is in the
 # 'vessels_to_remove_from_ours' vector.
-for_heatmap_lat_lon_trips_vessels_sa_only_rm <-
-  for_heatmap_lat_lon_trips_vessels_sa_only |>
+compl_err_db_data_metrics_permit_reg_sa_only <-
+  compl_err_db_data_metrics_permit_reg_list$sa_only |>
   filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
 
-dim(for_heatmap_lat_lon_trips_vessels_sa_only_rm)
-# [1] 67983     4
+dim(compl_err_db_data_metrics_permit_reg_sa_only)
+# [1] 22228    29
 
