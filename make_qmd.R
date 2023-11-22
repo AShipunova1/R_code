@@ -138,12 +138,17 @@ flat_file_r_text <-
   add_2_top_sections(flat_file_r_text)
 
 ## add layouts
-flat_file_r_text <-
-  gsub(
-    "(^#\\|)", # was defined in the original .R
-    "#|",
-    flat_file_r_text
-  )
+add_layouts <- function(flat_file_r_text) {
+  flat_file_r_text <-
+    gsub(
+      "(^#\\|)", # was defined in the original .R
+      "#|",
+      flat_file_r_text
+    )
+  return(flat_file_r_text)
+}
+
+flat_file_r_text <- add_layouts(flat_file_r_text)
 
 # add "pretty" table output (add kable to glimpse)
 add_pretty_table <-
