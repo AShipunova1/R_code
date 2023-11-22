@@ -9,6 +9,22 @@
 # remove not in Jeannette's GOM list
 # add home port
 
+# Load the 'mapview' library for interactive viewing of spatial data.
+library(mapview)
+
+if (!require(tidygeocoder)) {
+  install.packages("tidygeocoder")
+  library(tidygeocoder)
+}
+# help(tidygeocoder)
+
+## Load the 'tigris' package to access geographic data.
+library(tigris)
+## Set the 'tigris_use_cache' option to TRUE. This will enable caching of
+## data retrieved from the TIGER/Line Shapefiles service, which can help
+## improve data retrieval performance for future sessions.
+tigris_use_cache = TRUE
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
