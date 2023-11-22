@@ -106,13 +106,18 @@ flat_file_r_text <-
   )
 
 # add "pretty" table output (add kable to glimpse)
-# flat_file_r_text <-
-#   gsub(
-#     "(^ *[^#] +)(glimpse)(\\(\\S*\\))", # was in the original .R
-#     '\\1\\2\\3 |>
-# \\1knitr::kable(caption = "")',
-#     flat_file_r_text
-#   )
+add_pretty_table <-
+  function(flat_file_r_text) {
+    flat_file_r_text <-
+      gsub(
+      "(^ *[^#] +)(glimpse)(\\(\\S*\\))",
+      # was in the original .R
+      '\\1\\2\\3 |>
+\\1knitr::kable(caption = "")',
+flat_file_r_text
+    )
+    return(flat_file_r_text)
+  }
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
@@ -140,6 +145,9 @@ setup_text <- "
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
+# Adds features to a kable output
+library(kableExtra)
+
 # Format R code automatically
 library(styler)
 
@@ -158,6 +166,10 @@ registerS3method(
   'knit_print', 'data.frame', knit_print.data.frame,
   envir = asNamespace('knitr')
 )
+
+knitr::opts_chunk$set(echo = TRUE)
+
+# options(knitr.table.format = 'HTML')
 ```
 
 "
