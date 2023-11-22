@@ -208,12 +208,42 @@ names(compl_err_db_data_metrics_permit_reg_list_home_port) <-
   
 map(compl_err_db_data_metrics_permit_reg_list_home_port, dim)
 # $dual
-# [1] 28084    78
+# [1] 1317   34
 # 
 # $gom_only
-# [1] 17180    74
+# [1] 1358   32
 # 
 # $sa_only
-# [1] 281616     75
+# [1] 23716    31
+
+
+# convert to sf ----
+compl_err_db_data_metrics_permit_reg_list_home_port_sf <- 
+  compl_err_db_data_metrics_permit_reg_list_home_port |>
+  map(\(reg_df) {
+    reg_df |>
+      filter(!is.na(long) &
+               !is.na(lat)) |> 
+      sf::st_as_sf(
+        # Specify the field names to use as coordinates
+        coords = c("long", "lat"),
+        # Use the provided CRS (Coordinate Reference System), default to sa_shp's CRS
+        crs = crs4326,
+        # Keep the LATITUDE and LONGITUDE columns in the resulting sf object
+        remove = FALSE
+      )
+  })
+
+map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
+# fewer, because no coords:
+# $dual
+# [1] 1078   35
+# 
+# $gom_only
+# [1] 1219   33
+# 
+# $sa_only
+# [1] 18604    32
+
 
 
