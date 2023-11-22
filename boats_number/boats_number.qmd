@@ -39,6 +39,23 @@ registerS3method(
   envir = asNamespace('knitr')
 )
 
+knit_print.tibble = function(x, ...) {
+  res = paste(c(
+    '',
+    '',
+    knitr::kable(x, digits = 2) |>
+      kableExtra::kable_styling('striped', full_width = FALSE)
+  ),
+  collapse = '
+')
+  knitr::asis_output(res)
+}
+
+registerS3method(
+  'knit_print', 'tibble', knit_print.tibble,
+  envir = asNamespace('knitr')
+)
+
 # knitr::opts_chunk$set(echo = TRUE)
 
 # options(knitr.table.format = 'HTML')
