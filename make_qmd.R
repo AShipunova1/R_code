@@ -185,11 +185,18 @@ registerS3method(
   envir = asNamespace('knitr')
 )
 
-knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_chunk$set(echo = TRUE)
 
 # options(knitr.table.format = 'HTML')
+
+kable <- function(data) {
+  knitr::kable(data, booktabs = true, digits = 2) %>%
+    kable_styling('striped', full_width = FALSE)
+}
 ```
 
+```{r setup current project, results='hide', message=FALSE, warning=FALSE}
+```
 "
 
 # combine pieces into a Quarto file ----
