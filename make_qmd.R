@@ -91,13 +91,18 @@ flat_file_r_text <-
 # It captures a single quote or a slash.
 # It captures more content.
 # It captures a newline character.
+# Remove all "odd" characters from chunk titles for knitr to work with.
+clean_chunk_titles <-
+  function(flat_file_r_text) {
+    flat_file_r_text <-
+      gsub("(#\\+ )([^'/]+)(['/])(.+)(\\\n)",
+           "\\1\\2_\\4\\5",
+           flat_file_r_text)
+    return(flat_file_r_text)
+  }
 
 flat_file_r_text <-
-  gsub(
-    "(#\\+ )([^'/]+)(['/])(.+)(\\\n)",
-    "\\1\\2_\\4\\5",
-    flat_file_r_text
-  )
+  clean_chunk_titles(flat_file_r_text)
 
 ## Change all sections to a level lower ----
 flat_file_r_text <-
