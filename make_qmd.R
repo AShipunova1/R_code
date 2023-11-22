@@ -120,13 +120,22 @@ lower_section_level <-
     return(flat_file_r_text)
   }
 
-## add 2 top sections ----
 flat_file_r_text <-
-  gsub(
-    "(%%%%%+) ", # was defined in the original .R
-    "# ",
-    flat_file_r_text
-  )
+  lower_section_level(flat_file_r_text)
+
+## add 2 top sections ----
+# E.g. "Prepare data" and "Plots", mark in the R script with %%%%%
+add_2_top_sections <- function(flat_file_r_text) {
+  flat_file_r_text <-
+    gsub("(%%%%%+) ", # was defined in the original .R
+         "# ",
+         flat_file_r_text)
+
+  return(flat_file_r_text)
+}
+
+flat_file_r_text <-
+  add_2_top_sections(flat_file_r_text)
 
 ## add layouts
 flat_file_r_text <-
