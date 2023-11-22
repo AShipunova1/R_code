@@ -185,7 +185,7 @@ vessels_permits_home_port_lat_longs_sh <-
 dim(vessels_permits_home_port_lat_longs_sh)
 # [1] 4729    6
 
-# add home port ----
+# join compl and home port ----
 
 names(compl_err_db_data_metrics_permit_reg_list)
 # [1] "dual"     "gom_only" "sa_only" 
@@ -197,9 +197,8 @@ compl_err_db_data_metrics_permit_reg_list_home_port <-
   map(\(permit_reg) {
     compl_err_db_data_metrics_permit_reg_list[[permit_reg]] |>
       left_join(
-        all_get_db_data_result_l$vessels_permits,
-        join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER),
-        relationship = "many-to-many"
+        vessels_permits_home_port_lat_longs_sh,
+        join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
       ) |> 
       remove_empty_cols()
   })
