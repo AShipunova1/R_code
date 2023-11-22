@@ -179,9 +179,13 @@ library(styler)
 ```{r df format setup}
 #| include: false
 knit_print.data.frame = function(x, ...) {
-  res = paste(c('', '',
-                knitr::kable(x, digits = 2) |>
-                  kableExtra::kable_styling()), collapse = '\n')
+  res = paste(c(
+    '',
+    '',
+    knitr::kable(x, digits = 2) |>
+      kableExtra::kable_styling()
+  ),
+  collapse = '\n')
   knitr::asis_output(res)
 }
 
