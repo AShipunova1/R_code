@@ -36,9 +36,16 @@ compl_err_db_data_metrics <-
   )
 
 # divide by permit region ----
+compl_err_db_data_metrics_permit_reg <-
+  compl_err_db_data_metrics |> 
+  filter(comp_week_start_dt < '2023-01-01' &
+           comp_week_end_dt >= '2022-01-01') |> 
+  separate_permits_into_3_groups(permit_group_field_name = "permit_group")
 
-View(compl_err_db_data_metrics)
+View(compl_err_db_data_metrics_permit_reg)
 
+  vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual %>%
+  split(as.factor(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual$permit_sa_gom_dual))
 ### remove vessels not in Jeannette's SA list ----
 
 # Build the path to the R script 'vessel_permit_corrected_list.R' by
