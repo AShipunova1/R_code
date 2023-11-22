@@ -247,5 +247,6 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
 
 
 # map sa ----
-mapview::mapview(compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only)
+mapview::mapview(compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only) +
+  south_east_coast_states_shp
 
