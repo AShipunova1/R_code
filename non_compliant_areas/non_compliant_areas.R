@@ -101,6 +101,33 @@ vessels_permits_home_port <-
 print_df_names(vessels_permits_home_port)
 # [1] 6762    4
 # [1] 4729    4 date filters
+
+## add lat/lon ----
+tic("geocode6")
+lat_longs <- vessels_permits_home_port |> 
+  head() |>
+  tidygeocoder::geocode(
+    city = "SERO_HOME_PORT_CITY",
+    state = "SERO_HOME_PORT_STATE",
+    county = "SERO_HOME_PORT_COUNTY",
+    return_addresses = TRUE
+  )
+# ,
+  # country = NULL,
+  # lat = "lat",
+  # long = "long",
+  # return_input = TRUE,
+  # limit = 1,
+  # return_addresses = NULL,
+# 
+#     addr,
+# method = 'arcgis',
+          # method = 'osm',
+          # lat = latitude ,
+          # long = longitude)
+toc()
+
+glimpse(lat_longs)
 # add home port ----
 
 names(compl_err_db_data_metrics_permit_reg_list)
