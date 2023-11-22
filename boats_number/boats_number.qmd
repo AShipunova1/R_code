@@ -17,8 +17,7 @@ library(styler)
 knit_print.data.frame = function(x, ...) {
   res = paste(c('', '',
                 knitr::kable(x, digits = 2) |>
-                  kableExtra::kable_styling()), collapse = '
-')
+                  kableExtra::kable_styling("striped", full_width = FALSE)), collapse = '')
   knitr::asis_output(res)
 }
 
@@ -31,7 +30,7 @@ registerS3method(
 
 ## setup current project 
 
-```{r setup current project}
+```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 # setup current project ----
 library(zoo)
 # Determine the path of the executing script
