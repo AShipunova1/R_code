@@ -57,17 +57,31 @@ unify_comments <-
 
 make_chunk_titles_from_comments <-
   function(flat_file_r_text) {
-pattern_to_add_md_headers <- "#' \\1\\2"
-pattern_to_add_md_chunk_labels <- "#+ \\2"
-pattern_to_repeat_the_original <- "\\1\\2\\3"
+
+    pattern_to_add_md_headers <- "#' \\1\\2"
+    pattern_to_add_md_chunk_labels <- "#+ \\2"
+    pattern_to_repeat_the_original <- "\\1\\2\\3"
+
+    flat_file_r_text <-
+      unify_comments(flat_file_r_text)
+
+    flat_file_r_text <-
+      gsub(
+        "^(#+ )(.+)(----)",
+        paste(
+          pattern_to_add_md_headers,
+          pattern_to_add_md_chunk_labels,
+          pattern_to_repeat_the_original,
+          sep = "\\\n"
+        ),
+        flat_file_r_text
+      )
+
+    return(flat_file_r_text)
+  }
 
 flat_file_r_text <-
-  gsub("^(#+ )(.+)(----)",
-       paste(pattern_to_add_md_headers,
-              pattern_to_add_md_chunk_labels,
-              pattern_to_repeat_the_original,
-              sep = "\\\n"),
-       flat_file_r_text)
+  make_chunk_titles_from_comments(flat_file_r_text)
 
 # comment out sourcing for flat files
 # flat_file_r_text <-
