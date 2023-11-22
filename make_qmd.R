@@ -84,8 +84,14 @@ flat_file_r_text <-
   make_chunk_titles_from_comments(flat_file_r_text)
 
 # comment out sourcing for flat files
-# flat_file_r_text <-
-  # gsub("source\\(", "# source(", flat_file_r_text)
+comment_out_sources <-
+  function(flat_file_r_text) {
+    flat_file_r_text <-
+      gsub("source\\(", "# source(", flat_file_r_text)
+    return(flat_file_r_text)
+  }
+
+# flat_file_r_text <- comment_out_sources(flat_file_r_text)
 
 # It searches for lines starting with "#+" followed by a space and captures the content after that.
 # It captures a single quote or a slash.
