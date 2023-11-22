@@ -86,7 +86,23 @@ compl_err_db_data_metrics_permit_reg_sa_only <-
 dim(compl_err_db_data_metrics_permit_reg_sa_only)
 # [1] 22228    29
 
+# prepare vessel_permit_data ----
+vessels_permits_home_port <-
+  all_get_db_data_result_l$vessels_permits |>
+  filter(
+    LAST_EXPIRATION_DATE > "2021-12-31" |
+      END_DATE > "2021-12-31" |
+      EXPIRATION_DATE > "2021-12-31"
+  ) |> 
+  filter(EFFECTIVE_DATE < "2021-12-31") |> 
+  select(SERO_OFFICIAL_NUMBER, starts_with("SERO_HOME")) |> 
+  distinct()
+
+print_df_names(vessels_permits_home_port)
+# [1] 6762    4
+# [1] 4729    4 date filters
 # add home port ----
+
 names(compl_err_db_data_metrics_permit_reg_list)
 # [1] "dual"     "gom_only" "sa_only" 
 
