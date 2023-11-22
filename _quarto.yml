@@ -19,8 +19,12 @@ format:
   html:
     theme: Cerulean
     # Readable
-    highlight: tango
-    df-print: kable
+    # highlight: haddock
+    # kate
+    # pygments
+    df-print: tibble
+    # kable
+    # df_print: !expr function(x, ...) kable(x, ...) %>% kableExtra::kable_styling(kable_styling_full_width = FALSE) %>% knit_print()
     toc: true
     toc-depth: 3
     toc-highlight: true
