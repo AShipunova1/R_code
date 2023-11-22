@@ -111,12 +111,14 @@ flat_file_r_text <-
   clean_chunk_titles(flat_file_r_text)
 
 ## Change all sections to a level lower ----
-flat_file_r_text <-
-  gsub(
-    "(#+) (.+)(----)",
-    "\\1# \\2\\3",
-    flat_file_r_text
-  )
+lower_section_level <-
+  function(flat_file_r_text) {
+    flat_file_r_text <-
+      gsub("(#+) (.+)(----)",
+           "\\1# \\2\\3",
+           flat_file_r_text)
+    return(flat_file_r_text)
+  }
 
 ## add 2 top sections ----
 flat_file_r_text <-
