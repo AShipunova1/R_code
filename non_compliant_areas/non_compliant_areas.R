@@ -3,6 +3,8 @@
 # home port from the permit as an area
 # source the usual setup 
 # get data
+# remove not in metricks
+# remove not in Jeannette's list
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -18,5 +20,42 @@ all_get_db_data_result_l <- run_all_get_db_data()
 toc()
 # run_all_get_db_data(): 8.86 sec elapsed
 
-all_get_db_data_result_l$compl_err_db_data |> 
-  print_df_names()
+compl_err_db_data <- 
+  all_get_db_data_result_l$compl_err_db_data
+
+# use metricks only vessels ----
+source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
+
+# fhier_reports_metrics_tracking_not_srhs_ids
+
+# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+compl_err_db_data_metrics <-
+  compl_err_db_data |>
+  filter(
+    vessel_official_nbr %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
+  )
+
+# divide by permit region ----
+
+View(compl_err_db_data_metrics)
+
+### remove vessels not in Jeannette's SA list ----
+
+# Build the path to the R script 'vessel_permit_corrected_list.R' by
+# combining the base path 'my_paths$git_r' and the script name.
+script_path <-
+  file.path(my_paths$git_r,
+            "vessel_permit_list/vessel_permit_corrected_list.R")
+
+# Source (run) the R script using the constructed script path.
+source(script_path)
+
+# Rows are filtered to exclude vessels whose 'VESSEL_OFFICIAL_NBR' is in the
+# 'vessels_to_remove_from_ours' vector.
+for_heatmap_lat_lon_trips_vessels_sa_only_rm <-
+  for_heatmap_lat_lon_trips_vessels_sa_only |>
+  filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
+
+dim(for_heatmap_lat_lon_trips_vessels_sa_only_rm)
+# [1] 67983     4
+
