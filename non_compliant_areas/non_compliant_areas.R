@@ -246,4 +246,6 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
 # [1] 18604    32
 
 
+# map sa ----
+mapview::mapview(compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only)
 
