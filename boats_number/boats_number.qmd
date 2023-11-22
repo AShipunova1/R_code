@@ -7,6 +7,9 @@ title: boats_number
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
+# Adds features to a kable output
+library(kableExtra)
+
 # Format R code automatically
 library(styler)
 
@@ -14,24 +17,34 @@ library(styler)
 
 ```{r df format setup}
 #| include: false
-kable <- function(data) {
-  knitr::kable(data, booktabs = true, digits = 2) %>% 
-    kable_styling("striped", full_width = FALSE)
+# kable <- function(data) {
+#   knitr::kable(data, booktabs = true, digits = 2) %>%
+#     kable_styling('striped', full_width = FALSE)
+# }
+
+knit_print.data.frame = function(x, ...) {
+  res = paste(c(
+    '',
+    '',
+    knitr::kable(x, digits = 2) |>
+      kableExtra::kable_styling('striped', full_width = FALSE)
+  ),
+  collapse = '
+')
+  knitr::asis_output(res)
 }
 
-# knit_print.data.frame = function(x, ...) {
-#   res = paste(c('', '',
-#                 knitr::kable(x, digits = 2) |>
-#                   kableExtra::kable_styling("striped", full_width = FALSE)), collapse = '')
-#   knitr::asis_output(res)
-# }
-# 
-# registerS3method(
-#   'knit_print', 'data.frame', knit_print.data.frame,
-#   envir = asNamespace('knitr')
-# )
-```
+registerS3method(
+  'knit_print', 'data.frame', knit_print.data.frame,
+  envir = asNamespace('knitr')
+)
 
+# knitr::opts_chunk$set(echo = TRUE)
+
+# options(knitr.table.format = 'HTML')
+
+
+```
 
 ## setup current project 
 
@@ -92,7 +105,8 @@ dim(all_logbooks_db_data_2022_short_p_region_short)
 all_logbooks_db_data_2022_short_p_region_short |>
   filter(!start_port == end_port &
            start_port_name == end_port_name) |>
-  glimpse()
+  glimpse() |>
+  knitr::kable(caption = "")
 # 2
 # $ vessel_id           <int> 326764, 254794
 # $ vessel_official_nbr <chr> "NC8438DJ", "FL0291MX"
@@ -268,7 +282,8 @@ data_overview(all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_v
 
 all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   filter(vessel_official_nbr == 1000042) |>
-  glimpse()
+  glimpse() |>
+  knitr::kable(caption = "")
 
 all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port <-
   all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
@@ -917,7 +932,8 @@ join_vessel_and_trip |>
 join_vessel_and_trip |>
   filter(permit_region == "gom_and_dual" &
            permit_sa_gom == "sa_only") |>
-  glimpse()
+  glimpse() |>
+  knitr::kable(caption = "")
 # 6
 
 join_vessel_and_trip |>
@@ -929,7 +945,8 @@ join_vessel_and_trip |>
 join_vessel_and_trip |>
   filter(permit_region == "sa_only" &
            permit_sa_gom == "gom_only") |>
-  glimpse()
+  glimpse() |>
+  knitr::kable(caption = "")
 # FL1921PM
 # PIMS:
 # Home port
