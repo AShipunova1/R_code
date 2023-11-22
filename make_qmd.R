@@ -46,13 +46,13 @@ head(flat_file_r_text)
 # In this code, 'flat_file_r_text' is modified using the 'gsub' function to replace specific patterns in the text. The pattern being searched for is defined using a regular expression.
 # It automatically makes chunk titles
 
-flat_file_r_text <-
-  gsub(
-    " ====",
-    " ----",
-    flat_file_r_text
-  )
-
+make_chunk_titles_from_comments <- function(flat_file_r_text) {
+  flat_file_r_text <-
+    gsub(" ====",
+         " ----",
+         flat_file_r_text)
+  return(flat_file_r_text)
+}
 pattern_to_add_md_headers <- "#' \\1\\2"
 pattern_to_add_md_chunk_labels <- "#+ \\2"
 pattern_to_repeat_the_original <- "\\1\\2\\3"
