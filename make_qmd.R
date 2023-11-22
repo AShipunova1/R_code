@@ -164,6 +164,9 @@ flat_file_r_text
     return(flat_file_r_text)
   }
 
+flat_file_r_text <-
+  add_pretty_table(flat_file_r_text)
+
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
@@ -200,12 +203,17 @@ library(styler)
 
 ```{r df format setup}
 #| include: false
+# kable <- function(data) {
+#   knitr::kable(data, booktabs = true, digits = 2) %>%
+#     kable_styling('striped', full_width = FALSE)
+# }
+
 knit_print.data.frame = function(x, ...) {
   res = paste(c(
     '',
     '',
     knitr::kable(x, digits = 2) |>
-      kableExtra::kable_styling()
+      kableExtra::kable_styling('striped', full_width = FALSE)
   ),
   collapse = '\n')
   knitr::asis_output(res)
@@ -220,12 +228,9 @@ registerS3method(
 
 # options(knitr.table.format = 'HTML')
 
-kable <- function(data) {
-  knitr::kable(data, booktabs = true, digits = 2) %>%
-    kable_styling('striped', full_width = FALSE)
-}
-```
 
+```
+# save setup chunk options to use later
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 ```
 "
