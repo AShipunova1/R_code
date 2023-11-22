@@ -90,9 +90,10 @@ dim(compl_err_db_data_metrics_permit_reg_sa_only)
 names(compl_err_db_data_metrics_permit_reg_list)
 # [1] "dual"     "gom_only" "sa_only" 
 
+permit_regions <- names(compl_err_db_data_metrics_permit_reg_list)
 
 compl_err_db_data_metrics_permit_reg_list_home_port <- 
- names(compl_err_db_data_metrics_permit_reg_list) |>
+ permit_regions |>
   map(\(permit_reg) {
     compl_err_db_data_metrics_permit_reg_list[[permit_reg]] |>
       left_join(
@@ -103,6 +104,17 @@ compl_err_db_data_metrics_permit_reg_list_home_port <-
       remove_empty_cols()
   })
 
-View(compl_err_db_data_metrics_permit_reg_list_home_port)
-# all_get_db_data_result_l$vessels_permits |> 
-#   filter(SERO_OFFICIAL_NUMBER %in% )
+names(compl_err_db_data_metrics_permit_reg_list_home_port) <- 
+  permit_regions
+  
+map(compl_err_db_data_metrics_permit_reg_list_home_port, dim)
+# $dual
+# [1] 28084    78
+# 
+# $gom_only
+# [1] 17180    74
+# 
+# $sa_only
+# [1] 281616     75
+
+
