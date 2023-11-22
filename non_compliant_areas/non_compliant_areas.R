@@ -3,8 +3,11 @@
 # home port from the permit as an area
 # source the usual setup 
 # get data
-# remove not in metricks
-# remove not in Jeannette's list
+# remove not in metrics
+# separate by permit region
+# remove not in Jeannette's SA list
+# remove not in Jeannette's GOM list
+# add home port
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -83,3 +86,23 @@ compl_err_db_data_metrics_permit_reg_sa_only <-
 dim(compl_err_db_data_metrics_permit_reg_sa_only)
 # [1] 22228    29
 
+# add home port ----
+names(compl_err_db_data_metrics_permit_reg_list)
+# [1] "dual"     "gom_only" "sa_only" 
+
+
+compl_err_db_data_metrics_permit_reg_list_home_port <- 
+ names(compl_err_db_data_metrics_permit_reg_list) |>
+  map(\(permit_reg) {
+    compl_err_db_data_metrics_permit_reg_list[[permit_reg]] |>
+      left_join(
+        all_get_db_data_result_l$vessels_permits,
+        join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER),
+        relationship = "many-to-many"
+      ) |> 
+      remove_empty_cols()
+  })
+
+View(compl_err_db_data_metrics_permit_reg_list_home_port)
+# all_get_db_data_result_l$vessels_permits |> 
+#   filter(SERO_OFFICIAL_NUMBER %in% )
