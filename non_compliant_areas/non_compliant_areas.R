@@ -158,47 +158,32 @@ get_lat_lon <-
     return(vessels_permits_home_port_lat_longs)
   }
 
-read_rds_or_run(my_file_path_lat_lon,
-                            my_data = as.data.frame(vessels_permits_home_port_lat_longs),
-                            get_lat_lon)
+vessels_permits_home_port_lat_longs <-
+  read_rds_or_run(my_file_path_lat_lon,
+                  my_data = as.data.frame(vessels_permits_home_port),
+                  get_lat_lon)
 
+# # #### check ----
+# # vessels_permits_home_port_lat_longs |> print_df_names()
+# #   filter(!tolower(trimws(SERO_HOME_PORT_CITY)) == tolower(trimws(city))) |> 
+# #   dim()
+# # # 0
+# # 
+# # vessels_permits_home_port_lat_longs |> 
+# #   filter(!tolower(trimws(SERO_HOME_PORT_COUNTY)) == tolower(trimws(county))) |> 
+# #   dim()
+# # # 0
+# # 
+# # vessels_permits_home_port_lat_longs |> 
+# #   filter(!tolower(trimws(SERO_HOME_PORT_STATE)) == tolower(trimws(state))) |> 
+# #   dim()
+# # # 0
+# 
+# vessels_permits_home_port_lat_longs_sh <-
+#   vessels_permits_home_port_lat_longs |>
+#   select(-c(city, county, state))
 
-tic("vessels_permits_home_port_lat_longs")
-vessels_permits_home_port_lat_longs <- 
-  vessels_permits_home_port |> 
-  tidygeocoder::geocode(
-    city = "SERO_HOME_PORT_CITY",
-    state = "SERO_HOME_PORT_STATE",
-    county = "SERO_HOME_PORT_COUNTY"
-    # ,
-    # return_addresses = TRUE
-  )
-toc()
-# vessels_permits_home_port_lat_longs: 758.14 sec elapsed
-
-readr::write_rds(vessels_permits_home_port_lat_longs,
-                 my_file_path_lat_lon)
-#### check ----
-vessels_permits_home_port_lat_longs |> 
-  filter(!tolower(trimws(SERO_HOME_PORT_CITY)) == tolower(trimws(city))) |> 
-  dim()
-# 0
-
-vessels_permits_home_port_lat_longs |> 
-  filter(!tolower(trimws(SERO_HOME_PORT_COUNTY)) == tolower(trimws(county))) |> 
-  dim()
-# 0
-
-vessels_permits_home_port_lat_longs |> 
-  filter(!tolower(trimws(SERO_HOME_PORT_STATE)) == tolower(trimws(state))) |> 
-  dim()
-# 0
-
-vessels_permits_home_port_lat_longs_sh <-
-  vessels_permits_home_port_lat_longs |>
-  select(-c(city, county, state))
-
-dim(vessels_permits_home_port_lat_longs_sh)
+dim(vessels_permits_home_port_lat_longs)
 # [1] 4729    6
 
 # join compl and home port ----
