@@ -234,7 +234,35 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
 # 1       0 1227
 
 ## filter by permit expiration ----
-comp_week                 
+compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
+  filter(comp_week_start_dt < prm_grp_exp_date) |>
+  select(vessel_official_nbr, is_comp) |>
+  distinct() |>
+  count(is_comp)
+#   is_comp    n
+# 1       0 1227
+
+
+compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
+  filter(comp_week_start_dt > prm_grp_exp_date) |>
+  # glimpse()
+# Rows: 30
+  select(vessel_official_nbr, is_comp_override) |> 
+  count(is_comp_override)
+#   is_comp_override  n
+# 1                1 30
+# All are overridden!
+
+## check overrides ----
+compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
+  select(vessel_official_nbr, is_comp_override) |> 
+  distinct() |> 
+  count(is_comp_override) |> 
+#   is_comp_override     n
+# 1                0 872
+# 2                1 469
+  count(wt = n) 
+# 1341 > 1227 (some vessels are sometimes overridden and some times not, so  they are in both categories)
 
 # compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |> 
 #   data_overview()
