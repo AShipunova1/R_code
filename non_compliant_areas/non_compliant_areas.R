@@ -28,7 +28,9 @@ tigris_use_cache = TRUE
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
-current_project_dir_name <- this.path::this.dir()
+current_project_dir_path <- this.path::this.dir()
+
+current_project_dir_name <- basename(current_project_dir_path)
 
 db_data_path <-
   file.path(my_paths$git_r,
