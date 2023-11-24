@@ -272,6 +272,16 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
 # toc()
 
 # map sa ----
-mapview::mapview(compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only) +
+compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only |> print_df_
+    mutate(my_label =
+             str_glue("{use_addr}; # = {total_place_cnt}")) |>
+mapview::mapview(
+ zcol = "my_label",
+      cex = "total_place_cnt",
+      alpha = 0.3,
+      col.regions = viridisLite::turbo,
+      legend = FALSE,
+      layer.name = 'Counts by year and place'
+                 ) +
   south_east_coast_states_shp
 
