@@ -161,9 +161,9 @@ get_lat_lon_no_county <-
 
 vessels_permits_home_port_lat_longs_nc <-
   read_rds_or_run(my_file_path_lat_lon,
-                  my_data = as.data.frame(vessels_permits_home_port),
+                  my_data =
+                    as.data.frame(vessels_permits_home_port),
                   get_lat_lon)
-# View(vessels_permits_home_port_lat_longs_nc)
 
 # check home port typos by lat/lon ----
 check_home_port_typos_by_lat_lon <- 
@@ -195,7 +195,26 @@ check_home_port_typos_by_lat_lon <-
   }
 
 
-vessels_permits_home_port_lat_longs_nc |>
+# vessels_permits_home_port_lat_longs_nc |>
+#   filter(is.na(long) |
+#            is.na(lat)) |>
+#   select(SERO_OFFICIAL_NUMBER,
+#          SERO_HOME_PORT_CITY,
+#          SERO_HOME_PORT_STATE) |>
+#   distinct() |>
+#   mutate(
+#     SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+#     SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
+#   )
+# Rows: 80
+
+# View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
+
+compl_err_db_data_metrics_permit_reg_list_home_port_err_county <- 
+  check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list_home_port)
+
+vessels_permits_home_port_lat_longs_nc_err <-
+  vessels_permits_home_port_lat_longs_nc |>
   filter(is.na(long) |
            is.na(lat)) |>
   select(SERO_OFFICIAL_NUMBER,
@@ -206,24 +225,149 @@ vessels_permits_home_port_lat_longs_nc |>
     SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
     SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
   )
-# Rows: 80
 
-# View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
-compl_err_db_data_metrics_permit_reg_list_home_port_err_county <- 
-  check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list_home_port)
+dim(vessels_permits_home_port_lat_longs_nc_err)
+# [1] 80  3
 
-compl_err_db_data_metrics_permit_reg_list_home_port_err_wo_county <- 
-  check_home_port_typos_by_lat_lon(vessels_permits_home_port_lat_longs)
-View(vessels_permits_home_port_lat_longs)
+vessels_permits_home_port_lat_longs_nc_err_all <-
+  vessels_permits_home_port_lat_longs_nc |>
+  select(SERO_HOME_PORT_CITY,
+         SERO_HOME_PORT_STATE,
+         lat,
+         long) |>
+  mutate(
+    SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+    SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
+  ) |> 
+  distinct()
+
+vessels_permits_home_port_lat_longs_nc_err_all |> 
+  dim()
+  # [1] 648   2
+
+vessels_permits_home_port_lat_longs_nc_err_all |> 
+  write_csv(file =
+            file.path(
+              my_paths$outputs,
+              current_project_dir_name,
+              stringr::str_glue(
+                "{current_project_dir_name}_vessels_permits_home_port_lat_longs_nc_err_all.csv"
+              )
+            ))
+
 # check home port typos by lat/lon w/o county ----
 
 dim(vessels_permits_home_port_lat_longs)
 # [1] 4729    6
 
-# ## fix home port typos ----
-vessels_permits_home_port_fix_port <- 
+# fix home port typos ----
+to_fix_list <- 
+  list(
+    c(
+      "BAYOU LABATRE#AL",
+      "BAYOU LA BATRE#AL"),
+    c("CAROLINA BEACH#UN",
+      "CAROLINA BEACH#NC"),
+    c("CHALESTON#SC",
+      "CHARLESTON#SC"),
+    c("CHAUVIN, LA#LA",
+      "CHAUVIN#LA"),
+    c("FERNADINA BCH#FL",
+      "FERNANDINA BEACH#FL"),
+    c("FORT MORGAN MARINA#AL",
+      "FORT MORGAN#AL"),
+    c("GALLINANO#LA",
+      "GALLIANO#LA"),
+    c("GEORGRTOWN#SC",
+      "GEORGETOWN#SC"),
+    c("GULFSHORES#AL",
+      "GULF SHORES#AL"),
+    c("HILISBORO INLET#FL",
+      "HILLSBORO INLET#FL"),
+    c("HOMOASSA#FL",
+      "HOMOSASSA#FL"),
+    c("HOUMA LA#LA",
+      "HOUMA#LA"),
+    c("INTERCOASTAL CITY#LA",
+      "INTRACOASTAL CITY#LA"),
+    c("ISLAMORADA#UN",
+      "ISLAMORADA#FL"),
+    c("KEYWEST#FL",
+      "KEY WEST#FL"),
+    c("LITTLE RIVERNHV1N4WH#SC",
+      "LITTLE RIVER#SC"),
+    c("LOXLEY AL#AL",
+      "LOXLEY#AL"),
+    c("MADIERA BEACH#FL",
+      "MADEIRA BEACH#FL"),
+    c("MAYPPORT#FL",
+      "MAYPORT#FL"),
+    c("MCLELLANVILLE#SC",
+      "MCCLELLANVILLE#SC"),
+    c("MURELLS INLET#SC",
+      "MURRELLS INLET#SC"),
+    c("MURRELS INLET#SC",
+      "MURRELLS INLET#SC"),
+    c("NEW SMYMA BEACH#FL",
+      "NEW SMYRNA BEACH#FL"),
+    c("NEW SYMRNA BEACH#FL",
+      "NEW SMYRNA BEACH#FL"),
+    c("OCEEAN CITY#MD",
+      "OCEAN CITY#MD"),
+    c("POINT PLEASANT NJ#NJ",
+      "POINT PLEASANT#NJ"),
+    c("PORT CANVERAL#FL",
+      "PORT CANAVERAL#FL"),
+    c("PORT O CANNOR#TX",
+      "PORT O CONNOR#TX"),
+    c("PORT OCONNOR#TX",
+      "PORT O'CONNOR#TX"),
+    c("PORT ST.LUICE#FL",
+      "PORT ST LUCIE#FL"),
+    c("PUNTA GORGA#FL",
+      "PUNTA GORDA#FL"),
+    c("RIVERIA BEACH#FL",
+      "RIVIERA BEACH#FL"),
+    c("S PADRE ISLE#TX",
+      "S. PADRE ISLAND#TX"),
+    c("SEBASTAIN#FL",
+      "SEBASTIAN#FL"),
+    c("ST AUGUSTIN#FL",
+      "ST AUGUSTINE#FL"),
+    c("ST PETERSBURG BEACH#FL",
+      "ST PETERSBURG#FL"),
+    c("STEINAHTCHEE#FL",
+      "STEINHATCHEE#FL"),
+    c("SUMMRLND KEY#FL",
+      "SUMMERLAND KEY#FL"),
+    c("TAVENIER#FL",
+      "TAVERNIER#FL"),
+    c("WANCHEESE#NC",
+      "WANCHESE#NC"),
+    c("ALEXANDER CITY, AL#AL",
+      "ALEXANDER CITY#AL")
+  )
+
+vessels_permits_home_port_c_st <- 
   vessels_permits_home_port |> 
-  mutate()
+  mutate(sity_state = 
+           paste(SERO_HOME_PORT_CITY, SERO_HOME_PORT_STATE, sep = "#")) 
+
+rr <-   
+  to_fix_list |>
+  map(\(names_pair)
+      {
+        # browser()
+        vessels_permits_home_port_c_st <-
+          vessels_permits_home_port_c_st |>
+          mutate(sity_state =
+                   (gsub(
+                     names_pair[[1]],
+                     names_pair[[2]],
+                     SERO_HOME_PORT_CITY
+                   )))
+        
+  })
 
 # join compl and home port ----
 
