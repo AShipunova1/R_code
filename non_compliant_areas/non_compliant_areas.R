@@ -342,6 +342,32 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
 # 242                 <NA>                 <NA> 3934
 
 
+names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
+  map(\(curr_permit_reg_name) {
+    compl_err_db_data_metrics_permit_reg_list_home_port[[curr_permit_reg_name]] |>
+      select(
+        vessel_official_nbr,
+        SERO_HOME_PORT_CITY,
+        SERO_HOME_PORT_COUNTY,
+        SERO_HOME_PORT_STATE
+      ) |>
+      distinct() |> 
+      mutate(
+        SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+        SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
+        SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
+      ) |>
+      arrange(SERO_HOME_PORT_STATE,
+              SERO_HOME_PORT_COUNTY,
+              SERO_HOME_PORT_CITY) |>
+      write_csv(file = 
+                  file.path(
+                    my_paths$outputs,
+                    current_project_dir_name,
+                    stringr::str_glue("{current_project_dir_name}_{curr_permit_reg_name}.csv")
+                  ))
+  })
+
 # convert to sf ----
 compl_err_db_data_metrics_permit_reg_list_home_port_sf <- 
   compl_err_db_data_metrics_permit_reg_list_home_port |>
@@ -357,7 +383,8 @@ compl_err_db_data_metrics_permit_reg_list_home_port_sf <-
         # Keep the LATITUDE and LONGITUDE columns in the resulting sf object
         remove = FALSE
       )
-  })
+  }) |> 
+  invisible()
 
 map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
 # fewer, because some have no coords:
