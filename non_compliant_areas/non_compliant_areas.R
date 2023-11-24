@@ -140,13 +140,8 @@ tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 # ID["EPSG",4269]]
 crs4326 <- 4326
 
-## add lat/lon ----
+# add lat/lon ----
 
-# fix home port typos ----
-vessels_permits_home_port_fix_port <- 
-  vessels_permits_home_port |> 
-  mutate()
-  
 my_file_path_lat_lon <- 
   file.path(my_paths$outputs, 
             current_project_dir_name,
@@ -168,28 +163,50 @@ vessels_permits_home_port_lat_longs <-
                   my_data = as.data.frame(vessels_permits_home_port),
                   get_lat_lon)
 
-# # #### check ----
-# # vessels_permits_home_port_lat_longs |> print_df_names()
-# #   filter(!tolower(trimws(SERO_HOME_PORT_CITY)) == tolower(trimws(city))) |> 
-# #   dim()
-# # # 0
-# # 
-# # vessels_permits_home_port_lat_longs |> 
-# #   filter(!tolower(trimws(SERO_HOME_PORT_COUNTY)) == tolower(trimws(county))) |> 
-# #   dim()
-# # # 0
-# # 
-# # vessels_permits_home_port_lat_longs |> 
-# #   filter(!tolower(trimws(SERO_HOME_PORT_STATE)) == tolower(trimws(state))) |> 
-# #   dim()
-# # # 0
-# 
-# vessels_permits_home_port_lat_longs_sh <-
-#   vessels_permits_home_port_lat_longs |>
-#   select(-c(city, county, state))
+# check home port typos by lat/lon ----
+check_home_port_typos_by_lat_lon <- 
+  function(df_list_by_reg) {
+    compl_err_db_data_metrics_permit_reg_list_home_port_err <-
+      names(df_list_by_reg) |>
+      map(\(curr_permit_reg_name) {
+        df_list_by_reg[[curr_permit_reg_name]] |>
+          filter(is.na(long) |
+                   is.na(lat)) |>
+          select(
+            vessel_official_nbr,
+            SERO_HOME_PORT_CITY,
+            SERO_HOME_PORT_COUNTY,
+            SERO_HOME_PORT_STATE
+          ) |>
+          distinct() |>
+          mutate(
+            SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+            SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
+            SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
+          )
+      })
+    
+    names(compl_err_db_data_metrics_permit_reg_list_home_port_err) <-
+      names(df_list_by_reg)
+    
+    return(compl_err_db_data_metrics_permit_reg_list_home_port_err)
+  }
+
+# View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
+compl_err_db_data_metrics_permit_reg_list_home_port_err_county <- 
+  check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list_home_port)
+
+all.equal(compl_err_db_data_metrics_permit_reg_list_home_port_err_county, compl_err_db_data_metrics_permit_reg_list_home_port_err)
+# T
+# check home port typos by lat/lon w/o county ----
 
 dim(vessels_permits_home_port_lat_longs)
 # [1] 4729    6
+
+# ## fix home port typos ----
+vessels_permits_home_port_fix_port <- 
+  vessels_permits_home_port |> 
+  mutate()
 
 # join compl and home port ----
 
@@ -376,31 +393,6 @@ names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
                   ))
   })
 
-# check home port typos by lat/lon ----
-compl_err_db_data_metrics_permit_reg_list_home_port_err <-
-  names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
-  map(\(curr_permit_reg_name) {
-    compl_err_db_data_metrics_permit_reg_list_home_port[[curr_permit_reg_name]] |>
-      filter(is.na(long) |
-               is.na(lat)) |>
-      select(
-        vessel_official_nbr,
-        SERO_HOME_PORT_CITY,
-        SERO_HOME_PORT_COUNTY,
-        SERO_HOME_PORT_STATE
-      ) |>
-      distinct() |>
-      mutate(
-        SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-        SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
-        SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
-      )
-  })
-
-names(compl_err_db_data_metrics_permit_reg_list_home_port_err) <- 
-  names(compl_err_db_data_metrics_permit_reg_list_home_port)
-
-View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
 # convert to sf ----
 compl_err_db_data_metrics_permit_reg_list_home_port_sf <- 
   compl_err_db_data_metrics_permit_reg_list_home_port |>
