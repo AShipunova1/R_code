@@ -149,19 +149,21 @@ my_file_path_lat_lon <-
 
 file.exists(my_file_path_lat_lon)
 
-get_lat_lon <-
+get_lat_lon_no_county <-
   function(vessels_permits_home_port) {
     vessels_permits_home_port_lat_longs <-
       vessels_permits_home_port |>
+      select(-SERO_HOME_PORT_COUNTY) |> 
       tidygeocoder::geocode(city = "SERO_HOME_PORT_CITY",
                             state = "SERO_HOME_PORT_STATE")
     return(vessels_permits_home_port_lat_longs)
   }
 
-vessels_permits_home_port_lat_longs <-
+vessels_permits_home_port_lat_longs_nc <-
   read_rds_or_run(my_file_path_lat_lon,
                   my_data = as.data.frame(vessels_permits_home_port),
                   get_lat_lon)
+# View(vessels_permits_home_port_lat_longs_nc)
 
 # check home port typos by lat/lon ----
 check_home_port_typos_by_lat_lon <- 
@@ -175,13 +177,13 @@ check_home_port_typos_by_lat_lon <-
           select(
             vessel_official_nbr,
             SERO_HOME_PORT_CITY,
-            SERO_HOME_PORT_COUNTY,
+            # SERO_HOME_PORT_COUNTY,
             SERO_HOME_PORT_STATE
           ) |>
           distinct() |>
           mutate(
             SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-            SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
+            # SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
             SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
           )
       })
@@ -192,12 +194,27 @@ check_home_port_typos_by_lat_lon <-
     return(compl_err_db_data_metrics_permit_reg_list_home_port_err)
   }
 
+
+vessels_permits_home_port_lat_longs_nc |>
+  filter(is.na(long) |
+           is.na(lat)) |>
+  select(SERO_OFFICIAL_NUMBER,
+         SERO_HOME_PORT_CITY,
+         SERO_HOME_PORT_STATE) |>
+  distinct() |>
+  mutate(
+    SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+    SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
+  )
+# Rows: 80
+
 # View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
 compl_err_db_data_metrics_permit_reg_list_home_port_err_county <- 
   check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list_home_port)
 
-all.equal(compl_err_db_data_metrics_permit_reg_list_home_port_err_county, compl_err_db_data_metrics_permit_reg_list_home_port_err)
-# T
+compl_err_db_data_metrics_permit_reg_list_home_port_err_wo_county <- 
+  check_home_port_typos_by_lat_lon(vessels_permits_home_port_lat_longs)
+View(vessels_permits_home_port_lat_longs)
 # check home port typos by lat/lon w/o county ----
 
 dim(vessels_permits_home_port_lat_longs)
