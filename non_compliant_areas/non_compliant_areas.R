@@ -116,22 +116,12 @@ vessels_permits_home_port <-
   select(SERO_OFFICIAL_NUMBER, starts_with("SERO_HOME")) |> 
   distinct()
 
-print_df_names(vessels_permits_home_port)
+# print_df_names(vessels_permits_home_port)
 # [1] 6762    4
 # [1] 4729    4 date filters
 
-## Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
-## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
-us_s_shp <-
-  tigris::states(cb = TRUE, progress_bar = FALSE)
-
-## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
-sa_s_shp <-
-  us_s_shp |>
-  filter(NAME %in% states_sa$state_name)
-
-## Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
-## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+# Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes. ----
+# The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
 us_s_shp <-
   tigris::states(cb = TRUE, progress_bar = FALSE)
 
@@ -140,7 +130,7 @@ misc_info_path <- file.path(my_paths$git_r,
 
 source(misc_info_path)
 
-## Rows are retained if the 'NAME' column (state name) matches any of the values in 'states_sa'.
+## Rows are retained if the 'NAME' column (state name) matches any of the values in 'south_east_coast_states'.
 south_east_coast_states_shp <-
   us_s_shp |>
   filter(NAME %in% south_east_coast_states)
