@@ -245,6 +245,15 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
 # $sa_only
 # [1] 18604    32
 
+# crop points by south_east_coast_states_shp ----
+tic("st_crop")
+compl_err_db_data_metrics_permit_reg_list_home_port_sf_cropped <-
+  map(compl_err_db_data_metrics_permit_reg_list_home_port_sf,
+      \(permit_region) {
+        sf::st_crop(permit_region,
+                    south_east_coast_states_shp)
+      })
+toc()
 
 # map sa ----
 mapview::mapview(compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only) +
