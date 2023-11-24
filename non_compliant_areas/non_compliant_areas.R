@@ -292,6 +292,9 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
 # 27        CAROLINA BEACH                   UN   40
 # 57         FERNADINA BCH                   FL   17
 # 58      FERNANDINA BEACH                   FL   80
+# FORT LAUDERDALE	BROWARD
+# FT LAUDERDALE	BROWARD
+
 # 70            GEORGETOWN                   SC   46
 # 71            GEORGRTOWN                   SC   12
 # 78           HILTON HEAD                   SC   58
@@ -341,7 +344,7 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
 # 241                 <NA>                   UN   49
 # 242                 <NA>                 <NA> 3934
 
-
+# write home ports to csv ----
 names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
   map(\(curr_permit_reg_name) {
     compl_err_db_data_metrics_permit_reg_list_home_port[[curr_permit_reg_name]] |>
@@ -368,6 +371,31 @@ names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
                   ))
   })
 
+# check home port typos by lat/lon ----
+compl_err_db_data_metrics_permit_reg_list_home_port_err <-
+  names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
+  map(\(curr_permit_reg_name) {
+    compl_err_db_data_metrics_permit_reg_list_home_port[[curr_permit_reg_name]] |>
+      filter(is.na(long) |
+               is.na(lat)) |>
+      select(
+        vessel_official_nbr,
+        SERO_HOME_PORT_CITY,
+        SERO_HOME_PORT_COUNTY,
+        SERO_HOME_PORT_STATE
+      ) |>
+      distinct() |>
+      mutate(
+        SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+        SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
+        SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
+      )
+  })
+
+names(compl_err_db_data_metrics_permit_reg_list_home_port_err) <- 
+  names(compl_err_db_data_metrics_permit_reg_list_home_port)
+
+View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
 # convert to sf ----
 compl_err_db_data_metrics_permit_reg_list_home_port_sf <- 
   compl_err_db_data_metrics_permit_reg_list_home_port |>
@@ -407,10 +435,11 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
 #       })
 # toc()
 
+
 # map sa ----
-compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only |> print_df_
+compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only |>
     mutate(my_label =
-             str_glue("{use_addr}; # = {total_place_cnt}")) |>
+             str_glue("{SERO_HOME_PORT_CITY} {SERO_HOME_PORT_STATE}; # = {total_place_cnt}")) |>
 mapview::mapview(
  zcol = "my_label",
       cex = "total_place_cnt",
