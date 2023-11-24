@@ -141,6 +141,28 @@ tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 crs4326 <- 4326
 
 ## add lat/lon ----
+my_file_path_lat_lon <- 
+  file.path(my_paths$outputs, 
+            current_project_dir_name,
+            paste0(current_project_dir_name, ".rds"))
+
+file.exists(my_file_path_lat_lon)
+
+get_lat_lon <-
+  function(vessels_permits_home_port) {
+    vessels_permits_home_port_lat_longs <-
+      vessels_permits_home_port |>
+      tidygeocoder::geocode(city = "SERO_HOME_PORT_CITY",
+                            state = "SERO_HOME_PORT_STATE",
+                            county = "SERO_HOME_PORT_COUNTY")
+    return(vessels_permits_home_port_lat_longs)
+  }
+
+read_rds_or_run(my_file_path_lat_lon,
+                            my_data = as.data.frame(vessels_permits_home_port_lat_longs),
+                            get_lat_lon)
+
+
 tic("vessels_permits_home_port_lat_longs")
 vessels_permits_home_port_lat_longs <- 
   vessels_permits_home_port |> 
@@ -154,6 +176,8 @@ vessels_permits_home_port_lat_longs <-
 toc()
 # vessels_permits_home_port_lat_longs: 758.14 sec elapsed
 
+readr::write_rds(vessels_permits_home_port_lat_longs,
+                 my_file_path_lat_lon)
 #### check ----
 vessels_permits_home_port_lat_longs |> 
   filter(!tolower(trimws(SERO_HOME_PORT_CITY)) == tolower(trimws(city))) |> 
