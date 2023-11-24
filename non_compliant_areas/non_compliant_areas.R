@@ -198,7 +198,7 @@ compl_err_db_data_metrics_permit_reg_list_home_port <-
   map(\(permit_reg) {
     compl_err_db_data_metrics_permit_reg_list[[permit_reg]] |>
       left_join(
-        vessels_permits_home_port_lat_longs_sh,
+        vessels_permits_home_port_lat_longs,
         join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
       ) |> 
       remove_empty_cols()
@@ -217,6 +217,32 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port, dim)
 # $sa_only
 # [1] 23716    31
 
+# count home ports by vessel ----
+compl_err_db_data_metrics_permit_reg_list_home_port_cnt <- 
+  compl_err_db_data_metrics_permit_reg_list_home_port |>
+  map(\(curr_df) {
+    curr_df |> 
+      count(vessel_official_nbr, is_comp)
+  })
+
+## check comp (all non comp) ----
+compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
+  select(vessel_official_nbr, is_comp) |>
+  distinct() |> 
+  count(is_comp)
+# is_comp    n
+# 1       0 1227
+
+## filter by permit expiration ----
+comp_week                 
+
+# compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |> 
+#   data_overview()
+# SERO_HOME_PORT_CITY      249
+# lat                      206
+# is_comp                    1
+# prm_grp_exp_date          63
+# vessel_official_nbr     1227
 
 # convert to sf ----
 compl_err_db_data_metrics_permit_reg_list_home_port_sf <- 
@@ -236,7 +262,7 @@ compl_err_db_data_metrics_permit_reg_list_home_port_sf <-
   })
 
 map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
-# fewer, because no coords:
+# fewer, because some have no coords:
 # $dual
 # [1] 1078   35
 # 
