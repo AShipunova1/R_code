@@ -1,7 +1,9 @@
 db_data_path <-
   file.path(my_paths$git_r,
             r"(get_data\get_db_data\get_db_data.R)")
+
 source(db_data_path)
+
 tic("run_all_get_db_data()")
 all_get_db_data_result_l <- run_all_get_db_data()
 toc()
@@ -67,11 +69,12 @@ compl_err_db_data_metrics_permit_reg_sa_only <-
   compl_err_db_data_metrics_permit_reg_list$sa_only |>
   filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
 
-View(compl_err_db_data_metrics_permit_reg_sa_only)
+dim(compl_err_db_data_metrics_permit_reg_sa_only)
 # [1] 22228    29
 
 # prepare vessel_permit_data ----
-vessels_permits_home_port <-
+## 2022 permits ----
+vessels_permits_home_port_22 <-
   all_get_db_data_result_l$vessels_permits |>
   filter(
     LAST_EXPIRATION_DATE > "2021-12-31" |
