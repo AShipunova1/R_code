@@ -123,6 +123,7 @@ csv_file_path <-
 
 file.exists(csv_file_path)   
 
+# uncomment and run once
 # vessels_permits_home_port_lat_longs_nc_err_all |>
   # write_csv(file = csv_file_path)
 
@@ -240,7 +241,7 @@ get_correct_addr_by_wrong <-
     return(good_addr)
   }
 
-# Have to use "if". case_when will execute all the LHS and RHS, then keep based on conditions. So get_correct_addr_by_wrong is executed, one time by each row during the RHS evaluation and produces idx = 0 error. 
+# Have to use "if", because case_when will execute all the LHS and RHS, then keep based on conditions. So get_correct_addr_by_wrong is executed, one time by each row during the RHS evaluation and produces idx = 0 error. 
 
 vessels_permits_home_port_c_st_fixed <-
   vessels_permits_home_port_c_st |>
@@ -257,11 +258,14 @@ vessels_permits_home_port_c_st_fixed <-
 
 dim(vessels_permits_home_port_c_st_fixed)
 # [1] 4729    7
+# [1] 5029    8 with permit region
 
 vessels_permits_home_port_c_st_fixed |> 
   filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
   dim()
 # [1] 49  7
 # [1] 109   7 timmed
+# [1] 115   8 with permit region
 
+cat("Result in vessels_permits_home_port_c_st_fixed")
 # vessels_permits_home_port_c_st_fixed
