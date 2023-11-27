@@ -176,6 +176,10 @@ vessels_permits_home_port_lat_longs_nc <-
                   my_data =
                     as.data.frame(vessels_permits_home_port_c_st_fixed),
                   get_lat_lon_no_county)
+# 2023-11-27 run for non_compliant_areas_no_county_fixed.rds: 632.64 sec elapsed
+# Warning message:
+# In query_api(api_url, api_query_parameters, method = method) :
+#   Internal Server Error (HTTP 500).
 
 # join compl and home port ----
 
@@ -189,7 +193,7 @@ compl_err_db_data_metrics_permit_reg_list_home_port <-
   map(\(permit_reg) {
     compl_err_db_data_metrics_permit_reg_list[[permit_reg]] |>
       left_join(
-        vessels_permits_home_port_lat_longs,
+        vessels_permits_home_port_lat_longs_nc,
         join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
       ) |> 
       remove_empty_cols()
@@ -216,6 +220,8 @@ compl_err_db_data_metrics_permit_reg_list_home_port_cnt <-
       count(vessel_official_nbr, is_comp)
   })
 
+glimpse(compl_err_db_data_metrics_permit_reg_list_home_port)
+
 ## check comp (all non comp) ----
 compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
   select(vessel_official_nbr, is_comp) |>
@@ -233,7 +239,6 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
 #   is_comp    n
 # 1       0 1227
 
-
 compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
   filter(comp_week_start_dt > prm_grp_exp_date) |>
   # glimpse()
@@ -242,7 +247,7 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
   count(is_comp_override)
 #   is_comp_override  n
 # 1                1 30
-# All are overridden!
+# All with exp permit are overridden!
 
 ## check overrides ----
 compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
@@ -264,76 +269,32 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
 # vessel_official_nbr     1227
 
 # count vessels by home ports ----
+# compl_err_db_data_metrics_permit_reg_list_home_port_cnt <- 
+#   compl_err_db_data_metrics_permit_reg_list_home_port |>
+#   map(\(curr_df) {
+#     curr_df |> 
+#       count(vessel_official_nbr, is_comp)
+#   })
+
 compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
-  select(
-    vessel_official_nbr,
-    SERO_HOME_PORT_CITY,
-    SERO_HOME_PORT_STATE
-  ) |>
-  mutate(SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-         SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)) |> 
-  count(SERO_HOME_PORT_CITY,
-    SERO_HOME_PORT_STATE)
+  # select(
+  #   vessel_official_nbr,
+  #   city_fixed,
+  #   state_fixed
+  # ) |>
+  mutate(city_fixed = trimws(city_fixed),
+         state_fixed = trimws(state_fixed)) |>
+  count(city_fixed,
+        state_fixed)
 #        SERO_HOME_PORT_CITY SERO_HOME_PORT_STATE    n
 # 1                      0                   UN   40
 # 2                     11                   AK    6
 # 3              AMELIA IS                   FL    6
 # 4          AMELIA ISLAND                   FL    6
-# 26        CAROLINA BEACH                   NC  263
-# 27        CAROLINA BEACH                   UN   40
-# 57         FERNADINA BCH                   FL   17
-# 58      FERNANDINA BEACH                   FL   80
-# FORT LAUDERDALE	BROWARD
-# FT LAUDERDALE	BROWARD
+# ...
+# 229           YANKEETOWN          FL    7
+# 230                 <NA>        <NA> 3934
 
-# 70            GEORGETOWN                   SC   46
-# 71            GEORGRTOWN                   SC   12
-# 78           HILTON HEAD                   SC   58
-# 79    HILTON HEAD ISLAND                   SC   91
-# 88            ISLAMORADA                   FL  772
-# 89            ISLAMORADA                   UN   36
-# 91          JACKSONVILLE                   FL  356
-# 92    JACKSONVILLE BEACH                   FL  106
-# 93                   JAX                   FL    6
-# 100             KEY WEST                   FL 1114
-# 102              KEYWEST                   FL   18
-# 105               KODIAK                   AK    5
-# 112         LITTLE RIVER                   SC  222
-# 113 LITTLE RIVERNHV1N4WH                   SC    7
-# 125                MIAMI                   FL  461
-# 126          MIAMI BEACH                   FL   18
-# 132       MOUNT PLEASANT                   SC   35
-# 133          MT PLEASANT                   SC   32
-# 134         MT. PLEASANT                   SC   26
-# 135       MURRELLS INLET                   SC  375
-# 136        MURRELS INLET                   SC   15
-# 142      NEW SMYMA BEACH                   FL   18
-# 143     NEW SMYRNA BEACH                   FL  276
-# 148                NORTH                   FL   10
-# 149          NORTH MIAMI                   FL   40
-# 150    NORTH MIAMI BEACH                   FL   43
-# 155           OCEAN CITY                   MD 1073
-# 158          OCEEAN CITY                   MD    8
-# 164           PALM BEACH                   FL  192
-# 165   PALM BEACH GARDENS                   FL   30
-# 181   PORT OF PALM BEACH                   FL    8
-# 166            PALM CITY                   FL    6
-# 171       POINT PLEASANT                   NJ   20
-# 172 POINT PLEASANT BEACH                   NJ    2
-# 173    POINT PLEASANT NJ                   NJ    5
-# 192        RIVERIA BEACH                   FL   49
-# 193        RIVIERA BEACH                   FL   10
-# 197              SAVANAH                   GA   10
-# 198             SAVANNAH                   GA  100
-# 195      SAINT AUGUSTINE                   FL   29
-# 210         ST AUGUSTINE                   FL  453
-# 213        ST. AUGUSTINE                   FL   47
-# 224            TAVERNIER                   FL  191
-# 225        TAVERNIER KEY                   FL   27
-# 238     WRIGHTSVILLE BCH                   NC   36
-# 239   WRIGHTSVILLE BEACH                   NC  174
-# 241                 <NA>                   UN   49
-# 242                 <NA>                 <NA> 3934
 
 # write home ports to csv ----
 names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
