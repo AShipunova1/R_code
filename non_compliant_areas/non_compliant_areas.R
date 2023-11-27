@@ -350,25 +350,39 @@ to_fix_list <-
 
 vessels_permits_home_port_c_st <- 
   vessels_permits_home_port |> 
-  mutate(sity_state = 
+  mutate(city_state = 
            paste(SERO_HOME_PORT_CITY, SERO_HOME_PORT_STATE, sep = "#")) 
+
+# stringr::str_detect
+# grep("ALEXANDER CITY, AL#AL", vessels_permits_home_port_c_st$city_state, value = T)
+
+map(to_fix_list,
+    \(names_pair) {
+      browser()
+      grep(names_pair[[1]],
+           vessels_permits_home_port_c_st$city_state,
+           value = T) |>
+        head()
+    })
 
 tic("fix_port_names")
 rr <-   
   vessels_permits_home_port_c_st |>
   head() |> 
-  
+  mutate(SERO_HOME_PORT_CITY =
+    case_when(to_fix_list)
+  )
   
   map(\(one_row) {
     # browser()
     to_fix_list |>
-      map(\(names_pair)
+      map(\(SERO_HOME_PORT_CITY names_pair)
           {
             # browser()
             # vessels_permits_home_port_c_st <-
             vessels_permits_home_port_c_st |>
               rowwise() |>
-              mutate(sity_state =
+              mutate(city_state =
                        (gsub(
                          names_pair[[1]],
                          names_pair[[2]],
