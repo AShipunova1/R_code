@@ -357,16 +357,33 @@ vessels_permits_home_port_c_st <-
 # grep("ALEXANDER CITY, AL#AL", vessels_permits_home_port_c_st$city_state, value = T)
 
 tic("fix_port_names")
+# cum.sets <- imap(to_fix_list, ~ unlist(to_fix_list[1:.y]))
+wrong_port_addr <-
+  sapply(to_fix_list, "[", 1)
+
+# wrong_port_addr <-
+#   iwalk(to_fix_list, "[", 1)
+
+# for (variable in vector) {
+#   
+# }
+wrong_addr <- "CAROLINA BEACH#UN"
+
+get_correct_addr_by_wrong <- 
+  function(wrong_addr) {
+    idx <- grep(wrong_addr, to_fix_list)
+    names_pair <- to_fix_list[[idx]]
+    good_city <-
+      str_split_1(names_pair[[2]],
+                  "#")[[1]]
+  }
+
 
 qq <-
-  map(to_fix_list,
-      \(names_pair) {
-        # browser()
-        vessels_permits_home_port_c_st |>
+  vessels_permits_home_port_c_st |>
           mutate(SERO_HOME_PORT_CITY1 =
                    case_when(
-                     grepl(names_pair[[1]],
-                           city_state) ~
+                     city_state %in% wrong_port_addr) ~
                        str_split_1(names_pair[[2]],
                                    "#")[[1]]
                    ))
