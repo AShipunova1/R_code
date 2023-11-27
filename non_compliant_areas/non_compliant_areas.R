@@ -369,27 +369,44 @@ wrong_port_addr <-
 # }
 wrong_addr <- "CAROLINA BEACH#UN"
 
-get_correct_addr_by_wrong <- 
+get_correct_addr_by_wrong <-
   function(wrong_addr) {
+    # print(str_glue("wrong_addr = {wrong_addr}"))
+    # browser()
     idx <- grep(wrong_addr, to_fix_list)
-    names_pair <- to_fix_list[[idx]]
-    good_city <-
-      str_split_1(names_pair[[2]],
-                  "#")[[1]]
+    
+    names_pair <- 
+      tryCatch(to_fix_list[[idx]],
+               error = function(e) {
+                 print(e)
+                 print(str_glue("Index: {idx}"))
+                 })
+    good_addr <- names_pair[[2]]
+    # str(good_addr)
+    # not used
+    # good_city <-
+    #   str_split_1(names_pair[[2]],
+    #               "#")[[1]]
+    # 
+    return(good_addr)
   }
 
+# get_correct_addr_by_wrong(wrong_addr)
 
 qq <-
   vessels_permits_home_port_c_st |>
-          mutate(SERO_HOME_PORT_CITY1 =
-                   case_when(
-                     city_state %in% wrong_port_addr) ~
-                       str_split_1(names_pair[[2]],
-                                   "#")[[1]]
-                   ))
-        
-      })
-toc()
+  rowwise() |>
+  mutate(city_state_fixed =
+           if (city_state %in% wrong_port_addr)
+             get_correct_addr_by_wrong(city_state)
+         else
+           city_state) |>
+  ungroup()
+
+qq |> 
+  filter(!city_state == city_state_fixed) |> 
+  dim()
+# [1] 51  6
 
 # tic("fix_port_names")
 # rr <-   
