@@ -445,4 +445,24 @@ jupiter_cnt_2 <-
 # [1] 13  8
 
 jupiter_cnt_1[[1]] == jupiter_cnt_2[[1]]
-# T
+T
+
+# BAYOU LA BATRE
+mult_names <- "AMELIA"
+
+compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf |>
+  map(\(curr_df)
+      {
+        curr_df |>
+          filter(grepl(mult_names, city_fixed)) |>
+          glimpse()
+  })
+
+compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf$sa_only |>
+  select(city_fixed,
+         state_fixed,
+         coord_cnt) |>
+  mutate(my_label =
+           str_glue("{city_fixed} {state_fixed}; # = {coord_cnt}")) |>  distinct() |>
+  filter(state_fixed == "FL") |> 
+  arrange(city_fixed)
