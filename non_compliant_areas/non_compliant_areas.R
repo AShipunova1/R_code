@@ -352,27 +352,11 @@ vessels_permits_home_port_c_st <-
   vessels_permits_home_port |> 
   mutate(city_state = 
            paste(SERO_HOME_PORT_CITY, SERO_HOME_PORT_STATE, sep = "#")) 
-
-# stringr::str_detect
-# grep("ALEXANDER CITY, AL#AL", vessels_permits_home_port_c_st$city_state, value = T)
-
-tic("fix_port_names")
-# cum.sets <- imap(to_fix_list, ~ unlist(to_fix_list[1:.y]))
 wrong_port_addr <-
   sapply(to_fix_list, "[", 1)
 
-# wrong_port_addr <-
-#   iwalk(to_fix_list, "[", 1)
-
-# for (variable in vector) {
-#   
-# }
-wrong_addr <- "CAROLINA BEACH#UN"
-
 get_correct_addr_by_wrong <-
   function(wrong_addr) {
-    # print(str_glue("wrong_addr = {wrong_addr}"))
-    # browser()
     idx <- grep(wrong_addr, to_fix_list)
     
     names_pair <- 
@@ -382,18 +366,14 @@ get_correct_addr_by_wrong <-
                  print(str_glue("Index: {idx}"))
                  })
     good_addr <- names_pair[[2]]
-    # str(good_addr)
-    # not used
-    # good_city <-
-    #   str_split_1(names_pair[[2]],
-    #               "#")[[1]]
-    # 
+
     return(good_addr)
   }
 
-# get_correct_addr_by_wrong(wrong_addr)
 
-qq <-
+# Have to use "if". case_when will execute all the LHS and RHS, then keep based on conditions. So get_correct_addr_by_wrong is executed, one time by each a during the RHS evaluation. 
+
+vessels_permits_home_port_c_st_fixed <-
   vessels_permits_home_port_c_st |>
   rowwise() |>
   mutate(city_state_fixed =
@@ -401,40 +381,19 @@ qq <-
              get_correct_addr_by_wrong(city_state)
          else
            city_state) |>
-  ungroup()
+  ungroup() |> 
+  tidyr::separate_wider_delim(city_state_fixed, 
+                              delim = "#", 
+                              names = c("city_fixed", "state_fixed"))
 
-qq |> 
-  filter(!city_state == city_state_fixed) |> 
+dim(vessels_permits_home_port_c_st_fixed)
+# [1] 4729    7
+
+vessels_permits_home_port_c_st_fixed |> 
+  filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
   dim()
-# [1] 51  6
+# [1] 49  7
 
-# tic("fix_port_names")
-# rr <-   
-#   vessels_permits_home_port_c_st |>
-#   head() |> 
-#   mutate(SERO_HOME_PORT_CITY =
-#     case_when(to_fix_list)
-#   )
-#   
-#   map(\(one_row) {
-#     # browser()
-#     to_fix_list |>
-#       map(\(SERO_HOME_PORT_CITY names_pair)
-#           {
-#             # browser()
-#             # vessels_permits_home_port_c_st <-
-#             vessels_permits_home_port_c_st |>
-#               rowwise() |>
-#               mutate(city_state =
-#                        (gsub(
-#                          names_pair[[1]],
-#                          names_pair[[2]],
-#                          SERO_HOME_PORT_CITY
-#                        ))) |>
-#               ungroup()
-#       })
-#   })
-# toc()
 
 # join compl and home port ----
 
