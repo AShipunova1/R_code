@@ -373,8 +373,8 @@ compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt <-
 #   })
 
 # convert to sf ----
-compl_err_db_data_metrics_permit_reg_list_home_port_sf <- 
-  compl_err_db_data_metrics_permit_reg_list_home_port |>
+compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf <- 
+  compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt |>
   map(\(reg_df) {
     reg_df |>
       filter(!is.na(long) &
@@ -390,16 +390,15 @@ compl_err_db_data_metrics_permit_reg_list_home_port_sf <-
   }) |> 
   invisible()
 
-map(compl_err_db_data_metrics_permit_reg_list_home_port_sf, dim)
-# fewer, because some have no coords:
+map(compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf, dim)
 # $dual
-# [1] 1078   35
+# [1] 107   8
 # 
 # $gom_only
-# [1] 1219   33
+# [1] 160   8
 # 
 # $sa_only
-# [1] 18604    32
+# [1] 1017    8
 
 # crop points by south_east_coast_states_shp ----
 # tic("st_crop")
