@@ -82,7 +82,20 @@ vessels_permits_home_port_22 <-
       EXPIRATION_DATE > "2021-12-31"
   ) |> 
   filter(EFFECTIVE_DATE < "2021-12-31") |> 
-  select(SERO_OFFICIAL_NUMBER, starts_with("SERO_HOME")) |> 
+  remove_empty_cols()
+  
+## add permit region ----
+vessels_permits_home_port_22_reg <-
+  vessels_permits_home_port_22 |>
+  mutate(all_permits = toString(unique(sort(TOP)))) |>
+  separate_permits_into_3_groups(permit_group_field_name = "all_permits") 
+## shorten permit_vessel ----
+vessels_permits_home_port <-
+  vessels_permits_home_port_22_reg |>
+  select(SERO_OFFICIAL_NUMBER,
+         permit_sa_gom,
+         starts_with("SERO_HOME")) |>
+  remove_empty_cols() |>
   distinct()
 
 # print_df_names(vessels_permits_home_port)
