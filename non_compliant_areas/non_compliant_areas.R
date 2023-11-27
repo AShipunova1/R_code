@@ -269,19 +269,13 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
 # vessel_official_nbr     1227
 
 # count vessels by home ports ----
-# compl_err_db_data_metrics_permit_reg_list_home_port_cnt <- 
-#   compl_err_db_data_metrics_permit_reg_list_home_port |>
-#   map(\(curr_df) {
-#     curr_df |> 
-#       count(vessel_official_nbr, is_comp)
-#   })
 
 compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
-  # select(
-  #   vessel_official_nbr,
-  #   city_fixed,
-  #   state_fixed
-  # ) |>
+  select(
+    vessel_official_nbr,
+    city_fixed,
+    state_fixed
+  ) |>
   mutate(city_fixed = trimws(city_fixed),
          state_fixed = trimws(state_fixed)) |>
   count(city_fixed,
@@ -295,33 +289,76 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
 # 229           YANKEETOWN          FL    7
 # 230                 <NA>        <NA> 3934
 
+compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
+  select(vessel_official_nbr,
+         lat,
+         long) |> 
+  count(lat,
+         long)
+         # lat       long    n
+# 1   24.55483  -81.80207 1132
+# 2   24.56720  -81.74085   12
+# 3   24.65572  -81.41368    3
+# 210       NA         NA 4074
 
-# write home ports to csv ----
-names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
-  map(\(curr_permit_reg_name) {
-    compl_err_db_data_metrics_permit_reg_list_home_port[[curr_permit_reg_name]] |>
-      select(
-        vessel_official_nbr,
-        SERO_HOME_PORT_CITY,
-        SERO_HOME_PORT_COUNTY,
-        SERO_HOME_PORT_STATE
-      ) |>
-      distinct() |> 
-      mutate(
-        SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-        SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
-        SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
-      ) |>
-      arrange(SERO_HOME_PORT_STATE,
-              SERO_HOME_PORT_COUNTY,
-              SERO_HOME_PORT_CITY) |>
-      write_csv(file = 
-                  file.path(
-                    my_paths$outputs,
-                    current_project_dir_name,
-                    stringr::str_glue("{current_project_dir_name}_{curr_permit_reg_name}.csv")
-                  ))
+compl_err_db_data_metrics_permit_reg_list_home_port_cnt <-
+  compl_err_db_data_metrics_permit_reg_list_home_port |>
+  map(\(curr_df) {
+    curr_df |>
+      add_count(lat,
+                long, name = "coord_cnt")
   })
+
+## shorten before count ----
+compl_err_db_data_metrics_permit_reg_list_home_port_short <-
+  compl_err_db_data_metrics_permit_reg_list_home_port |>
+  map(\(curr_df) {
+    curr_df |>
+      select(vessel_official_nbr,
+             permit_sa_gom,
+             city_fixed,
+             state_fixed,
+             lat,
+             long) |>
+      distinct()
+  })
+
+map(compl_err_db_data_metrics_permit_reg_list_home_port_short, dim)
+# $dual
+# [1] 121   6
+# 
+# $gom_only
+# [1] 185   6
+# 
+# $sa_only
+# [1] 1227    6
+
+# # write home ports to csv ----
+# names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
+#   map(\(curr_permit_reg_name) {
+#     compl_err_db_data_metrics_permit_reg_list_home_port[[curr_permit_reg_name]] |>
+#       select(
+#         vessel_official_nbr,
+#         SERO_HOME_PORT_CITY,
+#         SERO_HOME_PORT_COUNTY,
+#         SERO_HOME_PORT_STATE
+#       ) |>
+#       distinct() |> 
+#       mutate(
+#         SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+#         SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
+#         SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
+#       ) |>
+#       arrange(SERO_HOME_PORT_STATE,
+#               SERO_HOME_PORT_COUNTY,
+#               SERO_HOME_PORT_CITY) |>
+#       write_csv(file = 
+#                   file.path(
+#                     my_paths$outputs,
+#                     current_project_dir_name,
+#                     stringr::str_glue("{current_project_dir_name}_{curr_permit_reg_name}.csv")
+#                   ))
+#   })
 
 # convert to sf ----
 compl_err_db_data_metrics_permit_reg_list_home_port_sf <- 
