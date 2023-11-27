@@ -127,7 +127,6 @@ fix_ports_file_path <-
             current_project_dir_name,
             "non_compliant_areas_fix_lat_lon.R")
 
-
 source(fix_ports_file_path)
 
 glimpse(vessels_permits_home_port_c_st_fixed)
@@ -142,9 +141,16 @@ vessels_permits_home_port_c_st_fixed_short <-
   distinct() |>
   remove_empty_cols()
   
-dim(vessels_permits_home_port_c_st_fixed)
+View(vessels_permits_home_port_c_st_fixed)
 # [1] 5029    8
 dim(vessels_permits_home_port_c_st_fixed_short)
+# [1] 5029    4
+
+# add dual permit_region ----
+glimpse(vessels_permits_home_port_c_st_fixed_short)
+# TODO: why all dual?
+  # vessels_permits_home_port_c_st_fixed_short
+
 # add lat long to fixed ports ----
 
 my_file_path_lat_lon <- 
@@ -159,6 +165,7 @@ get_lat_lon_no_county <-
     vessels_permits_home_port_c_st_fixed_lat_longs <-
       vessels_permits_home_port_c_st_fixed |>
     select(SERO_OFFICIAL_NUMBER,
+           permit_sa_gom,
            city_fixed,
            state_fixed) |>
       tidygeocoder::geocode(city = "city_fixed",
@@ -176,6 +183,9 @@ vessels_permits_home_port_lat_longs_nc <-
 # In query_api(api_url, api_query_parameters, method = method) :
 #   Internal Server Error (HTTP 500).
 
+dim(vessels_permits_home_port_lat_longs_nc)
+# [1] 5029    5
+
 # get data for all trips ----
 ## get all trips
 ## add weeks
@@ -184,7 +194,16 @@ vessels_permits_home_port_lat_longs_nc <-
 ## add counts
 
 ## get all vessels with 2022 permits ----
-# all_get_db_data_result_l$trips_info |> 
+vessels_permits_home_port_lat_longs_nc |> 
+  dim()
+# [1] 5029    5
+
+# [1] 4729    5
+# SERO_OFFICIAL_NUMBER 4729
+# lat                   547
+
+
+
 #   select(TRIP_ID,
 #          TRIP_START_DATE,
 #          TRIP_END_DATE,
