@@ -410,18 +410,39 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf, dim)
 #       })
 # toc()
 
-
 # map sa ----
-compl_err_db_data_metrics_permit_reg_list_home_port_sf$sa_only |>
-    mutate(my_label =
-             str_glue("{SERO_HOME_PORT_CITY} {SERO_HOME_PORT_STATE}; # = {total_place_cnt}")) |>
-mapview::mapview(
- zcol = "my_label",
-      cex = "total_place_cnt",
-      alpha = 0.3,
-      col.regions = viridisLite::turbo,
-      legend = FALSE,
-      layer.name = 'Counts by year and place'
-                 ) +
+print_df_names(compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf$sa_only)
+
+## prepare add columns ----
+compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf$sa_only |>
+  mutate(my_label =
+           str_glue("{city_fixed} {state_fixed}; # = {coord_cnt}")) |>
+  mapview::mapview(
+    zcol = "my_label",
+    cex = "coord_cnt",
+    alpha = 0.3,
+    col.regions = viridisLite::turbo,
+    legend = FALSE,
+    layer.name = 'Vessel count by home port coordinates'
+  ) +
   south_east_coast_states_shp
 
+# check cnts on map ----
+jupiter_cnt_1 <-
+  compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
+  filter(city_fixed == "JUPITER") |>
+  # dim()
+  # [1] 351  30
+  select(vessel_official_nbr) |>
+  distinct() |>
+  dim()
+# [1] 13  1
+
+jupiter_cnt_2 <- 
+  compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf$sa_only |>
+  filter(city_fixed == "JUPITER") |>
+  dim()
+# [1] 13  8
+
+jupiter_cnt_1[[1]] == jupiter_cnt_2[[1]]
+# T
