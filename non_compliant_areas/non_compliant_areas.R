@@ -45,46 +45,32 @@ source(get_data_file_path)
 #   group_by(SERO_OFFICIAL_NUMBER) |> 
   
 # join compl and home port ----
-vessels_permits_home_port_lat_longs_nc |> 
-  distinct() |> 
-  group_by(SERO_OFFICIAL_NUMBER) %>% 
-  filter(n() > 1) |> 
-  glimpse()
-  # left_join()
+# vessels_permits_home_port_lat_longs_nc |> 
+#   distinct() |> 
+#   group_by(SERO_OFFICIAL_NUMBER) %>% 
+#   filter(n() > 1) |> 
+#   glimpse()
 
+compl_err_db_data_metrics_permit_reg_short <-
+  compl_err_db_data_metrics_permit_reg |>
+  select(vessel_official_nbr,
+         # comp_year,
+         # comp_week,
+         permit_sa_gom)
 
-compl_err_db_data_metrics_permit_reg
-vessels_permits_home_port_lat_longs_nc,
-        join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
+vessels_permits_home_port_lat_longs_nc_comp_err <-
+  vessels_permits_home_port_lat_longs_nc |>
+  distinct() |>
+  left_join(
+    compl_err_db_data_metrics_permit_reg_short,
+    join_by(SERO_OFFICIAL_NUMBER == vessel_official_nbr)
+  )
 
-names(compl_err_db_data_metrics_permit_reg_list)
-# [1] "dual"     "gom_only" "sa_only" 
-View(compl_err_db_data_metrics_permit_reg_list)
-permit_regions <- names(compl_err_db_data_metrics_permit_reg_list)
+dim(vessels_permits_home_port_lat_longs_nc_comp_err)
+# [1] 25587    33
+# [1] 25587    6
 
-compl_err_db_data_metrics_permit_reg_list_home_port <- 
- permit_regions |>
-  map(\(permit_reg) {
-    compl_err_db_data_metrics_permit_reg_list[[permit_reg]] |>
-      left_join(
-        vessels_permits_home_port_lat_longs_nc,
-        join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
-      ) |> 
-      remove_empty_cols()
-  })
-
-names(compl_err_db_data_metrics_permit_reg_list_home_port) <- 
-  permit_regions
-  
-map(compl_err_db_data_metrics_permit_reg_list_home_port, dim)
-# $dual
-# [1] 1317   34
-# 
-# $gom_only
-# [1] 1358   32
-# 
-# $sa_only
-# [1] 23716    31
+glimpse(vessels_permits_home_port_lat_longs_nc_comp_err)
 
 # count home ports by vessel ----
 compl_err_db_data_metrics_permit_reg_list_home_port_cnt <- 
