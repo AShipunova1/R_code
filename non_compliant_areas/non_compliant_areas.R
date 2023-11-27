@@ -280,7 +280,7 @@ compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
          state_fixed = trimws(state_fixed)) |>
   count(city_fixed,
         state_fixed)
-#        SERO_HOME_PORT_CITY SERO_HOME_PORT_STATE    n
+#        city_fixed state_fixed    n
 # 1                      0                   UN   40
 # 2                     11                   AK    6
 # 3              AMELIA IS                   FL    6
@@ -398,7 +398,7 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf, dim)
 # [1] 160   8
 # 
 # $sa_only
-# [1] 1017    8
+# [1] 1018    8
 
 # crop points by south_east_coast_states_shp ----
 # tic("st_crop")
@@ -466,3 +466,6 @@ compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt_sf$sa_only |>
            str_glue("{city_fixed} {state_fixed}; # = {coord_cnt}")) |>  distinct() |>
   filter(state_fixed == "FL") |> 
   arrange(city_fixed)
+# 7   CAPE CANAVERAL          FL        14  CAPE CANAVERAL FL; # = 14
+# 8  CAPE CANAVERAL           FL        14 CAPE CANAVERAL  FL; # = 14
+# fixed
