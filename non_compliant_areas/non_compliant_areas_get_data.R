@@ -97,10 +97,8 @@ vessels_permits_home_port <-
          starts_with("SERO_HOME")) |>
   remove_empty_cols() |>
   distinct()
-
-# print_df_names(vessels_permits_home_port)
-# [1] 6762    4
-# [1] 4729    4 date filters
+# View(vessels_permits_home_port)
+# [1] 5029    5
 
 # Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes. ----
 # The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
@@ -130,7 +128,7 @@ fix_ports_file_path <-
             "non_compliant_areas_fix_lat_lon.R")
 
 
-# source(fix_ports_file_path)
+source(fix_ports_file_path)
 
 # add lat long to fixed ports ----
 
