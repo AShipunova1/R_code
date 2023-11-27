@@ -130,6 +130,21 @@ fix_ports_file_path <-
 
 source(fix_ports_file_path)
 
+glimpse(vessels_permits_home_port_c_st_fixed)
+
+## shorten fixed
+vessels_permits_home_port_c_st_fixed_short <-
+  vessels_permits_home_port_c_st_fixed |>
+  select(SERO_OFFICIAL_NUMBER,
+         permit_sa_gom,
+         city_fixed,
+         state_fixed) |>
+  distinct() |>
+  remove_empty_cols()
+  
+dim(vessels_permits_home_port_c_st_fixed)
+# [1] 5029    8
+dim(vessels_permits_home_port_c_st_fixed_short)
 # add lat long to fixed ports ----
 
 my_file_path_lat_lon <- 
