@@ -54,9 +54,15 @@ source(get_data_file_path)
 compl_err_db_data_metrics_permit_reg_short <-
   compl_err_db_data_metrics_permit_reg |>
   select(vessel_official_nbr,
+         is_comp,
          # comp_year,
          # comp_week,
-         permit_sa_gom)
+         permit_sa_gom) |> 
+  distinct() |> 
+  filter(is_comp == 0)
+
+dim(compl_err_db_data_metrics_permit_reg_short)
+# [1] 1514    3
 
 vessels_permits_home_port_lat_longs_nc_comp_err <-
   vessels_permits_home_port_lat_longs_nc |>
@@ -68,9 +74,13 @@ vessels_permits_home_port_lat_longs_nc_comp_err <-
 
 dim(vessels_permits_home_port_lat_longs_nc_comp_err)
 # [1] 25587    33
-# [1] 25587    6
+# [1] 4741    7 distinct
+# [1] 4729    7 no comp only
 
-glimpse(vessels_permits_home_port_lat_longs_nc_comp_err)
+dim(vessels_permits_home_port_lat_longs_nc_comp_err)
+# SERO_OFFICIAL_NUMBER 4729
+# lat                   547
+
 
 # count home ports by vessel ----
 compl_err_db_data_metrics_permit_reg_list_home_port_cnt <- 
@@ -81,6 +91,10 @@ compl_err_db_data_metrics_permit_reg_list_home_port_cnt <-
   })
 
 glimpse(compl_err_db_data_metrics_permit_reg_list_home_port)
+
+vessels_permits_home_port_lat_longs_nc_comp_err |> 
+  count(SERO_OFFICIAL_NUMBER, permit_sa_gom) |> 
+  glimpse()
 
 ## check comp (all non comp) ----
 compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
