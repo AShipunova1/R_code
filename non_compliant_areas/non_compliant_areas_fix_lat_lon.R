@@ -12,12 +12,12 @@ file.exists(my_file_path_lat_lon)
 get_lat_lon_no_county <-
   function(vessels_permits_home_port) {
     vessels_permits_home_port_lat_longs <-
-      vessels_permits_home_port_c_st_fixed |>
+      vessels_permits_home_port |>
+      mutate(SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+             SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)) |> 
       select(-SERO_HOME_PORT_COUNTY) |> 
-      # tidygeocoder::geocode(city = "SERO_HOME_PORT_CITY",
-      #                       state = "SERO_HOME_PORT_STATE")
-      tidygeocoder::geocode(city = "",
-                            state = "")
+      tidygeocoder::geocode(city = "SERO_HOME_PORT_CITY",
+                            state = "SERO_HOME_PORT_STATE")
     return(vessels_permits_home_port_lat_longs)
   }
 
@@ -33,6 +33,7 @@ check_home_port_typos_by_lat_lon <-
     compl_err_db_data_metrics_permit_reg_list_home_port_err <-
       names(df_list_by_reg) |>
       map(\(curr_permit_reg_name) {
+        browser()
         df_list_by_reg[[curr_permit_reg_name]] |>
           filter(is.na(long) |
                    is.na(lat)) |>
@@ -72,8 +73,10 @@ check_home_port_typos_by_lat_lon <-
 
 # View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
 
-compl_err_db_data_metrics_permit_reg_list_home_port_err_county <- 
-  check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list_home_port)
+# compl_err_db_data_metrics_permit_reg_list_home_port_err_county <- 
+    # check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list)
+
+  # check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list_home_port)
 
 # Work with compl_err_db_data_metrics_permit_reg_list_home_port_err_county in excel ----
 
@@ -107,7 +110,7 @@ vessels_permits_home_port_lat_longs_nc_err_all <-
 
 vessels_permits_home_port_lat_longs_nc_err_all |> 
   dim()
-  # [1] 648   2
+  # [1] 648   4
 
 csv_file_path <-
   file.path(
@@ -120,8 +123,8 @@ csv_file_path <-
 
 file.exists(csv_file_path)   
 
-vessels_permits_home_port_lat_longs_nc_err_all |>
-  write_csv(file = csv_file_path)
+# vessels_permits_home_port_lat_longs_nc_err_all |>
+  # write_csv(file = csv_file_path)
 
 # fix home port typos ----
 # the list is created manuall from the csv
@@ -215,7 +218,9 @@ to_fix_list <-
 vessels_permits_home_port_c_st <- 
   vessels_permits_home_port |> 
   mutate(city_state = 
-           paste(SERO_HOME_PORT_CITY, SERO_HOME_PORT_STATE, sep = "#")) 
+           paste(trimws(SERO_HOME_PORT_CITY), 
+                 trimws(SERO_HOME_PORT_STATE), 
+                 sep = "#")) 
 
 wrong_port_addr <-
   sapply(to_fix_list, "[", 1)
@@ -257,5 +262,6 @@ vessels_permits_home_port_c_st_fixed |>
   filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
   dim()
 # [1] 49  7
+# [1] 109   7 timmed
 
 # vessels_permits_home_port_c_st_fixed
