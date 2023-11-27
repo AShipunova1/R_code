@@ -356,42 +356,51 @@ vessels_permits_home_port_c_st <-
 # stringr::str_detect
 # grep("ALEXANDER CITY, AL#AL", vessels_permits_home_port_c_st$city_state, value = T)
 
-map(to_fix_list,
-    \(names_pair) {
-      browser()
-      grep(names_pair[[1]],
-           vessels_permits_home_port_c_st$city_state,
-           value = T) |>
-        head()
-    })
-
 tic("fix_port_names")
-rr <-   
-  vessels_permits_home_port_c_st |>
-  head() |> 
-  mutate(SERO_HOME_PORT_CITY =
-    case_when(to_fix_list)
-  )
-  
-  map(\(one_row) {
-    # browser()
-    to_fix_list |>
-      map(\(SERO_HOME_PORT_CITY names_pair)
-          {
-            # browser()
-            # vessels_permits_home_port_c_st <-
-            vessels_permits_home_port_c_st |>
-              rowwise() |>
-              mutate(city_state =
-                       (gsub(
-                         names_pair[[1]],
-                         names_pair[[2]],
-                         SERO_HOME_PORT_CITY
-                       ))) |>
-              ungroup()
+
+qq <-
+  map(to_fix_list,
+      \(names_pair) {
+        # browser()
+        vessels_permits_home_port_c_st |>
+          mutate(SERO_HOME_PORT_CITY1 =
+                   case_when(
+                     grepl(names_pair[[1]],
+                           city_state) ~
+                       str_split_1(names_pair[[2]],
+                                   "#")[[1]]
+                   ))
+        
       })
-  })
 toc()
+
+# tic("fix_port_names")
+# rr <-   
+#   vessels_permits_home_port_c_st |>
+#   head() |> 
+#   mutate(SERO_HOME_PORT_CITY =
+#     case_when(to_fix_list)
+#   )
+#   
+#   map(\(one_row) {
+#     # browser()
+#     to_fix_list |>
+#       map(\(SERO_HOME_PORT_CITY names_pair)
+#           {
+#             # browser()
+#             # vessels_permits_home_port_c_st <-
+#             vessels_permits_home_port_c_st |>
+#               rowwise() |>
+#               mutate(city_state =
+#                        (gsub(
+#                          names_pair[[1]],
+#                          names_pair[[2]],
+#                          SERO_HOME_PORT_CITY
+#                        ))) |>
+#               ungroup()
+#       })
+#   })
+# toc()
 
 # join compl and home port ----
 
