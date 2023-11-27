@@ -32,23 +32,34 @@ current_project_dir_path <- this.path::this.dir()
 
 current_project_dir_name <- basename(current_project_dir_path)
 
-get_data <-
-  get_data_file_path <-
+get_data_file_path <-
   file.path(my_paths$git_r,
             current_project_dir_name,
             "non_compliant_areas_get_data.R")
 
-source(get_data)
+source(get_data_file_path)
 # all_get_db_data_result_l
 # vessels_permits_home_port_lat_longs_nc
 
-
-
+# vessels_permits_home_port_lat_longs_nc |> print_df_names() 
+#   group_by(SERO_OFFICIAL_NUMBER) |> 
+  
 # join compl and home port ----
+vessels_permits_home_port_lat_longs_nc |> 
+  distinct() |> 
+  group_by(SERO_OFFICIAL_NUMBER) %>% 
+  filter(n() > 1) |> 
+  glimpse()
+  # left_join()
+
+
+compl_err_db_data_metrics_permit_reg
+vessels_permits_home_port_lat_longs_nc,
+        join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
 
 names(compl_err_db_data_metrics_permit_reg_list)
 # [1] "dual"     "gom_only" "sa_only" 
-
+View(compl_err_db_data_metrics_permit_reg_list)
 permit_regions <- names(compl_err_db_data_metrics_permit_reg_list)
 
 compl_err_db_data_metrics_permit_reg_list_home_port <- 
