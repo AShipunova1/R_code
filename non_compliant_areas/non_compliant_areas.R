@@ -333,6 +333,18 @@ map(compl_err_db_data_metrics_permit_reg_list_home_port_short, dim)
 # $sa_only
 # [1] 1227    6
 
+# add vessel count by place ----
+compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt <-
+  compl_err_db_data_metrics_permit_reg_list_home_port_short |>
+  map(\(curr_df) {
+    curr_df |>
+      add_count(lat,
+                long, name = "coord_cnt")
+    
+  })
+
+# View(compl_err_db_data_metrics_permit_reg_list_home_port_short_cnt)
+
 # # write home ports to csv ----
 # names(compl_err_db_data_metrics_permit_reg_list_home_port) |>
 #   map(\(curr_permit_reg_name) {
