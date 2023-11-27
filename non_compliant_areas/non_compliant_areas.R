@@ -353,21 +353,31 @@ vessels_permits_home_port_c_st <-
   mutate(sity_state = 
            paste(SERO_HOME_PORT_CITY, SERO_HOME_PORT_STATE, sep = "#")) 
 
+tic("fix_port_names")
 rr <-   
-  to_fix_list |>
-  map(\(names_pair)
-      {
-        # browser()
-        vessels_permits_home_port_c_st <-
-          vessels_permits_home_port_c_st |>
-          mutate(sity_state =
-                   (gsub(
-                     names_pair[[1]],
-                     names_pair[[2]],
-                     SERO_HOME_PORT_CITY
-                   )))
-        
+  vessels_permits_home_port_c_st |>
+  head() |> 
+  
+  
+  map(\(one_row) {
+    # browser()
+    to_fix_list |>
+      map(\(names_pair)
+          {
+            # browser()
+            # vessels_permits_home_port_c_st <-
+            vessels_permits_home_port_c_st |>
+              rowwise() |>
+              mutate(sity_state =
+                       (gsub(
+                         names_pair[[1]],
+                         names_pair[[2]],
+                         SERO_HOME_PORT_CITY
+                       ))) |>
+              ungroup()
+      })
   })
+toc()
 
 # join compl and home port ----
 
