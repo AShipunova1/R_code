@@ -10,9 +10,9 @@ my_file_path_lat_lon <-
 file.exists(my_file_path_lat_lon)
 
 get_lat_lon_no_county <-
-  function(vessels_permits_home_port) {
+  function(vessels_permits_home_port_22_reg_short) {
     vessels_permits_home_port_lat_longs <-
-      vessels_permits_home_port |>
+      vessels_permits_home_port_22_reg_short |>
       mutate(SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
              SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)) |> 
       select(-SERO_HOME_PORT_COUNTY) |> 
@@ -21,10 +21,10 @@ get_lat_lon_no_county <-
     return(vessels_permits_home_port_lat_longs)
   }
 
-vessels_permits_home_port_lat_longs_nc <-
+vessels_permits_home_port_lat_longs_city_state <-
   read_rds_or_run(my_file_path_lat_lon,
                   my_data =
-                    as.data.frame(vessels_permits_home_port),
+                    as.data.frame(vessels_permits_home_port_22_reg_short),
                   get_lat_lon)
 
 # check home port typos by lat/lon ----
@@ -58,7 +58,7 @@ check_home_port_typos_by_lat_lon <-
   }
 
 
-# vessels_permits_home_port_lat_longs_nc |>
+# vessels_permits_home_port_lat_longs_city_state |>
 #   filter(is.na(long) |
 #            is.na(lat)) |>
 #   select(SERO_OFFICIAL_NUMBER,
@@ -80,8 +80,8 @@ check_home_port_typos_by_lat_lon <-
 
 # Work with compl_err_db_data_metrics_permit_reg_list_home_port_err_county in excel ----
 
-vessels_permits_home_port_lat_longs_nc_err <-
-  vessels_permits_home_port_lat_longs_nc |>
+vessels_permits_home_port_lat_longs_city_state_err <-
+  vessels_permits_home_port_lat_longs_city_state |>
   filter(is.na(long) |
            is.na(lat)) |>
   select(SERO_OFFICIAL_NUMBER,
@@ -93,11 +93,11 @@ vessels_permits_home_port_lat_longs_nc_err <-
     SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
   )
 
-dim(vessels_permits_home_port_lat_longs_nc_err)
+dim(vessels_permits_home_port_lat_longs_city_state_err)
 # [1] 80  3
 
-vessels_permits_home_port_lat_longs_nc_err_all <-
-  vessels_permits_home_port_lat_longs_nc |>
+vessels_permits_home_port_lat_longs_city_state_err_all <-
+  vessels_permits_home_port_lat_longs_city_state |>
   select(SERO_HOME_PORT_CITY,
          SERO_HOME_PORT_STATE,
          lat,
@@ -108,7 +108,7 @@ vessels_permits_home_port_lat_longs_nc_err_all <-
   ) |> 
   distinct()
 
-vessels_permits_home_port_lat_longs_nc_err_all |> 
+vessels_permits_home_port_lat_longs_city_state_err_all |> 
   dim()
   # [1] 648   4
 
@@ -117,14 +117,14 @@ csv_file_path <-
     my_paths$outputs,
     current_project_dir_name,
     stringr::str_glue(
-      "{current_project_dir_name}_vessels_permits_home_port_lat_longs_nc_err_all.csv"
+      "{current_project_dir_name}_vessels_permits_home_port_lat_longs_city_state_err_all.csv"
     )
   )
 
 file.exists(csv_file_path)   
 
 # uncomment and run once
-# vessels_permits_home_port_lat_longs_nc_err_all |>
+# vessels_permits_home_port_lat_longs_city_state_err_all |>
   # write_csv(file = csv_file_path)
 
 # fix home port typos ----
@@ -217,7 +217,7 @@ to_fix_list <-
   )
 
 vessels_permits_home_port_c_st <- 
-  vessels_permits_home_port |> 
+  vessels_permits_home_port_22_reg_short |> 
   mutate(city_state = 
            paste(trimws(SERO_HOME_PORT_CITY), 
                  trimws(SERO_HOME_PORT_STATE), 
