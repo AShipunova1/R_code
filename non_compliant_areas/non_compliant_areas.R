@@ -137,94 +137,38 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |>
 0
 # correct
 
-vessels_permits_home_port_lat_longs_city_state_comp_err |> 
-  select(-SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
-  # glimpse()
-  # [1] 845   6
-  count(lat, long, is_comp) |> 
-  arrange(desc(n)) |> 
-    head()
-# 1  NA    NA        NA    16
-# 2  NA    NA         0     8
-# 3  25.9 -81.7       0     3
-# 4  26.1 -81.8       0     3
-# 5  26.5 -81.9       0     3
-# 6  26.5 -81.9      NA     3
+# Percent of (non)compliant by port ----
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc <- 
+  vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |>
+  group_by(is_compliant_in_22) |>
+  mutate(
+    non_comp_perc =
+      cnt_sa_vsl_by_port_coord_n_compl * 100 /
+      cnt_vsl_by_permit_n_port_coord,
+    is_comp_perc_round =
+      round(non_comp_perc, 1)
+  ) |>
+  ungroup()
 
-vessels_permits_home_port_lat_longs_city_state_comp_err |> 
-  # dim()
-  # [1] 4729    7
-  count(lat, long, is_comp) |> 
-  arrange(desc(n)) |> 
-    head()
-#     lat  long is_comp     n
-#   <dbl> <dbl>   <int> <int>
-# 1  25.9 -97.5      NA   116
-# 2  24.6 -81.8      NA   112
-# 3  30.4 -88.2      NA   103
-# 4  30.0 -90.1      NA    86
-# 5  30.4 -88.9      NA    86
-# 6  30.3 -87.6      NA    82
-# tail()
-# 1  43.0  -87.9       0     1
-# 2  43.1  -70.8       0     1
-# 3  43.9  -70.0       0     1
-# 4  46.2 -124.       NA     1
-# 5  46.3 -124.       NA     1
-# 6  57.8 -152.        0     1
+glimpse(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc)
+# [1] 3388   11
 
-vessels_permits_home_port_lat_longs_city_state_comp_err_cnt <- 
-  vessels_permits_home_port_lat_longs_city_state_comp_err |> 
-  add_count(lat, long, is_comp,
-            name = "coord_by_comp") |>
-  distinct() |> 
-  arrange(desc(coord_by_comp)) 
-
-vessels_permits_home_port_lat_longs_city_state_comp_err_cnt |> 
+# spot test counts ----
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |> 
   filter(city_fixed == "SEBASTIAN") |> 
   data_overview()
 # SERO_OFFICIAL_NUMBER 27
 # is_comp               2
 
-vessels_permits_home_port_lat_longs_city_state_comp_err_cnt |> 
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |> 
   filter(city_fixed == "SEBASTIAN") |> 
   select(-SERO_OFFICIAL_NUMBER) |> 
   distinct() |> 
   glimpse()
-# is_comp       <int> 0, NA
-# coord_by_comp <int> 15, 12
+# $ is_compliant_in_22               <chr> "NO", "YES"
+# $ cnt_sa_vsl_by_port_coord_n_compl <int> 15, 12
+# $ is_comp_perc_round               <dbl> 55.6, 44.4
 
-# keep only_cnts ----
-vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short <-
-  vessels_permits_home_port_lat_longs_city_state_comp_err_cnt |>
-  select(-c(SERO_OFFICIAL_NUMBER, permit_sa_gom)) |>
-  distinct()
-
-# add percentage ----
-vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short |>
-  add_count(city_fixed, 
-            state_fixed,
-            wt = coord_by_comp,
-            name = "tot_cnt100") |> 
-  # group_by(is_comp) |> 
-  # mutate(tot_cnt100 = sum(coord_by_comp)) |> 
-  # test
-  filter(city_fixed == "KEY WEST")
-
-vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc <-
-  vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short |>
-  add_count(city_fixed,
-            state_fixed,
-            wt = coord_by_comp,
-            name = "tot_cnt100") |>
-  mutate(is_comp_perc =
-           coord_by_comp * 100 / tot_cnt100,
-         is_comp_perc_round =
-           round(is_comp_perc, 1))
-
-vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc_sf <- 
-  vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc |>
   filter(!is.na(long) &
            !is.na(lat)) |>
   sf::st_as_sf(# Specify the field names to use as coordinates
