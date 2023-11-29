@@ -181,11 +181,7 @@ file.exists(my_file_path_lat_lon)
 get_lat_lon_no_county <-
   function(vessels_permits_home_port_c_st_fixed) {
     vessels_permits_home_port_c_st_fixed_lat_longs <-
-      vessels_permits_home_port_c_st_fixed |>
-    select(SERO_OFFICIAL_NUMBER,
-           permit_sa_gom,
-           city_fixed,
-           state_fixed) |>
+      vessels_permits_home_port_c_st_fixed_short |>
       tidygeocoder::geocode(city = "city_fixed",
                             state = "state_fixed")
     return(vessels_permits_home_port_c_st_fixed_lat_longs)
