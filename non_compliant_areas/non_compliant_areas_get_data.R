@@ -77,6 +77,23 @@ compl_err_db_data_metrics_permit_reg_sa_only <-
 dim(compl_err_db_data_metrics_permit_reg_sa_only)
 # [1] 22228    29
 
+## Remove columns not use in this analysis ----
+### check if all are not compliant ----
+compl_err_db_data_metrics_permit_reg_sa_only |>
+  select(is_comp) |>
+  distinct()
+
+# if use compliant only when permit is active add
+# comp_week_start_dt and comp_week_end_dt to select()
+
+# if override is taken in the account, add it
+
+compl_err_db_data_metrics_permit_reg_sa_only_vsl <- 
+  compl_err_db_data_metrics_permit_reg_sa_only |>
+  select(vessel_official_nbr) |> 
+  distinct()
+
+"srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, is_pa_reviewed, val_tr_res_id, vms_table_pk, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, permit_sa_gom"
 
 # non compliant only, 2022 results to use: 
 # compl_err_db_data_metrics_permit_reg_sa_only
