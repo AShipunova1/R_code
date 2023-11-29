@@ -147,7 +147,7 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc <-
       cnt_sa_vsl_by_port_coord_n_compl * 100 /
       cnt_vsl_by_permit_n_port_coord,
     is_comp_perc_round =
-      round(non_comp_perc, 1)
+      round(non_comp_perc)
   ) |>
   ungroup()
 
@@ -208,12 +208,15 @@ dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_sou
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south |>
   filter(is_compliant_in_22 == "NO") |>
+  distinct() |> 
   mutate(my_label =
            str_glue("{city_fixed} {state_fixed}; {is_comp_perc_round}% non-compl")) |> 
-  distinct()
+  mutate(perc_nc_bin = cut_number(is_comp_perc_round, n = 5))
+
+# View(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab)
 
 dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab)
-# [1] 832  11
+# [1] 832  12
 
 uniq_color_num <-
   length(
@@ -228,21 +231,23 @@ uniq_color_num <-
 
 markers_info <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
-  rename(all_vessels = cnt_vsl_by_permit_n_port_coord,
+  rename(total_vsls = cnt_vsl_by_permit_n_port_coord,
          non_compliant = cnt_sa_vsl_by_port_coord_n_compl,) |>
   leafpop::popupTable(
     feature.id = FALSE,
     row.numbers = FALSE,
     zcol = c(
-      "all_vessels",
-      "non_compliant"
+      "total_vsls",
+      "non_compliant",
+      "perc_nc_bin"
     )
   )
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   mapview::mapview(
     label = "my_label",
-    zcol = "is_comp_perc_round",
+    # zcol = "is_comp_perc_round",
+    zcol = "perc_nc_bin",
     cex = "cnt_vsl_by_permit_n_port_coord",
     alpha = 0.3,
     col.regions =
@@ -250,6 +255,7 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
     legend = FALSE,
     layer.name = '% non compliant SA permitted vessels (2022) by home port coordinates',
     popup = markers_info
+    # burst = TRUE
   )
 # ) +
   # south_east_coast_states_shp
