@@ -34,6 +34,7 @@ current_project_dir_path <- this.path::this.dir()
 
 current_project_dir_name <- basename(current_project_dir_path)
 
+# prepare data ----
 get_data_file_path <-
   file.path(my_paths$git_r,
             current_project_dir_name,
@@ -43,34 +44,62 @@ source(get_data_file_path)
 # all_get_db_data_result_l
 # vessels_permits_home_port_lat_longs_city_state
 
-# vessels_permits_home_port_lat_longs_city_state |> print_df_names() 
-#   group_by(SERO_OFFICIAL_NUMBER) |> 
-  
-# join compl and home port ----
-# vessels_permits_home_port_lat_longs_city_state |> 
-#   distinct() |> 
-#   group_by(SERO_OFFICIAL_NUMBER) %>% 
-#   filter(n() > 1) |> 
-#   glimpse()
+# vessels_permits_home_port_lat_longs_city_state |> dim()
+# [1] 4729    6
 
-compl_err_db_data_metrics_permit_reg_short <-
-  compl_err_db_data_metrics_permit_reg |>
-  select(vessel_official_nbr,
-         is_comp,
-         # comp_year,
-         # comp_week,
-         permit_sa_gom) |> 
-  distinct() |> 
-  filter(is_comp == 0)
+## check for duplicate vessels ----
+vessels_permits_home_port_lat_longs_city_state |>
+  distinct() |>
+  group_by(SERO_OFFICIAL_NUMBER) %>%
+  filter(n() > 1) |>
+  dim()
+# 0
 
-dim(compl_err_db_data_metrics_permit_reg_short)
-# [1] 1514    3
+vessels_permits_home_port_lat_longs_city_state |>
+  distinct() |>
+#   group_by(permit_sa_gom, lat, long) %>%
+# [1] 4393    6
+  group_by(lat, long) %>%
+  filter(n() > 1) |>
+  dim()
+# [1] 4505    6
 
-vessels_permits_home_port_lat_longs_city_state_comp_err <-
+# add counts to vessel_permit ----
+# [1] "SERO_OFFICIAL_NUMBER, permit_sa_gom, city_fixed, state_fixed, lat, long"
+
+vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port <-
   vessels_permits_home_port_lat_longs_city_state |>
+  add_count(permit_sa_gom, 
+            lat, 
+            long, 
+            name = "cnt_vsl_by_permit_n_port_coord")
+
+### check counts ----
+vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
+  select(SERO_OFFICIAL_NUMBER,
+         permit_sa_gom,
+         lat,
+         long) |>
+  count(permit_sa_gom,
+        lat,
+        long) |>
+  filter(permit_sa_gom == "sa_only") |>
+  arrange(desc(n)) |>
+  head()
+
+vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
+  filter(permit_sa_gom == "sa_only") |>
+  select(-SERO_OFFICIAL_NUMBER) |> 
+  distinct() |> 
+  arrange(desc(cnt_vsl_by_permit_n_port_coord)) |>
+  head()
+
+# Join home port and compliance info by vessel ----
+vessels_permits_home_port_lat_longs_city_state_comp_err <-
+  vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
   distinct() |>
   left_join(
-    compl_err_db_data_metrics_permit_reg_short,
+    compl_err_db_data_metrics_permit_reg_sa_only_vsl,
     join_by(SERO_OFFICIAL_NUMBER == vessel_official_nbr)
   )
 
