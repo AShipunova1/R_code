@@ -186,9 +186,25 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf <-
     # Use the same CRS (Coordinate Reference System) as the us states map
     crs = tigris_crs)
 
-glimpse(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf)
+all_home_ports <-
+  mapview(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf)
 
-vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc_sf |>
+## crop all home ports by us state south map ----
+# mapview(south_east_coast_states_shp)
+
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south <-
+  vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf |>
+  sf::st_crop(south_east_coast_states_shp_bb)  # Bounding box used for cropping
+# although coordinates are longitude/latitude, st_intersection assumes that they
+# are planar
+# Warning message:
+# attribute variables are assumed to be spatially constant throughout all geometries 
+
+dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south)
+# [1] 3106   10
+
+# Prepare for mapping: non compl only, add labels ----
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south |> 
   filter(is_comp == 0) |> 
   mutate(my_label =
            str_glue("{city_fixed} {state_fixed}; # = {is_comp_perc_round}")) |>
