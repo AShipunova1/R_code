@@ -106,15 +106,20 @@ vessels_permits_home_port_22_reg |>
 # [1] 36784    52
 
 ## shorten permit_vessel ----
-vessels_permits_home_port <-
+vessels_permits_home_port_22_reg_short <-
   vessels_permits_home_port_22_reg |>
   select(SERO_OFFICIAL_NUMBER,
          permit_sa_gom,
          starts_with("SERO_HOME")) |>
   remove_empty_cols() |>
   distinct()
-# View(vessels_permits_home_port)
-# [1] 5029    5
+
+# dim(vessels_permits_home_port_22_reg_short)
+# [1] 4729    5
+
+cat("Result to use for vessels home port and its permit region:",
+"vessels_permits_home_port_22_reg_short",
+sep = "\n")
 
 # Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes. ----
 # The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
@@ -134,6 +139,7 @@ south_east_coast_states_shp <-
 tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 # User input: NAD83 
 # ID["EPSG",4269]]
+
 crs4326 <- 4326
 
 # run once, gives vessels_permits_home_port_c_st_fixed ----
@@ -145,7 +151,8 @@ fix_ports_file_path <-
 
 source(fix_ports_file_path)
 
-glimpse(vessels_permits_home_port_c_st_fixed)
+dim(vessels_permits_home_port_c_st_fixed)
+# [1] 4729    8
 
 ## shorten fixed
 vessels_permits_home_port_c_st_fixed_short <-
@@ -157,15 +164,10 @@ vessels_permits_home_port_c_st_fixed_short <-
   distinct() |>
   remove_empty_cols()
   
-View(vessels_permits_home_port_c_st_fixed)
-# [1] 5029    8
+glimpse(vessels_permits_home_port_c_st_fixed)
+# [1] 4729    8
 dim(vessels_permits_home_port_c_st_fixed_short)
-# [1] 5029    4
-
-# add dual permit_region ----
-glimpse(vessels_permits_home_port_c_st_fixed_short)
-# TODO: why all dual?
-  # vessels_permits_home_port_c_st_fixed_short
+# [1] 4729    4
 
 # add lat long to fixed ports ----
 
