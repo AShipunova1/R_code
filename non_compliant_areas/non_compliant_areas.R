@@ -13,6 +13,7 @@
 
 # Load the 'mapview' library for interactive viewing of spatial data.
 library(mapview)
+library(leafpop)
 
 if (!require(tidygeocoder)) {
   install.packages("tidygeocoder")
@@ -223,25 +224,32 @@ uniq_color_num <-
 # uniq_color_num
 # 53
 
-# library(leafpop)
+# popupTable(x, zcol, row.numbers = TRUE, feature.id = TRUE, className = NULL)
+
+markers_info <-
+  vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
+  rename(all_vessels = cnt_vsl_by_permit_n_port_coord,
+         non_compliant = cnt_sa_vsl_by_port_coord_n_compl,) |>
+  leafpop::popupTable(
+    feature.id = FALSE,
+    row.numbers = FALSE,
+    zcol = c(
+      "all_vessels",
+      "non_compliant"
+    )
+  )
+
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   mapview::mapview(
     label = "my_label",
     zcol = "is_comp_perc_round",
-    cex = "is_comp_perc_round",
+    cex = "cnt_vsl_by_permit_n_port_coord",
     alpha = 0.3,
     col.regions =
       viridisLite::mako(uniq_color_num, direction = -1),
     legend = FALSE,
-    layer.name = '% non compliant SA permitted vessels (2022) by home port coordinates'
-    ,
-    popup = popupTable(
-      vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab,
-      zcol = c(
-        "cnt_vsl_by_permit_n_port_coord",
-        "cnt_sa_vsl_by_port_coord_n_compl"
-      )
-    )
+    layer.name = '% non compliant SA permitted vessels (2022) by home port coordinates',
+    popup = markers_info
   )
 # ) +
   # south_east_coast_states_shp
