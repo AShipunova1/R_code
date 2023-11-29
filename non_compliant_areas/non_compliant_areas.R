@@ -169,15 +169,24 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
 # $ cnt_sa_vsl_by_port_coord_n_compl <int> 15, 12
 # $ is_comp_perc_round               <dbl> 55.6, 44.4
 
+# convert to sf ----
+## how many don't have coords ----
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
+  filter(is.na(long) &
+           is.na(lat)) |>
+  dim()
+# 11
+
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf <-
+  vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
   filter(!is.na(long) &
            !is.na(lat)) |>
   sf::st_as_sf(# Specify the field names to use as coordinates
     coords = c("long", "lat"),
-    # Use the provided CRS (Coordinate Reference System), default to sa_shp's CRS
-    crs = crs4326
-    )
+    # Use the same CRS (Coordinate Reference System) as the us states map
+    crs = tigris_crs)
 
-# glimpse(vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc_sf)
+glimpse(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf)
 
 vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc_sf |>
   filter(is_comp == 0) |> 
