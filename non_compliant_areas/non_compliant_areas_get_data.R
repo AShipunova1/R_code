@@ -114,7 +114,7 @@ vessels_permits_home_port_22_reg_short <-
   remove_empty_cols() |>
   distinct()
 
-# dim(vessels_permits_home_port_22_reg_short)
+# glimpse(vessels_permits_home_port_22_reg_short)
 # [1] 4729    5
 
 cat("Result to use for vessels home port and its permit region:",
@@ -179,7 +179,7 @@ my_file_path_lat_lon <-
 file.exists(my_file_path_lat_lon)
 
 get_lat_lon_no_county <-
-  function(vessels_permits_home_port_c_st_fixed) {
+  function(vessels_permits_home_port_c_st_fixed_short) {
     vessels_permits_home_port_c_st_fixed_lat_longs <-
       vessels_permits_home_port_c_st_fixed_short |>
       tidygeocoder::geocode(city = "city_fixed",
@@ -187,54 +187,34 @@ get_lat_lon_no_county <-
     return(vessels_permits_home_port_c_st_fixed_lat_longs)
   }
 
-vessels_permits_home_port_lat_longs_nc <-
-  read_rds_or_run(my_file_path_lat_lon,
-                  my_data =
-                    as.data.frame(vessels_permits_home_port_c_st_fixed),
-                  get_lat_lon_no_county)
+vessels_permits_home_port_lat_longs_city_state <-
+  read_rds_or_run(
+    my_file_path_lat_lon,
+    my_data =
+      as.data.frame(vessels_permits_home_port_c_st_fixed_short),
+    get_lat_lon_no_county
+  )
 # 2023-11-27 run for non_compliant_areas_no_county_fixed.rds: 632.64 sec elapsed
-# Warning message:
-# In query_api(api_url, api_query_parameters, method = method) :
-#   Internal Server Error (HTTP 500).
 
-dim(vessels_permits_home_port_lat_longs_nc)
+dim(vessels_permits_home_port_lat_longs_city_state)
+# [1] 4729    6
+
+vessels_permits_home_port_lat_longs_city_state |> 
+  # dim()
 # [1] 5029    5
-
-# get data for all trips ----
-## get all trips
-## add weeks
-## mark compl/non compl by week from compl_err_db_data
-## add home port for all vessels
-## add counts
-
-## get all vessels with 2022 permits ----
-vessels_permits_home_port_lat_longs_nc |> 
-  dim()
-# [1] 5029    5
-
-# [1] 4729    5
+# [1] 4729    6
+data_overview()
 # SERO_OFFICIAL_NUMBER 4729
+# permit_sa_gom           3
+# city_fixed            592
 # lat                   547
 
-
-
-#   select(TRIP_ID,
-#          TRIP_START_DATE,
-#          TRIP_END_DATE,
-#          VESSEL_ID)
-# all_get_db_data_result_l$trip_neg_2022 |> 
-#   
-# all_get_db_data_result_l$trips_notifications_2022
-## add weeks
-## mark compl/non compl by week from compl_err_db_data
-## add home port for all vessels
-## add counts
-
+# print out get_data results ----
 cat("Data:",
   "all_sheets_l",
   "vessels_22_sa",
   "vessels_to_remove_from_ours",
   "all_get_db_data_result_l",
-  "vessels_permits_home_port_lat_longs_nc",
+  "vessels_permits_home_port_lat_longs_city_state",
   sep = "\n"
 )
