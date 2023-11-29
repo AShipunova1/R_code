@@ -204,53 +204,51 @@ dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_sou
 # [1] 3106   10
 
 # Prepare for mapping: non compl only, add labels ----
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south |> 
-  filter(is_comp == 0) |> 
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab <-
+  vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south |>
+  filter(is_compliant_in_22 == "NO") |>
   mutate(my_label =
-           str_glue("{city_fixed} {state_fixed}; # = {is_comp_perc_round}")) |>
+           str_glue("{city_fixed} {state_fixed}; {is_comp_perc_round}% non-compl")) |> 
+  distinct()
+
+dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab)
+# [1] 832  11
+
+uniq_color_num <-
+  length(
+    unique(
+      vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab$is_comp_perc_round
+    )
+  )
+# uniq_color_num
+# 53
+
+# library(leafpop)
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   mapview::mapview(
-    zcol = "my_label",
+    label = "my_label",
+    zcol = "is_comp_perc_round",
     cex = "is_comp_perc_round",
     alpha = 0.3,
-    col.regions = viridisLite::turbo,
+    col.regions =
+      viridisLite::mako(uniq_color_num, direction = -1),
     legend = FALSE,
-    layer.name = 'Vessel count by home port coordinates'
-  ) +
-  south_east_coast_states_shp
+    layer.name = '% non compliant SA permitted vessels (2022) by home port coordinates'
+    ,
+    popup = popupTable(
+      vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab,
+      zcol = c(
+        "cnt_vsl_by_permit_n_port_coord",
+        "cnt_sa_vsl_by_port_coord_n_compl"
+      )
+    )
+  )
+# ) +
+  # south_east_coast_states_shp
 
-
+print_df_names(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab)
 # old ----
-# check counts ----
-## count home ports by vessel ----
-compl_err_db_data_metrics_permit_reg_list_home_port_cnt <- 
-  compl_err_db_data_metrics_permit_reg_list_home_port |>
-  map(\(curr_df) {
-    curr_df |> 
-      count(vessel_official_nbr, is_comp)
-  })
 
-glimpse(compl_err_db_data_metrics_permit_reg_list_home_port)
-
-vessels_permits_home_port_lat_longs_city_state_comp_err |> 
-  count(SERO_OFFICIAL_NUMBER, permit_sa_gom) |> 
-  glimpse()
-
-## check comp (all non comp) ----
-compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
-  select(vessel_official_nbr, is_comp) |>
-  distinct() |> 
-  count(is_comp)
-# is_comp    n
-# 1       0 1227
-
-## filter by permit expiration ----
-compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
-  filter(comp_week_start_dt < prm_grp_exp_date) |>
-  select(vessel_official_nbr, is_comp) |>
-  distinct() |>
-  count(is_comp)
-#   is_comp    n
-# 1       0 1227
 
 compl_err_db_data_metrics_permit_reg_list_home_port$sa_only |>
   filter(comp_week_start_dt > prm_grp_exp_date) |>
