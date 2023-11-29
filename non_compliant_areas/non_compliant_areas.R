@@ -1,6 +1,8 @@
 # identifying any particular areas of high non-compliance to help focus future outreach efforts. 
 # do this as a map
+
 # home port from the permit as an area
+
 # source the usual setup 
 # get data
 # remove not in metrics
@@ -196,7 +198,7 @@ vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short_perc_sf |>
   south_east_coast_states_shp
 
 
-# old
+# old ----
 # check counts ----
 ## count home ports by vessel ----
 compl_err_db_data_metrics_permit_reg_list_home_port_cnt <- 
