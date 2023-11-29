@@ -41,13 +41,13 @@ get_data_file_path <-
 
 source(get_data_file_path)
 # all_get_db_data_result_l
-# vessels_permits_home_port_lat_longs_nc
+# vessels_permits_home_port_lat_longs_city_state
 
-# vessels_permits_home_port_lat_longs_nc |> print_df_names() 
+# vessels_permits_home_port_lat_longs_city_state |> print_df_names() 
 #   group_by(SERO_OFFICIAL_NUMBER) |> 
   
 # join compl and home port ----
-# vessels_permits_home_port_lat_longs_nc |> 
+# vessels_permits_home_port_lat_longs_city_state |> 
 #   distinct() |> 
 #   group_by(SERO_OFFICIAL_NUMBER) %>% 
 #   filter(n() > 1) |> 
@@ -66,26 +66,26 @@ compl_err_db_data_metrics_permit_reg_short <-
 dim(compl_err_db_data_metrics_permit_reg_short)
 # [1] 1514    3
 
-vessels_permits_home_port_lat_longs_nc_comp_err <-
-  vessels_permits_home_port_lat_longs_nc |>
+vessels_permits_home_port_lat_longs_city_state_comp_err <-
+  vessels_permits_home_port_lat_longs_city_state |>
   distinct() |>
   left_join(
     compl_err_db_data_metrics_permit_reg_short,
     join_by(SERO_OFFICIAL_NUMBER == vessel_official_nbr)
   )
 
-dim(vessels_permits_home_port_lat_longs_nc_comp_err)
+dim(vessels_permits_home_port_lat_longs_city_state_comp_err)
 # [1] 25587    33
 # [1] 4741    7 distinct
 # [1] 4729    7 no comp only
 
-dim(vessels_permits_home_port_lat_longs_nc_comp_err)
+dim(vessels_permits_home_port_lat_longs_city_state_comp_err)
 # SERO_OFFICIAL_NUMBER 4729
 # lat                   547
 
 
 # count home_port by compliance ----
-vessels_permits_home_port_lat_longs_nc_comp_err |> 
+vessels_permits_home_port_lat_longs_city_state_comp_err |> 
   select(-SERO_OFFICIAL_NUMBER) |> 
   distinct() |> 
   # glimpse()
@@ -100,7 +100,7 @@ vessels_permits_home_port_lat_longs_nc_comp_err |>
 # 5  26.5 -81.9       0     3
 # 6  26.5 -81.9      NA     3
 
-vessels_permits_home_port_lat_longs_nc_comp_err |> 
+vessels_permits_home_port_lat_longs_city_state_comp_err |> 
   # dim()
   # [1] 4729    7
   count(lat, long, is_comp) |> 
@@ -122,20 +122,20 @@ vessels_permits_home_port_lat_longs_nc_comp_err |>
 # 5  46.3 -124.       NA     1
 # 6  57.8 -152.        0     1
 
-vessels_permits_home_port_lat_longs_nc_comp_err_cnt <- 
-  vessels_permits_home_port_lat_longs_nc_comp_err |> 
+vessels_permits_home_port_lat_longs_city_state_comp_err_cnt <- 
+  vessels_permits_home_port_lat_longs_city_state_comp_err |> 
   add_count(lat, long, is_comp,
             name = "coord_by_comp") |>
   distinct() |> 
   arrange(desc(coord_by_comp)) 
 
-vessels_permits_home_port_lat_longs_nc_comp_err_cnt |> 
+vessels_permits_home_port_lat_longs_city_state_comp_err_cnt |> 
   filter(city_fixed == "SEBASTIAN") |> 
   data_overview()
 # SERO_OFFICIAL_NUMBER 27
 # is_comp               2
 
-vessels_permits_home_port_lat_longs_nc_comp_err_cnt |> 
+vessels_permits_home_port_lat_longs_city_state_comp_err_cnt |> 
   filter(city_fixed == "SEBASTIAN") |> 
   select(-SERO_OFFICIAL_NUMBER) |> 
   distinct() |> 
@@ -144,13 +144,13 @@ vessels_permits_home_port_lat_longs_nc_comp_err_cnt |>
 # coord_by_comp <int> 15, 12
 
 # keep only_cnts ----
-vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short <-
-  vessels_permits_home_port_lat_longs_nc_comp_err_cnt |>
+vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short <-
+  vessels_permits_home_port_lat_longs_city_state_comp_err_cnt |>
   select(-c(SERO_OFFICIAL_NUMBER, permit_sa_gom)) |>
   distinct()
 
 # add percentage ----
-vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short |>
+vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short |>
   add_count(city_fixed, 
             state_fixed,
             wt = coord_by_comp,
@@ -160,8 +160,8 @@ vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short |>
   # test
   filter(city_fixed == "KEY WEST")
 
-vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short_perc <-
-  vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short |>
+vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc <-
+  vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short |>
   add_count(city_fixed,
             state_fixed,
             wt = coord_by_comp,
@@ -171,8 +171,8 @@ vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short_perc <-
          is_comp_perc_round =
            round(is_comp_perc, 1))
 
-vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short_perc_sf <- 
-  vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short_perc |>
+vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc_sf <- 
+  vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc |>
   filter(!is.na(long) &
            !is.na(lat)) |>
   sf::st_as_sf(# Specify the field names to use as coordinates
@@ -181,9 +181,9 @@ vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short_perc_sf <-
     crs = crs4326
     )
 
-# glimpse(vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short_perc_sf)
+# glimpse(vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc_sf)
 
-vessels_permits_home_port_lat_longs_nc_comp_err_cnt_short_perc_sf |>
+vessels_permits_home_port_lat_longs_city_state_comp_err_cnt_short_perc_sf |>
   filter(is_comp == 0) |> 
   mutate(my_label =
            str_glue("{city_fixed} {state_fixed}; # = {is_comp_perc_round}")) |>
@@ -210,7 +210,7 @@ compl_err_db_data_metrics_permit_reg_list_home_port_cnt <-
 
 glimpse(compl_err_db_data_metrics_permit_reg_list_home_port)
 
-vessels_permits_home_port_lat_longs_nc_comp_err |> 
+vessels_permits_home_port_lat_longs_city_state_comp_err |> 
   count(SERO_OFFICIAL_NUMBER, permit_sa_gom) |> 
   glimpse()
 
