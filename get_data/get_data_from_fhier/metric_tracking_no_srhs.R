@@ -62,3 +62,8 @@ purrr::map(fhier_reports_metrics_tracking_not_srhs_ids_list, dim)
 #
 # [[2]]
 # [1] 3399    1
+
+cat("Results:",
+    "fhier_reports_metrics_tracking_not_srhs_ids_list",
+    "fhier_reports_metrics_tracking_not_srhs_ids",
+    sep = "\n")
