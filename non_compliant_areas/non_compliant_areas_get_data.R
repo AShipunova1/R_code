@@ -1,3 +1,7 @@
+# Colored terminal output
+library(crayon)
+
+# get db data ----
 db_data_path <-
   file.path(my_paths$git_r,
             r"(get_data\get_db_data\get_db_data.R)")
@@ -9,10 +13,11 @@ all_get_db_data_result_l <- run_all_get_db_data()
 toc()
 # run_all_get_db_data(): 8.86 sec elapsed
 
+# prepare non compliant vessels 2022 info ----
 compl_err_db_data <- 
   all_get_db_data_result_l$compl_err_db_data
 
-# use metricks only vessels ----
+## use metricks only vessels ----
 source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
 
 # fhier_reports_metrics_tracking_not_srhs_ids
@@ -24,7 +29,7 @@ compl_err_db_data_metrics <-
     vessel_official_nbr %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
-# divide by permit region ----
+## 2022: divide by permit region ----
 compl_err_db_data_metrics_permit_reg <-
   compl_err_db_data_metrics |> 
   filter(comp_week_start_dt < '2023-01-01' &
@@ -37,7 +42,7 @@ compl_err_db_data_metrics_permit_reg <-
 dim(compl_err_db_data_metrics_permit_reg)
 # [1] 26391    29
 
-# split into separate dfs by permit region ----
+## split into separate dfs by permit region ----
 compl_err_db_data_metrics_permit_reg_list <- 
   compl_err_db_data_metrics_permit_reg |> 
   split(as.factor(compl_err_db_data_metrics_permit_reg$permit_sa_gom))
@@ -52,7 +57,7 @@ map(compl_err_db_data_metrics_permit_reg_list, dim)
 # $sa_only
 # [1] 23716    29
 
-### remove vessels not in Jeannette's SA list ----
+### SA only: remove vessels not in Jeannette's SA list ----
 
 # Build the path to the R script 'vessel_permit_corrected_list.R' by
 # combining the base path 'my_paths$git_r' and the script name.
@@ -72,8 +77,10 @@ compl_err_db_data_metrics_permit_reg_sa_only <-
 dim(compl_err_db_data_metrics_permit_reg_sa_only)
 # [1] 22228    29
 
+
 # non compliant only, 2022 results to use: 
 # compl_err_db_data_metrics_permit_reg_sa_only
+# vessels only: compl_err_db_data_metrics_permit_reg_sa_only_vsl
 
 # prepare vessel_permit_data ----
 ## 2022 permits ----
@@ -121,11 +128,12 @@ cat("Result to use for vessels home port and its permit region:",
 "vessels_permits_home_port_22_reg_short",
 sep = "\n")
 
-# Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes. ----
+# Map 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes. ----
 # The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
 us_s_shp <-
   tigris::states(cb = TRUE, progress_bar = FALSE)
 
+# Load additional dictionaries ----
 misc_info_path <- file.path(my_paths$git_r,
                r"(get_data\misc_info.R)")
 
@@ -142,7 +150,9 @@ tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 
 crs4326 <- 4326
 
-# run once, gives vessels_permits_home_port_c_st_fixed ----
+# Prepare home port coordinates ----
+## Fix port addresses ----
+# run once, gives vessels_permits_home_port_c_st_fixed
 
 fix_ports_file_path <-
   file.path(my_paths$git_r,
@@ -169,7 +179,7 @@ glimpse(vessels_permits_home_port_c_st_fixed)
 dim(vessels_permits_home_port_c_st_fixed_short)
 # [1] 4729    4
 
-# add lat long to fixed ports ----
+## Add lat long to fixed ports ----
 
 my_file_path_lat_lon <- 
   file.path(my_paths$outputs, 
@@ -210,11 +220,17 @@ data_overview()
 # lat                   547
 
 # print out get_data results ----
-cat("Data:",
-  "all_sheets_l",
-  "vessels_22_sa",
-  "vessels_to_remove_from_ours",
+
+cat(
+  blue("All DB data:"),
   "all_get_db_data_result_l",
+  blue("non compl 2022 sa:"),
+  "compl_err_db_data_metrics_permit_reg_sa_only",
+  blue("Vessels for non compl 2022 sa:"),
+  "compl_err_db_data_metrics_permit_reg_sa_only_vsl",
+  blue("vessel_permit 2022 with lat/long:"),
   "vessels_permits_home_port_lat_longs_city_state",
+  blue("Maps:"),
+  "us_s_shp",
   sep = "\n"
 )
