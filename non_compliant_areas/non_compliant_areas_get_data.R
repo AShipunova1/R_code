@@ -72,6 +72,9 @@ compl_err_db_data_metrics_permit_reg_sa_only <-
 dim(compl_err_db_data_metrics_permit_reg_sa_only)
 # [1] 22228    29
 
+# non compliant only, 2022 results to use: 
+# compl_err_db_data_metrics_permit_reg_sa_only
+
 # prepare vessel_permit_data ----
 ## 2022 permits ----
 vessels_permits_home_port_22 <-
@@ -87,8 +90,21 @@ vessels_permits_home_port_22 <-
 ## add permit region ----
 vessels_permits_home_port_22_reg <-
   vessels_permits_home_port_22 |>
+  group_by(SERO_OFFICIAL_NUMBER) |> 
   mutate(all_permits = toString(unique(sort(TOP)))) |>
-  separate_permits_into_3_groups(permit_group_field_name = "all_permits") 
+  separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
+  ungroup()
+
+vessels_permits_home_port_22_reg |>
+  select(permit_sa_gom) |> 
+  distinct()
+# 1 sa_only      
+# 2 gom_only     
+# 3 dual         
+
+# vessels_permits_home_port_22_reg |> dim()
+# [1] 36784    52
+
 ## shorten permit_vessel ----
 vessels_permits_home_port <-
   vessels_permits_home_port_22_reg |>
