@@ -95,25 +95,48 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
   head()
 
 # Join home port and compliance info by vessel ----
-vessels_permits_home_port_lat_longs_city_state_comp_err <-
+vessels_permits_home_port_lat_longs_city_state_sa_compliance <-
   vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
-  distinct() |>
-  left_join(
-    compl_err_db_data_metrics_permit_reg_sa_only_vsl,
-    join_by(SERO_OFFICIAL_NUMBER == vessel_official_nbr)
+  filter(permit_sa_gom == "sa_only") |> 
+  mutate(
+    is_compliant_in_22 = case_when(
+      SERO_OFFICIAL_NUMBER %in% compl_err_db_data_metrics_permit_reg_sa_only_vsl$vessel_official_nbr ~ "NO",
+      .default = "YES"
+    )
   )
 
-dim(vessels_permits_home_port_lat_longs_city_state_comp_err)
+dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance)
 # [1] 25587    33
 # [1] 4741    7 distinct
 # [1] 4729    7 no comp only
+# [1] 3388    8 sa only
 
-dim(vessels_permits_home_port_lat_longs_city_state_comp_err)
+
+# data_overview(vessels_permits_home_port_lat_longs_city_state_sa_compliance)
+# all permit regions
 # SERO_OFFICIAL_NUMBER 4729
 # lat                   547
+# is_compliant_in_22                2
 
+# sa_only
+# SERO_OFFICIAL_NUMBER           3388
+# lat                             450
+# is_compliant_in_22                2
 
-# count home_port by compliance ----
+# count vessels by home_port and compliance ----
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt <- 
+  vessels_permits_home_port_lat_longs_city_state_sa_compliance |> 
+  add_count(lat, 
+            long, 
+            is_compliant_in_22,
+            name = "cnt_sa_vsl_by_port_coord_n_compl")
+
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |> 
+  filter(cnt_vsl_by_permit_n_port_coord < cnt_sa_vsl_by_port_coord_n_compl) |> 
+  dim()
+0
+# correct
+
 vessels_permits_home_port_lat_longs_city_state_comp_err |> 
   select(-SERO_OFFICIAL_NUMBER) |> 
   distinct() |> 
