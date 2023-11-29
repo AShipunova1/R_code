@@ -161,6 +161,13 @@ south_east_coast_states_shp <-
   us_s_shp |>
   filter(NAME %in% south_east_coast_states)
 
+south_east_coast_states_shp_bb <- 
+  sf::st_bbox(south_east_coast_states_shp)
+
+# south_east_coast_states_shp_bb
+#       xmin       ymin       xmax       ymax 
+# -106.64565   24.52310  -75.46062   36.58812 
+
 tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 # User input: NAD83 
 # ID["EPSG",4269]]
