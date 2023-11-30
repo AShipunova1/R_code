@@ -245,7 +245,7 @@ data_overview()
 
 # print out get_data results ----
 
-cat(
+cat("", # need an empty row
   blue("All DB data:"),
   "all_get_db_data_result_l",
   blue("non compl 2022 sa:"),
