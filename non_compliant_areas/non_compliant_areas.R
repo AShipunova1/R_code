@@ -56,6 +56,7 @@ vessels_permits_home_port_lat_longs_city_state |>
   dim()
 # 0
 
+## check how many coords have more than one vessel ----
 vessels_permits_home_port_lat_longs_city_state |>
   distinct() |>
 #   group_by(permit_sa_gom, lat, long) %>%
@@ -63,17 +64,17 @@ vessels_permits_home_port_lat_longs_city_state |>
   group_by(lat, long) %>%
   filter(n() > 1) |>
   dim()
-# [1] 4505    6
+# [1] num of SERO_OFFICIAL_NUMBER    6
 
 # add counts to vessel_permit ----
-# [1] "SERO_OFFICIAL_NUMBER, permit_sa_gom, city_fixed, state_fixed, lat, long"
+# Adding a count column with num of SERO_OFFICIAL_NUMBER based on permit type, latitude, and longitude to the data frame.
 
 vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port <-
   vessels_permits_home_port_lat_longs_city_state |>
-  add_count(permit_sa_gom, 
-            lat, 
-            long, 
-            name = "cnt_vsl_by_permit_n_port_coord")
+  dplyr::add_count(permit_sa_gom,
+                   lat,
+                   long,
+                   name = "cnt_vsl_by_permit_n_port_coord")
 
 ### check counts ----
 vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
@@ -96,11 +97,25 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
   head()
 
 # Join home port and compliance info by vessel ----
+
+# This code filters and modifies the data based on the permit type and compliance status for the year 2022. Here's the breakdown of the comments:
+# 
+# 1. Filtering and modifying data based on permit type and compliance status.
+# 
+# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port` to the subsequent functions.
+# 
+# 3. Filtering rows where the permit type is "sa_only" using the `filter` function.
+# 
+# 4. Adding a new column named 'is_compliant_in_22' using the `mutate` function and conditional logic (`case_when`):
+#    - If the vessel's official number is in a specific list (`compl_err_db_data_metrics_permit_reg_sa_only_vsl$vessel_official_nbr`), set compliance status to "NO".
+#    - For other vessels, default compliance status to "YES".
+
 vessels_permits_home_port_lat_longs_city_state_sa_compliance <-
   vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
-  filter(permit_sa_gom == "sa_only") |> 
-  mutate(
-    is_compliant_in_22 = case_when(
+  dplyr::filter(permit_sa_gom == "sa_only") |>
+  dplyr::mutate(
+    is_compliant_in_22 = 
+      dplyr::case_when(
       SERO_OFFICIAL_NUMBER %in% compl_err_db_data_metrics_permit_reg_sa_only_vsl$vessel_official_nbr ~ "NO",
       .default = "YES"
     )
