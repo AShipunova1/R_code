@@ -88,15 +88,16 @@ current_project_dir_name <- basename(current_project_dir_path)
 ```
 
 ## prepare data 
+{{< include non_compliant_areas_get_data.qmd >}}
 
 ```{r prepare data}
 # prepare data ----
-get_data_file_path <-
-  file.path(my_paths$git_r,
-            current_project_dir_name,
-            "non_compliant_areas_get_data.R")
+# get_data_file_path <-
+  # file.path(my_paths$git_r,
+            # current_project_dir_name,
+            # "non_compliant_areas_get_data.R")
 
-source(get_data_file_path)
+# source(get_data_file_path)
 # all_get_db_data_result_l
 # vessels_permits_home_port_lat_longs_city_state
 
