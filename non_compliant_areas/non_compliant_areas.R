@@ -125,31 +125,39 @@ dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance)
 # is_compliant_in_22                2
 
 # count vessels by home_port and compliance ----
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt <- 
-  vessels_permits_home_port_lat_longs_city_state_sa_compliance |> 
-  add_count(lat, 
-            long, 
-            is_compliant_in_22,
-            name = "cnt_sa_vsl_by_port_coord_n_compl")
+# Adding a count column named cnt_sa_vsl_by_port_coord_n_compl based on the variables lat, long, and is_compliant_in_22 using the dplyr::add_count function.
 
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt <-
+  vessels_permits_home_port_lat_longs_city_state_sa_compliance |>
+  dplyr::add_count(lat,
+                   long,
+                   is_compliant_in_22,
+                   name = "cnt_sa_vsl_by_port_coord_n_compl")
+
+## check if total vessel num is always grater than non compliant vessels ----
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |> 
-  filter(cnt_vsl_by_permit_n_port_coord < cnt_sa_vsl_by_port_coord_n_compl) |> 
+  dplyr::filter(cnt_vsl_by_permit_n_port_coord < cnt_sa_vsl_by_port_coord_n_compl) |> 
   dim()
 0
 # correct
 
 # Percent of (non)compliant by port ----
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc <- 
+# Adding new columns to the data frame:
+# 
+# non_comp_perc: Non-compliance percentage calculated as the ratio of non-compliant vessels to total vessels.
+# is_comp_perc_round: Rounded percentage of non-compliance. No digits after the decimal point.
+
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |>
-  group_by(is_compliant_in_22) |>
-  mutate(
+  dplyr::group_by(is_compliant_in_22) |>
+  dplyr::mutate(
     non_comp_perc =
       cnt_sa_vsl_by_port_coord_n_compl * 100 /
       cnt_vsl_by_permit_n_port_coord,
     is_comp_perc_round =
       round(non_comp_perc)
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 glimpse(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc)
 # [1] 3388   11
@@ -170,6 +178,7 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
 # $ cnt_sa_vsl_by_port_coord_n_compl <int> 15, 12
 # $ is_comp_perc_round               <dbl> 55.6, 44.4
 
+## check multiple names for the same cooordinates ---- 
 # mult_names <- "AMELIA"
 # BAYOU LA BATRE
 mult_names <- "BATRE"
@@ -196,21 +205,27 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
   dim()
 # 11
 
+## Preparing spatial data for map visualization ----
+# Filtering rows with non-missing longitude and latitude values using the filter function.
+# 
+# Converting the data frame to a spatial object using the sf::st_as_sf function.
+# 
+# Specifying the field names ("long", "lat") to be used as coordinates.
+# 
+# Setting the Coordinate Reference System (CRS) for the spatial object to match the US states map using the crs parameter with the tigris_crs value.
+
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
-  filter(!is.na(long) &
+  dplyr::filter(!is.na(long) &
            !is.na(lat)) |>
-  sf::st_as_sf(# Specify the field names to use as coordinates
-    coords = c("long", "lat"),
-    # Use the same CRS (Coordinate Reference System) as the us states map
-    crs = tigris_crs)
+  sf::st_as_sf(coords = c("long", "lat"),
+               crs = tigris_crs)
 
 all_home_ports <-
   mapview(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf)
 
 ## crop all home ports by us state south map ----
-# mapview(south_east_coast_states_shp)
-
+# Creating a subset of data for the southern and eastern coast states
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf |>
   sf::st_crop(south_east_coast_states_shp_bb)  # Bounding box used for cropping
@@ -223,33 +238,57 @@ dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_sou
 # [1] 3106   10
 
 # Prepare for mapping: non compl only, add labels ----
+
+# The following code modifies the data frame for map visualization by filtering, selecting distinct rows, and creating new columns. Here's the breakdown of the comments:
+# 
+# 1. Modifying the data frame for map visualization.
+# 
+# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south` to the subsequent functions.
+# 
+# 3. Filtering rows where the compliance status in 2022 is "NO" using the `filter` function.
+# 
+# 4. Keeping only distinct rows in the data frame using the `distinct` function.
+# 
+# 5. Adding a new column named 'my_label' using string interpolation with the `str_glue` function. This column combines the city, state, and non-compliance percentage for labeling on the map.
+# 
+# 6. Adding a new column named 'perc_nc_bin' using the `cut_number` function. This column represents the non-compliance percentage binned into 5 levels for color representation on the map.
+
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south |>
-  filter(is_compliant_in_22 == "NO") |>
-  distinct() |> 
-  mutate(my_label =
-           str_glue("{city_fixed} {state_fixed}; {is_comp_perc_round}% non-compl")) |> 
-  mutate(perc_nc_bin = cut_number(is_comp_perc_round, n = 5))
+  dplyr::filter(is_compliant_in_22 == "NO") |>
+  dplyr::distinct() |> 
+  dplyr::mutate(my_label =
+           stringr::str_glue("{city_fixed} {state_fixed}; {is_comp_perc_round}% non-compl")) |> 
+  dplyr::mutate(perc_nc_bin = 
+                  ggplot2::cut_number(is_comp_perc_round, n = 5))
 
 # View(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab)
 
 dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab)
 # [1] 832  12
 
+# Calculating the number of unique colors based on a specific column
 uniq_color_num <-
-  length(
-    unique(
-      vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab$is_comp_perc_round
-    )
-  )
-# uniq_color_num
-# 53
 
-# popupTable(x, zcol, row.numbers = TRUE, feature.id = TRUE, className = NULL)
 
+# The following code creates pop-up marker information for the map by renaming columns and generating a pop-up table. Here's the breakdown of the comments:
+# 
+# 1. Creating pop-up marker information for the map using the `leafpop::popupTable` function.
+# 
+# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab` to the subsequent functions.
+# 
+# 3. Renaming columns in the data frame for clarity in pop-up information. The column `cnt_vsl_by_permit_n_port_coord` is renamed to `total_vsls`, and `cnt_sa_vsl_by_port_coord_n_compl` is renamed to `non_compliant`.
+# 
+# 4. Generating a pop-up table using the specified columns (`total_vsls`, `non_compliant`, and `perc_nc_bin`) with the `leafpop::popupTable` function.
+# 
+# 5. Disabling the display of feature ID in the pop-up table by setting `feature.id` to FALSE.
+# 
+# 6. Disabling the display of row numbers in the pop-up table by setting `row.numbers` to FALSE.
+# 
+# 7. Specifying the columns to be displayed in the pop-up table using the `zcol` parameter.
 markers_info <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
-  rename(total_vsls = cnt_vsl_by_permit_n_port_coord,
+  dplyr::rename(total_vsls = cnt_vsl_by_permit_n_port_coord,
          non_compliant = cnt_sa_vsl_by_port_coord_n_compl,) |>
   leafpop::popupTable(
     feature.id = FALSE,
@@ -264,18 +303,22 @@ markers_info <-
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   mapview::mapview(
     label = "my_label",
-    # zcol = "is_comp_perc_round",
+    # Specifying the column to be used for coloring the map
     zcol = "perc_nc_bin",
+    # Scaling factor for the size of the markers
     cex = "cnt_vsl_by_permit_n_port_coord",
+    # Setting the transparency level of the markers
     alpha = 0.3,
-    # direction = -1: the order of colors is reversed
+    # Specifying the color palette for the map
+    # The direction parameter is set to -1 to reverse the order of colors.
     col.regions =
       viridisLite::mako(uniq_color_num, direction = -1),
     legend = FALSE,
     layer.name = '% non compliant SA permitted vessels (2022) by home port coordinates',
     popup = markers_info
-    # burst = TRUE
-  )
-# ) +
-  # south_east_coast_states_shp
+    # Enabling burst mode for each bin to be a layer
+    # burst = TRUE 
+  # )
+) +
+  south_east_coast_states_shp
 
