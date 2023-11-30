@@ -15,6 +15,7 @@
 # Load the 'mapview' library for interactive viewing of spatial data.
 library(mapview)
 library(leafpop)
+library(leaflet)
 
 if (!require(tidygeocoder)) {
   install.packages("tidygeocoder")
@@ -349,3 +350,29 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
 ) +
   south_east_coast_states_shp
 
+# with leaflet clusters ----
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |> 
+  select(perc_nc_bin) |> 
+  leaflet::leaflet(
+    # options = 
+                     # leafletOptions(crs = leafletCRS(tigris_crs))
+    ) |>
+  leaflet::addTiles() |>
+  leaflet::addMarkers(
+    # clusterOptions = 
+    #                     leaflet::markerClusterOptions())
+    clusterOptions = 
+      leaflet::markerClusterOptions(iconCreateFunction = JS("function (cluster) {    
+    var childCount = cluster.getChildCount(); 
+    var c = ' marker-cluster-';  
+    if (childCount < 100) {  
+      c += 'large';  
+    } else if (childCount < 1000) {  
+      c += 'medium';  
+    } else { 
+      c += 'small';  
+    }    
+    return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+
+  }"))
+)
