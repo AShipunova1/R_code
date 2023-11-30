@@ -170,6 +170,24 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
 # $ cnt_sa_vsl_by_port_coord_n_compl <int> 15, 12
 # $ is_comp_perc_round               <dbl> 55.6, 44.4
 
+# mult_names <- "AMELIA"
+# BAYOU LA BATRE
+mult_names <- "BATRE"
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
+  filter(grepl(mult_names, city_fixed)) |>
+  select(-SERO_OFFICIAL_NUMBER) |> 
+  distinct() |>
+  glimpse()
+# $ SERO_OFFICIAL_NUMBER             <chr> "938369", "FL3307AE"
+# $ city_fixed                       <chr> "AMELIA IS", "AMELIA ISLAND"
+# $ cnt_vsl_by_permit_n_port_coord   <int> 2, 2
+
+
+# $ city_fixed                       <chr> "BAYOU LA BATRE", "BAYOU  LA BATRE"…
+# $ state_fixed                      <chr> "AL", "AL", "LA"
+# $ cnt_vsl_by_permit_n_port_coord   <int> 103, 103, 103
+
+
 # convert to sf ----
 ## how many don't have coords ----
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
