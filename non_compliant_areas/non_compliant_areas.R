@@ -269,7 +269,16 @@ dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_sou
 
 # Calculating the number of unique colors based on a specific column
 uniq_color_num <-
-
+  function(zcol_name) {
+    length(
+      unique(
+        vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab[[zcol_name]]
+      )
+    ) %>%
+      return()
+  }
+# uniq_color_num("is_comp_perc_round")
+# 43
 
 # The following code creates pop-up marker information for the map by renaming columns and generating a pop-up table. Here's the breakdown of the comments:
 # 
@@ -312,8 +321,8 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
     # Specifying the color palette for the map
     # The direction parameter is set to -1 to reverse the order of colors.
     col.regions =
-      viridisLite::mako(uniq_color_num, direction = -1),
-    legend = FALSE,
+      viridisLite::mako(uniq_color_num("perc_nc_bin"), direction = -1),
+    # legend = FALSE,
     layer.name = '% non compliant SA permitted vessels (2022) by home port coordinates',
     popup = markers_info
     # Enabling burst mode for each bin to be a layer
