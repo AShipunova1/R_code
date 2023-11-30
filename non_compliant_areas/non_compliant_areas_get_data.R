@@ -25,19 +25,19 @@ source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_err_db_data_metrics <-
   compl_err_db_data |>
-  filter(
+  dplyr::filter(
     vessel_official_nbr %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
 ## 2022: divide by permit region ----
 compl_err_db_data_metrics_permit_reg <-
   compl_err_db_data_metrics |> 
-  filter(comp_week_start_dt < '2023-01-01' &
+  dplyr::filter(comp_week_start_dt < '2023-01-01' &
            comp_week_end_dt >= '2022-01-01') |> 
   separate_permits_into_3_groups(permit_group_field_name = "permit_group") |>
   # [1] 26391    39
   remove_empty_cols() |> 
-  distinct()
+  dplyr::distinct()
 
 dim(compl_err_db_data_metrics_permit_reg)
 # [1] 26391    29
@@ -72,7 +72,7 @@ source(script_path)
 # 'vessels_to_remove_from_ours' vector.
 compl_err_db_data_metrics_permit_reg_sa_only <-
   compl_err_db_data_metrics_permit_reg_list$sa_only |>
-  filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
+  dplyr::filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
 
 dim(compl_err_db_data_metrics_permit_reg_sa_only)
 # [1] 22228    29
@@ -80,14 +80,14 @@ dim(compl_err_db_data_metrics_permit_reg_sa_only)
 ## Remove columns not use in this analysis ----
 ### check if all are not compliant ----
 compl_err_db_data_metrics_permit_reg_sa_only |>
-  select(is_comp) |>
-  distinct()
+  dplyr::select(is_comp) |>
+  dplyr::distinct()
+# 0 TRUE
 
-# if use compliant only when permit is active add
+# if compliance is checked for only when permit is active add:
 # comp_week_start_dt and comp_week_end_dt to select()
 
 # if override is taken in the account, add it
-
 compl_err_db_data_metrics_permit_reg_sa_only_vsl <- 
   compl_err_db_data_metrics_permit_reg_sa_only |>
   select(vessel_official_nbr) |> 
@@ -103,19 +103,34 @@ compl_err_db_data_metrics_permit_reg_sa_only_vsl <-
 ## 2022 permits ----
 vessels_permits_home_port_22 <-
   all_get_db_data_result_l$vessels_permits |>
-  filter(
+  dplyr::filter(
     LAST_EXPIRATION_DATE > "2021-12-31" |
       END_DATE > "2021-12-31" |
       EXPIRATION_DATE > "2021-12-31"
   ) |> 
-  filter(EFFECTIVE_DATE < "2021-12-31") |> 
+  dplyr::filter(EFFECTIVE_DATE < "2021-12-31") |> 
   remove_empty_cols()
   
 ## add permit region ----
+# 
+# This code creates a summarized data frame for vessels with permits in 2022 by grouping, summarizing, and separating permit types into three groups. Here's the breakdown of the comments:
+# 
+# 1. Creating a summarized data frame for vessels with permits in 2022.
+# 
+# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_22` to the subsequent functions.
+# 
+# 3. Grouping the data by vessel official number using the `dplyr::group_by` function.
+# 
+# 4. Adding a new column named 'all_permits' with all unique permit types as a comma-separated string using the `dplyr::mutate` function.
+# 
+# 5. Separating permits into three groups using a custom function named `separate_permits_into_3_groups`, with the new permit group field specified as "all_permits".
+# 
+# 6. Ungrouping the data to revert to the original data frame structure using the `ungroup` function.
+
 vessels_permits_home_port_22_reg <-
   vessels_permits_home_port_22 |>
-  group_by(SERO_OFFICIAL_NUMBER) |> 
-  mutate(all_permits = toString(unique(sort(TOP)))) |>
+  dplyr::group_by(SERO_OFFICIAL_NUMBER) |> 
+  dplyr::mutate(all_permits = toString(unique(sort(TOP)))) |>
   separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
   ungroup()
 
@@ -132,11 +147,11 @@ vessels_permits_home_port_22_reg |>
 ## shorten permit_vessel ----
 vessels_permits_home_port_22_reg_short <-
   vessels_permits_home_port_22_reg |>
-  select(SERO_OFFICIAL_NUMBER,
+  dplyr::select(SERO_OFFICIAL_NUMBER,
          permit_sa_gom,
-         starts_with("SERO_HOME")) |>
+         dplyr::starts_with("SERO_HOME")) |>
   remove_empty_cols() |>
-  distinct()
+  dplyr::distinct()
 
 # glimpse(vessels_permits_home_port_22_reg_short)
 # [1] 4729    5
@@ -150,17 +165,18 @@ sep = "\n")
 us_s_shp <-
   tigris::states(cb = TRUE, progress_bar = FALSE)
 
-# Load additional dictionaries ----
+### Load additional dictionaries ----
 misc_info_path <- file.path(my_paths$git_r,
                r"(get_data\misc_info.R)")
 
 source(misc_info_path)
 
-## Rows are retained if the 'NAME' column (state name) matches any of the values in 'south_east_coast_states'.
+## Rows are retained if the 'NAME' column (state name) matches any of the values in 'south_east_coast_states'. ----
 south_east_coast_states_shp <-
   us_s_shp |>
   filter(NAME %in% south_east_coast_states)
 
+## get the bounding box ----
 south_east_coast_states_shp_bb <- 
   sf::st_bbox(south_east_coast_states_shp)
 
@@ -168,11 +184,10 @@ south_east_coast_states_shp_bb <-
 #       xmin       ymin       xmax       ymax 
 # -106.64565   24.52310  -75.46062   36.58812 
 
+## save crs ----
 tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 # User input: NAD83 
 # ID["EPSG",4269]]
-
-crs4326 <- 4326
 
 # Prepare home port coordinates ----
 ## Fix port addresses ----
@@ -188,7 +203,7 @@ source(fix_ports_file_path)
 dim(vessels_permits_home_port_c_st_fixed)
 # [1] 4729    8
 
-## shorten fixed
+### shorten fixed ----
 vessels_permits_home_port_c_st_fixed_short <-
   vessels_permits_home_port_c_st_fixed |>
   select(SERO_OFFICIAL_NUMBER,
@@ -233,11 +248,11 @@ vessels_permits_home_port_lat_longs_city_state <-
 dim(vessels_permits_home_port_lat_longs_city_state)
 # [1] 4729    6
 
-vessels_permits_home_port_lat_longs_city_state |> 
+# vessels_permits_home_port_lat_longs_city_state |> 
   # dim()
 # [1] 5029    5
 # [1] 4729    6
-data_overview()
+# data_overview()
 # SERO_OFFICIAL_NUMBER 4729
 # permit_sa_gom           3
 # city_fixed            592
