@@ -352,6 +352,8 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
 
 # with leaflet clusters ----
 # [1] "SERO_OFFICIAL_NUMBER, permit_sa_gom, city_fixed, state_fixed, cnt_vsl_by_permit_n_port_coord, is_compliant_in_22, cnt_sa_vsl_by_port_coord_n_compl, non_comp_perc, is_comp_perc_round, geometry, my_label, perc_nc_bin"
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
+  glimpse()
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   # select(perc_nc_bin) |>
@@ -359,16 +361,21 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
   # options =
   # leafletOptions(crs = leafletCRS(tigris_crs))) |>
   leaflet::addTiles() |>
-  addMarkers(
+  # addMarkers(
+  addCircleMarkers(
     data = vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab,
-    label = ~ as.character(perc_nc_bin),
+    label = ~ as.character(my_label),
     popup = ~ as.character(perc_nc_bin),
+    radius = ~ is_comp_perc_round,
+    # color = cnt_vsl_by_permit_n_port_coord
+    # color = ~ perc_nc_bin,
     # group = df,
     clusterOptions = markerClusterOptions(removeOutsideVisibleBounds = F),
     labelOptions = labelOptions(noHide = T,
                                 direction = "auto")
   )
-#
+#  radius = 10,
+
 #   leaflet::addMarkers(
 #     # clusterOptions = 
 #     #                     leaflet::markerClusterOptions())
