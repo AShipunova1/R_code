@@ -1,6 +1,7 @@
 ---
-title: Home ports of non compliant vessels with SA only permits in 2022
+title: Non compliant SA only permitted vessels (2022) by home port
 ---
+Identifying any particular areas of high non-compliance to help focus future outreach efforts. 
 
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
@@ -87,6 +88,7 @@ current_project_dir_name <- basename(current_project_dir_path)
 ```
 
 ## prepare data 
+
 ```{r prepare data}
 # prepare data ----
 get_data_file_path <-
@@ -129,6 +131,7 @@ vessels_permits_home_port_lat_longs_city_state |>
 ```
 
 ## add counts to vessel_permit 
+Adding a count column with num of SERO_OFFICIAL_NUMBER based on permit type, latitude, and longitude to the data frame.
 
 ```{r add counts to vessel_permit}
 # add counts to vessel_permit ----
@@ -167,21 +170,21 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
 ```
 
 ## Join home port and compliance info by vessel 
+This code filters and modifies the data based on the permit type and compliance status for the year 2022. Here's the breakdown of the comments:
+
+1. Filtering and modifying data based on permit type and compliance status.
+
+2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port` to the subsequent functions.
+
+3. Filtering rows where the permit type is "sa_only" using the `filter` function.
+
+4. Adding a new column named 'is_compliant_in_22' using the `mutate` function and conditional logic (`case_when`):
+   - If the vessel's official number is in a specific list (`compl_err_db_data_metrics_permit_reg_sa_only_vsl$vessel_official_nbr`), set compliance status to "NO".
+   - For other vessels, default compliance status to "YES".
 
 ```{r Join home port and compliance info by vessel}
 # Join home port and compliance info by vessel ----
 
-# This code filters and modifies the data based on the permit type and compliance status for the year 2022. Here's the breakdown of the comments:
-# 
-# 1. Filtering and modifying data based on permit type and compliance status.
-# 
-# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port` to the subsequent functions.
-# 
-# 3. Filtering rows where the permit type is "sa_only" using the `filter` function.
-# 
-# 4. Adding a new column named 'is_compliant_in_22' using the `mutate` function and conditional logic (`case_when`):
-#    - If the vessel's official number is in a specific list (`compl_err_db_data_metrics_permit_reg_sa_only_vsl$vessel_official_nbr`), set compliance status to "NO".
-#    - For other vessels, default compliance status to "YES".
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance <-
   vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
@@ -214,10 +217,10 @@ dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance)
 ```
 
 ## count vessels by home_port and compliance 
+Adding a count column named cnt_sa_vsl_by_port_coord_n_compl based on the variables lat, long, and is_compliant_in_22 using the dplyr::add_count function.
 
 ```{r count vessels by home_port and compliance}
 # count vessels by home_port and compliance ----
-# Adding a count column named cnt_sa_vsl_by_port_coord_n_compl based on the variables lat, long, and is_compliant_in_22 using the dplyr::add_count function.
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance |>
@@ -239,13 +242,13 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |>
 ```
 
 ## Percent of (non)compliant by port 
+Adding new columns to the data frame:
+
+non_comp_perc: Non-compliance percentage calculated as the ratio of non-compliant vessels to total vessels.
+is_comp_perc_round: Rounded percentage of non-compliance. No digits after the decimal point.
 
 ```{r Percent of (non)compliant by port}
 # Percent of (non)compliant by port ----
-# Adding new columns to the data frame:
-# 
-# non_comp_perc: Non-compliance percentage calculated as the ratio of non-compliant vessels to total vessels.
-# is_comp_perc_round: Rounded percentage of non-compliance. No digits after the decimal point.
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |>
@@ -326,15 +329,16 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
 
 ### Preparing spatial data for map visualization 
 
+Filtering rows with non-missing longitude and latitude values using the filter function.
+
+Converting the data frame to a spatial object using the sf::st_as_sf function.
+
+Specifying the field names ("long", "lat") to be used as coordinates.
+
+Setting the Coordinate Reference System (CRS) for the spatial object to match the US states map using the crs parameter with the tigris_crs value.
+
 ```{r Preparing spatial data for map visualization}
 ## Preparing spatial data for map visualization ----
-# Filtering rows with non-missing longitude and latitude values using the filter function.
-# 
-# Converting the data frame to a spatial object using the sf::st_as_sf function.
-# 
-# Specifying the field names ("long", "lat") to be used as coordinates.
-# 
-# Setting the Coordinate Reference System (CRS) for the spatial object to match the US states map using the crs parameter with the tigris_crs value.
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
@@ -348,10 +352,10 @@ all_home_ports <-
 ```
 
 ### crop all home ports by us state south map 
+Creating a subset of data for the southern and eastern coast states
 
 ```{r crop all home ports by us state south map}
 ## crop all home ports by us state south map ----
-# Creating a subset of data for the southern and eastern coast states
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf |>
   sf::st_crop(south_east_coast_states_shp_bb)  # Bounding box used for cropping
@@ -365,23 +369,23 @@ dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_sou
 ```
 
 ## Prepare for mapping: non compl only, add labels 
+The following code modifies the data frame for map visualization by filtering, selecting distinct rows, and creating new columns. Here's the breakdown of the comments:
+
+1. Modifying the data frame for map visualization.
+
+2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south` to the subsequent functions.
+
+3. Filtering rows where the compliance status in 2022 is "NO" using the `filter` function.
+
+4. Keeping only distinct rows in the data frame using the `distinct` function.
+
+5. Adding a new column named 'my_label' using string interpolation with the `str_glue` function. This column combines the city, state, and non-compliance percentage for labeling on the map.
+
+6. Adding a new column named 'perc_nc_bin' using the `cut_number` function. This column represents the non-compliance percentage binned into 5 levels for color representation on the map.
 
 ```{r Prepare for mapping: non compl only, add labels}
 # Prepare for mapping: non compl only, add labels ----
 
-# The following code modifies the data frame for map visualization by filtering, selecting distinct rows, and creating new columns. Here's the breakdown of the comments:
-# 
-# 1. Modifying the data frame for map visualization.
-# 
-# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south` to the subsequent functions.
-# 
-# 3. Filtering rows where the compliance status in 2022 is "NO" using the `filter` function.
-# 
-# 4. Keeping only distinct rows in the data frame using the `distinct` function.
-# 
-# 5. Adding a new column named 'my_label' using string interpolation with the `str_glue` function. This column combines the city, state, and non-compliance percentage for labeling on the map.
-# 
-# 6. Adding a new column named 'perc_nc_bin' using the `cut_number` function. This column represents the non-compliance percentage binned into 5 levels for color representation on the map.
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south |>
@@ -396,8 +400,12 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
 
 dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab)
 # [1] 832  12
+```
 
-# Calculating the number of unique colors based on a specific column
+### Calculating the number of unique colors based on a specific column
+
+```{r Calculating the number of unique colors based on a specific column}
+# Calculating the number of unique colors based on a specific column ----
 uniq_color_num <-
   function(zcol_name) {
     length(
@@ -409,22 +417,27 @@ uniq_color_num <-
   }
 # uniq_color_num("is_comp_perc_round")
 # 43
+```
 
-# The following code creates pop-up marker information for the map by renaming columns and generating a pop-up table. Here's the breakdown of the comments:
-# 
-# 1. Creating pop-up marker information for the map using the `leafpop::popupTable` function.
-# 
-# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab` to the subsequent functions.
-# 
-# 3. Renaming columns in the data frame for clarity in pop-up information. The column `cnt_vsl_by_permit_n_port_coord` is renamed to `total_vsls`, and `cnt_sa_vsl_by_port_coord_n_compl` is renamed to `non_compliant`.
-# 
-# 4. Generating a pop-up table using the specified columns (`total_vsls`, `non_compliant`, and `perc_nc_bin`) with the `leafpop::popupTable` function.
-# 
-# 5. Disabling the display of feature ID in the pop-up table by setting `feature.id` to FALSE.
-# 
-# 6. Disabling the display of row numbers in the pop-up table by setting `row.numbers` to FALSE.
-# 
-# 7. Specifying the columns to be displayed in the pop-up table using the `zcol` parameter.
+### pop-up marker table
+The following code creates pop-up marker information for the map by renaming columns and generating a pop-up table. Here's the breakdown of the comments:
+
+1. Creating pop-up marker information for the map using the `leafpop::popupTable` function.
+
+2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab` to the subsequent functions.
+
+3. Renaming columns in the data frame for clarity in pop-up information. The column `cnt_vsl_by_permit_n_port_coord` is renamed to `total_vsls`, and `cnt_sa_vsl_by_port_coord_n_compl` is renamed to `non_compliant`.
+
+4. Generating a pop-up table using the specified columns (`total_vsls`, `non_compliant`, and `perc_nc_bin`) with the `leafpop::popupTable` function.
+
+5. Disabling the display of feature ID in the pop-up table by setting `feature.id` to FALSE.
+
+6. Disabling the display of row numbers in the pop-up table by setting `row.numbers` to FALSE.
+
+7. Specifying the columns to be displayed in the pop-up table using the `zcol` parameter.
+
+```{r pop-up marker table}
+## pop-up marker table ----
 markers_info <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   dplyr::rename(total_vsls = cnt_vsl_by_permit_n_port_coord,
@@ -438,7 +451,11 @@ markers_info <-
       "perc_nc_bin"
     )
   )
+```
 
+### mapview
+```{r mapview}
+## mapview ----
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   mapview::mapview(
     label = "my_label",
@@ -460,8 +477,5 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
   # )
 ) +
   south_east_coast_states_shp
-
-# run to make .Rmd
-# knitr::spin(rstudioapi::getSourceEditorContext()$path, knit = FALSE)
 ```
 
