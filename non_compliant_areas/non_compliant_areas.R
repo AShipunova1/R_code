@@ -367,11 +367,26 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
     label = ~ as.character(my_label),
     popup = ~ as.character(perc_nc_bin),
     radius = ~ is_comp_perc_round,
+    
     # color = cnt_vsl_by_permit_n_port_coord
     # color = ~ perc_nc_bin,
-    # group = df,
-    clusterOptions = markerClusterOptions(removeOutsideVisibleBounds = F),
-    labelOptions = labelOptions(noHide = T,
+    # group = ~ perc_nc_bin,
+    clusterOptions =
+      leaflet::markerClusterOptions(
+        iconCreateFunction = JS(
+          "function (cluster) {
+				var markers = cluster.getAllChildMarkers();
+				var n = 0;
+				for (var i = 0; i < markers.length; i++) {
+					n += markers[i].options.radius
+//            n += i;
+				}
+				return L.divIcon({ html: n, className: 'mycluster', iconSize: L.point(40, 40) });
+			}
+"
+        )
+      ),
+labelOptions = labelOptions(noHide = T,
                                 direction = "auto")
   )
 #  radius = 10,
