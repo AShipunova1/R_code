@@ -363,6 +363,7 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
   leaflet::addTiles() |>
   # addMarkers(
   addCircleMarkers(
+    options = markerOptions(nc_perc = ~ is_comp_perc_round),
     data = vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab,
     label = ~ as.character(my_label),
     popup = ~ as.character(perc_nc_bin),
@@ -381,7 +382,12 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
 					n += markers[i].options.radius
 //            n += i;
 				}
-				return L.divIcon({ html: n, className: 'mycluster', iconSize: L.point(40, 40) });
+    return L.divIcon({ html: '<div><span>'+
+n
++'</span></div>', 
+iconSize: new L.Point(40, 40) });
+
+//				return L.divIcon({ html: n, className: 'mycluster', iconSize: L.point(40, 40) });
 			}
 "
         )
