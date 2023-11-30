@@ -351,28 +351,37 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
   south_east_coast_states_shp
 
 # with leaflet clusters ----
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |> 
-  select(perc_nc_bin) |> 
-  leaflet::leaflet(
-    # options = 
-                     # leafletOptions(crs = leafletCRS(tigris_crs))
-    ) |>
-  leaflet::addTiles() |>
-  leaflet::addMarkers(
-    # clusterOptions = 
-    #                     leaflet::markerClusterOptions())
-    clusterOptions = 
-      leaflet::markerClusterOptions(iconCreateFunction = JS("function (cluster) {    
-    var childCount = cluster.getChildCount(); 
-    var c = ' marker-cluster-';  
-    if (childCount < 100) {  
-      c += 'large';  
-    } else if (childCount < 1000) {  
-      c += 'medium';  
-    } else { 
-      c += 'small';  
-    }    
-    return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+# [1] "SERO_OFFICIAL_NUMBER, permit_sa_gom, city_fixed, state_fixed, cnt_vsl_by_permit_n_port_coord, is_compliant_in_22, cnt_sa_vsl_by_port_coord_n_compl, non_comp_perc, is_comp_perc_round, geometry, my_label, perc_nc_bin"
 
-  }"))
-)
+vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
+  # select(perc_nc_bin) |>
+  leaflet::leaflet() |>
+  # options =
+  # leafletOptions(crs = leafletCRS(tigris_crs))) |>
+  leaflet::addTiles() |>
+  addMarkers(
+    data = vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab,
+    label = ~ as.character(perc_nc_bin),
+    popup = ~ as.character(perc_nc_bin),
+    # group = df,
+    clusterOptions = markerClusterOptions(removeOutsideVisibleBounds = F),
+    labelOptions = labelOptions(noHide = T,
+                                direction = "auto")
+  )
+#
+#   leaflet::addMarkers(
+#     # clusterOptions = 
+#     #                     leaflet::markerClusterOptions())
+#     clusterOptions = 
+#       leaflet::markerClusterOptions(iconCreateFunction = JS("function (cluster) {    
+#     var theseMarkers = cluster.getAllChildMarkers();
+#     let myCustomCount = 0;
+#     for (const childMarker of childMarkers) {
+#       myCustomCount += childMarker.perc_nc_bin; 
+#     }
+# 
+#     return L.divIcon({ html: '<b>' + myCustomCount + '</b>' });
+#     
+#   }"))
+# )
+# 
