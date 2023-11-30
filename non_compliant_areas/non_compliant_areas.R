@@ -377,17 +377,14 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
         iconCreateFunction = JS(
           "function (cluster) {
 				var markers = cluster.getAllChildMarkers();
-				var n = 0;
+				var nc_perc_n = 0;
 				for (var i = 0; i < markers.length; i++) {
-					n += markers[i].options.radius
-//            n += i;
+					nc_perc_n += markers[i].options.nc_perc
 				}
     return L.divIcon({ html: '<div><span>'+
-n
+nc_perc_n
 +'</span></div>', 
 iconSize: new L.Point(40, 40) });
-
-//				return L.divIcon({ html: n, className: 'mycluster', iconSize: L.point(40, 40) });
 			}
 "
         )
