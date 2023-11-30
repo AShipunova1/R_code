@@ -355,6 +355,38 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   glimpse()
 
+legend_pal <- hcl.colors(10, palette = 'Spectral', rev = T)
+
+iconCreateFunction_js <- 
+  paste0(
+  "function (cluster) {
+  var markers = cluster.getAllChildMarkers();
+  var sum = 0;
+  for (i = 0; i < markers.length; i++) {
+    sum += Number(markers[i].options.nc_perc);
+  }
+  var palette = ['",
+  paste0(legend_pal, collapse = "','"),
+  "'];
+  var domain = [",
+  paste0(sort(unique(na.omit(
+  nc_perc
+  ))), collapse = ','),
+  "];
+  
+  var count = markers.length;
+  var avg = sum/count;
+  c = palette[Math.round(palette.length*(avg-Math.min(...domain))/(Math.max(...domain) - Math.min(...domain)))];
+  
+  return L.divIcon({
+  html: '<div style=\"background-color:'+c+'\"><span>'+avg+'</span></div>',
+  className: 'marker-cluster',
+  iconSize: new L.Point(40, 40) });
+}"
+
+)
+
+
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   # select(perc_nc_bin) |>
   leaflet::leaflet() |>
@@ -374,20 +406,7 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
     # group = ~ perc_nc_bin,
     clusterOptions =
       leaflet::markerClusterOptions(
-        iconCreateFunction = JS(
-          "function (cluster) {
-				var markers = cluster.getAllChildMarkers();
-				var nc_perc_n = 0;
-				for (var i = 0; i < markers.length; i++) {
-					nc_perc_n += markers[i].options.nc_perc
-				}
-    return L.divIcon({ html: '<div><span>'+
-nc_perc_n
-+'</span></div>', 
-iconSize: new L.Point(40, 40) });
-			}
-"
-        )
+        iconCreateFunction = JS(iconCreateFunction_js)
       ),
 labelOptions = labelOptions(noHide = T,
                                 direction = "auto")
@@ -410,3 +429,22 @@ labelOptions = labelOptions(noHide = T,
 #   }"))
 # )
 # 
+
+#           "function (cluster) {
+# 				var markers = cluster.getAllChildMarkers();
+# 				var nc_perc_n = 0;
+# 				for (var i = 0; i < markers.length; i++) {
+# 					nc_perc_n += markers[i].options.nc_perc
+# 				}
+# 
+# 								return L.divIcon({ 
+#                             html: '<div style=\"background-color:'+c+'\"><span>'+avg+'</span></div>', 
+#                             className: 'marker-cluster', 
+#                             iconSize: new L.Point(40, 40) });
+# 
+#     return L.divIcon({ html: '<div><span>'+
+# nc_perc_n
+# +'</span></div>', 
+# iconSize: new L.Point(40, 40) });
+# 			}
+# "
