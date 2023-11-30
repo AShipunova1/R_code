@@ -365,21 +365,10 @@ iconCreateFunction_js <-
   for (i = 0; i < markers.length; i++) {
     sum += Number(markers[i].options.nc_perc);
   }
-  var palette = ['",
-  paste0(legend_pal, collapse = "','"),
-  "'];
-  var domain = [",
-  paste0(sort(unique(na.omit(
-  nc_perc
-  ))), collapse = ','),
-  "];
-  
   var count = markers.length;
   var avg = sum/count;
-  c = palette[Math.round(palette.length*(avg-Math.min(...domain))/(Math.max(...domain) - Math.min(...domain)))];
-  
   return L.divIcon({
-  html: '<div style=\"background-color:'+c+'\"><span>'+avg+'</span></div>',
+  html: '<div><span>'+avg+'</span></div>',
   className: 'marker-cluster',
   iconSize: new L.Point(40, 40) });
 }"
@@ -405,10 +394,9 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
     # color = ~ perc_nc_bin,
     # group = ~ perc_nc_bin,
     clusterOptions =
-      leaflet::markerClusterOptions(
-        iconCreateFunction = JS(iconCreateFunction_js)
-      ),
-labelOptions = labelOptions(noHide = T,
+      leaflet::markerClusterOptions(iconCreateFunction = 
+                                      JS(iconCreateFunction_js)),
+    labelOptions = labelOptions(noHide = T,
                                 direction = "auto")
   )
 #  radius = 10,
