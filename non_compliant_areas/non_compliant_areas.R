@@ -1,3 +1,4 @@
+# Non compliant SA only permitted vessels (2022) by home port
 # identifying any particular areas of high non-compliance to help focus future outreach efforts. 
 # do this as a map
 
@@ -282,7 +283,7 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_l
 dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab)
 # [1] 832  12
 
-# Calculating the number of unique colors based on a specific column
+## Calculating the number of unique colors based on a specific column ----
 uniq_color_num <-
   function(zcol_name) {
     length(
@@ -295,6 +296,7 @@ uniq_color_num <-
 # uniq_color_num("is_comp_perc_round")
 # 43
 
+## pop-up marker table ----
 # The following code creates pop-up marker information for the map by renaming columns and generating a pop-up table. Here's the breakdown of the comments:
 # 
 # 1. Creating pop-up marker information for the map using the `leafpop::popupTable` function.
@@ -324,6 +326,7 @@ markers_info <-
     )
   )
 
+## mapview ----
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   mapview::mapview(
     label = "my_label",
