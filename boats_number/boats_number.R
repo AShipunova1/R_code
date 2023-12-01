@@ -317,9 +317,18 @@ each_quarter_a_col <-
 
   }
 
+ports_q_short_wider_list <-
+  list(c(start_ports_q_short, "start"),
+           c(end_ports_q_short, "end")) |>
+  map(\(one_df_l) {
+    # browser()
+    my_df <- one_df_l[1:length(one_df_l) - 1] |>
+      as.data.frame()
+    my_col_name <- one_df_l[[length(one_df_l)]]
+    each_quarter_a_col(my_df, my_col_name)
+  })
 
-aa <-
-  each_quarter_a_col(start_ports_q_short)
+str(ports_q_short_wider_list)
 
 start_ports_q_short_wider <-
   start_ports_q_short |>
