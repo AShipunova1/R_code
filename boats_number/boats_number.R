@@ -194,6 +194,17 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl <-
 dim(all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl)
 # [1] 3011   15
 
+multiple_start_ports <-
+  all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
+  select(vessel_official_nbr,
+         start_port_name) |>
+  distinct() |>
+  add_count(vessel_official_nbr, name = "start_port_name_cnt") |>
+  filter(start_port_name_cnt > 1) |>
+  arrange(vessel_official_nbr)
+
+dim(multiple_start_ports)
+# [1] 1530    3
 all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   select(vessel_official_nbr,
          end_port_name) |>
