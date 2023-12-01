@@ -366,15 +366,14 @@ iconCreateFunction_js <-
     sum += Number(markers[i].options.nc_perc);
   }
   var count = markers.length;
-  var avg = sum/count;
+  var avg = Math.round(sum/count);
   return L.divIcon({
-  html: '<div><span>'+avg+'</span></div>',
-  className: 'marker-cluster',
-  iconSize: new L.Point(40, 40) });
+    html: '<div><span>' + sum + '</span></div>',
+    iconSize: new L.Point(40, 40) 
+  });
 }"
 
 )
-
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc_sf_south_lab |>
   # select(perc_nc_bin) |>
