@@ -658,14 +658,36 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   select(all_of(select_vessel_mark_only)) |>
   distinct() |>
+  group_by(vessel_official_nbr) |>
+  mutate(cc =
+           n_distinct(one_start_port_marker,
+                      na.rm = TRUE)) |>
+  View()
+
   pivot_wider(
     id_cols = c(vessel_official_nbr),
     names_from = !!sym("one_start_port_marker"),
     values_from = !!sym("one_start_port_marker"),
     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
   ) |>
-
+  glimpse()
+#
+  # complete.cases
   rowwise() |>
+  mutate(complete_cases1 =
+           case_when(is.na(sa) ~
+            coalesce(sa, gom),
+            .default = gom
+           ),
+         sa_complete_cases =
+           case_when(is.na(gom) ~
+            "sa",
+            .default = sa
+           ),
+
+  ) |>
+    # replace_na)
+# |>
   mutate(not_na_cnt =
            n_distinct(unlist(coalesce(gom, sa))),
          not_na_list =
