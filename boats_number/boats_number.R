@@ -299,20 +299,22 @@ count_uniq_by_column(end_ports_quarter_cnt)
 # vessel_official_nbr     1876
 
 ### if a num of lists of ports by quarter grater than 1, then ports are different from Q to Q ----
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter <-
-  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
-  mutate(same_start_p =
-           case_when(count_start_ports_by_q > 1 ~
-                       "no",
-                     .default = "yes")) |>
+end_ports_quarter_cnt_diff_ports_by_quarter <-
+  end_ports_quarter_cnt |>
   mutate(same_end_p =
-           case_when(count_end_ports_by_q > 1 ~
+           case_when(end_port_by_q_cnt > 1 ~
                        "no",
-                     .default = "yes")) |>
-  arrange(vessel_official_nbr, trip_start_year_quarter)
+                      .default = "yes")) |>
+  # mutate(same_end_p =
+  #          case_when(start_port_by_q_cnt > 1 ~
+  #                      "no",
+  #                    .default = "yes")) |>
+  arrange(vessel_official_nbr, trip_end_year_quarter)
 # filter(permit_region == "gom_and_dual")
 
-# glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter)
+end_ports_quarter_cnt_diff_ports_by_quarter |>
+  filter(same_end_p == "no") |>
+  glimpse()
 # [1] 6604   19
 # all
 # vessel_official_nbr     1876
