@@ -386,17 +386,24 @@ make_ports_q_short_wider_diff <-
 # View(aa)
 
 # View(ports_q_short_wider_list)
+tic("ports_q_short_wider_list_diff")
 ports_q_short_wider_list_diff <-
   list(c(ports_q_short_wider_list[[1]], "start"),
        c(ports_q_short_wider_list[[2]], "end")) |>
   map(\(one_df_l) {
     # browser()
+    my_df_names <-
+      names(one_df_l)[1:length(one_df_l) - 1]
     my_df <- one_df_l[1:length(one_df_l) - 1] |>
       as.data.frame()
+    names(my_df) <- my_df_names
     my_col_name <- one_df_l[[length(one_df_l)]]
     make_ports_q_short_wider_diff(my_df, my_col_name)
   })
-View(ports_q_short_wider_list_diff)
+toc()
+# ports_q_short_wider_list_diff: 9.93 sec elapsed
+
+# View(ports_q_short_wider_list_diff)
 
 ports_q_short_wider_list <-
   list(c(start_ports_q_short_wider, "start"),
