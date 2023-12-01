@@ -64,9 +64,9 @@ all_logbooks_db_data_2022_short_p_region_short |>
 #            !start_port_name == end_port_name) |>
 # str()
 # 0
-my_vars <- function() {
-  c(any_of(c("name", "species")), ends_with("color"))
-}
+# my_vars <- function() {
+#   c(any_of(c("name", "species")), ends_with("color"))
+# }
 
 port_fields_all <-
   function(variables) {
@@ -194,11 +194,29 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl <-
 dim(all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl)
 # [1] 3011   15
 
+all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
+  select(vessel_official_nbr,
+         end_port_name) |>
+  distinct() |>
+  add_count(vessel_official_nbr, name = "start_port_name_cnt") |>
+  filter(vessel_official_nbr %in% c('944064',
+                                   '934665')) |>
+  arrange(vessel_official_nbr) |>
+  glimpse()
+
+## different start ports ----
 all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
   # View()
   filter(all_start_ports_num > 1) |>
   dim()
 # [1] 1890    11
+
+## different end ports ----
+all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
+  filter(all_end_ports_num > 1) |>
+  View()
+# [1] 1890   11
+
 
 all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   filter(!all_end_ports_num == all_end_port_names_num) |>
