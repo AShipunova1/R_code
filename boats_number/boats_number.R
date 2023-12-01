@@ -3,7 +3,6 @@ library(zoo)
 # Determine the path of the executing script
 library(this.path)
 
-
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -932,3 +931,5 @@ combs2_short_cnts <-
 
 combs2_short_cnts
 
+# how many vessels used different landing locations (simple count per vessel) ----
+# how many of those cross states ----
