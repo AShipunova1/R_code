@@ -299,17 +299,24 @@ count_uniq_by_column(end_ports_quarter_cnt)
 # vessel_official_nbr     1876
 
 ### if a num of lists of ports by quarter grater than 1, then ports are different from Q to Q ----
+# TODO check not just the number, but also diff names by Q
+start_ports_quarter_cnt_diff_ports_by_quarter <-
+  start_ports_quarter_cnt |>
+  mutate(same_start_p =
+           case_when(start_port_by_q_cnt > 1 ~
+                       "no",
+                      .default = "yes")) |>
+  arrange(vessel_official_nbr, trip_start_year_quarter)
+
+
 end_ports_quarter_cnt_diff_ports_by_quarter <-
   end_ports_quarter_cnt |>
   mutate(same_end_p =
            case_when(end_port_by_q_cnt > 1 ~
                        "no",
                       .default = "yes")) |>
-  # mutate(same_end_p =
-  #          case_when(start_port_by_q_cnt > 1 ~
-  #                      "no",
-  #                    .default = "yes")) |>
   arrange(vessel_official_nbr, trip_end_year_quarter)
+
 # filter(permit_region == "gom_and_dual")
 
 end_ports_quarter_cnt_diff_ports_by_quarter |>
@@ -317,16 +324,7 @@ end_ports_quarter_cnt_diff_ports_by_quarter |>
   glimpse()
 # [1] 6604   19
 # all
-# vessel_official_nbr     1876
-# permit_region              2
-# start_port               536
-# start_port_name          531
 
-# gom
-# vessel_official_nbr     498
-# permit_region             2
-# start_port              364
-# start_port_name         360
 
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter |>
   select(vessel_official_nbr,
