@@ -205,6 +205,18 @@ multiple_start_ports <-
 
 dim(multiple_start_ports)
 # [1] 1530    3
+
+multiple_end_ports <-
+  all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
+  select(vessel_official_nbr,
+         end_port_name) |>
+  distinct() |>
+  add_count(vessel_official_nbr, name = "end_port_name_cnt") |>
+  filter(end_port_name_cnt > 1) |>
+  arrange(vessel_official_nbr)
+
+dim(multiple_end_ports)
+# [1] 874   3
 all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   select(vessel_official_nbr,
          end_port_name) |>
