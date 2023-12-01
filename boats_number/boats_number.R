@@ -646,6 +646,45 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 # 3       sa_only                   gom  216
 # 4       sa_only                    sa 1013
 
+# TODO: redo using pivot
+
+select_vessel_mark_only <-
+  c("vessel_official_nbr",
+    "one_start_port_marker")
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  glimpse()
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  select(all_of(select_vessel_mark_only)) |>
+  distinct() |>
+  pivot_wider(
+    id_cols = c(vessel_official_nbr),
+    names_from = !!sym("one_start_port_marker"),
+    values_from = !!sym("one_start_port_marker"),
+    values_fn = ~ paste(unique(sort(.x)), collapse = ",")
+  ) |>
+
+        rowwise() |>
+      mutate(name1 =
+               n_distinct(unlist(across(
+                 c(gom, sa)
+               ))),
+             name2 =
+               list(paste(unique(sort(
+                 unlist(across(c(gom, sa)))
+               )),
+               sep = ","))) |>
+      mutate(same = n_distinct(unlist(across(
+        c(gom, sa),
+        ~ as.character(.x)
+      ))) == 1) |>
+      ungroup() |>
+
+  # filter(same == TRUE) |>
+  glimpse()
+
+
 find_multi_region_vessels <-
   function(my_df,
            select_vector,
