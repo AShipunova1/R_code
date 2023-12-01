@@ -249,15 +249,13 @@ multiple_end_port_states |>
   count_uniq_by_column()
 # vessel_official_nbr 76
 
-
-#
+## by quarter ----
 #
 # all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
 #   filter(vessel_official_nbr == 1000042) |>
 #   glimpse()
 
-## by quarter, to start - for some seasonality. ----
-### trips and quarter fields ----
+### trips and quarter fields only ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port |>
   select(
@@ -276,67 +274,43 @@ dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
 # start_port               536
 # start_port_name          531
 
-# a quarter is the same, a port - diff
-### lists of start and end ports by quarter ----
-group_by_vector <-
-  c("vessel_id",
-    "vessel_official_nbr",
-    "trip_start_quarter_num")
-
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
-  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
-    group_by_at(group_by_vector) |>
-    mutate(all_start_ports_by_q = toString(unique(sort(start_port))),
-           all_end_ports_by_q   = toString(unique(sort(end_port)))) |>
-  ungroup()
-
+### a quarter is the same, a port - diff ----
 # test
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
   filter(vessel_official_nbr == "1057052") |>
-  View()
+  arrange(trip_start_quarter_num) |>
+  glimpse()
 
 ### count ports by quarter  ----
-# print_df_names(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
-# start_ports_quarter_cnt <-
-  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
-  select(vessel_official_nbr,
-         permit_region,
-         trip_start_year_quarter,
-         start_port_name) |>
-  distinct() |>
-  # group_by(vessel_official_nbr,
-  #        permit_region,
-  #        trip_start_year_quarter,
-  #        all_start_ports_by_q) |>
-  add_count(vessel_official_nbr,
-         permit_region,
-         trip_start_year_quarter) |>
-  # ungroup() |>
-  # count(vessel_official_nbr,
-         # permit_region,
-         # trip_start_year_quarter) |>
-  filter(vessel_official_nbr == "1057052") |>
-  View()
-#
-#   group_by(vessel_official_nbr,
-#            permit_region,
-#            trip_start_year_quarter) |>
-#   mutate(count_start_ports_by_q = n_distinct(all_start_ports_by_q)
-         # count_end_ports_by_q   = n_distinct(all_end_ports_by_q)
-         # ) |>
-         # ungroup()
+cnt_ports_by_quarter <-
+  function(my_df,
+           start_or_end) {
 
-# test
-start_ports_quarter_cnt |>
+    quarter_field_name <-
+      stringr::str_glue("trip_{start_or_end}_year_quarter")
+    port_field_name <-
+      stringr::str_glue("{start_or_end}_port_name")
+
+    ports_quarter_cnt <-
+      my_df |>
+      select(vessel_official_nbr,
+             permit_region,
+             !!(quarter_field_name),
+             !!(port_field_name)) |>
+      distinct() |>
+      add_count(vessel_official_nbr,
+                permit_region,
+                !!sym(quarter_field_name))
+
+    return(ports_quarter_cnt)
+  }
+
+start_ports_quarter_cnt <-
+  cnt_ports_by_quarter(  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short, "start") |>
   filter(vessel_official_nbr == "1057052") |>
-  View()
-#
-# all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
-#   filter(count_start_ports_by_q > 1) |>
-#   arrange(trip_start_year_quarter) |>
-#   filter(permit_region == "gom_and_dual") |>
-#   filter(vessel_id == "328032") |>
-#   glimpse()
+  arrange(trip_start_year_quarter) |>
+  glimpse()
+
 
 ### if a num of lists of ports by quarter grater than 1, then ports are different from Q to Q ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter <-
