@@ -291,12 +291,12 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q <-
   ungroup()
 
 # test
-# all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
-#   filter(vessel_official_nbr == "1057052") |>
-#   glimpse()
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
+  filter(vessel_official_nbr == "1057052") |>
+  View()
 
 ### count port groups (lists) ----
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
+start_ports_quarter_cnt <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
   select(vessel_official_nbr,
          permit_region,
@@ -312,9 +312,9 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt <-
   ungroup()
 
 # test
-# all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
-#     filter(vessel_official_nbr == "1057052") |>
-#   glimpse()
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
+  filter(vessel_official_nbr == "1057052") |>
+  View()
 #
 # all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt |>
 #   filter(count_start_ports_by_q > 1) |>
