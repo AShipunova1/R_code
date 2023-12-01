@@ -668,81 +668,11 @@ start_ports_region_cnt <-
 dim(start_ports_region_cnt)
 # [1] 2029    3
 
-diffdf::diffdf(start_ports_region_cnt,
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt)
 
-  pivot_wider(
-    id_cols = c(vessel_official_nbr),
-    names_from = !!sym("one_start_port_marker"),
-    values_from = !!sym("one_start_port_marker"),
-    values_fn = ~ paste(unique(sort(.x)), collapse = ",")
-  ) |>
-  glimpse()
-#
-  # complete.cases
-  rowwise() |>
-  mutate(complete_cases1 =
-           case_when(is.na(sa) ~
-            coalesce(sa, gom),
-            .default = gom
-           ),
-         sa_complete_cases =
-           case_when(is.na(gom) ~
-            "sa",
-            .default = sa
-           ),
-
-  ) |>
-    # replace_na)
-# |>
-  mutate(not_na_cnt =
-           n_distinct(unlist(coalesce(gom, sa))),
-         not_na_list =
-           list(paste(unique(sort(
-             unlist(coalesce(gom, sa))
-           )),
-           sep = ","))) |>
-
-  # mutate(same =
-  #          n_distinct(unlist(coalesce(gom, sa),
-  #   ~ as.character(.x)
-  # )) == 1) |>
-  ungroup() |>
-  filter(not_na_cnt > 1) |>
-  # filter(same == FALSE) |>
-  glimpse()
-
-
-find_multi_region_vessels <-
-  function(my_df,
-           select_vector,
-           group_by_vector = c("vessel_official_nbr")) {
-    my_df |>
-      select(all_of(select_vector)) |>
-      distinct() |>
-      group_by_at(group_by_vector) |>
-      mutate(
-        vessel_one_start_port_marker =
-          toString(unique(sort(
-            one_start_port_marker
-          ))),
-        vessel_one_start_port_marker_num =
-          length(str_split(vessel_one_start_port_marker, ","))
-      ) |>
-      ungroup() %>%
-      return()
-  }
-
-select_vessel_mark_only <-
-  c("vessel_official_nbr",
-    "one_start_port_marker")
-
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt <-
-  find_multi_region_vessels(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short, select_vessel_mark_only)
-
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
+start_ports_region_cnt |>
   filter(vessel_official_nbr == "1021879") |>
   glimpse()
+
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
   select(
