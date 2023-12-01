@@ -648,21 +648,28 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 
 # TODO: redo using pivot
 
-select_vessel_mark_only <-
+select_vessel_mark_start <-
   c("vessel_official_nbr",
     "one_start_port_marker")
 
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
-  glimpse()
+# all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  # glimpse()
 
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
-  select(all_of(select_vessel_mark_only)) |>
+start_ports_region_cnt <-
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  select(all_of(select_vessel_mark_start)) |>
   distinct() |>
   group_by(vessel_official_nbr) |>
-  mutate(cc =
+  mutate(vessel_one_start_port_marker_num =
            n_distinct(one_start_port_marker,
                       na.rm = TRUE)) |>
-  View()
+  ungroup()
+
+dim(start_ports_region_cnt)
+# [1] 2029    3
+
+diffdf::diffdf(start_ports_region_cnt,
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt)
 
   pivot_wider(
     id_cols = c(vessel_official_nbr),
@@ -733,6 +740,9 @@ select_vessel_mark_only <-
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt <-
   find_multi_region_vessels(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short, select_vessel_mark_only)
 
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
+  filter(vessel_official_nbr == "1021879") |>
+  glimpse()
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
   select(
