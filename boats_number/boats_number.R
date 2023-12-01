@@ -109,7 +109,10 @@ all_logbooks_db_data_2022_short_p_region_dates <-
       zoo::as.yearmon(trip_end_date),
     trip_start_year_quarter = as.yearqtr(trip_start_date),
     trip_start_quarter_num =
-      format(trip_start_year_quarter, "%q")
+      format(trip_start_year_quarter, "%q"),
+    trip_end_year_quarter = as.yearqtr(trip_end_date),
+    trip_end_quarter_num =
+      format(trip_end_year_quarter, "%q")
   )
 toc()
 # all_logbooks_db_data_2022_short_p_region_dates: 2.94 sec elapsed
@@ -123,7 +126,7 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port <-
   distinct()
 
 dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port)
-# [1] 94366    27
+# [1] 94366    29
 
 # how many SEFHIER vessels start at a different location than they end; ----
 all_logbooks_db_data_2022_short_p_region_short |>
@@ -150,57 +153,16 @@ all_logbooks_db_data_2022_short_p_region_short |>
 
 # how many vessels have variable landing locations (i.e., in the winter they are in one state while in the summer they fish in another); ----
 
-add_all_port_string <-
-  function(my_df,
-           group_by_vector = c("vessel_id", "vessel_official_nbr")) {
-  my_df |>
-    group_by_at(group_by_vector) |>
-    mutate(all_start_ports = toString(unique(sort(start_port))),
-           all_end_ports   = toString(unique(sort(end_port)))) |>
-    mutate(
-      all_start_ports_num = length(str_split(all_start_ports, ",")),
-      all_end_ports_num   = length(str_split(all_end_ports, ","))
-    ) |>
-    ungroup() %>% #can't be |> , doesn't work with return()
-    return()
-}
-
-all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl <-
-  add_all_port_string(all_logbooks_db_data_2022_short_p_region_short)
-
-dim(all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl)
-# [1] 3011   11
-
-add_all_port_name_string <-
-  function(my_df,
-           group_by_vector = c("vessel_id", "vessel_official_nbr")) {
-    my_df |>
-      group_by_at(group_by_vector) |>
-      mutate(
-        all_start_port_names = toString(unique(sort(start_port_name))),
-        all_end_port_names   = toString(unique(sort(end_port_name)))
-      ) |>
-      mutate(
-        all_start_port_names_num = length(str_split(all_start_port_names, ",")),
-        all_end_port_names_num   = length(str_split(all_end_port_names, ","))
-      ) |>
-      ungroup() %>%
-      return()
-  }
-
-all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl <-
-  add_all_port_name_string(all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl)
-
-dim(all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl)
-# [1] 3011   15
-
 ## multiple_start_ports ----
 multiple_start_ports <-
   all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   select(vessel_official_nbr,
+         permit_region,
          start_port_name) |>
   distinct() |>
-  add_count(vessel_official_nbr, name = "start_port_name_cnt") |>
+  add_count(vessel_official_nbr,
+            permit_region,
+            name = "start_port_name_cnt") |>
   filter(start_port_name_cnt > 1) |>
   arrange(vessel_official_nbr)
 
@@ -218,9 +180,12 @@ multiple_start_ports |>
 multiple_end_ports <-
   all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   select(vessel_official_nbr,
+         permit_region,
          end_port_name) |>
   distinct() |>
-  add_count(vessel_official_nbr, name = "end_port_name_cnt") |>
+  add_count(vessel_official_nbr,
+            permit_region,
+            name = "end_port_name_cnt") |>
   filter(end_port_name_cnt > 1) |>
   arrange(vessel_official_nbr)
 
@@ -239,9 +204,12 @@ count_uniq_by_column(multiple_end_ports)
 multiple_end_port_states <-
   all_logbooks_db_data_2022_short_p_region_port_fields_all |>
   select(vessel_official_nbr,
+         permit_region,
          end_port_state) |>
   distinct() |>
-  add_count(vessel_official_nbr, name = "end_port_state_cnt") |>
+  add_count(vessel_official_nbr,
+            permit_region,
+            name = "end_port_state_cnt") |>
   filter(end_port_state_cnt > 1) |>
   arrange(vessel_official_nbr)
 
@@ -262,24 +230,28 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
     port_fields_all(),
     -starts_with("notif"),
     c(trip_start_year_quarter,
-      trip_start_quarter_num)
+      trip_start_quarter_num,
+      trip_end_year_quarter,
+      trip_end_quarter_num,)
   ) |>
   remove_empty_cols() |>
   distinct()
 
 dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
-# [1] 6604   13
+# [1] 6639   15
+
+count_uniq_by_column(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short)
 # vessel_official_nbr     1876
 # permit_region              2
-# start_port               536
 # start_port_name          531
+# end_port_name            529
 
 ### a quarter is the same, a port - diff ----
 # test
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q |>
-  filter(vessel_official_nbr == "1057052") |>
-  arrange(trip_start_quarter_num) |>
-  glimpse()
+# all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+#   filter(vessel_official_nbr == "1057052") |>
+#   arrange(trip_start_quarter_num) |>
+#   glimpse()
 
 ### count ports by quarter  ----
 cnt_ports_by_quarter <-
@@ -290,6 +262,8 @@ cnt_ports_by_quarter <-
       stringr::str_glue("trip_{start_or_end}_year_quarter")
     port_field_name <-
       stringr::str_glue("{start_or_end}_port_name")
+    cnt_field_name <-
+      stringr::str_glue("{start_or_end}_port_by_q_cnt")
 
     ports_quarter_cnt <-
       my_df |>
@@ -300,17 +274,29 @@ cnt_ports_by_quarter <-
       distinct() |>
       add_count(vessel_official_nbr,
                 permit_region,
-                !!sym(quarter_field_name))
+                !!sym(quarter_field_name),
+                name = cnt_field_name)
 
     return(ports_quarter_cnt)
   }
 
+#### start ports by quarter ----
 start_ports_quarter_cnt <-
-  cnt_ports_by_quarter(  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short, "start") |>
+  cnt_ports_by_quarter(  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short, "start")
+
+##### check start_ports_quarter_cnt ----
+start_ports_quarter_cnt |>
   filter(vessel_official_nbr == "1057052") |>
   arrange(trip_start_year_quarter) |>
   glimpse()
+# $ start_port_by_q_cnt 1, 2, 2, 3, 3, 3, 2, 2
 
+#### end ports by quarter ----
+end_ports_quarter_cnt <-
+  cnt_ports_by_quarter(  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short, "end")
+
+count_uniq_by_column(end_ports_quarter_cnt)
+# vessel_official_nbr     1876
 
 ### if a num of lists of ports by quarter grater than 1, then ports are different from Q to Q ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_ports_by_quarter <-
