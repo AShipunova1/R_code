@@ -665,23 +665,22 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
   ) |>
 
-        rowwise() |>
-      mutate(name1 =
-               n_distinct(unlist(across(
-                 c(gom, sa)
-               ))),
-             name2 =
-               list(paste(unique(sort(
-                 unlist(across(c(gom, sa)))
-               )),
-               sep = ","))) |>
-      mutate(same = n_distinct(unlist(across(
-        c(gom, sa),
-        ~ as.character(.x)
-      ))) == 1) |>
-      ungroup() |>
+  rowwise() |>
+  mutate(not_na_cnt =
+           n_distinct(unlist(coalesce(gom, sa))),
+         not_na_list =
+           list(paste(unique(sort(
+             unlist(coalesce(gom, sa))
+           )),
+           sep = ","))) |>
 
-  # filter(same == TRUE) |>
+  # mutate(same =
+  #          n_distinct(unlist(coalesce(gom, sa),
+  #   ~ as.character(.x)
+  # )) == 1) |>
+  ungroup() |>
+  filter(not_na_cnt > 1) |>
+  # filter(same == FALSE) |>
   glimpse()
 
 
