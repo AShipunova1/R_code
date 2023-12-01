@@ -322,9 +322,10 @@ ports_q_short_wider_list <-
            c(end_ports_q_short, "end")) |>
   map(\(one_df_l) {
     # browser()
-    my_df <- one_df_l[1:length(one_df_l) - 1] |>
+    df_len <- length(one_df_l)
+    my_df <- one_df_l[1:df_len - 1] |>
       as.data.frame()
-    my_col_name <- one_df_l[[length(one_df_l)]]
+    my_col_name <- one_df_l[[df_len]]
     each_quarter_a_col(my_df, my_col_name)
   })
 
@@ -388,12 +389,14 @@ ports_q_short_wider_list_diff <-
        c(ports_q_short_wider_list[[2]], "end")) |>
   map(\(one_df_l) {
     # browser()
+    df_len <- length(one_df_l)
+
     my_df_names <-
-      names(one_df_l)[1:length(one_df_l) - 1]
-    my_df <- one_df_l[1:length(one_df_l) - 1] |>
+      names(one_df_l)[1:df_len - 1]
+    my_df <- one_df_l[1:df_len - 1] |>
       as.data.frame()
     names(my_df) <- my_df_names
-    my_col_name <- one_df_l[[length(one_df_l)]]
+    my_col_name <- one_df_l[[df_len]]
     make_ports_q_short_wider_diff(my_df, my_col_name)
   })
 toc()
@@ -967,3 +970,4 @@ combs2_short_cnts
 
 # how many vessels used different landing locations (simple count per vessel) ----
 # how many of those cross states ----
+
