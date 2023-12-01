@@ -328,7 +328,7 @@ ports_q_short_wider_list <-
     each_quarter_a_col(my_df, my_col_name)
   })
 
-# str(ports_q_short_wider_list)
+# glimpse(ports_q_short_wider_list)
 
 # start_ports_q_short_wider <-
 #   start_ports_q_short |>
@@ -349,8 +349,6 @@ ports_q_short_wider_list <-
 # is equal to 1, indicating that all these columns have the same value for a given row.
 # The ungroup() function is then applied to remove the grouping structure
 # introduced by rowwise().
-
-ports_q_short_wider_list
 
 make_ports_q_short_wider_diff <-
   function(my_df,
@@ -383,10 +381,35 @@ make_ports_q_short_wider_diff <-
     return(ports_q_short_wider_diff)
   }
 
-aa <- make_ports_q_short_wider_diff(start_ports_q_short_wider)
-diffdf::diffdf(aa, start_ports_q_short_wider_diff)
-View(aa)
+# aa <- make_ports_q_short_wider_diff(start_ports_q_short_wider)
+# diffdf::diffdf(aa, start_ports_q_short_wider_diff)
+# View(aa)
 
+# View(ports_q_short_wider_list)
+ports_q_short_wider_list_diff <-
+  list(c(ports_q_short_wider_list[[1]], "start"),
+       c(ports_q_short_wider_list[[2]], "end")) |>
+  map(\(one_df_l) {
+    # browser()
+    my_df <- one_df_l[1:length(one_df_l) - 1] |>
+      as.data.frame()
+    my_col_name <- one_df_l[[length(one_df_l)]]
+    make_ports_q_short_wider_diff(my_df, my_col_name)
+  })
+View(ports_q_short_wider_list_diff)
+
+ports_q_short_wider_list <-
+  list(c(start_ports_q_short_wider, "start"),
+       c(end_ports_q_short_wider, "end")) |>
+  map(\(one_df_l) {
+    my_df <- one_df_l[1:length(one_df_l) - 1] |>
+      as.data.frame()
+    my_col_name <- one_df_l[[length(one_df_l)]]
+    make_ports_q_short_wider_diff(my_df, my_col_name)
+
+  })
+
+# ---
 start_ports_q_short_wider_diff <-
   start_ports_q_short_wider |>
   rowwise() |>
