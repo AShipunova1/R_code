@@ -8,6 +8,10 @@ curent_file_name <- readline(prompt = "Print you file name: ")
 #   knitr::kable(caption = "My Caption")
 # for pretty tables
 
+# use {{< include FILE_NAME.qmd >}}
+# outside of chunks
+# to include another file
+
 # setup ----
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -18,7 +22,7 @@ dir_to_comb <-
 
 dir.exists(dir_to_comb)
 
-file_name <- curent_project_name
+file_name <- curent_file_name
 file_ext <- c("R", "Rmd", "qmd")
 
 # Create a list of file paths for each file extension.
