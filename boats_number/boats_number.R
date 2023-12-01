@@ -381,10 +381,6 @@ make_ports_q_short_wider_diff <-
     return(ports_q_short_wider_diff)
   }
 
-# aa <- make_ports_q_short_wider_diff(start_ports_q_short_wider)
-diffdf::diffdf(start_ports_q_short_wider_diff, ports_q_short_wider_list_diff[[1]])
-# View(aa)
-
 # View(ports_q_short_wider_list)
 tic("ports_q_short_wider_list_diff")
 ports_q_short_wider_list_diff <-
@@ -403,50 +399,41 @@ ports_q_short_wider_list_diff <-
 toc()
 # ports_q_short_wider_list_diff: 9.93 sec elapsed
 
-# View(ports_q_short_wider_list_diff)
+# diffdf::diffdf(start_ports_q_short_wider_diff, ports_q_short_wider_list_diff[[1]])
 
-ports_q_short_wider_list <-
-  list(c(start_ports_q_short_wider, "start"),
-       c(end_ports_q_short_wider, "end")) |>
-  map(\(one_df_l) {
-    my_df <- one_df_l[1:length(one_df_l) - 1] |>
-      as.data.frame()
-    my_col_name <- one_df_l[[length(one_df_l)]]
-    make_ports_q_short_wider_diff(my_df, my_col_name)
-
-  })
-
-# ---
-start_ports_q_short_wider_diff <-
-  start_ports_q_short_wider |>
-  rowwise() |>
-  mutate(all_start_ports_num =
-           n_distinct(unlist(across(
-             starts_with('2022')
-           ))),
-         all_start_ports =
-           list(paste(unique(sort(unlist(across(
-             starts_with('2022')
-           )))),
-           sep = ","))) |>
-  mutate(same = n_distinct(unlist(across(
-    starts_with('2022'),
-    ~ as.character(.x)
-  ))) == 1) |>
-  ungroup()
-
-start_ports_q_short_wider_diff |>
+ports_q_short_wider_list_diff[[1]] |>
   filter(vessel_official_nbr == "1171256") |>
   glimpse()
+# $ all_start_ports_num <int> 3
 # $ all_start_ports     <list> <"BARNEGAT,MORRISON'S MARINA AND  SHIPS STORE", "M…
 # $ same                <lgl> FALSE
 
-count_uniq_by_column(start_ports_q_short_wider_diff)
+names(ports_q_short_wider_list_diff) <-
+  c("start", "end")
+
+ports_q_short_wider_list_diff |>
+  map(count_uniq_by_column)
+# start:
 # vessel_official_nbr 1876
 # 2022 Q3              484
 # 2022 Q4              356
 # 2022 Q2              488
 # 2022 Q1              290
+# all_start_ports      697
+
+# end:
+# vessel_official_nbr 1876
+# permit_region          2
+# 2022 Q3              497
+# 2022 Q4              360
+# 2022 Q2              497
+# 2022 Q1              290
+# 2023 Q1                7
+# 2023 Q2                3
+# 2018 Q2                2
+# 2021 Q2                3
+# 2020 Q4                2
+# all_end_ports        701
 
 ### count same or diff by permit_region ----
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
