@@ -328,16 +328,16 @@ ports_q_short_wider_list <-
     each_quarter_a_col(my_df, my_col_name)
   })
 
-str(ports_q_short_wider_list)
+# str(ports_q_short_wider_list)
 
-start_ports_q_short_wider <-
-  start_ports_q_short |>
-  pivot_wider(
-    id_cols = c(vessel_official_nbr, permit_region),
-    names_from = trip_start_year_quarter,
-    values_from = start_port_name,
-    values_fn = ~ paste(unique(sort(.x)), collapse = ",")
-  )
+# start_ports_q_short_wider <-
+#   start_ports_q_short |>
+#   pivot_wider(
+#     id_cols = c(vessel_official_nbr, permit_region),
+#     names_from = trip_start_year_quarter,
+#     values_from = start_port_name,
+#     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
+#   )
 
 ### add column for the same or diff ----
 # It starts by using the rowwise() function to apply subsequent operations
@@ -349,6 +349,43 @@ start_ports_q_short_wider <-
 # is equal to 1, indicating that all these columns have the same value for a given row.
 # The ungroup() function is then applied to remove the grouping structure
 # introduced by rowwise().
+
+ports_q_short_wider_list
+
+make_ports_q_short_wider_diff <-
+  function(my_df,
+           start_or_end = "start") {
+
+    ports_num_field_name <-
+      stringr::str_glue("all_{start_or_end}_ports_num")
+
+    ports_field_name <-
+      stringr::str_glue("all_{start_or_end}_ports")
+
+    ports_q_short_wider_diff <-
+      my_df |>
+      rowwise() |>
+      mutate(!!ports_num_field_name :=
+               n_distinct(unlist(across(
+                 starts_with('2022')
+               ))),
+             !!ports_field_name :=
+               list(paste(unique(sort(
+                 unlist(across(starts_with('2022')))
+               )),
+               sep = ","))) |>
+      mutate(same = n_distinct(unlist(across(
+        starts_with('2022'),
+        ~ as.character(.x)
+      ))) == 1) |>
+      ungroup()
+
+    return(ports_q_short_wider_diff)
+  }
+
+aa <- make_ports_q_short_wider_diff(start_ports_q_short_wider)
+diffdf::diffdf(aa, start_ports_q_short_wider_diff)
+View(aa)
 
 start_ports_q_short_wider_diff <-
   start_ports_q_short_wider |>
