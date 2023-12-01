@@ -347,7 +347,7 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short_by_q_cnt_w_diff_p
 # 4 sa_only       yes            894
 
 ## different locations with a combine table ----
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 <-
+start_ports_q_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
   select(vessel_official_nbr,
          permit_region,
@@ -355,11 +355,25 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 <-
          start_port_name) |>
   distinct()
 
-# View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3)
-# [1] 6317    3
+end_ports_q_short <-
+  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+  select(vessel_official_nbr,
+         permit_region,
+         trip_end_year_quarter,
+         end_port_name) |>
+  distinct()
+
+dim(start_ports_q_short)
+# [1] 6317    4
+dim(end_ports_q_short)
+# [1] 5845    4
+
+count_uniq_by_column(start_ports_q_short)
 # vessel_official_nbr     1876
-# trip_start_year_quarter    4
 # start_port_name          531
+
+count_uniq_by_column(end_ports_q_short)
+# end_port_name          529
 
 ### melt and decast the table ----
 # one row per vessel
@@ -375,15 +389,16 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 <-
 # 'trip_start_year_quarter'. In this case, unique values are sorted and
 # concatenated into a comma-separated string.
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider <-
-  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3 |>
+start_ports_q_short_wider <-
+  start_ports_q_short |>
   pivot_wider(
     id_cols = c(vessel_official_nbr, permit_region),
     names_from = trip_start_year_quarter,
     values_from = start_port_name,
     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
   )
-# glimpse(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider)
+
+glimpse(start_ports_q_short_wider)
 
 ### add column for the same or diff ----
 # It starts by using the rowwise() function to apply subsequent operations
@@ -396,8 +411,8 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider <-
 # The ungroup() function is then applied to remove the grouping structure
 # introduced by rowwise().
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff <-
-  all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider |>
+start_ports_q_short_wider_diff <-
+  start_ports_q_short_wider |>
   rowwise() |>
   mutate(all_start_ports_num =
            n_distinct(unlist(across(
@@ -414,7 +429,13 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff <-
   ))) == 1) |>
   ungroup()
 
-# View(all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff)
+start_ports_q_short_wider_diff |>
+  filter(vessel_official_nbr == "1171256") |>
+  glimpse()
+# $ all_start_ports     <list> <"BARNEGAT,MORRISON'S MARINA AND  SHIPS STORE", "M…
+# $ same                <lgl> FALSE
+
+count_uniq_by_column(start_ports_q_short_wider_diff)
 # vessel_official_nbr 1876
 # 2022 Q3              484
 # 2022 Q4              356
