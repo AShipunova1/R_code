@@ -435,9 +435,13 @@ ports_q_short_wider_list_diff |>
 # 2020 Q4                2
 # all_end_ports        701
 
-### count same or diff by permit_region ----
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
-  count(permit_region, same)
+#### count same or diff by permit_region ----
+ports_q_short_wider_list_diff |>
+  map(\(one_df) {
+    one_df |>
+      count(permit_region, same)
+  })
+# start
 #   permit_region same      n
 #   <chr>         <lgl> <int>
 # 1 gom_and_dual  FALSE   569
@@ -445,11 +449,29 @@ all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
 # 3 sa_only       FALSE   852
 # 4 sa_only       TRUE    233
 
-all_logbooks_db_data_2022_short_p_region_dates_trip_port_short3_wider_diff |>
-  select(vessel_official_nbr, same) |>
-  count(same)
+# end
+#   permit_region same      n
+#   <chr>         <lgl> <int>
+# 1 gom_and_dual  FALSE   561
+# 2 gom_and_dual  TRUE    230
+# 3 sa_only       FALSE   830
+# 4 sa_only       TRUE    255
+
+#### count same or diff ----
+ports_q_short_wider_list_diff |>
+  map(\(one_df) {
+    one_df |>
+      select(vessel_official_nbr, same) |>
+      count(same)
+  })
+# start
 # 1 FALSE  1421 (incl. NAs)
 # 2 TRUE    455
+
+# end
+# 1 FALSE  1391 (incl. NAs)
+# 2 TRUE    485
+
 
 # quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ## add a gom vs sa marker to ports ----
