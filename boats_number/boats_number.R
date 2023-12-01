@@ -599,7 +599,6 @@ dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 # filter(start_port_county == "MONROE") |>
 
 ### count vessels having both one_start_port_markers to find the # of vessels who fish in both the gulf and S Atl.  ----
-#### rm start_port_reg and start_port_fl_reg ----
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
@@ -627,7 +626,6 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
 # start_port             536
 # start_port_name        531
 
-
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   select(vessel_official_nbr, one_start_port_marker) |>
   distinct() |>
@@ -646,61 +644,54 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 # 3       sa_only                   gom  216
 # 4       sa_only                    sa 1013
 
-# TODO: redo using pivot
+## start in both regions ----
 
 select_vessel_mark_start <-
   c("vessel_official_nbr",
     "one_start_port_marker")
 
-# all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
-  # glimpse()
-
 start_ports_region_cnt <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
-  select(all_of(select_vessel_mark_start)) |>
-  distinct() |>
-  group_by(vessel_official_nbr) |>
-  mutate(vessel_one_start_port_marker_num =
-           n_distinct(one_start_port_marker,
+  dplyr::select(dplyr::all_of(select_vessel_mark_start)) |>
+  dplyr::distinct() |>
+  dplyr::group_by(vessel_official_nbr) |>
+  dplyr::mutate(vessel_one_start_port_marker_num =
+           dplyr::n_distinct(one_start_port_marker,
                       na.rm = TRUE)) |>
   ungroup()
 
-dim(start_ports_region_cnt)
+##### check start_ports_region_cnt ----
 # [1] 2029    3
 
+count_uniq_by_column(start_ports_region_cnt)
+# vessel_official_nbr              1876
+# one_start_port_marker               2
+# vessel_one_start_port_marker_num    2
 
 start_ports_region_cnt |>
   filter(vessel_official_nbr == "1021879") |>
   glimpse()
 
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short <-
-  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt |>
-  select(
-    vessel_official_nbr,
-    vessel_one_start_port_marker_num
-  ) |>
-  distinct()
-
-# vessel_official_nbr              1876
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_short |>
-  count(multi_start = vessel_one_start_port_marker_num > 1)
-#   multi_start     n
-#   <lgl>       <int>
-# 1 FALSE        1723
-# 2 TRUE          153
-
-# 1723 + 153
-# 1876
-
 ### count multi start by vessel permit ----
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p <-
-  find_multi_region_vessels(
-    all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short,
-    select_vector = c(select_vessel_mark_only, "permit_region"),
-    group_by_vector = c("vessel_official_nbr", "permit_region")
-  )
+start_ports_region_cnt_by_permit_r <-
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
+  dplyr::select(dplyr::all_of(select_vessel_mark_start),
+                permit_region) |>
+  dplyr::distinct() |>
+  dplyr::group_by(vessel_official_nbr, permit_region) |>
+  dplyr::mutate(vessel_one_start_port_marker_num =
+           dplyr::n_distinct(one_start_port_marker,
+                      na.rm = TRUE)) |>
+  ungroup()
 
-all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short_cnt_p |>
+#### check start_ports_region_cnt_by_permit_r ----
+start_ports_region_cnt_by_permit_r |>
+  # filter(vessel_one_start_port_marker_num > 1) |>
+  filter(vessel_official_nbr == "FL6069PT") |>
+  glimpse()
+
+#### multi start by permit_region ----
+start_ports_region_cnt_by_permit_r |>
   # glimpse()
   select(
     vessel_official_nbr,
