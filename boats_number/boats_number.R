@@ -296,9 +296,31 @@ count_uniq_by_column(end_ports_q_short)
 # concatenated into a comma-separated string.
 
 each_quarter_a_col <-
-  function(variables) {
+  function(my_df,
+           start_or_end = "start") {
+
+    quarter_field_name <-
+      stringr::str_glue("trip_{start_or_end}_year_quarter")
+    port_field_name <-
+      stringr::str_glue("{start_or_end}_port_name")
+
+    ports_q_short_wider <-
+      my_df |>
+      pivot_wider(
+        id_cols = c(vessel_official_nbr, permit_region),
+        names_from = !!sym(quarter_field_name),
+        values_from = !!sym(port_field_name),
+        values_fn = ~ paste(unique(sort(.x)), collapse = ",")
+      )
+
+    return(ports_q_short_wider)
 
   }
+
+
+aa <-
+  each_quarter_a_col(start_ports_q_short)
+
 start_ports_q_short_wider <-
   start_ports_q_short |>
   pivot_wider(
@@ -307,8 +329,6 @@ start_ports_q_short_wider <-
     values_from = start_port_name,
     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
   )
-
-glimpse(start_ports_q_short_wider)
 
 ### add column for the same or diff ----
 # It starts by using the rowwise() function to apply subsequent operations
