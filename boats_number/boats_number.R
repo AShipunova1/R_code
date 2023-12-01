@@ -155,7 +155,7 @@ all_logbooks_db_data_2022_short_p_region_short |>
 
 ## multiple_start_ports ----
 multiple_start_ports <-
-  all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
+  all_logbooks_db_data_2022_short_p_region_short |>
   select(vessel_official_nbr,
          permit_region,
          start_port_name) |>
@@ -178,7 +178,7 @@ multiple_start_ports |>
 
 ## multiple_end_ports ----
 multiple_end_ports <-
-  all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
+  all_logbooks_db_data_2022_short_p_region_short |>
   select(vessel_official_nbr,
          permit_region,
          end_port_name) |>
