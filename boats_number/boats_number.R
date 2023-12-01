@@ -194,6 +194,7 @@ all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl <-
 dim(all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl)
 # [1] 3011   15
 
+## multiple_start_ports ----
 multiple_start_ports <-
   all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   select(vessel_official_nbr,
@@ -203,9 +204,17 @@ multiple_start_ports <-
   filter(start_port_name_cnt > 1) |>
   arrange(vessel_official_nbr)
 
-dim(multiple_start_ports)
-# [1] 1530    3
+count_uniq_by_column(multiple_start_ports)
+# vessel_official_nbr 675
 
+### test multiple_start_ports ----
+multiple_start_ports |>
+  filter(vessel_official_nbr %in% c('944064',
+                                    '934665')) |>
+  glimpse()
+# 2,2
+
+## multiple_end_ports ----
 multiple_end_ports <-
   all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
   select(vessel_official_nbr,
@@ -215,55 +224,37 @@ multiple_end_ports <-
   filter(end_port_name_cnt > 1) |>
   arrange(vessel_official_nbr)
 
-dim(multiple_end_ports)
-# [1] 874   3
-all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
-  select(vessel_official_nbr,
-         end_port_name) |>
-  distinct() |>
-  add_count(vessel_official_nbr, name = "start_port_name_cnt") |>
+### test multiple_end_ports ----
+multiple_end_ports |>
   filter(vessel_official_nbr %in% c('944064',
-                                   '934665')) |>
-  arrange(vessel_official_nbr) |>
+                                    '934665')) |>
   glimpse()
+# 2
 
-## different start ports ----
-all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
-  # View()
-  filter(all_start_ports_num > 1) |>
-  dim()
-# [1] 1890    11
+count_uniq_by_column(multiple_end_ports)
+# vessel_official_nbr 374
 
-## different end ports ----
-all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
-  filter(all_end_ports_num > 1) |>
-  View()
-# [1] 1890   11
+## multiple_end_port_states ----
+# View(all_logbooks_db_data_2022_short_p_region_port_fields_all)
+multiple_end_port_states <-
+  all_logbooks_db_data_2022_short_p_region_port_fields_all |>
+  select(vessel_official_nbr,
+         end_port_state) |>
+  distinct() |>
+  add_count(vessel_official_nbr, name = "end_port_state_cnt") |>
+  filter(end_port_state_cnt > 1) |>
+  arrange(vessel_official_nbr)
 
-
-all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
-  filter(!all_end_ports_num == all_end_port_names_num) |>
-  dim()
-# 0
-
-data_overview(all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl)
-# vessel_official_nbr      1876
-# permit_region               2
-# start_port_name           531
+multiple_end_port_states |>
+  count_uniq_by_column()
+# vessel_official_nbr 76
 
 
-all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
-  filter(vessel_official_nbr == 1000042) |>
-  glimpse()
-
-all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port <-
-  all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl |>
-  filter(permit_region == "gom_and_dual" &
-           all_end_ports_num > 1)
-
-# dim(all_logbooks_db_data_2022_short_p_region_short_all_ports_by_vsl_gom_mult_port)
-# [1] 1890   11
-# [1] 1030   11
+#
+#
+# all_logbooks_db_data_2022_short_p_region_short_all_port_names_by_vsl |>
+#   filter(vessel_official_nbr == 1000042) |>
+#   glimpse()
 
 ## by quarter, to start - for some seasonality. ----
 ### trips and quarter fields ----
