@@ -382,7 +382,7 @@ make_ports_q_short_wider_diff <-
   }
 
 # aa <- make_ports_q_short_wider_diff(start_ports_q_short_wider)
-# diffdf::diffdf(aa, start_ports_q_short_wider_diff)
+diffdf::diffdf(start_ports_q_short_wider_diff, ports_q_short_wider_list_diff[[1]])
 # View(aa)
 
 # View(ports_q_short_wider_list)
