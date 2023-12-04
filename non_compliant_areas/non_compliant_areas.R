@@ -48,7 +48,8 @@ source(get_data_file_path)
 # vessels_permits_home_port_lat_longs_city_state |> dim()
 # [1] 4729    6
 
-## check for duplicate vessels ----
+## prepare permit data ---- 
+### check for duplicate vessels ----
 vessels_permits_home_port_lat_longs_city_state |>
   distinct() |>
   group_by(SERO_OFFICIAL_NUMBER) %>%
@@ -56,7 +57,7 @@ vessels_permits_home_port_lat_longs_city_state |>
   dim()
 # 0
 
-## check how many coords have more than one vessel ----
+### check how many coords have more than one vessel ----
 vessels_permits_home_port_lat_longs_city_state |>
   distinct() |>
 #   group_by(permit_sa_gom, lat, long) %>%
@@ -65,8 +66,10 @@ vessels_permits_home_port_lat_longs_city_state |>
   filter(n() > 1) |>
   dim()
 # [1] num of SERO_OFFICIAL_NUMBER    6
+# [1] 4505    6
 
-# add counts to vessel_permit ----
+## add counts to vessel_permit ----
+# permit group info is different with that in compliance info!
 # Adding a count column with num of SERO_OFFICIAL_NUMBER based on permit type, latitude, and longitude to the data frame.
 
 vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port <-
@@ -95,6 +98,28 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
   distinct() |> 
   arrange(desc(cnt_vsl_by_permit_n_port_coord)) |>
   head()
+
+## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
+compl_err_db_data_metrics_permit_reg_list_short_uniq <- 
+  compl_err_db_data_metrics_permit_reg_list_short |> 
+  map(\(curr_df) {
+    curr_df |>
+      group_by(vessel_official_nbr) |> 
+      mutate(non_compl_year = 0 %in% is_comp) |> 
+      ungroup()
+    })
+
+## check compl_year ----
+compl_err_db_data_metrics_permit_reg_list_short_uniq$sa_only |>
+  # filter(vessel_official_nbr == 1020822) |>
+  arrange(vessel_official_nbr) |> 
+  head(4)
+#   vessel_official_nbr is_comp non_compl_year
+#   <chr>                 <int> <lgl>         
+# 1 1000164                   0 TRUE          
+# 2 1020057                   1 FALSE         
+# 3 1020822                   1 TRUE          
+# 4 1020822                   0 TRUE          
 
 # Join home port and compliance info by vessel ----
 
