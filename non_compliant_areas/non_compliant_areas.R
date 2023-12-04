@@ -98,17 +98,7 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
 
 # Join home port and compliance info by vessel ----
 
-# This code filters and modifies the data based on the permit type and compliance status for the year 2022. Here's the breakdown of the comments:
-# 
-# 1. Filtering and modifying data based on permit type and compliance status.
-# 
-# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port` to the subsequent functions.
-# 
-# 3. Filtering rows where the permit type is "sa_only" using the `filter` function.
-# 
-# 4. Adding a new column named 'is_compliant_in_22' using the `mutate` function and conditional logic (`case_when`):
-#    - If the vessel's official number is in a specific list (`compl_err_db_data_metrics_permit_reg_sa_only_vsl$vessel_official_nbr`), set compliance status to "NO".
-#    - For other vessels, default compliance status to "YES".
+# In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_permit_reg_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_nbr' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
 vessels_permits_home_port_22_compliance_list <-
   compl_err_db_data_metrics_permit_reg_list_short |>
