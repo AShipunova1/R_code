@@ -126,6 +126,19 @@ map(vessels_permits_home_port_22_compliance_list, count_uniq_by_column)
 # count vessels by home_port and compliance ----
 # Adding a count column named cnt_sa_vsl_by_port_coord_n_compl based on the variables lat, long, and is_compliant_in_22 using the dplyr::add_count function.
 
+vessels_permits_home_port_22_compliance_list_cnt <-
+  vessels_permits_home_port_22_compliance_list |>
+  map(\(curr_df) {
+    curr_df |>
+      dplyr::add_count(lat,
+                       long,
+                       is_comp,
+                       name = "cnt_sa_vsl_by_port_coord_n_compl")
+  })
+
+vessels_permits_home_port_22_compliance_list_cnt$gom_only |> 
+  View()
+
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance |>
   dplyr::add_count(lat,
