@@ -97,6 +97,44 @@ dim(compl_err_db_data_metrics_permit_reg_sa_only)
 compl_err_db_data_metrics_permit_reg_list$sa_only <- compl_err_db_data_metrics_permit_reg_sa_only
 
 ## check vessel/compl counts ----
+compl_err_db_data_metrics_permit_reg_list |>
+  map(\(curr_df) {
+    curr_df |>
+      dplyr::select(vessel_official_nbr, is_comp) |>
+      dplyr::distinct() |>
+      dplyr::count(is_comp)
+  })
+# $dual
+#   is_comp   n
+# 1       0 109
+# 2       1 365
+# 
+# $gom_only
+#   is_comp   n
+# 1       0 175
+# 2       1 939
+# 
+# $sa_only
+#   is_comp    n
+# 1       0 1179
+# 2       1 1676
+# 1179+1676=2855
+
+# map(compl_err_db_data_metrics_permit_reg_list, count_uniq_by_column)
+# $dual
+# vessel_official_nbr     374
+# $gom_only
+# vessel_official_nbr     939
+# $sa_only
+# vessel_official_nbr    2135
+# 374+939+2135 = 3448
+
+# Metricks:
+# Total Vessels  3,539
+# Total Vessels With SA Only  2,211
+# Total Vessels With GOM Permit Only  1,028
+# Total Dual (SA & GOM) Permitted Vessels  300
+
 compl_err_db_data_metrics_permit_reg_sa_only |>
   dplyr::select(vessel_official_nbr, is_comp) |>
   dplyr::distinct() |> 
