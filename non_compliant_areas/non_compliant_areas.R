@@ -278,18 +278,33 @@ vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
 # Percent of (non)compliant by state ----
 
 ## Count by state name ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_places_per_state_fxd <-
+vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd <-
   vessels_permits_home_port_22_compliance_list_cnt_tot |>
   map(\(curr_df) {
     curr_df |>
       group_by(state_fixed) |>
-      mutate(total_places_per_state_fxd = n()) |>
+      add_count(name = "total_vsls_per_state_fxd",
+                wt = total_vsl_per_place_perm) |>
       ungroup()
   })
 
-vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_places_per_state_fxd$sa_only |> 
-  select(state_fixed, total_places_per_state_fxd) |> 
-  filter(state_fixed %in% c("FL", "NC", "SC", "GA")) |> 
+# check
+vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
+  select(state_fixed,
+         total_vsl_per_place_perm) |>
+  filter(state_fixed %in% c("GA")) |>
+  mutate(sum(total_vsl_per_place_perm)) |> 
+  select(-total_vsl_per_place_perm) |> 
+  distinct()
+# state_fixed `sum(total_vsl_per_place_perm)`
+# < chr >                                 < int >
+#  GA                                       65
+
+  
+
+vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd$sa_only |>
+  select(state_fixed, total_vsls_per_state_fxd, total_vsl_per_place_perm) |> 
+  filter(state_fixed %in% c("GA")) |> 
   distinct()
 #   state_fixed total_places_per_state_fxd
 #   <chr>                            <int>
@@ -297,6 +312,9 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_places_per_state_fx
 # 2 NC                                  86
 # 3 SC                                  34
 # 4 GA                                  20
+
+
+
 
 # can't use state names, bc of typos. Either fix, or use coordinates
 
@@ -362,7 +380,7 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states_places <-
       ungroup()
   })
 
-### compare with to by state fixed ----
+#### compare with to by state fixed ----
 vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states_places$sa_only |>
   select(STUSPS, total_places_per_state) |>
   sf::st_drop_geometry() |> 
