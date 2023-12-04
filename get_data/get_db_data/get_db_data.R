@@ -725,9 +725,7 @@ compl_err_query <-
     "SELECT
   *
 FROM
-       srh.srfh_vessel_comp_err@secapxdv_dblk.sfsc.noaa.gov
-  INNER JOIN srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
-  USING ( srh_vessel_comp_id )
+  srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
 WHERE
   comp_year > '2020'
 "
