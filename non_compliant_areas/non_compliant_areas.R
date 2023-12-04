@@ -247,6 +247,9 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
 # $ cnt_vsl_by_permit_n_port_coord   <int> 103, 103, 103
 
 
+# Count a proportion of non compliant vessels per total vessels, home ports and states ----
+# color different states accordingly
+
 # convert to sf ----
 ## how many don't have coords ----
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
