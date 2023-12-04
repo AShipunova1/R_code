@@ -195,12 +195,32 @@ vessels_permits_home_port_22_compliance_list |>
   })
 # 12 rows in sa (compl + non compl), 7 vsls
 
-## check if total vessel num is always grater than non compliant vessels ----
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |> 
-  dplyr::filter(cnt_vsl_by_permit_n_port_coord < cnt_sa_vsl_by_port_coord_n_compl) |> 
-  dim()
-0
-# correct
+## add total vessel num per place by permit region in compl data ----
+  # add_count(lat,
+  #        long,
+  #        is_comp,
+  #        name = "cnt_sa_vsl_by_port_coord_n_compl") |> 
+vessels_permits_home_port_22_compliance_list_cnt_tot <-
+  vessels_permits_home_port_22_compliance_list_cnt |>
+  map(\(curr_df) {
+    curr_df |>
+      select(vessel_official_nbr,
+             lat,
+             long) |> 
+      distinct() |> 
+    # group_by(
+    #                  lat,
+    #                  long) |>
+    dplyr::count(lat,
+                 long,
+                 name = "total_vsl_per_place_perm")
+  })
+
+vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |> 
+      filter(round(lat, 4) == test_3$round_lat[[1]] &
+               round(long, 4) == test_3$round_long[[1]]) |> 
+  glimpse()
+  
 
 # Percent of (non)compliant by port ----
 # Adding new columns to the data frame:
