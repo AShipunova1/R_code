@@ -330,6 +330,17 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states |>
 # 1 OCEAN CITY DE          North Carolina (-77.49136 34.45656)
 # $ cnt_vsl_by_permit_n_port_coord <int> 1
 
+vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states1 <-
+  vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states |>
+  map(\(curr_df) {
+    curr_df |>
+      group_by(STUSPS) |>
+      mutate(total_places_per_state = n()) |>
+      ungroup()
+  })
+
+View(vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states1$sa_only)
+
 # old ----
 # Percent of (non)compliant by port ----
 # Adding new columns to the data frame:
