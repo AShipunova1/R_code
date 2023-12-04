@@ -277,9 +277,31 @@ vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
 
 # Percent of (non)compliant by state ----
 
+## Count by state name ----
+vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_places_per_state_fxd <-
+  vessels_permits_home_port_22_compliance_list_cnt_tot |>
+  map(\(curr_df) {
+    curr_df |>
+      group_by(state_fixed) |>
+      mutate(total_places_per_state_fxd = n()) |>
+      ungroup()
+  })
+
+vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_places_per_state_fxd$sa_only |> 
+  select(state_fixed, total_places_per_state_fxd) |> 
+  filter(state_fixed %in% c("FL", "NC", "SC", "GA")) |> 
+  distinct()
+#   state_fixed total_places_per_state_fxd
+#   <chr>                            <int>
+# 1 FL                                 158
+# 2 NC                                  86
+# 3 SC                                  34
+# 4 GA                                  20
+
 # can't use state names, bc of typos. Either fix, or use coordinates
 
-## convert to an sf ----
+## Count using coordinates ----
+### convert to an sf ----
 vessels_permits_home_port_22_compliance_list_cnt_tot_sf <-
   vessels_permits_home_port_22_compliance_list_cnt_tot |>
   map(\(curr_df) {
@@ -299,7 +321,7 @@ map(vessels_permits_home_port_22_compliance_list_cnt_tot_sf, dim)
 # $sa_only
 # [1] 387   8
 
-## Join with the state map ----
+### Join with the state map ----
 vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states <-
   vessels_permits_home_port_22_compliance_list_cnt_tot_sf |>
   map(\(curr_df) {
@@ -314,9 +336,9 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states <-
     
   })
 
-print_df_names(vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states$sa_only)
+# print_df_names(vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states$sa_only)
 
-# check where port by coords != port from vessel info ----
+### check where port by coords != port from vessel info ----
 vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states |>
   map(\(curr_df) {
     curr_df |>
@@ -330,7 +352,8 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states |>
 # 1 OCEAN CITY DE          North Carolina (-77.49136 34.45656)
 # $ cnt_vsl_by_permit_n_port_coord <int> 1
 
-vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states1 <-
+### count total_places_per_state ----
+vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states_places <-
   vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states |>
   map(\(curr_df) {
     curr_df |>
@@ -339,7 +362,26 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states1 <-
       ungroup()
   })
 
-View(vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states1$sa_only)
+### compare with to by state fixed ----
+vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states_places$sa_only |>
+  select(STUSPS, total_places_per_state) |>
+  sf::st_drop_geometry() |> 
+  filter(STUSPS %in% c("FL", "NC", "SC", "GA")) |>
+  distinct()
+#   STUSPS total_places_per_state
+#   <chr>                   <int>
+# 1 FL                        153
+# 2 NC                         81
+# 3 SC                         31
+# 4 GA                         20
+
+#   state_fixed total_places_per_state_fxd
+#   <chr>                            <int>
+# 1 FL                                 158
+# 2 NC                                  86
+# 3 SC                                  34
+# 4 GA                                  20
+
 
 # old ----
 # Percent of (non)compliant by port ----
