@@ -100,7 +100,7 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
   head()
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
-compl_err_db_data_metrics_permit_reg_list_short_uniq <- 
+compl_err_db_data_metrics_permit_reg_list_short_year_nc <- 
   compl_err_db_data_metrics_permit_reg_list_short |> 
   map(\(curr_df) {
     curr_df |>
@@ -110,7 +110,7 @@ compl_err_db_data_metrics_permit_reg_list_short_uniq <-
     })
 
 ## check compl_year ----
-compl_err_db_data_metrics_permit_reg_list_short_uniq$sa_only |>
+compl_err_db_data_metrics_permit_reg_list_short_year_nc$sa_only |>
   # filter(vessel_official_nbr == 1020822) |>
   arrange(vessel_official_nbr) |> 
   head(4)
@@ -120,6 +120,21 @@ compl_err_db_data_metrics_permit_reg_list_short_uniq$sa_only |>
 # 2 1020057                   1 FALSE         
 # 3 1020822                   1 TRUE          
 # 4 1020822                   0 TRUE          
+
+## keep unique vessel ids only ----
+compl_err_db_data_metrics_permit_reg_list_short_uniq <- 
+  compl_err_db_data_metrics_permit_reg_list_short_year_nc |> 
+  map(\(curr_df){
+    curr_df |> 
+      select(-is_comp) |> 
+      distinct()
+  })
+
+# check
+compl_err_db_data_metrics_permit_reg_list_short_uniq$sa_only |>
+  filter(vessel_official_nbr == 1020822)
+#   vessel_official_nbr non_compl_year
+# 3 1020822             TRUE          
 
 # Join home port and compliance info by vessel ----
 
