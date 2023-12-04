@@ -187,13 +187,13 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
 # cnt_vsl_by_permit_n_port_coord == 22 is correct for permit info from vessel_permits, 
 # but wrong for compliant permit information (7 sa_only vessel_official_nbr)
 
-
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt <-
-  vessels_permits_home_port_lat_longs_city_state_sa_compliance |>
-  dplyr::add_count(lat,
-                   long,
-                   is_compliant_in_22,
-                   name = "cnt_sa_vsl_by_port_coord_n_compl")
+vessels_permits_home_port_22_compliance_list |>
+  map(\(curr_df) {
+    curr_df |>
+      filter(round(lat, 4) == test_3$round_lat[[1]] &
+               round(long, 4) == test_3$round_long[[1]])
+  })
+# 12 rows in sa (compl + non compl), 7 vsls
 
 ## check if total vessel num is always grater than non compliant vessels ----
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |> 
