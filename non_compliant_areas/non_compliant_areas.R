@@ -141,7 +141,7 @@ compl_err_db_data_metrics_permit_reg_list_short_uniq$sa_only |>
 # In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_permit_reg_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_nbr' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
 vessels_permits_home_port_22_compliance_list <-
-  compl_err_db_data_metrics_permit_reg_list_short |>
+  compl_err_db_data_metrics_permit_reg_list_short_uniq |>
   map(\(curr_df) {
     dplyr::left_join(
       curr_df,
@@ -172,7 +172,7 @@ vessels_permits_home_port_22_compliance_list_cnt <-
     curr_df |>
       dplyr::add_count(lat,
                        long,
-                       is_comp,
+                       non_compl_year,
                        name = "cnt_sa_vsl_by_port_coord_n_compl")
   })
 
@@ -182,7 +182,7 @@ test_head_0 <-
   select(vessel_official_nbr,
          lat,
          long,
-         is_comp,
+         non_compl_year,
          cnt_sa_vsl_by_port_coord_n_compl) |> 
   distinct() |> 
   arrange(vessel_official_nbr) |> 
@@ -193,11 +193,11 @@ test_head_1 <-
   select(vessel_official_nbr,
          lat,
          long,
-         is_comp) |> 
+         non_compl_year) |> 
   distinct() |> 
   add_count(lat,
          long,
-         is_comp,
+         non_compl_year,
          name = "cnt_sa_vsl_by_port_coord_n_compl") |> 
   arrange(vessel_official_nbr) |> 
   head()
@@ -231,9 +231,12 @@ vessels_permits_home_port_22_compliance_list |>
   map(\(curr_df) {
     curr_df |>
       filter(round(lat, 4) == test_3$round_lat[[1]] &
-               round(long, 4) == test_3$round_long[[1]])
+               round(long, 4) == test_3$round_long[[1]]) |> 
+      dim()
   })
-# 12 rows in sa (compl + non compl), 7 vsls
+# $sa_only
+# [1] 7 8
+# 7 vessels, correct
 
 ## add total vessel num per place by permit region in compl data ----
   # add_count(lat,
