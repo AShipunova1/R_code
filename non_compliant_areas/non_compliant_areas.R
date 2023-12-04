@@ -164,7 +164,7 @@ map(vessels_permits_home_port_22_compliance_list, count_uniq_by_column)
 # is_comp                           2
 
 # count vessels by home_port and compliance ----
-# Adding a count column named cnt_sa_vsl_by_port_coord_n_compl based on the variables lat, long, and is_compliant_in_22 using the dplyr::add_count function.
+# Adding a count column named cnt_vsl_by_port_coord_n_compl based on the variables lat, long, and is_compliant_in_22 using the dplyr::add_count function.
 
 vessels_permits_home_port_22_compliance_list_cnt <-
   vessels_permits_home_port_22_compliance_list |>
@@ -173,7 +173,7 @@ vessels_permits_home_port_22_compliance_list_cnt <-
       dplyr::add_count(lat,
                        long,
                        non_compl_year,
-                       name = "cnt_sa_vsl_by_port_coord_n_compl")
+                       name = "cnt_vsl_by_port_coord_n_compl")
   })
 
 ## check cnts ----
@@ -183,7 +183,7 @@ test_head_0 <-
          lat,
          long,
          non_compl_year,
-         cnt_sa_vsl_by_port_coord_n_compl) |> 
+         cnt_vsl_by_port_coord_n_compl) |> 
   distinct() |> 
   arrange(vessel_official_nbr) |> 
   head()
@@ -198,7 +198,7 @@ test_head_1 <-
   add_count(lat,
          long,
          non_compl_year,
-         name = "cnt_sa_vsl_by_port_coord_n_compl") |> 
+         name = "cnt_vsl_by_port_coord_n_compl") |> 
   arrange(vessel_official_nbr) |> 
   head()
 
@@ -238,11 +238,21 @@ vessels_permits_home_port_22_compliance_list |>
 # [1] 7 8
 # 7 vessels, correct
 
-## add total vessel num per place by permit region in compl data ----
-  # add_count(lat,
-  #        long,
-  #        is_comp,
-  #        name = "cnt_sa_vsl_by_port_coord_n_compl") |> 
+vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port$sa_only |>
+        filter(round(lat, 4) == test_3$round_lat[[1]] &
+               round(long, 4) == test_3$round_long[[1]]) |> 
+glimpse()
+
+vessels_permits_home_port_22_compliance_list_cnt$sa_only |> 
+      filter(round(lat, 4) == test_3$round_lat[[1]] &
+               round(long, 4) == test_3$round_long[[1]]) |> 
+  select(non_compl_year, cnt_vsl_by_port_coord_n_compl) |> 
+  distinct()
+# 1 TRUE                                          5
+# 2 FALSE                                         2
+
+
+# add total vessel num per place by permit region in compl data ----
 vessels_permits_home_port_22_compliance_list_cnt_tot <-
   vessels_permits_home_port_22_compliance_list_cnt |>
   map(\(curr_df) {
@@ -273,7 +283,7 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc <-
   dplyr::group_by(is_compliant_in_22) |>
   dplyr::mutate(
     non_comp_perc =
-      cnt_sa_vsl_by_port_coord_n_compl * 100 /
+      cnt_vsl_by_port_coord_n_compl * 100 /
       cnt_vsl_by_permit_n_port_coord,
     is_comp_perc_round =
       round(non_comp_perc)
@@ -296,7 +306,7 @@ vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
   distinct() |> 
   glimpse()
 # $ is_compliant_in_22               <chr> "NO", "YES"
-# $ cnt_sa_vsl_by_port_coord_n_compl <int> 15, 12
+# $ cnt_vsl_by_port_coord_n_compl <int> 15, 12
 # $ is_comp_perc_round               <dbl> 55.6, 44.4
 
 ## check multiple names for the same cooordinates ---- 
