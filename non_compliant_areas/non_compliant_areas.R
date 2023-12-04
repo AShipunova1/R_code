@@ -136,8 +136,57 @@ vessels_permits_home_port_22_compliance_list_cnt <-
                        name = "cnt_sa_vsl_by_port_coord_n_compl")
   })
 
-vessels_permits_home_port_22_compliance_list_cnt$gom_only |> 
-  View()
+## check cnts ----
+test_head_0 <-   
+  vessels_permits_home_port_22_compliance_list_cnt$sa_only |> 
+  select(vessel_official_nbr,
+         lat,
+         long,
+         is_comp,
+         cnt_sa_vsl_by_port_coord_n_compl) |> 
+  distinct() |> 
+  arrange(vessel_official_nbr) |> 
+  head()
+
+test_head_1 <- 
+  vessels_permits_home_port_22_compliance_list$sa_only |> 
+  select(vessel_official_nbr,
+         lat,
+         long,
+         is_comp) |> 
+  distinct() |> 
+  add_count(lat,
+         long,
+         is_comp,
+         name = "cnt_sa_vsl_by_port_coord_n_compl") |> 
+  arrange(vessel_official_nbr) |> 
+  head()
+
+all.equal(test_head_0, test_head_1)
+# T
+
+test_3 <- 
+  vessels_permits_home_port_22_compliance_list$sa_only |>
+  filter(vessel_official_nbr == 1020822) |>
+  mutate(round_lat = round(lat, 4),
+         round_long = round(long, 4))
+
+vessels_permits_home_port_22_compliance_list$sa_only |>
+  filter(round(lat, 4) == test_3$round_lat[[1]] &
+           round(long, 4) == test_3$round_long[[1]]) |>
+  glimpse()
+
+vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
+  filter(
+    cnt_vsl_by_permit_n_port_coord == 22 &
+      round(lat, 4) == test_3$round_lat[[1]] &
+      round(long, 4) == test_3$round_long[[1]]
+  ) |>
+  glimpse()
+
+# cnt_vsl_by_permit_n_port_coord == 22 is correct for permit info from vessel_permits, 
+# but wrong for compliant permit information (7 sa_only vessel_official_nbr)
+
 
 vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt <-
   vessels_permits_home_port_lat_longs_city_state_sa_compliance |>
