@@ -275,6 +275,25 @@ vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
 # $ cnt_vsl_by_port_coord_n_compl  <int> 5, 2
 # $ total_vsl_per_place_perm       <int> 7, 7
 
+# Percent of (non)compliant by state ----
+# can't use state names, bc of typos. Either fix, or use coordinates
+vessels_permits_home_port_22_compliance_list_cnt_tot_sf <-
+  vessels_permits_home_port_22_compliance_list_cnt_tot |>
+  map(\(curr_df) {
+    curr_df |> 
+      filter(!is.na(long) &
+               !is.na(lat)) |> 
+      sf::st_as_sf(coords = c("long", "lat"), crs = tigris_crs)
+  })
+View(vessels_permits_home_port_22_compliance_list_cnt_tot_sf)
+
+    sf::st_join(south_east_coast_states_shp, left = FALSE) %>%
+
+  # extract the longitude and latitude coordinates from the joined spatial object.
+  dplyr::mutate(longitude = sf::st_coordinates(.)[, 1],
+         latitude = sf::st_coordinates(.)[, 2]) %>%
+
+
 
 # Percent of (non)compliant by port ----
 # Adding new columns to the data frame:
