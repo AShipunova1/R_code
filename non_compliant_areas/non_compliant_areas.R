@@ -526,30 +526,61 @@ shp_file_with_cnts_sa |>
 
 usa_map <- map_data("usa")
 # data_overview(usa_map)
-ggplot() +
+usa_map_img <-
+  ggplot() +
   geom_polygon(
     data = usa_map,
-    aes(x = long, 
-        y = lat, 
+    aes(x = long,
+        y = lat,
         group = group),
     colour = "grey",
     fill = NA
   ) +
   coord_fixed(1.3)
 
+usa_map_img
 
-shp_file_with_cnts_sa |> 
+# cnts_map <- 
+  shp_file_with_cnts_sa |> 
   filter(non_compl_year == TRUE) |>
   mutate(nc_round_perc = round(compl_percent_per_st)) |> 
   # ggplot() +
   ggplot(aes(fill = nc_round_perc)) +
   geom_sf()
+  
+  
+  geom_map(
+    data = usa_map,
+    # aes(x = long,
+        # y = lat,
+        # group = group),
+    colour = "grey",
+    fill = NA
+  ) +
+  coord_fixed(1.3)
 
+cnts_map 
 
-# +
-  # geom_sf(map = shp_file_with_cnts_sa) +
-  # geom_map(aes(fill = value), map = states_map) +
-  # coord_sf(crs = tigris_crs)
+# ex
+# get south states only
+states_sf <- st_as_sf(map("state", plot = FALSE, fill = TRUE))
+
+# add X and Y
+states_sf <- cbind(states_sf, st_coordinates(st_centroid(states)))
+
+shp_file_with_cnts_sa |>
+  filter(non_compl_year == TRUE) |>
+  mutate(nc_round_perc = round(compl_percent_per_st)) |>
+  ggplot() +
+  geom_sf(aes(fill = nc_round_perc)) +
+  geom_sf(data = states_sf, fill = NA) +
+  geom_text(data = states_sf, aes(X, Y, label = ID), size = 5) +
+  coord_sf(xlim = c(-107, -75),
+           ylim = c(24, 37),
+           expand = FALSE)
+
+# south_east_coast_states_shp_bb
+
 
 # old ----
 # Percent of (non)compliant by port ----
