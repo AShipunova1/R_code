@@ -316,8 +316,21 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states <-
 
 print_df_names(vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states$sa_only)
 
+# check where port by coords != port from vessel info ----
+vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states |>
+  map(\(curr_df) {
+    curr_df |>
+      filter(!STUSPS == state_fixed) |>
+      select(city_fixed, state_fixed, NAME)
+  })
 
+# sa_only
+#   city_fixed state_fixed NAME                       geometry
+#   <chr>      <chr>       <chr>                   <POINT [°]>
+# 1 OCEAN CITY DE          North Carolina (-77.49136 34.45656)
+# $ cnt_vsl_by_permit_n_port_coord <int> 1
 
+# old ----
 # Percent of (non)compliant by port ----
 # Adding new columns to the data frame:
 # 
