@@ -276,7 +276,10 @@ vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
 # $ total_vsl_per_place_perm       <int> 7, 7
 
 # Percent of (non)compliant by state ----
+
 # can't use state names, bc of typos. Either fix, or use coordinates
+
+## convert to an sf ----
 vessels_permits_home_port_22_compliance_list_cnt_tot_sf <-
   vessels_permits_home_port_22_compliance_list_cnt_tot |>
   map(\(curr_df) {
@@ -285,13 +288,33 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_sf <-
                !is.na(lat)) |> 
       sf::st_as_sf(coords = c("long", "lat"), crs = tigris_crs)
   })
-View(vessels_permits_home_port_22_compliance_list_cnt_tot_sf)
 
-    sf::st_join(south_east_coast_states_shp, left = FALSE) %>%
+map(vessels_permits_home_port_22_compliance_list_cnt_tot_sf, dim)
+# $dual
+# [1] 162   8
+# 
+# $gom_only
+# [1] 188   8
+# 
+# $sa_only
+# [1] 387   8
 
-  # extract the longitude and latitude coordinates from the joined spatial object.
-  dplyr::mutate(longitude = sf::st_coordinates(.)[, 1],
-         latitude = sf::st_coordinates(.)[, 2]) %>%
+## Join with the state map ----
+vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states <-
+  vessels_permits_home_port_22_compliance_list_cnt_tot_sf |>
+  map(\(curr_df) {
+    curr_df |>
+      sf::st_join(south_east_coast_states_shp, left = FALSE) %>%
+      
+      # extract the longitude and latitude coordinates from the joined spatial object.
+      dplyr::mutate(
+        longitude = sf::st_coordinates(.)[, 1],
+        latitude = sf::st_coordinates(.)[, 2]
+      )
+    
+  })
+
+print_df_names(vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states$sa_only)
 
 
 
