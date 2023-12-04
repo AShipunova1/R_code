@@ -238,7 +238,7 @@ vessels_permits_home_port_22_compliance_list |>
 # [1] 7 8
 # 7 vessels, correct
 
-vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port$sa_only |>
+vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
         filter(round(lat, 4) == test_3$round_lat[[1]] &
                round(long, 4) == test_3$round_long[[1]]) |> 
 glimpse()
@@ -251,26 +251,30 @@ vessels_permits_home_port_22_compliance_list_cnt$sa_only |>
 # 1 TRUE                                          5
 # 2 FALSE                                         2
 
-
 # add total vessel num per place by permit region in compl data ----
 vessels_permits_home_port_22_compliance_list_cnt_tot <-
   vessels_permits_home_port_22_compliance_list_cnt |>
   map(\(curr_df) {
     curr_df |>
-      select(vessel_official_nbr,
-             lat,
-             long) |>
+      select(-vessel_official_nbr) |>
       distinct() |>
-      dplyr::add_count(lat,
-                       long,
-                       name = "total_vsl_per_place_perm")
+      group_by(lat, long) |> 
+      dplyr::add_count(wt = cnt_vsl_by_port_coord_n_compl,
+                       name = "total_vsl_per_place_perm") |> 
+      ungroup()
   })
 
+# check
 vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |> 
       filter(round(lat, 4) == test_3$round_lat[[1]] &
                round(long, 4) == test_3$round_long[[1]]) |> 
   glimpse()
-  
+# $ non_compl_year                 <lgl> TRUE, FALSE
+# $ lat                            <dbl> 32.07901, 32.07901
+# $ long                           <dbl> -81.09213, -81.09213
+# $ cnt_vsl_by_port_coord_n_compl  <int> 5, 2
+# $ total_vsl_per_place_perm       <int> 7, 7
+
 
 # Percent of (non)compliant by port ----
 # Adding new columns to the data frame:
