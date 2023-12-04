@@ -265,6 +265,30 @@ vessels_permits_home_port_22_compliance_list_cnt_tot <-
   })
 
 # check
+vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
+  filter(state_fixed == "GA") |>
+  select(-c(permit_sa_gom, city_fixed, state_fixed)) |> 
+  distinct() |> 
+  glimpse()
+# Rows: 20
+
+vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
+  filter(state_fixed == "GA") |>
+  select(-c(permit_sa_gom, city_fixed, state_fixed,
+            lat,
+            long,
+            cnt_vsl_by_permit_n_port_coord)) |>
+  distinct() |>
+  # glimpse()
+  group_by(non_compl_year) |>
+    count(wt = cnt_vsl_by_port_coord_n_compl)
+# Rows: 16
+#   non_compl_year     n
+#   <lgl>          <int>
+# 1 FALSE             20
+# 2 TRUE              14
+
+# check
 vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |> 
       filter(round(lat, 4) == test_3$round_lat[[1]] &
                round(long, 4) == test_3$round_long[[1]]) |> 
@@ -278,33 +302,43 @@ vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
 # Percent of (non)compliant by state ----
 
 ## Count by state name ----
+### total vsls per state 
 vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd <-
   vessels_permits_home_port_22_compliance_list_cnt_tot |>
   map(\(curr_df) {
     curr_df |>
       group_by(state_fixed) |>
       add_count(name = "total_vsls_per_state_fxd",
-                wt = total_vsl_per_place_perm) |>
+                wt = cnt_vsl_by_port_coord_n_compl) |>
+      ungroup() |> 
+      group_by(state_fixed, non_compl_year) |>
+      add_count(name = "tot_compl_per_state_fxd",
+                wt = cnt_vsl_by_port_coord_n_compl) |>
+      mutate(compl_percent_per_st = 
+               tot_compl_per_state_fxd * 100 /
+               total_vsls_per_state_fxd) |> 
       ungroup()
   })
 
 # check
 vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
   select(state_fixed,
-         total_vsl_per_place_perm) |>
+         cnt_vsl_by_port_coord_n_compl) |>
   filter(state_fixed %in% c("GA")) |>
-  mutate(sum(total_vsl_per_place_perm)) |> 
-  select(-total_vsl_per_place_perm) |> 
+  mutate(sum(cnt_vsl_by_port_coord_n_compl)) |> 
+  select(-cnt_vsl_by_port_coord_n_compl) |> 
   distinct()
 # state_fixed `sum(total_vsl_per_place_perm)`
 # < chr >                                 < int >
-#  GA                                       65
-
-  
+#  GA                                       38
 
 vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd$sa_only |>
-  select(state_fixed, total_vsls_per_state_fxd, total_vsl_per_place_perm) |> 
-  filter(state_fixed %in% c("GA")) |> 
+  select(non_compl_year,
+         state_fixed, 
+         total_vsls_per_state_fxd,
+         compl_percent_per_st) |> 
+# filter(state_fixed %in% c("GA")) |> 
+  arrange(state_fixed, non_compl_year) |> 
   distinct()
 #   state_fixed total_places_per_state_fxd
 #   <chr>                            <int>
@@ -313,10 +347,50 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd$s
 # 3 SC                                  34
 # 4 GA                                  20
 
+ #   non_compl_year state_fixed total_vsls_per_state_fxd compl_percent_per_st
+ #   <lgl>          <chr>                          <int>                <dbl>
+ # 1 TRUE           AK                                 2                100  
+ # 2 FALSE          AL                                 1                100  
+ # 3 TRUE           CT                                 1                100  
+ # 4 FALSE          DE                                36                 30.6
+ # 5 TRUE           DE                                36                 69.4
+ # 6 FALSE          FL                              1701                 40.4
+ # 7 TRUE           FL                              1701                 59.6
+ # 8 FALSE          GA                                38                 57.9
+ # 9 TRUE           GA                                38                 42.1
 
+vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd$sa_only |>   
+  filter(state_fixed %in% c("GA")) |>
+  View()
 
+# [1] "non_compl_year, permit_sa_gom, city_fixed, state_fixed, lat, long, cnt_vsl_by_permit_n_port_coord, cnt_vsl_by_port_coord_n_compl, total_vsl_per_place_perm, total_vsls_per_state_fxd, tot_compl_per_state_fxd, compl_percent_per_st"
 
-# can't use state names, bc of typos. Either fix, or use coordinates
+### remove extra columns ----
+vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short <- 
+  vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd |>
+  map(\(curr_df) {
+    curr_df |>
+      select(non_compl_year,
+             state_fixed,
+             tot_compl_per_state_fxd,
+             compl_percent_per_st) |> 
+      distinct()
+  })
+
+vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short$sa_only |> 
+  glimpse()
+
+# TRUE
+# FL
+# 6338
+# 63.380000
+
+# FALSE
+# FL
+# 3662
+# 36.620000
+
+# If use state names, there are typos. Either fix, or use coordinates
 
 ## Count using coordinates ----
 ### convert to an sf ----
@@ -400,6 +474,30 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states_places$sa_on
 # 3 SC                                  34
 # 4 GA                                  20
 
+# combine fixed states with percentage ----
+vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short |> 
+  map(\(curr_df) {
+    curr_df |>
+      south_east_coast_states_shp
+  })
+
+print_df_names(vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short$sa_only)
+
+shp_file_with_cnts_sa <-
+  south_east_coast_states_shp |>
+  left_join(
+    vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short$sa_only,
+    join_by(STUSPS ==
+              state_fixed)
+  )
+
+# [1] "non_compl_year, state_fixed, tot_compl_per_state_fxd, compl_percent_per_st"
+
+shp_file_with_cnts_sa |> 
+  filter(non_compl_year == TRUE) |>
+  mutate(nc_round_perc = round(compl_percent_per_st)) |> 
+  mapview(zcol = "nc_round_perc")
+# View(shp_file_with_cnts)
 
 # old ----
 # Percent of (non)compliant by port ----
