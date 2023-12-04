@@ -12,6 +12,9 @@
 # remove not in Jeannette's GOM list
 # add home port
 
+library(maps)
+library(mapdata)
+
 # Load the 'mapview' library for interactive viewing of spatial data.
 library(mapview)
 library(leafpop)
@@ -498,6 +501,55 @@ shp_file_with_cnts_sa |>
   mutate(nc_round_perc = round(compl_percent_per_st)) |> 
   mapview(zcol = "nc_round_perc")
 # View(shp_file_with_cnts)
+
+# ggplot(crimes_long, aes(map_id = state)) +
+#   geom_map(aes(fill = value), map = states_map) +
+#   coord_sf(
+#     crs = 5070,
+#     default_crs = 4326,
+#     xlim = c(-125, -70),
+#     ylim = c(25, 52)
+#   )
+# shp_file_with_cnts_sa |> 
+#   filter(non_compl_year == TRUE) |>
+#   mutate(nc_round_perc = round(compl_percent_per_st)) |> 
+#   mapview(zcol = "nc_round_perc")
+
+# empty_map <-
+#   ggplot() + geom_sf(
+#     data = south_east_coast_states_shp,
+#     # aes(x = long, y = lat, group = group),
+#     colour = "black",
+#     fill = NA
+#   )
+
+
+usa_map <- map_data("usa")
+# data_overview(usa_map)
+ggplot() +
+  geom_polygon(
+    data = usa_map,
+    aes(x = long, 
+        y = lat, 
+        group = group),
+    colour = "grey",
+    fill = NA
+  ) +
+  coord_fixed(1.3)
+
+
+shp_file_with_cnts_sa |> 
+  filter(non_compl_year == TRUE) |>
+  mutate(nc_round_perc = round(compl_percent_per_st)) |> 
+  # ggplot() +
+  ggplot(aes(fill = nc_round_perc)) +
+  geom_sf()
+
+
+# +
+  # geom_sf(map = shp_file_with_cnts_sa) +
+  # geom_map(aes(fill = value), map = states_map) +
+  # coord_sf(crs = tigris_crs)
 
 # old ----
 # Percent of (non)compliant by port ----
