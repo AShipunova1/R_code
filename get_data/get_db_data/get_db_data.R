@@ -916,5 +916,5 @@ force_from_db <- NULL # read data from files if exist
 
 
 # close the db connection ----
-try(ROracle::dbDisconnect(con))
+# try(ROracle::dbDisconnect(con))
 
