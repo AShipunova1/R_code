@@ -13,7 +13,7 @@ all_get_db_data_result_l <- run_all_get_db_data()
 toc()
 # run_all_get_db_data(): 8.86 sec elapsed
 
-# prepare non compliant vessels 2022 info ----
+# prepare (non) compliant vessels 2022 info ----
 compl_err_db_data <- 
   all_get_db_data_result_l$compl_err_db_data
 
@@ -40,7 +40,11 @@ compl_err_db_data_metrics_permit_reg <-
   dplyr::distinct()
 
 dim(compl_err_db_data_metrics_permit_reg)
-# [1] 26391    29
+# [1] 26391    29 (nc onlly)
+# [1] 146055     18 all 
+
+compl_err_db_data_metrics_permit_reg
+# vessel_official_nbr     3497
 
 ## split into separate dfs by permit region ----
 compl_err_db_data_metrics_permit_reg_list <- 
@@ -48,6 +52,7 @@ compl_err_db_data_metrics_permit_reg_list <-
   split(as.factor(compl_err_db_data_metrics_permit_reg$permit_sa_gom))
 
 map(compl_err_db_data_metrics_permit_reg_list, dim)
+# nc only:
 # $dual
 # [1] 1317   29
 # 
@@ -56,6 +61,16 @@ map(compl_err_db_data_metrics_permit_reg_list, dim)
 # 
 # $sa_only
 # [1] 23716    29
+
+# all
+# $dual
+# [1] 16638    18
+# 
+# $gom_only
+# [1] 40988    18
+# 
+# $sa_only
+# [1] 88429    18
 
 ### SA only: remove vessels not in Jeannette's SA list ----
 
@@ -75,25 +90,37 @@ compl_err_db_data_metrics_permit_reg_sa_only <-
   dplyr::filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
 
 dim(compl_err_db_data_metrics_permit_reg_sa_only)
-# [1] 22228    29
+# [1] 22228    29 nc only
+# [1] 86385    18
 
-## Remove columns not use in this analysis ----
-### check if all are not compliant ----
+# put it back
+compl_err_db_data_metrics_permit_reg_list$sa_only <- compl_err_db_data_metrics_permit_reg_sa_only
+
+## check vessel/compl counts ----
 compl_err_db_data_metrics_permit_reg_sa_only |>
-  dplyr::select(is_comp) |>
-  dplyr::distinct()
-# 0 TRUE
+  dplyr::select(vessel_official_nbr, is_comp) |>
+  dplyr::distinct() |> 
+  dplyr::count(is_comp)
+#   is_comp
+# 1       1
+# 2       0
+#   is_comp    n
+# 1       0 1179
+# 2       1 1676
 
 # if compliance is checked for only when permit is active add:
 # comp_week_start_dt and comp_week_end_dt to select()
 
 # if override is taken in the account, add it
+
+## Remove columns not use in this analysis ----
+
 compl_err_db_data_metrics_permit_reg_sa_only_vsl <- 
   compl_err_db_data_metrics_permit_reg_sa_only |>
-  select(vessel_official_nbr) |> 
+  dplyr::select(vessel_official_nbr, is_comp) |>
   distinct()
 
-"srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, is_pa_reviewed, val_tr_res_id, vms_table_pk, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, permit_sa_gom"
+# "srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, is_pa_reviewed, val_tr_res_id, vms_table_pk, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, permit_sa_gom"
 
 # non compliant only, 2022 results to use: 
 # compl_err_db_data_metrics_permit_reg_sa_only
