@@ -206,14 +206,11 @@ vessels_permits_home_port_22_compliance_list_cnt_tot <-
     curr_df |>
       select(vessel_official_nbr,
              lat,
-             long) |> 
-      distinct() |> 
-    # group_by(
-    #                  lat,
-    #                  long) |>
-    dplyr::count(lat,
-                 long,
-                 name = "total_vsl_per_place_perm")
+             long) |>
+      distinct() |>
+      dplyr::add_count(lat,
+                       long,
+                       name = "total_vsl_per_place_perm")
   })
 
 vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |> 
