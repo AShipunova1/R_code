@@ -110,34 +110,28 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
 #    - If the vessel's official number is in a specific list (`compl_err_db_data_metrics_permit_reg_sa_only_vsl$vessel_official_nbr`), set compliance status to "NO".
 #    - For other vessels, default compliance status to "YES".
 
-vessels_permits_home_port_lat_longs_city_state_sa_compliance <-
-  vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
-  dplyr::filter(permit_sa_gom == "sa_only") |>
-  dplyr::mutate(
-    is_compliant_in_22 = 
-      dplyr::case_when(
-      SERO_OFFICIAL_NUMBER %in% compl_err_db_data_metrics_permit_reg_sa_only_vsl$vessel_official_nbr ~ "NO",
-      .default = "YES"
+vessels_permits_home_port_22_compliance_list <-
+  compl_err_db_data_metrics_permit_reg_list_short |>
+  map(\(curr_df) {
+    dplyr::left_join(
+      curr_df,
+      vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port,
+      join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
     )
-  )
+  })
 
-dim(vessels_permits_home_port_lat_longs_city_state_sa_compliance)
-# [1] 25587    33
-# [1] 4741    7 distinct
-# [1] 4729    7 no comp only
-# [1] 3388    8 sa only
+map(vessels_permits_home_port_22_compliance_list, count_uniq_by_column)
+# $dual
+# vessel_official_nbr            374
+# is_comp                          2
 
+# $gom_only
+# vessel_official_nbr            939
+# is_comp                          2
 
-# data_overview(vessels_permits_home_port_lat_longs_city_state_sa_compliance)
-# all permit regions
-# SERO_OFFICIAL_NUMBER 4729
-# lat                   547
-# is_compliant_in_22                2
-
-# sa_only
-# SERO_OFFICIAL_NUMBER           3388
-# lat                             450
-# is_compliant_in_22                2
+# $sa_only
+# vessel_official_nbr            2135
+# is_comp                           2
 
 # count vessels by home_port and compliance ----
 # Adding a count column named cnt_sa_vsl_by_port_coord_n_compl based on the variables lat, long, and is_compliant_in_22 using the dplyr::add_count function.
