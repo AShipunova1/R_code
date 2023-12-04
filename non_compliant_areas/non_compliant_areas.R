@@ -47,6 +47,39 @@ source(get_data_file_path)
 # all_get_db_data_result_l
 # vessels_permits_home_port_lat_longs_city_state
 
+# print_df_names(compl_err_db_data)
+# Vessel Official Number,
+# Name,
+# PermitGroup,
+# Permit GroupExpiration,
+# Year,
+# Week,
+# Compliant?,
+# Overridden? 
+
+# [1] "srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, override_dt, override_user_id, override_cmt, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, pa_review_needed_dt, pa_review_needed_user_id, is_pa_reviewed, pa_reviewed_dt, pa_reviewed_user_id, pa_reviewed_cmt, val_tr_res_id, vms_table_pk, srh_vessel_id, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, srfh_assignment_id"
+
+compl_err_db_data_short <- 
+  compl_err_db_data |>
+  select(
+    vessel_official_nbr,
+    permit_group,
+    prm_grp_exp_date,
+    comp_year,
+    comp_week,
+    comp_week_start_dt,
+    comp_week_end_dt,
+    is_comp,
+    is_comp_override,
+    comp_override_dt,
+    srfh_for_hire_type_id,
+    comp_override_cmt
+  ) |> 
+  remove_empty_cols() |> 
+  distinct()
+
+View(compl_err_db_data_short)
+
 # vessels_permits_home_port_lat_longs_city_state |> dim()
 # [1] 4729    6
 
