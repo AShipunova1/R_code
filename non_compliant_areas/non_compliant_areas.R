@@ -568,13 +568,29 @@ states_sf <- st_as_sf(map("state", plot = FALSE, fill = TRUE))
 # add X and Y
 states_sf <- cbind(states_sf, st_coordinates(st_centroid(states)))
 
+print_df_names(shp_file_with_cnts_sa)
+
 shp_file_with_cnts_sa |>
   filter(non_compl_year == TRUE) |>
-  mutate(nc_round_perc = round(compl_percent_per_st)) |>
-  ggplot() +
+  mutate(
+    nc_round_perc = round(compl_percent_per_st),
+    my_label =
+      stringr::str_glue("{STUSPS}:
+                             {nc_round_perc}% of {tot_compl_per_state_fxd}")
+  ) |>
+ggplot() +
   geom_sf(aes(fill = nc_round_perc)) +
+  geom_sf_label(
+    aes(label = my_label),
+    size = 3
+  ) +
+  # geom_sf_text(
+  #   aes(label = my_label),
+  #   colour = "purple",
+  #   size = 3
+  # ) +
   geom_sf(data = states_sf, fill = NA) +
-  geom_text(data = states_sf, aes(X, Y, label = ID), size = 5) +
+  # geom_text(data = states_sf, aes(X, Y, label = ID), size = 3) +
   coord_sf(xlim = c(-107, -75),
            ylim = c(24, 37),
            expand = FALSE)
