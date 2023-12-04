@@ -135,17 +135,6 @@ compl_err_db_data_metrics_permit_reg_list |>
 # Total Vessels With GOM Permit Only  1,028
 # Total Dual (SA & GOM) Permitted Vessels  300
 
-compl_err_db_data_metrics_permit_reg_sa_only |>
-  dplyr::select(vessel_official_nbr, is_comp) |>
-  dplyr::distinct() |> 
-  dplyr::count(is_comp)
-#   is_comp
-# 1       1
-# 2       0
-#   is_comp    n
-# 1       0 1179
-# 2       1 1676
-
 # if compliance is checked for only when permit is active add:
 # comp_week_start_dt and comp_week_end_dt to select()
 
@@ -153,16 +142,18 @@ compl_err_db_data_metrics_permit_reg_sa_only |>
 
 ## Remove columns not use in this analysis ----
 
-compl_err_db_data_metrics_permit_reg_sa_only_vsl <- 
-  compl_err_db_data_metrics_permit_reg_sa_only |>
-  dplyr::select(vessel_official_nbr, is_comp) |>
-  distinct()
-
 # "srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, is_pa_reviewed, val_tr_res_id, vms_table_pk, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, permit_sa_gom"
 
+compl_err_db_data_metrics_permit_reg_list_short <- 
+  compl_err_db_data_metrics_permit_reg_list |>
+  map(\(curr_df) {
+    curr_df |>
+      dplyr::select(vessel_official_nbr, is_comp) |>
+      distinct()
+  })
+
 # non compliant only, 2022 results to use: 
-# compl_err_db_data_metrics_permit_reg_sa_only
-# vessels only: compl_err_db_data_metrics_permit_reg_sa_only_vsl
+# compl_err_db_data_metrics_permit_reg_list_short
 
 # prepare vessel_permit_data ----
 ## 2022 permits ----
@@ -328,10 +319,8 @@ dim(vessels_permits_home_port_lat_longs_city_state)
 cat(
   blue("All DB data:"),
   "all_get_db_data_result_l",
-  blue("non compl 2022 sa:"),
-  "compl_err_db_data_metrics_permit_reg_sa_only",
-  blue("Vessels for non compl 2022 sa:"),
-  "compl_err_db_data_metrics_permit_reg_sa_only_vsl",
+  blue("compl 2022:"),
+  "compl_err_db_data_metrics_permit_reg_list_short",
   blue("vessel_permit 2022 with lat/long:"),
   "vessels_permits_home_port_lat_longs_city_state",
   blue("Maps:"),
