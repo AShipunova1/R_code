@@ -129,7 +129,7 @@ compl_err_db_data_metrics_permit_reg_list |>
 # vessel_official_nbr    2135
 # 374+939+2135 = 3448
 
-# Metricks:
+# Metrics:
 # Total Vessels  3,539
 # Total Vessels With SA Only  2,211
 # Total Vessels With GOM Permit Only  1,028
