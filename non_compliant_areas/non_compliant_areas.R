@@ -382,21 +382,13 @@ states_sf <- cbind(states_sf,
 
 # mapview(states_sf)
 
-# static map ----
+# combine static map ----
 shp_file_with_cnts_list$sa_only |>
   ggplot() +
   geom_sf(aes(fill = nc_round_perc)) +
   geom_sf_label(aes(label = my_label),
-                size = 3)
-
-+
-  # geom_sf_text(
-  #   aes(label = my_label),
-  #   colour = "purple",
-  #   size = 3
-  # ) +
+                size = 3) +
   geom_sf(data = states_sf, fill = NA) +
-  # geom_text(data = states_sf, aes(X, Y, label = ID), size = 3) +
   coord_sf(xlim = c(-107, -75),
            ylim = c(24, 37),
            expand = FALSE)
