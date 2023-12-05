@@ -267,6 +267,48 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$sa_only |>
   distinct() |> 
   filter(state_fixed %in% c("FL", "GA"))
 
+# percent of non compliant by state ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc <- 
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt |>
+  map(\(curr_df) {
+    curr_df |>
+      group_by(state_fixed, non_compl_year) |>
+      mutate(compl_percent_per_st =
+               compliance_by_state_cnt * 100 /
+               total_vsl_by_state_cnt) |>
+      ungroup()
+  })
+
+## check perc cnts ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc$sa_only |> 
+  select(state_fixed,
+         non_compl_year,
+         total_vsl_by_state_cnt,
+         compliance_by_state_cnt,
+         compl_percent_per_st) |>
+  distinct() |> 
+  filter(state_fixed %in% c("FL", "GA")) |>
+  glimpse()
+
+## test on one df ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |>
+  glimpse()
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |>
+  select(state_fixed,
+         non_compl_year,
+         total_vsl_by_state_cnt,
+         compliance_by_state_cnt) |>
+  distinct() |>
+  group_by(state_fixed, non_compl_year) |>
+  mutate(compl_percent_per_st =
+           compliance_by_state_cnt * 100 /
+           total_vsl_by_state_cnt) |>
+  ungroup() |> 
+  filter(state_fixed %in% c("FL", "GA")) |> 
+  glimpse()
+
+
 # --- old 2 ----
 vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd <-
   vessels_permits_home_port_22_compliance_list_cnt_tot |>
