@@ -370,71 +370,26 @@ shp_file_with_cnts_sa <-
 #   mapview(zcol = "nc_round_perc")
 # View(shp_file_with_cnts)
 
-shp_file_with_cnts_list$sa_only |> 
-  mapview(zcol = "nc_round_perc")
+# shp_file_with_cnts_list$sa_only |> 
+#   mapview(zcol = "nc_round_perc")
 
-## get usa map ----
-usa_map <- map_data("usa")
-
-# data_overview(usa_map)
-# usa_map_img <-
-#   ggplot() +
-#   geom_polygon(
-#     data = usa_map,
-#     aes(x = long,
-#         y = lat,
-#         group = group),
-#     colour = "grey",
-#     fill = NA
-#   ) +
-#   coord_fixed(1.3)
-
-# usa_map_img
-
-# cnts_map <- 
-  shp_file_with_cnts_sa |> 
-  filter(non_compl_year == TRUE) |>
-  mutate(nc_round_perc = round(compl_percent_per_st)) |> 
-  # ggplot() +
-  ggplot(aes(fill = nc_round_perc)) +
-  geom_sf()
-  
-  
-  geom_map(
-    data = usa_map,
-    # aes(x = long,
-        # y = lat,
-        # group = group),
-    colour = "grey",
-    fill = NA
-  ) +
-  coord_fixed(1.3)
-
-cnts_map 
-
-# ex
-# get south states only
-states_sf <- st_as_sf(map("state", plot = FALSE, fill = TRUE))
+# get south states map ----
+states_sf <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
 
 # add X and Y
-states_sf <- cbind(states_sf, st_coordinates(st_centroid(states)))
+states_sf <- cbind(states_sf, 
+                   sf::st_coordinates(sf::st_centroid(states_sf)))
 
-print_df_names(shp_file_with_cnts_sa)
+# mapview(states_sf)
 
-shp_file_with_cnts_sa |>
-  filter(non_compl_year == TRUE) |>
-  mutate(
-    nc_round_perc = round(compl_percent_per_st),
-    my_label =
-      stringr::str_glue("{STUSPS}:
-                             {nc_round_perc}% of {tot_compl_per_state_fxd}")
-  ) |>
-ggplot() +
+# static map ----
+shp_file_with_cnts_list$sa_only |>
+  ggplot() +
   geom_sf(aes(fill = nc_round_perc)) +
-  geom_sf_label(
-    aes(label = my_label),
-    size = 3
-  ) +
+  geom_sf_label(aes(label = my_label),
+                size = 3)
+
++
   # geom_sf_text(
   #   aes(label = my_label),
   #   colour = "purple",
