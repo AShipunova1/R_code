@@ -310,6 +310,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |
 
 # map percentage ----
 
+## shorten and add labels ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   map(\(curr_df) {
@@ -337,6 +338,23 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   glimpse()
 
 ## add to the shape file by state name ----
+
+shp_file_with_cnts_list <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |>
+  map(\(curr_df) {
+    south_east_coast_states_shp |>
+      left_join(curr_df,
+                join_by(STUSPS ==
+                          state_fixed))
+  })
+
+# shp_file_with_cnts_list$sa_only |> str()
+# if join to a df:
+# tibble [8 × 15] (S3: tbl_df/tbl/data.frame)
+# if join to an sf:
+# Classes ‘sf’ and 'data.frame':	8 obs. of  15 variables
+
+### check on one region ----
 shp_file_with_cnts_sa <-
   south_east_coast_states_shp |>
   left_join(
@@ -351,6 +369,9 @@ shp_file_with_cnts_sa <-
 # shp_file_with_cnts_sa |> 
 #   mapview(zcol = "nc_round_perc")
 # View(shp_file_with_cnts)
+
+shp_file_with_cnts_list$sa_only |> 
+  mapview(zcol = "nc_round_perc")
 
 ## get usa map ----
 usa_map <- map_data("usa")
