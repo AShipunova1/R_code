@@ -308,189 +308,52 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |
   filter(state_fixed %in% c("FL", "GA")) |> 
   glimpse()
 
+# map percentage ----
 
-# --- old 2 ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd <-
-  vessels_permits_home_port_22_compliance_list_cnt_tot |>
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   map(\(curr_df) {
     curr_df |>
-      group_by(state_fixed) |>
-      add_count(name = "total_vsls_per_state_fxd",
-                wt = cnt_vsl_by_port_coord_n_compl) |>
-      ungroup() |> 
-      group_by(state_fixed, non_compl_year) |>
-      add_count(name = "tot_compl_per_state_fxd",
-                wt = cnt_vsl_by_port_coord_n_compl) |>
-      mutate(compl_percent_per_st = 
-               tot_compl_per_state_fxd * 100 /
-               total_vsls_per_state_fxd) |> 
-      ungroup()
+      filter(non_compl_year == TRUE) |>
+      select(
+        state_fixed,
+        total_vsl_by_state_cnt,
+        compliance_by_state_cnt,
+        compl_percent_per_st
+      ) |>
+      distinct() |>
+      mutate(
+        nc_round_perc = round(compl_percent_per_st),
+        my_label =
+          stringr::str_glue(
+            "{state_fixed}:
+                             {nc_round_perc}% of {total_vsl_by_state_cnt}"
+          )
+      )
   })
 
-# check
-vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
-  select(state_fixed,
-         cnt_vsl_by_port_coord_n_compl) |>
-  filter(state_fixed %in% c("GA")) |>
-  mutate(sum(cnt_vsl_by_port_coord_n_compl)) |> 
-  select(-cnt_vsl_by_port_coord_n_compl) |> 
-  distinct()
-# state_fixed `sum(total_vsl_per_place_perm)`
-# < chr >                                 < int >
-#  GA                                       38
-
-vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd$sa_only |>
-  select(non_compl_year,
-         state_fixed, 
-         total_vsls_per_state_fxd,
-         compl_percent_per_st) |> 
-# filter(state_fixed %in% c("GA")) |> 
-  arrange(state_fixed, non_compl_year) |> 
-  distinct()
-#   state_fixed total_places_per_state_fxd
-#   <chr>                            <int>
-# 1 FL                                 158
-# 2 NC                                  86
-# 3 SC                                  34
-# 4 GA                                  20
-
- #   non_compl_year state_fixed total_vsls_per_state_fxd compl_percent_per_st
- #   <lgl>          <chr>                          <int>                <dbl>
- # 1 TRUE           AK                                 2                100  
- # 2 FALSE          AL                                 1                100  
- # 3 TRUE           CT                                 1                100  
- # 4 FALSE          DE                                36                 30.6
- # 5 TRUE           DE                                36                 69.4
- # 6 FALSE          FL                              1701                 40.4
- # 7 TRUE           FL                              1701                 59.6
- # 8 FALSE          GA                                38                 57.9
- # 9 TRUE           GA                                38                 42.1
-
-vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd$sa_only |>   
-  filter(state_fixed %in% c("GA")) |>
-  View()
-
-# [1] "non_compl_year, permit_sa_gom, city_fixed, state_fixed, lat, long, cnt_vsl_by_permit_n_port_coord, cnt_vsl_by_port_coord_n_compl, total_vsl_per_place_perm, total_vsls_per_state_fxd, tot_compl_per_state_fxd, compl_percent_per_st"
-
-### remove extra columns ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short <- 
-  vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd |>
-  map(\(curr_df) {
-    curr_df |>
-      select(non_compl_year,
-             state_fixed,
-             tot_compl_per_state_fxd,
-             compl_percent_per_st) |> 
-      distinct()
-  })
-
-vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short$sa_only |> 
+## check the labels ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$sa_only |> 
   glimpse()
 
-# TRUE
-# FL
-# 6338
-# 63.380000
 
-# FALSE
-# FL
-# 3662
-# 36.620000
-
-# If use state names, there are typos. Either fix, or use coordinates
-
-### count total_places_per_state ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states_places <-
-  vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states |>
-  map(\(curr_df) {
-    curr_df |>
-      group_by(STUSPS) |>
-      mutate(total_places_per_state = n()) |>
-      ungroup()
-  })
-
-#### compare with to by state fixed ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states_places$sa_only |>
-  select(STUSPS, total_places_per_state) |>
-  sf::st_drop_geometry() |> 
-  filter(STUSPS %in% c("FL", "NC", "SC", "GA")) |>
-  distinct()
-#   STUSPS total_places_per_state
-#   <chr>                   <int>
-# 1 FL                        153
-# 2 NC                         81
-# 3 SC                         31
-# 4 GA                         20
-
-#   state_fixed total_places_per_state_fxd
-#   <chr>                            <int>
-# 1 FL                                 158
-# 2 NC                                  86
-# 3 SC                                  34
-# 4 GA                                  20
-
-# combine fixed states with percentage ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short |> 
-  map(\(curr_df) {
-    curr_df |>
-      south_east_coast_states_shp
-  })
-
-print_df_names(vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short$sa_only)
-
-shp_file_with_cnts_sa <-
-  south_east_coast_states_shp |>
-  left_join(
-    vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_short$sa_only,
-    join_by(STUSPS ==
-              state_fixed)
-  )
-
-# [1] "non_compl_year, state_fixed, tot_compl_per_state_fxd, compl_percent_per_st"
-
-shp_file_with_cnts_sa |> 
-  filter(non_compl_year == TRUE) |>
-  mutate(nc_round_perc = round(compl_percent_per_st)) |> 
-  mapview(zcol = "nc_round_perc")
-# View(shp_file_with_cnts)
-
-# ggplot(crimes_long, aes(map_id = state)) +
-#   geom_map(aes(fill = value), map = states_map) +
-#   coord_sf(
-#     crs = 5070,
-#     default_crs = 4326,
-#     xlim = c(-125, -70),
-#     ylim = c(25, 52)
-#   )
-# shp_file_with_cnts_sa |> 
-#   filter(non_compl_year == TRUE) |>
-#   mutate(nc_round_perc = round(compl_percent_per_st)) |> 
-#   mapview(zcol = "nc_round_perc")
-
-# empty_map <-
-#   ggplot() + geom_sf(
-#     data = south_east_coast_states_shp,
-#     # aes(x = long, y = lat, group = group),
-#     colour = "black",
-#     fill = NA
-#   )
-
-
+## get usa map ----
 usa_map <- map_data("usa")
-# data_overview(usa_map)
-usa_map_img <-
-  ggplot() +
-  geom_polygon(
-    data = usa_map,
-    aes(x = long,
-        y = lat,
-        group = group),
-    colour = "grey",
-    fill = NA
-  ) +
-  coord_fixed(1.3)
 
-usa_map_img
+# data_overview(usa_map)
+# usa_map_img <-
+#   ggplot() +
+#   geom_polygon(
+#     data = usa_map,
+#     aes(x = long,
+#         y = lat,
+#         group = group),
+#     colour = "grey",
+#     fill = NA
+#   ) +
+#   coord_fixed(1.3)
+
+# usa_map_img
 
 # cnts_map <- 
   shp_file_with_cnts_sa |> 
