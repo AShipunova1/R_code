@@ -382,76 +382,50 @@ states_sf <- cbind(states_sf,
 
 # mapview(states_sf)
 
+
 # combine static map ----
-shp_file_with_cnts_list$sa_only |>
-  ggplot() +
-  geom_sf(aes(fill = nc_round_perc)) +
-  geom_sf_label(aes(label = my_label),
-                size = 3) +
-  geom_sf(data = states_sf, fill = NA) +
-  coord_sf(xlim = c(-107, -75),
-           ylim = c(24, 37),
-           expand = FALSE)
+# get boundaries from south_east_coast_states_shp_bb
 
-# south_east_coast_states_shp_bb
+label_text_size <- 3
 
+# The code creates a plot using the ggplot2 library to visualize spatial data.
+shp_file_with_cnts_list_maps <- 
+  shp_file_with_cnts_list |>
+  purrr::map(\(curr_sf) {
+    curr_sf |>
+      ggplot() +
+      # Start building the ggplot object for plotting.
+      
+      geom_sf(aes(fill = nc_round_perc)) +
+      # Add a layer for plotting spatial features, using nc_round_perc for fill color.
+      
+      geom_sf_label(aes(label = my_label),
+                    size = label_text_size) +
+      # Add a layer for labeling spatial features using the my_label column, with a specified size.
+      
+      geom_sf(data = states_sf, fill = NA) +
+      # Add a layer for plotting state boundaries, with no fill color (NA).
+      
+      coord_sf(
+        xlim =
+          c(
+            floor(south_east_coast_states_shp_bb$xmin),
+            ceiling(south_east_coast_states_shp_bb$xmax)
+          ),
+        ylim =
+          c(
+            floor(south_east_coast_states_shp_bb$ymin),
+            ceiling(south_east_coast_states_shp_bb$ymax)
+          ),
+        expand = FALSE
+      )
+  })
+# Set the coordinate limits for the plot, based on the bounding box of southeast coast states,
+  # with expand = FALSE to prevent expansion beyond the specified limits.
 
-# old ----
-# Percent of (non)compliant by port ----
-# Adding new columns to the data frame:
-# 
-# non_comp_perc: Non-compliance percentage calculated as the ratio of non-compliant vessels to total vessels.
-# is_comp_perc_round: Rounded percentage of non-compliance. No digits after the decimal point.
+# individual plots ----
+shp_file_with_cnts_list_maps$gom
+p + ggtitle("Plot of length \n by dose") +
+  xlab("Dose (mg)") + ylab("Teeth length")
 
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc <-
-  vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt |>
-  dplyr::group_by(is_compliant_in_22) |>
-  dplyr::mutate(
-    non_comp_perc =
-      cnt_vsl_by_port_coord_n_compl * 100 /
-      cnt_vsl_by_permit_n_port_coord,
-    is_comp_perc_round =
-      round(non_comp_perc)
-  ) |>
-  dplyr::ungroup()
-
-glimpse(vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc)
-# [1] 3388   11
-
-# spot test counts ----
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |> 
-  filter(city_fixed == "SEBASTIAN") |> 
-  data_overview()
-# SERO_OFFICIAL_NUMBER 27
-# is_comp               2
-
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |> 
-  filter(city_fixed == "SEBASTIAN") |> 
-  select(-SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
-  glimpse()
-# $ is_compliant_in_22               <chr> "NO", "YES"
-# $ cnt_vsl_by_port_coord_n_compl <int> 15, 12
-# $ is_comp_perc_round               <dbl> 55.6, 44.4
-
-## check multiple names for the same cooordinates ---- 
-# mult_names <- "AMELIA"
-# BAYOU LA BATRE
-mult_names <- "BATRE"
-vessels_permits_home_port_lat_longs_city_state_sa_compliance_cnt_perc |>
-  filter(grepl(mult_names, city_fixed)) |>
-  select(-SERO_OFFICIAL_NUMBER) |> 
-  distinct() |>
-  glimpse()
-# $ SERO_OFFICIAL_NUMBER             <chr> "938369", "FL3307AE"
-# $ city_fixed                       <chr> "AMELIA IS", "AMELIA ISLAND"
-# $ cnt_vsl_by_permit_n_port_coord   <int> 2, 2
-
-
-# $ city_fixed                       <chr> "BAYOU LA BATRE", "BAYOU  LA BATRE"…
-# $ state_fixed                      <chr> "AL", "AL", "LA"
-# $ cnt_vsl_by_permit_n_port_coord   <int> 103, 103, 103
-
-
-# Count a proportion of non compliant vessels per total vessels, home ports and states ----
-# color different states accordingly
+shp_file_with_cnts_list_maps$sa_only
