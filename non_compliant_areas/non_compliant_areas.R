@@ -183,8 +183,21 @@ map(vessels_permits_home_port_22_compliance_list, count_uniq_by_column)
 # non_compl_year                    2
 
 # Count vessels by state name ----
-## total vsls per state 
+## total vsls per state ----
 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
+  vessels_permits_home_port_22_compliance_list |>
+  map(\(curr_df) {
+    curr_df |>
+      group_by(state_fixed) |>
+      add_count(state_fixed,
+                name = "total_vsl_by_state_cnt") |> 
+      ungroup()
+  })
+
+# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt)
+
+### cnt by state prove of concept ----
 
 # vessels_permits_home_port_22_compliance_list$sa_only |> 
 #   glimpse()
@@ -217,6 +230,44 @@ diffdf::diffdf(vessel_by_state_cnt$sa_only, vessel_by_state_cnt1$sa_only)
 head(vessel_by_state_cnt$sa_only)
 head(vessel_by_state_cnt1$sa_only)
 
+# cnt vessel by state and compliance ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt <- 
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt |>
+  map(\(curr_df) {
+    curr_df |>
+      group_by(state_fixed, non_compl_year) |>
+      add_count(state_fixed, non_compl_year,
+                name = "compliance_by_state_cnt") |> 
+      ungroup()
+  })
+
+## check non_compl counts ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |> 
+  select(vessel_official_nbr, state_fixed, non_compl_year, total_vsl_by_state_cnt, compliance_by_state_cnt) |>
+  distinct() |>
+  select(-vessel_official_nbr) |> 
+  distinct() |> 
+  filter(state_fixed %in% c("FL", "GA"))
+# state_fixed non_compl_year total_vsl_by_state_cnt compliance_by_state_cnt
+#  <chr>  <lgl>  <int>  <int>
+# 1 FL  TRUE   896  500
+# 2 FL  FALSE  896  396
+# 3 GA  TRUE    38   16
+# 4 GA  FALSE   38   22
+
+## test on one df ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$sa_only |>
+  glimpse()
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$sa_only |>
+  select(vessel_official_nbr, state_fixed, non_compl_year, total_vsl_by_state_cnt) |>
+  distinct() |>
+  add_count(state_fixed, non_compl_year) |> 
+  select(-vessel_official_nbr) |> 
+  distinct() |> 
+  filter(state_fixed %in% c("FL", "GA"))
+
+# --- old 2 ----
 vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd <-
   vessels_permits_home_port_22_compliance_list_cnt_tot |>
   map(\(curr_df) {
