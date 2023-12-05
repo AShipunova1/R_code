@@ -1,4 +1,4 @@
-# Non compliant SA only permitted vessels (2022) by home port
+# Non compliant vessels (2022) by home port
 # identifying any particular areas of high non-compliance to help focus future outreach efforts. 
 # do this as a map
 
@@ -75,39 +75,7 @@ vessels_permits_home_port_lat_longs_city_state |>
 # state_fixed            17
 # lat                   323
 
-## add counts to vessel_permit ----
-# permit group info is different with that in compliance info!
-# Adding a count column with num of SERO_OFFICIAL_NUMBER based on permit type, latitude, and longitude to the data frame.
-
-vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port <-
-  vessels_permits_home_port_lat_longs_city_state |>
-  dplyr::add_count(permit_sa_gom,
-                   lat,
-                   long,
-                   name = "cnt_vsl_by_permit_n_port_coord")
-
-### check counts ----
-vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
-  select(SERO_OFFICIAL_NUMBER,
-         permit_sa_gom,
-         lat,
-         long) |>
-  count(permit_sa_gom,
-        lat,
-        long) |>
-  filter(permit_sa_gom == "sa_only") |>
-  arrange(desc(n)) |>
-  head()
-
-vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
-  filter(permit_sa_gom == "sa_only") |>
-  select(-SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
-  arrange(desc(cnt_vsl_by_permit_n_port_coord)) |>
-  head()
-#   permit_sa_gom city_fixed      state_fixed   lat  long cnt_vsl_by_permit_n_port_coord
-#   <chr>         <chr>           <chr>       <dbl> <dbl>                          <int>
-# 1 sa_only       KEY WEST        FL           24.6 -81.8                            139
+## Compliance info combine dual and GOM only ----
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
 
