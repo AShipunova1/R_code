@@ -332,10 +332,25 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
       )
   })
 
-## check the labels ----
+### check the labels ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$sa_only |> 
   glimpse()
 
+## add to the shape file by state name ----
+shp_file_with_cnts_sa <-
+  south_east_coast_states_shp |>
+  left_join(
+    vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$sa_only,
+    join_by(STUSPS ==
+              state_fixed)
+  )
+
+# print_df_names(shp_file_with_cnts_sa)
+# [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, compliance_by_state_cnt, compl_percent_per_st, nc_round_perc, my_label, geometry"
+
+# shp_file_with_cnts_sa |> 
+#   mapview(zcol = "nc_round_perc")
+# View(shp_file_with_cnts)
 
 ## get usa map ----
 usa_map <- map_data("usa")
