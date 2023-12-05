@@ -68,8 +68,12 @@ vessels_permits_home_port_lat_longs_city_state |>
   group_by(lat, long) %>%
   filter(n() > 1) |>
   dim()
-# [1] num of SERO_OFFICIAL_NUMBER    6
 # [1] 4505    6
+  # count_uniq_by_column()
+# SERO_OFFICIAL_NUMBER 4505
+# city_fixed            376
+# state_fixed            17
+# lat                   323
 
 ## add counts to vessel_permit ----
 # permit group info is different with that in compliance info!
@@ -101,16 +105,26 @@ vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
   distinct() |> 
   arrange(desc(cnt_vsl_by_permit_n_port_coord)) |>
   head()
+#   permit_sa_gom city_fixed      state_fixed   lat  long cnt_vsl_by_permit_n_port_coord
+#   <chr>         <chr>           <chr>       <dbl> <dbl>                          <int>
+# 1 sa_only       KEY WEST        FL           24.6 -81.8                            139
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
+
+# compl_err_db_data_metrics_permit_reg_list_short is sourced from non_compliant_areas_get_data.R
 compl_err_db_data_metrics_permit_reg_list_short_year_nc <- 
   compl_err_db_data_metrics_permit_reg_list_short |> 
   map(\(curr_df) {
+    # For each data frame curr_df in the list (one df for a permit_region):
     curr_df |>
       group_by(vessel_official_nbr) |> 
+
       mutate(non_compl_year = 0 %in% is_comp) |> 
+      # Add a new column non_compl_year, which is TRUE if 0 ("is not compliant") is in the is_comp column for this vessel.
+      
       ungroup()
-    })
+      # Ungroup the data frame, removing the grouping structure.
+  })
 
 ## check compl_year ----
 compl_err_db_data_metrics_permit_reg_list_short_year_nc$sa_only |>
@@ -123,6 +137,8 @@ compl_err_db_data_metrics_permit_reg_list_short_year_nc$sa_only |>
 # 2 1020057                   1 FALSE         
 # 3 1020822                   1 TRUE          
 # 4 1020822                   0 TRUE          
+
+# 1020822 is non compliant for the whole year 
 
 ## keep unique vessel ids only ----
 compl_err_db_data_metrics_permit_reg_list_short_uniq <- 
@@ -137,7 +153,7 @@ compl_err_db_data_metrics_permit_reg_list_short_uniq <-
 compl_err_db_data_metrics_permit_reg_list_short_uniq$sa_only |>
   filter(vessel_official_nbr == 1020822)
 #   vessel_official_nbr non_compl_year
-# 3 1020822             TRUE          
+# 1 1020822             TRUE          
 
 # Join home port and compliance info by vessel ----
 
@@ -156,156 +172,51 @@ vessels_permits_home_port_22_compliance_list <-
 map(vessels_permits_home_port_22_compliance_list, count_uniq_by_column)
 # $dual
 # vessel_official_nbr            374
-# is_comp                          2
+# non_compl_year                   2
 
 # $gom_only
 # vessel_official_nbr            939
-# is_comp                          2
+# non_compl_year                   2
 
 # $sa_only
 # vessel_official_nbr            2135
-# is_comp                           2
+# non_compl_year                    2
 
-# count vessels by home_port and compliance ----
-# Adding a count column named cnt_vsl_by_port_coord_n_compl based on the variables lat, long, and is_compliant_in_22 using the dplyr::add_count function.
+# Count vessels by state name ----
+## total vsls per state 
 
-vessels_permits_home_port_22_compliance_list_cnt <-
+
+# vessels_permits_home_port_22_compliance_list$sa_only |> 
+#   glimpse()
+
+vessel_by_state_cnt <-
   vessels_permits_home_port_22_compliance_list |>
   map(\(curr_df) {
     curr_df |>
-      dplyr::add_count(lat,
-                       long,
-                       non_compl_year,
-                       name = "cnt_vsl_by_port_coord_n_compl")
+      select(vessel_official_nbr, state_fixed) |>
+      distinct() |>
+      # group_by(state_fixed) |>
+      add_count(state_fixed)
   })
 
-## check cnts ----
-test_head_0 <-   
-  vessels_permits_home_port_22_compliance_list_cnt$sa_only |> 
-  select(vessel_official_nbr,
-         lat,
-         long,
-         non_compl_year,
-         cnt_vsl_by_port_coord_n_compl) |> 
-  distinct() |> 
-  arrange(vessel_official_nbr) |> 
-  head()
+# View(vessel_by_state_cnt)
 
-test_head_1 <- 
-  vessels_permits_home_port_22_compliance_list$sa_only |> 
-  select(vessel_official_nbr,
-         lat,
-         long,
-         non_compl_year) |> 
-  distinct() |> 
-  add_count(lat,
-         long,
-         non_compl_year,
-         name = "cnt_vsl_by_port_coord_n_compl") |> 
-  arrange(vessel_official_nbr) |> 
-  head()
+vessel_by_state_cnt1 <-
+  vessels_permits_home_port_22_compliance_list |>
+  map(\(curr_df) {
+    curr_df |>
+      group_by(state_fixed) |>
+      add_count(state_fixed) |> 
+      select(vessel_official_nbr, state_fixed, n) |>
+      distinct()
+  })
 
-all.equal(test_head_0, test_head_1)
+diffdf::diffdf(vessel_by_state_cnt$sa_only, vessel_by_state_cnt1$sa_only)
 # T
 
-test_3 <- 
-  vessels_permits_home_port_22_compliance_list$sa_only |>
-  filter(vessel_official_nbr == 1020822) |>
-  mutate(round_lat = round(lat, 4),
-         round_long = round(long, 4))
+head(vessel_by_state_cnt$sa_only)
+head(vessel_by_state_cnt1$sa_only)
 
-vessels_permits_home_port_22_compliance_list$sa_only |>
-  filter(round(lat, 4) == test_3$round_lat[[1]] &
-           round(long, 4) == test_3$round_long[[1]]) |>
-  glimpse()
-
-vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
-  filter(
-    cnt_vsl_by_permit_n_port_coord == 22 &
-      round(lat, 4) == test_3$round_lat[[1]] &
-      round(long, 4) == test_3$round_long[[1]]
-  ) |>
-  glimpse()
-
-# cnt_vsl_by_permit_n_port_coord == 22 is correct for permit info from vessel_permits, 
-# but wrong for compliant permit information (7 sa_only vessel_official_nbr)
-
-vessels_permits_home_port_22_compliance_list |>
-  map(\(curr_df) {
-    curr_df |>
-      filter(round(lat, 4) == test_3$round_lat[[1]] &
-               round(long, 4) == test_3$round_long[[1]]) |> 
-      dim()
-  })
-# $sa_only
-# [1] 7 8
-# 7 vessels, correct
-
-vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port |>
-        filter(round(lat, 4) == test_3$round_lat[[1]] &
-               round(long, 4) == test_3$round_long[[1]]) |> 
-glimpse()
-
-vessels_permits_home_port_22_compliance_list_cnt$sa_only |> 
-      filter(round(lat, 4) == test_3$round_lat[[1]] &
-               round(long, 4) == test_3$round_long[[1]]) |> 
-  select(non_compl_year, cnt_vsl_by_port_coord_n_compl) |> 
-  distinct()
-# 1 TRUE                                          5
-# 2 FALSE                                         2
-
-# add total vessel num per place by permit region in compl data ----
-vessels_permits_home_port_22_compliance_list_cnt_tot <-
-  vessels_permits_home_port_22_compliance_list_cnt |>
-  map(\(curr_df) {
-    curr_df |>
-      select(-vessel_official_nbr) |>
-      distinct() |>
-      group_by(lat, long) |> 
-      dplyr::add_count(wt = cnt_vsl_by_port_coord_n_compl,
-                       name = "total_vsl_per_place_perm") |> 
-      ungroup()
-  })
-
-# check
-vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
-  filter(state_fixed == "GA") |>
-  select(-c(permit_sa_gom, city_fixed, state_fixed)) |> 
-  distinct() |> 
-  glimpse()
-# Rows: 20
-
-vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |>
-  filter(state_fixed == "GA") |>
-  select(-c(permit_sa_gom, city_fixed, state_fixed,
-            lat,
-            long,
-            cnt_vsl_by_permit_n_port_coord)) |>
-  distinct() |>
-  # glimpse()
-  group_by(non_compl_year) |>
-    count(wt = cnt_vsl_by_port_coord_n_compl)
-# Rows: 16
-#   non_compl_year     n
-#   <lgl>          <int>
-# 1 FALSE             20
-# 2 TRUE              14
-
-# check
-vessels_permits_home_port_22_compliance_list_cnt_tot$sa_only |> 
-      filter(round(lat, 4) == test_3$round_lat[[1]] &
-               round(long, 4) == test_3$round_long[[1]]) |> 
-  glimpse()
-# $ non_compl_year                 <lgl> TRUE, FALSE
-# $ lat                            <dbl> 32.07901, 32.07901
-# $ long                           <dbl> -81.09213, -81.09213
-# $ cnt_vsl_by_port_coord_n_compl  <int> 5, 2
-# $ total_vsl_per_place_perm       <int> 7, 7
-
-# Percent of (non)compliant by state ----
-
-## Count by state name ----
-### total vsls per state 
 vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd <-
   vessels_permits_home_port_22_compliance_list_cnt_tot |>
   map(\(curr_df) {
@@ -394,58 +305,6 @@ vessels_permits_home_port_22_compliance_list_cnt_tot_cnt_tot_vsl_per_state_fxd_s
 # 36.620000
 
 # If use state names, there are typos. Either fix, or use coordinates
-
-## Count using coordinates ----
-### convert to an sf ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_sf <-
-  vessels_permits_home_port_22_compliance_list_cnt_tot |>
-  map(\(curr_df) {
-    curr_df |> 
-      filter(!is.na(long) &
-               !is.na(lat)) |> 
-      sf::st_as_sf(coords = c("long", "lat"), crs = tigris_crs)
-  })
-
-map(vessels_permits_home_port_22_compliance_list_cnt_tot_sf, dim)
-# $dual
-# [1] 162   8
-# 
-# $gom_only
-# [1] 188   8
-# 
-# $sa_only
-# [1] 387   8
-
-### Join with the state map ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states <-
-  vessels_permits_home_port_22_compliance_list_cnt_tot_sf |>
-  map(\(curr_df) {
-    curr_df |>
-      sf::st_join(south_east_coast_states_shp, left = FALSE) %>%
-      
-      # extract the longitude and latitude coordinates from the joined spatial object.
-      dplyr::mutate(
-        longitude = sf::st_coordinates(.)[, 1],
-        latitude = sf::st_coordinates(.)[, 2]
-      )
-    
-  })
-
-# print_df_names(vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states$sa_only)
-
-### check where port by coords != port from vessel info ----
-vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states |>
-  map(\(curr_df) {
-    curr_df |>
-      filter(!STUSPS == state_fixed) |>
-      select(city_fixed, state_fixed, NAME)
-  })
-
-# sa_only
-#   city_fixed state_fixed NAME                       geometry
-#   <chr>      <chr>       <chr>                   <POINT [°]>
-# 1 OCEAN CITY DE          North Carolina (-77.49136 34.45656)
-# $ cnt_vsl_by_permit_n_port_coord <int> 1
 
 ### count total_places_per_state ----
 vessels_permits_home_port_22_compliance_list_cnt_tot_sf_join_states_places <-
