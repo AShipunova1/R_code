@@ -424,8 +424,10 @@ shp_file_with_cnts_list_maps <-
   # with expand = FALSE to prevent expansion beyond the specified limits.
 
 # individual plots ----
-shp_file_with_cnts_list_maps$gom
-p + ggtitle("Plot of length \n by dose") +
-  xlab("Dose (mg)") + ylab("Teeth length")
+shp_file_with_cnts_list_maps$gom_only +
+  ggtitle("Percent of non-compliant Vessels GOM only permitted in 2022 by Home Port State") +
+  xlab("") +
+  ylab("")
+
 
 shp_file_with_cnts_list_maps$sa_only
