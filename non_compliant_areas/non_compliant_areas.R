@@ -405,6 +405,8 @@ shp_file_with_cnts_list_maps <-
       
       geom_sf(data = states_sf, fill = NA) +
       # Add a layer for plotting state boundaries, with no fill color (NA).
+
+      # Set the coordinate limits for the plot, based on the bounding box of southeast coast states,
       
       coord_sf(
         xlim =
@@ -417,17 +419,40 @@ shp_file_with_cnts_list_maps <-
             floor(south_east_coast_states_shp_bb$ymin),
             ceiling(south_east_coast_states_shp_bb$ymax)
           ),
+        # with expand = FALSE to prevent expansion beyond the specified limits.
         expand = FALSE
-      )
+      ) +
+      xlab("") +
+      ylab("") +
+      scale_fill_continuous(name = "Percent non-compliant",
+                            type = "viridis",
+                            direction = -1) +
+      theme(legend.position = "bottom")
+
   })
-# Set the coordinate limits for the plot, based on the bounding box of southeast coast states,
-  # with expand = FALSE to prevent expansion beyond the specified limits.
+  
 
 # individual plots ----
-shp_file_with_cnts_list_maps$gom_only +
-  ggtitle("Percent of non-compliant Vessels GOM only permitted in 2022 by Home Port State") +
-  xlab("") +
-  ylab("")
+## GOM ----
+permit_region <- "GOM only"
 
+perc_plot_title <-
+  stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
 
-shp_file_with_cnts_list_maps$sa_only
+gom_map <-
+  shp_file_with_cnts_list_maps$gom_only +
+  ggtitle(perc_plot_title)
+
+output_file_name <- "gom_perc_by_state.png"
+  
+ggsave(
+      file = output_file_name,
+      plot = gom_map,
+      device = "png",
+      path = file.path(my_paths$outputs,
+                       current_project_dir_name),
+      width = 30,
+      height = 20,
+      units = "cm"
+    )
+
