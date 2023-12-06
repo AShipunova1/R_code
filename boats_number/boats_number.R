@@ -441,22 +441,35 @@ make_ports_q_short_wider_diff <-
   }
 
 # View(ports_q_short_wider_list)
+
 tic("ports_q_short_wider_list_diff")
+
+# Create a new list 'ports_q_short_wider_list_diff' by applying a series of operations to each element
+# of the provided list, where each element is a pair of a data frame and a character indicating start or end.
 ports_q_short_wider_list_diff <-
   list(c(ports_q_short_wider_list[[1]], "start"),
        c(ports_q_short_wider_list[[2]], "end")) |>
   map(\(one_df_l) {
-    # browser()
+    # Extract the data frame and the character indicating start or end.
     df_len <- length(one_df_l)
-
-    my_df_names <-
-      names(one_df_l)[1:df_len - 1]
+    my_df_names <- names(one_df_l)[1:df_len - 1]
     my_df <- one_df_l[1:df_len - 1] |>
       as.data.frame()
     names(my_df) <- my_df_names
     my_col_name <- one_df_l[[df_len]]
+    # Apply the 'make_ports_q_short_wider_diff' function to calculate the differences between quarters.
     make_ports_q_short_wider_diff(my_df, my_col_name)
   })
+
+#
+# Explanation:
+# 1. Create a list where each element is a pair containing a data frame from 'ports_q_short_wider_list' and a character ("start" or "end").
+# 2. Use the `map` function to apply a series of operations to each element of the list.
+# 3. Extract the data frame and the character from each pair.
+# 4. Extract the column names of the data frame and assign them to 'my_df_names'.
+# 5. Convert the extracted data frame to a standard data frame using `as.data.frame()` and set its column names.
+# 6. Apply the `make_ports_q_short_wider_diff` function to calculate the differences between quarters.
+# 7. The resulting list, 'ports_q_short_wider_list_diff', contains data frames with differences between quarters for both start and end ports.
 toc()
 # ports_q_short_wider_list_diff: 9.93 sec elapsed
 
@@ -496,7 +509,7 @@ ports_q_short_wider_list_diff |>
 # 2020 Q4                2
 # all_end_ports        701
 
-#### count same or diff by permit_region ----
+## count same or diff by permit_region and trip start or end ----
 ports_q_short_wider_list_diff |>
   map(\(one_df) {
     one_df |>
@@ -518,7 +531,7 @@ ports_q_short_wider_list_diff |>
 # 3 sa_only       FALSE   830
 # 4 sa_only       TRUE    255
 
-#### count same or diff ----
+#### count same or diff trip start or end ----
 ports_q_short_wider_list_diff |>
   map(\(one_df) {
     one_df |>
@@ -536,6 +549,7 @@ ports_q_short_wider_list_diff |>
 
 # quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ## add a gom vs sa marker to ports ----
+### shorten the df ----
 all_logbooks_db_data_2022_short_p_region_port_region <-
   all_logbooks_db_data_2022_short_p_region |>
   select(
@@ -567,15 +581,19 @@ all_logbooks_db_data_2022_short_p_region_port_region |>
 names(state.abb) <- state.name
 names(state.name) <- state.abb
 
-# my_state_name[tolower("FL")]
+my_state_name[tolower("FL")]
 # "Florida"
+
+## add a start_port_reg column ----
 
 all_logbooks_db_data_2022_short_p_region_port_states <-
   all_logbooks_db_data_2022_short_p_region_port_region |>
+  # Add columns for the state names corresponding to start and end ports.
   mutate(
     start_port_state_name = my_state_name[tolower(start_port_state)],
     end_port_state_name   = my_state_name[tolower(end_port_state)]
   ) |>
+  # Add a column 'start_port_reg' based on conditions using 'case_when'.
   mutate(
     start_port_reg =
       case_when(
@@ -585,13 +603,27 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
           "gom_state",
         .default = "sa_state"
       )
+    # Additional commented-out line for potential future use.
     # diff_reg = case_when(!start_port_state == end_port_state)
   )
 
-dim(all_logbooks_db_data_2022_short_p_region_port_states)
+# Explanation:
+# 1. Create a new data frame 'all_logbooks_db_data_2022_short_p_region_port_states' by applying operations to 'all_logbooks_db_data_2022_short_p_region_port_region'.
+# 2. Add columns for the state names corresponding to start and end ports.
+# 3. Add a new column 'start_port_reg' based on conditions using 'case_when':
+#    - If the start port state is in 'sa_council_states', set it to "sa_council_state".
+#    - If the end port state is in 'east_coat_states$gom', set it to "gom_state".
+#    - For other cases, set it to "sa_state".
+#    - Additional commented-out line ('diff_reg') for potential future use.
+
+head(all_logbooks_db_data_2022_short_p_region_port_states)
 # [1] 3011   14
 
 ### if FL divide by county ----
+# Add a new column 'start_port_fl_reg' based on conditions using 'case_when':
+# If the start port state name is "florida" and the start port county is in 'fl_counties$gom', set it to "gom_county".
+# For other cases, set it to "sa_county".
+
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
   all_logbooks_db_data_2022_short_p_region_port_states |>
   mutate(
@@ -604,6 +636,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
       )
   )
 
+
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
   filter(start_port_fl_reg == "gom_county") |>
   dim()
@@ -612,6 +645,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
 glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg)
 
 ### create one_port_marker ----
+# combine all previous markers into one column
 # if Monroe, FL divide by vessel permit_region
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
@@ -640,27 +674,37 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
       )
   )
 
-dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
+# Explanation:
+# 1. Create a new data frame 'all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start' by applying operations to 'all_logbooks_db_data_2022_short_p_region_port_states_fl_reg'.
+# 2. Add a new column 'one_start_port_marker' based on conditions using 'case_when':
+#    - If the start port county is "MONROE" and the permit region is "gom_and_dual", set it to "gom".
+#    - If the start port county is "MONROE" and the permit region is "sa_only", set it to "sa".
+#    - If the start port state is "FL" and the start port FL region is "gom_county", set it to "gom".
+#    - If the start port state is "FL" and the start port FL region is "sa_county", set it to "sa".
+#    - If the start port region is "gom_council_state" or "gom_state", set it to "gom".
+#    - If the start port region is "sa_council_state" or "sa_state", set it to "sa".
+#    - For other cases, set it to NA.
+
+glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 # [1] 3011   16
 
-# check
-# all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
-#   filter(is.na(one_start_port_marker)) |>
-#   # select(start_port_reg) |>
-#   # distinct() |>
-#   glimpse()
-# 0
+#### check if all start ports have a permit region ----
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
+  filter(is.na(one_start_port_marker)) |>
+  # select(start_port_reg) |>
+  # distinct() |>
+  dim()
+# 0 OK
 
-# all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
-#     filter(one_start_port_marker == "gom") |>
-#     select(vessel_official_nbr, contains("start")) |>
-#     distinct() |>
-#     glimpse()
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
+    filter(one_start_port_marker == "gom") |>
+    select(vessel_official_nbr, contains("start")) |>
+    distinct() |>
+    glimpse()
 
-# filter(start_port_county == "MONROE") |>
+### count vessels having both "sa" and "gom" one_start_port_markers to find the # of vessels who fish in both the gulf and S Atl.  ----
 
-### count vessels having both one_start_port_markers to find the # of vessels who fish in both the gulf and S Atl.  ----
-
+#### shorten the df ----
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
   select(
@@ -681,12 +725,14 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
   ) |>
   distinct()
 
-# data_overview(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
+count_uniq_by_column(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
 # [1] 3011   14
 # vessel_official_nbr   1876
 # start_port             536
 # start_port_name        531
 
+# Count vessels with each "gom" or "sa" trip start port region marker
+# (the oc-currences of each unique value in the 'one_start_port_marker' column).
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   select(vessel_official_nbr, one_start_port_marker) |>
   distinct() |>
@@ -694,6 +740,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 # 1                   gom 1000
 # 2                    sa 1029
 
+# Count vessels with each "gom" or "sa" trip start port region marker per vessel permit_region
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   select(vessel_official_nbr,
          permit_region,
@@ -705,8 +752,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 # 3       sa_only                   gom  216
 # 4       sa_only                    sa 1013
 
-## start in both regions ----
-
+## Trip start ports are in both regions ----
 select_vessel_mark_start <-
   c("vessel_official_nbr",
     "one_start_port_marker")
@@ -716,11 +762,20 @@ start_ports_region_cnt <-
   dplyr::select(dplyr::all_of(select_vessel_mark_start)) |>
   dplyr::distinct() |>
   dplyr::group_by(vessel_official_nbr) |>
-  dplyr::mutate(vessel_one_start_port_marker_num =
-           dplyr::n_distinct(one_start_port_marker,
-                      na.rm = TRUE)) |>
+  dplyr::mutate(
+    vessel_one_start_port_marker_num =
+      dplyr::n_distinct(one_start_port_marker,
+                        na.rm = TRUE)
+  ) |>
   ungroup()
 
+# Explanation:
+# 1. Create a new data frame 'start_ports_region_cnt' by applying operations to 'all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short'.
+# 2. Select columns based on 'select_vessel_mark_start'.
+# 3. Retain distinct rows.
+# 4. Group the data by 'vessel_official_nbr'.
+# 5. Add a new column 'vessel_one_start_port_marker_num' counting the distinct values of 'one_start_port_marker' for each vessel.
+# 6. Ungroup the data.
 ##### check start_ports_region_cnt ----
 # [1] 2029    3
 
@@ -730,10 +785,9 @@ count_uniq_by_column(start_ports_region_cnt)
 # vessel_one_start_port_marker_num    2
 
 start_ports_region_cnt |>
-  filter(vessel_official_nbr == "1021879") |>
-  glimpse()
+  filter(vessel_official_nbr == "1021879")
 
-### count multi start by vessel permit ----
+### Trip start ports are in both regions count by vessel permit ----
 start_ports_region_cnt_by_permit_r <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   dplyr::select(dplyr::all_of(select_vessel_mark_start),
@@ -745,13 +799,21 @@ start_ports_region_cnt_by_permit_r <-
                       na.rm = TRUE)) |>
   ungroup()
 
+# Explanation:
+# 1. Create a new data frame 'start_ports_region_cnt_by_permit_r' by applying operations to 'all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short'.
+# 2. Select columns based on 'select_vessel_mark_start' and 'permit_region'.
+# 3. Retain distinct rows.
+# 4. Group the data by 'vessel_official_nbr' and 'permit_region'.
+# 5. Add a new column 'vessel_one_start_port_marker_num' counting the distinct values of 'one_start_port_marker' for each vessel within each permit region.
+# 6. Ungroup the data.
+
 #### check start_ports_region_cnt_by_permit_r ----
 start_ports_region_cnt_by_permit_r |>
   # filter(vessel_one_start_port_marker_num > 1) |>
   filter(vessel_official_nbr == "FL6069PT") |>
   glimpse()
 
-#### multi start by permit_region ----
+#### Count multi starts by permit_region ----
 start_ports_region_cnt_by_permit_r |>
   # glimpse()
   select(
@@ -774,6 +836,7 @@ start_ports_region_cnt_by_permit_r |>
 # 4 sa_only       TRUE          144
 
 # look at permit home port vs where they take trip ----
+
 ## prepare home_port data ----
 # all_get_db_data_result_l |>
 #   print_df_names()
@@ -790,15 +853,11 @@ vessel_permit_port_info <-
       EXPIRATION_DATE > "2022-12-31"
   )
 
-# [1] 16143     8
-# SERO_OFFICIAL_NUMBER  6762
-# PORT_CODE              158
-# SERO_HOME_PORT_CITY    941
+count_uniq_by_column(vessel_permit_port_info)
 # with exp_date:
 # [1] 12238     8
 # SERO_OFFICIAL_NUMBER  5220
 # SERO_HOME_PORT_CITY    809
-
 
 ### add permit and vessel info ----
 # should do here, before the join, bc if there are empty rows after merge sa_only is wrongly assigned
@@ -808,7 +867,7 @@ vessel_permit_port_info_perm_reg <-
   group_by(VESSEL_VESSEL_ID) |>
   mutate(all_permits = toString(unique(sort(TOP)))) |>
   separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
-    select(
+  select(
     PERMIT_VESSEL_ID,
     VESSEL_VESSEL_ID,
     # PORT_CODE, mostly empty
@@ -822,15 +881,16 @@ vessel_permit_port_info_perm_reg <-
   remove_empty_cols() |>
   distinct()
 
-# data_overview(vessel_permit_port_info_perm_reg)
+count_uniq_by_column(vessel_permit_port_info_perm_reg)
 # [1] 5220    7
 # VESSEL_VESSEL_ID      5220
 
-# vessel_permit_port_info_perm_reg |>
-#   filter(permit_sa_gom == "sa_only") |>
-#   distinct() |>
-#   View()
+vessel_permit_port_info_perm_reg |>
+  filter(permit_sa_gom == "sa_only") |>
+  distinct() |>
+  glimpse()
 
+## add vessel_permit information to trip (logbook) information ----
 # print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 
 join_vessel_and_trip <-
@@ -840,7 +900,7 @@ join_vessel_and_trip <-
     join_by(vessel_id == VESSEL_VESSEL_ID)
   )
 
-dim(join_vessel_and_trip)
+glimpse(join_vessel_and_trip)
 # [1] 3011   20
 
 # vessel_id             1876
@@ -865,7 +925,7 @@ join_vessel_and_trip |>
 # 4       sa_only          dual
 # 5       sa_only      gom_only
 
-# TODO: compare regions, why diff
+# TODO: compare regions, why diff. Permits in logbooks (trips) and in permit data are different
 join_vessel_and_trip |>
   filter(permit_region == "gom_and_dual" &
            permit_sa_gom == "sa_only") |>
@@ -890,6 +950,7 @@ join_vessel_and_trip |>
 
 # vessel_id, vessel_official_nbr, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, permit_region, start_port_state_name, end_port_state_name, one_start_port_marker, PERMIT_VESSEL_ID, permit_sa_gom, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER
 
+### add columns for different start and home port names, counties and states ----
 tic("join_vessel_and_trip_port_diff")
 join_vessel_and_trip_port_diff <-
   join_vessel_and_trip |>
@@ -938,6 +999,14 @@ join_vessel_and_trip_port_diff <-
 toc()
 # join_vessel_and_trip_port_diff: 1.74 sec elapsed
 
+# Explanation:
+# 1. Start measuring the execution time using the `tic()` function.
+# 2. Create a new data frame 'join_vessel_and_trip_port_diff' by applying operations to 'join_vessel_and_trip'.
+# 3. Group the data by 'vessel_official_nbr'.
+# 4. Add columns indicating differences between home port and trip start/end ports for both start and end ports.
+# 5. Ungroup the data.
+# 6. Stop measuring the execution time using the `toc()` function and display the elapsed time.
+
 join_vessel_and_trip_port_diff |>
   select(vessel_official_nbr,
          starts_with("diff")) |>
@@ -946,6 +1015,7 @@ join_vessel_and_trip_port_diff |>
 # [1] 2591    7
 
 
+#### keep fewer columns ----
 join_vessel_and_trip_port_diff_short <-
   join_vessel_and_trip_port_diff |>
   select(vessel_official_nbr,
@@ -953,21 +1023,35 @@ join_vessel_and_trip_port_diff_short <-
          starts_with("diff")) |>
   distinct()
 
+## count vessel number with different start_port_state and home_port_state ----
+### check for one column ----
 join_vessel_and_trip_port_diff_short |>
   count(diff_start_port_state)
 # 1 no                     2501
 # 2 yes                      90
 
+### make combinations of column names ----
 my_col_names <- names(join_vessel_and_trip_port_diff_short)
+
+my_col_names
 
 combs1 <-
   combn(my_col_names, 2) |>
   as.data.frame()
 
 str(combs1)
+# 'data.frame':	2 obs. of  28 variables:
+#  $ V1 : chr  "vessel_official_nbr" "permit_region"
+#  $ V2 : chr  "vessel_official_nbr" "diff_start_port_state"
+#  $ V3 : chr  "vessel_official_nbr" "diff_start_port_county"
+
+### keep only combinations of vessel_official_nbr with another column ----
 combs1_short <-
   combs1[1:ncol(join_vessel_and_trip_port_diff_short) - 1]
 
+combs1_short
+
+### count vessels with different trip and home port info, using each pair of names ----
 combs1_short_cnts <-
   combs1_short |>
   map(\(curr_col_names) {
@@ -977,9 +1061,17 @@ combs1_short_cnts <-
       count(!!sym(curr_col_names[[2]]))
   })
 
+# This code uses the `map` function from the purrr package to iterate over each element (curr_col_names) in the combs1_short list. Within the map function:
+#
+# 1. The `join_vessel_and_trip_port_diff_short` data frame is piped into the `select` function, where columns specified by `curr_col_names` are selected using `paste` and separated by commas.
+#
+# 2. The `count` function is then applied to the selected data frame. The column to count is specified using `!!sym(curr_col_names[[2]])`, where `sym` is used to convert the column name to a symbol for evaluation.
+#
+# The result is a list of data frames, where each data frame contains the counts of occurrences of vessel ids for the second column in `curr_col_names`.
+
 combs1_short_cnts
 
-## the same with permit region ----
+## Repeat the same with permit region ----
 join_vessel_and_trip_port_diff_short_perm <-
   join_vessel_and_trip_port_diff |>
   select(vessel_official_nbr,
@@ -1006,6 +1098,7 @@ combs2_short <-
 
 # View(combs2_short)
 
+### count vessels with different trip and home port info per permit_region, using each set of names ----
 combs2_short_cnts <-
   combs2_short |>
 
@@ -1026,6 +1119,4 @@ combs2_short_cnts <-
 
 combs2_short_cnts
 
-# how many vessels used different landing locations (simple count per vessel) ----
-# how many of those cross states ----
 
