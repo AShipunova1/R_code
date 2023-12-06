@@ -70,8 +70,10 @@ vessels_permits_home_port_lat_longs_city_state |>
   dplyr::distinct() |>
 #   group_by(permit_sa_gom, lat, long) %>%
 # [1] 4393    6
+  # Group the data by latitude and longitude, then filter for rows with more than one occurrence.
   dplyr::group_by(lat, long) %>%
   dplyr::filter(dplyr::n() > 1) |>
+  # Return the dimensions (number of rows and columns) of the resulting data frame.
   dim()
 # [1] 4505    6
   # count_uniq_by_column()
@@ -108,6 +110,8 @@ compl_err_db_data_metrics_permit_reg_list_short$gom_dual <-
 
 # View(compl_err_db_data_metrics_permit_reg_list_short) 
 
+# Use the 'map' function from the 'purrr' package to apply the 'dim' function to each element
+# of the list 'compl_err_db_data_metrics_permit_reg_list_short'.
 purrr::map(compl_err_db_data_metrics_permit_reg_list_short, dim)
 # $dual
 # [1] 474   2
@@ -121,6 +125,7 @@ purrr::map(compl_err_db_data_metrics_permit_reg_list_short, dim)
 # $gom_dual
 # [1] 1588    2
 
+# apply count_uniq_by_column() function to each df in the list
 purrr::map(compl_err_db_data_metrics_permit_reg_list_short,
            count_uniq_by_column)
 # $dual
@@ -170,9 +175,12 @@ compl_err_db_data_metrics_permit_reg_list_short_year_nc$sa_only |>
 # 1020822 is non compliant for the whole year 
 
 ## keep unique vessel ids only ----
+# Create a new list 'compl_err_db_data_metrics_permit_reg_list_short_uniq' by applying a series of
+# operations to each element of the 'compl_err_db_data_metrics_permit_reg_list_short_year_nc' list.
 compl_err_db_data_metrics_permit_reg_list_short_uniq <- 
   compl_err_db_data_metrics_permit_reg_list_short_year_nc |> 
   purrr::map(\(curr_df){
+    # Select all columns except 'is_comp' and retain only distinct rows.
     curr_df |> 
       dplyr::select(-is_comp) |> 
       dplyr::distinct()
@@ -223,6 +231,7 @@ purrr::map(vessels_permits_home_port_22_compliance_list,
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
   vessels_permits_home_port_22_compliance_list |>
   purrr::map(\(curr_df) {
+    # Group the data by 'state_fixed', add a count column, and ungroup the data.
     curr_df |>
       dplyr::group_by(state_fixed) |>
       dplyr::add_count(state_fixed,
@@ -237,17 +246,26 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
 # vessels_permits_home_port_22_compliance_list$sa_only |> 
 #   glimpse()
 
+#### select first, then count ----
+# Create a new list 'vessel_by_state_cnt' by applying a series of operations to each element
+# of the 'vessels_permits_home_port_22_compliance_list' by using map().
 vessel_by_state_cnt <-
   vessels_permits_home_port_22_compliance_list |>
   purrr::map(\(curr_df) {
+    # Select only 'vessel_official_nbr' and 'state_fixed' columns, retain distinct rows,
+    # and add a count column for each state.
     curr_df |>
       dplyr::select(vessel_official_nbr, state_fixed) |>
       dplyr::distinct() |>
-      # group_by(state_fixed) |>
       dplyr::add_count(state_fixed)
   })
 
 # View(vessel_by_state_cnt)
+
+#### group_by, then count ----
+# check if the result is the same with group_by()
+# Group the data by 'state_fixed', add a count column, select specific columns,
+# retain distinct rows based on those columns.
 
 vessel_by_state_cnt1 <-
   vessels_permits_home_port_22_compliance_list |>
@@ -262,51 +280,67 @@ vessel_by_state_cnt1 <-
 diffdf::diffdf(vessel_by_state_cnt$sa_only,
                vessel_by_state_cnt1$sa_only)
 # T
+# no difference!
 
 head(vessel_by_state_cnt$sa_only)
 head(vessel_by_state_cnt1$sa_only)
 
 # cnt vessel by state and compliance ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt <- 
+
+# Use map() to create a new list by applying a series of operations to each element of the
+# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt'.
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt |>
   purrr::map(\(curr_df) {
+    # Group the data by 'state_fixed' and 'non_compl_year',
+    # add a count column (counting vessel number per state and compliance), and ungroup the data.
     curr_df |>
       dplyr::group_by(state_fixed, non_compl_year) |>
-      dplyr::add_count(state_fixed, non_compl_year,
+      dplyr::add_count(state_fixed, non_compl_year, 
                        name = "compliance_by_state_cnt") |>
       dplyr::ungroup()
   })
 
-## check non_compl counts ----
+## spot check if compl and non compl vessel number is equal total counts ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |> 
   dplyr::select(vessel_official_nbr, state_fixed, non_compl_year, total_vsl_by_state_cnt, compliance_by_state_cnt) |>
   dplyr::distinct() |>
   dplyr::select(-vessel_official_nbr) |> 
   dplyr::distinct() |> 
-  dplyr::filter(state_fixed %in% c("FL", "GA"))
-# state_fixed non_compl_year total_vsl_by_state_cnt compliance_by_state_cnt
-#  <chr>  <lgl>  <int>  <int>
-# 1 FL  TRUE   896  500
-# 2 FL  FALSE  896  396
-# 3 GA  TRUE    38   16
-# 4 GA  FALSE   38   22
+  dplyr::filter(state_fixed %in% c("FL", "GA")) |> 
+  dplyr::glimpse()
+# $ state_fixed             <chr> "FL", "FL", "GA", "GA"
+# $ non_compl_year          <lgl> TRUE, FALSE, TRUE, FALSE
+# $ total_vsl_by_state_cnt  <int> 896, 896, 38, 38
+# $ compliance_by_state_cnt <int> 500, 396, 16, 22
 
-## test on one df ----
+## test counts on one input df ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$sa_only |>
   dplyr::glimpse()
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$sa_only |>
-  dplyr::select(vessel_official_nbr, state_fixed, non_compl_year, total_vsl_by_state_cnt) |>
+  dplyr::select(vessel_official_nbr,
+                state_fixed,
+                non_compl_year,
+                total_vsl_by_state_cnt) |>
   dplyr::distinct() |>
-  dplyr::add_count(state_fixed, non_compl_year) |> 
-  dplyr::select(-vessel_official_nbr) |> 
-  dplyr::distinct() |> 
-  dplyr::filter(state_fixed %in% c("FL", "GA"))
+  dplyr::add_count(state_fixed, non_compl_year) |>
+  dplyr::select(-vessel_official_nbr) |>
+  dplyr::distinct() |>
+  dplyr::filter(state_fixed %in% c("FL", "GA")) |> 
+  dplyr::glimpse()
+# the result is the same as above
 
 # percent of non compliant by state ----
+
+# use map() to apply a series of operations to each df (permit_region) of the list
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc <- 
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt |>
   purrr::map(\(curr_df) {
+    # Group the data by 'state_fixed' and 'non_compl_year',
+    # calculate compliance percentage per state, and ungroup the data.
+    
     curr_df |>
       dplyr::group_by(state_fixed, non_compl_year) |>
       dplyr::mutate(compl_percent_per_st =
@@ -327,6 +361,11 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc$sa_o
   dplyr::distinct() |>
   dplyr::filter(state_fixed %in% c("FL", "GA")) |>
   dplyr::glimpse()
+# $ state_fixed             <chr> "FL", "FL", "GA", "GA"
+# $ non_compl_year          <lgl> TRUE, FALSE, TRUE, FALSE
+# $ total_vsl_by_state_cnt  <int> 896, 896, 38, 38
+# $ compliance_by_state_cnt <int> 500, 396, 16, 22
+# $ compl_percent_per_st    <dbl> 55.80357, 44.19643, 42.10526, 57.89474
 
 ## test on one df ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |>
@@ -345,10 +384,18 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |
   dplyr::ungroup() |> 
   dplyr::filter(state_fixed %in% c("FL", "GA")) |> 
   dplyr::glimpse()
+# the result is the same
 
 # map percentage ----
 
 ## shorten and add labels ----
+# Use map() to apply the following operations to each permit_region df in the list:
+# Filter for rows where a vessel was not compliant at least once in 2022 ('non_compl_year' is TRUE), 
+# select specific columns,
+# retain distinct rows, 
+# calculate rounded compliance percentage, 
+# and create a label.
+  
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   purrr::map(\(curr_df) {
@@ -374,6 +421,9 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   dplyr::glimpse()
 
 ## add to the shape file by state name ----
+
+# Left join the 'south_east_coast_states_shp' shape file data frame with the each permit region data frame from the list,
+# using 'STUSPS' from the shapefile and 'state_fixed' from the current data frame.
 
 shp_file_with_cnts_list <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |>
@@ -410,6 +460,7 @@ shp_file_with_cnts_sa <-
 #   mapview(zcol = "nc_round_perc")
 
 # get south states map ----
+# to add empty states to the map
 states_sf <-
   sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
 
@@ -476,12 +527,14 @@ permit_regions <-
     "GOM and Dual",
     "GOM only")
 
+# Generate plot titles using 'str_glue' to include the 'permit_region'.
 perc_plot_titles <-
   permit_regions |>
   purrr::map(\(permit_region) {
     stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
   })
 
+# Set the names of the 'perc_plot_titles' list to be the same as the 'permit_regions'.
 names(perc_plot_titles) <- permit_regions
 
 ## save plot to file function ----
