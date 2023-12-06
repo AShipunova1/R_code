@@ -6,6 +6,7 @@ library(this.path)
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
+# Get the current project directory name using the 'this.path' package.
 current_project_dir_name <- this.path::this.dir()
 
 misc_info_path <-
@@ -13,6 +14,8 @@ misc_info_path <-
             r"(get_data\misc_info.R)")
 source(misc_info_path)
 
+# use all logbooks from https://drive.google.com/drive/folders/1HipnxawNsDjrsMc4dXgFwdRPQ3X6-x3n
+# when is ready
 all_logb_path <-
   file.path(my_paths$git_r,
             r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)")
@@ -46,6 +49,7 @@ all_logbooks_db_data_2022_short_p_region_short <-
 dim(all_logbooks_db_data_2022_short_p_region_short)
 # [1] 3011    7
 
+## port codes are different, but port names are the same ----
 all_logbooks_db_data_2022_short_p_region_short |>
   filter(!start_port == end_port &
            start_port_name == end_port_name) |>
@@ -64,12 +68,11 @@ all_logbooks_db_data_2022_short_p_region_short |>
 #            !start_port_name == end_port_name) |>
 # str()
 # 0
-# my_vars <- function() {
-#   c(any_of(c("name", "species")), ends_with("color"))
-# }
 
+## save specific field names for future use ----
 port_fields_all <-
-  function(variables) {
+  function() {
+    # Combine specific fields with names containing "port" from the given 'variables'.
     c(all_of(c(
       "vessel_id",
       "vessel_official_nbr",
@@ -81,6 +84,8 @@ port_fields_all <-
     )
   }
 
+  # Select specific columns using the 'port_fields_all' function, remove columns starting with "notif",
+  # remove empty columns, and retain distinct rows.
 all_logbooks_db_data_2022_short_p_region_port_fields_all <-
   all_logbooks_db_data_2022_short_p_region |>
   select(port_fields_all(), -starts_with("notif")) |>
@@ -90,7 +95,7 @@ all_logbooks_db_data_2022_short_p_region_port_fields_all <-
 dim(all_logbooks_db_data_2022_short_p_region_port_fields_all)
 # [1] 3011   11
 
-## add date columns ----
+## add date related columns ----
 tic("all_logbooks_db_data_2022_short_p_region_dates")
 all_logbooks_db_data_2022_short_p_region_dates <-
   all_logbooks_db_data_2022_short_p_region |>
@@ -100,28 +105,34 @@ all_logbooks_db_data_2022_short_p_region_dates <-
     trip_end_week_num =
       strftime(trip_end_date, format = "%u"),
     trip_start_y =
-      year(trip_start_date),
+      lubridate::year(trip_start_date),
     trip_end_y =
-      year(trip_end_date),
+      lubridate::year(trip_end_date),
     trip_start_m =
       zoo::as.yearmon(trip_start_date),
     trip_end_m =
       zoo::as.yearmon(trip_end_date),
-    trip_start_year_quarter = as.yearqtr(trip_start_date),
+    trip_start_year_quarter = zoo::as.yearqtr(trip_start_date),
     trip_start_quarter_num =
       format(trip_start_year_quarter, "%q"),
-    trip_end_year_quarter = as.yearqtr(trip_end_date),
+    trip_end_year_quarter = zoo::as.yearqtr(trip_end_date),
     trip_end_quarter_num =
       format(trip_end_year_quarter, "%q")
   )
 toc()
 # all_logbooks_db_data_2022_short_p_region_dates: 2.94 sec elapsed
 
+## keep fewer columns ----
+# Select specific columns using the 'port_fields_all' function,
+# select columns starting with "trip_",
+# remove columns starting with "notif",
+# remove empty columns, and retain distinct rows.
+
 all_logbooks_db_data_2022_short_p_region_dates_trip_port <-
   all_logbooks_db_data_2022_short_p_region_dates |>
   select(port_fields_all(),
-         -starts_with("notif"),
-         starts_with("trip_")) |>
+         starts_with("trip_"),
+         -starts_with("notif")) |>
   remove_empty_cols() |>
   distinct()
 
@@ -177,8 +188,11 @@ multiple_start_ports |>
 # 2,2
 
 ## multiple_end_ports ----
+
 multiple_end_ports <-
   all_logbooks_db_data_2022_short_p_region_short |>
+  # Select specific columns, retain distinct rows,
+  # add a count end_port_name column for each combination of 'vessel_official_nbr' and 'permit_region'.
   select(vessel_official_nbr,
          permit_region,
          end_port_name) |>
@@ -186,6 +200,8 @@ multiple_end_ports <-
   add_count(vessel_official_nbr,
             permit_region,
             name = "end_port_name_cnt") |>
+  # Filter for rows where the count of 'end_port_name' is greater than 1,
+  # and arrange the data by 'vessel_official_nbr'.
   filter(end_port_name_cnt > 1) |>
   arrange(vessel_official_nbr)
 
@@ -193,16 +209,19 @@ multiple_end_ports <-
 multiple_end_ports |>
   filter(vessel_official_nbr %in% c('944064',
                                     '934665')) |>
-  glimpse()
-# 2
+  head()
+# 2 port names
 
 count_uniq_by_column(multiple_end_ports)
 # vessel_official_nbr 374
 
 ## multiple_end_port_states ----
 # View(all_logbooks_db_data_2022_short_p_region_port_fields_all)
+
 multiple_end_port_states <-
   all_logbooks_db_data_2022_short_p_region_port_fields_all |>
+  # Select specific columns, retain distinct rows,
+  # add a count end_port_state column for each combination of 'vessel_official_nbr' and 'permit_region'.
   select(vessel_official_nbr,
          permit_region,
          end_port_state) |>
@@ -210,12 +229,16 @@ multiple_end_port_states <-
   add_count(vessel_official_nbr,
             permit_region,
             name = "end_port_state_cnt") |>
+  # Filter for rows where the count of 'end_port_state' is greater than 1,
+  # and arrange the data by 'vessel_official_nbr'.
   filter(end_port_state_cnt > 1) |>
   arrange(vessel_official_nbr)
 
 multiple_end_port_states |>
   count_uniq_by_column()
 # vessel_official_nbr 76
+
+head(multiple_end_port_states)
 
 ## by quarter ----
 #
@@ -224,6 +247,11 @@ multiple_end_port_states |>
 #   glimpse()
 
 ### trips and quarter fields only ----
+
+# Select specific columns using 'port_fields_all' function,
+# remove columns starting with "notif",
+# and retain columns related to trip start and end quarter information.
+
 all_logbooks_db_data_2022_short_p_region_dates_trip_port_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port |>
   select(
@@ -247,12 +275,14 @@ count_uniq_by_column(all_logbooks_db_data_2022_short_p_region_dates_trip_port_sh
 # end_port_name            529
 
 ### a quarter is the same, a port - diff ----
-# test
-# all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
-#   filter(vessel_official_nbr == "1057052") |>
-#   arrange(trip_start_quarter_num) |>
-#   glimpse()
 
+# test
+all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
+  filter(vessel_official_nbr == "1057052") |>
+  arrange(trip_start_quarter_num) |>
+  glimpse()
+
+# Select columns for trip start, retain distinct rows.
 start_ports_q_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
   select(vessel_official_nbr,
@@ -261,6 +291,7 @@ start_ports_q_short <-
          start_port_name) |>
   distinct()
 
+# Select columns for trip end, retain distinct rows.
 end_ports_q_short <-
   all_logbooks_db_data_2022_short_p_region_dates_trip_port_short |>
   select(vessel_official_nbr,
@@ -282,7 +313,8 @@ count_uniq_by_column(end_ports_q_short)
 # end_port_name          529
 
 ### melt and decast the table ----
-# one row per vessel
+
+# Make one row per vessel
 # In summary, the code transforms the data from a long to a wide format, spreading the values from the 'start_port_name' column across columns named by 'trip_start_year_quarter', and aggregating multiple values into a comma-separated string.
 
 # The pivot_wider() function from the tidyr package is used to reshape the data.
@@ -295,15 +327,18 @@ count_uniq_by_column(end_ports_q_short)
 # 'trip_start_year_quarter'. In this case, unique values are sorted and
 # concatenated into a comma-separated string.
 
+# Define a function 'each_quarter_a_col' that takes a data frame 'my_df' and an argument 'start_or_end' with a default value "start".
 each_quarter_a_col <-
   function(my_df,
            start_or_end = "start") {
 
+    # Generate field names dynamically using 'stringr::str_glue'.
     quarter_field_name <-
       stringr::str_glue("trip_{start_or_end}_year_quarter")
     port_field_name <-
       stringr::str_glue("{start_or_end}_port_name")
 
+    # Reshape the data frame 'my_df' by widening it based on unique combinations of vessel, region, and quarter.
     ports_q_short_wider <-
       my_df |>
       pivot_wider(
@@ -313,22 +348,43 @@ each_quarter_a_col <-
         values_fn = ~ paste(unique(sort(.x)), collapse = ",")
       )
 
+    # Return the widened data frame.
     return(ports_q_short_wider)
-
   }
 
+# Explanation:
+# 1. The function takes a data frame (`my_df`) and an optional argument (`start_or_end`) indicating whether it's for trip start or end.
+# 2. Dynamically generate field names for the quarter and port based on the input.
+# 3. Use the `pivot_wider` function to reshape the data frame by creating new columns for each unique combination of vessel, region, and quarter.
+# 4. The `values_fn` argument ensures that duplicate values are concatenated and sorted within each cell.
+# 5. Return the resulting widened data frame.
+
+### use the function for trip start and end ports separately ----
+
+# Create a new list 'ports_q_short_wider_list' by applying a series of operations to each element
+# of the provided list, where each element is a pair of a data frame and a character indicating start or end.
 ports_q_short_wider_list <-
   list(c(start_ports_q_short, "start"),
-           c(end_ports_q_short, "end")) |>
+       c(end_ports_q_short, "end")) |>
   map(\(one_df_l) {
-    # browser()
+    # Extract the data frame and the character indicating start or end.
     df_len <- length(one_df_l)
-    my_df <- one_df_l[1:df_len - 1] |>
+    my_df <-
+      one_df_l[1:df_len - 1] |>
       as.data.frame()
     my_col_name <- one_df_l[[df_len]]
+    # Apply the 'each_quarter_a_col' function to reshape the data frame based on quarters.
     each_quarter_a_col(my_df, my_col_name)
   })
 
+#
+# Explanation:
+# 1. Create a list where each element is a pair containing a data frame (`start_ports_q_short` or `end_ports_q_short`) and a character ("start" or "end").
+# 2. Use the `map` function to apply a series of operations to each element of the list.
+# 3. Extract the data frame and the character from each pair.
+# 4. Convert the extracted data frame to a standard data frame using `as.data.frame()`.
+# 5. Apply the `each_quarter_a_col` function to reshape the data frame based on quarters, using the extracted character as an argument.
+# 6. The resulting list, 'ports_q_short_wider_list', contains data frames widened based on quarters for both start and end ports.
 # glimpse(ports_q_short_wider_list)
 
 # start_ports_q_short_wider <-
@@ -339,6 +395,8 @@ ports_q_short_wider_list <-
 #     values_from = start_port_name,
 #     values_fn = ~ paste(unique(sort(.x)), collapse = ",")
 #   )
+
+head(ports_q_short_wider_list[[1]])
 
 ### add column for the same or diff ----
 # It starts by using the rowwise() function to apply subsequent operations
