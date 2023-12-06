@@ -463,6 +463,21 @@ shp_file_with_cnts_list_maps <-
 
 # individual plots ----
 
+## make map titles ----
+permit_regions <-
+  c("SA only",
+    "GOM and Dual",
+    "GOM only")
+
+perc_plot_titles <-
+  permit_regions |>
+  map(\(permit_region) {
+    stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
+  })
+
+names(perc_plot_titles) <- permit_regions
+
+## save plot to file function ----
 write_png_to_file <- function(output_file_name,
                               map_plot) {
   
@@ -484,12 +499,9 @@ write_png_to_file <- function(output_file_name,
 ## GOM ----
 permit_region <- "GOM only"
 
-perc_plot_title <-
-  stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
-
 gom_map <-
   shp_file_with_cnts_list_maps$gom_only +
-  ggtitle(perc_plot_title)
+  ggtitle(perc_plot_titles[[permit_region]])
 
 output_file_name <- "gom_perc_by_state.png"
 
@@ -499,12 +511,9 @@ write_png_to_file(output_file_name,
 ## GOM and dual ----
 permit_region <- "GOM and Dual"
 
-perc_plot_title <-
-  stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
-
 gom_dual_map <-
   shp_file_with_cnts_list_maps$gom_dual +
-  ggtitle(perc_plot_title)
+  ggtitle(perc_plot_titles[[permit_region]])
 
 output_file_name <- "gom_dual_perc_by_state.png"
 
@@ -514,12 +523,9 @@ write_png_to_file(output_file_name,
 ## SA only ----
 permit_region <- "SA only"
 
-perc_plot_title <-
-  stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
-
 sa_only_map <-
   shp_file_with_cnts_list_maps$sa_only +
-  ggtitle(perc_plot_title)
+  ggtitle(perc_plot_titles[[permit_region]])
 
 output_file_name <- "sa_only_perc_by_state.png"
 
