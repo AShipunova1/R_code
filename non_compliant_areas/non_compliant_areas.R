@@ -462,6 +462,25 @@ shp_file_with_cnts_list_maps <-
   
 
 # individual plots ----
+
+write_png_to_file <- function(output_file_name,
+                              map_plot) {
+  
+  png_width  <- 30
+  png_height <- 20
+  
+  ggplot2::ggsave(
+      file = output_file_name,
+      plot = map_plot,
+      device = "png",
+      path = file.path(my_paths$outputs,
+                       current_project_dir_name),
+      width = png_width,
+      height = png_height,
+      units = "cm"
+    )
+}
+
 ## GOM ----
 permit_region <- "GOM only"
 
@@ -473,17 +492,9 @@ gom_map <-
   ggtitle(perc_plot_title)
 
 output_file_name <- "gom_perc_by_state.png"
-  
-ggsave(
-      file = output_file_name,
-      plot = gom_map,
-      device = "png",
-      path = file.path(my_paths$outputs,
-                       current_project_dir_name),
-      width = 30,
-      height = 20,
-      units = "cm"
-    )
+
+write_png_to_file(output_file_name,
+                  gom_map)
 
 ## GOM and dual ----
 permit_region <- "GOM and Dual"
@@ -496,17 +507,9 @@ gom_dual_map <-
   ggtitle(perc_plot_title)
 
 output_file_name <- "gom_dual_perc_by_state.png"
-  
-ggsave(
-      file = output_file_name,
-      plot = gom_dual_map,
-      device = "png",
-      path = file.path(my_paths$outputs,
-                       current_project_dir_name),
-      width = 30,
-      height = 20,
-      units = "cm"
-    )
+
+write_png_to_file(output_file_name,
+                  gom_dual_map)
 
 ## SA only ----
 permit_region <- "SA only"
@@ -519,15 +522,6 @@ sa_only_map <-
   ggtitle(perc_plot_title)
 
 output_file_name <- "sa_only_perc_by_state.png"
-  
-ggsave(
-      file = output_file_name,
-      plot = sa_only_map,
-      device = "png",
-      path = file.path(my_paths$outputs,
-                       current_project_dir_name),
-      width = 30,
-      height = 20,
-      units = "cm"
-    )
 
+write_png_to_file(output_file_name,
+                  sa_only_map)
