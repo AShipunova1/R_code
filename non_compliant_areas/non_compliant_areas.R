@@ -188,7 +188,7 @@ vessels_permits_home_port_22_compliance_list <-
   map(\(curr_df) {
     dplyr::left_join(
       curr_df,
-      vessels_permits_home_port_lat_longs_city_state_cnt_vsl_by_port,
+      vessels_permits_home_port_lat_longs_city_state,
       join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
     )
   })
@@ -205,6 +205,11 @@ map(vessels_permits_home_port_22_compliance_list, count_uniq_by_column)
 # $sa_only
 # vessel_official_nbr            2135
 # non_compl_year                    2
+
+# $gom_dual
+# vessel_official_nbr            1313
+# non_compl_year                    2
+
 
 # Count vessels by state name ----
 ## total vsls per state ----
@@ -472,6 +477,52 @@ output_file_name <- "gom_perc_by_state.png"
 ggsave(
       file = output_file_name,
       plot = gom_map,
+      device = "png",
+      path = file.path(my_paths$outputs,
+                       current_project_dir_name),
+      width = 30,
+      height = 20,
+      units = "cm"
+    )
+
+## GOM and dual ----
+permit_region <- "GOM and Dual"
+
+perc_plot_title <-
+  stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
+
+gom_dual_map <-
+  shp_file_with_cnts_list_maps$gom_dual +
+  ggtitle(perc_plot_title)
+
+output_file_name <- "gom_dual_perc_by_state.png"
+  
+ggsave(
+      file = output_file_name,
+      plot = gom_dual_map,
+      device = "png",
+      path = file.path(my_paths$outputs,
+                       current_project_dir_name),
+      width = 30,
+      height = 20,
+      units = "cm"
+    )
+
+## SA only ----
+permit_region <- "SA only"
+
+perc_plot_title <-
+  stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
+
+sa_only_map <-
+  shp_file_with_cnts_list_maps$sa_only +
+  ggtitle(perc_plot_title)
+
+output_file_name <- "sa_only_perc_by_state.png"
+  
+ggsave(
+      file = output_file_name,
+      plot = sa_only_map,
       device = "png",
       path = file.path(my_paths$outputs,
                        current_project_dir_name),
