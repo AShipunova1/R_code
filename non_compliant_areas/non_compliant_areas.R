@@ -75,42 +75,69 @@ vessels_permits_home_port_lat_longs_city_state |>
 # state_fixed            17
 # lat                   323
 
-## Compliance info combine dual and GOM only ----
+## Compliance info combine dual and GOM ----
 
 # compl_err_db_data_metrics_permit_reg_list_short is sourced from non_compliant_areas_get_data.R
-compl_err_db_data_metrics_permit_reg_list_short_comb <-
-  list(
-    rbind(
-      compl_err_db_data_metrics_permit_reg_list_short$gom_only,
-      compl_err_db_data_metrics_permit_reg_list_short$dual
-    ),
-    compl_err_db_data_metrics_permit_reg_list_short$sa_only
-  )
 
-names(compl_err_db_data_metrics_permit_reg_list_short_comb) <- 
-  c("gom_dual", "sa_only")
+gom_dual_compl <-
+  rbind(
+    compl_err_db_data_metrics_permit_reg_list_short$gom_only,
+    compl_err_db_data_metrics_permit_reg_list_short$dual
+  ) |> 
+  distinct()
 
-purrr::map(compl_err_db_data_metrics_permit_reg_list_short_comb, dim)
-# $gom_dual
+# count_uniq_by_column(gom_dual_compl)
+# vessel_official_nbr 1313
+# is_comp                2
+# dim(gom_dual_compl)
 # [1] 1588    2
+
+### check if vessels are in gom and dual ----
+intersect(compl_err_db_data_metrics_permit_reg_list_short$gom_only$vessel_official_nbr,
+    compl_err_db_data_metrics_permit_reg_list_short$dual$vessel_official_nbr)
+# 0 - no  
+
+## add gom_dual_compl to the list of dfs ----
+compl_err_db_data_metrics_permit_reg_list_short$gom_dual <-
+  gom_dual_compl
+
+# View(compl_err_db_data_metrics_permit_reg_list_short) 
+
+purrr::map(compl_err_db_data_metrics_permit_reg_list_short, dim)
+# $dual
+# [1] 474   2
+# 
+# $gom_only
+# [1] 1114    2
 # 
 # $sa_only
 # [1] 2855    2
-
-purrr::map(compl_err_db_data_metrics_permit_reg_list_short_comb,
-           count_uniq_by_column)
+# 
 # $gom_dual
-# vessel_official_nbr 1313
-# is_comp                2
- 
+# [1] 1588    2
+
+purrr::map(compl_err_db_data_metrics_permit_reg_list_short,
+           count_uniq_by_column)
+# $dual
+# vessel_official_nbr 374
+# is_comp               2
+# 
+# $gom_only
+# vessel_official_nbr 939
+# is_comp               2
+# 
 # $sa_only
 # vessel_official_nbr 2135
+# is_comp                2
+# 
+# $gom_dual
+# vessel_official_nbr 1313
 # is_comp                2
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
 
 compl_err_db_data_metrics_permit_reg_list_short_year_nc <- 
-  compl_err_db_data_metrics_permit_reg_list_short_comb |> 
+  compl_err_db_data_metrics_permit_reg_list_short |> 
   map(\(curr_df) {
     # For each data frame curr_df in the list (one df for a permit_region):
     curr_df |>
