@@ -182,7 +182,8 @@ start_end_diff
 # 1  gom_and_dual 273
 # 2       sa_only 226
 
-# how many vessels have variable landing locations (i.e., in the winter they are in one state while in the summer they fish in another); ----
+# How many vessels have variable landing locations ----
+#' (i.e., in the winter they are in one state while in the summer they fish in another)
 
 ## multiple_start_ports ----
 multiple_start_ports <-
@@ -200,11 +201,13 @@ multiple_start_ports <-
 count_uniq_by_column(multiple_start_ports)
 # vessel_official_nbr 675
 
+head(multiple_start_ports)
+
 ### test multiple_start_ports ----
 multiple_start_ports |>
   dplyr::filter(vessel_official_nbr %in% c('944064',
                                     '934665')) |>
-  dplyr::glimpse()
+  head()
 # 2,2
 
 ## multiple_end_ports ----
@@ -225,6 +228,8 @@ multiple_end_ports <-
   dplyr::filter(end_port_name_cnt > 1) |>
   dplyr::arrange(vessel_official_nbr)
 
+head(multiple_end_ports)
+
 ### test multiple_end_ports ----
 multiple_end_ports |>
   dplyr::filter(vessel_official_nbr %in% c('944064',
@@ -234,6 +239,13 @@ multiple_end_ports |>
 
 count_uniq_by_column(multiple_end_ports)
 # vessel_official_nbr 374
+
+### How many vessels have multiple end ports ----
+
+multiple_end_ports |>
+  select(vessel_official_nbr) |>
+  distinct() |>
+  count()
 
 ## multiple_end_port_states ----
 # View(all_logbooks_db_data_2022_short_p_region_port_fields_all)
@@ -259,6 +271,12 @@ multiple_end_port_states |>
 # vessel_official_nbr 76
 
 head(multiple_end_port_states)
+
+### How many vessels have multiple end port states ----
+multiple_end_port_states |>
+  select(vessel_official_nbr) |>
+  distinct() |>
+  count()
 
 ## by quarter ----
 #
@@ -432,7 +450,7 @@ ports_q_short_wider_list <-
 head(ports_q_short_wider_list[[1]])
 
 ### add column for the same or diff ----
-#### create an auxilary function ----
+#### create an auxiliary function ----
 
 #' It starts by using the rowwise() function to apply subsequent operations
 #' to each row individually, ensuring that calculations are row-wise.
@@ -482,7 +500,7 @@ make_ports_q_short_wider_diff <-
 
 # View(ports_q_short_wider_list)
 
-#### use the auxilary function ----
+#### use the auxiliary function ----
 tic("ports_q_short_wider_list_diff")
 
 # Create a new list 'ports_q_short_wider_list_diff' by applying a series of operations to each element
@@ -1235,6 +1253,17 @@ combs2_short_cnts
 #'
 # How many vessels have variable landing locations ----
 #'  (i.e., in the winter they are in one state while in the summer they fish in another)
+
+#' ## How many vessels have multiple end ports
+# <<How many vessels have multiple end ports>>
+
+#'
+#' ## How many vessels have multiple end port states
+#'
+# <<How many vessels have multiple end port states>>
+
+#' ## How many vessels have same (or diff) trip start or end in all quarters of 2022
+#' <<count same or diff trip start or end>>
 
 
 # Quantify the number of vessels who fish in both the gulf and S Atl. ----
