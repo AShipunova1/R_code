@@ -3,14 +3,19 @@ curent_project_name <- readline(prompt = "Print you project name: ")
   # "boats_number"
 curent_file_name <- readline(prompt = "Print you file name: ")
 
-# Manually add
+# Manually.
+# In the input .R file:
+# add "#' " in front of comments to be shown as text
+# and #' as the last line of the visible comments
+# add #' {{< include FILE_NAME.qmd >}} instead of source
+
+# In the output .qmd:
+# *) comment out "source" as needed (or turn on comment_out_sources to suppress all)
+# *) merge "# save setup chunk options to use later" with the next chunk
+# *) add
 # |>
 #   knitr::kable(caption = "My Caption")
 # for pretty tables
-
-# use {{< include FILE_NAME.qmd >}}
-# outside of chunks
-# to include another file
 
 # setup ----
 source("~/R_code_github/useful_functions_module.r")
@@ -22,7 +27,7 @@ dir_to_comb <-
 
 dir.exists(dir_to_comb)
 
-file_name <- curent_file_name
+file_name <- curent_project_name
 file_ext <- c("R", "Rmd", "qmd")
 
 # Create a list of file paths for each file extension.
@@ -116,6 +121,7 @@ flat_file_r_text <-
   clean_chunk_titles(flat_file_r_text)
 
 ## Change all sections to a level lower ----
+# works with the next step, convert %%%%% to the level 1
 lower_section_level <-
   function(flat_file_r_text) {
     flat_file_r_text <-
@@ -129,7 +135,10 @@ flat_file_r_text <-
   lower_section_level(flat_file_r_text)
 
 ## add 2 top sections ----
-# E.g. "Prepare data" and "Plots", mark in the R script with %%%%%
+# E.g. "Prepare data" and "Plots", marked in the R script with #' %%%%%
+# like #' %%%%% Prepare data
+# not used in the auxiliary files
+
 add_2_top_sections <- function(flat_file_r_text) {
   flat_file_r_text <-
     gsub("(%%%%%+) ", # was defined in the original .R
@@ -186,11 +195,13 @@ toc()
 # str(rmd_text)
 #  chr [1:12684] "## Current file: useful_functions_module.r" ...
 
+# Don't use in the auxiliary file
 pre_text <- stringr::str_glue('---
 title: {curent_project_name}
 ---
 ')
 
+# Don't use in the auxiliary file
 # Setup
 setup_text <- "
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
@@ -242,12 +253,13 @@ registerS3method(
 
 # combine pieces into a Quarto file ----
 
-cat(
-  pre_text,
-  file = file_paths$qmd,
-  # append = TRUE,
-  sep = "\n"
-)
+# Don't use in the auxiliary file
+# cat(
+#   pre_text,
+#   file = file_paths$qmd,
+#   # append = TRUE,
+#   sep = "\n"
+# )
 
 # ---
 # add in front
@@ -260,17 +272,18 @@ cat(
 #   sep = "\n"
 # )
 
-cat(
-  setup_text,
-  file = file_paths$qmd,
-  append = TRUE,
-  sep = "\n"
-)
+# Don't use in the auxiliary file
+# cat(
+#   setup_text,
+#   file = file_paths$qmd,
+#   append = TRUE,
+#   sep = "\n"
+# )
 
 cat(
   rmd_text,
   file = file_paths$qmd,
-  append = TRUE,
+  # append = TRUE,
   sep = "\n"
 )
 
