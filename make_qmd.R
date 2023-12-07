@@ -101,7 +101,7 @@ comment_out_sources <-
     return(flat_file_r_text)
   }
 
-# flat_file_r_text <- comment_out_sources(flat_file_r_text)
+flat_file_r_text <- comment_out_sources(flat_file_r_text)
 
 # It searches for lines starting with "#+" followed by a space and captures the content after that.
 # It captures a single quote or a slash.
@@ -180,6 +180,23 @@ flat_file_r_text
 flat_file_r_text <-
   add_pretty_table(flat_file_r_text)
 
+# If there are commented chunk references it will remove the comment
+uncomment_chunk_ref <-
+  function(flat_file_r_text) {
+    flat_file_r_text <-
+      gsub("^# <<",
+           " <<",
+           flat_file_r_text)
+    return(flat_file_r_text)
+  }
+
+# flat_file_r_text <-
+  # uncomment_chunk_ref(flat_file_r_text)
+
+# ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
+#
+# ```{r setup current project}
+
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
@@ -244,9 +261,8 @@ registerS3method(
 # knitr::opts_chunk$set(echo = TRUE)
 
 # options(knitr.table.format = 'HTML')
-
-
 ```
+
 # save setup chunk options to use later
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 ```
