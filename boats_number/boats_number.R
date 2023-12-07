@@ -991,9 +991,14 @@ vessel_permit_port_info_perm_reg |>
   dplyr::distinct() |>
   dplyr::glimpse()
 
-#' NB. 1. There are incorrect home port info.
+#' NB. 1. There is incorrect home port info (city/county/state).
 #'
 #' 2. permit information is some times different from that in logbooks (trips)
+#'
+#' 3. In logbooks there are trip end dates in weird years
+# 2018 Q2                2
+# 2021 Q2                3
+# 2020 Q4                2
 
 ## add vessel_permit information to trip (logbook) information ----
 # print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
