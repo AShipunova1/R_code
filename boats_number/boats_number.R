@@ -1264,7 +1264,8 @@ combs2_short_cnts <-
   })
 
 
-#### Show vessel num with different trip and home port info per permit_region, using each set of names ----
+#### Show vessel num with different trip and home port info per permit_region using each set of names ----
+
 combs2_short_cnts
 
 #' %%%%% Results
@@ -1287,48 +1288,47 @@ combs2_short_cnts
 #
 # !start_port_name == end_port_name
 #
-# <<How many SEFHIER vessels start at a different location than they end>>
+#+ How many SEFHIER vessels start at a different location than they end
 
 #'
-#' ### How many vessels have variable landing locations
+#' ## How many vessels have variable landing locations
 #'  (i.e., in the winter they are in one state while in the summer they fish in another)
 #'
 
 #' ### How many vessels have multiple end ports
 #'
-# <<How many vessels have multiple end ports>>
+#+ How many vessels have multiple end ports
 
 #'
 #' ### How many vessels have multiple end port states
 #'
-# <<How many vessels have multiple end port states>>
+#+ How many vessels have multiple end port states
 #'
 
 #' ### How many vessels have same (or diff) trip start or end in all quarters of 2022
-# <<count same or diff trip start or end>>
+#+ count same or diff trip start or end
 #'
 
 #' ### How many vessels have same (or diff) trip start or end in all quarters of 2022 by permit region
-# <<count same or diff by permit_region and trip start or end>>
+#+ count same or diff by permit_region and trip start or end
 #'
 
 #' ## Quantify the number of vessels who fish in both the Gulf and S Atl
 #' By counting start ports.
 #'
-# <<How many vessels have start port in one or in both regions>>
+#+ How many vessels have start port in one or in both regions
 
 #' ### The same (start in both Gulf and S Atl) by a vessel permit region
 #'
-# <<Count multiple starts by permit_region>>
+#+ Count multiple starts by permit_region
 
 #' ## Look at permit home port vs where they take trip
 #' Each column name starting with "diff_" represents the difference between trip ports and home port names or their respective counties and states.
 #'
 
-# <<Show vessel num with different trip and home port info, using each pair of names>>
+#+ Show vessel num with different trip and home port info, using each pair of names
 
 #' ### The same (home port vs. trip ports) by a vessel permit region
 #'
-# <<Show vessel num with different trip and home port info per permit_region, using each set of names>>
 
-#+ ref chunk, ref.label=c('Show vessel num with different trip and home port info per permit_region, using each set of names')
+#+ Show vessel num with different trip and home port info per permit_region using each set of names
