@@ -12,7 +12,7 @@ my_paths <- set_work_dir()
 current_project_dir_name <- this.path::this.dir()
 
 ## additional data ----
-# for qmd use #' {{include .qmd}} instead of source()
+# for qmd use #' {{< include .qmd >}} instead of source()
 
 misc_info_path <-
   file.path(my_paths$git_r,
@@ -22,7 +22,7 @@ source(misc_info_path)
 #' {{< include misc_info.qmd >}}
 
 ## logbooks data----
-# for qmd use  #' {{include .qmd}} instead of source()
+# for qmd use  #' {{< include .qmd >}} instead of source()
 
 # use all logbooks from https://drive.google.com/drive/folders/1HipnxawNsDjrsMc4dXgFwdRPQ3X6-x3n
 # when is ready
@@ -154,8 +154,10 @@ dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port)
 
 #' %%%%% Count boat numbers
 
-# How many SEFHIER vessels start at a different location than they end; ----
-all_logbooks_db_data_2022_short_p_region_short |>
+# How many SEFHIER vessels start at a different location than they end ----
+
+start_end_diff <-
+  all_logbooks_db_data_2022_short_p_region_short |>
   # filter(!start_port == end_port) |>
   dplyr::filter(!start_port_name == end_port_name) |>
   dplyr::select(vessel_id,
@@ -165,6 +167,9 @@ all_logbooks_db_data_2022_short_p_region_short |>
   # dim()
   # Rows: 397
   count(permit_region)
+
+start_end_diff
+
 # 1  gom_and_dual 198
 # 2       sa_only 199
 # by name:
@@ -891,7 +896,7 @@ start_ports_region_cnt_by_permit_r |>
   dplyr::filter(vessel_official_nbr == "FL6069PT") |>
   dplyr::glimpse()
 
-#### Count multi starts by permit_region ----
+#### Count multiple starts by permit_region ----
 start_ports_region_cnt_by_permit_r |>
   # glimpse()
   dplyr::select(
@@ -1207,4 +1212,36 @@ combs2_short_cnts <-
 
 combs2_short_cnts
 
+#' %%%%% Results
+#'
+#' Analyzing movement patterns of vessels:
+#' 1. How many SEFHIER vessels start at a different location than they end;
+#'
+#' 2. How many vessels have variable landing locations
+#'
+#' (i.e., in the winter they are in one state while in the summer they fish in another)
+#'
+#' 3. Quantify the # of vessels who fish in both the gulf and S Atl.
+#'
+#' 4. Look at permit home port vs where they take trip
+#'
+
+# How many SEFHIER vessels start at a different location than they end; ----
+#
+# !start_port_name == end_port_name
+#
+# <<How many SEFHIER vessels start at a different location than they end>>
+
+#'
+# How many vessels have variable landing locations ----
+#'  (i.e., in the winter they are in one state while in the summer they fish in another)
+
+
+# Quantify the number of vessels who fish in both the gulf and S Atl. ----
+#' !start_port_name == end_port_name
+#'
+
+# Look at permit home port vs where they take trip
+#' !start_port_name == end_port_name
+#'
 
