@@ -1584,7 +1584,10 @@ combs2_short_cnts <-
 ```{r Show vessel num with different trip and home port info per permit_region using each set of names}
 #### Show vessel num with different trip and home port info per permit_region using each set of names ----
 
-combs2_short_cnts
+map(combs2_short_cnts, knitr::kable)
+# map(\(one_entry) )
+#   knitr::kable(caption = "My Caption")
+
 ```
 
 # Results
