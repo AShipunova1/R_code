@@ -1,4 +1,5 @@
 #' %%%%% Prepare data
+#'
 
 # setup current project ----
 library(zoo)
@@ -20,6 +21,7 @@ misc_info_path <-
 source(misc_info_path)
 
 #' {{< include misc_info.qmd >}}
+#'
 
 ## logbooks data----
 # for qmd use  #' {{< include .qmd >}} instead of source()
@@ -32,6 +34,7 @@ all_logb_path <-
 source(all_logb_path)
 
 #' {{< include all_logbooks_db_data_2022_short_p_region_prep.qmd >}}
+#'
 
 ## input data names ----
 # all_get_db_data_result_l
@@ -153,6 +156,7 @@ dim(all_logbooks_db_data_2022_short_p_region_dates_trip_port)
 # [1] 94366    29
 
 #' %%%%% Count boat numbers
+#'
 
 # How many SEFHIER vessels start at a different location than they end ----
 
@@ -183,7 +187,8 @@ start_end_diff
 # 2       sa_only 226
 
 # How many vessels have variable landing locations ----
-#' (i.e., in the winter they are in one state while in the summer they fish in another)
+#'I.e., in the winter they are in one state while in the summer they fish in another)
+#'
 
 ## multiple_start_ports ----
 multiple_start_ports <-
@@ -401,6 +406,7 @@ each_quarter_a_col <-
 #' 4. The `values_fn` argument ensures that duplicate values are concatenated and sorted within each cell.
 #'
 #' 5. Return the resulting widened data frame.
+#'
 
 
 ### use the function for trip start and end ports separately ----
@@ -434,6 +440,7 @@ ports_q_short_wider_list <-
 #' 5. Apply the "each_quarter_a_col" function to reshape the data frame based on quarters, using the extracted character as an argument.
 #'
 #' 6. The resulting list, "ports_q_short_wider_list", contains data frames widened based on quarters for both start and end ports.
+#'
 
 # glimpse(ports_q_short_wider_list)
 
@@ -465,6 +472,7 @@ head(ports_q_short_wider_list[[1]])
 #' The ungroup() function is then applied to remove the grouping structure introduced by rowwise().
 #'
 #' rlang::\`:=\` used inside mutate() to work with dynamic field names (!!ports_num_field_name), e.g. a variable name instead of a string
+#'
 
 make_ports_q_short_wider_diff <-
   function(my_df,
@@ -535,6 +543,7 @@ ports_q_short_wider_list_diff <-
 #' 6. Apply the "make_ports_q_short_wider_diff" function to calculate the differences between quarters.
 #'
 #' 7. The resulting list, "ports_q_short_wider_list_diff", contains data frames with differences between quarters for both start and end ports.
+#'
 
 toc()
 # ports_q_short_wider_list_diff: 9.93 sec elapsed
@@ -614,7 +623,7 @@ ports_q_short_wider_list_diff |>
 # 2 TRUE    485
 
 
-# quantify the # of vessels who fish in both the gulf and S Atl.  ----
+# Quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ## add a gom vs sa marker to ports ----
 ### shorten all_logbooks_db_data_2022_short_p_region ----
 all_logbooks_db_data_2022_short_p_region_port_region <-
@@ -689,6 +698,7 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
 #'    - For other cases, set it to "sa_state".
 #'
 #'    - Additional commented-out line ("diff_reg") for potential future use.
+#'
 
 head(all_logbooks_db_data_2022_short_p_region_port_states)
 # [1] 3011   14
@@ -699,6 +709,7 @@ head(all_logbooks_db_data_2022_short_p_region_port_states)
 #' If the start port state name is "florida" and the start port county is in "fl_counties$gom", set it to "gom_county".
 #'
 #' For other cases, set it to "sa_county".
+#'
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
   all_logbooks_db_data_2022_short_p_region_port_states |>
@@ -770,6 +781,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
 #'
 #'    - If the start port region is "sa_council_state" or "sa_state", set it to "sa".
 #'    - For other cases, set it to NA.
+#'
 
 glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
 # [1] 3011   16
@@ -788,7 +800,7 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
     dplyr::distinct() |>
     dplyr::glimpse()
 
-### count vessels having both sa and gom one_start_port_markers to find the num of vessels who fish in both the gulf and S Atl ----
+### Count vessels having both sa and gom one_start_port_markers to find the num of vessels who fish in both the Gulf and S Atl ----
 
 #### shorten all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start ----
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
@@ -817,9 +829,10 @@ count_uniq_by_column(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg
 # start_port             536
 # start_port_name        531
 
-#' Count vessels with each "gom" or "sa" trip start port region marker
-#'
+#### Count vessels with each GOM or SA trip start port region marker ----
 #' (the occurrences of each unique value in the "one_start_port_marker" column).
+#'
+
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   dplyr::select(vessel_official_nbr, one_start_port_marker) |>
   dplyr::distinct() |>
@@ -827,7 +840,8 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
 # 1                   gom 1000
 # 2                    sa 1029
 
-#' Count vessels with each "gom" or "sa" trip start port region marker per vessel permit_region
+#### Count vessels with each GOM or SA trip start port region marker per vessel permit_region ----
+
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   dplyr::select(vessel_official_nbr,
          permit_region,
@@ -882,6 +896,10 @@ count_uniq_by_column(start_ports_region_cnt)
 start_ports_region_cnt |>
   dplyr::filter(vessel_official_nbr == "1021879")
 
+#### How many vessels have start port in one or in both regions ----
+start_ports_region_cnt |>
+  count(vessel_one_start_port_marker_num)
+
 ### Trip start ports are in both regions count by vessel permit ----
 start_ports_region_cnt_by_permit_r <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
@@ -907,6 +925,7 @@ start_ports_region_cnt_by_permit_r <-
 #' 5. Add a new column "vessel_one_start_port_marker_num" counting the distinct values of "one_start_port_marker" for each vessel within each permit region.
 #'
 #' 6. Ungroup the data.
+#'
 
 #### check start_ports_region_cnt_by_permit_r ----
 start_ports_region_cnt_by_permit_r |>
@@ -996,9 +1015,11 @@ vessel_permit_port_info_perm_reg |>
 #' 2. permit information is some times different from that in logbooks (trips)
 #'
 #' 3. In logbooks there are trip end dates in weird years
-# 2018 Q2                2
-# 2021 Q2                3
-# 2020 Q4                2
+#'
+#' 2018 Q2                2
+#' 2021 Q2                3
+#' 2020 Q4                2
+
 
 ## add vessel_permit information to trip (logbook) information ----
 # print_df_names(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
@@ -1036,6 +1057,8 @@ join_vessel_and_trip |>
 # 5       sa_only      gom_only
 
 #' TODO: compare regions, why diff. Permits in logbooks (trips) and in permit data are different
+#'
+
 join_vessel_and_trip |>
   dplyr::filter(permit_region == "gom_and_dual" &
                   permit_sa_gom == "sa_only") |>
@@ -1122,6 +1145,7 @@ toc()
 #' 5. Ungroup the data.
 #'
 #' 6. Stop measuring the execution time using the `toc()` function and display the elapsed time.
+#'
 
 join_vessel_and_trip_port_diff |>
   dplyr::select(vessel_official_nbr,
@@ -1137,6 +1161,8 @@ join_vessel_and_trip_port_diff_short <-
                 permit_region,
                 dplyr::starts_with("diff")) |>
   dplyr::distinct()
+
+glimpse(join_vessel_and_trip_port_diff_short)
 
 ## count vessel number with different start_port_state and home_port_state ----
 ### check for one column ----
@@ -1183,6 +1209,9 @@ combs1_short_cnts <-
 #' 2. The "count" function is then applied to the selected data frame. The column to count is specified using "!!sym(curr_col_names[[2]])", where "sym" is used to convert the column name to a symbol for evaluation.
 #'
 #' The result is a list of data frames, where each data frame contains the counts of occurrences of vessel ids for the second column in "curr_col_names".
+#'
+
+#### Show vessel num with different trip and home port info, using each pair of names ----
 
 combs1_short_cnts
 
@@ -1206,6 +1235,8 @@ combs2 <-
   as.data.frame()
 
 #' How many column names have "diff" in it?
+#'
+
 dif_cols_num <-
   grep("diff", my_col_names) |>  length()
 
@@ -1233,12 +1264,14 @@ combs2_short_cnts <-
   })
 
 
+#### Show vessel num with different trip and home port info per permit_region, using each set of names ----
 combs2_short_cnts
 
 #' %%%%% Results
 #'
 #' Analyzing movement patterns of vessels:
-#' 1. How many SEFHIER vessels start at a different location than they end;
+#'
+#' 1. How many SEFHIER vessels start at a different location than they end
 #'
 #' 2. How many vessels have variable landing locations
 #'
@@ -1249,33 +1282,53 @@ combs2_short_cnts
 #' 4. Look at permit home port vs where they take trip
 #'
 
-# How many SEFHIER vessels start at a different location than they end; ----
+#' ## How many SEFHIER vessels start at a different location than they end
+#'
 #
 # !start_port_name == end_port_name
 #
 # <<How many SEFHIER vessels start at a different location than they end>>
 
 #'
-# How many vessels have variable landing locations ----
+#' ### How many vessels have variable landing locations
 #'  (i.e., in the winter they are in one state while in the summer they fish in another)
+#'
 
-#' ## How many vessels have multiple end ports
+#' ### How many vessels have multiple end ports
+#'
 # <<How many vessels have multiple end ports>>
 
 #'
-#' ## How many vessels have multiple end port states
+#' ### How many vessels have multiple end port states
 #'
 # <<How many vessels have multiple end port states>>
-
-#' ## How many vessels have same (or diff) trip start or end in all quarters of 2022
-#' <<count same or diff trip start or end>>
-
-
-# Quantify the number of vessels who fish in both the gulf and S Atl. ----
-#' !start_port_name == end_port_name
 #'
 
-# Look at permit home port vs where they take trip
-#' !start_port_name == end_port_name
+#' ### How many vessels have same (or diff) trip start or end in all quarters of 2022
+# <<count same or diff trip start or end>>
 #'
 
+#' ### How many vessels have same (or diff) trip start or end in all quarters of 2022 by permit region
+# <<count same or diff by permit_region and trip start or end>>
+#'
+
+#' ## Quantify the number of vessels who fish in both the Gulf and S Atl
+#' By counting start ports.
+#'
+# <<How many vessels have start port in one or in both regions>>
+
+#' ### The same (start in both Gulf and S Atl) by a vessel permit region
+#'
+# <<Count multiple starts by permit_region>>
+
+#' ## Look at permit home port vs where they take trip
+#' Each column name starting with "diff_" represents the difference between trip ports and home port names or their respective counties and states.
+#'
+
+# <<Show vessel num with different trip and home port info, using each pair of names>>
+
+#' ### The same (home port vs. trip ports) by a vessel permit region
+#'
+# <<Show vessel num with different trip and home port info per permit_region, using each set of names>>
+
+#+ ref chunk, ref.label=c('Show vessel num with different trip and home port info per permit_region, using each set of names')
