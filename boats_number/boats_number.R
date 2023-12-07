@@ -585,7 +585,22 @@ ports_q_short_wider_list_diff |>
 # 2020 Q4                2
 # all_end_ports        701
 
-## count same or diff by permit_region and trip start or end ----
+### count same or diff trip start or end ----
+ports_q_short_wider_list_diff |>
+  purrr::map(\(one_df) {
+    one_df |>
+      dplyr::select(vessel_official_nbr, same) |>
+      dplyr::count(same)
+  })
+# start
+# 1 FALSE  1421 (incl. NAs)
+# 2 TRUE    455
+
+# end
+# 1 FALSE  1391 (incl. NAs)
+# 2 TRUE    485
+
+### count same or diff by permit_region and trip start or end ----
 ports_q_short_wider_list_diff |>
   purrr::map(\(one_df) {
     one_df |>
@@ -606,21 +621,6 @@ ports_q_short_wider_list_diff |>
 # 2 gom_and_dual  TRUE    230
 # 3 sa_only       FALSE   830
 # 4 sa_only       TRUE    255
-
-#### count same or diff trip start or end ----
-ports_q_short_wider_list_diff |>
-  purrr::map(\(one_df) {
-    one_df |>
-      dplyr::select(vessel_official_nbr, same) |>
-      dplyr::count(same)
-  })
-# start
-# 1 FALSE  1421 (incl. NAs)
-# 2 TRUE    455
-
-# end
-# 1 FALSE  1391 (incl. NAs)
-# 2 TRUE    485
 
 
 # Quantify the # of vessels who fish in both the gulf and S Atl.  ----
