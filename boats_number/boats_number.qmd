@@ -45,6 +45,7 @@ registerS3method(
 
 
 ```
+
 # Prepare data
 ## setup current project 
 
@@ -74,7 +75,6 @@ misc_info_path <-
 ```
 
 {{< include misc_info.qmd >}}
-
 ### logbooks data
 
 ```{r logbooks data}
@@ -90,7 +90,6 @@ all_logb_path <-
 ```
 
 {{< include all_logbooks_db_data_2022_short_p_region_prep.qmd >}}
-
 ### input data names 
 
 ```{r input data names}
@@ -531,15 +530,23 @@ ports_q_short_wider_list <-
 ```
 
 Explanation:
+
 1. Create a list where each element is a pair containing a data frame ("start_ports_q_short" or "end_ports_q_short") and a character ("start" or "end").
+
 2. Use the "map" function to apply a series of operations to each element of the list.
+
 3. Extract the data frame and the character from each pair.
+
 4. Convert the extracted data frame to a standard data frame using "as.data.frame()".
+
 5. Apply the "each_quarter_a_col" function to reshape the data frame based on quarters, using the extracted character as an argument.
+
 6. The resulting list, "ports_q_short_wider_list", contains data frames widened based on quarters for both start and end ports.
-glimpse(ports_q_short_wider_list)
 
 ```{r}
+# glimpse(ports_q_short_wider_list)
+
+
 # start_ports_q_short_wider <-
 #   start_ports_q_short |>
 #   pivot_wider(
@@ -566,13 +573,17 @@ head(ports_q_short_wider_list[[1]])
 
 It starts by using the rowwise() function to apply subsequent operations
 to each row individually, ensuring that calculations are row-wise.
+
 The mutate() function is then used to create a new column 'same'.
+
 This column is assigned the result of a logical comparison:
+
 It checks if the number of distinct values in all columns that start with '2022'
 is equal to 1, indicating that all these columns have the same value for a given row.
-The ungroup() function is then applied to remove the grouping structure
-introduced by rowwise().
-rlang::":=" used inside mutate() to work with dynamic field names (!!ports_num_field_name), e.g. variable name instead of a string
+
+The ungroup() function is then applied to remove the grouping structure introduced by rowwise().
+
+rlang::\`:=\` used inside mutate() to work with dynamic field names (!!ports_num_field_name), e.g. a variable name instead of a string
 
 ```{r}
 make_ports_q_short_wider_diff <-
@@ -635,12 +646,19 @@ ports_q_short_wider_list_diff <-
 ```
 
 Explanation:
+
 1. Create a list where each element is a pair containing a data frame from "ports_q_short_wider_list" and a character ("start" or "end").
+
 2. Use the "map" function to apply a series of operations to each element of the list.
+
 3. Extract the data frame and the character from each pair.
+
 4. Extract the column names of the data frame and assign them to "my_df_names".
+
 5. Convert the extracted data frame to a standard data frame using "as.data.frame()" and set its column names.
+
 6. Apply the "make_ports_q_short_wider_diff" function to calculate the differences between quarters.
+
 7. The resulting list, "ports_q_short_wider_list_diff", contains data frames with differences between quarters for both start and end ports.
 
 ```{r}
@@ -817,12 +835,19 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
 ```
 
 Explanation:
+
 1. Create a new data frame "all_logbooks_db_data_2022_short_p_region_port_states" by applying operations to "all_logbooks_db_data_2022_short_p_region_port_region".
+
 2. Add columns for the state names corresponding to start and end ports.
+
 3. Add a new column "start_port_reg" based on conditions using "case_when":
+
    - If the start port state is in "sa_council_states", set it to "sa_council_state".
+
    - If the end port state is in "east_coat_states$gom", set it to "gom_state".
+
    - For other cases, set it to "sa_state".
+
    - Additional commented-out line ("diff_reg") for potential future use.
 
 ```{r}
@@ -837,7 +862,9 @@ head(all_logbooks_db_data_2022_short_p_region_port_states)
 ```
 
 Add a new column "start_port_fl_reg" based on conditions using "case_when":
+
 If the start port state name is "florida" and the start port county is in "fl_counties$gom", set it to "gom_county".
+
 For other cases, set it to "sa_county".
 
 ```{r}
@@ -867,8 +894,10 @@ dplyr::glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg)
 ### create one_port_marker ----
 ```
 
-combine all previous markers into one column
-if Monroe, FL divide by vessel permit_region
+Combine all previous region markers into one column
+
+If Monroe, FL divide by vessel permit_region
+
 
 ```{r}
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
@@ -900,13 +929,21 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
 ```
 
 Explanation:
+
 1. Create a new data frame "all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start" by applying operations to "all_logbooks_db_data_2022_short_p_region_port_states_fl_reg".
+
 2. Add a new column "one_start_port_marker" based on conditions using "case_when":
+
    - If the start port county is "MONROE" and the permit region is "gom_and_dual", set it to "gom".
+
    - If the start port county is "MONROE" and the permit region is "sa_only", set it to "sa".
+
    - If the start port state is "FL" and the start port FL region is "gom_county", set it to "gom".
+
    - If the start port state is "FL" and the start port FL region is "sa_county", set it to "sa".
+
    - If the start port region is "gom_council_state" or "gom_state", set it to "gom".
+
    - If the start port region is "sa_council_state" or "sa_state", set it to "sa".
    - For other cases, set it to NA.
 
@@ -971,7 +1008,8 @@ count_uniq_by_column(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg
 ```
 
 Count vessels with each "gom" or "sa" trip start port region marker
-(the oc-currences of each unique value in the "one_start_port_marker" column).
+
+(the occurrences of each unique value in the "one_start_port_marker" column).
 
 ```{r}
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
@@ -1019,12 +1057,19 @@ start_ports_region_cnt <-
 ```
 
 Explanation:
+
 1. Create a new data frame "start_ports_region_cnt" by applying operations to "all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short".
+
 2. Select columns based on "select_vessel_mark_start".
+
 3. Retain distinct rows.
+
 4. Group the data by "vessel_official_nbr".
+
 5. Add a new column "vessel_one_start_port_marker_num" counting the distinct values of "one_start_port_marker" for each vessel.
+
 6. Ungroup the data.
+
 ###### check start_ports_region_cnt 
 
 ```{r check start_ports_region_cnt}
@@ -1057,11 +1102,17 @@ start_ports_region_cnt_by_permit_r <-
 ```
 
 Explanation:
+
 1. Create a new data frame "start_ports_region_cnt_by_permit_r" by applying operations to "all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short".
+
 2. Select columns based on "select_vessel_mark_start" and "permit_region".
+
 3. Retain distinct rows.
+
 4. Group the data by "vessel_official_nbr" and "permit_region".
+
 5. Add a new column "vessel_one_start_port_marker_num" counting the distinct values of "one_start_port_marker" for each vessel within each permit region.
+
 6. Ungroup the data.
 ##### check start_ports_region_cnt_by_permit_r 
 
@@ -1166,8 +1217,9 @@ vessel_permit_port_info_perm_reg |>
   dplyr::glimpse()
 ```
 
-NB. 1) There are incorrect home port info.
-2) permit information is some times different from that in logbooks (trips)
+NB. 1. There are incorrect home port info.
+
+2. permit information is some times different from that in logbooks (trips)
 ### add vessel_permit information to trip (logbook) information 
 
 ```{r add vessel_permit information to trip (logbook) information}
@@ -1293,11 +1345,17 @@ toc()
 ```
 
 Explanation:
+
 1. Start measuring the execution time using the `tic()` function.
+
 2. Create a new data frame "join_vessel_and_trip_port_diff" by applying operations to "join_vessel_and_trip".
+
 3. Group the data by "vessel_official_nbr".
+
 4. Add columns indicating differences between home port and trip start/end ports for both start and end ports.
+
 5. Ungroup the data.
+
 6. Stop measuring the execution time using the `toc()` function and display the elapsed time.
 
 ```{r}
@@ -1383,7 +1441,9 @@ combs1_short_cnts <-
 This code uses the "map" function from the purrr package to iterate over each element (curr_col_names) in the combs1_short list. Within the map function:
 
 1. The "join_vessel_and_trip_port_diff_short" data frame is piped into the "select" function, where columns specified by "curr_col_names" are selected using "paste" and separated by commas.
+
 2. The "count" function is then applied to the selected data frame. The column to count is specified using "!!sym(curr_col_names[[2]])", where "sym" is used to convert the column name to a symbol for evaluation.
+
 The result is a list of data frames, where each data frame contains the counts of occurrences of vessel ids for the second column in "curr_col_names".
 
 ```{r}
