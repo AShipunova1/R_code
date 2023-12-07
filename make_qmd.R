@@ -5,6 +5,7 @@ curent_project_name <- readline(prompt = "Print you project name: ")
 # Manually.
 # In the input .R file:
 # add "#' " in front of comments to be shown as text
+# and #' as the last line of the visible comments
 # add #' {{< include FILE_NAME.qmd >}} instead of source
 # add "#' %%%%% Prepare data" etc. as first level sections
 
@@ -193,8 +194,12 @@ toc()
 # str(rmd_text)
 #  chr [1:12684] "## Current file: useful_functions_module.r" ...
 
+clean_tile <-
+  gsub("_", " ", curent_project_name) |>
+  stringr::str_to_title()
+
 pre_text <- stringr::str_glue('---
-title: {curent_project_name}
+title: {clean_tile}
 ---
 ')
 
