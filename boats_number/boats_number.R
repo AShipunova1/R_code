@@ -1222,6 +1222,7 @@ combs1_short_cnts <-
 #'
 
 #### Show vessel num with different trip and home port info, using each pair of names ----
+# |> results="hide"
 
 # use pander for .qmd
 pander(combs1_short_cnts)
@@ -1274,27 +1275,9 @@ combs2_short_cnts <-
             !!sym(curr_col_names[[3]]))
   })
 
-#### Same with a df result ----
-combs2_short_cnts_df <-
-  combs2_short |>
-
-  # Use 'map' to apply a function to each element of 'combs2_short'
-  purrr::map_df(\(curr_col_names) {
-
-    # Use 'join_vessel_and_trip_port_diff_short' as the data source
-    join_vessel_and_trip_port_diff_short |>
-
-      # Select columns specified by 'curr_col_names' and separate them with ","
-      dplyr::select(paste(curr_col_names, sep = ",")) |>
-
-      # Count occurrences of unique combinations of the second and third columns
-      dplyr::count(!!sym(curr_col_names[[2]]),
-            !!sym(curr_col_names[[3]]))
-  })
-
 
 #### Show vessel num with different trip and home port info per permit_region using each set of names ----
-
+# |> results="hide"
 # use pander for .qmd
 pander(combs2_short_cnts)
 
