@@ -2,6 +2,9 @@
 title: Boats Number
 ---
 
+<!-- execute: -->
+<!--   output: false -->
+
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
 # A general-purpose tool for dynamic report generation in R
@@ -1599,7 +1602,9 @@ combs2_short_cnts <-
 ##### Show vessel num with different trip and home port info per permit_region using each set of names 
 
 ```{r Show vessel num with different trip and home port info per permit_region using each set of names}
-# |> results="hide"
+
+# #| output = "true"
+
 #### Show vessel num with different trip and home port info per permit_region using each set of names ----
 # use pander for .qmd
 pander(combs2_short_cnts)
@@ -1684,5 +1689,7 @@ Each column name starting with "diff_" represents the difference between trip po
 
 
 ```{r Show vessel num with different trip and home port info per permit_region using each set of names}
+#| results="hide"
+
 ```
 
