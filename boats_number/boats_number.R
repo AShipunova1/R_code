@@ -586,7 +586,9 @@ ports_q_short_wider_list_diff |>
 # all_end_ports        701
 
 ### count same or diff trip start or end ----
-ports_q_short_wider_list_diff |>
+
+ports_q_short_wider_list_diff_cnts <-
+  ports_q_short_wider_list_diff |>
   purrr::map(\(one_df) {
     one_df |>
       dplyr::select(vessel_official_nbr, same) |>
@@ -600,12 +602,20 @@ ports_q_short_wider_list_diff |>
 # 1 FALSE  1391 (incl. NAs)
 # 2 TRUE    485
 
+# use pander for .qmd
+pander(ports_q_short_wider_list_diff_cnts)
+
 ### count same or diff by permit_region and trip start or end ----
-ports_q_short_wider_list_diff |>
+ports_q_short_wider_list_diff_cnt_p_r <-
+  ports_q_short_wider_list_diff |>
   purrr::map(\(one_df) {
     one_df |>
       dplyr::count(permit_region, same)
   })
+
+# use pander for .qmd
+pander(ports_q_short_wider_list_diff_cnt_p_r)
+
 # start
 #   permit_region same      n
 #   <chr>         <lgl> <int>
@@ -1213,7 +1223,8 @@ combs1_short_cnts <-
 
 #### Show vessel num with different trip and home port info, using each pair of names ----
 
-combs1_short_cnts
+# use pander for .qmd
+pander(combs1_short_cnts)
 
 ## Repeat the same with permit region ----
 join_vessel_and_trip_port_diff_short_perm <-
@@ -1284,13 +1295,8 @@ combs2_short_cnts_df <-
 
 #### Show vessel num with different trip and home port info per permit_region using each set of names ----
 
-View(combs2_short_cnts_df)
-# combs2_short_cnts
-
-res_combs2_short_cnts <-
-  map_df(combs2_short_cnts, )
-
-
+# use pander for .qmd
+pander(combs2_short_cnts)
 
 #' %%%%% Results
 #'
