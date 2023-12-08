@@ -17,10 +17,6 @@ library(styler)
 
 ```{r df format setup}
 #| include: false
-# kable <- function(data) {
-#   knitr::kable(data, booktabs = true, digits = 2) %>%
-#     kable_styling('striped', full_width = FALSE)
-# }
 
 knit_print.data.frame = function(x, ...) {
   res = paste(c(
@@ -1584,9 +1580,64 @@ combs2_short_cnts <-
 ```{r Show vessel num with different trip and home port info per permit_region using each set of names}
 #### Show vessel num with different trip and home port info per permit_region using each set of names ----
 
-map(combs2_short_cnts, knitr::kable)
+# combs2_short_cnts
+
+# res_combs2_short_cnts <- 
+  # map_df(combs2_short_cnts)
+
+# hh <- combs2_short_cnts[["V1"]]
+
+# knitr::kable(hh, col.names = gsub("[_]", " ", names(hh)))
+
+t_names <- 
+  names(combs2_short_cnts)
+
+# t_t <- 
+#   t_names |> 
+#   map(\(one_name){
+#     curr_df <- combs2_short_cnts[[one_name]]
+#     t_i <- 
+#       knitr::kable(curr_df, col.names = gsub("[_]", " ", names(curr_df)))
+#     cat(t_i)
+#   })
+library(pander)
+
+pander(combs2_short_cnts)
+
+# for (one_name in t_names) {
+#   curr_df <- combs2_short_cnts[[one_name]]
+#   t_i <-
+#     knitr::kable(curr_df, 
+#                  col.names = gsub("[_]", " ", names(curr_df)))
+#   # print(kable(l_df[[i]])) 
+#   print(t_i)
+# }
+
+# map(combs2_short_cnts,
+#     \(one_entry) {
+#       knitr::kable(one_entry,
+#                    col.names = gsub("[_]", " ", names(one_entry)))
+#       
+#     })
+
+# knitr::kable(head(one_entry), format = "html")
+#     knitr::kable(x, digits = 2) |>
+#       kableExtra::kable_styling('striped', full_width = FALSE)
+#   ),
+# map(combs2_short_cnts, knitr::kable)
+# map(combs2_short_cnts,
+#     \(one_entry) {
+#       one_entry |>
+#         knitr::kable(format = 'html')
+#     })
+# |> 
 # map(\(one_entry) )
 #   knitr::kable(caption = "My Caption")
+
+# map(combs2_short_cnts,
+#     \(one_entry) {
+#       one_entry |> knit_print.data.frame()
+#     })
 
 ```
 
