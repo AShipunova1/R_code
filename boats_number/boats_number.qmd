@@ -770,7 +770,7 @@ ports_q_short_wider_list_diff_cnts <-
 # 2 TRUE    485
 
 # use pander for .qmd
-pander(unlist(ports_q_short_wider_list_diff_cnts))
+pander(ports_q_short_wider_list_diff_cnts)
 ```
 
 #### count same or diff by permit_region and trip start or end 
