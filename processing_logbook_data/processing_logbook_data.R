@@ -429,7 +429,7 @@ SEFHIER_logbooksAHU$TRIP_END_DATE2 <-
 .
 SEFHIER_logbooksAHU <-
   SEFHIER_logbooksAHU %>%
-  mutate(COMP_WEEK = isoweek(ymd(SEFHIER_logbooksAHU$TRIP_END_DATE2))) #puts it in week #
+  mutate(COMP_WEEK = isoweek(TRIP_END_DATE)) #puts it in week num
 
 # To see the result, note week 52 of 2021 (AS):
 SEFHIER_logbooksAHU |>
@@ -444,20 +444,14 @@ SEFHIER_logbooksAHU |>
 
 OverrideData |>
   mutate(COMP_WEEK_iso = isoweek(COMP_WEEK_END_DT)) |>
-  head()
-
-# summary(OverrideData)
-
-OverrideData |>
   select(COMP_YEAR,
          COMP_WEEK,
          COMP_WEEK_START_DT,
-         COMP_WEEK_END_DT) |>
+         COMP_WEEK_END_DT,
+         COMP_WEEK_iso) |>
   distinct() |>
   arrange(COMP_WEEK_START_DT) |>
-  head()
-
-
+  head(3)
 
 #if a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
 SEFHIER_logbooksAHU <- left_join(SEFHIER_logbooksAHU, OverrideData, by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK")) #add override data to df
