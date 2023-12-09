@@ -22,6 +22,8 @@ library(xlsx)
 library(lubridate)
 library(tidyverse)
 
+library(tictoc) # Functions for timing
+
 #set working and output directory - where do you keep the data and analysis folder on your computer?
 # example: Path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
 # Path <-
@@ -58,12 +60,12 @@ read_rds_or_run <- function(my_file_path,
         # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
         # 1. Generate a message indicating the date and the purpose of the run.
         msg_text <- paste(today(), "run for", basename(my_file_path))
-        tic(msg_text)  # Start timing the operation.
+        tictoc::tic(msg_text)  # Start timing the operation.
 
         # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
         my_result <- my_function(my_data)
 
-        toc()  # Stop timing the operation.
+        tictoc::toc()  # Stop timing the operation.
 
         # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
         # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
@@ -194,28 +196,102 @@ SEFHIER_PermitInfo <-
 
 #remove the columns you don't need
 SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
-#NumSEHFIERPermits <- nrow(SEFHIER_PermitInfo) useful stat, not needed for processing
-nrow(SEFHIER_PermitInfo)
+# useful stat, not needed for processing
+# NumSEHFIERPermits <- nrow(SEFHIER_PermitInfo)
+# 3469
 
 #### import and prep the logbook data ####
 #delete logbook records where start date/time is after end date/time
 #delete logbooks for trips lasting more than 10 days
 #only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
 
-#import the logbook data
-Logbooks <- read.csv(paste(Path,Inputs,"SAFIS_TripsDownload_1.1.22-12.01.23.csv",sep=""))
+# import the logbook data or download from Oracle db
+logbooks_file_path <-
+  paste(Path, Inputs, "SAFIS_TripsDownload_1.1.22-12.01.23.csv",
+        sep = "")
 #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+
+Logbooks <- read.csv(logbooks_file_path)
+
+# Instead, we can read a file if exists or pull data from the Oracle db
+logbooks_download_query <-
+  "SELECT
+  *
+FROM
+  srh.mv_safis_trip_download@secapxdv_dblk
+WHERE
+    trip_start_date >= '01-JAN-2022'
+  AND trip_start_date <= '01-DEC-2023'
+"
+
+# Define a function 'mv_safis_trip_download_fun' to retrieve data from the database using a specified query.
+logbooks_download_fun <-
+  function(logbooks_download_query) {
+  # Use 'dbGetQuery' to execute the query on the database connection 'con' and return the result.
+  result <- dbGetQuery(con, logbooks_download_query)
+
+  # Return the result of the database query.
+  return(result)
+}
+
+# Use 'read_rds_or_run' defined above to either read permit information from an RDS file or execute a query to obtain it.
+Logbooks <-
+  read_rds_or_run(logbooks_file_path,
+                  logbooks_download_query,
+                  logbooks_download_fun)
+
+# not needed for processing
+# dim(Logbooks)
+# [1] 484413    149
+
 #rename column
+# Was:
+# colnames(Logbooks)[6]
+# "VESSEL_OFFICIAL_NBR"
+
 colnames(Logbooks)[6] <- ("VESSEL_OFFICIAL_NUMBER")
 
-#reformat trip start/end date/time
-Logbooks$TRIP_START_DATE <- substring(Logbooks$TRIP_START_DATE, first=1, last=10) #strftime(Logbooks$TRIP_START_DATE, format="%Y-%m-%d")
-Logbooks$TRIP_START_TIME <- as.character(sprintf("%04d",Logbooks$TRIP_START_TIME))
-Logbooks$TRIP_END_DATE <- substring(Logbooks$TRIP_END_DATE, first=1, last=10) #strftime(Logbooks$TRIP_START_DATE, format="%Y-%m-%d")
-Logbooks$TRIP_END_TIME <- as.character(sprintf("%04d",Logbooks$TRIP_END_TIME))
+# reformat trip start/end date/time
+# 1)
+# Was:
+# Logbooks$TRIP_START_DATE |>
+#   head(1)
+# "2022-07-07 01:00:00 EDT"
 
-#filter out just 2022 logbook entries
-Logbooks = Logbooks %>% filter(TRIP_START_DATE >= "2022-01-01" & TRIP_START_DATE <= "2022-12-31")
+Logbooks$TRIP_START_DATE <-
+  as.Date(Logbooks$TRIP_START_DATE)
+
+# Now:
+# Logbooks$TRIP_START_DATE |>
+#   head(1)
+# "2022-07-07"
+
+# 2)
+# Was:
+# Logbooks$TRIP_START_TIME |>
+  # head(1)
+# "0800"
+
+Logbooks$TRIP_START_TIME <-
+  as.character(sprintf("%04d", as.numeric(Logbooks$TRIP_START_TIME)))
+
+# Now:
+# Logbooks$TRIP_START_TIME |>
+#   head(1)
+# "0800"
+
+# 3)
+Logbooks$TRIP_END_DATE <-
+  as.Date(Logbooks$TRIP_END_DATE)
+
+# 4)
+Logbooks$TRIP_END_TIME <-
+  as.character(sprintf("%04d", Logbooks$TRIP_END_TIME))
+
+# filter out just 2022 logbook entries
+Logbooks <-
+  Logbooks %>% filter(TRIP_START_DATE >= "2022-01-01" &
+                        TRIP_START_DATE <= "2022-12-31")
 
 #check logbook records for cases where start date/time is after end date/time, delete these records
 #create column for start date & time
@@ -345,6 +421,10 @@ SEFHIER_logbooksAHU_usable = SEFHIER_logbooksAHU_usable[,c(1:150)] #gets rid of 
 #export usable logbooks
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
-write_rds(SEFHIER_logbooksAHU_usable, file = paste(Path, Outputs, "SEFHIER_usable_logbooks_2022.rds", sep =""))
+write_rds(
+  SEFHIER_logbooksAHU_usable,
+  file = paste(Path, Outputs, "SEFHIER_usable_logbooks_2022.rds", sep =
+                 "")
+)
 
 
