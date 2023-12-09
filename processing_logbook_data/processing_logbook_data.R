@@ -443,13 +443,23 @@ SEFHIER_logbooksAHU |>
 # 2    2022-01-02          2021        52
 # 3    2022-01-03          2022         1
 
-OverrideData |>
-  select(COMP_YEAR,
-         COMP_WEEK_END_DT,
-         COMP_WEEK) |>
-  distinct() |>
-  arrange(COMP_WEEK_END_DT) |>
-  head(3)
+SEFHIER_logbooksAHU <-
+  SEFHIER_logbooksAHU %>%
+  filter(TRIP_END_YEAR == 2022)
+
+# stat, not needed for processing
+# nrow(SEFHIER_logbooksAHU)
+# 318706
+
+# to see the respective data in OverrideData
+# not needed for processing
+# OverrideData |>
+#   select(COMP_YEAR,
+#          COMP_WEEK_END_DT,
+#          COMP_WEEK) |>
+#   distinct() |>
+#   arrange(COMP_WEEK_END_DT) |>
+#   head(3)
 #   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
 # 1      2022       2022-01-09         1
 # 2      2022       2022-01-16         2
@@ -474,10 +484,17 @@ filter(IS_COMP_OVERRIDE == 1)  |>
   # head()
 
 
+SEFHIER_logbooksAHU <-
+  left_join(SEFHIER_logbooksAHU,
+            OverrideData,
+            join_by("COMP_YEAR",
+                    )
+            by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK")) #add override data to df
 
-SEFHIER_logbooksAHU <- left_join(SEFHIER_logbooksAHU, OverrideData, by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK")) #add override data to df
 SEFHIER_logbooksAHU_overridden <- filter(SEFHIER_logbooksAHU, OVERRIDDEN == 1) #data frame of logbooks that were overridden
+
 SEFHIER_logbooksAHU_notoverridden <- filter(SEFHIER_logbooksAHU, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
+
 SEFHIER_logbooksAHU_NA <- filter(SEFHIER_logbooksAHU, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
