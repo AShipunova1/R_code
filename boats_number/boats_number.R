@@ -1277,15 +1277,22 @@ combs2_short_cnts <-
 
 
 #### Show vessel num with different trip and home port info per permit_region using each set of names ----
-# |> results="hide"
 # use pander for .qmd
 pander(combs2_short_cnts)
+
+#### Show Number of vessels with different end trip port and home port per permit region
+combs2_short_cnts$V6 |>
+  dplyr::rename("is home_port diff from end_port?" =
+                  "diff_end_port_name_or_city")
+  # knitr::kable(col.names =
+  #                gsub("[_]", " ", names(combs2_short_cnts$V6)))
+
 
 #' %%%%% Results
 #'
 #' Analyzing movement patterns of vessels:
 #'
-#' 1. How many SEFHIER vessels start at a different location than they end
+#' 1. How many SEFHIER vessels start at a different location than they home ports
 #'
 #' 2. How many vessels have variable landing locations
 #'
@@ -1293,15 +1300,10 @@ pander(combs2_short_cnts)
 #'
 #' 3. Quantify the # of vessels who fish in both the gulf and S Atl.
 #'
-#' 4. Look at permit home port vs where they take trip
-#'
 
-#' ## How many SEFHIER vessels start at a different location than they end
+#' ## How many SEFHIER vessels start at a different location than they home port
 #'
-#
-# !start_port_name == end_port_name
-#
-#+ How many SEFHIER vessels start at a different location than they end
+#+ Show Number of vessels with different end trip port and home port per permit region
 
 #'
 #' ## How many vessels have variable landing locations
@@ -1335,13 +1337,3 @@ pander(combs2_short_cnts)
 #'
 #+ Count multiple starts by permit_region
 
-#' ## Look at permit home port vs where they take trip
-#' Each column name starting with "diff_" represents the difference between trip ports and home port names or their respective counties and states.
-#'
-
-#+ Show vessel num with different trip and home port info, using each pair of names
-
-#' ### The same (home port vs. trip ports) by a vessel permit region
-#'
-
-#+ Show vessel num with different trip and home port info per permit_region using each set of names
