@@ -247,6 +247,10 @@ Logbooks <-
 # dim(Logbooks)
 # 484413    149
 
+# Save column number for fututre use
+logbooks_col_num <- ncol(Logbooks)
+# 149
+
 #rename column
 # Was:
 # colnames(Logbooks)[6]
@@ -289,7 +293,7 @@ Logbooks$TRIP_END_DATE <-
 
 # 4)
 Logbooks$TRIP_END_TIME <-
-  as.character(sprintf("%04d", Logbooks$TRIP_END_TIME))
+  as.character(sprintf("%04d", as.numeric(Logbooks$TRIP_END_TIME)))
 
 # filter out just 2022 logbook entries
 Logbooks <-
@@ -316,7 +320,7 @@ Logbooks$ENDDATETIME <- as.POSIXct(paste(Logbooks$TRIP_END_DATE,
 Logbooks['TimeStampError'] <-
   ifelse(Logbooks$STARTDATETIME >= Logbooks$ENDDATETIME, "true", "false")
 
-#how many logbooks were thrown out because of a time stamp error?
+# how many logbooks were thrown out because of a time stamp error?
 # Logbooks_TimeStampError <-
 #   Logbooks %>% filter(TimeStampError == "true") #useful stat, not needed for processing
 
@@ -328,7 +332,7 @@ Logbooks['TimeStampError'] <-
 Logbooks <-
   Logbooks %>% filter(TimeStampError == "false")
 
-#useful stat, not needed for processing
+# useful stat, not needed for processing
 # nrow(Logbooks)
 # 94835
 
@@ -339,7 +343,7 @@ Logbooks['TripLength'] <-
                       Logbooks$STARTDATETIME,
                       units = "hours"))
 
-#output trips with length > 240 into data frame
+# output trips with length > 240 into data frame
 # LogbooksTooLong = Logbooks %>% filter(TripLength > 240) #useful stat, not needed for processing
 # NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
 # 74
@@ -348,42 +352,58 @@ Logbooks['TripLength'] <-
 Logbooks <-
   Logbooks %>% filter(TripLength <= 240)
 
-#get rid of new columns, don't need them anymore
+#get rid of new columns, don't need them anymore. Use the number of column in original dataset (= 149)
 Logbooks <-
-  Logbooks[,c(1:149)]
+  Logbooks[, c(1:logbooks_col_num)]
 
-#only keep A, H and U logbooks for GOM permitted vessels (U means Unknown Trip Type, a VMS issue)
-#use the GOMPermitInfo to remove logbook records that are for SA permitted vessels
-#we only want GOM permitted vessels for this analysis
+# only keep A, H and U logbooks (U means Unknown Trip Type, a VMS issue)
 SEFHIER_logbooks <-
   left_join(SEFHIER_PermitInfo,
             Logbooks,
             by = c("VESSEL_OFFICIAL_NUMBER")) #joins permit info and trip info together
 
 SEFHIER_logbooksAHU <-
-  subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) #subsets the data to charter and headboat logbook entries only
+  subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) # subsets the data to charter and headboat logbook entries only
 
-#subsets the data to GOM permitted vessels with no logbook entries, useful stat, not needed for processing
-# VesselsNoLogbooks <- subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
+#subsets the data with no logbook entries, useful stat, not needed for processing
+VesselsNoLogbooks <-
+  subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
+
+# the same as
+# VesselsNoLogbooks <-
+#   subset(SEFHIER_logbooks, is.na(SEFHIER_logbooks$TRIP_TYPE))
+
 # nrow(VesselsNoLogbooks)
-# 2206
+# 1636
 
 #### (3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ####
 
-#### import and prep the compliance data ####
+#### prep the compliance data ####
 
 # Use compliance data uploaded before
 OverrideData <- compliance_data
 
+# stat, not needed for processing
+# dim(OverrideData)
+# 458071     19
 
 #filter out year 2022
 OverrideData <- OverrideData %>% filter(COMP_YEAR == 2022)
+
 #only keep the columns you need
-OverrideData <- OverrideData[,c(4,8,13)]
+# OverrideData <- OverrideData[,c(4,8,13)]
+
 #change column name
-colnames(OverrideData)[1] <- ("VESSEL_OFFICIAL_NUMBER")
-colnames(OverrideData)[3] <- ("OVERRIDDEN")
-#change data type this column
+OverrideData_1 <-
+OverrideData |>
+  dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
+                OVERRIDDEN = "IS_COMP_OVERRIDE")
+
+# I changed it to the `rename()` syntax above so we know what columns are renamed (AS)
+# colnames(OverrideData)[1] <- ("VESSEL_OFFICIAL_NUMBER")
+# colnames(OverrideData)[3] <- ("OVERRIDDEN")
+
+#change data type this column if needed
 #OverrideData$VESSEL_OFFICIAL_NUMBER <- as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
 
 #### determine what weeks were overridden, and exclude those logbooks ####
@@ -392,9 +412,52 @@ colnames(OverrideData)[3] <- ("OVERRIDDEN")
 #use the end date to calculate this, it won't matter for most trips, but for some trips that
 #happen overnight on a Sunday, it might affect what week they are assigned to
 #https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
-SEFHIER_logbooksAHU$TRIP_END_DATE2 <- as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
-SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU %>%
+
+# not necessary now, already done (AS)
+SEFHIER_logbooksAHU$TRIP_END_DATE2 <-
+  as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
+
+# Calculate the ISO week number for each date in the 'TRIP_END_DATE2' column.
+# lubridate package has following methods:
+# week() returns the number of complete seven day periods that have occurred between the date and January 1st, plus one.
+#
+# isoweek() returns the week as it would appear in the ISO 8601 system, which uses a reoccurring leap week.
+#
+# epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
+#
+# The `lubridate::ymd` function is used to parse the dates from the 'TRIP_END_DATE2' column with year, month, and day components
+.
+SEFHIER_logbooksAHU <-
+  SEFHIER_logbooksAHU %>%
   mutate(COMP_WEEK = isoweek(ymd(SEFHIER_logbooksAHU$TRIP_END_DATE2))) #puts it in week #
+
+# To see the result, note week 52 of 2021 (AS):
+SEFHIER_logbooksAHU |>
+  select(TRIP_START_DATE, TRIP_END_DATE, TRIP_END_DATE2, COMP_WEEK) |>
+  distinct() |>
+  arrange(TRIP_START_DATE) |>
+  head(3)
+#    TRIP_START_DATE TRIP_END_DATE TRIP_END_DATE2 COMP_WEEK
+# 1       2022-01-01    2022-01-01     2022-01-01        52
+# 2       2022-01-02    2022-01-02     2022-01-02        52
+# 3       2022-01-03    2022-01-03     2022-01-03         1
+
+OverrideData |>
+  mutate(COMP_WEEK_iso = isoweek(COMP_WEEK_END_DT)) |>
+  head()
+
+# summary(OverrideData)
+
+OverrideData |>
+  select(COMP_YEAR,
+         COMP_WEEK,
+         COMP_WEEK_START_DT,
+         COMP_WEEK_END_DT) |>
+  distinct() |>
+  arrange(COMP_WEEK_START_DT) |>
+  head()
+
+
 
 #if a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
 SEFHIER_logbooksAHU <- left_join(SEFHIER_logbooksAHU, OverrideData, by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK")) #add override data to df
