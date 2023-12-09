@@ -466,38 +466,54 @@ SEFHIER_logbooksAHU <-
 # 3      2022       2022-01-23         3
 
 # if a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
-override_names <-
-  grep("OVER", names(OverrideData), value = TRUE)
-# [1] "IS_COMP_OVERRIDE"      "COMP_OVERRIDE_DT"      "COMP_OVERRIDE_USER_ID"
-# [4] "COMP_OVERRIDE_CMT"
 
-OverrideData |>
-filter(IS_COMP_OVERRIDE == 1)  |>
-  View()
-
-  #   select(COMP_YEAR,
-  #        COMP_WEEK_END_DT,
-  #        COMP_WEEK,
-  #        all_of(override_names)) |>
-  # distinct() |>
-  # arrange(COMP_WEEK_END_DT) |>
-  # head()
-
-
-SEFHIER_logbooksAHU <-
+# add override data to df
+SEFHIER_logbooksAHU_overr <-
   left_join(SEFHIER_logbooksAHU,
             OverrideData,
-            join_by("COMP_YEAR",
-                    )
-            by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK")) #add override data to df
+            join_by(TRIP_END_YEAR == COMP_YEAR,
+                    VESSEL_OFFICIAL_NUMBER == VESSEL_OFFICIAL_NBR,
+                    COMP_WEEK),
+            relationship = "many-to-many"
+            )
+# Was:
+# by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK"))
+# added a year (AS)
 
-SEFHIER_logbooksAHU_overridden <- filter(SEFHIER_logbooksAHU, OVERRIDDEN == 1) #data frame of logbooks that were overridden
+# stat, not needed for processing
+# dim(SEFHIER_logbooksAHU_overr)
+# 318751    170
 
-SEFHIER_logbooksAHU_notoverridden <- filter(SEFHIER_logbooksAHU, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
+SEFHIER_logbooksAHU_overridden <-
+  filter(SEFHIER_logbooksAHU_overr, IS_COMP_OVERRIDE == 1) #data frame of logbooks that were overridden
 
-SEFHIER_logbooksAHU_NA <- filter(SEFHIER_logbooksAHU, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
+# stat, not needed for processing
+# dim(SEFHIER_logbooksAHU_overridden)
+# 9435  170
+
+# To see if we need to remove overridden trips (AS)
+# SEFHIER_logbooksAHU1 |>
+#   filter(IS_COMP_OVERRIDE == 1)  |>
+#   select(all_of(contains("TRIP")),
+#          all_of(contains("over"))) |>
+#   View()
+
+SEFHIER_logbooksAHU_notoverridden <-
+  filter(SEFHIER_logbooksAHU_overr, IS_COMP_OVERRIDE == 0) #data frame of logbooks that weren't overridden
+
+# stat, not needed for processing
+# dim(SEFHIER_logbooksAHU_notoverridden)
+# 308745    170
+
+SEFHIER_logbooksAHU_NA <-
+  filter(SEFHIER_logbooksAHU_overr, is.na(IS_COMP_OVERRIDE)) #logbooks with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
+
+# stat, not needed for processing
+# dim(SEFHIER_logbooksAHU_NA)
+# 571 170
+
 
 #GOM vessels missing from the Compliance report
 #GOMVesselsMissing <- anti_join(GOMPermitInfo[,1], OverrideData, by='VESSEL_OFFICIAL_NUMBER')
@@ -510,7 +526,9 @@ SEFHIER_logbooksAHU_NA <- filter(SEFHIER_logbooksAHU, is.na(OVERRIDDEN)) #logboo
 
 #only keep the logbooks from non overridden weeks
 SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU_notoverridden
-#NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooksAHU) #useful stat, not needed for processing
+# NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooksAHU) #useful stat, not needed for processing
+# 308745
+
 #We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
 #being we shouldn't include logbooks that weren't required in the first place. Alternatively,
 #deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
@@ -527,37 +545,60 @@ SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU_notoverridden
 #use trip end date to calculate the usable date 30 days later
 SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU %>%
   mutate(USABLE_DATE = format(as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') + 30, format = "%Y-%m-%d"))
+
 #append a time to the due date since the submission data has a date and time
 add_time <- "23:59:59" # 24 hr clock
-SEFHIER_logbooksAHU$USABLE_DATE <- as.POSIXct(paste(as.Date(SEFHIER_logbooksAHU$USABLE_DATE, '%Y-%m-%d'),
-                                                            add_time),
-                                                            format = "%Y-%m-%d %H:%M:%S")
+SEFHIER_logbooksAHU$USABLE_DATE <-
+  as.POSIXct(paste(
+    as.Date(SEFHIER_logbooksAHU$USABLE_DATE, '%Y-%m-%d'),
+    add_time
+  ),
+  format = "%Y-%m-%d %H:%M:%S")
 
 #format the submission date (TRIP_DE)
-SEFHIER_logbooksAHU$TRIP_DE <- as.POSIXct(SEFHIER_logbooksAHU$TRIP_DE, format = "%Y-%m-%d %H:%M:%S")
+SEFHIER_logbooksAHU$TRIP_DE <-
+  as.POSIXct(SEFHIER_logbooksAHU$TRIP_DE, format = "%Y-%m-%d %H:%M:%S")
 
 #subtract the usable date from the date of submission
 #value is true if the logbook was submitted within 30 days, false if the logbook was not
-SEFHIER_logbooksAHU['USABLE'] = ifelse(SEFHIER_logbooksAHU$USABLE_DATE >= SEFHIER_logbooksAHU$TRIP_DE, "true", "false")
+SEFHIER_logbooksAHU['USABLE'] <-
+  ifelse(SEFHIER_logbooksAHU$USABLE_DATE >= SEFHIER_logbooksAHU$TRIP_DE, "true", "false")
 
 #data frame of logbooks that were usable
-SEFHIER_logbooksAHU_usable = SEFHIER_logbooksAHU %>% filter(USABLE == "true")
-SEFHIER_logbooksAHU_usable = SEFHIER_logbooksAHU_usable[,c(1:150)] #gets rid of columns used for processing
-#NumSEFHIER_logbooksAHU_usable = nrow(SEFHIER_logbooksAHU_usable) #useful stat, not needed for processing
-#NumVessels_usablelogbooks = nrow(unique(SEFHIER_logbooksAHU_usable[,1])) #useful stat, not needed for processing
+SEFHIER_logbooksAHU_usable <-
+  SEFHIER_logbooksAHU %>% filter(USABLE == "true")
+
+# SEFHIER_logbooksAHU_usable <- SEFHIER_logbooksAHU_usable[,c(1:150)] #gets rid of columns used for processing
+# I commented it out to keep compliance and override information in (AS)
+
+# NumSEFHIER_logbooksAHU_usable = nrow(SEFHIER_logbooksAHU_usable) #useful stat, not needed for processing
+# 269713
+
+# NumVessels_usablelogbooks = length(unique(SEFHIER_logbooksAHU_usable[,1])) #useful stat, not needed for processing
+# 1617
 
 #data frame of logbooks that were not usable, useful stats, not needed for processing
-#SEHFIER_logbooksAHU_unusable = SEFHIER_logbooksAHU %>% filter(USABLE == "false")
-#NumSEFHIER_logbooksAHU_unusable = nrow(SEFHIER_logbooksAHU_unusable)#how many logbooks were unusable?
-#NumVessels_unusablelogbooks = nrow(unique(SEFHIER_logbooksAHU_unusable[,1]))#how many vessels had an unusable logbook?
+# SEFHIER_logbooksAHU_unusable <- SEFHIER_logbooksAHU %>% filter(USABLE == "false")
+# NumSEFHIER_logbooksAHU_unusable <- nrow(SEFHIER_logbooksAHU_unusable) # how many logbooks were unusable?
+# 39032
+
+# NumVessels_unusablelogbooks <- length(unique(SEFHIER_logbooksAHU_unusable[,1])) #how many vessels had an unusable logbook?
+# 1053
 
 #export usable logbooks
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
+
+
+# annas_file_path <-
+#   file.path(Path, "Outputs", "SEFHIER_usable_logbooks_2022.rds")
+
+jennys_file_path <-
+  paste(Path, Outputs, "SEFHIER_usable_logbooks_2022.rds",
+        sep = "")
+
 write_rds(
   SEFHIER_logbooksAHU_usable,
-  file = paste(Path, Outputs, "SEFHIER_usable_logbooks_2022.rds", sep =
-                 "")
+  file = jennys_file_path
 )
-
 
