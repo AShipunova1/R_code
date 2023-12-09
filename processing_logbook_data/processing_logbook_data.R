@@ -102,7 +102,7 @@ read_rds_or_run <- function(my_file_path,
 #                    WHERE trip_start_date >= '01-JAN-2022'")
 #
 # # #for a specified time interval:
-# # dat2 = dbGetQuery(con, "SELECT * FROM srh.mv_safis_trip_download@secapxdv_dblk
+# # compliance_data = dbGetQuery(con, "SELECT * FROM srh.mv_safis_trip_download@secapxdv_dblk
 # #                    WHERE trip_start_date >= '01-JAN-2022'
 # #                    and
 # #                    trip_start_date < '01-JAN-2023'")
@@ -137,6 +137,9 @@ FROM
 WHERE
   comp_year >= '2020'"
 
+# override_data_file_path is the same as compl_err_query_file
+#   "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
+
 # Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 compl_err_query_file <-
   file.path(Path, Inputs, "Compliance_raw_data_Year.rds")
@@ -146,15 +149,15 @@ compl_err_query_file <-
 
 compl_err_fun <-
   function(compl_err_query) {
-    dat2 <- dbGetQuery(con, compl_err_query)
-    return(dat2)
+    compliance_data <- dbGetQuery(con, compl_err_query)
+    return(compliance_data)
   }
 
 # create data frame using query to call the table above
 # use the pre-defined method to check if there is a file saved already,
 # read it or run the query and write the file fr future use
 
-dat2 <-
+compliance_data <-
   read_rds_or_run(compl_err_query_file,
                   compl_err_query,
                   compl_err_fun
@@ -369,15 +372,10 @@ SEFHIER_logbooksAHU <-
 
 #### import and prep the compliance data ####
 
-# import compliance data
-override_data_file_path <-
-  "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
-
-override_data_file_path <-
-  "compl_err_db_data_raw.rds"
+# Use compliance data uploaded before
+OverrideData <- compliance_data
 
 
-OverrideData <- readr::read_rds("//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds")
 #filter out year 2022
 OverrideData <- OverrideData %>% filter(COMP_YEAR == 2022)
 #only keep the columns you need
