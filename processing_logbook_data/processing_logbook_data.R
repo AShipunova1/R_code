@@ -429,31 +429,52 @@ SEFHIER_logbooksAHU$TRIP_END_DATE2 <-
 .
 SEFHIER_logbooksAHU <-
   SEFHIER_logbooksAHU %>%
-  mutate(COMP_WEEK = isoweek(TRIP_END_DATE)) #puts it in week num
+  mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
+         TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
 # To see the result, note week 52 of 2021 (AS):
 SEFHIER_logbooksAHU |>
-  select(TRIP_START_DATE, TRIP_END_DATE, TRIP_END_DATE2, COMP_WEEK) |>
+  select(TRIP_END_DATE, TRIP_END_YEAR, COMP_WEEK) |>
   distinct() |>
-  arrange(TRIP_START_DATE) |>
+  arrange(TRIP_END_DATE) |>
   head(3)
-#    TRIP_START_DATE TRIP_END_DATE TRIP_END_DATE2 COMP_WEEK
-# 1       2022-01-01    2022-01-01     2022-01-01        52
-# 2       2022-01-02    2022-01-02     2022-01-02        52
-# 3       2022-01-03    2022-01-03     2022-01-03         1
+#   TRIP_END_DATE TRIP_END_YEAR COMP_WEEK
+# 1    2022-01-01          2021        52
+# 2    2022-01-02          2021        52
+# 3    2022-01-03          2022         1
 
 OverrideData |>
-  mutate(COMP_WEEK_iso = isoweek(COMP_WEEK_END_DT)) |>
   select(COMP_YEAR,
-         COMP_WEEK,
-         COMP_WEEK_START_DT,
          COMP_WEEK_END_DT,
-         COMP_WEEK_iso) |>
+         COMP_WEEK) |>
   distinct() |>
-  arrange(COMP_WEEK_START_DT) |>
+  arrange(COMP_WEEK_END_DT) |>
   head(3)
+#   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
+# 1      2022       2022-01-09         1
+# 2      2022       2022-01-16         2
+# 3      2022       2022-01-23         3
 
-#if a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
+# if a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
+override_names <-
+  grep("OVER", names(OverrideData), value = TRUE)
+# [1] "IS_COMP_OVERRIDE"      "COMP_OVERRIDE_DT"      "COMP_OVERRIDE_USER_ID"
+# [4] "COMP_OVERRIDE_CMT"
+
+OverrideData |>
+filter(IS_COMP_OVERRIDE == 1)  |>
+  View()
+
+  #   select(COMP_YEAR,
+  #        COMP_WEEK_END_DT,
+  #        COMP_WEEK,
+  #        all_of(override_names)) |>
+  # distinct() |>
+  # arrange(COMP_WEEK_END_DT) |>
+  # head()
+
+
+
 SEFHIER_logbooksAHU <- left_join(SEFHIER_logbooksAHU, OverrideData, by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK")) #add override data to df
 SEFHIER_logbooksAHU_overridden <- filter(SEFHIER_logbooksAHU, OVERRIDDEN == 1) #data frame of logbooks that were overridden
 SEFHIER_logbooksAHU_notoverridden <- filter(SEFHIER_logbooksAHU, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
