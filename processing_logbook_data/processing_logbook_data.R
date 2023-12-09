@@ -1,0 +1,350 @@
+# processing_logbook_data
+
+#This code processes logbook data from Oracle, then cleans it up, so that we can use it in any logbook data analysis:
+  #(1) pull all logbook and compliance data from Oracle
+  #(2) clean up logbook data set, using Metrics Tracking and SRHS list
+       #(a) remove records from SRHS vessels
+       #(b) remove records from vessels without a GOM SEFHIER permit
+       #(c) remove records where start date/time is after end date/time
+       #(d) remove records for trips lasting more than 10 days
+       #(e) only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
+  #(3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
+
+#general set up:
+
+#load required packages
+library(tidyr) #analysis of dataframes
+library(readxl) #to read in XL files and by sheet
+library(ROracle)
+library(readr)
+library(dplyr)
+library(xlsx)
+library(lubridate)
+library(tidyverse)
+
+#set working and output directory - where do you keep the data and analysis folder on your computer?
+# example: Path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
+# Path <-
+#   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
+Path <-
+  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
+Inputs <- "Inputs/"
+Outputs <- "Outputs/"
+
+#set the date ranges for the logbook and compliance data you are pulling
+
+#To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
+
+# Caveats:
+# 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
+# internal called the ISO number and how the function calculates the start of a week. If you are running this on a
+# new data set, check your weeks to make sure it's calculating correctly after running that line of code.
+
+# Auxiliary methods ----
+# 1)
+# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
+# See usage below at the `Grab compliance file from Oracle` section
+read_rds_or_run <- function(my_file_path,
+                            my_data = as.data.frame(""),
+                            my_function,
+                            force_from_db = NULL) {
+
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
+        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+        my_result <- readr::read_rds(my_file_path)
+    } else {
+        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
+        # 1. Generate a message indicating the date and the purpose of the run.
+        msg_text <- paste(today(), "run for", basename(my_file_path))
+        tic(msg_text)  # Start timing the operation.
+
+        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
+        my_result <- my_function(my_data)
+
+        toc()  # Stop timing the operation.
+
+        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+        # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+        try(
+        readr::write_rds(my_result,
+                         my_file_path)
+        )
+    }
+
+    # Return the generated or read data.
+    return(my_result)
+}
+
+
+#------------------------------------------------------------------------------#
+
+#### (1) pull all logbook and compliance data from Oracle ####
+
+#Grab logbooks from Oracle (comment out and just read in file in output folder if you don't have Roracle)--------------------------------------------------------------------------
+#Connect to Oracle ------------------------------------------------------------------
+# must be on VPN!!!
+#to get this to work, you first need to add in Oracle username and PW into the Windows credential manager
+# for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
+
+#
+# #set up where to call the data from
+# con = dbConnect(dbDriver("Oracle"), username = keyring::key_list("SECPR")[1,2],
+#                 password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1,2]),
+#                 dbname = "SECPR")
+#
+#
+# #create DF, by calling from the table in Oracle - here you can specify what chunk of that data you want using "where"
+# dat = dbGetQuery(con, "SELECT * FROM srh.mv_safis_trip_download@secapxdv_dblk
+#                    WHERE trip_start_date >= '01-JAN-2022'")
+#
+# # #for a specified time interval:
+# # dat2 = dbGetQuery(con, "SELECT * FROM srh.mv_safis_trip_download@secapxdv_dblk
+# #                    WHERE trip_start_date >= '01-JAN-2022'
+# #                    and
+# #                    trip_start_date < '01-JAN-2023'")
+#
+# View(dat)
+#
+#
+# #save output
+# write.csv(dat, file = paste(Path, Outputs, "SAFIS_TripsDownload_1.1.22-12.01.23.csv",
+#               sep =""), row.names = FALSE) #use row.names = false to avoid a col of #s
+
+
+
+# Grab compliance file from Oracle (or Comment this out if you don't have Roracle)------------------------------------------------------
+#Connect to Oracle ------------------------------------------------------------------
+# must be on VPN!!!
+#to get this to work, you first need to add in Oracle username and PW into the Windows credential manager
+# for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
+
+#
+#set up where to call the data from
+ con = dbConnect(dbDriver("Oracle"), username = keyring::key_list("SECPR")[1,2],
+                 password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1,2]),
+                 dbname = "SECPR")
+
+#create variable with table to call data from, define year
+compl_err_query <-
+  "SELECT
+  *
+FROM
+  srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  comp_year >= '2020'"
+
+# Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
+compl_err_query_file <-
+  file.path(Path, Inputs, "Compliance_raw_data_Year.rds")
+
+# Check if the file path is correct, optional
+# file.exists(compl_err_query_file)
+
+compl_err_fun <-
+  function(compl_err_query) {
+    dat2 <- dbGetQuery(con, compl_err_query)
+    return(dat2)
+  }
+
+# create data frame using query to call the table above
+# use the pre-defined method to check if there is a file saved already,
+# read it or run the query and write the file fr future use
+
+dat2 <-
+  read_rds_or_run(compl_err_query_file,
+                  compl_err_query,
+                  compl_err_fun
+                  )
+
+#### (2) clean up logbook data set, using Metrics Tracking and SRHS list ####
+
+
+#### import and prep the permit data ####
+#use Metrics Tracking report
+#remove SRHS vessels from the list
+#remove SA vessels from the list
+
+#import the permit data
+SEFHIER_MetricsTracking <- read.csv(
+  paste(
+    Path,
+    Inputs,
+    "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_2022.csv",
+    sep = ""
+  )
+) #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+#rename column headers
+SEFHIER_MetricsTracking <-
+  SEFHIER_MetricsTracking %>% rename(PERMIT_REGION = `Permit.Grouping.Region`, VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
+
+#import the list of SRHS vessels
+#this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
+SRHSvessels <-
+  read_csv(paste(Path, Inputs, "2022SRHSvessels.csv", sep = ""))
+#reformat and rename column
+colnames(SRHSvessels)[5] <- ("VESSEL_OFFICIAL_NUMBER")
+SRHSvessels$VESSEL_OFFICIAL_NUMBER <-
+  as.character(SRHSvessels$VESSEL_OFFICIAL_NUMBER)
+
+#remove SRHSvessels from SEFHIER_MetricsTracking list
+SEFHIER_PermitInfo <-
+  anti_join(SEFHIER_MetricsTracking, SRHSvessels, by = 'VESSEL_OFFICIAL_NUMBER')
+
+#remove the columns you don't need
+SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
+#NumSEHFIERPermits <- nrow(SEFHIER_PermitInfo) useful stat, not needed for processing
+nrow(SEFHIER_PermitInfo)
+
+#### import and prep the logbook data ####
+#delete logbook records where start date/time is after end date/time
+#delete logbooks for trips lasting more than 10 days
+#only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
+
+#import the logbook data
+Logbooks <- read.csv(paste(Path,Inputs,"SAFIS_TripsDownload_1.1.22-12.01.23.csv",sep=""))
+#here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+#rename column
+colnames(Logbooks)[6] <- ("VESSEL_OFFICIAL_NUMBER")
+
+#reformat trip start/end date/time
+Logbooks$TRIP_START_DATE <- substring(Logbooks$TRIP_START_DATE, first=1, last=10) #strftime(Logbooks$TRIP_START_DATE, format="%Y-%m-%d")
+Logbooks$TRIP_START_TIME <- as.character(sprintf("%04d",Logbooks$TRIP_START_TIME))
+Logbooks$TRIP_END_DATE <- substring(Logbooks$TRIP_END_DATE, first=1, last=10) #strftime(Logbooks$TRIP_START_DATE, format="%Y-%m-%d")
+Logbooks$TRIP_END_TIME <- as.character(sprintf("%04d",Logbooks$TRIP_END_TIME))
+
+#filter out just 2022 logbook entries
+Logbooks = Logbooks %>% filter(TRIP_START_DATE >= "2022-01-01" & TRIP_START_DATE <= "2022-12-31")
+
+#check logbook records for cases where start date/time is after end date/time, delete these records
+#create column for start date & time
+Logbooks$STARTDATETIME <- as.POSIXct(paste(Logbooks$TRIP_START_DATE,
+                                           Logbooks$TRIP_START_TIME),
+                                           format = "%Y-%m-%d %H%M")
+#create column for end date & time
+Logbooks$ENDDATETIME <- as.POSIXct(paste(Logbooks$TRIP_END_DATE,
+                                         Logbooks$TRIP_END_TIME),
+                                         format = "%Y-%m-%d %H%M")
+#the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
+Logbooks['TimeStampError'] = ifelse(Logbooks$STARTDATETIME >= Logbooks$ENDDATETIME, "true", "false")
+#how many logbooks were thrown out because of a time stamp error?
+#Logbooks_TimeStampError = Logbooks %>% filter(TimeStampError == "true") #useful stat, not needed for processing
+#NumLogbooks_TimeStampError = nrow(Logbooks_TimeStampError) #useful stat, not needed for processing
+#only keep the rows where there is no error between start & end date & time
+Logbooks = Logbooks %>% filter(TimeStampError == "false")
+
+#For trips lasting more than 10 days, delete the records. The assumption is there is an
+#error in either start or end date and time and the trip didn't really last that long.
+Logbooks['TripLength'] = as.numeric(difftime(Logbooks$ENDDATETIME,Logbooks$STARTDATETIME, units = "hours"))
+#output trips with length > 240 into data frame
+#LogbooksTooLong = Logbooks %>% filter(TripLength > 240) #useful stat, not needed for processing
+#NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
+#only keep trips with a length less than or equal to 10 days(240 hours)
+Logbooks = Logbooks %>% filter(TripLength <= 240)
+
+#get rid of new columns, don't need them anymore
+Logbooks = Logbooks[,c(1:149)]
+
+#only keep A, H and U logbooks for GOM permitted vessels (U means Unknown Trip Type, a VMS issue)
+#use the GOMPermitInfo to remove logbook records that are for SA permitted vessels
+#we only want GOM permitted vessels for this analysis
+SEFHIER_logbooks <- left_join(SEFHIER_PermitInfo, Logbooks, by=c("VESSEL_OFFICIAL_NUMBER")) #joins permit info and trip info together
+SEFHIER_logbooksAHU <- subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) #subsets the data to charter and headboat logbook entries only
+#subsets the data to GOM permitted vessels with no logbook entries, useful stat, not needed for processing
+#VesselsNoLogbooks <- subset(GOMlogbooks, (GOMlogbooks$TRIP_TYPE %in% c(NA)))
+
+
+#### (3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ####
+
+
+#### import and prep the compliance data ####
+
+#import compliance data
+OverrideData <- readr::read_rds("//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds")
+#filter out year 2022
+OverrideData <- OverrideData %>% filter(COMP_YEAR == 2022)
+#only keep the columns you need
+OverrideData <- OverrideData[,c(4,8,13)]
+#change column name
+colnames(OverrideData)[1] <- ("VESSEL_OFFICIAL_NUMBER")
+colnames(OverrideData)[3] <- ("OVERRIDDEN")
+#change data type this column
+#OverrideData$VESSEL_OFFICIAL_NUMBER <- as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
+
+#### determine what weeks were overridden, and exclude those logbooks ####
+
+#assign each logbook a week designation (first day of the reporting week is a Monday)
+#use the end date to calculate this, it won't matter for most trips, but for some trips that
+#happen overnight on a Sunday, it might affect what week they are assigned to
+#https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
+SEFHIER_logbooksAHU$TRIP_END_DATE2 <- as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
+SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU %>%
+  mutate(COMP_WEEK = isoweek(ymd(SEFHIER_logbooksAHU$TRIP_END_DATE2))) #puts it in week #
+
+#if a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
+SEFHIER_logbooksAHU <- left_join(SEFHIER_logbooksAHU, OverrideData, by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK")) #add override data to df
+SEFHIER_logbooksAHU_overridden <- filter(SEFHIER_logbooksAHU, OVERRIDDEN == 1) #data frame of logbooks that were overridden
+SEFHIER_logbooksAHU_notoverridden <- filter(SEFHIER_logbooksAHU, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
+SEFHIER_logbooksAHU_NA <- filter(SEFHIER_logbooksAHU, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
+# 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
+# 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
+
+#GOM vessels missing from the Compliance report
+#GOMVesselsMissing <- anti_join(GOMPermitInfo[,1], OverrideData, by='VESSEL_OFFICIAL_NUMBER')
+#GOM AH logbooks from vessels missing from the Compliance report
+#GOMVesselsMissingAHUlogbooks <- inner_join(GOMVesselsMissing, GOMlogbooksAHU_NA, by='VESSEL_OFFICIAL_NUMBER')
+#add missing logbooks back to the not overridden data frame
+#GOMlogbooksAHU_notoverridden <- rbind(GOMlogbooksAHU_notoverridden, GOMVesselsMissingAHUlogbooks)
+#remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
+#GOMlogbooksAHU_NA <- anti_join(GOMlogbooksAHU_NA, GOMVesselsMissingAHUlogbooks)
+
+#only keep the logbooks from non overridden weeks
+SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU_notoverridden
+#NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooksAHU) #useful stat, not needed for processing
+#We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
+#being we shouldn't include logbooks that weren't required in the first place. Alternatively,
+#deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
+#during a period in which the permit was inactive, and the report was not required.
+#rbind(SEFHIER_logbooksAHU_notoverridden, SEFHIER_logbooksAHU_NA) this is the alternative
+
+#unique list of vessels that submitted logbooks, useful stat, not needed for processing
+#SEFHIER_logbooksAHU_vessels <- unique(rbind(SEFHIER_logbooksAHU[,1],SEFHIER_logbooksAHU_overridden[,1]))
+#NumSEFHIER_logbooksAHU_vessels <- nrow(SEFHIER_logbooksAHU_vessels)
+
+
+#### determine which logbooks were turned in within 30 days, making them usable for analyses ####
+
+#use trip end date to calculate the usable date 30 days later
+SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU %>%
+  mutate(USABLE_DATE = format(as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') + 30, format = "%Y-%m-%d"))
+#append a time to the due date since the submission data has a date and time
+add_time <- "23:59:59" # 24 hr clock
+SEFHIER_logbooksAHU$USABLE_DATE <- as.POSIXct(paste(as.Date(SEFHIER_logbooksAHU$USABLE_DATE, '%Y-%m-%d'),
+                                                            add_time),
+                                                            format = "%Y-%m-%d %H:%M:%S")
+
+#format the submission date (TRIP_DE)
+SEFHIER_logbooksAHU$TRIP_DE <- as.POSIXct(SEFHIER_logbooksAHU$TRIP_DE, format = "%Y-%m-%d %H:%M:%S")
+
+#subtract the usable date from the date of submission
+#value is true if the logbook was submitted within 30 days, false if the logbook was not
+SEFHIER_logbooksAHU['USABLE'] = ifelse(SEFHIER_logbooksAHU$USABLE_DATE >= SEFHIER_logbooksAHU$TRIP_DE, "true", "false")
+
+#data frame of logbooks that were usable
+SEFHIER_logbooksAHU_usable = SEFHIER_logbooksAHU %>% filter(USABLE == "true")
+SEFHIER_logbooksAHU_usable = SEFHIER_logbooksAHU_usable[,c(1:150)] #gets rid of columns used for processing
+#NumSEFHIER_logbooksAHU_usable = nrow(SEFHIER_logbooksAHU_usable) #useful stat, not needed for processing
+#NumVessels_usablelogbooks = nrow(unique(SEFHIER_logbooksAHU_usable[,1])) #useful stat, not needed for processing
+
+#data frame of logbooks that were not usable, useful stats, not needed for processing
+#SEHFIER_logbooksAHU_unusable = SEFHIER_logbooksAHU %>% filter(USABLE == "false")
+#NumSEFHIER_logbooksAHU_unusable = nrow(SEFHIER_logbooksAHU_unusable)#how many logbooks were unusable?
+#NumVessels_unusablelogbooks = nrow(unique(SEFHIER_logbooksAHU_unusable[,1]))#how many vessels had an unusable logbook?
+
+#export usable logbooks
+#write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
+#write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
+write_rds(SEFHIER_logbooksAHU_usable, file = paste(Path, Outputs, "SEFHIER_usable_logbooks_2022.rds", sep =""))
+
+
