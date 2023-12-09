@@ -26,10 +26,12 @@ library(tictoc) # Functions for timing
 
 #set working and output directory - where do you keep the data and analysis folder on your computer?
 # example: Path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
-# Path <-
-#   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
+
+# annasPath <-
+#   r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
+
 Path <-
-  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
+  "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
@@ -43,7 +45,8 @@ Outputs <- "Outputs/"
 # new data set, check your weeks to make sure it's calculating correctly after running that line of code.
 
 # Auxiliary methods ----
-# 1)
+# 1) A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
+
 # The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
 # See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run <- function(my_file_path,
@@ -426,7 +429,7 @@ SEFHIER_logbooksAHU$TRIP_END_DATE2 <-
 # epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
 #
 # The `lubridate::ymd` function is used to parse the dates from the 'TRIP_END_DATE2' column with year, month, and day components
-.
+
 SEFHIER_logbooksAHU <-
   SEFHIER_logbooksAHU %>%
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
@@ -514,7 +517,6 @@ SEFHIER_logbooksAHU_NA <-
 # dim(SEFHIER_logbooksAHU_NA)
 # 571 170
 
-
 #GOM vessels missing from the Compliance report
 #GOMVesselsMissing <- anti_join(GOMPermitInfo[,1], OverrideData, by='VESSEL_OFFICIAL_NUMBER')
 #GOM AH logbooks from vessels missing from the Compliance report
@@ -527,7 +529,8 @@ SEFHIER_logbooksAHU_NA <-
 #only keep the logbooks from non overridden weeks
 SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU_notoverridden
 # NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooksAHU) #useful stat, not needed for processing
-# 308745
+# dim(SEFHIER_logbooksAHU_notoverridden)
+# 308745 170
 
 #We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
 #being we shouldn't include logbooks that weren't required in the first place. Alternatively,
@@ -535,16 +538,22 @@ SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU_notoverridden
 #during a period in which the permit was inactive, and the report was not required.
 #rbind(SEFHIER_logbooksAHU_notoverridden, SEFHIER_logbooksAHU_NA) this is the alternative
 
-#unique list of vessels that submitted logbooks, useful stat, not needed for processing
-#SEFHIER_logbooksAHU_vessels <- unique(rbind(SEFHIER_logbooksAHU[,1],SEFHIER_logbooksAHU_overridden[,1]))
-#NumSEFHIER_logbooksAHU_vessels <- nrow(SEFHIER_logbooksAHU_vessels)
+# unique list of vessels that submitted logbooks, useful stat, not needed for processing (doesn't work, AS)
+# SEFHIER_logbooksAHU_vessels <-
+  # unique(rbind(SEFHIER_logbooksAHU[, 1], SEFHIER_logbooksAHU_overridden[, 1]))
+# NumSEFHIER_logbooksAHU_vessels <- nrow(SEFHIER_logbooksAHU_vessels)
 
 
 #### determine which logbooks were turned in within 30 days, making them usable for analyses ####
 
 #use trip end date to calculate the usable date 30 days later
-SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU %>%
-  mutate(USABLE_DATE = format(as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') + 30, format = "%Y-%m-%d"))
+SEFHIER_logbooksAHU <-
+  SEFHIER_logbooksAHU %>%
+  mutate(USABLE_DATE =
+           format(
+             as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') + 30,
+             format = "%Y-%m-%d"
+           ))
 
 #append a time to the due date since the submission data has a date and time
 add_time <- "23:59:59" # 24 hr clock
@@ -564,9 +573,17 @@ SEFHIER_logbooksAHU$TRIP_DE <-
 SEFHIER_logbooksAHU['USABLE'] <-
   ifelse(SEFHIER_logbooksAHU$USABLE_DATE >= SEFHIER_logbooksAHU$TRIP_DE, "true", "false")
 
+# stat, not needed for processing
+# dim(SEFHIER_logbooksAHU)
+# [1] 308745    171
+
 #data frame of logbooks that were usable
 SEFHIER_logbooksAHU_usable <-
   SEFHIER_logbooksAHU %>% filter(USABLE == "true")
+
+# stat, not needed for processing
+# dim(SEFHIER_logbooksAHU_usable)
+# [1] 269713    171
 
 # SEFHIER_logbooksAHU_usable <- SEFHIER_logbooksAHU_usable[,c(1:150)] #gets rid of columns used for processing
 # I commented it out to keep compliance and override information in (AS)
@@ -575,6 +592,7 @@ SEFHIER_logbooksAHU_usable <-
 # 269713
 
 # NumVessels_usablelogbooks = length(unique(SEFHIER_logbooksAHU_usable[,1])) #useful stat, not needed for processing
+# NumVessels_usablelogbooks
 # 1617
 
 #data frame of logbooks that were not usable, useful stats, not needed for processing
@@ -585,20 +603,77 @@ SEFHIER_logbooksAHU_usable <-
 # NumVessels_unusablelogbooks <- length(unique(SEFHIER_logbooksAHU_unusable[,1])) #how many vessels had an unusable logbook?
 # 1053
 
-#export usable logbooks
+# Separate GOM only, SA only or dual using PERMIT_GROUP ----
+# Data example:
+# SEFHIER_logbooksAHU_usable %>%
+#   select(PERMIT_GROUP) |>
+#   distinct() |>
+#   tail(3)
+# PERMIT_GROUP
+# (CDW)CDW, (CHG)1615, (CHS)CHS, (SC)SC
+# (CHG)1034, (RCG)982
+# (CHG)589, (RCG)567
+
+# Note, PERMIT_REGION column has only GOM or SA
+
+# Auxiliary: how to find the column name
+#
+# grep("permit",
+#      names(SEFHIER_logbooksAHU_usable),
+#      value = TRUE,
+#      ignore.case = TRUE)
+
+# Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
+
+# Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
+# Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
+# For all other cases, assign "dual"
+
+SEFHIER_logbooksAHU_usable_p_regions <-
+  SEFHIER_logbooksAHU_usable %>%
+  mutate(
+    permit_sa_gom =
+      dplyr::case_when(
+        !grepl("RCG|HRCG|CHG|HCHG", PERMIT_GROUP) ~
+          "sa_only",
+        !grepl("CDW|CHS|SC", PERMIT_GROUP) ~ "gom_only",
+        .default = "dual"
+      )
+  )
+
+# Explanation:
+#
+# 1. **Create New Dataframe:**
+#    - `SEFHIER_logbooksAHU_usable_regions <- SEFHIER_logbooksAHU_usable %>% ...`: Create a new dataframe 'SEFHIER_logbooksAHU_usable_regions' based on the 'SEFHIER_logbooksAHU_usable' dataframe.
+#
+# 2. **Use 'mutate' to Add Column:**
+#    - `mutate(permit_sa_gom = dplyr::case_when(...))`: Utilize the 'mutate' function to add a new column 'permit_sa_gom' with values determined by the conditions specified in the 'case_when' function.
+#
+# 3. **Conditions with 'case_when':**
+#    - `!grepl("RCG|HRCG|CHG|HCHG", PERMIT_GROUP) ~ "sa_only"`: If 'PERMIT_GROUP' does not contain the specified patterns, assign "sa_only".
+#    - `!grepl("CDW|CHS|SC", PERMIT_GROUP) ~ "gom_only"`: If 'PERMIT_GROUP' does not contain the specified patterns, assign "gom_only".
+#    - `.default = "dual"`: For any other case, assign "dual".
+#
+# 4. **'dplyr::' Prefix:**
+#    - `dplyr::case_when(...)`: Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
+
+# stat, not needed for processing
+# dim(SEFHIER_logbooksAHU_usable_p_regions)
+# 269713    172
+
+# export usable logbooks
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
 
-
 # annas_file_path <-
-#   file.path(Path, "Outputs", "SEFHIER_usable_logbooks_2022.rds")
+  # file.path(Path, "Outputs", "SEFHIER_usable_logbooks_2022.rds")
 
 jennys_file_path <-
   paste(Path, Outputs, "SEFHIER_usable_logbooks_2022.rds",
         sep = "")
 
 write_rds(
-  SEFHIER_logbooksAHU_usable,
+  SEFHIER_logbooksAHU_usable_p_regions,
   file = jennys_file_path
 )
 
