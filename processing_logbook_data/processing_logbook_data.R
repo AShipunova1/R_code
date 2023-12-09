@@ -207,11 +207,11 @@ SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
 
 # import the logbook data or download from Oracle db
 logbooks_file_path <-
-  paste(Path, Inputs, "SAFIS_TripsDownload_1.1.22-12.01.23.csv",
+  paste(Path, Inputs, "SAFIS_TripsDownload_1.1.22-12.01.23.rds",
         sep = "")
 #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
 
-Logbooks <- read.csv(logbooks_file_path)
+# Logbooks <- read_rds(logbooks_file_path)
 
 # Instead, we can read a file if exists or pull data from the Oracle db
 logbooks_download_query <-
@@ -242,7 +242,7 @@ Logbooks <-
 
 # not needed for processing
 # dim(Logbooks)
-# [1] 484413    149
+# 484413    149
 
 #rename column
 # Was:
@@ -298,45 +298,85 @@ Logbooks <-
 Logbooks$STARTDATETIME <- as.POSIXct(paste(Logbooks$TRIP_START_DATE,
                                            Logbooks$TRIP_START_TIME),
                                            format = "%Y-%m-%d %H%M")
+
+# not needed for processing
+# Logbooks$STARTDATETIME |>
+#   head(1)
+# "2022-07-07 08:00:00 EDT"
+
 #create column for end date & time
 Logbooks$ENDDATETIME <- as.POSIXct(paste(Logbooks$TRIP_END_DATE,
                                          Logbooks$TRIP_END_TIME),
                                          format = "%Y-%m-%d %H%M")
+
 #the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
-Logbooks['TimeStampError'] = ifelse(Logbooks$STARTDATETIME >= Logbooks$ENDDATETIME, "true", "false")
+Logbooks['TimeStampError'] <-
+  ifelse(Logbooks$STARTDATETIME >= Logbooks$ENDDATETIME, "true", "false")
+
 #how many logbooks were thrown out because of a time stamp error?
-#Logbooks_TimeStampError = Logbooks %>% filter(TimeStampError == "true") #useful stat, not needed for processing
-#NumLogbooks_TimeStampError = nrow(Logbooks_TimeStampError) #useful stat, not needed for processing
+# Logbooks_TimeStampError <-
+#   Logbooks %>% filter(TimeStampError == "true") #useful stat, not needed for processing
+
+# NumLogbooks_TimeStampError <-
+  # nrow(Logbooks_TimeStampError) #useful stat, not needed for processing
+# 857
+
 #only keep the rows where there is no error between start & end date & time
-Logbooks = Logbooks %>% filter(TimeStampError == "false")
+Logbooks <-
+  Logbooks %>% filter(TimeStampError == "false")
+
+#useful stat, not needed for processing
+# nrow(Logbooks)
+# 94835
 
 #For trips lasting more than 10 days, delete the records. The assumption is there is an
 #error in either start or end date and time and the trip didn't really last that long.
-Logbooks['TripLength'] = as.numeric(difftime(Logbooks$ENDDATETIME,Logbooks$STARTDATETIME, units = "hours"))
+Logbooks['TripLength'] <-
+  as.numeric(difftime(Logbooks$ENDDATETIME,
+                      Logbooks$STARTDATETIME,
+                      units = "hours"))
+
 #output trips with length > 240 into data frame
-#LogbooksTooLong = Logbooks %>% filter(TripLength > 240) #useful stat, not needed for processing
-#NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
-#only keep trips with a length less than or equal to 10 days(240 hours)
-Logbooks = Logbooks %>% filter(TripLength <= 240)
+# LogbooksTooLong = Logbooks %>% filter(TripLength > 240) #useful stat, not needed for processing
+# NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
+# 74
+
+#only keep trips with a length less than or equal to 10 days (240 hours)
+Logbooks <-
+  Logbooks %>% filter(TripLength <= 240)
 
 #get rid of new columns, don't need them anymore
-Logbooks = Logbooks[,c(1:149)]
+Logbooks <-
+  Logbooks[,c(1:149)]
 
 #only keep A, H and U logbooks for GOM permitted vessels (U means Unknown Trip Type, a VMS issue)
 #use the GOMPermitInfo to remove logbook records that are for SA permitted vessels
 #we only want GOM permitted vessels for this analysis
-SEFHIER_logbooks <- left_join(SEFHIER_PermitInfo, Logbooks, by=c("VESSEL_OFFICIAL_NUMBER")) #joins permit info and trip info together
-SEFHIER_logbooksAHU <- subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) #subsets the data to charter and headboat logbook entries only
-#subsets the data to GOM permitted vessels with no logbook entries, useful stat, not needed for processing
-#VesselsNoLogbooks <- subset(GOMlogbooks, (GOMlogbooks$TRIP_TYPE %in% c(NA)))
+SEFHIER_logbooks <-
+  left_join(SEFHIER_PermitInfo,
+            Logbooks,
+            by = c("VESSEL_OFFICIAL_NUMBER")) #joins permit info and trip info together
 
+SEFHIER_logbooksAHU <-
+  subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) #subsets the data to charter and headboat logbook entries only
+
+#subsets the data to GOM permitted vessels with no logbook entries, useful stat, not needed for processing
+# VesselsNoLogbooks <- subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
+# nrow(VesselsNoLogbooks)
+# 2206
 
 #### (3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ####
 
-
 #### import and prep the compliance data ####
 
-#import compliance data
+# import compliance data
+override_data_file_path <-
+  "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
+
+override_data_file_path <-
+  "compl_err_db_data_raw.rds"
+
+
 OverrideData <- readr::read_rds("//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds")
 #filter out year 2022
 OverrideData <- OverrideData %>% filter(COMP_YEAR == 2022)
