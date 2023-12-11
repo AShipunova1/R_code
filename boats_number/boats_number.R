@@ -1476,9 +1476,11 @@ combs2_short_cnts <-
 # use pander for .qmd
 pander(combs2_short_cnts)
 
-#### Show Number of vessels with different end trip port and home port per permit region
-combs2_short_cnts$V6 |>
-  dplyr::rename("is home_port diff from end_port?" =
+#### Show Number of vessels with different end trip port and home port per permit region ----
+
+home_port_diff_from_end_port <-
+  combs2_short_cnts$V6 |>
+  dplyr::rename(is_home_port_diff_from_end_port =
                   "diff_end_port_name_or_city")
 
 home_port_diff_from_end_port
