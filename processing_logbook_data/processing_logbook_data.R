@@ -23,6 +23,7 @@ library(lubridate)
 library(tidyverse)
 
 library(tictoc) # Functions for timing
+library(crayon) # Colored terminal output
 
 #set working and output directory - where do you keep the data and analysis folder on your computer?
 # example: Path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
@@ -53,7 +54,7 @@ function_message <- function(text_msg) {
 
 # A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
 
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
+# The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
 # See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run <- function(my_file_path,
                             my_data = as.data.frame(""),
@@ -64,80 +65,65 @@ read_rds_or_run <- function(my_file_path,
     if (file.exists(my_file_path) &
         is.null(force_from_db)) {
         # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
+        function_message("File already exists, reading.")
+
         my_result <- readr::read_rds(my_file_path)
+
     } else {
-        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-        # 1. Generate a message indicating the date and the purpose of the run.
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tictoc::tic(msg_text)  # Start timing the operation.
 
-        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
-        my_result <- my_function(my_data)
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
 
-        tictoc::toc()  # Stop timing the operation.
+      # 0. Print this message.
+      function_message(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
 
-        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-        # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
-        try(
-        readr::write_rds(my_result,
-                         my_file_path)
-        )
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
     }
 
     # Return the generated or read data.
     return(my_result)
 }
 
-
 #------------------------------------------------------------------------------#
 
-#### (1) pull all logbook and compliance data from Oracle ####
+#### (1) pull all logbook and compliance data from Oracle OR read from a file ####
 
-#Grab logbooks from Oracle (comment out and just read in file in output folder if you don't have Roracle)--------------------------------------------------------------------------
-#Connect to Oracle ------------------------------------------------------------------
 # must be on VPN!!!
+
 #to get this to work, you first need to add in Oracle username and PW into the Windows credential manager
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
 
 #
-# #set up where to call the data from
-# con = dbConnect(dbDriver("Oracle"), username = keyring::key_list("SECPR")[1,2],
-#                 password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1,2]),
-#                 dbname = "SECPR")
-#
-#
-# #create DF, by calling from the table in Oracle - here you can specify what chunk of that data you want using "where"
-# dat = dbGetQuery(con, "SELECT * FROM srh.mv_safis_trip_download@secapxdv_dblk
-#                    WHERE trip_start_date >= '01-JAN-2022'")
-#
-# # #for a specified time interval:
-# # compliance_data = dbGetQuery(con, "SELECT * FROM srh.mv_safis_trip_download@secapxdv_dblk
-# #                    WHERE trip_start_date >= '01-JAN-2022'
-# #                    and
-# #                    trip_start_date < '01-JAN-2023'")
-#
-# View(dat)
-#
-#
-# #save output
-# write.csv(dat, file = paste(Path, Outputs, "SAFIS_TripsDownload_1.1.22-12.01.23.csv",
-#               sep =""), row.names = FALSE) #use row.names = false to avoid a col of #s
-
-
-
-# Grab compliance file from Oracle (or Comment this out if you don't have Roracle)------------------------------------------------------
-#Connect to Oracle ------------------------------------------------------------------
-# must be on VPN!!!
-#to get this to work, you first need to add in Oracle username and PW into the Windows credential manager
-# for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
-
-#
-#set up where to call the data from
+# set up where to call the data from
  con = dbConnect(dbDriver("Oracle"), username = keyring::key_list("SECPR")[1,2],
                  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1,2]),
                  dbname = "SECPR")
 
-#create variable with table to call data from, define year
+# create variable with table to call data from, define year
 compl_err_query <-
   "SELECT
   *
@@ -151,11 +137,12 @@ WHERE
 
 # Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 compl_err_query_file <-
-  file.path(Path, Inputs, "Compliance_raw_data_Year.rds")
+  file.path(Path, Outputs, "Compliance_raw_data_Year.rds")
 
 # Check if the file path is correct, optional
 # file.exists(compl_err_query_file)
 
+# This is a function to be run from the read_rds_or_run function. If you'd like to run it separately, you have to be on VPN and have an Oracle connection.
 compl_err_fun <-
   function(compl_err_query) {
     compliance_data <- dbGetQuery(con, compl_err_query)
@@ -163,8 +150,8 @@ compl_err_fun <-
   }
 
 # create data frame using query to call the table above
-# use the pre-defined method to check if there is a file saved already,
-# read it or run the query and write the file fr future use
+# use the function pre-defined above (to see press F2) to check if there is a file saved already,
+# read it or run the query and write the file for future use
 
 compliance_data <-
   read_rds_or_run(compl_err_query_file,
