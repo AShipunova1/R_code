@@ -983,9 +983,10 @@ function_message <- function(text_msg) {
 }
 
 # ===
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
-      # read a binary file saved previously
-      # write all as binary
+# A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
+
+# The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
+# See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run <- function(my_file_path,
                             my_data = as.data.frame(""),
                             my_function,
@@ -995,24 +996,43 @@ read_rds_or_run <- function(my_file_path,
     if (file.exists(my_file_path) &
         is.null(force_from_db)) {
         # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
+        function_message("File already exists, reading.")
+
         my_result <- readr::read_rds(my_file_path)
+
     } else {
-        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-        # 1. Generate a message indicating the date and the purpose of the run.
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tic(msg_text)  # Start timing the operation.
 
-        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
-        my_result <- my_function(my_data)
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
 
-        toc()  # Stop timing the operation.
+      # 0. Print this message.
+      function_message(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
 
-        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-        # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
-        try(
-        readr::write_rds(my_result,
-                         my_file_path)
-        )
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
     }
 
     # Return the generated or read data.
