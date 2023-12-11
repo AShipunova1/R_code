@@ -670,7 +670,7 @@ names(state.name) <- state.abb
 my_state_name[tolower("FL")]
 # "Florida"
 
-## add a start_port_reg column ----
+## add a start_ and end_ port_reg columns ----
 
 all_logbooks_db_data_2022_short_p_region_port_states <-
   all_logbooks_db_data_2022_short_p_region_port_region |>
@@ -688,10 +688,20 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
         tolower(end_port_state_name) %in% tolower(east_coat_states$gom) ~
           "gom_state",
         .default = "sa_state"
+      )) |>
+      # the same for end ports
+  dplyr::mutate(
+    end_port_reg =
+      dplyr::case_when(
+        tolower(end_port_state_name) %in% tolower(sa_council_states) ~
+          "sa_council_state",
+        tolower(end_port_state_name) %in% tolower(east_coat_states$gom) ~
+          "gom_state",
+        .default = "sa_state"
       )
-    # Additional commented-out line for potential future use.
-    # diff_reg = case_when(!start_port_state == end_port_state)
   )
+
+
 
 #' Explanation:
 #'
@@ -910,7 +920,7 @@ start_ports_region_cnt |>
 start_ports_region_cnt |>
   count(vessel_one_start_port_marker_num)
 
-### Trip start ports are in both regions count by vessel permit ----
+### Trip start and end ports are in both regions count by vessel permit ----
 start_ports_region_cnt_by_permit_r <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
   dplyr::select(dplyr::all_of(select_vessel_mark_start),
