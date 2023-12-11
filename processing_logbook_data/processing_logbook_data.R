@@ -110,11 +110,9 @@ read_rds_or_run <- function(my_file_path,
 
 #------------------------------------------------------------------------------#
 
-#### (1) pull all logbook and compliance data from Oracle OR read from a file ####
+## (1) pull all logbook and compliance data from Oracle OR read from a file ####
 
-# must be on VPN!!!
-
-#to get this to work, you first need to add in Oracle username and PW into the Windows credential manager
+# to get this to work, you first need to add in Oracle username and PW into the Windows credential manager
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
 
 #
@@ -123,7 +121,9 @@ read_rds_or_run <- function(my_file_path,
                  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1,2]),
                  dbname = "SECPR")
 
-# create variable with table to call data from, define year
+### Get compliance data ----
+# Prepare 3 variables to use as parameters for read_rds_or_run()
+# 1) create variable with table to call data from, define year
 compl_err_query <-
   "SELECT
   *
@@ -135,23 +135,24 @@ WHERE
 # override_data_file_path is the same as compl_err_query_file
 #   "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
 
-# Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
+# 2) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 compl_err_query_file <-
   file.path(Path, Outputs, "Compliance_raw_data_Year.rds")
 
 # Check if the file path is correct, optional
 # file.exists(compl_err_query_file)
 
-# This is a function to be run from the read_rds_or_run function. If you'd like to run it separately, you have to be on VPN and have an Oracle connection.
+# 3) This is a function to be run from the read_rds_or_run function. If you'd like to run it separately, you have to be on VPN and have an Oracle connection.
 compl_err_fun <-
   function(compl_err_query) {
     compliance_data <- dbGetQuery(con, compl_err_query)
     return(compliance_data)
   }
 
-# create data frame using query to call the table above
-# use the function pre-defined above (to see press F2) to check if there is a file saved already,
-# read it or run the query and write the file for future use
+# Create data frame
+# using the function pre-defined above (to see press F2) to check if there is a file saved already,
+# read it
+# or run the query and write the file for future use
 
 compliance_data <-
   read_rds_or_run(compl_err_query_file,
