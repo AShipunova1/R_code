@@ -45,7 +45,13 @@ Outputs <- "Outputs/"
 # new data set, check your weeks to make sure it's calculating correctly after running that line of code.
 
 # Auxiliary methods ----
-# 1) A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
+# Pretty message print
+function_message <- function(text_msg) {
+  cat(crayon::bgCyan$bold(text_msg),
+      sep = "\n")
+}
+
+# A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
 
 # The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
 # See usage below at the `Grab compliance file from Oracle` section
