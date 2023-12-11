@@ -189,7 +189,6 @@ start_end_diff
 # 1  gom_and_dual 273
 # 2       sa_only 226
 
-# ---
 # How many SEFHIER vessels start at a different location than they end by quarter ----
 all_logbooks_db_data_2022_short_p_region_dates_short <-
   all_logbooks_db_data_2022_short_p_region_dates |>
@@ -201,23 +200,39 @@ all_logbooks_db_data_2022_short_p_region_dates_short <-
 glimpse(all_logbooks_db_data_2022_short_p_region_dates_short)
 # [1] 6639   11
 
-all_logbooks_db_data_2022_short_p_region_dates_short |>
-  # filter(vessel_official_nbr %in% c("FL0789TE",
-  #                                   "1189202")) |>
-  dplyr::filter(!start_port_name == end_port_name) |>
+# to test on
+# filter(vessel_official_nbr %in% c("FL0789TE",
+#                                   "1189202")) |>
+
+all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end <-
+  all_logbooks_db_data_2022_short_p_region_dates_short |>
+  dplyr::filter(!start_port_name == end_port_name)
+
+## by start quarter ----
+start_all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end <-
+  all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end |>
   group_by(trip_start_year_quarter) |>
-  # dplyr::select(vessel_id,
-  #        vessel_official_nbr,
-  #        permit_region) |>
-  # dplyr::distinct() |>
-  # dim()
-  # Rows: 397
-  mutate(nn = n_distinct(vessel_official_nbr)) |>
-   select(trip_start_year_quarter, nn) |>
-   distinct()
+  mutate(diff_start_end_q_num =
+           n_distinct(vessel_official_nbr)) |>
+  select(trip_start_year_quarter, diff_start_end_q_num) |>
+  distinct() |>
+  ungroup()
 
+start_all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end |>
+    arrange(trip_start_year_quarter)
 
+## by end quarter ----
+end_all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end <-
+  all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end |>
+  group_by(trip_end_year_quarter) |>
+  mutate(diff_end_end_q_num =
+           n_distinct(vessel_official_nbr)) |>
+  select(trip_end_year_quarter, diff_end_end_q_num) |>
+  distinct() |>
+  ungroup()
 
+end_all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end |>
+  arrange(trip_end_year_quarter)
 
 # ---
 
@@ -1529,6 +1544,8 @@ home_port_diff_from_end_port
 #'
 #' 3. Quantify the # of vessels who fish in both the gulf and S Atl.
 #'
+#' 4. How many SEFHIER vessels start at a different location than they end, count by quarter
+#'
 
 #' ## How many SEFHIER vessels land at a different location than they home ports
 #'
@@ -1575,3 +1592,7 @@ home_port_diff_from_end_port
 #' #### By counting end ports.
 #'
 #+ Count multiple end regions by permit_region
+
+#' ## How many SEFHIER vessels start at a different location than they end, count by quarter
+#'
+#+ by start quarter
