@@ -1014,11 +1014,11 @@ start_ports_region_cnt |>
 #### How many vessels have start port in one or in both regions ----
 start_ports_region_cnt |>
   mutate(
-    start_ports_in_the_both_GOM_and_SA =
+    start_ports_in_both_GOM_and_SA =
       case_when(vessel_one_start_port_marker_num == 1 ~ "NO",
                 .default = "YES")
   ) |>
-  count(start_ports_in_the_both_GOM_and_SA)
+  count(start_ports_in_both_GOM_and_SA)
 
 # start_ports_region_cnt |>
 #   count(vessel_one_start_port_marker_num)
@@ -1051,11 +1051,11 @@ end_ports_region_cnt |>
 #### How many vessels have end port in one or in both regions ----
 end_ports_region_cnt |>
   mutate(
-    End_ports_in_the_both_GOM_and_SA =
+    end_ports_in_both_GOM_and_SA =
       case_when(vessel_one_end_port_marker_num == 1 ~ "NO",
                 .default = "YES")
   ) |>
-  count(End_ports_in_the_both_GOM_and_SA)
+  count(end_ports_in_both_GOM_and_SA)
 # 1                              1  1864
 # 2                              2    24
 
@@ -1087,7 +1087,7 @@ start_ports_region_cnt_by_permit_r <-
 #' 6. Ungroup the data.
 #'
 
-### The same for "end ports" ----
+### The same for end ports ----
 end_ports_region_cnt_by_permit_r <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_end_short |>
   dplyr::select(dplyr::all_of(select_vessel_mark_end),
@@ -1125,11 +1125,12 @@ start_ports_region_cnt_by_permit_r |>
   dplyr::distinct() |>
 # vessel_official_nbr              1876
   dplyr::count(permit_region,
-        multi_start = vessel_one_start_port_marker_num > 1)
+        start_in_both_regions =
+          vessel_one_start_port_marker_num > 1)
 #   count(wt = n)
 # 1  1876
 
-#   permit_region multi_start     n
+#   permit_region start_in_both_regions     n
 #   <chr>         <lgl>       <int>
 # 1 gom_and_dual  FALSE         782
 # 2 gom_and_dual  TRUE            9
@@ -1148,12 +1149,12 @@ end_ports_region_cnt_by_permit_r |>
   # count_uniq_by_column()
   # vessel_official_nbr              1876
   dplyr::count(permit_region,
-        multi_end = vessel_one_end_port_marker_num > 1)
+        end_in_both_regions = vessel_one_end_port_marker_num > 1)
   # |>
   # count(wt = n)
   # 1  1876
 
-#   permit_region multi_end     n
+#   permit_region end_in_both_regions     n
 #   <chr>         <lgl>       <int>
 # 1 gom_and_dual  FALSE       783
 # 2 gom_and_dual  TRUE          8
@@ -1479,24 +1480,24 @@ pander(combs2_short_cnts)
 combs2_short_cnts$V6 |>
   dplyr::rename("is home_port diff from end_port?" =
                   "diff_end_port_name_or_city")
-  # knitr::kable(col.names =
-  #                gsub("[_]", " ", names(combs2_short_cnts$V6)))
 
+home_port_diff_from_end_port
 
+#'
 #' %%%%% Results
 #'
-#' Analyzing movement patterns of vessels:
+#' Analyzing movement patterns of vessels questions:
 #'
-#' 1. How many SEFHIER vessels start at a different location than they home ports
+#' 1. How many SEFHIER vessels land at a different location than they home ports?
 #'
-#' 2. How many vessels have variable landing locations
+#' 2. How many vessels have variable landing locations?
 #'
 #' (i.e., in the winter they are in one state while in the summer they fish in another)
 #'
 #' 3. Quantify the # of vessels who fish in both the gulf and S Atl.
 #'
 
-#' ## How many SEFHIER vessels start at a different location than they home port
+#' ## How many SEFHIER vessels land at a different location than they home ports
 #'
 #+ Show Number of vessels with different end trip port and home port per permit region
 
@@ -1533,7 +1534,11 @@ combs2_short_cnts$V6 |>
 #+ How many vessels have end port in one or in both regions
 
 
-#' ### The same (start in both Gulf and S Atl) by a vessel permit region
+#' ### The same (start or end in both Gulf and S Atl) by a vessel permit region
+#' #### By counting start ports.
 #'
-#+ Count multiple starts by permit_region
+#+ Count multiple start regions by permit_region
 
+#' #### By counting end ports.
+#'
+#+ Count multiple end regions by permit_region
