@@ -6,6 +6,9 @@ library(zoo)
 # Determine the path of the executing script
 library(this.path)
 
+# Prints an R object in markdown, needed to print pretty table from list of dfs.
+library(pander)
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -675,10 +678,10 @@ my_state_name[tolower("FL")]
 all_logbooks_db_data_2022_short_p_region_port_states <-
   all_logbooks_db_data_2022_short_p_region_port_region |>
   # Add columns for the state names corresponding to start and end ports.
-  dplyr::mutate(
-    start_port_state_name = my_state_name[tolower(start_port_state)],
-    end_port_state_name   = my_state_name[tolower(end_port_state)]
-  ) |>
+  dplyr::mutate(start_port_state_name =
+                  my_state_name[tolower(start_port_state)],
+                end_port_state_name   =
+                  my_state_name[tolower(end_port_state)]) |>
   # Add a column 'start_port_reg' based on conditions using 'case_when'.
   dplyr::mutate(
     start_port_reg =
@@ -688,8 +691,9 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
         tolower(end_port_state_name) %in% tolower(east_coat_states$gom) ~
           "gom_state",
         .default = "sa_state"
-      )) |>
-      # the same for end ports
+      )
+  ) |>
+  # the same for end ports
   dplyr::mutate(
     end_port_reg =
       dplyr::case_when(
@@ -717,7 +721,7 @@ all_logbooks_db_data_2022_short_p_region_port_states <-
 #'
 #'    - For other cases, set it to "sa_state".
 #'
-#'    - Additional commented-out line ("diff_reg") for potential future use.
+#'    - Repeat for the "end" port names
 #'
 
 head(all_logbooks_db_data_2022_short_p_region_port_states)
@@ -726,7 +730,7 @@ head(all_logbooks_db_data_2022_short_p_region_port_states)
 ### if FL divide by county ----
 #' Add a new column "start_port_fl_reg" based on conditions using "case_when":
 #'
-#' If the start port state name is "florida" and the start port county is in "fl_counties$gom", set it to "gom_county".
+#' If the start port state name is "florida" and the start port county is in "fl_counties$gom", set it to "gom_county". The same for "ends"
 #'
 #' For other cases, set it to "sa_county".
 #'
@@ -741,12 +745,26 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg <-
           "gom_county",
         .default = "sa_county"
       )
+  ) |>
+  dplyr::mutate(
+    end_port_fl_reg =
+      dplyr::case_when(
+        tolower(end_port_state_name) == "florida" &
+          tolower(end_port_county) %in% tolower(fl_counties$gom) ~
+          "gom_county",
+        .default = "sa_county"
+      )
   )
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
   filter(start_port_fl_reg == "gom_county") |>
   dim()
-# [1] 844  15
+# [1] 844  17
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
+  filter(end_port_fl_reg == "gom_county") |>
+  dim()
+# 1381   17
 
 dplyr::glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg)
 
@@ -803,16 +821,60 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start <-
 #'    - For other cases, set it to NA.
 #'
 
-glimpse(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
-# [1] 3011   16
+# The same for end_ports
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_end <-
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg |>
+  dplyr::mutate(
+    one_end_port_marker =
+      dplyr::case_when(
+        end_port_county == "MONROE" &
+          permit_region == "gom_and_dual" ~
+          "gom",
+        end_port_county == "MONROE" &
+          permit_region == "sa_only" ~
+          "sa",
+        end_port_state == "FL" &
+          end_port_fl_reg == "gom_county" ~
+          "gom",
+        end_port_state == "FL" &
+          end_port_fl_reg == "sa_county" ~
+          "sa",
+        end_port_reg %in% c("gom_council_state",
+                              "gom_state") ~
+          "gom",
+        end_port_reg %in% c("sa_council_state",
+                              "sa_state") ~
+          "sa",
+        .default = NA
+      )
+  )
+
+
+dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start)
+# [1] 3011   18
+
+dim(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_end)
+# [1] 3011   18
 
 #### check if all start ports have a permit region ----
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
-  dplyr::filter(is.na(one_start_port_marker)) |>
+  # dplyr::filter(is.na(one_start_port_marker)) |>
   # select(start_port_reg) |>
   # distinct() |>
   dim()
 # 0 OK
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_end |>
+  select(end_port_reg)
+# 1 sa_council_state
+# 2         sa_state
+# 3        gom_state
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_end |>
+  dplyr::filter(is.na(one_end_port_marker)) |>
+  distinct() |>
+  dim()
+# 0 18 OK
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
     dplyr::filter(one_start_port_marker == "gom") |>
@@ -820,27 +882,36 @@ all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
     dplyr::distinct() |>
     dplyr::glimpse()
 
-### Count vessels having both sa and gom one_start_port_markers to find the num of vessels who fish in both the Gulf and S Atl ----
+### Count vessels having both sa and gom port_markers to find the num of vessels who fish in both the Gulf and S Atl ----
 
 #### shorten all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start ----
+keep_port_reg_column_names <- c(
+    "vessel_id",
+    "vessel_official_nbr",
+    "start_port",
+    "start_port_name",
+    "start_port_county",
+    "start_port_state",
+    "end_port",
+    "end_port_name",
+    "end_port_county",
+    "end_port_state",
+    "permit_region",
+    "start_port_state_name",
+    "end_port_state_name",
+    "one_start_port_marker",
+    "one_end_port_marker"
+)
+
+# Using any_of here to choose "one_start_port_marker" or "one_end_port_marker"
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short <-
   all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start |>
-  dplyr::select(
-    vessel_id,
-    vessel_official_nbr,
-    start_port,
-    start_port_name,
-    start_port_county,
-    start_port_state,
-    end_port,
-    end_port_name,
-    end_port_county,
-    end_port_state,
-    permit_region,
-    start_port_state_name,
-    end_port_state_name,
-    one_start_port_marker
-  ) |>
+  dplyr::select(any_of(keep_port_reg_column_names)) |>
+  dplyr::distinct()
+
+all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_end_short <-
+  all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_end |>
+  dplyr::select(any_of(keep_port_reg_column_names)) |>
   dplyr::distinct()
 
 count_uniq_by_column(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short)
@@ -849,8 +920,12 @@ count_uniq_by_column(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg
 # start_port             536
 # start_port_name        531
 
-#### Count vessels with each GOM or SA trip start port region marker ----
-#' (the occurrences of each unique value in the "one_start_port_marker" column).
+# count_uniq_by_column(all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_end_short)
+# end_port               534
+# end_port_name          529
+
+#### Count vessels with each GOM or SA trip start and end port region marker ----
+#' (the occurrences of each unique value in the "one_start_port_marker" and "one_end_port_marker" columns).
 #'
 
 all_logbooks_db_data_2022_short_p_region_port_states_fl_reg_start_short |>
