@@ -204,10 +204,6 @@ glimpse(all_logbooks_db_data_2022_short_p_region_dates_short)
 # filter(vessel_official_nbr %in% c("FL0789TE",
 #                                   "1189202")) |>
 
-all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end <-
-  all_logbooks_db_data_2022_short_p_region_dates_short |>
-  dplyr::filter(!start_port_name == end_port_name)
-
 ## by start quarter ----
 start_all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end <-
   all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end |>
@@ -233,6 +229,24 @@ end_all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end <-
 
 end_all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end |>
   arrange(trip_end_year_quarter)
+
+## count total vessels by quarter ----
+
+all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end_tot <-
+  all_logbooks_db_data_2022_short_p_region_dates_short |>
+  group_by(trip_start_year_quarter) |>
+  mutate(tot_vsl_by_start_q = n_distinct(vessel_official_nbr)) |>
+  ungroup() |>
+  group_by(trip_end_year_quarter) |>
+  mutate(tot_vsl_by_end_q = n_distinct(vessel_official_nbr)) |>
+  ungroup()
+
+### see total vessels by 2022 start trip quarters ----
+all_logbooks_db_data_2022_short_p_region_dates_short_diff_start_from_end_tot |>
+  select(trip_start_year_quarter,
+         tot_vsl_by_start_q) |>
+  distinct() |>
+  arrange(trip_start_year_quarter)
 
 # ---
 
@@ -1596,3 +1610,8 @@ home_port_diff_from_end_port
 #' ## How many SEFHIER vessels start at a different location than they end, count by quarter
 #'
 #+ by start quarter
+
+#' ### Total number of vessels by 2022 quarters
+#'
+#+ see total vessels by 2022 start trip quarters
+
