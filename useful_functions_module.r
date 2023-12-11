@@ -976,6 +976,12 @@ separate_permits_into_3_groups <-
 #     return(my_df)
 #   }
 
+# Pretty message print
+function_message <- function(text_msg) {
+  cat(crayon::bgCyan$bold(text_msg),
+      sep = "\n")
+}
+
 # ===
 # The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
       # read a binary file saved previously
