@@ -233,9 +233,6 @@ library(kableExtra)
 # Format R code automatically
 library(styler)
 
-# Prints an R object in markdown, needed to print pretty table from list of dfs.
-library(pander)
-
 
 ```
 
