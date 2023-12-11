@@ -1036,6 +1036,17 @@ end_ports_region_cnt <-
 end_ports_region_cnt |>
   filter(vessel_official_nbr == "FL8905LP")
 
+#### How many vessels have end port in one or in both regions ----
+end_ports_region_cnt |>
+  mutate(
+    End_ports_in_the_both_GOM_and_SA =
+      case_when(vessel_one_end_port_marker_num == 1 ~ "NO",
+                .default = "YES")
+  ) |>
+  count(End_ports_in_the_both_GOM_and_SA)
+# 1                              1  1864
+# 2                              2    24
+
 ## Trip start and end ports are in both regions count by vessel permit ----
 ### Start ports ----
 start_ports_region_cnt_by_permit_r <-
@@ -1076,13 +1087,22 @@ end_ports_region_cnt_by_permit_r <-
                       na.rm = TRUE)) |>
   dplyr::ungroup()
 
-#### check start_ports_region_cnt_by_permit_r ----
+#### check start_  and end_ ports_region_cnt_by_permit_r ----
 start_ports_region_cnt_by_permit_r |>
   # filter(vessel_one_start_port_marker_num > 1) |>
   dplyr::filter(vessel_official_nbr == "FL6069PT") |>
   dplyr::glimpse()
 
-#### Count multiple starts by permit_region ----
+end_ports_region_cnt_by_permit_r |>
+  # filter(vessel_one_end_port_marker_num > 1) |>
+  dplyr::filter(vessel_official_nbr == "FL8905LP") |>
+  dplyr::glimpse()
+# $ vessel_official_nbr            <chr> "FL8905LP", "FL8905LP"
+# $ one_end_port_marker            <chr> "gom", "sa"
+# $ permit_region                  <chr> "sa_only", "sa_only"
+# $ vessel_one_end_port_marker_num <int> 2, 2
+
+#### Count multiple start regions by permit_region ----
 start_ports_region_cnt_by_permit_r |>
   # glimpse()
   dplyr::select(
@@ -1104,7 +1124,31 @@ start_ports_region_cnt_by_permit_r |>
 # 3 sa_only       FALSE         941
 # 4 sa_only       TRUE          144
 
-# look at permit home port vs where they take trip ----
+#### Count multiple end regions by permit_region ----
+end_ports_region_cnt_by_permit_r |>
+  # glimpse()
+  dplyr::select(
+    vessel_official_nbr,
+    permit_region,
+    vessel_one_end_port_marker_num
+  ) |>
+  dplyr::distinct() |>
+  # count_uniq_by_column()
+  # vessel_official_nbr              1876
+  dplyr::count(permit_region,
+        multi_end = vessel_one_end_port_marker_num > 1)
+  # |>
+  # count(wt = n)
+  # 1  1876
+
+#   permit_region multi_end     n
+#   <chr>         <lgl>       <int>
+# 1 gom_and_dual  FALSE       783
+# 2 gom_and_dual  TRUE          8
+# 3 sa_only       FALSE      1081
+# 4 sa_only       TRUE          4
+
+# Look at permit home port vs where they take trip ----
 
 ## prepare home_port data ----
 # all_get_db_data_result_l |>
@@ -1468,9 +1512,14 @@ combs2_short_cnts$V6 |>
 #'
 
 #' ## Quantify the number of vessels who fish in both the Gulf and S Atl
-#' By counting start ports.
+#' ### By counting start ports.
 #'
 #+ How many vessels have start port in one or in both regions
+
+#' ### By counting end ports.
+#'
+#+ How many vessels have end port in one or in both regions
+
 
 #' ### The same (start in both Gulf and S Atl) by a vessel permit region
 #'
