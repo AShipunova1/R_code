@@ -109,6 +109,8 @@ read_rds_or_run <- function(my_file_path,
 }
 
 #------------------------------------------------------------------------------#
+# Get data ----
+
 # This section is needed to pull data from Oracle database
 # to get this to work, you first need to add in Oracle username and PW into the Windows credential manager
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
@@ -121,7 +123,7 @@ con = dbConnect(
   dbname = "SECPR"
 )
 
-#### Import and prep the permit data ####
+## Import and prep the permit data ####
 #use Metrics Tracking report
 #remove SRHS vessels from the list
 #remove SA vessels from the list
@@ -158,12 +160,17 @@ SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
 # NumSEHFIERPermits <- nrow(SEFHIER_PermitInfo)
 # 3469
 
-
-## Pull all logbook and compliance data from Oracle OR read from a file ####
-
-### Get compliance data ----
+## Get compliance (and override) data ----
 # Prepare 3 variables to use as parameters for read_rds_or_run()
-# 1) create variable with table to call data from, define year
+
+# override_data_file_path is the same as compl_err_query_file, e.g.
+#   "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
+
+# 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
+compl_err_query_file <-
+  file.path(Path, Outputs, "Compliance_raw_data_Year.rds")
+
+# 2) create variable with table to call data from, define year
 compl_err_query <-
   "SELECT
   *
@@ -172,12 +179,6 @@ FROM
 WHERE
   comp_year >= '2020'"
 
-# override_data_file_path is the same as compl_err_query_file
-#   "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
-
-# 2) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
-compl_err_query_file <-
-  file.path(Path, Outputs, "Compliance_raw_data_Year.rds")
 
 # Check if the file path is correct, optional
 # file.exists(compl_err_query_file)
@@ -189,7 +190,7 @@ compl_err_fun <-
     return(compliance_data)
   }
 
-# Create data frame
+# Create the compliance/overridden data frame
 # using the function pre-defined above (to see press F2) to check if there is a file saved already,
 # read it
 # or run the query and write the file for future use
@@ -200,20 +201,22 @@ compliance_data <-
                   compl_err_fun
                   )
 
-#### Import and prep the logbook data ####
+## Import and prep the logbook data ####
 #delete logbook records where start date/time is after end date/time
 #delete logbooks for trips lasting more than 10 days
 #only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
 
-# import the logbook data or download from Oracle db
+# Import the logbook data from file or database
+# Prepare 3 variables to use as parameters for read_rds_or_run()
+
+# 1) create a variable with file path to read or write the logbook file
+
 logbooks_file_path <-
   paste(Path, Inputs, "SAFIS_TripsDownload_1.1.22-12.01.23.rds",
         sep = "")
 #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
 
-# Logbooks <- read_rds(logbooks_file_path)
-
-# Instead, we can read a file if exists or pull data from the Oracle db
+# 2) create a variable with an SQL query to call data from the database
 logbooks_download_query <-
   "SELECT
   *
@@ -224,17 +227,17 @@ WHERE
   AND trip_start_date <= '01-DEC-2023'
 "
 
-# Define a function 'mv_safis_trip_download_fun' to retrieve data from the database using a specified query.
+# 3) This is a function to be run from the read_rds_or_run function. If you'd like to run it separately, you have to be on VPN and have an Oracle connection.
+# The function 'mv_safis_trip_download_fun' is to retrieve data from the database using a specified query.
+# It uses 'dbGetQuery' to execute the query on the database connection 'con' and return the result.
+
 logbooks_download_fun <-
   function(logbooks_download_query) {
-  # Use 'dbGetQuery' to execute the query on the database connection 'con' and return the result.
-  result <- dbGetQuery(con, logbooks_download_query)
+    result <- dbGetQuery(con, logbooks_download_query)
+    return(result)
+  }
 
-  # Return the result of the database query.
-  return(result)
-}
-
-# Use 'read_rds_or_run' defined above to either read permit information from an RDS file or execute a query to obtain it.
+# Use 'read_rds_or_run' defined above to either read permit information from an RDS file or execute a query to obtain it and write a file for future use.
 Logbooks <-
   read_rds_or_run(logbooks_file_path,
                   logbooks_download_query,
@@ -244,7 +247,7 @@ Logbooks <-
 # dim(Logbooks)
 # 484413    149
 
-# Save column number for fututre use
+# Save column number for future use
 logbooks_col_num <- ncol(Logbooks)
 # 149
 
