@@ -1013,7 +1013,19 @@ start_ports_region_cnt |>
 
 #### How many vessels have start port in one or in both regions ----
 start_ports_region_cnt |>
-  count(vessel_one_start_port_marker_num)
+  mutate(
+    start_ports_in_the_both_GOM_and_SA =
+      case_when(vessel_one_start_port_marker_num == 1 ~ "NO",
+                .default = "YES")
+  ) |>
+  count(start_ports_in_the_both_GOM_and_SA)
+
+# start_ports_region_cnt |>
+#   count(vessel_one_start_port_marker_num)
+#   vessel_one_start_port_marker_num     n
+#                              <int> <int>
+# 1                                1  1723
+# 2                                2   306
 
 ## Trip end ports are in both regions ----
 select_vessel_mark_end <-
