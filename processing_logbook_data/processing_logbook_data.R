@@ -109,17 +109,57 @@ read_rds_or_run <- function(my_file_path,
 }
 
 #------------------------------------------------------------------------------#
-
-## (1) pull all logbook and compliance data from Oracle OR read from a file ####
-
+# This section is needed to pull data from Oracle database
 # to get this to work, you first need to add in Oracle username and PW into the Windows credential manager
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
 
-#
-# set up where to call the data from
- con = dbConnect(dbDriver("Oracle"), username = keyring::key_list("SECPR")[1,2],
-                 password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1,2]),
-                 dbname = "SECPR")
+# set up an Oracle connection
+con = dbConnect(
+  dbDriver("Oracle"),
+  username = keyring::key_list("SECPR")[1, 2],
+  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
+  dbname = "SECPR"
+)
+
+#### Import and prep the permit data ####
+#use Metrics Tracking report
+#remove SRHS vessels from the list
+#remove SA vessels from the list
+
+#import the permit data
+SEFHIER_MetricsTracking <- read.csv(
+  paste(
+    Path,
+    Inputs,
+    "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_2022.csv",
+    sep = ""
+  )
+) #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+#rename column headers
+SEFHIER_MetricsTracking <-
+  SEFHIER_MetricsTracking %>% rename(PERMIT_REGION = `Permit.Grouping.Region`, VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
+
+#import the list of SRHS vessels
+#this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
+SRHSvessels <-
+  read_csv(paste(Path, Inputs, "2022SRHSvessels.csv", sep = ""))
+#reformat and rename column
+colnames(SRHSvessels)[5] <- ("VESSEL_OFFICIAL_NUMBER")
+SRHSvessels$VESSEL_OFFICIAL_NUMBER <-
+  as.character(SRHSvessels$VESSEL_OFFICIAL_NUMBER)
+
+#remove SRHSvessels from SEFHIER_MetricsTracking list
+SEFHIER_PermitInfo <-
+  anti_join(SEFHIER_MetricsTracking, SRHSvessels, by = 'VESSEL_OFFICIAL_NUMBER')
+
+#remove the columns you don't need
+SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
+# useful stat, not needed for processing
+# NumSEHFIERPermits <- nrow(SEFHIER_PermitInfo)
+# 3469
+
+
+## Pull all logbook and compliance data from Oracle OR read from a file ####
 
 ### Get compliance data ----
 # Prepare 3 variables to use as parameters for read_rds_or_run()
@@ -160,47 +200,7 @@ compliance_data <-
                   compl_err_fun
                   )
 
-#### (2) clean up logbook data set, using Metrics Tracking and SRHS list ####
-
-
-#### import and prep the permit data ####
-#use Metrics Tracking report
-#remove SRHS vessels from the list
-#remove SA vessels from the list
-
-#import the permit data
-SEFHIER_MetricsTracking <- read.csv(
-  paste(
-    Path,
-    Inputs,
-    "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_2022.csv",
-    sep = ""
-  )
-) #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
-#rename column headers
-SEFHIER_MetricsTracking <-
-  SEFHIER_MetricsTracking %>% rename(PERMIT_REGION = `Permit.Grouping.Region`, VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
-
-#import the list of SRHS vessels
-#this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
-SRHSvessels <-
-  read_csv(paste(Path, Inputs, "2022SRHSvessels.csv", sep = ""))
-#reformat and rename column
-colnames(SRHSvessels)[5] <- ("VESSEL_OFFICIAL_NUMBER")
-SRHSvessels$VESSEL_OFFICIAL_NUMBER <-
-  as.character(SRHSvessels$VESSEL_OFFICIAL_NUMBER)
-
-#remove SRHSvessels from SEFHIER_MetricsTracking list
-SEFHIER_PermitInfo <-
-  anti_join(SEFHIER_MetricsTracking, SRHSvessels, by = 'VESSEL_OFFICIAL_NUMBER')
-
-#remove the columns you don't need
-SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
-# useful stat, not needed for processing
-# NumSEHFIERPermits <- nrow(SEFHIER_PermitInfo)
-# 3469
-
-#### import and prep the logbook data ####
+#### Import and prep the logbook data ####
 #delete logbook records where start date/time is after end date/time
 #delete logbooks for trips lasting more than 10 days
 #only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
