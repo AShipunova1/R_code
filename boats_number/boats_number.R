@@ -189,6 +189,38 @@ start_end_diff
 # 1  gom_and_dual 273
 # 2       sa_only 226
 
+# ---
+# How many SEFHIER vessels start at a different location than they end by quarter ----
+all_logbooks_db_data_2022_short_p_region_dates_short <-
+  all_logbooks_db_data_2022_short_p_region_dates |>
+  dplyr::select(dplyr::all_of(port_fields_short),
+                contains("quarter")) |>
+  remove_empty_cols() |>
+  dplyr::distinct()
+
+glimpse(all_logbooks_db_data_2022_short_p_region_dates_short)
+# [1] 6639   11
+
+all_logbooks_db_data_2022_short_p_region_dates_short |>
+  # filter(vessel_official_nbr %in% c("FL0789TE",
+  #                                   "1189202")) |>
+  dplyr::filter(!start_port_name == end_port_name) |>
+  group_by(trip_start_year_quarter) |>
+  # dplyr::select(vessel_id,
+  #        vessel_official_nbr,
+  #        permit_region) |>
+  # dplyr::distinct() |>
+  # dim()
+  # Rows: 397
+  mutate(nn = n_distinct(vessel_official_nbr)) |>
+   select(trip_start_year_quarter, nn) |>
+   distinct()
+
+
+
+
+# ---
+
 # How many vessels have variable landing locations ----
 #'I.e., in the winter they are in one state while in the summer they fish in another)
 #'
@@ -634,7 +666,6 @@ pander(ports_q_short_wider_list_diff_cnt_p_r)
 # 2 gom_and_dual  TRUE    230
 # 3 sa_only       FALSE   830
 # 4 sa_only       TRUE    255
-
 
 # Quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ## add a gom vs sa marker to ports ----
