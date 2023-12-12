@@ -374,11 +374,6 @@ write.csv(
   row.names = FALSE
 )
 
-
-# # only keep A, H and U logbooks (U means Unknown Trip Type, a VMS issue)
-# SEFHIER_logbooksAHU <-
-#   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) # subsets the data to charter and headboat logbook entries only
-
 #subsets the data with no logbook entries, useful stat, not needed for processing
 VesselsNoLogbooks <-
   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
@@ -428,8 +423,8 @@ OverrideData |>
 #https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
 
 # not necessary now, already done (AS)
-SEFHIER_logbooksAHU$TRIP_END_DATE2 <-
-  as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
+SEFHIER_logbooks$TRIP_END_DATE2 <-
+  as.Date(SEFHIER_logbooks$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
 
 # Calculate the ISO week number for each date in the 'TRIP_END_DATE2' column.
 # lubridate package has following methods:
@@ -441,13 +436,13 @@ SEFHIER_logbooksAHU$TRIP_END_DATE2 <-
 #
 # The `lubridate::ymd` function is used to parse the dates from the 'TRIP_END_DATE2' column with year, month, and day components
 
-SEFHIER_logbooksAHU <-
-  SEFHIER_logbooksAHU %>%
+SEFHIER_logbooks <-
+  SEFHIER_logbooks %>%
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
 # To see the result, note week 52 of 2021 (AS):
-SEFHIER_logbooksAHU |>
+SEFHIER_logbooks |>
   select(TRIP_END_DATE, TRIP_END_YEAR, COMP_WEEK) |>
   distinct() |>
   arrange(TRIP_END_DATE) |>
@@ -457,12 +452,12 @@ SEFHIER_logbooksAHU |>
 # 2    2022-01-02          2021        52
 # 3    2022-01-03          2022         1
 
-SEFHIER_logbooksAHU <-
-  SEFHIER_logbooksAHU %>%
+SEFHIER_logbooks <-
+  SEFHIER_logbooks %>%
   filter(TRIP_END_YEAR == 2022)
 
 # stat, not needed for processing
-# nrow(SEFHIER_logbooksAHU)
+# nrow(SEFHIER_logbooks)
 # 318706
 
 # to see the respective data in OverrideData
@@ -482,8 +477,8 @@ SEFHIER_logbooksAHU <-
 # if a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
 
 # add override data to df
-SEFHIER_logbooksAHU_overr <-
-  left_join(SEFHIER_logbooksAHU,
+SEFHIER_logbooks_overr <-
+  left_join(SEFHIER_logbooks,
             OverrideData,
             join_by(TRIP_END_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER == VESSEL_OFFICIAL_NBR,
@@ -495,37 +490,37 @@ SEFHIER_logbooksAHU_overr <-
 # added a year (AS)
 
 # stat, not needed for processing
-# dim(SEFHIER_logbooksAHU_overr)
+# dim(SEFHIER_logbooks_overr)
 # 318751    170
 
-SEFHIER_logbooksAHU_overridden <-
-  filter(SEFHIER_logbooksAHU_overr, IS_COMP_OVERRIDE == 1) #data frame of logbooks that were overridden
+SEFHIER_logbooks_overridden <-
+  filter(SEFHIER_logbooks_overr, IS_COMP_OVERRIDE == 1) #data frame of logbooks that were overridden
 
 # stat, not needed for processing
-# dim(SEFHIER_logbooksAHU_overridden)
+# dim(SEFHIER_logbooks_overridden)
 # 9435  170
 
 # To see if we need to remove overridden trips (AS)
-# SEFHIER_logbooksAHU1 |>
+# SEFHIER_logbooks1 |>
 #   filter(IS_COMP_OVERRIDE == 1)  |>
 #   select(all_of(contains("TRIP")),
 #          all_of(contains("over"))) |>
 #   View()
 
-SEFHIER_logbooksAHU_notoverridden <-
-  filter(SEFHIER_logbooksAHU_overr, IS_COMP_OVERRIDE == 0) #data frame of logbooks that weren't overridden
+SEFHIER_logbooks_notoverridden <-
+  filter(SEFHIER_logbooks_overr, IS_COMP_OVERRIDE == 0) #data frame of logbooks that weren't overridden
 
 # stat, not needed for processing
-# dim(SEFHIER_logbooksAHU_notoverridden)
+# dim(SEFHIER_logbooks_notoverridden)
 # 308745    170
 
-SEFHIER_logbooksAHU_NA <-
-  filter(SEFHIER_logbooksAHU_overr, is.na(IS_COMP_OVERRIDE)) #logbooks with an Overridden value of NA, because they were
+SEFHIER_logbooks_NA <-
+  filter(SEFHIER_logbooks_overr, is.na(IS_COMP_OVERRIDE)) #logbooks with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
 # stat, not needed for processing
-# dim(SEFHIER_logbooksAHU_NA)
+# dim(SEFHIER_logbooks_NA)
 # 571 170
 
 #SEFHIER vessels missing from the Compliance report
@@ -533,96 +528,96 @@ SEFHIER_VesselsMissing <-
   anti_join(SEFHIER_PermitInfo[, 1], OverrideData, by = 'VESSEL_OFFICIAL_NUMBER')
 #SEFHIER AH logbooks from vessels missing from the Compliance report
 SEFHIER_VesselsMissingAHUlogbooks <-
-  inner_join(SEFHIER_VesselsMissing, SEFHIER_logbooksAHU_NA, by = 'VESSEL_OFFICIAL_NUMBER')
+  inner_join(SEFHIER_VesselsMissing, SEFHIER_logbooks_NA, by = 'VESSEL_OFFICIAL_NUMBER')
 #add missing logbooks back to the not overridden data frame
-SEFHIER_logbooksAHU_notoverridden <-
-  rbind(SEFHIER_logbooksAHU_notoverridden,
+SEFHIER_logbooks_notoverridden <-
+  rbind(SEFHIER_logbooks_notoverridden,
         SEFHIER_VesselsMissingAHUlogbooks)
 #remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
-SEFHIER_logbooksAHU_NA <-
-  anti_join(SEFHIER_logbooksAHU_NA, SEFHIER_VesselsMissingAHUlogbooks)
+SEFHIER_logbooks_NA <-
+  anti_join(SEFHIER_logbooks_NA, SEFHIER_VesselsMissingAHUlogbooks)
 
 
 #only keep the logbooks from non overridden weeks
-SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU_notoverridden
-# NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooksAHU) #useful stat, not needed for processing
-# dim(SEFHIER_logbooksAHU_notoverridden)
+SEFHIER_logbooks <- SEFHIER_logbooks_notoverridden
+# NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooks) #useful stat, not needed for processing
+# dim(SEFHIER_logbooks_notoverridden)
 # 308745 170
 
 #We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
 #being we shouldn't include logbooks that weren't required in the first place. Alternatively,
 #deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
 #during a period in which the permit was inactive, and the report was not required.
-#rbind(SEFHIER_logbooksAHU_notoverridden, SEFHIER_logbooksAHU_NA) this is the alternative
+#rbind(SEFHIER_logbooks_notoverridden, SEFHIER_logbooks_NA) this is the alternative
 
 # unique list of vessels that submitted logbooks, useful stat, not needed for processing (doesn't work, AS)
-# SEFHIER_logbooksAHU_vessels <-
-  # unique(rbind(SEFHIER_logbooksAHU[, 1], SEFHIER_logbooksAHU_overridden[, 1]))
-# NumSEFHIER_logbooksAHU_vessels <- nrow(SEFHIER_logbooksAHU_vessels)
+# SEFHIER_logbooks_vessels <-
+  # unique(rbind(SEFHIER_logbooks[, 1], SEFHIER_logbooks_overridden[, 1]))
+# NumSEFHIER_logbooks_vessels <- nrow(SEFHIER_logbooks_vessels)
 
 
 #### determine which logbooks were turned in within 30 days, making them usable for analyses ####
 
 #use trip end date to calculate the usable date 30 days later
-SEFHIER_logbooksAHU <-
-  SEFHIER_logbooksAHU %>%
+SEFHIER_logbooks <-
+  SEFHIER_logbooks %>%
   mutate(USABLE_DATE =
            format(
-             as.Date(SEFHIER_logbooksAHU$TRIP_END_DATE, '%Y-%m-%d') + 30,
+             as.Date(SEFHIER_logbooks$TRIP_END_DATE, '%Y-%m-%d') + 30,
              format = "%Y-%m-%d"
            ))
 
 #append a time to the due date since the submission data has a date and time
 add_time <- "23:59:59" # 24 hr clock
-SEFHIER_logbooksAHU$USABLE_DATE <-
+SEFHIER_logbooks$USABLE_DATE <-
   as.POSIXct(paste(
-    as.Date(SEFHIER_logbooksAHU$USABLE_DATE, '%Y-%m-%d'),
+    as.Date(SEFHIER_logbooks$USABLE_DATE, '%Y-%m-%d'),
     add_time
   ),
   format = "%Y-%m-%d %H:%M:%S")
 
 #format the submission date (TRIP_DE)
-SEFHIER_logbooksAHU$TRIP_DE <-
-  as.POSIXct(SEFHIER_logbooksAHU$TRIP_DE, format = "%Y-%m-%d %H:%M:%S")
+SEFHIER_logbooks$TRIP_DE <-
+  as.POSIXct(SEFHIER_logbooks$TRIP_DE, format = "%Y-%m-%d %H:%M:%S")
 
 #subtract the usable date from the date of submission
 #value is true if the logbook was submitted within 30 days, false if the logbook was not
-SEFHIER_logbooksAHU['USABLE'] <-
-  ifelse(SEFHIER_logbooksAHU$USABLE_DATE >= SEFHIER_logbooksAHU$TRIP_DE, "true", "false")
+SEFHIER_logbooks['USABLE'] <-
+  ifelse(SEFHIER_logbooks$USABLE_DATE >= SEFHIER_logbooks$TRIP_DE, "true", "false")
 
 # stat, not needed for processing
-# dim(SEFHIER_logbooksAHU)
+# dim(SEFHIER_logbooks)
 # [1] 308745    171
 
 #data frame of logbooks that were usable
-SEFHIER_logbooksAHU_usable <-
-  SEFHIER_logbooksAHU %>% filter(USABLE == "true")
+SEFHIER_logbooks_usable <-
+  SEFHIER_logbooks %>% filter(USABLE == "true")
 
 # stat, not needed for processing
-# dim(SEFHIER_logbooksAHU_usable)
+# dim(SEFHIER_logbooks_usable)
 # [1] 269713    171
 
-# SEFHIER_logbooksAHU_usable <- SEFHIER_logbooksAHU_usable[,c(1:150)] #gets rid of columns used for processing
+# SEFHIER_logbooks_usable <- SEFHIER_logbooks_usable[,c(1:150)] #gets rid of columns used for processing
 # I commented it out to keep compliance and override information in (AS)
 
-# NumSEFHIER_logbooksAHU_usable = nrow(SEFHIER_logbooksAHU_usable) #useful stat, not needed for processing
+# NumSEFHIER_logbooks_usable = nrow(SEFHIER_logbooks_usable) #useful stat, not needed for processing
 # 269713
 
-# NumVessels_usablelogbooks = length(unique(SEFHIER_logbooksAHU_usable[,1])) #useful stat, not needed for processing
+# NumVessels_usablelogbooks = length(unique(SEFHIER_logbooks_usable[,1])) #useful stat, not needed for processing
 # NumVessels_usablelogbooks
 # 1617
 
 #data frame of logbooks that were not usable, useful stats, not needed for processing
-# SEFHIER_logbooksAHU_unusable <- SEFHIER_logbooksAHU %>% filter(USABLE == "false")
-# NumSEFHIER_logbooksAHU_unusable <- nrow(SEFHIER_logbooksAHU_unusable) # how many logbooks were unusable?
+# SEFHIER_logbooks_unusable <- SEFHIER_logbooks %>% filter(USABLE == "false")
+# NumSEFHIER_logbooks_unusable <- nrow(SEFHIER_logbooks_unusable) # how many logbooks were unusable?
 # 39032
 
-# NumVessels_unusablelogbooks <- length(unique(SEFHIER_logbooksAHU_unusable[,1])) #how many vessels had an unusable logbook?
+# NumVessels_unusablelogbooks <- length(unique(SEFHIER_logbooks_unusable[,1])) #how many vessels had an unusable logbook?
 # 1053
 
 # Separate GOM only, SA only or dual using PERMIT_GROUP ----
 # Data example:
-# SEFHIER_logbooksAHU_usable %>%
+# SEFHIER_logbooks_usable %>%
 #   select(PERMIT_GROUP) |>
 #   distinct() |>
 #   tail(3)
@@ -636,7 +631,7 @@ SEFHIER_logbooksAHU_usable <-
 # Auxiliary: how to find the column name
 #
 # grep("permit",
-#      names(SEFHIER_logbooksAHU_usable),
+#      names(SEFHIER_logbooks_usable),
 #      value = TRUE,
 #      ignore.case = TRUE)
 
@@ -646,8 +641,8 @@ SEFHIER_logbooksAHU_usable <-
 # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
 # For all other cases, assign "dual"
 
-SEFHIER_logbooksAHU_usable_p_regions <-
-  SEFHIER_logbooksAHU_usable %>%
+SEFHIER_logbooks_usable_p_regions <-
+  SEFHIER_logbooks_usable %>%
   mutate(
     permit_sa_gom =
       dplyr::case_when(
@@ -661,7 +656,7 @@ SEFHIER_logbooksAHU_usable_p_regions <-
 # Explanation:
 #
 # 1. **Create New Dataframe:**
-#    - `SEFHIER_logbooksAHU_usable_regions <- SEFHIER_logbooksAHU_usable %>% ...`: Create a new dataframe 'SEFHIER_logbooksAHU_usable_regions' based on the 'SEFHIER_logbooksAHU_usable' dataframe.
+#    - `SEFHIER_logbooks_usable_regions <- SEFHIER_logbooks_usable %>% ...`: Create a new dataframe 'SEFHIER_logbooks_usable_regions' based on the 'SEFHIER_logbooks_usable' dataframe.
 #
 # 2. **Use 'mutate' to Add Column:**
 #    - `mutate(permit_sa_gom = dplyr::case_when(...))`: Utilize the 'mutate' function to add a new column 'permit_sa_gom' with values determined by the conditions specified in the 'case_when' function.
@@ -675,7 +670,7 @@ SEFHIER_logbooksAHU_usable_p_regions <-
 #    - `dplyr::case_when(...)`: Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
 
 # stat, not needed for processing
-# dim(SEFHIER_logbooksAHU_usable_p_regions)
+# dim(SEFHIER_logbooks_usable_p_regions)
 # 269713    172
 
 # export usable logbooks
@@ -690,7 +685,7 @@ jennys_file_path <-
         sep = "")
 
 write_rds(
-  SEFHIER_logbooksAHU_usable_p_regions,
+  SEFHIER_logbooks_usable_p_regions,
   file = jennys_file_path
 )
 
