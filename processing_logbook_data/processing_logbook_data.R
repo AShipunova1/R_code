@@ -38,7 +38,10 @@ Outputs <- "Outputs/"
 # Set the date ranges for the logbook and compliance data you are pulling
 my_year <- '2022'
 my_date_beg <- '01-JAN-2022'
-my_date_end <- '01-DEC-2023'
+my_date_end <- '31-DEC-2022'
+
+# We don't keep trips started in 2021, but ended in 2022.
+# We only keep trips starting in 2022.
 
 #To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
 
@@ -86,7 +89,7 @@ read_rds_or_run_query <- function(my_file_path,
                                   my_query,
                                   force_from_db = NULL) {
 
-    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+  # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
     if (file.exists(my_file_path) &
         is.null(force_from_db)) {
         # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
@@ -141,7 +144,9 @@ read_rds_or_run_query <- function(my_file_path,
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
 
 # set up an Oracle connection
+tic("try_con")
 try(con <- connect_to_secpr())
+toc()
 
 ## Get compliance (and override) data ----
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
@@ -151,7 +156,9 @@ try(con <- connect_to_secpr())
 
 # 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 compl_err_query_file <-
-  file.path(Path, Outputs, "Compliance_raw_data_Year.rds")
+  file.path(Path,
+            Outputs,
+            "Compliance_raw_data_Year.rds")
 
 # 2) create variable with table to call data from, define year
 compl_err_query <-
@@ -218,7 +225,6 @@ SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
 ## Import and prep the logbook data ####
 #delete logbook records where start date/time is after end date/time
 #delete logbooks for trips lasting more than 10 days
-#only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
 
 # Import the logbook data from file or database
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
@@ -233,6 +239,10 @@ logbooks_file_path <-
 #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
 
 # 2) create a variable with an SQL query to call data from the database
+
+# stringr::str_glue:
+# Interpolation with glue to include variable names
+
 logbooks_download_query <-
   str_glue("SELECT
   *
@@ -244,7 +254,7 @@ WHERE
   AND trip_start_date <= '", my_date_end, "'
 ")
 
-# Use 'read_rds_or_run_query' defined above to either read permit information from an RDS file or execute a query to obtain it and write a file for future use.
+# Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
 Logbooks <-
   read_rds_or_run_query(logbooks_file_path,
                         logbooks_download_query)
@@ -300,8 +310,6 @@ Logbooks$TRIP_END_DATE <-
 Logbooks$TRIP_END_TIME <-
   as.character(sprintf("%04d", as.numeric(Logbooks$TRIP_END_TIME)))
 
-as.Date(my_date_beg, "%d-%b-%Y")
-
 # filter out just 2022 logbook entries
 Logbooks <-
   Logbooks %>%
@@ -324,7 +332,7 @@ Logbooks$ENDDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
 
-#the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
+# the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
 Logbooks['TimeStampError'] <-
   ifelse(Logbooks$STARTDATETIME >= Logbooks$ENDDATETIME, "true", "false")
 
@@ -336,7 +344,7 @@ Logbooks['TimeStampError'] <-
   # nrow(Logbooks_TimeStampError) #useful stat, not needed for processing
 # 857
 
-#only keep the rows where there is no error between start & end date & time
+## only keep the rows where there is no error between start & end date & time ----
 Logbooks <-
   Logbooks %>% filter(TimeStampError == "false")
 
@@ -344,7 +352,7 @@ Logbooks <-
 # nrow(Logbooks)
 # 94835
 
-#For trips lasting more than 10 days, delete the records. The assumption is there is an
+# For trips lasting more than 10 days, delete the records. The assumption is there is an
 #error in either start or end date and time and the trip didn't really last that long.
 Logbooks['TripLength'] <-
   as.numeric(difftime(Logbooks$ENDDATETIME,
@@ -356,13 +364,9 @@ Logbooks['TripLength'] <-
 # NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
 # 74
 
-#only keep trips with a length less than or equal to 10 days (240 hours)
+## Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
 Logbooks <-
   Logbooks %>% filter(TripLength <= 240)
-
-#get rid of new columns, don't need them anymore. Use the number of column in original dataset (= 149)
-Logbooks <-
-  Logbooks[, c(1:logbooks_col_num)]
 
 # grep("VESSEL_OFFICIAL", names(SEFHIER_PermitInfo), value = T)
 # grep("VESSEL_OFFICIAL", names(Logbooks), value = T)
@@ -373,9 +377,10 @@ SEFHIER_logbooks <-
             Logbooks,
             join_by(VESSEL_OFFICIAL_NUMBER)) #joins permit info and trip info together
 
-#subsets the data with no logbook entries, useful stat, not needed for processing
-VesselsNoLogbooks <-
-  subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
+# subsets the data with no logbook entries, useful stat, not needed for processing
+# That is mostly for compliance analysis
+# VesselsNoLogbooks <-
+#   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
 
 # the same as
 # VesselsNoLogbooks <-
@@ -384,11 +389,12 @@ VesselsNoLogbooks <-
 # nrow(VesselsNoLogbooks)
 # 1636
 
-#### (3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ####
+## remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ####
 
-#### prep the compliance data ####
+### prep the compliance data ####
 
 # Use compliance data uploaded before
+
 # rename DF
 OverrideData <- compliance_data
 
@@ -397,22 +403,16 @@ OverrideData <- compliance_data
 # 458071     19
 
 #filter out year 2022
-OverrideData <- OverrideData %>% filter(COMP_YEAR == my_year)
+OverrideData <- OverrideData %>%
+  filter(COMP_YEAR == my_year)
 
-#only keep the columns you need
-# OverrideData <- OverrideData[,c(4,8,13)]
-
-#change column name
+#change column names
 OverrideData <-
   OverrideData |>
   dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
-# I changed it to the `rename()` syntax above so we know what columns are renamed (AS)
-# colnames(OverrideData)[1] <- ("VESSEL_OFFICIAL_NUMBER")
-# colnames(OverrideData)[3] <- ("OVERRIDDEN")
-
-#change data type this column if needed
+# change data type this column if needed
 #OverrideData$VESSEL_OFFICIAL_NUMBER <- as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
 
 #### determine what weeks were overridden, and exclude those logbooks ####
@@ -436,14 +436,16 @@ SEFHIER_logbooks$TRIP_END_DATE2 <-
 #
 # The `lubridate::ymd` function is used to parse the dates from the 'TRIP_END_DATE2' column with year, month, and day components
 
+
 SEFHIER_logbooks <-
   SEFHIER_logbooks %>%
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
-# To see the result, note week 52 of 2021 (AS):
+# See the result, note week 52 of 2021 (AS):
 SEFHIER_logbooks |>
-  select(TRIP_END_DATE, TRIP_END_YEAR, COMP_WEEK) |>
+  select(TRIP_START_DATE,
+         TRIP_END_DATE, TRIP_END_YEAR, COMP_WEEK) |>
   distinct() |>
   arrange(TRIP_END_DATE) |>
   head(3)
@@ -452,13 +454,15 @@ SEFHIER_logbooks |>
 # 2    2022-01-02          2021        52
 # 3    2022-01-03          2022         1
 
+#### Filter: 2022 start dates
 SEFHIER_logbooks <-
   SEFHIER_logbooks %>%
-  filter(TRIP_END_YEAR == my_year)
+  filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y"))
 
 # stat, not needed for processing
 # nrow(SEFHIER_logbooks)
 # 318706
+# 468350 (incl. Week 52 2021)
 
 # to see the respective data in OverrideData
 # not needed for processing
@@ -474,7 +478,10 @@ SEFHIER_logbooks <-
 # 2      2022       2022-01-16         2
 # 3      2022       2022-01-23         3
 
-# if a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
+# If a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
+# We have to remove logbooks for weeks that were overridden because we don't have a timestamp for when the logbook was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
+# We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
+# E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
 
 # add override data to df
 SEFHIER_logbooks_overr <-
@@ -485,9 +492,6 @@ SEFHIER_logbooks_overr <-
                     COMP_WEEK),
             relationship = "many-to-many"
             )
-# Was:
-# by = c("VESSEL_OFFICIAL_NUMBER", "COMP_WEEK"))
-# added a year (AS)
 
 # stat, not needed for processing
 # dim(SEFHIER_logbooks_overr)
