@@ -361,18 +361,14 @@ Logbooks <-
 Logbooks <-
   Logbooks[, c(1:logbooks_col_num)]
 
+# grep("VESSEL_OFFICIAL", names(SEFHIER_PermitInfo), value = T)
+# grep("VESSEL_OFFICIAL", names(Logbooks), value = T)
+
 ### Keep only vessels in Metricks tracking ----
 SEFHIER_logbooks <-
   left_join(SEFHIER_PermitInfo,
             Logbooks,
-            join_by(VESSEL_OFFICIAL_NUMBER == VESSEL_OFFICIAL_NBR)) #joins permit info and trip info together
-
-
-write.csv(
-  RedGrouper_TargetSpecies_SEFHIER_GOM_Logbooks_byDateSpecified,
-  file = paste0(Path, Outputs, "RedGrouper.csv"),
-  row.names = FALSE
-)
+            join_by(VESSEL_OFFICIAL_NUMBER)) #joins permit info and trip info together
 
 #subsets the data with no logbook entries, useful stat, not needed for processing
 VesselsNoLogbooks <-
@@ -390,6 +386,7 @@ VesselsNoLogbooks <-
 #### prep the compliance data ####
 
 # Use compliance data uploaded before
+# rename
 OverrideData <- compliance_data
 
 # stat, not needed for processing
@@ -403,8 +400,8 @@ OverrideData <- OverrideData %>% filter(COMP_YEAR == 2022)
 # OverrideData <- OverrideData[,c(4,8,13)]
 
 #change column name
-OverrideData_1 <-
-OverrideData |>
+OverrideData <-
+  OverrideData |>
   dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
@@ -481,7 +478,7 @@ SEFHIER_logbooks_overr <-
   left_join(SEFHIER_logbooks,
             OverrideData,
             join_by(TRIP_END_YEAR == COMP_YEAR,
-                    VESSEL_OFFICIAL_NUMBER == VESSEL_OFFICIAL_NBR,
+                    VESSEL_OFFICIAL_NUMBER,
                     COMP_WEEK),
             relationship = "many-to-many"
             )
@@ -493,29 +490,34 @@ SEFHIER_logbooks_overr <-
 # dim(SEFHIER_logbooks_overr)
 # 318751    170
 
+grep("OVERR",
+     names(SEFHIER_logbooks_overr),
+     ignore.case = T,
+     value = T)
+
 SEFHIER_logbooks_overridden <-
-  filter(SEFHIER_logbooks_overr, IS_COMP_OVERRIDE == 1) #data frame of logbooks that were overridden
+  filter(SEFHIER_logbooks_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
 
 # stat, not needed for processing
 # dim(SEFHIER_logbooks_overridden)
 # 9435  170
 
 # To see if we need to remove overridden trips (AS)
-# SEFHIER_logbooks1 |>
-#   filter(IS_COMP_OVERRIDE == 1)  |>
+# SEFHIER_logbooks |>
+#   filter(OVERRIDDEN == 1)  |>
 #   select(all_of(contains("TRIP")),
 #          all_of(contains("over"))) |>
 #   View()
 
 SEFHIER_logbooks_notoverridden <-
-  filter(SEFHIER_logbooks_overr, IS_COMP_OVERRIDE == 0) #data frame of logbooks that weren't overridden
+  filter(SEFHIER_logbooks_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
 
 # stat, not needed for processing
 # dim(SEFHIER_logbooks_notoverridden)
 # 308745    170
 
 SEFHIER_logbooks_NA <-
-  filter(SEFHIER_logbooks_overr, is.na(IS_COMP_OVERRIDE)) #logbooks with an Overridden value of NA, because they were
+  filter(SEFHIER_logbooks_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
@@ -525,17 +527,35 @@ SEFHIER_logbooks_NA <-
 
 #SEFHIER vessels missing from the Compliance report
 SEFHIER_VesselsMissing <-
-  anti_join(SEFHIER_PermitInfo[, 1], OverrideData, by = 'VESSEL_OFFICIAL_NUMBER')
+  anti_join(SEFHIER_PermitInfo,
+            OverrideData,
+            by = 'VESSEL_OFFICIAL_NUMBER') |>
+  select(VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
+
+# dim(SEFHIER_VesselsMissing)
+# 34
+
 #SEFHIER AH logbooks from vessels missing from the Compliance report
-SEFHIER_VesselsMissingAHUlogbooks <-
-  inner_join(SEFHIER_VesselsMissing, SEFHIER_logbooks_NA, by = 'VESSEL_OFFICIAL_NUMBER')
+# SEFHIER_VesselsMissingAHUlogbooks <-
+#   inner_join(SEFHIER_VesselsMissing,
+#              SEFHIER_logbooks_NA,
+#              by = 'VESSEL_OFFICIAL_NUMBER')
+
+# SEFHIER_VesselsMissingAHUlogbooks |>
+#   select()
+#
+# View(SEFHIER_VesselsMissingAHUlogbooks)
+
 #add missing logbooks back to the not overridden data frame
-SEFHIER_logbooks_notoverridden <-
-  rbind(SEFHIER_logbooks_notoverridden,
-        SEFHIER_VesselsMissingAHUlogbooks)
+# SEFHIER_logbooks_notoverridden <-
+#   rbind(SEFHIER_logbooks_notoverridden,
+#         SEFHIER_VesselsMissingAHUlogbooks)
+
 #remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
 SEFHIER_logbooks_NA <-
-  anti_join(SEFHIER_logbooks_NA, SEFHIER_VesselsMissingAHUlogbooks)
+  anti_join(SEFHIER_logbooks_NA,
+            SEFHIER_VesselsMissingAHUlogbooks)
 
 
 #only keep the logbooks from non overridden weeks
