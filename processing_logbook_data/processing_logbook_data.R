@@ -141,6 +141,38 @@ read_rds_or_run_query <- function(my_file_path,
 # set up an Oracle connection
 try(con <- connect_to_secpr())
 
+## Get compliance (and override) data ----
+# Prepare 2 variables to use as parameters for read_rds_or_run_query()
+
+# override_data_file_path is the same as compl_err_query_file, e.g.
+#   "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
+
+# 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
+compl_err_query_file <-
+  file.path(Path, Outputs, "Compliance_raw_data_Year.rds")
+
+# 2) create variable with table to call data from, define year
+compl_err_query <-
+  "SELECT
+  *
+FROM
+  srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  comp_year >= '2020'"
+
+
+# Check if the file path is correct, optional
+# file.exists(compl_err_query_file)
+
+# Create the compliance/overridden data frame
+# using the function pre-defined above (to see press F2) to check if there is a file saved already,
+# read it
+# or run the query and write the file for future use
+
+compliance_data <-
+  read_rds_or_run_query(compl_err_query_file,
+                        compl_err_query)
+
 ## Import and prep the permit data ####
 #use Metrics Tracking report
 #remove SRHS vessels from the list
