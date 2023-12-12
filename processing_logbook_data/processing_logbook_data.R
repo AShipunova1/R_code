@@ -39,7 +39,10 @@ Path <- annas_path
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
-#set the date ranges for the logbook and compliance data you are pulling
+# Set the date ranges for the logbook and compliance data you are pulling
+my_year <- '2022'
+my_date_beg <- '01-JAN-2022'
+my_date_end <- '01-DEC-2023'
 
 #To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
 
@@ -235,14 +238,15 @@ logbooks_file_path <-
 
 # 2) create a variable with an SQL query to call data from the database
 logbooks_download_query <-
-  "SELECT
+  str_glue("SELECT
   *
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk
 WHERE
-    trip_start_date >= '01-JAN-2022'
-  AND trip_start_date <= '01-DEC-2023'
-"
+    trip_start_date >= '", my_date_beg,
+"'
+  AND trip_start_date <= '", my_date_end, "'
+")
 
 # Use 'read_rds_or_run_query' defined above to either read permit information from an RDS file or execute a query to obtain it and write a file for future use.
 Logbooks <-
@@ -300,16 +304,19 @@ Logbooks$TRIP_END_DATE <-
 Logbooks$TRIP_END_TIME <-
   as.character(sprintf("%04d", as.numeric(Logbooks$TRIP_END_TIME)))
 
+as.Date(my_date_beg, "%d-%b-%Y")
+
 # filter out just 2022 logbook entries
 Logbooks <-
-  Logbooks %>% filter(TRIP_END_DATE >= "2022-01-01" &
-                        TRIP_START_DATE <= "2022-12-31")
+  Logbooks %>%
+  filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
+           TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
 #check logbook records for cases where start date/time is after end date/time, delete these records
 #create column for start date & time
-Logbooks$STARTDATETIME <- as.POSIXct(paste(Logbooks$TRIP_START_DATE,
-                                           Logbooks$TRIP_START_TIME),
-                                           format = "%Y-%m-%d %H%M")
+Logbooks$STARTDATETIME <-
+  as.POSIXct(paste(Logbooks$TRIP_START_DATE,                                           Logbooks$TRIP_START_TIME),
+             format = "%Y-%m-%d %H%M")
 
 # not needed for processing
 # Logbooks$STARTDATETIME |>
@@ -317,9 +324,9 @@ Logbooks$STARTDATETIME <- as.POSIXct(paste(Logbooks$TRIP_START_DATE,
 # "2022-07-07 08:00:00 EDT"
 
 #create column for end date & time
-Logbooks$ENDDATETIME <- as.POSIXct(paste(Logbooks$TRIP_END_DATE,
-                                         Logbooks$TRIP_END_TIME),
-                                         format = "%Y-%m-%d %H%M")
+Logbooks$ENDDATETIME <-
+  as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
+             format = "%Y-%m-%d %H%M")
 
 #the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
 Logbooks['TimeStampError'] <-
@@ -386,7 +393,7 @@ VesselsNoLogbooks <-
 #### prep the compliance data ####
 
 # Use compliance data uploaded before
-# rename
+# rename DF
 OverrideData <- compliance_data
 
 # stat, not needed for processing
@@ -394,7 +401,7 @@ OverrideData <- compliance_data
 # 458071     19
 
 #filter out year 2022
-OverrideData <- OverrideData %>% filter(COMP_YEAR == 2022)
+OverrideData <- OverrideData %>% filter(COMP_YEAR == my_year)
 
 #only keep the columns you need
 # OverrideData <- OverrideData[,c(4,8,13)]
@@ -451,7 +458,7 @@ SEFHIER_logbooks |>
 
 SEFHIER_logbooks <-
   SEFHIER_logbooks %>%
-  filter(TRIP_END_YEAR == 2022)
+  filter(TRIP_END_YEAR == my_year)
 
 # stat, not needed for processing
 # nrow(SEFHIER_logbooks)
@@ -553,9 +560,9 @@ SEFHIER_VesselsMissing <-
 #         SEFHIER_VesselsMissingAHUlogbooks)
 
 #remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
-SEFHIER_logbooks_NA <-
-  anti_join(SEFHIER_logbooks_NA,
-            SEFHIER_VesselsMissingAHUlogbooks)
+# SEFHIER_logbooks_NA <-
+  # anti_join(SEFHIER_logbooks_NA,
+            # SEFHIER_VesselsMissingAHUlogbooks)
 
 
 #only keep the logbooks from non overridden weeks
