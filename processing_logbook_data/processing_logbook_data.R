@@ -1,14 +1,15 @@
 # processing_logbook_data
 
-#This code processes logbook data from Oracle, then cleans it up, so that we can use it in any logbook data analysis:
-  #(1) pull all logbook and compliance data from Oracle
-  #(2) clean up logbook data set, using Metrics Tracking and SRHS list
-       #(a) remove records from SRHS vessels
-       #(b) remove records from vessels without a GOM SEFHIER permit
-       #(c) remove records where start date/time is after end date/time
-       #(d) remove records for trips lasting more than 10 days
-       #(e) only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
-  #(3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
+# This code processes logbook data from Oracle,
+# then cleans it up, so that we can use it in any logbook data analysis:
+#(1) pull all logbook and compliance data from Oracle
+#(2) clean up logbook data set, using Metrics Tracking and SRHS list
+#(a) remove records from SRHS vessels
+#(b) remove records from vessels without a GOM SEFHIER permit
+#(c) remove records where start date/time is after end date/time
+#(d) remove records for trips lasting more than 10 days
+#(e) only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
+#(3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
 
 #general set up:
 
@@ -28,12 +29,13 @@ library(crayon) # Colored terminal output
 #set working and output directory - where do you keep the data and analysis folder on your computer?
 # example: Path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
 
-# annasPath <-
-  # r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
+annas_path <-
+  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
 
 Path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
 
+Path <- annas_path
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
@@ -190,12 +192,15 @@ SEFHIER_MetricsTracking <- read.csv(
 ) #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
 #rename column headers
 SEFHIER_MetricsTracking <-
-  SEFHIER_MetricsTracking %>% rename(PERMIT_REGION = `Permit.Grouping.Region`, VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
+  SEFHIER_MetricsTracking %>%
+  rename(PERMIT_REGION = `Permit.Grouping.Region`,
+         VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
 
 #import the list of SRHS vessels
 #this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
 SRHSvessels <-
   read_csv(paste(Path, Inputs, "2022SRHSvessels.csv", sep = ""))
+
 #reformat and rename column
 colnames(SRHSvessels)[5] <- ("VESSEL_OFFICIAL_NUMBER")
 SRHSvessels$VESSEL_OFFICIAL_NUMBER <-
@@ -253,7 +258,7 @@ logbooks_col_num <- ncol(Logbooks)
 # 149
 
 #rename column
-Logbooks1 <-
+Logbooks <-
   rename(Logbooks,
          VESSEL_OFFICIAL_NUMBER =
            "VESSEL_OFFICIAL_NBR")
@@ -370,9 +375,9 @@ write.csv(
 )
 
 
-# only keep A, H and U logbooks (U means Unknown Trip Type, a VMS issue)
-SEFHIER_logbooksAHU <-
-  subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) # subsets the data to charter and headboat logbook entries only
+# # only keep A, H and U logbooks (U means Unknown Trip Type, a VMS issue)
+# SEFHIER_logbooksAHU <-
+#   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) # subsets the data to charter and headboat logbook entries only
 
 #subsets the data with no logbook entries, useful stat, not needed for processing
 VesselsNoLogbooks <-
@@ -523,14 +528,20 @@ SEFHIER_logbooksAHU_NA <-
 # dim(SEFHIER_logbooksAHU_NA)
 # 571 170
 
-#GOM vessels missing from the Compliance report
-#GOMVesselsMissing <- anti_join(GOMPermitInfo[,1], OverrideData, by='VESSEL_OFFICIAL_NUMBER')
-#GOM AH logbooks from vessels missing from the Compliance report
-#GOMVesselsMissingAHUlogbooks <- inner_join(GOMVesselsMissing, GOMlogbooksAHU_NA, by='VESSEL_OFFICIAL_NUMBER')
+#SEFHIER vessels missing from the Compliance report
+SEFHIER_VesselsMissing <-
+  anti_join(SEFHIER_PermitInfo[, 1], OverrideData, by = 'VESSEL_OFFICIAL_NUMBER')
+#SEFHIER AH logbooks from vessels missing from the Compliance report
+SEFHIER_VesselsMissingAHUlogbooks <-
+  inner_join(SEFHIER_VesselsMissing, SEFHIER_logbooksAHU_NA, by = 'VESSEL_OFFICIAL_NUMBER')
 #add missing logbooks back to the not overridden data frame
-#GOMlogbooksAHU_notoverridden <- rbind(GOMlogbooksAHU_notoverridden, GOMVesselsMissingAHUlogbooks)
+SEFHIER_logbooksAHU_notoverridden <-
+  rbind(SEFHIER_logbooksAHU_notoverridden,
+        SEFHIER_VesselsMissingAHUlogbooks)
 #remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
-#GOMlogbooksAHU_NA <- anti_join(GOMlogbooksAHU_NA, GOMVesselsMissingAHUlogbooks)
+SEFHIER_logbooksAHU_NA <-
+  anti_join(SEFHIER_logbooksAHU_NA, SEFHIER_VesselsMissingAHUlogbooks)
+
 
 #only keep the logbooks from non overridden weeks
 SEFHIER_logbooksAHU <- SEFHIER_logbooksAHU_notoverridden
