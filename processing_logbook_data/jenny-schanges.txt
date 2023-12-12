@@ -1,0 +1,8 @@
+#SEFHIER vessels missing from the Compliance report
+SEFHIERVesselsMissing <- anti_join(SEFHIER_PermitInfo[,1], OverrideData, by='VESSEL_OFFICIAL_NUMBER')
+#SEFHIER AH logbooks from vessels missing from the Compliance report
+SEFHIERVesselsMissingAHUlogbooks <- inner_join(SEFHIERVesselsMissing, SEFHIERlogbooksAHU_NA, by='VESSEL_OFFICIAL_NUMBER')
+#add missing logbooks back to the not overridden data frame
+SEFHIERlogbooksAHU_notoverridden <- rbind(SEFHIERlogbooksAHU_notoverridden, SEFHIERVesselsMissingAHUlogbooks)
+#remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
+SEFHIERlogbooksAHU_NA <- anti_join(SEFHIERlogbooksAHU_NA, SEFHIERVesselsMissingAHUlogbooks)
