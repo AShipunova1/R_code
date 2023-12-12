@@ -302,7 +302,7 @@ Logbooks$TRIP_END_TIME <-
 
 # filter out just 2022 logbook entries
 Logbooks <-
-  Logbooks %>% filter(TRIP_START_DATE >= "2022-01-01" &
+  Logbooks %>% filter(TRIP_END_DATE >= "2022-01-01" &
                         TRIP_START_DATE <= "2022-12-31")
 
 #check logbook records for cases where start date/time is after end date/time, delete these records
