@@ -78,12 +78,11 @@ function_message <- function(text_msg) {
 
 # A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
 
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
+# The read_rds_or_run_query function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
 # See usage below at the `Grab compliance file from Oracle` section
-read_rds_or_run <- function(my_file_path,
-                            my_data = as.data.frame(""),
-                            my_function,
-                            force_from_db = NULL) {
+read_rds_or_run_query <- function(my_file_path,
+                                  my_query,
+                                  force_from_db = NULL) {
 
     # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
     if (file.exists(my_file_path) &
@@ -111,9 +110,9 @@ read_rds_or_run <- function(my_file_path,
         paste(today(), "run for", basename(my_file_path))
       tictoc::tic(msg_text)  # Start timing the operation.
 
-      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN. Must have connection (`con`) already established.
 
-      my_result <- my_function(my_data)
+      my_result <- dbGetQuery(con, my_query)
 
       tictoc::toc()  # Stop timing the operation.
 
@@ -140,12 +139,7 @@ read_rds_or_run <- function(my_file_path,
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
 
 # set up an Oracle connection
-con = dbConnect(
-  dbDriver("Oracle"),
-  username = keyring::key_list("SECPR")[1, 2],
-  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
-  dbname = "SECPR"
-)
+try(con <- connect_to_secpr())
 
 ## Import and prep the permit data ####
 #use Metrics Tracking report
@@ -185,7 +179,7 @@ SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
 # 3469
 
 ## Get compliance (and override) data ----
-# Prepare 3 variables to use as parameters for read_rds_or_run()
+# Prepare 2 variables to use as parameters for read_rds_or_run_query()
 
 # override_data_file_path is the same as compl_err_query_file, e.g.
 #   "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
@@ -207,23 +201,14 @@ WHERE
 # Check if the file path is correct, optional
 # file.exists(compl_err_query_file)
 
-# 3) This is a function to be run from the read_rds_or_run function. If you'd like to run it separately, you have to be on VPN and have an Oracle connection.
-compl_err_fun <-
-  function(compl_err_query) {
-    compliance_data <- dbGetQuery(con, compl_err_query)
-    return(compliance_data)
-  }
-
 # Create the compliance/overridden data frame
 # using the function pre-defined above (to see press F2) to check if there is a file saved already,
 # read it
 # or run the query and write the file for future use
 
 compliance_data <-
-  read_rds_or_run(compl_err_query_file,
-                  compl_err_query,
-                  compl_err_fun
-                  )
+  read_rds_or_run_query(compl_err_query_file,
+                        compl_err_query)
 
 ## Import and prep the logbook data ####
 #delete logbook records where start date/time is after end date/time
@@ -231,12 +216,14 @@ compliance_data <-
 #only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
 
 # Import the logbook data from file or database
-# Prepare 3 variables to use as parameters for read_rds_or_run()
+# Prepare 2 variables to use as parameters for read_rds_or_run_query()
 
 # 1) create a variable with file path to read or write the logbook file
 
 logbooks_file_path <-
-  paste(Path, Inputs, "SAFIS_TripsDownload_1.1.22-12.01.23.rds",
+  paste(Path,
+        Outputs,
+        "SAFIS_TripsDownload_1.1.22-12.01.23.rds",
         sep = "")
 #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
 
@@ -251,21 +238,10 @@ WHERE
   AND trip_start_date <= '01-DEC-2023'
 "
 
-# 3) This is a function to be run from the read_rds_or_run function. If you'd like to run it separately, you have to be on VPN and have an Oracle connection.
-# The function 'mv_safis_trip_download_fun' is to retrieve data from the database using a specified query.
-# It uses 'dbGetQuery' to execute the query on the database connection 'con' and return the result.
-
-logbooks_download_fun <-
-  function(logbooks_download_query) {
-    result <- dbGetQuery(con, logbooks_download_query)
-    return(result)
-  }
-
-# Use 'read_rds_or_run' defined above to either read permit information from an RDS file or execute a query to obtain it and write a file for future use.
+# Use 'read_rds_or_run_query' defined above to either read permit information from an RDS file or execute a query to obtain it and write a file for future use.
 Logbooks <-
-  read_rds_or_run(logbooks_file_path,
-                  logbooks_download_query,
-                  logbooks_download_fun)
+  read_rds_or_run_query(logbooks_file_path,
+                        logbooks_download_query)
 
 # not needed for processing
 # dim(Logbooks)
@@ -276,11 +252,10 @@ logbooks_col_num <- ncol(Logbooks)
 # 149
 
 #rename column
-# Was:
-# colnames(Logbooks)[6]
-# "VESSEL_OFFICIAL_NBR"
-
-colnames(Logbooks)[6] <- ("VESSEL_OFFICIAL_NUMBER")
+Logbooks1 <-
+  rename(Logbooks,
+         VESSEL_OFFICIAL_NUMBER =
+           "VESSEL_OFFICIAL_NBR")
 
 # reformat trip start/end date/time
 # 1)
