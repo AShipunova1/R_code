@@ -387,12 +387,21 @@ Logbooks <-
 Logbooks <-
   Logbooks[, c(1:logbooks_col_num)]
 
-# only keep A, H and U logbooks (U means Unknown Trip Type, a VMS issue)
+### Keep only vessels in Metricks tracking ----
 SEFHIER_logbooks <-
   left_join(SEFHIER_PermitInfo,
             Logbooks,
-            by = c("VESSEL_OFFICIAL_NUMBER")) #joins permit info and trip info together
+            join_by(VESSEL_OFFICIAL_NUMBER == VESSEL_OFFICIAL_NBR)) #joins permit info and trip info together
 
+
+write.csv(
+  RedGrouper_TargetSpecies_SEFHIER_GOM_Logbooks_byDateSpecified,
+  file = paste0(Path, Outputs, "RedGrouper.csv"),
+  row.names = FALSE
+)
+
+
+# only keep A, H and U logbooks (U means Unknown Trip Type, a VMS issue)
 SEFHIER_logbooksAHU <-
   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c("A", "H", "U"))) # subsets the data to charter and headboat logbook entries only
 
