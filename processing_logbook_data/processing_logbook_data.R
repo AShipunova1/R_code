@@ -14,14 +14,10 @@
 #general set up:
 
 #load required packages
-library(tidyr) #analysis of dataframes
-library(readxl) #to read in XL files and by sheet
 library(ROracle)
-library(readr)
-library(dplyr)
 library(xlsx)
-library(lubridate)
 library(tidyverse)
+# see the list of packages: tidyverse_packages()
 
 library(tictoc) # Functions for timing
 library(crayon) # Colored terminal output
@@ -635,7 +631,7 @@ SEFHIER_logbooks_usable <-
 # NumVessels_unusablelogbooks <- length(unique(SEFHIER_logbooks_unusable[,1])) #how many vessels had an unusable logbook?
 # 1053
 
-# Separate GOM only, SA only or dual using PERMIT_GROUP ----
+# Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Data example:
 # SEFHIER_logbooks_usable %>%
 #   select(PERMIT_GROUP) |>
