@@ -46,6 +46,30 @@ Outputs <- "Outputs/"
 # new data set, check your weeks to make sure it's calculating correctly after running that line of code.
 
 # Auxiliary methods ----
+
+# Define a function named 'connect_to_secpr'.
+# It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
+# usage:
+# con <- connect_to_secpr()
+# or
+# try(con <- connect_to_secpr())
+
+connect_to_secpr <- function() {
+    # Retrieve the username associated with the "SECPR" database from the keyring.
+    my_username <- keyring::key_list("SECPR")[1, 2]
+
+    # Use 'dbConnect' to establish a database connection with the specified credentials.
+    con <- dbConnect(
+        dbDriver("Oracle"),  # Use the Oracle database driver.
+        username = my_username,  # Use the retrieved username.
+        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
+        dbname = "SECPR"  # Specify the name of the database as "SECPR."
+    )
+
+    # Return the established database connection.
+    return(con)
+}
+
 # Pretty message print
 function_message <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
