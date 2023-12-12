@@ -249,9 +249,8 @@ logbooks_download_query <-
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk
 WHERE
-    trip_start_date >= '", my_date_beg,
-"'
-  AND trip_start_date <= '", my_date_end, "'
+    trip_start_date >= '{my_date_beg}'
+  AND trip_start_date <= '{my_date_end}'
 ")
 
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
