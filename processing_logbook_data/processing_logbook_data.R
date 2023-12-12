@@ -544,26 +544,19 @@ SEFHIER_VesselsMissing <-
 # 34
 
 #SEFHIER AH logbooks from vessels missing from the Compliance report
-# SEFHIER_VesselsMissingAHUlogbooks <-
-#   inner_join(SEFHIER_VesselsMissing,
-#              SEFHIER_logbooks_NA,
-#              by = 'VESSEL_OFFICIAL_NUMBER')
-
-# SEFHIER_VesselsMissingAHUlogbooks |>
-#   select()
-#
-# View(SEFHIER_VesselsMissingAHUlogbooks)
+SEFHIER_VesselsMissing_logbooks <-
+  SEFHIER_logbooks_NA |>
+  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
 
 #add missing logbooks back to the not overridden data frame
-# SEFHIER_logbooks_notoverridden <-
-#   rbind(SEFHIER_logbooks_notoverridden,
-#         SEFHIER_VesselsMissingAHUlogbooks)
+SEFHIER_logbooks_notoverridden <-
+  rbind(SEFHIER_logbooks_notoverridden,
+        SEFHIER_VesselsMissing_logbooks)
 
 #remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
-# SEFHIER_logbooks_NA <-
-  # anti_join(SEFHIER_logbooks_NA,
-            # SEFHIER_VesselsMissingAHUlogbooks)
-
+SEFHIER_logbooks_NA <-
+    SEFHIER_logbooks_NA |>
+  filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
 
 #only keep the logbooks from non overridden weeks
 SEFHIER_logbooks <- SEFHIER_logbooks_notoverridden
