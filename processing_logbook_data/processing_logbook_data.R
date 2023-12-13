@@ -690,7 +690,7 @@ SEFHIER_logbooks_notoverridden <-
 
 # Filtering logbook data ----
 
-## Keep only vessels in Metricks tracking ----
+## Filter vessels: Keep only vessels in Metricks tracking ----
 # Revise that section after deciding on the permit info source.
 SEFHIER_logbooks_notoverridden__in_metr <-
   SEFHIER_logbooks_notoverridden |>
@@ -707,7 +707,17 @@ my_stat(SEFHIER_logbooks_notoverridden__in_metr)
 # columns: 170
 # Unique vessels: 1829
 
-## Filter: start date/time is after end date/time ----
+# thrown away in this step
+SEFHIER_logbooks_notoverridden |>
+  filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_PermitInfo$VESSEL_OFFICIAL_NUMBER) |>
+  my_stat()
+# rows: 4736
+# columns: 170
+# Unique vessels: 41
+
+# NB. The rest is removing logbooks.
+
+## Start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
 
 # the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
@@ -718,7 +728,7 @@ SEFHIER_logbooks_notoverridden__in_metr['TimeStampError'] <-
     "false"
   )
 
-# Filter: only keep the rows where there is no error between start & end date & time
+### Filter: only keep the rows where there is no error between start & end date & time ----
 SEFHIER_logbooks_notoverridden__in_metr__start_end_ok <-
   SEFHIER_logbooks_notoverridden__in_metr %>%
   filter(TimeStampError == "false")
@@ -753,7 +763,7 @@ SEFHIER_logbooks_notoverridden__in_metr__start_end_ok['TripLength'] <-
 # NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
 # 74
 
-## Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
+### Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
 
 SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok <-
   SEFHIER_logbooks_notoverridden__in_metr__start_end_ok %>%
@@ -779,7 +789,7 @@ SEFHIER_logbooks_notoverridden__in_metr__start_end_ok %>%
 # nrow(VesselsNoLogbooks)
 # 1636
 
-## remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
+## Remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
 
 # subtract the usable date from the date of submission
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
@@ -823,6 +833,16 @@ my_stat(SEFHIER_logbooks_usable)
 # rows: 271101
 # columns: 173
 # Unique vessels: 1628
+
+# check
+min(SEFHIER_logbooks_usable$TRIP_START_DATE)
+# [1] "2022-01-01"
+max(SEFHIER_logbooks_usable$TRIP_START_DATE)
+# [1] "2022-12-31"
+min(SEFHIER_logbooks_usable$TRIP_END_DATE)
+# [1] "2022-01-01"
+max(SEFHIER_logbooks_usable$TRIP_END_DATE)
+# [1] "2022-12-31"
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Data example:
@@ -886,8 +906,8 @@ SEFHIER_logbooks_usable_p_regions <-
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
 
-# annas_file_path <-
-  # file.path(Path, "Outputs", "SEFHIER_usable_Logbooks.rds")
+annas_file_path <-
+  file.path(Path, "Outputs", "SEFHIER_usable_Logbooks.rds")
 
 jennys_file_path <-
   paste(Path, Outputs, "SEFHIER_usable_Logbooks.rds",
@@ -898,4 +918,3 @@ write_rds(
   file = jennys_file_path
 )
 
-# Workflow check ----
