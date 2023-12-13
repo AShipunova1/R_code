@@ -148,7 +148,9 @@ tic("try_con")
 try(con <- connect_to_secpr())
 toc()
 
-## Get compliance (and override) data ----
+## Import and prep compliance (and override) data ----
+
+### Import compliance/override data ----
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
 
 # override_data_file_path is the same as compl_err_query_file, e.g.
@@ -181,6 +183,34 @@ WHERE
 compliance_data <-
   read_rds_or_run_query(compl_err_query_file,
                         compl_err_query)
+
+### prep the compliance data ####
+
+# Use compliance data uploaded before
+
+# rename DF
+OverrideData <- compliance_data
+
+# stat, not needed for processing
+# dim(OverrideData)
+# 458071     19
+
+# keep only year 2022
+OverrideData <- OverrideData %>%
+  filter(
+    COMP_WEEK_START_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
+      COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y")
+  )
+
+#change column names
+OverrideData <-
+  OverrideData |>
+  dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
+                OVERRIDDEN = "IS_COMP_OVERRIDE")
+
+# change data type this column if needed
+#OverrideData$VESSEL_OFFICIAL_NUMBER <- as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
+
 
 ## Import and prep the permit data ####
 #use Metrics Tracking report
@@ -390,30 +420,6 @@ SEFHIER_logbooks <-
 
 ## remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ####
 
-### prep the compliance data ####
-
-# Use compliance data uploaded before
-
-# rename DF
-OverrideData <- compliance_data
-
-# stat, not needed for processing
-# dim(OverrideData)
-# 458071     19
-
-#filter out year 2022
-OverrideData <- OverrideData %>%
-  filter(COMP_WEEK_START_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
-           COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
-
-#change column names
-OverrideData <-
-  OverrideData |>
-  dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
-                OVERRIDDEN = "IS_COMP_OVERRIDE")
-
-# change data type this column if needed
-#OverrideData$VESSEL_OFFICIAL_NUMBER <- as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
 
 #### determine what weeks were overridden, and exclude those logbooks ####
 
