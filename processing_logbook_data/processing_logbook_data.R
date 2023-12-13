@@ -413,25 +413,6 @@ Logbooks$ENDDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
 
-### For trips lasting more than 10 days, delete the records. ----
-
-# The assumption is there is an error in either start or end date and time and the trip didn't really last that long.
-
-Logbooks['TripLength'] <-
-  as.numeric(difftime(Logbooks$ENDDATETIME,
-                      Logbooks$STARTDATETIME,
-                      units = "hours"))
-
-# output trips with length > 240 into data frame
-# LogbooksTooLong = Logbooks %>% filter(TripLength > 240) # useful stat, not needed for processing
-# NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
-# 74
-
-## Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
-
-Logbooks <-
-  Logbooks %>% filter(TripLength <= 240)
-
 ### Keep only vessels in Metricks tracking ----
 # Revise that section after deciding on the permit info source.
 SEFHIER_logbooks <-
@@ -703,8 +684,24 @@ Logbooks <-
 # 94835
 
 
-# delete logbooks for trips lasting more than 10 days
+## Delete logbooks for trips lasting more than 10 days ----
 
+# The assumption is there is an error in either start or end date and time and the trip didn't really last that long.
+
+Logbooks['TripLength'] <-
+  as.numeric(difftime(Logbooks$ENDDATETIME,
+                      Logbooks$STARTDATETIME,
+                      units = "hours"))
+
+# output trips with length > 240 into data frame
+# LogbooksTooLong = Logbooks %>% filter(TripLength > 240) # useful stat, not needed for processing
+# NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
+# 74
+
+## Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
+
+Logbooks <-
+  Logbooks %>% filter(TripLength <= 240)
 
 
 
