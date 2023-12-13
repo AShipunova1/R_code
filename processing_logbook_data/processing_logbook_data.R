@@ -199,7 +199,8 @@ compl_err_query_file <-
             Outputs,
             "Compliance_raw_data_Year.rds")
 
-# 2) create variable with table to call data from, define year
+# 2) Create variable with table to call data from, define year.
+# >= 2020 because of when the program statred
 compl_err_query <-
   "SELECT
   *
@@ -207,7 +208,6 @@ FROM
   srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
 WHERE
   comp_year >= '2020'"
-
 
 # Check if the file path is correct, optional
 # file.exists(compl_err_query_file)
@@ -234,24 +234,24 @@ OverrideData <-
 
 # stat, not needed for processing
 my_stat(OverrideData)
-# rows: 148650
+# rows: 458071
 # columns: 19
-# Unique vessels: 3691
+# Unique vessels: 4393
 
 # stat
-# min(OverrideData$COMP_WEEK_START_DT)
+min(OverrideData$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
 # keep only year 2022, including the week 52 of the previous year
-OverrideData_2022 <-
+Override_data_this_year <-
   OverrideData %>%
   filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
     COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
 
 # check
-min(OverrideData_2022$COMP_WEEK_START_DT)
+min(Override_data_this_year$COMP_WEEK_START_DT)
 # [1] "2021-12-27 EST"
-min(OverrideData_2022$COMP_WEEK_END_DT)
+min(Override_data_this_year$COMP_WEEK_END_DT)
 # [1] "2022-01-02 EST"
 
 # change data type of this column if needed
@@ -298,16 +298,19 @@ if (!class(SRHSvessels$VESSEL_OFFICIAL_NUMBER) == "character") {
 
 # stat
 my_stat(SEFHIER_MetricsTracking)
-# 3598   13
+# rows: 3598
+# columns: 13
 # Unique vessels: 3598
 
 # Filter: remove SRHSvessels from SEFHIER_MetricsTracking list
 SEFHIER_PermitInfo <-
-  anti_join(SEFHIER_MetricsTracking, SRHSvessels, by = 'VESSEL_OFFICIAL_NUMBER')
+  anti_join(SEFHIER_MetricsTracking, SRHSvessels,
+            by = 'VESSEL_OFFICIAL_NUMBER')
 
 # stat
 my_stat(SEFHIER_PermitInfo)
-# [1] 3469   13
+# rows: 3469
+# columns: 13
 # Unique vessels: 3469
 
 # remove the columns you don't need and keep only 2
@@ -362,7 +365,7 @@ Logbooks <-
          VESSEL_OFFICIAL_NUMBER =
            "VESSEL_OFFICIAL_NBR")
 
-# not needed for processing
+# stat
 my_stat(Logbooks)
 # rows: 484413
 # columns: 149
@@ -424,7 +427,6 @@ Logbooks <-
   mutate(across(all_of(time_col_names),
          ~ sprintf("%04d", .x)))
 
-
 # Explanation:
 #
 # 1. **Create New Dataframe:**
@@ -451,46 +453,70 @@ Logbooks <-
 #    - `~ sprintf("%04d", .x)`: Format each column value with leading zeros using 'sprintf("%04d", .x)'.
 
 # stat
-# dim(Logbooks)
-# [1] 484413    149
-# length(unique(Logbooks$VESSEL_OFFICIAL_NUMBER))
-# 2218
+my_stat(Logbooks)
+# rows: 484413
+# columns: 149
+# Unique vessels: 2218
 
 ### Filter out just 2022 logbook entries if the source is other than downloaded from the database. ----
 
-Logbooks_2022 <-
+# check
+# min(Logbooks$TRIP_START_DATE)
+# [1] "2022-01-01"
+
+Logbooks <-
   Logbooks %>%
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
-my_stat(Logbooks_2022)
+my_stat(Logbooks)
 # rows: 327773
 # columns: 149
 # Unique vessels: 1882
 
 # check
-min(Logbooks_2022$TRIP_START_DATE)
+min(Logbooks$TRIP_START_DATE)
 # [1] "2022-01-01"
-max(Logbooks_2022$TRIP_START_DATE)
+max(Logbooks$TRIP_START_DATE)
 # [1] "2022-12-31"
-min(Logbooks_2022$TRIP_END_DATE)
+min(Logbooks$TRIP_END_DATE)
 # [1] "2018-06-04"
-max(Logbooks_2022$TRIP_END_DATE)
+max(Logbooks$TRIP_END_DATE)
 # [1] "2023-05-26"
 
 # create column for start date & time
-Logbooks_2022$STARTDATETIME <-
-  as.POSIXct(paste(Logbooks_2022$TRIP_START_DATE,                                           Logbooks_2022$TRIP_START_TIME),
+tic("format time")
+Logbooks$STARTDATETIME <-
+  as.POSIXct(paste(Logbooks$TRIP_START_DATE,                                           Logbooks$TRIP_START_TIME),
              format = "%Y-%m-%d %H%M")
+toc()
+# format time: 4.38 sec elapsed
+
+tic("format time 2")
+Logbooks2 <-
+  Logbooks |>
+  mutate(STARTDATETIME =
+           as.POSIXct(as.character(paste(
+             TRIP_START_DATE,
+             TRIP_START_TIME
+           )),
+           format = "%Y-%m-%d %H%M"))
+toc()
+
+STARTDATETIME <-
+  as.POSIXct(paste(Logbooks$TRIP_START_DATE,                                           Logbooks$TRIP_START_TIME),
+             format = "%Y-%m-%d %H%M")
+toc()
+
 
 # not needed for processing
-# Logbooks_2022$STARTDATETIME |>
+# Logbooks$STARTDATETIME |>
 #   head(1)
 # "2022-07-07 08:00:00 EDT"
 
 # create column for end date & time
-Logbooks_2022$ENDDATETIME <-
-  as.POSIXct(paste(Logbooks_2022$TRIP_END_DATE,                                         Logbooks_2022$TRIP_END_TIME),
+Logbooks$ENDDATETIME <-
+  as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
 
 ### Prepare data to determine what weeks were overridden, and exclude those logbooks ####
@@ -510,13 +536,13 @@ Logbooks_2022$ENDDATETIME <-
 #
 
 # Needed to adjust for week 52 of the previous year
-Logbooks_2022 <-
-  Logbooks_2022 %>%
+Logbooks <-
+  Logbooks %>%
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
 # stat
-my_stat(Logbooks_2022)
+my_stat(Logbooks)
 # rows: 327773
 # columns: 153
 # Unique vessels: 1882
@@ -537,10 +563,10 @@ my_stat(Logbooks_2022)
 
 ## add override data to logbooks ----
 # stat
-dim(Logbooks_2022)
+dim(Logbooks)
 
 SEFHIER_logbooks_overr <-
-  left_join(Logbooks_2022,
+  left_join(Logbooks,
             OverrideData,
             join_by(TRIP_END_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
@@ -828,10 +854,10 @@ SEFHIER_logbooks_usable_p_regions <-
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
 
 # annas_file_path <-
-  # file.path(Path, "Outputs", "SEFHIER_usable_logbooks_2022.rds")
+  # file.path(Path, "Outputs", "SEFHIER_usable_Logbooks.rds")
 
 jennys_file_path <-
-  paste(Path, Outputs, "SEFHIER_usable_logbooks_2022.rds",
+  paste(Path, Outputs, "SEFHIER_usable_Logbooks.rds",
         sep = "")
 
 write_rds(
