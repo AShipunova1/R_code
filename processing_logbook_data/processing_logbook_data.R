@@ -54,6 +54,7 @@ my_date_end <- '31-DEC-2022'
 # ?? which line of code?
 
 # Auxiliary methods ----
+
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
 # usage:
@@ -82,6 +83,38 @@ function_message <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
       sep = "\n")
 }
+
+# A function to print out sf stats.
+# Usage: my_stat(Logbooks)
+
+my_stat <- function(my_df) {
+  str_glue("rows: {dim(my_df)[[1]]}
+           columns: {dim(my_df)[[2]]}") |>
+    print()
+
+  uniq_vessel_num <-
+    my_df |>
+    select(VESSEL_OFFICIAL_NUMBER) |>
+    distinct() |>
+    dim()
+
+  print(str_glue("Unique vessels: {uniq_vessel_num[[1]]}"))
+}
+
+# Explanation:
+#
+# 1. **Define Function:**
+#    - `my_stat <- function(my_df) { ... }`: Define a function named 'my_stat' that takes a dataframe 'my_df' as input.
+#
+# 2. **Print Rows and Columns Information:**
+#    - `str_glue("rows: {dim(my_df)[[1]]} columns: {dim(my_df)[[2]]}") |>
+#     print()`: Use 'str_glue' to interpolate the number of rows and columns in the dataframe and print the result.
+#
+# 3. **Extract Unique Vessel Numbers:**
+#    - `uniq_vessel_num <- my_df |> select(VESSEL_OFFICIAL_NUMBER) |> distinct() |> dim()`: Use the pipe operator '|>' to extract unique vessel numbers by selecting the 'VESSEL_OFFICIAL_NUMBER' column, applying 'distinct' to get unique values, and then using 'dim' to count them.
+#
+# 4. **Print Count of Unique Vessels:**
+#    - `print(str_glue("Unique vessels: {uniq_vessel_num[[1]]}"))`: Use 'str_glue' to interpolate and print the count of unique vessels extracted in the previous step.
 
 # A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
 
@@ -433,35 +466,26 @@ max(Logbooks_2022$TRIP_END_DATE)
 # [1] "2023-05-26"
 
 # create column for start date & time
-Logbooks$STARTDATETIME <-
-  as.POSIXct(paste(Logbooks$TRIP_START_DATE,                                           Logbooks$TRIP_START_TIME),
+Logbooks_2022$STARTDATETIME <-
+  as.POSIXct(paste(Logbooks_2022$TRIP_START_DATE,                                           Logbooks_2022$TRIP_START_TIME),
              format = "%Y-%m-%d %H%M")
 
 # not needed for processing
-# Logbooks$STARTDATETIME |>
+# Logbooks_2022$STARTDATETIME |>
 #   head(1)
 # "2022-07-07 08:00:00 EDT"
 
 # create column for end date & time
-Logbooks$ENDDATETIME <-
-  as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
+Logbooks_2022$ENDDATETIME <-
+  as.POSIXct(paste(Logbooks_2022$TRIP_END_DATE,                                         Logbooks_2022$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
 
-
-## determine what weeks were overridden, and exclude those logbooks ####
+### Prepare data to determine what weeks were overridden, and exclude those logbooks ####
 
 # assign each logbook a week designation (first day of the reporting week is a Monday)
 # use the end date to calculate this, it won't matter for most trips, but for some trips that
 # happen overnight on a Sunday, it might affect what week they are assigned to
 #https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
-
-# not necessary now, already done (AS)
-# check:
-# class(SEFHIER_logbooks$TRIP_END_DATE)
-# POSIXct
-
-Logbooks$TRIP_END_DATE2 <-
-  as.Date(Logbooks$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
 
 # Calculate the ISO week number for each date in the 'TRIP_END_DATE2' column.
 # lubridate package has following methods:
@@ -472,27 +496,11 @@ Logbooks$TRIP_END_DATE2 <-
 # epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
 #
 
-Logbooks <-
-  Logbooks %>%
+# Needed to adjust for week 52 of the previous year
+Logbooks_2022 <-
+  Logbooks_2022 %>%
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
-
-# See the result, note week 52 of 2021 (AS):
-Logbooks |>
-  select(TRIP_START_DATE,
-         TRIP_END_DATE, TRIP_END_YEAR, COMP_WEEK) |>
-  distinct() |>
-  arrange(TRIP_START_DATE) |>
-  head(3)
-#   TRIP_END_DATE TRIP_END_YEAR COMP_WEEK
-# 1    2022-01-01          2021        52
-# 2    2022-01-02          2021        52
-# 3    2022-01-03          2022         1
-
-#### Filter: 2022 start dates
-Logbooks <-
-  Logbooks %>%
-  filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y"))
 
 # stat, not needed for processing
 # nrow(Logbooks)
@@ -514,8 +522,11 @@ Logbooks <-
 # 3      2022       2022-01-23         3
 
 ## add override data to logbooks ----
+# stat
+dim(Logbooks_2022)
+
 SEFHIER_logbooks_overr <-
-  left_join(Logbooks,
+  left_join(Logbooks_2022,
             OverrideData,
             join_by(TRIP_END_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
