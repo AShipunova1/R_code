@@ -413,12 +413,6 @@ Logbooks$ENDDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
 
-### Keep only vessels in Metricks tracking ----
-# Revise that section after deciding on the permit info source.
-SEFHIER_logbooks <-
-  left_join(SEFHIER_PermitInfo,
-            Logbooks,
-            join_by(VESSEL_OFFICIAL_NUMBER)) #joins permit info and trip info together
 
 # subsets the data with no logbook entries, useful stat, not needed for processing
 # That is mostly for compliance analysis
@@ -702,6 +696,13 @@ Logbooks['TripLength'] <-
 
 Logbooks <-
   Logbooks %>% filter(TripLength <= 240)
+
+## Keep only vessels in Metricks tracking ----
+# Revise that section after deciding on the permit info source.
+SEFHIER_logbooks <-
+  left_join(SEFHIER_PermitInfo,
+            Logbooks,
+            join_by(VESSEL_OFFICIAL_NUMBER)) #joins permit info and trip info together
 
 
 
