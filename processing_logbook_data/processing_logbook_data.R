@@ -216,9 +216,9 @@ if (!class(OverrideData$VESSEL_OFFICIAL_NUMBER) == "character") {
 }
 
 ## Import and prep the permit data ####
-#use Metrics Tracking report
-#remove SRHS vessels from the list
-#remove SA vessels from the list
+# use Metrics Tracking report
+# remove SRHS vessels from the list
+# remove SA vessels from the list
 
 #import the permit data
 SEFHIER_MetricsTracking <- read.csv(
@@ -266,8 +266,6 @@ SEFHIER_PermitInfo <-
 # 3469
 
 ## Import and prep the logbook data ####
-# delete logbook records where start date/time is after end date/time
-# delete logbooks for trips lasting more than 10 days
 
 # Import the logbook data from file or database
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
@@ -305,24 +303,35 @@ Logbooks <-
 # dim(Logbooks)
 # 484413    149
 
-# Save column number for future use
-logbooks_col_num <- ncol(Logbooks)
-# 149
-
-# rename column
+# Rename column to be consistent with other dataframes
 Logbooks <-
   rename(Logbooks,
          VESSEL_OFFICIAL_NUMBER =
            "VESSEL_OFFICIAL_NBR")
 
 # reformat trip start/end date
-
 Logbooks <-
   Logbooks |>
   mutate(across(c(!where(is.Date) & ends_with("_DATE")),
                 as.Date))
 
-# check
+# Explanation:
+#
+# 1. **Create New Dataframe:**
+#    - `Logbooks <- Logbooks |> ...`: Create a new dataframe 'Logbooks' by using the pipe operator '|>' on the existing 'Logbooks'.
+#
+# 2. **Use 'mutate' to Convert Columns:**
+#    - `mutate(across(..., as.Date))`: Utilize the 'mutate' function with 'across' to apply a transformation to multiple columns.
+#
+# 3. **Column Selection with 'across':**
+#    - `c(!where(is.Date) & ends_with("_DATE"))`: Select columns that meet the specified conditions:
+#      - `!where(is.Date)`: Columns that are not already of type 'Date'.
+#      - `ends_with("_DATE")`: Columns whose names end with "_DATE".
+#
+# 4. **Convert Columns to Date:**
+#    - `as.Date`: Use the 'as.Date' function to convert the selected columns to the 'Date' format.
+
+# Check
 # Logbooks$TRIP_START_DATE |>
 #   class()
 # before
@@ -355,6 +364,32 @@ Logbooks <-
                 as.numeric)) |>
   mutate(across(all_of(time_col_names),
          ~ sprintf("%04d", .x)))
+
+
+# Explanation:
+#
+# 1. **Create New Dataframe:**
+#    - `Logbooks <- Logbooks |> ...`: Create a new dataframe 'Logbooks' by using the pipe operator '|>' on the existing 'Logbooks'.
+#
+# 2. **Use 'mutate' to Convert Columns to Numeric:**
+#    - `mutate(across(..., as.numeric))`: Utilize the 'mutate' function with 'across' to apply a transformation to specific non-numeric columns, converting them to numeric using 'as.numeric'.
+#
+# 3. **Column Selection with 'across':**
+#    - `c(!where(is.numeric) & all_of(time_col_names))`: Select columns that meet the specified conditions:
+#      - `!where(is.numeric)`: Columns that are not already of type 'numeric'.
+#      - `all_of(time_col_names)`: Columns specified by 'time_col_names'.
+#
+# 4. **Convert Columns to Numeric:**
+#    - `as.numeric`: Use the 'as.numeric' function to convert the selected columns to numeric.
+#
+# 5. **Use 'mutate' to Format Columns with Leading Zeros:**
+#    - `mutate(across(..., ~ sprintf("%04d", .x)))`: Utilize 'mutate' with 'across' to format specific columns specified by 'time_col_names' with leading zeros using the 'sprintf' function.
+#
+# 6. **Column Selection with 'across':**
+#    - `all_of(time_col_names)`: Select columns specified by 'time_col_names'.
+#
+# 7. **Format Columns with Leading Zeros:**
+#    - `~ sprintf("%04d", .x)`: Format each column value with leading zeros using 'sprintf("%04d", .x)'.
 
 # Filter out just 2022 logbook entries if the source is other than downloaded from the database.
 
