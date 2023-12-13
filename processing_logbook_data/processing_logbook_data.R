@@ -31,7 +31,7 @@ annas_path <-
 Path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
 
-Path <- annas_path
+# Path <- annas_path
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
@@ -403,7 +403,8 @@ OverrideData <- compliance_data
 
 #filter out year 2022
 OverrideData <- OverrideData %>%
-  filter(COMP_YEAR == my_year)
+  filter(COMP_WEEK_START_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
+           COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
 
 #change column names
 OverrideData <-
