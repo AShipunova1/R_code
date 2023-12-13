@@ -147,6 +147,7 @@ read_rds_or_run_query <- function(my_file_path,
 tic("try_con")
 try(con <- connect_to_secpr())
 toc()
+# try_con: 21.7 sec elapsed
 
 ## Import and prep compliance (and override) data ----
 
@@ -235,8 +236,8 @@ SEFHIER_MetricsTracking <-
   rename(PERMIT_REGION = `Permit.Grouping.Region`,
          VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
 
-#import the list of SRHS vessels
-#this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
+# import the list of SRHS vessels
+# this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
 SRHSvessels <-
   read_csv(paste(Path, Inputs, "2022SRHSvessels.csv", sep = ""))
 
@@ -254,7 +255,7 @@ if (!class(SRHSvessels$VESSEL_OFFICIAL_NUMBER) == "character") {
 SEFHIER_PermitInfo <-
   anti_join(SEFHIER_MetricsTracking, SRHSvessels, by = 'VESSEL_OFFICIAL_NUMBER')
 
-# remove the columns you don't need
+# remove the columns you don't need and keep only 2
 SEFHIER_PermitInfo <-
   SEFHIER_PermitInfo |>
   select(VESSEL_OFFICIAL_NUMBER,
@@ -265,8 +266,8 @@ SEFHIER_PermitInfo <-
 # 3469
 
 ## Import and prep the logbook data ####
-#delete logbook records where start date/time is after end date/time
-#delete logbooks for trips lasting more than 10 days
+# delete logbook records where start date/time is after end date/time
+# delete logbooks for trips lasting more than 10 days
 
 # Import the logbook data from file or database
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
@@ -278,7 +279,7 @@ logbooks_file_path <-
         Outputs,
         "SAFIS_TripsDownload_1.1.22-12.01.23.rds",
         sep = "")
-#here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+# here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
 
 # 2) create a variable with an SQL query to call data from the database
 
@@ -314,12 +315,7 @@ Logbooks <-
          VESSEL_OFFICIAL_NUMBER =
            "VESSEL_OFFICIAL_NBR")
 
-# reformat trip start/end date/time
-# 1)
-# Was:
-# Logbooks$TRIP_START_DATE |>
-#   head(1)
-# "2022-07-07 01:00:00 EDT"
+# reformat trip start/end date
 
 Logbooks <-
   Logbooks |>
@@ -327,35 +323,31 @@ Logbooks <-
                 as.Date))
 
 # check
-Logbooks$TRIP_START_DATE |>
-  class()
+# Logbooks$TRIP_START_DATE |>
+#   class()
 # before
 # "POSIXct" "POSIXt"
 # after
 # "Date"
+
+# Was:
+# Logbooks$TRIP_START_DATE |>
+#   head(1)
+# "2022-07-07 01:00:00 EDT"
 
 # Now:
 # Logbooks$TRIP_START_DATE |>
 #   head(1)
 # "2022-07-07"
 
-# 2)
-# Was:
-# Logbooks$TRIP_START_TIME |>
-  # head(1)
-# "0800"
-
-# Logbooks$TRIP_START_TIME <-
-#   as.character(sprintf("%04d", as.numeric(Logbooks$TRIP_START_TIME)))
-
-# Now:
-# Logbooks$TRIP_START_TIME |>
-#   head(1)
-# "0800"
-
+# reformat trip start/end time
 time_col_names <-
   c("TRIP_START_TIME",
     "TRIP_END_TIME")
+
+# convert time columns to numeric,
+# then format to 4 digits as a string
+# (from help: sprintf returns a character vector)
 
 Logbooks <-
   Logbooks |>
@@ -364,14 +356,15 @@ Logbooks <-
   mutate(across(all_of(time_col_names),
          ~ sprintf("%04d", .x)))
 
-# filter out just 2022 logbook entries
+# Filter out just 2022 logbook entries if the source is other than downloaded from the database.
+
 Logbooks <-
   Logbooks %>%
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
-#check logbook records for cases where start date/time is after end date/time, delete these records
-#create column for start date & time
+### check logbook records for cases where start date/time is after end date/time, delete these records ----
+# create column for start date & time
 Logbooks$STARTDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_START_DATE,                                           Logbooks$TRIP_START_TIME),
              format = "%Y-%m-%d %H%M")
@@ -381,7 +374,7 @@ Logbooks$STARTDATETIME <-
 #   head(1)
 # "2022-07-07 08:00:00 EDT"
 
-#create column for end date & time
+# create column for end date & time
 Logbooks$ENDDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
@@ -398,7 +391,7 @@ Logbooks['TimeStampError'] <-
   # nrow(Logbooks_TimeStampError) #useful stat, not needed for processing
 # 857
 
-## only keep the rows where there is no error between start & end date & time ----
+### Filter: only keep the rows where there is no error between start & end date & time ----
 Logbooks <-
   Logbooks %>% filter(TimeStampError == "false")
 
@@ -406,26 +399,27 @@ Logbooks <-
 # nrow(Logbooks)
 # 94835
 
-# For trips lasting more than 10 days, delete the records. The assumption is there is an
-#error in either start or end date and time and the trip didn't really last that long.
+### For trips lasting more than 10 days, delete the records. ----
+
+# The assumption is there is an error in either start or end date and time and the trip didn't really last that long.
+
 Logbooks['TripLength'] <-
   as.numeric(difftime(Logbooks$ENDDATETIME,
                       Logbooks$STARTDATETIME,
                       units = "hours"))
 
 # output trips with length > 240 into data frame
-# LogbooksTooLong = Logbooks %>% filter(TripLength > 240) #useful stat, not needed for processing
+# LogbooksTooLong = Logbooks %>% filter(TripLength > 240) # useful stat, not needed for processing
 # NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
 # 74
 
 ## Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
+
 Logbooks <-
   Logbooks %>% filter(TripLength <= 240)
 
-# grep("VESSEL_OFFICIAL", names(SEFHIER_PermitInfo), value = T)
-# grep("VESSEL_OFFICIAL", names(Logbooks), value = T)
-
 ### Keep only vessels in Metricks tracking ----
+# Revise that section after deciding on the permit info source.
 SEFHIER_logbooks <-
   left_join(SEFHIER_PermitInfo,
             Logbooks,
@@ -436,24 +430,23 @@ SEFHIER_logbooks <-
 # VesselsNoLogbooks <-
 #   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
 
-# the same as
-# VesselsNoLogbooks <-
-#   subset(SEFHIER_logbooks, is.na(SEFHIER_logbooks$TRIP_TYPE))
-
 # nrow(VesselsNoLogbooks)
 # 1636
 
 ## remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ####
 
-
 #### determine what weeks were overridden, and exclude those logbooks ####
 
-#assign each logbook a week designation (first day of the reporting week is a Monday)
-#use the end date to calculate this, it won't matter for most trips, but for some trips that
-#happen overnight on a Sunday, it might affect what week they are assigned to
+# assign each logbook a week designation (first day of the reporting week is a Monday)
+# use the end date to calculate this, it won't matter for most trips, but for some trips that
+# happen overnight on a Sunday, it might affect what week they are assigned to
 #https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
 
 # not necessary now, already done (AS)
+# check:
+# class(SEFHIER_logbooks$TRIP_END_DATE)
+# POSIXct
+
 SEFHIER_logbooks$TRIP_END_DATE2 <-
   as.Date(SEFHIER_logbooks$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
 
@@ -465,8 +458,6 @@ SEFHIER_logbooks$TRIP_END_DATE2 <-
 #
 # epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
 #
-# The `lubridate::ymd` function is used to parse the dates from the 'TRIP_END_DATE2' column with year, month, and day components
-
 
 SEFHIER_logbooks <-
   SEFHIER_logbooks %>%
@@ -514,7 +505,7 @@ SEFHIER_logbooks <-
 # We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
 
-# add override data to df
+## add override data to logbooks ----
 SEFHIER_logbooks_overr <-
   left_join(SEFHIER_logbooks,
             OverrideData,
@@ -528,10 +519,10 @@ SEFHIER_logbooks_overr <-
 # dim(SEFHIER_logbooks_overr)
 # 318751    170
 
-grep("OVERR",
-     names(SEFHIER_logbooks_overr),
-     ignore.case = T,
-     value = T)
+# grep("OVERR",
+#      names(SEFHIER_logbooks_overr),
+#      ignore.case = T,
+#      value = T)
 
 SEFHIER_logbooks_overridden <-
   filter(SEFHIER_logbooks_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
@@ -563,7 +554,8 @@ SEFHIER_logbooks_NA <-
 # dim(SEFHIER_logbooks_NA)
 # 571 170
 
-#SEFHIER vessels missing from the Compliance report
+## Add vessels missing from the Compliance report ----
+# SEFHIER vessels missing from the Compliance report
 SEFHIER_VesselsMissing <-
   anti_join(SEFHIER_PermitInfo,
             OverrideData,
@@ -574,17 +566,17 @@ SEFHIER_VesselsMissing <-
 # dim(SEFHIER_VesselsMissing)
 # 34
 
-#SEFHIER AH logbooks from vessels missing from the Compliance report
+# SEFHIER AH logbooks from vessels missing from the Compliance report
 SEFHIER_VesselsMissing_logbooks <-
   SEFHIER_logbooks_NA |>
   filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
 
-#add missing logbooks back to the not overridden data frame
+# add missing logbooks back to the not overridden data frame
 SEFHIER_logbooks_notoverridden <-
   rbind(SEFHIER_logbooks_notoverridden,
         SEFHIER_VesselsMissing_logbooks)
 
-#remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
+# remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
 SEFHIER_logbooks_NA <-
     SEFHIER_logbooks_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
@@ -595,19 +587,18 @@ SEFHIER_logbooks <- SEFHIER_logbooks_notoverridden
 # dim(SEFHIER_logbooks_notoverridden)
 # 308745 170
 
-#We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
-#being we shouldn't include logbooks that weren't required in the first place. Alternatively,
-#deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
-#during a period in which the permit was inactive, and the report was not required.
-#rbind(SEFHIER_logbooks_notoverridden, SEFHIER_logbooks_NA) this is the alternative
+# We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
+# being we shouldn't include logbooks that weren't required in the first place. Alternatively,
+# deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
+# during a period in which the permit was inactive, and the report was not required.
+# rbind(SEFHIER_logbooks_notoverridden, SEFHIER_logbooks_NA) this is the alternative
 
 # unique list of vessels that submitted logbooks, useful stat, not needed for processing (doesn't work, AS)
 # SEFHIER_logbooks_vessels <-
   # unique(rbind(SEFHIER_logbooks[, 1], SEFHIER_logbooks_overridden[, 1]))
 # NumSEFHIER_logbooks_vessels <- nrow(SEFHIER_logbooks_vessels)
 
-
-#### determine which logbooks were turned in within 30 days, making them usable for analyses ####
+## Determine which logbooks were turned in within 30 days, making them usable for analyses ####
 
 #use trip end date to calculate the usable date 30 days later
 SEFHIER_logbooks <-
@@ -618,21 +609,22 @@ SEFHIER_logbooks <-
              format = "%Y-%m-%d"
            ))
 
-#append a time to the due date since the submission data has a date and time
+# Append a time to the due date since the submission data has a date and time
 add_time <- "23:59:59" # 24 hr clock
+
 SEFHIER_logbooks$USABLE_DATE <-
-  as.POSIXct(paste(
-    as.Date(SEFHIER_logbooks$USABLE_DATE, '%Y-%m-%d'),
-    add_time
+  as.POSIXct(paste(as.Date(
+    SEFHIER_logbooks$USABLE_DATE, '%Y-%m-%d'
   ),
+  add_time),
   format = "%Y-%m-%d %H:%M:%S")
 
 #format the submission date (TRIP_DE)
 SEFHIER_logbooks$TRIP_DE <-
   as.POSIXct(SEFHIER_logbooks$TRIP_DE, format = "%Y-%m-%d %H:%M:%S")
 
-#subtract the usable date from the date of submission
-#value is true if the logbook was submitted within 30 days, false if the logbook was not
+# subtract the usable date from the date of submission
+# value is true if the logbook was submitted within 30 days, false if the logbook was not
 SEFHIER_logbooks['USABLE'] <-
   ifelse(SEFHIER_logbooks$USABLE_DATE >= SEFHIER_logbooks$TRIP_DE, "true", "false")
 
@@ -640,7 +632,7 @@ SEFHIER_logbooks['USABLE'] <-
 # dim(SEFHIER_logbooks)
 # [1] 308745    171
 
-#data frame of logbooks that were usable
+# Filter: data frame of logbooks that were usable
 SEFHIER_logbooks_usable <-
   SEFHIER_logbooks %>% filter(USABLE == "true")
 
@@ -659,12 +651,16 @@ SEFHIER_logbooks_usable <-
 # 1617
 
 #data frame of logbooks that were not usable, useful stats, not needed for processing
-# SEFHIER_logbooks_unusable <- SEFHIER_logbooks %>% filter(USABLE == "false")
+# SEFHIER_logbooks_unusable <-
+  # SEFHIER_logbooks %>% filter(USABLE == "false")
 # NumSEFHIER_logbooks_unusable <- nrow(SEFHIER_logbooks_unusable) # how many logbooks were unusable?
+# dim(SEFHIER_logbooks_unusable)
 # 39032
 
-# NumVessels_unusablelogbooks <- length(unique(SEFHIER_logbooks_unusable[,1])) #how many vessels had an unusable logbook?
+# NumVessels_unusablelogbooks <-
+  # length(unique(SEFHIER_logbooks_unusable$VESSEL_OFFICIAL_NUMBER)) #how many vessels had an unusable logbook?
 # 1053
+# 430
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Data example:
@@ -740,3 +736,4 @@ write_rds(
   file = jennys_file_path
 )
 
+# Workflow check ----
