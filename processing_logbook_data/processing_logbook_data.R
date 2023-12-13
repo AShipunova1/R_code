@@ -492,24 +492,7 @@ Logbooks$STARTDATETIME <-
 toc()
 # format time: 4.38 sec elapsed
 
-tic("format time 2")
-Logbooks2 <-
-  Logbooks |>
-  mutate(STARTDATETIME =
-           as.POSIXct(as.character(paste(
-             TRIP_START_DATE,
-             TRIP_START_TIME
-           )),
-           format = "%Y-%m-%d %H%M"))
-toc()
-
-STARTDATETIME <-
-  as.POSIXct(paste(Logbooks$TRIP_START_DATE,                                           Logbooks$TRIP_START_TIME),
-             format = "%Y-%m-%d %H%M")
-toc()
-
-
-# not needed for processing
+# check, not needed for processing
 # Logbooks$STARTDATETIME |>
 #   head(1)
 # "2022-07-07 08:00:00 EDT"
@@ -563,7 +546,15 @@ my_stat(Logbooks)
 
 ## add override data to logbooks ----
 # stat
-dim(Logbooks)
+my_stat(Logbooks)
+# rows: 327773
+# columns: 153
+# Unique vessels: 1882
+
+my_stat(OverrideData)
+# rows: 458071
+# columns: 19
+# Unique vessels: 4393
 
 SEFHIER_logbooks_overr <-
   left_join(Logbooks,
@@ -574,50 +565,46 @@ SEFHIER_logbooks_overr <-
             relationship = "many-to-many"
             )
 
-# stat, not needed for processing
-# dim(SEFHIER_logbooks_overr)
-# 318751    170
+# stat
+my_stat(SEFHIER_logbooks_overr)
+# rows: 327818
+# columns: 169
+# Unique vessels: 1882
 
-# grep("OVERR",
-#      names(SEFHIER_logbooks_overr),
-#      ignore.case = T,
-#      value = T)
-
+# Make lists of overridden or not vessels
 # If a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
 # We have to remove logbooks for weeks that were overridden because we don't have a timestamp for when the logbook was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
 # We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
 
-
 SEFHIER_logbooks_overridden <-
   filter(SEFHIER_logbooks_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
 
-# stat, not needed for processing
-# dim(SEFHIER_logbooks_overridden)
-# 9435  170
-
-# To see if we need to remove overridden trips (AS)
-# SEFHIER_logbooks |>
-#   filter(OVERRIDDEN == 1)  |>
-#   select(all_of(contains("TRIP")),
-#          all_of(contains("over"))) |>
-#   View()
+# stat
+my_stat(SEFHIER_logbooks_overridden)
+# rows: 10136
+# columns: 169
+# Unique vessels: 286
 
 SEFHIER_logbooks_notoverridden <-
   filter(SEFHIER_logbooks_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
 
-# stat, not needed for processing
-# dim(SEFHIER_logbooks_notoverridden)
-# 308745    170
+# stat
+my_stat(SEFHIER_logbooks_notoverridden)
+# rows: 317029
+# columns: 169
+# Unique vessels: 1870
 
 SEFHIER_logbooks_NA <-
   filter(SEFHIER_logbooks_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
-# stat, not needed for processing
-# dim(SEFHIER_logbooks_NA)
-# 571 170
+# stat
+my_stat(SEFHIER_logbooks_NA)
+# rows: 653
+# columns: 169
+# Unique vessels: 10
 
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
@@ -628,10 +615,11 @@ SEFHIER_VesselsMissing <-
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
-# dim(SEFHIER_VesselsMissing)
-# 34
+# stat
+my_stat(SEFHIER_VesselsMissing)
+# Unique vessels: 25
 
-# SEFHIER AH logbooks from vessels missing from the Compliance report
+# SEFHIER logbooks from vessels missing from the Compliance report
 SEFHIER_VesselsMissing_logbooks <-
   SEFHIER_logbooks_NA |>
   filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
@@ -646,14 +634,13 @@ SEFHIER_logbooks_NA <-
     SEFHIER_logbooks_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
 
-
 # We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
 # being we shouldn't include logbooks that weren't required in the first place. Alternatively,
 # deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
 # during a period in which the permit was inactive, and the report was not required.
 # rbind(SEFHIER_logbooks_notoverridden, SEFHIER_logbooks_NA) this is the alternative
 
-# unique list of vessels that submitted logbooks, useful stat, not needed for processing (doesn't work, AS)
+# unique list of vessels that submitted logbooks, useful stat, not needed for processing (doesn't work, AS)??
 # SEFHIER_logbooks_vessels <-
   # unique(rbind(SEFHIER_logbooks[, 1], SEFHIER_logbooks_overridden[, 1]))
 # NumSEFHIER_logbooks_vessels <- nrow(SEFHIER_logbooks_vessels)
@@ -661,35 +648,30 @@ SEFHIER_logbooks_NA <-
 ## Determine which logbooks were turned in within 30 days, making them usable for analyses ####
 
 # use trip end date to calculate the usable date 30 days later
-SEFHIER_logbooks <-
-  SEFHIER_logbooks %>%
+SEFHIER_logbooks_notoverridden <-
+  SEFHIER_logbooks_notoverridden %>%
   mutate(USABLE_DATE =
            format(
-             as.Date(SEFHIER_logbooks$TRIP_END_DATE, '%Y-%m-%d') + 30,
+             as.Date(SEFHIER_logbooks_notoverridden$TRIP_END_DATE, '%Y-%m-%d') + 30,
              format = "%Y-%m-%d"
            ))
 
 # Append a time to the due date since the submission data has a date and time
 add_time <- "23:59:59" # 24 hr clock
 
-SEFHIER_logbooks$USABLE_DATE <-
+SEFHIER_logbooks_notoverridden$USABLE_DATE <-
   as.POSIXct(paste(as.Date(
-    SEFHIER_logbooks$USABLE_DATE, '%Y-%m-%d'
+    SEFHIER_logbooks_notoverridden$USABLE_DATE, '%Y-%m-%d'
   ),
   add_time),
   format = "%Y-%m-%d %H:%M:%S")
 
 #format the submission date (TRIP_DE)
-SEFHIER_logbooks$TRIP_DE <-
-  as.POSIXct(SEFHIER_logbooks$TRIP_DE, format = "%Y-%m-%d %H:%M:%S")
+SEFHIER_logbooks_notoverridden <-
+  SEFHIER_logbooks_notoverridden |>
+  mutate(TRIP_DE = as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
 
-
-# SEFHIER_logbooks_usable <- SEFHIER_logbooks_usable[,c(1:150)] #gets rid of columns used for processing
-# I commented it out to keep compliance and override information in (AS)
-
-# NumSEFHIER_logbooks_usable = nrow(SEFHIER_logbooks_usable) #useful stat, not needed for processing
-# 269713
-
+# old
 # NumVessels_usablelogbooks = length(unique(SEFHIER_logbooks_usable[,1])) #useful stat, not needed for processing
 # NumVessels_usablelogbooks
 # 1617
@@ -707,57 +689,87 @@ SEFHIER_logbooks$TRIP_DE <-
 # 430
 
 # Filtering logbook data ----
+
+## Keep only vessels in Metricks tracking ----
+# Revise that section after deciding on the permit info source.
+SEFHIER_logbooks_notoverridden__in_metr <-
+  SEFHIER_logbooks_notoverridden |>
+  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_PermitInfo$VESSEL_OFFICIAL_NUMBER)
+
+# stat
+my_stat(SEFHIER_logbooks_notoverridden)
+# rows: 317029
+# columns: 170
+# Unique vessels: 1870
+
+my_stat(SEFHIER_logbooks_notoverridden__in_metr)
+# rows: 312293
+# columns: 170
+# Unique vessels: 1829
+
 ## Filter: start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
 
 # the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
-Logbooks['TimeStampError'] <-
-  ifelse(Logbooks$STARTDATETIME >= Logbooks$ENDDATETIME,
-         "true",
-         "false")
-
-# how many logbooks were thrown out because of a time stamp error?
-# Logbooks_TimeStampError <-
-#   Logbooks %>% filter(TimeStampError == "true") #useful stat, not needed for processing
-
-# NumLogbooks_TimeStampError <-
-  # nrow(Logbooks_TimeStampError) #useful stat, not needed for processing
-# 857
+SEFHIER_logbooks_notoverridden__in_metr['TimeStampError'] <-
+  ifelse(
+    SEFHIER_logbooks_notoverridden__in_metr$STARTDATETIME >= SEFHIER_logbooks_notoverridden__in_metr$ENDDATETIME,
+    "true",
+    "false"
+  )
 
 # Filter: only keep the rows where there is no error between start & end date & time
-Logbooks <-
-  Logbooks %>% filter(TimeStampError == "false")
+SEFHIER_logbooks_notoverridden__in_metr__start_end_ok <-
+  SEFHIER_logbooks_notoverridden__in_metr %>%
+  filter(TimeStampError == "false")
 
-# useful stat, not needed for processing
-# nrow(Logbooks)
-# 94835
+# stat
+# thrown away in this step
+SEFHIER_logbooks_notoverridden__in_metr %>%
+  filter(TimeStampError == "true") |>
+  nrow()
+# 1829
 
+my_stat(SEFHIER_logbooks_notoverridden__in_metr__start_end_ok)
+# rows: 310464
+# columns: 171
+# Unique vessels: 1825
 
 ## Delete logbooks for trips lasting more than 10 days ----
 
 # The assumption is there is an error in either start or end date and time and the trip didn't really last that long.
 
-Logbooks['TripLength'] <-
-  as.numeric(difftime(Logbooks$ENDDATETIME,
-                      Logbooks$STARTDATETIME,
-                      units = "hours"))
+SEFHIER_logbooks_notoverridden__in_metr__start_end_ok['TripLength'] <-
+  as.numeric(
+    difftime(
+      SEFHIER_logbooks_notoverridden__in_metr__start_end_ok$ENDDATETIME,
+      SEFHIER_logbooks_notoverridden__in_metr__start_end_ok$STARTDATETIME,
+      units = "hours"
+    )
+  )
 
-# output trips with length > 240 into data frame
+# Output trips with length > 240 into data frame
 # LogbooksTooLong = Logbooks %>% filter(TripLength > 240) # useful stat, not needed for processing
 # NumLogbooksTooLong = nrow(LogbooksTooLong) #useful stat, not needed for processing
 # 74
 
 ## Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
 
-Logbooks <-
-  Logbooks %>% filter(TripLength <= 240)
+SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok <-
+  SEFHIER_logbooks_notoverridden__in_metr__start_end_ok %>%
+  filter(TripLength <= 240)
 
-## Keep only vessels in Metricks tracking ----
-# Revise that section after deciding on the permit info source.
-SEFHIER_logbooks <-
-  left_join(SEFHIER_PermitInfo,
-            Logbooks,
-            join_by(VESSEL_OFFICIAL_NUMBER)) #joins permit info and trip info together
+# stat
+my_stat(SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok)
+# rows: 310353
+# columns: 172
+# Unique vessels: 1821
+
+# thrown away in this step
+SEFHIER_logbooks_notoverridden__in_metr__start_end_ok %>%
+  filter(TripLength > 240) |>
+  nrow()
+# 111
 
 # subsets the data with no logbook entries, useful stat, not needed for processing
 # That is mostly for compliance analysis
@@ -768,28 +780,49 @@ SEFHIER_logbooks <-
 # 1636
 
 ## remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
-### only keep the logbooks from non overridden weeks ----
-SEFHIER_logbooks <- SEFHIER_logbooks_notoverridden
-# NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooks) #useful stat, not needed for processing
-# dim(SEFHIER_logbooks_notoverridden)
-# 308745 170
 
-### subtract the usable date from the date of submission
+# subtract the usable date from the date of submission
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
-SEFHIER_logbooks['USABLE'] <-
-  ifelse(SEFHIER_logbooks$USABLE_DATE >= SEFHIER_logbooks$TRIP_DE, "true", "false")
+SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok['USABLE'] <-
+  ifelse(
+    SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok$USABLE_DATE >= SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok$TRIP_DE,
+    "true",
+    "false"
+  )
 
-# stat, not needed for processing
-# dim(SEFHIER_logbooks)
-# [1] 308745    171
+SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok1 <-
+  SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok |>
+  mutate(USABLE =
+           ifelse(USABLE_DATE >= TRIP_DE, TRUE, FALSE))
+
+# diffdf::diffdf(SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok,
+#           SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok1)
+# "Component “USABLE”: target is character, current is logical"
+#?? the same result, which is easier to read?
+
+# stat
+my_stat(SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok)
+# rows: 310353
+# columns: 173
+# Unique vessels: 1821
 
 ### Filter: data frame of logbooks that were usable ----
 SEFHIER_logbooks_usable <-
-  SEFHIER_logbooks %>% filter(USABLE == "true")
+  SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok %>%
+  filter(USABLE == "true")
 
-# stat, not needed for processing
-# dim(SEFHIER_logbooks_usable)
-# [1] 269713    171
+# stat
+# thrown away in this step
+SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok %>%
+  filter(USABLE == "false") |>
+  nrow()
+# rows: 39252
+
+# stat
+my_stat(SEFHIER_logbooks_usable)
+# rows: 271101
+# columns: 173
+# Unique vessels: 1628
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Data example:
