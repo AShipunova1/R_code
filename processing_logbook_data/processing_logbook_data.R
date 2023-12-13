@@ -31,7 +31,7 @@ annas_path <-
 Path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
 
-# Path <- annas_path
+Path <- annas_path
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
@@ -209,8 +209,10 @@ OverrideData <-
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
 # change data type this column if needed
-#OverrideData$VESSEL_OFFICIAL_NUMBER <- as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
-
+if (!class(OverrideData$VESSEL_OFFICIAL_NUMBER) == "character") {
+  OverrideData$VESSEL_OFFICIAL_NUMBER <-
+    as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
+}
 
 ## Import and prep the permit data ####
 #use Metrics Tracking report
@@ -226,6 +228,7 @@ SEFHIER_MetricsTracking <- read.csv(
     sep = ""
   )
 ) #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+
 #rename column headers
 SEFHIER_MetricsTracking <-
   SEFHIER_MetricsTracking %>%
@@ -237,17 +240,26 @@ SEFHIER_MetricsTracking <-
 SRHSvessels <-
   read_csv(paste(Path, Inputs, "2022SRHSvessels.csv", sep = ""))
 
-#reformat and rename column
-colnames(SRHSvessels)[5] <- ("VESSEL_OFFICIAL_NUMBER")
-SRHSvessels$VESSEL_OFFICIAL_NUMBER <-
-  as.character(SRHSvessels$VESSEL_OFFICIAL_NUMBER)
+# Rename and reformat column
+SRHSvessels <-
+  rename(SRHSvessels,
+       VESSEL_OFFICIAL_NUMBER = "USCG #")
 
-#remove SRHSvessels from SEFHIER_MetricsTracking list
+if (!class(SRHSvessels$VESSEL_OFFICIAL_NUMBER) == "character") {
+  SRHSvessels$VESSEL_OFFICIAL_NUMBER <-
+    as.character(SRHSvessels$VESSEL_OFFICIAL_NUMBER)
+}
+
+# Filter: remove SRHSvessels from SEFHIER_MetricsTracking list
 SEFHIER_PermitInfo <-
   anti_join(SEFHIER_MetricsTracking, SRHSvessels, by = 'VESSEL_OFFICIAL_NUMBER')
 
-#remove the columns you don't need
-SEFHIER_PermitInfo <- SEFHIER_PermitInfo[ ,c(1,8)]
+# remove the columns you don't need
+SEFHIER_PermitInfo <-
+  SEFHIER_PermitInfo |>
+  select(VESSEL_OFFICIAL_NUMBER,
+         PERMIT_REGION)
+
 # useful stat, not needed for processing
 # NumSEHFIERPermits <- nrow(SEFHIER_PermitInfo)
 # 3469
@@ -296,7 +308,7 @@ Logbooks <-
 logbooks_col_num <- ncol(Logbooks)
 # 149
 
-#rename column
+# rename column
 Logbooks <-
   rename(Logbooks,
          VESSEL_OFFICIAL_NUMBER =
@@ -309,8 +321,18 @@ Logbooks <-
 #   head(1)
 # "2022-07-07 01:00:00 EDT"
 
-Logbooks$TRIP_START_DATE <-
-  as.Date(Logbooks$TRIP_START_DATE)
+Logbooks <-
+  Logbooks |>
+  mutate(across(c(!where(is.Date) & ends_with("_DATE")),
+                as.Date))
+
+# check
+Logbooks$TRIP_START_DATE |>
+  class()
+# before
+# "POSIXct" "POSIXt"
+# after
+# "Date"
 
 # Now:
 # Logbooks$TRIP_START_DATE |>
@@ -323,21 +345,24 @@ Logbooks$TRIP_START_DATE <-
   # head(1)
 # "0800"
 
-Logbooks$TRIP_START_TIME <-
-  as.character(sprintf("%04d", as.numeric(Logbooks$TRIP_START_TIME)))
+# Logbooks$TRIP_START_TIME <-
+#   as.character(sprintf("%04d", as.numeric(Logbooks$TRIP_START_TIME)))
 
 # Now:
 # Logbooks$TRIP_START_TIME |>
 #   head(1)
 # "0800"
 
-# 3)
-Logbooks$TRIP_END_DATE <-
-  as.Date(Logbooks$TRIP_END_DATE)
+time_col_names <-
+  c("TRIP_START_TIME",
+    "TRIP_END_TIME")
 
-# 4)
-Logbooks$TRIP_END_TIME <-
-  as.character(sprintf("%04d", as.numeric(Logbooks$TRIP_END_TIME)))
+Logbooks <-
+  Logbooks |>
+  mutate(across(c(!where(is.numeric) & all_of(time_col_names)),
+                as.numeric)) |>
+  mutate(across(all_of(time_col_names),
+         ~ sprintf("%04d", .x)))
 
 # filter out just 2022 logbook entries
 Logbooks <-
