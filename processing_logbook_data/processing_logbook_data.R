@@ -22,7 +22,7 @@ library(tidyverse)
 library(tictoc) # Functions for timing
 library(crayon) # Colored terminal output
 
-#set working and output directory - where do you keep the data and analysis folder on your computer?
+# set working and output directory - where do you keep the data and analysis folder on your computer?
 # example: Path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
 
 annas_path <-
@@ -31,7 +31,9 @@ annas_path <-
 Path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
 
+# Comment out to use Jenny's instead:
 Path <- annas_path
+
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
@@ -40,18 +42,18 @@ my_year <- '2022'
 my_date_beg <- '01-JAN-2022'
 my_date_end <- '31-DEC-2022'
 
-# We don't keep trips started in 2021, but ended in 2022.
+# We don't keep trips started in 2021 and ended in 2022.
 # We only keep trips starting in 2022.
 
-#To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
+# To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
 
 # Caveats:
 # 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
 # internal called the ISO number and how the function calculates the start of a week. If you are running this on a
 # new data set, check your weeks to make sure it's calculating correctly after running that line of code.
+# ?? which line of code?
 
 # Auxiliary methods ----
-
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
 # usage:
@@ -136,7 +138,7 @@ read_rds_or_run_query <- function(my_file_path,
     return(my_result)
 }
 
-#------------------------------------------------------------------------------#
+#------------------#
 # Get data ----
 
 # This section is needed to pull data from Oracle database
@@ -147,7 +149,8 @@ read_rds_or_run_query <- function(my_file_path,
 tic("try_con")
 try(con <- connect_to_secpr())
 toc()
-# try_con: 21.7 sec elapsed
+# try_con: 21.7 sec elapsed if no connection
+# try_con: 1.63 sec elapsed if works normally
 
 ## Import and prep compliance (and override) data ----
 
@@ -187,8 +190,6 @@ compliance_data <-
 
 ### prep the compliance data ####
 
-# Use compliance data uploaded before
-
 # rename DF
 OverrideData <- compliance_data
 
@@ -203,13 +204,13 @@ OverrideData <- OverrideData %>%
       COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y")
   )
 
-#change column names
+# Change column names for consistency with other datasets
 OverrideData <-
   OverrideData |>
   dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
-# change data type this column if needed
+# change data type of this column if needed
 if (!class(OverrideData$VESSEL_OFFICIAL_NUMBER) == "character") {
   OverrideData$VESSEL_OFFICIAL_NUMBER <-
     as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
@@ -220,7 +221,7 @@ if (!class(OverrideData$VESSEL_OFFICIAL_NUMBER) == "character") {
 # remove SRHS vessels from the list
 # remove SA vessels from the list
 
-#import the permit data
+# import the permit data
 SEFHIER_MetricsTracking <- read.csv(
   paste(
     Path,
@@ -228,9 +229,9 @@ SEFHIER_MetricsTracking <- read.csv(
     "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_2022.csv",
     sep = ""
   )
-) #here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+) # here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
 
-#rename column headers
+# rename column headers
 SEFHIER_MetricsTracking <-
   SEFHIER_MetricsTracking %>%
   rename(PERMIT_REGION = `Permit.Grouping.Region`,
@@ -251,9 +252,20 @@ if (!class(SRHSvessels$VESSEL_OFFICIAL_NUMBER) == "character") {
     as.character(SRHSvessels$VESSEL_OFFICIAL_NUMBER)
 }
 
+# stat
+# dim(SEFHIER_MetricsTracking)
+# 3598   13
+
+# stat
+# dim(SRHSvessels)
+
 # Filter: remove SRHSvessels from SEFHIER_MetricsTracking list
 SEFHIER_PermitInfo <-
   anti_join(SEFHIER_MetricsTracking, SRHSvessels, by = 'VESSEL_OFFICIAL_NUMBER')
+
+# stat
+# dim(SEFHIER_PermitInfo)
+# [1] 3469   13
 
 # remove the columns you don't need and keep only 2
 SEFHIER_PermitInfo <-
@@ -391,12 +403,34 @@ Logbooks <-
 # 7. **Format Columns with Leading Zeros:**
 #    - `~ sprintf("%04d", .x)`: Format each column value with leading zeros using 'sprintf("%04d", .x)'.
 
-# Filter out just 2022 logbook entries if the source is other than downloaded from the database.
+# stat
+# dim(Logbooks)
+# [1] 484413    149
+# length(unique(Logbooks$VESSEL_OFFICIAL_NUMBER))
+# 2218
 
-Logbooks <-
+### Filter out just 2022 logbook entries if the source is other than downloaded from the database. ----
+
+Logbooks_2022 <-
   Logbooks %>%
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
+
+# stat
+# dim(Logbooks_2022)
+# [1] 327773    149
+# length(unique(Logbooks_2022$VESSEL_OFFICIAL_NUMBER))
+# 1882
+
+# check
+min(Logbooks_2022$TRIP_START_DATE)
+# [1] "2022-01-01"
+max(Logbooks_2022$TRIP_START_DATE)
+# [1] "2022-12-31"
+min(Logbooks_2022$TRIP_END_DATE)
+# [1] "2018-06-04"
+max(Logbooks_2022$TRIP_END_DATE)
+# [1] "2023-05-26"
 
 # create column for start date & time
 Logbooks$STARTDATETIME <-
