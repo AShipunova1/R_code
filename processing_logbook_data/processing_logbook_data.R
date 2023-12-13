@@ -414,17 +414,7 @@ Logbooks$ENDDATETIME <-
              format = "%Y-%m-%d %H%M")
 
 
-# subsets the data with no logbook entries, useful stat, not needed for processing
-# That is mostly for compliance analysis
-# VesselsNoLogbooks <-
-#   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
-
-# nrow(VesselsNoLogbooks)
-# 1636
-
-## remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ####
-
-#### determine what weeks were overridden, and exclude those logbooks ####
+## determine what weeks were overridden, and exclude those logbooks ####
 
 # assign each logbook a week designation (first day of the reporting week is a Monday)
 # use the end date to calculate this, it won't matter for most trips, but for some trips that
@@ -436,8 +426,8 @@ Logbooks$ENDDATETIME <-
 # class(SEFHIER_logbooks$TRIP_END_DATE)
 # POSIXct
 
-SEFHIER_logbooks$TRIP_END_DATE2 <-
-  as.Date(SEFHIER_logbooks$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
+Logbooks$TRIP_END_DATE2 <-
+  as.Date(Logbooks$TRIP_END_DATE, '%Y-%m-%d') #change format to a date
 
 # Calculate the ISO week number for each date in the 'TRIP_END_DATE2' column.
 # lubridate package has following methods:
@@ -448,17 +438,17 @@ SEFHIER_logbooks$TRIP_END_DATE2 <-
 # epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
 #
 
-SEFHIER_logbooks <-
-  SEFHIER_logbooks %>%
+Logbooks <-
+  Logbooks %>%
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
 # See the result, note week 52 of 2021 (AS):
-SEFHIER_logbooks |>
+Logbooks |>
   select(TRIP_START_DATE,
          TRIP_END_DATE, TRIP_END_YEAR, COMP_WEEK) |>
   distinct() |>
-  arrange(TRIP_END_DATE) |>
+  arrange(TRIP_START_DATE) |>
   head(3)
 #   TRIP_END_DATE TRIP_END_YEAR COMP_WEEK
 # 1    2022-01-01          2021        52
@@ -466,12 +456,12 @@ SEFHIER_logbooks |>
 # 3    2022-01-03          2022         1
 
 #### Filter: 2022 start dates
-SEFHIER_logbooks <-
-  SEFHIER_logbooks %>%
+Logbooks <-
+  Logbooks %>%
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y"))
 
 # stat, not needed for processing
-# nrow(SEFHIER_logbooks)
+# nrow(Logbooks)
 # 318706
 # 468350 (incl. Week 52 2021)
 
@@ -489,14 +479,9 @@ SEFHIER_logbooks <-
 # 2      2022       2022-01-16         2
 # 3      2022       2022-01-23         3
 
-# If a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
-# We have to remove logbooks for weeks that were overridden because we don't have a timestamp for when the logbook was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
-# We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
-# E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
-
 ## add override data to logbooks ----
 SEFHIER_logbooks_overr <-
-  left_join(SEFHIER_logbooks,
+  left_join(Logbooks,
             OverrideData,
             join_by(TRIP_END_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
@@ -512,6 +497,12 @@ SEFHIER_logbooks_overr <-
 #      names(SEFHIER_logbooks_overr),
 #      ignore.case = T,
 #      value = T)
+
+# If a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
+# We have to remove logbooks for weeks that were overridden because we don't have a timestamp for when the logbook was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
+# We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
+# E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
+
 
 SEFHIER_logbooks_overridden <-
   filter(SEFHIER_logbooks_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
@@ -570,11 +561,6 @@ SEFHIER_logbooks_NA <-
     SEFHIER_logbooks_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
 
-#only keep the logbooks from non overridden weeks
-SEFHIER_logbooks <- SEFHIER_logbooks_notoverridden
-# NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooks) #useful stat, not needed for processing
-# dim(SEFHIER_logbooks_notoverridden)
-# 308745 170
 
 # We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
 # being we shouldn't include logbooks that weren't required in the first place. Alternatively,
@@ -589,7 +575,7 @@ SEFHIER_logbooks <- SEFHIER_logbooks_notoverridden
 
 ## Determine which logbooks were turned in within 30 days, making them usable for analyses ####
 
-#use trip end date to calculate the usable date 30 days later
+# use trip end date to calculate the usable date 30 days later
 SEFHIER_logbooks <-
   SEFHIER_logbooks %>%
   mutate(USABLE_DATE =
@@ -612,22 +598,6 @@ SEFHIER_logbooks$USABLE_DATE <-
 SEFHIER_logbooks$TRIP_DE <-
   as.POSIXct(SEFHIER_logbooks$TRIP_DE, format = "%Y-%m-%d %H:%M:%S")
 
-# subtract the usable date from the date of submission
-# value is true if the logbook was submitted within 30 days, false if the logbook was not
-SEFHIER_logbooks['USABLE'] <-
-  ifelse(SEFHIER_logbooks$USABLE_DATE >= SEFHIER_logbooks$TRIP_DE, "true", "false")
-
-# stat, not needed for processing
-# dim(SEFHIER_logbooks)
-# [1] 308745    171
-
-# Filter: data frame of logbooks that were usable
-SEFHIER_logbooks_usable <-
-  SEFHIER_logbooks %>% filter(USABLE == "true")
-
-# stat, not needed for processing
-# dim(SEFHIER_logbooks_usable)
-# [1] 269713    171
 
 # SEFHIER_logbooks_usable <- SEFHIER_logbooks_usable[,c(1:150)] #gets rid of columns used for processing
 # I commented it out to keep compliance and override information in (AS)
@@ -704,7 +674,37 @@ SEFHIER_logbooks <-
             Logbooks,
             join_by(VESSEL_OFFICIAL_NUMBER)) #joins permit info and trip info together
 
+# subsets the data with no logbook entries, useful stat, not needed for processing
+# That is mostly for compliance analysis
+# VesselsNoLogbooks <-
+#   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
 
+# nrow(VesselsNoLogbooks)
+# 1636
+
+## remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
+### only keep the logbooks from non overridden weeks ----
+SEFHIER_logbooks <- SEFHIER_logbooks_notoverridden
+# NumSEFHIERlogbooksAHU <- nrow(SEFHIER_logbooks) #useful stat, not needed for processing
+# dim(SEFHIER_logbooks_notoverridden)
+# 308745 170
+
+### subtract the usable date from the date of submission
+# value is true if the logbook was submitted within 30 days, false if the logbook was not
+SEFHIER_logbooks['USABLE'] <-
+  ifelse(SEFHIER_logbooks$USABLE_DATE >= SEFHIER_logbooks$TRIP_DE, "true", "false")
+
+# stat, not needed for processing
+# dim(SEFHIER_logbooks)
+# [1] 308745    171
+
+### Filter: data frame of logbooks that were usable ----
+SEFHIER_logbooks_usable <-
+  SEFHIER_logbooks %>% filter(USABLE == "true")
+
+# stat, not needed for processing
+# dim(SEFHIER_logbooks_usable)
+# [1] 269713    171
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Data example:
