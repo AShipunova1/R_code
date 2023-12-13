@@ -226,22 +226,33 @@ compliance_data <-
 # rename DF
 OverrideData <- compliance_data
 
-# stat, not needed for processing
-# dim(OverrideData)
-# 458071     19
-
-# keep only year 2022
-OverrideData <- OverrideData %>%
-  filter(
-    COMP_WEEK_START_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
-      COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y")
-  )
-
 # Change column names for consistency with other datasets
 OverrideData <-
   OverrideData |>
   dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
+
+# stat, not needed for processing
+my_stat(OverrideData)
+# rows: 148650
+# columns: 19
+# Unique vessels: 3691
+
+# stat
+# min(OverrideData$COMP_WEEK_START_DT)
+# [1] "2021-01-04 EST"
+
+# keep only year 2022, including the week 52 of the previous year
+OverrideData_2022 <-
+  OverrideData %>%
+  filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
+    COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
+
+# check
+min(OverrideData_2022$COMP_WEEK_START_DT)
+# [1] "2021-12-27 EST"
+min(OverrideData_2022$COMP_WEEK_END_DT)
+# [1] "2022-01-02 EST"
 
 # change data type of this column if needed
 if (!class(OverrideData$VESSEL_OFFICIAL_NUMBER) == "character") {
@@ -286,19 +297,18 @@ if (!class(SRHSvessels$VESSEL_OFFICIAL_NUMBER) == "character") {
 }
 
 # stat
-# dim(SEFHIER_MetricsTracking)
+my_stat(SEFHIER_MetricsTracking)
 # 3598   13
-
-# stat
-# dim(SRHSvessels)
+# Unique vessels: 3598
 
 # Filter: remove SRHSvessels from SEFHIER_MetricsTracking list
 SEFHIER_PermitInfo <-
   anti_join(SEFHIER_MetricsTracking, SRHSvessels, by = 'VESSEL_OFFICIAL_NUMBER')
 
 # stat
-# dim(SEFHIER_PermitInfo)
+my_stat(SEFHIER_PermitInfo)
 # [1] 3469   13
+# Unique vessels: 3469
 
 # remove the columns you don't need and keep only 2
 SEFHIER_PermitInfo <-
@@ -306,9 +316,11 @@ SEFHIER_PermitInfo <-
   select(VESSEL_OFFICIAL_NUMBER,
          PERMIT_REGION)
 
-# useful stat, not needed for processing
-# NumSEHFIERPermits <- nrow(SEFHIER_PermitInfo)
-# 3469
+# stat, not needed for processing
+my_stat(SEFHIER_PermitInfo)
+# rows: 3469
+# columns: 2
+# Unique vessels: 3469
 
 ## Import and prep the logbook data ####
 
@@ -344,15 +356,17 @@ Logbooks <-
   read_rds_or_run_query(logbooks_file_path,
                         logbooks_download_query)
 
-# not needed for processing
-# dim(Logbooks)
-# 484413    149
-
 # Rename column to be consistent with other dataframes
 Logbooks <-
   rename(Logbooks,
          VESSEL_OFFICIAL_NUMBER =
            "VESSEL_OFFICIAL_NBR")
+
+# not needed for processing
+my_stat(Logbooks)
+# rows: 484413
+# columns: 149
+# Unique vessels: 2218
 
 # reformat trip start/end date
 Logbooks <-
@@ -449,11 +463,10 @@ Logbooks_2022 <-
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
-# stat
-# dim(Logbooks_2022)
-# [1] 327773    149
-# length(unique(Logbooks_2022$VESSEL_OFFICIAL_NUMBER))
-# 1882
+my_stat(Logbooks_2022)
+# rows: 327773
+# columns: 149
+# Unique vessels: 1882
 
 # check
 min(Logbooks_2022$TRIP_START_DATE)
@@ -502,10 +515,11 @@ Logbooks_2022 <-
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
-# stat, not needed for processing
-# nrow(Logbooks)
-# 318706
-# 468350 (incl. Week 52 2021)
+# stat
+my_stat(Logbooks_2022)
+# rows: 327773
+# columns: 153
+# Unique vessels: 1882
 
 # to see the respective data in OverrideData
 # not needed for processing
