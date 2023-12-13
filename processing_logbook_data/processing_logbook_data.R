@@ -398,7 +398,6 @@ Logbooks <-
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
-### check logbook records for cases where start date/time is after end date/time, delete these records ----
 # create column for start date & time
 Logbooks$STARTDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_START_DATE,                                           Logbooks$TRIP_START_TIME),
@@ -413,26 +412,6 @@ Logbooks$STARTDATETIME <-
 Logbooks$ENDDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
-
-# the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
-Logbooks['TimeStampError'] <-
-  ifelse(Logbooks$STARTDATETIME >= Logbooks$ENDDATETIME, "true", "false")
-
-# how many logbooks were thrown out because of a time stamp error?
-# Logbooks_TimeStampError <-
-#   Logbooks %>% filter(TimeStampError == "true") #useful stat, not needed for processing
-
-# NumLogbooks_TimeStampError <-
-  # nrow(Logbooks_TimeStampError) #useful stat, not needed for processing
-# 857
-
-### Filter: only keep the rows where there is no error between start & end date & time ----
-Logbooks <-
-  Logbooks %>% filter(TimeStampError == "false")
-
-# useful stat, not needed for processing
-# nrow(Logbooks)
-# 94835
 
 ### For trips lasting more than 10 days, delete the records. ----
 
@@ -696,6 +675,38 @@ SEFHIER_logbooks_usable <-
   # length(unique(SEFHIER_logbooks_unusable$VESSEL_OFFICIAL_NUMBER)) #how many vessels had an unusable logbook?
 # 1053
 # 430
+
+# Filtering logbook data ----
+## Filter: start date/time is after end date/time ----
+# check logbook records for cases where start date/time is after end date/time, delete these records
+
+# the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
+Logbooks['TimeStampError'] <-
+  ifelse(Logbooks$STARTDATETIME >= Logbooks$ENDDATETIME,
+         "true",
+         "false")
+
+# how many logbooks were thrown out because of a time stamp error?
+# Logbooks_TimeStampError <-
+#   Logbooks %>% filter(TimeStampError == "true") #useful stat, not needed for processing
+
+# NumLogbooks_TimeStampError <-
+  # nrow(Logbooks_TimeStampError) #useful stat, not needed for processing
+# 857
+
+# Filter: only keep the rows where there is no error between start & end date & time
+Logbooks <-
+  Logbooks %>% filter(TimeStampError == "false")
+
+# useful stat, not needed for processing
+# nrow(Logbooks)
+# 94835
+
+
+# delete logbooks for trips lasting more than 10 days
+
+
+
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Data example:
