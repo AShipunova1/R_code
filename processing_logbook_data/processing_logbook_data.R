@@ -98,30 +98,6 @@ title_message_print <- function(title_msg) {
 # A function to print out stats.
 # Usage: my_stat(Logbooks)
 
-my_stat <- function(my_df, title_msg = NA) {
-  if (is.na(title_msg))  {
-    df_name = deparse(substitute(my_df))
-    title_msg <- df_name
-  }
-
-  title_message_print(title_msg)
-
-  str_glue("rows: {dim(my_df)[[1]]}
-           columns: {dim(my_df)[[2]]}") |>
-    print()
-
-  uniq_vessel_num <-
-    my_df |>
-    select(VESSEL_OFFICIAL_NUMBER) |>
-    distinct() |>
-    dim()
-
-  print(str_glue("Unique vessels: {uniq_vessel_num[[1]]}"))
-
-  # TODO: write_csv()
-}
-
-#
 # Explanation:
 #
 # 1. **Define Function with Optional Parameter:**
@@ -130,18 +106,62 @@ my_stat <- function(my_df, title_msg = NA) {
 # 2. **Check and Assign Default Title Message:**
 #    - `if (is.na(title_msg))  { ... }`: Check if 'title_msg' is NA, and if so, assign the dataframe name as the default title message using 'deparse(substitute(my_df))'.
 #
-# 3. **Print Title Message:**
-#    - `cat(title_msg, sep = "\n")`: Print the title message using 'cat', separating lines with a newline character.
+# 3. **Extract Statistics:**
+#    - `rows_n_columns <- dim(my_df)`: Extract the number of rows and columns in the dataframe.
+#    - `uniq_vessels_num <- n_distinct(my_df[["VESSEL_OFFICIAL_NUMBER"]])`: Count the number of distinct vessel numbers.
+#    - `uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])`: Count the number of distinct trip IDs.
 #
-# 4. **Print Rows and Columns Information:**
-#    - `str_glue("rows: {dim(my_df)[[1]]} columns: {dim(my_df)[[2]]}") |>
-#     print()`: Use 'str_glue' to interpolate the number of rows and columns in the dataframe and print the result.
+# 4. **Create Formatted Text with Statistics:**
+#    - `stat_text <- str_glue("rows: {rows_n_columns[[1]]} ... Unique trips (logbooks): {uniq_trips_num}")`: Use 'str_glue' to format the statistics into a text string.
 #
-# 5. **Extract Unique Vessel Numbers:**
-#    - `uniq_vessel_num <- my_df |> select(VESSEL_OFFICIAL_NUMBER) |> distinct() |> dim()`: Use the pipe operator '|>' to extract unique vessel numbers by selecting the 'VESSEL_OFFICIAL_NUMBER' column, applying 'distinct' to get unique values, and then using 'dim' to count them.
+# 5. **Print Title Message and Statistics to Console:**
+#    - `title_message_print(title_msg)`: Use the helper function 'title_message_print' to print the title message in blue.
+#    - `print(stat_text)`: Print the formatted statistics to the console.
 #
-# 6. **Print Count of Unique Vessels:**
-#    - `print(str_glue("Unique vessels: {uniq_vessel_num[[1]]}"))`: Use 'str_glue' to interpolate and print the count of unique vessels extracted in the previous step.
+# 6. **Write Statistics to Log File:**
+#    - `stat_log_file_path <- file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))`: Define the file path for the log file, including the date.
+#    - `cat(c(title_msg, stat_text), file = stat_log_file_path, sep = "\n", append = TRUE)`: Write the title message and formatted statistics to the log file, appending to the file if it already exists.
+
+my_stat <- function(my_df, title_msg = NA) {
+
+  # A title
+  if (is.na(title_msg))  {
+    df_name = deparse(substitute(my_df))
+    title_msg <- df_name
+  }
+
+  # Extract statistics
+  rows_n_columns <- dim(my_df)
+  uniq_vessels_num <- n_distinct(my_df[["VESSEL_OFFICIAL_NUMBER"]])
+  uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])
+
+  # Create a formatted text with statistics
+  stat_text <- str_glue(
+    "rows: {rows_n_columns[[1]]}
+columns: {rows_n_columns[[2]]}
+Unique vessels: {uniq_vessels_num}
+Unique trips (logbooks): {uniq_trips_num}"
+  )
+
+  # Print out to console
+  title_message_print(title_msg)
+  print(stat_text)
+
+  # Write to a log file (creates a new file every day)
+  stat_log_file_path <-
+    file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))
+  cat(
+    c(title_msg, stat_text),
+    file = stat_log_file_path,
+    sep = "\n",
+    append = TRUE
+  )
+}
+
+# Define a helper function 'title_message_print' to print the title message in blue.
+title_message_print <- function(title_msg) {
+  cat(crayon::blue(title_msg), sep = "\n")
+}
 
 # ---
 # A function to use every time we want to read a ready file or query the database if no files exist.
