@@ -203,8 +203,8 @@ compl_override_data_file_path <-
             Outputs,
             "Compliance_raw_data_Year.rds")
 
-# 2) Create variable with table to call data from, define year.
-# >= 2020 because of when the program statred
+# 2) Create variable with a table name to call data from, define year.
+# >= 2020 because of when the program started
 compl_err_query <-
   "SELECT
   *
@@ -217,38 +217,35 @@ WHERE
 # file.exists(compl_override_data_file_path)
 
 # Create the compliance/overridden data frame
-# using the function pre-defined above (to see press F2) to check if there is a file saved already,
+# using the function pre-defined above to check if there is a file saved already,
 # read it
 # or run the query and write the file for future use
 
-compliance_data <-
+compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query)
 
-### prep the compliance data ####
-
-# rename DF
-OverrideData <- compliance_data
+### prep the compliance/override data ----
 
 # Change column names for consistency with other datasets
-OverrideData <-
-  OverrideData |>
+compl_override_data <-
+  compl_override_data |>
   dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
 # stat, not needed for processing
-my_stat(OverrideData)
+my_stat(compl_override_data)
 # rows: 458071
 # columns: 19
 # Unique vessels: 4393
 
 # stat
-min(OverrideData$COMP_WEEK_START_DT)
+min(compl_override_data$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
 # keep only year 2022, including the week 52 of the previous year
 Override_data_this_year <-
-  OverrideData %>%
+  compl_override_data %>%
   filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
     COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
 
@@ -259,9 +256,9 @@ min(Override_data_this_year$COMP_WEEK_END_DT)
 # [1] "2022-01-02 EST"
 
 # change data type of this column if needed
-if (!class(OverrideData$VESSEL_OFFICIAL_NUMBER) == "character") {
-  OverrideData$VESSEL_OFFICIAL_NUMBER <-
-    as.character(OverrideData$VESSEL_OFFICIAL_NUMBER)
+if (!class(compl_override_data$VESSEL_OFFICIAL_NUMBER) == "character") {
+  compl_override_data$VESSEL_OFFICIAL_NUMBER <-
+    as.character(compl_override_data$VESSEL_OFFICIAL_NUMBER)
 }
 
 ## Import and prep the permit data ####
@@ -534,9 +531,9 @@ my_stat(Logbooks)
 # columns: 153
 # Unique vessels: 1882
 
-# to see the respective data in OverrideData
+# to see the respective data in compl_override_data
 # not needed for processing
-# OverrideData |>
+# compl_override_data |>
 #   select(COMP_YEAR,
 #          COMP_WEEK_END_DT,
 #          COMP_WEEK) |>
@@ -555,14 +552,14 @@ my_stat(Logbooks)
 # columns: 153
 # Unique vessels: 1882
 
-my_stat(OverrideData)
+my_stat(compl_override_data)
 # rows: 458071
 # columns: 19
 # Unique vessels: 4393
 
 SEFHIER_logbooks_overr <-
   left_join(Logbooks,
-            OverrideData,
+            compl_override_data,
             join_by(TRIP_END_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
                     COMP_WEEK),
@@ -576,7 +573,7 @@ my_stat(SEFHIER_logbooks_overr)
 # Unique vessels: 1882
 
 # Make lists of overridden or not vessels
-# If a week for a vessel was overridden (OverrideData), remove the trip reports from the corresponding week in the logbook data
+# If a week for a vessel was overridden (compl_override_data), remove the trip reports from the corresponding week in the logbook data
 # We have to remove logbooks for weeks that were overridden because we don't have a timestamp for when the logbook was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
 # We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
@@ -614,7 +611,7 @@ my_stat(SEFHIER_logbooks_NA)
 # SEFHIER vessels missing from the Compliance report
 SEFHIER_VesselsMissing <-
   anti_join(SEFHIER_PermitInfo,
-            OverrideData,
+            compl_override_data,
             by = 'VESSEL_OFFICIAL_NUMBER') |>
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
