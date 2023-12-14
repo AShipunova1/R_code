@@ -85,7 +85,13 @@ connect_to_secpr <- function() {
 # ---
 # Pretty message print
 function_message <- function(text_msg) {
+function_message_print <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
+      sep = "\n")
+}
+
+title_message_print <- function(title_msg) {
+  cat(crayon::blue(title_msg),
       sep = "\n")
 }
 
