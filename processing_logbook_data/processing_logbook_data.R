@@ -137,10 +137,12 @@ my_stat <- function(my_df, title_msg = NA) {
 
   # Create a formatted text with statistics
   stat_text <- str_glue(
-    "rows: {rows_n_columns[[1]]}
+    "
+rows: {rows_n_columns[[1]]}
 columns: {rows_n_columns[[2]]}
 Unique vessels: {uniq_vessels_num}
-Unique trips (logbooks): {uniq_trips_num}"
+Unique trips (logbooks): {uniq_trips_num}
+---\n"
   )
 
   # Print out to console
@@ -289,21 +291,22 @@ min(compl_override_data$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
 # keep only year 2022, including the week 52 of the previous year
-Override_data_this_year <-
+compl_override_data_this_year <-
   compl_override_data %>%
   filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
     COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
 
 # check
-min(Override_data_this_year$COMP_WEEK_START_DT)
+# That's the week 52 of 2021:
+min(compl_override_data_this_year$COMP_WEEK_START_DT)
 # [1] "2021-12-27 EST"
-min(Override_data_this_year$COMP_WEEK_END_DT)
+min(compl_override_data_this_year$COMP_WEEK_END_DT)
 # [1] "2022-01-02 EST"
 
 # change data type of this column if needed
-if (!class(compl_override_data$VESSEL_OFFICIAL_NUMBER) == "character") {
-  compl_override_data$VESSEL_OFFICIAL_NUMBER <-
-    as.character(compl_override_data$VESSEL_OFFICIAL_NUMBER)
+if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
+  compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER <-
+    as.character(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER)
 }
 
 ## Import and prep the permit data ----
@@ -366,7 +369,7 @@ SEFHIER_permit_info <-
   select(VESSEL_OFFICIAL_NUMBER,
          PERMIT_REGION)
 
-# stat, not needed for processing
+# stat
 my_stat(SEFHIER_permit_info)
 # rows: 3469
 # columns: 2
@@ -525,6 +528,7 @@ my_stat(Logbooks, "Logbooks after filtering by dates")
 # rows: 327773
 # columns: 149
 # Unique vessels: 1882
+# Unique trips (logbooks): 94714
 
 # check
 min(Logbooks$TRIP_START_DATE)
@@ -577,23 +581,22 @@ Logbooks <-
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
-# to see the respective data in compl_override_data
+# to see the respective data in compl_override_data_this_year, note the last week of 2021
 # not needed for processing
-# compl_override_data |>
-#   select(COMP_YEAR,
-#          COMP_WEEK_END_DT,
-#          COMP_WEEK) |>
-#   distinct() |>
-#   arrange(COMP_WEEK_END_DT) |>
-#   head(3)
+compl_override_data_this_year |>
+  select(COMP_YEAR,
+         COMP_WEEK_END_DT,
+         COMP_WEEK) |>
+  distinct() |>
+  arrange(COMP_WEEK_END_DT) |>
+  head(3)
 #   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
-# 1      2022       2022-01-09         1
-# 2      2022       2022-01-16         2
-# 3      2022       2022-01-23         3
+# 1      2021       2022-01-02        52
+# 2      2022       2022-01-09         1
+# 3      2022       2022-01-16         2
 
 ## add override data to logbooks ----
-
-my_stat(compl_override_data,
+my_stat(compl_override_data_this_year,
         "Compl/override data from the db")
 # rows: 458071
 # columns: 19
@@ -604,7 +607,7 @@ my_stat(compl_override_data,
 
 SEFHIER_logbooks_join_overr <-
   left_join(Logbooks,
-            compl_override_data,
+            compl_override_data_this_year,
             join_by(TRIP_END_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
                     COMP_WEEK),
@@ -616,9 +619,10 @@ my_stat(SEFHIER_logbooks_join_overr)
 # rows: 327818
 # columns: 169
 # Unique vessels: 1882
+# Unique trips (logbooks): 94714
 
 # Make lists of overridden or not vessels
-# If a week for a vessel was overridden (compl_override_data), remove the trip reports from the corresponding week in the logbook data
+# If a week for a vessel was overridden (compl_override_data_this_year), remove the trip reports from the corresponding week in the logbook data
 # We have to remove logbooks for weeks that were overridden because we don't have a timestamp for when the logbook was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
 # We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
@@ -631,18 +635,17 @@ my_stat(SEFHIER_logbooks_overridden)
 # rows: 10136
 # columns: 169
 # Unique vessels: 286
-
-n_distinct(SEFHIER_logbooks_overridden$TRIP_ID)
-# [1] 2905
+# Unique trips (logbooks): 2905
 
 SEFHIER_logbooks_notoverridden <-
   filter(SEFHIER_logbooks_join_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
 
 # stat
 my_stat(SEFHIER_logbooks_notoverridden)
-# rows: 317029
+# rows: 317002
 # columns: 169
-# Unique vessels: 1870
+# Unique vessels: 1869
+# Unique trips (logbooks): 91688
 
 SEFHIER_logbooks_NA <-
   filter(SEFHIER_logbooks_join_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
@@ -651,10 +654,10 @@ SEFHIER_logbooks_NA <-
 
 # stat
 my_stat(SEFHIER_logbooks_NA)
-# rows: 653
+# rows: 680
 # columns: 169
-# Unique vessels: 10
-# Unique trips (logbooks): 132
+# Unique vessels: 18
+# Unique trips (logbooks): 142
 
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
@@ -664,7 +667,7 @@ my_stat(SEFHIER_logbooks_NA)
 SEFHIER_vessels_missing <-
   setdiff(
   SEFHIER_permit_info$VESSEL_OFFICIAL_NUMBER,
-  compl_override_data$VESSEL_OFFICIAL_NUMBER
+  compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
 )
 
 # 25
@@ -675,8 +678,6 @@ n_distinct(SEFHIER_vessels_missing) |>
   print()
 # Unique vessels: 25
 
-my_stat(SEFHIER_logbooks_NA)
-
 # SEFHIER logbooks from vessels missing from the Compliance report
 SEFHIER_vessels_missing_logbooks <-
   SEFHIER_logbooks_NA |>
@@ -685,19 +686,29 @@ SEFHIER_vessels_missing_logbooks <-
 # add missing logbooks back to the not overridden data frame
 SEFHIER_logbooks_notoverridden <-
   rbind(SEFHIER_logbooks_notoverridden,
-        SEFHIER_vessels_missing_logbooks)
+        SEFHIER_vessels_missing_logbooks) |>
+  distinct()
+
+my_stat(SEFHIER_logbooks_notoverridden)
+# rows: 317778
+# columns: 169
+# Unique vessels: 1870
+# Unique trips (logbooks): 91733
 
 # remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
 
 my_stat(SEFHIER_logbooks_NA)
+# Unique vessels: 18
+# Unique trips (logbooks): 142
 
 SEFHIER_logbooks_NA__rm_missing_vsls <-
     SEFHIER_logbooks_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_vessels_missing)
 
 my_stat(SEFHIER_logbooks_NA__rm_missing_vsls,
-        "SEFHIER_logbooks_NA after remove missing logbooks")
-# [1] 87
+        "SEFHIER_logbooks_NA after removing missing logbooks")
+# Unique vessels: 17
+# Unique trips (logbooks): 97
 
 # We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
 # being we shouldn't include logbooks that weren't required in the first place. Alternatively,
@@ -724,13 +735,12 @@ SEFHIER_logbooks_notoverridden$USABLE_DATE <-
   add_time),
   format = "%Y-%m-%d %H:%M:%S")
 
-#format the submission date (TRIP_DE)
+# format the submission date (TRIP_DE)
 SEFHIER_logbooks_notoverridden <-
   SEFHIER_logbooks_notoverridden |>
   mutate(TRIP_DE = as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
 
 # Filtering logbook data ----
-
 ## Start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
 
@@ -749,9 +759,10 @@ SEFHIER_logbooks_notoverridden__start_end_ok <-
 
 # stat
 my_stat(SEFHIER_logbooks_notoverridden__start_end_ok)
-# rows: 310464
+# rows: 315448
 # columns: 171
-# Unique vessels: 1825
+# Unique vessels: 1866
+# Unique trips (logbooks): 91145
 
 # stat
 thrown_by_time_stamp_error <-
@@ -763,7 +774,7 @@ thrown_by_time_stamp_error <-
 
 title_message_print("Thrown away by time_stamp_error (logbooks num)")
 print(thrown_by_time_stamp_error)
-# [1] 589
+# [1] 588
 
 ## Delete logbooks for trips lasting more than 10 days ----
 
@@ -791,9 +802,10 @@ SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
 
 # stat
 my_stat(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok)
-# rows: 310353
+# rows: 315350
 # columns: 172
-# Unique vessels: 1821
+# Unique vessels: 1863
+# Unique trips (logbooks): 91108
 
 title_message_print("Thrown away by trip_more_10_days (logbooks num)")
 trip_more_10_days <-
@@ -804,16 +816,7 @@ trip_more_10_days <-
   nrow()
 
 print(trip_more_10_days)
-# rows: 111
-# trip_ids: 44
-
-# subsets the data with no logbook entries, useful stat, not needed for processing
-# That is mostly for compliance analysis
-# VesselsNoLogbooks <-
-#   subset(SEFHIER_logbooks, (SEFHIER_logbooks$TRIP_TYPE %in% c(NA)))
-
-# nrow(VesselsNoLogbooks)
-# 1636
+# trip_ids: 37
 
 ## Remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
 
@@ -822,8 +825,8 @@ print(trip_more_10_days)
 SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok['USABLE'] <-
   ifelse(
     SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok$USABLE_DATE >= SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok$TRIP_DE,
-    "true",
-    "false"
+    TRUE,
+    FALSE
   )
 
 SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok1 <-
@@ -833,30 +836,30 @@ SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok1 <-
 
 # diffdf::diffdf(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok,
 #           SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok1)
-# "Component “USABLE”: target is character, current is logical"
+
 #?? the same result, which is easier to read?
 
 ### Filter: data frame of logbooks that were usable ----
 SEFHIER_logbooks_usable <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok %>%
-  filter(USABLE == "true")
+  filter(USABLE == TRUE)
 
 # stat
 my_stat(SEFHIER_logbooks_usable)
-# rows: 271101
+# rows: 275667
 # columns: 173
-# Unique vessels: 1628
+# Unique vessels: 1668
+# Unique trips (logbooks): 74466
 
 title_message_print("Thrown away by late_submission (logbooks num)")
 late_submission <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok %>%
-  filter(USABLE == "false") |>
+  filter(USABLE == FALSE) |>
   select(TRIP_ID) |>
   distinct() |>
   nrow()
 print(late_submission)
-# rows: 39252
-# trip_ids: 16447
+# trip_ids: 16442
 
 # check
 min(SEFHIER_logbooks_usable$TRIP_START_DATE)
@@ -888,24 +891,6 @@ max(SEFHIER_logbooks_usable$TRIP_END_DATE)
 #      value = TRUE,
 #      ignore.case = TRUE)
 
-# Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
-
-# Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
-# Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
-# For all other cases, assign "dual"
-
-SEFHIER_logbooks_usable_p_regions <-
-  SEFHIER_logbooks_usable %>%
-  mutate(
-    permit_sa_gom =
-      dplyr::case_when(
-        !grepl("RCG|HRCG|CHG|HCHG", PERMIT_GROUP) ~
-          "sa_only",
-        !grepl("CDW|CHS|SC", PERMIT_GROUP) ~ "gom_only",
-        .default = "dual"
-      )
-  )
-
 # Explanation:
 #
 # 1. **Create New Dataframe:**
@@ -922,8 +907,25 @@ SEFHIER_logbooks_usable_p_regions <-
 # 4. **'dplyr::' Prefix:**
 #    - `dplyr::case_when(...)`: Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
 
+SEFHIER_logbooks_usable_p_regions <-
+  SEFHIER_logbooks_usable %>%
+  mutate(
+    permit_sa_gom =
+      dplyr::case_when(
+        !grepl("RCG|HRCG|CHG|HCHG", PERMIT_GROUP) ~
+          "sa_only",
+        !grepl("CDW|CHS|SC", PERMIT_GROUP) ~ "gom_only",
+        .default = "dual"
+      )
+  )
+
+
 # stat
 my_stat(SEFHIER_logbooks_usable_p_regions)
+# rows: 275667
+# columns: 174
+# Unique vessels: 1668
+# Unique trips (logbooks): 74466
 
 title_message_print("Compare with Logbooks before filtering")
 
@@ -935,12 +937,12 @@ logbooks_before_filtering <-
 logbooks_after_filtering <-
   n_distinct(SEFHIER_logbooks_usable_p_regions$TRIP_ID)
 # print(logbooks_after_filtering)
-# [1] 73270
+# [1] 74466
 
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
 # print(percent_of_removed_logbooks)
-# [1] 22.64079
+# [1] 21.37804
 
 # removed_vessels
 vessels_before_filtering <-
@@ -951,15 +953,15 @@ vessels_before_filtering <-
 vessels_after_filtering <-
   n_distinct(SEFHIER_logbooks_usable_p_regions$VESSEL_OFFICIAL_NUMBER)
 # print(vessels_after_filtering)
-# 1628
+# 1668
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
-# 254
+# 214
 
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
-# 13.49628 %
+# [1] 11.37088
 
 cat(
   crayon::blue("percent_of_removed_logbooks"),
@@ -970,6 +972,12 @@ cat(
   str_glue("{round(percent_of_removed_vessels)}%"),
   sep = "\n"
 )
+# percent_of_removed_logbooks
+# 21%
+# removed_vessels
+# 214
+# percent_of_removed_vessels
+# 11%
 
 # Export usable logbooks ----
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
