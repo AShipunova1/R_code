@@ -314,24 +314,24 @@ my_stat(SEFHIER_metrics_tracking,
 # Unique vessels: 3598
 
 # Filter: remove SRHSvessels from SEFHIER_metrics_tracking list
-SEFHIER_PermitInfo <-
+SEFHIER_permit_Info <-
   anti_join(SEFHIER_metrics_tracking, SRHSvessels,
             by = 'VESSEL_OFFICIAL_NUMBER')
 
 # stat
-my_stat(SEFHIER_PermitInfo)
+my_stat(SEFHIER_permit_Info)
 # rows: 3469
 # columns: 13
 # Unique vessels: 3469
 
 # remove the columns you don't need and keep only 2
-SEFHIER_PermitInfo <-
-  SEFHIER_PermitInfo |>
+SEFHIER_permit_Info <-
+  SEFHIER_permit_Info |>
   select(VESSEL_OFFICIAL_NUMBER,
          PERMIT_REGION)
 
 # stat, not needed for processing
-my_stat(SEFHIER_PermitInfo)
+my_stat(SEFHIER_permit_Info)
 # rows: 3469
 # columns: 2
 # Unique vessels: 3469
@@ -620,7 +620,7 @@ my_stat(SEFHIER_logbooks_NA)
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
 SEFHIER_VesselsMissing <-
-  anti_join(SEFHIER_PermitInfo,
+  anti_join(SEFHIER_permit_Info,
             compl_override_data,
             by = 'VESSEL_OFFICIAL_NUMBER') |>
   select(VESSEL_OFFICIAL_NUMBER) |>
@@ -705,7 +705,7 @@ SEFHIER_logbooks_notoverridden <-
 # Revise that section after deciding on the permit info source.
 SEFHIER_logbooks_notoverridden__in_metr <-
   SEFHIER_logbooks_notoverridden |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_PermitInfo$VESSEL_OFFICIAL_NUMBER)
+  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_Info$VESSEL_OFFICIAL_NUMBER)
 
 # stat
 my_stat(SEFHIER_logbooks_notoverridden)
@@ -720,7 +720,7 @@ my_stat(SEFHIER_logbooks_notoverridden__in_metr)
 
 # thrown away in this step
 SEFHIER_logbooks_notoverridden |>
-  filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_PermitInfo$VESSEL_OFFICIAL_NUMBER) |>
+  filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_Info$VESSEL_OFFICIAL_NUMBER) |>
   my_stat()
 # rows: 4736
 # columns: 170
