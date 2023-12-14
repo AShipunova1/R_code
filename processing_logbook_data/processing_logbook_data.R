@@ -754,7 +754,7 @@ thrown_by_time_stamp_error <-
   distinct() |>
   nrow()
 
-title_message_print("Thrown away by time_stamp_error (logbooks)")
+title_message_print("Thrown away by time_stamp_error (logbooks num)")
 print(thrown_by_time_stamp_error)
 # rows: 1829
 # trip ids: 551
@@ -841,7 +841,7 @@ my_stat(SEFHIER_logbooks_usable)
 # columns: 173
 # Unique vessels: 1628
 
-title_message_print("Thrown away by late_submission (logbooks)")
+title_message_print("Thrown away by late_submission (logbooks num)")
 late_submission <-
   SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok %>%
   filter(USABLE == "false") |>
@@ -964,7 +964,7 @@ cat(
   str_glue("{round(percent_of_removed_vessels)}%"),
   sep = "\n"
 )
-
++
 # Export usable logbooks ----
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
