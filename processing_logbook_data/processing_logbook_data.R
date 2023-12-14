@@ -1,19 +1,35 @@
 # processing_logbook_data
 
-# This code processes logbook data from Oracle,
+# This code processes logbook data from Oracle database,
 # then cleans it up, so that we can use it in any logbook data analysis:
-#(1) pull all logbook and compliance data from Oracle
-#(2) clean up logbook data set, using Metrics Tracking and SRHS list
-#(a) remove records from SRHS vessels
-#(b) remove records from vessels without a GOM SEFHIER permit
-#(c) remove records where start date/time is after end date/time
-#(d) remove records for trips lasting more than 10 days
-#(e) only keep A, H and U logbooks for GOM permitted vessels (U because VMS allows Unknown Trip Type)
-#(3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
+# (1) (a) pull all logbook and compliance/override data from Oracle database
+#     (b) get Metrics Tracking from FHIER
+#     (c) get SRHS list from Michelle
+# (2) clean up logbook data set
+#   (a) remove records from SRHS vessels
+#   (b) remove records where start date/time is after end date/time
+#   (c) remove records for trips lasting more than 10 days
+# (3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
+#   (a) remove all overridden data, because the submission date is unknown
+# (4) Add permit region information (GOM, SA, or dual), using permit names
 
-#general set up:
+# We don't keep trips started in 2021 and ended in 2022.
+# We only keep trips starting in 2022.
 
-#load required packages
+# Caveats:
+# 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
+# internal called the ISO number and how the function calculates the start of a week. If you are running this on a
+# new data set, check your weeks to make sure it's calculating correctly.
+
+# Running the code
+# To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
+# Pressing F2 when the custom function name is under the cursor will show the function definition.
+# Pressing F1 when the R function name is under the cursor will show the function definition
+# and examples in the help panel.
+
+# general set up ----
+
+# load required packages
 library(ROracle)
 library(xlsx)
 library(tidyverse)
@@ -23,41 +39,29 @@ library(tictoc) # Functions for timing
 library(crayon) # Colored terminal output
 
 # set working and output directory - where do you keep the data and analysis folder on your computer?
-# example: Path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
+michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
+
+jennys_path <-
+  "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
 
 annas_path <-
   r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
 
-Path <-
-  "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
-
-# Comment out to use Jenny's instead:
+# Change to use another path instead:
 Path <- annas_path
 
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
-my_year <- '2022'
 my_date_beg <- '01-JAN-2022'
 my_date_end <- '31-DEC-2022'
-
-# We don't keep trips started in 2021 and ended in 2022.
-# We only keep trips starting in 2022.
-
-# To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
-
-# Caveats:
-# 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
-# internal called the ISO number and how the function calculates the start of a week. If you are running this on a
-# new data set, check your weeks to make sure it's calculating correctly after running that line of code.
-# ?? which line of code?
 
 # Auxiliary methods ----
 
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
-# usage:
+# Usage:
 # con <- connect_to_secpr()
 # or
 # try(con <- connect_to_secpr())
@@ -84,7 +88,7 @@ function_message <- function(text_msg) {
       sep = "\n")
 }
 
-# A function to print out sf stats.
+# A function to print out stats.
 # Usage: my_stat(Logbooks)
 
 my_stat <- function(my_df) {
@@ -116,7 +120,7 @@ my_stat <- function(my_df) {
 # 4. **Print Count of Unique Vessels:**
 #    - `print(str_glue("Unique vessels: {uniq_vessel_num[[1]]}"))`: Use 'str_glue' to interpolate and print the count of unique vessels extracted in the previous step.
 
-# A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
+# A function to use every time we want to read a ready file or query the database if no files exist.
 
 # The read_rds_or_run_query function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
 # See usage below at the `Grab compliance file from Oracle` section
@@ -179,22 +183,22 @@ read_rds_or_run_query <- function(my_file_path,
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
 
 # set up an Oracle connection
-tic("try_con")
+tic("try_connection")
 try(con <- connect_to_secpr())
 toc()
-# try_con: 21.7 sec elapsed if no connection
-# try_con: 1.63 sec elapsed if works normally
+# try_connection: 21.7 sec elapsed if no connection
+# try_connection: 1.63 sec elapsed if works normally
 
-## Import and prep compliance (and override) data ----
+## Import and prep compliance/override data ----
 
 ### Import compliance/override data ----
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
 
-# override_data_file_path is the same as compl_err_query_file, e.g.
+# compl_override_data_file_path, e.g.
 #   "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Inputs\\compl_err_db_data_raw.rds"
 
 # 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
-compl_err_query_file <-
+compl_override_data_file_path <-
   file.path(Path,
             Outputs,
             "Compliance_raw_data_Year.rds")
@@ -210,7 +214,7 @@ WHERE
   comp_year >= '2020'"
 
 # Check if the file path is correct, optional
-# file.exists(compl_err_query_file)
+# file.exists(compl_override_data_file_path)
 
 # Create the compliance/overridden data frame
 # using the function pre-defined above (to see press F2) to check if there is a file saved already,
@@ -218,7 +222,7 @@ WHERE
 # or run the query and write the file for future use
 
 compliance_data <-
-  read_rds_or_run_query(compl_err_query_file,
+  read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query)
 
 ### prep the compliance data ####
