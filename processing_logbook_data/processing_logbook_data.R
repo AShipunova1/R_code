@@ -27,7 +27,7 @@
 # Pressing F1 when the R function name is under the cursor will show the function definition
 # and examples in the help panel.
 
-# general set up ----
+# General set up ----
 
 # load required packages
 library(ROracle)
@@ -84,7 +84,6 @@ connect_to_secpr <- function() {
 
 # ---
 # Pretty message print
-function_message <- function(text_msg) {
 function_message_print <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
       sep = "\n")
@@ -104,7 +103,8 @@ my_stat <- function(my_df, title_msg = NA) {
     df_name = deparse(substitute(my_df))
     title_msg <- df_name
   }
-  cat(title_msg, sep = "\n")
+
+  title_message_print(title_msg)
 
   str_glue("rows: {dim(my_df)[[1]]}
            columns: {dim(my_df)[[2]]}") |>
@@ -155,7 +155,7 @@ read_rds_or_run_query <- function(my_file_path,
         is.null(force_from_db)) {
         # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
 
-        function_message("File already exists, reading.")
+        function_message_print("File already exists, reading.")
 
         my_result <- readr::read_rds(my_file_path)
 
@@ -164,7 +164,7 @@ read_rds_or_run_query <- function(my_file_path,
       # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
 
       # 0. Print this message.
-      function_message(c(
+      function_message_print(c(
         "File",
         my_file_path,
         "doesn't exists, pulling data from database.",
@@ -176,7 +176,7 @@ read_rds_or_run_query <- function(my_file_path,
         paste(today(), "run for", basename(my_file_path))
       tictoc::tic(msg_text)  # Start timing the operation.
 
-      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN. Must have connection (`con`) already established.
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN. Must have a connection (`con`) already established.
 
       my_result <- dbGetQuery(con, my_query)
 
@@ -186,7 +186,7 @@ read_rds_or_run_query <- function(my_file_path,
       # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
 
       # 4. Print this message.
-      function_message(c("Saving new data into a file here: ",
+      function_message_print(c("Saving new data into a file here: ",
                        my_file_path))
 
       try(readr::write_rds(my_result,
@@ -225,7 +225,7 @@ compl_override_data_file_path <-
             Outputs,
             "Compliance_raw_data_Year.rds")
 
-# 2) Create variable with a table name to call data from, define year.
+# 2) Create a variable with a table name to call data from, define year.
 # >= 2020 because of when the program started
 compl_err_query <-
   "SELECT
@@ -476,12 +476,6 @@ Logbooks <-
 # 7. **Format Columns with Leading Zeros:**
 #    - `~ sprintf("%04d", .x)`: Format each column value with leading zeros using 'sprintf("%04d", .x)'.
 
-# stat
-my_stat(Logbooks)
-# rows: 484413
-# columns: 149
-# Unique vessels: 2218
-
 ### Filter out just 2022 logbook entries ----
 
 # check
@@ -490,14 +484,17 @@ my_stat(Logbooks)
 # max(Logbooks$TRIP_START_DATE)
 # [1] "2023-12-01"
 
-my_stat(Logbooks, "After changing formats")
-
 Logbooks <-
   Logbooks %>%
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
-my_stat(Logbooks, "after filtering by dates again")
+# stat, to compare with the end result
+logbooks_stat_correct_dates_before_filtering <-
+  c(dim(Logbooks),
+    length(unique(Logbooks$VESSEL_OFFICIAL_NUMBER)))
+
+my_stat(Logbooks, "Logbooks after filtering by dates")
 # rows: 327773
 # columns: 149
 # Unique vessels: 1882
@@ -553,12 +550,6 @@ Logbooks <-
   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
-# stat
-my_stat(Logbooks)
-# rows: 327773
-# columns: 153
-# Unique vessels: 1882
-
 # to see the respective data in compl_override_data
 # not needed for processing
 # compl_override_data |>
@@ -575,12 +566,13 @@ my_stat(Logbooks)
 
 ## add override data to logbooks ----
 
-my_stat(compl_override_data)
+my_stat(compl_override_data,
+        "Compl/override data from the db")
 # rows: 458071
 # columns: 19
 # Unique vessels: 4393
 
-SEFHIER_logbooks_overr <-
+SEFHIER_logbooks_join_overr <-
   left_join(Logbooks,
             compl_override_data,
             join_by(TRIP_END_YEAR == COMP_YEAR,
@@ -590,7 +582,7 @@ SEFHIER_logbooks_overr <-
             )
 
 # stat
-my_stat(SEFHIER_logbooks_overr)
+my_stat(SEFHIER_logbooks_join_overr)
 # rows: 327818
 # columns: 169
 # Unique vessels: 1882
@@ -602,7 +594,7 @@ my_stat(SEFHIER_logbooks_overr)
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
 
 SEFHIER_logbooks_overridden <-
-  filter(SEFHIER_logbooks_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
+  filter(SEFHIER_logbooks_join_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
 
 # stat
 my_stat(SEFHIER_logbooks_overridden)
@@ -611,7 +603,7 @@ my_stat(SEFHIER_logbooks_overridden)
 # Unique vessels: 286
 
 SEFHIER_logbooks_notoverridden <-
-  filter(SEFHIER_logbooks_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
+  filter(SEFHIER_logbooks_join_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
 
 # stat
 my_stat(SEFHIER_logbooks_notoverridden)
@@ -620,7 +612,7 @@ my_stat(SEFHIER_logbooks_notoverridden)
 # Unique vessels: 1870
 
 SEFHIER_logbooks_NA <-
-  filter(SEFHIER_logbooks_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
+  filter(SEFHIER_logbooks_join_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
@@ -698,18 +690,6 @@ SEFHIER_logbooks_notoverridden <-
   SEFHIER_logbooks_notoverridden |>
   mutate(TRIP_DE = as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
 
-# old
-# NumVessels_usablelogbooks = length(unique(SEFHIER_logbooks_usable[,1])) #useful stat, not needed for processing
-# NumVessels_usablelogbooks
-# 1617
-
-#data frame of logbooks that were not usable, useful stats, not needed for processing
-# SEFHIER_logbooks_unusable <-
-  # SEFHIER_logbooks %>% filter(USABLE == "false")
-# NumSEFHIER_logbooks_unusable <- nrow(SEFHIER_logbooks_unusable) # how many logbooks were unusable?
-# dim(SEFHIER_logbooks_unusable)
-# 39032
-
 # NumVessels_unusablelogbooks <-
   # length(unique(SEFHIER_logbooks_unusable$VESSEL_OFFICIAL_NUMBER)) #how many vessels had an unusable logbook?
 # 1053
@@ -738,7 +718,7 @@ my_stat(SEFHIER_logbooks_notoverridden__in_metr)
 # thrown away in this step
 SEFHIER_logbooks_notoverridden |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_Info$VESSEL_OFFICIAL_NUMBER) |>
-  my_stat()
+  my_stat("Thrown away by 'not in Metrics tracking'")
 # rows: 4736
 # columns: 170
 # Unique vessels: 41
@@ -749,7 +729,7 @@ SEFHIER_logbooks_notoverridden |>
 # check logbook records for cases where start date/time is after end date/time, delete these records
 
 # the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
-SEFHIER_logbooks_notoverridden__in_metr['TimeStampError'] <-
+SEFHIER_logbooks_notoverridden__in_metr['time_stamp_error'] <-
   ifelse(
     SEFHIER_logbooks_notoverridden__in_metr$STARTDATETIME >= SEFHIER_logbooks_notoverridden__in_metr$ENDDATETIME,
     "true",
@@ -759,19 +739,25 @@ SEFHIER_logbooks_notoverridden__in_metr['TimeStampError'] <-
 ### Filter: only keep the rows where there is no error between start & end date & time ----
 SEFHIER_logbooks_notoverridden__in_metr__start_end_ok <-
   SEFHIER_logbooks_notoverridden__in_metr %>%
-  filter(TimeStampError == "false")
+  filter(time_stamp_error == "false")
 
 # stat
-# thrown away in this step
-SEFHIER_logbooks_notoverridden__in_metr %>%
-  filter(TimeStampError == "true") |>
-  nrow()
-# 1829
-
 my_stat(SEFHIER_logbooks_notoverridden__in_metr__start_end_ok)
 # rows: 310464
 # columns: 171
 # Unique vessels: 1825
+
+thrown_by_time_stamp_error <-
+  SEFHIER_logbooks_notoverridden__in_metr %>%
+  filter(time_stamp_error == "true") |>
+  select(TRIP_ID) |>
+  distinct() |>
+  nrow()
+
+title_message_print("Thrown away by time_stamp_error (logbooks)")
+print(thrown_by_time_stamp_error)
+# rows: 1829
+# trip ids: 551
 
 ## Delete logbooks for trips lasting more than 10 days ----
 
@@ -803,11 +789,17 @@ my_stat(SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok)
 # columns: 172
 # Unique vessels: 1821
 
-# thrown away in this step
-SEFHIER_logbooks_notoverridden__in_metr__start_end_ok %>%
+title_message_print("Thrown away by trip_more_10_days (logbooks num)")
+trip_more_10_days <-
+  SEFHIER_logbooks_notoverridden__in_metr__start_end_ok %>%
   filter(TripLength > 240) |>
+  select(TRIP_ID) |>
+  distinct() |>
   nrow()
-# 111
+
+print(trip_more_10_days)
+# rows: 111
+# trip_ids: 44
 
 # subsets the data with no logbook entries, useful stat, not needed for processing
 # That is mostly for compliance analysis
@@ -844,17 +836,21 @@ SEFHIER_logbooks_usable <-
   filter(USABLE == "true")
 
 # stat
-# thrown away in this step
-SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok %>%
-  filter(USABLE == "false") |>
-  nrow()
-# rows: 39252
-
-# stat
 my_stat(SEFHIER_logbooks_usable)
 # rows: 271101
 # columns: 173
 # Unique vessels: 1628
+
+title_message_print("Thrown away by late_submission (logbooks)")
+late_submission <-
+  SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok %>%
+  filter(USABLE == "false") |>
+  select(TRIP_ID) |>
+  distinct() |>
+  nrow()
+print(late_submission)
+# rows: 39252
+# trip_ids: 16447
 
 # check
 min(SEFHIER_logbooks_usable$TRIP_START_DATE)
@@ -920,11 +916,56 @@ SEFHIER_logbooks_usable_p_regions <-
 # 4. **'dplyr::' Prefix:**
 #    - `dplyr::case_when(...)`: Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
 
-# stat, not needed for processing
-# dim(SEFHIER_logbooks_usable_p_regions)
-# 269713    172
+# stat
+my_stat(SEFHIER_logbooks_usable_p_regions)
 
-# export usable logbooks
+title_message_print("Compare with Logbooks before filtering")
+
+logbooks_before_filtering <-
+  n_distinct(Logbooks$TRIP_ID)
+# print(logbooks_before_filtering)
+# [1] 94714
+
+logbooks_after_filtering <-
+  n_distinct(SEFHIER_logbooks_usable_p_regions$TRIP_ID)
+# print(logbooks_after_filtering)
+# [1] 73270
+
+percent_of_removed_logbooks <-
+  (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
+# print(percent_of_removed_logbooks)
+# [1] 22.64079
+
+# removed_vessels
+vessels_before_filtering <-
+  n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER)
+# print(vessels_before_filtering)
+# [1] 1882
+
+vessels_after_filtering <-
+  n_distinct(SEFHIER_logbooks_usable_p_regions$VESSEL_OFFICIAL_NUMBER)
+# print(vessels_after_filtering)
+# 1628
+
+removed_vessels <-
+  vessels_before_filtering - vessels_after_filtering
+# 254
+
+percent_of_removed_vessels <-
+  (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
+# 13.49628 %
+
+cat(
+  crayon::blue("percent_of_removed_logbooks"),
+  str_glue("{round(percent_of_removed_logbooks)}%"),
+  crayon::blue("removed_vessels"),
+  removed_vessels,
+  crayon::blue("percent_of_removed_vessels"),
+  str_glue("{round(percent_of_removed_vessels)}%"),
+  sep = "\n"
+)
+
+# Export usable logbooks ----
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
 
