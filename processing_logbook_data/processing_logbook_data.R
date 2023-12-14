@@ -93,8 +93,12 @@ function_message <- function(text_msg) {
 # A function to print out stats.
 # Usage: my_stat(Logbooks)
 
-my_stat <- function(my_df, title_msg = "") {
-  print(title_msg)
+my_stat <- function(my_df, title_msg = NA) {
+  if (is.na(title_msg))  {
+    df_name = deparse(substitute(my_df))
+    title_msg <- df_name
+  }
+  cat(title_msg, sep = "\n")
 
   str_glue("rows: {dim(my_df)[[1]]}
            columns: {dim(my_df)[[2]]}") |>
@@ -109,23 +113,26 @@ my_stat <- function(my_df, title_msg = "") {
   print(str_glue("Unique vessels: {uniq_vessel_num[[1]]}"))
 }
 
+#
 # Explanation:
 #
 # 1. **Define Function with Optional Parameter:**
-#    - `my_stat <- function(my_df, title_msg = "") { ... }`: Define a function named 'my_stat' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of an empty string.
+#    - `my_stat <- function(my_df, title_msg = NA) { ... }`: Define a function named 'my_stat' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of NA.
 #
-# 2. **Print Optional Title Message:**
-#    - `print(title_msg)`: Print the optional title message provided as a parameter.
+# 2. **Check and Assign Default Title Message:**
+#    - `if (is.na(title_msg))  { ... }`: Check if 'title_msg' is NA, and if so, assign the dataframe name as the default title message using 'deparse(substitute(my_df))'.
 #
-# 3. **Print Rows and Columns Information:**
-#    - `str_glue("rows: {dim(my_df)[[1]]}
-# columns: {dim(my_df)[[2]]}") |>
+# 3. **Print Title Message:**
+#    - `cat(title_msg, sep = "\n")`: Print the title message using 'cat', separating lines with a newline character.
+#
+# 4. **Print Rows and Columns Information:**
+#    - `str_glue("rows: {dim(my_df)[[1]]} columns: {dim(my_df)[[2]]}") |>
 #     print()`: Use 'str_glue' to interpolate the number of rows and columns in the dataframe and print the result.
 #
-# 4. **Extract Unique Vessel Numbers:**
+# 5. **Extract Unique Vessel Numbers:**
 #    - `uniq_vessel_num <- my_df |> select(VESSEL_OFFICIAL_NUMBER) |> distinct() |> dim()`: Use the pipe operator '|>' to extract unique vessel numbers by selecting the 'VESSEL_OFFICIAL_NUMBER' column, applying 'distinct' to get unique values, and then using 'dim' to count them.
 #
-# 5. **Print Count of Unique Vessels:**
+# 6. **Print Count of Unique Vessels:**
 #    - `print(str_glue("Unique vessels: {uniq_vessel_num[[1]]}"))`: Use 'str_glue' to interpolate and print the count of unique vessels extracted in the previous step.
 
 # ---
@@ -319,7 +326,7 @@ SEFHIER_permit_Info <-
             by = 'VESSEL_OFFICIAL_NUMBER')
 
 # stat
-my_stat(SEFHIER_permit_Info)
+my_stat(SEFHIER_permit_Info, "Metrics tracking minus SRHS vsls")
 # rows: 3469
 # columns: 13
 # Unique vessels: 3469
@@ -377,7 +384,7 @@ Logbooks <-
            "VESSEL_OFFICIAL_NBR")
 
 # stat
-my_stat(Logbooks)
+my_stat(Logbooks, "Logbooks from the db")
 # rows: 484413
 # columns: 149
 # Unique vessels: 2218
@@ -428,7 +435,7 @@ time_col_names <-
     "TRIP_END_TIME")
 
 # convert time columns to numeric,
-# then format to 4 digits as a string
+# then format to 4 digits as a string (some time entries were like "800")
 # (from help: sprintf returns a character vector)
 
 Logbooks <-
@@ -469,18 +476,22 @@ my_stat(Logbooks)
 # columns: 149
 # Unique vessels: 2218
 
-### Filter out just 2022 logbook entries if the source is other than downloaded from the database. ----
+### Filter out just 2022 logbook entries ----
 
 # check
 # min(Logbooks$TRIP_START_DATE)
 # [1] "2022-01-01"
+# max(Logbooks$TRIP_START_DATE)
+# [1] "2023-12-01"
+
+my_stat(Logbooks, "After changing formats")
 
 Logbooks <-
   Logbooks %>%
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
-my_stat(Logbooks)
+my_stat(Logbooks, "after filtering by dates again")
 # rows: 327773
 # columns: 149
 # Unique vessels: 1882
@@ -490,6 +501,7 @@ min(Logbooks$TRIP_START_DATE)
 # [1] "2022-01-01"
 max(Logbooks$TRIP_START_DATE)
 # [1] "2022-12-31"
+
 min(Logbooks$TRIP_END_DATE)
 # [1] "2018-06-04"
 max(Logbooks$TRIP_END_DATE)
@@ -503,9 +515,9 @@ Logbooks$STARTDATETIME <-
 toc()
 # format time: 4.38 sec elapsed
 
-# check, not needed for processing
-# Logbooks$STARTDATETIME |>
-#   head(1)
+# check
+Logbooks$STARTDATETIME |>
+  head(1)
 # "2022-07-07 08:00:00 EDT"
 
 # create column for end date & time
@@ -513,7 +525,7 @@ Logbooks$ENDDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
 
-### Prepare data to determine what weeks were overridden, and exclude those logbooks ####
+### Prepare data to determine what weeks were overridden, and exclude those logbooks ----
 
 # assign each logbook a week designation (first day of the reporting week is a Monday)
 # use the end date to calculate this, it won't matter for most trips, but for some trips that
@@ -556,11 +568,6 @@ my_stat(Logbooks)
 # 3      2022       2022-01-23         3
 
 ## add override data to logbooks ----
-# stat
-my_stat(Logbooks)
-# rows: 327773
-# columns: 153
-# Unique vessels: 1882
 
 my_stat(compl_override_data)
 # rows: 458071
@@ -619,7 +626,7 @@ my_stat(SEFHIER_logbooks_NA)
 
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
-SEFHIER_VesselsMissing <-
+SEFHIER_vessels_missing <-
   anti_join(SEFHIER_permit_Info,
             compl_override_data,
             by = 'VESSEL_OFFICIAL_NUMBER') |>
@@ -627,23 +634,26 @@ SEFHIER_VesselsMissing <-
   distinct()
 
 # stat
-my_stat(SEFHIER_VesselsMissing)
+my_stat(SEFHIER_vessels_missing)
 # Unique vessels: 25
 
 # SEFHIER logbooks from vessels missing from the Compliance report
-SEFHIER_VesselsMissing_logbooks <-
+SEFHIER_vessels_missing_logbooks <-
   SEFHIER_logbooks_NA |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
+  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_vessels_missing)
 
 # add missing logbooks back to the not overridden data frame
 SEFHIER_logbooks_notoverridden <-
   rbind(SEFHIER_logbooks_notoverridden,
-        SEFHIER_VesselsMissing_logbooks)
+        SEFHIER_vessels_missing_logbooks)
 
 # remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
 SEFHIER_logbooks_NA <-
     SEFHIER_logbooks_NA |>
-  filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_VesselsMissing)
+  filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_vessels_missing)
+
+my_stat(SEFHIER_logbooks_NA,
+        "SEFHIER_logbooks_NA after remove missing logbooks")
 
 # We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
 # being we shouldn't include logbooks that weren't required in the first place. Alternatively,
@@ -708,7 +718,8 @@ SEFHIER_logbooks_notoverridden__in_metr <-
   filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_Info$VESSEL_OFFICIAL_NUMBER)
 
 # stat
-my_stat(SEFHIER_logbooks_notoverridden)
+my_stat(SEFHIER_logbooks_notoverridden,
+        "SEFHIER_logbooks_notoverridden before filtered by Metrics tracking and SRHS list")
 # rows: 317029
 # columns: 170
 # Unique vessels: 1870
@@ -726,7 +737,7 @@ SEFHIER_logbooks_notoverridden |>
 # columns: 170
 # Unique vessels: 41
 
-# NB. The rest is removing logbooks.
+# NB. The rest is removing logbooks, not necessary vessels.
 
 ## Start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
@@ -820,12 +831,6 @@ SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok1 <-
 #           SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok1)
 # "Component “USABLE”: target is character, current is logical"
 #?? the same result, which is easier to read?
-
-# stat
-my_stat(SEFHIER_logbooks_notoverridden__in_metr__start_end_ok__trip_len_ok)
-# rows: 310353
-# columns: 173
-# Unique vessels: 1821
 
 ### Filter: data frame of logbooks that were usable ----
 SEFHIER_logbooks_usable <-
@@ -924,8 +929,11 @@ jennys_file_path <-
   paste(Path, Outputs, "SEFHIER_usable_Logbooks.rds",
         sep = "")
 
+# Change to the correct path
+output_file_path <-
+  annas_file_path
+
 write_rds(
   SEFHIER_logbooks_usable_p_regions,
-  file = jennys_file_path
+  file = output_file_path
 )
-
