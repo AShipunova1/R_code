@@ -710,34 +710,6 @@ SEFHIER_logbooks_notoverridden <-
 
 # Filtering logbook data ----
 
-## Filter vessels: Keep only vessels in Metricks tracking ----
-# Revise that section after deciding on the permit info source.
-SEFHIER_logbooks_notoverridden__in_metr <-
-  SEFHIER_logbooks_notoverridden |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_Info$VESSEL_OFFICIAL_NUMBER)
-
-# stat
-my_stat(SEFHIER_logbooks_notoverridden,
-        "SEFHIER_logbooks_notoverridden before filtered by Metrics tracking and SRHS list")
-# rows: 317029
-# columns: 170
-# Unique vessels: 1870
-
-my_stat(SEFHIER_logbooks_notoverridden__in_metr)
-# rows: 312293
-# columns: 170
-# Unique vessels: 1829
-
-# thrown away in this step
-SEFHIER_logbooks_notoverridden |>
-  filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_Info$VESSEL_OFFICIAL_NUMBER) |>
-  my_stat("Thrown away by 'not in Metrics tracking'")
-# rows: 4736
-# columns: 170
-# Unique vessels: 41
-
-# NB. The rest is removing logbooks, not necessary vessels.
-
 ## Start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
 
