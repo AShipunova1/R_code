@@ -293,17 +293,17 @@ SEFHIER_metrics_tracking <-
 
 # import the list of SRHS vessels
 # this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
-SRHSvessels <-
+SRHS_vessels <-
   read_csv(paste(Path, Inputs, "2022SRHSvessels.csv", sep = ""))
 
 # Rename and reformat column
-SRHSvessels <-
-  rename(SRHSvessels,
+SRHS_vessels <-
+  rename(SRHS_vessels,
        VESSEL_OFFICIAL_NUMBER = "USCG #")
 
-if (!class(SRHSvessels$VESSEL_OFFICIAL_NUMBER) == "character") {
-  SRHSvessels$VESSEL_OFFICIAL_NUMBER <-
-    as.character(SRHSvessels$VESSEL_OFFICIAL_NUMBER)
+if (!class(SRHS_vessels$VESSEL_OFFICIAL_NUMBER) == "character") {
+  SRHS_vessels$VESSEL_OFFICIAL_NUMBER <-
+    as.character(SRHS_vessels$VESSEL_OFFICIAL_NUMBER)
 }
 
 # stat
@@ -313,9 +313,9 @@ my_stat(SEFHIER_metrics_tracking,
 # columns: 13
 # Unique vessels: 3598
 
-# Filter: remove SRHSvessels from SEFHIER_metrics_tracking list
+# Filter: remove SRHS_vessels from SEFHIER_metrics_tracking list
 SEFHIER_permit_Info <-
-  anti_join(SEFHIER_metrics_tracking, SRHSvessels,
+  anti_join(SEFHIER_metrics_tracking, SRHS_vessels,
             by = 'VESSEL_OFFICIAL_NUMBER')
 
 # stat
