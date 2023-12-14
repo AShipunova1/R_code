@@ -737,14 +737,14 @@ SEFHIER_logbooks_notoverridden <-
 SEFHIER_logbooks_notoverridden['time_stamp_error'] <-
   ifelse(
     SEFHIER_logbooks_notoverridden$STARTDATETIME >= SEFHIER_logbooks_notoverridden$ENDDATETIME,
-    "true",
-    "false"
+    TRUE,
+    FALSE
   )
 
 ### Filter: only keep the rows where there is no error between start & end date & time ----
 SEFHIER_logbooks_notoverridden__start_end_ok <-
   SEFHIER_logbooks_notoverridden %>%
-  filter(time_stamp_error == "false")
+  filter(time_stamp_error == FALSE)
 
 # stat
 my_stat(SEFHIER_logbooks_notoverridden__start_end_ok)
@@ -752,9 +752,10 @@ my_stat(SEFHIER_logbooks_notoverridden__start_end_ok)
 # columns: 171
 # Unique vessels: 1825
 
+# stat
 thrown_by_time_stamp_error <-
   SEFHIER_logbooks_notoverridden %>%
-  filter(time_stamp_error == "true") |>
+  filter(time_stamp_error == TRUE) |>
   select(TRIP_ID) |>
   distinct() |>
   nrow()
