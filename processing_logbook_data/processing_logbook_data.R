@@ -82,12 +82,14 @@ connect_to_secpr <- function() {
     return(con)
 }
 
+# ---
 # Pretty message print
 function_message <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
       sep = "\n")
 }
 
+# ---
 # A function to print out stats.
 # Usage: my_stat(Logbooks)
 
@@ -182,7 +184,7 @@ read_rds_or_run_query <- function(my_file_path,
     return(my_result)
 }
 
-#------------------#
+#---
 # Get data ----
 
 # This section is needed to pull data from Oracle database
@@ -237,10 +239,11 @@ compl_override_data <-
 # Change column names for consistency with other datasets
 compl_override_data <-
   compl_override_data |>
-  dplyr::rename(VESSEL_OFFICIAL_NUMBER = "VESSEL_OFFICIAL_NBR",
+  dplyr::rename(VESSEL_OFFICIAL_NUMBER =
+                  "VESSEL_OFFICIAL_NBR",
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
-# stat, not needed for processing
+# stat
 my_stat(compl_override_data)
 # rows: 458071
 # columns: 19
@@ -268,13 +271,12 @@ if (!class(compl_override_data$VESSEL_OFFICIAL_NUMBER) == "character") {
     as.character(compl_override_data$VESSEL_OFFICIAL_NUMBER)
 }
 
-## Import and prep the permit data ####
-# use Metrics Tracking report
+## Import and prep the permit data ----
+# use Metrics Tracking report from FHIER
 # remove SRHS vessels from the list
-# remove SA vessels from the list
 
 # import the permit data
-SEFHIER_MetricsTracking <- read.csv(
+SEFHIER_metrics_tracking <- read.csv(
   paste(
     Path,
     Inputs,
@@ -284,8 +286,8 @@ SEFHIER_MetricsTracking <- read.csv(
 ) # here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
 
 # rename column headers
-SEFHIER_MetricsTracking <-
-  SEFHIER_MetricsTracking %>%
+SEFHIER_metrics_tracking <-
+  SEFHIER_metrics_tracking %>%
   rename(PERMIT_REGION = `Permit.Grouping.Region`,
          VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
 
@@ -305,14 +307,15 @@ if (!class(SRHSvessels$VESSEL_OFFICIAL_NUMBER) == "character") {
 }
 
 # stat
-my_stat(SEFHIER_MetricsTracking)
+my_stat(SEFHIER_metrics_tracking,
+        title_msg = "SEFHIER_metrics_tracking")
 # rows: 3598
 # columns: 13
 # Unique vessels: 3598
 
-# Filter: remove SRHSvessels from SEFHIER_MetricsTracking list
+# Filter: remove SRHSvessels from SEFHIER_metrics_tracking list
 SEFHIER_PermitInfo <-
-  anti_join(SEFHIER_MetricsTracking, SRHSvessels,
+  anti_join(SEFHIER_metrics_tracking, SRHSvessels,
             by = 'VESSEL_OFFICIAL_NUMBER')
 
 # stat
