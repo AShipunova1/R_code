@@ -91,7 +91,9 @@ function_message <- function(text_msg) {
 # A function to print out stats.
 # Usage: my_stat(Logbooks)
 
-my_stat <- function(my_df) {
+my_stat <- function(my_df, title_msg = "") {
+  print(title_msg)
+
   str_glue("rows: {dim(my_df)[[1]]}
            columns: {dim(my_df)[[2]]}") |>
     print()
@@ -107,19 +109,24 @@ my_stat <- function(my_df) {
 
 # Explanation:
 #
-# 1. **Define Function:**
-#    - `my_stat <- function(my_df) { ... }`: Define a function named 'my_stat' that takes a dataframe 'my_df' as input.
+# 1. **Define Function with Optional Parameter:**
+#    - `my_stat <- function(my_df, title_msg = "") { ... }`: Define a function named 'my_stat' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of an empty string.
 #
-# 2. **Print Rows and Columns Information:**
-#    - `str_glue("rows: {dim(my_df)[[1]]} columns: {dim(my_df)[[2]]}") |>
+# 2. **Print Optional Title Message:**
+#    - `print(title_msg)`: Print the optional title message provided as a parameter.
+#
+# 3. **Print Rows and Columns Information:**
+#    - `str_glue("rows: {dim(my_df)[[1]]}
+# columns: {dim(my_df)[[2]]}") |>
 #     print()`: Use 'str_glue' to interpolate the number of rows and columns in the dataframe and print the result.
 #
-# 3. **Extract Unique Vessel Numbers:**
+# 4. **Extract Unique Vessel Numbers:**
 #    - `uniq_vessel_num <- my_df |> select(VESSEL_OFFICIAL_NUMBER) |> distinct() |> dim()`: Use the pipe operator '|>' to extract unique vessel numbers by selecting the 'VESSEL_OFFICIAL_NUMBER' column, applying 'distinct' to get unique values, and then using 'dim' to count them.
 #
-# 4. **Print Count of Unique Vessels:**
+# 5. **Print Count of Unique Vessels:**
 #    - `print(str_glue("Unique vessels: {uniq_vessel_num[[1]]}"))`: Use 'str_glue' to interpolate and print the count of unique vessels extracted in the previous step.
 
+# ---
 # A function to use every time we want to read a ready file or query the database if no files exist.
 
 # The read_rds_or_run_query function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
