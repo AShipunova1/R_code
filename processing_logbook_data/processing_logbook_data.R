@@ -417,8 +417,7 @@ my_stat(Logbooks, "Logbooks from the db")
 # rows: 484413
 # columns: 149
 # Unique vessels: 2218
-n_distinct(Logbooks$TRIP_ID)
-# 94714
+# Unique trips (logbooks): 143456
 
 # reformat trip start/end date
 # Explanation:
@@ -518,7 +517,9 @@ Logbooks <-
 # stat, to compare with the end result
 logbooks_stat_correct_dates_before_filtering <-
   c(dim(Logbooks),
-    length(unique(Logbooks$VESSEL_OFFICIAL_NUMBER)))
+    n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER),
+    n_distinct(Logbooks$TRIP_ID)
+    )
 
 my_stat(Logbooks, "Logbooks after filtering by dates")
 # rows: 327773
@@ -653,8 +654,7 @@ my_stat(SEFHIER_logbooks_NA)
 # rows: 653
 # columns: 169
 # Unique vessels: 10
-n_distinct(SEFHIER_logbooks_NA$TRIP_ID)
-# [1] 132
+# Unique trips (logbooks): 132
 
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
@@ -670,9 +670,12 @@ SEFHIER_vessels_missing <-
 # 25
 
 # stat
-# my_stat(SEFHIER_vessels_missing)
+title_message_print("SEFHIER_vessels_missing")
+n_distinct(SEFHIER_vessels_missing) |>
+  print()
 # Unique vessels: 25
-# n_distinct(SEFHIER_logbooks_NA$TRIP_ID)
+
+my_stat(SEFHIER_logbooks_NA)
 
 # SEFHIER logbooks from vessels missing from the Compliance report
 SEFHIER_vessels_missing_logbooks <-
@@ -686,17 +689,15 @@ SEFHIER_logbooks_notoverridden <-
 
 # remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
 
-n_distinct(SEFHIER_logbooks_NA$TRIP_ID)
+my_stat(SEFHIER_logbooks_NA)
 
-SEFHIER_logbooks_NA <-
+SEFHIER_logbooks_NA__rm_missing_vsls <-
     SEFHIER_logbooks_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_vessels_missing)
 
-n_distinct(SEFHIER_logbooks_NA$TRIP_ID)
-# [1] 87
-
-my_stat(SEFHIER_logbooks_NA,
+my_stat(SEFHIER_logbooks_NA__rm_missing_vsls,
         "SEFHIER_logbooks_NA after remove missing logbooks")
+# [1] 87
 
 # We have decided to throw out logbooks that were submitted when the permit was inactive, the logic
 # being we shouldn't include logbooks that weren't required in the first place. Alternatively,
@@ -762,8 +763,7 @@ thrown_by_time_stamp_error <-
 
 title_message_print("Thrown away by time_stamp_error (logbooks num)")
 print(thrown_by_time_stamp_error)
-# rows: 1829
-# trip ids: 551
+# [1] 589
 
 ## Delete logbooks for trips lasting more than 10 days ----
 
