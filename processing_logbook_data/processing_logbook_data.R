@@ -95,14 +95,17 @@ title_message_print <- function(title_msg) {
 }
 
 
-# Define a helper function 'my_tee' to print the message to the console anf a file (analog of the tee function).
+# Define a helper function 'my_tee' to print the message to the console and a file.
 my_tee <- function(my_text,
                    my_title = NA,
                    stat_log_file_path = NA) {
 
+  the_end = "---"
+
   # Print out to console
   title_message_print(my_title)
-  print(my_text)
+  cat(c(my_text, the_end),
+      sep = "\n")
 
   # Create a new file every day
   if (is.na(stat_log_file_path)) {
@@ -113,7 +116,7 @@ my_tee <- function(my_text,
   }
 
   # Write to a log file
-  cat(c(my_title, my_text),
+  cat(c(my_title, my_text, the_end),
       file = stat_log_file_path,
       sep = "\n",
       append = TRUE)
@@ -168,7 +171,7 @@ rows: {rows_n_columns[[1]]}
 columns: {rows_n_columns[[2]]}
 Unique vessels: {uniq_vessels_num}
 Unique trips (logbooks): {uniq_trips_num}
----\n"
+"
   )
 
   # Print out to console and to the log file
