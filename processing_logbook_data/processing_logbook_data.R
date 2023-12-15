@@ -184,6 +184,10 @@ Unique trips (logbooks): {uniq_trips_num}
 }
 
 # ---
+# to use to drop empty columns, like select(where(not_all_na))
+not_all_na <- function(x) any(!is.na(x))
+
+# ---
 # A function to use every time we want to read a ready file or query the database if no files exist.
 
 # The read_rds_or_run_query function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
@@ -786,6 +790,15 @@ logbooks_notoverridden <-
   logbooks_notoverridden |>
   mutate(TRIP_DE = as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
 
+# Drop empty columns
+logbooks_notoverridden <-
+  logbooks_notoverridden |>
+    select(where(not_all_na))
+
+# diffdf::diffdf(logbooks_notoverridden,
+#                logbooks_notoverridden1)
+# 26 columns
+
 # stats
 uniq_vessels_num_was <-
   n_distinct(Logbooks[["VESSEL_OFFICIAL_NUMBER"]])
@@ -828,16 +841,12 @@ SEFHIER_logbooks_notoverridden |>
   nrow()
 # 48
 
-
-SEFHIER_metrics_tracking |>
-  View()
-View(SEFHIER_logbooks_notoverridden)
 my_stats(logbooks_notoverridden)
 my_stats(SEFHIER_logbooks_notoverridden)
 
 vessels_not_in_metrics <-
-  n_distinct(SEFHIER_logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER) -
-  n_distinct(logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER) -
+  n_distinct(SEFHIER_logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER)
 
 my_tee(vessels_not_in_metrics,
        "Removed if a vessel is not in Metrics tracking")
