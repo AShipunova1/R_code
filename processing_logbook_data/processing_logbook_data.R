@@ -763,69 +763,37 @@ my_stats(logbooks_NA__rm_missing_vsls,
 
 # Use trip end date to calculate the usable date 30 days later
 
-tic("USABLE_DATE")
-logbooks_notoverridden <-
-  logbooks_notoverridden |>
-  mutate(USABLE_DATE =
-           format(
-             as.Date(logbooks_notoverridden$TRIP_END_DATE, '%Y-%m-%d') + 30,
-             format = "%Y-%m-%d"
-           ))
-
-add_time = "23:59:59"
-
-logbooks_notoverridden$USABLE_DATE <-
-  as.POSIXct(paste(as.Date(
-    logbooks_notoverridden$USABLE_DATE, '%Y-%m-%d'
-  ),
-  add_time),
-  format = "%Y-%m-%d %H:%M:%S")
-toc()
-
-# USABLE_DATE: 5.56 sec elapsed
+one_d1 <- c("2022-02-22", "2022-07-11")
+ymd_hms(one_d1, truncated = 3, tz = Sys.timezone())
+# [1] "2022-02-22 EST" "2022-07-11 EDT"
 
 tic("USABLE_DATE_TIME")
-logbooks_notoverridden <-
+logbooks_notoverridden1 <-
   logbooks_notoverridden |>
+  mutate(TRIP_END_DATE_E =
+           ymd_hms(TRIP_END_DATE,
+                   truncated = 3,
+                   tz = Sys.timezone())) |>
   mutate(USABLE_DATE_TIME =
-           TRIP_END_DATE +
+           TRIP_END_DATE_E +
            days(30) +
            hours(23) +
            minutes(59) +
-           seconds(59)) |>
-  mutate(USABLE_DATE_TIME =
-           with_tz(USABLE_DATE_TIME,
-                   Sys.timezone()))
+           seconds(59))
+# mutate(USABLE_DATE_TIME =
+#        with_tz(TRIP_END_DATE,
+#                Sys.timezone())) |>
+
 toc()
 # USABLE_DATE_TIME: 0.25 sec elapsed
 
-# ymd_hms("2009-03-08 01:59:59", tz = "America/Chicago")
+aa1 <-
+  logbooks_notoverridden1 |>
+  select(starts_with("USABLE_DATE"), TRIP_END_DATE) |>
+  distinct()
 
-aa <-
-logbooks_notoverridden |>
-  select(starts_with("USABLE_DAT"), TRIP_END_DATE) |>
-  distinct() |>
-  filter(!USABLE_DATE == USABLE_DATE_TIME)
-# |>
-  # str()
-
-unlist(aa$TRIP_END_DATE[1])
-unlist(aa$USABLE_DATE[1])
-unlist(aa$USABLE_DATE_TIME[1])
-unlist(Logbooks$TRIP_END_DATE[1])
-
-# > unlist(aa$USABLE_DATE[1])
+unlist(aa1$USABLE_DATE_TIME[1])
 # [1] "2022-08-06 23:59:59 EDT"
-# > unlist(aa$USABLE_DATE_TIME[1])
-# [1] "2022-08-06 18:59:59 EST"
-
-# 'data.frame':	365 obs. of  3 variables:
-#  $ USABLE_DATE     : POSIXct, format: "2022-08-06 23:59:59" "2022-03-24 23:59:59" ...
-#  $ USABLE_DATE_TIME: POSIXlt, format: "2022-08-06 23:59:59" "2022-03-24 23:59:59" ...
-#  $ TRIP_END_DATE   : Date, format: "2022-07-07" "2022-02-22" ...
-
-# Append a time to the due date since the submission data has a date and time
-
 
 # format the submission date (TRIP_DE)
 logbooks_notoverridden <-
@@ -957,7 +925,7 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
   mutate(USABLE =
-           ifelse(USABLE_DATE >= TRIP_DE, TRUE, FALSE))
+           ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
 
 ### Filter: data frame of logbooks that were usable ----
 SEFHIER_logbooks_usable <-
