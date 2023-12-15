@@ -94,6 +94,8 @@ title_message_print <- function(title_msg) {
   cat(crayon::blue(title_msg), sep = "\n")
 }
 
+
+# Define a helper function 'my_tee' to print the message to the console anf a file (analog of the tee function).
 my_tee <- function(my_text,
                    my_title = NA,
                    stat_log_file_path = NA) {
@@ -569,7 +571,7 @@ Logbooks$ENDDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
 
-### Prepare data to determine what weeks were overridden, and exclude those logbooks ----
+### Prepare data to determine what weeks were overridden, and exclude logbooks from those weeks ----
 
 # assign each logbook a week designation (first day of the reporting week is a Monday)
 # use the end date to calculate this, it won't matter for most trips, but for some trips that
