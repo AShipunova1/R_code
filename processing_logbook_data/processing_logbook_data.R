@@ -947,6 +947,19 @@ max(SEFHIER_logbooks_usable$TRIP_END_DATE)
 # [1] "2022-12-31"
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
+# Revisit after
+# fixing metrics tracking for transferred permits
+# Reason: Metrics tracking may not be tracking permit status change over the year (e.g. transferred permits)
+
+SEFHIER_logbooks_usable |>
+  select(VESSEL_OFFICIAL_NUMBER, PERMIT_REGION) |>
+  distinct() |>
+  nrow()
+# 1629
+
+n_distinct(SEFHIER_logbooks_usable$VESSEL_OFFICIAL_NUMBER)
+# 1629
+
 # Data example:
 # SEFHIER_logbooks_usable |>
 #   select(PERMIT_GROUP) |>
@@ -993,7 +1006,7 @@ SEFHIER_logbooks_usable_p_regions <-
   )
 
 # stats
-my_stats(SEFHIER_logbooks_usable_p_regions)
+my_stats(SEFHIER_logbooks_usable)
 # rows: 275667
 # columns: 174
 # Unique vessels: 1668
@@ -1007,7 +1020,7 @@ logbooks_before_filtering <-
 # [1] 94714
 
 logbooks_after_filtering <-
-  n_distinct(SEFHIER_logbooks_usable_p_regions$TRIP_ID)
+  n_distinct(SEFHIER_logbooks_usable$TRIP_ID)
 
 # my_tee(logbooks_after_filtering,
 #        "Logbooks after filtering")
@@ -1025,7 +1038,7 @@ vessels_before_filtering <-
 # [1] 1882
 
 vessels_after_filtering <-
-  n_distinct(SEFHIER_logbooks_usable_p_regions$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(SEFHIER_logbooks_usable$VESSEL_OFFICIAL_NUMBER)
 # print(vessels_after_filtering)
 # 1668
 
@@ -1071,7 +1084,7 @@ output_file_path <-
   annas_file_path
 
 write_rds(
-  SEFHIER_logbooks_usable_p_regions,
+  SEFHIER_logbooks_usable,
   file = output_file_path
 )
 
