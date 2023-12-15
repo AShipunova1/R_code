@@ -381,11 +381,17 @@ my_stats(SEFHIER_permit_info, "Metrics tracking minus SRHS vsls")
 # columns: 13
 # Unique vessels: 3469
 
-# remove the columns you don't need and keep only 2
-SEFHIER_permit_info <-
+# see all names
+SEFHIER_permit_info |> names() |> cat(sep = ", ")
+
+# remove the columns you don't need and rename the rest
+SEFHIER_permit_info_short <-
   SEFHIER_permit_info |>
-  select(VESSEL_OFFICIAL_NUMBER,
-         PERMIT_REGION)
+  select(-starts_with("Total")) |>
+  rename_all(function(x) {
+    gsub("\\.", "_", x) |>
+      toupper()
+  })
 
 # stats
 my_stats(SEFHIER_permit_info)
