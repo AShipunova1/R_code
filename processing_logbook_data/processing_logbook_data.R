@@ -630,6 +630,7 @@ SEFHIER_logbooks_join_overr <-
             )
 
 # stat
+my_stat(Logbooks)
 my_stat(SEFHIER_logbooks_join_overr)
 # rows: 327818
 # columns: 169
@@ -751,6 +752,30 @@ SEFHIER_logbooks_notoverridden$USABLE_DATE <-
 SEFHIER_logbooks_notoverridden <-
   SEFHIER_logbooks_notoverridden |>
   mutate(TRIP_DE = as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
+
+# stat
+uniq_vessels_num_was <-
+  n_distinct(Logbooks[["VESSEL_OFFICIAL_NUMBER"]])
+uniq_vessels_num_now <-
+  n_distinct(SEFHIER_logbooks_notoverridden[["VESSEL_OFFICIAL_NUMBER"]])
+
+uniq_trips_num_was <- n_distinct(Logbooks[["TRIP_ID"]])
+uniq_trips_num_now <-
+  n_distinct(SEFHIER_logbooks_notoverridden[["TRIP_ID"]])
+
+uniq_vessels_lost_by_overr <-
+  uniq_vessels_num_was - uniq_vessels_num_now
+# 12
+
+uniq_trips_lost_by_overr <-
+  uniq_trips_num_was - uniq_trips_num_now
+# 2981
+
+my_tee(uniq_vessels_lost_by_overr,
+  "Thrown away vessels by overridden weeks")
+
+my_tee(uniq_trips_lost_by_overr,
+  "Thrown away trips by overridden weeks")
 
 # Filtering logbook data ----
 # Use SEFHIER_logbooks_notoverridden from the previous section
