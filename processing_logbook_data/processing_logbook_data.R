@@ -828,16 +828,6 @@ SEFHIER_logbooks_notoverridden__start_end_ok['trip_length'] <-
     )
   )
 
-# stat
-# Output trips with length > 240 into data frame
-logbooks_too_long <-
-  SEFHIER_logbooks_notoverridden__start_end_ok |>
-  filter(trip_length > 240)
-
-my_tee(nrow(logbooks_too_long),
-       "logbooks_too_long")
-# 98
-
 ### Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
 
 SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
@@ -861,6 +851,15 @@ trip_more_10_days <-
 my_tee(trip_more_10_days,
        "Thrown away by trip_more_10_days (logbooks num)")
 # trip_ids: 37
+
+# Output trips with length > 240 into a data frame
+logbooks_too_long <-
+  SEFHIER_logbooks_notoverridden__start_end_ok |>
+  filter(trip_length > 240)
+
+my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
+       "Thrown away by trip_more_10_days (vessels num)")
+# 31
 
 ## Remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
 
