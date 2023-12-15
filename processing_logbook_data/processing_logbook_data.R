@@ -54,6 +54,8 @@ Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
+# this is the year to assign to the output file name
+my_year <- "2022"
 my_date_beg <- '01-JAN-2022'
 my_date_end <- '31-DEC-2022'
 
@@ -98,7 +100,8 @@ title_message_print <- function(title_msg) {
 # Define a helper function 'my_tee' to print the message to the console and a file.
 my_tee <- function(my_text,
                    my_title = NA,
-                   stat_log_file_path = NA) {
+                   stat_log_file_path = NA,
+                   date_range = my_year) {
 
   the_end = "---"
 
@@ -112,7 +115,7 @@ my_tee <- function(my_text,
     stat_log_file_path <-
       file.path(Path,
                 Outputs,
-                str_glue("processing_logbooks_stat_{today()}.log"))
+                str_glue("processing_logbooks_stats_{date_range}_run_{today()}.log"))
   }
 
   # Write to a log file
@@ -125,12 +128,12 @@ my_tee <- function(my_text,
 
 # ---
 # A function to print out stats.
-# Usage: my_stat(Logbooks)
+# Usage: my_stats(Logbooks)
 
 # Explanation:
 #
 # 1. **Define Function with Optional Parameter:**
-#    - `my_stat <- function(my_df, title_msg = NA) { ... }`: Define a function named 'my_stat' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of NA.
+#    - `my_stats <- function(my_df, title_msg = NA) { ... }`: Define a function named 'my_stats' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of NA.
 #
 # 2. **Check and Assign Default Title Message:**
 #    - `if (is.na(title_msg))  { ... }`: Check if 'title_msg' is NA, and if so, assign the dataframe name as the default title message using 'deparse(substitute(my_df))'.
@@ -151,7 +154,7 @@ my_tee <- function(my_text,
 #    - `stat_log_file_path <- file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))`: Define the file path for the log file, including the date.
 #    - `cat(c(title_msg, stat_text), file = stat_log_file_path, sep = "\n", append = TRUE)`: Write the title message and formatted statistics to the log file, appending to the file if it already exists.
 
-my_stat <- function(my_df, title_msg = NA) {
+my_stats <- function(my_df, title_msg = NA) {
 
   # A title
   if (is.na(title_msg))  {
@@ -295,13 +298,13 @@ compl_override_data <-
                   "VESSEL_OFFICIAL_NBR",
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
-# stat
-my_stat(compl_override_data)
+# stats
+my_stats(compl_override_data)
 # rows: 458071
 # columns: 19
 # Unique vessels: 4393
 
-# stat
+# stats
 min(compl_override_data$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
@@ -344,13 +347,6 @@ SEFHIER_metrics_tracking <-
   rename(PERMIT_REGION = `Permit.Grouping.Region`,
          VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
 
-# Logbooks |>
-  # SEFHIER_logbooks_usable_p_regions |>
-SEFHIER_metrics_tracking |>
-  filter(VESSEL_OFFICIAL_NUMBER == "FL3610NF") |>
-  glimpse()
-
-
 # import the list of SRHS vessels
 # this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
 SRHS_vessels <-
@@ -366,8 +362,8 @@ if (!class(SRHS_vessels$VESSEL_OFFICIAL_NUMBER) == "character") {
     as.character(SRHS_vessels$VESSEL_OFFICIAL_NUMBER)
 }
 
-# stat
-my_stat(SEFHIER_metrics_tracking,
+# stats
+my_stats(SEFHIER_metrics_tracking,
         title_msg = "SEFHIER_metrics_tracking")
 # rows: 3598
 # columns: 13
@@ -379,8 +375,8 @@ SEFHIER_permit_info <-
             SRHS_vessels,
             by = 'VESSEL_OFFICIAL_NUMBER')
 
-# stat
-my_stat(SEFHIER_permit_info, "Metrics tracking minus SRHS vsls")
+# stats
+my_stats(SEFHIER_permit_info, "Metrics tracking minus SRHS vsls")
 # rows: 3469
 # columns: 13
 # Unique vessels: 3469
@@ -391,8 +387,8 @@ SEFHIER_permit_info <-
   select(VESSEL_OFFICIAL_NUMBER,
          PERMIT_REGION)
 
-# stat
-my_stat(SEFHIER_permit_info)
+# stats
+my_stats(SEFHIER_permit_info)
 # rows: 3469
 # columns: 2
 # Unique vessels: 3469
@@ -437,8 +433,8 @@ Logbooks <-
          VESSEL_OFFICIAL_NUMBER =
            "VESSEL_OFFICIAL_NBR")
 
-# stat
-my_stat(Logbooks, "Logbooks from the db")
+# stats
+my_stats(Logbooks, "Logbooks from the db")
 # rows: 484413
 # columns: 149
 # Unique vessels: 2218
@@ -525,7 +521,6 @@ Logbooks <-
   mutate(across(all_of(time_col_names),
          ~ sprintf("%04d", .x)))
 
-
 ### Filter out just 2022 logbook entries ----
 
 # check
@@ -539,14 +534,14 @@ Logbooks <-
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
-# stat, to compare with the end result
+# stats, to compare with the end result
 logbooks_stat_correct_dates_before_filtering <-
   c(dim(Logbooks),
     n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER),
     n_distinct(Logbooks$TRIP_ID)
     )
 
-my_stat(Logbooks, "Logbooks after filtering by dates")
+my_stats(Logbooks, "Logbooks after filtering by dates")
 # rows: 327773
 # columns: 149
 # Unique vessels: 1882
@@ -618,7 +613,7 @@ compl_override_data_this_year |>
 # 3      2022       2022-01-16         2
 
 ## add override data to logbooks ----
-my_stat(compl_override_data_this_year,
+my_stats(compl_override_data_this_year,
         "Compl/override data from the db")
 # rows: 458071
 # columns: 19
@@ -636,9 +631,9 @@ SEFHIER_logbooks_join_overr <-
             relationship = "many-to-many"
             )
 
-# stat
-my_stat(Logbooks)
-my_stat(SEFHIER_logbooks_join_overr)
+# stats
+my_stats(Logbooks)
+my_stats(SEFHIER_logbooks_join_overr)
 # rows: 327818
 # columns: 169
 # Unique vessels: 1882
@@ -653,8 +648,8 @@ my_stat(SEFHIER_logbooks_join_overr)
 SEFHIER_logbooks_overridden <-
   filter(SEFHIER_logbooks_join_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
 
-# stat
-my_stat(SEFHIER_logbooks_overridden)
+# stats
+my_stats(SEFHIER_logbooks_overridden)
 # rows: 10136
 # columns: 169
 # Unique vessels: 286
@@ -663,8 +658,8 @@ my_stat(SEFHIER_logbooks_overridden)
 SEFHIER_logbooks_notoverridden <-
   filter(SEFHIER_logbooks_join_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
 
-# stat
-my_stat(SEFHIER_logbooks_notoverridden)
+# stats
+my_stats(SEFHIER_logbooks_notoverridden)
 # rows: 317002
 # columns: 169
 # Unique vessels: 1869
@@ -675,8 +670,8 @@ SEFHIER_logbooks_NA <-
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
-# stat
-my_stat(SEFHIER_logbooks_NA)
+# stats
+my_stats(SEFHIER_logbooks_NA)
 # rows: 680
 # columns: 169
 # Unique vessels: 18
@@ -686,6 +681,7 @@ my_stat(SEFHIER_logbooks_NA)
 # SEFHIER vessels missing from the Compliance report
 
 # Finds vessels in the permit data that are missing from the compliance data
+# So if a vessel is in the Metrics tracking report, but not in the compliance report we want to add them back.
 
 SEFHIER_vessels_missing <-
   setdiff(
@@ -693,7 +689,7 @@ SEFHIER_vessels_missing <-
   compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
 )
 
-# stat
+# stats
 my_tee(n_distinct(SEFHIER_vessels_missing),
        title_message_print("SEFHIER_vessels_missing"))
 # Unique vessels: 29
@@ -709,7 +705,7 @@ SEFHIER_logbooks_notoverridden <-
         SEFHIER_vessels_missing_logbooks) |>
   distinct()
 
-my_stat(SEFHIER_logbooks_notoverridden)
+my_stats(SEFHIER_logbooks_notoverridden)
 # rows: 317778
 # columns: 169
 # Unique vessels: 1870
@@ -717,7 +713,7 @@ my_stat(SEFHIER_logbooks_notoverridden)
 
 # remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
 
-my_stat(SEFHIER_logbooks_NA)
+my_stats(SEFHIER_logbooks_NA)
 # Unique vessels: 18
 # Unique trips (logbooks): 142
 
@@ -725,7 +721,7 @@ SEFHIER_logbooks_NA__rm_missing_vsls <-
     SEFHIER_logbooks_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_vessels_missing)
 
-my_stat(SEFHIER_logbooks_NA__rm_missing_vsls,
+my_stats(SEFHIER_logbooks_NA__rm_missing_vsls,
         "SEFHIER_logbooks_NA after removing missing logbooks")
 # Unique vessels: 17
 # Unique trips (logbooks): 97
@@ -760,7 +756,7 @@ SEFHIER_logbooks_notoverridden <-
   SEFHIER_logbooks_notoverridden |>
   mutate(TRIP_DE = as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
 
-# stat
+# stats
 uniq_vessels_num_was <-
   n_distinct(Logbooks[["VESSEL_OFFICIAL_NUMBER"]])
 uniq_vessels_num_now <-
@@ -787,6 +783,15 @@ my_tee(uniq_trips_lost_by_overr,
 # Filtering logbook data ----
 # Use SEFHIER_logbooks_notoverridden from the previous section
 
+## Filter out vessels not in Metrics tracking ----
+SEFHIER_logbooks_notoverridden_in_metrics <-
+  SEFHIER_logbooks_notoverridden |>
+  filter(VESSEL_OFFICIAL_NUMBER %in%
+           SEFHIER_permit_info$VESSEL_OFFICIAL_NUMBER)
+
+my_stat(SEFHIER_logbooks_notoverridden)
+my_stat(SEFHIER_logbooks_notoverridden_in_metrics)
+
 ## Start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
 
@@ -803,14 +808,14 @@ SEFHIER_logbooks_notoverridden__start_end_ok <-
   SEFHIER_logbooks_notoverridden |>
   filter(time_stamp_error == FALSE)
 
-# stat
-my_stat(SEFHIER_logbooks_notoverridden__start_end_ok)
+# stats
+my_stats(SEFHIER_logbooks_notoverridden__start_end_ok)
 # rows: 315448
 # columns: 171
 # Unique vessels: 1866
 # Unique trips (logbooks): 91145
 
-# stat
+# stats
 thrown_by_time_stamp_error <-
   SEFHIER_logbooks_notoverridden |>
   filter(time_stamp_error == TRUE)
@@ -838,14 +843,14 @@ SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
   SEFHIER_logbooks_notoverridden__start_end_ok |>
   filter(trip_length <= 240)
 
-# stat
-my_stat(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok)
+# stats
+my_stats(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok)
 # rows: 315350
 # columns: 172
 # Unique vessels: 1863
 # Unique trips (logbooks): 91108
 
-# Output trips with length > 240 into a data frame (for stat)
+# Output trips with length > 240 into a data frame (for stats)
 logbooks_too_long <-
   SEFHIER_logbooks_notoverridden__start_end_ok |>
   filter(trip_length > 240)
@@ -862,30 +867,18 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 
 # subtract the usable date from the date of submission
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
-SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok['USABLE'] <-
-  ifelse(
-    SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok$USABLE_DATE >= SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok$TRIP_DE,
-    TRUE,
-    FALSE
-  )
-
-SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok1 <-
+SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
   mutate(USABLE =
            ifelse(USABLE_DATE >= TRIP_DE, TRUE, FALSE))
-
-# diffdf::diffdf(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok,
-#           SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok1)
-
-#?? the same result, which is easier to read?
 
 ### Filter: data frame of logbooks that were usable ----
 SEFHIER_logbooks_usable <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
   filter(USABLE == TRUE)
 
-# stat
-my_stat(SEFHIER_logbooks_usable)
+# stats
+my_stats(SEFHIER_logbooks_usable)
 # rows: 275667
 # columns: 173
 # Unique vessels: 1668
@@ -924,8 +917,6 @@ max(SEFHIER_logbooks_usable$TRIP_END_DATE)
 # (CHG)1034, (RCG)982
 # (CHG)589, (RCG)567
 
-# Note, PERMIT_REGION column has only GOM or SA
-
 # Auxiliary: how to find the column name
 #
 # grep("permit",
@@ -961,8 +952,8 @@ SEFHIER_logbooks_usable_p_regions <-
       )
   )
 
-# stat
-my_stat(SEFHIER_logbooks_usable_p_regions)
+# stats
+my_stats(SEFHIER_logbooks_usable_p_regions)
 # rows: 275667
 # columns: 174
 # Unique vessels: 1668
@@ -1016,7 +1007,7 @@ removed_logbooks_and_vessels_text <- c(
 )
 
 my_tee(removed_logbooks_and_vessels_text,
-       "Removed logbooks and vessels stat")
+       "Removed logbooks and vessels stats")
 # percent_of_removed_logbooks
 # 21%
 # removed_vessels
@@ -1121,6 +1112,10 @@ dfs_to_check <-
   list(SEFHIER_logbooks_usable_p_regions,
   SEFHIER_metrics_tracking)
 
+dfs_to_check_names <-
+  c("SEFHIER_logbooks_usable_p_regions",
+  "SEFHIER_metrics_tracking")
+
 # View(SEFHIER_logbooks_usable_p_regions)
 # grep("perm|end|exp", names(SEFHIER_logbooks_usable_p_regions), value = T, ignore.case = T)
 
@@ -1135,7 +1130,16 @@ test_res <-
       })
 names(test_res) <- vsls_to_check
 
-View(test_res)
+test_res <-
+  map(test_res, {
+    \(curr_vessel_official_num_l) {
+      names(curr_vessel_official_num_l) <-
+        dfs_to_check_names
+      return(curr_vessel_official_num_l)
+    }
+  })
+
+# View(test_res1)
 
 current_vessel <- ""
 # unlink(temp_res_file)
@@ -1145,15 +1149,15 @@ has_empty_list <- function(x) {
 
   if (is.list(x)) {
     current_vessel <- x$VESSEL_OFFICIAL_NUMBER
-    if(length(current_vessel) > 0) {
-    cat(current_vessel,
-        file = temp_res_file,
-        append = T,
-        sep = "\n")
+    if (length(current_vessel) > 0) {
+      cat(current_vessel,
+          file = temp_res_file,
+          append = T,
+          sep = "\n")
     }
 
     if (length(x) == 0) {
-      cat(" Empty Metrics\n",
+      cat("Empty Metrics",
           file = temp_res_file,
           append = T,
           "\n")
@@ -1172,4 +1176,4 @@ read_back <- readLines(temp_res_file)
 
 View(as.data.frame(read_back))
 
-test_res[['TX8671AM']]
+glimpse(test_res[['TX8671AM']])
