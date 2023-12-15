@@ -1050,8 +1050,10 @@ not_all_na <- function(x) any(!is.na(x))
 my_check <- function(my_df, my_vsl) {
   my_df |>
     filter(VESSEL_OFFICIAL_NUMBER == my_vsl) |>
-    select(contains("perm"),
-           contains("effect")) |>
+    select(VESSEL_OFFICIAL_NUMBER,
+           contains("perm"),
+           contains("effect"),
+           contains("exp")) |>
     distinct() |>
     select(where(not_all_na))
 }
@@ -1119,6 +1121,9 @@ dfs_to_check <-
   list(SEFHIER_logbooks_usable_p_regions,
   SEFHIER_metrics_tracking)
 
+# View(SEFHIER_logbooks_usable_p_regions)
+# grep("perm|end|exp", names(SEFHIER_logbooks_usable_p_regions), value = T, ignore.case = T)
+
 test_res <-
   map(vsls_to_check,
       \(vessel_official_num) {
@@ -1132,18 +1137,39 @@ names(test_res) <- vsls_to_check
 
 View(test_res)
 
-library(data.tree)
-nodes <- FromListExplicit(test_res)
-View(nodes)
-any(nodes$Get(function(node) length(as.list(node))) == 0)
-# [1] TRUE
+current_vessel <- ""
+# unlink(temp_res_file)
+temp_res_file <- tempfile()
 
-remove_empty <- function(x){
-  if(is.list(x)) {
-    x %>%
-      purrr::discard(rlang::is_na) %>%
-      purrr::map(remove_empty)
+has_empty_list <- function(x) {
+
+  if (is.list(x)) {
+    current_vessel <- x$VESSEL_OFFICIAL_NUMBER
+    if(length(current_vessel) > 0) {
+    cat(current_vessel,
+        file = temp_res_file,
+        append = T,
+        sep = "\n")
+    }
+
+    if (length(x) == 0) {
+      cat(" Empty Metrics\n",
+          file = temp_res_file,
+          append = T,
+          "\n")
+      return(TRUE)
+    } else {
+      return(any(vapply(x, has_empty_list, logical(1))))
+    }
   } else {
-    x
+    return(FALSE)
   }
+}
 
+my_res_empt <- has_empty_list(test_res)
+
+read_back <- readLines(temp_res_file)
+
+View(as.data.frame(read_back))
+
+test_res[['TX8671AM']]
