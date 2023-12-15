@@ -89,10 +89,34 @@ function_message_print <- function(text_msg) {
       sep = "\n")
 }
 
+# Define a helper function 'title_message_print' to print the title message in blue.
 title_message_print <- function(title_msg) {
-  cat(crayon::blue(title_msg),
-      sep = "\n")
+  cat(crayon::blue(title_msg), sep = "\n")
 }
+
+my_tee <- function(my_text,
+                   my_title = NA,
+                   stat_log_file_path = NA) {
+
+  # Print out to console
+  title_message_print(my_title)
+  print(my_text)
+
+  # Create a new file every day
+  if (is.na(stat_log_file_path)) {
+    stat_log_file_path <-
+      file.path(Path,
+                Outputs,
+                str_glue("processing_logbooks_stat_{today()}.log"))
+  }
+
+  # Write to a log file
+  cat(c(my_title, my_text),
+      file = stat_log_file_path,
+      sep = "\n",
+      append = TRUE)
+}
+
 
 # ---
 # A function to print out stats.
@@ -145,24 +169,10 @@ Unique trips (logbooks): {uniq_trips_num}
 ---\n"
   )
 
-  # Print out to console
-  title_message_print(title_msg)
-  print(stat_text)
-
-  # Write to a log file (creates a new file every day)
-  stat_log_file_path <-
-    file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))
-  cat(
-    c(title_msg, stat_text),
-    file = stat_log_file_path,
-    sep = "\n",
-    append = TRUE
-  )
-}
-
-# Define a helper function 'title_message_print' to print the title message in blue.
-title_message_print <- function(title_msg) {
-  cat(crayon::blue(title_msg), sep = "\n")
+  # Print out to console and to the log file
+  my_tee(stat_text,
+         my_title = title_msg,
+         stat_log_file_path = NA)
 }
 
 # ---
