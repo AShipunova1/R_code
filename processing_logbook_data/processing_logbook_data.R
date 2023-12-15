@@ -813,13 +813,24 @@ my_tee(uniq_trips_lost_by_overr,
 # Use SEFHIER_logbooks_notoverridden from the previous section
 
 ## Filter out vessels not in Metrics tracking ----
-SEFHIER_logbooks_notoverridden_in_metrics <-
-  SEFHIER_logbooks_notoverridden |>
-  filter(VESSEL_OFFICIAL_NUMBER %in%
-           SEFHIER_permit_info$VESSEL_OFFICIAL_NUMBER)
+SEFHIER_logbooks_notoverridden <-
+  left_join(SEFHIER_permit_info_short_this_year,
+            logbooks_notoverridden,
+            join_by(VESSEL_OFFICIAL_NUMBER))
 
-my_stat(SEFHIER_logbooks_notoverridden)
-my_stat(SEFHIER_logbooks_notoverridden_in_metrics)
+SEFHIER_metrics_tracking |>
+  View()
+View(SEFHIER_logbooks_notoverridden)
+my_stats(logbooks_notoverridden)
+my_stats(SEFHIER_logbooks_notoverridden)
+
+vessels_not_in_metrics <-
+  n_distinct(SEFHIER_logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER) -
+  n_distinct(logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER)
+
+my_tee(vessels_not_in_metrics,
+       "Removed if a vessel is not in Metrics tracking")
+
 
 ## Start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
