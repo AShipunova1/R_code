@@ -781,17 +781,6 @@ logbooks_notoverridden <-
            minutes(59) +
            seconds(59))
 
-toc()
-# USABLE_DATE_TIME: 0.25 sec elapsed
-
-aa1 <-
-  logbooks_notoverridden1 |>
-  select(starts_with("USABLE_DATE"), TRIP_END_DATE) |>
-  distinct()
-
-unlist(aa1$USABLE_DATE_TIME[1])
-# [1] "2022-08-06 23:59:59 EDT"
-
 # format the submission date (TRIP_DE)
 logbooks_notoverridden <-
   logbooks_notoverridden |>
@@ -828,7 +817,17 @@ my_tee(uniq_trips_lost_by_overr,
 SEFHIER_logbooks_notoverridden <-
   left_join(SEFHIER_permit_info_short_this_year,
             logbooks_notoverridden,
-            join_by(VESSEL_OFFICIAL_NUMBER))
+            join_by(VESSEL_OFFICIAL_NUMBER),
+            suffix = c("_metrics", "_logbooks"))
+
+# Why we have to keep both vessel names
+SEFHIER_logbooks_notoverridden |>
+  select(starts_with("vessel")) |>
+  distinct() |>
+  filter(!VESSEL_NAME_metrics == VESSEL_NAME_logbooks) |>
+  nrow()
+# 48
+
 
 SEFHIER_metrics_tracking |>
   View()
