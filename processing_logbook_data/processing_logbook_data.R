@@ -396,8 +396,31 @@ SEFHIER_permit_info_short <-
 # stats
 my_stats(SEFHIER_permit_info)
 # rows: 3469
-# columns: 2
+# columns: 8
 # Unique vessels: 3469
+
+SEFHIER_permit_info_short <-
+  SEFHIER_permit_info_short |>
+  mutate(EFFECTIVE_DATE =
+           as.Date(EFFECTIVE_DATE, "%m/%d/%Y"),
+         END_DATE =
+           as.Date(END_DATE, "%m/%d/%Y")
+         )
+
+SEFHIER_permit_info_short_this_year <-
+  SEFHIER_permit_info_short |>
+  filter(
+    EFFECTIVE_DATE <= as.Date(my_date_end, "%d-%b-%Y") &
+      END_DATE >= as.Date(my_date_beg, "%d-%b-%Y")
+  )
+
+my_stats(SEFHIER_permit_info_short)
+my_stats(SEFHIER_permit_info_short_this_year)
+
+# min(SEFHIER_permit_info_short_this_year$EFFECTIVE_DATE)
+# max(SEFHIER_permit_info_short_this_year$EFFECTIVE_DATE)
+# min(SEFHIER_permit_info_short_this_year$END_DATE)
+# max(SEFHIER_permit_info_short_this_year$END_DATE)
 
 ## Import and prep the logbook data ####
 
