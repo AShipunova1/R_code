@@ -806,12 +806,9 @@ my_stat(SEFHIER_logbooks_notoverridden__start_end_ok)
 # stat
 thrown_by_time_stamp_error <-
   SEFHIER_logbooks_notoverridden |>
-  filter(time_stamp_error == TRUE) |>
-  select(TRIP_ID) |>
-  distinct() |>
-  nrow()
+  filter(time_stamp_error == TRUE)
 
-my_tee(thrown_by_time_stamp_error,
+my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
        "Thrown away by time_stamp_error (logbooks num)")
 # 588
 
@@ -841,21 +838,14 @@ my_stat(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok)
 # Unique vessels: 1863
 # Unique trips (logbooks): 91108
 
-trip_more_10_days <-
-  SEFHIER_logbooks_notoverridden__start_end_ok |>
-  filter(trip_length > 240) |>
-  select(TRIP_ID) |>
-  distinct() |>
-  nrow()
-
-my_tee(trip_more_10_days,
-       "Thrown away by trip_more_10_days (logbooks num)")
-# trip_ids: 37
-
-# Output trips with length > 240 into a data frame
+# Output trips with length > 240 into a data frame (for stat)
 logbooks_too_long <-
   SEFHIER_logbooks_notoverridden__start_end_ok |>
   filter(trip_length > 240)
+
+my_tee(n_distinct(logbooks_too_long$TRIP_ID),
+       "Thrown away by trip_more_10_days (logbooks num)")
+# trip_ids: 37
 
 my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
@@ -896,14 +886,15 @@ my_stat(SEFHIER_logbooks_usable)
 
 late_submission <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-  filter(USABLE == FALSE) |>
-  select(TRIP_ID) |>
-  distinct() |>
-  nrow()
+  filter(USABLE == FALSE)
 
-my_tee(late_submission,
+my_tee(n_distinct(late_submission$TRIP_ID),
        "Thrown away by late_submission (logbooks num)")
 # trip_ids: 16442
+
+my_tee(n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
+       "Thrown away by late_submission (vessels num)")
+# 1083
 
 # check
 min(SEFHIER_logbooks_usable$TRIP_START_DATE)
@@ -1045,3 +1036,6 @@ write_rds(
   SEFHIER_logbooks_usable_p_regions,
   file = output_file_path
 )
+
+# check missing/added boats ----
+"FL4980LH"
