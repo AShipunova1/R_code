@@ -763,26 +763,23 @@ my_stats(logbooks_NA__rm_missing_vsls,
 
 # Use trip end date to calculate the usable date 30 days later
 
-one_d1 <- c("2022-02-22", "2022-07-11")
-ymd_hms(one_d1, truncated = 3, tz = Sys.timezone())
-# [1] "2022-02-22 EST" "2022-07-11 EDT"
-
-tic("USABLE_DATE_TIME")
-logbooks_notoverridden1 <-
+# Add a correct timezone to TRIP_END_DATE (EST vs. EDT)
+logbooks_notoverridden <-
   logbooks_notoverridden |>
   mutate(TRIP_END_DATE_E =
            ymd_hms(TRIP_END_DATE,
                    truncated = 3,
-                   tz = Sys.timezone())) |>
+                   tz = Sys.timezone()))
+
+# add a date 30 days later with a time
+logbooks_notoverridden <-
+  logbooks_notoverridden |>
   mutate(USABLE_DATE_TIME =
            TRIP_END_DATE_E +
            days(30) +
            hours(23) +
            minutes(59) +
            seconds(59))
-# mutate(USABLE_DATE_TIME =
-#        with_tz(TRIP_END_DATE,
-#                Sys.timezone())) |>
 
 toc()
 # USABLE_DATE_TIME: 0.25 sec elapsed
