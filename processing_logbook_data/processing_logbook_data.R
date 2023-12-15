@@ -762,13 +762,30 @@ my_stats(logbooks_NA__rm_missing_vsls,
 # rbind(logbooks_notoverridden, logbooks_NA) this is the alternative
 
 # Use trip end date to calculate the usable date 30 days later
-SEFHIER_logbooks_notoverridden <-
-  SEFHIER_logbooks_notoverridden |>
-  mutate(USABLE_DATE =
-           format(
-             as.Date(SEFHIER_logbooks_notoverridden$TRIP_END_DATE, '%Y-%m-%d') + 30,
-             format = "%Y-%m-%d"
-           ))
+
+TRIP_END_DATE1 <- "2022-02-22"
+TRIP_END_DATE12 <-
+  as.POSIXlt(TRIP_END_DATE1)
+
+TRIP_END_DATE12$hour = 23
+TRIP_END_DATE12$min = 59
+TRIP_END_DATE12$sec = 59
+
+logbooks_notoverridden <-
+logbooks_notoverridden |>
+  mutate(
+    USABLE_DATE_TIME =
+      as.POSIXlt(TRIP_END_DATE) +
+      days(30) +
+      hours(23) +
+      minutes(59) +
+      seconds(59)) |>
+
+
+  logbooks_notoverridden |>
+  select(USABLE_DATE_TIME, TRIP_END_DATE) |>
+  distinct() |>
+  str()
 
 # Append a time to the due date since the submission data has a date and time
 
