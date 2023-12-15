@@ -651,7 +651,7 @@ my_stats(compl_override_data_this_year,
 # We need 'relationship = "many-to-many"' because
 # Each row represents a catch ID within the effort ID within the Trip ID, for a given vessel. So there are many rows that will match the same vessel and year/week.
 
-SEFHIER_logbooks_join_overr <-
+logbooks_join_overr <-
   left_join(Logbooks,
             compl_override_data_this_year,
             join_by(TRIP_END_YEAR == COMP_YEAR,
@@ -662,7 +662,7 @@ SEFHIER_logbooks_join_overr <-
 
 # stats
 my_stats(Logbooks)
-my_stats(SEFHIER_logbooks_join_overr)
+my_stats(logbooks_join_overr)
 # rows: 327818
 # columns: 169
 # Unique vessels: 1882
@@ -674,33 +674,33 @@ my_stats(SEFHIER_logbooks_join_overr)
 # We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
 
-SEFHIER_logbooks_overridden <-
-  filter(SEFHIER_logbooks_join_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
+logbooks_overridden <-
+  filter(logbooks_join_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
 
 # stats
-my_stats(SEFHIER_logbooks_overridden)
+my_stats(logbooks_overridden)
 # rows: 10136
 # columns: 169
 # Unique vessels: 286
 # Unique trips (logbooks): 2905
 
-SEFHIER_logbooks_notoverridden <-
-  filter(SEFHIER_logbooks_join_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
+logbooks_notoverridden <-
+  filter(logbooks_join_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
 
 # stats
-my_stats(SEFHIER_logbooks_notoverridden)
+my_stats(logbooks_notoverridden)
 # rows: 317002
 # columns: 169
 # Unique vessels: 1869
 # Unique trips (logbooks): 91688
 
-SEFHIER_logbooks_NA <-
-  filter(SEFHIER_logbooks_join_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
+logbooks_NA <-
+  filter(logbooks_join_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
 # stats
-my_stats(SEFHIER_logbooks_NA)
+my_stats(logbooks_NA)
 # rows: 680
 # columns: 169
 # Unique vessels: 18
@@ -712,29 +712,29 @@ my_stats(SEFHIER_logbooks_NA)
 # Finds vessels in the permit data that are missing from the compliance data
 # So if a vessel is in the Metrics tracking report, but not in the compliance report we want to add them back.
 
-SEFHIER_vessels_missing <-
+vessels_missing <-
   setdiff(
-  SEFHIER_permit_info$VESSEL_OFFICIAL_NUMBER,
+  SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER,
   compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
 )
 
 # stats
-my_tee(n_distinct(SEFHIER_vessels_missing),
-       title_message_print("SEFHIER_vessels_missing"))
+my_tee(n_distinct(vessels_missing),
+       "vessels_missing")
 # Unique vessels: 29
 
 # SEFHIER logbooks from vessels missing from the Compliance report
-SEFHIER_vessels_missing_logbooks <-
-  SEFHIER_logbooks_NA |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_vessels_missing)
+vessels_missing_logbooks <-
+  logbooks_NA |>
+  filter(VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
 
 # add missing logbooks back to the not overridden data frame
-SEFHIER_logbooks_notoverridden <-
-  rbind(SEFHIER_logbooks_notoverridden,
-        SEFHIER_vessels_missing_logbooks) |>
+logbooks_notoverridden <-
+  rbind(logbooks_notoverridden,
+        vessels_missing_logbooks) |>
   distinct()
 
-my_stats(SEFHIER_logbooks_notoverridden)
+my_stats(logbooks_notoverridden)
 # rows: 317778
 # columns: 169
 # Unique vessels: 1870
@@ -742,16 +742,16 @@ my_stats(SEFHIER_logbooks_notoverridden)
 
 # remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
 
-my_stats(SEFHIER_logbooks_NA)
+my_stats(logbooks_NA)
 # Unique vessels: 18
 # Unique trips (logbooks): 142
 
-SEFHIER_logbooks_NA__rm_missing_vsls <-
-    SEFHIER_logbooks_NA |>
-  filter(!VESSEL_OFFICIAL_NUMBER %in% SEFHIER_vessels_missing)
+logbooks_NA__rm_missing_vsls <-
+    logbooks_NA |>
+  filter(!VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
 
-my_stats(SEFHIER_logbooks_NA__rm_missing_vsls,
-        "SEFHIER_logbooks_NA after removing missing logbooks")
+my_stats(logbooks_NA__rm_missing_vsls,
+        "logbooks_NA after removing missing logbooks")
 # Unique vessels: 17
 # Unique trips (logbooks): 97
 
@@ -759,7 +759,7 @@ my_stats(SEFHIER_logbooks_NA__rm_missing_vsls,
 # being we shouldn't include logbooks that weren't required in the first place. Alternatively,
 # deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
 # during a period in which the permit was inactive, and the report was not required.
-# rbind(SEFHIER_logbooks_notoverridden, SEFHIER_logbooks_NA) this is the alternative
+# rbind(logbooks_notoverridden, logbooks_NA) this is the alternative
 
 # Use trip end date to calculate the usable date 30 days later
 SEFHIER_logbooks_notoverridden <-
@@ -771,29 +771,28 @@ SEFHIER_logbooks_notoverridden <-
            ))
 
 # Append a time to the due date since the submission data has a date and time
-add_time <- "23:59:59" # 24 hr clock
 
-SEFHIER_logbooks_notoverridden$USABLE_DATE <-
+logbooks_notoverridden$USABLE_DATE <-
   as.POSIXct(paste(as.Date(
-    SEFHIER_logbooks_notoverridden$USABLE_DATE, '%Y-%m-%d'
+    logbooks_notoverridden$USABLE_DATE, '%Y-%m-%d'
   ),
   add_time),
   format = "%Y-%m-%d %H:%M:%S")
 
 # format the submission date (TRIP_DE)
-SEFHIER_logbooks_notoverridden <-
-  SEFHIER_logbooks_notoverridden |>
+logbooks_notoverridden <-
+  logbooks_notoverridden |>
   mutate(TRIP_DE = as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
 
 # stats
 uniq_vessels_num_was <-
   n_distinct(Logbooks[["VESSEL_OFFICIAL_NUMBER"]])
 uniq_vessels_num_now <-
-  n_distinct(SEFHIER_logbooks_notoverridden[["VESSEL_OFFICIAL_NUMBER"]])
+  n_distinct(logbooks_notoverridden[["VESSEL_OFFICIAL_NUMBER"]])
 
 uniq_trips_num_was <- n_distinct(Logbooks[["TRIP_ID"]])
 uniq_trips_num_now <-
-  n_distinct(SEFHIER_logbooks_notoverridden[["TRIP_ID"]])
+  n_distinct(logbooks_notoverridden[["TRIP_ID"]])
 
 uniq_vessels_lost_by_overr <-
   uniq_vessels_num_was - uniq_vessels_num_now
@@ -810,7 +809,7 @@ my_tee(uniq_trips_lost_by_overr,
   "Thrown away trips by overridden weeks")
 
 # Filtering logbook data ----
-# Use SEFHIER_logbooks_notoverridden from the previous section
+# Use logbooks_notoverridden from the previous section
 
 ## Filter out vessels not in Metrics tracking ----
 SEFHIER_logbooks_notoverridden <-
