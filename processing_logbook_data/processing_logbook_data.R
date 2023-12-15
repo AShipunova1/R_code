@@ -993,7 +993,8 @@ removed_logbooks_and_vessels_text <- c(
   str_glue("{round(percent_of_removed_vessels)}%")
 )
 
-my_tee(removed_logbooks_and_vessels_text)
+my_tee(removed_logbooks_and_vessels_text,
+       "Removed logbooks and vessels stat")
 # percent_of_removed_logbooks
 # 21%
 # removed_vessels
