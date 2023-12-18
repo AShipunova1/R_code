@@ -476,11 +476,15 @@ states_sf <-
 
 label_text_size <- 3
 
+# shp_file_with_cnts_list$dual |> print_df_names()
+
 # The code creates a plot using the ggplot2 library to visualize spatial data.
 shp_file_with_cnts_list_maps <- 
   shp_file_with_cnts_list |>
   purrr::map(\(curr_sf) {
     curr_sf |>
+      filter(!is.na(total_vsl_by_state_cnt)) |> 
+      
       ggplot2::ggplot() +
       # Start building the ggplot object for plotting.
       
