@@ -34,8 +34,9 @@ compl_err_db_data_metrics <-
     join_by(vessel_official_number == vessel_official_nbr)
   )
 
-## 2022: divide by permit region ----
-compl_err_db_data_metrics_permit_reg <-
+dim(compl_err_db_data_metrics)
+# [1] 408454     31
+
 ## 2022 only ---
 compl_err_db_data_metrics_2022 <-
   compl_err_db_data_metrics |> 
@@ -43,7 +44,7 @@ compl_err_db_data_metrics_2022 <-
            comp_week_end_dt >= '2022-01-01')
 
 dim(compl_err_db_data_metrics_2022)
-# [1] 146055     19
+# [1] 145261     31
   dplyr::distinct()
 
 dim(compl_err_db_data_metrics_permit_reg)
