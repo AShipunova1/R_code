@@ -151,7 +151,7 @@ compl_err_db_data_metrics_permit_reg_list_short_year_nc <-
   purrr::map(\(curr_df) {
     # For each data frame curr_df in the list (one df for a permit_region):
     curr_df |>
-      dplyr::group_by(vessel_official_nbr) |> 
+      dplyr::group_by(vessel_official_number) |> 
 
       dplyr::mutate(non_compl_year = 0 %in% is_comp) |> 
       # Add a new column non_compl_year, which is TRUE if 0 ("is not compliant") is in the is_comp column for this vessel.
@@ -162,10 +162,10 @@ compl_err_db_data_metrics_permit_reg_list_short_year_nc <-
 
 ## check compl_year ----
 compl_err_db_data_metrics_permit_reg_list_short_year_nc$sa_only |>
-  # filter(vessel_official_nbr == 1020822) |>
-  dplyr::arrange(vessel_official_nbr) |> 
+  # filter(vessel_official_number == 1020822) |>
+  dplyr::arrange(vessel_official_number) |> 
   head(4)
-#   vessel_official_nbr is_comp non_compl_year
+#   vessel_official_number is_comp non_compl_year
 #   <chr>                 <int> <lgl>         
 # 1 1000164                   0 TRUE          
 # 2 1020057                   1 FALSE         
@@ -188,13 +188,13 @@ compl_err_db_data_metrics_permit_reg_list_short_uniq <-
 
 # check
 compl_err_db_data_metrics_permit_reg_list_short_uniq$sa_only |>
-  dplyr::filter(vessel_official_nbr == 1020822)
-#   vessel_official_nbr non_compl_year
+  dplyr::filter(vessel_official_number == 1020822)
+#   vessel_official_number non_compl_year
 # 1 1020822             TRUE          
 
 # Join home port and compliance info by vessel ----
 
-# In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_permit_reg_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_nbr' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
+# In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_permit_reg_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
 vessels_permits_home_port_22_compliance_list <-
   compl_err_db_data_metrics_permit_reg_list_short_uniq |>
@@ -202,26 +202,26 @@ vessels_permits_home_port_22_compliance_list <-
     dplyr::left_join(
       curr_df,
       vessels_permits_home_port_lat_longs_city_state,
-      dplyr::join_by(vessel_official_nbr == SERO_OFFICIAL_NUMBER)
+      dplyr::join_by(vessel_official_number == SERO_OFFICIAL_NUMBER)
     )
   })
 
 purrr::map(vessels_permits_home_port_22_compliance_list,
            count_uniq_by_column)
 # $dual
-# vessel_official_nbr            374
+# vessel_official_number            374
 # non_compl_year                   2
 
 # $gom_only
-# vessel_official_nbr            939
+# vessel_official_number            939
 # non_compl_year                   2
 
 # $sa_only
-# vessel_official_nbr            2135
+# vessel_official_number            2135
 # non_compl_year                    2
 
 # $gom_dual
-# vessel_official_nbr            1313
+# vessel_official_number            1313
 # non_compl_year                    2
 
 
@@ -252,10 +252,10 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
 vessel_by_state_cnt <-
   vessels_permits_home_port_22_compliance_list |>
   purrr::map(\(curr_df) {
-    # Select only 'vessel_official_nbr' and 'state_fixed' columns, retain distinct rows,
+    # Select only 'vessel_official_number' and 'state_fixed' columns, retain distinct rows,
     # and add a count column for each state.
     curr_df |>
-      dplyr::select(vessel_official_nbr, state_fixed) |>
+      dplyr::select(vessel_official_number, state_fixed) |>
       dplyr::distinct() |>
       dplyr::add_count(state_fixed)
   })
@@ -273,7 +273,7 @@ vessel_by_state_cnt1 <-
     curr_df |>
       dplyr::group_by(state_fixed) |>
       dplyr::add_count(state_fixed) |> 
-      dplyr::select(vessel_official_nbr, state_fixed, n) |>
+      dplyr::select(vessel_official_number, state_fixed, n) |>
       dplyr::distinct()
   })
 
@@ -304,9 +304,9 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt <-
 
 ## spot check if compl and non compl vessel number is equal total counts ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$sa_only |> 
-  dplyr::select(vessel_official_nbr, state_fixed, non_compl_year, total_vsl_by_state_cnt, compliance_by_state_cnt) |>
+  dplyr::select(vessel_official_number, state_fixed, non_compl_year, total_vsl_by_state_cnt, compliance_by_state_cnt) |>
   dplyr::distinct() |>
-  dplyr::select(-vessel_official_nbr) |> 
+  dplyr::select(-vessel_official_number) |> 
   dplyr::distinct() |> 
   dplyr::filter(state_fixed %in% c("FL", "GA")) |> 
   dplyr::glimpse()
@@ -320,13 +320,13 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$sa_only |>
   dplyr::glimpse()
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$sa_only |>
-  dplyr::select(vessel_official_nbr,
+  dplyr::select(vessel_official_number,
                 state_fixed,
                 non_compl_year,
                 total_vsl_by_state_cnt) |>
   dplyr::distinct() |>
   dplyr::add_count(state_fixed, non_compl_year) |>
-  dplyr::select(-vessel_official_nbr) |>
+  dplyr::select(-vessel_official_number) |>
   dplyr::distinct() |>
   dplyr::filter(state_fixed %in% c("FL", "GA")) |> 
   dplyr::glimpse()
@@ -475,8 +475,6 @@ states_sf <-
 # get boundaries from south_east_coast_states_shp_bb
 
 label_text_size <- 3
-
-# shp_file_with_cnts_list$dual |> print_df_names()
 
 # The code creates a plot using the ggplot2 library to visualize spatial data.
 shp_file_with_cnts_list_maps <- 
