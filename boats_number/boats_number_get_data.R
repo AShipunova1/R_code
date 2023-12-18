@@ -1,4 +1,3 @@
-```{r}
 # Prepare all_logbooks_db_data_2022_short_p_region
 # 1) download all db data
 # 2) use "all logbooks = mv_safis_trip_download
@@ -123,7 +122,6 @@ processed_logbooks_clean_names <-
 # intersect(ordered(names(processed_logbooks_clean_names)),
 #           ordered(names(all_logbooks_db_data_2022_short_p_region)))
 # 70
-
 
 # setdiff(ordered(names(processed_logbooks_clean_names)),
 #           ordered(names(all_logbooks_db_data_2022_short_p_region)))
