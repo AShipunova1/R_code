@@ -136,7 +136,7 @@ map(compl_err_db_data_metrics_permit_reg_list, dim)
 compl_err_db_data_metrics_permit_reg_list |>
   map(\(curr_df) {
     curr_df |>
-      dplyr::select(vessel_official_nbr, is_comp) |>
+      dplyr::select(vessel_official_number, is_comp) |>
       dplyr::distinct() |>
       dplyr::count(is_comp)
   })
@@ -184,7 +184,7 @@ compl_err_db_data_metrics_permit_reg_list_short <-
   compl_err_db_data_metrics_permit_reg_list |>
   map(\(curr_df) {
     curr_df |>
-      dplyr::select(vessel_official_nbr, is_comp) |>
+      dplyr::select(vessel_official_number, is_comp) |>
       distinct()
   })
 
