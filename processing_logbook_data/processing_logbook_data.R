@@ -337,13 +337,12 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
 
 # import the permit data
 SEFHIER_metrics_tracking <- read.csv(
-  paste(
+  file.path(
     Path,
     Inputs,
-    "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_2022.csv",
-    sep = ""
+    "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_2022.csv"
   )
-) # here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+)
 
 # rename column headers
 SEFHIER_metrics_tracking <-
@@ -421,11 +420,6 @@ SEFHIER_permit_info_short_this_year <-
 my_stats(SEFHIER_permit_info_short)
 my_stats(SEFHIER_permit_info_short_this_year)
 
-# min(SEFHIER_permit_info_short_this_year$EFFECTIVE_DATE)
-# max(SEFHIER_permit_info_short_this_year$EFFECTIVE_DATE)
-# min(SEFHIER_permit_info_short_this_year$END_DATE)
-# max(SEFHIER_permit_info_short_this_year$END_DATE)
-
 ## Import and prep the logbook data ####
 
 # Import the logbook data from file or database
@@ -434,11 +428,9 @@ my_stats(SEFHIER_permit_info_short_this_year)
 # 1) create a variable with file path to read or write the logbook file
 
 logbooks_file_path <-
-  paste(Path,
+  file.path(Path,
         Outputs,
-        "SAFIS_TripsDownload_1.1.22-12.01.23.rds",
-        sep = "")
-# here I am using paste to combine the path name with the file, sep is used to say there are no breaks "" (or if breaks " ") in the paste/combining
+        "SAFIS_TripsDownload_1.1.22-12.01.23.rds")
 
 # 2) create a variable with an SQL query to call data from the database
 
@@ -648,9 +640,9 @@ compl_override_data_this_year |>
 ## add override data to logbooks ----
 my_stats(compl_override_data_this_year,
         "Compl/override data from the db")
-# rows: 458071
+# rows: 151515
 # columns: 19
-# Unique vessels: 4393
+# Unique vessels: 3740
 
 # We need 'relationship = "many-to-many"' because
 # Each row represents a catch ID within the effort ID within the Trip ID, for a given vessel. So there are many rows that will match the same vessel and year/week.
@@ -725,7 +717,7 @@ vessels_missing <-
 # stats
 my_tee(n_distinct(vessels_missing),
        "vessels_missing")
-# Unique vessels: 29
+# vessels_missing 8
 
 # SEFHIER logbooks from vessels missing from the Compliance report
 vessels_missing_logbooks <-
@@ -739,7 +731,7 @@ logbooks_notoverridden <-
   distinct()
 
 my_stats(logbooks_notoverridden)
-# rows: 317778
+# rows: 317390
 # columns: 169
 # Unique vessels: 1870
 # Unique trips (logbooks): 91733
@@ -750,8 +742,9 @@ my_stats(logbooks_NA)
 # Unique vessels: 18
 # Unique trips (logbooks): 142
 
-logbooks_NA__rm_missing_vsls <-
-    logbooks_NA |>
+# Subset the logbooks_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
+# present in the vessels_missing vector.
+logbooks_NA__rm_missing_vsls <- logbooks_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
 
 my_stats(logbooks_NA__rm_missing_vsls,
@@ -788,7 +781,8 @@ logbooks_notoverridden <-
 # format the submission date (TRIP_DE)
 logbooks_notoverridden <-
   logbooks_notoverridden |>
-  mutate(TRIP_DE = as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
+  mutate(TRIP_DE =
+           as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
 
 # Drop empty columns
 logbooks_notoverridden <-
@@ -797,7 +791,7 @@ logbooks_notoverridden <-
 
 # diffdf::diffdf(logbooks_notoverridden,
 #                logbooks_notoverridden1)
-# 26 columns
+# 26 columns dropped, bc they were all NAs
 
 # stats
 uniq_vessels_num_was <-
@@ -833,7 +827,7 @@ SEFHIER_logbooks_notoverridden <-
             join_by(VESSEL_OFFICIAL_NUMBER),
             suffix = c("_metrics", "_logbooks"))
 
-# Why we have to keep both vessel names
+# We have to keep both vessel names, bc they are different some times in metrics vs. logbooks.
 SEFHIER_logbooks_notoverridden |>
   select(starts_with("vessel")) |>
   distinct() |>
@@ -870,10 +864,10 @@ SEFHIER_logbooks_notoverridden__start_end_ok <-
 
 # stats
 my_stats(SEFHIER_logbooks_notoverridden__start_end_ok)
-# rows: 315448
-# columns: 171
-# Unique vessels: 1866
-# Unique trips (logbooks): 91145
+# rows: 310832
+# columns: 153
+# Unique vessels: 1825
+# Unique trips (logbooks): 89797
 
 # stats
 thrown_by_time_stamp_error <-
@@ -882,7 +876,7 @@ thrown_by_time_stamp_error <-
 
 my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
        "Thrown away by time_stamp_error (logbooks num)")
-# 588
+# 550
 
 ## Delete logbooks for trips lasting more than 10 days ----
 
@@ -905,10 +899,10 @@ SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
 
 # stats
 my_stats(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok)
-# rows: 315350
-# columns: 172
-# Unique vessels: 1863
-# Unique trips (logbooks): 91108
+# rows: 310741
+# columns: 154
+# Unique vessels: 1822
+# Unique trips (logbooks): 89762
 
 # Output trips with length > 240 into a data frame (for stats)
 logbooks_too_long <-
@@ -917,11 +911,11 @@ logbooks_too_long <-
 
 my_tee(n_distinct(logbooks_too_long$TRIP_ID),
        "Thrown away by trip_more_10_days (logbooks num)")
-# trip_ids: 37
+# trip_ids: 35
 
 my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
-# 31
+# 30
 
 ## Remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
 
@@ -939,10 +933,10 @@ SEFHIER_logbooks_usable <-
 
 # stats
 my_stats(SEFHIER_logbooks_usable)
-# rows: 275667
-# columns: 173
-# Unique vessels: 1668
-# Unique trips (logbooks): 74466
+# rows: 271479
+# columns: 155
+# Unique vessels: 1629
+# Unique trips (logbooks): 73313
 
 late_submission <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
@@ -950,11 +944,11 @@ late_submission <-
 
 my_tee(n_distinct(late_submission$TRIP_ID),
        "Thrown away by late_submission (logbooks num)")
-# trip_ids: 16442
+# trip_ids: 16449
 
 my_tee(n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
        "Thrown away by late_submission (vessels num)")
-# 1083
+# 1064
 
 # check
 min(SEFHIER_logbooks_usable$TRIP_START_DATE)
@@ -970,15 +964,6 @@ max(SEFHIER_logbooks_usable$TRIP_END_DATE)
 # Revisit after
 # fixing metrics tracking for transferred permits
 # Reason: Metrics tracking may not be tracking permit status change over the year (e.g. transferred permits)
-
-SEFHIER_logbooks_usable |>
-  select(VESSEL_OFFICIAL_NUMBER, PERMIT_REGION) |>
-  distinct() |>
-  nrow()
-# 1629
-
-n_distinct(SEFHIER_logbooks_usable$VESSEL_OFFICIAL_NUMBER)
-# 1629
 
 # Data example:
 # SEFHIER_logbooks_usable |>
@@ -1027,10 +1012,10 @@ SEFHIER_logbooks_usable_p_regions <-
 
 # stats
 my_stats(SEFHIER_logbooks_usable)
-# rows: 275667
-# columns: 174
-# Unique vessels: 1668
-# Unique trips (logbooks): 74466
+# rows: 271479
+# columns: 155
+# Unique vessels: 1629
+# Unique trips (logbooks): 73313
 
 logbooks_before_filtering <-
   n_distinct(Logbooks$TRIP_ID)
@@ -1044,31 +1029,31 @@ logbooks_after_filtering <-
 
 # my_tee(logbooks_after_filtering,
 #        "Logbooks after filtering")
-# [1] 74466
+# [1] 73313
 
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
-# print(percent_of_removed_logbooks)
-# [1] 21.37804
+# cat(percent_of_removed_logbooks)
+# 22.59539
 
 # removed_vessels
 vessels_before_filtering <-
   n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER)
-# print(vessels_before_filtering)
-# [1] 1882
+# cat(vessels_before_filtering)
+# 1882
 
 vessels_after_filtering <-
   n_distinct(SEFHIER_logbooks_usable$VESSEL_OFFICIAL_NUMBER)
-# print(vessels_after_filtering)
-# 1668
+# cat(vessels_after_filtering)
+# 1629
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
-# 214
+# 253
 
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
-# [1] 11.37088
+# [1] 13.44315
 
 removed_logbooks_and_vessels_text <- c(
   crayon::blue("percent_of_removed_logbooks"),
@@ -1082,24 +1067,27 @@ removed_logbooks_and_vessels_text <- c(
 my_tee(removed_logbooks_and_vessels_text,
        "Removed logbooks and vessels stats")
 # percent_of_removed_logbooks
-# 21%
+# 23%
 # removed_vessels
-# 214
+# 253
 # percent_of_removed_vessels
-# 11%
+# 13%
 
 # Export usable logbooks ----
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
 
 annas_file_path <-
-  file.path(Path, "Outputs", "SEFHIER_usable_Logbooks.rds")
+  file.path(Path,
+            "Outputs",
+            str_glue("SEFHIER_usable_Logbooks_{my_year}.rds"))
 
 jennys_file_path <-
-  paste(Path, Outputs, "SEFHIER_usable_Logbooks.rds",
-        sep = "")
+  file.path(Path,
+            Outputs,
+            str_glue("SEFHIER_usable_Logbooks_{my_year}.rds"))
 
-# Change to the correct path
+# !! Change to the correct path !!
 output_file_path <-
   annas_file_path
 
