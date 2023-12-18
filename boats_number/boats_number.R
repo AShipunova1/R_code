@@ -31,17 +31,38 @@ source(misc_info_path)
 
 # use all logbooks from https://drive.google.com/drive/folders/1HipnxawNsDjrsMc4dXgFwdRPQ3X6-x3n
 # when is ready
-all_logb_path <-
-  file.path(my_paths$git_r,
-            r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)")
-source(all_logb_path)
+processed_logb_path <-
+  file.path(my_paths$inputs,
+            r"(processing_logbook_data\Outputs\SEFHIER_usable_logbooks_2022.rds)")
 
-#' {{< include all_logbooks_db_data_2022_short_p_region_prep.qmd >}}
-#'
+file.exists(processed_logb_path)
+
+processed_logbooks <-
+  read_rds(processed_logb_path)
+
+processed_logbooks_clean_names <-
+  clean_headers(processed_logbooks)
+
+intersect(ordered(names(processed_logbooks_clean_names)),
+          ordered(names(all_logbooks_db_data_2022_short_p_region)))
+# 70
+
+
+setdiff(ordered(names(processed_logbooks_clean_names)),
+          ordered(names(all_logbooks_db_data_2022_short_p_region)))
+# 85
+
+setdiff(ordered(names(all_logbooks_db_data_2022_short_p_region)),
+        ordered(names(processed_logbooks_clean_names)))
+# [1] "vessel_official_nbr" "vessel_name"         "notif_cancel_flag"
+# 3
 
 ## input data names ----
 # all_get_db_data_result_l
 # all_logbooks_db_data_2022_short_p_region
+
+# diffdf::diffdf(all_logbooks_db_data_2022_short_p_region,
+#                processed_logbooks)
 
 print_df_names(all_logbooks_db_data_2022_short_p_region)
 # [1] "trip_id, trip_type_name, vessel_id, vessel_official_nbr, vessel_name, trip_start_date, trip_end_date, state, state_name, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, activity_type_name, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, vendor_app_name, vendor_platform, trip_de, trip_ue, trip_dc, trip_uc, area_code, sub_area_code, distance_code, distance_code_name, local_area_code, latitude, longitude, effort_de, effort_ue, effort_dc, effort_uc, catch_uc, user_app, notif_seq, notif_type, notif_accsp_system_id, notif_accsp_permit_id, notif_trip_type, notif_trip_type_name, notif_trip_start_date, notif_trip_start_time, notif_trip_end_date, notif_trip_end_time, notif_start_port, notif_start_port_name, notif_start_port_county, notif_start_port_state, notif_end_port, notif_end_port_name, notif_end_port_county, notif_end_port_state, notif_cancel_flag, notif_email_sent, notif_intended_fishing_flag, notif_gear_type, notif_landing_location, notif_landing_location_name, notif_landing_location_city, notif_landing_location_county, notif_landing_location_state, notif_stat_zone, notif_ue, notif_de, notif_uc, notif_dc, permit_region"
