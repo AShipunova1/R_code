@@ -108,28 +108,29 @@ map(compl_err_db_data_metrics_permit_reg_list, dim)
 # [1] 88429    18
 
 ### SA only: remove vessels not in Jeannette's SA list ----
+# Don't use 2023-12-18
 
 # Build the path to the R script 'vessel_permit_corrected_list.R' by
 # combining the base path 'my_paths$git_r' and the script name.
-script_path <-
-  file.path(my_paths$git_r,
-            "vessel_permit_list/vessel_permit_corrected_list.R")
-
-# Source (run) the R script using the constructed script path.
-source(script_path)
+# script_path <-
+#   file.path(my_paths$git_r,
+#             "vessel_permit_list/vessel_permit_corrected_list.R")
+# 
+# # Source (run) the R script using the constructed script path.
+# source(script_path)
 
 # Rows are filtered to exclude vessels whose 'VESSEL_OFFICIAL_NBR' is in the
 # 'vessels_to_remove_from_ours' vector.
-compl_err_db_data_metrics_permit_reg_sa_only <-
-  compl_err_db_data_metrics_permit_reg_list$sa_only |>
-  dplyr::filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
-
-dim(compl_err_db_data_metrics_permit_reg_sa_only)
-# [1] 22228    29 nc only
-# [1] 86385    18
-
-# put it back
-compl_err_db_data_metrics_permit_reg_list$sa_only <- compl_err_db_data_metrics_permit_reg_sa_only
+# compl_err_db_data_metrics_permit_reg_sa_only <-
+#   compl_err_db_data_metrics_permit_reg_list$sa_only |>
+#   dplyr::filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
+# 
+# dim(compl_err_db_data_metrics_permit_reg_sa_only)
+# # [1] 22228    29 nc only
+# # [1] 86385    18
+# 
+# # put it back
+# compl_err_db_data_metrics_permit_reg_list$sa_only <- compl_err_db_data_metrics_permit_reg_sa_only
 
 ## check vessel/compl counts ----
 compl_err_db_data_metrics_permit_reg_list |>
