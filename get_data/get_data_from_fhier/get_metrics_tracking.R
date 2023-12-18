@@ -72,6 +72,9 @@ fhier_reports_metrics_tracking_list <- purrr::map(
   )
 )
 
+names(fhier_reports_metrics_tracking_list) <- 
+  c("2022", "2023")
+
 # check how many in diff years ----
 # Use the 'dplyr::setdiff' function to find the set difference between two vectors.
 # (1 minus 2)
