@@ -36,12 +36,14 @@ compl_err_db_data_metrics <-
 
 ## 2022: divide by permit region ----
 compl_err_db_data_metrics_permit_reg <-
+## 2022 only ---
+compl_err_db_data_metrics_2022 <-
   compl_err_db_data_metrics |> 
   dplyr::filter(comp_week_start_dt < '2023-01-01' &
-           comp_week_end_dt >= '2022-01-01') |> 
-  separate_permits_into_3_groups(permit_group_field_name = "permit_group") |>
-  # [1] 26391    39
-  remove_empty_cols() |> 
+           comp_week_end_dt >= '2022-01-01')
+
+dim(compl_err_db_data_metrics_2022)
+# [1] 146055     19
   dplyr::distinct()
 
 dim(compl_err_db_data_metrics_permit_reg)
