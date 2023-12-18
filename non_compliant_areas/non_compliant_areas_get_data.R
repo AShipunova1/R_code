@@ -55,11 +55,16 @@ compl_err_db_data_metrics_2022_clean <-
 dim(compl_err_db_data_metrics_2022_clean)
 # [1] 145261     29
 
+## divide by permit region in db permit ----
+compl_err_db_data_metrics_permit_reg <-
+  compl_err_db_data_metrics_2022_clean |> 
+  separate_permits_into_3_groups(permit_group_field_name = "permit_group")
+
 dim(compl_err_db_data_metrics_permit_reg)
-# [1] 26391    29 (nc onlly)
+# [1] 26391    29 (nc only)
 # [1] 146055     18 all 
 
-compl_err_db_data_metrics_permit_reg
+n_distinct(compl_err_db_data_metrics_permit_reg$vessel_official_nbr)
 # vessel_official_nbr     3497
 
 ## split into separate dfs by permit region ----
