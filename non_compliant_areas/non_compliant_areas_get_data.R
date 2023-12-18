@@ -143,20 +143,22 @@ compl_err_db_data_metrics_permit_reg_list |>
 # $dual
 #   is_comp   n
 # 1       0 109
-# 2       1 365
+# 2       1 363
 # 
 # $gom_only
 #   is_comp   n
-# 1       0 175
+# 1       0 174
 # 2       1 939
 # 
 # $sa_only
 #   is_comp    n
-# 1       0 1179
-# 2       1 1676
-# 1179+1676=2855
+# 1       0  1213
+# 2       1  1676
 
-# map(compl_err_db_data_metrics_permit_reg_list, count_uniq_by_column)
+map(compl_err_db_data_metrics_permit_reg_list,
+    \(reg_df) {
+      n_distinct(reg_df$vessel_official_nbr)
+    })
 # $dual
 # vessel_official_nbr     374
 # $gom_only
@@ -164,6 +166,8 @@ compl_err_db_data_metrics_permit_reg_list |>
 # $sa_only
 # vessel_official_nbr    2135
 # 374+939+2135 = 3448
+
+# View(compl_err_db_data_metrics_permit_reg_list)
 
 # Metrics:
 # Total Vessels  3,539
@@ -178,7 +182,6 @@ compl_err_db_data_metrics_permit_reg_list |>
 
 ## Remove columns not use in this analysis ----
 
-# "srh_vessel_comp_id, srh_vessel_comp_err_id, table_pk, comp_error_type_cd, is_override, is_send_to_vesl, send_to_vesl_dt, send_to_vesl_user_id, is_pa_review_needed, is_pa_reviewed, val_tr_res_id, vms_table_pk, safis_vessel_id, vessel_official_nbr, permit_group, prm_grp_exp_date, comp_year, comp_week, comp_week_start_dt, comp_week_end_dt, is_created_period, is_comp, is_comp_override, comp_override_dt, comp_override_user_id, srfh_for_hire_type_id, comp_override_cmt, is_pmt_on_hold, permit_sa_gom"
 
 compl_err_db_data_metrics_permit_reg_list_short <- 
   compl_err_db_data_metrics_permit_reg_list |>
@@ -319,6 +322,7 @@ my_file_path_lat_lon <-
 
 file.exists(my_file_path_lat_lon)
 
+# Add lat and lon geo coordinates by city and state
 get_lat_lon_no_county <-
   function(vessels_permits_home_port_c_st_fixed_short) {
     vessels_permits_home_port_c_st_fixed_lat_longs <-
