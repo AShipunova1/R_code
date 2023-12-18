@@ -22,11 +22,16 @@ source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R
 
 # fhier_reports_metrics_tracking_not_srhs_ids
 
-# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+# Keep only ids in fhier_reports_metrics_tracking_not_srhs_ids and add metrics columns
+
+fhier_reports_metrics_tracking_not_srhs_all_cols_2022 <-
+  fhier_reports_metrics_tracking_not_srhs_all_cols_list$`2022`
+
 compl_err_db_data_metrics <-
-  compl_err_db_data |>
-  dplyr::filter(
-    vessel_official_nbr %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
+  left_join(
+    fhier_reports_metrics_tracking_not_srhs_all_cols_2022,
+    compl_err_db_data,
+    join_by(vessel_official_number == vessel_official_nbr)
   )
 
 ## 2022: divide by permit region ----
