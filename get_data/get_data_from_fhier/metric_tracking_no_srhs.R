@@ -63,7 +63,36 @@ purrr::map(fhier_reports_metrics_tracking_not_srhs_ids_list, dim)
 # [[2]]
 # [1] 3399    1
 
+# Keep all metrics tracking columns one df ----
+fhier_reports_metrics_tracking_not_srhs_all_cols <-
+  # create a data frame
+  purrr::map_df(
+    fhier_reports_metrics_tracking_list,
+    # for each df from the list
+    ~ .x |>
+      # exclude SRHS vessels
+      dplyr::filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)
+  ) |>
+  # remove duplicates
+  dplyr::distinct()
+
+# Keep all metrics tracking columns lists by year ----
+fhier_reports_metrics_tracking_not_srhs_all_cols_list <-
+  # create a data frame
+  purrr::map(
+    fhier_reports_metrics_tracking_list,
+    # for each df from the list
+    ~ .x |>
+      # exclude SRHS vessels
+      dplyr::filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)
+  )
+  
+# View(fhier_reports_metrics_tracking_not_srhs_all_cols_list)
+
+
 cat("Results:",
     "fhier_reports_metrics_tracking_not_srhs_ids_list",
     "fhier_reports_metrics_tracking_not_srhs_ids",
+    "fhier_reports_metrics_tracking_not_srhs_all_cols",
+    "fhier_reports_metrics_tracking_not_srhs_all_cols_list",
     sep = "\n")
