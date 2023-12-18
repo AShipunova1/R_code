@@ -45,7 +45,15 @@ compl_err_db_data_metrics_2022 <-
 
 dim(compl_err_db_data_metrics_2022)
 # [1] 145261     31
+
+## Remove empty columns ---
+compl_err_db_data_metrics_2022_clean <-
+  compl_err_db_data_metrics_2022 |>
+  remove_empty_cols() |>
   dplyr::distinct()
+
+dim(compl_err_db_data_metrics_2022_clean)
+# [1] 145261     29
 
 dim(compl_err_db_data_metrics_permit_reg)
 # [1] 26391    29 (nc onlly)
