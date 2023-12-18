@@ -67,6 +67,20 @@ dim(compl_err_db_data_metrics_permit_reg)
 n_distinct(compl_err_db_data_metrics_permit_reg$vessel_official_nbr)
 # vessel_official_nbr     3497
 
+## split into separate dfs by permit region in metrics tracking ----
+
+compl_err_db_data_metrics_permit_reg_from_metrics <- 
+  compl_err_db_data_metrics_2022_clean |> 
+  separate_permits_into_3_groups(permit_group_field_name = "permits")
+
+# The same result:
+# compl_err_db_data_metrics_permit_reg_from_metrics |>
+#     select(vessel_official_number, permit_sa_gom, permit_group, permit_grouping_region) |>
+#     distinct() |>
+#     filter(permit_sa_gom == "sa_only" & permit_grouping_region == "GOM") |>
+#     View()
+
+  
 ## split into separate dfs by permit region ----
 compl_err_db_data_metrics_permit_reg_list <- 
   compl_err_db_data_metrics_permit_reg |> 
