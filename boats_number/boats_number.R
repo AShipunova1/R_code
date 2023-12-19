@@ -1723,29 +1723,47 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx <-
 
 ### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
-ggplot(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM,
-       aes(x = end_port_state,
-           y = start_port_state)) +
-  # Rectangles
-  geom_raster(aes(fill = number_of_vessels)) +
-  scale_fill_viridis(
-    # labels = scales::comma,
-    trans = "log2"
-    # ,
-    # limits = c(1, 300)
-  ) +
-  labs(x = "End Port State",
-       y = "Start Port State",
-       title = "Number of Vessels by Quarter and Start / End Ports in GOM 2022") +
-  theme_bw() + theme(
-    axis.text.x = element_text(
-      size = 12,
-      angle = 0,
-      vjust = 0.3
-    ),
-    axis.text.y = element_text(size = 12),
-    plot.title = element_text(size = 11)
-  )
+plot_start_end_ports_matrix <-
+  function(my_df) {
+    ggplot(my_df,
+           aes(x = end_port_state,
+               y = start_port_state)) +
+      # Rectangles
+      geom_raster(aes(fill = number_of_vessels)) +
+      scale_fill_viridis(# labels = scales::comma,
+        trans = "log2") +
+      # ,
+      # limits = c(1, 300)) +
+      labs(x = "End Port State",
+           y = "Start Port State",
+           title = "Number of Vessels by Quarter and Start / End Ports in GOM 2022") +
+      theme_bw() + theme(
+        axis.text.x = element_text(
+          size = 12,
+          angle = 0,
+          vjust = 0.3
+        ),
+        axis.text.y = element_text(size = 12),
+        plot.title = element_text(size = 11)
+      )
+  }
+
+
+processed_logbooks_short_dates_quarters__p_l__st_cnt__q <-
+  processed_logbooks_short_dates_quarters__p_l__st_cnt |>
+  map(\(permit_region_df) {
+    permit_region_df |>
+      split(as.factor(permit_region_df$trip_start_quarter_num))
+  })
+
+processed_logbooks_short_dates_quarters__p_l__st_cnt__q |>
+  map(\(permit_region_df) {
+    permit_region_df |>
+      map(\(curr_quarter) {
+        plot_start_end_ports_matrix(curr_quarter)
+      })
+  })
+
 
 
 #'
