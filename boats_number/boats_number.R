@@ -17,7 +17,8 @@ my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
 current_project_dir_name <- this.path::this.dir()
-current_project_name <- basename(current_project_dir_name)
+current_project_basename <-
+  basename(current_project_dir_name)
 
 ## additional data ----
 # for qmd use #' {{< include .qmd >}} instead of source()
@@ -1636,10 +1637,10 @@ home_port_diff_from_end_port <-
   dplyr::rename(is_home_port_diff_from_end_port =
                   "diff_end_port_name_or_city")
 
-# home_port_diff_from_end_port
+pander(home_port_diff_from_end_port)
 
 ## Different port states by quarter ----
-
+# print_df_names(processed_logbooks_short_dates)
 processed_logbooks_short_dates_quarters <-
   processed_logbooks_short_dates |>
   select(vessel_official_number,
@@ -1648,44 +1649,25 @@ processed_logbooks_short_dates_quarters <-
          contains("state")) |>
   distinct()
 
-# split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom))
-glimpse(processed_logbooks_short_dates_quarters)
+pander(head(processed_logbooks_short_dates_quarters))
 # [1] 4772    7
 
 processed_logbooks_short_dates_quarters__p_l <-
   processed_logbooks_short_dates_quarters |>
   split(as.factor(processed_logbooks_short_dates_quarters$permit_region))
 
+### check if permit_region don't intersect ----
 intersect(processed_logbooks_short_dates_quarters__p_l$GOM$vessel_official_number,
           processed_logbooks_short_dates_quarters__p_l$SA$vessel_official_number)
 # 0 correct
 
-# pivot_wider(
-#   id_cols = Trial,
-#   names_from = Subject,
-#   names_glue = "{Subject}_{.value}",
-#   values_from = c(Annotation, Trial_time, ID)
-# )
-
 ### start quarter is diff from the end quarter ----
-# processed_logbooks_short_dates_quarters |>
-#   filter(!trip_start_quarter_num == trip_end_quarter_num) |>
-#   dim()
+processed_logbooks_short_dates_quarters |>
+  filter(!trip_start_quarter_num == trip_end_quarter_num) |>
+  nrow()
 # 7
 
-# quarter_ports_wider_g <-
-#       processed_logbooks_short_dates_quarters__p_l$GOM |>
-#       tidyr::pivot_wider(
-#         id_cols = c(vessel_official_number, permit_region),
-#         names_from = trip_start_quarter_num,
-#
-#                 values_from = c(start_port_state, end_port_state),
-#         values_fn = ~ paste(unique(sort(.x)), collapse = ",")
-#       )
-#
-# View(quarter_ports_wider_g)
-
-# by start quarter
+### count vessels by start quarter and ports ----
 processed_logbooks_short_dates_quarters__p_l__st_cnt <-
   processed_logbooks_short_dates_quarters__p_l |>
   map(\(permit_df) {
@@ -1697,12 +1679,11 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
       ungroup()
   })
 
-diffdf::diffdf(processed_logbooks_short_dates_quarters__p_l__st_cnt$SA,
-               processed_logbooks_short_dates_quarters__p_l__st_cnt2$SA)
-
-
 ### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
+
+axis_text_size <- 12
+
 plot_start_end_ports_matrix <-
   function(my_df, quarter_name, permit_region_name) {
     ggplot(my_df,
@@ -1716,14 +1697,16 @@ plot_start_end_ports_matrix <-
       labs(x = "End Port State",
            y = "Start Port State",
            title = str_glue("Number of Vessels for Quarter {quarter_name} and Start / End Ports in {permit_region_name} 2022")) +
-      theme_bw() + theme(
+      theme_bw() +
+      theme(
         axis.text.x = element_text(
-          size = 12,
-          angle = 0,
-          vjust = 0.3
+          size = axis_text_size
+          # ,
+          # angle = 0,
+          # vjust = 0.3
         ),
-        axis.text.y = element_text(size = 12),
-        plot.title = element_text(size = 11)
+        axis.text.y = element_text(size = axis_text_size),
+        plot.title = element_text(size = axis_text_size)
       )
   }
 
@@ -1745,6 +1728,7 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots <-
   map(\(curr_permit_region) {
     processed_logbooks_short_dates_quarters__p_l__st_cnt__q[[curr_permit_region]] |>
       map(\(curr_quarter) {
+        # browser()
         curr_start_quarter <-
           unique(curr_quarter$trip_start_quarter_num)
 
@@ -1759,7 +1743,7 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots <-
 
         plot_file_path <-
          file.path(my_paths$outputs,
-                   current_project_name,
+                   current_project_basename,
                    plot_file_name)
 
         save_plot_to_file(plot_file_path,
