@@ -17,6 +17,7 @@ my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
 current_project_dir_name <- this.path::this.dir()
+current_project_name <- basename(current_project_dir_name)
 
 ## additional data ----
 # for qmd use #' {{< include .qmd >}} instead of source()
