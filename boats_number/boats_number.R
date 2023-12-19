@@ -1749,6 +1749,7 @@ plot_start_end_ports_matrix <-
       )
   }
 
+# View(processed_logbooks_short_dates_quarters__p_l__st_cnt__q)
 
 processed_logbooks_short_dates_quarters__p_l__st_cnt__q <-
   processed_logbooks_short_dates_quarters__p_l__st_cnt |>
@@ -1757,15 +1758,40 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q <-
       split(as.factor(permit_region_df$trip_start_quarter_num))
   })
 
-processed_logbooks_short_dates_quarters__p_l__st_cnt__q |>
-  map(\(permit_region_df) {
-    permit_region_df |>
+permit_regions <-
+  names(processed_logbooks_short_dates_quarters__p_l__st_cnt__q)
+
+tic("save plots")
+processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots <-
+  permit_regions |>
+  map(\(curr_permit_region) {
+    processed_logbooks_short_dates_quarters__p_l__st_cnt__q[[curr_permit_region]] |>
       map(\(curr_quarter) {
+        browser()
+        curr_start_quarter <-
+          unique(curr_quarter$trip_start_quarter_num)
+
+        one_plot <-
         plot_start_end_ports_matrix(curr_quarter,
-                                    curr_quarter$trip_start_quarter_num)
+                                    curr_start_quarter)
+
+        plot_file_name <-
+          str_glue("vessel_num_{curr_permit_region}_{curr_start_quarter}.png") |>
+          tolower()
+
+        plot_file_path <-
+         file.path(my_paths$outputs,
+                   current_project_name,
+                   plot_file_name)
+
+        save_plot_to_file(plot_file_path,
+                          one_plot)
       })
   })
+toc()
 
+# processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots |>
+  # map(\(one_plot), save_plot_to_file)
 
 
 #'
