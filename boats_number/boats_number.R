@@ -55,7 +55,7 @@ port_fields_short <-
     "trip_start_date"
   )
 
-grep("state", names(processed_logbooks_clean_names), value = T, ignore.case = T)
+# grep("state", names(processed_logbooks_clean_names), value = T, ignore.case = T)
 processed_logbooks_short <-
   processed_logbooks_clean_names |>
   dplyr::select(dplyr::all_of(port_fields_short)) |>
@@ -1633,6 +1633,21 @@ home_port_diff_from_end_port <-
                   "diff_end_port_name_or_city")
 
 home_port_diff_from_end_port
+
+## Different port states by quarter ----
+processed_logbooks_short_dates_quarters <-
+  processed_logbooks_short_dates |>
+  select(vessel_official_number,
+         contains("quarter"),
+         contains("state")) |>
+  distinct()
+# split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom))
+dim(processed_logbooks_short_dates_quarters)
+# [1] 4772    7
+
+processed_logbooks_short_dates_quarters |>
+  # split(trip_start_year_quarter, trip_start_quarter_num) |>
+  glimpse()
 
 #'
 #' %%%%% Results
