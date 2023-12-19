@@ -1667,12 +1667,12 @@ processed_logbooks_short_dates_quarters |>
   nrow()
 # 7
 
-### count vessels by start quarter and ports ----
+### count vessels by end quarter and ports ----
 processed_logbooks_short_dates_quarters__p_l__st_cnt <-
   processed_logbooks_short_dates_quarters__p_l |>
   map(\(permit_df) {
     permit_df |>
-      group_by(trip_start_quarter_num) |>
+      group_by(trip_end_quarter_num) |>
       rowwise() |>
       count(start_port_state, end_port_state,
             name = "number_of_vessels") |>
@@ -1718,7 +1718,7 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q <-
   processed_logbooks_short_dates_quarters__p_l__st_cnt |>
   map(\(permit_region_df) {
     permit_region_df |>
-      split(as.factor(permit_region_df$trip_start_quarter_num))
+      split(as.factor(permit_region_df$trip_end_quarter_num))
   })
 
 permit_regions <-
@@ -1731,16 +1731,16 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots <-
     processed_logbooks_short_dates_quarters__p_l__st_cnt__q[[curr_permit_region]] |>
       map(\(curr_quarter) {
         # browser()
-        curr_start_quarter <-
-          unique(curr_quarter$trip_start_quarter_num)
+        curr_end_quarter <-
+          unique(curr_quarter$trip_end_quarter_num)
 
         one_plot <-
         plot_start_end_ports_matrix(curr_quarter,
-                                    curr_start_quarter,
+                                    curr_end_quarter,
                                     curr_permit_region)
 
         plot_file_name <-
-          str_glue("vessel_num_{curr_permit_region}_{curr_start_quarter}.png") |>
+          str_glue("vessel_num_{curr_permit_region}_{curr_end_quarter}.png") |>
           tolower()
 
         plot_file_path <-
