@@ -1679,6 +1679,7 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
       ungroup()
   })
 
+View(processed_logbooks_short_dates_quarters__p_l__st_cnt__q$GOM[[1]])
 ### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
 
@@ -1696,7 +1697,8 @@ plot_start_end_ports_matrix <-
                          trans = "log") +
       labs(x = "End Port State",
            y = "Start Port State",
-           title = str_glue("Number of Vessels for Quarter {quarter_name} and Start / End Ports in {permit_region_name} 2022")) +
+           title =
+             str_glue("Number of Vessels with 2022 permit region in {permit_region_name} by Start / End Ports for Quarter {quarter_name}")) +
       theme_bw() +
       theme(
         axis.text.x = element_text(
