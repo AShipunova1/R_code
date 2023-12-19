@@ -1721,31 +1721,29 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx <-
 
 # View(processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx)
 
-# plot
-# longData
-# library(data.table)
+### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
 ggplot(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM,
        aes(x = end_port_state,
            y = start_port_state)) +
+  # Rectangles
   geom_raster(aes(fill = number_of_vessels)) +
-  # scale_fill_gradient(low = "grey90", high = "blue") +
   scale_fill_viridis(
-    # name = number_of_vessels,
-    labels = scales::comma,
-    trans = "log1p",
-    limits = c(1, 400)
+    # labels = scales::comma,
+    trans = "log2"
+    # ,
+    # limits = c(1, 300)
   ) +
   labs(x = "End Port State",
        y = "Start Port State",
-       title = "Number of Vessels by Quarter and start / end Ports in GOM") +
+       title = "Number of Vessels by Quarter and Start / End Ports in GOM 2022") +
   theme_bw() + theme(
     axis.text.x = element_text(
-      size = 9,
+      size = 12,
       angle = 0,
       vjust = 0.3
     ),
-    axis.text.y = element_text(size = 9),
+    axis.text.y = element_text(size = 12),
     plot.title = element_text(size = 11)
   )
 
