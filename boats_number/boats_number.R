@@ -9,6 +9,9 @@ library(this.path)
 # Prints an R object in markdown, needed to print pretty table from list of dfs.
 library(pander)
 
+# Colorblind-Friendly Color Map for R
+library(viridis)
+
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -1719,15 +1722,23 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx <-
 # View(processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx)
 
 # plot
-
+# longData
 # library(data.table)
-longData <- melt(processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx$GOM)
-longData <- longData[longData$value != 0, ]
-View(longData)
-ggplot(longData, aes(x = Var2, y = Var1)) +
-  geom_raster(aes(fill = value)) +
-  scale_fill_gradient(low = "grey90", high = "red") +
-  labs(x = "letters", y = "LETTERS", title = "Matrix") +
+# print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
+ggplot(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM,
+       aes(x = end_port_state,
+           y = start_port_state)) +
+  geom_raster(aes(fill = number_of_vessels)) +
+  # scale_fill_gradient(low = "grey90", high = "blue") +
+  scale_fill_viridis(
+    # name = number_of_vessels,
+    labels = scales::comma,
+    trans = "log1p",
+    limits = c(1, 400)
+  ) +
+  labs(x = "End Port State",
+       y = "Start Port State",
+       title = "Number of Vessels by Quarter and start / end Ports in GOM") +
   theme_bw() + theme(
     axis.text.x = element_text(
       size = 9,
