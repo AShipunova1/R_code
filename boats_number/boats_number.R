@@ -1685,11 +1685,11 @@ intersect(processed_logbooks_short_dates_quarters__p_l$GOM$vessel_official_numbe
 processed_logbooks_short_dates_quarters__p_l$GOM |>
   filter(trip_start_quarter_num == 1) |>
   rowwise() |>
-  mutate(start_end_ports = paste(start_port_state, end_port_state, sep = "_")) |>
-  ungroup() |>
+  # mutate(start_end_ports = paste(start_port_state, end_port_state, sep = "_")) |>
+  # ungroup() |>
   # group_by(start_port_state, end_port_state) |>
-  select(vessel_official_number, start_end_ports) |>
-  count(start_end_ports) |>
+  select(vessel_official_number, start_port_state, end_port_state) |>
+  count(start_port_state, end_port_state) |>
   glimpse()
 
 
