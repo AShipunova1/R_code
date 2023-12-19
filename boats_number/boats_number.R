@@ -1701,21 +1701,42 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
 
 pander(processed_logbooks_short_dates_quarters__p_l__st_cnt)
 
-processed_logbooks_short_dates_quarters__p_l$GOM |>
-  filter(trip_start_quarter_num == 1) |>
-  count(start_port_state, end_port_state) |>
-  pivot_wider(names_from = start_port_state,
-              values_from = n,
-              values_fill = list(n = 0)) |>
-    View()
+processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx <-
+  processed_logbooks_short_dates_quarters__p_l |>
+  map(\(perm_reg_df) {
+    perm_reg_df |>
 
+      group_by(trip_start_quarter_num) |>
+      count(start_port_state, end_port_state) |>
+      pivot_wider(
+        names_from = start_port_state,
+        values_from = n,
+        values_fill = list(n = 0)
+      ) |>
+      ungroup()
+  })
 
-pivot_longer(cols = end_port_state,
-  names_to = )
+# View(processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx)
 
-pivot_wider(id_cols = trip_start_quarter_num,
-            names_from = )
-        start_port_state   end_port_state   number_of_vessels
+# plot
+
+# library(data.table)
+longData <- melt(processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx$GOM)
+longData <- longData[longData$value != 0, ]
+View(longData)
+ggplot(longData, aes(x = Var2, y = Var1)) +
+  geom_raster(aes(fill = value)) +
+  scale_fill_gradient(low = "grey90", high = "red") +
+  labs(x = "letters", y = "LETTERS", title = "Matrix") +
+  theme_bw() + theme(
+    axis.text.x = element_text(
+      size = 9,
+      angle = 0,
+      vjust = 0.3
+    ),
+    axis.text.y = element_text(size = 9),
+    plot.title = element_text(size = 11)
+  )
 
 
 #'
