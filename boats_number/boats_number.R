@@ -1724,7 +1724,7 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx <-
 ### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
 plot_start_end_ports_matrix <-
-  function(my_df) {
+  function(my_df, quarter_name) {
     ggplot(my_df,
            aes(x = end_port_state,
                y = start_port_state)) +
@@ -1736,7 +1736,7 @@ plot_start_end_ports_matrix <-
       # limits = c(1, 300)) +
       labs(x = "End Port State",
            y = "Start Port State",
-           title = "Number of Vessels by Quarter and Start / End Ports in GOM 2022") +
+           title = str_glue("Number of Vessels for Quarter {quarter_name} and Start / End Ports in GOM 2022")) +
       theme_bw() + theme(
         axis.text.x = element_text(
           size = 12,
@@ -1760,7 +1760,8 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q |>
   map(\(permit_region_df) {
     permit_region_df |>
       map(\(curr_quarter) {
-        plot_start_end_ports_matrix(curr_quarter)
+        plot_start_end_ports_matrix(curr_quarter,
+                                    curr_quarter$trip_start_quarter_num)
       })
   })
 
