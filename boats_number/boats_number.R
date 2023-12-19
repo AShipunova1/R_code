@@ -1705,22 +1705,6 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
 
 pander(processed_logbooks_short_dates_quarters__p_l__st_cnt)
 
-processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx <-
-  processed_logbooks_short_dates_quarters__p_l |>
-  map(\(perm_reg_df) {
-    perm_reg_df |>
-
-      group_by(trip_start_quarter_num) |>
-      count(start_port_state, end_port_state) |>
-      pivot_wider(
-        names_from = start_port_state,
-        values_from = n,
-        values_fill = list(n = 0)
-      ) |>
-      ungroup()
-  })
-
-# View(processed_logbooks_short_dates_quarters__p_l__st_cnt_mtx)
 
 ### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
@@ -1731,10 +1715,9 @@ plot_start_end_ports_matrix <-
                y = start_port_state)) +
       # Rectangles
       geom_raster(aes(fill = number_of_vessels)) +
-      scale_fill_viridis(# labels = scales::comma,
-        trans = "log2") +
-      # ,
-      # limits = c(1, 300)) +
+      scale_fill_viridis(name = "Log of Number of Vessels",
+                         labels = scales::comma,
+                         trans = "log") +
       labs(x = "End Port State",
            y = "Start Port State",
            title = str_glue("Number of Vessels for Quarter {quarter_name} and Start / End Ports in GOM 2022")) +
@@ -1749,7 +1732,7 @@ plot_start_end_ports_matrix <-
       )
   }
 
-# View(processed_logbooks_short_dates_quarters__p_l__st_cnt__q)
+# pander(processed_logbooks_short_dates_quarters__p_l__st_cnt__q)
 
 processed_logbooks_short_dates_quarters__p_l__st_cnt__q <-
   processed_logbooks_short_dates_quarters__p_l__st_cnt |>
@@ -1767,7 +1750,6 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots <-
   map(\(curr_permit_region) {
     processed_logbooks_short_dates_quarters__p_l__st_cnt__q[[curr_permit_region]] |>
       map(\(curr_quarter) {
-        browser()
         curr_start_quarter <-
           unique(curr_quarter$trip_start_quarter_num)
 
@@ -1789,10 +1771,6 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots <-
       })
   })
 toc()
-
-# processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots |>
-  # map(\(one_plot), save_plot_to_file)
-
 
 #'
 #' %%%%% Results
