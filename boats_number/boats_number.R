@@ -1691,12 +1691,6 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
   map(\(permit_df) {
     permit_df |>
       group_by(trip_start_quarter_num) |>
-      select(
-        trip_start_quarter_num,
-        vessel_official_number,
-        start_port_state,
-        end_port_state
-      ) |>
       rowwise() |>
       count(start_port_state, end_port_state,
             name = "number_of_vessels") |>
