@@ -1632,22 +1632,53 @@ home_port_diff_from_end_port <-
   dplyr::rename(is_home_port_diff_from_end_port =
                   "diff_end_port_name_or_city")
 
-home_port_diff_from_end_port
+# home_port_diff_from_end_port
 
 ## Different port states by quarter ----
+
 processed_logbooks_short_dates_quarters <-
   processed_logbooks_short_dates |>
   select(vessel_official_number,
+         permit_region,
          contains("quarter"),
          contains("state")) |>
   distinct()
+
 # split(as.factor(fhier_mrip_catch_by_species_state_region_waves$sa_gom))
-dim(processed_logbooks_short_dates_quarters)
+glimpse(processed_logbooks_short_dates_quarters)
 # [1] 4772    7
 
-processed_logbooks_short_dates_quarters |>
-  # split(trip_start_year_quarter, trip_start_quarter_num) |>
+processed_logbooks_short_dates_quarters__p_l <-
+  processed_logbooks_short_dates_quarters |>
+  split(as.factor(processed_logbooks_short_dates_quarters$permit_region))
+
+intersect(processed_logbooks_short_dates_quarters__p_l$GOM$vessel_official_number,
+          processed_logbooks_short_dates_quarters__p_l$SA$vessel_official_number)
+# 0 correct
+
+# pivot_wider(id_cols = Trial, names_from = Subject, names_glue = "{Subject}_{.value}",
+  #             values_from = c(Annotation, Trial_time, ID))
+
+# processed_logbooks_short_dates_quarters |>
+#   filter(!trip_start_quarter_num == trip_end_quarter_num) |>
+#   dim()
+# 7
+
+# by start quarter
+processed_logbooks_short_dates_quarters__p_l$GOM |>
+  filter(trip_start_quarter_num == 1) |>
+
+  group_by(start_port_state, end_port_state) |>
+  count(vessel_official_number) |>
   glimpse()
+
+
+  pivot_wider(
+    # id_cols = vessel_official_number,
+              names_from = Subject,
+              names_glue = "{Subject}_{.value}",
+              values_from = c(Annotation, Trial_time, ID))
+
 
 #'
 #' %%%%% Results
