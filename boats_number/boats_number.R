@@ -1656,20 +1656,40 @@ intersect(processed_logbooks_short_dates_quarters__p_l$GOM$vessel_official_numbe
           processed_logbooks_short_dates_quarters__p_l$SA$vessel_official_number)
 # 0 correct
 
-# pivot_wider(id_cols = Trial, names_from = Subject, names_glue = "{Subject}_{.value}",
-  #             values_from = c(Annotation, Trial_time, ID))
+# pivot_wider(
+#   id_cols = Trial,
+#   names_from = Subject,
+#   names_glue = "{Subject}_{.value}",
+#   values_from = c(Annotation, Trial_time, ID)
+# )
 
+### start quarter is diff from the end quarter ----
 # processed_logbooks_short_dates_quarters |>
 #   filter(!trip_start_quarter_num == trip_end_quarter_num) |>
 #   dim()
 # 7
 
+# quarter_ports_wider_g <-
+#       processed_logbooks_short_dates_quarters__p_l$GOM |>
+#       tidyr::pivot_wider(
+#         id_cols = c(vessel_official_number, permit_region),
+#         names_from = trip_start_quarter_num,
+#
+#                 values_from = c(start_port_state, end_port_state),
+#         values_fn = ~ paste(unique(sort(.x)), collapse = ",")
+#       )
+#
+# View(quarter_ports_wider_g)
+
 # by start quarter
 processed_logbooks_short_dates_quarters__p_l$GOM |>
   filter(trip_start_quarter_num == 1) |>
-
-  group_by(start_port_state, end_port_state) |>
-  count(vessel_official_number) |>
+  rowwise() |>
+  mutate(start_end_ports = paste(start_port_state, end_port_state, sep = "_")) |>
+  ungroup() |>
+  # group_by(start_port_state, end_port_state) |>
+  select(vessel_official_number, start_end_ports) |>
+  count(start_end_ports) |>
   glimpse()
 
 
