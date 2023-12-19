@@ -1641,7 +1641,7 @@ pander(home_port_diff_from_end_port)
 
 ## Different port states by quarter ----
 # Q. But specifically do it by state. E.g. If start port state is different than end port state, and would be good to know what those states are. So perhaps the output is a table looks something like this and then maybe we can plot that in a bar chart, like attached (but as #s, not %s).
-
+# print_df_names(processed_logbooks_short_port_states)
 # print_df_names(processed_logbooks_short_dates)
 processed_logbooks_short_dates_quarters <-
   processed_logbooks_short_dates |>
