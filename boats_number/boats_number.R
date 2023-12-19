@@ -776,7 +776,7 @@ processed_logbooks_short_port_states <-
       dplyr::case_when(
         tolower(start_port_state_name) %in% tolower(sa_council_states) ~
           "sa_council_state",
-        tolower(end_port_state_name) %in% tolower(east_coat_states$gom) ~
+        tolower(end_port_state_name) %in% tolower(east_coast_states$gom) ~
           "gom_state",
         .default = "sa_state"
       )
@@ -787,7 +787,7 @@ processed_logbooks_short_port_states <-
       dplyr::case_when(
         tolower(end_port_state_name) %in% tolower(sa_council_states) ~
           "sa_council_state",
-        tolower(end_port_state_name) %in% tolower(east_coat_states$gom) ~
+        tolower(end_port_state_name) %in% tolower(east_coast_states$gom) ~
           "gom_state",
         .default = "sa_state"
       )
@@ -805,7 +805,7 @@ processed_logbooks_short_port_states <-
 #'
 #'    - If the start port state is in "sa_council_states", set it to "sa_council_state".
 #'
-#'    - If the end port state is in "east_coat_states$gom", set it to "gom_state".
+#'    - If the end port state is in "east_coast_states$gom", set it to "gom_state".
 #'
 #'    - For other cases, set it to "sa_state".
 #'
