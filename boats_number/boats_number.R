@@ -1682,25 +1682,27 @@ intersect(processed_logbooks_short_dates_quarters__p_l$GOM$vessel_official_numbe
 # View(quarter_ports_wider_g)
 
 # by start quarter
-processed_logbooks_short_dates_quarters__p_l$GOM |>
-  filter(trip_start_quarter_num == 1) |>
-  rowwise() |>
-  # mutate(start_end_ports = paste(start_port_state, end_port_state, sep = "_")) |>
-  # ungroup() |>
-  # group_by(start_port_state, end_port_state) |>
-  select(vessel_official_number, start_port_state, end_port_state) |>
-  count(start_port_state, end_port_state) |>
-  glimpse()
+processed_logbooks_short_dates_quarters__p_l__st_cnt <-
+  processed_logbooks_short_dates_quarters__p_l |>
+  map(\(permit_df) {
+    permit_df |>
+      group_by(trip_start_quarter_num) |>
+      select(
+        trip_start_quarter_num,
+        vessel_official_number,
+        start_port_state,
+        end_port_state
+      ) |>
+      rowwise() |>
+      count(start_port_state, end_port_state,
+            name = "number_of_vessels") |>
+      ungroup()
+  })
 
-processed_logbooks_short_dates_quarters__p_l$GOM |>
-  pivot_wider(
-    # id_cols = c(vessel_official_number),trip_start_quarter_num
-              names_from = c(start_port_state, end_port_state),
-    values_from = vessel_official_number,
-              # names_glue = "{Subject}_{.value}",
-              # values_from = c(Annotation, Trial_time, ID))
-    values_fn = ~ n_distinct(vessel_official_number)) |>
-  head()
+View(processed_logbooks_short_dates_quarters__p_l__st_cnt)
+
+number_of_vessels
+
 
 
 #'
