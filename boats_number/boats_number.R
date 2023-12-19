@@ -1699,10 +1699,23 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
       ungroup()
   })
 
-View(processed_logbooks_short_dates_quarters__p_l__st_cnt)
+pander(processed_logbooks_short_dates_quarters__p_l__st_cnt)
 
-number_of_vessels
+processed_logbooks_short_dates_quarters__p_l$GOM |>
+  filter(trip_start_quarter_num == 1) |>
+  count(start_port_state, end_port_state) |>
+  pivot_wider(names_from = start_port_state,
+              values_from = n,
+              values_fill = list(n = 0)) |>
+    View()
 
+
+pivot_longer(cols = end_port_state,
+  names_to = )
+
+pivot_wider(id_cols = trip_start_quarter_num,
+            names_from = )
+        start_port_state   end_port_state   number_of_vessels
 
 
 #'
