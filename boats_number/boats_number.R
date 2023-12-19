@@ -1703,13 +1703,14 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
       ungroup()
   })
 
-pander(processed_logbooks_short_dates_quarters__p_l__st_cnt)
+diffdf::diffdf(processed_logbooks_short_dates_quarters__p_l__st_cnt$SA,
+               processed_logbooks_short_dates_quarters__p_l__st_cnt2$SA)
 
 
 ### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
 plot_start_end_ports_matrix <-
-  function(my_df, quarter_name) {
+  function(my_df, quarter_name, permit_region_name) {
     ggplot(my_df,
            aes(x = end_port_state,
                y = start_port_state)) +
@@ -1720,7 +1721,7 @@ plot_start_end_ports_matrix <-
                          trans = "log") +
       labs(x = "End Port State",
            y = "Start Port State",
-           title = str_glue("Number of Vessels for Quarter {quarter_name} and Start / End Ports in GOM 2022")) +
+           title = str_glue("Number of Vessels for Quarter {quarter_name} and Start / End Ports in {permit_region_name} 2022")) +
       theme_bw() + theme(
         axis.text.x = element_text(
           size = 12,
@@ -1755,7 +1756,8 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt__q_plots <-
 
         one_plot <-
         plot_start_end_ports_matrix(curr_quarter,
-                                    curr_start_quarter)
+                                    curr_start_quarter,
+                                    curr_permit_region)
 
         plot_file_name <-
           str_glue("vessel_num_{curr_permit_region}_{curr_start_quarter}.png") |>
