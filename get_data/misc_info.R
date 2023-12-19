@@ -9,7 +9,7 @@ south_east_coast_states <- c(
   "Texas"
 )
 
-east_coat_states <- list(
+east_coast_states <- list(
   gom = c("Alabama",
           "Florida",
           "Louisiana",
@@ -99,7 +99,7 @@ names(my_state_name) <- tolower(state.abb)
 # result names
 cat(
   "south_east_coast_states",
-  "east_coat_states",
+  "east_coast_states",
   "fl_counties",
   "sa_council_states",
   "my_state_abb",

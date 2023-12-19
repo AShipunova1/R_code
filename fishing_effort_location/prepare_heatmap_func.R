@@ -106,7 +106,7 @@ toc()
 # rr$Jurisdicti |>
 #   cat(sep = ", ")
 
-east_coat_states <- c(
+east_coast_states <- c(
   gom = c("Florida",
           "Texas",
           "Louisiana"),
@@ -135,10 +135,10 @@ east_coat_states <- c(
 #                      query = "SELECT NAME, SID74, FIPS FROM \"nc\" WHERE BIR74 > 20000")
 
 # Create a new data frame 'federal_state_w_sf_east' by filtering the existing data frame 'federal_state_w_sf'.
-# Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coat_states'.
+# Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coast_states'.
 federal_state_w_sf_east <-
   federal_state_w_sf |>
-  filter(Jurisdicti %in% east_coat_states)
+  filter(Jurisdicti %in% east_coast_states)
 
 # mapview(sa_shp)
 # [1] 21  7

@@ -936,7 +936,7 @@ federal_state_w_sf |>
 
 rr$Jurisdicti |>
   cat(sep = ", ")
-east_coat_states <- c(
+east_coast_states <- c(
   "Alabama",
   "Connecticut",
   "Delaware",
@@ -973,7 +973,7 @@ east_coat_states <- c(
 
 federal_state_w_sf_east <-
   federal_state_w_sf |>
-  filter(Jurisdicti %in% east_coat_states)
+  filter(Jurisdicti %in% east_coast_states)
 
 mapview(federal_state_w_sf_east)
 # [1] 21  7

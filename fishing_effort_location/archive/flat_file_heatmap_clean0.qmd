@@ -2471,7 +2471,7 @@ federal_state_w_sf <-
   sf::read_sf(path_to_federal_state_w)
 toc()
 
-east_coat_states <- c(
+east_coast_states <- c(
   gom = c("Florida",
           "Texas",
           "Louisiana"),
@@ -2498,10 +2498,10 @@ east_coat_states <- c(
 )
 
 ## Create a new data frame 'federal_state_w_sf_east' by filtering the existing data frame 'federal_state_w_sf'.
-## Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coat_states'.
+## Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coast_states'.
 federal_state_w_sf_east <-
   federal_state_w_sf |>
-  filter(Jurisdicti %in% east_coat_states)
+  filter(Jurisdicti %in% east_coast_states)
 
 ## Create a new data frame 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes.
 ## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
