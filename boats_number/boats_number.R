@@ -1692,12 +1692,15 @@ processed_logbooks_short_dates_quarters__p_l$GOM |>
   count(start_port_state, end_port_state) |>
   glimpse()
 
-
+processed_logbooks_short_dates_quarters__p_l$GOM |>
   pivot_wider(
-    # id_cols = vessel_official_number,
-              names_from = Subject,
-              names_glue = "{Subject}_{.value}",
-              values_from = c(Annotation, Trial_time, ID))
+    # id_cols = c(vessel_official_number),trip_start_quarter_num
+              names_from = c(start_port_state, end_port_state),
+    values_from = vessel_official_number,
+              # names_glue = "{Subject}_{.value}",
+              # values_from = c(Annotation, Trial_time, ID))
+    values_fn = ~ n_distinct(vessel_official_number)) |>
+  head()
 
 
 #'
