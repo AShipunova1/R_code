@@ -1772,12 +1772,19 @@ pander(combs2_short_cnts)
 
 #### Show Number of vessels with different end trip port and home port per permit region ----
 
+combs2_short_cnts |> View()
+
 home_port_diff_from_end_port <-
-  combs2_short_cnts$V6 |>
+  combs2_short_cnts$V3 |>
   dplyr::rename(is_home_port_diff_from_end_port =
                   "diff_end_port_name_or_city")
 
 pander(home_port_diff_from_end_port)
+# $ permit_region                   <chr> "GOM", "GOM", "SA", "SA"
+# $ is_home_port_diff_from_end_port <chr> "no", "yes", "no", "yes"
+# $ n                               <int> 43, 823, 238, 700
+
+# TODO: add the same for start ports?
 
 ## Different port states by quarter ----
 # Q. But specifically do it by state. E.g. If start port state is different than end port state, and would be good to know what those states are. So perhaps the output is a table looks something like this and then maybe we can plot that in a bar chart, like attached (but as #s, not %s).
