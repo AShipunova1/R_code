@@ -89,6 +89,14 @@ sa_council_states <-
     "South Carolina"
   )
 
+# don't need
+gom_council_states <-
+  c("Florida",
+    "Alabama",
+    "Mississippi",
+    "Louisiana",
+    "Texas")
+
 # prepare state names and abbs ----
 # have to save first, to use the original once as names
 my_state_abb <- state.abb
