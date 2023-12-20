@@ -1623,13 +1623,13 @@ join_vessel_and_trip_end_port_diff <-
   ) |>
   dplyr::ungroup()
 toc()
-# join_vessel_and_trip_port_diff: 1.74 sec elapsed
+# join_vessel_and_trip_end_port_diff: 1.74 sec elapsed
 
 #' Explanation:
 #'
 #' 1. Start measuring the execution time using the `tic()` function.
 #'
-#' 2. Create a new data frame "join_vessel_and_trip_port_diff" by applying operations to "join_vessel_and_trip".
+#' 2. Create a new data frame "join_vessel_and_trip_end_port_diff" by applying operations to "join_vessel_and_trip".
 #'
 #' 3. Group the data by "vessel_official_number".
 #'
@@ -1649,20 +1649,19 @@ join_vessel_and_trip_end_port_diff |>
 # [1] 2145    7
 # [1] 1804    4
 
-#### shorten join_vessel_and_trip_port_diff ----
-join_vessel_and_trip_port_diff_short <-
+#### shorten join_vessel_and_trip_end_port_diff ----
+join_vessel_and_trip_end_port_diff_short <-
   join_vessel_and_trip_end_port_diff |>
   dplyr::select(vessel_official_number,
                 permit_region,
                 dplyr::starts_with("diff")) |>
   dplyr::distinct()
 
-glimpse(join_vessel_and_trip_port_diff_short)
+glimpse(join_vessel_and_trip_end_port_diff_short)
 
 ## count vessel number with different start_port_state and home_port_state ----
 ### check for one column ----
-join_vessel_and_trip_port_diff_short |>
-  dplyr::count(diff_start_port_state)
+# join_vessel_and_trip_start_port_diff_short |>
 #   dplyr::count(diff_start_port_state)
 # 1 no                     2501
 # 2 yes                      90
