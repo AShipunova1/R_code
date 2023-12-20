@@ -443,18 +443,26 @@ start_ports_q_short <-
   dplyr::select(vessel_official_number,
          permit_region,
          trip_start_year_quarter,
-         start_port_name) |>
+         start_port_county) |>
   dplyr::distinct()
 
-
 # Select columns for trip end, retain distinct rows.
+# end_ports_q_short <-
+#   processed_logbooks_short_dates_trip_port_short |>
+#   dplyr::select(vessel_official_number,
+#          permit_region,
+#          trip_end_year_quarter,
+#          end_port_name) |>
+#   dplyr::distinct()
+
 end_ports_q_short <-
   processed_logbooks_short_dates_trip_port_short |>
   dplyr::select(vessel_official_number,
          permit_region,
          trip_end_year_quarter,
-         end_port_name) |>
+         end_port_county) |>
   dplyr::distinct()
+
 
 dim(start_ports_q_short)
 # [1] 6317    4
@@ -462,17 +470,20 @@ dim(start_ports_q_short)
 dim(end_ports_q_short)
 # [1] 5845    4
 # [1] 4760    4
+# [1] 4482    4 county
 
 count_uniq_by_column(start_ports_q_short)
 # vessel_official_number     1876
 # start_port_name          531
+# start_port_county         87
 
 # vessel_official_number  1629
 # start_port_name          511
 
-n_distinct(end_ports_q_short$end_port_name)
+n_distinct(end_ports_q_short$end_port_county)
 # 529
-# 492
+# 492 port name
+# [1] 92 county
 
 ### melt and decast the table ----
 
@@ -490,6 +501,7 @@ n_distinct(end_ports_q_short$end_port_name)
 # concatenated into a comma-separated string.
 
 # Define a function 'each_quarter_a_col' that takes a data frame 'my_df' and an argument 'start_or_end' with a default value "start".
+# TODO: port_county in port_field_name as an argument
 each_quarter_a_col <-
   function(my_df,
            start_or_end = "start") {
@@ -498,7 +510,7 @@ each_quarter_a_col <-
     quarter_field_name <-
       stringr::str_glue("trip_{start_or_end}_year_quarter")
     port_field_name <-
-      stringr::str_glue("{start_or_end}_port_name")
+      stringr::str_glue("{start_or_end}_port_county")
 
     # Reshape the data frame 'my_df' by widening it based on unique combinations of vessel, region, and quarter.
     ports_q_short_wider <-
@@ -600,7 +612,7 @@ make_ports_q_short_wider_diff <-
       stringr::str_glue("all_{start_or_end}_ports_num")
 
     ports_field_name <-
-      stringr::str_glue("all_{start_or_end}_ports")
+      stringr::str_glue("all_{start_or_end}_county")
 
     ports_q_short_wider_diff <-
       my_df |>
