@@ -429,6 +429,10 @@ count_uniq_by_column(processed_logbooks_short_dates_trip_port_short)
 # start_port_name          531
 # end_port_name            529
 
+# vessel_official_number  1629
+# start_port_name          511
+# end_port_name            492
+
 ### a quarter is the same, a port - diff ----
 
 # test
@@ -543,6 +547,7 @@ each_quarter_a_col <-
 
 # Create a new list 'ports_q_short_wider_list' by applying a series of operations to each element
 # of the provided list, where each element is a pair of a data frame and a character indicating start or end.
+
 ports_q_short_wider_list <-
   list(c(start_ports_q_short, "start"),
        c(end_ports_q_short, "end")) |>
@@ -691,6 +696,8 @@ ports_q_short_wider_list_diff[[1]] |>
 names(ports_q_short_wider_list_diff) <-
   c("start", "end")
 
+View(ports_q_short_wider_list_diff$end)
+
 ports_q_short_wider_list_diff |>
   purrr::map(count_uniq_by_column)
 # start:
@@ -762,7 +769,7 @@ pander(ports_q_short_wider_list_diff_cnt_p_r)
 # 3 sa_only       FALSE   830
 # 4 sa_only       TRUE    255
 
-print_df_names(processed_logbooks_short_dates)
+# TODO: exclude everything what is not in the council jurisdiction
 
 # Quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ## add a gom vs sa marker to ports ----
@@ -863,7 +870,7 @@ processed_logbooks_short_port_states_fl_reg <-
       )
   )
 
-print_df_names(processed_logbooks_short_port_states_fl_reg)
+# print_df_names(processed_logbooks_short_port_states_fl_reg)
 
 processed_logbooks_short_port_states_fl_reg |>
   filter(start_port_fl_reg == "gom_county") |>
@@ -1656,11 +1663,19 @@ glimpse(join_vessel_and_trip_port_diff_short)
 ### check for one column ----
 join_vessel_and_trip_port_diff_short |>
   dplyr::count(diff_start_port_state)
+#   dplyr::count(diff_start_port_state)
 # 1 no                     2501
 # 2 yes                      90
 
 # 1 no                     2075
 # 2 yes                      70
+
+join_vessel_and_trip_end_port_diff_short |>
+  dplyr::count(diff_end_port_state)
+  # diff_end_port_state     n
+  # <chr>               <int>
+# 1 no                   1709
+# 2 yes                    95
 
 ### make combinations of column names ----
 my_col_names <- names(join_vessel_and_trip_end_port_diff_short)
@@ -1799,7 +1814,8 @@ processed_logbooks_short_dates_quarters <-
   distinct()
 
 pander(head(processed_logbooks_short_dates_quarters))
-# [1] 4772    7
+dim(processed_logbooks_short_dates_quarters)
+# [1] 4772    8
 
 processed_logbooks_short_dates_quarters__p_l <-
   processed_logbooks_short_dates_quarters |>
@@ -1828,7 +1844,10 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
       ungroup()
   })
 
-View(processed_logbooks_short_dates_quarters__p_l__st_cnt__q$GOM[[1]])
+# TODO: adapt and send the table to Michelle
+# add a new column that = vessel_num/sum(vessel_num) for each quarter.
+# processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM |>  View()
+
 ### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
 
