@@ -750,6 +750,8 @@ pander(ports_q_short_wider_list_diff_cnt_p_r)
 # 3 sa_only       FALSE   830
 # 4 sa_only       TRUE    255
 
+print_df_names(processed_logbooks_short_dates)
+
 # Quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ## add a gom vs sa marker to ports ----
 ### shorten processed_logbooks_short ----
