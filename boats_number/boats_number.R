@@ -1063,27 +1063,16 @@ processed_logbooks_short_port_states_fl_reg_end |>
   dplyr::select(vessel_official_number, one_end_port_marker) |>
   dplyr::distinct() |>
   dplyr::count(one_end_port_marker)
-#   one_end_port_marker   n
-# 1                 gom 983
-# 2                  sa 653
-
-
-processed_logbooks_short_port_states_fl_reg_end_short |>
-  dplyr::select(vessel_official_number, one_end_port_marker) |>
-  dplyr::distinct() |>
-  dplyr::count(one_end_port_marker)
 #   one_end_port_marker    n
 # 1                 gom  819
 # 2                  sa 1069
 
-# processed logbooks
-#   one_end_port_marker   n
 # 1                 gom 983
 # 2                  sa 653
 
 #### Count vessels with each GOM or SA trip start and end port region marker per vessel permit_region ----
 
-processed_logbooks_short_port_states_fl_reg_start_short |>
+processed_logbooks_short_port_states_fl_reg_start |>
   dplyr::select(vessel_official_number,
          permit_region,
          one_start_port_marker) |>
@@ -1100,7 +1089,7 @@ processed_logbooks_short_port_states_fl_reg_start_short |>
 # 3            SA                   gom 274
 # 4            SA                    sa 642
 
-processed_logbooks_short_port_states_fl_reg_end_short |>
+processed_logbooks_short_port_states_fl_reg_end |>
   dplyr::select(vessel_official_number,
          permit_region,
          one_end_port_marker) |>
@@ -1122,7 +1111,7 @@ select_vessel_mark_start <-
     "one_start_port_marker")
 
 start_ports_region_cnt <-
-  processed_logbooks_short_port_states_fl_reg_start_short |>
+  processed_logbooks_short_port_states_fl_reg_start |>
   dplyr::select(dplyr::all_of(select_vessel_mark_start)) |>
   dplyr::distinct() |>
   dplyr::group_by(vessel_official_number) |>
@@ -1135,7 +1124,7 @@ start_ports_region_cnt <-
 
 #' Explanation:
 #'
-#' 1. Create a new data frame "start_ports_region_cnt" by applying operations to "processed_logbooks_short_port_states_fl_reg_start_short".
+#' 1. Create a new data frame "start_ports_region_cnt" by applying operations to "processed_logbooks_short_port_states_fl_reg_start".
 #'
 #' 2. Select columns based on "select_vessel_mark_start".
 #'
@@ -1166,6 +1155,17 @@ start_ports_region_cnt |>
 
 #### How many vessels have start port in one or in both regions ----
 start_ports_region_cnt |>
+  count(vessel_one_start_port_marker_num)
+#   vessel_one_start_port_marker_num     n
+#                              <int> <int>
+# 1                                1  1723
+# 2                                2   306
+
+# 1                               1580
+# 2                                98
+
+#### rename to NO/YES ----
+start_ports_region_cnt |>
   mutate(
     start_ports_in_both_GOM_and_SA =
       case_when(vessel_one_start_port_marker_num == 1 ~ "NO",
@@ -1175,12 +1175,6 @@ start_ports_region_cnt |>
 # 1 NO                              1580
 # 2 YES                               98
 
-# start_ports_region_cnt |>
-#   count(vessel_one_start_port_marker_num)
-#   vessel_one_start_port_marker_num     n
-#                              <int> <int>
-# 1                                1  1723
-# 2                                2   306
 
 ## Trip end ports are in both regions ----
 select_vessel_mark_end <-
@@ -1188,7 +1182,7 @@ select_vessel_mark_end <-
     "one_end_port_marker")
 
 end_ports_region_cnt <-
-  processed_logbooks_short_port_states_fl_reg_end_short |>
+  processed_logbooks_short_port_states_fl_reg_end |>
   dplyr::select(dplyr::all_of(select_vessel_mark_end)) |>
   dplyr::distinct() |>
   dplyr::group_by(vessel_official_number) |>
@@ -1199,12 +1193,13 @@ end_ports_region_cnt <-
   ) |>
   ungroup()
 
-### check end_ports_region_cnt ----
+#### check end_ports_region_cnt ----
 end_ports_region_cnt |>
   filter(vessel_official_number == "FL8905LP")
 # 1 FL8905LP               gom
 1
-#### How many vessels have end port in one or in both regions ----
+
+### How many vessels have end port in one or in both regions ----
 end_ports_region_cnt |>
   mutate(
     end_ports_in_both_GOM_and_SA =
@@ -1220,7 +1215,7 @@ end_ports_region_cnt |>
 ## Trip start and end ports are in both regions count by vessel permit ----
 ### Start ports ----
 start_ports_region_cnt_by_permit_r <-
-  processed_logbooks_short_port_states_fl_reg_start_short |>
+  processed_logbooks_short_port_states_fl_reg_start |>
   dplyr::select(dplyr::all_of(select_vessel_mark_start),
                 permit_region) |>
   dplyr::distinct() |>
@@ -1232,7 +1227,7 @@ start_ports_region_cnt_by_permit_r <-
 
 #' Explanation:
 #'
-#' 1. Create a new data frame "start_ports_region_cnt_by_permit_r" by applying operations to "processed_logbooks_short_port_states_fl_reg_start_short".
+#' 1. Create a new data frame "start_ports_region_cnt_by_permit_r" by applying operations to "processed_logbooks_short_port_states_fl_reg_start".
 #'
 #' 2. Select columns based on "select_vessel_mark_start" and "permit_region".
 #'
@@ -1247,7 +1242,7 @@ start_ports_region_cnt_by_permit_r <-
 
 ### The same for end ports ----
 end_ports_region_cnt_by_permit_r <-
-  processed_logbooks_short_port_states_fl_reg_end_short |>
+  processed_logbooks_short_port_states_fl_reg_end |>
   dplyr::select(dplyr::all_of(select_vessel_mark_end),
                 permit_region) |>
   dplyr::distinct() |>
@@ -1285,13 +1280,9 @@ start_ports_region_cnt_by_permit_r |>
   dplyr::count(permit_region,
         start_in_both_regions =
           vessel_one_start_port_marker_num > 1)
-#   count(wt = n)
-# 1  1876
-  # permit_region start_in_both_regions     n
-# 1 GOM           FALSE                   746
-# 2 GOM           TRUE                      8
-# 3 SA            FALSE                   834
-# 4 SA            TRUE                     41
+  # count(wt = n)
+# 1876
+# 1629
 
 #   permit_region start_in_both_regions     n
 #   <chr>         <lgl>       <int>
@@ -1299,6 +1290,13 @@ start_ports_region_cnt_by_permit_r |>
 # 2 gom_and_dual  TRUE            9
 # 3 sa_only       FALSE         941
 # 4 sa_only       TRUE          144
+
+  # permit_region start_in_both_regions     n
+# 1 GOM           FALSE                   746
+# 2 GOM           TRUE                      8
+# 3 SA            FALSE                   834
+# 4 SA            TRUE                     41
+
 
 #### Count multiple end regions by permit_region ----
 end_ports_region_cnt_by_permit_r |>
@@ -1323,6 +1321,11 @@ end_ports_region_cnt_by_permit_r |>
 # 2 gom_and_dual  TRUE          8
 # 3 sa_only       FALSE      1081
 # 4 sa_only       TRUE          4
+
+# 1 GOM           FALSE                 751
+# 2 GOM           TRUE                    3
+# 3 SA            FALSE                 871
+# 4 SA            TRUE                    4
 
 # Look at permit home port vs where they take trip ----
 
@@ -1396,7 +1399,7 @@ vessel_permit_port_info_perm_reg |>
 
 join_vessel_and_trip_start <-
   dplyr::left_join(
-    processed_logbooks_short_port_states_fl_reg_start_short,
+    processed_logbooks_short_port_states_fl_reg_start,
     vessel_permit_port_info_perm_reg,
     dplyr::join_by(vessel_official_number ==
                      SERO_OFFICIAL_NUMBER)
@@ -1404,7 +1407,7 @@ join_vessel_and_trip_start <-
 
 join_vessel_and_trip <-
   dplyr::left_join(
-    processed_logbooks_short_port_states_fl_reg_end_short,
+    processed_logbooks_short_port_states_fl_reg_end,
     vessel_permit_port_info_perm_reg,
     dplyr::join_by(vessel_official_number ==
                      SERO_OFFICIAL_NUMBER)
@@ -1423,7 +1426,7 @@ data_overview(join_vessel_and_trip)
 # vessel_official_number 1629
 # permit_region             2
 
-dim(processed_logbooks_short_port_states_fl_reg_end_short)
+dim(processed_logbooks_short_port_states_fl_reg_end)
 # [1] 3011   14
 # [1] 2475   13
 
