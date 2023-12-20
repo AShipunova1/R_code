@@ -276,6 +276,22 @@ processed_logbooks_short_dates_short_diff_start_from_end_tot |>
 
 # ---
 
+
+### see total vessels by 2022 end trip quarters ----
+processed_logbooks_short_dates_short_diff_start_from_end_tot |>
+  select(trip_end_year_quarter,
+         tot_vsl_by_end_q) |>
+  distinct() |>
+  arrange(trip_end_year_quarter)
+#   trip_start_year_quarter tot_vsl_by_start_q
+#   <yearqtr>                            <int>
+# 1 2022 Q1                                715
+# 2 2022 Q2                               1264
+# 3 2022 Q3                               1325
+# 4 2022 Q4                                997
+
+# ---
+
 # How many vessels have variable landing locations ----
 #'I.e., in the winter they are in one state while in the summer they fish in another)
 #'
