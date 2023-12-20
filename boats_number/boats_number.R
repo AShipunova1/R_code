@@ -613,6 +613,7 @@ make_ports_q_short_wider_diff <-
   function(my_df,
            start_or_end = "start") {
 
+    # browser()
     ports_num_field_name <-
       stringr::str_glue("all_{start_or_end}_ports_num")
 
@@ -621,21 +622,28 @@ make_ports_q_short_wider_diff <-
 
     ports_q_short_wider_diff <-
       my_df |>
+      mutate(across(
+        .cols = starts_with("2022"),
+        ~ case_when(. == "" ~ NA,
+                         .default = .)
+      )) |>
       dplyr::rowwise() |>
-      dplyr::mutate(!!ports_num_field_name :=
-               dplyr::n_distinct(unlist(dplyr::across(
-                 dplyr::starts_with('2022')
-               ))),
-             !!ports_field_name :=
-               list(paste(unique(sort(
-                 unlist(dplyr::across(dplyr::starts_with('2022')))
-               )),
-               sep = ","))) |>
-      dplyr::mutate(same =
-                      dplyr::n_distinct(unlist(dplyr::across(
-        dplyr::starts_with('2022'),
-        ~ as.character(.x)
-      ))) == 1) |>
+      dplyr::mutate(
+        !!ports_num_field_name :=
+          dplyr::n_distinct(unlist(dplyr::across(
+            dplyr::starts_with('2022')
+          ))),
+        !!ports_field_name :=
+          list(paste(unique(sort(
+            unlist(dplyr::across(dplyr::starts_with('2022')))
+          )),
+          sep = ","))
+      ) |>
+      # dplyr::mutate(same =
+      #                 dplyr::n_distinct(unlist(
+      #                   dplyr::across(dplyr::starts_with('2022'),
+      #                                 ~ as.character(.x))
+      #                 )) == 1) |>
       dplyr::ungroup()
 
     return(ports_q_short_wider_diff)
@@ -662,6 +670,10 @@ ports_q_short_wider_list_diff <-
     # Apply the 'make_ports_q_short_wider_diff' function to calculate the differences between quarters.
     make_ports_q_short_wider_diff(my_df, my_col_name)
   })
+toc()
+# ports_q_short_wider_list_diff: 9.93 sec elapsed
+
+View(ports_q_short_wider_list_diff[[1]])
 
 #' Explanation:
 #'
@@ -680,10 +692,33 @@ ports_q_short_wider_list_diff <-
 #' 7. The resulting list, "ports_q_short_wider_list_diff", contains data frames with differences between quarters for both start and end ports.
 #'
 
-toc()
-# ports_q_short_wider_list_diff: 9.93 sec elapsed
 
-# diffdf::diffdf(start_ports_q_short_wider_diff, ports_q_short_wider_list_diff[[1]])
+n <- 150
+
+iris %>%
+  mutate(id = row_number(),
+        newvar = sample(c(0,1), replace=TRUE, size=n),
+        across(Sepal.Length:Petal.Width, ~ case_when(newvar==0 ~ 0,
+                                                     newvar == 1 ~ .)))
+
+
+
+# ungroup(
+# mutate(
+# mutate(
+# rowwise(
+mutate(my_df,
+       across(starts_with("2022")),
+       ~ case_when(length(.) <= 1 ~ NA_character_
+                     ))
+# )
+# ,
+    #     `:=`(!!ports_num_field_name, n_distinct(unlist(across(starts_with("2022"))))),
+    # `:=`(!!ports_field_name, list(paste(unique(sort(unlist(across(starts_with("2022"))))),
+    #     sep = ",")))),
+    #     same = n_distinct(unlist(across(starts_with("2022"),
+    # ~as.character(.x)))) == 1))
+
 
 #### check the result ----
 ports_q_short_wider_list_diff[[1]] |>
@@ -884,7 +919,8 @@ processed_logbooks_short_port_states_fl_reg |>
 # 1381   17
 # [1] 37868    28
 
-dplyr::glimpse(processed_logbooks_short_port_states_fl_reg)
+# dplyr::glimpse(processed_logbooks_short_port_states_fl_reg)
+# TODO: redo all previous without NAs
 
 ### create one_port_marker ----
 #' Combine all previous region markers into one column
