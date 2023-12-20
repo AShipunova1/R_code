@@ -620,6 +620,7 @@ make_ports_q_short_wider_diff <-
     ports_field_name <-
       stringr::str_glue("all_{start_or_end}_county")
 
+    # All functions below are from dplyr or base
     ports_q_short_wider_diff <-
       my_df |>
       mutate(across(
@@ -627,24 +628,23 @@ make_ports_q_short_wider_diff <-
         ~ case_when(. == "" ~ NA,
                          .default = .)
       )) |>
-      dplyr::rowwise() |>
-      dplyr::mutate(
+      rowwise() |>
+      mutate(
         !!ports_num_field_name :=
-          dplyr::n_distinct(unlist(dplyr::across(
-            dplyr::starts_with('2022')
+          n_distinct(unlist(across(
+            starts_with('2022')
           ))),
         !!ports_field_name :=
           list(paste(unique(sort(
-            unlist(dplyr::across(dplyr::starts_with('2022')))
+            unlist(across(starts_with('2022')))
           )),
           sep = ","))
       ) |>
-      # dplyr::mutate(same =
-      #                 dplyr::n_distinct(unlist(
-      #                   dplyr::across(dplyr::starts_with('2022'),
-      #                                 ~ as.character(.x))
-      #                 )) == 1) |>
-      dplyr::ungroup()
+      mutate(my_len =
+               length(!!ports_field_name)) |>
+      mutate(same_port_county =
+               my_len == 1) |>
+      ungroup()
 
     return(ports_q_short_wider_diff)
   }
@@ -673,7 +673,7 @@ ports_q_short_wider_list_diff <-
 toc()
 # ports_q_short_wider_list_diff: 9.93 sec elapsed
 
-# View(ports_q_short_wider_list_diff[[1]])
+View(ports_q_short_wider_list_diff[[1]])
 
 #' Explanation:
 #'
