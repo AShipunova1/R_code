@@ -1663,7 +1663,7 @@ join_vessel_and_trip_port_diff_short |>
 # 2 yes                      70
 
 ### make combinations of column names ----
-my_col_names <- names(join_vessel_and_trip_port_diff_short)
+my_col_names <- names(join_vessel_and_trip_end_port_diff_short)
 
 my_col_names
 
@@ -1679,7 +1679,7 @@ str(combs1)
 
 ### keep only combinations of vessel_official_number with another column ----
 combs1_short <-
-  combs1[1:ncol(join_vessel_and_trip_port_diff_short) - 1]
+  combs1[1:ncol(join_vessel_and_trip_end_port_diff_short) - 1]
 
 combs1_short
 
@@ -1688,14 +1688,14 @@ combs1_short_cnts <-
   combs1_short |>
   purrr::map(\(curr_col_names) {
     # browser()
-    join_vessel_and_trip_port_diff_short |>
+    join_vessel_and_trip_end_port_diff_short |>
       dplyr::select(paste(curr_col_names, sep = ",")) |>
       dplyr::count(!!sym(curr_col_names[[2]]))
   })
 
 #' This code uses the "map" function from the purrr package to iterate over each element (curr_col_names) in the combs1_short list. Within the map function:
 #'
-#' 1. The "join_vessel_and_trip_port_diff_short" data frame is piped into the "select" function, where columns specified by "curr_col_names" are selected using "paste" and separated by commas.
+#' 1. The "join_vessel_and_trip_end_port_diff_short" data frame is piped into the "select" function, where columns specified by "curr_col_names" are selected using "paste" and separated by commas.
 #'
 #' 2. The "count" function is then applied to the selected data frame. The column to count is specified using "!!sym(curr_col_names[[2]])", where "sym" is used to convert the column name to a symbol for evaluation.
 #'
@@ -1709,22 +1709,28 @@ combs1_short_cnts <-
 pander(combs1_short_cnts)
 
 ## Repeat the same with permit region ----
-join_vessel_and_trip_port_diff_short_perm <-
-  join_vessel_and_trip_port_diff |>
+join_vessel_and_trip_end_port_diff_short_perm <-
+  join_vessel_and_trip_end_port_diff |>
   dplyr::select(vessel_official_number,
          permit_region,
          dplyr::starts_with("diff")) |>
   dplyr::distinct()
 
-join_vessel_and_trip_port_diff_short_perm |>
-  dplyr::count(diff_start_port_state)
+join_vessel_and_trip_end_port_diff_short_perm |>
+  dplyr::count(diff_end_port_state)
+# diff_start_port_state
 # 1 no                     2501
 # 2 yes                      90
-
+# diff_start_port_state
 # 1 no                     2075
 # 2 yes                      70
 
-my_col_names <- names(join_vessel_and_trip_port_diff_short_perm)
+#   diff_end_port_state     n
+#   <chr>               <int>
+# 1 no                   1709
+# 2 yes                    95
+
+my_col_names <- names(join_vessel_and_trip_end_port_diff_short_perm)
 
 combs2 <-
   utils::combn(my_col_names, 3) |>
@@ -1748,8 +1754,8 @@ combs2_short_cnts <-
   # Use 'map' to apply a function to each element of 'combs2_short'
   purrr::map(\(curr_col_names) {
 
-    # Use 'join_vessel_and_trip_port_diff_short' as the data source
-    join_vessel_and_trip_port_diff_short |>
+    # Use 'join_vessel_and_trip_end_port_diff_short' as the data source
+    join_vessel_and_trip_end_port_diff_short |>
 
       # Select columns specified by 'curr_col_names' and separate them with ","
       dplyr::select(paste(curr_col_names, sep = ",")) |>
