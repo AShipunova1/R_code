@@ -1485,7 +1485,7 @@ join_vessel_and_trip_end |>
 # vessel_id, vessel_official_number, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, permit_region, start_port_state_name, end_port_state_name, one_start_port_marker, PERMIT_VESSEL_ID, permit_sa_gom, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER
 
 ### By start port: add columns for different start and home port names, counties and states ----
-tic("join_vessel_and_trip_end_port_diff")
+tic("join_vessel_and_trip_start_port_diff")
 join_vessel_and_trip_start_port_diff <-
   join_vessel_and_trip_start |>
   dplyr::group_by(vessel_official_number) |>
@@ -1632,7 +1632,7 @@ join_vessel_and_trip_end_port_diff |>
 
 #### shorten join_vessel_and_trip_port_diff ----
 join_vessel_and_trip_port_diff_short <-
-  join_vessel_and_trip_port_diff |>
+  join_vessel_and_trip_end_port_diff |>
   dplyr::select(vessel_official_number,
                 permit_region,
                 dplyr::starts_with("diff")) |>
