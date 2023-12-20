@@ -633,7 +633,7 @@ make_ports_q_short_wider_diff <-
         !!ports_num_field_name :=
           n_distinct(unlist(across(
             starts_with('2022')
-          ))),
+          )), na.rm = TRUE),
         !!ports_field_name :=
           list(paste(unique(sort(
             unlist(across(starts_with('2022')))
@@ -641,9 +641,7 @@ make_ports_q_short_wider_diff <-
           sep = ","))
       ) |>
       mutate(my_len =
-               length(!!ports_field_name)) |>
-      mutate(same_port_county =
-               my_len == 1) |>
+               length(!!sym(ports_field_name))) |>
       ungroup()
 
     return(ports_q_short_wider_diff)
@@ -673,7 +671,15 @@ ports_q_short_wider_list_diff <-
 toc()
 # ports_q_short_wider_list_diff: 9.93 sec elapsed
 
-View(ports_q_short_wider_list_diff[[1]])
+ports_q_short_wider_list_diff[[1]] |>
+  arrange(desc(my_len)) |>
+  View()
+
+ports_q_short_wider_list_diff[[1]] |>
+  arrange(desc(my_len)) |>
+  filter(!all_start_ports_num == my_len) |>
+  nrow()
+0
 
 #' Explanation:
 #'
