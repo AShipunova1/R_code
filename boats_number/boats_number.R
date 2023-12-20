@@ -621,13 +621,14 @@ make_ports_q_short_wider_diff <-
       stringr::str_glue("all_{start_or_end}_county")
 
     # All functions below are from dplyr or base
+    # 1) change empty strings "" to NA
+    # 2) count different ports
+    # 3) make a list of different ports for checking
     ports_q_short_wider_diff <-
       my_df |>
-      mutate(across(
-        .cols = starts_with("2022"),
-        ~ case_when(. == "" ~ NA,
-                         .default = .)
-      )) |>
+      mutate(across(.cols = starts_with("2022"),
+                    ~ case_when(. == "" ~ NA,
+                                .default = .))) |>
       rowwise() |>
       mutate(
         !!ports_num_field_name :=
@@ -640,9 +641,7 @@ make_ports_q_short_wider_diff <-
           )),
           sep = ","))
       ) |>
-      mutate(my_len =
-               length(!!sym(ports_field_name))) |>
-      ungroup()
+    ungroup()
 
     return(ports_q_short_wider_diff)
   }
@@ -671,16 +670,6 @@ ports_q_short_wider_list_diff <-
 toc()
 # ports_q_short_wider_list_diff: 9.93 sec elapsed
 
-ports_q_short_wider_list_diff[[1]] |>
-  arrange(desc(my_len)) |>
-  View()
-
-ports_q_short_wider_list_diff[[1]] |>
-  arrange(desc(my_len)) |>
-  filter(!all_start_ports_num == my_len) |>
-  nrow()
-0
-
 #' Explanation:
 #'
 #' 1. Create a list where each element is a pair containing a data frame from "ports_q_short_wider_list" and a character ("start" or "end").
@@ -699,17 +688,7 @@ ports_q_short_wider_list_diff[[1]] |>
 #'
 
 ports_q_short_wider_list_diff[[1]] |>
-  mutate(my_class =
-           class(all_start_county)) |>
-  View()
-
-ports_q_short_wider_list_diff[[1]] |>
-  rowwise() |>
-  mutate(my_len =
-           length(all_start_county)) |>
-  ungroup() |>
-  filter(my_len > 1) |> select(vessel_official_number) |> distinct() |> nrow()
-
+View()
 77
 
 #### check the result ----
