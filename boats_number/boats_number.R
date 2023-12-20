@@ -1461,7 +1461,7 @@ join_vessel_and_trip |>
 
 # vessel_id, vessel_official_number, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, permit_region, start_port_state_name, end_port_state_name, one_start_port_marker, PERMIT_VESSEL_ID, permit_sa_gom, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER
 
-### add columns for different start and home port names, counties and states ----
+### By start port: add columns for different start and home port names, counties and states ----
 tic("join_vessel_and_trip_port_diff")
 join_vessel_and_trip_port_diff <-
   join_vessel_and_trip |>
@@ -1532,6 +1532,81 @@ join_vessel_and_trip_port_diff |>
   dim()
 # [1] 2591    7
 # [1] 2145    7
+
+
+### By end port: add columns for different end and home port names, counties and states ----
+tic("join_vessel_and_trip_port_diff")
+join_vessel_and_trip_port_diff <-
+  join_vessel_and_trip |>
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(
+    diff_end_port_state =
+      dplyr::case_when(
+        !tolower(end_port_state) == tolower(SERO_HOME_PORT_STATE) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_end_port_county =
+      dplyr::case_when(
+        !tolower(end_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_end_port_name_or_city =
+      dplyr::case_when(
+        !tolower(end_port_name) == tolower(SERO_HOME_PORT_CITY) ~
+          "yes",
+        .default = "no"
+      )
+  ) |>
+  mutate(
+    diff_end_port_state =
+      dplyr::case_when(
+        !tolower(end_port_state) == tolower(SERO_HOME_PORT_STATE) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_end_port_county =
+      dplyr::case_when(
+        !tolower(end_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_end_port_name_or_city =
+      dplyr::case_when(
+        !tolower(end_port_name) == tolower(SERO_HOME_PORT_CITY) ~
+          "yes",
+        .default = "no"
+      )
+  ) |>
+  dplyr::ungroup()
+toc()
+# join_vessel_and_trip_port_diff: 1.74 sec elapsed
+
+#' Explanation:
+#'
+#' 1. Start measuring the execution time using the `tic()` function.
+#'
+#' 2. Create a new data frame "join_vessel_and_trip_port_diff" by applying operations to "join_vessel_and_trip".
+#'
+#' 3. Group the data by "vessel_official_number".
+#'
+#' 4. Add columns indicating differences between home port and trip start/end ports for both start and end ports.
+#'
+#' 5. Ungroup the data.
+#'
+#' 6. Stop measuring the execution time using the `toc()` function and display the elapsed time.
+#'
+
+join_vessel_and_trip_port_diff |>
+  dplyr::select(vessel_official_number,
+         dplyr::starts_with("diff")) |>
+  dplyr::distinct() |>
+  dim()
+# [1] 2591    7
+# [1] 2145    7
+
+
 
 #### shorten join_vessel_and_trip_port_diff ----
 join_vessel_and_trip_port_diff_short <-
