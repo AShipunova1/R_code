@@ -1383,13 +1383,22 @@ vessel_permit_port_info_perm_reg |>
 print_df_names(processed_logbooks_short_port_states_fl_reg_start)
 print_df_names(vessel_permit_port_info_perm_reg)
 
-join_vessel_and_trip <-
+join_vessel_and_trip_start <-
   dplyr::left_join(
     processed_logbooks_short_port_states_fl_reg_start_short,
     vessel_permit_port_info_perm_reg,
     dplyr::join_by(vessel_official_number ==
                      SERO_OFFICIAL_NUMBER)
   )
+
+join_vessel_and_trip <-
+  dplyr::left_join(
+    processed_logbooks_short_port_states_fl_reg_end_short,
+    vessel_permit_port_info_perm_reg,
+    dplyr::join_by(vessel_official_number ==
+                     SERO_OFFICIAL_NUMBER)
+  )
+
 
 data_overview(join_vessel_and_trip)
 # [1] 3011   20
