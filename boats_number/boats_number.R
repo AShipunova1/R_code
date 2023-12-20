@@ -687,22 +687,41 @@ toc()
 #' 7. The resulting list, "ports_q_short_wider_list_diff", contains data frames with differences between quarters for both start and end ports.
 #'
 
-ports_q_short_wider_list_diff[[1]] |>
-View()
-77
+names(ports_q_short_wider_list_diff) <-
+  c("start", "end")
 
 #### check the result ----
-ports_q_short_wider_list_diff[[1]] |>
+
+# start
+ports_q_short_wider_list_diff$start |>
+# View()
+  filter(all_start_ports_num > 1) |>
+  distinct() |>
+  nrow()
+# 1358 same
+# 77 > 1 - diff
+
+# end
+ports_q_short_wider_list_diff$end |>
+# View()
+  filter(all_end_ports_num > 1) |>
+  distinct() |>
+  nrow()
+# [1] 1509 - same
+# 120 diff
+
+ports_q_short_wider_list_diff$start |>
   dplyr::filter(vessel_official_number == "1171256") |>
   dplyr::glimpse()
 # $ all_start_ports_num <int> 3
 # $ all_start_ports     <list> <"BARNEGAT,MORRISON'S MARINA AND  SHIPS STORE", "M…
 # $ same                <lgl> FALSE
+# If by county it's
+# $ all_start_ports_num    <int> 1
+# $ all_start_county       <list> "OCEAN"
 
-names(ports_q_short_wider_list_diff) <-
-  c("start", "end")
 
-View(ports_q_short_wider_list_diff$end)
+# View(ports_q_short_wider_list_diff$end)
 
 ports_q_short_wider_list_diff |>
   purrr::map(count_uniq_by_column)
@@ -713,7 +732,8 @@ ports_q_short_wider_list_diff |>
 # 2022 Q2              488
 # 2022 Q1              290
 # all_start_ports      697
-
+# all_start_county        160
+#
 # end:
 # vessel_official_number 1876
 # permit_region          2
@@ -727,6 +747,7 @@ ports_q_short_wider_list_diff |>
 # 2021 Q2                3
 # 2020 Q4                2
 # all_end_ports        701
+# all_end_county          210
 
 ### count same or diff trip start or end ----
 
