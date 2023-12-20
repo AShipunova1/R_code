@@ -767,7 +767,7 @@ dim(processed_logbooks_short_port_region)
 
 ### add full state name ----
 processed_logbooks_short_port_region |>
-  dplyr::select(start_port_state) |>
+  dplyr::select(end_port_state) |>
   dplyr::distinct() |>
   head(2)
 # "FL", "DE"
@@ -834,9 +834,9 @@ glimpse(processed_logbooks_short_port_states)
 # [1] 3011   14
 
 ### if FL divide by county ----
-#' Add a new column "start_port_fl_reg" based on conditions using "case_when":
+#' Add a new column "end_port_fl_reg" based on conditions using "case_when":
 #'
-#' If the start port state name is "florida" and the start port county is in "fl_counties$gom", set it to "gom_county". The same for "ends"
+#' If the end port state name is "florida" and the end port county is in "fl_counties$gom", set it to "gom_county". The same for "ends"
 #'
 #' For other cases, set it to "sa_county".
 #'
@@ -1414,7 +1414,7 @@ data_overview(join_vessel_and_trip)
 # vessel_official_number 1629
 # permit_region             2
 
-dim(processed_logbooks_short_port_states_fl_reg_start_short)
+dim(processed_logbooks_short_port_states_fl_reg_end_short)
 # [1] 3011   14
 # [1] 2475   13
 
