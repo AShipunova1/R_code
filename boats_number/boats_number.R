@@ -754,19 +754,9 @@ print_df_names(processed_logbooks_short_dates)
 
 # Quantify the # of vessels who fish in both the gulf and S Atl.  ----
 ## add a gom vs sa marker to ports ----
-### shorten processed_logbooks_short ----
-processed_logbooks_short_port_region <-
-  processed_logbooks_short |>
-  dplyr::select(all_of(port_fields_short)) |>
-  remove_empty_cols() |>
-  dplyr::distinct()
-
-dim(processed_logbooks_short_port_region)
-# [1] 3011   11
-# [1] 66641    12
 
 ### add full state name ----
-processed_logbooks_short_port_region |>
+processed_logbooks_short_dates |>
   dplyr::select(end_port_state) |>
   dplyr::distinct() |>
   head(2)
@@ -782,7 +772,7 @@ my_state_name[tolower("FL")]
 ## add a start_ and end_ port_reg columns ----
 
 processed_logbooks_short_port_states <-
-  processed_logbooks_short_port_region |>
+  processed_logbooks_short_dates |>
   # Add columns for the state names corresponding to start and end ports.
   dplyr::mutate(start_port_state_name =
                   my_state_name[tolower(start_port_state)],
@@ -997,36 +987,39 @@ processed_logbooks_short_port_states_fl_reg_start |>
 
 ### Count vessels having both sa and gom port_markers to find the num of vessels who fish in both the Gulf and S Atl ----
 
-#### shorten processed_logbooks_short_port_states_fl_reg_start ----
-keep_port_reg_column_names <- c(
-    "vessel_official_number",
-    "start_port",
-    "start_port_name",
-    "start_port_county",
-    "start_port_state",
-    "end_port",
-    "end_port_name",
-    "end_port_county",
-    "end_port_state",
-    "permit_region",
-    "start_port_state_name",
-    "end_port_state_name",
-    "one_start_port_marker",
-    "one_end_port_marker"
-)
+# #### shorten processed_logbooks_short_port_states_fl_reg_start
+# keep_port_reg_column_names <- c(
+#     "vessel_official_number",
+#     "start_port",
+#     "start_port_name",
+#     "start_port_county",
+#     "start_port_state",
+#     "end_port",
+#     "end_port_name",
+#     "end_port_county",
+#     "end_port_state",
+#     "permit_region",
+#     "start_port_state_name",
+#     "end_port_state_name",
+#     "one_start_port_marker",
+#     "one_end_port_marker"
+# )
 
-# Using any_of here to choose "one_start_port_marker" or "one_end_port_marker"
-processed_logbooks_short_port_states_fl_reg_start_short <-
-  processed_logbooks_short_port_states_fl_reg_start |>
-  dplyr::select(any_of(keep_port_reg_column_names)) |>
-  dplyr::distinct()
 
-processed_logbooks_short_port_states_fl_reg_end_short <-
-  processed_logbooks_short_port_states_fl_reg_end |>
-  dplyr::select(any_of(keep_port_reg_column_names)) |>
-  dplyr::distinct()
+# setdiff(names(processed_logbooks_short_port_states_fl_reg_start),
+#         keep_port_reg_column_names)
+# # Using any_of here to choose "one_start_port_marker" or "one_end_port_marker"
+# processed_logbooks_short_port_states_fl_reg_start_short <-
+#   processed_logbooks_short_port_states_fl_reg_start |>
+#   dplyr::select(any_of(keep_port_reg_column_names)) |>
+#   dplyr::distinct()
 
-count_uniq_by_column(processed_logbooks_short_port_states_fl_reg_start_short)
+# processed_logbooks_short_port_states_fl_reg_end_short <-
+#   processed_logbooks_short_port_states_fl_reg_end |>
+#   dplyr::select(any_of(keep_port_reg_column_names)) |>
+#   dplyr::distinct()
+
+# count_uniq_by_column(processed_logbooks_short_port_states_fl_reg_start_short)
 # [1] 3011   14
 # vessel_official_number   1876
 # start_port             536
@@ -1047,7 +1040,7 @@ count_uniq_by_column(processed_logbooks_short_port_states_fl_reg_end_short)
 #' (the occurrences of each unique value in the "one_start_port_marker" and "one_end_port_marker" columns).
 #'
 
-processed_logbooks_short_port_states_fl_reg_start_short |>
+processed_logbooks_short_port_states_fl_reg_start |>
   dplyr::select(vessel_official_number, one_start_port_marker) |>
   dplyr::distinct() |>
   dplyr::count(one_start_port_marker)
