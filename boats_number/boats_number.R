@@ -673,7 +673,7 @@ ports_q_short_wider_list_diff <-
 toc()
 # ports_q_short_wider_list_diff: 9.93 sec elapsed
 
-View(ports_q_short_wider_list_diff[[1]])
+# View(ports_q_short_wider_list_diff[[1]])
 
 #' Explanation:
 #'
@@ -692,33 +692,19 @@ View(ports_q_short_wider_list_diff[[1]])
 #' 7. The resulting list, "ports_q_short_wider_list_diff", contains data frames with differences between quarters for both start and end ports.
 #'
 
+ports_q_short_wider_list_diff[[1]] |>
+  mutate(my_class =
+           class(all_start_county)) |>
+  View()
 
-n <- 150
+ports_q_short_wider_list_diff[[1]] |>
+  rowwise() |>
+  mutate(my_len =
+           length(all_start_county)) |>
+  ungroup() |>
+  filter(my_len > 1) |> select(vessel_official_number) |> distinct() |> nrow()
 
-iris %>%
-  mutate(id = row_number(),
-        newvar = sample(c(0,1), replace=TRUE, size=n),
-        across(Sepal.Length:Petal.Width, ~ case_when(newvar==0 ~ 0,
-                                                     newvar == 1 ~ .)))
-
-
-
-# ungroup(
-# mutate(
-# mutate(
-# rowwise(
-mutate(my_df,
-       across(starts_with("2022")),
-       ~ case_when(length(.) <= 1 ~ NA_character_
-                     ))
-# )
-# ,
-    #     `:=`(!!ports_num_field_name, n_distinct(unlist(across(starts_with("2022"))))),
-    # `:=`(!!ports_field_name, list(paste(unique(sort(unlist(across(starts_with("2022"))))),
-    #     sep = ",")))),
-    #     same = n_distinct(unlist(across(starts_with("2022"),
-    # ~as.character(.x)))) == 1))
-
+77
 
 #### check the result ----
 ports_q_short_wider_list_diff[[1]] |>
