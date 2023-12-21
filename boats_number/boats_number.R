@@ -44,6 +44,10 @@ names(processed_logbooks_clean_names) |>
   sort() |>
   cat(sep = ", ")
 
+# to use in lists
+start_end_words <-
+  c("start", "end")
+
 port_fields_short <-
   c(
     "vessel_official_number",
@@ -688,7 +692,7 @@ toc()
 #'
 
 names(ports_q_short_wider_list_diff) <-
-  c("start", "end")
+  start_end_words
 
 #### check the result ----
 
@@ -749,6 +753,27 @@ ports_q_short_wider_list_diff |>
 # all_end_ports        701
 # all_end_county          210
 
+#### Add count names ----
+ports_q_short_wider_list_diff__cnt_names <-
+  list("start", "end") |>
+  purrr::map(\(one_str) {
+    num_column_name <-
+      str_glue("all_{one_str}_ports_num")
+    ports_q_short_wider_list_diff[[one_str]] |>
+      mutate(multi_ports_in_y =
+
+               case_when(
+                 !!sym(num_column_name) == 1 ~ "NO",
+                 !!sym(num_column_name) > 1 ~ "YES",
+                 !!sym(num_column_name) < 1 ~ NA
+               ))
+  })
+
+names(ports_q_short_wider_list_diff__cnt_names) <-
+  start_end_words
+
+glimpse(ports_q_short_wider_list_diff__cnt_names)
+
 ### count same or diff trip start or end during the year (by quarter) ----
 
 ports_q_short_wider_list_diff_cnts_l <-
@@ -756,21 +781,16 @@ ports_q_short_wider_list_diff_cnts_l <-
   purrr::map(\(one_str) {
     num_column_name <-
       str_glue("all_{one_str}_ports_num")
-    ports_q_short_wider_list_diff[[one_str]] |>
+
+    ports_q_short_wider_list_diff__cnt_names[[one_str]] |>
       dplyr::select(vessel_official_number,
-                    ends_with("_ports_num")) |>
+                    multi_ports_in_y) |>
       distinct() |>
-      mutate(multi_ports_in_y =
-               case_when(
-               !!sym(num_column_name) == 1 ~ "NO",
-               !!sym(num_column_name) > 1 ~ "YES",
-               !!sym(num_column_name) < 1 ~ NA
-             )) |>
       dplyr::count(multi_ports_in_y)
   })
 
 names(ports_q_short_wider_list_diff_cnts_l) <-
-  c("start", "end")
+  start_end_words
 
 # start
 # 1 FALSE  1421 (incl. NAs)
@@ -782,6 +802,21 @@ names(ports_q_short_wider_list_diff_cnts_l) <-
 
 # use pander for .qmd
 pander(ports_q_short_wider_list_diff_cnts_l)
+
+# $start
+# # A tibble: 3 × 2
+#   multi_ports_in_y     n
+#   <chr>            <int>
+# 1 NO                1358
+# 2 YES                 77
+# 3 NA                 194
+#
+# $end
+# # A tibble: 2 × 2
+#   multi_ports_in_y     n
+#   <chr>            <int>
+# 1 NO                1509
+# 2 YES                120
 
 ### count same or diff by permit_region and trip start or end ----
 ports_q_short_wider_list_diff_cnt_p_r <-
