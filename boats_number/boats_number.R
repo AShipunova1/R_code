@@ -749,9 +749,9 @@ ports_q_short_wider_list_diff |>
 # all_end_ports        701
 # all_end_county          210
 
-### count same or diff trip start or end ----
+### count same or diff trip start or end during the year (by quarter) ----
 
-ports_q_short_wider_list_diff_cnts <-
+ports_q_short_wider_list_diff_cnts_l <-
   list("start", "end") |>
   purrr::map(\(one_str) {
     num_column_name <-
@@ -759,10 +759,17 @@ ports_q_short_wider_list_diff_cnts <-
     ports_q_short_wider_list_diff[[one_str]] |>
       dplyr::select(vessel_official_number,
                     ends_with("_ports_num")) |>
-      dplyr::count(!!sym(num_column_name))
+      distinct() |>
+      mutate(multi_ports_in_y =
+               case_when(
+               !!sym(num_column_name) == 1 ~ "NO",
+               !!sym(num_column_name) > 1 ~ "YES",
+               !!sym(num_column_name) < 1 ~ NA
+             )) |>
+      dplyr::count(multi_ports_in_y)
   })
 
-names(ports_q_short_wider_list_diff_cnts) <-
+names(ports_q_short_wider_list_diff_cnts_l) <-
   c("start", "end")
 
 # start
@@ -774,7 +781,7 @@ names(ports_q_short_wider_list_diff_cnts) <-
 # 2 TRUE    485
 
 # use pander for .qmd
-pander(ports_q_short_wider_list_diff_cnts)
+pander(ports_q_short_wider_list_diff_cnts_l)
 
 ### count same or diff by permit_region and trip start or end ----
 ports_q_short_wider_list_diff_cnt_p_r <-
