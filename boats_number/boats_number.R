@@ -1649,27 +1649,8 @@ join_vessel_and_trip_start_port_diff <-
         .default = "no"
       )
   ) |>
-  mutate(
-    diff_end_port_state =
-      dplyr::case_when(
-        !tolower(end_port_state) == tolower(SERO_HOME_PORT_STATE) ~
-          "yes",
-        .default = "no"
-      ),
-    diff_end_port_county =
-      dplyr::case_when(
-        !tolower(end_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
-          "yes",
-        .default = "no"
-      ),
-    diff_end_port_name_or_city =
-      dplyr::case_when(
-        !tolower(end_port_name) == tolower(SERO_HOME_PORT_CITY) ~
-          "yes",
-        .default = "no"
-      )
-  ) |>
  dplyr::ungroup()
+
 toc()
 # join_vessel_and_trip_start_port_diff: 1.74 sec elapsed
 
@@ -1688,67 +1669,6 @@ toc()
 #' 6. Stop measuring the execution time using the `toc()` function and display the elapsed time.
 #'
 
-join_vessel_and_trip_start_port_diff1 <-
-  join_vessel_and_trip |>
-  # select(any_of(start_port_cols)) |>
-  # distinct() |>
-  dplyr::group_by(vessel_official_number) |>
-  dplyr::mutate(
-    diff_start_port_state =
-      dplyr::case_when(
-        !tolower(start_port_state) == tolower(SERO_HOME_PORT_STATE) ~
-          "yes",
-        .default = "no"
-      ),
-    diff_start_port_county =
-      dplyr::case_when(
-        !tolower(start_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
-          "yes",
-        .default = "no"
-      ),
-    diff_start_port_name_or_city =
-      dplyr::case_when(
-        !tolower(start_port_name) == tolower(SERO_HOME_PORT_CITY) ~
-          "yes",
-        .default = "no"
-      )
-  ) |>
-  mutate(
-    diff_start_port_state =
-      dplyr::case_when(
-        !tolower(start_port_state) == tolower(SERO_HOME_PORT_STATE) ~
-          "yes",
-        .default = "no"
-      ),
-    diff_start_port_county =
-      dplyr::case_when(
-        !tolower(start_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
-          "yes",
-        .default = "no"
-      ),
-    diff_start_port_name_or_city =
-      dplyr::case_when(
-        !tolower(start_port_name) == tolower(SERO_HOME_PORT_CITY) ~
-          "yes",
-        .default = "no"
-      )
-  ) |>
-  dplyr::ungroup() |>
-  arrange(
-    vessel_official_number,
-    "start_port",
-    "start_port_name",
-    "start_port_county",
-    "start_port_state",
-    "end_port",
-    "end_port_name",
-    "end_port_county",
-    "end_port_state",
-  )
-
-diffdf::diffdf(join_vessel_and_trip_start_port_diff,
-               join_vessel_and_trip_start_port_diff1)
-
 join_vessel_and_trip_start_port_diff |>
   dplyr::select(vessel_official_number,
          dplyr::starts_with("diff")) |>
@@ -1756,34 +1676,14 @@ join_vessel_and_trip_start_port_diff |>
   dim()
 # [1] 2591    7
 # [1] 2145    7
-# [1] 2015    4
+# [1] 2015    4 start only
 
 ### By end port: add columns for different end and home port names, counties and states ----
 tic("join_vessel_and_trip_end_port_diff")
 join_vessel_and_trip_end_port_diff <-
-  join_vessel_and_trip_end |>
+  join_vessel_and_trip |>
   dplyr::group_by(vessel_official_number) |>
   dplyr::mutate(
-    diff_end_port_state =
-      dplyr::case_when(
-        !tolower(end_port_state) == tolower(SERO_HOME_PORT_STATE) ~
-          "yes",
-        .default = "no"
-      ),
-    diff_end_port_county =
-      dplyr::case_when(
-        !tolower(end_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
-          "yes",
-        .default = "no"
-      ),
-    diff_end_port_name_or_city =
-      dplyr::case_when(
-        !tolower(end_port_name) == tolower(SERO_HOME_PORT_CITY) ~
-          "yes",
-        .default = "no"
-      )
-  ) |>
-  mutate(
     diff_end_port_state =
       dplyr::case_when(
         !tolower(end_port_state) == tolower(SERO_HOME_PORT_STATE) ~
@@ -1829,7 +1729,7 @@ join_vessel_and_trip_end_port_diff |>
   dim()
 # [1] 2591    7
 # [1] 2145    7
-# [1] 1804    4
+# [1] 1804    4 end only
 
 #### shorten join_vessel_and_trip_end_port_diff ----
 join_vessel_and_trip_end_port_diff_short <-
@@ -1839,24 +1739,24 @@ join_vessel_and_trip_end_port_diff_short <-
                 dplyr::starts_with("diff")) |>
   dplyr::distinct()
 
-glimpse(join_vessel_and_trip_end_port_diff_short)
+print_df_names(join_vessel_and_trip_end_port_diff_short)
 
 ## count vessel number with different start_port_state and home_port_state ----
 ### check for one column ----
-# join_vessel_and_trip_start_port_diff_short |>
-#   dplyr::count(diff_start_port_state)
+join_vessel_and_trip_end_port_diff_short |>
+  dplyr::count(diff_end_port_state)
+#   diff_end_port_state     n
+#   <chr>               <int>
+# 1 no                   1709
+# 2 yes                    95
+
+# by start:
 # 1 no                     2501
 # 2 yes                      90
 
 # 1 no                     2075
 # 2 yes                      70
 
-join_vessel_and_trip_end_port_diff_short |>
-  dplyr::count(diff_end_port_state)
-  # diff_end_port_state     n
-  # <chr>               <int>
-# 1 no                   1709
-# 2 yes                    95
 
 ### make combinations of column names ----
 my_col_names <- names(join_vessel_and_trip_end_port_diff_short)
@@ -1941,7 +1841,7 @@ dif_cols_num <-
 combs2_short <-
   combs2[1:dif_cols_num]
 
-# View(combs2_short)
+# glimpse(combs2_short)
 
 ### count vessels with different trip and home port info per permit_region, using each set of names ----
 combs2_short_cnts <-
@@ -2002,7 +1902,7 @@ processed_logbooks_short_dates_quarters__p_l <-
   processed_logbooks_short_dates_quarters |>
   split(as.factor(processed_logbooks_short_dates_quarters$permit_region))
 
-### check if permit_region don't intersect ----
+### check that permit_region don't intersect ----
 intersect(processed_logbooks_short_dates_quarters__p_l$GOM$vessel_official_number,
           processed_logbooks_short_dates_quarters__p_l$SA$vessel_official_number)
 # 0 correct
