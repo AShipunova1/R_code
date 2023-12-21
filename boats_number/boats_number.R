@@ -1002,43 +1002,42 @@ processed_logbooks_short_port_states_fl_reg |>
 # separately for "start" and "end"
 add_one_marker_reg <- function(my_df, start_or_end) {
 
-    one_port_marker_col_name <-
-      str_glue("one_{start_or_end}_port_marker")
-    port_state_col <- sym(str_glue("{start_or_end}_port_state"))
-    port_county_col <- sym(str_glue("{start_or_end}_port_county"))
-    port_reg_col <- sym(str_glue("{start_or_end}_port_reg"))
-    port_fl_reg_col <- sym(str_glue("{start_or_end}_port_fl_reg"))
+  one_port_marker_col_name <-
+    str_glue("one_{start_or_end}_port_marker")
+  port_state_col <- sym(str_glue("{start_or_end}_port_state"))
+  port_county_col <- sym(str_glue("{start_or_end}_port_county"))
+  port_reg_col <- sym(str_glue("{start_or_end}_port_reg"))
+  port_fl_reg_col <- sym(str_glue("{start_or_end}_port_fl_reg"))
 
-    new_df <-
+  new_df <-
     my_df |>
-      dplyr::mutate(
-        !!one_port_marker_col_name :=
-          dplyr::case_when(
-            !!port_county_col == "MONROE" &
-              permit_region == "GOM" ~
-              "gom",
-            !!port_county_col == "MONROE" &
-              permit_region == "SA" ~
-              "sa",
-            !!port_state_col == "FL" &
-              !!port_fl_reg_col == "gom_county" ~
-              "gom",
-            !!port_state_col == "FL" &
-              !!port_fl_reg_col == "sa_county" ~
-              "sa",
-            !!port_fl_reg_col %in% c("gom_council_state",
-                                     "gom_state") ~
-              "gom",
-            !!port_fl_reg_col %in% c("sa_council_state",
-                                     "sa_state") ~
-              "sa",
-            .default = NA
-          )
-      )
+    dplyr::mutate(
+      !!one_port_marker_col_name :=
+        dplyr::case_when(
+          !!port_county_col == "MONROE" &
+            permit_region == "GOM" ~
+            "gom",
+          !!port_county_col == "MONROE" &
+            permit_region == "SA" ~
+            "sa",
+          !!port_state_col == "FL" &
+            !!port_fl_reg_col == "gom_county" ~
+            "gom",
+          !!port_state_col == "FL" &
+            !!port_fl_reg_col == "sa_county" ~
+            "sa",
+          !!port_reg_col %in% c("gom_council_state",
+                                "gom_state") ~
+            "gom",
+          !!port_reg_col %in% c("sa_council_state",
+                                "sa_state") ~
+            "sa",
+          .default = NA
+        )
+    )
 
-    return(new_df)
-  }
-
+  return(new_df)
+}
 
 processed_logbooks_short_port_states_fl_reg_one_marker <-
   processed_logbooks_short_port_states_fl_reg |>
@@ -1059,46 +1058,48 @@ processed_logbooks_short_port_states_fl_reg_one_marker |>
 # [1] 3011   18
 # [1] 66641    30
 
-
 #### check if all start ports have a permit region ----
 processed_logbooks_short_port_states_fl_reg_one_marker |>
-  select(contains("start_port")) |>
+  select(vessel_official_number, contains("start_port")) |>
   dplyr::filter(is.na(one_start_port_marker)) |>
   distinct() |>
   dim()
 # 0 OK
-# [1] 4 1
+# 2 8 start_port = 920, FL5345ML
+
+processed_logbooks_short_port_states_fl_reg_one_marker |>
+  filter(is.na(start_port_name) &
+           !is.na(start_port)) |>
+  View()
 
 processed_logbooks_short_port_states_fl_reg_one_marker |>
   select(vessel_official_number, contains("start_port")) |>
   filter(vessel_official_number == "TX6607KK") |>
   distinct() |>
   glimpse()
-# wrong:
 # $ start_port_reg         <chr> NA, "gom_state"
 # $ start_port_fl_reg      <chr> NA, "unkown"
-# $ one_start_port_marker  <chr> NA, NA
+# $ one_start_port_marker  <chr> NA, "gom"
+# OK
 
-
-
-processed_logbooks_short_port_states_fl_reg_end |>
+processed_logbooks_short_port_states_fl_reg_one_marker |>
   select(end_port_reg) |>
   distinct()
 # 1 sa_council_state
 # 2         sa_state
 # 3        gom_state
 
-processed_logbooks_short_port_states_fl_reg_end |>
+processed_logbooks_short_port_states_fl_reg_one_marker |>
   dplyr::filter(is.na(one_end_port_marker)) |>
   distinct() |>
   dim()
-# 0 29 OK
+# 0 30 OK
 
-processed_logbooks_short_port_states_fl_reg_start |>
-    dplyr::filter(one_start_port_marker == "gom") |>
-    dplyr::select(vessel_official_number, contains("start")) |>
-    dplyr::distinct() |>
-    dplyr::glimpse()
+processed_logbooks_short_port_states_fl_reg_one_marker |>
+  filter(one_start_port_marker == "gom") |>
+  select(vessel_official_number, contains("start")) |>
+  distinct() |>
+  glimpse()
 
 ### Count vessels having both sa and gom port_markers to find the num of vessels who fish in both the Gulf and S Atl ----
 
