@@ -255,7 +255,6 @@ end_processed_logbooks_short_dates_short_diff_start_from_end |>
   arrange(trip_end_year_quarter)
 
 ## count total vessels by quarter ----
-
 processed_logbooks_short_dates_short_diff_start_from_end_tot <-
   processed_logbooks_short_dates_short |>
   group_by(trip_start_year_quarter) |>
@@ -870,7 +869,7 @@ processed_logbooks_short_dates_state_names <-
                 end_port_state_name   =
                   my_state_name[tolower(end_port_state)])
 
-# glimpse(processed_logbooks_short_dates_state_names)
+# View(processed_logbooks_short_dates_state_names)
 
 # Add a column 'start_' or 'end_port_reg' based on conditions using 'case_when'.
 get_start_or_end_port_reg <-
@@ -921,7 +920,7 @@ processed_logbooks_short_port_states <-
 #'    - Repeat for the "end" port names
 #'
 
-# View(processed_logbooks_short_port_states)
+glimpse(processed_logbooks_short_port_states)
 # [1] 3011   14
 # [1] 66641    26
 
@@ -968,7 +967,7 @@ processed_logbooks_short_port_states_fl_reg <-
 
 head(processed_logbooks_short_port_states_fl_reg, 30) |>
   tail(10) |>
-  glimpse()
+  View()
 
 processed_logbooks_short_port_states_fl_reg |>
   filter(tolower(end_port_state) == "fl" &
@@ -996,7 +995,7 @@ processed_logbooks_short_port_states_fl_reg |>
 ### create one_port_marker ----
 #' Combine all previous region markers into one column
 #'
-#' NB. If Monroe, FL divide by vessel permit_region
+#' NB. If Monroe, FL - exclude
 #'
 
 # separately for "start" and "end"
@@ -1044,7 +1043,7 @@ processed_logbooks_short_port_states_fl_reg_one_marker <-
   add_one_marker_reg("start") |>
   add_one_marker_reg("end")
 
-# glimpse(processed_logbooks_short_port_states_fl_reg_one_marker)
+View(processed_logbooks_short_port_states_fl_reg_one_marker)
 
 processed_logbooks_short_port_states_fl_reg_one_marker |>
   filter(vessel_official_number == "FL4350TH") |>
@@ -1250,6 +1249,8 @@ start_ports_region_cnt |>
   dplyr::filter(vessel_official_number == "1021879")
 # 1 1021879                sa                1
 
+View(start_ports_region_cnt)
+
 #### How many vessels have start port in one or in both regions ----
 start_ports_region_cnt |>
   count(vessel_one_start_port_marker_num)
@@ -1302,7 +1303,7 @@ processed_logbooks_short_port_states_fl_reg_one_marker |>
   glimpse()
 
 # start_port_county: LEE, MONROE
-# MOnroe is sa (bc of the permit region), so the vessel is counted as having both region
+# Monroe is sa (bc of the permit region), so the vessel is counted as having both region
 
 ### How many vessels have end port in one or in both regions ----
 end_ports_region_cnt |>
@@ -1317,7 +1318,6 @@ end_ports_region_cnt |>
 
 # 1 NO                            1622
 # 2 YES                             12
-
 
 ## Trip start and end ports are in both regions count by vessel permit ----
 ### Start ports ----
@@ -1359,6 +1359,7 @@ end_ports_region_cnt_by_permit_r <-
                       na.rm = TRUE)) |>
   ungroup()
 
+View(start_ports_region_cnt_by_permit_r)
 #### check start_  and end_ ports_region_cnt_by_permit_r ----
 start_ports_region_cnt_by_permit_r |>
   # filter(vessel_one_start_port_marker_num > 1) |>
@@ -1446,7 +1447,11 @@ end_ports_region_cnt_by_permit_r |>
 # 3 SA            FALSE                 872
 # 4 SA            TRUE                    3
 
-# Look at permit home port vs where they take trip ----
+
+# How many vessels have a start port in one region and ended in another region ----
+# E.g. Start in GOM and end in SA
+
+# Look at permit home port vs where they ended trip ----
 
 ## prepare home_port data ----
 # all_get_db_data_result_l |>
@@ -1503,7 +1508,7 @@ vessel_permit_port_info_perm_reg |>
 
 #' NB. 1. There is incorrect home port info (city/county/state).
 #'
-#' 2. permit information is some times different from that in logbooks (trips) and from Metrics tracking
+#' 2. permit information is some times different from Metrics tracking
 #'
 
 ## add vessel_permit information to trip (logbook) information ----
@@ -1517,14 +1522,6 @@ join_vessel_and_trip <-
     dplyr::join_by(vessel_official_number ==
                      SERO_OFFICIAL_NUMBER)
   )
-
-# join_vessel_and_trip_end <-
-#   dplyr::left_join(
-#     processed_logbooks_short_port_states_fl_reg_one_marker,
-#     vessel_permit_port_info_perm_reg,
-#     dplyr::join_by(vessel_official_number ==
-#                      SERO_OFFICIAL_NUMBER)
-#   )
 
 data_overview(join_vessel_and_trip)
 # [1] 3011   20
@@ -1767,7 +1764,7 @@ combs1 <-
   utils::combn(my_col_names, 2) |>
   as.data.frame()
 
-str(combs1)
+# View(combs1)
 # 'data.frame':	2 obs. of  28 variables:
 #  $ V1 : chr  "vessel_official_number" "permit_region"
 #  $ V2 : chr  "vessel_official_number" "diff_start_port_state"
@@ -1777,13 +1774,13 @@ str(combs1)
 combs1_short <-
   combs1[1:ncol(join_vessel_and_trip_end_port_diff_short) - 1]
 
-combs1_short
+View(combs1_short)
 
 ### count vessels with different trip and home port info, using each pair of names ----
 combs1_short_cnts <-
   combs1_short |>
   purrr::map(\(curr_col_names) {
-    # browser()
+    browser()
     join_vessel_and_trip_end_port_diff_short |>
       dplyr::select(paste(curr_col_names, sep = ",")) |>
       dplyr::count(!!sym(curr_col_names[[2]]))
@@ -1882,7 +1879,7 @@ pander(home_port_diff_from_end_port)
 
 # TODO: add the same for start ports?
 
-## Different port states by quarter ----
+# Different port states by quarter ----
 # Q. But specifically do it by state. E.g. If start port state is different than end port state, and would be good to know what those states are. So perhaps the output is a table looks something like this and then maybe we can plot that in a bar chart, like attached (but as #s, not %s).
 # print_df_names(processed_logbooks_short_port_states)
 # print_df_names(processed_logbooks_short_dates)
@@ -1927,7 +1924,10 @@ processed_logbooks_short_dates_quarters__p_l__st_cnt <-
 
 # TODO: adapt and send the table to Michelle
 # add a new column that = vessel_num/sum(vessel_num) for each quarter.
-# processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM |>  View()
+processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM |> View()
+
+# processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM |>
+# mutate(proportion = )
 
 ### plot start/end ports ----
 # print_df_names(processed_logbooks_short_dates_quarters__p_l__st_cnt$GOM)
