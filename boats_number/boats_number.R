@@ -1103,64 +1103,10 @@ processed_logbooks_short_port_states_fl_reg_one_marker |>
 
 ### Count vessels having both sa and gom port_markers to find the num of vessels who fish in both the Gulf and S Atl ----
 
-# #### shorten processed_logbooks_short_port_states_fl_reg_start
-# keep_port_reg_column_names <- c(
-#     "vessel_official_number",
-#     "start_port",
-#     "start_port_name",
-#     "start_port_county",
-#     "start_port_state",
-#     "end_port",
-#     "end_port_name",
-#     "end_port_county",
-#     "end_port_state",
-#     "permit_region",
-#     "start_port_state_name",
-#     "end_port_state_name",
-#     "one_start_port_marker",
-#     "one_end_port_marker"
-# )
-
-
-# setdiff(names(processed_logbooks_short_port_states_fl_reg_start),
-#         keep_port_reg_column_names)
-# # Using any_of here to choose "one_start_port_marker" or "one_end_port_marker"
-# processed_logbooks_short_port_states_fl_reg_start_short <-
-#   processed_logbooks_short_port_states_fl_reg_start |>
-#   dplyr::select(any_of(keep_port_reg_column_names)) |>
-#   dplyr::distinct()
-
-# processed_logbooks_short_port_states_fl_reg_end_short <-
-#   processed_logbooks_short_port_states_fl_reg_end |>
-#   dplyr::select(any_of(keep_port_reg_column_names)) |>
-#   dplyr::distinct()
-
-# count_uniq_by_column(processed_logbooks_short_port_states_fl_reg_start_short)
-# [1] 3011   14
-# vessel_official_number   1876
-# start_port             536
-# start_port_name        531
-# processed logbooks
-# vessel_official_number 1629
-# start_port              516
-# start_port_name         511
-
-# count_uniq_by_column(processed_logbooks_short_port_states_fl_reg_end_short)
-# end_port               534
-# end_port_name          529
-# processed logbooks
-# end_port                497
-# end_port_name           492
-
-count_uniq_by_column(processed_logbooks_short_port_states_fl_reg_start)
+count_uniq_by_column(processed_logbooks_short_port_states_fl_reg_one_marker)
 # vessel_official_number  1629
 # start_port_name          511
 # end_port_name            492
-
-count_uniq_by_column(processed_logbooks_short_port_states_fl_reg_end)
-# vessel_official_number  1629
-# end_port_name            492
-# start_port_name          511
 
 #### Count vessels with each GOM or SA trip start and end port region marker ----
 #' (the occurrences of each unique value in the "one_start_port_marker" and "one_end_port_marker" columns).
