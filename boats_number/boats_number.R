@@ -775,28 +775,12 @@ names(ports_q_short_wider_list_diff__cnt_names) <-
 glimpse(ports_q_short_wider_list_diff__cnt_names)
 
 ### count same or diff trip start or end during the year (by quarter) ----
-ports_q_short_wider_list_diff_cnts_l1 <-
+ports_q_short_wider_list_diff_cnts_l <-
   ports_q_short_wider_list_diff__cnt_names |>
   purrr::map(\(one_df) {
     one_df |>
       dplyr::select(vessel_official_number,
                     multi_ports_in_y) |>
-      dplyr::count(multi_ports_in_y)
-  })
-
-diffdf::diffdf(ports_q_short_wider_list_diff_cnts_l$end,
-               ports_q_short_wider_list_diff_cnts_l1$end)
-
-ports_q_short_wider_list_diff_cnts_l <-
-  list("start", "end") |>
-  purrr::map(\(one_str) {
-    num_column_name <-
-      str_glue("all_{one_str}_ports_num")
-
-    ports_q_short_wider_list_diff__cnt_names[[one_str]] |>
-      dplyr::select(vessel_official_number,
-                    multi_ports_in_y) |>
-      distinct() |>
       dplyr::count(multi_ports_in_y)
   })
 
@@ -831,31 +815,34 @@ pander(ports_q_short_wider_list_diff_cnts_l)
 
 ### count same or diff by permit_region and trip start or end ----
 ports_q_short_wider_list_diff_cnt_p_r <-
-  ports_q_short_wider_list_diff |>
+  ports_q_short_wider_list_diff__cnt_names |>
   purrr::map(\(one_df) {
     one_df |>
-      dplyr::count(permit_region, same)
+      dplyr::count(permit_region, multi_ports_in_y)
   })
 
 # use pander for .qmd
 pander(ports_q_short_wider_list_diff_cnt_p_r)
 
-# start
-#   permit_region same      n
-#   <chr>         <lgl> <int>
-# 1 gom_and_dual  FALSE   569
-# 2 gom_and_dual  TRUE    222
-# 3 sa_only       FALSE   852
-# 4 sa_only       TRUE    233
-
-# end
-#   permit_region same      n
-#   <chr>         <lgl> <int>
-# 1 gom_and_dual  FALSE   561
-# 2 gom_and_dual  TRUE    230
-# 3 sa_only       FALSE   830
-# 4 sa_only       TRUE    255
-
+# $start
+# A tibble: 6 × 3
+#   permit_region multi_ports_in_y     n
+#   <chr>         <chr>            <int>
+# 1 GOM           NO                 529
+# 2 GOM           YES                 42
+# 3 GOM           NA                 183
+# 4 SA            NO                 829
+# 5 SA            YES                 35
+# 6 SA            NA                  11
+#
+# $end
+# # A tibble: 4 × 3
+#   permit_region multi_ports_in_y     n
+#   <chr>         <chr>            <int>
+# 1 GOM           NO                 672
+# 2 GOM           YES                 82
+# 3 SA            NO                 837
+# 4 SA            YES                 38
 # TODO: exclude everything what is not in the council jurisdiction
 
 # Quantify the # of vessels who fish in both the gulf and S Atl.  ----
