@@ -896,7 +896,6 @@ get_start_or_end_port_reg <-
           )
       )
 
-
     return(new_df)
   }
 
@@ -905,19 +904,6 @@ processed_logbooks_short_port_states <-
   get_start_or_end_port_reg("start") |>
   get_start_or_end_port_reg("end")
 
-
-  # # the same for end ports
-  # dplyr::mutate(
-  #   end_port_reg =
-  #     dplyr::case_when(
-  #       tolower(end_port_state_name) %in% tolower(sa_council_states) ~
-  #         "sa_council_state",
-  #       tolower(end_port_state_name) %in% tolower(east_coast_states$gom) ~
-  #         "gom_state",
-  #       .default = "sa_state"
-  #     )
-  # )
-  #
 #' Explanation:
 #'
 #' 1. Create a new data frame "processed_logbooks_short_port_states" by applying operations to "processed_logbooks_short_port_region".
@@ -947,26 +933,53 @@ processed_logbooks_short_port_states <-
 #' For other cases, set it to "sa_county".
 #'
 
-processed_logbooks_short_port_states_fl_reg <-
+get_florida_county_port_reg <-
+  function(my_df, start_or_end) {
+
+    port_fl_reg_col_name <- str_glue("{start_or_end}_port_fl_reg")
+    port_state_name_col <-
+      sym(str_glue("{start_or_end}_port_state_name"))
+    port_county_col <-
+      sym(str_glue("{start_or_end}_port_county"))
+
+    new_df <-
+      my_df |>
+      dplyr::mutate(
+        !!port_fl_reg_col_name :=
+          dplyr::case_when(
+            tolower(!!port_state_name_col) == "florida" &
+              tolower(!!port_county_col) %in% tolower(fl_counties$gom) ~
+              "gom_county",
+
+            tolower(!!port_state_name_col) == "florida" &
+              tolower(!!port_county_col) %in% tolower(fl_counties$sa) ~
+              "sa_county",
+
+              is.na(!!port_county_col) ~ NA,
+            .default = "unkown"
+          )
+      )
+  }
+
+
+processed_logbooks_short_port_states_fl_reg1 <-
   processed_logbooks_short_port_states |>
-  dplyr::mutate(
-    start_port_fl_reg =
-      dplyr::case_when(
-        tolower(start_port_state_name) == "florida" &
-          tolower(start_port_county) %in% tolower(fl_counties$gom) ~
-          "gom_county",
-        .default = "sa_county"
-      )
-  ) |>
-  dplyr::mutate(
-    end_port_fl_reg =
-      dplyr::case_when(
-        tolower(end_port_state_name) == "florida" &
-          tolower(end_port_county) %in% tolower(fl_counties$gom) ~
-          "gom_county",
-        .default = "sa_county"
-      )
-  )
+  get_florida_county_port_reg("start") |>
+  get_florida_county_port_reg("end")
+
+diffdf::diffdf(processed_logbooks_short_port_states_fl_reg,
+               processed_logbooks_short_port_states_fl_reg1)
+
+head(processed_logbooks_short_port_states_fl_reg1, 30) |>
+  tail(10) |>
+  glimpse()
+
+processed_logbooks_short_port_states_fl_reg1 |>
+  filter(tolower(end_port_state) == "fl" &
+           end_port_fl_reg == "unknown") |>
+  nrow()
+# 0
+# unknown if not FL, OK
 
 # print_df_names(processed_logbooks_short_port_states_fl_reg)
 
@@ -982,7 +995,7 @@ processed_logbooks_short_port_states_fl_reg |>
 # 1381   17
 # [1] 37868    28
 
-View(processed_logbooks_short_port_states_fl_reg)
+# View(processed_logbooks_short_port_states_fl_reg)
 
 ### create one_port_marker ----
 #' Combine all previous region markers into one column
