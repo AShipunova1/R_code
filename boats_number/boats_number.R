@@ -1350,20 +1350,23 @@ start_ports_region_cnt_by_permit_r <-
 ### The same for end ports ----
 end_ports_region_cnt_by_permit_r <-
   processed_logbooks_short_port_states_fl_reg_one_marker |>
-  dplyr::select(dplyr::all_of(select_vessel_mark_end),
+  select(all_of(select_vessel_mark_end),
                 permit_region) |>
-  dplyr::distinct() |>
-  dplyr::group_by(vessel_official_number, permit_region) |>
-  dplyr::mutate(vessel_one_end_port_marker_num =
-           dplyr::n_distinct(one_end_port_marker,
+  distinct() |>
+  group_by(vessel_official_number, permit_region) |>
+  mutate(vessel_one_end_port_marker_num =
+           n_distinct(one_end_port_marker,
                       na.rm = TRUE)) |>
-  dplyr::ungroup()
+  ungroup()
 
 #### check start_  and end_ ports_region_cnt_by_permit_r ----
 start_ports_region_cnt_by_permit_r |>
   # filter(vessel_one_start_port_marker_num > 1) |>
   dplyr::filter(vessel_official_number == "FL6069PT") |>
   dplyr::glimpse()
+# $ one_start_port_marker            <chr> "sa", NA
+# $ permit_region                    <chr> "SA", "SA"
+# $ vessel_one_start_port_marker_num <int> 1, 1
 
 end_ports_region_cnt_by_permit_r |>
   # filter(vessel_one_end_port_marker_num > 1) |>
@@ -1372,6 +1375,7 @@ end_ports_region_cnt_by_permit_r |>
 # $ vessel_official_number            <chr> "FL8905LP", "FL8905LP"
 # $ one_end_port_marker            <chr> "gom", "sa"
 # $ permit_region                  <chr> "sa_only", "sa_only"
+# $ permit_region                  <chr> "SA", "SA"
 # $ vessel_one_end_port_marker_num <int> 2, 2
 
 #### Count multiple start regions by permit_region ----
@@ -1403,7 +1407,14 @@ start_ports_region_cnt_by_permit_r |>
 # 2 GOM           TRUE                      8
 # 3 SA            FALSE                   834
 # 4 SA            TRUE                     41
+# 1629
 
+  # permit_region start_in_both_regions     n
+# 1 GOM           FALSE                   747
+# 2 GOM           TRUE                      7
+# 3 SA            FALSE                   870
+# 4 SA            TRUE                      5
+# 1629
 
 #### Count multiple end regions by permit_region ----
 end_ports_region_cnt_by_permit_r |>
@@ -1421,6 +1432,7 @@ end_ports_region_cnt_by_permit_r |>
   # |>
   # count(wt = n)
   # 1  1876
+# 1629
 
 #   permit_region end_in_both_regions     n
 #   <chr>         <lgl>       <int>
@@ -1431,8 +1443,8 @@ end_ports_region_cnt_by_permit_r |>
 
 # 1 GOM           FALSE                 751
 # 2 GOM           TRUE                    3
-# 3 SA            FALSE                 871
-# 4 SA            TRUE                    4
+# 3 SA            FALSE                 872
+# 4 SA            TRUE                    3
 
 # Look at permit home port vs where they take trip ----
 
