@@ -1201,6 +1201,8 @@ processed_logbooks_short_port_states_fl_reg_one_marker |>
 # 3            SA                 gom  18
 
 ## Trip start ports are in both regions ----
+
+# Need a variable here, to add permit_region to it later
 select_vessel_mark_start <-
   c("vessel_official_number",
     "one_start_port_marker")
@@ -1290,8 +1292,17 @@ end_ports_region_cnt <-
 #### check end_ports_region_cnt ----
 end_ports_region_cnt |>
   filter(vessel_official_number == "FL8905LP")
-# 1 FL8905LP               gom
-1
+# 1 FL8905LP               gom 1
+#   vessel_official_number  one_end_port_marker  vessel_one_end_port_marker_num
+# 1  FL8905LP  gom  2
+# 2  FL8905LP  sa  2
+
+processed_logbooks_short_port_states_fl_reg_one_marker |>
+  filter(vessel_official_number == "FL8905LP") |>
+  glimpse()
+
+# start_port_county: LEE, MONROE
+# MOnroe is sa (bc of the permit region), so the vessel is counted as having both region
 
 ### How many vessels have end port in one or in both regions ----
 end_ports_region_cnt |>
@@ -1301,10 +1312,12 @@ end_ports_region_cnt |>
                 .default = "YES")
   ) |>
   count(end_ports_in_both_GOM_and_SA)
-# 1                              1  1864
-# 2                              2    24
+# 1  1864
+# 2    24
+
 # 1 NO                            1622
-# 2 YES                             14
+# 2 YES                             12
+
 
 ## Trip start and end ports are in both regions count by vessel permit ----
 ### Start ports ----
