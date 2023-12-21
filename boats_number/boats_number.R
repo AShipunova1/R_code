@@ -961,20 +961,16 @@ get_florida_county_port_reg <-
       )
   }
 
-
-processed_logbooks_short_port_states_fl_reg1 <-
+processed_logbooks_short_port_states_fl_reg <-
   processed_logbooks_short_port_states |>
   get_florida_county_port_reg("start") |>
   get_florida_county_port_reg("end")
 
-diffdf::diffdf(processed_logbooks_short_port_states_fl_reg,
-               processed_logbooks_short_port_states_fl_reg1)
-
-head(processed_logbooks_short_port_states_fl_reg1, 30) |>
+head(processed_logbooks_short_port_states_fl_reg, 30) |>
   tail(10) |>
   glimpse()
 
-processed_logbooks_short_port_states_fl_reg1 |>
+processed_logbooks_short_port_states_fl_reg |>
   filter(tolower(end_port_state) == "fl" &
            end_port_fl_reg == "unknown") |>
   nrow()
@@ -1003,20 +999,18 @@ processed_logbooks_short_port_states_fl_reg |>
 #' NB. If Monroe, FL divide by vessel permit_region
 #'
 
-processed_logbooks_short_port_states_fl_reg_one_marker_l <-
-  str_split(start_end_words, " ") |>
-  map(\(one_word){
-
-    browser()
+# separately for "start" and "end"
+add_one_marker_reg <- function(my_df, start_or_end) {
 
     one_port_marker_col_name <-
-      str_glue("one_{one_word}_port_marker")
-    port_state_col <- sym(str_glue("{one_word}_port_state"))
-    port_county_col <- sym(str_glue("{one_word}_port_county"))
-    port_reg_col <- sym(str_glue("{one_word}_port_reg"))
-    port_fl_reg_col <- sym(str_glue("{one_word}_port_fl_reg"))
+      str_glue("one_{start_or_end}_port_marker")
+    port_state_col <- sym(str_glue("{start_or_end}_port_state"))
+    port_county_col <- sym(str_glue("{start_or_end}_port_county"))
+    port_reg_col <- sym(str_glue("{start_or_end}_port_reg"))
+    port_fl_reg_col <- sym(str_glue("{start_or_end}_port_fl_reg"))
 
-    processed_logbooks_short_port_states_fl_reg |>
+    new_df <-
+    my_df |>
       dplyr::mutate(
         !!one_port_marker_col_name :=
           dplyr::case_when(
@@ -1041,89 +1035,25 @@ processed_logbooks_short_port_states_fl_reg_one_marker_l <-
             .default = NA
           )
       )
-  })
+
+    return(new_df)
+  }
 
 
-names(processed_logbooks_short_port_states_fl_reg_one_marker_l) <-
-  start_end_words
-
-diffdf::diffdf(processed_logbooks_short_port_states_fl_reg_one_marker_l$start,
-               processed_logbooks_short_port_states_fl_reg_start)
-
-processed_logbooks_short_port_states_fl_reg_start <-
+processed_logbooks_short_port_states_fl_reg_one_marker <-
   processed_logbooks_short_port_states_fl_reg |>
-  dplyr::mutate(
-    one_start_port_marker =
-      dplyr::case_when(
-        start_port_county == "MONROE" &
-          permit_region == "gom_and_dual" ~
-          "gom",
-        start_port_county == "MONROE" &
-          permit_region == "sa_only" ~
-          "sa",
-        start_port_state == "FL" &
-          start_port_fl_reg == "gom_county" ~
-          "gom",
-        start_port_state == "FL" &
-          start_port_fl_reg == "sa_county" ~
-          "sa",
-        start_port_reg %in% c("gom_council_state",
-                              "gom_state") ~
-          "gom",
-        start_port_reg %in% c("sa_council_state",
-                              "sa_state") ~
-          "sa",
-        .default = NA
-      )
-  )
+  add_one_marker_reg("start") |>
+  add_one_marker_reg("end")
 
-#' Explanation:
-#'
-#' 1. Create a new data frame "processed_logbooks_short_port_states_fl_reg_start" by applying operations to "processed_logbooks_short_port_states_fl_reg".
-#'
-#' 2. Add a new column "one_start_port_marker" based on conditions using "case_when":
-#'
-#'    - If the start port county is "MONROE" and the permit region is "gom_and_dual", set it to "gom".
-#'
-#'    - If the start port county is "MONROE" and the permit region is "sa_only", set it to "sa".
-#'
-#'    - If the start port state is "FL" and the start port FL region is "gom_county", set it to "gom".
-#'
-#'    - If the start port state is "FL" and the start port FL region is "sa_county", set it to "sa".
-#'
-#'    - If the start port region is "gom_council_state" or "gom_state", set it to "gom".
-#'
-#'    - If the start port region is "sa_council_state" or "sa_state", set it to "sa".
-#'    - For other cases, set it to NA.
-#'
+# View(processed_logbooks_short_port_states_fl_reg_one_marker)
 
-# The same for end_ports
-processed_logbooks_short_port_states_fl_reg_end <-
-  processed_logbooks_short_port_states_fl_reg |>
-  dplyr::mutate(
-    one_end_port_marker =
-      dplyr::case_when(
-        end_port_county == "MONROE" &
-          permit_region == "gom_and_dual" ~
-          "gom",
-        end_port_county == "MONROE" &
-          permit_region == "sa_only" ~
-          "sa",
-        end_port_state == "FL" &
-          end_port_fl_reg == "gom_county" ~
-          "gom",
-        end_port_state == "FL" &
-          end_port_fl_reg == "sa_county" ~
-          "sa",
-        end_port_reg %in% c("gom_council_state",
-                              "gom_state") ~
-          "gom",
-        end_port_reg %in% c("sa_council_state",
-                              "sa_state") ~
-          "sa",
-        .default = NA
-      )
-  )
+processed_logbooks_short_port_states_fl_reg_one_marker |>
+  filter(vessel_official_number == "FL4350TH") |>
+  select(contains("start_port")) |>
+  distinct() |>
+  glimpse()
+# NAs, OK
+
 
 dim(processed_logbooks_short_port_states_fl_reg_start)
 # [1] 3011   18
