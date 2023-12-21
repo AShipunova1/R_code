@@ -1045,7 +1045,7 @@ processed_logbooks_short_port_states_fl_reg_one_marker <-
   add_one_marker_reg("start") |>
   add_one_marker_reg("end")
 
-# View(processed_logbooks_short_port_states_fl_reg_one_marker)
+# glimpse(processed_logbooks_short_port_states_fl_reg_one_marker)
 
 processed_logbooks_short_port_states_fl_reg_one_marker |>
   filter(vessel_official_number == "FL4350TH") |>
@@ -1054,22 +1054,32 @@ processed_logbooks_short_port_states_fl_reg_one_marker |>
   glimpse()
 # NAs, OK
 
-
-dim(processed_logbooks_short_port_states_fl_reg_start)
+processed_logbooks_short_port_states_fl_reg_one_marker |>
+  dim()
 # [1] 3011   18
-# [1] 66641    29
+# [1] 66641    30
 
-dim(processed_logbooks_short_port_states_fl_reg_end)
-# [1] 3011   18
-# [1] 66641    29
 
 #### check if all start ports have a permit region ----
-processed_logbooks_short_port_states_fl_reg_start |>
+processed_logbooks_short_port_states_fl_reg_one_marker |>
+  select(contains("start_port")) |>
   dplyr::filter(is.na(one_start_port_marker)) |>
-  select(start_port_reg) |>
   distinct() |>
   dim()
 # 0 OK
+# [1] 4 1
+
+processed_logbooks_short_port_states_fl_reg_one_marker |>
+  select(vessel_official_number, contains("start_port")) |>
+  filter(vessel_official_number == "TX6607KK") |>
+  distinct() |>
+  glimpse()
+# wrong:
+# $ start_port_reg         <chr> NA, "gom_state"
+# $ start_port_fl_reg      <chr> NA, "unkown"
+# $ one_start_port_marker  <chr> NA, NA
+
+
 
 processed_logbooks_short_port_states_fl_reg_end |>
   select(end_port_reg) |>
