@@ -853,8 +853,7 @@ processed_logbooks_short_dates |>
   dplyr::select(end_port_state) |>
   dplyr::distinct() |>
   head(2)
-# "FL", "DE"
-# "FL", NA
+# "FL", "TX"
 
 names(state.abb) <- state.name
 names(state.name) <- state.abb
@@ -911,7 +910,7 @@ processed_logbooks_short_port_states <-
 #'    - Repeat for the "end" port names
 #'
 
-print_df_names(processed_logbooks_short_port_states)
+# print_df_names(processed_logbooks_short_port_states)
 # [1] 3011   14
 # [1] 66641    26
 
@@ -966,6 +965,53 @@ processed_logbooks_short_port_states_fl_reg |>
 #'
 #' NB. If Monroe, FL divide by vessel permit_region
 #'
+
+processed_logbooks_short_port_states_fl_reg_one_marker_l <-
+  str_split(start_end_words, " ") |>
+  map(\(one_word){
+
+    browser()
+
+    one_port_marker_col_name <-
+      str_glue("one_{one_word}_port_marker")
+    port_state_col <- sym(str_glue("{one_word}_port_state"))
+    port_county_col <- sym(str_glue("{one_word}_port_county"))
+    port_reg_col <- sym(str_glue("{one_word}_port_reg"))
+    port_fl_reg_col <- sym(str_glue("{one_word}_port_fl_reg"))
+
+    processed_logbooks_short_port_states_fl_reg |>
+      dplyr::mutate(
+        !!one_port_marker_col_name :=
+          dplyr::case_when(
+            !!port_county_col == "MONROE" &
+              permit_region == "gom_and_dual" ~
+              "gom",
+            !!port_county_col == "MONROE" &
+              permit_region == "sa_only" ~
+              "sa",
+            !!port_state_col == "FL" &
+              !!port_fl_reg_col == "gom_county" ~
+              "gom",
+            !!port_state_col == "FL" &
+              !!port_fl_reg_col == "sa_county" ~
+              "sa",
+            !!port_fl_reg_col %in% c("gom_council_state",
+                                     "gom_state") ~
+              "gom",
+            !!port_fl_reg_col %in% c("sa_council_state",
+                                     "sa_state") ~
+              "sa",
+            .default = NA
+          )
+      )
+  })
+
+
+names(processed_logbooks_short_port_states_fl_reg_one_marker_l) <-
+  start_end_words
+
+diffdf::diffdf(processed_logbooks_short_port_states_fl_reg_one_marker_l$start,
+               processed_logbooks_short_port_states_fl_reg_start)
 
 processed_logbooks_short_port_states_fl_reg_start <-
   processed_logbooks_short_port_states_fl_reg |>
