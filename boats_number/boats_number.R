@@ -775,6 +775,17 @@ names(ports_q_short_wider_list_diff__cnt_names) <-
 glimpse(ports_q_short_wider_list_diff__cnt_names)
 
 ### count same or diff trip start or end during the year (by quarter) ----
+ports_q_short_wider_list_diff_cnts_l1 <-
+  ports_q_short_wider_list_diff__cnt_names |>
+  purrr::map(\(one_df) {
+    one_df |>
+      dplyr::select(vessel_official_number,
+                    multi_ports_in_y) |>
+      dplyr::count(multi_ports_in_y)
+  })
+
+diffdf::diffdf(ports_q_short_wider_list_diff_cnts_l$end,
+               ports_q_short_wider_list_diff_cnts_l1$end)
 
 ports_q_short_wider_list_diff_cnts_l <-
   list("start", "end") |>
