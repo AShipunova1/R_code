@@ -1464,11 +1464,12 @@ vessel_permit_port_info <-
       EXPIRATION_DATE > "2022-12-31"
   )
 
-count_uniq_by_column(vessel_permit_port_info)
-# with exp_date:
-# [1] 12238     8
+dim(vessel_permit_port_info)
+# [1] 68113    51
 # SERO_OFFICIAL_NUMBER  5220
 # SERO_HOME_PORT_CITY    809
+# SERO_HOME_PORT_COUNTY   320
+# SERO_HOME_PORT_STATE     28
 
 ### add permit and vessel info ----
 # should do here, before the join, bc if there are empty rows after merge sa_only is wrongly assigned
@@ -1493,7 +1494,6 @@ vessel_permit_port_info_perm_reg <-
   dplyr::distinct()
 
 n_distinct(vessel_permit_port_info_perm_reg$VESSEL_VESSEL_ID)
-# [1] 5220    7
 # VESSEL_VESSEL_ID      5220
 
 vessel_permit_port_info_perm_reg |>
@@ -1503,20 +1503,14 @@ vessel_permit_port_info_perm_reg |>
 
 #' NB. 1. There is incorrect home port info (city/county/state).
 #'
-#' 2. permit information is some times different from that in logbooks (trips)
+#' 2. permit information is some times different from that in logbooks (trips) and from Metrics tracking
 #'
-#' 3. In logbooks there are trip end dates in weird years
-#'
-#' 2018 Q2                2
-#' 2021 Q2                3
-#' 2020 Q4                2
-
 
 ## add vessel_permit information to trip (logbook) information ----
 # print_df_names(processed_logbooks_short_port_states_fl_reg_one_marker)
 # print_df_names(vessel_permit_port_info_perm_reg)
 
-join_vessel_and_trip_start <-
+join_vessel_and_trip <-
   dplyr::left_join(
     processed_logbooks_short_port_states_fl_reg_one_marker,
     vessel_permit_port_info_perm_reg,
@@ -1524,15 +1518,15 @@ join_vessel_and_trip_start <-
                      SERO_OFFICIAL_NUMBER)
   )
 
-join_vessel_and_trip_end <-
-  dplyr::left_join(
-    processed_logbooks_short_port_states_fl_reg_one_marker,
-    vessel_permit_port_info_perm_reg,
-    dplyr::join_by(vessel_official_number ==
-                     SERO_OFFICIAL_NUMBER)
-  )
+# join_vessel_and_trip_end <-
+#   dplyr::left_join(
+#     processed_logbooks_short_port_states_fl_reg_one_marker,
+#     vessel_permit_port_info_perm_reg,
+#     dplyr::join_by(vessel_official_number ==
+#                      SERO_OFFICIAL_NUMBER)
+#   )
 
-data_overview(join_vessel_and_trip_end)
+data_overview(join_vessel_and_trip)
 # [1] 3011   20
 # [1] 2475   19 (processed logbooks)
 # [1] 66641    35
@@ -1545,14 +1539,19 @@ data_overview(join_vessel_and_trip_end)
 # vessel_official_number 1629
 # permit_region             2
 # PERMIT_VESSEL_ID        1562
+# VESSEL_VESSEL_ID        1562
+# permit_sa_gom              4
+# SERO_HOME_PORT_CITY      361
+# SERO_HOME_PORT_COUNTY    145
+# SERO_HOME_PORT_STATE      20
 
 dim(processed_logbooks_short_port_states_fl_reg_one_marker)
 # [1] 3011   14
 # [1] 2475   13
-# [1] 66641    29
+# [1] 66641    30
 
 ### check permit_regions ----
-join_vessel_and_trip_end |>
+join_vessel_and_trip |>
   dplyr::filter(!permit_region == permit_sa_gom) |>
   dplyr::select(permit_region, permit_sa_gom) |>
   dplyr::distinct() |>
@@ -1568,29 +1567,29 @@ join_vessel_and_trip_end |>
 #   permit_region permit_sa_gom
 # 1           GOM      gom_only
 # 2           GOM          dual
-# 3           GOM       sa_only
+# 3           GOM       sa_only !
 # 4            SA       sa_only
-# 5            SA          dual
+# 5            SA          dual !
 
 #' TODO: compare regions, why diff. Permits in logbooks (trips) and in permit data are different
 #'
 
-join_vessel_and_trip_end |>
-  dplyr::filter(permit_region == "gom_and_dual" &
+join_vessel_and_trip |>
+  dplyr::filter(permit_region == "GOM" &
                   permit_sa_gom == "sa_only") |>
   dim()
 # 6
-# 0 35
+# [1] 257  36
 
-join_vessel_and_trip_end |>
-  dplyr::filter(permit_region == "sa_only" &
+join_vessel_and_trip |>
+  dplyr::filter(permit_region == "SA" &
                   permit_sa_gom == "dual") |>
   dim()
 # 40
-# 0 19
+# [1] 318  36
 
-join_vessel_and_trip_end |>
-  dplyr::filter(permit_region == "sa_only" &
+join_vessel_and_trip |>
+  dplyr::filter(permit_region == "SA" &
            permit_sa_gom == "gom_only") |>
   dim()
 # FL1921PM
@@ -1599,14 +1598,100 @@ join_vessel_and_trip_end |>
 # PENSACOLA, FL
 # dual
 
-# 0 35 processed data
+# 0 36 processed data
+# OK
 
-# vessel_id, vessel_official_number, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, permit_region, start_port_state_name, end_port_state_name, one_start_port_marker, PERMIT_VESSEL_ID, permit_sa_gom, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER
+start_port_cols <- c(
+  "vessel_id",
+  "vessel_official_number",
+  "start_port",
+  "start_port_name",
+  "start_port_county",
+  "start_port_state",
+  "end_port",
+  "end_port_name",
+  "end_port_county",
+  "end_port_state",
+  "permit_region",
+  "start_port_state_name",
+  "end_port_state_name",
+  "one_start_port_marker",
+  "PERMIT_VESSEL_ID",
+  "permit_sa_gom",
+  "SERO_HOME_PORT_CITY",
+  "SERO_HOME_PORT_COUNTY",
+  "SERO_HOME_PORT_STATE",
+  "SERO_OFFICIAL_NUMBER"
+)
 
 ### By start port: add columns for different start and home port names, counties and states ----
 tic("join_vessel_and_trip_start_port_diff")
 join_vessel_and_trip_start_port_diff <-
-  join_vessel_and_trip_start |>
+  join_vessel_and_trip |>
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(
+    diff_start_port_state =
+      dplyr::case_when(
+        !tolower(start_port_state) == tolower(SERO_HOME_PORT_STATE) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_start_port_county =
+      dplyr::case_when(
+        !tolower(start_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_start_port_name_or_city =
+      dplyr::case_when(
+        !tolower(start_port_name) == tolower(SERO_HOME_PORT_CITY) ~
+          "yes",
+        .default = "no"
+      )
+  ) |>
+  mutate(
+    diff_end_port_state =
+      dplyr::case_when(
+        !tolower(end_port_state) == tolower(SERO_HOME_PORT_STATE) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_end_port_county =
+      dplyr::case_when(
+        !tolower(end_port_county) == tolower(SERO_HOME_PORT_COUNTY) ~
+          "yes",
+        .default = "no"
+      ),
+    diff_end_port_name_or_city =
+      dplyr::case_when(
+        !tolower(end_port_name) == tolower(SERO_HOME_PORT_CITY) ~
+          "yes",
+        .default = "no"
+      )
+  ) |>
+ dplyr::ungroup()
+toc()
+# join_vessel_and_trip_start_port_diff: 1.74 sec elapsed
+
+#' Explanation:
+#'
+#' 1. Start measuring the execution time using the `tic()` function.
+#'
+#' 2. Create a new data frame "join_vessel_and_trip_start_port_diff" by applying operations to "join_vessel_and_trip_start".
+#'
+#' 3. Group the data by "vessel_official_number".
+#'
+#' 4. Add columns indicating differences between home port and trip start/end ports for both start and end ports.
+#'
+#' 5. Ungroup the data.
+#'
+#' 6. Stop measuring the execution time using the `toc()` function and display the elapsed time.
+#'
+
+join_vessel_and_trip_start_port_diff1 <-
+  join_vessel_and_trip |>
+  # select(any_of(start_port_cols)) |>
+  # distinct() |>
   dplyr::group_by(vessel_official_number) |>
   dplyr::mutate(
     diff_start_port_state =
@@ -1648,24 +1733,21 @@ join_vessel_and_trip_start_port_diff <-
         .default = "no"
       )
   ) |>
-  dplyr::ungroup()
-toc()
-# join_vessel_and_trip_start_port_diff: 1.74 sec elapsed
+  dplyr::ungroup() |>
+  arrange(
+    vessel_official_number,
+    "start_port",
+    "start_port_name",
+    "start_port_county",
+    "start_port_state",
+    "end_port",
+    "end_port_name",
+    "end_port_county",
+    "end_port_state",
+  )
 
-#' Explanation:
-#'
-#' 1. Start measuring the execution time using the `tic()` function.
-#'
-#' 2. Create a new data frame "join_vessel_and_trip_start_port_diff" by applying operations to "join_vessel_and_trip_start".
-#'
-#' 3. Group the data by "vessel_official_number".
-#'
-#' 4. Add columns indicating differences between home port and trip start/end ports for both start and end ports.
-#'
-#' 5. Ungroup the data.
-#'
-#' 6. Stop measuring the execution time using the `toc()` function and display the elapsed time.
-#'
+diffdf::diffdf(join_vessel_and_trip_start_port_diff,
+               join_vessel_and_trip_start_port_diff1)
 
 join_vessel_and_trip_start_port_diff |>
   dplyr::select(vessel_official_number,
