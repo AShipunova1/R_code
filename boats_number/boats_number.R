@@ -862,37 +862,62 @@ my_state_name[tolower("FL")]
 # "Florida"
 
 ### add a start_ and end_ port_reg columns ----
-
-processed_logbooks_short_port_states <-
+processed_logbooks_short_dates_state_names <-
   processed_logbooks_short_dates |>
   # Add columns for the state names corresponding to start and end ports.
   dplyr::mutate(start_port_state_name =
                   my_state_name[tolower(start_port_state)],
                 end_port_state_name   =
-                  my_state_name[tolower(end_port_state)]) |>
-  # Add a column 'start_port_reg' based on conditions using 'case_when'.
-  dplyr::mutate(
-    start_port_reg =
-      dplyr::case_when(
-        tolower(start_port_state_name) %in% tolower(sa_council_states) ~
-          "sa_council_state",
-        tolower(end_port_state_name) %in% tolower(east_coast_states$gom) ~
-          "gom_state",
-        .default = "sa_state"
-      )
-  ) |>
-  # the same for end ports
-  dplyr::mutate(
-    end_port_reg =
-      dplyr::case_when(
-        tolower(end_port_state_name) %in% tolower(sa_council_states) ~
-          "sa_council_state",
-        tolower(end_port_state_name) %in% tolower(east_coast_states$gom) ~
-          "gom_state",
-        .default = "sa_state"
-      )
-  )
+                  my_state_name[tolower(end_port_state)])
 
+# glimpse(processed_logbooks_short_dates_state_names)
+
+# Add a column 'start_' or 'end_port_reg' based on conditions using 'case_when'.
+get_start_or_end_port_reg <-
+  function(my_df, start_or_end) {
+
+    port_reg_col_name <- str_glue("{start_or_end}_port_reg")
+    port_state_name_col <-
+      sym(str_glue("{start_or_end}_port_state_name"))
+
+    new_df <-
+      my_df |>
+      dplyr::mutate(
+        !!port_reg_col_name :=
+          dplyr::case_when(
+            tolower(!!port_state_name_col) %in% tolower(sa_council_states) ~
+              "sa_council_state",
+            tolower(!!port_state_name_col) %in% tolower(east_coast_states$gom) ~
+              "gom_state",
+            tolower(!!port_state_name_col) %in% tolower(east_coast_states$sa) ~
+              "sa_state",
+            is.na(!!port_state_name_col) ~ NA,
+            .default = "unkown"
+          )
+      )
+
+
+    return(new_df)
+  }
+
+processed_logbooks_short_port_states <-
+  processed_logbooks_short_dates_state_names |>
+  get_start_or_end_port_reg("start") |>
+  get_start_or_end_port_reg("end")
+
+
+  # # the same for end ports
+  # dplyr::mutate(
+  #   end_port_reg =
+  #     dplyr::case_when(
+  #       tolower(end_port_state_name) %in% tolower(sa_council_states) ~
+  #         "sa_council_state",
+  #       tolower(end_port_state_name) %in% tolower(east_coast_states$gom) ~
+  #         "gom_state",
+  #       .default = "sa_state"
+  #     )
+  # )
+  #
 #' Explanation:
 #'
 #' 1. Create a new data frame "processed_logbooks_short_port_states" by applying operations to "processed_logbooks_short_port_region".
@@ -910,7 +935,7 @@ processed_logbooks_short_port_states <-
 #'    - Repeat for the "end" port names
 #'
 
-# print_df_names(processed_logbooks_short_port_states)
+# View(processed_logbooks_short_port_states)
 # [1] 3011   14
 # [1] 66641    26
 
@@ -957,8 +982,7 @@ processed_logbooks_short_port_states_fl_reg |>
 # 1381   17
 # [1] 37868    28
 
-# dplyr::glimpse(processed_logbooks_short_port_states_fl_reg)
-# TODO: redo all previous without NAs
+View(processed_logbooks_short_port_states_fl_reg)
 
 ### create one_port_marker ----
 #' Combine all previous region markers into one column
@@ -984,10 +1008,10 @@ processed_logbooks_short_port_states_fl_reg_one_marker_l <-
         !!one_port_marker_col_name :=
           dplyr::case_when(
             !!port_county_col == "MONROE" &
-              permit_region == "gom_and_dual" ~
+              permit_region == "GOM" ~
               "gom",
             !!port_county_col == "MONROE" &
-              permit_region == "sa_only" ~
+              permit_region == "SA" ~
               "sa",
             !!port_state_col == "FL" &
               !!port_fl_reg_col == "gom_county" ~
