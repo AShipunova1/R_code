@@ -752,12 +752,19 @@ ports_q_short_wider_list_diff |>
 ### count same or diff trip start or end ----
 
 ports_q_short_wider_list_diff_cnts <-
-  ports_q_short_wider_list_diff |>
-  purrr::map(\(one_df) {
-    one_df |>
-      dplyr::select(vessel_official_number, same) |>
-      dplyr::count(same)
+  list("start", "end") |>
+  purrr::map(\(one_str) {
+    num_column_name <-
+      str_glue("all_{one_str}_ports_num")
+    ports_q_short_wider_list_diff[[one_str]] |>
+      dplyr::select(vessel_official_number,
+                    ends_with("_ports_num")) |>
+      dplyr::count(!!sym(num_column_name))
   })
+
+names(ports_q_short_wider_list_diff_cnts) <-
+  c("start", "end")
+
 # start
 # 1 FALSE  1421 (incl. NAs)
 # 2 TRUE    455
