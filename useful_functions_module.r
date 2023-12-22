@@ -994,7 +994,7 @@ get_df_name_as_text <-
 #   title_msg <- df_name
 # }
 
-# Define a helper function 'title_message_print' to print the title message in blue.
+# to print the title message in blue.
 title_message_print <- function(title_msg) {
   cat(crayon::blue(title_msg), sep = "\n")
 }
@@ -1046,7 +1046,7 @@ read_rds_or_run <- function(my_file_path,
         is.null(force_from_db)) {
         # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
 
-        function_message("File already exists, reading.")
+        function_message_print("File already exists, reading.")
 
         my_result <- readr::read_rds(my_file_path)
 
@@ -1055,7 +1055,7 @@ read_rds_or_run <- function(my_file_path,
       # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
 
       # 0. Print this message.
-      function_message(c(
+      function_message_print(c(
         "File",
         my_file_path,
         "doesn't exists, pulling data from database.",
@@ -1077,7 +1077,7 @@ read_rds_or_run <- function(my_file_path,
       # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
 
       # 4. Print this message.
-      function_message(c("Saving new data into a file here: ",
+      function_message_print(c("Saving new data into a file here: ",
                        my_file_path))
 
       try(readr::write_rds(my_result,
