@@ -65,6 +65,7 @@ port_fields_short <-
     "start_port_state",
     "start_port_county",
     "start_port",
+    "trip_id",
     "trip_end_date",
     "trip_start_date",
     "latitude",
@@ -83,6 +84,7 @@ dim(processed_logbooks_short)
 # [1] 2475    6 (no overridden)
 # [1] 66641     8 with start and end dates
 # [1] 72246    14 with lat/long
+# [1] 73368    15 with trip_id
 
 ### add date related columns ----
 tic("processed_logbooks_short_dates")
@@ -176,12 +178,15 @@ dim(join_trip_and_vessel)
 # [1] 2475   19 (processed logbooks)
 # [1] 66641    35
 # [1] 72246    29 with lat/long
+# [1] 73368    30 with trip_id
 
+# with overridden
 # vessel_id             1876
 # vessel_official_number   1876
 # permit_sa_gom            4
 # SERO_OFFICIAL_NUMBER  1785
 
+# w/o overridden
 # vessel_official_number 1629
 # permit_region             2
 # PERMIT_VESSEL_ID        1562
@@ -229,18 +234,38 @@ diffdf::diffdf(join_trip_and_vessel_low,
 # How many SEFHIER vessels have a different start port county than end port county? ----
 
 # Numbers, by quarter (1-4):
-print_df_names(join_trip_and_vessel)
+print_df_names(join_trip_and_vessel_clean)
+# [1] "vessel_official_number, end_port_name, end_port_state, end_port_county, end_port, permit_region, start_port_name, start_port_state, start_port_county, start_port, trip_id, trip_end_date, trip_start_date, latitude, longitude, trip_start_week_num, trip_end_week_num, trip_start_y, trip_end_y, trip_start_m, trip_end_m, trip_start_year_quarter, trip_start_quarter_num, trip_end_year_quarter, trip_end_quarter_num, permit_vessel_id, vessel_vessel_id, sero_home_port_city, sero_home_port_county, sero_home_port_state"
 
+## different counties ----
 start_end_county_diff <-
-  join_trip_and_vessel |>
-  dplyr::select(vessel_official_number,
-         permit_region,
-         trip_start_year_quarter,
-         home_port_county) |>
-  dplyr::distinct()
+  join_trip_and_vessel_clean |>
+  select(
+    vessel_official_number,
+    permit_region,
+    trip_id,
+    sero_home_port_county,
+    end_port_county
+  ) |>
+  # can use distinct, because we are not interested in the number of such occasions
+  distinct() |>
+  group_by(vessel_official_number, trip_id, permit_region) |>
+  filter(!sero_home_port_county == end_port_county) |>
+  ungroup() |>
+  select(-trip_id) |>
+  distinct()
 
+# check
+start_end_county_diff |>
+  filter(vessel_official_number == "al4295ak") |>
+  View()
 
+start_end_county_diff |>
+  # group_by(permit_region, sero_home_port_county, end_port_county)
+  count(permit_region, sero_home_port_county, end_port_county) |>
+  View()
 
+## count different counties ----
 
 ## multiple_end_port_states ----
 # print_df_names(processed_logbooks_short_port_fields_all)
