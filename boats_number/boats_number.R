@@ -466,21 +466,25 @@ write_csv(start_end_state_diff_num_gom_only_res,
           )
 
 # add region to states ----
-View(start_end_state_diff_num_gom_only_res)
-start_end_state_diff_num_gom_only_res |>
+
+
+start_end_county_diff_num_gom_only_res |>
   rowwise() |>
   mutate(
     end_state_region =
       case_when(
+        !end_port_state == "Florida" &
           end_port_state
         %in% east_coast_states$gom ~ "GOM",
+        end_port_state == "Florida" &
+          end_port_county %in% fl_counties$gom ~ "GOM",
         is.na(end_port_state) ~ NA,
         .default = "SA"
       )
   ) |>
   ungroup() |>
   arrange(desc(end_state_region)) |>
-  glimpse()
+  View()
 
 # result:
 #' Nothing to show, only 1 vessel has trips starting in Fl and ending in North Carolina in Q2 and 1 vessel in Q4.
