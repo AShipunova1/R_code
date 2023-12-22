@@ -227,19 +227,87 @@ join_trip_and_vessel_clean <-
 diffdf::diffdf(join_trip_and_vessel_low,
                join_trip_and_vessel_clean)
 
-#' %%%%% Boat movement numbers
+
+# aux funcion to add regions to states ----
+
+# join_trip_and_vessel_clean |>
+#   select(start_port_state) |>
+#   distinct()
+
+add_region_to_state <-
+  function(my_df, start_or_end) {
+    result_column_name <-
+      str_glue("{start_or_end}_state_region")
+
+    port_state_column <-
+      sym(str_glue("{start_or_end}_port_state"))
+
+    port_county_column <-
+      sym(str_glue("{start_or_end}_port_county"))
+
+    is_st_florida <-
+      rlang::quo(!!port_state_column == "fl")
+
+    is_gom_state <-
+      rlang::quo(my_state_name[[!!port_state_column]]
+                 %in% east_coast_states$gom)
+
+    is_gom_fl_county <-
+      rlang::quo(!!port_county_column %in% tolower(fl_counties$gom))
+
+    new_df <-
+      my_df |>
+      rowwise() |>
+      mutate(
+        !!result_column_name :=
+          case_when(
+            !(!!is_st_florida) & !!is_gom_state ~ "gom",
+
+            !!is_st_florida & !!is_gom_fl_county ~ "gom",
+
+            is.na(!!port_state_column) ~ NA,
+
+            .default = "sa"
+          )
+      ) |>
+      ungroup()
+
+    return(new_df)
+  }
+
+# TODO: Why there is no home port?
+join_trip_and_vessel_clean |>
+  filter(is.na(sero_home_port_state)) |>
+  select(contains("port")) |>
+  distinct() |>
+  glimpse()
+
+# Add port state regions ----
+# ?? Use a start port state instead of filter(!is.na(sero_home_port_state))
+tic("join_trip_and_vessel_clean_state_regions")
+join_trip_and_vessel_clean_state_regions <-
+  join_trip_and_vessel_clean |>
+  filter(!is.na(sero_home_port_state)) |>
+  add_region_to_state("sero_home") |>
+  add_region_to_state("end")
+toc()
+# join_trip_and_vessel_clean_state_regions: 33.63 sec elapsed
+
+# get only GOM home ports ----
+join_trip_and_vessel_clean_state_regions_gom_only <-
+  join_trip_and_vessel_clean_state_regions |>
+  filter(sero_home_state_region == "gom")
+
+#' %%%%% Boat movement numbers for GOM
 #'
 
-# How many SEFHIER vessels have a different start port county than end port county? ----
+# How many GOM SEFHIER vessels have a different start port county than end port county? ----
 
-print_df_names(join_trip_and_vessel_clean)
-# [1] "vessel_official_number, end_port_name, end_port_state, end_port_county, end_port, permit_region, start_port_name, start_port_state, start_port_county, start_port, trip_id, trip_end_date, trip_start_date, latitude, longitude, trip_start_week_num, trip_end_week_num, trip_start_y, trip_end_y, trip_start_m, trip_end_m, trip_start_year_quarter, trip_start_quarter_num, trip_end_year_quarter, trip_end_quarter_num, permit_vessel_id, vessel_vessel_id, sero_home_port_city, sero_home_port_county, sero_home_port_state"
+print_df_names(join_trip_and_vessel_clean_state_regions_gom_only)
 
 ## different counties ----
-
 columns_to_keep <- c(
   "vessel_official_number",
-  "permit_region",
   "trip_id",
   "sero_home_port_county",
   "sero_home_port_state",
@@ -248,8 +316,9 @@ columns_to_keep <- c(
 )
 
 start_end_county_diff <-
-  join_trip_and_vessel_clean |>
+  join_trip_and_vessel_clean_state_regions_gom_only |>
   select(all_of(columns_to_keep),
+         contains("region"),
          contains("quarter")) |>
   # can use distinct, because we are not interested in the number of such occasions
   distinct() |>
@@ -273,7 +342,8 @@ start_end_county_diff |>
   glimpse()
 
 ## count different counties ----
-start_end_county_diff |> print_df_names()
+# start_end_county_diff |> print_df_names()
+
 start_end_county_diff_num <-
   start_end_county_diff |>
   add_count(permit_region, sero_home_port_county, end_port_county, trip_end_year_quarter)
@@ -465,74 +535,22 @@ write_csv(start_end_state_diff_num_gom_only_res,
                     "state_diff_all.csv"),
           )
 
-# add region to states ----
+#' How many SEFHIER vessels have a different start port region (Gulf) than end port region (South Atlantic)?
 
-add_region_to_state <-
-  function(my_df, start_or_end) {
-
-    result_column_name <-
-      str_glue("{start_or_end}_state_region")
-
-    port_state_column <-
-      sym(str_glue("{start_or_end}_port_state"))
-
-    port_county_column <-
-      sym(str_glue("{start_or_end}_port_county"))
-
-    is_st_florida <-
-      rlang::quo(!!port_state_column == "Florida")
-
-    new_df <-
-      my_df |>
-      rowwise() |>
-      mutate(
-        !!result_column_name :=
-          case_when(
-            !(!!is_st_florida) &
-              !!port_state_column
-            %in% east_coast_states$gom ~ "GOM",
-
-            !!is_st_florida &
-              !!port_county_column %in% fl_counties$gom ~ "GOM",
-
-            is.na(!!port_state_column) ~ NA,
-
-            .default = "SA"
-          )
-      ) |>
-      ungroup()
-
-    return(new_df)
-  }
 
 start_end_county_diff_num_gom_only_res_region <-
   start_end_county_diff_num_gom_only_res |>
-  rowwise() |>
-  mutate(
-    end_state_region =
-      case_when(
-        !end_port_state == "Florida" &
-          end_port_state
-        %in% east_coast_states$gom ~ "GOM",
-        end_port_state == "Florida" &
-          end_port_county %in% fl_counties$gom ~ "GOM",
-        is.na(end_port_state) ~ NA,
-        .default = "SA"
-      )
-  ) |>
-  ungroup() |>
+  add_region_to_state("home") |>
+  add_region_to_state("end") |>
   arrange(desc(end_state_region))
 
-aa <-
-  add_region_to_state(start_end_county_diff_num_gom_only_res, "end") |>
-    arrange(desc(end_state_region))
+View(start_end_county_diff_num_gom_only_res_region)
 
+# result
 
-diffdf::diffdf(start_end_county_diff_num_gom_only_res_region,
-               aa)
-# same
-# result:
 #' Nothing to show, only 1 vessel has trips starting in Fl and ending in North Carolina in Q2 and 1 vessel in Q4.
+#' Plus 1 vessel in Q1 from Sarasota, Florida to Duval, Florida
+
 
 # TODO: divide Florida by county
 
