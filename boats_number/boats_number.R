@@ -43,11 +43,11 @@ boats_number_get_data_info_path <-
 
 source(boats_number_get_data_info_path)
 
-# processed_logbooks ----
+## processed_logbooks ----
 
-names(processed_logbooks_clean_names) |>
-  sort() |>
-  cat(sep = ", ")
+# names(processed_logbooks_clean_names) |>
+#   sort() |>
+#   cat(sep = ", ")
 
 # to use in lists
 start_end_words <-
@@ -66,7 +66,9 @@ port_fields_short <-
     "start_port_county",
     "start_port",
     "trip_end_date",
-    "trip_start_date"
+    "trip_start_date",
+    "latitude",
+    "longitude"
   )
 
 # grep("state", names(processed_logbooks_clean_names), value = T, ignore.case = T)
