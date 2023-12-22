@@ -105,13 +105,13 @@ names(my_state_abb) <- tolower(state.name)
 names(my_state_name) <- tolower(state.abb)
 
 # result names
-cat(
+result_names <- c(
   "south_east_coast_states",
   "east_coast_states",
   "fl_counties",
   "sa_council_states",
   "my_state_abb",
-  "my_state_name",
-  sep = "\n"
+  "my_state_name"
 )
 
+title_message_print(result_names)
