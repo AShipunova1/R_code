@@ -1,9 +1,10 @@
 # Prepare all_logbooks_db_data_2022_short_p_region
 # 1) download all db data
-# 2) use "all logbooks = mv_safis_trip_download
+# 2) a) use processed logbooks
+#    b) or "all logbooks = mv_safis_trip_download
 # 3) Filter 2022 only
 # 4) Remove unused columns
-# 5) Mark sa_only vs. gom and dual for 2022 using vessel list from Jeanette’s comparison
+# 5) Don't do this until further notice: Mark sa_only vs. gom and dual for 2022 using vessel list from Jeanette’s comparison
 
 rm_columns <- c("ACTIVITY_TYPE",
 "ANYTHING_CAUGHT_FLAG",
@@ -99,13 +100,11 @@ tic("run_all_get_db_data()")
 all_get_db_data_result_l <- run_all_get_db_data()
 toc()
 
-# dim(all_get_db_data_result_l$mv_safis_trip_download)
-# [1] 735666    149
-
 # get logbooks 2022 only ----
 ## logbooks data----
 # for qmd use  #' {{< include .qmd >}} instead of source()
 
+# 2a)
 # use all logbooks from https://drive.google.com/drive/folders/1HipnxawNsDjrsMc4dXgFwdRPQ3X6-x3n
 processed_logb_path <-
   file.path(my_paths$inputs,
@@ -118,6 +117,10 @@ processed_logbooks <-
 
 processed_logbooks_clean_names <-
   clean_headers(processed_logbooks)
+
+# 2b)
+# dim(all_get_db_data_result_l$mv_safis_trip_download)
+# [1] 735666    149
 
 # intersect(ordered(names(processed_logbooks_clean_names)),
 #           ordered(names(all_logbooks_db_data_2022_short_p_region)))
