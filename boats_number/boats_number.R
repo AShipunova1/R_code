@@ -245,6 +245,7 @@ start_end_county_diff <-
     permit_region,
     trip_id,
     sero_home_port_county,
+    sero_home_port_state,
     end_port_county
   ) |>
   # can use distinct, because we are not interested in the number of such occasions
@@ -266,6 +267,21 @@ start_end_county_diff |>
   View()
 
 ## count different counties ----
+start_end_county_diff_num <-
+  start_end_county_diff |>
+  count(permit_region, sero_home_port_state, sero_home_port_county, end_port_county)
+
+dim(start_end_county_diff_num)
+# [1] 250   5
+
+### spot check counts ----
+join_trip_and_vessel_clean |>
+  filter(sero_home_port_county == "collier" &
+           end_port_county == "lee") |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# [1] 2
 
 ## multiple_end_port_states ----
 # print_df_names(processed_logbooks_short_port_fields_all)
