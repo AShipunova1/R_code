@@ -168,7 +168,7 @@ join_trip_and_vessel <-
     processed_logbooks_short_dates,
     vessel_permit_port_info_short_clean,
     dplyr::join_by(vessel_official_number ==
-                     SERO_OFFICIAL_NUMBER)
+                     sero_official_number)
   )
 
 dim(join_trip_and_vessel)
@@ -191,6 +191,28 @@ dim(join_trip_and_vessel)
 # SERO_HOME_PORT_STATE      20
 # latitude                52887
 # longitude               53423
+
+# remove trailing spaces
+
+join_trip_and_vessel_trim <-
+  join_trip_and_vessel |>
+  mutate_if(is.character, str_trim)
+
+diffdf::diffdf(join_trip_and_vessel,
+               join_trip_and_vessel_trim)
+
+#
+#          Variable         No of Differences
+#   ------------------------------------------
+#     sero_home_port_city         1287
+#    sero_home_port_county         538
+
+## Lower case of all data ----
+join_trip_and_vessel_low <-
+  join_trip_and_vessel_trim |>
+  mutate_if(is.character, tolower)
+
+# View(join_trip_and_vessel_low)
 
 #' %%%%% Boat movement numbers
 #'
