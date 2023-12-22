@@ -18,9 +18,6 @@ library(this.path)
 # Prints an R object in markdown, needed to print pretty table from list of dfs.
 library(pander)
 
-# Colorblind-Friendly Color Map for R
-library(viridis)
-
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
