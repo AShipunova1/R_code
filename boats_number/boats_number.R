@@ -212,7 +212,16 @@ join_trip_and_vessel_low <-
   join_trip_and_vessel_trim |>
   mutate_if(is.character, tolower)
 
-# View(join_trip_and_vessel_low)
+# remove not a-z in strings (e.g. "St. John" or
+# "miami dade" vs. "miami-dade")
+
+join_trip_and_vessel_clean <-
+  join_trip_and_vessel_low |>
+  mutate_if(is.character,
+         ~str_replace_all(., "[^a-z0-9]+", "_"))
+
+diffdf::diffdf(join_trip_and_vessel_low,
+               join_trip_and_vessel_clean)
 
 #' %%%%% Boat movement numbers
 #'
