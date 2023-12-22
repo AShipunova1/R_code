@@ -198,9 +198,18 @@ dim(join_trip_and_vessel)
 # How many SEFHIER vessels have a different start port county than end port county? ----
 
 # Numbers, by quarter (1-4):
+print_df_names(join_trip_and_vessel)
 
-processed_logbooks_short_start_end_diff <-
-  processed_logbooks_short_dates |>
+start_end_county_diff <-
+  join_trip_and_vessel |>
+  dplyr::select(vessel_official_number,
+         permit_region,
+         trip_start_year_quarter,
+         home_port_county) |>
+  dplyr::distinct()
+
+
+
 
 ## multiple_end_port_states ----
 # print_df_names(processed_logbooks_short_port_fields_all)
