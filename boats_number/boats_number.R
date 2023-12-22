@@ -258,12 +258,7 @@ start_end_county_diff <-
 
 # check
 start_end_county_diff |>
-  filter(vessel_official_number == "al4295ak") |>
-  View()
-
-start_end_county_diff |>
-  # group_by(permit_region, sero_home_port_county, end_port_county)
-  count(permit_region, sero_home_port_county, end_port_county) |>
+  filter(vessel_official_number %in% c("al4295ak", "1270320")) |>
   View()
 
 ## count different counties ----
@@ -282,6 +277,43 @@ join_trip_and_vessel_clean |>
   distinct() |>
   nrow()
 # [1] 2
+
+### result table for GOM ----
+start_end_county_diff_num_gom_only <-
+  start_end_county_diff_num |>
+  filter(permit_region == "gom") |>
+  # to use only one sero_home_port_state each time
+  rowwise() |>
+  filter(my_state_name[[sero_home_port_state]]
+     %in% east_coast_states$gom) |>
+  ungroup()
+
+# check
+# start_end_county_diff_num_gom_only |>
+# select(sero_home_port_state) |>
+  # distinct()
+  # dim()
+# [1] 134  5
+
+start_end_county_diff_num_gom_only_res <-
+  start_end_county_diff_num_gom_only |>
+  select(-permit_region) |>
+  rowwise() |>
+  mutate(home_port_state =
+           my_state_name[[sero_home_port_state]]) |>
+  mutate(
+    home_port_county = str_to_title(sero_home_port_county),
+    end_port_county = str_to_title(end_port_county)
+  ) |>
+  ungroup() |>
+  select(-c(sero_home_port_county,
+         sero_home_port_state)) |>
+  relocate(home_port_state,
+           home_port_county,
+           end_port_county,
+           num_of_vessels = n)
+
+View(start_end_county_diff_num_gom_only_res)
 
 ## multiple_end_port_states ----
 # print_df_names(processed_logbooks_short_port_fields_all)
