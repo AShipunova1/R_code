@@ -977,10 +977,59 @@ separate_permits_into_3_groups <-
 #   }
 
 # Pretty message print
-function_message <- function(text_msg) {
+function_message_print <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
       sep = "\n")
 }
+
+get_df_name_as_text <-
+  function(my_df) {
+    df_name = deparse(substitute(my_df))
+    return(df_name)
+  }
+
+# # A title
+# if (is.na(title_msg))  {
+#   df_name = deparse(substitute(my_df))
+#   title_msg <- df_name
+# }
+
+# Define a helper function 'title_message_print' to print the title message in blue.
+title_message_print <- function(title_msg) {
+  cat(crayon::blue(title_msg), sep = "\n")
+}
+
+
+# Define a helper function 'my_tee' to print the message to the console and a file.
+my_tee <- function(my_text,
+                   my_title = NA,
+                   stat_log_file_path = NA,
+                   date_range = NA) {
+
+  the_end = "---"
+
+  if (is.na(date_range)) date_range = 2022
+
+  # Print out to console
+  title_message_print(my_title)
+  cat(c(my_text, the_end),
+      sep = "\n")
+
+  # Create a new file every day
+  if (is.na(stat_log_file_path)) {
+    stat_log_file_path <-
+      file.path(Path,
+                Outputs,
+                str_glue("{my_title}_{date_range}_run_{today()}.log"))
+  }
+
+  # Write to a log file
+  cat(c(my_title, my_text, the_end),
+      file = stat_log_file_path,
+      sep = "\n",
+      append = TRUE)
+}
+
 
 # ===
 # A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
