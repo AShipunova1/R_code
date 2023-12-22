@@ -232,7 +232,6 @@ diffdf::diffdf(join_trip_and_vessel_low,
 
 # How many SEFHIER vessels have a different start port county than end port county? ----
 
-# Numbers, by quarter (1-4):
 print_df_names(join_trip_and_vessel_clean)
 # [1] "vessel_official_number, end_port_name, end_port_state, end_port_county, end_port, permit_region, start_port_name, start_port_state, start_port_county, start_port, trip_id, trip_end_date, trip_start_date, latitude, longitude, trip_start_week_num, trip_end_week_num, trip_start_y, trip_end_y, trip_start_m, trip_end_m, trip_start_year_quarter, trip_start_quarter_num, trip_end_year_quarter, trip_end_quarter_num, permit_vessel_id, vessel_vessel_id, sero_home_port_city, sero_home_port_county, sero_home_port_state"
 
@@ -356,28 +355,139 @@ setdiff(
 )
 # [1] "hernando" "taylor"
 
+#### make the result table ----
+print_df_names(start_end_county_diff_num_gom_only)
+
 start_end_county_diff_num_gom_only_res <-
   start_end_county_diff_num_gom_only |>
   select(-permit_region) |>
   rowwise() |>
   mutate(home_port_state =
            my_state_name[[sero_home_port_state]]) |>
+  mutate(end_port_state =
+           my_state_name[[end_port_state]]) |>
   mutate(
     home_port_county = str_to_title(sero_home_port_county),
     end_port_county = str_to_title(end_port_county)
   ) |>
   ungroup() |>
-  select(-c(sero_home_port_county,
-         sero_home_port_state)) |>
-  relocate(home_port_state,
-           home_port_county,
-           end_port_county,
-           num_of_vessels = n)
+  select(
+    -c(
+      sero_home_port_county,
+      sero_home_port_state,
+      trip_start_year_quarter,
+      trip_start_quarter_num,
+      trip_end_quarter_num,
+      vessel_official_number
+    )
+  ) |>
+  relocate(
+    trip_end_year_quarter,
+    home_port_state,
+    home_port_county,
+    end_port_state,
+    end_port_county,
+    diff_county_num_of_vessels = n
+  )
 
-View(start_end_county_diff_num_gom_only_res)
+write_csv(start_end_county_diff_num_gom_only_res,
+          "start_end_county_diff_num_gom_only_res.csv")
 
-## multiple_end_port_states ----
-# print_df_names(processed_logbooks_short_port_fields_all)
+# diff county numbers, by quarter (1-4):
+start_end_county_diff_num_gom_only_res_quarter <-
+  start_end_county_diff_num_gom_only_res |>
+  group_by(trip_end_year_quarter) |>
+  count(wt = diff_county_num_of_vessels,
+        name = "diff_county_num_of_vessels_tot")
+
+# How many SEFHIER vessels have a different start port county than end port state? ----
+
+## different start and end states in one trip ----
+
+start_end_state_diff_num_gom_only_res <-
+  start_end_county_diff_num_gom_only_res |>
+  count(
+    trip_end_year_quarter,
+    home_port_state,
+    end_port_state,
+    name = "diff_states_num_of_vessels"
+  ) |>
+  arrange(trip_end_year_quarter,
+          desc(diff_states_num_of_vessels)) |>
+  filter(!home_port_state == end_port_state)
+
+glimpse(start_end_state_diff_num_gom_only_res)
+
+### spot check ----
+
+start_end_state_diff_num_gom_only_res |>
+  filter(home_port_state == "Florida" &
+           end_port_state == "Alabama" &
+           trip_end_year_quarter == "2022 Q2") |>
+  glimpse()
+# 2022 Q2
+# Florida
+# Alabama
+# 5
+
+join_trip_and_vessel_clean |>
+  filter(sero_home_port_state == "fl" &
+           end_port_state == "al" &
+           trip_end_quarter_num == 2) |>
+  select(vessel_official_number,
+         trip_end_year_quarter,
+         sero_home_port_state,
+         end_port_state) |>
+  distinct() |>
+  nrow()
+# 5
+# OK
+
+## Numbers, by quarter (1-4) ----
+
+start_end_state_diff_num_gom_only_res_quarter <-
+  start_end_state_diff_num_gom_only_res |>
+  group_by(trip_end_year_quarter) |>
+  count(wt = diff_states_num_of_vessels,
+        name = "diff_states_num_of_vessels_tot")
+
+## save results to csvs ----
+output_path <- file.path(my_paths$outputs,
+                         current_project_basename)
+
+write_csv(start_end_state_diff_num_gom_only_res_quarter,
+          file.path(output_path,
+                    "state_diff_by_quarter.csv"),
+          )
+
+write_csv(start_end_state_diff_num_gom_only_res,
+          file.path(output_path,
+                    "state_diff_all.csv"),
+          )
+
+# add region to states ----
+View(start_end_state_diff_num_gom_only_res)
+start_end_state_diff_num_gom_only_res |>
+  rowwise() |>
+  mutate(
+    end_state_region =
+      case_when(
+          end_port_state
+        %in% east_coast_states$gom ~ "GOM",
+        is.na(end_port_state) ~ NA,
+        .default = "SA"
+      )
+  ) |>
+  ungroup() |>
+  arrange(desc(end_state_region)) |>
+  glimpse()
+
+# result:
+#' Nothing to show, only 1 vessel has trips starting in Fl and ending in North Carolina in Q2 and 1 vessel in Q4.
+
+# TODO: divide Florida by county
+
+# old ----
 
 multiple_end_port_states <-
   processed_logbooks_short_port_fields_all |>
