@@ -208,7 +208,6 @@ diffdf::diffdf(join_trip_and_vessel,
 
 #
 #          Variable         No of Differences
-#   ------------------------------------------
 #     sero_home_port_city         1287
 #    sero_home_port_county         538
 
@@ -223,7 +222,7 @@ join_trip_and_vessel_low <-
 join_trip_and_vessel_clean <-
   join_trip_and_vessel_low |>
   mutate_if(is.character,
-         ~str_replace_all(., "[^a-z0-9]+", "_"))
+         ~str_replace_all(., "[^a-z0-9]+", " "))
 
 diffdf::diffdf(join_trip_and_vessel_low,
                join_trip_and_vessel_clean)
@@ -272,7 +271,7 @@ join_trip_and_vessel_clean |>
 
 start_end_county_diff |>
   filter(vessel_official_number %in% c("al4295ak", "1270320")) |>
-  View()
+  glimpse()
 
 ## count different counties ----
 start_end_county_diff |> print_df_names()
@@ -316,21 +315,48 @@ start_end_county_diff_num |>
 # $ n                       <int> 1, 2, 2, 1
 
 ### result table for GOM ----
+### GOM only ----
 start_end_county_diff_num_gom_only <-
   start_end_county_diff_num |>
   filter(permit_region == "gom") |>
   # to use only one sero_home_port_state each time
   rowwise() |>
   filter(my_state_name[[sero_home_port_state]]
-     %in% east_coast_states$gom) |>
+         %in% east_coast_states$gom) |>
+# convert sero_home_port_county back to spaces ("Santa Rosa")
+  mutate(sero_home_port_county = str_tr)
+start_end_county_diff_num_gom_only |>
+  filter(
+    sero_home_port_state == "fl" &
+      sero_home_port_county %in% tolower(fl_counties$gom)
+    |
+      !sero_home_port_state == "fl"
+  ) |>
+
+
   ungroup()
 
 # check
-# start_end_county_diff_num_gom_only |>
+start_end_county_diff_num_gom_only |>
 # select(sero_home_port_state) |>
-  # distinct()
-  # dim()
+# distinct() |>
+dim()
 # [1] 134  5
+# [1] 287  11
+
+# if going to do that convert sero_home_port_county back to spaces ("Santa Rosa")
+start_end_county_diff_num_gom_only |>
+  filter(
+    sero_home_port_state == "fl" &
+      sero_home_port_county %in% tolower(fl_counties$gom)
+    |
+      !sero_home_port_state == "fl"
+  ) |>
+  select(sero_home_port_county) |>
+  distinct() |>
+  dim()
+# 39
+# 260 if remove sa fl counties
 
 start_end_county_diff_num_gom_only_res <-
   start_end_county_diff_num_gom_only |>
