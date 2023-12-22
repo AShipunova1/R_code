@@ -136,7 +136,12 @@ processed_logbooks_clean_names <-
 # 3
 
 ## input data names ----
-# all_get_db_data_result_l
+input_data_df_names <-
+  c("all_get_db_data_result_l",
+    "processed_logbooks_clean_names")
+
+title_message_print(input_data_df_names)
+
 # all_logbooks_db_data_2022_short_p_region
 
 # diffdf::diffdf(all_logbooks_db_data_2022_short_p_region,
