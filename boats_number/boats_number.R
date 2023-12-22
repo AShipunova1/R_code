@@ -323,17 +323,12 @@ start_end_county_diff_num_gom_only <-
   rowwise() |>
   filter(my_state_name[[sero_home_port_state]]
          %in% east_coast_states$gom) |>
-# convert sero_home_port_county back to spaces ("Santa Rosa")
-  mutate(sero_home_port_county = str_tr)
-start_end_county_diff_num_gom_only |>
   filter(
     sero_home_port_state == "fl" &
       sero_home_port_county %in% tolower(fl_counties$gom)
     |
       !sero_home_port_state == "fl"
   ) |>
-
-
   ungroup()
 
 # check
@@ -342,21 +337,24 @@ start_end_county_diff_num_gom_only |>
 # distinct() |>
 dim()
 # [1] 134  5
-# [1] 287  11
+# [1] 287  11 all FL counties
+# [1] 270  11
 
-# if going to do that convert sero_home_port_county back to spaces ("Santa Rosa")
+# Which FL counties are not in the df?
+start_end_county_diff_num_gom_only_fl_counties_to_check <-
 start_end_county_diff_num_gom_only |>
   filter(
     sero_home_port_state == "fl" &
       sero_home_port_county %in% tolower(fl_counties$gom)
-    |
-      !sero_home_port_state == "fl"
   ) |>
   select(sero_home_port_county) |>
-  distinct() |>
-  dim()
-# 39
-# 260 if remove sa fl counties
+  distinct()
+
+setdiff(
+  tolower(fl_counties$gom),
+  start_end_county_diff_num_gom_only_fl_counties_to_check$sero_home_port_county
+)
+# [1] "hernando" "taylor"
 
 start_end_county_diff_num_gom_only_res <-
   start_end_county_diff_num_gom_only |>
