@@ -1,5 +1,14 @@
 #' %%%%% Prepare data
 #'
+#' Questions:
+#' How many SEFHIER vessels have a different start port county than end port county?
+#'   Numbers, by quarter (1-4):
+#' How many SEFHIER vessels have a different start port state than end port state?
+#'   Numbers, by quarter (1-4):
+#' How many SEFHIER vessels have a different start port region (Gulf) than end port region (South Atlantic)?
+#' Numbers, by quarter (1-4):
+#' How many Gulf permitted SEFHIER vessels fish in both the Gulf and South Atlantic?
+#'   Numbers, by quarter (1-4):
 
 # setup current project ----
 library(zoo)
@@ -37,7 +46,6 @@ boats_number_get_data_info_path <-
 
 source(boats_number_get_data_info_path)
 
-## remove unused fields from all_logbooks_db_data_2022_short_p_region or
 # processed_logbooks ----
 
 names(processed_logbooks_clean_names) |>
