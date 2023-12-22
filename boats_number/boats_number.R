@@ -238,16 +238,21 @@ print_df_names(join_trip_and_vessel_clean)
 # [1] "vessel_official_number, end_port_name, end_port_state, end_port_county, end_port, permit_region, start_port_name, start_port_state, start_port_county, start_port, trip_id, trip_end_date, trip_start_date, latitude, longitude, trip_start_week_num, trip_end_week_num, trip_start_y, trip_end_y, trip_start_m, trip_end_m, trip_start_year_quarter, trip_start_quarter_num, trip_end_year_quarter, trip_end_quarter_num, permit_vessel_id, vessel_vessel_id, sero_home_port_city, sero_home_port_county, sero_home_port_state"
 
 ## different counties ----
+
+columns_to_keep <- c(
+  "vessel_official_number",
+  "permit_region",
+  "trip_id",
+  "sero_home_port_county",
+  "sero_home_port_state",
+  "end_port_county",
+  "end_port_state"
+)
+
 start_end_county_diff <-
   join_trip_and_vessel_clean |>
-  select(
-    vessel_official_number,
-    permit_region,
-    trip_id,
-    sero_home_port_county,
-    sero_home_port_state,
-    end_port_county
-  ) |>
+  select(all_of(columns_to_keep),
+         contains("quarter")) |>
   # can use distinct, because we are not interested in the number of such occasions
   distinct() |>
   group_by(vessel_official_number, trip_id, permit_region) |>
