@@ -255,24 +255,34 @@ start_end_county_diff <-
          contains("quarter")) |>
   # can use distinct, because we are not interested in the number of such occasions
   distinct() |>
-  group_by(vessel_official_number, trip_id, permit_region) |>
+  group_by(vessel_official_number, trip_id, permit_region, trip_end_year_quarter) |>
   filter(!sero_home_port_county == end_port_county) |>
   ungroup() |>
   select(-trip_id) |>
   distinct()
 
 # check
+join_trip_and_vessel_clean |>
+  select(trip_start_year_quarter, trip_end_year_quarter) |>
+  distinct() |>
+  filter(!trip_start_year_quarter == trip_end_year_quarter)
+  # trip_start_year_quarter trip_end_year_quarter
+# 1                 2022 Q1               2022 Q2
+# 2                 2022 Q2               2022 Q3
+
 start_end_county_diff |>
   filter(vessel_official_number %in% c("al4295ak", "1270320")) |>
   View()
 
 ## count different counties ----
+start_end_county_diff |> print_df_names()
 start_end_county_diff_num <-
   start_end_county_diff |>
-  count(permit_region, sero_home_port_state, sero_home_port_county, end_port_county)
+  add_count(permit_region, sero_home_port_county, end_port_county, trip_end_year_quarter)
 
 dim(start_end_county_diff_num)
 # [1] 250   5
+# [1] 575  11
 
 ### spot check counts ----
 join_trip_and_vessel_clean |>
@@ -282,6 +292,28 @@ join_trip_and_vessel_clean |>
   distinct() |>
   nrow()
 # [1] 2
+
+join_trip_and_vessel_clean |>
+  filter(sero_home_port_county == "collier" &
+           end_port_county == "lee") |>
+  select(vessel_official_number, trip_end_year_quarter) |>
+  distinct() |>
+  arrange(trip_end_year_quarter) |>
+  head()
+#   vessel_official_number trip_end_year_quarter
+# 1                 958876               2022 Q1
+# 2                 958876               2022 Q2
+# 3               fl5321kd               2022 Q2
+# 4               fl5321kd               2022 Q3
+
+# vessels by quarter, correct
+start_end_county_diff_num |>
+  filter(sero_home_port_county == "collier" &
+           end_port_county == "lee") |>
+  arrange(trip_end_quarter_num) |>
+  glimpse()
+# $ trip_end_quarter_num    <chr> "1", "2", "2", "3"
+# $ n                       <int> 1, 2, 2, 1
 
 ### result table for GOM ----
 start_end_county_diff_num_gom_only <-
