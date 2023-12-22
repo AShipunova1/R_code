@@ -112,6 +112,86 @@ toc()
 # processed_logbooks_short_dates: 2.94 sec elapsed
 # processed_logbooks_short_dates: 4.28 sec elapsed
 
+## Prepare home_port data ----
+# all_get_db_data_result_l |>
+#   print_df_names()
+
+# all_get_db_data_result_l$vessels_permits |>
+  # print_df_names()
+
+vessel_permit_port_info <-
+  all_get_db_data_result_l$vessels_permits |>
+  # active permits in 2022
+  dplyr::filter(
+    LAST_EXPIRATION_DATE > "2022-12-31" |
+      END_DATE > "2022-12-31" |
+      EXPIRATION_DATE > "2022-12-31"
+  )
+
+dim(vessel_permit_port_info)
+# [1] 68113    51
+# SERO_OFFICIAL_NUMBER  5220
+# SERO_HOME_PORT_CITY    809
+# SERO_HOME_PORT_COUNTY   320
+# SERO_HOME_PORT_STATE     28
+
+### remove unused columns ----
+
+vessel_permit_port_info_short <-
+  vessel_permit_port_info |>
+  select(
+    PERMIT_VESSEL_ID,
+    VESSEL_VESSEL_ID,
+    # PORT_CODE, mostly empty
+    SERO_HOME_PORT_CITY,
+    SERO_HOME_PORT_COUNTY,
+    SERO_HOME_PORT_STATE,
+    SERO_OFFICIAL_NUMBER
+  ) |>
+  dplyr::ungroup() |>
+  remove_empty_cols() |>
+  dplyr::distinct()
+
+n_distinct(vessel_permit_port_info_short$VESSEL_VESSEL_ID)
+# VESSEL_VESSEL_ID      5220
+
+vessel_permit_port_info_short_clean <-
+  clean_headers(vessel_permit_port_info_short)
+
+## add vessel_permit home port information to trip (logbook) information ----
+
+# print_df_names(processed_logbooks_short_port_states_fl_reg_one_marker)
+# print_df_names(vessel_permit_port_info_short_clean)
+
+join_trip_and_vessel <-
+  dplyr::left_join(
+    processed_logbooks_short_dates,
+    vessel_permit_port_info_short_clean,
+    dplyr::join_by(vessel_official_number ==
+                     SERO_OFFICIAL_NUMBER)
+  )
+
+dim(join_trip_and_vessel)
+# [1] 3011   20
+# [1] 2475   19 (processed logbooks)
+# [1] 66641    35
+# [1] 72246    29 with lat/long
+
+# vessel_id             1876
+# vessel_official_number   1876
+# permit_sa_gom            4
+# SERO_OFFICIAL_NUMBER  1785
+
+# vessel_official_number 1629
+# permit_region             2
+# PERMIT_VESSEL_ID        1562
+# VESSEL_VESSEL_ID        1562
+# SERO_HOME_PORT_CITY      361
+# SERO_HOME_PORT_COUNTY    145
+# SERO_HOME_PORT_STATE      20
+# latitude                52887
+# longitude               53423
+
 #' %%%%% Boat movement numbers
 #'
 
@@ -1208,94 +1288,6 @@ end_ports_region_cnt_by_permit_r |>
 
 # Look at permit home port vs where they ended trip ----
 
-## prepare home_port data ----
-# all_get_db_data_result_l |>
-#   print_df_names()
-
-# all_get_db_data_result_l$vessels_permits |>
-  # print_df_names()
-
-vessel_permit_port_info <-
-  all_get_db_data_result_l$vessels_permits |>
-  # active permits in 2022
-  dplyr::filter(
-    LAST_EXPIRATION_DATE > "2022-12-31" |
-      END_DATE > "2022-12-31" |
-      EXPIRATION_DATE > "2022-12-31"
-  )
-
-dim(vessel_permit_port_info)
-# [1] 68113    51
-# SERO_OFFICIAL_NUMBER  5220
-# SERO_HOME_PORT_CITY    809
-# SERO_HOME_PORT_COUNTY   320
-# SERO_HOME_PORT_STATE     28
-
-### add permit and vessel info ----
-# should do here, before the join, bc if there are empty rows after merge sa_only is wrongly assigned
-
-vessel_permit_port_info_perm_reg <-
-  vessel_permit_port_info |>
-  dplyr::group_by(VESSEL_VESSEL_ID) |>
-  dplyr::mutate(all_permits = toString(unique(sort(TOP)))) |>
-  separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
-  select(
-    PERMIT_VESSEL_ID,
-    VESSEL_VESSEL_ID,
-    # PORT_CODE, mostly empty
-    permit_sa_gom,
-    SERO_HOME_PORT_CITY,
-    SERO_HOME_PORT_COUNTY,
-    SERO_HOME_PORT_STATE,
-    SERO_OFFICIAL_NUMBER
-  ) |>
-  dplyr::ungroup() |>
-  remove_empty_cols() |>
-  dplyr::distinct()
-
-n_distinct(vessel_permit_port_info_perm_reg$VESSEL_VESSEL_ID)
-# VESSEL_VESSEL_ID      5220
-
-vessel_permit_port_info_perm_reg |>
-  dplyr::filter(permit_sa_gom == "sa_only") |>
-  dplyr::distinct() |>
-  dplyr::glimpse()
-
-#' NB. 1. There is incorrect home port info (city/county/state).
-#'
-#' 2. permit information is some times different from Metrics tracking
-#'
-
-## add vessel_permit information to trip (logbook) information ----
-# print_df_names(processed_logbooks_short_port_states_fl_reg_one_marker)
-# print_df_names(vessel_permit_port_info_perm_reg)
-
-join_vessel_and_trip <-
-  dplyr::left_join(
-    processed_logbooks_short_port_states_fl_reg_one_marker,
-    vessel_permit_port_info_perm_reg,
-    dplyr::join_by(vessel_official_number ==
-                     SERO_OFFICIAL_NUMBER)
-  )
-
-data_overview(join_vessel_and_trip)
-# [1] 3011   20
-# [1] 2475   19 (processed logbooks)
-# [1] 66641    35
-
-# vessel_id             1876
-# vessel_official_number   1876
-# permit_sa_gom            4
-# SERO_OFFICIAL_NUMBER  1785
-
-# vessel_official_number 1629
-# permit_region             2
-# PERMIT_VESSEL_ID        1562
-# VESSEL_VESSEL_ID        1562
-# permit_sa_gom              4
-# SERO_HOME_PORT_CITY      361
-# SERO_HOME_PORT_COUNTY    145
-# SERO_HOME_PORT_STATE      20
 
 dim(processed_logbooks_short_port_states_fl_reg_one_marker)
 # [1] 3011   14
