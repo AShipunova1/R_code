@@ -467,8 +467,46 @@ write_csv(start_end_state_diff_num_gom_only_res,
 
 # add region to states ----
 
+add_region_to_state <-
+  function(my_df, start_or_end) {
 
-start_end_county_diff_num_gom_only_res |>
+    result_column_name <-
+      str_glue("{start_or_end}_state_region")
+
+    port_state_column <-
+      sym(str_glue("{start_or_end}_port_state"))
+
+    port_county_column <-
+      sym(str_glue("{start_or_end}_port_county"))
+
+    is_st_florida <-
+      rlang::quo(!!port_state_column == "Florida")
+
+    new_df <-
+      my_df |>
+      rowwise() |>
+      mutate(
+        !!result_column_name :=
+          case_when(
+            !(!!is_st_florida) &
+              !!port_state_column
+            %in% east_coast_states$gom ~ "GOM",
+
+            !!is_st_florida &
+              !!port_county_column %in% fl_counties$gom ~ "GOM",
+
+            is.na(!!port_state_column) ~ NA,
+
+            .default = "SA"
+          )
+      ) |>
+      ungroup()
+
+    return(new_df)
+  }
+
+start_end_county_diff_num_gom_only_res_region <-
+  start_end_county_diff_num_gom_only_res |>
   rowwise() |>
   mutate(
     end_state_region =
@@ -483,9 +521,16 @@ start_end_county_diff_num_gom_only_res |>
       )
   ) |>
   ungroup() |>
-  arrange(desc(end_state_region)) |>
-  View()
+  arrange(desc(end_state_region))
 
+aa <-
+  add_region_to_state(start_end_county_diff_num_gom_only_res, "end") |>
+    arrange(desc(end_state_region))
+
+
+diffdf::diffdf(start_end_county_diff_num_gom_only_res_region,
+               aa)
+# same
 # result:
 #' Nothing to show, only 1 vessel has trips starting in Fl and ending in North Carolina in Q2 and 1 vessel in Q4.
 
