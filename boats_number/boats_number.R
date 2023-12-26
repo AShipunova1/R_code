@@ -799,15 +799,18 @@ lat_lon_gom_state_cnt <-
 
 View(lat_lon_gom_state_cnt)
 
-lat_lon_gom_state_cnt |>
+lat_lon_gom_state_cnt_sf <-
+  lat_lon_gom_state_cnt |>
   st_as_sf(coords = c("longitude",
                       "latitude"),
-           crs = 4326) |>
+           crs = 4326)
+
+lat_lon_gom_state_cnt_sf |>
   mapview(
     zcol = "permit_region",
-    # cex = "cnt_coords",
+    cex = "cnt_v_coords_by_y",
     alpha = 0.3,
-    col.regions = viridisLite::turbo
+    col.regions = viridisLite::turbo,
     # legend = FALSE
-    # layer.name = mrip_fhier_by_state_df$common_name[1]
+    layer.name = "GOM home port trips"
   )
