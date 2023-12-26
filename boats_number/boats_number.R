@@ -786,19 +786,28 @@ lat_lon_gom_state <-
 # dim(lat_lon_gom_state)
 # [1] 46181     5
 
-lat_lon_gom_state |>
+lat_lon_gom_state_cnt <-
+  lat_lon_gom_state |>
   mutate(latitude = abs(latitude),
-         latitude = -abs(latitude),)
+         longitude = -abs(longitude)) |>
+  add_count(latitude, longitude,
+            name = "cnt_v_coords_by_y") |>
+  add_count(latitude,
+            longitude,
+            trip_end_year_quarter,
+            name = "cnt_v_coords_by_q")
 
-lat_lon_gom_state |>
+View(lat_lon_gom_state_cnt)
+
+lat_lon_gom_state_cnt |>
   st_as_sf(coords = c("longitude",
                       "latitude"),
            crs = 4326) |>
   mapview(
-          zcol = "permit_region",
-          # cex = "CATCH_CNT",
-          alpha = 0.3,
-          col.regions = viridisLite::turbo
-          # legend = FALSE
-          # layer.name = mrip_fhier_by_state_df$common_name[1]
-          )
+    zcol = "permit_region",
+    # cex = "cnt_coords",
+    alpha = 0.3,
+    col.regions = viridisLite::turbo
+    # legend = FALSE
+    # layer.name = mrip_fhier_by_state_df$common_name[1]
+  )
