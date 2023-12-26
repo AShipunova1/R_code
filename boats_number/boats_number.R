@@ -206,11 +206,6 @@ join_trip_and_vessel_trim <-
 diffdf::diffdf(join_trip_and_vessel,
                join_trip_and_vessel_trim)
 
-#
-#          Variable         No of Differences
-#     sero_home_port_city         1287
-#    sero_home_port_county         538
-
 ## Lower case of all data ----
 join_trip_and_vessel_low <-
   join_trip_and_vessel_trim |>
@@ -224,11 +219,10 @@ join_trip_and_vessel_clean <-
   mutate_if(is.character,
          ~str_replace_all(., "[^a-z0-9]+", " "))
 
-diffdf::diffdf(join_trip_and_vessel_low,
-               join_trip_and_vessel_clean)
+# diffdf::diffdf(join_trip_and_vessel_low,
+#                join_trip_and_vessel_clean)
 
-
-# aux funcion to add regions to states ----
+# An aux function to add regions to states ----
 
 # join_trip_and_vessel_clean |>
 #   select(start_port_state) |>
@@ -293,17 +287,28 @@ join_trip_and_vessel_clean_state_regions <-
 toc()
 # join_trip_and_vessel_clean_state_regions: 33.63 sec elapsed
 
-# get only GOM home ports ----
-join_trip_and_vessel_clean_state_regions_gom_only <-
+# Split by home port regions ----
+join_trip_and_vessel_clean_state_regions_l <-
   join_trip_and_vessel_clean_state_regions |>
-  filter(sero_home_state_region == "gom")
+  split(as.factor(
+    join_trip_and_vessel_clean_state_regions$sero_home_state_region
+  ))
+
+map(join_trip_and_vessel_clean_state_regions_l,
+    count_uniq_by_column)
+
+# $gom
+# vessel_official_number    944
+# $sa
+# vessel_official_number    617
+
+# dim(join_trip_and_vessel_clean_state_regions_l$gom)
+# [1] 53582    32
 
 #' %%%%% Boat movement numbers for GOM
 #'
 
 # How many GOM SEFHIER vessels have a different start port county than end port county? ----
-
-print_df_names(join_trip_and_vessel_clean_state_regions_gom_only)
 
 ## different counties ----
 columns_to_keep <- c(
@@ -328,7 +333,7 @@ start_end_county_diff <-
   select(-trip_id) |>
   distinct()
 
-# check
+### check different start and end quarters ----
 join_trip_and_vessel_clean |>
   select(trip_start_year_quarter, trip_end_year_quarter) |>
   distinct() |>
@@ -351,6 +356,7 @@ start_end_county_diff_num <-
 dim(start_end_county_diff_num)
 # [1] 250   5
 # [1] 575  11
+# [1] 291  13 gom only
 
 ### spot check counts ----
 join_trip_and_vessel_clean |>
@@ -383,22 +389,14 @@ start_end_county_diff_num |>
 # $ trip_end_quarter_num    <chr> "1", "2", "2", "3"
 # $ n                       <int> 1, 2, 2, 1
 
-### result table for GOM ----
+### result table for GOM permit region----
 ### GOM only ----
+View(start_end_county_diff_num)
+
+
 start_end_county_diff_num_gom_only <-
   start_end_county_diff_num |>
   filter(permit_region == "gom") |>
-  # to use only one sero_home_port_state each time
-  rowwise() |>
-  filter(my_state_name[[sero_home_port_state]]
-         %in% east_coast_states$gom) |>
-  filter(
-    sero_home_port_state == "fl" &
-      sero_home_port_county %in% tolower(fl_counties$gom)
-    |
-      !sero_home_port_state == "fl"
-  ) |>
-  ungroup()
 
 # check
 start_end_county_diff_num_gom_only |>
@@ -407,7 +405,7 @@ start_end_county_diff_num_gom_only |>
 dim()
 # [1] 134  5
 # [1] 287  11 all FL counties
-# [1] 270  11
+# [1] 270  13
 
 # Which FL counties are not in the df?
 start_end_county_diff_num_gom_only_fl_counties_to_check <-
