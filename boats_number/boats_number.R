@@ -391,34 +391,24 @@ start_end_county_diff_gom_num |>
 # $ trip_end_quarter_num    <chr> "1", "2", "2", "3"
 # $ cnt_diff_county         <int> 1, 2, 2, 1
 
-### result table for GOM permit region----
+### Result table for GOM permit region (and the state region) ----
+start_end_county_diff_gom_num_gom_permit_only <-
+  start_end_county_diff_gom_num |>
+  filter(permit_region == "gom")
+
 # check
+dim(start_end_county_diff_gom_num_gom_permit_only)
+# [1] 270  13
+
+# state == gom, permit gom or sa
 start_end_county_diff_gom_num |>
 # select(sero_home_port_state) |>
 # distinct() |> # 5 states
 dim()
-# [1] 134  5
-# [1] 287  11 all FL counties
 # [1] 291  13
 
-# Which FL counties are not in the df?
-start_end_county_diff_num_gom_only_fl_counties_to_check <-
-start_end_county_diff_num_gom_only |>
-  filter(
-    sero_home_port_state == "fl" &
-      sero_home_port_county %in% tolower(fl_counties$gom)
-  ) |>
-  select(sero_home_port_county) |>
-  distinct()
-
-setdiff(
-  tolower(fl_counties$gom),
-  start_end_county_diff_num_gom_only_fl_counties_to_check$sero_home_port_county
-)
-# [1] "hernando" "taylor"
-
 #### make the result table ----
-print_df_names(start_end_county_diff_num_gom_only)
+# print_df_names(start_end_county_diff_num_gom_only)
 
 start_end_county_diff_num_gom_only_res <-
   start_end_county_diff_num_gom_only |>
