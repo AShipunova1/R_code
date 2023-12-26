@@ -23,8 +23,12 @@ my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
 current_project_dir_name <- this.path::this.dir()
+
 current_project_basename <-
   basename(current_project_dir_name)
+
+output_path <- file.path(my_paths$outputs,
+                         current_project_basename)
 
 ## additional data ----
 # for qmd use #' {{< include .qmd >}} instead of source()
@@ -408,10 +412,10 @@ dim()
 # [1] 291  13
 
 #### make the result table ----
-# print_df_names(start_end_county_diff_num_gom_only)
+# print_df_names(start_end_county_diff_gom_num_gom_permit_only)
 
-start_end_county_diff_num_gom_only_res <-
-  start_end_county_diff_num_gom_only |>
+start_end_county_diff_gom_num_gom_permit_only_res <-
+  start_end_county_diff_gom_num_gom_permit_only |>
   select(-permit_region) |>
   rowwise() |>
   mutate(home_port_state =
@@ -439,25 +443,98 @@ start_end_county_diff_num_gom_only_res <-
     home_port_county,
     end_port_state,
     end_port_county,
-    diff_county_num_of_vessels = n
+    diff_county_num_of_vessels = cnt_diff_county
+  ) |>
+  distinct()
+# Can use distinct here, because we only look at county to county vessels, not trips
+
+# spot check
+start_end_county_diff_gom_num_gom_permit_only_res |>
+    filter(home_port_county == "Pasco" &
+           end_port_county == "Pinellas" &
+           trip_end_year_quarter == "2022 Q1" ) |>
+  glimpse()
+
+join_trip_and_vessel_clean |>
+  filter(sero_home_port_county == "pasco" &
+           end_port_county == "pinellas" &
+           trip_end_year_quarter == "2022 Q1" &
+           permit_region == "gom") |>
+  select(vessel_official_number, trip_end_year_quarter) |>
+  # arrange(vessel_official_number) |>
+  count(vessel_official_number)
+#   vessel_official_number  n
+# 1                1070441 11
+# 2               fl2045nb 59
+# 2 vessels, ok
+
+start_end_county_diff_gom_num_gom_permit_only_res |>
+  filter(
+    # home_port_county == "Brazoria" &
+    #   end_port_county == "Galveston" &
+      trip_end_year_quarter == "2022 Q4"
+  ) |>
+  count(wt = diff_county_num_of_vessels)
+# 47 tot Q4
+# 2 for Brazoria - Galveston
+
+join_trip_and_vessel_clean |>
+  filter(
+    sero_home_port_county == "brazoria" &
+      end_port_county == "galveston" &
+      trip_end_year_quarter == "2022 Q4" &
+      permit_region == "gom"
+  ) |>
+  select(vessel_official_number, trip_end_year_quarter) |>
+  # distinct()
+# 970060
+# tx2118fj
+  count(vessel_official_number) |>
+  count()
+# 2, correct
+
+
+# join_trip_and_vessel_clean |>
+#   filter(
+#     sero_home_port_county == "pinellas" &
+#       end_port_county == "brunswick"
+#   ) |>
+#   select(vessel_official_number, trip_end_year_quarter) |>
+# View()
+# 1 vessel, correct
+
+##### Write out ----
+
+write_csv(
+  start_end_county_diff_gom_num_gom_permit_only_res,
+  file.path(
+    output_path,
+    "start_end_county_diff_gom_num_gom_permit_only_res.csv"
   )
+)
 
-write_csv(start_end_county_diff_num_gom_only_res,
-          "start_end_county_diff_num_gom_only_res.csv")
-
-# diff county numbers, by quarter (1-4):
-start_end_county_diff_num_gom_only_res_quarter <-
-  start_end_county_diff_num_gom_only_res |>
+#### Diff county numbers, by quarter (1-4) ----
+start_end_county_diff_gom_num_gom_permit_only_res_quarter <-
+  start_end_county_diff_gom_num_gom_permit_only_res |>
   group_by(trip_end_year_quarter) |>
   count(wt = diff_county_num_of_vessels,
         name = "diff_county_num_of_vessels_tot")
 
-# How many SEFHIER vessels have a different start port county than end port state? ----
+head(start_end_county_diff_gom_num_gom_permit_only_res_quarter)
+#   trip_end_year_quarter diff_county_num_of_vessels_tot
+#   <yearqtr>                                      <int>
+# 1 2022 Q1                                           24
+# 2 2022 Q2                                          103
+# 3 2022 Q3                                           96
+# 4 2022 Q4                                           47
+
+
+# How many SEFHIER vessels have a different start port state than end port state? ----
 
 ## different start and end states in one trip ----
 
 start_end_state_diff_num_gom_only_res <-
-  start_end_county_diff_num_gom_only_res |>
+  start_end_county_diff_gom_num_gom_permit_only_res |>
   count(
     trip_end_year_quarter,
     home_port_state,
@@ -503,10 +580,9 @@ start_end_state_diff_num_gom_only_res_quarter <-
   count(wt = diff_states_num_of_vessels,
         name = "diff_states_num_of_vessels_tot")
 
-## save results to csvs ----
-output_path <- file.path(my_paths$outputs,
-                         current_project_basename)
+View(start_end_state_diff_num_gom_only_res_quarter)
 
+## save results to csvs ----
 write_csv(start_end_state_diff_num_gom_only_res_quarter,
           file.path(output_path,
                     "state_diff_by_quarter.csv"),
@@ -520,13 +596,13 @@ write_csv(start_end_state_diff_num_gom_only_res,
 #' How many SEFHIER vessels have a different start port region (Gulf) than end port region (South Atlantic)?
 
 
-start_end_county_diff_num_gom_only_res_region <-
-  start_end_county_diff_num_gom_only_res |>
+start_end_county_diff_gom_num_gom_permit_only_res_region <-
+  start_end_county_diff_gom_num_gom_permit_only_res |>
   add_region_to_state("home") |>
   add_region_to_state("end") |>
   arrange(desc(end_state_region))
 
-View(start_end_county_diff_num_gom_only_res_region)
+View(start_end_county_diff_gom_num_gom_permit_only_res_region)
 
 # result
 
