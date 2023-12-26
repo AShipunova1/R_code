@@ -320,12 +320,12 @@ columns_to_keep <- c(
   "end_port_state"
 )
 
-start_end_county_diff <-
-  join_trip_and_vessel_clean_state_regions_gom_only |>
+start_end_county_diff_gom <-
+  join_trip_and_vessel_clean_state_regions_l$gom |>
   select(all_of(columns_to_keep),
          contains("region"),
          contains("quarter")) |>
-  # can use distinct, because we are not interested in the number of such occasions
+  # can use distinct, because we are not interested in the number of such trips, just the number of vessel
   distinct() |>
   group_by(vessel_official_number, trip_id, permit_region, trip_end_year_quarter) |>
   filter(!sero_home_port_county == end_port_county) |>
@@ -342,18 +342,20 @@ join_trip_and_vessel_clean |>
 # 1                 2022 Q1               2022 Q2
 # 2                 2022 Q2               2022 Q3
 
-start_end_county_diff |>
+start_end_county_diff_gom |>
   filter(vessel_official_number %in% c("al4295ak", "1270320")) |>
   glimpse()
 
 ## count different counties ----
 # start_end_county_diff |> print_df_names()
 
-start_end_county_diff_num <-
-  start_end_county_diff |>
-  add_count(permit_region, sero_home_port_county, end_port_county, trip_end_year_quarter)
+start_end_county_diff_gom_num <-
+  start_end_county_diff_gom |>
+  add_count(permit_region, sero_home_port_county,
+            end_port_county, trip_end_year_quarter,
+            name = "cnt_diff_county")
 
-dim(start_end_county_diff_num)
+dim(start_end_county_diff_gom_num)
 # [1] 250   5
 # [1] 575  11
 # [1] 291  13 gom only
@@ -381,31 +383,23 @@ join_trip_and_vessel_clean |>
 # 4               fl5321kd               2022 Q3
 
 # vessels by quarter, correct
-start_end_county_diff_num |>
+start_end_county_diff_gom_num |>
   filter(sero_home_port_county == "collier" &
            end_port_county == "lee") |>
   arrange(trip_end_quarter_num) |>
   glimpse()
 # $ trip_end_quarter_num    <chr> "1", "2", "2", "3"
-# $ n                       <int> 1, 2, 2, 1
+# $ cnt_diff_county         <int> 1, 2, 2, 1
 
 ### result table for GOM permit region----
-### GOM only ----
-View(start_end_county_diff_num)
-
-
-start_end_county_diff_num_gom_only <-
-  start_end_county_diff_num |>
-  filter(permit_region == "gom") |>
-
 # check
-start_end_county_diff_num_gom_only |>
+start_end_county_diff_gom_num |>
 # select(sero_home_port_state) |>
-# distinct() |>
+# distinct() |> # 5 states
 dim()
 # [1] 134  5
 # [1] 287  11 all FL counties
-# [1] 270  13
+# [1] 291  13
 
 # Which FL counties are not in the df?
 start_end_county_diff_num_gom_only_fl_counties_to_check <-
