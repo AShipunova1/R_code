@@ -413,6 +413,14 @@ join_trip_and_vessel_clean |>
 # 3               fl5321kd               2022 Q2
 # 4               fl5321kd               2022 Q3
 
+# join_trip_and_vessel_clean |>
+#   filter(sero_home_port_county == "santa rosa" &
+#            end_port_county == "escambia") |>
+#   select(trip_end_year_quarter, vessel_official_number) |>
+#   distinct() |>
+#   arrange(trip_end_year_quarter, vessel_official_number) |>
+#   View()
+
 # vessels by quarter, correct
 start_end_county_diff_gom_num |>
   filter(sero_home_port_county == "collier" &
@@ -699,13 +707,18 @@ start_end_state_diff_num_gom_only_res_cnts_by_home <-
     end_port_state = toupper(end_port_state)
   )
 
-# View(start_end_state_diff_num_gom_only_res_cnts_by_home)
+start_end_state_diff_num_gom_only_res_cnts_by_home_sum <-
+  start_end_state_diff_num_gom_only_res_cnts_by_home |>
+  add_count(trip_end_year_quarter,
+            sero_home_port_state,
+            wt = states_cnt,
+            name = "sum_by_q_and_home")
 
-start_end_state_diff_num_gom_only_res_cnts_by_home |>
+start_end_state_diff_num_gom_only_res_cnts_by_home_sum |>
   write_csv(
     file.path(
       output_path,
-      "start_end_state_diff_num_gom_only_res_cnts_by_home.csv"
+      "start_end_state_diff_num_gom_only_res_cnts_by_home_sum.csv"
     )
   )
 
