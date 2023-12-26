@@ -580,7 +580,7 @@ start_end_state_diff_num_gom_only_res_quarter <-
   count(wt = diff_states_num_of_vessels,
         name = "diff_states_num_of_vessels_tot")
 
-View(start_end_state_diff_num_gom_only_res_quarter)
+# View(start_end_state_diff_num_gom_only_res_quarter)
 
 ## save results to csvs ----
 write_csv(start_end_state_diff_num_gom_only_res_quarter,
@@ -602,7 +602,7 @@ start_end_county_diff_gom_num_gom_permit_only_res_region <-
   add_region_to_state("end") |>
   arrange(desc(end_state_region))
 
-View(start_end_county_diff_gom_num_gom_permit_only_res_region)
+# View(start_end_county_diff_gom_num_gom_permit_only_res_region)
 
 # result
 
@@ -1287,7 +1287,7 @@ processed_logbooks_short_port_states_fl_reg_one_marker <-
   add_one_marker_reg("start") |>
   add_one_marker_reg("end")
 
-View(processed_logbooks_short_port_states_fl_reg_one_marker)
+# View(processed_logbooks_short_port_states_fl_reg_one_marker)
 
 processed_logbooks_short_port_states_fl_reg_one_marker |>
   filter(vessel_official_number == "FL4350TH") |>
@@ -1493,7 +1493,7 @@ start_ports_region_cnt |>
   dplyr::filter(vessel_official_number == "1021879")
 # 1 1021879                sa                1
 
-View(start_ports_region_cnt)
+# View(start_ports_region_cnt)
 
 #### How many vessels have start port in one or in both regions ----
 start_ports_region_cnt |>
@@ -1603,7 +1603,7 @@ end_ports_region_cnt_by_permit_r <-
                       na.rm = TRUE)) |>
   ungroup()
 
-View(start_ports_region_cnt_by_permit_r)
+# View(start_ports_region_cnt_by_permit_r)
 #### check start_  and end_ ports_region_cnt_by_permit_r ----
 start_ports_region_cnt_by_permit_r |>
   # filter(vessel_one_start_port_marker_num > 1) |>
@@ -1930,7 +1930,7 @@ combs1 <-
 combs1_short <-
   combs1[1:ncol(join_vessel_and_trip_end_port_diff_short) - 1]
 
-View(combs1_short)
+# View(combs1_short)
 
 ### count vessels with different trip and home port info, using each pair of names ----
 combs1_short_cnts <-
