@@ -604,13 +604,13 @@ start_end_state_diff_num_gom_only_res <-
         end_port_state,
         name = "diff_states_num_of_vessels")
 
-View(start_end_state_diff_num_gom_only_res)
+# View(start_end_state_diff_num_gom_only_res)
 
 ### spot check ----
 
 start_end_state_diff_num_gom_only_res |>
   filter(trip_end_year_quarter == "2022 Q1") |>
-  View()
+  glimpse()
 
 start_end_state_diff_num_gom_only_res |>
   filter(sero_home_port_state == "fl" &
@@ -635,41 +635,98 @@ join_trip_and_vessel_clean |>
 # 5
 # OK
 
-# For Q1
-# join_trip_and_vessel_clean_state_regions |>
-# short_port_gom |>
-join_trip_and_vessel_clean |>
-  filter(sero_home_port_county == "monroe" &
-           end_port_county == "baldwin") |>
-  select(trip_end_year_quarter) |>
-  distinct()
-  # filter(sero_home_port_state == "fl" &
-           # end_port_state == "la") |>
-  filter(trip_end_quarter_num == 1) |>
-  select(vessel_official_number,
-         trip_end_year_quarter,
-         sero_home_port_state,
-         end_port_state) |>
-  distinct() |>
-  filter(!sero_home_port_state == end_port_state) |>
-  View()
-  nrow()
-
 ## Diff states numbers, by quarter (1-4) ----
 
 start_end_state_diff_num_gom_only_res_quarter <-
   start_end_state_diff_num_gom_only_res |>
   group_by(trip_end_year_quarter) |>
   count(wt = diff_states_num_of_vessels,
-        name = "diff_states_num_of_vessels_tot")
+        name = "diff_states_num_of_vessels_tot") |>
+  ungroup()
 
 head(start_end_state_diff_num_gom_only_res_quarter)
+#   trip_end_year_quarter diff_states_num_of_vessels_tot
+#   <yearqtr>                                      <int>
+# 1 2022 Q1                                            3
+# 2 2022 Q2                                           30
+# 3 2022 Q3                                           26
+# 4 2022 Q4                                           10
 
-## save results to csvs ----
-write_csv(start_end_state_diff_num_gom_only_res_quarter,
-          file.path(output_path,
-                    "state_diff_by_quarter.csv"),
-          )
+### spot check ----
+# 2022 Q4
+join_trip_and_vessel_clean_state_regions |>
+  filter(sero_home_state_region == "gom") |>
+  filter(permit_region == "gom") |>
+  filter(trip_end_quarter_num == 4) |>
+  filter(!sero_home_port_state == end_port_state) |>
+  select(
+    vessel_official_number,
+    sero_home_port_state,
+    end_port_state
+  ) |>
+  distinct() |>
+  arrange(sero_home_port_state,
+          end_port_state) |>
+  # View()
+  count(sero_home_port_state,
+        end_port_state) |>
+  glimpse()
+# ok
+
+## save results to csv ----
+start_end_state_diff_num_gom_only_res |>
+  rowwise() |>
+  mutate(sero_home_port_state =
+           my_state_name[[sero_home_port_state]]) |>
+  mutate(end_port_state =
+           my_state_name[[end_port_state]]) |>
+  ungroup() |>
+  write_csv(file.path(output_path,
+                      "start_end_state_diff_num_gom_only_res.csv"),)
+
+
+start_end_state_diff_num_gom_only_res_cnts_by_home <-
+  start_end_state_diff_num_gom_only_res |>
+  count(
+    trip_end_year_quarter,
+    sero_home_port_state,
+    end_port_state,
+    wt = diff_states_num_of_vessels,
+    name = "states_cnt"
+  ) |>
+  mutate(
+    sero_home_port_state = toupper(sero_home_port_state),
+    end_port_state = toupper(end_port_state)
+  )
+
+# View(start_end_state_diff_num_gom_only_res_cnts_by_home)
+
+start_end_state_diff_num_gom_only_res_cnts_by_home |>
+  write_csv(
+    file.path(
+      output_path,
+      "start_end_state_diff_num_gom_only_res_cnts_by_home.csv"
+    )
+  )
+
+## State to state by state and quarter res table ----
+start_end_state_diff_num_gom_only_res_home <-
+  start_end_state_diff_num_gom_only_res |>
+  count(trip_end_year_quarter,
+        sero_home_port_state,
+        wt = diff_states_num_of_vessels,
+        name = "diff_states_num_of_vessels_home") |>
+  rowwise() |>
+  mutate(sero_home_port_state =
+           my_state_name[[sero_home_port_state]]) |>
+  ungroup()
+
+write_csv(
+  start_end_state_diff_num_gom_only_res_home,
+  file.path(output_path,
+            "start_end_state_diff_num_gom_only_res_home.csv"),
+)
+
 
 # How many SEFHIER vessels have a different start port region (Gulf) than end port region (South Atlantic)? ----
 
