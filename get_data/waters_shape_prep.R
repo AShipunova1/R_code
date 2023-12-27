@@ -15,6 +15,8 @@ waters_project_basename <-
 output_path <- file.path(my_paths$outputs,
                          waters_project_basename)
 
+
+my_crs = 4326
 ## state and county lists ----
 misc_info_path <-
   file.path(my_paths$git_r,
@@ -90,11 +92,26 @@ sa_state_waters_shp <-
 # mapview(sa_state_waters_shp)
 
 # sa_fl_state_waters ----
-sa_state_waters_shp
+## convert to common crs ----
+st_crs(sa_state_waters_shp)
+    # ID["EPSG",3395]]
 
-sa_fl_state_waters_shp <-
-  st_intersection(sa_fl_state_w_counties_shp,
-                  sa_state_waters_shp)
+sa_state_waters_shp_4326 <-
+  st_transform(sa_state_waters_shp, my_crs)
+
+
+st_crs(gom_fl_state_w_counties_shp)
+    # ID["EPSG",4269]]
+
+gom_fl_state_w_counties_shp_4326 <-
+  st_transform(gom_fl_state_w_counties_shp, my_crs)
+
+tic("fl_sa_only")
+sa_only_fl_state_waters_shp <-
+  st_difference(sa_state_waters_shp_4326,
+                  gom_fl_state_w_counties_shp_4326)
+toc()
+
 
 
 # misc ----
