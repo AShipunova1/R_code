@@ -923,6 +923,7 @@ sa_lat_lon_gom_state_cnt_sf_state_w_df <-
   st_drop_geometry(sa_lat_lon_gom_state_cnt_sf_state_w)
 # str(sa_lat_lon_gom_state_cnt_sf_state_w_df)
 
+### join point data frames ----
 keep_sa_fields <-
   intersect(
     names(sa_lat_lon_gom_state_cnt_sf_fed_w_df),
@@ -957,6 +958,7 @@ all_fish_points <-
 # [1] "permit_region.x"         "latitude.x"              "longitude.x"
 # [4] "trip_end_year_quarter.x" "cnt_v_coords_by_y.x"     "cnt_v_coords_by_q.x"
 
+## add markers for having gom or sa fishing locations ----
 all_fish_points_reg_y <-
   all_fish_points |>
   group_by(vessel_official_number,
@@ -1008,4 +1010,5 @@ all_fish_points_reg_both_q |>
 # 3 2022 Q3                  35
 # 4 2022 Q4                  24
 
+## map all_fish_points_reg_both_q ----
 all_fish_points_reg_both_q
