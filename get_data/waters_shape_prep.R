@@ -102,6 +102,9 @@ st_crs(gom_fl_state_w_counties_shp)
 st_crs(GOMsf)
     # ID["EPSG",4326]]
 
+st_crs(sa_shp)
+    # ID["EPSG",4269]]
+
 sa_state_waters_shp_4326 <-
   st_transform(sa_state_waters_shp, my_crs)
 
@@ -110,6 +113,9 @@ gom_fl_state_w_counties_shp_4326 <-
 
 sa_fl_state_w_counties_shp_4326 <-
   st_transform(sa_fl_state_w_counties_shp, my_crs)
+
+sa_shp_4326 <-
+  st_transform(sa_shp, my_crs)
 
 # Get fl sa only state waters ----
 tic("fl_sa_only state waters")
