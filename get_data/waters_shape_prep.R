@@ -15,7 +15,6 @@ waters_project_basename <-
 output_path <- file.path(my_paths$outputs,
                          waters_project_basename)
 
-
 my_crs = 4326
 ## state and county lists ----
 misc_info_path <-
@@ -69,7 +68,7 @@ gom_fl_state_w_counties_shp <-
   fl_state_w_counties_shp |>
   filter(county_nam %in% fl_counties$gom)
 
-mapview(gom_fl_state_w_counties_shp)
+# mapview(gom_fl_state_w_counties_shp)
 
 ## SA state waters ----
 state_and_fed_waters_path <-
@@ -83,7 +82,7 @@ state_and_fed_waters_path <-
 state_and_fed_waters_shp <-
   sf::read_sf(state_and_fed_waters_path)
 
-str(state_and_fed_waters_shp)
+# str(state_and_fed_waters_shp)
 
 sa_state_waters_shp <-
   state_and_fed_waters_shp |>
@@ -95,24 +94,28 @@ sa_state_waters_shp <-
 ## convert to common crs ----
 st_crs(sa_state_waters_shp)
     # ID["EPSG",3395]]
+st_crs(gom_fl_state_w_counties_shp)
+    # ID["EPSG",4269]]
+
+st_crs(GOMsf)
+    # ID["EPSG",4326]]
 
 sa_state_waters_shp_4326 <-
   st_transform(sa_state_waters_shp, my_crs)
 
 
-st_crs(gom_fl_state_w_counties_shp)
-    # ID["EPSG",4269]]
-
 gom_fl_state_w_counties_shp_4326 <-
   st_transform(gom_fl_state_w_counties_shp, my_crs)
 
-tic("fl_sa_only")
+tic("fl_sa_only state waters")
 sa_only_fl_state_waters_shp <-
   st_difference(sa_state_waters_shp_4326,
                   gom_fl_state_w_counties_shp_4326)
 toc()
+# fl_sa_only state waters: 112.93 sec elapsed
 
-
+# mapview(sa_only_fl_state_waters_shp)
+# wrong
 
 # misc ----
 # all waters
