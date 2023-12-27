@@ -104,3 +104,5 @@ mapview_html <- function(my_sf) {
       layer.name = 'Counts by year and place'
     )
 }
+
+mapview_html(my_sf)
