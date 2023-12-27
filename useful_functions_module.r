@@ -965,7 +965,8 @@ read_rds_or_run_no_db <-
     } else {
       tic("run the function")
       my_df <-
-        my_function(my_data_list_of_dfs)
+        my_function(my_data_list_of_dfs[[1]],
+                    my_data_list_of_dfs[[2]])
       toc()
 
       # write all as binary
