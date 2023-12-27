@@ -929,7 +929,7 @@ keep_sa_fields <-
     names(sa_lat_lon_gom_state_cnt_sf_state_w_df)
   )
 
-all_dots_sa <-
+all_points_sa <-
   list(sa_lat_lon_gom_state_cnt_sf_fed_w_df,
        sa_lat_lon_gom_state_cnt_sf_state_w_df) |>
   map_df(\(curr_df) {
@@ -937,46 +937,22 @@ all_dots_sa <-
       select(all_of(keep_sa_fields))
   })
 
-View(sa_lat_lon_gom_state_cnt_sf_state_w_df)
+# View(all_dots_sa)
+# check 994360 in state waters
 
-
-  full_join(
-    sa_lat_lon_gom_state_cnt_sf_fed_w_df,
-    sa_lat_lon_gom_state_cnt_sf_state_w_df,
-    join_by(vessel_official_number,
-            permit_region,
-            trip_end_year_quarter
-            ),
-    relationship = "many-to-many",
-    suffix = c(".sa_state", ".sa_fed")
-  )
-
-View(all_dots_sa)
-
-all_dots <-
-  full_join(
-    all_dots_fed <-
+all_fish_points <-
   full_join(
     gom_lat_lon_gom_state_cnt_fed_w_df,
-    sa_lat_lon_gom_state_cnt_sf_state_w_df,
+    all_points_sa,
     join_by(vessel_official_number,
             permit_region,
-            trip_end_year_quarter
-            ),
+            trip_end_year_quarter),
     relationship = "many-to-many",
-    suffix = c("")
-  )
-,
-    sa_lat_lon_gom_state_cnt_sf_fed_w_df,
-    join_by(vessel_official_number,
-            permit_region,
-            trip_end_year_quarter
-            ),
-    relationship = "many-to-many",
-    suffix = c(".gom", ".sa_fed")
+    suffix = c(".gom", ".sa")
   )
 
-View(all_dots)
+# ?? join by trip_end_year_quarter?
+# View(all_fish_points)
 # grep("\\.x", names(all_dots), value = T)
 # [1] "permit_region.x"         "latitude.x"              "longitude.x"
 # [4] "trip_end_year_quarter.x" "cnt_v_coords_by_y.x"     "cnt_v_coords_by_q.x"
