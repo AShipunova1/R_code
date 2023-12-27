@@ -993,7 +993,7 @@ all_fish_points_reg_both_q <-
   all_fish_points_reg_q |>
   filter(has_gom_point_q & has_sa_point_q)
 
-# View(all_fish_points_reg_both_q)
+# print_df_names(all_fish_points_reg_both_q)
 # [1] 7145   18
 
 n_distinct(all_fish_points_reg_both_q$vessel_official_number)
@@ -1011,4 +1011,23 @@ all_fish_points_reg_both_q |>
 # 4 2022 Q4                  24
 
 ## map all_fish_points_reg_both_q ----
-all_fish_points_reg_both_q
+all_fish_points_reg_both_q_gom_sf <-
+  all_fish_points_reg_both_q |>
+  st_as_sf(
+    coords = c("longitude.gom", "latitude.gom"),
+    crs = my_crs,
+    remove = FALSE
+  )
+
+all_fish_points_reg_both_q_sa_sf <-
+  all_fish_points_reg_both_q |>
+  st_as_sf(
+    coords = c("longitude.sa", "latitude.sa"),
+    crs = my_crs,
+    remove = FALSE
+  )
+
+mapview(all_fish_points_reg_both_q_sa_sf,
+            col.regions = "blue") +
+mapview(all_fish_points_reg_both_q_gom_sf,
+            col.regions = "green")
