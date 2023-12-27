@@ -797,20 +797,45 @@ lat_lon_gom_state_cnt <-
             trip_end_year_quarter,
             name = "cnt_v_coords_by_q")
 
-View(lat_lon_gom_state_cnt)
+# View(lat_lon_gom_state_cnt)
+my_crs <- 4326
 
 lat_lon_gom_state_cnt_sf <-
   lat_lon_gom_state_cnt |>
   st_as_sf(coords = c("longitude",
                       "latitude"),
-           crs = 4326)
+           crs = my_crs)
 
-lat_lon_gom_state_cnt_sf |>
-  mapview(
-    zcol = "permit_region",
-    cex = "cnt_v_coords_by_y",
-    alpha = 0.3,
-    col.regions = viridisLite::turbo,
-    # legend = FALSE
-    layer.name = "GOM home port trips"
-  )
+# lat_lon_gom_state_cnt_sf |>
+#   mapview(
+#     zcol = "permit_region",
+#     cex = "cnt_v_coords_by_y",
+#     alpha = 0.3,
+#     col.regions = viridisLite::turbo,
+#     # legend = FALSE
+#     layer.name = "GOM home port trips"
+#   )
+
+## split by region using shape files ----
+waters_shape_prep_path <-
+  file.path(my_paths$git_r,
+            r"(get_data\waters_shape_prep.R)")
+
+# file.exists(waters_shape_prep_path)
+
+source(waters_shape_prep_path)
+
+tic("sa_lat_lon_gom_state_cnt_sf_state_w")
+sa_lat_lon_gom_state_cnt_sf_state_w <-
+  st_intersection(sa_only_fl_state_waters_shp,
+                  lat_lon_gom_state_cnt_sf)
+toc()
+
+# mapview(sa_lat_lon_gom_state_cnt_sf_state_w)
+
+tic("sa_lat_lon_gom_state_cnt_sf_fed_w")
+sa_lat_lon_gom_state_cnt_sf_fed_w <-
+  st_intersection(sa_shp_4326,
+                  lat_lon_gom_state_cnt_sf)
+toc()
+
