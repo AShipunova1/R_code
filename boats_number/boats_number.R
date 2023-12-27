@@ -825,6 +825,7 @@ waters_shape_prep_path <-
 
 source(waters_shape_prep_path)
 
+## sa fishing ----
 tic("sa_lat_lon_gom_state_cnt_sf_state_w")
 sa_lat_lon_gom_state_cnt_sf_state_w <-
   st_intersection(sa_only_fl_state_waters_shp,
@@ -833,7 +834,6 @@ toc()
 
 # mapview(sa_lat_lon_gom_state_cnt_sf_state_w)
 
-# tic("sa_lat_lon_gom_state_cnt_sf_fed_w")
 get_sa_lat_lon_gom_state_cnt_sf_fed_w <-
   function(sa_shp_4326,
            lat_lon_gom_state_cnt_sf) {
@@ -842,22 +842,56 @@ get_sa_lat_lon_gom_state_cnt_sf_fed_w <-
                       lat_lon_gom_state_cnt_sf)
     return(sa_lat_lon_gom_state_cnt_sf_fed_w)
   }
-# toc()
 # sa_lat_lon_gom_state_cnt_sf_fed_w: 84.14 sec elapsed
 
 sa_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
   file.path(curr_proj_output_path,
             "sa_lat_lon_gom_state_cnt_sf_fed_w.rds")
 
-readr::write_rds(sa_lat_lon_gom_state_cnt_sf_fed_w,
-                 sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+# readr::write_rds(sa_lat_lon_gom_state_cnt_sf_fed_w,
+#                  sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
 
-sa_lat_lon_gom_state_cnt_sf_fed_w1 <- read_rds_or_run_no_db(
+sa_lat_lon_gom_state_cnt_sf_fed_w <- read_rds_or_run_no_db(
   sa_lat_lon_gom_state_cnt_sf_fed_w_file_path,
   list(sa_shp_4326,
        lat_lon_gom_state_cnt_sf),
   get_sa_lat_lon_gom_state_cnt_sf_fed_w
 )
-all.equal(sa_lat_lon_gom_state_cnt_sf_fed_w,
-          sa_lat_lon_gom_state_cnt_sf_fed_w1)
+
 # mapview(sa_lat_lon_gom_state_cnt_sf_fed_w)
+
+str(sa_lat_lon_gom_state_cnt_sf_fed_w)
+
+## GOM fishing ----
+
+get_gom_lat_lon_gom_state_cnt_sf_fed_w <-
+  function(GOMsf,
+           lat_lon_gom_state_cnt_sf) {
+    gom_lat_lon_gom_state_cnt_sf_fed_w <-
+      st_intersection(GOMsf,
+                      lat_lon_gom_state_cnt_sf)
+    return(gom_lat_lon_gom_state_cnt_sf_fed_w)
+  }
+
+# tic("gom_lat_lon_gom_state_cnt_sf_fed_w")
+# gom_lat_lon_gom_state_cnt_sf_fed_w <-
+#   get_gom_lat_lon_gom_state_cnt_sf_fed_w(GOMsf,
+#     lat_lon_gom_state_cnt_sf)
+# toc()
+# gom_lat_lon_gom_state_cnt_sf_fed_w: 58.53 sec elapsed
+
+gom_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
+  file.path(curr_proj_output_path,
+            "gom_lat_lon_gom_state_cnt_sf_fed_w.rds")
+
+# readr::write_rds(gom_lat_lon_gom_state_cnt_sf_fed_w,
+#                  gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+
+gom_lat_lon_gom_state_cnt_sf_fed_w <- read_rds_or_run_no_db(
+  gom_lat_lon_gom_state_cnt_sf_fed_w_file_path,
+  list(GOMsf,
+       lat_lon_gom_state_cnt_sf),
+  get_gom_lat_lon_gom_state_cnt_sf_fed_w
+)
+
+mapview(gom_lat_lon_gom_state_cnt_sf_fed_w)
