@@ -957,3 +957,14 @@ all_fish_points <-
 # [1] "permit_region.x"         "latitude.x"              "longitude.x"
 # [4] "trip_end_year_quarter.x" "cnt_v_coords_by_y.x"     "cnt_v_coords_by_q.x"
 
+all_fish_points_reg <-
+  all_fish_points |>
+  group_by(vessel_official_number,
+           permit_region) |>
+  mutate(has_gom_point <-
+           any(!is.na(latitude.gom), na.rm = TRUE),
+         has_sa_point <-
+           any(!is.na(latitude.sa), na.rm = TRUE)) |>
+  ungroup()
+
+View(all_fish_points_reg)
