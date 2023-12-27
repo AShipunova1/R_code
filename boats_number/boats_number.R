@@ -1019,7 +1019,8 @@ all_fish_points_reg_both_q_gom_sf <-
     coords = c("longitude.gom", "latitude.gom"),
     crs = my_crs,
     remove = FALSE
-  )
+  ) |>
+  rename(geometry_gom = geometry)
 
 all_fish_points_reg_both_q_sa_sf <-
   all_fish_points_reg_both_q |>
@@ -1027,7 +1028,8 @@ all_fish_points_reg_both_q_sa_sf <-
     coords = c("longitude.sa", "latitude.sa"),
     crs = my_crs,
     remove = FALSE
-  )
+  ) |>
+  rename(geometry_sa = geometry)
 
 all_sa_gom_map <-
   mapview(all_fish_points_reg_both_q_sa_sf,
@@ -1035,6 +1037,8 @@ all_sa_gom_map <-
   mapview(all_fish_points_reg_both_q_gom_sf,
           col.regions = "green")
 
+# all_sa_gom_map
+#
 ### sa and gom map by q ----
 
 all_fish_points_reg_both_q_sf_quaters <-
@@ -1047,8 +1051,7 @@ all_fish_points_reg_both_q_sf_quaters <-
                as.factor())
   })
 
-# all_fish_points_reg_both_q_sf_quaters |> str()
-
+### make a color palette
 all_quaters <-
   all_fish_points_reg_both_q_sa_sf$trip_end_year_quarter |>
   unique() |>
@@ -1056,8 +1059,6 @@ all_quaters <-
   as.factor()
 
 my_color_len = length(all_quaters)
-
-    # scale_fill_manual(values = mypalette_month) +
 
 mypalette_params = viridis(my_color_len, option = "D")
 # "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"
@@ -1068,13 +1069,19 @@ mypalette_params
 #     2022 Q1     2022 Q2     2022 Q3     2022 Q4
 # "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"
 
-# print_df_names(all_fish_points_reg_both_q_sa_sf)
+# print_df_names(all_fish_points_reg_both_q_sf_quaters)
 
 all_fish_points_reg_both_q_sf_quaters_plot <-
   ggplot() +
   geom_sf(data = all_fish_points_reg_both_q_sf_quaters,
           aes(
-            geometry = geometry,
+            geometry = geometry_sa,
+            fill = q_factors,
+            colour = q_factors
+          )) +
+  geom_sf(data = all_fish_points_reg_both_q_sf_quaters,
+          aes(
+            geometry = geometry_gom,
             fill = q_factors,
             colour = q_factors
           )) +
@@ -1085,16 +1092,34 @@ all_fish_points_reg_both_q_sf_quaters_plot
 
 # clustering
 
+all_fish_points_reg_both_q_sf_quaters__cnt_v_q <-
+  all_fish_points_reg_both_q_sf_quaters |>
+  select(vessel_official_number,
+         trip_end_year_quarter,
+         geometry_gom,
+         geometry_sa) |>
+  distinct() |>
+  group_by(vessel_official_number) |>
+  add_count(trip_end_year_quarter,
+            name = "vsl_geo_q_cnt") |>
+  ungroup()
+
 all_fish_points_reg_both_q_sf_quaters |>
-  group_by(vessel_official_number, trip_end_year_quarter) |>
-  summarise() |>
-  ggplot(
-              aes(
-            geometry = geometry,
-            fill = q_factors,
+  filter(vessel_official_number == "1132268") |>
+  View()
+
+all_fish_points_reg_both_q_sf_quaters__cnt_v_q |>
+  filter(vessel_official_number == "1132268") |>
+  View()
+
+# View(all_fish_points_reg_both_q_sf_quaters__cnt_v_q)
+
+ggplot() +
+  geom_sf(data = all_fish_points_reg_both_q_sf_quaters,
+          aes(
+            geometry = geometry_gom,
+            fill = ,
             colour = q_factors
           )) +
-    # aes(fill = vessel_official_number)) +
-  geom_sf() +
-  theme(legend.position = 'none')
-
+  geom_sf(data = sa_states_shp, fill = NA) +
+  geom_sf(data = gom_states_shp, fill = NA)
