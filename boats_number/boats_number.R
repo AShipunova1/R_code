@@ -957,14 +957,55 @@ all_fish_points <-
 # [1] "permit_region.x"         "latitude.x"              "longitude.x"
 # [4] "trip_end_year_quarter.x" "cnt_v_coords_by_y.x"     "cnt_v_coords_by_q.x"
 
-all_fish_points_reg <-
+all_fish_points_reg_y <-
   all_fish_points |>
   group_by(vessel_official_number,
            permit_region) |>
-  mutate(has_gom_point <-
+  mutate(has_gom_point_y =
            any(!is.na(latitude.gom), na.rm = TRUE),
-         has_sa_point <-
+         has_sa_point_y =
            any(!is.na(latitude.sa), na.rm = TRUE)) |>
   ungroup()
 
-View(all_fish_points_reg)
+all_fish_points_reg_both_y <-
+  all_fish_points_reg_y |>
+  filter(has_gom_point_y & has_sa_point_y)
+
+# data_overview(all_fish_points_reg_both_y)
+# [1] 8524   18
+# vessel_official_number   76
+
+### same by quarter ----
+all_fish_points_reg_q <-
+  all_fish_points |>
+  group_by(vessel_official_number,
+           permit_region,
+           trip_end_year_quarter) |>
+  mutate(has_gom_point_q =
+           any(!is.na(latitude.gom), na.rm = TRUE),
+         has_sa_point_q =
+           any(!is.na(latitude.sa), na.rm = TRUE)) |>
+  ungroup()
+
+all_fish_points_reg_both_q <-
+  all_fish_points_reg_q |>
+  filter(has_gom_point_q & has_sa_point_q)
+
+# View(all_fish_points_reg_both_q)
+# [1] 7145   18
+
+n_distinct(all_fish_points_reg_both_q$vessel_official_number)
+# [1] 74
+
+all_fish_points_reg_both_q |>
+  select(trip_end_year_quarter, vessel_official_number) |>
+  distinct() |>
+  count(trip_end_year_quarter)
+#   trip_end_year_quarter     n
+#   <yearqtr>             <int>
+# 1 2022 Q1                  35
+# 2 2022 Q2                  31
+# 3 2022 Q3                  35
+# 4 2022 Q4                  24
+
+all_fish_points_reg_both_q
