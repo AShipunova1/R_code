@@ -1085,8 +1085,16 @@ all_fish_points_reg_both_q_sf_quaters_plot
 
 # clustering
 
-  group_by(region) %>%
-  summarise() %>%
-  ggplot(aes(fill = region)) +
+all_fish_points_reg_both_q_sf_quaters |>
+  group_by(vessel_official_number, trip_end_year_quarter) |>
+  summarise() |>
+  ggplot(
+              aes(
+            geometry = geometry,
+            fill = q_factors,
+            colour = q_factors
+          )) +
+    # aes(fill = vessel_official_number)) +
   geom_sf() +
   theme(legend.position = 'none')
+
