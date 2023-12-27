@@ -769,7 +769,9 @@ start_end_state_region_diff_num_gom_only_res_quarter <-
 #' Plus 1 vessel in Q1 from Sarasota, Florida to Duval, Florida
 
 # Quantify the # of vessels who fish in both the gulf and S Atl ----
+# Home ports are in GOM
 
+## prep fishing locations ----
 # [1] "vessel_official_number, end_port_name, end_port_state, end_port_county, end_port, permit_region, start_port_name, start_port_state, start_port_county, start_port, trip_id, trip_end_date, trip_start_date, latitude, longitude, trip_start_week_num, trip_end_week_num, trip_start_y, trip_end_y, trip_start_m, trip_end_m, trip_start_year_quarter, trip_start_quarter_num, trip_end_year_quarter, trip_end_quarter_num, permit_vessel_id, vessel_vessel_id, sero_home_port_city, sero_home_port_county, sero_home_port_state, sero_home_state_region, end_state_region"
 
 lat_lon_gom_state <-
@@ -800,12 +802,24 @@ lat_lon_gom_state_cnt <-
 # View(lat_lon_gom_state_cnt)
 my_crs <- 4326
 
+# Create a new object 'lat_lon_gom_state_cnt_sf' by piping the data frame
+# 'lat_lon_gom_state_cnt' into the st_as_sf function from the sf package
+
+# The st_as_sf function is used to convert a data frame with latitude and
+# longitude columns into an sf (simple feature) object
+  # Specify the latitude and longitude columns for the sf object
+    # Set the coordinate reference system (CRS) for the sf object
+    # Keep the original columns in the resulting sf object
+
 lat_lon_gom_state_cnt_sf <-
   lat_lon_gom_state_cnt |>
-  st_as_sf(coords = c("longitude",
-                      "latitude"),
-           crs = my_crs)
+  st_as_sf(
+    coords = c("longitude", "latitude"),
+    crs = my_crs,
+    remove = FALSE
+  )
 
+# str(lat_lon_gom_state_cnt_sf)
 # lat_lon_gom_state_cnt_sf |>
 #   mapview(
 #     zcol = "permit_region",
@@ -826,14 +840,17 @@ waters_shape_prep_path <-
 source(waters_shape_prep_path)
 
 ## sa fishing ----
+### state waters, Monroe in GOM ----
 tic("sa_lat_lon_gom_state_cnt_sf_state_w")
 sa_lat_lon_gom_state_cnt_sf_state_w <-
   st_intersection(sa_only_fl_state_waters_shp,
                   lat_lon_gom_state_cnt_sf)
 toc()
+# sa_lat_lon_gom_state_cnt_sf_state_w: 0.18 sec elapsed
 
 # mapview(sa_lat_lon_gom_state_cnt_sf_state_w)
 
+# SA fed waters ----
 get_sa_lat_lon_gom_state_cnt_sf_fed_w <-
   function(sa_shp_4326,
            lat_lon_gom_state_cnt_sf) {
@@ -848,15 +865,17 @@ sa_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
   file.path(curr_proj_output_path,
             "sa_lat_lon_gom_state_cnt_sf_fed_w.rds")
 
+# file.exists(sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
 # readr::write_rds(sa_lat_lon_gom_state_cnt_sf_fed_w,
 #                  sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
 
-sa_lat_lon_gom_state_cnt_sf_fed_w <- read_rds_or_run_no_db(
-  sa_lat_lon_gom_state_cnt_sf_fed_w_file_path,
-  list(sa_shp_4326,
-       lat_lon_gom_state_cnt_sf),
-  get_sa_lat_lon_gom_state_cnt_sf_fed_w
-)
+sa_lat_lon_gom_state_cnt_sf_fed_w <-
+  read_rds_or_run_no_db(
+    sa_lat_lon_gom_state_cnt_sf_fed_w_file_path,
+    list(sa_shp_4326,
+         lat_lon_gom_state_cnt_sf),
+    get_sa_lat_lon_gom_state_cnt_sf_fed_w
+  )
 
 # mapview(sa_lat_lon_gom_state_cnt_sf_fed_w)
 
@@ -894,4 +913,23 @@ gom_lat_lon_gom_state_cnt_sf_fed_w <- read_rds_or_run_no_db(
   get_gom_lat_lon_gom_state_cnt_sf_fed_w
 )
 
-mapview(gom_lat_lon_gom_state_cnt_sf_fed_w)
+str(gom_lat_lon_gom_state_cnt_sf_fed_w)
+
+## join by vessel ----
+### back to dfs for join ----
+gom_lat_lon_gom_state_cnt_fed_w_df <-
+  st_drop_geometry(gom_lat_lon_gom_state_cnt_sf_fed_w)
+# str(gom_lat_lon_gom_state_cnt_fed_w_df)
+
+sa_lat_lon_gom_state_cnt_sf_fed_w_df <-
+  st_drop_geometry(sa_lat_lon_gom_state_cnt_sf_fed_w)
+# str(sa_lat_lon_gom_state_cnt_sf_fed_w_df)
+
+gom_lat_lon_gom_state_cnt_fed_w_df <-
+  st_drop_geometry(gom_lat_lon_gom_state_cnt_sf_fed_w)
+str(gom_lat_lon_gom_state_cnt_fed_w_df)
+
+all_dots <-
+full_join(gom_lat_lon_gom_state_cnt_sf_fed_w,
+          sa_lat_lon_gom_state_cnt_sf_fed_w,
+          join_by(vessel_official_number))
