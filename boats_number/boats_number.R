@@ -31,7 +31,7 @@ current_project_dir_name <- this.path::this.dir()
 current_project_basename <-
   basename(current_project_dir_name)
 
-output_path <- file.path(my_paths$outputs,
+curr_proj_output_path <- file.path(my_paths$outputs,
                          current_project_basename)
 
 ## additional data ----
@@ -572,7 +572,7 @@ start_end_county_diff_gom_num_gom_permit_only_res |>
 write_csv(
   start_end_county_diff_gom_num_gom_permit_only_res,
   file.path(
-    output_path,
+    curr_proj_output_path,
     "start_end_county_diff_gom_num_gom_permit_only_res.csv"
   )
 )
@@ -689,7 +689,7 @@ start_end_state_diff_num_gom_only_res |>
   mutate(end_port_state =
            my_state_name[[end_port_state]]) |>
   ungroup() |>
-  write_csv(file.path(output_path,
+  write_csv(file.path(curr_proj_output_path,
                       "start_end_state_diff_num_gom_only_res.csv"),)
 
 
@@ -717,7 +717,7 @@ start_end_state_diff_num_gom_only_res_cnts_by_home_sum <-
 start_end_state_diff_num_gom_only_res_cnts_by_home_sum |>
   write_csv(
     file.path(
-      output_path,
+      curr_proj_output_path,
       "start_end_state_diff_num_gom_only_res_cnts_by_home_sum.csv"
     )
   )
@@ -736,7 +736,7 @@ start_end_state_diff_num_gom_only_res_home <-
 
 write_csv(
   start_end_state_diff_num_gom_only_res_home,
-  file.path(output_path,
+  file.path(curr_proj_output_path,
             "start_end_state_diff_num_gom_only_res_home.csv"),
 )
 
@@ -833,9 +833,31 @@ toc()
 
 # mapview(sa_lat_lon_gom_state_cnt_sf_state_w)
 
-tic("sa_lat_lon_gom_state_cnt_sf_fed_w")
-sa_lat_lon_gom_state_cnt_sf_fed_w <-
-  st_intersection(sa_shp_4326,
-                  lat_lon_gom_state_cnt_sf)
-toc()
+# tic("sa_lat_lon_gom_state_cnt_sf_fed_w")
+get_sa_lat_lon_gom_state_cnt_sf_fed_w <-
+  function(sa_shp_4326,
+           lat_lon_gom_state_cnt_sf) {
+    sa_lat_lon_gom_state_cnt_sf_fed_w <-
+      st_intersection(sa_shp_4326,
+                      lat_lon_gom_state_cnt_sf)
+    return(sa_lat_lon_gom_state_cnt_sf_fed_w)
+  }
+# toc()
+# sa_lat_lon_gom_state_cnt_sf_fed_w: 84.14 sec elapsed
 
+sa_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
+  file.path(curr_proj_output_path,
+            "sa_lat_lon_gom_state_cnt_sf_fed_w.rds")
+
+readr::write_rds(sa_lat_lon_gom_state_cnt_sf_fed_w,
+                 sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+
+sa_lat_lon_gom_state_cnt_sf_fed_w1 <- read_rds_or_run_no_db(
+  sa_lat_lon_gom_state_cnt_sf_fed_w_file_path,
+  list(sa_shp_4326,
+       lat_lon_gom_state_cnt_sf),
+  get_sa_lat_lon_gom_state_cnt_sf_fed_w
+)
+all.equal(sa_lat_lon_gom_state_cnt_sf_fed_w,
+          sa_lat_lon_gom_state_cnt_sf_fed_w1)
+# mapview(sa_lat_lon_gom_state_cnt_sf_fed_w)
