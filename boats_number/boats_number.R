@@ -849,11 +849,31 @@ fl_state_w_counties_shp <- sf::read_sf(fl_state_w_counties_path)
 
 mapview(fl_state_w_counties_shp)
 
-install.packages("ggOceanMaps")
-library(ggOceanMaps)
-
-shapefile_list(name = "all")
-
-basemap(data = lat_lon_gom_state_cnt_sf, bathymetry = TRUE)
+# install.packages("ggOceanMaps")
+# library(ggOceanMaps)
+#
+# shapefile_list(name = "all")
+#
+# basemap(data = lat_lon_gom_state_cnt_sf, bathymetry = TRUE)
 
 # (dd_rbathy)
+
+### state and fed waters ----
+state_and_fed_waters_path <-
+  file.path(
+    my_paths$inputs,
+    r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)"
+  )
+
+# file.exists(state_and_fed_waters_path)
+
+state_and_fed_waters_shp <-
+  sf::read_sf(state_and_fed_waters_path)
+
+str(state_and_fed_waters_shp)
+
+sa_state_waters_shp <-
+  state_and_fed_waters_shp |>
+  filter(Jurisdicti %in% east_coast_states$sa)
+
+mapview(sa_state_waters_shp)
