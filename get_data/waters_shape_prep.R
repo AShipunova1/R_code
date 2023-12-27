@@ -118,12 +118,38 @@ sa_shp_4326 <-
   st_transform(sa_shp, my_crs)
 
 # Get fl sa only state waters ----
-tic("fl_sa_only state waters")
-sa_only_fl_state_waters_shp <-
-  st_intersection(sa_state_waters_shp_4326,
-                  sa_fl_state_w_counties_shp_4326)
-toc()
+# tic("fl_sa_only state waters")
+# sa_only_fl_state_waters_shp <-
+#   st_intersection(sa_state_waters_shp_4326,
+#                   sa_fl_state_w_counties_shp_4326)
+# toc()
 # fl_sa_only state waters: 0.72 sec elapsed
+
+get_sa_only_fl_state_waters_shp <-
+  function(sa_state_waters_shp_4326,
+                  sa_fl_state_w_counties_shp_4326) {
+    sa_only_fl_state_waters_shp <-
+      st_intersection(sa_state_waters_shp_4326,
+                  sa_fl_state_w_counties_shp_4326)
+    return(sa_only_fl_state_waters_shp)
+  }
+# sa_lat_lon_gom_state_cnt_sf_fed_w: 84.14 sec elapsed
+
+sa_only_fl_state_waters_shp_path <-
+  file.path(waters_output_path,
+            "sa_only_fl_state_waters_shp.rds")
+
+# readr::write_rds(sa_lat_lon_gom_state_cnt_sf_fed_w,
+#                  sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+
+sa_only_fl_state_waters_shp <-
+  read_rds_or_run_no_db(
+  sa_only_fl_state_waters_shp_path,
+  list(sa_state_waters_shp_4326,
+                  sa_fl_state_w_counties_shp_4326),
+  get_sa_only_fl_state_waters_shp
+
+)
 
 # mapview(sa_only_fl_state_waters_shp)
 
