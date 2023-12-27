@@ -1,3 +1,4 @@
+# states lists ----
 south_east_coast_states <- c(
   "Alabama",
   "Florida",
@@ -9,6 +10,18 @@ south_east_coast_states <- c(
   "Texas"
 )
 
+south_atlantic_states <-
+  c(
+    "Maryland",
+    "Delaware",
+    "West Virginia",
+    "Virginia",
+    "North Carolina",
+    "South Carolina",
+    "Georgia",
+    "Florida"
+  )
+
 east_coast_states <- list(
   gom = c("Alabama",
           "Florida",
@@ -16,7 +29,6 @@ east_coast_states <- list(
           "Mississippi",
           "Texas"),
   sa = c(
-    "Alabama",
     "Connecticut",
     "Delaware",
     "Florida",
@@ -24,7 +36,6 @@ east_coast_states <- list(
     "Maine",
     "Maryland",
     "Massachusetts",
-    "Mississippi",
     "New Hampshire",
     "New Jersey",
     "New York",
@@ -37,7 +48,25 @@ east_coast_states <- list(
   )
 )
 
-# Florida counties by region (from the Internet)
+# The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
+
+sa_council_states <-
+  c(
+    "Florida", # should be separated by county
+    "Georgia",
+    "North Carolina",
+    "South Carolina"
+  )
+
+# don't need, see above
+gom_council_states <-
+  c("Florida",
+    "Alabama",
+    "Mississippi",
+    "Louisiana",
+    "Texas")
+
+# Florida counties by region (from the Internet) ----
 fl_counties <- list(
   "sa" = c(
     "Brevard",
@@ -79,24 +108,6 @@ fl_counties <- list(
   )
 )
 
-# The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
-
-sa_council_states <-
-  c(
-    "Florida", # should be separated by county
-    "Georgia",
-    "North Carolina",
-    "South Carolina"
-  )
-
-# don't need
-gom_council_states <-
-  c("Florida",
-    "Alabama",
-    "Mississippi",
-    "Louisiana",
-    "Texas")
-
 # prepare state names and abbs ----
 # have to save first, to use the original once as names
 my_state_abb <- state.abb
@@ -108,8 +119,9 @@ names(my_state_name) <- tolower(state.abb)
 result_names <- c(
   "south_east_coast_states",
   "east_coast_states",
-  "fl_counties",
   "sa_council_states",
+  "south_atlantic_states",
+  "fl_counties",
   "my_state_abb",
   "my_state_name"
 )
