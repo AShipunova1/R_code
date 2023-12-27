@@ -1037,19 +1037,17 @@ all_sa_gom_map <-
 
 ### sa and gom map by q ----
 
-all_fish_points_reg_both_q_sa_sf_quaters <-
-  all_fish_points_reg_both_q_sa_sf |>
-  mutate(q_factors =
-           trip_end_year_quarter |>
-           as.factor())
+all_fish_points_reg_both_q_sf_quaters <-
+  list(all_fish_points_reg_both_q_sa_sf,
+       all_fish_points_reg_both_q_gom_sf) |>
+  map_df(\(curr_df) {
+    curr_df |>
+      mutate(q_factors =
+               trip_end_year_quarter |>
+               as.factor())
+  })
 
-all_fish_points_reg_both_q_sa_sf_quaters |> str()
-# all_sa_gom_map <-
-#   mapview(all_fish_points_reg_both_q_sa_sf,
-#           col.regions = "blue") +
-#   mapview(all_fish_points_reg_both_q_gom_sf,
-#           col.regions = "green")
-
+# all_fish_points_reg_both_q_sf_quaters |> str()
 
 all_quaters <-
   all_fish_points_reg_both_q_sa_sf$trip_end_year_quarter |>
@@ -1070,87 +1068,25 @@ mypalette_params
 #     2022 Q1     2022 Q2     2022 Q3     2022 Q4
 # "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"
 
+# print_df_names(all_fish_points_reg_both_q_sa_sf)
 
-      ggplot() +
-      ## Add a filled heatmap using 'geom_sf'.
-      geom_sf(data = map_trip_base_data,
-              aes(geometry = x,
-                  fill = !!sym(trip_cnt_name)),
-              colour = NA) +
-      ## Add the shape data with no fill.
-      geom_sf(data = shape_data, fill = NA)
+all_fish_points_reg_both_q_sf_quaters_plot <-
+  ggplot() +
+  geom_sf(data = all_fish_points_reg_both_q_sf_quaters,
+          aes(
+            geometry = geometry,
+            fill = q_factors,
+            colour = q_factors
+          )) +
+  geom_sf(data = sa_states_shp, fill = NA) +
+  geom_sf(data = gom_states_shp, fill = NA)
 
+all_fish_points_reg_both_q_sf_quaters_plot
 
+# clustering
 
-make_map_trips <-
-  function(map_trip_base_data,
-           shape_data,
-           total_trips_title,
-           trip_cnt_name,
-           caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
-           unit_num = 1,
-           print_stat_zone = NULL,
-           legend_text_text_size = text_sizes[["legend_text_text_size"]]
-           ) {
-    ## Calculate the maximum number of trips for legend scaling.
-    max_num <- max(map_trip_base_data[[trip_cnt_name]])
-
-    ## Create a ggplot2 plot 'map_trips'.
-    map_trips <-
-      ggplot() +
-      ## Add a filled heatmap using 'geom_sf'.
-      geom_sf(data = map_trip_base_data,
-              aes(geometry = x,
-                  fill = !!sym(trip_cnt_name)),
-              colour = NA) +
-      ## Add the shape data with no fill.
-      geom_sf(data = shape_data, fill = NA)
-
-    ## Check for an optional argument 'print_stat_zone'.
-    if (!missing(print_stat_zone)) {
-      map_trips <-
-        map_trips +
-        ## Add StatZone labels using 'geom_sf_text'.
-        geom_sf_text(data = shape_data,
-                     aes(geometry = geometry,
-                         label = StatZone),
-                     size = 3.5)
-    }
-
-    map_trips <-
-        map_trips +
-      ## Set plot labels and theme settings.
-      labs(
-        x = "",
-        y = "",
-        fill = "",
-        caption = caption_text
-      ) +
-      ## theme_bw() +
-      scale_fill_viridis(
-        name = total_trips_title,
-        labels = scales::comma,
-        trans = "log1p",
-        limits = c(1, max_num)
-      ) +
-      theme(
-        legend.position = "top",
-        legend.justification = "left",
-        legend.key.width = unit(unit_num, "npc"),
-        legend.title = element_text(size =
-                                      text_sizes[["legend_title_text_size"]]),
-        legend.text = element_text(size =
-                                     legend_text_text_size), ## for charter heatmap use 7
-        plot.caption = element_text(hjust = 0,
-                                    size = text_sizes[["plot_caption_text_size"]]),
-    axis.text.x =
-      element_text(size = text_sizes[["axis_text_x_size"]]),
-axis.text.y =
-      element_text(size = text_sizes[["axis_text_y_size"]])
-      ) +
-      ## Add a legend guide for fill color.
-      guides(fill = guide_colourbar(title.position = "top"))
-
-    ## Return the created 'map_trips' plot.
-    return(map_trips)
-  }
+  group_by(region) %>%
+  summarise() %>%
+  ggplot(aes(fill = region)) +
+  geom_sf() +
+  theme(legend.position = 'none')
