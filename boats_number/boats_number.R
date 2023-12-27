@@ -879,7 +879,7 @@ sa_lat_lon_gom_state_cnt_sf_fed_w <-
 
 # mapview(sa_lat_lon_gom_state_cnt_sf_fed_w)
 
-str(sa_lat_lon_gom_state_cnt_sf_fed_w)
+# str(sa_lat_lon_gom_state_cnt_sf_fed_w)
 
 ## GOM fishing ----
 
@@ -892,26 +892,20 @@ get_gom_lat_lon_gom_state_cnt_sf_fed_w <-
     return(gom_lat_lon_gom_state_cnt_sf_fed_w)
   }
 
-# tic("gom_lat_lon_gom_state_cnt_sf_fed_w")
-# gom_lat_lon_gom_state_cnt_sf_fed_w <-
-#   get_gom_lat_lon_gom_state_cnt_sf_fed_w(GOMsf,
-#     lat_lon_gom_state_cnt_sf)
-# toc()
-# gom_lat_lon_gom_state_cnt_sf_fed_w: 58.53 sec elapsed
-
 gom_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
   file.path(curr_proj_output_path,
             "gom_lat_lon_gom_state_cnt_sf_fed_w.rds")
 
-# readr::write_rds(gom_lat_lon_gom_state_cnt_sf_fed_w,
-#                  gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+# file.exists(gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
 
-gom_lat_lon_gom_state_cnt_sf_fed_w <- read_rds_or_run_no_db(
-  gom_lat_lon_gom_state_cnt_sf_fed_w_file_path,
-  list(GOMsf,
-       lat_lon_gom_state_cnt_sf),
-  get_gom_lat_lon_gom_state_cnt_sf_fed_w
-)
+gom_lat_lon_gom_state_cnt_sf_fed_w <-
+  read_rds_or_run_no_db(
+    gom_lat_lon_gom_state_cnt_sf_fed_w_file_path,
+    list(GOMsf,
+         lat_lon_gom_state_cnt_sf),
+    get_gom_lat_lon_gom_state_cnt_sf_fed_w
+  )
+# run the function: 56.91 sec elapsed
 
 str(gom_lat_lon_gom_state_cnt_sf_fed_w)
 
@@ -925,11 +919,24 @@ sa_lat_lon_gom_state_cnt_sf_fed_w_df <-
   st_drop_geometry(sa_lat_lon_gom_state_cnt_sf_fed_w)
 # str(sa_lat_lon_gom_state_cnt_sf_fed_w_df)
 
-gom_lat_lon_gom_state_cnt_fed_w_df <-
-  st_drop_geometry(gom_lat_lon_gom_state_cnt_sf_fed_w)
-str(gom_lat_lon_gom_state_cnt_fed_w_df)
+sa_lat_lon_gom_state_cnt_sf_state_w_df <-
+  st_drop_geometry(sa_lat_lon_gom_state_cnt_sf_state_w)
+# str(sa_lat_lon_gom_state_cnt_sf_state_w_df)
 
-all_dots <-
-full_join(gom_lat_lon_gom_state_cnt_sf_fed_w,
-          sa_lat_lon_gom_state_cnt_sf_fed_w,
-          join_by(vessel_official_number))
+all_dots_fed <-
+  full_join(
+    gom_lat_lon_gom_state_cnt_fed_w_df,
+    sa_lat_lon_gom_state_cnt_sf_fed_w_df,
+    join_by(vessel_official_number,
+            permit_region,
+            trip_end_year_quarter
+            ),
+    relationship = "many-to-many",
+    suffix = c(".gom", ".sa_fed")
+  )
+
+View(all_dots)
+# grep("\\.x", names(all_dots), value = T)
+# [1] "permit_region.x"         "latitude.x"              "longitude.x"
+# [4] "trip_end_year_quarter.x" "cnt_v_coords_by_y.x"     "cnt_v_coords_by_q.x"
+
