@@ -12,7 +12,7 @@ waters_project_dir_name <- this.path::this.dir()
 waters_project_basename <-
   basename(waters_project_dir_name)
 
-output_path <- file.path(my_paths$outputs,
+waters_output_path <- file.path(my_paths$outputs,
                          waters_project_basename)
 
 my_crs = 4326
