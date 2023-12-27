@@ -923,9 +923,50 @@ sa_lat_lon_gom_state_cnt_sf_state_w_df <-
   st_drop_geometry(sa_lat_lon_gom_state_cnt_sf_state_w)
 # str(sa_lat_lon_gom_state_cnt_sf_state_w_df)
 
-all_dots_fed <-
+keep_sa_fields <-
+  intersect(
+    names(sa_lat_lon_gom_state_cnt_sf_fed_w_df),
+    names(sa_lat_lon_gom_state_cnt_sf_state_w_df)
+  )
+
+all_dots_sa <-
+  list(sa_lat_lon_gom_state_cnt_sf_fed_w_df,
+       sa_lat_lon_gom_state_cnt_sf_state_w_df) |>
+  map_df(\(curr_df) {
+    curr_df |>
+      select(all_of(keep_sa_fields))
+  })
+
+View(sa_lat_lon_gom_state_cnt_sf_state_w_df)
+
+
+  full_join(
+    sa_lat_lon_gom_state_cnt_sf_fed_w_df,
+    sa_lat_lon_gom_state_cnt_sf_state_w_df,
+    join_by(vessel_official_number,
+            permit_region,
+            trip_end_year_quarter
+            ),
+    relationship = "many-to-many",
+    suffix = c(".sa_state", ".sa_fed")
+  )
+
+View(all_dots_sa)
+
+all_dots <-
+  full_join(
+    all_dots_fed <-
   full_join(
     gom_lat_lon_gom_state_cnt_fed_w_df,
+    sa_lat_lon_gom_state_cnt_sf_state_w_df,
+    join_by(vessel_official_number,
+            permit_region,
+            trip_end_year_quarter
+            ),
+    relationship = "many-to-many",
+    suffix = c("")
+  )
+,
     sa_lat_lon_gom_state_cnt_sf_fed_w_df,
     join_by(vessel_official_number,
             permit_region,
