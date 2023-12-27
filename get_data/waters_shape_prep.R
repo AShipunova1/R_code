@@ -2,6 +2,13 @@
 # maps:
 library(mapview)
 library(sf)
+## Load the 'tigris' package to access geographic data.
+library(tigris)
+
+## Set the 'tigris_use_cache' option to TRUE. This will enable caching of
+## data retrieved from the TIGER/Line Shapefiles service, which can help
+## improve data retrieval performance for future sessions.
+tigris_use_cache = TRUE
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -153,6 +160,19 @@ sa_only_fl_state_waters_shp <-
 
 # mapview(sa_only_fl_state_waters_shp)
 
+# all US states ----
+## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
+us_state_shp <-
+  tigris::states(cb = TRUE, progress_bar = FALSE)
+
+sa_states_shp <-
+  us_state_shp |>
+  filter(NAME %in% south_atlantic_states)
+
+gom_states_shp <-
+  us_state_shp |>
+  filter(NAME %in% east_coast_states$gom)
+
 # misc ----
 # all waters
 # install.packages("ggOceanMaps")
@@ -163,3 +183,4 @@ sa_only_fl_state_waters_shp <-
 # basemap(data = lat_lon_gom_state_cnt_sf, bathymetry = TRUE)
 
 # (dd_rbathy)
+
