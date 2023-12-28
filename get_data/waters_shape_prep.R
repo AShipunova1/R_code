@@ -106,9 +106,7 @@ gom_fl_state_w_counties_shp <-
   filter(county_nam %in% fl_counties$gom)
 
 
-### Subtract GOM Monroe ----
-
-#### Convert to common crs ----
+### Convert to common crs ----
 st_crs(sa_state_waters_shp)
     # ID["EPSG",3395]]
 
@@ -133,10 +131,7 @@ sa_fl_state_w_counties_shp_4326 <-
 sa_shp_4326 <-
   st_transform(sa_shp, my_crs)
 
-### Get fl sa only state waters ----
-# mapview(sa_state_waters_shp_4326)
-
-# mapview(GOMsf)
+## GOM South Florida state_waters_only ----
 GOM_s_fl_state_waters_only <-
   GOMsf |>
   filter(Jurisdict == "State" &
@@ -146,59 +141,14 @@ GOM_s_fl_state_waters_only <-
             Shape_Area)) |>
   distinct()
 
-# GOMsf |> dim()
-# [1] 129   6
-
-# dim(GOM_s_fl_state_waters_only)
-# [1] 6 3
 
 # mapview(fl_state_w_counties_shp,
 #         col.regions = "green") +
 #   mapview(GOM_s_fl_state_waters_only)
 
+# When getting points in SA Monroe
 # Have to do it by steps, otherwise it takes too long
-# 1) florida only
-
-# str(sa_state_waters_shp_4326)
-# print_df_names(fl_state_w_counties_shp)
-fl_monroe_shp <-
-  sa_fl_state_w_counties_shp_4326 |>
-  filter(county_nam == "Monroe") |>
-  select(-c(permanent_, source_fea, source_dat, source_d_1, source_ori, loaddate, fcode, state_fips, state_name, county_fip, county_nam, stco_fipsc, population, areasqkm, gnis_id, gnis_name, shape_Leng, shape_Area, ObjectID)) |>
-  distinct()
-
-# mapview(fl_monroe_shp)
-
-str(GOM_s_fl_state_waters_only)
-get_sa_only_fl_monroe_shp <-
-  function(fl_monroe_shp,
-           GOM_s_fl_state_waters_only) {
-    sa_only_fl_state_waters_shp <-
-      st_difference(fl_monroe_shp,
-                    GOM_s_fl_state_waters_only)
-    return(sa_only_fl_state_waters_shp)
-  }
-# sa_lat_lon_gom_state_cnt_sf_fed_w: 84.14 sec elapsed
-
-sa_only_fl_monroe_shp_path <-
-  file.path(waters_output_path,
-            "sa_only_fl_monroe_shp.rds")
-
-# readr::write_rds(sa_lat_lon_gom_state_cnt_sf_fed_w,
-#                  sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
-
-sa_only_fl_monroe_shp <-
-  read_rds_or_run_no_db(
-    sa_only_fl_monroe_shp_path,
-    list(fl_monroe_shp,
-         GOM_s_fl_state_waters_only),
-    get_sa_only_fl_monroe_shp
-  )
-
-# mapview(sa_only_fl_monroe_shp)
-mapview(fl_monroe_shp) +
-  mapview(GOM_s_fl_state_waters_only,
-          col.regions = "green")
+# 1) get all points not in GOM_s_fl_state_waters_only
 
 ## all US states ----
 ## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
