@@ -894,16 +894,25 @@ source(waters_shape_prep_path)
 # sa_states_shp
 
 ## split by region using shape files ----
-### fishing in GOM  ----
-get_gom_lat_lon_gom_state_cnt_sf_fed_w <-
-  function(GOMsf,
-           lat_lon_gom_state_cnt_sf) {
-    gom_lat_lon_gom_state_cnt_sf_fed_w <-
-      st_intersection(GOMsf,
-                      lat_lon_gom_state_cnt_sf)
-    return(gom_lat_lon_gom_state_cnt_sf_fed_w)
+intersect_waters_and_points <-
+  function(my_shp,
+           my_points) {
+    intersect_result <-
+      st_intersection(my_shp,
+                      my_points)
+    return(intersect_result)
   }
 
+subtract_waters_from_points <-
+  function(my_shp,
+           my_points) {
+    difference_result <-
+      st_difference(my_points,
+                    my_shp)
+    return(difference_result)
+  }
+
+### fishing in GOM  ----
 gom_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
   file.path(curr_proj_output_path,
             "fishing_regions_gom_permits",
@@ -916,7 +925,7 @@ gom_lat_lon_gom_state_cnt_sf_fed_w <-
     gom_lat_lon_gom_state_cnt_sf_fed_w_file_path,
     list(GOMsf,
          lat_lon_gom_state_cnt_sf),
-    get_gom_lat_lon_gom_state_cnt_sf_fed_w
+    intersect_waters_and_points
   )
 # run the function: 56.91 sec elapsed
 
@@ -924,14 +933,6 @@ gom_lat_lon_gom_state_cnt_sf_fed_w <-
 
 ### Fishing in SA ----
 #### Federal waters ----
-intersect_waters_and_points <-
-  function(my_shp,
-           my_points) {
-    intersect_result <-
-      st_intersection(my_shp,
-                      my_points)
-    return(intersect_result)
-  }
 
 
 sa_fed_waters_points_path <-
