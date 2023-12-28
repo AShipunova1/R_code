@@ -923,6 +923,35 @@ gom_lat_lon_gom_state_cnt_sf_fed_w <-
 
 # mapview(gom_lat_lon_gom_state_cnt_sf_fed_w)
 
+### Fishing in SA ----
+#### Federal waters ----
+intersect_waters_and_points <-
+  function(my_shp,
+           my_points) {
+    intersect_result <-
+      st_intersection(my_shp,
+                      my_points)
+    return(intersect_result)
+  }
+
+sa_fed_waters_points_path <-
+  file.path(curr_proj_output_path,
+            "fishing_regions_gom_permits",
+            "sa_fed_waters_points.rds")
+
+# file.exists(gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+
+sa_fed_waters_points <-
+  read_rds_or_run_no_db(
+    sa_fed_waters_points_path,
+    list(shp_4326_list$sa_shp,
+         lat_lon_gom_state_cnt_sf),
+    intersect_waters_and_points
+  )
+# run the function: 43.64 sec elapsed
+
+mapview(sa_fed_waters_points)
+
 #### state waters, Monroe in both regions ----
 tic("sa_lat_lon_gom_state_cnt_sf_state_w")
 sa_lat_lon_gom_state_cnt_sf_state_w <-
