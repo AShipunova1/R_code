@@ -950,7 +950,14 @@ sa_fed_waters_points <-
   )
 # run the function: 43.64 sec elapsed
 
-mapview(sa_fed_waters_points)
+# mapview(sa_fed_waters_points)
+
+### fewer points, to speed up ----
+sa_bb <- st_bbox(shp_4326_list$sa_shp)
+sa_bb_points <- st_crop(lat_lon_gom_state_cnt_sf, sa_bb)
+
+# dim(sa_bb_points)
+# [1] 10293     7
 
 #### state waters, Monroe in both regions ----
 # mapview(east_coast_sa_state_waters_shp)
@@ -960,67 +967,19 @@ sa_state_waters_points_path <-
             "fishing_regions_gom_permits",
             "sa_all_state_waters_points.rds")
 
-# file.exists(gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
-
-tic("sa_state_n_fed_waters_shp")
-sa_state_n_fed_waters_shp <-
-  st_join(shp_4326_list$sa_shp,
-          shp_4326_list$east_coast_sa_state_waters_shp)
-toc()
-# sa_state_n_fed_waters_shp: 0.45 sec elapsed
-
-sa_bb <- st_bbox(shp_4326_list$sa_shp)
-sa_bb_points <- st_crop(lat_lon_gom_state_cnt_sf, sa_bb)
-
-mapview(sa_bb_points)
+# file.exists(sa_state_waters_points_path)
+# unlink(sa_state_waters_points_path)
 
 sa_state_waters_points <-
   read_rds_or_run_no_db(
     sa_state_waters_points_path,
     list(shp_4326_list$east_coast_sa_state_waters_shp,
-         lat_lon_gom_state_cnt_sf),
+         sa_bb_points),
     intersect_waters_and_points
   )
 
+#### Remove GOM Monroe points from all state waters ----
 
-# GOM_s_fl_state_waters_only
-# 1 Florida   only
-# sa_lat_lon_gom_state_cnt_sf_state_w: 0.64 sec elapsed
-
-# Exclude Florida GOM
-
-# SA fed waters ----
-get_sa_lat_lon_gom_state_cnt_sf_fed_w <-
-  function(sa_shp_4326,
-           lat_lon_gom_state_cnt_sf) {
-    sa_lat_lon_gom_state_cnt_sf_fed_w <-
-      st_intersection(sa_shp_4326,
-                      lat_lon_gom_state_cnt_sf)
-    return(sa_lat_lon_gom_state_cnt_sf_fed_w)
-  }
-# sa_lat_lon_gom_state_cnt_sf_fed_w: 84.14 sec elapsed
-
-sa_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
-  file.path(curr_proj_output_path,
-            "sa_lat_lon_gom_state_cnt_sf_fed_w.rds")
-
-# file.exists(sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
-# readr::write_rds(sa_lat_lon_gom_state_cnt_sf_fed_w,
-#                  sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
-
-sa_lat_lon_gom_state_cnt_sf_fed_w <-
-  read_rds_or_run_no_db(
-    sa_lat_lon_gom_state_cnt_sf_fed_w_file_path,
-    list(sa_shp_4326,
-         lat_lon_gom_state_cnt_sf),
-    get_sa_lat_lon_gom_state_cnt_sf_fed_w
-  )
-
-# mapview(sa_lat_lon_gom_state_cnt_sf_fed_w)
-
-# str(sa_lat_lon_gom_state_cnt_sf_fed_w)
-
-## GOM fishing ----
 
 
 ## join by vessel ----
