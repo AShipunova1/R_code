@@ -847,6 +847,9 @@ lat_lon_gom_state_cnt_sf <-
 dim(lat_lon_gom_state_cnt_sf)
 # [1] 36173     7
 
+# all points
+# mapview(lat_lon_gom_state_cnt_sf)
+
 ## Join 'my_sf' with 'my_shp' to crop it, leaving only the intersecting geometries.
 ## extract the longitude and latitude coordinates from the joined spatial object.
 ## Return the cropped and transformed spatial object.
@@ -890,9 +893,36 @@ source(waters_shape_prep_path)
 # gom_states_shp
 # sa_states_shp
 
-
 ## split by region using shape files ----
 ### sa fishing ----
+### fishing in GOM  ----
+get_gom_lat_lon_gom_state_cnt_sf_fed_w <-
+  function(GOMsf,
+           lat_lon_gom_state_cnt_sf) {
+    gom_lat_lon_gom_state_cnt_sf_fed_w <-
+      st_intersection(GOMsf,
+                      lat_lon_gom_state_cnt_sf)
+    return(gom_lat_lon_gom_state_cnt_sf_fed_w)
+  }
+
+gom_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
+  file.path(curr_proj_output_path,
+            "fishing_regions_gom_permits",
+            "gom_lat_lon_gom_state_cnt_sf_fed_w.rds")
+
+# file.exists(gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+
+gom_lat_lon_gom_state_cnt_sf_fed_w <-
+  read_rds_or_run_no_db(
+    gom_lat_lon_gom_state_cnt_sf_fed_w_file_path,
+    list(GOMsf,
+         lat_lon_gom_state_cnt_sf),
+    get_gom_lat_lon_gom_state_cnt_sf_fed_w
+  )
+# run the function: 56.91 sec elapsed
+
+# mapview(gom_lat_lon_gom_state_cnt_sf_fed_w)
+
 #### state waters, Monroe in both regions ----
 tic("sa_lat_lon_gom_state_cnt_sf_state_w")
 sa_lat_lon_gom_state_cnt_sf_state_w <-
@@ -903,7 +933,6 @@ toc()
 # GOM_s_fl_state_waters_only
 # 1 Florida   only
 # sa_lat_lon_gom_state_cnt_sf_state_w: 0.64 sec elapsed
-mapview(sa_lat_lon_gom_state_cnt_sf_state_w)
 
 # Exclude Florida GOM
 
@@ -940,31 +969,6 @@ sa_lat_lon_gom_state_cnt_sf_fed_w <-
 
 ## GOM fishing ----
 
-get_gom_lat_lon_gom_state_cnt_sf_fed_w <-
-  function(GOMsf,
-           lat_lon_gom_state_cnt_sf) {
-    gom_lat_lon_gom_state_cnt_sf_fed_w <-
-      st_intersection(GOMsf,
-                      lat_lon_gom_state_cnt_sf)
-    return(gom_lat_lon_gom_state_cnt_sf_fed_w)
-  }
-
-gom_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
-  file.path(curr_proj_output_path,
-            "gom_lat_lon_gom_state_cnt_sf_fed_w.rds")
-
-# file.exists(gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
-
-gom_lat_lon_gom_state_cnt_sf_fed_w <-
-  read_rds_or_run_no_db(
-    gom_lat_lon_gom_state_cnt_sf_fed_w_file_path,
-    list(GOMsf,
-         lat_lon_gom_state_cnt_sf),
-    get_gom_lat_lon_gom_state_cnt_sf_fed_w
-  )
-# run the function: 56.91 sec elapsed
-
-str(gom_lat_lon_gom_state_cnt_sf_fed_w)
 
 ## join by vessel ----
 ### back to dfs for join ----
