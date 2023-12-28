@@ -155,43 +155,32 @@ st_crs(us_state_shp)
     # ID["EPSG",4269]]
 
 my_dfs_to_transform_names <-
-  list("east_coast_sa_state_waters_shp",
-       "gom_fl_state_w_counties_shp",
-       "sa_fl_state_w_counties_shp",
-       "sa_shp",
-       "gom_states_shp",
-       "us_state_shp"
+  c(
+    "east_coast_sa_state_waters_shp",
+    "gom_fl_state_w_counties_shp",
+    "sa_fl_state_w_counties_shp",
+    "sa_shp",
+    "gom_states_shp",
+    "sa_states_shp"
+  )
+
+my_dfs_to_transform <-
+  list(east_coast_sa_state_waters_shp,
+       gom_fl_state_w_counties_shp,
+       sa_fl_state_w_counties_shp,
+       sa_shp,
+       gom_states_shp,
+       sa_states_shp
        )
 
+tic("shp_4326_list")
 shp_4326_list <-
-  my_dfs_to_transform_names |>
-  map(\(my_df_name) {
-    browser()
-    my_df_4326 <-
-      !!sym(my_df_name) |>
-      st_transform(my_crs)
-    return()
-  })
+  lapply(my_dfs_to_transform,
+         function(x) st_transform(x, my_crs))
+toc()
+# shp_4326_list: 14.56 sec elapsed
 
-east_coast_sa_state_waters_shp_4326 <-
-  st_transform(east_coast_sa_state_waters_shp, my_crs)
-
-gom_fl_state_w_counties_shp_4326 <-
-  st_transform(gom_fl_state_w_counties_shp, my_crs)
-
-sa_fl_state_w_counties_shp_4326 <-
-  st_transform(sa_fl_state_w_counties_shp, my_crs)
-
-sa_shp_4326 <-
-  st_transform(sa_shp, my_crs)
-
-sa_states_shp_4326 <-
-  us_state_shp |>
-  filter(NAME %in% south_atlantic_states)
-
-gom_states_shp <-
-  us_state_shp |>
-  filter(NAME %in% east_coast_states$gom)
+names(shp_4326_list) <- my_dfs_to_transform_names
 
 # misc ----
 # all waters
@@ -206,14 +195,10 @@ gom_states_shp <-
 
 # Results ----
 result_names <- c("GOMsf",
-             "sa_shp_4326",
              "world_state_and_fed_waters_path",
-             "east_coast_sa_state_waters_shp_4326",
              "fl_state_w_counties_shp",
-             "sa_fl_state_w_counties_shp_4326",
-             "gom_fl_state_w_counties_shp_4326",
              "GOM_s_fl_state_waters_only",
-             "sa_states_shp",
-             "gom_states_shp")
+             "shp_4326_list: ",
+             my_dfs_to_transform_names)
 title_message_print(result_names)
 
