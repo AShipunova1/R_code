@@ -67,6 +67,7 @@ gom_council_states <-
     "Texas")
 
 # Florida counties by region (from the Internet) ----
+# NB. "Monroe" is in borh regions
 fl_counties <- list(
   "sa" = c(
     "Brevard",
@@ -76,6 +77,7 @@ fl_counties <- list(
     "Indian River",
     "Martin",
     "Miami-Dade",
+    "Monroe",
     "Nassau",
     "Palm Beach",
     "St. Johns",
