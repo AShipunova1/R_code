@@ -878,6 +878,19 @@ waters_shape_prep_path <-
 
 source(waters_shape_prep_path)
 
+# GOMsf
+# world_state_and_fed_waters_path
+# fl_state_w_counties_shp
+# GOM_s_fl_state_waters_only
+# shp_4326_list:
+# east_coast_sa_state_waters_shp
+# gom_fl_state_w_counties_shp
+# sa_fl_state_w_counties_shp
+# sa_shp
+# gom_states_shp
+# sa_states_shp
+
+
 ## split by region using shape files ----
 ### sa fishing ----
 #### state waters, Monroe in both regions ----
@@ -887,7 +900,7 @@ sa_lat_lon_gom_state_cnt_sf_state_w <-
                 my_shp = sa_state_waters_shp_4326)
 toc()
 
-GOM_s_fl_state_waters_only
+# GOM_s_fl_state_waters_only
 # 1 Florida   only
 # sa_lat_lon_gom_state_cnt_sf_state_w: 0.64 sec elapsed
 mapview(sa_lat_lon_gom_state_cnt_sf_state_w)
