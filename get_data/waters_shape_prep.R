@@ -30,6 +30,7 @@ misc_info_path <-
 source(misc_info_path)
 
 # shape files ----
+
 ## GOM state and fed ----
 GOM_400fm_path <-
   file.path(my_paths$inputs,
@@ -44,7 +45,7 @@ GOMsf <-
 
 # str(GOMsf)
 
-# SA fed ---
+## SA federal waters ----
 sa_path <-
   file.path(my_paths$inputs,
                       r"(shapefiles\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
@@ -55,7 +56,32 @@ sa_shp <- sf::read_sf(sa_path)
 
 # mapview(sa_shp)
 
-## fl_state_w_counties ----
+## world waters ----
+world_state_and_fed_waters_path <-
+  file.path(
+    my_paths$inputs,
+    r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)"
+  )
+
+# file.exists(state_and_fed_waters_path)
+
+world_state_and_fed_waters_shp <-
+  sf::read_sf(world_state_and_fed_waters_path)
+
+# mapview(state_and_fed_waters_shp)
+
+## SA state waters ----
+
+sa_state_waters_shp <-
+  world_state_and_fed_waters_shp |>
+  filter(Jurisdicti %in% east_coast_states$sa)
+
+# mapview(sa_state_waters_shp)
+
+## Florida state waters ----
+# bc FL is in both regions
+
+### fl_state_w_counties ----
 fl_state_w_counties_path <-
   file.path(my_paths$inputs,
                       r"(shapefiles\GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
@@ -66,40 +92,23 @@ fl_state_w_counties_shp <- sf::read_sf(fl_state_w_counties_path)
 
 # mapview(fl_state_w_counties_shp)
 
-## fl sa ----
+### fl sa ----
 sa_fl_state_w_counties_shp <-
   fl_state_w_counties_shp |>
   filter(county_nam %in% fl_counties$sa)
 
-## fl gom ----
+# mapview(sa_fl_state_w_counties_shp)
+
+### fl gom ----
 
 gom_fl_state_w_counties_shp <-
   fl_state_w_counties_shp |>
   filter(county_nam %in% fl_counties$gom)
 
-# mapview(gom_fl_state_w_counties_shp)
 
-## SA state waters ----
-state_and_fed_waters_path <-
-  file.path(
-    my_paths$inputs,
-    r"(shapefiles\federal_and_state_waters\FederalAndStateWaters.shp)"
-  )
+### Subtract GOM Monroe ----
 
-# file.exists(state_and_fed_waters_path)
-
-state_and_fed_waters_shp <-
-  sf::read_sf(state_and_fed_waters_path)
-
-# str(state_and_fed_waters_shp)
-
-sa_state_waters_shp <-
-  state_and_fed_waters_shp |>
-  filter(Jurisdicti %in% east_coast_states$sa)
-
-# mapview(sa_state_waters_shp)
-
-# Convert to common crs ----
+#### Convert to common crs ----
 st_crs(sa_state_waters_shp)
     # ID["EPSG",3395]]
 
@@ -124,43 +133,74 @@ sa_fl_state_w_counties_shp_4326 <-
 sa_shp_4326 <-
   st_transform(sa_shp, my_crs)
 
-# Get fl sa only state waters ----
-# tic("fl_sa_only state waters")
-# sa_only_fl_state_waters_shp <-
-#   st_intersection(sa_state_waters_shp_4326,
-#                   sa_fl_state_w_counties_shp_4326)
-# toc()
-# fl_sa_only state waters: 0.72 sec elapsed
+### Get fl sa only state waters ----
+# mapview(sa_state_waters_shp_4326)
 
-get_sa_only_fl_state_waters_shp <-
-  function(sa_state_waters_shp_4326,
-                  sa_fl_state_w_counties_shp_4326) {
+# mapview(GOMsf)
+GOM_s_fl_state_waters_only <-
+  GOMsf |>
+  filter(Jurisdict == "State" &
+           StatZone %in% c(1, 2, 3)) |>
+  select(-c(DepZone,
+            Activity,
+            Shape_Area)) |>
+  distinct()
+
+# GOMsf |> dim()
+# [1] 129   6
+
+# dim(GOM_s_fl_state_waters_only)
+# [1] 6 3
+
+# mapview(fl_state_w_counties_shp,
+#         col.regions = "green") +
+#   mapview(GOM_s_fl_state_waters_only)
+
+# Have to do it by steps, otherwise it takes too long
+# 1) florida only
+
+# str(sa_state_waters_shp_4326)
+# print_df_names(fl_state_w_counties_shp)
+fl_monroe_shp <-
+  sa_fl_state_w_counties_shp_4326 |>
+  filter(county_nam == "Monroe") |>
+  select(-c(permanent_, source_fea, source_dat, source_d_1, source_ori, loaddate, fcode, state_fips, state_name, county_fip, county_nam, stco_fipsc, population, areasqkm, gnis_id, gnis_name, shape_Leng, shape_Area, ObjectID)) |>
+  distinct()
+
+# mapview(fl_monroe_shp)
+
+str(GOM_s_fl_state_waters_only)
+get_sa_only_fl_monroe_shp <-
+  function(fl_monroe_shp,
+           GOM_s_fl_state_waters_only) {
     sa_only_fl_state_waters_shp <-
-      st_intersection(sa_state_waters_shp_4326,
-                  sa_fl_state_w_counties_shp_4326)
+      st_difference(fl_monroe_shp,
+                    GOM_s_fl_state_waters_only)
     return(sa_only_fl_state_waters_shp)
   }
 # sa_lat_lon_gom_state_cnt_sf_fed_w: 84.14 sec elapsed
 
-sa_only_fl_state_waters_shp_path <-
+sa_only_fl_monroe_shp_path <-
   file.path(waters_output_path,
-            "sa_only_fl_state_waters_shp.rds")
+            "sa_only_fl_monroe_shp.rds")
 
 # readr::write_rds(sa_lat_lon_gom_state_cnt_sf_fed_w,
 #                  sa_lat_lon_gom_state_cnt_sf_fed_w_file_path)
 
-sa_only_fl_state_waters_shp <-
+sa_only_fl_monroe_shp <-
   read_rds_or_run_no_db(
-  sa_only_fl_state_waters_shp_path,
-  list(sa_state_waters_shp_4326,
-                  sa_fl_state_w_counties_shp_4326),
-  get_sa_only_fl_state_waters_shp
+    sa_only_fl_monroe_shp_path,
+    list(fl_monroe_shp,
+         GOM_s_fl_state_waters_only),
+    get_sa_only_fl_monroe_shp
+  )
 
-)
+# mapview(sa_only_fl_monroe_shp)
+mapview(fl_monroe_shp) +
+  mapview(GOM_s_fl_state_waters_only,
+          col.regions = "green")
 
-# mapview(sa_only_fl_state_waters_shp)
-
-# all US states ----
+## all US states ----
 ## The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
 us_state_shp <-
   tigris::states(cb = TRUE, progress_bar = FALSE)
