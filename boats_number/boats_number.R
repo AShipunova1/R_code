@@ -9,6 +9,26 @@
 #' Numbers, by quarter (1-4):
 #' How many Gulf permitted SEFHIER vessels fish in both the Gulf and South Atlantic?
 #'   Numbers, by quarter (1-4):
+#' For counties and states
+#' GOM:
+#' permit,
+#' home_port,
+#' end_port
+#' retain Monroe
+#'
+#' For home port region to SA region:
+#' GOM permit,
+#' GOM home_port
+#' exclude Monroe
+
+#' For fishing region to region
+#' GOM permit
+#' retain Monroe
+#' Create 2 dfs fished in GOM or in SA using lat and lon for area fished
+#' grouping by vessel ID and quarter, check if unique vessel fishing in GOM and in SA
+
+
+
 
 # setup current project ----
 library(zoo)
@@ -771,15 +791,18 @@ start_end_state_region_diff_num_gom_only_res_quarter <-
 #' Plus 1 vessel in Q1 from Sarasota, Florida to Duval, Florida
 
 # Quantify the # of vessels who fish in both the gulf and S Atl ----
-# Home ports are in GOM
+# GOM permit
+# retain Monroe
+# Create 2 dfs fished in GOM or in SA using lat and lon for area fished
+# grouping by vessel ID and quarter, check if unique vessel fishing in GOM and in SA
 
 ## prep fishing locations ----
 # [1] "vessel_official_number, end_port_name, end_port_state, end_port_county, end_port, permit_region, start_port_name, start_port_state, start_port_county, start_port, trip_id, trip_end_date, trip_start_date, latitude, longitude, trip_start_week_num, trip_end_week_num, trip_start_y, trip_end_y, trip_start_m, trip_end_m, trip_start_year_quarter, trip_start_quarter_num, trip_end_year_quarter, trip_end_quarter_num, permit_vessel_id, vessel_vessel_id, sero_home_port_city, sero_home_port_county, sero_home_port_state, sero_home_state_region, end_state_region"
 
 lat_lon_gom_state <-
   join_trip_and_vessel_clean_state_regions_l$gom |>
+  filter(permit_region == "gom") |>
   select(vessel_official_number,
-         permit_region,
          latitude,
          longitude,
          trip_end_year_quarter) |>
@@ -821,15 +844,13 @@ lat_lon_gom_state_cnt_sf <-
     remove = FALSE
   )
 
-# str(lat_lon_gom_state_cnt_sf)
 # lat_lon_gom_state_cnt_sf |>
 #   mapview(
-#     zcol = "permit_region",
 #     cex = "cnt_v_coords_by_y",
 #     alpha = 0.3,
 #     col.regions = viridisLite::turbo,
 #     # legend = FALSE
-#     layer.name = "GOM home port trips"
+#     layer.name = "GOM permit trips"
 #   )
 
 ## split by region using shape files ----
