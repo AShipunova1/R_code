@@ -933,6 +933,7 @@ intersect_waters_and_points <-
     return(intersect_result)
   }
 
+
 sa_fed_waters_points_path <-
   file.path(curr_proj_output_path,
             "fishing_regions_gom_permits",
@@ -960,6 +961,18 @@ sa_state_waters_points_path <-
             "sa_all_state_waters_points.rds")
 
 # file.exists(gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+
+tic("sa_state_n_fed_waters_shp")
+sa_state_n_fed_waters_shp <-
+  st_join(shp_4326_list$sa_shp,
+          shp_4326_list$east_coast_sa_state_waters_shp)
+toc()
+# sa_state_n_fed_waters_shp: 0.45 sec elapsed
+
+sa_bb <- st_bbox(shp_4326_list$sa_shp)
+sa_bb_points <- st_crop(lat_lon_gom_state_cnt_sf, sa_bb)
+
+mapview(sa_bb_points)
 
 sa_state_waters_points <-
   read_rds_or_run_no_db(
