@@ -1088,47 +1088,42 @@ gom_lat_lon_gom_state_cnt_fed_w_df <-
 # str(gom_lat_lon_gom_state_cnt_fed_w_df)
 
 sa_lat_lon_gom_state_cnt_sf_fed_w_df <-
-  st_drop_geometry(sa_lat_lon_gom_state_cnt_sf_fed_w)
+  st_drop_geometry(sa_fed_waters_points)
 # str(sa_lat_lon_gom_state_cnt_sf_fed_w_df)
 
-sa_lat_lon_gom_state_cnt_sf_state_w_df <-
-  st_drop_geometry(sa_lat_lon_gom_state_cnt_sf_state_w)
-# str(sa_lat_lon_gom_state_cnt_sf_state_w_df)
+# sa_state_waters_points_short_df_no_gom_counties_sa_ok
 
 ### join point data frames ----
 keep_sa_fields <-
   intersect(
     names(sa_lat_lon_gom_state_cnt_sf_fed_w_df),
-    names(sa_lat_lon_gom_state_cnt_sf_state_w_df)
+    names(sa_state_waters_points_short_df_no_gom_counties_sa)
   )
 
 all_points_sa <-
   list(sa_lat_lon_gom_state_cnt_sf_fed_w_df,
-       sa_lat_lon_gom_state_cnt_sf_state_w_df) |>
+       sa_state_waters_points_short_df_no_gom_counties) |>
   map_df(\(curr_df) {
     curr_df |>
       select(all_of(keep_sa_fields))
   })
 
-# View(all_dots_sa)
+dim(all_points_sa)
+# [1] 1013    6
 # check 994360 in state waters
+# all_points_sa_l |>
+#   filter(vessel_official_number == "994360") |>
+#   View()
 
 all_fish_points <-
   full_join(
     gom_lat_lon_gom_state_cnt_fed_w_df,
     all_points_sa,
     join_by(vessel_official_number,
-            permit_region,
             trip_end_year_quarter),
     relationship = "many-to-many",
     suffix = c(".gom", ".sa")
   )
-
-# ?? join by trip_end_year_quarter?
-# View(all_fish_points)
-# grep("\\.x", names(all_dots), value = T)
-# [1] "permit_region.x"         "latitude.x"              "longitude.x"
-# [4] "trip_end_year_quarter.x" "cnt_v_coords_by_y.x"     "cnt_v_coords_by_q.x"
 
 ## add markers for having gom or sa fishing locations ----
 all_fish_points_reg_y <-
