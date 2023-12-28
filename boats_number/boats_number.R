@@ -977,6 +977,9 @@ sa_state_waters_points <-
          sa_bb_points),
     intersect_waters_and_points
   )
+# run the function: 701.09 sec elapsed
+
+# mapview(sa_state_waters_points)
 
 #### Remove GOM Monroe points from all state waters ----
 
