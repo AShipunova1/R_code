@@ -1041,7 +1041,39 @@ sa_state_waters_points_short_df_no_gom <-
 #         ycol = "latitude",
 #         crs = my_crs)
 
-View(sa_state_waters_points_short_df_no_gom)
+# Remove not sa counties ---
+# dim(sa_state_waters_points_short_df_no_gom)
+# 560 6
+
+# print_df_names(sa_state_waters_points_short_df_no_gom)
+
+logbooks_w_county <-
+  join_trip_and_vessel_clean_state_regions_l$gom |>
+  select(sero_home_port_county,
+    any_of(names(sa_state_waters_points_short_df_no_gom))) |>
+  distinct()
+
+dim(logbooks_w_county)
+# [1] 46424     5
+
+sa_state_waters_points_short_df_no_gom_counties <-
+  sa_state_waters_points_short_df_no_gom |>
+  left_join(logbooks_w_county)
+# Joining with `by = join_by(vessel_official_number, latitude, longitude,
+# trip_end_year_quarter)`
+
+
+sa_state_waters_points_short_df_no_gom_counties_sa <-
+  sa_state_waters_points_short_df_no_gom_counties |>
+  filter(sero_home_port_county %in% tolower(fl_counties$sa))
+
+dim(sa_state_waters_points_short_df_no_gom_counties_sa)
+# [1] 544   7
+
+mapview(sa_state_waters_points_short_df_no_gom_counties_sa,
+        xcol = "longitude",
+        ycol = "latitude",
+        crs = my_crs)
 
 ## join by vessel ----
 ### back to dfs for join ----
