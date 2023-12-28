@@ -894,7 +894,6 @@ source(waters_shape_prep_path)
 # sa_states_shp
 
 ## split by region using shape files ----
-### sa fishing ----
 ### fishing in GOM  ----
 get_gom_lat_lon_gom_state_cnt_sf_fed_w <-
   function(GOMsf,
@@ -953,11 +952,23 @@ sa_fed_waters_points <-
 mapview(sa_fed_waters_points)
 
 #### state waters, Monroe in both regions ----
-tic("sa_lat_lon_gom_state_cnt_sf_state_w")
-sa_lat_lon_gom_state_cnt_sf_state_w <-
-  crop_by_shape(my_sf = lat_lon_gom_state_cnt_sf,
-                my_shp = sa_state_waters_shp_4326)
-toc()
+# mapview(east_coast_sa_state_waters_shp)
+
+sa_state_waters_points_path <-
+  file.path(curr_proj_output_path,
+            "fishing_regions_gom_permits",
+            "sa_all_state_waters_points.rds")
+
+# file.exists(gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+
+sa_state_waters_points <-
+  read_rds_or_run_no_db(
+    sa_state_waters_points_path,
+    list(shp_4326_list$east_coast_sa_state_waters_shp,
+         lat_lon_gom_state_cnt_sf),
+    intersect_waters_and_points
+  )
+
 
 # GOM_s_fl_state_waters_only
 # 1 Florida   only
