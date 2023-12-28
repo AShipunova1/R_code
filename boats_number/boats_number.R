@@ -1097,7 +1097,8 @@ all_fish_points_reg_both_q_sf_quaters__cnt_v_q <-
   select(vessel_official_number,
          trip_end_year_quarter,
          geometry_gom,
-         geometry_sa) |>
+         geometry_sa,
+         q_factors) |>
   distinct() |>
   group_by(vessel_official_number) |>
   add_count(trip_end_year_quarter,
@@ -1115,10 +1116,16 @@ all_fish_points_reg_both_q_sf_quaters__cnt_v_q |>
 # View(all_fish_points_reg_both_q_sf_quaters__cnt_v_q)
 
 ggplot() +
-  geom_sf(data = all_fish_points_reg_both_q_sf_quaters,
+  geom_sf(data = all_fish_points_reg_both_q_sf_quaters__cnt_v_q,
           aes(
             geometry = geometry_gom,
-            fill = ,
+            fill = vsl_geo_q_cnt,
+            colour = q_factors
+          )) +
+  geom_sf(data = all_fish_points_reg_both_q_sf_quaters__cnt_v_q,
+          aes(
+            geometry = geometry_sa,
+            fill = vsl_geo_q_cnt,
             colour = q_factors
           )) +
   geom_sf(data = sa_states_shp, fill = NA) +
