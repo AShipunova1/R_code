@@ -844,6 +844,22 @@ lat_lon_gom_state_cnt_sf <-
     remove = FALSE
   )
 
+dim(lat_lon_gom_state_cnt_sf)
+# [1] 36173     7
+
+## Join 'my_sf' with 'my_shp' to crop it, leaving only the intersecting geometries.
+## extract the longitude and latitude coordinates from the joined spatial object.
+## Return the cropped and transformed spatial object.
+crop_by_shape <- function(my_sf, my_shp = GOMsf) {
+  my_sf |>
+    sf::st_join(my_shp, left = FALSE) %>%
+
+  dplyr::mutate(longitude = sf::st_coordinates(.)[, 1],
+         latitude = sf::st_coordinates(.)[, 2]) %>%
+
+  return()
+}
+
 # lat_lon_gom_state_cnt_sf |>
 #   mapview(
 #     cex = "cnt_v_coords_by_y",
@@ -853,7 +869,7 @@ lat_lon_gom_state_cnt_sf <-
 #     layer.name = "GOM permit trips"
 #   )
 
-## split by region using shape files ----
+## Get shape files ----
 waters_shape_prep_path <-
   file.path(my_paths$git_r,
             r"(get_data\waters_shape_prep.R)")
@@ -862,16 +878,21 @@ waters_shape_prep_path <-
 
 source(waters_shape_prep_path)
 
-## sa fishing ----
-### state waters, Monroe in both regions ----
+## split by region using shape files ----
+### sa fishing ----
+#### state waters, Monroe in both regions ----
 tic("sa_lat_lon_gom_state_cnt_sf_state_w")
 sa_lat_lon_gom_state_cnt_sf_state_w <-
-  st_intersection(sa_only_fl_state_waters_shp,
-                  lat_lon_gom_state_cnt_sf)
+  crop_by_shape(my_sf = lat_lon_gom_state_cnt_sf,
+                my_shp = sa_state_waters_shp_4326)
 toc()
-# sa_lat_lon_gom_state_cnt_sf_state_w: 0.18 sec elapsed
 
-# mapview(sa_lat_lon_gom_state_cnt_sf_state_w)
+GOM_s_fl_state_waters_only
+# 1 Florida   only
+# sa_lat_lon_gom_state_cnt_sf_state_w: 0.64 sec elapsed
+mapview(sa_lat_lon_gom_state_cnt_sf_state_w)
+
+# Exclude Florida GOM
 
 # SA fed waters ----
 get_sa_lat_lon_gom_state_cnt_sf_fed_w <-
