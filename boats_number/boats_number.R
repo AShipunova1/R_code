@@ -1128,8 +1128,7 @@ all_fish_points <-
 ## add markers for having gom or sa fishing locations ----
 all_fish_points_reg_y <-
   all_fish_points |>
-  group_by(vessel_official_number,
-           permit_region) |>
+  group_by(vessel_official_number) |>
   mutate(has_gom_point_y =
            any(!is.na(latitude.gom), na.rm = TRUE),
          has_sa_point_y =
@@ -1140,15 +1139,17 @@ all_fish_points_reg_both_y <-
   all_fish_points_reg_y |>
   filter(has_gom_point_y & has_sa_point_y)
 
-# data_overview(all_fish_points_reg_both_y)
+dim(all_fish_points_reg_both_y)
 # [1] 8524   18
-# vessel_official_number   76
+# [1] 4479   17 gom permit only
+# vessel_official_number   76 all permits
+# n_distinct(all_fish_points_reg_both_y$vessel_official_number)
+# 30
 
 ### same by quarter ----
 all_fish_points_reg_q <-
   all_fish_points |>
   group_by(vessel_official_number,
-           permit_region,
            trip_end_year_quarter) |>
   mutate(has_gom_point_q =
            any(!is.na(latitude.gom), na.rm = TRUE),
@@ -1160,11 +1161,12 @@ all_fish_points_reg_both_q <-
   all_fish_points_reg_q |>
   filter(has_gom_point_q & has_sa_point_q)
 
-# print_df_names(all_fish_points_reg_both_q)
+dim(all_fish_points_reg_both_q)
 # [1] 7145   18
+# [1] 3940   17 gom permit only
 
 n_distinct(all_fish_points_reg_both_q$vessel_official_number)
-# [1] 74
+# [1] 30
 
 all_fish_points_reg_both_q |>
   select(trip_end_year_quarter, vessel_official_number) |>
@@ -1177,7 +1179,15 @@ all_fish_points_reg_both_q |>
 # 3 2022 Q3                  35
 # 4 2022 Q4                  24
 
+# no SA permit
+# 1 2022 Q1                  13
+# 2 2022 Q2                  14
+# 3 2022 Q3                  15
+# 4 2022 Q4                  13
+
 ## map all_fish_points_reg_both_q ----
+
+View(all_fish_points_reg_both_q)
 all_fish_points_reg_both_q_gom_sf <-
   all_fish_points_reg_both_q |>
   st_as_sf(
