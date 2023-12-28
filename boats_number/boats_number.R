@@ -43,6 +43,8 @@ library(mapview)
 library(sf)
 library(ggmap) ## extends 'ggplot2' for creating maps and working with spatial data.
 library(viridis)
+library(grid)
+library(gridExtra)
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -1248,99 +1250,67 @@ mapview(all_fish_points_reg_both_q_sf_quaters$sa$`2022 Q1`,
 mapview(all_fish_points_reg_both_q_sf_quaters$gom$`2022 Q1`,
         col.regions = "blue")
 
-all_quarters_list |>
-  map
-
-my_res_maps <-
-  all_fish_points_reg_both_q_sf_quaters |>
-  map(\(region_q_l) {
-    region_q_l |>
-      map(\(curr_q) {
-        q_maps <-
-          mapview(curr_q)
-
-        return(q_maps)
-      })
+all_maps_by_q <-
+  all_quarters_list |>
+  map(\(curr_quarter) {
+    mapview(all_fish_points_reg_both_q_sf_quaters$sa[[curr_quarter]],
+            col.regions = "green") +
+      mapview(all_fish_points_reg_both_q_sf_quaters$gom[[curr_quarter]],
+              col.regions = "blue")
   })
 
-View(my_res_maps)
+names(all_maps_by_q) <- all_quarters_list
 
-### make a color palette
-all_quaters <-
-  all_fish_points_reg_both_q_sa_sf$trip_end_year_quarter |>
-  unique() |>
-  sort() |>
-  as.factor()
 
-my_color_len = length(all_quaters)
-
-mypalette_params = viridis(my_color_len, option = "D")
-# "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"
-mypalette <- rainbow(my_color_len)
-# [1] "#FF0000" "#80FF00" "#00FFFF" "#8000FF"
-names(mypalette_params) <- all_quaters
-mypalette_params
-#     2022 Q1     2022 Q2     2022 Q3     2022 Q4
-# "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"
-
-# print_df_names(all_fish_points_reg_both_q_sf_quaters)
-
-all_fish_points_reg_both_q_sf_quaters_plot <-
+# View(all_fish_points_reg_both_q_sf_quaters$sa)
+# same in plots ----
+all_plots_by_q <-
+  all_quarters_list |>
+  map(\(curr_quarter) {
+    my_title = curr_quarter
   ggplot() +
-  geom_sf(data = all_fish_points_reg_both_q_sf_quaters,
+  geom_sf(data =
+            all_fish_points_reg_both_q_sf_quaters$sa[[curr_quarter]],
           aes(
             geometry = geometry_sa,
-            fill = q_factors,
-            colour = q_factors
+            # fill = q_factors,
+            colour = "sa"
           )) +
-  geom_sf(data = all_fish_points_reg_both_q_sf_quaters,
+  geom_sf(data =
+            all_fish_points_reg_both_q_sf_quaters$gom[[curr_quarter]],
           aes(
             geometry = geometry_gom,
-            fill = q_factors,
-            colour = q_factors
+            # fill = q_factors,
+            colour = "gom"
           )) +
   geom_sf(data = sa_states_shp, fill = NA) +
-  geom_sf(data = gom_states_shp, fill = NA)
+  geom_sf(data = gom_states_shp, fill = NA) +
+        labs(title = my_title) +
+    theme_bw()
+  })
 
-all_fish_points_reg_both_q_sf_quaters_plot
+# all_plots_by_q[[1]]
 
-# clustering
+# combine plots
+super_title <-
+  "Vessels with GOM or dual permits fishing in both regions in 2022"
 
-all_fish_points_reg_both_q_sf_quaters__cnt_v_q <-
-  all_fish_points_reg_both_q_sf_quaters |>
-  select(vessel_official_number,
-         trip_end_year_quarter,
-         geometry_gom,
-         geometry_sa,
-         q_factors) |>
-  distinct() |>
-  group_by(vessel_official_number) |>
-  add_count(trip_end_year_quarter,
-            name = "vsl_geo_q_cnt") |>
-  ungroup()
+plots_by_q_arranged <-
+  grid.arrange(grobs = all_plots_by_q,
+             top = super_title,
+             # left = my_legend,
+             ncol = 2)
 
-all_fish_points_reg_both_q_sf_quaters |>
-  filter(vessel_official_number == "1132268") |>
-  View()
+plots_by_q_arranged_dir <-
+  file.path(curr_proj_output_path,
+            "fishing_regions_gom_permits")
 
-all_fish_points_reg_both_q_sf_quaters__cnt_v_q |>
-  filter(vessel_official_number == "1132268") |>
-  View()
-
-# View(all_fish_points_reg_both_q_sf_quaters__cnt_v_q)
-
-ggplot() +
-  geom_sf(data = all_fish_points_reg_both_q_sf_quaters__cnt_v_q,
-          aes(
-            geometry = geometry_gom,
-            fill = vsl_geo_q_cnt,
-            colour = q_factors
-          )) +
-  geom_sf(data = all_fish_points_reg_both_q_sf_quaters__cnt_v_q,
-          aes(
-            geometry = geometry_sa,
-            fill = vsl_geo_q_cnt,
-            colour = q_factors
-          )) +
-  geom_sf(data = sa_states_shp, fill = NA) +
-  geom_sf(data = gom_states_shp, fill = NA)
+ggsave(
+  file = "plots_by_q_arranged.png",
+  plot = plots_by_q_arranged,
+  device = "png",
+  path = plots_by_q_arranged_dir,
+  width = 30,
+  height = 20,
+  units = "cm"
+)
