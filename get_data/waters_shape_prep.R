@@ -180,6 +180,14 @@ shp_4326_list <-
 toc()
 # shp_4326_list: 14.56 sec elapsed
 
+# tic("shp_4326_list map")
+# shp_4326_list_map <-
+#   map(my_dfs_to_transform,
+#          function(x) st_transform(x, my_crs))
+# toc()
+# shp_4326_list map: 13.97 sec elapsed
+
+
 names(shp_4326_list) <- my_dfs_to_transform_names
 
 # misc ----
