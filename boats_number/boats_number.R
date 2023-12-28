@@ -983,8 +983,30 @@ sa_state_waters_points <-
 # mapview(sa_state_waters_points)
 
 #### Remove GOM Monroe points from all state waters ----
+tic("sa_state_waters_points_no_gom")
+sa_state_waters_points_no_gom <-
+  st_difference(sa_state_waters_points,
+                gom_lat_lon_gom_state_cnt_sf_fed_w)
+toc()
 
+sa_state_waters_points_no_gom_path <-
+  file.path(curr_proj_output_path,
+            "fishing_regions_gom_permits",
+            "sa_state_waters_points_no_gom.rds")
 
+# file.exists(sa_state_waters_points_no_gom_path)
+# unlink(sa_state_waters_points_no_gom_path)
+
+write_rds(sa_state_waters_points_no_gom,
+          sa_state_waters_points_no_gom_path)
+
+sa_state_waters_points_no_gom <-
+  read_rds_or_run_no_db(
+    sa_state_waters_points_no_gom_path,
+    list(gom_lat_lon_gom_state_cnt_sf_fed_w,
+         sa_state_waters_points),
+    subtract_waters_from_points
+  )
 
 ## join by vessel ----
 ### back to dfs for join ----
