@@ -72,11 +72,11 @@ world_state_and_fed_waters_shp <-
 
 ## SA state waters ----
 
-sa_state_waters_shp <-
+east_coast_sa_state_waters_shp <-
   world_state_and_fed_waters_shp |>
   filter(Jurisdicti %in% east_coast_states$sa)
 
-# mapview(sa_state_waters_shp)
+# mapview(east_coast_sa_state_waters_shp)
 
 ## Florida state waters ----
 # bc FL is in both regions
@@ -88,7 +88,8 @@ fl_state_w_counties_path <-
 
 # file.exists(fl_state_w_counties_path)
 
-fl_state_w_counties_shp <- sf::read_sf(fl_state_w_counties_path)
+fl_state_w_counties_shp <-
+  sf::read_sf(fl_state_w_counties_path)
 
 # mapview(fl_state_w_counties_shp)
 
@@ -104,32 +105,6 @@ sa_fl_state_w_counties_shp <-
 gom_fl_state_w_counties_shp <-
   fl_state_w_counties_shp |>
   filter(county_nam %in% fl_counties$gom)
-
-
-### Convert to common crs ----
-st_crs(sa_state_waters_shp)
-    # ID["EPSG",3395]]
-
-st_crs(gom_fl_state_w_counties_shp)
-    # ID["EPSG",4269]]
-
-st_crs(GOMsf)
-    # ID["EPSG",4326]]
-
-st_crs(sa_shp)
-    # ID["EPSG",4269]]
-
-sa_state_waters_shp_4326 <-
-  st_transform(sa_state_waters_shp, my_crs)
-
-gom_fl_state_w_counties_shp_4326 <-
-  st_transform(gom_fl_state_w_counties_shp, my_crs)
-
-sa_fl_state_w_counties_shp_4326 <-
-  st_transform(sa_fl_state_w_counties_shp, my_crs)
-
-sa_shp_4326 <-
-  st_transform(sa_shp, my_crs)
 
 ## GOM South Florida state_waters_only ----
 GOM_s_fl_state_waters_only <-
@@ -163,6 +138,61 @@ gom_states_shp <-
   us_state_shp |>
   filter(NAME %in% east_coast_states$gom)
 
+## Convert to common crs ----
+st_crs(east_coast_sa_state_waters_shp)
+    # ID["EPSG",3395]]
+
+st_crs(gom_fl_state_w_counties_shp)
+    # ID["EPSG",4269]]
+
+st_crs(GOMsf)
+    # ID["EPSG",4326]]
+
+st_crs(sa_shp)
+    # ID["EPSG",4269]]
+
+st_crs(us_state_shp)
+    # ID["EPSG",4269]]
+
+my_dfs_to_transform_names <-
+  list("east_coast_sa_state_waters_shp",
+       "gom_fl_state_w_counties_shp",
+       "sa_fl_state_w_counties_shp",
+       "sa_shp",
+       "gom_states_shp",
+       "us_state_shp"
+       )
+
+shp_4326_list <-
+  my_dfs_to_transform_names |>
+  map(\(my_df_name) {
+    browser()
+    my_df_4326 <-
+      !!sym(my_df_name) |>
+      st_transform(my_crs)
+    return()
+  })
+
+east_coast_sa_state_waters_shp_4326 <-
+  st_transform(east_coast_sa_state_waters_shp, my_crs)
+
+gom_fl_state_w_counties_shp_4326 <-
+  st_transform(gom_fl_state_w_counties_shp, my_crs)
+
+sa_fl_state_w_counties_shp_4326 <-
+  st_transform(sa_fl_state_w_counties_shp, my_crs)
+
+sa_shp_4326 <-
+  st_transform(sa_shp, my_crs)
+
+sa_states_shp_4326 <-
+  us_state_shp |>
+  filter(NAME %in% south_atlantic_states)
+
+gom_states_shp <-
+  us_state_shp |>
+  filter(NAME %in% east_coast_states$gom)
+
 # misc ----
 # all waters
 # install.packages("ggOceanMaps")
@@ -173,4 +203,17 @@ gom_states_shp <-
 # basemap(data = lat_lon_gom_state_cnt_sf, bathymetry = TRUE)
 
 # (dd_rbathy)
+
+# Results ----
+result_names <- c("GOMsf",
+             "sa_shp_4326",
+             "world_state_and_fed_waters_path",
+             "east_coast_sa_state_waters_shp_4326",
+             "fl_state_w_counties_shp",
+             "sa_fl_state_w_counties_shp_4326",
+             "gom_fl_state_w_counties_shp_4326",
+             "GOM_s_fl_state_waters_only",
+             "sa_states_shp",
+             "gom_states_shp")
+title_message_print(result_names)
 
