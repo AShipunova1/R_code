@@ -1115,9 +1115,13 @@ dim(all_points_sa)
 #   filter(vessel_official_number == "994360") |>
 #   View()
 
+gom_lat_lon_gom_state_cnt_fed_w_df_short <-
+  gom_lat_lon_gom_state_cnt_fed_w_df |>
+  select(all_of(keep_sa_fields))
+
 all_fish_points <-
   full_join(
-    gom_lat_lon_gom_state_cnt_fed_w_df,
+    gom_lat_lon_gom_state_cnt_fed_w_df_short,
     all_points_sa,
     join_by(vessel_official_number,
             trip_end_year_quarter),
@@ -1141,7 +1145,7 @@ all_fish_points_reg_both_y <-
 
 dim(all_fish_points_reg_both_y)
 # [1] 8524   18
-# [1] 4479   17 gom permit only
+# [1] 4479   12 gom permit only
 # vessel_official_number   76 all permits
 # n_distinct(all_fish_points_reg_both_y$vessel_official_number)
 # 30
@@ -1163,7 +1167,7 @@ all_fish_points_reg_both_q <-
 
 dim(all_fish_points_reg_both_q)
 # [1] 7145   18
-# [1] 3940   17 gom permit only
+# [1] 3940   12 gom permit only
 
 n_distinct(all_fish_points_reg_both_q$vessel_official_number)
 # [1] 30
@@ -1188,6 +1192,7 @@ all_fish_points_reg_both_q |>
 ## map all_fish_points_reg_both_q ----
 
 View(all_fish_points_reg_both_q)
+
 all_fish_points_reg_both_q_gom_sf <-
   all_fish_points_reg_both_q |>
   st_as_sf(
@@ -1195,6 +1200,7 @@ all_fish_points_reg_both_q_gom_sf <-
     crs = my_crs,
     remove = FALSE
   ) |>
+  select(-ends_with(".sa")) |>
   rename(geometry_gom = geometry)
 
 all_fish_points_reg_both_q_sa_sf <-
@@ -1204,6 +1210,7 @@ all_fish_points_reg_both_q_sa_sf <-
     crs = my_crs,
     remove = FALSE
   ) |>
+  select(-ends_with(".gom")) |>
   rename(geometry_sa = geometry)
 
 all_sa_gom_map <-
@@ -1213,18 +1220,50 @@ all_sa_gom_map <-
           col.regions = "green")
 
 # all_sa_gom_map
-#
+
 ### sa and gom map by q ----
 
 all_fish_points_reg_both_q_sf_quaters <-
   list(all_fish_points_reg_both_q_sa_sf,
        all_fish_points_reg_both_q_gom_sf) |>
-  map_df(\(curr_df) {
-    curr_df |>
-      mutate(q_factors =
-               trip_end_year_quarter |>
-               as.factor())
+  map(\(curr_df) {
+    list_by_reg_q <-
+      curr_df |>
+      split(as.factor(curr_df$trip_end_year_quarter))
+
+    return(list_by_reg_q)
   })
+
+names(all_fish_points_reg_both_q_sf_quaters) <-
+  c("sa",
+    "gom")
+
+# View(all_fish_points_reg_both_q_sf_quaters)
+
+all_quarters_list <-
+  names(all_fish_points_reg_both_q_sf_quaters$sa)
+
+mapview(all_fish_points_reg_both_q_sf_quaters$sa$`2022 Q1`,
+        col.regions = "green") +
+mapview(all_fish_points_reg_both_q_sf_quaters$gom$`2022 Q1`,
+        col.regions = "blue")
+
+all_quarters_list |>
+  map
+
+my_res_maps <-
+  all_fish_points_reg_both_q_sf_quaters |>
+  map(\(region_q_l) {
+    region_q_l |>
+      map(\(curr_q) {
+        q_maps <-
+          mapview(curr_q)
+
+        return(q_maps)
+      })
+  })
+
+View(my_res_maps)
 
 ### make a color palette
 all_quaters <-
