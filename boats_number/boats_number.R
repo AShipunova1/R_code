@@ -983,30 +983,65 @@ sa_state_waters_points <-
 # mapview(sa_state_waters_points)
 
 #### Remove GOM Monroe points from all state waters ----
-tic("sa_state_waters_points_no_gom")
-sa_state_waters_points_no_gom <-
-  st_difference(sa_state_waters_points,
-                gom_lat_lon_gom_state_cnt_sf_fed_w)
-toc()
+# tic("sa_state_waters_points_no_gom")
+# sa_state_waters_points_no_gom <-
+#   st_difference(sa_state_waters_points,
+#                 gom_lat_lon_gom_state_cnt_sf_fed_w)
+# toc()
+# had to restart Windows
+# st_intersects
 
-sa_state_waters_points_no_gom_path <-
-  file.path(curr_proj_output_path,
-            "fishing_regions_gom_permits",
-            "sa_state_waters_points_no_gom.rds")
+# View(sa_state_waters_points)
+# > names(sa_fed_waters_points) |>
+# + setdiff(names(sa_state_waters_points))
+# [1] "Id"       "AreaName"
+# > setdiff(names(sa_state_waters_points), names(sa_fed_waters_points))
+# [1] "Jurisdicti" "area_mi2"   "area_km2"   "area_nm2"   "Shape_Leng" "Shape_Area"
 
-# file.exists(sa_state_waters_points_no_gom_path)
-# unlink(sa_state_waters_points_no_gom_path)
+# names(gom_lat_lon_gom_state_cnt_sf_fed_w)
+gom_lat_lon_gom_state_cnt_sf_fed_w_short <-
+  gom_lat_lon_gom_state_cnt_sf_fed_w |>
+  select(-c(StatZone,
+            DepZone,
+            Jurisdict,
+            Activity,
+            Shape_Area))
 
-write_rds(sa_state_waters_points_no_gom,
-          sa_state_waters_points_no_gom_path)
+dim(gom_lat_lon_gom_state_cnt_sf_fed_w_short)
+# [1] 31081     7
 
-sa_state_waters_points_no_gom <-
-  read_rds_or_run_no_db(
-    sa_state_waters_points_no_gom_path,
-    list(gom_lat_lon_gom_state_cnt_sf_fed_w,
-         sa_state_waters_points),
-    subtract_waters_from_points
+sa_state_waters_points_short <-
+  sa_state_waters_points |>
+  select(
+    vessel_official_number,
+    latitude,
+    longitude,
+    trip_end_year_quarter,
+    cnt_v_coords_by_y,
+    cnt_v_coords_by_q,
+    geometry
   )
+
+
+dim(sa_state_waters_points_short)
+# [1] 6144    7
+
+sa_state_waters_points_short_df <-
+  st_drop_geometry(sa_state_waters_points_short)
+
+gom_lat_lon_gom_state_cnt_sf_fed_w_short_df <-
+  st_drop_geometry(gom_lat_lon_gom_state_cnt_sf_fed_w_short)
+
+sa_state_waters_points_short_df_no_gom <-
+  anti_join(sa_state_waters_points_short_df,
+            gom_lat_lon_gom_state_cnt_sf_fed_w_short_df)
+
+# mapview(sa_state_waters_points_short_df_no_gom,
+#         xcol = "longitude",
+#         ycol = "latitude",
+#         crs = my_crs)
+
+View(sa_state_waters_points_short_df_no_gom)
 
 ## join by vessel ----
 ### back to dfs for join ----
