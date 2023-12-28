@@ -842,7 +842,7 @@ waters_shape_prep_path <-
 source(waters_shape_prep_path)
 
 ## sa fishing ----
-### state waters, Monroe in GOM ----
+### state waters, Monroe in both regions ----
 tic("sa_lat_lon_gom_state_cnt_sf_state_w")
 sa_lat_lon_gom_state_cnt_sf_state_w <-
   st_intersection(sa_only_fl_state_waters_shp,
