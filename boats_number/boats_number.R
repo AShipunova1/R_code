@@ -1070,10 +1070,16 @@ sa_state_waters_points_short_df_no_gom_counties_sa <-
 dim(sa_state_waters_points_short_df_no_gom_counties_sa)
 # [1] 544   7
 
-mapview(sa_state_waters_points_short_df_no_gom_counties_sa,
-        xcol = "longitude",
-        ycol = "latitude",
-        crs = my_crs)
+# Check counties ----
+# sa_state_waters_points_short_df_no_gom_counties_sa |>
+#   select(sero_home_port_county) |>
+#   distinct()
+# monroe
+
+# mapview(sa_state_waters_points_short_df_no_gom_counties_sa,
+#         xcol = "longitude",
+#         ycol = "latitude",
+#         crs = my_crs)
 
 ## join by vessel ----
 ### back to dfs for join ----
