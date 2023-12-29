@@ -442,15 +442,22 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
       dplyr::distinct() |>
       dplyr::mutate(
         nc_round_perc = round(compl_percent_per_st),
-        my_label =
+        nc_round_proportion = round(compl_proportion_per_st, 2),
+        my_label_perc =
           stringr::str_glue("{state_fixed}:
-                             {nc_round_perc}% of {total_vsl_by_state_cnt}")
+                             {nc_round_perc}% of {total_vsl_by_state_cnt}"),
+        my_label_cnt =
+          stringr::str_glue("{state_fixed}:
+                             {compliance_by_state_cnt} of {total_vsl_by_state_cnt}"),
+        my_label_long =
+          stringr::str_glue("{state_fixed}:
+                             {compliance_by_state_cnt}/{total_vsl_by_state_cnt} = {nc_round_proportion}")
       )
   })
 
 ### check the labels ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$SA |> 
-  dplyr::glimpse()
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
+  glimpse()
 
 ## add to the shape file by state name ----
 
@@ -480,6 +487,8 @@ shp_file_with_cnts_sa <-
     dplyr::join_by(STUSPS ==
                      state_fixed)
   )
+
+# View(shp_file_with_cnts_sa)
 
 # print_df_names(shp_file_with_cnts_sa)
 # [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, compliance_by_state_cnt, compl_percent_per_st, nc_round_perc, my_label, geometry"
@@ -521,7 +530,7 @@ shp_file_with_cnts_list_maps <-
       ggplot2::geom_sf(aes(fill = nc_round_perc)) +
       # Add a layer for plotting spatial features, using nc_round_perc for fill color.
       
-      ggplot2::geom_sf_label(aes(label = my_label),
+      ggplot2::geom_sf_label(aes(label = my_label_long),
                     size = label_text_size) +
       # Add a layer for labeling spatial features using the my_label column, with a specified size.
       
@@ -546,11 +555,9 @@ shp_file_with_cnts_list_maps <-
       ) +
       ggplot2::xlab("") +
       ggplot2::ylab("") +
-      ggplot2::scale_fill_continuous(name = "Percent non-compliant",
-                            type = "viridis",
-                            direction = -1) +
-      ggplot2::theme(legend.position = "bottom")
-
+      ggplot2::scale_fill_continuous(name = "Proportion of Non-compliant, Gulf Permitted SEFHIER Vessels by State",
+                            type = "viridis") +
+      ggplot2::theme(legend.position = "top")
   })
 
 # individual plots ----
@@ -558,14 +565,16 @@ shp_file_with_cnts_list_maps <-
 ## make map titles ----
 permit_regions <-
   c("SA only",
-    "GOM and Dual",
-    "GOM only")
+    "GOM and Dual"
+    )
 
 # Generate plot titles using 'str_glue' to include the 'permit_region'.
 perc_plot_titles <-
   permit_regions |>
   purrr::map(\(permit_region) {
-    stringr::str_glue("Percent of non-compliant Vessels {permit_region} permitted in 2022 by Home Port State")
+    stringr::str_glue(
+      "Proportion of Non-compliant, {permit_region} Permitted SEFHIER Vessels by Home Port State"
+    )
   })
 
 # Set the names of the 'perc_plot_titles' list to be the same as the 'permit_regions'.
@@ -591,13 +600,13 @@ write_png_to_file <- function(output_file_name,
 }
 
 ## GOM ----
-permit_region <- "GOM only"
+permit_region <- "GOM and Dual"
 
 gom_map <-
   shp_file_with_cnts_list_maps$GOM +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
-output_file_name <- "gom_perc_by_state.png"
+output_file_name <- "gom_perc_by_state_12_29_23.png"
 
 write_png_to_file(output_file_name,
                   gom_map)
