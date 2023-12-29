@@ -32,7 +32,7 @@ library(ggmap) ## extends 'ggplot2' for creating maps and working with spatial d
 library(viridis)
 library(grid)
 library(gridExtra)",
-,  sep = "\n")
+sep = "\n")
 
 current_file_name = "~/R_code_github/useful_functions_module.r"
 write_to_1_flat_file(flat_file_name, current_file_name)
