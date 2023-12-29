@@ -572,8 +572,8 @@ shp_file_with_cnts_list_maps <-
       ggplot2::ggplot() +
       # Start building the ggplot object for plotting.
       
-      ggplot2::geom_sf(aes(fill = factor(nc_round_perc))) +
-      # Add a layer for plotting spatial features, using nc_round_perc for fill color.
+      ggplot2::geom_sf(aes(fill = factor(nc_round_proportion))) +
+      # Add a layer for plotting spatial features, using nc_round_proportion for fill color.
       
       ggplot2::geom_sf_label(aes(label = my_label_long),
                     size = label_text_size) +
@@ -601,17 +601,20 @@ shp_file_with_cnts_list_maps <-
       ggplot2::xlab("") +
       ggplot2::ylab("") +
       # scale_fill_manual(values = mypalette) +
-        # scale_fill_manual(values = c("red", "grey", "seagreen3","gold", "green","orange"), name= "Cluster Group")+ 
-
-    # scale_fill_viridis_c() +
-    theme_bw() +
+      # scale_fill_manual(values = c("red", "grey", "seagreen3","gold", "green","orange"), name= "Cluster Group")+
+      
+      # scale_fill_viridis_c() +
+      theme_bw() +
       # ggplot2::scale_fill_continuous(name = "",
       #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
       #                                                                  breaks = c("0.14", "0.29"),
       # # values = my_colors
       # 
       #                                type = "viridis") +
-      ggplot2::theme(legend.position = "top")
+      # ggplot2::theme(legend.position = "top")
+      theme(legend.position = c(0.5, 0.2)) +
+      guides(fill = guide_legend(title = "",
+                                 nrow = 1))
   })
 
 # individual plots ----
