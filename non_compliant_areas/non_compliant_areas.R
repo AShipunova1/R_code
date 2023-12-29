@@ -600,22 +600,14 @@ shp_file_with_cnts_list_maps <-
       ) +
       ggplot2::xlab("") +
       ggplot2::ylab("") +
-      # scale_fill_manual(values = mypalette) +
       scale_fill_manual(
         values = mypalette
-        # values = c("red", "grey", "gold", "green", "orange")
       ) +
-      
-      # scale_fill_viridis_c() +
       theme_bw() +
       # ggplot2::scale_fill_continuous(name = "",
       #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
       #                                                                  breaks = c("0.14", "0.29"),
-      # # values = my_colors
-      # 
-      #                                type = "viridis") +
-      # ggplot2::theme(legend.position = "top")
-      theme(legend.position = c(0.5, 0.2)) +
+      theme(legend.position = c(0.55, 0.1)) +
       guides(fill = guide_legend(title = "",
                                  nrow = 1))
   })
