@@ -84,35 +84,29 @@ vessels_permits_home_port_lat_longs_city_state |>
 
 ## Compliance info combine dual and GOM ----
 
-# compl_err_db_data_metrics_permit_reg_list_short is sourced from non_compliant_areas_get_data.R
+# compl_err_db_data_metrics_2022_clean_list_short is sourced from non_compliant_areas_get_data.R
 
 # Combine two data frames, 'gom_only' and 'dual', from the specified list and assign it to 'gom_dual_compl'.
 gom_dual_compl <-
-  rbind(
-    compl_err_db_data_metrics_permit_reg_list_short$gom_only,
-    compl_err_db_data_metrics_permit_reg_list_short$dual
-  )
-
+  compl_err_db_data_metrics_2022_clean_list_short$GOM
 # count_uniq_by_column(gom_dual_compl)
 # vessel_official_nbr 1313
 # is_comp                2
 # dim(gom_dual_compl)
 # [1] 1588    2
 
-### check if vessels are in gom and dual ----
-dplyr::intersect(compl_err_db_data_metrics_permit_reg_list_short$gom_only$vessel_official_nbr,
-    compl_err_db_data_metrics_permit_reg_list_short$dual$vessel_official_nbr)
-# 0 - no  
+# [1] "2023-12-29"
+# today()
+# vessel_official_number 1232
+# [1] 1492    2
 
 ## add gom_dual_compl back to the list of dfs ----
-compl_err_db_data_metrics_permit_reg_list_short$gom_dual <-
+compl_err_db_data_metrics_2022_clean_list_short$GOM <-
   gom_dual_compl
 
-# View(compl_err_db_data_metrics_permit_reg_list_short) 
-
 # Use the 'map' function from the 'purrr' package to apply the 'dim' function to each element
-# of the list 'compl_err_db_data_metrics_permit_reg_list_short'.
-purrr::map(compl_err_db_data_metrics_permit_reg_list_short, dim)
+# of the list 'compl_err_db_data_metrics_2022_clean_list_short'.
+purrr::map(compl_err_db_data_metrics_2022_clean_list_short, dim)
 # $dual
 # [1] 474   2
 # 
@@ -125,8 +119,14 @@ purrr::map(compl_err_db_data_metrics_permit_reg_list_short, dim)
 # $gom_dual
 # [1] 1588    2
 
+# $GOM
+# [1] 1492    2
+# 
+# $SA
+# [1] 2976    2
+
 # apply count_uniq_by_column() function to each df in the list
-purrr::map(compl_err_db_data_metrics_permit_reg_list_short,
+purrr::map(compl_err_db_data_metrics_2022_clean_list_short,
            count_uniq_by_column)
 # $dual
 # vessel_official_nbr 374
@@ -146,8 +146,8 @@ purrr::map(compl_err_db_data_metrics_permit_reg_list_short,
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
 
-compl_err_db_data_metrics_permit_reg_list_short_year_nc <- 
-  compl_err_db_data_metrics_permit_reg_list_short |> 
+compl_err_db_data_metrics_2022_clean_list_short_year_nc <- 
+  compl_err_db_data_metrics_2022_clean_list_short |> 
   purrr::map(\(curr_df) {
     # For each data frame curr_df in the list (one df for a permit_region):
     curr_df |>
@@ -161,7 +161,7 @@ compl_err_db_data_metrics_permit_reg_list_short_year_nc <-
   })
 
 ## check compl_year ----
-compl_err_db_data_metrics_permit_reg_list_short_year_nc$sa_only |>
+compl_err_db_data_metrics_2022_clean_list_short_year_nc$sa_only |>
   # filter(vessel_official_number == 1020822) |>
   dplyr::arrange(vessel_official_number) |> 
   head(4)
@@ -175,10 +175,10 @@ compl_err_db_data_metrics_permit_reg_list_short_year_nc$sa_only |>
 # 1020822 is non compliant for the whole year 
 
 ## keep unique vessel ids only ----
-# Create a new list 'compl_err_db_data_metrics_permit_reg_list_short_uniq' by applying a series of
-# operations to each element of the 'compl_err_db_data_metrics_permit_reg_list_short_year_nc' list.
-compl_err_db_data_metrics_permit_reg_list_short_uniq <- 
-  compl_err_db_data_metrics_permit_reg_list_short_year_nc |> 
+# Create a new list 'compl_err_db_data_metrics_2022_clean_list_short_uniq' by applying a series of
+# operations to each element of the 'compl_err_db_data_metrics_2022_clean_list_short_year_nc' list.
+compl_err_db_data_metrics_2022_clean_list_short_uniq <- 
+  compl_err_db_data_metrics_2022_clean_list_short_year_nc |> 
   purrr::map(\(curr_df){
     # Select all columns except 'is_comp' and retain only distinct rows.
     curr_df |> 
@@ -187,17 +187,17 @@ compl_err_db_data_metrics_permit_reg_list_short_uniq <-
   })
 
 # check
-compl_err_db_data_metrics_permit_reg_list_short_uniq$sa_only |>
+compl_err_db_data_metrics_2022_clean_list_short_uniq$sa_only |>
   dplyr::filter(vessel_official_number == 1020822)
 #   vessel_official_number non_compl_year
 # 1 1020822             TRUE          
 
 # Join home port and compliance info by vessel ----
 
-# In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_permit_reg_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
+# In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_2022_clean_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
 vessels_permits_home_port_22_compliance_list <-
-  compl_err_db_data_metrics_permit_reg_list_short_uniq |>
+  compl_err_db_data_metrics_2022_clean_list_short_uniq |>
   purrr::map(\(curr_df) {
     dplyr::left_join(
       curr_df,
