@@ -1,13 +1,7 @@
 
-
 #### add-ons 1 ---- 
 
 
-
-#### add-ons 1 ---- 
-
-
-# setup current project ----
 library(zoo)
 # Determine the path of the executing script
 library(this.path)
@@ -23,6 +17,9 @@ library(viridis)
 library(grid)
 library(gridExtra)
 
+
+[1mindexing[0m [34museful_functions_module.r[0m [=========================] [32m2.15GB/s[0m, eta: [36m 0s[0m
+                                                                                                                    
 
 #### Current file: useful_functions_module.r ----
 
@@ -1233,9 +1230,10 @@ save_plot_to_file <-
     )
   }
 
-
 #### add-ons 2 ---- 
 
+
+my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
 current_project_dir_name <- this.path::this.dir()
@@ -1247,6 +1245,8 @@ curr_proj_output_path <- file.path(my_paths$outputs,
                          current_project_basename)
 
 
+[1mindexing[0m [34mmisc_info.R[0m [=====================================] [32m233.15MB/s[0m, eta: [36m 0s[0m
+                                                                                                                    
 
 #### Current file: misc_info.R ----
 
@@ -1382,6 +1382,8 @@ result_names <- c(
 
 title_message_print(result_names)
 
+[1mindexing[0m [34mboats_number_get_data.R[0m [=========================] [32m489.24MB/s[0m, eta: [36m 0s[0m
+                                                                                                                    
 
 #### Current file: boats_number_get_data.R ----
 
@@ -1481,7 +1483,7 @@ rm_columns <- c("ACTIVITY_TYPE",
 "UE",
 "UNIT_MEASURE")
 
-source(file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)"))
+# source(file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)"))
 
 tic("run_all_get_db_data()")
 all_get_db_data_result_l <- run_all_get_db_data()
@@ -1489,7 +1491,7 @@ toc()
 
 # get logbooks 2022 only ----
 ## logbooks data----
-# for qmd use  #' {{< include .qmd >}} instead of source()
+# for qmd use  #' {{< include .qmd >}} instead of # source()
 
 # 2a)
 # use all logbooks from https://drive.google.com/drive/folders/1HipnxawNsDjrsMc4dXgFwdRPQ3X6-x3n
@@ -1538,6 +1540,8 @@ title_message_print(input_data_df_names)
 # [1] "trip_id, trip_type_name, vessel_id, vessel_official_number, vessel_name, trip_start_date, trip_end_date, state, state_name, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, activity_type_name, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, vendor_app_name, vendor_platform, trip_de, trip_ue, trip_dc, trip_uc, area_code, sub_area_code, distance_code, distance_code_name, local_area_code, latitude, longitude, effort_de, effort_ue, effort_dc, effort_uc, catch_uc, user_app, notif_seq, notif_type, notif_accsp_system_id, notif_accsp_permit_id, notif_trip_type, notif_trip_type_name, notif_trip_start_date, notif_trip_start_time, notif_trip_end_date, notif_trip_end_time, notif_start_port, notif_start_port_name, notif_start_port_county, notif_start_port_state, notif_end_port, notif_end_port_name, notif_end_port_county, notif_end_port_state, notif_cancel_flag, notif_email_sent, notif_intended_fishing_flag, notif_gear_type, notif_landing_location, notif_landing_location_name, notif_landing_location_city, notif_landing_location_county, notif_landing_location_state, notif_stat_zone, notif_ue, notif_de, notif_uc, notif_dc, permit_region"
 
 
+[1mindexing[0m [34mwaters_shape_prep.R[0m [=============================] [32m514.40MB/s[0m, eta: [36m 0s[0m
+                                                                                                                    
 
 #### Current file: waters_shape_prep.R ----
 
@@ -1553,7 +1557,7 @@ library(tigris)
 ## improve data retrieval performance for future sessions.
 tigris_use_cache = TRUE
 
-source("~/R_code_github/useful_functions_module.r")
+# source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
@@ -1570,7 +1574,7 @@ my_crs = 4326
 misc_info_path <-
   file.path(my_paths$git_r,
             r"(get_data\misc_info.R)")
-source(misc_info_path)
+# source(misc_info_path)
 
 # shape files ----
 
@@ -1755,6 +1759,8 @@ result_names <- c("GOMsf",
 title_message_print(result_names)
 
 
+[1mindexing[0m [34mboats_number.R[0m [====================================] [32m2.15GB/s[0m, eta: [36m 0s[0m
+                                                                                                                    
 
 #### Current file: boats_number.R ----
 
@@ -1788,7 +1794,7 @@ title_message_print(result_names)
 #' grouping by vessel ID and quarter, check if unique vessel fishing in GOM and in SA
 
 # setup current project ----
-source("~/R_code_github/boats_number/boats_number_sources.R")
+# source("~/R_code_github/boats_number/boats_number_sources.R")
 
 ## processed_logbooks ----
 
