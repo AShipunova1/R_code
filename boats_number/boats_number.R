@@ -868,6 +868,17 @@ write_csv(
 
 # How many SEFHIER vessels have a different start port region (Gulf) than end port region (South Atlantic)? ----
 
+# Explanation:
+# 1. The 'start_end_county_diff_gom_num_gom_permit_only_res' data frame is piped into the 'select' function to keep only selected columns.
+# 2. The 'select' function is applied to keep only selected columns: 'trip_end_year_quarter', 'sero_home_state_region', 'end_state_region', and 'diff_county_num_of_vessels'.
+# 3. The 'distinct' function is applied to keep only unique rows in the data frame, removing any duplicate rows based on all columns.
+# 4. Another 'filter' function is applied to exclude rows where 'sero_home_state_region' is equal to 'end_state_region', effectively keeping rows where the start and end state regions are different.
+# 5. The 'group_by' function is applied to group the data by 'trip_end_year_quarter'.
+# 6. The 'count' function is applied to calculate the total count of 'diff_county_num_of_vessels' for each unique 'trip_end_year_quarter'. The result is stored in a new column named 'diff_port_regions_num_of_vessels_tot'.
+# 7. The resulting data frame is stored in the 'start_end_state_region_diff_num_gom_only_res_quarter' variable, which now includes the total count of vessels for each quarter based on the 'diff_port_regions_num_of_vessels_tot' column.
+
+# All functions are from dplyr
+
 start_end_state_region_diff_num_gom_only_res_quarter <-
   start_end_county_diff_gom_num_gom_permit_only_res |>
   select(
@@ -894,14 +905,22 @@ start_end_state_region_diff_num_gom_only_res_quarter <-
 #' Plus 1 vessel in Q1 from Sarasota, Florida to Duval, Florida
 
 # Quantify the # of vessels who fish in both the gulf and S Atl ----
+# Notes:
 # GOM permit
 # retain Monroe
 # Create 2 dfs fished in GOM or in SA using lat and lon for area fished
 # grouping by vessel ID and quarter, check if unique vessel fishing in GOM and in SA
 
 ## prep fishing locations ----
-# [1] "vessel_official_number, end_port_name, end_port_state, end_port_county, end_port, permit_region, start_port_name, start_port_state, start_port_county, start_port, trip_id, trip_end_date, trip_start_date, latitude, longitude, trip_start_week_num, trip_end_week_num, trip_start_y, trip_end_y, trip_start_m, trip_end_m, trip_start_year_quarter, trip_start_quarter_num, trip_end_year_quarter, trip_end_quarter_num, permit_vessel_id, vessel_vessel_id, sero_home_port_city, sero_home_port_county, sero_home_port_state, sero_home_state_region, end_state_region"
 
+### Get GOM permitted vessels with Lat and Long ----
+# Explanation:
+# 1. The 'join_trip_and_vessel_clean_state_regions_l$gom' data frame, representing the GOM (Gulf of Mexico) region from the joined data, is piped into the 'filter' function to include only rows where 'permit_region' is "gom".
+# 2. The 'filter' function is applied to include only rows where 'permit_region' is "gom".
+# 3. The 'select' function is applied to keep only selected columns: 'vessel_official_number', 'latitude', 'longitude', and 'trip_end_year_quarter'.
+# 4. Another 'filter' function is applied to exclude rows where 'latitude' or 'longitude' is NA.
+# 5. The 'distinct' function is applied to keep only unique rows in the data frame, removing any duplicate rows based on all columns.
+# 6. The resulting data frame is stored in the 'lat_lon_gom_state' variable, which includes information about the latitude, longitude, and vessel details for the GOM region.
 lat_lon_gom_state <-
   join_trip_and_vessel_clean_state_regions_l$gom |>
   filter(permit_region == "gom") |>
@@ -916,6 +935,15 @@ lat_lon_gom_state <-
 # dim(lat_lon_gom_state)
 # [1] 46181     5
 
+### Count points ----
+
+# Explanation:
+# 1. The 'lat_lon_gom_state' data frame is piped into the 'mutate' function to modify the 'latitude' and 'longitude' columns by taking their absolute values. This is done to handle potential discrepancies in latitude and longitude data.
+# 2. The 'mutate' function is applied to modify the 'latitude' and 'longitude' columns by taking their absolute values. And then converting all longitude to negative values.
+# 3. The 'add_count' function is applied to calculate the total count of vessels for each unique combination of 'latitude' and 'longitude'. The result is stored in a new column named 'cnt_v_coords_by_y'.
+# 4. Another 'add_count' function is applied to calculate the total count of vessels for each unique combination of 'latitude', 'longitude', and 'trip_end_year_quarter'. The result is stored in a new column named 'cnt_v_coords_by_q'.
+# 5. The resulting data frame is stored in the 'lat_lon_gom_state_cnt' variable, which includes counts for each unique combination of coordinates and quarter based on the 'cnt_v_coords_by_y' and 'cnt_v_coords_by_q' columns.
+
 lat_lon_gom_state_cnt <-
   lat_lon_gom_state |>
   mutate(latitude = abs(latitude),
@@ -928,6 +956,7 @@ lat_lon_gom_state_cnt <-
             name = "cnt_v_coords_by_q")
 
 # View(lat_lon_gom_state_cnt)
+## Define a common crs ----
 my_crs <- 4326
 
 # Create a new object 'lat_lon_gom_state_cnt_sf' by piping the data frame
@@ -953,19 +982,6 @@ dim(lat_lon_gom_state_cnt_sf)
 # all points
 # mapview(lat_lon_gom_state_cnt_sf)
 
-## Join 'my_sf' with 'my_shp' to crop it, leaving only the intersecting geometries.
-## extract the longitude and latitude coordinates from the joined spatial object.
-## Return the cropped and transformed spatial object.
-crop_by_shape <- function(my_sf, my_shp = GOMsf) {
-  my_sf |>
-    sf::st_join(my_shp, left = FALSE) %>%
-
-  dplyr::mutate(longitude = sf::st_coordinates(.)[, 1],
-         latitude = sf::st_coordinates(.)[, 2]) %>%
-
-  return()
-}
-
 # lat_lon_gom_state_cnt_sf |>
 #   mapview(
 #     cex = "cnt_v_coords_by_y",
@@ -975,6 +991,7 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
 #     layer.name = "GOM permit trips"
 #   )
 
+## List of loaded shapefiles ----
 # GOMsf
 # world_state_and_fed_waters_path
 # fl_state_w_counties_shp
@@ -987,7 +1004,14 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
 # gom_states_shp
 # sa_states_shp
 
-## split by region using shape files ----
+## Split by region using shape files ----
+
+### Aux function ----
+# Explanation:
+# 1. The 'intersect_waters_and_points' function is defined to take two spatial data frames, 'my_shp' (shapefile) and 'my_points'.
+# 2. Inside the function, the 'st_intersection' function from the 'sf' package is applied to calculate the intersection of the two spatial data frames. This function identifies the common geometries between the shapefile and the points.
+# 3. The resulting spatial data frame representing the intersection is stored in the 'intersect_result' variable.
+# 4. The function returns the 'intersect_result', which contains the geometries that are common to both 'my_shp' and 'my_points'.
 intersect_waters_and_points <-
   function(my_shp,
            my_points) {
@@ -997,16 +1021,8 @@ intersect_waters_and_points <-
     return(intersect_result)
   }
 
-subtract_waters_from_points <-
-  function(my_shp,
-           my_points) {
-    difference_result <-
-      st_difference(my_points,
-                    my_shp)
-    return(difference_result)
-  }
-
 ### fishing in GOM  ----
+# Read a file or run the function
 gom_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
   file.path(curr_proj_output_path,
             "fishing_regions_gom_permits",
