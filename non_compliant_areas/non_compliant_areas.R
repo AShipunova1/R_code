@@ -23,6 +23,8 @@ library(mapview)
 library(leafpop)
 library(leaflet)
 
+library(viridis)
+
 # The tidygeocoder package makes getting data from geocoder services easy.
 # Check if the 'tidygeocoder' package is already installed; if not, install it and load the library.
 if (!require(tidygeocoder)) {
@@ -541,6 +543,25 @@ states_sf <-
 
 label_text_size <- 3
 
+# shp_file_with_cnts_list$gom_states |> print_df_names()
+gom_state_proportion_indexes <-
+  shp_file_with_cnts_list$gom_states |> 
+  sf::st_drop_geometry() |> 
+  select(nc_round_proportion) |> 
+  distinct() |> 
+  drop_na() |> 
+  arrange(nc_round_proportion)
+
+len_colors_gom_states = nrow(gom_state_proportion_indexes)
+
+mypalette = viridis(len_colors_gom_states, option = "D")
+# mypalette <- rainbow(length(gom_all_cnt_indexes))
+names(mypalette) <- gom_state_proportion_indexes$nc_round_proportion
+
+# mypalette
+#        0.14        0.16        0.21        0.22        0.29 
+# "#440154FF" "#3B528BFF" "#21908CFF" "#5DC863FF" "#FDE725FF" 
+
 # The code creates a plot using the ggplot2 library to visualize spatial data.
 shp_file_with_cnts_list_maps <- 
   shp_file_with_cnts_list |>
@@ -551,7 +572,7 @@ shp_file_with_cnts_list_maps <-
       ggplot2::ggplot() +
       # Start building the ggplot object for plotting.
       
-      ggplot2::geom_sf(aes(fill = nc_round_perc)) +
+      ggplot2::geom_sf(aes(fill = factor(nc_round_perc))) +
       # Add a layer for plotting spatial features, using nc_round_perc for fill color.
       
       ggplot2::geom_sf_label(aes(label = my_label_long),
@@ -579,8 +600,17 @@ shp_file_with_cnts_list_maps <-
       ) +
       ggplot2::xlab("") +
       ggplot2::ylab("") +
-      ggplot2::scale_fill_continuous(name = "Proportion of Non-compliant, Gulf Permitted SEFHIER Vessels by State",
-                            type = "viridis") +
+      # scale_fill_manual(values = mypalette) +
+        # scale_fill_manual(values = c("red", "grey", "seagreen3","gold", "green","orange"), name= "Cluster Group")+ 
+
+    # scale_fill_viridis_c() +
+    theme_bw() +
+      # ggplot2::scale_fill_continuous(name = "",
+      #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
+      #                                                                  breaks = c("0.14", "0.29"),
+      # # values = my_colors
+      # 
+      #                                type = "viridis") +
       ggplot2::theme(legend.position = "top")
   })
 
@@ -630,6 +660,8 @@ permit_region <- "Gulf"
 gom_map <-
   shp_file_with_cnts_list_maps$gom_states +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
+
+gom_map
 
 output_file_name <- "gom_states_non_compl_by_state_12_29_23.png"
 
