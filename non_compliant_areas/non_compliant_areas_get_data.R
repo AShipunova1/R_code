@@ -55,119 +55,67 @@ compl_err_db_data_metrics_2022_clean <-
 dim(compl_err_db_data_metrics_2022_clean)
 # [1] 145261     29
 
-## divide by permit region in db permit ----
-compl_err_db_data_metrics_permit_reg <-
-  compl_err_db_data_metrics_2022_clean |> 
-  separate_permits_into_3_groups(permit_group_field_name = "permit_group")
+# compl_err_db_data_metrics_2022_clean |> View()
 
-dim(compl_err_db_data_metrics_permit_reg)
-# [1] 26391    29 (nc only)
-# [1] 146055     18 all 
-
-n_distinct(compl_err_db_data_metrics_permit_reg$vessel_official_nbr)
-# vessel_official_nbr     3497
+n_distinct(compl_err_db_data_metrics_2022_clean$vessel_official_number)
+# 3473
 
 ## split into separate dfs by permit region in metrics tracking ----
+# check
+compl_err_db_data_metrics_2022_clean |>
+  select(permit_grouping_region, sa_permits_, gom_permits_) |>
+  distinct()
+# A tibble: 3 × 3
+#   permit_grouping_region sa_permits_ gom_permits_
+#   <chr>                  <chr>       <chr>       
+# 1 SA                     Y           N           
+# 2 GOM                    N           Y           
+# 3 GOM                    Y           Y           
+# I.e. GOM == "gom and dual"
 
-compl_err_db_data_metrics_permit_reg_from_metrics <- 
-  compl_err_db_data_metrics_2022_clean |> 
-  separate_permits_into_3_groups(permit_group_field_name = "permits")
-
-# The same result:
-# compl_err_db_data_metrics_permit_reg_from_metrics |>
-#     select(vessel_official_number, permit_sa_gom, permit_group, permit_grouping_region) |>
-#     distinct() |>
-#     filter(permit_sa_gom == "sa_only" & permit_grouping_region == "GOM") |>
-#     View()
-
-  
 ## split into separate dfs by permit region ----
-compl_err_db_data_metrics_permit_reg_list <- 
-  compl_err_db_data_metrics_permit_reg |> 
-  split(as.factor(compl_err_db_data_metrics_permit_reg$permit_sa_gom))
+compl_err_db_data_metrics_2022_clean_list <- 
+  compl_err_db_data_metrics_2022_clean |> 
+  split(as.factor(compl_err_db_data_metrics_2022_clean$permit_grouping_region))
 
-map(compl_err_db_data_metrics_permit_reg_list, dim)
-# nc only:
-# $dual
-# [1] 1317   29
+map(compl_err_db_data_metrics_2022_clean_list, dim)
+# $GOM
+# [1] 54765    29
 # 
-# $gom_only
-# [1] 1358   29
-# 
-# $sa_only
-# [1] 23716    29
-
-# all
-# $dual
-# [1] 16638    18
-# 
-# $gom_only
-# [1] 40988    18
-# 
-# $sa_only
-# [1] 88429    18
-
-### SA only: remove vessels not in Jeannette's SA list ----
-# Don't use 2023-12-18
-
-# Build the path to the R script 'vessel_permit_corrected_list.R' by
-# combining the base path 'my_paths$git_r' and the script name.
-# script_path <-
-#   file.path(my_paths$git_r,
-#             "vessel_permit_list/vessel_permit_corrected_list.R")
-# 
-# # Source (run) the R script using the constructed script path.
-# source(script_path)
-
-# Rows are filtered to exclude vessels whose 'VESSEL_OFFICIAL_NBR' is in the
-# 'vessels_to_remove_from_ours' vector.
-# compl_err_db_data_metrics_permit_reg_sa_only <-
-#   compl_err_db_data_metrics_permit_reg_list$sa_only |>
-#   dplyr::filter(!vessel_official_nbr %in% vessels_to_remove_from_ours)
-# 
-# dim(compl_err_db_data_metrics_permit_reg_sa_only)
-# # [1] 22228    29 nc only
-# # [1] 86385    18
-# 
-# # put it back
-# compl_err_db_data_metrics_permit_reg_list$sa_only <- compl_err_db_data_metrics_permit_reg_sa_only
+# $SA
+# [1] 90496    29
 
 ## check vessel/compl counts ----
-compl_err_db_data_metrics_permit_reg_list |>
+compl_err_db_data_metrics_2022_clean_list |>
   map(\(curr_df) {
     curr_df |>
       dplyr::select(vessel_official_number, is_comp) |>
       dplyr::distinct() |>
       dplyr::count(is_comp)
   })
-# $dual
-#   is_comp   n
-# 1       0 109
-# 2       1 363
+# $GOM
+# # A tibble: 2 × 2
+#   is_comp     n
+#     <int> <int>
+# 1       0   260
+# 2       1  1232
 # 
-# $gom_only
-#   is_comp   n
-# 1       0 174
-# 2       1 939
-# 
-# $sa_only
-#   is_comp    n
-# 1       0  1213
-# 2       1  1676
+# $SA
+# # A tibble: 2 × 2
+#   is_comp     n
+#     <int> <int>
+# 1       0  1236
+# 2       1  1740
 
-map(compl_err_db_data_metrics_permit_reg_list,
+map(compl_err_db_data_metrics_2022_clean_list,
     \(reg_df) {
-      n_distinct(reg_df$vessel_official_nbr)
+      n_distinct(reg_df$vessel_official_number)
     })
-# $dual
-# vessel_official_nbr     374
-# $gom_only
-# vessel_official_nbr     939
-# $sa_only
-# vessel_official_nbr    2135
-# 374+939+2135 = 3448
-
-# View(compl_err_db_data_metrics_permit_reg_list)
+# $GOM
+# [1] 1232
+# 
+# $SA
+# [1] 2241
 
 # Metrics:
 # Total Vessels  3,539
@@ -181,10 +129,8 @@ map(compl_err_db_data_metrics_permit_reg_list,
 # if override is taken in the account, add it
 
 ## Remove columns not use in this analysis ----
-
-
-compl_err_db_data_metrics_permit_reg_list_short <- 
-  compl_err_db_data_metrics_permit_reg_list |>
+compl_err_db_data_metrics_2022_clean_list_short <- 
+  compl_err_db_data_metrics_2022_clean_list |>
   map(\(curr_df) {
     curr_df |>
       dplyr::select(vessel_official_number, is_comp) |>
@@ -192,7 +138,7 @@ compl_err_db_data_metrics_permit_reg_list_short <-
   })
 
 # non compliant only, 2022 results to use: 
-# compl_err_db_data_metrics_permit_reg_list_short
+# compl_err_db_data_metrics_2022_clean_list_short
 
 # prepare vessel_permit_data ----
 ## 2022 permits ----
@@ -360,7 +306,7 @@ cat(
   blue("All DB data:"),
   "all_get_db_data_result_l",
   blue("compl 2022:"),
-  "compl_err_db_data_metrics_permit_reg_list_short",
+  "compl_err_db_data_metrics_2022_clean_list_short",
   blue("vessel_permit 2022 with lat/long:"),
   "vessels_permits_home_port_lat_longs_city_state",
   blue("Maps:"),
