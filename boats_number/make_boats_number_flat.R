@@ -14,6 +14,7 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 flat_file_name <-
   file.path(current_project_dir_name, "boats_number_flat.R")
 sink(flat_file_name, append = TRUE)
+# unlink(flat_file_name)
 
 # Code files content ----
 
@@ -64,6 +65,18 @@ write_to_1_flat_file(flat_file_name, misc_info_path)
 
 #' {{< include misc_info.qmd >}}
 #'
+
+get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
+
+get_metrics_tracking_path <-
+  file.path(my_paths$git_r,
+                 get_data_from_fhier_dir,
+                 "get_metrics_tracking.R")
+write_to_1_flat_file(flat_file_name, get_metrics_tracking_path)
+
+get_db_data_path <-
+  file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)")
+write_to_1_flat_file(flat_file_name, get_db_data_path)
 
 boats_number_get_data_info_path <-
   file.path(current_project_dir_name,
