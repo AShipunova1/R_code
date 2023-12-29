@@ -478,7 +478,8 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
   ungroup()
 
-View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states)
+# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states)
+
 ## add to the shape file by state name ----
 
 # Left join the 'south_east_coast_states_shp' shape file data frame with the each permit region data frame from the list,
@@ -487,17 +488,20 @@ View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc
 shp_file_with_cnts_list <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |>
   purrr::map(\(curr_df) {
+    browser()
     south_east_coast_states_shp |>
-      dplyr::left_join(curr_df,
-                       dplyr::join_by(STUSPS ==
-                                        state_fixed))
+      left_join(curr_df,
+                join_by(STUSPS ==
+                          state_fixed))
   })
 
-# shp_file_with_cnts_list$SA |> str()
+# shp_file_with_cnts_list$gom_states |> View()
 # if join to a df:
 # tibble [8 × 15] (S3: tbl_df/tbl/data.frame)
 # if join to an sf:
 # Classes ‘sf’ and 'data.frame':	8 obs. of  15 variables
+
+# view(shp_file_with_cnts_list)
 
 ### check on one region ----
 shp_file_with_cnts_sa <-
@@ -585,7 +589,8 @@ shp_file_with_cnts_list_maps <-
 ## make map titles ----
 permit_regions <-
   c("SA only",
-    "GOM and Dual"
+    "GOM and Dual",
+    "Gulf"
     )
 
 # Generate plot titles using 'str_glue' to include the 'permit_region'.
@@ -619,14 +624,14 @@ write_png_to_file <- function(output_file_name,
     )
 }
 
-## GOM ----
-permit_region <- "GOM and Dual"
+## GOM states ----
+permit_region <- "Gulf"
 
 gom_map <-
-  shp_file_with_cnts_list_maps$GOM +
+  shp_file_with_cnts_list_maps$gom_states +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
-output_file_name <- "gom_perc_by_state_12_29_23.png"
+output_file_name <- "gom_states_non_compl_by_state_12_29_23.png"
 
 write_png_to_file(output_file_name,
                   gom_map)
