@@ -459,6 +459,34 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
   glimpse()
 
+# Keep only GOM states for GOM only plots ----
+print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM)
+
+
+my_func <- function(state_fixed){
+  my_state_name[[tolower(state_fixed)]]
+}
+
+my_func_vect <- Vectorize(my_func)
+
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_only <- 
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
+    rowwise() %>% 
+      mutate(state_fixed_full = 
+               possibly(my_func_vect, otherwise = NA)(state_fixed)) |> 
+# 
+#     mutate(state_fixed_full = 
+#              possibly(my_func_vect,
+#                       otherwise = NA), state_fixed) |> 
+    ungroup() |> 
+    select(state_fixed, state_fixed_full) |> distinct() |> head(15)
+  filter(!is.na(state_fixed)) |>
+  rowwise() |> 
+  filter( %in% tolower(east_coast_states$gom)) |> 
+  ungroup()
+
+my_state_name[["un"]]
+
 ## add to the shape file by state name ----
 
 # Left join the 'south_east_coast_states_shp' shape file data frame with the each permit region data frame from the list,
