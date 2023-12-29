@@ -60,6 +60,16 @@ port_fields_short <-
   )
 
 # grep("state", names(processed_logbooks_clean_names), value = T, ignore.case = T)
+
+# Explanation:
+# 1. The pipe operator (`|>`) is used to pass the data frame 'processed_logbooks_clean_names' to the next operation, making the code more readable.
+# 2. The 'dplyr::select' function is employed to choose specific columns from the data frame. The columns to be selected are determined by the vector 'port_fields_short', which contains column names.
+# 3. The 'remove_empty_cols()' function is a custom function (F2 - see the definition) that removes columns containing only missing values (NA).
+# 4. The next pipe (`|>`) continues the data flow, passing the modified data frame to the 'dplyr::distinct()' function.
+# 5. The 'dplyr::distinct()' function ensures that only unique rows are retained in the data frame, removing any duplicate rows based on all columns.
+#
+# In summary, this code snippet processes a data frame by selecting specific columns, removing empty columns, and keeping only unique rows. The result is stored in the 'processed_logbooks_short' data frame.
+
 processed_logbooks_short <-
   processed_logbooks_clean_names |>
   dplyr::select(dplyr::all_of(port_fields_short)) |>
@@ -74,6 +84,15 @@ dim(processed_logbooks_short)
 # [1] 73368    15 with trip_id
 
 ### add date related columns ----
+
+# Explanation:
+# 1. The 'processed_logbooks_short' data frame is piped into the 'dplyr::mutate' function, which is used to create new columns based on transformations.
+# 2. The 'trip_start_week_num' and 'trip_end_week_num' columns are created using the 'strftime' function to extract the week number (1-7, Monday-Sunday) from the 'trip_start_date' and 'trip_end_date'.
+# 3. 'trip_start_y' and 'trip_end_y' columns are created, representing the year of 'trip_start_date' and 'trip_end_date', respectively, using the 'lubridate::year' function.
+# 4. 'trip_start_m' and 'trip_end_m' columns are created, representing the year and month (as a decimal) of 'trip_start_date' and 'trip_end_date' using the 'zoo::as.yearmon' function.
+# 5. 'trip_start_year_quarter' and 'trip_end_year_quarter' columns are created, representing the year and quarter of 'trip_start_date' and 'trip_end_date' using the 'zoo::as.yearqtr' function.
+# 6. 'trip_start_quarter_num' and 'trip_end_quarter_num' columns are created, representing the quarter number (1-4) of 'trip_start_date' and 'trip_end_date' using the 'format' function and the '%q' format specifier.
+
 tic("processed_logbooks_short_dates")
 processed_logbooks_short_dates <-
   processed_logbooks_short |>
@@ -149,8 +168,10 @@ vessel_permit_port_info_short_clean <-
 
 ## add vessel_permit home port information to trip (logbook) information ----
 
-# print_df_names(processed_logbooks_short_port_states_fl_reg_one_marker)
-# print_df_names(vessel_permit_port_info_short_clean)
+# Explanation:
+# 1. The 'dplyr::left_join' function is applied to combine two data frames, namely 'processed_logbooks_short_dates' and 'vessel_permit_port_info_short_clean', using a left join.
+# 2. The third argument of the 'left_join' function, 'dplyr::join_by', specifies the columns used for the join operation. In this case, it indicates that the column 'vessel_official_number' from the left data frame should be matched with the column 'sero_official_number' from the right data frame.
+# 3. The result of the join is stored in the 'join_trip_and_vessel' data frame, which includes columns from both input data frames, combining information about trips and vessel permits. The left join ensures that all rows from 'processed_logbooks_short_dates' are retained, and matching rows from 'vessel_permit_port_info_short_clean' are added based on the specified join condition.
 
 join_trip_and_vessel <-
   dplyr::left_join(
@@ -184,7 +205,13 @@ dim(join_trip_and_vessel)
 # latitude                52887
 # longitude               53423
 
-# remove trailing spaces
+## remove trailing spaces ----
+
+# Explanation:
+# 1. The 'join_trip_and_vessel' data frame is piped into the 'mutate_if' function, which allows selective modification of columns based on a specified condition.
+# 2. The 'mutate_if' function is used to apply the 'str_trim' function to all character columns of the 'join_trip_and_vessel' data frame.
+# 3. The condition 'is.character' inside 'mutate_if' ensures that the trimming operation is only performed on columns containing character data.
+# 4. The result is stored in the 'join_trip_and_vessel_trim' data frame, where leading and trailing whitespaces are removed from all character columns. This operation helps clean and standardize the textual data in those columns.
 
 join_trip_and_vessel_trim <-
   join_trip_and_vessel |>
@@ -193,14 +220,26 @@ join_trip_and_vessel_trim <-
 diffdf::diffdf(join_trip_and_vessel,
                join_trip_and_vessel_trim)
 
-## Lower case of all data ----
+## lower case of all data ----
+
+# Explanation:
+# 1. The 'join_trip_and_vessel_trim' data frame is piped into the 'mutate_if' function, which allows selective modification of columns based on a specified condition.
+# 2. The 'mutate_if' function is used to apply the 'tolower' function to all character columns of the 'join_trip_and_vessel_trim' data frame.
+# 3. The condition 'is.character' inside 'mutate_if' ensures that the conversion to lowercase is only performed on columns containing character data.
+# 4. The result is stored in the 'join_trip_and_vessel_low' data frame, where all character columns are converted to lowercase. This operation helps standardize the case of text data for consistency and ease of analysis.
 join_trip_and_vessel_low <-
   join_trip_and_vessel_trim |>
   mutate_if(is.character, tolower)
 
-# remove not a-z in strings (e.g. "St. John" or
-# "miami dade" vs. "miami-dade")
+## remove not a-z in strings ----
+# (e.g. "St. John" or "miami dade" vs. "miami-dade")
 
+# Explanation:
+# 1. The 'join_trip_and_vessel_low' data frame is piped into the 'mutate_if' function, allowing selective modification of columns based on a specified condition.
+# 2. The 'mutate_if' function is used to apply the 'str_replace_all' function to all character columns of the 'join_trip_and_vessel_low' data frame.
+# 3. The condition 'is.character' inside 'mutate_if' ensures that the replacement is only performed on columns containing character data.
+# 4. The replacement pattern "[^a-z0-9]+" in 'str_replace_all' uses a regular expression to match any non-alphanumeric characters and replaces them with a single space.
+# 5. The result is stored in the 'join_trip_and_vessel_clean' data frame, where non-alphanumeric characters in character columns are replaced with spaces. This operation helps clean and standardize the textual data for further analysis.
 join_trip_and_vessel_clean <-
   join_trip_and_vessel_low |>
   mutate_if(is.character,
@@ -215,6 +254,14 @@ join_trip_and_vessel_clean <-
 #   select(start_port_state) |>
 #   distinct()
 
+# Explanation:
+# 1. The function takes a data frame (`my_df`) and a specifier (`start_or_end`) indicating whether to consider the start or end of a trip.
+# 2. Dynamic column names are created using the 'str_glue' function for the result column and columns related to state and county based on the 'start_or_end' parameter.
+# 3. Quosures (symbolic expressions) are created to check conditions related to Florida state, Gulf of Mexico region, and Gulf of Mexico counties in Florida.
+# 4. The function then uses 'rowwise' and 'mutate' functions to add a new column to the data frame ('new_df'). The new column values are determined based on conditional logic using the 'case_when' function.
+# 5. The conditions check if the state is not Florida and is in the Gulf of Mexico region, or if the state is Florida and the county is in the Gulf of Mexico region. The default case sets the result column to "sa" (South Atlantic) if the state is not Florida or the county is not in the Gulf of Mexico region.
+# 6. The 'ungroup' function is used to remove the grouping introduced by 'rowwise'.
+# 7. The modified data frame is returned.
 add_region_to_state <-
   function(my_df, start_or_end) {
     result_column_name <-
@@ -264,7 +311,15 @@ join_trip_and_vessel_clean |>
   glimpse()
 
 # Add port state regions ----
-# ?? Use a start port state instead of filter(!is.na(sero_home_port_state))
+# Don't use a start port state instead of filter(!is.na(sero_home_port_state)) for consistency.
+
+# Explanation:
+# 1. The 'join_trip_and_vessel_clean' data frame is piped into the 'filter' function to exclude rows where the 'sero_home_port_state' column is NA.
+# 2. The 'add_region_to_state' function is applied twice using the pipe operator ('|>') to add region information for both the start and end of the trip.
+# 3. The 'add_region_to_state("sero_home")' line adds region information for the start of the trip using the 'sero_home' prefix.
+# 4. The 'add_region_to_state("end")' line adds region information for the end of the trip using the 'end' prefix.
+# 5. The result is stored in the 'join_trip_and_vessel_clean_state_regions' data frame, which now includes additional columns indicating the regions for both the start and end of the trip.
+# 6. The 'tic' and 'toc' functions are used to measure the time taken for the entire operation between the two calls. Timing is enclosed in the 'join_trip_and_vessel_clean_state_regions' operation to measure its execution time.
 tic("join_trip_and_vessel_clean_state_regions")
 join_trip_and_vessel_clean_state_regions <-
   join_trip_and_vessel_clean |>
@@ -275,15 +330,22 @@ toc()
 # join_trip_and_vessel_clean_state_regions: 33.63 sec elapsed
 
 # Split by home port regions ----
+
+# Explanation:
+# 1. The 'join_trip_and_vessel_clean_state_regions' data frame is piped into the 'split' function.
+# 2. The 'split' function is applied to create a list of data frames. The splitting is based on the levels of the 'sero_home_state_region' column.
+# 3. The 'as.factor' function is used to ensure that the column is treated as a factor, and it provides the levels for splitting.
+# 4. The result is stored in the 'join_trip_and_vessel_clean_state_regions_l' variable, which is a list of data frames. Each data frame in the list corresponds to a unique level of the 'sero_home_state_region' column.
+
 join_trip_and_vessel_clean_state_regions_l <-
   join_trip_and_vessel_clean_state_regions |>
   split(as.factor(
     join_trip_and_vessel_clean_state_regions$sero_home_state_region
   ))
 
+# check
 map(join_trip_and_vessel_clean_state_regions_l,
     count_uniq_by_column)
-
 # $gom
 # vessel_official_number    944
 # $sa
@@ -292,7 +354,7 @@ map(join_trip_and_vessel_clean_state_regions_l,
 # dim(join_trip_and_vessel_clean_state_regions_l$gom)
 # [1] 53582    32
 
-## Short GOM df ----
+## Shorten GOM df ----
 columns_to_keep <- c(
   "vessel_official_number",
   "trip_id",
@@ -316,6 +378,14 @@ short_port_gom <-
 # How many GOM SEFHIER vessels have a different start port county than end port county? ----
 
 ## different counties ----
+
+# Explanation:
+# 1. The 'short_port_gom' data frame is piped into the 'group_by' function to group the data based on specified columns: 'vessel_official_number', 'trip_id', 'permit_region', and 'trip_end_year_quarter'.
+# 2. The 'filter' function is applied to exclude rows where 'sero_home_port_county' is equal to 'end_port_county', effectively keeping rows where the start and end port counties are different.
+# 3. The 'ungroup' function is used to remove the grouping introduced by 'group_by', ensuring that subsequent operations are applied to the entire data frame.
+# 4. The 'select' function is used to exclude the 'trip_id' column from the resulting data frame.
+# 5. The 'distinct' function is applied to keep only unique rows in the data frame, removing any duplicate rows based on all columns. The resulting data frame is stored in the 'start_end_county_diff_gom' variable.
+
 start_end_county_diff_gom <-
   short_port_gom |>
   group_by(vessel_official_number,
@@ -357,13 +427,22 @@ join_trip_and_vessel_trim |>
   glimpse()
 
 ## count different counties ----
-# start_end_county_diff |> print_df_names()
+
+# Explanation:
+# 1. The 'start_end_county_diff_gom' data frame is piped into the 'add_count' function.
+# 2. The 'add_count' function is applied to count the occurrences of each unique combination of values in the specified columns: 'permit_region', 'sero_home_port_county', 'end_port_county', and 'trip_end_year_quarter'.
+# 3. The result is stored in a new column named 'cnt_diff_county', which represents the count of occurrences for each unique combination of the specified columns.
+# 4. The resulting data frame is stored in the 'start_end_county_diff_gom_num' variable, which now includes the count information in the 'cnt_diff_county' column.
 
 start_end_county_diff_gom_num <-
   start_end_county_diff_gom |>
-  add_count(permit_region, sero_home_port_county,
-            end_port_county, trip_end_year_quarter,
-            name = "cnt_diff_county")
+  add_count(
+    permit_region,
+    sero_home_port_county,
+    end_port_county,
+    trip_end_year_quarter,
+    name = "cnt_diff_county"
+  )
 
 dim(start_end_county_diff_gom_num)
 # [1] 250   5
@@ -410,6 +489,7 @@ start_end_county_diff_gom_num |>
 # $ cnt_diff_county         <int> 1, 2, 2, 1
 
 ## Result table for GOM permit region (and the state region) ----
+# GOM for Metrics tracking permit region
 start_end_county_diff_gom_num_gom_permit_only <-
   start_end_county_diff_gom_num |>
   filter(permit_region == "gom")
@@ -426,7 +506,17 @@ dim()
 # [1] 291  13
 
 #### make the result table ----
-# print_df_names(start_end_county_diff_gom_num_gom_permit_only)
+
+# Explanation:
+# 1. The 'start_end_county_diff_gom_num_gom_permit_only' data frame is piped into the 'select' function to exclude the 'permit_region' column.
+# 2. The 'rowwise' function is applied to ensure that subsequent mutations are applied row-wise.
+# 3. Two 'mutate' functions are applied to create new columns 'home_port_state' and 'end_port_state' by looking up state names based on their abbreviations.
+# 4. Two additional 'mutate' functions are applied to create new columns 'home_port_county' and 'end_port_county' by converting the port county names to title case.
+# 5. The 'ungroup' function is used to remove the grouping introduced by 'rowwise'.
+# 6. The 'select' function is applied to exclude several columns that are no longer needed for the final result.
+# 7. The 'relocate' function is used to reorder columns for better readability, placing important columns at the beginning.
+# 8. The 'distinct' function is applied to keep only unique rows in the data frame, removing any duplicate rows based on all columns.
+# 9. The resulting data frame is stored in the 'start_end_county_diff_gom_num_gom_permit_only_res' variable.
 
 start_end_county_diff_gom_num_gom_permit_only_res <-
   start_end_county_diff_gom_num_gom_permit_only |>
@@ -557,6 +647,13 @@ write_csv(
 )
 
 #### Diff county numbers, by quarter (1-4) ----
+
+# Explanation:
+# 1. The 'start_end_county_diff_gom_num_gom_permit_only_res' data frame is piped into the 'group_by' function, grouping the data by 'trip_end_year_quarter'.
+# 2. The 'group_by' function is applied to group the data by the 'trip_end_year_quarter' column.
+# 3. The 'count' function is applied to calculate the total count of 'diff_county_num_of_vessels' for each unique 'trip_end_year_quarter'. The result is stored in a new column named 'diff_county_num_of_vessels_tot'.
+# 4. The resulting data frame is stored in the 'start_end_county_diff_gom_num_gom_permit_only_res_quarter' variable, which now includes the total count of vessels for each quarter based on the 'diff_county_num_of_vessels' column.
+
 start_end_county_diff_gom_num_gom_permit_only_res_quarter <-
   start_end_county_diff_gom_num_gom_permit_only_res |>
   group_by(trip_end_year_quarter) |>
@@ -575,6 +672,17 @@ head(start_end_county_diff_gom_num_gom_permit_only_res_quarter)
 
 ## different start and end states in one trip ----
 
+# Explanation:
+# 1. The 'short_port_gom' data frame is piped into the 'filter' function to include only rows where 'permit_region' is "gom".
+# 2. The 'filter' function is applied to include only rows where 'permit_region' is "gom".
+# 3. The 'select' function is applied to keep only selected columns: 'vessel_official_number', 'sero_home_port_state', 'end_port_state', and 'trip_end_year_quarter'.
+# 4. The 'distinct' function is applied to keep only unique rows in the data frame, removing any duplicate rows based on all columns.
+# 5. Another 'filter' function is applied to exclude rows where 'sero_home_port_state' is equal to 'end_port_state', effectively keeping rows where the start and end states are different.
+# 6. The 'count' function is applied to calculate the total count of vessels for each unique combination of 'trip_end_year_quarter', 'sero_home_port_state', and 'end_port_state'. The result is stored in a new column named 'diff_states_num_of_vessels'.
+# 7. The resulting data frame is stored in the 'start_end_state_diff_num_gom_only_res' variable, which now includes the total count of vessels for each quarter based on the 'diff_states_num_of_vessels' column.
+
+# All functions are from dplyr
+
 start_end_state_diff_num_gom_only_res <-
   short_port_gom |>
   filter(permit_region == "gom") |>
@@ -590,8 +698,6 @@ start_end_state_diff_num_gom_only_res <-
         sero_home_port_state,
         end_port_state,
         name = "diff_states_num_of_vessels")
-
-# View(start_end_state_diff_num_gom_only_res)
 
 ### spot check ----
 
@@ -623,6 +729,15 @@ join_trip_and_vessel_clean |>
 # OK
 
 ## Diff states numbers, by quarter (1-4) ----
+
+# Explanation:
+# 1. The 'start_end_state_diff_num_gom_only_res' data frame is piped into the 'group_by' function, grouping the data by 'trip_end_year_quarter'.
+# 2. The 'group_by' function is applied to group the data by the 'trip_end_year_quarter' column.
+# 3. The 'count' function is applied to calculate the total count of 'diff_states_num_of_vessels' for each unique 'trip_end_year_quarter'. The result is stored in a new column named 'diff_states_num_of_vessels_tot'.
+# 4. The 'ungroup' function is used to remove the grouping introduced by 'group_by', ensuring that subsequent operations are applied to the entire data frame.
+# 5. The resulting data frame is stored in the 'start_end_state_diff_num_gom_only_res_quarter' variable, which now includes the total count of vessels for each quarter based on the 'diff_states_num_of_vessels_tot' column.
+
+# All functions are from dplyr
 
 start_end_state_diff_num_gom_only_res_quarter <-
   start_end_state_diff_num_gom_only_res |>
@@ -661,6 +776,14 @@ join_trip_and_vessel_clean_state_regions |>
 # ok
 
 ## save results to csv ----
+
+# Explanation:
+# 1. The 'start_end_state_diff_num_gom_only_res' data frame is piped into the 'rowwise' function to ensure that subsequent mutations are applied row-wise.
+# 2. Two 'mutate' functions are applied to create new columns 'sero_home_port_state' and 'end_port_state' by looking up state names based on their abbreviations using the 'my_state_name' list.
+# 3. The 'ungroup' function is used to remove the grouping introduced by 'rowwise'.
+# 4. The 'write_csv' function is applied to write the data frame to a CSV file. The 'file.path' function is used to create the file path by combining the 'curr_proj_output_path' (current project output path) and the desired filename "start_end_state_diff_num_gom_only_res.csv".
+# 5. The resulting CSV file is saved in the specified output path for further use or analysis.
+
 start_end_state_diff_num_gom_only_res |>
   rowwise() |>
   mutate(sero_home_port_state =
@@ -669,9 +792,14 @@ start_end_state_diff_num_gom_only_res |>
            my_state_name[[end_port_state]]) |>
   ungroup() |>
   write_csv(file.path(curr_proj_output_path,
-                      "start_end_state_diff_num_gom_only_res.csv"),)
+                      "start_end_state_diff_num_gom_only_res.csv"))
 
 
+# Explanation:
+# 1. The 'start_end_state_diff_num_gom_only_res' data frame is piped into the 'count' function to calculate counts for each unique combination of 'trip_end_year_quarter', 'sero_home_port_state', and 'end_port_state'.
+# 2. The 'count' function is applied with the 'wt' parameter set to 'diff_states_num_of_vessels' for weighted counting. The resulting counts are stored in a new column named 'states_cnt'.
+# 3. Two 'mutate' functions are applied to convert the state names in the 'sero_home_port_state' and 'end_port_state' columns to uppercase. This ensures consistency in the representation of state names.
+# 4. The resulting data frame is stored in the 'start_end_state_diff_num_gom_only_res_cnts_by_home' variable, which includes counts for each unique combination of 'trip_end_year_quarter', 'sero_home_port_state', and 'end_port_state'.
 start_end_state_diff_num_gom_only_res_cnts_by_home <-
   start_end_state_diff_num_gom_only_res |>
   count(
@@ -686,6 +814,12 @@ start_end_state_diff_num_gom_only_res_cnts_by_home <-
     end_port_state = toupper(end_port_state)
   )
 
+# ---
+# Explanation:
+# 1. The 'start_end_state_diff_num_gom_only_res_cnts_by_home' data frame is piped into the 'add_count' function to calculate the total count for each unique combination of 'trip_end_year_quarter' and 'sero_home_port_state'.
+# 2. The 'add_count' function is applied with the 'wt' parameter set to 'states_cnt' for weighted counting. The resulting total counts are stored in a new column named 'sum_by_q_and_home'.
+# 3. The resulting data frame is stored in the 'start_end_state_diff_num_gom_only_res_cnts_by_home_sum' variable, which includes the total counts for each unique combination of 'trip_end_year_quarter' and 'sero_home_port_state'.
+
 start_end_state_diff_num_gom_only_res_cnts_by_home_sum <-
   start_end_state_diff_num_gom_only_res_cnts_by_home |>
   add_count(trip_end_year_quarter,
@@ -693,6 +827,7 @@ start_end_state_diff_num_gom_only_res_cnts_by_home_sum <-
             wt = states_cnt,
             name = "sum_by_q_and_home")
 
+# Write to csv
 start_end_state_diff_num_gom_only_res_cnts_by_home_sum |>
   write_csv(
     file.path(
@@ -702,6 +837,15 @@ start_end_state_diff_num_gom_only_res_cnts_by_home_sum |>
   )
 
 ## State to state by state and quarter res table ----
+
+# Explanation:
+# 1. The 'start_end_state_diff_num_gom_only_res' data frame is piped into the 'count' function to calculate counts for each unique combination of 'trip_end_year_quarter' and 'sero_home_port_state'.
+# 2. The 'count' function is applied with the 'wt' parameter set to 'diff_states_num_of_vessels' for weighted counting. The resulting counts are stored in a new column named 'diff_states_num_of_vessels_home'.
+# 3. The 'rowwise' function is applied to ensure that subsequent mutations are applied row-wise.
+# 4. The 'mutate' function is applied to create a new column 'sero_home_port_state' by looking up state names based on their abbreviations using the 'my_state_name' list.
+# 5. The 'ungroup' function is used to remove the grouping introduced by 'rowwise'.
+# 6. The resulting data frame is stored in the 'start_end_state_diff_num_gom_only_res_home' variable, which now includes counts for each unique combination of 'trip_end_year_quarter' and 'sero_home_port_state', with the state names updated for better readability.
+
 start_end_state_diff_num_gom_only_res_home <-
   start_end_state_diff_num_gom_only_res |>
   count(trip_end_year_quarter,
@@ -713,12 +857,14 @@ start_end_state_diff_num_gom_only_res_home <-
            my_state_name[[sero_home_port_state]]) |>
   ungroup()
 
+# Write to a file
 write_csv(
   start_end_state_diff_num_gom_only_res_home,
-  file.path(curr_proj_output_path,
-            "start_end_state_diff_num_gom_only_res_home.csv"),
+  file.path(
+    curr_proj_output_path,
+    "start_end_state_diff_num_gom_only_res_home.csv"
+  )
 )
-
 
 # How many SEFHIER vessels have a different start port region (Gulf) than end port region (South Atlantic)? ----
 
