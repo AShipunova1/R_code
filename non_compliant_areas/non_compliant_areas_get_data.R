@@ -137,9 +137,6 @@ compl_err_db_data_metrics_2022_clean_list_short <-
       distinct()
   })
 
-# non compliant only, 2022 results to use: 
-# compl_err_db_data_metrics_2022_clean_list_short
-
 # prepare vessel_permit_data ----
 ## 2022 permits ----
 vessels_permits_home_port_22 <-
@@ -313,3 +310,5 @@ cat(
   "us_s_shp",
   sep = "\n"
 )
+
+View(compl_err_db_data_metrics_2022_clean_list_short)
