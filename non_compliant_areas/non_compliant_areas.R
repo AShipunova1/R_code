@@ -600,7 +600,8 @@ shp_file_with_cnts_list_maps <-
       ) +
       ggplot2::xlab("") +
       ggplot2::ylab("") +
-      scale_fill_manual(
+      scale_fill_manual(labels = 
+                          c("less", "", "", "", "more"),
         values = mypalette
       ) +
       theme_bw() +
@@ -608,7 +609,7 @@ shp_file_with_cnts_list_maps <-
       #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
       #                                                                  breaks = c("0.14", "0.29"),
       theme(legend.position = c(0.55, 0.1)) +
-      guides(fill = guide_legend(title = "",
+      guides(fill = guide_legend(title = "# of non-compliant vessels",
                                  nrow = 1))
   })
 
