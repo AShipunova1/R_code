@@ -469,24 +469,16 @@ my_func <- function(state_fixed){
 
 my_func_vect <- Vectorize(my_func)
 
-# vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_only <- 
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
-    rowwise() %>% 
-      mutate(state_fixed_full = 
-               possibly(my_func_vect, otherwise = NA)(state_fixed)) |> 
-# 
-#     mutate(state_fixed_full = 
-#              possibly(my_func_vect,
-#                       otherwise = NA), state_fixed) |> 
-    ungroup() |> 
-    select(state_fixed, state_fixed_full) |> distinct() |> head(15)
-  filter(!is.na(state_fixed)) |>
-  rowwise() |> 
-  filter( %in% tolower(east_coast_states$gom)) |> 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |>
+  rowwise() %>%
+  mutate(state_fixed_full =
+           possibly(my_func, otherwise = NA)(state_fixed)) |>
+  filter(!is.na(state_fixed_full)) |>
+  filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
   ungroup()
 
-my_state_name[["un"]]
-
+View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states)
 ## add to the shape file by state name ----
 
 # Left join the 'south_east_coast_states_shp' shape file data frame with the each permit region data frame from the list,
