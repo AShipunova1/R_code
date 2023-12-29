@@ -601,7 +601,10 @@ shp_file_with_cnts_list_maps <-
       ggplot2::xlab("") +
       ggplot2::ylab("") +
       # scale_fill_manual(values = mypalette) +
-      # scale_fill_manual(values = c("red", "grey", "seagreen3","gold", "green","orange"), name= "Cluster Group")+
+      scale_fill_manual(
+        values = mypalette
+        # values = c("red", "grey", "gold", "green", "orange")
+      ) +
       
       # scale_fill_viridis_c() +
       theme_bw() +
