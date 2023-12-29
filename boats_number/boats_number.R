@@ -1044,6 +1044,7 @@ gom_lat_lon_gom_state_cnt_sf_fed_w <-
 ### Fishing in SA ----
 #### Federal waters ----
 
+# Read a file or run the function for SA fed
 
 sa_fed_waters_points_path <-
   file.path(curr_proj_output_path,
@@ -1063,7 +1064,7 @@ sa_fed_waters_points <-
 
 # mapview(sa_fed_waters_points)
 
-### fewer points, to speed up ----
+### fewer points by SA fed waters, to speed up ----
 sa_bb <- st_bbox(shp_4326_list$sa_shp)
 sa_bb_points <- st_crop(lat_lon_gom_state_cnt_sf, sa_bb)
 
@@ -1073,13 +1074,13 @@ sa_bb_points <- st_crop(lat_lon_gom_state_cnt_sf, sa_bb)
 #### state waters, Monroe in both regions ----
 # mapview(east_coast_sa_state_waters_shp)
 
+# Read a file or run the function to subset points by SA state waters
 sa_state_waters_points_path <-
   file.path(curr_proj_output_path,
             "fishing_regions_gom_permits",
             "sa_all_state_waters_points.rds")
 
 # file.exists(sa_state_waters_points_path)
-# unlink(sa_state_waters_points_path)
 
 sa_state_waters_points <-
   read_rds_or_run_no_db(
@@ -1093,22 +1094,7 @@ sa_state_waters_points <-
 # mapview(sa_state_waters_points)
 
 #### Remove GOM Monroe points from all state waters ----
-# tic("sa_state_waters_points_no_gom")
-# sa_state_waters_points_no_gom <-
-#   st_difference(sa_state_waters_points,
-#                 gom_lat_lon_gom_state_cnt_sf_fed_w)
-# toc()
-# had to restart Windows
-# st_intersects
-
-# View(sa_state_waters_points)
-# > names(sa_fed_waters_points) |>
-# + setdiff(names(sa_state_waters_points))
-# [1] "Id"       "AreaName"
-# > setdiff(names(sa_state_waters_points), names(sa_fed_waters_points))
-# [1] "Jurisdicti" "area_mi2"   "area_km2"   "area_nm2"   "Shape_Leng" "Shape_Area"
-
-# names(gom_lat_lon_gom_state_cnt_sf_fed_w)
+# Fewer fields
 gom_lat_lon_gom_state_cnt_sf_fed_w_short <-
   gom_lat_lon_gom_state_cnt_sf_fed_w |>
   select(-c(StatZone,
@@ -1132,16 +1118,17 @@ sa_state_waters_points_short <-
     geometry
   )
 
-
 dim(sa_state_waters_points_short)
 # [1] 6144    7
 
+# Convert back to dfs
 sa_state_waters_points_short_df <-
   st_drop_geometry(sa_state_waters_points_short)
 
 gom_lat_lon_gom_state_cnt_sf_fed_w_short_df <-
   st_drop_geometry(gom_lat_lon_gom_state_cnt_sf_fed_w_short)
 
+# Keep only SA state water points which are not in GOM
 sa_state_waters_points_short_df_no_gom <-
   anti_join(sa_state_waters_points_short_df,
             gom_lat_lon_gom_state_cnt_sf_fed_w_short_df)
@@ -1151,12 +1138,12 @@ sa_state_waters_points_short_df_no_gom <-
 #         ycol = "latitude",
 #         crs = my_crs)
 
-# Remove not sa counties ---
 # dim(sa_state_waters_points_short_df_no_gom)
 # 560 6
 
-# print_df_names(sa_state_waters_points_short_df_no_gom)
+# Remove not sa counties ---
 
+# Get the county column
 logbooks_w_county <-
   join_trip_and_vessel_clean_state_regions_l$gom |>
   select(sero_home_port_county,
@@ -1166,21 +1153,23 @@ logbooks_w_county <-
 dim(logbooks_w_county)
 # [1] 46424     5
 
+# add the county column to the cropped df
 sa_state_waters_points_short_df_no_gom_counties <-
   sa_state_waters_points_short_df_no_gom |>
   left_join(logbooks_w_county)
 # Joining with `by = join_by(vessel_official_number, latitude, longitude,
 # trip_end_year_quarter)`
 
-
+# The 'filter' function is applied to include only rows where 'sero_home_port_county' is in the list of lowercased counties corresponding to the South Atlantic (SA) region in Florida.
 sa_state_waters_points_short_df_no_gom_counties_sa <-
   sa_state_waters_points_short_df_no_gom_counties |>
   filter(sero_home_port_county %in% tolower(fl_counties$sa))
 
 dim(sa_state_waters_points_short_df_no_gom_counties_sa)
 # [1] 544   7
+# 560 - 544 = 16 points removed
 
-# Check counties ----
+# Check counties
 # sa_state_waters_points_short_df_no_gom_counties_sa |>
 #   select(sero_home_port_county) |>
 #   distinct()
@@ -1191,7 +1180,7 @@ dim(sa_state_waters_points_short_df_no_gom_counties_sa)
 #         ycol = "latitude",
 #         crs = my_crs)
 
-## join by vessel ----
+## Join all points with regions by vessel ----
 ### back to dfs for join ----
 gom_lat_lon_gom_state_cnt_fed_w_df <-
   st_drop_geometry(gom_lat_lon_gom_state_cnt_sf_fed_w)
@@ -1201,14 +1190,30 @@ sa_lat_lon_gom_state_cnt_sf_fed_w_df <-
   st_drop_geometry(sa_fed_waters_points)
 # str(sa_lat_lon_gom_state_cnt_sf_fed_w_df)
 
-# sa_state_waters_points_short_df_no_gom_counties_sa_ok
-
 ### join point data frames ----
+# get common names
 keep_sa_fields <-
   intersect(
     names(sa_lat_lon_gom_state_cnt_sf_fed_w_df),
     names(sa_state_waters_points_short_df_no_gom_counties_sa)
   )
+
+# Explanations:
+#
+# 1. **List Creation:**
+#    - The `list` function creates a list containing two data frames: `sa_lat_lon_gom_state_cnt_sf_fed_w_df` and `sa_state_waters_points_short_df_no_gom_counties`.
+#
+# 2. **Mapping and Combining Data Frames:**
+#    - The `map_df` function is applied to the list of data frames.
+#    - The lambda function with a `curr_df` parameter selects specific columns from each data frame.
+#    - The results are combined into a single data frame.
+#
+# 3. **Column Selection:**
+#    - The pipe operator (`|>`) passes each data frame to the next operation.
+#    - The `select` function is used to subset the columns of each data frame based on the column names specified in `keep_sa_fields`.
+#
+# 4. **Final Result:**
+#    - The variable `all_points_sa` holds the resulting data frame with columns selected from the original data frames.
 
 all_points_sa <-
   list(sa_lat_lon_gom_state_cnt_sf_fed_w_df,
@@ -1225,10 +1230,12 @@ dim(all_points_sa)
 #   filter(vessel_official_number == "994360") |>
 #   View()
 
+# Keep the same columns for gom
 gom_lat_lon_gom_state_cnt_fed_w_df_short <-
   gom_lat_lon_gom_state_cnt_fed_w_df |>
   select(all_of(keep_sa_fields))
 
+# join gom and sa points
 all_fish_points <-
   full_join(
     gom_lat_lon_gom_state_cnt_fed_w_df_short,
@@ -1240,6 +1247,22 @@ all_fish_points <-
   )
 
 ## add markers for having gom or sa fishing locations ----
+
+# 1. **Grouping by Vessel Official Number:**
+#    - The pipe operator (`|>`) passes the data frame 'all_fish_points' to the next operation.
+#    - The `group_by` function is used to group the data frame by the 'vessel_official_number' column.
+#
+# 2. **Adding New Columns with Mutate:**
+#    - The `mutate` function adds two new columns, 'has_gom_point_y' and 'has_sa_point_y', to the data frame.
+#    - The 'has_gom_point_y' column is determined using the `any` function to check if any values in the 'latitude.gom' column are not NA.
+#    - The 'has_sa_point_y' column is determined using the `any` function to check if any values in the 'latitude.sa' column are not NA.
+#
+# 3. **Ungrouping:**
+#    - The `ungroup` function removes the grouping structure from the data frame, returning it to an ungrouped state.
+#
+# 4. **Final Result:**
+#    - The variable 'all_fish_points_reg_y' holds the modified data frame with added columns indicating the presence of non-NA values in specific latitude columns for each vessel.
+
 all_fish_points_reg_y <-
   all_fish_points |>
   group_by(vessel_official_number) |>
@@ -1249,6 +1272,7 @@ all_fish_points_reg_y <-
            any(!is.na(latitude.sa), na.rm = TRUE)) |>
   ungroup()
 
+# Keep vessels, having both SA and GOM points
 all_fish_points_reg_both_y <-
   all_fish_points_reg_y |>
   filter(has_gom_point_y & has_sa_point_y)
@@ -1282,6 +1306,22 @@ dim(all_fish_points_reg_both_q)
 n_distinct(all_fish_points_reg_both_q$vessel_official_number)
 # [1] 30
 
+# Count vessels fishing in both regions by quarter ---
+# Explanations
+# 1. **Column Selection:**
+#    - The pipe operator (`|>`) passes the data frame 'all_fish_points_reg_both_q' to the next operation.
+#    - The `select` function is used to subset the data frame to include only the columns 'trip_end_year_quarter' and 'vessel_official_number'.
+#
+# 2. **Distinct Rows:**
+#    - The `distinct` function returns unique combinations of the specified columns, effectively removing duplicate rows.
+#
+# 3. **Counting Rows:**
+#    - The `count` function is used to count the number of rows for each unique combination of 'trip_end_year_quarter'.
+#    - The result is the count of unique combinations of 'trip_end_year_quarter', providing information about the number of vessels in each quarter.
+#
+# 4. **Final Result:**
+#    - The output of the entire sequence is not assigned to a variable, but it represents the count of unique combinations of 'trip_end_year_quarter' in the original data frame 'all_fish_points_reg_both_q'.
+
 all_fish_points_reg_both_q |>
   select(trip_end_year_quarter, vessel_official_number) |>
   distinct() |>
@@ -1301,7 +1341,20 @@ all_fish_points_reg_both_q |>
 
 ## map all_fish_points_reg_both_q ----
 
-# View(all_fish_points_reg_both_q)
+# Explanations
+#
+# 1. **Conversion to Simple Feature (sf) Data Frame:**
+#    - The pipe operator (`|>`) passes the data frame 'all_fish_points_reg_both_q' to the next operation.
+#    - The `st_as_sf` function converts the data frame to a simple feature (sf) data frame, using the columns 'longitude.gom' and 'latitude.gom' as coordinates and setting the coordinate reference system (crs) to 'my_crs'. The 'remove' parameter is set to FALSE, preserving the original data frame.
+#
+# 2. **Column Subsetting:**
+#    - The `select` function is used to subset the columns of the resulting sf data frame, excluding those ending with ".sa".
+#
+# 3. **Column Renaming:**
+#    - The `rename` function is used to rename the 'geometry' column to 'geometry_gom'.
+#
+# 4. **Final Result:**
+#    - The variable 'all_fish_points_reg_both_q_gom_sf' holds the modified sf data frame with coordinates from the Gulf of Mexico region, excluding columns related to South Atlantic coordinates and with the 'geometry' column renamed to 'geometry_gom'.
 
 all_fish_points_reg_both_q_gom_sf <-
   all_fish_points_reg_both_q |>
@@ -1313,6 +1366,7 @@ all_fish_points_reg_both_q_gom_sf <-
   select(-ends_with(".sa")) |>
   rename(geometry_gom = geometry)
 
+# The same for SA
 all_fish_points_reg_both_q_sa_sf <-
   all_fish_points_reg_both_q |>
   st_as_sf(
@@ -1323,15 +1377,32 @@ all_fish_points_reg_both_q_sa_sf <-
   select(-ends_with(".gom")) |>
   rename(geometry_sa = geometry)
 
+# Create the map
 all_sa_gom_map <-
   mapview(all_fish_points_reg_both_q_sa_sf,
           col.regions = "blue") +
   mapview(all_fish_points_reg_both_q_gom_sf,
           col.regions = "green")
 
+# Uncomment top see the map
 # all_sa_gom_map
 
-### sa and gom map by q ----
+### Fishing in SA and GOM map by quarter ----
+
+# Explanations:
+#
+# 1. **List Creation:**
+#    - The `list` function is used to create a list containing two sf data frames: `all_fish_points_reg_both_q_sa_sf` and `all_fish_points_reg_both_q_gom_sf`.
+#
+# 2. **Mapping and Splitting Data Frames:**
+#    - The `map` function applies the following lambda function to each element of the list.
+#    - For each sf data frame (`curr_df`), the data is split into a list of data frames (`list_by_reg_q`) based on the 'trip_end_year_quarter' column.
+#
+# 3. **Return of List of Data Frames:**
+#    - The lambda function returns the list of data frames (`list_by_reg_q`) created by the `split` operation.
+#
+# 4. **Final Result:**
+#    - The variable 'all_fish_points_reg_both_q_sf_quarters' holds a list of data frames, each representing a subset of the original sf data frames based on the 'trip_end_year_quarter' column. The list is created by splitting the data frames for both South Atlantic and Gulf of Mexico regions.
 
 all_fish_points_reg_both_q_sf_quaters <-
   list(all_fish_points_reg_both_q_sa_sf,
@@ -1344,20 +1415,37 @@ all_fish_points_reg_both_q_sf_quaters <-
     return(list_by_reg_q)
   })
 
+# Add names
 names(all_fish_points_reg_both_q_sf_quaters) <-
   c("sa",
     "gom")
 
 # View(all_fish_points_reg_both_q_sf_quaters)
 
+# List of all quarters
 all_quarters_list <-
   names(all_fish_points_reg_both_q_sf_quaters$sa)
 
+# uncomment to see an example for the 1 quarter
 # mapview(all_fish_points_reg_both_q_sf_quaters$sa$`2022 Q1`,
         # col.regions = "green") +
 # mapview(all_fish_points_reg_both_q_sf_quaters$gom$`2022 Q1`,
         # col.regions = "blue")
 
+# Explanations
+#
+# 1. **Mapping and Creating Views:**
+#    - The pipe operator (`|>`) passes the 'all_quarters_list' to the next operation.
+#    - The `map` function applies the following lambda function to each element of the list (`curr_quarter`).
+#
+# 2. **MapView for South Atlantic and Gulf of Mexico:**
+#    - Inside the lambda function:
+#      - The `mapview` function is used to create map views for both the South Atlantic and Gulf of Mexico regions.
+#      - Data frames for each region and quarter are accessed from the list 'all_fish_points_reg_both_q_sf_quarters'.
+#      - For South Atlantic, 'col.regions' is set to "green", and for Gulf of Mexico, it's set to "blue".
+#
+# 3. **Final Result:**
+#    - The variable 'all_maps_by_q' holds a list of map views, each representing data for a specific quarter. The maps include points from both the South Atlantic and Gulf of Mexico regions, with distinct colors for each region.
 all_maps_by_q <-
   all_quarters_list |>
   map(\(curr_quarter) {
