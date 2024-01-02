@@ -279,9 +279,13 @@ dim(vessels_permits_home_port_c_st_fixed)
 # [1] 4729    8
 # [1] 6762    7
 
+dim(all_vessels_permits_home_port_clean0_fixed)
+# [1] 6894    8
+
 ### shorten fixed ----
 vessels_permits_home_port_c_st_fixed_short <-
-  vessels_permits_home_port_c_st_fixed |>
+  all_vessels_permits_home_port_clean0_fixed |> 
+  # vessels_permits_home_port_c_st_fixed |>
   select(SERO_OFFICIAL_NUMBER,
          # permit_sa_gom,
          city_fixed,
@@ -289,8 +293,8 @@ vessels_permits_home_port_c_st_fixed_short <-
   distinct() |>
   remove_empty_cols()
   
-glimpse(vessels_permits_home_port_c_st_fixed)
-dim(vessels_permits_home_port_c_st_fixed_short)
+# glimpse(vessels_permits_home_port_c_st_fixed)
+# dim(vessels_permits_home_port_c_st_fixed_short)
 # [1] 4729    4
 # [1] 6762    3
 
@@ -299,7 +303,7 @@ dim(vessels_permits_home_port_c_st_fixed_short)
 my_file_path_lat_lon <- 
   file.path(my_paths$outputs, 
             current_project_dir_name,
-            paste0(current_project_dir_name, "_no_county_fixed.rds"))
+            paste0(current_project_dir_name, "_no_county_fixed_all_vessels.rds"))
 
 file.exists(my_file_path_lat_lon)
 
@@ -321,23 +325,28 @@ vessels_permits_home_port_lat_longs_city_state <-
     get_lat_lon_no_county
   )
 # 2023-11-27 run for non_compliant_areas_no_county_fixed.rds: 632.64 sec elapsed
+# Passing 825 addresses to the Nominatim single address geocoder
+# [==================================] 825/825 (100%) Elapsed: 14m Remaining:  0s
+# 2024-01-02 run for non_compliant_areas_no_county_fixed_all_vessels.rds: 853.8 sec elapsed
 
 dim(vessels_permits_home_port_lat_longs_city_state)
-# [1] 4729    6
-
-# vessels_permits_home_port_lat_longs_city_state |> 
-  # dim()
 # [1] 5029    5
 # [1] 4729    6
-# data_overview()
+# [1] 6892    5
+
+# data_overview(vessels_permits_home_port_lat_longs_city_state)
 # SERO_OFFICIAL_NUMBER 4729
 # permit_sa_gom           3
 # city_fixed            592
 # lat                   547
 
-# Count vessels:
-# compl_err_db_data_metrics_2022_clean
-# vessels_permits_home_port_lat_longs_city_state
+# today()
+# [1] "2024-01-02"
+# SERO_OFFICIAL_NUMBER 6854
+# city_fixed            802
+# state_fixed            32
+# lat                   704
+# long                  704
 
 # print out get_data results ----
 
@@ -353,5 +362,3 @@ cat(
   sep = "\n"
 )
 
-# View(compl_err_db_data_metrics_2022_clean_list_short)
-dim(compl_err_db_data_metrics_2022_clean_list_short)
