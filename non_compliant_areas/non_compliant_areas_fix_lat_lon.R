@@ -68,6 +68,7 @@ vessels_permits_home_port_lat_longs_city_state <-
 #   Internal Server Error (HTTP 500).
 
 # Add back lost vessels ----
+# check
 vessels_permits_home_port_lat_longs_city_state_df <- 
   as.data.frame(vessels_permits_home_port_lat_longs_city_state)
 
@@ -179,15 +180,11 @@ vessels_permits_home_port_lat_longs_city_state_err_all <-
          SERO_HOME_PORT_STATE,
          lat,
          long) |>
-  mutate(
-    SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-    SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
-  ) |> 
   distinct()
 
 vessels_permits_home_port_lat_longs_city_state_err_all |> 
   dim()
-  # [1] 648   4
+# [1] 648   4
 # [1] 851   4
 
 csv_file_path <-
@@ -286,6 +283,8 @@ to_fix_list <-
       "STEINHATCHEE#FL"),
     c("SUMMRLND KEY#FL",
       "SUMMERLAND KEY#FL"),
+    c("SWANQUARTER#FL",
+      "SWAN QUARTER#NC"),
     c("TAVENIER#FL",
       "TAVERNIER#FL"),
     c("WANCHEESE#NC",
@@ -297,6 +296,13 @@ to_fix_list <-
 vessels_permits_home_port_c_st <- 
   vessels_permits_home_port_short |> 
   mutate(city_state = 
+           paste(trimws(SERO_HOME_PORT_CITY), 
+                 trimws(SERO_HOME_PORT_STATE), 
+                 sep = "#")) 
+
+all_vessels_permits_home_port_clean0 <- 
+  all_vessels_permits_home_port |> 
+    mutate(city_state = 
            paste(trimws(SERO_HOME_PORT_CITY), 
                  trimws(SERO_HOME_PORT_STATE), 
                  sep = "#")) 
@@ -342,15 +348,30 @@ vessels_permits_home_port_c_st_fixed <-
              get_correct_addr_by_wrong(city_state)
          else
            city_state) |>
-  ungroup() |> 
-  tidyr::separate_wider_delim(city_state_fixed, 
-                              delim = "#", 
-                              names = c("city_fixed", "state_fixed"))
+  ungroup() |>
+  tidyr::separate_wider_delim(city_state_fixed,
+                              delim = "#",
+                              names = c("city_fixed",
+                                        "state_fixed"))
 
 dim(vessels_permits_home_port_c_st_fixed)
 # [1] 4729    8
 # [1] 5029    8 with permit region
 # [1] 6762    7 not processed db vessel_permits
+
+# print_df_names(all_vessels_permits_home_port_clean0)
+all_vessels_permits_home_port_clean0_fixed <-
+  all_vessels_permits_home_port_clean0 |>
+  rowwise() |>
+  mutate(city_state_fixed =
+           if (city_state %in% wrong_port_addr)
+             get_correct_addr_by_wrong(city_state)
+         else
+           city_state) |>
+  ungroup() |> 
+  tidyr::separate_wider_delim(city_state_fixed, 
+                              delim = "#", 
+                              names = c("city_fixed", "state_fixed"))
 
 vessels_permits_home_port_c_st_fixed |> 
   filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
@@ -360,7 +381,20 @@ vessels_permits_home_port_c_st_fixed |>
 # [1] 115   8 with permit region
 # [1] 281   7
 
-cat("Result in vessels_permits_home_port_c_st_fixed")
-# vessels_permits_home_port_c_st_fixed
+# Manually add Bokeelia is located in western Lee County at 26°41′17″N 82°8′43″W (26.687960, -82.145249).[5] It sits at the northern end of Pine Island and is bordered by water on three sides
 
-# vessels_permits_home_port_c_st_fixed |> View()
+# View(all_vessels_permits_home_port_clean0_fixed)
+all_vessels_permits_home_port_clean0_fixed |> 
+  filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
+  dim()
+# [1] 60  8
+
+dim(all_vessels_permits_home_port_clean0_fixed)
+# [1] 6894    8
+
+cat("Result in vessels_permits_home_port_c_st_fixed",
+    "And in all_vessels_permits_home_port_clean0_fixed",
+    sep = "\n")
+dim(vessels_permits_home_port_c_st_fixed)
+# [1] 6845    7
+
