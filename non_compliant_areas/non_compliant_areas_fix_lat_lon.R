@@ -223,6 +223,19 @@ vessels_permits_home_port_c_st <-
                  trimws(SERO_HOME_PORT_STATE), 
                  sep = "#")) 
 
+# ---
+
+# 1. **Column Extraction Using sapply:**
+#    - The variable 'wrong_port_addr' is created by applying the 'sapply' function to 'to_fix_list'.
+#    - The `sapply` function applies the '[' function to each element of 'to_fix_list' using the index 1.
+# 
+# 2. **Column Extraction Using '[':**
+#    - The '[' function is used to extract the first element (index 1) from each element of 'to_fix_list'.
+#    - This operation is likely used to extract a specific column or element from each list or data frame within 'to_fix_list'.
+# 
+# 3. **Final Result:**
+#    - 'wrong_port_addr' holds the result of extracting the first element from each element within 'to_fix_list'.
+
 wrong_port_addr <-
   sapply(to_fix_list, "[", 1)
 
@@ -257,15 +270,17 @@ vessels_permits_home_port_c_st_fixed <-
                               names = c("city_fixed", "state_fixed"))
 
 dim(vessels_permits_home_port_c_st_fixed)
-# [1] 4729    7
+# [1] 4729    8
 # [1] 5029    8 with permit region
 
 vessels_permits_home_port_c_st_fixed |> 
   filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
   dim()
 # [1] 49  7
-# [1] 109   7 timmed
+# [1] 109   8 timmed
 # [1] 115   8 with permit region
 
 cat("Result in vessels_permits_home_port_c_st_fixed")
 # vessels_permits_home_port_c_st_fixed
+
+vessels_permits_home_port_c_st_fixed |> View()
