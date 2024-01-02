@@ -571,16 +571,23 @@ shp_file_with_cnts_list_maps <-
       
       ggplot2::ggplot() +
       # Start building the ggplot object for plotting.
+      ggplot2::geom_sf(data = states_sf, fill = NA) +
+      # Add a layer for plotting state boundaries, with no fill color (NA).
       
       ggplot2::geom_sf(aes(fill = factor(nc_round_proportion))) +
       # Add a layer for plotting spatial features, using nc_round_proportion for fill color.
       
       ggplot2::geom_sf_label(aes(label = my_label_long),
-                    size = label_text_size) +
+                    size = label_text_size,
+                    alpha = 1,
+                    # color = alpha('black', .5),
+                    fill = "lightgrey",
+                    position = position_dodge2(width = 2,
+                                              padding = 0.9)) +
+      # geom_label(alpha = 1, color = alpha('black', .5)) +
+
       # Add a layer for labeling spatial features using the my_label column, with a specified size.
       
-      ggplot2::geom_sf(data = states_sf, fill = NA) +
-      # Add a layer for plotting state boundaries, with no fill color (NA).
 
       # Set the coordinate limits for the plot, based on the bounding box of southeast coast states,
       
@@ -609,7 +616,7 @@ shp_file_with_cnts_list_maps <-
       #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
       #                                                                  breaks = c("0.14", "0.29"),
       theme(legend.position = c(0.55, 0.1)) +
-      guides(fill = guide_legend(title = "# of non-compliant vessels",
+      guides(fill = guide_legend(title = "Non-Compliance Color Scale",
                                  nrow = 1))
   })
 
