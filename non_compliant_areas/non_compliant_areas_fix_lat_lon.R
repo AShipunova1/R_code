@@ -9,22 +9,28 @@ my_file_path_lat_lon <-
 
 file.exists(my_file_path_lat_lon)
 
+vessels_permits_home_port_short_trim_no_county <-
+  vessels_permits_home_port_short |>
+  mutate(
+    SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
+    SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
+  ) |>
+  select(-SERO_HOME_PORT_COUNTY)
+
 get_lat_lon_no_county <-
-  function(vessels_permits_home_port_short) {
+  function(my_df) {
     vessels_permits_home_port_lat_longs <-
-      vessels_permits_home_port_short |>
-      mutate(SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-             SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)) |> 
-      select(-SERO_HOME_PORT_COUNTY) |> 
+      my_df |>
       tidygeocoder::geocode(city = "SERO_HOME_PORT_CITY",
-                            state = "SERO_HOME_PORT_STATE")
+                            state = "SERO_HOME_PORT_STATE",
+                            return_input = TRUE)
     return(vessels_permits_home_port_lat_longs)
   }
 
 vessels_permits_home_port_lat_longs_city_state <-
   read_rds_or_run(my_file_path_lat_lon,
                   my_data =
-                    as.data.frame(vessels_permits_home_port_short),
+                    as.data.frame(vessels_permits_home_port_short_trim_no_county),
                   get_lat_lon_no_county)
 
 # Passing 850 addresses to the Nominatim single address geocoder
