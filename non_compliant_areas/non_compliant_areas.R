@@ -208,6 +208,24 @@ compl_err_db_data_metrics_2022_clean_list_short$GOM |>
 # 228
 # !!! No vessel information for 228 vessels !!!
 
+compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_permits1$SERO_OFFICIAL_NUMBER
+  ))) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# 1
+
+compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    all_get_db_data_result_l$vessels_permits$SERO_OFFICIAL_NUMBER
+  ))) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+0
+
 # check
 compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
   dplyr::filter(vessel_official_number == 1020822)
@@ -226,6 +244,13 @@ vessels_permits_home_port_lat_longs_city_state |>
   ))) |>
   nrow()
 # 2
+
+# vessels_permits_home_port_c_st_fixed_short |> 
+#     filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(
+#     vessels_no_home_port$vessel_official_number
+#   ))) |>
+#   nrow()
+# 230
 
 compl_err_db_data_metrics_2022_clean_list_short_uniq$GOM |>
   filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
