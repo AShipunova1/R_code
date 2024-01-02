@@ -324,8 +324,8 @@ dim(vessels_permits_home_port_lat_longs_city_state)
 # lat                   547
 
 # Count vessels:
-compl_err_db_data_metrics_2022_clean
-vessels_permits_home_port_lat_longs_city_state
+# compl_err_db_data_metrics_2022_clean
+# vessels_permits_home_port_lat_longs_city_state
 
 # print out get_data results ----
 
