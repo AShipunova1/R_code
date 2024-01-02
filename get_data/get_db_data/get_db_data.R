@@ -616,6 +616,14 @@ get_vessels_permits <-
   }
 # 2023-09-20 run the function: 14.08 sec elapsed
 
+# vessels_permits1 <-
+#     read_rds_or_run(vessels_permits_file_path,
+#                     vessels_permits_query,
+#                     vessels_permits_fun,
+#                     force_from_db = TRUE) |>
+#       vessels_permits_id_clean()
+# 2024-01-02 run for vessels_permits.rds: 32.97 sec elapsed
+
 # an additional procedure, usually is not needed
 # find 0 column ----
 # get vessels
@@ -916,5 +924,6 @@ force_from_db <- NULL # read data from files if exist
 
 
 # close the db connection ----
+# Don't use from here, otherwise can't run the above functions from another file
 # try(ROracle::dbDisconnect(con))
 
