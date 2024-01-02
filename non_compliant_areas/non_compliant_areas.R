@@ -357,13 +357,15 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$SA |>
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
   dplyr::select(vessel_official_number,
                 state_fixed,
-                non_compl_year,
+                # non_compl_year,
                 total_vsl_by_state_cnt) |>
   dplyr::distinct() |>
-  filter(non_compl_year == FALSE) |>
+  # filter(non_compl_year == FALSE) |>
   select(-vessel_official_number) |> 
   dplyr::distinct() |>
-  mutate(s = sum(total_vsl_by_state_cnt))
+  mutate(s = sum(total_vsl_by_state_cnt)) |> 
+  glimpse()
+# 1232
 
 # percent of non compliant by state ----
 
