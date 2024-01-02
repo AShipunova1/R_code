@@ -101,11 +101,7 @@ vessels_permits_home_port_lat_longs_city_state_err <-
   select(SERO_OFFICIAL_NUMBER,
          SERO_HOME_PORT_CITY,
          SERO_HOME_PORT_STATE) |>
-  distinct() |>
-  mutate(
-    SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-    SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
-  )
+  distinct()
 
 dim(vessels_permits_home_port_lat_longs_city_state_err)
 # [1] 80  3
