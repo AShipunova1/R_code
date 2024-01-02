@@ -96,6 +96,10 @@ all_vessels_permits_home_port <-
 # Joining with `by = join_by(SERO_OFFICIAL_NUMBER, SERO_HOME_PORT_CITY,
 # SERO_HOME_PORT_STATE)`
 
+# all_vessels_permits_home_port |>
+#   filter(SERO_OFFICIAL_NUMBER %in% no_state_vessels$SERO_OFFICIAL_NUMBER) |>
+#   View()
+
 dim(all_vessels_permits_home_port)
 # [1] 6894    5
 # data_overview(all_vessels_permits_home_port)
