@@ -56,10 +56,22 @@ get_data_file_path <-
 
 source(get_data_file_path)
 
-# vessels_permits_home_port_lat_longs_city_state |> dim()
-# [1] 4729    6
 
 ## prepare permit data ---- 
+### Check how many vessels don't have home port info ----
+# vessels_permits_home_port_lat_longs_city_state |> dim()
+# [1] 4729    6
+vessels_permits_home_port_lat_longs_city_state |> 
+  filter(state_fixed %in% c("NA", "UN") | is.na(state_fixed)) |>
+  select(SERO_OFFICIAL_NUMBER) |>
+  distinct()
+# 1 SC4334DB            
+# 2 FL9026LT            
+# 3 FL9730PF            
+# 4 615565              
+# 5 971427              
+# 6 NA                  
+
 ### check for duplicate vessels ----
 vessels_permits_home_port_lat_longs_city_state |>
   dplyr::distinct() |>
@@ -86,7 +98,7 @@ vessels_permits_home_port_lat_longs_city_state |>
 # lat                   323
 
 ## Compliance info combine dual and GOM ----
-
+# Not needed if use Metrics tracking permits
 # compl_err_db_data_metrics_2022_clean_list_short is sourced from non_compliant_areas_get_data.R
 
 # Use the 'map' function from the 'purrr' package to apply the 'dim' function to each element
@@ -192,6 +204,19 @@ compl_err_db_data_metrics_2022_clean_list_short$GOM |>
 # 228
 # !!! No vessel information for 228 vessels !!!
 
+compl_vessl_not_in_ves_perm <- 
+  compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER
+  ))) |>
+  select(vessel_official_number) |>
+  distinct()
+
+nrow(compl_vessl_not_in_ves_perm)
+# 228
+# !!! No vessel information for 228 vessels !!!
+
+# "1201160", "TX5996JU", "1305731", "FL8041ME"
 # compl_err_db_data_metrics_2022_clean_list_short$GOM |>
 #   filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
 #     vessels_permits1$SERO_OFFICIAL_NUMBER
