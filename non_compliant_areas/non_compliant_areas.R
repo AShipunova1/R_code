@@ -458,7 +458,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   purrr::map(\(curr_df) {
     curr_df |>
-      dplyr::filter(non_compl_year == TRUE) |>
+      # dplyr::filter(non_compl_year == TRUE) |>
       dplyr::select(
         state_fixed,
         total_vsl_by_state_cnt,
@@ -488,13 +488,11 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
     distinct() |> 
     count(wt = total_vsl_by_state_cnt)
 # 1226
+# 1232 (incl compl)
 
 ### check the labels ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
   glimpse()
-
-sum(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM$total_vsl_by_state_cnt)
-# 1226
 
 # Keep only GOM states for GOM only plots ----
 # print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM)
@@ -737,3 +735,29 @@ output_file_name <- "sa_only_perc_by_state.png"
 
 write_png_to_file(output_file_name,
                   sa_only_map)
+
+# Check no home port vessels ----
+## GOM ----
+vessels_no_home_port <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$GOM |>
+  filter(state_fixed %in% c("NA", "UN") | is.na(state_fixed)) |>
+  select(vessel_official_number) |>
+  distinct()
+
+nrow(vessels_no_home_port)
+# 230
+
+vessels_permits_home_port_22 |> 
+  select(starts_with("SERO")) |> 
+  distinct() |> 
+  filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(vessels_no_home_port$vessel_official_number))) |> 
+  nrow()
+# 2
+
+all_get_db_data_result_l$vessels_permits |> 
+  select(starts_with("SERO")) |>
+  distinct() |> 
+  filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(vessels_no_home_port$vessel_official_number))) |> 
+  glimpse()
+
+
