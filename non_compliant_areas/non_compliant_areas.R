@@ -182,22 +182,6 @@ compl_err_db_data_metrics_2022_clean_list_short_uniq <-
       dplyr::distinct()
   })
 
-compl_err_db_data_metrics_2022_clean_list_short_year_nc$GOM |>
-  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
-    vessels_no_home_port$vessel_official_number
-  ))) |>
-  nrow()
-# 267
-
-compl_err_db_data_metrics_2022_clean_list_short$GOM |>
-  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
-    vessels_no_home_port$vessel_official_number
-  ))) |>
-  select(vessel_official_number) |>
-  distinct() |>
-  nrow()
-# 230
-
 compl_err_db_data_metrics_2022_clean_list_short$GOM |>
   filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
     vessels_permits_home_port_22$SERO_OFFICIAL_NUMBER
@@ -208,13 +192,13 @@ compl_err_db_data_metrics_2022_clean_list_short$GOM |>
 # 228
 # !!! No vessel information for 228 vessels !!!
 
-compl_err_db_data_metrics_2022_clean_list_short$GOM |>
-  filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
-    vessels_permits1$SERO_OFFICIAL_NUMBER
-  ))) |>
-  select(vessel_official_number) |>
-  distinct() |>
-  nrow()
+# compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+#   filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+#     vessels_permits1$SERO_OFFICIAL_NUMBER
+#   ))) |>
+#   select(vessel_official_number) |>
+#   distinct() |>
+#   nrow()
 # 1
 
 compl_err_db_data_metrics_2022_clean_list_short$GOM |>
@@ -224,7 +208,7 @@ compl_err_db_data_metrics_2022_clean_list_short$GOM |>
   select(vessel_official_number) |>
   distinct() |>
   nrow()
-0
+# 1
 
 # check
 compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
@@ -237,27 +221,6 @@ compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
 # In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_2022_clean_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
 # Use only permit information from Metrics tracking
-
-vessels_permits_home_port_lat_longs_city_state |>
-  filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(
-    vessels_no_home_port$vessel_official_number
-  ))) |>
-  nrow()
-# 2
-
-# vessels_permits_home_port_c_st_fixed_short |> 
-#     filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(
-#     vessels_no_home_port$vessel_official_number
-#   ))) |>
-#   nrow()
-# 230
-
-compl_err_db_data_metrics_2022_clean_list_short_uniq$GOM |>
-  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
-    vessels_no_home_port$vessel_official_number
-  ))) |>
-  nrow()
-# 230
 
 vessels_permits_home_port_22_compliance_list <-
   compl_err_db_data_metrics_2022_clean_list_short_uniq |>
@@ -430,12 +393,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
   glimpse()
 # 1232
 
-# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
-#   filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
-#     vessels_no_home_port$vessel_official_number
-#   ))) |>
-#   View()
-
 # percent of non compliant by state ----
 
 # use map() to apply a series of operations to each df (permit_region) of the list
@@ -516,9 +473,9 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$GOM |>
 
 ## shorten and add labels ----
 # Use map() to apply the following operations to each permit_region df in the list:
-# Filter for rows where a vessel was not compliant at least once in 2022 ('non_compl_year' is TRUE), 
 # select specific columns,
 # retain distinct rows, 
+# Filter for rows where a vessel was not compliant at least once in 2022 ('non_compl_year' is TRUE), 
 # calculate rounded compliance percentage and proportion, 
 # and create a label.
   
@@ -529,15 +486,16 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   purrr::map(\(curr_df) {
     curr_df |>
-      # dplyr::filter(non_compl_year == TRUE) |>
       dplyr::select(
         state_fixed,
+        non_compl_year,
         total_vsl_by_state_cnt,
         compliance_by_state_cnt,
         compl_percent_per_st,
         compl_proportion_per_st
       ) |>
       dplyr::distinct() |>
+      dplyr::filter(non_compl_year == TRUE) |>
       dplyr::mutate(
         nc_round_perc = round(compl_percent_per_st),
         nc_round_proportion = round(compl_proportion_per_st, 2),
@@ -563,7 +521,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
 
 ### check the labels ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
-  glimpse()
+  View()
 
 # Keep only GOM states for GOM only plots ----
 # print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM)
@@ -577,19 +535,21 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   select(state_fixed, total_vsl_by_state_cnt) |> 
   distinct()
 
-# vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states <-
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |>
   rowwise() %>%
   mutate(state_fixed_full =
            possibly(my_func, otherwise = NA)(state_fixed)) |>
   filter(!is.na(state_fixed_full)) |>
-  select(state_fixed_full) |> 
-  distinct() |> 
-  # filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
+  # select(state_fixed_full) |> 
+  # distinct() |> 
+  filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
   ungroup()
 
 sum(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states$total_vsl_by_state_cnt)
 # 989
+sum(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM$total_vsl_by_state_cnt)
+# 1226
 
 ## add to the shape file by state name ----
 
@@ -832,3 +792,25 @@ all_get_db_data_result_l$vessels_permits |>
   glimpse()
 
 
+compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_no_home_port$vessel_official_number
+  ))) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# 230
+
+
+compl_err_db_data_metrics_2022_clean_list_short_uniq$GOM |>
+  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_no_home_port$vessel_official_number
+  ))) |>
+  nrow()
+# 230
+
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
+#   filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+#     vessels_no_home_port$vessel_official_number
+#   ))) |>
+#   View()
