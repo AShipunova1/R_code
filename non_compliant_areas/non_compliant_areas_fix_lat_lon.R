@@ -33,6 +33,31 @@ vessels_permits_home_port_lat_longs_city_state <-
                     as.data.frame(vessels_permits_home_port_short_trim_no_county),
                   get_lat_lon_no_county)
 
+# vessels_permits_home_port_lat_longs_city_state |> 
+#   filter(SERO_OFFICIAL_NUMBER %in% compl_vessl_not_in_ves_perm$vessel_official_number) |>
+#   glimpse()
+
+# View(vessels_permits_home_port_lat_longs_city_state)
+# setdiff(tolower(compl_vessl_not_in_ves_perm$vessel_official_number),
+#         tolower(vessels_permits_home_port_short$SERO_OFFICIAL_NUMBER)) |> 
+#   length()
+# 1
+
+# setdiff(tolower(compl_vessl_not_in_ves_perm$vessel_official_number),
+#         tolower(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER)) |> 
+#   length()
+# 1
+
+# setdiff(tolower(compl_vessl_not_in_ves_perm$vessel_official_number),
+#         tolower(vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER)) |> 
+#   length()
+# 228
+
+# intersect(tolower(compl_vessl_not_in_ves_perm$vessel_official_number),
+#         tolower(vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER)) |> 
+#   length()
+# 0?
+#   
 # Passing 850 addresses to the Nominatim single address geocoder
 # [==================================] 850/850 (100%) Elapsed: 15m Remaining:  0s
 # 2024-01-02 run for non_compliant_areas_no_county_all.rds: 881.34 sec elapsed
@@ -41,6 +66,45 @@ vessels_permits_home_port_lat_longs_city_state <-
 # Warning message:
 # In query_api(api_url, api_query_parameters, method = method) :
 #   Internal Server Error (HTTP 500).
+
+# Add back lost vessels ----
+vessels_permits_home_port_lat_longs_city_state_df <- 
+  as.data.frame(vessels_permits_home_port_lat_longs_city_state)
+
+setdiff(tolower(unique(
+  vessels_permits_home_port_lat_longs_city_state_df$SERO_OFFICIAL_NUMBER)),
+  tolower(unique(
+vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER))) |> 
+  length()
+# 9
+
+# View(vessels_permits_home_port_lat_longs_city_state_df)
+setdiff(tolower(unique(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER)),
+        tolower(unique(vessels_permits_home_port_lat_longs_city_state_df$SERO_OFFICIAL_NUMBER))) |> 
+  length()
+# 92
+
+str(vessels_permits_home_port_short_trim_no_county)
+str(vessels_permits_home_port_lat_longs_city_state_df)
+
+all_vessels_permits_home_port <-
+  full_join(
+    vessels_permits_home_port_lat_longs_city_state_df,
+    vessels_permits_home_port_short_trim_no_county
+  )
+# Joining with `by = join_by(SERO_OFFICIAL_NUMBER, SERO_HOME_PORT_CITY,
+# SERO_HOME_PORT_STATE)`
+
+dim(all_vessels_permits_home_port)
+# [1] 6894    5
+# data_overview(all_vessels_permits_home_port)
+# SERO_OFFICIAL_NUMBER 6854
+# SERO_HOME_PORT_CITY   840
+# SERO_HOME_PORT_STATE   32
+# lat                   695
+# long                  695
+
+# TODO: Use all_vessels_permits_home_port later to add states back if missing
 
 # check home port typos by lat/lon ----
 check_home_port_typos_by_lat_lon <- 
@@ -94,6 +158,7 @@ check_home_port_typos_by_lat_lon <-
 
 # Work with compl_err_db_data_metrics_permit_reg_list_home_port_err_county in excel ----
 
+# print_df_names(vessels_permits_home_port_lat_longs_city_state)
 vessels_permits_home_port_lat_longs_city_state_err <-
   vessels_permits_home_port_lat_longs_city_state |>
   filter(is.na(long) |
@@ -106,6 +171,7 @@ vessels_permits_home_port_lat_longs_city_state_err <-
 dim(vessels_permits_home_port_lat_longs_city_state_err)
 # [1] 80  3
 # 126 3
+# 128 3
 
 vessels_permits_home_port_lat_longs_city_state_err_all <-
   vessels_permits_home_port_lat_longs_city_state |>
@@ -290,7 +356,7 @@ vessels_permits_home_port_c_st_fixed |>
   filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
   dim()
 # [1] 49  7
-# [1] 109   8 timmed
+# [1] 109   8 trimmed
 # [1] 115   8 with permit region
 # [1] 281   7
 
