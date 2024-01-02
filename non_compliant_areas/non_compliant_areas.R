@@ -262,7 +262,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
 
 # View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt)
 
-### cnt by state prove of concept ----
+### cnt by state proof of concept ----
 
 # vessels_permits_home_port_22_compliance_list$SA |>
 #   glimpse()
@@ -354,6 +354,17 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$SA |>
   dplyr::glimpse()
 # the result is the same as above
 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
+  dplyr::select(vessel_official_number,
+                state_fixed,
+                non_compl_year,
+                total_vsl_by_state_cnt) |>
+  dplyr::distinct() |>
+  filter(non_compl_year == FALSE) |>
+  select(-vessel_official_number) |> 
+  dplyr::distinct() |>
+  mutate(s = sum(total_vsl_by_state_cnt))
+
 # percent of non compliant by state ----
 
 # use map() to apply a series of operations to each df (permit_region) of the list
@@ -419,7 +430,18 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$SA |>
   dplyr::glimpse()
 # the result is the same
 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$GOM |>
+  select(state_fixed, total_vsl_by_state_cnt) |>
+  distinct() |>
+  count(wt = total_vsl_by_state_cnt)
+# 1232
+
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc$GOM |>
+#     select(non_compl_year, state_fixed, compliance_by_state_cnt) |> 
+#     distinct() |> 
+#     count(wt = compliance_by_state_cnt)
 # map percentage ----
+# 1232
 
 ## shorten and add labels ----
 # Use map() to apply the following operations to each permit_region df in the list:
@@ -429,6 +451,9 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$SA |>
 # calculate rounded compliance percentage and proportion, 
 # and create a label.
   
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM$total_vsl_by_state_cnt |> sum()
+# 1226  
+
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   purrr::map(\(curr_df) {
@@ -457,30 +482,45 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
       )
   })
 
+### Check the counts ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
+  select(state_fixed, total_vsl_by_state_cnt) |> 
+    distinct() |> 
+    count(wt = total_vsl_by_state_cnt)
+# 1226
+
 ### check the labels ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
   glimpse()
 
-# Keep only GOM states for GOM only plots ----
-print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM)
+sum(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM$total_vsl_by_state_cnt)
+# 1226
 
+# Keep only GOM states for GOM only plots ----
+# print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM)
 
 my_func <- function(state_fixed){
   my_state_name[[tolower(state_fixed)]]
 }
 
-my_func_vect <- Vectorize(my_func)
+# my_func_vect <- Vectorize(my_func)
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
+  select(state_fixed, total_vsl_by_state_cnt) |> 
+  distinct()
 
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states <-
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |>
   rowwise() %>%
   mutate(state_fixed_full =
            possibly(my_func, otherwise = NA)(state_fixed)) |>
   filter(!is.na(state_fixed_full)) |>
-  filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
+  select(state_fixed_full) |> 
+  distinct() |> 
+  # filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
   ungroup()
 
-# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states)
+sum(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states$total_vsl_by_state_cnt)
+# 989
 
 ## add to the shape file by state name ----
 
@@ -490,7 +530,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
 shp_file_with_cnts_list <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |>
   purrr::map(\(curr_df) {
-    browser()
+    # browser()
     south_east_coast_states_shp |>
       left_join(curr_df,
                 join_by(STUSPS ==

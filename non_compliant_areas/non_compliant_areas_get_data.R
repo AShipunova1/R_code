@@ -22,7 +22,7 @@ source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R
 
 # fhier_reports_metrics_tracking_not_srhs_ids
 
-# Keep only ids in fhier_reports_metrics_tracking_not_srhs_ids and add metrics columns
+# Keep only ids in fhier_reports_metrics_tracking_not_srhs_ids
 
 fhier_reports_metrics_tracking_not_srhs_all_cols_2022 <-
   fhier_reports_metrics_tracking_not_srhs_all_cols_list$`2022`
@@ -33,6 +33,21 @@ compl_err_db_data_metrics <-
     compl_err_db_data,
     join_by(vessel_official_number == vessel_official_nbr)
   )
+
+
+# fhier_reports_metrics_tracking_not_srhs_all_cols_2022 |> 
+#   filter(permit_grouping_region == "GOM") |> 
+#   select(vessel_official_number) |> 
+#   distinct() |> 
+#   dim()
+# 1325
+
+# compl_err_db_data_metrics |> 
+#   filter(permit_grouping_region == "GOM") |> 
+#   select(vessel_official_number) |> 
+#   distinct() |> 
+#   nrow()
+# [1] 1325
 
 dim(compl_err_db_data_metrics)
 # [1] 408454     31
@@ -45,6 +60,17 @@ compl_err_db_data_metrics_2022 <-
 
 dim(compl_err_db_data_metrics_2022)
 # [1] 145261     31
+
+compl_err_db_data_metrics_2022 |>
+  filter(permit_grouping_region == "GOM") |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# [1] 1232
+
+# 135+75+14+121+644
+# 989
+
 
 ## Remove empty columns ---
 compl_err_db_data_metrics_2022_clean <-
@@ -297,6 +323,10 @@ dim(vessels_permits_home_port_lat_longs_city_state)
 # city_fixed            592
 # lat                   547
 
+# Count vessels:
+compl_err_db_data_metrics_2022_clean
+vessels_permits_home_port_lat_longs_city_state
+
 # print out get_data results ----
 
 cat(
@@ -312,3 +342,4 @@ cat(
 )
 
 # View(compl_err_db_data_metrics_2022_clean_list_short)
+dim(compl_err_db_data_metrics_2022_clean_list_short)
