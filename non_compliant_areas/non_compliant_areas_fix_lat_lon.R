@@ -5,14 +5,14 @@
 my_file_path_lat_lon <- 
   file.path(my_paths$outputs, 
             current_project_dir_name,
-            paste0(current_project_dir_name, "_no_county.rds"))
+            paste0(current_project_dir_name, "_no_county_all.rds"))
 
 file.exists(my_file_path_lat_lon)
 
 get_lat_lon_no_county <-
-  function(vessels_permits_home_port_22_reg_short) {
+  function(vessels_permits_home_port_short) {
     vessels_permits_home_port_lat_longs <-
-      vessels_permits_home_port_22_reg_short |>
+      vessels_permits_home_port_short |>
       mutate(SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
              SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)) |> 
       select(-SERO_HOME_PORT_COUNTY) |> 
@@ -24,8 +24,17 @@ get_lat_lon_no_county <-
 vessels_permits_home_port_lat_longs_city_state <-
   read_rds_or_run(my_file_path_lat_lon,
                   my_data =
-                    as.data.frame(vessels_permits_home_port_22_reg_short),
-                  get_lat_lon)
+                    as.data.frame(vessels_permits_home_port_short),
+                  get_lat_lon_no_county)
+
+# Passing 850 addresses to the Nominatim single address geocoder
+# [==================================] 850/850 (100%) Elapsed: 15m Remaining:  0s
+# 2024-01-02 run for non_compliant_areas_no_county_all.rds: 881.34 sec elapsed
+# Saving new data into a file here: 
+# C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/non_compliant_areas/non_compliant_areas_no_county_all.rds
+# Warning message:
+# In query_api(api_url, api_query_parameters, method = method) :
+#   Internal Server Error (HTTP 500).
 
 # check home port typos by lat/lon ----
 check_home_port_typos_by_lat_lon <- 
@@ -56,7 +65,6 @@ check_home_port_typos_by_lat_lon <-
     
     return(compl_err_db_data_metrics_permit_reg_list_home_port_err)
   }
-
 
 # vessels_permits_home_port_lat_longs_city_state |>
 #   filter(is.na(long) |
@@ -95,6 +103,7 @@ vessels_permits_home_port_lat_longs_city_state_err <-
 
 dim(vessels_permits_home_port_lat_longs_city_state_err)
 # [1] 80  3
+# 126 3
 
 vessels_permits_home_port_lat_longs_city_state_err_all <-
   vessels_permits_home_port_lat_longs_city_state |>
@@ -111,13 +120,14 @@ vessels_permits_home_port_lat_longs_city_state_err_all <-
 vessels_permits_home_port_lat_longs_city_state_err_all |> 
   dim()
   # [1] 648   4
+# [1] 851   4
 
 csv_file_path <-
   file.path(
     my_paths$outputs,
     current_project_dir_name,
     stringr::str_glue(
-      "{current_project_dir_name}_vessels_permits_home_port_lat_longs_city_state_err_all.csv"
+      "{current_project_dir_name}_vessels_permits_home_port_lat_longs_city_state_err_all1.csv"
     )
   )
 
@@ -217,7 +227,7 @@ to_fix_list <-
   )
 
 vessels_permits_home_port_c_st <- 
-  vessels_permits_home_port_22_reg_short |> 
+  vessels_permits_home_port_short |> 
   mutate(city_state = 
            paste(trimws(SERO_HOME_PORT_CITY), 
                  trimws(SERO_HOME_PORT_STATE), 
@@ -272,6 +282,7 @@ vessels_permits_home_port_c_st_fixed <-
 dim(vessels_permits_home_port_c_st_fixed)
 # [1] 4729    8
 # [1] 5029    8 with permit region
+# [1] 6762    7 not processed db vessel_permits
 
 vessels_permits_home_port_c_st_fixed |> 
   filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
@@ -279,8 +290,9 @@ vessels_permits_home_port_c_st_fixed |>
 # [1] 49  7
 # [1] 109   8 timmed
 # [1] 115   8 with permit region
+# [1] 281   7
 
 cat("Result in vessels_permits_home_port_c_st_fixed")
 # vessels_permits_home_port_c_st_fixed
 
-vessels_permits_home_port_c_st_fixed |> View()
+# vessels_permits_home_port_c_st_fixed |> View()
