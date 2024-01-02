@@ -56,7 +56,6 @@ get_data_file_path <-
 
 source(get_data_file_path)
 
-
 ## prepare permit data ---- 
 ### Check how many vessels don't have home port info ----
 # vessels_permits_home_port_lat_longs_city_state |> dim()
@@ -64,13 +63,26 @@ source(get_data_file_path)
 vessels_permits_home_port_lat_longs_city_state |> 
   filter(state_fixed %in% c("NA", "UN") | is.na(state_fixed)) |>
   select(SERO_OFFICIAL_NUMBER) |>
-  distinct()
-# 1 SC4334DB            
-# 2 FL9026LT            
-# 3 FL9730PF            
-# 4 615565              
-# 5 971427              
-# 6 NA                  
+  distinct() |> 
+  arrange(SERO_OFFICIAL_NUMBER)
+
+all_vessels_permits_home_port_na_state <-
+  all_vessels_permits_home_port |>
+  filter(SERO_HOME_PORT_STATE %in% c("NA", "UN") |
+           is.na(SERO_HOME_PORT_STATE)) |>
+  select(SERO_OFFICIAL_NUMBER) |>
+  distinct() |>
+  arrange(SERO_OFFICIAL_NUMBER)
+# 13
+
+vessels_permits_home_port_short_trim_no_county |> 
+  filter(SERO_OFFICIAL_NUMBER %in% all_vessels_permits_home_port_na_state$SERO_OFFICIAL_NUMBER) |> 
+  arrange(SERO_HOME_PORT_CITY) 
+# |> 
+#   select(SERO_OFFICIAL_NUMBER) ->
+#   no_state_vessels
+# 2              FL9026LT            BOKEELIA                   FL
+# 7                615565         SWANQUARTER                   NC
 
 ### check for duplicate vessels ----
 vessels_permits_home_port_lat_longs_city_state |>
@@ -78,7 +90,8 @@ vessels_permits_home_port_lat_longs_city_state |>
   dplyr::group_by(SERO_OFFICIAL_NUMBER) %>%
   dplyr::filter(dplyr::n() > 1) |>
   dim()
-# 0
+# 76 5?
+# TODO
 
 ### check how many coords have more than one vessel ----
 vessels_permits_home_port_lat_longs_city_state |>
@@ -96,6 +109,8 @@ vessels_permits_home_port_lat_longs_city_state |>
 # city_fixed            376
 # state_fixed            17
 # lat                   323
+
+# [1] 6578    5
 
 ## Compliance info combine dual and GOM ----
 # Not needed if use Metrics tracking permits
