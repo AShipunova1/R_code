@@ -143,7 +143,6 @@ purrr::map(compl_err_db_data_metrics_2022_clean_list_short,
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
 
-compl_err_db_data_metrics_2022_clean_list_short$GOM |> View()
 compl_err_db_data_metrics_2022_clean_list_short_year_nc <- 
   compl_err_db_data_metrics_2022_clean_list_short |> 
   purrr::map(\(curr_df) {
@@ -173,8 +172,7 @@ compl_err_db_data_metrics_2022_clean_list_short_year_nc$SA |>
 # 1020822 is non compliant for the whole year 
 
 ## keep unique vessel ids only ----
-# Create a new list 'compl_err_db_data_metrics_2022_clean_list_short_uniq' by applying a series of
-# operations to each element of the 'compl_err_db_data_metrics_2022_clean_list_short_year_nc' list.
+
 compl_err_db_data_metrics_2022_clean_list_short_uniq <- 
   compl_err_db_data_metrics_2022_clean_list_short_year_nc |> 
   purrr::map(\(curr_df){
@@ -183,6 +181,32 @@ compl_err_db_data_metrics_2022_clean_list_short_uniq <-
       dplyr::select(-is_comp) |> 
       dplyr::distinct()
   })
+
+compl_err_db_data_metrics_2022_clean_list_short_year_nc$GOM |>
+  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_no_home_port$vessel_official_number
+  ))) |>
+  nrow()
+# 267
+
+compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_no_home_port$vessel_official_number
+  ))) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# 230
+
+compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_permits_home_port_22$SERO_OFFICIAL_NUMBER
+  ))) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# 228
+# !!! No vessel information for 228 vessels !!!
 
 # check
 compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
@@ -195,6 +219,20 @@ compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
 # In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_2022_clean_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
 # Use only permit information from Metrics tracking
+
+vessels_permits_home_port_lat_longs_city_state |>
+  filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(
+    vessels_no_home_port$vessel_official_number
+  ))) |>
+  nrow()
+# 2
+
+compl_err_db_data_metrics_2022_clean_list_short_uniq$GOM |>
+  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_no_home_port$vessel_official_number
+  ))) |>
+  nrow()
+# 230
 
 vessels_permits_home_port_22_compliance_list <-
   compl_err_db_data_metrics_2022_clean_list_short_uniq |>
@@ -366,6 +404,12 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
   mutate(s = sum(total_vsl_by_state_cnt)) |> 
   glimpse()
 # 1232
+
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
+#   filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+#     vessels_no_home_port$vessel_official_number
+#   ))) |>
+#   View()
 
 # percent of non compliant by state ----
 
