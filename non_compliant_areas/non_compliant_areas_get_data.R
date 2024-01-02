@@ -220,8 +220,19 @@ vessels_permits_home_port_22_reg_short <-
 # glimpse(vessels_permits_home_port_22_reg_short)
 # [1] 4729    5
 
+vessels_permits_home_port_short <-
+  all_get_db_data_result_l$vessels_permits |>
+  dplyr::select(SERO_OFFICIAL_NUMBER,
+                dplyr::starts_with("SERO_HOME")) |>
+  remove_empty_cols() |>
+  dplyr::distinct()
+
+# View(vessels_permits_home_port_short)
+
 cat("Result to use for vessels home port and its permit region:",
 "vessels_permits_home_port_22_reg_short",
+"To use all data from the db:",
+"vessels_permits_home_port_short",
 sep = "\n")
 
 # Map 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes. ----
@@ -266,21 +277,22 @@ source(fix_ports_file_path)
 
 dim(vessels_permits_home_port_c_st_fixed)
 # [1] 4729    8
+# [1] 6762    7
 
 ### shorten fixed ----
 vessels_permits_home_port_c_st_fixed_short <-
   vessels_permits_home_port_c_st_fixed |>
   select(SERO_OFFICIAL_NUMBER,
-         permit_sa_gom,
+         # permit_sa_gom,
          city_fixed,
          state_fixed) |>
   distinct() |>
   remove_empty_cols()
   
 glimpse(vessels_permits_home_port_c_st_fixed)
-# [1] 4729    8
 dim(vessels_permits_home_port_c_st_fixed_short)
 # [1] 4729    4
+# [1] 6762    3
 
 ## Add lat long to fixed ports ----
 
