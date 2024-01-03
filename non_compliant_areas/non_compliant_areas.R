@@ -366,75 +366,44 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc <-
     curr_df |>
       dplyr::group_by(state_fixed) |>
       dplyr::mutate(
-        non_compl_percent_per_st =
+        non_compliance_by_state_cnt =
           case_when(
             non_compl_year == TRUE ~
-              compliance_by_state_cnt * 100 /
-              total_vsl_by_state_cnt,
+              compliance_by_state_cnt,
             non_compl_year == FALSE ~
-              (total_vsl_by_state_cnt - compliance_by_state_cnt) * 100 /
-              total_vsl_by_state_cnt
-          )
-      ) |>
-      dplyr::mutate(
+              total_vsl_by_state_cnt -
+              compliance_by_state_cnt
+          ),
         non_compl_proportion_per_st =
-          case_when(
-            non_compl_year == TRUE ~
-              compliance_by_state_cnt /
-              total_vsl_by_state_cnt,
-            non_compl_year == FALSE ~
-              (total_vsl_by_state_cnt -
-                 compliance_by_state_cnt) /
-              total_vsl_by_state_cnt
-          )
+          non_compliance_by_state_cnt /
+          total_vsl_by_state_cnt,
+        non_compl_percent_per_st =
+          non_compl_proportion_per_st * 100
       ) |>
       dplyr::ungroup()
   })
 
 ## check perc cnts ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc$SA |>
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc$GOM |>
   dplyr::select(
     state_fixed,
     non_compl_year,
     total_vsl_by_state_cnt,
     compliance_by_state_cnt,
-    compl_percent_per_st,
-    compl_proportion_per_st
+    non_compliance_by_state_cnt,
+    non_compl_percent_per_st,
+    non_compl_proportion_per_st
   ) |>
   dplyr::distinct() |>
   dplyr::filter(state_fixed %in% c("FL", "GA")) |>
   dplyr::glimpse()
-# $ state_fixed             <chr> "FL", "FL", "GA", "GA"
-# $ non_compl_year          <lgl> TRUE, FALSE, TRUE, FALSE
-# $ total_vsl_by_state_cnt  <int> 896, 896, 38, 38
-# $ compliance_by_state_cnt <int> 500, 396, 16, 22
-# $ compl_percent_per_st    <dbl> 55.80357, 44.19643, 42.10526, 57.89474
-
-# $ state_fixed             <chr> "FL", "FL", "GA", "GA"
-# $ non_compl_year          <lgl> TRUE, FALSE, FALSE, TRUE
-# $ total_vsl_by_state_cnt  <int> 977, 977, 40, 40
-# $ compliance_by_state_cnt <int> 541, 436, 22, 18
-# $ compl_percent_per_st    <dbl> 55.37359, 44.62641, 55.00000, 45.00000
-# $ compl_proportion_per_st <dbl> 0.5537359, 0.4462641, 0.5500000, 0.4500000
-
-## test on one df ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$SA |>
-  dplyr::glimpse()
-
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$SA |>
-  dplyr::select(state_fixed,
-         non_compl_year,
-         total_vsl_by_state_cnt,
-         compliance_by_state_cnt) |>
-  dplyr::distinct() |>
-  dplyr::group_by(state_fixed, non_compl_year) |>
-  dplyr::mutate(compl_percent_per_st =
-           compliance_by_state_cnt * 100 /
-           total_vsl_by_state_cnt) |>
-  dplyr::ungroup() |> 
-  dplyr::filter(state_fixed %in% c("FL", "GA")) |> 
-  dplyr::glimpse()
-# the result is the same
+# $ state_fixed                 <chr> "FL", "FL", "GA"
+# $ non_compl_year              <lgl> FALSE, TRUE, FALSE
+# $ total_vsl_by_state_cnt      <int> 644, 644, 2
+# $ compliance_by_state_cnt     <int> 500, 144, 2
+# $ non_compliance_by_state_cnt <int> 144, 144, 0
+# $ non_compl_percent_per_st    <dbl> 22.36025, 22.36025, 0.00000
+# $ non_compl_proportion_per_st <dbl> 0.2236025, 0.2236025, 0.0000000
 
 # map percentage ----
 
@@ -447,13 +416,19 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
         state_fixed,
         total_vsl_by_state_cnt,
         compliance_by_state_cnt,
-        compl_percent_per_st,
-        compl_proportion_per_st
+        non_compl_percent_per_st,
+        non_compl_proportion_per_st
       ) |>
       dplyr::distinct()
   })
-        nc_round_perc = round(compl_percent_per_st),
-        nc_round_proportion = round(compl_proportion_per_st, 2),
+
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |> 
+    purrr::map(\(curr_df) {
+    curr_df |>
+  mutate(
+    nc_round_perc = round(non_compl_percent_per_st),
+        nc_round_proportion = round(non_compl_proportion_per_st, 2),
         my_label_perc =
           stringr::str_glue("{state_fixed}:
                              {nc_round_perc}% of {total_vsl_by_state_cnt}"),
