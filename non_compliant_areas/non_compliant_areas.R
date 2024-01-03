@@ -246,6 +246,9 @@ purrr::map(vessels_permits_home_port_22_compliance_list,
 # long                    288
 
 # Add missing home port states ----
+# TODO:
+# add the same for SA
+
 ## Check missing home port states ----
 
 gom_no_home_port_state_vessel_ids <-
@@ -297,26 +300,55 @@ missing_states_gom_uniq |>
 # dim(missing_states_gom_uniq)
 # [1] 229   4
 
-## join missing port states to the current GOM df ----
-vessels_permits_home_port_22_compliance_gom_all_ports <-
-  vessels_permits_home_port_22_compliance_list$GOM |>
-  left_join(missing_states_gom_uniq,
-            join_by(vessel_official_number == SERO_OFFICIAL_NUMBER))
+## join missing port states to the current df list ----
+
+vessels_permits_home_port_22_compliance_list_add_ports <-
+  vessels_permits_home_port_22_compliance_list |>
+  purrr::map(\(curr_df) {
+    # Group the data by 'state_fixed', add a count column, and ungroup the data.
+    curr_df |>
+      left_join(
+        missing_states_gom_uniq,
+        join_by(vessel_official_number == SERO_OFFICIAL_NUMBER)
+      )
+  })
+
+# vessels_permits_home_port_22_compliance_gom_all_ports <-
+#   # vessels_permits_home_port_22_compliance_list$GOM |>
+#   left_join(missing_states_gom_uniq,
+#             join_by(vessel_official_number == SERO_OFFICIAL_NUMBER))
 
 ### combining ports to one column ---- 
+# For now SA home_state is the same as state_fixed
 
-vessels_permits_home_port_22_compliance_list$GOM <- 
-  vessels_permits_home_port_22_compliance_gom_all_ports |>
-  mutate(
-    home_state = case_when(
-      is.na(state_fixed) |
-        state_fixed %in% c("UN", "NA") ~ SERO_HOME_PORT_STATE,
-      .default = state_fixed
-    )
-  ) |> 
-  select(-starts_with("SERO_"))
+vessels_permits_home_port_22_compliance_list_add_ports_clean <-
+  vessels_permits_home_port_22_compliance_list_add_ports |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      mutate(
+        home_state = case_when(
+          is.na(state_fixed) |
+            state_fixed %in% c("UN", "NA") ~ SERO_HOME_PORT_STATE,
+          .default = state_fixed
+        )
+      ) |>
+      select(-starts_with("SERO_"))
+  })
 
-View(vessels_permits_home_port_22_compliance_list$GOM)
+# check
+vessels_permits_home_port_22_compliance_list_add_ports_clean$GOM |>
+  filter(vessel_official_number %in% c("AL0264VE",
+                                       "AL4295AK")) |> 
+  glimpse()
+# $ vessel_official_number <chr> "AL0264VE", "AL4295AK"
+# $ non_compl_year         <lgl> FALSE, FALSE
+# $ city_fixed             <chr> "ORANGE BEACH", NA
+# $ state_fixed            <chr> "AL", NA
+# $ lat                    <dbl> 30.28284, NA
+# $ long                   <dbl> -87.62461, NA
+# $ home_state             <chr> "AL", "AL"
+
+
 
 # Count vessels by state name ----
 ## total vsls per state ----
