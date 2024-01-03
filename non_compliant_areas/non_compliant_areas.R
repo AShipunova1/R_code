@@ -683,20 +683,19 @@ names(mypalette) <- gom_state_proportion_indexes$nc_round_proportion
 shp_file_with_cnts_list_maps <- 
   shp_file_with_cnts_list |>
   purrr::map(\(curr_sf) {
-    curr_sf_for_map <- 
+    curr_sf_for_map <-
       curr_sf |>
       filter(!is.na(total_vsl_by_state_cnt)) |>
-      mutate(
-        # my_nudge_x = 
-        #        ifelse(grepl("MS:", my_label_long), 100, 0) ,
-             my_nudge_y = 
-               ifelse(grepl("MS:", my_label_long), 2, 0))
-
-    curr_map <-     
+      mutate(# my_nudge_x =
+        #        ifelse(grepl("MS:", my_label_long), 1, 0) ,
+        my_nudge_y =
+          ifelse(grepl("MS:", my_label_long), 2, 0))
+    
+    curr_map <-
       ggplot2::ggplot() +
       ggplot2::geom_sf(data = states_sf, fill = NA) +
       ggplot2::geom_sf(data = curr_sf_for_map,
-        aes(fill = factor(nc_round_proportion))) +
+                       aes(fill = factor(nc_round_proportion))) +
       ggplot2::geom_sf_label(
         data = curr_sf_for_map,
         aes(label = my_label_long),
@@ -706,22 +705,7 @@ shp_file_with_cnts_list_maps <-
         nudge_y = curr_sf_for_map$my_nudge_y
       ) +
       
-      # Add a layer for plotting spatial features, using nc_round_proportion for fill color.
-      # 
-      # ggplot2::geom_sf_label(aes(label = my_label_long),
-      #               size = label_text_size,
-      #               alpha = 1,
-      #               # color = alpha('black', .5),
-      #               fill = "lightgrey",
-      #               position = position_dodge2(width = 1,
-      #                                         padding = 1)) +
-      # geom_label(alpha = 1, color = alpha('black', .5)) +
-
-      # Add a layer for labeling spatial features using the my_label column, with a specified size.
-      
-
       # Set the coordinate limits for the plot, based on the bounding box of southeast coast states,
-      
       ggplot2::coord_sf(
         xlim =
           c(
@@ -738,10 +722,9 @@ shp_file_with_cnts_list_maps <-
       ) +
       ggplot2::xlab("") +
       ggplot2::ylab("") +
-      scale_fill_manual(labels = 
+      scale_fill_manual(labels =
                           c("less", "", "", "", "more"),
-        values = mypalette
-      ) +
+                        values = mypalette) +
       theme_bw(base_size = 18) +
       # ggplot2::scale_fill_continuous(name = "",
       #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
@@ -776,8 +759,10 @@ names(perc_plot_titles) <- permit_regions
 write_png_to_file <- function(output_file_name,
                               map_plot) {
   
-  png_width  <- 20
-  png_height <- 12
+  png_width  <- 31
+  # png_height <- 25
+  # png_width <- 800
+  # png_height <- 600
   
   ggplot2::ggsave(
       file = output_file_name,
@@ -787,7 +772,7 @@ write_png_to_file <- function(output_file_name,
                        current_project_dir_name),
       width = png_width,
       height = png_height,
-      units = "cm"
+      units = "cm" # "px"
     )
 }
 
@@ -798,7 +783,7 @@ gom_map <-
   shp_file_with_cnts_list_maps$gom_states +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
-gom_map
+# gom_map
 
 output_file_name <- str_glue("gom_states_non_compl_by_state_{today()}.png")
 
