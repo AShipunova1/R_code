@@ -438,19 +438,11 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$SA |>
 
 # map percentage ----
 
-## shorten and add labels ----
-# Use map() to apply the following operations to each permit_region df in the list:
-# Filter for rows where a vessel was not compliant at least once in 2022 ('non_compl_year' is TRUE), 
-# select specific columns,
-# retain distinct rows, 
-# calculate rounded compliance percentage and proportion, 
-# and create a label.
-  
+### shorten ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   purrr::map(\(curr_df) {
     curr_df |>
-      dplyr::filter(non_compl_year == TRUE) |>
       dplyr::select(
         state_fixed,
         total_vsl_by_state_cnt,
@@ -458,8 +450,8 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
         compl_percent_per_st,
         compl_proportion_per_st
       ) |>
-      dplyr::distinct() |>
-      dplyr::mutate(
+      dplyr::distinct()
+  })
         nc_round_perc = round(compl_percent_per_st),
         nc_round_proportion = round(compl_proportion_per_st, 2),
         my_label_perc =
