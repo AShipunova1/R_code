@@ -653,7 +653,10 @@ states_sf <-
 # combine static map ----
 # get boundaries from south_east_coast_states_shp_bb
 
-label_text_size <- 3
+base_size = 20
+# label_text_size <- 4
+# axis_text_size <- 4
+# title_text_size <- 4
 
 # shp_file_with_cnts_list$gom_states |> print_df_names()
 gom_state_proportion_indexes <-
@@ -690,7 +693,7 @@ shp_file_with_cnts_list_maps <-
       # Add a layer for plotting spatial features, using nc_round_proportion for fill color.
       
       ggplot2::geom_sf_label(aes(label = my_label_long),
-                    size = label_text_size,
+                    # size = label_text_size,
                     alpha = 1,
                     # color = alpha('black', .5),
                     fill = "lightgrey",
@@ -723,7 +726,7 @@ shp_file_with_cnts_list_maps <-
                           c("less", "", "", "", "more"),
         values = mypalette
       ) +
-      theme_bw() +
+      theme_bw(base_size = 18) +
       # ggplot2::scale_fill_continuous(name = "",
       #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
       #                                                                  breaks = c("0.14", "0.29"),
@@ -757,8 +760,8 @@ names(perc_plot_titles) <- permit_regions
 write_png_to_file <- function(output_file_name,
                               map_plot) {
   
-  png_width  <- 30
-  png_height <- 20
+  png_width  <- 20
+  png_height <- 12
   
   ggplot2::ggsave(
       file = output_file_name,
@@ -779,7 +782,7 @@ gom_map <-
   shp_file_with_cnts_list_maps$gom_states +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
-# gom_map
+gom_map
 
 output_file_name <- str_glue("gom_states_non_compl_by_state_{today()}.png")
 
