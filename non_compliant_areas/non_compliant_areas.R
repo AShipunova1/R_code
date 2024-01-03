@@ -244,6 +244,42 @@ purrr::map(vessels_permits_home_port_22_compliance_list,
 # lat                     288
 # long                    288
 
+# Check missimg homeport states ----
+
+no_home_port_state_vessel_ids <-
+  vessels_permits_home_port_22_compliance_list$GOM |>
+  filter(is.na(state_fixed) |
+           state_fixed %in% c("NA", "UN")) |>
+  select(vessel_official_number)
+# 230
+
+# print_df_names(all_get_db_data_result_l$vessels_permits)
+
+missing_states <- 
+  all_get_db_data_result_l$vessels_permits |>
+  select(starts_with("SERO_"),
+         # REGISTERING_STATE, # sometimes diff from homeport
+         # STATE_CODE, # mostly empty
+         contains("DATE")) |>
+  distinct() |>
+  filter(SERO_OFFICIAL_NUMBER %in%
+           no_home_port_state_vessel_ids$vessel_official_number) 
+
+dim(missing_states)
+# 470 13
+
+View(missing_states)
+
+missing_states |> 
+  select(-contains("DATE")) |> 
+  distinct() |> 
+  group_by(SERO_OFFICIAL_NUMBER) |> 
+  summarize(n = n()) |>
+  filter(n > 1) |> 
+  ungroup() |> 
+  dim()
+# 0 (One port per vessel)
+
 # Count vessels by state name ----
 ## total vsls per state ----
 
