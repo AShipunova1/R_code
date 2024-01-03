@@ -1,17 +1,15 @@
-# Non compliant vessels (2022) by home port
+# Non compliant vessels (2022) by homeport
 # identifying any particular areas of high non-compliance to help focus future outreach efforts. 
 # do this as a map
 # Included overriden compliance in the total counts
 
-# home port from the permit as an area
+# homeport from the permit as an area
 
 # source the usual setup 
 # get data
 # remove not in metrics
 # separate by permit region
-# remove not in Jeannette's SA list
-# remove not in Jeannette's GOM list
-# add home port
+# add homeport
 
 # Load the 'maps' and 'mapdata' libraries, which provide functionality for working with maps in R.
 library(maps)
@@ -190,7 +188,7 @@ compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
 #   vessel_official_number non_compl_year
 # 1 1020822             TRUE          
 
-# Join home port and compliance info by vessel ----
+# Join homeport and compliance info by vessel ----
 
 # In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_2022_clean_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
@@ -626,7 +624,7 @@ perc_plot_titles <-
   permit_regions |>
   purrr::map(\(permit_region) {
     stringr::str_glue(
-      "Proportion of Non-compliant, {permit_region} Permitted SEFHIER Vessels by Home Port State"
+      "Proportion of Non-compliant, {permit_region} Permitted SEFHIER Vessels by Homeport State"
     )
   })
 
@@ -659,7 +657,7 @@ gom_map <-
   shp_file_with_cnts_list_maps$gom_states +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
-gom_map
+# gom_map
 
 output_file_name <- str_glue("gom_states_non_compl_by_state_{today()}.png")
 
