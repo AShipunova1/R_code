@@ -361,16 +361,33 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt |>
   purrr::map(\(curr_df) {
     # Group the data by 'state_fixed' and 'non_compl_year',
-    # calculate compliance percentage per state, and ungroup the data.
+    # calculate non compliance percentage per state, and ungroup the data.
     
     curr_df |>
-      dplyr::group_by(state_fixed, non_compl_year) |>
-      dplyr::mutate(compl_percent_per_st =
-                      compliance_by_state_cnt * 100 /
-                      total_vsl_by_state_cnt) |>
-      dplyr::mutate(compl_proportion_per_st =
-                      compliance_by_state_cnt /
-                      total_vsl_by_state_cnt) |>
+      dplyr::group_by(state_fixed) |>
+      dplyr::mutate(
+        non_compl_percent_per_st =
+          case_when(
+            non_compl_year == TRUE ~
+              compliance_by_state_cnt * 100 /
+              total_vsl_by_state_cnt,
+            non_compl_year == FALSE ~
+              (total_vsl_by_state_cnt - compliance_by_state_cnt) * 100 /
+              total_vsl_by_state_cnt
+          )
+      ) |>
+      dplyr::mutate(
+        non_compl_proportion_per_st =
+          case_when(
+            non_compl_year == TRUE ~
+              compliance_by_state_cnt /
+              total_vsl_by_state_cnt,
+            non_compl_year == FALSE ~
+              (total_vsl_by_state_cnt -
+                 compliance_by_state_cnt) /
+              total_vsl_by_state_cnt
+          )
+      ) |>
       dplyr::ungroup()
   })
 
