@@ -654,7 +654,7 @@ states_sf <-
 # get boundaries from south_east_coast_states_shp_bb
 
 base_size = 20
-# label_text_size <- 4
+label_text_size <- 5
 # axis_text_size <- 4
 # title_text_size <- 4
 
@@ -678,27 +678,35 @@ names(mypalette) <- gom_state_proportion_indexes$nc_round_proportion
 # "#440154FF" "#3B528BFF" "#21908CFF" "#5DC863FF" "#FDE725FF" 
 
 # The code creates a plot using the ggplot2 library to visualize spatial data.
+View(shp_file_with_cnts_list$gom_states)
 shp_file_with_cnts_list_maps <- 
   shp_file_with_cnts_list |>
   purrr::map(\(curr_sf) {
     curr_sf |>
-      filter(!is.na(total_vsl_by_state_cnt)) |> 
-      
+      filter(!is.na(total_vsl_by_state_cnt)) |>
+      mutate(my_nudge_x = 
+               ifelse(grepl("AL:", my_label_long), 10, 0) ,
+             my_nudge_y = 
+               ifelse(grepl("AL:", my_label_long), 13, 0)) |> 
       ggplot2::ggplot() +
-      # Start building the ggplot object for plotting.
       ggplot2::geom_sf(data = states_sf, fill = NA) +
-      # Add a layer for plotting state boundaries, with no fill color (NA).
-      
       ggplot2::geom_sf(aes(fill = factor(nc_round_proportion))) +
-      # Add a layer for plotting spatial features, using nc_round_proportion for fill color.
+      ggplot2::geom_sf_label(
+        aes(label = my_label_long),
+        fill = "lightgrey",
+        nudge_x = curr_sf$my_nudge_x,
+        nudge_y = curr_sf$my_nudge_y
+      ) +
       
-      ggplot2::geom_sf_label(aes(label = my_label_long),
-                    # size = label_text_size,
-                    alpha = 1,
-                    # color = alpha('black', .5),
-                    fill = "lightgrey",
-                    position = position_dodge2(width = 2,
-                                              padding = 0.9)) +
+      # Add a layer for plotting spatial features, using nc_round_proportion for fill color.
+      # 
+      # ggplot2::geom_sf_label(aes(label = my_label_long),
+      #               size = label_text_size,
+      #               alpha = 1,
+      #               # color = alpha('black', .5),
+      #               fill = "lightgrey",
+      #               position = position_dodge2(width = 1,
+      #                                         padding = 1)) +
       # geom_label(alpha = 1, color = alpha('black', .5)) +
 
       # Add a layer for labeling spatial features using the my_label column, with a specified size.
