@@ -1,15 +1,15 @@
-# Non compliant vessels (2022) by homeport
+# Non compliant vessels (2022) by home port
 # identifying any particular areas of high non-compliance to help focus future outreach efforts. 
 # do this as a map
 # Included overriden compliance in the total counts
 
-# homeport from the permit as an area
+# home port from the permit as an area
 
 # source the usual setup 
 # get data
 # remove not in metrics
 # separate by permit region
-# add homeport
+# add home port
 
 # Load the 'maps' and 'mapdata' libraries, which provide functionality for working with maps in R.
 library(maps)
@@ -188,7 +188,7 @@ compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
 #   vessel_official_number non_compl_year
 # 1 1020822             TRUE          
 
-# Join homeport and compliance info by vessel ----
+# Join home port and compliance info by vessel ----
 
 # In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_2022_clean_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
@@ -244,7 +244,7 @@ purrr::map(vessels_permits_home_port_22_compliance_list,
 # lat                     288
 # long                    288
 
-# Check missimg homeport states ----
+# Check missing home port states ----
 
 no_home_port_state_vessel_ids <-
   vessels_permits_home_port_22_compliance_list$GOM |>
@@ -258,7 +258,7 @@ no_home_port_state_vessel_ids <-
 missing_states <- 
   all_get_db_data_result_l$vessels_permits |>
   select(starts_with("SERO_"),
-         # REGISTERING_STATE, # sometimes diff from homeport
+         # REGISTERING_STATE, # sometimes diff from home port
          # STATE_CODE, # mostly empty
          contains("DATE")) |>
   distinct() |>
