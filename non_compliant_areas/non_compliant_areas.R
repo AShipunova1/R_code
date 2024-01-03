@@ -245,7 +245,8 @@ purrr::map(vessels_permits_home_port_22_compliance_list,
 # lat                     288
 # long                    288
 
-# Check missing home port states ----
+# Add missing home port states ----
+## Check missing home port states ----
 
 gom_no_home_port_state_vessel_ids <-
   vessels_permits_home_port_22_compliance_list$GOM |>
@@ -295,11 +296,27 @@ missing_states_gom_uniq |>
 
 # dim(missing_states_gom_uniq)
 # [1] 229   4
+
+## join missing port states to the current GOM df ----
 vessels_permits_home_port_22_compliance_gom_all_ports <-
   vessels_permits_home_port_22_compliance_list$GOM |>
   left_join(missing_states_gom_uniq,
             join_by(vessel_official_number == SERO_OFFICIAL_NUMBER))
 
+### combining ports to one column ---- 
+
+vessels_permits_home_port_22_compliance_list$GOM <- 
+  vessels_permits_home_port_22_compliance_gom_all_ports |>
+  mutate(
+    home_state = case_when(
+      is.na(state_fixed) |
+        state_fixed %in% c("UN", "NA") ~ SERO_HOME_PORT_STATE,
+      .default = state_fixed
+    )
+  ) |> 
+  select(-starts_with("SERO_"))
+
+View(vessels_permits_home_port_22_compliance_list$GOM)
 
 # Count vessels by state name ----
 ## total vsls per state ----
