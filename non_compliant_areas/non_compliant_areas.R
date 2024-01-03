@@ -141,7 +141,8 @@ purrr::map(compl_err_db_data_metrics_2022_clean_list_short,
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
 
-compl_err_db_data_metrics_2022_clean_list_short$GOM |> View()
+# compl_err_db_data_metrics_2022_clean_list_short$GOM |> View()
+
 compl_err_db_data_metrics_2022_clean_list_short_year_nc <- 
   compl_err_db_data_metrics_2022_clean_list_short |> 
   purrr::map(\(curr_df) {
