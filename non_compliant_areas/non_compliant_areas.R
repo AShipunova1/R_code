@@ -246,16 +246,26 @@ purrr::map(vessels_permits_home_port_22_compliance_list,
 
 # Check missing home port states ----
 
-no_home_port_state_vessel_ids <-
+gom_no_home_port_state_vessel_ids <-
   vessels_permits_home_port_22_compliance_list$GOM |>
   filter(is.na(state_fixed) |
            state_fixed %in% c("NA", "UN")) |>
   select(vessel_official_number)
+
+nrow(gom_no_home_port_state_vessel_ids)
 # 230
+
+# sa_no_home_port_state_vessel_ids <-
+#   vessels_permits_home_port_22_compliance_list$SA |>
+#   filter(is.na(state_fixed) |
+#            state_fixed %in% c("NA", "UN")) |>
+#   select(vessel_official_number)
+# nrow(sa_no_home_port_state_vessel_ids)
+# 464
 
 # print_df_names(all_get_db_data_result_l$vessels_permits)
 
-missing_states <- 
+missing_states_gom <- 
   all_get_db_data_result_l$vessels_permits |>
   select(starts_with("SERO_"),
          # REGISTERING_STATE, # sometimes diff from home port
@@ -263,22 +273,32 @@ missing_states <-
          contains("DATE")) |>
   distinct() |>
   filter(SERO_OFFICIAL_NUMBER %in%
-           no_home_port_state_vessel_ids$vessel_official_number) 
+           gom_no_home_port_state_vessel_ids$vessel_official_number) 
 
-dim(missing_states)
+dim(missing_states_gom)
 # 470 13
 
-View(missing_states)
-
-missing_states |> 
+# View(missing_states)
+missing_states_gom_uniq <- 
+  missing_states_gom |> 
   select(-contains("DATE")) |> 
-  distinct() |> 
+  distinct()
+
+missing_states_gom_uniq |> 
   group_by(SERO_OFFICIAL_NUMBER) |> 
   summarize(n = n()) |>
   filter(n > 1) |> 
   ungroup() |> 
   dim()
-# 0 (One port per vessel)
+# 0 (One home port per vessel)
+
+# dim(missing_states_gom_uniq)
+# [1] 229   4
+vessels_permits_home_port_22_compliance_gom_all_ports <-
+  vessels_permits_home_port_22_compliance_list$GOM |>
+  left_join(missing_states_gom_uniq,
+            join_by(vessel_official_number == SERO_OFFICIAL_NUMBER))
+
 
 # Count vessels by state name ----
 ## total vsls per state ----
