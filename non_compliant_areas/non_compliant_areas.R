@@ -415,56 +415,64 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
       dplyr::select(
         state_fixed,
         total_vsl_by_state_cnt,
-        compliance_by_state_cnt,
+        non_compliance_by_state_cnt,
         non_compl_percent_per_st,
         non_compl_proportion_per_st
       ) |>
       dplyr::distinct()
   })
 
-
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |> 
-    purrr::map(\(curr_df) {
+# Add round ups and labels
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels <- 
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |>
+  purrr::map(\(curr_df) {
     curr_df |>
-  mutate(
-    nc_round_perc = round(non_compl_percent_per_st),
+      mutate(
+        nc_round_perc = round(non_compl_percent_per_st),
         nc_round_proportion = round(non_compl_proportion_per_st, 2),
         my_label_perc =
-          stringr::str_glue("{state_fixed}:
-                             {nc_round_perc}% of {total_vsl_by_state_cnt}"),
+          stringr::str_glue(
+            "{state_fixed}:
+                             {nc_round_perc}% of {total_vsl_by_state_cnt}"
+          ),
         my_label_cnt =
-          stringr::str_glue("{state_fixed}:
-                             {compliance_by_state_cnt} of {total_vsl_by_state_cnt}"),
+          stringr::str_glue(
+            "{state_fixed}:
+                             {non_compliance_by_state_cnt} of {total_vsl_by_state_cnt}"
+          ),
         my_label_long =
-          stringr::str_glue("{state_fixed}:
-                             {compliance_by_state_cnt}/{total_vsl_by_state_cnt} = {nc_round_proportion}")
+          stringr::str_glue(
+            "{state_fixed}:
+                             {non_compliance_by_state_cnt}/{total_vsl_by_state_cnt} = {nc_round_proportion}"
+          )
       )
   })
 
 ### check the labels ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |> 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |> 
   glimpse()
+# $ my_label_long               <glue> "FL:\n144/644 = 0.22", "AL:\n35/121 = 0.29…
 
 # Keep only GOM states for GOM only plots ----
-print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM)
+# print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM)
 
-
-my_func <- function(state_fixed){
+get_full_state_name <- function(state_fixed) {
   my_state_name[[tolower(state_fixed)]]
 }
 
-my_func_vect <- Vectorize(my_func)
+# my_func_vect <- Vectorize(my_func)
 
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states <-
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |>
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$gom_states <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |>
   rowwise() %>%
   mutate(state_fixed_full =
-           possibly(my_func, otherwise = NA)(state_fixed)) |>
+           possibly(get_full_state_name, 
+                    otherwise = NA)(state_fixed)) |>
   filter(!is.na(state_fixed_full)) |>
   filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
   ungroup()
 
-# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states)
+View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$gom_states)
 
 ## add to the shape file by state name ----
 
