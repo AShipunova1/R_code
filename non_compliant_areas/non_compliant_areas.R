@@ -472,7 +472,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
   ungroup()
 
-View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$gom_states)
+# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$gom_states)
 
 ## add to the shape file by state name ----
 
@@ -480,9 +480,9 @@ View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc
 # using 'STUSPS' from the shapefile and 'state_fixed' from the current data frame.
 
 shp_file_with_cnts_list <-
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |>
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels |>
   purrr::map(\(curr_df) {
-    browser()
+    # browser()
     south_east_coast_states_shp |>
       left_join(curr_df,
                 join_by(STUSPS ==
@@ -501,7 +501,7 @@ shp_file_with_cnts_list <-
 shp_file_with_cnts_sa <-
   south_east_coast_states_shp |>
   dplyr::left_join(
-    vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$SA,
+    vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$SA,
     dplyr::join_by(STUSPS ==
                      state_fixed)
   )
@@ -661,7 +661,7 @@ gom_map <-
 
 gom_map
 
-output_file_name <- "gom_states_non_compl_by_state_12_29_23.png"
+output_file_name <- str_glue("gom_states_non_compl_by_state_{today()}.png")
 
 write_png_to_file(output_file_name,
                   gom_map)
@@ -673,19 +673,21 @@ gom_dual_map <-
   shp_file_with_cnts_list_maps$GOM +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
-output_file_name <- "gom_dual_perc_by_state.png"
+output_file_name <- str_glue("gom_dual_perc_by_state_{today()}.png")
 
 write_png_to_file(output_file_name,
                   gom_dual_map)
 
 ## SA only ----
 permit_region <- "SA only"
+# TODO: make mypalette dynamic by states number and names
 
 sa_only_map <-
   shp_file_with_cnts_list_maps$SA +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
-output_file_name <- "sa_only_perc_by_state.png"
+output_file_name <- 
+  str_glue("sa_only_perc_by_state_{today()}.png")
 
 write_png_to_file(output_file_name,
                   sa_only_map)
