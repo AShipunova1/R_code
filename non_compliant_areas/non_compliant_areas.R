@@ -678,24 +678,32 @@ names(mypalette) <- gom_state_proportion_indexes$nc_round_proportion
 # "#440154FF" "#3B528BFF" "#21908CFF" "#5DC863FF" "#FDE725FF" 
 
 # The code creates a plot using the ggplot2 library to visualize spatial data.
-View(shp_file_with_cnts_list$gom_states)
+# View(shp_file_with_cnts_list$gom_states)
+
 shp_file_with_cnts_list_maps <- 
   shp_file_with_cnts_list |>
   purrr::map(\(curr_sf) {
-    curr_sf |>
+    curr_sf_for_map <- 
+      curr_sf |>
       filter(!is.na(total_vsl_by_state_cnt)) |>
-      mutate(my_nudge_x = 
-               ifelse(grepl("AL:", my_label_long), 10, 0) ,
+      mutate(
+        # my_nudge_x = 
+        #        ifelse(grepl("MS:", my_label_long), 100, 0) ,
              my_nudge_y = 
-               ifelse(grepl("AL:", my_label_long), 13, 0)) |> 
+               ifelse(grepl("MS:", my_label_long), 2, 0))
+
+    curr_map <-     
       ggplot2::ggplot() +
       ggplot2::geom_sf(data = states_sf, fill = NA) +
-      ggplot2::geom_sf(aes(fill = factor(nc_round_proportion))) +
+      ggplot2::geom_sf(data = curr_sf_for_map,
+        aes(fill = factor(nc_round_proportion))) +
       ggplot2::geom_sf_label(
+        data = curr_sf_for_map,
         aes(label = my_label_long),
+        size = label_text_size,
         fill = "lightgrey",
-        nudge_x = curr_sf$my_nudge_x,
-        nudge_y = curr_sf$my_nudge_y
+        nudge_x = curr_sf_for_map$my_nudge_x,
+        nudge_y = curr_sf_for_map$my_nudge_y
       ) +
       
       # Add a layer for plotting spatial features, using nc_round_proportion for fill color.
