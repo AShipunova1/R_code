@@ -1,7 +1,4 @@
-[1] 2
-[1] 2
-
-#### add-ons 1 ---- 
+#### add-ons 1 ----
 
 
 library(zoo)
@@ -1230,7 +1227,7 @@ save_plot_to_file <-
     )
   }
 
-#### add-ons 2 ---- 
+#### add-ons 2 ----
 
 
 my_paths <- set_work_dir()
@@ -1471,7 +1468,7 @@ fhier_reports_metrics_tracking_list <- purrr::map(
   )
 )
 
-names(fhier_reports_metrics_tracking_list) <- 
+names(fhier_reports_metrics_tracking_list) <-
   c("2022", "2023")
 
 # check how many in diff years ----
