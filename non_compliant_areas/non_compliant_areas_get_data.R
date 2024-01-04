@@ -1,3 +1,11 @@
+# today()
+# [1] "2024-01-03"
+# Dates for non compliant area map:
+# vessel home port information: Jan 2, 2024 (vessels_permits.rds);
+# compliance information: Dec 4, 2024 (compl_err_db_data_raw.rds);
+# metrics tracking: Aug 23, 2023 (Detail_Report_12312021_12312022__08_23_2023.csv);
+# SRHS vessels: Aug 18, 2023 (2022_SRHS_Vessels_08_18_2023.xlsx)
+
 # Colored terminal output
 library(crayon)
 
