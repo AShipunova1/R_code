@@ -101,7 +101,6 @@ boats_number_path <-
 
 write_to_1_flat_file(flat_file_name, boats_number_path)
 
-
 # comment out "source" ----
 flat_file_r_text <-
   readLines(flat_file_name)
