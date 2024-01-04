@@ -281,7 +281,10 @@ add_region_to_state <-
                  %in% east_coast_states$gom)
 
     is_gom_fl_county <-
-      rlang::quo(!!port_county_column %in% tolower(fl_counties$gom))
+      rlang::quo(
+        !!port_county_column %in% tolower(fl_counties$gom) |
+          !!port_county_column %in% tolower(fl_counties$gom_interior)
+      )
 
     new_df <-
       my_df |>
