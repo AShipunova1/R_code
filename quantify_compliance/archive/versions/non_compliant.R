@@ -16,7 +16,7 @@ get_non_compliant_vessels_per_time_period <- function(time_period) {
   sym_time_period <- sym(time_period)
   compl_clean_sa_vs_gom_plus_dual %>%
     select(vessel_official_number, compliant_, !!sym_time_period) %>%
-    group_by(vessel_official_number, !!sym_time_period) %>%
+    dplyr::group_by(vessel_official_number, !!sym_time_period) %>%
     summarise(cnt_compl_no = sum(tolower(compliant_) == "no")) %>%
     filter(cnt_compl_no > 0) %>%
     as.data.frame() %>%
@@ -66,14 +66,14 @@ str(non_compliant_vessel_ids)
 compl_clean_sa_vs_gom_plus_dual_non_compl <-
   compl_clean_sa_vs_gom_plus_dual %>%
   filter(vessel_official_number %in% non_compliant_vessel_ids$vessel_official_number)
-  #   select(vessel_official_number) %>% unique() %>% glimpse()
+  #   select(vessel_official_number) %>% unique() %>% dplyr::glimpse()
   # Rows: 2,342
   
   
 ## ---- count reports ----
 compl_clean_sa_vs_gom_plus_dual_non_compl_rep_cnt <-
   compl_clean_sa_vs_gom_plus_dual_non_compl %>%
-  mutate(
+  dplyr::mutate(
     report_cnts = ifelse(
       permit == "sa_only",
       captainreports__ + negativereports__,
@@ -81,7 +81,7 @@ compl_clean_sa_vs_gom_plus_dual_non_compl_rep_cnt <-
     )
   )
 # %>% select(report_cnts) %>% unique() %>%
-#   glimpse()
+#   dplyr::glimpse()
 # $ report_cnts <int> 0, 1, 6, 14, 2, 3, 7, 21, 5, 18, 17, 8, 16, 9, 10, 4, 51, 22, 1…
 
 str(compl_clean_sa_vs_gom_plus_dual_non_compl_rep_cnt)
@@ -123,7 +123,7 @@ gom_non_compl %>%
 gom_sum_rep_by_month <-
   gom_non_compl %>%
   # select(vessel_official_number, year_month) %>%
-  group_by(vessel_official_number, year_month) %>%
+  dplyr::group_by(vessel_official_number, year_month) %>%
   summarise(sum_report_cnts = sum(report_cnts),
             across(compliant_, ~list(sort(unique(.x))))) %>%
   as.data.frame()
@@ -134,9 +134,9 @@ head(gom_sum_rep_by_month)
   # is_compl = list(sort(unique(compliant_)))
   # ) %>%
   # as.data.frame() %>%
-  # mutate(non_compl = length(is_compl)
-  #        mutate(non_compl = length(is_compl)
-  #               # mutate(non_compl = ifelse(length(is_compl) > 1 | tolower(is_compl) == "no",
+  # dplyr::mutate(non_compl = length(is_compl)
+  #        dplyr::mutate(non_compl = length(is_compl)
+  #               # dplyr::mutate(non_compl = ifelse(length(is_compl) > 1 | tolower(is_compl) == "no",
   #               #                           "non_compl", "yes")
 data_overview(gom_sum_rep_by_month)
 # 6196            
@@ -156,12 +156,12 @@ gom_sum_rep_by_month %>%
 
 compl_clean_sa_vs_gom_plus_dual %>%
   filter(vessel_official_number == "1000042") %>%
-  glimpse()
+  dplyr::glimpse()
 #   dim()
 
 gom_sum_rep_by_month_c <-
   gom_sum_rep_by_month %>%
-  mutate(is_compl = ifelse(
+  dplyr::mutate(is_compl = ifelse(
     compliant_ == "YES",
     "compl", "non_compl"
     )
@@ -175,7 +175,7 @@ gom_sum_rep_by_month_c <-
 gom_non_compl_total_report_cnts_by_month <-
   gom_sum_rep_by_month_c %>%
   filter(is_compl == "non_compl") %>%
-  group_by(year_month) %>%
+  dplyr::group_by(year_month) %>%
   summarise(total_report_cnts = sum(sum_report_cnts)) %>%
   as.data.frame()
 # %>%
@@ -189,7 +189,7 @@ gom_non_compl_total_report_cnts_by_month <-
 
 gom_total_report_cnts_by_month <-
   gom_sum_rep_by_month_c %>%
-  group_by(year_month, is_compl) %>%
+  dplyr::group_by(year_month, is_compl) %>%
   summarise(total_report_cnts = sum(sum_report_cnts)) %>%
   as.data.frame()
 
@@ -199,7 +199,7 @@ head(gom_sum_rep_by_month_c)
 count_vessel_ids_per_month_compl <-
   gom_sum_rep_by_month_c %>%
   select(year_month, is_compl, vessel_official_number) %>%
-  group_by(year_month, is_compl) %>%
+  dplyr::group_by(year_month, is_compl) %>%
   summarise(num_vessel = n()
     ) %>%
   as.data.frame()
@@ -225,7 +225,7 @@ head(gom_vsl_report_cnts)
 
 gom_vsl_report_cnts_total <-
   gom_vsl_report_cnts %>%
-  group_by(year_month) %>%
+  dplyr::group_by(year_month) %>%
   summarise(total_vsl = sum(num_vessel),
             total_rep = sum(total_report_cnts)) %>%
   as.data.frame()
@@ -237,7 +237,7 @@ gom_all_cnts <-
 
 gom_all_cnts_to_plot <-
   gom_all_cnts %>%
-  group_by(year_month, is_compl) %>%
+  dplyr::group_by(year_month, is_compl) %>%
   summarise(percent_reports = total_report_cnts * 100 / total_rep,
             percent_vsl = num_vessel * 100 / total_vsl
             ) %>% 
@@ -309,21 +309,21 @@ data_overview(sa_non_compl)
 num_of_weeks_per_vessel <-
   sa_non_compl %>%
   select(vessel_official_number, week_start) %>%
-  group_by(vessel_official_number) %>%
+  dplyr::group_by(vessel_official_number) %>%
   summarise(num_of_weeks = n())
 # %>%
-#   ungroup() %>% str()
+#   dplyr::ungroup() %>% str()
 
 # A tibble: 1,849 × 2
 
 num_of_weeks_per_vessel2 <-
   sa_non_compl %>%
   select(vessel_official_number, week_start) %>%
-  add_count(vessel_official_number, name = "num_of_weeks")
+  dplyr::add_count(vessel_official_number, name = "num_of_weeks")
 # %>%
 # filter(vessel_official_number == "1024180")
 # %>%
-#   glimpse()
+#   dplyr::glimpse()
 
 ## check ----
 sa_non_compl %>%
@@ -339,10 +339,10 @@ num_of_weeks_per_vessel2 %>%
 sa_non_comp_week_num <-
   left_join(sa_non_compl,
             num_of_weeks_per_vessel) %>%
-  arrange(vessel_official_number)
+  dplyr::arrange(vessel_official_number)
 # %>%
 # data_overview()
-# glimpse()
+# dplyr::glimpse()
 # Joining with `by = join_by(vessel_official_number)`
 # Rows: 39,863
 # Columns: 8
@@ -351,7 +351,7 @@ sa_non_comp_week_num %>%
   select(vessel_official_number, report_cnts, num_of_weeks) %>% head()
 
 sa_non_comp_week_num %>%
-  group_by(vessel_official_number, year_month) %>%
+  dplyr::group_by(vessel_official_number, year_month) %>%
   summarise(total_reports = sum(report_cnts)) %>%
   as.data.frame() %>%
   filter(vessel_official_number == "1024180")
@@ -360,4 +360,4 @@ num_of_weeks_per_vessel %>%
   filter(vessel_official_number == "1024180")
 
 
-select(vessel_official_number, report_cnts, num_of_weeks) %>% glimpse()
+select(vessel_official_number, report_cnts, num_of_weeks) %>% dplyr::glimpse()

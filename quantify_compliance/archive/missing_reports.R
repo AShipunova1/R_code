@@ -164,7 +164,7 @@ non_compl_gom <-
 gom_id_reports_one_week <-
   non_compl_gom %>%
   filter(week_start == "2022-12-26") %>%
-  # glimpse()
+  # dplyr::glimpse()
   # Rows: 47
   select(gom_permitteddeclarations__,
          captainreports__,
@@ -177,15 +177,15 @@ gom_id_reports_one_week_longer <-
   gom_id_reports_one_week %>%
   rename(decl = gom_permitteddeclarations__,
          logb = captainreports__) %>%
-  pivot_longer(cols = c(decl,
+  tidyr::pivot_longer(cols = c(decl,
                         logb),
                names_to = "report_type",
                values_to = "report_count") %>% 
-  mutate(id_compl = paste(vessel_official_number, compliant_, sep = "_"))
+  dplyr::mutate(id_compl = paste(vessel_official_number, compliant_, sep = "_"))
 # %>%
 #   select(-c(vessel_official_number, compliant_))
 # %>%
-#   glimpse()
+#   dplyr::glimpse()
 
 gom_plot_1week <- 
   ggplot(gom_id_reports_one_week_longer,
@@ -210,7 +210,7 @@ gom_id_reports_one_week_l_d <-
   gom_id_reports_one_week %>%
   rename(decl = gom_permitteddeclarations__,
          logb = captainreports__) %>%
-  mutate(logb_decl = as.numeric(logb) - as.numeric(decl))
+  dplyr::mutate(logb_decl = as.numeric(logb) - as.numeric(decl))
 
 
 # compl_clean_sa_vs_gom_plus_dual_short %>%

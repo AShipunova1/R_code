@@ -7,7 +7,7 @@ trip_coord_info <-
   remove_empty_cols() |>
   filter(TRIP_TYPE %in% c("A", "H"))
 
-View(trip_coord_info)
+# View(trip_coord_info)
 # [1] 139504     39
 # TRIP_ID, AREA_CODE, SUB_AREA_CODE, DISTANCE_CODE, FISHING_HOURS, LATITUDE, LONGITUDE, LOCAL_AREA_CODE, IN_STATE, AVG_DEPTH_IN_FATHOMS, E_DE, E_UE, E_DC, E_UC, ANYTHING_CAUGHT_FLAG, DEPTH, MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH, FISHING_GEAR_DEPTH, TRIP_TYPE, SUPPLIER_TRIP_ID, DAYS_AT_SEA, T_DE, T_UE, T_DC, T_UC, VESSEL_ID, CF_PERMIT_ID, TRIP_START_DATE, PORT, STATE, TRIP_END_DATE, TRIP_END_TIME, TRIP_START_TIME, SUBMIT_METHOD, ACTIVITY_TYPE, END_PORT, START_PORT, SERO_VESSEL_PERMIT
 
@@ -20,7 +20,7 @@ trip_coord_info_good <-
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(trip_coord_info_good)
 # [1] 138923     39
@@ -28,8 +28,8 @@ dim(trip_coord_info_good)
 ### convert to sf from FHIER ----
 tic("get GOMsf")
 GOMsf <-
-  sf::read_sf(r"(GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)") %>%
-  group_by(StatZone) %>%
+  sf::read_sf(r"(GOM_400fm\GOM_400fm.shp)") %>%
+  dplyr::group_by(StatZone) %>%
   summarise()
 toc()
 

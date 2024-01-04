@@ -112,7 +112,7 @@ upload_effort_files <- function(add_path) {
 
   efforts_extended <-
     load_csv_names_in_one_df(NULL, csv_names_list) |>
-    distinct()
+    dplyr::distinct()
 
   return(efforts_extended)
 }
@@ -123,9 +123,9 @@ safis_efforts_extended_2022 <- upload_effort_files(add_path)
 
 dim(safis_efforts_extended_2022)
 # [1] 101038     42
-# [1] 97970    42 distinct()
+# [1] 97970    42 dplyr::distinct()
 
-# safis_efforts_extended_2022 |> select(LOCAL_AREA_NAME) |> distinct()
+# safis_efforts_extended_2022 |> dplyr::select(LOCAL_AREA_NAME) |> dplyr::distinct()
 
 # data_overview(safis_efforts_extended_2022)
 # TRIP_ID              97848
@@ -144,13 +144,13 @@ dim(safis_efforts_extended_2023)
 ### clean fhier effort data ----
 # safis_efforts_extended_2022_short0 <-
 #   safis_efforts_extended_2022 |>
-#   select(-all_of(names(empty_cols)))
+#   dplyr::select(-all_of(names(empty_cols)))
 # dim(safis_efforts_extended_2022_short0)
 
 safis_efforts_extended_2022_short <-
   safis_efforts_extended_2022 |>
-  select(-any_of(rm_columns)) |>
-  distinct()
+  dplyr::select(-any_of(rm_columns)) |>
+  dplyr::distinct()
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
 
@@ -164,7 +164,7 @@ read_shapefile <- function(filename) {
 
 # https://www.fisheries.noaa.gov/resource/map/defined-fishery-management-areas-south-atlantic-states-map-gis-data
 
-sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
+sa_shp <- read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 
 # all GOM ----

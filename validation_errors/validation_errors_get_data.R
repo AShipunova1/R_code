@@ -38,7 +38,7 @@ dat_pending_date <-
     # year and month
     arr_year_month = as.yearmon(arrival_date),
     # a column with "overridden" or "pending" text
-    overridden = case_when(ovr_flag == 1 ~ "overridden",
+    overridden = dplyr::case_when(ovr_flag == 1 ~ "overridden",
                            ovr_flag == 0 ~ "pending",
                            .default = "unknown"),
     # trim white spaces
@@ -57,7 +57,7 @@ f_name_n <-
 # read both csvs to R
 from_fhier <-
   c(f_name_y, f_name_n) %>%
-  map_df(~ read_csv(.x, col_types = cols(.default = "c")))
+  purrr::map_df(~ read_csv(.x, col_types = cols(.default = "c")))
 
 # dim(from_fhier_y)
 # [1] 4697   18
@@ -68,7 +68,7 @@ dim(from_fhier)
 
 # View(from_fhier)
 
-from_fhier %>% clean_headers() %>% glimpse()
+from_fhier %>% clean_headers() %>% dplyr::glimpse()
 # Arrival, Edit.Trip, Overridden
 # arrival, edit_trip, overridden
 
@@ -92,7 +92,7 @@ from_fhier_data <-
     # get year and month column
     arr_year_month = as.yearmon(arrival),
     # add a column with "overridden" and "pending" as text
-    overridden1 = case_when(
+    overridden1 = dplyr::case_when(
       tolower(overridden) == "y" ~ "overridden",
       tolower(overridden) == "n" ~ "pending",
       .default = "unknown"

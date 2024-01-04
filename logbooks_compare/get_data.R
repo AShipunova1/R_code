@@ -25,7 +25,7 @@ extract_zipped_survey_data <- function() {
              pattern = "*zip",
              full.names = TRUE) %>%
   # unzip all of them
-    map(~unzip(.x,
+    purrr::map(~unzip(.x,
                # to see what's in the archive without extracting
                # list = T,
                exdir = extract_to_dir))
@@ -73,9 +73,9 @@ str(sas_file_list)
 survey_data_df <-
   sas_file_list %>%
   # use "_df" to combine all into one df
-    map_df(~poss_read_sas(.x) %>%
+    purrr::map_df(~poss_read_sas(.x) %>%
              # convert all columns to char to use in bind
-             mutate(across(.fns = as.character))) %>%
+             dplyr::mutate(across(.fns = as.character))) %>%
   # Re-convert character columns
   # guess integer types for whole numbers
   type_convert(guess_integer = TRUE)
@@ -86,11 +86,11 @@ survey_data_df <-
 add_file_names_to_the_df <- function() {
   sas_file_list %>%
   # use "_df" to combine all into one df
-  map_df(~poss_read_sas(.x) %>%
+  purrr::map_df(~poss_read_sas(.x) %>%
            # convert all columns to char to use in bind
-           mutate(across(.fns = as.character)) %>%
+           dplyr::mutate(across(.fns = as.character)) %>%
            # add file name
-           mutate(FILE_NAME = tools::file_path_sans_ext(basename(.x)))
+           dplyr::mutate(FILE_NAME = tools::file_path_sans_ext(basename(.x)))
   ) %>%
   # Re-convert character columns
   # guess integer types for whole numbers
@@ -121,7 +121,7 @@ not_all_na <- function(x) any(!is.na(x))
 
 remove_all_na_fileds <- function() {
   survey_data_df_w_fnames_split %>%
-    map(. %>% select(where(not_all_na))) %>%
+    purrr::map(. %>% select(where(not_all_na))) %>%
     return()
 }
 survey_data_df_w_fnames_split_clean <- remove_all_na_fileds()
@@ -159,7 +159,7 @@ sas_file_list_short_names <-
 
 survey_data_list <-
   sas_file_list %>%
-  map(poss_read_sas) %>%
+  purrr::map(poss_read_sas) %>%
 # name the df as its file
     setNames(sas_file_list_short_names)
 
@@ -168,7 +168,7 @@ str(survey_data_list) %>% head()
 
 ## ---- there are 4 types of files ----
 survey_data_list %>%
-  map(~names(.x)) %>%
+  purrr::map(~names(.x)) %>%
   unique() ->
   all_sas_names
 str(all_sas_names)
@@ -178,7 +178,7 @@ str(all_sas_names)
 file_categories <- list("ref", "aga", "i1_", "i2_", "i3_")
 
 file_lists_by_cat <-
-  map(file_categories,
+  purrr::map(file_categories,
       ~list.files(path = file.path(extract_to_dir),
                   pattern = paste0(., "*"),
                   recursive = TRUE,
@@ -188,28 +188,28 @@ file_lists_by_cat <-
 
 # survey_data_list <-
 #   sas_file_list %>%
-#   map(poss_read_sas) %>%
+#   purrr::map(poss_read_sas) %>%
 
 # each file in its df
 read_by_category <-
   file_lists_by_cat %>%
-  map(function(x) {
+  purrr::map(function(x) {
     x %>%
-      map(poss_read_sas) %>%
+      purrr::map(poss_read_sas) %>%
       ## name the df as its file
       setNames(tools::file_path_sans_ext(basename(x)))
   }
 )
 
 str(read_by_category)
-View(read_by_category)
+# View(read_by_category)
 
 # each category in a df
 read_by_category_df1 <-
   file_lists_by_cat %>%
-  map(~map_df(.x, poss_read_sas))
+  purrr::map(~map_df(.x, poss_read_sas))
 
-View(read_by_category_df1)
+# View(read_by_category_df1)
 
 
 sas_file_list_ref <-
@@ -221,7 +221,7 @@ sas_file_list_ref <-
 survey_data_list_cat <-
   sas_file_list %>%
 
-  map(~poss_read_sas(.x))
+  purrr::map(~poss_read_sas(.x))
 
 # ===
 
@@ -236,10 +236,10 @@ load_all_fhier_logbooks <- function() {
                                 fhier_logbooks_path_add),
                pattern = "*.csv",
                full.names = TRUE)  %>%
-    map_df(~read_csv(.x,
+    purrr::map_df(~read_csv(.x,
                      name_repair = fix_names,
                      show_col_types = FALSE) %>%
-             mutate(across(.fns = as.character))) %>%
+             dplyr::mutate(across(.fns = as.character))) %>%
     # Re-convert character columns
     # guess integer types for whole numbers
     type_convert(guess_integer = TRUE)
@@ -261,7 +261,7 @@ fhier_all_logbook_data_csv <-
             ) %>%
     read_csv(name_repair = fix_names,
            show_col_types = FALSE) %>%
-    # mutate(across(.fns = as.character))
+    # dplyr::mutate(across(.fns = as.character))
 # %>%
     # Re-convert character columns
     # guess integer types for whole numbers

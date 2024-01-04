@@ -188,7 +188,7 @@ spool off;
 
 ### create queries for all tables ----
 srh_tables_sql <-
-  map(srh_table_names,
+  purrr::map(srh_table_names,
       \(current_table_name) {
         create_a_query_for_one_table(current_table_name,
                                      table_owner)

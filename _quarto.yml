@@ -1,21 +1,45 @@
 date: today
 knitr:
   opts_chunk:
-    knitr.duplicate.label: 'allow'
+    tidy: 'styler'
+    tidy.opts: list(scope = "line_breaks")
+    # style = tidyverse_style, scope = "spaces")
+# opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+#     knitr.duplicate.label: 'allow'
 # project:
 #   lib-dir: ..
 output:
   html_document
+project:
+  execute-dir: project
 execute:
   warning: false
   cache: true
 format:
   html:
+    theme: Cerulean
+    # Readable
+    # highlight: haddock
+    # kate
+    # pygments
+    df-print: kable
+    # tibble
+    # kable
+    # df_print: !expr function(x, ...) kable(x, ...) %>% kableExtra::kable_styling(kable_styling_full_width = FALSE) %>% knit_print()
     toc: true
-    toc-depth: 2
+    toc-depth: 3
+    toc-highlight: true
+    # toc_float: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    # toc-title: "Content"
+    page-layout: full
     number-sections: true
-    css: style.css
+    # css: style.css
     code-overflow: wrap
     code-fold: true
-    code-summary: "Show the code"
+    code-tools: true
+    code-summary: "Show code"
     code-line-numbers: true
+    code-block-border-left: "blue"

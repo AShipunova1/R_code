@@ -68,7 +68,7 @@ compl_clean_sa_vs_gom_m_int_1 <-
 # remove 2023 gom_only ----
 remove_23_gom <- function(my_df) {
   my_df |>
-    filter(!(year == "2023" & permit_sa_gom == "gom_only")) %>%
+    dplyr::filter(!(year == "2023" & permit_sa_gom == "gom_only")) %>%
     return()
 }
 
@@ -79,7 +79,7 @@ compl_clean_sa_vs_gom_m_int_filtered <-
 # save vsl count for future checks ----
 count_all_vessels <-
   compl_clean_sa_vs_gom_m_int_1 %>%
-  select(vessel_official_number) %>%
+  dplyr::select(vessel_official_number) %>%
   unique() %>%
   dim()
 # 4017 vessels
@@ -88,7 +88,7 @@ count_all_vessels[1]
 
 count_not_gom23_vessels <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
-  select(vessel_official_number) %>%
+  dplyr::select(vessel_official_number) %>%
   unique() %>%
   dim()
 # 3887 vessels
@@ -97,19 +97,19 @@ count_not_gom23_vessels[1]
 
 vessels_compl_or_not_per_y_r_all <-
   compl_clean_sa_vs_gom_m_int_1 %>%
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          compliant_,
          year,
          permit_sa_gom) %>%
   unique() %>%
-  count(compliant_, year, permit_sa_gom)
+  dplyr::count(compliant_, year, permit_sa_gom)
 
 vessels_compl_or_not_per_y_r_not_gom23 <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
-  select(vessel_official_number, compliant_, year_permit) %>%
+  dplyr::select(vessel_official_number, compliant_, year_permit) %>%
   unique() %>%
-  count(compliant_, year_permit) %>%
-  arrange(year_permit, compliant_)
+  dplyr::count(compliant_, year_permit) %>%
+  dplyr::arrange(year_permit, compliant_)
 # vessels
 #  NO         2022 gom_dual   304
 #  YES        2022 gom_dual  1482
@@ -128,55 +128,69 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 6 YES        2023 sa_dual   2111
 
 # year ----
-source(file.path(
+quantify_compliance_from_fhier_year_path <- file.path(
   my_paths$git_r,
   project_name,
   "quantify_compliance_from_fhier_year.R"
-))
+)
+source(quantify_compliance_from_fhier_year_path)
+
+# year (100 % not reporting) ----
+quantify_compliance_from_fhier_year_100_nc_path <-
+  file.path(my_paths$git_r,
+            project_name,
+            "quantify_compliance_from_fhier_year_100_nc.R")
+source(quantify_compliance_from_fhier_year_100_nc_path)
 
 # month ----
-source(
-  file.path(
-    my_paths$git_r,
-    project_name,
-    "quantify_compliance_from_fhier_month.R"
-  )
-)
+quantify_compliance_from_fhier_month_path <-
+  file.path(my_paths$git_r,
+            project_name,
+            "quantify_compliance_from_fhier_month.R")
+
+source(quantify_compliance_from_fhier_month_path)
 
 # vms ----
-source(file.path(
-  my_paths$git_r,
-  project_name,
-  "quantify_compliance_from_fhier_vms.R"
-))
-
+quantify_compliance_from_fhier_vms_path <-
+  file.path(my_paths$git_r,
+            project_name,
+            "quantify_compliance_from_fhier_vms.R")
+source(quantify_compliance_from_fhier_vms_path)
 
 # Create a read.me file with numbers of total, active and expired ----
 ## by year ----
+# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc defined in quantify_compliance_from_fhier_year.R
+# Create a new dataset 'year_permit_cnts' by performing a series of operations.
+
 year_permit_cnts <-
+  # Extract unique 'year_permit' values from the specified column and sort them.
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
   sort() |>
-  # repeat for each year_permit
+
+  # For each unique 'year_permit', apply a function using 'purrr::map_df'.
   purrr::map_df(function(curr_year_permit) {
-    # browser()
+    # Create a subset 'curr_df' of the original dataset for the current 'year_permit'.
     curr_df <-
       compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
       dplyr::filter(year_permit == curr_year_permit)
 
+    # Extract unique 'total_vsl_y' values for the current 'year_permit'.
     total_vsls <- unique(curr_df$total_vsl_y)
 
+    # Extract and create a subset of data for 'active' permits.
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(cnt_y_p_e) %>%
       unique()
 
+    # Extract and create a subset of data for 'expired' permits.
     expired_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(cnt_y_p_e) %>%
       unique()
 
-      # TODO: add compliant, not compliant
+    # Create a data frame 'out_df' with relevant information.
     out_df <- as.data.frame(c(curr_year_permit, total_vsls, active_permits, expired_permits))
     names(out_df) <- c("year_permit", "total", "active_permits", "expired_permits")
 
@@ -185,66 +199,83 @@ year_permit_cnts <-
 
 # View(year_permit_cnts)
 
-# 2 ) - not needed, gets non compliant numbers
-count_year1 <-
-  count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
-  unique() %>%
-  sort() %>%
-  # repeat for each year_permit
-  purrr::map_df(function(curr_year_permit) {
-    curr_df <-
-      count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
-      dplyr::filter(year_permit == curr_year_permit)
+# # 2 ) - not needed, gets non compliant numbers
+# count_year1 <-
+#   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
+#   unique() %>%
+#   sort() %>%
+#   # repeat for each year_permit
+#   purrr::map_df(function(curr_year_permit) {
+#     curr_df <-
+#       count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
+#       dplyr::filter(year_permit == curr_year_permit)
+# 
+#     total_non_compl_df <-
+#       curr_df %>%
+#       dplyr::select(vsls_per_y_r) %>%
+#       dplyr::distinct()
+#     # browser()
+# 
+#     active_permits <- curr_df %>%
+#       dplyr::filter(perm_exp_y == "active") %>%
+#       dplyr::select(exp_y_tot_cnt) |>
+#       dplyr::distinct()
+# 
+#     expired_permits <- curr_df %>%
+#       dplyr::filter(perm_exp_y == "expired") %>%
+#       dplyr::select(exp_y_tot_cnt) |>
+#       dplyr::distinct()
+# 
+#     out_df <-
+#       as.data.frame(c(
+#         curr_year_permit,
+#         total_non_compl_df,
+#         active_permits,
+#         expired_permits
+#       ))
+#     names(out_df) <-
+#       c("year_permit", "total", "active_permits", "expired_permits")
+# 
+#     return(out_df)
+#   })
 
-    total_non_compl_df <-
-      curr_df %>%
-      dplyr::select(vsls_per_y_r) %>%
-      distinct()
-    # browser()
-
-    active_permits <- curr_df %>%
-      dplyr::filter(perm_exp_y == "active") %>%
-      dplyr::select(exp_y_tot_cnt) |>
-      distinct()
-
-    expired_permits <- curr_df %>%
-      filter(perm_exp_y == "expired") %>%
-      dplyr::select(exp_y_tot_cnt) |>
-      distinct()
-
-    out_df <-
-      as.data.frame(c(
-        curr_year_permit,
-        total_non_compl_df,
-        active_permits,
-        expired_permits
-      ))
-    names(out_df) <-
-      c("year_permit", "total", "active_permits", "expired_permits")
-
-    return(out_df)
-  })
-
-glimpse(year_permit_cnts)
-glimpse(count_year1)
-all.equal(year_permit_cnts, count_year1)
+# glimpse(year_permit_cnts)
+# glimpse(count_year1)
+# all.equal(year_permit_cnts, count_year1)
 # [1] "Component “total”: Mean relative difference: 0.4411713"
 
 ## 3) by month ----
-# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+
+# Create a new dataset 'counts_by_month_read_me' by piping the dataset
+# 'compl_clean_sa_vs_gom_m_int_c_exp_diff_d' through a series of data transformation operations.
+
 counts_by_month_read_me <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
-  group_by(year_month, year_permit, perm_exp_m) |>
-  mutate(permit_cnt_m =
-           n_distinct(vessel_official_number)) |>
-  ungroup() |>
-  select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>
-  distinct()
+
+  # Group the data by 'year_month', 'year_permit', and 'perm_exp_m'.
+  dplyr::group_by(year_month, year_permit, perm_exp_m) |>
+
+  # Calculate the number of distinct 'vessel_official_number' within each group
+  # and create a new column 'permit_cnt_m' with those counts.
+  dplyr::mutate(permit_cnt_m = n_distinct(vessel_official_number)) |>
+
+  # Remove the grouping.
+  dplyr::ungroup() |>
+
+  # Select specific columns: 'year_permit', 'year_month', 'total_vsl_m', 'perm_exp_m',
+  # and the newly created 'permit_cnt_m'.
+  dplyr::select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>
+
+  # Remove duplicate rows in the dataset.
+  dplyr::distinct()
 
 # print_df_names(counts_by_month_read_me)
 
+# Create a new dataset 'counts_by_month_read_me_clean' by piping the dataset
+# 'counts_by_month_read_me' through a series of data transformation operations.
 counts_by_month_read_me_clean <-
   counts_by_month_read_me |>
+  # Reshape the data by pivoting it wider using specific columns as identifiers.
   tidyr::pivot_wider(
     id_cols = c(year_permit, year_month, total_vsl_m),
     names_from = perm_exp_m,
@@ -252,7 +283,8 @@ counts_by_month_read_me_clean <-
     names_glue = "{perm_exp_m}_permits",
     values_fill = 0
   ) |>
-  arrange(year_month)
+  # Arrange the rows in ascending order based on the 'year_month' column.
+  dplyr::arrange(year_month)
 
 # View(counts_by_month_read_me_clean)
 
@@ -261,16 +293,31 @@ counts_by_month_read_me_clean <-
 
 # 38
 
+# Create a new dataset 'counts_by_year_read_me_clean' by piping the dataset
+# 'compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc'
+# through a series of data transformation operations.
+
 counts_by_year_read_me_clean <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
-  select(-perc_c_nc) |>
-  distinct() |>
-  tidyr::pivot_wider(names_from = compl_or_not,
-                     values_from = cnt_y_p_c,
-                     values_fill = 0) |>
+
+  # Remove the 'perc_c_nc' column from the dataset.
+  dplyr::select(-perc_c_nc) |>
+
+  # Remove duplicate rows in the dataset.
+  dplyr::distinct() |>
+
+  # Reshape the data by pivoting it wider, using 'compl_or_not' for column names
+  # and 'cnt_y_p_c' for values, filling missing values with 0.
   tidyr::pivot_wider(
-    # not needed, by default used all but names and values columns
-    # id_cols = -c("perm_exp_y", "perm_exp_y"),
+    names_from = compl_or_not,
+    values_from = cnt_y_p_c,
+    values_fill = 0
+  ) |>
+
+  # Further reshape the data by pivoting it wider, using 'perm_exp_y' for column names
+  # and 'cnt_y_p_e' for values, with column names formatted as '{perm_exp_y}_permits',
+  # and filling missing values with 0.
+  tidyr::pivot_wider(
     names_from = perm_exp_y,
     values_from = cnt_y_p_e,
     names_glue = "{perm_exp_y}_permits",
@@ -293,6 +340,7 @@ glimpse(counts_by_year_read_me_clean)
 #     r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
 #     file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R"),
 #     file.path(dir_to_comb, "quantify_compliance_from_fhier_year.R"),
+#     file.path(dir_to_comb, "quantify_compliance_from_fhier_year_100_nc.R"),
 #     file.path(dir_to_comb, "quantify_compliance_from_fhier_month.R"),
 #     file.path(dir_to_comb, "quantify_compliance_from_fhier_line_plots.R"),
 #     file.path(dir_to_comb, "quantify_compliance_from_fhier_vms.R")

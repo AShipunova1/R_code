@@ -11,26 +11,14 @@ dir_to_comb <- "~/R_code_github/fishing_effort_location"
 flat_file_name <-
   file.path(dir_to_comb, "flat_file_heatmap.R")
 
-# ---
-# Define a custom R function 'write_to_1_flat_file' that adds a header and a specified file's content to a flat file.
-# write_to_flat_file_with_header <-
-  # function(flat_file_name, add_file_name) {
-  #
-  #   # Use 'cat' to write a header line with the current file name to 'flat_file_name'.
-  # # The header is generated with 'str_glue', including the current file's name extracted from 'add_file_name'.
-  # cat(
-  #   stringr::str_glue("#' ## Current file: {basename(add_file_name)}"),  # Create the header using 'str_glue'.
-  #   file = flat_file_name,  # Specify the output file.
-  #   append = TRUE,          # Append to an existing file if it exists.
-  #   sep = "\n"             # Specify a newline separator.
-  # )
-  #
-  # # Call the 'write_to_1_flat_file' function to write the contents of 'add_file_name' to 'flat_file_name'.
-  # write_to_1_flat_file(flat_file_name, add_file_name)
-# }
-
 # ===
 add_file_name <- "~/R_code_github/useful_functions_module.r"
+
+cat("#' %%%%% Prepare data",
+    file = flat_file_name,
+    append = TRUE,
+    sep = "\n")
+
 write_to_1_flat_file(flat_file_name, add_file_name)
 
 cat(
@@ -110,9 +98,11 @@ write_to_1_flat_file(
 )
 
 cat(
-  paste("library(ggplot2) # a visualization package",
-  "library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data.",
-  sep = "\n"),
+  c(
+    "#' %%%%% Heatmap preparations",
+    "library(ggplot2) # a visualization package",
+    "library(ggmap) # extends 'ggplot2' for creating maps and working with spatial data."
+  ),
   file = flat_file_name,
   append = TRUE,
   sep = "\n"
@@ -122,7 +112,7 @@ write_to_1_flat_file(
   flat_file_name,
   file.path(
     my_paths$git_r,
-    r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
+    r"(fishing_effort_location\prepare_heatmap_func.R)"
   )
 )
 
@@ -131,6 +121,14 @@ write_to_1_flat_file(
   file.path(
     my_paths$git_r,
     r"(fishing_effort_location\fishing_effort_location_heatmap.R)"
+  )
+)
+
+write_to_1_flat_file(
+  flat_file_name,
+  file.path(
+    my_paths$git_r,
+    r"(fishing_effort_location\fishing_effort_location_by_permit_and_end_port.R)"
   )
 )
 

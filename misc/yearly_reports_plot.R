@@ -27,7 +27,7 @@ longFormat_GOM <-
   cnts_csv %>%
   # get GOM rows
   filter(stringi::stri_startswith_fixed(`Permit Group`, "GOM")) %>%
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(Logbooks,
              Declarations),
     names_to = "Type",
@@ -47,7 +47,7 @@ longFormat_GOM %<>%
 longFormat_SA <-
   cnts_csv %>%
   filter(stringi::stri_startswith_fixed(`Permit Group`, "SA")) %>%
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(Logbooks,
              `No Fishing Reports`),
     names_to = "Type",
@@ -152,7 +152,7 @@ plot_bars <- function(my_data, title) {
   my_type_order <- intersect(my_data$Type, type_order)
   # 3) add column with our order as factor and then use this column in aes/fill
   my_data %<>%
-  mutate(type_reordered = factor(Type, levels = my_type_order
+  dplyr::mutate(type_reordered = factor(Type, levels = my_type_order
                                  )
          )
   
@@ -204,13 +204,13 @@ Format_logbooks <-
   cnts_csv %>%
   select(`Permit Group`, Logbooks)
 # %>%
-  # mutate(Year = gsub("^(.+) (\\d+)", "\\2", `Permit Group`
+  # dplyr::mutate(Year = gsub("^(.+) (\\d+)", "\\2", `Permit Group`
   #                              )
   #        ) %>%
-  # mutate(`Permit Group` = gsub("^(.+) (\\d+)", "\\1", `Permit Group`
+  # dplyr::mutate(`Permit Group` = gsub("^(.+) (\\d+)", "\\1", `Permit Group`
   #                              )
   #        ) %>%
-  # pivot_longer(
+  # tidyr::pivot_longer(
   #   cols = c(Logbooks),
   #   names_to = "Permit Group",
   #   values_to = "Counts"

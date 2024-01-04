@@ -41,44 +41,44 @@ vessel_permits_info <-
 vessel_permits_ids <-
   vessel_permits_info |>
   select(VESSEL_VESSEL_ID, PERMIT_VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 # r prepare vendor columns ----
 trip_coord_info_vendors <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
-  # mutate(all_permits = toString(unique(TOP))) |>
-  mutate(vendor_trip = toString(unique(T_UE)),
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
+  # dplyr::mutate(all_permits = toString(unique(TOP))) |>
+  dplyr::mutate(vendor_trip = toString(unique(T_UE)),
          vendor_effort = toString(unique(E_UE))) |>
-  ungroup()
+  dplyr::ungroup()
 
 tic("trip_coord_info_vendors3_trip")
 trip_coord_info_vendors3_trip <-
   trip_coord_info |>
-  group_by(LATITUDE, LONGITUDE) |>
-  mutate(vendor_trip_cat = case_when(
+  dplyr::group_by(LATITUDE, LONGITUDE) |>
+  dplyr::mutate(vendor_trip_cat = dplyr::case_when(
     trimws(tolower(T_UE)) == "vms" ~ "vms",
     trimws(tolower(T_UE)) %in% c("vesl", "bluefin") ~ "vesl",
     .default = "etrips"
   )) |>
-  ungroup()
+  dplyr::ungroup()
 toc(log = TRUE, quiet = TRUE)
 # print_toc_log()
 # trip_coord_info_vendors3_trip: 71.47 sec elapsed
 
 trip_coord_info_vendors3 <-
   trip_coord_info_vendors3_trip |>
-  mutate(year_start = year(TRIP_START_DATE))
+  dplyr::mutate(year_start = year(TRIP_START_DATE))
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat) |>
-  count(vendor_trip_cat) |>
-  kable(caption = "ALL: count(vendor_trip_cat)")
+  dplyr::count(vendor_trip_cat) |>
+  kable(caption = "ALL: dplyr::count(vendor_trip_cat)")
 
 trip_coord_info_vendors3 |>
   select(LATITUDE, LONGITUDE, vendor_trip_cat, year_start) |>
-  count(vendor_trip_cat, year_start) |>
-  kable(caption = "ALL: count(vendor_trip_cat, year_start)")
+  dplyr::count(vendor_trip_cat, year_start) |>
+  kable(caption = "ALL: dplyr::count(vendor_trip_cat, year_start)")
 
 # all vendors
 # etrips	47731
@@ -166,7 +166,7 @@ ne_10m_ocean_sf_bb <-
 trip_coord_info_short <-
   trip_coord_info |>
   select(LATITUDE, LONGITUDE, TRIP_ID, VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 trip_coord_info_short_sf <-
   trip_coord_info_short |>
@@ -184,13 +184,13 @@ trip_coord_info_short_sf <-
 trip_coord_info_short_cnt_coord_per_vsl <-
   trip_coord_info_short |>
   select(-TRIP_ID) |>
-  add_count(LATITUDE, LONGITUDE, name = "total_coords_per_vsl")
+  dplyr::add_count(LATITUDE, LONGITUDE, name = "total_coords_per_vsl")
 # head(trip_coord_info_short_cnt_coord_per_vsl)
 
 trip_coord_info_short_cnt_total_trips_per_vsl <-
   trip_coord_info_short |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "total_trips_by_vsl")
+  dplyr::count(VESSEL_ID, name = "total_trips_by_vsl")
 
 # all wrong points ----
 
@@ -211,14 +211,14 @@ trip_coord_info_sf_out_cnt_coord_per_vsl <-
   trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
   select(-TRIP_ID) |>
-  add_count(LATITUDE, LONGITUDE, name = "wrong_coords_per_vsl")
+  dplyr::add_count(LATITUDE, LONGITUDE, name = "wrong_coords_per_vsl")
 head(trip_coord_info_sf_out_cnt_coord_per_vsl)
 
 trip_coord_info_sf_out_cnt_total_trips_per_vsl <-
   trip_coord_info_sf_out |>
   sf::st_drop_geometry() |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "wrong_trips_by_vsl")
+  dplyr::count(VESSEL_ID, name = "wrong_trips_by_vsl")
 str(trip_coord_info_sf_out_cnt_total_trips_per_vsl)
 
 # cnt positive lon ----
@@ -227,8 +227,8 @@ trip_coord_info_sf_pos_lon_cnt_coord_per_vsl <-
   sf::st_drop_geometry() |>
   select(-TRIP_ID) |>
   filter(LONGITUDE > 0) |>
-  add_count(LATITUDE, LONGITUDE, name = "pos_lon_per_vsl") |>
-  distinct()
+  dplyr::add_count(LATITUDE, LONGITUDE, name = "pos_lon_per_vsl") |>
+  dplyr::distinct()
 # head(trip_coord_info_sf_pos_lon_cnt_coord_per_vsl)
 #   LATITUDE LONGITUDE VESSEL_ID pos_lon_per_vsl
 # 1 24.00000  82.00000    326229             121
@@ -240,7 +240,7 @@ trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl <-
   sf::st_drop_geometry() |>
   filter(LONGITUDE > 0) |>
   select(-c(LATITUDE, LONGITUDE)) |>
-  count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
+  dplyr::count(VESSEL_ID, name = "pos_lon_trips_by_vsl")
 str(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl)
 
 # find fixable coords ----
@@ -251,12 +251,12 @@ str(trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl)
 positive_long_corrected <-
   positive_long |>
   select(VESSEL_ID, LATITUDE, LONGITUDE, TRIP_ID, vendor_trip_cat) |>
-  mutate(LONGITUDE = -abs(LONGITUDE))
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE))
 
 positive_long_corrected_vsl_ids <-
   positive_long_corrected |>
   select(VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 dim(positive_long_corrected_vsl_ids)
 # [1] 350   1
@@ -297,7 +297,7 @@ positive_long_corrected_good_vsl_ids <-
   positive_long_corrected_sf_good |>
   sf::st_drop_geometry() |>
   select(VESSEL_ID, LATITUDE, LONGITUDE, TRIP_ID) |>
-  distinct()
+  dplyr::distinct()
 
 positive_long_corrected_good_vsl_ids |> dim()
 # [1] 303   1 VESSEL_ID
@@ -314,7 +314,7 @@ positive_long_corrected_bad_vsl_ids <-
   positive_long_corrected_sf_bad |>
   sf::st_drop_geometry() |>
   select(VESSEL_ID) |>
-  distinct()
+  dplyr::distinct()
 
 dim(positive_long_corrected_bad_vsl_ids)
 # [1] 176   1
@@ -346,26 +346,26 @@ length(bad_only)
 # bad only vsl and counts ----
 trip_coord_info_sf_pos_lon_cnt_coord_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
-  arrange(desc(pos_lon_per_vsl)) |>
-  glimpse()
+  dplyr::arrange(desc(pos_lon_per_vsl)) |>
+  dplyr::glimpse()
 # 'data.frame':	907 obs. of  4 variables:
 
 pos_lon_bad <-
 trip_coord_info_sf_out_cnt_pos_lon_trips_per_vsl |>
   filter(VESSEL_ID %in% bad_only) |>
-  arrange(desc(pos_lon_trips_by_vsl))
+  dplyr::arrange(desc(pos_lon_trips_by_vsl))
 
 tot_bad <-
 trip_coord_info_short_cnt_total_trips_per_vsl |>
     filter(VESSEL_ID %in% bad_only) |>
-  arrange(desc(total_trips_by_vsl))
+  dplyr::arrange(desc(total_trips_by_vsl))
 dim(tot_bad)
 # [1] 47  2
 
 bad_cnt_join <-
 full_join(tot_bad,
           pos_lon_bad) |>
-  mutate(cnt_diff = total_trips_by_vsl - pos_lon_trips_by_vsl,
+  dplyr::mutate(cnt_diff = total_trips_by_vsl - pos_lon_trips_by_vsl,
          wrong_perc = pos_lon_trips_by_vsl * 100 / total_trips_by_vsl)
 # Joining with `by = join_by(VESSEL_ID)`
 
@@ -383,7 +383,7 @@ lattice::histogram(~ cnt_diff, data = bad_cnt_join,
 both_tot <-
   trip_coord_info_short_cnt_total_trips_per_vsl |>
   filter(VESSEL_ID %in% both) |>
-  arrange(desc(total_trips_by_vsl))
+  dplyr::arrange(desc(total_trips_by_vsl))
 
 dim(both_tot)
 # [1] 129   2
@@ -412,21 +412,21 @@ head(trip_coord_info_short_both_tot_w_coords, 3)
 
 positive_long_corrected_good_vsl_ids_coord_pair <-
   positive_long_corrected_good_vsl_ids |>
-  mutate(coord_pair = paste(LATITUDE, -LONGITUDE))
+  dplyr::mutate(coord_pair = paste(LATITUDE, -LONGITUDE))
 
-# glimpse(positive_long_corrected_good_vsl_ids_coord_pair)
+# dplyr::glimpse(positive_long_corrected_good_vsl_ids_coord_pair)
 # positive_long__good_pairs <-
   # positive_long |>
-    # mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
+    # dplyr::mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
   # right_join(positive_long_corrected_good_vsl_ids_coord_pair,
              # by = join_by(LATITUDE, VESSEL_ID, coord_pair, TRIP_ID))
 # exclude corrected longitude
 # Joining with `by = join_by(LATITUDE, LONGITUDE, VESSEL_ID, vendor_trip_cat, coord_pair)`
 
-# glimpse(positive_long__good_pairs)
+# dplyr::glimpse(positive_long__good_pairs)
 
 #   filter(VESSEL_ID %in% positive_long_corrected_good_vsl_ids$VESSEL_ID) |>
-#   mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
+#   dplyr::mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
 #   select(VESSEL_ID, TRIP_ID, LATITUDE, LONGITUDE, vendor_trip_cat, year_start, coord_pair)
 #
 # dim(positive_long__good_pairs)
@@ -435,7 +435,7 @@ positive_long_corrected_good_vsl_ids_coord_pair <-
 # join all info and positive lon good ----
 both_tot_w_coords__and_good_pairs <-
   trip_coord_info_short_both_tot_w_coords |>
-  mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
+  dplyr::mutate(coord_pair = paste(LATITUDE, LONGITUDE)) |>
   # left_join to get all trips in the "both" category only
   # and add info from positive_long__good_pairs where "good"
   left_join(positive_long_corrected_good_vsl_ids_coord_pair,
@@ -456,13 +456,13 @@ glimpse(both_tot_w_coords__and_good_pairs)
 
 both_tot_w_coords__and_good_pairs |>
   filter(is.na(LATITUDE_tot)) |>
-  glimpse()
+  dplyr::glimpse()
 # 0
 
 both_tot_w_coords__and_good_pairs_mark <-
   both_tot_w_coords__and_good_pairs |>
-  mutate(coord_mark =
-           case_when(is.na(LATITUDE_corr_good)
+  dplyr::mutate(coord_mark =
+           dplyr::case_when(is.na(LATITUDE_corr_good)
                      ~ "wrong",
                      .default = "good"))
 
@@ -472,43 +472,43 @@ glimpse(both_tot_w_coords__and_good_pairs_mark)
 
 both_tot_w_coords__and_good_pairs_mark |>
   filter(VESSEL_ID == "162619") |>
-  count(coord_mark)
+  dplyr::count(coord_mark)
 # 1       good 73
 # 2      wrong  1
 
 both_tot_w_coords__and_good_pairs_mark_cnts_n_tot <-
   both_tot_w_coords__and_good_pairs_mark |>
-  count(VESSEL_ID, coord_mark,
+  dplyr::count(VESSEL_ID, coord_mark,
         name = "count_marks_per_vsl") |>
-  pivot_wider(id_cols = VESSEL_ID,
+  tidyr::pivot_wider(id_cols = VESSEL_ID,
               names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
-  group_by(VESSEL_ID) |>
-  mutate(tot = good + wrong) |>
-  ungroup()
+  dplyr::group_by(VESSEL_ID) |>
+  dplyr::mutate(tot = good + wrong) |>
+  dplyr::ungroup()
 
 both_tot_w_coords__and_good_pairs_mark_cnts <-
   both_tot_w_coords__and_good_pairs_mark |>
-  add_count(VESSEL_ID, coord_mark,
+  dplyr::add_count(VESSEL_ID, coord_mark,
             name = "count_marks_per_vsl") |>
   select(VESSEL_ID,
          total_trips_by_vsl,
          coord_mark,
          count_marks_per_vsl) |>
-  distinct()
+  dplyr::distinct()
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide <-
   both_tot_w_coords__and_good_pairs_mark_cnts |>
-  pivot_wider(names_from = coord_mark,
+  tidyr::pivot_wider(names_from = coord_mark,
               values_from = count_marks_per_vsl) |>
-  group_by(VESSEL_ID) |>
-  mutate(good_over_bad = round(good / wrong, 2),
+  dplyr::group_by(VESSEL_ID) |>
+  dplyr::mutate(good_over_bad = round(good / wrong, 2),
          bad_over_good = round(wrong / good, 2)) |>
-  ungroup()
+  dplyr::ungroup()
 
 both_tot_w_coords__and_good_pairs_mark_cnts_wide_long <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-  pivot_longer(c(good, wrong),
+  tidyr::pivot_longer(c(good, wrong),
                names_to = "coord_mark",
                values_to = "count_marks_per_vsl")
 
@@ -525,10 +525,10 @@ head(both_tot_w_coords__and_good_pairs_mark_cnts_wide, 3)
 # ## add proportion of good over bad coords ----
 # both_tot_w_coords__and_good_pairs_mark_cnts_wide_perc_g <-
 #   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
-#   group_by(VESSEL_ID) |>
-#   mutate(good_percent =
+#   dplyr::group_by(VESSEL_ID) |>
+#   dplyr::mutate(good_percent =
 #            good * 100 / total_trips_by_vsl) |>
-#   ungroup()
+#   dplyr::ungroup()
 
 ## histogram ----
 lattice::histogram( ~ good , data = both_tot_w_coords__and_good_pairs_mark_cnts_wide,
@@ -538,7 +538,7 @@ lattice::histogram( ~ wrong , data = both_tot_w_coords__and_good_pairs_mark_cnts
                     xlab = "Wrong trip coordinates where vessels have both good and wrong coordinates")
 
 ## plot good/wrong cnts ----
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts)
 
 make_both_sorted_plot <-
   function(my_df,
@@ -577,7 +577,7 @@ make_both_sorted_plot <-
 both_sort_by_total <-
   make_both_sorted_plot(both_tot_w_coords__and_good_pairs_mark_cnts)
 
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide_long)
 
 both_sorted_by_good_plot <-
   make_both_sorted_plot(
@@ -621,7 +621,7 @@ ggsave(file.path(good_wrong_coords_dir, "both_sorted_by_wrong_plot.png"),
        dpi = 600)
 
 # line plots ----
-# glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
+# dplyr::glimpse(both_tot_w_coords__and_good_pairs_mark_cnts_wide)
 line_2_plot <-
   both_tot_w_coords__and_good_pairs_mark_cnts_wide |>
     # ggplot(aes(date, value01, colour = variable)) +

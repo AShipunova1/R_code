@@ -10,7 +10,7 @@ source("~/R_code_github/validation_errors/validation_errors_get_data.r")
 by_year <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(arr_year) %>%
+    dplyr::group_by(arr_year) %>%
     summarise(n = n()) %>%
     return()
 }
@@ -32,14 +32,14 @@ by_year(dat_pending_date, c("trip_report_id", "arr_year"))
 
 dat_pending_date %>%
   select(trip_report_id, overridden, arr_year) %>%
-  group_by(overridden, arr_year) %>%
+  dplyr::group_by(overridden, arr_year) %>%
   summarise(n = n())
 
 ### From db by year_month ====
 by_year_month <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(arr_year_month) %>%
+    dplyr::group_by(arr_year_month) %>%
     summarise(n = n()) %>%
     return()
 }
@@ -47,21 +47,21 @@ by_year_month <- function(my_df, fields_to_select_list) {
 db_pending_by_year_month <-
   by_year_month(dat_pending_date, c("trip_report_id", "arr_year_month"))
 
-View(db_pending_by_year_month)
+# View(db_pending_by_year_month)
 # A tibble: 17 × 2
 
 by_year_month_wide <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(overridden, arr_year_month) %>%
+    dplyr::group_by(overridden, arr_year_month) %>%
     summarise(n = n()) %>%
     # A tibble: 23 × 3
-    # ungroup() %>%
-    pivot_wider(names_from = overridden, values_from = n) %>%
+    # dplyr::ungroup() %>%
+    tidyr::pivot_wider(names_from = overridden, values_from = n) %>%
     # NAs to 0
     mutate(pending = coalesce(pending, 0),
            overridden = coalesce(overridden, 0)) %>%
-    arrange(arr_year_month) %>%
+    dplyr::arrange(arr_year_month) %>%
     # tail()
     mutate(total = overridden + pending) %>%
     return()
@@ -112,14 +112,14 @@ data_overview(from_fhier_data_22)
 
 # dim(from_fhier_data_22)
 # [1] 4184   21
-# from_fhier_data_22 %>% select(arrival) %>% arrange(arrival) %>% head(2)
+# from_fhier_data_22 %>% select(arrival) %>% dplyr::arrange(arrival) %>% head(2)
 # 1 2022-01-01 00:00:00
 
 ### FHIER by year ----
 # names(from_fhier_data)
 from_fhier_data %>%
   select(edit_trip, overridden, arr_year) %>%
-  group_by(arr_year) %>%
+  dplyr::group_by(arr_year) %>%
   summarise(n = n())
 # arr_year     n
 #   <chr>    <int>
@@ -133,15 +133,15 @@ from_fhier_data %>%
 from_fhier_data_by_ym_22 <-
   from_fhier_data_22 %>%
   select(edit_trip, overridden, arr_year_month) %>%
-  mutate(overridden = case_when(overridden == "N" ~ "pending",
+  mutate(overridden = dplyr::case_when(overridden == "N" ~ "pending",
                                 overridden == "Y" ~ "overridden")) %>%
-  group_by(overridden, arr_year_month) %>%
+  dplyr::group_by(overridden, arr_year_month) %>%
   summarise(n = n()) %>%
-  pivot_wider(names_from = overridden, values_from = n) %>%   # A tibble: 21 × 3
+  tidyr::pivot_wider(names_from = overridden, values_from = n) %>%   # A tibble: 21 × 3
   # NAs to 0
   mutate(pending = coalesce(pending, 0)) %>%
   mutate(total = overridden + pending)
-# %>% glimpse()
+# %>% dplyr::glimpse()
 
 ## Join db and fhier data ----
 # make the same types
@@ -245,25 +245,25 @@ dim(db_n_fhier_data_ok_short1)
 db_n_fhier_data_ok_short1 %>%
   # data_overview()
   filter(is_enabled == 1) %>%
-  select(asg_info) %>% unique() %>% arrange(asg_info)
+  select(asg_info) %>% unique() %>% dplyr::arrange(asg_info)
 
 ### check assignments ----
 # grep("ass", names(from_fhier_data_22), value = T)
 # singleassignment
 from_fhier_data_22 %>%
-  select(singleassignment) %>% unique() %>% glimpse()
+  select(singleassignment) %>% unique() %>% dplyr::glimpse()
 # Validation trip Assignment
 
 # View(db_n_fhier_data_ok_short1)
 
 db_n_fhier_data_ok_short1 %>%
-  mutate(assignment = case_when(
+  mutate(assignment = dplyr::case_when(
     startsWith(asg_info, 'System: Error fixed on') ~ 'System: Error fixed',
     .default = asg_info
   )) %>%
   select(assignment) %>%
   unique() %>%
-  arrange(assignment)
+  dplyr::arrange(assignment)
 #           assignment
 # 1       ALICIA BRETON
 # 2          CHRIS ISOM
@@ -277,7 +277,7 @@ db_n_fhier_data_ok_short1 %>%
 
 db_n_fhier_data_ok %>%
   filter(asg_info == "Unassigned" &
-           arr_year_month >= "Jan 2022") %>% glimpse()
+           arr_year_month >= "Jan 2022") %>% dplyr::glimpse()
 # %>% dim()
 # [1] 4962   56
 
@@ -333,7 +333,7 @@ db_unas_en_f_ym <-
     from_fhier_data_by_ym_22,
     by = join_by(arr_year_month)
   ) %>%
-  arrange(arr_year_month)
+  dplyr::arrange(arr_year_month)
 
 # names(db_unas_f_ym) %>% paste0(sep = "', '", collapse = "") %>% cat()
 
@@ -368,7 +368,7 @@ db_unas_sys_err_f_ym <-
     by = join_by(arr_year_month)
   )
 
-View(db_unas_sys_err_f_ym)
+# View(db_unas_sys_err_f_ym)
 
 # TODO: repeat for captain_name
 
@@ -387,9 +387,9 @@ glimpse(dat_pending_data_22)
 db_by_y_m_asg_param_overr <-
   dat_pending_data_22 %>%
   select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
-  group_by(arr_year_month, asg_info, val_param_name, overridden) %>%
+  dplyr::group_by(arr_year_month, asg_info, val_param_name, overridden) %>%
   summarise(n = n()) %>%
-  ungroup()
+  dplyr::ungroup()
 # %>%
 #   str()
 # tibble [3,931 × 5] (S3: tbl_df/tbl/data.frame)
@@ -397,9 +397,9 @@ db_by_y_m_asg_param_overr <-
 db_by_y_m_param_overr <-
   dat_pending_data_22 %>%
   select(asg_info, overridden, arr_year, arr_year_month, val_param_name) %>%
-  group_by(arr_year_month, val_param_name, overridden) %>%
+  dplyr::group_by(arr_year_month, val_param_name, overridden) %>%
   summarise(n = n()) %>%
-  ungroup()
+  dplyr::ungroup()
 # %>%
 # str()
 # tibble [254 × 4] (S3: tbl_df/tbl/data.frame)
@@ -459,15 +459,15 @@ fields_to_select_list3 = (
 db_n_fhier_data_22_ok_cnts <-
   db_n_fhier_data_22_ok %>%
   select(trip_report_id, all_of(fields_to_select_list3)) %>%
-  arrange(arr_year_month) %>%
-  group_by(across(all_of(fields_to_select_list3))) %>%
+  dplyr::arrange(arr_year_month) %>%
+  dplyr::group_by(across(all_of(fields_to_select_list3))) %>%
   summarise(n = n()) %>%
-  ungroup() %>%
-  arrange(arr_year_month)
+  dplyr::ungroup() %>%
+  dplyr::arrange(arr_year_month)
 
 #### In FHIER too ====
 # filter(db_n_fhier_data_22_ok_cnts, !is.na(overrideuser)) %>% View()
-View(db_n_fhier_data_22_ok_cnts)
+# View(db_n_fhier_data_22_ok_cnts)
 # tail()
 
 param_in_both <-
@@ -565,7 +565,7 @@ setnames(
     'total_fhier'
   )
 )
-View(db_unas_param_f_ym)
+# View(db_unas_param_f_ym)
 
 ### Apr 2022 ====
 apr_unas_both <-

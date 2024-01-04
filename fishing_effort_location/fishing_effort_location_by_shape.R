@@ -137,7 +137,7 @@ dim(db_data_w_area)
 
 db_data_w_area_short <-
   db_data_w_area |>
-  select(all_of(fields_list)) |>
+  dplyr::select(all_of(fields_list)) |>
   unique()
 
 dim(db_data_w_area_short)
@@ -151,7 +151,7 @@ db_data_w_area_short_good_coord <-
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(db_data_w_area_short_good_coord)
 # [1] 74520    18
@@ -176,7 +176,7 @@ safis_efforts_extended_2022_short_good <-
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
@@ -487,20 +487,20 @@ l %>%
 lat_lon_data_short <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
-  select(LATITUDE,
+  dplyr::select(LATITUDE,
          LONGITUDE,
          TRIP_ID)
 # |>
-  # distinct()
+  # dplyr::distinct()
 
 lat_lon_data_coord <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
   # na.omit() |>
-  select(LATITUDE,
+  dplyr::select(LATITUDE,
          LONGITUDE)
 # |>
-  # distinct()
+  # dplyr::distinct()
 
 # dim(lat_lon_data_uniq_coord)
 # [1] 35762     2
@@ -517,9 +517,9 @@ lat_lon_data_uniq_coord_ten_min <-
 
 lat_lon_data_uniq_coord_ten_min_short <-
   lat_lon_data_uniq_coord_ten_min |>
-  select(ten_min_lat, ten_min_lon)
+  dplyr::select(ten_min_lat, ten_min_lon)
 # |>
-  # distinct() |>
+  # dplyr::distinct() |>
   # dim()
 # [1] 1295    2
 
@@ -616,7 +616,7 @@ get_state_waters_sa_sf <- function() {
 
   sa_fl_state_w_counties_names <-
     as.data.frame(fl_counties_sa)[[1]] %>%
-    map_df(function(fl_county) {
+    purrr::map_df(function(fl_county) {
       # browser()
       sa_county <-
         fl_state_w_counties_names_df %>%
@@ -704,9 +704,9 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(all_of(fields_list)
+    dplyr::select(all_of(fields_list)
            # )
-    # select(
+    # dplyr::select(
     #   TRIP_START_DATE,
     #   TRIP_END_DATE,
     #   START_PORT,
@@ -813,19 +813,19 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 ## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 # by end_port, depth, month ---
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% glimpse()
+  dplyr::count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 # SA only ----
@@ -861,7 +861,7 @@ db_data_w_area_no_mex_uniq <-
 # keep fewer columns ----
 db_data_w_area_report_short <-
   db_data_w_area_no_mex_uniq %>%
-  select(all_of(fields_list))
+  dplyr::select(all_of(fields_list))
 
 dim(db_data_w_area_report_short)
 # 45315 10
@@ -960,7 +960,7 @@ get_state_waters_sa_sf <- function() {
 
   sa_fl_state_w_counties_names <-
     as.data.frame(fl_counties_sa)[[1]] %>%
-    map_df(function(fl_county) {
+    purrr::map_df(function(fl_county) {
       # browser()
       sa_county <-
         fl_state_w_counties_names_df %>%
@@ -1049,9 +1049,9 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(all_of(fields_list)
+    dplyr::select(all_of(fields_list)
            # )
-    # select(
+    # dplyr::select(
     #   TRIP_START_DATE,
     #   TRIP_END_DATE,
     #   START_PORT,
@@ -1158,19 +1158,19 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 ## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 # by end_port, depth, month ---
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% glimpse()
+  dplyr::count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 ## seasonally ----

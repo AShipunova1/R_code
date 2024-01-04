@@ -44,8 +44,8 @@ safis_clean <-
 
 double_names_pairs <-
   safis_clean %>%
-  filter(coastguard != statereg) %>%
-  select(coastguard, statereg) %>%
+  dplyr::filter(coastguard != statereg) %>%
+  dplyr::select(coastguard, statereg) %>%
   unique()
 # dim(double_names_pairs)
 # [1] 138507      2
@@ -60,21 +60,21 @@ compl_clean <- temp_var[[1]]
 corresp_clean <- temp_var[[2]]
 
 used_doube_pairs <- double_names_pairs %>%
-  filter(coastguard %in% compl_clean$vesselofficialnumber &
+  dplyr::filter(coastguard %in% compl_clean$vesselofficialnumber &
            statereg != "-")
 # 97
 
 used_doube_pairs <- double_names_pairs %>%
-  filter(statereg %in% compl_clean$vesselofficialnumber &
+  dplyr::filter(statereg %in% compl_clean$vesselofficialnumber &
            coastguard != "-") %>% add_row(used_doube_pairs)
 # 103
 
 used_doube_pairs <- double_names_pairs %>%
-  filter(coastguard %in% corresp_clean$vesselofficialnumber &
+  dplyr::filter(coastguard %in% corresp_clean$vesselofficialnumber &
            statereg != "-") %>% add_row(used_doube_pairs)
 # 185
 used_doube_pairs <- double_names_pairs %>%
-  filter(statereg %in% corresp_clean$vesselofficialnumber &
+  dplyr::filter(statereg %in% corresp_clean$vesselofficialnumber &
            coastguard != "-") %>% add_row(used_doube_pairs)
 # 205
 
@@ -99,15 +99,15 @@ for (i in 1:nrow(used_double_pairs_u)) {
   
   # look up in correspondence
   in_corr <- corresp_clean %>%
-    filter(grepl(pair, vesselofficialnumber)) %>%
-    select(vesselofficialnumber) %>%
-    # select(vesselofficialnumber, contact_freq) %>%
+    dplyr::filter(grepl(pair, vesselofficialnumber)) %>%
+    dplyr::select(vesselofficialnumber) %>%
+    # dplyr::select(vesselofficialnumber, contact_freq) %>%
     unique()
   
   # look up in compliance
   in_compl <- compl_clean %>%
-    filter(grepl(pair, vesselofficialnumber)) %>%
-    select(vesselofficialnumber) %>%
+    dplyr::filter(grepl(pair, vesselofficialnumber)) %>%
+    dplyr::select(vesselofficialnumber) %>%
     unique()
   
   # some combinations are too general
@@ -128,7 +128,7 @@ for (i in 1:nrow(used_double_pairs_u)) {
 # naming the columns
 names(df_out) <- c("pair", "correspondence", "compliance")
 
-# glimpse(df_out)
+# dplyr::glimpse(df_out)
 
 # write.csv(df_out, file = "double_ids_check.csv", row.names = F)
 

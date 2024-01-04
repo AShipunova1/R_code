@@ -18,14 +18,14 @@ mrip_fhier_by_state_long <-
   rename(c("MRIP" = "mrip_estimate_catch_by_species",
            "FHIER" = "fhier_quantity_by_sp_n_state10")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(MRIP,
              FHIER),
     names_to = "AGENCY",
     values_to = "CATCH_CNT"
   ) %>% 
-  mutate(name_cnts = paste(new_sta, AGENCY, CATCH_CNT)) %>%
-  ungroup()
+  dplyr::mutate(name_cnts = paste(new_sta, AGENCY, CATCH_CNT)) %>%
+  dplyr::ungroup()
 
 # mrip_fhier_by_state_long %>% head()
 
@@ -41,8 +41,8 @@ to_map <- function(mrip_fhier_by_state_df,
   if(is.na(jitter_factor)) jitter_factor = 0
   x_sf <-
     mrip_fhier_by_state_df %>%
-    mutate(latitude = jitter(latitude, factor = jitter_factor)) %>%
-    mutate(longitude = jitter(longitude, factor = jitter_factor)) %>%
+    dplyr::mutate(latitude = jitter(latitude, factor = jitter_factor)) %>%
+    dplyr::mutate(longitude = jitter(longitude, factor = jitter_factor)) %>%
     st_as_sf(coords = c("longitude",
                         "latitude"),
              crs = 4326)
@@ -101,8 +101,8 @@ all_10_png <- function(mrip_fhier_by_state_split_itis) {
 ## ---- FHIER: fish coords lat_lon_cnts to map ----
 lat_lon_cnts_rename <-
   lat_lon_cnts %>%
-  mutate(name_cnts = paste(latitude, longitude, fhier_quantity_by_sp_geo)) %>%
-  mutate(CATCH_CNT = fhier_quantity_by_sp_geo)
+  dplyr::mutate(name_cnts = paste(latitude, longitude, fhier_quantity_by_sp_geo)) %>%
+  dplyr::mutate(CATCH_CNT = fhier_quantity_by_sp_geo)
 
 fhier_lat_lon_split_itis <-
   split(lat_lon_cnts_rename,

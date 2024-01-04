@@ -326,7 +326,7 @@ read_shapefile <- function(filename) {
 # https://www.fisheries.noaa.gov/resource/map/defined-fishery-management-areas-south-atlantic-states-map-gis-data
 
 # see the function above, F2 in RStudio will show the function definition, when the cursor is on the name.
-sa_shp <- read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
+sa_shp <- read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)"
 )
 
 # see the function above
@@ -365,7 +365,7 @@ db_data_w_area_no_mex_uniq <-
 # keep fewer columns ----
 db_data_w_area_report_short <-
   db_data_w_area_no_mex_uniq %>%
-  select(all_of(fields_list))
+  dplyr::select(all_of(fields_list))
 
 # dim(db_data_w_area_report_short)
 

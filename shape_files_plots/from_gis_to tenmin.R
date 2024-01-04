@@ -106,7 +106,7 @@ get_ten_min_coords <- function(db_data) {
     ten_min_coords[nrow(ten_min_coords) + 1, ] <- temp_df
   }
   res <- ten_min_coords[complete.cases(ten_min_coords), ]
-  distinct(res)
+  dplyr::distinct(res)
 }
 
 show_dots_only <- function(lat_lon) {

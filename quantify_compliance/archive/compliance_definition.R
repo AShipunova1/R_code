@@ -25,7 +25,7 @@
 
 compl_clean_short_sa_vs_gom %>%
   filter(permit == "sa_only") %>%
-  filter(tolower(compliant_) == "yes") %>% glimpse()
+  filter(tolower(compliant_) == "yes") %>% dplyr::glimpse()
 # negativereports__ == 7
 
 
@@ -77,7 +77,7 @@ compl_clean_short_sa_vs_gom %>%
 # ====
 source(r"(~\R_code_github\quantify_compliance\quantify_compliance_start.R)")
 
-View(compl_clean_sa_vs_gom_plus_dual)
+# View(compl_clean_sa_vs_gom_plus_dual)
 compl_clean_short <-
   compl_clean_sa_vs_gom_plus_dual %>%
   select(
@@ -104,7 +104,7 @@ compl_clean_short <-
 
 err_desc_used <-
   err_desc %>%
-  mutate(affects_compliancy = case_when(
+  dplyr::mutate(affects_compliancy = dplyr::case_when(
     grepl("check", enabled_, ignore.case = TRUE) &
       grepl("check", overridable_, ignore.case = TRUE) ~ "YES",
     .default = "NO"
@@ -112,7 +112,7 @@ err_desc_used <-
 
 # err_desc_used %>%
 # filter(grepl("check", enabled_, ignore.case = TRUE)) %>%
-# arrange(overridable_) %>% View()
+# dplyr::arrange(overridable_) %>% View()
 
 # === separate by permit ====
 
@@ -120,7 +120,7 @@ compl_clean_short_sa_vs_gom <-
   separate_permits_into_3_groups(compl_clean_short)
 
 # test permit separation ----
-# glimpse(compl_clean_short_sa_vs_gom)
+# dplyr::glimpse(compl_clean_short_sa_vs_gom)
 compl_clean_short_sa_vs_gom %>%
   filter(permit == "sa_only" &
            grepl("G", permitgroup)) %>% head()
@@ -153,7 +153,7 @@ gom_or_dual_vessel_id <-
   unique()
 # 1518
 
-intersect(sa_only_vessel_id, gom_or_dual_vessel_id) %>% glimpse()
+intersect(sa_only_vessel_id, gom_or_dual_vessel_id) %>% dplyr::glimpse()
 # 0
 
 ### SA compliant & no reports:
@@ -181,7 +181,7 @@ sa_compliant__no_reports <-
 
 
 # %>%
-# glimpse()
+# dplyr::glimpse()
 # ---- compare permits in pims anf fhier compliance ----
 str(sa_only_vessel_id)
 str(active_permits_from_pims)
@@ -190,7 +190,7 @@ g_permits_from_sa_only <-
   inner_join(active_permits_from_pims, sa_only_vessel_id) %>%
   filter(grepl("g", tolower(permit_code))) %>%
   select(vessel_official_number, permit_code, type, ends_with("date")) %>%
-  arrange(expiration_date)
+  dplyr::arrange(expiration_date)
 # %>% View()
 # filter(expiration_date > "2021-01-01")
 
@@ -199,11 +199,11 @@ g_permits_types <-
   select(permit_code, type) %>% unique()
 # 14
 
-View(g_permits_types)
+# View(g_permits_types)
 
 g_permits_from_sa_only %>%
   select(permit_code, type) %>%
-  arrange(type) %>%
+  dplyr::arrange(type) %>%
   unique()
 # GOM
 # CHG: Gulf Charter/headboat For Coastal Migratory Pelagic Fish
@@ -217,7 +217,7 @@ gom_permits_from_sa_only <-
   # 24
   filter(effective_date < "2023-02-23") %>%
   # 12
-  arrange(effective_date)
+  dplyr::arrange(effective_date)
   # filter(year(effective_date) == 2022)
   # 7
 
@@ -234,7 +234,7 @@ combined_permits <-
 gom_permits_from_sa_only_short2 <-
   gom_permits_from_sa_only %>%
   select(vessel_official_number, c("effective_date", "expiration_date")) %>%
-  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
+  dplyr::mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
 
 # Dot notation
 # --- combine dates ---
@@ -257,7 +257,7 @@ combined_permit_dates <-
 gom_permits_from_sa_only_short <-
   gom_permits_from_sa_only %>%
   select(vessel_official_number, permit_code, effective_date, expiration_date) %>%
-  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
+  dplyr::mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
 
 # str(gom_permits_from_sa_only_short)
 
@@ -275,12 +275,12 @@ combined_permit_date <-
 gom_permits_from_sa_only_all <-
   g_permits_from_sa_only %>%
   filter(permit_code %in% c("CHG", "RCG")) %>%
-  arrange(effective_date)
+  dplyr::arrange(effective_date)
 
 gom_permits_from_sa_only_short_all <-
   gom_permits_from_sa_only_all %>%
   select(vessel_official_number, permit_code, effective_date, expiration_date) %>%
-  mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
+  dplyr::mutate(across(c("effective_date", "expiration_date"), .fns = as.character))
 
 gom_permits_from_sa_only_short_all_combined <-
   gom_permits_from_sa_only_short_all %>%

@@ -76,7 +76,7 @@ read_shapefile <- function(filename) {
 
 # see the function above, F2 in RStudio will show the function definition, when the cursor is on the name.
 sa_shp <-
-  read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
+  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
 
 # see the function above
 gom_reef_shp <-
@@ -88,7 +88,7 @@ clean_lat_long <- function(my_lat_long_df, my_limit = 1000) {
     # we can limit the amount of points to show on the map
     head(my_limit) %>%
     # all LONG should be negative
-    mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+    dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
     # remove coords outside off requested borders
     filter(between(LATITUDE, 23, 28) &
              between(LONGITUDE, -83, -71)) %>%
@@ -157,7 +157,7 @@ lat_long_area_clean_no_gom <-
 # create sf ----
 lat_long_area_clean_sf <-
   lat_long_area_clean_no_gom %>%
-  mutate(
+  dplyr::mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,

@@ -7,7 +7,7 @@ get_permit_data_from_PIMS_csv <- function() {
   active_permits_from_pims_raw <-
     load_csv_names(my_paths, permit_names_list)
   # View(active_permits_from_pims[[1]])
-  # glimpse(active_permits_from_pims_raw[[1]])
+  # dplyr::glimpse(active_permits_from_pims_raw[[1]])
 
   # clean_headers
   active_permits_from_pims_temp1 <-
@@ -45,8 +45,8 @@ get_permit_data_from_PIMS_csv <- function() {
 
   # test
   active_permits_from_pims %>%
-    select(status_date) %>%
-    arrange(desc(status_date)) %>% unique() %>% head()
+    dplyr::select(status_date) %>%
+    dplyr::arrange(desc(status_date)) %>% unique() %>% head()
   # correct
   # str(active_permits_from_pims)
 
@@ -81,8 +81,8 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits)
 
 # check status ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
-  select(status) |>
-  distinct()
+  dplyr::select(status) |>
+  dplyr::distinct()
 # # A tibble: 6 × 1
 #   status
 #   <chr>
@@ -104,8 +104,8 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
 ### check names ----
 # safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
 #   filter(!VESSEL_NAME == vessel_name) |>
-#   select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
-#   distinct() |>
+#   dplyr::select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
+#   dplyr::distinct() |>
 #   head()
 #   <chr>               <chr>        <chr>
 # 1 1212782             NO DOUBT     "NO DOUBT 2"
@@ -118,7 +118,7 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
 ### shorten ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
-  select(
+  dplyr::select(
     -c(
       VESSEL_NAME,
       TRIP_START_DATE,
@@ -147,7 +147,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short
       term_date
     )
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] 111716      5

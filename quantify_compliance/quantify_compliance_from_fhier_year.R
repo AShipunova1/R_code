@@ -16,6 +16,9 @@ add_total_cnt_in_gr <- function(my_df, group_by_col) {
 compl_clean_sa_vs_gom_m_int_filtered_tot <-
   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_filtered, "year_permit")
 
+compl_clean_sa_vs_gom_m_int_c_cnt_tot <- 
+  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_c, "year_permit")
+
 # check
 compl_clean_sa_vs_gom_m_int_filtered_tot %>%
   select(year_permit, total_vsl_y) %>%
@@ -105,6 +108,17 @@ compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide <-
   get_compl_by(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_cnt_short,
                group_by_for_compl)
 
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
+  compl_clean_sa_vs_gom_m_int_c_cnt_tot |>
+  dplyr::select(
+    vessel_official_number,
+    year_permit,
+    compliant_,
+    total_vsl_y
+  ) |>
+  dplyr::distinct() |>
+  get_compl_by(group_by_for_compl)
+
 dim(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide)
 # [1]    6 3662
 
@@ -129,6 +143,28 @@ cols_names <-
 compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long <-
   count_by_cols(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide,
                 cols_names)
+
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long <- 
+  count_by_cols(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide,
+                c("year_permit", "total_vsl_y"))
+
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa <- 
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long |> 
+  filter(year_permit == "2022 sa_only") |> 
+  select(vessel_official_number, is_compl_or_both) |> 
+  dplyr::distinct()
+
+# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa
+# 4039    
+# vessel_official_number 4039
+# is_compl_or_both          4
+
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_non_c <-
+  compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa |>
+  filter(is_compl_or_both == "NO")
+
+dim(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_non_c)
+# 512
 
 ### get cnts for compl, no compl, or both per month with exp ----
 cnts_for_compl <-
@@ -236,11 +272,11 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
   mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
-  # group_by(compliant_, perm_exp_y) %>%
-  # group_by(compliant_) %>%
-  group_by(perm_exp_y) %>%
+  # dplyr::group_by(compliant_, perm_exp_y) %>%
+  # dplyr::group_by(compliant_) %>%
+  dplyr::group_by(perm_exp_y) %>%
   # 1707 + 472
   # [1] 2179
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
@@ -535,7 +571,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
     percent_compl
   ) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                 <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl <int> 33, 19
 # $ total_weeks_per_vessel     <int> 52, 52
@@ -773,7 +809,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map(~ .x + labs(x = NULL, y = NULL))
+  purrr::map(~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
@@ -806,3 +842,4 @@ compl_clean_sa_vs_gom_m_int_1 |>
 
 # write_csv(compl_clean_sa_vs_gom_m_int_1,
 #           "compl_clean_sa_vs_gom_m_int_1.csv")
+

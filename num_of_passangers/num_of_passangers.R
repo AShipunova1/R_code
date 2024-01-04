@@ -7,7 +7,7 @@ data_overview(passengers_from_db)
 
 
 # check diff between logbook csv and db ----
-View(fhier_logbooks_content)
+# View(fhier_logbooks_content)
 fhier_logbooks_content %>%
   filter(trip_de >= "2022-01-01 00:00:00") %>%
   select(trip_id) %>% str()
@@ -97,14 +97,14 @@ str(trip_id_vessel_st_from_db)
 # is the diff by port? no
 str(in_db_only)
 # trip_id_vessel_st_from_db %<>%
-#   mutate(TRIP_ID = as.numeric(TRIP_ID))
+#   dplyr::mutate(TRIP_ID = as.numeric(TRIP_ID))
 trip_id_vessel_st_from_db %>%
   filter(TRIP_ID %in% in_db_only) %>%
   select(STATE_NAME) %>% unique()
 
 fhier_logbooks_content %>%
   select(start_port_state) %>%
-  arrange(start_port_state) %>%
+  dplyr::arrange(start_port_state) %>%
   unique()
 # 17
 # NJ              
@@ -118,7 +118,7 @@ head(in_db_only)
 vessel_nbr_trips_indb_only <-
   trip_id_vessel_st_from_db %>%
   filter(trip_id %in% in_db_only) %>%
-  mutate(vessel_off_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>% 
+  dplyr::mutate(vessel_off_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>% 
   # select(STATE_REG_NBR, COAST_GUARD_NBR) %>% 
   select(vessel_off_num) %>%
     unique() 
@@ -212,7 +212,7 @@ length(in_fhier_only)
 # VMS
 logbooks_downloaded_from_fhier %>%
   filter(supplier_trip_id %in% in_fhier_only) %>%
-  glimpse()
+  dplyr::glimpse()
 # $ activitystart_date        <chr> "06/23/2022", "06/03/2022"
 # $ activityend_date          <chr> "06/24/2022", "06/03/2021"
 # $ ue                        <chr> "VMS", "VMS"
@@ -226,8 +226,8 @@ in_db_only
 vessel_num_in_db_only <-
   trip_id_vessel_st_from_db %>%
   filter(supplier_trip_id %in% in_db_only) %>%
-  # glimpse()
-  mutate(vessel_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>%
+  # dplyr::glimpse()
+  dplyr::mutate(vessel_num = coalesce(state_reg_nbr, coast_guard_nbr)) %>%
   select(vessel_num)
 
 str(vessel_num_in_db_only)

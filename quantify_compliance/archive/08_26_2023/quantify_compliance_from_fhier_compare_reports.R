@@ -14,7 +14,7 @@ vessels_per_permit_from_j <-
 vessels_per_permit_from_j_vsl <-
   vessels_per_permit_from_j %>% 
   select(vessel_official_number) %>% 
-  arrange(vessel_official_number) %>% 
+  dplyr::arrange(vessel_official_number) %>% 
   unique()
 #   dim()
 # 2205    
@@ -27,7 +27,7 @@ compl_clean_sa_vs_gom_m_int_22_sa <-
 compl_clean_sa_vs_gom_m_int_22_sa_vsl <-
   compl_clean_sa_vs_gom_m_int_22_sa %>% 
   select(vessel_official_number) %>% 
-  arrange(vessel_official_number) %>%
+  dplyr::arrange(vessel_official_number) %>%
   unique()
 
 # dim(compl_clean_sa_vs_gom_m_int_22_sa_vsl)
@@ -160,7 +160,7 @@ glimpse(in_a_and_not_in_compl_counts)
 # in_a_and_not_in_compl_counts %>%
 #   select(vessel_official_number, permitgroup, week_end) %>%
 #   unique() %>%
-#   count(week_end) %>% 
+#   dplyr::count(week_end) %>% 
 #   View()
 
 # Difference between FHIER Compliance report and compliance counts

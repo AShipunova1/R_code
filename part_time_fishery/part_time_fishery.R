@@ -11,7 +11,7 @@ compl_clean_sa_vs_gom_m_int_1 <-
 
 # compl_clean_sa_vs_gom_m_int_1 |> 
 #   select(permit_sa_gom) |> 
-#   distinct()
+#   dplyr::distinct()
 
 # remove 2023 gom_only ----
 compl_clean_sa_vs_gom_m_int_filtered_2022_gom <-
@@ -22,7 +22,7 @@ compl_clean_sa_vs_gom_m_int_filtered_2022_gom <-
 compl_clean_sa_vs_gom_m_int_filtered_2022_gom_vsls <-
   compl_clean_sa_vs_gom_m_int_filtered_2022_gom |> 
   select(vessel_official_number) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # [1] 1304    1
 # 1304 total permitted in the compliance from FHIER ok
@@ -35,16 +35,16 @@ compl_clean_sa_vs_gom_m_int_filtered_2022_gom |>
   # has a declaration
   filter(gom_permitteddeclarations__ > 0) |> 
   select(vessel_official_number) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 808
 
 compl_clean_sa_vs_gom_m_int_filtered_2022_gom |> 
-  group_by(vessel_official_number) |> 
-  add_count(wt = gom_permitteddeclarations__) |> 
+  dplyr::group_by(vessel_official_number) |> 
+  dplyr::add_count(wt = gom_permitteddeclarations__) |> 
   filter(n == 0) |> 
   select(vessel_official_number) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 496   
 # 496 + 808 = 1304 ok

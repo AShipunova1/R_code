@@ -235,12 +235,12 @@ compl_clean_sa_vs_gom_m_int_filtered %>%
   dplyr::mutate(exp_w_end_diff_y =
                   as.numeric(as.Date(permitgroupexpiration) -
                                end_of_2022)) %>%
-  mutate(perm_exp_y =
-           case_when(exp_w_end_diff_y <= 0 ~ "expired",
+  dplyr::mutate(perm_exp_y =
+           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
                      exp_w_end_diff_y > 0 ~ "active")) %>%
-  # group_by(compliant_, perm_exp_y) %>%
-  # group_by(compliant_) %>%
-  group_by(perm_exp_y) %>%
+  # dplyr::group_by(compliant_, perm_exp_y) %>%
+  # dplyr::group_by(compliant_) %>%
+  dplyr::group_by(perm_exp_y) %>%
   # 1707 + 472
   # [1] 2179
   dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
@@ -507,7 +507,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 dim(count_weeks_per_vsl_permit_year_compl_p)
@@ -546,7 +546,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
     percent_compl
   ) %>%
   unique() %>%
-  glimpse()
+  dplyr::glimpse()
 # $ compliant_                 <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl <int> 33, 19
 # $ total_weeks_per_vessel     <int> 52, 52
@@ -783,7 +783,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map(~ .x + labs(x = NULL, y = NULL))
+  purrr::map(~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,

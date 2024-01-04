@@ -74,7 +74,7 @@ source(file.path(my_paths$git_r,
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc <-
 #   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
-#   filter(compl_w_total == "no")
+#   dplyr::filter(compl_w_total == "no")
 
 # v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_nc |>
 #   dim()
@@ -83,27 +83,27 @@ source(file.path(my_paths$git_r,
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt <-
   v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short |>
-  group_by(date_y_m,
+  dplyr::group_by(date_y_m,
            WEEK_OF_YEAR,
            compl_w_total) |>
-  mutate(vsls_nc_w = n_distinct(PERMIT_VESSEL_ID)) |>
-  ungroup()
+  dplyr::mutate(vsls_nc_w = n_distinct(PERMIT_VESSEL_ID)) |>
+  dplyr::ungroup()
 
 dim(v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt)
 # [1] 21551    11
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
-  filter(PERMIT_VESSEL_ID == "FL4459MW") |>
-  glimpse()
+  dplyr::filter(PERMIT_VESSEL_ID == "FL4459MW") |>
+  dplyr::glimpse()
 # $ WEEK_OF_YEAR         <dbl> 13, 14
 # $ date_y_m             <yearmon> Apr 2022, Apr 2022
 # $ compl_w_total        <chr> "no", "no"
 # $ vsls_nc_w            <int> 97, 143
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
-    filter(WEEK_OF_YEAR == 13) |>
+    dplyr::filter(WEEK_OF_YEAR == 13) |>
     head() |>
-    glimpse()
+    dplyr::glimpse()
 # $ PERMIT_VESSEL_ID     "FL4459MW", "FL4459PW", "FL4482NJ", "FL4482NJ", "FL3…
 # $ MONTH_OF_YEAR        4, 3, 3, 4, 3, 4
 # $ WEEK_OF_YEAR         13, 13, 13, 13, 13, 13
@@ -112,32 +112,32 @@ v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_s
 # $ vsls_nc_w            97, 251, 126, 97, 251, 151
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
-    filter(WEEK_OF_YEAR == 13 &
+    dplyr::filter(WEEK_OF_YEAR == 13 &
              date_y_m == "Mar 2022") |>
-    select(PERMIT_VESSEL_ID) |>
-    distinct() |>
-    count()
+    dplyr::select(PERMIT_VESSEL_ID) |>
+    dplyr::distinct() |>
+    dplyr::count()
 # 373
 
 v_p__t__tn_d_weeks_gom_short_matched_compl_w_5_overr_total_comp1_short_compl_w_short_cnt |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          # date_y_m,
          WEEK_OF_YEAR,
          compl_w_total) |>
-  distinct() |>
-  group_by(
+  dplyr::distinct() |>
+  dplyr::group_by(
     # date_y_m,
            WEEK_OF_YEAR,
            compl_w_total) |>
-  filter(WEEK_OF_YEAR == 13) |>
+  dplyr::filter(WEEK_OF_YEAR == 13) |>
   # subset(PERMIT_VESSEL_ID %in% PERMIT_VESSEL_ID[matched_compl == 'yes']) |>
-  mutate(cnt_vsls_w = n_distinct(PERMIT_VESSEL_ID)) |>
-  # glimpse()
+  dplyr::mutate(cnt_vsls_w = n_distinct(PERMIT_VESSEL_ID)) |>
+  # dplyr::glimpse()
   # Rows: 418
-  ungroup() |>
-  select(-PERMIT_VESSEL_ID) |>
-  distinct() |>
-  glimpse()
+  dplyr::ungroup() |>
+  dplyr::select(-PERMIT_VESSEL_ID) |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
 # $ WEEK_OF_YEAR  <dbl> 13, 13
 # $ compl_w_total <chr> "no", "yes"
 # $ cnt_vsls_w    <int> 144, 274
@@ -160,11 +160,11 @@ weeks_per_vsl_permit_year_compl_cnt <-
   dplyr::ungroup()
 
 weeks_per_vsl_permit_year_compl_cnt |>
-  filter(PERMIT_VESSEL_ID == "FL4463MX") |>
+  dplyr::filter(PERMIT_VESSEL_ID == "FL4463MX") |>
   View()
 
 weeks_per_vsl_permit_year_compl_cnt |>
-  filter(!weeks_per_vessel_per_compl == total_weeks_per_vessel) |>
+  dplyr::filter(!weeks_per_vessel_per_compl == total_weeks_per_vessel) |>
   dim()
 # [1] 8709   13
 
@@ -176,7 +176,7 @@ weeks_per_vsl_permit_year_compl_cnt %>%
                 # compl_m,
                 weeks_per_vessel_per_compl,
                 total_weeks_per_vessel) %>%
-  distinct()
+  dplyr::distinct()
 # 1 2022 yes 25 40
 # 2 2022 no  15 40
 
@@ -204,7 +204,7 @@ nc_2022_sa_only_test <-
                 weeks_per_vessel_per_compl,
                 total_weeks_per_vessel) %>%
   unique() |>
-  arrange(desc(total_weeks_per_vessel))
+  dplyr::arrange(desc(total_weeks_per_vessel))
 
 glimpse(nc_2022_sa_only_test)
 # 0
@@ -228,7 +228,7 @@ v_p__t__tn_d_weeks |>
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
-  mutate(percent_compl =
+  dplyr::mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p)
@@ -249,7 +249,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_m <-
     total_weeks_per_vessel,
     percent_compl
   ) %>%
-  distinct() |>
+  dplyr::distinct() |>
   unique()
 
 # <<<<<<< HEAD
@@ -286,7 +286,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_y <-
     total_weeks_per_vessel,
     percent_compl
   ) %>%
-  distinct() |>
+  dplyr::distinct() |>
   unique()
 # >>>> origin/current
 
@@ -526,7 +526,7 @@ dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_m)
 # [1] 2293    7 w month
 
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y |>
-  glimpse()
+  dplyr::glimpse()
 
 ### test 2 ----
 # count in one bucket
@@ -557,7 +557,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y %>%
   dplyr::count(percent_compl,
                # date_y_m,
                name = "amount_of_occurences") %>%
-  # glimpse()
+  # dplyr::glimpse()
 #   $ percent_compl        <dbl> 75.00000, 77.27273, 77.35849, 78.26087, 78.787…
 # $ amount_of_occurences <int> 4, 11, 12, 9, 9, 2, 9, 9, 9, 9, 20, 5, 5, 21, …
   dplyr::arrange(desc(percent_compl)) %>%
@@ -584,7 +584,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_y %>%
   # dplyr::filter(year_permit == "2022 sa_only") %>%
   dplyr::select(percent_n_compl_rank,
                 cnt_v_in_bucket) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   dplyr::add_count(wt = cnt_v_in_bucket, name = "total_per_y_r") %>%
   dplyr::arrange(percent_n_compl_rank) %>%
   str()
@@ -792,7 +792,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
       dplyr::select(exp_y_tot_cnt)
 
     expired_permits <- curr_df %>%
-      filter(perm_exp_y == "expired") %>%
+      dplyr::filter(perm_exp_y == "expired") %>%
       dplyr::select(exp_y_tot_cnt)
 
     # See the function definition F2
@@ -802,7 +802,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
 
     curr_blue_year_plot_title <-
       blue_year_plot_titles %>%
-      filter(year_permit == curr_year_permit)
+      dplyr::filter(year_permit == curr_year_permit)
 
     y_p_title <-
       paste0(
@@ -864,7 +864,7 @@ yleft <- textGrob("% per permit region",
 p <-
   list(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[1:2])[[1]] %>%
   # remove individual x and y labels for each plot
-  map( ~ .x + labs(x = NULL, y = NULL))
+  purrr::map( ~ .x + labs(x = NULL, y = NULL))
 
 plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,

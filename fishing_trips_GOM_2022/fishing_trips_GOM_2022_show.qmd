@@ -26,10 +26,10 @@ Ken Brennan has requested the 2022 number of fishing intended trips with effort 
 # data base questions
 # udp.v_sero_oth_prm_period_his@secpr_dblk
 # 1) what are end_date, expiration_date, last_expiration_date
-# 2) select distinct permit_status from
+# 2) dplyr::select distinct permit_status from
           # udp.v_sero_oth_prm_period_his@secpr_dblk;
 # -- MV_SAFIS_GOM_VESSELS
-# select distinct permit_status
+# dplyr::select distinct permit_status
 # "PERMIT_STATUS"
 # "EXPIRED"
 # "TERMINATED"
@@ -45,7 +45,7 @@ Ken Brennan has requested the 2022 number of fishing intended trips with effort 
 
 # 3) 
 # data_from_db %>% 
-#     select(ACTIVITY_TYPE_NAME) %>% unique()
+#     dplyr::select(ACTIVITY_TYPE_NAME) %>% unique()
 # 1 TRIP WITH EFFORT
 # 2 TRIP UNABLE TO FISH
 # Do we need 2?
@@ -170,7 +170,7 @@ fl_counties <- list(
 data_from_fhier_GOM_fl_counties <-
   data_from_fhier_GOM %>% 
   filter(ARRIVAL_PORT_STATE == "FL") %>% 
-  select(ARRIVAL_PORT_COUNTY) %>% 
+  dplyr::select(ARRIVAL_PORT_COUNTY) %>% 
   unique()
 
 str(data_from_fhier_GOM_fl_counties)
@@ -253,7 +253,7 @@ length(in_db_only_names_diff5)
 data_from_db_more_fields_gom0 <-
   data_from_db_more_fields %>%
   dplyr::filter(END_PORT_STATE %in% gom_state_abbr) %>%
-  dplyr::mutate(fl_county_gom = case_when(
+  dplyr::mutate(fl_county_gom = dplyr::case_when(
     toupper(END_PORT_COUNTY) %in% toupper(fl_counties$GOM) ~ "fl_county_gom",
     .default = 'not_gom'
   ))
@@ -349,7 +349,7 @@ glimpse(gom_fhier1_list_t$Round)
 # clean headers
 gom_fhier1_list_t <-
   purrr::map(gom_fhier1_list_t,
-          ~ mutate(.x,
+          ~ dplyr::mutate(.x,
           # gsub(pattern, replacement, x, ignore.case = FALSE...)
           # remove any of:
           state_abbr = gsub("Total |Rounded | Pct",
@@ -401,13 +401,13 @@ glimpse(compare_perc_db_fhier)
 ## Get total ----
 # DB:
 compare_perc_db_fhier %>%
-  count(wt = trip_by_state_num)
+  dplyr::count(wt = trip_by_state_num)
 #       n
 # 1 53504
 
 # FHIER:
 compare_perc_db_fhier %>%
-  count(wt = total_fhier)
+  dplyr::count(wt = total_fhier)
 #       n
 # 1 57116
 

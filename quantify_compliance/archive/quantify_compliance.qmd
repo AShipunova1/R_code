@@ -50,8 +50,8 @@ SA: CDW, CHS, SC
 ```{r separate into 2 groups: SA vs GOM + dual}
 compl_clean_sa_vs_gom_plus_dual_0 <-
   compl_clean %>%
-  mutate(permit =
-           case_when(
+  dplyr::mutate(permit =
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              .default = "gom"
            ))
@@ -65,7 +65,7 @@ glimpse(compl_clean_sa_vs_gom_plus_dual_0)
 compl_clean_sa_vs_gom_plus_dual <-
   compl_clean_sa_vs_gom_plus_dual_0 %>%
   # add month
-  mutate(year_month = as.yearmon(week_start))
+  dplyr::mutate(year_month = as.yearmon(week_start))
 
 glimpse(compl_clean_sa_vs_gom_plus_dual)
 ```
@@ -76,7 +76,7 @@ glimpse(compl_clean_sa_vs_gom_plus_dual)
 
 compl_clean_sa_vs_gom_plus_dual %>%
   select(vessel_official_number, compliant_, week, permit, year_month, year) %>%
-  # arrange(year, week, permit, vessel_official_number) %>%
+  # dplyr::arrange(year, week, permit, vessel_official_number) %>%
   head()
 
 ```
@@ -148,7 +148,7 @@ get_time_period_col_name <- function(my_df) {
 ```{r percent_by_time_period fun}
 percent_by_time_period <- function(my_df, time_period_field_name) {
   my_df %>%
-    group_by(!!sym(time_period_field_name)) %>%
+    dplyr::group_by(!!sym(time_period_field_name)) %>%
     # add columns
     summarize(
       # count by group
@@ -194,7 +194,7 @@ sa_per_week <-
 
 sa_compl_clean_sa_vs_gom_plus_dual_short %>%
   filter(week_start == "2022-12-26") %>%
-  glimpse()
+  dplyr::glimpse()
 ```
 
 ##### % from the function result:
@@ -220,7 +220,7 @@ percent_yes = **58.2**
 #| classes: test
 sa_compl_clean_sa_vs_gom_plus_dual_short %>%
   filter(week_start == "2022-12-26") %>%
-  group_by(compliant_, week_start) %>%
+  dplyr::group_by(compliant_, week_start) %>%
   summarise(count = n())
 ```
 
@@ -242,7 +242,7 @@ Percent of a "YES" for this week is **58.2**
 #| classes: test
 sa_compl_clean_sa_vs_gom_plus_dual_short %>%
   filter(week_start == "2022-12-26") %>%
-  group_by(week_start) %>%
+  dplyr::group_by(week_start) %>%
   summarise(count = n(),
       percent_yes = my_percent(sum(compliant_ == "YES"), count),
       percent_no = my_percent(sum(compliant_ == "NO"), count) # the same as "100 - percent_yes"
@@ -272,7 +272,7 @@ percent_plot <- function(my_df,
   # make a plot
   percent_p <-
     my_df %>%
-    pivot_longer(
+    tidyr::pivot_longer(
       # which columns to pivot
       starts_with("percent"),
       # pivot column names go to a new "key" column
@@ -287,14 +287,14 @@ percent_plot <- function(my_df,
     ))
   
   # rename column names for titles
-  my_title <- case_when(
+  my_title <- dplyr::case_when(
     time_period == "year" ~ "Annual",
     time_period == "year_month" ~ "Monthly",
     time_period == "week_start" ~ "Weekly"
   )
   
   # rename column names for x labels
-  my_x_lab <- case_when(
+  my_x_lab <- dplyr::case_when(
     time_period == "year" ~ "year",
     time_period == "year_month" ~ "month",
     time_period == "week_start" ~ "week"

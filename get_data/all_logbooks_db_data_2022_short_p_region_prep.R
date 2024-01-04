@@ -168,6 +168,9 @@ names(all_logbooks_db_data_2022_short_p_region) <-
   names(all_logbooks_db_data_2022_short_p_region) |>
   my_headers_case_function()
 
-# Output the objects, concatenating the representations. cat performs much less conversion than print.
-cat("all_logbooks_db_data_2022_short_p_region",
+# Output the object list. cat performs much less conversion than print.
+data_list <- c("all_get_db_data_result_l",
+               "all_logbooks_db_data_2022_short_p_region")
+
+cat(data_list,
     sep = '\n')

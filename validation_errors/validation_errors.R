@@ -14,7 +14,7 @@ source("~/R_code_github/validation_errors/validation_errors_get_data.r")
 by_year <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(arr_year) %>%
+    dplyr::group_by(arr_year) %>%
     summarise(n = n()) %>%
     return()
 }
@@ -31,14 +31,14 @@ by_year(dat_pending_date, c("trip_report_id", "arr_year"))
 
 dat_pending_date %>%
   select(trip_report_id, overridden, arr_year) %>%
-  group_by(overridden, arr_year) %>%
+  dplyr::group_by(overridden, arr_year) %>%
   summarise(n = n())
 
 ### From db by year_month ====
 by_year_month <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(arr_year_month) %>%
+    dplyr::group_by(arr_year_month) %>%
     summarise(n = n()) %>%
     return()
 }
@@ -52,15 +52,15 @@ db_pending_by_year_month <-
 by_year_month_wide <- function(my_df, fields_to_select_list) {
   my_df %>%
     select(all_of(fields_to_select_list)) %>%
-    group_by(overridden, arr_year_month) %>%
+    dplyr::group_by(overridden, arr_year_month) %>%
     summarise(n = n()) %>%
     # A tibble: 23 × 3
-    # ungroup() %>%
-    pivot_wider(names_from = overridden, values_from = n) %>%
+    # dplyr::ungroup() %>%
+    tidyr::pivot_wider(names_from = overridden, values_from = n) %>%
     # NAs to 0
     mutate(pending = coalesce(pending, 0),
            overridden = coalesce(overridden, 0)) %>%
-    arrange(arr_year_month) %>%
+    dplyr::arrange(arr_year_month) %>%
     # tail()
     mutate(total = overridden + pending) %>%
     return()
@@ -136,9 +136,9 @@ db_data_22_plus <-
 # db_data_22_plus %>%
 #   # dim()
 #   # [1] 48571    18
-#   count(val_param_name, arr_year_month) %>%
-#   arrange(arr_year_month) %>%
-#   pivot_wider(names_from = arr_year_month, values_from = n) %>%
+#   dplyr::count(val_param_name, arr_year_month) %>%
+#   dplyr::arrange(arr_year_month) %>%
+#   tidyr::pivot_wider(names_from = arr_year_month, values_from = n) %>%
 #   as.data.frame() %>%
 #   write.xlsx(
 #     file.path(
@@ -156,26 +156,26 @@ db_data_22_plus <-
 
 db_data_22_plus_overr <-
   db_data_22_plus %>%
-  count(arr_year_month, val_param_name, overridden)
+  dplyr::count(arr_year_month, val_param_name, overridden)
 
 names(db_data_22_plus_overr)
 
 db_data_22_plus_overr %>%
-  pivot_longer(c(val_param_name, overridden)) %>%
+  tidyr::pivot_longer(c(val_param_name, overridden)) %>%
   #   dplyr::group_by(n, name, arr_year_month) %>%
   # dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
   # dplyr::filter(n > 1L)
-  pivot_wider(names_from = arr_year_month,
+  tidyr::pivot_wider(names_from = arr_year_month,
               values_from = value) %>%
     str()
 
 
-  # pivot_longer(-c(Species,num,ID)) %>%
-  # pivot_wider(names_from = ID,values_from=value)
+  # tidyr::pivot_longer(-c(Species,num,ID)) %>%
+  # tidyr::pivot_wider(names_from = ID,values_from=value)
 
 db_data_22_plus_overr_wide <-
   db_data_22_plus_overr %>%
-  pivot_wider(names_from = c(arr_year_month, overridden),
+  tidyr::pivot_wider(names_from = c(arr_year_month, overridden),
               values_from = n) %>%
   as.data.frame()
 
@@ -202,7 +202,7 @@ db_data_22_plus_overr_wide_tot <-
   db_data_22_plus_overr_wide %>% 
   # add total, exclude param names
   mutate(total_by_param = rowSums(.[2:23], na.rm = TRUE)) %>%
-  arrange(desc(total_by_param))
+  dplyr::arrange(desc(total_by_param))
 
 # [1,]
 names(db_data_22_plus_overr_wide_tot)
@@ -449,7 +449,7 @@ db_data_22_plus_overr_wide_tot_transposed_short <-
 
 # names(db_data_22_plus_overr_wide_tot_transposed_short)
 all_plots_p <-
-  map(db_data_22_plus_overr_wide_tot_transposed_short,
+  purrr::map(db_data_22_plus_overr_wide_tot_transposed_short,
       get_plot_for_1param)
 
 # all_plots[1]
@@ -496,7 +496,7 @@ grid.arrange(
 # plots by numbers ----
 
 all_plots_n <-
-  map(db_data_22_plus_overr_wide_tot_transposed_short,
+  purrr::map(db_data_22_plus_overr_wide_tot_transposed_short,
       function(x) {
         get_plot_for_1param(x, no_legend = TRUE, percent = FALSE)
       })
@@ -526,12 +526,12 @@ transform_to_plot <- function(my_df) {
     mutate(arr_year_month =
              format(arr_year_month, "%m-%y")) %>%
     select(-overridden) %>%
-    pivot_wider(names_from = c(arr_year_month),
+    tidyr::pivot_wider(names_from = c(arr_year_month),
                 values_from = n) %>%
     # count total by row in all columns except param names
     mutate(total_by_param = rowSums(.[2:dim(.)[2]], na.rm = TRUE)) %>%
     # sort
-    arrange(desc(total_by_param)) %>%
+    dplyr::arrange(desc(total_by_param)) %>%
     # transpose
     t() %>%
     as.data.frame() %>%
@@ -564,7 +564,7 @@ db_data_22_plus_overr_only_wide_transposed_short <-
 #### plots by numbers for overridden ----
 
 all_plots_n_overridden <-
-  map(db_data_22_plus_overr_only_wide_transposed_short,
+  purrr::map(db_data_22_plus_overr_only_wide_transposed_short,
       function(x) {
         get_plot_for_1param(
           x,
@@ -605,7 +605,7 @@ db_data_22_plus_pending_only_wide_transposed_short <-
 #### plots by numbers for overridden and pending ----
 
 all_plots_n_pending <-
-  map(db_data_22_plus_pending_only_wide_transposed_short,
+  purrr::map(db_data_22_plus_pending_only_wide_transposed_short,
       function(x) {
         get_plot_for_1param(
           x,

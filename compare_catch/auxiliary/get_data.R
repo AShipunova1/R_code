@@ -56,9 +56,9 @@ load_acl_data <- function() {
 
   # add prefix to each file name
   acl_csv_names_list <-
-    map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
+    purrr::map_chr(acl_csv_names_list_raw, ~ file.path(acl_dir_path, .x))
   acl_xls_names_list <-
-    map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
+    purrr::map_chr(acl_xls_names_list_raw, ~ file.path(acl_dir_path, .x))
   # browser()  
   acl_species_list <- load_csv_names(my_paths, acl_csv_names_list)
   
@@ -112,7 +112,7 @@ scientific_names <- get_scientific_names()
 data_list_names <- list("fhier_species_count_by_disposition", "acl_species_list", "acl_estimate", "scientific_names")
 
 rename_all_field_names <- function() {
-# TODO: benchmark with map()
+# TODO: benchmark with purrr::map()
   for (d_name in data_list_names) {
     # get an object (df) by its name
     tmp0 <- get(d_name)
@@ -143,7 +143,7 @@ rename_all_field_names <- function() {
 #   if(file.exists(port_coords_file_name)) {
 #     read_csv(port_coords_file_name,
 #                      show_col_types = FALSE) %>% 
-#              mutate(across(.fns = as.character))
+#              dplyr::mutate(across(.fns = as.character))
 #   }
 # }
 # port_coords <- read_port_coords()

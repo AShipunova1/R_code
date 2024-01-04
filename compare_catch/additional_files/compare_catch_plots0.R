@@ -36,7 +36,7 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
  one_plot <-
   my_df %>%
     # only get the com name from the parameters
-    filter(common_name == !!com_name) %>%
+    dplyr::filter(common_name == !!com_name) %>%
   ggplot(
          aes(x = wave,
              y = CATCH_CNT,
@@ -80,37 +80,37 @@ plot_by_spp <- function(com_name, my_df, no_legend = TRUE) {
 #### GOM fhier test ----
 # names(fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom)
 fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
-              filter(sa_gom == "gom") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::filter(sa_gom == "gom") %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
 #### SA sa_acl test ----
 
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
       use_series(mackerel_acl_cnt) %>%
   identical(
     acl_test_cnts %>%
-              filter(sa_gom == "sa") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::filter(sa_gom == "sa") %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
 ## keep only entries for spp. in the top ten list, separately for each region ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$gom %>%
-  filter(species_itis %in% gom_top_spp$species_itis)
+  dplyr::filter(species_itis %in% gom_top_spp$species_itis)
 # 231  
-# filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
+# dplyr::filter(species_itis %in% n_most_frequent_fhier_10_list$gom$species_itis)
 # Rows: 217
 # str(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 # ?'data.frame':	196 obs. of  6 variables
@@ -118,8 +118,8 @@ fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 <-
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 <-
   fhier_acl_catch_by_species_state_region_waves_list_for_plot$sa %>%
-  filter(species_itis %in% sa_top_spp$species_itis) %>%
-  mutate()
+  dplyr::filter(species_itis %in% sa_top_spp$species_itis) %>%
+  dplyr::mutate()
   
 glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # Rows: 300
@@ -128,7 +128,7 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 # 228 (new list)
 # 206 with combined dolphins
 
-# fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>% select(common_name) %>% unique()
+# fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>% dplyr::select(common_name) %>% unique()
 
 #| classes: test
 
@@ -137,58 +137,58 @@ glimpse(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10)
 
 #### test SA, FHIER counts ----
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-  select(mackerel_fhier_cnt) %>%
+  dplyr::select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
-              filter(sa_gom == "sa") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::filter(sa_gom == "sa") %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
 # GOM, FHIER counts
 
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
-  select(mackerel_fhier_cnt) %>%
+  dplyr::select(mackerel_fhier_cnt) %>%
   use_series(mackerel_fhier_cnt) %>%
   identical(
     fhier_test_cnts %>%
-              filter(sa_gom == "gom") %>%
-              select(mackerel_fhier_cnt) %>%
+              dplyr::filter(sa_gom == "gom") %>%
+              dplyr::select(mackerel_fhier_cnt) %>%
               use_series(mackerel_fhier_cnt)
             )
 
 # SA, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10 %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
-  select(mackerel_acl_cnt) %>%
+  dplyr::select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>% 
   identical(
     acl_test_cnts %>%
-              filter(sa_gom == "sa") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::filter(sa_gom == "sa") %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
 # GOM, ACL counts
 fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10 %>%
-  filter(species_itis == test_species_itis) %>%
-  group_by(species_itis) %>%
+  dplyr::filter(species_itis == test_species_itis) %>%
+  dplyr::group_by(species_itis) %>%
   summarise(mackerel_acl_cnt = sum(acl_estimate_catch_by_4, na.rm = TRUE)) %>%
-    select(mackerel_acl_cnt) %>%
+    dplyr::select(mackerel_acl_cnt) %>%
   use_series(mackerel_acl_cnt) %>%
   identical(
     acl_test_cnts %>%
-              filter(sa_gom == "gom") %>%
-              select(mackerel_acl_cnt) %>%
+              dplyr::filter(sa_gom == "gom") %>%
+              dplyr::select(mackerel_acl_cnt) %>%
               use_series(mackerel_acl_cnt)
             )
 
@@ -201,15 +201,15 @@ fhier_acl_to_plot_format <- function(my_df) {
   rename(c("ACL" = "acl_estimate_catch_by_4",
            "FHIER" = "fhier_quantity_by_4")) %>%
   # reformat to a long format to have fhier and acl data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(ACL,
              FHIER),
     names_to = "ORIGIN",
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
-    group_by(wave, species_itis, common_name, ORIGIN) %>%
+  dplyr::select(wave, species_itis, common_name, ORIGIN, CATCH_CNT) %>%
+    dplyr::group_by(wave, species_itis, common_name, ORIGIN) %>%
     summarise(CATCH_CNT = sum(CATCH_CNT)) %>%
     return()
 }
@@ -225,7 +225,7 @@ plot(fhier_acl_gom_to_plot)
 # plot_by_spp("MACKEREL, SPANISH", fhier_acl_gom_to_plot)
 
 ### GOM plots for each common name from the top 10 ----
-plots10_gom <- map(unique(fhier_acl_gom_to_plot$common_name),
+plots10_gom <- purrr::map(unique(fhier_acl_gom_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_gom_to_plot)}
                )
@@ -253,15 +253,15 @@ grid.arrange(grobs = plots10_gom,
 
 fhier_acl_sa_to_plot <-
   fhier_acl_to_plot_format(fhier_acl_catch_by_species_state_region_waves_list_for_plot_sa10) %>% 
-  ungroup()
+  dplyr::ungroup()
 
-# glimpse(fhier_acl_sa_to_plot)
+# dplyr::glimpse(fhier_acl_sa_to_plot)
 
 # An overview plot
 # plot(fhier_acl_sa_to_plot)
 
            # for each common name from the top 10
-sa_plots10 <- map(unique(fhier_acl_sa_to_plot$common_name),
+sa_plots10 <- purrr::map(unique(fhier_acl_sa_to_plot$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, fhier_acl_sa_to_plot)}
                )
@@ -326,13 +326,13 @@ The smaller the bar is the closer the ACL estmates are to the FHIER counts.",
 )
 
 ## plot_ind function ----
-# map(unique(fhier_acl_gom_ind$common_name)
+# purrr::map(unique(fhier_acl_gom_ind$common_name)
 
 plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
   # browser()
   one_ind_plot <-
     my_df %>%
-    filter(common_name == com_n) %>%
+    dplyr::filter(common_name == com_n) %>%
     ggplot(aes(x = wave,
                y = cnt_index,
                fill = as.factor(cnt_index)
@@ -362,27 +362,27 @@ plot_ind <- function(my_df, com_n, mypalette, no_legend = TRUE) {
 ## calculate_cnt_index function ----
 calculate_cnt_index <- function(my_df) {
   my_df %>%
-    select(-c(state, species_itis)) %>%
-    mutate_all( ~ replace_na(., 0)) %>%
-    group_by(year_wave, common_name) %>%
+    dplyr::select(-c(state, species_itis)) %>%
+    dplyr::mutate_all( ~ replace_na(., 0)) %>%
+    dplyr::group_by(year_wave, common_name) %>%
     # aggregate counts by states
     summarise(
       fhier_cnts = sum(fhier_quantity_by_4),
       acl_cnts = sum(acl_estimate_catch_by_4)
     ) %>%
-    mutate(cnt_index = (acl_cnts - fhier_cnts) /
+    dplyr::mutate(cnt_index = (acl_cnts - fhier_cnts) /
              (acl_cnts + fhier_cnts)) %>%
-    mutate(cnt_index = round(cnt_index, 2)) %>%
+    dplyr::mutate(cnt_index = round(cnt_index, 2)) %>%
     return()
 }
 
 ### GOM index ----
 fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region_waves_list_for_plot_gom10)
 
-# glimpse(fhier_acl_gom_ind)
+# dplyr::glimpse(fhier_acl_gom_ind)
 # fhier_acl_gom_ind %>%
-#   mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
-#   select(wave) %>% unique()
+#   dplyr::mutate(wave = strsplit(year_wave, "_")[[1]][[2]]) %>%
+#   dplyr::select(wave) %>% unique()
 # 
 # fhier_acl_gom_ind <-
 #   fhier_acl_gom_ind %>%
@@ -392,9 +392,9 @@ fhier_acl_gom_ind <- calculate_cnt_index(fhier_acl_catch_by_species_state_region
 #     # cols_remove = F,
 #     names = c("year", "wave")
 #   ) %>%
-#   select(-year)
+#   dplyr::select(-year)
 # # %>%
-#   # select(year_wave, wave) %>% unique()
+#   # dplyr::select(year_wave, wave) %>% unique()
 # 
 # strsplit("2022_1", "_")[[1]][[2]]
 
@@ -409,11 +409,11 @@ mypalette = viridis(q_colors_gom, option = "D")
 names(mypalette) <- gom_all_cnt_indexes
 mypalette
 
-# use_wave(fhier_acl_gom_ind) %>% glimpse()
+# use_wave(fhier_acl_gom_ind) %>% dplyr::glimpse()
 
 one_plot <- plot_ind(use_wave(fhier_acl_gom_ind), "MACKEREL, SPANISH", mypalette)
 
-gom_ind_plots <- map(unique(fhier_acl_gom_ind$common_name),
+gom_ind_plots <- purrr::map(unique(fhier_acl_gom_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_ind(use_wave(fhier_acl_gom_ind), x, mypalette)}
                )
@@ -444,7 +444,7 @@ names(mypalette) <- sa_all_cnt_indexes
 mypalette
 # mypalette %>% unique()
 
-sa_ind_plots <- map(unique(fhier_acl_sa_ind$common_name),
+sa_ind_plots <- purrr::map(unique(fhier_acl_sa_ind$common_name),
               # run the plot_ind with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_ind(use_wave(fhier_acl_sa_ind), x, mypalette)}
                )
@@ -550,17 +550,17 @@ gom_acl_top_to_plot <-
 # 'data.frame':	225 obs. of  7 variables:
 
 gom_acl_top_to_plot_longer <- fhier_acl_to_plot_format(gom_acl_top_to_plot)
-View(gom_acl_top_to_plot_longer)
+# View(gom_acl_top_to_plot_longer)
 
 ### GOM plots for each common name from the top 10 ----
-plots_acl_top_gom <- map(unique(gom_acl_top_to_plot_longer$common_name),
+plots_acl_top_gom <- purrr::map(unique(gom_acl_top_to_plot_longer$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, gom_acl_top_to_plot_longer)}
                )
 
 # plots_acl_top_gom[[2]]
 # both_by_to_acl %>%
-#   filter(common_name == 'RUNNER, BLUE' &
+#   dplyr::filter(common_name == 'RUNNER, BLUE' &
 #            wave == 1)
 
 # Title for all plots together
@@ -596,15 +596,15 @@ sa_acl_top_to_plot_longer <- fhier_acl_to_plot_format(sa_acl_top_to_plot)
 # test the longer format transformation ----
 # View(sa_acl_top_to_plot)
 # sa_acl_top_to_plot %>% 
-#   filter(species_itis == '173138') %>%
-# count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
+#   dplyr::filter(species_itis == '173138') %>%
+# dplyr::count(acl_count = sum(acl_estimate_catch_by_4)) %>% head()
 # # 41469 
-# filter(sa_acl_top_spp, species_itis == '173138')
+# dplyr::filter(sa_acl_top_spp, species_itis == '173138')
 # # 41469 
 
 
 ### sa plots for each common name from the top ACL spp ----
-plots_acl_top_sa <- map(unique(sa_acl_top_to_plot_longer$common_name),
+plots_acl_top_sa <- purrr::map(unique(sa_acl_top_to_plot_longer$common_name),
               # run the plot_by_spp with this common name as a parameter and the default value for no_legend (TRUE)
                function(x) {plot_by_spp(x, sa_acl_top_to_plot_longer)}
                )
@@ -662,15 +662,15 @@ my_df_long <-
   rename(c("ACL" = "rec_acl_sum_cnts",
            "FHIER" = "fhier_sum_cnts")) %>%
   # reformat to a long format to have fhier and acl data side by side
-  pivot_longer(
+  tidyr::pivot_longer(
     cols = c(ACL,
              FHIER),
     names_to = "ORIGIN",
     values_to = "CATCH_CNT"
   ) %>%
   # use only the new columns
-  select(common_name, ORIGIN, CATCH_CNT) %>%
-    group_by(common_name, ORIGIN) %>%
+  dplyr::select(common_name, ORIGIN, CATCH_CNT) %>%
+    dplyr::group_by(common_name, ORIGIN) %>%
     summarise(CATCH_CNT = sum(CATCH_CNT))
 
 my_df_long %>%

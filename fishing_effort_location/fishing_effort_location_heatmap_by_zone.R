@@ -24,7 +24,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf <-
         coords = c("longitude", "latitude"),
         crs = st_crs(GOMsf)) |>
   st_join(GOMsf, left = FALSE) %>%
-  mutate(longitude = st_coordinates(.)[, 1],
+  dplyr::mutate(longitude = st_coordinates(.)[, 1],
          latitude = st_coordinates(.)[, 2])
 toc()
 # for_heatmap_lat_lon_trips_vessels_only_join_gomsf_1: 0.5 sec elapsed
@@ -38,12 +38,12 @@ dim(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf)
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf |>
   # sf::st_drop_geometry() |>
-  group_by(StatZone) |>
-  mutate(vsl_cnt_stat_zone = n_distinct(vessel_official_nbr),
+  dplyr::group_by(StatZone) |>
+  dplyr::mutate(vsl_cnt_stat_zone = n_distinct(vessel_official_nbr),
          trip_id_cnt_stat_zone = n_distinct(trip_id)) |>
-  ungroup()
+  dplyr::ungroup()
 
-View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
+# View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
 
 # for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
 #   filter(vsl_cnt_stat_zone < 3) |>
@@ -52,16 +52,16 @@ View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt)
 # check
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
     sf::st_drop_geometry() |>
-    select(vsl_cnt_stat_zone) |>
-    distinct() |>
-    arrange(vsl_cnt_stat_zone)
+    dplyr::select(vsl_cnt_stat_zone) |>
+    dplyr::distinct() |>
+    dplyr::arrange(vsl_cnt_stat_zone)
 
 ### remove extra columns ----
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt |>
-  select(-c(latitude, longitude, trip_id, vessel_official_nbr)) |>
-  distinct() |>
-  ungroup()
+  dplyr::select(-c(latitude, longitude, trip_id, vessel_official_nbr)) |>
+  dplyr::distinct() |>
+  dplyr::ungroup()
 
 # View(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short)
 # [1] 35822     4
@@ -80,7 +80,7 @@ for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short_rule3 <-
 for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short_df <-
   for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short |>
   sf::st_drop_geometry() |>
-  distinct()
+  dplyr::distinct()
 # 21
 
 # class(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short_df)
@@ -100,7 +100,7 @@ shape_data <- gomshp_zone_cnt
 # ggplot(map.df,aes(x=long,y=lat,group=group))+
 #   geom_polygon(aes(fill=delta),color="grey20")+
 
-# glimpse(gomshp_zone_cnt)
+# dplyr::glimpse(gomshp_zone_cnt)
 # mapview(for_heatmap_lat_lon_trips_vessels_only_inters_gomsf_cnt_short)
 
 plot_zone_cnt <-
@@ -183,15 +183,15 @@ map_trips_stat_zone <-
 
 # Repeat separately for charter and headboat ----
 
-# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they selected that in the logbook.
+# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they dplyr::selected that in the logbook.
 
 ## get trip_type data ----
 
 my_vessels_trips <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_and_dual |>
-  select(vessel_official_nbr,
+  dplyr::select(vessel_official_nbr,
          trip_id) |>
-  distinct()
+  dplyr::distinct()
 
 str(my_vessels_trips)
 # chr [1:626] "FL9312NA" "FL6074MJ" "FL4038KN" "FL0957RW" "FL4521RU" "994360" ...
@@ -229,7 +229,7 @@ tail(my_vessels_ids_u)
 
 vsl_id_q_part <-
   all_ch |>
-  map(\(one_chunk) str_glue("vessel_official_nbr in ('{one_chunk}')"))
+  purrr::map(\(one_chunk) str_glue("vessel_official_nbr in ('{one_chunk}')"))
 
 collect_parts <-
   paste(vsl_id_q_part, collapse = ' OR ')
@@ -294,7 +294,7 @@ toc()
 # TRIP_ID             47702
 # VESSEL_OFFICIAL_NBR 618
 
-# glimpse(my_vessels_trips)
+# dplyr::glimpse(my_vessels_trips)
 
 glimpse(trip_type_data_from_db)
 # Rows: 47,702
@@ -303,14 +303,14 @@ glimpse(trip_type_data_from_db)
 trip_type_data_from_db_by_t_id <-
   trip_type_data_from_db |>
   filter(trip_id %in% my_vessels_trips$trip_id) |>
-  distinct()
+  dplyr::distinct()
 
 glimpse(trip_type_data_from_db_by_t_id)
 # Rows: 39,977
 
 ## add trip_type data to the original data ----
 trip_type_data_from_db_by_t_id <-
-  mutate(trip_type_data_from_db_by_t_id,
+  dplyr::mutate(trip_type_data_from_db_by_t_id,
        trip_id = as.character(trip_id))
 
 trip_type_data_from_db_by_t_id_types <-
@@ -323,13 +323,13 @@ trip_type_data_from_db_by_t_id_types_l <-
   trip_type_data_from_db_by_t_id_types |>
   split(as.factor(trip_type_data_from_db_by_t_id_types$trip_type_name)) |>
   # remove extra columns in each df
-  map(\(x)
+  purrr::map(\(x)
       x |>
         dplyr::select(trip_id, vessel_official_nbr, latitude, longitude) |>
-        distinct())
+        dplyr::distinct())
 
 
-# glimpse(trip_type_data_from_db_by_t_id_types)
+# dplyr::glimpse(trip_type_data_from_db_by_t_id_types)
 # List of 2
 #  $ CHARTER :'data.frame':	39835 obs. of  3 variables:
 #  $ HEADBOAT:'data.frame':	142 obs. of  3 variables:
@@ -341,19 +341,19 @@ trip_type_data_from_db_by_t_id_types_l <-
 
 tic("effort_t_type")
 effort_t_type <-
-  map(trip_type_data_from_db_by_t_id_types_l, df_join_grid)
+  purrr::map(trip_type_data_from_db_by_t_id_types_l, df_join_grid)
 toc()
 # effort_t_type: 0.7 sec elapsed
 # dim(effort_t_type)
 
 tic("effort_t_type_cropped")
-effort_t_type_cropped <- map(effort_t_type, crop_by_shape)
+effort_t_type_cropped <- purrr::map(effort_t_type, crop_by_shape)
 toc()
 # effort_t_type_cropped: 1.04 sec elapsed
 
 str(effort_t_type_cropped)
 
-effort_t_type_cropped_cnt <- map(effort_t_type_cropped, add_vsl_and_trip_cnts)
+effort_t_type_cropped_cnt <- purrr::map(effort_t_type_cropped, add_vsl_and_trip_cnts)
 
 map_df(effort_t_type_cropped_cnt, dim)
 #   CHARTER HEADBOAT
@@ -368,7 +368,7 @@ map_df(effort_t_type_cropped_cnt, dim)
 
 ### join with min grid ----
 effort_t_type_cropped_cnt_join_grid <-
-  map(effort_t_type_cropped_cnt,
+  purrr::map(effort_t_type_cropped_cnt,
       \(x)
       # have to use data.frame, to avoid
       # Error: y should not have class sf; for spatial joins, use st_join
@@ -384,7 +384,7 @@ effort_t_type_cropped_cnt_join_grid <-
 
 map_trips_types <-
   names(effort_t_type_cropped_cnt_join_grid) |>
-  map(
+  purrr::map(
     \(charter_headb) make_map_trips(
       effort_t_type_cropped_cnt_join_grid[[charter_headb]],
       shape_data = st_union_GOMsf,

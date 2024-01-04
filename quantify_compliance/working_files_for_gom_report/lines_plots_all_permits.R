@@ -3,11 +3,11 @@ year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2)
 
-pecent_names <- paste0(seq(0, 100, by = 10), "%")
+percent_names <- paste0(seq(0, 100, by = 10), "%")
 
 line_plots_3 <- 
   year_permits |> 
-  map(function(current_year_permit) {
+  purrr::map(function(current_year_permit) {
     # browser()
     current_df <-
       count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2[[current_year_permit]]
@@ -93,31 +93,31 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 
 min_max_val <-
   test_df |>
-  group_by(percent_non_compl_2_buckets) |>
+  dplyr::group_by(percent_non_compl_2_buckets) |>
   mutate(
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   mutate(
     max_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == max_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       ),
     min_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == min_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
   mutate(
     max_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
       ),
     min_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(min_dot_month) ~ str_glue(max_min_text)
       )
   )
@@ -155,7 +155,7 @@ test_df |> select(
   perc_vsls_per_m_b2,
   percent_non_compl_2_buckets
 ) |>
-  arrange(year_month) |>
+  dplyr::arrange(year_month) |>
   View()
 # |>
 #   write_csv("month_with_numbers_gom_22.csv")

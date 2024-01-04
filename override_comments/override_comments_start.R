@@ -43,7 +43,7 @@ vesl_override_cmts <-
 
 override_cmts_data_sep_cmts <-
   override_cmts_data %>%
-  mutate(comment_group = case_when(
+  dplyr::mutate(comment_group = dplyr::case_when(
     grepl("vesl", COMP_OVERRIDE_CMT,
           ignore.case = T) ~ "vesl_comment",
     grepl("ETRIPS", COMP_OVERRIDE_CMT,
@@ -71,7 +71,7 @@ write_csv(override_cmts_data_sep_cmts,
 
 override_cmts_data_sep_cmts_other <-
   override_cmts_data_sep_cmts %>% 
-  arrange(desc(COMP_WEEK_END_DT)) %>% 
+  dplyr::arrange(desc(COMP_WEEK_END_DT)) %>% 
   filter(comment_group == "")
 
 override_cmts_data_sep_cmts_other %>% 
@@ -79,9 +79,9 @@ override_cmts_data_sep_cmts_other %>%
   View()
 
 override_cmts_data_sep_cmts_other %>%
-  # count(COMP_OVERRIDE_CMT, COMP_YEAR) %>% View()
+  # dplyr::count(COMP_OVERRIDE_CMT, COMP_YEAR) %>% View()
   filter(COMP_YEAR > "2021") %>%
-  count(COMP_OVERRIDE_CMT) %>%
+  dplyr::count(COMP_OVERRIDE_CMT) %>%
   filter(n > 1) %>%
   View()
 

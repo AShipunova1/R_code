@@ -10,19 +10,19 @@ fhier_catch_by_species_state_region_waves_common_names <-
              by = join_by(species_itis))
 
 # fhier_catch_by_species_state_region_waves_common_names %>%
-#   filter(common_name == "CROAKER, ATLANTIC")
+#   dplyr::filter(common_name == "CROAKER, ATLANTIC")
 
 create_30_top_df <- function(mydf, count_field_name) {
   mydf %>%
-    select(sa_gom, common_name, {
+    dplyr::select(sa_gom, common_name, {
       {
         count_field_name
       }
     }) %>%
-    group_by(sa_gom, common_name) %>%
+    dplyr::group_by(sa_gom, common_name) %>%
     summarise(cnts1 = sum(!!sym(count_field_name))) %>%
     as.data.frame() %>%
-    arrange(desc(cnts1)) %>%
+    dplyr::arrange(desc(cnts1)) %>%
     slice(1:30) %>%
     return()
 }
@@ -68,11 +68,11 @@ make_plot_catch_by_spp(fhier_30, "cnts1")
 make_plot_catch_by_spp(mrip_30, "cnts1")
 
 fhier_catch_by_species_state_region_waves_common_names %>%
-  select(sa_gom, common_name, fhier_catch_by_4) %>%
-  group_by(sa_gom, common_name) %>%
+  dplyr::select(sa_gom, common_name, fhier_catch_by_4) %>%
+  dplyr::group_by(sa_gom, common_name) %>%
   summarise(cnts1 = sum(fhier_catch_by_4)) %>%
   as.data.frame() %>%
-  arrange(desc(cnts1)) %>%
+  dplyr::arrange(desc(cnts1)) %>%
   slice(1:30) %>%
   # %>%
   # ggplot(corr.m, aes(x = reorder(miRNA, -value), y = value, fill = variable)) +
@@ -153,7 +153,7 @@ mrip_and_fhier_w_names <-
 ## ---- data overview ----
 # MRIP numbers are much bigger
 mrip_and_fhier_w_names %>%
-  filter(mrip_estimate_catch_by_species > 1000) %>% dim()
+  dplyr::filter(mrip_estimate_catch_by_species > 1000) %>% dim()
 # 100000: 125
 # 10000 : 182
 # 1000  : 221
@@ -161,7 +161,7 @@ mrip_and_fhier_w_names %>%
 
 # Only few FHIER species have counts > 100000
 mrip_and_fhier_w_names %>%
-  filter(fhier_quantity_by_species > 1000) %>% dim()
+  dplyr::filter(fhier_quantity_by_species > 1000) %>% dim()
 # 100000: 10
 # 10000 : 35
 # 1000  : 97
@@ -169,7 +169,7 @@ mrip_and_fhier_w_names %>%
 glimpse(mrip_and_fhier_w_names)
 mrip_and_fhier_w_common_names <-
   mrip_and_fhier_w_names %>%
-  select(
+  dplyr::select(
     fhier_quantity_by_species,
     mrip_estimate_catch_by_species,
     common_name,
@@ -180,8 +180,8 @@ data_overview(mrip_and_fhier)
 
 # look at common names for the biggest catch
 mrip_and_fhier_w_names %>%
-  filter(fhier_quantity_by_species > 100000) %>%
-  select(common_name,
+  dplyr::filter(fhier_quantity_by_species > 100000) %>%
+  dplyr::select(common_name,
          # COMMON_NAME.y,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species)
@@ -191,9 +191,9 @@ mrip_and_fhier_w_names %>%
 mrip_and_fhier %>%
   rename("fhier_cnt" = "fhier_quantity_by_species",
          "mrip_cnt" = "mrip_estimate_catch_by_species") %>%
-  select(-species_itis) %>%
-  # filter(mrip_cnt < 10000000) %>%
-  filter(mrip_cnt < 20000) %>%
+  dplyr::select(-species_itis) %>%
+  # dplyr::filter(mrip_cnt < 10000000) %>%
+  dplyr::filter(mrip_cnt < 20000) %>%
   boxplot()
 
 ## ---- plot catch by species (3) ----
@@ -212,22 +212,22 @@ MAX_QUANTITY_BY_SPECIES <-
 mrip_and_fhier_short_values <-
   # mrip_and_fhier_w_names %>%
   mrip_and_fhier %>%
-  # mutate(species_itis  = ifelse(species_itis  >= MIN_species_itis , species_itis , NA)) %>%
-  mutate(
+  # dplyr::mutate(species_itis  = ifelse(species_itis  >= MIN_species_itis , species_itis , NA)) %>%
+  dplyr::mutate(
     fhier_quantity_by_species_short = ifelse(
       fhier_quantity_by_species <= MAX_QUANTITY_BY_SPECIES,
       fhier_quantity_by_species,
       NA
     )
   ) %>%
-  mutate(
+  dplyr::mutate(
     mrip_estimate_catch_by_species_short = ifelse(
       mrip_estimate_catch_by_species <= MAX_QUANTITY_BY_SPECIES,
       mrip_estimate_catch_by_species,
       NA
     )
   )
-# mutate(order = fct_reorder(as.factor(species_itis ), common_name)) %>%
+# dplyr::mutate(order = fct_reorder(as.factor(species_itis ), common_name)) %>%
 str(mrip_and_fhier_short_values)
 
 # counts_plot <-
@@ -267,8 +267,8 @@ str(mrip_and_fhier_short_values)
 ## ---- plot catch by species by an index (4) ----
 mrip_and_fhier_uni <-
   mrip_and_fhier %>%
-  arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
-  mutate(
+  dplyr::arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
+  dplyr::mutate(
     cnt_index = (mrip_estimate_catch_by_species - fhier_quantity_by_species) /
       (mrip_estimate_catch_by_species + fhier_quantity_by_species)
     # * 2
@@ -277,7 +277,7 @@ plot(mrip_and_fhier_uni$cnt_index,
      unlist(mrip_and_fhier_uni[species_itis]))
 # , ylim = c(MIN_species_itis , max(mrip_and_fhier_uni[species_itis] )))
 
-# mutate(order = fct_reorder(as.factor(week_num), year)) %>%
+# dplyr::mutate(order = fct_reorder(as.factor(week_num), year)) %>%
 # ggplot(aes(x = order,
 # y = reorder(vesselofficialnumber,
 # as.integer(factor(total_count)), FUN = min),
@@ -285,7 +285,7 @@ plot(mrip_and_fhier_uni$cnt_index,
 ## ---- index plot with ggplot ----
 counts_plot_ind <-
   mrip_and_fhier_uni %>%
-  mutate(order = fct_reorder(
+  dplyr::mutate(order = fct_reorder(
     as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species),
     species_itis
   )) %>%
@@ -313,16 +313,16 @@ counts_plot_ind
 ## ---- index plot / 10 with ggplot ----
 mrip_and_fhier_uni_10 <-
   mrip_and_fhier %>%
-  mutate(mrip_estimate_catch_by_species = mrip_estimate_catch_by_species / 10) %>%
-  arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
-  mutate(
+  dplyr::mutate(mrip_estimate_catch_by_species = mrip_estimate_catch_by_species / 10) %>%
+  dplyr::arrange(mrip_estimate_catch_by_species + fhier_quantity_by_species) %>%
+  dplyr::mutate(
     cnt_index = (mrip_estimate_catch_by_species - fhier_quantity_by_species) /
       (mrip_estimate_catch_by_species + fhier_quantity_by_species)
     # * 2
   )
 counts_plot_ind_10 <-
   mrip_and_fhier_uni_10 %>%
-  mutate(order = fct_reorder(
+  dplyr::mutate(order = fct_reorder(
     as.factor(mrip_estimate_catch_by_species + fhier_quantity_by_species),
     species_itis
   )) %>%
@@ -353,21 +353,21 @@ get_long_mrip_and_fhier_short_values_n <-
     long_mrip_and_fhier_short_values <-
       mrip_and_fhier_short_values %>%
       # MRIP count ~ 10 times bigger
-      mutate(mrip_estimate_catch_by_species_by_n =
+      dplyr::mutate(mrip_estimate_catch_by_species_by_n =
                mrip_estimate_catch_by_species / n) %>%
       rename(
         c("MRIP" = "mrip_estimate_catch_by_species_by_n",
           "FHIER" = "fhier_quantity_by_species")
       ) %>%
       # reformat to a long format to have fhier and mrip data side by side
-      pivot_longer(
+      tidyr::pivot_longer(
         cols = c(MRIP,
                  FHIER),
         names_to = "AGENCY",
         values_to = "CATCH_CNT"
       ) %>%
       # use only the new columns
-      select(species_itis, AGENCY, CATCH_CNT) %>%
+      dplyr::select(species_itis, AGENCY, CATCH_CNT) %>%
       # remove lines where one or another agency doesn't have counts for this species
       drop_na() %>%
       unique()
@@ -427,7 +427,7 @@ n_most_frequent_fhier_10 <- get_n_most_frequent_fhier(10)
 
 str(n_most_frequent_fhier_10)
 # mrip_and_fhier_w_names %<>%
-#   mutate(species_itis = as.character(species_itis))
+#   dplyr::mutate(species_itis = as.character(species_itis))
 
 names(mrip_and_fhier_w_names)
 to_plot_10 <- right_join(
@@ -435,7 +435,7 @@ to_plot_10 <- right_join(
   n_most_frequent_fhier_10,
   by = c(mrip_and_fhier_itis_field_name, "fhier_quantity_by_species")
 ) %>%
-  select(common_name.x,
+  dplyr::select(common_name.x,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species)
 
@@ -456,7 +456,7 @@ fhier_to_ten <-
 plot_top_10_sep <- function() {
   fhier_top_only_plot <-
     to_plot_10 %>%
-    select(common_name, fhier_quantity_by_species) %>%
+    dplyr::select(common_name, fhier_quantity_by_species) %>%
     ggplot(aes(
       x = fhier_quantity_by_species ,
       y = reorder(common_name,
@@ -473,7 +473,7 @@ plot_top_10_sep <- function() {
   
   mrip_top_only_plot <-
     to_plot_10 %>%
-    select(common_name, mrip_estimate_catch_by_species) %>%
+    dplyr::select(common_name, mrip_estimate_catch_by_species) %>%
     ggplot(aes(
       x = mrip_estimate_catch_by_species,
       y = reorder(common_name,
@@ -544,7 +544,7 @@ plot_fhier_50_most_ab_species <-
       n_most_frequent_fhier_50,
       by = c("species_itis", "fhier_quantity_by_species")
     ) %>%
-      select(common_name,
+      dplyr::select(common_name,
              fhier_quantity_by_species,
              mrip_estimate_catch_by_species)
     
@@ -554,7 +554,7 @@ plot_fhier_50_most_ab_species <-
     
     fhier_top_50_only_plot <-
       to_plot_50 %>%
-      select(common_name, fhier_quantity_by_species) %>%
+      dplyr::select(common_name, fhier_quantity_by_species) %>%
       ggplot(aes(
         x = fhier_quantity_by_species,
         y = reorder(common_name,
@@ -572,7 +572,7 @@ plot_fhier_50_most_ab_species <-
     
     mrip_top_50_only_plot <-
       to_plot_50 %>%
-      select(common_name, mrip_estimate_catch_by_species) %>%
+      dplyr::select(common_name, mrip_estimate_catch_by_species) %>%
       ggplot(aes(
         x = mrip_estimate_catch_by_species,
         y = reorder(common_name,
@@ -645,14 +645,14 @@ get_long_form <-
         )
       ) %>%
       # reformat to a long format to have fhier and mrip data side by side
-      pivot_longer(
+      tidyr::pivot_longer(
         cols = c(MRIP,
                  FHIER),
         names_to = "AGENCY",
         values_to = "CATCH_CNT"
       ) %>%
       # use only the new columns
-      select(COMMON_NAME, AGENCY, CATCH_CNT) %>%
+      dplyr::select(COMMON_NAME, AGENCY, CATCH_CNT) %>%
       unique()
     
     return(long_to_plot)
@@ -661,13 +661,13 @@ get_long_form <-
 ## ---- order by fhier counts ----
 to_plot_long <-
   to_plot_10 %>%
-  arrange(fhier_quantity_by_species) %>%
+  dplyr::arrange(fhier_quantity_by_species) %>%
   get_long_form()
 
 # keep the common_name order by fhier counts in the plot
 to_plot_long_s <-
   to_plot_long %>%
-  mutate(
+  dplyr::mutate(
     c_n_index = as.factor(COMMON_NAME),
     COMMON_NAME = factor(COMMON_NAME, levels = unique(c_n_index))
   )
@@ -701,7 +701,7 @@ write.csv(to_plot_10, file = r"(C:\Users\anna.shipunova\Documents\R_files_local\
 
 plot_10_most_frequent_both <-
   to_plot_10 %>%
-  select(common_name.x,
+  dplyr::select(common_name.x,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species) %>%
   ggplot(aes(
@@ -743,7 +743,7 @@ to_plot_50 <- right_join(
   by = c(mrip_and_fhier_itis_field_name, "fhier_quantity_by_species")
 ) %>%
   # by = c("species_itis", "fhier_quantity_by_species")) %>%
-  select(common_name.x,
+  dplyr::select(common_name.x,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species)
 
@@ -753,7 +753,7 @@ fhier_to_50 <-
 
 top_50_both_plot <-
   to_plot_50 %>%
-  select(common_name.x,
+  dplyr::select(common_name.x,
          fhier_quantity_by_species,
          mrip_estimate_catch_by_species) %>%
   ggplot(aes(
@@ -799,7 +799,7 @@ min_fhier = min(to_plot_50$fhier_quantity_by_species)
 
 mrip_estimate_catch_by_species_state_region_waves %>% plot()
 mutate(x_col = paste(new_com, sub_reg, wave, sep = "_")) %>%
-  # mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_4), itis_cod)
+  # dplyr::mutate(order = fct_reorder(as.factor(mrip_estimate_catch_by_4), itis_cod)
   #        ) %>%
   # str()
   ggplot(
@@ -842,12 +842,12 @@ fhier_mrip_gom_to_plot <-
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(cols = c(MRIP,
+  tidyr::pivot_longer(cols = c(MRIP,
                         FHIER),
                names_to = "AGENCY",
                values_to = "CATCH_CNT") %>%
   # use only the new columns
-  select(year_wave, common_name.x, species_itis, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, common_name.x, species_itis, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -866,7 +866,7 @@ plot_vy_spp <- function(com_name, no_legend = TRUE) {
   
   one_plot <-
     fhier_mrip_gom_to_plot %>%
-    filter(common_name.x == !!com_name) %>%
+    dplyr::filter(common_name.x == !!com_name) %>%
     ggplot(aes(x = year_wave,
                y = CATCH_CNT,
                fill = AGENCY)) +
@@ -890,7 +890,7 @@ plot_vy_spp <- function(com_name, no_legend = TRUE) {
 }
 
 plots10 <-
-  map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp)
+  purrr::map(unique(fhier_mrip_gom_to_plot$common_name.x), plot_vy_spp)
 
 super_title = "The top 9 most abundant FHIER species by waves"
 
@@ -911,12 +911,12 @@ fhier_mrip_gom_to_plot <-
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(cols = c(MRIP,
+  tidyr::pivot_longer(cols = c(MRIP,
                         FHIER),
                names_to = "AGENCY",
                values_to = "CATCH_CNT") %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -930,7 +930,7 @@ plot(fhier_mrip_gom_to_plot)
 ### 10 gom plots ----
 # plot_vy_spp("BASS, BLACK SEA", fhier_mrip_gom_to_plot) ----
 
-plots10 <- map(unique(fhier_mrip_gom_to_plot$common_name),
+plots10 <- purrr::map(unique(fhier_mrip_gom_to_plot$common_name),
                function(x) {
                  plot_vy_spp(x, fhier_mrip_gom_to_plot)
                })
@@ -959,12 +959,12 @@ fhier_mrip_sa_to_plot <-
   rename(c("MRIP" = "mrip_estimate_catch_by_4",
            "FHIER" = "fhier_catch_by_4")) %>%
   # reformat to a long format to have fhier and mrip data side by side
-  pivot_longer(cols = c(MRIP,
+  tidyr::pivot_longer(cols = c(MRIP,
                         FHIER),
                names_to = "AGENCY",
                values_to = "CATCH_CNT") %>%
   # use only the new columns
-  select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
+  dplyr::select(year_wave, species_itis, common_name, AGENCY, CATCH_CNT) %>%
   # remove lines where one or another agency doesn't have counts for this species
   drop_na()
 
@@ -975,7 +975,7 @@ plot(fhier_mrip_sa_to_plot)
 ### 10 sa plots ----
 # plot_vy_spp("BASS, BLACK SEA", fhier_mrip_sa_to_plot)
 
-plots10 <- map(unique(fhier_mrip_sa_to_plot$common_name),
+plots10 <- purrr::map(unique(fhier_mrip_sa_to_plot$common_name),
                function(x) {
                  plot_vy_spp(x, fhier_mrip_sa_to_plot)
                })

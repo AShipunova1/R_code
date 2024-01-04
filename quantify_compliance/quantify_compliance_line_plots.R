@@ -1,11 +1,12 @@
 #### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_line_plots.R  ----
+# run after quantify_compliance_from_fhier_month.R
 
 ## Month, line plots with dots ----
 # line_df_22_gom <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 gom_dual`
 
 # line_df_22_sa <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2022 sa_only`
 
-pecent_names <- paste0(seq(0, 100, by = 10), "%")
+percent_names <- paste0(seq(0, 100, by = 10), "%")
 
 # dim(line_df_22_gom)
 # [1] 24 10
@@ -139,14 +140,14 @@ count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short <-
          total_vsl_m,
          cnt_vsl_m_compl,
          compliant_) |>
-  distinct()
+  dplyr::distinct()
 
-View(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short)
+# View(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short)
 # [1] 24  4
 
 count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent <-
   count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short |>
-  group_by(year_month) |>
+  dplyr::group_by(year_month) |>
   mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m)
 
 glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2022_gom_c_cnts_short_percent)
@@ -182,6 +183,7 @@ line_df_22_gom_monthly_nc_percent_plot <-
     axis.text.y =
       element_text(size = axis_title_size)
   ) +
+  ylim(0, 50) +
   labs(x = "Months (2022)",
        y = "Proportion of Non-Compliant Vessels") +
   # labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2022") +
@@ -228,31 +230,31 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 
 min_max_val <-
   test_df |>
-  group_by(percent_non_compl_2_buckets) |>
+  dplyr::group_by(percent_non_compl_2_buckets) |>
   mutate(
     max_dot_y = max(perc_vsls_per_m_b2),
     min_dot_y = min(perc_vsls_per_m_b2)
   ) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   mutate(
     max_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == max_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       ),
     min_dot_month =
-      case_when(
+      dplyr::case_when(
         perc_vsls_per_m_b2 == min_dot_y &
           percent_non_compl_2_buckets == "< 50%" ~ year_month
       )
   ) |>
   mutate(
     max_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(max_dot_month) ~ str_glue(max_min_text)
       ),
     min_dot_text =
-      case_when(
+      dplyr::case_when(
         !is.na(min_dot_month) ~ str_glue(max_min_text)
       )
   )
@@ -290,7 +292,7 @@ test_plot +
 #   perc_vsls_per_m_b2,
 #   percent_non_compl_2_buckets
 # ) |>
-#   arrange(year_month) |>
+#   dplyr::arrange(year_month) |>
 #   View()
 # |>
 #   write_csv("month_with_numbers_gom_22.csv")

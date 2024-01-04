@@ -140,14 +140,14 @@ vessels_compl_or_not_per_y_r_all <-
          year,
          permit_sa_gom) %>%
   unique() %>%
-  count(compliant_, year, permit_sa_gom)
+  dplyr::count(compliant_, year, permit_sa_gom)
 
 vessels_compl_or_not_per_y_r_not_gom23 <-
   compl_clean_sa_vs_gom_m_int_filtered %>%
   select(vessel_official_number, compliant_, year_permit) %>%
   unique() %>%
-  count(compliant_, year_permit) %>%
-  arrange(year_permit, compliant_)
+  dplyr::count(compliant_, year_permit) %>%
+  dplyr::arrange(year_permit, compliant_)
 # vessels
 #  NO         2022 gom_dual   304
 #  YES        2022 gom_dual  1482
@@ -237,18 +237,18 @@ count_year1 <-
     total_non_compl_df <-
       curr_df %>%
       dplyr::select(vsls_per_y_r) %>%
-      distinct()
+      dplyr::distinct()
     # browser()
 
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
       dplyr::select(exp_y_tot_cnt) |>
-      distinct()
+      dplyr::distinct()
 
     expired_permits <- curr_df %>%
       filter(perm_exp_y == "expired") %>%
       dplyr::select(exp_y_tot_cnt) |>
-      distinct()
+      dplyr::distinct()
 
     out_df <-
       as.data.frame(c(
@@ -272,12 +272,12 @@ all.equal(year_permit_cnts, count_year1)
 # View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
 counts_by_month_read_me <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
-  group_by(year_month, year_permit, perm_exp_m) |>
-  mutate(permit_cnt_m =
+  dplyr::group_by(year_month, year_permit, perm_exp_m) |>
+  dplyr::mutate(permit_cnt_m =
            n_distinct(vessel_official_number)) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   select(year_permit, year_month, total_vsl_m, perm_exp_m, permit_cnt_m) |>
-  distinct()
+  dplyr::distinct()
 
 # print_df_names(counts_by_month_read_me)
 
@@ -290,7 +290,7 @@ counts_by_month_read_me_clean <-
     names_glue = "{perm_exp_m}_permits",
     values_fill = 0
   ) |>
-  arrange(year_month)
+  dplyr::arrange(year_month)
 
 # View(counts_by_month_read_me_clean)
 
@@ -302,7 +302,7 @@ counts_by_month_read_me_clean <-
 counts_by_year_read_me_clean <-
   compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
   select(-perc_c_nc) |>
-  distinct() |>
+  dplyr::distinct() |>
   tidyr::pivot_wider(names_from = compl_or_not,
                      values_from = cnt_y_p_c,
                      values_fill = 0) |>

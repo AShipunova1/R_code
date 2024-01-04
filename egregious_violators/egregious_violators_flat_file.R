@@ -118,7 +118,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   # print("map:")
   # start_time <- Sys.time()
   ## read all files
-  contents <- map_df(myfiles,
+  contents <- purrr::map_df(myfiles,
          ~read_excel(.x,
                      sheet = sheet_n,
                      .name_repair = fix_names,
@@ -255,7 +255,7 @@ add_count_contacts <- function(all_data_df_clean) {
     # TODO: as.factor
     dplyr::mutate(was_contacted = if_else(is.na(contactdate_field_name), "no", "yes")) %>%
     # group by vesselofficialnumber and count how many "contacts" are there for each. Save in the "contact_freq" column.
-    add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
+    dplyr::add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") %>%
     return()
 }
 
@@ -265,7 +265,7 @@ add_count_contacts <- function(all_data_df_clean) {
 # count_by_column_arr(my_df, group_by_arr)
 count_by_column_arr <- function(my_df, group_by_arr) {
   my_df %>%
-    arrange(group_by_arr[1]) %>%
+    dplyr::arrange(group_by_arr[1]) %>%
     group_by_at(group_by_arr) %>%
     summarise(my_freq = n()) %>%
     return()
@@ -334,7 +334,7 @@ prepare_csv_names <- function(filenames) {
   add_path_compl <- "FHIER Compliance"
 
   my_list <- sapply(filenames, function(x) {
-    case_when(startsWith(my_headers_case_function(x), "correspond") ~
+    dplyr::case_when(startsWith(my_headers_case_function(x), "correspond") ~
                 file.path(add_path_corresp,  x),
               startsWith(my_headers_case_function(x), "fhier_compliance") ~
                 file.path(add_path_compl,  x),
@@ -418,7 +418,7 @@ read_csv_w_eofs <- function(my_paths, csv_names_list) {
     return()
 }
 
-# To use as a filter in FHIER
+# To use as a dplyr::filter in FHIER
 cat_filter_for_fhier <- function(my_characters) {
   cat(my_characters,
       sep = ', ',
@@ -446,7 +446,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
+#   purrr::map_df(my_df, my_fun)
 # }
 #
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
@@ -455,9 +455,9 @@ cat_filter_for_fhier <- function(my_characters) {
 #                             columns = c('test', 'elapsed', 'relative')
 # )
 #
-# map_df(my_df, function(x) length(unique(x)))
+# purrr::map_df(my_df, function(x) length(unique(x)))
 # to compare:
-# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+# time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
 connect_to_secpr <- function() {
   # usage:
@@ -517,7 +517,7 @@ make_a_flat_file <-
     sink(flat_file_name)
 
     for (i in 1:length(files_to_combine_list)) {
-      current_file = readLines(files_to_combine_list[i])
+      current_file = readr::read_lines(files_to_combine_list[i])
       cat("\n\n# Current file:", files_to_combine_list[i], "----\n\n")
       cat(current_file, sep = "\n")
     }
@@ -528,7 +528,7 @@ make_a_flat_file <-
 separate_permits_into_3_groups <- function(my_df, permit_group_field_name = "permitgroup") {
   my_df %>%
   dplyr::mutate(permit_sa_gom =
-           case_when(
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
              !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
              .default = "dual"
@@ -756,7 +756,7 @@ source("~/R_code_github/useful_functions_module.r")
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is more than a month from data_file_date than "no"
-  dplyr::mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
+  dplyr::mutate(permit_expired = dplyr::case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                                     .default = "yes"))
 
 ## add year_month column ----
@@ -771,7 +771,7 @@ compl_clean_w_permit_exp_last_27w <-
   # convert
   dplyr::mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last 28 weeks
-  filter(year_month >= as.yearmon(half_year_ago))
+  dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
 dim(compl_clean_w_permit_exp)
 
@@ -781,12 +781,12 @@ dim(compl_clean_w_permit_exp_last_27w)
 ## Have only SA permits, exclude those with Gulf permits ----
 compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
-  filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+  dplyr::filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 ## Not "compliant_" only ----
 compl_clean_sa_non_compl <-
   compl_clean_sa |>
-  filter(compliant_ == 'NO')
+  dplyr::filter(compliant_ == 'NO')
 
 dim(compl_clean_sa_non_compl)
 # [1] 12454    23
@@ -795,7 +795,7 @@ compl_clean_sa_non_compl |>
   count_uniq_by_column() |> head(1)
 # vessel_official_number 1328
 
-## filter for egregious ----
+## dplyr::filter for egregious ----
 ### check if there is no "compliant_ == YES" since half_year_ago ----
 
 last_week_start <- data_file_date - 6
@@ -803,7 +803,7 @@ last_week_start <- data_file_date - 6
 compl_clean_sa_non_c_not_exp <-
   compl_clean_sa |>
   # not compliant
-  filter(tolower(compliant_) == "no") |>
+  dplyr::filter(tolower(compliant_) == "no") |>
   # in the last 27 week
   dplyr::filter(week_start >= half_year_ago) |>
   # before the last week (a report's grace period)
@@ -828,9 +828,9 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - grace_period_weeks)) |>
+  dplyr::filter(total_weeks >= (number_of_weeks_for_non_compliancy - grace_period_weeks)) |>
   # ...non compliant
-  filter(compl_weeks_amnt == total_weeks)
+  dplyr::filter(compl_weeks_amnt == total_weeks)
 
 dim(compl_clean_sa_all_weeks_non_c_short)
 # [1] 128   4
@@ -848,10 +848,10 @@ need_cols_names <- c(
 
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa_non_c_not_exp |>
-  select(all_of(need_cols_names)) |>
+  dplyr::select(all_of(need_cols_names)) |>
   inner_join(compl_clean_sa_all_weeks_non_c_short) |>
 # Joining with `by = join_by(vessel_official_number)`
-  distinct()
+  dplyr::distinct()
 
 dim(compl_clean_sa_all_weeks_non_c)
 # 128
@@ -860,34 +860,34 @@ dim(compl_clean_sa_all_weeks_non_c)
 # ids only
 compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_sa_all_weeks_non_c_short |>
-  select(vessel_official_number) |>
-  distinct()
+  dplyr::select(vessel_official_number) |>
+  dplyr::distinct()
 
 dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
 # [1] 128   1
 
 # the info from the full compliance info for theses ids, not only not-compliant
 compl_clean_sa |>
-  filter(
+  dplyr::filter(
     vessel_official_number %in% compl_clean_sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
   # for each vessel
-  group_by(vessel_official_number) |>
-  filter(tolower(compliant_) == "yes" &
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::filter(tolower(compliant_) == "yes" &
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
   # get only the latest compliant weeks
   dplyr::mutate(latest_compl = max(week_num)) |>
-  filter(week_num == latest_compl) |>
-  ungroup() |>
-  select(
+  dplyr::filter(week_num == latest_compl) |>
+  dplyr::ungroup() |>
+  dplyr::select(
     # vessel_official_number,
     year_month,
     latest_compl) |>
-  distinct() |>
-  glimpse()
+  dplyr::distinct() |>
+  dplyr::glimpse()
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
 
@@ -898,7 +898,7 @@ compl_clean_sa |>
 ## remove 999999 ----
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
-  filter(!grepl("^99999", vessel_official_number))
+  dplyr::filter(!grepl("^99999", vessel_official_number))
 
 data_overview(corresp_contact_cnts_clean) |>
   head(1)
@@ -911,17 +911,17 @@ data_overview(corresp_contact_cnts_clean) |>
 
 # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 
-# save the filter
+# save the dplyr::filter
 two_attempts_filter <-
   # mopre than one contact
   quo(contact_freq > 1 &
         # at least one is a call
         any(tolower(contacttype) == "call"))
 
-# use the filter
+# use the dplyr::filter
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
-  filter(!!two_attempts_filter)
+  dplyr::filter(!!two_attempts_filter)
 
 dim(corresp_contact_cnts_clean)
 # [1] 18629    23
@@ -935,7 +935,7 @@ data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |>
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 18163    22
 
-# Combine compliance information with filtered correspondence info by vessel_official_number ----
+# Combine compliance information with dplyr::filtered correspondence info by vessel_official_number ----
 
 compl_corr_to_investigation1 <-
   inner_join(
@@ -969,12 +969,12 @@ get_date_contacttype <-
       # add a new column date__contacttype with combined contactdate and contacttype
       dplyr::mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
       # use 2 columns only
-      select(vessel_official_number, date__contacttype) |>
+      dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
       # sort
       dplyr::arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
-      group_by(vessel_official_number) |>
+      dplyr::group_by(vessel_official_number) |>
       # for each vessel id combine all date__contacttypes separated by comma in one cell
       summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
       return()
@@ -991,8 +991,8 @@ dim(date__contacttype_per_id)
 ### check ----
 vessels_permits_participants_v_ids <-
   vessels_permits_participants |>
-  select(P_VESSEL_ID) |>
-  distinct()
+  dplyr::select(P_VESSEL_ID) |>
+  dplyr::distinct()
 
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
@@ -1029,7 +1029,7 @@ dim(vessels_permits_participants_space)
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
   # for each vessel
-  group_by(P_VESSEL_ID) |>
+  dplyr::group_by(P_VESSEL_ID) |>
   dplyr::mutate(
     sero_home_port = list(unique(
       paste(
@@ -1052,12 +1052,12 @@ vessels_permits_participants_short_u <-
       ))
   ) |>
   # use only new columns and the vessel id
-  select(P_VESSEL_ID,
+  dplyr::select(P_VESSEL_ID,
          sero_home_port,
          full_name,
          full_address) |>
-  ungroup() |>
-  distinct()
+  dplyr::ungroup() |>
+  dplyr::distinct()
 
 dim(vessels_permits_participants_short_u)
 # [1] 3302    4
@@ -1136,7 +1136,7 @@ fhier_addr <-
 # fewer fields
 fhier_addr_short <-
   fhier_addr |>
-  select(
+  dplyr::select(
     vessel_official_number,
     permit_holder_names,
     physical_address_1,
@@ -1159,7 +1159,7 @@ fhier_addr_short <-
         physical_zip_code
       )
   ) |>
-  select(
+  dplyr::select(
     -c(
       physical_address_1,
       physical_address_2,
@@ -1284,7 +1284,7 @@ compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
   dplyr::mutate(
     duplicate_w_last_time =
-      case_when(
+      dplyr::case_when(
         vessel_official_number %in%
           vessels_to_mark_ids$vessel_official_number ~ "duplicate",
         .default = "new"

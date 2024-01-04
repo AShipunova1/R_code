@@ -68,7 +68,7 @@ mv_sero_fh_permits_his <-
 # print_df_names(permit_vessel_query_exp21)
 
 # permit_vessel_query_exp21 %>%
-  # filter(!(VESSEL_ID == SERO_OFFICIAL_NUMBER)) %>%
+  # dplyr::filter(!(VESSEL_ID == SERO_OFFICIAL_NUMBER)) %>%
   # dim()
 # 0
 
@@ -436,7 +436,7 @@ vessels_permits_2022 <-
 #   safis.vessels@secapxdv_dblk.sfsc.noaa.gov"
 #
 # rr <-
-#   map(field_names,
+#   purrr::map(field_names,
 #     function(field_name) {
 #       print(str_glue("field_name = {field_name}"))
 #       q <- str_glue(vessels_zero_query)
@@ -541,7 +541,7 @@ get_compl_err_data_from_db <-
     compl_err_db_data_1 <-
       compl_err_db_data_0 %>%
       # remove duplicated columns
-      select(-c(CREATED_DT,
+      dplyr::select(-c(CREATED_DT,
                 CREATED_USER_ID,
                 LU_DT,
                 LU_USER_ID))

@@ -1,6 +1,6 @@
 ## check activity type ----
 v_p__t__tn_d_weeks_gom |>
-  count(ACTIVITY_TYPE, INTENDED_FISHING_FLAG)
+  dplyr::count(ACTIVITY_TYPE, INTENDED_FISHING_FLAG)
 #   ACTIVITY_TYPE     n
 #           <dbl> <int>
 # 1             0 45834
@@ -28,22 +28,22 @@ v_p__t__tn_d_weeks_gom |>
 # 12            NA NA                     1262
 
 v_p__t__tn_d_weeks_gom |>
-  filter(ACTIVITY_TYPE == "3") |>
+  dplyr::filter(ACTIVITY_TYPE == "3") |>
   # head(2) |>
-  # select(all_of(starts_with("UE"))) |>
-  glimpse()
+  # dplyr::select(all_of(starts_with("UE"))) |>
+  dplyr::glimpse()
 # $ UE.t  <chr> "KCSPORTFISHING                "
 # $ UE.tn <chr> "KCSPORTFISHING"
 # $ VESSEL_VESSEL_ID            <dbl> 328032
 # $ PERMIT_VESSEL_ID            <chr> "FL9452SM"
 
 v_p__t__tn_d_weeks_gom |>
-  filter(ACTIVITY_TYPE == "81") |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::filter(ACTIVITY_TYPE == "81") |>
+  dplyr::select(PERMIT_VESSEL_ID,
          ACTIVITY_TYPE,
          INTENDED_FISHING_FLAG,
          all_of(starts_with("rep_type"))) |>
-  glimpse()
+  dplyr::glimpse()
 # $ PERMIT_VESSEL_ID      <chr> "1114447", "FL6430PK"
 # $ ACTIVITY_TYPE         <dbl> 81, 81
 # $ INTENDED_FISHING_FLAG <chr> "Y", "N"
@@ -66,17 +66,17 @@ length(vessels_with_weird_activity)
 
 vessels_permits_2022_r_act <-
   vessels_permits_2022_r |>
-  filter(PERMIT_VESSEL_ID %in% vessels_with_weird_activity)
+  dplyr::filter(PERMIT_VESSEL_ID %in% vessels_with_weird_activity)
 
 # vessels_permits_2022_r_act
 
 trips_act <-
   t_d_w |>
-  filter(
+  dplyr::filter(
     VESSEL_ID %in% vessels_permits_2022_r_act$VESSEL_VESSEL_ID,
     ACTIVITY_TYPE %in% c(8, 2, 3)
   ) |>
-  select(-any_of(t_names_to_rm))
+  dplyr::select(-any_of(t_names_to_rm))
 
 dim(trips_act)
 # [1] 18 21
@@ -115,8 +115,8 @@ weird_activity_types_info1 <-
   relationship = "many-to-many",
   suffix = c(".v_p", ".t")
 ) |> 
-  distinct() |> 
-  arrange(PERMIT_VESSEL_ID)
+  dplyr::distinct() |> 
+  dplyr::arrange(PERMIT_VESSEL_ID)
 
 dim(weird_activity_types_info1)
 # [1] 10 72
@@ -129,8 +129,8 @@ weird_activity_types_info2 <-
   relationship = "many-to-many",
   suffix = c(".v_p", ".t")
 ) |> 
-  distinct() |> 
-  arrange(PERMIT_VESSEL_ID)
+  dplyr::distinct() |> 
+  dplyr::arrange(PERMIT_VESSEL_ID)
 
 dim(weird_activity_types_info2)
 # [1] 22 72
@@ -148,8 +148,8 @@ dim(weird_activity_types_info12)
 
 # weird_activity_types_info |> 
 weird_activity_types_info12 |> 
-  select(PERMIT_VESSEL_ID) |> 
-  distinct() |> 
+  dplyr::select(PERMIT_VESSEL_ID) |> 
+  dplyr::distinct() |> 
   head(10)
 # 8 (7 + NA)
 # 5
@@ -166,15 +166,15 @@ weird_activity_types_info12 |>
 # 926746 Permit
 # 127190 vessel_id
 trips_info_2022_int_dur |>
-  filter(VESSEL_ID == "127190") |>
-  select(TRIP_START_DATE,
+  dplyr::filter(VESSEL_ID == "127190") |>
+  dplyr::select(TRIP_START_DATE,
          TRIP_END_DATE) |>
-  distinct() |>
-  arrange(TRIP_START_DATE) |> 
+  dplyr::distinct() |>
+  dplyr::arrange(TRIP_START_DATE) |> 
   View()
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |> 
-  filter(PERMIT_VESSEL_ID == "926746") |> 
+  dplyr::filter(PERMIT_VESSEL_ID == "926746") |> 
   View()
 # 2021-12-31 19:00:00 EST--2022-01-30 23:00:00 EST
 
@@ -214,19 +214,19 @@ rm_cols <-
 
 weird_activity_types_info_short12 <-
   weird_activity_types_info12 |> 
-  select(-any_of(rm_cols)) |> 
-  distinct()
+  dplyr::select(-any_of(rm_cols)) |> 
+  dplyr::distinct()
 
 dim(weird_activity_types_info_short12)
   # dim()
   # 34 41
-  # filter(!is.na(TRIP_ID))
+  # dplyr::filter(!is.na(TRIP_ID))
   # 23 41
   # 22
 
 # weird_activity_types_info_short_act <-
 #   weird_activity_types_info_short12 |> 
-#   filter(!is.na(ACTIVITY_TYPE))
+#   dplyr::filter(!is.na(ACTIVITY_TYPE))
 
 # dim(weird_activity_types_info_short_act)
 # 22
@@ -237,7 +237,7 @@ dim(weird_activity_types_info_short12)
 
 # weird_activity_types_info_short_no_trips <-
 #   weird_activity_types_info_short |> 
-#   filter(PERMIT_VESSEL_ID %in% c("1199007",
+#   dplyr::filter(PERMIT_VESSEL_ID %in% c("1199007",
 #                                  "926746"))
 
 # dim(weird_activity_types_info_short)
@@ -250,8 +250,8 @@ dim(weird_activity_types_info_short12)
 # weird_activity_types_info_short |> 
 # weird_activity_types_info_short_act |> 
 weird_activity_types_info_short12 |> 
-  select(PERMIT_VESSEL_ID) |>
-  distinct() |>
+  dplyr::select(PERMIT_VESSEL_ID) |>
+  dplyr::distinct() |>
   head(10)
 # 6
 
@@ -265,12 +265,12 @@ write_csv(
 )
 
 weird_activity_types_info_short12 |>
-  select(PERMIT_VESSEL_ID,
+  dplyr::select(PERMIT_VESSEL_ID,
          EFFECTIVE_DATE,
          EXPIRATION_DATE,
          TRIP_START_DATE,
          TRIP_END_DATE) |>
-  distinct() |>
+  dplyr::distinct() |>
   write_csv(
     file.path(
       my_paths$outputs,

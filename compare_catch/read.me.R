@@ -22,7 +22,7 @@
 # new_mode	2=headboat, 3=charterboat, 5=charter/headboat
 # new_moden		alpha description of ‘new_mode’
 # surveys ?
-# filter(!(ds == "SRHS"))
+# dplyr::filter(!(ds == "SRHS"))
 # change NAs to 0
 
 ## 1) FHIER data FHIER / Reports / Species Count by Disposition
@@ -49,7 +49,7 @@
 # ignore the MRIP fes- that is just for effort data, and we’re not there yet
 # She said grab MRIP fes data
 # That is the charter for-hire survey
-# Jessica is wondering if when you pulled from MRIP is there a way, or did you, just select the charter catch and not the full recreational catch
+# Jessica is wondering if when you pulled from MRIP is there a way, or did you, just dplyr::select the charter catch and not the full recreational catch
 # Charter vs private recreational
 
 ## ---- MRIP fields ----
@@ -91,7 +91,7 @@
 
 ## ---- check MRIP year----
 # mrip_estimate %>%
-#   select(YEAR) %>% unique()
+#   dplyr::select(YEAR) %>% unique()
 # YEAR
 # 1 2022
 

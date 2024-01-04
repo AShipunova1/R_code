@@ -7,7 +7,7 @@ map_by_permit_before_mv_data <- function() {
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min <-
   get_ten_min_coords(coord_data_2022_short_good_sf_crop_big_df_in_metricks)
 
-View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
+# View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
 # [1] 95720     5
 # [1] 284785     32 (with permit)
 # [1] 111716      7 (fewer columns)
@@ -18,9 +18,9 @@ View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min)
 ## add permit_name_col ----
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min |>
-  mutate(
+  dplyr::mutate(
     permit_region =
-      case_when(
+      dplyr::case_when(
         permit_sa_gom == "gom_only"
         | permit_sa_gom == "dual" ~
           "gom_dual",
@@ -59,18 +59,18 @@ map_df(
 # Use the 'map' function to perform a series of operations on a list of data frames.
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(
+  purrr::map(
     function(permit_df) {
       # Perform operations on each 'permit_df' data frame within the list.
       permit_df |>
-      select(-c(latitude, longitude)) |>
-      # Select columns except 'latitude' and 'longitude'
-      count(ten_min_lat, ten_min_lon) |>
+      dplyr::select(-c(latitude, longitude)) |>
+      # dplyr::select columns except 'latitude' and 'longitude'
+      dplyr::count(ten_min_lat, ten_min_lon) |>
       # Count occurrences of 'ten_min_lat' and 'ten_min_lon' combinations
-      arrange(desc(n)) |>
+      dplyr::arrange(desc(n)) |>
       # Arrange rows in descending order of the count 'n'
       head(2)
-      # Select the top 2 rows
+      # dplyr::select the top 2 rows
     }
   )
 
@@ -92,15 +92,15 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(function(permit_df) {
+  purrr::map(function(permit_df) {
     permit_df |>
-      select(-c(permit_sa_gom,
+      dplyr::select(-c(permit_sa_gom,
                 permit_region)) |>
       dplyr::add_count(ten_min_lat, ten_min_lon,
                        name = "trip_ids_cnts") |>
-      group_by(ten_min_lat, ten_min_lon) |>
-      mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
-      ungroup()
+      dplyr::group_by(ten_min_lat, ten_min_lon) |>
+      dplyr::mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
+      dplyr::ungroup()
   })
 
 # View(coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts2$gom_dual)
@@ -125,15 +125,15 @@ map_df(
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
-  map(function(permit_df) {
+  purrr::map(function(permit_df) {
     permit_df |>
-      select(-c(TRIP_ID, vessel_official_nbr,
+      dplyr::select(-c(TRIP_ID, vessel_official_nbr,
                 latitude, longitude)) |>
-      distinct()
+      dplyr::distinct()
   })
 
 coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u |>
-  map_df(dim)
+  purrr::map_df(dim)
 #   gom_dual sa_only
 #      <int>   <int>
 # 1     1369    2344
@@ -143,10 +143,10 @@ coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list
 ## prepare df ----
 gom_vessels <-
   coord_data_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u$gom_dual |>
-  mutate(cnt_label =
+  dplyr::mutate(cnt_label =
            paste0("loc: ", location_cnts_u,
                   "; trips: ",  trip_ids_cnts)) |>
-  mutate(
+  dplyr::mutate(
     ten_min_lbl =
       paste0(
         round(ten_min_lat, 1),
@@ -207,18 +207,18 @@ short_example_3_cnts <-
   short_example_3loc |>
   dplyr::add_count(ten_min_lat, ten_min_lon,
                    name = "trip_ids_cnts") |>
-  group_by(ten_min_lat, ten_min_lon) |>
-  mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
-  ungroup()
+  dplyr::group_by(ten_min_lat, ten_min_lon) |>
+  dplyr::mutate(location_cnts_u = (n_distinct(latitude, longitude))) |>
+  dplyr::ungroup()
 
 short_example_3_cnts |>
-  select(latitude, longitude) |>
+  dplyr::select(latitude, longitude) |>
   dim()
 # 740
 
 # 142+319+279
 # [1] 740
-  # distinct() |>
+  # dplyr::distinct() |>
 # [1] 564   2
 
 dim(short_example_3_cnts)
@@ -228,19 +228,19 @@ glimpse(short_example_3_cnts)
 
 short_example_3_cnts_short <-
   short_example_3_cnts |>
-  select(-c(vessel_official_nbr,
+  dplyr::select(-c(vessel_official_nbr,
             permit_sa_gom,
             permit_region,
             TRIP_ID)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(short_example_3_cnts_short)
 # [1] 564   5
 
 short_example_3_cnts_short |>
-  select(-c(latitude, longitude)) |>
-  distinct() |>
-  arrange(trip_ids_cnts)
+  dplyr::select(-c(latitude, longitude)) |>
+  dplyr::distinct() |>
+  dplyr::arrange(trip_ids_cnts)
 # ok
 #   ten_min_lat ten_min_lon trip_ids_cnts location_cnts_u
 #         <dbl>       <dbl>         <int>           <int>
@@ -251,7 +251,7 @@ short_example_3_cnts_short |>
 short_example_3_cnts_short_lbl <-
   short_example_3_cnts_short |>
   # add coordinates labels
-  mutate(ten_min_lbl =
+  dplyr::mutate(ten_min_lbl =
            paste0(
              round(ten_min_lat, 1),
              ", ",

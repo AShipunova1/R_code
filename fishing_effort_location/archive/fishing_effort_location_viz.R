@@ -35,15 +35,15 @@ names(db_data)
 # depth
 
 db_data %>%
-  select(AREA_CODE) %>%
+  dplyr::select(AREA_CODE) %>%
 # 
-#     select(AREA_CODE, SUB_AREA_CODE, LOCAL_AREA_CODE, DISTANCE_CODE_NAME) %>%
+#     dplyr::select(AREA_CODE, SUB_AREA_CODE, LOCAL_AREA_CODE, DISTANCE_CODE_NAME) %>%
   unique()
   # View()
 
 # VENDOR_APP_NAME ----
 a <- db_data %>% 
-  count(VENDOR_APP_NAME)
+  dplyr::count(VENDOR_APP_NAME)
 # 1 BLUEFIN DATA ACCSP SDK  33560
 # 2          ETRIPS ONLINE   1185
 # 3        ETRIPS/MOBILE 2  82207
@@ -54,7 +54,7 @@ sum(a$n)
 # 253941
 
 lat_long <- db_data %>%
-  select(LATITUDE, LONGITUDE, TRIP_START_DATE)
+  dplyr::select(LATITUDE, LONGITUDE, TRIP_START_DATE)
 
 # plot(sa_shp)
 # plot(gom_shp)
@@ -97,7 +97,7 @@ m_s <- mapview(
 #     unique() %>%
 #     head(my_limit) %>%
 #     # all LONG should be negative
-#     mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+#     dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
 #     # remove wrong coords
 #     filter(between(LATITUDE, 23, 28) &
 #              between(LONGITUDE, -83, -71)) %>%
@@ -132,7 +132,7 @@ to_sf <- function(my_df) {
 
 # n_map <-
 #   clean_lat_long_subset %>%
-#   mutate(point = paste(LATITUDE, LONGITUDE)) %>%
+#   dplyr::mutate(point = paste(LATITUDE, LONGITUDE)) %>%
 #   to_sf() %>%
 #   mapview(zcol = "point",
 #           # col.regions = my_colors,
@@ -144,10 +144,10 @@ to_sf <- function(my_df) {
 # --- with dates ----
 # View(db_data)
 lat_long3 <- db_data %>%
-  mutate(ROW_ID = row_number()) %>%
-  mutate(TRIP_START_DAY_M =
+  dplyr::mutate(ROW_ID = row_number()) %>%
+  dplyr::mutate(TRIP_START_DAY_M =
            format(TRIP_START_DATE, "%m")) %>%
-  select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
+  dplyr::select(LATITUDE, LONGITUDE, ROW_ID, TRIP_START_DAY_M)
 
 # str(lat_long3)
 
@@ -158,8 +158,8 @@ clean_lat_long_subset3 <-
 
 n_map <-
   clean_lat_long_subset3 %>%
-  # mutate(point = paste(LATITUDE, LONGITUDE, TRIP_START_DAY_M)) %>%
-  mutate(point = TRIP_START_DAY_M) %>%
+  # dplyr::mutate(point = paste(LATITUDE, LONGITUDE, TRIP_START_DAY_M)) %>%
+  dplyr::mutate(point = TRIP_START_DAY_M) %>%
   to_sf() %>%
   mapview(zcol = "point",
           col.regions = viridisLite::turbo,
@@ -173,39 +173,39 @@ n_map + m_s
 
 ## with depth ----
 
-# db_data %>% glimpse()
+# db_data %>% dplyr::glimpse()
 
 lat_long_dat_dep <-
   db_data %>%
   # labels are a month only
-  mutate(TRIP_START_M =
+  dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
   # compute on a data frame a row-at-a-time
   rowwise() %>%
   # get avg bottom depth
-  mutate(AVG_BOTTOM_DEPTH = mean(c(
+  dplyr::mutate(AVG_BOTTOM_DEPTH = mean(c(
     MINIMUM_BOTTOM_DEPTH, MAXIMUM_BOTTOM_DEPTH
   ), na.rm = T)) %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   # choose the first not na
   # gives the same result as AVG_BOTTOM_DEPTH
-  mutate(AVG_DEPTH = coalesce(AVG_BOTTOM_DEPTH,
+  dplyr::mutate(AVG_DEPTH = coalesce(AVG_BOTTOM_DEPTH,
                               FISHING_GEAR_DEPTH,
                               DEPTH)) %>%
   # 0 instead of NA
-  mutate(AVG_DEPTH = replace_na(AVG_DEPTH, 0))
+  dplyr::mutate(AVG_DEPTH = replace_na(AVG_DEPTH, 0))
 
 points_num <- 1000
 
 clean_lat_long_subset <-
   lat_long_dat_dep %>%
-  select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH) %>%
+  dplyr::select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH) %>%
   clean_lat_long(points_num)
 
 n_map <-
   clean_lat_long_subset %>%
   # save info to show on the map
-  mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
+  dplyr::mutate(point = paste(LATITUDE, LONGITUDE, sep = ", ")) %>%
   # convert to sf
   # an sf object is a collection of simple features that includes attributes and geometries in the form of a data frame.
   to_sf() %>%
@@ -229,8 +229,8 @@ n_map + m_s
 lat_long_dat_dep_q <-
   lat_long_dat_dep %>%
   # add quarter
-  mutate(YEAR_QUARTER = as.yearqtr(TRIP_START_DATE)) %>%
-  mutate(QUARTER = format(YEAR_QUARTER, "%q"))
+  dplyr::mutate(YEAR_QUARTER = as.yearqtr(TRIP_START_DATE)) %>%
+  dplyr::mutate(QUARTER = format(YEAR_QUARTER, "%q"))
 
 lat_long_dat_dep_q_list <-
   split(lat_long_dat_dep_q,
@@ -239,13 +239,13 @@ lat_long_dat_dep_q_list <-
 mapview_q <- function(my_df, points_num, q_name) {
   clean_lat_long_subset <-
     my_df %>%
-    select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH,
+    dplyr::select(LATITUDE, LONGITUDE, TRIP_START_M, AVG_DEPTH,
            YEAR_QUARTER) %>%
     clean_lat_long(points_num)
   
   n_map <-
     clean_lat_long_subset %>%
-    mutate(POINT = paste(LATITUDE, LONGITUDE, YEAR_QUARTER,
+    dplyr::mutate(POINT = paste(LATITUDE, LONGITUDE, YEAR_QUARTER,
                          sep = ", ")) %>%
     to_sf() %>%
     mapview(
@@ -273,7 +273,7 @@ mapview_q <- function(my_df, points_num, q_name) {
 points_num <- 1000
 
 maps_q <-
-  map(names(lat_long_dat_dep_q_list),
+  purrr::map(names(lat_long_dat_dep_q_list),
       function(q_name) {
         # browser()
         m_n <- mapview_q(lat_long_dat_dep_q_list[[q_name]],
@@ -284,7 +284,7 @@ maps_q <-
 
 maps_q[[4]]
 
-# map(lat_long_dat_dep_q_list,
+# purrr::map(lat_long_dat_dep_q_list,
 #     function(x) {dim(x)})
 # $`2022 Q1`
 # [1] 35207    24
@@ -301,7 +301,7 @@ maps_q[[4]]
 map(lat_long_dat_dep_q_list,
     function(x) {
       x %>%
-        select(LATITUDE, LONGITUDE) %>%
+        dplyr::select(LATITUDE, LONGITUDE) %>%
         filter(complete.cases(.)) %>%
         unique() %>%
         dim()
@@ -345,9 +345,9 @@ dim(db_data_w_area)[1]
 lat_long_area <-
   db_data_w_area %>%
   # labels are a month only
-  mutate(TRIP_START_M =
+  dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  select(
+  dplyr::select(
     LATITUDE,
     LONGITUDE,
     TRIP_START_M,
@@ -367,7 +367,7 @@ dim(lat_long_area_clean)[1]
 # 6359
 
 lat_long_area_clean %>%
-  select(AREA_NAME, REGION) %>% 
+  dplyr::select(AREA_NAME, REGION) %>% 
   filter(grepl("MEX", AREA_NAME) | grepl("GOM", AREA_NAME)) %>% 
   unique() 
 
@@ -378,7 +378,7 @@ lat_long_area_clean_no_gom <-
 
 lat_long_area_clean_sf <-
   lat_long_area_clean_no_gom %>%
-  mutate(
+  dplyr::mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,
@@ -439,12 +439,12 @@ sa_areas_minus_gom %>%
 lat_long_month_depth <-
   db_data_w_area %>%
   # labels are a month only
-  mutate(TRIP_START_M =
+  dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
   # compute on a data frame a row-at-a-time
   rowwise() %>%
   # get avg bottom depth for labels
-  mutate(AVG_DEPTH = mean(
+  dplyr::mutate(AVG_DEPTH = mean(
     c(
       MINIMUM_BOTTOM_DEPTH,
       MAXIMUM_BOTTOM_DEPTH,
@@ -453,9 +453,9 @@ lat_long_month_depth <-
     na.rm = TRUE
   )) %>%
   # return to the default colwise operations
-  ungroup() %>%
+  dplyr::ungroup() %>%
   # combine a label
-  mutate(
+  dplyr::mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,
@@ -512,7 +512,7 @@ browseURL(png_fl)
 ## clusters ----
 lat_long_area_for_leaflet <-
   clean_lat_long(lat_long_area, all_points) %>%
-  mutate(
+  dplyr::mutate(
     POINT = paste(
       LATITUDE,
       LONGITUDE,
@@ -552,40 +552,40 @@ lat_long_area_leaflet_w_clusters <-
 lat_long_area_leaflet_w_clusters
 ## check different area options ----
 lat_long_area_clean %>%
-  select(AREA_NAME,
+  dplyr::select(AREA_NAME,
          SUB_AREA_NAME,
          AREA_CODE,
          DISTANCE_CODE_NAME) %>%
   unique() %>% 
-  arrange(AREA_CODE) %>% 
-  glimpse()
+  dplyr::arrange(AREA_CODE) %>% 
+  dplyr::glimpse()
 # Rows: 85
 
 lat_long_area_clean %>%
-  select(AREA_NAME,
+  dplyr::select(AREA_NAME,
          SUB_AREA_NAME,
          AREA_CODE) %>%
   unique() %>% 
-  arrange(AREA_CODE) %>% 
+  dplyr::arrange(AREA_CODE) %>% 
   View()
 # Rows: 47
 
 lat_long_area_clean %>%
-  select(AREA_NAME,
+  dplyr::select(AREA_NAME,
          AREA_CODE) %>%
   unique() %>% 
-  arrange(AREA_CODE) %>% 
+  dplyr::arrange(AREA_CODE) %>% 
   View()
 # 26
 
 lat_long_area_clean %>%
-  select(AREA_NAME,
+  dplyr::select(AREA_NAME,
          AREA_CODE) %>%
   filter(!grepl("GULF OF MEXICO", AREA_NAME)) %>% 
   filter(!grepl("TAMPA", AREA_NAME)) %>% 
   filter(!grepl("FORT MYERS", AREA_NAME)) %>% 
   unique() %>% 
-  arrange(AREA_CODE) %>% 
+  dplyr::arrange(AREA_CODE) %>% 
   View()
   # write_csv("area_code_name.csv")
 

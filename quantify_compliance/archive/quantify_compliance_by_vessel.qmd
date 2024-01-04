@@ -50,8 +50,8 @@ SA: CDW, CHS, SC
 ```{r separate into 2 groups: SA vs GOM + dual}
 compl_clean_sa_vs_gom_plus_dual_0 <-
   compl_clean %>%
-  mutate(permit =
-           case_when(
+  dplyr::mutate(permit =
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              .default = "gom"
            ))
@@ -64,9 +64,9 @@ glimpse(compl_clean_sa_vs_gom_plus_dual_0)
 compl_clean_sa_vs_gom_plus_dual <-
   compl_clean_sa_vs_gom_plus_dual_0 %>%
   # add month
-  mutate(year_month = as.yearmon(week_start)) %>%
+  dplyr::mutate(year_month = as.yearmon(week_start)) %>%
   # add quarter
-  mutate(year_quarter = as.yearqtr(week_start))
+  dplyr::mutate(year_quarter = as.yearqtr(week_start))
 
 ```
 
@@ -89,7 +89,7 @@ glimpse(compl_clean_sa_vs_gom_plus_dual_short)
 
 compl_clean_sa_vs_gom_plus_dual %>%
   select(vessel_official_number, compliant_, week, permit, year_month, year) %>%
-  # arrange(year, week, permit, vessel_official_number) %>%
+  # dplyr::arrange(year, week, permit, vessel_official_number) %>%
   head()
 
 ```
@@ -97,7 +97,7 @@ compl_clean_sa_vs_gom_plus_dual %>%
 ### aux functions
 ```{r aux functions}
 my_title <- function(time_period) {
-  case_when(
+  dplyr::case_when(
     time_period == "year" ~ "Annual",
     time_period == "year_month" ~ "Monthly",
     time_period == "year_quarter" ~ "Quarterly",
@@ -108,7 +108,7 @@ my_title <- function(time_period) {
   
   # rename column names for x labels
 my_x_lab <- function(time_period) {
-  case_when(
+  dplyr::case_when(
     time_period == "year" ~ "year",
     time_period == "year_month" ~ "month",
     time_period == "year_quarter" ~ "quarter",
@@ -132,7 +132,7 @@ get_time_period_col_name <- function(my_df) {
 
 total_counts <- function(time_period_name) {
   compl_clean_sa_vs_gom_plus_dual_short %>% 
-  group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
+  dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
   summarise(total_count = n()) %>%
   as.data.frame()
 }
@@ -148,7 +148,7 @@ head(compl_clean_sa_vs_gom_plus_dual_all_q)
 count_compliant_yes <- function(time_period_name) {
   compl_clean_sa_vs_gom_plus_dual_short %>% 
   filter(tolower(compliant_) == "yes") %>%
-  group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
+  dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
   summarise(compliant_yes = n()) %>%
   as.data.frame()
 }
@@ -192,7 +192,7 @@ compl_clean_sa_vs_gom_plus_dual_y_t <-
 percent_by_time_period <- function(joined_df) {
   time_period_name <- get_time_period_col_name(joined_df)
   joined_df %>%
-    group_by(vessel_official_number, permit, !!sym(time_period_name)) %>%
+    dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>%
     summarise(percent_yes = compliant_yes * 100 / total_count,
               percent_no = 100 - percent_yes)
 }
@@ -220,7 +220,7 @@ plot_by_time <-
     time_period_title <- my_title(time_period_name)
     my_df %>%
       filter(permit == permit_gr) %>%
-      pivot_longer(starts_with("percent"),
+      tidyr::pivot_longer(starts_with("percent"),
                    names_to = "yes_or_no",
                    values_to = "compliance_percent") %>%
       filter(vessel_official_number == vessel_id) %>%

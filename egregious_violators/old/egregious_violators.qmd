@@ -49,8 +49,8 @@ compl_clean_w_permit_exp <-
 
 ```
 
-## Filter the last ~ 6 month 
-```{r Filter the last 6 month }
+## dplyr::filter the last ~ 6 month 
+```{r dplyr::filter the last 6 month }
 
 # Variables for numbers
 number_of_weeks_for_non_compliancy = 27
@@ -73,11 +73,11 @@ compl_clean_w_permit_exp_last_27w <-
 ```{r Have only SA permits, exclude those with Gulf permits }
 compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
-  filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+  dplyr::filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 ```
 
-## Filter for egregious
+## dplyr::filter for egregious
 ### Check if there is no "compliant_ == YES" since half_year_ago 
 ```{r 'Check if there is no "compliant_ == YES" since half_year_ago' }
 
@@ -111,9 +111,9 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were non compliant
-  filter(compl_weeks_amnt == total_weeks) |>
+  dplyr::filter(compl_weeks_amnt == total_weeks) |>
   # permitted for the whole period (disregard the last week)
-  filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
+  dplyr::filter(total_weeks == (number_of_weeks_for_non_compliancy - 1))
 
 ```
 
@@ -133,7 +133,7 @@ compl_clean_sa_all_weeks_non_c <-
   dplyr::select(dplyr::all_of(need_cols_names)) |>
   dplyr::inner_join(compl_clean_sa_all_weeks_non_c_short) |>
   # Default Joining with `by = join_by(vessel_official_number)`
-  distinct()
+  dplyr::distinct()
 
 ```
 # Preparing Correspondence
@@ -218,13 +218,13 @@ glimpse(corresp_contact_cnts_clean_direct_cnt)
 
 ```
 
-## Add a filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication
+## Add a dplyr::filter: If there was 1 call or 2 emails (out and in, bc they got the email, we shared the information and received a confirmation) with a direct communication
 
 ### 1) 1 call with a direct communication
 ```{r 1) 1 call with a direct communication }
 get_calls_with_direct_communication <-
   function(corresp_contact_cnts_clean_direct_cnt) {
-    # save the long filter
+    # save the long dplyr::filter
     # more than one call
     answered_1_plus_filter <- rlang::quo(
       contact_freq > 1 &
@@ -233,9 +233,9 @@ get_calls_with_direct_communication <-
         tolower(voicemail) ==  "no"
     )
     
-    # use the filter
+    # use the dplyr::filter
     corresp_contact_cnts_clean_direct_cnt |>
-      filter(!!answered_1_plus_filter) %>%
+      dplyr::filter(!!answered_1_plus_filter) %>%
       return()
   }
 
@@ -249,7 +249,7 @@ str(calls_with_direct_communication)
 ### 2) in and out emails
 ```{r 2) in and out emails }
 get_both_in_n_out_emails <- function(corresp_contact_cnts_clean) {
-  # save a filter: more than 1 email
+  # save a dplyr::filter: more than 1 email
   emails_filter <- rlang::quo(contact_freq > 1 &
                          ((tolower(contacttype) == "email") |
                             (tolower(contacttype) == "other")))
@@ -293,8 +293,8 @@ data_overview(corresp_contact_cnts_clean) |> head(1)
 # data_overview(both_in_n_out_2_plus_emails)  |> head(1)
 ```
 
-## Combine filtered correspondence
-```{r Combine filtered correspondence }
+## Combine dplyr::filtered correspondence
+```{r Combine dplyr::filtered correspondence }
 to_investigation_to_NEIS <-
   rbind(both_in_n_out_2_plus_emails,
         calls_with_direct_communication)
@@ -313,8 +313,8 @@ str(to_investigation_to_NEIS)
 
 ```
 
-# Combine compliance information with filtered correspondence info by vessel_official_number
-```{r Combine compliance information with filtered correspondence info by vessel_official_number }
+# Combine compliance information with dplyr::filtered correspondence info by vessel_official_number
+```{r Combine compliance information with dplyr::filtered correspondence info by vessel_official_number }
 
 compl_corr_to_investigation <-
   dplyr::inner_join(

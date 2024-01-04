@@ -23,9 +23,9 @@ check_new_vessels <-
         "1246468",
         "FL7549EJ")
     my_df |>
-      filter(vessel_official_number %in% list_to_check) |>
-      select(vessel_official_number) |>
-      distinct() |>
+      dplyr::filter(vessel_official_number %in% list_to_check) |>
+      dplyr::select(vessel_official_number) |>
+      dplyr::distinct() |>
       dim() %>%
       return()
   }
@@ -40,7 +40,7 @@ check_new_vessels(compl_clean)
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is more than a month from data_file_date than "no"
-  mutate(permit_expired = case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
+  dplyr::mutate(permit_expired = dplyr::case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
                                     .default = "yes"))
 
 ## ---- add year_month column ----
@@ -53,9 +53,9 @@ half_year_ago <-
 
 compl_clean_w_permit_exp_last_27w <-
   compl_clean_w_permit_exp |>
-  mutate(year_month = as.yearmon(week_start)) |>
+  dplyr::mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last 28 weeks
-  filter(year_month >= as.yearmon(half_year_ago))
+  dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
 dim(compl_clean_w_permit_exp)
 # today()
@@ -82,7 +82,7 @@ check_new_vessels(compl_clean_w_permit_exp_last_27w)
 
 compl_clean_sa <-
   compl_clean_w_permit_exp_last_27w |>
-  filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+  dplyr::filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 today()
 # [1] "2023-08-01"
@@ -92,7 +92,7 @@ today()
 ## Not "compliant_" only ----
 compl_clean_sa_non_compl <-
   compl_clean_sa |>
-  filter(compliant_ == 'NO')
+  dplyr::filter(compliant_ == 'NO')
 
 check_new_vessels(compl_clean_sa_non_compl)
 # 4
@@ -120,7 +120,7 @@ compl_clean_sa_non_compl |>
 # vessel_official_number 1370
 # vessel_official_number 1328
 
-## filter for egregious ----
+## dplyr::filter for egregious ----
 ### check if there is no "compliant_ == YES" since half_year_ago ----
 
 last_week_start <- data_file_date - 6
@@ -131,7 +131,7 @@ compl_clean_sa |> check_new_vessels()
 compl_clean_sa_non_c_not_exp <-
   compl_clean_sa |>
   # not compliant
-  filter(tolower(compliant_) == "no") |>
+  dplyr::filter(tolower(compliant_) == "no") |>
   # in the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
@@ -159,9 +159,9 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::select(-week) |>
   dplyr::distinct() |>
   # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
+  dplyr::filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
   # ...non compliant
-  filter(compl_weeks_amnt == total_weeks)
+  dplyr::filter(compl_weeks_amnt == total_weeks)
 
 dim(compl_clean_sa_all_weeks_non_c_short)
 
@@ -180,8 +180,8 @@ compl_clean_sa_non_c_not_exp |>
   # dim()
   # [1] 1045    4
   # all weeks were non compliant
-  # filter(compl_weeks_amnt == total_weeks) |>
-    glimpse()
+  # dplyr::filter(compl_weeks_amnt == total_weeks) |>
+    dplyr::glimpse()
 
 dim(compl_clean_sa_all_weeks_non_c_short)
 # 121
@@ -202,10 +202,10 @@ compl_clean_sa_non_c_not_exp |> check_new_vessels()
 # dim(compl_clean_sa_non_c_not_exp)
 compl_clean_sa_all_weeks_non_c <-
   compl_clean_sa_non_c_not_exp |>
-  select(all_of(need_cols_names)) |>
+  dplyr::select(all_of(need_cols_names)) |>
   inner_join(compl_clean_sa_all_weeks_non_c_short) |>
 # Joining with `by = join_by(vessel_official_number)`
-  distinct()
+  dplyr::distinct()
 
 dim(compl_clean_sa_all_weeks_non_c)
 # [1] 130   8
@@ -217,33 +217,33 @@ dim(compl_clean_sa_all_weeks_non_c)
 # ids only
 compl_clean_sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_sa_all_weeks_non_c_short |>
-  select(vessel_official_number) |>
-  distinct()
+  dplyr::select(vessel_official_number) |>
+  dplyr::distinct()
 
 dim(compl_clean_sa_all_weeks_non_c_short_vesl_ids)
 # [1] 128   1
 
 # check these ids in the full compliance information
 compl_clean_sa |>
-  filter(
+  dplyr::filter(
     vessel_official_number %in% compl_clean_sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
-  group_by(vessel_official_number) |>
-  filter(tolower(compliant_) == "yes" &
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::filter(tolower(compliant_) == "yes" &
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
   # get only the latest compliant weeks
-  mutate(latest_compl = max(week_num)) |>
-  filter(week_num == latest_compl) |> 
-  ungroup() |> 
-  select(
+  dplyr::mutate(latest_compl = max(week_num)) |>
+  dplyr::filter(week_num == latest_compl) |> 
+  dplyr::ungroup() |> 
+  dplyr::select(
     # vessel_official_number,
     year_month,
     latest_compl) |>
-  distinct() |> 
-  glimpse()
+  dplyr::distinct() |> 
+  dplyr::glimpse()
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
 
@@ -254,7 +254,7 @@ compl_clean_sa |>
 ## ---- remove 999999 ----
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
-  filter(!grepl("^99999", vessel_official_number))
+  dplyr::filter(!grepl("^99999", vessel_official_number))
 
 data_overview(corresp_contact_cnts_clean) |>
   head(1)
@@ -275,7 +275,7 @@ two_attempts_filter <-
 
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
-  filter(!!two_attempts_filter)
+  dplyr::filter(!!two_attempts_filter)
 
 test_new_egr2 <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
@@ -295,7 +295,7 @@ data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |>
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 18163    23
 
-## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
+## ---- Combine compliance information with dplyr::filtered correspondence info by vesselofficialnumber ----
 
 corresp_contact_cnts_clean_direct_cnt_2atmps |>
   check_new_vessels()
@@ -360,14 +360,14 @@ get_date_contacttype <-
   function(compl_corr_to_investigation1) {
     compl_corr_to_investigation1 |>
       # add a new column date__contacttype with contactdate and contacttype
-      mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
+      dplyr::mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
       # use 2 columns only
-      select(vessel_official_number, date__contacttype) |>
+      dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
       # sort
-      arrange(vessel_official_number, date__contacttype) |>
+      dplyr::arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
-      group_by(vessel_official_number) |>
+      dplyr::group_by(vessel_official_number) |>
       # for each vessel id combine all date__contacttypes separated by comma in one cell
       summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
       return()
@@ -380,7 +380,7 @@ dim(date__contacttype_per_id)
 # 107
 # 27: 177
 # 188   2
-# 105   2 (the new filter)
+# 105   2 (the new dplyr::filter)
 # 108
 # 97
 # [1] 116   2 (2 contact attempts)
@@ -399,8 +399,8 @@ date__contacttype_per_id |>
 ### check ----
 vessels_permits_participants_v_ids <-
   vessels_permits_participants |> 
-  select(P_VESSEL_ID) |> 
-  distinct()
+  dplyr::select(P_VESSEL_ID) |> 
+  dplyr::distinct()
 
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
@@ -424,9 +424,9 @@ setdiff(date__contacttype_per_id$vessel_official_number,
 
 vessels_permits_participants_space <-
   vessels_permits_participants |>
-  mutate(across(where(is.character),
+  dplyr::mutate(across(where(is.character),
                 ~ replace_na(., ""))) |>
-  mutate(across(where(is.character),
+  dplyr::mutate(across(where(is.character),
                 ~ str_trim(.)))
 
 dim(vessels_permits_participants_space)
@@ -434,8 +434,8 @@ dim(vessels_permits_participants_space)
 
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
-  group_by(P_VESSEL_ID) |>
-  mutate(
+  dplyr::group_by(P_VESSEL_ID) |>
+  dplyr::mutate(
     sero_home_port = list(unique(
       paste(
         SERO_HOME_PORT_CITY,
@@ -456,12 +456,12 @@ vessels_permits_participants_short_u <-
               POSTAL_CODE)
       ))
   ) |>
-  select(P_VESSEL_ID,
+  dplyr::select(P_VESSEL_ID,
          sero_home_port,
          full_name,
          full_address) |>
-  ungroup() |>
-  distinct()
+  dplyr::ungroup() |>
+  dplyr::distinct()
 
 # dim(vessels_permits_participants_short)
 # [1] 7858    4
@@ -470,19 +470,19 @@ vessels_permits_participants_short_u <-
 # View(vessels_permits_participants_short_u)
 
 # vessels_permits_participants_short_u |> 
-#   # filter(lengths(full_name) > 0) %>%
+#   # dplyr::filter(lengths(full_name) > 0) %>%
 #   # unnest(full_name) %>%
 #   # unnest_wider(full_name, names_sep = "_") |> 
 #   rowwise() |> 
-#   mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
+#   dplyr::mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
 #   View()
  # cat()
 
 vessels_permits_participants_short_u_flat <-
   vessels_permits_participants_short_u |>
   rowwise() |>
-  mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
-  ungroup()
+  dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
+  dplyr::ungroup()
 
 data_overview(vessels_permits_participants_short_u_flat) |> 
   head(1)
@@ -490,8 +490,8 @@ data_overview(vessels_permits_participants_short_u_flat) |>
 
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
-  # gdf %>% mutate(across(v1:v2, ~ .x + n))
-  mutate(
+  # gdf %>% dplyr::mutate(across(v1:v2, ~ .x + n))
+  dplyr::mutate(
     across(
     c(sero_home_port,
       full_name,
@@ -523,11 +523,11 @@ vessels_permits_participants_short_u_flat_sp <-
     ~ str_replace_all(.x, "^,", "")
   ))
 # |>
-#   glimpse()
+#   dplyr::glimpse()
 # 
 # 
 # vessels_permits_participants_short_u_flat_sp |>
-#   arrange(P_VESSEL_ID) |> 
+#   dplyr::arrange(P_VESSEL_ID) |> 
 #   head() |> 
 #   str()
 
@@ -535,8 +535,8 @@ vessels_permits_participants_short_u_flat_sp <-
 ### check ----
 vessels_permits_participants_v_ids <-
   vessels_permits_participants |> 
-  select(P_VESSEL_ID) |> 
-  distinct()
+  dplyr::select(P_VESSEL_ID) |> 
+  dplyr::distinct()
 
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
@@ -573,7 +573,7 @@ dim(vessels_permits_participants_space)
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
   # for each vessel
-  group_by(P_VESSEL_ID) |>
+  dplyr::group_by(P_VESSEL_ID) |>
   dplyr::mutate(
     sero_home_port = list(unique(
       paste(
@@ -596,12 +596,12 @@ vessels_permits_participants_short_u <-
       ))
   ) |>
   # use only new columns and the vessel id
-  select(P_VESSEL_ID,
+  dplyr::select(P_VESSEL_ID,
          sero_home_port,
          full_name,
          full_address) |>
-  ungroup() |>
-  distinct()
+  dplyr::ungroup() |>
+  dplyr::distinct()
 
 dim(vessels_permits_participants_short_u)
 # [1] 3302    4
@@ -680,7 +680,7 @@ fhier_addr <-
 # fewer fields
 fhier_addr_short <-
   fhier_addr |>
-  select(
+  dplyr::select(
     vessel_official_number,
     permit_holder_names,
     physical_address_1,
@@ -703,7 +703,7 @@ fhier_addr_short <-
         physical_zip_code
       )
   ) |>
-  select(
+  dplyr::select(
     -c(
       physical_address_1,
       physical_address_2,
@@ -728,7 +728,7 @@ dim(fhier_addr__compl_corr)
 ### check if the address or name missing from the db is in FHIER ----
 addr_name_in_fhier <-
   fhier_addr__compl_corr |>
-  filter((is.na(full_name) &
+  dplyr::filter((is.na(full_name) &
             !is.na(permit_holder_names)) |
            is.na(full_address) &
            !is.na(fhier_address))
@@ -739,7 +739,7 @@ dim(new_addr)
 ### check if the address or name is a "UN" in the db is in FHIER ----
 addr_name_in_fhier <-
   fhier_addr__compl_corr |>
-  filter((full_name == "UN" &
+  dplyr::filter((full_name == "UN" &
             !is.na(permit_holder_names)) |
            full_address == "UN" &
            !is.na(fhier_address))
@@ -749,7 +749,7 @@ dim(addr_name_in_fhier)
 
 addr_name_in_not_fhier <-
   fhier_addr__compl_corr |>
-  filter(((!is.na(full_name) | !full_name == "UN") &
+  dplyr::filter(((!is.na(full_name) | !full_name == "UN") &
             is.na(permit_holder_names)) |
            (!is.na(full_address) | !full_address == "UN") &
            is.na(fhier_address))
@@ -760,7 +760,7 @@ dim(addr_name_in_not_fhier)
 ### check if the address or name missing from the db is in FHIER ----
 addr_name_in_fhier <-
   fhier_addr__compl_corr |>
-  filter((is.na(full_name) &
+  dplyr::filter((is.na(full_name) &
             !is.na(permit_holder_names)) |
            is.na(full_address) &
            !is.na(fhier_address))
@@ -771,7 +771,7 @@ dim(new_addr)
 ### check if the address or name is a "UN" in the db is in FHIER ----
 addr_name_in_fhier <-
   fhier_addr__compl_corr |>
-  filter((full_name == "UN" &
+  dplyr::filter((full_name == "UN" &
             !is.na(permit_holder_names)) |
            full_address == "UN" &
            !is.na(fhier_address))
@@ -788,7 +788,7 @@ setdiff(
   names(fhier_addr__compl_corr),
   names(vessels_permits_participants_short_u_flat_sp)
   )
-print_df_names(fhier_addr__compl_corr)
+# print_df_names(fhier_addr__compl_corr)
 
 vessels_permits_participants_short_u_flat_sp_add <-
   vessels_permits_participants_short_u_flat_sp |>
@@ -801,22 +801,22 @@ vessels_permits_participants_short_u_flat_sp_add <-
       full_address
     )
   ) |>
-  mutate(
+  dplyr::mutate(
     full_name =
-      case_when(
+      dplyr::case_when(
         is.na(full_name) | full_name == "UN" ~
           permit_holder_names,
         .default = full_name
       ),
     full_address =
-      case_when(
+      dplyr::case_when(
         is.na(full_address) | full_address == "UN" ~
           fhier_address,
         .default = full_address
       )
   ) |>
-  select(P_VESSEL_ID, sero_home_port, full_name, full_address) |>
-  distinct()
+  dplyr::select(P_VESSEL_ID, sero_home_port, full_name, full_address) |>
+  dplyr::distinct()
 
 library(diffdf)
 diffdf(vessels_permits_participants_short_u_flat_sp,
@@ -859,7 +859,7 @@ contactphonenumber_field_name <-
 
 compl_corr_to_investigation1_short <-
   compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
-  select(
+  dplyr::select(
     "vessel_official_number",
     "name",
     "permit_expired",
@@ -877,7 +877,7 @@ compl_corr_to_investigation1_short <-
   ) |>
   combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
-View(compl_corr_to_investigation1_short)
+# View(compl_corr_to_investigation1_short)
 # [1] 107   9
 # 27: [1] 177  10
 # [1] 105   9
@@ -908,15 +908,15 @@ vessels_to_mark <-
 
 vessels_to_mark_ids <-
   vessels_to_mark |>
-  # filter(tolower(`Contacted 2x?`) == 'yes') |>
-  select(vessel_official_number)
+  # dplyr::filter(tolower(`Contacted 2x?`) == 'yes') |>
+  dplyr::select(vessel_official_number)
 
 # mark these vessels
 compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
-  mutate(
+  dplyr::mutate(
     duplicate_w_last_time =
-      case_when(
+      dplyr::case_when(
         vessel_official_number %in%
           vessels_to_mark_ids$vessel_official_number ~ "duplicate",
         .default = "new"
@@ -986,7 +986,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 #         compl_corr_to_investigation1_short_dup_marked$vessel_official_number) |>
 #   length()
 # 68
-# 35 (new filter)
+# 35 (new dplyr::filter)
 # 67
 # 71
 # in_the_new_res_only <-
@@ -1040,7 +1040,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 #### check no comments ----
 # no_comments_vsls <-
 #   compl_corr_to_investigation1_short_output_w_comments |>
-#   filter(is.na(
+#   dplyr::filter(is.na(
 #     `Confirmed Egregious? (missing past 6 months, 2 contacts with at least 1 call)`
 #   ))
 # # |>
@@ -1054,15 +1054,15 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 
 # no_comments_vsls_ids <-
 #   no_comments_vsls |>
-#   select(vessel_official_number)
+#   dplyr::select(vessel_official_number)
 # dim(no_comments_vsls_ids)
 # 62
 
 # no_comments_vsls_ids |>
-#   filter(vessel_official_number == '1305207') |> dim()
+#   dplyr::filter(vessel_official_number == '1305207') |> dim()
 # 1
 # compl_corr_to_investigation1_short_output_w_comments |>
-#   filter(vessel_official_number == '1305207') |> dim()
+#   dplyr::filter(vessel_official_number == '1305207') |> dim()
 # [1]  1 21
 
 # setdiff(no_comments_vsls_ids$vessel_official_number, in_the_new_res_only_df) |>
@@ -1085,7 +1085,7 @@ fhier_addr <-
 
 fhier_addr_short <-
   fhier_addr |>
-  select(
+  dplyr::select(
     vessel_official_number,
     permit_holder_names,
     physical_address_1,
@@ -1097,7 +1097,7 @@ fhier_addr_short <-
     phone_number,
     primary_email
   ) |>
-  mutate(
+  dplyr::mutate(
     fhier_address =
       paste(
         physical_address_1,
@@ -1108,7 +1108,7 @@ fhier_addr_short <-
         physical_zip_code
       )
   ) |>
-  select(
+  dplyr::select(
     -c(
       physical_address_1,
       physical_address_2,
@@ -1135,11 +1135,11 @@ no_addr_vessl <-
     "NC2851DH")
 
 res1 |> 
-  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dplyr::filter(vessel_official_number %in% no_addr_vessl) |> 
   dim()
 
 fhier_addr_short |> 
-  filter(vessel_official_number %in% no_addr_vessl) |> 
+  dplyr::filter(vessel_official_number %in% no_addr_vessl) |> 
   dim()
 # 0
 
@@ -1172,9 +1172,9 @@ no_addr1 <-
     "NC9819DF")
 
 fhier_addr_short |>
-  # filter(vessel_official_number == "1308401") |>
-  filter(vessel_official_number %in% no_addr1) |>
-  select(vessel_official_number,
+  # dplyr::filter(vessel_official_number == "1308401") |>
+  dplyr::filter(vessel_official_number %in% no_addr1) |>
+  dplyr::select(vessel_official_number,
          permit_holder_names, fhier_address) |>
   write_csv("fhier_addr_short.csv")
 # 22
@@ -1191,8 +1191,8 @@ intersect(names(prev_res),
 
 compl_corr_to_investigation1_short_dup_marked_ch <-
   compl_corr_to_investigation1_short_dup_marked |>
-  mutate(across(everything(), as.character)) |>
-  select(
+  dplyr::mutate(across(everything(), as.character)) |>
+  dplyr::select(
     -c(
       name,
       permit_expired,

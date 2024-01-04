@@ -27,9 +27,9 @@
       # 4 = Ocean > 10 mi (WFL only) 
       # 5 = Inland"	CHAR
       
-      # Use DS column to filter out SRHS (headboat)
+      # Use DS column to dplyr::filter out SRHS (headboat)
       
-      # Use "new mode" column to filter out private and shore modes (private = rec; 
+      # Use "new mode" column to dplyr::filter out private and shore modes (private = rec; 
       #            shore mode = private rec fishing from shore)
       # # new_mode = recorded mode of fishing used by SFD (1=shore, 2=headboat, 3=charterboat, 4=private boat, 5=charter/headboat, 6=priv/shore)
       
@@ -38,7 +38,7 @@
   # (3) SEFHIER all logbooks file (from FHIER report) 
         # need the ports from the logbook file to interjoin to the catch file 
           #- using the trip ID or something. 
-          #That way you'd know where they landed the catch, for filtering by area to compare to MRIP
+          #That way you'd know where they landed the catch, for dplyr::filtering by area to compare to MRIP
   
 #general set up:
 #load required packages; or install first if necessary 
@@ -58,19 +58,19 @@ Outputs <- "Outputs/"
 #data file (1) 
 SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), sheet = "Species Only")
   # taking a quick look
-  glimpse(SEFHIER_species) #headers                                                                       
+  dplyr::glimpse(SEFHIER_species) #headers                                                                       
   #View(SEFHIER_species) #opens R data view tab
 
 #data MRIP file (2)  
   mrip_raw <- read_excel(paste(Path, Inputs, "mripaclspec_rec81_22wv6_01mar23w2014to2021LACreel.xlsx", sep = ""))
   # taking a quick look
-  glimpse(mrip_raw) #headers                                                                       
+  dplyr::glimpse(mrip_raw) #headers                                                                       
   #View(mrip_raw) #opens R data view tab
   
 #data file (3)
   SEFHIER_logbooks <- read.csv(paste(Path, Inputs, "FHIER_all_logbook_data.csv", sep = ""))
   # taking a quick look
-  glimpse(SEFHIER_logbooks) #headers                                                                       
+  dplyr::glimpse(SEFHIER_logbooks) #headers                                                                       
   #View(SEFHIER_logbooks) #opens R data view tab
   
 #---- Data processing ----     
@@ -127,8 +127,8 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
         col_name_to_trim_s <- sym(col_name_to_trim)
         # Hard code vessel_official_number as vessel id
         x %>%
-          mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
-          # mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
+          dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+          # dplyr::mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
           return()
       })
       return(csvs_clean)
@@ -143,7 +143,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
   # Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
   change_to_dates <- function(my_df, field_name, date_format) {
     my_df %>%
-      mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+      dplyr::mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
                                           format = date_format)) %>%
       return()
   }
@@ -151,23 +151,23 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
   #Now, need to modify dates and times to appropriate R format
   SEFHIER_logbooks  %>%
     # create a new column
-    mutate(trip_start_date_time =
+    dplyr::mutate(trip_start_date_time =
              # trip start: combine a date without time, a space and a time
              paste(substr(trip_start_date, 1, 10),
                    trip_start_time)) %>%
     # Same for the trip end
-    mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
+    dplyr::mutate(trip_end_date_time = paste(substr(trip_end_date, 1, 10), trip_end_time)) %>%
     # change the new column types to a date
     change_to_dates("trip_start_date_time", "%Y-%m-%d %H%M") %>%
     change_to_dates("trip_end_date_time", "%Y-%m-%d %H%M") %>%
     # change the column type to a number
-    mutate(reported_quantity = as.integer(reported_quantity))
+    dplyr::mutate(reported_quantity = as.integer(reported_quantity))
   
   #Did not modify date fields in all logbook data
   fhier_common_names <-
   fhier_logbooks_content %>%
   # names()
-  select(catch_species_itis, common_name) %>%
+  dplyr::select(catch_species_itis, common_name) %>%
   unique()
 
   
@@ -176,7 +176,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     
 #MRIP data processing ----  
 #filter MRIP data for just 2022 
-  mrip_raw_2022 <- mrip_raw %>% filter(year == "2022")  
+  mrip_raw_2022 <- mrip_raw %>% dplyr::filter(year == "2022")  
     #check
     dim(mrip_raw)
     # [1] 347379 67
@@ -184,18 +184,18 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     # [1] 8332   67
     
 #filter MRIP 2022 raw data for just regions 6 & 7 (Gulf and SA, respectively) ----
-    mrip_raw_CBT_Gulf_and_SA <- mrip_raw_2022 %>% filter(SUB_REG %in% c(6, 7))
+    mrip_raw_CBT_Gulf_and_SA <- mrip_raw_2022 %>% dplyr::filter(SUB_REG %in% c(6, 7))
   #filter out SRHS data
-    mrip_raw_CBT_Gulf_and_SA_noSRHS <- mrip_raw_CBT_Gulf_and_SA %>% filter(DS != "SRHS")
+    mrip_raw_CBT_Gulf_and_SA_noSRHS <- mrip_raw_CBT_Gulf_and_SA %>% dplyr::filter(DS != "SRHS")
   #filter out private and shore modes
-    mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec <- mrip_raw_CBT_Gulf_and_SA_noSRHS %>% filter(NEW_MODE %in% c(2, 3, 5)) 
+    mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec <- mrip_raw_CBT_Gulf_and_SA_noSRHS %>% dplyr::filter(NEW_MODE %in% c(2, 3, 5)) 
     
     #----MRIP scientific species list ----
-    MRIP_scientific_species_list <- mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec %>% select(NEW_SCI) %>% unique()
+    MRIP_scientific_species_list <- mrip_raw_CBT_Gulf_and_SA_noSRHSorPrivateRec %>% dplyr::select(NEW_SCI) %>% unique()
     
     
 #----Grab just scientific names from SEFHIER_species.xlsx file ----
-    SEFHIER_scientific_names <- SEFHIER_species %>% select(SCIENTIFIC_NAME)
+    SEFHIER_scientific_names <- SEFHIER_species %>% dplyr::select(SCIENTIFIC_NAME)
 
 
 ## prepare FHIER logbook data ----
@@ -258,8 +258,8 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     fhier_logbooks_content_waves_fl_county <-
       fhier_logbooks_content_waves %>%
       # create a new column "end_port_fl_reg" with SA, GOM or whatever else left
-      mutate(
-        end_port_fl_reg = case_when(
+      dplyr::mutate(
+        end_port_fl_reg = dplyr::case_when(
           # check in the list
           # if there is no end county, use the start
           fix_names(start_port_county) %in% fix_names(fl_counties$SA) ~ "sa",
@@ -274,14 +274,14 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     ## test: check regions ----
     fhier_logbooks_content_waves_fl_county %>%
       # get FL only
-      filter(end_port_state == "FL") %>%
+      dplyr::filter(end_port_state == "FL") %>%
       # sort by county
-      arrange(end_port_county) %>%
-      distinct() %>%
+      dplyr::arrange(end_port_county) %>%
+      dplyr::distinct() %>%
       # data_overview()
       # 37 counties
       # vessel_official_number          1096
-      select(end_port_fl_reg) %>%
+      dplyr::select(end_port_fl_reg) %>%
       table()
     # using only end_port_counties
     #    gom NOT-SPECIFIED            sa 
@@ -290,7 +290,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     #           gom NOT-SPECIFIED            sa 
     #        201703           112         30152 
     # what else is in the new column beside sa and gom
-    # filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
+    # dplyr::filter(!(end_port_fl_reg %in% c("sa", "gom"))) %>% unique()
     
     # NOT-SPECIFIED
     
@@ -314,15 +314,15 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # a default R table
       state_tbl %>%
       # get only these in our list
-      filter(state_name %in% tolower(states_sa$state_name)) %>%
+      dplyr::filter(state_name %in% tolower(states_sa$state_name)) %>%
       # get abbreviations
-      select(state_abb)
+      dplyr::select(state_abb)
     
     fhier_logbooks_content_waves__sa_gom <-
       fhier_logbooks_content_waves_fl_county %>%
       # add a new column "end_port_sa_gom" with sa or gom for each state
       # use fix_name aux function to unify state names (lower case, no spaces etc.)
-      mutate(end_port_sa_gom = case_when(
+      dplyr::mutate(end_port_sa_gom = dplyr::case_when(
         # if a name is in our SA list - "sa", otherwise - "gom"
         fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
         .default = "gom"
@@ -330,49 +330,49 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
       # go through the new column again
       # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
       # otherwise don't change
-      mutate(end_port_sa_gom = ifelse(
+      dplyr::mutate(end_port_sa_gom = ifelse(
         tolower(end_port_state) == "fl",
         end_port_fl_reg,
         end_port_sa_gom
       )) %>%
       # remove this column, we don't need it anymore
-      select(-end_port_fl_reg)
+      dplyr::select(-end_port_fl_reg)
     
     #| classes: test
     ## test: states and regions ----
     fhier_logbooks_content_waves__sa_gom %>%
       # look at states and regions
-      select(end_port_state, end_port_sa_gom) %>%
+      dplyr::select(end_port_state, end_port_sa_gom) %>%
       unique() %>%
-      glimpse()
+      dplyr::glimpse()
     
-    glimpse(fhier_logbooks_content_waves__sa_gom)
+    dplyr::glimpse(fhier_logbooks_content_waves__sa_gom)
     
     ## combine dolphin and dolphinfish for FHIER data ----
     fhier_logbooks_content_waves__sa_gom_dolph <-
       fhier_logbooks_content_waves__sa_gom %>%
       rename(common_name_orig = common_name) %>%
-      mutate(common_name = if_else(
+      dplyr::mutate(common_name = if_else(
         tolower(common_name_orig) %in% c("dolphin", "dolphinfish"),
         "DOLPHIN",
         common_name_orig
       )
       )
     
-    glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
+    dplyr::glimpse(fhier_logbooks_content_waves__sa_gom_dolph)
     
     ### test: dolphins ----
     fhier_logbooks_content_waves__sa_gom_dolph %>%
-      filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
-      select(common_name_orig, common_name) %>% unique()
+      dplyr::filter(tolower(common_name_orig) %in% c("dolphin", "dolphinfish")) %>%
+      dplyr::select(common_name_orig, common_name) %>% unique()
     # ---
     
     ## calculate catch ----
     
     fhier_catch_by_species_state_region_waves <-  
       fhier_logbooks_content_waves__sa_gom %>%
-      # select only relevant columns
-      select(
+      # dplyr::select only relevant columns
+      dplyr::select(
         catch_species_itis,
         end_port_state,
         end_port_sa_gom,
@@ -381,7 +381,7 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
         reported_quantity
       ) %>%
       # group by all of them but "reported_quantity"
-      group_by(
+      dplyr::group_by(
         catch_species_itis,
         end_port_state,
         end_port_sa_gom,
@@ -397,8 +397,8 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     ### test: cnts for 1 sp. ----
     test_species_itis <-
       fhier_logbooks_content %>%
-      filter(tolower(common_name) == "mackerel, spanish") %>%
-      select(catch_species_itis) %>%
+      dplyr::filter(tolower(common_name) == "mackerel, spanish") %>%
+      dplyr::select(catch_species_itis) %>%
       unique() %>%
       # get a string, not a df
       use_series(catch_species_itis)
@@ -406,9 +406,9 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     fhier_test_cnts <-
       fhier_catch_by_species_state_region_waves %>%
       # get the same species
-      filter(catch_species_itis == test_species_itis) %>%
+      dplyr::filter(catch_species_itis == test_species_itis) %>%
       # group by region
-      group_by(catch_species_itis, end_port_sa_gom) %>%
+      dplyr::group_by(catch_species_itis, end_port_sa_gom) %>%
       # sum the FHIER catch
       summarise(mackerel_fhier_cnt = sum(fhier_quantity_by_4, na.rm = TRUE)) %>%
       as.data.frame()
@@ -418,38 +418,38 @@ SEFHIER_species <- read_excel(paste(Path,Inputs,"SEFHIER_species.xlsx",sep=""), 
     ## MRIP ----
     
     mrip_estimate %<>%
-      mutate(ab1 = as.integer(ab1))
+      dplyr::mutate(ab1 = as.integer(ab1))
     
     mrip_estimate_catch_by_species_state_region_waves <-
       mrip_estimate %>%
-      # select the relevan columns only
-      select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
+      # dplyr::select the relevan columns only
+      dplyr::select(itis_code, new_sta, sub_reg, year, wave, ab1) %>%
       # group by all except the counts
-      group_by(itis_code, new_sta, sub_reg, year, wave) %>%
+      dplyr::group_by(itis_code, new_sta, sub_reg, year, wave) %>%
       # save the sum of "ab1" for each group in "mrip_estimate_catch_by_4"
       # remove NAs
       summarise(mrip_estimate_catch_by_4 = sum(as.integer(ab1), na.rm = TRUE)) %>%
       as.data.frame()
     
-    glimpse(mrip_estimate_catch_by_species_state_region_waves)
+    dplyr::glimpse(mrip_estimate_catch_by_species_state_region_waves)
     # 'data.frame':	878 obs. of  6 variables
     
     # "year" and "wave" to numbers
     mrip_estimate_catch_by_species_state_region_waves1 <-
       mrip_estimate_catch_by_species_state_region_waves %>%
-      mutate(year = as.double(year)) %>%
-      mutate(wave = as.double(wave))
+      dplyr::mutate(year = as.double(year)) %>%
+      dplyr::mutate(wave = as.double(wave))
     
     mrip_estimate_catch_by_species_state_region_waves <-
       mrip_estimate_catch_by_species_state_region_waves1 %>%
       # change a 6 to "sa" and a 7 "gom", leave everything else in place
-      mutate(sa_gom = case_when(sub_reg == "6" ~ "sa",
+      dplyr::mutate(sa_gom = dplyr::case_when(sub_reg == "6" ~ "sa",
                                 sub_reg == "7" ~ "gom",
                                 .default = sub_reg),
              # put the new column after sub_reg (by default at the end)
              .after = sub_reg) %>%
       # drop sub_reg
-      select(-sub_reg)
+      dplyr::select(-sub_reg)
     
     ## rename fields ----
     

@@ -24,7 +24,7 @@ text_sizes <- list(
 # F2 in RStudio will show the function definition, when the cursor is on the name.
 # Read a shapefile (geospatial data) from the specified file path and store it in the 'sa_shp' object.
 sa_shp <-
-  read_shapefile(r"(sa_eaz_off_states\shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
+  read_shapefile(r"(shapefiles_sa_eez_off_states\SA_EEZ_off_states.shp)")
 
 # The South Atlantic Council is responsible for the conservation and management of fishery resources in federal waters ranging from 3 to 200 miles off the coasts of North Carolina, South Carolina, Georgia, and east Florida to Key West.
 
@@ -54,14 +54,14 @@ sa_state_abb <-
   # get only these in our list
   filter(state_name %in% tolower(states_sa$state_name)) %>%
   # get abbreviations
-  select(state_abb)
+  dplyr::select(state_abb)
 
 # # add regions to the FHIER logbook DF
 # fhier_logbooks_content_waves__sa_gom <-
 #   fhier_logbooks_content_waves_fl_county %>%
 #   # add a new column "end_port_sa_gom" with sa or gom for each state
 #   # use fix_name aux function to unify state names (lower case, no spaces etc.)
-#   mutate(end_port_sa_gom = case_when(
+#   dplyr::mutate(end_port_sa_gom = dplyr::case_when(
 #     # if a name is in our SA list - "sa", otherwise - "gom"
 #     fix_names(end_port_state) %in% fix_names(sa_state_abb$state_abb) ~ "sa",
 #     .default = "gom"
@@ -69,20 +69,20 @@ sa_state_abb <-
 #   # go through the new column again
 #   # if an end port state is Florida - use the region from the previous step (column "end_port_fl_reg")
 #   # otherwise don't change
-#   mutate(end_port_sa_gom = ifelse(
+#   dplyr::mutate(end_port_sa_gom = ifelse(
 #     tolower(end_port_state) == "fl",
 #     end_port_fl_reg,
 #     end_port_sa_gom
 #   )) %>%
 #   # remove this column, we don't need it anymore
-#   select(-end_port_fl_reg)
+#   dplyr::select(-end_port_fl_reg)
 
 #### test: check new cols of states and regions ----
 # fhier_logbooks_content_waves__sa_gom %>%
 #   # look at states and regions
-#   select(end_port_state, end_port_sa_gom) %>%
+#   dplyr::select(end_port_state, end_port_sa_gom) %>%
 #   unique() %>%
-#   glimpse()
+#   dplyr::glimpse()
 
 ## r get Shapefile all waters ----
 path_to_federal_state_w <-
@@ -106,7 +106,7 @@ toc()
 # rr$Jurisdicti |>
 #   cat(sep = ", ")
 
-east_coat_states <- c(
+east_coast_states <- c(
   gom = c("Florida",
           "Texas",
           "Louisiana"),
@@ -135,10 +135,10 @@ east_coat_states <- c(
 #                      query = "SELECT NAME, SID74, FIPS FROM \"nc\" WHERE BIR74 > 20000")
 
 # Create a new data frame 'federal_state_w_sf_east' by filtering the existing data frame 'federal_state_w_sf'.
-# Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coat_states'.
+# Rows are retained if the 'Jurisdicti' column matches any of the values in 'east_coast_states'.
 federal_state_w_sf_east <-
   federal_state_w_sf |>
-  filter(Jurisdicti %in% east_coat_states)
+  filter(Jurisdicti %in% east_coast_states)
 
 # mapview(sa_shp)
 # [1] 21  7
@@ -193,7 +193,7 @@ ggplot() +
 # read in GOM shp ----
 # Create a file path using 'file.path' by combining elements from 'my_paths' and specifying a shapefile path.
 GOM_400fm_path <-
-  file.path(my_paths$inputs, r"(..\GOM_heatmap_from Kyle\GOM_400fm\GOM_400fm.shp)")
+  file.path(my_paths$inputs, r"(..\GOM_400fm\GOM_400fm.shp)")
 # file.exists(GOM_400fm_path)
 # T
 
@@ -201,7 +201,7 @@ GOM_400fm_path <-
 # Then, group the resulting data by 'StatZone' and summarize it.
 GOMsf <-
   sf::read_sf(GOM_400fm_path) %>%
-  group_by(StatZone) %>%
+  dplyr::group_by(StatZone) %>%
   summarise()
 
 # Bounding box:  xmin: -97.7445 ymin: 23.82277 xmax: -80.37073 ymax: 30.885
@@ -224,7 +224,7 @@ min_grid <- function(my_sf = GOMsf, minute_num = 1) {
     sf::st_as_sf() %>%
 
     # Add a 'cell_id' column to the grid using 'mutate'.
-    mutate(cell_id = 1:nrow(.))
+    dplyr::mutate(cell_id = 1:nrow(.))
 
   # Return the created grid.
   return(grid)
@@ -241,11 +241,23 @@ sf::st_agr(GOMsf) =
   "constant"
 
 ### remove internal boundaries from the GOM shape file ----
+# to speed up the lengthy process try to read a saved file, if exists
+my_file_path <- file.path(my_paths$outputs,
+                           "fishing_effort_location",
+                           "st_union_GOMsf.rds")
 
-tic("st_union(GOMsf)")
-st_union_GOMsf <- sf::st_union(GOMsf)
-toc()
-# st_union(GOMsf): 21.59 sec elapsed
+if (file.exists(my_file_path)) {
+  # If the file exists, read the data from the RDS file.
+  st_union_GOMsf <- readr::read_rds(my_file_path)
+} else {
+  tic("st_union(GOMsf)")
+  st_union_GOMsf <- sf::st_union(GOMsf)
+  toc()
+  # st_union(GOMsf): 21.59 sec elapsed
+
+  readr::write_rds(st_union_GOMsf,
+                   my_file_path)
+}
 
 # str(GOMsf)
 # sf [21 × 2] (S3: sf/tbl_df/tbl/data.frame)
@@ -256,7 +268,7 @@ toc()
 # sfc_MULTIPOLYGON of length 1; first list element: List of 15
 #  $ :List of 21234
 
-## by n min grid ----
+## Trips by n min grid ----
 # Define a function 'df_join_grid' that joins a data frame with a grid using specified coordinates and CRS.
 
 df_join_grid <- function(my_df, grid, my_crs) {
@@ -299,11 +311,11 @@ crop_by_shape <- function(my_sf, my_shp = GOMsf) {
 add_vsl_and_trip_cnts <- function(my_df, vessel_id_name = "vessel_official_nbr") {
   # Group the data frame by 'cell_id'.
   my_df |>
-    group_by(cell_id) |>
+    dplyr::group_by(cell_id) |>
 
   # Add columns 'vsl_cnt' and 'trip_id_cnt' with counts of distinct vessel and trip IDs.
     # sym() take strings as input and turn them into symbols.
-    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like mutate, select, or other functions that accept column names.
+    # The !! (bang-bang or unquote) operator is used to unquote the symbol, allowing it to be used in dplyr verbs like dplyr::mutate, dplyr::select, or other functions that accept column names.
     # So, the code !!rlang::sym(vessel_id_name) effectively evaluates to the column name specified by the vessel_id_name variable in the context of a dplyr verb, allowing you to work with the column dynamically based on the variable's value.
 
     dplyr::mutate(
@@ -335,7 +347,7 @@ make_map_trips <-
            total_trips_title,
            trip_cnt_name,
            caption_text = "Heat map of SEFHIER trips (5 min. resolution).",
-           unit_num = 1,
+           unit_num = 1, # the length of the scale key
            print_stat_zone = NULL,
            legend_text_text_size = text_sizes[["legend_text_text_size"]]
            ) {

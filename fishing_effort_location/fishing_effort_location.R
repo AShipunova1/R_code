@@ -137,14 +137,14 @@ get_lat_ten_min <- function(gis_lat) {
 get_ten_min_coords <- function(my_df) {
   ten_min_df <-
     my_df |>
-    mutate(
+    dplyr::mutate(
       ten_min_lat = get_lat_ten_min(as.numeric(my_df$LATITUDE)),
       # All lon should be negative, bc we know it is all in America
       ten_min_lon =
         -1 * abs(get_lat_ten_min(as.numeric(my_df$LONGITUDE)))
     )
   return(ten_min_df)
-  # distinct(ten_min_df)
+  # dplyr::distinct(ten_min_df)
 }
 
 ## From db ----
@@ -186,7 +186,7 @@ dim(db_data_w_area)
 
 db_data_w_area_short <-
   db_data_w_area |>
-  select(all_of(fields_list)) |>
+  dplyr::select(all_of(fields_list)) |>
   unique()
 
 dim(db_data_w_area_short)
@@ -202,7 +202,7 @@ db_data_w_area_short_good_coord <-
   dplyr::mutate(LATITUDE = abs(LATITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(db_data_w_area_short_good_coord)
 # [1] 74520    18
@@ -227,7 +227,7 @@ safis_efforts_extended_2022_short_good <-
   dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
   # keep only full sets of coordinates
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(safis_efforts_extended_2022_short)
 # [1] 97970    17
@@ -363,7 +363,7 @@ get_permit_data_from_PIMS_csv <- function() {
   active_permits_from_pims_raw <-
     load_csv_names(my_paths, permit_names_list)
   # View(active_permits_from_pims[[1]])
-  # glimpse(active_permits_from_pims_raw[[1]])
+  # dplyr::glimpse(active_permits_from_pims_raw[[1]])
 
   # clean_headers
   active_permits_from_pims_temp1 <-
@@ -401,8 +401,8 @@ get_permit_data_from_PIMS_csv <- function() {
 
   # test
   active_permits_from_pims %>%
-    select(status_date) %>%
-    arrange(desc(status_date)) %>% unique() %>% head()
+    dplyr::select(status_date) %>%
+    dplyr::arrange(desc(status_date)) %>% unique() %>% head()
   # correct
   # str(active_permits_from_pims)
 
@@ -437,8 +437,8 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits)
 
 # check status ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
-  select(status) |>
-  distinct()
+  dplyr::select(status) |>
+  dplyr::distinct()
 # # A tibble: 6 × 1
 #   status
 #   <chr>
@@ -450,7 +450,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits |>
 
 # shorten ----
  # |>
-  # select(LATITUDE,
+  # dplyr::select(LATITUDE,
          # LONGITUDE,
          # TRIP_ID)
 
@@ -465,8 +465,8 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom)
 ### check names ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
   filter(!VESSEL_NAME == vessel_name) |>
-  select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
-  distinct() |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, VESSEL_NAME, vessel_name) |>
+  dplyr::distinct() |>
   head()
 #   <chr>               <chr>        <chr>
 # 1 1212782             NO DOUBT     "NO DOUBT 2"
@@ -479,7 +479,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
 ### shorten ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom |>
-  select(
+  dplyr::select(
     -c(
       VESSEL_NAME,
       TRIP_START_DATE,
@@ -508,7 +508,7 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short
       term_date
     )
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_short)
 # [1] 111716      5
@@ -530,9 +530,9 @@ dim(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_t
 ## add permit_name_col ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min |>
-  mutate(
+  dplyr::mutate(
     permit_region =
-      case_when(
+      dplyr::case_when(
         permit_sa_gom == "gom_only"
         | permit_sa_gom == "dual" ~
           "gom_dual",
@@ -565,12 +565,12 @@ map_df(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_go
 # save counts ----
 ## check ----
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(
+  purrr::map(
     function(permit_df) {
       permit_df |>
-      select(-c(LATITUDE, LONGITUDE)) |>
-      count(ten_min_lat, ten_min_lon) |>
-      arrange(desc(n)) |>
+      dplyr::select(-c(LATITUDE, LONGITUDE)) |>
+      dplyr::count(ten_min_lat, ten_min_lon) |>
+      dplyr::arrange(desc(n)) |>
       head(2)
     }
   )
@@ -590,9 +590,9 @@ safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_m
 
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list |>
-  map(function(permit_df) {
+  purrr::map(function(permit_df) {
     permit_df |>
-      select(-c(LATITUDE, LONGITUDE,
+      dplyr::select(-c(LATITUDE, LONGITUDE,
                 permit_sa_gom,
                 permit_region)) |>
       dplyr::add_count(ten_min_lat, ten_min_lon,
@@ -614,10 +614,10 @@ print_df_names(
 
 safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts_u <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list_cnts |>
-  map(function(permit_df) {
+  purrr::map(function(permit_df) {
     permit_df |>
-      select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
-      distinct()
+      dplyr::select(-c(TRIP_ID, VESSEL_OFFICIAL_NBR)) |>
+      dplyr::distinct()
   })
 
 # [1] 2755    3
@@ -754,7 +754,7 @@ gom_vessels_sf_example3 <-
   gom_vessels_sf |>
   filter(location_cnts %in% c("475", "839", "961"))
 
-print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
+# print_df_names(safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual)
 
 short_example_3 <-
   safis_efforts_extended_2022_short_good_sf_crop_big_short_df_permits_sa_gom_ten_min_perm_list$gom_dual |>
@@ -772,8 +772,8 @@ dim(short_example_3)
 
 short_example_3_cnts <-
   short_example_3 |>
-    group_by(ten_min_lat, ten_min_lon) |>
-    add_count(name = "ten_min_cnts")
+    dplyr::group_by(ten_min_lat, ten_min_lon) |>
+    dplyr::add_count(name = "ten_min_cnts")
 
 short_example_3 |>
   dplyr::count(ten_min_lat, ten_min_lon) |>
@@ -781,18 +781,18 @@ short_example_3 |>
 # 740
 
 short_example_3 |>
-  select(TRIP_ID) |>
-  distinct() |>
+  dplyr::select(TRIP_ID) |>
+  dplyr::distinct() |>
   dim()
 # 740 (distinct and w/o)
 
 short_example_3 |>
-  select(LATITUDE, LONGITUDE) |>
+  dplyr::select(LATITUDE, LONGITUDE) |>
   dim()
 # 740
 # 142+319+279
 # [1] 740
-  # distinct() |>
+  # dplyr::distinct() |>
 # [1] 564   2
 
 dim(short_example_3_cnts)
@@ -800,18 +800,18 @@ dim(short_example_3_cnts)
 
 short_example_3_cnts_short <-
   short_example_3_cnts |>
-  select(-c(VESSEL_OFFICIAL_NBR,
+  dplyr::select(-c(VESSEL_OFFICIAL_NBR,
             permit_sa_gom,
             permit_region,
             TRIP_ID)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(short_example_3_cnts_short)
 # [1] 564   5
 
 short_example_3_cnts_short |>
-  select(-c(LATITUDE, LONGITUDE)) |>
-  distinct()
+  dplyr::select(-c(LATITUDE, LONGITUDE)) |>
+  dplyr::distinct()
 # ok
 #     ten_min_lat ten_min_lon     n
 #         <dbl>       <dbl> <int>
@@ -824,7 +824,7 @@ str(short_example_3_cnts_short)
 short_example_3_cnts_short_lbl <-
   short_example_3_cnts_short |>
   # add coordinates labels
-  mutate(ten_min_lbl =
+  dplyr::mutate(ten_min_lbl =
            paste0(
              round(ten_min_lat, 1),
              ", ",
@@ -1082,20 +1082,20 @@ l %>%
 lat_lon_data_short <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
-  select(LATITUDE,
+  dplyr::select(LATITUDE,
          LONGITUDE,
          TRIP_ID)
 # |>
-  # distinct()
+  # dplyr::distinct()
 
 lat_lon_data_coord <-
   lat_lon_data |>
   sf::st_drop_geometry() |>
   # na.omit() |>
-  select(LATITUDE,
+  dplyr::select(LATITUDE,
          LONGITUDE)
 # |>
-  # distinct()
+  # dplyr::distinct()
 
 # dim(lat_lon_data_uniq_coord)
 # [1] 35762     2
@@ -1112,9 +1112,9 @@ lat_lon_data_uniq_coord_ten_min <-
 
 lat_lon_data_uniq_coord_ten_min_short <-
   lat_lon_data_uniq_coord_ten_min |>
-  select(ten_min_lat, ten_min_lon)
+  dplyr::select(ten_min_lat, ten_min_lon)
 # |>
-  # distinct() |>
+  # dplyr::distinct() |>
   # dim()
 # [1] 1295    2
 
@@ -1211,7 +1211,7 @@ get_state_waters_sa_sf <- function() {
 
   sa_fl_state_w_counties_names <-
     as.data.frame(fl_counties_sa)[[1]] %>%
-    map_df(function(fl_county) {
+    purrr::map_df(function(fl_county) {
       # browser()
       sa_county <-
         fl_state_w_counties_names_df %>%
@@ -1299,9 +1299,9 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(all_of(fields_list)
+    dplyr::select(all_of(fields_list)
            # )
-    # select(
+    # dplyr::select(
     #   TRIP_START_DATE,
     #   TRIP_END_DATE,
     #   START_PORT,
@@ -1408,19 +1408,19 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 ## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 # by end_port, depth, month ---
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% glimpse()
+  dplyr::count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 # SA only ----
@@ -1456,7 +1456,7 @@ db_data_w_area_no_mex_uniq <-
 # keep fewer columns ----
 db_data_w_area_report_short <-
   db_data_w_area_no_mex_uniq %>%
-  select(all_of(fields_list))
+  dplyr::select(all_of(fields_list))
 
 dim(db_data_w_area_report_short)
 # 45315 10
@@ -1555,7 +1555,7 @@ get_state_waters_sa_sf <- function() {
 
   sa_fl_state_w_counties_names <-
     as.data.frame(fl_counties_sa)[[1]] %>%
-    map_df(function(fl_county) {
+    purrr::map_df(function(fl_county) {
       # browser()
       sa_county <-
         fl_state_w_counties_names_df %>%
@@ -1644,9 +1644,9 @@ my_sf_to_df <- function(my_sf) {
   my_df <-
     my_sf %>%
     sf::st_drop_geometry() %>%
-    select(all_of(fields_list)
+    dplyr::select(all_of(fields_list)
            # )
-    # select(
+    # dplyr::select(
     #   TRIP_START_DATE,
     #   TRIP_END_DATE,
     #   START_PORT,
@@ -1753,19 +1753,19 @@ flat_file_name = file.path(dir_to_comb, "fishing_effort_location_flat_05_30.R")
 ## by depth, state ----
 db_data_w_area_report_sa_eez_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 db_data_w_area_report_28_s_sa_counties_no_gom_sf %>%
   my_sf_to_df() %>%
-  count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
+  dplyr::count(FISHING_GEAR_DEPTH, START_PORT_STATE) %>%
   View()
 
 # by end_port, depth, month ---
 db_data_w_area_report %>%
     dplyr::mutate(TRIP_START_M =
            format(TRIP_START_DATE, "%m")) %>%
-  count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% glimpse()
+  dplyr::count(FISHING_GEAR_DEPTH, END_PORT, TRIP_START_M) %>% dplyr::glimpse()
   # View()
 
 ## seasonally ----

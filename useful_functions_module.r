@@ -247,7 +247,7 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
   # Read Excel files listed in 'myfiles' into one data frame using 'map_df'
-  contents <- map_df(myfiles, ~read_excel(
+  contents <- purrr::map_df(myfiles, ~read_excel(
     .x,                           # File path
     sheet = sheet_n,              # Sheet number to read (default is 1)
     .name_repair = fix_names,     # Repair column names
@@ -517,7 +517,7 @@ add_count_contacts <- function(all_data_df_clean) {
 
 count_by_column_arr <- function(my_df, group_by_arr) {
   my_df %>%
-    arrange(group_by_arr[1]) %>%          # Arrange the data by the first column in 'group_by_arr'.
+    dplyr::arrange(group_by_arr[1]) %>%          # Arrange the data by the first column in 'group_by_arr'.
     group_by_at(group_by_arr) %>%         # Group the data by the columns specified in 'group_by_arr'.
     summarise(my_freq = n()) %>%           # Calculate the frequency of each combination.
     return()                              # It returns the summary result.
@@ -544,7 +544,7 @@ data_overview <- function(my_df) {
   summary(my_df) %>% print()
 
   # Print a header indicating the next section of the output.
-  cat("\nCount unique values in each column:")
+  cat("\nCount unique values in each column:\n")
 
   # Call the 'count_uniq_by_column' function to count unique values in each column of the data frame.
   count_uniq_by_column(my_df)
@@ -660,7 +660,7 @@ prepare_csv_names <- function(filenames) {
     # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
     # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
     # placed in the 'FHIER Compliance' subdirectory as a default.
-    case_when(
+    dplyr::case_when(
       startsWith(my_headers_case_function(x), "correspond") ~
         file.path(add_path_corresp,  x),
       startsWith(my_headers_case_function(x), "fhier_compliance") ~
@@ -822,7 +822,7 @@ cat_filter_for_fhier <- function(my_characters) {
 #
 # map_exp <- function(){
 #   my_fun <- function(x) length(unique(x))
-#   map_df(my_df, my_fun)
+#   purrr::map_df(my_df, my_fun)
 # }
 #
 # time_for_appl <<- benchmark(replications=rep(10^7, 3),
@@ -831,11 +831,10 @@ cat_filter_for_fhier <- function(my_characters) {
 #                             columns = c('test', 'elapsed', 'relative')
 # )
 #
-# map_df(my_df, function(x) length(unique(x)))
+# purrr::map_df(my_df, function(x) length(unique(x)))
 # to compare:
-# time_for_appl %>% group_by(test) %>% summarise(sum(elapsed))
+# time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
 
-# ====
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
 # usage:
@@ -920,7 +919,7 @@ write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
   sink(flat_file_name, append = TRUE)
 
   # Read the contents of the current file.
-  current_file_text <- readLines(file_name_to_write)
+  current_file_text <- readr::read_lines(file_name_to_write)
 
   # Print a header indicating the current file being processed.
   cat("\n\n#### Current file:", basename(file_name_to_write), "----\n\n")
@@ -938,7 +937,7 @@ separate_permits_into_3_groups <-
     my_df %>%
       # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
       mutate(permit_sa_gom =
-               case_when(
+               dplyr::case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
                  !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
                  # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
@@ -953,34 +952,91 @@ separate_permits_into_3_groups <-
 
 # ===
 
-# read_rds_or_run <-
-#   function(my_file_path,
-#            my_data_list_of_dfs,
-#            my_function) {
-#     # browser()
-#
-#     if (file.exists(my_file_path)) {
-#       # read a binary file saved previously
-#       my_df <-
-#         readr::read_rds(my_file_path)
-#     } else {
-#       tic("run the function")
-#       my_df <-
-#         my_function(my_data_list_of_dfs)
-#       toc()
-#
-#       # write all as binary
-#       readr::write_rds(my_df,
-#                        my_file_path)
-#     }
-#
-#     return(my_df)
-#   }
+read_rds_or_run_no_db <-
+  function(my_file_path,
+           my_data_list_of_dfs,
+           my_function) {
+    # browser()
+
+    if (file.exists(my_file_path)) {
+      # read a binary file saved previously
+      my_df <-
+        readr::read_rds(my_file_path)
+    } else {
+      tic("run the function")
+      my_df <-
+        my_function(my_data_list_of_dfs[[1]],
+                    my_data_list_of_dfs[[2]])
+      toc()
+
+      # write all as binary
+      readr::write_rds(my_df,
+                       my_file_path)
+    }
+
+    return(my_df)
+  }
+
+# Pretty message print
+function_message_print <- function(text_msg) {
+  cat(crayon::bgCyan$bold(text_msg),
+      sep = "\n")
+}
+
+get_df_name_as_text <-
+  function(my_df) {
+    df_name = deparse(substitute(my_df))
+    return(df_name)
+  }
+
+# # A title
+# if (is.na(title_msg))  {
+#   df_name = deparse(substitute(my_df))
+#   title_msg <- df_name
+# }
+
+# to print the title message in blue.
+title_message_print <- function(title_msg) {
+  cat(crayon::blue(title_msg), sep = "\n")
+}
+
+
+# Define a helper function 'my_tee' to print the message to the console and a file.
+my_tee <- function(my_text,
+                   my_title = NA,
+                   stat_log_file_path = NA,
+                   date_range = NA) {
+
+  the_end = "---"
+
+  if (is.na(date_range)) date_range = 2022
+
+  # Print out to console
+  title_message_print(my_title)
+  cat(c(my_text, the_end),
+      sep = "\n")
+
+  # Create a new file every day
+  if (is.na(stat_log_file_path)) {
+    stat_log_file_path <-
+      file.path(Path,
+                Outputs,
+                str_glue("{my_title}_{date_range}_run_{today()}.log"))
+  }
+
+  # Write to a log file
+  cat(c(my_title, my_text, the_end),
+      file = stat_log_file_path,
+      sep = "\n",
+      append = TRUE)
+}
+
 
 # ===
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
-      # read a binary file saved previously
-      # write all as binary
+# A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
+
+# The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
+# See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run <- function(my_file_path,
                             my_data = as.data.frame(""),
                             my_function,
@@ -990,21 +1046,43 @@ read_rds_or_run <- function(my_file_path,
     if (file.exists(my_file_path) &
         is.null(force_from_db)) {
         # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
+        function_message_print("File already exists, reading.")
+
         my_result <- readr::read_rds(my_file_path)
+
     } else {
-        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-        # 1. Generate a message indicating the date and the purpose of the run.
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tic(msg_text)  # Start timing the operation.
 
-        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
-        my_result <- my_function(my_data)
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
 
-        toc()  # Stop timing the operation.
+      # 0. Print this message.
+      function_message_print(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
 
-        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-        readr::write_rds(my_result,
-                         my_file_path)
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message_print(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
     }
 
     # Return the generated or read data.
@@ -1017,7 +1095,7 @@ read_rds_or_run <- function(my_file_path,
 # empty_cols <-
 #   function(my_df) {
 #     my_df |>
-#       map_df(function(x) {
+#       purrr::map_df(function(x) {
 #         browser()
 #         if (length(unique(x)) == 1) {
 #           return(unique(x))
@@ -1029,14 +1107,29 @@ read_rds_or_run <- function(my_file_path,
 # ===
 # Function to remove empty columns from a data frame
 remove_empty_cols <- function(my_df) {
+  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
+  not_all_na <- function(x) any(!is.na(x))
+
   my_df |>
-    # Select columns that do not meet the condition of being entirely NA or entirely NULL using 'select_if' function
-    dplyr::select_if(function(x)
-      # Check if all values in 'x' are not all NA or not all NULL
-      !(all(is.na(x)) | all(is.null(x)))) %>%
-    # Return the modified data frame
+    # Select columns from "my_df" where the result of the "not_all_na" function is true,
+    # i.e., select columns that have at least one non-NA value.
+    select(where(not_all_na)) %>%
+    # Return the modified data frame, which contains only the selected columns.
     return()
 }
+
+remove_0_cols <- function(my_df) {
+  browser()
+  not_all_0 <- function(x)
+  {
+    any(!x == 0)
+  }
+
+  my_df |>
+    select(where(not_all_0)) %>%
+    return()
+}
+
 
 # ===
 # Function to create a directory if it doesn't exist
@@ -1056,7 +1149,7 @@ my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) {
   my_df %>%
     sf::st_as_sf(
       # Specify the field names to use as coordinates
-      coords = c("LONGITUDE", "LATITUDE"),
+      coords = c("longitude", "latitude"),
       # Use the provided CRS (Coordinate Reference System), default to sa_shp's CRS
       crs = my_crs,
       # Keep the LATITUDE and LONGITUDE columns in the resulting sf object
@@ -1099,3 +1192,15 @@ print_toc_log <- function(variables) {
   tic.clearlog()
 }
 
+# ===
+save_plot_to_file <-
+  function(file_full_name,
+           plot_name) {
+    ggplot2::ggsave(
+      file_full_name,
+      plot_name,
+      width = 30,
+      height = 20,
+      units = "cm"
+    )
+  }

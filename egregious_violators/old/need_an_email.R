@@ -3,11 +3,11 @@
 # keep only 2 or more correspondence with no direct contact, check manually?
 
 # compliance_clean <- compl_w_non_compliant_weeks
-# glimpse(compliance_clean)
+# dplyr::glimpse(compliance_clean)
 
 # correspondence with contact frequency and direct_contact column
 corresp_clean <- corresp_contact_cnts_clean_direct_cnt
-# glimpse(corresp_clean)
+# dplyr::glimpse(corresp_clean)
 
 get_2_plus_contacts <- function(corresp_clean) {
   corresp_clean %>%
@@ -26,12 +26,12 @@ corr_2_plus_contact <- get_2_plus_contacts(corresp_clean)
 
 get_all_not_direct_contact_id <- function(corr_2_plus_contact) {
   corr_2_plus_contact %>%
-    group_by(vessel_official_number) %>%
+    dplyr::group_by(vessel_official_number) %>%
     # add a new column all_dc with TRUE if all are not direct contacts
     reframe(all_dc = all(tolower(direct_contact) == "no")) %>%
     # keep these only
     filter(all_dc) %>%
-    select(vessel_official_number) %>%
+    dplyr::select(vessel_official_number) %>%
     unique() %>%
     return()
 }
@@ -69,9 +69,9 @@ names(email_s_needed_to_csv_short_sorted)
 
 compl_clean_w_permit_exp <-
   compl_clean %>%
-  mutate(permit_expired = case_when(permitgroupexpiration > Sys.Date() ~ "no",
+  dplyr::mutate(permit_expired = dplyr::case_when(permitgroupexpiration > Sys.Date() ~ "no",
                                     .default = "yes")) %>%
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          permit_expired,
          permitgroup,
          permitgroupexpiration) %>%
@@ -122,7 +122,7 @@ setdiff(
 # TODO: grep, setdiff and delete not "vessel_official_number"
 email_s_needed_to_csv_short_sorted_w_permit_info1 <-
   email_s_needed_to_csv_short_sorted_w_permit_info %>%
-  select(-vesselofficial_number)
+  dplyr::select(-vesselofficial_number)
 
 names(email_s_needed_to_csv_short_sorted_w_permit_info1)
 glimpse(email_s_needed_to_csv_short_sorted_w_permit_info1)

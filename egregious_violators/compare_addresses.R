@@ -19,7 +19,7 @@ corrected_csv <-
     col_types = cols(.default = 'c'),
     skip = 1
   ) |>
-  distinct()
+  dplyr::distinct()
 
 # "R_files_local\my_outputs\egregious_violators\corrected_addr\egregious violators for investigation_Detail2-NED.csv"
 
@@ -50,7 +50,7 @@ fhier_info <-
                   name_repair = fix_names,
                   col_types = cols(.default = 'c'))
 
-View(fhier_info)
+# View(fhier_info)
 # [1] 138557     19
 
 # shorten ----
@@ -71,15 +71,15 @@ fields_to_use <-
 
 corrected_csv1 <-
   corrected_csv |>
-  select(all_of(fields_to_use)) |>
-  distinct()
+  dplyr::select(all_of(fields_to_use)) |>
+  dplyr::distinct()
 
 short_dfs <-
   list(aug_9_csv,
        corrected_csv) |>
-  map( ~ .x |>
-         select(any_of(fields_to_use)) |>
-         distinct())
+  purrr::map( ~ .x |>
+         dplyr::select(any_of(fields_to_use)) |>
+         dplyr::distinct())
 
 map(short_dfs,
        dim)
@@ -102,7 +102,7 @@ csvs_joined <-
 
 csvs_joined_diff <-
   csvs_joined |>
-  filter(
+  dplyr::filter(
     !sero_home_port.aug == sero_home_port.cor |
       !full_name.aug == full_name.cor |
       !full_address.aug == full_address.cor
@@ -111,7 +111,7 @@ csvs_joined_diff <-
 dim(csvs_joined_diff)
 # [1] 57 16
 
-View(csvs_joined_diff)
+# View(csvs_joined_diff)
 
 # compare fhier_info with corrected
 # print_df_names(fhier_info)
@@ -120,7 +120,7 @@ corrected_n_fhier <-
             fhier_info,
             join_by(vessel_official_number == vessel_id))
 
-print_df_names(corrected_n_fhier)
+# print_df_names(corrected_n_fhier)
 # [1] 1659   26
 
 
@@ -139,8 +139,8 @@ to_rm <- c(
 
 corrected_n_fhier_short <-
   corrected_n_fhier |>
-  select(-all_of(to_rm)) |>
-  distinct()
+  dplyr::select(-all_of(to_rm)) |>
+  dplyr::distinct()
 
 out_path <-
     file.path(base_path,
@@ -152,10 +152,10 @@ readr::write_csv(corrected_n_fhier_short,
 
 # check sero_home_port ----
 corrected_n_fhier_short |>
-  mutate(fhier_home_port = paste(sero_home_port_city,
+  dplyr::mutate(fhier_home_port = paste(sero_home_port_city,
                                  sero_home_port_county,
                                  sero_home_port_state)) |>
-  filter(!sero_home_port == fhier_home_port) |>
+  dplyr::filter(!sero_home_port == fhier_home_port) |>
   dim()
 # 0
 # all home ports are correct
@@ -166,7 +166,7 @@ corrected_n_fhier_short |>
 #                 last_name = replace_na(last_name, ""),
 #                 business_name = replace_na(business_name, "")) |>
 
-print_df_names(corrected_n_fhier_short)
+# print_df_names(corrected_n_fhier_short)
 
 corrected_n_fhier_short_w_n <-
   corrected_n_fhier_short |>
@@ -179,7 +179,7 @@ corrected_n_fhier_short_w_n <-
 corrected_n_fhier_short_w_n_comb <-
   corrected_n_fhier_short_w_n |>
   # for each vessel
-  group_by(vessel_official_number) |>
+  dplyr::group_by(vessel_official_number) |>
   dplyr::mutate(fhier_comb_name =
                   list(unique(paste(
                     first_name,
@@ -189,18 +189,18 @@ corrected_n_fhier_short_w_n_comb <-
     paste(fhier_comb_name,
           business_name)
   ))) |>
-  ungroup() |>
-  select(
+  dplyr::ungroup() |>
+  dplyr::select(
     vessel_official_number,
     contactrecipientname,
     full_name,
     fhier_comb_name,
     fhier_comb_name_2
   ) |>
-  # select(-c(first_name,
+  # dplyr::select(-c(first_name,
   #         last_name,
   #         business_name)) |>
-  distinct()
+  dplyr::distinct()
 
 dim(corrected_n_fhier_short_w_n_comb)
 # [1] 153  18
@@ -294,44 +294,44 @@ corrected_n_fhier_short_w_n_comb_flat_clean <-
   ))
 
 
-View(corrected_n_fhier_short_w_n_clean)
-  # filter(full_name == fhier_name) |>
+# View(corrected_n_fhier_short_w_n_clean)
+  # dplyr::filter(full_name == fhier_name) |>
 # 26
-  # filter(full_name == fhier_name_2) |>
+  # dplyr::filter(full_name == fhier_name_2) |>
   # dim()
 # 0
 
-View(corrected_n_fhier_short_w_n_clean)
+# View(corrected_n_fhier_short_w_n_clean)
 
 readr::write_csv(corrected_n_fhier_short_w_n_clean,
                  out_path)
 
 # compare
 corrected_n_fhier_short_w_n_clean |>
-  filter(full_name == fhier_name) |>
+  dplyr::filter(full_name == fhier_name) |>
   dim()
 # 26
 
 corrected_n_fhier_short_w_n_clean |>
-  filter(!full_name == fhier_name) |>
-  # filter(full_name == fhier_name_2) |>
+  dplyr::filter(!full_name == fhier_name) |>
+  # dplyr::filter(full_name == fhier_name_2) |>
   dim()
 # 0
 # 75
 
 corrected_n_fhier_short_w_n_clean_short <-
   corrected_n_fhier_short_w_n_clean |>
-  filter(!full_name == fhier_name) |>
-  # filter(!fhier_name_2 == fhier_name) |>
-  select(vessel_official_number,
+  dplyr::filter(!full_name == fhier_name) |>
+  # dplyr::filter(!fhier_name_2 == fhier_name) |>
+  dplyr::select(vessel_official_number,
          # contactrecipientname,
          full_name,
          fhier_name,
          fhier_name_2) |>
-  distinct()
+  dplyr::distinct()
 # |>
 
-View(corrected_n_fhier_short_w_n_clean_short)
+# View(corrected_n_fhier_short_w_n_clean_short)
 
 # read PIMS csv ----
 # https://www.fisheries.noaa.gov/southeast/resources-fishing/frequent-freedom-information-act-requests-southeast-region
@@ -348,7 +348,7 @@ glimpse(all_permits_from_web)
 # print_df_names(all_permits_from_web)
 all_permits_from_web_short <-
   all_permits_from_web |>
-  select(
+  dplyr::select(
     -c(
       REQMIT_ID,
       SER_ID,
@@ -375,7 +375,7 @@ all_permits_from_web_short <-
       FISHERY_NAME_ABBR
     )
   ) |>
-  distinct()
+  dplyr::distinct()
 dim(all_permits_from_web)
 # [1] 1000   23
 
@@ -395,19 +395,19 @@ pims_n_corrected |>
 # [1] 97 18
 
 pims_n_corrected |> 
- filter(!is.na(HAILING_PORT_CITY)) |> 
+ dplyr::filter(!is.na(HAILING_PORT_CITY)) |> 
  dim()
 # [1] 13 18
 # Not all vsls are in the pims csv
 
 ## check if the port is the same ----
 pims_n_corrected |>
-  filter(!is.na(HAILING_PORT_CITY)) |>
+  dplyr::filter(!is.na(HAILING_PORT_CITY)) |>
   rowwise() |> 
-  filter(grepl(HAILING_PORT_CITY,
+  dplyr::filter(grepl(HAILING_PORT_CITY,
                sero_home_port,
                ignore.case = TRUE)) |>
-  ungroup() |> View()
+  dplyr::ungroup() |> View()
   dim()
 # 13
 # all 13 ports are the same
@@ -415,23 +415,23 @@ pims_n_corrected |>
 ## check if the address is the same ----
 pims_n_corrected_addr <-
   pims_n_corrected |>
-  filter(!is.na(HAILING_PORT_CITY)) |>
+  dplyr::filter(!is.na(HAILING_PORT_CITY)) |>
   rowwise() |> 
-  filter(grepl(ADDRESS,
+  dplyr::filter(grepl(ADDRESS,
                full_address,
                ignore.case = TRUE)) |>
-  ungroup()
+  dplyr::ungroup()
   
 dim(pims_n_corrected_addr)
 # 12 (one is the full address is.na)
 # out of 13
   
 pims_n_corrected_addr |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          full_address,
          ADDRESS, 
          ADDRESS_STATE) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   View()
 
 ## check if the name is the same ----
@@ -443,28 +443,28 @@ include_name_filter <-
 pims_n_corrected_name <-
   pims_n_corrected |>
   rowwise() |>
-  filter(!!include_name_filter) |>
-  ungroup()
+  dplyr::filter(!!include_name_filter) |>
+  dplyr::ungroup()
 
 dim(pims_n_corrected_name)
 # 7
 # out of 13
   
 pims_n_corrected_name |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          contactrecipientname,
          full_name,
          ENTITY_NAME) |> 
   View()
 
 pims_n_corrected |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          contactrecipientname,
          full_name,
          ENTITY_NAME) |>
   rowwise() |>
-  filter(!(!!include_name_filter)) |>
-  ungroup() |>
+  dplyr::filter(!(!!include_name_filter)) |>
+  dplyr::ungroup() |>
   View()
   dim()
 # 6
@@ -480,17 +480,17 @@ pims_n_corrected |>
 # )
 
 pims_n_corrected |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          contactrecipientname,
          full_name,
          ENTITY_NAME) |>
-  filter(!is.na(ENTITY_NAME)) |> 
+  dplyr::filter(!is.na(ENTITY_NAME)) |> 
   rowwise() |>
-  filter(agrepl(ENTITY_NAME,
+  dplyr::filter(agrepl(ENTITY_NAME,
                 full_name,
                 max.distance = 0.3,
                 ignore.case = TRUE)) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   dim()
 # [1] 13  4
 # all the same

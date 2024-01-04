@@ -92,7 +92,7 @@ all_points <- dim(db_data_w_area)[1]
 # to a table report ----
 db_data_w_area_short <-
   db_data_w_area %>%
-  select(
+  dplyr::select(
     TRIP_START_DATE,
     TRIP_END_DATE,
     START_PORT,
@@ -154,7 +154,7 @@ db_data_w_area_report_minus_gom %<>%
 # names(db_data_w_area_report_minus_gom)
 # db_data_w_area_report_minus_gom %>%
   # filter(AREA_CODE == "001") %>% 
-  # select(# AREA_NAME,
+  # dplyr::select(# AREA_NAME,
     # SUB_AREA_CODE,
     # AREA_CODE,
     # DISTANCE_CODE_NAME,
@@ -163,8 +163,8 @@ db_data_w_area_report_minus_gom %<>%
   # filter(is.na(AREA_CODE)) %>%
   # 0
   # unique() %>%
-  # arrange(SUB_AREA_CODE)
-    # arrange(AREA_CODE)
+  # dplyr::arrange(SUB_AREA_CODE)
+    # dplyr::arrange(AREA_CODE)
 # %>%
   # dim()
   # View()
@@ -198,7 +198,7 @@ sub1_fl_sub_areas <-
       return()
   })
 
-View(sub1_fl_sub_areas)
+# View(sub1_fl_sub_areas)
 # [1] 10824    21
 
 sub2_not_fl_sub_areas <-
@@ -228,11 +228,11 @@ dim(db_data_w_area_report_minus_gom_fl_sa)
 
 to_mapview <- function(my_df) {
   my_df %>%
-    select(LATITUDE, LONGITUDE, row_id) %>%
+    dplyr::select(LATITUDE, LONGITUDE, row_id) %>%
     my_to_sf() %>% mapview() + sa_shp
 }
 # db_data_w_area_report_minus_gom_fl_sa %>% 
-#   select(LATITUDE, LONGITUDE, row_id) %>%
+#   dplyr::select(LATITUDE, LONGITUDE, row_id) %>%
 #   my_to_sf() %>% mapview() + sa_shp
 
 ### area_codes_to_keep (all other SA areas) ----
@@ -242,7 +242,7 @@ area_codes_to_remove_part2 <- paste0("0", c(10:19))
 # db_data_w_area_report_minus_gom_fl_sa %>% 
   # filter(AREA_CODE %in% c("015", "052")) %>% View()
 
-# db_data_w_area_report_minus_gom_fl_sa %>% select(AREA_CODE) %>% unique %>% arrange(AREA_CODE) %>% View()
+# db_data_w_area_report_minus_gom_fl_sa %>% dplyr::select(AREA_CODE) %>% unique %>% dplyr::arrange(AREA_CODE) %>% View()
 # length(area_codes_to_keep)
 # 122
 
@@ -256,8 +256,8 @@ db_data_w_area_report_minus_gom_stat_areas <-
   )
 
 # db_data_w_area_report_minus_gom_stat_areas %>%
-#   select(AREA_CODE) %>% unique() %>%
-#   arrange(AREA_CODE) %>% 
+#   dplyr::select(AREA_CODE) %>% unique() %>%
+#   dplyr::arrange(AREA_CODE) %>% 
 #   View()
 # 052?
 # dim(db_data_w_area_report_minus_gom_stat_areas)
@@ -327,7 +327,7 @@ db_data_w_area_report_minus_gom_stat_no_area_not_fl <-
 
 sub1_fl_counties %>% 
   # View()
-  count(END_PORT_COUNTY)
+  dplyr::count(END_PORT_COUNTY)
 # 11
 # ...
 # 8 MONROE          27476
@@ -368,7 +368,7 @@ dim(good_coords_monroe)
 
 good_coords_monroe_sf <-
   good_coords_monroe %>%
-  select(LATITUDE, LONGITUDE, row_id) %>%
+  dplyr::select(LATITUDE, LONGITUDE, row_id) %>%
   my_to_sf()
 # dim(good_coords_monroe_sf)
 
@@ -398,7 +398,7 @@ good_coords_monroe_sf_minus_gom_df <-
   # remove the geometry field
   sf::st_drop_geometry(good_coords_monroe_sf_minus_gom) %>%
   # remove the rest of sf columns
-  select(-c("Area_SqKm", "Perim_M")) 
+  dplyr::select(-c("Area_SqKm", "Perim_M")) 
 
 # dim(good_coords_monroe_sf_minus_gom_df)
 # [1] 22558     3
@@ -484,8 +484,8 @@ mapview(db_data_w_area_report_minus_gom_sf) + sa_shp +
 db_data_w_area_report <-
   db_data_w_area %>%
   # all LONG should be negative
-  mutate(LONGITUDE = -abs(LONGITUDE)) %>%
-  select(
+  dplyr::mutate(LONGITUDE = -abs(LONGITUDE)) %>%
+  dplyr::select(
     TRIP_START_DATE,
     TRIP_END_DATE,
     START_PORT,
@@ -589,7 +589,7 @@ fl_state_w_counties_names_df <- as.data.frame(fl_state_w_counties_names)
 
 sa_fl_state_w_counties_names <-
   as.data.frame(fl_counties_sa)[[1]] %>%
-  map_df(function(fl_county) {
+  purrr::map_df(function(fl_county) {
     # browser()
     sa_county <-
       fl_state_w_counties_names_df %>%
@@ -688,9 +688,9 @@ toc()
 # mapview(db_data_w_area_report_sf_28_s)
 # mapview(db_data_w_area_report_28_s_sa_counties_no_gom_sf)
 
-db_data_w_area_report_sf_28_s_char <- mutate(db_data_w_area_report_sf_28_s,
+db_data_w_area_report_sf_28_s_char <- dplyr::mutate(db_data_w_area_report_sf_28_s,
          across(everything(), as.character))
-db_data_w_area_report_28_s_sa_counties_no_gom_sf_char <- mutate(db_data_w_area_report_28_s_sa_counties_no_gom_sf,
+db_data_w_area_report_28_s_sa_counties_no_gom_sf_char <- dplyr::mutate(db_data_w_area_report_28_s_sa_counties_no_gom_sf,
          across(everything(), as.character))
 
 # anti_join(x, y, by = NULL, copy = FALSE, ...)

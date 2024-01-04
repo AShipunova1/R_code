@@ -18,7 +18,7 @@ dim(vessels_permits_2022_c)
 ## fhier_metrics vessels only ----
 vessels_permits_2022_c_me <-
   vessels_permits_2022_c |>
-  filter(
+  dplyr::filter(
     PERMIT_VESSEL_ID %in% metricks_not_srhs_ids_2022$vessel_official_number
   )
 
@@ -49,18 +49,18 @@ tic("add my_end_date")
 vessels_permits_2022_r_end_date <-
   vessels_permits_2022_r |>
   rowwise() |>
-  mutate(my_end_date =
-           case_when((END_DATE < EFFECTIVE_DATE) &
+  dplyr::mutate(my_end_date =
+           dplyr::case_when((END_DATE < EFFECTIVE_DATE) &
                        (EXPIRATION_DATE > EFFECTIVE_DATE)
                      ~ EXPIRATION_DATE,
                      .default =
                        max(END_DATE,                                     EXPIRATION_DATE,
                            na.rm = T)
            )) %>%
-  # select(-c(END_DATE,
+  # dplyr::select(-c(END_DATE,
             # EXPIRATION_DATE)) %>%
   dplyr::ungroup() |>
-  distinct()
+  dplyr::distinct()
 toc()
 # add my_end_date: 25.6 sec elapsed
 # add my_end_date: 37 sec elapsed
@@ -89,7 +89,7 @@ tic("uid")
 vessels_permits_2022_r_end_date_uid <-
   vessels_permits_2022_r_end_date |>
   rowwise() |>
-  mutate(all_ids = list(
+  dplyr::mutate(all_ids = list(
     c(
       COAST_GUARD_NBR,
       PERMIT_VESSEL_ID,
@@ -100,8 +100,8 @@ vessels_permits_2022_r_end_date_uid <-
       VESSEL_VESSEL_ID
     )
   )) |>
-  mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
-  ungroup()
+  dplyr::mutate(unique_all_vessel_ids = list(na.omit(unique(all_ids)))) |>
+  dplyr::ungroup()
 toc()
 # uid: 1.63 sec elapsed
 # uid: 0.75 sec elapsed
@@ -116,7 +116,7 @@ dim(vessels_permits_2022_r_end_date_uid)
 ### fewer fields ----
 vessels_permits_2022_r_end_date_uid_short <-
   vessels_permits_2022_r_end_date_uid |>
-  select(
+  dplyr::select(
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
     EFFECTIVE_DATE,
@@ -126,7 +126,7 @@ vessels_permits_2022_r_end_date_uid_short <-
     my_end_date,
     unique_all_vessel_ids
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(vessels_permits_2022_r_end_date_uid_short)
 # [1] 9442    8
@@ -138,12 +138,12 @@ dim(vessels_permits_2022_r_end_date_uid_short)
 # print_df_names(vessels_permits_2022_r_end_date_uid_short)
 vessels_permits_2022_r_end_date_uid_short_mm <-
   vessels_permits_2022_r_end_date_uid_short |>
-  group_by(unique_all_vessel_ids, permit_sa_gom) |>
-  mutate(
+  dplyr::group_by(unique_all_vessel_ids, permit_sa_gom) |>
+  dplyr::mutate(
     min_permit_eff_date = min(EFFECTIVE_DATE),
     max_permit_end_date = max(my_end_date)
   ) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(vessels_permits_2022_r_end_date_uid_short_mm)
 # [1] 9442   8
@@ -152,11 +152,11 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm)
 # [1] 6089   10
 
 # vessels_permits_2022_r_end_date_uid_short_mm |>
-#   filter(grepl('FL8701TB', unique_all_vessel_ids)) |> View()
+#   dplyr::filter(grepl('FL8701TB', unique_all_vessel_ids)) |> View()
 # 2023 is here, ok
 
 # vessels_permits_2022_r_end_date_uid_short_mm |>
-#   filter(grepl('FL9004NX', unique_all_vessel_ids)) |>
+#   dplyr::filter(grepl('FL9004NX', unique_all_vessel_ids)) |>
 #   View()
 # diff sa / gom
 
@@ -164,7 +164,7 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm)
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y <-
   vessels_permits_2022_r_end_date_uid_short_mm |>
-    mutate(
+    dplyr::mutate(
     EFFECTIVE_DATE_week_num =
       strftime(EFFECTIVE_DATE, format = "%U"),
     my_end_week_num =
@@ -178,7 +178,7 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y <-
     my_end_m =
       zoo::as.yearmon(my_end_date)
   ) %>%
-  mutate(
+  dplyr::mutate(
     EFFECTIVE_DATE_week_num =
       as.double(EFFECTIVE_DATE_week_num),
     my_end_week_num =
@@ -194,18 +194,18 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 
 ## get permit periods ----
 tic("get permit periods")
-# glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
+# dplyr::glimpse(vessels_permits_2022_r_end_date_uid_short_mm_w_y)
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y %>%
-  group_by(permit_sa_gom, unique_all_vessel_ids) |>
-  mutate(eff_int =
+  dplyr::group_by(permit_sa_gom, unique_all_vessel_ids) |>
+  dplyr::mutate(eff_int =
            lubridate::interval(min_permit_eff_date,
                                max_permit_end_date)) |>
-  mutate(permit_2022_int =
+  dplyr::mutate(permit_2022_int =
            lubridate::intersect(eff_int,
                                 interval_2022)) |>
 
-  ungroup()
+  dplyr::ungroup()
 toc()
 # get permit periods: 46.29 sec elapsed
 # get permit periods: 48.8 sec elapsed
@@ -222,19 +222,19 @@ toc()
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv |>
   # for each vessel and permit in effect interval
-  group_by(unique_all_vessel_ids, eff_int, permit_2022_int) |>
+  dplyr::group_by(unique_all_vessel_ids, eff_int, permit_2022_int) |>
   # create a list of all permit regions
-  mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |>
+  dplyr::mutate(all_permit_sa_gom = list(na.omit(unique(permit_sa_gom)))) |>
   # get the length of each list of permits
-  mutate(all_permit_sa_gom_size = lengths(all_permit_sa_gom)) |>
+  dplyr::mutate(all_permit_sa_gom_size = lengths(all_permit_sa_gom)) |>
   # if there are both sa and gom mark as dual,
   # otherwise keep the original permit region
-  mutate(permit_sa_gom_dual =
-           case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
+  dplyr::mutate(permit_sa_gom_dual =
+           dplyr::case_when(all_permit_sa_gom_size > 1 ~                                              "dual",
                      .default = permit_sa_gom)) |>
   # remove temporary columns
-  select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
-  ungroup()
+  dplyr::select(-c(all_permit_sa_gom, all_permit_sa_gom_size)) |>
+  dplyr::ungroup()
 
 ### check ----
 dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
@@ -243,20 +243,20 @@ dim(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual)
 # [1] 6089   19
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
-  filter(grepl("FL8701TB|FL3610NF|FL9004NX", unique_all_vessel_ids)) |>
-  select(unique_all_vessel_ids,
+  dplyr::filter(grepl("FL8701TB|FL3610NF|FL9004NX", unique_all_vessel_ids)) |>
+  dplyr::select(unique_all_vessel_ids,
          permit_sa_gom_dual) |>
-  distinct() |>
-  glimpse()
+  dplyr::distinct() |>
+  dplyr::glimpse()
 # $ unique_all_vessel_ids <list> <"FL3610NF", "328460">, <"FL8701TB", …
 # $ permit_sa_gom_dual    <chr> "dual", "sa_only", "gom_only", "sa_only"
 # FL9004NX in both, but not dual, bc intervals do not overlap
 
 new_dual_ids <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
-  filter(permit_sa_gom_dual == "dual") |>
-  select(unique_all_vessel_ids) |>
-  distinct()
+  dplyr::filter(permit_sa_gom_dual == "dual") |>
+  dplyr::select(unique_all_vessel_ids) |>
+  dplyr::distinct()
 
 dim(new_dual_ids)
 # [1] 275   1
@@ -266,8 +266,8 @@ dim(new_dual_ids)
 #### why not in new? ----
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
-  filter(grepl("FL2995SR", unique_all_vessel_ids)) |>
-  select(eff_int, permit_sa_gom_dual) |>
+  dplyr::filter(grepl("FL2995SR", unique_all_vessel_ids)) |>
+  dplyr::select(eff_int, permit_sa_gom_dual) |>
   head()
   # eff_int                            permit_sa_gom_dual
 #   <Interval>                                       <chr>
@@ -276,10 +276,10 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
 
 ### gom and sa periods overlap ----
 vessels_permits_2022_r |>
-  # filter(PERMIT_VESSEL_ID == "FL9004NX") |>
-  filter(PERMIT_VESSEL_ID == "TX6550AU") |>
-  distinct() |>
-  glimpse()
+  # dplyr::filter(PERMIT_VESSEL_ID == "FL9004NX") |>
+  dplyr::filter(PERMIT_VESSEL_ID == "TX6550AU") |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
 # $ TOP                   <chr> "CDW", "CHS", "CHG", "RCG"
 # $ END_DATE              <dttm> 2022-07-31, 2022-07-31, 2023-07-31, 2023-07-31
 # $ permit_sa_gom         <chr> "sa_only", "sa_only", "gom_only", "gom_only"
@@ -322,7 +322,7 @@ names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list)
 reg_cnts <-
   # "dual"     "gom_only" "sa_only"
   names(vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list) |>
-  map(function(reg_name) {
+  purrr::map(function(reg_name) {
     curr_ids <-
       vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list[[reg_name]]$unique_all_vessel_ids
     l <- length(curr_ids)
@@ -357,17 +357,17 @@ vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |> dim()
 # FL3610NF 4
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
-  select(-starts_with("EXPIRATION_DATE"),
+  dplyr::select(-starts_with("EXPIRATION_DATE"),
     -starts_with("END_DATE"),
     -permit_sa_gom
   ) |>
-  distinct() |> dim()
+  dplyr::distinct() |> dim()
 # [1] 469  16
 # [1] 467  16
 
 vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual__list$dual |>
-  filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
-  glimpse()
+  dplyr::filter(grepl("FL3610NF", unique_all_vessel_ids)) |>
+  dplyr::glimpse()
 # $ permit_sa_gom           <chr> "sa_only", "gom_only", "sa_only", "gom_only"
 # $ permit_2022_int         <Interval> 2021-12-31 19:00:00 EST--2022-12-30 19:00:00 EST,…
 # $ permit_sa_gom_dual      <chr> "dual", "dual", "dual", "dual"
@@ -409,7 +409,7 @@ length(gom_sa)
 
 trips_info_2022_int <-
   trips_info_2022 %>%
-  mutate(trip_int =
+  dplyr::mutate(trip_int =
            lubridate::interval(
              lubridate::floor_date(TRIP_START_DATE,
                                    unit = "day"),
@@ -420,29 +420,29 @@ trips_info_2022_int <-
 ### trips durations:
 trips_info_2022_int_dur <-
   trips_info_2022_int |>
-  mutate(trip_dur =
+  dplyr::mutate(trip_dur =
            lubridate::as.duration(trip_int)) |>
-  mutate(trip_dur_days =
+  dplyr::mutate(trip_dur_days =
            as.numeric(trip_dur, "days"))
 
 # write_csv(trips_info_2022_int_dur, "trips_info_2022_int_dur.csv")
 
 ### check trips_info_2022_int ----
 trips_info_2022_int %>%
-  select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
+  dplyr::select(TRIP_START_DATE, TRIP_END_DATE, trip_int) %>%
   dim()
 # [1] 98528     3
 
 ## trip types A and H trips ----
 trips_info_2022_int_ah <-
   trips_info_2022_int %>%
-  filter(TRIP_TYPE %in% c("A", "H"))
+  dplyr::filter(TRIP_TYPE %in% c("A", "H"))
 
 ## Keep only SERO permitted ----
 trips_info_2022_int_ah_sero <-
   trips_info_2022_int_ah |>
-  filter(!is.na(SERO_VESSEL_PERMIT)) |>
-  distinct()
+  dplyr::filter(!is.na(SERO_VESSEL_PERMIT)) |>
+  dplyr::distinct()
 
 # Trip notifications (= declarations) ----
 # Jenny:
@@ -454,8 +454,8 @@ trips_info_2022_int_ah_sero <-
 
 ## trip types A and H trip_notif ----
 trips_notifications_2022 %>%
-   # select(TRIP_TYPE) %>% distinct()
-   count(TRIP_TYPE)
+   # dplyr::select(TRIP_TYPE) %>% dplyr::distinct()
+   dplyr::count(TRIP_TYPE)
 #   TRIP_TYPE     n
 # 1         A 55328
 # 2         C   202
@@ -464,7 +464,7 @@ trips_notifications_2022 %>%
 
 trips_notifications_2022_ah <-
   trips_notifications_2022 %>%
-  filter(TRIP_TYPE %in% c("A", "H"))
+  dplyr::filter(TRIP_TYPE %in% c("A", "H"))
 
 dim(trips_notifications_2022)
 # [1] 70056    33
@@ -474,7 +474,7 @@ dim(trips_notifications_2022_ah)
 
 ## not cancelled ----
 trips_notifications_2022_ah |>
-  count(NOTIFICATION_TYPE_ID)
+  dplyr::count(NOTIFICATION_TYPE_ID)
 #   NOTIFICATION_TYPE_ID     n
 # 1                    5   109
 # 2                    6 63549
@@ -488,7 +488,7 @@ trips_notifications_2022_ah |>
 # 5/6
 trips_notifications_2022_ah_5_6 <-
   trips_notifications_2022_ah |>
-  group_by(
+  dplyr::group_by(
     TRIP_TYPE,
     VESSEL_ID,
     TRIP_START_DATE,
@@ -496,9 +496,9 @@ trips_notifications_2022_ah_5_6 <-
     TRIP_END_DATE,
     TRIP_END_TIME
   ) |>
-  mutate(NOTIFICATION_TYPE_IDs =
+  dplyr::mutate(NOTIFICATION_TYPE_IDs =
               toString(unique(NOTIFICATION_TYPE_ID))) |>
-  ungroup()
+  dplyr::ungroup()
 
 dim(trips_notifications_2022_ah)
 # [1] 63658    33
@@ -510,14 +510,14 @@ dim(trips_notifications_2022_ah_5_6)
 
 trips_notifications_2022_ah_6 <-
   trips_notifications_2022_ah_5_6 |>
-  filter(NOTIFICATION_TYPE_IDs == '6')
+  dplyr::filter(NOTIFICATION_TYPE_IDs == '6')
 
 dim(trips_notifications_2022_ah_6)
 # [1] 63535    34
 # [1] 67613    34
 
 trips_notifications_2022_ah_6 |>
-  count(NOTIFICATION_TYPE_ID)
+  dplyr::count(NOTIFICATION_TYPE_ID)
 # 1                    6 67613
 
 # add week num ----
@@ -539,7 +539,7 @@ trips_notifications_2022_ah_6 |>
 
 trips_info_2022_int_ah_sero_w_y <-
   trips_info_2022_int_ah_sero %>%
-  mutate(
+  dplyr::mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
     TRIP_END_week_num =
@@ -553,7 +553,7 @@ trips_info_2022_int_ah_sero_w_y <-
     TRIP_END_m =
       zoo::as.yearmon(TRIP_END_DATE)
   ) %>%
-  mutate(
+  dplyr::mutate(
     TRIP_START_week_num =
       as.double(TRIP_START_week_num),
     TRIP_END_week_num =
@@ -561,7 +561,7 @@ trips_info_2022_int_ah_sero_w_y <-
   )
 
 trips_info_2022_int_ah_sero_w_y |>
-  filter(TRIP_START_week_num == 0 &
+  dplyr::filter(TRIP_START_week_num == 0 &
            TRIP_START_m == "Jan 2022") |>
   dim()
 # TRIP_START_m == "Jan 2022"
@@ -569,7 +569,7 @@ trips_info_2022_int_ah_sero_w_y |>
 # 77 15 (sero)
 # 77 79
 trips_info_2022_int_ah_sero_w_y |>
-  filter(TRIP_START_week_num == 52 &
+  dplyr::filter(TRIP_START_week_num == 52 &
            TRIP_START_m == "Jan 2022") |>
   dim()
 # [1] 80 79
@@ -577,7 +577,7 @@ trips_info_2022_int_ah_sero_w_y |>
 ## to trip notifications ----
 trips_notifications_2022_ah_6_w_y <-
   trips_notifications_2022_ah_6 %>%
-  mutate(
+  dplyr::mutate(
     TRIP_START_week_num =
       strftime(TRIP_START_DATE, format = "%U"),
     TRIP_END_week_num =
@@ -591,7 +591,7 @@ trips_notifications_2022_ah_6_w_y <-
     TRIP_END_m =
       zoo::as.yearmon(TRIP_END_DATE)
   ) %>%
-  mutate(
+  dplyr::mutate(
     TRIP_START_week_num =
       as.double(TRIP_START_week_num),
     TRIP_END_week_num =
@@ -599,12 +599,12 @@ trips_notifications_2022_ah_6_w_y <-
   )
 
 trips_notifications_2022_ah_6_w_y |>
-  filter(TRIP_START_week_num == 0) |>
+  dplyr::filter(TRIP_START_week_num == 0) |>
   dim()
 # [1] 32 40
 
 trips_notifications_2022_ah_6_w_y |>
-  filter(TRIP_START_week_num == 52) |>
+  dplyr::filter(TRIP_START_week_num == 52) |>
   dim()
 # [1] 1063   40 not cancelled
 
@@ -613,7 +613,7 @@ trips_notifications_2022_ah_6_w_y |>
 tic("trip_neg_2022_w_y")
 trip_neg_2022_w_y <-
   trip_neg_2022 %>%
-  mutate(
+  dplyr::mutate(
     TRIP_week_num =
       strftime(TRIP_DATE, format = "%U"),
     TRIP_DATE_y =
@@ -621,20 +621,20 @@ trip_neg_2022_w_y <-
     TRIP_DATE_m =
       zoo::as.yearmon(TRIP_DATE)
   ) %>%
-  mutate(TRIP_week_num =
+  dplyr::mutate(TRIP_week_num =
            as.double(TRIP_week_num)) |>
-  mutate()
+  dplyr::mutate()
 toc()
 # trip_neg_2022_w_y: 2.56 sec elapsed
 
 # check
 trip_neg_2022_w_y |>
-  filter(TRIP_week_num == 0 & TRIP_DATE_m == "Jan 2022") |>
+  dplyr::filter(TRIP_week_num == 0 & TRIP_DATE_m == "Jan 2022") |>
   dim()
 # [1] 2101    15
 
 trip_neg_2022_w_y |>
-  filter(TRIP_week_num == 52 & TRIP_DATE_m == "Jan 2022") |>
+  dplyr::filter(TRIP_week_num == 52 & TRIP_DATE_m == "Jan 2022") |>
   dim()
 # [1] 2077
 
@@ -665,16 +665,16 @@ dim(trips_notifications_2022_ah_6_w_y)
 
 #### check if there are earlier reports with an end date in 2022 and start in 2021 ----
 trips_info_2022_int_ah_sero_w_y |>
-  # filter(TRIP_START_y == 2021) |>
-  filter(TRIP_START_week_num < 52 &
+  # dplyr::filter(TRIP_START_y == 2021) |>
+  dplyr::filter(TRIP_START_week_num < 52 &
            TRIP_START_y == 2021 &
            TRIP_END_y == 2022) |>
   dim()
 # 4 79
 
 trips_notifications_2022_ah_6_w_y |>
-  # filter(TRIP_START_y == 2021) |>
-  filter(TRIP_START_week_num < 52 &
+  # dplyr::filter(TRIP_START_y == 2021) |>
+  dplyr::filter(TRIP_START_week_num < 52 &
            TRIP_START_y == 2021 &
            TRIP_END_y == 2022) |>
   dim()
@@ -684,7 +684,7 @@ trips_notifications_2022_ah_6_w_y |>
 
 dates_2022_yw0 <-
   dates_2022 |>
-  mutate(date_y_m = as.yearmon(COMPLETE_DATE))
+  dplyr::mutate(date_y_m = as.yearmon(COMPLETE_DATE))
 
 dates_2022_yw0 |>
   head(28) |>
@@ -698,15 +698,15 @@ dates_2022_yw0 |>
 # dates_2022_yw1 <-
 #   dates_2022_yw0 |>
 #   # remove all before the last week of 2021
-#   filter(!(MONTH_OF_YEAR == 12 &
+#   dplyr::filter(!(MONTH_OF_YEAR == 12 &
 #              YEAR == 2021 &
 #              WEEK_OF_YEAR < 52))
 
 ### rename 52 to 0, bc that's how %U works ?
 dates_2022_yw <-
   dates_2022_yw0 |>
-  mutate(WEEK_OF_YEAR =
-    case_when(
+  dplyr::mutate(WEEK_OF_YEAR =
+    dplyr::case_when(
       YEAR == 2022 &
       MONTH_OF_YEAR == 1 &
         date_y_m == "Jan 2022" &
@@ -718,13 +718,13 @@ dates_2022_yw <-
 
 # check
 trips_info_2022_int_ah_sero_w_y |>
-  filter(TRIP_START_y %in% c("2021", "2022") &
+  dplyr::filter(TRIP_START_y %in% c("2021", "2022") &
            TRIP_START_m == "Jan 2022") |>
-  select(TRIP_START_y,
+  dplyr::select(TRIP_START_y,
          TRIP_START_m,
          TRIP_START_week_num) |>
-  distinct() |>
-  arrange(TRIP_START_y,
+  dplyr::distinct() |>
+  dplyr::arrange(TRIP_START_y,
          TRIP_START_m,
          TRIP_START_week_num) |>
   head()
@@ -750,8 +750,8 @@ dim(dates_2022_yw)
 
 dates_2022_w <-
   dates_2022_yw |>
-  select(-COMPLETE_DATE) |>
-  distinct()
+  dplyr::select(-COMPLETE_DATE) |>
+  dplyr::distinct()
 
 dim(dates_2022_w)
 # [1] 74  4
@@ -777,12 +777,12 @@ toc()
 # t_d_w: 0.05 sec elapsed
 
 t_d_w |>
-    filter(WEEK_OF_YEAR == 52) |>
-  select(YEAR,
+    dplyr::filter(WEEK_OF_YEAR == 52) |>
+  dplyr::select(YEAR,
          MONTH_OF_YEAR,
          date_y_m) |>
-  distinct() |>
-  glimpse()
+  dplyr::distinct() |>
+  dplyr::glimpse()
 # [1] 7948   16
 # $ YEAR          <dbl> 2021, 2022, 2022, 2023, 2021
 # $ MONTH_OF_YEAR <dbl> 12, 1, 12, 1, NA
@@ -801,7 +801,7 @@ dim(t_d_w)
 # [1] 80978    80
 
 t_d_w |>
-  filter(is.na(YEAR)) |>
+  dplyr::filter(is.na(YEAR)) |>
   dim()
 # 0
 
@@ -848,27 +848,27 @@ dim(tn_d_w)
 
 #### check for week 52 in Jan 22 ----
 tn_d_w |>
-    filter(date_y_m == "Jan 2022" &
+    dplyr::filter(date_y_m == "Jan 2022" &
                WEEK_OF_YEAR == 52) |>
   dim()
 # [1] 142  40
 # [1] 74 41 not canc
 
 trips_notifications_2022_ah_6_w_y |>
-    filter(TRIP_START_m == "Jan 2022",
+    dplyr::filter(TRIP_START_m == "Jan 2022",
                TRIP_START_week_num == 52) |>
   dim()
 # [1] 142  39
 # [1] 74 40 not canc
 
 trips_info_2022_int_ah_sero_w_y |>
-    filter(TRIP_START_m == "Jan 2022",
+    dplyr::filter(TRIP_START_m == "Jan 2022",
                TRIP_START_week_num == 52) |>
   dim()
 # [1] 80 79
 
 trip_neg_2022_w_y |>
-    filter(TRIP_DATE_m == "Jan 2022" &
+    dplyr::filter(TRIP_DATE_m == "Jan 2022" &
                TRIP_week_num == 52) |>
   dim()
 # [1] 2077    15
@@ -877,7 +877,7 @@ trip_neg_2022_w_y |>
 
 v_p_d_w_22 <-
   vessels_permits_2022_r_end_date_uid_short_mm_w_y_interv_dual |>
-  mutate(permit_weeks_amnt_22 =
+  dplyr::mutate(permit_weeks_amnt_22 =
            round(permit_2022_int / lubridate::dweeks(1)))
 
 dim(v_p_d_w_22)
@@ -893,21 +893,21 @@ dim(v_p_d_w_22)
 #
 # trip_neg_2022_w_y_cnt_u <-
 #   trip_neg_2022_w_y |>
-#   group_by(VESSEL_ID) %>%
-#   mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |>
-#   ungroup()
+#   dplyr::group_by(VESSEL_ID) %>%
+#   dplyr::mutate(distinct_weeks_ne = n_distinct(TRIP_week_num)) |>
+#   dplyr::ungroup()
 #
 # dim(trip_neg_2022_w_y_cnt_u)
 # # [1] 1709    5
 # # [1] 3414    2 summarize
-# # [1] 747078     44 mutate
+# # [1] 747078     44 dplyr::mutate
 # # [1] 747173      7
 #
 # ## trip_notif weeks count per vessel ----
 # trips_notifications_2022_ah_6_w_y_cnt_u <-
 #   trips_notifications_2022_ah_6_w_y |>
-#   group_by(VESSEL_ID) |>
-#   mutate(
+#   dplyr::group_by(VESSEL_ID) |>
+#   dplyr::mutate(
 #     distinct_start_weeks_tn = n_distinct(TRIP_START_week_num),
 #     distinct_end_weeks_tn = n_distinct(TRIP_END_week_num)
 #   )
@@ -917,7 +917,7 @@ dim(v_p_d_w_22)
 # # [1] 67738    35
 #
 # trips_notifications_2022_ah_6_w_y_cnt_u %>%
-#    filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
+#    dplyr::filter(!distinct_start_weeks_tn == distinct_end_weeks_tn) %>%
 #    dim()
 # # [1] 0 6
 # # ok
@@ -926,12 +926,12 @@ dim(v_p_d_w_22)
 # ## trips weeks count per vessel ----
 # trips_info_2022_int_ah_sero_w_y_weeks_cnt_u <-
 #   trips_info_2022_int_ah_sero_w_y %>%
-#     group_by(VESSEL_ID) %>%
-#       mutate(
+#     dplyr::group_by(VESSEL_ID) %>%
+#       dplyr::mutate(
 #         distinct_start_weeks_t = n_distinct(TRIP_START_week_num),
 #         distinct_end_weeks_t = n_distinct(TRIP_END_week_num)
 #       ) %>%
-#       mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
+#       dplyr::mutate(max_weeks_cnt_t = max(distinct_start_weeks_t, distinct_end_weeks_t))
 #
 # dim(trips_info_2022_int_ah_sero_w_y_weeks_cnt_u)
 # # [1] 1110    7
@@ -942,7 +942,7 @@ dim(v_p_d_w_22)
 # # [1] 80967    18 sero
 #
 # trips_info_2022_int_ah_sero_w_y_weeks_cnt_u |>
-#   filter(!distinct_start_weeks_t == distinct_end_weeks_t) |>
+#   dplyr::filter(!distinct_start_weeks_t == distinct_end_weeks_t) |>
 #   dim()
 # # 2196 sero
 #
@@ -951,7 +951,7 @@ dim(v_p_d_w_22)
 
 v_p_d_w_22_short <-
   v_p_d_w_22 |>
-  select(
+  dplyr::select(
     VESSEL_VESSEL_ID,
     PERMIT_VESSEL_ID,
     permit_sa_gom_dual,
@@ -965,7 +965,7 @@ v_p_d_w_22_short <-
     permit_2022_int,
     permit_weeks_amnt_22
   ) |>
-  distinct()
+  dplyr::distinct()
 
 dim(v_p_d_w_22_short)
 # [1] 8939   12
@@ -978,7 +978,7 @@ dim(v_p_d_w_22_short)
 # remove fields
 t_d_w_short <-
   t_d_w |>
-  select(
+  dplyr::select(
     -c(
       # TRIP_START_DATE,
       # TRIP_END_DATE,
@@ -990,9 +990,9 @@ t_d_w_short <-
       # trip_int
     )
   ) |>
-  distinct() |>
+  dplyr::distinct() |>
   # add a table report type for future counting
-  mutate(rep_type = "trips")
+  dplyr::mutate(rep_type = "trips")
 
 dim(t_d_w_short)
 # [1] 97014    11
@@ -1007,9 +1007,9 @@ dim(t_d_w_short)
 # print_df_names(tne_d_w)
 tne_d_w_short <-
   tne_d_w |>
-  select(-c(TRIP_DATE, TRIP_ID)) |>
-  distinct() |>
-  mutate(rep_type = "trips_neg")
+  dplyr::select(-c(TRIP_DATE, TRIP_ID)) |>
+  dplyr::distinct() |>
+  dplyr::mutate(rep_type = "trips_neg")
 
 dim(tne_d_w_short)
 # [1] 136329      6
@@ -1020,7 +1020,7 @@ dim(tne_d_w_short)
 # remove fields
 tn_d_w_short <-
   tn_d_w |>
-  select(-c(
+  dplyr::select(-c(
     ARRIVAL_PORT,
     CANCEL_FLAG,
     DEA_PERMIT_SOLD_NOTIFICATION,
@@ -1050,9 +1050,9 @@ tn_d_w_short <-
     # TRIP_TYPE
   )
   ) |>
-  distinct() |>
+  dplyr::distinct() |>
   # add a table report type for future counting
-  mutate(rep_type = "trips_notif")
+  dplyr::mutate(rep_type = "trips_notif")
 
 dim(tn_d_w_short)
 # [1] 21211    10
@@ -1161,7 +1161,7 @@ dim(v_p__t__tne_d_weeks)
 # date_y_m               18
 
 v_p__t__tne_d_weeks |>
-  filter(VESSEL_VESSEL_ID == "248316") |>
+  dplyr::filter(VESSEL_VESSEL_ID == "248316") |>
   dim()
 # [1] 58 14 correct
 # [1] 77 93
@@ -1189,9 +1189,9 @@ dim(v_p__t__tn_d_weeks)
 ### check ----
 # 1)
 v_p__t__tne_d_weeks |>
-  filter(PERMIT_VESSEL_ID == "VI5498TB") |>
-  count(YEAR) |>
-  glimpse()
+  dplyr::filter(PERMIT_VESSEL_ID == "VI5498TB") |>
+  dplyr::count(YEAR) |>
+  dplyr::glimpse()
 # now has TRIP_DATE_y
 # 58
 # $ TRIP_DATE_y <dbl> 2021, 2022
@@ -1202,9 +1202,9 @@ v_p__t__tne_d_weeks |>
 # 2) check change of year weeks
 v_p__t__tne_d_weeks_21 <-
   v_p__t__tne_d_weeks |>
-  # filter(date_y_m %within% permit_2022_int)
+  # dplyr::filter(date_y_m %within% permit_2022_int)
   # exclude the last weeks of 2021 before 52
-  filter(date_y_m == 'Dec 2021' &
+  dplyr::filter(date_y_m == 'Dec 2021' &
              WEEK_OF_YEAR < 52 &
              is.na(rep_type.t) &
              is.na(rep_type.tne)

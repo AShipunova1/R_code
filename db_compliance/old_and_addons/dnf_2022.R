@@ -3,10 +3,10 @@
 
 # View(trip_neg_2022_w_y)
 # View(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22)
-View(vessels_permits_2022_r)
+# View(vessels_permits_2022_r)
 v_p_tne <-
   vessels_permits_2022_r |>
-  filter(!permit_sa_gom == "sa_only") |>
+  dplyr::filter(!permit_sa_gom == "sa_only") |>
   # dim()
   # 9776
   inner_join(trip_neg_2022_w_y,
@@ -17,7 +17,7 @@ v_p_tne <-
 #   vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22__list_dates__sa_w_p22_ids$VESSEL_VESSEL_ID
 # ) |>
 
-View(v_p_tne)
+# View(v_p_tne)
 # [1] 58349    51
 # [1] 210168     66 (w all permits)
 
@@ -30,27 +30,27 @@ vessels__trip_neg_22 <-
     suffix = c(".v", ".tneg")
   )
 
-View(vessels__trip_neg_22)
+# View(vessels__trip_neg_22)
 
 vessels__trip_neg_22 |>
-  filter(PERMIT_GROUP == 7) |>
-  select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  distinct() |>
+  dplyr::filter(PERMIT_GROUP == 7) |>
+  dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::distinct() |>
   dim()
 # [1] 1975    2 vessels
 
 vessels__trip_neg_22 |>
-  filter(PERMIT_GROUP == 7) |>
-  select(TRIP_ID) |>
-  distinct() |>
+  dplyr::filter(PERMIT_GROUP == 7) |>
+  dplyr::select(TRIP_ID) |>
+  dplyr::distinct() |>
   dim()
 # 410054      
 
 vessels__trip_neg_22 |>
-  filter(PERMIT_GROUP == 7) |>
-  select(TRIP_ID, permit_sa_gom) |>
-  distinct() |>
-  count(permit_sa_gom)
+  dplyr::filter(PERMIT_GROUP == 7) |>
+  dplyr::select(TRIP_ID, permit_sa_gom) |>
+  dplyr::distinct() |>
+  dplyr::count(permit_sa_gom)
 # 1      gom_only  34321
 # 2       sa_only 392199
 
@@ -67,29 +67,29 @@ v_p_tne__dual <-
 print_df_names(v_p_tne__dual)
 
 v_p_tne__dual |>
-  # filter(PERMIT_GROUP == 7) |>
-  select(TRIP_ID) |>
-  distinct() |>
+  # dplyr::filter(PERMIT_GROUP == 7) |>
+  dplyr::select(TRIP_ID) |>
+  dplyr::distinct() |>
   dim()
 # [1] 410943      1
 
 v_p_tne__dual |>
-  # filter(PERMIT_GROUP == 7) |>
-  select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  distinct() |>
+  # dplyr::filter(PERMIT_GROUP == 7) |>
+  dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::distinct() |>
   dim()
 # [1] 1979    2
 
 
 v_p_tne__dual |>
-  select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
-  distinct() |>
+  dplyr::select(PERMIT_VESSEL_ID, VESSEL_VESSEL_ID) |>
+  dplyr::distinct() |>
   count
 
 v_p_tne__dual |>
-  select(TRIP_ID, permit_sa_gom) |>
-  distinct() |>
-  count(permit_sa_gom)
+  dplyr::select(TRIP_ID, permit_sa_gom) |>
+  dplyr::distinct() |>
+  dplyr::count(permit_sa_gom)
 #   permit_sa_gom      n
 #   <chr>          <int>
 # 1 dual           15747
@@ -103,11 +103,11 @@ v_p_tne__dual |>
 # VA2668BK
 
 v_p_tne__dual |> 
-  filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
+  dplyr::filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
   View()
 
 v_p_tne |> 
-  filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
+  dplyr::filter(PERMIT_VESSEL_ID == "VA2668BK") |> 
   View()
 
 check_j_ids_f_name <- r"(~\R_files_local\jennys_code\output\GOMvesselsDNFreports.xlsx)"
@@ -128,7 +128,7 @@ glimpse(vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
   head() |> 
   tidyr::unnest_wider(unique_all_vessel_ids, names_sep = "_") |> 
-  glimpse()
+  dplyr::glimpse()
 # ...
 # $ unique_all_vessel_ids_1 <chr> "FL4459MW", "FL4459MW", "FL445…
 # $ unique_all_vessel_ids_2 <chr> "391019", "391019", "390425", …
@@ -144,20 +144,20 @@ vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_onl
 #     browser()
 #     # stringi::stri_detect_fixed()
 #     head(x, n = 1) |> 
-#       glimpse()
+#       dplyr::glimpse()
 #     # x %>%
-#   # filter(unique_all_vessel_ids %>%
-#   #          map(str_detect, y) %>%
+#   # dplyr::filter(unique_all_vessel_ids %>%
+#   #          purrr::map(str_detect, y) %>%
 #   #          map_lgl(any))
 #   #   ! `pattern` must be a string, not a list.
   # }
 
 # purrr::pmap(x, y, my_f(x, y)) |> str()
 
-# map(y, function() {unique_all_vessel_ids })
+# purrr::map(y, function() {unique_all_vessel_ids })
 vessels_permits_2022_r_end_date_l_overlap_join_w_dual_22_uid_short__list$gom_only |> 
   head() |> 
-  filter(unique_all_vessel_ids %>%
+  dplyr::filter(unique_all_vessel_ids %>%
            purrr::pmap(check_j_ids)
            # purrr::pmap(str_detect, "Lannister|Stark") 
          # %>%
@@ -177,25 +177,25 @@ my_f <- function(x, y) {
   # browser()
   # stringi::stri_detect_fixed()
   # head(x, n = 1) |>
-  #   glimpse()
+  #   dplyr::glimpse()
   
-  res <- map(y, function(one_j_id) {
+  res <- purrr::map(y, function(one_j_id) {
     # browser()
-    map(x$unique_all_vessel_ids,
+    purrr::map(x$unique_all_vessel_ids,
         function(unique_all_vessel_id) {
           # browser()
           stringr::str_detect(unique_all_vessel_id, one_j_id) %>%
             return()
         })
   })
-  # map(0:1, function(x)
-  #   map_df(0:7,function(y)
+  # purrr::map(0:1, function(x)
+  #   purrr::map_df(0:7,function(y)
   # dplyr::intersect,
   # x$unique_all_vessel_ids)
   
   # x %>%
-  # filter(unique_all_vessel_ids %>%
-  #          map(str_detect, y) %>%
+  # dplyr::filter(unique_all_vessel_ids %>%
+  #          purrr::map(str_detect, y) %>%
   #          map_lgl(any))
   #   ! `pattern` must be a string, not a list.
   
@@ -282,10 +282,10 @@ v_p_gom1__j <-
     join_by(unique_all_vessel_ids_1 == VESSEL_OFFICIAL_NUMBER_GOMDNF)
   )
 
-View(v_p_gom1__j)
+# View(v_p_gom1__j)
 v_p_gom1__j |>
-  select(unique_all_vessel_ids_1) |>
-  distinct() |>
+  dplyr::select(unique_all_vessel_ids_1) |>
+  dplyr::distinct() |>
   dim()
 # [1] 1009    1
 ok
@@ -314,7 +314,7 @@ dim(check_j_ids)
 
 v_p_gom_dual_1__j |> 
 select(unique_all_vessel_ids_1) |>
-  distinct() |>
+  dplyr::distinct() |>
   dim()
 # [1] 1298    1
 # 
@@ -360,7 +360,7 @@ trip_neg_query_templ <-
   in ('{all_29_ids}')"
 
 # res_q <-
-#   map_chr(field_names[,1], str_interp, string = trip_neg_query_templ)
+#   purrr::map_chr(field_names[,1], str_interp, string = trip_neg_query_templ)
 
 # stringr::str_glue(
 #   "My name is {field_names[1,]}, ",
@@ -375,7 +375,7 @@ stringr::str_glue("SELECT *
   in ('{all_29_ids}')")
 
 # field_names |> 
-  # map(~)
+  # purrr::map(~)
 
 
 in_j_only_t_neg <-
@@ -385,7 +385,7 @@ in_j_only_t_neg <-
 create_p_v_22_query <-
   "CREATE PRIVATE TEMPORARY TABLE ora$ptt_p_v ON COMMIT PRESERVE DEFINITION
   AS
-    SELECT DISTINCT
+    dplyr::select DISTINCT
       p.vessel_id AS p_vessel_id,
       entity_id,
       expiration_date,
@@ -500,7 +500,7 @@ str(in_j_only_t_neg_all501_)
 # compbine results ----
 all_in_j_only_t_neg_all <-
   rbind(in_j_only_t_neg_all1,                                   in_j_only_t_neg_all501_) |> 
-  distinct()
+  dplyr::distinct()
 
 dim(all_in_j_only_t_neg_all)
 286
@@ -516,8 +516,8 @@ sum(all_in_j_only_t_neg_all$TOTAL_DNF)
 # 1064902
 # 400
 
-# SELECT
-#   count(distinct trip_id)
+# dplyr::select
+#   dplyr::count(distinct trip_id)
 # FROM
 #        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
 #   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -530,7 +530,7 @@ sum(all_in_j_only_t_neg_all$TOTAL_DNF)
 v__tne_query <-
   stringr::str_glue("SELECT
   distinct sero_official_number,
-  count(trip_id) as total_dnf
+  dplyr::count(trip_id) as total_dnf
   FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -550,7 +550,7 @@ all_cnts_from_v_tne <-
 
 all_cnts_from_v_tne |> 
 select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 351   
 
@@ -572,7 +572,7 @@ sum(all_cnts_from_v_tne$TOTAL_DNF)
 v__tne_query_1_500 <-
   stringr::str_glue("SELECT
   sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -591,7 +591,7 @@ all_cnts_from_v__tne_1_500 <-
 
 all_cnts_from_v__tne_1_500 |> 
 select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 112
 # 177
@@ -620,7 +620,7 @@ list_of_names_str <- paste0(list_of_names, collapse = "', '")
 v__tne_query_2 <-
   stringr::str_glue("SELECT
   sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -636,11 +636,11 @@ all_cnts_from_v__tne_2 <-
   dbGetQuery(con, v__tne_query_2)
 # 3
 
-View(all_cnts_from_v__tne_2)
+# View(all_cnts_from_v__tne_2)
 
 all_cnts_from_v__tne_2 |> 
 select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 3
 
@@ -652,7 +652,7 @@ v__tne_query_btw <-
   stringr::str_glue("
 SELECT
 sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -671,24 +671,24 @@ all_cnts_from_v__tne_query_btw <-
 
 str(all_cnts_from_v__tne_query_btw)
 all_cnts_from_v__tne_query_btw |> 
-  filter(SERO_OFFICIAL_NUMBER == 'FL0094NN')
+  dplyr::filter(SERO_OFFICIAL_NUMBER == 'FL0094NN')
 
 sum(all_cnts_from_v__tne_query_btw$TOTAL_TRIP_IDS)
 # 45710
 all_cnts_from_v__tne_query_btw |> 
-  count(wt = TOTAL_TRIP_IDS)
+  dplyr::count(wt = TOTAL_TRIP_IDS)
 # 45710
 
 all_cnts_from_v__tne_query_btw |> 
-  select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::select(SERO_OFFICIAL_NUMBER) |> 
+  dplyr::distinct() |> 
   dim()
 # 351
 # not 0 in db - 288
 
 # detailed_report from FHIER ----
 fhier_cnts_file <-
-  r"(~\R_files_local\jennys_code\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source).xlsx)"
+  r"(~\R_files_local\jennys_code\Detail Report - via Valid and Renewable Permits dplyr::filter (SERO_NEW Source).xlsx)"
 
 file.exists(fhier_cnts_file)
 # T
@@ -706,7 +706,7 @@ glimpse(fhier_cnts)
 
 fhier_cnts_g_d <-
   fhier_cnts |> 
-  filter(gom_permits_ == "Y")
+  dplyr::filter(gom_permits_ == "Y")
 
 data_overview(fhier_cnts_g_d)
 # vessel_official_number                        1327
@@ -717,7 +717,7 @@ data_overview(fhier_cnts_g_d)
 
 fhier_cnts_g_d_short <-
   fhier_cnts_g_d |> 
-  select(
+  dplyr::select(
     vessel_official_number,
     vessel_name,
     effective_date,
@@ -728,19 +728,19 @@ fhier_cnts_g_d_short <-
     permit_grouping_region,
     total_did_not_fish_reports
   ) |>
-  distinct()
+  dplyr::distinct()
 
 # [1] 1327    9
 fhier_cnts_g_d_short_not_exp <-
   fhier_cnts_g_d_short |> 
-  filter(end_date <= as.Date('2022-12-31'))
+  dplyr::filter(end_date <= as.Date('2022-12-31'))
 dim(fhier_cnts_g_d_short_not_exp)
 # 277
 
 fhier_cnts_g_d_short_vessel_ids <-
   fhier_cnts_g_d_short |> 
-  select(vessel_official_number) |> 
-  distinct()
+  dplyr::select(vessel_official_number) |> 
+  dplyr::distinct()
 
 intersect(check_j_ids$VESSEL_OFFICIAL_NUMBER_GOMDNF,
         fhier_cnts_g_d_short_vessel_ids$vessel_official_number) |> 
@@ -771,7 +771,7 @@ fhier_and_db <-
 v__tne_query_all <-
   stringr::str_glue("SELECT
   sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -783,7 +783,7 @@ WHERE
 union all
 SELECT
   sero_official_number,
-  count(distinct trip_id) as total_trip_ids
+  dplyr::count(distinct trip_id) as total_trip_ids
 FROM
        safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   JOIN safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tne
@@ -802,7 +802,7 @@ all_cnts_from_v__tne_query_all <-
 
 all_cnts_from_v__tne_query_all |> 
 select(SERO_OFFICIAL_NUMBER) |> 
-  distinct() |> 
+  dplyr::distinct() |> 
   dim()
 # 289
 

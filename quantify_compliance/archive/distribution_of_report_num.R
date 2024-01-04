@@ -28,7 +28,7 @@ source(r"(~\R_code_github\quantify_compliance\quantify_compliance_start.R)")
 str(compl_clean_sa_vs_gom_plus_dual)
 compl_clean_sa_vs_gom_plus_dual_rep_cnt <-
   compl_clean_sa_vs_gom_plus_dual %>%
-  mutate(
+  dplyr::mutate(
     report_cnts = ifelse(
       permit == "sa_only",
       captainreports__ + negativereports__,
@@ -41,7 +41,7 @@ density_plot <- function(my_df, time_period) {
   # put mean line text to the right of the line
   vline_text_x = mean(my_df$report_cnts, na.rm = T) + 0.7
   # put mean line text on top and a little bit lower
-  vline_text_y = (my_df %>% count(report_cnts) %>% max()) * 3 / 4
+  vline_text_y = (my_df %>% dplyr::count(report_cnts) %>% max()) * 3 / 4
   
   ggplot(my_df, aes(x = report_cnts)) +
     geom_histogram(binwidth = .5,
@@ -80,7 +80,7 @@ id_reports_one_week <-
   filter(week_start == "2022-12-26",
          permit == "gom",
          tolower(compliant_) == "no") %>%
-  # glimpse()
+  # dplyr::glimpse()
   # Rows: 47
   select(report_cnts, vessel_official_number)
 
@@ -90,7 +90,7 @@ density_plot(id_reports_one_week, "Week of 2022-12-26")
 
 ### check numbers ----
 head(id_reports_one_week)
-id_reports_one_week %>% count(report_cnts) %>% head(2)
+id_reports_one_week %>% dplyr::count(report_cnts) %>% head(2)
 # 0 : 23
 # 1: 3
 id_reports_one_week %>%
@@ -112,7 +112,7 @@ glimpse(id_reports_one_month)
 summary(id_reports_one_month)
 # Mean   : 2.445
 
-id_reports_one_month %>% count(report_cnts)
+id_reports_one_month %>% dplyr::count(report_cnts)
 # 1           0    65
 # 2           1     7
 # ...
@@ -134,7 +134,7 @@ compl_clean_sa_vs_gom_plus_dual_rep_cnt_gom_non_compl <-
 
 monthly_count_density_plots <-
   compl_clean_sa_vs_gom_plus_dual_rep_cnt_gom_non_compl %>%
-  group_by(year_month) %>%
+  dplyr::group_by(year_month) %>%
   group_map(.f = ~ density_plot(.x,
                                 .x$year_month),
             # keep year_month (the grouping variable)
@@ -157,7 +157,7 @@ sa_id_reports_one_month <-
   filter(year_month == "Feb 2022",
          permit == "sa_only",
          tolower(compliant_) == "no") %>%
-  # glimpse()
+  # dplyr::glimpse()
   select(report_cnts, vessel_official_number, week_start)
 
 glimpse(sa_id_reports_one_month)
@@ -165,7 +165,7 @@ summary(sa_id_reports_one_month)
 # Mean   : 0.9171
 # Max.   :15.0000
 
-sa_id_reports_one_month %>% count(report_cnts)
+sa_id_reports_one_month %>% dplyr::count(report_cnts)
 # 1           0  2098
 # 2           1   148
 # 3           2     1
@@ -181,7 +181,7 @@ density_plot(sa_id_reports_one_month, "Feb 2022")
 
 ### get num of weeks == min of reports expected
 num_of_weeks <- function(my_df) {
-  my_df %>% select(week_start) %>% unique() %>% count() %>% return()
+  my_df %>% select(week_start) %>% unique() %>% dplyr::count() %>% return()
 }
 
 ### SA plot all months ----
@@ -192,7 +192,7 @@ compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl <-
   select(report_cnts, vessel_official_number, year_month, week_start)
 
 # compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl %>%
-# group_by(year_month) %>%
+# dplyr::group_by(year_month) %>%
 
 my_colors = c('Mean' = 'red',
               'Num of weeks' = 'deepskyblue')
@@ -202,7 +202,7 @@ sa_density_plot <- function(my_df) {
   # put mean line text to the right of the line
   vline2_text_x = expected_min_amount_of_reports + 0.7
   # put mean line text on top and a little bit lower
-  vline2_text_y = (my_df %>% count(report_cnts) %>% max()) * 3 / 4
+  vline2_text_y = (my_df %>% dplyr::count(report_cnts) %>% max()) * 3 / 4
   new_plot <-
     density_plot(my_df,
                  my_df$year_month) +
@@ -227,7 +227,7 @@ sa_density_plot <- function(my_df) {
 
 monthly_count_density_plots <-
   compl_clean_sa_vs_gom_plus_dual_rep_cnt_sa_non_compl %>%
-  group_by(year_month) %>%
+  dplyr::group_by(year_month) %>%
   group_map(.f = ~ sa_density_plot(.x),
             # keep year_month (the grouping variable)
             .keep = TRUE)

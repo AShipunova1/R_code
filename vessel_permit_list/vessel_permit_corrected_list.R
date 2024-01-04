@@ -36,7 +36,7 @@ all_sheets_l <-
              })
 
 # Check what's inside ----
-# map(all_sheets_l, dim)
+# purrr::map(all_sheets_l, dim)
 # [[1]]
 # [1] 2215    1
 #
@@ -49,7 +49,7 @@ all_sheets_l <-
 # [[4]]
 # [1] 130   2
 
-# map(all_sheets_l, glimpse)
+# purrr::map(all_sheets_l, glimpse)
 
 # Clean up dfs ----
 

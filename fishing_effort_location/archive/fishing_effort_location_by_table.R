@@ -2,7 +2,7 @@
 # to a table report ----
 db_data_w_area_short <-
   db_data_w_area %>%
-  select(
+  dplyr::select(
     TRIP_START_DATE,
     TRIP_END_DATE,
     START_PORT,
@@ -67,7 +67,7 @@ db_data_w_area_report_minus_gom %<>%
 # names(db_data_w_area_report_minus_gom)
 # db_data_w_area_report_minus_gom %>%
   # filter(AREA_CODE == "001") %>%
-  # select(# AREA_NAME,
+  # dplyr::select(# AREA_NAME,
     # SUB_AREA_CODE,
     # AREA_CODE,
     # DISTANCE_CODE_NAME,
@@ -76,8 +76,8 @@ db_data_w_area_report_minus_gom %<>%
   # filter(is.na(AREA_CODE)) %>%
   # 0
   # unique() %>%
-  # arrange(SUB_AREA_CODE)
-    # arrange(AREA_CODE)
+  # dplyr::arrange(SUB_AREA_CODE)
+    # dplyr::arrange(AREA_CODE)
 # %>%
   # dim()
   # View()
@@ -147,11 +147,11 @@ dim(db_data_w_area_report_minus_gom_fl_sa)
 
 to_mapview <- function(my_df) {
   my_df %>%
-    select(LATITUDE, LONGITUDE, row_id) %>%
+    dplyr::select(LATITUDE, LONGITUDE, row_id) %>%
     my_to_sf() %>% mapview() + sa_shp
 }
 # db_data_w_area_report_minus_gom_fl_sa %>%
-#   select(LATITUDE, LONGITUDE, row_id) %>%
+#   dplyr::select(LATITUDE, LONGITUDE, row_id) %>%
 #   my_to_sf() %>% mapview() + sa_shp
 
 ### area_codes_to_keep (all other SA areas) ----
@@ -161,7 +161,7 @@ area_codes_to_remove_part2 <- paste0("0", c(10:19))
 # db_data_w_area_report_minus_gom_fl_sa %>%
   # filter(AREA_CODE %in% c("015", "052")) %>% View()
 
-# db_data_w_area_report_minus_gom_fl_sa %>% select(AREA_CODE) %>% unique %>% arrange(AREA_CODE) %>% View()
+# db_data_w_area_report_minus_gom_fl_sa %>% dplyr::select(AREA_CODE) %>% unique %>% dplyr::arrange(AREA_CODE) %>% View()
 # length(area_codes_to_keep)
 # 122
 
@@ -175,8 +175,8 @@ db_data_w_area_report_minus_gom_stat_areas <-
   )
 
 # db_data_w_area_report_minus_gom_stat_areas %>%
-#   select(AREA_CODE) %>% unique() %>%
-#   arrange(AREA_CODE) %>%
+#   dplyr::select(AREA_CODE) %>% unique() %>%
+#   dplyr::arrange(AREA_CODE) %>%
 #   View()
 # 052?
 # dim(db_data_w_area_report_minus_gom_stat_areas)
@@ -248,7 +248,7 @@ dim(db_data_w_area_report_minus_gom_stat_no_area_not_fl)
 
 sub1_fl_counties %>%
   # View()
-  count(END_PORT_COUNTY)
+  dplyr::count(END_PORT_COUNTY)
 # 11
 # ...
 # 8 MONROE          27476
@@ -291,7 +291,7 @@ dim(good_coords_monroe)
 
 good_coords_monroe_sf <-
   good_coords_monroe %>%
-  select(LATITUDE, LONGITUDE, row_id) %>%
+  dplyr::select(LATITUDE, LONGITUDE, row_id) %>%
   my_to_sf()
 # dim(good_coords_monroe_sf)
 
@@ -320,7 +320,7 @@ good_coords_monroe_sf_minus_gom_df <-
   # remove the geometry field
   sf::st_drop_geometry(good_coords_monroe_sf_minus_gom) %>%
   # remove the rest of sf columns
-  select(-c("Area_SqKm", "Perim_M"))
+  dplyr::select(-c("Area_SqKm", "Perim_M"))
 
 dim(good_coords_monroe_sf_minus_gom_df)
 # [1] 22558     3
@@ -359,7 +359,7 @@ db_data_w_area_report_table_cleaned <-
 # [1] 33297    21
 
 db_data_w_area_report_table_cleaned %>%
-  select(LATITUDE, LONGITUDE, row_id) %>%
+  dplyr::select(LATITUDE, LONGITUDE, row_id) %>%
   my_to_sf() %>% mapview(layer.name = 'points cleared by area and end port') + m_s
 
 # filter(db_data_w_area_report_table_cleaned,

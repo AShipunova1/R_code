@@ -63,11 +63,11 @@ dim(vessels_permits_clean_gr7_2022)
 ### combine tops  ----
 vessels_permits_clean_gr7_2022_all_permits <-
   vessels_permits_clean_gr7_2022 |>
-  group_by(VESSEL_VESSEL_ID) |>
-  mutate(all_permits = toString(unique(TOP))) |>
-  ungroup() |>
-  select(VESSEL_VESSEL_ID, all_permits) |>
-  distinct()
+  dplyr::group_by(VESSEL_VESSEL_ID) |>
+  dplyr::mutate(all_permits = toString(unique(TOP))) |>
+  dplyr::ungroup() |>
+  dplyr::select(VESSEL_VESSEL_ID, all_permits) |>
+  dplyr::distinct()
 
 # data_overview(vessels_permits_clean_gr7_2022_all_permits)
 # VESSEL_VESSEL_ID 4493
@@ -89,18 +89,18 @@ data_overview(vessels_permits_clean_gr7_2022_region)
 ### combine permits into 2 groups; for 2022 gom+dual, sa_only ----
 vessels_permits_clean_gr7_2022_region2 <-
   vessels_permits_clean_gr7_2022_region |>
-  mutate(permit_22 =
-           case_when(permit_sa_gom == "sa_only" ~ "sa_only",
+  dplyr::mutate(permit_22 =
+           dplyr::case_when(permit_sa_gom == "sa_only" ~ "sa_only",
                      .default = "gom_dual")) |>
-  select(-permit_sa_gom) |>
-  distinct()
+  dplyr::select(-permit_sa_gom) |>
+  dplyr::distinct()
 
 dim(vessels_permits_clean_gr7_2022_region2)
 # [1] 4493    3
 
 # Heatmaps for charter and headboat separately ----
 
-# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they selected that in the logbook.
+# Thought for exploration and not the Council meeting coming up - can we show this just for charter and the just for headboat trips?  Headboat being that they dplyr::selected that in the logbook.
 
 ## filter 2022 ----
 trip_coord_info_2022 <-
@@ -126,8 +126,8 @@ rm_cols <- c("TRIP_ID",
 
 trip_coord_info_2022_short <-
   trip_coord_info_2022 |>
-  select(all_of(rm_cols)) |>
-  distinct()
+  dplyr::select(all_of(rm_cols)) |>
+  dplyr::distinct()
 
 dim(trip_coord_info_2022_short)
 # [1] 96785     7
@@ -138,12 +138,12 @@ dim(trip_coord_info_2022_short)
 trip_coord_info_2022_short_coord <-
   trip_coord_info_2022_short |>
   dplyr::filter(!is.na(LONGITUDE) | !is.na(LATITUDE)) |>
-  distinct()
+  dplyr::distinct()
 
 ## rename trip_types to names ----
 trip_coord_info_2022_short_coord_t_names <-
   trip_coord_info_2022_short_coord |>
-  mutate(TRIP_TYPE = ifelse(TRIP_TYPE == "A",
+  dplyr::mutate(TRIP_TYPE = ifelse(TRIP_TYPE == "A",
                             "CHARTER",
                             "HEADBOAT"))
 
@@ -173,7 +173,7 @@ dim(trip_coord_info_2022_short_vessels_permits_region)
 
 trip_coord_info_2022_short_vessels_permits_region_short <-
   trip_coord_info_2022_short_vessels_permits_region |>
-  select(all_of(
+  dplyr::select(all_of(
     c(
       "TRIP_ID",
       "LATITUDE",
@@ -183,7 +183,7 @@ trip_coord_info_2022_short_vessels_permits_region_short <-
       "permit_22"
     )
   )) |>
-  distinct()
+  dplyr::distinct()
 
 dim(trip_coord_info_2022_short_vessels_permits_region_short)
 # [1] 96383     6
@@ -198,11 +198,11 @@ trip_coord_info_2022_short_vessels_permits_region_short__l <-
     )
   ) |>
   # remove extra columns in each df
-  map(
+  purrr::map(
     \(x)
     x |>
       dplyr::select(TRIP_ID, VESSEL_ID, LATITUDE, LONGITUDE) |>
-      distinct()
+      dplyr::distinct()
   )
 
 # str(trip_coord_info_2022_short_vessels_permits_region_short_trip_type_l)
@@ -211,7 +211,7 @@ trip_coord_info_2022_short_vessels_permits_region_short__l <-
 #  $ H:'data.frame':	1823  obs. of  4 variables:
 
 all_dfs_dim <-
-  map_df(trip_coord_info_2022_short_vessels_permits_region_short__l, dim)
+  purrr::map_df(trip_coord_info_2022_short_vessels_permits_region_short__l, dim)
 
 glimpse(all_dfs_dim)
 # $ CHARTER.gom_dual  <int> 50280, 4
@@ -228,19 +228,19 @@ sum(all_dfs_dim[1,])
 source(
   file.path(
     my_paths$git_r,
-    r"(fishing_effort_location\prepare_gom_heatmap_func.R)"
+    r"(fishing_effort_location\prepare_heatmap_func.R)"
   )
 )
 # st_union(GOMsf): 21.5 sec elapsed
 
 tic("effort_t_type")
 effort_t_type <-
-  map(trip_coord_info_2022_short_vessels_permits_region_short__l, df_join_grid)
+  purrr::map(trip_coord_info_2022_short_vessels_permits_region_short__l, df_join_grid)
 toc()
 # effort_t_type: 1.66 sec elapsed
 
 tic("effort_t_type_cropped")
-effort_t_type_cropped <- map(effort_t_type, crop_by_shape)
+effort_t_type_cropped <- purrr::map(effort_t_type, crop_by_shape)
 toc()
 # effort_t_type_cropped: 1.04 sec elapsed
 
@@ -248,25 +248,25 @@ toc()
 
 effort_t_type_cropped_cnt <-
   effort_t_type_cropped |>
-  map(
+  purrr::map(
     \(x)
     x |>
-      group_by(cell_id) |>
-      mutate(
+      dplyr::group_by(cell_id) |>
+      dplyr::mutate(
         vsl_cnt = n_distinct(VESSEL_ID),
         trip_id_cnt = n_distinct(TRIP_ID)
       ) |>
-      ungroup()
+      dplyr::ungroup()
   )
 
 map_df(effort_t_type_cropped_cnt, dim) |>
-  glimpse()
+  dplyr::glimpse()
 # $ CHARTER.gom_dual  <int> 34315, 9
 # $ HEADBOAT.gom_dual <int> 285, 9
 # $ CHARTER.sa_only   <int> 1781, 9
 # $ HEADBOAT.sa_only  <int> 0, 9
 
-# map_df(effort_t_type_cropped_cnt, data_overview)
+# purrr::map_df(effort_t_type_cropped_cnt, data_overview)
 
 # data_overview(effort_t_type_cropped_cnt$A)
 # TRIP_ID     35777
@@ -287,7 +287,7 @@ map_df(effort_t_type_cropped_cnt, dim) |>
 
 # View(grid)
 
-# map(names(effort_t_type_cropped_cnt),
+# purrr::map(names(effort_t_type_cropped_cnt),
 #     \(type_reg) {
 #       effort_t_type_cropped_cnt[[type_reg]] |>
 #         sf::st_drop_geometry() |>
@@ -296,7 +296,7 @@ map_df(effort_t_type_cropped_cnt, dim) |>
 
 ### join with min grid ----
 effort_t_type_cropped_cnt_join_grid <-
-  map(effort_t_type_cropped_cnt,
+  purrr::map(effort_t_type_cropped_cnt,
       \(x)
       # have to use data.frame, to avoid
       # Error: y should not have class sf; for spatial joins, use st_join
@@ -308,17 +308,17 @@ effort_t_type_cropped_cnt_join_grid <-
 
 # effort_t_type_cropped_cnt_join_grid$CHARTER
 map_df(effort_t_type_cropped_cnt_join_grid, dim) |>
-  glimpse()
+  dplyr::glimpse()
 
 data_overview(effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual)
 
 effort_t_type_cropped_cnt_join_grid$HEADBOAT.gom_dual |>
-  select(LATITUDE, LONGITUDE) |>
-  distinct()
+  dplyr::select(LATITUDE, LONGITUDE) |>
+  dplyr::distinct()
 
 map_trips_types <-
   names(effort_t_type_cropped_cnt_join_grid) |>
-  map(
+  purrr::map(
     function(charter_headb) {
       # browser()
       trip_type_name_0 <- stringr::str_split(charter_headb, "\\.")

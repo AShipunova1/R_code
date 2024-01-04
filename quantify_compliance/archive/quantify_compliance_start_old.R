@@ -11,7 +11,7 @@ my_paths <- set_work_dir()
 source("~/R_code_github/quantify_compliance/get_data.R")
 
 # ---- looking at the proportion of reports submitted vs flag ----
-# glimpse(compl_clean)
+# dplyr::glimpse(compl_clean)
 # Rows: 167,607
 # Columns: 21
 
@@ -25,8 +25,8 @@ source("~/R_code_github/quantify_compliance/get_data.R")
 ### ---- separate into 3 groups ----
 separate_permits_into_3_groups <- function(compl_clean) {
   compl_clean %>%
-  mutate(permit =
-           case_when(
+  dplyr::mutate(permit =
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              !grepl("CDW|CHS|SC", permitgroup) ~ "gom_only",
              .default = "dual"
@@ -42,8 +42,8 @@ compl_clean_sa_vs_gom <- separate_permits_into_3_groups(compl_clean)
 ### ---- 2 groups: sa_only vs. gulf + dual ----
 compl_clean_sa_vs_gom_plus_dual_0 <-
   compl_clean %>%
-  mutate(permit =
-           case_when(
+  dplyr::mutate(permit =
+           dplyr::case_when(
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              .default = "gom"
            ))
@@ -52,9 +52,9 @@ compl_clean_sa_vs_gom_plus_dual_0 <-
 compl_clean_sa_vs_gom_plus_dual <-
   compl_clean_sa_vs_gom_plus_dual_0 %>%
   # add month
-  mutate(year_month = as.yearmon(week_start)) %>%
+  dplyr::mutate(year_month = as.yearmon(week_start)) %>%
   # add quarter
-  mutate(year_quarter = as.yearqtr(week_start))
+  dplyr::mutate(year_quarter = as.yearqtr(week_start))
 
 ## ---- convert report numbers to numeric ----
 compl_clean_sa_vs_gom_plus_dual$captainreports__ <-
@@ -66,7 +66,7 @@ compl_clean_sa_vs_gom_plus_dual$gom_permitteddeclarations__ <-
 
 ## ---- aux functions ----
 my_title <- function(time_period) {
-  case_when(
+  dplyr::case_when(
     time_period == "year" ~ "Annual",
     time_period == "year_month" ~ "Monthly",
     time_period == "year_quarter" ~ "Quarterly",
@@ -77,7 +77,7 @@ my_title <- function(time_period) {
 
 # rename column names for x labels
 my_x_lab <- function(time_period) {
-  case_when(
+  dplyr::case_when(
     time_period == "year" ~ "year",
     time_period == "year_month" ~ "month",
     time_period == "year_quarter" ~ "quarter",

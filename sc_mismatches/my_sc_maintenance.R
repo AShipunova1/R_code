@@ -1,10 +1,13 @@
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
-csv_names_list = list("sc_mismatches/sc_report_Aug_2023.csv")
-# csv_names_list = list("sc_mismatches/sc_report_08_2023_after.csv")
+# Download Maintenance / SC Vessels Reporting via VESL
+# from FHIER
 
-xsl_names_list = list("sc_mismatches/scdnrFedVessels_08302023.xlsx")
+# csv_names_list = list("sc_mismatches/sc_report_Aug_2023.csv")
+csv_names_list = list(r"(sc_mismatches\2024_01\fhier_report_01_04_2024.csv)")
+
+xsl_names_list = list(r"(sc_mismatches\2024_01\scdnrFedVessels_01032024.xlsx)")
 
 SC_vessels_FHIERData_0 <- load_csv_names(my_paths, csv_names_list)[[1]]
 
@@ -14,34 +17,38 @@ glimpse(SC_vessels_FHIERData)
 str(SC_vessels_FHIERData)
 
 # get enabled only
-SC_vessels_FHIERData_enabled <- 
+SC_vessels_FHIERData_enabled <-
   SC_vessels_FHIERData %>%
-  filter(tolower(enabled) == "yes") 
+  filter(tolower(enabled) == "yes")
 dim(SC_vessels_FHIERData_enabled)
 # 199 8
+# [1] 187   8
 
 # SC_vessels_FHIERData_enabled %>% names()
 #   filter(vessel_official_number   == "1225219")
 
 #create new dataframe with just enabled vessel official # for analysis
 FHIER_vessel_officialnumber <-
-  data.frame(Official_number = tolower(SC_vessels_FHIERData_enabled$vessel_official_number)) 
+  data.frame(Official_number = tolower(SC_vessels_FHIERData_enabled$vessel_official_number))
 
 dim(FHIER_vessel_officialnumber)
 # 199
 # 88
+# [1] 187   1
 
 #---
 SC_permittedVessels  <- load_xls_names(my_paths, xsl_names_list, 1)
 
 glimpse(SC_permittedVessels)
 # 213
+# 188
 
 # SC_permittedVessels1 <- read_excel(paste(my_paths$inputs, xsl_names_list[[1]], sep = "/"), 1)
 
 #---
 #create new dataframe with just official # codes for analysis
-SC_vessel_officalnumber <- data.frame(Official_number = tolower(SC_permittedVessels[[1]])) 
+SC_vessel_officalnumber <-
+  data.frame(Official_number = tolower(SC_permittedVessels[[1]]))
 
 #check for mistmatching fields using dplyr packages anti_join function
 mismatched_officialnumbers_FHIERvsSC <-
@@ -78,11 +85,15 @@ not_it_fhier_sc_report <-
 
 # length(SC_vessels_FHIERData$vessel_official_number)
 # 243
+# 254
+
 # length(FHIER_vessel_officialnumber$Official_number)
 # 209 enabled
+# 187
+
 length(not_it_fhier_sc_report)
 # 4
-
+# 1
 
 #create output files - use these to update FHIER maintenance list ----
 ## make output file names ----
@@ -93,14 +104,14 @@ output_file_names <- c("remove_from_FHIER",
 
 output_file_path_list <-
   output_file_names |>
-  map(~ file.path(
+  purrr::map(~ file.path(
     my_paths$outputs,
     project_dir_name,
     str_glue("{.x}_{today()}.csv")
   ))
 
 output_file_path_list <-
-  setNames(output_file_path_list, output_file_names)    
+  setNames(output_file_path_list, output_file_names)
 
 ## write files ----
 write_csv(
