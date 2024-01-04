@@ -13,8 +13,12 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 
 flat_file_name <-
   file.path(current_project_dir_name, "boats_number_flat.R")
+
+if (file.exists(flat_file_name)) {
+  unlink(flat_file_name)
+}
+
 sink(flat_file_name, append = TRUE)
-# unlink(flat_file_name)
 
 # Code files content ----
 
@@ -100,7 +104,6 @@ boats_number_path <-
 
 
 write_to_1_flat_file(flat_file_name, boats_number_path)
-
 
 # comment out "source" ----
 flat_file_r_text <-

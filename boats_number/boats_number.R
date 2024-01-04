@@ -27,6 +27,10 @@
 #' Create 2 dfs fished in GOM or in SA using lat and lon for area fished
 #' grouping by vessel ID and quarter, check if unique vessel fishing in GOM and in SA
 
+# changes
+# "2024-01-04"
+# new date filter, add interior FL counties
+
 # setup current project ----
 source("~/R_code_github/boats_number/boats_number_sources.R")
 
@@ -83,6 +87,17 @@ dim(processed_logbooks_short)
 # [1] 72246    14 with lat/long
 # [1] 73368    15 with trip_id
 
+n_distinct(processed_logbooks_clean_names$vessel_official_number)
+# 1629
+
+processed_logbooks_short |>
+  select(vessel_official_number, permit_region) |>
+  distinct() |>
+  count(permit_region)
+#   permit_region   n
+# 1           GOM 754
+# 2            SA 875
+
 ### add date related columns ----
 
 # Explanation:
@@ -131,9 +146,9 @@ vessel_permit_port_info <-
   all_get_db_data_result_l$vessels_permits |>
   # active permits in 2022
   dplyr::filter(
-    LAST_EXPIRATION_DATE > "2022-12-31" |
-      END_DATE > "2022-12-31" |
-      EXPIRATION_DATE > "2022-12-31"
+    LAST_EXPIRATION_DATE > "2021-12-31" |
+      END_DATE > "2021-12-31" |
+      EXPIRATION_DATE > "2021-12-31"
   )
 
 dim(vessel_permit_port_info)
@@ -281,7 +296,10 @@ add_region_to_state <-
                  %in% east_coast_states$gom)
 
     is_gom_fl_county <-
-      rlang::quo(!!port_county_column %in% tolower(fl_counties$gom))
+      rlang::quo(
+        !!port_county_column %in% tolower(fl_counties$gom) |
+          !!port_county_column %in% tolower(fl_counties$gom_interior)
+      )
 
     new_df <-
       my_df |>
@@ -303,15 +321,70 @@ add_region_to_state <-
     return(new_df)
   }
 
+# n_distinct(join_trip_and_vessel_clean$vessel_official_number)
+# 1629
+
 # TODO: Why there is no home port?
 join_trip_and_vessel_clean |>
   filter(is.na(sero_home_port_state)) |>
   select(contains("port")) |>
   distinct() |>
   glimpse()
+# 1
+
+no_home_port_vessels <-
+  join_trip_and_vessel_clean |>
+  filter(is.na(sero_home_port_state)) |>
+  select(vessel_official_number) |>
+  distinct()
+
+n_distinct(no_home_port_vessels$vessel_official_number)
+# 68
+# 1 after changing the date filter
+
+# all_get_db_data_result_l$vessels_permits |>
+#   # active permits in 2022
+#   dplyr::filter(
+#     LAST_EXPIRATION_DATE > "2022-12-31" |
+#       END_DATE > "2022-12-31" |
+#       EXPIRATION_DATE > "2022-12-31"
+#   ) |>
+#   filter(SERO_OFFICIAL_NUMBER %in% no_home_port_vessels$vessel_official_number) |>
+#   nrow()
+# 0
+
+all_get_db_data_result_l$vessels_permits |>
+  filter(SERO_OFFICIAL_NUMBER %in% no_home_port_vessels$vessel_official_number) |>
+  select(SERO_OFFICIAL_NUMBER,
+         END_DATE,
+         EXPIRATION_DATE,
+         LAST_EXPIRATION_DATE,
+         SERO_HOME_PORT_STATE) |> distinct() |>
+  arrange(SERO_OFFICIAL_NUMBER,
+          END_DATE,
+          EXPIRATION_DATE,
+          LAST_EXPIRATION_DATE) |>
+  #   dplyr::filter(
+  #   LAST_EXPIRATION_DATE > "2021-12-31" |
+  #     END_DATE > "2021-12-31" |
+  #     EXPIRATION_DATE > "2021-12-31"
+  # ) |>
+  group_by(SERO_OFFICIAL_NUMBER) |>
+  count(name = 'date_by_vsl') |>
+  ungroup() |>
+  nrow()
+# 25
+# 0 with the dates as "2022-12-31"
+# 0
+
+n_distinct(join_trip_and_vessel_clean$vessel_official_number)
+# 1629
 
 # Add port state regions ----
 # Don't use a start port state instead of filter(!is.na(sero_home_port_state)) for consistency.
+
+# n_distinct(join_trip_and_vessel_clean$vessel_official_number)
+# 1629
 
 # Explanation:
 # 1. The 'join_trip_and_vessel_clean' data frame is piped into the 'filter' function to exclude rows where the 'sero_home_port_state' column is NA.
@@ -320,6 +393,7 @@ join_trip_and_vessel_clean |>
 # 4. The 'add_region_to_state("end")' line adds region information for the end of the trip using the 'end' prefix.
 # 5. The result is stored in the 'join_trip_and_vessel_clean_state_regions' data frame, which now includes additional columns indicating the regions for both the start and end of the trip.
 # 6. The 'tic' and 'toc' functions are used to measure the time taken for the entire operation between the two calls. Timing is enclosed in the 'join_trip_and_vessel_clean_state_regions' operation to measure its execution time.
+
 tic("join_trip_and_vessel_clean_state_regions")
 join_trip_and_vessel_clean_state_regions <-
   join_trip_and_vessel_clean |>
@@ -327,7 +401,7 @@ join_trip_and_vessel_clean_state_regions <-
   add_region_to_state("sero_home") |>
   add_region_to_state("end")
 toc()
-# join_trip_and_vessel_clean_state_regions: 33.63 sec elapsed
+# join_trip_and_vessel_clean_state_regions: 37.61 sec elapsed
 
 # Split by home port regions ----
 
@@ -346,13 +420,30 @@ join_trip_and_vessel_clean_state_regions_l <-
 # check
 map(join_trip_and_vessel_clean_state_regions_l,
     count_uniq_by_column)
+
 # $gom
 # vessel_official_number    944
+
 # $sa
 # vessel_official_number    617
 
-# dim(join_trip_and_vessel_clean_state_regions_l$gom)
+# was 1561
+# now 1628
+
+# map(join_trip_and_vessel_clean_state_regions_l,
+#     \(curr_df) {
+#       n_distinct(curr_df$vessel_official_number)
+#     })
+# $gom
+# [1] 973
+#
+# $sa
+# [1] 655
+
+
+dim(join_trip_and_vessel_clean_state_regions_l$gom)
 # [1] 53582    32
+# [1] 54257    32
 
 ## Shorten GOM df ----
 columns_to_keep <- c(
@@ -409,6 +500,11 @@ join_trip_and_vessel_clean |>
 start_end_county_diff_gom |>
   filter(vessel_official_number %in% c("al4295ak", "1270320")) |>
   glimpse()
+# $ vessel_official_number  <chr> "1270320", "al4295ak", "al4295ak", "al4295…
+# $ sero_home_port_county   <chr> "collier", "mobile", "mobile", "mobile"
+# $ sero_home_port_state    <chr> "fl", "al", "al", "al"
+# $ end_port_county         <chr> "st bernard", "baldwin", "sarasota", "sara…
+# $ end_port_state          <chr> "la", "al", "fl", "fl"
 
 join_trip_and_vessel_trim |>
   filter(grepl("monroe", sero_home_port_county, ignore.case = T)) |>
@@ -425,6 +521,12 @@ join_trip_and_vessel_trim |>
   distinct() |>
   arrange(trip_end_year_quarter) |>
   glimpse()
+# $ vessel_official_number <chr> "1044170", "1231998", "1044170"
+# $ sero_home_port_county  <chr> "MONROE", "MONROE", "MONROE"
+# $ sero_home_port_state   <chr> "FL", "FL", "FL"
+# $ end_port_county        <chr> "BALDWIN", "BALDWIN", "BALDWIN"
+# $ end_port_state         <chr> "AL", "AL", "AL"
+# $ trip_end_year_quarter  <yearqtr> 2022 Q2, 2022 Q2, 2022 Q3
 
 ## count different counties ----
 
@@ -448,6 +550,7 @@ dim(start_end_county_diff_gom_num)
 # [1] 250   5
 # [1] 575  11
 # [1] 291  13 gom only
+# [1] 321  13 2024-01-04
 
 ### spot check counts ----
 join_trip_and_vessel_clean |>
@@ -497,6 +600,7 @@ start_end_county_diff_gom_num_gom_permit_only <-
 # check
 dim(start_end_county_diff_gom_num_gom_permit_only)
 # [1] 270  13
+# [1] 286  13 2024-01-04
 
 # state == gom, permit gom or sa
 start_end_county_diff_gom_num |>
@@ -504,6 +608,7 @@ start_end_county_diff_gom_num |>
 # distinct() |> # 5 states
 dim()
 # [1] 291  13
+# [1] 321  13 2024-01-04
 
 #### make the result table ----
 
@@ -581,6 +686,7 @@ start_end_county_diff_gom_num_gom_permit_only_res |>
   count(wt = diff_county_num_of_vessels)
 # 47 tot Q4
 # 2 for Brazoria - Galveston
+# 50 2024-01-04
 
 join_trip_and_vessel_clean |>
   filter(
@@ -660,6 +766,7 @@ start_end_county_diff_gom_num_gom_permit_only_res_quarter <-
   count(wt = diff_county_num_of_vessels,
         name = "diff_county_num_of_vessels_tot")
 
+## Result for diff counties ----
 head(start_end_county_diff_gom_num_gom_permit_only_res_quarter)
 #   trip_end_year_quarter diff_county_num_of_vessels_tot
 #   <yearqtr>                                      <int>
@@ -667,6 +774,18 @@ head(start_end_county_diff_gom_num_gom_permit_only_res_quarter)
 # 2 2022 Q2                                          103
 # 3 2022 Q3                                           96
 # 4 2022 Q4                                           47
+
+# 24+103+96+47 = 270
+# > sum(start_end_county_diff_gom_num_gom_permit_only_res_quarter$diff_county_num_of_vessels_tot)
+# [1] 286
+
+# 2024-01-04
+#   trip_end_year_quarter diff_county_num_of_vessels_tot
+#   <yearqtr>                                      <int>
+# 1 2022 Q1                                           25
+# 2 2022 Q2                                          109
+# 3 2022 Q3                                          102
+# 4 2022 Q4                                           50
 
 # How many SEFHIER vessels have a different start port state than end port state? ----
 
@@ -754,6 +873,14 @@ head(start_end_state_diff_num_gom_only_res_quarter)
 # 3 2022 Q3                                           26
 # 4 2022 Q4                                           10
 
+# [1] "2024-01-04"
+#   trip_end_year_quarter diff_states_num_of_vessels_tot
+#   <yearqtr>                                      <int>
+# 1 2022 Q1                                            3
+# 2 2022 Q2                                           31
+# 3 2022 Q3                                           27
+# 4 2022 Q4                                           10
+
 ### spot check ----
 # 2022 Q4
 join_trip_and_vessel_clean_state_regions |>
@@ -774,6 +901,9 @@ join_trip_and_vessel_clean_state_regions |>
         end_port_state) |>
   glimpse()
 # ok
+# $ sero_home_port_state <chr> "al", "fl", "fl", "fl", "fl", "ms", "tx"
+# $ end_port_state       <chr> "fl", "al", "la", "nc", "tx", "la", "la"
+# $ n                    <int> 1, 1, 3, 1, 2, 1, 1
 
 ## save results to csv ----
 
@@ -857,6 +987,8 @@ start_end_state_diff_num_gom_only_res_home <-
            my_state_name[[sero_home_port_state]]) |>
   ungroup()
 
+# View(start_end_state_diff_num_gom_only_res_home)
+
 # Write to a file
 write_csv(
   start_end_state_diff_num_gom_only_res_home,
@@ -893,7 +1025,7 @@ start_end_state_region_diff_num_gom_only_res_quarter <-
   count(wt = diff_county_num_of_vessels,
         name = "diff_port_regions_num_of_vessels_tot")
 
-# result for state region to region
+## result for state region to region ----
 # 3 in the whole year (for GOM home port, and GOM permit)
 #   trip_end_year_quarter diff_port_regions_num_of_vessels_tot
 #   <yearqtr> <int>
@@ -1152,6 +1284,7 @@ logbooks_w_county <-
 
 dim(logbooks_w_county)
 # [1] 46424     5
+# [1] 46966     5 2024-01-04
 
 # add the county column to the cropped df
 sa_state_waters_points_short_df_no_gom_counties <-
@@ -1384,7 +1517,7 @@ all_sa_gom_map <-
   mapview(all_fish_points_reg_both_q_gom_sf,
           col.regions = "green")
 
-# Uncomment top see the map
+# Uncomment to see the map
 # all_sa_gom_map
 
 ### Fishing in SA and GOM map by quarter ----
@@ -1510,3 +1643,4 @@ ggsave(
   height = 20,
   units = "cm"
 )
+
