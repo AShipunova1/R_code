@@ -131,9 +131,9 @@ vessel_permit_port_info <-
   all_get_db_data_result_l$vessels_permits |>
   # active permits in 2022
   dplyr::filter(
-    LAST_EXPIRATION_DATE > "2022-12-31" |
-      END_DATE > "2022-12-31" |
-      EXPIRATION_DATE > "2022-12-31"
+    LAST_EXPIRATION_DATE > "2021-12-31" |
+      END_DATE > "2021-12-31" |
+      EXPIRATION_DATE > "2021-12-31"
   )
 
 dim(vessel_permit_port_info)
