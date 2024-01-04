@@ -58,6 +58,16 @@ source(get_data_file_path)
 ### Check how many vessels don't have home port info ----
 # vessels_permits_home_port_lat_longs_city_state |> dim()
 # [1] 4729    6
+
+# ---
+# Explanation:
+# The code utilizes the pipe operator |> to perform a series of operations on
+# the 'vessels_permits_home_port_lat_longs_city_state' data frame.
+# - Filtering: Rows are filtered based on conditions related to the 'state_fixed' column.
+# - Selection: Only the 'SERO_OFFICIAL_NUMBER' column is selected for further processing.
+# - Deduplication: Duplicate rows are removed based on the selected column.
+# - Sorting: The resulting data frame is arranged in ascending order by
+#   'SERO_OFFICIAL_NUMBER'.
 vessels_permits_home_port_lat_longs_city_state |>
   filter(state_fixed %in% c("NA", "UN") | is.na(state_fixed)) |>
   select(SERO_OFFICIAL_NUMBER) |>

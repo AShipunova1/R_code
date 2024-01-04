@@ -35,13 +35,22 @@ source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R
 fhier_reports_metrics_tracking_not_srhs_all_cols_2022 <-
   fhier_reports_metrics_tracking_not_srhs_all_cols_list$`2022`
 
+# ---
+# Explanations:
+# The code uses the left_join() function to merge two data frames,
+# 'fhier_reports_metrics_tracking_not_srhs_all_cols_2022' and 'compl_err_db_data'.
+# The join is performed based on the equality of 'vessel_official_number' and
+# 'vessel_official_nbr'. The result is stored in 'compl_err_db_data_metrics'.
+# A left join retains all rows from the left data frame and adds matching rows
+# from the right data frame. Unmatched rows in the right frame will have NAs
+# in the corresponding columns in the result.
+
 compl_err_db_data_metrics <-
   left_join(
     fhier_reports_metrics_tracking_not_srhs_all_cols_2022,
     compl_err_db_data,
     join_by(vessel_official_number == vessel_official_nbr)
   )
-
 
 # fhier_reports_metrics_tracking_not_srhs_all_cols_2022 |> 
 #   filter(permit_grouping_region == "GOM") |> 
@@ -61,9 +70,16 @@ dim(compl_err_db_data_metrics)
 # [1] 408454     31
 
 ## 2022 only ---
+
+# Explanations:
+# The code uses the filter() function from the dplyr package to subset the
+# 'compl_err_db_data_metrics' data frame based on date conditions:
+# - Rows where 'comp_week_start_dt' is before '2023-01-01'.
+# - Rows where 'comp_week_end_dt' is on or after '2022-01-01'.
+# The result is stored in 'compl_err_db_data_metrics_2022'.
 compl_err_db_data_metrics_2022 <-
-  compl_err_db_data_metrics |> 
-  dplyr::filter(comp_week_start_dt < '2023-01-01' &
+  compl_err_db_data_metrics |>
+  filter(comp_week_start_dt < '2023-01-01' &
            comp_week_end_dt >= '2022-01-01')
 
 dim(compl_err_db_data_metrics_2022)
@@ -78,7 +94,6 @@ compl_err_db_data_metrics_2022 |>
 
 # 135+75+14+121+644
 # 989
-
 
 ## Remove empty columns ---
 compl_err_db_data_metrics_2022_clean <-
@@ -108,6 +123,14 @@ compl_err_db_data_metrics_2022_clean |>
 # I.e. GOM == "gom and dual"
 
 ## split into separate dfs by permit region ----
+# Explanations:
+# The code uses the split() function to divide the data frame
+# 'compl_err_db_data_metrics_2022_clean' into a list of data frames.
+# The splitting criterion is the values in the 'permit_grouping_region' column.
+# Each unique value in this column will correspond to a separate data frame
+# in the resulting list, stored in 'compl_err_db_data_metrics_2022_clean_list'.
+# This is useful for further analysis or processing on subsets of the data.
+
 compl_err_db_data_metrics_2022_clean_list <- 
   compl_err_db_data_metrics_2022_clean |> 
   split(as.factor(compl_err_db_data_metrics_2022_clean$permit_grouping_region))
@@ -173,6 +196,18 @@ compl_err_db_data_metrics_2022_clean_list_short <-
 
 # prepare vessel_permit_data ----
 ## 2022 permits ----
+
+# Explanations:
+# The code creates a new data frame 'vessels_permits_home_port_22' using the pipe
+# operator and a series of dplyr functions:
+# - Filtering: Rows are filtered based on conditions involving date columns
+#   ('LAST_EXPIRATION_DATE', 'END_DATE', 'EXPIRATION_DATE', 'EFFECTIVE_DATE').
+#   The filter conditions involve checking whether the dates are greater than
+#   or less than "2021-12-31".
+# - remove_empty_cols(): This custom function removes any empty columns from
+#   the resulting data frame.
+# The final result is a filtered and cleaned data frame containing relevant permit data.
+
 vessels_permits_home_port_22 <-
   all_get_db_data_result_l$vessels_permits |>
   dplyr::filter(
@@ -220,8 +255,8 @@ vessels_permits_home_port_22_reg |>
 vessels_permits_home_port_22_reg_short <-
   vessels_permits_home_port_22_reg |>
   dplyr::select(SERO_OFFICIAL_NUMBER,
-         permit_sa_gom,
-         dplyr::starts_with("SERO_HOME")) |>
+                permit_sa_gom,
+                dplyr::starts_with("SERO_HOME")) |>
   remove_empty_cols() |>
   dplyr::distinct()
 
@@ -260,6 +295,13 @@ south_east_coast_states_shp <-
   filter(NAME %in% south_east_coast_states)
 
 ## get the bounding box ----
+# Explanations:
+# The code uses the st_bbox() function from the sf package to create a bounding box
+# for the spatial object 'south_east_coast_states_shp'. A bounding box is a rectangular
+# region defined by minimum and maximum coordinates along each axis (x and y).
+# The resulting bounding box is stored in the variable 'south_east_coast_states_shp_bb'.
+# This bounding box can be used for various spatial operations and analyses.
+
 south_east_coast_states_shp_bb <- 
   sf::st_bbox(south_east_coast_states_shp)
 
@@ -308,14 +350,28 @@ vessels_permits_home_port_c_st_fixed_short <-
 
 ## Add lat long to fixed ports ----
 
-my_file_path_lat_lon <- 
-  file.path(my_paths$outputs, 
-            current_project_dir_name,
-            paste0(current_project_dir_name, "_no_county_fixed_all_vessels.rds"))
+my_file_path_lat_lon <-
+  file.path(
+    my_paths$outputs,
+    current_project_dir_name,
+    paste0(
+      current_project_dir_name,
+      "_no_county_fixed_all_vessels.rds"
+    )
+  )
 
 file.exists(my_file_path_lat_lon)
 
 # Add lat and lon geo coordinates by city and state
+
+# Explanations:
+# The code defines a custom R function 'get_lat_lon_no_county':
+# - It takes a data frame 'vessels_permits_home_port_c_st_fixed_short' as input.
+# - Utilizes the tidygeocoder::geocode() function to geocode the city and state
+#   information, obtaining latitude and longitude coordinates.
+# - Returns the resulting data frame 'vessels_permits_home_port_c_st_fixed_lat_longs'.
+# This function is used to add geolocation information to the original data frame.
+
 get_lat_lon_no_county <-
   function(vessels_permits_home_port_c_st_fixed_short) {
     vessels_permits_home_port_c_st_fixed_lat_longs <-
@@ -369,4 +425,3 @@ cat(
   "us_s_shp",
   sep = "\n"
 )
-
