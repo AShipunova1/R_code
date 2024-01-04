@@ -310,6 +310,51 @@ join_trip_and_vessel_clean |>
   distinct() |>
   glimpse()
 
+
+no_home_port_vessels <-
+  join_trip_and_vessel_clean |>
+  filter(is.na(sero_home_port_state)) |>
+  select(vessel_official_number) |>
+  distinct()
+
+n_distinct(no_home_port_vessels$vessel_official_number)
+# 68
+
+all_get_db_data_result_l$vessels_permits |>
+  # active permits in 2022
+  dplyr::filter(
+    LAST_EXPIRATION_DATE > "2022-12-31" |
+      END_DATE > "2022-12-31" |
+      EXPIRATION_DATE > "2022-12-31"
+  ) |>
+  filter(SERO_OFFICIAL_NUMBER %in% no_home_port_vessels$vessel_official_number) |>
+  nrow()
+# 0
+
+all_get_db_data_result_l$vessels_permits |>
+  filter(SERO_OFFICIAL_NUMBER %in% no_home_port_vessels$vessel_official_number) |>
+  select(SERO_OFFICIAL_NUMBER,
+         END_DATE,
+         EXPIRATION_DATE,
+         LAST_EXPIRATION_DATE,
+         SERO_HOME_PORT_STATE) |> distinct() |>
+  arrange(SERO_OFFICIAL_NUMBER,
+          END_DATE,
+          EXPIRATION_DATE,
+          LAST_EXPIRATION_DATE) |>
+    dplyr::filter(
+    LAST_EXPIRATION_DATE > "2021-12-31" |
+      END_DATE > "2021-12-31" |
+      EXPIRATION_DATE > "2021-12-31"
+  ) |>
+  group_by(SERO_OFFICIAL_NUMBER) |>
+  count(name = 'date_by_vsl') |>
+  ungroup() |>
+  nrow()
+# 25
+# 0 with the dates as "2022-12-31"
+
+
 # Add port state regions ----
 # Don't use a start port state instead of filter(!is.na(sero_home_port_state)) for consistency.
 
@@ -1384,7 +1429,7 @@ all_sa_gom_map <-
   mapview(all_fish_points_reg_both_q_gom_sf,
           col.regions = "green")
 
-# Uncomment top see the map
+# Uncomment to see the map
 # all_sa_gom_map
 
 ### Fishing in SA and GOM map by quarter ----
