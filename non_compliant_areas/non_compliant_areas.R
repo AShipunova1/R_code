@@ -733,7 +733,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
       ) |>
       dplyr::distinct() |>
       dplyr::mutate(
-        nc_round_perc = round(compl_percent_per_st),
+        nc_round_perc = round(non_compl_percent_per_st),
         nc_round_proportion = round(compl_proportion_per_st, 2),
         my_label_perc =
           stringr::str_glue(
@@ -840,7 +840,7 @@ shp_file_with_cnts_sa <-
 # View(shp_file_with_cnts_sa)
 
 # print_df_names(shp_file_with_cnts_sa)
-# [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, compliance_by_state_cnt, compl_percent_per_st, nc_round_perc, my_label, geometry"
+# [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, compliance_by_state_cnt, non_compl_percent_per_st, nc_round_perc, my_label, geometry"
 
 # shp_file_with_cnts_sa |>
 #   mapview(zcol = "nc_round_perc")
