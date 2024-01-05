@@ -710,7 +710,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$GOM |>
 ## shorten and add labels ----
 # Explanations:
 # The code creates a new list of data frames
-# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short'
+# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels'
 # using the pipe operator and purrr::map() function:
 # - purrr::map(): Iterates over each data frame in
 #   'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc'.
@@ -720,7 +720,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$GOM |>
 #   - Add new columns with rounded percentages and proportions, and create labeled strings.
 # The resulting list contains modified data frames with concise information
 # about non-compliance percentages and proportions per home state.
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short <-
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   purrr::map(\(curr_df) {
     curr_df |>
@@ -755,7 +755,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   })
 
 ### Check the counts ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |>
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |>
   select(state_fixed, total_vsl_by_state_cnt) |>
     distinct() |>
     count(wt = total_vsl_by_state_cnt)
@@ -763,7 +763,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
 # 1232 (incl compl)
 
 ### check the labels ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM |>
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |>
   glimpse()
 
 # Keep only GOM states for GOM only plots ----
@@ -796,8 +796,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
   filter(!is.na(state_fixed_full)) |>
   filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
   ungroup()
-
-# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$gom_states)
 
 ## add to the shape file by state name ----
 
@@ -1028,7 +1026,7 @@ write_png_to_file <- function(output_file_name,
       path = file.path(my_paths$outputs,
                        current_project_basename),
       width = png_width,
-      height = png_height,
+      # height = png_height,
       units = "cm" # "px"
     )
 }
