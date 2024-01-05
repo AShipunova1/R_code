@@ -726,6 +726,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
     curr_df |>
       dplyr::select(
         state_fixed,
+        home_state,
         total_vsl_by_state_cnt,
         non_compliance_by_state_cnt,
         non_compl_percent_per_st,
