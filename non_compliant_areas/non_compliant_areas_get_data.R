@@ -26,7 +26,9 @@ compl_err_db_data <-
   all_get_db_data_result_l$compl_err_db_data
 
 ## use metricks only vessels ----
-source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
+metric_tracking_no_srhs_path <- 
+  r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
+source(metric_tracking_no_srhs_path)
 
 # fhier_reports_metrics_tracking_not_srhs_ids
 
