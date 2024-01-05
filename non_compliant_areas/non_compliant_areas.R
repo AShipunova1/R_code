@@ -286,7 +286,7 @@ compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
 #   - Join based on the equality of 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'.
 #   - Select all columns except 'permit_sa_gom'.
 # The resulting list contains modified data frames with additional geolocation information,
-# excluding the 'permit_sa_gom' column.
+# excluding the 'permit_sa_gom' column if it exists.
 
 vessels_permits_home_port_22_compliance_list <-
   compl_err_db_data_metrics_2022_clean_list_short_uniq |>
@@ -296,7 +296,7 @@ vessels_permits_home_port_22_compliance_list <-
       vessels_permits_home_port_lat_longs_city_state,
       dplyr::join_by(vessel_official_number == SERO_OFFICIAL_NUMBER)
     ) |>
-      select(-permit_sa_gom)
+      select(-any_of("permit_sa_gom"))
   })
 
 purrr::map(vessels_permits_home_port_22_compliance_list,
