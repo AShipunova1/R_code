@@ -13,8 +13,7 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 
 flat_file_name <-
   file.path(current_project_dir_name, 
-            current_project_basename,
-            "_flat.R")
+            str_glue("{current_project_basename}_flat.R"))
 
 if (file.exists(flat_file_name)) {
   unlink(flat_file_name)
@@ -23,6 +22,7 @@ if (file.exists(flat_file_name)) {
 sink(flat_file_name, append = TRUE)
 
 # Code files content ----
+# Add here what is before "useful_functions_module" in the main file. Check quotation marks.
 
 cat("\n#### add-ons 1 ---- \n\n")
 cat("
@@ -100,12 +100,11 @@ waters_shape_prep_path <-
 write_to_1_flat_file(flat_file_name, waters_shape_prep_path)
 
 # Main ----
-boats_number_path <-
+main_file_path <-
   file.path(current_project_dir_name,
-            r"(boats_number.R)")
+            str_glue("{current_project_basename}.R"))
 
-
-write_to_1_flat_file(flat_file_name, boats_number_path)
+write_to_1_flat_file(flat_file_name, main_file_path)
 
 # comment out "source" ----
 flat_file_r_text <-
