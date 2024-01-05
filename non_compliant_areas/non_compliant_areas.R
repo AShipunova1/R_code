@@ -734,7 +734,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
       dplyr::distinct() |>
       dplyr::mutate(
         nc_round_perc = round(non_compl_percent_per_st),
-        nc_round_proportion = round(compl_proportion_per_st, 2),
+        nc_round_proportion = round(non_compl_proportion_per_st, 2),
         my_label_perc =
           stringr::str_glue(
             "{home_state}:
