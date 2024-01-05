@@ -3,16 +3,16 @@ source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
-current_project_dir_name <- this.path::this.dir()
+current_project_dir_path <- this.path::this.dir()
 
 current_project_basename <-
-  basename(current_project_dir_name)
+  basename(current_project_dir_path)
 
 curr_proj_output_path <- file.path(my_paths$outputs,
                          current_project_basename)
 
 flat_file_name <-
-  file.path(current_project_dir_name, 
+  file.path(current_project_dir_path, 
             str_glue("{current_project_basename}_flat.R"))
 
 # Delete the flat file if exists
@@ -77,10 +77,10 @@ cat("
 my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
-current_project_dir_name <- this.path::this.dir()
+current_project_dir_path <- this.path::this.dir()
 
 current_project_basename <-
-  basename(current_project_dir_name)
+  basename(current_project_dir_path)
 
 curr_proj_output_path <- file.path(my_paths$outputs,
                          current_project_basename)
@@ -88,23 +88,30 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 sep = "\n")
 
 # prepare data ----
+get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
+fhier_files_to_combine_pathes <-
+  c(
+    file.path(my_paths$git_r,
+                get_data_from_fhier_dir,
+                 "get_srhs_vessels.R"),
+    file.path(my_paths$git_r,
+                get_data_from_fhier_dir,
+                 "get_metrics_tracking.R"),
+    file.path(my_paths$git_r,
+                get_data_from_fhier_dir,
+                 "metric_tracking_no_srhs.R")
+  )
+
+map(fhier_files_to_combine_pathes,
+    \(one_path) {
+      write_to_1_flat_file(flat_file_name, one_path)
+    })
+
 db_data_path <-
   file.path(my_paths$git_r,
             r"(get_data\get_db_data\get_db_data.R)")
 
 write_to_1_flat_file(flat_file_name, db_data_path)
-
-get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
-
-get_metrics_tracking_path <-
-  file.path(my_paths$git_r,
-                 get_data_from_fhier_dir,
-                 "get_metrics_tracking.R")
-write_to_1_flat_file(flat_file_name, get_metrics_tracking_path)
-
-metric_tracking_no_srhs_path <- 
-  r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
-write_to_1_flat_file(flat_file_name, metric_tracking_no_srhs_path)
 
 misc_info_path <-
   file.path(my_paths$git_r,
@@ -112,21 +119,21 @@ misc_info_path <-
 
 write_to_1_flat_file(flat_file_name, misc_info_path)
 
-fix_ports_file_path <-
-  file.path(current_project_dir_name,
-            "non_compliant_areas_fix_lat_lon.R")
-
-write_to_1_flat_file(flat_file_name, fix_ports_file_path)
+# fix_ports_file_path <-
+#   file.path(current_project_dir_path,
+#             "non_compliant_areas_fix_lat_lon.R")
+# 
+# write_to_1_flat_file(flat_file_name, fix_ports_file_path)
 
 get_data_file_path <-
-  file.path(current_project_dir_name,
+  file.path(current_project_dir_path,
             "non_compliant_areas_get_data.R")
 
 write_to_1_flat_file(flat_file_name, get_data_file_path)
 
 # Main ----
 main_file_path <-
-  file.path(current_project_dir_name,
+  file.path(current_project_dir_path,
             str_glue("{current_project_basename}.R"))
 
 write_to_1_flat_file(flat_file_name, main_file_path)
