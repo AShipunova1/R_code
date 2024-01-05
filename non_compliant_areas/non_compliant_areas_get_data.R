@@ -842,9 +842,9 @@ vessels_permits_home_port_c_st_fixed_short <-
 my_file_path_lat_lon <-
   file.path(
     my_paths$outputs,
-    current_project_dir_name,
+    current_project_basename,
     paste0(
-      current_project_dir_name,
+      current_project_basename,
       "_no_county_fixed_all_vessels.rds"
     )
   )

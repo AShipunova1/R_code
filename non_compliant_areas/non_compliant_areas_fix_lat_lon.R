@@ -4,8 +4,8 @@
 
 my_file_path_lat_lon <- 
   file.path(my_paths$outputs, 
-            current_project_dir_name,
-            paste0(current_project_dir_name, "_no_county_all.rds"))
+            current_project_basename,
+            paste0(current_project_basename, "_no_county_all.rds"))
 
 file.exists(my_file_path_lat_lon)
 
@@ -237,9 +237,9 @@ vessels_permits_home_port_lat_longs_city_state_err_all |>
 csv_file_path <-
   file.path(
     my_paths$outputs,
-    current_project_dir_name,
+    current_project_basename,
     stringr::str_glue(
-      "{current_project_dir_name}_vessels_permits_home_port_lat_longs_city_state_err_all1.csv"
+      "{current_project_basename}_vessels_permits_home_port_lat_longs_city_state_err_all1.csv"
     )
   )
 

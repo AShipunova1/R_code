@@ -44,12 +44,12 @@ my_paths <- set_work_dir()
 
 current_project_dir_path <- this.path::this.dir()
 
-current_project_dir_name <- basename(current_project_dir_path)
+current_project_basename <- basename(current_project_dir_path)
 
 # prepare data ----
 get_data_file_path <-
   file.path(my_paths$git_r,
-            current_project_dir_name,
+            current_project_basename,
             "non_compliant_areas_get_data.R")
 
 source(get_data_file_path)
@@ -1025,7 +1025,7 @@ write_png_to_file <- function(output_file_name,
       plot = map_plot,
       device = "png",
       path = file.path(my_paths$outputs,
-                       current_project_dir_name),
+                       current_project_basename),
       width = png_width,
       height = png_height,
       units = "cm" # "px"
