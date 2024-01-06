@@ -2621,10 +2621,13 @@ toc()
 compl_err_db_data <- 
   all_get_db_data_result_l$compl_err_db_data
 
+n_distinct(compl_err_db_data$vessel_official_nbr)
+# 4393
+
 ## use metricks only vessels ----
 metric_tracking_no_srhs_path <- 
   r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
-# source(metric_tracking_no_srhs_path)
+source(metric_tracking_no_srhs_path)
 
 # fhier_reports_metrics_tracking_not_srhs_ids
 
@@ -2632,6 +2635,9 @@ metric_tracking_no_srhs_path <-
 
 fhier_reports_metrics_tracking_not_srhs_all_cols_2022 <-
   fhier_reports_metrics_tracking_not_srhs_all_cols_list$`2022`
+
+n_distinct(fhier_reports_metrics_tracking_not_srhs_all_cols_2022$vessel_official_number)
+# [1] 3571
 
 # ---
 # Explanations:
@@ -2649,6 +2655,9 @@ compl_err_db_data_metrics <-
     compl_err_db_data,
     join_by(vessel_official_number == vessel_official_nbr)
   )
+
+n_distinct(compl_err_db_data_metrics$vessel_official_number)
+# [1] 3571
 
 # fhier_reports_metrics_tracking_not_srhs_all_cols_2022 |> 
 #   filter(permit_grouping_region == "GOM") |> 
@@ -2689,6 +2698,9 @@ compl_err_db_data_metrics_2022 |>
   distinct() |>
   nrow()
 # [1] 1232
+
+n_distinct(compl_err_db_data_metrics_2022$vessel_official_number)
+# 3473
 
 # 135+75+14+121+644
 # 989
@@ -2739,6 +2751,9 @@ map(compl_err_db_data_metrics_2022_clean_list, dim)
 # 
 # $SA
 # [1] 90496    29
+
+n_distinct(compl_err_db_data_metrics_2022_clean_list$GOM$vessel_official_number)
+# [1] 1232
 
 ## check vessel/compl counts ----
 compl_err_db_data_metrics_2022_clean_list |>
@@ -2816,6 +2831,10 @@ vessels_permits_home_port_22 <-
   dplyr::filter(EFFECTIVE_DATE < "2021-12-31") |> 
   remove_empty_cols()
   
+# n_distinct(vessels_permits_home_port_22$PERMIT_VESSEL_ID)
+n_distinct(vessels_permits_home_port_22$VESSEL_VESSEL_ID)
+# 4744
+
 ## add permit region ----
 # 
 # This code creates a summarized data frame for vessels with permits in 2022 by grouping, summarizing, and separating permit types into three groups. Here's the breakdown of the comments:
@@ -2861,6 +2880,9 @@ vessels_permits_home_port_22_reg_short <-
 # glimpse(vessels_permits_home_port_22_reg_short)
 # [1] 4729    5
 
+# n_distinct(vessels_permits_home_port_22_reg_short$SERO_OFFICIAL_NUMBER)
+# 4744
+
 vessels_permits_home_port_short <-
   all_get_db_data_result_l$vessels_permits |>
   dplyr::select(SERO_OFFICIAL_NUMBER,
@@ -2868,7 +2890,8 @@ vessels_permits_home_port_short <-
   remove_empty_cols() |>
   dplyr::distinct()
 
-# View(vessels_permits_home_port_short)
+n_distinct(vessels_permits_home_port_short$SERO_OFFICIAL_NUMBER)
+# 6845
 
 cat("Result to use for vessels home port and its permit region:",
 "vessels_permits_home_port_22_reg_short",
@@ -2952,6 +2975,8 @@ vessels_permits_home_port_short_trim_no_county <-
   ) |>
   select(-SERO_HOME_PORT_COUNTY)
 
+n_distinct(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER)
+# 6845
 # ---
 # Explanations:
 # The code defines a custom R function 'get_lat_lon_no_county':
@@ -2979,6 +3004,9 @@ vessels_permits_home_port_lat_longs_city_state <-
       as.data.frame(vessels_permits_home_port_short_trim_no_county),
     get_lat_lon_no_county
   )
+
+n_distinct(vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER)
+# 6762
 
 # vessels_permits_home_port_lat_longs_city_state |> 
 #   filter(SERO_OFFICIAL_NUMBER %in% compl_vessl_not_in_ves_perm$vessel_official_number) |>
@@ -3014,6 +3042,16 @@ vessels_permits_home_port_lat_longs_city_state <-
 # In query_api(api_url, api_query_parameters, method = method) :
 #   Internal Server Error (HTTP 500).
 
+
+n_distinct(vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER)
+n_distinct(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER)
+
+
+setdiff(tolower(trimws(vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER)),
+        tolower(trimws(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER))) |> 
+  length()
+# 9
+
 # Add back lost vessels ----
 # check
 vessels_permits_home_port_lat_longs_city_state_df <- 
@@ -3042,6 +3080,17 @@ all_vessels_permits_home_port <-
   )
 # Joining with `by = join_by(SERO_OFFICIAL_NUMBER, SERO_HOME_PORT_CITY,
 # SERO_HOME_PORT_STATE)`
+
+n_distinct(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER)
+# 6845
+n_distinct(vessels_permits_home_port_lat_longs_city_state_df$SERO_OFFICIAL_NUMBER)
+# 6762
+
+n_distinct(all_vessels_permits_home_port$SERO_OFFICIAL_NUMBER)
+# 6845
+
+# 6854-6762
+# 92
 
 # all_vessels_permits_home_port |>
 #   filter(SERO_OFFICIAL_NUMBER %in% no_state_vessels$SERO_OFFICIAL_NUMBER) |>
