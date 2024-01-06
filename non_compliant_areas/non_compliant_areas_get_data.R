@@ -578,7 +578,7 @@ file.exists(csv_file_path)
   # write_csv(file = csv_file_path)
 
 # fix home port typos ----
-# the list is created manuall from the csv
+# the list is created manually from the csv
 to_fix_list <- 
   list(
     c(
