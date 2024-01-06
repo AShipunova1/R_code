@@ -3419,6 +3419,9 @@ dim(vessels_permits_home_port_c_st_fixed)
 # [1] 5029    8 with permit region
 # [1] 6762    7 not processed db vessel_permits
 
+n_distinct(vessels_permits_home_port_c_st_fixed$SERO_OFFICIAL_NUMBER)
+# 6845
+
 ## The same for the second df ----
 all_vessels_permits_home_port_clean0_fixed <-
   all_vessels_permits_home_port_clean0 |>
@@ -3440,6 +3443,11 @@ vessels_permits_home_port_c_st_fixed |>
 # [1] 109   8 trimmed
 # [1] 115   8 with permit region
 # [1] 281   7
+# [1] 294   7
+
+vessels_permits_home_port_c_st_fixed |> 
+  filter(!trimws(tolower(SERO_HOME_PORT_CITY)) == trimws(tolower(city_fixed))) |> dim()
+# 59
 
 # Manually add Bokeelia is located in western Lee County at 26°41′17″N 82°8′43″W (26.687960, -82.145249).[5] It sits at the northern end of Pine Island and is bordered by water on three sides
 
@@ -3478,9 +3486,10 @@ vessels_permits_home_port_c_st_fixed_short <-
   remove_empty_cols()
   
 # glimpse(vessels_permits_home_port_c_st_fixed)
-# dim(vessels_permits_home_port_c_st_fixed_short)
+dim(vessels_permits_home_port_c_st_fixed_short)
 # [1] 4729    4
 # [1] 6762    3
+# [1] 6892    3
 
 ## Add lat long to fixed ports ----
 
@@ -3531,6 +3540,9 @@ dim(vessels_permits_home_port_lat_longs_city_state)
 # [1] 5029    5
 # [1] 4729    6
 # [1] 6892    5
+
+n_distinct(vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER)
+# 6854
 
 # data_overview(vessels_permits_home_port_lat_longs_city_state)
 # SERO_OFFICIAL_NUMBER 4729
