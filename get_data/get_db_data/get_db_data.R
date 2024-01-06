@@ -180,38 +180,6 @@ connect_to_secpr <- function() {
 }
 
 # ===
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
-      # read a binary file saved previously
-      # write all as binary
-read_rds_or_run <- function(my_file_path,
-                            my_data = as.data.frame(""),
-                            my_function,
-                            force_from_db = NULL) {
-
-    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
-    if (file.exists(my_file_path) &
-        is.null(force_from_db)) {
-        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
-        my_result <- readr::read_rds(my_file_path)
-    } else {
-        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-        # 1. Generate a message indicating the date and the purpose of the run.
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tic(msg_text)  # Start timing the operation.
-
-        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
-        my_result <- my_function(my_data)
-
-        toc()  # Stop timing the operation.
-
-        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-        readr::write_rds(my_result,
-                         my_file_path)
-    }
-
-    # Return the generated or read data.
-    return(my_result)
-}
 
 # to use on download from db
 # to use on download from db
@@ -919,6 +887,7 @@ force_from_db <- NULL # read data from files if exist
 #     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
 #   })
 
+# To test pulling from the db
 # force_from_db <- "NULL"
 # dates_2022 <- get_dates_2022()
 
