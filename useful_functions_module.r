@@ -1042,6 +1042,10 @@ read_rds_or_run <- function(my_file_path,
                             my_function,
                             force_from_db = NULL) {
 
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
     # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
     if (file.exists(my_file_path) &
         is.null(force_from_db)) {
@@ -1083,7 +1087,13 @@ read_rds_or_run <- function(my_file_path,
 
       try(readr::write_rds(my_result,
                            my_file_path))
+
+      modif_time <- date()
     }
+
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    str_glue("File: {my_file_name} modified {modif_time}"))
 
     # Return the generated or read data.
     return(my_result)
