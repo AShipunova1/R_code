@@ -460,8 +460,6 @@ dim(all_vessels_permits_home_port)
 # lat                   695
 # long                  695
 
-# TODO: Use all_vessels_permits_home_port later to add states back if missing
-
 # check home port typos by lat/lon ----
 
 # Explanations:
