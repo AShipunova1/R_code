@@ -438,6 +438,26 @@ current_project_name <- "get_db_data"
 # The file.path function in R is used to construct file paths in a platform-independent way. It automatically takes care of the appropriate path separator (e.g., "/" on Unix-like systems or "\" on Windows).
 input_path <- file.path(my_paths$inputs, current_project_name)
 
+# Define a function named 'connect_to_secpr'.
+# It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
+# usage:
+# con <- connect_to_secpr()
+connect_to_secpr <- function() {
+    # Retrieve the username associated with the "SECPR" database from the keyring.
+    my_username <- keyring::key_list("SECPR")[1, 2]
+
+    # Use 'dbConnect' to establish a database connection with the specified credentials.
+    con <- dbConnect(
+        dbDriver("Oracle"),  # Use the Oracle database driver.
+        username = my_username,  # Use the retrieved username.
+        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
+        dbname = "SECPR"  # Specify the name of the database as "SECPR."
+    )
+
+    # Return the established database connection.
+    return(con)
+}
+
 # err msg if no connection, but keep running
 try(con <- connect_to_secpr())
 
@@ -464,6 +484,76 @@ mv_safis_trip_download_fun <-
 
   # Return the result of the database query.
   return(result)
+  }
+
+# Pretty message print
+function_message_print <- function(text_msg) {
+  cat(crayon::bgCyan$bold(text_msg),
+      sep = "\n")
+}
+
+# The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
+# See usage below at the `Grab compliance file from Oracle` section
+read_rds_or_run <- function(my_file_path,
+                            my_data = as.data.frame(""),
+                            my_function,
+                            force_from_db = NULL) {
+
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
+        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
+        function_message_print("File already exists, reading.")
+
+        my_result <- readr::read_rds(my_file_path)
+
+    } else {
+
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
+
+      # 0. Print this message.
+      function_message_print(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
+
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message_print(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
+
+      modif_time <- date()
+    }
+
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    str_glue("File: {my_file_name} modified {modif_time}"))
+
+    # Return the generated or read data.
+    return(my_result)
 }
 
 get_mv_safis_trip_download <-
@@ -1204,6 +1294,29 @@ rm_columns <- c("ACTIVITY_TYPE",
 "UNIT_MEASURE")
 
 # source(file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)"))
+
+# to use on download from db
+# Define a function named 'vessels_permits_id_clean' to clean a dataframe.
+vessels_permits_id_clean <- function(my_df) {
+    # Create a new dataframe 'vessels_permits' by renaming two specific columns.
+    vessels_permits <- my_df |>
+        rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
+        rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
+
+    # Return the cleaned dataframe.
+    return(vessels_permits)
+}
+
+# The clean_headers function is designed to clean and fix the column names of a given dataframe (my_df).
+clean_headers <- function(my_df) {
+    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
+    colnames(my_df) %<>%
+        fix_names()
+
+    # Return the dataframe with cleaned and fixed column names.
+    return(my_df)
+}
+
 
 tic("run_all_get_db_data()")
 all_get_db_data_result_l <- run_all_get_db_data()
