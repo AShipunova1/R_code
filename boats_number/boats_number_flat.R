@@ -1658,16 +1658,6 @@ join_trip_and_vessel_clean |>
   count()
 # 2, correct
 
-
-# join_trip_and_vessel_clean |>
-#   filter(
-#     sero_home_port_county == "pinellas" &
-#       end_port_county == "brunswick"
-#   ) |>
-#   select(vessel_official_number, trip_end_year_quarter) |>
-# View()
-# 1 vessel, correct
-
 join_trip_and_vessel_trim |>
   filter(grepl("monroe", sero_home_port_county, ignore.case = T)) |>
   filter(grepl("baldwin", end_port_county, ignore.case = T)) |>
@@ -1723,20 +1713,8 @@ start_end_county_diff_gom_num_gom_permit_only_res_quarter <-
 
 ## Result for diff counties ----
 head(start_end_county_diff_gom_num_gom_permit_only_res_quarter)
-#   trip_end_year_quarter diff_county_num_of_vessels_tot
-#   <yearqtr>                                      <int>
-# 1 2022 Q1                                           24
-# 2 2022 Q2                                          103
-# 3 2022 Q3                                           96
-# 4 2022 Q4                                           47
-
-# 24+103+96+47 = 270
-# > sum(start_end_county_diff_gom_num_gom_permit_only_res_quarter$diff_county_num_of_vessels_tot)
-# [1] 286
-
 # 2024-01-04
 #   trip_end_year_quarter diff_county_num_of_vessels_tot
-#   <yearqtr>                                      <int>
 # 1 2022 Q1                                           25
 # 2 2022 Q2                                          109
 # 3 2022 Q3                                          102
@@ -1821,14 +1799,6 @@ start_end_state_diff_num_gom_only_res_quarter <-
   ungroup()
 
 head(start_end_state_diff_num_gom_only_res_quarter)
-#   trip_end_year_quarter diff_states_num_of_vessels_tot
-#   <yearqtr>                                      <int>
-# 1 2022 Q1                                            3
-# 2 2022 Q2                                           30
-# 3 2022 Q3                                           26
-# 4 2022 Q4                                           10
-
-# [1] "2024-01-04"
 #   trip_end_year_quarter diff_states_num_of_vessels_tot
 #   <yearqtr>                                      <int>
 # 1 2022 Q1                                            3
@@ -1942,8 +1912,6 @@ start_end_state_diff_num_gom_only_res_home <-
            my_state_name[[sero_home_port_state]]) |>
   ungroup()
 
-# View(start_end_state_diff_num_gom_only_res_home)
-
 # Write to a file
 write_csv(
   start_end_state_diff_num_gom_only_res_home,
@@ -2019,9 +1987,6 @@ lat_lon_gom_state <-
            !is.na(longitude)) |>
   distinct()
 
-# dim(lat_lon_gom_state)
-# [1] 46181     5
-
 ### Count points ----
 
 # Explanation:
@@ -2042,7 +2007,6 @@ lat_lon_gom_state_cnt <-
             trip_end_year_quarter,
             name = "cnt_v_coords_by_q")
 
-# View(lat_lon_gom_state_cnt)
 ## Define a common crs ----
 my_crs <- 4326
 
@@ -2064,19 +2028,7 @@ lat_lon_gom_state_cnt_sf <-
   )
 
 dim(lat_lon_gom_state_cnt_sf)
-# [1] 36173     7
-
-# all points
-# mapview(lat_lon_gom_state_cnt_sf)
-
-# lat_lon_gom_state_cnt_sf |>
-#   mapview(
-#     cex = "cnt_v_coords_by_y",
-#     alpha = 0.3,
-#     col.regions = viridisLite::turbo,
-#     # legend = FALSE
-#     layer.name = "GOM permit trips"
-#   )
+# [1] 36545     7
 
 ## List of loaded shapefiles ----
 # GOMsf
@@ -2180,9 +2132,6 @@ sa_fed_waters_points <-
 sa_bb <- st_bbox(shp_4326_list$sa_shp)
 sa_bb_points <- st_crop(lat_lon_gom_state_cnt_sf, sa_bb)
 
-# dim(sa_bb_points)
-# [1] 10293     7
-
 #### state waters, Monroe in both regions ----
 # mapview(east_coast_sa_state_waters_shp)
 
@@ -2245,12 +2194,7 @@ sa_state_waters_points_short_df_no_gom <-
   anti_join(sa_state_waters_points_short_df,
             gom_lat_lon_gom_state_cnt_sf_fed_w_short_df)
 
-# mapview(sa_state_waters_points_short_df_no_gom,
-#         xcol = "longitude",
-#         ycol = "latitude",
-#         crs = my_crs)
-
-# dim(sa_state_waters_points_short_df_no_gom)
+dim(sa_state_waters_points_short_df_no_gom)
 # 560 6
 
 # Remove not sa counties ---
@@ -2263,7 +2207,6 @@ logbooks_w_county <-
   distinct()
 
 dim(logbooks_w_county)
-# [1] 46424     5
 # [1] 46966     5 2024-01-04
 
 # add the county column to the cropped df
@@ -2297,11 +2240,9 @@ dim(sa_state_waters_points_short_df_no_gom_counties_sa)
 ### back to dfs for join ----
 gom_lat_lon_gom_state_cnt_fed_w_df <-
   st_drop_geometry(gom_lat_lon_gom_state_cnt_sf_fed_w)
-# str(gom_lat_lon_gom_state_cnt_fed_w_df)
 
 sa_lat_lon_gom_state_cnt_sf_fed_w_df <-
   st_drop_geometry(sa_fed_waters_points)
-# str(sa_lat_lon_gom_state_cnt_sf_fed_w_df)
 
 ### join point data frames ----
 # get common names
@@ -2391,10 +2332,10 @@ all_fish_points_reg_both_y <-
   filter(has_gom_point_y & has_sa_point_y)
 
 dim(all_fish_points_reg_both_y)
-# [1] 8524   18
 # [1] 4479   12 gom permit only
+
 # vessel_official_number   76 all permits
-# n_distinct(all_fish_points_reg_both_y$vessel_official_number)
+n_distinct(all_fish_points_reg_both_y$vessel_official_number)
 # 30
 
 ### same by quarter ----
@@ -2413,7 +2354,6 @@ all_fish_points_reg_both_q <-
   filter(has_gom_point_q & has_sa_point_q)
 
 dim(all_fish_points_reg_both_q)
-# [1] 7145   18
 # [1] 3940   12 gom permit only
 
 n_distinct(all_fish_points_reg_both_q$vessel_official_number)
@@ -2439,14 +2379,8 @@ all_fish_points_reg_both_q |>
   select(trip_end_year_quarter, vessel_official_number) |>
   distinct() |>
   count(trip_end_year_quarter)
-#   trip_end_year_quarter     n
-#   <yearqtr>             <int>
-# 1 2022 Q1                  35
-# 2 2022 Q2                  31
-# 3 2022 Q3                  35
-# 4 2022 Q4                  24
-
 # no SA permit
+#   trip_end_year_quarter     n
 # 1 2022 Q1                  13
 # 2 2022 Q2                  14
 # 3 2022 Q3                  15
@@ -2533,8 +2467,6 @@ names(all_fish_points_reg_both_q_sf_quaters) <-
   c("sa",
     "gom")
 
-# View(all_fish_points_reg_both_q_sf_quaters)
-
 # List of all quarters
 all_quarters_list <-
   names(all_fish_points_reg_both_q_sf_quaters$sa)
@@ -2570,8 +2502,6 @@ all_maps_by_q <-
 
 names(all_maps_by_q) <- all_quarters_list
 
-
-# View(all_fish_points_reg_both_q_sf_quaters$sa)
 # same in plots ----
 all_plots_by_q <-
   all_quarters_list |>
@@ -2623,4 +2553,3 @@ ggsave(
   height = 20,
   units = "cm"
 )
-
