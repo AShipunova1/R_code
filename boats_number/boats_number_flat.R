@@ -50,7 +50,7 @@ get_username <- function(){
     return(as.character(Sys.info()["user"]))
 }
 
-# set working directories in useful functions ----
+# set working directories ----
 
 # Define a function named 'get_current_file_directory',
 # to obtain the directory where the script is located.
@@ -109,7 +109,7 @@ set_work_dir <- function() {
 }
 
 # Define a function named 'set_work_dir_local'
-# This function sets the working directory to the user's home directory, defines paths to 'my_inputs,' 'my_outputs,' and 'R_code_github' directories, and returns these directory paths as a list. The use of file.path ensures that the path construction is platform-independent.
+# This function sets the working directory to the Anna's home directory, defines paths to 'my_inputs,' 'my_outputs,' and 'R_code_github' directories, and returns these directory paths as a list. The use of file.path ensures that the path construction is platform-independent.
 
 set_work_dir_local <- function() {
 
@@ -173,9 +173,6 @@ current_project_basename <-
 curr_proj_output_path <- file.path(my_paths$outputs,
                          current_project_basename)
 
-
-
-
 #### Current file: misc_info.R ----
 
 # states lists ----
@@ -237,14 +234,6 @@ sa_council_states <-
     "North Carolina",
     "South Carolina"
   )
-
-# don't need, see above
-gom_council_states <-
-  c("Florida",
-    "Alabama",
-    "Mississippi",
-    "Louisiana",
-    "Texas")
 
 # Florida counties by region (from the Internet) ----
 # NB. "Monroe" is in both regions
@@ -328,7 +317,6 @@ title_message_print <- function(title_msg) {
 }
 
 title_message_print(result_names)
-
 
 #### Current file: get_metrics_tracking.R ----
 
@@ -1055,41 +1043,6 @@ get_compl_err_db_data <- function() {
   return(compl_err_db_data)
 }
 
-# get metric_tracking_no_srhs ----
-
-# Use the 'source' function to execute an R script file located at the specified path.
-get_metrics_tracking_path <-
-  file.path(my_paths$git_r,
-                 get_data_from_fhier_dir,
-                 "get_metrics_tracking.R")
-# source(get_metrics_tracking_path)
-
-# or source separate files instead of the flat one:
-# # source(file.path(my_paths$git_r,
-#                 get_data_from_fhier_dir,
-#                  "metric_tracking_no_srhs.R"))
-
-# How to create a flat file:
-# flat_file_name <- "make_metric_tracking_no_srhs.R"
-# files_to_combine_list <-
-#   c(
-#     file.path(my_paths$git_r,
-#                 get_data_from_fhier_dir,
-#                  "get_srhs_vessels.R"),
-#     file.path(my_paths$git_r,
-#                 get_data_from_fhier_dir,
-#                  "get_metrics_tracking.R"),
-#     file.path(my_paths$git_r,
-#                 get_data_from_fhier_dir,
-#                  "metric_tracking_no_srhs.R")
-#   )
-#
-# make_a_flat_file(flat_file_name,
-#            files_to_combine_list)
-
-# dim(fhier_reports_metrics_tracking_not_srhs_ids)
-# 4063
-
 # --- main ----
 # Define a function 'run_all_get_db_data' to fetch data from the database and store it in a result list.
 
@@ -1301,8 +1254,6 @@ rm_columns <- c("ACTIVITY_TYPE",
 "UE",
 "UNIT_MEASURE")
 
-# source(file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)"))
-
 # to use on download from db
 # Define a function named 'vessels_permits_id_clean' to clean a dataframe.
 vessels_permits_id_clean <- function(my_df) {
@@ -1332,7 +1283,6 @@ toc()
 
 # get logbooks 2022 only ----
 ## logbooks data----
-# for qmd use  #' {{< include .qmd >}} instead of # source()
 
 # 2a)
 # use all logbooks from https://drive.google.com/drive/folders/1HipnxawNsDjrsMc4dXgFwdRPQ3X6-x3n
@@ -1395,12 +1345,6 @@ waters_output_path <- file.path(my_paths$outputs,
                          waters_project_basename)
 
 my_crs = 4326
-
-## state and county lists ----
-misc_info_path <-
-  file.path(my_paths$git_r,
-            r"(get_data\misc_info.R)")
-# source(misc_info_path)
 
 # shape files ----
 
@@ -1620,9 +1564,6 @@ title_message_print(result_names)
 # changes
 # "2024-01-04"
 # new date filter, add interior FL counties
-
-# setup current project ----
-# source("~/R_code_github/boats_number/boats_number_sources.R")
 
 ## processed_logbooks ----
 
