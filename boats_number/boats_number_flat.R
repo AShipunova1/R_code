@@ -740,20 +740,10 @@ processed_logbooks_clean_names <-
 
 ## input data names ----
 input_data_df_names <-
-  c("all_get_db_data_result_l",
+  c("vessels_permits_from_db",
     "processed_logbooks_clean_names")
 
 title_message_print(input_data_df_names)
-
-# all_logbooks_db_data_2022_short_p_region
-
-# diffdf::diffdf(all_logbooks_db_data_2022_short_p_region,
-#                processed_logbooks)
-
-# print_df_names(all_logbooks_db_data_2022_short_p_region)
-# [1] "trip_id, trip_type_name, vessel_id, vessel_official_number, vessel_name, trip_start_date, trip_end_date, state, state_name, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, activity_type_name, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, vendor_app_name, vendor_platform, trip_de, trip_ue, trip_dc, trip_uc, area_code, sub_area_code, distance_code, distance_code_name, local_area_code, latitude, longitude, effort_de, effort_ue, effort_dc, effort_uc, catch_uc, user_app, notif_seq, notif_type, notif_accsp_system_id, notif_accsp_permit_id, notif_trip_type, notif_trip_type_name, notif_trip_start_date, notif_trip_start_time, notif_trip_end_date, notif_trip_end_time, notif_start_port, notif_start_port_name, notif_start_port_county, notif_start_port_state, notif_end_port, notif_end_port_name, notif_end_port_county, notif_end_port_state, notif_cancel_flag, notif_email_sent, notif_intended_fishing_flag, notif_gear_type, notif_landing_location, notif_landing_location_name, notif_landing_location_city, notif_landing_location_county, notif_landing_location_state, notif_stat_zone, notif_ue, notif_de, notif_uc, notif_dc, permit_region"
-
-
 
 #### Current file: waters_shape_prep.R ----
 # setup ----
@@ -1106,7 +1096,6 @@ toc()
 # all_get_db_data_result_l |>
 #   print_df_names()
 
-
 vessel_permit_port_info <-
   vessels_permits_from_db |>
   # active permits in 2022
@@ -1307,7 +1296,7 @@ n_distinct(no_home_port_vessels$vessel_official_number)
 # 68
 # 1 after changing the date filter
 
-all_get_db_data_result_l$vessels_permits |>
+vessels_permits_from_db |>
   filter(SERO_OFFICIAL_NUMBER %in% no_home_port_vessels$vessel_official_number) |>
   select(SERO_OFFICIAL_NUMBER,
          END_DATE,
