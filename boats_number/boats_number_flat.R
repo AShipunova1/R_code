@@ -428,11 +428,11 @@ dplyr::intersect(
 get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
 
 # Define the current project name as "get_db_data."
-current_project_name <- "get_db_data"
+get_db_data_project_name <- "get_db_data"
 
 # Construct the input path by combining the 'inputs' directory from 'my_paths' with the current project name.
 # The file.path function in R is used to construct file paths in a platform-independent way. It automatically takes care of the appropriate path separator (e.g., "/" on Unix-like systems or "\" on Windows).
-input_path <- file.path(my_paths$inputs, current_project_name)
+input_path <- file.path(my_paths$inputs, get_db_data_project_name)
 
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
