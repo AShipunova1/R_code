@@ -17,6 +17,25 @@ library(viridis)
 library(grid)
 library(gridExtra)
 
+# Load the 'magrittr' library, which provides piping data between functions.
+library(magrittr)
+
+# Load the 'readxl' library, which is used for reading Excel files with the '.xlsx' extension.
+library(readxl)
+
+# Load the 'ROracle' library, which provides Oracle database access for R.
+library(ROracle)
+
+# Load the 'tictoc' library, which is used for timing code execution.
+library(tictoc)
+
+# Set an option in the 'dplyr' package to control the display of summarization information.
+# Do not show warnings about groups
+options(dplyr.summarise.inform = FALSE)
+# Turn off the scientific notation
+options(scipen = 999)
+
+
 # help functions 1 ----
 # current user name
 get_username <- function(){
@@ -407,200 +426,10 @@ dplyr::intersect(
   length()  # Calculate the length of the resulting intersection.
 # 2965
 
-
 #### Current file: get_db_data.R ----
-
-# help functions (in get_data) ----
-
-# Load the 'magrittr' library, which provides piping data between functions.
-library(magrittr)
-
-# Load the 'readxl' library, which is used for reading Excel files with the '.xlsx' extension.
-library(readxl)
-
-# Load the 'ROracle' library, which provides Oracle database access for R.
-library(ROracle)
-
-# Load the 'tictoc' library, which is used for timing code execution.
-library(tictoc)
-
-# Set an option in the 'dplyr' package to control the display of summarization information.
-# Do not show warnings about groups
-options(dplyr.summarise.inform = FALSE)
-# Turn off the scientific notation
-options(scipen = 999)
-
-
-# set working directories for get data ----
-
-# Define a function named 'get_current_file_directory' to obtain the directory path of the current file.
-get_current_file_directory <- function() {
-    # Use the 'rstudioapi::getSourceEditorContext()' function to access the editor context in RStudio,
-    # and then extract the 'path' field to get the full path of the currently open file.
-    # Finally, use 'dirname()' to extract the directory part of the path.
-    return(dirname(rstudioapi::getSourceEditorContext()$path))
-}
-
-
-# Define a function named 'set_work_dir_local'
-# This function sets the working directory to the user's home directory, defines paths to 'my_inputs,' 'my_outputs,' and 'R_code_github' directories, and returns these directory paths as a list. The use of file.path ensures that the path construction is platform-independent.
-
-set_work_dir_local <- function() {
-
-  # Set the working directory to the user's home directory (~)
-  setwd("~/")
-  base_dir <- getwd()
-
-  # Define 'main_r_dir' as "R_files_local"
-  main_r_dir <- "R_files_local"
-
-  # Define 'in_dir' as "my_inputs"
-  in_dir <- "my_inputs"
-
-  # Construct the full path to 'my_inputs' directory
-  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
-
-  # Define 'out_dir' as "my_outputs"
-  out_dir <- "my_outputs"
-
-  # Construct the full path to 'my_outputs' directory
-  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-
-  # Define 'git_r_dir' as "R_code_github"
-  git_r_dir <- "R_code_github"
-
-  # Construct the full path to 'R_code_github' directory
-  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-
-  # Change the working directory to 'R_files_local'
-  setwd(file.path(base_dir, main_r_dir))
-
-  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
-  my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir,
-                   "git_r" = full_path_to_r_git_dir)
-
-  # Return the list of directory paths
-  return(my_paths)
-}
-
-# ===
-# Change the behavior of the set_work_dir function based on the username. If the username matches "anna.shipunova," it reassigns set_work_dir to the set_work_dir_local function, effectively using a different directory structure for Anna compared to other users.
-
-# Check if the current username is "anna.shipunova"
-if (get_username() == "anna.shipunova") {
-  # If the condition is true, assign the 'set_work_dir_local' function to 'set_work_dir'
-  set_work_dir <- set_work_dir_local
-}
-
-# ===
-# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
-# to use in a function,
-# e.g. read_csv(name_repair = fix_names)
-fix_names <- function(x) {
-  # Use the pipe operator %>%
-  x %>%
-
-    # Remove dots from column names
-    str_replace_all("\\.", "") %>%
-
-    # Replace all characters that are not letters or numbers with underscores
-    str_replace_all("[^A-z0-9]", "_") %>%
-
-    # Ensure that letters are only in the beginning of the column name
-    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-
-    # Convert column names to lowercase using 'my_headers_case_function'
-    my_headers_case_function()
-}
-
-# ===
-# Define a function named 'connect_to_secpr'.
-# It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
-# usage:
-# con <- connect_to_secpr()
-connect_to_secpr <- function() {
-    # Retrieve the username associated with the "SECPR" database from the keyring.
-    my_username <- keyring::key_list("SECPR")[1, 2]
-
-    # Use 'dbConnect' to establish a database connection with the specified credentials.
-    con <- dbConnect(
-        dbDriver("Oracle"),  # Use the Oracle database driver.
-        username = my_username,  # Use the retrieved username.
-        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
-        dbname = "SECPR"  # Specify the name of the database as "SECPR."
-    )
-
-    # Return the established database connection.
-    return(con)
-}
-
-# ===
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
-      # read a binary file saved previously
-      # write all as binary
-read_rds_or_run <- function(my_file_path,
-                            my_data = as.data.frame(""),
-                            my_function,
-                            force_from_db = NULL) {
-
-    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
-    if (file.exists(my_file_path) &
-        is.null(force_from_db)) {
-        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
-        my_result <- readr::read_rds(my_file_path)
-    } else {
-        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-        # 1. Generate a message indicating the date and the purpose of the run.
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tic(msg_text)  # Start timing the operation.
-
-        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
-        my_result <- my_function(my_data)
-
-        toc()  # Stop timing the operation.
-
-        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-        readr::write_rds(my_result,
-                         my_file_path)
-    }
-
-    # Return the generated or read data.
-    return(my_result)
-}
-
-# to use on download from db
-# to use on download from db
-# Define a function named 'vessels_permits_id_clean' to clean a dataframe.
-vessels_permits_id_clean <- function(my_df) {
-    # Create a new dataframe 'vessels_permits' by renaming two specific columns.
-    vessels_permits <- my_df |>
-        rename("PERMIT_VESSEL_ID" = "QCSJ_C000000000300000") |>
-        rename("VESSEL_VESSEL_ID" = "QCSJ_C000000000300001")
-
-    # Return the cleaned dataframe.
-    return(vessels_permits)
-}
-
-# The clean_headers function is designed to clean and fix the column names of a given dataframe (my_df).
-clean_headers <- function(my_df) {
-    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
-    colnames(my_df) %<>%
-        fix_names()
-
-    # Return the dataframe with cleaned and fixed column names.
-    return(my_df)
-}
 
 # setup (in get data) ----
 get_data_from_fhier_dir <- "get_data/get_data_from_fhier"
-
-# The source function is a built-in R function that loads and executes R code from an external file. It does not return any value; it simply executes the code in the specified file.
-
-# source("~/R_code_github/useful_functions_module.r")
-
-# Set the working directory to the root directory "~/" and obtain its path.
-my_paths <- set_work_dir()
 
 # Define the current project name as "get_db_data."
 current_project_name <- "get_db_data"
