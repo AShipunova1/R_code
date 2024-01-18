@@ -430,9 +430,6 @@ options(dplyr.summarise.inform = FALSE)
 # Turn off the scientific notation
 options(scipen = 999)
 
-# Use my function in case we want to change the case in all functions
-my_headers_case_function <- tolower
-
 
 # set working directories for get data ----
 
