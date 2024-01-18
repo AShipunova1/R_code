@@ -29,6 +29,14 @@ library(ROracle)
 # Load the 'tictoc' library, which is used for timing code execution.
 library(tictoc)
 
+## Load the 'tigris' package to access geographic data.
+library(tigris)
+
+## Set the 'tigris_use_cache' option to TRUE. This will enable caching of
+## data retrieved from the TIGER/Line Shapefiles service, which can help
+## improve data retrieval performance for future sessions.
+tigris_use_cache = TRUE
+
 # Set an option in the 'dplyr' package to control the display of summarization information.
 # Do not show warnings about groups
 options(dplyr.summarise.inform = FALSE)
@@ -1375,21 +1383,7 @@ title_message_print(input_data_df_names)
 
 
 #### Current file: waters_shape_prep.R ----
-
 # setup ----
-# maps:
-library(mapview)
-library(sf)
-## Load the 'tigris' package to access geographic data.
-library(tigris)
-
-## Set the 'tigris_use_cache' option to TRUE. This will enable caching of
-## data retrieved from the TIGER/Line Shapefiles service, which can help
-## improve data retrieval performance for future sessions.
-tigris_use_cache = TRUE
-
-# source("~/R_code_github/useful_functions_module.r")
-my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
 waters_project_dir_name <- this.path::this.dir()
@@ -1401,6 +1395,7 @@ waters_output_path <- file.path(my_paths$outputs,
                          waters_project_basename)
 
 my_crs = 4326
+
 ## state and county lists ----
 misc_info_path <-
   file.path(my_paths$git_r,
@@ -1669,6 +1664,19 @@ port_fields_short <-
 #
 # In summary, this code snippet processes a data frame by selecting specific columns, removing empty columns, and keeping only unique rows. The result is stored in the 'processed_logbooks_short' data frame.
 
+# Function to remove empty columns from a data frame
+remove_empty_cols <- function(my_df) {
+  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
+  not_all_na <- function(x) any(!is.na(x))
+
+  my_df |>
+    # Select columns from "my_df" where the result of the "not_all_na" function is true,
+    # i.e., select columns that have at least one non-NA value.
+    select(where(not_all_na)) %>%
+    # Return the modified data frame, which contains only the selected columns.
+    return()
+}
+
 processed_logbooks_short <-
   processed_logbooks_clean_names |>
   dplyr::select(dplyr::all_of(port_fields_short)) |>
@@ -1916,7 +1924,7 @@ add_region_to_state <-
     return(new_df)
   }
 
-# n_distinct(join_trip_and_vessel_clean$vessel_official_number)
+n_distinct(join_trip_and_vessel_clean$vessel_official_number)
 # 1629
 
 # TODO: Why there is no home port?
@@ -2011,6 +2019,18 @@ join_trip_and_vessel_clean_state_regions_l <-
   split(as.factor(
     join_trip_and_vessel_clean_state_regions$sero_home_state_region
   ))
+
+# Define a function 'count_uniq_by_column' to count the number of unique values in each column of a data frame.
+
+# Within the function, the sapply function is used to apply another function to each column of the input data frame. Specifically, it counts the number of unique values in each column using the length(unique(x)) expression, where x represents each column of the data frame.
+# The result of sapply is a vector containing the counts of unique values for each column.
+
+# It returns the resulting data frame, which provides a summary of the counts of unique values for each column in the input data frame. This information can be valuable for assessing the diversity of values within each column.
+
+count_uniq_by_column <- function(my_df) {
+  sapply(my_df, function(x) length(unique(x))) %>%  # Apply a function to each column to count unique values.
+    as.data.frame()  # Convert the result to a data frame.
+}
 
 # check
 map(join_trip_and_vessel_clean_state_regions_l,
@@ -2756,6 +2776,31 @@ gom_lat_lon_gom_state_cnt_sf_fed_w_file_path <-
             "gom_lat_lon_gom_state_cnt_sf_fed_w.rds")
 
 # file.exists(gom_lat_lon_gom_state_cnt_sf_fed_w_file_path)
+
+read_rds_or_run_no_db <-
+  function(my_file_path,
+           my_data_list_of_dfs,
+           my_function) {
+    # browser()
+
+    if (file.exists(my_file_path)) {
+      # read a binary file saved previously
+      my_df <-
+        readr::read_rds(my_file_path)
+    } else {
+      tic("run the function")
+      my_df <-
+        my_function(my_data_list_of_dfs[[1]],
+                    my_data_list_of_dfs[[2]])
+      toc()
+
+      # write all as binary
+      readr::write_rds(my_df,
+                       my_file_path)
+    }
+
+    return(my_df)
+  }
 
 gom_lat_lon_gom_state_cnt_sf_fed_w <-
   read_rds_or_run_no_db(
