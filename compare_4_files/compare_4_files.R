@@ -1,0 +1,124 @@
+# compare this 4 files (permits)
+# 1) compliance report downloaded from FHIER (= complaince module)
+# 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types)
+# 3) Metrics tracking from FHIER
+# 4) permit table from the Oracle db
+# check transformed permits
+
+# setup ----
+# Determine the path of the executing script
+library(this.path)
+
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+
+# Get the current project directory name using the 'this.path' package.
+current_project_dir_name <- this.path::this.dir()
+
+current_project_basename <-
+  basename(current_project_dir_name)
+
+curr_proj_output_path <- file.path(my_paths$outputs,
+                         current_project_basename)
+
+curr_proj_input_path <- file.path(my_paths$inputs,
+                         current_project_basename)
+
+# get data ----
+# 1) compliance report downloaded from FHIER (= complaince module)
+
+compliance_file_name <- "FHIER Compliance.csv"
+
+compliance_file_path <-
+  file.path(curr_proj_input_path,
+            compliance_file_name)
+
+compliance_from_fhier <-
+  read_csv(compliance_file_path)
+
+dim(compliance_from_fhier)
+# [1] 148375     17
+
+# 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types)
+
+db_logbooks_query <-
+  "SELECT
+  *
+FROM
+  srh.mv_safis_trip_download@secapxdv_dblk
+WHERE
+    trip_start_date >= '01-JAN-2022'
+  AND trip_start_date <= '31-DEC-2022'
+"
+
+db_logbooks_file_name <-
+  file.path(curr_proj_input_path,
+                      "logbooks22.rds")
+
+db_logbooks_fun <-
+  function(db_logbooks_query) {
+    return(dbGetQuery(con,
+                      db_logbooks_query))
+  }
+
+try(con <- connect_to_secpr())
+
+get_db_logbooks <-
+  function() {
+    read_rds_or_run(db_logbooks_file_name,
+                    db_logbooks_query,
+                    db_logbooks_fun)
+  }
+
+db_logbooks <- get_db_logbooks()
+# 2024-01-19 run for logbooks22.rds: 147.9 sec elapsed
+
+dim(db_logbooks)
+# [1] 327869    149
+
+# 3) Metrics tracking from FHIER
+metrics_report_file_name <-
+  r"(Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source).csv)"
+
+metrics_report_file_path <-
+  file.path(curr_proj_input_path,
+            metrics_report_file_name)
+
+file.exists(metrics_report_file_path)
+# T
+
+metrics_report <- read_csv(metrics_report_file_path)
+
+dim(metrics_report)
+# [1] 3606   13
+
+# 4) permit table from the Oracle db
+
+mv_sero_fh_permits_his_query_file_path <-
+  file.path(my_paths$inputs, "get_db_data", "permit_info.rds")
+
+# file.exists(file_name_permits)
+# T
+
+mv_sero_fh_permits_his_query <-
+  "select * from
+srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
+"
+
+mv_sero_fh_permits_his_query_fun <- function(mv_sero_fh_permits_his_query) {
+  result <- dbGetQuery(con, mv_sero_fh_permits_his_query)
+  return(result)
+}
+
+get_permit_info <-
+  function() {
+    read_rds_or_run(mv_sero_fh_permits_his_query_file_path,
+                    mv_sero_fh_permits_his_query,
+                    mv_sero_fh_permits_his_query_fun)
+  }
+
+permit_info <- get_permit_info()
+
+dim(permit_info)
+# [1] 183855     22
+
