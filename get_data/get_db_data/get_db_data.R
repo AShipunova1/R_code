@@ -182,7 +182,6 @@ connect_to_secpr <- function() {
 # ===
 
 # to use on download from db
-# to use on download from db
 # Define a function named 'vessels_permits_id_clean' to clean a dataframe.
 vessels_permits_id_clean <- function(my_df) {
     # Create a new dataframe 'vessels_permits' by renaming two specific columns.
