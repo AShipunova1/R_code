@@ -269,13 +269,17 @@ all_4_dfs3$compliance_from_fhier <-
   distinct()
 
 ### compliance_from_fhier: split permit column ----
-# all_4_dfs3$compliance_from_fhier <-
-  all_4_dfs2$compliance_from_fhier |>
+
+all_4_dfs3$compliance_from_fhier <-
+  all_4_dfs3$compliance_from_fhier |>
   mutate(permitgroup_sep_0 =
            gsub("\\(([^)]+)\\)", "\\1,", permitgroup)
   ) |>
-    mutate(permitgroup_sep =
+    mutate(permitgroup_sep_1 =
            gsub(",,+", ",", permitgroup_sep_0)
+  ) |>
+    mutate(permitgroup_sep =
+           gsub(",$", "", permitgroup_sep_1)
   ) |>
       # filter(vessel_official_number == 'FL6900MH') |> View()
   # !!! 3
@@ -286,9 +290,8 @@ all_4_dfs3$compliance_from_fhier <-
   mutate(permitgroup_sep_u =
            list(sort(unique(permitgroup_sep_s)))
          ) |>
-    mutate(a = list(stringi::stri_remove_empty(permitgroup_sep_u))) |>
-    filter(vessel_official_number == 'FL6900MH') |> View()
-
+    # mutate(a = list(stringi::stri_remove_empty(permitgroup_sep_u))) |>
+    # filter(vessel_official_number == 'FL6900MH') |> View()
   mutate(permitgroup_sep_u_str =
            permitgroup_sep_u |>
            stringi::stri_paste(sep = ',', collapse = ',')
@@ -298,10 +301,7 @@ all_4_dfs3$compliance_from_fhier <-
                        delim = ",",
                        names_sep = "__",
                        too_few = "align_start"
-                       ) |>
-  filter(vessel_official_number == 'FL6900MH') |> View()
-
-
+                       )
 
 # View(all_4_dfs3$compliance_from_fhier)
 
@@ -317,7 +317,7 @@ all_4_dfs3$compliance_from_fhier <-
 
 # View(all_4_dfs3$compliance_from_fhier)
 
-# check diff permitgroup for the same vessel
+#### check diff permitgroup for the same vessel ----
 short_compliance_from_fhier_to_test <-
   all_4_dfs2$compliance_from_fhier |>
   select(vessel_official_number,
@@ -345,17 +345,20 @@ n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
 #    - '+(...)' converts the logical result to 0 or 1.
 # 4. 'ungroup()' removes the grouping to work with the entire data frame.
 # 5. 'filter(multiple_permitgroups > 0)' filters rows where 'multiple_permitgroups' is greater than 0, keeping only vessels with multiple distinct permit groups.
-short_compliance_from_fhier_to_test |>
+short_compliance_from_fhier_to_test_res <-
+  short_compliance_from_fhier_to_test |>
   group_by(vessel_official_number) |>
   mutate(multiple_permitgroups = +(n_distinct(permitgroup) > 1)) %>%
   ungroup() |>
-  filter(multiple_permitgroups > 0) |>
-  write_csv(
-    file.path(
-      curr_proj_output_path,
-      "compliance_from_fhier__multiple_permitgroups.csv"
-    )
-  )
+  filter(multiple_permitgroups > 0)
+
+# short_compliance_from_fhier_to_test_res |>
+# write_csv(
+#     file.path(
+#       curr_proj_output_path,
+#       "compliance_from_fhier__multiple_permitgroups.csv"
+#     )
+#   )
 
 ### metrics_report: split permit column ----
 all_4_dfs3$metrics_report <-
@@ -405,7 +408,7 @@ all_4_dfs3$db_logbooks |>
 # # all_4_dfs3$db_logbooks[278,]
 all_4_dfs3$compliance_from_fhier |>
   filter(vessel_official_number ==
-    all_4_dfs3$db_logbooks[1700,][["vessel_official_nbr"]]) |>
+    all_4_dfs3$db_logbooks[278,][["vessel_official_nbr"]]) |>
   View()
 # repetitions
 # permitgroup              <chr> "(CDW),(CHS),(SC)", "(CDW),(CDW)CDW,(CHS),(CH…
