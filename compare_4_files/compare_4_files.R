@@ -198,6 +198,7 @@ dim(permit_info)
 # [1] 183855     22
 
 ## all 4 dataframes ----
+# Hmisc::llist: Label Attribute of an Object
 all_4_dfs <-
   Hmisc::llist(compliance_from_fhier,
     db_logbooks,
@@ -213,6 +214,15 @@ all_4_dfs1 <- map(all_4_dfs, clean_headers)
 # View(all_4_dfs1)
 
 ## keep only vessel_id and permit columns ----
+
+# Explanation:
+# 1. The 'names_to_keep' function takes a data frame ('my_df') as input.
+# 2. 'names(my_df)' retrieves the column names of the input data frame.
+# 3. The 'grep' function is used to find column names containing specific substrings.
+# 4. The substrings include "vessel", "permit", "exp", "effect", and "end_date".
+# 5. 'value = TRUE' ensures that the actual column names are returned instead of indices.
+# 6. 'ignore.case = TRUE' makes the search case-insensitive.
+# 7. The result is a vector of selected column names based on the specified substrings.
 names_to_keep <-
   function(my_df) {
     my_df_names <- names(my_df)
@@ -222,8 +232,17 @@ names_to_keep <-
          ignore.case = TRUE)
   }
 
+### Apply the names_to_keep function to each dataframe in all_4_dfs1 ----
 col_names_to_keep <- map(all_4_dfs1, names_to_keep)
 
+# Explanation:
+# 1. The 'imap' function iterates over each element (data frame) in the 'all_4_dfs1' list along with its index.
+# 2. For each data frame, the function inside 'imap' is executed.
+# 3. The 'select' function is used to choose specific columns from the data frame 'x'.
+# 4. The column names to be kept are specified by 'col_names_to_keep[[idx]]'.
+# 5. The pipeline operator '|>' is used to pass the result to the next operation.
+# 6. The 'select' function is again used to exclude columns containing the substring "trip".
+# 7. The result of this selective transformation is stored in the 'all_4_dfs2' list.
 all_4_dfs2 <-
   imap(all_4_dfs1,
        function(x, idx)
@@ -234,6 +253,9 @@ all_4_dfs2 <-
        }
   )
 
+# View(all_4_dfs2)
+
+## split permit columns ----
 
 # get pairs ----
 
