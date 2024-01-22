@@ -127,32 +127,18 @@ dim(permit_info)
 # [1] 183855     22
 
 ## all 4 dataframes ----
-all_4_df_names <-
-  c("compliance_from_fhier",
-    "db_logbooks",
-    "metrics_report",
-    "permit_info")
-
-# Hmisc::llist(a, b, c, d=a, labels = FALSE)
-
 all_4_dfs <-
   Hmisc::llist(compliance_from_fhier,
     db_logbooks,
     metrics_report,
     permit_info)
 
-# View(all_4_dfs)
+# str(all_4_dfs$db_logbooks)
+all_4_df_names <- names(all_4_dfs)
 
 # prepare data for comparison ----
 
 # get pairs ----
-get_df_name <- function(my_df) {
-  browser()
-  my_df_name <- deparse(substitute(my_df))
-  # my_df %>%
-  #   mutate(df = datanm)
-  return(my_df_name)
-}
 
 # combn(my_col_names, 3) |>
 str(all_4_dfs)
