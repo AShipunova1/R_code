@@ -209,14 +209,29 @@ all_4_df_names <- names(all_4_dfs)
 
 # prepare data for comparison ----
 ## clean_headers ----
-
 all_4_dfs1 <- map(all_4_dfs, clean_headers)
-View(all_4_dfs1)
+# View(all_4_dfs1)
 
+## keep only vessel_id and permit columns ----
 
 # 1)
-print_df_names(all_4_dfs[[1]])
-# [1] "Vessel Official Number, Name, PermitGroup, Permit GroupExpiration, Year, Week, # GOM PermittedDeclarations, # CaptainReports, # NegativeReports, # ComplianceErrors, Compliant?, Set Permits On Hold?, Overridden?, Override Date, Override By, Contactedwithin 48 Hours?, SubmittedPower Down?"
+print_df_names(all_4_dfs1[[1]])
+# "vessel_official_number, name, permitgroup, permit_groupexpiration, year, week, gom_permitteddeclarations__, captainreports__, negativereports__, complianceerrors__, compliant_, set_permits_on_hold_, overridden_, override_date, override_by, contactedwithin_48_hours_, submittedpower_down_"
+
+all_4_dfs1[[1]] <-
+  all_4_dfs1[[1]] |>
+  select(vessel_official_number,
+         permitgroup, permit_groupexpiration)
+
+
+# 2)
+print_df_names(all_4_dfs1[[2]])
+# [1] "trip_id, supplier_trip_id, trip_type, trip_type_name, vessel_id, vessel_official_nbr, vessel_name, capt_name_first, capt_name_last, trip_start_date, trip_start_time, trip_end_date, trip_end_time, state, state_name, start_port, start_port_name, start_port_county, start_port_state, end_port, end_port_name, end_port_county, end_port_state, num_anglers, nbr_of_crew, activity_type, activity_type_name, nbr_paying_passengers, trip_fee, fuel_gas_gallons, fuel_gas_gallon_price, fuel_diesel_gallons, fuel_diesel_gallon_price, fuel_gallons, fuel_gallon_price, trip_nbr, split_trip, form_version, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit, submitted_by_participant, submitted_by_corporate_name, submitted_by_first_name, submitted_by_middel_name, submitted_by_last_name, approved_by, approval_date, dea_permit_id, submit_method, ticket_type, event_id, sub_trip_type, reporting_source, transmission_date, confirmation_signature, vendor_app_name, app_version, vendor_platform, trip_de, trip_ue, trip_dc, trip_uc, effort_seq, supplier_effcat_id, area_code, sub_area_code, distance_code, distance_code_name, local_area_code, gear_code, gear_name, gear_quantity, fishing_hours, hours_days_flag, latitude, longitude, minimum_bottom_depth, maximum_bottom_depth, avg_depth_in_fathoms, fishing_gear_depth, depth, anything_caught_flag, effort_target_species_list, effort_target_common_names, gears_fishing, gear_size, rig_code, mesh_ring_length, mesh_ring_width, stretch_size, in_state, lma_code, hooks_per_line, effort_de, effort_ue, effort_dc, effort_uc, catch_seq, landing_seq"
+
+all_4_dfs1[[2]] <-
+  all_4_dfs1[[2]] |>
+  select(vessel_id, vessel_official_nbr, accsp_permit_license_nbr, sero_vessel_permit, garfo_vessel_permit)
+
 
 
 # get pairs ----
