@@ -198,7 +198,7 @@ dim(permit_info)
 # [1] 183855     22
 
 ## all 4 dataframes ----
-# Hmisc::llist: Label Attribute of an Object
+# llist is like list except that it preserves the names or labels of the component variables in the variables label attribute.
 all_4_dfs <-
   Hmisc::llist(compliance_from_fhier,
     db_logbooks,
@@ -256,6 +256,60 @@ all_4_dfs2 <-
 # View(all_4_dfs2)
 
 ## split permit columns ----
+
+all_4_dfs2[[1]] |>
+  head() |>
+  # rowwise() |>
+  mutate(permitgroup_sep =
+           gsub("\\(([^)]+)\\)", "\\1,", permitgroup)
+  ) |>
+  mutate(permitgroup_sep_s =
+           str_split(permitgroup_sep, ",")
+  ) |>
+  rowwise() |>
+  mutate(permitgroup_sep_u =
+           list(sort(unique(permitgroup_sep_s)))) |>
+  # ungroup() |>
+  mutate(permitgroup_sep_u_str =
+           permitgroup_sep_u |>
+           stringi::stri_paste(sep = ',', collapse = ',')
+         # paste(collapse = '')
+       ) |>
+
+  View()
+  # str()
+  separate_wider_delim(cols = permitgroup_sep_u,
+                       delim = ",",
+                       names_sep = "__",
+                       too_few = "align_start",
+                       cols_remove = F
+                       ) |>
+  glimpse()
+
+separate_wider_delim(
+  data,
+  cols,
+  delim,
+  ...,
+  names = NULL,
+  names_sep = NULL,
+  names_repair = "check_unique",
+  too_few = c("error", "debug", "align_start", "align_end"),
+  too_many = c("error", "debug", "drop", "merge"),
+  cols_remove = TRUE
+)
+
+#
+# separate_wider_regex(
+#   data,
+#   cols,
+#   patterns,
+#   ...,
+#   names_sep = NULL,
+#   names_repair = "check_unique",
+#   too_few = c("error", "debug", "align_start"),
+#   cols_remove = TRUE
+# )
 
 # get pairs ----
 
