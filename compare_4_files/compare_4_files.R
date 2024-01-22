@@ -257,9 +257,12 @@ all_4_dfs2 <-
 
 ## split permit columns ----
 
-all_4_dfs2[[1]] |>
-  head() |>
-  # rowwise() |>
+# save the df
+all_4_dfs3 <- all_4_dfs2
+
+tic("split_permit group")
+all_4_dfs3[[1]] <-
+  all_4_dfs2[[1]] |>
   mutate(permitgroup_sep =
            gsub("\\(([^)]+)\\)", "\\1,", permitgroup)
   ) |>
@@ -269,46 +272,31 @@ all_4_dfs2[[1]] |>
   rowwise() |>
   mutate(permitgroup_sep_u =
            list(sort(unique(permitgroup_sep_s)))) |>
-  # ungroup() |>
   mutate(permitgroup_sep_u_str =
            permitgroup_sep_u |>
            stringi::stri_paste(sep = ',', collapse = ',')
-         # paste(collapse = '')
        ) |>
-  # View()
-  # str()
+  ungroup() |>
   separate_wider_delim(cols = permitgroup_sep_u_str,
                        delim = ",",
                        names_sep = "__",
                        too_few = "align_start",
                        cols_remove = F
-                       ) |>
-  View()
+                       )
+toc()
+# split_permit group: 4.46 sec elapsed
 
-separate_wider_delim(
-  data,
-  cols,
-  delim,
-  ...,
-  names = NULL,
-  names_sep = NULL,
-  names_repair = "check_unique",
-  too_few = c("error", "debug", "align_start", "align_end"),
-  too_many = c("error", "debug", "drop", "merge"),
-  cols_remove = TRUE
-)
+View(all_4_dfs3[[1]])
 
-#
-# separate_wider_regex(
-#   data,
-#   cols,
-#   patterns,
-#   ...,
-#   names_sep = NULL,
-#   names_repair = "check_unique",
-#   too_few = c("error", "debug", "align_start"),
-#   cols_remove = TRUE
-# )
+all_4_dfs3[[1]] <-
+  all_4_dfs3[[1]] |>
+  select(vessel_official_number,
+         permit_groupexpiration,
+         permitgroup,
+         contains("__"),
+         -permitgroup_sep_u_str__permitgroup_sep_u_str)
+
+
 
 # get pairs ----
 
