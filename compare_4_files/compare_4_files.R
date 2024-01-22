@@ -249,16 +249,17 @@ all_4_dfs2 <-
        {
          select(x,
                 col_names_to_keep[[idx]]) |>
-           select(-contains("trip"))
+           select(-contains("trip")) |>
+           remove_empty_cols()
        }
   )
 
 # View(all_4_dfs2)
 
-## split permit columns ----
-
 # save the df
 all_4_dfs3 <- all_4_dfs2
+
+## split permit columns in compliance_from_fhier ----
 
 tic("split_permit group")
 all_4_dfs3[[1]] <-
@@ -286,7 +287,7 @@ all_4_dfs3[[1]] <-
 toc()
 # split_permit group: 4.46 sec elapsed
 
-View(all_4_dfs3[[1]])
+# View(all_4_dfs3[[1]])
 
 all_4_dfs3[[1]] <-
   all_4_dfs3[[1]] |>
@@ -296,7 +297,9 @@ all_4_dfs3[[1]] <-
          contains("__"),
          -permitgroup_sep_u_str__permitgroup_sep_u_str)
 
-
+all_4_dfs2[[2]] |>
+  # remove_empty_cols() |>
+  ncol()
 
 # get pairs ----
 
