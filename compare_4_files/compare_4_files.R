@@ -250,7 +250,8 @@ all_4_dfs2 <-
          select(x,
                 col_names_to_keep[[idx]]) |>
            select(-contains("trip")) |>
-           remove_empty_cols()
+           remove_empty_cols() |>
+           distinct()
        }
   )
 
@@ -259,11 +260,19 @@ all_4_dfs2 <-
 # save the df
 all_4_dfs3 <- all_4_dfs2
 
-## split permit columns in compliance_from_fhier ----
+## individual df preparations ----
+
+### rm an unused column
+all_4_dfs3$compliance_from_fhier <-
+  all_4_dfs2$compliance_from_fhier |>
+  select(-gom_permitteddeclarations__) |>
+  distinct()
+
+### split permit column in compliance_from_fhier ----
 
 tic("split_permit group")
-all_4_dfs3[[1]] <-
-  all_4_dfs2[[1]] |>
+all_4_dfs3$compliance_from_fhier <-
+  all_4_dfs3$compliance_from_fhier |>
   mutate(permitgroup_sep =
            gsub("\\(([^)]+)\\)", "\\1,", permitgroup)
   ) |>
@@ -287,21 +296,64 @@ all_4_dfs3[[1]] <-
 toc()
 # split_permit group: 4.46 sec elapsed
 
-# View(all_4_dfs3[[1]])
+# View(all_4_dfs3$compliance_from_fhier)
 
-all_4_dfs3[[1]] <-
-  all_4_dfs3[[1]] |>
+all_4_dfs3$compliance_from_fhier <-
+  all_4_dfs3$compliance_from_fhier |>
   select(vessel_official_number,
          permit_groupexpiration,
          permitgroup,
          contains("__"),
          -permitgroup_sep_u_str__permitgroup_sep_u_str)
 
-all_4_dfs2[[2]] |>
-  # remove_empty_cols() |>
-  ncol()
+### split permit column in metrics_report ----
+all_4_dfs3$metrics_report <-
+  all_4_dfs2$metrics_report |>
+  mutate(permits_trim =
+           gsub(" ", "", permits)
+  ) |>
+  separate_wider_delim(
+    cols = permits_trim,
+    delim = ";",
+    names_sep = "__",
+    too_few = "align_start",
+    cols_remove = F
+  )
+
+# str(all_4_dfs3$metrics_report)
 
 # get pairs ----
+file_name_combinations <-
+  combn(all_4_df_names, 2)
 
-# combn(my_col_names, 3) |>
-# str(all_4_dfs)
+# compare each pair ----
+file_name_combinations[,1]
+# [1] "compliance_from_fhier" "db_logbooks"
+
+# print_df_names(all_4_dfs3$compliance_from_fhier)
+# print_df_names(all_4_dfs3$db_logbooks)
+
+r <-
+  full_join(
+    all_4_dfs3$compliance_from_fhier,
+    all_4_dfs3$db_logbooks,
+    join_by(vessel_official_number == vessel_official_nbr)
+  )
+# all_4_dfs3
+
+# all_4_dfs3$compliance_from_fhier[4,][[1]]
+# ℹ Row 9 of `x` matches multiple rows in `y`.
+# ℹ Row 278 of `y` matches multiple rows in `x`.
+
+
+all_4_dfs3$db_logbooks |>
+  filter(vessel_official_nbr ==
+    all_4_dfs3$compliance_from_fhier[9,][[1]]) |>
+  glimpse()
+
+# diff accsp_permit_license_nbr
+all_4_dfs3$db_logbooks[278,]
+all_4_dfs3$compliance_from_fhier |>
+  filter(vessel_official_number ==
+    all_4_dfs3$db_logbooks[278,][["vessel_official_nbr"]]) |>
+  glimpse()
