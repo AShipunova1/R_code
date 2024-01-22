@@ -223,7 +223,17 @@ names_to_keep <-
   }
 
 col_names_to_keep <- map(all_4_dfs1, names_to_keep)
-View(col_names_to_keep)
+# View(col_names_to_keep)
+
+
+all_4_dfs2[[1]]
+
+a <-
+  all_4_dfs1[[1]] |>
+  select(col_names_to_keep[[1]])
+
+View(a)
+
 # 1)
 print_df_names(all_4_dfs1[[1]])
 # "vessel_official_number, name, permitgroup, permit_groupexpiration, year, week, gom_permitteddeclarations__, captainreports__, negativereports__, complianceerrors__, compliant_, set_permits_on_hold_, overridden_, override_date, override_by, contactedwithin_48_hours_, submittedpower_down_"
