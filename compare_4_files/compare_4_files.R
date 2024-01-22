@@ -226,8 +226,16 @@ col_names_to_keep <- map(all_4_dfs1, names_to_keep)
 # View(col_names_to_keep)
 
 
-all_4_dfs2[[1]]
-
+# map2(x, seq_along(x),
+all_4_dfs2 <-
+  imap(all_4_dfs1,
+       function(x, idx)
+       {
+         select(x,
+                col_names_to_keep[[idx]])
+       }
+  )
+View(all_4_dfs2)
 a <-
   all_4_dfs1[[1]] |>
   select(col_names_to_keep[[1]])
