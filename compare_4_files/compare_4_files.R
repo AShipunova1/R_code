@@ -269,7 +269,6 @@ all_4_dfs3$compliance_from_fhier <-
   distinct()
 
 ### compliance_from_fhier: split permit column ----
-tic("split_permit group")
 # all_4_dfs3$compliance_from_fhier <-
   all_4_dfs2$compliance_from_fhier |>
   mutate(permitgroup_sep_0 =
@@ -303,8 +302,6 @@ tic("split_permit group")
   filter(vessel_official_number == 'FL6900MH') |> View()
 
 
-toc()
-# split_permit group: 4.46 sec elapsed
 
 # View(all_4_dfs3$compliance_from_fhier)
 
