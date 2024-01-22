@@ -300,11 +300,14 @@ toc()
 
 all_4_dfs3$compliance_from_fhier <-
   all_4_dfs3$compliance_from_fhier |>
-  select(vessel_official_number,
-         permit_groupexpiration,
-         permitgroup,
-         contains("__"),
-         -permitgroup_sep_u_str__permitgroup_sep_u_str)
+  select(
+    vessel_official_number,
+    permit_groupexpiration,
+    permitgroup,
+    contains("__"),
+    -permitgroup_sep_u_str__permitgroup_sep_u_str
+  ) |>
+  distinct()
 
 ### split permit column in metrics_report ----
 all_4_dfs3$metrics_report <-
@@ -343,17 +346,17 @@ r <-
 
 # all_4_dfs3$compliance_from_fhier[4,][[1]]
 # ℹ Row 9 of `x` matches multiple rows in `y`.
-# ℹ Row 278 of `y` matches multiple rows in `x`.
+# ℹ Row 1720 of `y` matches multiple rows in `x`.
 
 
 all_4_dfs3$db_logbooks |>
   filter(vessel_official_nbr ==
     all_4_dfs3$compliance_from_fhier[9,][[1]]) |>
   glimpse()
-
 # diff accsp_permit_license_nbr
-all_4_dfs3$db_logbooks[278,]
-all_4_dfs3$compliance_from_fhier |>
-  filter(vessel_official_number ==
-    all_4_dfs3$db_logbooks[278,][["vessel_official_nbr"]]) |>
-  glimpse()
+
+# # all_4_dfs3$db_logbooks[278,]
+# all_4_dfs3$compliance_from_fhier |>
+#   filter(vessel_official_number ==
+#     all_4_dfs3$db_logbooks[1720,][["vessel_official_nbr"]]) |>
+#   glimpse()
