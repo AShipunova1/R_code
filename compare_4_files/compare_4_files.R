@@ -399,20 +399,19 @@ r <-
 # ℹ Row 9 of `x` matches multiple rows in `y`.
 # ℹ Row 1700 of `y` matches multiple rows in `x`.
 
-all_4_dfs3$db_logbooks |>
-  filter(vessel_official_nbr ==
-    all_4_dfs3$compliance_from_fhier[9,][[1]]) |>
-  glimpse()
+# all_4_dfs3$db_logbooks |>
+#   filter(vessel_official_nbr ==
+#     all_4_dfs3$compliance_from_fhier[9,][[1]]) |>
+#   glimpse()
 # diff accsp_permit_license_nbr
 
-# # all_4_dfs3$db_logbooks[278,]
-all_4_dfs3$compliance_from_fhier |>
-  filter(vessel_official_number ==
-    all_4_dfs3$db_logbooks[278,][["vessel_official_nbr"]]) |>
-  View()
+# all_4_dfs3$compliance_from_fhier |>
+#   filter(vessel_official_number ==
+#     all_4_dfs3$db_logbooks[278,][["vessel_official_nbr"]]) |>
+#   View()
 # repetitions
 # permitgroup              <chr> "(CDW),(CHS),(SC)", "(CDW),(CDW)CDW,(CHS),(CH…
 
-all_4_dfs2$compliance_from_fhier |>
-  filter(vessel_official_number == 'FL6900MH') |>
-  View()
+# all_4_dfs2$compliance_from_fhier |>
+#   filter(vessel_official_number == 'FL6900MH') |>
+#   View()
