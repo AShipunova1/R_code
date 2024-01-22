@@ -262,23 +262,29 @@ all_4_dfs3 <- all_4_dfs2
 
 ## individual df preparations ----
 
-### rm an unused column
+### rm an unused column ----
 all_4_dfs3$compliance_from_fhier <-
   all_4_dfs2$compliance_from_fhier |>
   select(-gom_permitteddeclarations__) |>
   distinct()
 
-### split permit column in compliance_from_fhier ----
-
+### compliance_from_fhier: split permit column ----
 tic("split_permit group")
-all_4_dfs3$compliance_from_fhier <-
-  all_4_dfs3$compliance_from_fhier |>
-  mutate(permitgroup_sep =
+# all_4_dfs3$compliance_from_fhier <-
+  all_4_dfs2$compliance_from_fhier |>
+  mutate(permitgroup_sep_0 =
            gsub("\\(([^)]+)\\)", "\\1,", permitgroup)
   ) |>
+    mutate(permitgroup_sep =
+           gsub(",,+", ",", permitgroup_sep_0)
+  ) |>
+
+      filter(vessel_official_number == 'FL6900MH') |> glimpse()
+  # !!! 3
   mutate(permitgroup_sep_s =
            str_split(permitgroup_sep, ",")
   ) |>
+    filter(vessel_official_number == 'FL6900MH') |> View()
   rowwise() |>
   mutate(permitgroup_sep_u =
            list(sort(unique(permitgroup_sep_s)))) |>
@@ -349,7 +355,7 @@ short_compliance_from_fhier_to_test |>
     )
   )
 
-### split permit column in metrics_report ----
+### metrics_report: split permit column ----
 all_4_dfs3$metrics_report <-
   all_4_dfs2$metrics_report |>
   mutate(permits_trim =
