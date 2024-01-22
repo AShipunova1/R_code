@@ -6,6 +6,8 @@
 # check transformed permits
 
 # setup ----
+library(tidyverse)
+
 # Determine the path of the executing script
 library(this.path)
 
@@ -72,6 +74,7 @@ get_db_logbooks <-
 
 db_logbooks <- get_db_logbooks()
 # 2024-01-19 run for logbooks22.rds: 147.9 sec elapsed
+# File: logbooks22.rds modified 2024-01-19 17:14:31.881392
 
 dim(db_logbooks)
 # [1] 327869    149
@@ -118,7 +121,39 @@ get_permit_info <-
   }
 
 permit_info <- get_permit_info()
+# File: permit_info.rds modified 2023-10-19 09:34:47.729631
 
 dim(permit_info)
 # [1] 183855     22
 
+## all 4 dataframes ----
+all_4_df_names <-
+  c("compliance_from_fhier",
+    "db_logbooks",
+    "metrics_report",
+    "permit_info")
+
+# Hmisc::llist(a, b, c, d=a, labels = FALSE)
+
+all_4_dfs <-
+  Hmisc::llist(compliance_from_fhier,
+    db_logbooks,
+    metrics_report,
+    permit_info)
+
+# View(all_4_dfs)
+
+# prepare data for comparison ----
+
+# get pairs ----
+get_df_name <- function(my_df) {
+  browser()
+  my_df_name <- deparse(substitute(my_df))
+  # my_df %>%
+  #   mutate(df = datanm)
+  return(my_df_name)
+}
+
+# combn(my_col_names, 3) |>
+str(all_4_dfs)
+get_df_name()
