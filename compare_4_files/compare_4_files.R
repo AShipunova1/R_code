@@ -278,16 +278,18 @@ tic("split_permit group")
     mutate(permitgroup_sep =
            gsub(",,+", ",", permitgroup_sep_0)
   ) |>
-
-      filter(vessel_official_number == 'FL6900MH') |> glimpse()
+      # filter(vessel_official_number == 'FL6900MH') |> View()
   # !!! 3
   mutate(permitgroup_sep_s =
            str_split(permitgroup_sep, ",")
   ) |>
-    filter(vessel_official_number == 'FL6900MH') |> View()
   rowwise() |>
   mutate(permitgroup_sep_u =
-           list(sort(unique(permitgroup_sep_s)))) |>
+           list(sort(unique(permitgroup_sep_s)))
+         ) |>
+    mutate(a = list(stringi::stri_remove_empty(permitgroup_sep_u))) |>
+    filter(vessel_official_number == 'FL6900MH') |> View()
+
   mutate(permitgroup_sep_u_str =
            permitgroup_sep_u |>
            stringi::stri_paste(sep = ',', collapse = ',')
@@ -297,7 +299,10 @@ tic("split_permit group")
                        delim = ",",
                        names_sep = "__",
                        too_few = "align_start"
-                       )
+                       ) |>
+  filter(vessel_official_number == 'FL6900MH') |> View()
+
+
 toc()
 # split_permit group: 4.46 sec elapsed
 
