@@ -382,36 +382,42 @@ file_name_combinations <-
 
 # compare each pair ----
 file_name_combinations[,1]
-# [1] "compliance_from_fhier" "db_logbooks"
+## [1] "compliance_from_fhier" "db_logbooks" ----
 
 # print_df_names(all_4_dfs3$compliance_from_fhier)
 # print_df_names(all_4_dfs3$db_logbooks)
 
-r <-
+join1_compliance_from_fhier__db_logbooks <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
     all_4_dfs3$db_logbooks,
     join_by(vessel_official_number == vessel_official_nbr)
   )
-# all_4_dfs3
 
-# all_4_dfs3$compliance_from_fhier[4,][[1]]
-# ℹ Row 9 of `x` matches multiple rows in `y`.
-# ℹ Row 1700 of `y` matches multiple rows in `x`.
+# View(join1_compliance_from_fhier__db_logbooks)
 
-# all_4_dfs3$db_logbooks |>
-#   filter(vessel_official_nbr ==
-#     all_4_dfs3$compliance_from_fhier[9,][[1]]) |>
-#   glimpse()
-# diff accsp_permit_license_nbr
+### vessel is in compliance_from_fhier, not in db_logbooks ----
 
-# all_4_dfs3$compliance_from_fhier |>
-#   filter(vessel_official_number ==
-#     all_4_dfs3$db_logbooks[278,][["vessel_official_nbr"]]) |>
-#   View()
-# repetitions
-# permitgroup              <chr> "(CDW),(CHS),(SC)", "(CDW),(CDW)CDW,(CHS),(CH…
+vessel_in_compl_not_in_logb <-
+  join1_compliance_from_fhier__db_logbooks |>
+  filter(is.na(vessel_id)) |>
+  select(vessel_official_number) |>
+  distinct()
 
-# all_4_dfs2$compliance_from_fhier |>
-#   filter(vessel_official_number == 'FL6900MH') |>
-#   View()
+dim(vessel_in_compl_not_in_logb)
+# 1803
+
+vessel_in_logb_not_in_compl <-
+  setdiff(
+    all_4_dfs3$compliance_from_fhier$vessel_official_number,
+    all_4_dfs3$db_logbooks$vessel_official_nbr
+  )
+
+vessel_in_compl_not_in_logb <-
+  setdiff(
+    all_4_dfs3$db_logbooks$vessel_official_nbr,
+    all_4_dfs3$compliance_from_fhier$vessel_official_number
+  )
+
+glimpse(vessel_in_compl_not_in_logb)
+ # chr [1:2] "1038780" "1292480"
