@@ -213,7 +213,17 @@ all_4_dfs1 <- map(all_4_dfs, clean_headers)
 # View(all_4_dfs1)
 
 ## keep only vessel_id and permit columns ----
+names_to_keep <-
+  function(my_df) {
+    my_df_names <- names(my_df)
+    grep("vessel|permit|exp|effect|end_date",
+         my_df_names,
+         value = TRUE,
+         ignore.case = TRUE)
+  }
 
+col_names_to_keep <- map(all_4_dfs1, names_to_keep)
+View(col_names_to_keep)
 # 1)
 print_df_names(all_4_dfs1[[1]])
 # "vessel_official_number, name, permitgroup, permit_groupexpiration, year, week, gom_permitteddeclarations__, captainreports__, negativereports__, complianceerrors__, compliant_, set_permits_on_hold_, overridden_, override_date, override_by, contactedwithin_48_hours_, submittedpower_down_"
