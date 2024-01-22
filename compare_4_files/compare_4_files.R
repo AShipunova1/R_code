@@ -275,16 +275,15 @@ all_4_dfs2[[1]] |>
            stringi::stri_paste(sep = ',', collapse = ',')
          # paste(collapse = '')
        ) |>
-
-  View()
+  # View()
   # str()
-  separate_wider_delim(cols = permitgroup_sep_u,
+  separate_wider_delim(cols = permitgroup_sep_u_str,
                        delim = ",",
                        names_sep = "__",
                        too_few = "align_start",
                        cols_remove = F
                        ) |>
-  glimpse()
+  View()
 
 separate_wider_delim(
   data,
