@@ -98,15 +98,15 @@ dim(metrics_report)
 # [1] 3606   13
 
 ## 4) permit table from the Oracle db ----
-dates_filter <- " (end_date >= TO_DATE('01-JAN-21', 'dd-mon-yy')
-    OR expiration_date >= TO_DATE('01-JAN-21', 'dd-mon-yy') )
-  AND effective_date <= CURRENT_DATE
+dates_filter <- " (end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+    OR expiration_date >= TO_DATE('01-JAN-22', 'dd-mon-yy') )
+  AND effective_date <= TO_DATE('01-JAN-23', 'dd-mon-yy')
 "
 
 mv_sero_fh_permits_his_query_file_path <-
-  file.path(my_paths$inputs, "get_db_data", "permit_info.rds")
+  file.path(my_paths$inputs, "get_db_data", "permit_info_2022.rds")
 
-# file.exists(file_name_permits)
+# file.exists(mv_sero_fh_permits_his_query_file_path)
 # T
 
 mv_sero_fh_permits_his_query <-
@@ -126,11 +126,40 @@ get_permit_info <-
   function() {
     read_rds_or_run(mv_sero_fh_permits_his_query_file_path,
                     mv_sero_fh_permits_his_query,
-                    mv_sero_fh_permits_his_query_fun)
+                    mv_sero_fh_permits_his_query_fun,
+                    force_from_db = TRUE
+                    )
   }
 
 permit_info <- get_permit_info()
-# File: permit_info.rds modified 2023-10-19 09:34:47.729631
+# File: permit_info_2022.rds modified Tue Jan 23 11:25:01 2024
+nrow(permit_info)
+# [1] 183855
+# [1] 20777    2022 only
+
+### check dates ----
+# dates_filter <- " (end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
+#     OR expiration_date >= TO_DATE('01-JAN-22', 'dd-mon-yy') )
+#   AND effective_date <= TO_DATE('01-JAN-23', 'dd-mon-yy')
+# "
+
+min(permit_info$EXPIRATION_DATE)
+# [1] "2007-01-31 EST"
+
+permit_info |>
+  filter(EXPIRATION_DATE == "2007-01-31 EST") |>
+  glimpse()
+# $ VESSEL_ID            <chr> "514001"
+# END_DATE == 2022-02-24 !!!
+
+permit_info$END_DATE |>
+  sort() |>
+  unique() |>
+  head(1)
+# [1] "2021-01-19 EST"
+
+max(permit_info$EFFECTIVE_DATE)
+# [1] "2023-01-01 EST"
 
 dim(permit_info)
 # [1] 183855     22
