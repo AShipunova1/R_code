@@ -153,6 +153,7 @@ permit_info |>
 # $ VESSEL_ID            <chr> "514001"
 # END_DATE == 2022-02-24 !!!
 
+# TODO why min() doesn't work?
 permit_info$END_DATE |>
   sort() |>
   unique() |>
@@ -431,9 +432,22 @@ all_4_dfs3$permit_info <-
 nrow(all_4_dfs3$permit_info)
 # 16073
 
+# check
 setdiff(all_permits_in_metrics$permit_sep_u,
         all_4_dfs3$permit_info$top)
 # 0 both ways, ok
+
+min(all_4_dfs3$permit_info$expiration_date)
+# [1] "2007-02-28 EST"
+
+all_4_dfs3$permit_info$end_date |>
+  sort() |>
+  unique() |>
+  head(1)
+# [1] "2021-01-21 EST"
+
+max(all_4_dfs3$permit_info$effective_date)
+# [1] "2023-01-01 EST"
 
 # get pairs ----
 file_name_combinations <-
@@ -443,15 +457,18 @@ file_name_combinations <-
 ## [1] "compliance_from_fhier" "db_logbooks" ----
 file_name_combinations[,1]
 
-# print_df_names(all_4_dfs3$compliance_from_fhier)
-# print_df_names(all_4_dfs3$db_logbooks)
+print_df_names(all_4_dfs3$compliance_from_fhier)
+print_df_names(all_4_dfs3$db_logbooks)
 
-join_compliance_from_fhier__db_logbooks <-
+join_compliance_from_fhier__db_logbooks__perm <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
     all_4_dfs3$db_logbooks,
     join_by(vessel_official_number)
   )
+# ℹ Row 27 of `x` matches multiple rows in `y`.
+# ℹ Row 1735 of `y` matches multiple rows in `x`.
+# TODO check, this is a result of having sep permits
 
 # View(join_compliance_from_fhier__db_logbooks)
 
