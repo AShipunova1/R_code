@@ -200,7 +200,11 @@ read_rds_or_run_query <- function(my_file_path,
                                   my_query,
                                   force_from_db = NULL) {
 
-  # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
     if (file.exists(my_file_path) &
         is.null(force_from_db)) {
         # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
@@ -226,7 +230,7 @@ read_rds_or_run_query <- function(my_file_path,
         paste(today(), "run for", basename(my_file_path))
       tictoc::tic(msg_text)  # Start timing the operation.
 
-      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN. Must have a connection (`con`) already established.
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
 
       my_result <- dbGetQuery(con, my_query)
 
@@ -241,7 +245,14 @@ read_rds_or_run_query <- function(my_file_path,
 
       try(readr::write_rds(my_result,
                            my_file_path))
+
+      modif_time <- date()
     }
+
+  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    str_glue("File: {my_file_name} modified {modif_time}"))
 
     # Return the generated or read data.
     return(my_result)
