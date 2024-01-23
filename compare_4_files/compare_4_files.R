@@ -527,7 +527,8 @@ join_compliance_from_fhier__metrics_report <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
     all_4_dfs3$metrics_report,
-    join_by(vessel_official_number)
+    join_by(vessel_official_number,
+            permit_sep_u)
   )
 
 vessel_in_compl_not_in_metrics <-
@@ -558,10 +559,12 @@ join_compliance_from_fhier__permit_info <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
     all_4_dfs3$permit_info,
-    join_by(vessel_official_number)
+    join_by(vessel_official_number,
+            permit_sep_u == top)
   )
 # View(join_compliance_from_fhier__permit_info)
 
+# no many-to-many after adding permit_sep_u == top!
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 74370 of `y` matches multiple rows in `x`.
@@ -585,6 +588,7 @@ all_4_dfs3$permit_info |>
   filter(vessel_official_number == "579608") |>
   nrow()
 # 27 (multiple permits, ok)
+# 0 after join by permits
 
 # 2) y to x
 # ℹ Row 74282 of `y` matches multiple rows in `x`.
@@ -607,6 +611,7 @@ vessel_in_compl_not_in_permit_info <-
 length(vessel_in_compl_not_in_permit_info)
 # 3687
 # 13 after +id
+# 10 after 2022 and permit group 7
 
 vessel_in_compl_not_in_permit_info_alt <-
   setdiff(
@@ -616,6 +621,7 @@ vessel_in_compl_not_in_permit_info_alt <-
 
 length(vessel_in_compl_not_in_permit_info_alt)
 # 171
+# 169 after 2022 and permit group 7
 
 vessel_in_permit_info_not_in_compl <-
   setdiff(
@@ -626,6 +632,7 @@ vessel_in_permit_info_not_in_compl <-
 length(vessel_in_permit_info_not_in_compl)
 # 0
 # 10387 after +id
+# 195 after 2022 and permit group 7
 
 ## [4] "db_logbooks" "metrics_report" ----
 file_name_combinations[,4]
@@ -639,6 +646,11 @@ join_db_logbooks__metrics_report <-
     all_4_dfs3$metrics_report,
     join_by(vessel_official_number)
   )
+# after separating permits:
+#   Detected an unexpected many-to-many relationship between `x` and `y`.
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 2905 of `y` matches multiple rows in `x`.
+# TODO: check
 
 vessel_in_db_logbooks_not_in_metrics_report <-
   setdiff(
@@ -686,12 +698,12 @@ all_4_dfs3$permit_info |>
 # $ effective_date       <dttm> 2021-06-04, 2021-06-04, 2022-04-18, 2022-04-18
 
 # 2) y to x
-# ℹ Row 111110 of `y` matches multiple rows in `x`.
+# ℹ Row 9426 of `y` matches multiple rows in `x`.
 all_4_dfs3$db_logbooks |>
   filter(vessel_official_number ==
-    all_4_dfs3$permit_info[111110,][["vessel_official_number"]] |
+    all_4_dfs3$permit_info[9426,][["vessel_official_number"]] |
       vessel_official_number ==
-    all_4_dfs3$permit_info[111110,][["vessel_alt_num"]]) |>
+    all_4_dfs3$permit_info[9426,][["vessel_alt_num"]]) |>
   glimpse()
 # $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
 # $ notif_accsp_permit_id    <dbl> 584995, NA
@@ -721,6 +733,7 @@ vessel_in_db_logbooks_not_in_permit_info <-
 
 length(vessel_in_db_logbooks_not_in_permit_info)
 # 1
+# 2 after 2022 and sep permits
 
 # 1292480
 # 1292480:NC0676EK........ SOUTHERN RUN - BENJAMIN AUGUSTUS MORRIS  (828) 4298076
@@ -729,6 +742,7 @@ all_4_dfs3$permit_info |>
   filter(vessel_official_number == "NC0676EK") |>
   nrow()
 # [1] 18
+# 3 after 2022 and sep permits
 
 all_4_dfs3$db_logbooks |>
   filter(vessel_official_number == "1292480" |
@@ -745,6 +759,7 @@ vessel_in_db_logbooks_not_in_permit_info_alt <-
 
 length(vessel_in_db_logbooks_not_in_permit_info_alt)
 # 92
+# 91 after 2022 and sep permits
 
 vessel_in_permit_info_not_in_db_logbooks <-
   setdiff(
@@ -754,6 +769,7 @@ vessel_in_permit_info_not_in_db_logbooks <-
 
 length(vessel_in_permit_info_not_in_db_logbooks)
 # 12176
+# 1988 after 2022 and sep permits
 
 vessel_in_permit_info_not_in_db_logbooks_alt <-
   setdiff(
@@ -763,6 +779,7 @@ vessel_in_permit_info_not_in_db_logbooks_alt <-
 
 length(vessel_in_permit_info_not_in_db_logbooks_alt)
 # 12247
+# 2074 after 2022 and sep permits
 
 ## [6] "metrics_report" "permit_info" ----
 file_name_combinations[,6]
@@ -774,7 +791,8 @@ join_metrics_report__permit_info <-
   full_join(
     all_4_dfs3$metrics_report,
     all_4_dfs3$permit_info,
-    join_by(vessel_official_number)
+    join_by(vessel_official_number,
+            permit_sep_u == top)
   )
 
 vessel_in_metrics_report_not_in_permit_info <-
@@ -785,6 +803,7 @@ vessel_in_metrics_report_not_in_permit_info <-
 
 length(vessel_in_metrics_report_not_in_permit_info)
 # 5
+# 27 after 2022 and sep permits
 
 vessel_in_metrics_report_not_in_permit_info_alt <-
   setdiff(
@@ -794,6 +813,7 @@ vessel_in_metrics_report_not_in_permit_info_alt <-
 
 length(vessel_in_metrics_report_not_in_permit_info_alt)
 # 161
+# 185 after 2022 and sep permits
 
 vessel_in_permit_info_not_in_metrics_report <-
   setdiff(
@@ -803,6 +823,7 @@ vessel_in_permit_info_not_in_metrics_report <-
 
 length(vessel_in_permit_info_not_in_metrics_report)
 # 10460
+# 293 after 2022 and sep permits
 
 vessel_in_permit_info_not_in_metrics_report_alt <-
   setdiff(
@@ -812,4 +833,5 @@ vessel_in_permit_info_not_in_metrics_report_alt <-
 
 length(vessel_in_permit_info_not_in_metrics_report_alt)
 # 10596
+# 448 after 2022 and sep permits
 
