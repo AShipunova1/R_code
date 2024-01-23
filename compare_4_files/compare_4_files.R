@@ -397,6 +397,38 @@ all_4_dfs3$permit_info <-
   mutate(permit_info_vessel_id = vessel_id) |> # want to keep it to see if NA in the full join
   rename("vessel_official_number" = "vessel_id")
 
+### permit_info groups to keep ----
+# permit_info |>
+#   select(TOP, PERMIT_GROUP) |>
+#   distinct() |>
+#   View()
+
+all_4_dfs3$permit_info |>
+  filter(tolower(top) %in% tolower(all_permits_in_metrics$permit_sep_u)) |>
+  select(permit_group) |> distinct()
+#   permit_group
+# 1            7
+
+all_4_dfs3$permit_info |>
+filter(permit_group == 6) |>
+  select(top) |>
+           distinct()
+# GC
+
+# permit_info |>
+# filter(PERMIT_GROUP == 6) |>
+#   select(starts_with("TOP")) |>
+#            distinct()
+#   TOP                   TOP_NAME
+# 1  GC SOUTH ATLANTIC GOLDEN CRAB
+
+all_4_dfs3$permit_info <-
+  all_4_dfs3$permit_info |>
+  filter(permit_group == 7)
+
+nrow(all_4_dfs3$permit_info)
+# 16073
+
 # get pairs ----
 file_name_combinations <-
   combn(all_4_df_names, 2)
