@@ -233,6 +233,7 @@ read_rds_or_run_query <- function(my_file_path,
       # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
 
       my_result <- dbGetQuery(con, my_query)
+      # my_result <- my_function(my_data)
 
       tictoc::toc()  # Stop timing the operation.
 
@@ -571,10 +572,12 @@ Logbooks <-
 ### Filter out just my analysis year logbook entries ----
 
 # check
-# min(Logbooks$TRIP_START_DATE)
+min(Logbooks$TRIP_START_DATE)
 # [1] "2022-01-01"
-# max(Logbooks$TRIP_START_DATE)
+# [1] "2023-01-01"
+max(Logbooks$TRIP_START_DATE)
 # [1] "2023-12-01"
+# [1] "2023-12-31"
 
 Logbooks <-
   Logbooks |>
@@ -1129,3 +1132,35 @@ write_rds(
   SEFHIER_logbooks_usable,
   file = output_file_path
 )
+
+# check if diff
+m_res <- read_rds(r"(C:\Users\anna.shipunova\Downloads\SEFHIER_usable_Logbooks_2023.rds)")
+
+a_res <- read_rds(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_usable_Logbooks_2023.rds)")
+
+m_res_sort <-
+  m_res |>
+  arrange(VESSEL_OFFICIAL_NUMBER,
+          SAFIS_VESSEL_ID,
+          TRIP_ID,
+          TRIP_START_DATE,
+          TRIP_START_TIME,
+          TRIP_END_DATE,
+          TRIP_END_TIME,
+          USABLE_DATE_TIME,
+          CATCH_DE)
+
+a_res_sort <-
+  a_res |>
+  arrange(VESSEL_OFFICIAL_NUMBER,
+          SAFIS_VESSEL_ID,
+          TRIP_ID,
+          TRIP_START_DATE,
+          TRIP_START_TIME,
+          TRIP_END_DATE,
+          TRIP_END_TIME,
+          USABLE_DATE_TIME,
+          CATCH_DE)
+
+diffdf::diffdf(m_res_sort,
+               a_res_sort)
