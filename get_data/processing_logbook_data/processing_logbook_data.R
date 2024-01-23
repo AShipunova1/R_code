@@ -13,7 +13,7 @@
 #   (a) remove all overridden data, because the submission date is unknown
 # (4) Add permit region information (GOM, SA, or dual), using permit names
 
-# We don't keep trips started in 2021 and ended in 2022.
+# We don't keep trips starting in 2021 and ending in 2022.
 # We only keep trips starting in 2022.
 
 # Caveats:
@@ -39,15 +39,16 @@ library(tictoc) # Functions for timing
 library(crayon) # Colored terminal output
 
 # set working and output directory - where do you keep the data and analysis folder on your computer?
-michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook Processing (Do this before all Logbook Analyses)/"
+michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook related analyses/Logbook Processing (Do this before all Logbook Analyses)/"
 
-jennys_path <-
-  "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
-
+# jennys_path <-
+#   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
+#
 annas_path <-
   r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
 
 # Change to use another path instead:
+# Path <- michelles_path
 Path <- annas_path
 
 Inputs <- "Inputs/"
@@ -55,9 +56,9 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-my_date_beg <- '01-JAN-2022'
-my_date_end <- '31-DEC-2022'
+my_year <- "2023"
+my_date_beg <- '01-JAN-2023'
+my_date_end <- '31-DEC-2023'
 
 # Auxiliary methods ----
 
@@ -69,19 +70,22 @@ my_date_end <- '31-DEC-2022'
 # try(con <- connect_to_secpr())
 
 connect_to_secpr <- function() {
-    # Retrieve the username associated with the "SECPR" database from the keyring.
-    my_username <- keyring::key_list("SECPR")[1, 2]
+  # Retrieve the username associated with the "SECPR" database from the keyring.
+  my_username <- keyring::key_list("SECPR")[1, 2]
 
-    # Use 'dbConnect' to establish a database connection with the specified credentials.
-    con <- dbConnect(
-        dbDriver("Oracle"),  # Use the Oracle database driver.
-        username = my_username,  # Use the retrieved username.
-        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
-        dbname = "SECPR"  # Specify the name of the database as "SECPR."
-    )
+  # Use 'dbConnect' to establish a database connection with the specified credentials.
+  con <- dbConnect(
+    dbDriver("Oracle"),
+    # Use the Oracle database driver.
+    username = my_username,
+    # Use the retrieved username.
+    password = keyring::key_get("SECPR", my_username),
+    # Retrieve the password from the keyring.
+    dbname = "SECPR"  # Specify the name of the database as "SECPR."
+  )
 
-    # Return the established database connection.
-    return(con)
+  # Return the established database connection.
+  return(con)
 }
 
 # ---
@@ -272,14 +276,14 @@ compl_override_data_file_path <-
             "Compliance_raw_data_Year.rds")
 
 # 2) Create a variable with a table name to call data from, define year.
-# >= 2020 because of when the program started
+# >= 2021 because of when the program started
 compl_err_query <-
   "SELECT
   *
 FROM
   srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  comp_year >= '2020'"
+  comp_year >= '2021'"
 
 # Check if the file path is correct, optional
 # file.exists(compl_override_data_file_path)
@@ -312,18 +316,18 @@ my_stats(compl_override_data)
 min(compl_override_data$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
-# keep only year 2022, including the week 52 of the previous year
+# keep only year of analysis, including the week 52 of the previous year
 compl_override_data_this_year <-
   compl_override_data |>
   filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
-    COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
+           COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
 
 # check
-# That's the week 52 of 2021:
+# That's the week 52 of my_year-1:
 min(compl_override_data_this_year$COMP_WEEK_START_DT)
-# [1] "2021-12-27 EST"
+# [1] "2021-12-27 EST" #this should be the last week in the year before my_year, to account for compliance week that overlaps last week of the year and first week of my_year
 min(compl_override_data_this_year$COMP_WEEK_END_DT)
-# [1] "2022-01-02 EST"
+# [1] "2022-01-02 EST" #this should be the 1st date in my_year
 
 # change data type of this column if needed
 if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
@@ -332,17 +336,22 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
 }
 
 ## Import and prep the permit data ----
-# use Metrics Tracking report from FHIER
+# use Metrics Tracking report from FHIER (for the analysis year(S))
 # remove SRHS vessels from the list
 
 # import the permit data
-SEFHIER_metrics_tracking <- read.csv(
+SEFHIER_metrics_tracking_path <-
   file.path(
-    Path,
-    Inputs,
-    "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_2022.csv"
+  Path,
+  Inputs,
+  paste0(
+    "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_",
+    my_year,
+    ".csv"
   )
 )
+
+SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
 
 # rename column headers
 SEFHIER_metrics_tracking <-
@@ -353,12 +362,12 @@ SEFHIER_metrics_tracking <-
 # import the list of SRHS vessels
 # this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
 SRHS_vessels <-
-  read_csv(paste(Path, Inputs, "2022SRHSvessels.csv", sep = ""))
+  read_csv(file.path(Path, Inputs, paste0(my_year, "SRHSvessels.csv")))
 
 # Rename and reformat column
 SRHS_vessels <-
   rename(SRHS_vessels,
-       VESSEL_OFFICIAL_NUMBER = "USCG #")
+         VESSEL_OFFICIAL_NUMBER = "USCG #")
 
 if (!class(SRHS_vessels$VESSEL_OFFICIAL_NUMBER) == "character") {
   SRHS_vessels$VESSEL_OFFICIAL_NUMBER <-
@@ -367,7 +376,7 @@ if (!class(SRHS_vessels$VESSEL_OFFICIAL_NUMBER) == "character") {
 
 # stats
 my_stats(SEFHIER_metrics_tracking,
-        title_msg = "SEFHIER_metrics_tracking")
+         title_msg = "SEFHIER_metrics_tracking")
 # rows: 3598
 # columns: 13
 # Unique vessels: 3598
@@ -408,7 +417,7 @@ SEFHIER_permit_info_short <-
            as.Date(EFFECTIVE_DATE, "%m/%d/%Y"),
          END_DATE =
            as.Date(END_DATE, "%m/%d/%Y")
-         )
+  )
 
 SEFHIER_permit_info_short_this_year <-
   SEFHIER_permit_info_short |>
@@ -429,8 +438,8 @@ my_stats(SEFHIER_permit_info_short_this_year)
 
 logbooks_file_path <-
   file.path(Path,
-        Outputs,
-        "SAFIS_TripsDownload_1.1.22-12.01.23.rds")
+            Outputs,
+            paste0("SAFIS_TripsDownload_", my_year, ".rds"))
 
 # 2) create a variable with an SQL query to call data from the database
 
@@ -541,12 +550,14 @@ time_col_names <-
 
 Logbooks <-
   Logbooks |>
-  mutate(across(c(!where(is.numeric) & all_of(time_col_names)),
-                as.numeric)) |>
+  mutate(across(c(
+    !where(is.numeric) & all_of(time_col_names)
+  ),
+  as.numeric)) |>
   mutate(across(all_of(time_col_names),
-         ~ sprintf("%04d", .x)))
+                ~ sprintf("%04d", .x)))
 
-### Filter out just 2022 logbook entries ----
+### Filter out just my analysis year logbook entries ----
 
 # check
 # min(Logbooks$TRIP_START_DATE)
@@ -564,7 +575,7 @@ logbooks_stat_correct_dates_before_filtering <-
   c(dim(Logbooks),
     n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER),
     n_distinct(Logbooks$TRIP_ID)
-    )
+  )
 
 my_stats(Logbooks, "Logbooks after filtering by dates")
 # rows: 327773
@@ -639,7 +650,7 @@ compl_override_data_this_year |>
 
 ## add override data to logbooks ----
 my_stats(compl_override_data_this_year,
-        "Compl/override data from the db")
+         "Compl/override data from the db")
 # rows: 151515
 # columns: 19
 # Unique vessels: 3740
@@ -654,7 +665,7 @@ logbooks_join_overr <-
                     VESSEL_OFFICIAL_NUMBER,
                     COMP_WEEK),
             relationship = "many-to-many"
-            )
+  )
 
 # stats
 my_stats(Logbooks)
@@ -710,9 +721,9 @@ my_stats(logbooks_NA)
 
 vessels_missing <-
   setdiff(
-  SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER,
-  compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
-)
+    SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER,
+    compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
+  )
 
 # stats
 my_tee(n_distinct(vessels_missing),
@@ -748,7 +759,7 @@ logbooks_NA__rm_missing_vsls <- logbooks_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
 
 my_stats(logbooks_NA__rm_missing_vsls,
-        "logbooks_NA after removing missing logbooks")
+         "logbooks_NA after removing missing logbooks")
 # Unique vessels: 17
 # Unique trips (logbooks): 97
 
@@ -787,7 +798,7 @@ logbooks_notoverridden <-
 # Drop empty columns
 logbooks_notoverridden <-
   logbooks_notoverridden |>
-    select(where(not_all_na))
+  select(where(not_all_na))
 
 # diffdf::diffdf(logbooks_notoverridden,
 #                logbooks_notoverridden1)
@@ -812,10 +823,10 @@ uniq_trips_lost_by_overr <-
 # 2981
 
 my_tee(uniq_vessels_lost_by_overr,
-  "Thrown away vessels by overridden weeks")
+       "Thrown away vessels by overridden weeks")
 
 my_tee(uniq_trips_lost_by_overr,
-  "Thrown away trips by overridden weeks")
+       "Thrown away trips by overridden weeks")
 
 # Filtering logbook data ----
 # Use logbooks_notoverridden from the previous section
@@ -917,48 +928,54 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
 # 30
 
-## Remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
+### IMPORTANT - comment this section out if running compliance analyses (e.g. for Council presentations) ##################
 
-# subtract the usable date from the date of submission
-# value is true if the logbook was submitted within 30 days, false if the logbook was not
-SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
-  SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-  mutate(USABLE =
-           ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
+#for Compliance analyses, usable logbooks ignores steps in lines below :
+SEFHIER_logbooks_usable <- SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
 
-### Filter: data frame of logbooks that were usable ----
-SEFHIER_logbooks_usable <-
-  SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-  filter(USABLE == TRUE)
-
-# stats
-my_stats(SEFHIER_logbooks_usable)
-# rows: 271479
-# columns: 155
-# Unique vessels: 1629
-# Unique trips (logbooks): 73313
-
-late_submission <-
-  SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-  filter(USABLE == FALSE)
-
-my_tee(n_distinct(late_submission$TRIP_ID),
-       "Thrown away by late_submission (logbooks num)")
-# trip_ids: 16449
-
-my_tee(n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
-       "Thrown away by late_submission (vessels num)")
-# 1064
-
-# check
-min(SEFHIER_logbooks_usable$TRIP_START_DATE)
-# [1] "2022-01-01"
-max(SEFHIER_logbooks_usable$TRIP_START_DATE)
-# [1] "2022-12-31"
-min(SEFHIER_logbooks_usable$TRIP_END_DATE)
-# [1] "2022-01-01"
-max(SEFHIER_logbooks_usable$TRIP_END_DATE)
-# [1] "2022-12-31"
+#for non-compliance focused analyses, comment line 924 and run code below to get "SEFHIER_logbooks_usable" DF
+# ## Remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
+#
+# # subtract the usable date from the date of submission
+# # value is true if the logbook was submitted within 30 days, false if the logbook was not
+# SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
+#   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
+#   mutate(USABLE =
+#            ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
+#
+# ### Filter: data frame of logbooks that were usable ----
+# SEFHIER_logbooks_usable <-
+#   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
+#   filter(USABLE == TRUE)
+#
+# # stats
+# my_stats(SEFHIER_logbooks_usable)
+# # rows: 271479
+# # columns: 155
+# # Unique vessels: 1629
+# # Unique trips (logbooks): 73313
+#
+# late_submission <-
+#   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
+#   filter(USABLE == FALSE)
+#
+# my_tee(n_distinct(late_submission$TRIP_ID),
+#        "Thrown away by late_submission (logbooks num)")
+# # trip_ids: 16449
+#
+# my_tee(n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
+#        "Thrown away by late_submission (vessels num)")
+# # 1064
+#
+# # check
+# min(SEFHIER_logbooks_usable$TRIP_START_DATE)
+# # [1] "2022-01-01"
+# max(SEFHIER_logbooks_usable$TRIP_START_DATE)
+# # [1] "2022-12-31"
+# min(SEFHIER_logbooks_usable$TRIP_END_DATE)
+# # [1] "2022-01-01"
+# max(SEFHIER_logbooks_usable$TRIP_END_DATE)
+# # [1] "2022-12-31"
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
@@ -1020,31 +1037,31 @@ my_stats(SEFHIER_logbooks_usable)
 logbooks_before_filtering <-
   n_distinct(Logbooks$TRIP_ID)
 
-# my_tee(logbooks_before_filtering,
-#        "Logbooks before filtering")
+my_tee(logbooks_before_filtering,
+        "Logbooks before filtering")
 # [1] 94714
 
 logbooks_after_filtering <-
   n_distinct(SEFHIER_logbooks_usable$TRIP_ID)
 
-# my_tee(logbooks_after_filtering,
-#        "Logbooks after filtering")
+my_tee(logbooks_after_filtering,
+        "Logbooks after filtering")
 # [1] 73313
 
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
-# cat(percent_of_removed_logbooks)
+ cat(percent_of_removed_logbooks)
 # 22.59539
 
 # removed_vessels
 vessels_before_filtering <-
   n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER)
-# cat(vessels_before_filtering)
+ cat(vessels_before_filtering)
 # 1882
 
 vessels_after_filtering <-
   n_distinct(SEFHIER_logbooks_usable$VESSEL_OFFICIAL_NUMBER)
-# cat(vessels_after_filtering)
+ cat(vessels_after_filtering)
 # 1629
 
 removed_vessels <-
@@ -1087,12 +1104,17 @@ jennys_file_path <-
             Outputs,
             str_glue("SEFHIER_usable_Logbooks_{my_year}.rds"))
 
+michelles_file_path <-
+  file.path(Path,
+            Outputs,
+            str_glue("SEFHIER_usable_Logbooks_{my_year}.rds"))
+
 # !! Change to the correct path !!
 output_file_path <-
+  # michelles_file_path
   annas_file_path
 
 write_rds(
   SEFHIER_logbooks_usable,
   file = output_file_path
 )
-
