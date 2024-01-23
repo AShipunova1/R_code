@@ -360,7 +360,8 @@ get_multiple_entries_per_vessel <-
       ungroup() |>
       filter(multiple_entries > 0) |>
       rename_with(~ str_glue("multiple_{to_check_col_name}s"),
-                  multiple_entries)
+                  multiple_entries) |>
+      arrange(!!sym(vessel_id_col_name))
 
     return(multiple_res)
   }
@@ -368,11 +369,12 @@ get_multiple_entries_per_vessel <-
 short_compliance_from_fhier_to_test_res <-
   get_multiple_entries_per_vessel(short_compliance_from_fhier_to_test,
                                   "vessel_official_number",
-                                  "permitgroup") |>
-  arrange(vessel_official_number)
+                                  "permitgroup")
+
+nrow(short_compliance_from_fhier_to_test_res)
+# 10
 
 # short_compliance_from_fhier_to_test_res |>
-#   arrange(vessel_official_number) |>
 #   diffdf::diffdf(short_compliance_from_fhier_to_test_res1)
 # # No issues were found!
 
@@ -596,13 +598,22 @@ all_4_dfs3$db_logbooks |>
 # $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
 # $ notif_accsp_permit_id    <dbl> 584995, NA
 
-db_logbooks_milti_test_res <-
+db_logbooks_multi_test_res <-
   get_multiple_entries_per_vessel(all_4_dfs3$db_logbooks,
                                   "vessel_official_nbr",
                                   "notif_accsp_permit_id")
 
-dim(db_logbooks_milti_test_res)
-# [1] 714   8
+nrow(db_logbooks_multi_test_res)
+# [1] 714
+
+db_logbooks_multi_test_res |>
+  write_csv(
+    file.path(
+      curr_proj_output_path,
+      "db_logbooks__multiple_notif_accsp_permit_id.csv"
+    )
+  )
+
 
 vessel_in_db_logbooks_not_in_permit_info <-
   setdiff(
