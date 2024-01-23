@@ -180,15 +180,18 @@ col_names_to_keep <- map(all_4_dfs1, names_to_keep)
 # 3. The 'select' function is used to choose specific columns from the data frame 'x'.
 # 4. The column names to be kept are specified by 'col_names_to_keep[[idx]]'.
 # 5. The pipeline operator '|>' is used to pass the result to the next operation.
-# 6. The 'select' function is again used to exclude columns containing the substring "trip".
+# 6. The 'select' function is again used to exclude columns containing the substring "trip" and any of others.
 # 7. The result of this selective transformation is stored in the 'all_4_dfs2' list.
 all_4_dfs2 <-
   imap(all_4_dfs1,
        function(x, idx)
        {
          select(x,
-                col_names_to_keep[[idx]]) |>
-           select(-contains("trip")) |>
+                col_names_to_keep[[idx]],
+                any_of(c("top"))) |>
+           select(-contains("trip"),
+                  -any_of(c("gom_permitteddeclarations__",
+                            "vessel_name"))) |>
            remove_empty_cols() |>
            distinct()
        }
@@ -201,16 +204,10 @@ all_4_dfs3 <- all_4_dfs2
 
 ## individual df preparations ----
 
-### rm an unused column ----
-all_4_dfs3$compliance_from_fhier <-
-  all_4_dfs2$compliance_from_fhier |>
-  select(-gom_permitteddeclarations__) |>
-  distinct()
-
 ### compliance_from_fhier: split permit column ----
 
 all_4_dfs3$compliance_from_fhier <-
-  all_4_dfs3$compliance_from_fhier |>
+  all_4_dfs2$compliance_from_fhier |>
   mutate(permitgroup_sep_0 =
            gsub("\\(([^)]+)\\)", "\\1,", permitgroup)
   ) |>
