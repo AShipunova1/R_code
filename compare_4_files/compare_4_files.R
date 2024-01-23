@@ -161,8 +161,31 @@ permit_info$END_DATE |>
 max(permit_info$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
 
-dim(permit_info)
-# [1] 183855     22
+### permit_info groups ----
+permit_info |>
+  select(TOP, PERMIT_GROUP) |>
+  distinct() |>
+  View()
+
+all_4_dfs3$metrics_report |>
+  rowwise() |>
+  unite(permits_str,
+        starts_with("permits_trim"),
+        sep = ";") |>
+  ungroup() |>
+  str()
+
+           # list_c()
+  as.list(strsplit(str, '\\s+')[[1]])
+
+  # mutate(permits_lst =
+           # list_c()
+
+mutate(permits_lst =
+         across(starts_with("permits_trim"))) |>
+  select(permits_lst) |>
+  distinct() |>
+  View()
 
 ## all 4 dataframes ----
 # llist is like list except that it preserves the names or labels of the component variables in the variables label attribute.
