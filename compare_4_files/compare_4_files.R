@@ -98,68 +98,6 @@ dim(metrics_report)
 # [1] 3606   13
 
 ## permit table from the Oracle db ----
-
-# ## 4) joined permit and vessel tables from the Oracle db ----
-
-# # Need both tables to get the vessel official numbers
-# # get_vessels with permits 2021+ ----
-#
-# dates_filter <- " (end_date >= TO_DATE('01-JAN-21', 'dd-mon-yy')
-#     OR expiration_date >= TO_DATE('01-JAN-21', 'dd-mon-yy') )
-#   AND effective_date <= CURRENT_DATE
-# "
-# # Use that "dates_filter" in all parts of the union below.
-#
-# # The 3 part union is needed because while the permit table has only one vessel id, the vessel table has 3 different columns for that (sero_official_number, coast_guard_nbr and state_reg_nbr) and we want to join tables by all 3 in turn.
-# # stringr::str_glue is a function that allows you to create strings with placeholders for variable values. It works by using curly braces {} to enclose variable names within a string.
-# vessels_permits_query <-
-#   stringr::str_glue("SELECT
-#   *
-# FROM
-#        srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
-#   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
-#   ON ( p.vessel_id = sero_official_number )
-# WHERE {dates_filter}
-# UNION ALL
-# SELECT
-#   *
-# FROM
-#        srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
-#   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
-#   ON ( p.vessel_id = coast_guard_nbr )
-# WHERE
-#   {dates_filter}
-# UNION ALL
-# SELECT
-#   *
-# FROM
-#        srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
-#   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov
-#   ON ( p.vessel_id = state_reg_nbr )
-# WHERE
-# {dates_filter}
-# ")
-#
-# vessels_permits_file_path <-
-#   file.path(my_paths$inputs, "get_db_data", "vessels_permits.rds")
-#
-# vessels_permits_fun <-
-#   function(vessels_permits_query) {
-#     return(dbGetQuery(con,
-#                       vessels_permits_query))
-#   }
-#
-# get_vessels_permits <-
-#   function() {
-#     read_rds_or_run(vessels_permits_file_path,
-#                     vessels_permits_query,
-#                     vessels_permits_fun) |>
-#       vessels_permits_id_clean()
-#   }
-#
-# vessels_permits <- get_vessels_permits()
-# # File: vessels_permits.rds modified 2024-01-02 10:27:22.824263
-
 dates_filter <- " (end_date >= TO_DATE('01-JAN-21', 'dd-mon-yy')
     OR expiration_date >= TO_DATE('01-JAN-21', 'dd-mon-yy') )
   AND effective_date <= CURRENT_DATE
