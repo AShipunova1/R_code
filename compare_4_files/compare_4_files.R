@@ -381,25 +381,25 @@ file_name_combinations <-
   combn(all_4_df_names, 2)
 
 # compare each pair ----
-file_name_combinations[,1]
 ## [1] "compliance_from_fhier" "db_logbooks" ----
+file_name_combinations[,1]
 
 # print_df_names(all_4_dfs3$compliance_from_fhier)
 # print_df_names(all_4_dfs3$db_logbooks)
 
-join1_compliance_from_fhier__db_logbooks <-
+join_compliance_from_fhier__db_logbooks <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
     all_4_dfs3$db_logbooks,
     join_by(vessel_official_number == vessel_official_nbr)
   )
 
-# View(join1_compliance_from_fhier__db_logbooks)
+# View(join_compliance_from_fhier__db_logbooks)
 
 ### vessel is in compliance_from_fhier, not in db_logbooks ----
 
 vessel_in_compl_not_in_logb <-
-  join1_compliance_from_fhier__db_logbooks |>
+  join_compliance_from_fhier__db_logbooks |>
   filter(is.na(vessel_id)) |>
   select(vessel_official_number) |>
   distinct()
@@ -407,17 +407,240 @@ vessel_in_compl_not_in_logb <-
 dim(vessel_in_compl_not_in_logb)
 # 1803
 
-vessel_in_logb_not_in_compl <-
+vessel_in_compl_not_in_logb <-
   setdiff(
     all_4_dfs3$compliance_from_fhier$vessel_official_number,
     all_4_dfs3$db_logbooks$vessel_official_nbr
   )
+length(vessel_in_compl_not_in_logb)
+# 1803
 
-vessel_in_compl_not_in_logb <-
+vessel_in_logb_not_in_compl <-
   setdiff(
     all_4_dfs3$db_logbooks$vessel_official_nbr,
     all_4_dfs3$compliance_from_fhier$vessel_official_number
   )
+length(vessel_in_logb_not_in_compl)
+# 2
 
 glimpse(vessel_in_compl_not_in_logb)
- # chr [1:2] "1038780" "1292480"
+# chr [1:2] "1038780" "1292480"
+# "1292480/NC0676EK"
+
+# all_4_dfs3$db_logbooks |>
+#   filter(vessel_official_nbr == "NC0676EK")
+# 0
+#
+
+## [2] "compliance_from_fhier" "metrics_report" ----
+file_name_combinations[,2]
+
+# print_df_names(all_4_dfs3$compliance_from_fhier)
+# print_df_names(all_4_dfs3$metrics_report)
+
+join_compliance_from_fhier__metrics_report <-
+  full_join(
+    all_4_dfs3$compliance_from_fhier,
+    all_4_dfs3$metrics_report,
+    join_by(vessel_official_number)
+  )
+
+vessel_in_compl_not_in_metrics <-
+  setdiff(
+    all_4_dfs3$compliance_from_fhier$vessel_official_number,
+    all_4_dfs3$metrics_report$vessel_official_number
+  )
+
+length(vessel_in_compl_not_in_metrics)
+# 240
+
+vessel_in_metrics_not_in_compl <-
+  setdiff(
+    all_4_dfs3$metrics_report$vessel_official_number,
+    all_4_dfs3$compliance_from_fhier$vessel_official_number
+  )
+
+length(vessel_in_metrics_not_in_compl)
+# 159
+#
+
+
+## [3] "compliance_from_fhier" "permit_info" ----
+file_name_combinations[,3]
+
+# print_df_names(all_4_dfs3$compliance_from_fhier)
+# print_df_names(all_4_dfs3$permit_info)
+
+join_compliance_from_fhier__permit_info <-
+  full_join(
+    all_4_dfs3$compliance_from_fhier,
+    all_4_dfs3$permit_info,
+    join_by(vessel_official_number == vessel_id)
+  )
+#   Detected an unexpected many-to-many relationship between `x` and `y`.
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 74282 of `y` matches multiple rows in `x`.
+
+vessel_in_compl_not_in_permit_info <-
+  setdiff(
+    all_4_dfs3$compliance_from_fhier$vessel_official_number,
+    all_4_dfs3$permit_info$vessel_official_number
+  )
+
+length(vessel_in_compl_not_in_permit_info)
+# 3687
+
+vessel_in_compl_not_in_permit_info_alt <-
+  setdiff(
+    all_4_dfs3$compliance_from_fhier$vessel_official_number,
+    all_4_dfs3$permit_info$vessel_alt_num
+  )
+
+length(vessel_in_compl_not_in_permit_info_alt)
+# 171
+
+vessel_in_permit_info_not_in_compl <-
+  setdiff(
+    all_4_dfs3$permit_info$vessel_official_number,
+    all_4_dfs3$compliance_from_fhier$vessel_official_number
+  )
+
+length(vessel_in_permit_info_not_in_compl)
+# 0
+
+## [4] "db_logbooks" "metrics_report" ----
+file_name_combinations[,4]
+
+# print_df_names(all_4_dfs3$db_logbooks)
+# print_df_names(all_4_dfs3$metrics_report)
+
+join_db_logbooks__metrics_report <-
+  full_join(
+    all_4_dfs3$db_logbooks,
+    all_4_dfs3$metrics_report,
+    join_by(vessel_official_nbr == vessel_official_number)
+  )
+
+vessel_in_db_logbooks_not_in_metrics_report <-
+  setdiff(
+    all_4_dfs3$db_logbooks$vessel_official_nbr,
+    all_4_dfs3$metrics_report$vessel_official_number
+  )
+
+length(vessel_in_db_logbooks_not_in_metrics_report)
+# 42
+
+vessel_in_metrics_report_not_in_db_logbooks <-
+  setdiff(
+    all_4_dfs3$metrics_report$vessel_official_number,
+    all_4_dfs3$db_logbooks$vessel_official_nbr
+  )
+
+length(vessel_in_metrics_report_not_in_db_logbooks)
+# 1762
+
+## [5] "db_logbooks" "permit_info" ----
+file_name_combinations[,5]
+
+# print_df_names(all_4_dfs3$db_logbooks)
+# print_df_names(all_4_dfs3$permit_info)
+
+join_db_logbooks__permit_info <-
+  full_join(
+    all_4_dfs3$db_logbooks,
+    all_4_dfs3$permit_info,
+    join_by(vessel_official_nbr == vessel_id)
+  )
+#   Detected an unexpected many-to-many relationship between `x` and `y`.
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 111110 of `y` matches multiple rows in `x`.
+
+vessel_in_db_logbooks_not_in_permit_info <-
+  setdiff(
+    all_4_dfs3$db_logbooks$vessel_official_nbr,
+    all_4_dfs3$permit_info$vessel_id
+  )
+
+length(vessel_in_db_logbooks_not_in_permit_info)
+# 1
+
+vessel_in_db_logbooks_not_in_permit_info_alt <-
+  setdiff(
+    all_4_dfs3$db_logbooks$vessel_official_nbr,
+    all_4_dfs3$permit_info$vessel_alt_num
+  )
+
+length(vessel_in_db_logbooks_not_in_permit_info_alt)
+# 92
+
+vessel_in_permit_info_not_in_db_logbooks <-
+  setdiff(
+    all_4_dfs3$permit_info$vessel_id,
+    all_4_dfs3$db_logbooks$vessel_official_nbr
+  )
+
+length(vessel_in_permit_info_not_in_db_logbooks)
+# 12176
+
+
+vessel_in_permit_info_not_in_db_logbooks_alt <-
+  setdiff(
+    all_4_dfs3$permit_info$vessel_alt_num,
+    all_4_dfs3$db_logbooks$vessel_official_nbr
+  )
+
+length(vessel_in_permit_info_not_in_db_logbooks_alt)
+# 12247
+
+file_name_combinations[,6]
+
+
+## [6] "metrics_report" "permit_info" ----
+file_name_combinations[,6]
+
+# print_df_names(all_4_dfs3$metrics_report)
+# print_df_names(all_4_dfs3$permit_info)
+
+join_metrics_report__permit_info <-
+  full_join(
+    all_4_dfs3$metrics_report,
+    all_4_dfs3$permit_info,
+    join_by(vessel_official_number == vessel_id)
+  )
+
+vessel_in_metrics_report_not_in_permit_info <-
+  setdiff(
+    all_4_dfs3$metrics_report$vessel_official_number,
+    all_4_dfs3$permit_info$vessel_id
+  )
+
+length(vessel_in_metrics_report_not_in_permit_info)
+# 5
+
+vessel_in_metrics_report_not_in_permit_info_alt <-
+  setdiff(
+    all_4_dfs3$metrics_report$vessel_official_number,
+    all_4_dfs3$permit_info$vessel_alt_num
+  )
+
+length(vessel_in_metrics_report_not_in_permit_info_alt)
+# 161
+
+vessel_in_permit_info_not_in_metrics_report <-
+  setdiff(
+    all_4_dfs3$permit_info$vessel_id,
+    all_4_dfs3$metrics_report$vessel_official_number
+  )
+
+length(vessel_in_permit_info_not_in_metrics_report)
+# 10460
+
+vessel_in_permit_info_not_in_metrics_report_alt <-
+  setdiff(
+    all_4_dfs3$permit_info$vessel_alt_num,
+    all_4_dfs3$metrics_report$vessel_official_number
+  )
+
+length(vessel_in_permit_info_not_in_metrics_report_alt)
+# 10596
+
