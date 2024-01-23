@@ -585,10 +585,22 @@ join_db_logbooks__permit_info <-
     join_by(vessel_official_nbr == vessel_id)
   )
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
-# ℹ Row 1 of `x` matches multiple rows in `y`.
-# ℹ Row 111110 of `y` matches multiple rows in `x`.
 
 ### why multiple? ----
+# 1) x to y
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+all_4_dfs3$permit_info |>
+  filter(vessel_id ==
+    all_4_dfs3$db_logbooks[1,][["vessel_official_nbr"]] |
+      vessel_alt_num ==
+    all_4_dfs3$db_logbooks[1,][["vessel_official_nbr"]]) |>
+  glimpse()
+# multiple permits, OK
+# $ permit               <chr> "1066", "1013", "1066", "1013"
+# $ effective_date       <dttm> 2021-06-04, 2021-06-04, 2022-04-18, 2022-04-18
+
+# 2) y to x
+# ℹ Row 111110 of `y` matches multiple rows in `x`.
 all_4_dfs3$db_logbooks |>
   filter(vessel_official_nbr ==
     all_4_dfs3$permit_info[111110,][["vessel_id"]] |
@@ -606,14 +618,14 @@ db_logbooks_multi_test_res <-
 nrow(db_logbooks_multi_test_res)
 # [1] 714
 
-db_logbooks_multi_test_res |>
-  write_csv(
-    file.path(
-      curr_proj_output_path,
-      "db_logbooks__multiple_notif_accsp_permit_id.csv"
-    )
-  )
-
+# uncomment to run
+# db_logbooks_multi_test_res |>
+#   write_csv(
+#     file.path(
+#       curr_proj_output_path,
+#       "db_logbooks__multiple_notif_accsp_permit_id.csv"
+#     )
+#   )
 
 vessel_in_db_logbooks_not_in_permit_info <-
   setdiff(
@@ -623,6 +635,21 @@ vessel_in_db_logbooks_not_in_permit_info <-
 
 length(vessel_in_db_logbooks_not_in_permit_info)
 # 1
+
+# 1292480
+# 1292480:NC0676EK........ SOUTHERN RUN - BENJAMIN AUGUSTUS MORRIS  (828) 4298076
+
+all_4_dfs3$permit_info |>
+  filter(vessel_id == "NC0676EK") |>
+  dim()
+# [1] 18  9
+
+all_4_dfs3$db_logbooks |>
+  filter(vessel_official_nbr == "1292480" |
+           vessel_official_nbr == "NC0676EK") |>
+  glimpse()
+# In db_logbooks 1292480 only. (PIMS "No items available", Official Number From USCG Certificate Of Documentation)
+# In permit_info NC0676EK only.
 
 vessel_in_db_logbooks_not_in_permit_info_alt <-
   setdiff(
@@ -704,3 +731,4 @@ vessel_in_permit_info_not_in_metrics_report_alt <-
 length(vessel_in_permit_info_not_in_metrics_report_alt)
 # 10596
 
+file_name_combinations |> View()
