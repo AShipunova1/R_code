@@ -350,6 +350,7 @@ get_multiple_entries_per_vessel <-
   function(my_df,
            vessel_id_col_name,
            to_check_col_name) {
+    # browser()
 
     multiple_res <-
       my_df |>
@@ -357,7 +358,9 @@ get_multiple_entries_per_vessel <-
       mutate(multiple_entries =
                +(n_distinct(!!sym(to_check_col_name)) > 1)) |>
       ungroup() |>
-      filter(multiple_entries > 0)
+      filter(multiple_entries > 0) |>
+      rename_with(~ str_glue("multiple_{to_check_col_name}s"),
+                  multiple_entries)
 
     return(multiple_res)
   }
@@ -366,10 +369,11 @@ short_compliance_from_fhier_to_test_res1 <-
   get_multiple_entries_per_vessel(short_compliance_from_fhier_to_test,
                                   "vessel_official_number",
                                   "permitgroup") |>
-  rename("multiple_permitgroups" = "multiple_entries")
+  arrange(vessel_official_number)
 
-diffdf::diffdf(short_compliance_from_fhier_to_test_res,
-               short_compliance_from_fhier_to_test_res1)
+short_compliance_from_fhier_to_test_res |>
+  arrange(vessel_official_number) |>
+  diffdf::diffdf(short_compliance_from_fhier_to_test_res1)
 # No issues were found!
 
 short_compliance_from_fhier_to_test_res <-
