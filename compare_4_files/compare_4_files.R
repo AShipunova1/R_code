@@ -515,18 +515,20 @@ join_compliance_from_fhier__permit_info <-
     all_4_dfs3$permit_info,
     join_by(vessel_official_number)
   )
+# View(join_compliance_from_fhier__permit_info)
+
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
-# ℹ Row 74282 of `y` matches multiple rows in `x`.
+# ℹ Row 74370 of `y` matches multiple rows in `x`.
 
 ### why multiple? ----
 # 1) x to y
 # ℹ Row 1 of `x` matches multiple rows in `y`.
-all_4_dfs3$compliance_from_fhier |>
+all_4_dfs3$permit_info |>
   filter(vessel_official_number ==
-    all_4_dfs3$permit_info[1,][["vessel_official_number"]] |
-      vessel_official_number ==
-    all_4_dfs3$permit_info[1,][["vessel_alt_num"]]) |>
+    all_4_dfs3$compliance_from_fhier[1,][["vessel_official_number"]] |
+      vessel_alt_num ==
+    all_4_dfs3$compliance_from_fhier[1,][["vessel_official_number"]]) |>
   glimpse()
 
 all_4_dfs3$compliance_from_fhier |>
