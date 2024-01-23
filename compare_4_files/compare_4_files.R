@@ -366,26 +366,26 @@ get_multiple_entries_per_vessel <-
     return(multiple_res)
   }
 
-short_compliance_from_fhier_to_test_res <-
+short_compliance_from_fhier_multi_permitgroups <-
   get_multiple_entries_per_vessel(short_compliance_from_fhier_to_test,
                                   "vessel_official_number",
                                   "permitgroup")
 
-nrow(short_compliance_from_fhier_to_test_res)
+nrow(short_compliance_from_fhier_multi_permitgroups)
 # 10
 
-# short_compliance_from_fhier_to_test_res |>
-#   diffdf::diffdf(short_compliance_from_fhier_to_test_res1)
+# short_compliance_from_fhier_multi_permitgroups |>
+#   diffdf::diffdf(short_compliance_from_fhier_multi_permitgroups1)
 # # No issues were found!
 
-# short_compliance_from_fhier_to_test_res1 <-
+# short_compliance_from_fhier_multi_permitgroups1 <-
 #   short_compliance_from_fhier_to_test |>
 #   group_by(vessel_official_number) |>
 #   mutate(multiple_permitgroups = +(n_distinct(permitgroup) > 1)) %>%
 #   ungroup() |>
 #   filter(multiple_permitgroups > 0)
 
-# short_compliance_from_fhier_to_test_res |>
+# short_compliance_from_fhier_multi_permitgroups |>
 # write_csv(
 #     file.path(
 #       curr_proj_output_path,
@@ -610,16 +610,16 @@ all_4_dfs3$db_logbooks |>
 # $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
 # $ notif_accsp_permit_id    <dbl> 584995, NA
 
-db_logbooks_multi_test_res <-
+db_logbooks_multi_notif_accsp_permit_id <-
   get_multiple_entries_per_vessel(all_4_dfs3$db_logbooks,
                                   "vessel_official_nbr",
                                   "notif_accsp_permit_id")
 
-nrow(db_logbooks_multi_test_res)
+nrow(db_logbooks_multi_notif_accsp_permit_id)
 # [1] 714
 
 # uncomment to run
-# db_logbooks_multi_test_res |>
+# db_logbooks_multi_notif_accsp_permit_id |>
 #   write_csv(
 #     file.path(
 #       curr_proj_output_path,
@@ -669,7 +669,6 @@ vessel_in_permit_info_not_in_db_logbooks <-
 length(vessel_in_permit_info_not_in_db_logbooks)
 # 12176
 
-
 vessel_in_permit_info_not_in_db_logbooks_alt <-
   setdiff(
     all_4_dfs3$permit_info$vessel_alt_num,
@@ -678,9 +677,6 @@ vessel_in_permit_info_not_in_db_logbooks_alt <-
 
 length(vessel_in_permit_info_not_in_db_logbooks_alt)
 # 12247
-
-file_name_combinations[,6]
-
 
 ## [6] "metrics_report" "permit_info" ----
 file_name_combinations[,6]
@@ -731,4 +727,3 @@ vessel_in_permit_info_not_in_metrics_report_alt <-
 length(vessel_in_permit_info_not_in_metrics_report_alt)
 # 10596
 
-file_name_combinations |> View()
