@@ -350,7 +350,6 @@ all_4_dfs3$metrics_report <-
 
 all_4_dfs3$db_logbooks <-
   all_4_dfs3$db_logbooks |>
-  select(-vessel_name) |>
   rename("vessel_official_number" = "vessel_official_nbr",
          "db_logbooks_vessel_id" = "vessel_id") # needed to see if NA in the full join
 
@@ -467,6 +466,38 @@ join_compliance_from_fhier__permit_info <-
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 74282 of `y` matches multiple rows in `x`.
+
+### why multiple? ----
+# 1) x to y
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+all_4_dfs3$compliance_from_fhier |>
+  filter(vessel_official_number ==
+    all_4_dfs3$permit_info[1,][["vessel_official_number"]] |
+      vessel_official_number ==
+    all_4_dfs3$permit_info[1,][["vessel_alt_num"]]) |>
+  glimpse()
+
+all_4_dfs3$compliance_from_fhier |>
+  filter(vessel_official_number == "579608") |>
+  nrow()
+# 0
+
+all_4_dfs3$permit_info |>
+  filter(vessel_official_number == "579608") |>
+  nrow()
+# 27 (multiple permits, ok)
+
+# 2) y to x
+# ℹ Row 74282 of `y` matches multiple rows in `x`.
+all_4_dfs1$permit_info[74282,]
+
+all_4_dfs3$permit_info |>
+  filter(vessel_official_number ==
+    all_4_dfs3$compliance_from_fhier[74282,][["vessel_official_number"]] |
+      vessel_alt_num ==
+    all_4_dfs3$compliance_from_fhier[74282,][["vessel_official_number"]]) |>
+  nrow()
+# 0
 
 vessel_in_compl_not_in_permit_info <-
   setdiff(
