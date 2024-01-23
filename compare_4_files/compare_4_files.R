@@ -2,7 +2,7 @@
 # 1) compliance report downloaded from FHIER (= complaince module)
 # 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types)
 # 3) Metrics tracking from FHIER
-# 4) joined permit and vessel tables from the Oracle db
+# 4) permit info from the Oracle db
 # check transformed permits
 
 # setup ----
@@ -171,6 +171,8 @@ all_4_dfs <-
     metrics_report,
     permit_info)
 
+# View(all_4_dfs)
+
 # str(all_4_dfs$db_logbooks)
 
 all_4_df_names <- names(all_4_dfs)
@@ -202,6 +204,8 @@ names_to_keep <-
 ### Apply the names_to_keep function to each dataframe in all_4_dfs1 ----
 col_names_to_keep <- map(all_4_dfs1, names_to_keep)
 
+# View(col_names_to_keep)
+
 # Explanation:
 # 1. The 'imap' function iterates over each element (data frame) in the 'all_4_dfs1' list along with its index.
 # 2. For each data frame, the function inside 'imap' is executed.
@@ -210,6 +214,8 @@ col_names_to_keep <- map(all_4_dfs1, names_to_keep)
 # 5. The pipeline operator '|>' is used to pass the result to the next operation.
 # 6. The 'select' function is again used to exclude columns containing the substring "trip" and any of others.
 # 7. The result of this selective transformation is stored in the 'all_4_dfs2' list.
+
+# View(col_names_to_keep)
 all_4_dfs2 <-
   imap(all_4_dfs1,
        function(x, idx)
@@ -218,8 +224,10 @@ all_4_dfs2 <-
                 col_names_to_keep[[idx]],
                 any_of(c("top"))) |>
            select(-contains("trip"),
-                  -any_of(c("gom_permitteddeclarations__",
-                            "vessel_name"))) |>
+                  -any_of(c(
+                    "gom_permitteddeclarations__",
+                    "vessel_name"
+                  ))) |>
            remove_empty_cols() |>
            distinct()
        }
@@ -363,6 +371,7 @@ all_4_dfs3$metrics_report <-
             permits_sep_s,
             permits))
 
+# for the future use
 all_permits_in_metrics <-
   all_4_dfs3$metrics_report |>
   select(permit_sep_u) |>
@@ -375,7 +384,6 @@ all_permits_in_metrics <-
 # 5 RCG
 # 6 HCHG
 # 7 HRCG
-
 
 ### db_logbooks: unify vessel ids ----
 # grep("vessel", names(all_4_dfs3$db_logbooks), value = T)
@@ -432,6 +440,7 @@ all_4_dfs3$permit_info <-
 nrow(all_4_dfs3$permit_info)
 # 16073
 
+# stopped presenting here
 # check
 setdiff(all_permits_in_metrics$permit_sep_u,
         all_4_dfs3$permit_info$top)
