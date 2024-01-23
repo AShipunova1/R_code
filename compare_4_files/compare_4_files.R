@@ -345,6 +345,41 @@ n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
 #    - '+(...)' converts the logical result to 0 or 1.
 # 4. 'ungroup()' removes the grouping to work with the entire data frame.
 # 5. 'filter(multiple_permitgroups > 0)' filters rows where 'multiple_permitgroups' is greater than 0, keeping only vessels with multiple distinct permit groups.
+
+get_multiple_entries_per_vessel <-
+  function(my_df,
+           vessel_id_col_name,
+           to_check_col_name) {
+
+    multiple_res <-
+      my_df |>
+      group_by(!!sym(vessel_id_col_name)) |>
+      mutate(multiple_entries =
+               +(n_distinct(!!sym(to_check_col_name)) > 1)) |>
+      ungroup() |>
+      filter(multiple_entries > 0)
+
+    return(multiple_res)
+  }
+
+short_compliance_from_fhier_to_test_res1 <-
+  get_multiple_entries_per_vessel(short_compliance_from_fhier_to_test,
+                                  "vessel_official_number",
+                                  "permitgroup") |>
+  rename("multiple_permitgroups" = "multiple_entries")
+
+diffdf::diffdf(short_compliance_from_fhier_to_test_res,
+               short_compliance_from_fhier_to_test_res1)
+# No issues were found!
+
+short_compliance_from_fhier_to_test_res <-
+  short_compliance_from_fhier_to_test |>
+  group_by(vessel_official_number) |>
+  mutate(multiple_permitgroups = +(n_distinct(permitgroup) > 1)) %>%
+  ungroup() |>
+  filter(multiple_permitgroups > 0)
+
+
 short_compliance_from_fhier_to_test_res <-
   short_compliance_from_fhier_to_test |>
   group_by(vessel_official_number) |>
@@ -554,6 +589,25 @@ join_db_logbooks__permit_info <-
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 111110 of `y` matches multiple rows in `x`.
+
+### why multiple? ----
+all_4_dfs3$db_logbooks |>
+  filter(vessel_official_nbr ==
+    all_4_dfs3$permit_info[111110,][["vessel_id"]] |
+      vessel_official_nbr ==
+    all_4_dfs3$permit_info[111110,][["vessel_alt_num"]]) |>
+  glimpse()
+# $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
+# $ notif_accsp_permit_id    <dbl> 584995, NA
+
+all_4_dfs3$db_logbooks |>
+  group_by(vessel_official_nbr) |>
+  mutate(multiple_notif_accsp_permit_id =
+           +(n_distinct(notif_accsp_permit_id) > 1)) |>
+  ungroup() |>
+  filter(multiple_notif_accsp_permit_id > 0) |>
+  dim()
+# [1] 714   8
 
 vessel_in_db_logbooks_not_in_permit_info <-
   setdiff(
