@@ -97,7 +97,7 @@ metrics_report <- read_csv(metrics_report_file_path)
 dim(metrics_report)
 # [1] 3606   13
 
-## permit table from the Oracle db ----
+## 4) permit table from the Oracle db ----
 dates_filter <- " (end_date >= TO_DATE('01-JAN-21', 'dd-mon-yy')
     OR expiration_date >= TO_DATE('01-JAN-21', 'dd-mon-yy') )
   AND effective_date <= CURRENT_DATE
@@ -144,6 +144,7 @@ all_4_dfs <-
     permit_info)
 
 # str(all_4_dfs$db_logbooks)
+
 all_4_df_names <- names(all_4_dfs)
 
 # prepare data for comparison ----
@@ -151,7 +152,7 @@ all_4_df_names <- names(all_4_dfs)
 all_4_dfs1 <- map(all_4_dfs, clean_headers)
 # View(all_4_dfs1)
 
-## keep only vessel_id and permit columns ----
+## keep only vessel ids and permit columns ----
 
 # Explanation:
 # 1. The 'names_to_keep' function takes a data frame ('my_df') as input.
@@ -345,7 +346,24 @@ all_4_dfs3$metrics_report <-
     cols_remove = F
   )
 
-# str(all_4_dfs3$metrics_report)
+### db_logbooks: unify vessel ids ----
+# grep("vessel", names(all_4_dfs3$db_logbooks), value = T)
+# [1] "vessel_id"           "vessel_official_nbr" "vessel_name"
+# [4] "sero_vessel_permit"  "garfo_vessel_permit"
+
+all_4_dfs3$db_logbooks <-
+  all_4_dfs3$db_logbooks |>
+  select(-c(vessel_id, vessel_name)) |>
+  rename("vessel_official_number" = "vessel_official_nbr")
+
+### permit_info: unify vessel ids ----
+
+# grep("vessel", names(all_4_dfs3$permit_info), value = T)
+# [1] "vessel_id"      "vessel_alt_num"
+
+all_4_dfs3$permit_info <-
+  all_4_dfs3$permit_info |>
+  rename("vessel_official_number" = "vessel_id")
 
 # get pairs ----
 file_name_combinations <-
