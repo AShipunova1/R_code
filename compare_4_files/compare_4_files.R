@@ -161,12 +161,6 @@ permit_info$END_DATE |>
 max(permit_info$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
 
-### permit_info groups ----
-# permit_info |>
-#   select(TOP, PERMIT_GROUP) |>
-#   distinct() |>
-#   View()
-
 ## all 4 dataframes ----
 # llist is like list except that it preserves the names or labels of the component variables in the variables label attribute.
 all_4_dfs <-
@@ -269,8 +263,6 @@ all_4_dfs3$compliance_from_fhier <-
     vessel_official_number,
     permit_groupexpiration,
     permit_sep_u
-    # permitgroup,
-    # contains("__")
   ) |>
   distinct()
 
@@ -356,15 +348,32 @@ nrow(short_compliance_from_fhier_multi_permitgroups)
 all_4_dfs3$metrics_report <-
   all_4_dfs2$metrics_report |>
   mutate(permits_trim =
-           gsub(" ", "", permits)
-  ) |>
-  separate_wider_delim(
-    cols = permits_trim,
-    delim = ";",
-    names_sep = "__",
-    too_few = "align_start",
-    cols_remove = F
-  )
+           gsub(" ", "", permits)) |>
+  mutate(permits_sep_s =
+           str_split(permits_trim, ";")) |>
+  rowwise() |>
+  mutate(permits_sep_u =
+           list(sort(unique(permits_sep_s)))) |>
+  ungroup() |>
+  unnest_longer(permits_sep_u,
+                values_to = "permit_sep_u") |>
+  select(-c(permits_trim,
+            permits_sep_s,
+            permits))
+
+all_permits_in_metrics <-
+  all_4_dfs3$metrics_report |>
+  select(permit_sep_u) |>
+  distinct()
+
+# 1 CDW
+# 2 CHS
+# 3 SC
+# 4 CHG
+# 5 RCG
+# 6 HCHG
+# 7 HRCG
+
 
 ### db_logbooks: unify vessel ids ----
 # grep("vessel", names(all_4_dfs3$db_logbooks), value = T)
@@ -380,6 +389,8 @@ all_4_dfs3$db_logbooks <-
 
 # grep("vessel", names(all_4_dfs3$permit_info), value = T)
 # [1] "vessel_id"      "vessel_alt_num"
+
+nrow(all_4_dfs3$permit_info)
 
 all_4_dfs3$permit_info <-
   all_4_dfs3$permit_info |>
