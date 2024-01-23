@@ -126,13 +126,14 @@ get_permit_info <-
   function() {
     read_rds_or_run(mv_sero_fh_permits_his_query_file_path,
                     mv_sero_fh_permits_his_query,
-                    mv_sero_fh_permits_his_query_fun,
-                    force_from_db = TRUE
+                    mv_sero_fh_permits_his_query_fun
+                    # force_from_db = TRUE
                     )
   }
 
 permit_info <- get_permit_info()
-# File: permit_info_2022.rds modified Tue Jan 23 11:25:01 2024
+# File: permit_info_2022.rds modified 2024-01-23 12:43:12.146822
+
 nrow(permit_info)
 # [1] 183855
 # [1] 20777    2022 only
@@ -391,6 +392,7 @@ all_4_dfs3$db_logbooks <-
 # [1] "vessel_id"      "vessel_alt_num"
 
 nrow(all_4_dfs3$permit_info)
+# 20730
 
 all_4_dfs3$permit_info <-
   all_4_dfs3$permit_info |>
@@ -428,6 +430,10 @@ all_4_dfs3$permit_info <-
 
 nrow(all_4_dfs3$permit_info)
 # 16073
+
+setdiff(all_permits_in_metrics$permit_sep_u,
+        all_4_dfs3$permit_info$top)
+# 0 both ways, ok
 
 # get pairs ----
 file_name_combinations <-
