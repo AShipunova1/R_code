@@ -258,7 +258,7 @@ all_4_dfs3 <- all_4_dfs2
 
 ### compliance_from_fhier: split permit column ----
 
-all_4_dfs3$compliance_from_fhier <-
+# all_4_dfs3$compliance_from_fhier <-
   all_4_dfs2$compliance_from_fhier |>
   mutate(permitgroup_sep_0 =
            gsub("\\(([^)]+)\\)", "\\1,", permitgroup)
@@ -285,11 +285,21 @@ all_4_dfs3$compliance_from_fhier <-
            stringi::stri_paste(sep = ',', collapse = ',')
        ) |>
   ungroup() |>
-  separate_wider_delim(cols = permitgroup_sep_u_str,
-                       delim = ",",
-                       names_sep = "__",
-                       too_few = "align_start"
-                       )
+  # separate_wider_delim(cols = permitgroup_sep_u_str,
+  #                      delim = ",",
+  #                      names_sep = "__",
+  #                      too_few = "align_start"
+  #                      ) |> View()
+ unnest_longer(permitgroup_sep_u) |>
+  View()
+
+      cols = permitgroup_sep_u_str,
+    names_to = "week",
+    names_prefix = "wk",
+    values_to = "permits_clean",
+    values_drop_na = TRUE) |>
+  View()
+
 
 # View(all_4_dfs3$compliance_from_fhier)
 
@@ -507,7 +517,6 @@ file_name_combinations[,3]
 
 # print_df_names(all_4_dfs3$compliance_from_fhier)
 # print_df_names(all_4_dfs3$permit_info)
-# View(join_compliance_from_fhier__permit_info)
 
 join_compliance_from_fhier__permit_info <-
   full_join(
