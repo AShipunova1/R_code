@@ -162,30 +162,10 @@ max(permit_info$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
 
 ### permit_info groups ----
-permit_info |>
-  select(TOP, PERMIT_GROUP) |>
-  distinct() |>
-  View()
-
-all_4_dfs3$metrics_report |>
-  rowwise() |>
-  unite(permits_str,
-        starts_with("permits_trim"),
-        sep = ";") |>
-  ungroup() |>
-  str()
-
-           # list_c()
-  as.list(strsplit(str, '\\s+')[[1]])
-
-  # mutate(permits_lst =
-           # list_c()
-
-mutate(permits_lst =
-         across(starts_with("permits_trim"))) |>
-  select(permits_lst) |>
-  distinct() |>
-  View()
+# permit_info |>
+#   select(TOP, PERMIT_GROUP) |>
+#   distinct() |>
+#   View()
 
 ## all 4 dataframes ----
 # llist is like list except that it preserves the names or labels of the component variables in the variables label attribute.
@@ -258,58 +238,39 @@ all_4_dfs3 <- all_4_dfs2
 
 ### compliance_from_fhier: split permit column ----
 
-# all_4_dfs3$compliance_from_fhier <-
+temp_compliance_from_fhier <-
   all_4_dfs2$compliance_from_fhier |>
   mutate(permitgroup_sep_0 =
-           gsub("\\(([^)]+)\\)", "\\1,", permitgroup)
-  ) |>
-    mutate(permitgroup_sep_1 =
-           gsub(",,+", ",", permitgroup_sep_0)
-  ) |>
-    mutate(permitgroup_sep =
-           gsub(",$", "", permitgroup_sep_1)
-  ) |>
-      # filter(vessel_official_number == 'FL6900MH') |> View()
+           gsub("\\(([^)]+)\\)", "\\1,", permitgroup)) |>
+  mutate(permitgroup_sep_1 =
+           gsub(",,+", ",", permitgroup_sep_0)) |>
+  mutate(permitgroup_sep =
+           gsub(",$", "", permitgroup_sep_1)) |>
+  # filter(vessel_official_number == 'FL6900MH') |> View()
   # !!! 3
   mutate(permitgroup_sep_s =
-           str_split(permitgroup_sep, ",")
-  ) |>
+           str_split(permitgroup_sep, ",")) |>
   rowwise() |>
   mutate(permitgroup_sep_u =
-           list(sort(unique(permitgroup_sep_s)))
-         ) |>
-    # mutate(a = list(stringi::stri_remove_empty(permitgroup_sep_u))) |>
-    # filter(vessel_official_number == 'FL6900MH') |> View()
-  mutate(permitgroup_sep_u_str =
-           permitgroup_sep_u |>
-           stringi::stri_paste(sep = ',', collapse = ',')
-       ) |>
+           list(sort(unique(permitgroup_sep_s)))) |>
+  # mutate(permitgroup_sep_u_str =
+  #          permitgroup_sep_u |>
+  #          stringi::stri_paste(sep = ',', collapse = ',')
+  #      ) |>
   ungroup() |>
-  # separate_wider_delim(cols = permitgroup_sep_u_str,
-  #                      delim = ",",
-  #                      names_sep = "__",
-  #                      too_few = "align_start"
-  #                      ) |> View()
- unnest_longer(permitgroup_sep_u) |>
-  View()
+  unnest_longer(permitgroup_sep_u,
+                values_to = "permit_sep_u")
 
-      cols = permitgroup_sep_u_str,
-    names_to = "week",
-    names_prefix = "wk",
-    values_to = "permits_clean",
-    values_drop_na = TRUE) |>
-  View()
-
-
-# View(all_4_dfs3$compliance_from_fhier)
+# View(temp_compliance_from_fhier)
 
 all_4_dfs3$compliance_from_fhier <-
-  all_4_dfs3$compliance_from_fhier |>
+  temp_compliance_from_fhier |>
   select(
     vessel_official_number,
     permit_groupexpiration,
+    permit_sep_u
     # permitgroup,
-    contains("__")
+    # contains("__")
   ) |>
   distinct()
 
