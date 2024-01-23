@@ -353,8 +353,9 @@ all_4_dfs3$metrics_report <-
 
 all_4_dfs3$db_logbooks <-
   all_4_dfs3$db_logbooks |>
-  select(-c(vessel_id, vessel_name)) |>
-  rename("vessel_official_number" = "vessel_official_nbr")
+  select(-vessel_name) |>
+  rename("vessel_official_number" = "vessel_official_nbr",
+         "db_logbooks_vessel_id" = "vessel_id") # needed to see if NA in the full join
 
 ### permit_info: unify vessel ids ----
 
@@ -363,6 +364,7 @@ all_4_dfs3$db_logbooks <-
 
 all_4_dfs3$permit_info <-
   all_4_dfs3$permit_info |>
+  mutate(permit_info_vessel_id = vessel_id) |> # want to keep it to see if NA in the full join
   rename("vessel_official_number" = "vessel_id")
 
 # get pairs ----
@@ -380,7 +382,7 @@ join_compliance_from_fhier__db_logbooks <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
     all_4_dfs3$db_logbooks,
-    join_by(vessel_official_number == vessel_official_nbr)
+    join_by(vessel_official_number)
   )
 
 # View(join_compliance_from_fhier__db_logbooks)
@@ -389,30 +391,30 @@ join_compliance_from_fhier__db_logbooks <-
 
 vessel_in_compl_not_in_logb <-
   join_compliance_from_fhier__db_logbooks |>
-  filter(is.na(vessel_id)) |>
+  filter(is.na(db_logbooks_vessel_id)) |>
   select(vessel_official_number) |>
   distinct()
 
-dim(vessel_in_compl_not_in_logb)
+nrow(vessel_in_compl_not_in_logb)
 # 1803
 
 vessel_in_compl_not_in_logb <-
   setdiff(
     all_4_dfs3$compliance_from_fhier$vessel_official_number,
-    all_4_dfs3$db_logbooks$vessel_official_nbr
+    all_4_dfs3$db_logbooks$vessel_official_number
   )
 length(vessel_in_compl_not_in_logb)
 # 1803
 
 vessel_in_logb_not_in_compl <-
   setdiff(
-    all_4_dfs3$db_logbooks$vessel_official_nbr,
+    all_4_dfs3$db_logbooks$vessel_official_number,
     all_4_dfs3$compliance_from_fhier$vessel_official_number
   )
 length(vessel_in_logb_not_in_compl)
 # 2
 
-glimpse(vessel_in_compl_not_in_logb)
+glimpse(vessel_in_logb_not_in_compl)
 # chr [1:2] "1038780" "1292480"
 # "1292480/NC0676EK"
 
@@ -451,20 +453,19 @@ vessel_in_metrics_not_in_compl <-
 
 length(vessel_in_metrics_not_in_compl)
 # 159
-#
-
 
 ## [3] "compliance_from_fhier" "permit_info" ----
 file_name_combinations[,3]
 
 # print_df_names(all_4_dfs3$compliance_from_fhier)
 # print_df_names(all_4_dfs3$permit_info)
+# View(join_compliance_from_fhier__permit_info)
 
 join_compliance_from_fhier__permit_info <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
     all_4_dfs3$permit_info,
-    join_by(vessel_official_number == vessel_id)
+    join_by(vessel_official_number)
   )
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
@@ -478,6 +479,7 @@ vessel_in_compl_not_in_permit_info <-
 
 length(vessel_in_compl_not_in_permit_info)
 # 3687
+# 13 after +id
 
 vessel_in_compl_not_in_permit_info_alt <-
   setdiff(
@@ -496,6 +498,7 @@ vessel_in_permit_info_not_in_compl <-
 
 length(vessel_in_permit_info_not_in_compl)
 # 0
+# 10387 after +id
 
 ## [4] "db_logbooks" "metrics_report" ----
 file_name_combinations[,4]
