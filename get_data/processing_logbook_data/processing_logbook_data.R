@@ -1143,6 +1143,12 @@ m_res <- read_rds(r"(C:\Users\anna.shipunova\Downloads\SEFHIER_usable_Logbooks_2
 
 a_res <- read_rds(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_usable_Logbooks_2023.rds)")
 
+dim(m_res)
+# [1] 164090    152
+dim(a_res)
+# [1] 163927    147
+
+
 m_res_sort <-
   m_res |>
   arrange(VESSEL_OFFICIAL_NUMBER,
@@ -1166,6 +1172,9 @@ a_res_sort <-
           TRIP_END_TIME,
           USABLE_DATE_TIME,
           CATCH_DE)
+
+dim(m_res_sort)
+dim(a_res_sort)
 
 diffdf::diffdf(m_res_sort,
                a_res_sort)
