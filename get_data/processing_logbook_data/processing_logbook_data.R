@@ -451,7 +451,12 @@ my_stats(SEFHIER_permit_info_short_this_year)
 logbooks_file_path <-
   file.path(Path,
             Outputs,
-            paste0("SAFIS_TripsDownload_", my_year, ".rds"))
+            str_glue("SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds"))
+
+# logbooks_file_path <-
+#   file.path(Path,
+#             Outputs,
+#             paste0("SAFIS_TripsDownload_", my_year, ".rds"))
 
 # 2) create a variable with an SQL query to call data from the database
 
