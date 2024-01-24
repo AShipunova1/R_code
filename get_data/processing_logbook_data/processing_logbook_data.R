@@ -947,13 +947,13 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
 # 30
 
-### IMPORTANT - comment this section out if running compliance analyses (e.g. for Council presentations) ##################
+### IMPORTANT - comment this section out if running compliance analyses (e.g. for Council presentations) ####
 
-#for Compliance analyses, usable logbooks ignores steps in lines below :
+# for Compliance analyses, usable logbooks ignores steps in lines below :
 SEFHIER_logbooks_usable <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
 
-# for non-compliance focused analyses, don't run late_submission_filter and late_submission_filter_stats functions in the section below.
+# for non-compliance focused analyses, don't run the late_submission_filter() function in the section below.
 
 ## Remove all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
 
@@ -1136,10 +1136,10 @@ my_tee(removed_logbooks_and_vessels_text,
 includes_late_submissions <-
   grep("\\bUSABLE\\b", names(SEFHIER_logbooks_usable))
 
-late_submissions = "_no_late_submissions"
+late_submissions = "_keep_late_submissions"
 
-if (includes_late_submissions > 0) {
-  late_submissions = "_with_late_submissions"
+if (length(includes_late_submissions) > 0) {
+  late_submissions = "_no_late_submissions"
 }
 
 SEFHIER_usable_Logbooks_file_name <-
