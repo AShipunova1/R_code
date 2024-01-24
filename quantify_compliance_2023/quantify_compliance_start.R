@@ -9,8 +9,6 @@ library(zoo)   # Load the 'zoo' library, which deals with time series data.
 library(gridExtra)  # Load the 'gridExtra' library for arranging and combining grid graphics.
 library(cowplot)  # Load the 'cowplot' library for creating publication-ready plots with ggplot2.
 
-project_name <- "quantify_compliance"
-
 # source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
 
 # Read R Code from a File
@@ -19,9 +17,29 @@ source("~/R_code_github/useful_functions_module.r")
 # Use a function defined in "useful_functions_module.r". Use F2 to see a custom functions' definition.
 my_paths <- set_work_dir()
 
+current_project_dir_name <- this.path::this.dir()
+
+current_project_basename <-
+  basename(current_project_dir_name)
+
+curr_proj_output_path <- file.path(my_paths$outputs,
+                         current_project_basename)
+
+project_name <- current_project_basename
+  "quantify_compliance"
+
 # Read R Code from files
-source("~/R_code_github/quantify_compliance/quantify_compliance_functions.R")
-source("~/R_code_github/quantify_compliance/get_data.R")
+quantify_compliance_functions_path <- 
+  file.path(current_project_dir_name,
+            "quantify_compliance_functions.R")
+
+source(quantify_compliance_functions_path)
+
+quantify_compliance_get_data_path <- 
+  file.path(current_project_dir_name,
+            "get_data.R")
+
+source(quantify_compliance_get_data_path)
 
 source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
 # fhier_reports_metrics_tracking_not_srhs_ids
@@ -31,7 +49,7 @@ source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R
 # "quantify_compliance": A directory name to be appended to the path.
 # today(): Represents a function used to include the current date, creating a date-specific path.
 plot_file_path <-
-  file.path(my_paths$outputs, "quantify_compliance", today())
+  file.path(my_paths$outputs, project_name, today())
 # create dir if doesn't exists
 create_dir_if_not(plot_file_path)
 
