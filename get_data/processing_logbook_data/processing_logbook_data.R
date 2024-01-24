@@ -950,51 +950,71 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 ### IMPORTANT - comment this section out if running compliance analyses (e.g. for Council presentations) ##################
 
 #for Compliance analyses, usable logbooks ignores steps in lines below :
-SEFHIER_logbooks_usable <- SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
+SEFHIER_logbooks_usable <-
+  SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
 
-#for non-compliance focused analyses, comment line 924 and run code below to get "SEFHIER_logbooks_usable" DF
-# ## Remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission ----
-#
-# # subtract the usable date from the date of submission
-# # value is true if the logbook was submitted within 30 days, false if the logbook was not
-# SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok <-
-#   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-#   mutate(USABLE =
-#            ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
-#
-# ### Filter: data frame of logbooks that were usable ----
-# SEFHIER_logbooks_usable <-
-#   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-#   filter(USABLE == TRUE)
-#
-# # stats
-# my_stats(SEFHIER_logbooks_usable)
-# # rows: 271479
-# # columns: 155
-# # Unique vessels: 1629
-# # Unique trips (logbooks): 73313
-#
-# late_submission <-
-#   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-#   filter(USABLE == FALSE)
-#
-# my_tee(n_distinct(late_submission$TRIP_ID),
-#        "Thrown away by late_submission (logbooks num)")
-# # trip_ids: 16449
-#
-# my_tee(n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
-#        "Thrown away by late_submission (vessels num)")
-# # 1064
-#
-# # check
-# min(SEFHIER_logbooks_usable$TRIP_START_DATE)
-# # [1] "2022-01-01"
-# max(SEFHIER_logbooks_usable$TRIP_START_DATE)
-# # [1] "2022-12-31"
-# min(SEFHIER_logbooks_usable$TRIP_END_DATE)
-# # [1] "2022-01-01"
-# max(SEFHIER_logbooks_usable$TRIP_END_DATE)
-# # [1] "2022-12-31"
+# for non-compliance focused analyses, don't run late_submission_filter and late_submission_filter_stats functions in the section below.
+
+## Remove all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
+
+# subtract the usable date from the date of submission
+# value is true if the logbook was submitted within 30 days, false if the logbook was not
+
+late_submission_filter_stats <-
+  function(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp) {
+    # stats
+    my_stats(SEFHIER_logbooks_usable)
+    # rows: 271479
+    # columns: 155
+    # Unique vessels: 1629
+    # Unique trips (logbooks): 73313
+
+    late_submission <-
+      SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp |>
+      filter(USABLE == FALSE)
+
+    my_tee(n_distinct(late_submission$TRIP_ID),
+           "Thrown away by late_submission (logbooks num)")
+    # trip_ids: 16449
+
+    my_tee(
+      n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
+      "Thrown away by late_submission (vessels num)"
+    )
+    # 1064
+
+    # check
+    min(SEFHIER_logbooks_usable$TRIP_START_DATE)
+    # [1] "2022-01-01"
+    max(SEFHIER_logbooks_usable$TRIP_START_DATE)
+    # [1] "2022-12-31"
+    min(SEFHIER_logbooks_usable$TRIP_END_DATE)
+    # [1] "2022-01-01"
+    max(SEFHIER_logbooks_usable$TRIP_END_DATE)
+    # [1] "2022-12-31"
+
+  }
+
+late_submission_filter <-
+  function() {
+    SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp <-
+      SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
+      mutate(USABLE =
+               ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
+
+    SEFHIER_logbooks_usable <-
+      SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp |>
+      filter(USABLE == TRUE)
+
+    late_submission_filter_stats(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp)
+
+    return(SEFHIER_logbooks_usable)
+  }
+
+
+### Filter: data frame of logbooks that were usable ----
+# Turn the next line on when needed
+# SEFHIER_logbooks_usable <- late_submission_filter()
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
@@ -1113,24 +1133,35 @@ my_tee(removed_logbooks_and_vessels_text,
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
 
+includes_late_submissions <-
+  grep("\\bUSABLE\\b", names(SEFHIER_logbooks_usable))
+
+late_submissions = "_no_late_submissions"
+
+if (includes_late_submissions > 0) {
+  late_submissions = "_with_late_submissions"
+}
+
+SEFHIER_usable_Logbooks_file_name <-
+  str_glue("SEFHIER_usable_Logbooks_{late_submissions}_{my_year}.rds")
+
 annas_file_path <-
   file.path(Path,
             "Outputs",
-            str_glue("SEFHIER_usable_Logbooks_{my_year}.rds"))
+            SEFHIER_usable_Logbooks_file_name)
 
 jennys_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("SEFHIER_usable_Logbooks_{my_year}.rds"))
+            SEFHIER_usable_Logbooks_file_name)
 
 michelles_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("SEFHIER_usable_Logbooks_{my_year}.rds"))
+            SEFHIER_usable_Logbooks_file_name)
 
 # !! Change to the correct path !!
 output_file_path <-
-  # michelles_file_path
   annas_file_path
 
 write_rds(
@@ -1138,43 +1169,3 @@ write_rds(
   file = output_file_path
 )
 
-# check if diff
-m_res <- read_rds(r"(C:\Users\anna.shipunova\Downloads\SEFHIER_usable_Logbooks_2023.rds)")
-
-a_res <- read_rds(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_usable_Logbooks_2023.rds)")
-
-dim(m_res)
-# [1] 164090    152
-dim(a_res)
-# [1] 163927    147
-
-
-m_res_sort <-
-  m_res |>
-  arrange(VESSEL_OFFICIAL_NUMBER,
-          SAFIS_VESSEL_ID,
-          TRIP_ID,
-          TRIP_START_DATE,
-          TRIP_START_TIME,
-          TRIP_END_DATE,
-          TRIP_END_TIME,
-          USABLE_DATE_TIME,
-          CATCH_DE)
-
-a_res_sort <-
-  a_res |>
-  arrange(VESSEL_OFFICIAL_NUMBER,
-          SAFIS_VESSEL_ID,
-          TRIP_ID,
-          TRIP_START_DATE,
-          TRIP_START_TIME,
-          TRIP_END_DATE,
-          TRIP_END_TIME,
-          USABLE_DATE_TIME,
-          CATCH_DE)
-
-dim(m_res_sort)
-dim(a_res_sort)
-
-diffdf::diffdf(m_res_sort,
-               a_res_sort)
