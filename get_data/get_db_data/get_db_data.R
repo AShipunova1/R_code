@@ -4,10 +4,10 @@
 # permit_info.rds
 # trips.rds
 # trip_coord.rds
-# trip_neg_2022.rds
-# trips_notifications_2022.rds
+# trip_neg.rds
+# trips_notifications.rds
 # vessels_permits.rds
-# dates_2022.rds
+# dates.rds
 # compl_err_db_data_raw.rds
 
 # help functions (in get_data) ----
@@ -472,40 +472,40 @@ get_trip_coord_info <-
 # DNF reports
 # get trip neg ----
 
-trip_neg_2022_file_path <-
-  file.path(input_path, "trip_neg_2022.rds")
+trip_neg_file_path <-
+  file.path(input_path, "trip_neg.rds")
 
-trip_neg_2022_query <-
+trip_neg_query <-
   "SELECT *
   FROM
     safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
+  ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-24'
   , 'dd-mon-yy') )"
 
 # 1495929
 
-trip_neg_2022_fun <-
-  function(trip_neg_2022_query) {
-    return(dbGetQuery(con, trip_neg_2022_query))
+trip_neg_fun <-
+  function(trip_neg_query) {
+    return(dbGetQuery(con, trip_neg_query))
   }
 
-# trip_neg_query_2022: 201.21 sec elapsed
-# trip_neg_query_2022: 60.06 sec elapsed
-# trip_neg_query_2022: 89.38 sec elapsed
+# trip_neg_query: 201.21 sec elapsed
+# trip_neg_query: 60.06 sec elapsed
+# trip_neg_query: 89.38 sec elapsed
 
-get_trip_neg_2022 <-
+get_trip_neg <-
   function() {
-    read_rds_or_run(trip_neg_2022_file_path,
-                    trip_neg_2022_query,
-                    trip_neg_2022_fun,
+    read_rds_or_run(trip_neg_file_path,
+                    trip_neg_query,
+                    trip_neg_fun,
                     force_from_db)
   }
 # run the function: 98.23 sec elapsed
 
 # Declarations
 # trips_notifications ----
-trips_notifications_2022_query <-
+trips_notifications_query <-
   "SELECT
  *
 FROM
@@ -517,23 +517,23 @@ WHERE
   , 'dd-mon-yy') )
 "
 
-trips_notifications_2022_file_path <-
-  file.path(input_path, "trips_notifications_2022.rds")
+trips_notifications_file_path <-
+  file.path(input_path, "trips_notifications.rds")
 
-trips_notifications_2022_fun <-
-  function(trips_notifications_2022_query) {
-    return(dbGetQuery(con, trips_notifications_2022_query))
+trips_notifications_fun <-
+  function(trips_notifications_query) {
+    return(dbGetQuery(con, trips_notifications_query))
   }
 # trips_notifications_query: 52.08 sec elapsed
 # 97279
 # trips_notifications_query: 7.65 sec elapsed
 
-get_trips_notifications_2022 <-
+get_trips_notifications <-
   function() {
     read_rds_or_run(
-      trips_notifications_2022_file_path,
-      trips_notifications_2022_query,
-      trips_notifications_2022_fun,
+      trips_notifications_file_path,
+      trips_notifications_query,
+      trips_notifications_fun,
       force_from_db
     )
   }
@@ -674,13 +674,13 @@ get_vessels_permits <-
 #
 #
 # dim(permit_info)
-# dim(trip_neg_2022)
-# dim(trips_notifications_2022)
-# dim(trips_info_2022)
+# dim(trip_neg)
+# dim(trips_notifications)
+# dim(trips_info)
 # dim(vessels_all)
 
-# dates_2022 ----
-dates_2022_query <-
+# dates ----
+dates_query <-
   "SELECT
   dd.year,
   dd.month_of_year,
@@ -692,18 +692,18 @@ WHERE
   dd.complete_date BETWEEN '01-DEC-2021' AND '31-JAN-2023'
 "
 
-dates_2022_file_path <- file.path(input_path, "dates_2022.rds")
+dates_file_path <- file.path(input_path, "dates.rds")
 
-dates_2022_fun <-
-  function(dates_2022_query) {
+dates_fun <-
+  function(dates_query) {
     return(dbGetQuery(con,
-                      dates_2022_query))
+                      dates_query))
   }
 
-get_dates_2022 <- function() {
-  read_rds_or_run(dates_2022_file_path,
-                  dates_2022_query,
-                  dates_2022_fun,
+get_dates <- function() {
+  read_rds_or_run(dates_file_path,
+                  dates_query,
+                  dates_fun,
                   force_from_db)
 }
 
@@ -837,16 +837,16 @@ run_all_get_db_data <-
     # [1] 141350     41
 
     trip_neg_2022 <- get_trip_neg_2022()
-    result_l[["trip_neg_2022"]] <- trip_neg_2022
-    # dim(trip_neg_2022)
+    result_l[["trip_neg"]] <- trip_neg
+    # dim(trip_neg)
     # Rows: 1,495,929
     # [1] 746087     12
     # [1] 747173     12
 
     trips_notifications_2022 <- get_trips_notifications_2022()
-    result_l[["trips_notifications_2022"]] <-
-      trips_notifications_2022
-    # dim(trips_notifications_2022)
+    result_l[["trips_notifications"]] <-
+      trips_notifications
+    # dim(trips_notifications)
     # Rows: 129,701
     # [1] 70056    33
 
@@ -856,8 +856,8 @@ run_all_get_db_data <-
     # [1] 78438    51
 
     dates_2022 <- get_dates_2022()
-    result_l[["dates_2022"]] <- dates_2022
-    # dim(dates_2022)
+    result_l[["dates"]] <- dates
+    # dim(dates)
     # 427 4
 
     compl_err_db_data <- get_compl_err_db_data()
@@ -900,7 +900,7 @@ force_from_db <- NULL # read data from files if exist
 
 # To test pulling from the db
 # force_from_db <- "NULL"
-# dates_2022 <- get_dates_2022()
+# dates <- get_dates()
 
 
 # close the db connection ----
