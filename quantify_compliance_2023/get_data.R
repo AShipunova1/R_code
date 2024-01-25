@@ -216,8 +216,8 @@ active_permits_from_pims <- get_permit_data_from_PIMS()
 # get data from db ----
 source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2023_short_p_region_prep.R)"))
 
-# run_all_get_db_data(): 8.56 sec elapsed                                                                            
-# all_sheets_l
-# vessels_22_sa
-# vessels_to_remove_from_ours
-# all_logbooks_db_data_2022_short_p_region
+# run_all_get_db_data(): 8.56 sec elapsed                                   
+
+# results:
+# all_get_db_data_result_l
+# all_logbooks_data_2023_short
