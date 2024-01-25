@@ -750,16 +750,22 @@ compliance_cleaning <- function(compl_arr) {
   # Check if it is a single dataframe, and if not, combine separate dataframes for all years into one.
   if (length(compl_arr) > 1) {
     compl <- join_same_kind_csvs(compl_arr)
-  }
+  } 
 
   # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
-  permitgroupexpiration <- grep("permit.*group.*expiration",
-                                tolower(names(compl)),
-                                value = TRUE)
-
+  permitgroupexpirations <-
+    map(compl,
+        \(x) {
+          grep("permit.*group.*expiration",
+               tolower(names(x)),
+               value = TRUE)
+        })
+  
   # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
-  compl <- clean_weeks(compl)
-
+  compl_clean <- 
+    map(compl, clean_weeks)
+  
+  browser()
   # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
   compl <- change_to_dates(compl, permitgroupexpiration, "%m/%d/%Y")
 
