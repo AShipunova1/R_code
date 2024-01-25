@@ -423,9 +423,9 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 change_to_dates <- function(my_df, field_name, date_format) {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
   # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
-  
-  result_df <- 
-    my_df |> 
+
+  result_df <-
+    my_df |>
     mutate(!!field_name := as.POSIXct(!!field_name, format = date_format))
     # dplyr::mutate({
     #   {
@@ -753,7 +753,7 @@ compliance_cleaning <- function(compl_arr) {
   # Check if it is a single dataframe, and if not, combine separate dataframes for all years into one.
   if (length(compl_arr) > 1) {
     compl <- join_same_kind_csvs(compl_arr)
-  } 
+  }
 
   # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
   permitgroupexpirations <-
@@ -763,18 +763,18 @@ compliance_cleaning <- function(compl_arr) {
                tolower(names(x)),
                value = TRUE)
         })
-  
+
   # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
-  compl_clean <- 
+  compl_clean <-
     map(compl, clean_weeks)
-  
+
   # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
   compl_dates <-
     compl_clean |>
     imap(\(x, idx) {
       change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
     })
-  
+
   # Return the cleaned and processed compliance data.
   return(compl_dates)
 }
@@ -1227,3 +1227,15 @@ save_plot_to_file <-
       units = "cm"
     )
   }
+
+my_prompt <- "ttt? () "
+read_an_answer <- function(my_prompt) {
+  ANSWER <- readline(my_prompt)
+  if (substr(ANSWER, 1, 1) == "n")
+    cat("This is impossible.  YOU LIED!\n")
+  else
+    cat("I knew it.\n")
+}
+
+# if (interactive()) read_an_answer(my_prompt)
+
