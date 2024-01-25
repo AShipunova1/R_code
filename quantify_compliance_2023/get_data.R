@@ -142,8 +142,6 @@ get_data_from_csv <- function() {
   
   ## get permit data from PIMS csv ----
   
-  active_permits_from_pims <- get_permit_data_from_PIMS()
-  
   compl_clean1 <- additional_clean_up(compl_clean)
 
   cat("compl_clean_sa_vs_gom_m_int_c")  
@@ -204,6 +202,9 @@ compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
 
 # Uncomment and run above functions if using csvs downloaded from FHIER
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
+
+active_permits_from_pims <- get_permit_data_from_PIMS()
+
 
 # get data from db ----
 source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
