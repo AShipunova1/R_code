@@ -16,8 +16,6 @@ library(zoo)   # Load the 'zoo' library, which deals with time series data.
 library(gridExtra)  # Load the 'gridExtra' library for arranging and combining grid graphics.
 library(cowplot)  # Load the 'cowplot' library for creating publication-ready plots with ggplot2.
 
-# source("~/R_code_github/quantify_compliance/quantify_compliance_start.R")
-
 # Read R Code from a File
 source("~/R_code_github/useful_functions_module.r")
 
@@ -67,9 +65,9 @@ plot_colors <- list("compliant" = "skyblue1",
 
 title_permits <- data.frame(
   # title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
-  title = c("2022: SA Only", "2022: GOM + Dual", "2023: SA + Dual"),
+  title = c("2023: SA Only", "2023: Dual only", "2023: SA + Dual"),
   year_permit = c("2022 sa_only",
-                  "2022 gom_dual",
+                  "2022 dual_only",
                   "2023 sa_dual"),
   second_part = c("Permitted Vessels",
                   "Permitted Vessels",
