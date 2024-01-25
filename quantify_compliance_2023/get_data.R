@@ -1,10 +1,17 @@
 # this file is called from quantify_compliance.R
 
 # files to upload:
-# FHIER_Compliance_2023__01_24_2023.csv
-# Compliance_Error_Types_03_29_2023.csv
-# Permits_2023-03-29_1611_active.csv
-
+# FHIER_Compliance_2023__01_24_2023.csv (from FHIER / compliance report)
+# Compliance_Error_Types_03_29_2023.csv (How often does it change?)
+# Permits - 2024-01-25_0904.xlsx (get it from pims:
+# 
+# Menu: permits
+# Filter:
+# Fishery = RCG - Gulf Charter/headboat For Reef Fish, CHG - Gulf Charter/headboat For Coastal Migratory Pelagic Fish, SC - South Atlantic Charter/headboat For Snapper-grouper, CHS - Atlantic Charter/headboat For Coastal Migratory Pelagics, HCHG - Historical Captain Gulf Charter/headboat For Coastal Migratory Pelagic Fish, HRCG - Historical Captain Gulf Charter/headboat For Reef Fish, CDW - Atlantic Charter/headboat For Dolphin/wahoo
+# 
+# download
+# 
+# skip first 5 lines in R)
 
 project_dir_name <- "FHIER Compliance"
 
@@ -52,15 +59,22 @@ get_compliance_error_definitions <- function() {
   return(err_desc)
 }
 
-get_permit_data_from_PIMS_csv <- function() {
-  permit_names_list = r"(other\Permits_2023-03-29_1611_active.csv)"
+get_permit_data_from_PIMS <- function() {
+  permit_names_file_path =
+    file.path(curr_proj_input_path,
+              r"(Permits - 2024-01-25_0904.xlsx)")
   
-  active_permits_from_pims_raw <-
-    load_csv_names(my_paths, permit_names_list)
+  # file.exists(permit_names_file_path)
+  
+  active_permits_from_pims_raw <- 
+    read_xlsx(permit_names_file_path, skip = 5)
+  
+  dim(active_permits_from_pims_raw)
+  # [1] 23575    11
   
   # clean_headers
   active_permits_from_pims_temp1 <-
-    active_permits_from_pims_raw[[1]] %>%
+    active_permits_from_pims_raw %>%
     clean_headers()
   
   # separate columns
@@ -92,7 +106,7 @@ active_permits_from_pims_temp2 <- active_permits_from_pims_temp1 %>%
   # get a list of field names with "_date"
   # Use the 'grep' function to find and extract column names from the 'active_permits_from_pims_temp2' dataframe
   # that has "_date".
-  ends_with_date_fields <- grep("_date",             # Pattern to search for in column names
+  ends_with_date_fields <- grep("_date", # Pattern to search for in column names
                                 names(active_permits_from_pims_temp2),  # Names of columns to search within
                                 value = TRUE)         # Return matching column names as values in the result.
 
