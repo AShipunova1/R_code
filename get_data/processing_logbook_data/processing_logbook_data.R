@@ -955,15 +955,6 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
 # 30
 
-### IMPORTANT - comment this section out if running compliance analyses (e.g. for Council presentations) ####
-
-# for Compliance analyses, usable logbooks ignores steps in lines below :
-SEFHIER_logbooks_usable <-
-  SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
-late_submissions_flag <- "_keep_late_submissions"
-
-# for non-compliance focused analyses, don't run the late_submission_filter() function in the section below.
-
 ## Remove all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
 
 # subtract the usable date from the date of submission
@@ -1027,6 +1018,28 @@ late_submission_filter <-
 # late_submission_filter_result_list <- late_submission_filter()
 # SEFHIER_logbooks_usable <- late_submission_filter_result_list[[1]]
 # late_submissions_flag <- late_submission_filter_result_list[[2]]
+
+### IMPORTANT - Answer a "yes" in the console when prompted if you want to skip the late submission filter and keep all (e.g. for Council presentations) ####
+
+ask_text <-
+  "Do you want to skip the late submission filter? (yes or no):
+"
+
+skip_late_submission_filter <- read_an_answer(ask_text)
+
+
+
+# for Compliance analyses, usable logbooks ignores steps in lines below :
+if (late_submissions_yes_no == "no")
+{
+SEFHIER_logbooks_usable <-
+  SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
+late_submissions_flag <- "_keep_late_submissions"
+}
+
+
+# for non-compliance focused analyses, don't run the late_submission_filter() function in the section below.
+
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
