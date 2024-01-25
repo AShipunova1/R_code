@@ -1024,9 +1024,9 @@ late_submission_filter <-
 
 ### Filter: data frame of logbooks that were usable ----
 # Turn the next 3 lines on when needed
-late_submission_filter_result_list <- late_submission_filter()
-SEFHIER_logbooks_usable <- late_submission_filter_result_list[[1]]
-late_submissions_flag <- late_submission_filter_result_list[[2]]
+# late_submission_filter_result_list <- late_submission_filter()
+# SEFHIER_logbooks_usable <- late_submission_filter_result_list[[1]]
+# late_submissions_flag <- late_submission_filter_result_list[[2]]
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
