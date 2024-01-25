@@ -3,7 +3,7 @@
 # Files to read or create:
 # Compliance_raw_data_Year.rds
 # SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds
-# SEFHIER_usable_Logbooks_{late_submissions}_{my_year}.rds
+# SEFHIER_usable_Logbooks_{late_submissions_flag}_{my_year}.rds
 
 # "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_", my_year, ".csv"
 # my_year, "SRHSvessels.csv"
@@ -960,6 +960,7 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 # for Compliance analyses, usable logbooks ignores steps in lines below :
 SEFHIER_logbooks_usable <-
   SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
+late_submissions_flag <- "_keep_late_submissions"
 
 # for non-compliance focused analyses, don't run the late_submission_filter() function in the section below.
 
@@ -1016,13 +1017,16 @@ late_submission_filter <-
 
     late_submission_filter_stats(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp)
 
-    return(SEFHIER_logbooks_usable)
+    late_submissions_flag = "_no_late_submissions"
+    return(list(SEFHIER_logbooks_usable, late_submissions_flag))
   }
 
 
 ### Filter: data frame of logbooks that were usable ----
-# Turn the next line on when needed
-# SEFHIER_logbooks_usable <- late_submission_filter()
+# Turn the next 3 lines on when needed
+late_submission_filter_result_list <- late_submission_filter()
+SEFHIER_logbooks_usable <- late_submission_filter_result_list[[1]]
+late_submissions_flag <- late_submission_filter_result_list[[2]]
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
@@ -1097,7 +1101,7 @@ my_tee(logbooks_after_filtering,
 
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
- cat(percent_of_removed_logbooks)
+ cat(percent_of_removed_logbooks, sep = "\n")
 # 22.59539
 
 # removed_vessels
@@ -1141,17 +1145,8 @@ my_tee(removed_logbooks_and_vessels_text,
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
 
-includes_late_submissions <-
-  grep("\\bUSABLE\\b", names(SEFHIER_logbooks_usable))
-
-late_submissions = "_keep_late_submissions"
-
-if (length(includes_late_submissions) > 0) {
-  late_submissions = "_no_late_submissions"
-}
-
 SEFHIER_usable_Logbooks_file_name <-
-  str_glue("SEFHIER_usable_Logbooks_{late_submissions}_{my_year}.rds")
+  str_glue("SEFHIER_usable_Logbooks_{late_submissions_flag}_{my_year}.rds")
 
 annas_file_path <-
   file.path(Path,
