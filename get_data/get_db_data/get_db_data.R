@@ -480,8 +480,8 @@ trip_neg_query <-
   FROM
     safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-24'
-  , 'dd-mon-yy') )"
+  trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND CURRENT_DATE
+"
 
 # 1495929
 
@@ -511,10 +511,8 @@ trips_notifications_query <-
 FROM
   safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
-  , 'dd-mon-yy') )
-  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
-  , 'dd-mon-yy') )
+  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND CURRENT_DATE )
+  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND CURRENT_DATE )
 "
 
 trips_notifications_file_path <-
