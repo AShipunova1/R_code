@@ -768,12 +768,15 @@ compliance_cleaning <- function(compl_arr) {
   compl_clean <- 
     map(compl, clean_weeks)
   
-  browser()
   # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
-  compl <- change_to_dates(compl, permitgroupexpiration, "%m/%d/%Y")
-
+  compl_dates <-
+    compl_clean |>
+    imap(\(x, idx) {
+      change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
+    })
+  
   # Return the cleaned and processed compliance data.
-  return(compl)
+  return(compl_dates)
 }
 
 # ===
@@ -1139,7 +1142,7 @@ remove_empty_cols <- function(my_df) {
 }
 
 remove_0_cols <- function(my_df) {
-  browser()
+  # browser()
   not_all_0 <- function(x)
   {
     any(!x == 0)
