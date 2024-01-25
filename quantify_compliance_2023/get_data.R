@@ -1,14 +1,18 @@
 # this file is called from quantify_compliance.R
 
+# files to upload:
+# FHIER_Compliance_2023__01_24_2023.csv
+# Compliance_Error_Types_03_29_2023.csv
+# Permits_2023-03-29_1611_active.csv
+
+
 project_dir_name <- "FHIER Compliance"
 
 # Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
 # get data from csvs ----
 get_data_from_FHIER_csvs <- function() {
   filenames = c(
-     # Jenny's Oct 31 2023
-    "FHIERCompliance_10_2023.csv",
-    "FHIER_Compliance_2023__05_31_2023.csv"
+    r"(2024_01_24\FHIER_Compliance_2023__01_24_2023.csv)"
   )
 
   ## ---- get csv data into variables ----
