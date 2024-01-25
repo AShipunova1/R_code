@@ -30,6 +30,9 @@ current_project_basename <-
 curr_proj_output_path <- file.path(my_paths$outputs,
                          current_project_basename)
 
+curr_proj_input_path <- file.path(my_paths$inputs,
+                         current_project_basename)
+
 project_name <- current_project_basename
   "quantify_compliance"
 
