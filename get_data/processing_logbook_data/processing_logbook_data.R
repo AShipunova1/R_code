@@ -1014,12 +1014,10 @@ late_submission_filter <-
 
 
 ### Filter: data frame of logbooks that were usable ----
-# Turn the next 3 lines on when needed
-# late_submission_filter_result_list <- late_submission_filter()
-# SEFHIER_logbooks_usable <- late_submission_filter_result_list[[1]]
-# late_submissions_flag <- late_submission_filter_result_list[[2]]
 
 ### IMPORTANT - Answer a "yes" in the console when prompted if you want to skip the late submission filter and keep all (e.g. for Council presentations) ####
+# for Compliance analyses, skip the late submission filter.
+# for non-compliance focused analyses, don't run the late_submission_filter() function. ???
 
 ask_text <-
   "Do you want to skip the late submission filter? (yes or no):
@@ -1027,19 +1025,16 @@ ask_text <-
 
 skip_late_submission_filter <- read_an_answer(ask_text)
 
-
-
-# for Compliance analyses, usable logbooks ignores steps in lines below :
-if (late_submissions_yes_no == "no")
+if (skip_late_submission_filter == "yes")
 {
-SEFHIER_logbooks_usable <-
-  SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
-late_submissions_flag <- "_keep_late_submissions"
+  SEFHIER_logbooks_usable <-
+    SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
+  late_submissions_flag <- "_keep_late_submissions"
+} else if (skip_late_submission_filter == "no") {
+  late_submission_filter_result_list <- late_submission_filter()
+  SEFHIER_logbooks_usable <- late_submission_filter_result_list[[1]]
+  late_submissions_flag <- late_submission_filter_result_list[[2]]
 }
-
-
-# for non-compliance focused analyses, don't run the late_submission_filter() function in the section below.
-
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
@@ -1146,7 +1141,7 @@ removed_logbooks_and_vessels_text <- c(
 )
 
 my_tee(removed_logbooks_and_vessels_text,
-       "Removed logbooks and vessels stats")
+       "\nRemoved logbooks and vessels stats")
 # percent_of_removed_logbooks
 # 23%
 # removed_vessels
