@@ -7,6 +7,10 @@
 # Compliance_Error_Types_03_29_2023.csv
 # Permits_2023-03-29_1611_active.csv
 
+my_year <- "2023"
+my_beginning <- "2023-01-01"
+my_end <- "2023-12-31"
+
 # Quantify program compliance.
 
 # 2023
