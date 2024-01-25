@@ -1228,14 +1228,13 @@ save_plot_to_file <-
     )
   }
 
-my_prompt <- "ttt? () "
 read_an_answer <- function(my_prompt) {
   ANSWER <- readline(my_prompt)
-  if (substr(ANSWER, 1, 1) == "n")
-    cat("This is impossible.  YOU LIED!\n")
+  if (tolower(substr(ANSWER, 1, 1)) == "n")
+    ANSWER = "no"
   else
-    cat("I knew it.\n")
+    ANSWER = "yes"
 }
-
+# USE:
 # if (interactive()) read_an_answer(my_prompt)
 
