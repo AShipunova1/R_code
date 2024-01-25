@@ -423,12 +423,15 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 change_to_dates <- function(my_df, field_name, date_format) {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
   # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
-  result_df <- my_df %>%
-    dplyr::mutate({
-      {
-        field_name
-      }
-    } := as.POSIXct(dplyr::pull(my_df[field_name]), format = date_format))
+  
+  result_df <- 
+    my_df |> 
+    mutate(!!field_name := as.POSIXct(!!field_name, format = date_format))
+    # dplyr::mutate({
+    #   {
+    #     field_name
+    #   }
+    # } := as.POSIXct(dplyr::pull(my_df[field_name]), format = date_format))
 
   # Return the data frame with the specified column converted to dates
   return(result_df)
