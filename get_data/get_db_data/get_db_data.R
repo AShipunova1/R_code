@@ -261,7 +261,7 @@ mv_safis_trip_download_fun <-
 }
 
 get_mv_safis_trip_download <-
-  function() {
+  function(force_from_db) {
     # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
     read_rds_or_run(file_name_mv_safis_trip_download,
                     mv_safis_trip_download_query,
@@ -294,7 +294,7 @@ mv_tms_trip_notifications_fun <- function(mv_tms_trip_notifications_query) {
 }
 
 get_mv_tms_trip_notifications <-
-  function() {
+  function(force_from_db) {
     # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
     read_rds_or_run(file_name_mv_tms_trip_notifications,
                     mv_tms_trip_notifications_query,
@@ -326,7 +326,7 @@ permit_info_fun <- function(mv_sero_fh_permits_his_query) {
 }
 
 get_permit_info <-
-  function() {
+  function(force_from_db) {
     # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
     read_rds_or_run(file_name_permits,
                     mv_sero_fh_permits_his_query,
@@ -385,7 +385,7 @@ trips_fun <- function(trips_query) {
 }
 
 get_trips_info <-
-  function() {
+  function(force_from_db) {
       read_rds_or_run(trips_file_name,
                       trips_query,
                       trips_fun,
@@ -460,7 +460,7 @@ trip_coord_fun <- function(trip_coord_query) {
 }
 
 get_trip_coord_info <-
-  function() {
+  function(force_from_db) {
       read_rds_or_run(trip_coord_file_name,
                       trip_coord_query,
                       trip_coord_fun,
@@ -495,7 +495,7 @@ trip_neg_fun <-
 # trip_neg_query: 89.38 sec elapsed
 
 get_trip_neg <-
-  function() {
+  function(force_from_db) {
     read_rds_or_run(trip_neg_file_path,
                     trip_neg_query,
                     trip_neg_fun,
@@ -529,7 +529,7 @@ trips_notifications_fun <-
 # trips_notifications_query: 7.65 sec elapsed
 
 get_trips_notifications <-
-  function() {
+  function(force_from_db) {
     read_rds_or_run(
       trips_notifications_file_path,
       trips_notifications_query,
@@ -586,7 +586,7 @@ vessels_permits_fun <-
   }
 
 get_vessels_permits <-
-  function() {
+  function(force_from_db) {
     read_rds_or_run(vessels_permits_file_path,
                     vessels_permits_query,
                     vessels_permits_fun,
@@ -700,7 +700,7 @@ dates_fun <-
                       dates_query))
   }
 
-get_dates <- function() {
+get_dates <- function(force_from_db) {
   read_rds_or_run(dates_file_path,
                   dates_query,
                   dates_fun,
@@ -745,15 +745,16 @@ get_compl_err_data_from_db <- function(compl_err_query) {
 file_name_overr <-
   file.path(input_path, "compl_err_db_data_raw.rds")
 
-get_compl_err_db_data <- function() {
-  compl_err_db_data_raw <-
-    read_rds_or_run(file_name_overr,
-                    compl_err_query,
-                    get_compl_err_data_from_db,
-                    force_from_db)
-  # 2023-09-20 run the function: 14.99 sec elapsed
+get_compl_err_db_data <-
+  function(force_from_db) {
+    compl_err_db_data_raw <-
+      read_rds_or_run(file_name_overr,
+                      compl_err_query,
+                      get_compl_err_data_from_db,
+                      force_from_db)
+# 2023-09-20 run the function: 14.99 sec elapsed
 
-  # Clean the column names of the 'compl_err_db_data_raw' data frame using the 'clean_headers' function defined above.
+# Clean the column names of the 'compl_err_db_data_raw' data frame using the 'clean_headers' function defined above.
   compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 
   return(compl_err_db_data)
