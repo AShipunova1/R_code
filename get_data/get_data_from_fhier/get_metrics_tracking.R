@@ -1,5 +1,9 @@
 ## fhier_reports_metrics_tracking ----
 
+# files to read:
+# Detail_Report_12312021_12312022__08_23_2023.csv
+# Detail_Report_12312022_12312023__08_23_2023.csv
+
 # The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
 library(tidyverse)
 
@@ -72,7 +76,7 @@ fhier_reports_metrics_tracking_list <- purrr::map(
   )
 )
 
-names(fhier_reports_metrics_tracking_list) <- 
+names(fhier_reports_metrics_tracking_list) <-
   c("2022", "2023")
 
 # check how many in diff years ----

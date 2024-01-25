@@ -1,3 +1,15 @@
+# files to read or create:
+# mv_safis_trip_download.rds
+# mv_tms_trip_notifications.rds
+# permit_info.rds
+# trips.rds
+# trip_coord.rds
+# trip_neg_2022.rds
+# trips_notifications_2022.rds
+# vessels_permits.rds
+# dates_2022.rds
+# compl_err_db_data_raw.rds
+
 # help functions (in get_data) ----
 # Load the 'tidyverse' library, which includes a collection of packages for data manipulation and visualization.
 library(tidyverse)

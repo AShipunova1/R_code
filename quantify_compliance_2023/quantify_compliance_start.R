@@ -1,5 +1,12 @@
 # quantify_compliance_start.R
 
+# need files:
+# Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)
+# Detail_Report_12312021_12312022__08_23_2023.csv
+# FHIER_Compliance_2023__01_24_2023.csv
+# Compliance_Error_Types_03_29_2023.csv
+# Permits_2023-03-29_1611_active.csv
+
 # Quantify program compliance.
 
 # 2023

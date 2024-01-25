@@ -1,3 +1,9 @@
+# file to have:
+# Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)
+# Detail_Report_12312021_12312022__08_23_2023.csv
+# Detail_Report_12312022_12312023__08_23_2023.csv
+
+
 library(tidyverse)
 library(readxl)
 # help functions in no srhs ----

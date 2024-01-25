@@ -1,5 +1,13 @@
 # processing_logbook_data
 
+# Files to read or create:
+# Compliance_raw_data_Year.rds
+# SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds
+# SEFHIER_usable_Logbooks_{late_submissions}_{my_year}.rds
+
+# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_", my_year, ".csv"
+# my_year, "SRHSvessels.csv"
+
 # This code processes logbook data from Oracle database,
 # then cleans it up, so that we can use it in any logbook data analysis:
 # (1) (a) pull all logbook and compliance/override data from Oracle database
