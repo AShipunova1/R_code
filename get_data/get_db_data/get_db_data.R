@@ -796,14 +796,14 @@ source(get_metrics_tracking_path)
 
 # --- main ----
 # Define a function 'run_all_get_db_data' to fetch data from the database and store it in a result list.
-
+# force_from_db = NULL: read data from files if exist, change to TRUE to download again
 run_all_get_db_data <-
-  function() {
+  function(force_from_db = NULL) {
     # Initialize an empty list to store the results.
     result_l = list()
 
     # 1) Call the 'get_permit_info' function to retrieve permit information from the database.
-    mv_sero_fh_permits_his <- get_permit_info()
+    mv_sero_fh_permits_his <- get_permit_info(force_from_db)
 
     # 2) Store the retrieved data in the result list under the name "mv_sero_fh_permits_his."
     result_l[["mv_sero_fh_permits_his"]] <- mv_sero_fh_permits_his
@@ -812,55 +812,55 @@ run_all_get_db_data <-
 
     # Repeat the steps 1 and 2 for all other types of data using the predefined functions.
 
-    mv_safis_trip_download_data <- get_mv_safis_trip_download()
+    mv_safis_trip_download_data <- get_mv_safis_trip_download(force_from_db)
     result_l[["mv_safis_trip_download"]] <-
       mv_safis_trip_download_data
     # dim(mv_safis_trip_download_data)
     # [1] 735666    149
 
     mv_tms_trip_notifications_data <-
-      get_mv_tms_trip_notifications()
+      get_mv_tms_trip_notifications(force_from_db)
     result_l[["mv_tms_trip_notifications"]] <-
       mv_tms_trip_notifications_data
     # dim(mv_tms_trip_notifications_data)
     # [1] 118730     41
 
-    trips_info <- get_trips_info()
+    trips_info <- get_trips_info(force_from_db)
     result_l[["trips_info"]] <- trips_info
     # dim(trips_info)
     # [1] 98528    72 2022
     # [1] 142037   72 2021+
 
-    trip_coord_info <- get_trip_coord_info()
+    trip_coord_info <- get_trip_coord_info(force_from_db)
     result_l[["trip_coord_info"]] <- trip_coord_info
     # dim(trip_coord_info)
     # [1] 141350     41
 
-    trip_neg_2022 <- get_trip_neg_2022()
+    trip_neg <- get_trip_neg(force_from_db)
     result_l[["trip_neg"]] <- trip_neg
     # dim(trip_neg)
     # Rows: 1,495,929
     # [1] 746087     12
     # [1] 747173     12
 
-    trips_notifications_2022 <- get_trips_notifications_2022()
+    trips_notifications <- get_trips_notifications(force_from_db)
     result_l[["trips_notifications"]] <-
       trips_notifications
     # dim(trips_notifications)
     # Rows: 129,701
     # [1] 70056    33
 
-    vessels_permits <- get_vessels_permits()
+    vessels_permits <- get_vessels_permits(force_from_db)
     result_l[["vessels_permits"]] <- vessels_permits
     # dim(vessels_permits)
     # [1] 78438    51
 
-    dates_2022 <- get_dates_2022()
+    dates <- get_dates(force_from_db)
     result_l[["dates"]] <- dates
     # dim(dates)
     # 427 4
 
-    compl_err_db_data <- get_compl_err_db_data()
+    compl_err_db_data <- get_compl_err_db_data(force_from_db)
     result_l[["compl_err_db_data"]] <- compl_err_db_data
     # dim(compl_err_db_data)
     # [1] 99832    38
