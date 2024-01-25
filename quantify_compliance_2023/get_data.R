@@ -213,9 +213,8 @@ compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 
 active_permits_from_pims <- get_permit_data_from_PIMS()
 
-
 # get data from db ----
-source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2022_short_p_region_prep.R)"))
+source(file.path(my_paths$git_r, r"(get_data\all_logbooks_db_data_2023_short_p_region_prep.R)"))
 
 # run_all_get_db_data(): 8.56 sec elapsed                                                                            
 # all_sheets_l
