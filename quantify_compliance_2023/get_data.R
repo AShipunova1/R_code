@@ -132,8 +132,16 @@ active_permits_from_pims_temp2 <- active_permits_from_pims_temp1 %>%
 
 get_data_from_csv <- function() {
   # uncomment to run
+  # browser()
+
   compl_clean <- get_data_from_FHIER_csvs()
+  
+  if (class(compl_clean) == "list" &
+      length(compl_clean) == 1) {
+    compl_clean <- compl_clean[[1]]
+  }
   # View(compl_clean)
+  
   dim(compl_clean)
   # 208893     21
   
@@ -149,7 +157,7 @@ get_data_from_csv <- function() {
 }
 
 additional_clean_up <- function(compl_clean) {
-
+  
   # separate SA and GOM permits
   compl_clean_sa_vs_gom <-
     separate_permits_into_3_groups(compl_clean)
