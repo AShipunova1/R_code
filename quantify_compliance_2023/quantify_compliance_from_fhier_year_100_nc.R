@@ -246,7 +246,7 @@ ggsave(
   file = "sa_23_nc_100.png",  # File name
   plot = nc_sa_23_100_plot,   # The ggplot object to be saved
   device = "png",            # File format (PNG)
-  path = file.path(my_paths$outputs, r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),  # Output directory
+  path = file.path(my_paths$outputs, project_name, "vsl_cnt_by_perc_non_compl"),  # Output directory
   width = 20,                # Image width in centimeters
   height = 10,               # Image height in centimeters
   units = "cm"               # Unit of measurement for width and height
@@ -255,17 +255,10 @@ ggsave(
 ## 100% non compliant, less than 100 and compliant ----
 
 # Calculate the number of distinct vessel official numbers in the data.
-# Create a new object named 'total_vessels_c_n_nc' by first filtering the data.
 total_vessels_c_n_nc <-
-  count_weeks_per_vsl_permit_year_compl_p_short |>
-  
-  # Select the 'vessel_official_number' column.
-  dplyr::select(vessel_official_number) |>
-
-  # Remove duplicate rows based on the selected column and get the dimensions.
-  dplyr::distinct() |>
-  dim()
-# vessel_official_number     3669
+  n_distinct(count_weeks_per_vsl_permit_year_compl_p_short$vessel_official_number)
+# 3669
+# 3372    2023
 
 nc_sa_23_100_plot <-
   # Calculate the count of weeks per VSL (vessel) permit year for non-compliant permits
@@ -380,7 +373,6 @@ min_percent_compl_less_100 <-
   min(count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_less_100$percent_compl)
 # [1] 1.923077
 
-
 # Add additional layers to the existing plot
 perc_non_compl_plot_less_100_hline <-
   # Add horizontal lines to the plot
@@ -471,9 +463,10 @@ count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_less_100_gr |
 # 2 > 5 vessels (21 v)      288
 # 388 + 288 = 676
 
-# w/o weight
-# 1 <= 5 vessels (240 v)    240
-# 2 > 5 vessels (21 v)       21
+#   vessel_cnt_group_name     n
+#   <chr>                 <int>
+# 1 <= 5 vessels (1271 v)  1271
+# 2 > 5 vessels (27476 v) 27476
 
 # Count the number of entries in each compliance percentage group and sum the 'vessels_cnt' column
 count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_less_100_gr |> 
@@ -483,11 +476,11 @@ count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_less_100_gr |
 # 3 75--98% non compliant    57
 # 539 + 80 + 57 = 676
 
-# w/o weight
-# 1 0--50% non compliant    176
-# 2 50--75% non compliant    44
-# 3 75--98% non compliant    41
-# 176 + 44 + 41 = 261
+#   percent_group_name                  n
+#   <glue>                          <int>
+# 1 1--50% non compliant (26382 v.) 26382
+# 2 50--75% non compliant (652 v.)    652
+# 3 75--98% non compliant (1713 v.)  1713
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa)
 
@@ -586,9 +579,10 @@ count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_less_100_gr |
 # 2 > 5 vessels (21 v)      288
 # 388 + 288 = 676
 
-# w/o weight
-# 1 <= 5 vessels (240 v)    240
-# 2 > 5 vessels (21 v)       21
+#   vessel_cnt_group_name     n
+#   <chr>                 <int>
+# 1 <= 5 vessels (1271 v)  1271
+# 2 > 5 vessels (27476 v) 27476
 
 count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_less_100_gr |> 
   dplyr::count(percent_group_name, wt = vessels_cnt)
@@ -597,11 +591,9 @@ count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_less_100_gr |
 # 3 75--98% non compliant    57
 # 539 + 80 + 57 = 676
 
-# w/o weight
-# 1 0--50% non compliant    176
-# 2 50--75% non compliant    44
-# 3 75--98% non compliant    41
-# 176 + 44 + 41 = 261
+# 1 1--50% non compliant (26382 v.) 26382
+# 2 50--75% non compliant (652 v.)    652
+# 3 75--98% non compliant (1713 v.)  1713
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa)
 
@@ -800,7 +792,8 @@ ggsave(
   plot = plot_all_by_percent,
   device = "png",
   path = file.path(my_paths$outputs,
-                   r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),
+                   project_name,
+                   "vsl_cnt_by_perc_non_compl"),
   width = 40,
   height = 20,
   units = "cm"
@@ -910,7 +903,8 @@ ggsave(
   plot = nc_sa_23_tot_100_plot,
   device = "png",
   path = file.path(my_paths$outputs,
-                   r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),
+                   project_name,
+                   "vsl_cnt_by_perc_non_compl"),
   width = 20,
   height = 10,
   units = "cm"
