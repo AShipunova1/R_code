@@ -599,7 +599,8 @@ weeks_per_vsl_permit_year_compl_cnt %>%
                 total_weeks_per_vessel) %>%
   unique() %>%
   dplyr::glimpse()
-# 26  40
+# $ weeks_per_vessel_per_compl <int> 10
+# $ total_weeks_per_vessel     <int> 52
 
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
 count_weeks_per_vsl_permit_year_compl_p <-
@@ -609,26 +610,33 @@ count_weeks_per_vsl_permit_year_compl_p <-
 
 dim(count_weeks_per_vsl_permit_year_compl_p)
 # [1] 185251     32
+# [1] 143767     31 (2023)
 
 # test
+# count_weeks_per_vsl_permit_year_compl_p$permit_sa_gom |> 
+#   unique()
+# [1] "sa_only"  "dual"     "gom_only"
+
 count_weeks_per_vsl_permit_year_compl_p %>%
-  filter(permit_sa_gom == "sa_dual", year == "2023") %>%
+  filter(permit_sa_gom %in% c("sa_only", "dual"), 
+         year == my_year) %>%
   select(vessel_official_number) %>%
   unique() %>%
   dim()
 # [1] 2178
-# 2145
+# 2023
 
 count_weeks_per_vsl_permit_year_compl_p %>%
-  filter(permit_sa_gom == "sa_dual",
-         year == "2023",
+  filter(permit_sa_gom %in% c("sa_only", "dual"), 
+         year == my_year,
          compliant_ == "NO") %>%
   select(vessel_official_number) %>%
   # unique() %>%
   # 1289    Non compliant vsl
+  # 1545 (2023)
   dim()
 # [1] 26466 non compliant weeks
-# [1] 25662     1
+# 24302 (2023)
 
 ### test 1b ----
 count_weeks_per_vsl_permit_year_compl_p %>%
@@ -644,10 +652,12 @@ count_weeks_per_vsl_permit_year_compl_p %>%
   ) %>%
   unique() %>%
   dplyr::glimpse()
+# $ year                       <chr> "2023", "2023"
+# $ permit_sa_gom              <chr> "sa_only", "sa_only"
 # $ compliant_                 <chr> "YES", "NO"
-# $ weeks_per_vessel_per_compl <int> 33, 19
+# $ weeks_per_vessel_per_compl <int> 47, 5
 # $ total_weeks_per_vessel     <int> 52, 52
-# $ percent_compl              <dbl> 63.46154, 36.53846
+# $ percent_compl              <dbl> 90.384615, 9.615385
 
 # 2) split nc percentage into 4 buckets ----
 ## 2a Only non-compl and fewer cols ----
@@ -717,7 +727,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
 # $ cnt_v_in_bucket     : int [1:4] 399 172 85 633
 # $ total_per_y_r       : int [1:4] 1289 1289 1289 1289
 
-# $ year_permit         : chr [1:4] "2022 sa_dual" "2022 sa_dual" "2022 sa_dual" "2022 sa_dual"
+# $ year_permit         : chr [1:4] "2022 sa_only" "2022 sa_only" "2022 sa_only" "2022 sa_only"
 # $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
 # $ cnt_v_in_bucket     : int [1:4] 398 168 82 615
 # $ total_per_y_r       : int [1:4] 1263 1263 1263 1263
