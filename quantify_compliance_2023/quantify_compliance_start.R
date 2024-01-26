@@ -148,12 +148,17 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 # 5 NO         2023 sa_dual   1615
 # 6 YES        2023 sa_dual   2111
 
+# ls(pattern = "metric")
+# to use
+# fhier_reports_metrics_tracking_not_srhs_all_cols_list
+
 # year ----
 quantify_compliance_from_fhier_year_path <- file.path(
   my_paths$git_r,
   project_name,
   "quantify_compliance_from_fhier_year.R"
 )
+
 source(quantify_compliance_from_fhier_year_path)
 
 # year (100 % not reporting) ----
