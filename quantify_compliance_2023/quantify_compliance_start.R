@@ -106,11 +106,7 @@ count_all_vessels <-
   n_distinct(compl_clean_sa_vs_gom_m_int_1$vessel_official_number)
 # 4017 
 # 3411 (2023)
-
-count_not_gom23_vessels <-
-n_distinct(compl_clean_sa_vs_gom_m_int_filtered$vessel_official_number)
-# 3887 
-# 2355 (2023)
+# 3372 in metrics only
 
 vessels_compl_or_not_per_y_r_all <-
   compl_clean_sa_vs_gom_m_int_1 %>%
@@ -121,31 +117,15 @@ vessels_compl_or_not_per_y_r_all <-
   unique() %>%
   dplyr::count(compliant_, year, permit_sa_gom)
 
-vessels_compl_or_not_per_y_r_not_gom23 <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
-  dplyr::select(vessel_official_number, compliant_, year_permit) %>%
-  unique() %>%
-  dplyr::count(compliant_, year_permit) %>%
-  dplyr::arrange(year_permit, compliant_)
-# vessels
-#  NO         2022 gom_dual   304
-#  YES        2022 gom_dual  1482
-#  NO         2022 sa_only   1289
-#  YES        2022 sa_only   1617
-#  NO         2023 sa_dual   1628
-#  YES        2023 sa_dual   2125
-# [1] "2024-01-25"
-# 1 NO         2023 sa_dual  1483
-# 2 YES        2023 sa_dual  2041
-
-# metrics
-# vessels_compl_or_not_per_y_r_not_gom23
-# 1 NO         2022 gom_dual   290
-# 2 YES        2022 gom_dual  1298
-# 3 NO         2022 sa_only   1263
-# 4 YES        2022 sa_only   1602
-# 5 NO         2023 sa_dual   1615
-# 6 YES        2023 sa_dual   2111
+vessels_compl_or_not_per_y_r_all
+#   compliant_ year  permit_sa_gom     n
+#   <chr>      <chr> <chr>         <int>
+# 1 NO         2023  dual            255
+# 2 NO         2023  gom_only          2
+# 3 NO         2023  sa_only        1290
+# 4 YES        2023  dual            320
+# 5 YES        2023  gom_only        951
+# 6 YES        2023  sa_only        1731
 
 # ls(pattern = "metric")
 # to use
@@ -184,12 +164,11 @@ source(quantify_compliance_from_fhier_vms_path)
 
 # Create a read.me file with numbers of total, active and expired ----
 ## by year ----
-# compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc defined in quantify_compliance_from_fhier_year.R
 # Create a new dataset 'year_permit_cnts' by performing a series of operations.
 
 year_permit_cnts <-
   # Extract unique 'year_permit' values from the specified column and sort them.
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
+  compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
   unique() %>%
   sort() |>
 
@@ -197,7 +176,7 @@ year_permit_cnts <-
   purrr::map_df(function(curr_year_permit) {
     # Create a subset 'curr_df' of the original dataset for the current 'year_permit'.
     curr_df <-
-      compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
+      compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
       dplyr::filter(year_permit == curr_year_permit)
 
     # Extract unique 'total_vsl_y' values for the current 'year_permit'.
@@ -314,16 +293,16 @@ counts_by_month_read_me_clean <-
 # View(counts_by_month_read_me_clean)
 
 ## by year another way ----
-# View(compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc)
+# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 
 # 38
 
 # Create a new dataset 'counts_by_year_read_me_clean' by piping the dataset
-# 'compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc'
+# 'compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc'
 # through a series of data transformation operations.
 
 counts_by_year_read_me_clean <-
-  compl_clean_sa_vs_gom_m_int_filtered_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
+  compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc |>
 
   # Remove the 'perc_c_nc' column from the dataset.
   dplyr::select(-perc_c_nc) |>
