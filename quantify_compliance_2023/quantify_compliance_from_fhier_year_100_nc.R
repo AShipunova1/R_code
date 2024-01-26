@@ -811,6 +811,8 @@ head(count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_tot, 2)
 #   <chr>                  <chr>              <dbl>       <int>
 # 1 VI5498TB               YES                  100         990
 # 2 VA9236AV               NO                   100         487
+# 1 VI5498TB               YES                  100         876
+# 2 VA9447ZY               NO                   100         370
 
 ## add columns ----
 never_reported_filter <-
@@ -845,6 +847,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_tot_perc <-
   dplyr::ungroup()
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_tot_perc)
+
 nc_sa_23_tot_100_plot <-
   count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_tot_perc |>
   dplyr::select(group_100_vs_rest,
