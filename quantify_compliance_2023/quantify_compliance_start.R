@@ -88,6 +88,9 @@ compl_clean_sa_vs_gom_m_int_1 <-
     vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
   )
 
+dim(compl_clean_sa_vs_gom_m_int_1)
+# [1] 146066     24
+
 # remove 2023 gom_only ----
 remove_23_gom <- function(my_df) {
   my_df |>
@@ -101,22 +104,14 @@ compl_clean_sa_vs_gom_m_int_filtered <-
 
 # save vsl count for future checks ----
 count_all_vessels <-
-  compl_clean_sa_vs_gom_m_int_1 %>%
-  dplyr::select(vessel_official_number) %>%
-  unique() %>%
-  dim()
-# 4017 vessels
-count_all_vessels[1]
-# 3776
+  n_distinct(compl_clean_sa_vs_gom_m_int_1$vessel_official_number)
+# 4017 
+# 3411 (2023)
 
 count_not_gom23_vessels <-
-  compl_clean_sa_vs_gom_m_int_filtered %>%
-  dplyr::select(vessel_official_number) %>%
-  unique() %>%
-  dim()
-# 3887 vessels
-count_not_gom23_vessels[1]
-# 3658
+n_distinct(compl_clean_sa_vs_gom_m_int_filtered$vessel_official_number)
+# 3887 
+# 2355 (2023)
 
 vessels_compl_or_not_per_y_r_all <-
   compl_clean_sa_vs_gom_m_int_1 %>%
@@ -140,6 +135,9 @@ vessels_compl_or_not_per_y_r_not_gom23 <-
 #  YES        2022 sa_only   1617
 #  NO         2023 sa_dual   1628
 #  YES        2023 sa_dual   2125
+# [1] "2024-01-25"
+# 1 NO         2023 sa_dual  1483
+# 2 YES        2023 sa_dual  2041
 
 # metrics
 # vessels_compl_or_not_per_y_r_not_gom23
