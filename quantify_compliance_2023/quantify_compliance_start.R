@@ -70,11 +70,16 @@ plot_colors <- list("compliant" = "skyblue1",
                     "nc_bucket" = "deepskyblue",
                     "non_compliant_by_month" = "blue")
 
-title_permits <- data.frame(
-  # title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
-  title = c("2023: SA Only", "2023: Dual only", "2023: SA + Dual"),
-  year_permit = c("2022 sa_only",
-                  "2022 dual_only",
+title_permits <- data.frame(# title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
+  title = c(
+    "2023: SA Only",
+    "2023: GOM only",
+    "2023: Dual only",
+    "2023: SA + Dual"
+  ),
+  year_permit = c("2023 sa_only",
+                  "2023 gom_only",
+                  "2023 dual_only",
                   "2023 sa_dual"),
   second_part = c("Permitted Vessels",
                   "Permitted Vessels",
