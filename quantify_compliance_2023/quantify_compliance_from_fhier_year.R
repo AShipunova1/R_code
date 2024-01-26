@@ -54,7 +54,7 @@ expired_or_not <- function(my_df) {
 compl_clean_sa_vs_gom_m_int_tot_exp_y <-
   expired_or_not(compl_clean_sa_vs_gom_m_int_tot)
 
-View(compl_clean_sa_vs_gom_m_int_tot_exp_y)
+# View(compl_clean_sa_vs_gom_m_int_tot_exp_y)
 
 ## count expiration by year, permit ----
 count_expiration_by <- function(my_df, group_by_var) {
@@ -70,6 +70,33 @@ group_by_var <- c("year_permit", "perm_exp_y")
 compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt <-
   count_expiration_by(compl_clean_sa_vs_gom_m_int_tot_exp_y,
                       group_by_var)
+
+compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |> 
+  select(all_of(group_by_var), exp_y_tot_cnt) |> 
+  distinct()
+
+# 1 2023 sa_dual  active              1987
+# 2 2023 gom_only active               909
+# 3 2023 sa_dual  expired              435
+# 4 2023 gom_only expired               42
+
+group_by_var2 <- c("permit_sa_gom", "perm_exp_y")
+
+count_expiration_by(compl_clean_sa_vs_gom_m_int_tot_exp_y,
+                    group_by_var2) |>
+  select(all_of(group_by_var2), exp_y_tot_cnt) |>
+  distinct()
+
+# A tibble: 6 × 3
+# Groups:   permit_sa_gom, perm_exp_y [6]
+#   permit_sa_gom perm_exp_y exp_y_tot_cnt
+#   <chr>         <chr>              <int>
+# 1 sa_only       active              1694
+# 2 dual          active               293
+# 3 gom_only      active               909
+# 4 sa_only       expired              389
+# 5 gom_only      expired               42
+# 6 dual          expired               46
 
 ## fewer fields ----
 compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short <-
