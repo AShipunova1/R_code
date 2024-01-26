@@ -38,7 +38,7 @@ curr_proj_input_path <- file.path(my_paths$inputs,
                          current_project_basename)
 
 project_name <- current_project_basename
-  "quantify_compliance"
+  # "quantify_compliance_2023"
 
 # Read R Code from files
 quantify_compliance_functions_path <- 
@@ -54,7 +54,8 @@ quantify_compliance_get_data_path <-
 source(quantify_compliance_get_data_path)
 
 source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
-# fhier_reports_metrics_tracking_not_srhs_ids
+# fhier_reports_metrics_tracking_not_srhs_all_cols_list
+# fhier_reports_metrics_tracking_not_srhs_ids_list
 
 # Uses the file.path function to construct a file path. The components used are:
 # my_paths$outputs: A variable containing a directory path.
@@ -62,6 +63,7 @@ source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R
 # today(): Represents a function used to include the current date, creating a date-specific path.
 plot_file_path <-
   file.path(my_paths$outputs, project_name, today())
+
 # create dir if doesn't exists
 create_dir_if_not(plot_file_path)
 
@@ -83,18 +85,21 @@ title_permits <- data.frame(# title = c("SA Only", "GOM + Dual", "2023: SA + Dua
                   "2023 sa_dual"),
   second_part = c("Permitted Vessels",
                   "Permitted Vessels",
+                  "Permitted Vessels",
                   "Permitted Vessels")
 )
 
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+
 compl_clean_sa_vs_gom_m_int_1 <-
   compl_clean_sa_vs_gom_m_int_c |>
   dplyr::filter(
-    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids$vessel_official_number
+    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids_list[["2023"]]$vessel_official_number
   )
 
 dim(compl_clean_sa_vs_gom_m_int_1)
 # [1] 146066     24
+# [1] 143767     24 (2023)
 
 # save vsl count for future checks ----
 count_all_vessels <-
