@@ -130,32 +130,32 @@ sa_line_df_23_monthly_nc_plot_l
 
 # GOM non compliant by month percent of total ----
 
-count_weeks_per_vsl_permit_year_compl_m_p_2023_gom <-
+count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual <-
   count_weeks_per_vsl_permit_year_compl_m_p |>
   filter(year_permit == "2023 sa_dual")
 
-count_weeks_per_vsl_permit_year_compl_m_p_2023_gom_c_cnts_short <-
-  count_weeks_per_vsl_permit_year_compl_m_p_2023_gom |>
+count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short <-
+  count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual |>
   select(year_month,
          total_vsl_m,
          cnt_vsl_m_compl,
          compliant_) |>
   dplyr::distinct()
 
-# View(count_weeks_per_vsl_permit_year_compl_m_p_2023_gom_c_cnts_short)
+# View(count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short)
 # [1] 24  4
 
-count_weeks_per_vsl_permit_year_compl_m_p_2023_gom_c_cnts_short_percent <-
-  count_weeks_per_vsl_permit_year_compl_m_p_2023_gom_c_cnts_short |>
+count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent <-
+  count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short |>
   dplyr::group_by(year_month) |>
   mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m)
 
-glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2023_gom_c_cnts_short_percent)
+glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent)
 
 line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
 
 line_df_23_gom_monthly_nc_percent_plot <-
-  count_weeks_per_vsl_permit_year_compl_m_p_2023_gom_c_cnts_short_percent |>
+  count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent |>
   filter(compliant_ == "NO") |> 
   ggplot(aes(
     x = as.Date(year_month),
@@ -219,67 +219,72 @@ save_plots_list_to_files(file_full_name,
 #   filter(year_month == "Jan 2023") |> 
 #   View()
 
-count_weeks_per_vsl_permit_year_compl_m_p_nc |> 
+count_weeks_per_vsl_permit_year_compl_m_p_nc |>
   filter(year_month == "Jun 2023" &
              year_permit == "2023 sa_dual" &
              percent_compl_m < 50) |> 
   summarise(n_distinct(vessel_official_number))
 # print_df_names(test_df)
+# 37
 
 max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 
-min_max_val <-
-  test_df |>
-  dplyr::group_by(percent_non_compl_2_buckets) |>
-  mutate(
-    max_dot_y = max(perc_vsls_per_m_b2),
-    min_dot_y = min(perc_vsls_per_m_b2)
-  ) |>
-  dplyr::ungroup() |>
-  mutate(
-    max_dot_month =
-      dplyr::case_when(
-        perc_vsls_per_m_b2 == max_dot_y &
-          percent_non_compl_2_buckets == "< 50%" ~ year_month
-      ),
-    min_dot_month =
-      dplyr::case_when(
-        perc_vsls_per_m_b2 == min_dot_y &
-          percent_non_compl_2_buckets == "< 50%" ~ year_month
-      )
-  ) |>
-  mutate(
-    max_dot_text =
-      dplyr::case_when(
-        !is.na(max_dot_month) ~ str_glue(max_min_text)
-      ),
-    min_dot_text =
-      dplyr::case_when(
-        !is.na(min_dot_month) ~ str_glue(max_min_text)
-      )
-  )
+# test_df <-
+#   count_weeks_per_vsl_permit_year_compl_m_p_nc |>
+#   filter(year_permit == "2023 sa_dual")
+# 
+# min_max_val <-
+#   test_df |>
+#   dplyr::group_by(percent_non_compl_2_buckets) |>
+#   mutate(
+#     max_dot_y = max(perc_vsls_per_m_b2),
+#     min_dot_y = min(perc_vsls_per_m_b2)
+#   ) |>
+#   dplyr::ungroup() |>
+#   mutate(
+#     max_dot_month =
+#       dplyr::case_when(
+#         perc_vsls_per_m_b2 == max_dot_y &
+#           percent_non_compl_2_buckets == "< 50%" ~ year_month
+#       ),
+#     min_dot_month =
+#       dplyr::case_when(
+#         perc_vsls_per_m_b2 == min_dot_y &
+#           percent_non_compl_2_buckets == "< 50%" ~ year_month
+#       )
+#   ) |>
+#   mutate(
+#     max_dot_text =
+#       dplyr::case_when(
+#         !is.na(max_dot_month) ~ str_glue(max_min_text)
+#       ),
+#     min_dot_text =
+#       dplyr::case_when(
+#         !is.na(min_dot_month) ~ str_glue(max_min_text)
+#       )
+#   )
 
-test_plot +
-  annotate(
-    "text",
-    x = as.Date(min_max_val$max_dot_month),
-    y = min_max_val$max_dot_y,
-    # mean of reports_cnts, rounded to 2 decimals
-    label = min_max_val$max_dot_text
-    # ,
-    # color = "#0570B0",
-    # angle = 90
-  ) +
-  annotate(
-    "text",
-    x = as.Date(min_max_val$min_dot_month),
-    y = min_max_val$min_dot_y,
-    # mean of reports_cnts, rounded to 2 decimals
-    label = min_max_val$min_dot_text
-    # ,
-    # color = "#0570B0",
-    # angle = 90
-  )
+# test_plot +
+#   annotate(
+#     "text",
+#     x = as.Date(min_max_val$max_dot_month),
+#     y = min_max_val$max_dot_y,
+#     # mean of reports_cnts, rounded to 2 decimals
+#     label = min_max_val$max_dot_text
+#     # ,
+#     # color = "#0570B0",
+#     # angle = 90
+#   ) +
+#   annotate(
+#     "text",
+#     x = as.Date(min_max_val$min_dot_month),
+#     y = min_max_val$min_dot_y,
+#     # mean of reports_cnts, rounded to 2 decimals
+#     label = min_max_val$min_dot_text
+#     # ,
+#     # color = "#0570B0",
+#     # angle = 90
+#   )
 
 # test_df |> select(
 #   year_permit,
@@ -302,4 +307,5 @@ test_plot +
 #            year_permit == "2023 sa_dual" &
 #            percent_compl_m < 50) |>
 #   View()
+
 
