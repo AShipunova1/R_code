@@ -26,13 +26,14 @@ compl_clean_sa_vs_gom_m_int_tot_m %>%
 # 4 2023 sa_dual  Nov 2022          1677
 # 5 2022 gom_dual Dec 2022          1131
 # 6 2023 sa_dual  Dec 2022          1657
-# numbers are as before, ok
-# 1 2022 gom_dual Oct 2022          1144
-# 2 2023 sa_dual  Oct 2022          1695
-# 3 2022 gom_dual Nov 2022          1138
-# 4 2023 sa_dual  Nov 2022          1656
-# 5 2022 gom_dual Dec 2022          1123
-# 6 2023 sa_dual  Dec 2022          1647
+
+# 2023
+# 1 2023 gom_only Oct 2023           895
+# 2 2023 sa_dual  Oct 2023          1963
+# 3 2023 gom_only Nov 2023           897
+# 4 2023 sa_dual  Nov 2023          1966
+# 5 2023 gom_only Dec 2023           902
+# 6 2023 sa_dual  Dec 2023          1969
 
 
 ## add the difference between expiration and week_start----
@@ -42,15 +43,16 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff <-
   compl_clean_sa_vs_gom_m_int_tot_m %>%
   # add a column with difference in days
   dplyr::mutate(exp_w_end_diff =
-                  as.numeric(as.Date(permitgroupexpiration) - week_start + 1))
+                  as.numeric(as.Date(permit_groupexpiration) - week_start + 1))
 
 ## expired or not? ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
-  # add a column
   dplyr::mutate(perm_exp_m =
                   dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
                             exp_w_end_diff >= 0 ~ "active"))
+
+# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
 
 ## Keep active only ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
@@ -59,9 +61,11 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
 
 dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
 # [1] 185251     28
+# [1] 143767     27
 
 dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp)
 # [1] 185199     28
+# [1] 143737     27
 
 ## expired: count if vessel is expired or not by year, permit and month  ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
@@ -82,22 +86,16 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   unique() %>%
   dplyr::arrange(year_permit, year_month) %>%
   tail() |>
-  dplyr::glimpse()
-# year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
+  head()
+
+#   year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
 #   <chr>        <yearmon>  <chr>              <int>       <int>
-# 1 2023 sa_dual Oct 2022   active              1721        1722
-# 2 2023 sa_dual Oct 2022   expired                1        1722
-# 3 2023 sa_dual Nov 2022   active              1676        1677
-# 4 2023 sa_dual Nov 2022   expired                1        1677
-# 5 2023 sa_dual Dec 2022   active              1656        1657
-# 6 2023 sa_dual Dec 2022   expired                1        1657
-# compare with the text for tot month above
-# rm exp
-# $ year_permit   <chr> "2023 sa_dual", "2023 sa_dual", "2023 sa_dual", "2023 sa_dual", "…
-# $ year_month    <yearmon> Jul 2022, Aug 2022, Sep 2022, Oct 2022, Nov 2022, Dec 2022
-# $ perm_exp_m    <chr> "active", "active", "active", "active", "active", "active"
-# $ exp_m_tot_cnt <int> 1745, 1755, 1708, 1694, 1655, 1646
-# $ total_vsl_m   <int> 1746, 1756, 1709, 1695, 1656, 1647
+# 1 2023 sa_dual Jul 2023   active              2035        2036
+# 2 2023 sa_dual Aug 2023   active              2022        2023
+# 3 2023 sa_dual Sep 2023   active              1985        1986
+# 4 2023 sa_dual Oct 2023   active              1962        1963
+# 5 2023 sa_dual Nov 2023   active              1965        1966
+# 6 2023 sa_dual Dec 2023   active              1968        1969
 
 # from now on use exp_m_tot_cnt instead of total_vsl_m
 
@@ -131,7 +129,6 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
   dplyr::group_by(year_permit, year_month, compliant_) %>%
-  # add a column
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
   dplyr::ungroup()
 
@@ -139,6 +136,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
 # tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
   dplyr::select(
+    permit_sa_gom,
     year_permit,
     year_month,
     perm_exp_m,
@@ -161,6 +159,14 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 # If we are going to use "yes only" than redo "yes, no, no_yes" division as for a year above.
 # $ cnt_vsl_m_compl <int> 1052, 688, 1004, 42
 
+# 2023:
+# $ year_month      <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2023, …
+# $ perm_exp_m      <chr> "active", "active", "active", "active", "active", "act…
+# $ exp_m_tot_cnt   <int> 1967, 1967, 1967, 675, 1967, 675
+# $ total_vsl_m     <int> 1967, 1967, 1967, 675, 1967, 675
+# $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
+# $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
+
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
@@ -181,6 +187,8 @@ count_weeks_per_vsl_permit_year_compl_month %>%
   # unique() %>%
   filter(year_month == "Dec 2023") %>%
   dplyr::glimpse()
+# Rows: 11,369 2023
+
 # Rows: 11,031
 # $ compliant_                         <chr> "YES", "NO", "YES", "YES",…
 # $ total_vsl_m                        <int> 1657, 1657, 1657, 1657, 16…
@@ -205,6 +213,12 @@ count_weeks_per_vsl_permit_year_compl_month %>%
 # $ year_month                   <yearmon> Dec 2022, Dec 2022, Dec 202…
 # $ weeks_per_vessel_per_compl_m <int> 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4…
 
+# 2023
+# $ vessel_official_number       <chr> "VA9447ZY", "VA8261ZY", "VA2031CK", "VA14…
+# $ compliant_                   <chr> "NO", "NO", "NO", "NO", "NO", "NO", "NO",…
+# $ year_month                   <yearmon> Dec 2023, Dec 2023, Dec 2023, Dec 202…
+# $ weeks_per_vessel_per_compl_m <int> 4, 4, 4, 4, 2, 4, 2, 2, 4, 4, 2, 4, 4, 4,…
+
 ## 1) Month: percent compl weeks per vsl per month ----
 
 count_weeks_per_vsl_permit_year_compl_m_p <-
@@ -215,7 +229,7 @@ count_weeks_per_vsl_permit_year_compl_m_p <-
 ### test 1, by month ----
 count_weeks_per_vsl_permit_year_compl_m_p %>%
   filter(year_month == "Dec 2023") %>%
-  filter(vessel_official_number == "NJ8126HN") %>%
+  filter(vessel_official_number == "1026988") %>%
   select(
     vessel_official_number,
     year_month,
@@ -225,12 +239,18 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
     percent_compl_m
   ) %>%
   unique() %>%
-  dplyr::arrange(year_month) %>%
-  dplyr::glimpse()
+  arrange(year_month) %>%
+  glimpse()
 # $ compliant_                         <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl_m       <int> 1, 3
 # $ total_weeks_per_vessel_per_compl_m <int> 4, 4
 # $ percent_compl_m                    <dbl> 25, 75
+
+# 2023
+# $ compliant_                         <chr> "NO", "YES"
+# $ weeks_per_vessel_per_compl_m       <int> 3, 1
+# $ total_weeks_per_vessel_per_compl_m <int> 4, 4
+# $ percent_compl_m                    <dbl> 75, 25
 
 ## 2a) Month: Only non-compl and fewer cols ----
 # View(count_weeks_per_vsl_permit_year_compl_m_p)
@@ -253,6 +273,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc <-
   unique()
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc)
+
 ## 2b) Month: get percentage "buckets" ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b <-
@@ -297,6 +318,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b <-
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b)
 # [1] 11489    12
 # [1] 11477    12
+# [1] 6503   11
 
 ### 2 buckets ----
 count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2 <-
@@ -336,6 +358,8 @@ test_compare_with <-
 # 45 * 100 / 1192 = 3.8%
 
 # 688
+
+# 322 (2023)
 
 # still true?
 test_res <-
@@ -391,6 +415,11 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p %>%
 
 # 612*100/703 == 87.05548
 
+# 2023
+# 1 25<= & <50%                        10.4 
+# 2 50<= & <75%                         9.75
+# 3 75<= & <=100%                      79.9 
+
 ## 5) Month plots ----
 
 ## 5a) prepare the df for plotting ----
@@ -440,13 +469,14 @@ dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p)
 # [1] 11766    15
 # [1] 11489    15
 # [1] 11477    15
-
+# [1] 6503   14 (2023)
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 # [1] 107  12
 # [1] 95 12
-
+# [1] 42 11 (2023)
 dim(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b2_p_short)
 # [1] 58 10
+# [1] 26 10 (2023)
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short)
 
@@ -463,29 +493,19 @@ count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2 <-
 sorted_year_permits <- names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r) %>%
   sort()
 # [1] "2022 gom_dual" "2023 sa_dual"  "2023 sa_dual"
+# [1] "2023 gom_only" "2023 sa_dual" 
 
 ### make titles ----
-get_year_permit_titles <- function(permit, year) {
-  # paste0("The Number of Non-Compliant Vessels Each Month That Were Compliant More Than 50% of a Month in ", year) |> 
-        paste0("% of non-compliant ",
-             permit,
-             " Permitted vessels by month",
-             " (", year, ")"
-             ) %>%
-    # "% of non-compliant ",
-    #      permit,
-    #      " Permitted vessels by month",
-    #      " (",
-    #      year,
-    #      ")") %>%
-    return()
+get_year_permit_titles <- 
+  function(permit, year) {
+  str_glue("% of non-compliant {permit} Permitted vessels by month ({year})")
 }
 
 year_permit_titles <-
   data.frame(
     super_title_gom = get_year_permit_titles("Gulf Only", "2023"),
-    super_title_sa = get_year_permit_titles("South Atlantic Only", "2023"),
-    super_title_2023 = get_year_permit_titles("South Atlantic + Dual", "2023")
+    # super_title_sa = get_year_permit_titles("South Atlantic Only", "2023"),
+    super_title_sa = get_year_permit_titles("South Atlantic + Dual", "2023")
   )
 
 names(year_permit_titles) <- sorted_year_permits
@@ -529,19 +549,6 @@ get_one_plot_by_month <-
 
     # see function definition F2
     cnt_expired <- get_expired_permit_numbers(curr_data)
-
-    # curr_title <- paste0(
-    #   curr_month_name,
-    #   " (",
-    #   curr_tot_v_per_m_y_r,
-    #   " vsls; ",
-    #   curr_m_tot_active$exp_m_tot_cnt,
-    #   " act. p.; ",
-    #   cnt_expired,
-    #   " exp. p.)"
-    # )
-
-    # curr_title <- curr_month_name
 
     curr_title <- paste0(
       curr_month_name,
