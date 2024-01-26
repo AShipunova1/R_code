@@ -91,25 +91,25 @@ title_permits <- data.frame(# title = c("SA Only", "GOM + Dual", "2023: SA + Dua
 
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 
-compl_clean_sa_vs_gom_m_int_1 <-
+compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m_int_c |>
   dplyr::filter(
     vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids_list[["2023"]]$vessel_official_number
   )
 
-dim(compl_clean_sa_vs_gom_m_int_1)
+dim(compl_clean_sa_vs_gom_m_int)
 # [1] 146066     24
 # [1] 143767     24 (2023)
 
 # save vsl count for future checks ----
 count_all_vessels <-
-  n_distinct(compl_clean_sa_vs_gom_m_int_1$vessel_official_number)
+  n_distinct(compl_clean_sa_vs_gom_m_int$vessel_official_number)
 # 4017 
 # 3411 (2023)
 # 3372 in metrics only
 
 vessels_compl_or_not_per_y_r_all <-
-  compl_clean_sa_vs_gom_m_int_1 %>%
+  compl_clean_sa_vs_gom_m_int %>%
   dplyr::select(vessel_official_number,
          compliant_,
          year,
