@@ -755,6 +755,10 @@ compliance_cleaning <- function(compl_arr) {
     compl <- join_same_kind_csvs(compl_arr)
   }
 
+  # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
+  compl_clean <-
+    map(compl, clean_weeks)
+
   # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
   permitgroupexpirations <-
     map(compl,
@@ -764,15 +768,15 @@ compliance_cleaning <- function(compl_arr) {
                value = TRUE)
         })
 
-  # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
-  compl_clean <-
-    map(compl, clean_weeks)
-
   # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
   compl_dates <-
     compl_clean |>
     imap(\(x, idx) {
-      change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
+      field_name <- permitgroupexpirations[[idx]]
+      x |> 
+        mutate({{field_name}} := as.POSIXct(pull(x[field_name]),
+                                            format = "%m/%d/%Y")) 
+      # change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
     })
 
   # Return the cleaned and processed compliance data.
