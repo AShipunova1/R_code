@@ -62,6 +62,7 @@ count_expiration_by <- function(my_df, group_by_var) {
     dplyr::group_by_at(group_by_var) %>%
     # count distinct vessels per group
     dplyr::mutate(exp_y_tot_cnt = n_distinct(vessel_official_number)) %>%
+    ungroup() %>%
     return()
 }
 
@@ -103,6 +104,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short <-
   compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt %>%
   dplyr::select(
     vessel_official_number,
+    permit_sa_gom,
     year_permit,
     compliant_,
     total_vsl_y,
@@ -110,7 +112,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short <-
     exp_y_tot_cnt
   ) %>%
   # can unique, because already counted
-  unique()
+  distinct()
 
 ## get compl_counts ----
 ### get compl, no compl, or both per year ----
@@ -131,14 +133,18 @@ get_compl_by <- function(my_df, group_by_for_compl) {
     return()
 }
 
+# all columns except...
 group_by_for_compl <- vars(-c("vessel_official_number", "compliant_"))
 
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide <-
   get_compl_by(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short,
                group_by_for_compl)
 
+dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide)
+# [1]    6 3377
+
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
-  compl_clean_sa_vs_gom_m_int_c_cnt_tot |>
+  compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |>
   dplyr::select(
     vessel_official_number,
     year_permit,
@@ -232,6 +238,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
   # get sums
   dplyr::mutate(sum_cnts = sum(compl_or_not_cnt)) %>%
   dplyr::filter(!total_vsl_y == sum_cnts) %>%
+  ungroup()
   dim()
 # 0 OK
 # unique() %>%
@@ -259,14 +266,15 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
 #
 
 ### check if a vessel is compliant and not at the same time
-compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long %>%
-  dplyr::filter(!is.na(is_compl_or_both)) %>%
-  dplyr::group_by(vessel_official_number) %>%
-  dplyr::mutate(shared =
-                  dplyr::n_distinct(is_compl_or_both) == dplyr::n_distinct(.$is_compl_or_both)) %>%
-  dplyr::filter(shared == TRUE) %>%
-  dim()
-# dplyr::glimpse()
+  compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long %>%
+    dplyr::filter(!is.na(is_compl_or_both)) %>%
+    dplyr::group_by(vessel_official_number) %>%
+    dplyr::mutate(shared =
+                    dplyr::n_distinct(is_compl_or_both) == dplyr::n_distinct(.$is_compl_or_both)) %>%
+    dplyr::filter(shared == TRUE) %>%
+    ungroup() |>
+    dim()
+  # dplyr::glimpse()
 # 0 - OK
 
 # check if a vessel permit is expired and not in the same time
@@ -277,6 +285,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long %>%
                   dplyr::n_distinct(perm_exp_y) == dplyr::n_distinct(.$perm_exp_y)) %>%
   dplyr::filter(shared == TRUE) %>%
   dplyr::arrange(vessel_official_number) %>%
+  ungroup() |> 
   dim()
 # 0
 
