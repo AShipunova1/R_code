@@ -1,22 +1,22 @@
 # run from quantify_compliance_start.R after quantify_compliance_from_fhier_year.R
 
 # SA vessels that never reported anything ----
-# Jessica wants to see 1 more figure for the SA, that is the proportion of SA vessels that never reported anything - whereas, your compliance for all of 2022 means of the 54% non-compliant, they may only be missing 1 week in the whole year. 
+# Jessica wants to see 1 more figure for the SA, that is the proportion of SA vessels that never reported anything - whereas, your compliance for all of 2023 means of the 54% non-compliant, they may only be missing 1 week in the whole year. 
 # print_df_names(count_weeks_per_vsl_permit_year_compl_p)
 
-# Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_sa_22' by filtering an existing data frame.
+# Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_sa_23' by filtering an existing data frame.
 # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p' to the next operation.
-# The filter function is used to select rows where the column year_permit is equal to "2022 sa_only". The result is a filtered data frame for the specified year and permit condition.
-count_weeks_per_vsl_permit_year_compl_p_sa_22 <-
+# The filter function is used to select rows where the column year_permit is equal to "2023 sa_dual". The result is a filtered data frame for the specified year and permit condition.
+count_weeks_per_vsl_permit_year_compl_p_sa_23 <-
   count_weeks_per_vsl_permit_year_compl_p |>
-  dplyr::filter(year_permit == "2022 sa_only")
+  dplyr::filter(year_permit == "2023 sa_dual")
 
-# Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100'
+# Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_sa_23_non_100'
 # by applying a series of operations to the existing data frame
-count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100 <-
+count_weeks_per_vsl_permit_year_compl_p_sa_23_non_100 <-
   
-  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_22' to the next operation
-  count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
+  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_23' to the next operation
+  count_weeks_per_vsl_permit_year_compl_p_sa_23 |>
   
   # Select specific columns from the data frame
   dplyr::select(vessel_official_number,
@@ -33,26 +33,26 @@ count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100 <-
   # Further filter the data frame to select rows where 'percent_compl' is equal to 100
   dplyr::filter(percent_compl == 100)
 
-dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)
+dim(count_weeks_per_vsl_permit_year_compl_p_sa_23_non_100)
 # 487
 
 # All vessels
 length(unique(count_weeks_per_vsl_permit_year_compl_p$vessel_official_number))
 # 3669
 
-# All SA 2022 vessels
-length(unique(count_weeks_per_vsl_permit_year_compl_p_sa_22$vessel_official_number))
+# All SA 2023 vessels
+length(unique(count_weeks_per_vsl_permit_year_compl_p_sa_23$vessel_official_number))
 # 2152
 # in metrics:
 # Total Vessels With SA Only
 # 2275
 # 2275 - 2152 = 123?
 
-# Create a new data frame 'sa_22_non_c_vessels' by applying a series of operations to the existing data frame
-sa_22_non_c_vessels <- 
+# Create a new data frame 'sa_23_non_c_vessels' by applying a series of operations to the existing data frame
+sa_23_non_c_vessels <- 
 
-  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_22' to the next operation
-  count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
+  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_23' to the next operation
+  count_weeks_per_vsl_permit_year_compl_p_sa_23 |>
   
   # Filter the data frame to select rows where 'compliant_' is "NO"
   dplyr::filter(compliant_ == "NO") |>
@@ -63,11 +63,11 @@ sa_22_non_c_vessels <-
   # Remove duplicate rows
   dplyr::distinct()
 
-# Create a new data frame 'sa_22_vessels' by applying a series of operations to the existing data frame
-sa_22_vessels <- 
+# Create a new data frame 'sa_23_vessels' by applying a series of operations to the existing data frame
+sa_23_vessels <- 
 
-  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_22' to the next operation
-  count_weeks_per_vsl_permit_year_compl_p_sa_22 |>
+  # Use the pipe operator to pass 'count_weeks_per_vsl_permit_year_compl_p_sa_23' to the next operation
+  count_weeks_per_vsl_permit_year_compl_p_sa_23 |>
   
   # Select a specific column 'vessel_official_number'
   dplyr::select(vessel_official_number) |>
@@ -78,23 +78,23 @@ sa_22_vessels <-
 # Calculate the percentage of never compliant entries from all non-compliant entries
 
 # Calculate the total number of non-compliant entries that are never compliant
-# by multiplying the number of rows in 'count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100'
-# with 100 and dividing it by the number of rows in 'sa_22_non_c_vessels'
+# by multiplying the number of rows in 'count_weeks_per_vsl_permit_year_compl_p_sa_23_non_100'
+# with 100 and dividing it by the number of rows in 'sa_23_non_c_vessels'
 percent_of_never_compl_from_all_non_c <- 
-  dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)[[1]] * 100 / dim(sa_22_non_c_vessels)[[1]]
+  dim(count_weeks_per_vsl_permit_year_compl_p_sa_23_non_100)[[1]] * 100 / dim(sa_23_non_c_vessels)[[1]]
 # [1] 41.87446 %
 
-# Calculate the percentage of never compliant entries from all entries in 2022
-# In this code, the variable percent_of_never_compl_from_all_sa_2022 is calculated by dividing the number of rows in the data frame count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100 (representing non-compliant entries that are never compliant) by the number of rows in the data frame sa_22_vessels (representing all entries in the year 2022) and then multiplying the result by 100 to obtain the percentage of never compliant entries from all entries in 2022.
+# Calculate the percentage of never compliant entries from all entries in 2023
+# In this code, the variable percent_of_never_compl_from_all_sa_2023 is calculated by dividing the number of rows in the data frame count_weeks_per_vsl_permit_year_compl_p_sa_23_non_100 (representing non-compliant entries that are never compliant) by the number of rows in the data frame sa_23_vessels (representing all entries in the year 2023) and then multiplying the result by 100 to obtain the percentage of never compliant entries from all entries in 2023.
 
 # Calculate the total number of non-compliant entries that are never compliant
-# by multiplying the number of rows in 'count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100'
-# with 100 and dividing it by the number of rows in 'sa_22_vessels'
-percent_of_never_compl_from_all_sa_2022 <- 
-  dim(count_weeks_per_vsl_permit_year_compl_p_sa_22_non_100)[[1]] * 100 / dim(sa_22_vessels)[[1]]
+# by multiplying the number of rows in 'count_weeks_per_vsl_permit_year_compl_p_sa_23_non_100'
+# with 100 and dividing it by the number of rows in 'sa_23_vessels'
+percent_of_never_compl_from_all_sa_2023 <- 
+  dim(count_weeks_per_vsl_permit_year_compl_p_sa_23_non_100)[[1]] * 100 / dim(sa_23_vessels)[[1]]
 # [1] 22.63011 %
 
-# SA vessels 2022 vessels cnt / percent compl ----
+# SA vessels 2023 vessels cnt / percent compl ----
 
 # Create a new data frame 'count_weeks_per_vsl_permit_year_compl_p_short' 
 # by applying a series of operations to the existing data frame
@@ -129,8 +129,8 @@ count_weeks_per_vsl_permit_year_compl_p_short_count <-
   # Filter the data frame to select rows where 'compliant_' is "NO"
   dplyr::filter(compliant_ == "NO") |>
   
-  # Further filter the data frame to select rows where 'year_permit' is "2022 sa_only"
-  dplyr::filter(year_permit == "2022 sa_only") |>
+  # Further filter the data frame to select rows where 'year_permit' is "2023 sa_dual"
+  dplyr::filter(year_permit == "2023 sa_dual") |>
   
   # Select specific columns 'vessel_official_number' and 'percent_compl'
   dplyr::select(vessel_official_number, percent_compl) |>
@@ -182,11 +182,11 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_perc <-
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 
-# Create a ggplot object named 'nc_sa_22_100_plot' using a series of dplyr and ggplot functions.
+# Create a ggplot object named 'nc_sa_23_100_plot' using a series of dplyr and ggplot functions.
 
 # Use the pipe operator to pass the output of the previous function to the next function.
 
-nc_sa_22_100_plot <- 
+nc_sa_23_100_plot <- 
   count_weeks_per_vsl_permit_year_compl_p_short_count_perc |>
 
   # Select specific columns from the data frame.
@@ -234,8 +234,8 @@ nc_sa_22_100_plot <-
 
   # Set the plot titles and y-axis label.
   labs(
-    title = stringr::str_glue("Non compliant SA vsls in 2022 (total non compliant = {count_weeks_per_vsl_permit_year_compl_p_short_count_perc$total_vessels})"),
-    y = "Non compliant in 2022 (%)",
+    title = stringr::str_glue("Non compliant SA vsls in 2023 (total non compliant = {count_weeks_per_vsl_permit_year_compl_p_short_count_perc$total_vessels})"),
+    y = "Non compliant in 2023 (%)",
     x = ""  # No label for x-axis
   ) +
 
@@ -244,9 +244,9 @@ nc_sa_22_100_plot <-
 
 # print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count_perc)
 # Add percent numbers on the bars
-# In this code, the 'nc_sa_22_100_plot' ggplot object is further modified by adding text labels to the bars. The geom_text function is used to display labels on the plot, and it is configured to show the rounded percentage values on top of the bars. The position_stack function is used to position the labels in the middle of the bars, and the text size is set to a predefined value specified in text_sizes[["geom_text_size"]].
+# In this code, the 'nc_sa_23_100_plot' ggplot object is further modified by adding text labels to the bars. The geom_text function is used to display labels on the plot, and it is configured to show the rounded percentage values on top of the bars. The position_stack function is used to position the labels in the middle of the bars, and the text size is set to a predefined value specified in text_sizes[["geom_text_size"]].
 
-nc_sa_22_100_plot <- nc_sa_22_100_plot +
+nc_sa_23_100_plot <- nc_sa_23_100_plot +
 
   # Add text labels to the plot.
   geom_text(
@@ -260,13 +260,13 @@ nc_sa_22_100_plot <- nc_sa_22_100_plot +
   )
 
 # show the plot
-nc_sa_22_100_plot
+nc_sa_23_100_plot
 
-# Save the ggplot object 'nc_sa_22_100_plot' as a PNG image file using 'ggsave'.
+# Save the ggplot object 'nc_sa_23_100_plot' as a PNG image file using 'ggsave'.
 
 ggsave(
-  file = "sa_22_nc_100.png",  # File name
-  plot = nc_sa_22_100_plot,   # The ggplot object to be saved
+  file = "sa_23_nc_100.png",  # File name
+  plot = nc_sa_23_100_plot,   # The ggplot object to be saved
   device = "png",            # File format (PNG)
   path = file.path(my_paths$outputs, r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),  # Output directory
   width = 20,                # Image width in centimeters
@@ -289,7 +289,7 @@ total_vessels_c_n_nc <-
   dim()
 # vessel_official_number     3669
 
-nc_sa_22_100_plot <-
+nc_sa_23_100_plot <-
   # Calculate the count of weeks per VSL (vessel) permit year for non-compliant permits
   count_weeks_per_vsl_permit_year_compl_p_short_count_perc |>
   # Select specific columns from the data frame
@@ -342,8 +342,8 @@ nc_sa_22_100_plot <-
   # Set y-axis label
   # Set x-axis label to an empty string
   labs(title = 
-         stringr::str_glue("Non compliant SA vsls in 2022 (total non compliant = {count_weeks_per_vsl_permit_year_compl_p_short_count_perc$total_vessels})"),
-       y = "Non compliant in 2022 (%)",
+         stringr::str_glue("Non compliant SA vsls in 2023 (total non compliant = {count_weeks_per_vsl_permit_year_compl_p_short_count_perc$total_vessels})"),
+       y = "Non compliant in 2023 (%)",
        x = "") +
   # Limit the y-axis to a range of 0 to 100
   ylim(0, 100)
@@ -367,7 +367,7 @@ perc_non_compl_plot_less_100 <-
   # Add a line to the plot with the specified color
   geom_line(color = "deepskyblue") +
   # Set plot titles and labels
-  labs(title = "Non compliant SA vessels (2022) number by percent of non compliant where % non compliant < 100", 
+  labs(title = "Non compliant SA vessels (2023) number by percent of non compliant where % non compliant < 100", 
        # Set x-axis label
        x = "Vessel count", 
        # Set y-axis label
@@ -534,7 +534,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr |>
   # Set plot title
   # Set x-axis label
   # Set y-axis label
-  labs(title = "Non compliant SA vessels (2022) number by percent of non compliant where % non compliant < 100",
+  labs(title = "Non compliant SA vessels (2023) number by percent of non compliant where % non compliant < 100",
        x = "Vessel count",
        y = "% nc vsls") +
   # y axes 0 to 100
@@ -647,7 +647,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr |>
   # Set plot title
   # Set x-axis label
   # Set y-axis label
-  labs(title = "Non compliant SA vessels (2022) number by percent of non compliant where % non compliant < 100",
+  labs(title = "Non compliant SA vessels (2023) number by percent of non compliant where % non compliant < 100",
        x = "Vessel count",
        y = "% nc vsls") +
   # Limit the y-axis to a range of 0 to 100
@@ -666,7 +666,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_less_100_gr |>
 # This code defines a variable named labs that contains a set of labels for a plot. The labels specify the plot title, x-axis label, and y-axis label. These labels are intended to be used when customizing the appearance of a plot in ggplot.
 
 labs <- 
-  labs(title = "Non compliant SA vessels (2022) number by percent of non compliant where % non compliant < 100",
+  labs(title = "Non compliant SA vessels (2023) number by percent of non compliant where % non compliant < 100",
        x = "Vessel count",
        y = "% nc vsls")
 
@@ -705,18 +705,18 @@ p <-
   # Include custom labels previously defined in the 'labs' variable.
   labs  
 
-# facet plots for all non compliant SA 2022 ----
+# facet plots for all non compliant SA 2023 ----
 # A variable labs_all is defined to store custom labels for a ggplot2 plot.
 # The labs function is used to set the title, x-axis label, and y-axis label for the plot.
-# The title is set to "Number of SA permitted vessels grouped by percent of non-compliant time in 2022".
+# The title is set to "Number of SA permitted vessels grouped by percent of non-compliant time in 2023".
 # The x-axis label is set to "Vessel count".
-# The y-axis label is set to "Percent of non-compliant in 2022".
+# The y-axis label is set to "Percent of non-compliant in 2023".
 # These custom labels will be used to annotate the ggplot2 plot and provide context and information to the viewer.
 
 labs_all <- 
-  labs(title = "Number of SA permitted vessels grouped by percent of non compliant time in 2022",
+  labs(title = "Number of SA permitted vessels grouped by percent of non compliant time in 2023",
        x = "Vessel count",
-       y = "Percent of non conmpliant in 2022")
+       y = "Percent of non conmpliant in 2023")
 
 # View(count_weeks_per_vsl_permit_year_compl_p_short_count_gr)
 # All percents ----
@@ -818,7 +818,7 @@ facet_wrap(vars(percent_group_name),
 plot_all_by_percent
 
 ggsave(
-  file = "sa_22_nc_perc_vsl_cnt_by_percent.png",
+  file = "sa_23_nc_perc_vsl_cnt_by_percent.png",
   plot = plot_all_by_percent,
   device = "png",
   path = file.path(my_paths$outputs,
@@ -831,7 +831,7 @@ ggsave(
 # 100% non compliant out of total ----
 count_weeks_per_vsl_permit_year_compl_p_short_count_tot <- 
   count_weeks_per_vsl_permit_year_compl_p_short |> 
-  dplyr::filter(year_permit == "2022 sa_only") |> 
+  dplyr::filter(year_permit == "2023 sa_dual") |> 
   dplyr::select(vessel_official_number, compliant_, percent_compl) |> 
   dplyr::add_count(compliant_, percent_compl, name = "vessels_cnt")
 
@@ -874,7 +874,7 @@ count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc <-
   dplyr::ungroup()
 
 glimpse(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
-nc_sa_22_tot_100_plot <-
+nc_sa_23_tot_100_plot <-
   count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc |>
   dplyr::select(group_100_vs_rest,
          perc_nc_100_gr_name,
@@ -908,7 +908,7 @@ nc_sa_22_tot_100_plot <-
   ) +
   # no x and y titles for individual plots
   labs(title = 
-         stringr::str_glue("Never reported SA vsls in 2022 out of all compliant and non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc$total_vessels})"),
+         stringr::str_glue("Never reported SA vsls in 2023 out of all compliant and non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc$total_vessels})"),
        y = "",
        # y = "% of All Vessels",
        x = "") +
@@ -916,8 +916,8 @@ nc_sa_22_tot_100_plot <-
 
 # print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count_tot_perc)
 # Add percent numbers on the bars
-nc_sa_22_tot_100_plot <-
-  nc_sa_22_tot_100_plot +
+nc_sa_23_tot_100_plot <-
+  nc_sa_23_tot_100_plot +
   geom_text(aes(label =
                   paste0(round(perc_of_perc, 0), "%")),
             # in the middle of the bar
@@ -925,11 +925,11 @@ nc_sa_22_tot_100_plot <-
               position_stack(vjust = 0.5),
             size = text_sizes[["geom_text_size"]])
 
-nc_sa_22_tot_100_plot
+nc_sa_23_tot_100_plot
 
 ggsave(
-  file = "sa_22_tot_100nc_plot.png",
-  plot = nc_sa_22_tot_100_plot,
+  file = "sa_23_tot_100nc_plot.png",
+  plot = nc_sa_23_tot_100_plot,
   device = "png",
   path = file.path(my_paths$outputs,
                    r"(quantify_compliance\vsl_cnt_by_perc_non_compl)"),
