@@ -89,8 +89,11 @@ title_permits <- data.frame(# title = c("SA Only", "GOM + Dual", "2023: SA + Dua
                   "Permitted Vessels")
 )
 
-# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+# ls(pattern = "metric")
+# to use
+# fhier_reports_metrics_tracking_not_srhs_all_cols_list
 
+# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
 compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m_int_c |>
   dplyr::filter(
@@ -126,10 +129,6 @@ vessels_compl_or_not_per_y_r_all
 # 4 YES        2023  dual            320
 # 5 YES        2023  gom_only        951
 # 6 YES        2023  sa_only        1731
-
-# ls(pattern = "metric")
-# to use
-# fhier_reports_metrics_tracking_not_srhs_all_cols_list
 
 # year ----
 quantify_compliance_from_fhier_year_path <- file.path(
