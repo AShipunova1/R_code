@@ -1,8 +1,8 @@
 ## fhier_reports_metrics_tracking ----
 
 # files to read:
-# Detail_Report_12312021_12312022__08_23_2023.csv
-# Detail_Report_12312022_12312023__08_23_2023.csv
+# 2022: Detail_Report_12312021_12312022__08_23_2023.csv
+# 2023: Detail_Report_12312022_12312023__01_26_2024.csv
 
 # The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
 library(tidyverse)
@@ -39,7 +39,7 @@ fix_names <- function(x) {
 
 fhier_reports_metrics_tracking_file_names <-
   c("Detail_Report_12312021_12312022__08_23_2023.csv",
-    "Detail_Report_12312022_12312023__08_23_2023.csv")
+    "Detail_Report_12312022_12312023__01_26_2024.csv")
 
 common_dir <-
   file.path(my_paths$inputs,
