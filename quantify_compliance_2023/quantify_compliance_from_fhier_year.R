@@ -701,7 +701,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts %>%
   # sum amount_of_occurences
   dplyr::count(wt = amount_of_occurences)
 # 634
-# 615
+# 500
 
 # 3) count how many in each bucket ----
 
@@ -727,19 +727,11 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b %>%
 # $ cnt_v_in_bucket     : int [1:4] 399 172 85 633
 # $ total_per_y_r       : int [1:4] 1289 1289 1289 1289
 
-# $ year_permit         : chr [1:4] "2022 sa_only" "2022 sa_only" "2022 sa_only" "2022 sa_only"
-# $ percent_n_compl_rank: chr [1:4] "0<= & <25%" "25<= & <50%" "50<= & <75%" "75<= & <=100%"
-# $ cnt_v_in_bucket     : int [1:4] 398 168 82 615
-# $ total_per_y_r       : int [1:4] 1263 1263 1263 1263
-
-# "2023 sa_dual"
-# 633+85+172+399
-# [1] 1289
-
-# $ cnt_v_in_bucket     : int [1:4] 399 171 85 634
-# 399 + 171 + 85 + 634
-# 1289
-# correct
+# 2023
+#  $ cnt_v_in_bucket     : int [1:4] 673 227 146 500
+#  $ total_per_y_r       : int [1:4] 1546 1546 1546 1546
+# > 673+227+146+500
+# [1] 1546
 
 # 4) cnt percents of (3) ----
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b)
@@ -766,10 +758,11 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc %>%
 # 2 25<= & <50%                        13.3
 # 3 50<= & <75%                         6.59
 # 4 75<= & <=100%                      49.1
-# 1 0<= & <25%                         31.5
-# 2 25<= & <50%                        13.3
-# 3 50<= & <75%                         6.49
-# 4 75<= & <=100%                      48.7
+# 2023
+# 1 0<= & <25%                         43.5 
+# 2 25<= & <50%                        14.7 
+# 3 50<= & <75%                         9.44
+# 4 75<= & <=100%                      32.3 
 
 # 5) blue plots by year ----
 
@@ -862,7 +855,12 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
     return(one_plot)
   })
 
-sa_only_22_gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <- 
+# View(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc)
+# perc1 <- 
+# gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[1]]
+# TODO: ?
+  
+perc2 <- 
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[2]]
 
 ## plot 2022 ----
@@ -893,7 +891,7 @@ p <-
   # remove individual x and y labels for each plot
   purrr::map(~ .x + labs(x = NULL, y = NULL))
 
-plot_perc_22 <- gridExtra::grid.arrange(
+plot_perc_23 <- gridExtra::grid.arrange(
   grobs = p,
   left = yleft,
   top = super_title)
@@ -902,8 +900,7 @@ plot_perc_22 <- gridExtra::grid.arrange(
 
 super_title <- "% of non-compliant vessels (2023)"
 
-
-gridExtra::grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[3]],
+gridExtra::grid.arrange(gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc[[2]],
                         top = super_title
                         )
                         # ,
