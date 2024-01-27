@@ -475,10 +475,10 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc$year_permit %>%
-  distinct() %>%
+  unique() %>%
   # repeat for each year_permit
   purrr::map(function(curr_year_permit) {
-    browser()
+    # browser()
     curr_df <-
       compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
       dplyr::filter(year_permit == curr_year_permit)
@@ -524,17 +524,18 @@ gg_all_c_vs_nc_plots <-
 
     one_plot <-
       curr_df %>%
-      dplyr::select(compl_or_not, perc_c_nc) %>%
+      dplyr::select(compl_or_not, perc_c_or_not) %>%
       unique() %>%
       # See function definition F2
       make_one_plot_compl_vs_non_compl(current_title,
                                        is_compliant = "compl_or_not",
-                                       percent = "perc_c_nc")
+                                       percent = "perc_c_or_not")
 
     return(one_plot)
 
   })
 
+View(gg_all_c_vs_nc_plots[[1]])
 sa_dual23 <- gg_all_c_vs_nc_plots[[1]]
 gom_only23 <- gg_all_c_vs_nc_plots[[2]]
 
