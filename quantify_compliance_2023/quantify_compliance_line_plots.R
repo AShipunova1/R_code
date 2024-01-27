@@ -1,74 +1,12 @@
 #### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_line_plots.R  ----
 # run after quantify_compliance_from_fhier_month.R
 
-## Month, line plots with dots ----
-# line_df_23_gom <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2023 gom_only`
-
-# line_df_23_sa <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2023 sa_dual`
-
 percent_names <- paste0(seq(0, 100, by = 10), "%")
-
-# dim(line_df_23_gom)
-# [1] 24 10
-
-# dim(line_df_23_sa)
-# [1] 24 10
 
 geom_text_size = text_sizes[["geom_text_size"]]
 geom_text_size <- 5
 axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
-
-line_df_23_gom_good_plot_l <-
-  names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2) |> 
-  purrr::map(function(line_df_permit) {
-    line_df <- count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2[[line_df_permit]]
-    
-    one_plot <- 
-      line_df |>
-      filter(percent_non_compl_2_buckets == "< 50%") |>
-      ggplot(aes(
-        x = as.Date(year_month),
-        y = cnt_v_in_bucket2,
-        color = percent_non_compl_2_buckets
-      )) +
-      geom_point() +
-      geom_line() +
-      theme_bw() +
-      # text on dots
-      # on top
-      geom_text(aes(label = cnt_v_in_bucket2),
-                vjust = -0.3,
-                size = geom_text_size) +
-      # under the dot
-      geom_text(
-        aes(label = cnt_vsl_m_compl),
-        vjust = 1.3,
-        color = plot_colors$compliant,
-        size = geom_text_size
-      ) +
-      scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-      theme(
-        legend.position = "none",
-        plot.caption =
-          element_text(size = text_sizes[["plot_caption_text_size"]]),
-        axis.text.x =
-          element_text(size = axis_title_size),
-        axis.text.y =
-          element_text(size = axis_title_size)
-      ) +
-      labs(size = "Groups of percentage",
-           x = "Months (2023)",
-           y = "Number of Vessels") +
-      labs(title = stringr::str_glue("The Number of Non-Compliant Vessels ({line_df_permit}) Each Month\nThat Were Compliant More Than 50% of a Month in 2023")) +
-      # theme(plot.title = element_text(lineheight = 0.9)) +
-      labs(caption = "(The blue number is a total number of non-compliant vessels per month.)")
-    
-    return(one_plot)
-  })
-
-line_df_23_gom_good_plot <- line_df_23_gom_good_plot_l[[1]]
-line_df_23_sa_good_plot <- line_df_23_gom_good_plot_l[[2]]
 
 # non compliant by month ----
 line_df_23_monthly_nc_plot_l <-
@@ -128,7 +66,7 @@ sa_line_df_23_monthly_nc_plot_l <- line_df_23_monthly_nc_plot_l[[2]]
 
 sa_line_df_23_monthly_nc_plot_l
 
-# GOM non compliant by month percent of total ----
+# non compliant by month percent of total ----
 
 count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual <-
   count_weeks_per_vsl_permit_year_compl_m_p |>
@@ -307,5 +245,4 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 #            year_permit == "2023 sa_dual" &
 #            percent_compl_m < 50) |>
 #   View()
-
 
