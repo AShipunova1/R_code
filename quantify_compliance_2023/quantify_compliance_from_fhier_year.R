@@ -86,7 +86,7 @@ expired_or_not <- function(my_df) {
 compl_clean_sa_vs_gom_m_int_tot_exp_y <-
   expired_or_not(compl_clean_sa_vs_gom_m_int_tot)
 
-glimpse(compl_clean_sa_vs_gom_m_int_tot_exp_y)
+# glimpse(compl_clean_sa_vs_gom_m_int_tot_exp_y)
 
 ## count expiration by year, permit ----
 count_expiration_by <- function(my_df, group_by_var) {
@@ -104,7 +104,10 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt <-
   count_expiration_by(compl_clean_sa_vs_gom_m_int_tot_exp_y,
                       group_by_var)
 
-compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |> 
+# check manually
+
+res_temp3 <- 
+  compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |> 
   select(all_of(group_by_var), exp_y_tot_cnt) |> 
   distinct()
 
@@ -113,6 +116,18 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |>
 # 3 2023 sa_dual  expired              435
 # 4 2023 gom_only expired               42
 
+res_temp4 <- 
+  compl_clean_sa_vs_gom_m_int_tot_exp_y |>
+  select(all_of(group_by_var), vessel_official_number) |>
+  distinct() |>
+  dplyr::group_by_at(group_by_var) |>
+  count(year_permit, perm_exp_y, name = "exp_y_tot_cnt") |> 
+  arrange(desc(exp_y_tot_cnt))
+
+all.equal(res_temp3, res_temp4)
+# T
+
+## Repeat for SA and dual separately ----
 group_by_var2 <- c("permit_sa_gom", "perm_exp_y")
 
 count_expiration_by(compl_clean_sa_vs_gom_m_int_tot_exp_y,
@@ -129,6 +144,11 @@ count_expiration_by(compl_clean_sa_vs_gom_m_int_tot_exp_y,
 # 4 sa_only       expired              389
 # 5 gom_only      expired               42
 # 6 dual          expired               46
+# Compare with previous, ok
+# > 1694+293
+# [1] 1987
+# > 389+46
+# [1] 435
 
 ## fewer fields ----
 compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short <-
@@ -138,7 +158,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short <-
     permit_sa_gom,
     year_permit,
     compliant_,
-    total_vsl_y,
+    total_vsl_y_by_year_perm,
     perm_exp_y,
     exp_y_tot_cnt
   ) %>%
@@ -165,13 +185,16 @@ get_compl_by <- function(my_df, group_by_for_compl) {
 }
 
 # all columns except...
-group_by_for_compl <- vars(-c("vessel_official_number", "compliant_"))
+group_by_for_compl <- 
+  vars(-c("vessel_official_number", "compliant_"))
+
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short)
 
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide <-
   get_compl_by(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short,
                group_by_for_compl)
 
-dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide)
+View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide)
 # [1]    6 3377
 
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
