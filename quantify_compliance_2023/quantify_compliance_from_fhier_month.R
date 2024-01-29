@@ -677,18 +677,6 @@ gridExtra::grid.arrange(all_plots_w_titles_list[[2]][[2]])
 # View(all_plots_w_titles_list)
 
 ## all plots per month to files ----
-# saves to PNG, PDF etc. depending on an extension in "file_full_name"
-save_plots_list_to_files <-
-  function(file_full_name,
-           plots_list) {
-    ggplot2::ggsave(
-      file_full_name,
-      plots_list,
-      width = 30,
-      height = 20,
-      units = "cm"
-    )
-  }
 
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\08_31_2023"
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\quantify_compliance\2023-09-01\per_month"
