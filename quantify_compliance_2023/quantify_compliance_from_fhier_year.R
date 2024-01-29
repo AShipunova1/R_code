@@ -601,7 +601,7 @@ gg_all_c_vs_nc_plots <-
 
   })
 
-View(gg_all_c_vs_nc_plots[[1]])
+# View(gg_all_c_vs_nc_plots[[1]])
 sa_dual23 <- gg_all_c_vs_nc_plots[[1]]
 gom_only23 <- gg_all_c_vs_nc_plots[[2]]
 
@@ -650,13 +650,13 @@ weeks_per_vsl_permit_year_compl_cnt <-
 #   filter(n == 2 & year_permit == "2023 sa_dual") |>
 #   View()
 
-
-View(weeks_per_vsl_permit_year_compl_cnt)
+# View(weeks_per_vsl_permit_year_compl_cnt)
 
 ## test 1a ----
 # have both comp and not
-weeks_per_vsl_permit_year_compl_cnt %>% select(vessel_official_number, compliant_) |> 
-    distinct() |> 
+weeks_per_vsl_permit_year_compl_cnt %>% 
+  select(vessel_official_number, compliant_) |>
+  distinct() |> 
     group_by(vessel_official_number) |> 
     filter(n_distinct(compliant_) > 1) |> 
     arrange(vessel_official_number) |> head()
@@ -689,40 +689,50 @@ nc_2023_sa_only_test <-
 head(nc_2023_sa_only_test)
 #   vessel_official_number weeks_per_vessel_per_compl total_weeks_per_vessel
 #   <chr>                                       <int>                  <int>
-# 1 VA9447ZY                                       11                     11
-# 2 VA8261ZY                                        8                     52
-# 3 VA2031CK                                       33                     33
-# 4 VA1460CJ                                       50                     50
-# 5 VA1267CJ                                        2                     48
+# 1 VA9447ZY  11                     11
+# 2 VA8261ZY  8                     52
+# 3 VA2031CK  33                     33
+# 4 VA1460CJ  50                     50
+# 5 VA1267CJ  2                     48
 
 weeks_per_vsl_permit_year_compl_cnt %>%
   dplyr::filter(
     year_permit == "2023 sa_dual",
-    compliant_ == "YES",
+    # compliant_ == "YES",
     vessel_official_number == "SC8907DF"
   ) %>%
   dplyr::select(vessel_official_number,
                 weeks_per_vessel_per_compl,
+                compliant_,
                 total_weeks_per_vessel) %>%
   unique() %>%
   dplyr::glimpse()
-# $ weeks_per_vessel_per_compl <int> 10
-# $ total_weeks_per_vessel     <int> 52
+# $ weeks_per_vessel_per_compl <int> 42, 10
+# $ compliant_                 <chr> "NO", "YES"
+# $ total_weeks_per_vessel     <int> 52, 52
 
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
+# glimpse(weeks_per_vsl_permit_year_compl_cnt)
+
 count_weeks_per_vsl_permit_year_compl_p <-
   weeks_per_vsl_permit_year_compl_cnt %>%
+  group_by(compliant_) |>
   mutate(percent_compl =
-           weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel)
+           weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel) |>
+  ungroup()
 
 dim(count_weeks_per_vsl_permit_year_compl_p)
 # [1] 185251     32
 # [1] 143767     31 (2023)
 
 # test
-# count_weeks_per_vsl_permit_year_compl_p$permit_sa_gom |> 
+# count_weeks_per_vsl_permit_year_compl_p$permit_sa_gom |>
 #   unique()
 # [1] "sa_only"  "dual"     "gom_only"
+
+# count_weeks_per_vsl_permit_year_compl_p$year_permit |>
+#   unique()
+# [1] "2023 sa_dual"  "2023 gom_only"
 
 count_weeks_per_vsl_permit_year_compl_p %>%
   filter(permit_sa_gom %in% c("sa_only", "dual"), 
@@ -731,7 +741,7 @@ count_weeks_per_vsl_permit_year_compl_p %>%
   unique() %>%
   dim()
 # [1] 2178
-# 2023
+# 2421 (2023)
 
 count_weeks_per_vsl_permit_year_compl_p %>%
   filter(permit_sa_gom %in% c("sa_only", "dual"), 
