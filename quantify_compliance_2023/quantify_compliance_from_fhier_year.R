@@ -47,7 +47,7 @@ all.equal(res1, res2)
 compl_clean_sa_vs_gom_m_int_tot %>%
   select(year_permit, total_vsl_y_by_year_perm, permit_sa_gom) %>%
   unique()
-#   year_permit   total_vsl_y permit_sa_gom
+#   year_permit   total_vsl_y_by_year_perm permit_sa_gom
 #   <chr>               <int> <chr>        
 # 1 2023 sa_dual         2421 sa_only      
 # 2 2023 sa_dual         2421 dual         
@@ -230,7 +230,7 @@ count_by_cols <- function(my_df,
 cols_names <-
   c("permit_sa_gom",
     "year_permit",
-    "total_vsl_y",
+    "total_vsl_y_by_year_perm",
     "perm_exp_y",
     "exp_y_tot_cnt")
 
@@ -299,33 +299,39 @@ cnts_for_compl <-
       return()
   }
 
-group_by_cols <- c("year_permit", "perm_exp_y")
-cols_to_cnt <- c("year_permit", "perm_exp_y", "is_compl_or_both")
+# group_by_cols <- c("year_permit", "perm_exp_y")
+# cols_to_cnt <- c("year_permit", "perm_exp_y", "is_compl_or_both")
+
+group_by_cols <- c("year_permit")
+cols_to_cnt <- c("year_permit", "is_compl_or_both")
+
+# print_df_names(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long)
+# [1] "year_permit, total_vsl_y_by_year_perm, vessel_official_number, is_compl_or_both"
 
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt <-
-  cnts_for_compl(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long, group_by_cols, cols_to_cnt)
+  cnts_for_compl(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long, group_by_cols, cols_to_cnt)
 
 dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 # [1] 21  7
+# [1] 7 4 (no exp)
 
 #### check counts ----
 print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
-# [1] "permit_sa_gom, year_permit, total_vsl_y, perm_exp_y, exp_y_tot_cnt, is_compl_or_both, compl_or_not_cnt"
+# [1] "year_permit, total_vsl_y_by_year_perm, is_compl_or_both, compl_or_not_cnt"
 
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
   # remove NAs
   dplyr::filter(stats::complete.cases(is_compl_or_both)) %>%
-  dplyr::select(permit_sa_gom,
-                year_permit,
-                total_vsl_y,
+  dplyr::select(year_permit,
+                total_vsl_y_by_year_perm,
                 compl_or_not_cnt,
                 is_compl_or_both) %>%
   dplyr::group_by(year_permit) %>%
   # get sums
   dplyr::mutate(sum_cnts = sum(compl_or_not_cnt)) %>%
-  dplyr::filter(!total_vsl_y == sum_cnts) %>%
+  dplyr::filter(!total_vsl_y_by_year_perm == sum_cnts) %>%
   ungroup() |>
-  # dim()
+  dim()
   # 0 OK
   # 12 6
   unique() %>%
@@ -380,7 +386,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long %>%
 # 2
 # 1000164 is both exp and not
 
-### check total_vsl_y vs. sum_cnts (should be equal, see dbl FL7825PU) ----
+### check total_vsl_y_by_year_perm vs. sum_cnts (should be equal, see dbl FL7825PU) ----
 compl_clean_sa_vs_gom_m_int %>%
   # dplyr::filter(year_permit == "2023 sa_dual") %>%
   dplyr::group_by(compliant_) %>%
@@ -500,14 +506,14 @@ add_percents_of_total <-
     my_df %>%
       dplyr::select(all_of(select_cols)) %>%
       distinct() %>%
-      dplyr::mutate(perc_c_or_not = cnt_y_p_c * 100 / total_vsl_y) %>%
-      dplyr::mutate(perc_c_or_not_exp = cnt_y_p_e * 100 / total_vsl_y) %>%
+      dplyr::mutate(perc_c_or_not = cnt_y_p_c * 100 / total_vsl_y_by_year_perm) %>%
+      dplyr::mutate(perc_c_or_not_exp = cnt_y_p_e * 100 / total_vsl_y_by_year_perm) %>%
       return()
   }
 
 select_cols <- c(
   "year_permit",
-  "total_vsl_y",
+  "total_vsl_y_by_year_perm",
   "perm_exp_y",
   "compl_or_not",
   "cnt_y_p_c",
@@ -542,7 +548,7 @@ gg_all_c_vs_nc_plots <-
     y_r_title <-
       make_year_permit_label(curr_year_permit)
 
-    total_vsls <- unique(curr_df$total_vsl_y)
+    total_vsls <- unique(curr_df$total_vsl_y_by_year_perm)
 
     active_permits <- curr_df %>%
       dplyr::filter(perm_exp_y == "active") %>%
