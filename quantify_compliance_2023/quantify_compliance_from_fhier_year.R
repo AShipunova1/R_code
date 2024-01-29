@@ -555,15 +555,15 @@ gg_all_c_vs_nc_plots <-
 
     total_vsls <- unique(curr_df$total_vsl_y_by_year_perm)
 
-    active_permits <- curr_df %>%
-      dplyr::filter(perm_exp_y == "active") %>%
-      dplyr::select(cnt_y_p_e) %>%
-      unique()
+    # active_permits <- curr_df %>%
+    #   dplyr::filter(perm_exp_y == "active") %>%
+    #   dplyr::select(cnt_y_p_e) %>%
+    #   unique()
 
-    expired_permits <- curr_df %>%
-      dplyr::filter(perm_exp_y == "expired") %>%
-      dplyr::select(cnt_y_p_e) %>%
-      unique()
+    # expired_permits <- curr_df %>%
+    #   dplyr::filter(perm_exp_y == "expired") %>%
+    #   dplyr::select(cnt_y_p_e) %>%
+    #   unique()
 
     # 1st figure title: "SA Only Permitted Vessels (Total Permitted: 2178; Expired Permits: 472)"
     # 2nd figure title: "GOM + Dual Permitted Vessels (Total Permitted: 1495; Expired Permits: 303)"
