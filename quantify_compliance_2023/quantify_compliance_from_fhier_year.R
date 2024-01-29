@@ -7,15 +7,37 @@ add_total_cnt_in_gr <- function(my_df, group_by_col) {
     # group by per year and permit
     dplyr::group_by_at(group_by_col) %>%
     # cnt distinct vessels in each group
-    dplyr::mutate(total_vsl_y =
+    dplyr::mutate(total_vsl_y_by_year_perm =
                     dplyr::n_distinct(vessel_official_number)) %>%
     dplyr::ungroup() %>%
     return()
 }
 
-# View(compl_clean_sa_vs_gom_m_int_tot)
 compl_clean_sa_vs_gom_m_int_tot <-
   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int, "year_permit")
+
+# check
+res1 <-
+  compl_clean_sa_vs_gom_m_int |>
+  select(vessel_official_number, year_permit) |>
+  distinct() |>
+  count(year_permit, name = "total_vsl_y_by_year_perm") |>
+  arrange(total_vsl_y_by_year_perm)
+
+# # A tibble: 2 × 2
+#   year_permit       n
+#   <chr>         <int>
+# 1 2023 gom_only   951
+# 2 2023 sa_dual   2421
+
+res2 <-
+  compl_clean_sa_vs_gom_m_int_tot |>
+  select(year_permit, total_vsl_y_by_year_perm) |>
+  distinct() |>
+  arrange(total_vsl_y_by_year_perm)
+
+all.equal(res1, res2)
+# T
 
 # # redo with sa and dual sep
 # compl_clean_sa_vs_gom_m_int_tot <-
