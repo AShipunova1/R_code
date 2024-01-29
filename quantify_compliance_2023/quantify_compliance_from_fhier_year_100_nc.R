@@ -32,7 +32,8 @@ count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100 <-
   dplyr::filter(compliant_ == "NO") |>
   dplyr::filter(percent_compl == 100)
 
-nrow(count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100)
+num_sa_dual_vessels_non_compl_all_year <-
+  nrow(count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100)
 # 487
 # 370 (2023)
 
@@ -48,7 +49,7 @@ count_weeks_per_vsl_permit_year_compl_p_sa_23_perm_non_100 <-
   dplyr::filter(percent_compl == 100)
 
 dim(count_weeks_per_vsl_permit_year_compl_p_sa_23_perm_non_100)
-# [1] 370   4
+# [1] 370   4 (same)
 
 # All vessels
 n_distinct(count_weeks_per_vsl_permit_year_compl_p$vessel_official_number)
@@ -76,17 +77,28 @@ sa_23_vessels <-
 
 # Calculate the percentage of never compliant entries from all non-compliant entries
 
-View(count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100)
 # Calculate the total number of non-compliant entries that are never compliant
 # by multiplying the number of rows in 'count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100'
 # with 100 and dividing it by the number of rows in 'sa_23_non_c_vessels'
 
-nrow(count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100)
-nrow(sa_23_non_c_vessels)
+sa_only_vessels_non_compl_total <-
+  nrow(sa_23_non_c_vessels)
+# 1545
+
 percent_of_never_compl_from_all_non_c <-
-  nrow(count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100) * 100 / nrow(sa_23_non_c_vessels)
+  num_sa_dual_vessels_non_compl_all_year * 100 / sa_only_vessels_non_compl_total
 # [1] 41.87446 %
-# 23.94822 2023
+# 23.94822 (2023)
+
+## the same for all vessels (compl and not compl alike) ----
+
+total_sa_dual_vessels <- 
+  n_distinct(count_weeks_per_vsl_permit_year_compl_p_sa_23$vessel_official_number)
+# 2421
+
+percent_of_never_compl_from_all <-
+  num_sa_dual_vessels_non_compl_all_year * 100 / total_sa_dual_vessels
+# 15.28294 %
 
 # Calculate the percentage of never compliant entries from all entries in 2023
 # In this code, the variable percent_of_never_compl_from_all_sa_2023 is calculated by dividing the number of rows in the data frame count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100 (representing non-compliant entries that are never compliant) by the number of rows in the data frame sa_23_vessels (representing all entries in the year 2023) and then multiplying the result by 100 to obtain the percentage of never compliant entries from all entries in 2023.
@@ -95,7 +107,7 @@ percent_of_never_compl_from_all_non_c <-
 # by multiplying the number of rows in 'count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100'
 # with 100 and dividing it by the number of rows in 'sa_23_vessels'
 percent_of_never_compl_from_all_sa_2023 <- 
-  nrow(count_weeks_per_vsl_permit_year_compl_p_sa_23__non_c_100) * 100 / nrow(sa_23_vessels)
+  num_sa_dual_vessels_non_compl_all_year * 100 / nrow(sa_23_vessels)
 # [1] 22.63011 %
 # [1] 15.28294 2023
 
