@@ -306,3 +306,15 @@ get_2_buckets <- function(my_df, field_name) {
     return()
 }
 
+# saves to PNG, PDF etc. depending on an extension in "file_full_name"
+save_plots_list_to_files <-
+  function(file_full_name,
+           plots_list) {
+    ggplot2::ggsave(
+      file_full_name,
+      plots_list,
+      width = 30,
+      height = 20,
+      units = "cm"
+    )
+  }
