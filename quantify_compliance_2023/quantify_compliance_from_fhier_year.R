@@ -615,14 +615,22 @@ grid.arrange(gg_all_c_vs_nc_plots[[1]],
 grid.arrange(gg_all_c_vs_nc_plots[[2]],
              top = main_title)
 
-# grid.arrange(gg_all_c_vs_nc_plots[[3]],
-#              top = main_title)
+file_full_name_c_nc <-
+  file.path(plot_file_path,
+            "all_c_vs_nc_plots_sa_dual.png")
+
+# see the function definition F2
+save_plots_list_to_files(file_full_name_c_nc,
+                         # plots
+                         gg_all_c_vs_nc_plots[[1]])
 
 # Non compliant only ----
 
 # start with the new data with expiration by year
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present ----
+# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt)
+
 weeks_per_vsl_permit_year_compl_cnt <-
   compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt %>%
   dplyr::add_count(year_permit,
@@ -634,7 +642,16 @@ weeks_per_vsl_permit_year_compl_cnt <-
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
 
-# View(weeks_per_vsl_permit_year_compl_cnt)
+# check
+# compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |>
+#   select(year_permit, week_num, vessel_official_number, compliant_) |>
+#   distinct() |>
+#   add_count(year_permit, vessel_official_number, compliant_) |>
+#   filter(n == 2 & year_permit == "2023 sa_dual") |>
+#   View()
+
+
+View(weeks_per_vsl_permit_year_compl_cnt)
 
 ## test 1a ----
 # have both comp and not
