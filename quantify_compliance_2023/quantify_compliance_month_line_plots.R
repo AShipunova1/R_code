@@ -243,22 +243,34 @@ one_year_permit <- "2023 sa_dual"
                   linewidth = 1) +
         theme_bw() +
         # text under the dot
-        geom_text(aes(label =
-                        if_else(cnt_m_compl_perc >= 25, 
-                                my_label, "")), 
-                  vjust = 1.5,
-                  hjust = -0.1,
-                  color = line_df_23_gom_monthly_nc_percent_plot_color,
-                  size = geom_text_size - 1
-                  ) +
-        geom_text(aes(label =
-                        if_else(my_label < 25, 
-                                my_label, "")),
-                  vjust = -1.5,
-                  # hjust = 0.1,
-                  color = line_df_23_gom_monthly_nc_percent_plot_color,
-                  size = geom_text_size - 2,
-                  ) +
+        # geom_text(aes(label = text), vjust = -0.25) +
+      #   geom_text(aes(label =
+      #                   if_else(cnt_m_compl_perc >= 25, 
+      #                           my_label, "")), 
+      #             vjust = 1.5,
+      #             hjust = -0.1,
+      #             color = line_df_23_gom_monthly_nc_percent_plot_color,
+      #             size = geom_text_size - 1
+      #             ) +
+      #   geom_text(aes(label =
+      #                   if_else(my_label < 25, 
+      #                           my_label, "")),
+      #             vjust = -1.5,
+      #             # hjust = 0.1,
+      #             color = line_df_23_gom_monthly_nc_percent_plot_color,
+      #             size = geom_text_size - 2,
+      #             )
+      # 
+      # +
+
+        geom_text(
+          aes(label = paste0(round(cnt_m_compl_perc, 1), "%")),
+          vjust = 1.5,
+          # hjust = -0.1,
+          color = line_df_23_gom_monthly_nc_percent_plot_color,
+          size = geom_text_size - 1,
+          check_overlap = TRUE
+        ) +
         scale_x_date(date_breaks = "1 month", date_labels = "%b") +
         theme(
           legend.position = "none",
