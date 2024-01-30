@@ -11,7 +11,7 @@ compl_clean_sa_vs_gom_m_int_tot_m <-
   dplyr::mutate(total_vsl_m = n_distinct(vessel_official_number)) %>%
   dplyr::ungroup()
 
-# View(compl_clean_sa_vs_gom_m_int_tot_m)
+View(compl_clean_sa_vs_gom_m_int_tot_m)
 
 ### test tot month ----
 compl_clean_sa_vs_gom_m_int_tot_m %>%
@@ -35,6 +35,7 @@ compl_clean_sa_vs_gom_m_int_tot_m %>%
 # 5 2023 gom_only Dec 2023           902
 # 6 2023 sa_dual  Dec 2023          1969
 
+
 ## add the difference between expiration and week_start----
 
 # If we use a week_end, than a vessel which ends near the end of year will have its last week expired.
@@ -54,11 +55,11 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
 # View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
 
 ## Keep active only ----
-# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
-#   compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
-#   filter(perm_exp_m == "active")
-# 
-# dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
+  filter(perm_exp_m == "active")
+
+dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
 # [1] 185251     28
 # [1] 143767     27
 
