@@ -85,7 +85,6 @@ nc_sa_23_tot_100_plot <-
        x = "") +
   ylim(0, 100)
 
-# print_df_names(count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc)
 # Add percent numbers on the bars
 nc_sa_23_tot_100_plot <-
   nc_sa_23_tot_100_plot +
@@ -98,15 +97,11 @@ nc_sa_23_tot_100_plot <-
 
 nc_sa_23_tot_100_plot
 
-ggsave(
-  file = "sa_23_tot_100nc_plot.png",
-  plot = nc_sa_23_tot_100_plot,
-  device = "png",
-  path = file.path(my_paths$outputs,
-                   project_name,
-                   "vsl_cnt_by_perc_non_compl"),
-  width = 20,
-  height = 10,
-  units = "cm"
-)
+nc_sa_23_tot_100_plot_file_path <- 
+  file.path(plot_file_path,
+            "sa_dual_23_tot_100nc_plot.png")
 
+save_plots_list_to_files(nc_sa_23_tot_100_plot_file_path,
+                         nc_sa_23_tot_100_plot,
+                         my_width = 20,
+                         my_height = 10)
