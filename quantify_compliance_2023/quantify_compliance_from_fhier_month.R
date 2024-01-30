@@ -176,6 +176,9 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt %>%
 # $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
 # $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
 
+## Month: percent compl vessels per per month ----
+# print_df_names(count_weeks_per_vsl_permit_year_compl_month)
+
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt %>%
@@ -229,12 +232,13 @@ count_weeks_per_vsl_permit_year_compl_month %>%
 # $ year_month                   <yearmon> Dec 2023, Dec 2023, Dec 2023, Dec 202…
 # $ weeks_per_vessel_per_compl_m <int> 4, 4, 4, 4, 2, 4, 2, 2, 4, 4, 2, 4, 4, 4,…
 
+
 ## 1) Month: percent compl weeks per vsl per month ----
 # print_df_names(count_weeks_per_vsl_permit_year_compl_month)
 
 count_weeks_per_vsl_permit_year_compl_m_p <-
   count_weeks_per_vsl_permit_year_compl_month %>%
-  mutate(percent_compl_m =
+  mutate(percent_compl_weeks_m =
                   weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_per_compl_m)
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p)
@@ -249,7 +253,7 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
     compliant_,
     weeks_per_vessel_per_compl_m,
     total_weeks_per_vessel_per_compl_m,
-    percent_compl_m
+    percent_compl_weeks_m
   ) %>%
   unique() %>%
   arrange(year_month) %>%
@@ -265,6 +269,8 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
 # $ weeks_per_vessel_per_compl_m       <int> 3, 1
 # $ total_weeks_per_vessel_per_compl_m <int> 4, 4
 # $ percent_compl_m                    <dbl> 75, 25
+
+# OLD ----
 
 ## 2a) Month: Only non-compl and fewer cols ----
 # View(count_weeks_per_vsl_permit_year_compl_m_p)
