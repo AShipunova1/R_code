@@ -77,6 +77,50 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
     total_vsl_m_by_year_perm
   ) |>
   distinct()
+
+# Get compl, no compl, or both per month ----
+
+get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
+  my_df %>%
+    dplyr::group_by_at(group_by_for_compl) %>%
+    # can unique, because we are looking at vessels, not weeks
+    unique() %>%
+    # more columns, a column per vessel
+    tidyr::pivot_wider(
+      names_from = names_from_list,
+      # names_glue =
+      #   "{names_from_list[[1]]}_{names_from_list[[1]]}_{.value}",
+      values_from = compliant_,
+      # make it "NO_YES" if both
+      values_fn = ~ paste0(sort(.x), collapse = "_")
+    ) %>%
+    dplyr::ungroup() %>%
+    return()
+}
+
+# all columns except...
+group_by_for_compl_m <-
+  vars(-c("vessel_official_number", 
+          "year_month",
+          "compliant_"))
+          
+          # "year_permit"
+
+    # names_from = variable,
+    # names_glue = "{variable}_{.value}",
+
+names_from_list <- c("vessel_official_number",
+                     "year_month")
+
+compl_clean_sa_vs_gom_m_int_tot_short_wide <-
+  get_compl_by(
+    compl_clean_sa_vs_gom_m_int_tot_short,
+    group_by_for_compl_m,
+    names_from_list
+  )
+
+View(compl_clean_sa_vs_gom_m_int_tot_short_wide)
+
 # Add count vessels per month, region and compl ----
 group_by_col <- c("year_permit", "year_month", "compliant_")
 
@@ -85,7 +129,7 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
                 group_by_col,
                 "cnt_vsl_m_compl")
 
-## test cnts per month ----
+## test cnts compl per month ----
 # tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
   dplyr::select(
@@ -116,52 +160,8 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
 # $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
 # $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
 
-## Month: percent compl vessels per per month ----
-# print_df_names(count_weeks_per_vsl_permit_year_compl_month)
 
-# Get compl, no compl, or both per year ----
-
-get_compl_by <- function(my_df, group_by_for_compl) {
-  my_df %>%
-    dplyr::group_by_at(group_by_for_compl) %>%
-    # can unique, because we are looking at vessels, not weeks
-    unique() %>%
-    # more columns, a column per vessel
-    tidyr::pivot_wider(
-      names_from = vessel_official_number,
-      values_from = compliant_,
-      # make it "NO_YES" if both
-      values_fn = ~ paste0(sort(.x), collapse = "_")
-    ) %>%
-    dplyr::ungroup() %>%
-    return()
-}
-
-# all columns except...
-group_by_for_compl <- 
-  vars(-c("vessel_official_number", "compliant_"))
-
-# print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short)
-
-# compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide <-
-#   get_compl_by(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short,
-#                group_by_for_compl)
-
-# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide)
-# [1]    6 3377
-
-# using all fields
-compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
-  compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |>
-  dplyr::select(
-    vessel_official_number,
-    year_permit,
-    compliant_,
-    total_vsl_m_by_year_perm
-  ) |>
-  dplyr::distinct() |>
-  get_compl_by(group_by_for_compl)
-
+# Month: percent compl vessels per per month ----
 
 # non compliant by month ----
 line_df_23_monthly_nc_plot_l <-
