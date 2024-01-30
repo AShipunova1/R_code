@@ -269,10 +269,16 @@ line_monthly_nc_plot_l <-
           color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size - 1
         ) +
-        scale_x_date(date_breaks = "1 month", date_labels = "%b",
-                     sec.axis =
-                       dup_axis(name = "total vessel per month",
-                                labels = 0:length(one_df$year_m_factor)2)
+          # scale_x_continuous(labels = ~paste(., .+50, sep = "\n"),
+          #            name = "Primary axis\nSecondary axis1")
+
+        scale_x_date(date_breaks = "1 month", 
+                     date_labels = 
+                       ~paste("%b", total_vsl_m_by_year_perm,
+                              sep = "\n"),
+                     # sec.axis =
+                     #   dup_axis(name = "total vessel per month",
+                     #            labels = 0:length(one_df$year_m_factor)2)
                      # labels =
                                 #   c(one_df$tot_per_m_xlabel, "")
                                 # )
