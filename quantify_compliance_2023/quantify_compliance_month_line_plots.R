@@ -136,19 +136,11 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
                 group_by_col,
                 "cnt_vsl_m_compl")
 
-View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
-
+print_df_names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
 ## test cnts compl per month ----
 # tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
-  dplyr::select(
-    permit_sa_gom,
-    year_permit,
-    year_month,
-    total_vsl_m_by_year_perm,
-    compliant_,
-    cnt_vsl_m_compl
-  ) %>%
+  dplyr::select(-vessel_official_number) %>%
   unique() %>%
   dplyr::filter(year_month == "Jan 2023") %>%
   dplyr::glimpse()
@@ -169,6 +161,15 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
 # $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
 # $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
 
+# (w yes_no)
+# $ year_month               <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2…
+# $ year_permit              <chr> "2023 sa_dual", "2023 sa_dual", "2023 sa_dual", "…
+# $ total_vsl_m_by_year_perm <int> 1967, 1967, 1967, 1967, 675, 675, 675
+# $ is_compl_or_both         <chr> "YES", NA, "NO", "NO_YES", NA, "YES", "NO_YES"
+# $ cnt_vsl_m_compl          <int> 1645, 1405, 274, 48, 2697, 674, 1
+# > 1645+274+48
+# [1] 1967
+# correct sum 
 
 # Month: percent compl vessels per per month ----
 
