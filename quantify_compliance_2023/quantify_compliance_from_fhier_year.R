@@ -275,13 +275,16 @@ n_distinct(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa$vessel_official_nu
 # vessel_official_number 3372
 n_distinct(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa$is_compl_or_both)
 # 4
+# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa$is_compl_or_both |> unique()
+# [1] "YES"    "NO"     "NO_YES" NA      
 
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_non_c <-
   compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa |>
-  filter(is_compl_or_both == "NO")
+  filter(is_compl_or_both %in% c("NO", "NO_YES"))
 
 dim(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_non_c)
 # 370 2
+# [1] 1545    2 no_yes
 
 ### get cnts for compl, no compl, or both per month with exp ----
 cnts_for_compl <-
@@ -316,7 +319,7 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 # [1] 7 4 (no exp)
 
 #### check counts ----
-print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 # [1] "year_permit, total_vsl_y_by_year_perm, is_compl_or_both, compl_or_not_cnt"
 
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
