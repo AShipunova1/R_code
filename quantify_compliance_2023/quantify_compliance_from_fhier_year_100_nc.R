@@ -51,11 +51,11 @@ count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc <-
 
 nc_sa_23_tot_100_plot <-
   count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc |>
-  dplyr::select(group_100_vs_rest,
+  select(group_100_vs_rest,
          perc_nc_100_gr_name,
          group_vsl_cnt,
          perc_of_perc) |>
-  dplyr::distinct() |>
+  distinct() |>
   ggplot(aes(x = perc_nc_100_gr_name,
              y = round(perc_of_perc, 0),
              fill = as.factor(group_100_vs_rest))) +
@@ -64,14 +64,10 @@ nc_sa_23_tot_100_plot <-
     # use custom colors
     values =
       c(
-        # "1" = "pink",
-        # "2" = "red"
-        "2" = "skyblue1",
-        "1" = "#0570B0"
+        "2" = plot_colors[["compliant"]],
+        "1" = plot_colors[["non_compliant"]]
       ),
-    # Legend title
-    name = "Non compliant",
-    labels = unique(count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_tot_perc$perc_nc_100_gr_name)
+    labels = unique(count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc$perc_nc_100_gr_name)
   ) +
   theme(legend.position = "none") +
   theme(
@@ -83,13 +79,13 @@ nc_sa_23_tot_100_plot <-
   ) +
   # no x and y titles for individual plots
   labs(title = 
-         stringr::str_glue("Never reported SA vsls in 2023 out of all compliant and non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_tot_perc$total_vessels})"),
+         stringr::str_glue("Never reported SA vsls in 2023 out of all compliant and non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc$total_vsl_y_by_year_perm})"),
        y = "",
        # y = "% of All Vessels",
        x = "") +
   ylim(0, 100)
 
-# print_df_names(count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_tot_perc)
+# print_df_names(count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc)
 # Add percent numbers on the bars
 nc_sa_23_tot_100_plot <-
   nc_sa_23_tot_100_plot +
