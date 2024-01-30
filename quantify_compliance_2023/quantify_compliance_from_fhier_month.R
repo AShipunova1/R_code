@@ -137,7 +137,7 @@ compl_clean_sa_vs_gom_m_int_tot_m |>
   # 0
 
 ## cnt distinct total vessels per year, permit, month, compl ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt <-
   compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
   dplyr::group_by(year_permit, year_month, compliant_) %>%
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
@@ -145,13 +145,11 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt %>%
   dplyr::select(
     permit_sa_gom,
     year_permit,
     year_month,
-    perm_exp_m,
-    exp_m_tot_cnt,
     total_vsl_m,
     compliant_,
     cnt_vsl_m_compl
@@ -180,7 +178,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
 
 ## add counts of weeks per vessel by month, compl ----
 count_weeks_per_vsl_permit_year_compl_month <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl %>%
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt %>%
   dplyr::add_count(year_permit,
             year_month,
             vessel_official_number,
