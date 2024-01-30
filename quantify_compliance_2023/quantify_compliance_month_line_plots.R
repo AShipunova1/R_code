@@ -234,6 +234,9 @@ line_monthly_nc_plot_l <-
         mutate(year_m_factor =
                  factor(year_month))
       
+      # scaleFactor <-
+      #   max(as.double(one_df$year_month)) / max(one_df$total_vsl_m_by_year_perm)
+
       one_df |>
       # (xf <- factor(x, levels = c("Male", "Man" , "Lady",   "Female"),
       #            labels = c("Male", "Male", "Female", "Female")))
@@ -269,20 +272,29 @@ line_monthly_nc_plot_l <-
           color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size - 1
         ) +
+          # scale_y_continuous("Precipitation", 
+        # sec.axis = sec_axis(~ (. - a)/b, name = "Temperature")) +
+  # scale_x_continuous("Month (2023)", breaks = 1:12,
+  #                    sec.axis = dup_axis(~ one_df$total_vsl_m_by_year_perm, 
+  #                                        name = "Temperature")
+  #                    ) +
+
           # scale_x_continuous(labels = ~paste(., .+50, sep = "\n"),
           #            name = "Primary axis\nSecondary axis1")
 
-        scale_x_date(date_breaks = "1 month", 
-                     date_labels = 
-                       ~paste("%b", total_vsl_m_by_year_perm,
-                              sep = "\n"),
+        # scale_x_date(date_breaks = "1 month", 
+        #              date_labels = 
+        #                ~paste("%b", total_vsl_m_by_year_perm,
+        #                       sep = "\n"),
                      # sec.axis =
                      #   dup_axis(name = "total vessel per month",
                      #            labels = 0:length(one_df$year_m_factor)2)
                      # labels =
                                 #   c(one_df$tot_per_m_xlabel, "")
                                 # )
-      ) +
+      # ) +
+      # scale_y_continuous(sec.axis = sec_axis( ~ . * scale, name = "Biomarker (IU/mL)")) +
+        
         theme(
           legend.position = "none",
           axis.text.x =
@@ -293,7 +305,18 @@ line_monthly_nc_plot_l <-
         ylim(0, 55) +
         labs(x = "Months (2023)",
              y = "Proportion of Non-Compliant Vessels") +
-        expand_limits(x = as.Date("12/31/23", "%m/%d/%y"))
+        scale_x_date(date_breaks = "1 month", 
+                     date_labels = "%b") +
+        expand_limits(x = as.Date("12/31/23", "%m/%d/%y")) +
+        annotate("text", 
+                 x = as.Date(one_df$year_month),
+# 
+#                  x = 1:12, 
+                 y = 55, 
+                 label = seq(1:12))
+      # one_df$total_vsl_m_by_year_perm
+
+        
         # scale_x_discrete(date_breaks = "1 month", date_labels = "%b") +
         
                            
