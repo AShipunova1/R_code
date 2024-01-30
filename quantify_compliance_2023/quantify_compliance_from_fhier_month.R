@@ -195,8 +195,9 @@ count_weeks_per_vsl_permit_year_compl_month %>%
   # select(year_permit, year_month, perm_exp_m, exp_m_tot_cnt, total_vsl_m, compliant_, cnt_vsl_m_compl) %>%
   # unique() %>%
   filter(year_month == "Dec 2023") %>%
-  dplyr::glimpse()
+  glimpse()
 # Rows: 11,369 2023
+# Rows: 11,373 (with expired)
 
 # Rows: 11,031
 # $ compliant_                         <chr> "YES", "NO", "YES", "YES",…
@@ -229,11 +230,14 @@ count_weeks_per_vsl_permit_year_compl_month %>%
 # $ weeks_per_vessel_per_compl_m <int> 4, 4, 4, 4, 2, 4, 2, 2, 4, 4, 2, 4, 4, 4,…
 
 ## 1) Month: percent compl weeks per vsl per month ----
+# print_df_names(count_weeks_per_vsl_permit_year_compl_month)
 
 count_weeks_per_vsl_permit_year_compl_m_p <-
   count_weeks_per_vsl_permit_year_compl_month %>%
-  dplyr::mutate(percent_compl_m =
+  mutate(percent_compl_m =
                   weeks_per_vessel_per_compl_m * 100 / total_weeks_per_vessel_per_compl_m)
+
+# View(count_weeks_per_vsl_permit_year_compl_m_p)
 
 ### test 1, by month ----
 count_weeks_per_vsl_permit_year_compl_m_p %>%
@@ -250,6 +254,7 @@ count_weeks_per_vsl_permit_year_compl_m_p %>%
   unique() %>%
   arrange(year_month) %>%
   glimpse()
+
 # $ compliant_                         <chr> "YES", "NO"
 # $ weeks_per_vessel_per_compl_m       <int> 1, 3
 # $ total_weeks_per_vessel_per_compl_m <int> 4, 4
