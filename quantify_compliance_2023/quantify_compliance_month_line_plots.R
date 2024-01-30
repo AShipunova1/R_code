@@ -310,11 +310,9 @@ line_monthly_nc_plot_l <-
         expand_limits(x = as.Date("12/31/23", "%m/%d/%y")) +
         annotate("text", 
                  x = as.Date(one_df$year_month),
-# 
-#                  x = 1:12, 
-                 y = 55, 
-                 label = seq(1:12))
-      # one_df$total_vsl_m_by_year_perm
+                 y = 0, 
+                 label = 
+      one_df$total_vsl_m_by_year_perm)
 
         
         # scale_x_discrete(date_breaks = "1 month", date_labels = "%b") +
