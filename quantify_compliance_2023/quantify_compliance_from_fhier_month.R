@@ -11,8 +11,6 @@ compl_clean_sa_vs_gom_m_int_tot_m <-
   dplyr::mutate(total_vsl_m = n_distinct(vessel_official_number)) %>%
   dplyr::ungroup()
 
-View(compl_clean_sa_vs_gom_m_int_tot_m)
-
 ### test tot month ----
 compl_clean_sa_vs_gom_m_int_tot_m %>%
   dplyr::filter(year == "2023") %>%
@@ -35,58 +33,70 @@ compl_clean_sa_vs_gom_m_int_tot_m %>%
 # 5 2023 gom_only Dec 2023           902
 # 6 2023 sa_dual  Dec 2023          1969
 
+compl_clean_sa_vs_gom_m_int_tot_m |>
+  filter(year_permit == "2023 sa_dual") |> 
+  select(year_month, total_vsl_m) |>
+  distinct() |> 
+  arrange(year_month) |> 
+  head()
+# 1 Jan 2023          1967
+# 2 Feb 2023          1958
+# 3 Mar 2023          1954
+# 4 Apr 2023          1968
+# 5 May 2023          2020
+# 6 Jun 2023          2026
 
-## add the difference between expiration and week_start----
-
-# If we use a week_end, than a vessel which ends near the end of year will have its last week expired.
-compl_clean_sa_vs_gom_m_int_c_exp_diff <-
-  compl_clean_sa_vs_gom_m_int_tot_m %>%
-  # add a column with difference in days
-  dplyr::mutate(exp_w_end_diff =
-                  as.numeric(as.Date(permit_groupexpiration) - week_start + 1))
-
-## expired or not? ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
-  dplyr::mutate(perm_exp_m =
-                  dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
-                            exp_w_end_diff >= 0 ~ "active"))
-
-# View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
-
+# ## add the difference between expiration and week_start----
+# 
+# # If we use a week_end, than a vessel which ends near the end of year will have its last week expired.
+# compl_clean_sa_vs_gom_m_int_c_exp_diff <-
+#   compl_clean_sa_vs_gom_m_int_tot_m %>%
+#   # add a column with difference in days
+#   dplyr::mutate(exp_w_end_diff =
+#                   as.numeric(as.Date(permit_groupexpiration) - week_start + 1))
+# 
+# ## expired or not? ----
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
+#   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
+#   dplyr::mutate(perm_exp_m =
+#                   dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
+#                             exp_w_end_diff >= 0 ~ "active"))
+# 
+# # View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+# 
 ## Keep active only ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
-  filter(perm_exp_m == "active")
-
-dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
-# [1] 185251     28
-# [1] 143767     27
-
-dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp)
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
+#   compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
+#   filter(perm_exp_m == "active")
+# 
+# dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+# # [1] 185251     28
+# # [1] 143767     27
+# 
+# dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp)
 # [1] 185199     28
 # [1] 143737     27
 
 ## expired: count if vessel is expired or not by year, permit and month  ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp %>%
-  dplyr::group_by(year_permit, year_month, perm_exp_m) %>%
-  # add a column counting distinct vessels per group
-  dplyr::mutate(exp_m_tot_cnt = n_distinct(vessel_official_number)) %>%
-  dplyr::ungroup()
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
+#   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp %>%
+#   dplyr::group_by(year_permit, year_month, perm_exp_m) %>%
+#   # add a column counting distinct vessels per group
+#   dplyr::mutate(exp_m_tot_cnt = n_distinct(vessel_official_number)) %>%
+#   dplyr::ungroup()
 
 # check
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
-  dplyr::filter(year == "2023") %>%
-  dplyr::select(year_permit,
-                year_month,
-                perm_exp_m,
-                exp_m_tot_cnt,
-                total_vsl_m) %>%
-  unique() %>%
-  dplyr::arrange(year_permit, year_month) %>%
-  tail() |>
-  head()
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
+#   dplyr::filter(year == "2023") %>%
+#   dplyr::select(year_permit,
+#                 year_month,
+#                 perm_exp_m,
+#                 exp_m_tot_cnt,
+#                 total_vsl_m) %>%
+#   unique() %>%
+#   dplyr::arrange(year_permit, year_month) %>%
+#   tail() |>
+#   head()
 
 #   year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
 #   <chr>        <yearmon>  <chr>              <int>       <int>
@@ -98,23 +108,24 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
 # 6 2023 sa_dual Dec 2023   active              1968        1969
 
 # from now on use exp_m_tot_cnt instead of total_vsl_m
+# For 2023 use all
 
 #### how many are expired ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
-  filter(perm_exp_m == "expired") |>
-  select(perm_exp_m, exp_m_tot_cnt) |>
-  dplyr::distinct()
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
+#   filter(perm_exp_m == "expired") |>
+#   select(perm_exp_m, exp_m_tot_cnt) |>
+#   dplyr::distinct()
 # 1 expired                1
 # 0
 
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
-  # filter(perm_exp_m == "expired" &
-  #          !year_month == "Dec 2023") |>
-  # dplyr::glimpse()
-  filter(vessel_official_number == "1000164" &
-           year_month == "Nov 2023") |>
-  dim()
-# 0
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
+#   # filter(perm_exp_m == "expired" &
+#   #          !year_month == "Dec 2023") |>
+#   # dplyr::glimpse()
+#   filter(vessel_official_number == "1000164" &
+#            year_month == "Nov 2023") |>
+#   dim()
+# # 0
 
 #### check if expired and active permit is in the same month
 # compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
@@ -127,7 +138,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
 
 ## cnt distinct total vessels per year, permit, month, compl ----
 compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt_cnt_compl <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
   dplyr::group_by(year_permit, year_month, compliant_) %>%
   dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
   dplyr::ungroup()
