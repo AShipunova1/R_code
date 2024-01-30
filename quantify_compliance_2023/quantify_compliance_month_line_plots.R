@@ -218,18 +218,19 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l <-
 ## make % line plots by permit ----
 line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
 
-one_year_permit <- "2023 sa_dual"
-# line_monthly_nc_plot_l <-
-#   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l) |>
-#   # [1] "2023 gom_only" "2023 sa_dual" 
-#   purrr::map(
-#     function(one_year_permit) {
+# one_year_permit <- "2023 sa_dual" (for test)
+
+line_monthly_nc_plot_l <-
+  names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l) |>
+  # [1] "2023 gom_only" "2023 sa_dual"
+  purrr::map(
+    function(one_year_permit) {
       one_df <-
         compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[one_year_permit]]
       
       one_df |>
         filter(compl_or_not == "non_compliant") |>
-        mutate(my_label = paste0(round(cnt_m_compl_perc, 1), "%")) |> 
+        mutate(my_label = paste0(round(cnt_m_compl_perc, 1), "%")) |>
         ggplot(
           aes(
             x = as.Date(year_month),
@@ -243,46 +244,26 @@ one_year_permit <- "2023 sa_dual"
                   linewidth = 1) +
         theme_bw() +
         # text under the dot
-        geom_text(aes(label =
-                        if_else(cnt_m_compl_perc >= 27,
-                                my_label, "")),
-                  hjust = "outward",
-                  vjust = 1.5,
-                  # hjust = -0.1,
-                    check_overlap = TRUE,
-                  # vjust = 1.5,
-                  # hjust = -0.1,
-                  color = line_df_23_gom_monthly_nc_percent_plot_color,
-                  size = geom_text_size - 1
-                  ) +
-        geom_text(aes(label =
-                        if_else(my_label < 27,
-                                my_label, "")),
-                  
-                  vjust = 1.5,
-    
-                  # hjust = "outward",
-                  # vjust = -1.5,
-                  # hjust = -0.1,
-                  check_overlap = TRUE,
-                  # vjust = -1.5,
-                  # hjust = 0.1,
-                  color = line_df_23_gom_monthly_nc_percent_plot_color,
-                  size = geom_text_size - 1,
-                  ) +
-        # geom_text(
-          # aes(label = paste0(round(cnt_m_compl_perc, 1), "%")),
-            # geom_text(aes(label = text), vjust = "inward", hjust = "inward")
-          # nudge_y = -2,
-          # nudge_x = 0.5,
-          # hjust = "outward",
-          # vjust = 1.5,
-          # hjust = -0.1,
-        #   check_overlap = TRUE
-        #   color = line_df_23_gom_monthly_nc_percent_plot_color,
-        #   size = geom_text_size - 1,
-        #   check_overlap = TRUE
-        # ) +
+        geom_text(
+          aes(label =
+                if_else(cnt_m_compl_perc >= 27,
+                        my_label, "")),
+          hjust = "outward",
+          vjust = 1.5,
+          check_overlap = TRUE,
+          color = line_df_23_gom_monthly_nc_percent_plot_color,
+          size = geom_text_size - 1
+        ) +
+        geom_text(
+          aes(label =
+                if_else(my_label < 27,
+                        my_label, "")),
+          
+          vjust = 1.5,
+          check_overlap = TRUE,
+          color = line_df_23_gom_monthly_nc_percent_plot_color,
+          size = geom_text_size - 1,
+        ) +
         scale_x_date(date_breaks = "1 month", date_labels = "%b") +
         theme(
           legend.position = "none",
@@ -295,10 +276,10 @@ one_year_permit <- "2023 sa_dual"
         labs(x = "Months (2023)",
              y = "Proportion of Non-Compliant Vessels") +
         expand_limits(x = as.Date("12/31/23", "%m/%d/%y"))
-
+      
     })
 
-line_monthly_nc_plot_l[[2]]
+sa_dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[2]]
 
 # save to files ----
 
