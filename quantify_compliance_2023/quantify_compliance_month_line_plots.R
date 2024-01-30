@@ -280,104 +280,10 @@ line_monthly_nc_plot_l <-
 sa_dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[2]]
 
 # save to files ----
-
 file_full_name_m_perc_lines <- file.path(plot_file_path,
                             "m_line_perc_23_sa_dual_plot.png")
 
 # see the function definition F2
 save_plots_list_to_files(file_full_name_m_perc_lines,
                          sa_dual_line_monthly_nc_plot)
-
-# test_df |> 
-#   filter(year_month == "Jan 2023") |> 
-#   View()
-
-count_weeks_per_vsl_permit_year_compl_m_p_nc |>
-  filter(year_month == "Jun 2023" &
-             year_permit == "2023 sa_dual" &
-             percent_compl_m < 50) |> 
-  summarise(n_distinct(vessel_official_number))
-# print_df_names(test_df)
-# 37
-
-max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
-
-# test_df <-
-#   count_weeks_per_vsl_permit_year_compl_m_p_nc |>
-#   filter(year_permit == "2023 sa_dual")
-# 
-# min_max_val <-
-#   test_df |>
-#   group_by(percent_non_compl_2_buckets) |>
-#   mutate(
-#     max_dot_y = max(perc_vsls_per_m_b2),
-#     min_dot_y = min(perc_vsls_per_m_b2)
-#   ) |>
-#   ungroup() |>
-#   mutate(
-#     max_dot_month =
-#       case_when(
-#         perc_vsls_per_m_b2 == max_dot_y &
-#           percent_non_compl_2_buckets == "< 50%" ~ year_month
-#       ),
-#     min_dot_month =
-#       case_when(
-#         perc_vsls_per_m_b2 == min_dot_y &
-#           percent_non_compl_2_buckets == "< 50%" ~ year_month
-#       )
-#   ) |>
-#   mutate(
-#     max_dot_text =
-#       case_when(
-#         !is.na(max_dot_month) ~ str_glue(max_min_text)
-#       ),
-#     min_dot_text =
-#       case_when(
-#         !is.na(min_dot_month) ~ str_glue(max_min_text)
-#       )
-#   )
-
-# test_plot +
-#   annotate(
-#     "text",
-#     x = as.Date(min_max_val$max_dot_month),
-#     y = min_max_val$max_dot_y,
-#     # mean of reports_cnts, rounded to 2 decimals
-#     label = min_max_val$max_dot_text
-#     # ,
-#     # color = "#0570B0",
-#     # angle = 90
-#   ) +
-#   annotate(
-#     "text",
-#     x = as.Date(min_max_val$min_dot_month),
-#     y = min_max_val$min_dot_y,
-#     # mean of reports_cnts, rounded to 2 decimals
-#     label = min_max_val$min_dot_text
-#     # ,
-#     # color = "#0570B0",
-#     # angle = 90
-#   )
-
-# test_df |> select(
-#   year_permit,
-#   year_month,
-#   compliant_,
-#   # perm_exp_m,
-#   exp_m_tot_cnt,
-#   cnt_vsl_m_compl,
-#   cnt_v_in_bucket2,
-#   perc_vsls_per_m_b2,
-#   percent_non_compl_2_buckets
-# ) |>
-#   arrange(year_month) |>
-#   View()
-# |>
-#   write_csv("month_with_numbers_gom_23.csv")
-
-# count_weeks_per_vsl_permit_year_compl_m_p_nc |>
-#   filter(year_month == "May 2023" &
-#            year_permit == "2023 sa_dual" &
-#            percent_compl_m < 50) |>
-#   View()
 
