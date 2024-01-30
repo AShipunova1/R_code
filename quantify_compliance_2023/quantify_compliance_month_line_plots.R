@@ -229,10 +229,12 @@ line_monthly_nc_plot_l <-
         compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[one_year_permit]] |>
         filter(compl_or_not == "non_compliant") |>
         mutate(my_label = paste0(round(cnt_m_compl_perc, 0), "%")) |>
-        mutate(tot_per_m_xlabel =
-                 factor(total_vsl_m_by_year_perm)) |> 
-        mutate(year_m_factor =
-                 factor(year_month))
+        mutate(tot_cnt_label =
+                 str_glue("{cnt_vsl_m_compl}/\n{total_vsl_m_by_year_perm}"))
+        # mutate(tot_per_m_xlabel =
+        #          factor(total_vsl_m_by_year_perm)) |> 
+        # mutate(year_m_factor =
+        #          factor(year_month))
       
       # scaleFactor <-
       #   max(as.double(one_df$year_month)) / max(one_df$total_vsl_m_by_year_perm)
@@ -310,9 +312,10 @@ line_monthly_nc_plot_l <-
         expand_limits(x = as.Date("12/31/23", "%m/%d/%y")) +
         annotate("text", 
                  x = as.Date(one_df$year_month),
-                 y = 0, 
-                 label = 
-      one_df$total_vsl_m_by_year_perm)
+                 y = 0,
+                 label =
+                   one_df$tot_cnt_label,
+                 color = "blue")
 
         
         # scale_x_discrete(date_breaks = "1 month", date_labels = "%b") +
