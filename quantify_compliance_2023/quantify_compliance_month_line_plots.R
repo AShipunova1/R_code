@@ -258,7 +258,6 @@ line_monthly_nc_plot_l <-
                    -1, 1.5)
           
         ),
-        # vjust = 1.5,
           check_overlap = TRUE,
           color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size - 1
@@ -282,21 +281,12 @@ sa_dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[2]]
 
 # save to files ----
 
-plot_file_path_m <-
-  file.path(plot_file_path, "per_month")
-create_dir_if_not(plot_file_path_m)
-
-plot_file_path_lines <-
-  file.path(plot_file_path, "line_plots")
-create_dir_if_not(plot_file_path_lines)
-
-file_full_name <- file.path(plot_file_path_lines,
-                            "line_df_23_sa_good_plot.png")
+file_full_name_m_perc_lines <- file.path(plot_file_path,
+                            "m_line_perc_23_sa_dual_plot.png")
 
 # see the function definition F2
-save_plots_list_to_files(file_full_name,
-                         # plots
-                         line_df_23_sa_good_plot)
+save_plots_list_to_files(file_full_name_m_perc_lines,
+                         sa_dual_line_monthly_nc_plot)
 
 # test_df |> 
 #   filter(year_month == "Jan 2023") |> 
