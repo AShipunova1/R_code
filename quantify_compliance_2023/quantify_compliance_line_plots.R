@@ -1,4 +1,4 @@
-#### Current file:  ~/R_code_github/quantify_compliance2023/quantify_compliance_from_fhier_line_plots.R  ----
+#### Current file:  ~/R_code_github/quantify_compliance2023/quantify_compliance_from_fhier_line_plots.R
 
 percent_names <- paste0(seq(0, 100, by = 10), "%")
 
@@ -6,10 +6,6 @@ geom_text_size = text_sizes[["geom_text_size"]]
 geom_text_size <- 5
 axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
-
-# Per month, region ----
-## add total vessels per month and region ----
-# (both compl. and not, a vsl can be in both)
 
 add_cnt_in_gr <-
   function(my_df, 
@@ -24,6 +20,9 @@ add_cnt_in_gr <-
     dplyr::ungroup() %>%
     return()
 }
+
+# Add total vessels count per month and region ----
+# (both compl. and not, a vsl can be in both)
 
 group_by_col <- c("year_permit", "year_month")
 compl_clean_sa_vs_gom_m_int_tot <-
@@ -67,7 +66,7 @@ compl_clean_sa_vs_gom_m_int_tot |>
 # 5 May 2023          2020
 # 6 Jun 2023          2026
 
-## count vessels per month, region and compl ----
+# Add count vessels per month, region and compl ----
 group_by_col <- c("year_permit", "year_month", "compliant_")
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
@@ -75,8 +74,7 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
                 group_by_col,
                 "cnt_vsl_m_compl")
 
-print_df_names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
-### test tot cnts per month ----
+## test cnts per month ----
 # tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
   dplyr::select(
@@ -103,8 +101,6 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
 
 # 2023:
 # $ year_month      <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2023, …
-# $ perm_exp_m      <chr> "active", "active", "active", "active", "active", "act…
-# $ exp_m_tot_cnt   <int> 1967, 1967, 1967, 675, 1967, 675
 # $ total_vsl_m_by_year_perm     <int> 1967, 1967, 1967, 675, 1967, 675
 # $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
 # $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
@@ -112,11 +108,7 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
 ## Month: percent compl vessels per per month ----
 # print_df_names(count_weeks_per_vsl_permit_year_compl_month)
 
-compl_clean_sa_vs_gom_m_int_tot__compl_cnt
-
-
-
-### get compl, no compl, or both per year ----
+# Get compl, no compl, or both per year ----
 
 get_compl_by <- function(my_df, group_by_for_compl) {
   my_df %>%
