@@ -262,9 +262,12 @@ one_year_permit <- "2023 sa_dual"
       #             )
       # 
       # +
-
         geom_text(
           aes(label = paste0(round(cnt_m_compl_perc, 1), "%")),
+            # geom_text(aes(label = text), vjust = "inward", hjust = "inward")
+          # nudge_y = -2,
+          # nudge_x = 0.5,
+          hjust = "outward",
           vjust = 1.5,
           # hjust = -0.1,
           color = line_df_23_gom_monthly_nc_percent_plot_color,
