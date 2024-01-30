@@ -111,33 +111,7 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide <-
     names_from_list
   )
 
-# Add count vessels per month, region and compl ----
-
-# count_by_cols <- function(my_df,
-#                           cols_names) {
-#   my_df %>%
-#     # turn back to a longer format, vessel ids in one column
-#     tidyr::pivot_longer(
-#       # all other columns are vessel ids, use them as names
-#       cols = !any_of(cols_names),
-#       values_to = "is_compl_or_both",
-#       names_to = "vessel_official_number"
-#     ) %>%
-#     return()
-# }
-# 
-# cols_names <-
-#   c("year_permit",
-#     "total_vsl_y_by_year_perm",
-#     "year_month")
-# # year_month, year_permit, total_vsl_m_by_year_perm, 
-
-# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long <- 
-#   count_by_cols(compl_clean_sa_vs_gom_m_int_tot_short_wide,
-#                 cols_names)
-
-# names(compl_clean_sa_vs_gom_m_int_tot_short_wide) |> 
-#   head()
+## Back to long format ----
 
 not_vessel_id_col_names <-
   c("year_month",
@@ -152,15 +126,17 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long <-
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
-  
-# View(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
 
-group_by_col <- c("year_permit", "year_month", "compliant_")
+# Add count vessels per month, region and compl ----
+
+group_by_col <- c("year_permit", "year_month", "is_compl_or_both")
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
-  add_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot_short_wide, 
+  add_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot_short_wide_long, 
                 group_by_col,
                 "cnt_vsl_m_compl")
+
+View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
 
 ## test cnts compl per month ----
 # tic("test tot cnts per month")
