@@ -26,12 +26,9 @@ add_cnt_in_gr <-
 }
 
 group_by_col <- c("year_permit", "year_month")
-compl_clean_sa_vs_gom_m_int_tot1 <-
+compl_clean_sa_vs_gom_m_int_tot <-
   add_cnt_in_gr(compl_clean_sa_vs_gom_m_int, group_by_col)
 
-all.equal(compl_clean_sa_vs_gom_m_int_tot,
-          compl_clean_sa_vs_gom_m_int_tot1)
-T
 # check
 res1 <-
   compl_clean_sa_vs_gom_m_int |>
