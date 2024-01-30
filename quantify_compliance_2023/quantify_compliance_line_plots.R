@@ -1,5 +1,4 @@
-#### Current file:  ~/R_code_github/quantify_compliance/quantify_compliance_from_fhier_line_plots.R  ----
-# run after quantify_compliance_from_fhier_month.R
+#### Current file:  ~/R_code_github/quantify_compliance2023/quantify_compliance_from_fhier_line_plots.R  ----
 
 percent_names <- paste0(seq(0, 100, by = 10), "%")
 
@@ -7,6 +6,50 @@ geom_text_size = text_sizes[["geom_text_size"]]
 geom_text_size <- 5
 axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
+
+### get compl, no compl, or both per year ----
+
+get_compl_by <- function(my_df, group_by_for_compl) {
+  my_df %>%
+    dplyr::group_by_at(group_by_for_compl) %>%
+    # can unique, because we are looking at vessels, not weeks
+    unique() %>%
+    # more columns, a column per vessel
+    tidyr::pivot_wider(
+      names_from = vessel_official_number,
+      values_from = compliant_,
+      # make it "NO_YES" if both
+      values_fn = ~ paste0(sort(.x), collapse = "_")
+    ) %>%
+    dplyr::ungroup() %>%
+    return()
+}
+
+# all columns except...
+group_by_for_compl <- 
+  vars(-c("vessel_official_number", "compliant_"))
+
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short)
+
+# compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide <-
+#   get_compl_by(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short,
+#                group_by_for_compl)
+
+# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide)
+# [1]    6 3377
+
+# using all fields
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
+  compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |>
+  dplyr::select(
+    vessel_official_number,
+    year_permit,
+    compliant_,
+    total_vsl_y_by_year_perm
+  ) |>
+  dplyr::distinct() |>
+  get_compl_by(group_by_for_compl)
+
 
 # non compliant by month ----
 line_df_23_monthly_nc_plot_l <-
