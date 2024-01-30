@@ -101,16 +101,11 @@ get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
 # all columns except...
 group_by_for_compl_m <-
   vars(-c("vessel_official_number", 
-          "year_month",
           "compliant_"))
           
           # "year_permit"
 
-    # names_from = variable,
-    # names_glue = "{variable}_{.value}",
-
-names_from_list <- c("vessel_official_number",
-                     "year_month")
+names_from_list <- c("vessel_official_number")
 
 compl_clean_sa_vs_gom_m_int_tot_short_wide <-
   get_compl_by(
