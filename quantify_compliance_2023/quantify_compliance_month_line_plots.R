@@ -136,7 +136,6 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
                 group_by_col,
                 "cnt_vsl_m_compl")
 
-print_df_names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
 ## test cnts compl per month ----
 # tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
@@ -173,7 +172,15 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
 
 # Month: percent compl vessels per per month ----
 
-# non compliant by month ----
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <- 
+  compl_clean_sa_vs_gom_m_int_tot__compl_cnt |>
+  select(-vessel_official_number) |> 
+  distinct()
+
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short)
+# [1] 74  5
+
+# Plot non compliant perc by month ----
 line_df_23_monthly_nc_plot_l <-
   names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2) |>
   # count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2023 sa_dual` |>
