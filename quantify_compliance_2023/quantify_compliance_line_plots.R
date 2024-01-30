@@ -7,6 +7,253 @@ geom_text_size <- 5
 axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
 
+# Per month, region ----
+## add total per month ----
+# (both compl. and not, a vsl can be in both)
+
+add_total_cnt_in_gr <- function(my_df, group_by_col) {
+  my_df %>%
+    # group by per month and permit
+    dplyr::group_by_at(group_by_col) %>%
+    # cnt distinct vessels in each group
+    dplyr::mutate(total_vsl_m_by_year_perm =
+                    dplyr::n_distinct(vessel_official_number)) %>%
+    dplyr::ungroup() %>%
+    return()
+}
+
+group_by_col <- c("year_permit", "year_month")
+compl_clean_sa_vs_gom_m_int_tot <-
+  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int, group_by_col)
+
+# check
+res1 <-
+  compl_clean_sa_vs_gom_m_int |>
+  select(vessel_official_number, year_permit) |>
+  distinct() |>
+  count(year_permit, name = "total_vsl_y_by_year_perm") |>
+  arrange(total_vsl_y_by_year_perm)
+
+# # A tibble: 2 × 2
+#   year_permit       n
+#   <chr>         <int>
+# 1 2023 gom_only   951
+# 2 2023 sa_dual   2421
+
+res2 <-
+  compl_clean_sa_vs_gom_m_int_tot |>
+  select(year_permit, total_vsl_y_by_year_perm) |>
+  distinct() |>
+  arrange(total_vsl_y_by_year_perm)
+
+all.equal(res1, res2)
+# T
+
+# # redo with sa and dual sep
+# compl_clean_sa_vs_gom_m_int_tot <-
+#   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int, "permit_sa_gom")
+
+# check
+compl_clean_sa_vs_gom_m_int_tot %>%
+  select(year_permit, total_vsl_y_by_year_perm, permit_sa_gom) %>%
+  unique()
+#   year_permit   total_vsl_y_by_year_perm permit_sa_gom
+#   <chr>               <int> <chr>        
+# 1 2023 sa_dual         2421 sa_only      
+# 2 2023 sa_dual         2421 dual         
+# 3 2023 gom_only         951 gom_only     
+
+#   year_permit   tota_vsl_m
+#   <chr>              <int>
+# 1 2022 sa_only        2178
+# 2 2022 gom_dual       1495
+# 3 2023 sa_dual        2236
+
+
+# super_title_per_m = "% non-compliant weeks per month for non-compliant vessels by permit type (2022)"
+
+# by Month: ----
+## add tot cnts per month, permit ----
+
+compl_clean_sa_vs_gom_m_int_tot_m <-
+  compl_clean_sa_vs_gom_m_int %>%
+  dplyr::group_by(year_permit, year_month) %>%
+  # count distinct vessels per group
+  dplyr::mutate(total_vsl_m = n_distinct(vessel_official_number)) %>%
+  dplyr::ungroup()
+
+### test tot month ----
+compl_clean_sa_vs_gom_m_int_tot_m %>%
+  dplyr::filter(year == "2023") %>%
+  dplyr::select(year_permit, year_month, total_vsl_m) %>%
+  dplyr::arrange(year_month, year_permit) %>%
+  unique() %>%
+  tail()
+# 1 2022 gom_dual Oct 2022          1167
+# 2 2023 sa_dual  Oct 2022          1722
+# 3 2022 gom_dual Nov 2022          1152
+# 4 2023 sa_dual  Nov 2022          1677
+# 5 2022 gom_dual Dec 2022          1131
+# 6 2023 sa_dual  Dec 2022          1657
+
+# 2023
+# 1 2023 gom_only Oct 2023           895
+# 2 2023 sa_dual  Oct 2023          1963
+# 3 2023 gom_only Nov 2023           897
+# 4 2023 sa_dual  Nov 2023          1966
+# 5 2023 gom_only Dec 2023           902
+# 6 2023 sa_dual  Dec 2023          1969
+
+compl_clean_sa_vs_gom_m_int_tot_m |>
+  filter(year_permit == "2023 sa_dual") |> 
+  select(year_month, total_vsl_m) |>
+  distinct() |> 
+  arrange(year_month) |> 
+  head()
+# 1 Jan 2023          1967
+# 2 Feb 2023          1958
+# 3 Mar 2023          1954
+# 4 Apr 2023          1968
+# 5 May 2023          2020
+# 6 Jun 2023          2026
+
+# ## add the difference between expiration and week_start----
+# 
+# # If we use a week_end, than a vessel which ends near the end of year will have its last week expired.
+# compl_clean_sa_vs_gom_m_int_c_exp_diff <-
+#   compl_clean_sa_vs_gom_m_int_tot_m %>%
+#   # add a column with difference in days
+#   dplyr::mutate(exp_w_end_diff =
+#                   as.numeric(as.Date(permit_groupexpiration) - week_start + 1))
+# 
+# ## expired or not? ----
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d <-
+#   compl_clean_sa_vs_gom_m_int_c_exp_diff %>%
+#   dplyr::mutate(perm_exp_m =
+#                   dplyr::case_when(exp_w_end_diff < 0 ~ "expired",
+#                             exp_w_end_diff >= 0 ~ "active"))
+# 
+# # View(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+# 
+## Keep active only ----
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp <-
+#   compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
+#   filter(perm_exp_m == "active")
+# 
+# dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d)
+# # [1] 185251     28
+# # [1] 143767     27
+# 
+# dim(compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp)
+# [1] 185199     28
+# [1] 143737     27
+
+## expired: count if vessel is expired or not by year, permit and month  ----
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt <-
+#   compl_clean_sa_vs_gom_m_int_c_exp_diff_d_not_exp %>%
+#   dplyr::group_by(year_permit, year_month, perm_exp_m) %>%
+#   # add a column counting distinct vessels per group
+#   dplyr::mutate(exp_m_tot_cnt = n_distinct(vessel_official_number)) %>%
+#   dplyr::ungroup()
+
+# check
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt %>%
+#   dplyr::filter(year == "2023") %>%
+#   dplyr::select(year_permit,
+#                 year_month,
+#                 perm_exp_m,
+#                 exp_m_tot_cnt,
+#                 total_vsl_m) %>%
+#   unique() %>%
+#   dplyr::arrange(year_permit, year_month) %>%
+#   tail() |>
+#   head()
+
+#   year_permit  year_month perm_exp_m exp_m_tot_cnt total_vsl_m
+#   <chr>        <yearmon>  <chr>              <int>       <int>
+# 1 2023 sa_dual Jul 2023   active              2035        2036
+# 2 2023 sa_dual Aug 2023   active              2022        2023
+# 3 2023 sa_dual Sep 2023   active              1985        1986
+# 4 2023 sa_dual Oct 2023   active              1962        1963
+# 5 2023 sa_dual Nov 2023   active              1965        1966
+# 6 2023 sa_dual Dec 2023   active              1968        1969
+
+# from now on use exp_m_tot_cnt instead of total_vsl_m
+# For 2023 use all
+
+#### how many are expired ----
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
+#   filter(perm_exp_m == "expired") |>
+#   select(perm_exp_m, exp_m_tot_cnt) |>
+#   dplyr::distinct()
+# 1 expired                1
+# 0
+
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d_cnt |>
+#   # filter(perm_exp_m == "expired" &
+#   #          !year_month == "Dec 2023") |>
+#   # dplyr::glimpse()
+#   filter(vessel_official_number == "1000164" &
+#            year_month == "Nov 2023") |>
+#   dim()
+# # 0
+
+#### check if expired and active permit is in the same month
+# compl_clean_sa_vs_gom_m_int_c_exp_diff_d |>
+#   dplyr::group_by(vessel_official_number, year_month) |>
+#   mutate(active_or_expired = paste(sort(unique(perm_exp_m)),
+#                                    collapse = " & ")) |>
+#   filter(grepl("&", active_or_expired)) |>
+#   dim()
+  # 0
+
+## cnt distinct total vessels per year, permit, month, compl ----
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt <-
+  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
+  dplyr::group_by(year_permit, year_month, compliant_) %>%
+  dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
+  dplyr::ungroup()
+
+### test tot cnts per month ----
+# tic("test tot cnts per month")
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt %>%
+  dplyr::select(
+    permit_sa_gom,
+    year_permit,
+    year_month,
+    total_vsl_m,
+    compliant_,
+    cnt_vsl_m_compl
+  ) %>%
+  unique() %>%
+  dplyr::filter(year_month == "Jan 2023") %>%
+  dplyr::glimpse()
+# toc()
+# $ year_month      <yearmon> Jan 2022, Jan 2022, Jan 2022, Jan 2022
+# $ perm_exp_m      <chr> "active", "active", "active", "active"
+# $ exp_m_tot_cnt   <int> 1635, 1635, 1192, 1192
+# $ total_vsl_m     <int> 1635, 1635, 1192, 1192
+# $ compliant_      <chr> "YES", "NO", "YES", "NO"
+# $ cnt_vsl_m_compl <int> 1057, 703, 1173, 45
+# 1057 + 703 = 1760 is more than total. Some vessels can be both in a month, if compliance differs by week. For this analysis I used vessels having at least one week in the month  non-compliant.
+# If we are going to use "yes only" than redo "yes, no, no_yes" division as for a year above.
+# $ cnt_vsl_m_compl <int> 1052, 688, 1004, 42
+
+# 2023:
+# $ year_month      <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2023, …
+# $ perm_exp_m      <chr> "active", "active", "active", "active", "active", "act…
+# $ exp_m_tot_cnt   <int> 1967, 1967, 1967, 675, 1967, 675
+# $ total_vsl_m     <int> 1967, 1967, 1967, 675, 1967, 675
+# $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
+# $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
+
+## Month: percent compl vessels per per month ----
+# print_df_names(count_weeks_per_vsl_permit_year_compl_month)
+
+compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt
+
+
+
 ### get compl, no compl, or both per year ----
 
 get_compl_by <- function(my_df, group_by_for_compl) {
