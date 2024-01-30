@@ -102,6 +102,8 @@ percent_of_never_compl_from_all_sa_2023 <-
 # [1] 22.63011 %
 # [1] 15.28294 % (2023)
 
+# 100% non compliant out of total ----
+# count_weeks_per_vsl_permit_year_compl_p_sa_23 |> View()
 
 # count_weeks_per_vsl_permit_year_compl_p_short_count__not_compl__sa_tot <- 
 #   count_weeks_per_vsl_permit_year_compl_p_short |> 
@@ -127,12 +129,29 @@ percent_of_never_compl_from_all_sa_2023 <-
 #   distinct()
 
 ## add columns ----
+never_reported_filter <-
+  rlang::quo(perc_nc_100_gr == 2 &
+               tolower(compliant_) == "no")
 
+# count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc <- 
+  count_weeks_per_vsl_permit_year_compl_p_sa_23 |>
+    mutate(
+    perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
+  mutate(perc_nc_100_gr_name =
+      case_when(!!never_reported_filter ~
                   "Never Reported",
                 .default = "Reported At Least 1 Time")
   ) |>
+  mutate(group_100_vs_rest =
+      case_when(!!never_reported_filter ~
+                  1,
+                .default = 2)
+  ) |> 
+  group_by(perc_nc_100_gr_name) |>
+  mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   dplyr::mutate(
     perc_of_perc =
+          group_vsl_cnt * 100 / total_vsl_y_by_year_perm
   ) |>
   dplyr::ungroup()
 
