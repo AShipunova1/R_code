@@ -248,27 +248,21 @@ line_monthly_nc_plot_l <-
         #                 ifelse(cnt_m_compl_perc >= 27, 
         #                        "outward", 0),
 
-        geom_text(
-          aes(label = my_label,
-              hjust =   
-                ifelse(cnt_m_compl_perc >= 27,
-                        "outward", 0)),
-          # hjust = "outward",
-          vjust = 1.5,
+        geom_text(aes(
+          label = my_label,
+          hjust =
+            ifelse(cnt_m_compl_perc >= 27,
+                   "outward", 0),
+          vjust =
+            ifelse(my_label == "22%",
+                   -1, 1.5)
+          
+        ),
+        # vjust = 1.5,
           check_overlap = TRUE,
           color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size - 1
         ) +
-        # geom_text(
-        #   aes(label =
-        #         if_else(my_label < 27,
-        #                 my_label, "")),
-        #   
-        #   vjust = 1.5,
-        #   check_overlap = TRUE,
-        #   color = line_df_23_gom_monthly_nc_percent_plot_color,
-        #   size = geom_text_size - 1,
-        # ) +
         scale_x_date(date_breaks = "1 month", date_labels = "%b") +
         theme(
           legend.position = "none",
