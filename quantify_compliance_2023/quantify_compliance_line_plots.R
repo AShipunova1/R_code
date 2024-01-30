@@ -29,22 +29,24 @@ compl_clean_sa_vs_gom_m_int_tot <-
 # check
 res1 <-
   compl_clean_sa_vs_gom_m_int |>
-  select(vessel_official_number, year_permit) |>
+  select(vessel_official_number, year_permit, year_month) |>
   distinct() |>
-  count(year_permit, name = "total_vsl_y_by_year_perm") |>
-  arrange(total_vsl_y_by_year_perm)
+  count(year_permit, year_month, name = "total_vsl_m_by_year_perm") |>
+  arrange(total_vsl_m_by_year_perm)
 
-# # A tibble: 2 × 2
-#   year_permit       n
-#   <chr>         <int>
-# 1 2023 gom_only   951
-# 2 2023 sa_dual   2421
+# tail(res1)
+# 1 2023 sa_dual Dec 2023                       1969
+# 2 2023 sa_dual Sep 2023                       1986
+# 3 2023 sa_dual May 2023                       2020
+# 4 2023 sa_dual Aug 2023                       2023
+# 5 2023 sa_dual Jun 2023                       2026
+# 6 2023 sa_dual Jul 2023                       2036
 
 res2 <-
   compl_clean_sa_vs_gom_m_int_tot |>
-  select(year_permit, total_vsl_y_by_year_perm) |>
+  select(year_permit, year_month, total_vsl_m_by_year_perm) |>
   distinct() |>
-  arrange(total_vsl_y_by_year_perm)
+  arrange(total_vsl_m_by_year_perm)
 
 all.equal(res1, res2)
 # T
@@ -55,9 +57,9 @@ all.equal(res1, res2)
 
 # check
 compl_clean_sa_vs_gom_m_int_tot %>%
-  select(year_permit, total_vsl_y_by_year_perm, permit_sa_gom) %>%
+  select(year_permit, total_vsl_m_by_year_perm, permit_sa_gom) %>%
   unique()
-#   year_permit   total_vsl_y_by_year_perm permit_sa_gom
+#   year_permit   total_vsl_m_by_year_perm permit_sa_gom
 #   <chr>               <int> <chr>        
 # 1 2023 sa_dual         2421 sa_only      
 # 2 2023 sa_dual         2421 dual         
@@ -292,7 +294,7 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
     vessel_official_number,
     year_permit,
     compliant_,
-    total_vsl_y_by_year_perm
+    total_vsl_m_by_year_perm
   ) |>
   dplyr::distinct() |>
   get_compl_by(group_by_for_compl)
