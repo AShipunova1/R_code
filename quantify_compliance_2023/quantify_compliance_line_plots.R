@@ -51,64 +51,9 @@ res2 <-
 all.equal(res1, res2)
 # T
 
-# # redo with sa and dual sep
-# compl_clean_sa_vs_gom_m_int_tot <-
-#   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int, "permit_sa_gom")
-
-# check
-compl_clean_sa_vs_gom_m_int_tot %>%
-  select(year_permit, total_vsl_m_by_year_perm, permit_sa_gom) %>%
-  unique()
-#   year_permit   total_vsl_m_by_year_perm permit_sa_gom
-#   <chr>               <int> <chr>        
-# 1 2023 sa_dual         2421 sa_only      
-# 2 2023 sa_dual         2421 dual         
-# 3 2023 gom_only         951 gom_only     
-
-#   year_permit   tota_vsl_m
-#   <chr>              <int>
-# 1 2022 sa_only        2178
-# 2 2022 gom_dual       1495
-# 3 2023 sa_dual        2236
-
-
-# super_title_per_m = "% non-compliant weeks per month for non-compliant vessels by permit type (2022)"
-
-# by Month: ----
-## add tot cnts per month, permit ----
-
-compl_clean_sa_vs_gom_m_int_tot_m <-
-  compl_clean_sa_vs_gom_m_int %>%
-  dplyr::group_by(year_permit, year_month) %>%
-  # count distinct vessels per group
-  dplyr::mutate(total_vsl_m = n_distinct(vessel_official_number)) %>%
-  dplyr::ungroup()
-
-### test tot month ----
-compl_clean_sa_vs_gom_m_int_tot_m %>%
-  dplyr::filter(year == "2023") %>%
-  dplyr::select(year_permit, year_month, total_vsl_m) %>%
-  dplyr::arrange(year_month, year_permit) %>%
-  unique() %>%
-  tail()
-# 1 2022 gom_dual Oct 2022          1167
-# 2 2023 sa_dual  Oct 2022          1722
-# 3 2022 gom_dual Nov 2022          1152
-# 4 2023 sa_dual  Nov 2022          1677
-# 5 2022 gom_dual Dec 2022          1131
-# 6 2023 sa_dual  Dec 2022          1657
-
-# 2023
-# 1 2023 gom_only Oct 2023           895
-# 2 2023 sa_dual  Oct 2023          1963
-# 3 2023 gom_only Nov 2023           897
-# 4 2023 sa_dual  Nov 2023          1966
-# 5 2023 gom_only Dec 2023           902
-# 6 2023 sa_dual  Dec 2023          1969
-
-compl_clean_sa_vs_gom_m_int_tot_m |>
+compl_clean_sa_vs_gom_m_int_tot |>
   filter(year_permit == "2023 sa_dual") |> 
-  select(year_month, total_vsl_m) |>
+  select(year_month, total_vsl_m_by_year_perm) |>
   distinct() |> 
   arrange(year_month) |> 
   head()
