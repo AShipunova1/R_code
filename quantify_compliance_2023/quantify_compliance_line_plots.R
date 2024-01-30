@@ -66,6 +66,17 @@ compl_clean_sa_vs_gom_m_int_tot |>
 # 5 May 2023          2020
 # 6 Jun 2023          2026
 
+# Fewer columns ----
+compl_clean_sa_vs_gom_m_int_tot_short <-
+  compl_clean_sa_vs_gom_m_int_tot |>
+  select(
+    vessel_official_number,
+    compliant_,
+    year_month,
+    year_permit,
+    total_vsl_m_by_year_perm
+  ) |>
+  distinct()
 # Add count vessels per month, region and compl ----
 group_by_col <- c("year_permit", "year_month", "compliant_")
 
