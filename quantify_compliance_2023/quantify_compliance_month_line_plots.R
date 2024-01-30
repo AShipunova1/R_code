@@ -226,11 +226,18 @@ line_monthly_nc_plot_l <-
   purrr::map(
     function(one_year_permit) {
       one_df <-
-        compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[one_year_permit]]
-      
-      one_df |>
+        compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[one_year_permit]] |>
         filter(compl_or_not == "non_compliant") |>
         mutate(my_label = paste0(round(cnt_m_compl_perc, 0), "%")) |>
+        mutate(tot_per_m_xlabel =
+                 factor(total_vsl_m_by_year_perm)) |> 
+        mutate(year_m_factor =
+                 factor(year_month))
+      
+      one_df |>
+      # (xf <- factor(x, levels = c("Male", "Man" , "Lady",   "Female"),
+      #            labels = c("Male", "Male", "Female", "Female")))
+
         ggplot(
           aes(
             x = as.Date(year_month),
@@ -262,7 +269,14 @@ line_monthly_nc_plot_l <-
           color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size - 1
         ) +
-        scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+        scale_x_date(date_breaks = "1 month", date_labels = "%b",
+                     sec.axis =
+                       dup_axis(name = "total vessel per month",
+                                labels = 0:length(one_df$year_m_factor)2)
+                     # labels =
+                                #   c(one_df$tot_per_m_xlabel, "")
+                                # )
+      ) +
         theme(
           legend.position = "none",
           axis.text.x =
@@ -274,8 +288,16 @@ line_monthly_nc_plot_l <-
         labs(x = "Months (2023)",
              y = "Proportion of Non-Compliant Vessels") +
         expand_limits(x = as.Date("12/31/23", "%m/%d/%y"))
-      
+        # scale_x_discrete(date_breaks = "1 month", date_labels = "%b") +
+        
+                           
+        # 
+        # scale_x_continuous(sec.axis = ~ total_vsl_m_by_year_perm)
+
     })
+
+# ggplot(data=df,aes(x=Control, y=Stress))+geom_point()+scale_x_continuous(sec.axis = sec_axis(~ .+50,))
+
 
 sa_dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[2]]
 
