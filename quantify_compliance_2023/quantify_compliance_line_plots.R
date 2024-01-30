@@ -8,7 +8,7 @@ axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
 
 # Per month, region ----
-## add total per month ----
+## add total vessels per month and region ----
 # (both compl. and not, a vsl can be in both)
 
 add_cnt_in_gr <-
@@ -37,7 +37,7 @@ res1 <-
   count(year_permit, year_month, name = "total_vsl_m_by_year_perm") |>
   arrange(total_vsl_m_by_year_perm)
 
-# tail(res1)
+tail(res1)
 # 1 2023 sa_dual Dec 2023                       1969
 # 2 2023 sa_dual Sep 2023                       1986
 # 3 2023 sa_dual May 2023                       2020
@@ -67,13 +67,25 @@ compl_clean_sa_vs_gom_m_int_tot |>
 # 5 May 2023          2020
 # 6 Jun 2023          2026
 
+# str(compl_clean_sa_vs_gom_m_int_tot)
 
-## cnt distinct total vessels per year, permit, month, compl ----
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt <-
-  compl_clean_sa_vs_gom_m_int_c_exp_diff_d %>%
-  dplyr::group_by(year_permit, year_month, compliant_) %>%
-  dplyr::mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
-  dplyr::ungroup()
+## count vessels per month, region and compl ----
+group_by_col <- c("year_permit", "year_month", "compliant_")
+
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt1 <-
+  add_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot, 
+                group_by_col,
+                "cnt_vsl_m_compl")
+
+
+  # compl_clean_sa_vs_gom_m_int_tot %>%
+  # group_by(year_permit, year_month, compliant_) %>%
+  # mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
+  # ungroup()
+
+all.equal(compl_clean_sa_vs_gom_m_int_tot__compl_cnt,
+          compl_clean_sa_vs_gom_m_int_tot__compl_cnt1)
+T
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
