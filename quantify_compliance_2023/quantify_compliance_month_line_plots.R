@@ -13,11 +13,11 @@ add_cnt_in_gr <-
            cnt_col_name = "total_vsl_m_by_year_perm") {
     my_df %>%
       # group by per month and permit
-    dplyr::group_by_at(group_by_col) %>%
+    group_by_at(group_by_col) %>%
     # cnt distinct vessels in each group
-    dplyr::mutate({{cnt_col_name}} :=
-                    dplyr::n_distinct(vessel_official_number)) %>%
-    dplyr::ungroup() %>%
+    mutate({{cnt_col_name}} :=
+                    n_distinct(vessel_official_number)) %>%
+    ungroup() %>%
     return()
 }
 
@@ -82,7 +82,7 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 
 get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
   my_df %>%
-    dplyr::group_by_at(group_by_for_compl) %>%
+    group_by_at(group_by_for_compl) %>%
     # can unique, because we are looking at vessels, not weeks
     unique() %>%
     # more columns, a column per vessel
@@ -94,7 +94,7 @@ get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
       # make it "NO_YES" if both
       values_fn = ~ paste0(sort(.x), collapse = "_")
     ) %>%
-    dplyr::ungroup() %>%
+    ungroup() %>%
     return()
 }
 
@@ -129,20 +129,33 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long <-
 
 # Add count vessels per month, region and compl ----
 
-group_by_col <- c("year_permit", "year_month", "is_compl_or_both")
+compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no <-
+  compl_clean_sa_vs_gom_m_int_tot_short_wide_long |>
+  filter(stats::complete.cases(is_compl_or_both)) %>%
+  mutate(compl_or_not =
+           case_when(is_compl_or_both == "YES" ~
+                       "compliant",
+                     .default = "non_compliant")) |> 
+  select(-is_compl_or_both)
+
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no)
+
+group_by_col <- c("year_permit", "year_month", "compl_or_not")
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
-  add_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot_short_wide_long, 
-                group_by_col,
-                "cnt_vsl_m_compl")
+  add_cnt_in_gr(
+    compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no,
+    group_by_col,
+    "cnt_vsl_m_compl"
+  )
 
 ## test cnts compl per month ----
 # tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
-  dplyr::select(-vessel_official_number) %>%
+  select(-vessel_official_number) %>%
   unique() %>%
-  dplyr::filter(year_month == "Jan 2023") %>%
-  dplyr::glimpse()
+  filter(year_month == "Jan 2023") %>%
+  glimpse()
 # toc()
 # $ year_month      <yearmon> Jan 2022, Jan 2022, Jan 2022, Jan 2022
 # $ perm_exp_m      <chr> "active", "active", "active", "active"
@@ -170,6 +183,13 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
 # [1] 1967
 # correct sum 
 
+# w compl_or_not
+# $ year_month               <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023
+# $ year_permit              <chr> "2023 sa_dual", "2023 sa_dual", "2023 gom_onl…
+# $ total_vsl_m_by_year_perm <int> 1967, 1967, 675, 675
+# $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_c…
+# $ cnt_vsl_m_compl          <int> 1645, 322, 674, 1
+
 # Month: percent compl vessels per per month ----
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <- 
@@ -177,8 +197,15 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <-
   select(-vessel_official_number) |> 
   distinct()
 
-dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short)
-# [1] 74  5
+glimpse(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short)
+# [1] 38  5
+
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
+  compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short |>
+  mutate(cnt_m_compl_perc =
+           cnt_vsl_m_compl * 100 / total_vsl_m_by_year_perm)
+
+# glimpse(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc)
 
 # Plot non compliant perc by month ----
 line_df_23_monthly_nc_plot_l <-
@@ -250,14 +277,14 @@ count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short <-
          total_vsl_m_by_year_perm,
          cnt_vsl_m_compl,
          compliant_) |>
-  dplyr::distinct()
+  distinct()
 
 # View(count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short)
 # [1] 24  4
 
 count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent <-
   count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short |>
-  dplyr::group_by(year_month) |>
+  group_by(year_month) |>
   mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m_by_year_perm)
 
 glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent)
@@ -345,31 +372,31 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 # 
 # min_max_val <-
 #   test_df |>
-#   dplyr::group_by(percent_non_compl_2_buckets) |>
+#   group_by(percent_non_compl_2_buckets) |>
 #   mutate(
 #     max_dot_y = max(perc_vsls_per_m_b2),
 #     min_dot_y = min(perc_vsls_per_m_b2)
 #   ) |>
-#   dplyr::ungroup() |>
+#   ungroup() |>
 #   mutate(
 #     max_dot_month =
-#       dplyr::case_when(
+#       case_when(
 #         perc_vsls_per_m_b2 == max_dot_y &
 #           percent_non_compl_2_buckets == "< 50%" ~ year_month
 #       ),
 #     min_dot_month =
-#       dplyr::case_when(
+#       case_when(
 #         perc_vsls_per_m_b2 == min_dot_y &
 #           percent_non_compl_2_buckets == "< 50%" ~ year_month
 #       )
 #   ) |>
 #   mutate(
 #     max_dot_text =
-#       dplyr::case_when(
+#       case_when(
 #         !is.na(max_dot_month) ~ str_glue(max_min_text)
 #       ),
 #     min_dot_text =
-#       dplyr::case_when(
+#       case_when(
 #         !is.na(min_dot_month) ~ str_glue(max_min_text)
 #       )
 #   )
@@ -407,7 +434,7 @@ max_min_text <- "{cnt_v_in_bucket2} v / {cnt_vsl_m_compl} tot nc v"
 #   perc_vsls_per_m_b2,
 #   percent_non_compl_2_buckets
 # ) |>
-#   dplyr::arrange(year_month) |>
+#   arrange(year_month) |>
 #   View()
 # |>
 #   write_csv("month_with_numbers_gom_23.csv")
