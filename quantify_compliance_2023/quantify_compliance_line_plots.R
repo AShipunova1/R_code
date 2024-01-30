@@ -11,21 +11,27 @@ axis_title_size <- 12
 ## add total per month ----
 # (both compl. and not, a vsl can be in both)
 
-add_total_cnt_in_gr <- function(my_df, group_by_col) {
-  my_df %>%
-    # group by per month and permit
+add_cnt_in_gr <-
+  function(my_df, 
+           group_by_col, 
+           cnt_col_name = "total_vsl_m_by_year_perm") {
+    my_df %>%
+      # group by per month and permit
     dplyr::group_by_at(group_by_col) %>%
     # cnt distinct vessels in each group
-    dplyr::mutate(total_vsl_m_by_year_perm =
+    dplyr::mutate({{cnt_col_name}} :=
                     dplyr::n_distinct(vessel_official_number)) %>%
     dplyr::ungroup() %>%
     return()
 }
 
 group_by_col <- c("year_permit", "year_month")
-compl_clean_sa_vs_gom_m_int_tot <-
-  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int, group_by_col)
+compl_clean_sa_vs_gom_m_int_tot1 <-
+  add_cnt_in_gr(compl_clean_sa_vs_gom_m_int, group_by_col)
 
+all.equal(compl_clean_sa_vs_gom_m_int_tot,
+          compl_clean_sa_vs_gom_m_int_tot1)
+T
 # check
 res1 <-
   compl_clean_sa_vs_gom_m_int |>
