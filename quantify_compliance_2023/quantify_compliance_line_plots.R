@@ -72,20 +72,10 @@ compl_clean_sa_vs_gom_m_int_tot |>
 ## count vessels per month, region and compl ----
 group_by_col <- c("year_permit", "year_month", "compliant_")
 
-compl_clean_sa_vs_gom_m_int_tot__compl_cnt1 <-
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
   add_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot, 
                 group_by_col,
                 "cnt_vsl_m_compl")
-
-
-  # compl_clean_sa_vs_gom_m_int_tot %>%
-  # group_by(year_permit, year_month, compliant_) %>%
-  # mutate(cnt_vsl_m_compl = n_distinct(vessel_official_number)) %>%
-  # ungroup()
-
-all.equal(compl_clean_sa_vs_gom_m_int_tot__compl_cnt,
-          compl_clean_sa_vs_gom_m_int_tot__compl_cnt1)
-T
 
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
