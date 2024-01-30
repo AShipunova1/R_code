@@ -150,7 +150,7 @@ source(quantify_compliance_from_fhier_year_100_nc_path)
 month_line_plots_path <-
   file.path(my_paths$git_r,
             project_name,
-            "quantify_compliance_from_fhier_line_plots.R")
+            "quantify_compliance_month_line_plots.R")
 
 source(quantify_compliance_from_fhier_month_path)
 
