@@ -67,8 +67,6 @@ compl_clean_sa_vs_gom_m_int_tot |>
 # 5 May 2023          2020
 # 6 Jun 2023          2026
 
-# str(compl_clean_sa_vs_gom_m_int_tot)
-
 ## count vessels per month, region and compl ----
 group_by_col <- c("year_permit", "year_month", "compliant_")
 
@@ -77,14 +75,15 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
                 group_by_col,
                 "cnt_vsl_m_compl")
 
+print_df_names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
 ### test tot cnts per month ----
 # tic("test tot cnts per month")
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt %>%
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
   dplyr::select(
     permit_sa_gom,
     year_permit,
     year_month,
-    total_vsl_m,
+    total_vsl_m_by_year_perm,
     compliant_,
     cnt_vsl_m_compl
   ) %>%
@@ -95,7 +94,7 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt %>%
 # $ year_month      <yearmon> Jan 2022, Jan 2022, Jan 2022, Jan 2022
 # $ perm_exp_m      <chr> "active", "active", "active", "active"
 # $ exp_m_tot_cnt   <int> 1635, 1635, 1192, 1192
-# $ total_vsl_m     <int> 1635, 1635, 1192, 1192
+# $ total_vsl_m_by_year_perm     <int> 1635, 1635, 1192, 1192
 # $ compliant_      <chr> "YES", "NO", "YES", "NO"
 # $ cnt_vsl_m_compl <int> 1057, 703, 1173, 45
 # 1057 + 703 = 1760 is more than total. Some vessels can be both in a month, if compliance differs by week. For this analysis I used vessels having at least one week in the month  non-compliant.
@@ -106,14 +105,14 @@ compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt %>%
 # $ year_month      <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2023, …
 # $ perm_exp_m      <chr> "active", "active", "active", "active", "active", "act…
 # $ exp_m_tot_cnt   <int> 1967, 1967, 1967, 675, 1967, 675
-# $ total_vsl_m     <int> 1967, 1967, 1967, 675, 1967, 675
+# $ total_vsl_m_by_year_perm     <int> 1967, 1967, 1967, 675, 1967, 675
 # $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
 # $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
 
 ## Month: percent compl vessels per per month ----
 # print_df_names(count_weeks_per_vsl_permit_year_compl_month)
 
-compl_clean_sa_vs_gom_m_int_c_exp_diff_d__compl_cnt
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt
 
 
 
@@ -228,7 +227,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual <-
 count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short <-
   count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual |>
   select(year_month,
-         total_vsl_m,
+         total_vsl_m_by_year_perm,
          cnt_vsl_m_compl,
          compliant_) |>
   dplyr::distinct()
@@ -239,7 +238,7 @@ count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short <-
 count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent <-
   count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short |>
   dplyr::group_by(year_month) |>
-  mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m)
+  mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m_by_year_perm)
 
 glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent)
 
