@@ -87,7 +87,7 @@ get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
     unique() %>%
     # more columns, a column per vessel
     tidyr::pivot_wider(
-      names_from = names_from_list,
+      names_from = all_of(names_from_list),
       # names_glue =
       #   "{names_from_list[[1]]}_{names_from_list[[1]]}_{.value}",
       values_from = compliant_,
@@ -104,15 +104,12 @@ group_by_for_compl_m <-
 
 names_from_list <- c("vessel_official_number")
 
-compl_clean_sa_vs_gom_m_int_tot_short_wide1 <-
+compl_clean_sa_vs_gom_m_int_tot_short_wide <-
   get_compl_by(
     compl_clean_sa_vs_gom_m_int_tot_short,
     group_by_for_compl_m,
     names_from_list
   )
-all.equal(compl_clean_sa_vs_gom_m_int_tot_short_wide1,
-          compl_clean_sa_vs_gom_m_int_tot_short_wide)
-T
 
 # Add count vessels per month, region and compl ----
 
@@ -129,15 +126,14 @@ count_by_cols <- function(my_df,
     return()
 }
 
-# names(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide) |> 
-#   head()
-
 cols_names <-
   c("permit_sa_gom",
     "year_permit",
     "total_vsl_y_by_year_perm",
-    "perm_exp_y",
-    "exp_y_tot_cnt")
+    "year_month")
+
+  vars(c(year_month, year_permit, total_vsl_m_by_year_perm))
+
 
 # compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long <-
 #   count_by_cols(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide,
