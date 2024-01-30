@@ -230,7 +230,7 @@ line_monthly_nc_plot_l <-
       
       one_df |>
         filter(compl_or_not == "non_compliant") |>
-        mutate(my_label = paste0(round(cnt_m_compl_perc, 1), "%")) |>
+        mutate(my_label = paste0(round(cnt_m_compl_perc, 0), "%")) |>
         ggplot(
           aes(
             x = as.Date(year_month),
@@ -244,26 +244,31 @@ line_monthly_nc_plot_l <-
                   linewidth = 1) +
         theme_bw() +
         # text under the dot
+        # geom_text(aes(hjust = 
+        #                 ifelse(cnt_m_compl_perc >= 27, 
+        #                        "outward", 0),
+
         geom_text(
-          aes(label =
-                if_else(cnt_m_compl_perc >= 27,
-                        my_label, "")),
-          hjust = "outward",
+          aes(label = my_label,
+              hjust =   
+                ifelse(cnt_m_compl_perc >= 27,
+                        "outward", 0)),
+          # hjust = "outward",
           vjust = 1.5,
           check_overlap = TRUE,
           color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size - 1
         ) +
-        geom_text(
-          aes(label =
-                if_else(my_label < 27,
-                        my_label, "")),
-          
-          vjust = 1.5,
-          check_overlap = TRUE,
-          color = line_df_23_gom_monthly_nc_percent_plot_color,
-          size = geom_text_size - 1,
-        ) +
+        # geom_text(
+        #   aes(label =
+        #         if_else(my_label < 27,
+        #                 my_label, "")),
+        #   
+        #   vjust = 1.5,
+        #   check_overlap = TRUE,
+        #   color = line_df_23_gom_monthly_nc_percent_plot_color,
+        #   size = geom_text_size - 1,
+        # ) +
         scale_x_date(date_breaks = "1 month", date_labels = "%b") +
         theme(
           legend.position = "none",
