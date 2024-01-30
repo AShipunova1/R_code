@@ -3,9 +3,10 @@
 percent_names <- paste0(seq(0, 100, by = 10), "%")
 
 geom_text_size = text_sizes[["geom_text_size"]]
-geom_text_size <- 5
+# geom_text_size <- 5
 axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
+point_size <- 4
 
 add_cnt_in_gr <-
   function(my_df, 
@@ -208,39 +209,43 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
 # glimpse(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc)
 
 # Plot non compliant perc by month ----
-line_df_23_monthly_nc_plot_l <-
-  names(count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2) |>
-  # count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2$`2023 sa_dual` |>
-  # filter(percent_non_compl_2_buckets == "< 50%") |>
+
+## split by year_permit into a list ----
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l <-
+  split(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc,
+        as.factor(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc$year_permit))
+
+## make % line plots by permit ----
+line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
+
+line_monthly_nc_plot_l <-
+  names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l) |>
+  # [1] "2023 gom_only" "2023 sa_dual" 
   purrr::map(
-    function(line_df_permit) {
-      line_df <-
-        count_weeks_per_vsl_permit_year_compl_m_p_nc_b_cnt_in_b_p_short_y_r2[[line_df_permit]]
+    function(one_year_permit) {
+      one_df <-
+        compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[one_year_permit]]
       
-      curr_title_permit <-
-        title_permits %>%
-        filter(year_permit == line_df_permit)
-      
-      one_plot <-
-        line_df |>
-        ggplot(aes(
-          x = as.Date(year_month),
-          y = cnt_vsl_m_compl,
-          color = plot_colors$non_compliant_by_month
-        )) +
-        geom_point(color = plot_colors$non_compliant_by_month,
-                   size = 5) +
-        geom_line(color = plot_colors$non_compliant_by_month,
+      one_df |>
+        filter(compl_or_not == "NO") |>
+        ggplot(
+          aes(
+            x = as.Date(year_month),
+            y = cnt_m_compl_perc,
+            color = line_df_23_gom_monthly_nc_percent_plot_color
+          )
+        ) +
+        geom_point(color = line_df_23_gom_monthly_nc_percent_plot_color,
+                   size = point_size) +
+        geom_line(color = line_df_23_gom_monthly_nc_percent_plot_color,
                   linewidth = 1) +
         theme_bw() +
         # text under the dot
         geom_text(
-          aes(label = cnt_vsl_m_compl),
+          aes(label = paste0(round(cnt_m_compl_perc, 1), "%")),
           # vjust = -0.4,
-          # hjust = -0.5,
-          # hjust = -0.2,
-          vjust = -1,
-          color = plot_colors$non_compliant_by_month,
+          hjust = -0.3,
+          color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size
         ) +
         scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -251,88 +256,20 @@ line_df_23_monthly_nc_plot_l <-
           axis.text.y =
             element_text(size = axis_title_size)
         ) +
+        ylim(0, 50) +
         labs(x = "Months (2023)",
-             y = "Number of Vessels") +
-        labs(
-          title = str_glue(
-            "The Number of Non-Compliant {curr_title_permit} Permitted Vessels Each Month in 2023"
-          )
-        )
+             y = "Proportion of Non-Compliant Vessels") +
+        # labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2023") +
+        expand_limits(x = as.Date("12/31/24", "%m/%d/%y"))
+      #
+      #   coord_cartesian(xlim = c(as.Date(year_month), NA))
+      
+      # dates <- c("02/27/92", "02/27/92", "01/14/92", "02/28/92", "02/01/92")
+      # as.Date(dates, "%m/%d/%y")
+      
     })
 
-gom_line_df_23_monthly_nc_plot_l <- line_df_23_monthly_nc_plot_l[[1]]
-sa_line_df_23_monthly_nc_plot_l <- line_df_23_monthly_nc_plot_l[[2]]
-
-sa_line_df_23_monthly_nc_plot_l
-
-# non compliant by month percent of total ----
-
-count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual <-
-  count_weeks_per_vsl_permit_year_compl_m_p |>
-  filter(year_permit == "2023 sa_dual")
-
-count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short <-
-  count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual |>
-  select(year_month,
-         total_vsl_m_by_year_perm,
-         cnt_vsl_m_compl,
-         compliant_) |>
-  distinct()
-
-# View(count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short)
-# [1] 24  4
-
-count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent <-
-  count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short |>
-  group_by(year_month) |>
-  mutate(percent_of_total = 100 * cnt_vsl_m_compl / total_vsl_m_by_year_perm)
-
-glimpse(count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent)
-
-line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
-
-line_df_23_gom_monthly_nc_percent_plot <-
-  count_weeks_per_vsl_permit_year_compl_m_p_2023_sa_dual_c_cnts_short_percent |>
-  filter(compliant_ == "NO") |> 
-  ggplot(aes(
-    x = as.Date(year_month),
-    y = percent_of_total,
-    color = line_df_23_gom_monthly_nc_percent_plot_color
-  )) +
-  geom_point(color = line_df_23_gom_monthly_nc_percent_plot_color,
-             size = 4) +
-  geom_line(color = line_df_23_gom_monthly_nc_percent_plot_color,
-            linewidth = 1) +
-  theme_bw() +
-  # text under the dot
-  geom_text(
-    aes(label = paste0(round(percent_of_total, 1), "%")),
-    # vjust = -0.4,
-    hjust = -0.3,
-    color = line_df_23_gom_monthly_nc_percent_plot_color,
-    size = 6
-  ) +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  theme(
-    legend.position = "none",
-    axis.text.x =
-      element_text(size = axis_title_size),
-    axis.text.y =
-      element_text(size = axis_title_size)
-  ) +
-  ylim(0, 50) +
-  labs(x = "Months (2023)",
-       y = "Proportion of Non-Compliant Vessels") +
-  # labs(title = "The Percent of Non-Compliant GOM + Dual Permitted Vessels Each Month in 2023") +
-  expand_limits(x = as.Date("12/31/23", "%m/%d/%y"))
-# 
-#   coord_cartesian(xlim = c(as.Date(year_month), NA))
-
-# dates <- c("02/27/92", "02/27/92", "01/14/92", "02/28/92", "02/01/92")
-# as.Date(dates, "%m/%d/%y")
-
-
-line_df_23_gom_monthly_nc_percent_plot
+line_monthly_nc_plot_l[[2]]
 
 # save to files ----
 
