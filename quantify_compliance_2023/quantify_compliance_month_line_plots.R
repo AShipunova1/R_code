@@ -474,7 +474,9 @@ compl_clean_sa_vs_gom_m_int_tot_sep_short_wide_long__yes_no <-
                      .default = "non_compliant")) |> 
   select(-is_compl_or_both)
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_tot_sep_short_wide_long__yes_no)
+# compl_clean_sa_vs_gom_m_int_tot_sep_short_wide_long__yes_no |> 
+#   filter(permit_sa_gom == "dual") |> 
+#   View()
 
 group_by_col <- c("permit_sa_gom", "year_month", "compl_or_not")
 
@@ -492,39 +494,16 @@ compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt %>%
   unique() %>%
   filter(year_month == "Jan 2023") %>%
   glimpse()
-# toc()
-# $ year_month      <yearmon> Jan 2022, Jan 2022, Jan 2022, Jan 2022
-# $ perm_exp_m      <chr> "active", "active", "active", "active"
-# $ exp_m_tot_cnt   <int> 1635, 1635, 1192, 1192
-# $ total_vsl_m_by_permit_sa_gom     <int> 1635, 1635, 1192, 1192
-# $ compliant_      <chr> "YES", "NO", "YES", "NO"
-# $ cnt_vsl_m_compl <int> 1057, 703, 1173, 45
-# 1057 + 703 = 1760 is more than total. Some vessels can be both in a month, if compliance differs by week. For this analysis I used vessels having at least one week in the month  non-compliant.
-# If we are going to use "yes only" than redo "yes, no, no_yes" division as for a year above.
-# $ cnt_vsl_m_compl <int> 1052, 688, 1004, 42
-
-# 2023:
-# $ year_month      <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2023, …
-# $ total_vsl_m_by_permit_sa_gom     <int> 1967, 1967, 1967, 675, 1967, 675
-# $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
-# $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
-
-# (w yes_no)
-# $ year_month               <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2…
-# $ permit_sa_gom              <chr> "2023 sa_dual", "2023 sa_dual", "2023 sa_dual", "…
-# $ total_vsl_m_by_permit_sa_gom <int> 1967, 1967, 1967, 1967, 675, 675, 675
-# $ is_compl_or_both         <chr> "YES", NA, "NO", "NO_YES", NA, "YES", "NO_YES"
-# $ cnt_vsl_m_compl          <int> 1645, 1405, 274, 48, 2697, 674, 1
-# > 1645+274+48
+  
+# > sum(1358, 303, 287, 19)
 # [1] 1967
-# correct sum 
+# ok
 
-# w compl_or_not
-# $ year_month               <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023
-# $ permit_sa_gom              <chr> "2023 sa_dual", "2023 sa_dual", "2023 gom_onl…
-# $ total_vsl_m_by_permit_sa_gom <int> 1967, 1967, 675, 675
-# $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_c…
-# $ cnt_vsl_m_compl          <int> 1645, 322, 674, 1
+# $ year_month                   <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, J…
+# $ permit_sa_gom                <chr> "sa_only", "sa_only", "dual", "dual", "gom_on…
+# $ total_vsl_m_by_permit_sa_gom <int> 1661, 1661, 306, 306, 675, 675
+# $ compl_or_not                 <chr> "compliant", "non_compliant", "compliant", "n…
+# $ cnt_vsl_m_compl              <int> 1358, 303, 287, 19, 674, 1
 
 # Month: percent compl vessels per per month ----
 
@@ -533,8 +512,8 @@ compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt_short <-
   select(-vessel_official_number) |> 
   distinct()
 
-glimpse(compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt_short)
-# [1] 38  5
+dim(compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt_short)
+# [1] 62  5
 
 compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt_short_perc <-
   compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt_short |>
@@ -557,7 +536,7 @@ line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_mont
 
 line_monthly_nc_plot_l <-
   names(compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt_short_perc_l) |>
-  # [1] "2023 gom_only" "2023 sa_dual"
+# [1] "dual"     "gom_only" "sa_only" 
   purrr::map(
     function(one_permit_sa_gom) {
       one_df <-
@@ -566,18 +545,8 @@ line_monthly_nc_plot_l <-
         mutate(my_label = paste0(round(cnt_m_compl_perc, 0), "%")) |>
         mutate(tot_cnt_label =
                  str_glue("{cnt_vsl_m_compl}/\n{total_vsl_m_by_permit_sa_gom}"))
-        # mutate(tot_per_m_xlabel =
-        #          factor(total_vsl_m_by_permit_sa_gom)) |> 
-        # mutate(year_m_factor =
-        #          factor(year_month))
-      
-      # scaleFactor <-
-      #   max(as.double(one_df$year_month)) / max(one_df$total_vsl_m_by_permit_sa_gom)
 
       one_df |>
-      # (xf <- factor(x, levels = c("Male", "Man" , "Lady",   "Female"),
-      #            labels = c("Male", "Male", "Female", "Female")))
-
         ggplot(
           aes(
             x = as.Date(year_month),
@@ -590,11 +559,6 @@ line_monthly_nc_plot_l <-
         geom_line(color = line_df_23_gom_monthly_nc_percent_plot_color,
                   linewidth = 1) +
         theme_bw() +
-        # text under the dot
-        # geom_text(aes(hjust = 
-        #                 ifelse(cnt_m_compl_perc >= 27, 
-        #                        "outward", 0),
-
         geom_text(aes(
           label = my_label,
           hjust =
