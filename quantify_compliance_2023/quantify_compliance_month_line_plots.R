@@ -532,8 +532,6 @@ compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt_short_perc_l <-
 ## make % line plots by permit ----
 line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
 
-# one_permit_sa_gom <- "2023 sa_dual" (for test)
-
 line_monthly_nc_plot_l <-
   names(compl_clean_sa_vs_gom_m_int_tot_sep__compl_cnt_short_perc_l) |>
 # [1] "dual"     "gom_only" "sa_only" 
@@ -573,29 +571,6 @@ line_monthly_nc_plot_l <-
           color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size - 1
         ) +
-          # scale_y_continuous("Precipitation", 
-        # sec.axis = sec_axis(~ (. - a)/b, name = "Temperature")) +
-  # scale_x_continuous("Month (2023)", breaks = 1:12,
-  #                    sec.axis = dup_axis(~ one_df$total_vsl_m_by_permit_sa_gom, 
-  #                                        name = "Temperature")
-  #                    ) +
-
-          # scale_x_continuous(labels = ~paste(., .+50, sep = "\n"),
-          #            name = "Primary axis\nSecondary axis1")
-
-        # scale_x_date(date_breaks = "1 month", 
-        #              date_labels = 
-        #                ~paste("%b", total_vsl_m_by_permit_sa_gom,
-        #                       sep = "\n"),
-                     # sec.axis =
-                     #   dup_axis(name = "total vessel per month",
-                     #            labels = 0:length(one_df$year_m_factor)2)
-                     # labels =
-                                #   c(one_df$tot_per_m_xlabel, "")
-                                # )
-      # ) +
-      # scale_y_continuous(sec.axis = sec_axis( ~ . * scale, name = "Biomarker (IU/mL)")) +
-        
         theme(
           legend.position = "none",
           axis.text.x =
@@ -604,7 +579,8 @@ line_monthly_nc_plot_l <-
             element_text(size = axis_title_size)
         ) +
         ylim(0, 55) +
-        labs(x = "Months (2023)",
+        labs(title = str_glue("{one_permit_sa_gom} 2023"),
+             x = "Months (2023)",
              y = "Proportion of Non-Compliant Vessels") +
         scale_x_date(date_breaks = "1 month", 
                      date_labels = "%b") +
@@ -615,25 +591,22 @@ line_monthly_nc_plot_l <-
                  label =
                    one_df$tot_cnt_label,
                  color = "blue")
-
-        
-        # scale_x_discrete(date_breaks = "1 month", date_labels = "%b") +
-        
-                           
-        # 
-        # scale_x_continuous(sec.axis = ~ total_vsl_m_by_permit_sa_gom)
-
     })
 
-# ggplot(data=df,aes(x=Control, y=Stress))+geom_point()+scale_x_continuous(sec.axis = sec_axis(~ .+50,))
+sa_only_line_monthly_nc_plot <- line_monthly_nc_plot_l[[3]]
 
-
-sa_dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[2]]
+dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[1]]
 
 # save to files ----
-file_full_name_m_perc_lines <- file.path(plot_file_path,
-                            "m_line_perc_23_sa_dual_plot.png")
+file_full_name_m_perc_lines_sa <- file.path(plot_file_path,
+                            "m_line_perc_23_sa_only_plot.png")
+
+file_full_name_m_perc_lines_dual <- file.path(plot_file_path,
+                            "m_line_perc_23_dual_plot.png")
 
 # see the function definition F2
-save_plots_list_to_files(file_full_name_m_perc_lines,
-                         sa_dual_line_monthly_nc_plot)
+save_plots_list_to_files(file_full_name_m_perc_lines_sa,
+                         sa_only_line_monthly_nc_plot)
+
+save_plots_list_to_files(file_full_name_m_perc_lines_dual,
+                         dual_line_monthly_nc_plot)
