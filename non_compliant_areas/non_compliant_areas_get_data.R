@@ -6,11 +6,12 @@
 # compliance information: compl_err_db_data_raw.rds modified 2024-01-25;
 
 # metrics tracking and SRHS vessels: 
+# from "Logbook Processing (Do this before all Logbook Analyses)"
 # https://drive.google.com/drive/folders/18ociLUchXpLxrhb3-gJRuIV_0PaQGUFy?usp=sharing
-
-
-
-# Permits - 2024-01-25_0904.xlsx 
+# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)\Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_2023.csv"
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\2023SRHSvessels.csv"
+# "Permits - 2024-01-25_0904.xlsx"
 # get it from PIMS
 # Menu: permits
 # Filter:
@@ -20,6 +21,8 @@
 # 
 # skip first 5 lines in R)
 
+# same for vessels, skip first 3 lines
+# Vessels - 2024-02-01_0909.xlsx
 
 # Colored terminal output
 library(crayon)
@@ -147,8 +150,8 @@ vessels_from_pims <- get_vessel_data_pims()
 dim(vessels_from_pims)
 # [1] 23036     8
 
-
-metrics_tracking_from_fhier <- 
+# get metrics tracking and SRHS vessel info (from FHIER)
+metrics_tracking_from_fhier_file_name <- 
   str_glue("Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv")
 
 ## use metricks only vessels ----
