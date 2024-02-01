@@ -1,8 +1,10 @@
 ## fhier_reports_metrics_tracking ----
 
-# files to read:
-# 2022: Detail_Report_12312021_12312022__08_23_2023.csv
-# 2023: Detail_Report_12312022_12312023__01_26_2024.csv
+# files to have:
+# from "Logbook Processing (Do this before all Logbook Analyses)" google drive
+# https://drive.google.com/drive/folders/18ociLUchXpLxrhb3-gJRuIV_0PaQGUFy?usp=sharing
+# 1) "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
+# 2) "2023SRHSvessels.csv"
 
 # The tidyverse is a collection of R packages that work together seamlessly for data manipulation, visualization, and analysis. It includes popular packages like dplyr, ggplot2, tidyr, and more, all designed to follow a consistent and "tidy" data processing philosophy.
 library(tidyverse)
@@ -31,11 +33,6 @@ fix_names <- function(x) {
     # Convert column names to lowercase using 'my_headers_case_function'
     my_headers_case_function()
 }
-
-# Download from FHIER / Reports / Metrics Tracking
-# Put dates in, e.g. 01/01/2022 - 12/31/2022
-# Click search
-# Under "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)	" section below click "Actions", then "Download"
 
 fhier_reports_metrics_tracking_file_names <-
   c("Detail_Report_12312021_12312022__08_23_2023.csv",
