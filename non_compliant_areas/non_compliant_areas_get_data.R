@@ -163,10 +163,19 @@ source(metric_tracking_no_srhs_path)
 
 # fhier_reports_metrics_tracking_not_srhs_ids
 
-# Keep only ids in fhier_reports_metrics_tracking_not_srhs_ids
+fhier_reports_metrics_tracking_not_srhs_all_cols_2023_perm <-
+  fhier_reports_metrics_tracking_not_srhs_all_cols_list$`2023` |> 
+  mutate(permit_sa_gom_metr =
+           case_when(sa_permits_ == "Y" &
+                       gom_permits_ == "N" ~ "sa_only",
+                     sa_permits_ == "N" &
+                       gom_permits_ == "Y" ~ "gom_only",
+                     sa_permits_ == "Y" &
+                       gom_permits_ == "Y" ~ "dual",
+                     ))
 
-fhier_reports_metrics_tracking_not_srhs_all_cols_2023 <-
-  fhier_reports_metrics_tracking_not_srhs_all_cols_list$`2023`
+# Keep only ids in fhier_reports_metrics_tracking_not_srhs_ids ----
+
 
 # ---
 # Explanations:
@@ -180,7 +189,7 @@ fhier_reports_metrics_tracking_not_srhs_all_cols_2023 <-
 
 compl_err_db_data_metrics <-
   left_join(
-    fhier_reports_metrics_tracking_not_srhs_all_cols_2023,
+    fhier_reports_metrics_tracking_not_srhs_all_cols_2023_perm,
     compl_err_db_data,
     join_by(vessel_official_number == vessel_official_nbr)
   )
@@ -232,7 +241,7 @@ n_distinct(compl_err_db_data_metrics_2023_clean$vessel_official_number)
 # 3473
 # 3377 2023
 
-fhier_reports_metrics_tracking_not_srhs_all_cols_2023 |> 
+fhier_reports_metrics_tracking_not_srhs_all_cols_2023_perm |> 
   select(permit_grouping_region, sa_permits_, gom_permits_) |>
   distinct()
 #   permit_grouping_region sa_permits_ gom_permits_
@@ -447,31 +456,47 @@ vessels_permits_home_port_short <-
 # View(vessels_permits_home_port_short)
 
 # keep only vessels in metric tracking ----
-vessels_from_pims__vessels_from_metrics <-
-  vessels_from_pims |>
-  filter(
-    official__ %in% fhier_reports_metrics_tracking_not_srhs_all_cols_2023$vessel_official_number
+vessels_from_pims__vessels_from_metrics_j <-
+  left_join(
+    fhier_reports_metrics_tracking_not_srhs_all_cols_2023_perm,
+    vessels_from_pims,
+    join_by(vessel_official_number == official__)
   )
-dim(vessels_from_pims__vessels_from_metrics)
+
+  # vessels_from_pims |>
+  # filter(
+  #   official__ %in% fhier_reports_metrics_tracking_not_srhs_all_cols_2023$vessel_official_number
+  # )
+
+dim(vessels_from_pims__vessels_from_metrics_j)
 # [1] 3245    8
+# [1] 3446   21
 
 # get home port info from PIMS ----
+# print_df_names(vessels_from_pims__vessels_from_metrics_j)
 vessels_from_pims__vessels_from_metrics_short <-
-  
-  vessels_from_pims__vessels_from_metrics |>
-  select(official__,
-         hailing_port) |>
+  vessels_from_pims__vessels_from_metrics_j |>
+  select(vessel_official_number,
+         hailing_port,
+         permit_sa_gom_metr) |>
   distinct()
 
 dim(vessels_from_pims__vessels_from_metrics_short)
 # [1] 3191    2
+# [1] 3392    3
 
-cat("Result to use for vessels home port and its permit region:",
-"vessels_permits_home_port_22_reg_short",
-"vessels_from_pims__vessels_from_metrics_short",
-"To use all data from the db:",
-"vessels_permits_home_port_short",
-sep = "\n")
+cat(
+  "Result to use for vessels home port and its permit region:",
+  "vessels_from_pims__vessels_from_metrics_short",
+  sep = "\n"
+)
+
+# cat("Result to use for vessels home port and its permit region:",
+# "vessels_permits_home_port_22_reg_short",
+# "vessels_from_pims__vessels_from_metrics_short",
+# "To use all data from the db:",
+# "vessels_permits_home_port_short",
+# sep = "\n")
 
 # Map 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes. ----
 # The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
@@ -510,6 +535,40 @@ tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 # ID["EPSG",4269]]
 
 # Prepare home port coordinates ----
+
+vessels_from_pims__vessels_from_metrics_short_1 <- 
+  vessels_from_pims__vessels_from_metrics_short |> 
+  mutate(hailing_port =
+           str_replace(hailing_port,
+                       " ,",
+                       ",")) |> 
+    mutate(hailing_port =
+           str_replace_all(hailing_port,
+                       "  ",
+                       " "))
+
+grep(",[a-zA-Z]",
+     vessels_from_pims__vessels_from_metrics_short_1$hailing_port,
+     value = T)
+# 0
+
+# grep("  ",
+#      vessels_from_pims__vessels_from_metrics_short$hailing_port,
+#      value = T)
+# [1] "CRYSTAL  RIVER, FL"
+
+# diffdf::diffdf(vessels_from_pims__vessels_from_metrics_short,
+#                vessels_from_pims__vessels_from_metrics_short_1)
+#      Variable    No of Differences 
+#   ---------------------------------
+#    hailing_port         179        
+#   ---------------------------------
+# 
+# 
+#    hailing_port       159        PORT ORANGE , FL     PORT ORANGE, FL   
+
+# old ----
+  
 ## Fix port addresses ----
 # run once, gives vessels_permits_home_port_c_st_fixed
 
