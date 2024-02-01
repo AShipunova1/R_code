@@ -122,7 +122,6 @@ permit_info <- get_permit_data_from_PIMS()
 # get vessel (home port) info from PIMS ----
 get_vessel_data_pims <- 
   function() {
-  
   vessel_names_file_path =
     file.path(my_paths$inputs,
               r"(from PIMS\Vessels - 2024-02-01_0909.xlsx)")
@@ -447,10 +446,29 @@ vessels_permits_home_port_short <-
 
 # View(vessels_permits_home_port_short)
 
+# keep only vessels in metric tracking ----
+vessels_from_pims__vessels_from_metrics <-
+  vessels_from_pims |>
+  filter(
+    official__ %in% fhier_reports_metrics_tracking_not_srhs_all_cols_2023$vessel_official_number
+  )
+dim(vessels_from_pims__vessels_from_metrics)
+# [1] 3245    8
+
 # get home port info from PIMS ----
+vessels_from_pims__vessels_from_metrics_short <-
+  
+  vessels_from_pims__vessels_from_metrics |>
+  select(official__,
+         hailing_port) |>
+  distinct()
+
+dim(vessels_from_pims__vessels_from_metrics_short)
+# [1] 3191    2
 
 cat("Result to use for vessels home port and its permit region:",
 "vessels_permits_home_port_22_reg_short",
+"vessels_from_pims__vessels_from_metrics_short",
 "To use all data from the db:",
 "vessels_permits_home_port_short",
 sep = "\n")
