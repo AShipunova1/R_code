@@ -64,3 +64,6 @@ check_diff_years <-
       length()  # Calculate the length of the resulting intersection.
     # 2965
   }
+
+# uncomment if needed
+# check_diff_years()
