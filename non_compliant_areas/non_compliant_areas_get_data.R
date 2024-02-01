@@ -205,12 +205,13 @@ compl_err_db_data_metrics_2023 <-
 
 dim(compl_err_db_data_metrics_2023)
 # [1] 145261     31
+# [1] 146434     31 2023
 
-compl_err_db_data_metrics_2023 |>
-  filter(permit_grouping_region == "GOM") |>
-  select(vessel_official_number) |>
-  distinct() |>
-  nrow()
+# compl_err_db_data_metrics_2023 |>
+#   filter(permit_grouping_region == "GOM") |>
+#   select(vessel_official_number) |>
+#   distinct() |>
+#   nrow()
 # [1] 1232
 
 # 135+75+14+121+644
@@ -224,11 +225,22 @@ compl_err_db_data_metrics_2023_clean <-
 
 dim(compl_err_db_data_metrics_2023_clean)
 # [1] 145261     29
+# [1] 146434     29 2023
 
 # compl_err_db_data_metrics_2023_clean |> View()
 
 n_distinct(compl_err_db_data_metrics_2023_clean$vessel_official_number)
 # 3473
+# 3377 2023
+
+fhier_reports_metrics_tracking_not_srhs_all_cols_2023 |> 
+  select(permit_grouping_region, sa_permits_, gom_permits_) |>
+  distinct()
+#   permit_grouping_region sa_permits_ gom_permits_
+#   <chr>                  <chr>       <chr>       
+# 1 SA                     Y           N           
+# 2 GOM                    Y           Y           
+# 3 GOM                    N           Y           
 
 ## split into separate dfs by permit region in metrics tracking ----
 # check
@@ -243,6 +255,17 @@ compl_err_db_data_metrics_2023_clean |>
 # 3 GOM                    Y           Y           
 # I.e. GOM == "gom and dual"
 
+compl_err_db_data_metrics_2023_clean_perm <- 
+  compl_err_db_data_metrics_2023_clean |>
+  mutate(permit_sa_gom_metr =
+           case_when(sa_permits_ == "Y" &
+                       gom_permits_ == "N" ~ "sa_only",
+                     sa_permits_ == "N" &
+                       gom_permits_ == "Y" ~ "gom_only",
+                     sa_permits_ == "Y" &
+                       gom_permits_ == "Y" ~ "dual",
+                     ))
+
 ## split into separate dfs by permit region ----
 # Explanations:
 # The code uses the split() function to divide the data frame
@@ -253,8 +276,8 @@ compl_err_db_data_metrics_2023_clean |>
 # This is useful for further analysis or processing on subsets of the data.
 
 compl_err_db_data_metrics_2023_clean_list <- 
-  compl_err_db_data_metrics_2023_clean |> 
-  split(as.factor(compl_err_db_data_metrics_2023_clean$permit_grouping_region))
+  compl_err_db_data_metrics_2023_clean_perm |> 
+  split(as.factor(compl_err_db_data_metrics_2023_clean_perm$permit_sa_gom_metr))
 
 map(compl_err_db_data_metrics_2023_clean_list, dim)
 # $GOM
@@ -262,6 +285,16 @@ map(compl_err_db_data_metrics_2023_clean_list, dim)
 # 
 # $SA
 # [1] 90496    29
+# ---
+# 2023
+# $dual
+# [1] 12151    30
+# 
+# $gom_only
+# [1] 43886    30
+# 
+# $sa_only
+# [1] 90397    30
 
 ## check vessel/compl counts ----
 compl_err_db_data_metrics_2023_clean_list |>
@@ -271,19 +304,26 @@ compl_err_db_data_metrics_2023_clean_list |>
       dplyr::distinct() |>
       dplyr::count(is_comp)
   })
-# $GOM
+# $dual
 # # A tibble: 2 × 2
 #   is_comp     n
 #     <int> <int>
-# 1       0   260
-# 2       1  1232
+# 1       0   193
+# 2       1   241
 # 
-# $SA
+# $gom_only
 # # A tibble: 2 × 2
 #   is_comp     n
 #     <int> <int>
-# 1       0  1236
-# 2       1  1740
+# 1       0    15
+# 2       1   980
+# 
+# $sa_only
+# # A tibble: 2 × 2
+#   is_comp     n
+#     <int> <int>
+# 1       0  1338
+# 2       1  1799
 
 map(compl_err_db_data_metrics_2023_clean_list,
     \(reg_df) {
@@ -294,12 +334,25 @@ map(compl_err_db_data_metrics_2023_clean_list,
 # 
 # $SA
 # [1] 2241
+# ---
+# $dual
+# [1] 251
+# 
+# $gom_only
+# [1] 981
+# 
+# $sa_only
+# [1] 2145
 
 # Metrics:
 # Total Vessels  3,539
+# 3,513
 # Total Vessels With SA Only  2,211
+# 2,207
 # Total Vessels With GOM Permit Only  1,028
+# 1,026
 # Total Dual (SA & GOM) Permitted Vessels  300
+# 280
 
 # if compliance is checked for only when permit is active add:
 # comp_week_start_dt and comp_week_end_dt to select()
@@ -381,8 +434,9 @@ vessels_permits_home_port_22_reg_short <-
   remove_empty_cols() |>
   dplyr::distinct()
 
-# glimpse(vessels_permits_home_port_22_reg_short)
+# dim(vessels_permits_home_port_22_reg_short)
 # [1] 4729    5
+# [1] 4739    5
 
 vessels_permits_home_port_short <-
   all_get_db_data_result_l$vessels_permits |>
@@ -392,6 +446,8 @@ vessels_permits_home_port_short <-
   dplyr::distinct()
 
 # View(vessels_permits_home_port_short)
+
+# get home port info from PIMS ----
 
 cat("Result to use for vessels home port and its permit region:",
 "vessels_permits_home_port_22_reg_short",
