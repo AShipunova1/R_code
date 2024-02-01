@@ -3,7 +3,8 @@
 # files to upload:
 # FHIER_Compliance_2023__01_24_2023.csv (from FHIER / compliance report)
 # Compliance_Error_Types_03_29_2023.csv (How often does it change?)
-# Permits - 2024-01-25_0904.xlsx (get it from pims
+# Permits - 2024-01-25_0904.xlsx
+# Get it from PIMS
 # 
 # Menu: permits
 # Filter:
