@@ -3,10 +3,12 @@
 # Now for 2023 data
 
 # Data for non compliant area map sources:
-# compliance information: compl_err_db_data_raw.rds modified 2024-01-25 12:40:36.944185
-;
-# metrics tracking: Aug 23, 2023 (Detail_Report_12312021_12312022__08_23_2023.csv);
-# SRHS vessels: Aug 18, 2023 (2022_SRHS_Vessels_08_18_2023.xlsx)
+# compliance information: compl_err_db_data_raw.rds modified 2024-01-25;
+
+# metrics tracking and SRHS vessels: 
+# https://drive.google.com/drive/folders/18ociLUchXpLxrhb3-gJRuIV_0PaQGUFy?usp=sharing
+
+
 
 # Permits - 2024-01-25_0904.xlsx 
 # get it from PIMS
@@ -120,77 +122,45 @@ get_vessel_data_pims <-
   
   vessel_names_file_path =
     file.path(my_paths$inputs,
-              r"(from PIMS\vessels - 2024-01-25_0904.xlsx)")
+              r"(from PIMS\Vessels - 2024-02-01_0909.xlsx)")
   
   # file.exists(vessel_names_file_path)
   
-  active_vessels_from_pims_raw <- 
-    read_xlsx(vessel_names_file_path, skip = 5)
+  vessels_from_pims_raw <- 
+    read_xlsx(vessel_names_file_path, skip = 3)
   
-  dim(active_vessels_from_pims_raw)
-  # [1] 23575    11
+  dim(vessels_from_pims_raw)
+# [1] 23036     8
   
   # clean_headers
-  active_vessels_from_pims_temp1 <-
-    active_vessels_from_pims_raw %>%
+  vessels_from_pims <-
+    vessels_from_pims_raw %>%
     clean_headers()
   
-  # separate columns
-# Use the 'separate_wider_delim' function to split the 'vessel__' column in the 'active_vessels_from_pims_temp1' dataframe
-# based on the delimiter "-", creating new columns 'vessel_code' and 'vessel_num'.
-# The 'too_many' argument is set to "merge," which means any excess columns generated during the split will be merged.
-active_vessels_from_pims_temp2 <- 
-  active_vessels_from_pims_temp1 %>%
-    separate_wider_delim(vessel__,
-                         "-",                # Delimiter used for splitting
-                         names = c("vessel_code", "vessel_num"),
-                         too_many = "merge") %>%
+  # View(vessels_from_pims_temp1)
+  
+  return(vessels_from_pims)
+  }
 
-    # Use the 'separate_wider_regex' function to split the 'vessel_or_dealer' column in the resulting dataframe.
-    # This function uses regular expressions to define patterns for creating new columns.
-    # In this case, it defines patterns for 'vessel_official_number' and 'vessel_name.'
-    # The 'too_few' argument is set to "align_start," which aligns any missing columns at the start.
-    separate_wider_regex(
-      cols = vessel_or_dealer,
-      patterns = c(
-        vessel_official_number = "[A-Za-z0-9]+",  # Regular expression for vessel official number (more than one alphanumeric character)
-        " */* ",                                  # Pattern for separating columns with slashes
-        vessel_name = "[A-Za-z0-9]+"              # Regular expression for vessel name (more than one alphanumeric character)
-      ),
-      too_few = "align_start"
-    )
+vessels_from_pims <- get_vessel_data_pims()
 
-  # correct dates format
-
-  # get a list of field names with "_date"
-  # Use the 'grep' function to find and extract column names from the 'active_vessels_from_pims_temp2' dataframe
-  # that has "_date".
-  ends_with_date_fields <- grep("_date", # Pattern to search for in column names
-                                names(active_vessels_from_pims_temp2),  # Names of columns to search within
-                                value = TRUE)         # Return matching column names as values in the result.
+dim(vessels_from_pims)
+# [1] 23036     8
 
 
-  # convert to the date format
-  active_vessels_from_pims <-
-    change_fields_arr_to_dates(active_vessels_from_pims_temp2,
-                               ends_with_date_fields,
-                               "%m/%d/%Y")
+metrics_tracking_from_fhier <- 
+  str_glue("Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv")
 
-  # test
-  active_vessels_from_pims %>%
-    dplyr::select(status_date) %>%
-    dplyr::arrange(dplyr::desc(status_date)) %>%
-    dplyr::distinct() %>% 
-    head()
+## use metricks only vessels ----
 
-  return(active_vessels_from_pims)
-}
+# https://drive.google.com/drive/folders/1HipnxawNsDjrsMc4dXgFwdRPQ3X6-x3n?usp=drive_link
 
-"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from PIMS\Vessels - 2024-02-01_0909.xlsx"
+"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\2023SRHSvessels.csv"
 
 # OLD ----
-## use metricks only vessels ----
-metric_tracking_no_srhs_path <- 
+
+    metric_tracking_no_srhs_path <- 
+  file.path()
   r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)"
 source(metric_tracking_no_srhs_path)
 
