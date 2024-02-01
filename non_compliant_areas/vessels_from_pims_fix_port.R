@@ -1,10 +1,12 @@
 vessels_from_pims_fix_port__space <-
   vessels_from_pims |>
   select(official__, vessel_id, owner, hin, hailing_port) |>
-  filter(grepl(" ,", hailing_port)) |> 
+  filter(grepl(" ,", hailing_port) | 
+           grepl("  ", hailing_port)) |> 
   distinct()
 nrow(vessels_from_pims_fix_port__space)
 # 349   
+# 357 with "  "
 
 write_csv(
   vessels_from_pims_fix_port__space,
