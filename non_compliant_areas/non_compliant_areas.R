@@ -46,6 +46,15 @@ current_project_dir_path <- this.path::this.dir()
 
 current_project_basename <- basename(current_project_dir_path)
 
+current_output_dir <-
+  file.path(my_paths$outputs,
+            current_project_basename)
+
+# dir.exists(current_output_dir)
+my_year <- "2023"
+my_beginning <- "2023-01-01"
+my_end <- "2023-12-31"
+
 # prepare data ----
 get_data_file_path <-
   file.path(my_paths$git_r,
