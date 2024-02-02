@@ -40,12 +40,22 @@ get_lat_lon_no_county <-
     return(result_coord)
   }
 
+my_file_path_lat_lon_1 <- 
+  file.path(my_paths$outputs, 
+            current_project_basename,
+            paste0(current_project_basename, "_lat_lon_2023.rds"))
+
 tic("vessels_from_pims__vessels_from_metrics_short_addr_coord")
 vessels_from_pims__vessels_from_metrics_short_addr_coord_1 <-
-  get_lat_lon_no_county(vessels_from_pims__vessels_from_metrics_short_addr)
+  read_rds_or_run(
+    my_file_path_lat_lon_1,
+    my_data =
+      as.data.frame(vessels_from_pims__vessels_from_metrics_short_addr),
+    get_lat_lon_no_county
+  )
 toc()
 # Passing 552 addresses to the Nominatim single address geocoder
-# 10 min
+# ~10 min
 
 # 2) check names without coordinates
 
