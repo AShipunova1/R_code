@@ -560,12 +560,10 @@ grep(",[a-zA-Z]",
 # diffdf::diffdf(vessels_from_pims__vessels_from_metrics_short,
 #                vessels_from_pims__vessels_from_metrics_short_1)
 #      Variable    No of Differences 
-#   ---------------------------------
 #    hailing_port         179        
-#   ---------------------------------
 # 
-# 
-#    hailing_port       159        PORT ORANGE , FL     PORT ORANGE, FL   
+# eX.
+#    hailing_port        PORT ORANGE , FL     PORT ORANGE, FL   
 
 # old ----
   
