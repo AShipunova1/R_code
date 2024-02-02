@@ -245,45 +245,6 @@ dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
 # [1] 6762    7 not processed db vessel_permits
 # [1] 3392    7 (2023)
 
-duplicated_addr_vsls <-
-  vessels_from_pims__vessels_from_metrics_short_addr__fixed |>
-  group_by(vessel_official_number) |>
-  mutate(nn = n_distinct(city)) |>
-  filter(nn > 1) |>
-  select(vessel_official_number) |> 
-  distinct()
-
-vessels_from_pims_duble_addr <- 
-  vessels_from_pims |> 
-  filter(official__ %in% duplicated_addr_vsls$vessel_official_number) |> 
-  arrange(official__)
-
-write_csv(vessels_from_pims_dubles,
-          file.path(current_output_dir,
-                    "vessels_from_pims_duble_addr.csv"))
-
-to_fix_list_df <-
-  to_fix_list |> 
-  as.data.frame(
-    col.names = NULL,
-    row.names = c("wrong_addr", "fixed_addr"),
-    # fix.empty.names = TRUE,
-    # check.names = !optional,
-    stringsAsFactors = FALSE
-  ) |> 
-  t() |> 
-  as.tibble() |>
-  mutate(across(everything(), ~str_replace(., "#", ", ")))
-
-# View(to_fix_list_df)
-# class(to_fix_list_df)
-
-# rownames(to_fix_list_df) <- NULL
-
-write_csv(to_fix_list_df,
-          file.path(current_output_dir,
-                    "vessels_from_pims_addr_fixed.csv"))
-
 # old -----
 
 # Add back lost vessels ----
