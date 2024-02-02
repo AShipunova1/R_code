@@ -273,12 +273,12 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 <-
   map_df(manual_fixes,
          \(x) {
            # browser()
-           res <- 
-           vessels_from_pims__vessels_from_metrics_short_addr__fixed |>
+           res <-
+             vessels_from_pims__vessels_from_metrics_short_addr__fixed |>
              mutate(
-               city_fixed =
+               city_fixed1 =
                  case_when(vessel_official_number == x[[1]] ~ x[[2]]),
-               state_fixed =
+               state_fixed1 =
                  case_when(vessel_official_number == x[[1]] ~ x[[3]])
              )
            return(res)
@@ -287,13 +287,16 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 <-
 
 dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed_1)
 # [1] 3392    7 is.na(city) &
-# [1] 3402    7 
+# [1] 3397    9
+# [1] 3402    9 (no defaults)
 
-# vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |> 
-#   filter(vessel_official_number == "FL1431JU") |> 
-#   glimpse()
-# $ city_fixed             <chr> "MARATHON", "MARATHON", NA, NA
-# $ state_fixed            <chr> "FL", "FL", NA, NA
+vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
+  filter(vessel_official_number == "FL1431JU") |>
+  glimpse()
+# $ city_fixed             <chr> "KEY WEST", "MARATHON", "KEY WEST", "MARATHON"
+# $ state_fixed            <chr> "FL", "FL", "FL", "FL"
+# $ city_fixed1            <chr> NA, NA, "MARATHON", "MARATHON"
+# $ state_fixed1           <chr> NA, NA, "FL", "FL"
 
 # check
 new_f_vsl <-
@@ -313,12 +316,14 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
   filter(vessel_official_number %in% both) |>
   select(vessel_official_number,
          permit_sa_gom_metr,
-         city_fixed,
-         state_fixed) |>
-  filter(!is.na(city_fixed) & !is.na(state_fixed)) |>
+         city_fixed1,
+         state_fixed1) |>
+  filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
   distinct() |>
   glimpse()
-# 5
+# 5 ok
+
+
 
 # 4) add lat/lon to the fixed names
 
