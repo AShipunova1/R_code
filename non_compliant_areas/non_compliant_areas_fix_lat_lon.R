@@ -269,19 +269,8 @@ manual_fixes <-
     list("FL8252JK", "MIAMI", "FL")
   )
 
-# [1] "FL1431JU" "FL3976FH" "FL0146BH" "FL7549PJ" "FL1553TM"
-manual_fixes_short <-
-  list(
-    list("FL1431JU", "MARATHON", "FL"),
-    list("FL3976FH", "PONCE INLET", "FL"),
-    list("FL0146BH", "MIAMI", "FL"),
-    list("FL7549PJ", "KEY LARGO", "FL"),
-    list("FL1553TM", "BILOXI", "MS")
-  )
-
-
 vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 <-
-  map_df(manual_fixes_short,
+  map_df(manual_fixes,
          \(x) {
            # browser()
            res <- 
@@ -306,6 +295,7 @@ dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed_1)
 # $ city_fixed             <chr> "MARATHON", "MARATHON", NA, NA
 # $ state_fixed            <chr> "FL", "FL", NA, NA
 
+# check
 new_f_vsl <-
   sapply(manual_fixes, "[", 1) |> 
   unlist()
@@ -317,12 +307,18 @@ both <-
   )
 length(both)
 # 5
-
 # [1] "FL1431JU" "FL3976FH" "FL0146BH" "FL7549PJ" "FL1553TM"
 
-vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |> 
-  filter(vessel_official_number %in% both) |> 
+vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
+  filter(vessel_official_number %in% both) |>
+  select(vessel_official_number,
+         permit_sa_gom_metr,
+         city_fixed,
+         state_fixed) |>
+  filter(!is.na(city_fixed) & !is.na(state_fixed)) |>
+  distinct() |>
   glimpse()
+# 5
 
 # 4) add lat/lon to the fixed names
 
