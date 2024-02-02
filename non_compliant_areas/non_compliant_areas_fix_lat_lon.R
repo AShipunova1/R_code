@@ -45,7 +45,7 @@ vessels_from_pims__vessels_from_metrics_short_addr_coord_1 <-
   get_lat_lon_no_county(vessels_from_pims__vessels_from_metrics_short_addr)
 toc()
 # Passing 552 addresses to the Nominatim single address geocoder
-# 9.5 min
+# 10 min
 
 # 2) check names without coordinates
 
@@ -53,11 +53,11 @@ toc()
 n_distinct(vessels_from_pims__vessels_from_metrics_short_addr$vessel_official_number)
 # 3387
 
-n_distinct(vessels_from_pims__vessels_from_metrics_short_addr_coord$vessel_official_number)
+n_distinct(vessels_from_pims__vessels_from_metrics_short_addr_coord_1$vessel_official_number)
 # 3387 the same
 
 vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord <-
-  vessels_from_pims__vessels_from_metrics_short_addr_coord |>
+  vessels_from_pims__vessels_from_metrics_short_addr_coord_1 |>
   filter(is.na(lat))
 
 nrow(vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord)
@@ -237,6 +237,33 @@ dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
 # [1] 3392    7 (2023)
 # duplicated addr
 
+# add new fixes manually ----
+fixes_1 <-
+  list(
+    list("TX9606KA", "HOUSTON", "TX"),
+    list("FL5029RM", "KEY WEST", "FL"),
+    list("646818", "HOUSTON", "TX"),
+    list("1185107", "KEY WEST", "FL"),
+    list("FL3119EE", "BOCA GRANDE", "FL"),
+    list("FL2615MT", "STUART", "FL"),
+    list("581260", "PONCE INLET", "FL"),
+    list("531549", "TOWNSEND", "GA")
+  )
+
+res <-
+  map(fixes_1,
+      \(x) {
+        vessels_from_pims__vessels_from_metrics_short_addr__fixed |>
+          mutate(city_fixed =
+                   case_when(is.na(city) &
+                               vessel_official_number == x[[1]] ~ x[[2]])) |> 
+        mutate(state_fixed =
+                 case_when(is.na(state) &
+                             vessel_official_number == x[[1]] ~ x[[3]]))
+      })
+
+
+View(res)
 # 4) add lat/lon to the fixed names
 
 # glimpse(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
