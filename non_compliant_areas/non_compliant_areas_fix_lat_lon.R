@@ -230,6 +230,7 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed <-
 
 n_distinct(vessels_from_pims__vessels_from_metrics_short_addr__fixed$vessel_official_number)
 # 3387
+
 dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
 # [1] 4729    8
 # [1] 5029    8 with permit region
@@ -238,7 +239,7 @@ dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
 # duplicated addr
 
 # add new fixes manually ----
-fixes_1 <-
+manual_fixes <-
   list(
     list("TX9606KA", "HOUSTON", "TX"),
     list("FL5029RM", "KEY WEST", "FL"),
@@ -247,34 +248,52 @@ fixes_1 <-
     list("FL3119EE", "BOCA GRANDE", "FL"),
     list("FL2615MT", "STUART", "FL"),
     list("581260", "PONCE INLET", "FL"),
-    list("531549", "TOWNSEND", "GA")
+    list("531549", "TOWNSEND", "GA"),
+    list("FL0146BH", "MIAMI", "FL"),
+    list("FL1431JU", "MARATHON", "FL"),
+    list("FL1553TM", "BILOXI", "MS"),
+    list("FL3976FH", "PONCE INLET", "FL"),
+    list("FL7549PJ", "KEY LARGO", "FL"),
+    list("FL5011MX", "NAPLES", "FL"),
+    list("139403", "MIAMI", "FL"),
+    list("FL8252JK", "MIAMI", "FL")
   )
 
-res <-
-  map(fixes_1,
-      \(x) {
-        vessels_from_pims__vessels_from_metrics_short_addr__fixed |>
-          mutate(city_fixed =
-                   case_when(is.na(city) &
-                               vessel_official_number == x[[1]] ~ x[[2]])) |> 
-        mutate(state_fixed =
-                 case_when(is.na(state) &
-                             vessel_official_number == x[[1]] ~ x[[3]]))
-      })
+vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 <-
+  map_df(manual_fixes,
+         \(x) {
+           vessels_from_pims__vessels_from_metrics_short_addr__fixed |>
+             mutate(city_fixed =
+                      case_when(vessel_official_number == x[[1]] ~ x[[2]])) |>
+             mutate(state_fixed =
+                      case_when(vessel_official_number == x[[1]] ~ x[[3]]))
+         }) |>
+  distinct()
 
+dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed_1)
+# [1] 3392    7 is.na(city) &
+# [1] 3402    7 
 
-View(res)
+new_f_vsl <-
+  sapply(manual_fixes, "[", 1) |> 
+  unlist()
+
+both <-
+  intersect(
+    vessels_from_pims__vessels_from_metrics_short_addr__fixed$vessel_official_number,
+    new_f_vsl
+  )
+length(both)
+# 5
+
+vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |> 
+  filter(vessel_official_number %in% both) |> 
+  glimpse()
+
 # 4) add lat/lon to the fixed names
 
 # glimpse(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
 
-my_file_path_lat_lon <- 
-  file.path(my_paths$outputs, 
-            current_project_basename,
-            paste0(current_project_basename, "fixed_lat_lon_2023.rds"))
-
-
-# 4) add lat/lon to the fixed names ----
 tic("vessels_from_pims__vessels_from_metrics_short_addr_coord")
 vessels_from_pims__vessels_from_metrics_short_addr_coord_fixed <-
   read_rds_or_run(
