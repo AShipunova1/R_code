@@ -55,7 +55,32 @@ vessels_from_pims__vessels_from_metrics_short_addr_coord <-
     get_lat_lon_no_county
   )
 toc()
+# 9.5 min
 
+# check
+
+# was
+n_distinct(vessels_from_pims__vessels_from_metrics_short_addr$vessel_official_number)
+# 3387
+
+n_distinct(vessels_from_pims__vessels_from_metrics_short_addr_coord$vessel_official_number)
+# 3387 the same
+
+vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord <-
+  vessels_from_pims__vessels_from_metrics_short_addr_coord |>
+  filter(is.na(lat))
+
+nrow(vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord)
+# 257
+
+vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord__has_city <-
+  vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord |>
+  filter(!is.na(city))
+
+nrow(vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord__has_city)
+# 56
+
+glimpse(vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord__has_city)
 # ---
 # Explanations:
 # The code creates a new data frame 'vessels_permits_home_port_short_trim_no_county'
@@ -297,7 +322,7 @@ file.exists(csv_file_path)
   # write_csv(file = csv_file_path)
 
 # fix home port typos ----
-# the list is created manuall from the csv
+# the list is created manually
 to_fix_list <- 
   list(
     c(
