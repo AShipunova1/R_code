@@ -6,14 +6,6 @@
 
 # print_df_names(vessels_from_pims__vessels_from_metrics_short)
 # [1] "vessel_official_number, hailing_port, permit_sa_gom_metr"
-# add lat/lon ----
-
-my_file_path_lat_lon <- 
-  file.path(my_paths$outputs, 
-            current_project_basename,
-            paste0(current_project_basename, "_2023.rds"))
-
-# file.exists(my_file_path_lat_lon)
 
 # separate hailing_port into city and state ----
 vessels_from_pims__vessels_from_metrics_short_addr <-
@@ -34,7 +26,7 @@ vessels_from_pims__vessels_from_metrics_short_addr <-
 #   filter(vessel_official_number == "AL6468LL")
 # 1 AL6468LL               ALEXANDER CITY AL    gom_only          
 
-# add lat/lon ----
+# 1) add lat/lon ----
 
 get_lat_lon_no_county <-
   function(my_df) {
@@ -57,7 +49,7 @@ vessels_from_pims__vessels_from_metrics_short_addr_coord <-
 toc()
 # 9.5 min
 
-# check
+# 2) check names without coordinates
 
 # was
 n_distinct(vessels_from_pims__vessels_from_metrics_short_addr$vessel_official_number)
@@ -82,8 +74,9 @@ nrow(vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord__has_city
 
 # glimpse(vessels_from_pims__vessels_from_metrics_short_addr_coord_no_coord__has_city)
 
-# fix home port typos ----
-# the list is created manually
+# 3) fix home port typos ----
+
+# this list is created manually
 to_fix_list <- 
   list(
     c(
@@ -244,52 +237,30 @@ dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
 # [1] 5029    8 with permit region
 # [1] 6762    7 not processed db vessel_permits
 # [1] 3392    7 (2023)
+# duplicated addr
+
+# 4) add lat/lon to the fixed names
+
+# glimpse(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
+
+my_file_path_lat_lon <- 
+  file.path(my_paths$outputs, 
+            current_project_basename,
+            paste0(current_project_basename, "_2023.rds"))
+
+
+tic("vessels_from_pims__vessels_from_metrics_short_addr_coord")
+vessels_from_pims__vessels_from_metrics_short_addr_coord <-
+  read_rds_or_run(
+    my_file_path_lat_lon,
+    my_data =
+      as.data.frame(vessels_from_pims__vessels_from_metrics_short_addr),
+    get_lat_lon_no_county
+  )
+toc()
+
 
 # old -----
-
-# Add back lost vessels ----
-# check
-vessels_permits_home_port_lat_longs_city_state_df <- 
-  as.data.frame(vessels_permits_home_port_lat_longs_city_state)
-
-setdiff(tolower(unique(
-  vessels_permits_home_port_lat_longs_city_state_df$SERO_OFFICIAL_NUMBER)),
-  tolower(unique(
-vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER))) |> 
-  length()
-# 9
-
-# View(vessels_permits_home_port_lat_longs_city_state_df)
-setdiff(tolower(unique(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER)),
-        tolower(unique(vessels_permits_home_port_lat_longs_city_state_df$SERO_OFFICIAL_NUMBER))) |> 
-  length()
-# 92
-
-str(vessels_permits_home_port_short_trim_no_county)
-str(vessels_permits_home_port_lat_longs_city_state_df)
-
-all_vessels_permits_home_port <-
-  full_join(
-    vessels_permits_home_port_lat_longs_city_state_df,
-    vessels_permits_home_port_short_trim_no_county
-  )
-# Joining with `by = join_by(SERO_OFFICIAL_NUMBER, city,
-# state)`
-
-# all_vessels_permits_home_port |>
-#   filter(SERO_OFFICIAL_NUMBER %in% no_state_vessels$SERO_OFFICIAL_NUMBER) |>
-#   View()
-
-dim(all_vessels_permits_home_port)
-# [1] 6894    5
-# data_overview(all_vessels_permits_home_port)
-# SERO_OFFICIAL_NUMBER 6854
-# city   840
-# state   32
-# lat                   695
-# long                  695
-
-# TODO: Use all_vessels_permits_home_port later to add states back if missing
 
 # check home port typos by lat/lon ----
 
@@ -307,53 +278,17 @@ dim(all_vessels_permits_home_port)
 # This function is designed to check and clean data related to home ports with missing
 # latitude or longitude coordinates within each region's data frame.
 
-check_home_port_typos_by_lat_lon <-
-  function(df_list_by_reg) {
-    
-    compl_err_db_data_metrics_permit_reg_list_home_port_err <-
-      names(df_list_by_reg) |>
-      map(\(curr_permit_reg_name) {
-        browser()
-        df_list_by_reg[[curr_permit_reg_name]] |>
-          filter(is.na(long) |
-                   is.na(lat)) |>
-          select(vessel_official_nbr,
-                 city,
-                 # SERO_HOME_PORT_COUNTY,
-                 state) |>
-          distinct() |>
-          mutate(
-            city = trimws(city),
-            # SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
-            state = trimws(state)
-          )
-      })
-    
-    names(compl_err_db_data_metrics_permit_reg_list_home_port_err) <-
-      names(df_list_by_reg)
-    
-    return(compl_err_db_data_metrics_permit_reg_list_home_port_err)
-  }
-
-# vessels_permits_home_port_lat_longs_city_state |>
-#   filter(is.na(long) |
-#            is.na(lat)) |>
-#   select(SERO_OFFICIAL_NUMBER,
+# vessels_from_pims__vessels_from_metrics_short_addr__fixed |>
+#   filter(is.na(long) | is.na(lat)) |>
+#   select(vessel_official_number,
 #          city,
 #          state) |>
 #   distinct() |>
-#   mutate(
-#     city = trimws(city),
-#     state = trimws(state)
-#   )
-# Rows: 80
+#   mutate(city = trimws(city),
+#          state = trimws(state))
 
-# View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
 
-# compl_err_db_data_metrics_permit_reg_list_home_port_err_county <- 
-    # check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list)
 
-  # check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list_home_port)
 
 # Work with compl_err_db_data_metrics_permit_reg_list_home_port_err_county in excel ----
 
