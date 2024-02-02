@@ -1,13 +1,60 @@
 # run once to get lat lon and check names with no coords
+# 1) add lat/lon
+# 2) check names without coordinates
+# 3) fix names
+# 4) add lat/lon to the fixed names
 
+# print_df_names(vessels_from_pims__vessels_from_metrics_short)
+# [1] "vessel_official_number, hailing_port, permit_sa_gom_metr"
 # add lat/lon ----
 
 my_file_path_lat_lon <- 
   file.path(my_paths$outputs, 
             current_project_basename,
-            paste0(current_project_basename, "_no_county_all.rds"))
+            paste0(current_project_basename, "_2023.rds"))
 
-file.exists(my_file_path_lat_lon)
+# file.exists(my_file_path_lat_lon)
+
+# separate hailing_port into city and state ----
+vessels_from_pims__vessels_from_metrics_short_addr <-
+  vessels_from_pims__vessels_from_metrics_short |>
+  tidyr::separate_wider_delim(hailing_port,
+                              delim = ",",
+                              names = c("city", "state"),
+                              too_many = "drop") |> 
+    mutate(across(where(is.character), str_trim))
+
+# vessels_from_pims__vessels_from_metrics_short |> 
+#   filter(grepl(",.+,", hailing_port)
+# )
+# 1 AL6468LL               ALEXANDER CITY, AL, AL gom_only          
+# Can do too_many = "drop", because it is the only case of double commas
+
+# vessels_from_pims__vessels_from_metrics_short_addr |>
+#   filter(vessel_official_number == "AL6468LL")
+# 1 AL6468LL               ALEXANDER CITY AL    gom_only          
+
+# add lat/lon ----
+
+get_lat_lon_no_county <-
+  function(my_df) {
+    result_coord <-
+      my_df |>
+      tidygeocoder::geocode(city = "city",
+                            state = "state",
+                            return_input = TRUE)
+    return(result_coord)
+  }
+
+tic("vessels_from_pims__vessels_from_metrics_short_addr_coord")
+vessels_from_pims__vessels_from_metrics_short_addr_coord <-
+  read_rds_or_run(
+    my_file_path_lat_lon,
+    my_data =
+      as.data.frame(vessels_from_pims__vessels_from_metrics_short_addr),
+    get_lat_lon_no_county
+  )
+toc()
 
 # ---
 # Explanations:
