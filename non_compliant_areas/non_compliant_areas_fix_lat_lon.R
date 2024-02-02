@@ -29,7 +29,9 @@ vessels_from_pims__vessels_from_metrics_short_addr <-
 # 1) add lat/lon ----
 
 get_lat_lon_no_county <-
-  function(my_df) {
+  function(my_df,
+           city_col_name = "city",
+           state_col_name = "state") {
     result_coord <-
       my_df |>
       tidygeocoder::geocode(city = "city",
@@ -39,14 +41,10 @@ get_lat_lon_no_county <-
   }
 
 tic("vessels_from_pims__vessels_from_metrics_short_addr_coord")
-vessels_from_pims__vessels_from_metrics_short_addr_coord <-
-  read_rds_or_run(
-    my_file_path_lat_lon,
-    my_data =
-      as.data.frame(vessels_from_pims__vessels_from_metrics_short_addr),
-    get_lat_lon_no_county
-  )
+vessels_from_pims__vessels_from_metrics_short_addr_coord_1 <-
+  get_lat_lon_no_county(vessels_from_pims__vessels_from_metrics_short_addr)
 toc()
+# Passing 552 addresses to the Nominatim single address geocoder
 # 9.5 min
 
 # 2) check names without coordinates
@@ -246,11 +244,12 @@ dim(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
 my_file_path_lat_lon <- 
   file.path(my_paths$outputs, 
             current_project_basename,
-            paste0(current_project_basename, "_2023.rds"))
+            paste0(current_project_basename, "fixed_lat_lon_2023.rds"))
 
 
+# 4) add lat/lon to the fixed names ----
 tic("vessels_from_pims__vessels_from_metrics_short_addr_coord")
-vessels_from_pims__vessels_from_metrics_short_addr_coord <-
+vessels_from_pims__vessels_from_metrics_short_addr_coord_fixed <-
   read_rds_or_run(
     my_file_path_lat_lon,
     my_data =
@@ -258,7 +257,6 @@ vessels_from_pims__vessels_from_metrics_short_addr_coord <-
     get_lat_lon_no_county
   )
 toc()
-
 
 # old -----
 
