@@ -259,7 +259,30 @@ vessels_from_pims_duble_addr <-
   arrange(official__)
 
 write_csv(vessels_from_pims_dubles,
-          file.path("vessels_from_pims_duble_addr"))
+          file.path(current_output_dir,
+                    "vessels_from_pims_duble_addr.csv"))
+
+to_fix_list_df <-
+  to_fix_list |> 
+  as.data.frame(
+    col.names = NULL,
+    row.names = c("wrong_addr", "fixed_addr"),
+    # fix.empty.names = TRUE,
+    # check.names = !optional,
+    stringsAsFactors = FALSE
+  ) |> 
+  t() |> 
+  as.tibble() |>
+  mutate(across(everything(), ~str_replace(., "#", ", ")))
+
+# View(to_fix_list_df)
+# class(to_fix_list_df)
+
+# rownames(to_fix_list_df) <- NULL
+
+write_csv(to_fix_list_df,
+          file.path(current_output_dir,
+                    "vessels_from_pims_addr_fixed.csv"))
 
 # old -----
 
