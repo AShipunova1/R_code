@@ -323,7 +323,52 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
   glimpse()
 # 5 ok
 
+vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
+  filter(vessel_official_number %in% both) |>
+  select(vessel_official_number,
+         permit_sa_gom_metr,
+         city_fixed,
+         state_fixed,
+         city_fixed1,
+         state_fixed1) |>
+  filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
+  distinct() |>
+  glimpse()
 
+## replace duplicated values ----
+vessels_from_pims__vessels_from_metrics_short_addr__fixed_2 <-
+  vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
+  mutate(
+    city_fixed =
+      case_when(!is.na(city_fixed1) ~ city_fixed1,
+                .default = city_fixed),
+    state_fixed =
+      case_when(!is.na(state_fixed1) ~ state_fixed1,
+                .default = state_fixed)
+  ) |> 
+  filter((!vessel_official_number %in% both) |
+           !is.na(state_fixed1)) |> 
+  select(-c("city_fixed1", "state_fixed1")) |> 
+  distinct()
+
+View(vessels_from_pims__vessels_from_metrics_short_addr__fixed_2)
+# [1] 3392    7
+
+# check
+vessels_from_pims__vessels_from_metrics_short_addr__fixed_2 |>
+  filter(vessel_official_number %in% both) |>
+  select(vessel_official_number,
+         permit_sa_gom_metr,
+         city_fixed,
+         state_fixed,
+         city_fixed1,
+         state_fixed1) |>
+  # filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
+  distinct() |>
+  glimpse()
+# 5
+
+# View(vessels_from_pims__vessels_from_metrics_short_addr__fixed_2)
 
 # 4) add lat/lon to the fixed names
 
