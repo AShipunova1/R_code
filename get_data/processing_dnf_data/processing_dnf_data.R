@@ -841,14 +841,6 @@ SEFHIER_dnfs_notoverridden <-
             join_by(VESSEL_OFFICIAL_NUMBER),
             suffix = c("_metrics", "_dnfs"))
 
-# We have to keep both vessel names, bc they are different some times in metrics vs. dnfs.
-SEFHIER_dnfs_notoverridden |>
-  select(starts_with("vessel")) |>
-  distinct() |>
-  filter(!VESSEL_NAME_metrics == VESSEL_NAME_dnfs) |>
-  nrow()
-# 48
-
 my_stats(dnfs_notoverridden)
 my_stats(SEFHIER_dnfs_notoverridden)
 
@@ -858,38 +850,12 @@ vessels_not_in_metrics <-
 
 my_tee(vessels_not_in_metrics,
        "Removed if a vessel is not in Metrics tracking")
+# -1425
 
 ## Start date/time is after end date/time ----
 # check dnf records for cases where start date/time is after end date/time, delete these records
 
-# the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
-SEFHIER_dnfs_notoverridden['time_stamp_error'] <-
-  ifelse(
-    SEFHIER_dnfs_notoverridden$STARTDATETIME >= SEFHIER_dnfs_notoverridden$ENDDATETIME,
-    TRUE,
-    FALSE
-  )
-
-### Filter: only keep the rows where there is no error between start & end date & time ----
-SEFHIER_dnfs_notoverridden__start_end_ok <-
-  SEFHIER_dnfs_notoverridden |>
-  filter(time_stamp_error == FALSE)
-
-# stats
-my_stats(SEFHIER_dnfs_notoverridden__start_end_ok)
-# rows: 310832
-# columns: 153
-# Unique vessels: 1825
-# Unique trips neg (dnfs): 89797
-
-# stats
-thrown_by_time_stamp_error <-
-  SEFHIER_dnfs_notoverridden |>
-  filter(time_stamp_error == TRUE)
-
-my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
-       "Thrown away by time_stamp_error (dnfs num)")
-# 550
+View(SEFHIER_dnfs_notoverridden)
 
 ## Delete dnfs for trips neg lasting more than 10 days ----
 
