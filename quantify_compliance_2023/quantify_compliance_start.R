@@ -7,13 +7,9 @@
 # Compliance_Error_Types_03_29_2023.csv
 # Permits_2023-03-29_1611_active.csv
 
-my_year <- "2023"
-my_beginning <- "2023-01-01"
-my_end <- "2023-12-31"
-
 # Quantify program compliance.
 
-# 2023
+# 2022, 2023
 # dual + SA
 library(grid)  # Load the 'grid' library, which provides low-level graphics functions.
 library(zoo)   # Load the 'zoo' library, which deals with time series data.
@@ -22,6 +18,14 @@ library(cowplot)  # Load the 'cowplot' library for creating publication-ready pl
 
 # Read R Code from a File
 source("~/R_code_github/useful_functions_module.r")
+
+my_year1 <- "2022"
+my_beginning1 <- str_glue("{my_year1}-01-01")
+my_end1 <- str_glue("{my_year1}-12-31")
+
+my_year2 <- "2023"
+my_beginning2 <- str_glue("{my_year2}-01-01")
+my_end2 <- str_glue("{my_year2}-12-31")
 
 # Use a function defined in "useful_functions_module.r". Use F2 to see a custom functions' definition.
 my_paths <- set_work_dir()
