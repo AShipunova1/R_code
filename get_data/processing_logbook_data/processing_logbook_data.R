@@ -1,11 +1,11 @@
 # processing_logbook_data
 
-# Files to read or create:
-# Compliance_raw_data_Year.rds
-# SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds
-
 # The result will be in
 # SEFHIER_usable_Logbooks_{my_year}.rds
+
+# Files to read or create:
+# Compliance_raw_data_2021_plus.rds
+# SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds
 
 # "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_", my_year, ".csv"
 # my_year, "SRHSvessels.csv"
@@ -320,6 +320,8 @@ WHERE
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query)
+# 2024-02-05 run for Compliance_raw_data_2021_plus.rds: 104.5 sec elapsed
+# File: Compliance_raw_data_2021_plus.rds modified Mon Feb  5 09:52:06 2024
 
 ### prep the compliance/override data ----
 
@@ -332,9 +334,9 @@ compl_override_data <-
 
 # stats
 my_stats(compl_override_data)
-# rows: 458071
-# columns: 19
-# Unique vessels: 4393
+# rows: 460724
+# columns: 23
+# Unique vessels: 4390
 
 # stats
 min(compl_override_data$COMP_WEEK_START_DT)
@@ -489,6 +491,7 @@ WHERE
 Logbooks <-
   read_rds_or_run_query(logbooks_file_path,
                         logbooks_download_query)
+# 2024-02-05 run for SAFIS_TripsDownload_01-JAN-2022__31-DEC-2022.rds: 122.37 sec elapsed
 
 # Rename column to be consistent with other dataframes
 Logbooks <-
@@ -498,6 +501,12 @@ Logbooks <-
 
 # stats
 my_stats(Logbooks, "Logbooks from the db")
+# 2022
+# rows: 327847
+# columns: 149
+# Unique vessels: 1885
+# Unique trips (logbooks): 94737
+
 # rows: 484413
 # columns: 149
 # Unique vessels: 2218
@@ -593,7 +602,7 @@ min(Logbooks$TRIP_START_DATE)
 # [1] "2022-01-01"
 # [1] "2023-01-01"
 max(Logbooks$TRIP_START_DATE)
-# [1] "2023-12-01"
+# [1] "2022-12-31"
 # [1] "2023-12-31"
 
 Logbooks <-
@@ -964,16 +973,16 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
 
 late_submission_filter_stats <-
-  function(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp) {
+  function(my_df) {
     # stats
-    my_stats(SEFHIER_logbooks_usable)
+    my_stats(my_df)
     # rows: 271479
     # columns: 155
     # Unique vessels: 1629
     # Unique trips (logbooks): 73313
 
     late_submission <-
-      SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp |>
+      my_df |>
       filter(USABLE_NO_LATE_SUBMISSION == FALSE)
 
     my_tee(n_distinct(late_submission$TRIP_ID),
@@ -987,13 +996,13 @@ late_submission_filter_stats <-
     # 1064
 
     # check
-    min(SEFHIER_logbooks_usable$TRIP_START_DATE)
+    min(my_df$TRIP_START_DATE)
     # [1] "2022-01-01"
-    max(SEFHIER_logbooks_usable$TRIP_START_DATE)
+    max(my_df$TRIP_START_DATE)
     # [1] "2022-12-31"
-    min(SEFHIER_logbooks_usable$TRIP_END_DATE)
+    min(my_df$TRIP_END_DATE)
     # [1] "2022-01-01"
-    max(SEFHIER_logbooks_usable$TRIP_END_DATE)
+    max(my_df$TRIP_END_DATE)
     # [1] "2022-12-31"
 
   }
@@ -1004,10 +1013,6 @@ late_submission_filter <-
       SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
       mutate(USABLE_NO_LATE_SUBMISSION =
                ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
-
-    # SEFHIER_logbooks_usable <-
-      # SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp |>
-      # filter(USABLE == TRUE)
 
     late_submission_filter_stats(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp)
 
@@ -1070,22 +1075,13 @@ SEFHIER_logbooks_usable_p_regions <-
 
 # stats
 my_stats(SEFHIER_logbooks_usable)
-# rows: 271479
-# columns: 155
-# Unique vessels: 1629
-# Unique trips (logbooks): 73313
-
-# rows: 164159
-# columns: 152
-# Unique vessels: 1597
-# Unique trips (logbooks): 51340
 
 logbooks_before_filtering <-
   n_distinct(Logbooks$TRIP_ID)
 
 my_tee(logbooks_before_filtering,
         "Logbooks before filtering")
-# [1] 94714
+# 94737 2022
 # 52393 2023
 
 logbooks_after_filtering <-
@@ -1095,25 +1091,29 @@ my_tee(logbooks_after_filtering,
         "Logbooks after filtering")
 # [1] 73313
 # 51340 2023
+# 89621 2022
 
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
  cat(percent_of_removed_logbooks, sep = "\n")
 # 22.59539
 # 2.00981 (with late submission)
+# 5.400213 2022
 
 # removed_vessels
 vessels_before_filtering <-
   n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_before_filtering)
 # 1882
-# 1646
+# 1646 2023
+# 1885 2022
 
 vessels_after_filtering <-
   n_distinct(SEFHIER_logbooks_usable$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_after_filtering)
 # 1629
-# 1597
+# 1597 2023
+# 1823 2022
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
@@ -1136,12 +1136,6 @@ removed_logbooks_and_vessels_text <- c(
 
 my_tee(removed_logbooks_and_vessels_text,
        "\nRemoved logbooks and vessels stats")
-# percent_of_removed_logbooks
-# 23%
-# removed_vessels
-# 253
-# percent_of_removed_vessels
-# 13%
 
 # Export usable logbooks ----
 #write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
