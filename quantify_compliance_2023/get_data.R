@@ -170,44 +170,48 @@ get_data_from_csv <- function() {
 
 # Create a new data frame 'compl_clean_sa_vs_gom_m_int_c' by adding a new column 'year_permit' to 'compl_clean_sa_vs_gom_m_int'. Depending on the values in the 'year' and 'permit_sa_gom' columns, different combinations of 'year' and a descriptive label are created for the 'year_permit' column using the 'paste' function.
 
-add_year_permit_col <- 
-  function(compl_clean_sa_vs_gom_m_int) {
-    
-    compl_clean_sa_vs_gom_m_int_c <-
-      compl_clean_sa_vs_gom_m_int %>%
-      
-      dplyr::mutate(
-        year_permit =
-          dplyr::case_when(
-            year == my_year &
-              (permit_sa_gom == "sa_only" | permit_sa_gom == "dual") ~
-              paste(year, "sa_dual"),
-            
-            year == my_year & permit_sa_gom == "gom_only" ~
-              paste(year, "gom_only"),
-            
-            .default = "unknown"
-          )
-      )
-    
-    return(compl_clean_sa_vs_gom_m_int_c)
-  }
+# add_year_permit_col <- 
+#   function(compl_clean_sa_vs_gom_m_int) {
+# 
+#     compl_clean_sa_vs_gom_m_int_c <-     
+#     compl_clean_sa_vs_gom_m_int |>
+#       dplyr::mutate(
+#         year_permit =
+#           dplyr::case_when(
+#             year == my_year2 &
+#               (permit_sa_gom == "sa_only" | permit_sa_gom == "dual") ~
+#               paste(year, "sa_dual"),
+# 
+#             year == my_year1 &
+#               (permit_sa_gom == "gom_only" |
+#                  permit_sa_gom == "dual") ~
+#               paste(year, "gom_dual"),
+#             
+#             year == my_year2 & permit_sa_gom == "gom_only" ~
+#               paste(year, "gom_only"),
+#             
+#             .default = "unknown"
+#           )
+#       )
+#     
+#     return(compl_clean_sa_vs_gom_m_int_c)
+#   }
 
 additional_clean_up <- function(compl_clean) {
   
   # separate SA and GOM permits
   compl_clean_sa_vs_gom <-
     separate_permits_into_3_groups(compl_clean)
-
+  
   # View(compl_clean_sa_vs_gom)
-
+  
   # add columns for month and quarter
-compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
+  compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
     # Add a new column 'year_month' by extracting the year and month from the 'week_start' column
     dplyr::mutate(year_month = zoo::as.yearmon(week_start)) %>%
     # Add another new column 'year_quarter' by extracting the year and quarter from the 'week_start' column
     dplyr::mutate(year_quarter = zoo::as.yearqtr(week_start))
-
+  
   # convert report numbers to numeric
   # Create a new data frame 'compl_clean_sa_vs_gom_m_int' by applying integer conversion to selected columns in 'compl_clean_sa_vs_gom_m'.
   compl_clean_sa_vs_gom_m_int <- compl_clean_sa_vs_gom_m %>%
@@ -217,14 +221,16 @@ compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
       gom_permitteddeclarations__ = as.integer(gom_permitteddeclarations__)
     )
 
-compl_clean_sa_vs_gom_m_int_c <-
-  add_year_permit_col(compl_clean_sa_vs_gom_m_int)
-  
-  return(compl_clean_sa_vs_gom_m_int_c)
+  return(compl_clean_sa_vs_gom_m_int)
 }
 
 # Uncomment and run above functions if using csvs downloaded from FHIER
+tic("get_data_from_csv")
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
+toc()
+
+# compl_clean_sa_vs_gom_m_int_c <-
+#   add_year_permit_col(compl_clean_sa_vs_gom_m_int)
 
 active_permits_from_pims <- get_permit_data_from_PIMS()
 
