@@ -504,10 +504,13 @@ dnfs <-
                         dnfs_download_query)
 # 2024-02-05 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 104.7 sec elapsed
 
-# > dnfs |> filter(!TN_VESSEL_ID == V_VESSEL_ID) |>
-# + glimpse()
-# Rows: 0
+dnfs_check_ids <-
+  dnfs |> filter(!is.na(COAST_GUARD_NBR) & !is.na(STATE_REG_NBR)) |>
+  select(COAST_GUARD_NBR, STATE_REG_NBR, VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
 
+View(dnfs_check_ids)
+# 116
 
 # Rename column to be consistent with other dataframes
 dnfs <-
