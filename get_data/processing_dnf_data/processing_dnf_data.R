@@ -509,27 +509,23 @@ dnfs_check_ids <-
   select(COAST_GUARD_NBR, STATE_REG_NBR, VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
-View(dnfs_check_ids)
+# View(dnfs_check_ids)
 # 116
 
-# Rename column to be consistent with other dataframes
-dnfs <-
-  rename(dnfs,
-         VESSEL_OFFICIAL_NUMBER =
-           "VESSEL_OFFICIAL_NBR")
+# Fewer columns
+# names(dnfs)
+dnfs_short <-
+  dnfs |>
+  select(-c(V_VESSEL_ID, STATE_REG_NBR, COAST_GUARD_NBR)) |>
+  rename("VESSEL_ID" = TN_VESSEL_ID)
 
 # stats
-my_stats(dnfs, "dnfs from the db")
+my_stats(dnfs_short, "dnfs from the db")
 # 2022
-# rows: 327847
-# columns: 149
-# Unique vessels: 1885
-# Unique trips (dnfs): 94737
-
-# rows: 484413
-# columns: 149
-# Unique vessels: 2218
-# Unique trips (dnfs): 143456
+# rows: 790839
+# columns: 5
+# Unique vessels: 2241
+# Unique trips (dnfs): 790839
 
 # reformat trip start/end date
 # Explanation:
