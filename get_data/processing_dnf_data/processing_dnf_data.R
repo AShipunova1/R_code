@@ -18,13 +18,13 @@
 # (2) clean up DNF data set
 #   (a) remove records from SRHS vessels
 #   (b) remove records where start date/time is after end date/time
-#   (c) remove records for trips lasting more than 10 days
-# (3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
+#   (c) remove records for trips neg lasting more than 10 days
+# (3) remove all trips neg that were received > 30 days after trip end date, by using compliance data and time of submission
 #   (a) remove all overridden data, because the submission date is unknown
 # (4) Mark late submission data
 # (5) Add permit region information (GOM, SA, or dual), using permit names (optional)
 
-# For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022.
+# For 2022 we don't keep trips neg starting in 2021 and ending in 2022. We only keep trips neg starting in 2022.
 
 # Caveats:
 # 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
@@ -161,7 +161,7 @@ my_tee <- function(my_text,
 #    - `uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])`: Count the number of distinct trip IDs.
 #
 # 4. **Create Formatted Text with Statistics:**
-#    - `stat_text <- str_glue("rows: {rows_n_columns[[1]]} ... Unique trips (dnfs): {uniq_trips_num}")`: Use 'str_glue' to format the statistics into a text string.
+#    - `stat_text <- str_glue("rows: {rows_n_columns[[1]]} ... Unique trips neg (dnfs): {uniq_trips_num}")`: Use 'str_glue' to format the statistics into a text string.
 #
 # 5. **Print Title Message and Statistics to Console:**
 #    - `title_message_print(title_msg)`: Use the helper function 'title_message_print' to print the title message in blue.
@@ -190,7 +190,7 @@ my_stats <- function(my_df, title_msg = NA) {
 rows: {rows_n_columns[[1]]}
 columns: {rows_n_columns[[2]]}
 Unique vessels: {uniq_vessels_num}
-Unique trips (dnfs): {uniq_trips_num}
+Unique trips neg (dnfs): {uniq_trips_num}
 "
   )
 
@@ -525,7 +525,7 @@ my_stats(dnfs_short, "dnfs from the db")
 # rows: 790839
 # columns: 5
 # Unique vessels: 2241
-# Unique trips (dnfs): 790839
+# Unique trips neg (dnfs): 790839
 
 # reformat trip start/end date
 # Explanation:
@@ -590,7 +590,7 @@ my_stats(dnfs, "dnfs after filtering by dates")
 # rows: 790839
 # columns: 5
 # Unique vessels: 2241
-# Unique trips (dnfs): 790839
+# Unique trips neg (dnfs): 790839
 
 # check
 min(dnfs$TRIP_DATE)
@@ -601,7 +601,7 @@ max(dnfs$TRIP_DATE)
 ### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
 
 # assign each dnf a week designation (first day of the reporting week is a Monday)
-# use the end date to calculate this, it won't matter for most trips, but for some trips that
+# use the end date to calculate this, it won't matter for most trips, but for some trips neg that
 # happen overnight on a Sunday, it might affect what week they are assigned to
 #https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
 
@@ -660,13 +660,13 @@ my_stats(dnfs_join_overr)
 # rows: 790839
 # columns: 7
 # Unique vessels: 2241
-# Unique trips (dnfs): 790839
+# Unique trips neg (dnfs): 790839
 # ---
 # dnfs_join_overr
 # rows: 791534
 # columns: 27
 # Unique vessels: 2241
-# Unique trips (dnfs): 790839
+# Unique trips neg (dnfs): 790839
 
 # Make lists of overridden or not vessels
 # If a week for a vessel was overridden (compl_override_data_this_year), remove the trip reports from the corresponding week in the dnf data
@@ -682,7 +682,7 @@ my_stats(dnfs_overridden)
 # rows: 17642
 # columns: 27
 # Unique vessels: 379
-# Unique trips (dnfs): 17432
+# Unique trips neg (dnfs): 17432
 
 dnfs_notoverridden <-
   filter(dnfs_join_overr, OVERRIDDEN == 0) #data frame of dnfs that weren't overridden
@@ -692,7 +692,7 @@ my_stats(dnfs_notoverridden)
 # rows: 369465
 # columns: 27
 # Unique vessels: 2005
-# Unique trips (dnfs): 369316
+# Unique trips neg (dnfs): 369316
 
 dnfs_NA <-
   filter(dnfs_join_overr, is.na(OVERRIDDEN)) #dnfs with an Overridden value of NA, because they were
@@ -704,7 +704,7 @@ my_stats(dnfs_NA)
 # rows: 404427
 # columns: 27
 # Unique vessels: 1103
-# Unique trips (dnfs): 404427
+# Unique trips neg (dnfs): 404427
 
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
@@ -739,13 +739,13 @@ my_stats(dnfs_notoverridden)
 # rows: 371755
 # columns: 27
 # Unique vessels: 2018
-# Unique trips (dnfs): 371606
+# Unique trips neg (dnfs): 371606
 
 # remove missing dnfs from NA dataset, the NA dataset is now only those that were submitted when not needed
 
 my_stats(dnfs_NA)
 # Unique vessels: 1103
-# Unique trips (dnfs): 404427
+# Unique trips neg (dnfs): 404427
 
 # Subset the dnfs_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
 # present in the vessels_missing vector.
@@ -755,7 +755,7 @@ dnfs_NA__rm_missing_vsls <- dnfs_NA |>
 my_stats(dnfs_NA__rm_missing_vsls,
          "dnfs_NA after removing missing dnfs")
 # Unique vessels: 17
-# Unique trips (dnfs): 97
+# Unique trips neg (dnfs): 97
 
 # We have decided to throw out dnfs that were submitted when the permit was inactive, the logic
 # being we shouldn't include dnfs that weren't required in the first place. Alternatively,
@@ -820,7 +820,7 @@ my_tee(uniq_vessels_lost_by_overr,
        "Thrown away vessels by overridden weeks")
 
 my_tee(uniq_trips_lost_by_overr,
-       "Thrown away trips by overridden weeks")
+       "Thrown away trips neg by overridden weeks")
 
 # Filtering dnf data ----
 # Use dnfs_notoverridden from the previous section
@@ -871,7 +871,7 @@ my_stats(SEFHIER_dnfs_notoverridden__start_end_ok)
 # rows: 310832
 # columns: 153
 # Unique vessels: 1825
-# Unique trips (dnfs): 89797
+# Unique trips neg (dnfs): 89797
 
 # stats
 thrown_by_time_stamp_error <-
@@ -882,7 +882,7 @@ my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
        "Thrown away by time_stamp_error (dnfs num)")
 # 550
 
-## Delete dnfs for trips lasting more than 10 days ----
+## Delete dnfs for trips neg lasting more than 10 days ----
 
 # The assumption is there is an error in either start or end date and time and the trip didn't really last that long.
 
@@ -895,7 +895,7 @@ SEFHIER_dnfs_notoverridden__start_end_ok['trip_length'] <-
     )
   )
 
-### Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
+### Filter: only keep trips neg with a length less than or equal to 10 days (240 hours) ----
 
 SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok <-
   SEFHIER_dnfs_notoverridden__start_end_ok |>
@@ -906,9 +906,9 @@ my_stats(SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok)
 # rows: 310741
 # columns: 154
 # Unique vessels: 1822
-# Unique trips (dnfs): 89762
+# Unique trips neg (dnfs): 89762
 
-# Output trips with length > 240 into a data frame (for stats)
+# Output trips neg with length > 240 into a data frame (for stats)
 dnfs_too_long <-
   SEFHIER_dnfs_notoverridden__start_end_ok |>
   filter(trip_length > 240)
@@ -921,7 +921,7 @@ my_tee(n_distinct(dnfs_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
 # 30
 
-## Mark all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
+## Mark all trips neg that were received > 30 days after the trip end date, by using compliance data and time of submission ----
 
 # subtract the usable date from the date of submission
 # value is true if the dnf was submitted within 30 days, false if the dnf was not
@@ -933,7 +933,7 @@ late_submission_filter_stats <-
     # rows: 271479
     # columns: 155
     # Unique vessels: 1629
-    # Unique trips (dnfs): 73313
+    # Unique trips neg (dnfs): 73313
 
     late_submission <-
       my_df |>
