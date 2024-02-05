@@ -637,9 +637,9 @@ compl_override_data_this_year |>
 ## add override data to dnfs ----
 my_stats(compl_override_data_this_year,
          "Compl/override data from the db")
-# rows: 151515
-# columns: 19
-# Unique vessels: 3740
+# rows: 150029
+# columns: 23
+# Unique vessels: 3626
 
 # We need 'relationship = "many-to-many"' because
 # Each row represents a catch ID within the effort ID within the Trip ID, for a given vessel. So there are many rows that will match the same vessel and year/week.
@@ -656,10 +656,17 @@ dnfs_join_overr <-
 # stats
 my_stats(dnfs)
 my_stats(dnfs_join_overr)
-# rows: 327818
-# columns: 169
-# Unique vessels: 1882
-# Unique trips (dnfs): 94714
+# dnfs
+# rows: 790839
+# columns: 7
+# Unique vessels: 2241
+# Unique trips (dnfs): 790839
+# ---
+# dnfs_join_overr
+# rows: 791534
+# columns: 27
+# Unique vessels: 2241
+# Unique trips (dnfs): 790839
 
 # Make lists of overridden or not vessels
 # If a week for a vessel was overridden (compl_override_data_this_year), remove the trip reports from the corresponding week in the dnf data
@@ -672,20 +679,20 @@ dnfs_overridden <-
 
 # stats
 my_stats(dnfs_overridden)
-# rows: 10136
-# columns: 169
-# Unique vessels: 286
-# Unique trips (dnfs): 2905
+# rows: 17642
+# columns: 27
+# Unique vessels: 379
+# Unique trips (dnfs): 17432
 
 dnfs_notoverridden <-
   filter(dnfs_join_overr, OVERRIDDEN == 0) #data frame of dnfs that weren't overridden
 
 # stats
 my_stats(dnfs_notoverridden)
-# rows: 317002
-# columns: 169
-# Unique vessels: 1869
-# Unique trips (dnfs): 91688
+# rows: 369465
+# columns: 27
+# Unique vessels: 2005
+# Unique trips (dnfs): 369316
 
 dnfs_NA <-
   filter(dnfs_join_overr, is.na(OVERRIDDEN)) #dnfs with an Overridden value of NA, because they were
@@ -694,10 +701,10 @@ dnfs_NA <-
 
 # stats
 my_stats(dnfs_NA)
-# rows: 680
-# columns: 169
-# Unique vessels: 18
-# Unique trips (dnfs): 142
+# rows: 404427
+# columns: 27
+# Unique vessels: 1103
+# Unique trips (dnfs): 404427
 
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
@@ -715,6 +722,7 @@ vessels_missing <-
 my_tee(n_distinct(vessels_missing),
        "vessels_missing")
 # vessels_missing 8
+# 61
 
 # SEFHIER dnfs from vessels missing from the Compliance report
 vessels_missing_dnfs <-
@@ -728,16 +736,16 @@ dnfs_notoverridden <-
   distinct()
 
 my_stats(dnfs_notoverridden)
-# rows: 317390
-# columns: 169
-# Unique vessels: 1870
-# Unique trips (dnfs): 91733
+# rows: 371755
+# columns: 27
+# Unique vessels: 2018
+# Unique trips (dnfs): 371606
 
 # remove missing dnfs from NA dataset, the NA dataset is now only those that were submitted when not needed
 
 my_stats(dnfs_NA)
-# Unique vessels: 18
-# Unique trips (dnfs): 142
+# Unique vessels: 1103
+# Unique trips (dnfs): 404427
 
 # Subset the dnfs_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
 # present in the vessels_missing vector.
