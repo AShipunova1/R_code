@@ -146,18 +146,23 @@ get_data_from_csv <- function() {
   }
   # View(compl_clean)
   
-  dim(compl_clean)
-  # 208893     21
-  
   ## get compliance error definitions from csvs ----
   err_desc <- get_compliance_error_definitions()
   
+  # Check the result is a single dataframe, and if not, combine separate dataframes for all years into one.
+  if (length(compl_clean) > 1) {
+    compl_clean_1 <- join_same_kind_csvs(compl_clean)
+  }
+
+  dim(compl_clean_1)
+  # [1] 296294     20
+  
   ## get permit data from PIMS csv ----
   
-  compl_clean1 <- additional_clean_up(compl_clean)
+  compl_clean_2 <- additional_clean_up(compl_clean_1)
 
   cat("compl_clean_sa_vs_gom_m_int_c")  
-  return(compl_clean1)
+  return(compl_clean_2)
 }
 
 # add year_permit column ----
