@@ -351,7 +351,7 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed_2 <-
   select(-c("city_fixed1", "state_fixed1")) |> 
   distinct()
 
-View(vessels_from_pims__vessels_from_metrics_short_addr__fixed_2)
+# View(vessels_from_pims__vessels_from_metrics_short_addr__fixed_2)
 # [1] 3392    7
 
 # check
@@ -370,6 +370,31 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed_2 |>
 
 # View(vessels_from_pims__vessels_from_metrics_short_addr__fixed_2)
 
+## no address ----
+vessels_from_pims__vessels_from_metrics_short_no_addr <-
+  vessels_from_pims__vessels_from_metrics_short_addr__fixed_2 |>
+  filter(is.na(city))
+
+nrow(vessels_from_pims__vessels_from_metrics_short_no_addr)
+# 201
+
+# write_csv(
+#   vessels_from_pims__vessels_from_metrics_short_no_addr,
+#   file.path(my_paths$outputs,
+#             current_project_basename,
+#             "no_addr.csv")
+# )
+
+# vessels_from_pims |> 
+#   filter(official__ == "504660")
+# not in pims vessels
+
+all_get_db_data_result_l$vessels_permits |>
+  filter(
+    PERMIT_VESSEL_ID %in%
+      vessels_from_pims__vessels_from_metrics_short_no_addr$vessel_official_number
+  ) |> View()
+# HERE ----
 # 4) add lat/lon to the fixed names
 
 # glimpse(vessels_from_pims__vessels_from_metrics_short_addr__fixed)
