@@ -54,8 +54,9 @@ michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/DNF related a
 jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingDNFData/"
 
+# Input files are the same here
 annas_path <-
-  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_dnf_data/)"
+  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
 
 # Change to use another path instead:
 # Path <- michelles_path
@@ -298,6 +299,10 @@ compl_override_data_file_path <-
   file.path(Path,
             Outputs,
             str_glue("Compliance_raw_data_2021_plus.rds"))
+
+# file.exists(compl_override_data_file_path)
+# compl_override_data_file_path
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\processing_dnf_data\Compliance_raw_data_2021_plus.rds"
 
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started
