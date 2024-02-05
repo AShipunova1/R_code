@@ -70,9 +70,9 @@ my_year <- "2022"
 my_date_beg <- '01-JAN-2022'
 my_date_end <- '31-DEC-2022'
 
-my_year <- "2023"
-my_date_beg <- '01-JAN-2023'
-my_date_end <- '31-DEC-2023'
+# my_year <- "2023"
+# my_date_beg <- '01-JAN-2023'
+# my_date_end <- '31-DEC-2023'
 
 # Auxiliary methods ----
 
@@ -114,7 +114,6 @@ title_message_print <- function(title_msg) {
   cat(crayon::blue(title_msg), sep = "\n")
 }
 
-
 # Define a helper function 'my_tee' to print the message to the console and a file.
 my_tee <- function(my_text,
                    my_title = NA,
@@ -142,7 +141,6 @@ my_tee <- function(my_text,
       sep = "\n",
       append = TRUE)
 }
-
 
 # ---
 # A function to print out stats.
@@ -299,7 +297,7 @@ toc()
 compl_override_data_file_path <-
   file.path(Path,
             Outputs,
-            "Compliance_raw_data_Year.rds")
+            str_glue("Compliance_raw_data_2021_plus.rds"))
 
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started
