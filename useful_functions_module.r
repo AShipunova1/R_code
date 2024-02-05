@@ -750,12 +750,6 @@ compliance_cleaning <- function(compl_arr) {
   # if it is just one df already, do nothing
   compl <- compl_arr
 
-  # Check if it is a single dataframe, and if not, combine separate dataframes for all years into one.
-  # if (length(compl_arr) > 1) {
-  #   compl <- join_same_kind_csvs(compl_arr)
-  # }
-
-  browser()
   # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
   compl_clean <-
     map(compl, clean_weeks)
@@ -821,7 +815,6 @@ cat_filter_for_fhier <- function(my_characters) {
 # ===
 #
 # benchmarking to insert inside a function
-# browser()
 # time_for_appl <<- benchmark(replications=rep(10, 3),
                             # lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
                             # sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
@@ -832,7 +825,6 @@ cat_filter_for_fhier <- function(my_characters) {
 # write.csv(time_for_appl, "time_for_appl.csv")
 
 # or
-# browser()
 # sappl_exp <- function(){
 #   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
 # }
@@ -973,7 +965,6 @@ read_rds_or_run_no_db <-
   function(my_file_path,
            my_data_list_of_dfs,
            my_function) {
-    # browser()
 
     if (file.exists(my_file_path)) {
       # read a binary file saved previously
@@ -1124,7 +1115,6 @@ read_rds_or_run <- function(my_file_path,
 #   function(my_df) {
 #     my_df |>
 #       purrr::map_df(function(x) {
-#         browser()
 #         if (length(unique(x)) == 1) {
 #           return(unique(x))
 #         }
@@ -1147,7 +1137,6 @@ remove_empty_cols <- function(my_df) {
 }
 
 remove_0_cols <- function(my_df) {
-  # browser()
   not_all_0 <- function(x)
   {
     any(!x == 0)
