@@ -559,73 +559,25 @@ dnfs_short_date <-
 # after
 # "Date"
 
-# Was:
-# dnfs$TRIP_START_DATE |>
-#   head(1)
-# "2022-07-07 01:00:00 EDT"
-
 # Now:
-# dnfs$TRIP_START_DATE |>
+# dnfs_short_date$TRIP_DATE |>
 #   head(1)
-# "2022-07-07"
-
-# reformat trip start/end time
-time_col_names <-
-  c("TRIP_START_TIME",
-    "TRIP_END_TIME")
-
-# convert time columns to numeric,
-# then format to 4 digits as a string (some time entries were like "800")
-# (from help: sprintf returns a character vector)
-
-# Explanation:
-#
-# 1. **Create New Dataframe:**
-#    - `dnfs <- dnfs |> ...`: Create a new dataframe 'dnfs' by using the pipe operator '|>' on the existing 'dnfs'.
-#
-# 2. **Use 'mutate' to Convert Columns to Numeric:**
-#    - `mutate(across(..., as.numeric))`: Utilize the 'mutate' function with 'across' to apply a transformation to specific non-numeric columns, converting them to numeric using 'as.numeric'.
-#
-# 3. **Column Selection with 'across':**
-#    - `c(!where(is.numeric) & all_of(time_col_names))`: Select columns that meet the specified conditions:
-#      - `!where(is.numeric)`: Columns that are not already of type 'numeric'.
-#      - `all_of(time_col_names)`: Columns specified by 'time_col_names'.
-#
-# 4. **Convert Columns to Numeric:**
-#    - `as.numeric`: Use the 'as.numeric' function to convert the selected columns to numeric.
-#
-# 5. **Use 'mutate' to Format Columns with Leading Zeros:**
-#    - `mutate(across(..., ~ sprintf("%04d", .x)))`: Utilize 'mutate' with 'across' to format specific columns specified by 'time_col_names' with leading zeros using the 'sprintf' function.
-#
-# 6. **Column Selection with 'across':**
-#    - `all_of(time_col_names)`: Select columns specified by 'time_col_names'.
-#
-# 7. **Format Columns with Leading Zeros:**
-#    - `~ sprintf("%04d", .x)`: Format each column value with leading zeros using 'sprintf("%04d", .x)'.
-
-dnfs <-
-  dnfs |>
-  mutate(across(c(
-    !where(is.numeric) & all_of(time_col_names)
-  ),
-  as.numeric)) |>
-  mutate(across(all_of(time_col_names),
-                ~ sprintf("%04d", .x)))
+# [1] "2022-09-19"
 
 ### Filter out just my analysis year dnf entries ----
 
 # check
-min(dnfs$TRIP_START_DATE)
+min(dnfs$TRIP_DATE)
 # [1] "2022-01-01"
 # [1] "2023-01-01"
-max(dnfs$TRIP_START_DATE)
+max(dnfs$TRIP_DATE)
 # [1] "2022-12-31"
 # [1] "2023-12-31"
 
 dnfs <-
-  dnfs |>
-  filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
-           TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
+  dnfs_short_date |>
+  filter(TRIP_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
+           TRIP_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
 # stats, to compare with the end result
 dnfs_stat_correct_dates_before_filtering <-
@@ -635,39 +587,16 @@ dnfs_stat_correct_dates_before_filtering <-
   )
 
 my_stats(dnfs, "dnfs after filtering by dates")
-# rows: 327773
-# columns: 149
-# Unique vessels: 1882
-# Unique trips (dnfs): 94714
+# rows: 790839
+# columns: 5
+# Unique vessels: 2241
+# Unique trips (dnfs): 790839
 
 # check
-min(dnfs$TRIP_START_DATE)
+min(dnfs$TRIP_DATE)
 # [1] "2022-01-01"
-max(dnfs$TRIP_START_DATE)
+max(dnfs$TRIP_DATE)
 # [1] "2022-12-31"
-
-min(dnfs$TRIP_END_DATE)
-# [1] "2018-06-04"
-max(dnfs$TRIP_END_DATE)
-# [1] "2023-05-26"
-
-# create column for start date & time
-tic("format time")
-dnfs$STARTDATETIME <-
-  as.POSIXct(paste(dnfs$TRIP_START_DATE,                                           dnfs$TRIP_START_TIME),
-             format = "%Y-%m-%d %H%M")
-toc()
-# format time: 4.38 sec elapsed
-
-# check
-dnfs$STARTDATETIME |>
-  head(1)
-# "2022-07-07 08:00:00 EDT"
-
-# create column for end date & time
-dnfs$ENDDATETIME <-
-  as.POSIXct(paste(dnfs$TRIP_END_DATE,                                         dnfs$TRIP_END_TIME),
-             format = "%Y-%m-%d %H%M")
 
 ### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
 
@@ -676,7 +605,7 @@ dnfs$ENDDATETIME <-
 # happen overnight on a Sunday, it might affect what week they are assigned to
 #https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
 
-# Calculate the ISO week number for each date in the 'TRIP_END_DATE2' column.
+# Calculate the ISO week number for each date in the 'TRIP_DATE2' column.
 # lubridate package has following methods:
 # week() returns the number of complete seven day periods that have occurred between the date and January 1st, plus one.
 #
@@ -688,8 +617,8 @@ dnfs$ENDDATETIME <-
 # Needed to adjust for week 52 of the previous year
 dnfs <-
   dnfs |>
-  mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
-         TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
+  mutate(COMP_WEEK = isoweek(TRIP_DATE), # puts it in week num
+         TRIP_END_YEAR = isoyear(TRIP_DATE)) # adds a year
 
 # to see the respective data in compl_override_data_this_year, note the last week of 2021
 # not needed for processing
@@ -828,11 +757,11 @@ my_stats(dnfs_NA__rm_missing_vsls,
 
 # Use trip end date to calculate the usable date 30 days later
 
-# Add a correct timezone to TRIP_END_DATE (EST vs. EDT)
+# Add a correct timezone to TRIP_DATE (EST vs. EDT)
 dnfs_notoverridden <-
   dnfs_notoverridden |>
-  mutate(TRIP_END_DATE_E =
-           ymd_hms(TRIP_END_DATE,
+  mutate(TRIP_DATE_E =
+           ymd_hms(TRIP_DATE,
                    truncated = 3,
                    tz = Sys.timezone()))
 
@@ -840,7 +769,7 @@ dnfs_notoverridden <-
 dnfs_notoverridden <-
   dnfs_notoverridden |>
   mutate(USABLE_DATE_TIME =
-           TRIP_END_DATE_E +
+           TRIP_DATE_E +
            days(30) +
            hours(23) +
            minutes(59) +
@@ -1013,13 +942,13 @@ late_submission_filter_stats <-
     # 1064
 
     # check
-    min(my_df$TRIP_START_DATE)
+    min(my_df$TRIP_DATE)
     # [1] "2022-01-01"
-    max(my_df$TRIP_START_DATE)
+    max(my_df$TRIP_DATE)
     # [1] "2022-12-31"
-    min(my_df$TRIP_END_DATE)
+    min(my_df$TRIP_DATE)
     # [1] "2022-01-01"
-    max(my_df$TRIP_END_DATE)
+    max(my_df$TRIP_DATE)
     # [1] "2022-12-31"
 
   }
