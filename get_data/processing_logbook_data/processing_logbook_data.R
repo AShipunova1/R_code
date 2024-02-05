@@ -3,7 +3,9 @@
 # Files to read or create:
 # Compliance_raw_data_Year.rds
 # SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds
-# SEFHIER_usable_Logbooks_{late_submissions_flag}_{my_year}.rds
+
+# The result will be in
+# SEFHIER_usable_Logbooks_{my_year}.rds
 
 # "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_", my_year, ".csv"
 # my_year, "SRHSvessels.csv"
@@ -1170,14 +1172,3 @@ write_rds(
   file = output_file_path
 )
 
-# check
-SEFHIER_usable_Logbooks__keep_late_submissions_2023.rds <-
-  read_rds(r"(C:\Users\anna.shipunova\Downloads\SEFHIER_usable_Logbooks__keep_late_submissions_2023.rds)")
-
-SEFHIER_logbooks_usable_temp <-
-  SEFHIER_logbooks_usable |>
-  select(-USABLE_NO_LATE_SUBMISSION)
-
-all.equal(SEFHIER_logbooks_usable_temp,
-          SEFHIER_usable_Logbooks__keep_late_submissions_2023.rds)
-T
