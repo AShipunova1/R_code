@@ -49,9 +49,9 @@ library(crayon) # Colored terminal output
 # set working and output directory - where do you keep the data and analysis folder on your computer?
 michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook related analyses/Logbook Processing (Do this before all Logbook Analyses)/"
 
-# jennys_path <-
-#   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
-#
+jennys_path <-
+  "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
+
 annas_path <-
   r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
 
@@ -883,7 +883,6 @@ vessels_not_in_metrics <-
 my_tee(vessels_not_in_metrics,
        "Removed if a vessel is not in Metrics tracking")
 
-
 ## Start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
 
@@ -955,7 +954,7 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
 # 30
 
-## Remove all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
+## Mark all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
 
 # subtract the usable date from the date of submission
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
@@ -974,12 +973,12 @@ late_submission_filter_stats <-
       filter(USABLE == FALSE)
 
     my_tee(n_distinct(late_submission$TRIP_ID),
-           "Thrown away by late_submission (logbooks num)")
+           "Count late_submission (logbooks num)")
     # trip_ids: 16449
 
     my_tee(
       n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
-      "Thrown away by late_submission (vessels num)"
+      "Count late_submission (vessels num)"
     )
     # 1064
 
@@ -999,21 +998,20 @@ late_submission_filter <-
   function() {
     SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp <-
       SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-      mutate(USABLE =
+      mutate(USABLE_NO_LATE_SUBMISSION =
                ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
 
-    SEFHIER_logbooks_usable <-
-      SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp |>
-      filter(USABLE == TRUE)
+    # SEFHIER_logbooks_usable <-
+      # SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp |>
+      # filter(USABLE == TRUE)
 
     late_submission_filter_stats(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp)
 
-    late_submissions_flag = "_no_late_submissions"
-    return(list(SEFHIER_logbooks_usable, late_submissions_flag))
+    # late_submissions_flag = "_no_late_submissions"
+    return(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp)
   }
 
-
-### Filter: data frame of logbooks that were usable ----
+### Filter (mark only): data frame of logbooks that were usable ----
 
 ### IMPORTANT - Answer a "yes" in the console when prompted if you want to skip the late submission filter and keep all (e.g. for Council presentations) ####
 # for Compliance analyses, skip the late submission filter.
