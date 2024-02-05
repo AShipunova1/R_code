@@ -544,13 +544,15 @@ my_stats(dnfs_short, "dnfs from the db")
 # 4. **Convert Columns to Date:**
 #    - `as.Date`: Use the 'as.Date' function to convert the selected columns to the 'Date' format.
 
-dnfs <-
-  dnfs |>
-  mutate(across(c(!where(is.Date) & ends_with("_DATE")),
+dnfs_short_date <-
+  dnfs_short |>
+  mutate(across(all_of(c("DE", "TRIP_DATE")),
                 as.Date))
 
 # Check
-# dnfs$TRIP_START_DATE |>
+# dnfs_short$TRIP_DATE |>
+#   class()
+# dnfs_short_date$TRIP_DATE |>
 #   class()
 # before
 # "POSIXct" "POSIXt"
