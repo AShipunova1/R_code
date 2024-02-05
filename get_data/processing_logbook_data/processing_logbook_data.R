@@ -970,7 +970,7 @@ late_submission_filter_stats <-
 
     late_submission <-
       SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp |>
-      filter(USABLE == FALSE)
+      filter(USABLE_NO_LATE_SUBMISSION == FALSE)
 
     my_tee(n_distinct(late_submission$TRIP_ID),
            "Count late_submission (logbooks num)")
@@ -1012,27 +1012,7 @@ late_submission_filter <-
   }
 
 ### Filter (mark only): data frame of logbooks that were usable ----
-
-### IMPORTANT - Answer a "yes" in the console when prompted if you want to skip the late submission filter and keep all (e.g. for Council presentations) ####
-# for Compliance analyses, skip the late submission filter.
-# for non-compliance focused analyses, don't run the late_submission_filter() function. ???
-
-ask_text <-
-  "Do you want to skip the late submission filter? (yes or no):
-"
-
-skip_late_submission_filter <- read_an_answer(ask_text)
-
-if (skip_late_submission_filter == "yes")
-{
-  SEFHIER_logbooks_usable <-
-    SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok
-  late_submissions_flag <- "_keep_late_submissions"
-} else if (skip_late_submission_filter == "no") {
-  late_submission_filter_result_list <- late_submission_filter()
-  SEFHIER_logbooks_usable <- late_submission_filter_result_list[[1]]
-  late_submissions_flag <- late_submission_filter_result_list[[2]]
-}
+SEFHIER_logbooks_usable <- late_submission_filter()
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
@@ -1091,12 +1071,18 @@ my_stats(SEFHIER_logbooks_usable)
 # Unique vessels: 1629
 # Unique trips (logbooks): 73313
 
+# rows: 164159
+# columns: 152
+# Unique vessels: 1597
+# Unique trips (logbooks): 51340
+
 logbooks_before_filtering <-
   n_distinct(Logbooks$TRIP_ID)
 
 my_tee(logbooks_before_filtering,
         "Logbooks before filtering")
 # [1] 94714
+# 52393 2023
 
 logbooks_after_filtering <-
   n_distinct(SEFHIER_logbooks_usable$TRIP_ID)
@@ -1104,30 +1090,36 @@ logbooks_after_filtering <-
 my_tee(logbooks_after_filtering,
         "Logbooks after filtering")
 # [1] 73313
+# 51340 2023
 
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
  cat(percent_of_removed_logbooks, sep = "\n")
 # 22.59539
+# 2.00981 (with late submission)
 
 # removed_vessels
 vessels_before_filtering <-
   n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_before_filtering)
 # 1882
+# 1646
 
 vessels_after_filtering <-
   n_distinct(SEFHIER_logbooks_usable$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_after_filtering)
 # 1629
+# 1597
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
 # 253
+# 49
 
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
 # [1] 13.44315
+# [1] 2.976914
 
 removed_logbooks_and_vessels_text <- c(
   crayon::blue("percent_of_removed_logbooks"),
@@ -1152,7 +1144,7 @@ my_tee(removed_logbooks_and_vessels_text,
 #write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
 
 SEFHIER_usable_Logbooks_file_name <-
-  str_glue("SEFHIER_usable_Logbooks_{late_submissions_flag}_{my_year}.rds")
+  str_glue("SEFHIER_usable_Logbooks_{my_year}.rds")
 
 annas_file_path <-
   file.path(Path,
