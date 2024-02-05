@@ -546,8 +546,7 @@ my_stats(dnfs_short, "dnfs from the db")
 
 dnfs_short_date <-
   dnfs_short |>
-  mutate(across(all_of(c("DE", "TRIP_DATE")),
-                as.Date))
+  mutate(TRIP_DATE = as.Date(TRIP_DATE))
 
 # Check
 # dnfs_short$TRIP_DATE |>
@@ -564,7 +563,7 @@ dnfs_short_date <-
 #   head(1)
 # [1] "2022-09-19"
 
-### Filter out just my analysis year dnf entries ----
+### Filter out just my_analysis_year dnf entries ----
 
 # check
 min(dnfs$TRIP_DATE)
@@ -754,8 +753,10 @@ dnfs_NA__rm_missing_vsls <- dnfs_NA |>
 
 my_stats(dnfs_NA__rm_missing_vsls,
          "dnfs_NA after removing missing dnfs")
-# Unique vessels: 17
-# Unique trips neg (dnfs): 97
+# rows: 402137
+# columns: 27
+# Unique vessels: 1090
+# Unique trips neg (dnfs): 402137
 
 # We have decided to throw out dnfs that were submitted when the permit was inactive, the logic
 # being we shouldn't include dnfs that weren't required in the first place. Alternatively,
@@ -783,20 +784,26 @@ dnfs_notoverridden <-
            minutes(59) +
            seconds(59))
 
-# format the submission date (TRIP_DE)
-dnfs_notoverridden <-
+# format the submission date (DE)
+dnfs_notoverridden_all <-
   dnfs_notoverridden |>
-  mutate(TRIP_DE =
-           as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
+  mutate(DE =
+           as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S"))
 
 # Drop empty columns
 dnfs_notoverridden <-
-  dnfs_notoverridden |>
+  dnfs_notoverridden_all |>
   select(where(not_all_na))
 
 # diffdf::diffdf(dnfs_notoverridden,
-#                dnfs_notoverridden1)
-# 26 columns dropped, bc they were all NAs
+#                dnfs_notoverridden_all)
+# dropped, bc they were all NAs:
+# SRH_VESSEL_ID
+# COMP_OVERRIDE_DT
+# COMP_OVERRIDE_USER_ID
+# COMP_OVERRIDE_CMT
+# SRFH_ASSIGNMENT_ID
+
 
 # stats
 uniq_vessels_num_was <-
@@ -818,9 +825,11 @@ uniq_trips_lost_by_overr <-
 
 my_tee(uniq_vessels_lost_by_overr,
        "Thrown away vessels by overridden weeks")
+# 223
 
 my_tee(uniq_trips_lost_by_overr,
        "Thrown away trips neg by overridden weeks")
+# 419233
 
 # Filtering dnf data ----
 # Use dnfs_notoverridden from the previous section
@@ -966,7 +975,7 @@ late_submission_filter <-
     SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok_temp <-
       SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok |>
       mutate(USABLE_NO_LATE_SUBMISSION =
-               ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
+               ifelse(USABLE_DATE_TIME >= DE, TRUE, FALSE))
 
     late_submission_filter_stats(SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok_temp)
 
