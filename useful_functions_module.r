@@ -751,10 +751,11 @@ compliance_cleaning <- function(compl_arr) {
   compl <- compl_arr
 
   # Check if it is a single dataframe, and if not, combine separate dataframes for all years into one.
-  if (length(compl_arr) > 1) {
-    compl <- join_same_kind_csvs(compl_arr)
-  }
+  # if (length(compl_arr) > 1) {
+  #   compl <- join_same_kind_csvs(compl_arr)
+  # }
 
+  browser()
   # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
   compl_clean <-
     map(compl, clean_weeks)
