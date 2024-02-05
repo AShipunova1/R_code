@@ -235,8 +235,17 @@ toc()
 active_permits_from_pims <- get_permit_data_from_PIMS()
 
 # get data from db ----
-source(file.path(my_paths$git_r, r"(get_data\all_logbooks_data_short_prep.R)"))
+file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)") |>
+  source()
 
+tic("run_all_get_db_data()")
+all_get_db_data_result_l <- run_all_get_db_data()
+toc()
+# run_all_get_db_data(): 13.61 sec elapsed
+
+View(all_get_db_data_result_l)
+
+SEFHIER_usable_Logbooks_2023.rds
 # run_all_get_db_data(): 8.56 sec elapsed                                   
 
 # results:
