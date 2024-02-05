@@ -2,7 +2,10 @@
 
 # files to upload:
 # FHIER_Compliance_2023__01_24_2023.csv (from FHIER / compliance report)
-# Compliance_Error_Types_03_29_2023.csv (How often does it change?)
+# FHIER_Compliance_2022__02_05_2024.csv (from FHIER / compliance report)
+
+# Compliance_Error_Types_03_29_2023.csv
+
 # Permits - 2024-01-25_0904.xlsx
 # Get it from PIMS
 # 
@@ -19,20 +22,20 @@ project_dir_name <- "FHIER Compliance"
 # Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
 # get data from csvs ----
 get_data_from_FHIER_csvs <- function() {
+
   filenames = c(
-    r"(2024_01_24\FHIER_Compliance_2023__01_24_2023.csv)"
+    r"(2024_02_05\FHIER_Compliance_2022__02_05_2024.csv)",
+    r"(2024_01_24\FHIER_Compliance_2023__01_24_2024.csv)"
   )
 
   ## ---- get csv data into variables ----
   csv_names_list <- prepare_csv_names(filenames)
 
-  # View(csv_names_list)
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
-  # browser()
+
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
-  # browser()
   compl_clean <- compliance_cleaning(csvs_clean1)
 
   return(compl_clean)
