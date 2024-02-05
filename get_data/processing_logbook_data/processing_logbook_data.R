@@ -21,10 +21,10 @@
 #   (c) remove records for trips lasting more than 10 days
 # (3) remove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
 #   (a) remove all overridden data, because the submission date is unknown
-# (4) Add permit region information (GOM, SA, or dual), using permit names
+# (4) Mark late submission data
+# (5) Add permit region information (GOM, SA, or dual), using permit names (optional)
 
-# We don't keep trips starting in 2021 and ending in 2022.
-# We only keep trips starting in 2022.
+# For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022.
 
 # Caveats:
 # 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
@@ -66,6 +66,10 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
+my_year <- "2022"
+my_date_beg <- '01-JAN-2022'
+my_date_end <- '31-DEC-2022'
+
 my_year <- "2023"
 my_date_beg <- '01-JAN-2023'
 my_date_end <- '31-DEC-2023'
