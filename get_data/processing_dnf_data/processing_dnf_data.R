@@ -470,12 +470,8 @@ my_stats(SEFHIER_permit_info_short_this_year)
 dnfs_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds"))
-
-# dnfs_file_path <-
-#   file.path(Path,
-#             Outputs,
-#             paste0("SAFIS_TripsDownload_", my_year, ".rds"))
+            str_glue("Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds"))
+# SAFIS_TripsDownload_
 
 # 2) create a variable with an SQL query to call data from the database
 
@@ -483,20 +479,35 @@ dnfs_file_path <-
 # Interpolation with glue to include variable names
 
 dnfs_download_query <-
-  str_glue("SELECT
-  *
+  str_glue(
+    "SELECT
+  trip_id,
+  trip_date,
+  tn.vessel_id vessel_id,
+  tn.de,
+  coast_guard_nbr,
+  state_reg_nbr,
+  sero_official_number vessel_official_number
 FROM
-  srh.mv_safis_trip_download@secapxdv_dblk
+       safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tn
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  ON ( tn.vessel_id = v.vessel_id )
 WHERE
-    trip_start_date >= '{my_date_beg}'
-  AND trip_start_date <= '{my_date_end}'
-")
+    trip_date BETWEEN TO_DATE('{my_date_beg}', 'dd-mon-yy') AND
+TO_DATE('{my_date_end}', 'dd-mon-yy')
+"
+  )
 
 # Use 'read_rds_or_run_query' defined above to either read dnf information from an RDS file or execute a query to obtain it and write a file for future use.
 dnfs <-
   read_rds_or_run_query(dnfs_file_path,
                         dnfs_download_query)
-# 2024-02-05 run for SAFIS_TripsDownload_01-JAN-2022__31-DEC-2022.rds: 122.37 sec elapsed
+# 2024-02-05 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 104.7 sec elapsed
+
+# > dnfs |> filter(!TN_VESSEL_ID == V_VESSEL_ID) |>
+# + glimpse()
+# Rows: 0
+
 
 # Rename column to be consistent with other dataframes
 dnfs <-
