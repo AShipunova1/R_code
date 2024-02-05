@@ -1170,3 +1170,14 @@ write_rds(
   file = output_file_path
 )
 
+# check
+SEFHIER_usable_Logbooks__keep_late_submissions_2023.rds <-
+  read_rds(r"(C:\Users\anna.shipunova\Downloads\SEFHIER_usable_Logbooks__keep_late_submissions_2023.rds)")
+
+SEFHIER_logbooks_usable_temp <-
+  SEFHIER_logbooks_usable |>
+  select(-USABLE_NO_LATE_SUBMISSION)
+
+all.equal(SEFHIER_logbooks_usable_temp,
+          SEFHIER_usable_Logbooks__keep_late_submissions_2023.rds)
+T
