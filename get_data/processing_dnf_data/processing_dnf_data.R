@@ -855,60 +855,16 @@ my_tee(vessels_not_in_metrics,
 ## Start date/time is after end date/time ----
 # check dnf records for cases where start date/time is after end date/time, delete these records
 
-View(SEFHIER_dnfs_notoverridden)
+# View(SEFHIER_dnfs_notoverridden)
 
-## Delete dnfs for trips neg lasting more than 10 days ----
-
-# The assumption is there is an error in either start or end date and time and the trip didn't really last that long.
-
-SEFHIER_dnfs_notoverridden__start_end_ok['trip_length'] <-
-  as.numeric(
-    difftime(
-      SEFHIER_dnfs_notoverridden__start_end_ok$ENDDATETIME,
-      SEFHIER_dnfs_notoverridden__start_end_ok$STARTDATETIME,
-      units = "hours"
-    )
-  )
-
-### Filter: only keep trips neg with a length less than or equal to 10 days (240 hours) ----
-
-SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok <-
-  SEFHIER_dnfs_notoverridden__start_end_ok |>
-  filter(trip_length <= 240)
-
-# stats
-my_stats(SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok)
-# rows: 310741
-# columns: 154
-# Unique vessels: 1822
-# Unique trips neg (dnfs): 89762
-
-# Output trips neg with length > 240 into a data frame (for stats)
-dnfs_too_long <-
-  SEFHIER_dnfs_notoverridden__start_end_ok |>
-  filter(trip_length > 240)
-
-my_tee(n_distinct(dnfs_too_long$TRIP_ID),
-       "Thrown away by trip_more_10_days (dnfs num)")
-# trip_ids: 35
-
-my_tee(n_distinct(dnfs_too_long$VESSEL_ID),
-       "Thrown away by trip_more_10_days (vessels num)")
-# 30
-
-## Mark all trips neg that were received > 30 days after the trip end date, by using compliance data and time of submission ----
+## Mark all trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
 # subtract the usable date from the date of submission
 # value is true if the dnf was submitted within 30 days, false if the dnf was not
 
 late_submission_filter_stats <-
   function(my_df) {
-    # stats
     my_stats(my_df)
-    # rows: 271479
-    # columns: 155
-    # Unique vessels: 1629
-    # Unique trips neg (dnfs): 73313
 
     late_submission <-
       my_df |>
@@ -929,28 +885,33 @@ late_submission_filter_stats <-
     # [1] "2022-01-01"
     max(my_df$TRIP_DATE)
     # [1] "2022-12-31"
-    min(my_df$TRIP_DATE)
-    # [1] "2022-01-01"
-    max(my_df$TRIP_DATE)
-    # [1] "2022-12-31"
-
   }
 
+# glimpse(SEFHIER_dnfs_notoverridden)
 late_submission_filter <-
   function() {
-    SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok_temp <-
-      SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok |>
+    SEFHIER_dnfs_notoverridden__temp <-
+       SEFHIER_dnfs_notoverridden |>
       mutate(USABLE_NO_LATE_SUBMISSION =
                ifelse(USABLE_DATE_TIME >= DE, TRUE, FALSE))
 
-    late_submission_filter_stats(SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok_temp)
+    late_submission_filter_stats(SEFHIER_dnfs_notoverridden__temp)
 
-    # late_submissions_flag = "_no_late_submissions"
-    return(SEFHIER_dnfs_notoverridden__start_end_ok__trip_len_ok_temp)
+    return(SEFHIER_dnfs_notoverridden__temp)
   }
 
 ### Filter (mark only): data frame of dnfs that were usable ----
 SEFHIER_dnfs_usable <- late_submission_filter()
+# rows: 368037
+# columns: 33
+# Unique vessels: 3443
+# Unique trips neg (dnfs): 366417
+# ---
+# Count late_submission (dnfs num)
+# 268497
+# ---
+# Count late_submission (vessels num)
+# 1904
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
@@ -1010,7 +971,7 @@ dnfs_before_filtering <-
 
 my_tee(dnfs_before_filtering,
         "dnfs before filtering")
-# 94737 2022
+# 790839 2022
 # 52393 2023
 
 dnfs_after_filtering <-
@@ -1018,41 +979,33 @@ dnfs_after_filtering <-
 
 my_tee(dnfs_after_filtering,
         "dnfs after filtering")
-# [1] 73313
 # 51340 2023
-# 89621 2022
+# 366417 2022
 
 percent_of_removed_dnfs <-
   (dnfs_before_filtering - dnfs_after_filtering) * 100 / dnfs_before_filtering
  cat(percent_of_removed_dnfs, sep = "\n")
-# 22.59539
-# 2.00981 (with late submission)
-# 5.400213 2022
+# 53.66731 2022
 
 # removed_vessels
 vessels_before_filtering <-
   n_distinct(dnfs$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_before_filtering)
-# 1882
 # 1646 2023
-# 1885 2022
+# 2241 2022
 
 vessels_after_filtering <-
   n_distinct(SEFHIER_dnfs_usable$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_after_filtering)
-# 1629
 # 1597 2023
-# 1823 2022
+# 3443 2022
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
-# 253
-# 49
+# -1202?
 
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
-# [1] 13.44315
-# [1] 2.976914
 
 removed_dnfs_and_vessels_text <- c(
   crayon::blue("percent_of_removed_dnfs"),
@@ -1066,12 +1019,20 @@ removed_dnfs_and_vessels_text <- c(
 my_tee(removed_dnfs_and_vessels_text,
        "\nRemoved dnfs and vessels stats")
 
+# Removed dnfs and vessels stats
+# percent_of_removed_dnfs
+# 54%
+# removed_vessels
+# -1202
+# percent_of_removed_vessels
+# -54%
+
 # Export usable dnfs ----
 #write.csv(GOMdnfsAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingdnfData\\Outputs\\Usablednfs2022.csv", row.names=FALSE)
 #write.xlsx(GOMdnfsAHU_usable, 'Usablednfs2022.xlsx', sheetName="2022dnfs", row.names=FALSE)
 
 SEFHIER_usable_dnfs_file_name <-
-  str_glue("SEFHIER_usable_dnfs_{my_year}.rds")
+  str_glue("SEFHIER_usable_dnfs_{my_year}_1.rds")
 
 annas_file_path <-
   file.path(Path,
