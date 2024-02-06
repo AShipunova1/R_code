@@ -65,10 +65,10 @@ get_compl_by <- function(my_df, group_by_for_compl) {
 group_by_for_compl <- 
   vars(-c("vessel_official_number", "compliant_"))
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short)
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot)
 
 # compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide <-
-#   get_compl_by(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short,
+#   get_compl_by(compl_clean_sa_vs_gom_m_int_tot,
 #                group_by_for_compl)
 
 # View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide)
@@ -76,7 +76,7 @@ group_by_for_compl <-
 
 # using all fields
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
-  compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |>
+  compl_clean_sa_vs_gom_m_int_tot |>
   dplyr::select(
     vessel_official_number,
     year,
@@ -527,10 +527,10 @@ save_plots_list_to_files(file_full_name_c_nc,
 # start with the new data with expiration by year
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present ----
-# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt)
+# View(compl_clean_sa_vs_gom_m_int_tot)
 
 weeks_per_vsl_permit_year_compl_cnt <-
-  compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt %>%
+  compl_clean_sa_vs_gom_m_int_tot %>%
   dplyr::add_count(permit_sa_gom,
                    vessel_official_number,
                    compliant_,
@@ -541,7 +541,7 @@ weeks_per_vsl_permit_year_compl_cnt <-
   dplyr::ungroup()
 
 # check
-# compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |>
+# compl_clean_sa_vs_gom_m_int_tot |>
 #   select(permit_sa_gom, week_num, vessel_official_number, compliant_) |>
 #   distinct() |>
 #   add_count(permit_sa_gom, vessel_official_number, compliant_) |>
