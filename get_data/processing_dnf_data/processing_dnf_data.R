@@ -1,7 +1,7 @@
 # processing_DNF_data
 
 # The result will be in
-# SEFHIER_usable_DNFs_{my_year}.rds
+# SEFHIER_processed_DNFs_{my_year}.rds
 
 # Files to read or create:
 # Raw_Oracle_Downloaded_compliance_2021_plus.rds
@@ -478,6 +478,8 @@ dnfs_file_path <-
 # stringr::str_glue:
 # Interpolation with glue to include variable names
 
+# Need to join safis.trips_neg to safis.vessels because the vessel_ID in safis.trips_neg is not the official number
+
 dnfs_download_query <-
   str_glue(
     "SELECT
@@ -530,7 +532,7 @@ my_stats(dnfs_short, "dnfs from the db")
 # Unique vessels: 2241
 # Unique trips neg (dnfs): 790839
 
-### reformat trip start/end date ----
+### reformat trip date ----
 # Explanation:
 #
 # 1. **Create New Dataframe:**
@@ -644,7 +646,10 @@ my_stats(compl_override_data_this_year,
 # Unique vessels: 3626
 
 # We need 'relationship = "many-to-many"' because
-# Each row represents a catch ID within the effort ID within the Trip ID, for a given vessel. So there are many rows that will match the same vessel and year/week.
+# TODO: 1)
+# 2) 1 row of `y` matches multiple rows in `x`:
+# We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
+
 
 dnfs_join_overr <-
   left_join(dnfs,
@@ -892,7 +897,7 @@ late_submission_filter_stats <-
 
     late_submission <-
       my_df |>
-      filter(USABLE_NO_LATE_SUBMISSION == FALSE)
+      filter(MORE_THAN_30_DAYS_LATE == FALSE)
 
     my_tee(n_distinct(late_submission$TRIP_ID),
            "Count late_submission (dnfs num)")
@@ -916,7 +921,7 @@ late_submission_filter <-
   function() {
     SEFHIER_dnfs_notoverridden__temp <-
        SEFHIER_dnfs_notoverridden |>
-      mutate(USABLE_NO_LATE_SUBMISSION =
+      mutate(MORE_THAN_30_DAYS_LATE =
                ifelse(USABLE_DATE_TIME >= DE, TRUE, FALSE))
 
     late_submission_filter_stats(SEFHIER_dnfs_notoverridden__temp)
@@ -925,7 +930,7 @@ late_submission_filter <-
   }
 
 ### Filter (mark only): data frame of dnfs that were usable ----
-SEFHIER_dnfs_usable <- late_submission_filter()
+SEFHIER_processed_dnfs <- late_submission_filter()
 # rows: 366565
 # columns: 25
 # Unique vessels: 1971
@@ -943,7 +948,7 @@ SEFHIER_dnfs_usable <- late_submission_filter()
 # Reason: Metrics tracking may not be tracking permit status change over the year (e.g. transferred permits)
 
 # Data example:
-# SEFHIER_dnfs_usable |>
+# SEFHIER_processed_dnfs |>
 #   select(PERMIT_GROUP) |>
 #   distinct() |>
 #   tail(3)
@@ -955,14 +960,14 @@ SEFHIER_dnfs_usable <- late_submission_filter()
 # Auxiliary: how to find the column name
 #
 # grep("permit",
-#      names(SEFHIER_dnfs_usable),
+#      names(SEFHIER_processed_dnfs),
 #      value = TRUE,
 #      ignore.case = TRUE)
 
 # Explanation:
 #
 # 1. **Create New Dataframe:**
-#    - `SEFHIER_dnfs_usable_regions <- SEFHIER_dnfs_usable |> ...`: Create a new dataframe 'SEFHIER_dnfs_usable_regions' based on the 'SEFHIER_dnfs_usable' dataframe.
+#    - `SEFHIER_processed_dnfs_regions <- SEFHIER_processed_dnfs |> ...`: Create a new dataframe 'SEFHIER_processed_dnfs_regions' based on the 'SEFHIER_processed_dnfs' dataframe.
 #
 # 2. **Use 'mutate' to Add Column:**
 #    - `mutate(permit_sa_gom = dplyr::case_when(...))`: Utilize the 'mutate' function to add a new column 'permit_sa_gom' with values determined by the conditions specified in the 'case_when' function.
@@ -975,8 +980,8 @@ SEFHIER_dnfs_usable <- late_submission_filter()
 # 4. **'dplyr::' Prefix:**
 #    - `dplyr::case_when(...)`: Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
 
-SEFHIER_dnfs_usable_p_regions <-
-  SEFHIER_dnfs_usable |>
+SEFHIER_processed_dnfs_p_regions <-
+  SEFHIER_processed_dnfs |>
   mutate(
     permit_sa_gom =
       dplyr::case_when(
@@ -988,7 +993,7 @@ SEFHIER_dnfs_usable_p_regions <-
   )
 
 # stats
-my_stats(SEFHIER_dnfs_usable)
+my_stats(SEFHIER_processed_dnfs)
 
 dnfs_before_filtering <-
   n_distinct(dnfs$TRIP_ID)
@@ -999,7 +1004,7 @@ my_tee(dnfs_before_filtering,
 # 52393 2023
 
 dnfs_after_filtering <-
-  n_distinct(SEFHIER_dnfs_usable$TRIP_ID)
+  n_distinct(SEFHIER_processed_dnfs$TRIP_ID)
 
 my_tee(dnfs_after_filtering,
         "dnfs after filtering")
@@ -1019,7 +1024,7 @@ vessels_before_filtering <-
 # 2241 2022
 
 vessels_after_filtering <-
-  n_distinct(SEFHIER_dnfs_usable$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(SEFHIER_processed_dnfs$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_after_filtering)
 # 1597 2023
 # 1971 2022
@@ -1055,30 +1060,30 @@ my_tee(removed_dnfs_and_vessels_text,
 #write.csv(GOMdnfsAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingdnfData\\Outputs\\Usablednfs2022.csv", row.names=FALSE)
 #write.xlsx(GOMdnfsAHU_usable, 'Usablednfs2022.xlsx', sheetName="2022dnfs", row.names=FALSE)
 
-SEFHIER_usable_dnfs_file_name <-
-  str_glue("SEFHIER_usable_dnfs_{my_year}.rds")
+SEFHIER_processed_dnfs_file_name <-
+  str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
 
 annas_file_path <-
   file.path(Path,
             "Outputs",
-            SEFHIER_usable_dnfs_file_name)
+            SEFHIER_processed_dnfs_file_name)
 
 jennys_file_path <-
   file.path(Path,
             Outputs,
-            SEFHIER_usable_dnfs_file_name)
+            SEFHIER_processed_dnfs_file_name)
 
 michelles_file_path <-
   file.path(Path,
             Outputs,
-            SEFHIER_usable_dnfs_file_name)
+            SEFHIER_processed_dnfs_file_name)
 
 # !! Change to the correct path !!
 output_file_path <-
   annas_file_path
 
 write_rds(
-  SEFHIER_dnfs_usable,
+  SEFHIER_processed_dnfs,
   file = output_file_path
 )
 
