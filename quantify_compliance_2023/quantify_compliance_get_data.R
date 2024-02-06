@@ -243,11 +243,27 @@ all_get_db_data_result_l <- run_all_get_db_data()
 toc()
 # run_all_get_db_data(): 13.61 sec elapsed
 
-View(all_get_db_data_result_l)
+# View(all_get_db_data_result_l)
 
-SEFHIER_usable_Logbooks_2023.rds
-# run_all_get_db_data(): 8.56 sec elapsed                                   
+# get processed logbook data ----
+
+processed_logbooks_file_names <- 
+  c("SEFHIER_usable_Logbooks_2022.rds",
+    "SEFHIER_usable_Logbooks_2023.rds")
+  
+processed_logbooks_dir_path <- 
+  file.path(my_paths$inputs,
+  r"(processing_logbook_data\Outputs)")
+
+processed_logbooks <- 
+  processed_logbooks_file_names |> 
+  map_df(\(file_name) {
+    my_file_path <- 
+      file.path(processed_logbooks_dir_path,
+                file_name)
+    read_rds(my_file_path)
+  })
 
 # results:
 # all_get_db_data_result_l
-# all_logbooks_data_2023_short
+# processed_logbooks
