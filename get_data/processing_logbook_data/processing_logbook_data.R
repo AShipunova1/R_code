@@ -873,6 +873,10 @@ SEFHIER_logbooks_notoverridden <-
             join_by(VESSEL_OFFICIAL_NUMBER),
             suffix = c("_metrics", "_logbooks"))
 
+vessels_with_zero_logbooks <-
+  SEFHIER_logbooks_notoverridden |>
+  filter(is.na(TRIP_ID))
+
 # We have to keep both vessel names, bc they are different some times in metrics vs. logbooks.
 SEFHIER_logbooks_notoverridden |>
   select(starts_with("vessel")) |>
