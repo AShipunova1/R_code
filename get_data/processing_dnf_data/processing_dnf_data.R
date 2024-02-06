@@ -7,8 +7,8 @@
 # Raw_Oracle_Downloaded_compliance_2021_plus.rds
 # Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds
 
-# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_", my_year, ".csv"
-# my_year, "SRHSvessels.csv"
+# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
+# {my_year}_SRHSvessels.csv
 
 # This code processes DNF data from Oracle database ready for FHIER,
 # then cleans it up, so that we can use it in any DNF data analysis:
@@ -67,13 +67,13 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-# my_date_beg <- '01-JAN-2022'
-# my_date_end <- '31-DEC-2022'
+my_year <- "2022"
+my_date_beg <- '01-JAN-2022'
+my_date_end <- '31-DEC-2022'
 
-my_year <- "2023"
-my_date_beg <- '01-JAN-2023'
-my_date_end <- '31-DEC-2023'
+# my_year <- "2023"
+# my_date_beg <- '01-JAN-2023'
+# my_date_end <- '31-DEC-2023'
 
 # Auxiliary methods ----
 
@@ -1053,12 +1053,3 @@ write_rds(
   file = output_file_path
 )
 
-# SEFHIER_dnfs_usable |>
-#   filter(VESSEL_OFFICIAL_NUMBER %in% c("FL4832RC",
-# "1168650",
-# "1074819",
-# "MS9292AK",
-# "686032",
-# "FL2861PK",
-# "FL8062JY")) |>
-#   View()
