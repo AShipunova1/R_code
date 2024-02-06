@@ -42,44 +42,6 @@ res2 <-
 # diffdf::diffdf(res1, res2)
 # T
 
-## Repeat for SA and dual separately ----
-group_by_var2 <- c("permit_sa_gom", "perm_exp_y")
-
-count_expiration_by(compl_clean_sa_vs_gom_m_int_tot_exp_y,
-                    group_by_var2) |>
-  select(all_of(group_by_var2), exp_y_tot_cnt) |>
-  distinct()
-
-# A tibble: 6 × 3
-#   permit_sa_gom perm_exp_y exp_y_tot_cnt
-#   <chr>         <chr>              <int>
-# 1 sa_only       active              1694
-# 2 dual          active               293
-# 3 gom_only      active               909
-# 4 sa_only       expired              389
-# 5 gom_only      expired               42
-# 6 dual          expired               46
-# Compare with previous, ok
-# > 1694+293
-# [1] 1987
-# > 389+46
-# [1] 435
-
-## fewer fields ----
-# compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt_short <-
-#   compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt %>%
-#   dplyr::select(
-#     vessel_official_number,
-#     year,
-#     permit_sa_gom,
-#     compliant_,
-#     total_vsl_y_by_year_perm,
-#     perm_exp_y,
-#     exp_y_tot_cnt
-#   ) %>%
-#   # can unique, because already counted
-#   distinct()
-
 ## get vessel counts by compliance (compl_counts) ----
 ### get compl, no compl, or both per year ----
 
