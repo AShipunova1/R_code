@@ -7,8 +7,9 @@
 # Raw_Oracle_Downloaded_compliance_2021_plus.rds
 # Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
 
-# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_", my_year, ".csv"
-# my_year, "SRHSvessels.csv"
+# Downloaded from FHIER
+# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
+# "{my_year}_SRHSvessels.csv"
 
 # This code processes logbook data from Oracle database,
 # then cleans it up, so that we can use it in any logbook data analysis:
@@ -412,6 +413,10 @@ SEFHIER_permit_info <-
   anti_join(SEFHIER_metrics_tracking,
             SRHS_vessels,
             by = 'VESSEL_OFFICIAL_NUMBER')
+
+# TODO:
+# save all SEFHIER_permit_info vessels
+# SEFHIER_permitted_vessels_nonSRHS_{year}
 
 # stats
 my_stats(SEFHIER_permit_info, "Metrics tracking minus SRHS vsls")
@@ -873,9 +878,15 @@ SEFHIER_logbooks_notoverridden <-
             join_by(VESSEL_OFFICIAL_NUMBER),
             suffix = c("_metrics", "_logbooks"))
 
+## Save vessels with no logbooks ----
 vessels_with_zero_logbooks <-
   SEFHIER_logbooks_notoverridden |>
-  filter(is.na(TRIP_ID))
+  filter(is.na(TRIP_ID)) |>
+  select(VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
+
+# TODO:
+write_rds(vessels_with_zero_logbooks)
 
 # We have to keep both vessel names, bc they are different some times in metrics vs. logbooks.
 SEFHIER_logbooks_notoverridden |>
@@ -982,7 +993,7 @@ late_submission_filter_stats <-
 
     late_submission <-
       my_df |>
-      filter(USABLE_NO_LATE_SUBMISSION == FALSE)
+      filter(MORE_THAN_30_DAYS_LATE == FALSE)
 
     my_tee(n_distinct(late_submission$TRIP_ID),
            "Count late_submission (logbooks num)")
@@ -1010,7 +1021,7 @@ late_submission_filter <-
   function() {
     SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp <-
       SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
-      mutate(USABLE_NO_LATE_SUBMISSION =
+      mutate(MORE_THAN_30_DAYS_LATE =
                ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
 
     late_submission_filter_stats(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp)
@@ -1166,4 +1177,3 @@ write_rds(
   SEFHIER_logbooks_usable,
   file = output_file_path
 )
-
