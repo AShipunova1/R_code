@@ -67,13 +67,13 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-my_date_beg <- '01-JAN-2022'
-my_date_end <- '31-DEC-2022'
+# my_year <- "2022"
+# my_date_beg <- '01-JAN-2022'
+# my_date_end <- '31-DEC-2022'
 
-# my_year <- "2023"
-# my_date_beg <- '01-JAN-2023'
-# my_date_end <- '31-DEC-2023'
+my_year <- "2023"
+my_date_beg <- '01-JAN-2023'
+my_date_end <- '31-DEC-2023'
 
 # Auxiliary methods ----
 
@@ -504,20 +504,23 @@ dnfs <-
                         dnfs_download_query)
 # 2024-02-05 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 104.7 sec elapsed
 
-dnfs_check_ids <-
-  dnfs |> filter(!is.na(COAST_GUARD_NBR) & !is.na(STATE_REG_NBR)) |>
-  select(COAST_GUARD_NBR, STATE_REG_NBR, VESSEL_OFFICIAL_NUMBER) |>
-  distinct()
+# check
+get_dnfs_check_ids <- function(dnfs) {
+  dnfs_check_ids <-
+    dnfs |> filter(!is.na(COAST_GUARD_NBR) & !is.na(STATE_REG_NBR)) |>
+    select(COAST_GUARD_NBR, STATE_REG_NBR, VESSEL_OFFICIAL_NUMBER) |>
+    distinct()
+}
 
+# dnfs_check_ids <- get_dnfs_check_ids(dnfs)
 # View(dnfs_check_ids)
 # 116
 
-# Fewer columns
+### Fewer columns ----
 # names(dnfs)
 dnfs_short <-
   dnfs |>
-  select(-c(V_VESSEL_ID, STATE_REG_NBR, COAST_GUARD_NBR)) |>
-  rename("VESSEL_ID" = TN_VESSEL_ID)
+  select(-c(STATE_REG_NBR, COAST_GUARD_NBR))
 
 # stats
 my_stats(dnfs_short, "dnfs from the db")
@@ -527,7 +530,7 @@ my_stats(dnfs_short, "dnfs from the db")
 # Unique vessels: 2241
 # Unique trips neg (dnfs): 790839
 
-# reformat trip start/end date
+### reformat trip start/end date ----
 # Explanation:
 #
 # 1. **Create New Dataframe:**
@@ -804,7 +807,6 @@ dnfs_notoverridden <-
 # COMP_OVERRIDE_CMT
 # SRFH_ASSIGNMENT_ID
 
-
 # stats
 uniq_vessels_num_was <-
   n_distinct(dnfs[["VESSEL_OFFICIAL_NUMBER"]])
@@ -836,10 +838,8 @@ my_tee(uniq_trips_lost_by_overr,
 
 ## Filter out vessels not in Metrics tracking ----
 SEFHIER_dnfs_notoverridden <-
-  left_join(SEFHIER_permit_info_short_this_year,
-            dnfs_notoverridden,
-            join_by(VESSEL_OFFICIAL_NUMBER),
-            suffix = c("_metrics", "_dnfs"))
+  dnfs_notoverridden |>
+  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
 
 my_stats(dnfs_notoverridden)
 my_stats(SEFHIER_dnfs_notoverridden)
@@ -850,12 +850,7 @@ vessels_not_in_metrics <-
 
 my_tee(vessels_not_in_metrics,
        "Removed if a vessel is not in Metrics tracking")
-# -1425
-
-## Start date/time is after end date/time ----
-# check dnf records for cases where start date/time is after end date/time, delete these records
-
-# View(SEFHIER_dnfs_notoverridden)
+# 47
 
 ## Mark all trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
@@ -902,9 +897,9 @@ late_submission_filter <-
 
 ### Filter (mark only): data frame of dnfs that were usable ----
 SEFHIER_dnfs_usable <- late_submission_filter()
-# rows: 368037
-# columns: 33
-# Unique vessels: 3443
+# rows: 366565
+# columns: 25
+# Unique vessels: 1971
 # Unique trips neg (dnfs): 366417
 # ---
 # Count late_submission (dnfs num)
@@ -980,12 +975,12 @@ dnfs_after_filtering <-
 my_tee(dnfs_after_filtering,
         "dnfs after filtering")
 # 51340 2023
-# 366417 2022
+# 366416 2022
 
 percent_of_removed_dnfs <-
   (dnfs_before_filtering - dnfs_after_filtering) * 100 / dnfs_before_filtering
  cat(percent_of_removed_dnfs, sep = "\n")
-# 53.66731 2022
+# 53.66743 2022
 
 # removed_vessels
 vessels_before_filtering <-
@@ -998,11 +993,11 @@ vessels_after_filtering <-
   n_distinct(SEFHIER_dnfs_usable$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_after_filtering)
 # 1597 2023
-# 3443 2022
+# 1971 2022
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
-# -1202?
+# 270
 
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
@@ -1023,16 +1018,16 @@ my_tee(removed_dnfs_and_vessels_text,
 # percent_of_removed_dnfs
 # 54%
 # removed_vessels
-# -1202
+# 270
 # percent_of_removed_vessels
-# -54%
+# 12%
 
 # Export usable dnfs ----
 #write.csv(GOMdnfsAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingdnfData\\Outputs\\Usablednfs2022.csv", row.names=FALSE)
 #write.xlsx(GOMdnfsAHU_usable, 'Usablednfs2022.xlsx', sheetName="2022dnfs", row.names=FALSE)
 
 SEFHIER_usable_dnfs_file_name <-
-  str_glue("SEFHIER_usable_dnfs_{my_year}_1.rds")
+  str_glue("SEFHIER_usable_dnfs_{my_year}.rds")
 
 annas_file_path <-
   file.path(Path,
@@ -1058,3 +1053,12 @@ write_rds(
   file = output_file_path
 )
 
+# SEFHIER_dnfs_usable |>
+#   filter(VESSEL_OFFICIAL_NUMBER %in% c("FL4832RC",
+# "1168650",
+# "1074819",
+# "MS9292AK",
+# "686032",
+# "FL2861PK",
+# "FL8062JY")) |>
+#   View()
