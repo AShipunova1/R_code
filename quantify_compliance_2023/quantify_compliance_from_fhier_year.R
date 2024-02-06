@@ -67,13 +67,6 @@ group_by_for_compl <-
 
 # print_df_names(compl_clean_sa_vs_gom_m_int_tot)
 
-# compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide <-
-#   get_compl_by(compl_clean_sa_vs_gom_m_int_tot,
-#                group_by_for_compl)
-
-# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide)
-# [1]    6 3377
-
 # using all fields
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
   compl_clean_sa_vs_gom_m_int_tot |>
@@ -117,12 +110,6 @@ cols_names <-
     "total_vsl_y_by_year_perm",
     "perm_exp_y",
     "exp_y_tot_cnt")
-
-# compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long <-
-#   count_by_cols(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide,
-#                 cols_names)
-
-# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long)
 
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long <-
   count_by_cols(
