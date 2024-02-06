@@ -59,66 +59,6 @@ compl_clean_sa_vs_gom_m_int_tot %>%
 # 2 2022 gom_dual       1495
 # 3 2023 sa_dual        2236
 
-## expired or not? ----
-end_of_2023 <- as.Date(my_end, format = "%Y-%m-%d")
-
-expired_or_not <- function(my_df) {
-  my_df %>%
-    # get difference in days
-    dplyr::mutate(exp_w_end_diff_y =
-                    as.numeric(as.Date(permit_groupexpiration) -
-                                 end_of_2023)) %>%
-    # create a column
-    dplyr::mutate(
-      perm_exp_y =
-        dplyr::case_when(exp_w_end_diff_y < 0 ~ "expired",
-                         exp_w_end_diff_y >= 0 ~ "active")
-    ) %>%
-    return()
-}
-
-compl_clean_sa_vs_gom_m_int_tot_exp_y <-
-  expired_or_not(compl_clean_sa_vs_gom_m_int_tot)
-
-# glimpse(compl_clean_sa_vs_gom_m_int_tot_exp_y)
-
-## count expiration by year, permit ----
-count_expiration_by <- function(my_df, group_by_var) {
-  my_df %>%
-    dplyr::group_by_at(group_by_var) %>%
-    # count distinct vessels per group
-    dplyr::mutate(exp_y_tot_cnt = n_distinct(vessel_official_number)) %>%
-    ungroup() %>%
-    return()
-}
-
-group_by_var <- c("year_permit", "perm_exp_y")
-
-compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt <-
-  count_expiration_by(compl_clean_sa_vs_gom_m_int_tot_exp_y,
-                      group_by_var)
-
-# check manually
-
-res_temp3 <- 
-  compl_clean_sa_vs_gom_m_int_tot_exp_y_cnt |> 
-  select(all_of(group_by_var), exp_y_tot_cnt) |> 
-  distinct()
-
-# 1 2023 sa_dual  active              1987
-# 2 2023 gom_only active               909
-# 3 2023 sa_dual  expired              435
-# 4 2023 gom_only expired               42
-
-res_temp4 <- 
-  compl_clean_sa_vs_gom_m_int_tot_exp_y |>
-  select(all_of(group_by_var), vessel_official_number) |>
-  distinct() |>
-  dplyr::group_by_at(group_by_var) |>
-  count(year_permit, perm_exp_y, name = "exp_y_tot_cnt") |> 
-  arrange(desc(exp_y_tot_cnt))
-
-diffdf::diffdf(res_temp3, res_temp4)
 # T
 
 ## Repeat for SA and dual separately ----
