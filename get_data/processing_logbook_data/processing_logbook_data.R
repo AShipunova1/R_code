@@ -4,8 +4,8 @@
 # SEFHIER_usable_Logbooks_{my_year}.rds
 
 # Files to read or create:
-# Compliance_raw_data_2021_plus.rds
-# SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds
+# Raw_Oracle_Downloaded_compliance_2021_plus.rds
+# Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
 
 # "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_", my_year, ".csv"
 # my_year, "SRHSvessels.csv"
@@ -297,7 +297,7 @@ toc()
 compl_override_data_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Compliance_raw_data_2021_plus.rds"))
+            str_glue("Raw_Oracle_Downloaded_compliance_2021_plus.rds"))
 
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started
@@ -320,8 +320,8 @@ WHERE
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query)
-# 2024-02-05 run for Compliance_raw_data_2021_plus.rds: 104.5 sec elapsed
-# File: Compliance_raw_data_2021_plus.rds modified Mon Feb  5 09:52:06 2024
+# 2024-02-05 run for Raw_Oracle_Downloaded_compliance_2021_plus.rds: 104.5 sec elapsed
+# File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified Mon Feb  5 09:52:06 2024
 
 ### prep the compliance/override data ----
 
@@ -465,12 +465,7 @@ my_stats(SEFHIER_permit_info_short_this_year)
 logbooks_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("SAFIS_TripsDownload_{my_date_beg}__{my_date_end}.rds"))
-
-# logbooks_file_path <-
-#   file.path(Path,
-#             Outputs,
-#             paste0("SAFIS_TripsDownload_", my_year, ".rds"))
+            str_glue("Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds"))
 
 # 2) create a variable with an SQL query to call data from the database
 
@@ -491,7 +486,7 @@ WHERE
 Logbooks <-
   read_rds_or_run_query(logbooks_file_path,
                         logbooks_download_query)
-# 2024-02-05 run for SAFIS_TripsDownload_01-JAN-2022__31-DEC-2022.rds: 122.37 sec elapsed
+# 2024-02-05 run for Raw_Oracle_Downloaded_logbook_01-JAN-2022__31-DEC-2022.rds: 122.37 sec elapsed
 
 # Rename column to be consistent with other dataframes
 Logbooks <-
