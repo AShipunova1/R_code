@@ -655,6 +655,35 @@ dnfs_join_overr <-
             relationship = "many-to-many"
   )
 
+# ℹ Row 104686 of `x` matches multiple rows in `y`.
+
+dnfs[104686, ] |> glimpse()
+# 1242820
+
+compl_override_data_this_year |>
+  filter(VESSEL_OFFICIAL_NUMBER == "1242820" &
+           COMP_WEEK == 32 &
+           COMP_YEAR == 2022) |>
+  View()
+
+# FL9558PU
+
+# dnfs |>
+#   filter(VESSEL_OFFICIAL_NUMBER == "FL9558PU")
+# 0
+
+# ℹ Row 43081 of `y` matches multiple rows in `x`.
+
+compl_override_data_this_year[43081, ] |> glimpse()
+# 1228073
+
+# dnfs |>
+#   filter(VESSEL_OFFICIAL_NUMBER == "1228073" &
+#            TRIP_END_YEAR == 2022 &
+#            COMP_WEEK == 20) |>
+  # View()
+
+
 # stats
 my_stats(dnfs)
 my_stats(dnfs_join_overr)
