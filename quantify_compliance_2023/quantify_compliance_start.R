@@ -53,7 +53,7 @@ source(quantify_compliance_functions_path)
 
 quantify_compliance_get_data_path <- 
   file.path(current_project_dir_name,
-            "get_data.R")
+            "quantify_compliance_get_data.R")
 
 source(quantify_compliance_get_data_path)
 
@@ -78,35 +78,40 @@ plot_colors <- list("compliant" = "skyblue1",
 
 title_permits <- data.frame(# title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
   title = c(
+    "2022: SA Only",
+    "2022: GOM only",
+    "2022: Dual only",
+    "2022: GOM + Dual",
     "2023: SA Only",
     "2023: GOM only",
     "2023: Dual only",
     "2023: SA + Dual"
   ),
-  year_permit = c("2023 sa_only",
-                  "2023 gom_only",
-                  "2023 dual_only",
-                  "2023 sa_dual"),
-  second_part = c("Permitted Vessels",
-                  "Permitted Vessels",
-                  "Permitted Vessels",
-                  "Permitted Vessels")
+  # year_permit = c("2023 sa_only",
+  #                 "2023 gom_only",
+  #                 "2023 dual_only",
+  #                 "2023 sa_dual"),
+  second_part = c("Permitted Vessels")
 )
 
-# ls(pattern = "metric")
+ls(pattern = "metric")
 # to use
 # fhier_reports_metrics_tracking_not_srhs_all_cols_list
+# or 
+# fhier_reports_metrics_tracking_not_srhs_all_cols
 
 # remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+# ls(pattern = "compl_clean_sa_vs_gom_m_int")
 compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m_int_c |>
   dplyr::filter(
-    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_ids_list[["2023"]]$vessel_official_number
+    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_all_cols$vessel_official_number
   )
 
 dim(compl_clean_sa_vs_gom_m_int)
 # [1] 146066     24
 # [1] 143767     24 (2023)
+# [1] 265533     23 both
 
 # save vsl count for future checks ----
 count_all_vessels <-
@@ -114,6 +119,7 @@ count_all_vessels <-
 # 4017 
 # 3411 (2023)
 # 3372 in metrics only
+# 3382 both
 
 vessels_compl_or_not_per_y_r_all <-
   compl_clean_sa_vs_gom_m_int %>%
@@ -123,16 +129,20 @@ vessels_compl_or_not_per_y_r_all <-
          permit_sa_gom) %>%
   unique() %>%
   dplyr::count(compliant_, year, permit_sa_gom)
-
-vessels_compl_or_not_per_y_r_all
-#   compliant_ year  permit_sa_gom     n
-#   <chr>      <chr> <chr>         <int>
-# 1 NO         2023  dual            255
-# 2 NO         2023  gom_only          2
-# 3 NO         2023  sa_only        1290
-# 4 YES        2023  dual            320
-# 5 YES        2023  gom_only        951
-# 6 YES        2023  sa_only        1731
+# vessels_compl_or_not_per_y_r_all
+#    compliant_ year  permit_sa_gom     n
+#  1 NO         2022  dual             89
+#  2 NO         2022  gom_only        152
+#  3 NO         2022  sa_only         774
+#  4 NO         2023  dual            255
+#  5 NO         2023  gom_only          2
+#  6 NO         2023  sa_only        1292
+#  7 YES        2022  dual            317
+#  8 YES        2022  gom_only        741
+#  9 YES        2022  sa_only        1506
+# 10 YES        2023  dual            320
+# 11 YES        2023  gom_only        951
+# 12 YES        2023  sa_only        1733
 
 # year ----
 quantify_compliance_from_fhier_year_path <- file.path(
@@ -343,7 +353,7 @@ glimpse(counts_by_year_read_me_clean)
 #   c(
 #     "~/R_code_github/useful_functions_module.r",
 #     file.path(dir_to_comb, "quantify_compliance_functions.R"),
-#     file.path(dir_to_comb, "get_data.R"),
+#     file.path(dir_to_comb, "quantify_compliance_get_data.R"),
 #     r"(~\R_code_github\get_data_from_fhier\metric_tracking_no_srhs.R)",
 #     file.path(dir_to_comb, "quantify_compliance_from_fhier_2022.R"),
 #     file.path(dir_to_comb, "quantify_compliance_from_fhier_year.R"),
