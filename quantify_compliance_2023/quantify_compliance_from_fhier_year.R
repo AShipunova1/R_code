@@ -438,17 +438,18 @@ my_grobs_list |>
 ## 1a) how many weeks each vessel was present ----
 # View(compl_clean_sa_vs_gom_m_int_tot)
 
-weeks_per_vsl_permit_year_compl_cnt <-
+weeks_per_vsl_permit_year_compl_cnt1 <-
   compl_clean_sa_vs_gom_m_int_tot %>%
-  dplyr::add_count(year,
-    permit_sa_gom_dual,
-                   vessel_official_number,
+  group_by(year,
+           permit_sa_gom_dual) |> 
+  dplyr::add_count(vessel_official_number,
                    compliant_,
-                   name = "weeks_per_vessel_per_compl") %>%
-  dplyr::add_count(year, permit_sa_gom_dual,
-                   vessel_official_number,
+                   name = "weeks_per_vessel_per_compl_year") %>%
+  dplyr::add_count(vessel_official_number,
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
+
+View(weeks_per_vsl_permit_year_compl_cnt1)
 
 # check
 compl_clean_sa_vs_gom_m_int_tot |>
