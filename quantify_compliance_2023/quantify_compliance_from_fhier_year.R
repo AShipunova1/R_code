@@ -428,6 +428,7 @@ my_grobs_list |>
                              plot_name)
     
   })
+
 # [1] "2024-02-07/compl_vs_nonc_plots_sa_only_permitted_vessels_2023.png"
 
 # Non compliant only ----
@@ -439,24 +440,29 @@ my_grobs_list |>
 
 weeks_per_vsl_permit_year_compl_cnt <-
   compl_clean_sa_vs_gom_m_int_tot %>%
-  dplyr::add_count(permit_sa_gom_dual,
+  dplyr::add_count(year,
+    permit_sa_gom_dual,
                    vessel_official_number,
                    compliant_,
                    name = "weeks_per_vessel_per_compl") %>%
-  dplyr::add_count(permit_sa_gom_dual,
+  dplyr::add_count(year, permit_sa_gom_dual,
                    vessel_official_number,
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
 
 # check
-# compl_clean_sa_vs_gom_m_int_tot |>
-#   select(permit_sa_gom_dual, week_num, vessel_official_number, compliant_) |>
-#   distinct() |>
-#   add_count(permit_sa_gom_dual, vessel_official_number, compliant_) |>
-#   filter(n == 2 & !!sa_dual_filter) |>
-#   View()
+compl_clean_sa_vs_gom_m_int_tot |>
+  select(year, permit_sa_gom_dual, week_num, vessel_official_number, compliant_) |>
+  distinct() |>
+  add_count(year, permit_sa_gom_dual, vessel_official_number, compliant_) |>
+  filter(!!sa_dual_filter, n == 2) |>
+  glimpse()
 
-# View(weeks_per_vsl_permit_year_compl_cnt)
+  # dplyr::filter(!!sa_dual_filter,
+  #               compliant_ == "NO") %>%
+
+
+View(weeks_per_vsl_permit_year_compl_cnt)
 
 ## test 1a ----
 # have both comp and not
@@ -475,8 +481,12 @@ weeks_per_vsl_permit_year_compl_cnt %>%
                 weeks_per_vessel_per_compl,
                 total_weeks_per_vessel) %>%
   unique()
-# 1 2023  YES                                47                     52
-# 2 2023  NO                                  5                     52
+# 1 2023  YES  47  52
+# 2 2023  NO  5  52
+
+# 1 2023  YES  160  208
+# 2 2023  NO  48  208
+
 
 # 1000042
 #   year  compliant_ weeks_per_vessel_per_compl total_weeks_per_vessel
@@ -721,6 +731,7 @@ gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   unique() %>%
   sort() %>%
   # repeat for each permit_sa_gom_dual
+  # TODO: and year!
   purrr::map(function(curr_permit_sa_gom_dual) {
     # browser()
     curr_df <-
