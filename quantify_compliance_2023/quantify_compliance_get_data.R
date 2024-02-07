@@ -143,6 +143,10 @@ processed_metrics_tracking_permits <-
   map_df(processed_metrics_tracking_file_names,
          read_rds)
 
+names(processed_metrics_tracking_permits) <-
+  names(processed_metrics_tracking_permits) |>
+  tolower()
+
 # get processed logbook data ----
 # For all years
 processed_logbooks_file_names <-
@@ -154,6 +158,10 @@ processed_logbooks_file_names <-
 processed_logbooks <-
   map_df(processed_logbooks_file_names,
          read_rds)
+
+names(processed_logbooks) <-
+  names(processed_logbooks) |>
+  tolower()
 
 
 # get vessels with no logbooks ----
@@ -168,6 +176,10 @@ vessels_no_logbooks <-
   map_df(vessels_no_logbooks_file_names,
          read_rds) |> 
   distinct()
+
+names(vessels_no_logbooks) <-
+  names(vessels_no_logbooks) |>
+  tolower()
 
 # results:
 # all_get_db_data_result_l
