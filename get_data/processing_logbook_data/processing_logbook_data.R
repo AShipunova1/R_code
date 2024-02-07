@@ -1,11 +1,15 @@
 # processing_logbook_data
 
-# The result will be in
-# SEFHIER_usable_Logbooks_{my_year}.rds
+# Creates:
+# 1) The result will be in
+# SEFHIER_processed_Logbooks_{my_year}.rds
+# 2)
+# vessels_with_zero_logbooks_{my_year}.rds
 
 # Files to read or create:
-# Raw_Oracle_Downloaded_compliance_2021_plus.rds
-# Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
+# 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
+# 1) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
+# 3) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
 
 # This code processes logbook data from Oracle database,
 # then cleans it up, so that we can use it in any logbook data analysis:
@@ -62,13 +66,13 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-my_date_beg <- '01-JAN-2022'
-my_date_end <- '31-DEC-2022'
+# my_year <- "2022"
+# my_date_beg <- '01-JAN-2022'
+# my_date_end <- '31-DEC-2022'
 
-# my_year <- "2023"
-# my_date_beg <- '01-JAN-2023'
-# my_date_end <- '31-DEC-2023'
+my_year <- "2023"
+my_date_beg <- '01-JAN-2023'
+my_date_end <- '31-DEC-2023'
 
 # Auxiliary methods ----
 source("auxiliary_methods.R")
@@ -752,7 +756,7 @@ late_submission_filter <-
   }
 
 ### Filter (mark only): data frame of logbooks that were usable ----
-SEFHIER_logbooks_usable <- late_submission_filter()
+SEFHIER_logbooks_processed <- late_submission_filter()
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
@@ -760,7 +764,7 @@ SEFHIER_logbooks_usable <- late_submission_filter()
 # Reason: Metrics tracking may not be tracking permit status change over the year (e.g. transferred permits)
 
 # Data example:
-# SEFHIER_logbooks_usable |>
+# SEFHIER_logbooks_processed |>
 #   select(PERMIT_GROUP) |>
 #   distinct() |>
 #   tail(3)
@@ -772,14 +776,14 @@ SEFHIER_logbooks_usable <- late_submission_filter()
 # Auxiliary: how to find the column name
 #
 # grep("permit",
-#      names(SEFHIER_logbooks_usable),
+#      names(SEFHIER_logbooks_processed),
 #      value = TRUE,
 #      ignore.case = TRUE)
 
 # Explanation:
 #
 # 1. **Create New Dataframe:**
-#    - `SEFHIER_logbooks_usable_regions <- SEFHIER_logbooks_usable |> ...`: Create a new dataframe 'SEFHIER_logbooks_usable_regions' based on the 'SEFHIER_logbooks_usable' dataframe.
+#    - `SEFHIER_logbooks_processed_regions <- SEFHIER_logbooks_processed |> ...`: Create a new dataframe 'SEFHIER_logbooks_processed_regions' based on the 'SEFHIER_logbooks_processed' dataframe.
 #
 # 2. **Use 'mutate' to Add Column:**
 #    - `mutate(permit_sa_gom = dplyr::case_when(...))`: Utilize the 'mutate' function to add a new column 'permit_sa_gom' with values determined by the conditions specified in the 'case_when' function.
@@ -792,8 +796,8 @@ SEFHIER_logbooks_usable <- late_submission_filter()
 # 4. **'dplyr::' Prefix:**
 #    - `dplyr::case_when(...)`: Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
 
-SEFHIER_logbooks_usable_p_regions <-
-  SEFHIER_logbooks_usable |>
+SEFHIER_logbooks_processed_p_regions <-
+  SEFHIER_logbooks_processed |>
   mutate(
     permit_sa_gom =
       dplyr::case_when(
@@ -805,7 +809,7 @@ SEFHIER_logbooks_usable_p_regions <-
   )
 
 # stats
-my_stats(SEFHIER_logbooks_usable)
+my_stats(SEFHIER_logbooks_processed)
 
 logbooks_before_filtering <-
   n_distinct(Logbooks$TRIP_ID)
@@ -816,7 +820,7 @@ my_tee(logbooks_before_filtering,
 # 52393 2023
 
 logbooks_after_filtering <-
-  n_distinct(SEFHIER_logbooks_usable$TRIP_ID)
+  n_distinct(SEFHIER_logbooks_processed$TRIP_ID)
 
 my_tee(logbooks_after_filtering,
         "Logbooks after filtering")
@@ -835,16 +839,14 @@ percent_of_removed_logbooks <-
 vessels_before_filtering <-
   n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_before_filtering)
-# 1882
-# 1646 2023
 # 1885 2022
+# 1646 2023
 
 vessels_after_filtering <-
-  n_distinct(SEFHIER_logbooks_usable$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(SEFHIER_logbooks_processed$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_after_filtering)
-# 1629
-# 1597 2023
 # 1823 2022
+# 1597 2023
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
@@ -868,33 +870,30 @@ removed_logbooks_and_vessels_text <- c(
 my_tee(removed_logbooks_and_vessels_text,
        "\nRemoved logbooks and vessels stats")
 
-# Export usable logbooks ----
-#write.csv(GOMlogbooksAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingLogbookData\\Outputs\\UsableLogbooks2022.csv", row.names=FALSE)
-#write.xlsx(GOMlogbooksAHU_usable, 'UsableLogbooks2022.xlsx', sheetName="2022Logbooks", row.names=FALSE)
-
-SEFHIER_usable_Logbooks_file_name <-
-  str_glue("SEFHIER_usable_Logbooks_{my_year}.rds")
+# Export processed logbooks ----
+SEFHIER_processed_Logbooks_file_name <-
+  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
 
 annas_file_path <-
   file.path(Path,
             "Outputs",
-            SEFHIER_usable_Logbooks_file_name)
+            SEFHIER_processed_Logbooks_file_name)
 
 jennys_file_path <-
   file.path(Path,
             Outputs,
-            SEFHIER_usable_Logbooks_file_name)
+            SEFHIER_processed_Logbooks_file_name)
 
 michelles_file_path <-
   file.path(Path,
             Outputs,
-            SEFHIER_usable_Logbooks_file_name)
+            SEFHIER_processed_Logbooks_file_name)
 
 # !! Change to the correct path !!
 output_file_path <-
   annas_file_path
 
 write_rds(
-  SEFHIER_logbooks_usable,
+  SEFHIER_logbooks_processed,
   file = output_file_path
 )
