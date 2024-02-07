@@ -186,10 +186,11 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt <-
                  group_by_cols,
                  cols_to_cnt)
 
-View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
+dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 # [1] 21  7
 # [1] 7 4 (no exp)
 # 22 5 both years
+# [1] 23  5
 
 #### check counts ----
 # print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
@@ -220,6 +221,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
 # $ is_compl_or_both     <chr> "YES", "NO", "NO_YES"
 # $ sum_compl_or_not_cnt <int> 1752, 742, 2350
 # $ sum_compl_or_not_cnt <int> 1825, 370, 1177 (2023)
+# $ sum_compl_or_not_cnt <int> 4102, 845, 2202 (both years with processed)
 
 ### One vessel in 2 groups ----
 # The number should be the same as the total number we got earlier. It is not, which means One vessel is in 2 perm_exp_y groups, has both expired and not expired permit in 2023.
@@ -270,64 +272,10 @@ compl_clean_sa_vs_gom_m_int %>%
 # 2       1547 NO        
 # dplyr::filter(!!sa_dual_filter) %>%
 # 1       2051 YES       
-# 2       1545 NO        
-
-compl_clean_sa_vs_gom_m_int %>%
-  dplyr::filter(!!sa_dual_filter) %>%
-  dplyr::mutate(exp_w_end_diff_y =
-                  as.numeric(as.Date(permit_groupexpiration) -
-                               end_of_2023)) %>%
-  mutate(perm_exp_y =
-           dplyr::case_when(exp_w_end_diff_y <= 0 ~ "expired",
-                     exp_w_end_diff_y > 0 ~ "active")) %>%
-  # dplyr::group_by(compliant_, perm_exp_y) %>%
-  # dplyr::group_by(compliant_) %>%
-  dplyr::group_by(perm_exp_y) %>%
-  # 1707 + 472
-  # [1] 2179
-  dplyr::mutate(tota_vsl_m = dplyr::n_distinct(vessel_official_number)) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(tota_vsl_m, compliant_, perm_exp_y) %>%
-  unique() %>%
-  head()
-# 1       1442 YES        active
-# 2        887 NO         active
-# 3        402 NO         expired
-# 4        175 YES        expired
-# YES: 1442+175
-# [1] 1617
-# NO: 887+402
-# [1] 1289
-# 1617+1289
-# 2906
-
-# today()
-# [1] "2024-01-27"
-#   tota_vsl_m compliant_ perm_exp_y
-#        <int> <chr>      <chr>     
-# 1       1893 YES        active    
-# 2       1893 NO         active    
-# 3        529 NO         expired   
-# 4        529 YES        expired   
-
-# [1] "2023-06-19"
-#   tota_vsl_m compliant_ perm_exp_y
-#        <int> <chr>      <chr>
-# 1       1707 YES        active
-# 2       1707 NO         active
-# 3        472 NO         expired
-# 4        472 YES        expired
-# 1707 + 472
-# 2179
-
-# [1] "2023-08-26"
-#   tota_vsl_m compliant_ perm_exp_y
-#        <int> <chr>      <chr>
-# 1       1694 YES        active
-# 2       1694 NO         active
-# 3        451 NO         expired
-# 4        451 YES        expired
-# 1694+451 = 2145
+# 2       1545 NO    
+# ---
+# 1       3483 YES       
+# 2       2324 NO        
 
 ## add total cnts ----
 # active vs expired per year, permit, compl, permit expiration
