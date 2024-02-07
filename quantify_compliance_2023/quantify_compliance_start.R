@@ -57,10 +57,6 @@ quantify_compliance_get_data_path <-
 
 source(quantify_compliance_get_data_path)
 
-source(r"(~\R_code_github\get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
-# fhier_reports_metrics_tracking_not_srhs_all_cols_list
-# fhier_reports_metrics_tracking_not_srhs_ids_list
-
 # Uses the file.path function to construct a file path. The components used are:
 # my_paths$outputs: A variable containing a directory path.
 # "quantify_compliance": A directory name to be appended to the path.
@@ -95,23 +91,26 @@ title_permits <- data.frame(# title = c("SA Only", "GOM + Dual", "2023: SA + Dua
 )
 
 ls(pattern = "metric")
-# to use
-# fhier_reports_metrics_tracking_not_srhs_all_cols_list
-# or 
-# fhier_reports_metrics_tracking_not_srhs_all_cols
+# processed_metrics_tracking_permits
 
-# remove ids not in fhier_reports_metrics_tracking_not_srhs_ids
+# ls(pattern = "process")
+# processed_logbooks
+
 # ls(pattern = "compl_clean_sa_vs_gom_m_int")
+
+# Vessels which are in processed_logbooks + vessels which have no logbooks at all, but are in metrics tracking
 compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m_int_c |>
   dplyr::filter(
-    vessel_official_number %in% fhier_reports_metrics_tracking_not_srhs_all_cols$vessel_official_number
+    vessel_official_number %in% processed_logbooks$VESSEL_OFFICIAL_NUMBER |
+      vessel_official_number %in% vessels_no_logbooks$VESSEL_OFFICIAL_NUMBER
   )
 
 dim(compl_clean_sa_vs_gom_m_int)
 # [1] 146066     24
 # [1] 143767     24 (2023)
 # [1] 265533     23 both
+# [1] 290408     22 use processed
 
 # save vsl count for future checks ----
 count_all_vessels <-
@@ -120,6 +119,7 @@ count_all_vessels <-
 # 3411 (2023)
 # 3372 in metrics only
 # 3382 both
+# 4016
 
 vessels_compl_or_not_per_y_r_all <-
   compl_clean_sa_vs_gom_m_int %>%
