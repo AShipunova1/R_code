@@ -74,21 +74,15 @@ plot_colors <- list("compliant" = "skyblue1",
                     "nc_bucket" = "deepskyblue",
                     "non_compliant_by_month" = "blue")
 
-title_permits <- data.frame(# title = c("SA Only", "GOM + Dual", "2023: SA + Dual"),
-  title = c(
-    "2022: SA Only",
-    "2022: GOM only",
-    "2022: Dual only",
-    "2022: GOM + Dual",
-    "2023: SA Only",
-    "2023: GOM only",
-    "2023: Dual only",
-    "2023: SA + Dual"
-  ),
-  # year_permit = c("2023 sa_only",
-  #                 "2023 gom_only",
-  #                 "2023 dual_only",
-  #                 "2023 sa_dual"),
+title_permits <- data.frame(
+  permit_sa_gom_dual = c("sa_only",
+                         "gom_only",
+                         "dual"),
+  title = c("SA Only",
+            "GOM only",
+            "Dual only"),
+  # "2022: GOM + Dual",
+  # "2023: SA + Dual"),
   second_part = c("Permitted Vessels")
 )
 
@@ -104,15 +98,17 @@ ls(pattern = "metric")
 compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m_int_c |>
   dplyr::filter(
-    vessel_official_number %in% processed_logbooks$VESSEL_OFFICIAL_NUMBER |
-      vessel_official_number %in% vessels_no_logbooks$VESSEL_OFFICIAL_NUMBER
-  )
+    vessel_official_number %in% processed_logbooks$vessel_official_number |
+      vessel_official_number %in% vessels_no_logbooks$vessel_official_number
+  ) |> 
+  distinct()
 
 dim(compl_clean_sa_vs_gom_m_int)
 # [1] 146066     24
 # [1] 143767     24 (2023)
 # [1] 265533     23 both
 # [1] 290408     22 use processed
+# [1] 290402     22
 
 # save vsl count for future checks ----
 count_all_vessels <-
@@ -136,6 +132,9 @@ compl_clean_sa_vs_gom_m_int__join_metrics <-
 # ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to
 #   silence this warning.
 
+dim(compl_clean_sa_vs_gom_m_int__join_metrics)
+# [1] 535295     30
+
 vessels_compl_or_not_per_y_r_all <-
   compl_clean_sa_vs_gom_m_int__join_metrics %>%
   dplyr::select(vessel_official_number,
@@ -144,6 +143,7 @@ vessels_compl_or_not_per_y_r_all <-
          permit_sa_gom_dual) %>%
   unique() %>%
   dplyr::count(compliant_, year, permit_sa_gom_dual)
+
 vessels_compl_or_not_per_y_r_all
 #    compliant_ year  permit_sa_gom_dual     n
 #  1 NO         2022  dual                  86
