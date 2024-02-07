@@ -1,7 +1,12 @@
 # remove SRHS vessels from the Metrics tracking data
 
-# get Metrics Tracking from FHIER
-# get SRHS list from Ken Brennan (SRHS branch chief)
+# Input files
+# Metrics Tracking (Downloaded from FHIER)
+# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
+
+# SRHS list from Ken Brennan (SRHS branch chief)
+# "{my_year}_SRHSvessels.csv"
+
 
 # setup ----
 library(tidyverse)
