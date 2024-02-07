@@ -306,19 +306,8 @@ group_by_cols1 <- c("year", "permit_sa_gom_dual", "compl_or_not")
 # group_by_cols2 <- c("permit_sa_gom_dual", "perm_exp_y")
 
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y <-
-  add_total_cnts(
-    compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt,
-    group_by_cols1
-  )
-# ,
-#     group_by_cols2
-
-# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y)
-
-# check cnts
-# compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
-#   # remove NAs
-#   filter(!!sa_dual_filter & perm_exp_y == 'expired') %>% View()
+  add_total_cnts(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt,
+                 group_by_cols1)
 
 ## add percents of total ----
 add_percents_of_total <-
@@ -355,12 +344,14 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
   add_percents_of_total(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y,
                         select_cols)
 
+# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
+
 dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 # [1] 11  8
 # 7 8 (sa_dual)
 # [1] 4 5 no exp
+# [1] 12  6
 
-# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 
 ## plots for compl vs. non compl vessels per year ----
 
@@ -369,64 +360,38 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc$permit_sa_gom_dual %>%
   unique() %>%
-  # repeat for each permit_sa_gom_dual
-  purrr::map(function(curr_permit_sa_gom_dual_year) {
-    # browser()
-    curr_df <-
-      compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
-      dplyr::filter(permit_sa_gom_dual == curr_permit_sa_gom_dual &
-                      year == curr_year)
-
-    # See function definition F2
-    y_r_title <-
-      make_permit_sa_gom_dual_label(curr_permit_sa_gom_dual)
-
-    total_vsls <- unique(curr_df$total_vsl_y_by_year_perm)
-
-    # active_permits <- curr_df %>%
-    #   dplyr::filter(perm_exp_y == "active") %>%
-    #   dplyr::select(cnt_y_p_e) %>%
-    #   unique()
-
-    # expired_permits <- curr_df %>%
-    #   dplyr::filter(perm_exp_y == "expired") %>%
-    #   dplyr::select(cnt_y_p_e) %>%
-    #   unique()
-
-    # 1st figure title: "SA Only Permitted Vessels (Total Permitted: 2178; Expired Permits: 472)"
-    # 2nd figure title: "GOM + Dual Permitted Vessels (Total Permitted: 1495; Expired Permits: 303)"
-
-    curr_title_permit <-
-      title_permits %>%
-      filter(permit_sa_gom_dual == curr_permit_sa_gom_dual)
-
-    current_title <-
-      paste(curr_title_permit$title,
-             curr_title_permit$second_part)
-
-    # current_title <-
-    #   paste0(
-    #     curr_title_permit$title,
-    #     " ",
-    #     curr_title_permit$second_part,
-    #     " (Active Permits: ",
-    #     active_permits$cnt_y_p_e,
-    #     "; Expired Permits: ",
-    #     expired_permits$cnt_y_p_e,
-    #     ")"
-    #   )
-
-    one_plot <-
-      curr_df %>%
-      dplyr::select(compl_or_not, perc_c_or_not) %>%
-      unique() %>%
-      # See function definition F2
-      make_one_plot_compl_vs_non_compl(current_title,
-                                       is_compliant = "compl_or_not",
-                                       percent = "perc_c_or_not")
-
-    return(one_plot)
-
+  # repeat for each permit_sa_gom_dual and each year
+  purrr::map(function(curr_permit_sa_gom_dual) {
+    c(my_year1, my_year2) |>
+      map(\(curr_year) {
+        # browser()
+        curr_df <-
+          compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
+          dplyr::filter(permit_sa_gom_dual == curr_permit_sa_gom_dual &
+                          year == curr_year)
+        
+        # See function definition F2
+        total_vsls <- unique(curr_df$total_vsl_y_by_year_perm)
+        
+        curr_title_permit <-
+          title_permits %>%
+          filter(permit_sa_gom_dual == curr_permit_sa_gom_dual)
+        
+        current_title <-
+          str_glue("{curr_year}: {curr_title_permit$title} {curr_title_permit$second_part}")
+        
+        one_plot <-
+          curr_df %>%
+          dplyr::select(compl_or_not, perc_c_or_not) %>%
+          unique() %>%
+          # See function definition F2
+          make_one_plot_compl_vs_non_compl(current_title,
+                                           is_compliant = "compl_or_not",
+                                           percent = "perc_c_or_not")
+        
+        return(one_plot)
+        
+      })
   })
 
 # View(gg_all_c_vs_nc_plots[[1]])
