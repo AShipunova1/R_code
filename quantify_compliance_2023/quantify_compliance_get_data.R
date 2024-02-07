@@ -113,34 +113,6 @@ tic("get_data_from_csv")
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 toc()
 
-# compl_clean_sa_vs_gom_m_int_c <-
-#   add_year_permit_col(compl_clean_sa_vs_gom_m_int)
-
-# get_permit_data_from_metrics_tracking ----
-processed_metrics_tracking_path <- 
-  file.path(my_paths$inputs,
-            "processing_logbook_data",
-            "Outputs")
-# dir.exists(processed_metrics_tracking_path)
-# T  
-
-processed_metrics_tracking_file_names <-
-  list.files(path = processed_metrics_tracking_path,
-             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
-             recursive = TRUE,
-             full.names = TRUE)
-
-processed_metrics_tracking_permits <-
-  map_df(processed_metrics_tracking_file_names,
-         read_rds)
-
-# View(processed_metrics_tracking_permits)
-
-# SEFHIER_permitted_vessels_nonSRHS_2022.rds
-  
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_permitted_vessels_nonSRHS_2022.rds"
-
-
 # get data from db ----
 file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)") |>
   source()
@@ -151,26 +123,38 @@ toc()
 # run_all_get_db_data(): 13.61 sec elapsed
 
 # View(all_get_db_data_result_l)
+# get_permit_data_from_metrics_tracking ----
+processed_input_data_path <- 
+  file.path(my_paths$inputs,
+            "processing_logbook_data",
+            "Outputs")
+dir.exists(processed_input_data_path)
+# T  
+
+# file names for all years
+processed_metrics_tracking_file_names <-
+  list.files(path = processed_input_data_path,
+             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
+             recursive = TRUE,
+             full.names = TRUE)
+
+processed_metrics_tracking_permits <-
+  map_df(processed_metrics_tracking_file_names,
+         read_rds)
 
 # get processed logbook data ----
+# For all years
+processed_logbooks_file_names <-
+  list.files(path = processed_input_data_path,
+             pattern = "SEFHIER_processed_Logbooks_*",
+             recursive = TRUE,
+             full.names = TRUE)
 
-processed_logbooks_file_names <- 
-  c("SEFHIER_usable_Logbooks_2022.rds",
-    "SEFHIER_usable_Logbooks_2023.rds")
-  
-processed_logbooks_dir_path <- 
-  file.path(my_paths$inputs,
-  r"(processing_logbook_data\Outputs)")
-
-processed_logbooks <- 
-  processed_logbooks_file_names |> 
-  map_df(\(file_name) {
-    my_file_path <- 
-      file.path(processed_logbooks_dir_path,
-                file_name)
-    read_rds(my_file_path)
-  })
+processed_logbooks <-
+  map_df(processed_logbooks_file_names,
+         read_rds)
 
 # results:
 # all_get_db_data_result_l
+# processed_metrics_tracking_permits
 # processed_logbooks
