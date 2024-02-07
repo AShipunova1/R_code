@@ -65,13 +65,13 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-my_date_beg <- '01-JAN-2022'
-my_date_end <- '31-DEC-2022'
+# my_year <- "2022"
+# my_date_beg <- '01-JAN-2022'
+# my_date_end <- '31-DEC-2022'
 
-# my_year <- "2023"
-# my_date_beg <- '01-JAN-2023'
-# my_date_end <- '31-DEC-2023'
+my_year <- "2023"
+my_date_beg <- '01-JAN-2023'
+my_date_end <- '31-DEC-2023'
 
 # Auxiliary methods ----
 
@@ -838,7 +838,7 @@ late_submission_filter <-
   }
 
 ### Filter (mark only): data frame of dnfs that were usable ----
-SEFHIER_processed_dnfs <- late_submission_filter()
+SEFHIER_processed_dnfs__late_subm <- late_submission_filter()
 # rows: 366565
 # columns: 25
 # Unique vessels: 1971
@@ -850,55 +850,29 @@ SEFHIER_processed_dnfs <- late_submission_filter()
 # Count late_submission (vessels num)
 # 1904
 
-# Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
-# Revisit after
-# fixing metrics tracking for transferred permits
-# Reason: Metrics tracking may not be tracking permit status change over the year (e.g. transferred permits)
+# Add all columns from processed metrics tracking to obtain the Permit region.
 
-# Data example:
-# SEFHIER_processed_dnfs |>
-#   select(PERMIT_GROUP) |>
-#   distinct() |>
-#   tail(3)
-# PERMIT_GROUP
-# (CDW)CDW, (CHG)1615, (CHS)CHS, (SC)SC
-# (CHG)1034, (RCG)982
-# (CHG)589, (RCG)567
+SEFHIER_processed_dnfs_with_all_metrics_vessels <-
+  left_join(SEFHIER_permit_info_short_this_year,
+            SEFHIER_processed_dnfs__late_subm)
 
-# Auxiliary: how to find the column name
-#
-# grep("permit",
-#      names(SEFHIER_processed_dnfs),
-#      value = TRUE,
-#      ignore.case = TRUE)
+SEFHIER_processed_dnfs <-
+  left_join(SEFHIER_processed_dnfs__late_subm,
+            SEFHIER_permit_info_short_this_year)
 
-# Explanation:
-#
-# 1. **Create New Dataframe:**
-#    - `SEFHIER_processed_dnfs_regions <- SEFHIER_processed_dnfs |> ...`: Create a new dataframe 'SEFHIER_processed_dnfs_regions' based on the 'SEFHIER_processed_dnfs' dataframe.
-#
-# 2. **Use 'mutate' to Add Column:**
-#    - `mutate(permit_sa_gom = dplyr::case_when(...))`: Utilize the 'mutate' function to add a new column 'permit_sa_gom' with values determined by the conditions specified in the 'case_when' function.
-#
-# 3. **Conditions with 'case_when':**
-#    - `!grepl("RCG|HRCG|CHG|HCHG", PERMIT_GROUP) ~ "sa_only"`: If 'PERMIT_GROUP' does not contain the specified patterns, assign "sa_only".
-#    - `!grepl("CDW|CHS|SC", PERMIT_GROUP) ~ "gom_only"`: If 'PERMIT_GROUP' does not contain the specified patterns, assign "gom_only".
-#    - `.default = "dual"`: For any other case, assign "dual".
-#
-# 4. **'dplyr::' Prefix:**
-#    - `dplyr::case_when(...)`: Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
-
-SEFHIER_processed_dnfs_p_regions <-
-  SEFHIER_processed_dnfs |>
-  mutate(
-    permit_sa_gom =
-      dplyr::case_when(
-        !grepl("RCG|HRCG|CHG|HCHG", PERMIT_GROUP) ~
-          "sa_only",
-        !grepl("CDW|CHS|SC", PERMIT_GROUP) ~ "gom_only",
-        .default = "dual"
-      )
-  )
+# > my_stats(SEFHIER_processed_dnfs)
+# SEFHIER_processed_dnfs
+# rows: 366565
+# columns: 26
+# Unique vessels: 1971
+# Unique trips neg (dnfs): 366416
+# ---
+# > my_stats(SEFHIER_processed_dnfs_1)
+# SEFHIER_processed_dnfs_1
+# rows: 368037
+# columns: 33
+# Unique vessels: 3443
+# Unique trips neg (dnfs): 366417
 
 # stats
 my_stats(SEFHIER_processed_dnfs)
@@ -965,8 +939,6 @@ my_tee(removed_dnfs_and_vessels_text,
 # 12%
 
 # Export usable dnfs ----
-#write.csv(GOMdnfsAHU_usable, "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingdnfData\\Outputs\\Usablednfs2022.csv", row.names=FALSE)
-#write.xlsx(GOMdnfsAHU_usable, 'Usablednfs2022.xlsx', sheetName="2022dnfs", row.names=FALSE)
 
 SEFHIER_processed_dnfs_file_name <-
   str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
