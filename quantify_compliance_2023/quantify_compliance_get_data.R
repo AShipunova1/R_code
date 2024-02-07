@@ -6,16 +6,12 @@
 
 # Compliance_Error_Types_03_29_2023.csv
 
-# Permits - 2024-01-25_0904.xlsx
-# Get it from PIMS
+# Processed Metrics tracking
+# SEFHIER_permitted_vessels_nonSRHS_{my_year}
+
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_permitted_vessels_nonSRHS_2022.rds"
 # 
-# Menu: permits
-# Filter:
-# Fishery = RCG - Gulf Charter/headboat For Reef Fish, CHG - Gulf Charter/headboat For Coastal Migratory Pelagic Fish, SC - South Atlantic Charter/headboat For Snapper-grouper, CHS - Atlantic Charter/headboat For Coastal Migratory Pelagics, HCHG - Historical Captain Gulf Charter/headboat For Coastal Migratory Pelagic Fish, HRCG - Historical Captain Gulf Charter/headboat For Reef Fish, CDW - Atlantic Charter/headboat For Dolphin/wahoo
-# 
-# download
-# 
-# skip first 5 lines in R)
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds"
 
 project_dir_name <- "FHIER Compliance"
 
@@ -157,8 +153,6 @@ get_data_from_csv <- function() {
   dim(compl_clean_1)
   # [1] 296294     20
   
-  ## get permit data from PIMS csv ----
-  
   compl_clean_2 <- additional_clean_up(compl_clean_1)
 
   cat("compl_clean_sa_vs_gom_m_int_c")  
@@ -232,7 +226,10 @@ toc()
 # compl_clean_sa_vs_gom_m_int_c <-
 #   add_year_permit_col(compl_clean_sa_vs_gom_m_int)
 
-active_permits_from_pims <- get_permit_data_from_PIMS()
+# active_permits_from_pims <- get_permit_data_from_PIMS()
+
+# get_permit_data_from_metrics_tracking ----
+
 
 # get data from db ----
 file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)") |>
