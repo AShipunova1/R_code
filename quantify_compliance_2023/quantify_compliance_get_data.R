@@ -87,10 +87,11 @@ get_data_from_csv <- function() {
   return(compl_clean_2)
 }
 
-additional_clean_up <- function(compl_clean) {
+additional_clean_up <- function(my_df) {
   
   # add columns for month and quarter
-  compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
+  compl_clean_sa_vs_gom_m <- 
+    my_df %>%
     # Add a new column 'year_month' by extracting the year and month from the 'week_start' column
     dplyr::mutate(year_month = zoo::as.yearmon(week_start)) %>%
     # Add another new column 'year_quarter' by extracting the year and quarter from the 'week_start' column
