@@ -91,6 +91,10 @@ if (Path == annas_path) {
 
 source(auxiliary_methods_file_path)
 
+# Start the log ----
+my_tee(date(),
+       my_title = str_glue("Start DNF processing for {my_year}"))
+
 # Get data ----
 
 # This section is needed to pull data from Oracle database
