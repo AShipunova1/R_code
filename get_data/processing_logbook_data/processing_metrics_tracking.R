@@ -13,8 +13,39 @@
 # setup ----
 library(tidyverse)
 
+# set working and output directory - where do you keep the data and analysis folder on your computer?
+michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook related analyses/Logbook Processing (Do this before all Logbook Analyses)/"
+
+jennys_path <-
+  "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
+
+annas_path <-
+  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
+
+# Change to use another path instead:
+# Path <- michelles_path
+Path <- annas_path
+
+Inputs <- "Inputs/"
+Outputs <- "Outputs/"
+
 # Auxiliary methods ----
-source("auxiliary_methods.R")
+annas_git_path <-
+r"(~\R_code_github\get_data)"
+
+if (Path == annas_path) {
+  auxiliary_methods_file_path <-
+    file.path(annas_git_path,
+              "processing_auxiliary_methods.R")
+} else {
+  auxiliary_methods_file_path <-
+    file.path(Path,
+              "processing_auxiliary_methods.R")
+}
+
+# file.exists(auxiliary_methods_file_path)
+
+source(auxiliary_methods_file_path)
 
 # set working and output directory - where do you keep the data and analysis folder on your computer?
 michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook related analyses/Logbook Processing (Do this before all Logbook Analyses)/"
