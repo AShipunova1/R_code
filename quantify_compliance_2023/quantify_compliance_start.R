@@ -9,6 +9,7 @@
 
 # Quantify program compliance.
 
+# setup ----
 # 2022, 2023
 # dual + SA
 library(grid)  # Load the 'grid' library, which provides low-level graphics functions.
@@ -51,6 +52,7 @@ quantify_compliance_functions_path <-
 
 source(quantify_compliance_functions_path)
 
+# get data ----
 quantify_compliance_get_data_path <- 
   file.path(current_project_dir_name,
             "quantify_compliance_get_data.R")
@@ -98,7 +100,7 @@ ls(pattern = "metric")
 
 # ls(pattern = "compl_clean_sa_vs_gom_m_int")
 
-# Vessels which are in processed_logbooks + vessels which have no logbooks at all, but are in metrics tracking
+# Vessels which are in processed_logbooks + vessels which have no logbooks at all, but are in metrics tracking ----
 compl_clean_sa_vs_gom_m_int <-
   compl_clean_sa_vs_gom_m_int_c |>
   dplyr::filter(
@@ -121,28 +123,41 @@ count_all_vessels <-
 # 3382 both
 # 4016
 
+# add permit_region from processed metrics tracking ----
+compl_clean_sa_vs_gom_m_int__join_metrics <-
+  compl_clean_sa_vs_gom_m_int |>
+  left_join(processed_metrics_tracking_permits,
+            relationship = "many-to-many")
+
+# Joining with `by = join_by(vessel_official_number)
+#   Detected an unexpected many-to-many relationship between `x` and `y`.
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 2531 of `y` matches multiple rows in `x`.
+# ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to
+#   silence this warning.
+
 vessels_compl_or_not_per_y_r_all <-
-  compl_clean_sa_vs_gom_m_int %>%
+  compl_clean_sa_vs_gom_m_int__join_metrics %>%
   dplyr::select(vessel_official_number,
          compliant_,
          year,
-         permit_sa_gom) %>%
+         permit_sa_gom_dual) %>%
   unique() %>%
-  dplyr::count(compliant_, year, permit_sa_gom)
-# vessels_compl_or_not_per_y_r_all
-#    compliant_ year  permit_sa_gom     n
-#  1 NO         2022  dual             89
-#  2 NO         2022  gom_only        152
-#  3 NO         2022  sa_only         774
-#  4 NO         2023  dual            255
-#  5 NO         2023  gom_only          2
-#  6 NO         2023  sa_only        1292
-#  7 YES        2022  dual            317
-#  8 YES        2022  gom_only        741
-#  9 YES        2022  sa_only        1506
-# 10 YES        2023  dual            320
-# 11 YES        2023  gom_only        951
-# 12 YES        2023  sa_only        1733
+  dplyr::count(compliant_, year, permit_sa_gom_dual)
+vessels_compl_or_not_per_y_r_all
+#    compliant_ year  permit_sa_gom_dual     n
+#  1 NO         2022  dual                  86
+#  2 NO         2022  gom_only             197
+#  3 NO         2022  sa_only             1142
+#  4 NO         2023  dual                 235
+#  5 NO         2023  gom_only              24
+#  6 NO         2023  sa_only             1363
+#  7 YES        2022  dual                 297
+#  8 YES        2022  gom_only             977
+#  9 YES        2022  sa_only             1770
+# 10 YES        2023  dual                 301
+# 11 YES        2023  gom_only            1142
+# 12 YES        2023  sa_only             1817
 
 # year ----
 quantify_compliance_from_fhier_year_path <- file.path(
