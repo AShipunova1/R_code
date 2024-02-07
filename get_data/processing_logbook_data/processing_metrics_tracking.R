@@ -4,6 +4,11 @@
 # get SRHS list from Ken Brennan (SRHS branch chief)
 
 # setup ----
+library(tidyverse)
+
+# Auxiliary methods ----
+source("auxiliary_methods.R")
+
 # set working and output directory - where do you keep the data and analysis folder on your computer?
 michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook related analyses/Logbook Processing (Do this before all Logbook Analyses)/"
 
@@ -68,9 +73,6 @@ if (!class(SRHS_vessels$VESSEL_OFFICIAL_NUMBER) == "character") {
 # stats
 my_stats(SEFHIER_metrics_tracking,
          title_msg = "SEFHIER_metrics_tracking")
-# rows: 3598
-# columns: 13
-# Unique vessels: 3598
 
 # Filter: remove SRHS_vessels from SEFHIER_metrics_tracking list
 SEFHIER_permit_info <-
@@ -78,22 +80,44 @@ SEFHIER_permit_info <-
             SRHS_vessels,
             by = 'VESSEL_OFFICIAL_NUMBER')
 
-# TODO:
-# save all SEFHIER_permit_info vessels
-# SEFHIER_permitted_vessels_nonSRHS_{year}
+# Add permit_region column ----
+processed_metrics_permit_info <-
+  SEFHIER_permit_info |>
+  mutate(
+    permit_sa_gom_dual =
+      case_when(
+        SA.Permits. == "Y" &
+          GOM.Permits. == "N" ~ "sa_only",
+        SA.Permits. == "N" &
+          GOM.Permits. == "Y" ~ "gom_only",
+        SA.Permits. == "Y" &
+          GOM.Permits. == "Y" ~ "dual",
+        .default = "unknown"
+      )
+  )
+
+# check
+# processed_metrics_permit_info |> filter(permit_sa_gom_dual == "unknown")
+# 0
+
+processed_metrics_permit_info |>
+  count(permit_sa_gom_dual)
+#   permit_sa_gom_dual    n
+# 1               dual  277
+# 2           gom_only  980
+# 3            sa_only 2212
 
 # stats
-my_stats(SEFHIER_permit_info, "Metrics tracking minus SRHS vsls")
+my_stats(processed_metrics_permit_info, "Metrics tracking minus SRHS vsls")
 # rows: 3469
-# columns: 13
 # Unique vessels: 3469
 
 # see all names
-SEFHIER_permit_info |> names() |> cat(sep = ", ")
+processed_metrics_permit_info |> names() |> cat(sep = ", ")
 
 # remove the columns you don't need and rename the rest
-SEFHIER_permit_info_short <-
-  SEFHIER_permit_info |>
+processed_metrics_permit_info_short <-
+  processed_metrics_permit_info |>
   select(-starts_with("Total")) |>
   rename_all(function(x) {
     gsub("\\.", "_", x) |>
@@ -101,25 +125,78 @@ SEFHIER_permit_info_short <-
   })
 
 # stats
-my_stats(SEFHIER_permit_info)
+my_stats(processed_metrics_permit_info)
 # rows: 3469
-# columns: 8
 # Unique vessels: 3469
 
-SEFHIER_permit_info_short <-
-  SEFHIER_permit_info_short |>
+processed_metrics_permit_info_short <-
+  processed_metrics_permit_info_short |>
   mutate(EFFECTIVE_DATE =
            as.Date(EFFECTIVE_DATE, "%m/%d/%Y"),
          END_DATE =
            as.Date(END_DATE, "%m/%d/%Y")
   )
 
-SEFHIER_permit_info_short_this_year <-
-  SEFHIER_permit_info_short |>
+processed_metrics_permit_info_short_this_year <-
+  processed_metrics_permit_info_short |>
   filter(
     EFFECTIVE_DATE <= as.Date(my_date_end, "%d-%b-%Y") &
       END_DATE >= as.Date(my_date_beg, "%d-%b-%Y")
   )
 
-my_stats(SEFHIER_permit_info_short)
-my_stats(SEFHIER_permit_info_short_this_year)
+## Check vessels removed by dates ----
+not_my_year_vessels <-
+  setdiff(
+    processed_metrics_permit_info_short$VESSEL_OFFICIAL_NUMBER,
+    processed_metrics_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER
+  )
+
+length(not_my_year_vessels)
+# 8
+# [1] "1135351"  "TX8007EZ" "979342"   "504738"   "LA1712FX" "TX7844HC" "1158510"
+# [8] "FL3095RV"
+
+processed_metrics_permit_info_short |>
+  filter(VESSEL_OFFICIAL_NUMBER %in% not_my_year_vessels) |>
+  select(VESSEL_OFFICIAL_NUMBER,
+         EFFECTIVE_DATE,
+         END_DATE) |>
+  distinct()
+# Should be 2023
+#   VESSEL_OFFICIAL_NUMBER EFFECTIVE_DATE   END_DATE
+# 1                1135351     2021-06-01 2022-05-31
+# 2               TX8007EZ     2021-06-27 2022-04-30
+# 3                 979342     2021-12-01 2022-11-30
+# 4                 504738     2022-01-25 2022-12-31
+# 5               LA1712FX     2021-07-13 2022-05-31
+# 6               TX7844HC     2021-07-14 2022-05-31
+# 7                1158510     2022-06-03 2022-12-31
+# 8               FL3095RV     2020-03-10 2021-06-30
+
+
+my_stats(processed_metrics_permit_info_short)
+my_stats(processed_metrics_permit_info_short_this_year)
+
+# rows: 3469
+# columns: 9
+# Unique vessels: 3469
+# Unique trips (logbooks): 0
+# ---
+# > my_stats(processed_metrics_permit_info_short_this_year)
+# processed_metrics_permit_info_short_this_year
+# rows: 3443
+# columns: 9
+# Unique vessels: 3443
+# Unique trips (logbooks): 0
+
+# Save to a file ----
+all_metrics_tracking_vessels_path <-
+  file.path(annas_path,
+            Outputs,
+            str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
+
+write_rds(processed_metrics_permit_info_short_this_year,
+          all_metrics_tracking_vessels_path)
+
+test <- read_rds(all_metrics_tracking_vessels_path)
+View(test)
