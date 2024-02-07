@@ -27,13 +27,13 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-my_date_beg <- '01-JAN-2022'
-my_date_end <- '31-DEC-2022'
+# my_year <- '2022'
+# my_date_beg <- '01-JAN-2022'
+# my_date_end <- '31-DEC-2022'
 
-# my_year <- "2023"
-# my_date_beg <- '01-JAN-2023'
-# my_date_end <- '31-DEC-2023'
+my_year <- '2023'
+my_date_beg <- '01-JAN-2023'
+my_date_end <- '31-DEC-2023'
 
 # import the permit data
 SEFHIER_metrics_tracking_path <-
@@ -103,14 +103,18 @@ processed_metrics_permit_info <-
 processed_metrics_permit_info |>
   count(permit_sa_gom_dual)
 #   permit_sa_gom_dual    n
+# 2022
 # 1               dual  277
 # 2           gom_only  980
 # 3            sa_only 2212
 
+# 2023
+# 1               dual  251
+# 2           gom_only  987
+# 3            sa_only 2149
+
 # stats
 my_stats(processed_metrics_permit_info, "Metrics tracking minus SRHS vsls")
-# rows: 3469
-# Unique vessels: 3469
 
 # see all names
 processed_metrics_permit_info |> names() |> cat(sep = ", ")
@@ -126,8 +130,6 @@ processed_metrics_permit_info_short <-
 
 # stats
 my_stats(processed_metrics_permit_info)
-# rows: 3469
-# Unique vessels: 3469
 
 processed_metrics_permit_info_short <-
   processed_metrics_permit_info_short |>
@@ -151,43 +153,17 @@ not_my_year_vessels <-
     processed_metrics_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER
   )
 
-length(not_my_year_vessels)
-# 8
-# [1] "1135351"  "TX8007EZ" "979342"   "504738"   "LA1712FX" "TX7844HC" "1158510"
-# [8] "FL3095RV"
-
-processed_metrics_permit_info_short |>
+processed_metrics_permit_info |>
   filter(VESSEL_OFFICIAL_NUMBER %in% not_my_year_vessels) |>
-  select(VESSEL_OFFICIAL_NUMBER,
-         EFFECTIVE_DATE,
-         END_DATE) |>
-  distinct()
-# Should be 2023
-#   VESSEL_OFFICIAL_NUMBER EFFECTIVE_DATE   END_DATE
-# 1                1135351     2021-06-01 2022-05-31
-# 2               TX8007EZ     2021-06-27 2022-04-30
-# 3                 979342     2021-12-01 2022-11-30
-# 4                 504738     2022-01-25 2022-12-31
-# 5               LA1712FX     2021-07-13 2022-05-31
-# 6               TX7844HC     2021-07-14 2022-05-31
-# 7                1158510     2022-06-03 2022-12-31
-# 8               FL3095RV     2020-03-10 2021-06-30
+  filter(VESSEL_OFFICIAL_NUMBER %in% not_my_year_vessels) |>
+  select(all_of(starts_with("total"))) |>
+  distinct() |>
+  glimpse()
+# 0 - OK, all removed vessels have no "total" information
 
-
+# stats
 my_stats(processed_metrics_permit_info_short)
 my_stats(processed_metrics_permit_info_short_this_year)
-
-# rows: 3469
-# columns: 9
-# Unique vessels: 3469
-# Unique trips (logbooks): 0
-# ---
-# > my_stats(processed_metrics_permit_info_short_this_year)
-# processed_metrics_permit_info_short_this_year
-# rows: 3443
-# columns: 9
-# Unique vessels: 3443
-# Unique trips (logbooks): 0
 
 # Save to a file ----
 all_metrics_tracking_vessels_path <-
@@ -198,5 +174,5 @@ all_metrics_tracking_vessels_path <-
 write_rds(processed_metrics_permit_info_short_this_year,
           all_metrics_tracking_vessels_path)
 
-test <- read_rds(all_metrics_tracking_vessels_path)
-View(test)
+# test <- read_rds(all_metrics_tracking_vessels_path)
+# View(test)
