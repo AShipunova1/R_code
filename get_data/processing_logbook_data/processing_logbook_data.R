@@ -76,6 +76,7 @@ my_date_end <- '31-DEC-2022'
 # my_date_end <- '31-DEC-2023'
 
 # Auxiliary methods ----
+source("auxiliary_methods.R")
 
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
