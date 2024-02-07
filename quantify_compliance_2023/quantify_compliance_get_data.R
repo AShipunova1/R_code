@@ -124,8 +124,14 @@ processed_metrics_tracking_path <-
 # dir.exists(processed_metrics_tracking_path)
 # T  
 
-processed_metrics_tracking_file_names <- 
-SEFHIER_permitted_vessels_nonSRHS_2022.rds
+processed_metrics_tracking_file_names <-
+  list.files(path = processed_metrics_tracking_path,
+             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
+             recursive = TRUE)
+
+View(processed_metrics_tracking_file_names)
+
+# SEFHIER_permitted_vessels_nonSRHS_2022.rds
   
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_permitted_vessels_nonSRHS_2022.rds"
 
