@@ -155,7 +155,57 @@ processed_logbooks <-
   map_df(processed_logbooks_file_names,
          read_rds)
 
+
+# get vessels with no logbooks ----
+# For all years
+vessels_no_logbooks_file_names <-
+  list.files(path = processed_input_data_path,
+             pattern = "vessels_with_zero_logbooks_*",
+             recursive = TRUE,
+             full.names = TRUE)
+
+vessels_no_logbooks <-
+  map_df(vessels_no_logbooks_file_names,
+         read_rds) |> 
+  distinct()
+
 # results:
 # all_get_db_data_result_l
 # processed_metrics_tracking_permits
 # processed_logbooks
+# vessels_no_logbooks
+
+lgb_temp_22 <- 
+  read_rds(file.path(processed_input_data_path,
+             pattern = "SEFHIER_processed_Logbooks_2022.rds"))
+
+temp_22 <- 
+  read_rds(file.path(processed_input_data_path,
+             pattern = "vessels_with_zero_logbooks_2022.rds"))
+
+# glimpse(temp_22)
+
+setdiff(temp_22$VESSEL_OFFICIAL_NUMBER,
+        lgb_temp_22$VESSEL_OFFICIAL_NUMBER) |>
+  glimpse()
+# length()
+# 1613
+
+# in "no logbooks only", ok
+# processed_metrics_tracking_permits |> 
+#   filter(VESSEL_OFFICIAL_NUMBER == "FL8041ME") |> 
+#   View()
+
+
+# in logbooks, not in "no lgb"
+setdiff(lgb_temp_22$VESSEL_OFFICIAL_NUMBER,
+        temp_22$VESSEL_OFFICIAL_NUMBER) |> 
+  glimpse()
+ # chr [1:1823] "FL3185SY" "FL4350TH" "TX6607KK" "FL4770HY" "684541" "641822" ...
+# |>
+  # length()
+# 1823
+
+lgb_temp_22 |> 
+  filter(VESSEL_OFFICIAL_NUMBER == "FL4350TH") |> 
+  View()
