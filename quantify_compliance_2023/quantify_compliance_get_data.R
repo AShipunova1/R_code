@@ -127,9 +127,14 @@ processed_metrics_tracking_path <-
 processed_metrics_tracking_file_names <-
   list.files(path = processed_metrics_tracking_path,
              pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
-             recursive = TRUE)
+             recursive = TRUE,
+             full.names = TRUE)
 
-View(processed_metrics_tracking_file_names)
+processed_metrics_tracking_permits <-
+  map_df(processed_metrics_tracking_file_names,
+         read_rds)
+
+# View(processed_metrics_tracking_permits)
 
 # SEFHIER_permitted_vessels_nonSRHS_2022.rds
   
