@@ -1,12 +1,14 @@
 # remove SRHS vessels from the Metrics tracking data
 
+# Creates
+# "SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"
+
 # Input files
 # Metrics Tracking (Downloaded from FHIER)
 # "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
 
 # SRHS list from Ken Brennan (SRHS branch chief)
 # "{my_year}_SRHSvessels.csv"
-
 
 # setup ----
 library(tidyverse)
