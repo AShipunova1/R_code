@@ -291,18 +291,11 @@ toc()
 ### Import compliance/override data ----
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
 
-# compl_override_data_file_path, e.g.
-#   "//ser-fs1/sf/LAPP-DM Documents\\Ostroff\\SEFHIER\\Rcode\\ProcessingdnfData\\Inputs\\compl_err_db_data_raw.rds"
-
 # 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 compl_override_data_file_path <-
   file.path(Path,
             Outputs,
             str_glue("Raw_Oracle_Downloaded_compliance_2021_plus.rds"))
-
-# file.exists(compl_override_data_file_path)
-# compl_override_data_file_path
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\processing_dnf_data\Compliance_raw_data_2021_plus.rds"
 
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started
@@ -471,7 +464,7 @@ dnfs_file_path <-
   file.path(Path,
             Outputs,
             str_glue("Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds"))
-# SAFIS_TripsDownload_
+# Was "SAFIS_TripsDownload_"
 
 # 2) create a variable with an SQL query to call data from the database
 
