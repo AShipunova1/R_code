@@ -74,7 +74,22 @@ my_date_beg <- '01-JAN-2023'
 my_date_end <- '31-DEC-2023'
 
 # Auxiliary methods ----
-source("auxiliary_methods.R")
+annas_git_path <-
+r"(~\R_code_github\get_data)"
+
+if (Path == annas_path) {
+  auxiliary_methods_file_path <-
+    file.path(annas_git_path,
+              "processing_auxiliary_methods.R")
+} else {
+  auxiliary_methods_file_path <-
+    file.path(Path,
+              "processing_auxiliary_methods.R")
+}
+
+# file.exists(auxiliary_methods_file_path)
+
+source(auxiliary_methods_file_path)
 
 # Get data ----
 
