@@ -7,15 +7,10 @@
 # Raw_Oracle_Downloaded_compliance_2021_plus.rds
 # Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
 
-# Downloaded from FHIER
-# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
-# "{my_year}_SRHSvessels.csv"
-
 # This code processes logbook data from Oracle database,
 # then cleans it up, so that we can use it in any logbook data analysis:
 # (1) (a) pull all logbook and compliance/override data from Oracle database
-#     (b) get Metrics Tracking from FHIER
-#     (c) get SRHS list from Ken Brennan (SRHS branch chief) and reformat to one sheet file
+#     (b) get processed Metrics Tracking
 # (2) clean up logbook data set
 #   (a) remove records from SRHS vessels
 #   (b) remove records where start date/time is after end date/time
