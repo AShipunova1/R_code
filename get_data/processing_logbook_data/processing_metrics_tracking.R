@@ -47,6 +47,10 @@ if (Path == annas_path) {
 
 source(auxiliary_methods_file_path)
 
+# Start the log ----
+my_tee(date(),
+       my_title = str_glue("Start metrics tracking processing for {my_year}"))
+
 # set working and output directory - where do you keep the data and analysis folder on your computer?
 michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook related analyses/Logbook Processing (Do this before all Logbook Analyses)/"
 
