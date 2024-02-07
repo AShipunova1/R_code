@@ -394,28 +394,41 @@ gg_all_c_vs_nc_plots <-
       })
   })
 
-# View(gg_all_c_vs_nc_plots[[1]])
-sa_dual23 <- gg_all_c_vs_nc_plots[[1]]
-gom_only23 <- gg_all_c_vs_nc_plots[[2]]
+View(gg_all_c_vs_nc_plots[[1]])
+sa_only <- gg_all_c_vs_nc_plots[[1]]
+dual <- gg_all_c_vs_nc_plots[[2]]
+gom_only <- gg_all_c_vs_nc_plots[[3]]
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
+my_grobs_list <- list(sa_only[[1]],
+                       sa_only[[2]],
+                       dual[[2]])
+
 # combine plots for 2023
-grid.arrange(gg_all_c_vs_nc_plots[[1]],
-             # gg_all_c_vs_nc_plots[[2]],
+grid.arrange(grobs = my_grobs_list,
              top = main_title)
-
-grid.arrange(gg_all_c_vs_nc_plots[[2]],
-             top = main_title)
-
-file_full_name_c_nc <-
-  file.path(plot_file_path,
-            "all_c_vs_nc_plots_sa_dual.png")
 
 # see the function definition F2
-save_plots_list_to_files(file_full_name_c_nc,
-                         # plots
-                         gg_all_c_vs_nc_plots[[1]])
+my_grobs_list |>
+  map(\(plot_name) {
+    # browser()
+    file_name_part <-
+      plot_name$labels$title |>
+      str_replace_all(" ", "_") |>
+      str_replace("(^[0-9]+):_(.+)", "\\2_\\1") |>
+      str_replace("_permitted_vessels", "") |>
+      tolower()
+    
+    file_full_name_c_nc <-
+      file.path(plot_file_path,
+                str_glue("compl_vs_nonc_plots_{file_name_part}.png"))
+    
+    save_plots_list_to_files(file_full_name_c_nc,
+                             plot_name)
+    
+  })
+# [1] "2024-02-07/compl_vs_nonc_plots_sa_only_permitted_vessels_2023.png"
 
 # Non compliant only ----
 
