@@ -8,7 +8,7 @@
 
 # Files to read or create:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
-# 1) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
+# 2) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
 # 3) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
 
 # This code processes logbook data from Oracle database,
