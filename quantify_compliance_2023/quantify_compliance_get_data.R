@@ -9,8 +9,6 @@
 # Processed Metrics tracking
 # SEFHIER_permitted_vessels_nonSRHS_{my_year}
 
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_permitted_vessels_nonSRHS_2022.rds"
-# 
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds"
 
 project_dir_name <- "FHIER Compliance"
@@ -60,76 +58,6 @@ get_compliance_error_definitions <- function() {
   return(err_desc)
 }
 
-get_permit_data_from_PIMS <- function() {
-  permit_names_file_path =
-    file.path(curr_proj_input_path,
-              r"(Permits - 2024-01-25_0904.xlsx)")
-  
-  # file.exists(permit_names_file_path)
-  
-  active_permits_from_pims_raw <- 
-    read_xlsx(permit_names_file_path, skip = 5)
-  
-  dim(active_permits_from_pims_raw)
-  # [1] 23575    11
-  
-  # clean_headers
-  active_permits_from_pims_temp1 <-
-    active_permits_from_pims_raw %>%
-    clean_headers()
-  
-  # separate columns
-# Use the 'separate_wider_delim' function to split the 'permit__' column in the 'active_permits_from_pims_temp1' dataframe
-# based on the delimiter "-", creating new columns 'permit_code' and 'permit_num'.
-# The 'too_many' argument is set to "merge," which means any excess columns generated during the split will be merged.
-active_permits_from_pims_temp2 <- active_permits_from_pims_temp1 %>%
-    separate_wider_delim(permit__,
-                         "-",                # Delimiter used for splitting
-                         names = c("permit_code", "permit_num"),
-                         too_many = "merge") %>%
-
-    # Use the 'separate_wider_regex' function to split the 'vessel_or_dealer' column in the resulting dataframe.
-    # This function uses regular expressions to define patterns for creating new columns.
-    # In this case, it defines patterns for 'vessel_official_number' and 'vessel_name.'
-    # The 'too_few' argument is set to "align_start," which aligns any missing columns at the start.
-    separate_wider_regex(
-      cols = vessel_or_dealer,
-      patterns = c(
-        vessel_official_number = "[A-Za-z0-9]+",  # Regular expression for vessel official number (more than one alphanumeric character)
-        " */* ",                                  # Pattern for separating columns with slashes
-        vessel_name = "[A-Za-z0-9]+"              # Regular expression for vessel name (more than one alphanumeric character)
-      ),
-      too_few = "align_start"
-    )
-
-  # correct dates format
-
-  # get a list of field names with "_date"
-  # Use the 'grep' function to find and extract column names from the 'active_permits_from_pims_temp2' dataframe
-  # that has "_date".
-  ends_with_date_fields <- grep("_date", # Pattern to search for in column names
-                                names(active_permits_from_pims_temp2),  # Names of columns to search within
-                                value = TRUE)         # Return matching column names as values in the result.
-
-
-  # convert to the date format
-  active_permits_from_pims <-
-    change_fields_arr_to_dates(active_permits_from_pims_temp2,
-                               ends_with_date_fields,
-                               "%m/%d/%Y")
-
-  # test
-  active_permits_from_pims %>%
-    dplyr::select(status_date) %>%                 # Select 'status_date' column
-    dplyr::arrange(dplyr::desc(status_date)) %>%   # Arrange in descending order
-    dplyr::distinct() %>%                               # Remove duplicate rows
-    head()                                       # Retrieve the first few rows
-  # correct
-  # str(active_permits_from_pims)
-
-  return(active_permits_from_pims)
-}
-
 get_data_from_csv <- function() {
   # uncomment to run
   # browser()
@@ -161,12 +89,6 @@ get_data_from_csv <- function() {
 
 additional_clean_up <- function(compl_clean) {
   
-  # separate SA and GOM permits
-  compl_clean_sa_vs_gom <-
-    separate_permits_into_3_groups(compl_clean)
-  
-  # View(compl_clean_sa_vs_gom)
-  
   # add columns for month and quarter
   compl_clean_sa_vs_gom_m <- compl_clean_sa_vs_gom %>%
     # Add a new column 'year_month' by extracting the year and month from the 'week_start' column
@@ -194,9 +116,8 @@ toc()
 # compl_clean_sa_vs_gom_m_int_c <-
 #   add_year_permit_col(compl_clean_sa_vs_gom_m_int)
 
-# active_permits_from_pims <- get_permit_data_from_PIMS()
-
 # get_permit_data_from_metrics_tracking ----
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_permitted_vessels_nonSRHS_2022.rds"
 
 
 # get data from db ----
