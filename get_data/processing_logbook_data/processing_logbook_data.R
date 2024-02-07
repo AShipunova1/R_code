@@ -364,6 +364,15 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
 }
 
 ## Import the permit data ----
+processed_metrics_tracking_path <-
+  file.path(Path,
+            Outputs,
+            str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
+
+# file.exists(processed_metrics_tracking_path)
+
+SEFHIER_permit_info_short_this_year <-
+  read_rds(processed_metrics_tracking_path)
 
 ## Import and prep the logbook data ####
 
@@ -749,7 +758,7 @@ logbooks_notoverridden <-
 #                logbooks_notoverridden1)
 # 26 columns dropped, bc they were all NAs
 
-# stats
+### stats ----
 uniq_vessels_num_was <-
   n_distinct(Logbooks[["VESSEL_OFFICIAL_NUMBER"]])
 uniq_vessels_num_now <-
@@ -783,16 +792,24 @@ SEFHIER_logbooks_notoverridden <-
             join_by(VESSEL_OFFICIAL_NUMBER),
             suffix = c("_metrics", "_logbooks"))
 
-## Save vessels with no logbooks ----
+glimpse(SEFHIER_logbooks_notoverridden)
+
+### Save vessels with no logbooks ----
 vessels_with_zero_logbooks <-
   SEFHIER_logbooks_notoverridden |>
   filter(is.na(TRIP_ID)) |>
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
-# TODO:
-write_rds(vessels_with_zero_logbooks)
+vessels_with_zero_logbooks_file_path <-
+  file.path(Path,
+            Outputs,
+            str_glue("vessels_with_zero_logbooks_{my_year}.rds"))
 
+write_rds(vessels_with_zero_logbooks,
+          vessels_with_zero_logbooks_file_path)
+
+## stats ----
 # We have to keep both vessel names, bc they are different some times in metrics vs. logbooks.
 SEFHIER_logbooks_notoverridden |>
   select(starts_with("vessel")) |>
