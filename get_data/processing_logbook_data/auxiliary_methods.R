@@ -56,7 +56,7 @@ my_tee <- function(my_text,
     stat_log_file_path <-
       file.path(Path,
                 Outputs,
-                str_glue("processing_logbooks_stats_{date_range}_run_{today()}.log"))
+                str_glue("processing_stats_{date_range}_run_{today()}.log"))
   }
 
   # Write to a log file
