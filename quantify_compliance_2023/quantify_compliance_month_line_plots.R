@@ -292,11 +292,10 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc <-
 ## make % line plots by permit ----
 line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
 
-# one_year_permit <- "2023 sa_dual" (for test)
 # curr_permit_sa_gom_dual <- "2023 sa_only" #(for test)
 
 line_monthly_nc_plot_l <-
-  names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l) |>
+  names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc) |>
 #   [1] "2022 dual"     "2022 gom_only" "2022 sa_only"  "2023 dual"     "2023 gom_only"
 # [6] "2023 sa_only" 
   purrr::map(
@@ -305,10 +304,10 @@ line_monthly_nc_plot_l <-
       curr_year_permit_l <- str_split(curr_year_permit, " ")
       curr_year <- curr_year_permit_l[[1]][[1]]
       curr_permit_sa_gom_dual <- curr_year_permit_l[[1]][[2]]
+      curr_year_end <- str_glue("{curr_year}-12-31")
       
       one_df <-
-        compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[curr_year_permit]] |>
-        filter(compl_or_not == "non_compliant") |>
+        compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[curr_year_permit]] |>
         mutate(my_label = paste0(round(cnt_m_compl_perc, 0), "%")) |>
         mutate(tot_cnt_label =
                  str_glue("{cnt_vsl_m_compl}/\n{total_vsl_m_by_year_perm}"))
@@ -358,7 +357,7 @@ line_monthly_nc_plot_l <-
              y = str_glue("Proportion of Non-Compliant {curr_permit_sa_gom_dual} Vessels")) +
         scale_x_date(date_breaks = "1 month", 
                      date_labels = "%b") +
-        expand_limits(x = as.Date("12/31/23", "%m/%d/%y")) +
+        expand_limits(x = as.Date(curr_year_end, "%Y-%m-%d")) +
         annotate("text", 
                  x = as.Date(one_df$year_month),
                  y = 0,
@@ -367,9 +366,11 @@ line_monthly_nc_plot_l <-
                  color = "blue")
     })
 
-# ggplot(data=df,aes(x=Control, y=Stress))+geom_point()+scale_x_continuous(sec.axis = sec_axis(~ .+50,))
+# rm(line_monthly_nc_plot_l)
+names(line_monthly_nc_plot_l) <-
+  names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc)
 
-line_monthly_nc_plot_l
+# View(line_monthly_nc_plot_l)
 
 sa_dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[2]]
 
