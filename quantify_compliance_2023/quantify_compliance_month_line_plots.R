@@ -108,14 +108,16 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
     vessel_official_number,
     compliant_,
     year_month,
-    year, permit_sa_gom_dual,
+    year, 
+    permit_sa_gom_dual,
     total_vsl_m_by_year_perm
   ) |>
   distinct()
 
 # Get compl, no compl, or both per month ----
 
-get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
+get_compl_by <- 
+  function(my_df, group_by_for_compl, names_from_list) {
   my_df %>%
     group_by_at(group_by_for_compl) %>%
     # can unique, because we are looking at vessels, not weeks
@@ -123,8 +125,6 @@ get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
     # more columns, a column per vessel
     tidyr::pivot_wider(
       names_from = all_of(names_from_list),
-      # names_glue =
-      #   "{names_from_list[[1]]}_{names_from_list[[1]]}_{.value}",
       values_from = compliant_,
       # make it "NO_YES" if both
       values_fn = ~ paste0(sort(.x), collapse = "_")
@@ -135,7 +135,12 @@ get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
 
 # all columns except "vessel_official_number" and "compliant_"
 group_by_for_compl_m <-
-  vars(c(year_month, year, permit_sa_gom_dual, total_vsl_m_by_year_perm))
+  vars(c(
+    year_month,
+    year,
+    permit_sa_gom_dual,
+    total_vsl_m_by_year_perm
+  ))
 
 names_from_list <- c("vessel_official_number")
 
@@ -145,6 +150,8 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide <-
     group_by_for_compl_m,
     names_from_list
   )
+
+# View(compl_clean_sa_vs_gom_m_int_tot_short_wide)
 
 ## Back to long format ----
 
@@ -162,6 +169,8 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long <-
     values_to = "is_compl_or_both",
     names_to = "vessel_official_number"
   )
+
+# glimpse(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
 
 # Add count vessels per month, region and compl ----
 
