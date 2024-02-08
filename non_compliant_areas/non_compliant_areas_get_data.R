@@ -221,6 +221,18 @@ vessels_from_pims <- get_vessel_data_pims()
 dim(vessels_from_pims)
 # [1] 23036     8
 
+## shorten info from PIMS ----
+# print_df_names(vessels_from_pims)
+vessels_from_pims_short <-
+  vessels_from_pims |>
+  rename("vessel_official_number" = official__) |>
+  select(vessel_official_number,
+         hailing_port) |>
+  distinct()
+
+# dim(vessels_from_pims_short)
+# [1] 22819     2
+
 # Get processed metrics tracking ----
 processed_input_data_path <- 
   file.path(my_paths$inputs,
@@ -328,6 +340,31 @@ n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 # 3473
 # 3377 2023
 # 4017 both
+
+# Add home port info to compl_err_db_data_metrics_2022_23_clean
+# print_df_names(compl_err_db_data_metrics_2022_23_clean)
+# vessel_official_number
+# print_df_names(vessels_from_pims_short)
+
+compl_err_db_data_metrics_2022_23_clean__ports <-
+  left_join(compl_err_db_data_metrics_2022_23_clean,
+            vessels_from_pims_short)
+
+# TODO:
+# ℹ Row 45238 of `x` matches multiple rows in `y`.
+# compl_err_db_data_metrics_2022_23_clean[45238,]
+# FL1431JU  
+# vessels_from_pims_short |> 
+#   filter(vessel_official_number == "FL1431JU") 
+# 2 ports per vessel
+
+# ℹ Row 20494 of `y` matches multiple rows in `x`.
+# vessels_from_pims_short[20494,]
+# FL3185SY               
+# compl_err_db_data_metrics_2022_23_clean |> 
+#   filter(vessel_official_number == "FL3185SY") |> 
+#   View()
+# multiple weeks
 
 # Add a combined column for year and permit_sa_gom_dual ----
 compl_err_db_data_metrics_2022_23_clean__comb_col <-
@@ -483,7 +520,7 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 # comp_week_start_dt and comp_week_end_dt to select()
 
 ## Remove columns not use in this analysis ----
-print_df_names(compl_err_db_data_metrics_2022_23_clean__comb_col_list[[1]])
+# print_df_names(compl_err_db_data_metrics_2022_23_clean__comb_col_list[[1]])
 compl_err_db_data_metrics_2022_23_clean__comb_col_list_short <-
   compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
   map(\(curr_df) {
@@ -494,115 +531,6 @@ compl_err_db_data_metrics_2022_23_clean__comb_col_list_short <-
              permit_sa_gom_dual) |>
       distinct()
   })
-
-# prepare vessel_permit_data ----
-## 2023 permits ----
-
-# Explanations:
-# The code creates a new data frame 'vessels_permits_home_port_22' using the pipe
-# operator and a series of dplyr functions:
-# - Filtering: Rows are filtered based on conditions involving date columns
-#   ('LAST_EXPIRATION_DATE', 'END_DATE', 'EXPIRATION_DATE', 'EFFECTIVE_DATE').
-#   The filter conditions involve checking whether the dates are greater than
-#   or less than "2021-12-31".
-# - remove_empty_cols(): This custom function removes any empty columns from
-#   the resulting data frame.
-# The final result is a filtered and cleaned data frame containing relevant permit data.
-
-vessels_permits_home_port_22 <-
-  all_get_db_data_result_l$vessels_permits |>
-  dplyr::filter(
-    LAST_EXPIRATION_DATE > "2021-12-31" |
-      END_DATE > "2021-12-31" |
-      EXPIRATION_DATE > "2021-12-31"
-  ) |> 
-  dplyr::filter(EFFECTIVE_DATE < "2021-12-31") |> 
-  remove_empty_cols()
-  
-## add permit region ----
-# 
-# This code creates a summarized data frame for vessels with permits in 2023 by grouping, summarizing, and separating permit types into three groups. Here's the breakdown of the comments:
-# 
-# 1. Creating a summarized data frame for vessels with permits in 2023.
-# 
-# 2. Using the pipe operator (`|>`) to pass the data frame `vessels_permits_home_port_22` to the subsequent functions.
-# 
-# 3. Grouping the data by vessel official number using the `dplyr::group_by` function.
-# 
-# 4. Adding a new column named 'all_permits' with all unique permit types as a comma-separated string using the `dplyr::mutate` function.
-# 
-# 5. Separating permits into three groups using a custom function named `separate_permits_into_3_groups`, with the new permit group field specified as "all_permits".
-# 
-# 6. Ungrouping the data to revert to the original data frame structure using the `ungroup` function.
-
-vessels_permits_home_port_22_reg <-
-  vessels_permits_home_port_22 |>
-  dplyr::group_by(SERO_OFFICIAL_NUMBER) |> 
-  dplyr::mutate(all_permits = toString(unique(sort(TOP)))) |>
-  separate_permits_into_3_groups(permit_group_field_name = "all_permits") |>
-  ungroup()
-
-vessels_permits_home_port_22_reg |>
-  select(permit_sa_gom) |> 
-  distinct()
-# 1 sa_only      
-# 2 gom_only     
-# 3 dual         
-
-# vessels_permits_home_port_22_reg |> dim()
-# [1] 36784    52
-
-## shorten permit_vessel ----
-vessels_permits_home_port_22_reg_short <-
-  vessels_permits_home_port_22_reg |>
-  dplyr::select(SERO_OFFICIAL_NUMBER,
-                permit_sa_gom,
-                dplyr::starts_with("SERO_HOME")) |>
-  remove_empty_cols() |>
-  dplyr::distinct()
-
-# dim(vessels_permits_home_port_22_reg_short)
-# [1] 4729    5
-# [1] 4739    5
-
-vessels_permits_home_port_short <-
-  all_get_db_data_result_l$vessels_permits |>
-  dplyr::select(SERO_OFFICIAL_NUMBER,
-                dplyr::starts_with("SERO_HOME")) |>
-  remove_empty_cols() |>
-  dplyr::distinct()
-
-# View(vessels_permits_home_port_short)
-
-# keep only vessels in metric tracking ----
-vessels_from_pims__vessels_from_metrics_j <-
-  left_join(
-    fhier_reports_metrics_tracking_not_srhs_all_cols_2023_perm,
-    vessels_from_pims,
-    join_by(vessel_official_number == official__)
-  )
-
-  # vessels_from_pims |>
-  # filter(
-  #   official__ %in% fhier_reports_metrics_tracking_not_srhs_all_cols_2023$vessel_official_number
-  # )
-
-dim(vessels_from_pims__vessels_from_metrics_j)
-# [1] 3245    8
-# [1] 3446   21
-
-# get home port info from PIMS ----
-# print_df_names(vessels_from_pims__vessels_from_metrics_j)
-vessels_from_pims__vessels_from_metrics_short <-
-  vessels_from_pims__vessels_from_metrics_j |>
-  select(vessel_official_number,
-         hailing_port,
-         permit_sa_gom_metr) |>
-  distinct()
-
-dim(vessels_from_pims__vessels_from_metrics_short)
-# [1] 3191    2
-# [1] 3392    3
 
 cat(
   "Result to use for vessels home port and its permit region:",
