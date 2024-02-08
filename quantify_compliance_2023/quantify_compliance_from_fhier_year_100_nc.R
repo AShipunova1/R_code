@@ -31,8 +31,6 @@ total_sa_dual_vessels <-
   ungroup() |> 
   select(year, cnts) |> 
   distinct()
-# 2421
-
 # 1 2022   2231
 # 2 2023   2436
 
@@ -44,7 +42,7 @@ never_reported_filter <-
                tolower(compliant_) == "no")
 
 dim(count_weeks_per_vsl_permit_year_compl_p_sa)
-# [1] 195479      9
+# [1] 6628    8
 
 count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
   count_weeks_per_vsl_permit_year_compl_p_sa |>
@@ -65,15 +63,28 @@ count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
                   group_vsl_cnt * 100 / total_vsl_y_by_year_perm) |>
   dplyr::ungroup()
 
-View(count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc)
+# count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |> 
+#   filter(vessel_official_number == "1020822") |> 
+#   View()
 
-nc_sa_23_tot_100_plot <-
-  count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |>
-  select(group_100_vs_rest,
-         perc_nc_100_gr_name,
-         group_vsl_cnt,
-         perc_of_perc) |>
-  distinct() |>
+nc_sa_23_tot_100_plots <-
+  count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$year |> 
+  unique() |> 
+  map(\(curr_year)
+      {
+  })
+  
+curr_year <- my_year2
+one_plot_100c <- function(curr_year) {
+  # one_plot <- 
+    count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |>
+    filter(year == curr_year) |>
+    select(vessel_official_number,
+      group_100_vs_rest,
+           perc_nc_100_gr_name,
+           group_vsl_cnt,
+           perc_of_perc) |>
+    distinct() |> View()
   ggplot(aes(x = perc_nc_100_gr_name,
              y = round(perc_of_perc, 0),
              fill = as.factor(group_100_vs_rest))) +
@@ -101,7 +112,7 @@ nc_sa_23_tot_100_plot <-
        y = "",
        # y = "% of All Vessels",
        x = "") +
-  ylim(0, 100)
+  ylim(0, 100)}
 
 # Add percent numbers on the bars
 nc_sa_23_tot_100_plot <-
