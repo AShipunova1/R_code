@@ -269,51 +269,51 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
 
 ## split by year_permit into a list ----
 ## add a new column ----
-compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__comb_col <-
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc |>
+  filter(compl_or_not == "non_compliant") |> 
   rowwise() |>
   mutate(year_permit_sa_gom_dual = paste(year, permit_sa_gom_dual)) |>
   ungroup()
 
+# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col)
+
 ## split
-compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l <-
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc <-
   split(
-    compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__comb_col,
+    compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col,
     as.factor(
-      compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__comb_col$year_permit_sa_gom_dual
+      compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col$year_permit_sa_gom_dual
     )
   )
+
+# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[1]])
 
 ## make % line plots by permit ----
 line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
 
 # one_year_permit <- "2023 sa_dual" (for test)
+# curr_permit_sa_gom_dual <- "2023 sa_only" #(for test)
 
-# TODO: change to year, permit_sa_gom_dual
 line_monthly_nc_plot_l <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l) |>
-  # [1] "2023 gom_only" "2023 sa_dual"
+#   [1] "2022 dual"     "2022 gom_only" "2022 sa_only"  "2023 dual"     "2023 gom_only"
+# [6] "2023 sa_only" 
   purrr::map(
-    function(curr_year,
-             curr_permit_sa_gom_dual) {
+    function(curr_year_permit) {
+      # browser()
+      curr_year_permit_l <- str_split(curr_year_permit, " ")
+      curr_year <- curr_year_permit_l[[1]][[1]]
+      curr_permit_sa_gom_dual <- curr_year_permit_l[[1]][[2]]
+      
       one_df <-
-        compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[one_year_permit]] |>
+        compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[curr_year_permit]] |>
         filter(compl_or_not == "non_compliant") |>
         mutate(my_label = paste0(round(cnt_m_compl_perc, 0), "%")) |>
         mutate(tot_cnt_label =
                  str_glue("{cnt_vsl_m_compl}/\n{total_vsl_m_by_year_perm}"))
-        # mutate(tot_per_m_xlabel =
-        #          factor(total_vsl_m_by_year_perm)) |> 
-        # mutate(year_m_factor =
-        #          factor(year_month))
       
-      # scaleFactor <-
-      #   max(as.double(one_df$year_month)) / max(one_df$total_vsl_m_by_year_perm)
-
       one_df |>
-      # (xf <- factor(x, levels = c("Male", "Man" , "Lady",   "Female"),
-      #            labels = c("Male", "Male", "Female", "Female")))
-
         ggplot(
           aes(
             x = as.Date(year_month),
@@ -345,29 +345,7 @@ line_monthly_nc_plot_l <-
           color = line_df_23_gom_monthly_nc_percent_plot_color,
           size = geom_text_size - 1
         ) +
-          # scale_y_continuous("Precipitation", 
-        # sec.axis = sec_axis(~ (. - a)/b, name = "Temperature")) +
-  # scale_x_continuous("Month (2023)", breaks = 1:12,
-  #                    sec.axis = dup_axis(~ one_df$total_vsl_m_by_year_perm, 
-  #                                        name = "Temperature")
-  #                    ) +
 
-          # scale_x_continuous(labels = ~paste(., .+50, sep = "\n"),
-          #            name = "Primary axis\nSecondary axis1")
-
-        # scale_x_date(date_breaks = "1 month", 
-        #              date_labels = 
-        #                ~paste("%b", total_vsl_m_by_year_perm,
-        #                       sep = "\n"),
-                     # sec.axis =
-                     #   dup_axis(name = "total vessel per month",
-                     #            labels = 0:length(one_df$year_m_factor)2)
-                     # labels =
-                                #   c(one_df$tot_per_m_xlabel, "")
-                                # )
-      # ) +
-      # scale_y_continuous(sec.axis = sec_axis( ~ . * scale, name = "Biomarker (IU/mL)")) +
-        
         theme(
           legend.position = "none",
           axis.text.x =
@@ -376,8 +354,8 @@ line_monthly_nc_plot_l <-
             element_text(size = axis_title_size)
         ) +
         ylim(0, 55) +
-        labs(x = "Months (2023)",
-             y = "Proportion of Non-Compliant Vessels") +
+        labs(x = str_glue("Months ({curr_year})"),
+             y = str_glue("Proportion of Non-Compliant {curr_permit_sa_gom_dual} Vessels")) +
         scale_x_date(date_breaks = "1 month", 
                      date_labels = "%b") +
         expand_limits(x = as.Date("12/31/23", "%m/%d/%y")) +
@@ -387,18 +365,11 @@ line_monthly_nc_plot_l <-
                  label =
                    one_df$tot_cnt_label,
                  color = "blue")
-
-        
-        # scale_x_discrete(date_breaks = "1 month", date_labels = "%b") +
-        
-                           
-        # 
-        # scale_x_continuous(sec.axis = ~ total_vsl_m_by_year_perm)
-
     })
 
 # ggplot(data=df,aes(x=Control, y=Stress))+geom_point()+scale_x_continuous(sec.axis = sec_axis(~ .+50,))
 
+line_monthly_nc_plot_l
 
 sa_dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[2]]
 
@@ -623,9 +594,11 @@ line_monthly_nc_plot_l <-
             color = line_df_23_gom_monthly_nc_percent_plot_color
           )
         ) +
-        geom_point(color = line_df_23_gom_monthly_nc_percent_plot_color,
+        geom_point(color =
+                     line_df_23_gom_monthly_nc_percent_plot_color,
                    size = point_size) +
-        geom_line(color = line_df_23_gom_monthly_nc_percent_plot_color,
+        geom_line(color =
+                    line_df_23_gom_monthly_nc_percent_plot_color,
                   linewidth = 1) +
         theme_bw() +
         geom_text(aes(
@@ -663,6 +636,8 @@ line_monthly_nc_plot_l <-
                    one_df$tot_cnt_label,
                  color = "blue")
     })
+
+line_monthly_nc_plot_l |> View()
 
 sa_only_line_monthly_nc_plot <- line_monthly_nc_plot_l[[3]]
 
