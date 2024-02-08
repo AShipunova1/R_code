@@ -268,10 +268,21 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
 # Plot non compliant perc by month ----
 
 ## split by year_permit into a list ----
-# TODO: year + permit_sa_gom_dual
+## add a new column ----
+compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__comb_col <-
+  compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc |>
+  rowwise() |>
+  mutate(year_permit_sa_gom_dual = paste(year, permit_sa_gom_dual)) |>
+  ungroup()
+
+## split
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l <-
-  split(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc,
-        as.factor(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc$year_permit))
+  split(
+    compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__comb_col,
+    as.factor(
+      compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__comb_col$year_permit_sa_gom_dual
+    )
+  )
 
 ## make % line plots by permit ----
 line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
