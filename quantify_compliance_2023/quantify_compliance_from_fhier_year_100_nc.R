@@ -68,7 +68,7 @@ count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
                        1,
                      .default = 2)) |>
   ungroup() |>
-  group_by(perc_nc_100_gr_name, year, compliant_, permit_sa_gom_dual) |>
+  group_by(perc_nc_100_gr_name, year, permit_sa_gom_dual) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   # filter(permit_sa_gom_dual == "dual", compliant_ == "YES",
   #        year == "2023") |>
@@ -81,79 +81,100 @@ count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
 
 count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |>
   filter(vessel_official_number == "1020822") |>
-  View()
+  glimpse()
+# $ year                       <chr> "2022", "2022", "2023", "2023"
+# $ perc_of_perc               <dbl> 79.33662, 79.33662, 83.46348, 83.46348
 
-nc_sa_23_tot_100_plots <-
-  count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$year |> 
-  unique() |> 
-  map(\(curr_year)
-      {
-        one_plot_100c(curr_year)
-  })
+# curr_year <- my_year2
+# curr_permit_sa_gom_dual <- "sa_only"
+
+make_one_plot_100c <- 
+  function(curr_year, curr_permit_sa_gom_dual) {
   
-curr_year <- my_year2
-one_plot_100c <- function(curr_year) {
-  one_plot <-
+  curr_df <- 
     count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |>
     filter(year == curr_year,
-           permit_sa_gom_dual == "sa_only") |>
+           permit_sa_gom_dual == curr_permit_sa_gom_dual) |>
     select(
       # vessel_official_number,
       group_100_vs_rest,
-           perc_nc_100_gr_name,
-           group_vsl_cnt,
+      perc_nc_100_gr_name,
+      group_vsl_cnt,
       permit_sa_gom_dual,
-      compliant_,
-           perc_of_perc) |>
-    distinct() |> 
-  ggplot(aes(x = perc_nc_100_gr_name,
-             y = round(perc_of_perc, 0),
-             fill = as.factor(group_100_vs_rest))) +
-  geom_col() +
-  scale_fill_manual(
-    # use custom colors
-    values =
-      c(
-        "2" = plot_colors[["compliant"]],
-        "1" = plot_colors[["non_compliant"]]
-      ),
-    labels = unique(count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$perc_nc_100_gr_name)
-  ) +
-  theme(legend.position = "none") +
-  theme(
-    axis.title.y = element_text(size = text_sizes[["axis_text_y_size"]]),
-    axis.text.x =
-      element_text(size = text_sizes[["axis_text_x_size"]]),
-    axis.text.y =
-      element_text(size = text_sizes[["axis_text_y_size"]])
-  ) +
-  # no x and y titles for individual plots
-  labs(title = 
-         stringr::str_glue("Never reported SA vsls in 2023 out of all compliant and non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$total_vsl_y_by_year_perm})"),
-       y = "",
-       # y = "% of All Vessels",
-       x = "") +
-  ylim(0, 100)
-  }
+      # compliant_,
+      perc_of_perc
+    ) |>
+    distinct()
+  
+  one_plot <-
+    curr_df |>
+    ggplot(aes(
+      x = perc_nc_100_gr_name,
+      y = round(perc_of_perc, 0),
+      fill = as.factor(group_100_vs_rest)
+    )) +
+    geom_col() +
+    scale_fill_manual(
+      # use custom colors
+      values =
+        c("2" = plot_colors[["compliant"]],
+          "1" = plot_colors[["non_compliant"]]),
+      labels = unique(
+        count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$perc_nc_100_gr_name
+      )
+    ) +
+    theme(legend.position = "none") +
+    theme(
+      axis.title.y = element_text(size = text_sizes[["axis_text_y_size"]]),
+      axis.text.x =
+        element_text(size = text_sizes[["axis_text_x_size"]]),
+      axis.text.y =
+        element_text(size = text_sizes[["axis_text_y_size"]])
+    ) +
+    # no x and y titles for individual plots
+    labs(
+      title =
+        stringr::str_glue(
+          "Never reported {curr_permit_sa_gom_dual} vsls in {curr_year} out of all compliant and non compliant\n (total vsls = {count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$total_vsl_y_by_year_perm})"
+        ),
+      y = "",
+      # y = "% of All Vessels",
+      x = ""
+    ) +
+    ylim(0, 100)
+  
+  # Add percent numbers on the bars
+  curr_tot_100_plot <-
+    one_plot +
+    geom_text(aes(label =
+                    paste0(round(perc_of_perc, 0), "%")),
+              # in the middle of the bar
+              position =
+                position_stack(vjust = 0.5),
+              size = text_sizes[["geom_text_size"]])
+  
+  return(curr_tot_100_plot)
+}
 
-# Add percent numbers on the bars
-nc_sa_23_tot_100_plot <-
-  # nc_sa_23_tot_100_plot +
-  one_plot +
-  geom_text(aes(label =
-                  paste0(round(perc_of_perc, 0), "%")),
-            # in the middle of the bar
-            position =
-              position_stack(vjust = 0.5),
-            size = text_sizes[["geom_text_size"]])
+sa_dual_tot_100_plots <-
+  count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$year |>
+  unique() |> 
+  map(\(curr_year) {
+    count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$permit_sa_gom_dual |>
+      unique() |>
+      map(\(curr_permit_sa_gom_dual) {
+        cat(c(curr_year, curr_permit_sa_gom_dual), "\n")
+        make_one_plot_100c(curr_year, curr_permit_sa_gom_dual)
+      })
+  })
 
-nc_sa_23_tot_100_plot
+sa_dual_tot_100_plots
 
-nc_sa_23_tot_100_plot_file_path <- 
+sa_dual_tot_100_plot_file_path <- 
   file.path(plot_file_path,
             "sa_dual_23_tot_100nc_plot.png")
 
-save_plots_list_to_files(nc_sa_23_tot_100_plot_file_path,
-                         nc_sa_23_tot_100_plot,
+save_plots_list_to_files(sa_dual_tot_100_plot_file_path,
+                         sa_dual_tot_100_plot,
                          my_width = 20,
                          my_height = 10)
