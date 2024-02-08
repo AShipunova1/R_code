@@ -55,7 +55,7 @@ count_weeks_per_vsl_permit_year_compl_p_sa |>
 
 # count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
   count_weeks_per_vsl_permit_year_compl_p_sa |>
-  group_by(year) |> 
+  group_by(year, permit_sa_gom_dual) |> 
   mutate(perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |>
   mutate(
     perc_nc_100_gr_name =
@@ -70,14 +70,15 @@ count_weeks_per_vsl_permit_year_compl_p_sa |>
   ungroup() |> 
   group_by(perc_nc_100_gr_name, year, compliant_, permit_sa_gom_dual) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
-    filter(permit_sa_gom_dual == "dual", compliant_ == "YES",
-           year == "2023") |> 
+    # filter(permit_sa_gom_dual == "dual", compliant_ == "YES",
+    #        year == "2023") |> 
     # filter(vessel_official_number == "TX6550AU") |> 
-    glimpse()
+    # glimpse()
     # 
   dplyr::mutate(perc_of_perc =
                   group_vsl_cnt * 100 / total_vsl_y_by_year_perm) |>
-  dplyr::ungroup()
+  dplyr::ungroup() |> 
+    View()
 
 # count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |> 
 #   filter(vessel_official_number == "1020822") |> 
