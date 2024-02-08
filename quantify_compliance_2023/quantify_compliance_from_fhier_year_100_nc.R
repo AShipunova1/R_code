@@ -97,6 +97,7 @@ make_one_plot_100c <-
            permit_sa_gom_dual == curr_permit_sa_gom_dual) |>
     select(
       # vessel_official_number,
+      year,
       total_vsl_y_by_year_perm,
       group_100_vs_rest,
       perc_nc_100_gr_name,
@@ -175,13 +176,36 @@ sa_dual_tot_100_plots <-
       })
   })
 
-sa_dual_tot_100_plots
+# sa_dual_tot_100_plots
 
-sa_dual_tot_100_plot_file_path <- 
-  file.path(plot_file_path,
-            "sa_dual_23_tot_100nc_plot.png")
+# drop dual 2022
+my_grobs_list <- list(sa_dual_tot_100_plots[[1]][[1]],
+                      sa_dual_tot_100_plots[[2]][[1]],
+                      sa_dual_tot_100_plots[[2]][[2]])
 
-save_plots_list_to_files(sa_dual_tot_100_plot_file_path,
-                         sa_dual_tot_100_plot,
-                         my_width = 20,
-                         my_height = 10)
+# combine plots ----
+grid.arrange(grobs = my_grobs_list)
+
+my_grobs_list |>
+  map(\(plot_name) {
+    # browser()
+    curr_permit_sa_gom_dual <-
+      unique(plot_name$data$permit_sa_gom_dual)
+    curr_year <- unique(plot_name$data$year)
+    
+    file_name_part <-
+      str_glue("{curr_permit_sa_gom_dual}_{curr_year}") |>
+      tolower()
+    
+    file_full_name_c_nc <-
+      file.path(plot_file_path,
+                str_glue("{file_name_part}_100nc_plot.png"))
+    
+    save_plots_list_to_files(file_full_name_c_nc,
+                             plot_name,
+                             my_width = 20,
+                             my_height = 10)
+  })
+
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance_2023/2024-02-07/dual_2023_100nc_plot.png"
+
