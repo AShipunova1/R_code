@@ -119,11 +119,14 @@ compl_clean_sa_vs_gom_m_int_c_short <-
   compl_clean_sa_vs_gom_m_int_c |>
   select(vessel_official_number,
          compliant_,
-         year) |>
+         year,
+         week_start, 
+         week_end) |>
   distinct()
 
 dim(compl_clean_sa_vs_gom_m_int_c_short)
 # [1] 9365    3
+# [1] 296286      5 w weeks
 
 # get permit info from PIMS ----
 get_permit_data_from_PIMS <- function() {
@@ -198,7 +201,7 @@ active_permits_from_pims_temp2 <-
 }
 
 permit_info <- get_permit_data_from_PIMS()
-# dim(permit_info)
+dim(permit_info)
 # [1] 23575    13
 
 # get vessel (home port) info from PIMS ----
@@ -240,7 +243,7 @@ vessels_from_pims_short <-
          hailing_port) |>
   distinct()
 
-# dim(vessels_from_pims_short)
+dim(vessels_from_pims_short)
 # [1] 22819     2
 
 # Get processed metrics tracking ----
@@ -269,7 +272,7 @@ names(processed_metrics_tracking_permits) <-
 dim(processed_metrics_tracking_permits)
 # [1] 6822    9
 
-# Keep only ids in metrics_tracking_not_srhs ----
+# In compl_clean_sa_vs_gom_m_int_c_short keep only ids in metrics_tracking_not_srhs ----
 
 compl_err_db_data_metrics <-
   left_join(
@@ -289,6 +292,7 @@ dim(compl_err_db_data_metrics)
 # [1] 411980     31 2023
 # [1] 535393     30
 # [1] 16450    11
+# [1] 535382     13 w weeks
 
 # keep 2022 and 20233 only ----
 # print_df_names(compl_err_db_data_metrics)
@@ -301,7 +305,7 @@ compl_err_db_data_metrics_2022_23 <-
 dim(compl_err_db_data_metrics_2022_23)
 # [1] 145261     31
 # [1] 146434     31 2023
-# 535334     both
+# 535323     both
 
 # min(compl_err_db_data_metrics_2022_23$week_start)
 # [1] "2022-01-03"
@@ -334,16 +338,21 @@ compl_err_db_data_metrics |>
 
 # TODO: Where is the first week (52 of the previous year)?
 
-## Remove empty columns ---
+## Remove empty and unused columns ---
 compl_err_db_data_metrics_2022_23_clean <-
   compl_err_db_data_metrics_2022_23 |>
   remove_empty_cols() |>
-  dplyr::distinct()
+  select(-c(week_start, week_end)) |>
+  distinct()
+
+dim(compl_err_db_data_metrics_2022_23)
+# [1] 535323     13
 
 dim(compl_err_db_data_metrics_2022_23_clean)
 # [1] 145261     29
 # [1] 146434     29 2023
 # [1] 496101     30
+# [1] 14933    11 no weeks
 
 # compl_err_db_data_metrics_2022_23_clean |> View()
 
