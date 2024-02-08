@@ -96,9 +96,8 @@ compl_clean_sa_vs_gom_m_int_tot |>
   select(year_month, permit_sa_gom_dual, total_vsl_m_by_year_perm) |>
   distinct() |> 
   group_by(year_month) |> 
-  mutate(sa_dual_cnt = sum(total_vsl_m_by_year_perm)) |> glimpse()
+  mutate(sa_dual_cnt = sum(total_vsl_m_by_year_perm)) |> 
   ungroup() |> 
-  distinct() |> 
   arrange(year_month) |> 
   head()
 
@@ -109,7 +108,7 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
     vessel_official_number,
     compliant_,
     year_month,
-    year_permit,
+    year, permit_sa_gom_dual,
     total_vsl_m_by_year_perm
   ) |>
   distinct()
@@ -136,7 +135,7 @@ get_compl_by <- function(my_df, group_by_for_compl, names_from_list) {
 
 # all columns except "vessel_official_number" and "compliant_"
 group_by_for_compl_m <-
-  vars(c(year_month, year_permit, total_vsl_m_by_year_perm))
+  vars(c(year_month, year, permit_sa_gom_dual, total_vsl_m_by_year_perm))
 
 names_from_list <- c("vessel_official_number")
 
@@ -151,7 +150,8 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide <-
 
 not_vessel_id_col_names <-
   c("year_month",
-    "year_permit",
+    "year",
+    "permit_sa_gom_dual",
     "total_vsl_m_by_year_perm")
 
 compl_clean_sa_vs_gom_m_int_tot_short_wide_long <- 
@@ -176,7 +176,8 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no <-
 
 # print_df_names(compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no)
 
-group_by_col <- c("year_permit", "year_month", "compl_or_not")
+group_by_col <-
+  c("year", "permit_sa_gom_dual", "year_month", "compl_or_not")
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
   add_cnt_in_gr(
@@ -246,6 +247,7 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
 # Plot non compliant perc by month ----
 
 ## split by year_permit into a list ----
+# TODO: year + permit_sa_gom_dual
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l <-
   split(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc,
         as.factor(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc$year_permit))
@@ -255,11 +257,13 @@ line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_mont
 
 # one_year_permit <- "2023 sa_dual" (for test)
 
+# TODO: change to year, permit_sa_gom_dual
 line_monthly_nc_plot_l <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l) |>
   # [1] "2023 gom_only" "2023 sa_dual"
   purrr::map(
-    function(one_year_permit) {
+    function(curr_year,
+             curr_permit_sa_gom_dual) {
       one_df <-
         compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l[[one_year_permit]] |>
         filter(compl_or_not == "non_compliant") |>
