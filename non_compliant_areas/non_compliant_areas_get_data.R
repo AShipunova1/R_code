@@ -584,6 +584,17 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 # comp_week_start_dt and comp_week_end_dt to select()
 # View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
 
+setdiff(
+  names(compl_err_db_data_metrics_2022_23_clean__comb_col_list[[1]]),
+  names(
+    compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col
+  )
+)
+
+# TODO: Why?
+#   [1] "vessel_name"   "permits"       "sa_permits_"   "gom_permits_" 
+# [5] "permit_region"
+
 cat(
   c(
     "Result to use for vessels home port and its permit region:",
@@ -638,8 +649,8 @@ tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 
 # Prepare home port coordinates ----
 
-vessels_from_pims__vessels_from_metrics_short_1 <- 
-  vessels_from_pims__vessels_from_metrics_short |> 
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1 <- 
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |> 
   mutate(hailing_port =
            str_replace(hailing_port,
                        " ,",
@@ -650,7 +661,7 @@ vessels_from_pims__vessels_from_metrics_short_1 <-
                        " "))
 
 grep(",[a-zA-Z]",
-     vessels_from_pims__vessels_from_metrics_short_1$hailing_port,
+     compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1$hailing_port,
      value = T)
 # 0
 
@@ -683,7 +694,7 @@ cat(
 # [1] "CRYSTAL  RIVER, FL"
 
 # diffdf::diffdf(vessels_from_pims__vessels_from_metrics_short,
-#                vessels_from_pims__vessels_from_metrics_short_1)
+#                compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1)
 #      Variable    No of Differences 
 #    hailing_port         179        
 # 
