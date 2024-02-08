@@ -370,19 +370,34 @@ line_monthly_nc_plot_l <-
 names(line_monthly_nc_plot_l) <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc)
 
-# View(line_monthly_nc_plot_l)
-
-sa_dual_line_monthly_nc_plot <- line_monthly_nc_plot_l[[2]]
+# print_df_names(line_monthly_nc_plot_l)
 
 # save to files ----
-file_full_name_m_perc_lines <- file.path(plot_file_path,
-                            "m_line_perc_23_sa_dual_plot.png")
+plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
+                   line_monthly_nc_plot_l["2023 sa_only"],
+                   line_monthly_nc_plot_l["2023 dual"])
 
-# see the function definition F2
-save_plots_list_to_files(file_full_name_m_perc_lines,
-                         sa_dual_line_monthly_nc_plot)
-
-# The same for SA and dual separately ----
+plots_to_save |>
+  map(\(one_plot) {
+    # browser()
+    curr_permit_sa_gom_dual <-
+      unique(one_plot$data$permit_sa_gom_dual)
+    curr_year <- unique(one_plot$data$year)
+    
+    file_name_part <-
+      str_glue("{curr_permit_sa_gom_dual}_{curr_year}") |>
+      tolower()
+    
+    file_full_name_c_nc <-
+      file.path(plot_file_path,
+                str_glue("m_line_perc_{file_name_part}_plot.png"))
+    
+    save_plots_list_to_files(file_full_name_c_nc,
+                             one_plot)
+  })
+# ...
+# $`2023 dual`
+# [1] "2024-02-08/m_line_perc_dual_2023_plot.png"
 
 ## Add total vessels count per month and region ----
 # (both compl. and not, a vsl can be in both)
