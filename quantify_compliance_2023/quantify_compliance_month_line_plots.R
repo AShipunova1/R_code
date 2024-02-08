@@ -82,6 +82,26 @@ compl_clean_sa_vs_gom_m_int_tot |>
 # 5 May 2023          2020
 # 6 Jun 2023          2026
 
+# 1 Jan 2023                       1753
+# 2 Feb 2023                       1744
+# 3 Mar 2023                       1740
+# 4 Apr 2023                       1752
+# 5 May 2023                       1791
+# 6 Jun 2023                       1793
+
+
+compl_clean_sa_vs_gom_m_int_tot |>
+  filter(year == "2023" &
+           !permit_sa_gom_dual == "gom_only") |> 
+  select(year_month, permit_sa_gom_dual, total_vsl_m_by_year_perm) |>
+  distinct() |> 
+  group_by(year_month) |> 
+  mutate(sa_dual_cnt = sum(total_vsl_m_by_year_perm)) |> glimpse()
+  ungroup() |> 
+  distinct() |> 
+  arrange(year_month) |> 
+  head()
+
 # Fewer columns ----
 compl_clean_sa_vs_gom_m_int_tot_short <-
   compl_clean_sa_vs_gom_m_int_tot |>
