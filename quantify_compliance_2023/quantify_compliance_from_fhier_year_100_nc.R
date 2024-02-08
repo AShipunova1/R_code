@@ -8,7 +8,14 @@
 # all SA vessels (compl and not compl alike) ----
 count_weeks_per_vsl_permit_year_compl_p_sa <-
   count_weeks_per_vsl_permit_year_compl_p |>
+  select(-c(week_start, week_num)) |>
+  distinct() |> 
   dplyr::filter(!!sa_dual_filter)
+
+dim(count_weeks_per_vsl_permit_year_compl_p)
+# [1] 298147     10
+dim(count_weeks_per_vsl_permit_year_compl_p_sa)
+# [1] 6628    8
 
 count_weeks_per_vsl_permit_year_compl_p_sa |> 
   select(year, permit_sa_gom_dual) |> 
@@ -17,19 +24,17 @@ count_weeks_per_vsl_permit_year_compl_p_sa |>
 # 2 2023  sa_only           
 # 3 2023  dual              
 
-
-# count_weeks_per_vsl_permit_year_compl_p$permit_sa_gom |>
-#   unique()
-# [1] "sa_only"  "dual"     "gom_only"
-
-# Use if separate SA and dual
-# count_weeks_per_vsl_permit_year_compl_p_sa_23_perm <-
-#   count_weeks_per_vsl_permit_year_compl_p |>
-#   dplyr::filter(!permit_sa_gom == "gom_only")
-
-total_sa_dual_vessels <- 
-  n_distinct(count_weeks_per_vsl_permit_year_compl_p_sa_23$vessel_official_number)
+total_sa_dual_vessels <-
+  count_weeks_per_vsl_permit_year_compl_p_sa |> 
+  group_by(year) |>
+  mutate(cnts = n_distinct(vessel_official_number)) |>
+  ungroup() |> 
+  select(year, cnts) |> 
+  distinct()
 # 2421
+
+# 1 2022   2231
+# 2 2023   2436
 
 # 100% non compliant out of total ----
 
@@ -38,8 +43,11 @@ never_reported_filter <-
   rlang::quo(perc_nc_100_gr == 2 &
                tolower(compliant_) == "no")
 
-count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc <-
-  count_weeks_per_vsl_permit_year_compl_p_sa_23 |>
+dim(count_weeks_per_vsl_permit_year_compl_p_sa)
+# [1] 195479      9
+
+count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
+  count_weeks_per_vsl_permit_year_compl_p_sa |>
   mutate(perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |>
   mutate(
     perc_nc_100_gr_name =
@@ -51,14 +59,16 @@ count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc <-
            case_when(!!never_reported_filter ~
                        1,
                      .default = 2)) |>
-  group_by(perc_nc_100_gr_name) |>
+  group_by(perc_nc_100_gr_name, year) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
   dplyr::mutate(perc_of_perc =
                   group_vsl_cnt * 100 / total_vsl_y_by_year_perm) |>
   dplyr::ungroup()
 
+View(count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc)
+
 nc_sa_23_tot_100_plot <-
-  count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc |>
+  count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |>
   select(group_100_vs_rest,
          perc_nc_100_gr_name,
          group_vsl_cnt,
@@ -75,7 +85,7 @@ nc_sa_23_tot_100_plot <-
         "2" = plot_colors[["compliant"]],
         "1" = plot_colors[["non_compliant"]]
       ),
-    labels = unique(count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc$perc_nc_100_gr_name)
+    labels = unique(count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$perc_nc_100_gr_name)
   ) +
   theme(legend.position = "none") +
   theme(
@@ -87,7 +97,7 @@ nc_sa_23_tot_100_plot <-
   ) +
   # no x and y titles for individual plots
   labs(title = 
-         stringr::str_glue("Never reported SA vsls in 2023 out of all compliant and non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_sa_23__tot_perc$total_vsl_y_by_year_perm})"),
+         stringr::str_glue("Never reported SA vsls in 2023 out of all compliant and non compliant (total vsls = {count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$total_vsl_y_by_year_perm})"),
        y = "",
        # y = "% of All Vessels",
        x = "") +
