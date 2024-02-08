@@ -106,10 +106,14 @@ make_one_plot_100c <-
       perc_of_perc
     ) |>
     distinct()
+
+  curr_title_permit <-
+    title_permits %>%
+    filter(permit_sa_gom_dual == curr_permit_sa_gom_dual)
   
   curr_title <-
     stringr::str_glue(
-      "Never reported {curr_permit_sa_gom_dual} vsls in {curr_year} out of all compliant and non compliant\n (total vsls = {curr_df$total_vsl_y_by_year_perm})"
+      "Never reported {curr_title_permit$title} {curr_title_permit$second_part} in {curr_year}\n out of all compliant and non compliant (total vsls = {curr_df$total_vsl_y_by_year_perm})"
     )
   
   one_plot <-
