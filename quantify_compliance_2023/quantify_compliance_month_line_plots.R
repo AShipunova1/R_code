@@ -170,7 +170,9 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long <-
     names_to = "vessel_official_number"
   )
 
-# glimpse(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
+# View(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
+# compl_clean_sa_vs_gom_m_int_tot_short_wide_long$is_compl_or_both |> unique()
+# [1] "YES"    "NO"     NA       "NO_YES"
 
 # Add count vessels per month, region and compl ----
 
@@ -194,6 +196,8 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
     group_by_col,
     "cnt_vsl_m_compl"
   )
+
+# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
 
 ## test cnts compl per month ----
 # tic("test tot cnts per month")
@@ -236,6 +240,13 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
 # $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_c…
 # $ cnt_vsl_m_compl          <int> 1645, 322, 674, 1
 
+# today()
+# [1] "2024-02-08"
+# $ permit_sa_gom_dual       <chr> "sa_only", "sa_only", "dual", "dual", "gom_only", "go…
+# $ total_vsl_m_by_year_perm <int> 1753, 1753, 285, 285, 850, 850
+# $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_compl…
+# $ cnt_vsl_m_compl          <int> 1434, 319, 273, 12, 847, 3
+
 # Month: percent compl vessels per per month ----
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <- 
@@ -243,15 +254,16 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <-
   select(-vessel_official_number) |> 
   distinct()
 
-glimpse(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short)
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short)
 # [1] 38  5
+# 144   6 (sep dual)
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short |>
   mutate(cnt_m_compl_perc =
            cnt_vsl_m_compl * 100 / total_vsl_m_by_year_perm)
 
-# glimpse(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc)
+# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc)
 
 # Plot non compliant perc by month ----
 
