@@ -309,7 +309,6 @@ compl_err_db_data_metrics |>
 # 104 2023-12-31
 # 105       <NA>
 
-
 # TODO: Where is the first week (52 of the previous year)?
 
 ## Remove empty columns ---
@@ -330,7 +329,7 @@ n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 # 3377 2023
 # 4017 both
 
-## add a combined column for year and permit_sa_gom_dual ----
+# Add a combined column for year and permit_sa_gom_dual ----
 compl_err_db_data_metrics_2022_23_clean__comb_col <-
   compl_err_db_data_metrics_2022_23_clean |>
   rowwise() |>
@@ -362,13 +361,19 @@ compl_err_db_data_metrics_2022_23_clean |>
 
 ## split into separate dfs by permit region in metrics tracking ----
 
-## split into separate dfs by permit region ----
+print_df_names(compl_err_db_data_metrics_2022_23_clean__comb_col)
 
-compl_err_db_data_metrics_2022_23_clean_list <- 
-  compl_err_db_data_metrics_2022_23_clean |> View()
-  split(as.factor(processed_metrics_tracking_permits$permit_sa_gom_metr))
+compl_err_db_data_metrics_2022_23_clean__comb_col_list <-
+  compl_err_db_data_metrics_2022_23_clean__comb_col |>
+  split(
+    as.factor(
+      compl_err_db_data_metrics_2022_23_clean__comb_col$year_permit_sa_gom_dual
+    )
+  )
 
-map(compl_err_db_data_metrics_2022_23_clean_list, dim)
+# View(compl_err_db_data_metrics_2022_23_clean__comb_col_list)
+
+map(compl_err_db_data_metrics_2022_23_clean__comb_col_list, dim)
 # $GOM
 # [1] 54765    29
 # 
@@ -386,7 +391,7 @@ map(compl_err_db_data_metrics_2022_23_clean_list, dim)
 # [1] 90397    30
 
 ## check vessel/compl counts ----
-compl_err_db_data_metrics_2022_23_clean_list |>
+compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
   map(\(curr_df) {
     curr_df |>
       dplyr::select(vessel_official_number, is_comp) |>
@@ -414,7 +419,7 @@ compl_err_db_data_metrics_2022_23_clean_list |>
 # 1       0  1338
 # 2       1  1799
 
-map(compl_err_db_data_metrics_2022_23_clean_list,
+map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
     \(reg_df) {
       n_distinct(reg_df$vessel_official_number)
     })
@@ -449,8 +454,8 @@ map(compl_err_db_data_metrics_2022_23_clean_list,
 # if override is taken in the account, add it
 
 ## Remove columns not use in this analysis ----
-compl_err_db_data_metrics_2022_23_clean_list_short <- 
-  compl_err_db_data_metrics_2022_23_clean_list |>
+compl_err_db_data_metrics_2022_23_clean__comb_col_list_short <- 
+  compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
   map(\(curr_df) {
     curr_df |>
       dplyr::select(vessel_official_number, is_comp) |>
@@ -649,7 +654,7 @@ cat(
   blue("All DB data:"),
   "all_get_db_data_result_l",
   blue("compl 2023:"),
-  "compl_err_db_data_metrics_2022_23_clean_list_short",
+  "compl_err_db_data_metrics_2022_23_clean__comb_col_list_short",
   blue("vessel_permit 2023 with lat/long:"),
   "vessels_permits_home_port_lat_longs_city_state",
   blue("Maps:"),
