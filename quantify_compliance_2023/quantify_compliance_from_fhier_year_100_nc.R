@@ -93,15 +93,19 @@ nc_sa_23_tot_100_plots <-
   
 curr_year <- my_year2
 one_plot_100c <- function(curr_year) {
-  # one_plot <- 
+  one_plot <-
     count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |>
-    filter(year == curr_year) |>
-    select(vessel_official_number,
+    filter(year == curr_year,
+           permit_sa_gom_dual == "sa_only") |>
+    select(
+      # vessel_official_number,
       group_100_vs_rest,
            perc_nc_100_gr_name,
            group_vsl_cnt,
+      permit_sa_gom_dual,
+      compliant_,
            perc_of_perc) |>
-    distinct() |> View()
+    distinct() |> 
   ggplot(aes(x = perc_nc_100_gr_name,
              y = round(perc_of_perc, 0),
              fill = as.factor(group_100_vs_rest))) +
@@ -129,11 +133,13 @@ one_plot_100c <- function(curr_year) {
        y = "",
        # y = "% of All Vessels",
        x = "") +
-  ylim(0, 100)}
+  ylim(0, 100)
+  }
 
 # Add percent numbers on the bars
 nc_sa_23_tot_100_plot <-
-  nc_sa_23_tot_100_plot +
+  # nc_sa_23_tot_100_plot +
+  one_plot +
   geom_text(aes(label =
                   paste0(round(perc_of_perc, 0), "%")),
             # in the middle of the bar
