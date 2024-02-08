@@ -115,6 +115,16 @@ compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 toc()
 # get_data_from_csv: 7.55 sec elapsed
 
+compl_clean_sa_vs_gom_m_int_c_short <-
+  compl_clean_sa_vs_gom_m_int_c |>
+  select(vessel_official_number,
+         compliant_,
+         year) |>
+  distinct()
+
+dim(compl_clean_sa_vs_gom_m_int_c_short)
+# [1] 9365    3
+
 # get permit info from PIMS ----
 get_permit_data_from_PIMS <- function() {
   permit_names_file_path =
@@ -264,10 +274,10 @@ dim(processed_metrics_tracking_permits)
 compl_err_db_data_metrics <-
   left_join(
     processed_metrics_tracking_permits,
-    compl_clean_sa_vs_gom_m_int_c,
-    join_by(vessel_official_number,
+    compl_clean_sa_vs_gom_m_int_c_short,
+    join_by(vessel_official_number),
             relationship =
-              "many-to-many")
+              "many-to-many"
   )
 
 # TODO: check
@@ -278,6 +288,7 @@ dim(compl_err_db_data_metrics)
 # [1] 408454     31
 # [1] 411980     31 2023
 # [1] 535393     30
+# [1] 16450    11
 
 # keep 2022 and 20233 only ----
 # print_df_names(compl_err_db_data_metrics)
