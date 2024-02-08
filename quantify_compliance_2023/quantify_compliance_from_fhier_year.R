@@ -417,18 +417,88 @@ my_grobs_list |>
 # Non compliant only ----
 # compl_clean_sa_vs_gom_m_int_tot |> print_df_names()
 
-# start with the new data with expiration by year
 # 1) count percents - a given vsl non_compl per counted weeks total ----
-## 1a) how many weeks each vessel was present ----
-# View(compl_clean_sa_vs_gom_m_int_tot)
+## 1a) how many weeks each vessel was present in a year ----
 
-weeks_per_vsl_permit_year_compl_cnt1 <-
-  compl_clean_sa_vs_gom_m_int_tot %>%
-  group_by(year,
-           permit_sa_gom_dual) |> 
-  dplyr::add_count(vessel_official_number,
-                   compliant_,
-                   name = "weeks_per_vessel_per_compl_year") %>%
+# compl_clean_sa_vs_gom_m_int_tot1 <-
+#   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot, 
+#                       c("permit_sa_gom_dual", "year"))
+# 
+# diffdf::diffdf(compl_clean_sa_vs_gom_m_int_tot,
+#                compl_clean_sa_vs_gom_m_int_tot1)
+
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot)
+# [1] "vessel_official_number, name, permitgroup, permit_groupexpiration, year, week, gom_permitteddeclarations__, captainreports__, negativereports__, complianceerrors__, compliant_, set_permits_on_hold_, overridden_, override_date, override_by, contactedwithin_48_hours_, submittedpower_down_, week_num, week_start, week_end, year_month, year_quarter, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual, total_vsl_y_by_year_perm"
+
+compl_clean_sa_vs_gom_m_int_tot_short <-
+  compl_clean_sa_vs_gom_m_int_tot |>
+  select(
+    -c(
+      name,
+      permitgroup,
+      permit_groupexpiration,
+      week,
+      gom_permitteddeclarations__,
+      captainreports__,
+      negativereports__,
+      complianceerrors__,
+      set_permits_on_hold_,
+      overridden_,
+      override_date,
+      override_by,
+      contactedwithin_48_hours_,
+      submittedpower_down_,
+      week_num,
+      week_end,
+      year_month,
+      year_quarter,
+      vessel_name,
+      effective_date,
+      end_date,
+      permits,
+      sa_permits_,
+      gom_permits_,
+      permit_region
+    )
+  ) |> 
+  distinct()
+
+# dim(compl_clean_sa_vs_gom_m_int_tot)
+# [1] 535295     31
+# dim(compl_clean_sa_vs_gom_m_int_tot_short)
+# [1] 298147      6
+
+compl_clean_sa_vs_gom_m_int_tot_w <- 
+add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot,
+                    c("permit_sa_gom_dual", "year", "week_start"))
+
+# weeks_per_vsl_permit_year_compl_cnt1 <-
+compl_clean_sa_vs_gom_m_int_tot %>%
+  select(
+    vessel_official_number,
+    year,
+    week_start,
+    permit_sa_gom_dual,
+    total_vsl_y_by_year_perm,
+    compliant_
+  ) |> 
+  group_by(year, permit_sa_gom_dual, compliant_) |> 
+  count(vessel_official_number) |> 
+  ungroup() |> 
+  View()
+
+
+
+group_by(year) |> 
+# ,
+           # permit_sa_gom_dual) |>
+  count(vessel_official_number,
+        compliant_,
+        name = "weeks_per_vessel_per_compl_year") |> 
+  filter(vessel_official_number == "VI5498TB") |>
+  ungroup() |>
+  glimpse()
+
   dplyr::add_count(vessel_official_number,
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
