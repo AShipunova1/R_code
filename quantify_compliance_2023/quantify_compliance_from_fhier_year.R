@@ -2,12 +2,15 @@
 ## year add total ----
 # (both compl. and not, a vsl can be in both)
 
-add_total_cnt_in_gr <- function(my_df, group_by_col) {
-  my_df %>%
+add_total_cnt_in_gr <- 
+  function(my_df, 
+           group_by_col, 
+           new_col_name = "total_vsl_y_by_year_perm") {
+    my_df %>%
     # group by per year and permit
     dplyr::group_by_at(group_by_col) %>%
     # cnt distinct vessels in each group
-    dplyr::mutate(total_vsl_y_by_year_perm =
+    dplyr::mutate({{new_col_name}} :=
                     dplyr::n_distinct(vessel_official_number)) %>%
     dplyr::ungroup() %>%
     return()
@@ -17,6 +20,8 @@ compl_clean_sa_vs_gom_m_int_tot <-
   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int__join_metrics, 
                       c("permit_sa_gom_dual", "year"))
 
+diffdf::diffdf(compl_clean_sa_vs_gom_m_int_tot,
+               compl_clean_sa_vs_gom_m_int_tot11)
 # check
 res1 <-
   compl_clean_sa_vs_gom_m_int__join_metrics |>
@@ -448,7 +453,7 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
       override_by,
       contactedwithin_48_hours_,
       submittedpower_down_,
-      week_num,
+      # week_num,
       week_end,
       year_month,
       year_quarter,
@@ -466,35 +471,14 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 # dim(compl_clean_sa_vs_gom_m_int_tot)
 # [1] 535295     31
 # dim(compl_clean_sa_vs_gom_m_int_tot_short)
-# [1] 298147      6
+# [1] 298147      7
 
-compl_clean_sa_vs_gom_m_int_tot_w <- 
-add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot,
-                    c("permit_sa_gom_dual", "year", "week_start"))
+compl_clean_sa_vs_gom_m_int_tot_short_week <-
+  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot_short,
+                      c("permit_sa_gom_dual", "year", "week_start"))
 
-# weeks_per_vsl_permit_year_compl_cnt1 <-
-compl_clean_sa_vs_gom_m_int_tot %>%
-  select(
-    vessel_official_number,
-    year,
-    week_start,
-    permit_sa_gom_dual,
-    total_vsl_y_by_year_perm,
-    compliant_
-  ) |> 
-  group_by(year, permit_sa_gom_dual, compliant_) |> 
-  count(vessel_official_number) |> 
-  ungroup() |> 
-  View()
-
-
-
-group_by(year) |> 
-# ,
-           # permit_sa_gom_dual) |>
-  count(vessel_official_number,
-        compliant_,
-        name = "weeks_per_vessel_per_compl_year") |> 
+# View(compl_clean_sa_vs_gom_m_int_tot_short_week)
+compl_clean_sa_vs_gom_m_int_tot_short_week |> 
   filter(vessel_official_number == "VI5498TB") |>
   ungroup() |>
   glimpse()
