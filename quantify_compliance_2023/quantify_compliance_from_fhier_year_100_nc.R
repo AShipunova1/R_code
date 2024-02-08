@@ -97,6 +97,7 @@ make_one_plot_100c <-
            permit_sa_gom_dual == curr_permit_sa_gom_dual) |>
     select(
       # vessel_official_number,
+      total_vsl_y_by_year_perm,
       group_100_vs_rest,
       perc_nc_100_gr_name,
       group_vsl_cnt,
@@ -105,6 +106,11 @@ make_one_plot_100c <-
       perc_of_perc
     ) |>
     distinct()
+  
+  curr_title <-
+    stringr::str_glue(
+      "Never reported {curr_permit_sa_gom_dual} vsls in {curr_year} out of all compliant and non compliant\n (total vsls = {curr_df$total_vsl_y_by_year_perm})"
+    )
   
   one_plot <-
     curr_df |>
@@ -133,10 +139,7 @@ make_one_plot_100c <-
     ) +
     # no x and y titles for individual plots
     labs(
-      title =
-        stringr::str_glue(
-          "Never reported {curr_permit_sa_gom_dual} vsls in {curr_year} out of all compliant and non compliant\n (total vsls = {count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$total_vsl_y_by_year_perm})"
-        ),
+      title = curr_title,
       y = "",
       # y = "% of All Vessels",
       x = ""
