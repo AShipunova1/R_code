@@ -251,31 +251,45 @@ dim(processed_metrics_tracking_permits)
 
 compl_err_db_data_metrics <-
   left_join(
-    fhier_reports_metrics_tracking_not_srhs_all_cols_2023_perm,
-    compl_err_db_data,
-    join_by(vessel_official_number == vessel_official_nbr)
+    processed_metrics_tracking_permits,
+    compl_clean_sa_vs_gom_m_int_c,
+    join_by(vessel_official_number,
+            relationship =
+              "many-to-many")
   )
+
+# TODO: check
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 2744 of `y` matches multiple rows in `x`.
 
 dim(compl_err_db_data_metrics)
 # [1] 408454     31
 # [1] 411980     31 2023
+# [1] 535393     30
 
 ## 2023 only ---
+# print_df_names(compl_err_db_data_metrics)
 
-# Explanations:
-# The code uses the filter() function from the dplyr package to subset the
-# 'compl_err_db_data_metrics' data frame based on date conditions:
-# - Rows where 'comp_week_start_dt' is before '2023-01-01'.
-# - Rows where 'comp_week_end_dt' is on or after '2023-01-01'.
-# The result is stored in 'compl_err_db_data_metrics_2023'.
-compl_err_db_data_metrics_2023 <-
+compl_err_db_data_metrics_2022_23 <-
   compl_err_db_data_metrics |>
-  filter(comp_week_end_dt >= '2023-01-01' &
-           comp_week_start_dt < '2024-01-01')
+  filter(week_end >= my_beginning1 &
+           week_start <= my_end2)
 
-dim(compl_err_db_data_metrics_2023)
+dim(compl_err_db_data_metrics_2022_23)
 # [1] 145261     31
 # [1] 146434     31 2023
+# 535334     both
+
+# min(compl_err_db_data_metrics_2022_23$week_start)
+# [1] "2022-01-03"
+# min(compl_err_db_data_metrics_2022_23$week_end)
+# [1] "2022-01-09"
+# max(compl_err_db_data_metrics_2022_23$week_start)
+# [1] "2023-12-25"
+# max(compl_err_db_data_metrics_2022_23$week_end)
+# [1] "2023-12-31"
+
+# TODO: Where is the first week (52 of the previous year)?
 
 # compl_err_db_data_metrics_2023 |>
 #   filter(permit_grouping_region == "GOM") |>
