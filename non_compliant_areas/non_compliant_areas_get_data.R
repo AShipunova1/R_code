@@ -374,11 +374,6 @@ compl_err_db_data_metrics_2022_23_clean__comb_col_list <-
 # View(compl_err_db_data_metrics_2022_23_clean__comb_col_list)
 
 map(compl_err_db_data_metrics_2022_23_clean__comb_col_list, dim)
-# $GOM
-# [1] 54765    29
-# 
-# $SA
-# [1] 90496    29
 # ---
 # 2023
 # $dual
@@ -389,6 +384,28 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list, dim)
 # 
 # $sa_only
 # [1] 90397    30
+
+# ---
+# TODO: Why more?
+# $`2022 dual`
+# [1] 22518    31
+# 
+# $`2022 gom_only`
+# [1] 72553    31
+# 
+# $`2022 sa_only`
+# [1] 146471     31
+# 
+# $`2023 dual`
+# [1] 23598    31
+# 
+# $`2023 gom_only`
+# [1] 80262    31
+# 
+# $`2023 sa_only`
+# [1] 150699     31
+
+
 
 ## check vessel/compl counts ----
 compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
