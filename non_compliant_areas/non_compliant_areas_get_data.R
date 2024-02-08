@@ -483,11 +483,15 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 # comp_week_start_dt and comp_week_end_dt to select()
 
 ## Remove columns not use in this analysis ----
-compl_err_db_data_metrics_2022_23_clean__comb_col_list_short <- 
+print_df_names(compl_err_db_data_metrics_2022_23_clean__comb_col_list[[1]])
+compl_err_db_data_metrics_2022_23_clean__comb_col_list_short <-
   compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
   map(\(curr_df) {
     curr_df |>
-      dplyr::select(vessel_official_number, compliant_) |>
+      select(vessel_official_number,
+             compliant_,
+             year,
+             permit_sa_gom_dual) |>
       distinct()
   })
 
