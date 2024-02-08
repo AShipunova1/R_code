@@ -586,7 +586,7 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 
 cat(
   "Result to use for vessels home port and its permit region:",
-  "vessels_from_pims__vessels_from_metrics_short",
+  "compl_err_db_data_metrics_2022_23_clean__comb_col_list",
   sep = "\n"
 )
 
