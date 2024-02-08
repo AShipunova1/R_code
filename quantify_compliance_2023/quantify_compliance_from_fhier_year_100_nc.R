@@ -3,12 +3,20 @@
 # SA vessels that never reported anything ----
 # Jessica wants to see 1 more figure for the SA, that is the proportion of SA vessels that never reported anything - whereas, your compliance for all of 2023 means of the 54% non-compliant, they may only be missing 1 week in the whole year. 
 
-# Calculate the percentage of never compliant entries from all entries in 2023
+# Calculate the percentage of never compliant entries from all entries in each year
 
 # all SA vessels (compl and not compl alike) ----
-count_weeks_per_vsl_permit_year_compl_p_sa_23 <-
+count_weeks_per_vsl_permit_year_compl_p_sa <-
   count_weeks_per_vsl_permit_year_compl_p |>
-  dplyr::filter(year_permit == "2023 sa_dual")
+  dplyr::filter(!!sa_dual_filter)
+
+count_weeks_per_vsl_permit_year_compl_p_sa |> 
+  select(year, permit_sa_gom_dual) |> 
+  distinct()
+# 1 2022  sa_only           
+# 2 2023  sa_only           
+# 3 2023  dual              
+
 
 # count_weeks_per_vsl_permit_year_compl_p$permit_sa_gom |>
 #   unique()
