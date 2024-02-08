@@ -247,7 +247,7 @@ names(processed_metrics_tracking_permits) <-
 dim(processed_metrics_tracking_permits)
 # [1] 6822    9
 
-# Keep only ids in fhier_reports_metrics_tracking_not_srhs_ids ----
+# Keep only ids in metrics_tracking_not_srhs ----
 
 compl_err_db_data_metrics <-
   left_join(
@@ -267,7 +267,7 @@ dim(compl_err_db_data_metrics)
 # [1] 411980     31 2023
 # [1] 535393     30
 
-## 2023 only ---
+# keep 2022 and 20233 only ----
 # print_df_names(compl_err_db_data_metrics)
 
 compl_err_db_data_metrics_2022_23 <-
@@ -289,6 +289,27 @@ dim(compl_err_db_data_metrics_2022_23)
 # max(compl_err_db_data_metrics_2022_23$week_end)
 # [1] "2023-12-31"
 
+compl_err_db_data_metrics |>
+  select(week_start) |> 
+  distinct() |> 
+  arrange(week_start) |> 
+  # head(1)
+# 1 2022-01-03
+  tail()
+# 104 2023-12-25
+# 105       <NA>
+
+compl_err_db_data_metrics |>
+  select(week_end) |> 
+  distinct() |> 
+  arrange(week_end) |> 
+  # head(1)
+# 1 2022-01-09
+  tail()
+# 104 2023-12-31
+# 105       <NA>
+
+
 # TODO: Where is the first week (52 of the previous year)?
 
 ## Remove empty columns ---
@@ -309,8 +330,24 @@ n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 # 3377 2023
 # 4017 both
 
+## add a combined column for year and permit_sa_gom_dual ----
+compl_err_db_data_metrics_2022_23_clean__comb_col <-
+  compl_err_db_data_metrics_2022_23_clean |>
+  rowwise() |>
+  mutate(year_permit_sa_gom_dual = 
+           paste(year, permit_sa_gom_dual)) |>
+  ungroup()
 
-## split into separate dfs by permit region in metrics tracking ----
+compl_err_db_data_metrics_2022_23_clean__comb_col |> 
+  select(year_permit_sa_gom_dual) |> 
+  distinct()
+# 1 2022 gom_only          
+# 2 2023 gom_only          
+# 3 2022 dual              
+# 4 2023 dual              
+# 5 2022 sa_only           
+# 6 2023 sa_only           
+
 # check, Metrics tracking error!
 compl_err_db_data_metrics_2022_23_clean |>
   select(permit_grouping_region, sa_permits_, gom_permits_) |>
@@ -322,6 +359,8 @@ compl_err_db_data_metrics_2022_23_clean |>
 # 2 GOM                    N           Y           
 # 3 GOM                    Y           Y           
 # I.e. GOM == "gom and dual"
+
+## split into separate dfs by permit region in metrics tracking ----
 
 ## split into separate dfs by permit region ----
 
