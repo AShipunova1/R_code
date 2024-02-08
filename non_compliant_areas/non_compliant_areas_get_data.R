@@ -582,11 +582,14 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 
 # if compliance is checked for only when permit is active add:
 # comp_week_start_dt and comp_week_end_dt to select()
-
+# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
 
 cat(
-  "Result to use for vessels home port and its permit region:",
-  "compl_err_db_data_metrics_2022_23_clean__comb_col_list",
+  c(
+    "Result to use for vessels home port and its permit region:",
+    "compl_err_db_data_metrics_2022_23_clean__comb_col_list",
+    "compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col"
+  ),
   sep = "\n"
 )
 
