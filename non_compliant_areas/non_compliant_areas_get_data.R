@@ -113,6 +113,7 @@ additional_clean_up <- function(my_df) {
 tic("get_data_from_csv")
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 toc()
+# get_data_from_csv: 7.55 sec elapsed
 
 # get permit info from PIMS ----
 get_permit_data_from_PIMS <- function() {
@@ -187,7 +188,7 @@ active_permits_from_pims_temp2 <-
 }
 
 permit_info <- get_permit_data_from_PIMS()
-# print_df_names(permit_info)
+# dim(permit_info)
 # [1] 23575    13
 
 # get vessel (home port) info from PIMS ----
@@ -220,43 +221,33 @@ vessels_from_pims <- get_vessel_data_pims()
 dim(vessels_from_pims)
 # [1] 23036     8
 
-# get metrics tracking and SRHS vessel info (from FHIER)
-metrics_tracking_from_fhier_file_name <- 
-  str_glue("Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv")
+# Get processed metrics tracking ----
+processed_input_data_path <- 
+  file.path(my_paths$inputs,
+            "processing_logbook_data",
+            "Outputs")
+dir.exists(processed_input_data_path)
+# T  
 
-## use metricks only vessels ----
-metric_tracking_no_srhs_path <-
-  file.path(my_paths$git_r,
-            r"(get_data\get_data_from_fhier\metric_tracking_no_srhs.R)")
-# file.exists(metric_tracking_no_srhs_path)
+# file names for all years
+processed_metrics_tracking_file_names <-
+  list.files(path = processed_input_data_path,
+             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
+             recursive = TRUE,
+             full.names = TRUE)
 
-source(metric_tracking_no_srhs_path)
+processed_metrics_tracking_permits <-
+  map_df(processed_metrics_tracking_file_names,
+         read_rds)
 
-# fhier_reports_metrics_tracking_not_srhs_ids
+names(processed_metrics_tracking_permits) <-
+  names(processed_metrics_tracking_permits) |>
+  tolower()
 
-fhier_reports_metrics_tracking_not_srhs_all_cols_2023_perm <-
-  fhier_reports_metrics_tracking_not_srhs_all_cols_list$`2023` |> 
-  mutate(permit_sa_gom_metr =
-           case_when(sa_permits_ == "Y" &
-                       gom_permits_ == "N" ~ "sa_only",
-                     sa_permits_ == "N" &
-                       gom_permits_ == "Y" ~ "gom_only",
-                     sa_permits_ == "Y" &
-                       gom_permits_ == "Y" ~ "dual",
-                     ))
+dim(processed_metrics_tracking_permits)
+# [1] 6822    9
 
 # Keep only ids in fhier_reports_metrics_tracking_not_srhs_ids ----
-
-
-# ---
-# Explanations:
-# The code uses the left_join() function to merge two data frames,
-# 'fhier_reports_metrics_tracking_not_srhs_all_cols_2023' and 'compl_err_db_data'.
-# The join is performed based on the equality of 'vessel_official_number' and
-# 'vessel_official_nbr'. The result is stored in 'compl_err_db_data_metrics'.
-# A left join retains all rows from the left data frame and adds matching rows
-# from the right data frame. Unmatched rows in the right frame will have NAs
-# in the corresponding columns in the result.
 
 compl_err_db_data_metrics <-
   left_join(
