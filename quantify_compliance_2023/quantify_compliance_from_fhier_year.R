@@ -260,22 +260,19 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long |>
 ### check total_vsl_y_by_year_perm vs. sum_cnts (should be equal, see dbl FL7825PU) ----
 compl_clean_sa_vs_gom_m_int %>%
   # dplyr::filter(!!sa_dual_filter) %>%
-  dplyr::group_by(compliant_) %>%
+  dplyr::group_by(year, compliant_) %>%
   dplyr::mutate(tota_vsl_m =
                   dplyr::n_distinct(vessel_official_number)) %>%
   dplyr::ungroup() %>%
-  dplyr::select(tota_vsl_m, compliant_) %>%
+  dplyr::select(year, tota_vsl_m, compliant_) %>%
   unique() %>%
   head()
-# tota_vsl_m compliant_
-# 1       3002 YES       
-# 2       1547 NO        
-# dplyr::filter(!!sa_dual_filter) %>%
-# 1       2051 YES       
-# 2       1545 NO    
-# ---
-# 1       3483 YES       
-# 2       2324 NO        
+#   year  tota_vsl_m compliant_
+#   <chr>      <int> <chr>     
+# 1 2022        2959 YES       
+# 2 2022        1390 NO        
+# 3 2023        3177 YES       
+# 4 2023        1558 NO        
 
 ## add total cnts ----
 # active vs expired per year, permit, compl, permit expiration
@@ -295,10 +292,6 @@ add_total_cnts <-
       # add counts by compliant
       dplyr::mutate(cnt_y_p_c = sum(compl_or_not_cnt)) %>%
       dplyr::ungroup() %>%
-      # add counts by permit expiration
-      # dplyr::group_by_at(group_by_exp_cols) %>%
-      # dplyr::mutate(cnt_y_p_e = sum(compl_or_not_cnt)) %>%
-      # dplyr::ungroup() %>%
       return()
   }
 
@@ -309,26 +302,17 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y <-
   add_total_cnts(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt,
                  group_by_cols1)
 
+# glimpse(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y)
+
 ## add percents of total ----
 add_percents_of_total <-
   function(my_df, select_cols) {
     my_df %>%
       dplyr::select(all_of(select_cols)) %>%
       distinct() %>%
-      dplyr::mutate(perc_c_or_not = cnt_y_p_c * 100 / total_vsl_y_by_year_perm) %>%
-      # dplyr::mutate(perc_c_or_not_exp = cnt_y_p_e * 100 / total_vsl_y_by_year_perm) %>%
+      dplyr::mutate(perc_c_or_not = 100 * cnt_y_p_c / total_vsl_y_by_year_perm) %>%
       return()
   }
-
-# select_cols <- c(
-# "year,"
-#   "permit_sa_gom_dual",
-#   "total_vsl_y_by_year_perm",
-#   "perm_exp_y",
-#   "compl_or_not",
-#   "cnt_y_p_c",
-#   "cnt_y_p_e"
-# )
 
 select_cols <- c(
   "year",
@@ -351,7 +335,6 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 # 7 8 (sa_dual)
 # [1] 4 5 no exp
 # [1] 12  6
-
 
 ## plots for compl vs. non compl vessels per year ----
 
@@ -394,7 +377,7 @@ gg_all_c_vs_nc_plots <-
       })
   })
 
-View(gg_all_c_vs_nc_plots[[1]])
+# View(gg_all_c_vs_nc_plots[[1]])
 sa_only <- gg_all_c_vs_nc_plots[[1]]
 dual <- gg_all_c_vs_nc_plots[[2]]
 gom_only <- gg_all_c_vs_nc_plots[[3]]
@@ -432,6 +415,7 @@ my_grobs_list |>
 # [1] "2024-02-07/compl_vs_nonc_plots_sa_only_permitted_vessels_2023.png"
 
 # Non compliant only ----
+# compl_clean_sa_vs_gom_m_int_tot |> print_df_names()
 
 # start with the new data with expiration by year
 # 1) count percents - a given vsl non_compl per counted weeks total ----
@@ -449,7 +433,7 @@ weeks_per_vsl_permit_year_compl_cnt1 <-
                    name = "total_weeks_per_vessel") %>%
   dplyr::ungroup()
 
-View(weeks_per_vsl_permit_year_compl_cnt1)
+# View(weeks_per_vsl_permit_year_compl_cnt1)
 
 # check
 compl_clean_sa_vs_gom_m_int_tot |>
