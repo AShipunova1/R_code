@@ -339,10 +339,14 @@ compl_err_db_data_metrics |>
 # TODO: Where is the first week (52 of the previous year)?
 
 ## Remove empty and unused columns ---
+# weeks were used for date filter
 compl_err_db_data_metrics_2022_23_clean <-
   compl_err_db_data_metrics_2022_23 |>
   remove_empty_cols() |>
-  select(-c(week_start, week_end)) |>
+  select(-c(week_start, 
+            week_end,
+            effective_date, 
+            end_date)) |>
   distinct()
 
 dim(compl_err_db_data_metrics_2022_23)
@@ -353,6 +357,7 @@ dim(compl_err_db_data_metrics_2022_23_clean)
 # [1] 146434     29 2023
 # [1] 496101     30
 # [1] 14933    11 no weeks
+# [1] 9559    9 no permit dates
 
 # compl_err_db_data_metrics_2022_23_clean |> View()
 
@@ -369,32 +374,54 @@ n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 compl_err_db_data_metrics_2022_23_clean__ports <-
   left_join(compl_err_db_data_metrics_2022_23_clean,
             vessels_from_pims_short)
+# ,
+#             relationship =
+#               "many-to-many")
 
 # TODO:
-# ℹ Row 45238 of `x` matches multiple rows in `y`.
-# compl_err_db_data_metrics_2022_23_clean[45238,]
-# FL1431JU  
+# ℹ Row 1360 of `x` matches multiple rows in `y`.
+compl_err_db_data_metrics_2022_23_clean[1360,]$vessel_official_number
+# FL1431JU
 # vessels_from_pims_short |> 
 #   filter(vessel_official_number == "FL1431JU") 
 # 2 ports per vessel
 
 # ℹ Row 20494 of `y` matches multiple rows in `x`.
-# vessels_from_pims_short[20494,]
+vessels_from_pims_short[20494,]$vessel_official_number
 # FL3185SY               
-# compl_err_db_data_metrics_2022_23_clean |> 
-#   filter(vessel_official_number == "FL3185SY") |> 
-#   View()
-# multiple weeks
+compl_err_db_data_metrics_2022_23_clean |>
+  filter(vessel_official_number == "FL3185SY") |>
+  select(year) |> 
+  distinct()
+# 1 2022
+# 2 2023
+# multiple years
+
+# Remove columns not used in this analysis ----
+print_df_names(compl_err_db_data_metrics_2022_23_clean__ports)
+# [1] "vessel_official_number, vessel_name, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual, compliant_, year, hailing_port"
+
+compl_err_db_data_metrics_2022_23_clean__ports_short <-
+  compl_err_db_data_metrics_2022_23_clean__ports |>
+  select(vessel_official_number,
+         permit_sa_gom_dual,
+         compliant_,
+         year,
+         hailing_port) |>
+  distinct()
+
+dim(compl_err_db_data_metrics_2022_23_clean__ports_short)
+# [1] 9362    5
 
 # Add a combined column for year and permit_sa_gom_dual ----
-compl_err_db_data_metrics_2022_23_clean__comb_col <-
-  compl_err_db_data_metrics_2022_23_clean |>
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short |>
   rowwise() |>
   mutate(year_permit_sa_gom_dual = 
            paste(year, permit_sa_gom_dual)) |>
   ungroup()
 
-compl_err_db_data_metrics_2022_23_clean__comb_col |> 
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |> 
   select(year_permit_sa_gom_dual) |> 
   distinct()
 # 1 2022 gom_only          
@@ -404,7 +431,7 @@ compl_err_db_data_metrics_2022_23_clean__comb_col |>
 # 5 2022 sa_only           
 # 6 2023 sa_only           
 
-# check, Metrics tracking error!
+## check, Metrics tracking error! ----
 compl_err_db_data_metrics_2022_23_clean |>
   select(permit_grouping_region, sa_permits_, gom_permits_) |>
   distinct()
@@ -418,13 +445,13 @@ compl_err_db_data_metrics_2022_23_clean |>
 
 ## split into separate dfs by permit region in metrics tracking ----
 
-print_df_names(compl_err_db_data_metrics_2022_23_clean__comb_col)
+# print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
 
-compl_err_db_data_metrics_2022_23_clean__comb_col_list <-
-  compl_err_db_data_metrics_2022_23_clean__comb_col |>
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |>
   split(
     as.factor(
-      compl_err_db_data_metrics_2022_23_clean__comb_col$year_permit_sa_gom_dual
+      compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col$year_permit_sa_gom_dual
     )
   )
 
@@ -443,25 +470,42 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list, dim)
 # [1] 90397    30
 
 # ---
-# TODO: Why more?
 # $`2022 dual`
-# [1] 22518    31
+# [1] 384  10
 # 
 # $`2022 gom_only`
-# [1] 72553    31
+# [1] 1190   10
 # 
 # $`2022 sa_only`
-# [1] 146471     31
+# [1] 2991   10
 # 
 # $`2023 dual`
-# [1] 23598    31
+# [1] 538  10
 # 
 # $`2023 gom_only`
-# [1] 80262    31
+# [1] 1180   10
 # 
 # $`2023 sa_only`
-# [1] 150699     31
-
+# [1] 3276   10
+# === Fewer columns
+# $`2022 dual`
+# [1] 383   6
+# 
+# $`2022 gom_only`
+# [1] 1174    6
+# 
+# $`2022 sa_only`
+# [1] 2915    6
+# 
+# $`2023 dual`
+# [1] 536   6
+# 
+# $`2023 gom_only`
+# [1] 1167    6
+# 
+# $`2023 sa_only`
+# [1] 3187    6  
+  
 ## check vessel/compl counts ----
 # compl_err_db_data_metrics_2022_23_clean__comb_col_list$`2023 sa_only`$compliant_
 
@@ -539,18 +583,6 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 # if compliance is checked for only when permit is active add:
 # comp_week_start_dt and comp_week_end_dt to select()
 
-## Remove columns not use in this analysis ----
-# print_df_names(compl_err_db_data_metrics_2022_23_clean__comb_col_list[[1]])
-compl_err_db_data_metrics_2022_23_clean__comb_col_list_short <-
-  compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
-  map(\(curr_df) {
-    curr_df |>
-      select(vessel_official_number,
-             compliant_,
-             year,
-             permit_sa_gom_dual) |>
-      distinct()
-  })
 
 cat(
   "Result to use for vessels home port and its permit region:",
