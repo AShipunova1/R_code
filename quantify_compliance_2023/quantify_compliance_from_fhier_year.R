@@ -20,8 +20,6 @@ compl_clean_sa_vs_gom_m_int_tot <-
   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int__join_metrics, 
                       c("permit_sa_gom_dual", "year"))
 
-diffdf::diffdf(compl_clean_sa_vs_gom_m_int_tot,
-               compl_clean_sa_vs_gom_m_int_tot11)
 # check
 res1 <-
   compl_clean_sa_vs_gom_m_int__join_metrics |>
@@ -425,16 +423,6 @@ my_grobs_list |>
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present in a year ----
 
-# compl_clean_sa_vs_gom_m_int_tot1 <-
-#   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot, 
-#                       c("permit_sa_gom_dual", "year"))
-# 
-# diffdf::diffdf(compl_clean_sa_vs_gom_m_int_tot,
-#                compl_clean_sa_vs_gom_m_int_tot1)
-
-# print_df_names(compl_clean_sa_vs_gom_m_int_tot)
-# [1] "vessel_official_number, name, permitgroup, permit_groupexpiration, year, week, gom_permitteddeclarations__, captainreports__, negativereports__, complianceerrors__, compliant_, set_permits_on_hold_, overridden_, override_date, override_by, contactedwithin_48_hours_, submittedpower_down_, week_num, week_start, week_end, year_month, year_quarter, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual, total_vsl_y_by_year_perm"
-
 compl_clean_sa_vs_gom_m_int_tot_short <-
   compl_clean_sa_vs_gom_m_int_tot |>
   select(
@@ -473,11 +461,21 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 # dim(compl_clean_sa_vs_gom_m_int_tot_short)
 # [1] 298147      7
 
-compl_clean_sa_vs_gom_m_int_tot_short_week <-
-  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot_short,
-                      c("permit_sa_gom_dual", "year", "week_start"))
+# compl_clean_sa_vs_gom_m_int_tot_short_week <-
+#   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot_short,
+#                       c("permit_sa_gom_dual", "year", "week_start"),
+#                       "")
 
-# View(compl_clean_sa_vs_gom_m_int_tot_short_week)
+# count weeks per vessel
+compl_clean_sa_vs_gom_m_int_tot_short_week_cnt <-
+  compl_clean_sa_vs_gom_m_int_tot_short |>
+  group_by(vessel_official_number, year) |>
+  # cnt distinct week_start in each group
+  dplyr::mutate(weeks_per_vessel_cnt =
+                  dplyr::n_distinct(week_start)) %>%
+  dplyr::ungroup()
+
+View(compl_clean_sa_vs_gom_m_int_tot_short_week_cnt)
 compl_clean_sa_vs_gom_m_int_tot_short_week |> 
   filter(vessel_official_number == "VI5498TB") |>
   ungroup() |>
