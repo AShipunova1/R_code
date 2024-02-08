@@ -471,7 +471,7 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_cnt <-
   compl_clean_sa_vs_gom_m_int_tot_short |>
   group_by(vessel_official_number, year) |>
   # cnt distinct week_start in each group
-  dplyr::mutate(weeks_per_vessel_cnt =
+  dplyr::mutate(total_weeks_per_vessel =
                   dplyr::n_distinct(week_start)) %>%
   dplyr::ungroup()
 
@@ -482,7 +482,7 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt <-
   compl_clean_sa_vs_gom_m_int_tot_short_week_cnt |>
   group_by(vessel_official_number, year, compliant_) |>
   # cnt distinct week_start in each group
-  dplyr::mutate(weeks_per_vessel_compl_cnt =
+  dplyr::mutate(weeks_per_vessel_per_compl =
                   dplyr::n_distinct(week_start)) %>%
   dplyr::ungroup()
 
@@ -508,19 +508,30 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
   dplyr::filter(vessel_official_number == "1020822") %>%
   dplyr::select(year,
                 compliant_,
-                weeks_per_vessel_compl_cnt,
-                weeks_per_vessel_cnt) %>%
+                weeks_per_vessel_per_compl,
+                total_weeks_per_vessel) %>%
   unique()
-#   year  compliant_ weeks_per_vessel_compl_cnt weeks_per_vessel_cnt
+#   year  compliant_ weeks_per_vessel_per_compl total_weeks_per_vessel
 # 1 2022  YES                                33                   52
 # 2 2022  NO                                 19                   52
 # 3 2023  YES                                47                   52
 # 4 2023  NO                                  5                   52
 
+# compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt |> 
+# print_df_names()
+
 nc_2023_sa_only_test <-
-  weeks_per_vsl_permit_year_compl_cnt %>%
-  dplyr::filter(!!sa_dual_filter,
-                compliant_ == "NO") %>%
+  compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
+  dplyr::filter(
+    !!sa_dual_filter,
+    compliant_ == "NO",
+    vessel_official_number %in%
+      c("VA9447ZY",
+        "VA8261ZY",
+        "VA2031CK",
+        "VA1460CJ",
+        "VA1267CJ")
+  ) %>%
   dplyr::select(vessel_official_number,
                 weeks_per_vessel_per_compl,
                 total_weeks_per_vessel) %>%
@@ -535,9 +546,9 @@ head(nc_2023_sa_only_test)
 # 4 VA1460CJ  50                     50
 # 5 VA1267CJ  2                     48
 
-weeks_per_vsl_permit_year_compl_cnt %>%
+compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
   dplyr::filter(
-    !!sa_dual_filter,
+    # !!sa_dual_filter,
     # compliant_ == "YES",
     vessel_official_number == "SC8907DF"
   ) %>%
@@ -552,10 +563,10 @@ weeks_per_vsl_permit_year_compl_cnt %>%
 # $ total_weeks_per_vessel     <int> 52, 52
 
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
-# glimpse(weeks_per_vsl_permit_year_compl_cnt)
+# glimpse(compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt)
 
 count_weeks_per_vsl_permit_year_compl_p <-
-  weeks_per_vsl_permit_year_compl_cnt %>%
+  compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
   group_by(compliant_) |>
   mutate(percent_compl =
            weeks_per_vessel_per_compl * 100 / total_weeks_per_vessel) |>
