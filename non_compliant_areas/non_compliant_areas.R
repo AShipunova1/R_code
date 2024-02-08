@@ -51,9 +51,13 @@ current_output_dir <-
             current_project_basename)
 
 # dir.exists(current_output_dir)
-my_year <- "2023"
-my_beginning <- "2023-01-01"
-my_end <- "2023-12-31"
+my_year1 <- "2022"
+my_beginning <- str_glue("{my_year1}-01-01")
+my_end <- str_glue("{my_year1}-12-31")
+
+my_year2 <- "2023"
+my_beginning <- str_glue("{my_year1}-01-01")
+my_end <- str_glue("{my_year1}-12-31")
 
 # prepare data ----
 get_data_file_path <-
