@@ -52,12 +52,12 @@ current_output_dir <-
 
 # dir.exists(current_output_dir)
 my_year1 <- "2022"
-my_beginning <- str_glue("{my_year1}-01-01")
-my_end <- str_glue("{my_year1}-12-31")
+my_beginning1 <- str_glue("{my_year1}-01-01")
+my_end1 <- str_glue("{my_year1}-12-31")
 
 my_year2 <- "2023"
-my_beginning <- str_glue("{my_year1}-01-01")
-my_end <- str_glue("{my_year1}-12-31")
+my_beginning2 <- str_glue("{my_year2}-01-01")
+my_end2 <- str_glue("{my_year2}-12-31")
 
 # prepare data ----
 get_data_file_path <-
