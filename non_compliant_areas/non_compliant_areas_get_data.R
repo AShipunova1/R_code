@@ -405,41 +405,52 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list, dim)
 # $`2023 sa_only`
 # [1] 150699     31
 
-
-
 ## check vessel/compl counts ----
+# compl_err_db_data_metrics_2022_23_clean__comb_col_list$`2023 sa_only`$compliant_
+
 compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
   map(\(curr_df) {
     curr_df |>
-      dplyr::select(vessel_official_number, is_comp) |>
+      dplyr::select(vessel_official_number, compliant_) |>
       dplyr::distinct() |>
-      dplyr::count(is_comp)
+      dplyr::count(compliant_)
   })
+# 2023
 # $dual
 # # A tibble: 2 × 2
-#   is_comp     n
+#   compliant_     n
 #     <int> <int>
 # 1       0   193
 # 2       1   241
+
+# 1 NO           235
+# 2 YES          301
+
 # 
 # $gom_only
 # # A tibble: 2 × 2
-#   is_comp     n
+#   compliant_     n
 #     <int> <int>
 # 1       0    15
 # 2       1   980
-# 
+# 1 NO            24
+# 2 YES         1142
+
 # $sa_only
 # # A tibble: 2 × 2
-#   is_comp     n
+#   compliant_     n
 #     <int> <int>
 # 1       0  1338
 # 2       1  1799
+
+# 1 NO          1363
+# 2 YES         1818
 
 map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
     \(reg_df) {
       n_distinct(reg_df$vessel_official_number)
     })
+# 2023
 # $GOM
 # [1] 1232
 # 
@@ -448,12 +459,15 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 # ---
 # $dual
 # [1] 251
-# 
+# 315
+
 # $gom_only
 # [1] 981
-# 
+# 1147
+
 # $sa_only
 # [1] 2145
+# 2178
 
 # Metrics:
 # Total Vessels  3,539
@@ -468,14 +482,12 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 # if compliance is checked for only when permit is active add:
 # comp_week_start_dt and comp_week_end_dt to select()
 
-# if override is taken in the account, add it
-
 ## Remove columns not use in this analysis ----
 compl_err_db_data_metrics_2022_23_clean__comb_col_list_short <- 
   compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
   map(\(curr_df) {
     curr_df |>
-      dplyr::select(vessel_official_number, is_comp) |>
+      dplyr::select(vessel_official_number, compliant_) |>
       distinct()
   })
 
