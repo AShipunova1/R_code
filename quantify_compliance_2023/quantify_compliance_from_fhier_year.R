@@ -443,7 +443,7 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
       submittedpower_down_,
       # week_num,
       week_end,
-      year_month,
+      # year_month,
       year_quarter,
       vessel_name,
       effective_date,
