@@ -291,44 +291,28 @@ dim(compl_err_db_data_metrics_2022_23)
 
 # TODO: Where is the first week (52 of the previous year)?
 
-# compl_err_db_data_metrics_2023 |>
-#   filter(permit_grouping_region == "GOM") |>
-#   select(vessel_official_number) |>
-#   distinct() |>
-#   nrow()
-# [1] 1232
-
-# 135+75+14+121+644
-# 989
-
 ## Remove empty columns ---
-compl_err_db_data_metrics_2023_clean <-
-  compl_err_db_data_metrics_2023 |>
+compl_err_db_data_metrics_2022_23_clean <-
+  compl_err_db_data_metrics_2022_23 |>
   remove_empty_cols() |>
   dplyr::distinct()
 
-dim(compl_err_db_data_metrics_2023_clean)
+dim(compl_err_db_data_metrics_2022_23_clean)
 # [1] 145261     29
 # [1] 146434     29 2023
+# [1] 496101     30
 
-# compl_err_db_data_metrics_2023_clean |> View()
+# compl_err_db_data_metrics_2022_23_clean |> View()
 
-n_distinct(compl_err_db_data_metrics_2023_clean$vessel_official_number)
+n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 # 3473
 # 3377 2023
+# 4017 both
 
-fhier_reports_metrics_tracking_not_srhs_all_cols_2023_perm |> 
-  select(permit_grouping_region, sa_permits_, gom_permits_) |>
-  distinct()
-#   permit_grouping_region sa_permits_ gom_permits_
-#   <chr>                  <chr>       <chr>       
-# 1 SA                     Y           N           
-# 2 GOM                    Y           Y           
-# 3 GOM                    N           Y           
 
 ## split into separate dfs by permit region in metrics tracking ----
-# check
-compl_err_db_data_metrics_2023_clean |>
+# check, Metrics tracking error!
+compl_err_db_data_metrics_2022_23_clean |>
   select(permit_grouping_region, sa_permits_, gom_permits_) |>
   distinct()
 # A tibble: 3 × 3
@@ -339,31 +323,13 @@ compl_err_db_data_metrics_2023_clean |>
 # 3 GOM                    Y           Y           
 # I.e. GOM == "gom and dual"
 
-compl_err_db_data_metrics_2023_clean_perm <- 
-  compl_err_db_data_metrics_2023_clean |>
-  mutate(permit_sa_gom_metr =
-           case_when(sa_permits_ == "Y" &
-                       gom_permits_ == "N" ~ "sa_only",
-                     sa_permits_ == "N" &
-                       gom_permits_ == "Y" ~ "gom_only",
-                     sa_permits_ == "Y" &
-                       gom_permits_ == "Y" ~ "dual",
-                     ))
-
 ## split into separate dfs by permit region ----
-# Explanations:
-# The code uses the split() function to divide the data frame
-# 'compl_err_db_data_metrics_2023_clean' into a list of data frames.
-# The splitting criterion is the values in the 'permit_grouping_region' column.
-# Each unique value in this column will correspond to a separate data frame
-# in the resulting list, stored in 'compl_err_db_data_metrics_2023_clean_list'.
-# This is useful for further analysis or processing on subsets of the data.
 
-compl_err_db_data_metrics_2023_clean_list <- 
-  compl_err_db_data_metrics_2023_clean_perm |> 
-  split(as.factor(compl_err_db_data_metrics_2023_clean_perm$permit_sa_gom_metr))
+compl_err_db_data_metrics_2022_23_clean_list <- 
+  compl_err_db_data_metrics_2022_23_clean |> View()
+  split(as.factor(processed_metrics_tracking_permits$permit_sa_gom_metr))
 
-map(compl_err_db_data_metrics_2023_clean_list, dim)
+map(compl_err_db_data_metrics_2022_23_clean_list, dim)
 # $GOM
 # [1] 54765    29
 # 
@@ -381,7 +347,7 @@ map(compl_err_db_data_metrics_2023_clean_list, dim)
 # [1] 90397    30
 
 ## check vessel/compl counts ----
-compl_err_db_data_metrics_2023_clean_list |>
+compl_err_db_data_metrics_2022_23_clean_list |>
   map(\(curr_df) {
     curr_df |>
       dplyr::select(vessel_official_number, is_comp) |>
@@ -409,7 +375,7 @@ compl_err_db_data_metrics_2023_clean_list |>
 # 1       0  1338
 # 2       1  1799
 
-map(compl_err_db_data_metrics_2023_clean_list,
+map(compl_err_db_data_metrics_2022_23_clean_list,
     \(reg_df) {
       n_distinct(reg_df$vessel_official_number)
     })
@@ -444,8 +410,8 @@ map(compl_err_db_data_metrics_2023_clean_list,
 # if override is taken in the account, add it
 
 ## Remove columns not use in this analysis ----
-compl_err_db_data_metrics_2023_clean_list_short <- 
-  compl_err_db_data_metrics_2023_clean_list |>
+compl_err_db_data_metrics_2022_23_clean_list_short <- 
+  compl_err_db_data_metrics_2022_23_clean_list |>
   map(\(curr_df) {
     curr_df |>
       dplyr::select(vessel_official_number, is_comp) |>
@@ -644,7 +610,7 @@ cat(
   blue("All DB data:"),
   "all_get_db_data_result_l",
   blue("compl 2023:"),
-  "compl_err_db_data_metrics_2023_clean_list_short",
+  "compl_err_db_data_metrics_2022_23_clean_list_short",
   blue("vessel_permit 2023 with lat/long:"),
   "vessels_permits_home_port_lat_longs_city_state",
   blue("Maps:"),
