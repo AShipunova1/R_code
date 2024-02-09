@@ -5,6 +5,7 @@
 
 # Calculate the percentage of never compliant entries from all entries in each year
 
+# glimpse(count_weeks_per_vsl_permit_year_compl_p)
 # all SA vessels (compl and not compl alike) ----
 count_weeks_per_vsl_permit_year_compl_p_sa <-
   count_weeks_per_vsl_permit_year_compl_p |>
@@ -16,13 +17,14 @@ dim(count_weeks_per_vsl_permit_year_compl_p)
 # [1] 298147     10
 dim(count_weeks_per_vsl_permit_year_compl_p_sa)
 # [1] 6628    8
+# [1] 48436    11
 
 count_weeks_per_vsl_permit_year_compl_p_sa |> 
-  select(year, permit_sa_gom_dual) |> 
+  select(year, permit_sa_gom_dual, year_permit_sa_gom_dual) |> 
   distinct()
-# 1 2022  sa_only           
-# 2 2023  sa_only           
-# 3 2023  dual              
+# 1 2022  sa_only            2022 sa_only           
+# 2 2023  sa_only            2023 sa_dual           
+# 3 2023  dual               2023 sa_dual           
 
 total_sa_dual_vessels <-
   count_weeks_per_vsl_permit_year_compl_p_sa |> 
@@ -43,6 +45,7 @@ never_reported_filter <-
 
 dim(count_weeks_per_vsl_permit_year_compl_p_sa)
 # [1] 6628    8
+# [1] 48436    11
 
 count_weeks_per_vsl_permit_year_compl_p_sa |>
   filter(percent_compl == "100",
@@ -52,6 +55,8 @@ count_weeks_per_vsl_permit_year_compl_p_sa |>
   distinct() |>
   nrow()
 # 372 ok
+
+# View(count_weeks_per_vsl_permit_year_compl_p_sa)
 
 count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
   count_weeks_per_vsl_permit_year_compl_p_sa |>
@@ -103,6 +108,7 @@ make_one_plot_100c <-
       perc_nc_100_gr_name,
       group_vsl_cnt,
       permit_sa_gom_dual,
+      year_permit_sa_gom_dual,
       # compliant_,
       perc_of_perc
     ) |>
@@ -176,7 +182,31 @@ sa_dual_tot_100_plots <-
       })
   })
 
-# sa_dual_tot_100_plots
+sa_dual_tot_100_plots
+
+# names(sa_dual_tot_100_plots)
+# rm(sa_dual_tot_100_plots_flat_list)
+sa_dual_tot_100_plots_flat_list <-
+  make_flat_plot_list(sa_dual_tot_100_plots)
+
+# View(sa_dual_tot_100_plots_flat_list)
+
+flat_plot_list_names <-
+  sa_dual_tot_100_plots_flat_list |>
+  map(\(x) {
+    x$data$year_permit_sa_gom_dual |>
+      str_replace_all(" ", "_") |>
+      tolower() |>
+      str_replace("_permitted_vessels", "") |>
+      str_replace_all("[^a-z0-9_]", "_") |> 
+      unique()
+  })
+  
+names(sa_dual_tot_100_plots_flat_list) <-
+    flat_plot_list_names
+
+                      
+# View(sa_dual_tot_100_plots_flat_list)
 
 # drop dual 2022
 my_grobs_list <- list(sa_dual_tot_100_plots[[1]][[1]],
