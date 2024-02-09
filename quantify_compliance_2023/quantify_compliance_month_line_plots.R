@@ -191,7 +191,8 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide <-
 not_vessel_id_col_names <-
   c("year_month",
     "year",
-    "permit_sa_gom_dual",
+    "permit_sa_gom_dual_both",
+    "year_permit_sa_gom_dual",
     "total_vsl_m_by_year_perm")
 
 compl_clean_sa_vs_gom_m_int_tot_short_wide_long <- 
@@ -203,7 +204,9 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long <-
     names_to = "vessel_official_number"
   )
 
-# View(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
+# dim(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
+# [1] 240960      7
+
 # compl_clean_sa_vs_gom_m_int_tot_short_wide_long$is_compl_or_both |> unique()
 # [1] "YES"    "NO"     NA       "NO_YES"
 
@@ -219,9 +222,19 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no <-
   select(-is_compl_or_both)
 
 # print_df_names(compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no)
+# [1] "year_month, year, permit_sa_gom_dual_both, year_permit_sa_gom_dual, total_vsl_m_by_year_perm, vessel_official_number, compl_or_not"
 
 group_by_col <-
-  c("year", "permit_sa_gom_dual", "year_month", "compl_or_not")
+  # c("year", "permit_sa_gom_dual", "year_month", "compl_or_not")
+  c(
+    "year",
+    "permit_sa_gom_dual_both",
+    "year_permit_sa_gom_dual",
+    "year_month",
+    # "total_vsl_m_by_year_perm",
+    # "vessel_official_number",
+    "compl_or_not"
+  )
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
   add_cnt_in_gr(
@@ -280,6 +293,11 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
 # $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_compl…
 # $ cnt_vsl_m_compl          <int> 1434, 319, 273, 12, 847, 3
 
+# $ permit_sa_gom_dual_both  <chr> "sa_dual", "sa_dual", "gom_only", "gom_only"
+# $ total_vsl_m_by_year_perm <int> 1982, 1982, 850, 850
+# $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_c…
+# $ cnt_vsl_m_compl          <int> 1658, 324, 847, 3
+
 # Month: percent compl vessels per per month ----
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <- 
@@ -290,6 +308,7 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <-
 dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short)
 # [1] 38  5
 # 144   6 (sep dual)
+# [1] 120   7
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short |>
@@ -300,15 +319,10 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
 
 # Plot non compliant perc by month ----
 
-## split by year_permit into a list ----
-# TODO: rempoe from here
-## add a new column ----
+# Non compliant only ----
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc |>
-  filter(compl_or_not == "non_compliant") |> 
-  rowwise() |>
-  mutate(year_permit_sa_gom_dual = paste(year, permit_sa_gom_dual)) |>
-  ungroup()
+  filter(compl_or_not == "non_compliant")
 
 # View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col)
 
@@ -324,9 +338,10 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc <-
 # View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[1]])
 
 ## make % line plots by permit ----
-line_df_23_gom_monthly_nc_percent_plot_color = plot_colors$non_compliant_by_month
+line_df_23_gom_monthly_nc_percent_plot_color =
+  plot_colors$non_compliant_by_month
 
-# curr_permit_sa_gom_dual <- "2023 sa_only" #(for test)
+# curr_permit_sa_gom_dual <- "2023 sa_dual" # (for tests)
 
 line_monthly_nc_plot_l <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc) |>
@@ -367,8 +382,10 @@ line_monthly_nc_plot_l <-
         geom_text(aes(
           label = my_label,
           hjust =
-            ifelse(cnt_m_compl_perc >= 27,
-                   "outward", 0),
+            ifelse(cnt_m_compl_perc >= 27 & 
+                     !(my_label == "39%"),
+                   "outward", 
+                   0),
           vjust =
             ifelse(my_label == "22%",
                    -1, 1.5)
@@ -391,13 +408,13 @@ line_monthly_nc_plot_l <-
              y = str_glue("Proportion of Non-Compliant {curr_permit_sa_gom_dual} Vessels")) +
         scale_x_date(date_breaks = "1 month", 
                      date_labels = "%b") +
-        expand_limits(x = as.Date(curr_year_end, "%Y-%m-%d")) +
-        annotate("text", 
-                 x = as.Date(one_df$year_month),
-                 y = 0,
-                 label =
-                   one_df$tot_cnt_label,
-                 color = "blue")
+        expand_limits(x = as.Date(curr_year_end, "%Y-%m-%d")) 
+        # annotate("text", 
+        #          x = as.Date(one_df$year_month),
+        #          y = 0,
+        #          label =
+        #            one_df$tot_cnt_label,
+        #          color = "blue")
     })
 
 # rm(line_monthly_nc_plot_l)
@@ -406,16 +423,23 @@ names(line_monthly_nc_plot_l) <-
 
 # print_df_names(line_monthly_nc_plot_l)
 
+# line_monthly_nc_plot_l
 # save to files ----
-plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
-                   line_monthly_nc_plot_l["2023 sa_only"],
-                   line_monthly_nc_plot_l["2023 dual"])
+# plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
+#                    line_monthly_nc_plot_l["2023 sa_only"],
+#                    line_monthly_nc_plot_l["2023 dual"])
 
+# line_monthly_nc_plot_l["2022 sa_only"]
+
+plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
+                   line_monthly_nc_plot_l["2023 sa_dual"])
+
+# plots_to_save
 plots_to_save |>
   map(\(one_plot) {
     # browser()
     curr_permit_sa_gom_dual <-
-      unique(one_plot$data$permit_sa_gom_dual)
+      unique(one_plot$data$permit_sa_gom_dual_both)
     curr_year <- unique(one_plot$data$year)
     
     file_name_part <-
@@ -431,5 +455,7 @@ plots_to_save |>
   })
 # ...
 # $`2023 dual`
-# [1] "2024-02-08/m_line_perc_dual_2023_plot.png"
+# "2024-02-08/m_line_perc_dual_2023_plot.png"
 
+# $`2023 sa_dual`
+# 2024-02-09/m_line_perc_sa_dual_2023_plot.png
