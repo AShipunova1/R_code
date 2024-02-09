@@ -499,25 +499,27 @@ grid.arrange(grobs = my_grobs_list,
 
 # see the function definition F2
 my_grobs_list |>
+  names() |> 
   map(\(plot_name) {
     # browser()
-    file_name_part <-
-      plot_name$labels$title |>
-      str_replace_all(" ", "_") |>
-      str_replace("(^[0-9]+):_(.+)", "\\2_\\1") |>
-      str_replace("_permitted_vessels", "") |>
-      tolower()
+    curr_plot <- my_grobs_list[[plot_name]]
+      
+    # file_name_part <-
+    #   plot_name$labels$title |>
+    #   str_replace_all(" ", "_") |>
+    #   str_replace("(^[0-9]+):_(.+)", "\\2_\\1") |>
+    #   str_replace("_permitted_vessels", "") |>
+    #   tolower()
     
     file_full_name_c_nc <-
       file.path(plot_file_path,
-                str_glue("compl_vs_nonc_plots_{file_name_part}.png"))
+                str_glue("compl_vs_nonc_plots_{plot_name}.png"))
     
     save_plots_list_to_files(file_full_name_c_nc,
-                             plot_name)
-    
+                             curr_plot)
   })
 
-# [1] "2024-02-07/compl_vs_nonc_plots_sa_only_permitted_vessels_2023.png"
+# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance_2023/2024-02-09/compl_vs_nonc_plots_2023__sa___dual.png"
 
 # Non compliant only ----
 # compl_clean_sa_vs_gom_m_int_tot |> print_df_names()
