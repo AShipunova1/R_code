@@ -22,7 +22,7 @@ compl_clean_sa_vs_gom_m_int_tot <-
 
 # print_df_names(compl_clean_sa_vs_gom_m_int__join_metrics__both_p)
 compl_clean_sa_vs_gom_m_int_tot__both <-
-  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int__join_metrics__both_p, 
+  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb, 
                       c("permit_sa_gom_dual_both", "year"))
 
 # check
@@ -87,20 +87,20 @@ get_compl_by <- function(my_df, group_by_for_compl) {
 group_by_for_compl <- 
   vars(-c("vessel_official_number", "compliant_"))
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_tot)
+print_df_names(compl_clean_sa_vs_gom_m_int_tot__both)
 
 # using all fields
-compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
-  compl_clean_sa_vs_gom_m_int_tot |>
-  dplyr::select(
-    vessel_official_number,
-    year,
-    permit_sa_gom_dual,
-    compliant_,
-    total_vsl_y_by_year_perm
-  ) |>
-  dplyr::distinct() |>
-  get_compl_by(group_by_for_compl)
+# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
+#   compl_clean_sa_vs_gom_m_int_tot |>
+#   dplyr::select(
+#     vessel_official_number,
+#     year,
+#     permit_sa_gom_dual,
+#     compliant_,
+#     total_vsl_y_by_year_perm
+#   ) |>
+#   dplyr::distinct() |>
+#   get_compl_by(group_by_for_compl)
 
 # with sa_dual
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both <-
@@ -109,6 +109,7 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both <-
     vessel_official_number,
     year,
     permit_sa_gom_dual_both,
+    year_permit_sa_gom_dual,
     compliant_,
     total_vsl_y_by_year_perm
   ) |>
@@ -116,11 +117,12 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both <-
   get_compl_by(group_by_for_compl)
 
 # [1]    2 3374
-names(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide) |> 
+names(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both) |> 
   head() |> 
   glimpse()
  # chr [1:6] "permit_sa_gom_dual" "total_vsl_y_by_year_perm" "VI5498TB" "VA9447ZY" ...
  
+# View(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both)
 ### count compl, no compl, or both per year, permit, active status ----
 
 count_by_cols <- function(my_df,
@@ -141,20 +143,19 @@ cols_names <-
     "permit_sa_gom_dual_both",
     # "permit_sa_gom_dual",
     "total_vsl_y_by_year_perm",
-    "perm_exp_y",
-    "exp_y_tot_cnt")
+    "year_permit_sa_gom_dual"
+    # "perm_exp_y",
+    # "exp_y_tot_cnt"
+    )
 
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
   count_by_cols(
-    compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide,
-    c("year", 
-      # "permit_sa_gom_dual",
-      "permit_sa_gom_dual_both",
-      "total_vsl_y_by_year_perm")
+    compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
+    cols_names
   )
 
 # check compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long
-compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long |> 
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both |> 
   arrange(vessel_official_number) |> 
   head()
 #   permit_sa_gom_dual   total_vsl_y_by_year_perm vessel_official_number is_compl_or_both
@@ -165,15 +166,15 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long |>
 # 4 2023  sa_dual                                   2436 1000042               
 
 #### save sa_dual filter ----
-sa_dual_filter <-
-  rlang::quo(permit_sa_gom_dual == "sa_only" |
-          (year == "2023" & permit_sa_gom_dual == "dual"))
+# sa_dual_filter <-
+#   rlang::quo(permit_sa_gom_dual == "sa_only" |
+#           (year == "2023" & permit_sa_gom_dual == "dual"))
 
-compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa <-
-  compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long |>
-  filter(!!sa_dual_filter) |>
-  select(vessel_official_number, is_compl_or_both) |>
-  dplyr::distinct()
+# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa <-
+#   compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_ |>
+#   filter(!!sa_dual_filter) |>
+#   select(vessel_official_number, is_compl_or_both) |>
+#   dplyr::distinct()
 
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both <-
   compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both |>
@@ -181,11 +182,12 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both <-
   select(vessel_official_number, is_compl_or_both) |>
   dplyr::distinct()
 
-dim(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa)
+dim(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both)
 # [1] 5793    2
 # [1] 3372    2 sa_dual
 # [1] 6614    2 both years
 # [1] 7677    2
+# [1] 5911    2  (sa_dual)
 
 # View(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both)
 # [1] 5911    2 (sa_dual)
@@ -404,12 +406,7 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 # [1] 12  6
 # [1] 10  6 sa_dual
 
-# Add a year_permit col ----
-compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc__comb <- 
-  compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc |> 
-  mutate()
-
-## plots for compl vs. non compl vessels per year ----
+# plots for compl vs. non compl vessels per year ----
 
 # "Permitted SEFHIER Vessels"
 
