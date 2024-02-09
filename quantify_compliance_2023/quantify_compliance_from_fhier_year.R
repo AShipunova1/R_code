@@ -245,7 +245,7 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 # [1] 7 4 (no exp)
 # 22 5 both years
 # [1] 23  5
-# [1] 19  5
+# [1] 19  5 sa_dual
 
 # View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 
@@ -256,12 +256,16 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
   # remove NAs
   dplyr::filter(stats::complete.cases(is_compl_or_both)) %>%
-  dplyr::select(year,
-                permit_sa_gom_dual,
-                total_vsl_y_by_year_perm,
-                compl_or_not_cnt,
-                is_compl_or_both) %>%
-  dplyr::group_by(year, permit_sa_gom_dual) %>%
+  dplyr::select(
+    year,
+    permit_sa_gom_dual_both,
+    # permit_sa_gom_dual,
+    total_vsl_y_by_year_perm,
+    compl_or_not_cnt,
+    is_compl_or_both
+  ) %>%
+  dplyr::group_by(year, permit_sa_gom_dual_both) %>%
+  # dplyr::group_by(year, permit_sa_gom_dual) %>%
   # get sums
   dplyr::mutate(sum_cnts = sum(compl_or_not_cnt)) %>% 
   # dplyr::filter(!total_vsl_y_by_year_perm == sum_cnts) %>%
@@ -279,6 +283,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
 # $ sum_compl_or_not_cnt <int> 1752, 742, 2350
 # $ sum_compl_or_not_cnt <int> 1825, 370, 1177 (2023)
 # $ sum_compl_or_not_cnt <int> 4102, 845, 2202 (both years with processed)
+# $ sum_compl_or_not_cnt <int> 4095, 843, 2155 (sa_dual)
 
 ### One vessel in 2 groups ----
 # The number should be the same as the total number we got earlier. It is not, which means One vessel is in 2 perm_exp_y groups, has both expired and not expired permit in 2023.
@@ -291,7 +296,7 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
 # print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 
 # compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long %>%
-compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long |> 
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both |> 
   dplyr::filter(!is.na(is_compl_or_both)) %>%
   dplyr::group_by(vessel_official_number) %>%
   dplyr::mutate(shared =
@@ -352,12 +357,16 @@ add_total_cnts <-
       return()
   }
 
-group_by_cols1 <- c("year", "permit_sa_gom_dual", "compl_or_not")
+# group_by_cols1 <- c("year", "permit_sa_gom_dual", "compl_or_not")
 # group_by_cols2 <- c("permit_sa_gom_dual", "perm_exp_y")
+group_by_cols3 <- 
+  c("year", 
+    "permit_sa_gom_dual_both",
+    "compl_or_not")
 
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y <-
   add_total_cnts(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt,
-                 group_by_cols1)
+                 group_by_cols3)
 
 # glimpse(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y)
 
@@ -373,7 +382,8 @@ add_percents_of_total <-
 
 select_cols <- c(
   "year",
-  "permit_sa_gom_dual",
+  "permit_sa_gom_dual_both",
+  # "permit_sa_gom_dual",
   "total_vsl_y_by_year_perm",
   "compl_or_not",
   "cnt_y_p_c"
@@ -392,13 +402,19 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 # 7 8 (sa_dual)
 # [1] 4 5 no exp
 # [1] 12  6
+# [1] 10  6 sa_dual
+
+# Add a year_permit col ----
+compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc__comb <- 
+  compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc |> 
+  mutate()
 
 ## plots for compl vs. non compl vessels per year ----
 
 # "Permitted SEFHIER Vessels"
 
 gg_all_c_vs_nc_plots <-
-  compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc$permit_sa_gom_dual %>%
+  compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc$permit_sa_gom_dual_both %>%
   unique() %>%
   # repeat for each permit_sa_gom_dual and each year
   purrr::map(function(curr_permit_sa_gom_dual) {
@@ -407,8 +423,13 @@ gg_all_c_vs_nc_plots <-
         # browser()
         curr_df <-
           compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc %>%
-          dplyr::filter(permit_sa_gom_dual == curr_permit_sa_gom_dual &
+          dplyr::filter(permit_sa_gom_dual_both == curr_permit_sa_gom_dual &
                           year == curr_year)
+        
+        # for 2022 SA_only if using sa_dual
+        if (nrow(curr_df) == 0) {
+          return(NULL)
+        }
         
         # See function definition F2
         total_vsls <- unique(curr_df$total_vsl_y_by_year_perm)
@@ -434,10 +455,17 @@ gg_all_c_vs_nc_plots <-
       })
   })
 
-# View(gg_all_c_vs_nc_plots[[1]])
-sa_only <- gg_all_c_vs_nc_plots[[1]]
-dual <- gg_all_c_vs_nc_plots[[2]]
-gom_only <- gg_all_c_vs_nc_plots[[3]]
+# gg_all_c_vs_nc_plots
+
+# View(gg_all_c_vs_nc_plots)
+# sa_only <- gg_all_c_vs_nc_plots[[1]]
+# dual <- gg_all_c_vs_nc_plots[[2]]
+# gom_only <- gg_all_c_vs_nc_plots[[3]]
+
+# sa_only <- gg_all_c_vs_nc_plots[[1]]
+# dual <- gg_all_c_vs_nc_plots[[2]]
+# gom_only <- gg_all_c_vs_nc_plots[[3]]
+
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
