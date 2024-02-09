@@ -232,9 +232,9 @@ cnts_for_compl <-
 group_by_cols <- c("year", "permit_sa_gom_dual_both")
 cols_to_cnt <- c("year", "permit_sa_gom_dual_both", "is_compl_or_both")
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both)
+print_df_names(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both)
 # [1] "year, permit_sa_gom_dual, total_vsl_y_by_year_perm, vessel_official_number, is_compl_or_both"
-# [1] "year, permit_sa_gom_dual_both, total_vsl_y_by_year_perm, vessel_official_number, is_compl_or_both"
+# [1] "year, permit_sa_gom_dual_both, year_permit_sa_gom_dual, total_vsl_y_by_year_perm, vessel_official_number, is_compl_or_both"
 
 #TODO: rename to _both from here
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt <-
@@ -247,7 +247,7 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 # [1] 7 4 (no exp)
 # 22 5 both years
 # [1] 23  5
-# [1] 19  5 sa_dual
+# [1] 19  6 sa_dual
 
 # View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
 
@@ -386,6 +386,7 @@ select_cols <- c(
   "year",
   "permit_sa_gom_dual_both",
   # "permit_sa_gom_dual",
+  "year_permit_sa_gom_dual",
   "total_vsl_y_by_year_perm",
   "compl_or_not",
   "cnt_y_p_c"
@@ -404,12 +405,11 @@ dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
 # 7 8 (sa_dual)
 # [1] 4 5 no exp
 # [1] 12  6
-# [1] 10  6 sa_dual
+# [1] 10  7 sa_dual
 
 # plots for compl vs. non compl vessels per year ----
 
 # "Permitted SEFHIER Vessels"
-
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc$permit_sa_gom_dual_both %>%
   unique() %>%
@@ -453,8 +453,30 @@ gg_all_c_vs_nc_plots <-
   })
 
 # gg_all_c_vs_nc_plots
+## Makle a flat list of plots with names ----
+flat_plot_list <- list_flatten(gg_all_c_vs_nc_plots)
 
-# View(gg_all_c_vs_nc_plots)
+flat_plot_list_names <-
+  flat_plot_list |>
+  map(\(x) {
+    x$labels$title |>
+      str_replace_all(" ", "_") |>
+      tolower() |>
+      str_replace("_permitted_vessels", "") |>
+      str_replace_all("[^a-z0-9_]", "_")
+  })
+
+names(flat_plot_list) <- 
+  flat_plot_list_names
+
+### check the names ---
+flat_plot_list |>
+  map(\(x) {
+    x$labels$title
+  })
+
+# View(flat_plot_list)
+
 # sa_only <- gg_all_c_vs_nc_plots[[1]]
 # dual <- gg_all_c_vs_nc_plots[[2]]
 # gom_only <- gg_all_c_vs_nc_plots[[3]]
@@ -462,13 +484,10 @@ gg_all_c_vs_nc_plots <-
 # sa_only <- gg_all_c_vs_nc_plots[[1]]
 # dual <- gg_all_c_vs_nc_plots[[2]]
 # gom_only <- gg_all_c_vs_nc_plots[[3]]
-
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
-my_grobs_list <- list(sa_only[[1]],
-                       sa_only[[2]],
-                       dual[[2]])
+my_grobs_list <- list(gg_all_c_vs_nc_plots[[1]])
 
 # combine plots for 2023
 grid.arrange(grobs = my_grobs_list,
