@@ -159,6 +159,20 @@ vessels_compl_or_not_per_y_r_all
 # 11 YES        2023  gom_only            1142
 # 12 YES        2023  sa_only             1817
 
+# add sa + dual ----
+# compl_clean_sa_vs_gom_m_int__join_metrics |> glimpse()
+compl_clean_sa_vs_gom_m_int__join_metrics__both_p <-
+  compl_clean_sa_vs_gom_m_int__join_metrics |>
+  mutate(permit_sa_gom_dual_both =
+           case_when(
+             year == "2023" &
+               (permit_sa_gom_dual == "sa_only" |
+                  permit_sa_gom_dual == "dual") ~ "sa_dual",
+             .default = permit_sa_gom_dual
+           ))
+
+# View(compl_clean_sa_vs_gom_m_int__join_metrics)
+
 # year ----
 quantify_compliance_from_fhier_year_path <- file.path(
   my_paths$git_r,
