@@ -173,6 +173,22 @@ compl_clean_sa_vs_gom_m_int__join_metrics__both_p <-
 
 # View(compl_clean_sa_vs_gom_m_int__join_metrics)
 
+# add a year_permit column ----
+compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb <-
+  compl_clean_sa_vs_gom_m_int__join_metrics__both_p |>
+  rowwise() |>
+  mutate(year_permit_sa_gom_dual = paste(year, permit_sa_gom_dual_both)) |>
+  ungroup()
+
+compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb$year_permit_sa_gom_dual |> 
+  unique() |> 
+  cat(sep = "\n")
+# 2022 sa_only
+# 2022 dual
+# 2022 gom_only
+# 2023 sa_dual
+# 2023 gom_only
+
 # year ----
 quantify_compliance_from_fhier_year_path <- file.path(
   my_paths$git_r,
