@@ -268,6 +268,7 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
 # Plot non compliant perc by month ----
 
 ## split by year_permit into a list ----
+# TODO: rempoe from here
 ## add a new column ----
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc |>
