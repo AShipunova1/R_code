@@ -91,7 +91,7 @@ get_compl_by <- function(my_df, group_by_for_compl) {
 group_by_for_compl <- 
   vars(-c("vessel_official_number", "compliant_"))
 
-print_df_names(compl_clean_sa_vs_gom_m_int_tot__both)
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot__both)
 
 # using all fields
 # compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide <-
@@ -457,23 +457,35 @@ gg_all_c_vs_nc_plots <-
   })
 
 # gg_all_c_vs_nc_plots
+
 ## Makle a flat list of plots with names ----
-flat_plot_list_all <- list_flatten(gg_all_c_vs_nc_plots)
+make_flat_plot_list <- function(list_of_plots) {
+  flat_plot_list_all <- list_flatten(list_of_plots)
+  
+  # rm NULLs
+  flat_plot_list <- compact(flat_plot_list_all)
+}
+  
+make_flat_plot_list_names <- function(flat_plot_list) {
+  flat_plot_list_names <-
+    flat_plot_list |>
+    map(\(x) {
+      x$labels$title |>
+        str_replace_all(" ", "_") |>
+        tolower() |>
+        str_replace("_permitted_vessels", "") |>
+        str_replace_all("[^a-z0-9_]", "_")
+    })
+  
+  names(flat_plot_list) <-
+    flat_plot_list_names
+  
+  return(flat_plot_list)
+}
 
-flat_plot_list <- compact(flat_plot_list_all)
-
-flat_plot_list_names <-
-  flat_plot_list |>
-  map(\(x) {
-    x$labels$title |>
-      str_replace_all(" ", "_") |>
-      tolower() |>
-      str_replace("_permitted_vessels", "") |>
-      str_replace_all("[^a-z0-9_]", "_")
-  })
-
-names(flat_plot_list) <- 
-  flat_plot_list_names
+flat_plot_list <-
+  make_flat_plot_list(gg_all_c_vs_nc_plots) |> 
+  make_flat_plot_list_names()
 
 ### check the names ---
 flat_plot_list |>
@@ -531,10 +543,10 @@ my_grobs_list |>
 # 1) count percents - a given vsl non_compl per counted weeks total ----
 ## 1a) how many weeks each vessel was present in a year ----
 
-# print_df_names(compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb)
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot__both)
 
 compl_clean_sa_vs_gom_m_int_tot_short <-
-  compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb |>
+  compl_clean_sa_vs_gom_m_int_tot__both |>
   select(
     -c(
       name,
@@ -568,10 +580,10 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 
 # dim(compl_clean_sa_vs_gom_m_int_tot)
 # [1] 535295     31
-# dim(compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb)
-# [1] 535295     32
+# dim(compl_clean_sa_vs_gom_m_int_tot__both)
+# [1] 535295     33
 dim(compl_clean_sa_vs_gom_m_int_tot_short)
-# [1] 298147      9
+# [1] 298147      10
 
 # print_df_names(compl_clean_sa_vs_gom_m_int_tot_short)
 # [1] "vessel_official_number, year, compliant_, week_num, week_start, year_month, permit_sa_gom_dual, permit_sa_gom_dual_both, year_permit_sa_gom_dual"
@@ -672,7 +684,7 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
 # $ total_weeks_per_vessel     <int> 52, 52
 
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
-# glimpse(compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt)
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt)
 
 count_weeks_per_vsl_permit_year_compl_p <-
   compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
@@ -739,4 +751,5 @@ count_weeks_per_vsl_permit_year_compl_p %>%
 grep("year_", 
      names(count_weeks_per_vsl_permit_year_compl_p), 
      value = T)
-# [1] "year_month"              "year_permit_sa_gom_dual"
+# [1] "year_month"               "year_permit_sa_gom_dual" 
+# [3] "total_vsl_y_by_year_perm"
