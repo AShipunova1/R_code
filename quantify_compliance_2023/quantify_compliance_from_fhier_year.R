@@ -166,9 +166,9 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both |>
 # 4 2023  sa_dual                                   2436 1000042               
 
 #### save sa_dual filter ----
-# sa_dual_filter <-
-#   rlang::quo(permit_sa_gom_dual == "sa_only" |
-#           (year == "2023" & permit_sa_gom_dual == "dual"))
+sa_dual_filter <-
+  rlang::quo(permit_sa_gom_dual == "sa_only" |
+          (year == "2023" & permit_sa_gom_dual == "dual"))
 
 # compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa <-
 #   compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_ |>
