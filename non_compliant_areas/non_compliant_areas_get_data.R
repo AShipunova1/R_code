@@ -373,10 +373,9 @@ n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 
 compl_err_db_data_metrics_2022_23_clean__ports <-
   left_join(compl_err_db_data_metrics_2022_23_clean,
-            vessels_from_pims_short)
-# ,
-#             relationship =
-#               "many-to-many")
+            vessels_from_pims_short,
+            relationship =
+              "many-to-many")
 
 # TODO:
 # ℹ Row 1360 of `x` matches multiple rows in `y`.
@@ -433,7 +432,7 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |>
 
 ## check, Metrics tracking error! ----
 compl_err_db_data_metrics_2022_23_clean |>
-  select(permit_grouping_region, sa_permits_, gom_permits_) |>
+  select(permit_region, sa_permits_, gom_permits_) |>
   distinct()
 # A tibble: 3 × 3
 #   permit_grouping_region sa_permits_ gom_permits_
@@ -455,9 +454,9 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list <-
     )
   )
 
-# View(compl_err_db_data_metrics_2022_23_clean__comb_col_list)
+# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list)
 
-map(compl_err_db_data_metrics_2022_23_clean__comb_col_list, dim)
+map(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list, dim)
 # ---
 # 2023
 # $dual
@@ -507,9 +506,9 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list, dim)
 # [1] 3187    6  
   
 ## check vessel/compl counts ----
-# compl_err_db_data_metrics_2022_23_clean__comb_col_list$`2023 sa_only`$compliant_
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list$`2023 sa_only`$compliant_
 
-compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list |>
   map(\(curr_df) {
     curr_df |>
       dplyr::select(vessel_official_number, compliant_) |>
@@ -547,7 +546,7 @@ compl_err_db_data_metrics_2022_23_clean__comb_col_list |>
 # 1 NO          1363
 # 2 YES         1818
 
-map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
+map(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list,
     \(reg_df) {
       n_distinct(reg_df$vessel_official_number)
     })
@@ -585,7 +584,7 @@ map(compl_err_db_data_metrics_2022_23_clean__comb_col_list,
 # View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
 
 setdiff(
-  names(compl_err_db_data_metrics_2022_23_clean__comb_col_list[[1]]),
+  names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list[[1]]),
   names(
     compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col
   )
@@ -598,7 +597,7 @@ setdiff(
 cat(
   c(
     "Result to use for vessels home port and its permit region:",
-    "compl_err_db_data_metrics_2022_23_clean__comb_col_list",
+    "compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list",
     "compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col"
   ),
   sep = "\n"
@@ -678,12 +677,13 @@ grep(",[a-zA-Z]",
 # print out get_data results ----
 
 cat(
-  blue("All DB data:"),
-  "all_get_db_data_result_l",
+  # blue("All DB data:"),
+  # "all_get_db_data_result_l",
   blue("compl 2023:"),
-  "compl_err_db_data_metrics_2022_23_clean__comb_col_list_short",
-  blue("vessel_permit 2023 with lat/long:"),
-  "vessels_permits_home_port_lat_longs_city_state",
+   "compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list",
+    "compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col",
+  # blue("vessel_permit 2023 with lat/long:"),
+  # "vessels_permits_home_port_lat_longs_city_state",
   blue("Maps:"),
   "us_s_shp",
   sep = "\n"
