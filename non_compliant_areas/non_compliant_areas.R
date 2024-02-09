@@ -67,127 +67,25 @@ get_data_file_path <-
 
 source(get_data_file_path)
 
+## Fix ports ----
+
+fix_ports_file_path <-
+  file.path(my_paths$git_r,
+            current_project_basename,
+            "vessels_from_pims_fix_port.R")
+# file.exists(fix_ports_file_path)
+
+source(fix_ports_file_path)
+
+
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
-# vessels_permits_home_port_lat_longs_city_state |> dim()
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |> dim()
 # [1] 4729    6
+# [1] 9362    6
 
 # ---
-# Explanation:
-# The code utilizes the pipe operator |> to perform a series of operations on
-# the 'vessels_permits_home_port_lat_longs_city_state' data frame.
-# - Filtering: Rows are filtered based on conditions related to the 'state_fixed' column.
-# - Selection: Only the 'SERO_OFFICIAL_NUMBER' column is selected for further processing.
-# - Deduplication: Duplicate rows are removed based on the selected column.
-# - Sorting: The resulting data frame is arranged in ascending order by
-#   'SERO_OFFICIAL_NUMBER'.
-vessels_permits_home_port_lat_longs_city_state |>
-  filter(state_fixed %in% c("NA", "UN") | is.na(state_fixed)) |>
-  select(SERO_OFFICIAL_NUMBER) |>
-  distinct() |>
-  arrange(SERO_OFFICIAL_NUMBER)
 
-all_vessels_permits_home_port_na_state <-
-  all_vessels_permits_home_port |>
-  filter(SERO_HOME_PORT_STATE %in% c("NA", "UN") |
-           is.na(SERO_HOME_PORT_STATE)) |>
-  select(SERO_OFFICIAL_NUMBER) |>
-  distinct() |>
-  arrange(SERO_OFFICIAL_NUMBER)
-# 13
-
-vessels_permits_home_port_short_trim_no_county |>
-  filter(SERO_OFFICIAL_NUMBER %in% all_vessels_permits_home_port_na_state$SERO_OFFICIAL_NUMBER) |>
-  arrange(SERO_HOME_PORT_CITY)
-# |>
-#   select(SERO_OFFICIAL_NUMBER) ->
-#   no_state_vessels
-# 2              FL9026LT            BOKEELIA                   FL
-# 7                615565         SWANQUARTER                   NC
-
-### check for duplicate vessels ----
-vessels_permits_home_port_lat_longs_city_state |>
-  dplyr::distinct() |>
-  dplyr::group_by(SERO_OFFICIAL_NUMBER) %>%
-  dplyr::filter(dplyr::n() > 1) |>
-  dim()
-# 76 5?
-# TODO
-
-### check how many coords have more than one vessel ----
-vessels_permits_home_port_lat_longs_city_state |>
-  dplyr::distinct() |>
-#   group_by(permit_sa_gom, lat, long) %>%
-# [1] 4393    6
-  # Group the data by latitude and longitude, then filter for rows with more than one occurrence.
-  dplyr::group_by(lat, long) %>%
-  dplyr::filter(dplyr::n() > 1) |>
-  # Return the dimensions (number of rows and columns) of the resulting data frame.
-  dim()
-# [1] 4505    6
-  # count_uniq_by_column()
-# SERO_OFFICIAL_NUMBER 4505
-# city_fixed            376
-# state_fixed            17
-# lat                   323
-
-# [1] 6578    5
-
-## Compliance info combine dual and GOM ----
-# Not needed if use Metrics tracking permits
-# compl_err_db_data_metrics_2022_clean_list_short is sourced from non_compliant_areas_get_data.R
-
-# Use the 'map' function from the 'purrr' package to apply the 'dim' function to each element
-# of the list 'compl_err_db_data_metrics_2022_clean_list_short'.
-purrr::map(compl_err_db_data_metrics_2022_clean_list_short, dim)
-# $dual
-# [1] 474   2
-#
-# $gom_only
-# [1] 1114    2
-#
-# $sa_only
-# [1] 2855    2
-#
-# $gom_dual
-# [1] 1588    2
-
-# $GOM
-# [1] 1492    2
-#
-# $SA
-# [1] 2976    2
-
-# apply count_uniq_by_column() function to each df in the list
-purrr::map(compl_err_db_data_metrics_2022_clean_list_short,
-           count_uniq_by_column)
-# $dual
-# vessel_official_nbr 374
-# is_comp               2
-#
-# $gom_only
-# vessel_official_nbr 939
-# is_comp               2
-#
-# $sa_only
-# vessel_official_nbr 2135
-# is_comp                2
-#
-# $gom_dual
-# vessel_official_nbr 1313
-# is_comp                2
-
-# today()
-# [1] "2023-12-29"
-# $GOM
-#                           .
-# vessel_official_number 1232
-# is_comp                   2
-#
-# $SA
-#                           .
-# vessel_official_number 2241
-# is_comp                   2
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
 
