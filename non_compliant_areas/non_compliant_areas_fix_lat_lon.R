@@ -1,11 +1,14 @@
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col
+
 # run once to get lat lon and check names with no coords
 # 1) add lat/lon
 # 2) check names without coordinates
 # 3) fix names
 # 4) add lat/lon to the fixed names
 
-# print_df_names(vessels_from_pims__vessels_from_metrics_short)
+# print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
 # [1] "vessel_official_number, hailing_port, permit_sa_gom_metr"
+# [1] "vessel_official_number, permit_sa_gom_dual, compliant_, year, hailing_port, year_permit_sa_gom_dual"
 
 # separate hailing_port into city and state ----
 vessels_from_pims__vessels_from_metrics_short_addr <-
@@ -315,7 +318,7 @@ length(both)
 vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
   filter(vessel_official_number %in% both) |>
   select(vessel_official_number,
-         permit_sa_gom_metr,
+         permit_sa_gom_dual,
          city_fixed1,
          state_fixed1) |>
   filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
@@ -326,7 +329,7 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
 vessels_from_pims__vessels_from_metrics_short_addr__fixed_1 |>
   filter(vessel_official_number %in% both) |>
   select(vessel_official_number,
-         permit_sa_gom_metr,
+         permit_sa_gom_dual,
          city_fixed,
          state_fixed,
          city_fixed1,
@@ -358,7 +361,7 @@ vessels_from_pims__vessels_from_metrics_short_addr__fixed_2 <-
 vessels_from_pims__vessels_from_metrics_short_addr__fixed_2 |>
   filter(vessel_official_number %in% both) |>
   select(vessel_official_number,
-         permit_sa_gom_metr,
+         permit_sa_gom_dual,
          city_fixed,
          state_fixed,
          city_fixed1,
