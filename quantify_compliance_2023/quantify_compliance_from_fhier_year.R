@@ -454,7 +454,9 @@ gg_all_c_vs_nc_plots <-
 
 # gg_all_c_vs_nc_plots
 ## Makle a flat list of plots with names ----
-flat_plot_list <- list_flatten(gg_all_c_vs_nc_plots)
+flat_plot_list_all <- list_flatten(gg_all_c_vs_nc_plots)
+
+flat_plot_list <- compact(flat_plot_list_all)
 
 flat_plot_list_names <-
   flat_plot_list |>
@@ -487,7 +489,9 @@ flat_plot_list |>
 
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
-my_grobs_list <- list(gg_all_c_vs_nc_plots[[1]])
+my_grobs_list <-
+  flat_plot_list
+# list(gg_all_c_vs_nc_plots[[1]])
 
 # combine plots for 2023
 grid.arrange(grobs = my_grobs_list,
