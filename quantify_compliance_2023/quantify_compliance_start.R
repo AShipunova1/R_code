@@ -76,9 +76,11 @@ plot_colors <- list("compliant" = "skyblue1",
 
 title_permits <- data.frame(
   permit_sa_gom_dual = c("sa_only",
+                         "sa_dual",
                          "gom_only",
                          "dual"),
   title = c("SA Only",
+            "SA + Dual",
             "GOM only",
             "Dual only"),
   # "2022: GOM + Dual",
