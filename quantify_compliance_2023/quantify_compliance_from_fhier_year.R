@@ -1,5 +1,5 @@
 # by Year: ----
-## year add total ----
+## year add total counts ----
 # (both compl. and not, a vsl can be in both)
 
 add_total_cnt_in_gr <- 
@@ -20,7 +20,10 @@ compl_clean_sa_vs_gom_m_int_tot <-
   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int__join_metrics, 
                       c("permit_sa_gom_dual", "year"))
 
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot)
+
 # print_df_names(compl_clean_sa_vs_gom_m_int__join_metrics__both_p)
+
 compl_clean_sa_vs_gom_m_int_tot__both <-
   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb, 
                       c("permit_sa_gom_dual_both", "year"))
@@ -30,7 +33,8 @@ res1 <-
   compl_clean_sa_vs_gom_m_int__join_metrics |>
   select(vessel_official_number, year, permit_sa_gom_dual) |>
   distinct() |>
-  count(year, permit_sa_gom_dual, name = "total_vsl_y_by_year_perm") |>
+  count(year, permit_sa_gom_dual, 
+        name = "total_vsl_y_by_year_perm") |>
   arrange(total_vsl_y_by_year_perm)
 
 res1a <-
@@ -338,7 +342,7 @@ compl_clean_sa_vs_gom_m_int %>%
 # 3 2023        3177 YES       
 # 4 2023        1558 NO        
 
-## add total cnts ----
+## add total cnts by compliance ----
 # active vs expired per year, permit, compl, permit expiration
 
 add_total_cnts <-
@@ -569,6 +573,9 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 dim(compl_clean_sa_vs_gom_m_int_tot_short)
 # [1] 298147      9
 
+# print_df_names(compl_clean_sa_vs_gom_m_int_tot_short)
+# [1] "vessel_official_number, year, compliant_, week_num, week_start, year_month, permit_sa_gom_dual, permit_sa_gom_dual_both, year_permit_sa_gom_dual"
+
 # compl_clean_sa_vs_gom_m_int_tot_short_week <-
 #   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot_short,
 #                       c("permit_sa_gom_dual", "year", "week_start"),
@@ -595,6 +602,7 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt <-
   dplyr::ungroup()
 
 # check
+# glimpse(compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt)
 
 ## test 1a ----
 # have both comp and not
@@ -731,3 +739,4 @@ count_weeks_per_vsl_permit_year_compl_p %>%
 grep("year_", 
      names(count_weeks_per_vsl_permit_year_compl_p), 
      value = T)
+# [1] "year_month"              "year_permit_sa_gom_dual"
