@@ -163,13 +163,17 @@ get_compl_by <-
 }
 
 # all columns except "vessel_official_number" and "compliant_"
+# group_by_for_compl_m <-
+#   vars(c(
+#     year_month,
+#     year,
+#     permit_sa_gom_dual,
+#     total_vsl_m_by_year_perm
+#   ))
+
 group_by_for_compl_m <-
-  vars(c(
-    year_month,
-    year,
-    permit_sa_gom_dual,
-    total_vsl_m_by_year_perm
-  ))
+  vars(-c(vessel_official_number,
+          compliant_))
 
 names_from_list <- c("vessel_official_number")
 
