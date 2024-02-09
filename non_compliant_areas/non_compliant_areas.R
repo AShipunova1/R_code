@@ -69,13 +69,13 @@ source(get_data_file_path)
 
 ## Fix ports ----
 
-fix_ports_file_path <-
+fix_lat_lon_file_path <-
   file.path(my_paths$git_r,
             current_project_basename,
-            "vessels_from_pims_fix_port.R")
-# file.exists(fix_ports_file_path)
+            "non_compliant_areas_fix_lat_lon.R")
+# file.exists(fix_lat_lon_file_path)
 
-source(fix_ports_file_path)
+source(fix_lat_lon_file_path)
 
 
 ## prepare permit data ----
