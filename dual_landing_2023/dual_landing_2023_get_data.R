@@ -52,8 +52,8 @@ names(vessels_no_logbooks) <-
   names(vessels_no_logbooks) |>
   tolower()
 
-# results:
-# all_get_db_data_result_l
-# processed_metrics_tracking_permits
-# processed_logbooks
-# vessels_no_logbooks
+results <-
+  c("processed_logbooks",
+    "vessels_no_logbooks")
+
+cat(results, sep = "\n")
