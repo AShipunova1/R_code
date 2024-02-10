@@ -162,26 +162,20 @@ mapview(GOMsf,
     layer.name = c("Dual permitted vessels' trips in 2023")
   )
 
-# subset by gom waters ----
-# mapview(GOMsf,
-#         layer.name = c("GOM waters")) +
-#   mapview(GOM_s_fl_state_waters_only_my_shp,
-#           layer.name = c("GOM S. Florida waters")) +
-#   mapview(
-#     processed_logbooks_dual_short_sf_sa_bb,
+# subset by sa FL waters ----
 
-# tic("sa/gom w st_difference")
-# processed_logbooks_dual_short_sf_sa__not_gom_fl <-
-#   st_difference(processed_logbooks_dual_short_sf_sa,
-#                   GOM_s_fl_state_waters_only_my_shp)
-# toc()
-# sa/gom w st_difference: 29.44 sec elapsed
+processed_logbooks_dual_short_sf_sa__sa_fl <-
+  st_intersection(processed_logbooks_dual_short_sf_sa_bb,
+                  sa_fl_state_w_counties_shp)
 
-n_distinct(processed_logbooks_dual_short_sf_sa__not_gom_fl$trip_id)
-# 3891
-
-n_distinct(processed_logbooks_dual_short_sf_sa$trip_id)
-# 3891
+# mapview(sa_fl_state_w_counties_shp)+
+# mapview(processed_logbooks_dual_short_sf_sa__sa_fl)
+# 
+# n_distinct(processed_logbooks_dual_short_sf_sa__sa_fl$trip_id)
+# # 883
+# 
+# n_distinct(processed_logbooks_dual_short_sf_sa$trip_id)
+# # 3891
 
 tic("gom w fl w intersect")
 processed_logbooks_dual_short_sf_bb__gom_fl <-
@@ -272,6 +266,7 @@ total_in_sa <-
   total_points_in_bb - total_in_gom
 # 1437
 
-mapview(sa_fl_state_w_counties_shp,
-        col.regions = "green") +
-  mapview(GOM_s_fl_state_waters_only)
+mapview(GOM_s_fl_state_waters_only) +
+  mapview(sa_fl_state_w_counties_shp,
+          col.regions = "green") +
+  mapview(processed_logbooks_dual_short_sf_sa__sa_fl)
