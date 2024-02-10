@@ -64,6 +64,51 @@ processed_logbooks_dual_short <-
          latitude,
          longitude) |>
   distinct()
-# dim(processed_logbooks_dual_short)
+
+dim(processed_logbooks_dual_short)
 # 4958    6
 
+# n_distinct(processed_logbooks_dual_short$vessel_official_number)
+# 143
+
+processed_logbooks_dual_short_no_na <-
+  processed_logbooks_dual_short |>
+  dplyr::filter(stats::complete.cases(latitude) &
+                  stats::complete.cases(longitude))
+
+dim(processed_logbooks_dual_short_no_na)
+# [1] 4816    6
+
+processed_logbooks_dual_short_sf <- sf::st_as_sf(
+  processed_logbooks_dual_short_no_na,
+  coords = c("longitude", "latitude"),
+  crs = st_crs(sa_states_shp) # lat/long coordinate reference system
+)
+
+# subset point by a sa shp ----
+tic("sa st_intersection")
+processed_logbooks_dual_short_sf_sa <-
+  st_intersection(processed_logbooks_dual_short_sf,
+                  sa_states_shp)
+toc()
+# 0.89 sec elapsed
+
+mapview(sa_states_shp) + 
+mapview(processed_logbooks_dual_short_sf_sa, 
+        col.regions = "pink")
+
+# get counts ----
+processed_logbooks_dual_short_sf_sa_df <-
+  sf::st_drop_geometry(processed_logbooks_dual_short_sf_sa)
+
+# n_distinct(processed_logbooks_dual_short$trip_id)
+# 4957
+
+# n_distinct(processed_logbooks_dual_short_no_na$trip_id)
+# 4815
+
+n_distinct(processed_logbooks_dual_short_sf_sa_df$trip_id)
+# 739
+
+739/4815*100
+# [1] 15.34787
