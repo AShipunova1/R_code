@@ -78,11 +78,25 @@ processed_logbooks_dual_short_no_na <-
 
 dim(processed_logbooks_dual_short_no_na)
 # [1] 4816    6
+my_crs <-
+  st_crs(sa_states_shp) # lat/long coordinate reference system
 
+# convert crss ----
+
+tic("st_transform1")
+GOM_s_fl_state_waters_only_my_shp <- 
+  st_transform(GOM_s_fl_state_waters_only, crs = my_crs)
+toc()
+
+tic("st_transform2")
+GOMsf_my_shp <- 
+  st_transform(GOMsf, crs = my_crs)
+toc()
+# st_transform2: 60.79 sec elapsed
 processed_logbooks_dual_short_sf <- sf::st_as_sf(
   processed_logbooks_dual_short_no_na,
   coords = c("longitude", "latitude"),
-  crs = st_crs(sa_states_shp) # lat/long coordinate reference system
+  crs = my_crs  
 )
 
 # subset point by a sa shp ----
@@ -97,18 +111,118 @@ mapview(sa_states_shp) +
 mapview(processed_logbooks_dual_short_sf_sa, 
         col.regions = "pink")
 
+# by big box ----
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+# big_bounding_box_sf <- bbox2sf(big_bounding_box)
+
+# sf_use_s2(TRUE)
+
+class(big_bounding_box) <- "bbox"
+
+box_end <- big_bounding_box |>
+  st_as_sfc() |>
+  st_as_sf(crs = my_crs)
+
+mapview(box_end)
+
+# subset point by the big box ----
+
+processed_logbooks_dual_short_sf_bb <-
+  st_intersection(processed_logbooks_dual_short_sf,
+                  box_end)
+# 0.89 sec elapsed
+
+# mapview(
+#   sa_states_shp,
+#   col.regions = "yellow",
+#   layer.name = "SA states"
+# ) +
+mapview(GOMsf,
+        layer.name = c("GOM waters")) +
+  mapview(GOM_s_fl_state_waters_only_my_shp,
+          layer.name = c("GOM S. Florida waters")) +
+  mapview(
+    processed_logbooks_dual_short_sf_sa_bb,
+    col.regions = "lightgreen",
+    cex = 5,
+    layer.name = c("Dual permitted vessels' trips in 2023")
+  )
+
+# subset by gom waters ----
+# mapview(GOMsf,
+#         layer.name = c("GOM waters")) +
+#   mapview(GOM_s_fl_state_waters_only_my_shp,
+#           layer.name = c("GOM S. Florida waters")) +
+#   mapview(
+#     processed_logbooks_dual_short_sf_sa_bb,
+
+# tic("sa/gom w st_difference")
+# processed_logbooks_dual_short_sf_sa__not_gom_fl <-
+#   st_difference(processed_logbooks_dual_short_sf_sa,
+#                   GOM_s_fl_state_waters_only_my_shp)
+# toc()
+# sa/gom w st_difference: 29.44 sec elapsed
+
+n_distinct(processed_logbooks_dual_short_sf_sa__not_gom_fl$trip_id)
+# 3891
+
+n_distinct(processed_logbooks_dual_short_sf_sa$trip_id)
+# 3891
+
+tic("gom w st intersect")
+processed_logbooks_dual_short_sf_bb__gom_fl <-
+  st_intersection(processed_logbooks_dual_short_sf_bb,
+                  GOM_s_fl_state_waters_only_my_shp)
+toc()
+# gom w st intersect: 1.42 sec elapsed
+
+n_distinct(processed_logbooks_dual_short_sf_bb__gom_fl$trip_id)
+# 337
+
+tic("gom w st intersect")
+processed_logbooks_dual_short_sf_bb__gomsf <-
+  st_intersection(processed_logbooks_dual_short_sf_bb,
+                  GOMsf_my_shp)
+toc()
+# gom w st intersect: 3.14 sec elapsed
+
 # get counts ----
 processed_logbooks_dual_short_sf_sa_df <-
   sf::st_drop_geometry(processed_logbooks_dual_short_sf_sa)
 
-# n_distinct(processed_logbooks_dual_short$trip_id)
+total_trips <-
+  n_distinct(processed_logbooks_dual_short$trip_id)
 # 4957
 
-# n_distinct(processed_logbooks_dual_short_no_na$trip_id)
-# 4815
+total_with_coords <-
+  n_distinct(processed_logbooks_dual_short_no_na$trip_id)
+# 4815 (total not NA)
 
 n_distinct(processed_logbooks_dual_short_sf_sa_df$trip_id)
-# 739
+# 739 (in sa)
 
 739/4815*100
 # [1] 15.34787
+
+## count all in big_box ----
+processed_logbooks_dual_short_sf_sa_bb_df <-
+  st_drop_geometry(processed_logbooks_dual_short_sf_sa_bb)
+
+total_points_in_bb <-
+  n_distinct(processed_logbooks_dual_short_sf_sa_bb_df$trip_id)
+# [1] 3891
+
+3891/4815*100
+# 80.80997
+# 81% in the big box
+
+# in GOMsg
+gomsf_trips <-
+  n_distinct(processed_logbooks_dual_short_sf_bb__gomsf$trip_id)
+# 2117
