@@ -46,3 +46,24 @@ dual_landing_2023_get_data_path <-
             "dual_landing_2023_get_data.R")
 
 source(dual_landing_2023_get_data_path)
+
+# processed_logbooks
+# vessels_no_logbooks
+
+dim(processed_logbooks)
+# [1] 164159    153
+# grep("lon", names(processed_logbooks), value = T)
+
+processed_logbooks_dual_short <-
+  processed_logbooks |>
+  filter(permit_sa_gom_dual == "dual") |>
+  select(vessel_official_number,
+         trip_id,
+         trip_start_date,
+         trip_end_date,
+         latitude,
+         longitude) |>
+  distinct()
+# dim(processed_logbooks_dual_short)
+# 4958    6
+
