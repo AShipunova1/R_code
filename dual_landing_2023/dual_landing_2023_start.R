@@ -93,6 +93,14 @@ GOMsf_my_shp <-
   st_transform(GOMsf, crs = my_crs)
 toc()
 # st_transform2: 60.79 sec elapsed
+
+tic("st_transform sa_fl_state_w_counties_shp")
+sa_fl_state_w_counties_shp_my_shp <- 
+  st_transform(sa_fl_state_w_counties_shp, crs = my_crs)
+toc()
+
+
+
 processed_logbooks_dual_short_sf <- sf::st_as_sf(
   processed_logbooks_dual_short_no_na,
   coords = c("longitude", "latitude"),
@@ -175,7 +183,7 @@ n_distinct(processed_logbooks_dual_short_sf_sa__not_gom_fl$trip_id)
 n_distinct(processed_logbooks_dual_short_sf_sa$trip_id)
 # 3891
 
-tic("gom w st intersect")
+tic("gom w fl w intersect")
 processed_logbooks_dual_short_sf_bb__gom_fl <-
   st_intersection(processed_logbooks_dual_short_sf_bb,
                   GOM_s_fl_state_waters_only_my_shp)
@@ -192,10 +200,31 @@ processed_logbooks_dual_short_sf_bb__gomsf <-
 toc()
 # gom w st intersect: 3.14 sec elapsed
 
-# get counts ----
-processed_logbooks_dual_short_sf_sa_df <-
-  sf::st_drop_geometry(processed_logbooks_dual_short_sf_sa)
+# Get points not in gom waters ----
+# A <- st_as_sf(meuse) %>% select(geometry) #155 obs
+# B <- filter(A, row_number()<= 100)%>% select(geometry) #100 obs
+# 
+# diff_meuse <- st_difference(st_combine(A), st_combine(B)) %>% st_cast('POINT')
 
+A <-
+  st_as_sf(sa_fl_state_w_counties_shp_my_shp) %>% 
+  select(geometry)
+
+B <-
+  st_as_sf(GOM_s_fl_state_waters_only_my_shp) |>
+  select(geometry)
+
+diff_meuse <-
+  st_difference(st_combine(A), st_combine(B)) %>% st_cast('POINT')
+
+# mapview(diff_meuse)
+
+
+# mapview(sa_fl_state_w_counties_shp,
+#         col.regions = "green") +
+#   mapview(GOM_s_fl_state_waters_only)
+
+# get counts ----
 total_trips <-
   n_distinct(processed_logbooks_dual_short$trip_id)
 # 4957
@@ -203,6 +232,9 @@ total_trips <-
 total_with_coords <-
   n_distinct(processed_logbooks_dual_short_no_na$trip_id)
 # 4815 (total not NA)
+
+processed_logbooks_dual_short_sf_sa_df <-
+  sf::st_drop_geometry(processed_logbooks_dual_short_sf_sa)
 
 n_distinct(processed_logbooks_dual_short_sf_sa_df$trip_id)
 # 739 (in sa)
@@ -226,3 +258,20 @@ total_points_in_bb <-
 gomsf_trips <-
   n_distinct(processed_logbooks_dual_short_sf_bb__gomsf$trip_id)
 # 2117
+
+# in gom_st_fl
+gom_st_fl_trips <- 
+  n_distinct(processed_logbooks_dual_short_sf_bb__gom_fl)
+
+total_in_gom <- 
+  gom_st_fl_trips + gomsf_trips
+# 2454
+
+# total in SA ----
+total_in_sa <- 
+  total_points_in_bb - total_in_gom
+# 1437
+
+mapview(sa_fl_state_w_counties_shp,
+        col.regions = "green") +
+  mapview(GOM_s_fl_state_waters_only)
