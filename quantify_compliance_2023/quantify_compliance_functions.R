@@ -161,7 +161,8 @@ make_one_plot_compl_vs_non_compl <-
            no_legend = FALSE,
            percent_label_pos = 0.5,
            default_percent_labels = TRUE,
-           geom_text_size = text_sizes[["geom_text_size"]]
+           geom_text_size = text_sizes[["geom_text_size"]],
+           legend_labels = c("Yes", "No")
   ) {
     
     one_plot <-
@@ -211,11 +212,11 @@ make_one_plot_compl_vs_non_compl <-
         # Legend title
         name = "Is compliant?",
         # Legend labels
-        labels = c("Yes", "No")
+        labels = legend_labels
       ) +
       
       # Define manual x-axis tick labels
-      scale_x_discrete(labels = c("Yes", "No")) +
+      scale_x_discrete(labels = legend_labels) +
       # scale_y_continuous(limits = c(0, 100), labels = scales::percent)
       # Set the y-axis limits between 0 and 100
       ylim(0, 100)
