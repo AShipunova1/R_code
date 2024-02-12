@@ -374,40 +374,24 @@ states_sf <-
 # mapview(states_sf)
 
 # Keep only SA states for SA only plots ----
+shp_file_with_cnts_list_sa_only_23 <-
+  shp_file_with_cnts_list$`2023 sa_only` |>
+  # filter(!is.na(state_fixed_full)) |>
+  filter(tolower(NAME) %in% tolower(east_coast_states$sa))
+
+glimpse(shp_file_with_cnts_list_sa_only_23)
+# 4 19
+# $ STUSPS                      <chr> "GA", "FL", "SC", "NC"
 
 
 # HERE ----
 
 # Keep only GOM states for GOM only plots ----
 
-# Explanations:
-# The code defines a function 'get_state_fixed_full_name' that takes a parameter
-# 'state_fixed' and returns the corresponding full state name from 'my_state_name'
-# using double brackets. 'tolower()' is used to ensure case-insensitive matching.
-
 get_state_fixed_full_name <- function(state_fixed){
   my_state_name[[tolower(state_fixed)]]
 }
 
-# ---
-# Explanations:
-# The code modifies the 'gom_states' column in the data frame
-# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels':
-# - Create a new column 'state_fixed_full' using 'possibly()' to safely apply
-#   'get_state_fixed_full_name' to 'state_fixed'.
-# - Filter out rows where 'state_fixed_full' is not NA.
-# - Filter out rows where the lowercase 'state_fixed_full' is in the lowercase 'gom' states.
-# - Ungroup the data frame.
-
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$gom_states <-
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |>
-  rowwise() %>%
-  mutate(state_fixed_full =
-           possibly(get_state_fixed_full_name,
-                    otherwise = NA)(state_fixed)) |>
-  filter(!is.na(state_fixed_full)) |>
-  filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
-  ungroup()
 
 ## add to the shape file by state name ----
 
