@@ -292,7 +292,8 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 #   ..$ non_compl_proportion_per_st: num [1:37] 0.364 0.636 0.289 0.711 0.628 ...
 #   ..$ non_compl_percent_per_st   : num [1:37] 36.4 63.6 28.9 71.1 62.8 ...
 
-# map specific columns ----
+# Maps ----
+## map specific columns ----
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc |>
@@ -326,7 +327,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 
 # View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels)
 
-## add to the shape file by state name ----
+### add to the shape file by state name ----
 
 shp_file_with_cnts_list <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels |>
@@ -343,7 +344,7 @@ shp_file_with_cnts_list <-
 # shp_file_with_cnts_list$`2023 sa_only` |> print_df_names()
 # [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, cnt_vsl_compl, non_compl_percent_per_st, non_compl_proportion_per_st, nc_round_perc, nc_round_proportion, my_label_perc, my_label_cnt, my_label_long, geometry"
 
-# get south states map ----
+## get south states map ----
 # to add empty states to the map
 
 # Explanations:
@@ -367,7 +368,7 @@ states_sf <-
 
 # mapview(states_sf)
 
-# Keep only SA states for SA only plots ----
+## Keep only SA states for SA only plots ----
 shp_file_with_cnts_list_sa_only_23 <-
   shp_file_with_cnts_list$`2023 sa_only` |>
   # filter(!is.na(state_fixed_full)) |>
@@ -377,14 +378,14 @@ shp_file_with_cnts_list_sa_only_23 <-
 # 4 19
 # $ STUSPS                      <chr> "GA", "FL", "SC", "NC"
 
-# combine static map ----
-# get boundaries from south_east_coast_states_shp_bb
+## variables for plot sizes ----
 
-base_size = 20
+my_base_size = 18
 label_text_size <- 5
 # axis_text_size <- 4
 # title_text_size <- 4
 
+## get color pallette ----
 sa_state_proportion_indexes <-
   shp_file_with_cnts_list_sa_only_23 |>
   sf::st_drop_geometry() |>
@@ -410,94 +411,59 @@ names(mypalette) <- sa_state_proportion_indexes$nc_round_proportion
 #        0.51        0.58        0.63        0.64 
 # "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF" 
 
-# Creates a plot using the ggplot2
+## get boundaries from south_east_coast_states_shp_bb ----
 
 shp_file_with_cnts_list_sa_only_23_bbox <-
   sf::st_bbox(shp_file_with_cnts_list_sa_only_23)
 
-# shp_file_with_cnts_list_maps_sa_23 <-
-  # shp_file_with_cnts_list$`2023 sa_only` |>
-  # purrr::map(\(curr_sf) {
-  curr_sf_for_map <- shp_file_with_cnts_list_sa_only_23
-  # shp_file_with_cnts_list_sa_only_23 |> 
-  # curr_sf |>
-      # filter(!is.na(total_vsl_by_state_cnt)) |> dim()
-      # mutate(
-        # my_nudge_y =
-          # ifelse(grepl("MS:", my_label_long), 2, 0))
-    
-    sa_only_map  <-
-      ggplot2::ggplot() +
-      ggplot2::geom_sf(data = states_sf, fill = NA) +
-      ggplot2::geom_sf(data = curr_sf_for_map,
-                       aes(fill = factor(nc_round_proportion))) +
-      ggplot2::geom_sf_label(
-        data = curr_sf_for_map,
-        aes(label = my_label_long),
-        size = label_text_size,
-        fill = "lightgrey",
-        # nudge_x = curr_sf_for_map$my_nudge_x,
-        # nudge_y = curr_sf_for_map$my_nudge_y
-      ) +
-      
-      # Set the coordinate limits for the plot, based on the bounding box of southeast coast states,
-      ggplot2::coord_sf(
-        xlim =
-          c(
-            floor(shp_file_with_cnts_list_sa_only_23_bbox$xmin),
-            ceiling(shp_file_with_cnts_list_sa_only_23_bbox$xmax)
-          ),
-        ylim =
-          c(
-            floor(shp_file_with_cnts_list_sa_only_23_bbox$ymin),
-            ceiling(shp_file_with_cnts_list_sa_only_23_bbox$ymax)
-          ),
-        # with expand = FALSE to prevent expansion beyond the specified limits.
-        expand = FALSE
-      ) +
-      ggplot2::xlab("") +
-      ggplot2::ylab("") +
-      scale_fill_manual(labels =
-                          c("less", "", "", "more"),
-                        values = mypalette) +
-      theme_bw(base_size = 18) +
-      # ggplot2::scale_fill_continuous(name = "",
-      #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
-      #                                                                  breaks = c("0.14", "0.29"),
-      theme(legend.position = c(0.53, 0.1)) +
-      guides(fill = guide_legend(title = "Non-Compliance Color Scale",
-                                 nrow = 1))
-  # })
+curr_sf_for_map <- shp_file_with_cnts_list_sa_only_23
 
-    sa_only_map
-# individual plots ----
+sa_only_map  <-
+  ggplot2::ggplot() +
+  ggplot2::geom_sf(data = states_sf, fill = NA) +
+  ggplot2::geom_sf(data = curr_sf_for_map,
+                   aes(fill = factor(nc_round_proportion))) +
+  ggplot2::geom_sf_label(
+    data = curr_sf_for_map,
+    aes(label = my_label_long),
+    size = label_text_size,
+    fill = "lightgrey"
+  ) +
+  
+  # Set the coordinate limits for the plot, based on the bounding box of SA coast states,
+  ggplot2::coord_sf(
+    xlim =
+      c(
+        floor(shp_file_with_cnts_list_sa_only_23_bbox$xmin),
+        ceiling(shp_file_with_cnts_list_sa_only_23_bbox$xmax)
+      ),
+    ylim =
+      c(
+        floor(shp_file_with_cnts_list_sa_only_23_bbox$ymin),
+        ceiling(shp_file_with_cnts_list_sa_only_23_bbox$ymax)
+      ),
+    # with expand = FALSE to prevent expansion beyond the specified limits.
+    expand = FALSE
+  ) +
+  ggplot2::xlab("") +
+  ggplot2::ylab("") +
+  scale_fill_manual(labels =
+                      c("less", "", "", "more"),
+                    values = mypalette) +
+  theme_bw(base_size = my_base_size) +
+  theme(legend.position = c(0.53, 0.1)) +
+  guides(fill = guide_legend(title = "Non-Compliance Color Scale",
+                             nrow = 1))
 
-## make map titles ----
-permit_regions <-
-  c("SA only",
-    "GOM and Dual",
-    "Gulf"
-    )
-
-# Generate plot titles using 'str_glue' to include the 'permit_region'.
-perc_plot_titles <-
-  permit_regions |>
-  purrr::map(\(permit_region) {
-    stringr::str_glue(
-      "Proportion of Non-compliant, {permit_region} Permitted SEFHIER Vessels by Homeport State"
-    )
-  })
-
-# Set the names of the 'perc_plot_titles' list to be the same as the 'permit_regions'.
-names(perc_plot_titles) <- permit_regions
+sa_only_map
 
 ## save plot to file function ----
 write_png_to_file <- function(output_file_name,
                               map_plot) {
 
-  png_width  <- 31
+  # png_width  <- 31
   # png_height <- 25
-  # png_width <- 800
+  png_width <- 500
   # png_height <- 600
 
   ggplot2::ggsave(
@@ -507,8 +473,9 @@ write_png_to_file <- function(output_file_name,
       path = file.path(my_paths$outputs,
                        current_project_basename),
       width = png_width,
-      # height = png_height,
-      units = "cm" # "px"
+      # height = png_height
+      # ,
+      units = "px"
     )
 }
 
@@ -525,50 +492,3 @@ output_file_name <-
 
 write_png_to_file(output_file_name,
                   sa_only_map)
-
-# Check no home port vessels ----
-## GOM ----
-vessels_no_home_port <-
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$GOM |>
-  filter(state_fixed %in% c("NA", "UN") | is.na(state_fixed)) |>
-  select(vessel_official_number) |>
-  distinct()
-
-nrow(vessels_no_home_port)
-# 230
-
-vessels_permits_home_port_22 |>
-  select(starts_with("SERO")) |>
-  distinct() |>
-  filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(vessels_no_home_port$vessel_official_number))) |>
-  nrow()
-# 2
-
-all_get_db_data_result_l$vessels_permits |>
-  select(starts_with("SERO")) |>
-  distinct() |>
-  filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(vessels_no_home_port$vessel_official_number))) |>
-  glimpse()
-
-
-compl_err_db_data_metrics_2022_clean_list_short$GOM |>
-  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
-    vessels_no_home_port$vessel_official_number
-  ))) |>
-  select(vessel_official_number) |>
-  distinct() |>
-  nrow()
-# 230
-
-compl_err_db_data_metrics_2022_clean_list_short_uniq$GOM |>
-  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
-    vessels_no_home_port$vessel_official_number
-  ))) |>
-  nrow()
-# 230
-
-# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
-#   filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
-#     vessels_no_home_port$vessel_official_number
-#   ))) |>
-#   View()
