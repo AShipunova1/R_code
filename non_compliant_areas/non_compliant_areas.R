@@ -960,10 +960,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
 ## add to the shape file by state name ----
 
 # Explanations:
-# The code creates a new list of spatial data frames 'shp_file_with_cnts_list'
-# using the pipe operator and purrr::map() function:
-# - purrr::map(): Iterates over each data frame in
-#   'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels'.
 # - For each data frame in the list:
 #   - Perform a left join with 'south_east_coast_states_shp'.
 #   - Join based on the equality of 'STUSPS' and 'home_state'.
