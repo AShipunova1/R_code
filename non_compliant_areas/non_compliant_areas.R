@@ -326,6 +326,26 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 
 # View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels)
 
+## add to the shape file by state name ----
+
+# Explanations:
+# - For each data frame in the list:
+#   - Perform a left join with 'south_east_coast_states_shp'.
+#   - Join based on the equality of 'STUSPS' and 'home_state'.
+# The resulting list contains spatial data frames with additional compliance count information.
+
+shp_file_with_cnts_list <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels |>
+  purrr::map(\(curr_df) {
+    # browser()
+    south_east_coast_states_shp |>
+      left_join(curr_df,
+                join_by(STUSPS ==
+                          state_fixed))
+  })
+
+# View(shp_file_with_cnts_list)
+
 # HERE ----
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
