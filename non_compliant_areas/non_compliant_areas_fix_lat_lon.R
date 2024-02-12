@@ -629,6 +629,27 @@ all_vessels_permits_home_port_clean0_fixed |>
 dim(all_vessels_permits_home_port_clean0_fixed)
 # [1] 6894    8
 
+# vessels with NA fixed state in vessels_from_pims_short ----
+names(vessels_from_pims)
+# [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"           
+
+
+vessels_from_pims_short__na_vessel_states <-
+  vessels_from_pims |>
+  filter(vessel_official_number1 %in% na_vessel_states$vessel_official_number |
+           vessel_official_number2 %in% na_vessel_states$vessel_official_number) |> 
+  distinct()
+
+dim(vessels_from_pims_short__na_vessel_states)
+# 112
+
+View(vessels_from_pims_short__na_vessel_states)
+
+# vessels_from_pims_short |>
+#   filter(vessel_official_number == "1173297")
+# 0
+
+# Print results ----
 cat("Result in compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed",
     "And in all_vessels_permits_home_port_clean0_fixed",
     sep = "\n")
