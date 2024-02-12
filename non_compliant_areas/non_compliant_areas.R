@@ -269,6 +269,29 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short$`2023 sa_only`)
 # [1] 37  4
 
+# add proportions ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      dplyr::group_by(state_fixed) |>
+      dplyr::mutate(
+        non_compl_proportion_per_st =
+          cnt_vsl_compl /
+          total_vsl_by_state_cnt,
+        non_compl_percent_per_st =
+          non_compl_proportion_per_st * 100
+      ) |>
+      dplyr::ungroup()
+  })
+
+# glimpse(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc)
+#   ..$ total_vsl_by_state_cnt     : int [1:37] 1166 1166 45 45 374 374 45 45 78 78 ...
+#   ..$ compl_or_not               : chr [1:37] "compliant" "non_compliant" "compliant" "non_compliant" ...
+#   ..$ cnt_vsl_compl              : int [1:37] 424 742 13 32 235 139 19 26 59 19 ...
+#   ..$ non_compl_proportion_per_st: num [1:37] 0.364 0.636 0.289 0.711 0.628 ...
+#   ..$ non_compl_percent_per_st   : num [1:37] 36.4 63.6 28.9 71.1 62.8 ...
+
 # HERE ----
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
