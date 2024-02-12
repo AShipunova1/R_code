@@ -86,6 +86,11 @@ title_permits <- data.frame(
             "Dual only"),
   # "2022: GOM + Dual",
   # "2023: SA + Dual"),
+  long_title = c("South Atlantic",
+            "South Atlantic + Dual",
+            "Gulf of Mexico",
+            "Dual only"),
+
   second_part = c("Permitted Vessels")
 )
 
