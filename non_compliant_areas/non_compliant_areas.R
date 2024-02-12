@@ -92,13 +92,17 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__li
 # [1] "2022 dual, 2022 gom_only, 2022 sa_only, 2023 dual, 2023 gom_only, 2023 sa_only"
 
 # vessel_by_state_cnt ----
+# rm(vessel_by_state_cnt)
 vessel_by_state_cnt <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list |>
   purrr::map(\(curr_df) {
     curr_df |>
       dplyr::select(vessel_official_number, state_fixed) |>
       dplyr::distinct() |>
-      dplyr::add_count(state_fixed)
+      dplyr::add_count(state_fixed, name = "total_vsl_by_state_cnt") |> 
+      arrange(vessel_official_number, 
+              state_fixed, 
+              total_vsl_by_state_cnt)
   })
 
 # vessel_by_state_cnt |> glimpse()
@@ -107,6 +111,7 @@ vessel_by_state_cnt <-
  #  ..$ state_fixed           : chr [1:2178] "FL" "VA" "NC" "NJ" ...
  #  ..$ n                     : int [1:2178] 1166 45 374 45 1166 1166 45 1166 1166 1166 ...
 
+# rm(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt)
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list |>
   purrr::map(\(curr_df) {
@@ -114,8 +119,12 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
       group_by(state_fixed) |>
       mutate(total_vsl_by_state_cnt =
                n_distinct(vessel_official_number)) |> 
-      ungroup()
+      ungroup() |> 
+      arrange(vessel_official_number, state_fixed, total_vsl_by_state_cnt)
   })
+
+# diffdf::diffdf(vessel_by_state_cnt$`2023 sa_only`,
+#                vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only`)
 
 ## check ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
@@ -493,3 +502,122 @@ output_file_name <-
 
 write_png_to_file(output_file_name,
                   sa_only_map)
+
+# Get numbers of all permitted vessels in 2023 vs those having port states ----
+
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list
+processed_metrics_tracking_permits_2023 <-
+  processed_metrics_tracking_permits |>
+  filter(end_date >= my_beginning2 &
+           effective_date <= my_end2) 
+# > min(processed_metrics_tracking_permits_2023_short$effective_date)
+# [1] "2006-02-28"
+# > max(processed_metrics_tracking_permits_2023_short$effective_date)
+# [1] "2023-12-29"
+# > min(processed_metrics_tracking_permits_2023_short$end_date)
+# [1] "2023-01-03"
+# > max(processed_metrics_tracking_permits_2023_short$end_date)
+# [1] "2025-06-30"
+  
+processed_metrics_tracking_permits_2023_short <- 
+  processed_metrics_tracking_permits_2023 |> 
+  select(vessel_official_number,
+         permit_sa_gom_dual) |> 
+  distinct()
+
+processed_metrics_tracking_permits_2023_short |>
+  group_by(permit_sa_gom_dual) |> 
+  mutate(count_vessels_by_permit = n_distinct(vessel_official_number)) |> 
+  select(-vessel_official_number) |> 
+  distinct()
+
+#   permit_sa_gom_dual count_vessels_by_permit
+#   <chr>                                <int>
+# 1 gom_only                              1130
+# 2 dual                                   310
+# 3 sa_only                               2167
+
+shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> sum()
+# [1] 1788
+
+shp_file_with_cnts_list$`2023 sa_only`$total_vsl_by_state_cnt |> sum()
+# 1818
+
+# Total Vessels With SA Only
+# 2,207
+
+# 1) In Metric tracking on FHIER:
+# Total Vessels With SA Only
+# 2207
+# 
+# 2) in Processed metric tracking: 
+# 2167
+# 3            sa_only 2149
+# processed_metrics_permit_info |>
+#   count(permit_sa_gom_dual)
+
+compl_metric_permit_sa_2023 <- 
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list$`2023 sa_only` |>
+  filter(permit_sa_gom_dual == "sa_only",
+         year == "2023")
+
+# compl_metric_permit_sa_2023 |> 
+#   mutate(vsl_cnt = n_distinct(vessel_official_number)) |>
+#   select(vsl_cnt) |>
+#   distinct()
+# 2145
+
+# no port
+# compl_metric_permit_sa_2023 |> 
+#      filter(is.na(hailing_port)) |> 
+# glimpse()
+# [1] 158   6
+
+all_sa_23_states_cnts <-
+  vessel_by_state_cnt$`2023 sa_only` |>
+  select(state_fixed, total_vsl_by_state_cnt) |>
+  distinct() |>
+  mutate(tot_cnts = sum(total_vsl_by_state_cnt))
+# # 2178
+
+# write_csv(
+#   all_sa_23_states_cnts,
+#   file.path(current_output_dir,
+#             "all_sa_23_states_cnts.csv")
+# )
+
+na_vessel_states <-
+  vessel_by_state_cnt$`2023 sa_only` |>
+  filter(state_fixed == "NA" | is.na(state_fixed)) |>
+  select(vessel_official_number) |>
+  distinct()
+
+nrow(na_vessel_states)
+# 112
+
+write_csv(
+  na_vessel_states,
+  file.path(current_output_dir,
+            "na_vessel_states.csv")
+)
+
+
+# 3) Vessels having trips with correct (or fixed) coordinates, including SA permitted vessels with trips in states other than the 4 SA states:
+# 1818
+
+# 172
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
+    select(state_fixed, total_vsl_by_state_cnt) |>
+    distinct() |> 
+    filter(state_fixed %in% c("FL", "GA", "NC", "SC")) |> 
+      mutate(tot_cnts = sum(total_vsl_by_state_cnt)) |> 
+    glimpse()
+# $ state_fixed            <chr> "GA", "FL", "NC", "SC"
+# $ total_vsl_by_state_cnt <int> 59, 1166, 374, 189
+# $ tot_cnts               <int> 1788, 1788, 1788, 1788
+
+
+# 4) Vessels with trips in 4 SA states only:
+# 1788
+ 
+# So only about 80% of all SA only permitted vessels in 2023 are on this map.
