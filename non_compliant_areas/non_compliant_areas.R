@@ -196,6 +196,19 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   glimpse()
 
 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      filter(stats::complete.cases(is_compl_or_both)) %>%
+      mutate(compl_or_not =
+               case_when(is_compl_or_both == "YES" ~
+                           "compliant",
+                         .default = "non_compliant")) |>
+      select(-is_compl_or_both)
+  })
+
+# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not)
 
 # cnt vessel by state and compliance ----
 
