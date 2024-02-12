@@ -174,8 +174,7 @@ make_one_plot_100c <-
     
     curr_title <-
       stringr::str_glue(
-        "Never reported {curr_title_permit$title} {curr_title_permit$second_part} in {curr_year}\n out of all compliant and non compliant (total vsls = {curr_total_vsl_y_by_year_perm})"
-      )
+        "Total {curr_title_permit$long_title} Permitted Vessels That Never Reported")
     
     one_plot <-
       curr_df |>
