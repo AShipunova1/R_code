@@ -125,8 +125,8 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
   nrow()
 # [1] 1166
 
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
-  filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> View()
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
+#   filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> View()
   
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
   select(state_fixed, total_vsl_by_state_cnt) |>
@@ -139,7 +139,72 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
 # vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]]$state_fixed |> unique() |> length()
 # 22  
 
-### cnt by state proof of concept ----
+# combine compliance by year ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      dplyr::select(
+        vessel_official_number,
+        year,
+        permit_sa_gom_dual,
+        year_permit_sa_gom_dual,
+        compliant_,
+        total_vsl_by_state_cnt,
+        state_fixed
+      ) |>
+      dplyr::distinct() |>
+      get_compl_by(group_by_for_compl)
+  })
+
+## check ----
+#  names() |> head()
+# [1] "year"                    "permit_sa_gom_dual"      "year_permit_sa_gom_dual"
+# [4] "total_vsl_by_state_cnt"  "state_fixed"             "684541"                 
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt__compl_list[["2023 sa_only"]] |>
+  
+  select("684541",
+         "641822",
+         "992615",
+         "1169835",
+         total_vsl_by_state_cnt,
+         state_fixed) |>
+  distinct() |>
+  glimpse()
+
+  # filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |>
+
+count_by_cols <- function(my_df,
+                          cols_names) {
+  my_df %>%
+    # turn back to a longer format, vessel ids in one column
+    tidyr::pivot_longer(
+      # all other columns are vessel ids, use them as names
+      cols = !any_of(cols_names),
+      values_to = "is_compl_or_both",
+      names_to = "vessel_official_number"
+    ) %>%
+    return()
+}
+
+cols_names <-
+  c("year",
+    "permit_sa_gom_dual_both",
+    # "permit_sa_gom_dual",
+    "total_vsl_y_by_year_perm",
+    "year_permit_sa_gom_dual"
+    # "perm_exp_y",
+    # "exp_y_tot_cnt"
+    )
+
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
+  count_by_cols(
+    compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
+    cols_names
+  )
+
+# cnt vessel by state and compliance ----
 
 
 # HERE ----
