@@ -345,77 +345,84 @@ line_df_23_gom_monthly_nc_percent_plot_color =
 
 line_monthly_nc_plot_l <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc) |>
-#   [1] "2022 dual"     "2022 gom_only" "2022 sa_only"  "2023 dual"     "2023 gom_only"
-# [6] "2023 sa_only" 
-  purrr::map(
-    function(curr_year_permit) {
-      # browser()
-      curr_year_permit_l <- str_split(curr_year_permit, " ")
-      curr_year <- curr_year_permit_l[[1]][[1]]
-      curr_permit_sa_gom_dual <- curr_year_permit_l[[1]][[2]]
-      curr_year_end <- str_glue("{curr_year}-12-31")
+  #   [1] "2022 dual"     "2022 gom_only" "2022 sa_only"  "2023 dual"     "2023 gom_only"
+  # [6] "2023 sa_only"
+  purrr::map(function(curr_year_permit) {
+    # browser()
+    curr_year_permit_l <- str_split(curr_year_permit, " ")
+    curr_year <- curr_year_permit_l[[1]][[1]]
+    curr_permit_sa_gom_dual <- curr_year_permit_l[[1]][[2]]
+    curr_year_end <- str_glue("{curr_year}-12-31")
+    
+    one_df <-
+      compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[curr_year_permit]] |>
+      mutate(my_label = paste0(round(cnt_m_compl_perc, 0), "%")) |>
+      mutate(tot_cnt_label =
+               str_glue("{cnt_vsl_m_compl}/\n{total_vsl_m_by_year_perm}"))
+    
+    one_df |>
+      ggplot(
+        aes(
+          x = as.Date(year_month),
+          y = cnt_m_compl_perc,
+          color = line_df_23_gom_monthly_nc_percent_plot_color
+        )
+      ) +
+      geom_point(color = line_df_23_gom_monthly_nc_percent_plot_color,
+                 size = point_size) +
+      geom_line(color = line_df_23_gom_monthly_nc_percent_plot_color,
+                linewidth = 1) +
+      theme_bw() +
+      # text under the dot
+      # geom_text(aes(hjust =
+      #                 ifelse(cnt_m_compl_perc >= 27,
+      #                        "outward", 0),
       
-      one_df <-
-        compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[curr_year_permit]] |>
-        mutate(my_label = paste0(round(cnt_m_compl_perc, 0), "%")) |>
-        mutate(tot_cnt_label =
-                 str_glue("{cnt_vsl_m_compl}/\n{total_vsl_m_by_year_perm}"))
-      
-      one_df |>
-        ggplot(
-          aes(
-            x = as.Date(year_month),
-            y = cnt_m_compl_perc,
-            color = line_df_23_gom_monthly_nc_percent_plot_color
-          )
-        ) +
-        geom_point(color = line_df_23_gom_monthly_nc_percent_plot_color,
-                   size = point_size) +
-        geom_line(color = line_df_23_gom_monthly_nc_percent_plot_color,
-                  linewidth = 1) +
-        theme_bw() +
-        # text under the dot
-        # geom_text(aes(hjust = 
-        #                 ifelse(cnt_m_compl_perc >= 27, 
-        #                        "outward", 0),
-
-        geom_text(aes(
+      geom_text(
+        aes(
           label = my_label,
           hjust =
-            ifelse(cnt_m_compl_perc >= 27 & 
+            ifelse(cnt_m_compl_perc >= 27 &
                      !(my_label == "39%"),
-                   "outward", 
+                   "outward",
                    0),
           vjust =
             ifelse(my_label == "22%",
                    -1, 1.5)
           
         ),
-          check_overlap = TRUE,
-          color = line_df_23_gom_monthly_nc_percent_plot_color,
-          size = geom_text_size - 1
-        ) +
-
-        theme(
-          legend.position = "none",
-          axis.text.x =
-            element_text(size = axis_title_size),
-          axis.text.y =
-            element_text(size = axis_title_size)
-        ) +
-        ylim(0, 55) +
-        labs(x = str_glue("Months ({curr_year})"),
-             y = str_glue("Proportion of Non-Compliant {curr_permit_sa_gom_dual} Vessels")) +
-        scale_x_date(date_breaks = "1 month", 
-                     date_labels = "%b") +
-        expand_limits(x = as.Date(curr_year_end, "%Y-%m-%d")) 
-        # annotate("text", 
-        #          x = as.Date(one_df$year_month),
-        #          y = 0,
-        #          label =
-        #            one_df$tot_cnt_label,
-        #          color = "blue")
-    })
+        check_overlap = TRUE,
+        color = line_df_23_gom_monthly_nc_percent_plot_color,
+        size = geom_text_size - 1
+      ) +
+      theme(
+        legend.position = "none",
+        axis.title.x = 
+          element_text(size = text_sizes[["axis_text_x_size"]]),
+        axis.title.y = 
+          element_text(size = text_sizes[["axis_text_y_size"]]),
+        axis.text.x =
+          element_text(size = text_sizes[["axis_text_x_size"]]),
+        axis.text.y =
+          element_text(size = text_sizes[["axis_text_y_size"]])
+      ) +
+      ylim(0, 55) +
+      labs(
+        x = str_glue("Months ({curr_year})"),
+        # y = str_glue("Proportion of Non-Compliant {curr_permit_sa_gom_dual} Vessels")) +
+        y = str_glue("Proportion of Non-Compliant Vessels")
+      ) +
+      
+      scale_x_date(date_breaks = "1 month",
+                   date_labels = "%b") +
+      expand_limits(x = as.Date(curr_year_end, "%Y-%m-%d"))
+    # annotate("text",
+    #          x = as.Date(one_df$year_month),
+    #          y = 0,
+    #          label =
+    #            one_df$tot_cnt_label,
+    #          color = "blue")
+  })
 
 # rm(line_monthly_nc_plot_l)
 names(line_monthly_nc_plot_l) <-
@@ -424,15 +431,16 @@ names(line_monthly_nc_plot_l) <-
 # print_df_names(line_monthly_nc_plot_l)
 
 # line_monthly_nc_plot_l
+line_monthly_nc_plot_l["2023 sa_only"]
 # save to files ----
-# plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
-#                    line_monthly_nc_plot_l["2023 sa_only"],
-#                    line_monthly_nc_plot_l["2023 dual"])
+plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
+                   line_monthly_nc_plot_l["2023 sa_only"],
+                   line_monthly_nc_plot_l["2023 dual"])
 
 # line_monthly_nc_plot_l["2022 sa_only"]
 
-plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
-                   line_monthly_nc_plot_l["2023 sa_dual"])
+# plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
+#                    line_monthly_nc_plot_l["2023 sa_dual"])
 
 # plots_to_save
 plots_to_save |>
@@ -451,11 +459,14 @@ plots_to_save |>
                 str_glue("m_line_perc_{file_name_part}_plot.png"))
     
     save_plots_list_to_files(file_full_name_c_nc,
-                             one_plot)
+                             one_plot,
+                             my_width = 20,
+                             my_height = 10)
+    
   })
 # ...
 # $`2023 dual`
-# "2024-02-08/m_line_perc_dual_2023_plot.png"
+# "2024-02-12/m_line_perc_dual_2023_plot.png"
 
 # $`2023 sa_dual`
 # 2024-02-09/m_line_perc_sa_dual_2023_plot.png
