@@ -292,6 +292,40 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 #   ..$ non_compl_proportion_per_st: num [1:37] 0.364 0.636 0.289 0.711 0.628 ...
 #   ..$ non_compl_percent_per_st   : num [1:37] 36.4 63.6 28.9 71.1 62.8 ...
 
+# map specific columns ----
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      filter(compl_or_not == "non_compliant") |>
+      dplyr::select(
+        state_fixed,
+        total_vsl_by_state_cnt,
+        cnt_vsl_compl,
+        non_compl_percent_per_st,
+        non_compl_proportion_per_st
+      ) |>
+      dplyr::distinct() |>
+      dplyr::mutate(
+        nc_round_perc = round(non_compl_percent_per_st),
+        nc_round_proportion = round(non_compl_proportion_per_st, 2),
+        my_label_perc =
+          stringr::str_glue("{state_fixed}:
+                             {nc_round_perc}% of {total_vsl_by_state_cnt}"),
+        my_label_cnt =
+          stringr::str_glue("{state_fixed}:
+                             {cnt_vsl_compl} of {total_vsl_by_state_cnt}"),
+        my_label_long =
+          stringr::str_glue(
+            "{state_fixed}:
+                             {cnt_vsl_compl}/{total_vsl_by_state_cnt} = {nc_round_proportion}"
+          )
+      )
+  })
+
+# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels)
+
 # HERE ----
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
