@@ -1232,3 +1232,23 @@ read_an_answer <- function(my_prompt) {
 # USE:
 # if (interactive()) read_an_answer(my_prompt)
 
+# make it "NO_YES" if both compliant and not compliant
+get_compl_by <- function(my_df, group_by_for_compl) {
+  my_df %>%
+    dplyr::group_by_at(group_by_for_compl) %>%
+    # can unique, because we are looking at vessels, not weeks
+    unique() %>%
+    # more columns, a column per vessel
+    tidyr::pivot_wider(
+      names_from = vessel_official_number,
+      values_from = compliant_,
+      # make it "NO_YES" if both
+      values_fn = ~ paste0(sort(.x), collapse = "_")
+    ) %>%
+    dplyr::ungroup() %>%
+    return()
+}
+
+# all columns except...
+group_by_for_compl <- 
+  vars(-c("vessel_official_number", "compliant_"))
