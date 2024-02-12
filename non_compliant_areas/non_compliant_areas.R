@@ -250,6 +250,25 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 # 424+742
 # [1] 1166
 # ok
+
+# fewer columns ----
+dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only`)
+# [1] 2178    8
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      select(state_fixed,
+             total_vsl_by_state_cnt,
+             compl_or_not,
+             cnt_vsl_compl) |>
+      distinct()
+  })
+
+dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short$`2023 sa_only`)
+# [1] 37  4
+
 # HERE ----
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
