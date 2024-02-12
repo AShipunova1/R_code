@@ -105,11 +105,11 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_mor
   select(-state_fixed) |>
   rename("state_fixed" = state_fixed1)
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports
 
 ## split by permit and year ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
   split(
     as.factor(
       compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2$year_permit_sa_gom_dual
@@ -161,6 +161,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
   distinct() |>
   nrow()
 # [1] 1166
+# 1226
 
 # vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
 #   filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> View()
@@ -246,7 +247,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
       select(-is_compl_or_both)
   })
 
-View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not)
+# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not)
 
 # cnt vessel by state and compliance ----
 
@@ -288,6 +289,15 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 # [1] 1166
 # ok
 
+# 1 FL                            1226 non_compliant           780
+# 2 FL                            1226 compliant               446
+# 3 NJ                              48 non_compliant            28
+# 4 NJ                              48 compliant                20
+# 5 NC                             399 compliant               154
+# 6 NC                             399 non_compliant           245
+# 780+446
+# ok
+
 # fewer columns ----
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only`)
 # [1] 2178    8
@@ -305,6 +315,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short$`2023 sa_only`)
 # [1] 37  4
+# 35
 
 # add proportions ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc <-
@@ -589,15 +600,16 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list$`2023 sa_onl
   filter(permit_sa_gom_dual == "sa_only",
          year == "2023")
 
-# compl_metric_permit_sa_2023 |> 
-#   mutate(vsl_cnt = n_distinct(vessel_official_number)) |>
-#   select(vsl_cnt) |>
-#   distinct()
+compl_metric_permit_sa_2023 |>
+  mutate(vsl_cnt = n_distinct(vessel_official_number)) |>
+  select(vsl_cnt) |>
+  distinct() |> 
+  glimpse()
 # 2145
 
 # no port
-# compl_metric_permit_sa_2023 |> 
-#      filter(is.na(hailing_port)) |> 
+# compl_metric_permit_sa_2023 |>
+#      filter(is.na(hailing_port)) |>
 # glimpse()
 # [1] 158   6
 
@@ -622,6 +634,7 @@ na_vessel_states <-
 
 nrow(na_vessel_states)
 # 112
+# 0 (fixed)
 
 write_csv(
   na_vessel_states,
@@ -632,8 +645,16 @@ write_csv(
 
 # 3) Vessels having trips with correct (or fixed) coordinates, including SA permitted vessels with trips in states other than the 4 SA states:
 # 1818
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
+  select(state_fixed, total_vsl_by_state_cnt) |>
+  distinct() |>
+  mutate(all_csls = sum(total_vsl_by_state_cnt)) |>
+  glimpse()
+# 2178
 
 # 172
+
+# 4) Vessels with trips in 4 SA states only:
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
     select(state_fixed, total_vsl_by_state_cnt) |>
     distinct() |> 
@@ -643,9 +664,9 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` 
 # $ state_fixed            <chr> "GA", "FL", "NC", "SC"
 # $ total_vsl_by_state_cnt <int> 59, 1166, 374, 189
 # $ tot_cnts               <int> 1788, 1788, 1788, 1788
-
-
-# 4) Vessels with trips in 4 SA states only:
 # 1788
- 
-# So only about 80% of all SA only permitted vessels in 2023 are on this map.
+# 1879
+
+# About 88% of all SA only permitted vessels in 2023 are on this map.
+# 1879/2145*100
+# 87.59907
