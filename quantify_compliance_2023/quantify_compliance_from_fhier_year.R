@@ -419,6 +419,7 @@ gg_all_c_vs_nc_plots <-
   unique() %>%
   # repeat for each permit_sa_gom_dual and each year
   purrr::map(function(curr_permit_sa_gom_dual) {
+    
     c(my_year1, my_year2) |>
       map(\(curr_year) {
         # browser()
@@ -447,18 +448,22 @@ gg_all_c_vs_nc_plots <-
           dplyr::select(compl_or_not, perc_c_or_not) %>%
           unique() %>%
           # See function definition F2
-          make_one_plot_compl_vs_non_compl(current_title,
-                                           is_compliant = "compl_or_not",
-                                           percent = "perc_c_or_not")
+          make_one_plot_compl_vs_non_compl(
+            current_title,
+            is_compliant = "compl_or_not",
+            percent = "perc_c_or_not",
+            no_legend = TRUE,
+            legend_labels = c("Compliant", "Not Compliant")
+          )
         
         return(one_plot)
         
       })
   })
 
-# gg_all_c_vs_nc_plots
+gg_all_c_vs_nc_plots
 
-## Makle a flat list of plots with names ----
+## Make a flat list of plots with names ----
 make_flat_plot_list <- function(list_of_plots) {
   flat_plot_list_all <- list_flatten(list_of_plots)
   
