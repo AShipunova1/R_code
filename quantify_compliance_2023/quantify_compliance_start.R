@@ -164,15 +164,20 @@ vessels_compl_or_not_per_y_r_all
 
 # add sa + dual ----
 # compl_clean_sa_vs_gom_m_int__join_metrics |> glimpse()
+# if sa_dual:
+# compl_clean_sa_vs_gom_m_int__join_metrics__both_p <-
+#   compl_clean_sa_vs_gom_m_int__join_metrics |>
+#   mutate(permit_sa_gom_dual_both =
+#            case_when(
+#              year == "2023" &
+#                (permit_sa_gom_dual == "sa_only" |
+#                   permit_sa_gom_dual == "dual") ~ "sa_dual",
+#              .default = permit_sa_gom_dual
+#            ))
+# if_sa_only
 compl_clean_sa_vs_gom_m_int__join_metrics__both_p <-
   compl_clean_sa_vs_gom_m_int__join_metrics |>
-  mutate(permit_sa_gom_dual_both =
-           case_when(
-             year == "2023" &
-               (permit_sa_gom_dual == "sa_only" |
-                  permit_sa_gom_dual == "dual") ~ "sa_dual",
-             .default = permit_sa_gom_dual
-           ))
+  mutate(permit_sa_gom_dual_both = permit_sa_gom_dual)
 
 # View(compl_clean_sa_vs_gom_m_int__join_metrics)
 
