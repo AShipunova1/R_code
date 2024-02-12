@@ -79,7 +79,7 @@ source(fix_lat_lon_file_path)
 
 # compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2
 
-# split by permit and year
+## split by permit and year ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
   split(
@@ -91,6 +91,7 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__li
 # print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list)
 # [1] "2022 dual, 2022 gom_only, 2022 sa_only, 2023 dual, 2023 gom_only, 2023 sa_only"
 
+# vessel_by_state_cnt ----
 vessel_by_state_cnt <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list |>
   purrr::map(\(curr_df) {
@@ -105,6 +106,41 @@ vessel_by_state_cnt <-
  #  ..$ vessel_official_number: chr [1:2178] "684541" "641822" "992615" "1169835" ...
  #  ..$ state_fixed           : chr [1:2178] "FL" "VA" "NC" "NJ" ...
  #  ..$ n                     : int [1:2178] 1166 45 374 45 1166 1166 45 1166 1166 1166 ...
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      group_by(state_fixed) |>
+      mutate(total_vsl_by_state_cnt =
+               n_distinct(vessel_official_number)) |> 
+      ungroup()
+  })
+
+## check ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
+  filter(state_fixed == "FL") |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# [1] 1166
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
+  filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> View()
+  
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
+  select(state_fixed, total_vsl_by_state_cnt) |>
+  glimpse()
+# Rows: 22
+# Columns: 2
+# $ state_fixed            <chr> "FL", "VA", "NC", "NJ", "MD", "SC", "DE", "GA", "N…
+# $ total_vsl_by_state_cnt <int> 1166, 45, 374, 45, 78, 189, 41, 59, 112, 14, 8, 16…
+
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]]$state_fixed |> unique() |> length()
+# 22  
+
+### cnt by state proof of concept ----
+
 
 # HERE ----
 ## prepare permit data ----
