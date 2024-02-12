@@ -92,17 +92,21 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__li
 # [1] "2022 dual, 2022 gom_only, 2022 sa_only, 2023 dual, 2023 gom_only, 2023 sa_only"
 
 vessel_by_state_cnt <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list |>
   purrr::map(\(curr_df) {
     curr_df |>
-      dplyr::select(vessel_official_number, home_state) |>
+      dplyr::select(vessel_official_number, state_fixed) |>
       dplyr::distinct() |>
-      dplyr::add_count(home_state)
+      dplyr::add_count(state_fixed)
   })
 
+# vessel_by_state_cnt |> glimpse()
+ # $ 2023 sa_only : tibble [2,178 × 3] (S3: tbl_df/tbl/data.frame)
+ #  ..$ vessel_official_number: chr [1:2178] "684541" "641822" "992615" "1169835" ...
+ #  ..$ state_fixed           : chr [1:2178] "FL" "VA" "NC" "NJ" ...
+ #  ..$ n                     : int [1:2178] 1166 45 374 45 1166 1166 45 1166 1166 1166 ...
 
-
-# HERE
+# HERE ----
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |> dim()
