@@ -426,7 +426,7 @@ shp_file_with_cnts_list_sa_only_23_bbox <-
         # my_nudge_y =
           # ifelse(grepl("MS:", my_label_long), 2, 0))
     
-    curr_map <-
+    sa_only_map  <-
       ggplot2::ggplot() +
       ggplot2::geom_sf(data = states_sf, fill = NA) +
       ggplot2::geom_sf(data = curr_sf_for_map,
@@ -458,18 +458,18 @@ shp_file_with_cnts_list_sa_only_23_bbox <-
       ggplot2::xlab("") +
       ggplot2::ylab("") +
       scale_fill_manual(labels =
-                          c("less", "", "", "", "more"),
+                          c("less", "", "", "more"),
                         values = mypalette) +
       theme_bw(base_size = 18) +
       # ggplot2::scale_fill_continuous(name = "",
       #                                # breaks = c(min(nc_round_perc), 'Num of weeks'),
       #                                                                  breaks = c("0.14", "0.29"),
-      theme(legend.position = c(0.55, 0.1)) +
+      theme(legend.position = c(0.53, 0.1)) +
       guides(fill = guide_legend(title = "Non-Compliance Color Scale",
                                  nrow = 1))
   # })
 
-    curr_map
+    sa_only_map
 # individual plots ----
 
 ## make map titles ----
@@ -492,13 +492,6 @@ perc_plot_titles <-
 names(perc_plot_titles) <- permit_regions
 
 ## save plot to file function ----
-# Explanations:
-# The code defines a function 'write_png_to_file' to save a ggplot2 map to a PNG file:
-# - Takes parameters 'output_file_name' and 'map_plot'.
-# - Sets 'png_width'.
-# - Uses ggplot2::ggsave() to save the ggplot2 map to a PNG file.
-# - Specifies the file path, width, height, and units.
-
 write_png_to_file <- function(output_file_name,
                               map_plot) {
 
@@ -549,9 +542,9 @@ write_png_to_file(output_file_name,
 permit_region <- "SA only"
 # TODO: make mypalette dynamic by states number and names
 
-sa_only_map <-
-  shp_file_with_cnts_list_maps$SA +
-  ggplot2::ggtitle(perc_plot_titles[[permit_region]])
+# sa_only_map <-
+#   shp_file_with_cnts_list_maps$SA +
+#   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
 output_file_name <-
   str_glue("sa_only_perc_by_state_{today()}.png")
