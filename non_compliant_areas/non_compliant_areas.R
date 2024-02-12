@@ -232,11 +232,24 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
            cnt_col_name = "cnt_vsl_compl")
     })
 
-glimpse(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only`)
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only` |> 
+  select(state_fixed,
+         total_vsl_by_state_cnt,
+         compl_or_not,
+         cnt_vsl_compl) |> 
+  distinct() |> 
+  head()
+
+# 1 FL                            1166 compliant               424
+# 2 FL                            1166 non_compliant           742
+# 3 VA                              45 compliant                13
+# 4 VA                              45 non_compliant            32
+# 5 NC                             374 non_compliant           235
+# 6 NC                             374 compliant               139
 
 # 424+742
 # [1] 1166
-
+# ok
 # HERE ----
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
