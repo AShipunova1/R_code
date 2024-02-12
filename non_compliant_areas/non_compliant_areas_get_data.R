@@ -128,104 +128,114 @@ dim(compl_clean_sa_vs_gom_m_int_c_short)
 # [1] 9365    3
 # [1] 296286      5 w weeks
 
-# get permit info from PIMS ----
-get_permit_data_from_PIMS <- function() {
-  permit_names_file_path =
-    file.path(my_paths$inputs,
-              r"(from PIMS\Permits - 2024-01-25_0904.xlsx)")
-  
-  # file.exists(permit_names_file_path)
-  
-  active_permits_from_pims_raw <- 
-    read_xlsx(permit_names_file_path, skip = 5)
-  
-  dim(active_permits_from_pims_raw)
-  # [1] 23575    11
-  
-  # clean_headers
-  active_permits_from_pims_temp1 <-
-    active_permits_from_pims_raw %>%
-    clean_headers()
-  
-  # separate columns
-# Use the 'separate_wider_delim' function to split the 'permit__' column in the 'active_permits_from_pims_temp1' dataframe
-# based on the delimiter "-", creating new columns 'permit_code' and 'permit_num'.
-# The 'too_many' argument is set to "merge," which means any excess columns generated during the split will be merged.
-active_permits_from_pims_temp2 <- 
-  active_permits_from_pims_temp1 %>%
-    separate_wider_delim(permit__,
-                         "-",                # Delimiter used for splitting
-                         names = c("permit_code", "permit_num"),
-                         too_many = "merge") %>%
+# # get permit info from PIMS ----
+# get_permit_data_from_PIMS <- function() {
+#   permit_names_file_path =
+#     file.path(my_paths$inputs,
+#               r"(from PIMS\Permits - 2024-01-25_0904.xlsx)")
+#   
+#   # file.exists(permit_names_file_path)
+#   
+#   active_permits_from_pims_raw <- 
+#     read_xlsx(permit_names_file_path, skip = 5)
+#   
+#   dim(active_permits_from_pims_raw)
+#   # [1] 23575    11
+#   
+#   # clean_headers
+#   active_permits_from_pims_temp1 <-
+#     active_permits_from_pims_raw %>%
+#     clean_headers()
+#   
+#   # separate columns
+# # Use the 'separate_wider_delim' function to split the 'permit__' column in the 'active_permits_from_pims_temp1' dataframe
+# # based on the delimiter "-", creating new columns 'permit_code' and 'permit_num'.
+# # The 'too_many' argument is set to "merge," which means any excess columns generated during the split will be merged.
+# active_permits_from_pims_temp2 <- 
+#   active_permits_from_pims_temp1 %>%
+#     separate_wider_delim(permit__,
+#                          "-",                # Delimiter used for splitting
+#                          names = c("permit_code", "permit_num"),
+#                          too_many = "merge") %>%
+# 
+#     # Use the 'separate_wider_regex' function to split the 'vessel_or_dealer' column in the resulting dataframe.
+#     # This function uses regular expressions to define patterns for creating new columns.
+#     # In this case, it defines patterns for 'vessel_official_number' and 'vessel_name.'
+#     # The 'too_few' argument is set to "align_start," which aligns any missing columns at the start.
+#     separate_wider_regex(
+#       cols = vessel_or_dealer,
+#       patterns = c(
+#         vessel_official_number = "[A-Za-z0-9]+",  # Regular expression for vessel official number (more than one alphanumeric character)
+#         " */* ",                                  # Pattern for separating columns with slashes
+#         vessel_name = "[A-Za-z0-9]+"              # Regular expression for vessel name (more than one alphanumeric character)
+#       ),
+#       too_few = "align_start"
+#     )
+# 
+#   # correct dates format
+# 
+#   # get a list of field names with "_date"
+#   # Use the 'grep' function to find and extract column names from the 'active_permits_from_pims_temp2' dataframe
+#   # that has "_date".
+#   ends_with_date_fields <- grep("_date", # Pattern to search for in column names
+#                                 names(active_permits_from_pims_temp2),  # Names of columns to search within
+#                                 value = TRUE)         # Return matching column names as values in the result.
+# 
+# 
+#   # convert to the date format
+#   active_permits_from_pims <-
+#     change_fields_arr_to_dates(active_permits_from_pims_temp2,
+#                                ends_with_date_fields,
+#                                "%m/%d/%Y")
+# 
+#   # test
+#   active_permits_from_pims %>%
+#     dplyr::select(status_date) %>%                 # Select 'status_date' column
+#     dplyr::arrange(dplyr::desc(status_date)) %>%   # Arrange in descending order
+#     dplyr::distinct() %>%                               # Remove duplicate rows
+#     head()                                       # Retrieve the first few rows
+#   # correct
+#   # str(active_permits_from_pims)
+# 
+#   return(active_permits_from_pims)
+# }
+# 
+# permit_info <- get_permit_data_from_PIMS()
+# dim(permit_info)
+# # [1] 23575    13
+# 
+# get vessel (home port) info from PIMS with 2 names ----
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
 
-    # Use the 'separate_wider_regex' function to split the 'vessel_or_dealer' column in the resulting dataframe.
-    # This function uses regular expressions to define patterns for creating new columns.
-    # In this case, it defines patterns for 'vessel_official_number' and 'vessel_name.'
-    # The 'too_few' argument is set to "align_start," which aligns any missing columns at the start.
-    separate_wider_regex(
-      cols = vessel_or_dealer,
-      patterns = c(
-        vessel_official_number = "[A-Za-z0-9]+",  # Regular expression for vessel official number (more than one alphanumeric character)
-        " */* ",                                  # Pattern for separating columns with slashes
-        vessel_name = "[A-Za-z0-9]+"              # Regular expression for vessel name (more than one alphanumeric character)
-      ),
-      too_few = "align_start"
-    )
-
-  # correct dates format
-
-  # get a list of field names with "_date"
-  # Use the 'grep' function to find and extract column names from the 'active_permits_from_pims_temp2' dataframe
-  # that has "_date".
-  ends_with_date_fields <- grep("_date", # Pattern to search for in column names
-                                names(active_permits_from_pims_temp2),  # Names of columns to search within
-                                value = TRUE)         # Return matching column names as values in the result.
-
-
-  # convert to the date format
-  active_permits_from_pims <-
-    change_fields_arr_to_dates(active_permits_from_pims_temp2,
-                               ends_with_date_fields,
-                               "%m/%d/%Y")
-
-  # test
-  active_permits_from_pims %>%
-    dplyr::select(status_date) %>%                 # Select 'status_date' column
-    dplyr::arrange(dplyr::desc(status_date)) %>%   # Arrange in descending order
-    dplyr::distinct() %>%                               # Remove duplicate rows
-    head()                                       # Retrieve the first few rows
-  # correct
-  # str(active_permits_from_pims)
-
-  return(active_permits_from_pims)
-}
-
-permit_info <- get_permit_data_from_PIMS()
-dim(permit_info)
-# [1] 23575    13
-
-# get vessel (home port) info from PIMS ----
-get_vessel_data_pims <- 
+get_vessel_data_pims <-
   function() {
   vessel_names_file_path =
     file.path(my_paths$inputs,
-              r"(from PIMS\Vessels - 2024-02-01_0909.xlsx)")
+              r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
+
+# get_vessel_data_pims <-
+#   function() {
+#   vessel_names_file_path =
+#     file.path(my_paths$inputs,
+#               r"(non_compliant_areas\Vessels - 2024-02-12_1633.xlsx)")
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\non_compliant_areas\Vessels - 2024-02-12_1633.xlsx"
   
   # file.exists(vessel_names_file_path)
-  
-  vessels_from_pims_raw <- 
-    read_xlsx(vessel_names_file_path, skip = 3)
-  
+
+  vessels_from_pims_raw <-
+    read_xlsx(vessel_names_file_path)
+  # , skip = 3
+
   dim(vessels_from_pims_raw)
 # [1] 23036     8
-  
+
   # clean_headers
   vessels_from_pims <-
     vessels_from_pims_raw %>%
     clean_headers()
-  
+
   # View(vessels_from_pims_temp1)
-  
+
   return(vessels_from_pims)
   }
 
@@ -233,18 +243,24 @@ vessels_from_pims <- get_vessel_data_pims()
 
 dim(vessels_from_pims)
 # [1] 23036     8
+# [1] 23059     8
+# [1] 652   3
+
+names(vessels_from_pims)
+# [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"           
 
 ## shorten info from PIMS ----
 # print_df_names(vessels_from_pims)
-vessels_from_pims_short <-
-  vessels_from_pims |>
-  rename("vessel_official_number" = official__) |>
-  select(vessel_official_number,
-         hailing_port) |>
-  distinct()
-
-dim(vessels_from_pims_short)
+# vessels_from_pims_short <-
+#   vessels_from_pims |>
+#   rename("vessel_official_number" = official__) |>
+#   select(vessel_official_number,
+#          hailing_port) |>
+#   distinct()
+# 
+# dim(vessels_from_pims_short)
 # [1] 22819     2
+# 22842     
 
 # Get processed metrics tracking ----
 processed_input_data_path <- 
@@ -254,10 +270,12 @@ processed_input_data_path <-
 dir.exists(processed_input_data_path)
 # T  
 
+# [1] "~\\R_files_local\\my_inputs\\processing_logbook_data//Outputs//SEFHIER_permitted_vessels_nonSRHS_2023.rds"
 # file names for all years
+# file name for 2023 only
 processed_metrics_tracking_file_names <-
   list.files(path = processed_input_data_path,
-             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
+             pattern = str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year2}"),
              recursive = TRUE,
              full.names = TRUE)
 
@@ -271,6 +289,7 @@ names(processed_metrics_tracking_permits) <-
 
 dim(processed_metrics_tracking_permits)
 # [1] 6822    9
+# [1] 3379    9
 
 # In compl_clean_sa_vs_gom_m_int_c_short keep only ids in metrics_tracking_not_srhs ----
 
