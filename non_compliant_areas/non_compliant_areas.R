@@ -77,7 +77,28 @@ fix_lat_lon_file_path <-
 
 source(fix_lat_lon_file_path)
 
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2
+## add more home ports ----
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  left_join(vessels_from_pims_short__na_vessel_states_bind)
+# vessels_from_pims_short__na_vessel_states_bind
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports |>
+  tidyr::separate_wider_delim(
+    hailing_port_2,
+    delim = ",",
+    names = c("city2", "state2"),
+    too_many = "drop"
+  ) |>
+  mutate(across(where(is.character), str_trim)) |>
+  mutate(state_fixed1 =
+           case_when((is.na(state_fixed) | state_fixed == "NA") &
+                       !is.na(state2) ~
+                       state2,
+                     .default = state_fixed))
+
+View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1)
 
 ## split by permit and year ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list <-
@@ -218,7 +239,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
       select(-is_compl_or_both)
   })
 
-# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not)
+View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not)
 
 # cnt vessel by state and compliance ----
 
