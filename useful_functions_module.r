@@ -1253,6 +1253,20 @@ get_compl_by <- function(my_df, group_by_for_compl) {
 group_by_for_compl <- 
   vars(-c("vessel_official_number", "compliant_"))
 
+# Usage example:
+# cols_names <-
+#   c("year",
+#     "permit_sa_gom_dual",
+#     "total_vsl_y_by_year_perm",
+#     "year_permit_sa_gom_dual"
+#     )
+# 
+# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
+#   compl__back_to_longer_format(
+#     compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
+#     cols_names
+#   )
+
 compl__back_to_longer_format <-
   function(my_df,
            cols_names) {
@@ -1266,3 +1280,4 @@ compl__back_to_longer_format <-
       ) %>%
       return()
   }
+
