@@ -483,9 +483,10 @@ write_png_to_file <- function(output_file_name,
 permit_region <- "SA only"
 # TODO: make mypalette dynamic by states number and names
 
-# sa_only_map <-
-#   shp_file_with_cnts_list_maps$SA +
-#   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
+# doesn't fit for SA
+# sa_only_map_titled <-
+# sa_only_map +
+#   ggplot2::ggtitle(perc_plot_titles[["SA only"]])
 
 output_file_name <-
   str_glue("sa_only_perc_by_state_{today()}.png")
