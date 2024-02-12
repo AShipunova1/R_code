@@ -512,32 +512,6 @@ write_png_to_file <- function(output_file_name,
     )
 }
 
-## GOM states ----
-permit_region <- "Gulf"
-
-gom_map <-
-  shp_file_with_cnts_list_maps$gom_states +
-  ggplot2::ggtitle(perc_plot_titles[[permit_region]])
-
-# gom_map
-
-output_file_name <- str_glue("gom_states_non_compl_by_state_{today()}.png")
-
-write_png_to_file(output_file_name,
-                  gom_map)
-
-## GOM and dual ----
-permit_region <- "GOM and Dual"
-
-gom_dual_map <-
-  shp_file_with_cnts_list_maps$GOM +
-  ggplot2::ggtitle(perc_plot_titles[[permit_region]])
-
-output_file_name <- str_glue("gom_dual_perc_by_state_{today()}.png")
-
-write_png_to_file(output_file_name,
-                  gom_dual_map)
-
 ## SA only ----
 permit_region <- "SA only"
 # TODO: make mypalette dynamic by states number and names
