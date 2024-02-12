@@ -643,11 +643,31 @@ vessels_from_pims_short__na_vessel_states <-
 dim(vessels_from_pims_short__na_vessel_states)
 # 112
 
-View(vessels_from_pims_short__na_vessel_states)
+vessels_from_pims_short__na_vessel_states1 <- 
+  vessels_from_pims_short__na_vessel_states |> 
+  select(vessel_official_number1, hailing_port) |> 
+  rename("vessel_official_number" = vessel_official_number1)
 
-# vessels_from_pims_short |>
+vessels_from_pims_short__na_vessel_states2 <- 
+  vessels_from_pims_short__na_vessel_states |> 
+  select(vessel_official_number2, hailing_port) |> 
+  rename("vessel_official_number" = vessel_official_number2)
+
+vessels_from_pims_short__na_vessel_states_bind <-
+  rbind(
+    vessels_from_pims_short__na_vessel_states1,
+    vessels_from_pims_short__na_vessel_states2
+  ) |> 
+  distinct() |> 
+  rename("hailing_port_2" = hailing_port)
+
+
+glimpse(vessels_from_pims_short__na_vessel_states_bind)
+# 211
+
+# vessels_from_pims_short__na_vessel_states_bind |>
 #   filter(vessel_official_number == "1173297")
-# 0
+# 1 1173297                CAROLINA BEACH, NC
 
 # Print results ----
 cat("Result in compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed",
