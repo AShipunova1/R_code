@@ -195,6 +195,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> 
   glimpse()
 
+## compl_or_not ----
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long |>
@@ -212,6 +213,29 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 
 # cnt vessel by state and compliance ----
 
+group_by_col <-
+  c(
+    "year",
+    "permit_sa_gom_dual",
+    "year_permit_sa_gom_dual",
+    "total_vsl_by_state_cnt",
+    "state_fixed",
+    # "vessel_official_number",
+    "compl_or_not"
+  )
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt <- 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not |> 
+    purrr::map(\(curr_df) {
+  add_cnt_in_gr(curr_df,
+           group_by_col,
+           cnt_col_name = "cnt_vsl_compl")
+    })
+
+glimpse(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only`)
+
+# 424+742
+# [1] 1166
 
 # HERE ----
 ## prepare permit data ----
