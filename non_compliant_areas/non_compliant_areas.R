@@ -373,11 +373,9 @@ shp_file_with_cnts_list_sa_only_23 <-
   # filter(!is.na(state_fixed_full)) |>
   filter(tolower(NAME) %in% tolower(east_coast_states$sa))
 
-glimpse(shp_file_with_cnts_list_sa_only_23)
+# View(shp_file_with_cnts_list_sa_only_23)
 # 4 19
 # $ STUSPS                      <chr> "GA", "FL", "SC", "NC"
-
-# HERE ----
 
 # combine static map ----
 # get boundaries from south_east_coast_states_shp_bb
@@ -388,7 +386,7 @@ label_text_size <- 5
 # title_text_size <- 4
 
 sa_state_proportion_indexes <-
-  shp_file_with_cnts_list$`2023 sa_only` |>
+  shp_file_with_cnts_list_sa_only_23 |>
   sf::st_drop_geometry() |>
   select(nc_round_proportion) |>
   distinct() |>
@@ -409,20 +407,21 @@ mypalette = viridis(len_colors_sa_states, option = "D")
 names(mypalette) <- sa_state_proportion_indexes$nc_round_proportion
 
 # mypalette
-#         0.5        0.51        0.56        0.58        0.63        0.64 
-# "#440154FF" "#46337EFF" "#365C8DFF" "#277F8EFF" "#1FA187FF" "#4AC16DFF" 
-#        0.83           1 
-# "#9FDA3AFF" "#FDE725FF" 
+#        0.51        0.58        0.63        0.64 
+# "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF" 
 
 # Creates a plot using the ggplot2
 
-shp_file_with_cnts_list_maps_sa_23 <-
+shp_file_with_cnts_list_sa_only_23_bbox <-
+  sf::st_bbox(shp_file_with_cnts_list_sa_only_23)
+
+# shp_file_with_cnts_list_maps_sa_23 <-
   # shp_file_with_cnts_list$`2023 sa_only` |>
   # purrr::map(\(curr_sf) {
-  curr_sf_for_map <-
-  shp_file_with_cnts_list$`2023 sa_only` |>
+  curr_sf_for_map <- shp_file_with_cnts_list_sa_only_23
+  # shp_file_with_cnts_list_sa_only_23 |> 
   # curr_sf |>
-      filter(!is.na(total_vsl_by_state_cnt))
+      # filter(!is.na(total_vsl_by_state_cnt)) |> dim()
       # mutate(
         # my_nudge_y =
           # ifelse(grepl("MS:", my_label_long), 2, 0))
@@ -445,13 +444,13 @@ shp_file_with_cnts_list_maps_sa_23 <-
       ggplot2::coord_sf(
         xlim =
           c(
-            floor(south_east_coast_states_shp_bb$xmin),
-            ceiling(south_east_coast_states_shp_bb$xmax)
+            floor(shp_file_with_cnts_list_sa_only_23_bbox$xmin),
+            ceiling(shp_file_with_cnts_list_sa_only_23_bbox$xmax)
           ),
         ylim =
           c(
-            floor(south_east_coast_states_shp_bb$ymin),
-            ceiling(south_east_coast_states_shp_bb$ymax)
+            floor(shp_file_with_cnts_list_sa_only_23_bbox$ymin),
+            ceiling(shp_file_with_cnts_list_sa_only_23_bbox$ymax)
           ),
         # with expand = FALSE to prevent expansion beyond the specified limits.
         expand = FALSE
@@ -470,6 +469,7 @@ shp_file_with_cnts_list_maps_sa_23 <-
                                  nrow = 1))
   # })
 
+    curr_map
 # individual plots ----
 
 ## make map titles ----
