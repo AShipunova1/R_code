@@ -161,9 +161,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 #  names() |> head()
 # [1] "year"                    "permit_sa_gom_dual"      "year_permit_sa_gom_dual"
 # [4] "total_vsl_by_state_cnt"  "state_fixed"             "684541"                 
-
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt__compl_list[["2023 sa_only"]] |>
-  
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide[["2023 sa_only"]] |>
   select("684541",
          "641822",
          "992615",
@@ -175,34 +173,29 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt__compl_list[["2
 
   # filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |>
 
-count_by_cols <- function(my_df,
-                          cols_names) {
-  my_df %>%
-    # turn back to a longer format, vessel ids in one column
-    tidyr::pivot_longer(
-      # all other columns are vessel ids, use them as names
-      cols = !any_of(cols_names),
-      values_to = "is_compl_or_both",
-      names_to = "vessel_official_number"
-    ) %>%
-    return()
-}
-
+# print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide[[1]])
+# year, permit_sa_gom_dual, year_permit_sa_gom_dual, total_vsl_by_state_cnt, state_fixed, 
+# back_to_longer_format
 cols_names <-
   c("year",
-    "permit_sa_gom_dual_both",
-    # "permit_sa_gom_dual",
-    "total_vsl_y_by_year_perm",
-    "year_permit_sa_gom_dual"
-    # "perm_exp_y",
-    # "exp_y_tot_cnt"
+    "permit_sa_gom_dual",
+    "year_permit_sa_gom_dual",
+    "total_vsl_by_state_cnt", 
+    "state_fixed"
     )
 
-compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
-  count_by_cols(
-    compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
-    cols_names
-  )
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      compl__back_to_longer_format(cols_names)
+  })
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long[["2023 sa_only"]] |>
+  filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> 
+  glimpse()
+
+
 
 # cnt vessel by state and compliance ----
 
