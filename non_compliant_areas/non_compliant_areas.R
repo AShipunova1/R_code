@@ -328,12 +328,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 
 ## add to the shape file by state name ----
 
-# Explanations:
-# - For each data frame in the list:
-#   - Perform a left join with 'south_east_coast_states_shp'.
-#   - Join based on the equality of 'STUSPS' and 'home_state'.
-# The resulting list contains spatial data frames with additional compliance count information.
-
 shp_file_with_cnts_list <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels |>
   purrr::map(\(curr_df) {
@@ -383,62 +377,7 @@ glimpse(shp_file_with_cnts_list_sa_only_23)
 # 4 19
 # $ STUSPS                      <chr> "GA", "FL", "SC", "NC"
 
-
 # HERE ----
-
-# Keep only GOM states for GOM only plots ----
-
-get_state_fixed_full_name <- function(state_fixed){
-  my_state_name[[tolower(state_fixed)]]
-}
-
-
-## add to the shape file by state name ----
-
-# Explanations:
-# - For each data frame in the list:
-#   - Perform a left join with 'south_east_coast_states_shp'.
-#   - Join based on the equality of 'STUSPS' and 'home_state'.
-# The resulting list contains spatial data frames with additional compliance count information.
-
-shp_file_with_cnts_list <-
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels |>
-  purrr::map(\(curr_df) {
-    # browser()
-    south_east_coast_states_shp |>
-      left_join(curr_df,
-                join_by(STUSPS ==
-                          home_state))
-  })
-
-# shp_file_with_cnts_list$gom_states |> View()
-# if join to a df:
-# tibble [8 × 15] (S3: tbl_df/tbl/data.frame)
-# if join to an sf:
-# Classes ‘sf’ and 'data.frame':	8 obs. of  15 variables
-
-# view(shp_file_with_cnts_list)
-
-### check on one region ----
-shp_file_with_cnts_sa <-
-  south_east_coast_states_shp |>
-  dplyr::left_join(
-    vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$SA,
-    dplyr::join_by(STUSPS ==
-                     home_state)
-  )
-
-# View(shp_file_with_cnts_sa)
-
-# print_df_names(shp_file_with_cnts_sa)
-# [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, compliance_by_state_cnt, non_compl_percent_per_st, nc_round_perc, my_label, geometry"
-
-# shp_file_with_cnts_sa |>
-#   mapview(zcol = "nc_round_perc")
-# View(shp_file_with_cnts)
-
-# shp_file_with_cnts_list$SA |>
-#   mapview(zcol = "nc_round_perc")
 
 # combine static map ----
 # get boundaries from south_east_coast_states_shp_bb
@@ -448,62 +387,45 @@ label_text_size <- 5
 # axis_text_size <- 4
 # title_text_size <- 4
 
-# Explanations:
-# - Drop geometry information using sf::st_drop_geometry().
-# - Select the column 'nc_round_proportion'.
-# - Remove duplicate rows.
-# - Drop rows with missing values.
-# - Arrange the data frame based on 'nc_round_proportion'.
-
-gom_state_proportion_indexes <-
-  shp_file_with_cnts_list$gom_states |>
+sa_state_proportion_indexes <-
+  shp_file_with_cnts_list$`2023 sa_only` |>
   sf::st_drop_geometry() |>
   select(nc_round_proportion) |>
   distinct() |>
   drop_na() |>
   arrange(nc_round_proportion)
 
-len_colors_gom_states = nrow(gom_state_proportion_indexes)
+len_colors_sa_states = nrow(sa_state_proportion_indexes)
 
 # ---
 # Explanations:
 # The code defines a color palette 'mypalette' using the viridis package:
 # - Use the viridis::viridis() function to generate a color palette.
-# - Set the number of colors with 'len_colors_gom_states'.
+# - Set the number of colors with 'len_colors_sa_states'.
 # - Choose the "D" option for the color map.
 
-mypalette = viridis(len_colors_gom_states, option = "D")
+mypalette = viridis(len_colors_sa_states, option = "D")
 # mypalette <- rainbow(length(gom_all_cnt_indexes))
-names(mypalette) <- gom_state_proportion_indexes$nc_round_proportion
+names(mypalette) <- sa_state_proportion_indexes$nc_round_proportion
 
 # mypalette
-#        0.14        0.16        0.21        0.22        0.29
-# "#440154FF" "#3B528BFF" "#21908CFF" "#5DC863FF" "#FDE725FF"
+#         0.5        0.51        0.56        0.58        0.63        0.64 
+# "#440154FF" "#46337EFF" "#365C8DFF" "#277F8EFF" "#1FA187FF" "#4AC16DFF" 
+#        0.83           1 
+# "#9FDA3AFF" "#FDE725FF" 
 
-# The code creates a plot using the ggplot2 library to visualize spatial data.
+# Creates a plot using the ggplot2
 
-# Explanations:
-# The code creates a new list of ggplot2 maps 'shp_file_with_cnts_list_maps':
-# - Start with 'shp_file_with_cnts_list'.
-# - Use purrr::map() to iterate over each sf object in the list.
-# - For each sf object:
-#   - Filter out rows with missing 'total_vsl_by_state_cnt'.
-#   - Modify the sf object for mapping by adding a 'my_nudge_y' column.
-#   - Create a ggplot2 map with specified aesthetics, labels, and themes.
-#   - Set coordinate limits based on the bounding box of southeast coast states.
-#   - Customize axis labels, legend, and color scale.
-#   - Add the resulting ggplot2 map to the list 'shp_file_with_cnts_list_maps'.
-
-shp_file_with_cnts_list_maps <-
-  shp_file_with_cnts_list |>
-  purrr::map(\(curr_sf) {
-    curr_sf_for_map <-
-      curr_sf |>
-      filter(!is.na(total_vsl_by_state_cnt)) |>
-      mutate(# my_nudge_x =
-        #        ifelse(grepl("MS:", my_label_long), 1, 0) ,
-        my_nudge_y =
-          ifelse(grepl("MS:", my_label_long), 2, 0))
+shp_file_with_cnts_list_maps_sa_23 <-
+  # shp_file_with_cnts_list$`2023 sa_only` |>
+  # purrr::map(\(curr_sf) {
+  curr_sf_for_map <-
+  shp_file_with_cnts_list$`2023 sa_only` |>
+  # curr_sf |>
+      filter(!is.na(total_vsl_by_state_cnt))
+      # mutate(
+        # my_nudge_y =
+          # ifelse(grepl("MS:", my_label_long), 2, 0))
     
     curr_map <-
       ggplot2::ggplot() +
@@ -515,8 +437,8 @@ shp_file_with_cnts_list_maps <-
         aes(label = my_label_long),
         size = label_text_size,
         fill = "lightgrey",
-        nudge_x = curr_sf_for_map$my_nudge_x,
-        nudge_y = curr_sf_for_map$my_nudge_y
+        # nudge_x = curr_sf_for_map$my_nudge_x,
+        # nudge_y = curr_sf_for_map$my_nudge_y
       ) +
       
       # Set the coordinate limits for the plot, based on the bounding box of southeast coast states,
@@ -546,7 +468,7 @@ shp_file_with_cnts_list_maps <-
       theme(legend.position = c(0.55, 0.1)) +
       guides(fill = guide_legend(title = "Non-Compliance Color Scale",
                                  nrow = 1))
-  })
+  # })
 
 # individual plots ----
 
