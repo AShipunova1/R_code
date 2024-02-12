@@ -77,7 +77,32 @@ fix_lat_lon_file_path <-
 
 source(fix_lat_lon_file_path)
 
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2
 
+# split by permit and year
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  split(
+    as.factor(
+      compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2$year_permit_sa_gom_dual
+    )
+  )
+
+# print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list)
+# [1] "2022 dual, 2022 gom_only, 2022 sa_only, 2023 dual, 2023 gom_only, 2023 sa_only"
+
+vessel_by_state_cnt <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  purrr::map(\(curr_df) {
+    curr_df |>
+      dplyr::select(vessel_official_number, home_state) |>
+      dplyr::distinct() |>
+      dplyr::add_count(home_state)
+  })
+
+
+
+# HERE
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |> dim()
