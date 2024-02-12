@@ -98,7 +98,14 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_mor
                        state2,
                      .default = state_fixed))
 
-View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1)
+# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1)
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
+  select(-state_fixed) |>
+  rename("state_fixed" = state_fixed1)
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports
 
 ## split by permit and year ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list <-
