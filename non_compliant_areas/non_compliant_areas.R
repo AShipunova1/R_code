@@ -346,6 +346,33 @@ shp_file_with_cnts_list <-
 
 # View(shp_file_with_cnts_list)
 
+# shp_file_with_cnts_list$`2023 sa_only` |> print_df_names()
+# [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, cnt_vsl_compl, non_compl_percent_per_st, non_compl_proportion_per_st, nc_round_perc, nc_round_proportion, my_label_perc, my_label_cnt, my_label_long, geometry"
+
+# get south states map ----
+# to add empty states to the map
+
+# Explanations:
+# The code creates an sf object 'states_sf' representing U.S. states:
+# - Use maps::map() to generate a map of U.S. states without plotting it.
+# - Convert the resulting map to an sf object using sf::st_as_sf().
+
+states_sf <-
+  sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
+
+# add X and Y
+# Explanations:
+# The code adds coordinates of centroids to the 'states_sf' sf object:
+# - Use sf::st_centroid() to compute the centroid of each state in 'states_sf'.
+# - Use sf::st_coordinates() to extract the coordinates of centroids.
+# - Use cbind() to add the coordinates to 'states_sf'.
+
+states_sf <-
+  cbind(states_sf,
+        sf::st_coordinates(sf::st_centroid(states_sf)))
+
+# mapview(states_sf)
+
 # HERE ----
 ## prepare permit data ----
 ### Check how many vessels don't have home port info ----
@@ -1024,30 +1051,6 @@ shp_file_with_cnts_sa <-
 # shp_file_with_cnts_list$SA |>
 #   mapview(zcol = "nc_round_perc")
 
-# get south states map ----
-# to add empty states to the map
-
-# Explanations:
-# The code creates an sf object 'states_sf' representing U.S. states:
-# - Use maps::map() to generate a map of U.S. states without plotting it.
-# - Convert the resulting map to an sf object using sf::st_as_sf().
-
-states_sf <-
-  sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
-
-# add X and Y
-# Explanations:
-# The code adds coordinates of centroids to the 'states_sf' sf object:
-# - Use sf::st_centroid() to compute the centroid of each state in 'states_sf'.
-# - Use sf::st_coordinates() to extract the coordinates of centroids.
-# - Use cbind() to add the coordinates to 'states_sf'.
-
-states_sf <-
-  cbind(states_sf,
-        sf::st_coordinates(sf::st_centroid(states_sf)))
-
-# mapview(states_sf)
-
 # combine static map ----
 # get boundaries from south_east_coast_states_shp_bb
 
@@ -1057,8 +1060,6 @@ label_text_size <- 5
 # title_text_size <- 4
 
 # Explanations:
-# The code creates a new data frame 'gom_state_proportion_indexes':
-# - Start with 'shp_file_with_cnts_list$gom_states'.
 # - Drop geometry information using sf::st_drop_geometry().
 # - Select the column 'nc_round_proportion'.
 # - Remove duplicate rows.
