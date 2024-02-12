@@ -537,7 +537,9 @@ my_grobs_list |>
                 str_glue("compl_vs_nonc_plots_{plot_name}.png"))
     
     save_plots_list_to_files(file_full_name_c_nc,
-                             curr_plot)
+                             curr_plot,
+                             my_width = 20,
+                             my_height = 10)
   })
 
 # [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance_2023/2024-02-09/compl_vs_nonc_plots_2023__sa___dual.png"
