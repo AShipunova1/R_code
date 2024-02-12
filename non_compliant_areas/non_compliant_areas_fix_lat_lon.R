@@ -19,15 +19,14 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr <-
                               too_many = "drop") |> 
     mutate(across(where(is.character), str_trim))
 
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |> 
-#   filter(grepl(",.+,", hailing_port)
-# )
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |>
+#   filter(grepl(",.+,", hailing_port))
 # 1 AL6468LL               ALEXANDER CITY, AL, AL gom_only          
 # Can do too_many = "drop", because it is the only case of double commas
 
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr |>
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr |> View()
 #   filter(vessel_official_number == "AL6468LL")
-# 1 AL6468LL               ALEXANDER CITY AL    gom_only          
+# 1 AL6468LL               ALEXANDER CITY AL    gom_only  
 
 # 1) add lat/lon ----
 
@@ -46,7 +45,9 @@ get_lat_lon_no_county <-
 my_file_path_lat_lon_1 <- 
   file.path(my_paths$outputs, 
             current_project_basename,
-            paste0(current_project_basename, "_lat_lon_2023.rds"))
+            paste0(current_project_basename,
+                   "2024-02-09",
+                   "_lat_lon_2023.rds"))
 
 tic("compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord")
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 <-
@@ -59,6 +60,9 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 <-
 toc()
 # Passing 552 addresses to the Nominatim single address geocoder
 # ~10 min
+
+# File: non_compliant_areas2024-02-09_lat_lon_2023.rds modified Fri Feb  9 15:43:14 2024
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord: 633.06 sec elapsed
 
 # 2) check names without coordinates
 
@@ -73,15 +77,25 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coo
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 |>
   filter(is.na(lat))
 
-nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord)
+## unique vessels_addr ----
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord |>
+  select(vessel_official_number, city, state, lat, long) |>
+  distinct()
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |> 
+  nrow()
 # 257
+# 288
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord |>
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |>
   filter(!is.na(city))
 
 nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city)
 # 56
+# 71
 
 # glimpse(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city)
 
@@ -178,12 +192,6 @@ to_fix_list <-
   )
 
 # ---
-# Explanations:
-# - mutate(): Adds a new column 'city_state' to the data frame.
-# - paste(): Concatenates the trimmed values of 'city' and
-#   'state' columns with '#' as a separator.
-# The result is a modified data frame with an additional 'city_state' column
-# containing concatenated city and state information.
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr |>
@@ -243,12 +251,15 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed <-
 
 n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed$vessel_official_number)
 # 3387
+# 4017
 
 dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed)
 # [1] 4729    8
 # [1] 5029    8 with permit region
 # [1] 6762    7 not processed db vessel_permits
 # [1] 3392    7 (2023)
+# [1] 9362   10
+
 # duplicated addr
 
 # add new fixes manually ----
@@ -292,6 +303,7 @@ dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1
 # [1] 3392    7 is.na(city) &
 # [1] 3397    9
 # [1] 3402    9 (no defaults)
+# [1] 9382   12
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
   filter(vessel_official_number == "FL1431JU") |>
@@ -354,8 +366,9 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 <-
   select(-c("city_fixed1", "state_fixed1")) |> 
   distinct()
 
-# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2)
+dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2)
 # [1] 3392    7
+# [1] 9362   10
 
 # check
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
@@ -363,9 +376,10 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
   select(vessel_official_number,
          permit_sa_gom_dual,
          city_fixed,
-         state_fixed,
-         city_fixed1,
-         state_fixed1) |>
+         state_fixed) |> 
+# ,
+#          # city_fixed1,
+#          state_fixed1) |>
   # filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
   distinct() |>
   glimpse()
@@ -380,6 +394,7 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr <-
 
 nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
 # 201
+# 463
 
 # write_csv(
 #   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr,
@@ -392,12 +407,13 @@ nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
 #   filter(official__ == "504660")
 # not in pims vessels
 
+# HERE ----
+
 all_get_db_data_result_l$vessels_permits |>
   filter(
     PERMIT_VESSEL_ID %in%
       compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number
   ) |> View()
-# HERE ----
 # 4) add lat/lon to the fixed names
 
 # glimpse(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed)
