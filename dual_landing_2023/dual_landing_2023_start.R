@@ -236,7 +236,7 @@ n_distinct(processed_logbooks_dual_short_sf_sa_df$trip_id)
 739/4815*100
 # [1] 15.34787
 
-## count all in big_box ----
+## 1) count all in big_box ----
 processed_logbooks_dual_short_sf_sa_bb_df <-
   st_drop_geometry(processed_logbooks_dual_short_sf_sa_bb)
 
@@ -247,6 +247,19 @@ total_points_in_bb <-
 3891/4815*100
 # 80.80997
 # 81% in the big box
+
+# From points in SA state and federal waters
+# subset GOM_s_fl_state_waters_only
+# 2) points in SA state
+sa_fl_state_w_counties_shp
+sa_fl_state_w_counties_shp_df <-
+  st_drop_geometry(sa_fl_state_w_counties_shp)
+
+total_points_in_bb <-
+  n_distinct(sa_fl_state_w_counties_shp_df$trip_id)
+
+
+
 
 # in GOMsg
 gomsf_trips <-
@@ -266,7 +279,14 @@ total_in_sa <-
   total_points_in_bb - total_in_gom
 # 1437
 
-mapview(GOM_s_fl_state_waters_only) +
+mapviewOptions(basemaps = # no "CartoDB.DarkMatter"
+    c("CartoDB.Positron", "OpenStreetMap", "Esri.WorldImagery",
+      "OpenTopoMap"))
+
+mapviewOptions(basemaps.color.shuffle = FALSE)
+
+mapview(GOM_s_fl_state_waters_only, 
+        map.types = c("Esri.WorldShadedRelief", "OpenStreetMap.DE")) +
   mapview(sa_fl_state_w_counties_shp,
           col.regions = "green") +
   mapview(processed_logbooks_dual_short_sf_sa__sa_fl)
