@@ -434,6 +434,12 @@ label_text_size <- 5
 # title_text_size <- 4
 
 ## get color palette ----
+# Explanations:
+# The code defines a color palette 'mypalette' using the viridis package:
+# - Use the viridis::viridis() function to generate a color palette.
+# - Set the number of colors with 'len_colors'.
+# - Choose the "D" option for the color map.
+
 get_color_palette <- 
   function(my_sf) {
     
@@ -532,7 +538,7 @@ all_sa_permitted_map <-
            states_sf,
            smaller_size = 2)
 
-all_sa_permitted_map
+# all_sa_permitted_map
 
 #         0.5        0.51        0.56        0.57        0.61        0.64 
 # "#440154FF" "#46337EFF" "#365C8DFF" "#277F8EFF" "#1FA187FF" "#4AC16DFF" 
@@ -542,22 +548,10 @@ all_sa_permitted_map
 #       xmin       ymin       xmax       ymax 
 # -106.64565   24.52310  -75.46062   36.58812 
 
-sa_state_proportion_indexes <-
-  shp_file_with_cnts_list_sa_only_23 |>
-  sf::st_drop_geometry() |>
-  select(nc_round_proportion) |>
-  distinct() |>
-  drop_na() |>
-  arrange(nc_round_proportion)
+sa_states_only_sa_23_permitted_map <-
+  map_plot(shp_file_with_cnts_list_sa_only_23, 
+           states_sf)
 
-len_colors_sa_states = nrow(sa_state_proportion_indexes)
-
-# ---
-# Explanations:
-# The code defines a color palette 'mypalette' using the viridis package:
-# - Use the viridis::viridis() function to generate a color palette.
-# - Set the number of colors with 'len_colors_sa_states'.
-# - Choose the "D" option for the color map.
 
 mypalette = viridis(len_colors_sa_states, option = "D")
 # mypalette <- rainbow(length(gom_all_cnt_indexes))
