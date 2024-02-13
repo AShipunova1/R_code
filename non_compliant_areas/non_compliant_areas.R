@@ -464,6 +464,50 @@ get_my_bb <- function(my_sf) {
   return(shp_file_with_cnts_list_bbox)
 }
 
+map_plot <- 
+  function(my_sf,
+           ) {
+    sa_only_map  <-
+  ggplot2::ggplot() +
+  ggplot2::geom_sf(data = states_sf, fill = NA) +
+  ggplot2::geom_sf(data = curr_sf_for_map,
+                   aes(fill = factor(nc_round_proportion))) +
+  ggplot2::geom_sf_label(
+    data = curr_sf_for_map,
+    aes(label = my_label_long),
+    size = label_text_size,
+    fill = "lightgrey"
+  ) +
+  
+  # Set the coordinate limits for the plot, based on the bounding box of SA coast states,
+  ggplot2::coord_sf(
+    xlim =
+      c(
+        floor(shp_file_with_cnts_list_sa_only_23_bbox$xmin),
+        ceiling(shp_file_with_cnts_list_sa_only_23_bbox$xmax)
+      ),
+    ylim =
+      c(
+        floor(shp_file_with_cnts_list_sa_only_23_bbox$ymin),
+        ceiling(shp_file_with_cnts_list_sa_only_23_bbox$ymax)
+      ),
+    # with expand = FALSE to prevent expansion beyond the specified limits.
+    expand = FALSE
+  ) +
+  ggplot2::xlab("") +
+  ggplot2::ylab("") +
+  scale_fill_manual(labels =
+                      c("less", "", "", "more"),
+                    values = mypalette) +
+  theme_bw(base_size = my_base_size) +
+  theme(legend.position = c(0.53, 0.1)) +
+  guides(fill = guide_legend(title = "Non-Compliance Color Scale",
+                             nrow = 1))
+
+    
+  }
+
+
 sa_state_proportion_indexes <-
   shp_file_with_cnts_list_sa_only_23 |>
   sf::st_drop_geometry() |>
