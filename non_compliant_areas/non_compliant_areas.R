@@ -700,6 +700,16 @@ shp_file_with_cnts_list$`2023 sa_only` |>
 # lost 267
 
 # 2) 
+# Where is the loss?
+shp_file_with_cnts_list <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels |>
+  purrr::map(\(curr_df) {
+    # browser()
+    south_east_coast_states_shp |>
+      left_join(curr_df,
+                join_by(STUSPS ==
+                          state_fixed))
+  })
 
 shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> sum()
 # [1] 1788
