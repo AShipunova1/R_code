@@ -647,9 +647,41 @@ processed_metrics_tracking_permits_2023_short |>
 # 2 gom_only                              1130
 # 3 sa_only                               2167
 
-## 2) after adding home ports ----
+vessls_in_metrics <- 
+  processed_metrics_tracking_permits_2023_short |> 
+  filter(permit_sa_gom_dual == "sa_only") |> 
+  select(vessel_official_number) |> 
+  distinct()
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list
+dim(vessls_in_metrics)
+# 2167 1
+
+## 2) in compliance + metrics after adding home ports ----
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list$`2023 sa_only` |> 
+  mutate(vsl_num = n_distinct(vessel_official_number)) |> 
+  select(vsl_num) |> 
+  distinct()
+# 2178  
+
+vessls_in_compl__metr <- 
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list$`2023 sa_only` |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+dim(vessls_in_compl__metr)
+# 2178 1
+
+setdiff(vessls_in_metrics$vessel_official_number, 
+        vessls_in_compl__metr$vessel_official_number)
+
+# [1] "NC1075EA" "644342"   "FL4491NW" "697962"   "1316517"  "1299900"  "1301119" 
+
+setdiff(vessls_in_compl__metr$vessel_official_number,
+        vessls_in_metrics$vessel_official_number)
+#  [1] "517238"   "FL8312PA" "936388"   "FL4650HK" "1064042"  "FL9242GM" "982351"  
+#  [8] "906483"   "1293629"  "1209015"  "1207188"  "FL9793RU" "1320533"  "1078789" 
+# [15] "1061382"  "974323"   "523112"   "FL3860SK"
 
 ## 3) before plotting ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc$`2023 sa_only` |> 
