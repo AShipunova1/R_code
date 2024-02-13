@@ -456,30 +456,51 @@ vessels_from_pims_double_bind <-
 #             "na_vessel_states.csv")
 # )
 
-vessels_from_pims_double_short__na_vessel_states <-
-  vessels_from_pims_double |>
-  filter(vessel_official_number1 %in% compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number |
-           vessel_official_number2 %in% compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number) |> 
-  distinct()
+# vessels_from_pims_double_short__na_vessel_states <-
+#   vessels_from_pims_double_bind |>
+#   filter(vessel_official_number %in% compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number) |> 
+#   distinct()
 
-dim(vessels_from_pims_double_short__na_vessel_states)
-# 201
+# dim(vessels_from_pims_double_bind)
+# 201 2
 
-
-
-View(vessels_from_pims_double_short__na_vessel_states_bind)
-# 211
-# 386
-
-# vessels_from_pims_double_short__na_vessel_states_bind |>
+# vessels_from_pims_double_short__na_vessel_states |>
 #   filter(vessel_official_number == "1173297")
 # 1 1173297                CAROLINA BEACH, NC
 
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |> 
+#     filter(vessel_official_number == "1173297") |> distinct() |> 
+#   glimpse()
+# $ year_permit_sa_gom_dual <chr> "2022 sa_only", "2023 sa_only"
+# $ city_state              <chr> "NA#NA", "NA#NA"
+# $ city_fixed              <chr> "NA", "NA"
+# $ state_fixed             <chr> "NA", "NA"
+
 ## add more home ports ----
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
-  left_join(vessels_from_pims_short__na_vessel_states_bind)
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 <-
+  left_join(
+    compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2,
+    vessels_from_pims_double_bind
+  )
+# ℹ Row 5499 of `x` matches multiple rows in `y`.
+# ℹ Row 180 of `y` matches multiple rows in `x`.
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2[5499,]$vessel_official_number
+# [1] "563752"
+
+vessels_from_pims_double_bind |> 
+  filter(vessel_official_number == "563752") |> 
+  glimpse()
+# 563752
+# PORT ARANSAS, TX correct
+# PORT AERANSAS, TX
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  filter(vessel_official_number == "563752") |>
+  glimpse()
+
+
 # vessels_from_pims_short__na_vessel_states_bind
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 <-
