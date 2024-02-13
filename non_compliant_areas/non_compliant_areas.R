@@ -465,48 +465,68 @@ get_my_bb <- function(my_sf) {
 }
 
 map_plot <- 
-  function(my_sf,
-           ) {
-    sa_only_map  <-
-  ggplot2::ggplot() +
-  ggplot2::geom_sf(data = states_sf, fill = NA) +
-  ggplot2::geom_sf(data = curr_sf_for_map,
-                   aes(fill = factor(nc_round_proportion))) +
-  ggplot2::geom_sf_label(
-    data = curr_sf_for_map,
-    aes(label = my_label_long),
-    size = label_text_size,
-    fill = "lightgrey"
-  ) +
-  
-  # Set the coordinate limits for the plot, based on the bounding box of SA coast states,
-  ggplot2::coord_sf(
-    xlim =
-      c(
-        floor(shp_file_with_cnts_list_sa_only_23_bbox$xmin),
-        ceiling(shp_file_with_cnts_list_sa_only_23_bbox$xmax)
-      ),
-    ylim =
-      c(
-        floor(shp_file_with_cnts_list_sa_only_23_bbox$ymin),
-        ceiling(shp_file_with_cnts_list_sa_only_23_bbox$ymax)
-      ),
-    # with expand = FALSE to prevent expansion beyond the specified limits.
-    expand = FALSE
-  ) +
-  ggplot2::xlab("") +
-  ggplot2::ylab("") +
-  scale_fill_manual(labels =
-                      c("less", "", "", "more"),
-                    values = mypalette) +
-  theme_bw(base_size = my_base_size) +
-  theme(legend.position = c(0.53, 0.1)) +
-  guides(fill = guide_legend(title = "Non-Compliance Color Scale",
-                             nrow = 1))
-
+  function(curr_sf_for_map, states_sf
+  ) {
+    browser()
     
+    my_palette <- get_color_palette(curr_sf_for_map)
+    shp_file_with_cnts_list_bbox <-
+      get_my_bb(curr_sf_for_map)
+    
+    my_map  <-
+      ggplot2::ggplot() +
+      ggplot2::geom_sf(data = states_sf, fill = NA) +
+      ggplot2::geom_sf(data = curr_sf_for_map,
+                       aes(fill = factor(nc_round_proportion))) +
+      ggplot2::geom_sf_label(
+        data = curr_sf_for_map,
+        aes(label = my_label_long),
+        size = label_text_size,
+        fill = "lightgrey"
+      )
+    
+    # Set the coordinate limits for the plot, based on the provided bounding box
+    my_map +
+      
+      ggplot2::coord_sf(
+        xlim =
+          c(
+            floor(shp_file_with_cnts_list_bbox$xmin),
+            ceiling(shp_file_with_cnts_list_bbox$xmax)
+          ),
+        ylim =
+          c(
+            floor(shp_file_with_cnts_list_bbox$ymin),
+            ceiling(shp_file_with_cnts_list_bbox$ymax)
+          ),
+        # with expand = FALSE to prevent expansion beyond the specified limits.
+        expand = FALSE
+      )
+    
+    my_map +
+      ggplot2::xlab("") +
+      ggplot2::ylab("") +
+      scale_fill_manual(labels =
+                          c("less", "", "", "more"),
+                        values = my_palette) +
+      theme_bw(base_size = my_base_size) +
+      theme(legend.position = c(0.53, 0.1)) +
+      guides(fill = guide_legend(title = "Non-Compliance Color Scale",
+                                 nrow = 1))
+    
+    return(my_map)
   }
 
+all_sa_permitted_map <-
+  map_plot(shp_file_with_cnts_list$`2023 sa_only`, states_sf)
+
+#         0.5        0.51        0.56        0.57        0.61        0.64 
+# "#440154FF" "#46337EFF" "#365C8DFF" "#277F8EFF" "#1FA187FF" "#4AC16DFF" 
+#        0.83           1 
+# "#9FDA3AFF" "#FDE725FF" 
+
+#       xmin       ymin       xmax       ymax 
+# -106.64565   24.52310  -75.46062   36.58812 
 
 sa_state_proportion_indexes <-
   shp_file_with_cnts_list_sa_only_23 |>
