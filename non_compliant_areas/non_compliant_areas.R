@@ -465,11 +465,10 @@ get_my_bb <- function(my_sf) {
 }
 
 map_plot <- 
-  function(curr_sf_for_map, states_sf
-  ) {
-    browser()
+  function(curr_sf_for_map, states_sf) {
     
-    my_palette <- get_color_palette(curr_sf_for_map)
+    # browser()
+    
     shp_file_with_cnts_list_bbox <-
       get_my_bb(curr_sf_for_map)
     
@@ -486,8 +485,8 @@ map_plot <-
       )
     
     # Set the coordinate limits for the plot, based on the provided bounding box
-    my_map +
-      
+    my_map  <-
+      my_map +
       ggplot2::coord_sf(
         xlim =
           c(
@@ -503,11 +502,20 @@ map_plot <-
         expand = FALSE
       )
     
-    my_map +
+    my_palette <- get_color_palette(curr_sf_for_map)
+    shp_file_with_cnts_list_bbox <-
+      get_my_bb(curr_sf_for_map)
+    
+    my_labels <-
+      c("less",
+        vector("character" , length(my_palette) - 2),
+        "more")
+    
+    my_map  <-
+      my_map +
       ggplot2::xlab("") +
       ggplot2::ylab("") +
-      scale_fill_manual(labels =
-                          c("less", "", "", "more"),
+      scale_fill_manual(labels = my_labels,
                         values = my_palette) +
       theme_bw(base_size = my_base_size) +
       theme(legend.position = c(0.53, 0.1)) +
@@ -519,6 +527,8 @@ map_plot <-
 
 all_sa_permitted_map <-
   map_plot(shp_file_with_cnts_list$`2023 sa_only`, states_sf)
+
+all_sa_permitted_map
 
 #         0.5        0.51        0.56        0.57        0.61        0.64 
 # "#440154FF" "#46337EFF" "#365C8DFF" "#277F8EFF" "#1FA187FF" "#4AC16DFF" 
