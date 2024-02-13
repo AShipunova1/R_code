@@ -537,13 +537,20 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_mor
   select(-state_fixed.orig) |>
   rename("state_fixed" = state_fixed1)
 
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports
+# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports)
 
+dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports)
+# 8134 12
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
+  # glimpse()
+  filter(year_permit_sa_gom_dual == "2023 sa_only") |> 
+  filter(state_fixed == "NA" | is.na(state_fixed)) |> 
+  # select(vessel_official_number) |> 
+  # distinct() |> 
+  nrow()
+# 2145
+# 0
 
 # Print results ----
-cat("Result in compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed",
-    "And in all_vessels_permits_home_port_clean0_fixed",
+cat("compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports",
     sep = "\n")
-dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed)
-# [1] 6845    7
-
