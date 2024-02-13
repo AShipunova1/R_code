@@ -554,12 +554,16 @@ sa_states_only_sa_23_permitted_map <-
 
 ## save plot to file function ----
 write_png_to_file <- function(output_file_name,
-                              map_plot) {
+                              map_plot,
+                              png_width,
+                              png_height,
+                              my_units = "in"
+                              ) {
 
   # png_width  <- 31
   # png_height <- 25
-  png_width <- 500
-  # png_height <- 600
+  # png_width <- 500
+  # png_height <- 550
 
   ggplot2::ggsave(
       file = output_file_name,
@@ -568,15 +572,38 @@ write_png_to_file <- function(output_file_name,
       path = file.path(my_paths$outputs,
                        current_project_basename),
       width = png_width,
-      # height = png_height
-      # ,
-      units = "px"
+      height = png_height,
+      units = my_units,
+      dpi = 300
     )
 }
 
+# sa_states_only_sa_23_permitted_map |>
+#   ggsave(
+#     filename = "test1.png",
+#     width = 7.76,
+#     height = 6.00,
+#     dpi = 300
+#   )
+
+write_png_to_file(
+  "test1.png",
+  sa_states_only_sa_23_permitted_map,
+  png_width = 7.76,
+  png_height = 6.00
+)
+ 
+write_png_to_file(
+  "test2.png",
+  sa_states_only_sa_23_permitted_map,
+  png_width = 1056,
+  png_height = 877,
+  my_units = "px"
+) 
+
+
 ## SA only ----
 permit_region <- "SA only"
-# TODO: make mypalette dynamic by states number and names
 
 # doesn't fit for SA
 # sa_only_map_titled <-
@@ -584,10 +611,10 @@ permit_region <- "SA only"
 #   ggplot2::ggtitle(perc_plot_titles[["SA only"]])
 
 output_file_name <-
-  str_glue("sa_only_perc_by_state_{today()}.png")
+  str_glue("sa_only_{my_year2}_perc_by_state_{today()}.png")
 
 write_png_to_file(output_file_name,
-                  sa_only_map)
+                  sa_states_only_sa_23_permitted_map)
 
 # Get numbers of all permitted vessels in 2023 vs those having port states ----
 
