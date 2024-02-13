@@ -77,38 +77,6 @@ fix_lat_lon_file_path <-
 
 source(fix_lat_lon_file_path)
 
-## add more home ports ----
-# vessels_from_pims_double
-
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
-  left_join(vessels_from_pims_short__na_vessel_states_bind)
-# vessels_from_pims_short__na_vessel_states_bind
-
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports |>
-  tidyr::separate_wider_delim(
-    hailing_port_2,
-    delim = ",",
-    names = c("city2", "state2"),
-    too_many = "drop"
-  ) |>
-  mutate(across(where(is.character), str_trim)) |>
-  mutate(state_fixed1 =
-           case_when((is.na(state_fixed) | state_fixed == "NA") &
-                       !is.na(state2) ~
-                       state2,
-                     .default = state_fixed))
-
-# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1)
-
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
-  select(-state_fixed) |>
-  rename("state_fixed" = state_fixed1)
-
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports
-
 ## split by permit and year ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
