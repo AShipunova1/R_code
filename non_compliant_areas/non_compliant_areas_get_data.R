@@ -312,7 +312,7 @@ compl_err_db_data_metrics <-
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 2744 of `y` matches multiple rows in `x`.
 
-View(compl_err_db_data_metrics)
+dim(compl_err_db_data_metrics)
 # [1] 408454     31
 # [1] 411980     31 2023
 # [1] 535393     30
@@ -380,8 +380,6 @@ dim(compl_err_db_data_metrics_2022_23)
 # [1] 535323     13
 # [1] 265306     13
 
-n_distinct(compl_err_db_data_metrics_2022_23$vessel_official_number)
-# 3375
 compl_err_db_data_metrics_2022_23 |> 
   filter(permit_sa_gom_dual == "sa_only") |> 
   select(vessel_official_number) |> 
@@ -410,7 +408,7 @@ n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 # 4017 both
 # 3375
 
-# Add more home port info to compl_err_db_data_metrics_2022_23_clean ----
+# Add home port info to compl_err_db_data_metrics_2022_23_clean ----
 # print_df_names(compl_err_db_data_metrics_2022_23_clean)
 # vessel_official_number
 # print_df_names(vessels_from_pims_short)
@@ -590,6 +588,13 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list |>
 # 1 NO          1363
 # 2 YES         1818
 
+# $`2023 sa_only`
+# # A tibble: 2 × 2
+#   compliant_     n
+#   <chr>      <int>
+# 1 NO          1343
+# 2 YES         1787
+
 map(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list,
     \(reg_df) {
       n_distinct(reg_df$vessel_official_number)
@@ -633,7 +638,7 @@ setdiff(
     compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col
   )
 )
-
+# 0
 # TODO: Why?
 #   [1] "vessel_name"   "permits"       "sa_permits_"   "gom_permits_" 
 # [5] "permit_region"
