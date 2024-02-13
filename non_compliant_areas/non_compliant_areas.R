@@ -78,6 +78,8 @@ fix_lat_lon_file_path <-
 source(fix_lat_lon_file_path)
 
 ## add more home ports ----
+# vessels_from_pims_double
+
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
   left_join(vessels_from_pims_short__na_vessel_states_bind)
@@ -723,3 +725,10 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` 
 # About 88% of all SA only permitted vessels in 2023 are on this map.
 # 1879/2145*100
 # 87.59907
+
+# 12% lost
+# 2145-1879
+# 266
+
+# *) check where are they home ports
+# 266
