@@ -559,12 +559,6 @@ write_png_to_file <- function(output_file_name,
                               png_height,
                               my_units = "in"
                               ) {
-
-  # png_width  <- 31
-  # png_height <- 25
-  # png_width <- 500
-  # png_height <- 550
-
   ggplot2::ggsave(
       file = output_file_name,
       plot = map_plot,
@@ -578,30 +572,15 @@ write_png_to_file <- function(output_file_name,
     )
 }
 
-# sa_states_only_sa_23_permitted_map |>
-#   ggsave(
-#     filename = "test1.png",
-#     width = 7.76,
-#     height = 6.00,
-#     dpi = 300
-#   )
-
+# find the width and height in zoom / "inspect element"
+# src="plot_zoom_png?width=776&amp;height=600"
 write_png_to_file(
   "test1.png",
   sa_states_only_sa_23_permitted_map,
-  png_width = 7.76,
-  png_height = 6.00
+  png_width = 5.50,
+  png_height = 5.93
 )
  
-write_png_to_file(
-  "test2.png",
-  sa_states_only_sa_23_permitted_map,
-  png_width = 1056,
-  png_height = 877,
-  my_units = "px"
-) 
-
-
 ## SA only ----
 permit_region <- "SA only"
 
