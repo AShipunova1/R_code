@@ -628,11 +628,21 @@ min(processed_metrics_tracking_permits_2023$end_date)
 max(processed_metrics_tracking_permits_2023$end_date)
 # [1] "2025-06-30"
 
-processed_metrics_tracking_permits_2023_short <- 
-  processed_metrics_tracking_permits_2023 |> 
-  select(vessel_official_number,
-         permit_sa_gom_dual) |> 
-  distinct()
+## 2) after adding home ports ----
+
+## 3) before plotting ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc$`2023 sa_only` |> 
+  select(state_fixed, total_vsl_by_state_cnt) |> 
+  distinct() |> 
+  count(wt = total_vsl_by_state_cnt)
+  # mutate(sum(total_vsl_by_state_cnt)) same result
+# 2178
+
+# processed_metrics_tracking_permits_2023_short <- 
+#   processed_metrics_tracking_permits_2023 |> 
+#   select(vessel_official_number,
+#          permit_sa_gom_dual) |> 
+#   distinct()
 
 processed_metrics_tracking_permits_2023_short |>
   group_by(permit_sa_gom_dual) |> 
@@ -643,10 +653,11 @@ processed_metrics_tracking_permits_2023_short |>
 
 #   permit_sa_gom_dual count_vessels_by_permit
 #   <chr>                                <int>
-# 1 gom_only                              1130
-# 2 dual                                   310
+# 1 dual                                   310
+# 2 gom_only                              1130
 # 3 sa_only                               2167
 
+# 2) 
 
 shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> sum()
 # [1] 1788
