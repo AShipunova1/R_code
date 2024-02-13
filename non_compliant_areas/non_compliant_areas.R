@@ -700,16 +700,50 @@ shp_file_with_cnts_list$`2023 sa_only` |>
 # lost 267
 
 # Where is the loss?
-shp_file_with_cnts_list <-
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels |>
-  purrr::map(\(curr_df) {
-    # browser()
-    south_east_coast_states_shp |>
-      left_join(curr_df,
-                join_by(STUSPS ==
-                          state_fixed))
-  })
+# shp_file_with_cnts_list <-
+#   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels |>
+#   purrr::map(\(curr_df) {
+#     # browser()
+#     south_east_coast_states_shp |>
+#       left_join(curr_df,
+#                 join_by(STUSPS ==
+#                           state_fixed))
+#   })
+# 
 
+shp_file_with_cnts_2023_sa_only_df <-
+  shp_file_with_cnts_list$`2023 sa_only` |>
+  sf::st_drop_geometry() |>
+  select(STUSPS, total_vsl_by_state_cnt) |>
+  distinct()
+  
+shp_file_with_cnts_2023_sa_only_df |>
+  count(wt = total_vsl_by_state_cnt)
+#      n
+# 1 1911
+
+second_df <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels$`2023 sa_only` |>
+  select(state_fixed,
+         total_vsl_by_state_cnt) |>
+  distinct()
+
+second_df |>
+  count(wt = total_vsl_by_state_cnt)
+# 2176
+
+# *) check states
+states_not_is_sa <-
+  setdiff(second_df$state_fixed,
+          shp_file_with_cnts_2023_sa_only_df$STUSPS)
+# [1] "NJ" "MD" "VA" "DE" "NY" "MA" "AK" "RI" "PA" "NH" "CO"
+
+str(states_not_is_sa)
+# chr 11
+
+# setdiff(shp_file_with_cnts_2023_sa_only_df$STUSPS,
+#         second_df$state_fixed)
+# 0
 
 # shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> sum()
 # # [1] 1788
