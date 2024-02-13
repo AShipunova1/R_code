@@ -433,7 +433,28 @@ label_text_size <- 5
 # axis_text_size <- 4
 # title_text_size <- 4
 
-## get color pallette ----
+## get color palette ----
+get_color_palette <- 
+  function(my_sf) {
+    
+    my_sf_proportion_indexes <-
+      my_sf |>
+      sf::st_drop_geometry() |>
+      select(nc_round_proportion) |>
+      distinct() |>
+      drop_na() |>
+      arrange(nc_round_proportion)
+    
+    len_colors = nrow(my_sf_proportion_indexes)
+    
+    my_palette = viridis(len_colors, option = "D")
+    
+    names(my_palette) <-
+      my_sf_proportion_indexes$nc_round_proportion
+    
+    return(my_palette)
+  }
+
 sa_state_proportion_indexes <-
   shp_file_with_cnts_list_sa_only_23 |>
   sf::st_drop_geometry() |>
