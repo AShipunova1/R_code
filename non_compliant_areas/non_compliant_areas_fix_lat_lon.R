@@ -408,45 +408,102 @@ nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
 #   filter(official__ == "504660")
 # not in pims vessels
 
-# vessels with NA fixed state in vessels_from_pims_short ----
-names(vessels_from_pims)
+# vessels with NA fixed state in vessels_from_pims_double ----
+# print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
+
+names(vessels_from_pims_double)
 # [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"           
 
+# glimpse(vessels_from_pims_double)
+# 652
 
-vessels_from_pims_short__na_vessel_states <-
-  vessels_from_pims |>
-  filter(vessel_official_number1 %in% na_vessel_states$vessel_official_number |
-           vessel_official_number2 %in% na_vessel_states$vessel_official_number) |> 
-  distinct()
-
-dim(vessels_from_pims_short__na_vessel_states)
-# 112
-
-vessels_from_pims_short__na_vessel_states1 <- 
-  vessels_from_pims_short__na_vessel_states |> 
-  select(vessel_official_number1, hailing_port) |> 
+## make one column of double names ----
+vessels_from_pims_double_1 <-
+  vessels_from_pims_double |>
+  select(vessel_official_number1, hailing_port) |>
   rename("vessel_official_number" = vessel_official_number1)
 
-vessels_from_pims_short__na_vessel_states2 <- 
-  vessels_from_pims_short__na_vessel_states |> 
+vessels_from_pims_double_2 <-
+  vessels_from_pims_double |>
   select(vessel_official_number2, hailing_port) |> 
   rename("vessel_official_number" = vessel_official_number2)
 
-vessels_from_pims_short__na_vessel_states_bind <-
+vessels_from_pims_double_bind <-
   rbind(
-    vessels_from_pims_short__na_vessel_states1,
-    vessels_from_pims_short__na_vessel_states2
+    vessels_from_pims_double_1,
+    vessels_from_pims_double_2
   ) |> 
   distinct() |> 
   rename("hailing_port_2" = hailing_port)
 
+# View(vessels_from_pims_double_bind)
 
-glimpse(vessels_from_pims_short__na_vessel_states_bind)
+# na_vessel_states <-
+#   vessel_by_state_cnt$`2023 sa_only` |>
+#   filter(state_fixed == "NA" | is.na(state_fixed)) |>
+#   select(vessel_official_number) |>
+#   distinct()
+
+# nrow(na_vessel_states)
+# 112
+# 0 (fixed)
+
+# write_csv(
+#   na_vessel_states,
+#   file.path(current_output_dir,
+#             "na_vessel_states.csv")
+# )
+
+vessels_from_pims_double_short__na_vessel_states <-
+  vessels_from_pims_double |>
+  filter(vessel_official_number1 %in% compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number |
+           vessel_official_number2 %in% compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number) |> 
+  distinct()
+
+dim(vessels_from_pims_double_short__na_vessel_states)
+# 201
+
+
+
+View(vessels_from_pims_double_short__na_vessel_states_bind)
 # 211
+# 386
 
-# vessels_from_pims_short__na_vessel_states_bind |>
+# vessels_from_pims_double_short__na_vessel_states_bind |>
 #   filter(vessel_official_number == "1173297")
 # 1 1173297                CAROLINA BEACH, NC
+
+## add more home ports ----
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  left_join(vessels_from_pims_short__na_vessel_states_bind)
+# vessels_from_pims_short__na_vessel_states_bind
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports |>
+  tidyr::separate_wider_delim(
+    hailing_port_2,
+    delim = ",",
+    names = c("city2", "state2"),
+    too_many = "drop"
+  ) |>
+  mutate(across(where(is.character), str_trim)) |>
+  mutate(state_fixed1 =
+           case_when((is.na(state_fixed) | state_fixed == "NA") &
+                       !is.na(state2) ~
+                       state2,
+                     .default = state_fixed))
+
+# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1)
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
+  select(-state_fixed) |>
+  rename("state_fixed" = state_fixed1)
+
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports
+
 
 # Print results ----
 cat("Result in compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed",
