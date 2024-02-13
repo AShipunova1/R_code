@@ -736,7 +736,7 @@ second_df |>
 states_not_is_sa <-
   setdiff(second_df$state_fixed,
           shp_file_with_cnts_2023_sa_only_df$STUSPS)
-# [1] "NJ" "MD" "VA" "DE" "NY" "MA" "AK" "RI" "PA" "NH" "CO"
+# "NJ" "MD" "VA" "DE" "NY" "MA" "AK" "RI" "PA" "NH" "CO"
 
 str(states_not_is_sa)
 # chr 11
@@ -745,6 +745,13 @@ str(states_not_is_sa)
 #         second_df$state_fixed)
 # 0
 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels$`2023 sa_only` |>
+  filter(state_fixed %in%
+           states_not_is_sa) |> 
+  count(wt = total_vsl_by_state_cnt)
+# 265
+
+# OLD ----
 # shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> sum()
 # # [1] 1788
 # 
