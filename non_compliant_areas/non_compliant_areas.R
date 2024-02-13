@@ -157,10 +157,10 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
 # 22  
 # 21
 
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |> 
-  select(state_fixed) |> 
-  distinct() |> 
-  View()
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |> 
+#   select(state_fixed) |> 
+#   distinct() |> 
+#   View()
 
 # combine compliance by year ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide <-
@@ -181,9 +181,10 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   })
 
 ## check ----
-#  names() |> head()
+
+names(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide$`2023 sa_only`) |> head()
 # [1] "year"                    "permit_sa_gom_dual"      "year_permit_sa_gom_dual"
-# [4] "total_vsl_by_state_cnt"  "state_fixed"             "684541"                 
+# [4] "total_vsl_by_state_cnt"  "state_fixed"             "1000164"                 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide[["2023 sa_only"]] |>
   select("684541",
          "641822",
@@ -194,11 +195,17 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   distinct() |>
   glimpse()
 
+# $ `992615`               <chr> NA, NA, "NO_YES", NA, NA, NA, NA, NA, NA, NA, NA, …
+# $ `1169835`              <chr> NA, "YES", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+# $ total_vsl_by_state_cnt <int> 1206, 47, 396, 85, 61, 191, 47, 45, 16, 11, 14, 4,…
+# $ state_fixed            <chr> "FL", "NJ", "NC", "MD", "GA", "SC", "VA", "DE", "T…
+
   # filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |>
 
-# print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide[[1]])
-# year, permit_sa_gom_dual, year_permit_sa_gom_dual, total_vsl_by_state_cnt, state_fixed, 
-# back_to_longer_format
+names(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide[[1]]) |> head()
+# year, permit_sa_gom_dual, year_permit_sa_gom_dual, total_vsl_by_state_cnt, state_fixed,
+
+# back_to_longer_format ----
 cols_names <-
   c("year",
     "permit_sa_gom_dual",
@@ -217,6 +224,10 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long[["2023 sa_only"]] |>
   filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> 
   glimpse()
+# $ total_vsl_by_state_cnt  <int> 1206, 1206, 1206, 1206, 47, 47, 47, 47, 396, 396,…
+# $ state_fixed             <chr> "FL", "FL", "FL", "FL", "NJ", "NJ", "NJ", "NJ", "…
+# $ vessel_official_number  <chr> "1169835", "641822", "684541", "992615", "1169835…
+# $ is_compl_or_both        <chr> NA, NA, "YES", NA, "YES", NA, NA, NA, NA, NA, NA,…
 
 ## compl_or_not ----
 
@@ -232,7 +243,8 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
       select(-is_compl_or_both)
   })
 
-# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not)
+dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not$`2023 sa_only`)
+# [1] 2145    7
 
 # cnt vessel by state and compliance ----
 
@@ -283,9 +295,17 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 # 780+446
 # ok
 
+# 1 FL                            1206 non_compliant           768
+# 2 FL                            1206 compliant               438
+# 3 NJ                              47 non_compliant            28
+# 4 NJ                              47 compliant                19
+# 5 NC                             396 compliant               154
+# 6 NC                             396 non_compliant           242
+
 # fewer columns ----
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only`)
 # [1] 2178    8
+# [1] 2145    8
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt |>
@@ -300,7 +320,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short$`2023 sa_only`)
 # [1] 37  4
-# 35
+# 35 4
 
 # add proportions ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc <-
@@ -518,12 +538,15 @@ map_plot <-
     return(my_map)
   }
 
+## all_sa_permitted_map ----
+
 all_sa_permitted_map <-
   map_plot(shp_file_with_cnts_list$`2023 sa_only`, 
            states_sf,
            smaller_size = 2)
 
 # all_sa_permitted_map
+# 	771 × 405 px
 
 #         0.5        0.51        0.56        0.57        0.61        0.64 
 # "#440154FF" "#46337EFF" "#365C8DFF" "#277F8EFF" "#1FA187FF" "#4AC16DFF" 
@@ -533,6 +556,7 @@ all_sa_permitted_map <-
 #       xmin       ymin       xmax       ymax 
 # -106.64565   24.52310  -75.46062   36.58812 
 
+# sa_states_only_sa_23_permitted_map ----
 sa_states_only_sa_23_permitted_map <-
   map_plot(shp_file_with_cnts_list_sa_only_23, 
            states_sf)
@@ -560,12 +584,22 @@ write_png_to_file <- function(output_file_name,
 # find the width and height in zoom / "inspect element"
 # src="plot_zoom_png?width=776&amp;height=600"
 write_png_to_file(
-  "test1.png",
+  "sa_states_only_sa_23_permitted_map.png",
   sa_states_only_sa_23_permitted_map,
   png_width = 5.50,
   png_height = 5.93
 )
+
+# all_sa_permitted_map
+# 	771 × 405 px
  
+write_png_to_file(
+  "all_sa_permitted_map.png",
+  all_sa_permitted_map,
+  png_width = 7.71,
+  png_height = 4.05
+)
+
 ## SA only ----
 permit_region <- "SA only"
 
@@ -577,25 +611,8 @@ permit_region <- "SA only"
 output_file_name <-
   str_glue("sa_only_{my_year2}_perc_by_state_{today()}.png")
 
-write_png_to_file(output_file_name,
-                  sa_states_only_sa_23_permitted_map)
+# Get numbers of all SA permitted vessels in 2023 ----
 
-# Get numbers of all permitted vessels in 2023 vs those having port states ----
-
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list
-processed_metrics_tracking_permits_2023 <-
-  processed_metrics_tracking_permits |>
-  filter(end_date >= my_beginning2 &
-           effective_date <= my_end2) 
-# > min(processed_metrics_tracking_permits_2023_short$effective_date)
-# [1] "2006-02-28"
-# > max(processed_metrics_tracking_permits_2023_short$effective_date)
-# [1] "2023-12-29"
-# > min(processed_metrics_tracking_permits_2023_short$end_date)
-# [1] "2023-01-03"
-# > max(processed_metrics_tracking_permits_2023_short$end_date)
-# [1] "2025-06-30"
-  
 processed_metrics_tracking_permits_2023_short <- 
   processed_metrics_tracking_permits_2023 |> 
   select(vessel_official_number,
