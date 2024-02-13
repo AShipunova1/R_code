@@ -510,21 +510,10 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 <-
   )
 
 # View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3)
-
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2[5499,]$vessel_official_number
-# [1] "563752"
-
-vessels_from_pims_double_bind__city_state__fixed_1 |> 
-  filter(vessel_official_number == "563752") |> 
-  glimpse()
-# 563752
-# PORT ARANSAS, TX correct
-# PORT AERANSAS, TX
-
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+# check ----
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
   filter(vessel_official_number == "563752") |>
   glimpse()
-
 
 # vessels_from_pims_short__na_vessel_states_bind
 
