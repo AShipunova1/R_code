@@ -465,7 +465,9 @@ get_my_bb <- function(my_sf) {
 }
 
 map_plot <- 
-  function(curr_sf_for_map, states_sf) {
+  function(curr_sf_for_map, 
+           states_sf,
+           smaller_size = 0) {
     
     # browser()
     
@@ -480,7 +482,7 @@ map_plot <-
       ggplot2::geom_sf_label(
         data = curr_sf_for_map,
         aes(label = my_label_long),
-        size = label_text_size,
+        size = label_text_size - smaller_size,
         fill = "lightgrey"
       )
     
@@ -526,7 +528,9 @@ map_plot <-
   }
 
 all_sa_permitted_map <-
-  map_plot(shp_file_with_cnts_list$`2023 sa_only`, states_sf)
+  map_plot(shp_file_with_cnts_list$`2023 sa_only`, 
+           states_sf,
+           smaller_size = 2)
 
 all_sa_permitted_map
 
