@@ -109,6 +109,11 @@ vessel_by_state_cnt <-
  #  ..$ state_fixed           : chr [1:2178] "FL" "VA" "NC" "NJ" ...
  #  ..$ n                     : int [1:2178] 1166 45 374 45 1166 1166 45 1166 1166 1166 ...
 
+ # $ 2023 sa_only : tibble [2,145 × 3] (S3: tbl_df/tbl/data.frame)
+ #  ..$ vessel_official_number: chr [1:2145] "1000164" "1000241" "1020057" "1020529" ...
+ #  ..$ state_fixed           : chr [1:2145] "FL" "NJ" "NC" "MD" ...
+ #  ..$ total_vsl_by_state_cnt: int [1:2145] 1206 47 396 85 61 85 1206 1206 396 396 ...
+
 # rm(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt)
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list |>
@@ -121,9 +126,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
       arrange(vessel_official_number, state_fixed, total_vsl_by_state_cnt)
   })
 
-# diffdf::diffdf(vessel_by_state_cnt$`2023 sa_only`,
-#                vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only`)
-
 ## check ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
   filter(state_fixed == "FL") |>
@@ -132,20 +134,33 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
   nrow()
 # [1] 1166
 # 1226
+# 1206 ?
 
 # vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
 #   filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> View()
   
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
   select(state_fixed, total_vsl_by_state_cnt) |>
+  distinct() |> 
   glimpse()
 # Rows: 22
 # Columns: 2
 # $ state_fixed            <chr> "FL", "VA", "NC", "NJ", "MD", "SC", "DE", "GA", "N…
 # $ total_vsl_by_state_cnt <int> 1166, 45, 374, 45, 78, 189, 41, 59, 112, 14, 8, 16…
+ 
+# Rows: 21
+# Columns: 2
+# $ state_fixed            <chr> "FL", "NJ", "NC", "MD", "GA", "SC", "VA", "DE", "T…
+# $ total_vsl_by_state_cnt <int> 1206, 47, 396, 85, 61, 191, 47, 45, 16, 11, 14, 4,…
 
-# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]]$state_fixed |> unique() |> length()
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]]$state_fixed |> unique() |> length()
 # 22  
+# 21
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |> 
+  select(state_fixed) |> 
+  distinct() |> 
+  View()
 
 # combine compliance by year ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide <-
