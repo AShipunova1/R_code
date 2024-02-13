@@ -699,7 +699,6 @@ shp_file_with_cnts_list$`2023 sa_only` |>
 # 2178-1911
 # lost 267
 
-# 2) 
 # Where is the loss?
 shp_file_with_cnts_list <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels |>
@@ -711,11 +710,12 @@ shp_file_with_cnts_list <-
                           state_fixed))
   })
 
-shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> sum()
-# [1] 1788
 
-shp_file_with_cnts_list$`2023 sa_only`$total_vsl_by_state_cnt |> sum()
-# 1818
+# shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> sum()
+# # [1] 1788
+# 
+# shp_file_with_cnts_list$`2023 sa_only`$total_vsl_by_state_cnt |> sum()
+# # 1818
 
 # Total Vessels With SA Only
 # 2,207
@@ -730,17 +730,17 @@ shp_file_with_cnts_list$`2023 sa_only`$total_vsl_by_state_cnt |> sum()
 # processed_metrics_permit_info |>
 #   count(permit_sa_gom_dual)
 
-compl_metric_permit_sa_2023 <- 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list$`2023 sa_only` |>
-  filter(permit_sa_gom_dual == "sa_only",
-         year == "2023")
+# compl_metric_permit_sa_2023 <- 
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list$`2023 sa_only` |>
+#   filter(permit_sa_gom_dual == "sa_only",
+#          year == "2023")
 
-compl_metric_permit_sa_2023 |>
-  mutate(vsl_cnt = n_distinct(vessel_official_number)) |>
-  select(vsl_cnt) |>
-  distinct() |> 
-  glimpse()
-# 2145
+# compl_metric_permit_sa_2023 |>
+#   mutate(vsl_cnt = n_distinct(vessel_official_number)) |>
+#   select(vsl_cnt) |>
+#   distinct() |> 
+#   glimpse()
+# # 2145
 
 # no port
 # compl_metric_permit_sa_2023 |>
@@ -748,50 +748,50 @@ compl_metric_permit_sa_2023 |>
 # glimpse()
 # [1] 158   6
 
-all_sa_23_states_cnts <-
-  vessel_by_state_cnt$`2023 sa_only` |>
-  select(state_fixed, total_vsl_by_state_cnt) |>
-  distinct() |>
-  mutate(tot_cnts = sum(total_vsl_by_state_cnt))
+# all_sa_23_states_cnts <-
+#   vessel_by_state_cnt$`2023 sa_only` |>
+#   select(state_fixed, total_vsl_by_state_cnt) |>
+#   distinct() |>
+#   mutate(tot_cnts = sum(total_vsl_by_state_cnt))
+# # # 2178
+# 
+# # write_csv(
+# #   all_sa_23_states_cnts,
+# #   file.path(current_output_dir,
+# #             "all_sa_23_states_cnts.csv")
+# # )
+# 
+# # 3) Vessels having trips with correct (or fixed) coordinates, including SA permitted vessels with trips in states other than the 4 SA states:
+# # 1818
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
+#   select(state_fixed, total_vsl_by_state_cnt) |>
+#   distinct() |>
+#   mutate(all_csls = sum(total_vsl_by_state_cnt)) |>
+#   glimpse()
 # # 2178
-
-# write_csv(
-#   all_sa_23_states_cnts,
-#   file.path(current_output_dir,
-#             "all_sa_23_states_cnts.csv")
-# )
-
-# 3) Vessels having trips with correct (or fixed) coordinates, including SA permitted vessels with trips in states other than the 4 SA states:
-# 1818
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
-  select(state_fixed, total_vsl_by_state_cnt) |>
-  distinct() |>
-  mutate(all_csls = sum(total_vsl_by_state_cnt)) |>
-  glimpse()
-# 2178
-
-# 172
-
-# 4) Vessels with trips in 4 SA states only:
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
-    select(state_fixed, total_vsl_by_state_cnt) |>
-    distinct() |> 
-    filter(state_fixed %in% c("FL", "GA", "NC", "SC")) |> 
-      mutate(tot_cnts = sum(total_vsl_by_state_cnt)) |> 
-    glimpse()
-# $ state_fixed            <chr> "GA", "FL", "NC", "SC"
-# $ total_vsl_by_state_cnt <int> 59, 1166, 374, 189
-# $ tot_cnts               <int> 1788, 1788, 1788, 1788
-# 1788
-# 1879
-
-# About 88% of all SA only permitted vessels in 2023 are on this map.
-# 1879/2145*100
-# 87.59907
-
-# 12% lost
-# 2145-1879
-# 266
-
-# *) check where are they home ports
-# 266
+# 
+# # 172
+# 
+# # 4) Vessels with trips in 4 SA states only:
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
+#     select(state_fixed, total_vsl_by_state_cnt) |>
+#     distinct() |> 
+#     filter(state_fixed %in% c("FL", "GA", "NC", "SC")) |> 
+#       mutate(tot_cnts = sum(total_vsl_by_state_cnt)) |> 
+#     glimpse()
+# # $ state_fixed            <chr> "GA", "FL", "NC", "SC"
+# # $ total_vsl_by_state_cnt <int> 59, 1166, 374, 189
+# # $ tot_cnts               <int> 1788, 1788, 1788, 1788
+# # 1788
+# # 1879
+# 
+# # About 88% of all SA only permitted vessels in 2023 are on this map.
+# # 1879/2145*100
+# # 87.59907
+# 
+# # 12% lost
+# # 2145-1879
+# # 266
+# 
+# # *) check where are they home ports
+# # 266
