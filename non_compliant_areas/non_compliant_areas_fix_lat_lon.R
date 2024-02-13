@@ -438,17 +438,8 @@ vessels_from_pims_double_bind <-
   distinct() |> 
   rename("hailing_port_2" = hailing_port)
 
-# View(vessels_from_pims_double_bind)
-
-# na_vessel_states <-
-#   vessel_by_state_cnt$`2023 sa_only` |>
-#   filter(state_fixed == "NA" | is.na(state_fixed)) |>
-#   select(vessel_official_number) |>
-#   distinct()
-
-# nrow(na_vessel_states)
-# 112
-# 0 (fixed)
+dim(vessels_from_pims_double_bind)
+# 1205 2
 
 # write_csv(
 #   na_vessel_states,
@@ -476,20 +467,43 @@ vessels_from_pims_double_bind <-
 # $ city_fixed              <chr> "NA", "NA"
 # $ state_fixed             <chr> "NA", "NA"
 
+# clean addresses ----
+vessels_from_pims_double_bind__city_state <-
+  vessels_from_pims_double_bind |>
+  mutate(city_state =
+           str_replace(hailing_port_2, " *, *", "#"))
+
+vessels_from_pims_double_bind__city_state__fixed <-
+  vessels_from_pims_double_bind__city_state |>
+  rowwise() |>
+  mutate(city_state_fixed =
+           if (city_state %in% wrong_port_addr)
+             get_correct_addr_by_wrong(city_state)
+         else
+           city_state) |>
+  ungroup() |>
+  tidyr::separate_wider_delim(city_state_fixed,
+                              delim = "#",
+                              names = c("city_fixed",
+                                        "state_fixed")) |> 
+  distinct()
+
+glimpse(vessels_from_pims_double_bind__city_state__fixed)
+# 1205
+
 ## add more home ports ----
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 <-
   left_join(
     compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2,
-    vessels_from_pims_double_bind
+    vessels_from_pims_double_bind__city_state__fixed,
+    join_by(vessel_official_number)
   )
-# ℹ Row 5499 of `x` matches multiple rows in `y`.
-# ℹ Row 180 of `y` matches multiple rows in `x`.
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2[5499,]$vessel_official_number
 # [1] "563752"
 
-vessels_from_pims_double_bind |> 
+vessels_from_pims_double_bind__city_state__fixed |> 
   filter(vessel_official_number == "563752") |> 
   glimpse()
 # 563752
