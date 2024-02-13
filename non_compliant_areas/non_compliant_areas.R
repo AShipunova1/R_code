@@ -613,6 +613,21 @@ output_file_name <-
 
 # Get numbers of all SA permitted vessels in 2023 ----
 
+## 1) metrics tracking ----
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list
+processed_metrics_tracking_permits_2023 <-
+  processed_metrics_tracking_permits |>
+  filter(end_date >= my_beginning2 &
+           effective_date <= my_end2) 
+min(processed_metrics_tracking_permits_2023$effective_date)
+# [1] "2006-02-28"
+max(processed_metrics_tracking_permits_2023$effective_date)
+# [1] "2023-12-29"
+min(processed_metrics_tracking_permits_2023$end_date)
+# [1] "2023-01-03"
+max(processed_metrics_tracking_permits_2023$end_date)
+# [1] "2025-06-30"
+
 processed_metrics_tracking_permits_2023_short <- 
   processed_metrics_tracking_permits_2023 |> 
   select(vessel_official_number,
@@ -623,13 +638,15 @@ processed_metrics_tracking_permits_2023_short |>
   group_by(permit_sa_gom_dual) |> 
   mutate(count_vessels_by_permit = n_distinct(vessel_official_number)) |> 
   select(-vessel_official_number) |> 
-  distinct()
+  distinct() |>
+  arrange(permit_sa_gom_dual)
 
 #   permit_sa_gom_dual count_vessels_by_permit
 #   <chr>                                <int>
 # 1 gom_only                              1130
 # 2 dual                                   310
 # 3 sa_only                               2167
+
 
 shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> sum()
 # [1] 1788
