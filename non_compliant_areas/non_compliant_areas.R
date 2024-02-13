@@ -455,6 +455,15 @@ get_color_palette <-
     return(my_palette)
   }
 
+## get boundaries
+# from south_east_coast_states_shp_bb
+get_my_bb <- function(my_sf) {
+  shp_file_with_cnts_list_bbox <-
+    sf::st_bbox(my_sf)
+  
+  return(shp_file_with_cnts_list_bbox)
+}
+
 sa_state_proportion_indexes <-
   shp_file_with_cnts_list_sa_only_23 |>
   sf::st_drop_geometry() |>
