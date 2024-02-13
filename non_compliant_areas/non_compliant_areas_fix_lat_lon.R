@@ -157,6 +157,8 @@ to_fix_list <-
       "OCEAN CITY#MD"),
     c("POINT PLEASANT NJ#NJ",
       "POINT PLEASANT#NJ"),
+    c("PORT AERANSAS#TX",
+      "PORT ARANSAS#TX"),
     c("PORT CANVERAL#FL",
       "PORT CANAVERAL#FL"),
     c("PORT O CANNOR#TX",
