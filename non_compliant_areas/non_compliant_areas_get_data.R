@@ -208,23 +208,15 @@ dim(compl_clean_sa_vs_gom_m_int_c_short)
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
 
 get_vessel_data_pims <-
-  function() {
-  vessel_names_file_path =
-    file.path(my_paths$inputs,
-              r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
+  function(vessel_names_file_path,
+           to_skip = 3) {
 
-# get_vessel_data_pims <-
-#   function() {
-#   vessel_names_file_path =
-#     file.path(my_paths$inputs,
-#               r"(non_compliant_areas\Vessels - 2024-02-12_1633.xlsx)")
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\non_compliant_areas\Vessels - 2024-02-12_1633.xlsx"
-  
   # file.exists(vessel_names_file_path)
 
   vessels_from_pims_raw <-
-    read_xlsx(vessel_names_file_path)
-  # , skip = 3
+    read_xlsx(vessel_names_file_path,
+    skip = to_skip)
+  
 
   dim(vessels_from_pims_raw)
 # [1] 23036     8
@@ -239,26 +231,40 @@ get_vessel_data_pims <-
   return(vessels_from_pims)
   }
 
-vessels_from_pims <- get_vessel_data_pims()
+vessel_data_pims_double_address <-
+    file.path(my_paths$inputs,
+              r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
+
+vessel_names_file_path <- 
+    file.path(my_paths$inputs,
+              r"(non_compliant_areas\Vessels - 2024-02-12_1633.xlsx)")
+
+vessels_from_pims <- get_vessel_data_pims(vessel_names_file_path)
+
+vessels_from_pims_double <- 
+  get_vessel_data_pims(vessel_data_pims_double_address,
+                       to_skip = 0)
 
 dim(vessels_from_pims)
 # [1] 23036     8
 # [1] 23059     8
+
+dim(vessels_from_pims_double)
 # [1] 652   3
 
-names(vessels_from_pims)
+names(vessels_from_pims_double)
 # [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"           
 
 ## shorten info from PIMS ----
 # print_df_names(vessels_from_pims)
-# vessels_from_pims_short <-
-#   vessels_from_pims |>
-#   rename("vessel_official_number" = official__) |>
-#   select(vessel_official_number,
-#          hailing_port) |>
-#   distinct()
-# 
-# dim(vessels_from_pims_short)
+vessels_from_pims_short <-
+  vessels_from_pims |>
+  rename("vessel_official_number" = official__) |>
+  select(vessel_official_number,
+         hailing_port) |>
+  distinct()
+
+dim(vessels_from_pims_short)
 # [1] 22819     2
 # 22842     
 
@@ -306,12 +312,13 @@ compl_err_db_data_metrics <-
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 2744 of `y` matches multiple rows in `x`.
 
-dim(compl_err_db_data_metrics)
+View(compl_err_db_data_metrics)
 # [1] 408454     31
 # [1] 411980     31 2023
 # [1] 535393     30
 # [1] 16450    11
 # [1] 535382     13 w weeks
+# [1] 265310     13 
 
 # keep 2022 and 20233 only ----
 # print_df_names(compl_err_db_data_metrics)
@@ -325,14 +332,15 @@ dim(compl_err_db_data_metrics_2022_23)
 # [1] 145261     31
 # [1] 146434     31 2023
 # 535323     both
+# [1] 265306     13
 
-# min(compl_err_db_data_metrics_2022_23$week_start)
+min(compl_err_db_data_metrics_2022_23$week_start)
 # [1] "2022-01-03"
-# min(compl_err_db_data_metrics_2022_23$week_end)
+min(compl_err_db_data_metrics_2022_23$week_end)
 # [1] "2022-01-09"
-# max(compl_err_db_data_metrics_2022_23$week_start)
+max(compl_err_db_data_metrics_2022_23$week_start)
 # [1] "2023-12-25"
-# max(compl_err_db_data_metrics_2022_23$week_end)
+max(compl_err_db_data_metrics_2022_23$week_end)
 # [1] "2023-12-31"
 
 compl_err_db_data_metrics |>
@@ -370,6 +378,16 @@ compl_err_db_data_metrics_2022_23_clean <-
 
 dim(compl_err_db_data_metrics_2022_23)
 # [1] 535323     13
+# [1] 265306     13
+
+n_distinct(compl_err_db_data_metrics_2022_23$vessel_official_number)
+# 3375
+compl_err_db_data_metrics_2022_23 |> 
+  filter(permit_sa_gom_dual == "sa_only") |> 
+  select(vessel_official_number) |> 
+  distinct() |> 
+  nrow()
+# 2145
 
 dim(compl_err_db_data_metrics_2022_23_clean)
 # [1] 145261     29
@@ -377,15 +395,22 @@ dim(compl_err_db_data_metrics_2022_23_clean)
 # [1] 496101     30
 # [1] 14933    11 no weeks
 # [1] 9559    9 no permit dates
+# [1] 8124    9
 
-# compl_err_db_data_metrics_2022_23_clean |> View()
+compl_err_db_data_metrics_2022_23_clean |> 
+  filter(permit_sa_gom_dual == "sa_only") |> 
+  select(vessel_official_number) |> 
+  distinct() |> 
+  nrow()
+# 2145
 
 n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 # 3473
 # 3377 2023
 # 4017 both
+# 3375
 
-# Add home port info to compl_err_db_data_metrics_2022_23_clean
+# Add more home port info to compl_err_db_data_metrics_2022_23_clean ----
 # print_df_names(compl_err_db_data_metrics_2022_23_clean)
 # vessel_official_number
 # print_df_names(vessels_from_pims_short)
