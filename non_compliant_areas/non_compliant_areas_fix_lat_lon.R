@@ -518,25 +518,23 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
 # vessels_from_pims_short__na_vessel_states_bind
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports |>
-  tidyr::separate_wider_delim(
-    hailing_port_2,
-    delim = ",",
-    names = c("city2", "state2"),
-    too_many = "drop"
-  ) |>
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
   mutate(across(where(is.character), str_trim)) |>
   mutate(state_fixed1 =
-           case_when((is.na(state_fixed) | state_fixed == "NA") &
-                       !is.na(state2) ~
-                       state2,
-                     .default = state_fixed))
+           case_when((is.na(state_fixed.orig) | state_fixed.orig == "NA") &
+                       !is.na(state_fixed.double_names) ~
+                       state_fixed.double_names,
+                     .default = state_fixed.orig
+           ))
 
 # View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1)
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |> 
+  filter(!state_fixed.orig == state_fixed1) |> 
+  glimpse()
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
-  select(-state_fixed) |>
+  select(-state_fixed.orig) |>
   rename("state_fixed" = state_fixed1)
 
 # compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports
