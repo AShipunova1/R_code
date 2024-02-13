@@ -691,6 +691,13 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   # mutate(sum(total_vsl_by_state_cnt)) same result
 # 2178
 
+# 4) join with south_east_coast_states_shp
+shp_file_with_cnts_list$`2023 sa_only` |> 
+  sf::st_drop_geometry() |>
+  count(wt = total_vsl_by_state_cnt)
+# 1911
+# 2178-1911
+# lost 267
 
 # 2) 
 
