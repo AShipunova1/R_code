@@ -649,23 +649,6 @@ all_sa_23_states_cnts <-
 #             "all_sa_23_states_cnts.csv")
 # )
 
-na_vessel_states <-
-  vessel_by_state_cnt$`2023 sa_only` |>
-  filter(state_fixed == "NA" | is.na(state_fixed)) |>
-  select(vessel_official_number) |>
-  distinct()
-
-nrow(na_vessel_states)
-# 112
-# 0 (fixed)
-
-write_csv(
-  na_vessel_states,
-  file.path(current_output_dir,
-            "na_vessel_states.csv")
-)
-
-
 # 3) Vessels having trips with correct (or fixed) coordinates, including SA permitted vessels with trips in states other than the 4 SA states:
 # 1818
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
