@@ -614,6 +614,8 @@ output_file_name <-
 # Get numbers of all SA permitted vessels in 2023 ----
 
 ## 1) metrics tracking ----
+# Total Vessels With SA Only 2,207 (website)
+
 # compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list
 processed_metrics_tracking_permits_2023 <-
   processed_metrics_tracking_permits |>
@@ -672,16 +674,34 @@ vessls_in_compl__metr <-
 dim(vessls_in_compl__metr)
 # 2178 1
 
-setdiff(vessls_in_metrics$vessel_official_number, 
-        vessls_in_compl__metr$vessel_official_number)
+vsls_in_metrics_only <-
+  setdiff(
+    vessls_in_metrics$vessel_official_number,
+    vessls_in_compl__metr$vessel_official_number
+  )
+cat(vsls_in_metrics_only, sep = ", ")
+# NC1075EA, 644342, FL4491NW, 697962, 1316517, 1299900, 1301119
+# no compliance reports, but are in logbooks
 
-# [1] "NC1075EA" "644342"   "FL4491NW" "697962"   "1316517"  "1299900"  "1301119" 
+# compl_clean_sa_vs_gom_m_int_c |> 
+#   filter(vessel_official_number %in% vsls_in_metrics_only) |> 
+#   View()
+# 0
 
-setdiff(vessls_in_compl__metr$vessel_official_number,
-        vessls_in_metrics$vessel_official_number)
-#  [1] "517238"   "FL8312PA" "936388"   "FL4650HK" "1064042"  "FL9242GM" "982351"  
-#  [8] "906483"   "1293629"  "1209015"  "1207188"  "FL9793RU" "1320533"  "1078789" 
-# [15] "1061382"  "974323"   "523112"   "FL3860SK"
+vsls_in_compl_metrics_only <-
+  setdiff(
+    vessls_in_compl__metr$vessel_official_number,
+    vessls_in_metrics$vessel_official_number
+  )
+cat(vsls_in_compl_metrics_only, sep = ", ")
+# 517238, FL8312PA, 936388, FL4650HK, 1064042, FL9242GM, 982351, 906483, 1293629, 1209015, 1207188, FL9793RU, 1320533, 1078789, 1061382, 974323, 523112, FL3860SK
+
+# 1078789, FL3860SK in metrics on the website, no SA permit
+
+compl_err_db_data_metrics_2022_23_clean__ports |>
+  # filter(vessel_official_number %in% vsls_in_compl_metrics_only) |>
+    filter(vessel_official_number %in% c("1078789", "FL3860SK")) |>
+  View()
 
 ## 3) before plotting ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc$`2023 sa_only` |> 
