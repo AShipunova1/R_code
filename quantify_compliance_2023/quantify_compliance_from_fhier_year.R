@@ -453,7 +453,7 @@ gg_all_c_vs_nc_plots <-
             is_compliant = "compl_or_not",
             percent = "perc_c_or_not",
             no_legend = TRUE,
-            legend_labels = c("Compliant", "Not Compliant")
+            legend_labels = c("Compliant", "Non Compliant")
           )
         
         return(one_plot)
