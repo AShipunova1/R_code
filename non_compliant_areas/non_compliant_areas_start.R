@@ -775,6 +775,15 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   # mutate(sum(total_vsl_by_state_cnt)) same result
 # 2178
 
+### States not used in the map ----
+all_states_cnts <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels$`2023 sa_only` |>
+  select(state_fixed,
+         total_vsl_by_state_cnt) |>
+  distinct()
+
+# "NJ" "MD" "VA" "DE" "NY" "MA" "AK" "RI" "PA" "NH" "CO"
+
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc$`2023 sa_only` |>
   filter(state_fixed %in%
            states_not_is_sa) |>
