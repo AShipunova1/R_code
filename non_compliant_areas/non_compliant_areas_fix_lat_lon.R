@@ -369,6 +369,14 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
   glimpse()
 
 ## replace duplicated values ----
+# Explanations:
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2' is created by:
+# 1. Updating 'city_fixed' and 'state_fixed' columns based on conditions using 'case_when':
+#     - If 'city_fixed1' is not NA, update 'city_fixed' with 'city_fixed1'; otherwise, keep the existing value in 'city_fixed'.
+#     - If 'state_fixed1' is not NA, update 'state_fixed' with 'state_fixed1'; otherwise, keep the existing value in 'state_fixed'.
+# 2. Filtering rows where 'vessel_official_number' is not in 'both' or 'state_fixed1' is not missing.
+# 3. Selecting all columns except "city_fixed1" and "state_fixed1".
+# 4. Keeping only distinct rows in the final result to avoid duplications.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
   mutate(
@@ -385,7 +393,6 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 <-
   distinct()
 
 dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2)
-# [1] 3392    7
 # [1] 9362   10
 
 # check
@@ -403,17 +410,13 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
   glimpse()
 # 5
 
-# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2)
-
 ## no address ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
   filter(is.na(city))
 
 nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
-# 201
-# 463
-# 431
+# 467
 
 # write_csv(
 #   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr,
@@ -422,12 +425,11 @@ nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
 #             "no_addr.csv")
 # )
 
-# vessels_from_pims |> 
+# vessels_from_pims |>
 #   filter(official__ == "504660")
 # not in pims vessels
 
 # vessels with NA fixed state in vessels_from_pims_double ----
-# print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
 
 names(vessels_from_pims_double)
 # [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"           
@@ -436,6 +438,7 @@ names(vessels_from_pims_double)
 # 652
 
 ## make one column of double names ----
+### split into 2 dataframes and rename the id column ----
 vessels_from_pims_double_1 <-
   vessels_from_pims_double |>
   select(vessel_official_number1, hailing_port) |>
@@ -446,6 +449,7 @@ vessels_from_pims_double_2 <-
   select(vessel_official_number2, hailing_port) |> 
   rename("vessel_official_number" = vessel_official_number2)
 
+### combine in one df ----
 vessels_from_pims_double_bind <-
   rbind(
     vessels_from_pims_double_1,
@@ -468,9 +472,10 @@ dim(vessels_from_pims_double_bind)
 #   filter(vessel_official_number %in% compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number) |> 
 #   distinct()
 
-# dim(vessels_from_pims_double_bind)
-# 201 2
+dim(vessels_from_pims_double_bind)
+# 1205    2
 
+# check
 # vessels_from_pims_double_short__na_vessel_states |>
 #   filter(vessel_official_number == "1173297")
 # 1 1173297                CAROLINA BEACH, NC
@@ -484,11 +489,18 @@ dim(vessels_from_pims_double_bind)
 # $ state_fixed             <chr> "NA", "NA"
 
 ## clean addresses ----
+# Explanations:
+# Creating a new column 'city_state' by replacing commas in 'hailing_port_2' with '#' using 'str_replace'.
 vessels_from_pims_double_bind__city_state <-
   vessels_from_pims_double_bind |>
   mutate(city_state =
            str_replace(hailing_port_2, " *, *", "#"))
 
+# Explanations:
+# The variable 'vessels_from_pims_double_bind__city_state__fixed' is created by:
+# 1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
+# 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
+# 3. Keeping only distinct rows in the final result to avoid duplications.
 vessels_from_pims_double_bind__city_state__fixed <-
   vessels_from_pims_double_bind__city_state |>
   rowwise() |>
@@ -501,10 +513,10 @@ vessels_from_pims_double_bind__city_state__fixed <-
   tidyr::separate_wider_delim(city_state_fixed,
                               delim = "#",
                               names = c("city_fixed",
-                                        "state_fixed")) |> 
+                                        "state_fixed")) |>
   distinct()
 
-glimpse(vessels_from_pims_double_bind__city_state__fixed)
+# glimpse(vessels_from_pims_double_bind__city_state__fixed)
 # 1205
 
 ## unique fixed double names ----
@@ -512,59 +524,74 @@ vessels_from_pims_double_bind__city_state__fixed_1 <-
   vessels_from_pims_double_bind__city_state__fixed |>
   select(-c(hailing_port_2, city_state)) |>
   distinct()
+
 nrow(vessels_from_pims_double_bind__city_state__fixed_1)
 # 1202
 
 ## add more home ports ----
+# Explanations:
+# 1. Joining two data frames ('compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2' and 'vessels_from_pims_double_bind__city_state__fixed_1') on 'vessel_official_number'.
+# 2. Adding suffixes '.orig' and '.double_names' to the overlapping column names from the original and double names data frames.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 <-
   left_join(
     compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2,
     vessels_from_pims_double_bind__city_state__fixed_1,
     join_by(vessel_official_number),
     suffix = c(".orig", ".double_names")
-
   )
 
-# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3)
-# check ----
+# dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3)
+# [1] 9362   12
+
+# check
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
   filter(vessel_official_number == "563752") |>
   glimpse()
 
-# vessels_from_pims_short__na_vessel_states_bind
-
+### Combine state fixed names ----
+# Explanations:
+# 1. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
+# 2. Creating a new column 'state_fixed1' based on conditions using 'case_when':
+#     - If 'state_fixed.orig' is NA or "NA" and 'state_fixed.double_names' is not NA, update 'state_fixed1' with 'state_fixed.double_names'.
+#     - Otherwise, keep the existing value in 'state_fixed.orig'.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
   mutate(across(where(is.character), str_trim)) |>
   mutate(state_fixed1 =
-           case_when((is.na(state_fixed.orig) | state_fixed.orig == "NA") &
+           case_when((is.na(state_fixed.orig) |
+                        state_fixed.orig == "NA") &
                        !is.na(state_fixed.double_names) ~
                        state_fixed.double_names,
                      .default = state_fixed.orig
            ))
 
-# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1)
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |> 
   filter(!state_fixed.orig == state_fixed1) |> 
   glimpse()
+# $ city_state               <chr> "NA#NA", "NA#NA", "NA#NA", "NA#NA", "NA#NA", …
+# $ city_fixed.orig          <chr> "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA…
+# $ state_fixed.orig         <chr> "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA…
+# $ city_fixed.double_names  <chr> "FREEPORT", "FREEPORT", "WILMINGTON", "WILMIN…
+# $ state_fixed.double_names <chr> "TX", "TX", "DE", "DE", "DE", "MD", "MD", "MD…
+# $ state_fixed1             <chr> "TX", "TX", "DE", "DE", "DE", "MD", "MD", "MD…
 
+### rename the state column ----
+# Explanations:
+# 1. Removing the 'state_fixed.orig' column using 'select(-state_fixed.orig)'.
+# 2. Renaming the 'state_fixed1' column to 'state_fixed' using 'rename("state_fixed" = state_fixed1)'.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
   select(-state_fixed.orig) |>
   rename("state_fixed" = state_fixed1)
 
-# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports)
-
+# check
 dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports)
-# 8134 12
+# 9362   12
+
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
-  # glimpse()
   filter(year_permit_sa_gom_dual == "2023 sa_only") |> 
   filter(state_fixed == "NA" | is.na(state_fixed)) |> 
-  # select(vessel_official_number) |> 
-  # distinct() |> 
   nrow()
-# 2145
 # 0
 
 # Print results ----
