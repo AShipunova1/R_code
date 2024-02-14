@@ -79,7 +79,7 @@ fix_lat_lon_file_path <-
 source(fix_lat_lon_file_path)
 
 ## split by permit and year ----
-Explanations:
+# Explanations:
 # Splitting the data frame based on the levels of the 'year_permit_sa_gom_dual' factor.
 # The result is a list where each element contains data corresponding to a unique level of the factor.
 # This is achieved using the 'split' function in R.
@@ -271,7 +271,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   })
 
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not$`2023 sa_only`)
-# [1] 2145    7
+# [1] 2178    7
 
 # cnt vessel by state and compliance ----
 
@@ -320,7 +320,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 # fewer columns ----
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only`)
 # [1] 2178    8
-# [1] 2145    8
 
 # Explanations:
 # The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short' is created as a list.
@@ -339,7 +338,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   })
 
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short$`2023 sa_only`)
-# [1] 37  4
 # 35 4
 
 # add proportions ----
@@ -378,24 +376,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 # Maps ----
 ## map specific columns ----
 
-```R
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels <-
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc |>
-  purrr::map(\(curr_df) {
-
-    # 1. Filtering rows where 'compl_or_not' is 'non_compliant'.
-    # 2. Selecting specific columns: 'state_fixed', 'total_vsl_by_state_cnt', 'cnt_vsl_compl',
-    #    'non_compl_percent_per_st', and 'non_compl_proportion_per_st'.
-    # 3. Keeping only distinct rows based on the selected columns.
-    # 4. Adding new columns:
-    #    - 'nc_round_perc' representing the rounded percentage of non-compliant vessels per state.
-    #    - 'nc_round_proportion' representing the rounded proportion of non-compliant vessels per state.
-    #    - 'my_label_perc' representing a formatted label for percentage information.
-    #    - 'my_label_cnt' representing a formatted label for count information.
-    #    - 'my_label_long' representing a formatted label for both count and proportion information.
-
-  })
-```
 # Explanations:
 # The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels' is created as a list.
 # Each element is a modified data frame obtained by:
