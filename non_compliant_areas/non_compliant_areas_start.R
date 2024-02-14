@@ -51,6 +51,8 @@ current_output_dir <-
             current_project_basename)
 
 # dir.exists(current_output_dir)
+
+# Variables for the current year(s)
 my_year1 <- "2022"
 my_beginning1 <- str_glue("{my_year1}-01-01")
 my_end1 <- str_glue("{my_year1}-12-31")
@@ -68,7 +70,6 @@ get_data_file_path <-
 source(get_data_file_path)
 
 ## Fix ports ----
-
 fix_lat_lon_file_path <-
   file.path(my_paths$git_r,
             current_project_basename,
@@ -78,6 +79,14 @@ fix_lat_lon_file_path <-
 source(fix_lat_lon_file_path)
 
 ## split by permit and year ----
+Explanations:
+# Splitting the data frame based on the levels of the 'year_permit_sa_gom_dual' factor.
+# The result is a list where each element contains data corresponding to a unique level of the factor.
+# This is achieved using the 'split' function in R.
+
+# The newly created list 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list'
+# holds subsets of data grouped by levels of 'year_permit_sa_gom_dual'.
+
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
   split(
@@ -91,6 +100,17 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__li
 
 # vessel_by_state_cnt ----
 # rm(vessel_by_state_cnt)
+
+# Explanations:
+
+# 1. Using purrr::map function to iterate over each element (data frame) in the list
+#    'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list'.
+#    The provided function is applied to each data frame individually.
+# 2. Selecting specific columns 'vessel_official_number' and 'state_fixed' from the current data frame.
+# 3. Keeping only distinct rows based on the selected columns.
+# 4. Adding a new column 'total_vsl_by_state_cnt' representing the count of each unique 'state_fixed'.
+# 5. Sorting the resulting data frame based on 'vessel_official_number', 'state_fixed', and 'total_vsl_by_state_cnt'.
+
 vessel_by_state_cnt <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list |>
   purrr::map(\(curr_df) {
@@ -104,26 +124,27 @@ vessel_by_state_cnt <-
   })
 
 # vessel_by_state_cnt |> glimpse()
- # $ 2023 sa_only : tibble [2,178 × 3] (S3: tbl_df/tbl/data.frame)
- #  ..$ vessel_official_number: chr [1:2178] "684541" "641822" "992615" "1169835" ...
- #  ..$ state_fixed           : chr [1:2178] "FL" "VA" "NC" "NJ" ...
- #  ..$ n                     : int [1:2178] 1166 45 374 45 1166 1166 45 1166 1166 1166 ...
-
  # $ 2023 sa_only : tibble [2,145 × 3] (S3: tbl_df/tbl/data.frame)
  #  ..$ vessel_official_number: chr [1:2145] "1000164" "1000241" "1020057" "1020529" ...
  #  ..$ state_fixed           : chr [1:2145] "FL" "NJ" "NC" "MD" ...
  #  ..$ total_vsl_by_state_cnt: int [1:2145] 1206 47 396 85 61 85 1206 1206 396 396 ...
 
-# rm(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt)
+# Explanations:
+# 1. Grouping the current data frame by 'state_fixed'.
+# 2. Adding a new column 'total_vsl_by_state_cnt' representing the count of distinct 'vessel_official_number' for each state.
+# 3. Ungrouping the data frame to remove the grouping structure.
+# 4. Sorting the resulting data frame based on 'vessel_official_number', 'state_fixed', and 'total_vsl_by_state_cnt'.
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2__list |>
   purrr::map(\(curr_df) {
     curr_df |>
       group_by(state_fixed) |>
       mutate(total_vsl_by_state_cnt =
-               n_distinct(vessel_official_number)) |> 
-      ungroup() |> 
-      arrange(vessel_official_number, state_fixed, total_vsl_by_state_cnt)
+               n_distinct(vessel_official_number)) |>
+      ungroup() |>
+      arrange(vessel_official_number,
+              state_fixed,
+              total_vsl_by_state_cnt)
   })
 
 ## check ----
@@ -134,7 +155,6 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
   nrow()
 # [1] 1166
 # 1226
-# 1206 ?
 
 # vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |>
 #   filter(vessel_official_number %in% c("684541", "641822", "992615", "1169835")) |> View()
@@ -143,18 +163,8 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
   select(state_fixed, total_vsl_by_state_cnt) |>
   distinct() |> 
   glimpse()
-# Rows: 22
-# Columns: 2
-# $ state_fixed            <chr> "FL", "VA", "NC", "NJ", "MD", "SC", "DE", "GA", "N…
-# $ total_vsl_by_state_cnt <int> 1166, 45, 374, 45, 78, 189, 41, 59, 112, 14, 8, 16…
- 
-# Rows: 21
-# Columns: 2
-# $ state_fixed            <chr> "FL", "NJ", "NC", "MD", "GA", "SC", "VA", "DE", "T…
-# $ total_vsl_by_state_cnt <int> 1206, 47, 396, 85, 61, 191, 47, 45, 16, 11, 14, 4,…
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]]$state_fixed |> unique() |> length()
-# 22  
 # 21
 
 # vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |> 
@@ -163,6 +173,13 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
 #   View()
 
 # combine compliance by year ----
+# Explanations:
+# The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide' is created as a list.
+# Each element is a modified data frame obtained by:
+# 1. Selecting specific columns: 'vessel_official_number', 'year', 'permit_sa_gom_dual', 'year_permit_sa_gom_dual', 'compliant_',
+#    'total_vsl_by_state_cnt', and 'state_fixed' from the current data frame.
+# 2. Keeping only distinct rows based on the selected columns.
+# 3. Applying the 'get_compl_by' function to calculate compliance using 'group_by_for_compl' for each data frame in the original list.
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt |>
   purrr::map(\(curr_df) {
@@ -214,6 +231,10 @@ cols_names <-
     "state_fixed"
     )
 
+# Explanations:
+# The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long' is created as a list.
+# Each element is a modified data frame obtained by:
+# 1. Applying the 'compl__back_to_longer_format' function to transform the data frame to a longer format using the specified column names in 'cols_names' for each data frame in the original list.
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide |>
   purrr::map(\(curr_df) {
@@ -230,6 +251,12 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 # $ is_compl_or_both        <chr> NA, NA, "YES", NA, "YES", NA, NA, NA, NA, NA, NA,…
 
 ## compl_or_not ----
+# Explanations:
+# The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not' is created as a list.
+# Each element is a modified data frame obtained by:
+# 1. Filtering rows where 'is_compl_or_both' has complete cases (not an NA).
+# 2. Adding a new column 'compl_or_not' based on the values of 'is_compl_or_both': If 'YES', set to 'compliant'; otherwise, set to 'non_compliant'.
+# 3. Removing the 'is_compl_or_both' column from the data frame for each data frame in the original list.
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long |>
@@ -259,14 +286,20 @@ group_by_col <-
     "compl_or_not"
   )
 
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt <- 
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not |> 
-    purrr::map(\(curr_df) {
-  add_cnt_in_gr(curr_df,
-           group_by_col,
-           cnt_col_name = "cnt_vsl_compl")
-    })
+# Explanations:
+# The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt' is created as a list.
+# Each element is a modified data frame obtained by:
+# 
+# Applying the 'add_cnt_in_gr' function to add a new column 'cnt_vsl_compl' representing the count of 'compliant' vessels within each group specified by 'group_by_col' for each data frame in the original list.
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not |>
+  purrr::map(\(curr_df) {
+    add_cnt_in_gr(curr_df,
+                  group_by_col,
+                  cnt_col_name = "cnt_vsl_compl")
+  })
 
+## check ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only` |> 
   select(state_fixed,
          total_vsl_by_state_cnt,
@@ -275,38 +308,25 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   distinct() |> 
   head()
 
-# 1 FL                            1166 compliant               424
-# 2 FL                            1166 non_compliant           742
-# 3 VA                              45 compliant                13
-# 4 VA                              45 non_compliant            32
-# 5 NC                             374 non_compliant           235
-# 6 NC                             374 compliant               139
-
-# 424+742
-# [1] 1166
-# ok
-
 # 1 FL                            1226 non_compliant           780
 # 2 FL                            1226 compliant               446
 # 3 NJ                              48 non_compliant            28
 # 4 NJ                              48 compliant                20
 # 5 NC                             399 compliant               154
 # 6 NC                             399 non_compliant           245
-# 780+446
+# 780+446 = 1226
 # ok
-
-# 1 FL                            1206 non_compliant           768
-# 2 FL                            1206 compliant               438
-# 3 NJ                              47 non_compliant            28
-# 4 NJ                              47 compliant                19
-# 5 NC                             396 compliant               154
-# 6 NC                             396 non_compliant           242
 
 # fewer columns ----
 dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only`)
 # [1] 2178    8
 # [1] 2145    8
 
+# Explanations:
+# The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short' is created as a list.
+# Each element is a modified data frame obtained by:
+# 1. Selecting specific columns: 'state_fixed', 'total_vsl_by_state_cnt', 'compl_or_not', and 'cnt_vsl_compl'.
+# 2. Keeping only distinct rows based on the selected columns for each data frame in the original list.
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt |>
   purrr::map(\(curr_df) {
@@ -323,6 +343,15 @@ dim(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_
 # 35 4
 
 # add proportions ----
+
+# Explanations:
+# The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc' is created as a list.
+# Each element is a modified data frame obtained by:
+# 1. Grouping the current data frame by 'state_fixed'.
+# 2. Adding new columns:
+#    - 'non_compl_proportion_per_st' representing the proportion of non-compliant vessels per state.
+#    - 'non_compl_percent_per_st' representing the percentage of non-compliant vessels per state.
+# 3. Ungrouping the data frame to remove the grouping structure for each data frame in the original list.
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short |>
   purrr::map(\(curr_df) {
@@ -339,15 +368,46 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   })
 
 # glimpse(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc)
-#   ..$ total_vsl_by_state_cnt     : int [1:37] 1166 1166 45 45 374 374 45 45 78 78 ...
-#   ..$ compl_or_not               : chr [1:37] "compliant" "non_compliant" "compliant" "non_compliant" ...
-#   ..$ cnt_vsl_compl              : int [1:37] 424 742 13 32 235 139 19 26 59 19 ...
-#   ..$ non_compl_proportion_per_st: num [1:37] 0.364 0.636 0.289 0.711 0.628 ...
-#   ..$ non_compl_percent_per_st   : num [1:37] 36.4 63.6 28.9 71.1 62.8 ...
+  # ..$ state_fixed                : chr [1:35] "FL" "FL" "NJ" "NJ" ...
+  # ..$ total_vsl_by_state_cnt     : int [1:35] 1226 1226 48 48 399 399 87 87 62 62 ...
+  # ..$ compl_or_not               : chr [1:35] "non_compliant" "compliant" "non_compliant" "compliant" ...
+  # ..$ cnt_vsl_compl              : int [1:35] 780 446 28 20 154 245 64 23 36 26 ...
+  # ..$ non_compl_proportion_per_st: num [1:35] 0.636 0.364 0.583 0.417 0.386 ...
+  # ..$ non_compl_percent_per_st   : num [1:35] 63.6 36.4 58.3 41.7 38.6 ...
 
 # Maps ----
 ## map specific columns ----
 
+```R
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc |>
+  purrr::map(\(curr_df) {
+
+    # 1. Filtering rows where 'compl_or_not' is 'non_compliant'.
+    # 2. Selecting specific columns: 'state_fixed', 'total_vsl_by_state_cnt', 'cnt_vsl_compl',
+    #    'non_compl_percent_per_st', and 'non_compl_proportion_per_st'.
+    # 3. Keeping only distinct rows based on the selected columns.
+    # 4. Adding new columns:
+    #    - 'nc_round_perc' representing the rounded percentage of non-compliant vessels per state.
+    #    - 'nc_round_proportion' representing the rounded proportion of non-compliant vessels per state.
+    #    - 'my_label_perc' representing a formatted label for percentage information.
+    #    - 'my_label_cnt' representing a formatted label for count information.
+    #    - 'my_label_long' representing a formatted label for both count and proportion information.
+
+  })
+```
+# Explanations:
+# The variable 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels' is created as a list.
+# Each element is a modified data frame obtained by:
+# 1. Filtering rows where 'compl_or_not' is 'non_compliant'.
+# 2. Selecting specific columns: 'state_fixed', 'total_vsl_by_state_cnt', 'cnt_vsl_compl', 'non_compl_percent_per_st', and 'non_compl_proportion_per_st'.
+# 3. Keeping only distinct rows based on the selected columns.
+# 4. Adding new columns:
+#    - 'nc_round_perc' representing the rounded percentage of non-compliant vessels per state.
+#    - 'nc_round_proportion' representing the rounded proportion of non-compliant vessels per state.
+#    - 'my_label_perc' representing a formatted label for percentage information.
+#    - 'my_label_cnt' representing a formatted label for count information.
+#    - 'my_label_long' representing a formatted label for both count and proportion information for each data frame in the original list.
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc |>
   purrr::map(\(curr_df) {
@@ -382,6 +442,11 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 
 ### add to the shape file by state name ----
 
+# Explanations:
+# The variable 'shp_file_with_cnts_list' is created as a list.
+# Each element is a modified data frame obtained by:
+# 1. Performing a left join between the 'south_east_coast_states_shp' data frame and the current data frame from the original list.
+# 2. Joining based on the condition 'STUSPS == state_fixed' for each data frame in the original list.
 shp_file_with_cnts_list <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels |>
   purrr::map(\(curr_df) {
@@ -401,10 +466,9 @@ shp_file_with_cnts_list <-
 # to add empty states to the map
 
 # Explanations:
-# The code creates an sf object 'states_sf' representing U.S. states:
-# - Use maps::map() to generate a map of U.S. states without plotting it.
-# - Convert the resulting map to an sf object using sf::st_as_sf().
-
+# The variable 'states_sf' is created by converting the map data for U.S. states obtained using the 'maps' package.
+# - `maps::map("state", plot = FALSE, fill = TRUE)`: Retrieves the map data for U.S. states with the option to fill polygons and disable plotting.
+# - `sf::st_as_sf()`: Converts the map data to a simple feature (sf) object for spatial operations.
 states_sf <-
   sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
 
@@ -422,29 +486,36 @@ states_sf <-
 # mapview(states_sf)
 
 ## Keep only SA states for SA only plots ----
+# Explanations:
+# The variable 'shp_file_with_cnts_list_sa_only_23' is created by:
+# 1. Extracting the '2023 sa_only' element from the 'shp_file_with_cnts_list' list.
+# 2. Filtering rows where the lowercase 'NAME' from this subset matches any lowercase entry in the 'sa' column of the predefined 'east_coast_states' data frame.
 shp_file_with_cnts_list_sa_only_23 <-
   shp_file_with_cnts_list$`2023 sa_only` |>
-  # filter(!is.na(state_fixed_full)) |>
   filter(tolower(NAME) %in% tolower(east_coast_states$sa))
+
+# filter(!is.na(state_fixed_full)) |>
 
 # View(shp_file_with_cnts_list_sa_only_23)
 # 4 19
 # $ STUSPS                      <chr> "GA", "FL", "SC", "NC"
 
 ## variables for plot sizes ----
-
 my_base_size = 18
 label_text_size <- 5
 # axis_text_size <- 4
 # title_text_size <- 4
 
 ## get color palette ----
-# Explanations:
-# The code defines a color palette 'mypalette' using the viridis package:
-# - Use the viridis::viridis() function to generate a color palette.
-# - Set the number of colors with 'len_colors'.
-# - Choose the "D" option for the color map.
 
+# Explanations:
+# The function 'get_color_palette' takes a spatial feature object ('my_sf') as input and performs the following steps:
+# 1. Extracts unique and non-na values of 'nc_round_proportion' from the input 'my_sf'.
+# 2. Arranges the values in ascending order.
+# 3. Determines the number of distinct values.
+# 4. Generates a color palette using the 'viridis' function with the specified number of colors.
+# 5. Assigns names to the palette based on 'nc_round_proportion' values.
+# 6. Returns the generated color palette.
 get_color_palette <- 
   function(my_sf) {
     
@@ -467,7 +538,11 @@ get_color_palette <-
   }
 
 ## get boundaries
-# from south_east_coast_states_shp_bb
+
+# Explanations:
+# The function 'get_my_bb' takes a spatial feature object ('my_sf') as input and performs the following steps:
+# 1. Extracts the bounding box (bbox) of the input spatial feature object 'my_sf'.
+# 2. Returns the extracted bbox.
 get_my_bb <- function(my_sf) {
   shp_file_with_cnts_list_bbox <-
     sf::st_bbox(my_sf)
@@ -475,6 +550,17 @@ get_my_bb <- function(my_sf) {
   return(shp_file_with_cnts_list_bbox)
 }
 
+# Explanations:
+# The function 'map_plot' generates a map with U.S. state boundaries and colors based on non-compliance proportions:
+# 1. Extracts the bounding box (bbox) of the input spatial feature object 'curr_sf_for_map'.
+# 2. Creates a base map with U.S. state boundaries.
+# 3. Adds the main map layer with fill based on 'nc_round_proportion'.
+# 4. Adds labels to the map using 'my_label_long'.
+# 5. Sets the coordinate limits for the plot based on the provided bounding box.
+# 6. Generates a color palette using the 'get_color_palette' function.
+# 7. Sets labels for the legend.
+# 8. Customizes the map appearance and legend.
+# 9. Returns the final map.
 map_plot <- 
   function(curr_sf_for_map, 
            states_sf,
@@ -539,7 +625,8 @@ map_plot <-
   }
 
 ## all_sa_permitted_map ----
-
+# Explanations:
+# The variable 'all_sa_permitted_map' is created by calling the 'map_plot' function with the '2023 sa_only' subset from 'shp_file_with_cnts_list', the 'states_sf' object, and a specified 'smaller_size' parameter. The resulting map represents non-compliance proportions for the specified year and region.
 all_sa_permitted_map <-
   map_plot(shp_file_with_cnts_list$`2023 sa_only`, 
            states_sf,
@@ -562,6 +649,9 @@ sa_states_only_sa_23_permitted_map <-
            states_sf)
 
 ## save plot to file function ----
+# Explanations:
+# The function 'write_png_to_file' takes parameters for output file name, map plot, PNG dimensions, and units, and performs the following steps:
+# 1. Saves the 'map_plot' to a PNG file using the 'ggsave' function with specified parameters like file name, plot, device, path, width, height, units, and dpi.
 write_png_to_file <- function(output_file_name,
                               map_plot,
                               png_width,
@@ -583,8 +673,11 @@ write_png_to_file <- function(output_file_name,
 
 # find the width and height in zoom / "inspect element"
 # src="plot_zoom_png?width=776&amp;height=600"
+output_file_name <-
+  str_glue("sa_states_sa_only_{my_year2}_permitted_perc_by_state_{today()}.png")
+
 write_png_to_file(
-  "sa_states_only_sa_23_permitted_map.png",
+  output_file_name,
   sa_states_only_sa_23_permitted_map,
   png_width = 5.50,
   png_height = 5.93
@@ -600,18 +693,7 @@ write_png_to_file(
   png_height = 4.05
 )
 
-## SA only ----
-permit_region <- "SA only"
-
-# doesn't fit for SA
-# sa_only_map_titled <-
-# sa_only_map +
-#   ggplot2::ggtitle(perc_plot_titles[["SA only"]])
-
-output_file_name <-
-  str_glue("sa_only_{my_year2}_perc_by_state_{today()}.png")
-
-# Get numbers of all SA permitted vessels in 2023 ----
+# Check numbers of all SA permitted vessels in 2023 ----
 
 ## 1) metrics tracking ----
 # Total Vessels With SA Only 2,207 (website)
@@ -698,10 +780,12 @@ cat(vsls_in_compl_metrics_only, sep = ", ")
 
 # 1078789, FL3860SK in metrics on the website, no SA permit
 
-compl_err_db_data_metrics_2022_23_clean__ports |>
-  # filter(vessel_official_number %in% vsls_in_compl_metrics_only) |>
-    filter(vessel_official_number %in% c("1078789", "FL3860SK")) |>
-  View()
+# compl_err_db_data_metrics_2022_23_clean__ports |>
+#   filter(vessel_official_number %in% vsls_in_compl_metrics_only) |>
+#   # filter(vessel_official_number %in% c("1078789", "FL3860SK")) |>
+#   filter(year == "2023") |>
+#   write_csv(file.path(current_output_dir,
+#                       "vsls_in_compl_metrics_only.csv"))
 
 ## 3) before plotting ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc$`2023 sa_only` |> 
@@ -779,58 +863,4 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
 # Not in SA states 
 # # *) check where are they home ports
 # # 266
-
-# OLD ----
-# 1) In Metric tracking on FHIER:
-# Total Vessels With SA Only
-# 2207
-# 
-compl_metric_permit_sa_2023 <-
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list$`2023 sa_only` |>
-  filter(permit_sa_gom_dual == "sa_only",
-         year == "2023")
-
-compl_metric_permit_sa_2023 |>
-  mutate(vsl_cnt = n_distinct(vessel_official_number)) |>
-  select(vsl_cnt) |>
-  distinct() |>
-  glimpse()
-# 2178
-
-# no port
-compl_metric_permit_sa_2023 |>
-     filter(is.na(hailing_port)) |>
-nrow()
-# 161
-
-all_sa_23_states_cnts <-
-  vessel_by_state_cnt$`2023 sa_only` |>
-  select(state_fixed, total_vsl_by_state_cnt) |>
-  distinct() |>
-  mutate(tot_cnts = sum(total_vsl_by_state_cnt))
-# 2178
- 
-# 3) Vessels having trips with correct (or fixed) coordinates, including SA permitted vessels with trips in states other than the 4 SA states:
-
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |>
-  select(state_fixed, total_vsl_by_state_cnt) |>
-  distinct() |>
-  mutate(all_csls = sum(total_vsl_by_state_cnt)) |>
-  glimpse()
-# # 2178
-
-# # 4) Vessels with trips in 4 SA states only:
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only` |> 
-    select(state_fixed, total_vsl_by_state_cnt) |>
-    distinct() |>
-    # filter(state_fixed %in% c("FL", "GA", "NC", "SC")) |>
-      mutate(tot_cnts = sum(total_vsl_by_state_cnt)) |>
-    glimpse()
-# 1879
-# 2178 all states
-# 2178-1879
-# 299
-
-# 1879/2178*100
-# 86.27181
 
