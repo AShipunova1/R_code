@@ -433,8 +433,12 @@ map(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list, dim)
 # [1] 3187    6  
   
 ## check vessel/compl counts ----
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list$`2023 sa_only`$compliant_
 
+# Explanations:
+# The code applies a series of operations to each data frame in 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list':
+# 1. Selects specific columns 'vessel_official_number' and 'compliant_' from the current data frame.
+# 2. Keeps only distinct rows based on the selected columns.
+# 3. Counts the occurrences of each level in the 'compliant_' column, providing a count of compliant and non-compliant instances for each vessel.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list |>
   map(\(curr_df) {
     curr_df |>
@@ -442,73 +446,20 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list |>
       dplyr::distinct() |>
       dplyr::count(compliant_)
   })
-# 2023
-# $dual
-# # A tibble: 2 × 2
-#   compliant_     n
-#     <int> <int>
-# 1       0   193
-# 2       1   241
-
-# 1 NO           235
-# 2 YES          301
-
-# 
-# $gom_only
-# # A tibble: 2 × 2
-#   compliant_     n
-#     <int> <int>
-# 1       0    15
-# 2       1   980
-# 1 NO            24
-# 2 YES         1142
-
-# $sa_only
-# # A tibble: 2 × 2
-#   compliant_     n
-#     <int> <int>
-# 1       0  1338
-# 2       1  1799
-
-# 1 NO          1363
-# 2 YES         1818
 
 map(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list,
     \(reg_df) {
       n_distinct(reg_df$vessel_official_number)
     })
 # 2023
-# $GOM
-# [1] 1232
-# 
-# $SA
-# [1] 2241
-# ---
-# $dual
-# [1] 251
-# 315
-
 # $gom_only
-# [1] 981
 # 1147
 
 # $sa_only
-# [1] 2145
 # 2178
-
-# Metrics:
-# Total Vessels  3,539
-# 3,513
-# Total Vessels With SA Only  2,211
-# 2,207
-# Total Vessels With GOM Permit Only  1,028
-# 1,026
-# Total Dual (SA & GOM) Permitted Vessels  300
-# 280
 
 # if compliance is checked for only when permit is active add:
 # comp_week_start_dt and comp_week_end_dt to select()
-# View(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
 
 setdiff(
   names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list[[1]]),
@@ -517,9 +468,6 @@ setdiff(
   )
 )
 # 0
-# TODO: Why?
-#   [1] "vessel_name"   "permits"       "sa_permits_"   "gom_permits_" 
-# [5] "permit_region"
 
 cat(
   c(
@@ -529,13 +477,6 @@ cat(
   ),
   sep = "\n"
 )
-
-# cat("Result to use for vessels home port and its permit region:",
-# "vessels_permits_home_port_22_reg_short",
-# "vessels_from_pims__vessels_from_metrics_short",
-# "To use all data from the db:",
-# "vessels_permits_home_port_short",
-# sep = "\n")
 
 # Map 'us_s_shp' using the 'tigris' package to obtain U.S. state shapes. ----
 # The 'cb = TRUE' parameter specifies that you want the U.S. state boundaries.
@@ -575,6 +516,10 @@ tigris_crs <- sf::st_crs(south_east_coast_states_shp)
 
 # Prepare home port coordinates ----
 
+# Explanations:
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1' is created by modifying the 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col' data frame:
+# 1. Replaces the space followed by a comma with just a comma in the 'hailing_port' column.
+# 2. Replaces all occurrences of double spaces with a single space in the 'hailing_port' column.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1 <- 
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |> 
   mutate(hailing_port =
@@ -586,39 +531,22 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1 <-
                        "  ",
                        " "))
 
+# check
 grep(",[a-zA-Z]",
      compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1$hailing_port,
      value = T)
 # 0
 
-## Fix port addresses ----
-# run once, gives vessels_permits_home_port_c_st_fixed
-
-# fix_ports_file_path <-
-#   file.path(my_paths$git_r,
-#             current_project_basename,
-#             "non_compliant_areas_fix_lat_lon.R")
-# 
-# source(fix_ports_file_path)
-
 # print out get_data results ----
 
 cat(
-  # blue("All DB data:"),
-  # "all_get_db_data_result_l",
   blue("compl 2023:"),
    "compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_list",
     "compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col",
-  # blue("vessel_permit 2023 with lat/long:"),
-  # "vessels_permits_home_port_lat_longs_city_state",
   blue("Maps:"),
   "us_s_shp",
   sep = "\n"
 )
-# grep("  ",
-#      vessels_from_pims__vessels_from_metrics_short$hailing_port,
-#      value = T)
-# [1] "CRYSTAL  RIVER, FL"
 
 # diffdf::diffdf(vessels_from_pims__vessels_from_metrics_short,
 #                compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1)
@@ -627,5 +555,4 @@ cat(
 # 
 # eX.
 #    hailing_port        PORT ORANGE , FL     PORT ORANGE, FL   
-
 
