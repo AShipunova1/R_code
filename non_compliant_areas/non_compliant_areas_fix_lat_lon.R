@@ -4,13 +4,17 @@
 # 1) add lat/lon
 # 2) check names without coordinates
 # 3) fix names
-# 4) add lat/lon to the fixed names
 
 # print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
-# [1] "vessel_official_number, hailing_port, permit_sa_gom_metr"
 # [1] "vessel_official_number, permit_sa_gom_dual, compliant_, year, hailing_port, year_permit_sa_gom_dual"
 
 # separate hailing_port into city and state ----
+
+# Explanations:
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr' is created by:
+# 1. Separating the 'hailing_port' column into two columns ('city' and 'state') using a comma as the delimiter with 'tidyr::separate_wider_delim'.
+# 2. Dropping any additional columns created during the separation.
+# 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |>
   tidyr::separate_wider_delim(hailing_port,
@@ -28,7 +32,8 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr <-
 #   filter(vessel_official_number == "AL6468LL")
 # 1 AL6468LL               ALEXANDER CITY AL    gom_only  
 
-# 1) add lat/lon ----
+# add lat/lon ----
+# Uses 'tidygeocoder::geocode' to obtain latitude and longitude for the given city and state columns.
 
 get_lat_lon_no_county <-
   function(my_df,
@@ -66,12 +71,14 @@ toc()
 
 # 2) check names without coordinates
 
-# was
 n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr$vessel_official_number)
-# 3387
+# 4017
 
 n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1$vessel_official_number)
-# 3387 the same
+# 4017 the same
+
+# Explanations:
+# Filtering rows from 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1' where the latitude ('lat') is missing using 'filter(is.na(lat))'.
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 |>
@@ -79,6 +86,7 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coo
 
 ## unique vessels_addr ----
 
+## fewer columns ----
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord |>
   select(vessel_official_number, city, state, lat, long) |>
@@ -86,20 +94,17 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coo
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |> 
   nrow()
-# 257
 # 288
 
+# check no city
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |>
   filter(!is.na(city))
 
 nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city)
-# 56
 # 71
 
-# glimpse(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city)
-
-# 3) fix home port typos ----
+# fix home port typos ----
 
 # this list is created manually
 to_fix_list <- 
@@ -194,7 +199,8 @@ to_fix_list <-
   )
 
 # ---
-
+# Explanations:
+# Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr |>
   mutate(city_state =
@@ -220,6 +226,12 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 <-
 wrong_port_addr <-
   sapply(to_fix_list, "[", 1)
 
+# Explanations:
+# The function 'get_correct_addr_by_wrong' takes a 'wrong_addr' as input and performs the following steps:
+# 1. Finds the index of 'wrong_addr' in the 'to_fix_list'.
+# 2. Uses 'tryCatch' to handle errors, printing information about the error and the index if one occurs.
+# 3. Extracts the correct address from the pair.
+# 4. Returns the correct address.
 get_correct_addr_by_wrong <-
   function(wrong_addr) {
     idx <- grep(wrong_addr, to_fix_list)
@@ -237,6 +249,10 @@ get_correct_addr_by_wrong <-
     return(good_addr)
   }
 
+# Explanations:
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' is created by:
+# 1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
+# 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 |>
   rowwise() |>
@@ -252,14 +268,9 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed <-
                                         "state_fixed"))
 
 n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed$vessel_official_number)
-# 3387
 # 4017
 
 dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed)
-# [1] 4729    8
-# [1] 5029    8 with permit region
-# [1] 6762    7 not processed db vessel_permits
-# [1] 3392    7 (2023)
 # [1] 9362   10
 
 # duplicated addr
@@ -285,6 +296,14 @@ manual_fixes <-
     list("FL8252JK", "MIAMI", "FL")
   )
 
+# Explanations:
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1' is created by:
+# 1. Applying mutations to the 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' data frame for each set of manual fixes using 'map_df'.
+# - Creating new columns 'city_fixed1' and 'state_fixed1' using case_when for each manual fix.
+# 
+# 2. Returning the result of the mutations.
+# 3. Keeping only distinct rows in the final result.
+
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 <-
   map_df(manual_fixes,
          \(x) {
@@ -302,9 +321,6 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 <-
   distinct()
 
 dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1)
-# [1] 3392    7 is.na(city) &
-# [1] 3397    9
-# [1] 3402    9 (no defaults)
 # [1] 9382   12
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
