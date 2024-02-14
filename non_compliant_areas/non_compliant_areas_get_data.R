@@ -127,16 +127,14 @@ dim(compl_clean_sa_vs_gom_m_int_c_short)
 # 4. Returns the cleaned vessel data.
 get_vessel_data_pims <-
   function(vessel_names_file_path,
-           to_skip = 3) {
+           to_skip = 0,
+           my_sheet = "Sheet 1") {
     # file.exists(vessel_names_file_path)
     
     vessels_from_pims_raw <-
       read_xlsx(vessel_names_file_path,
+                sheet = my_sheet,
                 skip = to_skip)
-    
-    
-    # dim(vessels_from_pims_raw)
-    # [1] 23036     8
     
     # clean_headers
     vessels_from_pims <-
@@ -156,12 +154,13 @@ vessel_names_file_path <-
 
 vessels_from_pims <- get_vessel_data_pims(vessel_names_file_path)
 
+# print_df_names(vessels_from_pims)
+
 vessels_from_pims_double <- 
   get_vessel_data_pims(vessel_data_pims_double_address,
                        to_skip = 0)
 
 dim(vessels_from_pims)
-# [1] 23036     8
 # [1] 23059     8
 
 dim(vessels_from_pims_double)
