@@ -373,6 +373,13 @@ plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
                    line_monthly_nc_plot_l["2023 sa_only"],
                    line_monthly_nc_plot_l["2023 dual"])
 
+# Explanations:
+# Save each plot in the 'plots_to_save' list to a PNG file.
+# 1. Iterate over each 'one_plot' in the list.
+# 2. Extract 'permit_sa_gom_dual_both' and 'year' from the plot data.
+# 3. Generate a lowercase 'file_name_part' using these extracted values.
+# 4. Construct the full file path with the 'file_name_part'.
+# 5. Save the plot to the specified file path with custom width and height.
 plots_to_save |>
   map(\(one_plot) {
     # browser()
@@ -394,9 +401,4 @@ plots_to_save |>
                              my_height = 10)
     
   })
-# ...
-# $`2023 dual`
-# "2024-02-12/m_line_perc_dual_2023_plot.png"
 
-# $`2023 sa_dual`
-# 2024-02-09/m_line_perc_sa_dual_2023_plot.png
