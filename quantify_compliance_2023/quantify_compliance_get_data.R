@@ -43,14 +43,13 @@ get_data_from_csv <- function() {
       length(compl_clean) == 1) {
     compl_clean <- compl_clean[[1]]
   }
-  # View(compl_clean)
-  
-  # Check the result is a single dataframe, and if not, combine separate dataframes for all years into one.
+
+  # Check if the result is a single dataframe, and if not, combine separate dataframes for all years into one.
   if (length(compl_clean) > 1) {
     compl_clean_1 <- join_same_kind_csvs(compl_clean)
   }
 
-  dim(compl_clean_1)
+  # dim(compl_clean_1)
   # [1] 296294     20
   
   compl_clean_2 <- additional_clean_up(compl_clean_1)
@@ -86,13 +85,13 @@ tic("get_data_from_csv")
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 toc()
 
-# get data from db ----
-file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)") |>
-  source()
-
-tic("run_all_get_db_data()")
-all_get_db_data_result_l <- run_all_get_db_data()
-toc()
+# # get data from db ----
+# file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)") |>
+#   source()
+# 
+# tic("run_all_get_db_data()")
+# all_get_db_data_result_l <- run_all_get_db_data()
+# toc()
 # run_all_get_db_data(): 13.61 sec elapsed
 
 # View(all_get_db_data_result_l)
