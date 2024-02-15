@@ -1,11 +1,44 @@
-library(lubridate)
-library(tictoc)
-library(stringr)
-
-source(file.path(current_project_path,
-                 "db_functions.R"))
-
 # get data for egregious violators
+
+# 1) compliance data
+# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
+# FHIER_Compliance_2022__02_05_2024.csv
+# FHIER_Compliance_2023__01_24_2024.csv
+
+# 2) correspondence data
+# Download files from FHIER / Home / Correspondence
+# Actions / Download
+# "~\my_inputs\from_Fhier\Correspondence\Correspondence_2023_02_15.csv"
+
+# All other files are from Processed data google folder:
+# https://drive.google.com/drive/folders/1ZObq0pd7yr7caYGXjZfgRFa9BqN00OKv
+
+# 2) Processed metrics_tracking
+# SEFHIER_permitted_vessels_nonSRHS_2022.rds
+# SEFHIER_permitted_vessels_nonSRHS_2023.rds
+
+# 3) Processed Logbooks
+# SEFHIER_processed_Logbooks_2022.rds
+# SEFHIER_processed_Logbooks_2023.rds
+
+# 4) Vessels with no logbooks
+# vessels_with_zero_logbooks_2022.rds
+# vessels_with_zero_logbooks_2023.rds
+
+
+# library(lubridate)
+# library(tictoc)
+# library(stringr)
+
+
+
+# source(file.path(current_project_path,
+#                  "db_functions.R"))
+
+# Compliance
+# Correspondence
+# permit info from processed metrics tracking
+
 # Download from FHIER first
 csv_names_list_22_23 = c("Correspondence__08_01_2023.csv",
                          r"(FHIER_Compliance_2022__08_01_2023.csv)",
