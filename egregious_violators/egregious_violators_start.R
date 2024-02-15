@@ -20,7 +20,7 @@ curr_proj_input_path <- file.path(my_paths$inputs,
 
 current_project_name <- current_project_basename
 
-source(file.path(current_project_path, "get_data_egregious_violators.R"))
+source(file.path(current_project_path, "egregious_violators_get_data.R"))
 
 ## check ----
 check_new_vessels <-
