@@ -33,29 +33,6 @@ get_data_from_FHIER_csvs <- function() {
   return(compl_clean)
 }
 
-# Define a function named 'get_compliance_error_definitions' with no parameters
-# get_compliance_error_definitions <- function() {
-#   
-#   # Create a character vector 'err_desc_filenames' containing the file path
-#   err_desc_filenames = c(file.path(project_dir_name, "Compliance_Error_Types_03_29_2023.csv"))
-#   
-#   # Load the contents of the CSV file specified in 'err_desc_filenames' using 'load_csv_names' and 'my_paths'
-#   err_desc_csv_contents <- load_csv_names(my_paths, err_desc_filenames)
-#   
-#   # Clean the headers of the loaded CSV content using 'clean_headers'
-#   err_desc_clean_headers_csv_content <-
-#     clean_headers(err_desc_csv_contents[[1]])
-#   
-#   # Convert a specific column ("last_updated") to date format using 'change_to_dates'
-#   err_desc <-
-#     change_to_dates(err_desc_clean_headers_csv_content,
-#                     "last_updated",
-#                     "%m/%d/%Y %I:%M:%S %p")
-#   
-#   # Return the cleaned and processed data frame 'err_desc'
-#   return(err_desc)
-# }
-
 get_data_from_csv <- function() {
   # uncomment to run
   # browser()
@@ -67,9 +44,6 @@ get_data_from_csv <- function() {
     compl_clean <- compl_clean[[1]]
   }
   # View(compl_clean)
-  
-  ## get compliance error definitions from csvs ----
-  # err_desc <- get_compliance_error_definitions()
   
   # Check the result is a single dataframe, and if not, combine separate dataframes for all years into one.
   if (length(compl_clean) > 1) {
