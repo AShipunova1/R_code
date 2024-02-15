@@ -146,13 +146,22 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long <-
     names_to = "vessel_official_number"
   )
 
-# dim(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
-# [1] 240960      7
+dim(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
+# [1] 289152      7
 
-# compl_clean_sa_vs_gom_m_int_tot_short_wide_long$is_compl_or_both |> unique()
+compl_clean_sa_vs_gom_m_int_tot_short_wide_long$is_compl_or_both |> unique()
 # [1] "YES"    "NO"     NA       "NO_YES"
 
 # Add count vessels per month, region and compl ----
+
+# Explanations:
+# Filter out rows with missing values in the 'is_compl_or_both' column.
+# Mutate a new column 'compl_or_not' based on the values in 'is_compl_or_both'.
+# 1. Use filter(stats::complete.cases(is_compl_or_both)) to remove rows with missing values in 'is_compl_or_both'.
+# 2. Use mutate to create 'compl_or_not' based on conditions:
+#    - If 'is_compl_or_both' is "YES", set 'compl_or_not' to "compliant".
+#    - For other cases, set 'compl_or_not' to "non_compliant".
+# 3. Use select(-is_compl_or_both) to drop the original 'is_compl_or_both' column.
 
 compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no <-
   compl_clean_sa_vs_gom_m_int_tot_short_wide_long |>
@@ -167,7 +176,6 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no <-
 # [1] "year_month, year, permit_sa_gom_dual_both, year_permit_sa_gom_dual, total_vsl_m_by_year_perm, vessel_official_number, compl_or_not"
 
 group_by_col <-
-  # c("year", "permit_sa_gom_dual", "year_month", "compl_or_not")
   c(
     "year",
     "permit_sa_gom_dual_both",
@@ -185,60 +193,30 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
     "cnt_vsl_m_compl"
   )
 
-# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
+# [1] 70046     8
 
 ## test cnts compl per month ----
-# tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
   select(-vessel_official_number) %>%
-  unique() %>%
+  distinct() %>%
   filter(year_month == "Jan 2023") %>%
   glimpse()
-# toc()
-# $ year_month      <yearmon> Jan 2022, Jan 2022, Jan 2022, Jan 2022
-# $ perm_exp_m      <chr> "active", "active", "active", "active"
-# $ exp_m_tot_cnt   <int> 1635, 1635, 1192, 1192
-# $ total_vsl_m_by_year_perm     <int> 1635, 1635, 1192, 1192
-# $ compliant_      <chr> "YES", "NO", "YES", "NO"
-# $ cnt_vsl_m_compl <int> 1057, 703, 1173, 45
-# 1057 + 703 = 1760 is more than total. Some vessels can be both in a month, if compliance differs by week. For this analysis I used vessels having at least one week in the month  non-compliant.
-# If we are going to use "yes only" than redo "yes, no, no_yes" division as for a year above.
-# $ cnt_vsl_m_compl <int> 1052, 688, 1004, 42
 
-# 2023:
-# $ year_month      <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2023, …
-# $ total_vsl_m_by_year_perm     <int> 1967, 1967, 1967, 675, 1967, 675
-# $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
-# $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
-
-# (w yes_no)
-# $ year_month               <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2…
-# $ year_permit              <chr> "2023 sa_dual", "2023 sa_dual", "2023 sa_dual", "…
-# $ total_vsl_m_by_year_perm <int> 1967, 1967, 1967, 1967, 675, 675, 675
-# $ is_compl_or_both         <chr> "YES", NA, "NO", "NO_YES", NA, "YES", "NO_YES"
-# $ cnt_vsl_m_compl          <int> 1645, 1405, 274, 48, 2697, 674, 1
-# > 1645+274+48
-# [1] 1967
-# correct sum 
-
-# w compl_or_not
+# w compl_or_not & sa_dual
 # $ year_month               <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023
 # $ year_permit              <chr> "2023 sa_dual", "2023 sa_dual", "2023 gom_onl…
 # $ total_vsl_m_by_year_perm <int> 1967, 1967, 675, 675
 # $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_c…
 # $ cnt_vsl_m_compl          <int> 1645, 322, 674, 1
 
+# with sa_only
 # today()
 # [1] "2024-02-08"
 # $ permit_sa_gom_dual       <chr> "sa_only", "sa_only", "dual", "dual", "gom_only", "go…
 # $ total_vsl_m_by_year_perm <int> 1753, 1753, 285, 285, 850, 850
 # $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_compl…
 # $ cnt_vsl_m_compl          <int> 1434, 319, 273, 12, 847, 3
-
-# $ permit_sa_gom_dual_both  <chr> "sa_dual", "sa_dual", "gom_only", "gom_only"
-# $ total_vsl_m_by_year_perm <int> 1982, 1982, 850, 850
-# $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_c…
-# $ cnt_vsl_m_compl          <int> 1658, 324, 847, 3
 
 # Month: percent compl vessels per per month ----
 
