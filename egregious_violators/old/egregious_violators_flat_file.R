@@ -590,7 +590,7 @@ read_rds_or_run <-
   }
 
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/get_data_egregious_violators.R ----
+#### Current file: ~/R_code_github/egregious_violators/get_data_egregious_violators.R ----
 
 # get data for egregious violators
 # Download from FHIER first
@@ -603,7 +603,7 @@ data_file_date <- today()
 
 ## ---- get csv data into variables ----
 my_paths$inputs <- file.path(my_paths$inputs, "from_Fhier")
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_inputs"
+# [1] "~/R_files_local/my_inputs"
 
 # "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\Correspondence\Correspondence_22_23__06_22_2023.csv"
 temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_22_23)
@@ -612,7 +612,7 @@ compl_clean <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
 
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/egregious_violators.R ----
+#### Current file: ~/R_code_github/egregious_violators/egregious_violators.R ----
 
 # see read.me
 

@@ -100,7 +100,7 @@ fix_names <- function(x) {
 
 my_paths <- set_work_dir()
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/get_data_from_fhier/get_srhs_vessels.R ----
+#### Current file: ~/R_code_github/get_data_from_fhier/get_srhs_vessels.R ----
 
 # get SRHS vessels to exclude ----
 
@@ -128,7 +128,7 @@ srhs_vessels_2023_info <-
 )
 
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/get_data_from_fhier/get_metrics_tracking.R ----
+#### Current file: ~/R_code_github/get_data_from_fhier/get_metrics_tracking.R ----
 
 ## fhier_reports_metrics_tracking ----
 
@@ -185,7 +185,7 @@ dplyr::intersect(fhier_reports_metrics_tracking_list[[1]]$vessel_official_number
   length()
 # 2965
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/get_data_from_fhier/metric_tracking_no_srhs.R ----
+#### Current file: ~/R_code_github/get_data_from_fhier/metric_tracking_no_srhs.R ----
 
 ## exclude srhs vessels from metric traking ----
 fhier_reports_metrics_tracking_not_srhs_ids <-

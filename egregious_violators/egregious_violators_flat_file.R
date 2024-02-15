@@ -586,7 +586,7 @@ read_rds_or_run <-
   }
 
 
-# Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/db_functions.R ----
+# Current file: ~/R_code_github/egregious_violators/db_functions.R ----
 
 con = dbConnect(
   dbDriver("Oracle"),
@@ -607,7 +607,7 @@ current_project_path <-
   file.path(my_paths$git_r, current_project_name)
 
 
-# Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/get_data_egregious_violators.R ----
+# Current file: ~/R_code_github/egregious_violators/get_data_egregious_violators.R ----
 
 library(lubridate)
 library(tictoc)
@@ -743,7 +743,7 @@ vessels_permits_participants <-
 dim(vessels_permits_participants)
 # [1] 31942    38
 
-# Current file: C:/Users/anna.shipunova/Documents/R_code_github/egregious_violators/egregious_violators.R ----
+# Current file: ~/R_code_github/egregious_violators/egregious_violators.R ----
 
 # see read.me
 

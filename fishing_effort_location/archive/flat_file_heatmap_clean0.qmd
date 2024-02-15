@@ -1277,7 +1277,7 @@ v_list_file_name <-
   )
 
 
-file.exists('C:/Users/anna.shipunova/Documents/R_files_local/my_inputs/SA.Permitted.Vessels.Among_revised.Lists.xlsx')
+file.exists('~/R_files_local/my_inputs/SA.Permitted.Vessels.Among_revised.Lists.xlsx')
 
 ## Create a sequence of sheet numbers from 1 to 4. These sheet numbers will be used to specify which sheets to read from the Excel file.
 sheets <- seq(1:4)

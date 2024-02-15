@@ -304,5 +304,5 @@ flat_plot_list_names |>
                              my_height = 10)
   })
 
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance_2023/2024-02-09/100nc_plot_2023_sa_dual.png"
+# [1] "~/R_files_local/my_outputs/quantify_compliance_2023/2024-02-09/100nc_plot_2023_sa_dual.png"
 

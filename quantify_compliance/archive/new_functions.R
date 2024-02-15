@@ -1453,7 +1453,7 @@ all_plots_w_titles_list %>%
   })
 
 # [[1]]
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
+# [1] "~/R_files_local/my_outputs/quantify_compliance\\08_26_2023\\per_month/2022 gom_dual_percent_distribution_per_month.png"...
 
 # Above compliance metrics, to assess pre and post VMS requirement or vs increase in VMS
 # compliance (just Gulf + dual permitted vessels; assess Feb 2022 (=pre-VMS), March 2022 (VMS implementation), and Sept 2022 (when 80% vessels had a registered VMS))

@@ -4,7 +4,7 @@ library(zoo) #date manipulations
 library(sf) #Create sf object to work with coordinates
 library(mapview) #View spatial objects interactively
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/read.me.R ----
+#### Current file: ~/R_code_github/fishing_effort_location/read.me.R ----
 
 # https://github.com/AShipunova1/R_code/tree/main/fishing_effort_location
 
@@ -97,7 +97,7 @@ data_overview <- function(my_df) {
 }
 
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_locations_get_data.R ----
+#### Current file: ~/R_code_github/fishing_effort_location/fishing_effort_locations_get_data.R ----
 
 con = ROracle::dbConnect(
   DBI::dbDriver("Oracle"),
@@ -176,7 +176,7 @@ gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
 # see the function above
 fl_state_w_counties_shp <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_location.R ----
+#### Current file: ~/R_code_github/fishing_effort_location/fishing_effort_location.R ----
 
 # information on location of relative fishing effort.  The relative would be looking by depth, area, and seasonally.
 # filter out beyond state waters for trips north of 28N.  All charter trips south of 28N to the SAFMC/GMFMC boundary.
@@ -259,7 +259,7 @@ to_report <-
 dim(to_report)
 # 75549
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_location_viz.R ----
+#### Current file: ~/R_code_github/fishing_effort_location/fishing_effort_location_viz.R ----
 
 # shape files maps ----
 m_s <- mapview(
