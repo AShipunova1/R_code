@@ -1246,14 +1246,17 @@ read_an_answer <- function(my_prompt) {
 # 4. Combines values if there are multiple entries for the same vessel using a custom function that sorts and concatenates them.
 # 5. Removes the grouping to return the data to its original structure.
 # 6. Returns the modified data frame.
-get_compl_by <- function(my_df, group_by_for_compl) {
-  my_df %>%
+get_compl_by <-
+  function(my_df,
+           group_by_for_compl,
+           names_from_list = c("vessel_official_number")) {
+    my_df %>%
     dplyr::group_by_at(group_by_for_compl) %>%
     # can unique, because we are looking at vessels, not weeks
     unique() %>%
     # more columns, a column per vessel
     tidyr::pivot_wider(
-      names_from = vessel_official_number,
+      names_from = all_of(names_from_list),
       values_from = compliant_,
       # make it "NO_YES" if both
       values_fn = ~ paste0(sort(.x), collapse = "_")
