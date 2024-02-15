@@ -1,6 +1,15 @@
 # by Year: ----
+
 ## year add total counts ----
 # (both compl. and not, a vsl can be in both)
+
+# Explanations:
+# The function 'add_total_cnt_in_gr' performs the following operations:
+# 1. Groups the data frame by the specified columns using 'group_by_at'.
+# 2. Adds a new column 'new_col_name' representing the count of distinct vessel official numbers in each group using `{{new_col_name}} := dplyr::n_distinct(vessel_official_number)`.
+# The syntax `{{new_col_name}} :=` is used to create a new column dynamically with the name provided in the new_col_name argument.
+# 3. Removes the grouping to return the data to its original structure with 'ungroup'.
+# 4. Returns the modified data frame.
 
 add_total_cnt_in_gr <- 
   function(my_df, 
